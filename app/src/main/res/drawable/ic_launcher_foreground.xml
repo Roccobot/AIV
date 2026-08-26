@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Adaptive icon foreground. Everything stays inside the safe circle of 66dp
+     out of 108dp: what falls outside is cut differently by every launcher. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M30,36 h48 a4,4 0 0 1 4,4 v28 a4,4 0 0 1 -4,4 h-48 a4,4 0 0 1 -4,-4 v-28 a4,4 0 0 1 4,-4 z"
+        android:fillAlpha="0.18" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M30,68 l13,-16 9,11 7,-8 15,13 z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M67,45 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" />
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M30,36 h48 a4,4 0 0 1 4,4 v28 a4,4 0 0 1 -4,4 h-48 a4,4 0 0 1 -4,-4 v-28 a4,4 0 0 1 4,-4 z" />
+</vector>

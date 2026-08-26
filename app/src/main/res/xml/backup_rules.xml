@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Preferences only: the images belong to the phone, not to the app, and a
+     backup carrying them along would be a surprise nobody asked for. -->
+<full-backup-content>
+    <include domain="sharedpref" path="." />
+</full-backup-content>

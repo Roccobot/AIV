@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The same keys as values/strings.xml, in Italian. A key missing here
+         breaks nothing: Android falls back to English, and the result is a half
+         translated screen, which is worse than an English one because it looks
+         deliberate. Hence: always add them in pairs. -->
+    <string name="app_name">Astonishing Image Viewer</string>
+    <string name="app_short_name">AIV</string>
+
+    <string name="loading">Caricamento...</string>
+    <string name="no_image">Nessuna immagine da mostrare</string>
+    <string name="open_failed">Questa immagine non si riesce ad aprire</string>
+    <string name="unsupported">Questo formato non è ancora supportato</string>
+    <string name="too_large">L\'immagine è troppo grande per questo dispositivo</string>
+
+    <string name="fit_label">Adatta</string>
+    <string name="actual_size_label">1:1</string>
+    <string name="info_label">Dettagli</string>
+    <string name="close_label">Chiudi</string>
+    <string name="retry_label">Riprova</string>
+
+    <string name="info_format">Formato</string>
+    <string name="info_size">Peso</string>
+    <string name="info_pixels">Pixel</string>
+    <string name="info_zoom">Zoom</string>
+    <string name="info_source">Origine</string>
+</resources>

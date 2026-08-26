@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The real theme is the Compose one: this XML is for the WINDOW, that is
+         the colour seen in the fraction of a second between the tap on a link
+         and the first frame drawn. White here would mean a flash of light before
+         the dark background of the viewer, on every single image. -->
+    <style name="Theme.AIV" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+    </style>
+</resources>

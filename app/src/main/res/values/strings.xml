@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        The app is bilingual like 'Decent Image Viewer', but here ANDROID picks
+        the language: strings live in values/ (English) and values-it/ (Italian)
+        and the system takes the right one. A text table inside the code, like
+        the userscript has, would be a second way of doing what the platform
+        already does by itself.
+        WARNING: whoever adds a string adds it to BOTH files.
+    -->
+    <string name="app_name">Astonishing Image Viewer</string>
+    <!-- Room under the icon is short: the full name shows up elsewhere. -->
+    <string name="app_short_name">AIV</string>
+
+    <string name="loading">Loading...</string>
+    <string name="no_image">No image to show</string>
+    <string name="open_failed">This image could not be opened</string>
+    <string name="unsupported">This format is not supported yet</string>
+    <string name="too_large">The image is too large for this device</string>
+
+    <string name="fit_label">Fit</string>
+    <string name="actual_size_label">1:1</string>
+    <string name="info_label">Details</string>
+    <string name="close_label">Close</string>
+    <string name="retry_label">Retry</string>
+
+    <string name="info_format">Format</string>
+    <string name="info_size">Size</string>
+    <string name="info_pixels">Pixels</string>
+    <string name="info_zoom">Zoom</string>
+    <string name="info_source">Source</string>
+</resources>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        AIV si registra come visualizzatore per i link diretti a un'immagine.
+        Tre filtri, e servono tutti e tre:
+        1) image/* per i file locali e i content:// che arrivano da un'altra app;
+        2) http e https con pathPattern, che e' l'unico modo di dire 'link che
+           finisce in .jpg' fino ad Android 11;
+        3) pathAdvancedPattern, che da Android 12 fa la stessa cosa con una
+           espressione sola e senza distinguere maiuscole e minuscole.
+        Le versioni vecchie ignorano l'attributo che non conoscono, quindi i due
+        modi convivono senza guardie.
+
+        NOTA: niente android:autoVerify. La verifica dei link vale per i domini
+        che si possiedono, non per 'qualunque sito che serva un jpg': senza di
+        essa AIV compare nella scelta 'Apri con', che e' esattamente il
+        comportamento voluto per un visualizzatore.
+    -->
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AIV">
+
+        <activity
+            android:name=".ViewerActivity"
+            android:exported="true"
+            android:label="@string/app_short_name"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.AIV">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- 1) immagini locali e condivise da altre app -->
+            <intent-filter android:label="@string/app_short_name">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+
+            <intent-filter android:label="@string/app_short_name">
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+
+            <!-- 2) link diretti, fino ad Android 11 -->
+            <intent-filter android:label="@string/app_short_name">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\\.jpg" />
+                <data android:pathPattern=".*\\.JPG" />
+                <data android:pathPattern=".*\\.jpeg" />
+                <data android:pathPattern=".*\\.JPEG" />
+                <data android:pathPattern=".*\\.png" />
+                <data android:pathPattern=".*\\.PNG" />
+                <data android:pathPattern=".*\\.gif" />
+                <data android:pathPattern=".*\\.GIF" />
+                <data android:pathPattern=".*\\.tif" />
+                <data android:pathPattern=".*\\.TIF" />
+                <data android:pathPattern=".*\\.tiff" />
+                <data android:pathPattern=".*\\.TIFF" />
+                <data android:pathPattern=".*\\.webp" />
+                <data android:pathPattern=".*\\.WEBP" />
+                <data android:pathPattern=".*\\.avif" />
+                <data android:pathPattern=".*\\.AVIF" />
+                <data android:pathPattern=".*\\.heic" />
+                <data android:pathPattern=".*\\.HEIC" />
+                <data android:pathPattern=".*\\.heif" />
+                <data android:pathPattern=".*\\.HEIF" />
+                <data android:pathPattern=".*\\.svg" />
+                <data android:pathPattern=".*\\.SVG" />
+            </intent-filter>
+
+            <!-- 3) link diretti, da Android 12: una regola sola, senza maiuscole -->
+            <intent-filter android:label="@string/app_short_name">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="*" />
+                <data android:pathAdvancedPattern=".*\\.(?i:jpe?g|png|gif|tiff?|webp|avif|hei[cf]|svg)(\\?.*)?" />
+            </intent-filter>
+        </activity>
+    </application>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Il visualizzatore non e' utile senza uno schermo decente, ma non
+         pretende nulla di piu': niente fotocamera, niente posizione. -->
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+</manifest>
