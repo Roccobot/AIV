@@ -152,9 +152,17 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gh release create "${GITHUB_REF_NAME}" "${{ steps.apk.outputs.path }}" \
-            --title "AIV ${{ steps.ver.outputs.version }}" \
-            --generate-notes
+          # The release may already exist, because the easiest way to cut a tag
+          # without a local clone is GitHub's own "Draft a new release" page,
+          # which creates tag and release together. Creating it blindly would
+          # fail exactly on the path a person is most likely to take.
+          if gh release view "${GITHUB_REF_NAME}" > /dev/null 2>&1; then
+            gh release upload "${GITHUB_REF_NAME}" "${{ steps.apk.outputs.path }}" --clobber
+          else
+            gh release create "${GITHUB_REF_NAME}" "${{ steps.apk.outputs.path }}" \
+              --title "AIV ${{ steps.ver.outputs.version }}" \
+              --generate-notes
+          fi
 
       - name: Copy the APK and its page under roccobot.github.io/AIV/
         if: github.ref_type == 'tag' || inputs.publish
