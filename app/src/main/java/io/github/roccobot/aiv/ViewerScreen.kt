@@ -70,12 +70,18 @@ import kotlin.math.roundToInt
 private const val MIN_SCALE = 0.02f
 
 /**
- * How fast the one handed zoom moves: the scale is multiplied by `exp(-dy * this)`
+ * How fast the one handed zoom moves: the scale is multiplied by `exp(dy * this)`
  * every frame, so 200dp of travel is a little more than a doubling.
  *
- * ⚠️ UP zooms IN, and the direction is not arbitrary: it matches the userscript's
- * `dv-wheel-up-in`, which defaults to the same thing. Two viewers of the same
- * family disagreeing about which way is closer would be worse than either choice.
+ * ⚠️⚠️ DOWN zooms IN, and it is the opposite of what this file used to do. The old
+ * direction was argued from the userscript's `dv-wheel-up-in`, so that two viewers
+ * of the same family would agree on which way is closer. That argument LOST against
+ * a thumb: the user tried it on a phone and it went the wrong way (2026-08-26). Keep
+ * this note, because the reasoning that produced the old direction still sounds
+ * good on paper and someone will make it again.
+ * - The reason the analogy fails is that a wheel and a thumb are not the same
+ *   thing: the wheel pushes the picture away from you, while the thumb DRAGS the
+ *   picture, and dragging it down is pulling it towards you.
  */
 private const val DRAG_ZOOM_SENSITIVITY = 0.005f
 
@@ -229,7 +235,7 @@ private fun ImageCanvas(
                             animateTo(if (abs(scale - restScale) < 0.01f) oneToOne else restScale)
                         },
                         onZoomDrag = { anchor, dy ->
-                            zoomAround(anchor, scale * exp(-dy * DRAG_ZOOM_SENSITIVITY))
+                            zoomAround(anchor, scale * exp(dy * DRAG_ZOOM_SENSITIVITY))
                         }
                     )
                 }
@@ -283,6 +289,11 @@ private fun ImageCanvas(
  * ⚠️ The bail-outs on a second finger are what keep a slow PINCH from being read as
  * a long press: the pinch belongs to the transform detector on the other modifier,
  * and without these a two-fingered zoom held for half a second would open the menu.
+ *
+ * ⚠️ And the long press wants a finger that STAYS PUT: a single finger that travels
+ * further than the touch slop is panning the picture, not asking for the menu. See
+ * the note in phase one for why that is checked here instead of being left to the
+ * detector that consumes the pan.
  */
 private suspend fun PointerInputScope.detectViewerGestures(
     onLongPress: (Offset) -> Unit,
@@ -293,6 +304,15 @@ private suspend fun PointerInputScope.detectViewerGestures(
         val first = awaitFirstDown(requireUnconsumed = false)
 
         // Phase one: does this first finger lift before the long press timeout?
+        //
+        // ⚠️⚠️ A FINGER THAT MOVES IS NOT A LONG PRESS, and the distance is checked
+        // HERE rather than left to whoever consumes the drag. Leaving it to the
+        // consumer is what the `isConsumed` line below already tries, and on a real
+        // phone it was not enough: the menu opened in the middle of a pan (user,
+        // 2026-08-26). The pan lives on another modifier, so whether its changes
+        // are consumed before this detector sees them is a matter of ordering and
+        // timing, which is exactly the kind of thing that holds in one build and
+        // stops holding in the next. The travel test does not depend on any of it.
         var abandoned = false
         val lifted = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
             var up = false
@@ -302,6 +322,12 @@ private suspend fun PointerInputScope.detectViewerGestures(
                 when {
                     event.changes.count { it.pressed } > 1 -> abandoned = true
                     change == null || change.isConsumed -> abandoned = true
+                    // The distance is measured from where the finger LANDED, not
+                    // frame by frame: a slow drift adds up to a drag just as much
+                    // as a quick flick does, and summing steps would let a wander
+                    // that comes back cancel itself out.
+                    (change.position - first.position).getDistance() >
+                        viewConfiguration.touchSlop -> abandoned = true
                     !change.pressed -> up = true
                 }
             }
