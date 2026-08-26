@@ -23,39 +23,41 @@
     <string name="unsupported">This format is not supported yet</string>
     <string name="too_large">The image is too large for this device</string>
 
-    <string name="fit_label">Fit</string>
+    <string name="fit_label">Fit to view</string>
 
     <!-- ── The opening screen, when the app is started from its own icon ── -->
-    <string name="home_subtitle">Nothing to show yet. Hand it a picture.</string>
+    <string name="home_subtitle">Nothing to see. Hand me a picture.</string>
+    <string name="home_local">Open from this phone</string>
+    <string name="home_local_sub">Browse the pictures on this device</string>
     <string name="home_clipboard">Open from clipboard</string>
-    <string name="home_clipboard_sub">Reads an address you have just copied</string>
-    <string name="home_url">Type an address</string>
+    <string name="home_clipboard_sub">Reads a URL you have just copied</string>
+    <string name="home_url">Type a URL</string>
     <string name="home_url_hint">https://example.com/picture.jpg</string>
-    <string name="home_url_go">Open this address</string>
+    <string name="home_url_go">Open this URL</string>
     <string name="home_settings">Settings</string>
     <string name="home_recent">Opened recently</string>
     <string name="home_recent_forget">Forget these</string>
 
-    <string name="clipboard_no_url">No web address in the clipboard</string>
-    <string name="clipboard_not_image">That address is not an image</string>
-    <string name="url_not_image">This address does not lead to an image</string>
+    <string name="clipboard_no_url">The clipboard does not contain a URL</string>
+    <string name="url_not_image">The URL does not point to an image</string>
 
     <!-- ── The menu that a long press opens on the picture ── -->
     <string name="menu_copy_image">Copy image</string>
-    <string name="menu_copy_url">Copy address</string>
     <string name="menu_search">Image search</string>
     <string name="menu_share">Share</string>
     <string name="menu_save">Save</string>
     <string name="menu_details">Details</string>
-    <string name="menu_home">Open another</string>
 
     <string name="toast_image_copied">Image copied</string>
-    <string name="toast_url_copied">Address copied</string>
     <string name="toast_copy_failed">The copy did not go through</string>
     <string name="toast_saved">Saved</string>
     <string name="toast_save_failed">Saving did not go through</string>
     <!-- Said out loud rather than silently skipped: a search engine opened on
          nothing looks like a defect of the app. -->
+    <!-- The engine's own app was asked first and was not there. Said out loud
+         because a browser tab opening instead is exactly what made this look
+         broken: the app was never installed. -->
+    <string name="toast_search_web">That engine\'s app is not installed, so its web page was opened</string>
     <string name="toast_local_search">A search engine cannot reach a picture on this phone, so the image was copied: paste it in the page that just opened.</string>
 
     <!-- ── Settings ── -->

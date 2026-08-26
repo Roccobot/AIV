@@ -205,7 +205,7 @@ private fun AivApp(model: ViewerViewModel) {
                 state = model.state,
                 settings = settings,
                 source = model.source,
-                onHome = { model.goHome() }
+                onSettings = { model.openSettings() }
             )
         }
     }

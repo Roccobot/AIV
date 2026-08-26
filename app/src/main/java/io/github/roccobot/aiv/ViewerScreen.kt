@@ -8,7 +8,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,10 +22,14 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -42,7 +47,9 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -51,14 +58,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import java.util.Locale
 import kotlin.math.abs
+import kotlin.math.exp
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
 /** Below this, a picture is a speck: it is the floor of the pinch, not of the fit. */
 private const val MIN_SCALE = 0.02f
+
+/**
+ * How fast the one handed zoom moves: the scale is multiplied by `exp(-dy * this)`
+ * every frame, so 200dp of travel is a little more than a doubling.
+ *
+ * ⚠️ UP zooms IN, and the direction is not arbitrary: it matches the userscript's
+ * `dv-wheel-up-in`, which defaults to the same thing. Two viewers of the same
+ * family disagreeing about which way is closer would be worse than either choice.
+ */
+private const val DRAG_ZOOM_SENSITIVITY = 0.005f
 
 /** Side of one checkerboard square, in dp. */
 private val CHECKER = 12.dp
@@ -68,14 +87,14 @@ fun ViewerScreen(
     state: ViewerState,
     settings: Settings,
     source: Uri?,
-    onHome: () -> Unit,
+    onSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         when (state) {
             is ViewerState.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
             is ViewerState.Error -> ErrorMessage(state, Modifier.align(Alignment.Center))
-            is ViewerState.Ready -> ImageCanvas(state.image, settings, source, onHome)
+            is ViewerState.Ready -> ImageCanvas(state.image, settings, source, onSettings)
         }
     }
 }
@@ -108,9 +127,8 @@ private fun ImageCanvas(
     image: LoadedImage,
     settings: Settings,
     source: Uri?,
-    onHome: () -> Unit
+    onSettings: () -> Unit
 ) {
-    val context = LocalContext.current
     val density = LocalDensity.current
     val checkerPx = with(density) { CHECKER.toPx() }
     val lightGreys = when (settings.bgTheme) {
@@ -160,11 +178,20 @@ private fun ImageCanvas(
             )
         }
 
+        /** Rescales around a point on screen, keeping what is under that point still. */
+        fun zoomAround(anchor: Offset, next: Float, pan: Offset = Offset.Zero) {
+            val clamped = next.coerceIn(MIN_SCALE, settings.zoomMax)
+            val fromCentre = anchor - Offset(viewWidth / 2f, viewHeight / 2f)
+            val corrected = fromCentre - (fromCentre - offset) * (clamped / scale)
+            scale = clamped
+            offset = clampOffset(corrected + pan, clamped)
+        }
+
         fun animateTo(target: Float) {
             scope.launch {
                 val from = scale
                 val animation = Animatable(from)
-                animation.animateTo(target) {
+                animation.animateTo(target.coerceIn(MIN_SCALE, settings.zoomMax)) {
                     scale = value
                     offset = clampOffset(offset * (value / from), value)
                 }
@@ -190,25 +217,19 @@ private fun ImageCanvas(
                 .fillMaxSize()
                 .pointerInput(image, settings) {
                     detectTransformGestures { centroid, pan, zoom, _ ->
-                        val next = (scale * zoom).coerceIn(MIN_SCALE, settings.zoomMax)
-                        // Keep the point under the fingers still: the centroid is
-                        // measured from the centre, because that is where the
-                        // image is anchored.
-                        val fromCentre = centroid - Offset(size.width / 2f, size.height / 2f)
-                        val corrected = fromCentre - (fromCentre - offset) * (next / scale)
-                        scale = next
-                        offset = clampOffset(corrected + pan, next)
+                        zoomAround(centroid, scale * zoom, pan)
                     }
                 }
                 .pointerInput(image, settings) {
-                    detectTapGestures(
-                        onTap = { panelVisible = !panelVisible },
+                    detectViewerGestures(
                         onLongPress = { menuAt = it },
                         onDoubleTap = {
                             // Two states only, as on the desktop viewer: whole, or
                             // one pixel of the file per pixel of the screen.
-                            val target = if (abs(scale - restScale) < 0.01f) oneToOne else restScale
-                            animateTo(target)
+                            animateTo(if (abs(scale - restScale) < 0.01f) oneToOne else restScale)
+                        },
+                        onZoomDrag = { anchor, dy ->
+                            zoomAround(anchor, scale * exp(-dy * DRAG_ZOOM_SENSITIVITY))
                         }
                     )
                 }
@@ -228,8 +249,7 @@ private fun ImageCanvas(
                     onZoom = { animateTo(it) },
                     oneToOne = oneToOne,
                     restScale = restScale,
-                    onToggleDetails = { panelVisible = !panelVisible },
-                    onHome = onHome
+                    onToggleDetails = { panelVisible = !panelVisible }
                 )
             }
         }
@@ -241,19 +261,96 @@ private fun ImageCanvas(
                 else Alignment.BottomCenter
             )
         ) {
-            DetailsPanel(image = image, percent = scale / oneToOne)
+            DetailsPanel(image = image, percent = scale / oneToOne, onSettings = onSettings)
         }
     }
 }
 
 /**
- * The menu a long press opens: the same entries as the userscript's right click
- * menu, in the same order, with the two an Android app can add on top.
+ * Long press, double tap, and the one handed zoom, in one detector.
  *
- * ⚠️ 'Copy address' and the direct form of 'Image search' are shown only for a
- * picture that came from the web, and hiding them is deliberate: the address of a
- * `content://` handed over by another app means nothing to anyone else, and an
- * entry that copies a useless string is worse than a shorter menu.
+ * ⚠️⚠️ **A single tap does nothing on purpose.** It used to toggle the details, and
+ * the user asked for it gone: on a viewer every tap is also a way of just touching
+ * the picture, so a panel that appears and disappears under the thumb reads as a
+ * glitch rather than a control. The details now come from the menu, which is asked
+ * for rather than stumbled into.
+ *
+ * ⚠️ Written by hand because Compose has no double-tap-then-drag detector, and the
+ * two things it does have cannot be combined: `detectTapGestures` reports a double
+ * tap only when the second finger LIFTS, which is exactly too late to start a drag
+ * from it.
+ *
+ * ⚠️ The bail-outs on a second finger are what keep a slow PINCH from being read as
+ * a long press: the pinch belongs to the transform detector on the other modifier,
+ * and without these a two-fingered zoom held for half a second would open the menu.
+ */
+private suspend fun PointerInputScope.detectViewerGestures(
+    onLongPress: (Offset) -> Unit,
+    onDoubleTap: (Offset) -> Unit,
+    onZoomDrag: (anchor: Offset, dy: Float) -> Unit
+) {
+    awaitEachGesture {
+        val first = awaitFirstDown(requireUnconsumed = false)
+
+        // Phase one: does this first finger lift before the long press timeout?
+        var abandoned = false
+        val lifted = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
+            var up = false
+            while (!up && !abandoned) {
+                val event = awaitPointerEvent()
+                val change = event.changes.firstOrNull { it.id == first.id }
+                when {
+                    event.changes.count { it.pressed } > 1 -> abandoned = true
+                    change == null || change.isConsumed -> abandoned = true
+                    !change.pressed -> up = true
+                }
+            }
+            up
+        }
+        if (abandoned) return@awaitEachGesture
+        if (lifted == null) {
+            onLongPress(first.position)
+            return@awaitEachGesture
+        }
+
+        // Phase two: a second finger within the double tap window, or nothing.
+        val second = withTimeoutOrNull(viewConfiguration.doubleTapTimeoutMillis) {
+            awaitFirstDown(requireUnconsumed = false)
+        } ?: return@awaitEachGesture
+
+        // Phase three: it is a double tap until it moves, and a zoom once it does.
+        // The anchor stays where the second tap landed for the whole drag, so the
+        // picture grows around the point that was chosen and not around wherever
+        // the thumb has wandered to.
+        var dragging = false
+        var travelled = 0f
+        while (true) {
+            val event = awaitPointerEvent()
+            if (event.changes.count { it.pressed } > 1) break
+            val change = event.changes.firstOrNull { it.id == second.id } ?: break
+            if (!change.pressed) {
+                if (!dragging) onDoubleTap(second.position)
+                break
+            }
+            val step = change.position.y - change.previousPosition.y
+            travelled += step
+            if (!dragging && abs(travelled) > viewConfiguration.touchSlop) dragging = true
+            if (dragging) {
+                onZoomDrag(second.position, step)
+                change.consume()
+            }
+        }
+    }
+}
+
+/**
+ * The menu a long press opens.
+ *
+ * ⚠️ The order is the user's, given after using the first version, and it is not
+ * the userscript's: what you do WITH the picture comes first, what you do TO the
+ * view second, and the two that lead somewhere else last. 'Copy address' and the
+ * 200/400% steps fell out of that list rather than being dropped for a reason of
+ * mine.
  */
 @Composable
 private fun ImageMenu(
@@ -264,12 +361,10 @@ private fun ImageMenu(
     onZoom: (Float) -> Unit,
     oneToOne: Float,
     restScale: Float,
-    onToggleDetails: () -> Unit,
-    onHome: () -> Unit
+    onToggleDetails: () -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val remote = source?.scheme?.lowercase() in setOf("http", "https")
 
     fun say(res: Int) = Toast.makeText(context, res, Toast.LENGTH_SHORT).show()
 
@@ -300,28 +395,6 @@ private fun ImageMenu(
                 )
             }
         )
-        if (remote) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.menu_copy_url)) },
-                onClick = {
-                    onDismiss()
-                    ImageActions.copyText(context, source.toString())
-                    say(R.string.toast_url_copied)
-                }
-            )
-        }
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.menu_search)) },
-            onClick = {
-                onDismiss()
-                // False means the engine could not be handed the address, so the
-                // picture was copied instead: said out loud, because an engine
-                // opened on nothing looks like a defect of the app.
-                if (!ImageActions.search(context, settings.searchEngine, image, source)) {
-                    say(R.string.toast_local_search)
-                }
-            }
-        )
         DropdownMenuItem(
             text = { Text(stringResource(R.string.menu_share)) },
             onClick = {
@@ -345,12 +418,10 @@ private fun ImageMenu(
             text = { Text(stringResource(R.string.fit_label)) },
             onClick = { onDismiss(); onZoom(restScale) }
         )
-        listOf(1f, 2f, 4f).forEach { times ->
-            DropdownMenuItem(
-                text = { Text("${(times * 100).roundToInt()}%") },
-                onClick = { onDismiss(); onZoom(oneToOne * times) }
-            )
-        }
+        DropdownMenuItem(
+            text = { Text("100%") },
+            onClick = { onDismiss(); onZoom(oneToOne) }
+        )
 
         HorizontalDivider()
 
@@ -359,14 +430,32 @@ private fun ImageMenu(
             onClick = { onDismiss(); onToggleDetails() }
         )
         DropdownMenuItem(
-            text = { Text(stringResource(R.string.menu_home)) },
-            onClick = { onDismiss(); onHome() }
+            text = { Text(stringResource(R.string.menu_search)) },
+            onClick = {
+                onDismiss()
+                // Each of the three outcomes looks different to the person holding
+                // the phone, so each gets its own answer. Saying nothing when the
+                // browser opened instead of the app is what made this read as
+                // broken: the app had simply never been installed.
+                when (ImageActions.search(context, settings.searchEngine, image, source)) {
+                    ImageActions.SearchOutcome.APP -> Unit
+                    ImageActions.SearchOutcome.WEB -> say(R.string.toast_search_web)
+                    ImageActions.SearchOutcome.COPIED -> say(R.string.toast_local_search)
+                }
+            }
         )
     }
 }
 
+/**
+ * The one line of details, with a way into the settings at its right end.
+ *
+ * ⚠️ The cog is outlined, small and in the muted colour, and that is the whole
+ * brief the user gave for it: it sits over someone's photograph, so it has to be
+ * findable without being part of the picture.
+ */
 @Composable
-private fun DetailsPanel(image: LoadedImage, percent: Float) {
+private fun DetailsPanel(image: LoadedImage, percent: Float, onSettings: () -> Unit) {
     Surface(
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.86f),
         contentColor = MaterialTheme.colorScheme.onSurface,
@@ -376,8 +465,8 @@ private fun DetailsPanel(image: LoadedImage, percent: Float) {
             modifier = Modifier
                 .fillMaxWidth()
                 .safeDrawingPadding()
-                .padding(horizontal = 16.dp, vertical = 10.dp),
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
+                .padding(start = 16.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = buildString {
@@ -388,8 +477,17 @@ private fun DetailsPanel(image: LoadedImage, percent: Float) {
                     append("  ").append((percent * 100).roundToInt()).append('%')
                     if (image.sampled) append("  (sampled)")
                 },
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.weight(1f)
             )
+            IconButton(onClick = onSettings, modifier = Modifier.size(36.dp)) {
+                Icon(
+                    imageVector = Icons.Outlined.Settings,
+                    contentDescription = stringResource(R.string.settings_title),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    modifier = Modifier.size(19.dp)
+                )
+            }
         }
     }
 }
@@ -405,12 +503,7 @@ private fun DetailsPanel(image: LoadedImage, percent: Float) {
  * the other. AIV had drifted to #2A2A2A for the dark pair, which is the kind of
  * difference nobody notices and nobody can justify later.
  */
-private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBackground(
-    size: Size,
-    square: Float,
-    light: Boolean,
-    type: BgType
-) {
+private fun DrawScope.drawBackground(size: Size, square: Float, light: Boolean, type: BgType) {
     val a = if (light) Color(0xFFDDDDDD) else Color(0xFF333333)
     val b = if (light) Color(0xFFEEEEEE) else Color(0xFF222222)
     if (type == BgType.SOLID) {
