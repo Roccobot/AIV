@@ -120,6 +120,21 @@ jobs:
           echo "size=$(du -h "$src" | cut -f1)" >> "$GITHUB_OUTPUT"
           echo "Produced ${name} ($(du -h "$src" | cut -f1)), from $(basename "$src")"
 
+      # `signed=true` only says the SECRET was there. If the keystore path had
+      # failed to resolve while Gradle was configuring, `canSign` would be false,
+      # the build would produce an UNSIGNED apk without failing, and the publish
+      # guard below would wave it through on the strength of that output. An
+      # assertion is not a verification: the only thing that settles it is asking
+      # the file for its signature.
+      - name: Prove the APK is really signed
+        if: steps.keystore.outputs.signed == 'true'
+        run: |
+          set -euo pipefail
+          sdk="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+          apksigner="$(find "$sdk/build-tools" -name apksigner -type f | sort | tail -1)"
+          if [ -z "$apksigner" ]; then echo "apksigner is not in the SDK" >&2; exit 1; fi
+          "$apksigner" verify --print-certs "${{ steps.apk.outputs.path }}"
+
       # Kept even on a dispatch run, so a build can be inspected without a tag.
       - name: Keep the APK as a run artefact
         uses: actions/upload-artifact@v4
