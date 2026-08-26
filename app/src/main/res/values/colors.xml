@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="window_background">#F4F6F7</color>
-    <color name="launcher_background">#1F6FB2</color>
+    <!-- Launcher icon, LIGHT version. The pair is measured, not picked by eye:
+         contrast 6.28, well past the 3:1 that non text graphics need.
+         The dark version lives in values-night/, and both layers flip, glyph
+         included: flipping only the background would leave a light glyph on a
+         light ground in one of the two themes. -->
+    <color name="launcher_background">#E7EEF3</color>
+    <color name="launcher_foreground">#1B5A86</color>
 </resources>
