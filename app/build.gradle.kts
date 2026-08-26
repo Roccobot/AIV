@@ -24,11 +24,11 @@ android {
         // the update as a downgrade. It is not tied to versionName and nothing
         // checks it, so nothing will remind you: 0.11 went out carrying 1, so
         // from here on every published version needs its own number.
-        versionCode = 9
+        versionCode = 10
         // Single source of the version, in SlimVer. The release workflow reads
         // it from here and refuses to run when the tag disagrees, so the tag
         // confirms this number instead of being a second one.
-        versionName = "0.19"
+        versionName = "0.20"
     }
 
     // The signing material comes from the environment and never from the
@@ -73,6 +73,15 @@ android {
         // form. Disabled with the reason written down, because a warning left
         // standing is a warning someone eventually 'fixes'.
         disable += "TypographyEllipsis"
+        // ⚠️ ScopedStorage segnala `MANAGE_EXTERNAL_STORAGE` e ha ragione in
+        // generale: è il permesso più largo che esista, e la maggior parte delle
+        // app dovrebbe cavarsela con quello sulle sole immagini. Qui è una scelta
+        // esplicita dell'utente (*preferisco chiedere un permesso pesante prima e
+        // poi essere a posto per sempre*), e il motivo tecnico che la sostiene sta
+        // nel manifest: quello leggero, da Android 14, apre la porta all'accesso
+        // parziale, che farebbe dichiarare 'tre' a una cartella da quattrocento.
+        // Spento con la ragione scritta, o qualcuno prima o poi lo 'corregge'.
+        disable += "ScopedStorage"
     }
 
     compileOptions {

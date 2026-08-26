@@ -14,20 +14,31 @@
      applica è un cerchio di diametro 72 al centro della tela da 108, quindi
      quello che conta è la distanza massima di un punto dal centro. Misurata
      parsando il path e campionando le curve: 473.76 su 1024, contro limiti di
-     593.94 x 779.13. Il glifo è portato a 27.69dp di raggio, e viene
-     34.72 x 45.54dp.
-     - ⚠️⚠️ QUEL 27.69 È 36 DIVISO 1.3, e il divisore è una MISURA dell'utente sul
-       suo telefono, non una scelta di gusto: il launcher di HyperOS ingrandisce
-       il livello di primo piano di circa un terzo rispetto a quanto lo mostra
-       l'anteprima dentro l'app, e a 36 (che è il limite teorico della maschera)
-       l'icona sul telefono veniva 1.3 volte troppo grande. Il numero teorico
-       resta 36: qui si sta compensando un launcher, e su un launcher che non
-       ingrandisce l'icona verrà più piccola del necessario.
-     - ⚠️⚠️ E LA COMPENSAZIONE È IN DUE POSTI, non uno: `HomeScreen.AppIcon` rende
-       questo stesso file a 1.95 invece di 1.5, cioè 1.5 per lo stesso 1.3, o
-       l'anteprima dentro l'app si rimpicciolirebbe insieme al launcher. Quella
-       l'utente l'ha dichiarata giusta com'era, quindi deve restare identica: chi
-       tocca uno dei due numeri tocchi anche l'altro.
+     593.94 x 779.13. Il glifo è portato a 25.48dp di raggio, e viene
+     31.94 x 41.90dp.
+     - ⚠️⚠️ LA SCALA È IL PRODOTTO DI DUE CORREZIONI, entrambe misure dell'utente
+       sul suo telefono e non scelte di gusto. La prima è **36 diviso 1.3**: il
+       launcher di HyperOS ingrandisce il livello di primo piano di circa un
+       terzo rispetto a quanto lo mostra l'anteprima dentro l'app, e a 36 (il
+       limite teorico della maschera) l'icona sul telefono veniva 1.3 volte
+       troppo grande. La seconda è un **meno 8%** chiesto guardando il
+       risultato. Il numero teorico resta 36: qui si compensa un launcher, e su
+       uno che non ingrandisce l'icona verrà più piccola del necessario.
+     - ⚠️⚠️ E LA PRIMA CORREZIONE È IN DUE POSTI, non uno: `HomeScreen.AppIcon`
+       rende questo stesso file a 1.95 invece di 1.5, cioè 1.5 per lo stesso
+       1.3, perché l'anteprima dentro l'app e il launcher mostrino la stessa
+       cosa. ⚠️ Il meno 8% invece **non** si compensa, e la differenza è
+       voluta: quello riguarda il disegno, non il divario fra i due posti in cui
+       compare, quindi deve valere in tutti e due.
+     - ⚠️⚠️ IL GLIFO È ALZATO DI 1.44dp, ED È CONTRO IL SUO BARICENTRO. La
+       traslazione verticale non è quella che centrerebbe la forma: l'utente ha
+       chiesto un allineamento OTTICO, cioè la regola classica per cui il centro
+       percepito di un contenitore sta circa il 2% della sua altezza sopra quello
+       geometrico (2% di 72 fa appunto 1.44). ⚠️ La misura dice il contrario, e
+       sta scritta qui perché nessuno la rifaccia credendo di trovare un difetto:
+       il baricentro dei pixel pieni sta **17.23 unità su 1024 SOPRA** il centro
+       dei limiti, cioè il glifo è già pesante in alto, e l'alzata si somma a
+       quello. È una scelta dell'utente davanti al risultato vero, e vince lei.
      - ⚠️ LA MISURA NON SI EREDITA DA UN'ICONA ALL'ALTRA, si rifà. Questo
        disegno è molto più pieno del precedente: gli stessi 1024 di tela portano
        limiti 593.94 x 779.13 contro 339.85 x 614.36, e un raggio di 473.76
@@ -51,10 +62,10 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
     <group
-        android:scaleX="0.058452"
-        android:scaleY="0.058452"
-        android:translateX="24.0724"
-        android:translateY="24.0724">
+        android:scaleX="0.053776"
+        android:scaleY="0.053776"
+        android:translateX="26.4668"
+        android:translateY="25.0268">
         <path
             android:fillColor="@color/launcher_foreground"
             android:fillType="evenOdd"
