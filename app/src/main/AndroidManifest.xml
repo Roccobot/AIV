@@ -31,8 +31,9 @@
         1) image/* per i file locali e i content:// che arrivano da un'altra app;
         2) http e https con pathPattern, che è l'unico modo di dire 'link che
            finisce in .jpg' fino ad Android 11;
-        3) pathAdvancedPattern, che da Android 12 fa la stessa cosa con una
-           espressione sola e senza distinguere maiuscole e minuscole.
+        3) pathSuffix, che da Android 12 fa lo stesso confronto ma sulla sola
+           CODA del percorso, e quindi regge anche i percorsi che hanno un punto
+           prima del nome del file, dove il filtro 2 cade.
         Le versioni vecchie ignorano l'attributo che non conoscono, quindi i due
         modi convivono senza guardie.
 
@@ -121,7 +122,42 @@
                 <data android:pathPattern=".*\\.SVG" />
             </intent-filter>
 
-            <!-- 3) link diretti, da Android 12: una regola sola, senza maiuscole -->
+            <!--
+                3) link diretti, da Android 12, con `pathSuffix`: un confronto
+                di sola coda (`String.endsWith`), che è esattamente la domanda
+                che vogliamo fare.
+
+                ⚠️⚠️ QUI STAVA UN `pathAdvancedPattern`, dalla 0.10 alla 0.15, e
+                NON HA MAI RICONOSCIUTO NIENTE. Due difetti sovrapposti, tutti e
+                due misurati contro il codice vero di `PatternMatcher` (AOSP):
+                - La sintassi non è quella delle espressioni regolari: conosce
+                  il punto, gli insiemi `[...]`, i modificatori `*`, `+`,
+                  `{n,m}` e l'escape, e basta. Niente alternative `|`, niente
+                  gruppi `(...)`, niente `?`. Il vecchio pattern li usava tutti
+                  e tre. ⚠️ E il parser NON si lamenta: manda al ramo dei
+                  letterali quello che non conosce, quindi l'app si installa
+                  senza un avviso e il filtro resta arredamento.
+                - ⚠️⚠️ Ma soprattutto: con quel motore `.*` all'INIZIO non può
+                  funzionare mai, e questo vale anche per la correzione ovvia
+                  (una riga per estensione con gli insiemi). Il confronto è
+                  goloso e SENZA ritorno indietro: `.*` si mangia tutta la
+                  stringa e a quello che segue non resta niente da leggere.
+                  Provato: dieci pattern scritti bene riconoscono zero percorsi
+                  su trentaquattro.
+                - `pathPattern` del filtro 2 non ha il difetto perché il suo
+                  motore è un altro: là `.*` si ferma alla PRIMA occorrenza del
+                  carattere che segue.
+                - ⚠️ Il prezzo di `pathSuffix` è che la coda è letterale, quindi
+                  le maiuscole si elencano come nel filtro 2. Il guadagno vero è
+                  un altro, ed è il motivo per cui questo filtro esiste: il
+                  filtro 2 CADE sui percorsi con un punto prima del nome (il suo
+                  `.*` si ferma lì), mentre `/2026.08/foto.jpg` è un indirizzo
+                  normalissimo. Misurato: `pathPattern` lo rifiuta, `pathSuffix`
+                  lo prende.
+                - ⚠️ Niente coda per la query (`?...`): il confronto avviene su
+                  `Uri.getPath()` (`IntentFilter.matchData`), che la query non
+                  la contiene.
+            -->
             <intent-filter android:autoVerify="false" android:label="@string/app_short_name">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -129,7 +165,28 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
                 <data android:host="*" />
-                <data android:pathAdvancedPattern=".*\\.(?i:jpe?g|png|gif|tiff?|webp|avif|hei[cf]|svg)(\\?.*)?" />
+                <data android:pathSuffix=".jpg" />
+                <data android:pathSuffix=".JPG" />
+                <data android:pathSuffix=".jpeg" />
+                <data android:pathSuffix=".JPEG" />
+                <data android:pathSuffix=".png" />
+                <data android:pathSuffix=".PNG" />
+                <data android:pathSuffix=".gif" />
+                <data android:pathSuffix=".GIF" />
+                <data android:pathSuffix=".tif" />
+                <data android:pathSuffix=".TIF" />
+                <data android:pathSuffix=".tiff" />
+                <data android:pathSuffix=".TIFF" />
+                <data android:pathSuffix=".webp" />
+                <data android:pathSuffix=".WEBP" />
+                <data android:pathSuffix=".avif" />
+                <data android:pathSuffix=".AVIF" />
+                <data android:pathSuffix=".heic" />
+                <data android:pathSuffix=".HEIC" />
+                <data android:pathSuffix=".heif" />
+                <data android:pathSuffix=".HEIF" />
+                <data android:pathSuffix=".svg" />
+                <data android:pathSuffix=".SVG" />
             </intent-filter>
         </activity>
 
