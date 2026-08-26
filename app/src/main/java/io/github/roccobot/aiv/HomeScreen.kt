@@ -309,12 +309,18 @@ private fun Identity() {
 /**
  * The launcher icon, drawn large.
  *
- * ⚠️⚠️ **The foreground is rendered at 150% and clipped, and without that it would
+ * ⚠️⚠️ **The foreground is rendered enlarged and clipped, and without that it would
  * come out visibly smaller than the same icon in the launcher.** An adaptive icon's
  * layers are 108dp square but only the central 72dp are ever shown: the outer ring
- * is there for the launcher's own masking and parallax. So reproducing what the
- * launcher shows means scaling by 108/72, which is exactly 1.5, and cutting the
- * rest away.
+ * is there for the launcher's own masking and parallax. Reproducing what the
+ * launcher shows starts from 108/72, which is exactly 1.5.
+ *
+ * ⚠️⚠️ **The 1.3 on top of that is the OTHER HALF of a pair, and moving it alone
+ * breaks the icon.** HyperOS blows the foreground layer up by about a third
+ * compared to this preview, so `ic_launcher_foreground` carries a glyph scaled
+ * down by 1.3 to come out right on the phone; multiplying here by the same 1.3
+ * keeps this preview looking exactly as it did before that shrink, which is what
+ * the user asked for. Change one factor and you have to change the other.
  */
 @Composable
 private fun AppIcon(size: Dp) {
@@ -328,7 +334,7 @@ private fun AppIcon(size: Dp) {
         Image(
             painter = painterResource(R.drawable.ic_launcher_foreground),
             contentDescription = null,
-            modifier = Modifier.size(size * 1.5f)
+            modifier = Modifier.size(size * 1.5f * 1.3f)
         )
     }
 }

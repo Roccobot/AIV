@@ -43,7 +43,6 @@
 
     <!-- ── The menu that a long press opens on the picture ── -->
     <string name="menu_copy_image">Copy image</string>
-    <string name="menu_search">Image search</string>
     <string name="menu_share">Share</string>
     <string name="menu_save">Save</string>
     <string name="menu_details">Details</string>
@@ -52,13 +51,6 @@
     <string name="toast_copy_failed">The copy did not go through</string>
     <string name="toast_saved">Saved</string>
     <string name="toast_save_failed">Saving did not go through</string>
-    <!-- Said out loud rather than silently skipped: a search engine opened on
-         nothing looks like a defect of the app. -->
-    <!-- The engine's own app was asked first and was not there. Said out loud
-         because a browser tab opening instead is exactly what made this look
-         broken: the app was never installed. -->
-    <string name="toast_search_web">That engine\'s app is not installed, so its web page was opened</string>
-    <string name="toast_local_search">A search engine cannot reach a picture on this phone, so the image was copied: paste it in the page that just opened.</string>
 
     <!-- ── Settings ── -->
     <string name="settings_title">Settings</string>
@@ -89,6 +81,4 @@
     <string name="settings_bottom">At the bottom</string>
     <string name="settings_info_visible">Panel showing at first</string>
 
-    <string name="settings_search_engine">Image search with</string>
-    <string name="settings_search_desc">A reverse search is done by the engine, which fetches the picture from its address: which engine to hand it to is a choice, so it lives here instead of crowding the menu.</string>
 </resources>

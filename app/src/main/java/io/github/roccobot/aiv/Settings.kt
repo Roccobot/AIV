@@ -77,40 +77,11 @@ enum class ScaleMode(override val token: String) : Choice { PHYSICAL("physical")
 /** Where the one line of details sits. Asked for by the user. */
 enum class InfoPosition(override val token: String) : Choice { TOP("top"), BOTTOM("bottom") }
 
-/**
- * Which engine gets the picture for a reverse search. The same four the userscript
- * offers, and for the same reason it keeps them in the settings rather than in the
- * menu: a submenu of four would double a menu that is deliberately short.
- */
-enum class SearchEngine(
-    override val token: String,
-    val urlPattern: String,
-    val homeUrl: String,
-    /**
-     * The app to hand the link to before the browser gets a chance, or null to go
-     * straight to the browser.
-     *
-     * ⚠️ Only Lens has one, and the others are null on purpose rather than for want
-     * of looking: Lens in a mobile browser is Google's own sign-in-flavoured page,
-     * while Yandex, Bing and TinEye do a reverse search from a plain URL in any
-     * browser. Naming packages that might not claim these links would cost a failed
-     * intent for no gain.
-     *
-     * ⚠️⚠️ This is the GOOGLE app and not a standalone 'Lens' package: Lens ships
-     * inside it, and it is the Google app that claims `lens.google.com` links.
-     */
-    val appPackage: String? = null
-) : Choice {
-    LENS(
-        "lens",
-        "https://lens.google.com/uploadbyurl?url=%s",
-        "https://lens.google.com/",
-        "com.google.android.googlequicksearchbox"
-    ),
-    YANDEX("yandex", "https://yandex.com/images/search?rpt=imageview&url=%s", "https://yandex.com/images/"),
-    BING("bing", "https://www.bing.com/images/search?view=detailv2&iss=sbi&q=imgurl:%s", "https://www.bing.com/images/"),
-    TINEYE("tineye", "https://tineye.com/search?url=%s", "https://tineye.com/")
-}
+// ⚠️ QUI VIVEVA `SearchEngine`, il motore della ricerca immagine, tolto nella
+// 0.18 insieme alla funzione (istruzione dell'utente dopo la prova sul telefono).
+// La chiave `search-engine` può essere rimasta scritta nell'archivio dei telefoni
+// che avevano la versione vecchia: non si legge più, e non è un difetto da
+// inseguire, perché DataStore ignora le chiavi che nessuno chiede.
 
 data class Settings(
     val bgType: BgType = BgType.CHECKER,
@@ -121,7 +92,6 @@ data class Settings(
     val scaleMode: ScaleMode = ScaleMode.PHYSICAL,
     val infoPosition: InfoPosition = InfoPosition.BOTTOM,
     val infoVisible: Boolean = true,
-    val searchEngine: SearchEngine = SearchEngine.LENS
 )
 
 /**
@@ -145,7 +115,6 @@ object SettingsStore {
     private val SCALE_MODE = stringPreferencesKey("scale-mode")
     private val INFO_POSITION = stringPreferencesKey("info-position")
     private val INFO_VISIBLE = booleanPreferencesKey("info-visible")
-    private val SEARCH_ENGINE = stringPreferencesKey("search-engine")
 
     /** Bounds of the only numeric setting, so a stored value out of range cannot reach the viewer. */
     const val ZOOM_MAX_MIN = 2f
@@ -160,7 +129,6 @@ object SettingsStore {
             scaleMode = ScaleMode.entries.byToken(p[SCALE_MODE], ScaleMode.PHYSICAL),
             infoPosition = InfoPosition.entries.byToken(p[INFO_POSITION], InfoPosition.BOTTOM),
             infoVisible = p[INFO_VISIBLE] ?: true,
-            searchEngine = SearchEngine.entries.byToken(p[SEARCH_ENGINE], SearchEngine.LENS)
         )
     }
 
@@ -173,7 +141,6 @@ object SettingsStore {
             p[SCALE_MODE] = settings.scaleMode.token
             p[INFO_POSITION] = settings.infoPosition.token
             p[INFO_VISIBLE] = settings.infoVisible
-            p[SEARCH_ENGINE] = settings.searchEngine.token
         }
     }
 }

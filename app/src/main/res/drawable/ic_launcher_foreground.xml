@@ -14,13 +14,20 @@
      applica è un cerchio di diametro 72 al centro della tela da 108, quindi
      quello che conta è la distanza massima di un punto dal centro. Misurata
      parsando il path e campionando le curve: 473.76 su 1024, contro limiti di
-     593.94 x 779.13. Il glifo è portato a 36dp di raggio esatti, e viene
-     45.13 x 59.20dp.
-     - ⚠️⚠️ 36 È IL LIMITE, quindi qui NON c'è margine di sicurezza: il glifo
-       tocca il bordo del cerchio in cima e sulle punte dei piedi. È una scelta
-       dell'utente, presa davanti al confronto reso, e non una svista: la voleva
-       più grande possibile. Le due icone precedenti stavano a 34, e chi
-       ripristinasse quel valore rimpicciolirebbe l'icona senza volerlo.
+     593.94 x 779.13. Il glifo è portato a 27.69dp di raggio, e viene
+     34.72 x 45.54dp.
+     - ⚠️⚠️ QUEL 27.69 È 36 DIVISO 1.3, e il divisore è una MISURA dell'utente sul
+       suo telefono, non una scelta di gusto: il launcher di HyperOS ingrandisce
+       il livello di primo piano di circa un terzo rispetto a quanto lo mostra
+       l'anteprima dentro l'app, e a 36 (che è il limite teorico della maschera)
+       l'icona sul telefono veniva 1.3 volte troppo grande. Il numero teorico
+       resta 36: qui si sta compensando un launcher, e su un launcher che non
+       ingrandisce l'icona verrà più piccola del necessario.
+     - ⚠️⚠️ E LA COMPENSAZIONE È IN DUE POSTI, non uno: `HomeScreen.AppIcon` rende
+       questo stesso file a 1.95 invece di 1.5, cioè 1.5 per lo stesso 1.3, o
+       l'anteprima dentro l'app si rimpicciolirebbe insieme al launcher. Quella
+       l'utente l'ha dichiarata giusta com'era, quindi deve restare identica: chi
+       tocca uno dei due numeri tocchi anche l'altro.
      - ⚠️ LA MISURA NON SI EREDITA DA UN'ICONA ALL'ALTRA, si rifà. Questo
        disegno è molto più pieno del precedente: gli stessi 1024 di tela portano
        limiti 593.94 x 779.13 contro 339.85 x 614.36, e un raggio di 473.76
@@ -44,10 +51,10 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
     <group
-        android:scaleX="0.075988"
-        android:scaleY="0.075988"
-        android:translateX="15.0942"
-        android:translateY="15.0942">
+        android:scaleX="0.058452"
+        android:scaleY="0.058452"
+        android:translateX="24.0724"
+        android:translateY="24.0724">
         <path
             android:fillColor="@color/launcher_foreground"
             android:fillType="evenOdd"

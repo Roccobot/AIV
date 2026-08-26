@@ -164,25 +164,9 @@ fun SettingsScreen(
             onChange = { onChange(settings.copy(infoVisible = it)) }
         )
 
-        HorizontalDivider(Modifier.padding(vertical = 12.dp))
-
-        Choices(
-            label = stringResource(R.string.settings_search_engine),
-            detail = stringResource(R.string.settings_search_desc),
-            options = SearchEngine.entries,
-            selected = settings.searchEngine,
-            // Brand names, so they are literals and not string resources: a
-            // translation of 'TinEye' would be a mistake, not a courtesy.
-            nameOf = {
-                when (it) {
-                    SearchEngine.LENS -> "Google Lens"
-                    SearchEngine.YANDEX -> "Yandex"
-                    SearchEngine.BING -> "Bing"
-                    SearchEngine.TINEYE -> "TinEye"
-                }
-            },
-            onSelect = { onChange(settings.copy(searchEngine = it)) }
-        )
+        // ⚠️ Con la ricerca immagine è uscito anche il suo motore, che era l'ultima
+        // voce di questo elenco, e con lei il separatore che la staccava: un filo
+        // sopra il nulla è peggio di nessun filo.
 
         Spacer(Modifier.height(24.dp))
     }
