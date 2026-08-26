@@ -10,6 +10,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -93,6 +94,8 @@ fun ViewerScreen(
     state: ViewerState,
     settings: Settings,
     source: Uri?,
+    series: Folder.Series?,
+    onStep: (Int) -> Unit,
     onSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -100,7 +103,7 @@ fun ViewerScreen(
         when (state) {
             is ViewerState.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
             is ViewerState.Error -> ErrorMessage(state, Modifier.align(Alignment.Center))
-            is ViewerState.Ready -> ImageCanvas(state.image, settings, source, onSettings)
+            is ViewerState.Ready -> ImageCanvas(state.image, settings, source, series, onStep, onSettings)
         }
     }
 }
@@ -133,6 +136,8 @@ private fun ImageCanvas(
     image: LoadedImage,
     settings: Settings,
     source: Uri?,
+    series: Folder.Series?,
+    onStep: (Int) -> Unit,
     onSettings: () -> Unit
 ) {
     val density = LocalDensity.current
@@ -218,9 +223,33 @@ private fun ImageCanvas(
                 }
         )
 
+        // A riposo la figura non ha gioco da trascinare, quindi una strisciata
+        // orizzontale non serve a niente e può cambiare immagine. Ingrandita
+        // serve a spostarsi dentro la foto, e lì il rilevatore non c'è proprio.
+        val atRest = abs(scale - restScale) < 0.01f
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .pointerInput(image, settings, atRest, series) {
+                    // ⚠️⚠️ IL RILEVATORE STA PRIMA di quello delle trasformazioni, e
+                    // l'ordine è quello che fa funzionare la cosa: `consume()` su
+                    // una variazione fa abbandonare `detectTransformGestures`, che
+                    // altrimenti si mangerebbe la strisciata come panoramica.
+                    if (!atRest || series == null) return@pointerInput
+                    var travel = 0f
+                    detectHorizontalDragGestures(
+                        onDragStart = { travel = 0f },
+                        onDragEnd = {
+                            // ⚠️ La soglia è una FRAZIONE della larghezza e non un
+                            // numero di dp: su uno schermo stretto un valore fisso
+                            // sarebbe mezza schermata, su un tablet un nulla.
+                            val enough = viewWidth / 5f
+                            if (travel <= -enough) onStep(1) else if (travel >= enough) onStep(-1)
+                        },
+                        onHorizontalDrag = { change, dx -> travel += dx; change.consume() }
+                    )
+                }
                 .pointerInput(image, settings) {
                     detectTransformGestures { centroid, pan, zoom, _ ->
                         zoomAround(centroid, scale * zoom, pan)
@@ -266,7 +295,12 @@ private fun ImageCanvas(
                 else Alignment.BottomCenter
             )
         ) {
-            DetailsPanel(image = image, percent = scale / oneToOne, onSettings = onSettings)
+            DetailsPanel(
+                image = image,
+                percent = scale / oneToOne,
+                series = series,
+                onSettings = onSettings
+            )
         }
     }
 }
@@ -471,7 +505,12 @@ private fun ImageMenu(
  * findable without being part of the picture.
  */
 @Composable
-private fun DetailsPanel(image: LoadedImage, percent: Float, onSettings: () -> Unit) {
+private fun DetailsPanel(
+    image: LoadedImage,
+    percent: Float,
+    series: Folder.Series?,
+    onSettings: () -> Unit
+) {
     Surface(
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.86f),
         contentColor = MaterialTheme.colorScheme.onSurface,
@@ -492,6 +531,10 @@ private fun DetailsPanel(image: LoadedImage, percent: Float, onSettings: () -> U
                     image.byteSize?.let { append("  ").append(formatBytes(it)) }
                     append("  ").append((percent * 100).roundToInt()).append('%')
                     if (image.sampled) append("  (sampled)")
+                    // La posizione nella cartella sta qui e non in un riquadro suo:
+                    // è un dato dell'immagine come gli altri, e un contatore
+                    // fluttuante sopra una fotografia è un ingombro in più.
+                    series?.let { append("  ").append(it.index + 1).append('/').append(it.size) }
                 },
                 style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.weight(1f)

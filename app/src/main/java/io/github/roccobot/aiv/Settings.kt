@@ -170,6 +170,26 @@ private fun <T : Choice> List<T>.byToken(token: String?, fallback: T): T =
  * intent does, so a remembered local picture would be a row that looks openable
  * and fails when tapped. A list that lies is worse than a shorter one.
  */
+/**
+ * Whether the folder permission has already been asked for once.
+ *
+ * ⚠️ Sta qui e non fra le impostazioni perché NON è una scelta dell'utente: è un
+ * promemoria dell'app a sé stessa. Serve perché il permesso si chiede **una volta
+ * sola**, alla prima immagine locale aperta: un sistema che chiede e richiede è
+ * quello che insegna a rifiutare per riflesso, e chi ha detto no una volta ha
+ * detto abbastanza.
+ */
+object FolderAsk {
+
+    private val ASKED = booleanPreferencesKey("folder-asked")
+
+    fun flow(context: Context): Flow<Boolean> = context.aivStore.data.map { p -> p[ASKED] ?: false }
+
+    suspend fun remember(context: Context) {
+        context.aivStore.edit { p -> p[ASKED] = true }
+    }
+}
+
 object Recents {
 
     private val ENTRIES = stringPreferencesKey("recent")
