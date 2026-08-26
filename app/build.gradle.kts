@@ -24,11 +24,11 @@ android {
         // the update as a downgrade. It is not tied to versionName and nothing
         // checks it, so nothing will remind you: 0.11 went out carrying 1, so
         // from here on every published version needs its own number.
-        versionCode = 2
+        versionCode = 3
         // Single source of the version, in SlimVer. The release workflow reads
         // it from here and refuses to run when the tag disagrees, so the tag
         // confirms this number instead of being a second one.
-        versionName = "0.12"
+        versionName = "0.13"
     }
 
     // The signing material comes from the environment and never from the
@@ -64,6 +64,15 @@ android {
         debug {
             applicationIdSuffix = ".debug"
         }
+    }
+
+    lint {
+        // ⚠️⚠️ TypographyEllipsis wants '...' replaced with the single character
+        // '…', and here it is WRONG: that character is forbidden across every
+        // Roccobot project, in every output, and three dots are the required
+        // form. Disabled with the reason written down, because a warning left
+        // standing is a warning someone eventually 'fixes'.
+        disable += "TypographyEllipsis"
     }
 
     compileOptions {

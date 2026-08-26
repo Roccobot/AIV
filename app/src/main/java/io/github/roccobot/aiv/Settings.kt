@@ -11,7 +11,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-/**
+/*
  * The settings, and which ones exist.
  *
  * The list is a subset of the ones 'Decent Image Viewer' exposes, plus two that
@@ -32,6 +32,9 @@ import kotlinx.coroutines.flow.map
  *
  * What stays is what a finger can reach and a phone can change.
  */
+
+/** One picture the app has opened before, as the opening screen lists it. */
+data class RecentImage(val address: String, val name: String)
 
 /**
  * What every stored choice has: a token that outlives a rename.
@@ -102,10 +105,19 @@ data class Settings(
     val searchEngine: SearchEngine = SearchEngine.LENS
 )
 
+/**
+ * One store for everything the app remembers, declared at file level so that both
+ * the settings and the recents can reach it.
+ *
+ * ⚠️ It has to be ONE: two `preferencesDataStore` delegates over the same name
+ * crash at the first read with 'there are multiple DataStores active for the same
+ * file', and two different names would mean two files for one small set of
+ * preferences.
+ */
+private val Context.aivStore: DataStore<Preferences> by preferencesDataStore(name = "aiv-settings")
+
 /** Reads and writes the settings. */
 object SettingsStore {
-
-    private val Context.store: DataStore<Preferences> by preferencesDataStore(name = "aiv-settings")
 
     private val BG_TYPE = stringPreferencesKey("bg-type")
     private val BG_THEME = stringPreferencesKey("bg-theme")
@@ -120,7 +132,7 @@ object SettingsStore {
     const val ZOOM_MAX_MIN = 2f
     const val ZOOM_MAX_MAX = 200f
 
-    fun flow(context: Context): Flow<Settings> = context.store.data.map { p ->
+    fun flow(context: Context): Flow<Settings> = context.aivStore.data.map { p ->
         Settings(
             bgType = BgType.entries.byToken(p[BG_TYPE], BgType.CHECKER),
             bgTheme = BgTheme.entries.byToken(p[BG_THEME], BgTheme.AUTO),
@@ -134,7 +146,7 @@ object SettingsStore {
     }
 
     suspend fun save(context: Context, settings: Settings) {
-        context.store.edit { p ->
+        context.aivStore.edit { p ->
             p[BG_TYPE] = settings.bgType.token
             p[BG_THEME] = settings.bgTheme.token
             p[FIT_GROW] = settings.fitGrow
@@ -154,3 +166,60 @@ object SettingsStore {
  */
 private fun <T : Choice> List<T>.byToken(token: String?, fallback: T): T =
     if (token == null) fallback else firstOrNull { it.token == token } ?: fallback
+
+/**
+ * The pictures AIV has opened, most recent first.
+ *
+ * ⚠️⚠️ This exists INSTEAD of the thing that was asked for, which was to look at
+ * what has recently been visited in Chrome or Brave and offer the pictures from
+ * those pages. That cannot be done, and not for want of a permission to request:
+ * a browser's history lives in its own private storage, and the public provider
+ * that once exposed it (`Browser.BOOKMARKS_URI`, behind
+ * READ_HISTORY_BOOKMARKS) was cut off in Android 6 precisely so that one app
+ * could not read another's browsing. No app can offer that list, so this offers
+ * the nearest true thing: what you opened here.
+ *
+ * ⚠️ Only web addresses are remembered, and a local file deliberately is not. The
+ * permission on a `content://` handed over by another app lasts as long as that
+ * intent does, so a remembered local picture would be a row that looks openable
+ * and fails when tapped. A list that lies is worse than a shorter one.
+ */
+object Recents {
+
+    private val ENTRIES = stringPreferencesKey("recent")
+
+    /** Eight, because the list has to fit under three buttons without becoming the screen. */
+    private const val KEEP = 8
+
+    /**
+     * ⚠️ Tab between the two fields and newline between the entries, so no
+     * escaping is needed: neither character can occur in a URL, and a name that
+     * contained one would have arrived from a file system that cannot hold it.
+     */
+    fun flow(context: Context): Flow<List<RecentImage>> = context.aivStore.data.map { p ->
+        (p[ENTRIES] ?: "").lineSequence()
+            .mapNotNull { line ->
+                val parts = line.split('\t')
+                if (parts.size == 2 && parts[0].isNotBlank()) RecentImage(parts[0], parts[1]) else null
+            }
+            .take(KEEP)
+            .toList()
+    }
+
+    suspend fun remember(context: Context, address: String, name: String) {
+        if (!address.startsWith("http://", true) && !address.startsWith("https://", true)) return
+        if (address.contains('\t') || address.contains('\n')) return
+        val clean = name.replace('\t', ' ').replace('\n', ' ')
+        context.aivStore.edit { p ->
+            val kept = (p[ENTRIES] ?: "").lineSequence()
+                .filter { it.isNotBlank() && it.substringBefore('\t') != address }
+                .take(KEEP - 1)
+                .toList()
+            p[ENTRIES] = (listOf("$address\t$clean") + kept).joinToString("\n")
+        }
+    }
+
+    suspend fun clear(context: Context) {
+        context.aivStore.edit { p -> p.remove(ENTRIES) }
+    }
+}

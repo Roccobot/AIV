@@ -7,26 +7,86 @@
         the userscript has, would be a second way of doing what the platform
         already does by itself.
         WARNING: whoever adds a string adds it to BOTH files.
+
+        FULL STOPS follow the ROLE of the string, not the ear, which is the rule
+        the userscript arrived at and the only version of it that can be checked
+        by machine: descriptions and explanations take one, and everything that
+        is an interface element does not. Labels, buttons, menu entries, toasts
+        and content descriptions are fragments, not sentences.
     -->
     <string name="app_name">Astonishing Image Viewer</string>
     <!-- Room under the icon is short: the full name shows up elsewhere. -->
     <string name="app_short_name">AIV</string>
 
-    <string name="loading">Loading...</string>
     <string name="no_image">No image to show</string>
     <string name="open_failed">This image could not be opened</string>
     <string name="unsupported">This format is not supported yet</string>
     <string name="too_large">The image is too large for this device</string>
 
     <string name="fit_label">Fit</string>
-    <string name="actual_size_label">1:1</string>
-    <string name="info_label">Details</string>
-    <string name="close_label">Close</string>
-    <string name="retry_label">Retry</string>
 
-    <string name="info_format">Format</string>
-    <string name="info_size">Size</string>
-    <string name="info_pixels">Pixels</string>
-    <string name="info_zoom">Zoom</string>
-    <string name="info_source">Source</string>
+    <!-- ── The opening screen, when the app is started from its own icon ── -->
+    <string name="home_subtitle">Nothing to show yet. Hand it a picture.</string>
+    <string name="home_clipboard">Open from clipboard</string>
+    <string name="home_clipboard_sub">Reads an address you have just copied</string>
+    <string name="home_url">Type an address</string>
+    <string name="home_url_hint">https://example.com/picture.jpg</string>
+    <string name="home_url_go">Open this address</string>
+    <string name="home_settings">Settings</string>
+    <string name="home_recent">Opened recently</string>
+    <string name="home_recent_forget">Forget these</string>
+
+    <string name="clipboard_no_url">No web address in the clipboard</string>
+    <string name="clipboard_not_image">That address is not an image</string>
+    <string name="url_not_image">This address does not lead to an image</string>
+
+    <!-- ── The menu that a long press opens on the picture ── -->
+    <string name="menu_copy_image">Copy image</string>
+    <string name="menu_copy_url">Copy address</string>
+    <string name="menu_search">Image search</string>
+    <string name="menu_share">Share</string>
+    <string name="menu_save">Save</string>
+    <string name="menu_details">Details</string>
+    <string name="menu_home">Open another</string>
+
+    <string name="toast_image_copied">Image copied</string>
+    <string name="toast_url_copied">Address copied</string>
+    <string name="toast_copy_failed">The copy did not go through</string>
+    <string name="toast_saved">Saved</string>
+    <string name="toast_save_failed">Saving did not go through</string>
+    <!-- Said out loud rather than silently skipped: a search engine opened on
+         nothing looks like a defect of the app. -->
+    <string name="toast_local_search">A search engine cannot reach a picture on this phone, so the image was copied: paste it in the page that just opened.</string>
+
+    <!-- ── Settings ── -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_back">Back</string>
+
+    <string name="settings_background">Behind the picture</string>
+    <string name="settings_bg_checker">Checkerboard</string>
+    <string name="settings_bg_solid">Flat colour</string>
+    <string name="settings_bg_desc">The checkerboard is the only background that makes transparency visible, which on a viewer is information rather than decoration.</string>
+
+    <string name="settings_bg_theme">Background tint</string>
+    <string name="settings_auto">Automatic</string>
+    <string name="settings_light">Light</string>
+    <string name="settings_dark">Dark</string>
+
+    <string name="settings_fit_grow">Enlarge small pictures</string>
+    <string name="settings_fit_grow_desc">Off, a picture smaller than the screen is shown at its real size. On, it grows to fill the view.</string>
+
+    <string name="settings_zoom_max">Furthest zoom</string>
+
+    <string name="settings_scale_mode">What 100% means</string>
+    <string name="settings_scale_physical">One pixel of the file per screen pixel</string>
+    <string name="settings_scale_logical">One pixel of the file per layout pixel</string>
+    <string name="settings_scale_desc">A phone screen packs two or three real pixels into one layout pixel, so the two answers are a long way apart: the first shows the file as it is, the second shows it the size a web page would.</string>
+
+    <string name="settings_info_position">Details panel</string>
+    <string name="settings_top">At the top</string>
+    <string name="settings_bottom">At the bottom</string>
+    <string name="settings_info_visible">Panel showing at first</string>
+
+    <string name="settings_search_engine">Image search with</string>
+    <string name="settings_search_desc">A reverse search is done by the engine, which fetches the picture from its address: which engine to hand it to is a choice, so it lives here instead of crowding the menu.</string>
 </resources>

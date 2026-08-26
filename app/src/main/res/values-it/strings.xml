@@ -3,25 +3,78 @@
     <!-- The same keys as values/strings.xml, in Italian. A key missing here
          breaks nothing: Android falls back to English, and the result is a half
          translated screen, which is worse than an English one because it looks
-         deliberate. Hence: always add them in pairs. -->
+         deliberate. Hence: always add them in pairs.
+         Full stops follow the ROLE of the string, as in the English file. -->
     <string name="app_name">Astonishing Image Viewer</string>
     <string name="app_short_name">AIV</string>
 
-    <string name="loading">Caricamento...</string>
     <string name="no_image">Nessuna immagine da mostrare</string>
     <string name="open_failed">Questa immagine non si riesce ad aprire</string>
     <string name="unsupported">Questo formato non è ancora supportato</string>
     <string name="too_large">L\'immagine è troppo grande per questo dispositivo</string>
 
     <string name="fit_label">Adatta</string>
-    <string name="actual_size_label">1:1</string>
-    <string name="info_label">Dettagli</string>
-    <string name="close_label">Chiudi</string>
-    <string name="retry_label">Riprova</string>
 
-    <string name="info_format">Formato</string>
-    <string name="info_size">Peso</string>
-    <string name="info_pixels">Pixel</string>
-    <string name="info_zoom">Zoom</string>
-    <string name="info_source">Origine</string>
+    <!-- ── La schermata iniziale, all'avvio dall'icona dell'app ── -->
+    <string name="home_subtitle">Ancora niente da mostrare. Passale un\'immagine.</string>
+    <string name="home_clipboard">Apri dagli appunti</string>
+    <string name="home_clipboard_sub">Legge un indirizzo che hai appena copiato</string>
+    <string name="home_url">Digita un indirizzo</string>
+    <string name="home_url_hint">https://esempio.it/immagine.jpg</string>
+    <string name="home_url_go">Apri questo indirizzo</string>
+    <string name="home_settings">Impostazioni</string>
+    <string name="home_recent">Aperte di recente</string>
+    <string name="home_recent_forget">Dimenticale</string>
+
+    <string name="clipboard_no_url">Negli appunti non c\'è un indirizzo</string>
+    <string name="clipboard_not_image">Quell\'indirizzo non è un\'immagine</string>
+    <string name="url_not_image">Questo indirizzo non porta a un\'immagine</string>
+
+    <!-- ── Il menu che la pressione prolungata apre sull'immagine ── -->
+    <string name="menu_copy_image">Copia immagine</string>
+    <string name="menu_copy_url">Copia indirizzo</string>
+    <string name="menu_search">Ricerca immagine</string>
+    <string name="menu_share">Condividi</string>
+    <string name="menu_save">Scarica</string>
+    <string name="menu_details">Dettagli</string>
+    <string name="menu_home">Apri un\'altra</string>
+
+    <string name="toast_image_copied">Immagine copiata</string>
+    <string name="toast_url_copied">Indirizzo copiato</string>
+    <string name="toast_copy_failed">La copia non è andata a buon fine</string>
+    <string name="toast_saved">Salvata</string>
+    <string name="toast_save_failed">Il salvataggio non è andato a buon fine</string>
+    <string name="toast_local_search">Un motore di ricerca non può raggiungere un\'immagine che sta su questo telefono, quindi l\'immagine è stata copiata: incollala nella pagina che si è aperta.</string>
+
+    <!-- ── Impostazioni ── -->
+    <string name="settings_title">Impostazioni</string>
+    <string name="settings_back">Indietro</string>
+
+    <string name="settings_background">Dietro all\'immagine</string>
+    <string name="settings_bg_checker">Scacchiera</string>
+    <string name="settings_bg_solid">Tinta piatta</string>
+    <string name="settings_bg_desc">La scacchiera è l\'unico fondo che rende visibile la trasparenza, che su un visualizzatore è un\'informazione e non un vezzo.</string>
+
+    <string name="settings_bg_theme">Tinta del fondo</string>
+    <string name="settings_auto">Automatica</string>
+    <string name="settings_light">Chiara</string>
+    <string name="settings_dark">Scura</string>
+
+    <string name="settings_fit_grow">Ingrandisci le immagini piccole</string>
+    <string name="settings_fit_grow_desc">Spento, un\'immagine più piccola dello schermo si vede alla sua misura vera. Acceso, cresce fino a riempire la vista.</string>
+
+    <string name="settings_zoom_max">Zoom massimo</string>
+
+    <string name="settings_scale_mode">Che cosa significa 100%</string>
+    <string name="settings_scale_physical">Un pixel del file per pixel dello schermo</string>
+    <string name="settings_scale_logical">Un pixel del file per pixel di layout</string>
+    <string name="settings_scale_desc">Lo schermo di un telefono stipa due o tre pixel veri in un pixel di layout, quindi le due risposte sono lontane: la prima mostra il file com\'è, la seconda lo mostra della misura che avrebbe in una pagina web.</string>
+
+    <string name="settings_info_position">Pannello dei dettagli</string>
+    <string name="settings_top">In alto</string>
+    <string name="settings_bottom">In basso</string>
+    <string name="settings_info_visible">Pannello visibile all\'apertura</string>
+
+    <string name="settings_search_engine">Ricerca immagine con</string>
+    <string name="settings_search_desc">La ricerca inversa la fa il motore, che si scarica l\'immagine dal suo indirizzo: quale motore usare è una scelta, e sta qui invece di affollare il menu.</string>
 </resources>
