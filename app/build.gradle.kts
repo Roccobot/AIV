@@ -14,14 +14,40 @@ android {
 
     defaultConfig {
         applicationId = "io.github.roccobot.aiv"
-        // minSdk 28 e' una scelta, non un valore di comodo: da li' in su
+        // minSdk 28 è una scelta, non un valore di comodo: da lì in su
         // esiste ImageDecoder, che decodifica HEIF e rispetta l'orientamento
         // EXIF senza codice nostro. Sotto, servirebbe una seconda strada per
-        // ogni formato, cioe' il doppio del codice per telefoni del 2017.
+        // ogni formato, cioè il doppio del codice per telefoni del 2017.
         minSdk = 28
         targetSdk = 36
+        // versionCode has to grow at every PUBLISHED build, or Android refuses
+        // the update as a downgrade. It is not tied to versionName and nothing
+        // checks it: leave it alone while nothing is out, bump it with the tag
+        // once something is.
         versionCode = 1
-        versionName = "0.10"
+        // Single source of the version, in SlimVer. The release workflow reads
+        // it from here and refuses to run when the tag disagrees, so the tag
+        // confirms this number instead of being a second one.
+        versionName = "0.11"
+    }
+
+    // The signing material comes from the environment and never from the
+    // repository: the keystore and its passwords live in the GitHub secrets of
+    // this repo, and the release job writes them out for the length of a single
+    // run. Read through `providers` rather than System.getenv so the
+    // configuration cache tracks them instead of going stale.
+    val keystorePath = providers.environmentVariable("AIV_KEYSTORE_FILE").orNull
+    val canSign = !keystorePath.isNullOrBlank() && file(keystorePath).exists()
+
+    signingConfigs {
+        if (canSign) {
+            create("release") {
+                storeFile = file(keystorePath!!)
+                storePassword = providers.environmentVariable("AIV_KEYSTORE_PASSWORD").orNull
+                keyAlias = providers.environmentVariable("AIV_KEY_ALIAS").orNull
+                keyPassword = providers.environmentVariable("AIV_KEY_PASSWORD").orNull
+            }
+        }
     }
 
     buildTypes {
@@ -29,6 +55,11 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // Absent the environment, the release build stays UNSIGNED instead
+            // of failing: a contributor without the keystore can still compile
+            // and check the shrinker, which is what a local release build is
+            // for. Only the workflow produces an installable artifact.
+            signingConfig = if (canSign) signingConfigs.getByName("release") else null
         }
         debug {
             applicationIdSuffix = ".debug"

@@ -13,8 +13,8 @@ datastore = "1.2.1"
 exif = "1.4.2"
 # material3 esce dal BOM: le API Expressive (MaterialExpressiveTheme,
 # MotionScheme) sono INTERNAL nella 1.4.0 stabile e diventano pubbliche solo
-# sulla linea 1.5.0, che e' alpha. Scelta dell'utente, 2026-08-26: il progetto
-# e' sperimentale, quindi si accetta l'alpha.
+# sulla linea 1.5.0, che è alpha. Scelta dell'utente, 2026-08-26: il progetto
+# è sperimentale, quindi si accetta l'alpha.
 material3Alpha = "1.5.0-alpha26"
 
 [libraries]
