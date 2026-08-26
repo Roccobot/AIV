@@ -6,7 +6,9 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
@@ -14,11 +16,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
@@ -71,10 +75,23 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     var cameFromHome: Boolean by mutableStateOf(false)
         private set
 
+    /**
+     * The other pictures in the same folder, when there are any and the permission
+     * is there to see them. Null means this picture is on its own, which is the
+     * honest state for anything that did not come off this phone's own storage.
+     */
+    var series: Folder.Series? by mutableStateOf(null)
+        private set
+
+    /** Whether the folder permission has already been asked for once. */
+    var folderAsked: Boolean by mutableStateOf(true)
+        private set
+
     init {
         val context = getApplication<Application>()
         viewModelScope.launch { SettingsStore.flow(context).collect { settings = it } }
         viewModelScope.launch { Recents.flow(context).collect { recents = it } }
+        viewModelScope.launch { FolderAsk.flow(context).collect { folderAsked = it } }
     }
 
     /**
@@ -99,6 +116,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         cameFromHome = fromHome
         screen = Screen.Viewer
         state = ViewerState.Loading
+        series = null
         val context = getApplication<Application>()
         viewModelScope.launch {
             state = when (val result = ImageSource.load(context, uri)) {
@@ -111,12 +129,58 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 is LoadResult.Failed -> ViewerState.Error(result.reason.messageRes(), result.detail)
             }
         }
+        // ⚠️ The folder is looked for in its OWN coroutine, and not inside the one
+        // above: it is a database query that the picture does not wait for, and
+        // hanging it off the load would delay what the person is looking at in
+        // order to prepare a gesture they may never make.
+        viewModelScope.launch { series = Folder.seriesAround(context, uri) }
+    }
+
+    /**
+     * The next or previous picture in the folder, if there is one.
+     *
+     * ⚠️⚠️ **The series is carried over rather than looked up again**, and it has to
+     * be: rebuilding it from the new picture would query the database on every
+     * swipe, and worse, a folder whose contents changed underneath would renumber
+     * itself while it is being leafed through. One list, one order, until the
+     * viewer is left.
+     * ⚠️ It does NOT wrap around: at the last picture a swipe does nothing. Coming
+     * back to the first one after the last is the kind of surprise that makes
+     * people lose their place.
+     */
+    fun step(delta: Int) {
+        val current = series ?: return
+        val next = current.index + delta
+        val uri = current.at(next) ?: return
+        source = uri
+        state = ViewerState.Loading
+        series = current.copy(index = next)
+        val context = getApplication<Application>()
+        viewModelScope.launch {
+            state = when (val result = ImageSource.load(context, uri)) {
+                is LoadResult.Ok -> ViewerState.Ready(result.image)
+                is LoadResult.Failed -> ViewerState.Error(result.reason.messageRes(), result.detail)
+            }
+        }
+    }
+
+    /** Called once the permission dialog has been answered, whatever the answer. */
+    fun folderAnswered(allowed: Boolean) {
+        val context = getApplication<Application>()
+        viewModelScope.launch { FolderAsk.remember(context) }
+        // Granted while a picture is already open: the folder is looked for now,
+        // instead of making the person open the same picture a second time.
+        val uri = source
+        if (allowed && uri != null) {
+            viewModelScope.launch { series = Folder.seriesAround(context, uri) }
+        }
     }
 
     fun goHome() {
         screen = Screen.Home
         state = ViewerState.Loading
         source = null
+        series = null
     }
 
     fun openSettings() {
@@ -201,13 +265,42 @@ private fun AivApp(model: ViewerViewModel) {
             // from. Opened from a link, Back has to leave the app: swallowing it
             // would trap the reader in a viewer they never chose to enter.
             if (model.cameFromHome) BackHandler { model.goHome() }
+            FolderPermission(model)
             ViewerScreen(
                 state = model.state,
                 settings = settings,
                 source = model.source,
+                series = model.series,
+                onStep = { model.step(it) },
                 onSettings = { model.openSettings() }
             )
         }
+    }
+}
+
+/**
+ * Asks for the folder permission, once, at the moment it would first be useful.
+ *
+ * ⚠️⚠️ **The condition is narrow on purpose, and every clause earns its place.** It
+ * asks only for a picture that came off this phone (`content://`), only when the
+ * permission is missing, and only if it has never been asked before. A viewer that
+ * puts up a system dialog while somebody is looking at a photograph from a chat is
+ * asking for something it cannot even use: a shared picture has no folder.
+ * ⚠️ Partial access counts as an answer already given, so it does not ask again.
+ * See `Folder.partial` for why that state is treated as no access at all.
+ */
+@Composable
+private fun FolderPermission(model: ViewerViewModel) {
+    val context = LocalContext.current
+    val ask = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { allowed -> model.folderAnswered(allowed) }
+
+    val source = model.source
+    val local = source?.scheme?.lowercase() == "content"
+    val missing = !Folder.granted(context) && !Folder.partial(context)
+    LaunchedEffect(source, model.folderAsked) {
+        if (local && missing && !model.folderAsked) ask.launch(Folder.permission)
     }
 }
 
