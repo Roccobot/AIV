@@ -1,40 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Adaptive icon foreground: two overlapping tiles, the one behind cut into an
-     L because the other sits in front of it, and the transparency checker on
-     the front one. Proposal H of the icon browser, chosen as a placeholder.
+<!-- Adaptive icon foreground: il carattere U+5929 della firma di Roccobot,
+     fornito dall'utente
+     come SVG su tela 1024 e portato qui senza ritoccare un solo punto.
 
-     Geometry is COMPUTED, not hand written, and the source of the numbers is
-     the browser that produced them. Two things about it are worth knowing
-     before touching a coordinate:
+     ⚠️⚠️ IL TRACCIATO NON È STATO RISCALATO A MANO: sta ancora nelle sue
+     coordinate originali, e a portarlo nella tela da 108 ci pensa il `group` qui
+     sotto. È l'unico modo che lascia il path confrontabile con la sorgente:
+     riscrivere 900 numeri sarebbe stato irreversibile e senza modo di accorgersi
+     di un errore.
 
-     - The tiles are DISJOINT, on purpose. With the two outlines overlapping,
-       the evenOdd sum split the front tile into two pieces separated by an
-       empty band, and the rendered result looked nothing like the intent. The
-       3dp gap between them is what reads as "in front", and it needs no
-       overlap at all.
-     - The L arm cannot take any pair of radii. The outer corner (9) plus the
-       notch fillet (3) must fit inside the 12dp arm: with a fillet of 4 the
-       vertical run went BACKWARDS by one unit and the outline overlapped
-       itself. That defect is invisible on screen, because it happens along a
-       straight segment: it shows up only by reading the generated path.
+     ⚠️⚠️ LA MISURA È SUL RAGGIO, NON SULLA LARGHEZZA, ed è la cosa da sapere
+     prima di toccare la scala. La maschera più stretta che un launcher applica
+     è un cerchio di diametro 72 al centro della tela da 108, quindi quello che
+     conta è la distanza massima di un punto dal centro. Misurata parsando il
+     path e campionando le curve: 595.87 su 1024. Il glifo è portato a 34dp di
+     raggio, contro il limite di 36.
+     - Il rettangolo dei limiti misura 894.50 x 852.29, e ragionare su quello
+       INGANNA: a 'larghezza 64dp', che sembra prudente, il raggio reso sarebbe
+       42.63 e la punta della gamba sinistra finirebbe tagliata. Provato e visto.
+     - I quattro candidati (30, 32, 34, 36) sono stati resi con Chromium e
+       guardati sotto le due maschere, cerchio e squircle: a 36 la punta tocca il
+       bordo, a 34 c'è respiro e il glifo resta pieno.
 
-     Everything stays inside the safe circle of 66dp out of 108dp: the farthest
-     point is 31.6 from the centre, against the 33 allowed. What falls outside
-     is cut differently by every launcher.
-
-     The colour is a resource, not a literal, so the glyph follows the device
-     theme together with the background (values/ and values-night/). The
-     monochrome layer reuses this same file: the system replaces the colour
-     with its own tint and keeps only the alpha, so a flat single-colour shape
-     is exactly what it wants, and a second file would only drift from this
-     one. -->
+     Il colore NON è qui: è una risorsa, così values/ e values-night/ ne danno
+     due versioni intere. Il livello monochrome riusa questo stesso file, e gli
+     serve esattamente una forma piatta a un colore: il sistema ne tiene la sola
+     alfa e mette la propria tinta. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path
-        android:fillColor="@color/launcher_foreground"
-        android:fillType="evenOdd"
-        android:pathData="M38,29 H55 a9,9 0 0 1 9,9 V38 a3,3 0 0 1 -3,3 H44 a3,3 0 0 0 -3,3 V61 a3,3 0 0 1 -3,3 H38 a9,9 0 0 1 -9,-9 V38 a9,9 0 0 1 9,-9 z M52,44 h16 a8,8 0 0 1 8,8 v16 a8,8 0 0 1 -8,8 h-16 a8,8 0 0 1 -8,-8 v-16 a8,8 0 0 1 8,-8 z M52,52 h10 v10 h-10 z M62,62 h10 v10 h-10 z" />
+    <group
+        android:scaleX="0.057059"
+        android:scaleY="0.057059"
+        android:translateX="24.7850"
+        android:translateY="24.9636">
+        <path
+            android:fillColor="@color/launcher_foreground"
+            android:fillType="evenOdd"
+            android:pathData="M 932.27 836.33
+c -161.82 -90.4 -275.2 -211.74 -340.16 -364.74
+v -.02 .02
+h 150.34
+c 113.46 0 202.81 -96.74 193.81 -209.84 -8.04 -101.08 -92.41 -179.01 -160.31 -179.01
+H 181.64
+c -60.48 0 -82.35 21.87 -82.35 48.85
+s 21.87 48.85 48.85 48.85
+h 309.94
+c -5.15 70.35 -12.37 133.85 -22.68 192.47
+H 135.99
+c -32.39 0 -55.81 30.94 -47.01 62.11
+l .28 .98
+c 5.94 21.05 25.15 35.59 47.02 35.59
+h 275.41
+c -15.46 52.76 -34.02 97.7 -56.7 133.85
+C 300.29 692.12 212.83 769.19 91.93 836
+c -28.86 15.95 -36.07 54.24 -15.13 79.71 16.22 19.73 44.28 25.1 66.55 12.6 144.66 -81.24 249.15 -174.93 312.67 -281.84 20.62 -35.18 38.14 -77.19 54.65 -126.04 71.12 171.22 194.19 306.79 370.07 407.48 22.31 12.78 50.63 7.36 66.81 -12.62 20.53 -25.35 13.21 -63.05 -15.27 -78.97
+Z
+M 547.78 351.2
+l 37.37 -136.06
+c 1.48 -5.6 9.34 -8.27 14.58 -3.71
+l 103 88.5
+c 2.87 2.26 7.38 4.03 11.99 0
+l 35.5 -35.19
+c -30.89 -2.35 -55.08 -28.69 -53.95 -60.44 1.08 -30.2 25.47 -54.87 55.66 -56.27 33.56 -1.56 61.27 25.2 61.27 58.42 0 24.42 -14.97 45.33 -36.23 54.09
+l 52.2 90.53
+c 6.91 11.1 2.25 22.87 -14.85 22.87
+H 558.99
+c -10.55 0 -14.79 -9.39 -11.2 -22.73
+Z" />
+    </group>
 </vector>
