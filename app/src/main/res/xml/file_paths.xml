@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Che cosa il FileProvider ha il permesso di servire, e la risposta è: una
+    cartella sola.
+
+    ⚠️ `share/` sotto la cache, e non la cache intera. Quello che si consegna a
+    un'altra app è solo la copia che si è appena scritta per lei, e allargare
+    questo percorso significherebbe rendere leggibile ogni file temporaneo
+    dell'app a chiunque riceva un intent da noi. La cache in più è il posto
+    giusto per definizione: il sistema la svuota da sé quando serve spazio, e una
+    copia consegnata non deve sopravvivere a niente.
+-->
+<paths>
+    <cache-path name="share" path="share/" />
+</paths>

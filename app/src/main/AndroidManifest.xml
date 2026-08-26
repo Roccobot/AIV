@@ -1,23 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Il visualizzatore non è utile senza uno schermo decente, ma non
+         pretende nulla di più: niente fotocamera, niente posizione.
+         NOTA: nemmeno un permesso per scrivere. Il salvataggio passa dal
+         selettore di sistema (ACTION_CREATE_DOCUMENT), che non ne chiede alcuno
+         e in più lascia scegliere dove: su Android 9, che questa app supporta,
+         scrivere nella galleria via MediaStore avrebbe voluto
+         WRITE_EXTERNAL_STORAGE. -->
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+
     <!--
         AIV si registra come visualizzatore per i link diretti a un'immagine.
         Tre filtri, e servono tutti e tre:
         1) image/* per i file locali e i content:// che arrivano da un'altra app;
-        2) http e https con pathPattern, che e' l'unico modo di dire 'link che
+        2) http e https con pathPattern, che è l'unico modo di dire 'link che
            finisce in .jpg' fino ad Android 11;
         3) pathAdvancedPattern, che da Android 12 fa la stessa cosa con una
            espressione sola e senza distinguere maiuscole e minuscole.
         Le versioni vecchie ignorano l'attributo che non conoscono, quindi i due
         modi convivono senza guardie.
 
-        NOTA: niente android:autoVerify. La verifica dei link vale per i domini
-        che si possiedono, non per 'qualunque sito che serva un jpg': senza di
-        essa AIV compare nella scelta 'Apri con', che e' esattamente il
-        comportamento voluto per un visualizzatore.
+        NOTA: android:autoVerify è dichiarato FALSE, non omesso. La verifica dei
+        link vale per i domini che si possiedono, non per 'qualunque sito che
+        serva un jpg': senza di essa AIV compare nella scelta 'Apri con', che è
+        esattamente il comportamento voluto per un visualizzatore. Scriverlo
+        invece di tacerlo è la forma che lint stesso propone, e dice a chi legge
+        che l'assenza della verifica è una scelta e non una dimenticanza.
     -->
 
+    <!--
+        ⚠️⚠️ Le icone stanno in `mipmap-anydpi-v26/` e QUEL `-v26` NON si toglie,
+        benché lint lo dichiari inutile con minSdk 28 (avviso ObsoleteSdkInt,
+        'merge all the resources in this folder into mipmap-anydpi'). Provato:
+        rinominata la cartella in `mipmap-anydpi`, AAPT2 non registra più la
+        risorsa e il build muore con 'resource mipmap/ic_launcher not found'.
+        È un consiglio che rompe, e senza questa nota il prossimo che legge
+        l'avviso lo rifà.
+    -->
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -55,7 +77,7 @@
             </intent-filter>
 
             <!-- 2) link diretti, fino ad Android 11 -->
-            <intent-filter android:label="@string/app_short_name">
+            <intent-filter android:autoVerify="false" android:label="@string/app_short_name">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
@@ -87,7 +109,7 @@
             </intent-filter>
 
             <!-- 3) link diretti, da Android 12: una regola sola, senza maiuscole -->
-            <intent-filter android:label="@string/app_short_name">
+            <intent-filter android:autoVerify="false" android:label="@string/app_short_name">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
@@ -97,11 +119,23 @@
                 <data android:pathAdvancedPattern=".*\\.(?i:jpe?g|png|gif|tiff?|webp|avif|hei[cf]|svg)(\\?.*)?" />
             </intent-filter>
         </activity>
+
+        <!--
+            Serve alle tre voci del menu che consegnano l'immagine a un'altra app:
+            copia negli appunti, condividi, ricerca immagine su un file locale.
+            Un percorso di file nudo non basta e non è una formalità: da Android 7
+            un `file://` passato a un'altra app solleva FileUriExposedException, e
+            l'unica via è un content:// su cui il sistema concede la lettura a chi
+            lo riceve. Esposto NO: il permesso lo dà l'intent, uno alla volta.
+        -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
-
-    <uses-permission android:name="android.permission.INTERNET" />
-
-    <!-- Il visualizzatore non e' utile senza uno schermo decente, ma non
-         pretende nulla di piu': niente fotocamera, niente posizione. -->
-    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 </manifest>
