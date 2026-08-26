@@ -192,7 +192,10 @@ jobs:
           # with old builds would need the page to list and rank them. The
           # archive is the releases page, which keeps every version for free.
           # (Size is no longer the argument it looked like: the minified release
-          # measured 778787 bytes against the 64 MB of the debug build.)
+          # apk is 1634026 bytes against the 64 MB of the debug build. Measure
+          # the SERVED file and not the run artefact: that one is a zip of the
+          # apk and reads about half, because an apk holds uncompressed entries
+          # the outer zip squeezes.)
           rm -f site/AIV/*.apk
           cp "${APK_PATH}" "site/AIV/${APK_NAME}"
 
