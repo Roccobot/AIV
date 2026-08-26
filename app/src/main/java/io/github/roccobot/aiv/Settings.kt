@@ -181,7 +181,17 @@ private fun <T : Choice> List<T>.byToken(token: String?, fallback: T): T =
  */
 object FolderAsk {
 
-    private val ASKED = booleanPreferencesKey("folder-asked")
+    // ⚠️⚠️ LA CHIAVE È CAMBIATA NELLA 0.21, E NON È UN RIORDINO: la 0.20 ha
+    // cambiato la DOMANDA (dal dialogo su READ_MEDIA_IMAGES alla pagina di
+    // sistema sull'accesso a tutti i file) ma aveva tenuto la chiave vecchia,
+    // quindi su ogni telefono che aveva già risposto alla 0.19 il promemoria era
+    // già a `true` e la domanda nuova non è mai stata fatta. Il difetto non si
+    // vede da nessuna parte: la funzione semplicemente non fa niente, e sui
+    // telefoni che l'avevano provata prima, cioè proprio quelli. Una domanda
+    // nuova vuole un promemoria nuovo.
+    // ⚠️ La chiave vecchia resta scritta negli archivi e non si legge più:
+    // DataStore ignora le chiavi che nessuno chiede.
+    private val ASKED = booleanPreferencesKey("all-files-asked")
 
     fun flow(context: Context): Flow<Boolean> = context.aivStore.data.map { p -> p[ASKED] ?: false }
 
