@@ -3,7 +3,9 @@ package io.github.roccobot.aiv
 import android.app.Application
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -286,21 +288,43 @@ private fun AivApp(model: ViewerViewModel) {
  * permission is missing, and only if it has never been asked before. A viewer that
  * puts up a system dialog while somebody is looking at a photograph from a chat is
  * asking for something it cannot even use: a shared picture has no folder.
- * ⚠️ Partial access counts as an answer already given, so it does not ask again.
- * See `Folder.partial` for why that state is treated as no access at all.
+ * ⚠️⚠️ **Una volta sola vale ANCHE se la risposta è stata no**, ed è voluto: qui si
+ * apre una pagina di sistema, e un'app che ce la rimanda davanti a ogni foto è
+ * quella che insegna a rifiutare per riflesso. Chi cambia idea accende
+ * l'interruttore dalle impostazioni del telefono, e l'app se ne accorge da sola
+ * alla prossima immagine, perché `Folder.granted` chiede al sistema e non a un
+ * valore che si era annotato.
  */
 @Composable
 private fun FolderPermission(model: ViewerViewModel) {
     val context = LocalContext.current
-    val ask = rememberLauncherForActivityResult(
+    // Due strade, perché i due permessi si concedono in due modi diversi: quello
+    // ampio con un interruttore in una pagina di sistema, quello vecchio col
+    // dialogo. La prima non restituisce un esito, quindi al ritorno si RICHIEDE
+    // allo stato delle cose invece di credere a quello che l'intent dice.
+    val fromSettings = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { model.folderAnswered(Folder.granted(context)) }
+    val fromDialog = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { allowed -> model.folderAnswered(allowed) }
 
     val source = model.source
     val local = source?.scheme?.lowercase() == "content"
-    val missing = !Folder.granted(context) && !Folder.partial(context)
     LaunchedEffect(source, model.folderAsked) {
-        if (local && missing && !model.folderAsked) ask.launch(Folder.permission)
+        if (!local || model.folderAsked || Folder.granted(context)) return@LaunchedEffect
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            fromDialog.launch(Folder.legacyPermission)
+            return@LaunchedEffect
+        }
+        // ⚠️ Una pagina di impostazioni che si apre da sola, senza una parola, è
+        // il genere di cosa che fa chiudere l'app: il perché arriva prima.
+        Toast.makeText(context, R.string.folder_why, Toast.LENGTH_LONG).show()
+        // ⚠️ Il ripiego sulla pagina generale non è un lusso: quella mirata
+        // all'app manca su qualche sistema, e senza il secondo tentativo la
+        // richiesta morirebbe con un'eccezione invece di portare da qualche parte.
+        val opened = Folder.settingsIntents(context).any { runCatching { fromSettings.launch(it) }.isSuccess }
+        if (!opened) model.folderAnswered(false)
     }
 }
 

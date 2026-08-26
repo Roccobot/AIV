@@ -3,12 +3,16 @@ package io.github.roccobot.aiv
 import android.Manifest
 import android.content.ContentUris
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.provider.MediaStore
 import android.provider.OpenableColumns
+import android.provider.Settings
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -31,32 +35,47 @@ object Folder {
         fun at(position: Int): Uri? = items.getOrNull(position)
     }
 
-    /** The permission that lets the MediaStore be read, which is not the same on every version. */
-    val permission: String =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            Manifest.permission.READ_MEDIA_IMAGES
+    /**
+     * ⚠️⚠️ **Il permesso è quello PESANTE, l'accesso a tutti i file, ed è una scelta
+     * dell'utente**: *preferisco chiedere un permesso pesante prima e poi essere a
+     * posto per sempre*. Quello leggero (`READ_MEDIA_IMAGES`) sarebbe bastato a
+     * leggere il MediaStore, e la differenza che si paga volentieri è questa: da
+     * Android 14 quello leggero apre la porta all'accesso **parziale**, dove la
+     * persona spunta tre foto e il MediaStore ne mostra tre, e una cartella da
+     * quattrocento risponde 'tre' senza che niente segnali l'inganno. L'accesso a
+     * tutti i file quella scelta non ce l'ha.
+     *
+     * ⚠️ **Non è un dialogo ma una PAGINA DI SISTEMA**: `MANAGE_EXTERNAL_STORAGE` è
+     * un permesso speciale, si concede con un interruttore nelle impostazioni e non
+     * con il solito 'Consenti'. Da qui esce quindi un intent, non una richiesta.
+     */
+    fun granted(context: Context): Boolean =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Environment.isExternalStorageManager()
         } else {
-            Manifest.permission.READ_EXTERNAL_STORAGE
+            // Fino ad Android 10 il permesso ampio non esiste, e quello classico
+            // sull'archivio fa già vedere tutto: là si chiede quello, col dialogo.
+            ContextCompat.checkSelfPermission(context, legacyPermission) ==
+                PackageManager.PERMISSION_GRANTED
         }
 
-    fun granted(context: Context): Boolean =
-        ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+    /** Quello da chiedere col dialogo, e serve solo sotto Android 11. */
+    const val legacyPermission: String = Manifest.permission.READ_EXTERNAL_STORAGE
 
     /**
-     * ⚠️⚠️ **Partial access counts as NO access here, and that is deliberate.** From
-     * Android 14 the permission dialog offers 'Select photos', which grants
-     * `READ_MEDIA_VISUAL_USER_SELECTED` and leaves the MediaStore showing only the
-     * handful of pictures the person ticked. A folder of four hundred photos would
-     * then answer 'three', and leafing through it would quietly skip everything
-     * else: an answer that looks right and is wrong is worse than no answer.
+     * La pagina delle impostazioni dove si concede l'accesso a tutti i file.
+     *
+     * ⚠️ Ne esistono DUE, e la seconda non è un lusso: quella mirata all'app manca
+     * su qualche sistema, e senza il ripiego sull'elenco generale la richiesta
+     * morirebbe con un'eccezione invece di portare da qualche parte.
      */
-    fun partial(context: Context): Boolean =
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
-            !granted(context) &&
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
-            ) == PackageManager.PERMISSION_GRANTED
+    fun settingsIntents(context: Context): List<Intent> = listOf(
+        Intent(
+            Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
+            "package:${context.packageName}".toUri()
+        ),
+        Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+    )
 
     private val COLUMNS = arrayOf(
         MediaStore.Images.Media._ID,

@@ -42,6 +42,8 @@
     <string name="toast_saved">Salvata</string>
     <string name="toast_save_failed">Il salvataggio non è andato a buon fine</string>
 
+    <string name="folder_why">Per sfogliare il resto della cartella, AIV ha bisogno dell\'accesso a tutti i file. Accendi l\'interruttore nella pagina che si è aperta.</string>
+
     <!-- ── Impostazioni ── -->
     <string name="settings_title">Impostazioni</string>
     <string name="settings_back">Indietro</string>
