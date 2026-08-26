@@ -164,9 +164,12 @@ jobs:
           git clone --depth 1 \
             "https://x-access-token:${SITE_TOKEN}@github.com/Roccobot/roccobot.github.io.git" site
           mkdir -p site/AIV
-          # Only the latest APK stays on the website: every tag would otherwise
-          # add tens of megabytes to a repository that GitHub Pages serves, and
-          # the older ones are on the releases page anyway.
+          # Only the latest APK stays on the website, and the reason is the PAGE
+          # rather than the size: it offers one download, and a folder filling up
+          # with old builds would need the page to list and rank them. The
+          # archive is the releases page, which keeps every version for free.
+          # (Size is no longer the argument it looked like: the minified release
+          # measured 778787 bytes against the 64 MB of the debug build.)
           rm -f site/AIV/*.apk
           cp "${APK_PATH}" "site/AIV/${APK_NAME}"
 
