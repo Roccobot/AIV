@@ -250,7 +250,6 @@ private fun ImageCanvas(
                 ImageMenu(
                     image = image,
                     source = source,
-                    settings = settings,
                     onDismiss = { menuAt = null },
                     onZoom = { animateTo(it) },
                     oneToOne = oneToOne,
@@ -382,7 +381,6 @@ private suspend fun PointerInputScope.detectViewerGestures(
 private fun ImageMenu(
     image: LoadedImage,
     source: Uri?,
-    settings: Settings,
     onDismiss: () -> Unit,
     onZoom: (Float) -> Unit,
     oneToOne: Float,
@@ -455,21 +453,13 @@ private fun ImageMenu(
             text = { Text(stringResource(R.string.menu_details)) },
             onClick = { onDismiss(); onToggleDetails() }
         )
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.menu_search)) },
-            onClick = {
-                onDismiss()
-                // Each of the three outcomes looks different to the person holding
-                // the phone, so each gets its own answer. Saying nothing when the
-                // browser opened instead of the app is what made this read as
-                // broken: the app had simply never been installed.
-                when (ImageActions.search(context, settings.searchEngine, image, source)) {
-                    ImageActions.SearchOutcome.APP -> Unit
-                    ImageActions.SearchOutcome.WEB -> say(R.string.toast_search_web)
-                    ImageActions.SearchOutcome.COPIED -> say(R.string.toast_local_search)
-                }
-            }
-        )
+        // ⚠️ LA RICERCA IMMAGINE NON C'È PIÙ, dalla 0.18, e non è una dimenticanza:
+        // l'utente l'ha spenta dopo averla provata sul telefono, perché non
+        // funzionava e faceva solo rumore in un menu tenuto corto apposta. Con
+        // lei sono usciti il suo motore fra le impostazioni, le tre risposte
+        // all'esito e la dichiarazione `queries` del manifest, che serviva solo a
+        // lei. Il codice sta nella storia git, al tag `v0.17`, e ci si torna se
+        // l'utente riporta il feedback che ha detto di voler raccogliere.
     }
 }
 

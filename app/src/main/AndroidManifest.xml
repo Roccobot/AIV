@@ -13,17 +13,13 @@
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
     <!--
-        ⚠️⚠️ Da Android 11 un'app non VEDE le altre se non le dichiara, e questo non
-        è una formalità: senza questo blocco, mirare l'intent della ricerca
-        immagine all'app Google fallisce come se l'app non fosse installata, anche
-        quando c'è. Il ripiego sul browser scatterebbe sempre, e sembrerebbe un
-        difetto del codice invece che una regola della piattaforma.
-        Si dichiara UN pacchetto solo, quello che serve: `queries` è una finestra
-        sulle app altrui, e più è stretta meglio è.
+        ⚠️ QUI VIVEVA UN BLOCCO `queries`, che dichiarava l'app Google perché da
+        Android 11 un'app non vede le altre se non le nomina. È uscito con la
+        ricerca immagine, nella 0.18: era la sola cosa che lo usava, e `queries` è
+        una finestra sulle app altrui che non si tiene aperta per niente. Chi
+        rimettesse la ricerca deve rimettere anche lui, o l'intent mirato fallirà
+        come se l'app non fosse installata.
     -->
-    <queries>
-        <package android:name="com.google.android.googlequicksearchbox" />
-    </queries>
 
     <!--
         AIV si registra come visualizzatore per i link diretti a un'immagine.

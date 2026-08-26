@@ -167,7 +167,7 @@ object ImageActions {
         return if (suffix.isNullOrBlank()) cleaned else "$cleaned.$suffix"
     }
 
-    // ── Sharing, and reverse search ────────────────────────────────────────
+    // ── Sharing ─────────────────────────────────────────────────────────────
 
     /** Hands the original to whatever the person picks from the chooser. */
     suspend fun share(context: Context, image: LoadedImage, uri: Uri?): Boolean {
@@ -185,63 +185,4 @@ object ImageActions {
         return true
     }
 
-    /** What happened when the picture was handed to a search engine. */
-    enum class SearchOutcome {
-        /** Handed to the engine's own app. */
-        APP,
-        /** The engine's app is not installed, so its web page was opened instead. */
-        WEB,
-        /** The picture is local, so there was no URL to hand over: it was copied. */
-        COPIED
-    }
-
-    /**
-     * ⚠️⚠️ The reverse search is done by the ENGINE, not by the phone: it is handed a
-     * public URL and goes and fetches the picture itself. Everything else follows
-     * from that. For a picture that lives on this phone the URL means nothing to
-     * it, so the only honest way is to copy the image and open the engine's own
-     * page, where it can be pasted.
-     *
-     * ⚠️ **The engine's own app is tried first, by name, and the browser is the
-     * fallback.** Without this the intent goes to whatever claims the link, which on
-     * a phone WITH the Google app is a coin toss and on a phone WITHOUT it is
-     * always the browser. The outcome is returned rather than swallowed because the
-     * three cases look different to the person holding the phone, and a silent
-     * browser tab is exactly what made this look broken.
-     */
-    fun search(
-        context: Context,
-        engine: SearchEngine,
-        image: LoadedImage,
-        uri: Uri?
-    ): SearchOutcome {
-        val remote = uri != null && uri.scheme?.lowercase() in setOf("http", "https")
-        if (!remote) {
-            copyImage(context, image)
-            openInApp(context, engine, engine.homeUrl)
-            return SearchOutcome.COPIED
-        }
-        val url = engine.urlPattern.format(Uri.encode(uri.toString()))
-        return if (openInApp(context, engine, url)) SearchOutcome.APP else SearchOutcome.WEB
-    }
-
-    /**
-     * Opens [url], preferring the engine's own app. Returns whether that app took
-     * it: false means the browser did.
-     */
-    private fun openInApp(context: Context, engine: SearchEngine, url: String): Boolean {
-        engine.appPackage?.let { name ->
-            try {
-                context.startActivity(
-                    Intent(Intent.ACTION_VIEW, url.toUri()).setPackage(name)
-                )
-                return true
-            } catch (e: Exception) {
-                // Not installed, or it does not claim this link. Either way the
-                // browser is next, and it is not an error worth reporting as one.
-            }
-        }
-        context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
-        return false
-    }
 }
