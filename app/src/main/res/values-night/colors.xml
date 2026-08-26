@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="window_background">#101619</color>
-    <!-- Launcher icon, DARK version. Contrast 8.27, measured on the same pair
-         the light one is measured on. Same hue family as the light version on
-         purpose: the icon has to read as the same app in both themes, not as
-         two icons.
-         Which of the two the launcher shows is resolved with the SYSTEM
-         configuration, so it follows the device theme; but launchers cache
-         icons aggressively, so the switch can lag until the cache turns over.
-         Android 13 and up can also tint the monochrome layer instead, when the
-         user turns themed icons on. -->
-    <color name="launcher_background">#12222E</color>
-    <color name="launcher_foreground">#7FC0F0</color>
+    <!-- Icona del launcher, versione SCURA. Coppia scelta dall'utente.
+         Contrasto misurato 3.25, appena sopra il 3:1 delle grafiche non
+         testuali; la chiara si ferma a 2.42, e il numero sta scritto là.
+         Stessa famiglia di tinta della chiara, che è quello che fa leggere
+         l'icona come la stessa app nei due temi e non come due icone.
+
+         Quale delle due compaia lo risolve il launcher con la configurazione di
+         SISTEMA, quindi segue il tema del dispositivo; ⚠️ ma i launcher tengono
+         le icone in cache, quindi il cambio può arrivare in ritardo, e questo
+         non è verificato perché in sessione non c'è emulatore.
+         Da Android 13 il sistema può invece tingere il livello monochrome, se
+         l'utente accende le icone a tema. -->
+    <color name="launcher_background">#00727B</color>
+    <color name="launcher_foreground">#4FD9BE</color>
 </resources>
