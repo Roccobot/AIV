@@ -7,61 +7,64 @@
      sotto. È l'unico modo che lascia il path confrontabile con la sorgente:
      riscrivere i numeri sarebbe irreversibile e senza modo di accorgersi di un
      errore. La riscrittura con gli spazi che il path ha subito è invece provata
-     identica, rendendo le due versioni e confrontando i pixel.
+     identica, rendendo le due versioni e confrontando i pixel (stesso sha256).
 
      ⚠️⚠️ LA MISURA È SUL RAGGIO, NON SUL RETTANGOLO DEI LIMITI, ed è la cosa da
      sapere prima di toccare la scala. La maschera più stretta che un launcher
      applica è un cerchio di diametro 72 al centro della tela da 108, quindi
      quello che conta è la distanza massima di un punto dal centro. Misurata
-     parsando il path e campionando le curve: 336.77 su 1024, contro limiti di
-     339.85 x 614.36. Il glifo è portato a 34dp di raggio, contro il limite di 36.
-     - ⚠️ LA MISURA NON SI EREDITA DA UN'ICONA ALL'ALTRA, si rifà. Questa forma è
-       alta e stretta e sta stretta attorno al proprio centro, quindi il vincolo
-       morde tardi: si potrebbe arrivare a 65.67dp di altezza prima di essere
-       tagliati. Il glifo precedente, con le gambe divaricate, veniva tagliato
-       già a 64dp di larghezza, cioè a metà di questa scala.
-     - I quattro candidati (30, 32, 34, 36) sono stati resi con Chromium e
-       guardati sotto le due maschere, cerchio e squircle: a 36 le gambe toccano
-       il bordo, a 34 c'è respiro e il glifo resta pieno. Il 34 è anche il raggio
-       dell'icona precedente, quindi le due si leggono dello stesso peso.
+     parsando il path e campionando le curve: 473.76 su 1024, contro limiti di
+     593.94 x 779.13. Il glifo è portato a 36dp di raggio esatti, e viene
+     45.13 x 59.20dp.
+     - ⚠️⚠️ 36 È IL LIMITE, quindi qui NON c'è margine di sicurezza: il glifo
+       tocca il bordo del cerchio in cima e sulle punte dei piedi. È una scelta
+       dell'utente, presa davanti al confronto reso, e non una svista: la voleva
+       più grande possibile. Le due icone precedenti stavano a 34, e chi
+       ripristinasse quel valore rimpicciolirebbe l'icona senza volerlo.
+     - ⚠️ LA MISURA NON SI EREDITA DA UN'ICONA ALL'ALTRA, si rifà. Questo
+       disegno è molto più pieno del precedente: gli stessi 1024 di tela portano
+       limiti 593.94 x 779.13 contro 339.85 x 614.36, e un raggio di 473.76
+       contro 336.77. Mapparlo 1:1 (scala 108/1024, che sul glifo di prima
+       sarebbe stata quasi giusta) darebbe 50.04dp di raggio e taglierebbe arco
+       e piedi: provato e reso, non dedotto.
+     - I candidati sono stati resi con Chromium e guardati sotto le due
+       maschere, cerchio e squircle, nelle due coppie di colori.
 
      Il colore NON è qui: è una risorsa, così values/ e values-night/ ne danno
      due versioni intere. Il livello monochrome riusa questo stesso file, e gli
      serve esattamente una forma piatta a un colore: il sistema ne tiene la sola
-     alfa e mette la propria tinta. -->
+     alfa e mette la propria tinta.
+     - ⚠️ Il contorno bianco che l'SVG di partenza portava NON è stato riportato,
+       ed è giusto così: qui la forma è a una tinta sola, quindi un contorno
+       dello stesso colore la ingrasserebbe di mezza unità su 1024 e basta, e
+       sul livello monochrome non avrebbe alcun senso. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
     <group
-        android:scaleX="0.100959"
-        android:scaleY="0.100959"
-        android:translateX="2.3089"
-        android:translateY="2.3089">
+        android:scaleX="0.075988"
+        android:scaleY="0.075988"
+        android:translateX="15.0942"
+        android:translateY="15.0942">
         <path
             android:fillColor="@color/launcher_foreground"
             android:fillType="evenOdd"
-            android:pathData="M 681.92 345.39
-c 0 -82.02 -84.55 -146.62 -183.4 -140.12 -88.34 5.81 -156.45 66.81 -156.45 140.12
-v 429.66
-c 0 19.5 19.11 35.32 42.69 35.32
-s 42.69 -15.81 42.69 -35.32
-V 550.98
-c 61.48 3.73 116.98 8.95 168.21 16.4
-v 216.46
-c 0 23.41 27.04 40.35 54.28 33.99
-l .85 -.2
-c 18.4 -4.29 31.1 -18.18 31.1 -33.99
-V 454.09
-h -.02 .02
-V 345.4
-Z
-m -55.36 93.85
-c -1.64 16.92 -15.69 29.41 -31.39 27.89
-L 434.7 451.59
-c -27.37 -2.65 -47.24 -28.72 -44.38 -58.23
-s 27.36 -51.28 54.73 -48.63
-c 11.57 1.12 21.8 6.44 29.54 14.43 11.75 -27.35 38.55 -45.23 67.79 -42.4 36.86 3.57 63.61 38.68 59.77 78.42 -.35 3.64 -.95 7.19 -1.78 10.63 .25 .02 .49 .01 .74 .03 15.7 1.52 27.09 16.47 25.45 33.4" />
+            android:pathData="M 512 122.43
+c -165.79 0 -301.35 119.17 -296.86 285.34
+v 458.47
+c 0 35.32 45.94 35.32 69.52 35.32
+s 72.78 0 72.78 -35.32
+V 583.36
+c 44.65 6.45 96.63 11.1 154.56 11.1 45.11 0 97.22 -2.82 154.56 -11.1
+v 282.88
+c 0 35.32 49.2 35.32 72.78 35.32
+s 69.52 0 69.52 -35.32
+V 407.77
+c 4.5 -166.16 -131.07 -285.34 -296.86 -285.34
+m 151.78 330.64
+c -10.49 9.79 -22.77 11.52 -29 12.56 -40.75 4.73 -81.77 6.7 -122.78 5.89 -39.47 -.78 -75.53 -4.06 -107.58 -8.52 -5.61 -.32 -30.91 -1.93 -50.05 -23.04 -12.71 -14.03 -20.46 -33.29 -20.22 -54.47 .49 -42.36 32.72 -76.33 72.01 -75.89 16.61 .19 31.82 6.52 43.81 16.95 13.41 -40.37 49.39 -69.08 91.36 -68.6 52.91 .6 95.26 47.34 94.63 104.39 -.06 5.22 -.48 10.35 -1.24 15.35 .35 -.03 .71 -.04 1.06 -.05 17.51 -.26 40.46 20.14 40.29 44.46 .06 2.77 .61 18.91 -12.3 30.97
+z" />
     </group>
 </vector>
