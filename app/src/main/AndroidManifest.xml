@@ -13,6 +13,19 @@
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
     <!--
+        ⚠️⚠️ Da Android 11 un'app non VEDE le altre se non le dichiara, e questo non
+        è una formalità: senza questo blocco, mirare l'intent della ricerca
+        immagine all'app Google fallisce come se l'app non fosse installata, anche
+        quando c'è. Il ripiego sul browser scatterebbe sempre, e sembrerebbe un
+        difetto del codice invece che una regola della piattaforma.
+        Si dichiara UN pacchetto solo, quello che serve: `queries` è una finestra
+        sulle app altrui, e più è stretta meglio è.
+    -->
+    <queries>
+        <package android:name="com.google.android.googlequicksearchbox" />
+    </queries>
+
+    <!--
         AIV si registra come visualizzatore per i link diretti a un'immagine.
         Tre filtri, e servono tutti e tre:
         1) image/* per i file locali e i content:// che arrivano da un'altra app;

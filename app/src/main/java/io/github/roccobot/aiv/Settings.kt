@@ -85,9 +85,28 @@ enum class InfoPosition(override val token: String) : Choice { TOP("top"), BOTTO
 enum class SearchEngine(
     override val token: String,
     val urlPattern: String,
-    val homeUrl: String
+    val homeUrl: String,
+    /**
+     * The app to hand the link to before the browser gets a chance, or null to go
+     * straight to the browser.
+     *
+     * ⚠️ Only Lens has one, and the others are null on purpose rather than for want
+     * of looking: Lens in a mobile browser is Google's own sign-in-flavoured page,
+     * while Yandex, Bing and TinEye do a reverse search from a plain URL in any
+     * browser. Naming packages that might not claim these links would cost a failed
+     * intent for no gain.
+     *
+     * ⚠️⚠️ This is the GOOGLE app and not a standalone 'Lens' package: Lens ships
+     * inside it, and it is the Google app that claims `lens.google.com` links.
+     */
+    val appPackage: String? = null
 ) : Choice {
-    LENS("lens", "https://lens.google.com/uploadbyurl?url=%s", "https://lens.google.com/"),
+    LENS(
+        "lens",
+        "https://lens.google.com/uploadbyurl?url=%s",
+        "https://lens.google.com/",
+        "com.google.android.googlequicksearchbox"
+    ),
     YANDEX("yandex", "https://yandex.com/images/search?rpt=imageview&url=%s", "https://yandex.com/images/"),
     BING("bing", "https://www.bing.com/images/search?view=detailv2&iss=sbi&q=imgurl:%s", "https://www.bing.com/images/"),
     TINEYE("tineye", "https://tineye.com/search?url=%s", "https://tineye.com/")
