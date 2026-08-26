@@ -1,9 +1,25 @@
 name: Release
 
-# A release starts from a tag and from nothing else. `workflow_dispatch` is here
-# so the pipeline can be exercised without cutting one: the first real tag is a
-# terrible place to discover that the toolchain step is wrong, and a dispatch
-# run without `publish` builds the APK and stops, touching no other repository.
+# TWO ways to release, and the second exists for a concrete reason: a session
+# working on this repository CANNOT push a tag. The git proxy in front of it
+# answers 403 on a tag ref while letting branch pushes through, so cutting a tag
+# was always a manual step for a person, and the whole pipeline waited on it.
+# `gh` inside the runner does not go through that proxy: it talks to the API with
+# the runner's own token, so the workflow can cut its own tag.
+#
+#   - push of a `v*` tag: the classic way, still supported and unchanged.
+#   - `workflow_dispatch` with `publish`: the workflow derives the tag from
+#     versionName, creates it along with the release, and publishes.
+#
+# ⚠️ The dispatch way is also the SOUNDER of the two, which is worth knowing
+# before treating it as a shortcut: a hand written tag can disagree with
+# versionName, and all the workflow can do about it is refuse (see the check
+# below). A tag derived from that same file cannot disagree at all.
+#
+# `workflow_dispatch` WITHOUT publish stays what it was, and it is not
+# redundant: it is the test bench. The first real tag is a terrible place to
+# discover that the toolchain step is wrong, and a run without `publish` builds
+# the APK and stops, touching no other repository.
 on:
   push:
     tags:
@@ -11,7 +27,7 @@ on:
   workflow_dispatch:
     inputs:
       publish:
-        description: 'Also copy the APK and its page under roccobot.github.io/AIV/'
+        description: 'Publish for real: cut the tag from versionName, make the release, update the website'
         type: boolean
         default: false
 
@@ -63,10 +79,18 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       # The version is NOT taken from the tag. It lives in app/build.gradle.kts,
-      # which stays its single source; the tag is compared against it, so a
-      # mismatch stops the release instead of publishing a mislabelled APK.
-      - name: Read the version, and check the tag against it
+      # which stays its single source; a tag that arrives from outside is
+      # compared against it, so a mismatch stops the release instead of
+      # publishing a mislabelled APK, and a tag we cut ourselves is derived from
+      # it and cannot mismatch.
+      - name: Read the version, work out the tag, and check the ref
         id: ver
+        env:
+          PUBLISH: ${{ inputs.publish }}
+          # Read from the context and not written as 'main': the name of the
+          # default branch lives in one place already, and a copy here would be
+          # a second one to keep aligned.
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
           set -euo pipefail
           version="$(sed -n 's/.*versionName *= *"\([^"]*\)".*/\1/p' app/build.gradle.kts)"
@@ -74,12 +98,28 @@ jobs:
             echo "versionName not found in app/build.gradle.kts" >&2
             exit 1
           fi
-          if [ "${GITHUB_REF_TYPE}" = "tag" ] && [ "${GITHUB_REF_NAME#v}" != "$version" ]; then
-            echo "Tag ${GITHUB_REF_NAME} does not match versionName ${version}" >&2
-            exit 1
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            if [ "${GITHUB_REF_NAME#v}" != "$version" ]; then
+              echo "Tag ${GITHUB_REF_NAME} does not match versionName ${version}" >&2
+              exit 1
+            fi
+            tag="${GITHUB_REF_NAME}"
+          else
+            tag="v${version}"
+            # ⚠️ A dispatch that publishes may only run from the DEFAULT branch,
+            # and the guard is here rather than next to the release step so it
+            # fails in a second instead of after a two minute build. Without it,
+            # `Run workflow` on any branch would tag THAT branch's commit as a
+            # released version, from a menu that gives no hint of the choice.
+            if [ "${PUBLISH}" = "true" ] && [ "${GITHUB_REF_NAME}" != "${DEFAULT_BRANCH}" ]; then
+              echo "Refusing to publish from '${GITHUB_REF_NAME}': only ${DEFAULT_BRANCH} may be released." >&2
+              echo "Run it without 'publish' to just build this branch." >&2
+              exit 1
+            fi
           fi
           echo "version=${version}" >> "$GITHUB_OUTPUT"
-          echo "Building version ${version}"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          echo "Building version ${version}, tag ${tag}"
 
       # An absent keystore is a warning and not a failure: a dispatch run is
       # allowed to prove that the build works before any secret exists. The
@@ -147,19 +187,35 @@ jobs:
       # ever carries the latest APK (see the publish step), so without this every
       # previous build would become unreachable the moment a new tag lands.
       - name: Attach the APK to a GitHub release
-        if: github.ref_type == 'tag'
+        if: github.ref_type == 'tag' || inputs.publish
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.ver.outputs.tag }}
+          SIGNED: ${{ steps.keystore.outputs.signed }}
         run: |
           set -euo pipefail
-          # The release may already exist, because the easiest way to cut a tag
-          # without a local clone is GitHub's own "Draft a new release" page,
-          # which creates tag and release together. Creating it blindly would
-          # fail exactly on the path a person is most likely to take.
-          if gh release view "${GITHUB_REF_NAME}" > /dev/null 2>&1; then
-            gh release upload "${GITHUB_REF_NAME}" "${{ steps.apk.outputs.path }}" --clobber
+          # ⚠️ The same guard the website step has, and it was MISSING here: on a
+          # tag pushed while the secrets were absent, an unsigned APK went
+          # straight onto a release, where Android refuses to install it. The
+          # hole was only reachable by hand before; now that a dispatch can
+          # publish, it is one wrong click away.
+          if [ "${SIGNED}" != "true" ]; then
+            echo "Refusing to release an unsigned APK: Android will not install it." >&2
+            exit 1
+          fi
+          # The release may already exist, for two different reasons: someone cut
+          # the tag from GitHub's own "Draft a new release" page, which creates
+          # tag and release together, or this same version was published before
+          # and is being re-published. Creating it blindly would fail on the path
+          # a person is most likely to take.
+          if gh release view "${TAG}" > /dev/null 2>&1; then
+            gh release upload "${TAG}" "${{ steps.apk.outputs.path }}" --clobber
           else
-            gh release create "${GITHUB_REF_NAME}" "${{ steps.apk.outputs.path }}" \
+            # `--target` is what lets the workflow cut its own tag: gh creates
+            # the ref at that commit. On a tag push it is the tagged commit
+            # anyway, so the same line serves both ways in.
+            gh release create "${TAG}" "${{ steps.apk.outputs.path }}" \
+              --target "${GITHUB_SHA}" \
               --title "AIV ${{ steps.ver.outputs.version }}" \
               --generate-notes
           fi
