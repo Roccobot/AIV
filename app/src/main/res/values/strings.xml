@@ -92,7 +92,25 @@
     <string name="settings_bottom">At the bottom</string>
     <string name="settings_info_visible">Panel showing at first</string>
 
-    <string name="settings_reverse_order">Sequential reading in reverse order</string>
+    <string name="settings_reverse_order">Browse in sequence (by date) in reverse order</string>
     <string name="settings_reverse_order_desc">Off, the folder is leafed through from the oldest picture to the newest. On, from the newest to the oldest, the way a phone gallery lists them.</string>
+
+    <string name="settings_start_folder">Open a folder at startup</string>
+    <string name="settings_start_folder_desc">Opening the app shows the newest picture of the chosen folder instead of the opening screen.</string>
+    <string name="settings_start_folder_none">No folder chosen</string>
+    <string name="settings_start_folder_pick">Choose</string>
+
+    <string name="home_folder">Open a folder</string>
+    <string name="home_folder_sub">Start from its newest picture</string>
+
+    <string name="folders_title">Folders</string>
+    <string name="folders_permission">Listing the folders needs access to all files. It is the same permission that lets you leaf through a folder, and it is granted from a system page.</string>
+    <string name="folders_grant">Grant access</string>
+    <string name="folders_none">No folder holds pictures.</string>
+    <string name="folder_empty">This folder holds no pictures any more.</string>
+    <plurals name="folders_count">
+        <item quantity="one">%1$d picture</item>
+        <item quantity="other">%1$d pictures</item>
+    </plurals>
 
 </resources>

@@ -25,6 +25,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ContentPaste
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Settings
@@ -75,14 +76,21 @@ import kotlinx.coroutines.launch
  * reading is easy, and the half that is there to be pressed goes where pressing
  * is easy. Asked for by the user after holding the first version.
  *
- * ⚠️ There are FOUR of them and not three, because the first version could open
+ * ⚠️ There are FIVE of them and not three, because the first version could open
  * anything except the pictures already on the phone: it received them from other
  * apps through the manifest, but had no way of going to look for one itself.
+ * ⚠️ **La cartella sta PRIMA della foto singola**, ed è il rovesciamento chiesto
+ * dall'utente (*perché devo sempre scegliere una singola foto per partire?*): finché
+ * c'era solo il selettore di sistema, partire da una foto sola non era una scelta ma
+ * l'unica cosa possibile, perché di quel lasciapassare non si risale a nessun
+ * genitore. Con l'accesso a tutti i file la cartella è la via più generale, e la foto
+ * singola resta per quando si sa già quale si vuole.
  */
 @Composable
 fun HomeScreen(
     recents: List<RecentImage>,
     onOpen: (Uri) -> Unit,
+    onFolders: () -> Unit,
     onSettings: () -> Unit,
     onForget: () -> Unit,
     modifier: Modifier = Modifier
@@ -192,8 +200,17 @@ fun HomeScreen(
             modifier = Modifier.padding(bottom = 12.dp)
         )
 
-        // First of the four because it is the commonest thing to want from a
-        // viewer sitting on a phone: a picture that is already on the phone.
+        // Prima di tutte perché è la cosa più comune da volere da un visualizzatore
+        // che sta su un telefono: le foto che il telefono ha già, e non una sola.
+        BigAction(
+            icon = Icons.Default.Folder,
+            label = stringResource(R.string.home_folder),
+            detail = stringResource(R.string.home_folder_sub),
+            enabled = !busy,
+            onClick = onFolders
+        )
+        Spacer(Modifier.height(10.dp))
+
         BigAction(
             icon = Icons.Default.PhotoLibrary,
             label = stringResource(R.string.home_local),

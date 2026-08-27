@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -103,6 +104,25 @@ data class Settings(
      * cambio del verso predefinito: acceso è un tocco, e la voce resta leggibile.
      */
     val reverseOrder: Boolean = false,
+    /**
+     * La cartella da aprire all'avvio, e `null` quando non se n'è scelta nessuna.
+     *
+     * ⚠️ **Due campi per una cosa sola, e il secondo non è ridondante**: l'id è quello
+     * che apre, il nome è quello che si legge nelle impostazioni. Senza il nome la voce
+     * direbbe un numero, e per tradurlo bisognerebbe interrogare il MediaStore ogni
+     * volta che si apre quella schermata, permesso compreso.
+     */
+    val startFolder: Long? = null,
+    val startFolderName: String = "",
+    /**
+     * Se all'avvio si apre la foto più recente di [startFolder] invece della schermata
+     * iniziale.
+     *
+     * ⚠️ Separato dalla cartella perché sono due decisioni: 'quale cartella' resta
+     * scritta anche quando si spegne l'avvio automatico, e riaccenderlo non costa
+     * riscegliere. Chi lo accende senza aver scelto viene portato all'elenco.
+     */
+    val openAtStart: Boolean = false,
 )
 
 /**
@@ -127,6 +147,9 @@ object SettingsStore {
     private val INFO_POSITION = stringPreferencesKey("info-position")
     private val INFO_VISIBLE = booleanPreferencesKey("info-visible")
     private val REVERSE_ORDER = booleanPreferencesKey("reverse-order")
+    private val START_FOLDER = longPreferencesKey("start-folder")
+    private val START_FOLDER_NAME = stringPreferencesKey("start-folder-name")
+    private val OPEN_AT_START = booleanPreferencesKey("open-at-start")
 
     /** Bounds of the only numeric setting, so a stored value out of range cannot reach the viewer. */
     const val ZOOM_MAX_MIN = 2f
@@ -142,6 +165,9 @@ object SettingsStore {
             infoPosition = InfoPosition.entries.byToken(p[INFO_POSITION], InfoPosition.BOTTOM),
             infoVisible = p[INFO_VISIBLE] ?: true,
             reverseOrder = p[REVERSE_ORDER] ?: false,
+            startFolder = p[START_FOLDER],
+            startFolderName = p[START_FOLDER_NAME] ?: "",
+            openAtStart = p[OPEN_AT_START] ?: false,
         )
     }
 
@@ -155,6 +181,12 @@ object SettingsStore {
             p[INFO_POSITION] = settings.infoPosition.token
             p[INFO_VISIBLE] = settings.infoVisible
             p[REVERSE_ORDER] = settings.reverseOrder
+            // ⚠️ Una cartella tolta si CANCELLA invece di essere scritta a zero: zero è
+            // un id come un altro, e un giorno finirebbe per somigliare a una cartella
+            // vera. L'assenza della chiave è l'unico modo di dire 'nessuna'.
+            settings.startFolder?.let { p[START_FOLDER] = it } ?: p.remove(START_FOLDER)
+            p[START_FOLDER_NAME] = settings.startFolderName
+            p[OPEN_AT_START] = settings.openAtStart
         }
     }
 }

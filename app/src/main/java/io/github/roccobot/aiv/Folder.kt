@@ -106,6 +106,86 @@ object Folder {
     }
 
     /**
+     * Una cartella come la elenca la schermata di scelta.
+     *
+     * ⚠️ Porta il **conto** e non un'anteprima, e per ora è una scelta di misura: un
+     * elenco che decodifica una miniatura per riga è già mezza galleria, e la galleria
+     * è una decisione che l'utente non ha ancora preso. Il conto costa zero, perché le
+     * righe si contano mentre si scorrono.
+     */
+    data class Bucket(val id: Long, val name: String, val count: Int)
+
+    /**
+     * Le cartelle di immagini del telefono, quella toccata più di recente per prima.
+     *
+     * ⚠️⚠️ **Il raggruppamento si fa QUI e non nella query**, ed è voluto: il `GROUP BY`
+     * del MediaStore ha cambiato forma fra le versioni di Android (dalla stringa di
+     * selezione all'argomento nel bundle, con provider che lo rifiutano), mentre una
+     * passata sulle righe è un comportamento solo, uguale dappertutto. Costa una query
+     * e nessun dialetto.
+     * ⚠️ L'ordine delle righe fa **due** lavori: mette davanti la cartella toccata più
+     * di recente, e fa sì che la prima riga di ogni cartella sia la sua foto più nuova,
+     * che è quella da cui si parte.
+     */
+    suspend fun buckets(context: Context): List<Bucket> = withContext(Dispatchers.IO) {
+        if (!granted(context)) return@withContext emptyList()
+        val found = LinkedHashMap<Long, Bucket>()
+        runCatching {
+            context.contentResolver.query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                COLUMNS,
+                null,
+                null,
+                "${MediaStore.Images.Media.DATE_MODIFIED} DESC, ${MediaStore.Images.Media._ID} DESC"
+            )?.use { c ->
+                // ⚠️ Le colonne si risolvono UNA VOLTA e non a ogni riga, e non è solo
+                // questione di velocità: dentro il ciclo un `getString` su una colonna
+                // che il provider non serve solleverebbe a metà elenco, e quello che si
+                // è raccolto fin lì tornerebbe come se fosse tutto. Un elenco troncato
+                // in silenzio è peggio di un elenco vuoto.
+                val bucketAt = c.column(MediaStore.Images.Media.BUCKET_ID)
+                    ?: return@use
+                val nameAt = c.column(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
+                @Suppress("DEPRECATION")
+                val pathAt = c.column(MediaStore.Images.Media.DATA)
+                while (c.moveToNext()) {
+                    val id = c.getLong(bucketAt)
+                    val seen = found[id]
+                    found[id] = if (seen == null) {
+                        // ⚠️ Il nome della cartella può mancare, e succede davvero: allora
+                        // lo si ricava dal percorso della riga, perché una voce vuota da
+                        // toccare al buio è peggio di un nome ricostruito.
+                        val name = nameAt?.let { c.getString(it) }?.takeIf { it.isNotBlank() }
+                            ?: pathAt?.let { c.getString(it) }?.trimEnd('/')
+                                ?.substringBeforeLast('/')?.substringAfterLast('/')
+                                ?.takeIf { it.isNotBlank() }
+                            ?: id.toString()
+                        Bucket(id, name, 1)
+                    } else {
+                        seen.copy(count = seen.count + 1)
+                    }
+                }
+            }
+        }
+        found.values.toList()
+    }
+
+    /**
+     * La cartella aperta dalla sua foto più recente, che è da dove si vuole partire.
+     *
+     * ⚠️ **Una cartella con una foto sola qui vale [Lookup.Found] e non [Lookup.Alone]**,
+     * al contrario di [seriesAround], e la differenza non è una svista: là la domanda è
+     * 'che cosa c'è intorno a questa foto', e una sola non è una serie; qui la domanda è
+     * 'apri questa cartella', e la risposta deve comunque portare l'immagine da aprire.
+     */
+    suspend fun newestIn(context: Context, bucket: Long): Lookup = withContext(Dispatchers.IO) {
+        if (!granted(context)) return@withContext Lookup.NoPermission
+        val ids = idsOf(context, bucket)
+        if (ids.isEmpty()) return@withContext Lookup.Unreadable
+        Lookup.Found(Series(ids.map(::uriOf), ids.lastIndex))
+    }
+
+    /**
      * ⚠️⚠️ **Il permesso è quello PESANTE, l'accesso a tutti i file, ed è una scelta
      * dell'utente**: *preferisco chiedere un permesso pesante prima e poi essere a
      * posto per sempre*. Quello leggero (`READ_MEDIA_IMAGES`) sarebbe bastato a
@@ -148,7 +228,7 @@ object Folder {
     )
 
     // ⚠️ L'ordine è quello degli indici usati sotto (0 id, 1 bucket, 2 nome, 3 peso,
-    // 4 percorso): chi ne aggiunge una la mette IN FONDO.
+    // 4 percorso, 5 nome della cartella): chi ne aggiunge una la mette IN FONDO.
     // ⚠️ `DATA` è deprecata nell'API e serve lo stesso: è la sola colonna che dice
     // dove sta il file, ed è la chiave con cui l'indirizzo del selettore si riporta
     // alla riga giusta senza indovinare.
@@ -158,7 +238,8 @@ object Folder {
         MediaStore.Images.Media.BUCKET_ID,
         MediaStore.Images.Media.DISPLAY_NAME,
         MediaStore.Images.Media.SIZE,
-        MediaStore.Images.Media.DATA
+        MediaStore.Images.Media.DATA,
+        MediaStore.Images.Media.BUCKET_DISPLAY_NAME
     )
 
     /**
@@ -412,28 +493,40 @@ object Folder {
      * mano.
      */
     private fun list(context: Context, found: Located): Lookup {
-        val items = mutableListOf<Uri>()
-        var index = -1
-        context.contentResolver.query(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            COLUMNS,
-            "${MediaStore.Images.Media.BUCKET_ID} = ?",
-            arrayOf(found.bucket.toString()),
-            "${MediaStore.Images.Media.DATE_MODIFIED} ASC, ${MediaStore.Images.Media._ID} ASC"
-        )?.use { c ->
-            while (c.moveToNext()) {
-                val id = c.getLong(0)
-                // ⚠️⚠️ L'INDICE SI TROVA PER ID, e non più confrontando nome o peso:
-                // l'id è la chiave della riga, quindi non può sbagliare e non può
-                // essere sintetico. Prima si riconfrontavano nome e percorso, cioè
-                // proprio i due dati che il selettore INVENTA, e la foto appena
-                // trovata rischiava di finire 'non ritrovata nella sua cartella'.
-                if (id == found.id) index = items.size
-                items.add(ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id))
-            }
-        }
-        if (items.size < 2) return Lookup.Alone
+        val ids = idsOf(context, found.bucket)
+        if (ids.size < 2) return Lookup.Alone
+        // ⚠️⚠️ L'INDICE SI TROVA PER ID, e non più confrontando nome o peso: l'id è la
+        // chiave della riga, quindi non può sbagliare e non può essere sintetico. Prima
+        // si riconfrontavano nome e percorso, cioè proprio i due dati che il selettore
+        // INVENTA, e la foto appena trovata rischiava di finire 'non ritrovata nella sua
+        // cartella'.
+        val index = ids.indexOf(found.id)
         if (index < 0) return Lookup.Lost
-        return Lookup.Found(Series(items, index))
+        return Lookup.Found(Series(ids.map(::uriOf), index))
     }
+
+    /**
+     * Gli id di una cartella nell'ordine di lettura di base, dal più vecchio al più
+     * recente.
+     *
+     * ⚠️ Gli **id** e non gli indirizzi, perché di questa lista si cerca una posizione
+     * ([list]) o si prende un estremo ([newestIn]): confrontare numeri è esatto, mentre
+     * confrontare indirizzi ricostruiti è il genere di cosa che qui ha già fatto danni.
+     */
+    private fun idsOf(context: Context, bucket: Long): List<Long> {
+        val ids = mutableListOf<Long>()
+        runCatching {
+            context.contentResolver.query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                COLUMNS,
+                "${MediaStore.Images.Media.BUCKET_ID} = ?",
+                arrayOf(bucket.toString()),
+                "${MediaStore.Images.Media.DATE_MODIFIED} ASC, ${MediaStore.Images.Media._ID} ASC"
+            )?.use { c -> while (c.moveToNext()) ids.add(c.getLong(0)) }
+        }
+        return ids
+    }
+
+    private fun uriOf(id: Long): Uri =
+        ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
 }

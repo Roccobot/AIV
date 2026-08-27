@@ -36,11 +36,20 @@ sealed interface ViewerState {
     data class Error(@param:StringRes val messageRes: Int, val detail: String?) : ViewerState
 }
 
-/** Which of the three screens is in front. */
+/** Quale schermata è davanti. */
 sealed interface Screen {
     data object Home : Screen
     data object Settings : Screen
     data object Viewer : Screen
+
+    /**
+     * L'elenco delle cartelle.
+     *
+     * ⚠️ Porta [forStart] perché la stessa schermata risponde a due domande: 'quale
+     * cartella apro adesso' e 'quale cartella apro all'avvio'. È l'unico dato che
+     * distingue i due usi, e sta qui e non nel modello perché muore con la schermata.
+     */
+    data class Folders(val forStart: Boolean) : Screen
 }
 
 /**
@@ -122,7 +131,12 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
 
     init {
         val context = getApplication<Application>()
-        viewModelScope.launch { SettingsStore.flow(context).collect { settings = it } }
+        viewModelScope.launch {
+            SettingsStore.flow(context).collect { fresh ->
+                settings = fresh
+                openStartFolder(fresh)
+            }
+        }
         viewModelScope.launch { Recents.flow(context).collect { recents = it } }
         viewModelScope.launch { FolderAsk.flow(context).collect { folderAsked = it } }
     }
@@ -139,9 +153,35 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             // this existed the app showed a spinner and then 'no image to show',
             // which reads as 'this app does nothing'.
             screen = Screen.Home
+            atStart = true
+            settings?.let(::openStartFolder)
         } else {
             open(uri, fromHome = false)
         }
+    }
+
+    /**
+     * Se questo è l'avvio dell'app e non un ritorno.
+     *
+     * ⚠️ Serve perché la scelta di aprire una cartella all'avvio si può prendere solo
+     * quando le impostazioni sono state lette, e quella lettura arriva quando arriva:
+     * la bandierina fa aspettare senza far succedere niente nel frattempo.
+     */
+    private var atStart = false
+
+    /**
+     * La cartella dell'avvio, aperta una volta sola.
+     *
+     * ⚠️⚠️ **Una volta per PROCESSO, e non a ogni tocco dell'icona**: chi è tornato alla
+     * schermata iniziale ci è tornato apposta, e ritrovarsi la foto in faccia al tocco
+     * successivo sarebbe l'app che non ascolta. Per questo la bandierina si spegne qui
+     * e non si riaccende.
+     */
+    private fun openStartFolder(fresh: Settings) {
+        if (!atStart) return
+        atStart = false
+        val bucket = fresh.startFolder ?: return
+        if (fresh.openAtStart) openFolder(bucket)
     }
 
     fun open(uri: Uri, fromHome: Boolean = true) {
@@ -152,21 +192,92 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         listed = null
         val context = getApplication<Application>()
         viewModelScope.launch {
-            state = when (val result = ImageSource.load(context, uri)) {
-                is LoadResult.Ok -> {
-                    // Remembered only once it has actually opened: a list of
-                    // addresses that failed would be a list of traps.
-                    Recents.remember(context, uri.toString(), ImageActions.fileName(result.image, uri))
-                    ViewerState.Ready(result.image)
-                }
-                is LoadResult.Failed -> ViewerState.Error(result.reason.messageRes(), result.detail)
+            val next = load(context, uri)
+            // Remembered only once it has actually opened: a list of addresses that
+            // failed would be a list of traps.
+            if (next is ViewerState.Ready) {
+                Recents.remember(context, uri.toString(), ImageActions.fileName(next.image, uri))
             }
+            state = next
         }
         // ⚠️ The folder is looked for in its OWN coroutine, and not inside the one
         // above: it is a database query that the picture does not wait for, and
         // hanging it off the load would delay what the person is looking at in
         // order to prepare a gesture they may never make.
         viewModelScope.launch { listed = Folder.seriesAround(context, uri) }
+    }
+
+    /**
+     * Una cartella intera, aperta dalla sua foto più recente.
+     *
+     * ⚠️⚠️ **La serie NON si ricostruisce con `seriesAround`**, e sarebbe stata la strada
+     * corta: qui la cartella la sappiamo già, quindi ripartire dall'immagine per
+     * chiedere al MediaStore in quale cartella stia sarebbe fare due volte la stessa
+     * domanda, la seconda per via indiretta e passando dalle chiavi del selettore, che
+     * sono il posto in cui questa funzione ha già sbagliato per cinque versioni.
+     */
+    fun openFolder(bucket: Long, fromHome: Boolean = true) {
+        cameFromHome = fromHome
+        screen = Screen.Viewer
+        state = ViewerState.Loading
+        listed = null
+        source = null
+        val context = getApplication<Application>()
+        viewModelScope.launch {
+            val lookup = Folder.newestIn(context, bucket)
+            listed = lookup
+            val series = lookup.seriesOrNull
+            val uri = series?.at(series.index)
+            if (uri == null) {
+                // ⚠️ Si resta nel viewer con l'errore invece di tornare indietro in
+                // silenzio: un tocco che riporta da dove si era partiti sembra un tocco
+                // andato a vuoto, e non dice che la cartella si è svuotata.
+                state = ViewerState.Error(R.string.folder_empty, null)
+                return@launch
+            }
+            source = uri
+            state = load(context, uri)
+        }
+    }
+
+    /** L'unico posto in cui un indirizzo diventa uno stato: i tre che aprono passano di qui. */
+    private suspend fun load(context: android.content.Context, uri: Uri): ViewerState =
+        when (val result = ImageSource.load(context, uri)) {
+            is LoadResult.Ok -> ViewerState.Ready(result.image)
+            is LoadResult.Failed -> ViewerState.Error(result.reason.messageRes(), result.detail)
+        }
+
+    /** L'elenco delle cartelle, per aprirne una adesso o per sceglierla per l'avvio. */
+    fun chooseFolder(forStart: Boolean) {
+        screen = Screen.Folders(forStart)
+    }
+
+    /** Fuori dall'elenco: si torna da dove ci si è arrivati. */
+    fun leaveFolders(forStart: Boolean) {
+        screen = if (forStart) Screen.Settings else Screen.Home
+    }
+
+    /**
+     * Una cartella scelta: o si apre, o diventa quella dell'avvio.
+     *
+     * ⚠️ Sceglierla **accende** anche l'avvio automatico, e non è un'iniziativa: si
+     * arriva qui dall'interruttore o dal tasto sotto di lui, quindi l'intenzione è
+     * quella. Spegnerlo resta un tocco, e la scelta rimane scritta.
+     */
+    fun folderPicked(bucket: Folder.Bucket, forStart: Boolean) {
+        if (!forStart) {
+            openFolder(bucket.id)
+            return
+        }
+        val current = settings ?: return
+        updateSettings(
+            current.copy(
+                startFolder = bucket.id,
+                startFolderName = bucket.name,
+                openAtStart = true
+            )
+        )
+        screen = Screen.Settings
     }
 
     /**
@@ -196,12 +307,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         // è la sua stessa inversa.
         listed = Folder.Lookup.Found(current.copy(index = next)).oriented()
         val context = getApplication<Application>()
-        viewModelScope.launch {
-            state = when (val result = ImageSource.load(context, uri)) {
-                is LoadResult.Ok -> ViewerState.Ready(result.image)
-                is LoadResult.Failed -> ViewerState.Error(result.reason.messageRes(), result.detail)
-            }
-        }
+        viewModelScope.launch { state = load(context, uri) }
     }
 
     /** Called once the permission dialog has been answered, whatever the answer. */
@@ -283,10 +389,11 @@ private fun AivApp(model: ViewerViewModel) {
         }
         return
     }
-    when (model.screen) {
+    when (val screen = model.screen) {
         Screen.Home -> HomeScreen(
             recents = model.recents,
             onOpen = { model.open(it) },
+            onFolders = { model.chooseFolder(forStart = false) },
             onSettings = { model.openSettings() },
             onForget = { model.forgetRecents() }
         )
@@ -296,7 +403,16 @@ private fun AivApp(model: ViewerViewModel) {
             SettingsScreen(
                 settings = settings,
                 onChange = { model.updateSettings(it) },
+                onStartFolder = { model.chooseFolder(forStart = true) },
                 onBack = { model.leaveSettings() }
+            )
+        }
+
+        is Screen.Folders -> {
+            BackHandler { model.leaveFolders(screen.forStart) }
+            FolderScreen(
+                onPick = { model.folderPicked(it, screen.forStart) },
+                onBack = { model.leaveFolders(screen.forStart) }
             )
         }
 
