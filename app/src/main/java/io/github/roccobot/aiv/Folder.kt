@@ -150,7 +150,7 @@ object Folder {
     suspend fun seriesAround(context: Context, uri: Uri): Lookup = withContext(Dispatchers.IO) {
         if (!granted(context)) return@withContext Lookup.NoPermission
         val card = identify(context, uri) ?: return@withContext Lookup.Unreadable
-        val bucket = locate(context, uri, card)
+        val found = locate(context, uri, card)
             // ⚠️⚠️ IL RIPIEGO SUL DISCO, ED È QUELLO PER CUI IL PERMESSO PESANTE È
             // STATO PRESO. Se il MediaStore non riconosce la foto, la cartella si
             // legge lo stesso: `MANAGE_EXTERNAL_STORAGE` dà i file, non un indice, e
@@ -161,7 +161,7 @@ object Folder {
             // mentre di qui vengono `file://`, che il caricatore regge ma che sono
             // un secondo genere di indirizzo in circolo.
             ?: return@withContext fromDisk(card) ?: Lookup.NotInGallery(card.evidence())
-        list(context, bucket, card)
+        list(context, found)
     }
 
     /**
@@ -171,16 +171,45 @@ object Folder {
      * quando non è un indirizzo del selettore: **sono assenze, non valori**, e il
      * codice che cerca deve trattarle come tali invece di confrontarle.
      */
-    private data class Card(val name: String, val size: Long, val path: String?) {
+    private data class Card(val name: String, val size: Long, val path: String?, val synthetic: Boolean) {
         val sizeKnown: Boolean get() = size >= 0
+
+        /**
+         * Il percorso solo quando è VERO.
+         *
+         * ⚠️⚠️ Quello del selettore non lo è: `/sdcard/.transforms/synthetic/picker/...`
+         * è una via FUSE inventata per l'occasione, non il posto dove il file sta.
+         */
+        val realPath: String?
+            get() = path?.takeUnless { it.contains(SYNTHETIC_MARK) }
 
         /** Compatta, perché finisce in una riga sola sopra una fotografia. */
         fun evidence(): String = buildString {
             append(name)
             append(if (sizeKnown) ", $size B" else ", peso ignoto")
+            if (synthetic) append(", nome sintetico")
             if (path == null) append(", senza percorso")
+            else if (realPath == null) append(", percorso sintetico")
         }
     }
+
+    /**
+     * ⚠️⚠️ **IL SELETTORE DICE UN NOME E UN PERCORSO CHE NON ESISTONO**, e questa
+     * costante è metà del rimedio. Dal sorgente AOSP (`PickerDbFacade`, commenti sui
+     * due `getProjection...`), per un indirizzo del selettore:
+     * - `_display_name` vale **`<media-id>.<estensione>`**;
+     * - `_data` vale **`/sdcard/.transforms/synthetic/picker/<utente>/<autorità>/media/<quel nome>`**.
+     *
+     * Nessuno dei due combacia con quello che il MediaStore ha in riga, quindi
+     * cercare per nome o per percorso non trova **mai** niente: è il difetto per cui
+     * la funzione ha risposto 'non è nella galleria' dalla 0.19 alla 0.25.
+     * L'unico dato vero che il selettore serve è il **peso**, e l'id in coda
+     * all'indirizzo, che per gli elementi locali **è** l'id del MediaStore.
+     */
+    private const val SYNTHETIC_MARK = "/.transforms/synthetic/"
+
+    /** Dove il MediaStore ha davvero trovato la foto: la cartella e la riga. */
+    private data class Located(val bucket: Long, val id: Long)
 
     private fun identify(context: Context, uri: Uri): Card? =
         runCatching {
@@ -205,7 +234,10 @@ object Folder {
                     null
                 }
                 val path = if (pathAt == null || c.isNull(pathAt)) null else c.getString(pathAt)
-                Card(name, size, path?.takeIf { it.isNotBlank() })
+                // Il nome è sintetico quando è l'id in coda all'indirizzo con
+                // un'estensione appiccicata: vedi SYNTHETIC_MARK per il perché.
+                val synthetic = name.substringBeforeLast('.') == uri.lastPathSegment
+                Card(name, size, path?.takeIf { it.isNotBlank() }, synthetic)
             }
         }.getOrNull()
 
@@ -217,46 +249,68 @@ object Folder {
     private fun Cursor.column(name: String): Int? = getColumnIndex(name).takeIf { it >= 0 }
 
     /**
-     * Which MediaStore row is the picture on screen, as a bucket id.
+     * Quale riga del MediaStore è la foto sullo schermo: la cartella e l'id.
      *
-     * ⚠️⚠️ **QUATTRO VIE, in ordine di certezza, e l'ordine è il punto.** Fino alla
-     * `0.23` ce n'erano due e la seconda pretendeva **nome E peso insieme**: bastava
-     * che il peso mancasse (allora vale -1) o divergesse di un byte e la ricerca non
-     * trovava niente, rispondendo 'non è nella galleria' su una foto che nella
-     * galleria c'era. È il difetto che l'utente ha visto, e la diagnostica della
-     * `0.23` è ciò che lo ha nominato.
+     * ⚠️⚠️ **CHE COSA SI PUÒ CONFRONTARE, che è la lezione di sei versioni.** Di un
+     * indirizzo del selettore il nome e il percorso sono **inventati** (vedi
+     * `SYNTHETIC_MARK`): usarli come chiave non trova mai niente, e per giunta in
+     * silenzio. Restano veri il **peso** e l'**id in coda all'indirizzo**, e sono
+     * esattamente i due su cui questa funzione poggia adesso.
      *
-     * ⚠️ **La via dell'id resta CONTROLLATA e non creduta**: un indirizzo del
-     * selettore finisce con un numero, e usarlo come id del MediaStore dà una riga
-     * validissima che è la foto di qualcun altro.
+     * ⚠️ **L'id resta CONTROLLATO e non creduto**, perché un indirizzo qualunque
+     * finisce con un numero e quel numero può essere la riga di qualcun altro. Ma il
+     * controllo è sul **peso**, non sul nome: prima era sul nome, e siccome il nome
+     * del selettore è sintetico **la riga giusta veniva trovata e poi buttata via**.
+     * È questo il difetto che ha resistito più a lungo.
      */
-    private fun locate(context: Context, uri: Uri, card: Card): Long? {
-        // 1. Il percorso: uguaglianza esatta, niente da indovinare.
-        card.path?.let { path -> byData(context, path)?.let { return it } }
-
-        // 2. L'id letto dalla coda dell'indirizzo, buono solo se il nome combacia.
+    private fun locate(context: Context, uri: Uri, card: Card): Located? {
+        // 1. L'id in coda all'indirizzo, verificato sul peso. Per un elemento locale
+        // del selettore quell'id È l'id del MediaStore, quindi è la via esatta.
         val guessed = runCatching { ContentUris.parseId(uri) }.getOrNull()
         if (guessed != null && guessed > 0) {
-            byId(context, guessed)?.let { (bucket, found) ->
-                val sameSize = !card.sizeKnown || found.size == card.size
-                if (found.name == card.name && sameSize) return bucket
+            rowById(context, guessed)?.let { row ->
+                val sameSize = !card.sizeKnown || row.second == card.size
+                // Il nome si confronta solo quando è vero: sintetico, non dice nulla.
+                val sameName = card.synthetic || row.third == card.name
+                if (sameSize && sameName) return Located(row.first, guessed)
             }
         }
 
-        // 3. Nome e peso, quando il peso si conosce: è la coppia più selettiva.
-        if (card.sizeKnown) {
-            byWhere(
+        // 2. Il percorso, ma solo quello VERO: uguaglianza esatta.
+        card.realPath?.let { path ->
+            rowByWhere(context, "${MediaStore.Images.Media.DATA} = ?", arrayOf(path))?.let { return it }
+        }
+
+        // 3. Nome e peso, e solo se il nome è vero: è la coppia più selettiva.
+        if (!card.synthetic && card.sizeKnown) {
+            rowByWhere(
                 context,
                 "${MediaStore.Images.Media.DISPLAY_NAME} = ? AND ${MediaStore.Images.Media.SIZE} = ?",
                 arrayOf(card.name, card.size.toString())
             )?.let { return it }
         }
 
-        // 4. Il solo nome. ⚠️ Meno selettivo, e due foto omonime in cartelle diverse
-        // esistono: si prende quella col peso giusto se si conosce, altrimenti la
-        // prima. Una cartella forse sbagliata è comunque meglio di niente, e questa
-        // via si raggiunge solo quando le tre sopra hanno già fallito.
-        return byName(context, card)
+        // 4. Il solo peso, quando il nome non è utilizzabile. ⚠️ Poco selettivo, e ci
+        // si arriva solo se le tre vie sopra hanno fallito: due file con lo stesso
+        // numero esatto di byte esistono, ma sono rari, e una cartella forse
+        // sbagliata è comunque meglio di un gesto che non fa niente.
+        if (card.sizeKnown) {
+            rowByWhere(
+                context,
+                "${MediaStore.Images.Media.SIZE} = ?",
+                arrayOf(card.size.toString())
+            )?.let { return it }
+        }
+
+        // 5. Il solo nome, ultima spiaggia e solo se vero.
+        if (!card.synthetic) {
+            rowByWhere(
+                context,
+                "${MediaStore.Images.Media.DISPLAY_NAME} = ?",
+                arrayOf(card.name)
+            )?.let { return it }
+        }
+        return null
     }
 
     /**
@@ -278,7 +332,9 @@ object Folder {
      * qualunque delle due vie sia arrivata.
      */
     private fun fromDisk(card: Card): Lookup? {
-        val path = card.path ?: return null
+        // ⚠️ Solo il percorso VERO: quello sintetico del selettore punta a una via
+        // FUSE inventata, la cui cartella non contiene le foto vicine.
+        val path = card.realPath ?: return null
         // ⚠️ Il selettore può dichiarare `/sdcard`, che è un collegamento: AOSP fa
         // la stessa sostituzione in `PickerUriResolver.getPickerFileFromUri`.
         val real = path.replaceFirst("/sdcard", "/storage/emulated/0")
@@ -297,11 +353,8 @@ object Folder {
         return Lookup.Found(Series(images.map { Uri.fromFile(it) }, index))
     }
 
-    private fun byData(context: Context, path: String): Long? = runCatching {
-        byWhere(context, "${MediaStore.Images.Media.DATA} = ?", arrayOf(path))
-    }.getOrNull()
-
-    private fun byId(context: Context, id: Long): Pair<Long, Card>? =
+    /** Cartella, peso e nome della riga con quell'id, per poterla verificare. */
+    private fun rowById(context: Context, id: Long): Triple<Long, Long, String>? = runCatching {
         context.contentResolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             COLUMNS,
@@ -310,30 +363,17 @@ object Folder {
             null
         )?.use { c ->
             if (!c.moveToFirst()) return@use null
-            c.getLong(1) to Card(c.getString(2) ?: "", c.getLong(3), null)
+            Triple(c.getLong(1), c.getLong(3), c.getString(2) ?: "")
         }
+    }.getOrNull()
 
-    private fun byWhere(context: Context, where: String, args: Array<String>): Long? =
-        context.contentResolver.query(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, COLUMNS, where, args, null
-        )?.use { c -> if (c.moveToFirst()) c.getLong(1) else null }
-
-    private fun byName(context: Context, card: Card): Long? =
-        context.contentResolver.query(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            COLUMNS,
-            "${MediaStore.Images.Media.DISPLAY_NAME} = ?",
-            arrayOf(card.name),
-            null
-        )?.use { c ->
-            var first: Long? = null
-            while (c.moveToNext()) {
-                val bucket = c.getLong(1)
-                if (first == null) first = bucket
-                if (card.sizeKnown && c.getLong(3) == card.size) return@use bucket
-            }
-            first
-        }
+    /** La prima riga che soddisfa la condizione, con la sua cartella e il suo id. */
+    private fun rowByWhere(context: Context, where: String, args: Array<String>): Located? =
+        runCatching {
+            context.contentResolver.query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, COLUMNS, where, args, null
+            )?.use { c -> if (c.moveToFirst()) Located(c.getLong(1), c.getLong(0)) else null }
+        }.getOrNull()
 
     /**
      * Everything in that bucket, in a fixed order, with the opened picture found
@@ -345,26 +385,24 @@ object Folder {
      * ties, so two photos with the same timestamp still have one order rather than
      * whichever the database feels like today.
      */
-    private fun list(context: Context, bucket: Long, card: Card): Lookup {
+    private fun list(context: Context, found: Located): Lookup {
         val items = mutableListOf<Uri>()
         var index = -1
         context.contentResolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             COLUMNS,
             "${MediaStore.Images.Media.BUCKET_ID} = ?",
-            arrayOf(bucket.toString()),
+            arrayOf(found.bucket.toString()),
             "${MediaStore.Images.Media.DATE_MODIFIED} ASC, ${MediaStore.Images.Media._ID} ASC"
         )?.use { c ->
             while (c.moveToNext()) {
                 val id = c.getLong(0)
-                // ⚠️ Il riconoscimento è lo STESSO di `locate`, e deve esserlo: se
-                // qui pretendesse il peso mentre là basta il nome, una foto trovata
-                // finirebbe 'non ritrovata nella sua cartella', che è il difetto di
-                // prima spostato di un passo.
-                val samePath = card.path != null && c.getString(4) == card.path
-                val sameName = c.getString(2) == card.name &&
-                    (!card.sizeKnown || c.getLong(3) == card.size)
-                if (index < 0 && (samePath || sameName)) index = items.size
+                // ⚠️⚠️ L'INDICE SI TROVA PER ID, e non più confrontando nome o peso:
+                // l'id è la chiave della riga, quindi non può sbagliare e non può
+                // essere sintetico. Prima si riconfrontavano nome e percorso, cioè
+                // proprio i due dati che il selettore INVENTA, e la foto appena
+                // trovata rischiava di finire 'non ritrovata nella sua cartella'.
+                if (id == found.id) index = items.size
                 items.add(ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id))
             }
         }
