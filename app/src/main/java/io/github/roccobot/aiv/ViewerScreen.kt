@@ -97,7 +97,7 @@ fun ViewerScreen(
     state: ViewerState,
     settings: Settings,
     source: Uri?,
-    series: Folder.Series?,
+    folder: Folder.Lookup?,
     onStep: (Int) -> Unit,
     onSettings: () -> Unit,
     modifier: Modifier = Modifier
@@ -106,7 +106,7 @@ fun ViewerScreen(
         when (state) {
             is ViewerState.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
             is ViewerState.Error -> ErrorMessage(state, Modifier.align(Alignment.Center))
-            is ViewerState.Ready -> ImageCanvas(state.image, settings, source, series, onStep, onSettings)
+            is ViewerState.Ready -> ImageCanvas(state.image, settings, source, folder, onStep, onSettings)
         }
     }
 }
@@ -139,12 +139,11 @@ private fun ImageCanvas(
     image: LoadedImage,
     settings: Settings,
     source: Uri?,
-    series: Folder.Series?,
+    folder: Folder.Lookup?,
     onStep: (Int) -> Unit,
     onSettings: () -> Unit
 ) {
     val density = LocalDensity.current
-    val context = LocalContext.current
     val checkerPx = with(density) { CHECKER.toPx() }
     val lightGreys = when (settings.bgTheme) {
         BgTheme.LIGHT -> true
@@ -235,7 +234,7 @@ private fun ImageCanvas(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .pointerInput(image, settings, atRest, series) {
+                .pointerInput(image, settings, atRest, folder) {
                     // ⚠️⚠️ UN RILEVATORE SOLO PER LE DUE COSE, e questa è la
                     // correzione della `0.22`: panoramica, pinza e strisciata
                     // nascono tutte da un dito che si muove, quindi finché stanno su
@@ -245,7 +244,7 @@ private fun ImageCanvas(
                         // La strisciata vive solo A RIPOSO: ingrandita, il dito
                         // serve a spostarsi dentro la foto. E senza una serie da
                         // sfogliare non ha dove portare.
-                        swipeEnabled = atRest && series != null,
+                        swipeEnabled = atRest && folder?.seriesOrNull != null,
                         // ⚠️ La soglia è una FRAZIONE della larghezza e non un
                         // numero di dp: su uno schermo stretto un valore fisso
                         // sarebbe mezza schermata, su un tablet un nulla.
@@ -299,19 +298,13 @@ private fun ImageCanvas(
             DetailsPanel(
                 image = image,
                 percent = scale / oneToOne,
-                series = series,
                 // ⚠️⚠️ **Il silenzio non basta a dire perché**, ed è il difetto che
-                // ha reso lunga la caccia alla strisciata rotta: senza serie il
+                // ha fatto perdere DUE versioni sulla strisciata: senza serie il
                 // gesto non fa niente, e 'non fa niente' è identico a un gesto
-                // guasto. Se la foto è di questo telefono, la serie manca e il
-                // permesso non c'è, la riga dei dettagli lo DICE.
-                // ⚠️ Solo quando il permesso manca: se c'è ed è comunque senza
-                // serie, la cartella ha davvero una foto sola, e l'assenza del
-                // contatore '3/7' è già la risposta.
-                needsFolderPermission = remember(source, series) {
-                    source?.scheme?.lowercase() == "content" &&
-                        series == null && !Folder.granted(context)
-                },
+                // guasto. Qui l'esito arriva col suo motivo e la riga lo stampa.
+                // ⚠️ Solo per una foto di questo telefono: su un'immagine del web o
+                // di una chat 'non è nella galleria' è la normalità, non una notizia.
+                folder = folder.takeIf { source?.scheme?.lowercase() == "content" },
                 onSettings = onSettings
             )
         }
@@ -613,12 +606,18 @@ private fun ImageMenu(
 private fun DetailsPanel(
     image: LoadedImage,
     percent: Float,
-    series: Folder.Series?,
-    needsFolderPermission: Boolean,
+    folder: Folder.Lookup?,
     onSettings: () -> Unit
 ) {
-    // Letta fuori dal `buildString`, che non è un contesto composable.
-    val noFolderNote = stringResource(R.string.folder_no_access)
+    // Letta fuori dal `buildString`, che non è un contesto composable. Null mentre
+    // la ricerca è in corso e sulle immagini che una cartella non ce l'hanno.
+    val folderNote = when (folder) {
+        null, is Folder.Lookup.Found -> null
+        Folder.Lookup.NoPermission -> stringResource(R.string.folder_no_access)
+        Folder.Lookup.NotInGallery -> stringResource(R.string.folder_not_in_gallery)
+        Folder.Lookup.Alone -> stringResource(R.string.folder_alone)
+        Folder.Lookup.Lost -> stringResource(R.string.folder_lost)
+    }
     Surface(
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.86f),
         contentColor = MaterialTheme.colorScheme.onSurface,
@@ -642,10 +641,10 @@ private fun DetailsPanel(
                     // La posizione nella cartella sta qui e non in un riquadro suo:
                     // è un dato dell'immagine come gli altri, e un contatore
                     // fluttuante sopra una fotografia è un ingombro in più.
-                    series?.let { append("  ").append(it.index + 1).append('/').append(it.size) }
-                    if (needsFolderPermission) {
-                        append("  ").append(noFolderNote)
+                    folder?.seriesOrNull?.let {
+                        append("  ").append(it.index + 1).append('/').append(it.size)
                     }
+                    folderNote?.let { append("  ").append(it) }
                 },
                 style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.weight(1f)

@@ -54,8 +54,12 @@
 
     <string name="folder_why">To leaf through the rest of the folder, AIV needs access to all files. Turn the switch on in the page that just opened.</string>
     <!-- Shown in the details row in place of the '3/7' position, so that a swipe
-         that does nothing says why instead of just failing. -->
+         that does nothing says WHY instead of just failing. One per reason: the
+         four together are what makes the feature diagnosable from the outside. -->
     <string name="folder_no_access">no access to the folder</string>
+    <string name="folder_not_in_gallery">not in the gallery</string>
+    <string name="folder_alone">alone in its folder</string>
+    <string name="folder_lost">not found in its folder</string>
 
     <!-- ── Settings ── -->
     <string name="settings_title">Settings</string>

@@ -36,6 +36,42 @@ object Folder {
     }
 
     /**
+     * L'esito della ricerca, col PERCHÉ quando non c'è una serie.
+     *
+     * ⚠️⚠️ **Nato dopo due giri a vuoto, e il difetto era di processo prima che di
+     * codice**: finché questa funzione rispondeva `null` e basta, una strisciata che
+     * non faceva niente era indistinguibile da una strisciata guasta, e da fuori non
+     * c'era modo di sapere quale delle due fosse. Due versioni sono andate perse a
+     * indovinare. Un esito che dice la ragione costa quattro stringhe e chiude la
+     * domanda in un'occhiata.
+     * ⚠️ Quindi chi un domani volesse 'semplificare' rimettendo un `Series?` sappia
+     * che toglierebbe l'unica cosa che rende diagnosticabile la funzione.
+     */
+    sealed interface Lookup {
+        /** La cartella c'è, e questa è. */
+        data class Found(val series: Series) : Lookup
+
+        /** Manca il permesso: la sola causa che la persona può rimuovere. */
+        data object NoPermission : Lookup
+
+        /** Il MediaStore non conosce questa immagine: una chat, il web, un file sciolto. */
+        data object NotInGallery : Lookup
+
+        /** La cartella esiste e ha questa foto sola: non c'è niente da sfogliare. */
+        data object Alone : Lookup
+
+        /**
+         * La cartella ha più foto ma l'aperta non è fra loro.
+         * ⚠️ Questo NON dovrebbe succedere, ed è scritto apposta: se compare, il
+         * difetto è nel modo in cui si risale alla riga, non nei dati.
+         */
+        data object Lost : Lookup
+
+        /** La serie quando c'è, e null per tutti gli esiti che spiegano perché non c'è. */
+        val seriesOrNull: Series? get() = (this as? Found)?.series
+    }
+
+    /**
      * ⚠️⚠️ **Il permesso è quello PESANTE, l'accesso a tutti i file, ed è una scelta
      * dell'utente**: *preferisco chiedere un permesso pesante prima e poi essere a
      * posto per sempre*. Quello leggero (`READ_MEDIA_IMAGES`) sarebbe bastato a
@@ -85,18 +121,15 @@ object Folder {
     )
 
     /**
-     * The folder the picture at [uri] belongs to, or null when there is no folder
-     * to speak of: no permission, an address that is not a local file (a web page's
-     * picture, a chat's attachment), or a picture the MediaStore has never indexed.
+     * The folder the picture at [uri] belongs to, or the REASON there is none.
      *
-     * ⚠️ Null is also the answer when the folder holds only that one picture: a
-     * series of one is not a series, and offering to leaf through it would be a
-     * gesture that does nothing.
+     * ⚠️ Una cartella con quella foto sola non è una serie, e vale `Alone`: offrire
+     * di sfogliarla sarebbe un gesto che non porta da nessuna parte.
      */
-    suspend fun seriesAround(context: Context, uri: Uri): Series? = withContext(Dispatchers.IO) {
-        if (!granted(context)) return@withContext null
-        val card = identify(context, uri) ?: return@withContext null
-        val bucket = locate(context, uri, card) ?: return@withContext null
+    suspend fun seriesAround(context: Context, uri: Uri): Lookup = withContext(Dispatchers.IO) {
+        if (!granted(context)) return@withContext Lookup.NoPermission
+        val card = identify(context, uri) ?: return@withContext Lookup.NotInGallery
+        val bucket = locate(context, uri, card) ?: return@withContext Lookup.NotInGallery
         list(context, bucket, card)
     }
 
@@ -169,7 +202,7 @@ object Folder {
      * ties, so two photos with the same timestamp still have one order rather than
      * whichever the database feels like today.
      */
-    private fun list(context: Context, bucket: Long, card: Card): Series? {
+    private fun list(context: Context, bucket: Long, card: Card): Lookup {
         val items = mutableListOf<Uri>()
         var index = -1
         context.contentResolver.query(
@@ -187,7 +220,8 @@ object Folder {
                 items.add(ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id))
             }
         }
-        if (items.size < 2 || index < 0) return null
-        return Series(items, index)
+        if (items.size < 2) return Lookup.Alone
+        if (index < 0) return Lookup.Lost
+        return Lookup.Found(Series(items, index))
     }
 }
