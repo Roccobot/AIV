@@ -35,6 +35,18 @@ object Folder {
     data class Series(val items: List<Uri>, val index: Int) {
         val size: Int get() = items.size
         fun at(position: Int): Uri? = items.getOrNull(position)
+
+        /**
+         * Le stesse foto dall'ultima alla prima, con quella aperta ancora al suo posto.
+         *
+         * ⚠️⚠️ **Girare la serie, e non il gesto**, e la differenza si vede: l'indice
+         * mostrato, il verso della strisciata e l'ordine della lista vengono tutti da
+         * qui, quindi restano coerenti per costruzione. Invertendo il solo gesto il
+         * contatore avrebbe fatto `5/7` e poi `4/7` mentre il dito va avanti.
+         * ⚠️ **È la sua stessa inversa**, e ci si conta: una funzione sola basta a
+         * girare e a tornare indietro (vedi `ViewerViewModel.step`).
+         */
+        fun reversed(): Series = Series(items.reversed(), items.lastIndex - index)
     }
 
     /**
@@ -83,6 +95,14 @@ object Folder {
 
         /** La serie quando c'è, e null per tutti gli esiti che spiegano perché non c'è. */
         val seriesOrNull: Series? get() = (this as? Found)?.series
+
+        /**
+         * Lo stesso esito con la serie girata; gli esiti senza serie restano sé stessi.
+         *
+         * ⚠️ Sta sull'esito e non solo sulla serie perché chi gira non sa quale dei sei
+         * casi ha in mano: senza questo, ogni chiamante ripeterebbe il `when`.
+         */
+        fun reversed(): Lookup = if (this is Found) Found(series.reversed()) else this
     }
 
     /**
@@ -384,6 +404,12 @@ object Folder {
      * of numbered photos would leaf through in a jumbled sequence. The id breaks
      * ties, so two photos with the same timestamp still have one order rather than
      * whichever the database feels like today.
+     *
+     * ⚠️ **Il VERSO invece non si decide qui**, ed è voluto: crescente sempre, e chi
+     * sfoglia dalla più recente lo ottiene girando la serie (`Series.reversed`, e
+     * l'impostazione in `ViewerViewModel.folder`). Con un `DESC` qui l'ordine
+     * dipenderebbe da due posti, e il ripiego sul disco andrebbe tenuto d'accordo a
+     * mano.
      */
     private fun list(context: Context, found: Located): Lookup {
         val items = mutableListOf<Uri>()

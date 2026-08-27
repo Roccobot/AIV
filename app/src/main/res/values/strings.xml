@@ -92,4 +92,7 @@
     <string name="settings_bottom">At the bottom</string>
     <string name="settings_info_visible">Panel showing at first</string>
 
+    <string name="settings_reverse_order">Sequential reading in reverse order</string>
+    <string name="settings_reverse_order_desc">Off, the folder is leafed through from the oldest picture to the newest. On, from the newest to the oldest, the way a phone gallery lists them.</string>
+
 </resources>
