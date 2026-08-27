@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.map
 /*
  * The settings, and which ones exist.
  *
- * The list is a subset of the ones 'Decent Image Viewer' exposes, plus two that
+ * The list is a subset of the ones 'Decent Image Viewer' exposes, plus three that
  * only make sense here. Choosing the subset is the whole design of this file, so
  * the reasons are written down rather than left to be guessed:
  *
@@ -92,6 +92,17 @@ data class Settings(
     val scaleMode: ScaleMode = ScaleMode.PHYSICAL,
     val infoPosition: InfoPosition = InfoPosition.BOTTOM,
     val infoVisible: Boolean = true,
+    /**
+     * Se la cartella si sfoglia dalla foto più recente alla più vecchia.
+     *
+     * ⚠️ **Inverso rispetto a che cosa**: l'ordine di base è quello del MediaStore,
+     * data crescente, quindi si parte dalla più vecchia. Acceso, l'ordine diventa
+     * quello con cui la galleria di un telefono mostra le foto, la più recente per
+     * prima, che è l'abitudine di chi le sfoglia (istruzione dell'utente, 2026-08-27).
+     * ⚠️ Nasce **spenta** perché l'utente ha chiesto un'opzione per invertire, non un
+     * cambio del verso predefinito: acceso è un tocco, e la voce resta leggibile.
+     */
+    val reverseOrder: Boolean = false,
 )
 
 /**
@@ -115,6 +126,7 @@ object SettingsStore {
     private val SCALE_MODE = stringPreferencesKey("scale-mode")
     private val INFO_POSITION = stringPreferencesKey("info-position")
     private val INFO_VISIBLE = booleanPreferencesKey("info-visible")
+    private val REVERSE_ORDER = booleanPreferencesKey("reverse-order")
 
     /** Bounds of the only numeric setting, so a stored value out of range cannot reach the viewer. */
     const val ZOOM_MAX_MIN = 2f
@@ -129,6 +141,7 @@ object SettingsStore {
             scaleMode = ScaleMode.entries.byToken(p[SCALE_MODE], ScaleMode.PHYSICAL),
             infoPosition = InfoPosition.entries.byToken(p[INFO_POSITION], InfoPosition.BOTTOM),
             infoVisible = p[INFO_VISIBLE] ?: true,
+            reverseOrder = p[REVERSE_ORDER] ?: false,
         )
     }
 
@@ -141,6 +154,7 @@ object SettingsStore {
             p[SCALE_MODE] = settings.scaleMode.token
             p[INFO_POSITION] = settings.infoPosition.token
             p[INFO_VISIBLE] = settings.infoVisible
+            p[REVERSE_ORDER] = settings.reverseOrder
         }
     }
 }

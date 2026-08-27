@@ -32,12 +32,12 @@ import kotlin.math.roundToInt
 /**
  * The settings screen.
  *
- * Two of the eight carry a description and the rest do not, which is a choice
+ * Four of the eight carry a description and the rest do not, which is a choice
  * rather than an omission: an explanation under a setting whose name already says
  * everything is noise, and after three of them nobody reads the fourth. The ones
  * that have one are the ones where the name cannot carry the meaning: what the
  * checkerboard is FOR, what 'enlarge' does when it is off, what 100% means, and
- * why the engine is picked here instead of in the menu.
+ * what the reverse reading order is the reverse OF.
  */
 @Composable
 fun SettingsScreen(
@@ -167,6 +167,15 @@ fun SettingsScreen(
         // ⚠️ Con la ricerca immagine è uscito anche il suo motore, che era l'ultima
         // voce di questo elenco, e con lei il separatore che la staccava: un filo
         // sopra il nulla è peggio di nessun filo.
+
+        HorizontalDivider(Modifier.padding(vertical = 12.dp))
+
+        SwitchRow(
+            label = stringResource(R.string.settings_reverse_order),
+            detail = stringResource(R.string.settings_reverse_order_desc),
+            checked = settings.reverseOrder,
+            onChange = { onChange(settings.copy(reverseOrder = it)) }
+        )
 
         Spacer(Modifier.height(24.dp))
     }

@@ -83,4 +83,7 @@
     <string name="settings_bottom">In basso</string>
     <string name="settings_info_visible">Pannello visibile all\'apertura</string>
 
+    <string name="settings_reverse_order">Lettura sequenziale in ordine inverso</string>
+    <string name="settings_reverse_order_desc">Spento, la cartella si sfoglia dalla foto più vecchia alla più recente. Acceso, dalla più recente alla più vecchia, come le elenca la galleria del telefono.</string>
+
 </resources>

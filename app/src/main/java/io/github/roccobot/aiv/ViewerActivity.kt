@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -78,17 +79,42 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         private set
 
     /**
-     * L'esito della ricerca della cartella, **col perché** quando una serie non c'è.
-     * Null soltanto finché la ricerca non è finita.
+     * L'esito della ricerca della cartella **come il MediaStore lo dà**, cioè in
+     * ordine di data crescente, dalla foto più vecchia alla più recente.
      *
      * ⚠️ Porta la ragione e non solo la serie perché la serie mancante è muta: vedi
      * `Folder.Lookup`, e le due versioni che sono servite a scoprirlo.
+     * ⚠️ Privato perché **non è l'ordine in cui si sfoglia**: quello lo decide
+     * l'impostazione, e vive in [folder]. Null soltanto finché la ricerca non è finita.
      */
-    var folder: Folder.Lookup? by mutableStateOf(null)
-        private set
+    private var listed: Folder.Lookup? by mutableStateOf(null)
+
+    /**
+     * L'esito nell'ordine in cui si sfoglia: è questo che guardano tutti gli altri.
+     *
+     * ⚠️⚠️ **Girato al momento dell'uso e non a quello della lettura, e la differenza
+     * è una corsa evitata**: la ricerca della cartella e la lettura delle impostazioni
+     * sono due coroutine indipendenti, e quale delle due arrivi prima non è deciso.
+     * Orientando qui l'ordine è giusto comunque, e spostare l'interruttore rigira la
+     * serie che si ha in mano senza rileggere niente dal database.
+     * ⚠️ `derivedStateOf` e non un getter nudo: girare copia una lista che può avere
+     * qualche centinaio di voci, e senza cache la copia si rifarebbe a ogni lettura
+     * durante la composizione.
+     */
+    val folder: Folder.Lookup? by derivedStateOf { listed.oriented() }
 
     /** Scorciatoia per chi della cartella vuole solo la serie, quando c'è. */
     val series: Folder.Series? get() = folder?.seriesOrNull
+
+    /**
+     * L'esito nel verso scelto dall'impostazione.
+     *
+     * ⚠️ Serve **in entrambi i versi** e una funzione sola basta, perché girare una
+     * serie è la sua stessa inversa: di qui si passa sia per mostrare l'ordine di
+     * lettura sia per riscrivere in [listed] quello grezzo (vedi [step]).
+     */
+    private fun Folder.Lookup?.oriented(): Folder.Lookup? =
+        if (settings?.reverseOrder == true) this?.reversed() else this
 
     /** Whether the folder permission has already been asked for once. */
     var folderAsked: Boolean by mutableStateOf(true)
@@ -123,7 +149,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         cameFromHome = fromHome
         screen = Screen.Viewer
         state = ViewerState.Loading
-        folder = null
+        listed = null
         val context = getApplication<Application>()
         viewModelScope.launch {
             state = when (val result = ImageSource.load(context, uri)) {
@@ -140,7 +166,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         // above: it is a database query that the picture does not wait for, and
         // hanging it off the load would delay what the person is looking at in
         // order to prepare a gesture they may never make.
-        viewModelScope.launch { folder = Folder.seriesAround(context, uri) }
+        viewModelScope.launch { listed = Folder.seriesAround(context, uri) }
     }
 
     /**
@@ -154,6 +180,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * ⚠️ It does NOT wrap around: at the last picture a swipe does nothing. Coming
      * back to the first one after the last is the kind of surprise that makes
      * people lose their place.
+     * ⚠️ [delta] si conta nell'**ordine di lettura**, quello di [folder]: `+1` è la
+     * foto dopo come la si sfoglia, che con l'ordine inverso acceso è la più vecchia.
+     * Chi legge il verso della strisciata non trova nessun segno qui, ed è voluto:
+     * l'impostazione gira la serie, non il gesto.
      */
     fun step(delta: Int) {
         val current = series ?: return
@@ -161,7 +191,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         val uri = current.at(next) ?: return
         source = uri
         state = ViewerState.Loading
-        folder = Folder.Lookup.Found(current.copy(index = next))
+        // ⚠️ `current` sta nell'ordine di lettura, `listed` in quello grezzo: si
+        // rigira per riscriverlo, e la stessa funzione basta perché girare una serie
+        // è la sua stessa inversa.
+        listed = Folder.Lookup.Found(current.copy(index = next)).oriented()
         val context = getApplication<Application>()
         viewModelScope.launch {
             state = when (val result = ImageSource.load(context, uri)) {
@@ -179,7 +212,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         // instead of making the person open the same picture a second time.
         val uri = source
         if (allowed && uri != null) {
-            viewModelScope.launch { folder = Folder.seriesAround(context, uri) }
+            viewModelScope.launch { listed = Folder.seriesAround(context, uri) }
         }
     }
 
@@ -187,7 +220,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         screen = Screen.Home
         state = ViewerState.Loading
         source = null
-        folder = null
+        listed = null
     }
 
     fun openSettings() {
