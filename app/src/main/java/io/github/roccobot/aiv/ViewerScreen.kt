@@ -25,14 +25,10 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -283,7 +279,8 @@ private fun ImageCanvas(
                     onZoom = { animateTo(it) },
                     oneToOne = oneToOne,
                     restScale = restScale,
-                    onToggleDetails = { panelVisible = !panelVisible }
+                    onToggleDetails = { panelVisible = !panelVisible },
+                    onSettings = onSettings
                 )
             }
         }
@@ -304,8 +301,7 @@ private fun ImageCanvas(
                 // guasto. Qui l'esito arriva col suo motivo e la riga lo stampa.
                 // ⚠️ Solo per una foto di questo telefono: su un'immagine del web o
                 // di una chat 'non è nella galleria' è la normalità, non una notizia.
-                folder = folder.takeIf { source?.scheme?.lowercase() == "content" },
-                onSettings = onSettings
+                folder = folder.takeIf { source?.scheme?.lowercase() == "content" }
             )
         }
     }
@@ -517,7 +513,8 @@ private fun ImageMenu(
     onZoom: (Float) -> Unit,
     oneToOne: Float,
     restScale: Float,
-    onToggleDetails: () -> Unit
+    onToggleDetails: () -> Unit,
+    onSettings: () -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -585,6 +582,14 @@ private fun ImageMenu(
             text = { Text(stringResource(R.string.menu_details)) },
             onClick = { onDismiss(); onToggleDetails() }
         )
+        // ⚠️ Le impostazioni sono ARRIVATE QUI nella 0.30, e da qui non se ne vanno: la
+        // loro rotella stava in fondo alla riga dei dettagli, e quel posto serviva al
+        // contatore della cartella. Sta per ultima perché è quella che porta più
+        // lontano, che è il criterio dell'ordine di questo menu.
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.menu_settings)) },
+            onClick = { onDismiss(); onSettings() }
+        )
         // ⚠️ LA RICERCA IMMAGINE NON C'È PIÙ, dalla 0.18, e non è una dimenticanza:
         // l'utente l'ha spenta dopo averla provata sul telefono, perché non
         // funzionava e faceva solo rumore in un menu tenuto corto apposta. Con
@@ -596,18 +601,24 @@ private fun ImageMenu(
 }
 
 /**
- * The one line of details, with a way into the settings at its right end.
+ * La riga dei dettagli, col contatore della cartella fisso al suo estremo destro.
  *
- * ⚠️ The cog is outlined, small and in the muted colour, and that is the whole
- * brief the user gave for it: it sits over someone's photograph, so it has to be
- * findable without being part of the picture.
+ * ⚠️⚠️ **LÀ C'ERA LA ROTELLA DELLE IMPOSTAZIONI, ed è uscita nella 0.30** (istruzione
+ * dell'utente): quel posto vale più al contatore, che è un dato che si guarda mentre
+ * si sfoglia, mentre le impostazioni si aprono una volta ogni tanto e adesso stanno in
+ * fondo al menu del tocco lungo. ⚠️ Chi la rimettesse toglierebbe di nuovo il posto al
+ * contatore: sono due cose che si contendono lo stesso angolo.
+ *
+ * ⚠️ **Il contatore è FISSO a destra e non in coda al testo**, e la differenza si vede
+ * sfogliando: in coda si sposta a ogni immagine, perché la riga davanti cambia
+ * lunghezza col nome, col peso e con la percentuale. Un numero che si guarda spesso
+ * deve stare sempre nello stesso punto.
  */
 @Composable
 private fun DetailsPanel(
     image: LoadedImage,
     percent: Float,
-    folder: Folder.Lookup?,
-    onSettings: () -> Unit
+    folder: Folder.Lookup?
 ) {
     // Letta fuori dal `buildString`, che non è un contesto composable. Null mentre
     // la ricerca è in corso e sulle immagini che una cartella non ce l'hanno.
@@ -629,7 +640,7 @@ private fun DetailsPanel(
             modifier = Modifier
                 .fillMaxWidth()
                 .safeDrawingPadding()
-                .padding(start = 16.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
+                .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -640,23 +651,20 @@ private fun DetailsPanel(
                     image.byteSize?.let { append("  ").append(formatBytes(it)) }
                     append("  ").append((percent * 100).roundToInt()).append('%')
                     if (image.sampled) append("  (sampled)")
-                    // La posizione nella cartella sta qui e non in un riquadro suo:
-                    // è un dato dell'immagine come gli altri, e un contatore
-                    // fluttuante sopra una fotografia è un ingombro in più.
-                    folder?.seriesOrNull?.let {
-                        append("  ").append(it.index + 1).append('/').append(it.size)
-                    }
+                    // ⚠️ Il perché di una cartella che non c'è resta QUI, col resto del
+                    // testo, e non va nell'angolo del contatore: è una frase, non un
+                    // numero, e in quello spazio starebbe stretta o lo farebbe crescere
+                    // rimettendo in movimento il contatore che si è appena fissato.
                     folderNote?.let { append("  ").append(it) }
                 },
                 style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.weight(1f)
             )
-            IconButton(onClick = onSettings, modifier = Modifier.size(36.dp)) {
-                Icon(
-                    imageVector = Icons.Outlined.Settings,
-                    contentDescription = stringResource(R.string.settings_title),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                    modifier = Modifier.size(19.dp)
+            folder?.seriesOrNull?.let {
+                Text(
+                    text = "${it.index + 1}/${it.size}",
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.padding(start = 12.dp)
                 )
             }
         }
