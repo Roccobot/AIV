@@ -45,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -307,20 +308,37 @@ private fun Identity() {
 }
 
 /**
+ * Quanto si ingrandisce il livello di primo piano perché questa anteprima mostri la
+ * stessa cosa che mostra il launcher.
+ *
+ * ⚠️⚠️ **I due fattori sono uno per ciascuna cosa che il launcher fa, e non sono
+ * intercambiabili.** `108 / 72`, cioè esattamente 1.5, perché di un'icona adattiva
+ * si vedono **solo i 72dp centrali** della tela da 108: l'anello esterno esiste per
+ * la maschera e la parallasse del launcher, e chi rende la tela intera sta mostrando
+ * un margine che sul telefono nessuno vede. Il **1.3** è l'altra metà di una coppia:
+ * HyperOS ingrandisce il primo piano di circa un terzo, quindi
+ * `ic_launcher_foreground` porta un glifo rimpicciolito di 1.3 per venire giusto sul
+ * telefono, e qui si moltiplica per lo stesso 1.3 per rivedere il disegno com'è.
+ * Chi ne cambia uno deve cambiare anche l'altro.
+ */
+private const val LAUNCHER_ZOOM = 1.5f * 1.3f
+
+/**
  * The launcher icon, drawn large.
  *
- * ⚠️⚠️ **The foreground is rendered enlarged and clipped, and without that it would
- * come out visibly smaller than the same icon in the launcher.** An adaptive icon's
- * layers are 108dp square but only the central 72dp are ever shown: the outer ring
- * is there for the launcher's own masking and parallax. Reproducing what the
- * launcher shows starts from 108/72, which is exactly 1.5.
- *
- * ⚠️⚠️ **The 1.3 on top of that is the OTHER HALF of a pair, and moving it alone
- * breaks the icon.** HyperOS blows the foreground layer up by about a third
- * compared to this preview, so `ic_launcher_foreground` carries a glyph scaled
- * down by 1.3 to come out right on the phone; multiplying here by the same 1.3
- * keeps this preview looking exactly as it did before that shrink, which is what
- * the user asked for. Change one factor and you have to change the other.
+ * ⚠️⚠️ **L'ingrandimento si fa al DISEGNO e non alla misura, e fino alla 0.27 questa
+ * differenza costava tutto l'ingrandimento.** `Modifier.size` **negozia** col
+ * genitore: `SizeNode.measure` chiama `constrain(vincoli in ingresso, misura
+ * chiesta)` quando `enforceIncoming` è vero, e per `size` è vero (per `requiredSize`
+ * no) - verificato nel bytecode di `foundation-layout`, non a memoria. Il `Box` qui
+ * sotto passa ai figli i propri vincoli col solo minimo azzerato, quindi il massimo
+ * resta la misura della piastrella: l'immagine chiedeva 187.2dp, ne otteneva 96, e
+ * l'anteprima mostrava la **tela intera** invece dei 72dp centrali. Cioè un glifo
+ * **1.95 volte più piccolo** di quello del launcher, che è esattamente quello che
+ * l'utente ha visto e segnalato.
+ * ⚠️ Un `Modifier.scale` è una trasformazione di disegno: nessun genitore la può
+ * limitare, e il ritaglio del `Box` continua a valere. Con `requiredSize` si otterrebbe
+ * lo stesso risultato, ma resterebbe una misura da far rispettare a chi sta sopra.
  */
 @Composable
 private fun AppIcon(size: Dp) {
@@ -334,7 +352,7 @@ private fun AppIcon(size: Dp) {
         Image(
             painter = painterResource(R.drawable.ic_launcher_foreground),
             contentDescription = null,
-            modifier = Modifier.size(size * 1.5f * 1.3f)
+            modifier = Modifier.fillMaxSize().scale(LAUNCHER_ZOOM)
         )
     }
 }
