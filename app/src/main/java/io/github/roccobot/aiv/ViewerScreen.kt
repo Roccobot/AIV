@@ -10,8 +10,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.gestures.calculateCentroid
+import androidx.compose.foundation.gestures.calculateCentroidSize
+import androidx.compose.foundation.gestures.calculatePan
+import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -52,6 +54,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -141,6 +144,7 @@ private fun ImageCanvas(
     onSettings: () -> Unit
 ) {
     val density = LocalDensity.current
+    val context = LocalContext.current
     val checkerPx = with(density) { CHECKER.toPx() }
     val lightGreys = when (settings.bgTheme) {
         BgTheme.LIGHT -> true
@@ -232,28 +236,25 @@ private fun ImageCanvas(
             modifier = Modifier
                 .fillMaxSize()
                 .pointerInput(image, settings, atRest, series) {
-                    // ⚠️⚠️ IL RILEVATORE STA PRIMA di quello delle trasformazioni, e
-                    // l'ordine è quello che fa funzionare la cosa: `consume()` su
-                    // una variazione fa abbandonare `detectTransformGestures`, che
-                    // altrimenti si mangerebbe la strisciata come panoramica.
-                    if (!atRest || series == null) return@pointerInput
-                    var travel = 0f
-                    detectHorizontalDragGestures(
-                        onDragStart = { travel = 0f },
-                        onDragEnd = {
-                            // ⚠️ La soglia è una FRAZIONE della larghezza e non un
-                            // numero di dp: su uno schermo stretto un valore fisso
-                            // sarebbe mezza schermata, su un tablet un nulla.
-                            val enough = viewWidth / 5f
-                            if (travel <= -enough) onStep(1) else if (travel >= enough) onStep(-1)
+                    // ⚠️⚠️ UN RILEVATORE SOLO PER LE DUE COSE, e questa è la
+                    // correzione della `0.22`: panoramica, pinza e strisciata
+                    // nascono tutte da un dito che si muove, quindi finché stanno su
+                    // due modificatori diversi si contendono lo stesso gesto e uno
+                    // dei due perde sempre. Chi decide dev'essere uno.
+                    detectPanZoomOrSwipe(
+                        // La strisciata vive solo A RIPOSO: ingrandita, il dito
+                        // serve a spostarsi dentro la foto. E senza una serie da
+                        // sfogliare non ha dove portare.
+                        swipeEnabled = atRest && series != null,
+                        // ⚠️ La soglia è una FRAZIONE della larghezza e non un
+                        // numero di dp: su uno schermo stretto un valore fisso
+                        // sarebbe mezza schermata, su un tablet un nulla.
+                        swipeThreshold = viewWidth / 5f,
+                        onTransform = { centroid, pan, zoom ->
+                            zoomAround(centroid, scale * zoom, pan)
                         },
-                        onHorizontalDrag = { change, dx -> travel += dx; change.consume() }
+                        onSwipe = onStep
                     )
-                }
-                .pointerInput(image, settings) {
-                    detectTransformGestures { centroid, pan, zoom, _ ->
-                        zoomAround(centroid, scale * zoom, pan)
-                    }
                 }
                 .pointerInput(image, settings) {
                     detectViewerGestures(
@@ -299,9 +300,113 @@ private fun ImageCanvas(
                 image = image,
                 percent = scale / oneToOne,
                 series = series,
+                // ⚠️⚠️ **Il silenzio non basta a dire perché**, ed è il difetto che
+                // ha reso lunga la caccia alla strisciata rotta: senza serie il
+                // gesto non fa niente, e 'non fa niente' è identico a un gesto
+                // guasto. Se la foto è di questo telefono, la serie manca e il
+                // permesso non c'è, la riga dei dettagli lo DICE.
+                // ⚠️ Solo quando il permesso manca: se c'è ed è comunque senza
+                // serie, la cartella ha davvero una foto sola, e l'assenza del
+                // contatore '3/7' è già la risposta.
+                needsFolderPermission = remember(source, series) {
+                    source?.scheme?.lowercase() == "content" &&
+                        series == null && !Folder.granted(context)
+                },
                 onSettings = onSettings
             )
         }
+    }
+}
+
+/**
+ * Panoramica, pinza e strisciata orizzontale, decise dallo STESSO rilevatore.
+ *
+ * ⚠️⚠️ **Perché stanno insieme, che è la correzione della `0.22`.** Fino alla `0.21`
+ * la strisciata viveva su un `Modifier.pointerInput` suo, prima di
+ * `detectTransformGestures`, con un commento che dava l'ordine per garanzia. Non lo
+ * è, e la strisciata **non ha mai funzionato**: le due cose nascono dallo stesso
+ * dito che si muove, quindi si contendono il gesto, e chi supera per primo la soglia
+ * di movimento consuma le variazioni e fa morire l'altro.
+ *
+ * ⚠️⚠️ **A perdere era sempre la strisciata, e non per un pelo.** Le due soglie non
+ * misurano la stessa cosa: `detectTransformGestures` guarda il **modulo** dello
+ * spostamento, `detectHorizontalDragGestures` la sola **X**. Su una riga
+ * perfettamente orizzontale pareggiano, e per ogni altro angolo il modulo arriva
+ * prima: a 10 gradi il transform scatta a 24px dove l'orizzontale ne vuole 24,37. Un
+ * pollice non disegna mai una riga perfetta, quindi la strisciata perdeva sempre.
+ * Verificato sul sorgente vero di Compose e non a memoria: `detectTransformGestures`
+ * consuma ogni variazione appena passata la soglia, e
+ * `awaitPointerSlopOrCancellation` risponde `return null` a una variazione consumata,
+ * cioè annulla la trascinata.
+ *
+ * ⚠️ E l'ordine dei modificatori non avrebbe salvato niente, il che è la ragione per
+ * cui il rimedio non è scambiarli: quell'elica controlla la variazione **anche nel
+ * passaggio Final**, che gira dopo il Main di tutti i nodi, quindi un consumo
+ * altrui arriva comunque prima della fine dell'evento.
+ *
+ * Il corpo qui sotto è `detectTransformGestures` con un ramo in più: finché il dito
+ * è uno solo e la strisciata è ammessa, lo spostamento orizzontale si **somma**
+ * invece di muovere la figura, e al distacco decide se cambiare immagine.
+ *
+ * ⚠️ Un secondo dito **annulla** la strisciata in corso (`travel` torna a zero): chi
+ * appoggia il pollice per pizzicare non sta chiedendo l'immagine dopo, e senza
+ * questo una pinza cominciata storta la cambierebbe.
+ */
+private suspend fun PointerInputScope.detectPanZoomOrSwipe(
+    swipeEnabled: Boolean,
+    swipeThreshold: Float,
+    onTransform: (centroid: Offset, pan: Offset, zoom: Float) -> Unit,
+    onSwipe: (Int) -> Unit
+) {
+    awaitEachGesture {
+        val slop = viewConfiguration.touchSlop
+        var zoomAcc = 1f
+        var panAcc = Offset.Zero
+        var past = false
+        var multi = false
+        var travel = 0f
+
+        awaitFirstDown(requireUnconsumed = false)
+        var canceled: Boolean
+        do {
+            val event = awaitPointerEvent()
+            // Una variazione già consumata è di qualcun altro: qui c'è solo il
+            // rilevatore dei tocchi, che consuma nella sua trascinata di zoom.
+            canceled = event.changes.any { it.isConsumed }
+            if (!canceled) {
+                if (event.changes.count { it.pressed } > 1 && !multi) {
+                    multi = true
+                    travel = 0f
+                }
+                val swiping = swipeEnabled && !multi
+                val zoomChange = event.calculateZoom()
+                val panChange = event.calculatePan()
+
+                if (!past) {
+                    zoomAcc *= zoomChange
+                    panAcc += panChange
+                    val centroidSize = event.calculateCentroidSize(useCurrent = false)
+                    if (abs(1 - zoomAcc) * centroidSize > slop || panAcc.getDistance() > slop) {
+                        past = true
+                    }
+                }
+
+                if (past) {
+                    if (swiping) {
+                        travel += panChange.x
+                    } else if (zoomChange != 1f || panChange != Offset.Zero) {
+                        onTransform(event.calculateCentroid(useCurrent = false), panChange, zoomChange)
+                    }
+                    // Si consuma in tutti e due i casi: è quello che dice al
+                    // rilevatore dei tocchi che questo dito sta trascinando e non
+                    // chiedendo il menu.
+                    event.changes.forEach { if (it.positionChanged()) it.consume() }
+                }
+            }
+        } while (!canceled && event.changes.any { it.pressed })
+
+        if (!canceled && travel <= -swipeThreshold) onSwipe(1)
+        else if (!canceled && travel >= swipeThreshold) onSwipe(-1)
     }
 }
 
@@ -509,8 +614,11 @@ private fun DetailsPanel(
     image: LoadedImage,
     percent: Float,
     series: Folder.Series?,
+    needsFolderPermission: Boolean,
     onSettings: () -> Unit
 ) {
+    // Letta fuori dal `buildString`, che non è un contesto composable.
+    val noFolderNote = stringResource(R.string.folder_no_access)
     Surface(
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.86f),
         contentColor = MaterialTheme.colorScheme.onSurface,
@@ -535,6 +643,9 @@ private fun DetailsPanel(
                     // è un dato dell'immagine come gli altri, e un contatore
                     // fluttuante sopra una fotografia è un ingombro in più.
                     series?.let { append("  ").append(it.index + 1).append('/').append(it.size) }
+                    if (needsFolderPermission) {
+                        append("  ").append(noFolderNote)
+                    }
                 },
                 style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.weight(1f)
