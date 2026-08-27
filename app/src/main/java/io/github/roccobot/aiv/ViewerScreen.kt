@@ -615,7 +615,8 @@ private fun DetailsPanel(
         null, is Folder.Lookup.Found -> null
         Folder.Lookup.NoPermission -> stringResource(R.string.folder_no_access)
         Folder.Lookup.Unreadable -> stringResource(R.string.folder_unreadable)
-        Folder.Lookup.NotInGallery -> stringResource(R.string.folder_not_in_gallery)
+        is Folder.Lookup.NotInGallery ->
+            stringResource(R.string.folder_not_in_gallery, folder.detail)
         Folder.Lookup.Alone -> stringResource(R.string.folder_alone)
         Folder.Lookup.Lost -> stringResource(R.string.folder_lost)
     }

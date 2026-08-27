@@ -50,7 +50,7 @@
          silenzio che toglie. -->
     <string name="folder_no_access">nessun accesso alla cartella</string>
     <string name="folder_unreadable">nome e peso illeggibili</string>
-    <string name="folder_not_in_gallery">non è nella galleria</string>
+    <string name="folder_not_in_gallery">non è nella galleria (%1$s)</string>
     <string name="folder_alone">sola nella sua cartella</string>
     <string name="folder_lost">non ritrovata nella sua cartella</string>
 
