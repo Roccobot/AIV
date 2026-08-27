@@ -23,8 +23,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -208,12 +208,33 @@ private fun ImageCanvas(
             }
         }
 
+        // ⚠️⚠️ **`requiredSize` E NON `size`, ED È IL DIFETTO PER CUI LE IMMAGINI GRANDI SI
+        // APRIVANO PICCOLE INVECE CHE ADATTATE** (segnalato dall'utente, corretto nella 0.31).
+        // `size` **negozia** col genitore: `SizeNode.measure` chiama `constrain(vincoli in
+        // ingresso, misura chiesta)` quando `enforceIncoming` è vero, e per `size` è vero
+        // (verificato nel bytecode di `foundation-layout` nella 0.28, quando la stessa
+        // trappola aveva mangiato l'ingrandimento dell'icona). Qui il genitore è il
+        // `BoxWithConstraints` della vista, quindi un'immagine **più grande della vista**
+        // veniva ricondotta alla misura della vista, la bitmap ci finiva dentro adattata, e
+        // poi `graphicsLayer` applicava la scala UNA SECONDA VOLTA.
+        // - **Effetto**: larghezza disegnata = vista x scala, invece di bitmap x scala. Cioè
+        //   l'immagine veniva piccola **esattamente del fattore di adattamento**.
+        // - **Perché solo le grandi**: un'immagine più piccola della vista non viene
+        //   ricondotta a niente, e infatti si è sempre vista giusta. I WebP dell'utente sono
+        //   i suoi file più grossi, ed è per questo che il difetto sembrava del formato.
+        // - **Misura che lo prova**: su uno screenshot di un 2736 x 4096 la figura occupava il
+        //   43.6% della larghezza, cioè **esattamente la scala di riposo**, che è la firma di
+        //   questo difetto: se il nodo fosse la bitmap, quella frazione sarebbe 1.
+        // - ⚠️ **E spiega anche i 'passi forzati' dello zoom**: con il nodo ricondotto, ogni
+        //   scala era moltiplicata per il fattore di adattamento, quindi nemmeno il 100%
+        //   mostrava un pixel per pixel. Un difetto solo, due sintomi.
+        // ⚠️ Il ritaglio non si perde: il `BoxWithConstraints` qui sopra ha `clipToBounds`.
         Image(
             bitmap = image.bitmap,
             contentDescription = image.displayName,
             modifier = Modifier
                 .align(Alignment.Center)
-                .size(with(density) { imageWidth.toDp() }, with(density) { imageHeight.toDp() })
+                .requiredSize(with(density) { imageWidth.toDp() }, with(density) { imageHeight.toDp() })
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale
