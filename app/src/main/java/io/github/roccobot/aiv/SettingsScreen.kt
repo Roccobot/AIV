@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,17 +33,18 @@ import kotlin.math.roundToInt
 /**
  * The settings screen.
  *
- * Four of the eight carry a description and the rest do not, which is a choice
+ * Five of the nine carry a description and the rest do not, which is a choice
  * rather than an omission: an explanation under a setting whose name already says
  * everything is noise, and after three of them nobody reads the fourth. The ones
  * that have one are the ones where the name cannot carry the meaning: what the
- * checkerboard is FOR, what 'enlarge' does when it is off, what 100% means, and
- * what the reverse reading order is the reverse OF.
+ * checkerboard is FOR, what 'enlarge' does when it is off, what 100% means, what the
+ * reverse reading order is the reverse OF, and what exactly opens at startup.
  */
 @Composable
 fun SettingsScreen(
     settings: Settings,
     onChange: (Settings) -> Unit,
+    onStartFolder: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -176,6 +178,38 @@ fun SettingsScreen(
             checked = settings.reverseOrder,
             onChange = { onChange(settings.copy(reverseOrder = it)) }
         )
+
+        HorizontalDivider(Modifier.padding(vertical = 12.dp))
+
+        SwitchRow(
+            label = stringResource(R.string.settings_start_folder),
+            detail = stringResource(R.string.settings_start_folder_desc),
+            checked = settings.openAtStart,
+            // ⚠️ Acceso senza una cartella scelta porta ALL'ELENCO invece di accendersi
+            // e non fare niente: un interruttore che dipende da un'altra voce e non lo
+            // dice è il modo classico di far sembrare rotta un'impostazione.
+            onChange = {
+                if (it && settings.startFolder == null) onStartFolder()
+                else onChange(settings.copy(openAtStart = it))
+            }
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = settings.startFolderName.ifBlank {
+                    stringResource(R.string.settings_start_folder_none)
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f)
+            )
+            TextButton(onClick = onStartFolder) {
+                Text(stringResource(R.string.settings_start_folder_pick))
+            }
+        }
 
         Spacer(Modifier.height(24.dp))
     }

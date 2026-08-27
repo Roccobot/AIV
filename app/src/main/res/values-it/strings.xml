@@ -83,7 +83,30 @@
     <string name="settings_bottom">In basso</string>
     <string name="settings_info_visible">Pannello visibile all\'apertura</string>
 
-    <string name="settings_reverse_order">Lettura sequenziale in ordine inverso</string>
+    <string name="settings_reverse_order">Sfoglia in sequenza (per data) in ordine inverso</string>
     <string name="settings_reverse_order_desc">Spento, la cartella si sfoglia dalla foto più vecchia alla più recente. Acceso, dalla più recente alla più vecchia, come le elenca la galleria del telefono.</string>
+
+    <string name="settings_start_folder">Apri una cartella all\'avvio</string>
+    <string name="settings_start_folder_desc">All\'apertura dell\'app compare la foto più recente della cartella scelta, invece della schermata iniziale.</string>
+    <string name="settings_start_folder_none">Nessuna cartella scelta</string>
+    <string name="settings_start_folder_pick">Scegli</string>
+
+    <string name="home_folder">Apri una cartella</string>
+    <string name="home_folder_sub">Parti dalla sua foto più recente</string>
+
+    <string name="folders_title">Cartelle</string>
+    <string name="folders_permission">Per elencare le cartelle serve l\'accesso a tutti i file. È lo stesso permesso che serve a sfogliare una cartella, e si concede da una pagina di sistema.</string>
+    <string name="folders_grant">Concedi l\'accesso</string>
+    <string name="folders_none">Nessuna cartella contiene immagini.</string>
+    <string name="folder_empty">Questa cartella non contiene più immagini.</string>
+    <plurals name="folders_count">
+        <item quantity="one">%1$d immagine</item>
+        <!-- ⚠️ La categoria `many` dell'italiano non è un doppione di `other`: il CLDR la
+             usa per i numeri grandi in forma compatta ('un milione di immagini'), e senza
+             di lei lint segnala la traduzione come incompleta. Qui il testo coincide, e
+             va bene: coincidere è diverso da mancare. -->
+        <item quantity="many">%1$d immagini</item>
+        <item quantity="other">%1$d immagini</item>
+    </plurals>
 
 </resources>
