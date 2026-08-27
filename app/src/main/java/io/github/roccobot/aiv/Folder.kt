@@ -171,8 +171,13 @@ object Folder {
     }
 
     /**
-     * La cartella aperta dalla sua foto più recente, che è da dove si vuole partire.
+     * La cartella intera, posizionata sulla prima foto dell'ordine di base, cioè la più
+     * recente.
      *
+     * ⚠️ **Chi apre deve poi spostarsi sull'inizio della sequenza SCELTA** (vedi
+     * `ViewerViewModel.openFolder`): con il verso invertito la più recente è l'ultima, e
+     * aprire una cartella su un vicolo cieco è il difetto che questa funzione ha avuto
+     * nella 0.29.
      * ⚠️ **Una cartella con una foto sola qui vale [Lookup.Found] e non [Lookup.Alone]**,
      * al contrario di [seriesAround], e la differenza non è una svista: là la domanda è
      * 'che cosa c'è intorno a questa foto', e una sola non è una serie; qui la domanda è
@@ -182,7 +187,7 @@ object Folder {
         if (!granted(context)) return@withContext Lookup.NoPermission
         val ids = idsOf(context, bucket)
         if (ids.isEmpty()) return@withContext Lookup.Unreadable
-        Lookup.Found(Series(ids.map(::uriOf), ids.lastIndex))
+        Lookup.Found(Series(ids.map(::uriOf), 0))
     }
 
     /**
@@ -428,9 +433,10 @@ object Folder {
     /**
      * La cartella letta dal FILESYSTEM, quando il MediaStore non riconosce la foto.
      *
-     * ⚠️ L'ordine imita quello del MediaStore (data e poi nome) invece di inventarne
-     * uno suo: sfogliare la stessa cartella deve dare la stessa sequenza, da
-     * qualunque delle due vie sia arrivata.
+     * ⚠️ L'ordine imita quello del MediaStore (data e poi nome, **decrescente**) invece
+     * di inventarne uno suo: sfogliare la stessa cartella deve dare la stessa sequenza,
+     * da qualunque delle due vie sia arrivata. Girato nella 0.30 insieme all'altro, e
+     * sono due posti da tenere d'accordo a mano.
      */
     private fun fromDisk(card: Card): Lookup? {
         // ⚠️ Solo il percorso VERO: quello sintetico del selettore punta a una via
@@ -445,7 +451,7 @@ object Folder {
 
         val images = siblings
             .filter { it.isFile && it.extension.lowercase() in EXTENSIONS }
-            .sortedWith(compareBy({ it.lastModified() }, { it.name }))
+            .sortedWith(compareByDescending<File> { it.lastModified() }.thenByDescending { it.name })
         if (images.size < 2) return Lookup.Alone
         val index = images.indexOfFirst { it.absolutePath == file.absolutePath }
             .takeIf { it >= 0 }
@@ -485,6 +491,8 @@ object Folder {
      * of numbered photos would leaf through in a jumbled sequence. The id breaks
      * ties, so two photos with the same timestamp still have one order rather than
      * whichever the database feels like today.
+     * ⚠️ **Dalla più recente alla più vecchia** dalla 0.30, che è il verso della
+     * galleria di un telefono: vedi [idsOf].
      *
      * ⚠️ **Il VERSO invece non si decide qui**, ed è voluto: crescente sempre, e chi
      * sfoglia dalla più recente lo ottiene girando la serie (`Series.reversed`, e
@@ -506,8 +514,15 @@ object Folder {
     }
 
     /**
-     * Gli id di una cartella nell'ordine di lettura di base, dal più vecchio al più
-     * recente.
+     * Gli id di una cartella nell'ordine di base, **dalla foto più recente alla più
+     * vecchia**.
+     *
+     * ⚠️⚠️ **DECRESCENTE, e dalla 0.30 è il verso PREDEFINITO** (decisione dell'utente:
+     * *questa modalità di sfogliare le immagini dev'essere quella predefinita, è la cosa
+     * più naturale su smartphone*). Fino alla 0.29 era crescente e il verso della
+     * galleria si otteneva con un'impostazione accesa: adesso è il contrario, e
+     * l'impostazione serve a tornare all'ordine cronologico. ⚠️ Chi lo rimette crescente
+     * 'per coerenza col MediaStore' rovescia il comportamento di tutta l'app.
      *
      * ⚠️ Gli **id** e non gli indirizzi, perché di questa lista si cerca una posizione
      * ([list]) o si prende un estremo ([newestIn]): confrontare numeri è esatto, mentre
@@ -521,7 +536,7 @@ object Folder {
                 COLUMNS,
                 "${MediaStore.Images.Media.BUCKET_ID} = ?",
                 arrayOf(bucket.toString()),
-                "${MediaStore.Images.Media.DATE_MODIFIED} ASC, ${MediaStore.Images.Media._ID} ASC"
+                "${MediaStore.Images.Media.DATE_MODIFIED} DESC, ${MediaStore.Images.Media._ID} DESC"
             )?.use { c -> while (c.moveToNext()) ids.add(c.getLong(0)) }
         }
         return ids

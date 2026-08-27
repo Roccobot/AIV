@@ -88,8 +88,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         private set
 
     /**
-     * L'esito della ricerca della cartella **come il MediaStore lo dà**, cioè in
-     * ordine di data crescente, dalla foto più vecchia alla più recente.
+     * L'esito della ricerca della cartella nell'ordine di BASE, cioè dalla foto più
+     * recente alla più vecchia, che dalla 0.30 è anche il verso predefinito di lettura.
      *
      * ⚠️ Porta la ragione e non solo la serie perché la serie mancante è muta: vedi
      * `Folder.Lookup`, e le due versioni che sono servite a scoprirlo.
@@ -123,7 +123,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * lettura sia per riscrivere in [listed] quello grezzo (vedi [step]).
      */
     private fun Folder.Lookup?.oriented(): Folder.Lookup? =
-        if (settings?.reverseOrder == true) this?.reversed() else this
+        if (settings?.reverseSequence == true) this?.reversed() else this
 
     /** Whether the folder permission has already been asked for once. */
     var folderAsked: Boolean by mutableStateOf(true)
@@ -225,8 +225,19 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         val context = getApplication<Application>()
         viewModelScope.launch {
             val lookup = Folder.newestIn(context, bucket)
-            listed = lookup
-            val series = lookup.seriesOrNull
+            // ⚠️⚠️ **SI PARTE DALL'INIZIO DELLA SEQUENZA SCELTA, non dalla foto più
+            // recente in assoluto**: col verso cronologico acceso la più recente è
+            // l'ULTIMA, e la cartella si aprirebbe su un vicolo cieco, con la strisciata
+            // in avanti che non ha dove andare. È il difetto della 0.29, e si vedeva come
+            // un gesto che non fa niente, cioè il sintomo che qui è già costato cinque
+            // versioni.
+            val whole = lookup.seriesOrNull
+            val start = if (whole == null) lookup else {
+                val first = if (settings?.reverseSequence == true) whole.items.lastIndex else 0
+                Folder.Lookup.Found(whole.copy(index = first))
+            }
+            listed = start
+            val series = start.seriesOrNull
             val uri = series?.at(series.index)
             if (uri == null) {
                 // ⚠️ Si resta nel viewer con l'errore invece di tornare indietro in
@@ -291,10 +302,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * ⚠️ It does NOT wrap around: at the last picture a swipe does nothing. Coming
      * back to the first one after the last is the kind of surprise that makes
      * people lose their place.
-     * ⚠️ [delta] si conta nell'**ordine di lettura**, quello di [folder]: `+1` è la
-     * foto dopo come la si sfoglia, che con l'ordine inverso acceso è la più vecchia.
-     * Chi legge il verso della strisciata non trova nessun segno qui, ed è voluto:
-     * l'impostazione gira la serie, non il gesto.
+     * ⚠️ [delta] si conta nell'**ordine di lettura**, quello di [folder]: `+1` è la foto
+     * dopo come la si sfoglia, cioè la più **vecchia** di default e la più **recente** col
+     * verso cronologico acceso. Chi cerca il verso della strisciata non trova nessun segno
+     * qui, ed è voluto: l'impostazione gira la serie, non il gesto.
      */
     fun step(delta: Int) {
         val current = series ?: return

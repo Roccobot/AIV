@@ -94,16 +94,20 @@ data class Settings(
     val infoPosition: InfoPosition = InfoPosition.BOTTOM,
     val infoVisible: Boolean = true,
     /**
-     * Se la cartella si sfoglia dalla foto più recente alla più vecchia.
+     * Se la sequenza si sfoglia in ordine **cronologico** invece che dalla più recente.
      *
-     * ⚠️ **Inverso rispetto a che cosa**: l'ordine di base è quello del MediaStore,
-     * data crescente, quindi si parte dalla più vecchia. Acceso, l'ordine diventa
-     * quello con cui la galleria di un telefono mostra le foto, la più recente per
-     * prima, che è l'abitudine di chi le sfoglia (istruzione dell'utente, 2026-08-27).
-     * ⚠️ Nasce **spenta** perché l'utente ha chiesto un'opzione per invertire, non un
-     * cambio del verso predefinito: acceso è un tocco, e la voce resta leggibile.
+     * ⚠️⚠️ **IL SIGNIFICATO SI È ROVESCIATO NELLA 0.30, e per questo la chiave è NUOVA**
+     * (`sequence-reversed`): dalla 0.27 alla 0.29 il verso predefinito era quello del
+     * MediaStore, cronologico, e questa voce accesa dava il verso della galleria; adesso
+     * il verso della galleria è il predefinito (decisione dell'utente: *è la cosa più
+     * naturale su smartphone*) e questa voce accesa riporta al cronologico. Tenere la
+     * chiave vecchia avrebbe dato a chi l'aveva accesa **l'opposto** di quello che aveva
+     * scelto, in silenzio: è la stessa lezione della chiave del permesso nella 0.21, cioè
+     * che **una domanda nuova vuole una chiave nuova**.
+     * ⚠️ La chiave vecchia (`reverse-order`) resta scritta negli archivi e non si legge
+     * più: DataStore ignora le chiavi che nessuno chiede.
      */
-    val reverseOrder: Boolean = false,
+    val reverseSequence: Boolean = false,
     /**
      * La cartella da aprire all'avvio, e `null` quando non se n'è scelta nessuna.
      *
@@ -146,7 +150,7 @@ object SettingsStore {
     private val SCALE_MODE = stringPreferencesKey("scale-mode")
     private val INFO_POSITION = stringPreferencesKey("info-position")
     private val INFO_VISIBLE = booleanPreferencesKey("info-visible")
-    private val REVERSE_ORDER = booleanPreferencesKey("reverse-order")
+    private val REVERSE_SEQUENCE = booleanPreferencesKey("sequence-reversed")
     private val START_FOLDER = longPreferencesKey("start-folder")
     private val START_FOLDER_NAME = stringPreferencesKey("start-folder-name")
     private val OPEN_AT_START = booleanPreferencesKey("open-at-start")
@@ -164,7 +168,7 @@ object SettingsStore {
             scaleMode = ScaleMode.entries.byToken(p[SCALE_MODE], ScaleMode.PHYSICAL),
             infoPosition = InfoPosition.entries.byToken(p[INFO_POSITION], InfoPosition.BOTTOM),
             infoVisible = p[INFO_VISIBLE] ?: true,
-            reverseOrder = p[REVERSE_ORDER] ?: false,
+            reverseSequence = p[REVERSE_SEQUENCE] ?: false,
             startFolder = p[START_FOLDER],
             startFolderName = p[START_FOLDER_NAME] ?: "",
             openAtStart = p[OPEN_AT_START] ?: false,
@@ -180,7 +184,7 @@ object SettingsStore {
             p[SCALE_MODE] = settings.scaleMode.token
             p[INFO_POSITION] = settings.infoPosition.token
             p[INFO_VISIBLE] = settings.infoVisible
-            p[REVERSE_ORDER] = settings.reverseOrder
+            p[REVERSE_SEQUENCE] = settings.reverseSequence
             // ⚠️ Una cartella tolta si CANCELLA invece di essere scritta a zero: zero è
             // un id come un altro, e un giorno finirebbe per somigliare a una cartella
             // vera. L'assenza della chiave è l'unico modo di dire 'nessuna'.

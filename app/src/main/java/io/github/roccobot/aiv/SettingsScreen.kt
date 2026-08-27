@@ -175,8 +175,8 @@ fun SettingsScreen(
         SwitchRow(
             label = stringResource(R.string.settings_reverse_order),
             detail = stringResource(R.string.settings_reverse_order_desc),
-            checked = settings.reverseOrder,
-            onChange = { onChange(settings.copy(reverseOrder = it)) }
+            checked = settings.reverseSequence,
+            onChange = { onChange(settings.copy(reverseSequence = it)) }
         )
 
         HorizontalDivider(Modifier.padding(vertical = 12.dp))
