@@ -4,8 +4,8 @@ import android.Manifest
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
-import android.database.Cursor
 import android.content.pm.PackageManager
+import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.File
 
 /**
  * The other pictures in the same folder, so that one opened photo can be leafed
@@ -150,7 +151,16 @@ object Folder {
         if (!granted(context)) return@withContext Lookup.NoPermission
         val card = identify(context, uri) ?: return@withContext Lookup.Unreadable
         val bucket = locate(context, uri, card)
-            ?: return@withContext Lookup.NotInGallery(card.evidence())
+            // ⚠️⚠️ IL RIPIEGO SUL DISCO, ED È QUELLO PER CUI IL PERMESSO PESANTE È
+            // STATO PRESO. Se il MediaStore non riconosce la foto, la cartella si
+            // legge lo stesso: `MANAGE_EXTERNAL_STORAGE` dà i file, non un indice, e
+            // una directory non può 'non essere indicizzata'. Serve solo il
+            // percorso, che il selettore dichiara.
+            // ⚠️ Resta un RIPIEGO e non la via principale: dal MediaStore vengono
+            // indirizzi `content://` come quello con cui la foto è stata aperta,
+            // mentre di qui vengono `file://`, che il caricatore regge ma che sono
+            // un secondo genere di indirizzo in circolo.
+            ?: return@withContext fromDisk(card) ?: Lookup.NotInGallery(card.evidence())
         list(context, bucket, card)
     }
 
@@ -247,6 +257,44 @@ object Folder {
         // prima. Una cartella forse sbagliata è comunque meglio di niente, e questa
         // via si raggiunge solo quando le tre sopra hanno già fallito.
         return byName(context, card)
+    }
+
+    /**
+     * Le estensioni che si considerano immagini leggendo una cartella dal disco.
+     *
+     * ⚠️ Un elenco serve perché una directory contiene di tutto, e il MediaStore,
+     * che qui non c'è, era proprio quello che sapeva distinguere. Sono le stesse
+     * dei filtri del manifest, che è dove vive l'idea che l'app ha di 'immagine'.
+     */
+    private val EXTENSIONS = setOf(
+        "jpg", "jpeg", "png", "gif", "webp", "avif", "heic", "heif", "tif", "tiff", "bmp"
+    )
+
+    /**
+     * La cartella letta dal FILESYSTEM, quando il MediaStore non riconosce la foto.
+     *
+     * ⚠️ L'ordine imita quello del MediaStore (data e poi nome) invece di inventarne
+     * uno suo: sfogliare la stessa cartella deve dare la stessa sequenza, da
+     * qualunque delle due vie sia arrivata.
+     */
+    private fun fromDisk(card: Card): Lookup? {
+        val path = card.path ?: return null
+        // ⚠️ Il selettore può dichiarare `/sdcard`, che è un collegamento: AOSP fa
+        // la stessa sostituzione in `PickerUriResolver.getPickerFileFromUri`.
+        val real = path.replaceFirst("/sdcard", "/storage/emulated/0")
+        val file = runCatching { File(real) }.getOrNull() ?: return null
+        val dir = file.parentFile ?: return null
+        val siblings = runCatching { dir.listFiles() }.getOrNull() ?: return null
+
+        val images = siblings
+            .filter { it.isFile && it.extension.lowercase() in EXTENSIONS }
+            .sortedWith(compareBy({ it.lastModified() }, { it.name }))
+        if (images.size < 2) return Lookup.Alone
+        val index = images.indexOfFirst { it.absolutePath == file.absolutePath }
+            .takeIf { it >= 0 }
+            ?: images.indexOfFirst { it.name == file.name }.takeIf { it >= 0 }
+            ?: return Lookup.Lost
+        return Lookup.Found(Series(images.map { Uri.fromFile(it) }, index))
     }
 
     private fun byData(context: Context, path: String): Long? = runCatching {
