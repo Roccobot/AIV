@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
+import android.database.Cursor
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -61,8 +62,13 @@ object Folder {
          */
         data object Unreadable : Lookup
 
-        /** Il MediaStore non conosce questa immagine: una chat, il web, un file sciolto. */
-        data object NotInGallery : Lookup
+        /**
+         * Il MediaStore non conosce questa immagine: una chat, il web, un file
+         * sciolto. [detail] porta quello che si era riusciti a leggere, e non è un
+         * vezzo: è la differenza fra 'non funziona' e sapere quale chiave ha
+         * fallito. La riga dei dettagli lo stampa.
+         */
+        data class NotInGallery(val detail: String) : Lookup
 
         /** La cartella esiste e ha questa foto sola: non c'è niente da sfogliare. */
         data object Alone : Lookup
@@ -120,11 +126,18 @@ object Folder {
         Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
     )
 
+    // ⚠️ L'ordine è quello degli indici usati sotto (0 id, 1 bucket, 2 nome, 3 peso,
+    // 4 percorso): chi ne aggiunge una la mette IN FONDO.
+    // ⚠️ `DATA` è deprecata nell'API e serve lo stesso: è la sola colonna che dice
+    // dove sta il file, ed è la chiave con cui l'indirizzo del selettore si riporta
+    // alla riga giusta senza indovinare.
+    @Suppress("DEPRECATION")
     private val COLUMNS = arrayOf(
         MediaStore.Images.Media._ID,
         MediaStore.Images.Media.BUCKET_ID,
         MediaStore.Images.Media.DISPLAY_NAME,
-        MediaStore.Images.Media.SIZE
+        MediaStore.Images.Media.SIZE,
+        MediaStore.Images.Media.DATA
     )
 
     /**
@@ -136,47 +149,109 @@ object Folder {
     suspend fun seriesAround(context: Context, uri: Uri): Lookup = withContext(Dispatchers.IO) {
         if (!granted(context)) return@withContext Lookup.NoPermission
         val card = identify(context, uri) ?: return@withContext Lookup.Unreadable
-        val bucket = locate(context, uri, card) ?: return@withContext Lookup.NotInGallery
+        val bucket = locate(context, uri, card)
+            ?: return@withContext Lookup.NotInGallery(card.evidence())
         list(context, bucket, card)
     }
 
-    /** Name and size of whatever was opened, which every content provider can answer. */
-    private data class Card(val name: String, val size: Long)
+    /**
+     * Che cosa si è riusciti a sapere di quello che è stato aperto.
+     *
+     * ⚠️ [size] vale -1 quando chi serve l'indirizzo non lo dichiara, e [path] è null
+     * quando non è un indirizzo del selettore: **sono assenze, non valori**, e il
+     * codice che cerca deve trattarle come tali invece di confrontarle.
+     */
+    private data class Card(val name: String, val size: Long, val path: String?) {
+        val sizeKnown: Boolean get() = size >= 0
+
+        /** Compatta, perché finisce in una riga sola sopra una fotografia. */
+        fun evidence(): String = buildString {
+            append(name)
+            append(if (sizeKnown) ", $size B" else ", peso ignoto")
+            if (path == null) append(", senza percorso")
+        }
+    }
 
     private fun identify(context: Context, uri: Uri): Card? =
         runCatching {
-            context.contentResolver.query(
-                uri,
-                arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE),
-                null, null, null
-            )?.use { c ->
+            val wanted = mutableListOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE)
+            // ⚠️⚠️ IL PERCORSO È LA CHIAVE BUONA, e da Android 13 il selettore lo
+            // serve: `PickerMediaColumns.DATA` è pubblica e risponde col percorso
+            // vero del file scelto (`PickerUriResolver.getPickerFileFromUri` la usa
+            // esattamente così). Con quello la riga del MediaStore si trova per
+            // uguaglianza, senza indovinare per nome e peso.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                wanted += MediaStore.PickerMediaColumns.DATA
+            }
+            context.contentResolver.query(uri, wanted.toTypedArray(), null, null, null)?.use { c ->
                 if (!c.moveToFirst()) return@use null
-                val name = c.getString(0) ?: return@use null
-                val size = if (c.isNull(1)) -1L else c.getLong(1)
-                Card(name, size)
+                val name = c.column(OpenableColumns.DISPLAY_NAME)?.let { c.getString(it) }
+                    ?: return@use null
+                val sizeAt = c.column(OpenableColumns.SIZE)
+                val size = if (sizeAt == null || c.isNull(sizeAt)) -1L else c.getLong(sizeAt)
+                val pathAt = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    c.column(MediaStore.PickerMediaColumns.DATA)
+                } else {
+                    null
+                }
+                val path = if (pathAt == null || c.isNull(pathAt)) null else c.getString(pathAt)
+                Card(name, size, path?.takeIf { it.isNotBlank() })
             }
         }.getOrNull()
 
     /**
+     * ⚠️ `getColumnIndex` risponde -1 su una colonna che il provider non serve, e
+     * `getString(-1)` **solleva**: chiedere una proiezione non garantisce di
+     * riceverla, quindi ogni lettura passa di qui.
+     */
+    private fun Cursor.column(name: String): Int? = getColumnIndex(name).takeIf { it >= 0 }
+
+    /**
      * Which MediaStore row is the picture on screen, as a bucket id.
      *
-     * ⚠️⚠️ **The fast path is CHECKED and not trusted**, and without the check it
-     * would be a silent trap: a picker address ends in a number too, and parsing it
-     * as a MediaStore id gives a perfectly valid row that is somebody else's photo.
-     * The row only counts when its name and size are the ones we opened.
+     * ⚠️⚠️ **QUATTRO VIE, in ordine di certezza, e l'ordine è il punto.** Fino alla
+     * `0.23` ce n'erano due e la seconda pretendeva **nome E peso insieme**: bastava
+     * che il peso mancasse (allora vale -1) o divergesse di un byte e la ricerca non
+     * trovava niente, rispondendo 'non è nella galleria' su una foto che nella
+     * galleria c'era. È il difetto che l'utente ha visto, e la diagnostica della
+     * `0.23` è ciò che lo ha nominato.
+     *
+     * ⚠️ **La via dell'id resta CONTROLLATA e non creduta**: un indirizzo del
+     * selettore finisce con un numero, e usarlo come id del MediaStore dà una riga
+     * validissima che è la foto di qualcun altro.
      */
     private fun locate(context: Context, uri: Uri, card: Card): Long? {
+        // 1. Il percorso: uguaglianza esatta, niente da indovinare.
+        card.path?.let { path -> byData(context, path)?.let { return it } }
+
+        // 2. L'id letto dalla coda dell'indirizzo, buono solo se il nome combacia.
         val guessed = runCatching { ContentUris.parseId(uri) }.getOrNull()
         if (guessed != null && guessed > 0) {
             byId(context, guessed)?.let { (bucket, found) ->
-                if (found.name == card.name && found.size == card.size) return bucket
+                val sameSize = !card.sizeKnown || found.size == card.size
+                if (found.name == card.name && sameSize) return bucket
             }
         }
-        // The address said nothing usable, so the picture is looked up by what it
-        // IS: a name and a size. Two different photos sharing both is possible and
-        // rare, and the cost of guessing wrong is leafing through the wrong folder.
-        return byCard(context, card)
+
+        // 3. Nome e peso, quando il peso si conosce: è la coppia più selettiva.
+        if (card.sizeKnown) {
+            byWhere(
+                context,
+                "${MediaStore.Images.Media.DISPLAY_NAME} = ? AND ${MediaStore.Images.Media.SIZE} = ?",
+                arrayOf(card.name, card.size.toString())
+            )?.let { return it }
+        }
+
+        // 4. Il solo nome. ⚠️ Meno selettivo, e due foto omonime in cartelle diverse
+        // esistono: si prende quella col peso giusto se si conosce, altrimenti la
+        // prima. Una cartella forse sbagliata è comunque meglio di niente, e questa
+        // via si raggiunge solo quando le tre sopra hanno già fallito.
+        return byName(context, card)
     }
+
+    private fun byData(context: Context, path: String): Long? = runCatching {
+        byWhere(context, "${MediaStore.Images.Media.DATA} = ?", arrayOf(path))
+    }.getOrNull()
 
     private fun byId(context: Context, id: Long): Pair<Long, Card>? =
         context.contentResolver.query(
@@ -187,17 +262,30 @@ object Folder {
             null
         )?.use { c ->
             if (!c.moveToFirst()) return@use null
-            c.getLong(1) to Card(c.getString(2) ?: "", c.getLong(3))
+            c.getLong(1) to Card(c.getString(2) ?: "", c.getLong(3), null)
         }
 
-    private fun byCard(context: Context, card: Card): Long? =
+    private fun byWhere(context: Context, where: String, args: Array<String>): Long? =
+        context.contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, COLUMNS, where, args, null
+        )?.use { c -> if (c.moveToFirst()) c.getLong(1) else null }
+
+    private fun byName(context: Context, card: Card): Long? =
         context.contentResolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             COLUMNS,
-            "${MediaStore.Images.Media.DISPLAY_NAME} = ? AND ${MediaStore.Images.Media.SIZE} = ?",
-            arrayOf(card.name, card.size.toString()),
+            "${MediaStore.Images.Media.DISPLAY_NAME} = ?",
+            arrayOf(card.name),
             null
-        )?.use { c -> if (c.moveToFirst()) c.getLong(1) else null }
+        )?.use { c ->
+            var first: Long? = null
+            while (c.moveToNext()) {
+                val bucket = c.getLong(1)
+                if (first == null) first = bucket
+                if (card.sizeKnown && c.getLong(3) == card.size) return@use bucket
+            }
+            first
+        }
 
     /**
      * Everything in that bucket, in a fixed order, with the opened picture found
@@ -221,9 +309,14 @@ object Folder {
         )?.use { c ->
             while (c.moveToNext()) {
                 val id = c.getLong(0)
-                if (index < 0 && c.getString(2) == card.name && c.getLong(3) == card.size) {
-                    index = items.size
-                }
+                // ⚠️ Il riconoscimento è lo STESSO di `locate`, e deve esserlo: se
+                // qui pretendesse il peso mentre là basta il nome, una foto trovata
+                // finirebbe 'non ritrovata nella sua cartella', che è il difetto di
+                // prima spostato di un passo.
+                val samePath = card.path != null && c.getString(4) == card.path
+                val sameName = c.getString(2) == card.name &&
+                    (!card.sizeKnown || c.getLong(3) == card.size)
+                if (index < 0 && (samePath || sameName)) index = items.size
                 items.add(ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id))
             }
         }

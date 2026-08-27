@@ -59,7 +59,7 @@
          outside: a single catch-all note would put back the silence it removes. -->
     <string name="folder_no_access">no access to the folder</string>
     <string name="folder_unreadable">name and size unreadable</string>
-    <string name="folder_not_in_gallery">not in the gallery</string>
+    <string name="folder_not_in_gallery">not in the gallery (%1$s)</string>
     <string name="folder_alone">alone in its folder</string>
     <string name="folder_lost">not found in its folder</string>
 
