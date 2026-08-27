@@ -54,6 +54,13 @@ object Folder {
         /** Manca il permesso: la sola causa che la persona può rimuovere. */
         data object NoPermission : Lookup
 
+        /**
+         * L'indirizzo non sa dire nome e peso di quello che ha aperto.
+         * ⚠️ Distinto da [NotInGallery] apposta: qui la domanda non ha nemmeno
+         * raggiunto il MediaStore, e i due casi vogliono correzioni diverse.
+         */
+        data object Unreadable : Lookup
+
         /** Il MediaStore non conosce questa immagine: una chat, il web, un file sciolto. */
         data object NotInGallery : Lookup
 
@@ -128,7 +135,7 @@ object Folder {
      */
     suspend fun seriesAround(context: Context, uri: Uri): Lookup = withContext(Dispatchers.IO) {
         if (!granted(context)) return@withContext Lookup.NoPermission
-        val card = identify(context, uri) ?: return@withContext Lookup.NotInGallery
+        val card = identify(context, uri) ?: return@withContext Lookup.Unreadable
         val bucket = locate(context, uri, card) ?: return@withContext Lookup.NotInGallery
         list(context, bucket, card)
     }

@@ -614,6 +614,7 @@ private fun DetailsPanel(
     val folderNote = when (folder) {
         null, is Folder.Lookup.Found -> null
         Folder.Lookup.NoPermission -> stringResource(R.string.folder_no_access)
+        Folder.Lookup.Unreadable -> stringResource(R.string.folder_unreadable)
         Folder.Lookup.NotInGallery -> stringResource(R.string.folder_not_in_gallery)
         Folder.Lookup.Alone -> stringResource(R.string.folder_alone)
         Folder.Lookup.Lost -> stringResource(R.string.folder_lost)
