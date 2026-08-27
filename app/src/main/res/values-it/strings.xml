@@ -43,6 +43,9 @@
     <string name="toast_save_failed">Il salvataggio non è andato a buon fine</string>
 
     <string name="folder_why">Per sfogliare il resto della cartella, AIV ha bisogno dell\'accesso a tutti i file. Accendi l\'interruttore nella pagina che si è aperta.</string>
+    <!-- Compare nella riga dei dettagli al posto della posizione '3/7', perché una
+         strisciata che non fa niente dica il perché invece di fallire e basta. -->
+    <string name="folder_no_access">nessun accesso alla cartella</string>
 
     <!-- ── Impostazioni ── -->
     <string name="settings_title">Impostazioni</string>

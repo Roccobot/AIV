@@ -53,6 +53,9 @@
     <string name="toast_save_failed">Saving did not go through</string>
 
     <string name="folder_why">To leaf through the rest of the folder, AIV needs access to all files. Turn the switch on in the page that just opened.</string>
+    <!-- Shown in the details row in place of the '3/7' position, so that a swipe
+         that does nothing says why instead of just failing. -->
+    <string name="folder_no_access">no access to the folder</string>
 
     <!-- ── Settings ── -->
     <string name="settings_title">Settings</string>
