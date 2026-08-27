@@ -78,12 +78,17 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         private set
 
     /**
-     * The other pictures in the same folder, when there are any and the permission
-     * is there to see them. Null means this picture is on its own, which is the
-     * honest state for anything that did not come off this phone's own storage.
+     * L'esito della ricerca della cartella, **col perché** quando una serie non c'è.
+     * Null soltanto finché la ricerca non è finita.
+     *
+     * ⚠️ Porta la ragione e non solo la serie perché la serie mancante è muta: vedi
+     * `Folder.Lookup`, e le due versioni che sono servite a scoprirlo.
      */
-    var series: Folder.Series? by mutableStateOf(null)
+    var folder: Folder.Lookup? by mutableStateOf(null)
         private set
+
+    /** Scorciatoia per chi della cartella vuole solo la serie, quando c'è. */
+    val series: Folder.Series? get() = folder?.seriesOrNull
 
     /** Whether the folder permission has already been asked for once. */
     var folderAsked: Boolean by mutableStateOf(true)
@@ -118,7 +123,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         cameFromHome = fromHome
         screen = Screen.Viewer
         state = ViewerState.Loading
-        series = null
+        folder = null
         val context = getApplication<Application>()
         viewModelScope.launch {
             state = when (val result = ImageSource.load(context, uri)) {
@@ -135,7 +140,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         // above: it is a database query that the picture does not wait for, and
         // hanging it off the load would delay what the person is looking at in
         // order to prepare a gesture they may never make.
-        viewModelScope.launch { series = Folder.seriesAround(context, uri) }
+        viewModelScope.launch { folder = Folder.seriesAround(context, uri) }
     }
 
     /**
@@ -156,7 +161,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         val uri = current.at(next) ?: return
         source = uri
         state = ViewerState.Loading
-        series = current.copy(index = next)
+        folder = Folder.Lookup.Found(current.copy(index = next))
         val context = getApplication<Application>()
         viewModelScope.launch {
             state = when (val result = ImageSource.load(context, uri)) {
@@ -174,7 +179,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         // instead of making the person open the same picture a second time.
         val uri = source
         if (allowed && uri != null) {
-            viewModelScope.launch { series = Folder.seriesAround(context, uri) }
+            viewModelScope.launch { folder = Folder.seriesAround(context, uri) }
         }
     }
 
@@ -182,7 +187,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         screen = Screen.Home
         state = ViewerState.Loading
         source = null
-        series = null
+        folder = null
     }
 
     fun openSettings() {
@@ -272,7 +277,7 @@ private fun AivApp(model: ViewerViewModel) {
                 state = model.state,
                 settings = settings,
                 source = model.source,
-                series = model.series,
+                folder = model.folder,
                 onStep = { model.step(it) },
                 onSettings = { model.openSettings() }
             )
