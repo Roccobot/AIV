@@ -2,15 +2,18 @@ package io.github.roccobot.aiv
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MotionScheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
@@ -59,7 +62,22 @@ fun AivTheme(
     }
     MaterialExpressiveTheme(
         colorScheme = scheme,
-        motionScheme = MotionScheme.expressive(),
-        content = content
-    )
+        motionScheme = MotionScheme.expressive()
+    ) {
+        // ⚠️⚠️ QUESTA `Surface` NON È DECORAZIONE, ED È LA SOLA COSA CHE DÀ UN
+        // COLORE AL TESTO. Il tema porta la tavolozza ma NON tocca
+        // `LocalContentColor`: quello lo imposta `Surface`, e senza di lei resta
+        // al suo default, che è il NERO FISSO. Quindi ogni `Text` e ogni `Icon`
+        // senza colore dichiarato usciva nero: in tema chiaro non si vede, in
+        // tema scuro il testo spariva nel fondo. Segnalato dall'utente sul nome
+        // dell'app nella schermata iniziale, ma il difetto era di tutta l'app, e
+        // per questo il rimedio sta QUI e non su quella riga: rimediare al punto
+        // dove si è visto avrebbe lasciato gli altri, uno per volta.
+        // ⚠️ Sotto al visualizzatore non si vede, e va bene così: quello dipinge
+        // già il proprio fondo a tutta schermata, quindi questa gli sta dietro
+        // senza cambiargli niente.
+        Surface(modifier = Modifier.fillMaxSize(), color = scheme.background) {
+            content()
+        }
+    }
 }
