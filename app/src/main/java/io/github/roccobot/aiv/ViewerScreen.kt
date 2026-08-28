@@ -38,6 +38,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -248,10 +249,32 @@ private fun ImageCanvas(
         // serve a spostarsi dentro la foto, e lì il rilevatore non c'è proprio.
         val atRest = abs(scale - restScale) < 0.01f
 
+        /**
+         * Se la strisciata è ammessa, letto **al momento in cui il dito scende**.
+         *
+         * ⚠️⚠️ **QUESTO È IL RIMEDIO ALLA PINZA CHE SI INCOLLAVA ALL'ADATTAMENTO, ed è la
+         * ragione per cui `atRest` NON è più una chiave di `pointerInput`.** Verificato sul
+         * bytecode di `compose.ui`: `SuspendingPointerInputModifierNodeImpl.update$ui`
+         * confronta le chiavi con `Arrays.equals` e chiama **`resetPointerInputHandler()`**
+         * quando cambiano, cioè **annulla il gesto in corso**. Siccome `atRest` si rovescia
+         * proprio quando la scala attraversa la banda dell'adattamento, ogni pinza moriva
+         * là: il dito era ancora giù e il gesto non c'era più. L'utente lo ha misurato come
+         * 'si blocca al 13%', con un pelo di asimmetria nei due versi, che è la banda di
+         * 0.01 vista da sopra e da sotto.
+         * ⚠️ **Regola che vale oltre questo caso**: uno stato che cambia DURANTE un gesto non
+         * può essere una chiave di `pointerInput`, perché quel gesto è la prima cosa che il
+         * cambiamento distrugge. Vale anche per `folder`, che cambia quando la ricerca della
+         * cartella risponde e uccideva le pinze fatte subito dopo l'apertura.
+         * ⚠️ Letto **una volta per gesto** e non a ogni evento: così una panoramica che entra
+         * nella banda dell'adattamento resta una panoramica invece di diventare a metà strada
+         * una strisciata che cambia immagine.
+         */
+        val swipeAllowed by rememberUpdatedState(atRest && folder?.seriesOrNull != null)
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .pointerInput(image, settings, atRest, folder) {
+                .pointerInput(image, settings) {
                     // ⚠️⚠️ UN RILEVATORE SOLO PER LE DUE COSE, e questa è la
                     // correzione della `0.22`: panoramica, pinza e strisciata
                     // nascono tutte da un dito che si muove, quindi finché stanno su
@@ -261,11 +284,14 @@ private fun ImageCanvas(
                         // La strisciata vive solo A RIPOSO: ingrandita, il dito
                         // serve a spostarsi dentro la foto. E senza una serie da
                         // sfogliare non ha dove portare.
-                        swipeEnabled = atRest && folder?.seriesOrNull != null,
+                        swipeEnabled = { swipeAllowed },
                         // ⚠️ La soglia è una FRAZIONE della larghezza e non un
                         // numero di dp: su uno schermo stretto un valore fisso
                         // sarebbe mezza schermata, su un tablet un nulla.
-                        swipeThreshold = viewWidth / 5f,
+                        // ⚠️ Presa da `size` del rilevatore e non dalla `viewWidth` della
+                        // composizione: quella sarebbe un valore catturato, e dopo una
+                        // rotazione il rilevatore in vita ne userebbe uno vecchio.
+                        swipeThreshold = { size.width / 5f },
                         onTransform = { centroid, pan, zoom ->
                             zoomAround(centroid, scale * zoom, pan)
                         },
@@ -363,8 +389,8 @@ private fun ImageCanvas(
  * questo una pinza cominciata storta la cambierebbe.
  */
 private suspend fun PointerInputScope.detectPanZoomOrSwipe(
-    swipeEnabled: Boolean,
-    swipeThreshold: Float,
+    swipeEnabled: () -> Boolean,
+    swipeThreshold: () -> Float,
     onTransform: (centroid: Offset, pan: Offset, zoom: Float) -> Unit,
     onSwipe: (Int) -> Unit
 ) {
@@ -377,6 +403,11 @@ private suspend fun PointerInputScope.detectPanZoomOrSwipe(
         var travel = 0f
 
         awaitFirstDown(requireUnconsumed = false)
+        // ⚠️ Le due condizioni si leggono QUI, a dito appena sceso, e non fuori: fuori
+        // sarebbero valori catturati alla nascita del rilevatore, ed è esattamente ciò che
+        // costringeva a rifarlo a ogni cambio di stato. Vedi `swipeAllowed`.
+        val canSwipe = swipeEnabled()
+        val threshold = swipeThreshold()
         var canceled: Boolean
         do {
             val event = awaitPointerEvent()
@@ -388,7 +419,7 @@ private suspend fun PointerInputScope.detectPanZoomOrSwipe(
                     multi = true
                     travel = 0f
                 }
-                val swiping = swipeEnabled && !multi
+                val swiping = canSwipe && !multi
                 val zoomChange = event.calculateZoom()
                 val panChange = event.calculatePan()
 
@@ -415,8 +446,8 @@ private suspend fun PointerInputScope.detectPanZoomOrSwipe(
             }
         } while (!canceled && event.changes.any { it.pressed })
 
-        if (!canceled && travel <= -swipeThreshold) onSwipe(1)
-        else if (!canceled && travel >= swipeThreshold) onSwipe(-1)
+        if (!canceled && travel <= -threshold) onSwipe(1)
+        else if (!canceled && travel >= threshold) onSwipe(-1)
     }
 }
 
