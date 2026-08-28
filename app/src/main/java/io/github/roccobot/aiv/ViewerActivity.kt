@@ -50,6 +50,17 @@ sealed interface Screen {
      * distingue i due usi, e sta qui e non nel modello perché muore con la schermata.
      */
     data class Folders(val forStart: Boolean) : Screen
+
+    /**
+     * Una cartella in miniature, dalla 0.33: il primo passo della galleria.
+     *
+     * ⚠️ Porta il **nome** oltre all'identificativo, e non è ridondanza: il nome lo sa
+     * l'elenco da cui si arriva, e ricavarlo di nuovo vorrebbe dire rileggere il
+     * MediaStore per scrivere un titolo. ⚠️ Porta anche la cartella perché è la
+     * destinazione del gesto Indietro dal visualizzatore, che deve poter tornare
+     * ESATTAMENTE a questa griglia.
+     */
+    data class Grid(val bucket: Long, val name: String) : Screen
 }
 
 /**
@@ -83,8 +94,17 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     var source: Uri? by mutableStateOf(null)
         private set
 
-    /** Whether the viewer was reached from the opening screen, which decides where Back goes. */
-    var cameFromHome: Boolean by mutableStateOf(false)
+    /**
+     * Dove torna il gesto Indietro dal visualizzatore, e **null quando deve uscire
+     * dall'app**.
+     *
+     * ⚠️ Era un booleano (`cameFromHome`) finché le provenienze erano due, la schermata
+     * iniziale e un collegamento da fuori. Dalla 0.33 sono tre, perché si arriva anche
+     * da una griglia, e quella griglia è una cartella precisa: un secondo booleano
+     * avrebbe descritto quattro stati di cui due impossibili, mentre la destinazione è
+     * esattamente il dato che serve.
+     */
+    var viewerBack: Screen? by mutableStateOf(null)
         private set
 
     /**
@@ -124,6 +144,23 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      */
     private fun Folder.Lookup?.oriented(): Folder.Lookup? =
         if (settings?.reverseSequence == true) this?.reversed() else this
+
+    /**
+     * Lo stesso esito posizionato sull'INIZIO della sequenza scelta.
+     *
+     * ⚠️⚠️ **Nell'ordine grezzo la prima foto della sequenza è l'ULTIMA riga quando il
+     * verso è invertito**, e chi lo dimentica apre la cartella su un vicolo cieco, con
+     * la strisciata in avanti che non ha dove andare: è il difetto della 0.29, che si
+     * vedeva come un gesto che non fa niente.
+     * ⚠️ Vive in una funzione sola perché dalla 0.33 i posti che aprono una cartella
+     * sono **due**, l'avvio e la griglia, e la seconda copia di questo calcolo sarebbe
+     * quella che un domani resta indietro.
+     */
+    private fun Folder.Lookup.atSequenceStart(): Folder.Lookup {
+        val whole = seriesOrNull ?: return this
+        val first = if (settings?.reverseSequence == true) whole.items.lastIndex else 0
+        return Folder.Lookup.Found(whole.copy(index = first))
+    }
 
     /** Whether the folder permission has already been asked for once. */
     var folderAsked: Boolean by mutableStateOf(true)
@@ -186,7 +223,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
 
     fun open(uri: Uri, fromHome: Boolean = true) {
         source = uri
-        cameFromHome = fromHome
+        viewerBack = if (fromHome) Screen.Home else null
         screen = Screen.Viewer
         state = ViewerState.Loading
         listed = null
@@ -215,27 +252,21 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * chiedere al MediaStore in quale cartella stia sarebbe fare due volte la stessa
      * domanda, la seconda per via indiretta e passando dalle chiavi del selettore, che
      * sono il posto in cui questa funzione ha già sbagliato per cinque versioni.
+     *
+     * ⚠️ **Dalla 0.33 la chiama solo l'AVVIO**, perché scegliere una cartella a mano
+     * porta alla griglia ([openGrid]) e non più dritti a una foto. L'impostazione dice
+     * *apri una cartella all'avvio* e l'utente l'ha chiesta così, cioè con la foto già
+     * aperta: mettere la griglia anche là cambierebbe quello che ha chiesto.
      */
-    fun openFolder(bucket: Long, fromHome: Boolean = true) {
-        cameFromHome = fromHome
+    fun openFolder(bucket: Long) {
+        viewerBack = Screen.Home
         screen = Screen.Viewer
         state = ViewerState.Loading
         listed = null
         source = null
         val context = getApplication<Application>()
         viewModelScope.launch {
-            val lookup = Folder.newestIn(context, bucket)
-            // ⚠️⚠️ **SI PARTE DALL'INIZIO DELLA SEQUENZA SCELTA, non dalla foto più
-            // recente in assoluto**: col verso cronologico acceso la più recente è
-            // l'ULTIMA, e la cartella si aprirebbe su un vicolo cieco, con la strisciata
-            // in avanti che non ha dove andare. È il difetto della 0.29, e si vedeva come
-            // un gesto che non fa niente, cioè il sintomo che qui è già costato cinque
-            // versioni.
-            val whole = lookup.seriesOrNull
-            val start = if (whole == null) lookup else {
-                val first = if (settings?.reverseSequence == true) whole.items.lastIndex else 0
-                Folder.Lookup.Found(whole.copy(index = first))
-            }
+            val start = Folder.newestIn(context, bucket).atSequenceStart()
             listed = start
             val series = start.seriesOrNull
             val uri = series?.at(series.index)
@@ -269,7 +300,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Una cartella scelta: o si apre, o diventa quella dell'avvio.
+     * Una cartella scelta: o se ne apre la griglia, o diventa quella dell'avvio.
      *
      * ⚠️ Sceglierla **accende** anche l'avvio automatico, e non è un'iniziativa: si
      * arriva qui dall'interruttore o dal tasto sotto di lui, quindi l'intenzione è
@@ -277,7 +308,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      */
     fun folderPicked(bucket: Folder.Bucket, forStart: Boolean) {
         if (!forStart) {
-            openFolder(bucket.id)
+            openGrid(bucket.id, bucket.name)
             return
         }
         val current = settings ?: return
@@ -289,6 +320,72 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             )
         )
         screen = Screen.Settings
+    }
+
+    /**
+     * Una cartella in miniature.
+     *
+     * ⚠️⚠️ **La serie che carica è la STESSA che poi sfoglia il visualizzatore** (finisce
+     * in [listed], come quella trovata intorno a una foto): la griglia e la strisciata
+     * leggono un solo elenco, quindi non possono dare due ordini diversi e aprire una
+     * foto dalla griglia non costa nessuna seconda interrogazione del MediaStore.
+     */
+    fun openGrid(bucket: Long, name: String) {
+        screen = Screen.Grid(bucket, name)
+        listed = null
+        source = null
+        // La fotografia di prima non serve più: tenerla vorrebbe dire tenere in memoria
+        // un bitmap grande mentre si guarda tutt'altro.
+        state = ViewerState.Loading
+        val context = getApplication<Application>()
+        // ⚠️ Anche qui l'inizio è quello della sequenza SCELTA: la griglia si apre in
+        // cima, e il tocco sulla prima miniatura dà la stessa foto da cui parte l'avvio.
+        viewModelScope.launch { listed = Folder.newestIn(context, bucket).atSequenceStart() }
+    }
+
+    /**
+     * La foto toccata nella griglia.
+     *
+     * ⚠️ [index] è la posizione nell'ordine di **lettura**, cioè quello che la griglia
+     * mostra: è la stessa lista, quindi la terza miniatura apre la terza foto della
+     * sequenza, e non c'è nessuna conversione da fare.
+     */
+    fun openFromGrid(index: Int) {
+        val grid = screen as? Screen.Grid ?: return
+        val current = series ?: return
+        // Prima di cambiare schermata: entrare nel visualizzatore e poi accorgersi che
+        // non c'è niente da mostrare lascerebbe una schermata vuota al posto della
+        // griglia che c'era.
+        if (current.at(index) == null) return
+        viewerBack = grid
+        screen = Screen.Viewer
+        showAt(current, index)
+    }
+
+    /** Fuori dalla griglia: si torna all'elenco delle cartelle, da dove ci si è arrivati. */
+    fun leaveGrid() {
+        screen = Screen.Folders(forStart = false)
+        listed = null
+    }
+
+    /**
+     * Indietro dal visualizzatore, dove [viewerBack] dice.
+     *
+     * ⚠️⚠️ **Tornando a una griglia la serie NON si butta**, ed è la ragione per cui
+     * questa funzione non passa da [goHome]: è la stessa cartella, quindi la griglia
+     * deve ritrovarla pronta invece di rileggerla, e con lei l'indice della foto da cui
+     * si esce, che è dove la griglia si riposiziona.
+     */
+    fun backFromViewer() {
+        when (val dest = viewerBack) {
+            null -> Unit
+            Screen.Home -> goHome()
+            else -> {
+                screen = dest
+                source = null
+                state = ViewerState.Loading
+            }
+        }
     }
 
     /**
@@ -309,14 +406,27 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      */
     fun step(delta: Int) {
         val current = series ?: return
-        val next = current.index + delta
-        val uri = current.at(next) ?: return
+        showAt(current, current.index + delta)
+    }
+
+    /**
+     * Mostra la foto che sta in quella posizione della serie di lettura.
+     *
+     * ⚠️ Condivisa fra la strisciata ([step]) e il tocco sulla griglia
+     * ([openFromGrid]), che sono la stessa cosa con due modi di dire quale foto: un
+     * passo relativo e una posizione. Due copie divergerebbero sul punto peggiore, cioè
+     * su come si riscrive [listed].
+     * ⚠️ Fuori dalla serie non fa **niente**, e da qui viene il fatto che la sequenza
+     * non gira su sé stessa: all'ultima foto la strisciata in avanti resta senza esito.
+     */
+    private fun showAt(current: Folder.Series, index: Int) {
+        val uri = current.at(index) ?: return
         source = uri
         state = ViewerState.Loading
         // ⚠️ `current` sta nell'ordine di lettura, `listed` in quello grezzo: si
         // rigira per riscriverlo, e la stessa funzione basta perché girare una serie
         // è la sua stessa inversa.
-        listed = Folder.Lookup.Found(current.copy(index = next)).oriented()
+        listed = Folder.Lookup.Found(current.copy(index = index)).oriented()
         val context = getApplication<Application>()
         viewModelScope.launch { state = load(context, uri) }
     }
@@ -427,11 +537,31 @@ private fun AivApp(model: ViewerViewModel) {
             )
         }
 
+        is Screen.Grid -> {
+            BackHandler { model.leaveGrid() }
+            // ⚠️ `null` mentre la ricerca è in corso, elenco VUOTO quando la cartella
+            // non ha (più) niente da mostrare: sono due schermate diverse, il giro che
+            // aspetta e il messaggio che spiega, e collassarle darebbe una rotellina
+            // che non finisce mai.
+            val lookup = model.folder
+            GridScreen(
+                title = screen.name,
+                items = lookup?.let { it.seriesOrNull?.items ?: emptyList() },
+                startAt = model.series?.index ?: 0,
+                onOpen = { model.openFromGrid(it) },
+                onBack = { model.leaveGrid() }
+            )
+        }
+
         Screen.Viewer -> {
-            // Back returns to the opening screen only when that is where we came
-            // from. Opened from a link, Back has to leave the app: swallowing it
-            // would trap the reader in a viewer they never chose to enter.
-            if (model.cameFromHome) BackHandler { model.goHome() }
+            // Back returns to where the viewer was opened from, and only if there is
+            // such a place. Opened from a link, Back has to leave the app: swallowing
+            // it would trap the reader in a viewer they never chose to enter.
+            // ⚠️ Il DOPPIO TOCCO non è una seconda via per uscire, ed è una scelta:
+            // alterna adattata e 100%, e l'utente l'ha dichiarato *fondamentale*
+            // (2026-08-27). Dargli anche il ritorno alla griglia significherebbe
+            // toglierlo a una delle due direzioni dello zoom.
+            if (model.viewerBack != null) BackHandler { model.backFromViewer() }
             FolderPermission(model)
             ViewerScreen(
                 state = model.state,
