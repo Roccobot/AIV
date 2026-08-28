@@ -24,11 +24,11 @@ android {
         // the update as a downgrade. It is not tied to versionName and nothing
         // checks it, so nothing will remind you: 0.11 went out carrying 1, so
         // from here on every published version needs its own number.
-        versionCode = 22
+        versionCode = 23
         // Single source of the version, in SlimVer. The release workflow reads
         // it from here and refuses to run when the tag disagrees, so the tag
         // confirms this number instead of being a second one.
-        versionName = "0.32"
+        versionName = "0.33"
     }
 
     // The signing material comes from the environment and never from the
@@ -107,6 +107,10 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.exifinterface)
     implementation(libs.androidx.datastore.preferences)
+    // Solo per le MINIATURE della griglia: vedi la nota nel catalogo delle
+    // versioni. ⚠️ Non porta niente per la rete (quello sarebbe
+    // `coil-network-okhttp`), e non serve: qui le immagini sono locali.
+    implementation(libs.coil.compose)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)

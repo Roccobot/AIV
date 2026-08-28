@@ -93,13 +93,16 @@
     <string name="settings_start_folder_pick">Scegli</string>
 
     <string name="home_folder">Apri una cartella</string>
-    <string name="home_folder_sub">Parti dall\'inizio della sua sequenza</string>
+    <string name="home_folder_sub">Le sue foto in griglia</string>
 
     <string name="folders_title">Cartelle</string>
     <string name="folders_permission">Per elencare le cartelle serve l\'accesso a tutti i file. È lo stesso permesso che serve a sfogliare una cartella, e si concede da una pagina di sistema.</string>
     <string name="folders_grant">Concedi l\'accesso</string>
     <string name="folders_none">Nessuna cartella contiene immagini.</string>
     <string name="folder_empty">Questa cartella non contiene più immagini.</string>
+    <!-- ── La griglia di una cartella ── -->
+    <string name="grid_item">Immagine %1$d di %2$d</string>
+
     <plurals name="folders_count">
         <item quantity="one">%1$d immagine</item>
         <!-- ⚠️ La categoria `many` dell'italiano non è un doppione di `other`: il CLDR la

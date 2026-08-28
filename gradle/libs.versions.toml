@@ -16,6 +16,17 @@ exif = "1.4.2"
 # sulla linea 1.5.0, che è alpha. Scelta dell'utente, 2026-08-26: il progetto
 # è sperimentale, quindi si accetta l'alpha.
 material3Alpha = "1.5.0-alpha26"
+# Coil entra con la GRIGLIA (0.33) e non prima: una vista che decodifica decine di
+# miniature mentre scorrono vuole una cache e un annullamento per riquadro, cioè
+# proprio quello che una libreria di caricamento fa e che scriverlo in casa
+# significherebbe rifare. Il visualizzatore singolo resta su `ImageDecoder`
+# scritto in casa: là serve il controllo esatto sul campionamento, e Coil non
+# c'entra.
+# ⚠️ Il numero è LETTO da `repo1.maven.org/.../maven-metadata.xml` il 2026-08-28,
+# e la nota vale come metodo: `search.maven.org` per lo stesso artefatto dava
+# ancora la 3.2.0 del maggio 2025, cioè quattro minor indietro. L'indice di
+# ricerca resta indietro, i metadati del repository no.
+coil = "3.6.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -31,6 +42,7 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3",
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exif" }
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

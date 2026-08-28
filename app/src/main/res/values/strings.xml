@@ -102,13 +102,18 @@
     <string name="settings_start_folder_pick">Choose</string>
 
     <string name="home_folder">Open a folder</string>
-    <string name="home_folder_sub">Start at the beginning of its sequence</string>
+    <string name="home_folder_sub">See its pictures in a grid</string>
 
     <string name="folders_title">Folders</string>
     <string name="folders_permission">Listing the folders needs access to all files. It is the same permission that lets you leaf through a folder, and it is granted from a system page.</string>
     <string name="folders_grant">Grant access</string>
     <string name="folders_none">No folder holds pictures.</string>
     <string name="folder_empty">This folder holds no pictures any more.</string>
+    <!-- ── The grid of one folder ── -->
+    <!-- Every thumbnail is tappable, so it is not decoration: this is what a screen
+         reader says on it, and it has to tell WHERE in the folder that picture is. -->
+    <string name="grid_item">Picture %1$d of %2$d</string>
+
     <plurals name="folders_count">
         <item quantity="one">%1$d picture</item>
         <item quantity="other">%1$d pictures</item>
