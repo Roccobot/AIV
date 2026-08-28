@@ -6,6 +6,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -33,6 +34,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -52,6 +55,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
+import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -59,6 +63,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
 import java.util.Locale
 import kotlin.math.abs
@@ -90,6 +95,45 @@ private const val DRAG_ZOOM_SENSITIVITY = 0.005f
 
 /** Side of one checkerboard square, in dp. */
 private val CHECKER = 12.dp
+
+/**
+ * Lo stacco fra una foto e la sua vicina mentre si sfoglia.
+ *
+ * ⚠️ Serve a far leggere DUE fogli invece di un'immagine che si trasforma: senza, due
+ * fotografie chiare di seguito sembrano una sola che scivola. È anche la ragione per cui
+ * l'animazione di arrivo va a `larghezza + questo` e non a `larghezza`: così la vicina
+ * atterra esattamente al centro.
+ */
+private val PAGE_GAP = 16.dp
+
+/**
+ * Quanto deve essere rapido un colpo di pollice perché la pagina giri lo stesso.
+ *
+ * ⚠️ **La soglia di spazio da sola non basta a sembrare fluidi**: un buffetto veloce che
+ * copre un decimo di schermo è chiaramente 'vai avanti', e senza questa via tornerebbe
+ * indietro lasciando l'impressione che il gesto non sia stato capito. 400dp al secondo è
+ * il punto di partenza: è sopra il minimo di sistema (50dp/s, che scatterebbe su ogni
+ * sfioramento) e sotto il colpo secco.
+ */
+private val FLING_VELOCITY = 400.dp
+
+/**
+ * Quanto dura l'arrivo a destinazione, o il ritorno al posto.
+ *
+ * ⚠️ Corta apposta: questa animazione parte quando il dito si è già alzato, quindi è
+ * tempo in cui non si comanda più niente. Sotto i ~150ms sembra uno scatto, sopra i ~300
+ * sembra che l'app ci pensi su.
+ */
+private const val SNAP_MS = 220
+
+/**
+ * Quanto la pagina segue il dito quando di là non c'è niente.
+ *
+ * ⚠️ Non zero e non uno: bloccarla del tutto farebbe sembrare il gesto non ricevuto,
+ * lasciarla libera prometterebbe una foto che non esiste. Un terzo è la frenata che si
+ * legge come 'sei al capolinea'.
+ */
+private const val END_RESISTANCE = 0.33f
 
 @Composable
 fun ViewerScreen(
@@ -142,6 +186,30 @@ private fun PreviewThumb(source: Uri?, settings: Settings) {
         contentDescription = null,
         contentScale = if (settings.fitGrow) ContentScale.Fit else ContentScale.Inside,
         modifier = Modifier.fillMaxSize()
+    )
+}
+
+/**
+ * La fotografia vicina, mentre si sfoglia col dito.
+ *
+ * ⚠️ Lo spostamento arriva come **funzione** e si legge dentro `graphicsLayer`: preso
+ * come valore, ogni pixel di trascinamento sarebbe una ricomposizione di questo
+ * composable, cioè il contrario della fluidità che deve dare.
+ * ⚠️ La scala segue la stessa regola dell'anteprima e della figura a riposo, o la vicina
+ * atterrerebbe a una misura diversa da quella con cui poi si vede.
+ */
+@Composable
+private fun Neighbour(uri: Uri?, settings: Settings, dx: () -> Float) {
+    if (uri == null) return
+    val context = LocalContext.current
+    val model = remember(uri, context) { Thumbs.request(context, uri) }
+    AsyncImage(
+        model = model,
+        contentDescription = null,
+        contentScale = if (settings.fitGrow) ContentScale.Fit else ContentScale.Inside,
+        modifier = Modifier
+            .fillMaxSize()
+            .graphicsLayer { translationX = dx() }
     )
 }
 
@@ -216,6 +284,97 @@ private fun ImageCanvas(
         var panelVisible by remember(image, settings) { mutableStateOf(settings.infoVisible) }
         var menuAt by remember(image) { mutableStateOf<Offset?>(null) }
         val scope = rememberCoroutineScope()
+        val context = LocalContext.current
+
+        /**
+         * Di quanto la fotografia è stata trascinata di lato, in pixel.
+         *
+         * ⚠️⚠️ **È QUESTO CHE RENDE FLUIDA LA SFOGLIATURA, e fino alla 0.35 non
+         * esisteva**: il rilevatore sommava lo spostamento in una variabile sua e sullo
+         * schermo non si muoveva niente, quindi il dito trascinava il vuoto e la
+         * fotografia cambiava di scatto al distacco. Ora il numero vive qui, la figura lo
+         * segue e la vicina entra dal bordo.
+         * ⚠️ Si azzera col cambio di fotografia perché la chiave del `remember` è
+         * `image`: quando la nuova arriva, la pagina è già al suo posto.
+         */
+        var travel by remember(image, settings) { mutableFloatStateOf(0f) }
+
+        /**
+         * Se una pagina sta andando a destinazione.
+         *
+         * ⚠️ Serve a non far cominciare una seconda strisciata mentre la prima atterra:
+         * i due movimenti scriverebbero lo stesso numero, e due arrivi vorrebbero dire
+         * due fotografie saltate con un gesto solo. Si legge **al momento in cui il dito
+         * scende**, come le altre due condizioni della strisciata.
+         */
+        var settling by remember(image, settings) { mutableStateOf(false) }
+
+        val pageGap = with(density) { PAGE_GAP.toPx() }
+        val series = folder?.seriesOrNull
+        // ⚠️ Nell'ordine di LETTURA, lo stesso che conta `onStep`: la 'dopo' è quella che
+        // arriva strisciando verso sinistra, cioè quella che `onStep(1)` aprirà. Se le due
+        // divergessero, si vedrebbe entrare una foto e comparirne un'altra.
+        val nextUri = series?.at(series.index + 1)
+        val prevUri = series?.at(series.index - 1)
+
+        // ⚠️⚠️ LE DUE VICINE SI CHIEDONO SUBITO, e non quando il dito le tira dentro:
+        // una miniatura che comincia a generarsi nell'istante del gesto arriva **dopo**
+        // il gesto, e si vedrebbe entrare un rettangolo vuoto. Qui la fotografia grande è
+        // già decodificata (siamo in `Ready`), quindi queste due richieste non rubano
+        // niente a quello che si sta guardando, e servono due volte: alla vicina che
+        // scorre e alla `PreviewThumb` che comparirà appena la pagina gira.
+        LaunchedEffect(nextUri, prevUri) {
+            val loader = SingletonImageLoader.get(context)
+            listOfNotNull(nextUri, prevUri).forEach { loader.execute(Thumbs.request(context, it)) }
+        }
+
+        /**
+         * Se una pagina si sta muovendo, per accendere le vicine solo mentre servono.
+         *
+         * ⚠️⚠️ **`derivedStateOf` e non `travel != 0f` letto direttamente**, ed è la
+         * differenza fra un gesto fluido e uno a scatti: `travel` cambia a ogni
+         * fotogramma, e leggerlo qui rifarebbe la composizione sessanta volte al secondo.
+         * Così invece si ricompone **due volte per gesto**, quando il booleano si accende
+         * e quando si spegne; il movimento vero passa dai blocchi `graphicsLayer`, che
+         * leggono lo stato senza ricomporre.
+         * ⚠️ Le chiavi sono le stesse di `travel`, e non è pignoleria: un `remember`
+         * senza chiavi terrebbe il calcolo agganciato allo stato della fotografia
+         * **precedente**, che resta fermo al suo ultimo valore, e le vicine non si
+         * spegnerebbero più.
+         */
+        val dragging by remember(image, settings) { derivedStateOf { travel != 0f } }
+
+        /**
+         * Porta la pagina a destinazione, o la riporta al suo posto.
+         *
+         * ⚠️ **Chi non si è mosso non ha niente da riportare**, e senza questa uscita una
+         * trascinata verticale (che passa di qui con lo spostamento a zero) bloccherebbe
+         * la strisciata per i 220ms dell'animazione, cioè proprio quando il dito sta per
+         * ricominciare.
+         * ⚠️ **Perché la pagina non può restare fuori schermo**: `settling` si spegne da
+         * sé solo nel ritorno al posto, e negli altri casi conta su `onStep`, che ricarica
+         * il visualizzatore e butta via questo stato insieme al resto. Regge perché
+         * `reachable` legge la stessa serie che `onStep` conta, e quella serie sotto un
+         * `ImageCanvas` vivo non cambia: ogni altra via che la riscrive passa da
+         * `state = Loading`, che questa schermata non le sopravvive.
+         */
+        fun settle(step: Int) {
+            if (step == 0 && travel == 0f) return
+            settling = true
+            scope.launch {
+                val target = when {
+                    step > 0 -> -(viewWidth + pageGap)
+                    step < 0 -> viewWidth + pageGap
+                    else -> 0f
+                }
+                Animatable(travel).animateTo(target, tween(SNAP_MS)) { travel = value }
+                // ⚠️ Il passo si chiede DOPO l'animazione, non prima: chiedendolo prima,
+                // la fotografia nuova arriverebbe mentre la vecchia sta ancora scivolando
+                // via, e si vedrebbero due immagini sovrapposte. Chiesto qui, il
+                // visualizzatore si rifà da capo con la pagina già al centro.
+                if (step == 0) settling = false else onStep(step)
+            }
+        }
 
         fun clampOffset(candidate: Offset, atScale: Float): Offset {
             val slackX = max(0f, (imageWidth * atScale - viewWidth) / 2f)
@@ -276,10 +435,25 @@ private fun ImageCanvas(
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale
-                    translationX = offset.x
+                    // ⚠️ Lo spostamento della sfogliatura si SOMMA a quello della
+                    // panoramica invece di sostituirlo: la strisciata vive solo a riposo,
+                    // dove `offset` è zero, ma se un domani i due stati si
+                    // sovrapponessero, sostituirlo farebbe saltare la figura al primo
+                    // pixel di trascinamento.
+                    translationX = offset.x + travel
                     translationY = offset.y
                 }
         )
+
+        // ⚠️ Le vicine esistono SOLO mentre si trascina: a riposo non c'è niente da
+        // disegnare, e tenerle in scena costerebbe due immagini per ogni fotografia
+        // guardata. ⚠️ Sono MINIATURE, le stesse della griglia e della `PreviewThumb`:
+        // entrano nell'istante del gesto perché sono già in memoria, e la fotografia
+        // vera arriva quando la pagina è girata.
+        if (dragging) {
+            Neighbour(nextUri, settings) { travel + viewWidth + pageGap }
+            Neighbour(prevUri, settings) { travel - viewWidth - pageGap }
+        }
 
         // A riposo la figura non ha gioco da trascinare, quindi una strisciata
         // orizzontale non serve a niente e può cambiare immagine. Ingrandita
@@ -321,7 +495,11 @@ private fun ImageCanvas(
                         // La strisciata vive solo A RIPOSO: ingrandita, il dito
                         // serve a spostarsi dentro la foto. E senza una serie da
                         // sfogliare non ha dove portare.
-                        swipeEnabled = { swipeAllowed },
+                        // ⚠️ `settling` si legge QUI dentro e non dentro `swipeAllowed`:
+                        // là sarebbe un valore fissato dalla composizione, e fra il
+                        // momento in cui la pagina parte e quello in cui la composizione
+                        // se ne accorge ci sta un dito che scende.
+                        swipeEnabled = { swipeAllowed && !settling },
                         // ⚠️ La soglia è una FRAZIONE della larghezza e non un
                         // numero di dp: su uno schermo stretto un valore fisso
                         // sarebbe mezza schermata, su un tablet un nulla.
@@ -332,7 +510,22 @@ private fun ImageCanvas(
                         onTransform = { centroid, pan, zoom ->
                             zoomAround(centroid, scale * zoom, pan)
                         },
-                        onSwipe = onStep
+                        // ⚠️ La resistenza al capolinea NON è decorazione: senza, alla
+                        // prima o all'ultima foto il dito trascinerebbe la pagina su un
+                        // vuoto che non porta da nessuna parte. Frenata a un terzo, la
+                        // pagina dice 'di qua non c'è niente' e poi torna al suo posto.
+                        onSwipeDrag = { raw ->
+                            val reachable = if (raw < 0f) nextUri != null else prevUri != null
+                            travel = if (reachable) raw else raw * END_RESISTANCE
+                        },
+                        onSwipeEnd = { step ->
+                            val reachable = when {
+                                step > 0 -> nextUri != null
+                                step < 0 -> prevUri != null
+                                else -> false
+                            }
+                            settle(if (reachable) step else 0)
+                        }
                     )
                 }
                 .pointerInput(image, settings) {
@@ -418,28 +611,48 @@ private fun ImageCanvas(
  * altrui arriva comunque prima della fine dell'evento.
  *
  * Il corpo qui sotto è `detectTransformGestures` con un ramo in più: finché il dito
- * è uno solo e la strisciata è ammessa, lo spostamento orizzontale si **somma**
- * invece di muovere la figura, e al distacco decide se cambiare immagine.
+ * è uno solo e la strisciata è ammessa, lo spostamento orizzontale non muove la figura
+ * **dentro** la vista ma sposta la pagina intera, e al distacco decide se girarla o
+ * riportarla al suo posto.
  *
- * ⚠️ Un secondo dito **annulla** la strisciata in corso (`travel` torna a zero): chi
- * appoggia il pollice per pizzicare non sta chiedendo l'immagine dopo, e senza
- * questo una pinza cominciata storta la cambierebbe.
+ * ⚠️⚠️ **Dalla 0.36 lo spostamento esce a OGNI evento (`onSwipeDrag`) e non solo alla
+ * fine, ed è tutta lì la fluidità che l'utente ha chiesto**: prima il numero si
+ * accumulava qui dentro senza che niente si muovesse, quindi il dito trascinava il vuoto
+ * e la fotografia cambiava di scatto al distacco. Chi tornasse a un solo `onSwipe`
+ * finale rifarebbe esattamente quel difetto.
+ *
+ * ⚠️ **L'esito finale esce SEMPRE quando si è trascinato**, anche quando il gesto è
+ * stato annullato o non è arrivato alla soglia: senza, la pagina resterebbe ferma a metà
+ * schermo, che è il peggiore dei difetti possibili qui.
+ *
+ * ⚠️ Un secondo dito **annulla** la strisciata in corso (`travel` torna a zero e il
+ * gesto è come non fosse cominciato, velocità compresa): chi appoggia il pollice per
+ * pizzicare non sta chiedendo l'immagine dopo, e senza questo una pinza cominciata
+ * storta la cambierebbe.
  */
 private suspend fun PointerInputScope.detectPanZoomOrSwipe(
     swipeEnabled: () -> Boolean,
     swipeThreshold: () -> Float,
     onTransform: (centroid: Offset, pan: Offset, zoom: Float) -> Unit,
-    onSwipe: (Int) -> Unit
+    onSwipeDrag: (Float) -> Unit,
+    onSwipeEnd: (Int) -> Unit
 ) {
     awaitEachGesture {
         val slop = viewConfiguration.touchSlop
+        val fling = FLING_VELOCITY.toPx()
         var zoomAcc = 1f
         var panAcc = Offset.Zero
         var past = false
         var multi = false
         var travel = 0f
+        var dragged = false
+        // ⚠️ La velocità serve al colpo di pollice corto e rapido, che per spazio non
+        // arriverebbe alla soglia: senza, quel gesto tornerebbe indietro e sembrerebbe
+        // non capito. Si misura sul dito che ha cominciato e non sul centroide, che con
+        // un dito solo è lo stesso punto e con due non è più una strisciata.
+        val speed = VelocityTracker()
 
-        awaitFirstDown(requireUnconsumed = false)
+        val down = awaitFirstDown(requireUnconsumed = false)
         // ⚠️ Le due condizioni si leggono QUI, a dito appena sceso, e non fuori: fuori
         // sarebbero valori catturati alla nascita del rilevatore, ed è esattamente ciò che
         // costringeva a rifarlo a ogni cambio di stato. Vedi `swipeAllowed`.
@@ -455,6 +668,12 @@ private suspend fun PointerInputScope.detectPanZoomOrSwipe(
                 if (event.changes.count { it.pressed } > 1 && !multi) {
                     multi = true
                     travel = 0f
+                    // Chi appoggia il secondo dito non sta più sfogliando: la pagina
+                    // torna al suo posto e la strisciata è come non fosse cominciata.
+                    // ⚠️ `dragged` torna falso apposta: se restasse vero, al distacco si
+                    // leggerebbe la velocità di prima del pizzico e la pagina girerebbe.
+                    if (dragged) onSwipeDrag(0f)
+                    dragged = false
                 }
                 val swiping = canSwipe && !multi
                 val zoomChange = event.calculateZoom()
@@ -472,6 +691,11 @@ private suspend fun PointerInputScope.detectPanZoomOrSwipe(
                 if (past) {
                     if (swiping) {
                         travel += panChange.x
+                        dragged = true
+                        event.changes.firstOrNull { it.id == down.id }?.let {
+                            speed.addPosition(it.uptimeMillis, it.position)
+                        }
+                        onSwipeDrag(travel)
                     } else if (zoomChange != 1f || panChange != Offset.Zero) {
                         onTransform(event.calculateCentroid(useCurrent = false), panChange, zoomChange)
                     }
@@ -483,8 +707,15 @@ private suspend fun PointerInputScope.detectPanZoomOrSwipe(
             }
         } while (!canceled && event.changes.any { it.pressed })
 
-        if (!canceled && travel <= -threshold) onSwipe(1)
-        else if (!canceled && travel >= threshold) onSwipe(-1)
+        if (!dragged) return@awaitEachGesture
+        val vx = speed.calculateVelocity().x
+        val step = when {
+            canceled -> 0
+            travel <= -threshold || vx <= -fling -> 1
+            travel >= threshold || vx >= fling -> -1
+            else -> 0
+        }
+        onSwipeEnd(step)
     }
 }
 
