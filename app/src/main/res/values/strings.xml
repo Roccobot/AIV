@@ -113,6 +113,9 @@
     <!-- Every thumbnail is tappable, so it is not decoration: this is what a screen
          reader says on it, and it has to tell WHERE in the folder that picture is. -->
     <string name="grid_item">Picture %1$d of %2$d</string>
+    <!-- The one the reader came back from: a screen reader has to say so, because
+         the ring around it is the visual form of exactly this. -->
+    <string name="grid_item_last">Picture %1$d of %2$d, the last one you looked at</string>
 
     <plurals name="folders_count">
         <item quantity="one">%1$d picture</item>

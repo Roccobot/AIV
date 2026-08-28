@@ -2,6 +2,7 @@ package io.github.roccobot.aiv
 
 import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,16 +32,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import kotlinx.coroutines.flow.first
 
 /**
  * Una cartella intera in miniature, ed è il primo passo della galleria.
@@ -57,12 +62,15 @@ import coil3.compose.AsyncImage
  * ⚠️ **La lista arriva GIÀ PRONTA dal modello e non si interroga il MediaStore qui**:
  * è la stessa serie che il visualizzatore userà per sfogliare, quindi aprire una foto
  * dalla griglia non costa nessuna query e non può dare due ordini diversi.
+ *
+ * ⚠️ **Le miniature NON passano dal decodificatore normale**: le chiede al sistema
+ * `Thumbs`, e là sta scritto perché.
  */
 @Composable
 fun GridScreen(
     title: String,
     items: List<Uri>?,
-    startAt: Int,
+    highlight: Int?,
     onOpen: (Int) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
@@ -80,13 +88,30 @@ fun GridScreen(
      */
     var placed by rememberSaveable { mutableStateOf(false) }
 
-    // ⚠️ Tornando dal visualizzatore la griglia si porta SULLA foto che si stava
-    // guardando, invece di ripartire dall'inizio: dopo dieci strisciate, ritrovarsi
-    // in cima è perdere il posto.
-    LaunchedEffect(items) {
-        if (placed || items == null) return@LaunchedEffect
+    /*
+     * Tornando dal visualizzatore la griglia si porta SULLA foto che si stava guardando:
+     * dopo dieci strisciate, ritrovarsi in cima è perdere il posto.
+     *
+     * ⚠️⚠️ **SI ASPETTA LA PRIMA MISURA PRIMA DI DECIDERE**, e senza quell'attesa la
+     * griglia si muoverebbe SEMPRE: al primo giro di composizione nessun riquadro è
+     * ancora stato disposto, quindi 'non è in vista' sarebbe vero anche per una foto
+     * che sta benissimo nella prima schermata, e la si vedrebbe saltare in cima per
+     * niente. L'utente ha chiesto lo scorrimento **solo** se la foto è fuori dalla
+     * vista iniziale.
+     * ⚠️ Ci si porta l'intero riquadro dentro lo schermo, non un pezzo: una miniatura
+     * mezza tagliata dal bordo è 'in vista' per il codice e non per chi guarda.
+     */
+    LaunchedEffect(items, highlight) {
+        if (placed || items == null || highlight == null) return@LaunchedEffect
+        if (highlight !in items.indices) return@LaunchedEffect
         placed = true
-        if (startAt in items.indices) state.scrollToItem(startAt)
+        snapshotFlow { state.layoutInfo.totalItemsCount }.first { it > 0 }
+        val info = state.layoutInfo
+        val seen = info.visibleItemsInfo.firstOrNull { it.index == highlight }
+        val whole = seen != null &&
+            seen.offset.y >= 0 &&
+            seen.offset.y + seen.size.height <= info.viewportSize.height
+        if (!whole) state.scrollToItem(highlight)
     }
 
     Column(
@@ -146,28 +171,73 @@ fun GridScreen(
                     // ⚠️ La chiave è l'indirizzo e non la posizione: senza, ruotando
                     // il telefono le miniature già decodificate si rimescolerebbero
                     // fra i riquadri.
-                    key = { _, uri -> uri.toString() }
+                    key = { _, uri -> uri.toString() },
+                    // Un tipo solo per tutti i riquadri: così Compose riusa la
+                    // composizione di quelli che escono per quelli che entrano,
+                    // invece di ricostruirla a ogni riga che scorre.
+                    contentType = { _, _ -> THUMB_KIND }
                 ) { index, uri ->
-                    AsyncImage(
-                        model = uri,
-                        // Ogni riquadro è toccabile, quindi non è decorativo: chi
-                        // legge con TalkBack deve sapere dove si trova nella cartella.
-                        contentDescription = stringResource(
-                            R.string.grid_item, index + 1, items.size
-                        ),
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .aspectRatio(1f)
-                            .clip(RoundedCornerShape(4.dp))
-                            // Il fondo si vede finché la miniatura non è pronta: senza,
-                            // la griglia lampeggerebbe del colore della pagina.
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                            .clickable { onOpen(index) }
+                    Thumbnail(
+                        uri = uri,
+                        position = index + 1,
+                        total = items.size,
+                        marked = index == highlight,
+                        onClick = { onOpen(index) }
                     )
                 }
             }
         }
     }
+}
+
+/**
+ * Un riquadro della griglia.
+ *
+ * ⚠️ **L'anello di [marked] va PRIMA del ritaglio nella catena dei modificatori**, e
+ * non è una sfumatura: i modificatori si annidano nell'ordine in cui sono scritti,
+ * quindi un bordo dichiarato dopo `clip` verrebbe tagliato a metà dalla stessa forma
+ * che ritaglia l'immagine, e si vedrebbe un filo sottile invece di un anello.
+ */
+@Composable
+private fun Thumbnail(
+    uri: Uri,
+    position: Int,
+    total: Int,
+    marked: Boolean,
+    onClick: () -> Unit
+) {
+    val shape = RoundedCornerShape(4.dp)
+    // La richiesta si costruisce una volta per indirizzo: ricrearla a ogni
+    // ricomposizione darebbe a Coil un oggetto nuovo da confrontare per ogni fotogramma
+    // di scorrimento, e questo è il posto in cui i fotogrammi contano.
+    val context = LocalContext.current
+    val model = remember(uri, context) { Thumbs.request(context, uri) }
+    val ring = if (marked) {
+        Modifier.border(RING, MaterialTheme.colorScheme.primary, shape)
+    } else {
+        Modifier
+    }
+    AsyncImage(
+        // ⚠️ La richiesta viene da `Thumbs` e non è costruita qui: la misura è parte
+        // della chiave di cache, quindi deve essere la stessa dovunque (vedi `Thumbs.PX`).
+        model = model,
+        // Ogni riquadro è toccabile, quindi non è decorativo: chi legge con TalkBack
+        // deve sapere dove si trova nella cartella, e se è quello da cui è tornato.
+        contentDescription = stringResource(
+            if (marked) R.string.grid_item_last else R.string.grid_item,
+            position,
+            total
+        ),
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+            .aspectRatio(1f)
+            .then(ring)
+            .clip(shape)
+            // Il fondo si vede finché la miniatura non è pronta: senza, la griglia
+            // lampeggerebbe del colore della pagina.
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .clickable(onClick = onClick)
+    )
 }
 
 /**
@@ -182,3 +252,9 @@ private val THUMB = 108.dp
 
 /** Il distacco fra le miniature: c'è, ma non deve leggersi come una cornice. */
 private val GAP = 3.dp
+
+/** L'anello sull'ultima foto guardata: si deve vedere a colpo d'occhio, da lontano. */
+private val RING = 3.dp
+
+/** Tutti i riquadri sono la stessa cosa, e dirlo permette a Compose di riusarli. */
+private const val THUMB_KIND = "thumb"

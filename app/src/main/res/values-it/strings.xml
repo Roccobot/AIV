@@ -102,6 +102,7 @@
     <string name="folder_empty">Questa cartella non contiene più immagini.</string>
     <!-- ── La griglia di una cartella ── -->
     <string name="grid_item">Immagine %1$d di %2$d</string>
+    <string name="grid_item_last">Immagine %1$d di %2$d, l\'ultima che hai guardato</string>
 
     <plurals name="folders_count">
         <item quantity="one">%1$d immagine</item>
