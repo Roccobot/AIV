@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -193,10 +194,18 @@ fun GridScreen(
 /**
  * Un riquadro della griglia.
  *
- * ⚠️ **L'anello di [marked] va PRIMA del ritaglio nella catena dei modificatori**, e
- * non è una sfumatura: i modificatori si annidano nell'ordine in cui sono scritti,
- * quindi un bordo dichiarato dopo `clip` verrebbe tagliato a metà dalla stessa forma
- * che ritaglia l'immagine, e si vedrebbe un filo sottile invece di un anello.
+ * ⚠️⚠️ **IL SEGNO È UN RIQUADRO SOPRA, NON UN BORDO NELLA CATENA DEI MODIFICATORI**, e
+ * la differenza è la lezione della `0.34`, dove l'anello non si vedeva: un `Modifier.border`
+ * dipende da dove sta nella catena e da come il nodo che disegna l'immagine si comporta col
+ * `drawContent`, cioè da due cose che stanno in due librerie diverse. Due fratelli dentro un
+ * `Box` invece si dipingono nell'ordine in cui sono scritti, e su questo non c'è niente da
+ * sapere: il secondo sta sopra il primo, sempre.
+ * ⚠️ Il velo colorato non è decorazione in più: un filo di 3dp su una miniatura piena di
+ * dettagli si perde, mentre una tinta sull'intero riquadro si vede dall'altra parte della
+ * stanza, che è quello che serve a ritrovare il proprio posto.
+ * ⚠️ Il riquadro di sopra **non intercetta il tocco**: in Compose partecipa al colpo solo
+ * chi porta un modificatore di puntatore, e qui non ce n'è. Il tocco arriva all'immagine
+ * sotto, che è quella che apre.
  */
 @Composable
 private fun Thumbnail(
@@ -212,32 +221,38 @@ private fun Thumbnail(
     // di scorrimento, e questo è il posto in cui i fotogrammi contano.
     val context = LocalContext.current
     val model = remember(uri, context) { Thumbs.request(context, uri) }
-    val ring = if (marked) {
-        Modifier.border(RING, MaterialTheme.colorScheme.primary, shape)
-    } else {
-        Modifier
+
+    Box(modifier = Modifier.aspectRatio(1f)) {
+        AsyncImage(
+            // ⚠️ La richiesta viene da `Thumbs` e non è costruita qui: la misura è parte
+            // della chiave di cache, quindi deve essere la stessa dovunque (vedi `Thumbs.PX`).
+            model = model,
+            // Ogni riquadro è toccabile, quindi non è decorativo: chi legge con TalkBack
+            // deve sapere dove si trova nella cartella, e se è quello da cui è tornato.
+            contentDescription = stringResource(
+                if (marked) R.string.grid_item_last else R.string.grid_item,
+                position,
+                total
+            ),
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .matchParentSize()
+                .clip(shape)
+                // Il fondo si vede finché la miniatura non è pronta: senza, la griglia
+                // lampeggerebbe del colore della pagina.
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .clickable(onClick = onClick)
+        )
+        if (marked) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clip(shape)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = VEIL))
+                    .border(RING, MaterialTheme.colorScheme.primary, shape)
+            )
+        }
     }
-    AsyncImage(
-        // ⚠️ La richiesta viene da `Thumbs` e non è costruita qui: la misura è parte
-        // della chiave di cache, quindi deve essere la stessa dovunque (vedi `Thumbs.PX`).
-        model = model,
-        // Ogni riquadro è toccabile, quindi non è decorativo: chi legge con TalkBack
-        // deve sapere dove si trova nella cartella, e se è quello da cui è tornato.
-        contentDescription = stringResource(
-            if (marked) R.string.grid_item_last else R.string.grid_item,
-            position,
-            total
-        ),
-        contentScale = ContentScale.Crop,
-        modifier = Modifier
-            .aspectRatio(1f)
-            .then(ring)
-            .clip(shape)
-            // Il fondo si vede finché la miniatura non è pronta: senza, la griglia
-            // lampeggerebbe del colore della pagina.
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .clickable(onClick = onClick)
-    )
 }
 
 /**
@@ -254,7 +269,16 @@ private val THUMB = 108.dp
 private val GAP = 3.dp
 
 /** L'anello sull'ultima foto guardata: si deve vedere a colpo d'occhio, da lontano. */
-private val RING = 3.dp
+private val RING = 4.dp
+
+/**
+ * Quanto tinge il velo sull'ultima foto guardata.
+ *
+ * ⚠️ Abbastanza da riconoscere il riquadro con la coda dell'occhio, poco da lasciar
+ * vedere la fotografia: a un quarto la miniatura diventa una macchia colorata, e allora il
+ * segno mangia proprio la cosa che deve indicare.
+ */
+private const val VEIL = 0.22f
 
 /** Tutti i riquadri sono la stessa cosa, e dirlo permette a Compose di riusarli. */
 private const val THUMB_KIND = "thumb"
