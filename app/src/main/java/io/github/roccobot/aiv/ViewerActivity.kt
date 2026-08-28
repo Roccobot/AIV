@@ -164,17 +164,21 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Quale foto della griglia si stava guardando, e **null finché in questa visita non
-     * se n'è aperta nessuna**.
+     * Se in questa visita alla griglia si è già aperta una foto.
      *
-     * ⚠️⚠️ **Non basta l'indice della serie**, che è la strada corta e sarebbe sbagliata:
-     * quello vale sempre qualcosa, quindi entrando in una cartella la griglia
-     * evidenzierebbe la prima miniatura senza che nessuno l'abbia guardata. Il segno
-     * nasce **vuoto** e lo scrive solo il ritorno dal visualizzatore.
-     * ⚠️ È nell'ordine di LETTURA, cioè lo stesso in cui la griglia dispone le miniature:
-     * nessuna conversione, e il numero si può usare com'è.
+     * ⚠️⚠️ **È un SÌ o NO e non l'indice, ed è la correzione della `0.34`**, che l'anello
+     * non lo mostrava: là il segno era un indice **copiato** al momento del ritorno, cioè
+     * un dato in più da tenere d'accordo con la serie, scritto in un punto solo e in un
+     * istante solo. Bastava che quella scrittura non avvenisse, o avvenisse quando la
+     * serie non era quella attesa, perché il segno restasse vuoto e l'anello sparisse
+     * senza lasciare traccia.
+     * ⚠️ Adesso la posizione **non si copia**: la griglia legge `series.index`, cioè
+     * l'unico posto in cui la foto corrente è già scritta e che la strisciata tiene
+     * aggiornato da sé. Questa bandierina risponde alla sola domanda che quel numero non
+     * sa rispondere: se una foto sia mai stata aperta in questa visita. Senza, entrando in
+     * una cartella si evidenzierebbe la prima miniatura, che nessuno ha guardato.
      */
-    var gridMark: Int? by mutableStateOf(null)
+    var gridVisited: Boolean by mutableStateOf(false)
         private set
 
     /** Whether the folder permission has already been asked for once. */
@@ -349,9 +353,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         screen = Screen.Grid(bucket, name)
         listed = null
         source = null
-        // Cartella nuova, nessuna foto ancora guardata: il segno di prima non c'entra
-        // niente con queste miniature.
-        gridMark = null
+        // Cartella nuova, nessuna foto ancora guardata.
+        gridVisited = false
         // La fotografia di prima non serve più: tenerla vorrebbe dire tenere in memoria
         // un bitmap grande mentre si guarda tutt'altro.
         state = ViewerState.Loading
@@ -376,6 +379,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         // griglia che c'era.
         if (current.at(index) == null) return
         viewerBack = grid
+        // ⚠️ Si scrive QUI, nel momento del tocco, e non al ritorno: questo è il punto in
+        // cui è certo che una foto della griglia si sta aprendo. La `0.34` lo scriveva
+        // all'indietro, ed è il motivo per cui l'anello non compariva.
+        gridVisited = true
         screen = Screen.Viewer
         showAt(current, index)
     }
@@ -399,10 +406,6 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             null -> Unit
             Screen.Home -> goHome()
             else -> {
-                // ⚠️ Il segno si prende PRIMA di spegnere lo stato, ed è l'ultima foto
-                // guardata e non quella toccata nella griglia: dopo dieci strisciate
-                // sono due cose diverse, e l'utente ha chiesto la prima.
-                if (dest is Screen.Grid) gridMark = series?.index
                 screen = dest
                 source = null
                 state = ViewerState.Loading
@@ -574,7 +577,10 @@ private fun AivApp(model: ViewerViewModel) {
             GridScreen(
                 title = screen.name,
                 items = lookup?.let { it.seriesOrNull?.items ?: emptyList() },
-                highlight = model.gridMark,
+                // ⚠️ L'indice si legge dalla serie VIVA e non da una copia: è quello
+                // della foto mostrata per ultima nel visualizzatore, che la strisciata
+                // tiene aggiornato. La bandierina dice solo se qualcosa è stato aperto.
+                highlight = if (model.gridVisited) model.series?.index else null,
                 onOpen = { model.openFromGrid(it) },
                 onBack = { model.leaveGrid() }
             )
