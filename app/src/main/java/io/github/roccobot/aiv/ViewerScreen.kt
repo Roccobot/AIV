@@ -52,20 +52,22 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeoutOrNull
+import coil3.compose.AsyncImage
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 /** Below this, a picture is a speck: it is the floor of the pinch, not of the fit. */
 private const val MIN_SCALE = 0.02f
@@ -101,11 +103,46 @@ fun ViewerScreen(
 ) {
     Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         when (state) {
-            is ViewerState.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
+            is ViewerState.Loading -> {
+                PreviewThumb(source, settings)
+                CircularProgressIndicator(Modifier.align(Alignment.Center))
+            }
             is ViewerState.Error -> ErrorMessage(state, Modifier.align(Alignment.Center))
             is ViewerState.Ready -> ImageCanvas(state.image, settings, source, folder, onStep, onSettings)
         }
     }
+}
+
+/**
+ * La MINIATURA mentre la fotografia vera si decodifica.
+ *
+ * ⚠️⚠️ **NON è un compromesso sulla qualità: è quello che si vede PRIMA di averla.**
+ * Aprire una foto da 30 megapixel costa un tempo che si sente, e la strisciata da una
+ * all'altra lo paga a ogni passo; questa è la stessa miniatura che la griglia ha già
+ * decodificato, quindi nella maggior parte dei casi è già in memoria e compare
+ * nell'istante del gesto. Quando la fotografia è pronta la sostituisce, intera.
+ * ⚠️ La scala segue l'impostazione *ingrandisci le immagini piccole*, e non è un
+ * dettaglio: con quella spenta una figura più piccola dello schermo resta alla sua
+ * misura, quindi una miniatura sparata a pieno schermo salterebbe di posizione nel
+ * momento in cui la vera arriva. `Inside` è esattamente 'adatta ma non ingrandire'.
+ * ⚠️ Solo per gli indirizzi LOCALI: per un URL remoto non c'è nessuna miniatura da
+ * chiedere al telefono, e questo caricatore non parla con la rete apposta.
+ */
+@Composable
+private fun PreviewThumb(source: Uri?, settings: Settings) {
+    val local = source?.scheme?.lowercase() == "content" || source?.scheme?.lowercase() == "file"
+    if (source == null || !local) return
+    val context = LocalContext.current
+    val model = remember(source, context) { Thumbs.request(context, source) }
+    AsyncImage(
+        // ⚠️ La STESSA richiesta della griglia, misura compresa: è così che questa
+        // immagine è già in memoria invece di essere chiesta di nuovo. Una misura
+        // diversa sarebbe una chiave diversa, cioè un'altra generazione.
+        model = model,
+        contentDescription = null,
+        contentScale = if (settings.fitGrow) ContentScale.Fit else ContentScale.Inside,
+        modifier = Modifier.fillMaxSize()
+    )
 }
 
 @Composable

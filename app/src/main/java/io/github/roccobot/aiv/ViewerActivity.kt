@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import coil3.compose.setSingletonImageLoaderFactory
 import kotlinx.coroutines.launch
 
 sealed interface ViewerState {
@@ -161,6 +162,20 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         val first = if (settings?.reverseSequence == true) whole.items.lastIndex else 0
         return Folder.Lookup.Found(whole.copy(index = first))
     }
+
+    /**
+     * Quale foto della griglia si stava guardando, e **null finché in questa visita non
+     * se n'è aperta nessuna**.
+     *
+     * ⚠️⚠️ **Non basta l'indice della serie**, che è la strada corta e sarebbe sbagliata:
+     * quello vale sempre qualcosa, quindi entrando in una cartella la griglia
+     * evidenzierebbe la prima miniatura senza che nessuno l'abbia guardata. Il segno
+     * nasce **vuoto** e lo scrive solo il ritorno dal visualizzatore.
+     * ⚠️ È nell'ordine di LETTURA, cioè lo stesso in cui la griglia dispone le miniature:
+     * nessuna conversione, e il numero si può usare com'è.
+     */
+    var gridMark: Int? by mutableStateOf(null)
+        private set
 
     /** Whether the folder permission has already been asked for once. */
     var folderAsked: Boolean by mutableStateOf(true)
@@ -334,6 +349,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         screen = Screen.Grid(bucket, name)
         listed = null
         source = null
+        // Cartella nuova, nessuna foto ancora guardata: il segno di prima non c'entra
+        // niente con queste miniature.
+        gridMark = null
         // La fotografia di prima non serve più: tenerla vorrebbe dire tenere in memoria
         // un bitmap grande mentre si guarda tutt'altro.
         state = ViewerState.Loading
@@ -381,6 +399,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             null -> Unit
             Screen.Home -> goHome()
             else -> {
+                // ⚠️ Il segno si prende PRIMA di spegnere lo stato, ed è l'ultima foto
+                // guardata e non quella toccata nella griglia: dopo dieci strisciate
+                // sono due cose diverse, e l'utente ha chiesto la prima.
+                if (dest is Screen.Grid) gridMark = series?.index
                 screen = dest
                 source = null
                 state = ViewerState.Loading
@@ -503,6 +525,11 @@ class ViewerActivity : ComponentActivity() {
 
 @Composable
 private fun AivApp(model: ViewerViewModel) {
+    // ⚠️ PRIMA DI TUTTO IL RESTO, e non è una preferenza di ordine: la fabbrica va
+    // dichiarata prima che una qualunque immagine chieda il caricatore, o quella
+    // richiesta si prende quello predefinito e le miniature tornano a passare dalla
+    // decodifica normale. Il perché di un caricatore nostro sta in `Thumbs`.
+    setSingletonImageLoaderFactory { context -> Thumbs.loader(context) }
     val settings = model.settings
     if (settings == null) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -547,7 +574,7 @@ private fun AivApp(model: ViewerViewModel) {
             GridScreen(
                 title = screen.name,
                 items = lookup?.let { it.seriesOrNull?.items ?: emptyList() },
-                startAt = model.series?.index ?: 0,
+                highlight = model.gridMark,
                 onOpen = { model.openFromGrid(it) },
                 onBack = { model.leaveGrid() }
             )
