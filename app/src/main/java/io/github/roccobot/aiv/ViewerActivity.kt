@@ -53,13 +53,16 @@ sealed interface ViewerState {
 
 /** Quale schermata è davanti. */
 sealed interface Screen {
-    data object Home : Screen
     data object Settings : Screen
     data object Viewer : Screen
 
     /**
-     * L'elenco delle cartelle.
+     * L'elenco delle cartelle, e **la casa dell'app** dalla 0.41.
      *
+     * ⚠️⚠️ **QUI C'ERA `Home`, la schermata che chiedeva da dove cominciare, ed è
+     * sparita** (decisione dell'utente, 2026-08-29). Non è stata sostituita da un'altra
+     * schermata ma da una **risposta**, che è questa. Chi cerca dove siano finite le sue
+     * cinque vie le trova dentro il tastino di `FolderScreen`.
      * ⚠️ Porta [forStart] perché la stessa schermata risponde a due domande: 'quale
      * cartella apro adesso' e 'quale cartella apro all'avvio'. È l'unico dato che
      * distingue i due usi, e sta qui e non nel modello perché muore con la schermata.
@@ -79,6 +82,15 @@ sealed interface Screen {
 }
 
 /**
+ * La casa dell'app.
+ *
+ * ⚠️ Un nome solo perché i posti che ci tornano sono sei (l'avvio, l'uscita dal
+ * visualizzatore, le impostazioni chiuse senza una foto aperta, e le tre vie che aprono):
+ * scritta a mano in ognuno, il giorno che la casa cambia se ne aggiornerebbero cinque.
+ */
+private val HOME = Screen.Folders(forStart = false)
+
+/**
  * The decoded picture lives in the ViewModel and not in the composition: a
  * rotation must not send the phone back to the network, and on a big file that
  * would be a visible pause rather than a purist's detail.
@@ -88,7 +100,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     var state: ViewerState by mutableStateOf(ViewerState.Loading())
         private set
 
-    var screen: Screen by mutableStateOf(Screen.Home)
+    var screen: Screen by mutableStateOf(HOME)
         private set
 
     /**
@@ -219,15 +231,56 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     fun handleIntent(intent: Intent?) {
         val uri = intent.imageUri()
         if (uri == null) {
-            // Started from its own icon: the opening screen, not an error. Until
-            // this existed the app showed a spinner and then 'no image to show',
-            // which reads as 'this app does nothing'.
-            screen = Screen.Home
+            // Partita dalla propria icona: si va dove sta la roba, cioè alle cartelle.
+            screen = HOME
             atStart = true
+            fromIcon = true
             settings?.let(::openStartFolder)
         } else {
-            open(uri, fromHome = false)
+            // ⚠️ Un collegamento da fuori NON deve far guardare negli appunti: la
+            // persona ha già detto che cosa vuole aprire.
+            fromIcon = false
+            clipboardTried = true
+            open(uri, backToApp = false)
         }
+    }
+
+    /** Se questa esecuzione è partita dall'icona, cioè senza che nessuno dica che aprire. */
+    private var fromIcon = false
+
+    /** Gli appunti si guardano una volta per esecuzione, non a ogni ritorno del fuoco. */
+    private var clipboardTried = false
+
+    /**
+     * Gli appunti, guardati **una volta sola** e solo all'avvio dall'icona.
+     *
+     * ⚠️⚠️ **VA CHIAMATA QUANDO LA FINESTRA PRENDE IL FUOCO, e non da `onCreate`**: da
+     * Android 10 un'app può leggere gli appunti **solo mentre ha il fuoco**, quindi un
+     * controllo fatto alla creazione tornerebbe a mani vuote e la funzione sembrerebbe
+     * guasta invece che impossibile.
+     * ⚠️⚠️ **E DA ANDROID 12 IL SISTEMA LO ANNUNCIA** col suo avvisino: leggerli a ogni
+     * avvio vuol dire quell'avviso a ogni avvio. È il costo visibile della funzione che
+     * l'utente ha chiesto, non un difetto da nascondere; l'unico modo di ridurlo sarebbe
+     * leggere di meno, cioè non fare quello che serve.
+     * ⚠️ **Nessuna richiesta di rete qui**: 'indirizzo diretto a un'immagine' si decide
+     * dall'estensione nel percorso e non con una `HEAD`, o l'apertura dell'app
+     * aspetterebbe un server. Se poi l'indirizzo non è un'immagine lo dice il
+     * visualizzatore, che dalla 0.38 ha il suo errore e il suo Riprova.
+     */
+    fun readClipboard() {
+        if (clipboardTried || !fromIcon) return
+        clipboardTried = true
+        val context = getApplication<Application>()
+        val uri = ImageActions.urlInClipboard(context) ?: return
+        if (!ImageActions.looksLikeImage(uri)) return
+        // ⚠️⚠️ **SPEGNE LA CARTELLA D'AVVIO, e senza questa riga l'ordine deciderebbe il
+        // vincitore**: le impostazioni arrivano da una coroutine e il fuoco da un evento
+        // di sistema, quindi quale dei due sia primo non è stabilito. Se il fuoco arriva
+        // prima, `openStartFolder` scatterebbe **dopo** e coprirebbe la fotografia degli
+        // appunti con la cartella. L'utente ha detto che gli appunti vengono per primi,
+        // quindi qui la corsa si chiude invece di sperare che vada bene.
+        atStart = false
+        open(uri)
     }
 
     /**
@@ -324,9 +377,12 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         startLoad(uri)
     }
 
-    fun open(uri: Uri, fromHome: Boolean = true) {
+    fun open(uri: Uri, backToApp: Boolean = true) {
         source = uri
-        viewerBack = if (fromHome) Screen.Home else null
+        // ⚠️ Null vuol dire **esci dall'app**: chi è arrivato da un collegamento non ha
+        // nessun posto dell'app in cui tornare, e trattenerlo in una schermata che non ha
+        // chiesto sarebbe peggio che chiudersi.
+        viewerBack = if (backToApp) HOME else null
         screen = Screen.Viewer
         listed = null
         startLoad(uri, remember = true)
@@ -353,7 +409,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * aperta: mettere la griglia anche là cambierebbe quello che ha chiesto.
      */
     fun openFolder(bucket: Long) {
-        viewerBack = Screen.Home
+        viewerBack = HOME
         screen = Screen.Viewer
         listed = null
         source = null
@@ -387,14 +443,27 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             is LoadResult.Failed -> ViewerState.Error(result.reason.messageRes(), result.detail)
         }
 
-    /** L'elenco delle cartelle, per aprirne una adesso o per sceglierla per l'avvio. */
-    fun chooseFolder(forStart: Boolean) {
-        screen = Screen.Folders(forStart)
+    /**
+     * L'elenco delle cartelle nella veste 'scegli quella dell'avvio'.
+     *
+     * ⚠️ Un tempo questa funzione portava un parametro, perché la stessa schermata la
+     * apriva anche la voce 'Apri una cartella'. Dalla 0.41 quella voce non esiste più,
+     * visto che l'elenco delle cartelle **è** la casa: restava un parametro che valeva
+     * sempre `true`, cioè una scelta che non si poteva più fare.
+     */
+    fun chooseStartFolder() {
+        screen = Screen.Folders(forStart = true)
     }
 
-    /** Fuori dall'elenco: si torna da dove ci si è arrivati. */
-    fun leaveFolders(forStart: Boolean) {
-        screen = if (forStart) Screen.Settings else Screen.Home
+    /**
+     * Fuori dalla scelta della cartella d'avvio: si torna alle impostazioni.
+     *
+     * ⚠️ Vale **solo** per quella veste: l'elenco delle cartelle nell'altra è la casa, e
+     * da casa non si torna da nessuna parte. Là il gesto Indietro chiude l'app, che è
+     * quello che ci si aspetta da una schermata iniziale.
+     */
+    fun leaveStartFolderChoice() {
+        screen = Screen.Settings
     }
 
     /**
@@ -483,12 +552,12 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     fun backFromViewer() {
         when (val dest = viewerBack) {
             null -> Unit
-            Screen.Home -> goHome()
-            else -> {
+            is Screen.Grid -> {
                 screen = dest
                 source = null
                 stopLoad()
             }
+            else -> goHome()
         }
     }
 
@@ -546,7 +615,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun goHome() {
-        screen = Screen.Home
+        screen = HOME
         source = null
         listed = null
         stopLoad()
@@ -558,7 +627,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
 
     /** Out of the settings, back to whichever screen was showing the picture, or home. */
     fun leaveSettings() {
-        screen = if (state is ViewerState.Ready) Screen.Viewer else Screen.Home
+        screen = if (state is ViewerState.Ready) Screen.Viewer else HOME
     }
 
     fun updateSettings(next: Settings) {
@@ -592,6 +661,19 @@ class ViewerActivity : ComponentActivity() {
     }
 
     /**
+     * ⚠️⚠️ **GLI APPUNTI SI GUARDANO QUI E NON IN `onCreate`, e non è una preferenza di
+     * ordine**: da Android 10 un'app può leggerli **solo mentre ha il fuoco**, e alla
+     * creazione la finestra non ce l'ha ancora. Un controllo fatto là tornerebbe sempre a
+     * mani vuote, e la funzione sembrerebbe scritta male invece che chiamata troppo
+     * presto. Il modello si difende da sé dalle chiamate successive: il fuoco va e viene
+     * a ogni dialogo di sistema.
+     */
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) model.readClipboard()
+    }
+
+    /**
      * The activity is singleTop, so a second link arrives here instead of starting
      * a new copy of the app. Without this the screen would keep showing the
      * previous picture, which looks exactly like a bug.
@@ -618,29 +700,29 @@ private fun AivApp(model: ViewerViewModel) {
         return
     }
     when (val screen = model.screen) {
-        Screen.Home -> HomeScreen(
-            recents = model.recents,
-            onOpen = { model.open(it) },
-            onFolders = { model.chooseFolder(forStart = false) },
-            onSettings = { model.openSettings() },
-            onForget = { model.forgetRecents() }
-        )
-
         Screen.Settings -> {
             BackHandler { model.leaveSettings() }
             SettingsScreen(
                 settings = settings,
                 onChange = { model.updateSettings(it) },
-                onStartFolder = { model.chooseFolder(forStart = true) },
+                onStartFolder = { model.chooseStartFolder() },
                 onBack = { model.leaveSettings() }
             )
         }
 
         is Screen.Folders -> {
-            BackHandler { model.leaveFolders(screen.forStart) }
+            // ⚠️ Il gesto Indietro si intercetta SOLO nella veste 'scegli la cartella
+            // d'avvio': nell'altra questa è la casa, e da casa Indietro chiude l'app.
+            if (screen.forStart) BackHandler { model.leaveStartFolderChoice() }
             FolderScreen(
+                view = settings.folderView,
+                recents = model.recents,
                 onPick = { model.folderPicked(it, screen.forStart) },
-                onBack = { model.leaveFolders(screen.forStart) }
+                onOpen = { model.open(it) },
+                onView = { model.updateSettings(settings.copy(folderView = it)) },
+                onForget = { model.forgetRecents() },
+                onSettings = { model.openSettings() },
+                onBack = if (screen.forStart) ({ model.leaveStartFolderChoice() }) else null
             )
         }
 

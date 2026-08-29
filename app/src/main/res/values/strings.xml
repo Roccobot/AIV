@@ -28,20 +28,9 @@
 
     <string name="fit_label">Fit to view</string>
 
-    <!-- ── The opening screen, when the app is started from its own icon ── -->
-    <string name="home_subtitle">Nothing to see. Hand me a picture.</string>
-    <string name="home_local">Open from this phone</string>
-    <string name="home_local_sub">Browse the pictures on this device</string>
-    <string name="home_clipboard">Open from clipboard</string>
-    <string name="home_clipboard_sub">Reads a URL you have just copied</string>
-    <string name="home_url">Type a URL</string>
-    <string name="home_url_hint">https://example.com/picture.jpg</string>
-    <string name="home_url_go">Open this URL</string>
-    <string name="home_settings">Settings</string>
-    <string name="home_recent">Opened recently</string>
-    <string name="home_recent_forget">Forget these</string>
-
-    <string name="clipboard_no_url">The clipboard does not contain a URL</string>
+    <!-- ── Asking for an address ── -->
+    <string name="url_hint">https://example.com/picture.jpg</string>
+    <string name="url_forget">Forget these</string>
     <string name="url_not_image">The URL does not point to an image</string>
 
     <!-- ── The menu that a long press opens on the picture ── -->
@@ -104,13 +93,25 @@
     <string name="settings_start_folder_none">No folder chosen</string>
     <string name="settings_start_folder_pick">Choose</string>
 
-    <string name="home_folder">Open a folder</string>
-    <string name="home_folder_sub">See its pictures in a grid</string>
 
     <string name="folders_title">Folders</string>
     <string name="folders_permission">Listing the folders needs access to all files. It is the same permission that lets you leaf through a folder, and it is granted from a system page.</string>
     <string name="folders_grant">Grant access</string>
     <string name="folders_none">No folder holds pictures.</string>
+    <!-- ── The little square button, bottom right of the folders screen ── -->
+    <!-- It is the app's whole menu now that the opening screen is gone, so it has to
+         say so rather than name one of the things behind it. -->
+    <string name="hub_open">More</string>
+    <!-- Each of these names the view you would GET, not the one you are in: a menu
+         entry is a thing you ask for. -->
+    <string name="hub_view_list">See them as a list</string>
+    <string name="hub_view_grid">See them as covers</string>
+    <string name="hub_url">Open an address</string>
+    <string name="hub_pick">Open a picture</string>
+    <string name="hub_settings">Settings</string>
+    <string name="url_open">Open</string>
+    <string name="url_cancel">Cancel</string>
+    <string name="url_recent">Opened before</string>
     <string name="folder_empty">This folder holds no pictures any more.</string>
     <!-- ── The grid of one folder ── -->
     <!-- Every thumbnail is tappable, so it is not decoration: this is what a screen

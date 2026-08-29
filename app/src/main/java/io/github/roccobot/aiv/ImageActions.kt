@@ -122,6 +122,25 @@ object ImageActions {
         }
     }
 
+    /**
+     * Se l'indirizzo **si dichiara** un'immagine, cioè senza chiedere a nessuno.
+     *
+     * ⚠️⚠️ **NON è [leadsToImage] con meno passi: è la domanda che si può fare SENZA
+     * RETE**, e serve dove una richiesta sarebbe fuori posto. Il caso per cui esiste è
+     * l'avvio dell'app, che guarda negli appunti: là una `HEAD` farebbe aspettare
+     * l'apertura dell'app a un server, e per un indirizzo che la persona magari aveva
+     * copiato per tutt'altro. ⚠️ Il prezzo, dichiarato: un'immagine servita da un
+     * indirizzo senza estensione (moltissime, sui siti moderni) qui risponde **no**. È
+     * il verso giusto in cui sbagliare, perché l'errore opposto sarebbe aprire da soli
+     * qualcosa che nessuno ha chiesto.
+     */
+    fun looksLikeImage(uri: Uri): Boolean {
+        val scheme = uri.scheme?.lowercase()
+        if (scheme != "http" && scheme != "https") return false
+        val path = uri.path?.lowercase() ?: return false
+        return IMAGE_SUFFIXES.any { path.endsWith(it) }
+    }
+
     private val IMAGE_SUFFIXES = listOf(
         ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".heic", ".heif", ".avif"
     )

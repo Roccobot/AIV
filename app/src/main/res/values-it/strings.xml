@@ -16,20 +16,9 @@
 
     <string name="fit_label">Adatta alla vista</string>
 
-    <!-- ── La schermata iniziale, all'avvio dall'icona dell'app ── -->
-    <string name="home_subtitle">Niente da vedere. Passami un\'immagine.</string>
-    <string name="home_local">Apri dal telefono</string>
-    <string name="home_local_sub">Sfoglia le immagini di questo dispositivo</string>
-    <string name="home_clipboard">Apri dagli appunti</string>
-    <string name="home_clipboard_sub">Legge un URL che hai appena copiato</string>
-    <string name="home_url">Digita un URL</string>
-    <string name="home_url_hint">https://esempio.it/immagine.jpg</string>
-    <string name="home_url_go">Apri questo URL</string>
-    <string name="home_settings">Impostazioni</string>
-    <string name="home_recent">Aperte di recente</string>
-    <string name="home_recent_forget">Dimenticale</string>
-
-    <string name="clipboard_no_url">Gli appunti non contengono un URL</string>
+    <!-- ── Chiedere un indirizzo ── -->
+    <string name="url_hint">https://esempio.it/immagine.jpg</string>
+    <string name="url_forget">Dimenticale</string>
     <string name="url_not_image">L\'URL non punta a un\'immagine</string>
 
     <!-- ── Il menu che la pressione prolungata apre sull'immagine ── -->
@@ -93,13 +82,21 @@
     <string name="settings_start_folder_none">Nessuna cartella scelta</string>
     <string name="settings_start_folder_pick">Scegli</string>
 
-    <string name="home_folder">Apri una cartella</string>
-    <string name="home_folder_sub">Le sue foto in griglia</string>
 
     <string name="folders_title">Cartelle</string>
     <string name="folders_permission">Per elencare le cartelle serve l\'accesso a tutti i file. È lo stesso permesso che serve a sfogliare una cartella, e si concede da una pagina di sistema.</string>
     <string name="folders_grant">Concedi l\'accesso</string>
     <string name="folders_none">Nessuna cartella contiene immagini.</string>
+    <!-- ── Il tastino quadrato in basso a destra ── -->
+    <string name="hub_open">Altro</string>
+    <string name="hub_view_list">Vedile come elenco</string>
+    <string name="hub_view_grid">Vedile come copertine</string>
+    <string name="hub_url">Apri un indirizzo</string>
+    <string name="hub_pick">Apri un\'immagine</string>
+    <string name="hub_settings">Impostazioni</string>
+    <string name="url_open">Apri</string>
+    <string name="url_cancel">Annulla</string>
+    <string name="url_recent">Aperti in passato</string>
     <string name="folder_empty">Questa cartella non contiene più immagini.</string>
     <!-- ── La griglia di una cartella ── -->
     <string name="grid_item">Immagine %1$d di %2$d</string>
