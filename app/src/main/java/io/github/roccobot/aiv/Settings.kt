@@ -78,6 +78,20 @@ enum class ScaleMode(override val token: String) : Choice { PHYSICAL("physical")
 /** Where the one line of details sits. Asked for by the user. */
 enum class InfoPosition(override val token: String) : Choice { TOP("top"), BOTTOM("bottom") }
 
+/**
+ * Come si vede l'elenco delle cartelle.
+ *
+ * ⚠️⚠️ **L'ELENCO È TORNATO A ESSERE UNA SCELTA, e non una versione superata.** La `0.37`
+ * lo aveva **sostituito** con le copertine, che si riconoscono a colpo d'occhio ma
+ * mostrano quattro cartelle per schermata; l'elenco ne mostra una decina e i nomi per
+ * intero, che su un telefono con trenta cartelle è l'unico modo di trovarne una per nome.
+ * Sono due domande diverse ('quale roba' e 'quale nome'), quindi due viste e non una
+ * migliore dell'altra.
+ * ⚠️ **La copertina resta in tutti e due**: la riga dell'elenco porta la stessa miniatura
+ * piccola, perché l'icona di cartella uguale per tutte era proprio il difetto della `0.29`.
+ */
+enum class FolderView(override val token: String) : Choice { GRID("grid"), LIST("list") }
+
 // ⚠️ QUI VIVEVA `SearchEngine`, il motore della ricerca immagine, tolto nella
 // 0.18 insieme alla funzione (istruzione dell'utente dopo la prova sul telefono).
 // La chiave `search-engine` può essere rimasta scritta nell'archivio dei telefoni
@@ -108,6 +122,13 @@ data class Settings(
      * più: DataStore ignora le chiavi che nessuno chiede.
      */
     val reverseSequence: Boolean = false,
+    /**
+     * ⚠️ Non compare nella schermata delle impostazioni, e non è una dimenticanza: si
+     * cambia dal menu della schermata delle cartelle, cioè dal posto in cui si vede
+     * l'effetto. Una vista si sceglie guardandola, non leggendo un interruttore due
+     * schermate più in là.
+     */
+    val folderView: FolderView = FolderView.GRID,
     /**
      * La cartella da aprire all'avvio, e `null` quando non se n'è scelta nessuna.
      *
@@ -154,6 +175,7 @@ object SettingsStore {
     private val START_FOLDER = longPreferencesKey("start-folder")
     private val START_FOLDER_NAME = stringPreferencesKey("start-folder-name")
     private val OPEN_AT_START = booleanPreferencesKey("open-at-start")
+    private val FOLDER_VIEW = stringPreferencesKey("folder-view")
 
     /** Bounds of the only numeric setting, so a stored value out of range cannot reach the viewer. */
     const val ZOOM_MAX_MIN = 2f
@@ -172,6 +194,7 @@ object SettingsStore {
             startFolder = p[START_FOLDER],
             startFolderName = p[START_FOLDER_NAME] ?: "",
             openAtStart = p[OPEN_AT_START] ?: false,
+            folderView = FolderView.entries.byToken(p[FOLDER_VIEW], FolderView.GRID),
         )
     }
 
@@ -191,6 +214,7 @@ object SettingsStore {
             settings.startFolder?.let { p[START_FOLDER] = it } ?: p.remove(START_FOLDER)
             p[START_FOLDER_NAME] = settings.startFolderName
             p[OPEN_AT_START] = settings.openAtStart
+            p[FOLDER_VIEW] = settings.folderView.token
         }
     }
 }
