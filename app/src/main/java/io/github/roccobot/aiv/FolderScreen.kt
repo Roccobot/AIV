@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -42,20 +43,31 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import kotlin.math.roundToInt
 
 /**
  * Le cartelle di immagini del telefono: **la schermata iniziale dell'app**, dalla `0.41`.
@@ -102,29 +114,86 @@ fun FolderScreen(
         folders = if (granted) Folder.buckets(context) else emptyList()
     }
 
-    Box(modifier = modifier.fillMaxSize().safeDrawingPadding()) {
+    // La veste 'casa' e quella 'scegli la cartella d'avvio' si distinguono da qui in giù:
+    // la prima porta il frontespizio e il tastino, la seconda la freccia Indietro.
+    val home = onBack == null
+
+    BoxWithConstraints(modifier = modifier.fillMaxSize().safeDrawingPadding()) {
+        val density = LocalDensity.current
+        val headerMax = if (home) maxHeight * HEADER_SHARE else 0.dp
+        val headerPx = with(density) { headerMax.toPx() }
+
+        /**
+         * Quanti pixel del frontespizio sono già stati chiusi, da 0 a tutto.
+         *
+         * ⚠️ La chiave è la misura: ruotando il telefono l'altezza cambia, e un valore
+         * di chiusura vecchio non vorrebbe più dire niente. Riaprirlo alla rotazione è
+         * anche la cosa giusta da vedere.
+         */
+        var shut by remember(headerPx) { mutableFloatStateOf(0f) }
+
+        /**
+         * ⚠️⚠️ **IL FRONTESPIZIO SI CHIUDE PRIMA CHE L'ELENCO SCORRA, ed è per questo che
+         * funziona anche con DUE cartelle**: il trascinamento verso l'alto viene
+         * intercettato **prima** (`onPreScroll`) e speso tutto qui, quindi l'elenco non ha
+         * bisogno di avere niente da scorrere. Verificato sul sorgente di Compose e non
+         * supposto: `ScrollingLogic.performScroll` chiama `dispatchPreScroll` prima di
+         * consumare, e l'avvio del trascinamento dipende dal **tipo di puntatore**
+         * (`canDrag`) e non dal fatto che ci sia spazio da scorrere. Senza questo fatto
+         * avrei dovuto gonfiare l'elenco con spazio finto in fondo.
+         * ⚠️ E si riapre dall'altra parte con `onPostScroll`: quello arriva solo quando
+         * l'elenco è già in cima e ha avanzato del movimento, che è esattamente la
+         * condizione in cui il frontespizio deve tornare.
+         */
+        val paging = remember(headerPx) {
+            object : NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                    if (available.y >= 0f) return Offset.Zero
+                    val take = (-available.y).coerceAtMost(headerPx - shut)
+                    shut += take
+                    return Offset(0f, -take)
+                }
+
+                override fun onPostScroll(
+                    consumed: Offset,
+                    available: Offset,
+                    source: NestedScrollSource
+                ): Offset {
+                    if (available.y <= 0f) return Offset.Zero
+                    val give = available.y.coerceAtMost(shut)
+                    shut -= give
+                    return Offset(0f, give)
+                }
+            }
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .nestedScroll(paging)
                 // ⚠️ Il margine laterale è 12 e non 20 perché è quello che permette **due**
                 // colonne di copertine su uno schermo da 360dp. Il conto sta in `FOLDER_CELL`.
                 .padding(horizontal = 12.dp, vertical = 12.dp)
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                onBack?.let {
-                    IconButton(onClick = it) {
+            if (home) {
+                // ⚠️ L'icona si stringe se il frontespizio è basso, e serve in
+                // ORIZZONTALE: là il 40% dello schermo sono poco più di 140dp, cioè
+                // meno di quanto occupano icona e righe, e senza questo la tela verrebbe
+                // tagliata sopra e sotto invece di stare dentro.
+                Header(headerPx, minOf(HEADER_ICON, headerMax * 0.5f)) { shut }
+            } else {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.settings_back)
                         )
                     }
+                    Text(
+                        text = stringResource(R.string.folders_title),
+                        style = MaterialTheme.typography.headlineSmall
+                    )
                 }
-                Text(
-                    text = stringResource(R.string.folders_title),
-                    style = MaterialTheme.typography.headlineSmall,
-                    // Senza la freccia il titolo partirebbe dal bordo vivo.
-                    modifier = if (onBack == null) Modifier.padding(start = 4.dp) else Modifier
-                )
             }
             Spacer(Modifier.height(8.dp))
 
@@ -166,7 +235,7 @@ fun FolderScreen(
         // ⚠️ Il tastino manca quando si sta scegliendo la cartella dell'avvio: là dentro
         // ci sono le impostazioni, da cui si è arrivati, e un giro chiuso non serve a
         // nessuno.
-        if (onBack == null) {
+        if (home) {
             Hub(
                 view = view,
                 recents = recents,
@@ -177,6 +246,56 @@ fun FolderScreen(
                 modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
             )
         }
+    }
+}
+
+/**
+ * Il frontespizio dell'app, che si chiude scorrendo.
+ *
+ * ⚠️⚠️ **OCCUPA IL 40% ALTO PERCHÉ LE CARTELLE STIANO NEL 60% BASSO** (richiesta
+ * dell'utente): non è spazio decorativo, è spazio messo lì apposta perché **ogni**
+ * cartella sia raggiungibile col pollice tenendo il telefono a una mano. Poi si scorre e
+ * la vista arriva al 100%, che è la seconda metà della stessa richiesta.
+ *
+ * ⚠️⚠️ **IL FIGLIO SI MISURA SEMPRE ALL'ALTEZZA PIENA e si RITAGLIA, non si schiaccia.**
+ * Misurandolo con l'altezza che resta, l'icona verrebbe compressa mentre il frontespizio
+ * si chiude, cioè un disegno che si deforma invece di uscire di scena. Qui si misura
+ * intero, si dichiara alta quel che resta, e lo si colloca **centrato in quel che
+ * resta**: il contenuto sale da sé mentre lo spazio si stringe, ed è la parallasse, non
+ * un secondo movimento aggiunto sopra.
+ *
+ * ⚠️ **Sparisce prima che lo spazio finisca** (l'opacità va col quadrato della frazione
+ * aperta): a metà corsa è già al 25%, quindi l'ultimo tratto della chiusura è spazio
+ * vuoto che si richiude invece di un titolo che si accartoccia sul bordo.
+ *
+ * ⚠️ Lo stato si legge dentro `layout` e `graphicsLayer`, cioè in fase di misura e di
+ * disegno: il trascinamento non fa ricomporre **niente**, e questa schermata contiene
+ * una griglia che non deve rifarsi sessanta volte al secondo.
+ */
+@Composable
+private fun Header(fullPx: Float, icon: Dp, shut: () -> Float) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clipToBounds()
+            .layout { measurable, constraints ->
+                val full = fullPx.roundToInt().coerceAtLeast(0)
+                val left = (fullPx - shut()).roundToInt().coerceIn(0, full)
+                val placeable = measurable.measure(
+                    constraints.copy(minHeight = full, maxHeight = full)
+                )
+                layout(placeable.width, left) { placeable.place(0, -(full - left) / 2) }
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Identity(
+            iconSize = icon,
+            link = false,
+            modifier = Modifier.graphicsLayer {
+                val open = if (fullPx > 0f) (1f - shut() / fullPx).coerceIn(0f, 1f) else 0f
+                alpha = open * open
+            }
+        )
     }
 }
 
@@ -453,6 +572,18 @@ private val HUB_CORNER = 12.dp
 
 /** Quanto spazio resta sotto l'ultima cartella, perché il tastino non le si sieda sopra. */
 private val BELOW_HUB = 76.dp
+
+/**
+ * Quanta parte dello schermo tiene il frontespizio da aperto.
+ *
+ * ⚠️ Il numero viene dalla richiesta dell'utente letta al contrario: le cartelle nel
+ * **60% basso**, quindi qui il 40% alto. Non è una proporzione estetica ma una misura di
+ * portata del pollice, e ritoccarla verso il basso rimette le cartelle fuori tiro.
+ */
+private const val HEADER_SHARE = 0.4f
+
+/** L'icona del frontespizio: più grande di quella delle impostazioni, perché qui accoglie. */
+private val HEADER_ICON = 96.dp
 
 /** Tutte le piastrelle sono la stessa cosa, e dirlo permette a Compose di riusarle. */
 private const val FOLDER_KIND = "folder"
