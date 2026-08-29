@@ -29,10 +29,24 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import coil3.compose.setSingletonImageLoaderFactory
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 sealed interface ViewerState {
-    data object Loading : ViewerState
+    /**
+     * Si sta aprendo qualcosa, e [progress] dice a che punto è il **trasferimento**
+     * quando lo si può sapere.
+     *
+     * ⚠️⚠️ **Il numero vive QUI e non in un campo a parte del modello**, ed è la
+     * lezione dell'anello della `0.34`: un dato tenuto in un secondo posto va
+     * azzerato a mano, e prima o poi qualcuno se ne dimentica lasciando l'80% di
+     * ieri sopra l'immagine di adesso. Attaccato allo stato, ogni apertura nuova ne
+     * costruisce uno nuovo, e dimenticarsene non è possibile.
+     * ⚠️ Null vuol dire **non lo so**, non zero: un file locale non ha nessuna attesa
+     * da raccontare, e un server che non dichiara la lunghezza non permette di
+     * contare. Chi legge mostra il giro indeterminato, che è la risposta onesta.
+     */
+    data class Loading(val progress: Float? = null) : ViewerState
     data class Ready(val image: LoadedImage) : ViewerState
     data class Error(@param:StringRes val messageRes: Int, val detail: String?) : ViewerState
 }
@@ -71,7 +85,7 @@ sealed interface Screen {
  */
 class ViewerViewModel(application: Application) : AndroidViewModel(application) {
 
-    var state: ViewerState by mutableStateOf(ViewerState.Loading)
+    var state: ViewerState by mutableStateOf(ViewerState.Loading())
         private set
 
     var screen: Screen by mutableStateOf(Screen.Home)
@@ -240,26 +254,87 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         if (fresh.openAtStart) openFolder(bucket)
     }
 
-    fun open(uri: Uri, fromHome: Boolean = true) {
-        source = uri
-        viewerBack = if (fromHome) Screen.Home else null
-        screen = Screen.Viewer
-        state = ViewerState.Loading
-        listed = null
+    /**
+     * L'apertura in corso, per poterla annullare.
+     *
+     * ⚠️⚠️ **Serve perché un'immagine del web si SCARICA, e prima di questo nessuno
+     * fermava quel download**: chi apriva un indirizzo sbagliato e tornava indietro
+     * continuava a tirare giù decine di megabyte per una cosa che non avrebbe più
+     * guardato, sulla sua connessione dati. Per un file locale il guadagno è piccolo,
+     * per un indirizzo remoto è la differenza fra un'app che rispetta il traffico e una
+     * che no.
+     */
+    private var loadJob: Job? = null
+
+    /**
+     * A quale apertura appartiene il progresso che arriva.
+     *
+     * ⚠️ Il download vive in un ciclo bloccante, quindi fra l'annullamento e l'ultimo
+     * pezzo già in volo ci sta una frazione di secondo: senza questo numero, la
+     * percentuale dell'immagine abbandonata comparirebbe per un istante sopra quella
+     * appena aperta. Un contatore risolve quello che un `Job` non può, perché chi
+     * riferisce il progresso non è dentro una coroutine.
+     */
+    private var loadToken = 0
+
+    /**
+     * L'unica strada per cui un indirizzo diventa una fotografia sullo schermo.
+     *
+     * ⚠️ Chi chiama ha già sistemato schermata, provenienza e serie: qui si fa **solo**
+     * il caricamento, e i tre posti che aprono lo condividono invece di ripeterlo. Una
+     * seconda copia divergerebbe sull'annullamento, che è la cosa che si dimentica.
+     */
+    private fun startLoad(uri: Uri, remember: Boolean = false) {
         val context = getApplication<Application>()
-        viewModelScope.launch {
-            val next = load(context, uri)
+        loadJob?.cancel()
+        val token = ++loadToken
+        state = ViewerState.Loading()
+        loadJob = viewModelScope.launch {
+            val next = load(context, uri) { fraction ->
+                if (token == loadToken) state = ViewerState.Loading(fraction)
+            }
             // Remembered only once it has actually opened: a list of addresses that
             // failed would be a list of traps.
-            if (next is ViewerState.Ready) {
+            if (remember && next is ViewerState.Ready) {
                 Recents.remember(context, uri.toString(), ImageActions.fileName(next.image, uri))
             }
             state = next
         }
+    }
+
+    /** Ferma quello che si stava aprendo: si sta andando altrove. */
+    private fun stopLoad() {
+        loadJob?.cancel()
+        loadJob = null
+        loadToken++
+        state = ViewerState.Loading()
+    }
+
+    /**
+     * Riprova quello che non si è aperto.
+     *
+     * ⚠️ Esiste per la rete: un `403` di passaggio, il tunnel della metropolitana, un
+     * server lento. Senza, l'unica via era tornare indietro e rifare tutto il giro
+     * dell'indirizzo, e con un URL incollato dagli appunti vuol dire ritrovarlo.
+     * ⚠️ Riprovando **si ripassa dalla cache**, quindi un errore avvenuto dopo un
+     * download riuscito (la memoria finita in decodifica) si ritenta senza rete.
+     */
+    fun retry() {
+        val uri = source ?: return
+        startLoad(uri)
+    }
+
+    fun open(uri: Uri, fromHome: Boolean = true) {
+        source = uri
+        viewerBack = if (fromHome) Screen.Home else null
+        screen = Screen.Viewer
+        listed = null
+        startLoad(uri, remember = true)
         // ⚠️ The folder is looked for in its OWN coroutine, and not inside the one
         // above: it is a database query that the picture does not wait for, and
         // hanging it off the load would delay what the person is looking at in
         // order to prepare a gesture they may never make.
+        val context = getApplication<Application>()
         viewModelScope.launch { listed = Folder.seriesAround(context, uri) }
     }
 
@@ -280,9 +355,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     fun openFolder(bucket: Long) {
         viewerBack = Screen.Home
         screen = Screen.Viewer
-        state = ViewerState.Loading
         listed = null
         source = null
+        stopLoad()
         val context = getApplication<Application>()
         viewModelScope.launch {
             val start = Folder.newestIn(context, bucket).atSequenceStart()
@@ -297,13 +372,17 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 return@launch
             }
             source = uri
-            state = load(context, uri)
+            startLoad(uri)
         }
     }
 
     /** L'unico posto in cui un indirizzo diventa uno stato: i tre che aprono passano di qui. */
-    private suspend fun load(context: android.content.Context, uri: Uri): ViewerState =
-        when (val result = ImageSource.load(context, uri)) {
+    private suspend fun load(
+        context: android.content.Context,
+        uri: Uri,
+        onProgress: (Float) -> Unit
+    ): ViewerState =
+        when (val result = ImageSource.load(context, uri, onProgress)) {
             is LoadResult.Ok -> ViewerState.Ready(result.image)
             is LoadResult.Failed -> ViewerState.Error(result.reason.messageRes(), result.detail)
         }
@@ -357,7 +436,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         gridVisited = false
         // La fotografia di prima non serve più: tenerla vorrebbe dire tenere in memoria
         // un bitmap grande mentre si guarda tutt'altro.
-        state = ViewerState.Loading
+        stopLoad()
         val context = getApplication<Application>()
         // ⚠️ Anche qui l'inizio è quello della sequenza SCELTA: la griglia si apre in
         // cima, e il tocco sulla prima miniatura dà la stessa foto da cui parte l'avvio.
@@ -408,7 +487,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             else -> {
                 screen = dest
                 source = null
-                state = ViewerState.Loading
+                stopLoad()
             }
         }
     }
@@ -447,13 +526,11 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     private fun showAt(current: Folder.Series, index: Int) {
         val uri = current.at(index) ?: return
         source = uri
-        state = ViewerState.Loading
         // ⚠️ `current` sta nell'ordine di lettura, `listed` in quello grezzo: si
         // rigira per riscriverlo, e la stessa funzione basta perché girare una serie
         // è la sua stessa inversa.
         listed = Folder.Lookup.Found(current.copy(index = index)).oriented()
-        val context = getApplication<Application>()
-        viewModelScope.launch { state = load(context, uri) }
+        startLoad(uri)
     }
 
     /** Called once the permission dialog has been answered, whatever the answer. */
@@ -470,9 +547,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
 
     fun goHome() {
         screen = Screen.Home
-        state = ViewerState.Loading
         source = null
         listed = null
+        stopLoad()
     }
 
     fun openSettings() {
@@ -602,7 +679,8 @@ private fun AivApp(model: ViewerViewModel) {
                 source = model.source,
                 folder = model.folder,
                 onStep = { model.step(it) },
-                onSettings = { model.openSettings() }
+                onSettings = { model.openSettings() },
+                onRetry = { model.retry() }
             )
         }
     }
