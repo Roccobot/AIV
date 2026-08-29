@@ -121,6 +121,18 @@
     <string name="grid_item">Immagine %1$d di %2$d</string>
     <string name="grid_item_last">Immagine %1$d di %2$d, l\'ultima che hai guardato</string>
 
+    <!-- ── Scegliere più immagini in una cartella ── -->
+    <string name="pick_leave">Esci dalla selezione</string>
+    <string name="pick_all">Seleziona tutte</string>
+    <string name="pick_info">Info</string>
+    <string name="pick_close">Chiudi</string>
+    <string name="pick_counting">Sto contando...</string>
+    <plurals name="pick_count">
+        <item quantity="one">%1$d scelta</item>
+        <item quantity="other">%1$d scelte</item>
+        <item quantity="many">%1$d scelte</item>
+    </plurals>
+
     <plurals name="folders_count">
         <item quantity="one">%1$d immagine</item>
         <!-- ⚠️ La categoria `many` dell'italiano non è un doppione di `other`: il CLDR la

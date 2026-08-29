@@ -204,4 +204,48 @@ object ImageActions {
         return true
     }
 
+    /**
+     * Consegna PIÙ immagini insieme, quelle scelte nella griglia.
+     *
+     * ⚠️⚠️ **UN `content://` DEL MEDIASTORE SI PASSA COM'È, e non si ricopia**: è già un
+     * indirizzo che il sistema sa concedere in lettura, e copiarne cinquanta nella cache
+     * vorrebbe dire scrivere qualche gigabyte per un gesto che dura un secondo. La copia
+     * resta per i `file://`, che un'altra app non può leggere e che il nostro FileProvider
+     * serve solo dalla sua cartella (`file_paths.xml`, una cartella sola apposta).
+     * ⚠️ **Il tipo dichiarato è il jolly delle immagini**, e qui non si può fare di
+     * meglio: una selezione può mescolare JPEG e HEIF, e dichiararne uno solo direbbe il
+     * falso su metà.
+     * ⚠️⚠️ **E quel jolly NON si scrive dentro un commento a blocco**: in Kotlin i
+     * commenti a blocco si ANNIDANO, quindi una barra seguita da un asterisco ne apre un
+     * secondo, e la chiusura che dovrebbe chiudere questo chiude quello. L'errore che ne
+     * esce parla di commento non chiuso a fine file, cioè lontanissimo dalla riga
+     * colpevole. Per la stessa ragione qui non si scrive nemmeno la sequenza di
+     * chiusura: nominarla la esegue.
+     * ⚠️ **Quello che non si riesce a consegnare si SCARTA invece di far fallire tutto**:
+     * su una selezione grande, una copia andata storta non deve mangiarsi le altre
+     * quarantanove. Se non ne resta nessuna, torna `false` e chi chiama lo dice.
+     */
+    suspend fun shareMany(context: Context, uris: List<Uri>): Boolean {
+        val ready = ArrayList<Uri>(uris.size)
+        for (uri in uris) {
+            if (uri.scheme?.lowercase() == "content") {
+                ready += uri
+                continue
+            }
+            val file = File(shareDir(context), uri.lastPathSegment?.substringAfterLast('/') ?: continue)
+            val ok = runCatching {
+                file.outputStream().use { copyOriginalTo(context, uri, it) }
+            }.getOrDefault(false)
+            if (ok) ready += FileProvider.getUriForFile(context, authority(context), file)
+        }
+        if (ready.isEmpty()) return false
+        val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+            type = "image/*"
+            putParcelableArrayListExtra(Intent.EXTRA_STREAM, ready)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        context.startActivity(Intent.createChooser(intent, null))
+        return true
+    }
+
 }

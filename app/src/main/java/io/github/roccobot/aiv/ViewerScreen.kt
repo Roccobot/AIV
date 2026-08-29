@@ -1588,9 +1588,16 @@ private fun Color.luminanceIsLight(): Boolean = (0.2126f * red + 0.7152f * green
  * userscript settled on after trying the other way. Leaving it implicit is also
  * what lint flags here, and 'implicit' would have meant a comma on an Italian
  * phone and a point on an English one, for the same file.
+ * ⚠️ `internal` e non `private` perché la usano DUE schermate: la riga dei dettagli e il
+ * riquadro che dice quanto pesa una selezione. Due copie della stessa formattazione
+ * divergerebbero al primo ritocco, e il ritocco è già arrivato una volta (i GB).
  */
-private fun formatBytes(value: Long): String = when {
+internal fun formatBytes(value: Long): String = when {
     value < 1024 -> "$value B"
     value < 1024 * 1024 -> String.format(Locale.US, "%.1f kB", value / 1024f)
-    else -> String.format(Locale.US, "%.2f MB", value / (1024f * 1024f))
+    value < 1024L * 1024 * 1024 -> String.format(Locale.US, "%.2f MB", value / (1024f * 1024f))
+    // ⚠️ Il gradino dei GB è arrivato con la SELEZIONE MULTIPLA: una fotografia sola non
+    // ci arriva mai, ma trecento insieme sì, e senza questo ramo si leggerebbe
+    // '4231.77 MB', che è un numero da contare con le dita.
+    else -> String.format(Locale.US, "%.2f GB", value / (1024f * 1024f * 1024f))
 }

@@ -143,6 +143,17 @@
          the ring around it is the visual form of exactly this. -->
     <string name="grid_item_last">Picture %1$d of %2$d, the last one you looked at</string>
 
+    <!-- ── Choosing several pictures in a folder ── -->
+    <string name="pick_leave">Leave the selection</string>
+    <string name="pick_all">Select all</string>
+    <string name="pick_info">Info</string>
+    <string name="pick_close">Close</string>
+    <string name="pick_counting">Counting...</string>
+    <plurals name="pick_count">
+        <item quantity="one">%1$d chosen</item>
+        <item quantity="other">%1$d chosen</item>
+    </plurals>
+
     <plurals name="folders_count">
         <item quantity="one">%1$d picture</item>
         <item quantity="other">%1$d pictures</item>
