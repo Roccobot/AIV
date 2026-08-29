@@ -106,14 +106,23 @@ object Folder {
     }
 
     /**
-     * Una cartella come la elenca la schermata di scelta.
+     * Una cartella come la mostra la schermata di scelta.
      *
-     * ⚠️ Porta il **conto** e non un'anteprima, e per ora è una scelta di misura: un
-     * elenco che decodifica una miniatura per riga è già mezza galleria, e la galleria
-     * è una decisione che l'utente non ha ancora preso. Il conto costa zero, perché le
-     * righe si contano mentre si scorrono.
+     * ⚠️⚠️ **LA COPERTINA COSTA ZERO QUERY, ed è la ragione per cui è arrivata adesso e
+     * non prima**: [buckets] scorre già tutte le righe in ordine di data, quindi la
+     * **prima** riga di ogni cartella è la sua foto più recente. Prenderne l'indirizzo
+     * mentre si passa è un campo in più, non una domanda in più al MediaStore. La nota
+     * vecchia diceva che un'anteprima per riga sarebbe stata 'mezza galleria': era vero
+     * quando la galleria non era stata decisa, e la decisione c'è (passo 2 del piano).
+     * ⚠️ **Null quando il provider non serve la colonna dell'id**: la cartella si mostra
+     * lo stesso, col suo simbolo. Una cartella che sparisce dall'elenco perché manca
+     * un'anteprima sarebbe il peggiore dei baratti.
+     * ⚠️ La copertina è la foto più recente e **non** quella con cui la cartella si
+     * apre: col verso cronologico acceso l'apertura parte dall'altro capo (vedi
+     * `atSequenceStart`). Sono due cose diverse apposta, perché la copertina risponde a
+     * 'che roba c'è qui dentro' e l'apertura a 'da dove comincio a sfogliare'.
      */
-    data class Bucket(val id: Long, val name: String, val count: Int)
+    data class Bucket(val id: Long, val name: String, val count: Int, val cover: Uri?)
 
     /**
      * Le cartelle di immagini del telefono, quella toccata più di recente per prima.
@@ -146,6 +155,7 @@ object Folder {
                 val bucketAt = c.column(MediaStore.Images.Media.BUCKET_ID)
                     ?: return@use
                 val nameAt = c.column(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
+                val idAt = c.column(MediaStore.Images.Media._ID)
                 @Suppress("DEPRECATION")
                 val pathAt = c.column(MediaStore.Images.Media.DATA)
                 while (c.moveToNext()) {
@@ -160,7 +170,11 @@ object Folder {
                                 ?.substringBeforeLast('/')?.substringAfterLast('/')
                                 ?.takeIf { it.isNotBlank() }
                             ?: id.toString()
-                        Bucket(id, name, 1)
+                        // ⚠️ La copertina si prende SOLO qui, nel ramo della prima riga:
+                        // le righe arrivano dalla più recente, quindi questa è la foto
+                        // più nuova della cartella. Prenderla anche dopo la sostituirebbe
+                        // con la più vecchia, che è l'errore da non fare.
+                        Bucket(id, name, 1, idAt?.let { uriOf(c.getLong(it)) })
                     } else {
                         seen.copy(count = seen.count + 1)
                     }
