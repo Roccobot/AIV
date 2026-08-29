@@ -1,5 +1,6 @@
 package io.github.roccobot.aiv
 
+import android.graphics.Rect as PixelRect
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -7,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -42,10 +44,12 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -53,6 +57,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerInputScope
@@ -65,15 +71,20 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
 import java.util.Locale
 import kotlin.math.abs
+import kotlin.math.ceil
 import kotlin.math.exp
+import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -138,6 +149,25 @@ private const val SNAP_MS = 220
  */
 private const val END_RESISTANCE = 0.33f
 
+/**
+ * Quanto si aspetta, fermi, prima di leggere il pezzo nitido.
+ *
+ * ⚠️ È il tempo che separa 'ho finito di muovermi' da 'sto ancora inquadrando'. Corto
+ * abbastanza da non farsi notare come un ritardo, lungo abbastanza che una pinza non
+ * faccia partire una lettura per ogni posizione attraversata.
+ */
+private const val TILE_DELAY_MS = 200L
+
+/**
+ * Il tetto in pixel di un pezzo letto a piena risoluzione.
+ *
+ * ⚠️ Quattro milioni sono circa uno schermo e mezzo, cioè 16 MB come ARGB: sopra, il
+ * rattoppo costerebbe più della fotografia che sta rattoppando. Serve perché il
+ * campionamento arrotonda per difetto, quindi il pezzo può venire fino al doppio per
+ * lato di quello che lo schermo mostra.
+ */
+private const val MAX_TILE_PIXELS = 4_000_000L
+
 @Composable
 fun ViewerScreen(
     state: ViewerState,
@@ -199,6 +229,70 @@ private fun PreviewThumb(source: Uri?, settings: Settings) {
         modifier = Modifier.fillMaxSize()
     )
 }
+
+/** Un pezzo nitido e il rettangolo, in coordinate viste, che occupa nella fotografia. */
+private data class SharpTile(val bitmap: ImageBitmap, val area: PixelRect)
+
+/**
+ * Quale pezzo leggere adesso, e con quanto campionamento.
+ *
+ * ⚠️⚠️ **SOPRA LA SCALA 1 E NON PRIMA**, ed è il confine esatto oltre il quale il bitmap
+ * di base viene **ingrandito**: sotto, un pixel del bitmap copre meno di un pixel di
+ * schermo e il dettaglio che manca non si vedrebbe comunque. È anche la ragione per cui
+ * il campionamento chiesto qui risulta sempre più fine di quello del bitmap di base:
+ * sono la stessa disuguaglianza scritta in due modi.
+ *
+ * ⚠️ **Il campionamento si arrotonda per DIFETTO** (la potenza di due immediatamente
+ * sotto): per eccesso si leggerebbe meno dettaglio di quello che lo schermo può mostrare,
+ * cioè si farebbe tutto questo lavoro per restare sfocati. Il prezzo è un pezzo che può
+ * venire fino al doppio del necessario per lato, e per quello c'è il tetto.
+ *
+ * ⚠️ Il tetto sui pixel non è prudenza generica: senza, un ingrandimento appena sopra la
+ * soglia su una fotografia enorme chiederebbe un pezzo grande quanto tutto lo schermo
+ * moltiplicato per quattro, cioè una decina di volte la memoria del bitmap che sta già
+ * mostrando. Quando alzare il campionamento per rientrare lo porta al livello del bitmap
+ * di base, tanto vale non leggere niente.
+ */
+private suspend fun sharpen(
+    reader: RegionSource,
+    baseWidth: Float,
+    baseHeight: Float,
+    viewWidth: Float,
+    viewHeight: Float,
+    scale: Float,
+    offset: Offset
+): SharpTile? {
+    if (scale <= 1f) return null
+    val perPixel = baseWidth / reader.width
+    if (perPixel <= 0f) return null
+
+    // Da schermo a coordinate viste: l'inversa della formula del `graphicsLayer`.
+    fun seenX(screen: Float) = ((screen - viewWidth / 2f - offset.x) / scale + baseWidth / 2f) / perPixel
+    fun seenY(screen: Float) = ((screen - viewHeight / 2f - offset.y) / scale + baseHeight / 2f) / perPixel
+
+    val area = PixelRect(
+        floor(seenX(0f)).toInt().coerceIn(0, reader.width),
+        floor(seenY(0f)).toInt().coerceIn(0, reader.height),
+        ceil(seenX(viewWidth)).toInt().coerceIn(0, reader.width),
+        ceil(seenY(viewHeight)).toInt().coerceIn(0, reader.height)
+    )
+    if (area.width() <= 0 || area.height() <= 0) return null
+
+    val baseSample = (reader.width / baseWidth).roundToInt().coerceAtLeast(1)
+    var sample = powerOfTwoAtMost(1f / (scale * perPixel))
+    while (
+        (area.width().toLong() / sample) * (area.height().toLong() / sample) > MAX_TILE_PIXELS
+    ) {
+        sample *= 2
+    }
+    if (sample >= baseSample) return null
+
+    return reader.tile(area, sample)?.let { SharpTile(it.asImageBitmap(), area) }
+}
+
+/** La potenza di due immediatamente sotto, e mai meno di uno. */
+private fun powerOfTwoAtMost(value: Float): Int =
+    if (value < 2f) 1 else Integer.highestOneBit(value.toInt())
 
 /**
  * La fotografia vicina, mentre si sfoglia col dito.
@@ -322,13 +416,31 @@ private fun ImageCanvas(
         val imageHeight = image.bitmap.height.toFloat()
 
         /**
+         * Di quanto il bitmap è più piccolo del FILE, cioè il campionamento subito
+         * all'apertura: **1** per la stragrande maggioranza delle immagini, 2 o 4 per
+         * quelle che non entravano intere in memoria.
+         */
+        val sampleFactor = (image.pixelWidth / imageWidth).coerceAtLeast(1f)
+
+        /**
          * What '100%' is on THIS screen. Compose lays the picture out in device
-         * pixels, so a scale of 1 already means one pixel of the file per pixel of
+         * pixels, so a scale of 1 already means one pixel of the bitmap per pixel of
          * the screen: that is [ScaleMode.PHYSICAL]. Asking instead for one pixel
          * per LAYOUT pixel means scaling by the screen's density, which on a phone
          * is two or three.
+         *
+         * ⚠️⚠️ **E MOLTIPLICATO PER IL CAMPIONAMENTO, che è la correzione della 0.39.**
+         * Un pixel del bitmap non è un pixel del file quando il file è stato ridotto per
+         * entrare in memoria: su una foto da 30 megapixel campionata a metà, la scala 1
+         * mostrava **un quarto** dei pixel veri e la riga dei dettagli scriveva '100%'.
+         * Non era un difetto visibile finché quei pixel non c'erano comunque; adesso i
+         * tasselli li recuperano, quindi il 100% deve portare dove si vedono davvero,
+         * e sarebbe stato assurdo leggere a piena risoluzione a una scala chiamata 200%.
+         * ⚠️ Per un'immagine non campionata il fattore vale 1 e qui non cambia niente,
+         * che è il caso di quasi tutte.
          */
-        val oneToOne = if (settings.scaleMode == ScaleMode.PHYSICAL) 1f else density.density
+        val oneToOne =
+            sampleFactor * if (settings.scaleMode == ScaleMode.PHYSICAL) 1f else density.density
 
         val fitScale = min(viewWidth / imageWidth, viewHeight / imageHeight)
         // 'Fit' means shown whole. Growing a small picture to fill the screen is a
@@ -400,6 +512,45 @@ private fun ImageCanvas(
          * spegnerebbero più.
          */
         val dragging by remember(image, settings) { derivedStateOf { travel != 0f } }
+
+        /**
+         * La lettura a pezzi della fotografia, quando serve e si può.
+         *
+         * ⚠️ Nella stragrande maggioranza dei casi è **null**, ed è voluto: `open`
+         * rinuncia subito se l'immagine non era campionata, cioè se è già entrata
+         * intera in memoria e non c'è nessun dettaglio da recuperare. Là questa strada
+         * non costa niente e il visualizzatore è quello di sempre.
+         */
+        val regions by produceState<RegionSource?>(null, image, source) {
+            val opened = RegionSource.open(context, source, image)
+            value = opened
+            awaitDispose { opened?.close() }
+        }
+
+        /** Il pezzo a piena risoluzione disegnato sopra la figura, quando c'è. */
+        var sharp by remember(image, settings) { mutableStateOf<SharpTile?>(null) }
+
+        /*
+         * ⚠️⚠️ **SI LEGGE QUANDO IL DITO SI FERMA, e la pausa è la funzione, non un
+         * ripiego**: decodificare a ogni fotogramma di una pinza vorrebbe dire leggere
+         * dal file sessanta volte al secondo per pezzi che nessuno ha ancora guardato.
+         * Finché ci si muove si vede il bitmap di base ingrandito, cioè esattamente
+         * quello che si vedeva prima; un quinto di secondo dopo che ci si ferma arriva
+         * la nitidezza.
+         * ⚠️ `collectLatest` più `delay` **è** l'attesa: ogni movimento annulla il conto
+         * alla rovescia precedente e insieme la decodifica che stava partendo.
+         */
+        LaunchedEffect(regions, viewWidth, viewHeight) {
+            val reader = regions
+            if (reader == null) {
+                sharp = null
+                return@LaunchedEffect
+            }
+            snapshotFlow { scale to offset }.collectLatest { (atScale, atOffset) ->
+                delay(TILE_DELAY_MS)
+                sharp = sharpen(reader, imageWidth, imageHeight, viewWidth, viewHeight, atScale, atOffset)
+            }
+        }
 
         /**
          * Porta la pagina a destinazione, o la riporta al suo posto.
@@ -501,6 +652,34 @@ private fun ImageCanvas(
                     translationY = offset.y
                 }
         )
+
+        /*
+         * ⚠️⚠️ **IL TASSELLO SI DISEGNA SOPRA LA FIGURA, NON AL SUO POSTO**, ed è quello
+         * che rende innocua tutta questa strada: sotto c'è sempre la fotografia intera
+         * com'è sempre stata, e questo è un rattoppo nitido sulla parte che si guarda.
+         * Se un giorno finisse fuori posto si vedrebbe un rettangolo spostato, non
+         * un'immagine mancante.
+         * ⚠️ La posizione si ricalcola **al disegno**, leggendo scala e spostamento
+         * dentro il `Canvas`: così il pezzo resta incollato alla figura mentre il dito
+         * la muove, senza che nessuno ricomponga niente. È la stessa formula del
+         * `graphicsLayer` qui sopra, `travel` compreso.
+         */
+        sharp?.let { tile ->
+            Canvas(modifier = Modifier.matchParentSize()) {
+                val perPixel = imageWidth / image.pixelWidth.toFloat()
+                val midX = viewWidth / 2f + offset.x + travel
+                val midY = viewHeight / 2f + offset.y
+                val left = midX + (tile.area.left * perPixel - imageWidth / 2f) * scale
+                val top = midY + (tile.area.top * perPixel - imageHeight / 2f) * scale
+                val right = midX + (tile.area.right * perPixel - imageWidth / 2f) * scale
+                val bottom = midY + (tile.area.bottom * perPixel - imageHeight / 2f) * scale
+                drawImage(
+                    image = tile.bitmap,
+                    dstOffset = IntOffset(left.roundToInt(), top.roundToInt()),
+                    dstSize = IntSize((right - left).roundToInt(), (bottom - top).roundToInt())
+                )
+            }
+        }
 
         // ⚠️ Le vicine esistono SOLO mentre si trascina: a riposo non c'è niente da
         // disegnare, e tenerle in scena costerebbe due immagini per ogni fotografia
