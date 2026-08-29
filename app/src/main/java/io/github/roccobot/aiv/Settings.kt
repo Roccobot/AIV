@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -92,6 +93,36 @@ enum class InfoPosition(override val token: String) : Choice { TOP("top"), BOTTO
  */
 enum class FolderView(override val token: String) : Choice { GRID("grid"), LIST("list") }
 
+/**
+ * Il tema dell'interfaccia, chiesto dall'utente il 2026-08-29.
+ *
+ * ⚠️⚠️ **NON È LO STESSO DI [BgTheme], e confonderli è l'errore facile**: quello dice di
+ * che grigi è fatto lo **sfondo dietro la fotografia**, questo dice se l'**app** è chiara
+ * o scura. Sono davvero due domande: chi guarda foto al buio può volere l'app scura e la
+ * scacchiera chiara, perché la scacchiera serve a far vedere la trasparenza e non a
+ * intonarsi.
+ * ⚠️ Fino alla `0.44` la seconda domanda non esisteva e vinceva sempre il sistema; da qui
+ * il valore di fabbrica resta **[SYSTEM]**, cioè il comportamento di prima, e le altre due
+ * sono una scelta esplicita.
+ */
+enum class UiTheme(override val token: String) : Choice {
+    SYSTEM("system"), LIGHT("light"), DARK("dark")
+}
+
+/**
+ * Quante colonne mostra la griglia delle CARTELLE.
+ *
+ * ⚠️ **Le cartelle e non le fotografie**, ed è la lettura letterale della richiesta: la
+ * domanda a cui l'utente rispondeva era se due colonne fossero la densità giusta per le
+ * **copertine**. La griglia delle fotografie resta adattiva sui suoi 108dp, che sono una
+ * misura confermata.
+ * ⚠️ **Fisso e non più adattivo**, per la sola griglia delle cartelle: il numero lo sceglie
+ * l'utente, quindi non può dipendere dalla larghezza dello schermo. Il costo dichiarato: a
+ * 4 colonne su un telefono stretto la copertina scende sotto i 90dp e si riconosce meno,
+ * che è esattamente la ragione per cui l'adattivo esisteva.
+ */
+val FOLDER_COLUMNS = listOf(2, 3, 4)
+
 // ⚠️ QUI VIVEVA `SearchEngine`, il motore della ricerca immagine, tolto nella
 // 0.18 insieme alla funzione (istruzione dell'utente dopo la prova sul telefono).
 // La chiave `search-engine` può essere rimasta scritta nell'archivio dei telefoni
@@ -160,6 +191,10 @@ data class Settings(
      * riscegliere. Chi lo accende senza aver scelto viene portato all'elenco.
      */
     val openAtStart: Boolean = false,
+    /** Chiaro, scuro o come il sistema. Vedi [UiTheme]: non è il tema dello sfondo. */
+    val uiTheme: UiTheme = UiTheme.SYSTEM,
+    /** Quante colonne ha la griglia delle cartelle. Vedi [FOLDER_COLUMNS]. */
+    val folderColumns: Int = 2,
 )
 
 /**
@@ -189,6 +224,8 @@ object SettingsStore {
     private val OPEN_AT_START = booleanPreferencesKey("open-at-start")
     private val FOLDER_VIEW = stringPreferencesKey("folder-view")
     private val CLIPBOARD_START = booleanPreferencesKey("clipboard-start")
+    private val UI_THEME = stringPreferencesKey("ui-theme")
+    private val FOLDER_COLUMNS_KEY = intPreferencesKey("folder-columns")
 
     /** Bounds of the only numeric setting, so a stored value out of range cannot reach the viewer. */
     const val ZOOM_MAX_MIN = 2f
@@ -209,6 +246,11 @@ object SettingsStore {
             openAtStart = p[OPEN_AT_START] ?: false,
             folderView = FolderView.entries.byToken(p[FOLDER_VIEW], FolderView.GRID),
             clipboardStart = p[CLIPBOARD_START] ?: false,
+            uiTheme = UiTheme.entries.byToken(p[UI_THEME], UiTheme.SYSTEM),
+            // ⚠️ Ricondotto all'elenco ammesso e non solo letto: un numero fuori posto
+            // nell'archivio (una versione futura, un file modificato a mano) darebbe una
+            // griglia a zero colonne, cioè una schermata vuota senza nessun errore.
+            folderColumns = p[FOLDER_COLUMNS_KEY]?.takeIf { it in FOLDER_COLUMNS } ?: 2,
         )
     }
 
@@ -230,6 +272,8 @@ object SettingsStore {
             p[OPEN_AT_START] = settings.openAtStart
             p[FOLDER_VIEW] = settings.folderView.token
             p[CLIPBOARD_START] = settings.clipboardStart
+            p[UI_THEME] = settings.uiTheme.token
+            p[FOLDER_COLUMNS_KEY] = settings.folderColumns
         }
     }
 }

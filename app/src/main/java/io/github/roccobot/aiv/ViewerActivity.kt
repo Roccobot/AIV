@@ -687,7 +687,13 @@ class ViewerActivity : ComponentActivity() {
         // Only on a fresh start: on a rotation the ViewModel already holds the
         // picture, and re-reading the intent would load it a second time.
         if (savedInstanceState == null) model.handleIntent(intent)
-        setContent { AivTheme { AivApp(model) } }
+        // ⚠️ Il tema si legge QUI, fuori da `AivApp`, perché deve avvolgerlo: dentro,
+        // avrebbe già ereditato la tavolozza sbagliata. Finché le impostazioni non sono
+        // arrivate vale il sistema, che è anche il valore di fabbrica della scelta.
+        setContent {
+            val chosen = model.settings?.uiTheme ?: UiTheme.SYSTEM
+            AivTheme(darkTheme = chosen.isDark()) { AivApp(model) }
+        }
     }
 
     /**
@@ -746,6 +752,7 @@ private fun AivApp(model: ViewerViewModel) {
             if (screen.forStart) BackHandler { model.leaveStartFolderChoice() }
             FolderScreen(
                 view = settings.folderView,
+                columns = settings.folderColumns,
                 recents = model.recents,
                 onPick = { model.folderPicked(it, screen.forStart) },
                 onOpen = { model.open(it) },

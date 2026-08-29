@@ -53,10 +53,19 @@
     <string name="settings_bg_solid">Tinta piatta</string>
     <string name="settings_bg_desc">La scacchiera è l\'unico fondo che rende visibile la trasparenza, che su un visualizzatore è un\'informazione e non un vezzo.</string>
 
+    <string name="settings_ui_theme">Tema</string>
+    <string name="settings_ui_theme_desc">Se l\'app è chiara o scura. È un\'altra cosa dal fondo dietro la fotografia, qui sotto: la scacchiera serve a far vedere la trasparenza, non a intonarsi.</string>
+    <string name="settings_system">Sistema</string>
+    <string name="settings_theme_light">Chiaro</string>
+    <string name="settings_theme_dark">Scuro</string>
+
     <string name="settings_bg_theme">Tinta del fondo</string>
     <string name="settings_auto">Automatica</string>
     <string name="settings_light">Chiara</string>
     <string name="settings_dark">Scura</string>
+
+    <string name="settings_folder_columns">Colonne della griglia delle cartelle</string>
+    <string name="settings_folder_columns_desc">Più colonne fanno stare più cartelle sullo schermo e rimpiccioliscono le copertine. A quattro, il nome sotto di solito non ci sta per intero.</string>
 
     <string name="settings_fit_grow">Ingrandisci le immagini piccole</string>
     <string name="settings_fit_grow_desc">Spento, un\'immagine più piccola dello schermo si vede alla sua misura vera. Acceso, cresce fino a riempire la vista.</string>

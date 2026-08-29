@@ -5,12 +5,14 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -79,6 +81,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import coil3.SingletonImageLoader
+import coil3.compose.AsyncImagePainter
+import coil3.compose.asPainter
 import coil3.compose.rememberAsyncImagePainter
 import java.util.Locale
 import kotlin.math.abs
@@ -162,6 +166,16 @@ private const val END_RESISTANCE = 0.33f
  * faccia partire una lettura per ogni posizione attraversata.
  */
 private const val TILE_DELAY_MS = 200L
+
+/**
+ * Quanto l'anello del caricamento aspetta prima di farsi vedere.
+ *
+ * ⚠️ **Mezzo secondo, e la soglia è quella del fastidio e non della prestazione**: sotto,
+ * un indicatore comparso e sparito si legge come un lampeggio, non come un'informazione.
+ * Sopra, chi sta aspettando davvero comincia a chiedersi se l'app è viva. Le foto del
+ * telefono si decodificano molto prima, quindi sfogliando non lo si vede mai.
+ */
+private const val PROGRESS_GRACE_MS = 500L
 
 /**
  * Il tetto in pixel di un pezzo letto a piena risoluzione.
@@ -249,7 +263,22 @@ fun ViewerScreen(
         when (state) {
             is ViewerState.Loading -> {
                 PreviewThumb(source, settings)
-                Progress(state.progress, Modifier.align(Alignment.Center))
+                /*
+                 * ⚠️⚠️ **L'ANELLO ASPETTA, e non è cortesia: comparire e sparire in un
+                 * decimo di secondo È un lampeggio.** Fra una foto e l'altra del telefono
+                 * la decodifica dura meno del tempo che serve a leggere l'anello, quindi
+                 * fino alla `0.44` a ogni cambio di pagina compariva un cerchietto che se
+                 * ne andava subito. Aspettando, sulle foto veloci non si vede mai, e resta
+                 * dov'era davvero utile: la rete e le fotografie enormi.
+                 * ⚠️ L'attesa vale anche per la percentuale, e va bene: un trasferimento
+                 * che finisce in meno di mezzo secondo non aveva niente da raccontare.
+                 */
+                var late by remember(source) { mutableStateOf(false) }
+                LaunchedEffect(source) {
+                    delay(PROGRESS_GRACE_MS)
+                    late = true
+                }
+                if (late) Progress(state.progress, Modifier.align(Alignment.Center))
             }
             is ViewerState.Error -> ErrorMessage(
                 state = state,
@@ -278,17 +307,38 @@ fun ViewerScreen(
             // ⚠️ L'ultima fotografia vista resta anche durante l'uscita: senza, la riga
             // si svuoterebbe mentre sta ancora sfumando via.
             shown?.let { picture ->
-                DetailsPanel(
-                    image = picture,
-                    percent = info.percent,
-                    // ⚠️⚠️ **Il silenzio non basta a dire perché**, ed è il difetto che ha
-                    // fatto perdere DUE versioni sulla strisciata: senza serie il gesto non
-                    // fa niente, e 'non fa niente' è identico a un gesto guasto. Qui
-                    // l'esito arriva col suo motivo e la riga lo stampa.
-                    // ⚠️ Solo per una foto di questo telefono: su un'immagine del web o di
-                    // una chat 'non è nella galleria' è la normalità, non una notizia.
-                    folder = folder.takeIf { source?.scheme?.lowercase() == "content" }
-                )
+                /*
+                 * ⚠️ **La dissolvenza incrociata fra una riga e l'altra**, chiesta
+                 * dall'utente il 2026-08-29 dopo aver confermato che il lampeggio non
+                 * c'era più: il testo non cambia di scatto, il vecchio sfuma nel nuovo.
+                 * ⚠️⚠️ **Senza trasformazione di misura (`using null`), e non è un
+                 * dettaglio**: quella predefinita animerebbe anche la larghezza del
+                 * riquadro, e una riga che si allarga mentre sfuma **sposta il
+                 * contatore**, che è la cosa che si guarda proprio mentre si sfoglia. È
+                 * la stessa ragione per cui l'entrata e l'uscita della riga intera sono
+                 * di sola opacità.
+                 * ⚠️ La chiave è la **fotografia** e non la percentuale: quella cambia a
+                 * ogni fotogramma di una pinza, e incrociarla vorrebbe dire una
+                 * dissolvenza al secondo mentre si ingrandisce.
+                 */
+                AnimatedContent(
+                    targetState = picture,
+                    transitionSpec = { fadeIn() togetherWith fadeOut() using null },
+                    label = "dettagli"
+                ) { shownNow ->
+                    DetailsPanel(
+                        image = shownNow,
+                        percent = info.percent,
+                        // ⚠️⚠️ **Il silenzio non basta a dire perché**, ed è il difetto
+                        // che ha fatto perdere DUE versioni sulla strisciata: senza serie
+                        // il gesto non fa niente, e 'non fa niente' è identico a un gesto
+                        // guasto. Qui l'esito arriva col suo motivo e la riga lo stampa.
+                        // ⚠️ Solo per una foto di questo telefono: su un'immagine del web
+                        // o di una chat 'non è nella galleria' è la normalità, non una
+                        // notizia.
+                        folder = folder.takeIf { source?.scheme?.lowercase() == "content" }
+                    )
+                }
             }
         }
     }
@@ -349,21 +399,63 @@ private fun PreviewThumb(source: Uri?, settings: Settings) {
 @Composable
 private fun Preview(uri: Uri, settings: Settings, modifier: Modifier) {
     val context = LocalContext.current
+
+    /*
+     * ⚠️⚠️ **IL SOSTITUTO LETTO SUBITO, ED È QUESTO CHE TOGLIE IL LAMPEGGIO RIMASTO**
+     * (segnalazione dell'utente, 2026-08-29: *l'immagine lampeggia ancora*, dopo che la
+     * `0.44` aveva già tolto quello del fondo). `AsyncImagePainter` parte da una coroutine
+     * e non disegna niente al primo fotogramma, anche quando l'immagine è già in memoria:
+     * verificato sul bytecode di Coil, non supposto. Qui la si legge **in composizione**,
+     * quindi c'è già quando il fotogramma si disegna. Il perché la cosa nasca a ogni
+     * cambio di pagina sta accanto a `Thumbs.note`.
+     * ⚠️ Sotto e non al posto: quando il pittore vero arriva disegna **la stessa
+     * immagine, alla stessa scala**, quindi il passaggio non si vede. Non è una
+     * dissolvenza, è una sovrapposizione, ed è il motivo per cui non serve nessuna
+     * animazione.
+     */
+    val standIn = remember(uri, context) { Thumbs.cached(context, uri)?.asPainter(context) }
+
     val painter = rememberAsyncImagePainter(
         // ⚠️ La STESSA richiesta della griglia, misura compresa: è così che questa
         // immagine è già in memoria invece di essere chiesta di nuovo. Una misura
         // diversa sarebbe una chiave diversa, cioè un'altra generazione.
-        model = remember(uri, context) { Thumbs.request(context, uri) }
+        model = remember(uri, context) { Thumbs.request(context, uri) },
+        // ⚠️ La chiave si registra QUI, cioè nel posto in cui Coil la dice: `SuccessResult`
+        // la porta con sé, e ricavarla altrove vorrebbe dire ricostruirla a mano, che è
+        // esattamente il modo di sbagliarla in silenzio la prima volta che Coil cambia
+        // come la compone.
+        onState = { st ->
+            if (st is AsyncImagePainter.State.Success) Thumbs.note(uri, st.result.memoryCacheKey)
+        }
     )
-    val seen = painter.intrinsicSize
+
+    // ⚠️ La misura si prende dal pittore vero se ce l'ha, se no dal sostituto: sono la
+    // stessa immagine, ma per un fotogramma solo uno dei due la conosce, e da lì dipende
+    // la scala. Prenderla dal solo pittore vero rimetterebbe il salto che questa
+    // funzione esiste per togliere.
+    val seen = painter.intrinsicSize.takeIf { it.isSpecified }
+        ?: standIn?.intrinsicSize
+        ?: Size.Unspecified
     val fromBig = seen.isSpecified &&
         (seen.width >= Thumbs.PX - 1f || seen.height >= Thumbs.PX - 1f)
-    Image(
-        painter = painter,
-        contentDescription = null,
-        contentScale = if (settings.fitGrow || fromBig) ContentScale.Fit else ContentScale.Inside,
-        modifier = modifier
-    )
+    val scale = if (settings.fitGrow || fromBig) ContentScale.Fit else ContentScale.Inside
+
+    Box(modifier = modifier) {
+        standIn?.let {
+            Image(
+                painter = it,
+                contentDescription = null,
+                contentScale = scale,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        Image(
+            painter = painter,
+            contentDescription = null,
+            contentScale = scale,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
 }
 
 /** Un pezzo nitido e il rettangolo, in coordinate viste, che occupa nella fotografia. */

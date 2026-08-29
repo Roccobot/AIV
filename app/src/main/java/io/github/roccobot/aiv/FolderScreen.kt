@@ -91,6 +91,8 @@ import kotlin.math.roundToInt
 @Composable
 fun FolderScreen(
     view: FolderView,
+    /** Quante colonne mostrano le copertine. Vedi `FOLDER_COLUMNS` in `Settings.kt`. */
+    columns: Int,
     recents: List<RecentImage>,
     onPick: (Folder.Bucket) -> Unit,
     onOpen: (Uri) -> Unit,
@@ -227,7 +229,7 @@ fun FolderScreen(
                     modifier = Modifier.padding(top = 24.dp)
                 )
 
-                view == FolderView.GRID -> Covers(folders!!, onPick)
+                view == FolderView.GRID -> Covers(folders!!, columns, onPick)
                 else -> Rows(folders!!, onPick)
             }
         }
@@ -397,9 +399,16 @@ private fun Hub(
 
 /** Le cartelle come copertine. */
 @Composable
-private fun Covers(folders: List<Folder.Bucket>, onPick: (Folder.Bucket) -> Unit) {
+private fun Covers(folders: List<Folder.Bucket>, columns: Int, onPick: (Folder.Bucket) -> Unit) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = FOLDER_CELL),
+        // ⚠️⚠️ **FISSO E NON PIÙ ADATTIVO dalla 0.45**, perché il numero adesso lo sceglie
+        // l'utente (richiesta del 2026-08-29, dopo aver confermato che le copertine
+        // bastano): un minimo in dp e un numero scelto sono due modi opposti di
+        // rispondere alla stessa domanda, e tenerli tutti e due vorrebbe dire che la
+        // scelta vale solo sugli schermi abbastanza larghi. La misura minima resta
+        // scritta in `FOLDER_CELL`, che dice a quante colonne una copertina smette di
+        // servire.
+        columns = GridCells.Fixed(columns),
         horizontalArrangement = Arrangement.spacedBy(FOLDER_GAP),
         verticalArrangement = Arrangement.spacedBy(FOLDER_GAP),
         // ⚠️ Lo spazio in fondo tiene l'ultima cartella fuori da sotto il tastino, che
@@ -539,16 +548,19 @@ private fun Cover(uri: Uri?) {
 }
 
 /**
- * Il lato minimo di una copertina.
+ * Il lato a cui una copertina è stata disegnata per stare, e il metro con cui si giudica
+ * il numero di colonne che l'utente sceglie.
  *
- * ⚠️⚠️ **È IL NUMERO CHE DECIDE QUANTE COLONNE, e va letto col conto in mano**:
- * `GridCells.Adaptive` tiene `(spazio + distacco) / (minimo + distacco)` colonne. Su uno
+ * ⚠️⚠️ **FINO ALLA 0.45 DECIDEVA LUI QUANTE COLONNE, e il conto resta utile**:
+ * `GridCells.Adaptive` teneva `(spazio + distacco) / (minimo + distacco)` colonne. Su uno
  * schermo da 360dp, tolti i 12 di margine per lato, restano 336: `(336 + 12) / (150 + 12)`
- * fa 2.1, quindi **due**. A 156 farebbe 2.06 e a 164 scenderebbe a 1, cioè una colonna
- * sola: il salto è vicino, ed è la ragione per cui questo numero non si ritocca a occhio.
+ * fa 2.1, quindi **due**, ed è il valore di fabbrica dell'impostazione che l'ha
+ * sostituito. Lo stesso conto dice quanto si stringe scegliendone di più: a **tre**
+ * colonne una copertina misura 104dp, a **quattro** 78dp.
  * ⚠️ **Due e non tre come le foto**: qui sotto la copertina ci sono un nome e un conto, e
- * su tre colonne un nome vero (`WhatsApp Images`) resterebbe una sigla. Le miniature di
- * una cartella non hanno didascalia, e infatti stanno a 108dp.
+ * su tre colonne un nome vero (`WhatsApp Images`) resta una sigla. Le miniature di una
+ * cartella non hanno didascalia, e infatti stanno a 108dp. È il costo che chi sceglie
+ * quattro colonne accetta, ed è la ragione per cui il valore di fabbrica non cambia.
  */
 private val FOLDER_CELL = 150.dp
 

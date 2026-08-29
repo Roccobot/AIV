@@ -33,15 +33,23 @@ import androidx.compose.ui.graphics.Color
 
 /**
  * ⚠️ **IL FONDO CHIARO È QUASI BIANCO E LEGGERMENTE GIALLO** (richiesta dell'utente):
- * `#FAF8EF` sta un soffio sotto il bianco e ha il rosso e il verde più alti del blu, che
- * è quello che si legge come calore. ⚠️ Non è un beige: la differenza dal bianco è di
- * cinque punti su 255, e serve a togliere il taglio del bianco puro senza che il fondo
- * diventi un colore.
+ * `#FCFBF5` sta un soffio sotto il bianco e ha il rosso e il verde più alti del blu, che
+ * è quello che si legge come calore. ⚠️ Non è un beige: serve a togliere il taglio del
+ * bianco puro senza che il fondo diventi un colore.
+ * ⚠️⚠️ **LA SATURAZIONE È SCESA NELLA 0.45, ed è una misura e non un aggiustamento a
+ * occhio** (l'utente sulla `0.44`: *solo leggermente meno saturo, dev'essere solo un
+ * accenno di giallo/crema*). Il `#FAF8EF` di prima aveva **11 punti su 255** fra il canale
+ * più alto e il più basso, cioè il **4.4%** di saturazione; questo ne ha **7**, cioè il
+ * **2.8%**. Chi lo ritocca ancora usi quel numero e non l'occhio: su un fondo quasi bianco
+ * la differenza fra 'accenno' e 'crema' sta in tre punti.
+ * ⚠️ **Tutta la famiglia chiara è scesa con lui**, superfici e contenitori compresi:
+ * abbassare il solo fondo avrebbe lasciato le schede più gialle della pagina, che è il
+ * modo in cui una tavolozza smette di sembrare una tavolozza.
  */
-private val LIGHT_BACK = Color(0xFFFAF8EF)
+private val LIGHT_BACK = Color(0xFFFCFBF5)
 
 /** La superficie chiara: un filo sopra il fondo, così una scheda si stacca da sola. */
-private val LIGHT_SURFACE = Color(0xFFFFFEF8)
+private val LIGHT_SURFACE = Color(0xFFFFFEFA)
 
 /**
  * ⚠️ **IL FONDO SCURO È GRIGIO, NON VERDE** (richiesta dell'utente: grigio scuro
@@ -60,11 +68,12 @@ private val DARK_SURFACE = Color(0xFF1E2523)
  * ⚠️⚠️ **È ESATTAMENTE IL COLORE DELL'ICONA** (`launcher_background` chiaro), per volontà
  * dell'utente: l'app e la sua icona devono essere la stessa cosa. Chi lo cambia deve
  * cambiare anche l'icona, o si separano.
- * ⚠️ **Contrasto MISURATO contro il fondo chiaro: 2.37**, cioè sotto il 3:1 che si chiede
- * a una grafica non testuale. Non è un difetto da correggere di nascosto, perché il
- * colore lo ha scelto l'utente: è un numero scritto qui perché nessuno debba rimisurarlo,
- * ed è lo stesso baratto già accettato per l'icona, che misura 2.42. Chi un giorno
- * volesse rientrare nella soglia deve **scurire l'accento**, non schiarire il fondo.
+ * ⚠️ **Contrasto MISURATO contro il fondo chiaro: 2.43** (era 2.37 sul fondo della
+ * `0.44`, più saturo), cioè sotto il 3:1 che si chiede a una grafica non testuale. Non è
+ * un difetto da correggere di nascosto: il colore lo ha scelto l'utente, che ha visto il
+ * numero e ha risposto *accento OK*. È scritto qui perché nessuno debba rimisurarlo, ed è
+ * lo stesso baratto già accettato per l'icona, che misura 2.42. Chi un giorno volesse
+ * rientrare nella soglia deve **scurire l'accento**, non schiarire il fondo.
  * ⚠️ Quello che sta SOPRA il tastino invece si legge benissimo: `#00382F` sull'accento
  * misura 5.19.
  */
@@ -86,11 +95,11 @@ private val ACCENT_DARK = Color(0xFF00727B)
  * L'accento quando deve essere **letto**, cioè scritto come testo.
  *
  * ⚠️⚠️ **ESISTE PERCHÉ L'ACCENTO VERO, COME TESTO, NON SI LEGGE**: `#43B59E` su fondo
- * chiaro misura 2.37, e per un testo la soglia è 4.5. L'accento è quello che l'utente ha
+ * chiaro misura 2.43, e per un testo la soglia è 4.5. L'accento è quello che l'utente ha
  * chiesto e non si tocca; quello che si tocca è l'unico posto in cui l'accento finiva
  * sotto forma di parole, cioè il collegamento a `roccobot.me` in fondo alle impostazioni.
  * ⚠️ **Restano i colori dell'icona**, che è il punto della richiesta: il chiaro è la
- * stessa tinta scurita (**6.04** sul fondo), lo scuro è **esattamente** il glifo
+ * stessa tinta scurita (**6.20** sul fondo), lo scuro è **esattamente** il glifo
  * dell'icona scura, `launcher_foreground` di `values-night` (**9.97** sul fondo).
  * ⚠️ Chi volesse un accento leggibile dappertutto deve scurire `ACCENT_LIGHT`, e allora
  * questa coppia sparisce da sé: è nata da una deroga, non da una preferenza.
@@ -127,15 +136,15 @@ private val LightScheme: ColorScheme = lightColorScheme(
     onBackground = Color(0xFF1A1C1B),
     surface = LIGHT_SURFACE,
     onSurface = Color(0xFF1A1C1B),
-    surfaceVariant = Color(0xFFEDEBE1),
+    surfaceVariant = Color(0xFFEFEEE7),
     onSurfaceVariant = Color(0xFF5B6360),
     surfaceContainerLowest = Color(0xFFFFFFFF),
-    surfaceContainerLow = Color(0xFFFCFAF2),
-    surfaceContainer = Color(0xFFF6F4EA),
-    surfaceContainerHigh = Color(0xFFF0EEE4),
-    surfaceContainerHighest = Color(0xFFEAE8DE),
+    surfaceContainerLow = Color(0xFFFDFCF8),
+    surfaceContainer = Color(0xFFF8F7F1),
+    surfaceContainerHigh = Color(0xFFF3F1EB),
+    surfaceContainerHighest = Color(0xFFEDECE5),
     outline = Color(0xFF79817D),
-    outlineVariant = Color(0xFFD6D3C7)
+    outlineVariant = Color(0xFFDAD9D2)
 )
 
 private val DarkScheme: ColorScheme = darkColorScheme(
@@ -175,6 +184,31 @@ fun accentInk(): Color =
 
 private fun Color.isLight(): Boolean = (0.2126f * red + 0.7152f * green + 0.0722f * blue) > 0.5f
 
+/**
+ * Se l'app va vestita di scuro, secondo la scelta dell'utente.
+ *
+ * ⚠️ Sta qui e non in `AivTheme` perché la scelta arriva **prima** del tema, dal
+ * salvataggio: chi la legge deve poterla tradurre in un `Boolean` da passare al tema, e
+ * quella traduzione ha bisogno di `isSystemInDarkTheme()`, che è componibile.
+ */
+@Composable
+fun UiTheme.isDark(): Boolean = when (this) {
+    UiTheme.SYSTEM -> isSystemInDarkTheme()
+    UiTheme.LIGHT -> false
+    UiTheme.DARK -> true
+}
+
+/**
+ * ⚠️ **Il parametro `darkTheme` NON è più solo il sistema, dalla 0.45**: chi chiama gli
+ * passa la scelta dell'utente già risolta (vedi [isDark]). Il valore di serie resta il
+ * sistema, così un'anteprima o una chiamata senza impostazioni si comporta come prima.
+ * ⚠️⚠️ **Quello che il tema NON può governare è il primo fotogramma**: lo sfondo della
+ * finestra lo dipinge il sistema prima che Compose esista, e lo prende da
+ * `window_background`, che ha una sola versione chiara e una scura scelte dal **tema del
+ * dispositivo**. Chi forza il chiaro su un telefono scuro vedrà quindi un lampo scuro
+ * all'apertura. Non è rimediabile da qui, e per rimediarlo servirebbe leggere la scelta
+ * prima di `setContentView`, cioè fuori da Compose: dichiarato invece di nascosto.
+ */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AivTheme(
