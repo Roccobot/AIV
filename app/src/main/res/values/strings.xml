@@ -102,7 +102,7 @@
     <string name="settings_clipboard">Read the clipboard at startup</string>
     <string name="settings_clipboard_desc">Opening the app from its icon, an address in the clipboard that points straight at an image opens that image. Android shows a notice every time an app reads the clipboard, so leaving this off means never seeing it.</string>
     <string name="settings_start_folder">Open a folder at startup</string>
-    <string name="settings_start_folder_desc">Opening the app starts from the chosen folder instead of the opening screen.</string>
+    <string name="settings_start_folder_desc">Opening the app shows the pictures in the chosen folder straight away, instead of the folder list.</string>
     <string name="settings_start_folder_none">No folder chosen</string>
     <string name="settings_start_folder_pick">Choose</string>
 

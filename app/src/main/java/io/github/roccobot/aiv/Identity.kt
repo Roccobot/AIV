@@ -53,14 +53,13 @@ import androidx.compose.ui.unit.dp
 fun Identity(
     iconSize: Dp,
     modifier: Modifier = Modifier,
-    link: Boolean = true,
-    glyphScale: Float = 1f
+    link: Boolean = true
 ) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        AppIcon(iconSize, glyphScale, link)
+        AppIcon(iconSize, link)
         Spacer(Modifier.height(10.dp))
         Text(
             text = "Astonishing Image Viewer",
@@ -114,18 +113,18 @@ private const val REPO = "https://github.com/Roccobot/AIV"
 /**
  * L'icona del launcher, disegnata grande.
  *
- * ⚠️⚠️ **`glyphScale` NON È UNA CORREZIONE DELL'ICONA, ed è la distinzione da tenere**
- * (richiesta dell'utente, 2026-08-29: il glifo del 'chi siamo' *più piccolo del 30%*).
- * Il valore di serie è **1**, cioè l'icona esattamente com'è nel launcher, e la
- * schermata iniziale resta là: l'utente l'ha dichiarata **perfetta** il 2026-08-29, e
- * quella è un'**anteprima**, che deve somigliare al launcher o non serve a niente. Il
- * blocco in fondo alle impostazioni invece è un **logo**, non un'anteprima: là il glifo
- * respira, e l'unica cosa che deve al launcher è di essere riconoscibile.
- * ⚠️ Quindi i due blocchi adesso si vedono **diversi**, ed è voluto. Chi li 'riallinea'
- * sta scegliendo uno dei due usi e cancellando l'altro.
- * ⚠️ E resta vero quello che dice `LAUNCHER_ZOOM`: **un difetto visto in un'anteprima
- * non è mai un motivo per cambiare la scala o l'alzata del drawable**. Qui non si tocca
- * il disegno, si sceglie quanto ingrandirlo in un posto solo.
+ * ⚠️⚠️ **I DUE POSTI IN CUI COMPARE LA DISEGNANO IDENTICA, ed è una decisione presa due
+ * volte.** La `0.47` aveva rimpicciolito del 30% il glifo del solo 'chi siamo', su
+ * richiesta dell'utente, distinguendo l'**anteprima** della schermata iniziale dal
+ * **logo** delle impostazioni; il giorno dopo lui ha guardato le due e ha stabilito il
+ * contrario (2026-08-29: *l'icona del 'Chi siamo' dev'essere identica a quella che si
+ * vede in alto all'avvio*). Quindi il parametro è uscito invece di restare a 1 in attesa
+ * di qualcuno: un argomento che nessuno usa è codice morto travestito da flessibilità.
+ * ⚠️ Chi volesse riaprire la questione sappia che è già stata decisa in tutti e due i
+ * versi, e che quello che vince è **una icona sola**: l'app e la sua icona devono essere
+ * la stessa cosa dovunque compaiano.
+ * ⚠️ Resta vero quello che dice `LAUNCHER_ZOOM`: **un difetto visto in un'anteprima non è
+ * mai un motivo per cambiare la scala o l'alzata del drawable**.
  *
  * ⚠️⚠️ **L'ingrandimento si fa al DISEGNO e non alla misura, e fino alla 0.27 questa
  * differenza costava tutto l'ingrandimento.** `Modifier.size` **negozia** col genitore:
@@ -140,7 +139,7 @@ private const val REPO = "https://github.com/Roccobot/AIV"
  * limitare, e il ritaglio del `Box` continua a valere.
  */
 @Composable
-private fun AppIcon(size: Dp, glyphScale: Float, link: Boolean) {
+private fun AppIcon(size: Dp, link: Boolean) {
     val opener = LocalUriHandler.current
     val label = stringResource(R.string.identity_repo)
     Box(
@@ -162,7 +161,7 @@ private fun AppIcon(size: Dp, glyphScale: Float, link: Boolean) {
             // dell'app sta scritto sotto in lettere. Da toccabile invece è un comando, e
             // un comando senza nome è un comando che nessuno può usare al buio.
             contentDescription = if (link) label else null,
-            modifier = Modifier.fillMaxSize().scale(LAUNCHER_ZOOM * glyphScale)
+            modifier = Modifier.fillMaxSize().scale(LAUNCHER_ZOOM)
         )
     }
 }
