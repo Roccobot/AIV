@@ -2,6 +2,7 @@ package io.github.roccobot.aiv
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,8 +17,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -39,19 +42,25 @@ import androidx.compose.ui.unit.dp
  * è quello che serve.
  * ⚠️ Nessuno di questi testi è una stringa di risorsa, ed è deliberato: sono un nome,
  * una firma e un dominio. Tradurre 'by Roccobot' sarebbe un errore, non una cortesia, e
- * una risorsa inviterebbe a farlo.
+ * una risorsa inviterebbe a farlo. ⚠️ L'unica stringa tradotta è la **descrizione** del
+ * tocco sull'icona, che non è un nome ma una frase che qualcuno si fa leggere.
+ * ⚠️⚠️ **Il collegamento è UNO SOLO PER USO, e i due non sono lo stesso**: il dominio
+ * personale sta sotto la firma, il repository sta **sull'icona**. Sono governati dallo
+ * stesso [link] perché rispondono alla stessa domanda, cioè se questo blocco può portare
+ * fuori dall'app: sulla schermata iniziale no, e vale per tutti e due.
  */
 @Composable
 fun Identity(
     iconSize: Dp,
     modifier: Modifier = Modifier,
-    link: Boolean = true
+    link: Boolean = true,
+    glyphScale: Float = 1f
 ) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        AppIcon(iconSize)
+        AppIcon(iconSize, glyphScale, link)
         Spacer(Modifier.height(10.dp))
         Text(
             text = "Astonishing Image Viewer",
@@ -99,8 +108,24 @@ fun Identity(
  */
 private const val LAUNCHER_ZOOM = 1.5f * 1.3f
 
+/** Il repository dell'app, dove porta il tocco sull'icona. */
+private const val REPO = "https://github.com/Roccobot/AIV"
+
 /**
  * L'icona del launcher, disegnata grande.
+ *
+ * ⚠️⚠️ **`glyphScale` NON È UNA CORREZIONE DELL'ICONA, ed è la distinzione da tenere**
+ * (richiesta dell'utente, 2026-08-29: il glifo del 'chi siamo' *più piccolo del 30%*).
+ * Il valore di serie è **1**, cioè l'icona esattamente com'è nel launcher, e la
+ * schermata iniziale resta là: l'utente l'ha dichiarata **perfetta** il 2026-08-29, e
+ * quella è un'**anteprima**, che deve somigliare al launcher o non serve a niente. Il
+ * blocco in fondo alle impostazioni invece è un **logo**, non un'anteprima: là il glifo
+ * respira, e l'unica cosa che deve al launcher è di essere riconoscibile.
+ * ⚠️ Quindi i due blocchi adesso si vedono **diversi**, ed è voluto. Chi li 'riallinea'
+ * sta scegliendo uno dei due usi e cancellando l'altro.
+ * ⚠️ E resta vero quello che dice `LAUNCHER_ZOOM`: **un difetto visto in un'anteprima
+ * non è mai un motivo per cambiare la scala o l'alzata del drawable**. Qui non si tocca
+ * il disegno, si sceglie quanto ingrandirlo in un posto solo.
  *
  * ⚠️⚠️ **L'ingrandimento si fa al DISEGNO e non alla misura, e fino alla 0.27 questa
  * differenza costava tutto l'ingrandimento.** `Modifier.size` **negozia** col genitore:
@@ -115,18 +140,29 @@ private const val LAUNCHER_ZOOM = 1.5f * 1.3f
  * limitare, e il ritaglio del `Box` continua a valere.
  */
 @Composable
-private fun AppIcon(size: Dp) {
+private fun AppIcon(size: Dp, glyphScale: Float, link: Boolean) {
+    val opener = LocalUriHandler.current
+    val label = stringResource(R.string.identity_repo)
     Box(
         modifier = Modifier
             .size(size)
+            // ⚠️ Il ritaglio PRIMA del tocco, o l'area toccabile resterebbe il quadrato
+            // intero e gli angoli fuori dalla forma risponderebbero comunque.
             .clip(RoundedCornerShape(percent = 24))
-            .background(colorResource(R.color.launcher_background)),
+            .background(colorResource(R.color.launcher_background))
+            .then(
+                if (!link) Modifier
+                else Modifier.clickable(onClickLabel = label) { opener.openUri(REPO) }
+            ),
         contentAlignment = Alignment.Center
     ) {
         Image(
             painter = painterResource(R.drawable.ic_launcher_foreground),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize().scale(LAUNCHER_ZOOM)
+            // ⚠️ Descritta solo quando è toccabile: da ferma è decorazione, e il nome
+            // dell'app sta scritto sotto in lettere. Da toccabile invece è un comando, e
+            // un comando senza nome è un comando che nessuno può usare al buio.
+            contentDescription = if (link) label else null,
+            modifier = Modifier.fillMaxSize().scale(LAUNCHER_ZOOM * glyphScale)
         )
     }
 }

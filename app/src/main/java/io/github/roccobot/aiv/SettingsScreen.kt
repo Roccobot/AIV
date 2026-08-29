@@ -261,7 +261,19 @@ fun SettingsScreen(
         }
 
         HorizontalDivider(Modifier.padding(vertical = 12.dp))
-        Identity(iconSize = 72.dp)
+        // ⚠️⚠️ **`fillMaxWidth` NON È DECORAZIONE: senza, il blocco NON è centrato**, ed è
+        // il difetto che l'utente ha visto (2026-08-29). `Identity` centra i propri figli
+        // fra loro, ma senza larghezza propria prende quella del testo più lungo e questa
+        // colonna la posa a sinistra, perché il suo allineamento è quello di serie: il
+        // blocco risultava centrato **su sé stesso** e spostato verso il bordo. Dandogli
+        // tutta la larghezza, il centro dei figli è il centro dello schermo.
+        // ⚠️ Il glifo qui è più piccolo del 30% che nel launcher, e il perché sta accanto
+        // a `glyphScale`: questo è un logo, non un'anteprima dell'icona.
+        Identity(
+            iconSize = 72.dp,
+            glyphScale = 0.7f,
+            modifier = Modifier.fillMaxWidth()
+        )
 
         Spacer(Modifier.height(24.dp))
     }
