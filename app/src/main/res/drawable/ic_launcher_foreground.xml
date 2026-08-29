@@ -24,12 +24,25 @@
        troppo grande. La seconda è un **meno 8%** chiesto guardando il
        risultato. Il numero teorico resta 36: qui si compensa un launcher, e su
        uno che non ingrandisce l'icona verrà più piccola del necessario.
-     - ⚠️⚠️ E LA PRIMA CORREZIONE È IN DUE POSTI, non uno: `HomeScreen.AppIcon`
-       rende questo stesso file a 1.95 invece di 1.5 (la costante
-       `LAUNCHER_ZOOM`), cioè 1.5 per lo stesso 1.3, perché l'anteprima dentro
-       l'app e il launcher mostrino la stessa cosa. ⚠️ Il meno 8% invece **non**
-       si compensa, e la differenza è voluta: quello riguarda il disegno, non il
-       divario fra i due posti in cui compare, quindi deve valere in tutti e due.
+     - ⚠️⚠️ LA PRIMA CORREZIONE NON È PIÙ IN DUE POSTI, ED È QUI IL FATTO NUOVO:
+       fino alla 0.49 `AppIcon` rendeva questo file a 1.95 invece di 1.5 (la
+       costante `LAUNCHER_ZOOM`), cioè 1.5 per lo stesso 1.3, perché l'anteprima
+       e il launcher mostrassero la stessa cosa. MISURATO SULLO SCREENSHOT DEL
+       LAUNCHER il 2026-08-29, quel divario NON ESISTE: sul telefono il glifo
+       occupa 0.4398 del lato della maschera in larghezza e 0.5759 in altezza, e
+       i 72dp centrali senza alcun ingrandimento ne prevedono 0.4436 e 0.5819,
+       cioè l'1% di scarto; l'ipotesi del 1.3 ne prevede 0.5767 e 0.7565, cioè il
+       24%. Quindi il launcher NON ingrandisce, e dalla 0.50 `LAUNCHER_ZOOM` vale
+       1.5, che è pura geometria.
+       - ⚠️⚠️ MA LA SCALA DI QUESTO FILE RESTA COM'È, e la distinzione è tutta:
+         quel 1.3 qui dentro produce un glifo più piccolo del massimo teorico, ed
+         è il risultato che l'utente ha guardato sul telefono e ha dichiarato
+         PERFETTO. Non è più una compensazione che torna, è una preferenza di
+         misura, e vince lei. Chi 'uniformasse' i due posti rimpicciolirebbe
+         l'icona vera per far tornare un conto.
+       ⚠️ Il meno 8% invece **non** si compensa, e la differenza è voluta: quello
+       riguarda il disegno, non il divario fra i due posti in cui compare, quindi
+       deve valere in tutti e due.
        - ⚠️⚠️ MA FINO ALLA 0.27 QUELL'INGRANDIMENTO NON AVVENIVA, e l'icona di
          qui non c'entrava niente: là stava scritto con un `Modifier.size`, che
          **negozia** col genitore e veniva ricondotto ai 96dp della piastrella,
