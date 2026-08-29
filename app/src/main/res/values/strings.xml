@@ -126,6 +126,8 @@
     <string name="url_cancel">Cancel</string>
     <string name="url_recent">Opened before</string>
     <string name="folder_empty">This folder holds no pictures any more.</string>
+
+    <string name="identity_repo">Open the AIV repository on GitHub</string>
     <!-- ── The grid of one folder ── -->
     <!-- Every thumbnail is tappable, so it is not decoration: this is what a screen
          reader says on it, and it has to tell WHERE in the folder that picture is. -->

@@ -108,6 +108,8 @@
     <string name="url_cancel">Annulla</string>
     <string name="url_recent">Aperti in passato</string>
     <string name="folder_empty">Questa cartella non contiene più immagini.</string>
+
+    <string name="identity_repo">Apri il repository di AIV su GitHub</string>
     <!-- ── La griglia di una cartella ── -->
     <string name="grid_item">Immagine %1$d di %2$d</string>
     <string name="grid_item_last">Immagine %1$d di %2$d, l\'ultima che hai guardato</string>
