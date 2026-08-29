@@ -178,14 +178,31 @@ private const val TILE_DELAY_MS = 200L
 private const val PROGRESS_GRACE_MS = 500L
 
 /**
- * Il tetto in pixel di un pezzo letto a piena risoluzione.
+ * Il tetto in pixel di un pezzo letto a piena risoluzione, **contato in schermate**.
  *
- * ⚠️ Quattro milioni sono circa uno schermo e mezzo, cioè 16 MB come ARGB: sopra, il
- * rattoppo costerebbe più della fotografia che sta rattoppando. Serve perché il
- * campionamento arrotonda per difetto, quindi il pezzo può venire fino al doppio per
- * lato di quello che lo schermo mostra.
+ * ⚠️⚠️ **ERA UN NUMERO FISSO, QUATTRO MILIONI, ED È IL DIFETTO CHE HA RESO INUTILE LA
+ * `0.39` SUI TELEFONI DI OGGI** (segnalazione dell'utente, 2026-08-29: *con l'immagine
+ * grande non mi accorgo di nulla*, con la riga dei dettagli che diceva `sampled`, quindi
+ * i tasselli dovevano accendersi). La nota vecchia diceva 'circa uno schermo e mezzo', e
+ * il conto **non torna più**: su uno schermo da 1440x3120 una schermata sola è
+ * **4.49 milioni** di pixel, cioè già sopra il tetto. Quel numero è nato quando 1080x2400
+ * (2.59 milioni) era il normale.
+ * ⚠️⚠️ **E la conseguenza era esattamente 'non succede niente', nel punto in cui la
+ * funzione serve di più**: al **100%** il pezzo da leggere è grande **esattamente una
+ * schermata**, quindi il tetto lo respingeva, il campionamento veniva alzato per
+ * rientrare, e alzato arrivava al livello del bitmap di base, dove leggere non guadagna
+ * niente e si rinuncia. Il codice faceva la cosa giusta con un dato sbagliato.
+ * ⚠️ **Due schermate e non quattro**, e le due soglie vogliono dire cose diverse: il caso
+ * peggiore teorico è **quattro** schermate (il campionamento arrotonda per difetto, quindi
+ * fino al doppio per lato), ma capita solo **sotto** il 100%, dove il bitmap di base è
+ * ingrandito appena e il guadagno è marginale mentre il costo sarebbe di 69 MB. A due
+ * schermate il 100% e tutti gli ingrandimenti sopra di lui passano sempre, perché da lì
+ * in su il pezzo **si restringe** man mano che si ingrandisce.
+ * ⚠️ Il minimo esiste per gli schermi piccoli, dove due schermate sarebbero un pezzo
+ * troppo modesto per valere la lettura.
  */
-private const val MAX_TILE_PIXELS = 4_000_000L
+private const val TILE_SCREENFULS = 2L
+private const val MIN_TILE_PIXELS = 4_000_000L
 
 @Composable
 fun ViewerScreen(
@@ -329,6 +346,7 @@ fun ViewerScreen(
                     DetailsPanel(
                         image = shownNow,
                         percent = info.percent,
+                        tiles = info.tiles,
                         // ⚠️⚠️ **Il silenzio non basta a dire perché**, ed è il difetto
                         // che ha fatto perdere DUE versioni sulla strisciata: senza serie
                         // il gesto non fa niente, e 'non fa niente' è identico a un gesto
@@ -355,6 +373,16 @@ fun ViewerScreen(
 private class InfoBar {
     var visible by mutableStateOf(true)
     var percent by mutableFloatStateOf(1f)
+
+    /**
+     * Che cosa stanno facendo i tasselli a piena risoluzione, e `null` quando non
+     * c'entrano (immagine non campionata, o lettura non ancora tentata).
+     *
+     * ⚠️ Sta QUI e non dentro `ImageCanvas` per la stessa ragione degli altri due: la
+     * riga dei dettagli vive più a lungo della fotografia, e un dato tenuto di là
+     * sparirebbe a ogni cambio di pagina proprio mentre lo si sta leggendo.
+     */
+    var tiles by mutableStateOf<String?>(null)
 }
 
 /**
@@ -461,6 +489,9 @@ private fun Preview(uri: Uri, settings: Settings, modifier: Modifier) {
 /** Un pezzo nitido e il rettangolo, in coordinate viste, che occupa nella fotografia. */
 private data class SharpTile(val bitmap: ImageBitmap, val area: PixelRect)
 
+/** Il lettore di regioni una volta che si è **provato** ad aprirlo. Vedi il suo uso. */
+private data class RegionHolder(val reader: RegionSource?)
+
 /**
  * Quale pezzo leggere adesso, e con quanto campionamento.
  *
@@ -489,10 +520,10 @@ private suspend fun sharpen(
     viewHeight: Float,
     scale: Float,
     offset: Offset
-): SharpTile? {
-    if (scale <= 1f) return null
+): Sharpening {
+    if (scale <= 1f) return Sharpening.None("no tile: zoom")
     val perPixel = baseWidth / reader.width
-    if (perPixel <= 0f) return null
+    if (perPixel <= 0f) return Sharpening.None("no tile: base")
 
     // Da schermo a coordinate viste: l'inversa della formula del `graphicsLayer`.
     fun seenX(screen: Float) = ((screen - viewWidth / 2f - offset.x) / scale + baseWidth / 2f) / perPixel
@@ -504,18 +535,40 @@ private suspend fun sharpen(
         ceil(seenX(viewWidth)).toInt().coerceIn(0, reader.width),
         ceil(seenY(viewHeight)).toInt().coerceIn(0, reader.height)
     )
-    if (area.width() <= 0 || area.height() <= 0) return null
+    if (area.width() <= 0 || area.height() <= 0) return Sharpening.None("no tile: area")
 
     val baseSample = (reader.width / baseWidth).roundToInt().coerceAtLeast(1)
-    var sample = powerOfTwoAtMost(1f / (scale * perPixel))
-    while (
-        (area.width().toLong() / sample) * (area.height().toLong() / sample) > MAX_TILE_PIXELS
-    ) {
+    // ⚠️ Il tetto si calcola sulla VISTA e non è più un numero scritto a mano: il perché,
+    // e il conto che il numero fisso sbagliava, stanno accanto a `TILE_SCREENFULS`.
+    val cap = maxOf(MIN_TILE_PIXELS, viewWidth.toLong() * viewHeight.toLong() * TILE_SCREENFULS)
+    // Il campionamento che si vorrebbe, prima che il tetto lo alzi: i due si distinguono
+    // perché dicono due cose diverse a chi legge la diagnostica, e distinguerli è l'unico
+    // modo di sapere se un giorno il tetto tornasse a essere il problema.
+    val ideal = powerOfTwoAtMost(1f / (scale * perPixel))
+    var sample = ideal
+    while ((area.width().toLong() / sample) * (area.height().toLong() / sample) > cap) {
         sample *= 2
     }
-    if (sample >= baseSample) return null
+    if (sample >= baseSample) {
+        return Sharpening.None(if (ideal >= baseSample) "no tile: gain" else "no tile: cap")
+    }
 
-    return reader.tile(area, sample)?.let { SharpTile(it.asImageBitmap(), area) }
+    val tile = reader.tile(area, sample) ?: return Sharpening.None("no tile: read")
+    return Sharpening.Done(SharpTile(tile.asImageBitmap(), area))
+}
+
+/**
+ * L'esito di una lettura a piena risoluzione, col **motivo** quando non se ne fa niente.
+ *
+ * ⚠️⚠️ **IL MOTIVO ESISTE PERCHÉ IL SILENZIO NON DICE PERCHÉ, ed è la lezione già pagata
+ * dallo sfoglio**: 'non succede niente' è identico fra una funzione rotta, una funzione
+ * che ha deciso di non fare niente e un formato che non si sa rileggere. La riga dei
+ * dettagli lo stampa, come stampa l'esito della ricerca della cartella, ed è così che la
+ * `0.49` ha potuto nominare il difetto invece di indovinarlo.
+ */
+private sealed interface Sharpening {
+    data class Done(val tile: SharpTile) : Sharpening
+    data class None(val why: String) : Sharpening
 }
 
 /** La potenza di due immediatamente sotto, e mai meno di uno. */
@@ -676,7 +729,15 @@ private fun ImageCanvas(
         // ⚠️ La riga torna a mostrarsi a ogni fotografia nuova, come faceva quando viveva
         // qui dentro: spegnerla è una decisione su **questa** immagine, non una
         // preferenza, che è quello che dice l'impostazione.
-        LaunchedEffect(image, settings) { info.visible = settings.infoVisible }
+        // ⚠️ E l'esito dei tasselli si AZZERA con lei: la riga sopravvive al cambio di
+        // fotografia (è il rimedio al lampeggio della `0.42`), quindi senza questa riga
+        // porterebbe l'esito di quella di prima sopra quella di adesso, per il tempo che
+        // serve a riaprire il lettore. Un dato vecchio in una diagnostica è peggio di
+        // nessun dato.
+        LaunchedEffect(image, settings) {
+            info.visible = settings.infoVisible
+            info.tiles = null
+        }
 
         /*
          * ⚠️ La percentuale esce di qui con un flusso e non con una scrittura durante la
@@ -757,9 +818,16 @@ private fun ImageCanvas(
          * intera in memoria e non c'è nessun dettaglio da recuperare. Là questa strada
          * non costa niente e il visualizzatore è quello di sempre.
          */
-        val regions by produceState<RegionSource?>(null, image, source) {
+        /*
+         * ⚠️ **Un involucro invece del lettore nudo, e non è cerimonia**: `null` deve poter
+         * dire *sto ancora aprendo* e non *non si può aprire*, e un lettore nudo confonde
+         * le due cose, perché l'apertura fallita restituisce anch'essa `null`. Senza la
+         * distinzione la riga dei dettagli accuserebbe il formato per la frazione di
+         * secondo che serve ad aprirlo.
+         */
+        val regions by produceState<RegionHolder?>(null, image, source) {
             val opened = RegionSource.open(context, source, image)
-            value = opened
+            value = RegionHolder(opened)
             awaitDispose { opened?.close() }
         }
 
@@ -777,14 +845,32 @@ private fun ImageCanvas(
          * alla rovescia precedente e insieme la decodifica che stava partendo.
          */
         LaunchedEffect(regions, viewWidth, viewHeight) {
-            val reader = regions
+            // Ancora in apertura: non si dice niente, perché non si sa ancora niente.
+            val reader = (regions ?: return@LaunchedEffect).reader
             if (reader == null) {
                 sharp = null
+                // ⚠️ Il formato o l'orientamento: `RegionSource.open` rinuncia quando non
+                // sa rileggere il file, e quando le misure grezze non concordano col tag
+                // EXIF. Sono due cose, ma da qui si vedono uguali, e dirne una sola
+                // sarebbe peggio che dirle insieme.
+                info.tiles = if (image.sampled) "no tile: format" else null
                 return@LaunchedEffect
             }
             snapshotFlow { scale to offset }.collectLatest { (atScale, atOffset) ->
                 delay(TILE_DELAY_MS)
-                sharp = sharpen(reader, imageWidth, imageHeight, viewWidth, viewHeight, atScale, atOffset)
+                when (
+                    val done =
+                        sharpen(reader, imageWidth, imageHeight, viewWidth, viewHeight, atScale, atOffset)
+                ) {
+                    is Sharpening.Done -> {
+                        sharp = done.tile
+                        info.tiles = "sharp"
+                    }
+                    is Sharpening.None -> {
+                        sharp = null
+                        info.tiles = done.why
+                    }
+                }
             }
         }
 
@@ -1387,6 +1473,8 @@ private fun ImageMenu(
 private fun DetailsPanel(
     image: LoadedImage,
     percent: Float,
+    /** Vedi `InfoBar.tiles`: solo per le fotografie ridotte, e `null` finché non si sa. */
+    tiles: String?,
     folder: Folder.Lookup?
 ) {
     // Letta fuori dal `buildString`, che non è un contesto composable. Null mentre
@@ -1419,7 +1507,20 @@ private fun DetailsPanel(
                     append(image.pixelWidth).append(" x ").append(image.pixelHeight)
                     image.byteSize?.let { append("  ").append(formatBytes(it)) }
                     append("  ").append((percent * 100).roundToInt()).append('%')
-                    if (image.sampled) append("  (sampled)")
+                    // ⚠️⚠️ **QUESTA È DIAGNOSTICA, e va difesa come quella della
+                    // cartella**: `sampled` da solo diceva che la fotografia era stata
+                    // ridotta, ma non se il rattoppo a piena risoluzione stesse
+                    // funzionando, e 'non si vede niente' è identico fra una funzione
+                    // rotta, una che ha deciso di non fare niente e un formato che non si
+                    // sa rileggere. Con il motivo scritto, il difetto della `0.49` si è
+                    // potuto nominare invece che indovinare.
+                    // ⚠️ Solo per le fotografie **ridotte**: su tutte le altre i tasselli
+                    // non c'entrano, e una parola in più sarebbe rumore su ogni foto.
+                    if (image.sampled) {
+                        append("  (sampled")
+                        tiles?.let { append(", ").append(it) }
+                        append(')')
+                    }
                     // ⚠️ Il perché di una cartella che non c'è resta QUI, col resto del
                     // testo, e non va nell'angolo del contatore: è una frase, non un
                     // numero, e in quello spazio starebbe stretta o lo farebbe crescere
