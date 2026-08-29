@@ -7,7 +7,10 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -798,12 +801,39 @@ private fun ImageCanvas(
             }
         }
 
+        /*
+         * ⚠️⚠️ **LA RIGA DEI DETTAGLI SE NE VA INSIEME ALLA FOTOGRAFIA, e prima
+         * SPARIVA** (segnalazione dell'utente: *tra un'immagine e l'altra le info
+         * scompaiono per un istante*). Restava ferma al suo posto mentre la figura
+         * scorreva via, e poi si spegneva di colpo nell'istante del cambio, perché
+         * `ImageCanvas` esce dalla composizione mentre la prossima si carica: un
+         * lampo di niente in fondo allo schermo, che è quello che si vedeva.
+         * ⚠️ Adesso porta lo stesso `travel` della figura, quindi al momento del cambio
+         * è **già fuori schermo** e non c'è nessun istante in cui sparisce sotto gli
+         * occhi. Letto dentro `graphicsLayer`, cioè senza ricomporre niente a ogni
+         * fotogramma del trascinamento.
+         */
         AnimatedVisibility(
-            visible = panelVisible,
-            modifier = Modifier.align(
-                if (settings.infoPosition == InfoPosition.TOP) Alignment.TopCenter
-                else Alignment.BottomCenter
-            )
+            // ⚠️⚠️ **Uno stato che NASCE spento**, e non il booleano nudo: con
+            // `visible = panelVisible` l'apparizione al primo giro di composizione non
+            // è una transizione (lo stato iniziale coincide col voluto), quindi la
+            // riga della fotografia nuova comparirebbe di scatto. Con lo stato
+            // esplicito il primo giro è un passaggio da spento ad acceso, cioè la
+            // dissolvenza in entrata. ⚠️ La chiave è `image`: una riga nuova per ogni
+            // fotografia, o la dissolvenza si vedrebbe una volta sola.
+            visibleState = remember(image, settings) { MutableTransitionState(false) }
+                .apply { targetState = panelVisible },
+            // Entra ed esce sfumando e basta: le due predefinite cambiano anche la
+            // misura, e una riga che si apre a soffietto in fondo allo schermo sposta
+            // il contatore, che è la cosa che si guarda mentre si sfoglia.
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier
+                .align(
+                    if (settings.infoPosition == InfoPosition.TOP) Alignment.TopCenter
+                    else Alignment.BottomCenter
+                )
+                .graphicsLayer { translationX = travel }
         ) {
             DetailsPanel(
                 image = image,
