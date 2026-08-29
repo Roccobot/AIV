@@ -9,7 +9,10 @@ import android.provider.OpenableColumns
 import android.util.Size
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.net.HttpURLConnection
@@ -60,16 +63,34 @@ object ImageSource {
     private const val CONNECT_TIMEOUT_MS = 20_000
     private const val READ_TIMEOUT_MS = 60_000
 
-    suspend fun load(context: Context, uri: Uri?): LoadResult = withContext(Dispatchers.IO) {
+    /**
+     * [onProgress] riceve la frazione già scaricata, e **solo** per gli indirizzi
+     * remoti che dichiarano la propria lunghezza.
+     *
+     * ⚠️ Non viene chiamata affatto per un file locale, e non è una dimenticanza: là non
+     * c'è nessuna attesa da raccontare, e una barra che salta da zero a cento in un
+     * fotogramma è peggio di nessuna barra. Chi non riceve niente mostra il giro
+     * indeterminato, che è la risposta onesta a 'non so quanto manca'.
+     */
+    suspend fun load(
+        context: Context,
+        uri: Uri?,
+        onProgress: (Float) -> Unit = {}
+    ): LoadResult = withContext(Dispatchers.IO) {
         if (uri == null) return@withContext LoadResult.Failed(LoadResult.Reason.NO_IMAGE, null)
         try {
             when (uri.scheme?.lowercase()) {
-                "http", "https" -> loadRemote(context, uri)
+                "http", "https" -> loadRemote(context, uri, onProgress)
                 else -> loadLocal(context, uri)
             }
         } catch (e: OutOfMemoryError) {
             LoadResult.Failed(LoadResult.Reason.TOO_LARGE, e.message)
         } catch (e: Exception) {
+            // ⚠️⚠️ L'ANNULLAMENTO NON È UN ERRORE DI APERTURA, e senza questa riga
+            // sarebbe diventato tale: `CancellationException` è una `Exception`, quindi
+            // chi lascia il visualizzatore mentre un'immagine scende si vedrebbe scrivere
+            // 'non si è potuta aprire' su una cosa che ha abbandonato lui.
+            if (e is CancellationException) throw e
             LoadResult.Failed(LoadResult.Reason.OPEN_FAILED, e.message)
         }
     }
@@ -80,7 +101,20 @@ object ImageSource {
         return decode(source, resolver.getType(uri), localSize(resolver, uri), localName(resolver, uri))
     }
 
-    private fun loadRemote(context: Context, uri: Uri): LoadResult {
+    private suspend fun loadRemote(context: Context, uri: Uri, onProgress: (Float) -> Unit): LoadResult {
+        // ⚠️⚠️ LA CACHE SI GUARDA PRIMA DI APRIRE LA CONNESSIONE, e questo è l'unico
+        // punto in cui va guardata: chi ha già questi byte non deve nemmeno sapere che
+        // esiste una rete. Il tipo dichiarato non si conserva insieme ai byte perché
+        // `ImageDecoder` lo ricava dal contenuto, e un tipo salvato è un secondo dato da
+        // tenere d'accordo con il primo.
+        RemoteCache.read(context, uri)?.let { cached ->
+            return decode(
+                ImageDecoder.createSource(ByteBuffer.wrap(cached)),
+                null,
+                cached.size.toLong(),
+                uri.lastPathSegment
+            )
+        }
         val connection = (URL(uri.toString()).openConnection() as HttpURLConnection).apply {
             connectTimeout = CONNECT_TIMEOUT_MS
             readTimeout = READ_TIMEOUT_MS
@@ -96,11 +130,25 @@ object ImageSource {
                 return LoadResult.Failed(LoadResult.Reason.OPEN_FAILED, "HTTP $status")
             }
             val declaredType = connection.contentType?.substringBefore(';')?.trim()
+            // ⚠️ `contentLengthLong` e non `contentLength`: quello vecchio è un `int` e
+            // torna **-1** oltre i 2 GB, cioè trasformerebbe un file enorme in 'lunghezza
+            // sconosciuta' proprio nel caso in cui la barra serve di più.
+            val declaredLength = connection.contentLengthLong
             val bytes = connection.inputStream.use { input ->
-                val buffer = ByteArrayOutputStream(maxOf(connection.contentLength, 64 * 1024))
+                val buffer = ByteArrayOutputStream(
+                    declaredLength.coerceIn(64L * 1024, 4L * 1024 * 1024).toInt()
+                )
                 val chunk = ByteArray(64 * 1024)
                 var total = 0L
+                var told = -1
                 while (true) {
+                    // ⚠️⚠️ QUI L'ANNULLAMENTO DIVENTA VERO, e senza questa riga non lo
+                    // era affatto: `input.read` è una chiamata bloccante, quindi un
+                    // `Job` annullato non la interrompe e il download proseguirebbe
+                    // fino in fondo su una connessione dati, per un'immagine che
+                    // nessuno guarderà. Fra un pezzo e l'altro c'è l'unico punto in cui
+                    // questa coroutine può accorgersene.
+                    currentCoroutineContext().ensureActive()
                     val read = input.read(chunk)
                     if (read <= 0) break
                     total += read
@@ -108,12 +156,33 @@ object ImageSource {
                         return LoadResult.Failed(LoadResult.Reason.TOO_LARGE, null)
                     }
                     buffer.write(chunk, 0, read)
+                    // ⚠️⚠️ SI RIFERISCE SOLO AL PUNTO PERCENTUALE CHE CAMBIA, e la
+                    // parsimonia è il punto: ogni chiamata è una scrittura di stato,
+                    // cioè un giro di composizione, e a 64 KB per pezzo un file da 10 MB
+                    // ne farebbe centosessanta invece di cento. Peggio: su un file
+                    // piccolo sarebbero tutte nello stesso fotogramma.
+                    if (declaredLength > 0) {
+                        val percent = (total * 100 / declaredLength).toInt()
+                        if (percent != told) {
+                            told = percent
+                            onProgress(percent / 100f)
+                        }
+                    }
                 }
                 buffer.toByteArray()
             }
             if (bytes.isEmpty()) return LoadResult.Failed(LoadResult.Reason.OPEN_FAILED, "empty answer")
             val source = ImageDecoder.createSource(ByteBuffer.wrap(bytes))
-            return decode(source, declaredType, bytes.size.toLong(), uri.lastPathSegment)
+            val result = decode(source, declaredType, bytes.size.toLong(), uri.lastPathSegment)
+            // ⚠️⚠️ SI TIENE DA PARTE SOLO QUELLO CHE SI È APERTO DAVVERO, ed è
+            // l'ordine opposto a quello che verrebbe naturale. Tenerli prima
+            // salverebbe il download da una decodifica che finisce la memoria, ma
+            // metterebbe in cache anche la **pagina di errore** che un server serve con
+            // stato 200 e nome `.jpg`: da lì in poi 'Riprova' rileggerebbe quei byte
+            // rotti senza toccare la rete, cioè il tasto smetterebbe di poter
+            // funzionare. Un download perso si rifà, una cache avvelenata no.
+            if (result is LoadResult.Ok) RemoteCache.write(context, uri, bytes)
+            return result
         } finally {
             connection.disconnect()
         }
@@ -128,9 +197,16 @@ object ImageSource {
         var fullWidth = 0
         var fullHeight = 0
         var sampled = false
+        // ⚠️ Il tipo **letto dai byte**, per quando chi chiama non lo sa: succede a una
+        // immagine ripresa dalla cache (là si tengono i byte e non le intestazioni HTTP)
+        // e a un `content://` di cui il resolver non dichiara niente. Senza, la riga dei
+        // dettagli direbbe '?' la seconda volta che si guarda la stessa immagine, e
+        // sembrerebbe che l'app abbia dimenticato qualcosa.
+        var decodedType: String? = null
         val bitmap: Bitmap = ImageDecoder.decodeBitmap(source) { decoder, info, _ ->
             fullWidth = info.size.width
             fullHeight = info.size.height
+            decodedType = info.mimeType
             val sample = sampleSizeFor(info.size)
             if (sample > 1) {
                 sampled = true
@@ -144,7 +220,7 @@ object ImageSource {
         return LoadResult.Ok(
             LoadedImage(
                 bitmap = bitmap.asImageBitmap(),
-                mimeType = mimeType,
+                mimeType = mimeType ?: decodedType,
                 byteSize = byteSize,
                 pixelWidth = fullWidth.takeIf { it > 0 } ?: bitmap.width,
                 pixelHeight = fullHeight.takeIf { it > 0 } ?: bitmap.height,

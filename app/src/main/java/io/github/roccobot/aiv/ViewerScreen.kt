@@ -20,8 +20,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
@@ -29,6 +31,7 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -143,15 +146,23 @@ fun ViewerScreen(
     folder: Folder.Lookup?,
     onStep: (Int) -> Unit,
     onSettings: () -> Unit,
+    onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         when (state) {
             is ViewerState.Loading -> {
                 PreviewThumb(source, settings)
-                CircularProgressIndicator(Modifier.align(Alignment.Center))
+                Progress(state.progress, Modifier.align(Alignment.Center))
             }
-            is ViewerState.Error -> ErrorMessage(state, Modifier.align(Alignment.Center))
+            is ViewerState.Error -> ErrorMessage(
+                state = state,
+                // ⚠️ Si offre di riprovare **solo se c'è un indirizzo da riprovare**: un
+                // errore senza sorgente (la cartella che si è svuotata) non ha niente da
+                // rifare, e un tasto che non può funzionare è peggio di nessun tasto.
+                onRetry = onRetry.takeIf { source != null },
+                modifier = Modifier.align(Alignment.Center)
+            )
             is ViewerState.Ready -> ImageCanvas(state.image, settings, source, folder, onStep, onSettings)
         }
     }
@@ -213,8 +224,50 @@ private fun Neighbour(uri: Uri?, settings: Settings, dx: () -> Float) {
     )
 }
 
+/**
+ * A che punto è l'apertura.
+ *
+ * ⚠️⚠️ **DETERMINATO SOLO MENTRE SI SCARICA, e a cento torna a girare.** Un'immagine
+ * presa dalla rete ha due attese diverse: il trasferimento, che si può contare, e la
+ * decodifica, che no. Lasciando l'anello pieno al 100% durante la seconda si vedrebbe
+ * una barra ferma a fine corsa, che è il modo classico di sembrare bloccati; il giro
+ * indeterminato dice la verità, cioè 'sta lavorando e non so quanto manca'.
+ * ⚠️ Per un file locale non arriva nessun numero, quindi qui si vede quello che si
+ * vedeva prima: non c'è nessuna attesa da raccontare, e una barra che salta da zero a
+ * cento in un fotogramma sarebbe rumore.
+ */
 @Composable
-private fun ErrorMessage(state: ViewerState.Error, modifier: Modifier = Modifier) {
+private fun Progress(fraction: Float?, modifier: Modifier = Modifier) {
+    if (fraction == null || fraction >= 1f) {
+        CircularProgressIndicator(modifier)
+        return
+    }
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        CircularProgressIndicator(progress = { fraction })
+        Text(
+            text = "${(fraction * 100).roundToInt()}%",
+            style = MaterialTheme.typography.labelLarge
+        )
+    }
+}
+
+/**
+ * Quello che non si è aperto, e come ritentare.
+ *
+ * ⚠️ **Il tasto esiste per la rete**: un `403` di passaggio, una galleria, un server
+ * lento. Senza, l'unica via era il gesto Indietro e tutto il giro dell'indirizzo da
+ * capo, che con un URL preso dagli appunti vuol dire ritrovarlo.
+ */
+@Composable
+private fun ErrorMessage(
+    state: ViewerState.Error,
+    onRetry: (() -> Unit)?,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier.padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -232,6 +285,10 @@ private fun ErrorMessage(state: ViewerState.Error, modifier: Modifier = Modifier
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
+        }
+        onRetry?.let {
+            Spacer(Modifier.height(8.dp))
+            FilledTonalButton(onClick = it) { Text(stringResource(R.string.error_retry)) }
         }
     }
 }

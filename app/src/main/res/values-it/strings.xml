@@ -12,6 +12,7 @@
     <string name="open_failed">Questa immagine non si riesce ad aprire</string>
     <string name="unsupported">Questo formato non è ancora supportato</string>
     <string name="too_large">L\'immagine è troppo grande per questo dispositivo</string>
+    <string name="error_retry">Riprova</string>
 
     <string name="fit_label">Adatta alla vista</string>
 
