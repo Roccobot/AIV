@@ -345,8 +345,15 @@ private fun Hub(
             )
         }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-            // ⚠️ La voce nomina la vista che si OTTIENE, non quella in cui si è: una
-            // riga di menu è una cosa che si chiede, non un'etichetta di stato.
+            // ⚠️⚠️ **LA VOCE NOMINA LA VISTA CHE SI OTTIENE, non quella in cui si è**, ed
+            // è la cosa da non rovesciare quando si riscrive l'etichetta: una riga di menu
+            // è una richiesta, non un indicatore di stato, quindi in griglia si legge
+            // 'Visualizzazione lista'. Chi la leggesse come stato la invertirebbe, e da
+            // quel momento il menu direbbe il contrario di quello che fa.
+            // ⚠️ Le due etichette vanno cambiate INSIEME e nella stessa forma: si vedono
+            // una per volta, quindi due registri diversi non si notano subito e restano.
+            // Erano 'Vedile come elenco' e 'Vedile come copertine' fino alla 0.46,
+            // quando l'utente le ha volute al nominale.
             DropdownMenuItem(
                 text = {
                     Text(
