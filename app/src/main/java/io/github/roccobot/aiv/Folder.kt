@@ -189,7 +189,7 @@ object Folder {
      * recente.
      *
      * ⚠️ **Chi apre deve poi spostarsi sull'inizio della sequenza SCELTA** (vedi
-     * `ViewerViewModel.openFolder`): con il verso invertito la più recente è l'ultima, e
+     * `ViewerViewModel.openGrid`): con il verso invertito la più recente è l'ultima, e
      * aprire una cartella su un vicolo cieco è il difetto che questa funzione ha avuto
      * nella 0.29.
      * ⚠️ **Una cartella con una foto sola qui vale [Lookup.Found] e non [Lookup.Alone]**,

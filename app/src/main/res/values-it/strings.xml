@@ -88,7 +88,7 @@
     <string name="settings_clipboard">All\'avvio leggi gli appunti</string>
     <string name="settings_clipboard_desc">Aprendo l\'app dalla sua icona, un indirizzo negli appunti che punta dritto a un\'immagine apre quell\'immagine. Android mostra un avviso ogni volta che un\'app legge gli appunti, quindi lasciandola spenta non lo si vede mai.</string>
     <string name="settings_start_folder">Apri una cartella all\'avvio</string>
-    <string name="settings_start_folder_desc">All\'apertura dell\'app si parte dalla cartella scelta, invece della schermata iniziale.</string>
+    <string name="settings_start_folder_desc">All\'apertura dell\'app si vedono subito le foto della cartella scelta, invece dell\'elenco delle cartelle.</string>
     <string name="settings_start_folder_none">Nessuna cartella scelta</string>
     <string name="settings_start_folder_pick">Scegli</string>
 

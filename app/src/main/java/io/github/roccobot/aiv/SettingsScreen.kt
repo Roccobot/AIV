@@ -267,13 +267,10 @@ fun SettingsScreen(
         // colonna la posa a sinistra, perché il suo allineamento è quello di serie: il
         // blocco risultava centrato **su sé stesso** e spostato verso il bordo. Dandogli
         // tutta la larghezza, il centro dei figli è il centro dello schermo.
-        // ⚠️ Il glifo qui è più piccolo del 30% che nel launcher, e il perché sta accanto
-        // a `glyphScale`: questo è un logo, non un'anteprima dell'icona.
-        Identity(
-            iconSize = 72.dp,
-            glyphScale = 0.7f,
-            modifier = Modifier.fillMaxWidth()
-        )
+        // ⚠️ L'icona è IDENTICA a quella della schermata iniziale, e nella 0.47 non lo
+        // era: la ragione, e il fatto che la questione sia già stata decisa nei due versi,
+        // stanno accanto ad `AppIcon`.
+        Identity(iconSize = 72.dp, modifier = Modifier.fillMaxWidth())
 
         Spacer(Modifier.height(24.dp))
     }

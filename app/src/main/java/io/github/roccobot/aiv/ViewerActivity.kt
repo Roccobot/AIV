@@ -334,7 +334,18 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         if (!atStart) return
         atStart = false
         val bucket = fresh.startFolder ?: return
-        if (fresh.openAtStart) openFolder(bucket)
+        if (!fresh.openAtStart) return
+        // ⚠️⚠️ **PORTA ALLA GRIGLIA E NON PIÙ A UNA FOTOGRAFIA, dalla 0.48** (decisione
+        // dell'utente, che aveva chiesto se questa scorciatoia servisse ancora). Fino alla
+        // `0.47` apriva il visualizzatore sulla foto più recente della cartella: aveva
+        // senso quando l'app si apriva su una schermata di scelte, molto meno da
+        // quando la casa è **l'elenco delle cartelle** e sta nel 60% basso. La cosa che si
+        // fa davvero è **scegliere fra le proprie foto**, e atterrare su una sola
+        // costringeva a tornare indietro per vedere le altre.
+        // ⚠️ Il nome arriva dalle impostazioni e non dal MediaStore: è scritto lì apposta
+        // (vedi `Settings.startFolderName`), e chiederlo qui vorrebbe dire un'altra
+        // interrogazione col permesso, all'avvio, per scrivere un titolo.
+        openGrid(bucket, fresh.startFolderName)
     }
 
     /**
@@ -424,43 +435,16 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch { listed = Folder.seriesAround(context, uri) }
     }
 
-    /**
-     * Una cartella intera, aperta dalla sua foto più recente.
-     *
-     * ⚠️⚠️ **La serie NON si ricostruisce con `seriesAround`**, e sarebbe stata la strada
-     * corta: qui la cartella la sappiamo già, quindi ripartire dall'immagine per
-     * chiedere al MediaStore in quale cartella stia sarebbe fare due volte la stessa
-     * domanda, la seconda per via indiretta e passando dalle chiavi del selettore, che
-     * sono il posto in cui questa funzione ha già sbagliato per cinque versioni.
-     *
-     * ⚠️ **Dalla 0.33 la chiama solo l'AVVIO**, perché scegliere una cartella a mano
-     * porta alla griglia ([openGrid]) e non più dritti a una foto. L'impostazione dice
-     * *apri una cartella all'avvio* e l'utente l'ha chiesta così, cioè con la foto già
-     * aperta: mettere la griglia anche là cambierebbe quello che ha chiesto.
-     */
-    fun openFolder(bucket: Long) {
-        viewerBack = HOME
-        screen = Screen.Viewer
-        listed = null
-        source = null
-        stopLoad()
-        val context = getApplication<Application>()
-        viewModelScope.launch {
-            val start = Folder.newestIn(context, bucket).atSequenceStart()
-            listed = start
-            val series = start.seriesOrNull
-            val uri = series?.at(series.index)
-            if (uri == null) {
-                // ⚠️ Si resta nel viewer con l'errore invece di tornare indietro in
-                // silenzio: un tocco che riporta da dove si era partiti sembra un tocco
-                // andato a vuoto, e non dice che la cartella si è svuotata.
-                state = ViewerState.Error(R.string.folder_empty, null)
-                return@launch
-            }
-            source = uri
-            startLoad(uri)
-        }
-    }
+    // ⚠️⚠️ **QUI VIVEVA `openFolder`, che apriva una cartella dritta sulla sua foto più
+    // recente, ed è uscita nella 0.48**: dalla `0.33` la chiamava solo l'avvio
+    // automatico, e dalla `0.48` nemmeno quello, perché l'utente ha deciso che quella
+    // scorciatoia deve portare alla **griglia**. Restava una funzione senza chiamanti.
+    // ⚠️ Chi la volesse rimettere non riparta da `seriesAround`, che era la strada corta
+    // e sbagliata: la cartella è già nota, quindi ripartire dall'immagine per chiedere al
+    // MediaStore in quale cartella stia significa fare due volte la stessa domanda, la
+    // seconda passando dalle chiavi del selettore, che sono il posto in cui questo pezzo
+    // ha già sbagliato per cinque versioni. La strada buona è quella di `openGrid`:
+    // `Folder.newestIn` più `atSequenceStart`.
 
     /** L'unico posto in cui un indirizzo diventa uno stato: i tre che aprono passano di qui. */
     private suspend fun load(
