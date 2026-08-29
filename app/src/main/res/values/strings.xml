@@ -88,6 +88,11 @@
     <string name="settings_reverse_order">Change the direction of the picture sequence (by date)</string>
     <string name="settings_reverse_order_desc">Off, you leaf from the newest picture towards the older ones, the way a phone gallery goes. On, in chronological order, from the oldest to the newest.</string>
 
+    <!-- Off by default, and the second sentence is the reason why: the system notice
+         is the cost of the feature, so it belongs next to the switch rather than as a
+         surprise the first time the app opens. -->
+    <string name="settings_clipboard">Read the clipboard at startup</string>
+    <string name="settings_clipboard_desc">Opening the app from its icon, an address in the clipboard that points straight at an image opens that image. Android shows a notice every time an app reads the clipboard, so leaving this off means never seeing it.</string>
     <string name="settings_start_folder">Open a folder at startup</string>
     <string name="settings_start_folder_desc">Opening the app starts from the chosen folder instead of the opening screen.</string>
     <string name="settings_start_folder_none">No folder chosen</string>
