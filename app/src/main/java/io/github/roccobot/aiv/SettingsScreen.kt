@@ -71,6 +71,31 @@ fun SettingsScreen(
         }
         Spacer(Modifier.height(8.dp))
 
+        // ⚠️ Il tema dell'APP sta per primo e prima di quello dello sfondo, che gli somiglia
+        // ma risponde a un'altra domanda (vedi `UiTheme`): messo dopo, si leggerebbe come
+        // una variante di quello, e sono due assi indipendenti.
+        Choices(
+            label = stringResource(R.string.settings_ui_theme),
+            detail = stringResource(R.string.settings_ui_theme_desc),
+            options = UiTheme.entries,
+            selected = settings.uiTheme,
+            nameOf = {
+                stringResource(
+                    when (it) {
+                        UiTheme.SYSTEM -> R.string.settings_system
+                        // ⚠️ Stringhe PROPRIE e non quelle della tinta del fondo, che
+                        // sono al femminile perché dicono 'tinta chiara': qui il nome è
+                        // 'tema', e riusarle darebbe 'Tema: Chiara'.
+                        UiTheme.LIGHT -> R.string.settings_theme_light
+                        UiTheme.DARK -> R.string.settings_theme_dark
+                    }
+                )
+            },
+            onSelect = { onChange(settings.copy(uiTheme = it)) }
+        )
+
+        HorizontalDivider(Modifier.padding(vertical = 12.dp))
+
         Choices(
             label = stringResource(R.string.settings_background),
             detail = stringResource(R.string.settings_bg_desc),
@@ -173,6 +198,20 @@ fun SettingsScreen(
 
         HorizontalDivider(Modifier.padding(vertical = 12.dp))
 
+        // ⚠️ Le colonne stanno accanto alle voci di sfoglio e non a quelle del
+        // visualizzatore, perché riguardano la schermata delle cartelle: chi le cerca le
+        // cerca vicino a come si trovano le foto.
+        Choices(
+            label = stringResource(R.string.settings_folder_columns),
+            detail = stringResource(R.string.settings_folder_columns_desc),
+            options = FOLDER_COLUMNS.map { Columns(it) },
+            selected = Columns(settings.folderColumns),
+            nameOf = { it.n.toString() },
+            onSelect = { onChange(settings.copy(folderColumns = it.n)) }
+        )
+
+        HorizontalDivider(Modifier.padding(vertical = 12.dp))
+
         SwitchRow(
             label = stringResource(R.string.settings_reverse_order),
             detail = stringResource(R.string.settings_reverse_order_desc),
@@ -226,6 +265,17 @@ fun SettingsScreen(
 
         Spacer(Modifier.height(24.dp))
     }
+}
+
+/**
+ * Un numero di colonne, vestito da [Choice] per entrare nella fila di pastiglie.
+ *
+ * ⚠️ Esiste perché [Choices] parla di scelte con un gettone, e le colonne sono un numero:
+ * questo è l'adattatore, non un'impostazione in più. ⚠️ È una `data class` per
+ * l'uguaglianza, che è come la fila riconosce quale pastiglia è accesa.
+ */
+private data class Columns(val n: Int) : Choice {
+    override val token: String get() = n.toString()
 }
 
 /**

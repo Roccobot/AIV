@@ -8,6 +8,8 @@ import android.util.Size
 import androidx.annotation.RequiresApi
 import coil3.ImageLoader
 import coil3.PlatformContext
+import coil3.SingletonImageLoader
+import coil3.memory.MemoryCache
 import android.net.Uri as AndroidUri
 import coil3.Uri
 import coil3.asImage
@@ -105,6 +107,51 @@ object Thumbs {
      */
     fun request(context: Context, uri: AndroidUri): ImageRequest =
         ImageRequest.Builder(context).data(uri).size(PX).build()
+
+    /**
+     * Le chiavi di cache delle miniature già viste, per indirizzo.
+     *
+     * ⚠️⚠️ **ESISTE PER TOGLIERE IL FOTOGRAMMA VUOTO, che era il lampeggio rimasto**
+     * (segnalazione dell'utente, 2026-08-29: *l'immagine lampeggia ancora*, alla terza
+     * versione che ci prova). Letto sul bytecode di Coil 3.6.0 e non supposto:
+     * `AsyncImagePainter.onRemembered` chiama `launchJob`, che **lancia una coroutine**, e
+     * lo stato di partenza non disegna niente. Quindi ogni volta che un composable con una
+     * miniatura **nasce**, il suo primo fotogramma è vuoto, anche quando l'immagine è già
+     * in memoria. A tutto schermo quel fotogramma è un lampo.
+     * ⚠️⚠️ **E nasce a ogni cambio di pagina**: la vicina che scivola dentro vive in
+     * `ImageCanvas`, che al passaggio a 'sto caricando' viene smontato, e al centro nasce
+     * un'anteprima nuova con la **stessa** immagine. Un elemento muore e un altro rifà il
+     * suo lavoro da capo: è la stessa lezione della riga dei dettagli nella `0.42`, questa
+     * volta sull'immagine.
+     * ⚠️ Si tiene la **chiave** e non l'immagine, e la differenza è tutta: i pixel restano
+     * quelli di Coil, che li conta nel suo budget, mentre qui c'è una stringa. Tenere i
+     * bitmap sarebbe una seconda cache in concorrenza con la prima, cioè memoria tolta
+     * alla fotografia grande.
+     */
+    private val keys = LinkedHashMap<String, MemoryCache.Key>(16, 0.75f, true)
+
+    /** Quante chiavi si ricordano. Costano una stringa l'una: il tetto serve a non crescere. */
+    private const val KEYS = 64
+
+    /** Registra dove Coil ha messo la miniatura di [uri], appena l'ha messa. */
+    @Synchronized
+    fun note(uri: AndroidUri, key: MemoryCache.Key?) {
+        if (key == null) return
+        keys[uri.toString()] = key
+        while (keys.size > KEYS) keys.remove(keys.keys.first())
+    }
+
+    /**
+     * La miniatura di [uri] se è **già** in memoria, letta senza sospendere.
+     *
+     * ⚠️ È la lettura sincrona che riempie il primo fotogramma. Torna `null` la prima volta
+     * che si vede un'immagine, ed è giusto così: là non c'è niente da mostrare comunque.
+     */
+    @Synchronized
+    fun cached(context: Context, uri: AndroidUri): coil3.Image? {
+        val key = keys[uri.toString()] ?: return null
+        return SingletonImageLoader.get(context).memoryCache?.get(key)?.image
+    }
 }
 
 /**

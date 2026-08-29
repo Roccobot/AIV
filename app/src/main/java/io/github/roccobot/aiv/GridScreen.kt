@@ -46,6 +46,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
 import kotlinx.coroutines.flow.first
 
 /**
@@ -227,6 +228,15 @@ private fun Thumbnail(
             // ⚠️ La richiesta viene da `Thumbs` e non è costruita qui: la misura è parte
             // della chiave di cache, quindi deve essere la stessa dovunque (vedi `Thumbs.PX`).
             model = model,
+            // ⚠️⚠️ **La chiave si registra anche QUI, e non è una ripetizione della
+            // `Preview` del visualizzatore**: questo copre la PRIMA fotografia che si
+            // apre, quella toccata nella griglia, per la quale nessuna vicina ha ancora
+            // caricato niente. Senza, all'ingresso nel visualizzatore resterebbe il
+            // fotogramma vuoto che tutto il resto serve a togliere. Il perché sta accanto
+            // a `Thumbs.note`.
+            onState = { st ->
+                if (st is AsyncImagePainter.State.Success) Thumbs.note(uri, st.result.memoryCacheKey)
+            },
             // Ogni riquadro è toccabile, quindi non è decorativo: chi legge con TalkBack
             // deve sapere dove si trova nella cartella, e se è quello da cui è tornato.
             contentDescription = stringResource(

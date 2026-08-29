@@ -64,10 +64,19 @@
     <string name="settings_bg_solid">Flat colour</string>
     <string name="settings_bg_desc">The checkerboard is the only background that makes transparency visible, which on a viewer is information rather than decoration.</string>
 
+    <string name="settings_ui_theme">Theme</string>
+    <string name="settings_ui_theme_desc">Whether the app itself is light or dark. Separate from the background behind a picture, just below: a checkerboard is there to show transparency, not to match.</string>
+    <string name="settings_system">System</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+
     <string name="settings_bg_theme">Background tint</string>
     <string name="settings_auto">Automatic</string>
     <string name="settings_light">Light</string>
     <string name="settings_dark">Dark</string>
+
+    <string name="settings_folder_columns">Columns in the folder grid</string>
+    <string name="settings_folder_columns_desc">More columns fit more folders on screen and shrink each cover. At four the name under it is usually cut short.</string>
 
     <string name="settings_fit_grow">Enlarge small pictures</string>
     <string name="settings_fit_grow_desc">Off, a picture smaller than the screen is shown at its real size. On, it grows to fill the view.</string>
