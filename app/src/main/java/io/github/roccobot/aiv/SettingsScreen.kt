@@ -198,6 +198,57 @@ fun SettingsScreen(
 
         HorizontalDivider(Modifier.padding(vertical = 12.dp))
 
+        /*
+         * ⚠️⚠️ **L'ELENCO DELLE NASCOSTE È METÀ DELLA FUNZIONE, non un di più**: si
+         * nasconde con un tocco lungo, cioè da un'altra schermata e senza lasciare
+         * traccia, quindi se non ci fosse un posto in cui rivedere che cosa si è nascosto
+         * l'unico modo di riavere una cartella sarebbe indovinare che esiste
+         * quest'impostazione. Una funzione che toglie roba deve dire dove l'ha messa.
+         * ⚠️ Compare **solo quando c'è qualcosa**: una sezione sempre presente e quasi
+         * sempre vuota è rumore in una schermata che si scorre.
+         */
+        if (settings.hiddenFolders.isNotEmpty()) {
+            Text(
+                text = stringResource(R.string.settings_hidden),
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.padding(top = 12.dp)
+            )
+            Text(
+                text = stringResource(R.string.settings_hidden_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            // ⚠️ Ordinate, e non nell'ordine in cui sono state nascoste: un insieme non ha
+            // un ordine proprio, quindi senza questo le righe si rimescolerebbero da sole
+            // fra un'apertura e l'altra.
+            settings.hiddenFolders.sorted().forEach { path ->
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        // ⚠️ Il nome davanti e il percorso sotto: due cartelle possono
+                        // chiamarsi uguale, quindi il percorso è l'unica cosa che le
+                        // distingue, ma è anche lungo e illeggibile come titolo.
+                        text = path.substringAfterLast('/'),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.weight(1f)
+                    )
+                    TextButton(onClick = {
+                        onChange(settings.copy(hiddenFolders = settings.hiddenFolders - path))
+                    }) { Text(stringResource(R.string.settings_hidden_show)) }
+                }
+                Text(
+                    text = path,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            HorizontalDivider(Modifier.padding(vertical = 12.dp))
+        }
+
         // ⚠️ Le colonne stanno accanto alle voci di sfoglio e non a quelle del
         // visualizzatore, perché riguardano la schermata delle cartelle: chi le cerca le
         // cerca vicino a come si trovano le foto.

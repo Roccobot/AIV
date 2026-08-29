@@ -122,7 +122,24 @@ object Folder {
      * `atSequenceStart`). Sono due cose diverse apposta, perché la copertina risponde a
      * 'che roba c'è qui dentro' e l'apertura a 'da dove comincio a sfogliare'.
      */
-    data class Bucket(val id: Long, val name: String, val count: Int, val cover: Uri?)
+    /**
+     * Una cartella di immagini.
+     *
+     * ⚠️ **`path` è il percorso della cartella sul disco**, e serve a una cosa sola:
+     * l'esclusione (`Settings.hiddenFolders`). Non costa una colonna in più, perché il
+     * percorso della riga si legge già per ricostruire il nome quando manca; qui se ne
+     * tiene la parte fino all'ultima barra. ⚠️ Può essere `null`: un provider che non
+     * serve la colonna `DATA` esiste, e in quel caso quella cartella non si può nascondere
+     * per percorso. Dichiarato invece che nascosto dietro una stringa vuota, che si
+     * confonderebbe con la radice.
+     */
+    data class Bucket(
+        val id: Long,
+        val name: String,
+        val count: Int,
+        val cover: Uri?,
+        val path: String? = null
+    )
 
     /**
      * Le cartelle di immagini del telefono, quella toccata più di recente per prima.
@@ -174,7 +191,17 @@ object Folder {
                         // le righe arrivano dalla più recente, quindi questa è la foto
                         // più nuova della cartella. Prenderla anche dopo la sostituirebbe
                         // con la più vecchia, che è l'errore da non fare.
-                        Bucket(id, name, 1, idAt?.let { uriOf(c.getLong(it)) })
+                        Bucket(
+                            id = id,
+                            name = name,
+                            count = 1,
+                            cover = idAt?.let { uriOf(c.getLong(it)) },
+                            // La cartella che contiene la riga: il percorso del file
+                            // meno il nome del file.
+                            path = pathAt?.let { c.getString(it) }
+                                ?.substringBeforeLast('/')
+                                ?.takeIf { it.isNotBlank() }
+                        )
                     } else {
                         seen.copy(count = seen.count + 1)
                     }

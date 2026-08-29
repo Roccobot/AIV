@@ -123,9 +123,16 @@
     <string name="hub_pick">Open a picture</string>
     <string name="hub_settings">Settings</string>
     <string name="url_open">Open</string>
-    <string name="url_cancel">Cancel</string>
     <string name="url_recent">Opened before</string>
     <string name="folder_empty">This folder holds no pictures any more.</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="hide_folder_title">Hide %1$s?</string>
+    <string name="hide_folder_desc">It stops showing up among the folders to leaf through. Nothing is deleted: the pictures stay where they are, and you can bring the folder back from the settings.</string>
+    <string name="hide_folder_do">Hide</string>
+    <string name="settings_hidden">Hidden folders</string>
+    <string name="settings_hidden_desc">Long press a folder to hide it. These no longer show up in the list, but they are untouched on the phone.</string>
+    <string name="settings_hidden_show">Show</string>
 
     <string name="identity_repo">Open the AIV repository on GitHub</string>
     <!-- ── The grid of one folder ── -->
