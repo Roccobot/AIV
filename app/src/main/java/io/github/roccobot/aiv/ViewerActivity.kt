@@ -216,6 +216,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             SettingsStore.flow(context).collect { fresh ->
                 settings = fresh
+                // ⚠️ Gli appunti PRIMA della cartella d'avvio, o la seconda coprirebbe
+                // la fotografia che i primi hanno appena aperto.
+                readClipboard()
                 openStartFolder(fresh)
             }
         }
@@ -267,8 +270,35 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * aspetterebbe un server. Se poi l'indirizzo non è un'immagine lo dice il
      * visualizzatore, che dalla 0.38 ha il suo errore e il suo Riprova.
      */
-    fun readClipboard() {
-        if (clipboardTried || !fromIcon) return
+    /**
+     * Se la finestra ha il fuoco adesso.
+     *
+     * ⚠️⚠️ **SERVE PERCHÉ LE DUE CONDIZIONI ARRIVANO DA DUE PARTI E IN ORDINE IGNOTO**: il
+     * fuoco è un evento di sistema, le impostazioni sono una coroutine. Guardando negli
+     * appunti solo al fuoco, chi avesse le impostazioni ancora in volo non li guarderebbe
+     * mai; guardandoli solo all'arrivo delle impostazioni, chi le ha già lette prima del
+     * fuoco non li guarderebbe mai. Segnata la prima, la seconda può chiamare.
+     */
+    private var focused = false
+
+    /** L'ha chiamata l'activity: la finestra ha preso o perso il fuoco. */
+    fun windowFocus(hasFocus: Boolean) {
+        focused = hasFocus
+        if (hasFocus) readClipboard()
+    }
+
+    private fun readClipboard() {
+        if (clipboardTried || !fromIcon || !focused) return
+        // ⚠️⚠️ **SPENTA FINCHÉ NON LA SI ACCENDE, e il controllo sta PRIMA della
+        // lettura**: è l'unico punto in cui metterlo che eviti davvero l'avviso di
+        // sistema, perché quell'avviso lo fa scattare la lettura e non l'uso di quello
+        // che si è letto.
+        val fresh = settings ?: return
+        if (!fresh.clipboardStart) {
+            // Detto di no: non si guarda, e non si riproverà più in questa esecuzione.
+            clipboardTried = true
+            return
+        }
         clipboardTried = true
         val context = getApplication<Application>()
         val uri = ImageActions.urlInClipboard(context) ?: return
@@ -670,7 +700,7 @@ class ViewerActivity : ComponentActivity() {
      */
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) model.readClipboard()
+        model.windowFocus(hasFocus)
     }
 
     /**

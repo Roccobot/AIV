@@ -130,6 +130,18 @@ data class Settings(
      */
     val folderView: FolderView = FolderView.GRID,
     /**
+     * Se all'avvio si guarda negli appunti.
+     *
+     * ⚠️⚠️ **SPENTA DI DEFAULT, per volontà dell'utente dopo averla provata** (2026-08-29:
+     * *niente avviso, opzione spenta di default*). Il motivo è il prezzo che si paga: da
+     * Android 12 il sistema **annuncia** ogni lettura degli appunti, quindi una lettura a
+     * ogni avvio è un avvisino a ogni avvio, anche quando negli appunti non c'è niente di
+     * utile. Accesa, l'app fa quello che era stato chiesto; spenta, l'avviso non compare
+     * mai. La scelta è di chi la usa e non nostra, ed è la ragione per cui è
+     * un'impostazione e non un comportamento.
+     */
+    val clipboardStart: Boolean = false,
+    /**
      * La cartella da aprire all'avvio, e `null` quando non se n'è scelta nessuna.
      *
      * ⚠️ **Due campi per una cosa sola, e il secondo non è ridondante**: l'id è quello
@@ -176,6 +188,7 @@ object SettingsStore {
     private val START_FOLDER_NAME = stringPreferencesKey("start-folder-name")
     private val OPEN_AT_START = booleanPreferencesKey("open-at-start")
     private val FOLDER_VIEW = stringPreferencesKey("folder-view")
+    private val CLIPBOARD_START = booleanPreferencesKey("clipboard-start")
 
     /** Bounds of the only numeric setting, so a stored value out of range cannot reach the viewer. */
     const val ZOOM_MAX_MIN = 2f
@@ -195,6 +208,7 @@ object SettingsStore {
             startFolderName = p[START_FOLDER_NAME] ?: "",
             openAtStart = p[OPEN_AT_START] ?: false,
             folderView = FolderView.entries.byToken(p[FOLDER_VIEW], FolderView.GRID),
+            clipboardStart = p[CLIPBOARD_START] ?: false,
         )
     }
 
@@ -215,6 +229,7 @@ object SettingsStore {
             p[START_FOLDER_NAME] = settings.startFolderName
             p[OPEN_AT_START] = settings.openAtStart
             p[FOLDER_VIEW] = settings.folderView.token
+            p[CLIPBOARD_START] = settings.clipboardStart
         }
     }
 }

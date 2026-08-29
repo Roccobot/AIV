@@ -199,6 +199,15 @@ fun SettingsScreen(
         HorizontalDivider(Modifier.padding(vertical = 12.dp))
 
         SwitchRow(
+            label = stringResource(R.string.settings_clipboard),
+            detail = stringResource(R.string.settings_clipboard_desc),
+            checked = settings.clipboardStart,
+            onChange = { onChange(settings.copy(clipboardStart = it)) }
+        )
+
+        HorizontalDivider(Modifier.padding(vertical = 12.dp))
+
+        SwitchRow(
             label = stringResource(R.string.settings_start_folder),
             detail = stringResource(R.string.settings_start_folder_desc),
             checked = settings.openAtStart,

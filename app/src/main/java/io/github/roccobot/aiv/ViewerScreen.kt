@@ -43,6 +43,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -182,6 +183,40 @@ fun ViewerScreen(
     onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    /**
+     * Lo stato della riga dei dettagli, che **vive più a lungo di ogni fotografia**.
+     *
+     * ⚠️⚠️ **È QUI IL RIMEDIO AL LAMPEGGIO, e il difetto era di STRUTTURA e non di
+     * animazione** (segnalazione dell'utente, 2026-08-29: *all'apparizione le info
+     * lampeggiano ancora*, dopo che la `0.40` aveva già provato con la dissolvenza). La
+     * riga stava dentro `ImageCanvas`, che esiste solo nello stato `Ready`: a ogni
+     * cambio di fotografia veniva **distrutta e ricostruita**, con in mezzo il tempo del
+     * caricamento. Qualunque animazione si metta su una cosa che nasce dal nulla è
+     * comunque una cosa che nasce dal nulla, ed è per questo che sfumare l'entrata non
+     * era bastato.
+     * ⚠️ Adesso la riga è **un solo elemento** per tutta la vita del visualizzatore: non
+     * entra e non esce, cambia **testo**. Fra una fotografia e l'altra tiene i dati di
+     * quella che si è appena lasciata, così non c'è mai un istante vuoto, e quando la
+     * nuova è pronta il testo si dissolve nell'altro.
+     */
+    val info = remember { InfoBar() }
+
+    /**
+     * L'ultima fotografia che si è vista, tenuta **anche mentre la prossima si carica**.
+     *
+     * ⚠️ È la ragione per cui la riga non resta mai senza niente da dire. Il prezzo,
+     * dichiarato: per il tempo del caricamento quei dati sono quelli di **prima**. Su una
+     * strisciata fra foto del telefono sono decimi di secondo; su un'immagine grossa presa
+     * dalla rete si vedono più a lungo, ed è il baratto che toglie il lampeggio.
+     */
+    var shown by remember { mutableStateOf<LoadedImage?>(null) }
+    LaunchedEffect(state) { (state as? ViewerState.Ready)?.let { shown = it.image } }
+
+    // ⚠️ Ricordato SENZA chiavi, e non per fotografia: nasce spento una volta sola,
+    // quindi la primissima riga entra in dissolvenza e da lì in poi non si ricrea mai.
+    val barState = remember { MutableTransitionState(false) }
+    barState.targetState = info.visible && shown != null
+
     Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         when (state) {
             is ViewerState.Loading -> {
@@ -196,9 +231,52 @@ fun ViewerScreen(
                 onRetry = onRetry.takeIf { source != null },
                 modifier = Modifier.align(Alignment.Center)
             )
-            is ViewerState.Ready -> ImageCanvas(state.image, settings, source, folder, onStep, onSettings)
+            is ViewerState.Ready ->
+                ImageCanvas(state.image, settings, source, folder, info, onStep, onSettings)
+        }
+
+        AnimatedVisibility(
+            visibleState = barState,
+            // Entra ed esce sfumando e basta: le due predefinite cambiano anche la
+            // misura, e una riga che si apre a soffietto in fondo allo schermo sposta il
+            // contatore, che è la cosa che si guarda mentre si sfoglia.
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier.align(
+                if (settings.infoPosition == InfoPosition.TOP) Alignment.TopCenter
+                else Alignment.BottomCenter
+            )
+        ) {
+            // ⚠️ L'ultima fotografia vista resta anche durante l'uscita: senza, la riga
+            // si svuoterebbe mentre sta ancora sfumando via.
+            shown?.let { picture ->
+                DetailsPanel(
+                    image = picture,
+                    percent = info.percent,
+                    // ⚠️⚠️ **Il silenzio non basta a dire perché**, ed è il difetto che ha
+                    // fatto perdere DUE versioni sulla strisciata: senza serie il gesto non
+                    // fa niente, e 'non fa niente' è identico a un gesto guasto. Qui
+                    // l'esito arriva col suo motivo e la riga lo stampa.
+                    // ⚠️ Solo per una foto di questo telefono: su un'immagine del web o di
+                    // una chat 'non è nella galleria' è la normalità, non una notizia.
+                    folder = folder.takeIf { source?.scheme?.lowercase() == "content" }
+                )
+            }
         }
     }
+}
+
+/**
+ * Quello che la riga dei dettagli deve sapere, e che **non muore con la fotografia**.
+ *
+ * ⚠️ Due soli campi, e nessuno dei due è un dato della fotografia: sono la sua
+ * **visibilità**, che l'utente comanda dal menu, e la **percentuale di zoom**, che cambia
+ * sotto le dita. Tutto il resto la riga lo prende dall'immagine che le viene passata.
+ */
+@Stable
+private class InfoBar {
+    var visible by mutableStateOf(true)
+    var percent by mutableFloatStateOf(1f)
 }
 
 /**
@@ -396,6 +474,7 @@ private fun ImageCanvas(
     settings: Settings,
     source: Uri?,
     folder: Folder.Lookup?,
+    info: InfoBar,
     onStep: (Int) -> Unit,
     onSettings: () -> Unit
 ) {
@@ -453,7 +532,21 @@ private fun ImageCanvas(
 
         var scale by remember(image, settings) { mutableFloatStateOf(restScale) }
         var offset by remember(image, settings) { mutableStateOf(Offset.Zero) }
-        var panelVisible by remember(image, settings) { mutableStateOf(settings.infoVisible) }
+
+        // ⚠️ La riga torna a mostrarsi a ogni fotografia nuova, come faceva quando viveva
+        // qui dentro: spegnerla è una decisione su **questa** immagine, non una
+        // preferenza, che è quello che dice l'impostazione.
+        LaunchedEffect(image, settings) { info.visible = settings.infoVisible }
+
+        /*
+         * ⚠️ La percentuale esce di qui con un flusso e non con una scrittura durante la
+         * composizione: `scale` cambia a ogni fotogramma di una pinza, e scriverne il
+         * derivato mentre si compone è il modo di farsi rifare la composizione da capo
+         * dentro sé stessa. Così invece si aggiorna solo il testo che la mostra.
+         */
+        LaunchedEffect(oneToOne) {
+            snapshotFlow { scale }.collect { info.percent = it / oneToOne }
+        }
         var menuAt by remember(image) { mutableStateOf<Offset?>(null) }
         val scope = rememberCoroutineScope()
         val context = LocalContext.current
@@ -795,58 +888,12 @@ private fun ImageCanvas(
                     onZoom = { animateTo(it) },
                     oneToOne = oneToOne,
                     restScale = restScale,
-                    onToggleDetails = { panelVisible = !panelVisible },
+                    onToggleDetails = { info.visible = !info.visible },
                     onSettings = onSettings
                 )
             }
         }
 
-        /*
-         * ⚠️⚠️ **LA RIGA DEI DETTAGLI SE NE VA INSIEME ALLA FOTOGRAFIA, e prima
-         * SPARIVA** (segnalazione dell'utente: *tra un'immagine e l'altra le info
-         * scompaiono per un istante*). Restava ferma al suo posto mentre la figura
-         * scorreva via, e poi si spegneva di colpo nell'istante del cambio, perché
-         * `ImageCanvas` esce dalla composizione mentre la prossima si carica: un
-         * lampo di niente in fondo allo schermo, che è quello che si vedeva.
-         * ⚠️ Adesso porta lo stesso `travel` della figura, quindi al momento del cambio
-         * è **già fuori schermo** e non c'è nessun istante in cui sparisce sotto gli
-         * occhi. Letto dentro `graphicsLayer`, cioè senza ricomporre niente a ogni
-         * fotogramma del trascinamento.
-         */
-        AnimatedVisibility(
-            // ⚠️⚠️ **Uno stato che NASCE spento**, e non il booleano nudo: con
-            // `visible = panelVisible` l'apparizione al primo giro di composizione non
-            // è una transizione (lo stato iniziale coincide col voluto), quindi la
-            // riga della fotografia nuova comparirebbe di scatto. Con lo stato
-            // esplicito il primo giro è un passaggio da spento ad acceso, cioè la
-            // dissolvenza in entrata. ⚠️ La chiave è `image`: una riga nuova per ogni
-            // fotografia, o la dissolvenza si vedrebbe una volta sola.
-            visibleState = remember(image, settings) { MutableTransitionState(false) }
-                .apply { targetState = panelVisible },
-            // Entra ed esce sfumando e basta: le due predefinite cambiano anche la
-            // misura, e una riga che si apre a soffietto in fondo allo schermo sposta
-            // il contatore, che è la cosa che si guarda mentre si sfoglia.
-            enter = fadeIn(),
-            exit = fadeOut(),
-            modifier = Modifier
-                .align(
-                    if (settings.infoPosition == InfoPosition.TOP) Alignment.TopCenter
-                    else Alignment.BottomCenter
-                )
-                .graphicsLayer { translationX = travel }
-        ) {
-            DetailsPanel(
-                image = image,
-                percent = scale / oneToOne,
-                // ⚠️⚠️ **Il silenzio non basta a dire perché**, ed è il difetto che
-                // ha fatto perdere DUE versioni sulla strisciata: senza serie il
-                // gesto non fa niente, e 'non fa niente' è identico a un gesto
-                // guasto. Qui l'esito arriva col suo motivo e la riga lo stampa.
-                // ⚠️ Solo per una foto di questo telefono: su un'immagine del web o
-                // di una chat 'non è nella galleria' è la normalità, non una notizia.
-                folder = folder.takeIf { source?.scheme?.lowercase() == "content" }
-            )
-        }
     }
 }
 
