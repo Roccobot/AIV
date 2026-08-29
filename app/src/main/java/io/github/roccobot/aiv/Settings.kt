@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -195,6 +196,23 @@ data class Settings(
     val uiTheme: UiTheme = UiTheme.SYSTEM,
     /** Quante colonne ha la griglia delle cartelle. Vedi [FOLDER_COLUMNS]. */
     val folderColumns: Int = 2,
+    /**
+     * I percorsi delle cartelle che non devono comparire fra quelle da sfogliare.
+     *
+     * ⚠️⚠️ **PERCORSI E NON IDENTIFICATIVI, ed è la scelta che regge la funzione**
+     * (richiesta dell'utente, 2026-08-29: *percorsi che non devono apparire*). L'id di
+     * una cartella nel MediaStore **non è stabile**: si ricalcola dal percorso, quindi
+     * cambia quando la cartella viene rinominata o spostata, e su un archivio
+     * riscansionato può cambiare da solo. Un elenco di id smetterebbe di nascondere
+     * proprio le cartelle che qualcuno ha toccato, cioè in silenzio.
+     * ⚠️ **Nasconde anche quello che sta SOTTO**: escludere `/storage/emulated/0/Foo`
+     * toglie anche `Foo/Bar`, perché chi esclude un percorso esclude un ramo. Il
+     * confronto è sul separatore, o `/Foo2` verrebbe nascosto insieme a `/Foo`.
+     * ⚠️ **Nascondere non cancella niente**: le foto restano dove sono, e la cartella si
+     * rivede dalle impostazioni. Vale la pena dirlo perché una funzione che si chiama
+     * 'escludi' accanto a una che cancellerà davvero è il posto giusto per un equivoco.
+     */
+    val hiddenFolders: Set<String> = emptySet(),
 )
 
 /**
@@ -226,6 +244,7 @@ object SettingsStore {
     private val CLIPBOARD_START = booleanPreferencesKey("clipboard-start")
     private val UI_THEME = stringPreferencesKey("ui-theme")
     private val FOLDER_COLUMNS_KEY = intPreferencesKey("folder-columns")
+    private val HIDDEN_FOLDERS = stringSetPreferencesKey("hidden-folders")
 
     /** Bounds of the only numeric setting, so a stored value out of range cannot reach the viewer. */
     const val ZOOM_MAX_MIN = 2f
@@ -251,6 +270,7 @@ object SettingsStore {
             // nell'archivio (una versione futura, un file modificato a mano) darebbe una
             // griglia a zero colonne, cioè una schermata vuota senza nessun errore.
             folderColumns = p[FOLDER_COLUMNS_KEY]?.takeIf { it in FOLDER_COLUMNS } ?: 2,
+            hiddenFolders = p[HIDDEN_FOLDERS] ?: emptySet(),
         )
     }
 
@@ -274,6 +294,7 @@ object SettingsStore {
             p[CLIPBOARD_START] = settings.clipboardStart
             p[UI_THEME] = settings.uiTheme.token
             p[FOLDER_COLUMNS_KEY] = settings.folderColumns
+            p[HIDDEN_FOLDERS] = settings.hiddenFolders
         }
     }
 }

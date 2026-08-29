@@ -6,6 +6,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -30,6 +31,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -40,6 +42,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -93,6 +96,9 @@ fun FolderScreen(
     view: FolderView,
     /** Quante colonne mostrano le copertine. Vedi `FOLDER_COLUMNS` in `Settings.kt`. */
     columns: Int,
+    /** I percorsi da non mostrare. Vedi `Settings.hiddenFolders`. */
+    hidden: Set<String>,
+    onHide: (Folder.Bucket) -> Unit,
     recents: List<RecentImage>,
     onPick: (Folder.Bucket) -> Unit,
     onOpen: (Uri) -> Unit,
@@ -106,14 +112,31 @@ fun FolderScreen(
     var granted by remember { mutableStateOf(Folder.granted(context)) }
     var folders by remember { mutableStateOf<List<Folder.Bucket>?>(null) }
 
+    /**
+     * La cartella che si sta per nascondere, e `null` quando non se ne sta nascondendo
+     * nessuna.
+     *
+     * ⚠️⚠️ **IL TOCCO LUNGO CHIEDE, NON FA**, e non è pignoleria: su questa schermata il
+     * tocco lungo non esisteva, quindi il primo che capita è quasi sempre un tocco
+     * normale venuto male. Far sparire una cartella per sbaglio, senza dire dove è
+     * finita, è il modo di far credere che l'app abbia perso delle foto.
+     */
+    var hiding by remember { mutableStateOf<Folder.Bucket?>(null) }
+
     // ⚠️ Al ritorno dalla pagina di sistema non arriva nessun esito, perché non è un
     // dialogo: si RICHIEDE allo stato delle cose, come fa il viewer.
     val fromSettings = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { granted = Folder.granted(context) }
 
-    LaunchedEffect(granted) {
-        folders = if (granted) Folder.buckets(context) else emptyList()
+    // ⚠️ Il filtro sta QUI e non dentro `Folder.buckets`, che resta un elenco puro: le
+    // impostazioni sono una faccenda della schermata, e una funzione che legge il
+    // MediaStore non deve sapere che cosa l'utente ha deciso di non guardare.
+    // ⚠️ La chiave comprende `hidden`, o nascondere una cartella non si vedrebbe finché
+    // non si esce e si rientra.
+    LaunchedEffect(granted, hidden) {
+        folders = if (granted) Folder.buckets(context).filterNot { it.isHidden(hidden) }
+        else emptyList()
     }
 
     // La veste 'casa' e quella 'scegli la cartella d'avvio' si distinguono da qui in giù:
@@ -229,8 +252,8 @@ fun FolderScreen(
                     modifier = Modifier.padding(top = 24.dp)
                 )
 
-                view == FolderView.GRID -> Covers(folders!!, columns, onPick)
-                else -> Rows(folders!!, onPick)
+                view == FolderView.GRID -> Covers(folders!!, columns, onPick) { hiding = it }
+                else -> Rows(folders!!, onPick) { hiding = it }
             }
         }
 
@@ -249,6 +272,44 @@ fun FolderScreen(
             )
         }
     }
+
+    hiding?.let { bucket ->
+        AlertDialog(
+            onDismissRequest = { hiding = null },
+            title = { Text(stringResource(R.string.hide_folder_title, bucket.name)) },
+            // ⚠️ Il testo dice DOVE va a finire, e dirlo qui è metà della funzione: una
+            // cartella che sparisce senza che si sappia come riaverla è indistinguibile
+            // da una cartella persa.
+            text = { Text(stringResource(R.string.hide_folder_desc)) },
+            confirmButton = {
+                TextButton(onClick = { onHide(bucket); hiding = null }) {
+                    Text(stringResource(R.string.hide_folder_do))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { hiding = null }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+}
+
+/**
+ * Se questa cartella è fra quelle che l'utente ha escluso.
+ *
+ * ⚠️⚠️ **IL CONFRONTO È SUL SEPARATORE, e senza di lui la funzione nasconderebbe cose che
+ * nessuno ha escluso**: con un `startsWith` nudo, escludere `.../Foo` toglierebbe anche
+ * `.../Foo2` e `.../Foobar`, che sono cartelle diverse con un nome che comincia uguale.
+ * Chiedendo la barra dopo, si nasconde `Foo` e tutto quello che sta **dentro** `Foo`, che
+ * è quello che vuol dire escludere un percorso.
+ * ⚠️ **Una cartella senza percorso non si nasconde mai**: il provider può non servire la
+ * colonna, e allora non c'è niente da confrontare. Meglio mostrarne una di troppo che
+ * nasconderne una a caso.
+ */
+private fun Folder.Bucket.isHidden(hidden: Set<String>): Boolean {
+    val own = path ?: return false
+    return hidden.any { own == it || own.startsWith("$it/") }
 }
 
 /**
@@ -406,7 +467,12 @@ private fun Hub(
 
 /** Le cartelle come copertine. */
 @Composable
-private fun Covers(folders: List<Folder.Bucket>, columns: Int, onPick: (Folder.Bucket) -> Unit) {
+private fun Covers(
+    folders: List<Folder.Bucket>,
+    columns: Int,
+    onPick: (Folder.Bucket) -> Unit,
+    onHide: (Folder.Bucket) -> Unit
+) {
     LazyVerticalGrid(
         // ⚠️⚠️ **FISSO E NON PIÙ ADATTIVO dalla 0.45**, perché il numero adesso lo sceglie
         // l'utente (richiesta del 2026-08-29, dopo aver confermato che le copertine
@@ -429,7 +495,13 @@ private fun Covers(folders: List<Folder.Bucket>, columns: Int, onPick: (Folder.B
             // Una piastrella sola per tutte, così Compose riusa la composizione di quelle
             // che escono invece di ricostruirla mentre si scorre.
             contentType = { FOLDER_KIND }
-        ) { bucket -> FolderCard(bucket = bucket, onClick = { onPick(bucket) }) }
+        ) { bucket ->
+            FolderCard(
+                bucket = bucket,
+                onClick = { onPick(bucket) },
+                onLongClick = { onHide(bucket) }
+            )
+        }
     }
 }
 
@@ -442,7 +514,11 @@ private fun Covers(folders: List<Folder.Bucket>, columns: Int, onPick: (Folder.B
  * vedere che cosa c'è dentro.
  */
 @Composable
-private fun Rows(folders: List<Folder.Bucket>, onPick: (Folder.Bucket) -> Unit) {
+private fun Rows(
+    folders: List<Folder.Bucket>,
+    onPick: (Folder.Bucket) -> Unit,
+    onHide: (Folder.Bucket) -> Unit
+) {
     LazyColumn(
         contentPadding = PaddingValues(bottom = BELOW_HUB),
         modifier = Modifier.fillMaxWidth()
@@ -451,7 +527,10 @@ private fun Rows(folders: List<Folder.Bucket>, onPick: (Folder.Bucket) -> Unit) 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onPick(bucket) }
+                    .combinedClickable(
+                        onClick = { onPick(bucket) },
+                        onLongClick = { onHide(bucket) }
+                    )
                     .padding(vertical = 8.dp, horizontal = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(14.dp)
@@ -503,10 +582,16 @@ private fun Rows(folders: List<Folder.Bucket>, onPick: (Folder.Bucket) -> Unit) 
  * toccabile e va detto che è una cartella, o sembra una piastrella rotta.
  */
 @Composable
-private fun FolderCard(bucket: Folder.Bucket, onClick: () -> Unit) {
+private fun FolderCard(
+    bucket: Folder.Bucket,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
+) {
     val shape = RoundedCornerShape(FOLDER_CORNER)
     Column(
-        modifier = Modifier.clickable(onClick = onClick),
+        // ⚠️ Il tocco lungo nasconde, ed è lo stesso gesto in tutte e due le viste: chi
+        // impara a nascondere dalle copertine non deve reimpararlo nell'elenco.
+        modifier = Modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         Box(

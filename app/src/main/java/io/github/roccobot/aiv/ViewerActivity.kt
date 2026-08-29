@@ -737,6 +737,17 @@ private fun AivApp(model: ViewerViewModel) {
             FolderScreen(
                 view = settings.folderView,
                 columns = settings.folderColumns,
+                hidden = settings.hiddenFolders,
+                // ⚠️ Una cartella senza percorso non si può nascondere, e allora non si
+                // finge: il dialogo l'ha già chiesto, quindi qui si scarta in silenzio
+                // invece di scrivere una chiave vuota che nasconderebbe la radice.
+                onHide = { bucket ->
+                    bucket.path?.let {
+                        model.updateSettings(
+                            settings.copy(hiddenFolders = settings.hiddenFolders + it)
+                        )
+                    }
+                },
                 recents = model.recents,
                 onPick = { model.folderPicked(it, screen.forStart) },
                 onOpen = { model.open(it) },
