@@ -95,17 +95,30 @@ fun Identity(
  * Quanto si ingrandisce il livello di primo piano perché questa anteprima mostri la
  * stessa cosa che mostra il launcher.
  *
- * ⚠️⚠️ **I due fattori sono uno per ciascuna cosa che il launcher fa, e non sono
- * intercambiabili.** `108 / 72`, cioè esattamente 1.5, perché di un'icona adattiva si
- * vedono **solo i 72dp centrali** della tela da 108: l'anello esterno esiste per la
- * maschera e la parallasse del launcher, e chi rende la tela intera sta mostrando un
- * margine che sul telefono nessuno vede. Il **1.3** è l'altra metà di una coppia:
- * HyperOS ingrandisce il primo piano di circa un terzo, quindi `ic_launcher_foreground`
- * porta un glifo rimpicciolito di 1.3 per venire giusto sul telefono, e qui si moltiplica
- * per lo stesso 1.3 per rivedere il disegno com'è. Chi ne cambia uno deve cambiare anche
- * l'altro.
+ * ⚠️ **`108 / 72`, cioè esattamente 1.5, ed è pura geometria**: di un'icona adattiva si
+ * vedono **solo i 72dp centrali** della tela da 108, perché l'anello esterno esiste per la
+ * maschera e la parallasse. Chi rende la tela intera mostra un margine che sul telefono
+ * nessuno vede.
+ *
+ * ⚠️⚠️ **C'ERA ANCHE UN 1.3, ED ERA SBAGLIATO: MISURATO SULLO SCREENSHOT DEL LAUNCHER IL
+ * 2026-08-29 e non più supposto.** Si diceva che HyperOS ingrandisse il primo piano di
+ * circa un terzo, quindi questa costante valeva `1.5 * 1.3 = 1.95` e l'anteprima veniva
+ * col glifo un quarto più grande di quello vero (segnalazione dell'utente: *è rimasta
+ * quella sbagliata, voglio che entrambe appaiano come nel launcher*).
+ * ⚠️ **I numeri, perché nessuno debba rifare la misura**: sull'icona del launcher il
+ * glifo occupa **0.4398** del lato della maschera in larghezza e **0.5759** in altezza.
+ * I 72dp centrali senza alcun ingrandimento ne prevedono **0.4436** e **0.5819**, cioè
+ * uno scarto dell'**1%**; l'ipotesi del 1.3 ne prevede 0.5767 e 0.7565, cioè uno scarto
+ * del **24%**. Non è un dubbio fra due letture vicine: una delle due è fuori di un
+ * quarto.
+ * ⚠️⚠️ **MA IL DRAWABLE NON SI TOCCA, e la distinzione è tutta**: quel `1.3` vive anche
+ * nella scala del disegno (`ic_launcher_foreground.xml`), dove significa un glifo più
+ * piccolo del massimo teorico. Là è **il risultato che l'utente ha dichiarato perfetto**,
+ * quindi resta; qui era un divario da colmare che non esiste, quindi esce. Chi
+ * 'uniformasse' i due posti rimpicciolirebbe l'icona sul telefono per far tornare un
+ * conto.
  */
-private const val LAUNCHER_ZOOM = 1.5f * 1.3f
+private const val LAUNCHER_ZOOM = 1.5f
 
 /** Il repository dell'app, dove porta il tocco sull'icona. */
 private const val REPO = "https://github.com/Roccobot/AIV"
