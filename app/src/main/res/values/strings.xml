@@ -117,8 +117,8 @@
     <string name="hub_open">More</string>
     <!-- Each of these names the view you would GET, not the one you are in: a menu
          entry is a thing you ask for. -->
-    <string name="hub_view_list">See them as a list</string>
-    <string name="hub_view_grid">See them as covers</string>
+    <string name="hub_view_list">List view</string>
+    <string name="hub_view_grid">Grid view</string>
     <string name="hub_url">Open an address</string>
     <string name="hub_pick">Open a picture</string>
     <string name="hub_settings">Settings</string>

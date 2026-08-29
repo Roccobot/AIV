@@ -99,8 +99,8 @@
     <string name="folders_none">Nessuna cartella contiene immagini.</string>
     <!-- ── Il tastino quadrato in basso a destra ── -->
     <string name="hub_open">Altro</string>
-    <string name="hub_view_list">Vedile come elenco</string>
-    <string name="hub_view_grid">Vedile come copertine</string>
+    <string name="hub_view_list">Visualizzazione lista</string>
+    <string name="hub_view_grid">Visualizzazione griglia</string>
     <string name="hub_url">Apri un indirizzo</string>
     <string name="hub_pick">Apri un\'immagine</string>
     <string name="hub_settings">Impostazioni</string>
