@@ -37,7 +37,6 @@
     <string name="menu_copy_image">Copy image</string>
     <string name="menu_share">Share</string>
     <string name="menu_save">Save</string>
-    <string name="menu_settings">Settings</string>
     <string name="menu_details">Details</string>
 
     <string name="toast_image_copied">Image copied</string>

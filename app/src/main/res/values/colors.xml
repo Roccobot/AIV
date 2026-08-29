@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="window_background">#F4F6F7</color>
+    <color name="window_background">#FAF8EF</color>
     <!-- Icona del launcher, versione CHIARA. Coppia scelta dall'utente.
          Entrambi i livelli cambiano fra i due temi, glifo compreso: ribaltare il
          solo sfondo lascerebbe un glifo chiaro su fondo chiaro in uno dei due.

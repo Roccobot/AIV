@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="window_background">#101619</color>
+    <color name="window_background">#151B1A</color>
     <!-- Icona del launcher, versione SCURA. Coppia scelta dall'utente.
          Contrasto misurato 3.25, appena sopra il 3:1 delle grafiche non
          testuali; la chiara si ferma a 2.42, e il numero sta scritto là.

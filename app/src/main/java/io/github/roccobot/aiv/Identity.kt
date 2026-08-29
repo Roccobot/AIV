@@ -65,14 +65,15 @@ fun Identity(
             textAlign = TextAlign.Center
         )
         if (!link) return@Column
+        // ⚠️ Non `primary`: l'accento come TESTO non si legge, e la ragione col numero
+        // sta accanto a `LINK_LIGHT` in `Theme.kt`. Si legge QUI e non dentro il
+        // costruttore del testo, che non è un contesto componibile.
+        val ink = accentInk()
         Text(
             text = buildAnnotatedString {
                 withLink(LinkAnnotation.Url("https://roccobot.me")) {
                     withStyle(
-                        SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
-                            textDecoration = TextDecoration.Underline
-                        )
+                        SpanStyle(color = ink, textDecoration = TextDecoration.Underline)
                     ) { append("roccobot.me") }
                 }
             },

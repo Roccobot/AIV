@@ -60,6 +60,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -78,7 +79,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import coil3.SingletonImageLoader
-import coil3.compose.AsyncImage
+import coil3.compose.rememberAsyncImagePainter
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -217,7 +218,34 @@ fun ViewerScreen(
     val barState = remember { MutableTransitionState(false) }
     barState.targetState = info.visible && shown != null
 
-    Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    /*
+     * ⚠️⚠️ **LO SFONDO SI DIPINGE QUI, e prima viveva dentro `ImageCanvas`: era LUI il
+     * lampeggio che restava** (segnalazione dell'utente, 2026-08-29: *non ancora risolto,
+     * anzi adesso lampeggia anche l'immagine*). La scacchiera esisteva solo nello stato
+     * `Ready`, quindi per tutto il tempo del caricamento il fondo diventava il colore
+     * liscio del tema e poi tornava indietro: un cambio di colore a tutto schermo a ogni
+     * cambio di fotografia.
+     * ⚠️⚠️ **E spiega perché la `0.42` sembrava aver peggiorato le cose**: da quando la
+     * riga dei dettagli non sparisce più, il suo fondo semitrasparente **mostra** quel
+     * cambio invece di andarsene prima che accada. Un difetto solo, che si vedeva in due
+     * posti e sembrava due difetti.
+     * ⚠️ La scacchiera è anche il motivo per cui non basta un colore di fondo sul `Box`:
+     * dipinta qui, resta identica in tutti e tre gli stati, che è l'unica definizione
+     * utile di 'non lampeggia'.
+     */
+    val density = LocalDensity.current
+    val checkerPx = with(density) { CHECKER.toPx() }
+    val lightGreys = when (settings.bgTheme) {
+        BgTheme.LIGHT -> true
+        BgTheme.DARK -> false
+        BgTheme.AUTO -> MaterialTheme.colorScheme.background.luminanceIsLight()
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .drawBehind { drawBackground(size, checkerPx, lightGreys, settings.bgType) }
+    ) {
         when (state) {
             is ViewerState.Loading -> {
                 PreviewThumb(source, settings)
@@ -232,7 +260,7 @@ fun ViewerScreen(
                 modifier = Modifier.align(Alignment.Center)
             )
             is ViewerState.Ready ->
-                ImageCanvas(state.image, settings, source, folder, info, onStep, onSettings)
+                ImageCanvas(state.image, settings, source, folder, info, onStep)
         }
 
         AnimatedVisibility(
@@ -287,10 +315,6 @@ private class InfoBar {
  * all'altra lo paga a ogni passo; questa è la stessa miniatura che la griglia ha già
  * decodificato, quindi nella maggior parte dei casi è già in memoria e compare
  * nell'istante del gesto. Quando la fotografia è pronta la sostituisce, intera.
- * ⚠️ La scala segue l'impostazione *ingrandisci le immagini piccole*, e non è un
- * dettaglio: con quella spenta una figura più piccola dello schermo resta alla sua
- * misura, quindi una miniatura sparata a pieno schermo salterebbe di posizione nel
- * momento in cui la vera arriva. `Inside` è esattamente 'adatta ma non ingrandire'.
  * ⚠️ Solo per gli indirizzi LOCALI: per un URL remoto non c'è nessuna miniatura da
  * chiedere al telefono, e questo caricatore non parla con la rete apposta.
  */
@@ -298,16 +322,47 @@ private class InfoBar {
 private fun PreviewThumb(source: Uri?, settings: Settings) {
     val local = source?.scheme?.lowercase() == "content" || source?.scheme?.lowercase() == "file"
     if (source == null || !local) return
+    Preview(source, settings, Modifier.fillMaxSize())
+}
+
+/**
+ * Una miniatura disegnata **grande quanto sarà la fotografia che la sostituisce**.
+ *
+ * ⚠️⚠️ **QUESTO ERA IL SALTO DELL'IMMAGINE, e la regola vecchia lo garantiva invece di
+ * evitarlo.** La miniatura seguiva l'impostazione *ingrandisci le immagini piccole*: a
+ * interruttore spento `ContentScale.Inside` non ingrandisce, quindi una miniatura da 512
+ * px restava 512 px in mezzo a uno schermo da 1080, e all'arrivo della fotografia vera
+ * (disegnata adattata allo schermo) l'immagine **raddoppiava di colpo**. Succedeva a ogni
+ * cambio di pagina.
+ * ⚠️ Il ragionamento vecchio non era sbagliato, era applicato alla cosa sbagliata:
+ * 'non ingrandire' è una regola sulla **fotografia**, e applicarla al suo sostituto
+ * produce esattamente lo scarto che voleva evitare.
+ * ⚠️ **Come si sa se l'originale era grande**: dalla misura della miniatura che il
+ * sistema ha restituito. Se è arrivata alla misura chiesta, ha dovuto ridurre qualcosa di
+ * più grande; se è più piccola, l'originale era piccolo e la fotografia vera si vedrà
+ * alla sua misura, quindi anche il sostituto deve stare alla sua.
+ * ⚠️ **Il caso che resta storto, dichiarato**: un originale fra i 512 px e la larghezza
+ * dello schermo, con l'ingrandimento spento. Là il sostituto si vede adattato e la
+ * fotografia arriva più piccola. È molto più raro di quello che questa correzione toglie,
+ * cioè tutte le fotografie.
+ */
+@Composable
+private fun Preview(uri: Uri, settings: Settings, modifier: Modifier) {
     val context = LocalContext.current
-    val model = remember(source, context) { Thumbs.request(context, source) }
-    AsyncImage(
+    val painter = rememberAsyncImagePainter(
         // ⚠️ La STESSA richiesta della griglia, misura compresa: è così che questa
         // immagine è già in memoria invece di essere chiesta di nuovo. Una misura
         // diversa sarebbe una chiave diversa, cioè un'altra generazione.
-        model = model,
+        model = remember(uri, context) { Thumbs.request(context, uri) }
+    )
+    val seen = painter.intrinsicSize
+    val fromBig = seen.isSpecified &&
+        (seen.width >= Thumbs.PX - 1f || seen.height >= Thumbs.PX - 1f)
+    Image(
+        painter = painter,
         contentDescription = null,
-        contentScale = if (settings.fitGrow) ContentScale.Fit else ContentScale.Inside,
-        modifier = Modifier.fillMaxSize()
+        contentScale = if (settings.fitGrow || fromBig) ContentScale.Fit else ContentScale.Inside,
+        modifier = modifier
     )
 }
 
@@ -381,18 +436,17 @@ private fun powerOfTwoAtMost(value: Float): Int =
  * ⚠️ Lo spostamento arriva come **funzione** e si legge dentro `graphicsLayer`: preso
  * come valore, ogni pixel di trascinamento sarebbe una ricomposizione di questo
  * composable, cioè il contrario della fluidità che deve dare.
- * ⚠️ La scala segue la stessa regola dell'anteprima e della figura a riposo, o la vicina
- * atterrerebbe a una misura diversa da quella con cui poi si vede.
+ * ⚠️ È la stessa `Preview` dell'anteprima, e deve esserlo: la vicina che scivola dentro
+ * e l'anteprima che resta al centro subito dopo sono lo stesso disegno in due istanti
+ * consecutivi, e se si scalassero in modo diverso il cambio di pagina avrebbe un salto
+ * proprio nel punto in cui deve essere invisibile.
  */
 @Composable
 private fun Neighbour(uri: Uri?, settings: Settings, dx: () -> Float) {
     if (uri == null) return
-    val context = LocalContext.current
-    val model = remember(uri, context) { Thumbs.request(context, uri) }
-    AsyncImage(
-        model = model,
-        contentDescription = null,
-        contentScale = if (settings.fitGrow) ContentScale.Fit else ContentScale.Inside,
+    Preview(
+        uri = uri,
+        settings = settings,
         modifier = Modifier
             .fillMaxSize()
             .graphicsLayer { translationX = dx() }
@@ -475,22 +529,16 @@ private fun ImageCanvas(
     source: Uri?,
     folder: Folder.Lookup?,
     info: InfoBar,
-    onStep: (Int) -> Unit,
-    onSettings: () -> Unit
+    onStep: (Int) -> Unit
 ) {
     val density = LocalDensity.current
-    val checkerPx = with(density) { CHECKER.toPx() }
-    val lightGreys = when (settings.bgTheme) {
-        BgTheme.LIGHT -> true
-        BgTheme.DARK -> false
-        BgTheme.AUTO -> MaterialTheme.colorScheme.background.luminanceIsLight()
-    }
 
+    // ⚠️ Lo sfondo NON si dipinge più qui: vedi `ViewerScreen`, e la ragione per cui
+    // spostarlo era l'unico modo di togliere il lampeggio.
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
             .clipToBounds()
-            .drawBehind { drawBackground(size, checkerPx, lightGreys, settings.bgType) }
     ) {
         val viewWidth = constraints.maxWidth.toFloat()
         val viewHeight = constraints.maxHeight.toFloat()
@@ -888,8 +936,7 @@ private fun ImageCanvas(
                     onZoom = { animateTo(it) },
                     oneToOne = oneToOne,
                     restScale = restScale,
-                    onToggleDetails = { info.visible = !info.visible },
-                    onSettings = onSettings
+                    onToggleDetails = { info.visible = !info.visible }
                 )
             }
         }
@@ -1146,8 +1193,7 @@ private fun ImageMenu(
     onZoom: (Float) -> Unit,
     oneToOne: Float,
     restScale: Float,
-    onToggleDetails: () -> Unit,
-    onSettings: () -> Unit
+    onToggleDetails: () -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -1215,14 +1261,12 @@ private fun ImageMenu(
             text = { Text(stringResource(R.string.menu_details)) },
             onClick = { onDismiss(); onToggleDetails() }
         )
-        // ⚠️ Le impostazioni sono ARRIVATE QUI nella 0.30, e da qui non se ne vanno: la
-        // loro rotella stava in fondo alla riga dei dettagli, e quel posto serviva al
-        // contatore della cartella. Sta per ultima perché è quella che porta più
-        // lontano, che è il criterio dell'ordine di questo menu.
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.menu_settings)) },
-            onClick = { onDismiss(); onSettings() }
-        )
+        // ⚠️⚠️ **QUI SOTTO C'ERANO LE IMPOSTAZIONI, e sono uscite nella 0.44** (istruzione
+        // dell'utente): erano arrivate nella 0.30 perché la loro rotella occupava un posto
+        // che serviva al contatore della cartella, e restavano l'unica via per
+        // raggiungerle da dentro una fotografia. Dalla 0.41 le porta il tastino della
+        // schermata delle cartelle, quindi questa voce era diventata la seconda porta di
+        // una stanza sola, in un menu tenuto corto apposta.
         // ⚠️ LA RICERCA IMMAGINE NON C'È PIÙ, dalla 0.18, e non è una dimenticanza:
         // l'utente l'ha spenta dopo averla provata sul telefono, perché non
         // funzionava e faceva solo rumore in un menu tenuto corto apposta. Con
