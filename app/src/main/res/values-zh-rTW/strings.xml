@@ -113,10 +113,10 @@
     <string name="facts_modified">最後修改</string>
     <string name="facts_folder">資料夾</string>
     <string name="facts_encoding">編碼</string>
-    <string name="facts_camera">鏡頭與曝光</string>
-    <string name="facts_place">位置</string>
+    <string name="facts_camera">拍攝參數</string>
+    <string name="facts_place">地理座標</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
-    <string name="facts_pixels_mpx">%1$d x %2$d (%3$s Mpx)</string>
+    <string name="facts_pixels_mpx">%1$d x %2$d\n%3$s Mpx</string>
     <string name="facts_progressive">漸進式</string>
     <string name="facts_interlaced">交錯</string>
     <plurals name="facts_bits">
@@ -126,7 +126,8 @@
     <string name="facts_exposure_fraction">1/%1$d s</string>
     <string name="facts_exposure_seconds">%1$s s</string>
     <string name="facts_iso">ISO %1$d</string>
-    <string name="facts_altitude">%1$d m</string>
+    <string name="facts_altitude">海拔 %1$d 公尺</string>
+    <string name="facts_altitude_label">海拔</string>
     <string name="dest_storages">儲存空間</string>
     <string name="dest_empty">這裡沒有資料夾。</string>
     <string name="dest_new">新資料夾</string>
@@ -153,11 +154,13 @@
     <string name="rename_start">起始編號</string>
     <string name="rename_hint">每一串井字號都會變成編號,你寫幾個就有幾位數:## 得到 01,### 得到 001。副檔名不會被更動,圖片依字母順序編號。</string>
     <string name="rename_preview">預覽</string>
-    <plurals name="delete_ask">
-        <item quantity="other">刪除 %1$d 張圖片嗎?</item>
+    <string name="delete_ask">確認刪除？</string>
+    <plurals name="delete_desc">
+        <item quantity="other">即將徹底刪除 %1$d 張圖片：將從手機上永久消失。</item>
     </plurals>
-    <string name="delete_desc">它們將從手機上永久消失。它們已經在回收筒裡了,沒有別的地方可去。</string>
-    <string name="trash_desc">它們會進入回收筒,你可以從那裡還原或永久刪除。</string>
+    <plurals name="trash_desc">
+        <item quantity="other">即將把 %1$d 張圖片移入回收筒：在徹底刪除前都可以還原。</item>
+    </plurals>
     <string name="bin_title">回收筒</string>
     <string name="bin_none">回收筒是空的。</string>
     <string name="bin_restore">還原</string>

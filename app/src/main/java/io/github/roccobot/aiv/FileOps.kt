@@ -6,11 +6,14 @@ import androidx.annotation.PluralsRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -21,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import java.text.DateFormat
 import java.util.Date
@@ -220,8 +224,17 @@ fun outcomeText(res: Resources, out: FileTree.Outcome, @PluralsRes doneRes: Int)
  * sempre: AIV non ha un cestino suo*: era vero allora e sarebbe una bugia adesso.
  * ⚠️ **La conferma resta anche per il cestino**, benché il gesto sia reversibile: costa un
  * tocco, e su una selezione da quaranta fotografie toccate per sbaglio vale quel tocco.
- * ⚠️ Il conto sta nel TITOLO e non nel corpo: è il dato che fa cambiare idea, e chi tocca
- * in fretta legge solo la prima riga.
+ *
+ * ⚠️⚠️ **IL CONTO SI È SPOSTATO DAL TITOLO AL CORPO nella 0.68** (testo dettato
+ * dall'utente: titolo *Confermi l'eliminazione?*, corpo *Stai per spostare (X) immagini nel
+ * cestino: potrai recuperarle fino all'eliminazione definitiva*). Fino alla `0.67` era il
+ * contrario, con la ragione scritta che chi tocca in fretta legge solo la prima riga:
+ * quella nota è **superata**, e il baratto nuovo è che il titolo dice il **gesto** e il
+ * corpo dice **quanto** e **cosa succede dopo**.
+ * ⚠️⚠️ **Perciò `delete_ask` NON è più un plurale e i due corpi lo sono diventati**, in
+ * tutte e sedici le lingue: il conto se l'è portato dietro la frase che gli deve concordare
+ * intorno. Chi rimettesse il conto nel titolo deve rifare quel giro al contrario, non
+ * cambiare una riga qui.
  */
 @Composable
 private fun DeleteDialog(
@@ -232,11 +245,13 @@ private fun DeleteDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(pluralStringResource(R.plurals.delete_ask, count, count)) },
+        title = { Text(stringResource(R.string.delete_ask)) },
         text = {
             Text(
-                stringResource(
-                    if (forGood) R.string.delete_desc else R.string.trash_desc
+                pluralStringResource(
+                    if (forGood) R.plurals.delete_desc else R.plurals.trash_desc,
+                    count,
+                    count
                 )
             )
         },
@@ -310,6 +325,12 @@ private fun FactsDialog(uris: List<Uri>, fields: List<FactField>, onDismiss: () 
  * differenza **è** l'informazione.
  * ⚠️ **Il nome sta in testa e non porta etichetta**: è il titolo di quello che si sta
  * guardando, non un dato fra gli altri, e la parola 'nome' davanti al nome è rumore.
+ * ⚠️⚠️ **Dalla 0.68 il nome è in una PASTIGLIA del colore d'accento, in grassetto**
+ * (richiesta dell'utente). Prima era un `titleSmall` nudo, che in un elenco di righe si
+ * distingueva poco da un dato fra gli altri: la pastiglia lo rende quello che è, cioè il
+ * titolo. ⚠️ Prende `primaryContainer` e non `primary` benché in questa tavolozza valgano
+ * lo stesso: è il ruolo giusto per una superficie colorata, e se un giorno i due si
+ * separassero questa resterebbe corretta.
  * ⚠️ **Il blocco scorre**: dieci righe più un percorso lungo passano l'altezza di un
  * dialogo su uno schermo basso, e senza scorrimento le ultime righe sarebbero irraggiungibili.
  */
@@ -322,28 +343,82 @@ private fun FileFacts(facts: Facts, one: OneFile, fields: List<FactField>) {
         for (field in fields) {
             val value = factValue(field, facts, one) ?: continue
             if (field == FactField.NAME) {
-                Text(text = value, style = MaterialTheme.typography.titleSmall)
+                Surface(
+                    shape = RoundedCornerShape(NAME_CORNER),
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                ) {
+                    Text(
+                        text = value,
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(
+                            horizontal = NAME_PAD_SIDE,
+                            vertical = NAME_PAD_TOP
+                        )
+                    )
+                }
                 continue
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    text = stringResource(field.label),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.weight(LABEL_SHARE)
-                )
-                Text(
-                    text = value,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.weight(1f - LABEL_SHARE)
-                )
+            FactRow(label = stringResource(field.label), value = value)
+            /*
+             * ⚠️⚠️ **L'ALTITUDINE È UNA VOCE A SÉ MA NON UN CAMPO A SÉ** (richiesta
+             * dell'utente: *da scrivere come voce a parte, senza parentesi*). Prima stava
+             * fra parentesi in coda alle coordinate, dove si leggeva come una loro
+             * precisazione invece che come il terzo numero che è.
+             * ⚠️ **Perché non un `FactField` suo**: comparirebbe nell'elenco delle
+             * impostazioni come una spunta in più, in una schermata che l'utente ha già
+             * chiesto di alleggerire, e sarebbe una spunta che non decide niente da sola.
+             * Altitudine e coordinate vengono dallo stesso dato GPS e viaggiano insieme:
+             * chi spegne le coordinate spegne anche lei, ed è quello che ci si aspetta.
+             */
+            if (field == FactField.PLACE) {
+                altitudeText(one)?.let {
+                    FactRow(label = stringResource(R.string.facts_altitude_label), value = it)
+                }
             }
         }
     }
 }
 
+/**
+ * Una riga di dati: etichetta a sinistra, valore a destra.
+ *
+ * ⚠️⚠️ **[Modifier.alignByBaseline] SU TUTTI E DUE, ed è la correzione di un difetto che si
+ * vedeva** (riscontro dell'utente: *sono sfalsati, le linee di base non combaciano*).
+ * L'etichetta è `bodySmall` e il valore `bodyMedium`, cioè 12sp contro 14sp con interlinee
+ * diverse: allineati in alto come erano, i due riquadri cominciavano insieme e le lettere
+ * no. La linea di base è l'unica cosa che si vede davvero allineata, perché è quella su cui
+ * poggiano i caratteri.
+ * ⚠️ Su un valore di **due righe** si allinea la prima, che è quella accanto all'etichetta:
+ * è esattamente quello che serve adesso che i megapixel e gli ISO vanno a capo.
+ */
+@Composable
+private fun FactRow(label: String, value: String) {
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(LABEL_SHARE).alignByBaseline()
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f - LABEL_SHARE).alignByBaseline()
+        )
+    }
+}
+
 /** Quanta parte della riga tiene l'etichetta: meno della metà, perché il dato conta più di lei. */
 private const val LABEL_SHARE = 0.42f
+
+/** Il raggio della pastiglia del nome: abbastanza da leggersi come una targhetta. */
+private val NAME_CORNER = 8.dp
+
+/** Quanto respira il nome dentro la sua pastiglia, ai lati e sopra e sotto. */
+private val NAME_PAD_SIDE = 10.dp
+private val NAME_PAD_TOP = 4.dp
 
 /**
  * Il valore di un campo, già scritto come si legge, oppure `null` se il file non ce l'ha.
@@ -414,31 +489,46 @@ private fun encodingText(encoding: Encoding?): String? {
 /**
  * Obiettivo ed esposizione, i tre dati che l'utente ha chiesto insieme.
  *
- * ⚠️ **Su una riga sola e non su tre**: focale, tempo e ISO sono i parametri di **uno**
- * scatto, e chi li guarda li guarda insieme. Tre righe con un numero ciascuna
+ * ⚠️ **Su una voce sola e non su tre**: focale, tempo e ISO sono i parametri di **uno**
+ * scatto, e chi li guarda li guarda insieme. Tre voci con un numero ciascuna
  * allungherebbero il dialogo di tre volte per la stessa informazione.
+ * ⚠️⚠️ **Ma dalla 0.68 gli ISO vanno a capo** (richiesta dell'utente): la voce resta una,
+ * e sono le due **righe** a separare l'obiettivo dalla sensibilità. Focale e tempo
+ * descrivono la luce che entra, gli ISO quanto la si amplifica dopo: sono due cose, e su
+ * una riga sola di tre numeri separati da virgole non si vedeva.
  * ⚠️ **Il tempo si scrive come una frazione quando è meno di un secondo** (`1/120 s`), che
  * è come lo scrivono le fotocamere e chi fotografa: `0,008 s` è lo stesso numero e non lo
  * legge nessuno.
  */
 @Composable
 private fun cameraText(one: OneFile): String? {
-    val parts = ArrayList<String>(3)
-    one.focalMm?.let { parts += stringResource(R.string.facts_focal, neat(it)) }
+    val lens = ArrayList<String>(2)
+    one.focalMm?.let { lens += stringResource(R.string.facts_focal, neat(it)) }
     one.exposureSec?.let { seconds ->
-        parts += if (seconds < 1.0) {
+        lens += if (seconds < 1.0) {
             stringResource(R.string.facts_exposure_fraction, (1.0 / seconds).roundToInt())
         } else {
             stringResource(R.string.facts_exposure_seconds, neat(seconds))
         }
     }
-    one.iso?.let { parts += stringResource(R.string.facts_iso, it) }
-    return parts.joinToString(", ").ifEmpty { null }
+    val iso = one.iso?.let { stringResource(R.string.facts_iso, it) }
+    val head = lens.joinToString(", ")
+    // ⚠️ L'a capo esiste solo quando ci sono tutte e due le metà: una riga vuota sopra o
+    // sotto sarebbe uno spazio che dice di aver perso un dato che non c'era.
+    return when {
+        head.isEmpty() -> iso
+        iso == null -> head
+        else -> "$head\n$iso"
+    }
 }
 
 /**
- * Dove è stata scattata: coordinate e, quando c'è, altitudine.
+ * Dove è stata scattata: le sole coordinate.
  *
+ * ⚠️⚠️ **L'ALTITUDINE È USCITA DA QUI NELLA 0.68**, e adesso la scrive [altitudeText] su
+ * una voce sua (richiesta dell'utente: *da scrivere come voce a parte, senza parentesi*).
+ * Fra parentesi in coda alle coordinate si leggeva come una loro precisazione invece che
+ * come il terzo numero che è.
  * ⚠️⚠️ **LE COORDINATE SI SCRIVONO COL PUNTO, sempre, anche in italiano**, ed è l'unica
  * deroga alla lingua del telefono in tutta questa schermata: sono un numero da **incollare
  * in una mappa**, e nessuna mappa accetta la virgola decimale, perché la virgola è già il
@@ -451,9 +541,22 @@ private fun cameraText(one: OneFile): String? {
 private fun placeText(one: OneFile): String? {
     val lat = one.latitude ?: return null
     val lon = one.longitude ?: return null
-    val core = String.format(Locale.US, "%.6f, %.6f", lat, lon)
-    val high = one.altitudeM ?: return core
-    return core + " (" + stringResource(R.string.facts_altitude, high.roundToInt()) + ")"
+    return String.format(Locale.US, "%.6f, %.6f", lat, lon)
+}
+
+/**
+ * L'altitudine, nella forma che l'utente ha chiesto: `X m s.l.m.`
+ *
+ * ⚠️ **Si mostra solo insieme alle coordinate**, e la condizione sta in chi la chiama: un
+ * file con l'altitudine e senza latitudine non esiste in pratica, ma se esistesse
+ * mostrarla da sola sarebbe un dato senza il suo posto.
+ * ⚠️ **Arrotondata al metro**: l'altitudine di un GPS di telefono sbaglia di parecchi
+ * metri, e scriverne i decimali sarebbe dichiarare una precisione che non c'è.
+ */
+@Composable
+private fun altitudeText(one: OneFile): String? {
+    val high = one.altitudeM ?: return null
+    return stringResource(R.string.facts_altitude, high.roundToInt())
 }
 
 /**

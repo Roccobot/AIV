@@ -117,10 +117,10 @@
     <string name="facts_modified">Dernière modification</string>
     <string name="facts_folder">Dossier</string>
     <string name="facts_encoding">Encodage</string>
-    <string name="facts_camera">Objectif et exposition</string>
-    <string name="facts_place">Position</string>
+    <string name="facts_camera">Données de prise de vue</string>
+    <string name="facts_place">Coordonnées géographiques</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
-    <string name="facts_pixels_mpx">%1$d x %2$d (%3$s Mpx)</string>
+    <string name="facts_pixels_mpx">%1$d x %2$d\n%3$s Mpx</string>
     <string name="facts_progressive">progressif</string>
     <string name="facts_interlaced">entrelacé</string>
     <plurals name="facts_bits">
@@ -132,7 +132,8 @@
     <string name="facts_exposure_fraction">1/%1$d s</string>
     <string name="facts_exposure_seconds">%1$s s</string>
     <string name="facts_iso">ISO %1$d</string>
-    <string name="facts_altitude">%1$d m</string>
+    <string name="facts_altitude">%1$d m d\'altitude</string>
+    <string name="facts_altitude_label">Altitude</string>
     <string name="dest_storages">Stockage</string>
     <string name="dest_empty">Aucun dossier ici.</string>
     <string name="dest_new">Nouveau dossier</string>
@@ -169,13 +170,17 @@
     <string name="rename_start">Premier numéro</string>
     <string name="rename_hint">Chaque suite de dièses devient le numéro, et le nombre que vous écrivez donne le nombre de chiffres : ## donne 01, ### donne 001. L\'extension n\'est jamais touchée, et les images sont numérotées par ordre alphabétique.</string>
     <string name="rename_preview">Aperçu</string>
-    <plurals name="delete_ask">
-        <item quantity="one">Supprimer %1$d image ?</item>
-        <item quantity="other">Supprimer %1$d images ?</item>
-        <item quantity="many">Supprimer %1$d images ?</item>
+    <string name="delete_ask">Confirmer la suppression ?</string>
+    <plurals name="delete_desc">
+        <item quantity="one">Vous allez supprimer définitivement %1$d image : elle disparaît du téléphone pour toujours.</item>
+        <item quantity="many">Vous allez supprimer définitivement %1$d images : elles disparaissent du téléphone pour toujours.</item>
+        <item quantity="other">Vous allez supprimer définitivement %1$d images : elles disparaissent du téléphone pour toujours.</item>
     </plurals>
-    <string name="delete_desc">Elles quittent le téléphone définitivement. Elles sont déjà dans la corbeille, il n\'y a donc pas d\'autre endroit où elles puissent aller.</string>
-    <string name="trash_desc">Elles vont dans la corbeille, d\'où vous pouvez les restaurer ou les supprimer définitivement.</string>
+    <plurals name="trash_desc">
+        <item quantity="one">Vous allez déplacer %1$d image vers la corbeille : vous pourrez la récupérer jusqu\'à la suppression définitive.</item>
+        <item quantity="many">Vous allez déplacer %1$d images vers la corbeille : vous pourrez les récupérer jusqu\'à la suppression définitive.</item>
+        <item quantity="other">Vous allez déplacer %1$d images vers la corbeille : vous pourrez les récupérer jusqu\'à la suppression définitive.</item>
+    </plurals>
     <string name="bin_title">Corbeille</string>
     <string name="bin_none">La corbeille est vide.</string>
     <string name="bin_restore">Restaurer</string>

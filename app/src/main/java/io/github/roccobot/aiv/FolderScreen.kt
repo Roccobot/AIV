@@ -351,15 +351,17 @@ private fun Folder.Bucket.isHidden(hidden: Set<String>): Boolean {
 }
 
 /**
- * Quanto spazio resta al frontespizio quando la griglia si è presa **tante righe quante
- * sono le colonne**.
+ * Quanto spazio resta al frontespizio quando la griglia si è presa le sue [startRows]
+ * righe.
  *
- * ⚠️⚠️ **È LA REGOLA DELLA 0.60, e ha sostituito il 60% fisso** (richiesta dell'utente:
- * *invece di un generico 60% di spazio per la griglia, facciamo che sono sempre
- * visualizzate 4 cartelle a 2 colonne, 9 a 3 colonne, 16 a 4 colonne*). Il quadrato è la
- * forma della richiesta: righe pari alle colonne, quindi 2x2, 3x3, 4x4. La frazione fissa
- * rispondeva bene a **due** colonne e male alle altre, perché con le copertine più
- * strette le righe si accorciano e nel 60% ne entravano quattro e mezza invece di tre.
+ * ⚠️⚠️ **LA FORMA NON È PIÙ IL QUADRATO, dalla 0.68**: vedi [startRows], dove sta la
+ * ragione. Fino alla 0.67 questo conto usava le colonne anche come numero di righe.
+ *
+ * ⚠️ **Storia, perché non si torni indietro di due passi**: fino alla `0.59` la griglia si
+ * prendeva un **60% fisso** dello schermo, che rispondeva bene a due colonne e male alle
+ * altre, perché con le copertine più strette le righe si accorciano e nel 60% ne entravano
+ * quattro e mezza invece di tre. La `0.60` l'ha sostituito col quadrato, la `0.68` col
+ * conto per colonne.
  *
  * ⚠️⚠️ **IL CONTO USA LE STESSE COSTANTI DEL DISEGNO, e non sono ricopiate**: [SCREEN_PAD]
  * per il margine, [FOLDER_GAP] per il distacco fra le copertine, [CARD_GAP] per quello fra
@@ -398,14 +400,34 @@ private fun coverHeader(
     density: Density
 ): Dp = with(density) {
     val slots = columns.coerceAtLeast(1)
+    val lines = startRows(slots)
     val gapPx = FOLDER_GAP.toPx()
     val roomPx = (width - SCREEN_PAD * 2).toPx() - gapPx * (slots - 1)
     val cellPx = ceil(roomPx / slots).coerceAtLeast(0f)
     val rowPx = cellPx + CARD_GAP.toPx() * 2 + captionPx
-    val gridPx = rowPx * slots + gapPx * (slots - 1)
+    val gridPx = rowPx * lines + gapPx * (lines - 1)
     val freePx = (height - SCREEN_PAD * 2 - HEADER_GAP).toPx() - gridPx
     freePx.coerceIn(0f, height.toPx() * HEADER_CAP).toDp()
 }
+
+/**
+ * Quante righe di cartelle si vedono all'avvio, per numero di colonne: **2 righe fino a
+ * tre colonne, 3 righe da quattro**. Cioè 4 cartelle a 2 colonne, 6 a 3, 12 a 4.
+ *
+ * ⚠️⚠️ **HA SOSTITUITO IL QUADRATO NELLA 0.68, e la ragione è che una RIGA NON È ALTA
+ * QUANTO UNA COPERTINA** (revisione dell'utente sulla `0.60`: *non avevo considerato i
+ * testi sotto le cartelle*). Sotto ogni copertina quadrata stanno il nome e il conto, cioè
+ * due righe di testo più due distacchi: una riga di griglia è **più alta che larga**, e un
+ * quadrato di righe per colonne è quindi più alto che largo di quel tanto moltiplicato per
+ * il numero di righe. A quattro colonne il 4x4 chiedeva più dello schermo intero, e il
+ * frontespizio andava a zero da sé senza che nessuno lo avesse deciso.
+ *
+ * ⚠️ **Non è una formula ma una tabella, e lo è apposta**: le colonne ammesse sono tre
+ * (`FOLDER_COLUMNS`), e una formula su tre valori è un modo di nascondere una scelta
+ * dietro un'aria di generalità. Se un giorno le colonne diventassero cinque, qui si
+ * aggiunge una riga e si guarda uno schermo, che è l'unico modo onesto di decidere.
+ */
+private fun startRows(columns: Int): Int = if (columns <= 3) 2 else 3
 
 /**
  * Il frontespizio dell'app, che si chiude scorrendo.

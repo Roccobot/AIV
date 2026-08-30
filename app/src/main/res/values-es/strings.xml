@@ -117,10 +117,10 @@
     <string name="facts_modified">Última modificación</string>
     <string name="facts_folder">Carpeta</string>
     <string name="facts_encoding">Codificación</string>
-    <string name="facts_camera">Objetivo y exposición</string>
-    <string name="facts_place">Ubicación</string>
+    <string name="facts_camera">Datos de la toma</string>
+    <string name="facts_place">Coordenadas geográficas</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
-    <string name="facts_pixels_mpx">%1$d x %2$d (%3$s Mpx)</string>
+    <string name="facts_pixels_mpx">%1$d x %2$d\n%3$s Mpx</string>
     <string name="facts_progressive">progresivo</string>
     <string name="facts_interlaced">entrelazado</string>
     <plurals name="facts_bits">
@@ -132,7 +132,8 @@
     <string name="facts_exposure_fraction">1/%1$d s</string>
     <string name="facts_exposure_seconds">%1$s s</string>
     <string name="facts_iso">ISO %1$d</string>
-    <string name="facts_altitude">%1$d m</string>
+    <string name="facts_altitude">%1$d m s.n.m.</string>
+    <string name="facts_altitude_label">Altitud</string>
     <string name="dest_storages">Almacenamiento</string>
     <string name="dest_empty">Aquí no hay ninguna carpeta.</string>
     <string name="dest_new">Carpeta nueva</string>
@@ -169,13 +170,17 @@
     <string name="rename_start">Primer número</string>
     <string name="rename_hint">Cada serie de almohadillas se convierte en el número, y cuantas escribas, tantas cifras tendrá: ## da 01, ### da 001. La extensión no se toca nunca, y las imágenes se numeran por orden alfabético.</string>
     <string name="rename_preview">Vista previa</string>
-    <plurals name="delete_ask">
-        <item quantity="one">¿Eliminar %1$d imagen?</item>
-        <item quantity="other">¿Eliminar %1$d imágenes?</item>
-        <item quantity="many">¿Eliminar %1$d imágenes?</item>
+    <string name="delete_ask">¿Confirmas la eliminación?</string>
+    <plurals name="delete_desc">
+        <item quantity="one">Vas a eliminar definitivamente %1$d imagen: desaparece del teléfono para siempre.</item>
+        <item quantity="many">Vas a eliminar definitivamente %1$d imágenes: desaparecen del teléfono para siempre.</item>
+        <item quantity="other">Vas a eliminar definitivamente %1$d imágenes: desaparecen del teléfono para siempre.</item>
     </plurals>
-    <string name="delete_desc">Se van del teléfono para siempre. Ya están en la papelera, así que no hay otro sitio donde puedan ir.</string>
-    <string name="trash_desc">Van a la papelera, desde donde puedes restaurarlas o eliminarlas para siempre.</string>
+    <plurals name="trash_desc">
+        <item quantity="one">Vas a mover %1$d imagen a la papelera: podrás recuperarla hasta la eliminación definitiva.</item>
+        <item quantity="many">Vas a mover %1$d imágenes a la papelera: podrás recuperarlas hasta la eliminación definitiva.</item>
+        <item quantity="other">Vas a mover %1$d imágenes a la papelera: podrás recuperarlas hasta la eliminación definitiva.</item>
+    </plurals>
     <string name="bin_title">Papelera</string>
     <string name="bin_none">La papelera está vacía.</string>
     <string name="bin_restore">Restaurar</string>

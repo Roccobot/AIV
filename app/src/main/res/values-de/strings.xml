@@ -115,10 +115,10 @@
     <string name="facts_modified">Zuletzt geändert</string>
     <string name="facts_folder">Ordner</string>
     <string name="facts_encoding">Kodierung</string>
-    <string name="facts_camera">Objektiv und Belichtung</string>
-    <string name="facts_place">Ort</string>
+    <string name="facts_camera">Aufnahmedaten</string>
+    <string name="facts_place">Geografische Koordinaten</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
-    <string name="facts_pixels_mpx">%1$d x %2$d (%3$s Mpx)</string>
+    <string name="facts_pixels_mpx">%1$d x %2$d\n%3$s Mpx</string>
     <string name="facts_progressive">progressiv</string>
     <string name="facts_interlaced">interlaced</string>
     <plurals name="facts_bits">
@@ -129,7 +129,8 @@
     <string name="facts_exposure_fraction">1/%1$d s</string>
     <string name="facts_exposure_seconds">%1$s s</string>
     <string name="facts_iso">ISO %1$d</string>
-    <string name="facts_altitude">%1$d m</string>
+    <string name="facts_altitude">%1$d m ü. M.</string>
+    <string name="facts_altitude_label">Höhe</string>
     <string name="dest_storages">Speicher</string>
     <string name="dest_empty">Hier ist kein Ordner.</string>
     <string name="dest_new">Neuer Ordner</string>
@@ -161,12 +162,15 @@
     <string name="rename_start">Erste Nummer</string>
     <string name="rename_hint">Jede Folge von Rauten wird zur Nummer, und wie viele du schreibst, so viele Stellen hat sie: ## ergibt 01, ### ergibt 001. Die Endung bleibt unberührt, und die Bilder werden in alphabetischer Reihenfolge nummeriert.</string>
     <string name="rename_preview">Vorschau</string>
-    <plurals name="delete_ask">
-        <item quantity="one">%1$d Bild löschen?</item>
-        <item quantity="other">%1$d Bilder löschen?</item>
+    <string name="delete_ask">Löschen bestätigen?</string>
+    <plurals name="delete_desc">
+        <item quantity="one">Du löschst %1$d Bild endgültig: es verschwindet für immer vom Telefon.</item>
+        <item quantity="other">Du löschst %1$d Bilder endgültig: sie verschwinden für immer vom Telefon.</item>
     </plurals>
-    <string name="delete_desc">Sie verschwinden endgültig vom Telefon. Sie liegen bereits im Papierkorb, es gibt also keinen weiteren Ort für sie.</string>
-    <string name="trash_desc">Sie wandern in den Papierkorb, wo du sie wiederherstellen oder endgültig löschen kannst.</string>
+    <plurals name="trash_desc">
+        <item quantity="one">Du verschiebst %1$d Bild in den Papierkorb: bis zum endgültigen Löschen kannst du es zurückholen.</item>
+        <item quantity="other">Du verschiebst %1$d Bilder in den Papierkorb: bis zum endgültigen Löschen kannst du sie zurückholen.</item>
+    </plurals>
     <string name="bin_title">Papierkorb</string>
     <string name="bin_none">Der Papierkorb ist leer.</string>
     <string name="bin_restore">Wiederherstellen</string>

@@ -115,10 +115,10 @@
     <string name="facts_modified">Mabadiliko ya mwisho</string>
     <string name="facts_folder">Folda</string>
     <string name="facts_encoding">Usimbaji</string>
-    <string name="facts_camera">Lenzi na mwangaza</string>
-    <string name="facts_place">Mahali</string>
+    <string name="facts_camera">Data ya upigaji</string>
+    <string name="facts_place">Viwianishi vya kijiografia</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
-    <string name="facts_pixels_mpx">%1$d x %2$d (%3$s Mpx)</string>
+    <string name="facts_pixels_mpx">%1$d x %2$d\n%3$s Mpx</string>
     <string name="facts_progressive">hatua kwa hatua</string>
     <string name="facts_interlaced">iliyofumwa</string>
     <plurals name="facts_bits">
@@ -129,7 +129,8 @@
     <string name="facts_exposure_fraction">1/%1$d s</string>
     <string name="facts_exposure_seconds">%1$s s</string>
     <string name="facts_iso">ISO %1$d</string>
-    <string name="facts_altitude">%1$d m</string>
+    <string name="facts_altitude">mita %1$d juu ya usawa wa bahari</string>
+    <string name="facts_altitude_label">Kimo</string>
     <string name="dest_storages">Hifadhi</string>
     <string name="dest_empty">Hakuna folda hapa.</string>
     <string name="dest_new">Folda mpya</string>
@@ -161,12 +162,15 @@
     <string name="rename_start">Namba ya kwanza</string>
     <string name="rename_hint">Kila mfululizo wa alama za reli huwa namba, na kadiri unavyoandika ndivyo tarakimu zitakavyokuwa: ## hutoa 01, ### hutoa 001. Kiendelezi hakiguswi kamwe, na picha hupewa namba kwa mpangilio wa alfabeti.</string>
     <string name="rename_preview">Onyesho la awali</string>
-    <plurals name="delete_ask">
-        <item quantity="one">Ufute picha %1$d?</item>
-        <item quantity="other">Ufute picha %1$d?</item>
+    <string name="delete_ask">Uthibitishe kufuta?</string>
+    <plurals name="delete_desc">
+        <item quantity="one">Unakaribia kufuta picha %1$d kabisa: inaondoka kwenye simu milele.</item>
+        <item quantity="other">Unakaribia kufuta picha %1$d kabisa: zinaondoka kwenye simu milele.</item>
     </plurals>
-    <string name="delete_desc">Zinaondoka kwenye simu milele. Tayari zipo kwenye tapishi, kwa hivyo hakuna mahali pengine pa kwenda.</string>
-    <string name="trash_desc">Zinaenda kwenye tapishi, ambako unaweza kuzirudisha au kuzifuta milele.</string>
+    <plurals name="trash_desc">
+        <item quantity="one">Unakaribia kuhamishia picha %1$d kwenye tapishi: unaweza kuirudisha hadi ifutwe kabisa.</item>
+        <item quantity="other">Unakaribia kuhamishia picha %1$d kwenye tapishi: unaweza kuzirudisha hadi zifutwe kabisa.</item>
+    </plurals>
     <string name="bin_title">Tapishi</string>
     <string name="bin_none">Tapishi ni tupu.</string>
     <string name="bin_restore">Rudisha</string>
