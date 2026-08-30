@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -49,6 +50,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -415,14 +417,26 @@ private fun PreviewThumb(source: Uri?, settings: Settings) {
  * ⚠️ Il ragionamento vecchio non era sbagliato, era applicato alla cosa sbagliata:
  * 'non ingrandire' è una regola sulla **fotografia**, e applicarla al suo sostituto
  * produce esattamente lo scarto che voleva evitare.
- * ⚠️ **Come si sa se l'originale era grande**: dalla misura della miniatura che il
- * sistema ha restituito. Se è arrivata alla misura chiesta, ha dovuto ridurre qualcosa di
- * più grande; se è più piccola, l'originale era piccolo e la fotografia vera si vedrà
- * alla sua misura, quindi anche il sostituto deve stare alla sua.
- * ⚠️ **Il caso che resta storto, dichiarato**: un originale fra i 512 px e la larghezza
- * dello schermo, con l'ingrandimento spento. Là il sostituto si vede adattato e la
- * fotografia arriva più piccola. È molto più raro di quello che questa correzione toglie,
- * cioè tutte le fotografie.
+ *
+ * ⚠️⚠️ **DALLA `0.56` LA MISURA SI CALCOLA INVECE DI ESSERE INDOVINATA, e la stima di
+ * prima aveva un buco largo mezzo schermo.** Fino alla `0.55` si deduceva dalla miniatura
+ * se l'originale fosse 'grande': arrivata a 512 px, l'originale era più grande di 512, e si
+ * adattava alla vista. È un'informazione da **un bit**, e sbagliava per tutta la fascia fra
+ * i 512 px e la larghezza dello schermo: con l'ingrandimento spento, un'immagine da 900 px
+ * su uno schermo da 1440 si vedeva prima adattata a 1440 e poi rimpiccioliva a 900
+ * all'arrivo della fotografia. L'utente l'ha segnalato il 2026-08-30, e su uno schermo
+ * QHD+ quella fascia comprende quasi tutte le immagini piccole, cioè proprio quelle per cui
+ * l'interruttore si spegne.
+ * ⚠️ **Adesso la misura finale si calcola con la stessa formula di `ImageCanvas`**, e
+ * l'unico dato che mancava lo dà [Pixels]: il lato lungo del file. Da lì e dalle
+ * proporzioni della miniatura escono le due dimensioni vere, e da quelle la misura a
+ * riposo. ⚠️ Chi tocca `restScale` di là tocchi anche `plannedSize` di qua: sono la stessa
+ * regola scritta due volte, e l'unico modo di accorgersi che divergono è vedere di nuovo
+ * l'immagine saltare.
+ * ⚠️ **La stima vecchia resta come RIPIEGO**, e non è codice morto: per il tempo che serve
+ * a leggere l'intestazione, e per sempre su ciò che non si riesce ad aprire, è ancora la
+ * cosa migliore che si sappia. Il ripiego si vede solo alla **prima** apertura di una
+ * fotografia; sfogliando, la vicina ha già scaldato la misura mentre entrava dal bordo.
  */
 @Composable
 private fun Preview(uri: Uri, settings: Settings, modifier: Modifier) {
@@ -464,26 +478,110 @@ private fun Preview(uri: Uri, settings: Settings, modifier: Modifier) {
     val seen = painter.intrinsicSize.takeIf { it.isSpecified }
         ?: standIn?.intrinsicSize
         ?: Size.Unspecified
-    val fromBig = seen.isSpecified &&
-        (seen.width >= Thumbs.PX - 1f || seen.height >= Thumbs.PX - 1f)
-    val scale = if (settings.fitGrow || fromBig) ContentScale.Fit else ContentScale.Inside
 
-    Box(modifier = modifier) {
+    /*
+     * ⚠️ **Si legge dalla cache MENTRE SI COMPONE, e solo se manca si va a leggerla**: nel
+     * caso che conta, cioè lo sfoglio, la vicina l'ha già chiesta entrando dal bordo, e a
+     * pagina girata è qui. L'effetto serve al primo ingresso, dove costa un'intestazione.
+     * ⚠️ Zero e non `null` per la stessa ragione per cui `Size.Unspecified` esiste: è
+     * 'non lo so', e un lato lungo di zero non è una misura possibile.
+     */
+    var longSide by remember(uri) { mutableIntStateOf(Pixels.known(uri) ?: 0) }
+    LaunchedEffect(uri) {
+        if (longSide == 0) longSide = Pixels.longSideOf(context, uri) ?: 0
+    }
+
+    val density = LocalDensity.current
+
+    /*
+     * ⚠️ **La stessa vista di `ImageCanvas`**, che misura allo stesso modo dentro lo stesso
+     * contenitore: è questo a garantire che le due scale coincidano invece di somigliarsi.
+     */
+    BoxWithConstraints(modifier = modifier) {
+        val planned = plannedSize(
+            seen = seen,
+            longSide = longSide,
+            viewWidth = constraints.maxWidth.toFloat(),
+            viewHeight = constraints.maxHeight.toFloat(),
+            settings = settings,
+            density = density.density
+        )
+
+        // Il ripiego di quando la misura vera non si sa ancora: vedi la nota sulla
+        // funzione. Un bit di informazione, e sbaglia in una fascia sola.
+        val fromBig = seen.isSpecified &&
+            (seen.width >= Thumbs.PX - 1f || seen.height >= Thumbs.PX - 1f)
+
+        val scale = if (planned != null || settings.fitGrow || fromBig) {
+            ContentScale.Fit
+        } else {
+            ContentScale.Inside
+        }
+        // ⚠️ Con la misura nota il riquadro ha **già** le proporzioni giuste, quindi
+        // `Fit` qui dentro non ridimensiona niente: serve solo a non deformare se
+        // l'arrotondamento in dp sposta il riquadro di mezzo pixel.
+        val frame = if (planned == null) {
+            Modifier.fillMaxSize()
+        } else {
+            Modifier
+                .align(Alignment.Center)
+                .size(
+                    with(density) { planned.width.toDp() },
+                    with(density) { planned.height.toDp() }
+                )
+        }
+
         standIn?.let {
             Image(
                 painter = it,
                 contentDescription = null,
                 contentScale = scale,
-                modifier = Modifier.fillMaxSize()
+                modifier = frame
             )
         }
         Image(
             painter = painter,
             contentDescription = null,
             contentScale = scale,
-            modifier = Modifier.fillMaxSize()
+            modifier = frame
         )
     }
+}
+
+/**
+ * Quanto sarà grande la fotografia quando arriverà, o `null` se non lo si può ancora dire.
+ *
+ * ⚠️⚠️ **È LA FORMULA DI `ImageCanvas`, riscritta sui dati del file invece che su quelli
+ * del bitmap**, e le due coincidono per algebra e non per somiglianza: là la misura vale
+ * `larghezzaBitmap * min(adattamento, campionamento * k)`, e siccome
+ * `larghezzaBitmap * campionamento` **è** la larghezza del file, il campionamento sparisce.
+ * Resta `min(adattato alla vista, pixel del file * k)`, che è quello che si calcola qui.
+ * Quindi questa funzione non ha bisogno di sapere se la fotografia verrà ridotta per
+ * entrare in memoria, ed è la ragione per cui può rispondere prima che venga aperta.
+ *
+ * ⚠️ **Le due dimensioni vengono da DUE fonti diverse apposta**: il lato lungo dal file
+ * (l'unica cosa che la miniatura non sa) e le proporzioni dalla miniatura (l'unica cosa che
+ * l'intestazione non sa dire senza sbagliare sulle foto ruotate). Il perché sta in [Pixels].
+ */
+private fun plannedSize(
+    seen: Size,
+    longSide: Int,
+    viewWidth: Float,
+    viewHeight: Float,
+    settings: Settings,
+    density: Float
+): Size? {
+    if (longSide <= 0 || viewWidth <= 0f || viewHeight <= 0f) return null
+    if (!seen.isSpecified || seen.width <= 0f || seen.height <= 0f) return null
+    val ratio = seen.width / seen.height
+    val wide = ratio >= 1f
+    val pixelWidth = if (wide) longSide.toFloat() else longSide * ratio
+    val pixelHeight = if (wide) longSide / ratio else longSide.toFloat()
+    val fit = min(viewWidth / pixelWidth, viewHeight / pixelHeight)
+    // ⚠️ Senza il campionamento, che qui non serve: vedi la nota sulla funzione.
+    val oneToOne = if (settings.scaleMode == ScaleMode.PHYSICAL) 1f else density
+    val rest = if (settings.fitGrow) fit else min(fit, oneToOne)
+    return Size(pixelWidth * rest, pixelHeight * rest)
 }
 
 /** Un pezzo nitido e il rettangolo, in coordinate viste, che occupa nella fotografia. */
