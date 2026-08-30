@@ -3,9 +3,7 @@ package io.github.roccobot.aiv
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,11 +20,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.Share
@@ -48,11 +50,21 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -111,6 +123,34 @@ fun GridScreen(
     // trenta foto e tocca Indietro per sbaglio non deve ritrovarsi due schermate
     // indietro con la selezione persa.
     BackHandler(enabled = picking) { chosen = emptySet() }
+
+    /**
+     * Dove sta il dito mentre trascina una selezione, e `null` quando non trascina.
+     *
+     * ⚠️ Esiste anche per lo SCORRIMENTO AI BORDI: senza un posto in cui leggere la
+     * posizione fuori dai richiami del gesto, la griglia non potrebbe scorrere da sola
+     * mentre il dito sta fermo appoggiato in fondo allo schermo.
+     */
+    var dragAt by remember { mutableStateOf<Offset?>(null) }
+
+    /** Da dove è partita la selezione da/a. Null quando non si sta trascinando. */
+    var dragFrom by remember { mutableStateOf<Int?>(null) }
+
+    /**
+     * La selezione com'era **prima** che questo trascinamento cominciasse.
+     *
+     * ⚠️ Senza, tornare indietro col dito non toglierebbe niente: la selezione va
+     * **ricostruita** a ogni fotogramma come 'quella di prima più l'intervallo di adesso',
+     * non accumulata. Accumulando, un intervallo attraversato per sbaglio resterebbe scelto
+     * anche dopo essere tornati sui propri passi.
+     */
+    var dragBase by remember { mutableStateOf<Set<Uri>>(emptySet()) }
+
+    // Le due misure dello scorrimento ai bordi, in pixel: servono dentro un effetto, che
+    // non ha una densità sotto mano.
+    val density = LocalDensity.current
+    val edgePx = with(density) { EDGE_BAND.toPx() }
+    val speedPx = with(density) { EDGE_SPEED.toPx() }
 
     /*
      * ⚠️⚠️ UNA VOLTA SOLA PER VISITA, e la bandierina non è pignoleria: alla ROTAZIONE
@@ -224,7 +264,74 @@ fun GridScreen(
                 modifier = Modifier.padding(top = 24.dp, start = 12.dp)
             )
 
-            else -> LazyVerticalGrid(
+            else -> {
+            /*
+             * ⚠️⚠️ **IL GESTO STA SULLA GRIGLIA E NON SULLE PIASTRELLE, perché comincia su
+             * una e finisce su un'altra** (richiesta dell'utente: *se striscio da una foto
+             * all'altra deve avvenire una selezione da/a*). Una piastrella vede solo sé
+             * stessa; la griglia le vede tutte e sa dove sono.
+             * ⚠️⚠️ **LA CHIAVE DEL `pointerInput` NON COMPRENDE LA SELEZIONE, e sarebbe il
+             * difetto che è già costato una versione** (la `0.32`): cambiare una chiave
+             * **annulla il gesto in corso**, quindi con `chosen` fra le chiavi il
+             * trascinamento morirebbe alla prima foto aggiunta, cioè subito. La selezione
+             * si legge **dentro** il gesto, che è lettura e non chiave.
+             * ⚠️ Il gesto si limita a dire **dove** sta il dito: chi estende la selezione è
+             * l'effetto qui sotto, e averne uno solo vuol dire che il conto è identico sia
+             * che si muova il dito sia che si muova la griglia sotto a un dito fermo.
+             */
+            val grab = Modifier.pointerInput(items) {
+                detectDragGesturesAfterLongPress(
+                    onDragStart = { at ->
+                        val hit = state.itemIndexAt(at)
+                        if (hit != null) {
+                            dragFrom = hit
+                            dragBase = chosen
+                            chosen = chosen + items[hit]
+                            dragAt = at
+                        }
+                    },
+                    onDrag = { change, _ ->
+                        change.consume()
+                        if (dragFrom != null) dragAt = change.position
+                    },
+                    onDragEnd = { dragFrom = null; dragAt = null },
+                    onDragCancel = { dragFrom = null; dragAt = null }
+                )
+            }
+
+            /*
+             * ⚠️⚠️ **LO SCORRIMENTO AI BORDI È QUELLO CHE RENDE LA FUNZIONE UTILE, non un
+             * ornamento**: senza, una selezione da/a arriva al massimo fino al bordo dello
+             * schermo, cioè a una quindicina di foto, e chi ne vuole cinquanta torna a
+             * toccarle una per una. Col dito appoggiato in fondo la griglia scorre e la
+             * selezione lo segue.
+             * ⚠️⚠️ **Si aggiorna a ogni FOTOGRAMMA e non a ogni evento del dito**, ed è la
+             * ragione per cui questo lavoro non sta dentro `onDrag`: mentre la griglia
+             * scorre sotto un dito **fermo** non arriva nessun evento di puntatore, e la
+             * selezione resterebbe ferma insieme a lui.
+             * ⚠️ La spinta cresce **avvicinandosi al bordo** invece di essere un
+             * interruttore: a velocità unica o si striscia piano e non basta, o si arriva
+             * in fondo alla cartella prima di accorgersene.
+             */
+            LaunchedEffect(dragAt != null, items) {
+                while (dragAt != null) {
+                    withFrameNanos { }
+                    val at = dragAt ?: break
+                    val from = dragFrom ?: break
+                    val height = state.layoutInfo.viewportSize.height.toFloat()
+                    val push = when {
+                        height <= 0f -> 0f
+                        at.y < edgePx -> -(edgePx - at.y) / edgePx
+                        at.y > height - edgePx -> (at.y - (height - edgePx)) / edgePx
+                        else -> 0f
+                    }
+                    if (push != 0f) state.scrollBy(push.coerceIn(-1f, 1f) * speedPx)
+                    val hit = state.itemIndexAt(at) ?: continue
+                    chosen = dragBase + items.subList(minOf(from, hit), maxOf(from, hit) + 1)
+                }
+            }
+
+            LazyVerticalGrid(
                 // ⚠️ `Adaptive` e non un numero fisso di colonne: la stessa misura
                 // minima dà tre colonne su un telefono e sei su un tablet o in
                 // orizzontale, senza un ramo per ogni forma di schermo.
@@ -233,7 +340,7 @@ fun GridScreen(
                 horizontalArrangement = Arrangement.spacedBy(GAP),
                 verticalArrangement = Arrangement.spacedBy(GAP),
                 contentPadding = PaddingValues(bottom = 16.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().then(grab)
             ) {
                 itemsIndexed(
                     items = items,
@@ -257,10 +364,10 @@ fun GridScreen(
                         // la sesta ne vuole sei, non vuole uscire e perderle.
                         onClick = {
                             if (picking) chosen = chosen.toggle(uri) else onOpen(index)
-                        },
-                        onLongClick = { chosen = chosen.toggle(uri) }
+                        }
                     )
                 }
+            }
             }
         }
     }
@@ -272,6 +379,21 @@ fun GridScreen(
 
 /** Toglie o mette, che è quello che fa un tocco su una cosa selezionabile. */
 private fun Set<Uri>.toggle(uri: Uri): Set<Uri> = if (uri in this) this - uri else this + uri
+
+/**
+ * Quale riquadro sta sotto un punto, o `null` se là non c'è niente.
+ *
+ * ⚠️ Si guardano i soli riquadri **in vista**, che è tutto quello che serve e tutto quello
+ * che si può sapere: di una fotografia fuori schermo la griglia pigra non conosce nemmeno
+ * la posizione. ⚠️ Un punto nei distacchi fra le piastrelle non appartiene a nessuna, e
+ * torna `null` invece del vicino più prossimo: durante un trascinamento significa che
+ * l'intervallo non cambia per un istante, che è meglio di un intervallo che salta.
+ */
+private fun LazyGridState.itemIndexAt(at: Offset): Int? =
+    layoutInfo.visibleItemsInfo.firstOrNull {
+        at.x >= it.offset.x && at.x < it.offset.x + it.size.width &&
+            at.y >= it.offset.y && at.y < it.offset.y + it.size.height
+    }?.index
 
 /**
  * Un riquadro della griglia.
@@ -296,10 +418,9 @@ private fun Thumbnail(
     total: Int,
     marked: Boolean,
     chosen: Boolean,
-    onClick: () -> Unit,
-    onLongClick: () -> Unit
+    onClick: () -> Unit
 ) {
-    val shape = RoundedCornerShape(4.dp)
+    val shape = RoundedCornerShape(CORNER)
     // La richiesta si costruisce una volta per indirizzo: ricrearla a ogni
     // ricomposizione darebbe a Coil un oggetto nuovo da confrontare per ogni fotogramma
     // di scorrimento, e questo è il posto in cui i fotogrammi contano.
@@ -334,15 +455,52 @@ private fun Thumbnail(
                 // Il fondo si vede finché la miniatura non è pronta: senza, la griglia
                 // lampeggerebbe del colore della pagina.
                 .background(MaterialTheme.colorScheme.surfaceVariant)
-                .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+                // ⚠️⚠️ **IL TOCCO LUNGO NON STA PIÙ QUI, ed è la lezione già pagata dalla
+                // `0.22`**: dalla `0.53` il tocco lungo apre una selezione **da/a** che
+                // continua col trascinamento, e un gesto che comincia su una piastrella e
+                // finisce su un'altra non può vivere dentro la piastrella. Sta sulla
+                // griglia, che è l'unica che le vede tutte. ⚠️ Chi volesse aggiungere un
+                // gesto lo aggiunga **dentro** quello, non accanto.
+                .clickable(onClick = onClick)
         )
         if (marked) {
+            /*
+             * ⚠️⚠️ **TRATTEGGIATO E SENZA VELO dalla 0.53** (richiesta dell'utente). Prima
+             * era un velo colorato su tutto il riquadro più un filo continuo, e il velo
+             * serviva a farsi vedere da lontano; il tratteggio fa lo stesso lavoro con una
+             * forma invece che con una tinta, e lascia la fotografia com'è.
+             * ⚠️ **Il costo, dichiarato**: su una foto molto affollata un filo tratteggiato
+             * si legge meno di una tinta su tutto il riquadro. È il baratto che l'utente ha
+             * scelto, e chi lo rimette in discussione rimetta prima il velo in discussione
+             * con lui.
+             * ⚠️ **Rientra di mezzo spessore**, o metà del tratto cadrebbe fuori dai limiti
+             * e verrebbe tagliata: un rettangolo si disegna sul suo bordo, metà di qua e
+             * metà di là.
+             * ⚠️ Resta un riquadro fratello e non un `Modifier.border` nella catena, che è
+             * la lezione della `0.34` scritta qui sotto: due fratelli si dipingono
+             * nell'ordine in cui sono scritti, e su questo non c'è niente da sapere.
+             */
+            val tint = MaterialTheme.colorScheme.primary
+            val ringPx = with(LocalDensity.current) { RING.toPx() }
+            val dashPx = with(LocalDensity.current) { DASH.toPx() }
+            val cornerPx = with(LocalDensity.current) { CORNER.toPx() }
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .clip(shape)
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = VEIL))
-                    .border(RING, MaterialTheme.colorScheme.primary, shape)
+                    .drawBehind {
+                        drawRoundRect(
+                            color = tint,
+                            topLeft = Offset(ringPx / 2f, ringPx / 2f),
+                            size = Size(size.width - ringPx, size.height - ringPx),
+                            cornerRadius = CornerRadius(cornerPx),
+                            style = Stroke(
+                                width = ringPx,
+                                pathEffect = PathEffect.dashPathEffect(
+                                    floatArrayOf(dashPx, dashPx)
+                                )
+                            )
+                        )
+                    }
             )
         }
         /*
@@ -360,17 +518,36 @@ private fun Thumbnail(
                 modifier = Modifier
                     .matchParentSize()
                     .clip(shape)
-                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = PICKED_VEIL))
+                    // ⚠️ **SCHIARISCE, non scurisce** (richiesta dell'utente, 2026-08-29):
+                    // scurire faceva sembrare la foto scelta più lontana, come se fosse
+                    // stata messa da parte, mentre sceglierla è tirarla avanti.
+                    .background(Color.White.copy(alpha = PICKED_VEIL))
             )
-            Icon(
-                imageVector = Icons.Default.CheckCircle,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
+            /*
+             * ⚠️⚠️ **LA SPUNTA STA SU UN DISCO PIENO, e senza quello non si vedeva**: una
+             * icona colorata appoggiata a una fotografia qualunque sparisce contro un
+             * fondo dello stesso colore, ed è quello che l'utente ha segnalato. Il disco
+             * dell'accento con il glifo del suo `onPrimary` porta con sé il proprio
+             * contrasto, quindi si legge su qualunque cosa ci sia sotto.
+             * ⚠️ Il glifo è un `Check` nudo e non un `CheckCircle`: il cerchio del secondo
+             * sarebbe un contorno dentro un disco pieno, cioè due cerchi.
+             */
+            Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(4.dp)
+                    .padding(5.dp)
                     .size(TICK)
-            )
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(TICK * 0.72f)
+                )
+            }
         }
     }
 }
@@ -392,24 +569,36 @@ private val GAP = 3.dp
 private val RING = 4.dp
 
 /**
- * Quanto si scurisce una miniatura scelta.
+ * Quanto si SCHIARISCE una miniatura scelta.
  *
- * ⚠️ Serve a far risaltare la spunta, non a segnalare da solo: su una fotografia già
- * scura un velo scuro non si nota, ed è la ragione per cui il segno vero è il simbolo.
+ * ⚠️ Serve ad accompagnare la spunta, non a segnalare da solo: su una fotografia già
+ * chiara un velo chiaro non si nota, ed è la ragione per cui il segno vero è il disco.
+ * ⚠️ **Schiarisce e non scurisce dalla 0.53**, per scelta dell'utente: una foto scelta
+ * deve venire avanti, non mettersi da parte.
  */
-private const val PICKED_VEIL = 0.28f
+private const val PICKED_VEIL = 0.34f
 
-/** Il lato della spunta. Grande abbastanza da vedersi su un riquadro da 108dp. */
-private val TICK = 22.dp
+/** Il lato del disco della spunta. Cresciuto nella 0.53, perché non si vedeva abbastanza. */
+private val TICK = 28.dp
+
+/** La lunghezza di un tratto del bordo tratteggiato, e del vuoto che lo segue. */
+private val DASH = 6.dp
+
+/** Il raggio degli angoli di una piastrella, in un posto solo perché lo usano in due. */
+private val CORNER = 4.dp
 
 /**
- * Quanto tinge il velo sull'ultima foto guardata.
+ * Quanto è alta la fascia, in cima e in fondo, dentro la quale un dito che trascina fa
+ * scorrere la griglia da solo.
  *
- * ⚠️ Abbastanza da riconoscere il riquadro con la coda dell'occhio, poco da lasciar
- * vedere la fotografia: a un quarto la miniatura diventa una macchia colorata, e allora il
- * segno mangia proprio la cosa che deve indicare.
+ * ⚠️ Larga quanto **mezza piastrella**: più stretta e la si manca, più larga e si comincia
+ * a scorrere mentre si sta ancora scegliendo in mezzo allo schermo.
  */
-private const val VEIL = 0.22f
+private val EDGE_BAND = 56.dp
+
+/** Quanti pixel al fotogramma, al massimo, cioè col dito sul bordo estremo. */
+private val EDGE_SPEED = 14.dp
+
 
 /** Tutti i riquadri sono la stessa cosa, e dirlo permette a Compose di riusarli. */
 private const val THUMB_KIND = "thumb"
