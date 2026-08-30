@@ -482,7 +482,14 @@ fun ViewerScreen(
     // ⚠️ I dialoghi stanno FUORI dal riquadro dell'immagine e fuori dal menu, che è la
     // ragione per cui esistono in questo file e non là: sono finestre a sé, e devono
     // sopravvivere alla fotografia su cui agiscono. Vedi `perform`.
-    FileJobDialogs(job = job, onClose = { job = null }, onRun = perform)
+    FileJobDialogs(
+        job = job,
+        // ⚠️ Qui le impostazioni ci sono già, quindi i campi si leggono da loro: la griglia
+        // invece se li fa passare, perché non le ha.
+        fields = settings.factRows,
+        onClose = { job = null },
+        onRun = perform
+    )
 }
 
 /**

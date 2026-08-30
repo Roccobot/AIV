@@ -213,7 +213,29 @@ data class Settings(
      * 'escludi' accanto a una che cancellerà davvero è il posto giusto per un equivoco.
      */
     val hiddenFolders: Set<String> = emptySet(),
-)
+    /**
+     * L'ordine dei campi delle informazioni sul file. Vedi [FactField].
+     *
+     * ⚠️ **Ci sono TUTTI, anche quelli spenti**, ed è la differenza fra un ordine e un
+     * elenco: se qui vivessero solo i visibili, riaccenderne uno vorrebbe dire non sapere
+     * più dove rimetterlo, e ricomparirebbe in fondo invece che al suo posto.
+     */
+    val factOrder: List<FactField> = FactField.entries,
+    /**
+     * I campi che l'utente ha spento.
+     *
+     * ⚠️ **L'insieme dice chi NON si vede, non chi si vede**: così un campo aggiunto da
+     * una versione futura nasce **acceso**, che è il verso giusto. Al contrario nascerebbe
+     * invisibile su ogni telefono che ha toccato l'impostazione una volta, cioè
+     * introvabile.
+     * ⚠️ I tre campi [FactField.always] non ci finiscono mai: lo garantisce la lettura,
+     * non la buona volontà di chi scrive l'interfaccia.
+     */
+    val factOff: Set<FactField> = emptySet(),
+) {
+    /** I campi da mostrare, nell'ordine scelto e senza quelli spenti. */
+    val factRows: List<FactField> get() = factOrder.filterNot { it in factOff }
+}
 
 /**
  * One store for everything the app remembers, declared at file level so that both
@@ -246,6 +268,12 @@ object SettingsStore {
     private val FOLDER_COLUMNS_KEY = intPreferencesKey("folder-columns")
     private val HIDDEN_FOLDERS = stringSetPreferencesKey("hidden-folders")
 
+    // ⚠️ Due chiavi e non una, perché sono due domande: in che ordine stanno i campi, e
+    // quali sono spenti. Una sola stringa coi soli accesi perderebbe la posizione di
+    // quelli spenti (vedi `Settings.factOrder`).
+    private val FACT_ORDER = stringPreferencesKey("fact-order")
+    private val FACT_OFF = stringSetPreferencesKey("fact-off")
+
     /** Bounds of the only numeric setting, so a stored value out of range cannot reach the viewer. */
     const val ZOOM_MAX_MIN = 2f
     const val ZOOM_MAX_MAX = 200f
@@ -271,6 +299,14 @@ object SettingsStore {
             // griglia a zero colonne, cioè una schermata vuota senza nessun errore.
             folderColumns = p[FOLDER_COLUMNS_KEY]?.takeIf { it in FOLDER_COLUMNS } ?: 2,
             hiddenFolders = p[HIDDEN_FOLDERS] ?: emptySet(),
+            factOrder = factOrderOf((p[FACT_ORDER] ?: "").split(',')),
+            // ⚠️ I campi sempre visibili si tolgono **in lettura**: un archivio che li
+            // dichiarasse spenti (una versione futura, un file modificato a mano) non deve
+            // poter far sparire il nome del file.
+            factOff = (p[FACT_OFF] ?: emptySet())
+                .mapNotNull { t -> FactField.entries.firstOrNull { it.token == t } }
+                .filterNot { it.always }
+                .toSet(),
         )
     }
 
@@ -295,6 +331,8 @@ object SettingsStore {
             p[UI_THEME] = settings.uiTheme.token
             p[FOLDER_COLUMNS_KEY] = settings.folderColumns
             p[HIDDEN_FOLDERS] = settings.hiddenFolders
+            p[FACT_ORDER] = settings.factOrder.joinToString(",") { it.token }
+            p[FACT_OFF] = settings.factOff.filterNot { it.always }.map { it.token }.toSet()
         }
     }
 }
