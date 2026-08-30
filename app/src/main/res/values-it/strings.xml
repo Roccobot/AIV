@@ -133,6 +133,24 @@
         <item quantity="many">%1$d scelte</item>
     </plurals>
 
+        <!-- ── Scegliere una cartella di destinazione nel filesystem ── -->
+    <string name="dest_storages">Memorie</string>
+    <string name="dest_empty">Qui dentro non ci sono cartelle.</string>
+    <string name="dest_new">Nuova cartella</string>
+    <string name="dest_create">Crea</string>
+    <string name="dest_here">Copia in %1$s</string>
+    <string name="menu_copy_here">Copia</string>
+    <plurals name="copy_done">
+        <item quantity="one">%1$d immagine copiata</item>
+        <item quantity="other">%1$d immagini copiate</item>
+        <item quantity="many">%1$d immagini copiate</item>
+    </plurals>
+    <plurals name="copy_failed">
+        <item quantity="one">%1$d non è passata</item>
+        <item quantity="other">%1$d non sono passate</item>
+        <item quantity="many">%1$d non sono passate</item>
+    </plurals>
+
     <plurals name="folders_count">
         <item quantity="one">%1$d immagine</item>
         <!-- ⚠️ La categoria `many` dell'italiano non è un doppione di `other`: il CLDR la
