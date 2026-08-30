@@ -37,7 +37,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Info
@@ -45,12 +45,10 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -337,94 +335,16 @@ fun GridScreen(
                     }
                 }
             }
+            // ⚠️ 'Tutte' sta accanto al conto e non nel riquadro delle azioni, ed è la
+            // sola cosa rimasta qui: su una cartella da trecento foto il gesto
+            // alternativo è trecento tocchi, e non è un'operazione sui file ma un modo
+            // di scegliere. La barra parla della selezione, il tastino di cosa farne.
             if (picking) {
-                // ⚠️ 'Tutte' sta accanto al conto e non in un menu: su una cartella da
-                // trecento foto il gesto alternativo è trecento tocchi.
                 IconButton(onClick = { chosen = items?.toSet() ?: emptySet() }) {
                     Icon(
                         imageVector = Icons.Default.SelectAll,
                         contentDescription = stringResource(R.string.pick_all)
                     )
-                }
-                IconButton(onClick = {
-                    val list = chosen.toList()
-                    scope.launch { ImageActions.shareMany(context, list) }
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.Share,
-                        contentDescription = stringResource(R.string.menu_share)
-                    )
-                }
-                /*
-                 * ⚠️⚠️ **LE OPERAZIONI STANNO IN UN MENU, e con sette non c'era scelta**:
-                 * sette tastini in fila su uno schermo da 360dp lascerebbero al conto
-                 * delle foto meno spazio del conto stesso, e il primo a sparire sarebbe
-                 * proprio quello che dice quante se ne stanno per cancellare.
-                 * ⚠️ **Fuori restano le due che non fanno danni e si usano di più**,
-                 * 'tutte' e 'condividi': una selezione la si fa quasi sempre per una di
-                 * quelle due, e metterle a due tocchi sarebbe raddoppiare il gesto comune
-                 * per abbreviare quello raro.
-                 * ⚠️ **Elimina sta in fondo, dopo una riga e nel colore dell'errore**: è
-                 * l'unica voce irreversibile del menu, e la distanza dalle altre è quello
-                 * che impedisce di toccarla mirando a 'rinomina'.
-                 */
-                Box {
-                    IconButton(onClick = { menuOpen = true }) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = stringResource(R.string.pick_more)
-                        )
-                    }
-                    DropdownMenu(
-                        expanded = menuOpen,
-                        onDismissRequest = { menuOpen = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.menu_copy_here)) },
-                            leadingIcon = { Icon(Icons.Default.ContentCopy, null) },
-                            onClick = {
-                                menuOpen = false
-                                transfer = Transfer.COPY
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.pick_move)) },
-                            leadingIcon = { Icon(Icons.AutoMirrored.Filled.DriveFileMove, null) },
-                            onClick = {
-                                menuOpen = false
-                                transfer = Transfer.MOVE
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.pick_rename)) },
-                            leadingIcon = { Icon(Icons.Default.Edit, null) },
-                            onClick = {
-                                menuOpen = false
-                                renaming = chosen.toList()
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.pick_info)) },
-                            leadingIcon = { Icon(Icons.Outlined.Info, null) },
-                            onClick = {
-                                menuOpen = false
-                                showingFacts = true
-                            }
-                        )
-                        HorizontalDivider()
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.pick_delete)) },
-                            leadingIcon = { Icon(Icons.Default.Delete, null) },
-                            colors = MenuDefaults.itemColors(
-                                textColor = MaterialTheme.colorScheme.error,
-                                leadingIconColor = MaterialTheme.colorScheme.error
-                            ),
-                            onClick = {
-                                menuOpen = false
-                                deleting = true
-                            }
-                        )
-                    }
                 }
             }
         }
@@ -520,41 +440,127 @@ fun GridScreen(
                 }
             }
 
-            LazyVerticalGrid(
-                // ⚠️ `Adaptive` e non un numero fisso di colonne: la stessa misura
-                // minima dà tre colonne su un telefono e sei su un tablet o in
-                // orizzontale, senza un ramo per ogni forma di schermo.
-                columns = GridCells.Adaptive(minSize = THUMB),
-                state = state,
-                horizontalArrangement = Arrangement.spacedBy(GAP),
-                verticalArrangement = Arrangement.spacedBy(GAP),
-                contentPadding = PaddingValues(bottom = 16.dp),
-                modifier = Modifier.fillMaxWidth().then(grab)
-            ) {
-                itemsIndexed(
-                    items = items,
-                    // ⚠️ La chiave è l'indirizzo e non la posizione: senza, ruotando
-                    // il telefono le miniature già decodificate si rimescolerebbero
-                    // fra i riquadri.
-                    key = { _, uri -> uri.toString() },
-                    // Un tipo solo per tutti i riquadri: così Compose riusa la
-                    // composizione di quelli che escono per quelli che entrano,
-                    // invece di ricostruirla a ogni riga che scorre.
-                    contentType = { _, _ -> THUMB_KIND }
-                ) { index, uri ->
-                    Thumbnail(
-                        uri = uri,
-                        position = index + 1,
-                        total = items.size,
-                        marked = index == highlight,
-                        chosen = uri in chosen,
-                        // ⚠️ In selezione il tocco NORMALE sceglie invece di aprire, ed è
-                        // la convenzione di ogni galleria: chi ne ha scelte cinque e tocca
-                        // la sesta ne vuole sei, non vuole uscire e perderle.
-                        onClick = {
-                            if (picking) chosen = chosen.toggle(uri) else onOpen(index)
+            /*
+             * ⚠️⚠️ **IL RIQUADRO STA IN UN `Box` INTORNO ALLA SOLA GRIGLIA, e non intorno
+             * a tutta la schermata**: è la parte su cui il tastino galleggia, quindi
+             * avvolgere il resto avrebbe voluto dire spostare di rientro trecento righe
+             * per niente. ⚠️ Il `weight` serve: senza, con tre sole fotografie il `Box`
+             * sarebbe alto quanto loro e il tastino finirebbe a mezza schermata invece che
+             * in basso.
+             */
+            Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
+                LazyVerticalGrid(
+                    // ⚠️ `Adaptive` e non un numero fisso di colonne: la stessa misura
+                    // minima dà tre colonne su un telefono e sei su un tablet o in
+                    // orizzontale, senza un ramo per ogni forma di schermo.
+                    columns = GridCells.Adaptive(minSize = THUMB),
+                    state = state,
+                    horizontalArrangement = Arrangement.spacedBy(GAP),
+                    verticalArrangement = Arrangement.spacedBy(GAP),
+                    // ⚠️ Il fondo cresce **con la selezione**, cioè quando il tastino
+                    // compare: senza, la fotografia in basso a destra resterebbe coperta
+                    // proprio mentre la si deve poter toccare. Fuori dalla selezione il
+                    // tastino non c'è e quello spazio sarebbe un buco.
+                    contentPadding = PaddingValues(bottom = if (picking) BELOW_FAB else 16.dp),
+                    modifier = Modifier.fillMaxWidth().then(grab)
+                ) {
+                    itemsIndexed(
+                        items = items,
+                        // ⚠️ La chiave è l'indirizzo e non la posizione: senza, ruotando
+                        // il telefono le miniature già decodificate si rimescolerebbero
+                        // fra i riquadri.
+                        key = { _, uri -> uri.toString() },
+                        // Un tipo solo per tutti i riquadri: così Compose riusa la
+                        // composizione di quelli che escono per quelli che entrano,
+                        // invece di ricostruirla a ogni riga che scorre.
+                        contentType = { _, _ -> THUMB_KIND }
+                    ) { index, uri ->
+                        Thumbnail(
+                            uri = uri,
+                            position = index + 1,
+                            total = items.size,
+                            marked = index == highlight,
+                            chosen = uri in chosen,
+                            // ⚠️ In selezione il tocco NORMALE sceglie invece di aprire,
+                            // ed è la convenzione di ogni galleria: chi ne ha scelte
+                            // cinque e tocca la sesta ne vuole sei, non vuole uscire e
+                            // perderle.
+                            onClick = {
+                                if (picking) chosen = chosen.toggle(uri) else onOpen(index)
+                            }
+                        )
+                    }
+                }
+
+                /*
+                 * ⚠️⚠️ **LE OPERAZIONI STANNO IN UN TASTINO DEDICATO dalla 0.61**
+                 * (richiesta dell'utente: *le azioni disponibili devono comparire in un
+                 * FAB dedicato, icona diversa, tipo hamburger*). Prima stavano in testata,
+                 * un tastino per 'condividi' e un menu a tendina per le altre cinque, e
+                 * il conto delle foto scelte si giocava lo spazio con loro.
+                 * ⚠️ **Nella griglia delle foto non c'è nessun tastino da sostituire**, e
+                 * va detto invece di lasciarlo scoprire: quello quadrato vive nella
+                 * schermata delle cartelle. Qui il tastino **compare** con la selezione e
+                 * sparisce con lei, che è il modo di dire che si è in un modo diverso.
+                 * ⚠️ **Le sei azioni le disegna [ActionPad], che è condiviso col
+                 * visualizzatore**: l'ordine e le icone stanno là, una volta sola.
+                 * ⚠️ Il margine è 8 e non 16 come quello delle cartelle perché la griglia
+                 * sta già dentro il margine della schermata, e i due si sommano.
+                 */
+                if (picking) {
+                    Box(modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp)) {
+                        SmallFloatingActionButton(
+                            onClick = { menuOpen = true },
+                            shape = RoundedCornerShape(FAB_CORNER)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Menu,
+                                contentDescription = stringResource(R.string.pick_actions)
+                            )
                         }
-                    )
+                        DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                            ActionPad(
+                                actions = listOf(
+                                    PadAction(Icons.Default.ContentCopy, R.string.menu_copy_here) {
+                                        menuOpen = false
+                                        transfer = Transfer.COPY
+                                    },
+                                    PadAction(
+                                        Icons.AutoMirrored.Filled.DriveFileMove,
+                                        R.string.pick_move
+                                    ) {
+                                        menuOpen = false
+                                        transfer = Transfer.MOVE
+                                    },
+                                    PadAction(
+                                        Icons.Default.Delete,
+                                        R.string.pick_delete,
+                                        danger = true
+                                    ) {
+                                        menuOpen = false
+                                        deleting = true
+                                    },
+                                    PadAction(Icons.Default.Edit, R.string.pick_rename) {
+                                        menuOpen = false
+                                        renaming = chosen.toList()
+                                    },
+                                    PadAction(Icons.Default.Share, R.string.menu_share) {
+                                        menuOpen = false
+                                        // ⚠️ La lista si prende ADESSO: la condivisione
+                                        // gira in una coroutine, e leggere `chosen` da
+                                        // dentro leggerebbe una selezione che nel
+                                        // frattempo può essere cambiata.
+                                        val list = chosen.toList()
+                                        scope.launch { ImageActions.shareMany(context, list) }
+                                    },
+                                    PadAction(Icons.Outlined.Info, R.string.pick_info) {
+                                        menuOpen = false
+                                        showingFacts = true
+                                    }
+                                )
+                            )
+                        }
+                    }
                 }
             }
             }

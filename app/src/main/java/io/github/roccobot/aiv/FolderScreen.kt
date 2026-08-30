@@ -494,7 +494,7 @@ private fun Hub(
             onClick = { open = true },
             // Quadrato con gli angoli appena smussati, come chiesto: il tondo pieno
             // griderebbe 'azione principale', e qui l'azione principale sono le cartelle.
-            shape = RoundedCornerShape(HUB_CORNER)
+            shape = RoundedCornerShape(FAB_CORNER)
         ) {
             Icon(
                 imageVector = Icons.Default.MoreHoriz,
@@ -589,7 +589,7 @@ private fun Covers(
         verticalArrangement = Arrangement.spacedBy(FOLDER_GAP),
         // ⚠️ Lo spazio in fondo tiene l'ultima cartella fuori da sotto il tastino, che
         // le si siederebbe sopra proprio quando si è scorso fino in fondo.
-        contentPadding = PaddingValues(bottom = BELOW_HUB),
+        contentPadding = PaddingValues(bottom = BELOW_FAB),
         modifier = Modifier.fillMaxWidth()
     ) {
         items(
@@ -623,7 +623,7 @@ private fun Rows(
     onHide: (Folder.Bucket) -> Unit
 ) {
     LazyColumn(
-        contentPadding = PaddingValues(bottom = BELOW_HUB),
+        contentPadding = PaddingValues(bottom = BELOW_FAB),
         modifier = Modifier.fillMaxWidth()
     ) {
         items(items = folders, key = { it.id }, contentType = { ROW_KIND }) { bucket ->
@@ -790,12 +790,6 @@ private val FOLDER_CORNER = 12.dp
 
 /** La copertina dell'elenco: grande quanto due righe di testo, che è l'altezza della riga. */
 private val ROW_COVER = 48.dp
-
-/** Lo smusso del tastino: quadrato, ma non tagliente. */
-private val HUB_CORNER = 12.dp
-
-/** Quanto spazio resta sotto l'ultima cartella, perché il tastino non le si sieda sopra. */
-private val BELOW_HUB = 76.dp
 
 /**
  * Quanta parte dello schermo tiene il frontespizio da aperto **nella vista a elenco**.
