@@ -105,6 +105,7 @@ fun FolderScreen(
     onView: (FolderView) -> Unit,
     onForget: () -> Unit,
     onSettings: () -> Unit,
+    onSearch: () -> Unit,
     onBack: (() -> Unit)?,
     modifier: Modifier = Modifier
 ) {
@@ -268,6 +269,7 @@ fun FolderScreen(
                 onView = onView,
                 onForget = onForget,
                 onSettings = onSettings,
+                onSearch = onSearch,
                 modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
             )
         }
@@ -384,6 +386,7 @@ private fun Hub(
     onView: (FolderView) -> Unit,
     onForget: () -> Unit,
     onSettings: () -> Unit,
+    onSearch: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var open by remember { mutableStateOf(false) }
@@ -432,6 +435,13 @@ private fun Hub(
 
             HorizontalDivider()
 
+            // ⚠️ Sta in cima al gruppo delle azioni, prima delle tre vie che aprono
+            // qualcosa: cercare è la domanda che si fa più spesso quando non si sa già
+            // dove andare, ed è il caso in cui una persona apre questo menu.
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.hub_search)) },
+                onClick = { open = false; onSearch() }
+            )
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.hub_url)) },
                 onClick = { open = false; asking = true }
