@@ -125,7 +125,16 @@ fun GridScreen(
      * sarebbero messe a divergere.
      */
     query: String? = null,
-    onQuery: (String) -> Unit = {}
+    onQuery: (String) -> Unit = {},
+    /**
+     * I campi delle informazioni sul file, nell'ordine scelto: `Settings.factRows`.
+     *
+     * ⚠️ **Arriva un elenco e non le impostazioni intere**: questa schermata non ne usa
+     * nient'altro, e passarle tutte vorrebbe dire ricomporre la griglia a ogni ritocco di
+     * una voce che qui non c'entra niente.
+     * ⚠️ Il valore di serie tiene in piedi le anteprime e i richiami che non lo passano.
+     */
+    factFields: List<FactField> = FactField.entries
 ) {
     val state = rememberLazyGridState()
     val context = LocalContext.current
@@ -559,7 +568,12 @@ fun GridScreen(
     // ⚠️ I quattro dialoghi stanno in `FileOps.kt` perché li chiede anche il
     // visualizzatore: qui resta la sola cosa che è di questa schermata, cioè che a
     // operazione finita la cartella si rilegge.
-    FileJobDialogs(job = job, onClose = { job = null }, onRun = perform)
+    FileJobDialogs(
+        job = job,
+        fields = factFields,
+        onClose = { job = null },
+        onRun = perform
+    )
 }
 
 /** Toglie o mette, che è quello che fa un tocco su una cosa selezionabile. */

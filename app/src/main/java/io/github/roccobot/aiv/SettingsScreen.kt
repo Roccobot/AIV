@@ -11,10 +11,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -192,6 +197,10 @@ fun SettingsScreen(
             onChange = { onChange(settings.copy(infoVisible = it)) }
         )
 
+        HorizontalDivider(Modifier.padding(vertical = 12.dp))
+
+        FactFields(settings = settings, onChange = onChange)
+
         // ⚠️ Con la ricerca immagine è uscito anche il suo motore, che era l'ultima
         // voce di questo elenco, e con lei il separatore che la staccava: un filo
         // sopra il nulla è peggio di nessun filo.
@@ -325,6 +334,107 @@ fun SettingsScreen(
 
         Spacer(Modifier.height(24.dp))
     }
+}
+
+/**
+ * Quali dati mostrare quando si apre 'Info' su una fotografia, e in che ordine.
+ *
+ * ⚠️⚠️ **DUE COMANDI PER RIGA PERCHÉ SONO DUE DOMANDE DIVERSE**, richiesta dell'utente
+ * (2026-08-30: *scegliere quali campi e in quale ordine*): la casella dice **se** il campo
+ * si vede, le frecce **dove** sta. Un elenco che rispondesse a una sola delle due avrebbe
+ * evaso metà della richiesta.
+ *
+ * ⚠️⚠️ **LE FRECCE E NON IL TRASCINAMENTO, e la scelta è dichiarata**: riordinare una lista
+ * col dito in Compose vuol dire scriversi il gesto, la misura delle righe e lo scorrimento
+ * automatico ai bordi (lo stesso lavoro che nella griglia è costato una versione), e questa
+ * lista è di dieci righe dentro una schermata che già scorre. Due frecce sono meno eleganti
+ * e sempre chiare, anche a chi non sa che quella lista si potrebbe trascinare.
+ *
+ * ⚠️ **Il nome del file non ha nessuno dei due comandi**: è sempre visibile e sempre in
+ * testa, come l'utente ha chiesto, quindi mostrargli una casella spenta o una freccia
+ * inerte sarebbe offrire una scelta che non c'è. Gli altri due campi obbligatori (pixel e
+ * peso) portano il **lucchetto** al posto della casella e le frecce sì: 'sempre visibile'
+ * non vuol dire 'in posizione fissa'.
+ *
+ * ⚠️ **La prima freccia su e l'ultima freccia giù restano spente** invece di sparire: una
+ * fila di comandi che cambia lunghezza da riga a riga si legge peggio di una in cui uno è
+ * grigio.
+ */
+@Composable
+private fun FactFields(settings: Settings, onChange: (Settings) -> Unit) {
+    Text(
+        text = stringResource(R.string.settings_facts),
+        style = MaterialTheme.typography.titleSmall,
+        modifier = Modifier.padding(top = 12.dp)
+    )
+    Text(
+        text = stringResource(R.string.settings_facts_desc),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+
+    val order = settings.factOrder
+    order.forEachIndexed { at, field ->
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (field.always) {
+                Icon(
+                    imageVector = Icons.Default.Lock,
+                    contentDescription = stringResource(R.string.settings_facts_always),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 14.dp).size(18.dp)
+                )
+            } else {
+                Checkbox(
+                    checked = field !in settings.factOff,
+                    onCheckedChange = { on ->
+                        val off = if (on) settings.factOff - field else settings.factOff + field
+                        onChange(settings.copy(factOff = off))
+                    }
+                )
+            }
+            Text(
+                text = stringResource(field.label),
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f)
+            )
+            // ⚠️ Il nome sta in testa e non si muove: la posizione 1 è la prima che può
+            // salire, e la sua salita si ferma a 1, non a 0.
+            IconButton(
+                onClick = { onChange(settings.copy(factOrder = order.moved(at, at - 1))) },
+                enabled = at > 1
+            ) {
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowUp,
+                    contentDescription = stringResource(R.string.settings_facts_up)
+                )
+            }
+            IconButton(
+                onClick = { onChange(settings.copy(factOrder = order.moved(at, at + 1))) },
+                enabled = at in 1 until order.lastIndex
+            ) {
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = stringResource(R.string.settings_facts_down)
+                )
+            }
+        }
+    }
+}
+
+/**
+ * La stessa lista con un elemento spostato.
+ *
+ * ⚠️ Si toglie e si rimette invece di scambiare i due: lo scambio funziona solo fra vicini,
+ * e il giorno che servisse un trascinamento vero questa funzione va già bene.
+ */
+private fun List<FactField>.moved(from: Int, to: Int): List<FactField> {
+    if (from !in indices || to !in indices || from == to) return this
+    val out = toMutableList()
+    out.add(to, out.removeAt(from))
+    return out
 }
 
 /**

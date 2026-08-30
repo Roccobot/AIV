@@ -942,7 +942,8 @@ private fun AivApp(model: ViewerViewModel) {
                 highlight = if (model.gridVisited) model.series?.index else null,
                 onOpen = { model.openFromGrid(it) },
                 onBack = { model.leaveGrid() },
-                onChanged = { model.reloadGrid() }
+                onChanged = { model.reloadGrid() },
+                factFields = settings.factRows
             )
         }
 
@@ -959,7 +960,8 @@ private fun AivApp(model: ViewerViewModel) {
                 onBack = { model.leaveGrid() },
                 onChanged = { model.reloadGrid() },
                 query = model.query,
-                onQuery = { model.search(it) }
+                onQuery = { model.search(it) },
+                factFields = settings.factRows
             )
         }
 

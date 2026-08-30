@@ -353,7 +353,16 @@ object FileTree {
      * ⚠️ **Si controlla che sia davvero un file**: una riga del MediaStore può restare
      * dopo che il file è sparito, e agire su un percorso morto conterebbe come riuscito.
      */
-    private fun fileOf(context: Context, uri: Uri): File? {
+    /**
+     * Il file vero dietro un indirizzo, o `null` se non ce n'è uno raggiungibile.
+     *
+     * ⚠️ **Non è più privato dalla `0.63`**, e la ragione è buona: le informazioni sul file
+     * hanno bisogno dello stesso percorso, e per una ragione in più che vale la pena
+     * sapere. Da Android 10 il MediaStore **censura la posizione** nei dati EXIF che serve
+     * attraverso un `content://`; leggendo il file vero, che questa app può aprire perché
+     * ha l'accesso a tutti i file, le coordinate arrivano intere. Vedi `factsOf`.
+     */
+    internal fun fileOf(context: Context, uri: Uri): File? {
         val path = when (uri.scheme?.lowercase()) {
             "file" -> uri.path
             else -> runCatching {

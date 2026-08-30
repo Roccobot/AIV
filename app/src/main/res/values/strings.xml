@@ -172,10 +172,43 @@
     </plurals>
     <!-- Count and size on one line: they measure one thing, not two separate facts.
          With a single file 'in total' says nothing and is dropped. -->
+    <!-- The size first and the count second, as the user asked: what a selection weighs
+         is the number people are after, and the count is already in the bar above. -->
     <plurals name="pick_facts">
-        <item quantity="one">%1$d file, %2$s</item>
-        <item quantity="other">%1$d files, %2$s in total</item>
+        <item quantity="one">%2$s in %1$d file</item>
+        <item quantity="other">%2$s in %1$d files</item>
     </plurals>
+
+    <!-- ── The facts about one file: the field names, used BOTH as the settings rows and
+         as the labels in the dialog. One name for one thing, in one place. ── -->
+    <string name="facts_name">File name</string>
+    <string name="facts_kind">File type</string>
+    <string name="facts_pixels">Pixels</string>
+    <string name="facts_size">Size</string>
+    <string name="facts_taken">Date taken</string>
+    <string name="facts_modified">Last modified</string>
+    <string name="facts_folder">Folder</string>
+    <string name="facts_encoding">Encoding</string>
+    <string name="facts_camera">Lens and exposure</string>
+    <string name="facts_place">Location</string>
+
+    <!-- Width, height, and megapixels when there are enough of them to be worth saying. -->
+    <string name="facts_pixels_value">%1$d x %2$d</string>
+    <string name="facts_pixels_mpx">%1$d x %2$d (%3$s Mpx)</string>
+    <!-- The scan order: one word for JPEG, another for PNG, same idea. -->
+    <string name="facts_progressive">progressive</string>
+    <string name="facts_interlaced">interlaced</string>
+    <!-- A plural because English says "1 bit" and "8 bits", and lint is right to insist:
+         the bit depth of a channel is a count like any other. -->
+    <plurals name="facts_bits">
+        <item quantity="one">%1$d bit</item>
+        <item quantity="other">%1$d bits</item>
+    </plurals>
+    <string name="facts_focal">%1$s mm</string>
+    <string name="facts_exposure_fraction">1/%1$d s</string>
+    <string name="facts_exposure_seconds">%1$s s</string>
+    <string name="facts_iso">ISO %1$d</string>
+    <string name="facts_altitude">%1$d m</string>
 
         <!-- ── Choosing a destination folder in the filesystem ── -->
     <string name="dest_storages">Storage</string>
@@ -226,5 +259,12 @@
         <item quantity="one">%1$d picture</item>
         <item quantity="other">%1$d pictures</item>
     </plurals>
+
+    <!-- ── Which facts about a file to show, and in which order ── -->
+    <string name="settings_facts">File information</string>
+    <string name="settings_facts_desc">Which data you see when you open Info on a picture, and in which order. Name, pixels and size are always there; a datum the file does not carry gets no row at all.</string>
+    <string name="settings_facts_always">Always shown</string>
+    <string name="settings_facts_up">Move up</string>
+    <string name="settings_facts_down">Move down</string>
 
 </resources>
