@@ -512,8 +512,38 @@ fun GridScreen(
                             // ed è la convenzione di ogni galleria: chi ne ha scelte
                             // cinque e tocca la sesta ne vuole sei, non vuole uscire e
                             // perderle.
+                            /*
+                             * ⚠️⚠️ **IL PRIMO RAMO RIPARA IL TOCCO LUNGO SU UNA SOLA FOTO,
+                             * che dalla 0.53 non avviava più la selezione** (riscontro
+                             * dell'utente sulla 0.65). Il gesto era sano: il difetto stava
+                             * qui. `Modifier.clickable` **senza** `onLongClick` fa scattare
+                             * il tocco al rilascio **qualunque sia stata la durata** della
+                             * pressione, e nella passata `Main` gli eventi vanno dal figlio
+                             * al genitore, quindi la piastrella li vede prima della griglia:
+                             * il tocco lungo selezionava la foto, il dito si alzava, questo
+                             * richiamo partiva con `picking` già vero e la **toglieva**.
+                             * Effetto netto, niente. La spia è `dragFrom` e non un flag
+                             * nuovo perché vale esattamente fra `onDragStart` e la fine del
+                             * gesto: un tocco che la trova impostata è la **coda** di un
+                             * tocco lungo, e un tocco normale non la trova mai, perché
+                             * senza tocco lungo `onDragStart` non parte.
+                             * ⚠️ **Col trascinamento non si vedeva**, ed è la ragione per
+                             * cui la prova della 0.53 non l'aveva scoperto: `onDrag` consuma
+                             * gli eventi, e un tocco i cui eventi sono consumati si annulla
+                             * da sé. Il difetto viveva nel solo caso del dito fermo, cioè
+                             * nel gesto che si fa per selezionarne una.
+                             * ⚠️ **Non si ripara dando un `onLongClick` alla piastrella**,
+                             * che è la strada ovvia: al tocco lungo `combinedClickable`
+                             * consuma tutto fino al rilascio, e il gesto della griglia
+                             * verrebbe annullato. Si perderebbe la selezione da/a per
+                             * riparare quella singola.
+                             */
                             onClick = {
-                                if (picking) chosen = chosen.toggle(uri) else onOpen(index)
+                                when {
+                                    dragFrom != null -> Unit
+                                    picking -> chosen = chosen.toggle(uri)
+                                    else -> onOpen(index)
+                                }
                             }
                         )
                     }
