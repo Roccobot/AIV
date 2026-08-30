@@ -148,6 +148,10 @@
     <string name="pick_all">Select all</string>
     <string name="pick_info">Info</string>
     <string name="pick_close">Close</string>
+    <string name="pick_more">More actions</string>
+    <string name="pick_move">Move</string>
+    <string name="pick_rename">Rename</string>
+    <string name="pick_delete">Delete</string>
     <string name="pick_counting">Counting...</string>
     <plurals name="pick_count">
         <item quantity="one">%1$d chosen</item>
@@ -160,15 +164,44 @@
     <string name="dest_new">New folder</string>
     <string name="dest_create">Create</string>
     <string name="dest_here">Copy into %1$s</string>
+    <string name="dest_move_here">Move into %1$s</string>
     <string name="menu_copy_here">Copy</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d picture copied</item>
         <item quantity="other">%1$d pictures copied</item>
     </plurals>
-    <plurals name="copy_failed">
+    <plurals name="move_done">
+        <item quantity="one">%1$d picture moved</item>
+        <item quantity="other">%1$d pictures moved</item>
+    </plurals>
+    <plurals name="rename_done">
+        <item quantity="one">%1$d picture renamed</item>
+        <item quantity="other">%1$d pictures renamed</item>
+    </plurals>
+    <plurals name="delete_done">
+        <item quantity="one">%1$d picture deleted</item>
+        <item quantity="other">%1$d pictures deleted</item>
+    </plurals>
+    <!-- One for all four operations: 'did not go through' fitted a copy and read oddly
+         after a deletion, and four wordings of the same notice are four places where a
+         translation can fall behind. -->
+    <plurals name="op_failed">
         <item quantity="one">%1$d did not go through</item>
         <item quantity="other">%1$d did not go through</item>
     </plurals>
+
+    <!-- ── Renaming in bulk ── -->
+    <string name="rename_template">Name</string>
+    <string name="rename_start">First number</string>
+    <string name="rename_hint">Every run of hashes becomes the number, and how many you write is how many digits: ## gives 01, ### gives 001. The extension is never touched, and the pictures are numbered in alphabetical order.</string>
+    <string name="rename_preview">Preview</string>
+
+    <!-- ── Deleting ── -->
+    <plurals name="delete_ask">
+        <item quantity="one">Delete %1$d picture?</item>
+        <item quantity="other">Delete %1$d pictures?</item>
+    </plurals>
+    <string name="delete_desc">They go from the phone for good: AIV has no bin of its own, and deleting the files straight off the disk skips the gallery one too.</string>
 
     <plurals name="folders_count">
         <item quantity="one">%1$d picture</item>
