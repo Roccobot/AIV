@@ -1,6 +1,7 @@
 package io.github.roccobot.aiv
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,6 +31,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Info
@@ -65,6 +67,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -117,6 +120,7 @@ fun GridScreen(
      */
     var chosen by remember(items) { mutableStateOf<Set<Uri>>(emptySet()) }
     var showingFacts by remember { mutableStateOf(false) }
+    var choosingDest by remember { mutableStateOf(false) }
     val picking = chosen.isNotEmpty()
 
     // ⚠️ Indietro esce dalla SELEZIONE prima di uscire dalla cartella: chi ha scelto
@@ -238,6 +242,12 @@ fun GridScreen(
                     Icon(
                         imageVector = Icons.Outlined.Info,
                         contentDescription = stringResource(R.string.pick_info)
+                    )
+                }
+                IconButton(onClick = { choosingDest = true }) {
+                    Icon(
+                        imageVector = Icons.Default.ContentCopy,
+                        contentDescription = stringResource(R.string.menu_copy_here)
                     )
                 }
                 IconButton(onClick = {
@@ -374,6 +384,47 @@ fun GridScreen(
 
     if (showingFacts) {
         FactsDialog(uris = chosen.toList(), onDismiss = { showingFacts = false })
+    }
+
+    if (choosingDest) {
+        // ⚠️ Le risorse si prendono da `LocalResources` e non da `context.resources`, e non
+        // è pignoleria di lint: quest'ultimo non segue i cambi di configurazione, quindi
+        // dopo un cambio di lingua o una rotazione servirebbe la versione vecchia. Si
+        // legge QUI, mentre si compone, e si usa dentro la coroutine.
+        val res = LocalResources.current
+        DestinationDialog(
+            onDismiss = { choosingDest = false },
+            onPick = { dir ->
+                val list = chosen.toList()
+                choosingDest = false
+                // ⚠️ La selezione si SVUOTA subito, prima che la copia finisca: il lavoro
+                // è partito, e lasciare le spunte accese inviterebbe a toccare Copia una
+                // seconda volta mentre la prima è ancora in corso.
+                chosen = emptySet()
+                scope.launch {
+                    val out = FileTree.copy(context, list, dir)
+                    /*
+                     * ⚠️ Un avviso solo con tutti e due i numeri: due avvisi di fila si
+                     * coprono a vicenda, e il secondo si leggerebbe senza il primo.
+                     * ⚠️ Le forme plurali si risolvono con `getQuantityString` e non con
+                     * `pluralStringResource`, perché il numero si sa solo a copia finita e
+                     * quella funzione si può chiamare solo mentre si compone.
+                     */
+                    val text = buildString {
+                        append(res.getQuantityString(R.plurals.copy_done, out.done, out.done))
+                        if (out.failed > 0) {
+                            append(", ")
+                            append(
+                                res.getQuantityString(
+                                    R.plurals.copy_failed, out.failed, out.failed
+                                )
+                            )
+                        }
+                    }
+                    Toast.makeText(context, text, Toast.LENGTH_LONG).show()
+                }
+            }
+        )
     }
 }
 

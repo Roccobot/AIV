@@ -154,6 +154,22 @@
         <item quantity="other">%1$d chosen</item>
     </plurals>
 
+        <!-- ── Choosing a destination folder in the filesystem ── -->
+    <string name="dest_storages">Storage</string>
+    <string name="dest_empty">No folder in here.</string>
+    <string name="dest_new">New folder</string>
+    <string name="dest_create">Create</string>
+    <string name="dest_here">Copy into %1$s</string>
+    <string name="menu_copy_here">Copy</string>
+    <plurals name="copy_done">
+        <item quantity="one">%1$d picture copied</item>
+        <item quantity="other">%1$d pictures copied</item>
+    </plurals>
+    <plurals name="copy_failed">
+        <item quantity="one">%1$d did not go through</item>
+        <item quantity="other">%1$d did not go through</item>
+    </plurals>
+
     <plurals name="folders_count">
         <item quantity="one">%1$d picture</item>
         <item quantity="other">%1$d pictures</item>
