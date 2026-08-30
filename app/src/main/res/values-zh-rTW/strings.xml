@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- zh-rTW. Tradotto da AIV: la fonte di verità resta values/strings.xml, e ogni chiave nuova va aggiunta anche qui. -->
+<resources>
+    <string name="app_name">Astonishing Image Viewer</string>
+    <string name="app_short_name">AIV</string>
+    <string name="no_image">沒有可顯示的圖片</string>
+    <string name="open_failed">無法開啟這張圖片</string>
+    <string name="unsupported">尚未支援這種格式</string>
+    <string name="too_large">圖片對這台裝置來說太大了</string>
+    <string name="error_retry">重試</string>
+    <string name="fit_label">符合檢視</string>
+    <string name="url_hint">https://example.com/picture.jpg</string>
+    <string name="url_forget">忘記這些</string>
+    <string name="url_not_image">這個網址並不指向圖片</string>
+    <string name="menu_copy_image">複製到剪貼簿</string>
+    <string name="menu_share">分享</string>
+    <string name="menu_save">儲存</string>
+    <string name="menu_details">詳細資料</string>
+    <string name="toast_image_copied">已複製圖片</string>
+    <string name="toast_copy_failed">複製沒有成功</string>
+    <string name="toast_saved">已儲存</string>
+    <string name="toast_save_failed">儲存沒有成功</string>
+    <string name="folder_why">要翻看資料夾裡的其他圖片,AIV 需要存取所有檔案的權限。請在剛開啟的頁面裡打開開關。</string>
+    <string name="folder_no_access">無法存取這個資料夾</string>
+    <string name="folder_unreadable">名稱和大小無法讀取</string>
+    <string name="folder_not_in_gallery">不在圖庫中 (%1$s)</string>
+    <string name="folder_alone">資料夾裡只有它</string>
+    <string name="folder_lost">在資料夾裡找不到</string>
+    <string name="settings_title">設定</string>
+    <string name="settings_back">返回</string>
+    <string name="settings_background">圖片背後</string>
+    <string name="settings_bg_checker">棋盤格</string>
+    <string name="settings_bg_solid">純色</string>
+    <string name="settings_bg_desc">棋盤格是唯一能讓透明可見的背景,而在看圖程式裡,透明是資訊而不是裝飾。</string>
+    <string name="settings_ui_theme">主題</string>
+    <string name="settings_ui_theme_desc">應用程式本身是淺色還是深色。這與緊接在下面的圖片背景是兩回事:棋盤格是用來顯示透明的,不是用來配色的。</string>
+    <string name="settings_system">跟隨系統</string>
+    <string name="settings_theme_light">淺色</string>
+    <string name="settings_theme_dark">深色</string>
+    <string name="settings_bg_theme">背景色調</string>
+    <string name="settings_auto">自動</string>
+    <string name="settings_light">淺色</string>
+    <string name="settings_dark">深色</string>
+    <string name="settings_folder_columns">資料夾格狀檢視的欄數</string>
+    <string name="settings_folder_columns_desc">欄數越多,螢幕上放得下的資料夾越多,每張封面也越小。到四欄時,下面的名稱通常會被截斷。</string>
+    <string name="settings_fit_grow">放大較小的圖片</string>
+    <string name="settings_fit_grow_desc">關閉時,比螢幕小的圖片以實際大小顯示。開啟時,它會放大到填滿檢視。</string>
+    <string name="settings_zoom_max">最大縮放</string>
+    <string name="settings_scale_mode" formatted="false">100% 的意思</string>
+    <string name="settings_scale_physical">檔案的一個像素對應螢幕的一個像素</string>
+    <string name="settings_scale_logical">檔案的一個像素對應版面的一個像素</string>
+    <string name="settings_scale_desc">手機螢幕會把兩三個真實像素塞進一個版面像素,所以兩個答案相差很遠:前者依檔案本來的樣子顯示,後者依網頁上的大小顯示。</string>
+    <string name="settings_info_position">詳細資料列</string>
+    <string name="settings_top">在上方</string>
+    <string name="settings_bottom">在下方</string>
+    <string name="settings_info_visible">一開始就顯示詳細資料列</string>
+    <string name="settings_reverse_order">反轉圖片順序 (依日期)</string>
+    <string name="settings_reverse_order_desc">關閉時,從最新的圖片翻向較舊的,和手機圖庫一樣。開啟時,依時間先後,從最舊翻到最新。</string>
+    <string name="settings_clipboard">啟動時讀取剪貼簿</string>
+    <string name="settings_clipboard_desc">從圖示開啟應用程式時,如果剪貼簿裡的網址直接指向一張圖片,就開啟那張圖片。每次應用程式讀取剪貼簿,Android 都會提示;保持關閉就永遠不會看到它。</string>
+    <string name="settings_start_folder">啟動時開啟一個資料夾</string>
+    <string name="settings_start_folder_desc">開啟應用程式後直接顯示所選資料夾裡的圖片,而不是資料夾清單。</string>
+    <string name="settings_start_folder_none">尚未選擇資料夾</string>
+    <string name="settings_start_folder_pick">選擇</string>
+    <string name="folders_title">資料夾</string>
+    <string name="folders_permission">列出資料夾需要存取所有檔案的權限。這與翻看資料夾用的是同一個權限,在系統頁面裡授予。</string>
+    <string name="folders_grant">授予存取權</string>
+    <string name="folders_none">沒有資料夾含有圖片。</string>
+    <string name="hub_open">更多</string>
+    <string name="hub_view_list">清單檢視</string>
+    <string name="hub_view_grid">格狀檢視</string>
+    <string name="hub_search">搜尋</string>
+    <string name="hub_url">開啟一個網址</string>
+    <string name="hub_pick">開啟一張圖片</string>
+    <string name="hub_settings">設定</string>
+    <string name="url_open">開啟</string>
+    <string name="url_recent">之前開啟過</string>
+    <string name="folder_empty">這個資料夾裡已經沒有圖片了。</string>
+    <string name="cancel">取消</string>
+    <string name="hide_folder_title">隱藏 %1$s 嗎?</string>
+    <string name="hide_folder_desc">它不再出現在可翻看的資料夾裡。不會刪除任何東西:圖片仍在原處,你可以在設定裡把資料夾找回來。</string>
+    <string name="hide_folder_do">隱藏</string>
+    <string name="settings_hidden">已隱藏的資料夾</string>
+    <string name="settings_hidden_desc">長按一個資料夾即可隱藏它。這些資料夾不再出現在清單裡,但在手機上原封不動。</string>
+    <string name="settings_hidden_show">顯示</string>
+    <string name="search_hint">在檔名中搜尋</string>
+    <string name="search_clear">清除</string>
+    <string name="search_none">沒有圖片的名稱裡含有 \'%1$s\'。</string>
+    <string name="identity_repo">在 GitHub 上開啟 AIV 的儲存庫</string>
+    <string name="grid_item">第 %1$d 張,共 %2$d 張</string>
+    <string name="grid_item_last">第 %1$d 張,共 %2$d 張,你最後看過的一張</string>
+    <string name="pick_leave">退出選取</string>
+    <string name="pick_all">全選</string>
+    <string name="pick_info">資訊</string>
+    <string name="pick_close">關閉</string>
+    <string name="pick_actions">對所選圖片的操作</string>
+    <string name="pick_move">移動</string>
+    <string name="pick_rename">重新命名</string>
+    <string name="pick_delete">刪除</string>
+    <string name="pick_counting">正在統計...</string>
+    <plurals name="pick_count">
+        <item quantity="other">已選 %1$d 張</item>
+    </plurals>
+    <plurals name="pick_facts">
+        <item quantity="other">%1$d 個檔案,共 %2$s</item>
+    </plurals>
+    <string name="facts_name">檔名</string>
+    <string name="facts_kind">檔案類型</string>
+    <string name="facts_pixels">像素</string>
+    <string name="facts_size">大小</string>
+    <string name="facts_taken">拍攝日期</string>
+    <string name="facts_modified">最後修改</string>
+    <string name="facts_folder">資料夾</string>
+    <string name="facts_encoding">編碼</string>
+    <string name="facts_camera">鏡頭與曝光</string>
+    <string name="facts_place">位置</string>
+    <string name="facts_pixels_value">%1$d x %2$d</string>
+    <string name="facts_pixels_mpx">%1$d x %2$d (%3$s Mpx)</string>
+    <string name="facts_progressive">漸進式</string>
+    <string name="facts_interlaced">交錯</string>
+    <plurals name="facts_bits">
+        <item quantity="other">%1$d 位元</item>
+    </plurals>
+    <string name="facts_focal">%1$s mm</string>
+    <string name="facts_exposure_fraction">1/%1$d s</string>
+    <string name="facts_exposure_seconds">%1$s s</string>
+    <string name="facts_iso">ISO %1$d</string>
+    <string name="facts_altitude">%1$d m</string>
+    <string name="dest_storages">儲存空間</string>
+    <string name="dest_empty">這裡沒有資料夾。</string>
+    <string name="dest_new">新資料夾</string>
+    <string name="dest_create">建立</string>
+    <string name="dest_here">複製到 %1$s</string>
+    <string name="dest_move_here">移動到 %1$s</string>
+    <string name="menu_copy_here">複製</string>
+    <plurals name="copy_done">
+        <item quantity="other">已複製 %1$d 張</item>
+    </plurals>
+    <plurals name="move_done">
+        <item quantity="other">已移動 %1$d 張</item>
+    </plurals>
+    <plurals name="rename_done">
+        <item quantity="other">已重新命名 %1$d 張</item>
+    </plurals>
+    <plurals name="delete_done">
+        <item quantity="other">已刪除 %1$d 張</item>
+    </plurals>
+    <plurals name="op_failed">
+        <item quantity="other">%1$d 張沒有成功</item>
+    </plurals>
+    <string name="rename_template">名稱</string>
+    <string name="rename_start">起始編號</string>
+    <string name="rename_hint">每一串井字號都會變成編號,你寫幾個就有幾位數:## 得到 01,### 得到 001。副檔名不會被更動,圖片依字母順序編號。</string>
+    <string name="rename_preview">預覽</string>
+    <plurals name="delete_ask">
+        <item quantity="other">刪除 %1$d 張圖片嗎?</item>
+    </plurals>
+    <string name="delete_desc">它們將從手機上永久消失。它們已經在回收筒裡了,沒有別的地方可去。</string>
+    <string name="trash_desc">它們會進入回收筒,你可以從那裡還原或永久刪除。</string>
+    <string name="bin_title">回收筒</string>
+    <string name="bin_none">回收筒是空的。</string>
+    <string name="bin_restore">還原</string>
+    <string name="bin_empty">清空回收筒</string>
+    <string name="bin_empty_ask">清空回收筒嗎?</string>
+    <string name="bin_empty_desc">裡面的一切都將從手機上永久消失。</string>
+    <plurals name="trash_done">
+        <item quantity="other">已把 %1$d 張移入回收筒</item>
+    </plurals>
+    <plurals name="restore_done">
+        <item quantity="other">已還原 %1$d 張</item>
+    </plurals>
+    <plurals name="folders_count">
+        <item quantity="other">%1$d 張圖片</item>
+    </plurals>
+    <string name="settings_facts">檔案資訊</string>
+    <string name="settings_facts_desc">開啟某張圖片的資訊時會看到哪些資料,以及它們的順序。名稱、像素和大小一定會顯示;檔案裡沒有的資料不會佔用任何一行。</string>
+    <string name="settings_facts_always">一律顯示</string>
+    <string name="settings_facts_up">上移</string>
+    <string name="settings_facts_down">下移</string>
+</resources>
