@@ -253,7 +253,27 @@
         <item quantity="one">Delete %1$d picture?</item>
         <item quantity="other">Delete %1$d pictures?</item>
     </plurals>
-    <string name="delete_desc">They go from the phone for good: AIV has no bin of its own, and deleting the files straight off the disk skips the gallery one too.</string>
+    <!-- The definitive one: inside the bin, or when emptying it. The old text said AIV
+         had no bin of its own, and from 0.64 that is no longer true. -->
+    <string name="delete_desc">They go from the phone for good. They are in the bin already, so there is no further place for them to land.</string>
+    <!-- The everyday one: deleting now means moving to the bin. -->
+    <string name="trash_desc">They go to the bin, where you can restore them or delete them for good.</string>
+
+    <!-- ── The bin ── -->
+    <string name="bin_title">Bin</string>
+    <string name="bin_none">The bin is empty.</string>
+    <string name="bin_restore">Restore</string>
+    <string name="bin_empty">Empty the bin</string>
+    <string name="bin_empty_ask">Empty the bin?</string>
+    <string name="bin_empty_desc">Everything it holds goes from the phone for good.</string>
+    <plurals name="trash_done">
+        <item quantity="one">%1$d moved to the bin</item>
+        <item quantity="other">%1$d moved to the bin</item>
+    </plurals>
+    <plurals name="restore_done">
+        <item quantity="one">%1$d restored</item>
+        <item quantity="other">%1$d restored</item>
+    </plurals>
 
     <plurals name="folders_count">
         <item quantity="one">%1$d picture</item>

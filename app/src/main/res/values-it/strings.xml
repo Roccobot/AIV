@@ -227,7 +227,25 @@
         <item quantity="other">Eliminare %1$d immagini?</item>
         <item quantity="many">Eliminare %1$d immagini?</item>
     </plurals>
-    <string name="delete_desc">Spariscono dal telefono e non si recuperano: AIV non ha un cestino, e cancellando i file dal disco non passano nemmeno da quello della galleria.</string>
+    <string name="delete_desc">Vanno via dal telefono per sempre. Sono già nel cestino, quindi non c\'è un altro posto in cui finire.</string>
+    <string name="trash_desc">Vanno nel cestino, da cui si possono rimettere al loro posto o eliminare per sempre.</string>
+
+    <string name="bin_title">Cestino</string>
+    <string name="bin_none">Il cestino è vuoto.</string>
+    <string name="bin_restore">Ripristina</string>
+    <string name="bin_empty">Svuota il cestino</string>
+    <string name="bin_empty_ask">Svuotare il cestino?</string>
+    <string name="bin_empty_desc">Tutto quello che contiene va via dal telefono per sempre.</string>
+    <plurals name="trash_done">
+        <item quantity="one">%1$d spostata nel cestino</item>
+        <item quantity="other">%1$d spostate nel cestino</item>
+        <item quantity="many">%1$d spostate nel cestino</item>
+    </plurals>
+    <plurals name="restore_done">
+        <item quantity="one">%1$d ripristinata</item>
+        <item quantity="other">%1$d ripristinate</item>
+        <item quantity="many">%1$d ripristinate</item>
+    </plurals>
 
     <plurals name="folders_count">
         <item quantity="one">%1$d immagine</item>

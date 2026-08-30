@@ -34,18 +34,25 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.SelectAll
+import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -134,7 +141,17 @@ fun GridScreen(
      * una voce che qui non c'entra niente.
      * ⚠️ Il valore di serie tiene in piedi le anteprime e i richiami che non lo passano.
      */
-    factFields: List<FactField> = FactField.entries
+    factFields: List<FactField> = FactField.entries,
+    /**
+     * Se questa griglia è il **cestino**.
+     *
+     * ⚠️⚠️ **CAMBIA TRE COSE E NON L'ASPETTO**: 'elimina' diventa definitiva (là dentro non
+     * c'è un secondo cestino), 'rinomina' diventa 'ripristina' (un file nel cestino non si
+     * rinomina, richiesta dell'utente), e il tastino compare **anche senza selezione**, per
+     * offrire 'svuota il cestino'. Tutto il resto, miniature comprese, è la griglia di
+     * sempre: era la richiesta, cioè che il cestino si navighi come una cartella qualunque.
+     */
+    bin: Boolean = false
 ) {
     val state = rememberLazyGridState()
     val context = LocalContext.current
@@ -162,6 +179,9 @@ fun GridScreen(
      * su cui lavorare, e il perché sta in [FileJob].
      */
     var job by remember { mutableStateOf<FileJob?>(null) }
+
+    /** Se si sta chiedendo di svuotare il cestino. Vale solo quando [bin] è vero. */
+    var emptying by remember { mutableStateOf(false) }
     val picking = chosen.isNotEmpty()
 
     // ⚠️ Indietro esce dalla SELEZIONE prima di uscire dalla cartella: chi ha scelto
@@ -358,6 +378,15 @@ fun GridScreen(
             // più, in una ricerca che nessun nome combacia, e a ricerca ancora da scrivere
             // non significa niente e non si dice nulla.
             items.isEmpty() -> when {
+                // ⚠️ Tre frasi per tre vuoti diversi, e dirle con la stessa sarebbe un
+                // piccolo inganno: un cestino vuoto è una buona notizia, una cartella
+                // vuota vuol dire che le foto non ci sono più, e una ricerca senza esito
+                // che nessun nome combacia.
+                bin -> Text(
+                    text = stringResource(R.string.bin_none),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = 24.dp, start = 12.dp)
+                )
                 query == null -> Text(
                     text = stringResource(R.string.folder_empty),
                     style = MaterialTheme.typography.bodyMedium,
@@ -505,7 +534,7 @@ fun GridScreen(
                  * ⚠️ Il margine è 8 e non 16 come quello delle cartelle perché la griglia
                  * sta già dentro il margine della schermata, e i due si sommano.
                  */
-                if (picking) {
+                if (picking || bin) {
                     Box(modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp)) {
                         SmallFloatingActionButton(
                             onClick = { menuOpen = true },
@@ -517,7 +546,20 @@ fun GridScreen(
                             )
                         }
                         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-                            ActionPad(
+                            // ⚠️ Nel cestino senza niente scelto il tastino non porta le sei
+                            // operazioni, che non avrebbero su cosa agire, ma la sola voce
+                            // che riguarda il cestino intero.
+                            if (!picking) {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.bin_empty)) },
+                                    leadingIcon = { Icon(Icons.Default.DeleteForever, null) },
+                                    colors = MenuDefaults.itemColors(
+                                        textColor = MaterialTheme.colorScheme.error,
+                                        leadingIconColor = MaterialTheme.colorScheme.error
+                                    ),
+                                    onClick = { menuOpen = false; emptying = true }
+                                )
+                            } else ActionPad(
                                 actions = listOf(
                                     PadAction(Icons.Default.ContentCopy, R.string.menu_copy_here) {
                                         menuOpen = false
@@ -536,11 +578,25 @@ fun GridScreen(
                                         danger = true
                                     ) {
                                         menuOpen = false
-                                        job = FileJob.Delete(chosen.toList())
+                                        job = FileJob.Delete(chosen.toList(), forGood = bin)
                                     },
-                                    PadAction(Icons.Default.Edit, R.string.pick_rename) {
-                                        menuOpen = false
-                                        job = FileJob.Rename(chosen.toList())
+                                    // ⚠️ Nel cestino al posto della rinomina c'è il
+                                    // ripristino: un file là dentro non si rinomina
+                                    // (richiesta dell'utente), e il posto nel riquadro è
+                                    // lo stesso, così le sei icone non ballano.
+                                    if (bin) {
+                                        PadAction(
+                                            Icons.Default.SettingsBackupRestore,
+                                            R.string.bin_restore
+                                        ) {
+                                            menuOpen = false
+                                            job = FileJob.Restore(chosen.toList())
+                                        }
+                                    } else {
+                                        PadAction(Icons.Default.Edit, R.string.pick_rename) {
+                                            menuOpen = false
+                                            job = FileJob.Rename(chosen.toList())
+                                        }
                                     },
                                     PadAction(Icons.Default.Share, R.string.menu_share) {
                                         menuOpen = false
@@ -565,7 +621,39 @@ fun GridScreen(
         }
     }
 
-    // ⚠️ I quattro dialoghi stanno in `FileOps.kt` perché li chiede anche il
+    /*
+     * ⚠️⚠️ **QUESTO DIALOGO STA QUI E NON IN `FileOps.kt`, e la ragione è che non parla di
+     * file scelti**: le altre operazioni ricevono un elenco, questa svuota una cartella
+     * intera, quindi non entra in `FileJob`, che è fatto di elenchi. Sta nel solo posto da
+     * cui si può chiedere, cioè il tastino del cestino.
+     * ⚠️ L'esito usa l'avviso dell'eliminazione, che è quello che succede: i file vanno via
+     * per davvero.
+     */
+    if (emptying) {
+        AlertDialog(
+            onDismissRequest = { emptying = false },
+            title = { Text(stringResource(R.string.bin_empty_ask)) },
+            text = { Text(stringResource(R.string.bin_empty_desc)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        emptying = false
+                        perform(FileKind.DELETE) { Bin.empty(context) }
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) { Text(stringResource(R.string.bin_empty)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { emptying = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    // ⚠️ I cinque dialoghi stanno in `FileOps.kt` perché li chiede anche il
     // visualizzatore: qui resta la sola cosa che è di questa schermata, cioè che a
     // operazione finita la cartella si rilegge.
     FileJobDialogs(

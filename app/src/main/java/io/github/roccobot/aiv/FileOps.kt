@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
@@ -89,12 +90,28 @@ fun FileJobDialogs(
 
         is FileJob.Delete -> DeleteDialog(
             count = job.uris.size,
+            forGood = job.forGood,
             onDismiss = onClose,
             onConfirm = {
                 onClose()
-                onRun(FileKind.DELETE) { FileTree.delete(context, job.uris) }
+                if (job.forGood) onRun(FileKind.DELETE) { FileTree.delete(context, job.uris) }
+                else onRun(FileKind.TRASH) { Bin.send(context, job.uris) }
             }
         )
+
+        /*
+         * ⚠️⚠️ **PARTE DA SÉ, ed è l'unica voce che non apre niente**: il ripristino non ha
+         * domande da fare, quindi passa da qui solo per usare lo stesso imbuto delle altre
+         * (l'avviso dell'esito, la rilettura, l'ambito che sopravvive). Un secondo canale
+         * per una sola operazione avrebbe voluto un richiamo in più su due schermate.
+         * ⚠️ **L'effetto è legato al lavoro e non alla composizione**: gira una volta, poi
+         * `onClose` toglie questo ramo di scena e con lui l'effetto. Il lavoro no: `onRun`
+         * lo ha già lanciato nell'ambito di chi chiama.
+         */
+        is FileJob.Restore -> LaunchedEffect(job) {
+            onRun(FileKind.RESTORE) { Bin.restore(context, job.uris) }
+            onClose()
+        }
 
         is FileJob.Facts -> FactsDialog(uris = job.uris, fields = fields, onDismiss = onClose)
     }
@@ -119,7 +136,26 @@ sealed interface FileJob {
      */
     class Transfer(override val uris: List<Uri>, val move: Boolean) : FileJob
     class Rename(override val uris: List<Uri>) : FileJob
-    class Delete(override val uris: List<Uri>) : FileJob
+
+    /**
+     * L'eliminazione, che dalla `0.64` vuol dire due cose diverse.
+     *
+     * ⚠️⚠️ **[forGood] NON è un'opzione ma il POSTO in cui si è**: fuori dal cestino
+     * eliminare sposta là dentro, dentro il cestino cancella. Il dialogo lo dice con due
+     * testi diversi, e chi passasse `false` stando nel cestino manderebbe una foto del
+     * cestino nel cestino, cioè da nessuna parte.
+     */
+    class Delete(override val uris: List<Uri>, val forGood: Boolean) : FileJob
+
+    /**
+     * Il ripristino, che è la sola voce **senza dialogo**.
+     *
+     * ⚠️ Non c'è niente da chiedere e niente da scegliere: la destinazione è scritta
+     * nell'archivio del cestino, e l'operazione è reversibile (si rielimina). Chiedere
+     * conferma per un gesto che rimette le cose come stavano è il modo di insegnare a
+     * confermare senza leggere.
+     */
+    class Restore(override val uris: List<Uri>) : FileJob
     class Facts(override val uris: List<Uri>) : FileJob
 }
 
@@ -139,7 +175,21 @@ enum class FileKind(@PluralsRes val done: Int, val gone: Boolean) {
     COPY(R.plurals.copy_done, gone = false),
     MOVE(R.plurals.move_done, gone = true),
     RENAME(R.plurals.rename_done, gone = true),
-    DELETE(R.plurals.delete_done, gone = true)
+
+    /**
+     * L'eliminazione di tutti i giorni, dalla `0.64`: il file va nel **cestino**.
+     *
+     * ⚠️ Porta `gone = true` come le altre perché per la schermata è la stessa cosa: quel
+     * file non è più là. Che sia recuperabile è una faccenda del cestino, non di chi
+     * guardava.
+     */
+    TRASH(R.plurals.trash_done, gone = true),
+
+    /** L'eliminazione definitiva: dentro il cestino, o svuotandolo. */
+    DELETE(R.plurals.delete_done, gone = true),
+
+    /** Il ritorno alla cartella d'origine, da dentro il cestino. */
+    RESTORE(R.plurals.restore_done, gone = true)
 }
 
 /**
@@ -162,21 +212,34 @@ fun outcomeText(res: Resources, out: FileTree.Outcome, @PluralsRes doneRes: Int)
     }
 
 /**
- * La conferma dell'eliminazione.
+ * La conferma dell'eliminazione, con due testi.
  *
- * ⚠️⚠️ **NON È CORTESIA: qui non c'è un cestino.** Il MediaStore ne ha uno, ma ci si
- * finisce solo passando dal provider con la richiesta apposita, e questa app cancella dal
- * disco perché è l'unica via che copre anche i file che nella galleria non ci sono mai
- * entrati. Quindi il gesto è definitivo, e il testo lo dice invece di lasciarlo intuire.
+ * ⚠️⚠️ **IL TESTO CAMBIA PERCHÉ IL GESTO CAMBIA, dalla `0.64`**: fuori dal cestino le
+ * fotografie ci vanno dentro e si possono ripristinare, dentro il cestino vanno via per
+ * sempre. Fino alla `0.63` c'era un testo solo, e diceva *vanno via dal telefono per
+ * sempre: AIV non ha un cestino suo*: era vero allora e sarebbe una bugia adesso.
+ * ⚠️ **La conferma resta anche per il cestino**, benché il gesto sia reversibile: costa un
+ * tocco, e su una selezione da quaranta fotografie toccate per sbaglio vale quel tocco.
  * ⚠️ Il conto sta nel TITOLO e non nel corpo: è il dato che fa cambiare idea, e chi tocca
  * in fretta legge solo la prima riga.
  */
 @Composable
-private fun DeleteDialog(count: Int, onDismiss: () -> Unit, onConfirm: () -> Unit) {
+private fun DeleteDialog(
+    count: Int,
+    forGood: Boolean,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(pluralStringResource(R.plurals.delete_ask, count, count)) },
-        text = { Text(stringResource(R.string.delete_desc)) },
+        text = {
+            Text(
+                stringResource(
+                    if (forGood) R.string.delete_desc else R.string.trash_desc
+                )
+            )
+        },
         confirmButton = {
             TextButton(
                 onClick = onConfirm,
