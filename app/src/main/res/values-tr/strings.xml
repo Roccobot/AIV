@@ -91,6 +91,7 @@
     <string name="grid_item_last">%2$d görselden %1$d., en son baktığın</string>
     <string name="pick_leave">Seçimden çık</string>
     <string name="pick_all">Tümünü seç</string>
+    <string name="pick_all_hint">Klasördeki tüm resimleri seçmek için kayan düğmeye basılı tutun</string>
     <string name="pick_info">Bilgi</string>
     <string name="pick_close">Kapat</string>
     <string name="pick_actions">Seçim üzerindeki işlemler</string>

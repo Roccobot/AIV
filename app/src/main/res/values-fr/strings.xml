@@ -91,6 +91,7 @@
     <string name="grid_item_last">Image %1$d sur %2$d, la dernière que vous avez regardée</string>
     <string name="pick_leave">Quitter la sélection</string>
     <string name="pick_all">Tout sélectionner</string>
+    <string name="pick_all_hint">Maintenez le bouton flottant appuyé pour sélectionner toutes les images du dossier</string>
     <string name="pick_info">Infos</string>
     <string name="pick_close">Fermer</string>
     <string name="pick_actions">Opérations sur la sélection</string>

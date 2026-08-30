@@ -91,6 +91,7 @@
     <string name="grid_item_last">第 %1$d 張,共 %2$d 張,你最後看過的一張</string>
     <string name="pick_leave">退出選取</string>
     <string name="pick_all">全選</string>
+    <string name="pick_all_hint">長按浮動按鈕可選取資料夾中的所有圖片</string>
     <string name="pick_info">資訊</string>
     <string name="pick_close">關閉</string>
     <string name="pick_actions">對所選圖片的操作</string>

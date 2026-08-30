@@ -130,6 +130,7 @@
     <!-- ── Scegliere più immagini in una cartella ── -->
     <string name="pick_leave">Esci dalla selezione</string>
     <string name="pick_all">Seleziona tutte</string>
+    <string name="pick_all_hint">Tieni premuto il tasto flottante contestuale per selezionare tutte le immagini della cartella</string>
     <string name="pick_info">Info</string>
     <string name="pick_close">Chiudi</string>
     <string name="pick_actions">Operazioni sulla selezione</string>

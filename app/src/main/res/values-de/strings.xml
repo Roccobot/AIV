@@ -91,6 +91,7 @@
     <string name="grid_item_last">Bild %1$d von %2$d, das zuletzt angesehene</string>
     <string name="pick_leave">Auswahl verlassen</string>
     <string name="pick_all">Alle auswählen</string>
+    <string name="pick_all_hint">Halte die schwebende Schaltfläche gedrückt, um alle Bilder des Ordners auszuwählen</string>
     <string name="pick_info">Infos</string>
     <string name="pick_close">Schließen</string>
     <string name="pick_actions">Aktionen für die Auswahl</string>

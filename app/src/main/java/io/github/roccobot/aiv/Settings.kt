@@ -392,6 +392,28 @@ object FolderAsk {
     }
 }
 
+/**
+ * Se il mini onboarding del tocco lungo sul tastino si è già visto.
+ *
+ * ⚠️⚠️ **Sta qui e NON in [Settings], e la differenza non è di comodo**: `Settings` è
+ * quello che l'utente sceglie e ritrova nella schermata delle impostazioni, questo è un
+ * promemoria che l'app tiene per sé. Metterlo là gli darebbe una riga in una schermata che
+ * l'utente ha già chiesto di alleggerire, e sarebbe una riga che non decide niente.
+ * ⚠️ Si archivia **una volta sola**, e da lì in poi non si mostra più: un onboarding che
+ * torna è un avviso, e un avviso che torna insegna a chiuderlo senza leggerlo. Vale la
+ * stessa ragione già scritta per [FolderAsk].
+ */
+object PickHint {
+
+    private val SEEN = booleanPreferencesKey("pick-all-hint-seen")
+
+    fun flow(context: Context): Flow<Boolean> = context.aivStore.data.map { p -> p[SEEN] ?: false }
+
+    suspend fun remember(context: Context) {
+        context.aivStore.edit { p -> p[SEEN] = true }
+    }
+}
+
 object Recents {
 
     private val ENTRIES = stringPreferencesKey("recent")
