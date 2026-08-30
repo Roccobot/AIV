@@ -156,7 +156,9 @@
     <string name="pick_all">Select all</string>
     <string name="pick_info">Info</string>
     <string name="pick_close">Close</string>
-    <string name="pick_more">More actions</string>
+    <!-- The label of the small button that opens the six file operations. It is not
+         "more actions": it is all of them, and there is nothing left in the bar. -->
+    <string name="pick_actions">Operations on the selection</string>
     <string name="pick_move">Move</string>
     <string name="pick_rename">Rename</string>
     <string name="pick_delete">Delete</string>

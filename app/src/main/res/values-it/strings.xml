@@ -132,7 +132,7 @@
     <string name="pick_all">Seleziona tutte</string>
     <string name="pick_info">Info</string>
     <string name="pick_close">Chiudi</string>
-    <string name="pick_more">Altre operazioni</string>
+    <string name="pick_actions">Operazioni sulla selezione</string>
     <string name="pick_move">Sposta</string>
     <string name="pick_rename">Rinomina</string>
     <string name="pick_delete">Elimina</string>
