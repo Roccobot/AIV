@@ -527,6 +527,28 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
+     * Rilegge la cartella aperta, dopo che le sue foto sono cambiate sul disco.
+     *
+     * ⚠️⚠️ **NON PASSA DA [openGrid], ed è la differenza che conta**: quella riparte da
+     * zero, cioè spegne la lista, ferma il caricamento e riporta la griglia in cima.
+     * Dopo una copia o una rinomina la persona sta guardando un punto preciso della
+     * cartella, e farla saltare all'inizio sarebbe farle perdere il posto per una
+     * rilettura che dura un istante.
+     * ⚠️ **La lista NON si azzera prima**: mostrare la rotellina al posto delle miniature
+     * per il tempo di una query darebbe un lampeggio, e le foto di prima sono sbagliate
+     * per pochi decimi di secondo, non inguardabili.
+     * ⚠️ **L'anello dell'ultima guardata invece si spegne**: le righe del MediaStore
+     * cambiano numero quando i file si spostano o si rinominano, quindi quell'indice
+     * indicherebbe una fotografia a caso.
+     */
+    fun reloadGrid() {
+        val grid = screen as? Screen.Grid ?: return
+        gridVisited = false
+        val context = getApplication<Application>()
+        viewModelScope.launch { listed = Folder.newestIn(context, grid.bucket).atSequenceStart() }
+    }
+
+    /**
      * La foto toccata nella griglia.
      *
      * ⚠️ [index] è la posizione nell'ordine di **lettura**, cioè quello che la griglia
@@ -773,7 +795,8 @@ private fun AivApp(model: ViewerViewModel) {
                 // tiene aggiornato. La bandierina dice solo se qualcosa è stato aperto.
                 highlight = if (model.gridVisited) model.series?.index else null,
                 onOpen = { model.openFromGrid(it) },
-                onBack = { model.leaveGrid() }
+                onBack = { model.leaveGrid() },
+                onChanged = { model.reloadGrid() }
             )
         }
 

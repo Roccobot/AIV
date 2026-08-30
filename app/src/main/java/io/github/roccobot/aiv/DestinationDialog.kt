@@ -1,6 +1,7 @@
 package io.github.roccobot.aiv
 
 import androidx.activity.compose.BackHandler
+import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -58,9 +59,14 @@ import java.io.File
  *
  * ⚠️ **Mostra il filesystem e non gli album** (richiesta dell'utente): vedi la nota in
  * testa a `FileTree` per il perché l'elenco della galleria sarebbe l'insieme sbagliato.
+ *
+ * ⚠️ **[action] dice che cosa succederà, e non è un dettaglio di parole**: copiare e
+ * spostare chiedono la stessa cartella e fanno due cose diverse, una innocua e una no.
+ * L'ultimo posto in cui si può ancora distinguerle è il tasto che le avvia.
  */
 @Composable
 fun DestinationDialog(
+    @StringRes action: Int,
     onDismiss: () -> Unit,
     onPick: (File) -> Unit
 ) {
@@ -199,7 +205,7 @@ fun DestinationDialog(
                             .fillMaxWidth()
                             .padding(16.dp)
                     ) {
-                        Text(stringResource(R.string.dest_here, dir.name))
+                        Text(stringResource(action, dir.name))
                     }
                 }
             }

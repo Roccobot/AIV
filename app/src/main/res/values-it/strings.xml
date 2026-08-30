@@ -126,6 +126,10 @@
     <string name="pick_all">Seleziona tutte</string>
     <string name="pick_info">Info</string>
     <string name="pick_close">Chiudi</string>
+    <string name="pick_more">Altre operazioni</string>
+    <string name="pick_move">Sposta</string>
+    <string name="pick_rename">Rinomina</string>
+    <string name="pick_delete">Elimina</string>
     <string name="pick_counting">Sto contando...</string>
     <plurals name="pick_count">
         <item quantity="one">%1$d scelta</item>
@@ -139,17 +143,50 @@
     <string name="dest_new">Nuova cartella</string>
     <string name="dest_create">Crea</string>
     <string name="dest_here">Copia in %1$s</string>
+    <string name="dest_move_here">Sposta in %1$s</string>
     <string name="menu_copy_here">Copia</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d immagine copiata</item>
         <item quantity="other">%1$d immagini copiate</item>
         <item quantity="many">%1$d immagini copiate</item>
     </plurals>
-    <plurals name="copy_failed">
-        <item quantity="one">%1$d non è passata</item>
-        <item quantity="other">%1$d non sono passate</item>
-        <item quantity="many">%1$d non sono passate</item>
+    <plurals name="move_done">
+        <item quantity="one">%1$d immagine spostata</item>
+        <item quantity="other">%1$d immagini spostate</item>
+        <item quantity="many">%1$d immagini spostate</item>
     </plurals>
+    <plurals name="rename_done">
+        <item quantity="one">%1$d immagine rinominata</item>
+        <item quantity="other">%1$d immagini rinominate</item>
+        <item quantity="many">%1$d immagini rinominate</item>
+    </plurals>
+    <plurals name="delete_done">
+        <item quantity="one">%1$d immagine eliminata</item>
+        <item quantity="other">%1$d immagini eliminate</item>
+        <item quantity="many">%1$d immagini eliminate</item>
+    </plurals>
+    <!-- Una sola per tutte e quattro le operazioni: 'non è passata' andava bene per la
+         copia e suonava storto per una cancellazione, e quattro varianti dello stesso
+         avviso sono quattro posti in cui una traduzione può restare indietro. -->
+    <plurals name="op_failed">
+        <item quantity="one">%1$d non è riuscita</item>
+        <item quantity="other">%1$d non sono riuscite</item>
+        <item quantity="many">%1$d non sono riuscite</item>
+    </plurals>
+
+    <!-- ── Rinominare in blocco ── -->
+    <string name="rename_template">Nome</string>
+    <string name="rename_start">Primo numero</string>
+    <string name="rename_hint">Ogni gruppo di cancelletti diventa il numero, e quanti ne scrivi sono le cifre: ## dà 01, ### dà 001. L\'estensione non si tocca mai, e le immagini si numerano in ordine alfabetico.</string>
+    <string name="rename_preview">Anteprima</string>
+
+    <!-- ── Eliminare ── -->
+    <plurals name="delete_ask">
+        <item quantity="one">Eliminare %1$d immagine?</item>
+        <item quantity="other">Eliminare %1$d immagini?</item>
+        <item quantity="many">Eliminare %1$d immagini?</item>
+    </plurals>
+    <string name="delete_desc">Spariscono dal telefono e non si recuperano: AIV non ha un cestino, e cancellando i file dal disco non passano nemmeno da quello della galleria.</string>
 
     <plurals name="folders_count">
         <item quantity="one">%1$d immagine</item>

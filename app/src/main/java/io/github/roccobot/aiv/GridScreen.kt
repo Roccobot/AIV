@@ -1,8 +1,10 @@
 package io.github.roccobot.aiv
 
+import android.content.res.Resources
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.annotation.PluralsRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,17 +31,26 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.DriveFileMove
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -94,6 +105,12 @@ import kotlinx.coroutines.launch
  *
  * ⚠️ **Le miniature NON passano dal decodificatore normale**: le chiede al sistema
  * `Thumbs`, e là sta scritto perché.
+ *
+ * ⚠️⚠️ **[onChanged] SI CHIAMA DOPO OGNI OPERAZIONE, e senza di lui la griglia
+ * mentirebbe**: copia, sposta, rinomina ed elimina cambiano i file sul disco, quindi la
+ * lista che questa schermata ha in mano diventa vecchia nell'istante in cui l'operazione
+ * finisce. Senza una rilettura resterebbero le miniature di fotografie che non esistono
+ * più, e toccarle aprirebbe il vuoto.
  */
 @Composable
 fun GridScreen(
@@ -102,6 +119,7 @@ fun GridScreen(
     highlight: Int?,
     onOpen: (Int) -> Unit,
     onBack: () -> Unit,
+    onChanged: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val state = rememberLazyGridState()
@@ -120,7 +138,20 @@ fun GridScreen(
      */
     var chosen by remember(items) { mutableStateOf<Set<Uri>>(emptySet()) }
     var showingFacts by remember { mutableStateOf(false) }
-    var choosingDest by remember { mutableStateOf(false) }
+    var menuOpen by remember { mutableStateOf(false) }
+    var deleting by remember { mutableStateOf(false) }
+
+    /** Quale delle due operazioni sta chiedendo una cartella, e `null` se nessuna. */
+    var transfer by remember { mutableStateOf<Transfer?>(null) }
+
+    /**
+     * Le immagini che il dialogo di rinomina sta trattando, e `null` quando è chiuso.
+     *
+     * ⚠️ **Si fotografa la selezione all'apertura invece di leggerla viva**, e non è la
+     * stessa cosa: il dialogo carica i nomi in una coroutine legata alla lista che riceve,
+     * e una lista ricostruita a ogni ricomposizione la farebbe ripartire da capo.
+     */
+    var renaming by remember { mutableStateOf<List<Uri>?>(null) }
     val picking = chosen.isNotEmpty()
 
     // ⚠️ Indietro esce dalla SELEZIONE prima di uscire dalla cartella: chi ha scelto
@@ -193,6 +224,32 @@ fun GridScreen(
         if (!whole) state.scrollToItem(highlight)
     }
 
+    // ⚠️ Le risorse si prendono da `LocalResources` e non da `context.resources`, e non è
+    // pignoleria di lint: quest'ultimo non segue i cambi di configurazione, quindi dopo un
+    // cambio di lingua o una rotazione servirebbe la versione vecchia. Si legge QUI,
+    // mentre si compone, e si usa dentro le coroutine.
+    val res = LocalResources.current
+
+    /**
+     * Il giro che fanno tutte e quattro le operazioni: si parte, si dice com'è andata, si
+     * rilegge la cartella.
+     *
+     * ⚠️⚠️ **LA SELEZIONE SI SVUOTA SUBITO, prima che il lavoro finisca**: è partito, e
+     * lasciare le spunte accese inviterebbe a toccare la stessa voce una seconda volta
+     * mentre la prima è ancora in corso. Chi chiama deve quindi essersi già preso la sua
+     * lista, ed è il motivo per cui [work] la riceve dall'esterno invece di leggerla qui.
+     * ⚠️ **Un avviso solo con tutti e due i numeri**: due avvisi di fila si coprono a
+     * vicenda, e il secondo si leggerebbe senza il primo.
+     */
+    val perform: (Int, suspend () -> FileTree.Outcome) -> Unit = { doneRes, work ->
+        chosen = emptySet()
+        scope.launch {
+            val out = work()
+            Toast.makeText(context, outcomeText(res, out, doneRes), Toast.LENGTH_LONG).show()
+            onChanged()
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -238,18 +295,6 @@ fun GridScreen(
                         contentDescription = stringResource(R.string.pick_all)
                     )
                 }
-                IconButton(onClick = { showingFacts = true }) {
-                    Icon(
-                        imageVector = Icons.Outlined.Info,
-                        contentDescription = stringResource(R.string.pick_info)
-                    )
-                }
-                IconButton(onClick = { choosingDest = true }) {
-                    Icon(
-                        imageVector = Icons.Default.ContentCopy,
-                        contentDescription = stringResource(R.string.menu_copy_here)
-                    )
-                }
                 IconButton(onClick = {
                     val list = chosen.toList()
                     scope.launch { ImageActions.shareMany(context, list) }
@@ -258,6 +303,77 @@ fun GridScreen(
                         imageVector = Icons.Default.Share,
                         contentDescription = stringResource(R.string.menu_share)
                     )
+                }
+                /*
+                 * ⚠️⚠️ **LE OPERAZIONI STANNO IN UN MENU, e con sette non c'era scelta**:
+                 * sette tastini in fila su uno schermo da 360dp lascerebbero al conto
+                 * delle foto meno spazio del conto stesso, e il primo a sparire sarebbe
+                 * proprio quello che dice quante se ne stanno per cancellare.
+                 * ⚠️ **Fuori restano le due che non fanno danni e si usano di più**,
+                 * 'tutte' e 'condividi': una selezione la si fa quasi sempre per una di
+                 * quelle due, e metterle a due tocchi sarebbe raddoppiare il gesto comune
+                 * per abbreviare quello raro.
+                 * ⚠️ **Elimina sta in fondo, dopo una riga e nel colore dell'errore**: è
+                 * l'unica voce irreversibile del menu, e la distanza dalle altre è quello
+                 * che impedisce di toccarla mirando a 'rinomina'.
+                 */
+                Box {
+                    IconButton(onClick = { menuOpen = true }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = stringResource(R.string.pick_more)
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = menuOpen,
+                        onDismissRequest = { menuOpen = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.menu_copy_here)) },
+                            leadingIcon = { Icon(Icons.Default.ContentCopy, null) },
+                            onClick = {
+                                menuOpen = false
+                                transfer = Transfer.COPY
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.pick_move)) },
+                            leadingIcon = { Icon(Icons.AutoMirrored.Filled.DriveFileMove, null) },
+                            onClick = {
+                                menuOpen = false
+                                transfer = Transfer.MOVE
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.pick_rename)) },
+                            leadingIcon = { Icon(Icons.Default.Edit, null) },
+                            onClick = {
+                                menuOpen = false
+                                renaming = chosen.toList()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.pick_info)) },
+                            leadingIcon = { Icon(Icons.Outlined.Info, null) },
+                            onClick = {
+                                menuOpen = false
+                                showingFacts = true
+                            }
+                        )
+                        HorizontalDivider()
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.pick_delete)) },
+                            leadingIcon = { Icon(Icons.Default.Delete, null) },
+                            colors = MenuDefaults.itemColors(
+                                textColor = MaterialTheme.colorScheme.error,
+                                leadingIconColor = MaterialTheme.colorScheme.error
+                            ),
+                            onClick = {
+                                menuOpen = false
+                                deleting = true
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -386,47 +502,90 @@ fun GridScreen(
         FactsDialog(uris = chosen.toList(), onDismiss = { showingFacts = false })
     }
 
-    if (choosingDest) {
-        // ⚠️ Le risorse si prendono da `LocalResources` e non da `context.resources`, e non
-        // è pignoleria di lint: quest'ultimo non segue i cambi di configurazione, quindi
-        // dopo un cambio di lingua o una rotazione servirebbe la versione vecchia. Si
-        // legge QUI, mentre si compone, e si usa dentro la coroutine.
-        val res = LocalResources.current
+    transfer?.let { kind ->
         DestinationDialog(
-            onDismiss = { choosingDest = false },
+            action = if (kind == Transfer.COPY) R.string.dest_here else R.string.dest_move_here,
+            onDismiss = { transfer = null },
             onPick = { dir ->
                 val list = chosen.toList()
-                choosingDest = false
-                // ⚠️ La selezione si SVUOTA subito, prima che la copia finisca: il lavoro
-                // è partito, e lasciare le spunte accese inviterebbe a toccare Copia una
-                // seconda volta mentre la prima è ancora in corso.
-                chosen = emptySet()
-                scope.launch {
-                    val out = FileTree.copy(context, list, dir)
-                    /*
-                     * ⚠️ Un avviso solo con tutti e due i numeri: due avvisi di fila si
-                     * coprono a vicenda, e il secondo si leggerebbe senza il primo.
-                     * ⚠️ Le forme plurali si risolvono con `getQuantityString` e non con
-                     * `pluralStringResource`, perché il numero si sa solo a copia finita e
-                     * quella funzione si può chiamare solo mentre si compone.
-                     */
-                    val text = buildString {
-                        append(res.getQuantityString(R.plurals.copy_done, out.done, out.done))
-                        if (out.failed > 0) {
-                            append(", ")
-                            append(
-                                res.getQuantityString(
-                                    R.plurals.copy_failed, out.failed, out.failed
-                                )
-                            )
-                        }
-                    }
-                    Toast.makeText(context, text, Toast.LENGTH_LONG).show()
+                transfer = null
+                if (kind == Transfer.COPY) {
+                    perform(R.plurals.copy_done) { FileTree.copy(context, list, dir) }
+                } else {
+                    perform(R.plurals.move_done) { FileTree.move(context, list, dir) }
+                }
+            }
+        )
+    }
+
+    renaming?.let { list ->
+        RenameDialog(
+            uris = list,
+            onDismiss = { renaming = null },
+            onRename = { template, start ->
+                renaming = null
+                perform(R.plurals.rename_done) {
+                    FileTree.rename(context, list, template, start)
+                }
+            }
+        )
+    }
+
+    if (deleting) {
+        /*
+         * ⚠️⚠️ **LA CONFERMA NON È CORTESIA: qui non c'è un cestino.** Il MediaStore ne ha
+         * uno, ma ci si finisce solo passando dal provider con la richiesta apposita, e
+         * questa app cancella dal disco perché è l'unica via che copre anche i file che
+         * nella galleria non ci sono mai entrati. Quindi il gesto è definitivo, e il testo
+         * lo dice invece di lasciarlo intuire.
+         * ⚠️ Il conto sta nel TITOLO e non nel corpo: è il dato che fa cambiare idea, e
+         * chi tocca in fretta legge solo la prima riga.
+         */
+        val going = chosen.size
+        AlertDialog(
+            onDismissRequest = { deleting = false },
+            title = { Text(pluralStringResource(R.plurals.delete_ask, going, going)) },
+            text = { Text(stringResource(R.string.delete_desc)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        deleting = false
+                        val list = chosen.toList()
+                        perform(R.plurals.delete_done) { FileTree.delete(context, list) }
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) { Text(stringResource(R.string.pick_delete)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { deleting = false }) {
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
     }
 }
+
+/** Le due operazioni che chiedono una cartella di arrivo, e che a parte quella differiscono. */
+private enum class Transfer { COPY, MOVE }
+
+/**
+ * Che cosa dire quando un'operazione finisce: quante sono passate e, solo se ce ne sono,
+ * quante no.
+ *
+ * ⚠️ Le forme plurali si risolvono con `getQuantityString` e non con
+ * `pluralStringResource`, perché il numero si sa solo a lavoro finito e quella funzione si
+ * può chiamare soltanto mentre si compone.
+ */
+private fun outcomeText(res: Resources, out: FileTree.Outcome, @PluralsRes doneRes: Int): String =
+    buildString {
+        append(res.getQuantityString(doneRes, out.done, out.done))
+        if (out.failed > 0) {
+            append(", ")
+            append(res.getQuantityString(R.plurals.op_failed, out.failed, out.failed))
+        }
+    }
 
 /** Toglie o mette, che è quello che fa un tocco su una cosa selezionabile. */
 private fun Set<Uri>.toggle(uri: Uri): Set<Uri> = if (uri in this) this - uri else this + uri
