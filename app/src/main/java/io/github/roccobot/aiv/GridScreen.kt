@@ -68,13 +68,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -673,75 +670,80 @@ private fun Thumbnail(
                 // gesto lo aggiunga **dentro** quello, non accanto.
                 .clickable(onClick = onClick)
         )
-        if (marked) {
-            /*
-             * ⚠️⚠️ **TRATTEGGIATO E SENZA VELO dalla 0.53** (richiesta dell'utente). Prima
-             * era un velo colorato su tutto il riquadro più un filo continuo, e il velo
-             * serviva a farsi vedere da lontano; il tratteggio fa lo stesso lavoro con una
-             * forma invece che con una tinta, e lascia la fotografia com'è.
-             * ⚠️ **Il costo, dichiarato**: su una foto molto affollata un filo tratteggiato
-             * si legge meno di una tinta su tutto il riquadro. È il baratto che l'utente ha
-             * scelto, e chi lo rimette in discussione rimetta prima il velo in discussione
-             * con lui.
-             * ⚠️ **Rientra di mezzo spessore**, o metà del tratto cadrebbe fuori dai limiti
-             * e verrebbe tagliata: un rettangolo si disegna sul suo bordo, metà di qua e
-             * metà di là.
-             * ⚠️ Resta un riquadro fratello e non un `Modifier.border` nella catena, che è
-             * la lezione della `0.34` scritta qui sotto: due fratelli si dipingono
-             * nell'ordine in cui sono scritti, e su questo non c'è niente da sapere.
-             */
-            val tint = MaterialTheme.colorScheme.primary
-            val ringPx = with(LocalDensity.current) { RING.toPx() }
-            val dashPx = with(LocalDensity.current) { DASH.toPx() }
-            val cornerPx = with(LocalDensity.current) { CORNER.toPx() }
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .drawBehind {
-                        drawRoundRect(
-                            color = tint,
-                            topLeft = Offset(ringPx / 2f, ringPx / 2f),
-                            size = Size(size.width - ringPx, size.height - ringPx),
-                            cornerRadius = CornerRadius(cornerPx),
-                            style = Stroke(
-                                width = ringPx,
-                                pathEffect = PathEffect.dashPathEffect(
-                                    floatArrayOf(dashPx, dashPx)
-                                )
-                            )
-                        )
-                    }
-            )
-        }
         /*
-         * ⚠️⚠️ **IL SEGNO DELLA SCELTA È UN SIMBOLO, NON UN ALTRO VELO, e non è una
-         * questione di gusto**: l'anello dell'ultima foto vista è già un velo colorato, e
-         * un secondo velo sullo stesso riquadro darebbe due tinte sovrapposte che nessuno
-         * saprebbe separare. Una spunta invece si legge da sola, e si legge **insieme**
-         * all'anello quando capitano sulla stessa foto.
-         * ⚠️ Sta sopra a tutto e in un angolo, non al centro: al centro coprirebbe
-         * proprio la parte della fotografia che si sta guardando per decidere se
-         * sceglierla.
+         * ⚠️⚠️ **IL VELO DELLA SCELTA VA PRIMA DEL NASTRO, e l'ordine è una decisione**:
+         * dentro un `Box` si dipinge nell'ordine in cui si scrive, quindi il nastro
+         * disegnato dopo resta **pieno** anche su una foto scelta. Al contrario, il velo
+         * sopra lo schiarirebbe insieme alla fotografia, e i due segni che devono
+         * distinguersi comincerebbero a somigliarsi proprio sulla piastrella dove
+         * convivono, che è il caso peggiore.
+         * ⚠️ **SCHIARISCE, non scurisce** (richiesta dell'utente, 2026-08-29): scurire
+         * faceva sembrare la foto scelta più lontana, come se fosse stata messa da parte,
+         * mentre sceglierla è tirarla avanti.
          */
         if (chosen) {
             Box(
                 modifier = Modifier
                     .matchParentSize()
                     .clip(shape)
-                    // ⚠️ **SCHIARISCE, non scurisce** (richiesta dell'utente, 2026-08-29):
-                    // scurire faceva sembrare la foto scelta più lontana, come se fosse
-                    // stata messa da parte, mentre sceglierla è tirarla avanti.
                     .background(Color.White.copy(alpha = PICKED_VEIL))
             )
+        }
+        if (marked) {
             /*
-             * ⚠️⚠️ **LA SPUNTA STA SU UN DISCO PIENO, e senza quello non si vedeva**: una
-             * icona colorata appoggiata a una fotografia qualunque sparisce contro un
-             * fondo dello stesso colore, ed è quello che l'utente ha segnalato. Il disco
-             * dell'accento con il glifo del suo `onPrimary` porta con sé il proprio
-             * contrasto, quindi si legge su qualunque cosa ci sia sotto.
-             * ⚠️ Il glifo è un `Check` nudo e non un `CheckCircle`: il cerchio del secondo
-             * sarebbe un contorno dentro un disco pieno, cioè due cerchi.
+             * ⚠️⚠️ **UN NASTRO NELL'ANGOLO IN BASSO A SINISTRA dalla 0.58** (scelta
+             * dell'utente fra cinque proposte, 2026-08-30). Prima era una cornice
+             * tratteggiata, e il difetto non era il contrasto ma il **linguaggio**: una
+             * cornice attorno a una miniatura è il gesto universale della **selezione**,
+             * quindi da lontano quel segno diceva la cosa sbagliata. Un triangolo in un
+             * angolo non somiglia a niente di tutto ciò.
+             * ⚠️⚠️ **L'angolo è quello DIAGONALMENTE OPPOSTO alla spunta, ed è la ragione
+             * per cui è in basso a sinistra e non altrove**: sulla piastrella che è insieme
+             * vista e scelta i due segni stanno alla massima distanza possibile e non si
+             * toccano mai. Chi lo spostasse 'per simmetria' rimetterebbe due segni nello
+             * stesso angolo.
+             * ⚠️ **Il ritaglio agli angoli arrotondati serve**: il triangolo tocca l'angolo
+             * in basso a sinistra, che è tondo di `CORNER`, e senza `clip` la punta
+             * sborderebbe oltre la sagoma della miniatura.
+             * ⚠️ **Il costo, dichiarato**: un angolo di fotografia sparisce sotto il nastro,
+             * e la forma triangolare di per sé non dice nulla, va imparata. Era il baratto
+             * scritto accanto alla proposta, e l'utente l'ha scelta sapendolo.
+             * ⚠️ Resta un riquadro fratello e non un `Modifier.border` nella catena, che è
+             * la lezione della `0.34`: due fratelli si dipingono nell'ordine in cui sono
+             * scritti, e su questo non c'è niente da sapere.
              */
+            val tint = MaterialTheme.colorScheme.primary
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clip(shape)
+                    .drawBehind {
+                        val leg = size.minDimension * MARK_LEG
+                        drawPath(
+                            path = Path().apply {
+                                moveTo(0f, size.height)
+                                lineTo(leg, size.height)
+                                lineTo(0f, size.height - leg)
+                                close()
+                            },
+                            color = tint
+                        )
+                    }
+            )
+        }
+        /*
+         * ⚠️⚠️ **LA SPUNTA STA SU UN DISCO PIENO, e senza quello non si vedeva**: una
+         * icona colorata appoggiata a una fotografia qualunque sparisce contro un
+         * fondo dello stesso colore, ed è quello che l'utente ha segnalato. Il disco
+         * dell'accento con il glifo del suo `onPrimary` porta con sé il proprio
+         * contrasto, quindi si legge su qualunque cosa ci sia sotto.
+         * ⚠️ Il glifo è un `Check` nudo e non un `CheckCircle`: il cerchio del secondo
+         * sarebbe un contorno dentro un disco pieno, cioè due cerchi.
+         * ⚠️ Sta sopra a tutto e in un angolo, non al centro: al centro coprirebbe
+         * proprio la parte della fotografia che si sta guardando per decidere se
+         * sceglierla.
+         */
+        if (chosen) {
             Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
@@ -775,8 +777,17 @@ private val THUMB = 108.dp
 /** Il distacco fra le miniature: c'è, ma non deve leggersi come una cornice. */
 private val GAP = 3.dp
 
-/** L'anello sull'ultima foto guardata: si deve vedere a colpo d'occhio, da lontano. */
-private val RING = 4.dp
+/**
+ * Quanto è lungo il cateto del nastro dell'ultima foto vista, in frazione del lato.
+ *
+ * ⚠️ È una **frazione** e non una misura in dp, al contrario di tutto il resto qui sotto,
+ * e la ragione è che la piastrella non ha una misura fissa: le colonne sono `Adaptive`,
+ * quindi su un tablet o in orizzontale la miniatura cresce. Un cateto in dp resterebbe
+ * quello di un telefono e su uno schermo grande diventerebbe un francobollo nell'angolo.
+ * ⚠️ Il valore viene dal mockup su cui l'utente ha scelto: a 108dp fa poco meno di 48dp
+ * di cateto, che è quanto serve perché si legga anche da lontano.
+ */
+private const val MARK_LEG = 0.44f
 
 /**
  * Quanto si SCHIARISCE una miniatura scelta.
@@ -790,9 +801,6 @@ private const val PICKED_VEIL = 0.34f
 
 /** Il lato del disco della spunta. Cresciuto nella 0.53, perché non si vedeva abbastanza. */
 private val TICK = 28.dp
-
-/** La lunghezza di un tratto del bordo tratteggiato, e del vuoto che lo segue. */
-private val DASH = 6.dp
 
 /** Il raggio degli angoli di una piastrella, in un posto solo perché lo usano in due. */
 private val CORNER = 4.dp
