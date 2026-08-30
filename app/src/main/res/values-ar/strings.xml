@@ -123,10 +123,10 @@
     <string name="facts_modified">آخر تعديل</string>
     <string name="facts_folder">المجلد</string>
     <string name="facts_encoding">الترميز</string>
-    <string name="facts_camera">العدسة والتعريض</string>
-    <string name="facts_place">الموقع</string>
+    <string name="facts_camera">بيانات الالتقاط</string>
+    <string name="facts_place">الإحداثيات الجغرافية</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
-    <string name="facts_pixels_mpx">%1$d x %2$d (%3$s Mpx)</string>
+    <string name="facts_pixels_mpx">%1$d x %2$d\n%3$s Mpx</string>
     <string name="facts_progressive">تدريجي</string>
     <string name="facts_interlaced">متشابك</string>
     <plurals name="facts_bits">
@@ -141,7 +141,8 @@
     <string name="facts_exposure_fraction">1/%1$d s</string>
     <string name="facts_exposure_seconds">%1$s s</string>
     <string name="facts_iso">ISO %1$d</string>
-    <string name="facts_altitude">%1$d m</string>
+    <string name="facts_altitude">%1$d م فوق سطح البحر</string>
+    <string name="facts_altitude_label">الارتفاع</string>
     <string name="dest_storages">التخزين</string>
     <string name="dest_empty">لا مجلد هنا.</string>
     <string name="dest_new">مجلد جديد</string>
@@ -193,16 +194,23 @@
     <string name="rename_start">الرقم الأول</string>
     <string name="rename_hint">كل سلسلة من علامات المربع تصير الرقم، وبعدد ما تكتب منها تكون الخانات: ## تعطي 01، و### تعطي 001. الامتداد لا يُمس أبدًا، وترقّم الصور بالترتيب الأبجدي.</string>
     <string name="rename_preview">معاينة</string>
-    <plurals name="delete_ask">
-        <item quantity="zero">حذف %1$d صورة؟</item>
-        <item quantity="one">حذف صورة واحدة؟</item>
-        <item quantity="two">حذف صورتين؟</item>
-        <item quantity="few">حذف %1$d صور؟</item>
-        <item quantity="many">حذف %1$d صورة؟</item>
-        <item quantity="other">حذف %1$d صورة؟</item>
+    <string name="delete_ask">تأكيد الحذف؟</string>
+    <plurals name="delete_desc">
+        <item quantity="zero">لا توجد صور لحذفها.</item>
+        <item quantity="one">أنت على وشك حذف صورة واحدة نهائيا: ستزول من الهاتف إلى الأبد.</item>
+        <item quantity="two">أنت على وشك حذف صورتين نهائيا: ستزولان من الهاتف إلى الأبد.</item>
+        <item quantity="few">أنت على وشك حذف %1$d صور نهائيا: ستزول من الهاتف إلى الأبد.</item>
+        <item quantity="many">أنت على وشك حذف %1$d صورة نهائيا: ستزول من الهاتف إلى الأبد.</item>
+        <item quantity="other">أنت على وشك حذف %1$d صورة نهائيا: ستزول من الهاتف إلى الأبد.</item>
     </plurals>
-    <string name="delete_desc">ستزول من الهاتف إلى الأبد. هي في سلة المهملات أصلًا، فلا مكان آخر تذهب إليه.</string>
-    <string name="trash_desc">تذهب إلى سلة المهملات، ومنها يمكنك استعادتها أو حذفها إلى الأبد.</string>
+    <plurals name="trash_desc">
+        <item quantity="zero">لا توجد صور لنقلها إلى سلة المهملات.</item>
+        <item quantity="one">أنت على وشك نقل صورة واحدة إلى سلة المهملات: يمكنك استعادتها حتى الحذف النهائي.</item>
+        <item quantity="two">أنت على وشك نقل صورتين إلى سلة المهملات: يمكنك استعادتهما حتى الحذف النهائي.</item>
+        <item quantity="few">أنت على وشك نقل %1$d صور إلى سلة المهملات: يمكنك استعادتها حتى الحذف النهائي.</item>
+        <item quantity="many">أنت على وشك نقل %1$d صورة إلى سلة المهملات: يمكنك استعادتها حتى الحذف النهائي.</item>
+        <item quantity="other">أنت على وشك نقل %1$d صورة إلى سلة المهملات: يمكنك استعادتها حتى الحذف النهائي.</item>
+    </plurals>
     <string name="bin_title">سلة المهملات</string>
     <string name="bin_none">سلة المهملات فارغة.</string>
     <string name="bin_restore">استعادة</string>

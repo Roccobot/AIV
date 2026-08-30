@@ -119,10 +119,10 @@
     <string name="facts_modified">Последнее изменение</string>
     <string name="facts_folder">Папка</string>
     <string name="facts_encoding">Кодирование</string>
-    <string name="facts_camera">Объектив и выдержка</string>
-    <string name="facts_place">Местоположение</string>
+    <string name="facts_camera">Данные съёмки</string>
+    <string name="facts_place">Географические координаты</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
-    <string name="facts_pixels_mpx">%1$d x %2$d (%3$s Mpx)</string>
+    <string name="facts_pixels_mpx">%1$d x %2$d\n%3$s Mpx</string>
     <string name="facts_progressive">прогрессивный</string>
     <string name="facts_interlaced">чересстрочный</string>
     <plurals name="facts_bits">
@@ -135,7 +135,8 @@
     <string name="facts_exposure_fraction">1/%1$d s</string>
     <string name="facts_exposure_seconds">%1$s s</string>
     <string name="facts_iso">ISO %1$d</string>
-    <string name="facts_altitude">%1$d m</string>
+    <string name="facts_altitude">%1$d м над уровнем моря</string>
+    <string name="facts_altitude_label">Высота</string>
     <string name="dest_storages">Хранилище</string>
     <string name="dest_empty">Здесь нет папок.</string>
     <string name="dest_new">Новая папка</string>
@@ -177,14 +178,19 @@
     <string name="rename_start">Первый номер</string>
     <string name="rename_hint">Каждая цепочка решёток превращается в номер, и сколько их напишете, столько будет цифр: ## даёт 01, ### даёт 001. Расширение не трогается, а изображения нумеруются по алфавиту.</string>
     <string name="rename_preview">Предпросмотр</string>
-    <plurals name="delete_ask">
-        <item quantity="one">Удалить %1$d изображение?</item>
-        <item quantity="few">Удалить %1$d изображения?</item>
-        <item quantity="many">Удалить %1$d изображений?</item>
-        <item quantity="other">Удалить %1$d изображений?</item>
+    <string name="delete_ask">Подтвердить удаление?</string>
+    <plurals name="delete_desc">
+        <item quantity="one">Вы окончательно удаляете %1$d изображение: оно исчезнет с телефона навсегда.</item>
+        <item quantity="few">Вы окончательно удаляете %1$d изображения: они исчезнут с телефона навсегда.</item>
+        <item quantity="many">Вы окончательно удаляете %1$d изображений: они исчезнут с телефона навсегда.</item>
+        <item quantity="other">Вы окончательно удаляете %1$d изображения: они исчезнут с телефона навсегда.</item>
     </plurals>
-    <string name="delete_desc">Они исчезнут с телефона навсегда. Они уже в корзине, дальше идти некуда.</string>
-    <string name="trash_desc">Они отправятся в корзину, откуда их можно вернуть или удалить навсегда.</string>
+    <plurals name="trash_desc">
+        <item quantity="one">Вы перемещаете %1$d изображение в корзину: его можно вернуть до окончательного удаления.</item>
+        <item quantity="few">Вы перемещаете %1$d изображения в корзину: их можно вернуть до окончательного удаления.</item>
+        <item quantity="many">Вы перемещаете %1$d изображений в корзину: их можно вернуть до окончательного удаления.</item>
+        <item quantity="other">Вы перемещаете %1$d изображения в корзину: их можно вернуть до окончательного удаления.</item>
+    </plurals>
     <string name="bin_title">Корзина</string>
     <string name="bin_none">Корзина пуста.</string>
     <string name="bin_restore">Вернуть</string>

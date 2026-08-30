@@ -113,10 +113,10 @@
     <string name="facts_modified">最后修改</string>
     <string name="facts_folder">文件夹</string>
     <string name="facts_encoding">编码</string>
-    <string name="facts_camera">镜头与曝光</string>
-    <string name="facts_place">位置</string>
+    <string name="facts_camera">拍摄参数</string>
+    <string name="facts_place">地理坐标</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
-    <string name="facts_pixels_mpx">%1$d x %2$d (%3$s Mpx)</string>
+    <string name="facts_pixels_mpx">%1$d x %2$d\n%3$s Mpx</string>
     <string name="facts_progressive">渐进式</string>
     <string name="facts_interlaced">隔行</string>
     <plurals name="facts_bits">
@@ -126,7 +126,8 @@
     <string name="facts_exposure_fraction">1/%1$d s</string>
     <string name="facts_exposure_seconds">%1$s s</string>
     <string name="facts_iso">ISO %1$d</string>
-    <string name="facts_altitude">%1$d m</string>
+    <string name="facts_altitude">海拔 %1$d 米</string>
+    <string name="facts_altitude_label">海拔</string>
     <string name="dest_storages">存储</string>
     <string name="dest_empty">这里没有文件夹。</string>
     <string name="dest_new">新建文件夹</string>
@@ -153,11 +154,13 @@
     <string name="rename_start">起始编号</string>
     <string name="rename_hint">每一串井号都会变成编号,你写几个就有几位数:## 得到 01,### 得到 001。扩展名不会被改动,图片按字母顺序编号。</string>
     <string name="rename_preview">预览</string>
-    <plurals name="delete_ask">
-        <item quantity="other">删除 %1$d 张图片吗?</item>
+    <string name="delete_ask">确认删除？</string>
+    <plurals name="delete_desc">
+        <item quantity="other">即将彻底删除 %1$d 张图片：将从手机上永久消失。</item>
     </plurals>
-    <string name="delete_desc">它们将从手机上永久消失。它们已经在回收站里了,没有别的地方可去。</string>
-    <string name="trash_desc">它们会进入回收站,你可以从那里还原或永久删除。</string>
+    <plurals name="trash_desc">
+        <item quantity="other">即将把 %1$d 张图片移入回收站：在彻底删除前都可以还原。</item>
+    </plurals>
     <string name="bin_title">回收站</string>
     <string name="bin_none">回收站是空的。</string>
     <string name="bin_restore">还原</string>

@@ -113,10 +113,10 @@
     <string name="facts_modified">마지막 수정</string>
     <string name="facts_folder">폴더</string>
     <string name="facts_encoding">인코딩</string>
-    <string name="facts_camera">렌즈와 노출</string>
-    <string name="facts_place">위치</string>
+    <string name="facts_camera">촬영 정보</string>
+    <string name="facts_place">지리 좌표</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
-    <string name="facts_pixels_mpx">%1$d x %2$d (%3$s Mpx)</string>
+    <string name="facts_pixels_mpx">%1$d x %2$d\n%3$s Mpx</string>
     <string name="facts_progressive">프로그레시브</string>
     <string name="facts_interlaced">인터레이스</string>
     <plurals name="facts_bits">
@@ -126,7 +126,8 @@
     <string name="facts_exposure_fraction">1/%1$d s</string>
     <string name="facts_exposure_seconds">%1$s s</string>
     <string name="facts_iso">ISO %1$d</string>
-    <string name="facts_altitude">%1$d m</string>
+    <string name="facts_altitude">해발 %1$d m</string>
+    <string name="facts_altitude_label">고도</string>
     <string name="dest_storages">저장소</string>
     <string name="dest_empty">여기에는 폴더가 없습니다.</string>
     <string name="dest_new">새 폴더</string>
@@ -153,11 +154,13 @@
     <string name="rename_start">첫 번호</string>
     <string name="rename_hint">이어진 # 는 번호가 되고, 쓴 개수만큼 자릿수가 됩니다. ## 는 01, ### 는 001 입니다. 확장자는 건드리지 않으며, 사진은 알파벳 순서로 번호가 붙습니다.</string>
     <string name="rename_preview">미리보기</string>
-    <plurals name="delete_ask">
-        <item quantity="other">%1$d장을 삭제할까요?</item>
+    <string name="delete_ask">삭제할까요?</string>
+    <plurals name="delete_desc">
+        <item quantity="other">이미지 %1$d개를 완전히 삭제합니다. 기기에서 영영 사라집니다.</item>
     </plurals>
-    <string name="delete_desc">기기에서 영영 사라집니다. 이미 휴지통에 있으므로 갈 곳이 더 없습니다.</string>
-    <string name="trash_desc">휴지통으로 들어갑니다. 거기서 되돌리거나 영영 삭제할 수 있습니다.</string>
+    <plurals name="trash_desc">
+        <item quantity="other">이미지 %1$d개를 휴지통으로 옮깁니다. 완전히 삭제하기 전까지는 되돌릴 수 있습니다.</item>
+    </plurals>
     <string name="bin_title">휴지통</string>
     <string name="bin_none">휴지통이 비어 있습니다.</string>
     <string name="bin_restore">되돌리기</string>

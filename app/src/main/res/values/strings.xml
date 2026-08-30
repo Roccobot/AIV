@@ -190,12 +190,12 @@
     <string name="facts_modified">Last modified</string>
     <string name="facts_folder">Folder</string>
     <string name="facts_encoding">Encoding</string>
-    <string name="facts_camera">Lens and exposure</string>
-    <string name="facts_place">Location</string>
+    <string name="facts_camera">Shot data</string>
+    <string name="facts_place">Geographic coordinates</string>
 
     <!-- Width, height, and megapixels when there are enough of them to be worth saying. -->
     <string name="facts_pixels_value">%1$d x %2$d</string>
-    <string name="facts_pixels_mpx">%1$d x %2$d (%3$s Mpx)</string>
+    <string name="facts_pixels_mpx">%1$d x %2$d\n%3$s Mpx</string>
     <!-- The scan order: one word for JPEG, another for PNG, same idea. -->
     <string name="facts_progressive">progressive</string>
     <string name="facts_interlaced">interlaced</string>
@@ -209,7 +209,8 @@
     <string name="facts_exposure_fraction">1/%1$d s</string>
     <string name="facts_exposure_seconds">%1$s s</string>
     <string name="facts_iso">ISO %1$d</string>
-    <string name="facts_altitude">%1$d m</string>
+    <string name="facts_altitude">%1$d m a.s.l.</string>
+    <string name="facts_altitude_label">Altitude</string>
 
         <!-- ── Choosing a destination folder in the filesystem ── -->
     <string name="dest_storages">Storage</string>
@@ -250,15 +251,18 @@
     <string name="rename_preview">Preview</string>
 
     <!-- ── Deleting ── -->
-    <plurals name="delete_ask">
-        <item quantity="one">Delete %1$d picture?</item>
-        <item quantity="other">Delete %1$d pictures?</item>
-    </plurals>
+    <string name="delete_ask">Confirm deletion?</string>
     <!-- The definitive one: inside the bin, or when emptying it. The old text said AIV
          had no bin of its own, and from 0.64 that is no longer true. -->
-    <string name="delete_desc">They go from the phone for good. They are in the bin already, so there is no further place for them to land.</string>
+    <plurals name="delete_desc">
+        <item quantity="one">You are about to delete %1$d picture for good: it goes from the phone for ever.</item>
+        <item quantity="other">You are about to delete %1$d pictures for good: they go from the phone for ever.</item>
+    </plurals>
     <!-- The everyday one: deleting now means moving to the bin. -->
-    <string name="trash_desc">They go to the bin, where you can restore them or delete them for good.</string>
+    <plurals name="trash_desc">
+        <item quantity="one">You are about to move %1$d picture to the bin: you can get it back until it is deleted for good.</item>
+        <item quantity="other">You are about to move %1$d pictures to the bin: you can get them back until they are deleted for good.</item>
+    </plurals>
 
     <!-- ── The bin ── -->
     <string name="bin_title">Bin</string>

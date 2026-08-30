@@ -115,10 +115,10 @@
     <string name="facts_modified">Son değişiklik</string>
     <string name="facts_folder">Klasör</string>
     <string name="facts_encoding">Kodlama</string>
-    <string name="facts_camera">Objektif ve pozlama</string>
-    <string name="facts_place">Konum</string>
+    <string name="facts_camera">Çekim verileri</string>
+    <string name="facts_place">Coğrafi koordinatlar</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
-    <string name="facts_pixels_mpx">%1$d x %2$d (%3$s Mpx)</string>
+    <string name="facts_pixels_mpx">%1$d x %2$d\n%3$s Mpx</string>
     <string name="facts_progressive">aşamalı</string>
     <string name="facts_interlaced">geçmeli</string>
     <plurals name="facts_bits">
@@ -129,7 +129,8 @@
     <string name="facts_exposure_fraction">1/%1$d s</string>
     <string name="facts_exposure_seconds">%1$s s</string>
     <string name="facts_iso">ISO %1$d</string>
-    <string name="facts_altitude">%1$d m</string>
+    <string name="facts_altitude">%1$d m rakım</string>
+    <string name="facts_altitude_label">Rakım</string>
     <string name="dest_storages">Depolama</string>
     <string name="dest_empty">Burada klasör yok.</string>
     <string name="dest_new">Yeni klasör</string>
@@ -161,12 +162,15 @@
     <string name="rename_start">İlk numara</string>
     <string name="rename_hint">Peş peşe gelen her diyez numaraya dönüşür ve kaç tane yazarsan o kadar basamak olur: ## 01 verir, ### 001 verir. Uzantıya hiç dokunulmaz ve görseller alfabetik sırayla numaralanır.</string>
     <string name="rename_preview">Önizleme</string>
-    <plurals name="delete_ask">
-        <item quantity="one">%1$d görsel silinsin mi?</item>
-        <item quantity="other">%1$d görsel silinsin mi?</item>
+    <string name="delete_ask">Silmeyi onaylıyor musun?</string>
+    <plurals name="delete_desc">
+        <item quantity="one">%1$d resmi kalıcı olarak silmek üzeresin: telefondan sonsuza kadar gider.</item>
+        <item quantity="other">%1$d resmi kalıcı olarak silmek üzeresin: telefondan sonsuza kadar gider.</item>
     </plurals>
-    <string name="delete_desc">Telefondan büsbütün silinirler. Zaten çöp kutusundalar, gidecek başka yer yok.</string>
-    <string name="trash_desc">Çöp kutusuna giderler; oradan geri alabilir ya da büsbütün silebilirsin.</string>
+    <plurals name="trash_desc">
+        <item quantity="one">%1$d resmi çöp kutusuna taşımak üzeresin: kalıcı olarak silinene kadar geri alabilirsin.</item>
+        <item quantity="other">%1$d resmi çöp kutusuna taşımak üzeresin: kalıcı olarak silinene kadar geri alabilirsin.</item>
+    </plurals>
     <string name="bin_title">Çöp kutusu</string>
     <string name="bin_none">Çöp kutusu boş.</string>
     <string name="bin_restore">Geri al</string>

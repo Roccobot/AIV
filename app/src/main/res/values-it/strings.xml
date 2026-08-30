@@ -154,16 +154,16 @@
     <string name="facts_name">Nome del file</string>
     <string name="facts_kind">Tipo di file</string>
     <string name="facts_pixels">Pixel</string>
-    <string name="facts_size">Peso</string>
+    <string name="facts_size">Dimensione</string>
     <string name="facts_taken">Data di scatto</string>
     <string name="facts_modified">Ultima modifica</string>
     <string name="facts_folder">Cartella</string>
     <string name="facts_encoding">Codifica</string>
-    <string name="facts_camera">Obiettivo ed esposizione</string>
-    <string name="facts_place">Posizione</string>
+    <string name="facts_camera">Dati di scatto</string>
+    <string name="facts_place">Coordinate geografiche</string>
 
     <string name="facts_pixels_value">%1$d x %2$d</string>
-    <string name="facts_pixels_mpx">%1$d x %2$d (%3$s Mpx)</string>
+    <string name="facts_pixels_mpx">%1$d x %2$d\n%3$s Mpx</string>
     <string name="facts_progressive">progressivo</string>
     <string name="facts_interlaced">interlacciato</string>
     <!-- In italiano 'bit' è invariabile, ma la forma resta un plurale per stare dietro
@@ -177,7 +177,8 @@
     <string name="facts_exposure_fraction">1/%1$d s</string>
     <string name="facts_exposure_seconds">%1$s s</string>
     <string name="facts_iso">ISO %1$d</string>
-    <string name="facts_altitude">%1$d m</string>
+    <string name="facts_altitude">%1$d m s.l.m.</string>
+    <string name="facts_altitude_label">Altitudine</string>
 
         <!-- ── Scegliere una cartella di destinazione nel filesystem ── -->
     <string name="dest_storages">Memorie</string>
@@ -223,13 +224,17 @@
     <string name="rename_preview">Anteprima</string>
 
     <!-- ── Eliminare ── -->
-    <plurals name="delete_ask">
-        <item quantity="one">Eliminare %1$d immagine?</item>
-        <item quantity="other">Eliminare %1$d immagini?</item>
-        <item quantity="many">Eliminare %1$d immagini?</item>
+    <string name="delete_ask">Confermi l\'eliminazione?</string>
+    <plurals name="delete_desc">
+        <item quantity="one">Stai per eliminare definitivamente %1$d immagine: sparisce dal telefono per sempre.</item>
+        <item quantity="other">Stai per eliminare definitivamente %1$d immagini: spariscono dal telefono per sempre.</item>
+        <item quantity="many">Stai per eliminare definitivamente %1$d immagini: spariscono dal telefono per sempre.</item>
     </plurals>
-    <string name="delete_desc">Vanno via dal telefono per sempre. Sono già nel cestino, quindi non c\'è un altro posto in cui finire.</string>
-    <string name="trash_desc">Vanno nel cestino, da cui si possono rimettere al loro posto o eliminare per sempre.</string>
+    <plurals name="trash_desc">
+        <item quantity="one">Stai per spostare %1$d immagine nel cestino: potrai recuperarla fino all\'eliminazione definitiva.</item>
+        <item quantity="other">Stai per spostare %1$d immagini nel cestino: potrai recuperarle fino all\'eliminazione definitiva.</item>
+        <item quantity="many">Stai per spostare %1$d immagini nel cestino: potrai recuperarle fino all\'eliminazione definitiva.</item>
+    </plurals>
 
     <string name="bin_title">Cestino</string>
     <string name="bin_none">Il cestino è vuoto.</string>

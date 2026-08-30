@@ -119,10 +119,10 @@
     <string name="facts_modified">Остання зміна</string>
     <string name="facts_folder">Тека</string>
     <string name="facts_encoding">Кодування</string>
-    <string name="facts_camera">Об\'єктив і витримка</string>
-    <string name="facts_place">Розташування</string>
+    <string name="facts_camera">Дані зйомки</string>
+    <string name="facts_place">Географічні координати</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
-    <string name="facts_pixels_mpx">%1$d x %2$d (%3$s Mpx)</string>
+    <string name="facts_pixels_mpx">%1$d x %2$d\n%3$s Mpx</string>
     <string name="facts_progressive">прогресивний</string>
     <string name="facts_interlaced">черезрядковий</string>
     <plurals name="facts_bits">
@@ -135,7 +135,8 @@
     <string name="facts_exposure_fraction">1/%1$d s</string>
     <string name="facts_exposure_seconds">%1$s s</string>
     <string name="facts_iso">ISO %1$d</string>
-    <string name="facts_altitude">%1$d m</string>
+    <string name="facts_altitude">%1$d м над рівнем моря</string>
+    <string name="facts_altitude_label">Висота</string>
     <string name="dest_storages">Сховище</string>
     <string name="dest_empty">Тут немає тек.</string>
     <string name="dest_new">Нова тека</string>
@@ -177,14 +178,19 @@
     <string name="rename_start">Перший номер</string>
     <string name="rename_hint">Кожен ланцюжок ґраток стає номером, і скільки їх напишете, стільки буде цифр: ## дає 01, ### дає 001. Розширення не чіпається, а зображення нумеруються за абеткою.</string>
     <string name="rename_preview">Перегляд</string>
-    <plurals name="delete_ask">
-        <item quantity="one">Видалити %1$d зображення?</item>
-        <item quantity="few">Видалити %1$d зображення?</item>
-        <item quantity="many">Видалити %1$d зображень?</item>
-        <item quantity="other">Видалити %1$d зображень?</item>
+    <string name="delete_ask">Підтвердити видалення?</string>
+    <plurals name="delete_desc">
+        <item quantity="one">Ви остаточно видаляєте %1$d зображення: воно зникне з телефона назавжди.</item>
+        <item quantity="few">Ви остаточно видаляєте %1$d зображення: вони зникнуть з телефона назавжди.</item>
+        <item quantity="many">Ви остаточно видаляєте %1$d зображень: вони зникнуть з телефона назавжди.</item>
+        <item quantity="other">Ви остаточно видаляєте %1$d зображення: вони зникнуть з телефона назавжди.</item>
     </plurals>
-    <string name="delete_desc">Вони зникнуть з телефона назавжди. Вони вже у кошику, далі йти нікуди.</string>
-    <string name="trash_desc">Вони підуть до кошика, звідки їх можна повернути або видалити назавжди.</string>
+    <plurals name="trash_desc">
+        <item quantity="one">Ви переміщуєте %1$d зображення до кошика: його можна повернути до остаточного видалення.</item>
+        <item quantity="few">Ви переміщуєте %1$d зображення до кошика: їх можна повернути до остаточного видалення.</item>
+        <item quantity="many">Ви переміщуєте %1$d зображень до кошика: їх можна повернути до остаточного видалення.</item>
+        <item quantity="other">Ви переміщуєте %1$d зображення до кошика: їх можна повернути до остаточного видалення.</item>
+    </plurals>
     <string name="bin_title">Кошик</string>
     <string name="bin_none">Кошик порожній.</string>
     <string name="bin_restore">Повернути</string>

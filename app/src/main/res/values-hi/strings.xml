@@ -115,10 +115,10 @@
     <string name="facts_modified">अंतिम बदलाव</string>
     <string name="facts_folder">फ़ोल्डर</string>
     <string name="facts_encoding">एन्कोडिंग</string>
-    <string name="facts_camera">लेंस और एक्सपोज़र</string>
-    <string name="facts_place">स्थान</string>
+    <string name="facts_camera">शूटिंग डेटा</string>
+    <string name="facts_place">भौगोलिक निर्देशांक</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
-    <string name="facts_pixels_mpx">%1$d x %2$d (%3$s Mpx)</string>
+    <string name="facts_pixels_mpx">%1$d x %2$d\n%3$s Mpx</string>
     <string name="facts_progressive">प्रोग्रेसिव</string>
     <string name="facts_interlaced">इंटरलेस्ड</string>
     <plurals name="facts_bits">
@@ -129,7 +129,8 @@
     <string name="facts_exposure_fraction">1/%1$d s</string>
     <string name="facts_exposure_seconds">%1$s s</string>
     <string name="facts_iso">ISO %1$d</string>
-    <string name="facts_altitude">%1$d m</string>
+    <string name="facts_altitude">समुद्र तल से %1$d मी.</string>
+    <string name="facts_altitude_label">ऊंचाई</string>
     <string name="dest_storages">भंडारण</string>
     <string name="dest_empty">यहाँ कोई फ़ोल्डर नहीं है।</string>
     <string name="dest_new">नया फ़ोल्डर</string>
@@ -161,12 +162,15 @@
     <string name="rename_start">पहला अंक</string>
     <string name="rename_hint">हैश की हर कड़ी संख्या बन जाती है, और आप जितने लिखेंगे उतने अंक होंगे: ## से 01, ### से 001। एक्सटेंशन कभी नहीं बदलता, और चित्रों को वर्णक्रम में संख्या मिलती है।</string>
     <string name="rename_preview">झलक</string>
-    <plurals name="delete_ask">
-        <item quantity="one">%1$d चित्र मिटाएँ?</item>
-        <item quantity="other">%1$d चित्र मिटाएँ?</item>
+    <string name="delete_ask">क्या हटाना है?</string>
+    <plurals name="delete_desc">
+        <item quantity="one">आप %1$d इमेज को हमेशा के लिए हटाने वाले हैं: वह फ़ोन से पूरी तरह चली जाएगी।</item>
+        <item quantity="other">आप %1$d इमेज को हमेशा के लिए हटाने वाले हैं: वे फ़ोन से पूरी तरह चली जाएंगी।</item>
     </plurals>
-    <string name="delete_desc">ये फ़ोन से हमेशा के लिए चले जाएँगे। ये पहले से कूड़ेदान में हैं, इसलिए आगे कोई जगह नहीं है।</string>
-    <string name="trash_desc">ये कूड़ेदान में जाएँगे, जहाँ से इन्हें वापस लाया या हमेशा के लिए मिटाया जा सकता है।</string>
+    <plurals name="trash_desc">
+        <item quantity="one">आप %1$d इमेज को कूड़ेदान में भेजने वाले हैं: पूरी तरह हटने तक उसे वापस लाया जा सकता है।</item>
+        <item quantity="other">आप %1$d इमेज को कूड़ेदान में भेजने वाले हैं: पूरी तरह हटने तक उन्हें वापस लाया जा सकता है।</item>
+    </plurals>
     <string name="bin_title">कूड़ेदान</string>
     <string name="bin_none">कूड़ेदान खाली है।</string>
     <string name="bin_restore">वापस लाएँ</string>

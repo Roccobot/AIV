@@ -117,10 +117,10 @@
     <string name="facts_modified">Última modificação</string>
     <string name="facts_folder">Pasta</string>
     <string name="facts_encoding">Codificação</string>
-    <string name="facts_camera">Lente e exposição</string>
-    <string name="facts_place">Local</string>
+    <string name="facts_camera">Dados da captura</string>
+    <string name="facts_place">Coordenadas geográficas</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
-    <string name="facts_pixels_mpx">%1$d x %2$d (%3$s Mpx)</string>
+    <string name="facts_pixels_mpx">%1$d x %2$d\n%3$s Mpx</string>
     <string name="facts_progressive">progressivo</string>
     <string name="facts_interlaced">entrelaçado</string>
     <plurals name="facts_bits">
@@ -132,7 +132,8 @@
     <string name="facts_exposure_fraction">1/%1$d s</string>
     <string name="facts_exposure_seconds">%1$s s</string>
     <string name="facts_iso">ISO %1$d</string>
-    <string name="facts_altitude">%1$d m</string>
+    <string name="facts_altitude">%1$d m de altitude</string>
+    <string name="facts_altitude_label">Altitude</string>
     <string name="dest_storages">Armazenamento</string>
     <string name="dest_empty">Nenhuma pasta aqui.</string>
     <string name="dest_new">Nova pasta</string>
@@ -169,13 +170,17 @@
     <string name="rename_start">Primeiro número</string>
     <string name="rename_hint">Cada sequência de cerquilhas vira o número, e quantas você escrever, tantos dígitos ele terá: ## dá 01, ### dá 001. A extensão nunca é tocada, e as imagens são numeradas em ordem alfabética.</string>
     <string name="rename_preview">Prévia</string>
-    <plurals name="delete_ask">
-        <item quantity="one">Excluir %1$d imagem?</item>
-        <item quantity="other">Excluir %1$d imagens?</item>
-        <item quantity="many">Excluir %1$d imagens?</item>
+    <string name="delete_ask">Confirmar a exclusão?</string>
+    <plurals name="delete_desc">
+        <item quantity="one">Você vai excluir %1$d imagem definitivamente: ela some do telefone para sempre.</item>
+        <item quantity="many">Você vai excluir %1$d imagens definitivamente: elas somem do telefone para sempre.</item>
+        <item quantity="other">Você vai excluir %1$d imagens definitivamente: elas somem do telefone para sempre.</item>
     </plurals>
-    <string name="delete_desc">Elas saem do celular para sempre. Já estão na lixeira, então não há outro lugar para onde ir.</string>
-    <string name="trash_desc">Vão para a lixeira, de onde você pode restaurá-las ou excluí-las para sempre.</string>
+    <plurals name="trash_desc">
+        <item quantity="one">Você vai mover %1$d imagem para a lixeira: poderá recuperá-la até a exclusão definitiva.</item>
+        <item quantity="many">Você vai mover %1$d imagens para a lixeira: poderá recuperá-las até a exclusão definitiva.</item>
+        <item quantity="other">Você vai mover %1$d imagens para a lixeira: poderá recuperá-las até a exclusão definitiva.</item>
+    </plurals>
     <string name="bin_title">Lixeira</string>
     <string name="bin_none">A lixeira está vazia.</string>
     <string name="bin_restore">Restaurar</string>
