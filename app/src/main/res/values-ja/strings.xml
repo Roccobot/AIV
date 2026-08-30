@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ja. Tradotto da AIV: la fonte di verità resta values/strings.xml, e ogni chiave nuova va aggiunta anche qui. -->
+<resources>
+    <string name="app_name">Astonishing Image Viewer</string>
+    <string name="app_short_name">AIV</string>
+    <string name="no_image">表示できる画像がありません</string>
+    <string name="open_failed">この画像を開けませんでした</string>
+    <string name="unsupported">この形式にはまだ対応していません</string>
+    <string name="too_large">この端末には画像が大きすぎます</string>
+    <string name="error_retry">もう一度試す</string>
+    <string name="fit_label">画面に合わせる</string>
+    <string name="url_hint">https://example.com/picture.jpg</string>
+    <string name="url_forget">履歴を消す</string>
+    <string name="url_not_image">このアドレスは画像を指していません</string>
+    <string name="menu_copy_image">クリップボードにコピー</string>
+    <string name="menu_share">共有</string>
+    <string name="menu_save">保存</string>
+    <string name="menu_details">詳細</string>
+    <string name="toast_image_copied">画像をコピーしました</string>
+    <string name="toast_copy_failed">コピーできませんでした</string>
+    <string name="toast_saved">保存しました</string>
+    <string name="toast_save_failed">保存できませんでした</string>
+    <string name="folder_why">フォルダの他の画像をめくるには、すべてのファイルへのアクセスが必要です。今開いたページでスイッチを入れてください。</string>
+    <string name="folder_no_access">フォルダにアクセスできません</string>
+    <string name="folder_unreadable">名前とサイズを読めません</string>
+    <string name="folder_not_in_gallery">ギャラリーにありません (%1$s)</string>
+    <string name="folder_alone">フォルダ内に1枚だけ</string>
+    <string name="folder_lost">フォルダ内に見つかりません</string>
+    <string name="settings_title">設定</string>
+    <string name="settings_back">戻る</string>
+    <string name="settings_background">画像の背景</string>
+    <string name="settings_bg_checker">市松模様</string>
+    <string name="settings_bg_solid">単色</string>
+    <string name="settings_bg_desc">市松模様は透明を見せられる唯一の背景で、ビューアーではそれは飾りではなく情報です。</string>
+    <string name="settings_ui_theme">テーマ</string>
+    <string name="settings_ui_theme_desc">アプリ自体を明るくするか暗くするか。すぐ下にある画像の背景とは別の設定です。市松模様は透明を示すためのもので、色を合わせるためではありません。</string>
+    <string name="settings_system">システム</string>
+    <string name="settings_theme_light">明るい</string>
+    <string name="settings_theme_dark">暗い</string>
+    <string name="settings_bg_theme">背景の色調</string>
+    <string name="settings_auto">自動</string>
+    <string name="settings_light">明るい</string>
+    <string name="settings_dark">暗い</string>
+    <string name="settings_folder_columns">フォルダ一覧の列数</string>
+    <string name="settings_folder_columns_desc">列を増やすと画面に入るフォルダは増え、表紙は小さくなります。4列では下の名前はたいてい切れます。</string>
+    <string name="settings_fit_grow">小さい画像を拡大する</string>
+    <string name="settings_fit_grow_desc">オフなら画面より小さい画像は実寸で表示します。オンなら画面いっぱいまで拡大します。</string>
+    <string name="settings_zoom_max">最大倍率</string>
+    <string name="settings_scale_mode" formatted="false">100%の意味</string>
+    <string name="settings_scale_physical">ファイルの1ピクセルを画面の1ピクセルに</string>
+    <string name="settings_scale_logical">ファイルの1ピクセルをレイアウトの1ピクセルに</string>
+    <string name="settings_scale_desc">スマートフォンの画面はレイアウト1ピクセルに実ピクセルを2つか3つ詰めているので、2つの答えは大きく違います。前者はファイルそのままの大きさ、後者はウェブページで見える大きさです。</string>
+    <string name="settings_info_position">詳細バー</string>
+    <string name="settings_top">上</string>
+    <string name="settings_bottom">下</string>
+    <string name="settings_info_visible">最初から詳細バーを表示</string>
+    <string name="settings_reverse_order">並ぶ向きを逆にする (日付順)</string>
+    <string name="settings_reverse_order_desc">オフなら新しい画像から古い画像へ、スマートフォンのギャラリーと同じ向きにめくります。オンなら古いものから新しいものへ、時系列でめくります。</string>
+    <string name="settings_clipboard">起動時にクリップボードを読む</string>
+    <string name="settings_clipboard_desc">アイコンからアプリを開いたとき、クリップボードのアドレスが画像を直接指していればその画像を開きます。Androidはアプリがクリップボードを読むたびに通知を出すので、オフのままなら通知は出ません。</string>
+    <string name="settings_start_folder">起動時にフォルダを開く</string>
+    <string name="settings_start_folder_desc">アプリを開くとフォルダ一覧ではなく、選んだフォルダの画像がすぐ出ます。</string>
+    <string name="settings_start_folder_none">フォルダを選んでいません</string>
+    <string name="settings_start_folder_pick">選ぶ</string>
+    <string name="folders_title">フォルダ</string>
+    <string name="folders_permission">フォルダを一覧にするにはすべてのファイルへのアクセスが必要です。フォルダをめくるのと同じ権限で、システムのページで許可します。</string>
+    <string name="folders_grant">アクセスを許可</string>
+    <string name="folders_none">画像のあるフォルダがありません。</string>
+    <string name="hub_open">その他</string>
+    <string name="hub_view_list">リスト表示</string>
+    <string name="hub_view_grid">グリッド表示</string>
+    <string name="hub_search">検索</string>
+    <string name="hub_url">アドレスを開く</string>
+    <string name="hub_pick">画像を開く</string>
+    <string name="hub_settings">設定</string>
+    <string name="url_open">開く</string>
+    <string name="url_recent">前に開いたもの</string>
+    <string name="folder_empty">このフォルダにはもう画像がありません。</string>
+    <string name="cancel">キャンセル</string>
+    <string name="hide_folder_title">%1$s を隠しますか?</string>
+    <string name="hide_folder_desc">めくるフォルダの一覧に出なくなります。何も削除しません。画像はそのままの場所にあり、設定から元に戻せます。</string>
+    <string name="hide_folder_do">隠す</string>
+    <string name="settings_hidden">隠したフォルダ</string>
+    <string name="settings_hidden_desc">フォルダを長押しすると隠せます。一覧には出ませんが、端末の中ではそのままです。</string>
+    <string name="settings_hidden_show">表示する</string>
+    <string name="search_hint">ファイル名で検索</string>
+    <string name="search_clear">消す</string>
+    <string name="search_none">名前に \'%1$s\' を含む画像はありません。</string>
+    <string name="identity_repo">GitHubでAIVのリポジトリを開く</string>
+    <string name="grid_item">%2$d 枚中 %1$d 枚目</string>
+    <string name="grid_item_last">%2$d 枚中 %1$d 枚目、最後に見た画像</string>
+    <string name="pick_leave">選択をやめる</string>
+    <string name="pick_all">すべて選択</string>
+    <string name="pick_info">情報</string>
+    <string name="pick_close">閉じる</string>
+    <string name="pick_actions">選択した画像の操作</string>
+    <string name="pick_move">移動</string>
+    <string name="pick_rename">名前を変更</string>
+    <string name="pick_delete">削除</string>
+    <string name="pick_counting">計算中...</string>
+    <plurals name="pick_count">
+        <item quantity="other">%1$d 枚選択</item>
+    </plurals>
+    <plurals name="pick_facts">
+        <item quantity="other">%1$d 個のファイルで %2$s</item>
+    </plurals>
+    <string name="facts_name">ファイル名</string>
+    <string name="facts_kind">ファイルの種類</string>
+    <string name="facts_pixels">ピクセル</string>
+    <string name="facts_size">サイズ</string>
+    <string name="facts_taken">撮影日時</string>
+    <string name="facts_modified">最終更新</string>
+    <string name="facts_folder">フォルダ</string>
+    <string name="facts_encoding">符号化</string>
+    <string name="facts_camera">レンズと露出</string>
+    <string name="facts_place">位置</string>
+    <string name="facts_pixels_value">%1$d x %2$d</string>
+    <string name="facts_pixels_mpx">%1$d x %2$d (%3$s Mpx)</string>
+    <string name="facts_progressive">プログレッシブ</string>
+    <string name="facts_interlaced">インターレース</string>
+    <plurals name="facts_bits">
+        <item quantity="other">%1$d ビット</item>
+    </plurals>
+    <string name="facts_focal">%1$s mm</string>
+    <string name="facts_exposure_fraction">1/%1$d s</string>
+    <string name="facts_exposure_seconds">%1$s s</string>
+    <string name="facts_iso">ISO %1$d</string>
+    <string name="facts_altitude">%1$d m</string>
+    <string name="dest_storages">ストレージ</string>
+    <string name="dest_empty">ここにフォルダはありません。</string>
+    <string name="dest_new">新しいフォルダ</string>
+    <string name="dest_create">作成</string>
+    <string name="dest_here">%1$s にコピー</string>
+    <string name="dest_move_here">%1$s に移動</string>
+    <string name="menu_copy_here">コピー</string>
+    <plurals name="copy_done">
+        <item quantity="other">%1$d 枚コピーしました</item>
+    </plurals>
+    <plurals name="move_done">
+        <item quantity="other">%1$d 枚移動しました</item>
+    </plurals>
+    <plurals name="rename_done">
+        <item quantity="other">%1$d 枚の名前を変更しました</item>
+    </plurals>
+    <plurals name="delete_done">
+        <item quantity="other">%1$d 枚削除しました</item>
+    </plurals>
+    <plurals name="op_failed">
+        <item quantity="other">%1$d 枚は失敗しました</item>
+    </plurals>
+    <string name="rename_template">名前</string>
+    <string name="rename_start">最初の番号</string>
+    <string name="rename_hint">連続する # が番号になり、書いた数だけ桁が増えます。## なら 01、### なら 001 です。拡張子は変わらず、画像はアルファベット順に番号が付きます。</string>
+    <string name="rename_preview">プレビュー</string>
+    <plurals name="delete_ask">
+        <item quantity="other">%1$d 枚を削除しますか?</item>
+    </plurals>
+    <string name="delete_desc">端末から完全に消えます。すでにゴミ箱にあるので、次に行く場所はありません。</string>
+    <string name="trash_desc">ゴミ箱に入ります。そこから元に戻すことも、完全に削除することもできます。</string>
+    <string name="bin_title">ゴミ箱</string>
+    <string name="bin_none">ゴミ箱は空です。</string>
+    <string name="bin_restore">元に戻す</string>
+    <string name="bin_empty">ゴミ箱を空にする</string>
+    <string name="bin_empty_ask">ゴミ箱を空にしますか?</string>
+    <string name="bin_empty_desc">中身は端末から完全に消えます。</string>
+    <plurals name="trash_done">
+        <item quantity="other">%1$d 枚をゴミ箱に移動しました</item>
+    </plurals>
+    <plurals name="restore_done">
+        <item quantity="other">%1$d 枚を元に戻しました</item>
+    </plurals>
+    <plurals name="folders_count">
+        <item quantity="other">%1$d 枚</item>
+    </plurals>
+    <string name="settings_facts">ファイルの情報</string>
+    <string name="settings_facts_desc">画像の情報を開いたときに見える項目と、その並び順です。名前、ピクセル、サイズは常に出ます。ファイルに無い項目は行そのものが出ません。</string>
+    <string name="settings_facts_always">常に表示</string>
+    <string name="settings_facts_up">上へ</string>
+    <string name="settings_facts_down">下へ</string>
+</resources>

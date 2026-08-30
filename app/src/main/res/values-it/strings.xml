@@ -72,7 +72,7 @@
 
     <string name="settings_zoom_max">Zoom massimo</string>
 
-    <string name="settings_scale_mode">Che cosa significa 100%</string>
+    <string name="settings_scale_mode" formatted="false">Che cosa significa 100%</string>
     <string name="settings_scale_physical">Un pixel del file per pixel dello schermo</string>
     <string name="settings_scale_logical">Un pixel del file per pixel di layout</string>
     <string name="settings_scale_desc">Lo schermo di un telefono stipa due o tre pixel veri in un pixel di layout, quindi le due risposte sono lontane: la prima mostra il file com\'è, la seconda lo mostra della misura che avrebbe in una pagina web.</string>
