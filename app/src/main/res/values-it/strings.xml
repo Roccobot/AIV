@@ -22,7 +22,7 @@
     <string name="url_not_image">L\'URL non punta a un\'immagine</string>
 
     <!-- ── Il menu che la pressione prolungata apre sull'immagine ── -->
-    <string name="menu_copy_image">Copia immagine</string>
+    <string name="menu_copy_image">Copia negli appunti</string>
     <string name="menu_share">Condividi</string>
     <string name="menu_save">Scarica</string>
     <string name="menu_details">Dettagli</string>

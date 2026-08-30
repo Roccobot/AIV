@@ -36,6 +36,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.DriveFileMove
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -77,6 +84,7 @@ import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
@@ -215,8 +223,46 @@ fun ViewerScreen(
     onStep: (Int) -> Unit,
     onSettings: () -> Unit,
     onRetry: () -> Unit,
+    /**
+     * La fotografia che si sta guardando non è più raggiungibile a quell'indirizzo: è stata
+     * spostata, rinominata o eliminata.
+     *
+     * ⚠️ **Vale anche per la rinomina**, e il perché sta in [FileKind]: il file c'è ancora,
+     * la sua riga nel MediaStore no. ⚠️ Si chiama **solo se qualcosa è andato a buon fine**:
+     * un'operazione fallita lascia tutto dov'era, e far ricaricare la cartella per niente
+     * farebbe perdere il posto senza motivo.
+     */
+    onFileChanged: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    // ⚠️ Le risorse da `LocalResources` e non da `context.resources`: quelle seguono i
+    // cambi di configurazione, e l'esito si compone dentro una coroutine. Vedi `GridScreen`.
+    val res = LocalResources.current
+
+    /** Il dialogo di un'operazione sui file, e `null` quando non ce n'è aperto nessuno. */
+    var job by remember { mutableStateOf<FileJob?>(null) }
+
+    /**
+     * Il giro di un'operazione: si parte, si dice com'è andata, e se la fotografia non c'è
+     * più si avverte chi sa che cosa mostrare al suo posto.
+     *
+     * ⚠️⚠️ **GIRA NELL'AMBITO DI QUESTA SCHERMATA, e non in quello del menu o della tela**:
+     * quelli muoiono, il primo quando il menu si chiude e la seconda al cambio di stato,
+     * cioè **esattamente** nell'istante in cui un'eliminazione riesce. Una coroutine
+     * lasciata là dentro verrebbe annullata alla prima sospensione, e si perderebbero
+     * l'avviso e la rilettura, non il lavoro sui file, che `FileTree` protegge da sé.
+     */
+    val perform: (FileKind, suspend () -> FileTree.Outcome) -> Unit = { kind, work ->
+        scope.launch {
+            val out = work()
+            Toast.makeText(context, outcomeText(res, out, kind.done), Toast.LENGTH_LONG).show()
+            if (kind.gone && out.done > 0) onFileChanged()
+        }
+    }
+
     /**
      * Lo stato della riga dei dettagli, che **vive più a lungo di ogni fotografia**.
      *
@@ -245,6 +291,52 @@ fun ViewerScreen(
      */
     var shown by remember { mutableStateOf<LoadedImage?>(null) }
     LaunchedEffect(state) { (state as? ViewerState.Ready)?.let { shown = it.image } }
+
+    /*
+     * Il selettore di sistema con cui si scarica la fotografia: così salvare non chiede
+     * nessun permesso e il posto lo scegli tu. Su Android 9, che questa app ancora
+     * sostiene, scrivere nella galleria dal MediaStore avrebbe voluto
+     * `WRITE_EXTERNAL_STORAGE`.
+     *
+     * ⚠️⚠️ **STA QUI E NON NEL MENU dalla 0.62, ed è una correzione**: un richiamo
+     * registrato dentro il menu viene **cancellato quando il menu si chiude**, cioè nel
+     * momento esatto in cui si tocca la voce, e l'esito del selettore arriva sempre dopo.
+     * Il difetto è stato ragionato sul codice e **non misurato sul telefono**, quindi la
+     * verifica resta da fare: quello che è certo è che qui il richiamo vive quanto la
+     * schermata, che è la sola durata sensata.
+     * ⚠️ Il tipo si chiede all'immagine mostrata e il contratto si ricostruisce solo
+     * quando cambia: un contratto nuovo a ogni ricomposizione rifarebbe la registrazione
+     * sessanta volte al secondo.
+     */
+    val saveMime = shown?.mimeType ?: "image/*"
+    val saveAs = remember(saveMime) { ActivityResultContracts.CreateDocument(saveMime) }
+    val saver = rememberLauncherForActivityResult(saveAs) { target ->
+        val from = source
+        if (target != null && from != null) {
+            scope.launch {
+                val ok = context.contentResolver.openOutputStream(target)?.use { out ->
+                    ImageActions.copyOriginalTo(context, from, out)
+                } ?: false
+                val said = if (ok) R.string.toast_saved else R.string.toast_save_failed
+                Toast.makeText(context, said, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    val ops = remember(source, saver) {
+        MenuOps(
+            job = { job = it },
+            share = { picture ->
+                scope.launch {
+                    if (!ImageActions.share(context, picture, source)) {
+                        Toast.makeText(context, R.string.toast_copy_failed, Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                }
+            },
+            save = { picture -> saver.launch(ImageActions.fileName(picture, source)) }
+        )
+    }
 
     // ⚠️ Ricordato SENZA chiavi, e non per fotografia: nasce spento una volta sola,
     // quindi la primissima riga entra in dissolvenza e da lì in poi non si ricrea mai.
@@ -308,7 +400,7 @@ fun ViewerScreen(
                 modifier = Modifier.align(Alignment.Center)
             )
             is ViewerState.Ready ->
-                ImageCanvas(state.image, settings, source, folder, info, onStep)
+                ImageCanvas(state.image, settings, source, folder, info, onStep, ops)
         }
 
         AnimatedVisibility(
@@ -386,7 +478,31 @@ fun ViewerScreen(
             }
         }
     }
+
+    // ⚠️ I dialoghi stanno FUORI dal riquadro dell'immagine e fuori dal menu, che è la
+    // ragione per cui esistono in questo file e non là: sono finestre a sé, e devono
+    // sopravvivere alla fotografia su cui agiscono. Vedi `perform`.
+    FileJobDialogs(job = job, onClose = { job = null }, onRun = perform)
 }
+
+/**
+ * Le tre richieste che il menu del tocco lungo **non esegue da sé**, e che passa a chi lo
+ * contiene.
+ *
+ * ⚠️⚠️ **LA RAGIONE È UNA SOLA: il menu si chiude prima che finiscano.** Toccare una voce
+ * chiama `onDismiss`, quindi il menu esce dalla composizione, e con lui muoiono il suo
+ * ambito di coroutine e i suoi richiami registrati. Una condivisione si annullerebbe alla
+ * prima sospensione, l'esito del selettore di sistema non tornerebbe a nessuno, e un
+ * dialogo aperto da là sparirebbe insieme alla fotografia su cui agisce.
+ * ⚠️ **Non ci finisce tutto, e la riga di confine è chiara**: quello che comincia e
+ * finisce dentro il tocco (gli appunti, lo zoom, la riga dei dettagli) resta nel menu.
+ * Qui sale ciò che **dura più del gesto**.
+ */
+private class MenuOps(
+    val job: (FileJob) -> Unit,
+    val share: (LoadedImage) -> Unit,
+    val save: (LoadedImage) -> Unit
+)
 
 /**
  * Quello che la riga dei dettagli deve sapere, e che **non muore con la fotografia**.
@@ -796,7 +912,9 @@ private fun ImageCanvas(
     source: Uri?,
     folder: Folder.Lookup?,
     info: InfoBar,
-    onStep: (Int) -> Unit
+    onStep: (Int) -> Unit,
+    /** Le richieste del menu che devono sopravvivere al menu. Vedi [MenuOps]. */
+    ops: MenuOps
 ) {
     val density = LocalDensity.current
 
@@ -1236,7 +1354,8 @@ private fun ImageCanvas(
                     onZoom = { animateTo(it) },
                     oneToOne = oneToOne,
                     restScale = restScale,
-                    onToggleDetails = { info.visible = !info.visible }
+                    onToggleDetails = { info.visible = !info.visible },
+                    ops = ops
                 )
             }
         }
@@ -1484,6 +1603,19 @@ private suspend fun PointerInputScope.detectViewerGestures(
  * view second, and the two that lead somewhere else last. 'Copy address' and the
  * 200/400% steps fell out of that list rather than being dropped for a reason of
  * mine.
+ *
+ * ⚠️⚠️ **IN FONDO CI SONO LE SEI OPERAZIONI SUI FILE, dalla `0.62`** (richiesta
+ * dell'utente: *in fondo, come icone, due righe di tre*). Sono lo stesso [ActionPad] della
+ * selezione nella griglia, quindi le icone e il loro ordine si decidono in un posto solo:
+ * chi impara dove sta 'sposta' lo impara una volta.
+ * ⚠️⚠️ **E 'Condividi' è uscita dalle voci di testo perché il riquadro la porta**, con la
+ * stessa chiamata di prima: due voci identiche nello stesso menu sono peso morto, e questo
+ * menu è tenuto corto apposta.
+ * ⚠️ **'Copia immagine' invece resta, e non è un doppione di 'copia'**: quella mette la
+ * fotografia negli **appunti**, questa copia il **file** in un'altra cartella. Sono due
+ * cose diverse, ed è la ragione per cui l'etichetta della prima adesso dice 'negli
+ * appunti': accanto al riquadro, 'Copia immagine' e 'Copia' si sarebbero lette come la
+ * stessa voce scritta due volte.
  */
 @Composable
 private fun ImageMenu(
@@ -1493,55 +1625,30 @@ private fun ImageMenu(
     onZoom: (Float) -> Unit,
     oneToOne: Float,
     restScale: Float,
-    onToggleDetails: () -> Unit
+    onToggleDetails: () -> Unit,
+    ops: MenuOps
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-
-    fun say(res: Int) = Toast.makeText(context, res, Toast.LENGTH_SHORT).show()
-
-    // The system's own file picker, so saving needs no permission at all and the
-    // person chooses where it lands. On Android 9, which this app still supports,
-    // writing into the gallery through MediaStore would have wanted
-    // WRITE_EXTERNAL_STORAGE.
-    val saver = rememberLauncherForActivityResult(
-        ActivityResultContracts.CreateDocument(image.mimeType ?: "image/*")
-    ) { target ->
-        if (target == null || source == null) return@rememberLauncherForActivityResult
-        scope.launch {
-            val ok = context.contentResolver.openOutputStream(target)?.use { out ->
-                ImageActions.copyOriginalTo(context, source, out)
-            } ?: false
-            say(if (ok) R.string.toast_saved else R.string.toast_save_failed)
-        }
-    }
 
     DropdownMenu(expanded = true, onDismissRequest = onDismiss) {
+        // ⚠️ Gli appunti sono l'unica cosa che il menu fa da sé, e può: è una chiamata che
+        // non sospende e finisce prima che il menu si chiuda. Tutto il resto passa da
+        // [MenuOps], e là sta scritto perché.
         DropdownMenuItem(
             text = { Text(stringResource(R.string.menu_copy_image)) },
             onClick = {
                 onDismiss()
-                say(
+                Toast.makeText(
+                    context,
                     if (ImageActions.copyImage(context, image)) R.string.toast_image_copied
-                    else R.string.toast_copy_failed
-                )
-            }
-        )
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.menu_share)) },
-            onClick = {
-                onDismiss()
-                scope.launch {
-                    if (!ImageActions.share(context, image, source)) say(R.string.toast_copy_failed)
-                }
+                    else R.string.toast_copy_failed,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         )
         DropdownMenuItem(
             text = { Text(stringResource(R.string.menu_save)) },
-            onClick = {
-                onDismiss()
-                saver.launch(ImageActions.fileName(image, source))
-            }
+            onClick = { onDismiss(); ops.save(image) }
         )
 
         HorizontalDivider()
@@ -1561,6 +1668,51 @@ private fun ImageMenu(
             text = { Text(stringResource(R.string.menu_details)) },
             onClick = { onDismiss(); onToggleDetails() }
         )
+
+        HorizontalDivider()
+
+        /*
+         * ⚠️⚠️ **SENZA INDIRIZZO NON C'È NIENTE DA FARE, e il riquadro non compare**: le sei
+         * operazioni agiscono su un **file**, e una fotografia arrivata da una chat o dal
+         * web non ne ha uno che questa app possa spostare. Mostrare sei tasti che
+         * risponderebbero 'non riuscito' sarebbe peggio di non mostrarli.
+         * ⚠️ **La condivisione sta nel riquadro ma NON passa dai file**: chiama la stessa
+         * `ImageActions.share` della voce di testo che ha sostituito, cioè condivide
+         * l'immagine caricata. È l'unica delle sei che funziona anche quando il file non si
+         * può toccare, e per questo è la ragione per cui il riquadro resterebbe utile anche
+         * senza indirizzo: il baratto è dichiarato e la scelta è tenerlo semplice.
+         */
+        source?.let { uri ->
+            val one = listOf(uri)
+            ActionPad(
+                actions = listOf(
+                    PadAction(Icons.Default.ContentCopy, R.string.menu_copy_here) {
+                        onDismiss()
+                        ops.job(FileJob.Transfer(one, move = false))
+                    },
+                    PadAction(Icons.AutoMirrored.Filled.DriveFileMove, R.string.pick_move) {
+                        onDismiss()
+                        ops.job(FileJob.Transfer(one, move = true))
+                    },
+                    PadAction(Icons.Default.Delete, R.string.pick_delete, danger = true) {
+                        onDismiss()
+                        ops.job(FileJob.Delete(one))
+                    },
+                    PadAction(Icons.Default.Edit, R.string.pick_rename) {
+                        onDismiss()
+                        ops.job(FileJob.Rename(one))
+                    },
+                    PadAction(Icons.Default.Share, R.string.menu_share) {
+                        onDismiss()
+                        ops.share(image)
+                    },
+                    PadAction(Icons.Outlined.Info, R.string.pick_info) {
+                        onDismiss()
+                        ops.job(FileJob.Facts(one))
+                    }
+                )
+            )
+        }
         // ⚠️⚠️ **QUI SOTTO C'ERANO LE IMPOSTAZIONI, e sono uscite nella 0.44** (istruzione
         // dell'utente): erano arrivate nella 0.30 perché la loro rotella occupava un posto
         // che serviva al contatore della cartella, e restavano l'unica via per
