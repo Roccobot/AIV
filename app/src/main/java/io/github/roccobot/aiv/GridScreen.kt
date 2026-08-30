@@ -1,10 +1,8 @@
 package io.github.roccobot.aiv
 
-import android.content.res.Resources
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.annotation.PluralsRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -41,8 +39,6 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
@@ -50,14 +46,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -148,21 +142,17 @@ fun GridScreen(
      * cartella è il modo naturale di dire 'lascia stare'.
      */
     var chosen by remember(items) { mutableStateOf<Set<Uri>>(emptySet()) }
-    var showingFacts by remember { mutableStateOf(false) }
     var menuOpen by remember { mutableStateOf(false) }
-    var deleting by remember { mutableStateOf(false) }
-
-    /** Quale delle due operazioni sta chiedendo una cartella, e `null` se nessuna. */
-    var transfer by remember { mutableStateOf<Transfer?>(null) }
 
     /**
-     * Le immagini che il dialogo di rinomina sta trattando, e `null` quando è chiuso.
+     * Il dialogo di un'operazione, e `null` quando non ce n'è aperto nessuno.
      *
-     * ⚠️ **Si fotografa la selezione all'apertura invece di leggerla viva**, e non è la
-     * stessa cosa: il dialogo carica i nomi in una coroutine legata alla lista che riceve,
-     * e una lista ricostruita a ogni ricomposizione la farebbe ripartire da capo.
+     * ⚠️ **Uno stato solo per quattro dialoghi**, dalla `0.62`: erano quattro variabili, e
+     * quattro booleani indipendenti descrivono sedici combinazioni di cui quindici
+     * impossibili. Qui i dialoghi si escludono per costruzione. ⚠️ Porta con sé le immagini
+     * su cui lavorare, e il perché sta in [FileJob].
      */
-    var renaming by remember { mutableStateOf<List<Uri>?>(null) }
+    var job by remember { mutableStateOf<FileJob?>(null) }
     val picking = chosen.isNotEmpty()
 
     // ⚠️ Indietro esce dalla SELEZIONE prima di uscire dalla cartella: chi ha scelto
@@ -249,14 +239,13 @@ fun GridScreen(
      * lasciare le spunte accese inviterebbe a toccare la stessa voce una seconda volta
      * mentre la prima è ancora in corso. Chi chiama deve quindi essersi già preso la sua
      * lista, ed è il motivo per cui [work] la riceve dall'esterno invece di leggerla qui.
-     * ⚠️ **Un avviso solo con tutti e due i numeri**: due avvisi di fila si coprono a
-     * vicenda, e il secondo si leggerebbe senza il primo.
+     * ⚠️ **Il testo dell'esito lo compone `outcomeText`**, condiviso col visualizzatore.
      */
-    val perform: (Int, suspend () -> FileTree.Outcome) -> Unit = { doneRes, work ->
+    val perform: (FileKind, suspend () -> FileTree.Outcome) -> Unit = { kind, work ->
         chosen = emptySet()
         scope.launch {
             val out = work()
-            Toast.makeText(context, outcomeText(res, out, doneRes), Toast.LENGTH_LONG).show()
+            Toast.makeText(context, outcomeText(res, out, kind.done), Toast.LENGTH_LONG).show()
             onChanged()
         }
     }
@@ -523,14 +512,14 @@ fun GridScreen(
                                 actions = listOf(
                                     PadAction(Icons.Default.ContentCopy, R.string.menu_copy_here) {
                                         menuOpen = false
-                                        transfer = Transfer.COPY
+                                        job = FileJob.Transfer(chosen.toList(), move = false)
                                     },
                                     PadAction(
                                         Icons.AutoMirrored.Filled.DriveFileMove,
                                         R.string.pick_move
                                     ) {
                                         menuOpen = false
-                                        transfer = Transfer.MOVE
+                                        job = FileJob.Transfer(chosen.toList(), move = true)
                                     },
                                     PadAction(
                                         Icons.Default.Delete,
@@ -538,11 +527,11 @@ fun GridScreen(
                                         danger = true
                                     ) {
                                         menuOpen = false
-                                        deleting = true
+                                        job = FileJob.Delete(chosen.toList())
                                     },
                                     PadAction(Icons.Default.Edit, R.string.pick_rename) {
                                         menuOpen = false
-                                        renaming = chosen.toList()
+                                        job = FileJob.Rename(chosen.toList())
                                     },
                                     PadAction(Icons.Default.Share, R.string.menu_share) {
                                         menuOpen = false
@@ -555,7 +544,7 @@ fun GridScreen(
                                     },
                                     PadAction(Icons.Outlined.Info, R.string.pick_info) {
                                         menuOpen = false
-                                        showingFacts = true
+                                        job = FileJob.Facts(chosen.toList())
                                     }
                                 )
                             )
@@ -567,94 +556,11 @@ fun GridScreen(
         }
     }
 
-    if (showingFacts) {
-        FactsDialog(uris = chosen.toList(), onDismiss = { showingFacts = false })
-    }
-
-    transfer?.let { kind ->
-        DestinationDialog(
-            action = if (kind == Transfer.COPY) R.string.dest_here else R.string.dest_move_here,
-            onDismiss = { transfer = null },
-            onPick = { dir ->
-                val list = chosen.toList()
-                transfer = null
-                if (kind == Transfer.COPY) {
-                    perform(R.plurals.copy_done) { FileTree.copy(context, list, dir) }
-                } else {
-                    perform(R.plurals.move_done) { FileTree.move(context, list, dir) }
-                }
-            }
-        )
-    }
-
-    renaming?.let { list ->
-        RenameDialog(
-            uris = list,
-            onDismiss = { renaming = null },
-            onRename = { template, start ->
-                renaming = null
-                perform(R.plurals.rename_done) {
-                    FileTree.rename(context, list, template, start)
-                }
-            }
-        )
-    }
-
-    if (deleting) {
-        /*
-         * ⚠️⚠️ **LA CONFERMA NON È CORTESIA: qui non c'è un cestino.** Il MediaStore ne ha
-         * uno, ma ci si finisce solo passando dal provider con la richiesta apposita, e
-         * questa app cancella dal disco perché è l'unica via che copre anche i file che
-         * nella galleria non ci sono mai entrati. Quindi il gesto è definitivo, e il testo
-         * lo dice invece di lasciarlo intuire.
-         * ⚠️ Il conto sta nel TITOLO e non nel corpo: è il dato che fa cambiare idea, e
-         * chi tocca in fretta legge solo la prima riga.
-         */
-        val going = chosen.size
-        AlertDialog(
-            onDismissRequest = { deleting = false },
-            title = { Text(pluralStringResource(R.plurals.delete_ask, going, going)) },
-            text = { Text(stringResource(R.string.delete_desc)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        deleting = false
-                        val list = chosen.toList()
-                        perform(R.plurals.delete_done) { FileTree.delete(context, list) }
-                    },
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error
-                    )
-                ) { Text(stringResource(R.string.pick_delete)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { deleting = false }) {
-                    Text(stringResource(R.string.cancel))
-                }
-            }
-        )
-    }
+    // ⚠️ I quattro dialoghi stanno in `FileOps.kt` perché li chiede anche il
+    // visualizzatore: qui resta la sola cosa che è di questa schermata, cioè che a
+    // operazione finita la cartella si rilegge.
+    FileJobDialogs(job = job, onClose = { job = null }, onRun = perform)
 }
-
-/** Le due operazioni che chiedono una cartella di arrivo, e che a parte quella differiscono. */
-private enum class Transfer { COPY, MOVE }
-
-/**
- * Che cosa dire quando un'operazione finisce: quante sono passate e, solo se ce ne sono,
- * quante no.
- *
- * ⚠️ Le forme plurali si risolvono con `getQuantityString` e non con
- * `pluralStringResource`, perché il numero si sa solo a lavoro finito e quella funzione si
- * può chiamare soltanto mentre si compone.
- */
-private fun outcomeText(res: Resources, out: FileTree.Outcome, @PluralsRes doneRes: Int): String =
-    buildString {
-        append(res.getQuantityString(doneRes, out.done, out.done))
-        if (out.failed > 0) {
-            append(", ")
-            append(res.getQuantityString(R.plurals.op_failed, out.failed, out.failed))
-        }
-    }
 
 /** Toglie o mette, che è quello che fa un tocco su una cosa selezionabile. */
 private fun Set<Uri>.toggle(uri: Uri): Set<Uri> = if (uri in this) this - uri else this + uri
@@ -892,51 +798,3 @@ private val EDGE_SPEED = 14.dp
 
 /** Tutti i riquadri sono la stessa cosa, e dirlo permette a Compose di riusarli. */
 private const val THUMB_KIND = "thumb"
-
-/**
- * Che cosa si è scelto, in numeri.
- *
- * ⚠️ **I dati si leggono quando il dialogo si apre e non prima**: contare il peso di
- * trecento file vuol dire trecento interrogazioni, e farle a ogni tocco su una miniatura
- * sarebbe pagarle per una domanda che quasi nessuno fa.
- * ⚠️ **Finché non sono pronti si dice che si sta contando**, invece di mostrare uno zero
- * che poi cambia: uno zero che si corregge da solo si legge come un errore.
- */
-@Composable
-private fun FactsDialog(uris: List<Uri>, onDismiss: () -> Unit) {
-    val context = LocalContext.current
-    val facts by produceState<Facts?>(null, uris) { value = factsOf(context, uris) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.pick_info)) },
-        text = {
-            val f = facts
-            Text(
-                text = if (f == null) stringResource(R.string.pick_counting) else buildString {
-                    /*
-                     * ⚠️ **Conto e peso sulla STESSA RIGA dalla 0.59** (richiesta
-                     * dell'utente: *indica come 'X file, Y MB totali'*). Erano due righe,
-                     * e due numeri messi uno sotto l'altro si leggono come due fatti
-                     * separati invece che come la misura di una cosa sola.
-                     * ⚠️ L'unità la sceglie `formatBytes`, che sale fino ai GB: su una
-                     * selezione grossa il gradino serve, ed è per quello che c'è.
-                     */
-                    append(
-                        pluralStringResource(
-                            R.plurals.pick_facts, f.count, f.count, formatBytes(f.bytes)
-                        )
-                    )
-                    f.name?.let { append('\n').append(it) }
-                    if (f.width != null && f.height != null) {
-                        append('\n').append(f.width).append(" x ").append(f.height)
-                    }
-                },
-                style = MaterialTheme.typography.bodyMedium
-            )
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.pick_close)) }
-        }
-    )
-}

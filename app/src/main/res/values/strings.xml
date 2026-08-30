@@ -34,7 +34,10 @@
     <string name="url_not_image">The URL does not point to an image</string>
 
     <!-- ── The menu that a long press opens on the picture ── -->
-    <string name="menu_copy_image">Copy image</string>
+    <!-- "To the clipboard" and not just "Copy image": next to the icon pad, where
+         "Copy" means copying the file into another folder, the short label read as
+         the same entry written twice. -->
+    <string name="menu_copy_image">Copy to clipboard</string>
     <string name="menu_share">Share</string>
     <string name="menu_save">Save</string>
     <string name="menu_details">Details</string>

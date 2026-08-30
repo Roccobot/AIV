@@ -699,6 +699,50 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
+     * La fotografia che si sta guardando non è più a quell'indirizzo: si rilegge la
+     * cartella e si mostra quella che ha preso il suo posto.
+     *
+     * ⚠️⚠️ **UNA SOLA FUNZIONE PER SPOSTA, RINOMINA ED ELIMINA, e non è una
+     * semplificazione**: in tutti e tre i casi la domanda è la stessa, 'che cosa c'è ora
+     * in quella posizione della cartella'. Dopo un'eliminazione o uno spostamento c'è la
+     * foto **seguente**, perché la lista si è accorciata; dopo una rinomina c'è la
+     * **stessa** foto, con l'indirizzo nuovo, perché l'ordine è per data e la data non è
+     * cambiata. La posizione è quello che si conserva, non l'indirizzo.
+     * ⚠️ **Ci si aggancia alla POSIZIONE e non alla foto vicina**: cercare 'la prossima'
+     * per indirizzo vorrebbe dire cercare un indirizzo in una lista che è appena cambiata.
+     * ⚠️ **Se la cartella si è svuotata, o non c'è niente da rileggere, si torna
+     * indietro**: restare su una fotografia che non esiste più mostrerebbe l'errore di
+     * caricamento al posto di una galleria.
+     * ⚠️ **Il caso senza cartella da rileggere è quello di una foto aperta da fuori**
+     * (una chat, il web), e là dopo una rinomina si perde di vista il file: non c'è nessun
+     * elenco in cui ritrovarlo, e inventarne uno vorrebbe dire interrogare il MediaStore
+     * su un percorso che non si conosce più. Costa un ritorno alle cartelle, ed è raro.
+     * ⚠️ **`gridVisited` NON si spegne**, al contrario di [reloadGrid]: là gli indici
+     * cambiano sotto una griglia che li sta mostrando, qui la posizione la si riscrive
+     * subito con quella giusta, quindi l'anello dell'ultima vista continua a dire il vero.
+     */
+    fun afterFileChanged() {
+        val context = getApplication<Application>()
+        val place = series?.index ?: 0
+        val from = viewerBack
+        viewModelScope.launch {
+            val fresh = when (from) {
+                is Screen.Grid -> Folder.newestIn(context, from.bucket)
+                Screen.Search -> Folder.byName(context, query, settings?.hiddenFolders.orEmpty())
+                else -> null
+            }
+            val reading = fresh.oriented()?.seriesOrNull
+            if (reading == null || reading.items.isEmpty()) {
+                backFromViewer()
+                return@launch
+            }
+            // ⚠️ `listed` lo riscrive [showAt], nell'ordine grezzo: scriverlo anche qui
+            // vorrebbe dire scriverlo due volte con due significati diversi.
+            showAt(reading, place.coerceIn(0, reading.items.lastIndex))
+        }
+    }
+
+    /**
      * The next or previous picture in the folder, if there is one.
      *
      * ⚠️⚠️ **The series is carried over rather than looked up again**, and it has to
@@ -936,7 +980,8 @@ private fun AivApp(model: ViewerViewModel) {
                 folder = model.folder,
                 onStep = { model.step(it) },
                 onSettings = { model.openSettings() },
-                onRetry = { model.retry() }
+                onRetry = { model.retry() },
+                onFileChanged = { model.afterFileChanged() }
             )
         }
     }
