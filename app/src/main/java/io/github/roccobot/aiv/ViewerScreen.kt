@@ -327,6 +327,23 @@ fun ViewerScreen(
             // si svuoterebbe mentre sta ancora sfumando via.
             shown?.let { picture ->
                 /*
+                 * ⚠️⚠️ **LO SFONDO STA FUORI DALLA DISSOLVENZA, ed è il lampeggio segnalato
+                 * il 2026-08-30** (*mentre la dissolvenza del testo è perfetta, adesso lo
+                 * sfondo delle info fa un piccolo flash*). Dentro, la `AnimatedContent`
+                 * tiene **due** pannelli sovrapposti per tutta la transizione, e due veli
+                 * semitrasparenti sovrapposti non fanno il velo di prima: a metà strada
+                 * ciascuno vale `0.86 x 0.5 = 0.43`, e insieme coprono
+                 * `1 - 0.57 x 0.57 = 0.675` invece di `0.86`. Lo sfondo si schiarisce di un
+                 * quinto e torna, cioè lampeggia, mentre il testo dissolve benissimo.
+                 * ⚠️ **È lo stesso rimedio della `0.44`**, quando lo sfondo della fotografia
+                 * era dentro `ImageCanvas` e lampeggiava a ogni cambio di stato: quello che
+                 * deve restare fermo si dipinge **fuori** da ciò che si anima. Chi
+                 * rimettesse il velo dentro `DetailsPanel` per 'tenere il pannello in un
+                 * pezzo solo' rimetterebbe il lampeggio.
+                 * ⚠️ La larghezza è piena, quindi lo sfondo non cambia forma quando il testo
+                 * cambia: senza `fillMaxWidth` seguirebbe la misura del contenuto, e con
+                 * `using null` quella misura salta invece di animare.
+                 *
                  * ⚠️ **La dissolvenza incrociata fra una riga e l'altra**, chiesta
                  * dall'utente il 2026-08-29 dopo aver confermato che il lampeggio non
                  * c'era più: il testo non cambia di scatto, il vecchio sfuma nel nuovo.
@@ -340,24 +357,31 @@ fun ViewerScreen(
                  * ogni fotogramma di una pinza, e incrociarla vorrebbe dire una
                  * dissolvenza al secondo mentre si ingrandisce.
                  */
-                AnimatedContent(
-                    targetState = picture,
-                    transitionSpec = { fadeIn() togetherWith fadeOut() using null },
-                    label = "dettagli"
-                ) { shownNow ->
-                    DetailsPanel(
-                        image = shownNow,
-                        percent = info.percent,
-                        tiles = info.tiles,
-                        // ⚠️⚠️ **Il silenzio non basta a dire perché**, ed è il difetto
-                        // che ha fatto perdere DUE versioni sulla strisciata: senza serie
-                        // il gesto non fa niente, e 'non fa niente' è identico a un gesto
-                        // guasto. Qui l'esito arriva col suo motivo e la riga lo stampa.
-                        // ⚠️ Solo per una foto di questo telefono: su un'immagine del web
-                        // o di una chat 'non è nella galleria' è la normalità, non una
-                        // notizia.
-                        folder = folder.takeIf { source?.scheme?.lowercase() == "content" }
-                    )
+                Surface(
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = PANEL_VEIL),
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    AnimatedContent(
+                        targetState = picture,
+                        transitionSpec = { fadeIn() togetherWith fadeOut() using null },
+                        label = "dettagli"
+                    ) { shownNow ->
+                        DetailsPanel(
+                            image = shownNow,
+                            percent = info.percent,
+                            tiles = info.tiles,
+                            // ⚠️⚠️ **Il silenzio non basta a dire perché**, ed è il difetto
+                            // che ha fatto perdere DUE versioni sulla strisciata: senza
+                            // serie il gesto non fa niente, e 'non fa niente' è identico a
+                            // un gesto guasto. Qui l'esito arriva col suo motivo e la riga
+                            // lo stampa.
+                            // ⚠️ Solo per una foto di questo telefono: su un'immagine del
+                            // web o di una chat 'non è nella galleria' è la normalità, non
+                            // una notizia.
+                            folder = folder.takeIf { source?.scheme?.lowercase() == "content" }
+                        )
+                    }
                 }
             }
         }
@@ -1586,58 +1610,66 @@ private fun DetailsPanel(
         Folder.Lookup.Alone -> stringResource(R.string.folder_alone)
         Folder.Lookup.Lost -> stringResource(R.string.folder_lost)
     }
-    Surface(
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.86f),
-        contentColor = MaterialTheme.colorScheme.onSurface,
-        modifier = Modifier.fillMaxWidth()
+    // ⚠️⚠️ **IL VELO DI FONDO NON STA PIÙ QUI, ed è la correzione della `0.57`**: dipinto
+    // dentro il contenuto della dissolvenza veniva disegnato **due volte** per tutta la
+    // transizione, e due veli sovrapposti non fanno il velo di prima. Adesso lo dipinge
+    // `ViewerScreen`, una volta sola, fuori dalla `AnimatedContent`: il perché per esteso
+    // sta là. ⚠️ Il colore del testo arriva da quella `Surface` tramite `LocalContentColor`,
+    // quindi qui non si dichiara: dichiararlo di nuovo vorrebbe dire due fonti per la
+    // stessa scelta.
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .safeDrawingPadding()
+            .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .safeDrawingPadding()
-                .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Text(
+            text = buildString {
+                append(image.mimeType?.substringAfter('/')?.uppercase() ?: "?")
+                append("  ")
+                append(image.pixelWidth).append(" x ").append(image.pixelHeight)
+                image.byteSize?.let { append("  ").append(formatBytes(it)) }
+                append("  ").append((percent * 100).roundToInt()).append('%')
+                // ⚠️⚠️ **QUESTA È DIAGNOSTICA, e va difesa come quella della cartella**:
+                // `sampled` da solo diceva che la fotografia era stata ridotta, ma non se
+                // il rattoppo a piena risoluzione stesse funzionando, e 'non si vede
+                // niente' è identico fra una funzione rotta, una che ha deciso di non fare
+                // niente e un formato che non si sa rileggere. Con il motivo scritto, il
+                // difetto della `0.49` si è potuto nominare invece che indovinare.
+                // ⚠️ Solo per le fotografie **ridotte**: su tutte le altre i tasselli non
+                // c'entrano, e una parola in più sarebbe rumore su ogni foto.
+                if (image.sampled) {
+                    append("  (sampled")
+                    tiles?.let { append(", ").append(it) }
+                    append(')')
+                }
+                // ⚠️ Il perché di una cartella che non c'è resta QUI, col resto del testo,
+                // e non va nell'angolo del contatore: è una frase, non un numero, e in
+                // quello spazio starebbe stretta o lo farebbe crescere rimettendo in
+                // movimento il contatore che si è appena fissato.
+                folderNote?.let { append("  ").append(it) }
+            },
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier.weight(1f)
+        )
+        folder?.seriesOrNull?.let {
             Text(
-                text = buildString {
-                    append(image.mimeType?.substringAfter('/')?.uppercase() ?: "?")
-                    append("  ")
-                    append(image.pixelWidth).append(" x ").append(image.pixelHeight)
-                    image.byteSize?.let { append("  ").append(formatBytes(it)) }
-                    append("  ").append((percent * 100).roundToInt()).append('%')
-                    // ⚠️⚠️ **QUESTA È DIAGNOSTICA, e va difesa come quella della
-                    // cartella**: `sampled` da solo diceva che la fotografia era stata
-                    // ridotta, ma non se il rattoppo a piena risoluzione stesse
-                    // funzionando, e 'non si vede niente' è identico fra una funzione
-                    // rotta, una che ha deciso di non fare niente e un formato che non si
-                    // sa rileggere. Con il motivo scritto, il difetto della `0.49` si è
-                    // potuto nominare invece che indovinare.
-                    // ⚠️ Solo per le fotografie **ridotte**: su tutte le altre i tasselli
-                    // non c'entrano, e una parola in più sarebbe rumore su ogni foto.
-                    if (image.sampled) {
-                        append("  (sampled")
-                        tiles?.let { append(", ").append(it) }
-                        append(')')
-                    }
-                    // ⚠️ Il perché di una cartella che non c'è resta QUI, col resto del
-                    // testo, e non va nell'angolo del contatore: è una frase, non un
-                    // numero, e in quello spazio starebbe stretta o lo farebbe crescere
-                    // rimettendo in movimento il contatore che si è appena fissato.
-                    folderNote?.let { append("  ").append(it) }
-                },
+                text = "${it.index + 1}/${it.size}",
                 style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.padding(start = 12.dp)
             )
-            folder?.seriesOrNull?.let {
-                Text(
-                    text = "${it.index + 1}/${it.size}",
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.padding(start = 12.dp)
-                )
-            }
         }
     }
 }
+
+/**
+ * Quanto copre il velo dietro la riga dei dettagli.
+ *
+ * ⚠️ Sta in un posto solo perché a dipingerlo è `ViewerScreen` e a spiegarlo è
+ * `DetailsPanel`: due numeri uguali in due file sono un numero che prima o poi diverge.
+ */
+private const val PANEL_VEIL = 0.86f
 
 /**
  * The checkerboard is what makes transparency visible, and on a viewer that is
