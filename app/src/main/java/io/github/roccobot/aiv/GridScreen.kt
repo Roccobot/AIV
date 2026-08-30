@@ -53,6 +53,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -68,6 +70,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
@@ -117,7 +121,19 @@ fun GridScreen(
     onOpen: (Int) -> Unit,
     onBack: () -> Unit,
     onChanged: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /**
+     * Il testo cercato, e `null` quando questa non è una ricerca.
+     *
+     * ⚠️⚠️ **DUE PARAMETRI INVECE DI UNA SCHERMATA NUOVA, ed è la scelta che regge la
+     * ricerca**: fra la griglia di una cartella e quella dei risultati cambia **solo la
+     * testata**, e tutto il resto (miniature, selezione multipla, copia, sposta, rinomina,
+     * elimina, apertura, anello) è lo stesso identico codice. Una schermata a parte
+     * avrebbe voluto una seconda copia di tutto quello, cioè il posto dove le due si
+     * sarebbero messe a divergere.
+     */
+    query: String? = null,
+    onQuery: (String) -> Unit = {}
 ) {
     val state = rememberLazyGridState()
     val context = LocalContext.current
@@ -268,19 +284,57 @@ fun GridScreen(
                 )
             }
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = if (picking) pluralStringResource(
-                        R.plurals.pick_count, chosen.size, chosen.size
-                    ) else title,
-                    style = MaterialTheme.typography.headlineSmall,
-                    maxLines = 1
-                )
-                if (!picking) items?.let {
-                    Text(
-                        text = pluralStringResource(R.plurals.folders_count, it.size, it.size),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                if (query != null && !picking) {
+                    /*
+                     * ⚠️⚠️ **IL CAMPO PRENDE IL FUOCO DA SÉ, e senza questo la ricerca si
+                     * apre su una schermata che non fa niente**: chi tocca 'Cerca' ha già
+                     * in mente la parola, e trovarsi davanti un campo spento con la
+                     * tastiera chiusa vuol dire un tocco in più prima di poter scrivere.
+                     * ⚠️ Una volta sola per visita: rimettere il fuoco a ogni
+                     * ricomposizione riaprirebbe la tastiera dopo che la si è chiusa per
+                     * guardare i risultati, che è precisamente quando la si vuole via.
+                     */
+                    val focus = remember { FocusRequester() }
+                    LaunchedEffect(Unit) { focus.requestFocus() }
+                    TextField(
+                        value = query,
+                        onValueChange = onQuery,
+                        placeholder = { Text(stringResource(R.string.search_hint)) },
+                        singleLine = true,
+                        // ⚠️ Senza contorno e senza fondo: qui sta al posto di un titolo,
+                        // e un campo squadrato in testata sembrerebbe un modulo da
+                        // compilare invece della riga che dice dove si è.
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent
+                        ),
+                        trailingIcon = if (query.isEmpty()) null else ({
+                            IconButton(onClick = { onQuery("") }) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = stringResource(R.string.search_clear)
+                                )
+                            }
+                        }),
+                        modifier = Modifier.fillMaxWidth().focusRequester(focus)
                     )
+                } else {
+                    Text(
+                        text = if (picking) pluralStringResource(
+                            R.plurals.pick_count, chosen.size, chosen.size
+                        ) else title,
+                        style = MaterialTheme.typography.headlineSmall,
+                        maxLines = 1
+                    )
+                    if (!picking) items?.let {
+                        Text(
+                            text = pluralStringResource(R.plurals.folders_count, it.size, it.size),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
             if (picking) {
@@ -381,11 +435,23 @@ fun GridScreen(
                 Modifier.padding(top = 24.dp).size(28.dp).align(Alignment.CenterHorizontally)
             )
 
-            items.isEmpty() -> Text(
-                text = stringResource(R.string.folder_empty),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(top = 24.dp, start = 12.dp)
-            )
+            // ⚠️ Un elenco vuoto vuol dire due cose diverse, e dirle con la stessa frase
+            // sarebbe un piccolo inganno: in una cartella significa che le foto non ci sono
+            // più, in una ricerca che nessun nome combacia, e a ricerca ancora da scrivere
+            // non significa niente e non si dice nulla.
+            items.isEmpty() -> when {
+                query == null -> Text(
+                    text = stringResource(R.string.folder_empty),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = 24.dp, start = 12.dp)
+                )
+                query.isNotBlank() -> Text(
+                    text = stringResource(R.string.search_none, query),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = 24.dp, start = 12.dp)
+                )
+                else -> Unit
+            }
 
             else -> {
             /*
@@ -842,9 +908,19 @@ private fun FactsDialog(uris: List<Uri>, onDismiss: () -> Unit) {
             val f = facts
             Text(
                 text = if (f == null) stringResource(R.string.pick_counting) else buildString {
-                    append(pluralStringResource(R.plurals.pick_count, f.count, f.count))
-                    append('\n')
-                    append(formatBytes(f.bytes))
+                    /*
+                     * ⚠️ **Conto e peso sulla STESSA RIGA dalla 0.59** (richiesta
+                     * dell'utente: *indica come 'X file, Y MB totali'*). Erano due righe,
+                     * e due numeri messi uno sotto l'altro si leggono come due fatti
+                     * separati invece che come la misura di una cosa sola.
+                     * ⚠️ L'unità la sceglie `formatBytes`, che sale fino ai GB: su una
+                     * selezione grossa il gradino serve, ed è per quello che c'è.
+                     */
+                    append(
+                        pluralStringResource(
+                            R.plurals.pick_facts, f.count, f.count, formatBytes(f.bytes)
+                        )
+                    )
                     f.name?.let { append('\n').append(it) }
                     if (f.width != null && f.height != null) {
                         append('\n').append(f.width).append(" x ").append(f.height)

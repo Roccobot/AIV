@@ -1,0 +1,26 @@
+Copyright (c) 2026 Roccobot
+
+All rights reserved.
+
+The source code of Astonishing Image Viewer is published so that it can be read
+and audited, and for no other purpose. No permission is granted to use, copy,
+modify, merge, publish, distribute, sublicense or sell copies of this software
+or any part of it, in source or in binary form, without the prior written
+permission of the copyright holder.
+
+The compiled application is offered as a download for personal use.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+---
+
+Third-party components, under their own terms:
+
+- Coil (io.coil-kt.coil3), Apache License 2.0. Used for the grid thumbnails
+  only; see the note in gradle/libs.versions.toml.
+- AndroidX and Jetpack Compose libraries, Apache License 2.0.

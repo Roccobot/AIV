@@ -30,6 +30,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import coil3.compose.setSingletonImageLoaderFactory
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 sealed interface ViewerState {
@@ -79,6 +80,19 @@ sealed interface Screen {
      * ESATTAMENTE a questa griglia.
      */
     data class Grid(val bucket: Long, val name: String) : Screen
+
+    /**
+     * I risultati di una ricerca, dalla 0.59.
+     *
+     * ⚠️⚠️ **NON PORTA IL TESTO CERCATO, e sarebbe l'errore facile**: il testo cambia a
+     * ogni lettera digitata, quindi metterlo qui vorrebbe dire ricostruire la schermata a
+     * ogni tasto, e con lei lo stato della griglia. Il testo vive nel modello, dove può
+     * cambiare senza che la schermata cambi identità.
+     * ⚠️ Per tutto il resto è una **griglia come le altre**: i risultati sono una serie, e
+     * da qui si apre il visualizzatore, si sfoglia e si seleziona esattamente come in una
+     * cartella.
+     */
+    data object Search : Screen
 }
 
 /**
@@ -89,6 +103,16 @@ sealed interface Screen {
  * scritta a mano in ognuno, il giorno che la casa cambia se ne aggiornerebbero cinque.
  */
 private val HOME = Screen.Folders(forStart = false)
+
+/**
+ * Quanto si aspetta, dopo l'ultimo tasto, prima di interrogare il MediaStore.
+ *
+ * ⚠️ Tarato su come si scrive e non su un numero tondo: sotto i due decimi la pausa non
+ * raggruppa niente perché fra una lettera e l'altra passa di più, sopra il mezzo secondo si
+ * sente il ritardo fra il testo e i risultati. Da rivedere solo con una misura sul telefono,
+ * non a naso.
+ */
+private const val SEARCH_PAUSE_MS = 280L
 
 /**
  * The decoded picture lives in the ViewModel and not in the composition: a
@@ -527,6 +551,61 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
+     * Il testo che si sta cercando. Vuoto quando la ricerca si apre.
+     *
+     * ⚠️ Vive qui e non in [Screen.Search] perché cambia a ogni lettera: vedi la nota su
+     * quella schermata.
+     */
+    var query: String by mutableStateOf("")
+        private set
+
+    /**
+     * La ricerca in corso, per poterla **annullare** quando ne parte un'altra.
+     *
+     * ⚠️⚠️ **Senza questo la risposta più lenta vincerebbe sulla più recente**: digitando
+     * `mare` partono quattro ricerche, e l'ordine in cui il MediaStore risponde non è quello
+     * in cui sono partite. Chi non annulla si ritrova i risultati di `mar` sopra quelli di
+     * `mare`, e il difetto si vede solo quando il telefono è occupato, cioè quasi mai
+     * durante una prova.
+     */
+    private var searching: Job? = null
+
+    /** Si entra nella ricerca a mani vuote: il testo di ieri non serve a nessuno. */
+    fun openSearch() {
+        screen = Screen.Search
+        query = ""
+        listed = Folder.Lookup.Found(Folder.Series(emptyList(), 0))
+        source = null
+        gridVisited = false
+        stopLoad()
+    }
+
+    /**
+     * Il testo cambia, e i risultati lo seguono dopo una pausa.
+     *
+     * ⚠️⚠️ **La PAUSA non è cortesia verso il database: è quello che rende la ricerca
+     * scrivibile.** Senza, ogni lettera lancerebbe una query su tutta la galleria, e su
+     * `panorama` sarebbero otto interrogazioni di cui sette buttate, con la tastiera che
+     * rallenta mentre si scrive. Con la pausa parte solo l'ultima.
+     * ⚠️ **Il testo si aggiorna SUBITO e i risultati dopo**, che è l'unico ordine
+     * accettabile: un campo di testo che aspetta il database per mostrare la lettera
+     * appena battuta sembra rotto.
+     */
+    fun search(text: String) {
+        query = text
+        searching?.cancel()
+        val context = getApplication<Application>()
+        val hidden = settings?.hiddenFolders.orEmpty()
+        searching = viewModelScope.launch {
+            delay(SEARCH_PAUSE_MS)
+            listed = Folder.byName(context, text, hidden).atSequenceStart()
+            // Una ricerca nuova è un elenco nuovo: l'anello dell'ultima foto vista
+            // indicherebbe una posizione della lista di prima.
+            gridVisited = false
+        }
+    }
+
+    /**
      * Rilegge la cartella aperta, dopo che le sue foto sono cambiate sul disco.
      *
      * ⚠️⚠️ **NON PASSA DA [openGrid], ed è la differenza che conta**: quella riparte da
@@ -542,10 +621,27 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * indicherebbe una fotografia a caso.
      */
     fun reloadGrid() {
-        val grid = screen as? Screen.Grid ?: return
+        // ⚠️ Dalla 0.59 le griglie sono DUE, la cartella e i risultati di una ricerca, e
+        // rileggere vuol dire due cose diverse. Rifare la ricerca dopo aver rinominato o
+        // spostato è anzi il caso in cui serve di più: i nomi appena cambiati decidono chi
+        // resta nell'elenco.
         gridVisited = false
         val context = getApplication<Application>()
-        viewModelScope.launch { listed = Folder.newestIn(context, grid.bucket).atSequenceStart() }
+        when (val here = screen) {
+            is Screen.Grid ->
+                viewModelScope.launch {
+                    listed = Folder.newestIn(context, here.bucket).atSequenceStart()
+                }
+            Screen.Search -> {
+                val hidden = settings?.hiddenFolders.orEmpty()
+                val text = query
+                searching?.cancel()
+                searching = viewModelScope.launch {
+                    listed = Folder.byName(context, text, hidden).atSequenceStart()
+                }
+            }
+            else -> Unit
+        }
     }
 
     /**
@@ -556,7 +652,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * sequenza, e non c'è nessuna conversione da fare.
      */
     fun openFromGrid(index: Int) {
-        val grid = screen as? Screen.Grid ?: return
+        // ⚠️ Vale per tutt'e due le griglie, la cartella e i risultati: il gesto è lo
+        // stesso, e la destinazione del ritorno è la schermata da cui si è partiti.
+        val grid = screen.takeIf { it is Screen.Grid || it is Screen.Search } ?: return
         val current = series ?: return
         // Prima di cambiare schermata: entrare nel visualizzatore e poi accorgersi che
         // non c'è niente da mostrare lascerebbe una schermata vuota al posto della
@@ -588,7 +686,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     fun backFromViewer() {
         when (val dest = viewerBack) {
             null -> Unit
-            is Screen.Grid -> {
+            // ⚠️ La ricerca sta qui accanto alla cartella per la stessa ragione: i suoi
+            // risultati sono costati una query e vanno ritrovati pronti, col testo ancora
+            // nel campo. Passando da `goHome` si tornerebbe a un elenco vuoto.
+            is Screen.Grid, Screen.Search -> {
                 screen = dest
                 source = null
                 stopLoad()
@@ -776,6 +877,7 @@ private fun AivApp(model: ViewerViewModel) {
                 onView = { model.updateSettings(settings.copy(folderView = it)) },
                 onForget = { model.forgetRecents() },
                 onSettings = { model.openSettings() },
+                onSearch = { model.openSearch() },
                 onBack = if (screen.forStart) ({ model.leaveStartFolderChoice() }) else null
             )
         }
@@ -797,6 +899,23 @@ private fun AivApp(model: ViewerViewModel) {
                 onOpen = { model.openFromGrid(it) },
                 onBack = { model.leaveGrid() },
                 onChanged = { model.reloadGrid() }
+            )
+        }
+
+        Screen.Search -> {
+            BackHandler { model.leaveGrid() }
+            // ⚠️ La stessa `GridScreen` della cartella, con due parametri in più: vedi la
+            // nota su `query` là dentro per il perché non è una schermata a sé.
+            val lookup = model.folder
+            GridScreen(
+                title = "",
+                items = lookup?.let { it.seriesOrNull?.items ?: emptyList() },
+                highlight = if (model.gridVisited) model.series?.index else null,
+                onOpen = { model.openFromGrid(it) },
+                onBack = { model.leaveGrid() },
+                onChanged = { model.reloadGrid() },
+                query = model.query,
+                onQuery = { model.search(it) }
             )
         }
 

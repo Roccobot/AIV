@@ -232,6 +232,62 @@ object Folder {
     }
 
     /**
+     * Le immagini del telefono il cui **nome** contiene [text], in tutte le cartelle.
+     *
+     * ⚠️⚠️ **RISPONDE CON UN [Lookup] E NON CON UNA LISTA, e non è pedanteria**: così i
+     * risultati sono una **serie** come quella di una cartella, quindi la griglia li mostra,
+     * il visualizzatore li sfoglia, la selezione multipla ci lavora sopra e il verso segue
+     * l'impostazione, tutto senza una riga in più. Una lista nuda avrebbe voluto un secondo
+     * giro di tubature parallelo a quello che c'è già.
+     * ⚠️⚠️ **Le cartelle NASCOSTE restano fuori**, o l'esclusione sarebbe una finzione: una
+     * cartella tolta dall'elenco che poi riappare in fondo a una ricerca non è nascosta, è
+     * solo spostata. È il motivo per cui questa funzione vuole [hidden] invece di leggerselo
+     * da sé: le impostazioni le sa il modello, il MediaStore no.
+     * ⚠️ **`LIKE` distingue gli accenti e non le maiuscole**: SQLite normalizza le sole
+     * lettere ASCII, quindi *foto* trova *FOTO* ma *città* non trova *CITTA*. Sui nomi di
+     * file la cosa quasi non si vede, e il rimedio vero (una colonna normalizzata tutta
+     * nostra) vorrebbe un indice nostro di tutta la galleria.
+     * ⚠️ **`%` e `_` nel testo cercato si neutralizzano**: sono i jolly di `LIKE`, e senza
+     * l'escape chi cerca `foto_01` troverebbe anche `foto-01`, cioè un risultato in più che
+     * nessuno ha chiesto e che non si spiega.
+     * ⚠️ **Nessun tetto ai risultati, ed è deliberato**: la griglia è pigra e una lista di
+     * qualche migliaio di indirizzi pesa quanto un'immagine piccola. Un tetto silenzioso
+     * direbbe 'non c'è altro' mentendo, che è il difetto peggiore di una ricerca.
+     */
+    suspend fun byName(
+        context: Context,
+        text: String,
+        hidden: Set<String>
+    ): Lookup = withContext(Dispatchers.IO) {
+        if (!granted(context)) return@withContext Lookup.NoPermission
+        val needle = text.trim()
+        if (needle.isEmpty()) return@withContext Lookup.Found(Series(emptyList(), 0))
+        val pattern = "%" + needle.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
+        val found = mutableListOf<Uri>()
+        runCatching {
+            context.contentResolver.query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                COLUMNS,
+                "${MediaStore.Images.Media.DISPLAY_NAME} LIKE ? ESCAPE '\\'",
+                arrayOf(pattern),
+                "${MediaStore.Images.Media.DATE_MODIFIED} DESC, ${MediaStore.Images.Media._ID} DESC"
+            )?.use { c ->
+                val idAt = c.column(MediaStore.Images.Media._ID) ?: return@use
+                @Suppress("DEPRECATION")
+                val pathAt = c.column(MediaStore.Images.Media.DATA)
+                while (c.moveToNext()) {
+                    val dir = pathAt?.let { c.getString(it) }
+                        ?.substringBeforeLast('/')
+                        ?.takeIf { it.isNotBlank() }
+                    if (dir != null && hidden.any { dir == it || dir.startsWith("$it/") }) continue
+                    found += uriOf(c.getLong(idAt))
+                }
+            }
+        }
+        Lookup.Found(Series(found, 0))
+    }
+
+    /**
      * ⚠️⚠️ **Il permesso è quello PESANTE, l'accesso a tutti i file, ed è una scelta
      * dell'utente**: *preferisco chiedere un permesso pesante prima e poi essere a
      * posto per sempre*. Quello leggero (`READ_MEDIA_IMAGES`) sarebbe bastato a
