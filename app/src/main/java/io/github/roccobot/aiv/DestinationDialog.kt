@@ -84,8 +84,17 @@ fun DestinationDialog(
     var children by remember { mutableStateOf<List<File>?>(null) }
     var naming by remember { mutableStateOf(false) }
 
+    /*
+     * ⚠️⚠️ **IL CESTINO NON È UNA DESTINAZIONE, ed è una richiesta esplicita**: copiarci
+     * dentro vorrebbe dire mettere una fotografia in un posto che si svuota, e spostarcela
+     * sarebbe eliminarla passando dalla porta di servizio, senza la conferma e senza che
+     * l'archivio delle provenienze ne sappia niente. Quindi sparisce dall'elenco.
+     * ⚠️ **Il tasto in fondo controlla di nuovo**, e non è una ripetizione inutile: ci si
+     * arriva anche entrando nella cartella dell'app da un altro ramo, e in quel caso
+     * l'elenco non c'entra. Due controlli per due strade diverse.
+     */
     LaunchedEffect(here) {
-        children = here?.let { FileTree.children(it) }
+        children = here?.let { dir -> FileTree.children(dir).filterNot { Bin.holds(context, it) } }
     }
 
     /** Risale di un livello, e torna `false` quando non c'è più niente sopra. */
@@ -201,6 +210,7 @@ fun DestinationDialog(
                 here?.let { dir ->
                     Button(
                         onClick = { onPick(dir) },
+                        enabled = !Bin.holds(context, dir),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp)

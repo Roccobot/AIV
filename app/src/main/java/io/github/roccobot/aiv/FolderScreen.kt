@@ -115,6 +115,7 @@ fun FolderScreen(
     onForget: () -> Unit,
     onSettings: () -> Unit,
     onSearch: () -> Unit,
+    onBin: () -> Unit,
     onBack: (() -> Unit)?,
     modifier: Modifier = Modifier
 ) {
@@ -304,6 +305,7 @@ fun FolderScreen(
                 onForget = onForget,
                 onSettings = onSettings,
                 onSearch = onSearch,
+                onBin = onBin,
                 modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
             )
         }
@@ -480,6 +482,7 @@ private fun Hub(
     onForget: () -> Unit,
     onSettings: () -> Unit,
     onSearch: () -> Unit,
+    onBin: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var open by remember { mutableStateOf(false) }
@@ -547,6 +550,16 @@ private fun Hub(
                         PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                     )
                 }
+            )
+            // ⚠️⚠️ **IL CESTINO SI RAGGIUNGE SOLO DA QUI, ed è per costruzione**: le sue
+            // fotografie stanno nella cartella dell'app, dove il MediaStore non guarda,
+            // quindi non compaiono nell'elenco delle cartelle e non possono comparirci.
+            // Senza questa voce sarebbero irraggiungibili, cioè cancellate.
+            // ⚠️ Sta in fondo al gruppo di quelle che aprono qualcosa: è un posto dove si
+            // va, come una cartella, ma è il meno frequentato dei quattro.
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.bin_title)) },
+                onClick = { open = false; onBin() }
             )
 
             HorizontalDivider()

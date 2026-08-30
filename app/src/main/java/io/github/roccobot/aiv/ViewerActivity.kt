@@ -1,6 +1,7 @@
 package io.github.roccobot.aiv
 
 import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -26,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import coil3.compose.setSingletonImageLoaderFactory
@@ -93,6 +95,18 @@ sealed interface Screen {
      * cartella.
      */
     data object Search : Screen
+
+    /**
+     * Il cestino, dalla 0.64.
+     *
+     * ⚠️⚠️ **NON È UNA `Grid` con una cartella particolare, e il motivo è tecnico**: le
+     * fotografie del cestino vivono nella cartella dell'app, dove il MediaStore non guarda,
+     * quindi non hanno un identificativo di album da mettere in [Grid]. Si elencano leggendo
+     * il disco (vedi `Bin.list`), e per il resto dell'app sono una serie come le altre.
+     * ⚠️ Come [Search], non porta dati: quello che c'è dentro lo dice il disco, e tenerne una
+     * copia qui vorrebbe dire ricostruire la schermata a ogni eliminazione.
+     */
+    data object Bin : Screen
 }
 
 /**
@@ -570,6 +584,41 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      */
     private var searching: Job? = null
 
+    /**
+     * Apre il cestino.
+     *
+     * ⚠️ **La lista si spegne prima**: leggere una cartella dal disco costa poco ma non
+     * niente, e mostrare per un istante le miniature della schermata di prima sarebbe un
+     * lampeggio con dentro le foto sbagliate.
+     * ⚠️ **Nessun anello dell'ultima vista**: si entra da un menu, non si sta tornando da
+     * nessuna fotografia.
+     */
+    fun openBin() {
+        screen = Screen.Bin
+        listed = null
+        source = null
+        gridVisited = false
+        stopLoad()
+        val context = getApplication<Application>()
+        viewModelScope.launch { listed = binLookup(context) }
+    }
+
+    /**
+     * Il cestino come serie, pronto per la griglia.
+     *
+     * ⚠️ **Il cestino vuoto è una serie VUOTA e non un errore**: `Lookup.Unreadable`
+     * farebbe scrivere alla griglia che la cartella non si legge, mentre un cestino vuoto è
+     * la cosa più normale del mondo, e la griglia ha una frase apposta.
+     * ⚠️ **Solo la serie piena passa da `atSequenceStart`**: su una lista vuota quel conto
+     * darebbe indice `-1` col verso cronologico acceso, cioè un numero che non indica
+     * niente e che poi gira per il resto del modello.
+     */
+    private suspend fun binLookup(context: Context): Folder.Lookup {
+        val items = Bin.list(context)
+        val whole = Folder.Lookup.Found(Folder.Series(items, 0))
+        return if (items.isEmpty()) whole else whole.atSequenceStart()
+    }
+
     /** Si entra nella ricerca a mani vuote: il testo di ieri non serve a nessuno. */
     fun openSearch() {
         screen = Screen.Search
@@ -640,6 +689,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                     listed = Folder.byName(context, text, hidden).atSequenceStart()
                 }
             }
+            // ⚠️ Il cestino si rilegge dal disco e non dal MediaStore, che là non guarda:
+            // dopo un ripristino o uno svuotamento è l'unica cosa che dice la verità.
+            Screen.Bin -> viewModelScope.launch { listed = binLookup(context) }
             else -> Unit
         }
     }
@@ -654,7 +706,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     fun openFromGrid(index: Int) {
         // ⚠️ Vale per tutt'e due le griglie, la cartella e i risultati: il gesto è lo
         // stesso, e la destinazione del ritorno è la schermata da cui si è partiti.
-        val grid = screen.takeIf { it is Screen.Grid || it is Screen.Search } ?: return
+        val grid = screen.takeIf { it is Screen.Grid || it is Screen.Search || it is Screen.Bin }
+            ?: return
         val current = series ?: return
         // Prima di cambiare schermata: entrare nel visualizzatore e poi accorgersi che
         // non c'è niente da mostrare lascerebbe una schermata vuota al posto della
@@ -689,7 +742,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             // ⚠️ La ricerca sta qui accanto alla cartella per la stessa ragione: i suoi
             // risultati sono costati una query e vanno ritrovati pronti, col testo ancora
             // nel campo. Passando da `goHome` si tornerebbe a un elenco vuoto.
-            is Screen.Grid, Screen.Search -> {
+            is Screen.Grid, Screen.Search, Screen.Bin -> {
                 screen = dest
                 source = null
                 stopLoad()
@@ -729,6 +782,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             val fresh = when (from) {
                 is Screen.Grid -> Folder.newestIn(context, from.bucket)
                 Screen.Search -> Folder.byName(context, query, settings?.hiddenFolders.orEmpty())
+                Screen.Bin -> binLookup(context)
                 else -> null
             }
             val reading = fresh.oriented()?.seriesOrNull
@@ -922,6 +976,7 @@ private fun AivApp(model: ViewerViewModel) {
                 onForget = { model.forgetRecents() },
                 onSettings = { model.openSettings() },
                 onSearch = { model.openSearch() },
+                onBin = { model.openBin() },
                 onBack = if (screen.forStart) ({ model.leaveStartFolderChoice() }) else null
             )
         }
@@ -965,6 +1020,25 @@ private fun AivApp(model: ViewerViewModel) {
             )
         }
 
+        Screen.Bin -> {
+            BackHandler { model.leaveGrid() }
+            // ⚠️ La stessa `GridScreen` di una cartella, con `bin` acceso: quello che cambia
+            // sta là dentro (elimina definitiva, ripristina al posto di rinomina, e il
+            // tastino anche senza selezione). Il cestino si naviga come una cartella
+            // qualunque, che era la richiesta.
+            val lookup = model.folder
+            GridScreen(
+                title = stringResource(R.string.bin_title),
+                items = lookup?.let { it.seriesOrNull?.items ?: emptyList() },
+                highlight = if (model.gridVisited) model.series?.index else null,
+                onOpen = { model.openFromGrid(it) },
+                onBack = { model.leaveGrid() },
+                onChanged = { model.reloadGrid() },
+                factFields = settings.factRows,
+                bin = true
+            )
+        }
+
         Screen.Viewer -> {
             // Back returns to where the viewer was opened from, and only if there is
             // such a place. Opened from a link, Back has to leave the app: swallowing
@@ -983,7 +1057,11 @@ private fun AivApp(model: ViewerViewModel) {
                 onStep = { model.step(it) },
                 onSettings = { model.openSettings() },
                 onRetry = { model.retry() },
-                onFileChanged = { model.afterFileChanged() }
+                onFileChanged = { model.afterFileChanged() },
+                // ⚠️ Da dove si è entrati dice se si sta guardando il cestino: la
+                // fotografia in sé non lo sa, ed è la ragione per cui questo dato non vive
+                // nell'immagine.
+                inBin = model.viewerBack is Screen.Bin
             )
         }
     }

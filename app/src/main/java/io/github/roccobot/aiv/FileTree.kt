@@ -149,16 +149,7 @@ object FileTree {
                     continue
                 }
                 val to = freeName(dest, from.name)
-                val ok = runCatching {
-                    if (from.renameTo(to)) return@runCatching true
-                    from.inputStream().use { input -> to.outputStream().use { input.copyTo(it) } }
-                    if (from.delete()) {
-                        true
-                    } else {
-                        to.delete()
-                        false
-                    }
-                }.getOrDefault(false)
+                val ok = carry(from, to)
                 if (ok) {
                     done++
                     touched += from.absolutePath
@@ -308,14 +299,43 @@ object FileTree {
             }
 
     /**
+     * Porta un file da una parte all'altra, e dice se ce l'ha fatto.
+     *
+     * ⚠️⚠️ **PRIMA PROVA A RINOMINARE, e non è un'ottimizzazione**: dentro la stessa
+     * memoria un `renameTo` è istantaneo e non tocca i byte, mentre copiare e cancellare
+     * trenta fotografie da dieci megabyte vuol dire trecento megabyte letti e riscritti,
+     * con la finestra in cui esistono due volte. Il ripiego serve **solo** quando si
+     * cambia volume, dove `renameTo` fallisce per costruzione.
+     * ⚠️⚠️ **Nel ripiego l'originale si cancella solo a copia RIUSCITA, e se la
+     * cancellazione fallisce si butta via la copia**: il contrario lascerebbe o un file
+     * perso o due file uguali, e il secondo è quello che si scopre sei mesi dopo.
+     * ⚠️ **Sta in una funzione sua dalla `0.64`, e la ragione è il cestino**: mandare una
+     * foto nel cestino e ripristinarla sono due spostamenti come questo, e una seconda
+     * copia di queste dieci righe sarebbe una seconda copia del ragionamento sul volume e
+     * sul rollback, cioè il posto dove le due prima o poi divergono.
+     */
+    internal fun carry(from: File, to: File): Boolean = runCatching {
+        if (from.renameTo(to)) return@runCatching true
+        from.inputStream().use { input -> to.outputStream().use { input.copyTo(it) } }
+        if (from.delete()) {
+            true
+        } else {
+            to.delete()
+            false
+        }
+    }.getOrDefault(false)
+
+    /**
      * Un nome libero dentro [dir], partendo da [name].
      *
      * ⚠️ **L'estensione non si tocca e il contatore va prima di lei**: `foto (2).jpg` e non
      * `foto.jpg (2)`, o il file smetterebbe di essere una fotografia per il sistema.
      * ⚠️ Il tetto esiste perché questo è un ciclo su un disco che qualcun altro può
      * scrivere: senza, un caso patologico girerebbe per sempre invece di fallire.
+     * ⚠️ **Non è più privato dalla `0.64`**: il cestino sceglie i nomi da sé, perché deve
+     * sapere quale nome ha ottenuto per ricordarsi da dove veniva quel file.
      */
-    private fun freeName(dir: File, name: String): File {
+    internal fun freeName(dir: File, name: String): File {
         val first = File(dir, name)
         if (!first.exists()) return first
         val stem = name.substringBeforeLast('.', name)
@@ -393,7 +413,7 @@ object FileTree {
      * bloccherebbe la selezione per sempre, e una galleria in ritardo di qualche secondo
      * è un guaio molto più piccolo.
      */
-    private suspend fun scan(context: Context, paths: List<String>) {
+    internal suspend fun scan(context: Context, paths: List<String>) {
         val list = paths.distinct().filter { it.isNotBlank() }
         if (list.isEmpty()) return
         runCatching {

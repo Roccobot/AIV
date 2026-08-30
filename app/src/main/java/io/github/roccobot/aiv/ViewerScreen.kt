@@ -41,6 +41,7 @@ import androidx.compose.material.icons.automirrored.filled.DriveFileMove
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.CircularProgressIndicator
@@ -233,6 +234,18 @@ fun ViewerScreen(
      * farebbe perdere il posto senza motivo.
      */
     onFileChanged: () -> Unit,
+    /**
+     * Se la fotografia che si sta guardando viene dal **cestino**.
+     *
+     * ⚠️ Cambia due voci del riquadro e niente altro: 'rinomina' diventa 'ripristina' (là
+     * dentro non si rinomina) e 'elimina' diventa definitiva, perché un file del cestino
+     * non ha un secondo cestino in cui andare.
+     * ⚠️ **Senza valore di serie**, e non per pignoleria: `modifier` deve restare il primo
+     * parametro con un valore predefinito (lo pretende lint, ed è la convenzione di
+     * Compose), quindi o questo sta prima di lui senza serie o starebbe dopo di lui, dove
+     * una schermata non si aspetta di trovarlo.
+     */
+    inBin: Boolean,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -400,7 +413,7 @@ fun ViewerScreen(
                 modifier = Modifier.align(Alignment.Center)
             )
             is ViewerState.Ready ->
-                ImageCanvas(state.image, settings, source, folder, info, onStep, ops)
+                ImageCanvas(state.image, settings, source, folder, info, onStep, ops, inBin)
         }
 
         AnimatedVisibility(
@@ -921,7 +934,9 @@ private fun ImageCanvas(
     info: InfoBar,
     onStep: (Int) -> Unit,
     /** Le richieste del menu che devono sopravvivere al menu. Vedi [MenuOps]. */
-    ops: MenuOps
+    ops: MenuOps,
+    /** Vedi il parametro omonimo di `ViewerScreen`. */
+    inBin: Boolean
 ) {
     val density = LocalDensity.current
 
@@ -1362,7 +1377,8 @@ private fun ImageCanvas(
                     oneToOne = oneToOne,
                     restScale = restScale,
                     onToggleDetails = { info.visible = !info.visible },
-                    ops = ops
+                    ops = ops,
+                    inBin = inBin
                 )
             }
         }
@@ -1633,7 +1649,8 @@ private fun ImageMenu(
     oneToOne: Float,
     restScale: Float,
     onToggleDetails: () -> Unit,
-    ops: MenuOps
+    ops: MenuOps,
+    inBin: Boolean
 ) {
     val context = LocalContext.current
 
@@ -1703,11 +1720,20 @@ private fun ImageMenu(
                     },
                     PadAction(Icons.Default.Delete, R.string.pick_delete, danger = true) {
                         onDismiss()
-                        ops.job(FileJob.Delete(one))
+                        ops.job(FileJob.Delete(one, forGood = inBin))
                     },
-                    PadAction(Icons.Default.Edit, R.string.pick_rename) {
-                        onDismiss()
-                        ops.job(FileJob.Rename(one))
+                    // ⚠️ Stesso posto nel riquadro per due azioni che si escludono: nel
+                    // cestino si ripristina, fuori si rinomina. Le sei icone non ballano.
+                    if (inBin) {
+                        PadAction(Icons.Default.SettingsBackupRestore, R.string.bin_restore) {
+                            onDismiss()
+                            ops.job(FileJob.Restore(one))
+                        }
+                    } else {
+                        PadAction(Icons.Default.Edit, R.string.pick_rename) {
+                            onDismiss()
+                            ops.job(FileJob.Rename(one))
+                        }
                     },
                     PadAction(Icons.Default.Share, R.string.menu_share) {
                         onDismiss()
