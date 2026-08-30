@@ -91,6 +91,7 @@
     <string name="grid_item_last">الصورة %1$d من %2$d، آخر ما نظرت إليه</string>
     <string name="pick_leave">إنهاء التحديد</string>
     <string name="pick_all">تحديد الكل</string>
+    <string name="pick_all_hint">اضغط مطولا على الزر العائم لتحديد كل صور المجلد</string>
     <string name="pick_info">معلومات</string>
     <string name="pick_close">إغلاق</string>
     <string name="pick_actions">إجراءات على المحدد</string>

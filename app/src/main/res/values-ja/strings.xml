@@ -91,6 +91,7 @@
     <string name="grid_item_last">%2$d 枚中 %1$d 枚目、最後に見た画像</string>
     <string name="pick_leave">選択をやめる</string>
     <string name="pick_all">すべて選択</string>
+    <string name="pick_all_hint">フローティングボタンを長押しすると、フォルダー内のすべての画像を選択できます</string>
     <string name="pick_info">情報</string>
     <string name="pick_close">閉じる</string>
     <string name="pick_actions">選択した画像の操作</string>

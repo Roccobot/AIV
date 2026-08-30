@@ -157,6 +157,7 @@
     <!-- ── Choosing several pictures in a folder ── -->
     <string name="pick_leave">Leave the selection</string>
     <string name="pick_all">Select all</string>
+    <string name="pick_all_hint">Press and hold the floating button to select every image in the folder</string>
     <string name="pick_info">Info</string>
     <string name="pick_close">Close</string>
     <!-- The label of the small button that opens the six file operations. It is not

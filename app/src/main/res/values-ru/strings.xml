@@ -91,6 +91,7 @@
     <string name="grid_item_last">Изображение %1$d из %2$d, последнее просмотренное</string>
     <string name="pick_leave">Выйти из выбора</string>
     <string name="pick_all">Выбрать все</string>
+    <string name="pick_all_hint">Нажмите и удерживайте плавающую кнопку, чтобы выбрать все изображения папки</string>
     <string name="pick_info">Сведения</string>
     <string name="pick_close">Закрыть</string>
     <string name="pick_actions">Действия над выбранным</string>

@@ -3,8 +3,20 @@ package io.github.roccobot.aiv
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,12 +30,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
-import androidx.compose.foundation.gestures.scrollBy
-import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -50,7 +61,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
-import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -59,6 +70,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -72,15 +84,20 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
@@ -210,6 +227,72 @@ fun GridScreen(
      * anche dopo essere tornati sui propri passi.
      */
     var dragBase by remember { mutableStateOf<Set<Uri>>(emptySet()) }
+
+    /**
+     * Il VERSO del trascinamento: `true` toglie, `false` aggiunge.
+     *
+     * ⚠️⚠️ **Lo decide la foto su cui il gesto COMINCIA, e non un modo da accendere**
+     * (richiesta dell'utente: *tenendo premuto e trascinando quando una selezione c'è già
+     * si possa deselezionare*): partendo da una foto già scelta il trascinamento toglie
+     * l'intervallo, partendo da una libera lo aggiunge. È la convenzione di ogni galleria,
+     * e soprattutto è l'unica che non ha bisogno di un interruttore da trovare: il gesto
+     * dice da sé che cosa vuole.
+     * ⚠️ Serve **fuori** dai richiami del gesto perché l'intervallo lo ricostruisce
+     * l'effetto qui sotto a ogni fotogramma, e deve sapere in che verso.
+     */
+    var dragOff by remember { mutableStateOf(false) }
+
+    /**
+     * ⚠️⚠️ **[HapticFeedbackType.TextHandleMove] e non `SegmentTick` o `ToggleOn`**, che
+     * sarebbero i tipi giusti per nome: quelle costanti sono arrivate con **Android 14**, e
+     * Compose passa il numero grezzo a `performHapticFeedback` **senza nessun ripiego**
+     * (verificato sul bytecode di `DefaultHapticFeedback`, che mappa `SegmentTick` a 26 e
+     * `ToggleOn` a 21 e li consegna così). Sotto Android 14 il telefono riceve una costante
+     * che non conosce e **non vibra affatto**, e il minSdk qui è 28. `TextHandleMove` esiste
+     * dall'API 27 ed è il tocco leggero che Android usa per le maniglie del testo, cioè
+     * esattamente il colpetto chiesto.
+     */
+    val haptics = LocalHapticFeedback.current
+
+    /**
+     * Se il mini onboarding del tocco lungo sul tastino si è già visto.
+     *
+     * ⚠️⚠️ **Il valore di partenza è `true`, cioè 'già visto', e al contrario di quanto
+     * sembra è la scelta prudente**: il valore vero arriva dall'archivio un attimo DOPO la
+     * prima composizione, quindi partendo da `false` il velo comparirebbe per un
+     * fotogramma anche a chi l'ha già chiuso, che è il difetto peggiore dei due. Partendo
+     * da `true` il caso peggiore è che compaia un fotogramma più tardi, e nessuno se ne
+     * accorge.
+     */
+    val hintSeen by produceState(initialValue = true, context) {
+        PickHint.flow(context).collect { value = it }
+    }
+
+    /**
+     * 'Tutte', che è il gesto che vale trecento tocchi.
+     *
+     * ⚠️ Sta in una variabile perché lo chiamano in **tre** posti: il tastino in testata,
+     * il tocco lungo sul tastino galleggiante e la sua copia arancione nel velo. Scriverlo
+     * tre volte vorrebbe dire tre occasioni di dimenticare la vibrazione in uno dei tre.
+     */
+    val takeAll: () -> Unit = {
+        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+        chosen = items?.toSet() ?: emptySet()
+    }
+
+    /**
+     * ⚠️ La bandierina locale esiste perché l'archivio risponde con un giro di ritardo:
+     * scrivere in DataStore e aspettare che il flusso riemetta vuol dire un fotogramma o
+     * due col velo ancora steso, e nel caso peggiore col menu che si apre **sotto** di
+     * lui. Questa lo toglie sull'istante; la scrittura serve alle sessioni dopo.
+     */
+    var hintOff by remember { mutableStateOf(false) }
+
+    /** Il velo si archivia appena l'utente fa la cosa che insegnava, o appena la salta. */
+    val hintDone: () -> Unit = {
+        hintOff = true
+        scope.launch { PickHint.remember(context) }
+    }
 
     // Le due misure dello scorrimento ai bordi, in pixel: servono dentro un effetto, che
     // non ha una densità sotto mano.
@@ -358,7 +441,7 @@ fun GridScreen(
             // alternativo è trecento tocchi, e non è un'operazione sui file ma un modo
             // di scegliere. La barra parla della selezione, il tastino di cosa farne.
             if (picking) {
-                IconButton(onClick = { chosen = items?.toSet() ?: emptySet() }) {
+                IconButton(onClick = takeAll) {
                     Icon(
                         imageVector = Icons.Default.SelectAll,
                         contentDescription = stringResource(R.string.pick_all)
@@ -422,7 +505,21 @@ fun GridScreen(
                         if (hit != null) {
                             dragFrom = hit
                             dragBase = chosen
-                            chosen = chosen + items[hit]
+                            // ⚠️ Il verso si legge PRIMA di toccare la selezione, o la
+                            // riga dopo lo avrebbe già falsato.
+                            dragOff = items[hit] in chosen
+                            // ⚠️⚠️ **Il colpetto forte lo dà solo l'INGRESSO nel modo
+                            // selezione**, che è il passaggio da raccontare; dentro al
+                            // modo ogni gesto ne dà uno leggero. Darne uno forte ogni
+                            // volta vorrebbe dire annunciare un passaggio che non
+                            // avviene, e in una selezione da cinquanta foto sarebbe un
+                            // martello.
+                            haptics.performHapticFeedback(
+                                if (picking) HapticFeedbackType.TextHandleMove
+                                else HapticFeedbackType.LongPress
+                            )
+                            chosen =
+                                if (dragOff) chosen - items[hit] else chosen + items[hit]
                             dragAt = at
                         }
                     },
@@ -463,7 +560,12 @@ fun GridScreen(
                     }
                     if (push != 0f) state.scrollBy(push.coerceIn(-1f, 1f) * speedPx)
                     val hit = state.itemIndexAt(at) ?: continue
-                    chosen = dragBase + items.subList(minOf(from, hit), maxOf(from, hit) + 1)
+                    // ⚠️ L'intervallo si SOMMA o si SOTTRAE alla selezione di partenza
+                    // secondo il verso deciso da [dragOff]: nei due casi il conto resta
+                    // 'quella di prima più (o meno) l'intervallo di adesso', quindi
+                    // tornare indietro col dito disfa in tutti e due i versi.
+                    val span = items.subList(minOf(from, hit), maxOf(from, hit) + 1)
+                    chosen = if (dragOff) dragBase - span.toSet() else dragBase + span
                 }
             }
 
@@ -541,7 +643,12 @@ fun GridScreen(
                             onClick = {
                                 when {
                                     dragFrom != null -> Unit
-                                    picking -> chosen = chosen.toggle(uri)
+                                    picking -> {
+                                        haptics.performHapticFeedback(
+                                            HapticFeedbackType.TextHandleMove
+                                        )
+                                        chosen = chosen.toggle(uri)
+                                    }
                                     else -> onOpen(index)
                                 }
                             }
@@ -564,17 +671,18 @@ fun GridScreen(
                  * ⚠️ Il margine è 8 e non 16 come quello delle cartelle perché la griglia
                  * sta già dentro il margine della schermata, e i due si sommano.
                  */
-                if (picking || bin) {
-                    Box(modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp)) {
-                        SmallFloatingActionButton(
-                            onClick = { menuOpen = true },
-                            shape = RoundedCornerShape(FAB_CORNER)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Menu,
-                                contentDescription = stringResource(R.string.pick_actions)
-                            )
-                        }
+                FabPop(
+                    visible = picking || bin,
+                    modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp)
+                ) {
+                    Box {
+                        PickFab(
+                            container = MaterialTheme.colorScheme.primaryContainer,
+                            ink = MaterialTheme.colorScheme.onPrimaryContainer,
+                            lift = FAB_LIFT,
+                            onOpen = { menuOpen = true },
+                            onAll = { takeAll(); hintDone() }
+                        )
                         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                             // ⚠️ Nel cestino senza niente scelto il tastino non porta le sei
                             // operazioni, che non avrebbero su cosa agire, ma la sola voce
@@ -642,6 +750,69 @@ fun GridScreen(
                                         job = FileJob.Facts(chosen.toList())
                                     }
                                 )
+                            )
+                        }
+                    }
+                }
+
+                /*
+                 * ⚠️⚠️ **IL MINI ONBOARDING DEL TOCCO LUNGO** (richiesta dell'utente: *un
+                 * mini onboarding grafico, che oscura la schermata ed evidenzia in arancione
+                 * il FAB*). Serve perché 'Tutte' col tocco lungo è una scorciatoia che
+                 * **non si scopre da sola**: un tastino non dichiara i propri gesti, e
+                 * quello in testata continua a esistere proprio per chi non leggerà mai
+                 * questo velo.
+                 * ⚠️⚠️ **La copia arancione FUNZIONA, non è un disegno**, ed è la
+                 * differenza fra insegnare e raccontare: chi tiene premuto sul velo fa la
+                 * cosa mentre gliela si spiega, invece di doverla richiudere e rifare. È
+                 * anche il motivo per cui è la stessa [PickFab] del tastino vero, alla
+                 * stessa misura e nello stesso angolo: cade **sopra** l'originale.
+                 * ⚠️ **L'arancione è l'unico posto in cui la tavolozza si rompe apposta**:
+                 * l'accento dell'app è verde acqua, e un velo che evidenzia col colore di
+                 * casa non evidenzia niente. Misurati: il glifo scuro sull'arancione fa
+                 * 7.29, e l'arancione sul velo fa 4.35 contro la fotografia più chiara
+                 * possibile, cioè sopra il 3:1 delle grafiche non testuali anche nel caso
+                 * peggiore.
+                 * ⚠️ **Il velo copre la griglia e non la testata**, e va detto invece di
+                 * lasciarlo scoprire: avvolgere anche la testata vorrebbe dire spostare di
+                 * rientro tutta la schermata, che è la stessa ragione per cui il riquadro
+                 * del tastino sta in questo `Box` e non più in alto.
+                 */
+                if ((picking || bin) && !hintSeen && !hintOff) {
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .background(HINT_SCRIM)
+                            // ⚠️ Niente increspatura e nessuna descrizione: questo non è
+                            // un tasto, è il velo, e un tocco qualunque lo archivia. Un
+                            // onboarding che si deve leggere due volte non è un
+                            // onboarding.
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick = hintDone
+                            )
+                    ) {
+                        Column(
+                            modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp),
+                            horizontalAlignment = Alignment.End,
+                            verticalArrangement = Arrangement.spacedBy(HINT_GAP)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.pick_all_hint),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.White,
+                                textAlign = TextAlign.End,
+                                modifier = Modifier.widthIn(max = HINT_WIDTH)
+                            )
+                            PickFab(
+                                container = HINT_MARK,
+                                ink = HINT_INK,
+                                // ⚠️ Nessuna ombra: sopra un velo non c'è niente da cui
+                                // staccarsi, e un'ombra su fondo scuro è solo sporco.
+                                lift = 0.dp,
+                                onOpen = { hintDone(); menuOpen = true },
+                                onAll = { takeAll(); hintDone() }
                             )
                         }
                     }
@@ -930,3 +1101,152 @@ private val EDGE_SPEED = 14.dp
 
 /** Tutti i riquadri sono la stessa cosa, e dirlo permette a Compose di riusarli. */
 private const val THUMB_KIND = "thumb"
+
+/**
+ * La comparsa del tastino della selezione.
+ *
+ * ⚠️⚠️ **IL TASTINO ENTRA CON UN'ANIMAZIONE dalla 0.67** (richiesta dell'utente: *voglio
+ * che quel FAB appaia con un'animazione*). Prima compariva di scatto, e su un tastino che
+ * segnala un **cambio di modo** è l'occasione sprecata: il movimento è la cosa che dice
+ * 'adesso sei in selezione', e senza di lui il tastino sembra essere sempre stato lì.
+ * ⚠️ **Cresce dal proprio centro con una molla appena elastica, ma esce secco**: una cosa
+ * che arriva può permettersi di farsi notare, una che se ne va no, e un rimbalzo in uscita
+ * trattiene lo sguardo su un angolo che si sta svuotando.
+ * ⚠️⚠️ **Sta in una funzione a sé, e non è per eleganza**: chiamata sul posto,
+ * `AnimatedVisibility` finisce sull'overload di `ColumnScope`, perché quel `Box` vive
+ * dentro la `Column` della schermata, e il compilatore la rifiuta. Qui dentro di
+ * `ColumnScope` non c'è traccia, quindi si risolve quella giusta. È anche il posto in cui
+ * la specifica dell'animazione ha un nome invece di essere venti righe in mezzo al
+ * riquadro.
+ */
+@Composable
+private fun FabPop(
+    visible: Boolean,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    AnimatedVisibility(
+        visible = visible,
+        modifier = modifier,
+        enter = scaleIn(
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessMediumLow
+            ),
+            initialScale = FAB_SMALL
+        ) + fadeIn(animationSpec = tween(FAB_IN)),
+        exit = scaleOut(
+            animationSpec = tween(FAB_OUT),
+            targetScale = FAB_SMALL
+        ) + fadeOut(animationSpec = tween(FAB_OUT))
+    ) {
+        content()
+    }
+}
+
+/**
+ * Il tastino galleggiante della selezione, con i suoi **due** gesti.
+ *
+ * ⚠️⚠️ **NON È `SmallFloatingActionButton`, e non è un capriccio**: quel composabile
+ * prende un `onClick` solo, e il `modifier` che gli si passa finisce **fuori** dal suo
+ * `clickable`, cioè come genitore. Un `combinedClickable` messo là non vedrebbe mai il
+ * tocco lungo, perché nella passata `Main` il figlio consuma il down per primo: è
+ * esattamente il meccanismo che aveva rotto il tocco lungo sulla griglia. Per avere due
+ * gesti su un tastino bisogna che di nodo che ascolta ce ne sia **uno**.
+ * ⚠️ **La resa non cambia**: `SmallFloatingActionButton` è una `Surface` da 40dp con
+ * `primaryContainer`, il suo contrasto e 6dp d'ombra, e questa è quella. L'unica cosa che
+ * si perde è l'ombra che cresce al passaggio del **mouse**, che su un telefono non
+ * succede: in Material 3 la pressione lascia l'ombra dov'è.
+ * ⚠️ Il gesto sta **dentro** la `Surface` e non sul suo modificatore, così l'increspatura
+ * prende il colore del contenuto (`ink`) invece di quello che c'era fuori.
+ */
+@Composable
+private fun PickFab(
+    container: Color,
+    ink: Color,
+    lift: Dp,
+    onOpen: () -> Unit,
+    onAll: () -> Unit
+) {
+    Surface(
+        modifier = Modifier.size(FAB_SIZE),
+        shape = RoundedCornerShape(FAB_CORNER),
+        color = container,
+        contentColor = ink,
+        shadowElevation = lift
+    ) {
+        Box(
+            modifier = Modifier.combinedClickable(
+                role = Role.Button,
+                // ⚠️ Il tocco lungo si DICHIARA a TalkBack, o resta una scorciatoia che
+                // esiste solo per chi vede il velo: l'etichetta la legge il lettore di
+                // schermo fra le azioni disponibili sul tastino.
+                onLongClickLabel = stringResource(R.string.pick_all),
+                onLongClick = onAll,
+                onClick = onOpen
+            ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.Menu,
+                contentDescription = stringResource(R.string.pick_actions)
+            )
+        }
+    }
+}
+
+/** La misura di `SmallFloatingActionButton`, che [PickFab] rifà a mano. */
+private val FAB_SIZE = 40.dp
+
+/** L'ombra di serie di un tastino galleggiante in Material 3. */
+private val FAB_LIFT = 6.dp
+
+/**
+ * Da quanto piccolo entra il tastino, e a quanto piccolo torna uscendo.
+ *
+ * ⚠️ 0,62 e non 0: partendo da zero il tastino sembra **sbucare** da un punto, e con una
+ * molla elastica diventa un rimbalzo da cartone animato. Partendo da due terzi il gesto si
+ * legge come 'era lì e si è fatto avanti'.
+ */
+private const val FAB_SMALL = 0.62f
+
+/** La dissolvenza in entrata: più corta della molla, così il colore c'è già mentre cresce. */
+private const val FAB_IN = 90
+
+/** L'uscita, in millisecondi: secca, e più breve dell'entrata. */
+private const val FAB_OUT = 110
+
+/**
+ * Il velo del mini onboarding.
+ *
+ * ⚠️ **Il 70% di nero e non il 50%**: sotto c'è una griglia di fotografie, cioè il fondo
+ * più chiassoso che ci sia, e a metà velo le miniature continuano a chiamare l'occhio. Col
+ * 70% il bianco del testo misura 8.45 anche sulla fotografia più chiara possibile.
+ */
+private val HINT_SCRIM = Color(0xB3000000)
+
+/**
+ * L'arancione della copia evidenziata, e **l'unico posto in cui la tavolozza si rompe
+ * apposta** (richiesta dell'utente).
+ *
+ * ⚠️ L'accento dell'app è verde acqua: un velo che evidenzia col colore di casa non
+ * evidenzia niente, perché quel colore è già dappertutto. Misurato: 4.35 sul velo steso
+ * sulla fotografia più chiara possibile, cioè sopra il 3:1 delle grafiche non testuali nel
+ * caso peggiore, e 10.81 nel caso normale.
+ */
+private val HINT_MARK = Color(0xFFFFA726)
+
+/** Il glifo sopra l'arancione: misurato 7.29, cioè leggibile senza discussioni. */
+private val HINT_INK = Color(0xFF3E2600)
+
+/** Quanto sta lontano il testo dal tastino che indica: abbastanza da non sembrarne parte. */
+private val HINT_GAP = 14.dp
+
+/**
+ * Quanto è larga al massimo la frase del velo.
+ *
+ * ⚠️ Un limite serve perché la frase è lunga e le lingue non sono l'italiano: senza, in
+ * tedesco diventerebbe una riga sola da bordo a bordo, e in un telefono stretto si
+ * spezzerebbe dove capita invece che dove si legge.
+ */
+private val HINT_WIDTH = 260.dp
