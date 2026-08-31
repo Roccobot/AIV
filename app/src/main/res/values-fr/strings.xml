@@ -208,4 +208,19 @@
     <string name="settings_facts_always">Toujours affiché</string>
     <string name="settings_facts_up">Monter</string>
     <string name="settings_facts_down">Descendre</string>
+    <string name="settings_group_look">Apparence</string>
+    <string name="settings_group_viewer">Visionneuse</string>
+    <string name="settings_group_browse">Dossiers et navigation</string>
+    <string name="settings_group_start">Démarrage</string>
+    <string name="settings_hidden_none">Aucun dossier caché</string>
+    <plurals name="settings_hidden_count">
+        <item quantity="one">%1$d dossier</item>
+        <item quantity="many">%1$d dossiers</item>
+        <item quantity="other">%1$d dossiers</item>
+    </plurals>
+    <plurals name="settings_facts_count">
+        <item quantity="one">%1$d donnée</item>
+        <item quantity="many">%1$d données</item>
+        <item quantity="other">%1$d données</item>
+    </plurals>
 </resources>

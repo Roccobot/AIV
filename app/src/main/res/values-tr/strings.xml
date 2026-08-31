@@ -195,4 +195,17 @@
     <string name="settings_facts_always">Her zaman görünür</string>
     <string name="settings_facts_up">Yukarı taşı</string>
     <string name="settings_facts_down">Aşağı taşı</string>
+    <string name="settings_group_look">Görünüm</string>
+    <string name="settings_group_viewer">Görüntüleyici</string>
+    <string name="settings_group_browse">Klasörler ve gezinme</string>
+    <string name="settings_group_start">Başlangıç</string>
+    <string name="settings_hidden_none">Gizli klasör yok</string>
+    <plurals name="settings_hidden_count">
+        <item quantity="one">%1$d klasör</item>
+        <item quantity="other">%1$d klasör</item>
+    </plurals>
+    <plurals name="settings_facts_count">
+        <item quantity="one">%1$d bilgi</item>
+        <item quantity="other">%1$d bilgi</item>
+    </plurals>
 </resources>

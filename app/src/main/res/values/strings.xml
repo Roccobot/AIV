@@ -61,6 +61,12 @@
     <string name="settings_title">Settings</string>
     <string name="settings_back">Back</string>
 
+    <!-- The four groups the settings are gathered into. -->
+    <string name="settings_group_look">Appearance</string>
+    <string name="settings_group_viewer">Viewer</string>
+    <string name="settings_group_browse">Folders and browsing</string>
+    <string name="settings_group_start">Startup</string>
+
     <string name="settings_background">Behind the picture</string>
     <string name="settings_bg_checker">Checkerboard</string>
     <string name="settings_bg_solid">Flat colour</string>
@@ -138,6 +144,11 @@
     <string name="settings_hidden">Hidden folders</string>
     <string name="settings_hidden_desc">Long press a folder to hide it. These no longer show up in the list, but they are untouched on the phone.</string>
     <string name="settings_hidden_show">Show</string>
+    <string name="settings_hidden_none">No hidden folders</string>
+    <plurals name="settings_hidden_count">
+        <item quantity="one">%1$d folder</item>
+        <item quantity="other">%1$d folders</item>
+    </plurals>
 
     <!-- ── Searching the pictures on the phone ── -->
     <!-- It names the field it searches, because that is the honest promise: the file
@@ -289,6 +300,10 @@
     <!-- ── Which facts about a file to show, and in which order ── -->
     <string name="settings_facts">File information</string>
     <string name="settings_facts_desc">Which data you see when you open Info on a picture, and in which order. Name, pixels and size are always there; a datum the file does not carry gets no row at all.</string>
+    <plurals name="settings_facts_count">
+        <item quantity="one">%1$d entry</item>
+        <item quantity="other">%1$d entries</item>
+    </plurals>
     <string name="settings_facts_always">Always shown</string>
     <string name="settings_facts_up">Move up</string>
     <string name="settings_facts_down">Move down</string>

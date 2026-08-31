@@ -182,4 +182,15 @@
     <string name="settings_facts_always">一律顯示</string>
     <string name="settings_facts_up">上移</string>
     <string name="settings_facts_down">下移</string>
+    <string name="settings_group_look">外觀</string>
+    <string name="settings_group_viewer">檢視器</string>
+    <string name="settings_group_browse">資料夾與瀏覽</string>
+    <string name="settings_group_start">啟動</string>
+    <string name="settings_hidden_none">沒有隱藏的資料夾</string>
+    <plurals name="settings_hidden_count">
+        <item quantity="other">%1$d 個資料夾</item>
+    </plurals>
+    <plurals name="settings_facts_count">
+        <item quantity="other">%1$d 項</item>
+    </plurals>
 </resources>

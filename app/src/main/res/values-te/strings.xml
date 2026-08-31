@@ -195,4 +195,17 @@
     <string name="settings_facts_always">ఎప్పుడూ కనబడుతుంది</string>
     <string name="settings_facts_up">పైకి జరుపు</string>
     <string name="settings_facts_down">కిందికి జరుపు</string>
+    <string name="settings_group_look">రూపం</string>
+    <string name="settings_group_viewer">వీక్షకం</string>
+    <string name="settings_group_browse">ఫోల్డర్‌లు మరియు బ్రౌజింగ్</string>
+    <string name="settings_group_start">ప్రారంభం</string>
+    <string name="settings_hidden_none">దాచిన ఫోల్డర్‌లు లేవు</string>
+    <plurals name="settings_hidden_count">
+        <item quantity="one">%1$d ఫోల్డర్</item>
+        <item quantity="other">%1$d ఫోల్డర్‌లు</item>
+    </plurals>
+    <plurals name="settings_facts_count">
+        <item quantity="one">%1$d సమాచారం</item>
+        <item quantity="other">%1$d సమాచారాలు</item>
+    </plurals>
 </resources>

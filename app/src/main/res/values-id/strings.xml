@@ -182,4 +182,15 @@
     <string name="settings_facts_always">Selalu tampak</string>
     <string name="settings_facts_up">Naikkan</string>
     <string name="settings_facts_down">Turunkan</string>
+    <string name="settings_group_look">Tampilan</string>
+    <string name="settings_group_viewer">Penampil</string>
+    <string name="settings_group_browse">Folder dan penelusuran</string>
+    <string name="settings_group_start">Permulaan</string>
+    <string name="settings_hidden_none">Tidak ada folder tersembunyi</string>
+    <plurals name="settings_hidden_count">
+        <item quantity="other">%1$d folder</item>
+    </plurals>
+    <plurals name="settings_facts_count">
+        <item quantity="other">%1$d data</item>
+    </plurals>
 </resources>

@@ -195,4 +195,17 @@
     <string name="settings_facts_always">ہمیشہ دکھتا ہے</string>
     <string name="settings_facts_up">اوپر لے جائیں</string>
     <string name="settings_facts_down">نیچے لے جائیں</string>
+    <string name="settings_group_look">ظاہری شکل</string>
+    <string name="settings_group_viewer">ناظر</string>
+    <string name="settings_group_browse">فولڈرز اور براؤزنگ</string>
+    <string name="settings_group_start">آغاز</string>
+    <string name="settings_hidden_none">کوئی پوشیدہ فولڈر نہیں</string>
+    <plurals name="settings_hidden_count">
+        <item quantity="one">%1$d فولڈر</item>
+        <item quantity="other">%1$d فولڈرز</item>
+    </plurals>
+    <plurals name="settings_facts_count">
+        <item quantity="one">%1$d تفصیل</item>
+        <item quantity="other">%1$d تفصیلات</item>
+    </plurals>
 </resources>

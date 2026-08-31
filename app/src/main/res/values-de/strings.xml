@@ -195,4 +195,17 @@
     <string name="settings_facts_always">Immer sichtbar</string>
     <string name="settings_facts_up">Nach oben</string>
     <string name="settings_facts_down">Nach unten</string>
+    <string name="settings_group_look">Aussehen</string>
+    <string name="settings_group_viewer">Betrachter</string>
+    <string name="settings_group_browse">Ordner und Blättern</string>
+    <string name="settings_group_start">Start</string>
+    <string name="settings_hidden_none">Keine versteckten Ordner</string>
+    <plurals name="settings_hidden_count">
+        <item quantity="one">%1$d Ordner</item>
+        <item quantity="other">%1$d Ordner</item>
+    </plurals>
+    <plurals name="settings_facts_count">
+        <item quantity="one">%1$d Angabe</item>
+        <item quantity="other">%1$d Angaben</item>
+    </plurals>
 </resources>

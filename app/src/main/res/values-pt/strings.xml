@@ -208,4 +208,19 @@
     <string name="settings_facts_always">Sempre visível</string>
     <string name="settings_facts_up">Subir</string>
     <string name="settings_facts_down">Descer</string>
+    <string name="settings_group_look">Aparência</string>
+    <string name="settings_group_viewer">Visualizador</string>
+    <string name="settings_group_browse">Pastas e navegação</string>
+    <string name="settings_group_start">Início</string>
+    <string name="settings_hidden_none">Nenhuma pasta oculta</string>
+    <plurals name="settings_hidden_count">
+        <item quantity="one">%1$d pasta</item>
+        <item quantity="many">%1$d pastas</item>
+        <item quantity="other">%1$d pastas</item>
+    </plurals>
+    <plurals name="settings_facts_count">
+        <item quantity="one">%1$d dado</item>
+        <item quantity="many">%1$d dados</item>
+        <item quantity="other">%1$d dados</item>
+    </plurals>
 </resources>

@@ -195,4 +195,17 @@
     <string name="settings_facts_always">Altijd zichtbaar</string>
     <string name="settings_facts_up">Naar boven</string>
     <string name="settings_facts_down">Naar beneden</string>
+    <string name="settings_group_look">Vormgeving</string>
+    <string name="settings_group_viewer">Viewer</string>
+    <string name="settings_group_browse">Mappen en doorbladeren</string>
+    <string name="settings_group_start">Opstarten</string>
+    <string name="settings_hidden_none">Geen verborgen mappen</string>
+    <plurals name="settings_hidden_count">
+        <item quantity="one">%1$d map</item>
+        <item quantity="other">%1$d mappen</item>
+    </plurals>
+    <plurals name="settings_facts_count">
+        <item quantity="one">%1$d gegeven</item>
+        <item quantity="other">%1$d gegevens</item>
+    </plurals>
 </resources>
