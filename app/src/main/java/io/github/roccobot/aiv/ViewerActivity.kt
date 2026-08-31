@@ -246,8 +246,20 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * serie è la sua stessa inversa: di qui si passa sia per mostrare l'ordine di
      * lettura sia per riscrivere in [listed] quello grezzo (vedi [step]).
      */
-    private fun Folder.Lookup?.oriented(): Folder.Lookup? =
-        if (settings?.reverseSequence == true) this?.reversed() else this
+    private fun Folder.Lookup?.oriented(): Folder.Lookup? {
+        if (settings?.reverseSequence != true) return this
+        /*
+         * ⚠️⚠️ **IL VERSO NON TOCCA IL WEB, e l'impostazione lo dice da sé**: si chiama
+         * 'cambia verso della sequenza immagini (in ordine di data)', ed è nata per una
+         * galleria, dove sfogliare vuol dire andare avanti o indietro nel tempo. Una serie
+         * remota è ordinata per **numero**, e girarla farebbe andare la strisciata da
+         * `foto_013` a `foto_012`, cioè al contrario di quello che chiunque si aspetta
+         * guardando un indirizzo numerato.
+         */
+        val first = this?.seriesOrNull?.items?.firstOrNull()
+        if (first != null && WebSeries.isWeb(first)) return this
+        return this?.reversed()
+    }
 
     /**
      * Lo stesso esito posizionato sull'INIZIO della sequenza scelta.
@@ -519,20 +531,53 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun open(uri: Uri, backToApp: Boolean = true) {
-        source = uri
+        // ⚠️⚠️ **L'indirizzo si riscrive in sicuro PRIMA di ogni altra cosa**, e da qui in
+        // poi quello in chiaro non esiste più: se restasse, `source`, la condivisione, la
+        // cache e le vicine dello sfogliatore parlerebbero di un indirizzo diverso da
+        // quello che si è aperto davvero. Il perché sta in [WebSeries.secured].
+        val target = WebSeries.secured(uri)
+        upgraded = target != uri
+        webRule = null
+        source = target
         // ⚠️ Null vuol dire **esci dall'app**: chi è arrivato da un collegamento non ha
         // nessun posto dell'app in cui tornare, e trattenerlo in una schermata che non ha
         // chiesto sarebbe peggio che chiudersi.
         viewerBack = if (backToApp) HOME else null
         screen = Screen.Viewer
         listed = null
-        startLoad(uri, remember = true)
+        startLoad(target, remember = true)
         // ⚠️ The folder is looked for in its OWN coroutine, and not inside the one
         // above: it is a database query that the picture does not wait for, and
         // hanging it off the load would delay what the person is looking at in
         // order to prepare a gesture they may never make.
         val context = getApplication<Application>()
-        viewModelScope.launch { listed = Folder.seriesAround(context, uri) }
+        viewModelScope.launch {
+            listed = if (WebSeries.isWeb(target)) webWindow(target) else Folder.seriesAround(context, target)
+        }
+    }
+
+    /**
+     * Il criterio che ha funzionato per l'indirizzo remoto aperto, quando ce n'è uno.
+     *
+     * ⚠️ Vive nel modello e non dentro [WebSeries] perché è **stato di questa apertura**:
+     * si azzera aprendo un altro indirizzo, e un oggetto senza stato non saprebbe quando.
+     */
+    private var webRule: WebSeries.Rule? = null
+
+    /** Se l'indirizzo aperto è stato riscritto da `http` a `https`. */
+    private var upgraded = false
+
+    /**
+     * La finestra attorno a un indirizzo remoto, ricordandosi il criterio che ha vinto.
+     *
+     * ⚠️ Il criterio **non si dimentica** se questa volta non ne ha vinto nessuno: alla fine
+     * della serie nessuna vicina esiste, e cancellarlo là costringerebbe la strisciata
+     * indietro a ripercorrere tutta la cascata.
+     */
+    private suspend fun webWindow(uri: Uri): Folder.Lookup {
+        val window = WebSeries.around(uri, webRule)
+        webRule = window.rule ?: webRule
+        return window.lookup
     }
 
     // ⚠️⚠️ **QUI VIVEVA `openFolder`, che apriva una cartella dritta sulla sua foto più
@@ -554,7 +599,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     ): ViewerState =
         when (val result = ImageSource.load(context, uri, onProgress)) {
             is LoadResult.Ok -> ViewerState.Ready(result.image)
-            is LoadResult.Failed -> ViewerState.Error(result.reason.messageRes(), result.detail)
+            is LoadResult.Failed -> ViewerState.Error(reasonFor(result.reason), result.detail)
         }
 
     /**
@@ -1199,11 +1244,26 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     private fun showAt(current: Folder.Series, index: Int) {
         val uri = current.at(index) ?: return
         source = uri
+        // ⚠️ La vicina di un indirizzo riscritto è già in sicuro: il motivo dell'errore,
+        // se arriva, non è più il traffico in chiaro, e dirlo sarebbe una bugia.
+        upgraded = false
         // ⚠️ `current` sta nell'ordine di lettura, `listed` in quello grezzo: si
         // rigira per riscriverlo, e la stessa funzione basta perché girare una serie
         // è la sua stessa inversa.
         listed = Folder.Lookup.Found(current.copy(index = index)).oriented()
         startLoad(uri)
+        /*
+         * ⚠️⚠️ **LA FINESTRA DEL WEB SI RIFÀ A OGNI PASSO, e quella di una cartella mai.**
+         * Una serie remota è larga tre e non ha fine nota: appena il dito la attraversa, la
+         * vicina di là va ancora indovinata e verificata. La riga sopra intanto ha già
+         * spostato l'indice, quindi la strisciata risponde subito e la rete arriva dopo.
+         * ⚠️ **Tranne quando la serie viene dall'indice della cartella**, che è intera e
+         * ordinata come quella di una cartella vera: rifarla vorrebbe dire riscaricare la
+         * stessa pagina a ogni fotografia.
+         */
+        if (WebSeries.isWeb(uri) && webRule != WebSeries.Rule.FOLDER_INDEX) {
+            viewModelScope.launch { listed = webWindow(uri) }
+        }
     }
 
     /** Called once the permission dialog has been answered, whatever the answer. */
@@ -1254,6 +1314,18 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     fun resetHints() {
         viewModelScope.launch { Hint.entries.forEach { it.forget(getApplication()) } }
     }
+
+    /**
+     * Il messaggio d'errore, con un caso in più che senza [upgraded] sarebbe muto.
+     *
+     * ⚠️⚠️ **Un indirizzo in chiaro non fallisce come gli altri**: Android lo blocca prima
+     * che parta, l'app lo ha già riscritto in `https`, e se anche quello non risponde la
+     * persona merita di sapere che cosa è successo. Con il solo 'non si è potuta aprire'
+     * cercherebbe il difetto nella propria rete, che è l'unico posto in cui non c'è.
+     */
+    private fun reasonFor(reason: LoadResult.Reason): Int =
+        if (upgraded && reason == LoadResult.Reason.OPEN_FAILED) R.string.open_cleartext
+        else reason.messageRes()
 
     private fun LoadResult.Reason.messageRes(): Int = when (this) {
         LoadResult.Reason.NO_IMAGE -> R.string.no_image

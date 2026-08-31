@@ -5,6 +5,7 @@
     <string name="app_short_name">AIV</string>
     <string name="no_image">చూపడానికి చిత్రం లేదు</string>
     <string name="open_failed">ఈ చిత్రాన్ని తెరవలేకపోయాం</string>
+    <string name="open_cleartext">గుప్తీకరణ లేని చిరునామా (http): Android దీన్ని అడ్డుకుంటుంది, https లోనూ స్పందన లేదు</string>
     <string name="unsupported">ఈ రూపానికి ఇంకా మద్దతు లేదు</string>
     <string name="too_large">ఈ పరికరానికి చిత్రం చాలా పెద్దది</string>
     <string name="error_retry">మళ్ళీ ప్రయత్నించండి</string>

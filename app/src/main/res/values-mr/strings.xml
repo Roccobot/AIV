@@ -5,6 +5,7 @@
     <string name="app_short_name">AIV</string>
     <string name="no_image">दाखवण्यासाठी कोणतीही प्रतिमा नाही</string>
     <string name="open_failed">ही प्रतिमा उघडता आली नाही</string>
+    <string name="open_cleartext">कूटबद्ध नसलेला पत्ता (http): Android तो अडवतो, आणि https वरही उत्तर मिळत नाही</string>
     <string name="unsupported">हे स्वरूप अजून समर्थित नाही</string>
     <string name="too_large">या उपकरणासाठी प्रतिमा खूप मोठी आहे</string>
     <string name="error_retry">पुन्हा प्रयत्न करा</string>

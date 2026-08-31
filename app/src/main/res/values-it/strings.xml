@@ -10,6 +10,7 @@
 
     <string name="no_image">Nessuna immagine da mostrare</string>
     <string name="open_failed">Questa immagine non si riesce ad aprire</string>
+    <string name="open_cleartext">Indirizzo in chiaro (http): Android lo blocca, e in https non risponde</string>
     <string name="unsupported">Questo formato non è ancora supportato</string>
     <string name="too_large">L\'immagine è troppo grande per questo dispositivo</string>
     <string name="error_retry">Riprova</string>

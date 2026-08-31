@@ -20,6 +20,7 @@
 
     <string name="no_image">No image to show</string>
     <string name="open_failed">This image could not be opened</string>
+    <string name="open_cleartext">Unencrypted address (http): Android blocks it, and it did not answer over https either</string>
     <string name="unsupported">This format is not supported yet</string>
     <string name="too_large">The image is too large for this device</string>
     <!-- Mostly for the network: a passing 403, a tunnel, a slow server. Without it

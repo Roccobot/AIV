@@ -5,6 +5,7 @@
     <string name="app_short_name">AIV</string>
     <string name="no_image">Hakuna picha ya kuonyesha</string>
     <string name="open_failed">Picha hii haikuweza kufunguliwa</string>
+    <string name="open_cleartext">Anwani isiyosimbwa (http): Android inaizuia, na kwa https haijibu</string>
     <string name="unsupported">Muundo huu bado hautumiki</string>
     <string name="too_large">Picha ni kubwa mno kwa kifaa hiki</string>
     <string name="error_retry">Jaribu tena</string>
