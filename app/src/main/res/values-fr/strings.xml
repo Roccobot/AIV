@@ -3,8 +3,8 @@
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
     <string name="app_short_name">AIV</string>
-    <string name="no_image">Aucune image à afficher</string>
-    <string name="open_failed">Cette image n\'a pas pu être ouverte</string>
+    <string name="no_image">Rien à afficher</string>
+    <string name="open_failed">Ce fichier n\'a pas pu être ouvert</string>
     <string name="open_cleartext">Adresse non chiffrée (http) : Android la bloque, et elle ne répond pas en https</string>
     <string name="unsupported">Ce format n\'est pas encore pris en charge</string>
     <string name="too_large">L\'image est trop grande pour cet appareil</string>
@@ -61,17 +61,17 @@
     <string name="settings_bottom">En bas</string>
     <string name="settings_info_visible">Barre visible au départ</string>
     <string name="settings_reverse_order">Inverser le sens de la séquence (par date)</string>
-    <string name="settings_reverse_order_desc">Désactivé, vous parcourez de l\'image la plus récente vers les plus anciennes, comme dans une galerie de téléphone. Activé, dans l\'ordre chronologique, de la plus ancienne à la plus récente.</string>
+    <string name="settings_reverse_order_desc">Désactivé, vous parcourez du plus récent vers les plus anciens, comme dans une galerie de téléphone. Activé, dans l\'ordre chronologique, du plus ancien au plus récent.</string>
     <string name="settings_clipboard">Lire le presse-papiers au démarrage</string>
     <string name="settings_clipboard_desc">En ouvrant l\'application depuis son icône, une adresse du presse-papiers qui pointe vers une image ouvre cette image. Android affiche un avis chaque fois qu\'une application lit le presse-papiers : laisser ceci désactivé, c\'est ne jamais le voir.</string>
     <string name="settings_start_folder">Ouvrir un dossier au démarrage</string>
-    <string name="settings_start_folder_desc">L\'application affiche directement les images du dossier choisi, au lieu de la liste des dossiers.</string>
+    <string name="settings_start_folder_desc">L\'application affiche directement le contenu du dossier choisi, au lieu de la liste des dossiers.</string>
     <string name="settings_start_folder_none">Aucun dossier choisi</string>
     <string name="settings_start_folder_pick">Choisir</string>
     <string name="folders_title">Dossiers</string>
     <string name="folders_permission">Lister les dossiers demande l\'accès à tous les fichiers. C\'est la même autorisation qui permet de parcourir un dossier, et elle s\'accorde depuis une page du système.</string>
     <string name="folders_grant">Accorder l\'accès</string>
-    <string name="folders_none">Aucun dossier ne contient d\'images.</string>
+    <string name="folders_none">Aucun dossier ne contient quoi que ce soit à afficher.</string>
     <string name="hub_open">Plus</string>
     <string name="hub_view_list">Vue en liste</string>
     <string name="hub_view_grid">Vue en grille</string>
@@ -81,20 +81,20 @@
     <string name="hub_settings">Réglages</string>
     <string name="url_open">Ouvrir</string>
     <string name="url_recent">Déjà ouvertes</string>
-    <string name="folder_empty">Ce dossier ne contient plus d\'images.</string>
+    <string name="folder_empty">Ce dossier ne contient plus rien.</string>
     <string name="cancel">Annuler</string>
     <string name="hide_folder_title">Masquer %1$s ?</string>
-    <string name="hide_folder_desc">Il n\'apparaît plus parmi les dossiers à parcourir. Rien n\'est supprimé : les images restent où elles sont, et vous pouvez le faire réapparaître depuis les réglages.</string>
+    <string name="hide_folder_desc">Il n\'apparaît plus parmi les dossiers à parcourir. Rien n\'est supprimé : les fichiers restent où ils sont, et vous pouvez le faire réapparaître depuis les réglages.</string>
     <string name="hide_folder_do">Masquer</string>
     <string name="settings_hidden">Dossiers masqués</string>
     <string name="settings_hidden_desc">Un appui long sur un dossier le masque. Ceux-ci n\'apparaissent plus dans la liste, mais ils sont intacts sur le téléphone.</string>
     <string name="settings_hidden_show">Afficher</string>
     <string name="search_hint">Rechercher dans le nom du fichier</string>
     <string name="search_clear">Effacer</string>
-    <string name="search_none">Aucune image n\'a \'%1$s\' dans son nom.</string>
+    <string name="search_none">Aucun fichier n\'a \'%1$s\' dans son nom.</string>
     <string name="identity_repo">Ouvrir le dépôt AIV sur GitHub</string>
-    <string name="grid_item">Image %1$d sur %2$d</string>
-    <string name="grid_item_last">Image %1$d sur %2$d, la dernière que vous avez regardée</string>
+    <string name="grid_item">Élément %1$d sur %2$d</string>
+    <string name="grid_item_last">Élément %1$d sur %2$d, le dernier que vous avez regardé</string>
     <string name="pick_leave">Quitter la sélection</string>
     <string name="pick_all">Tout sélectionner</string>
     <string name="pick_info">Infos</string>
@@ -156,24 +156,24 @@
     <string name="dest_move_here">Déplacer dans %1$s</string>
     <string name="menu_copy_here">Copier</string>
     <plurals name="copy_done">
-        <item quantity="one">%1$d image copiée</item>
-        <item quantity="other">%1$d images copiées</item>
-        <item quantity="many">%1$d images copiées</item>
+        <item quantity="one">%1$d élément copié</item>
+        <item quantity="other">%1$d éléments copiés</item>
+        <item quantity="many">%1$d éléments copiés</item>
     </plurals>
     <plurals name="move_done">
-        <item quantity="one">%1$d image déplacée</item>
-        <item quantity="other">%1$d images déplacées</item>
-        <item quantity="many">%1$d images déplacées</item>
+        <item quantity="one">%1$d élément déplacé</item>
+        <item quantity="other">%1$d éléments déplacés</item>
+        <item quantity="many">%1$d éléments déplacés</item>
     </plurals>
     <plurals name="rename_done">
-        <item quantity="one">%1$d image renommée</item>
-        <item quantity="other">%1$d images renommées</item>
-        <item quantity="many">%1$d images renommées</item>
+        <item quantity="one">%1$d élément renommé</item>
+        <item quantity="other">%1$d éléments renommés</item>
+        <item quantity="many">%1$d éléments renommés</item>
     </plurals>
     <plurals name="delete_done">
-        <item quantity="one">%1$d image supprimée</item>
-        <item quantity="other">%1$d images supprimées</item>
-        <item quantity="many">%1$d images supprimées</item>
+        <item quantity="one">%1$d élément supprimé</item>
+        <item quantity="other">%1$d éléments supprimés</item>
+        <item quantity="many">%1$d éléments supprimés</item>
     </plurals>
     <plurals name="op_failed">
         <item quantity="one">%1$d n\'a pas abouti</item>
@@ -182,13 +182,13 @@
     </plurals>
     <string name="rename_template">Nom</string>
     <string name="rename_start">Premier numéro</string>
-    <string name="rename_hint">Chaque suite de dièses devient le numéro, et le nombre que vous écrivez donne le nombre de chiffres : ## donne 01, ### donne 001. L\'extension n\'est jamais touchée, et les images sont numérotées par ordre alphabétique.</string>
+    <string name="rename_hint">Chaque suite de dièses devient le numéro, et le nombre que vous écrivez donne le nombre de chiffres : ## donne 01, ### donne 001. L\'extension n\'est jamais touchée, et les fichiers sont numérotés par ordre alphabétique.</string>
     <string name="rename_preview">Aperçu</string>
     <string name="delete_ask">Confirmer la suppression ?</string>
     <plurals name="delete_desc">
-        <item quantity="one">Vous allez supprimer définitivement %1$d image : elle disparaît du téléphone pour toujours.</item>
-        <item quantity="many">Vous allez supprimer définitivement %1$d images : elles disparaissent du téléphone pour toujours.</item>
-        <item quantity="other">Vous allez supprimer définitivement %1$d images : elles disparaissent du téléphone pour toujours.</item>
+        <item quantity="one">Vous allez supprimer définitivement %1$d élément : il disparaît du téléphone pour toujours.</item>
+        <item quantity="many">Vous allez supprimer définitivement %1$d éléments : ils disparaissent du téléphone pour toujours.</item>
+        <item quantity="other">Vous allez supprimer définitivement %1$d éléments : ils disparaissent du téléphone pour toujours.</item>
     </plurals>
     <string name="bin_title">Corbeille</string>
     <string name="bin_none">La corbeille est vide.</string>
@@ -197,14 +197,14 @@
     <string name="bin_empty_ask">Vider vraiment la corbeille ?</string>
     <string name="bin_empty_desc">Vous ne pourrez plus récupérer son contenu.</string>
     <plurals name="trash_done">
-        <item quantity="one">%1$d déplacée dans la corbeille</item>
-        <item quantity="other">%1$d déplacées dans la corbeille</item>
-        <item quantity="many">%1$d déplacées dans la corbeille</item>
+        <item quantity="one">%1$d déplacé dans la corbeille</item>
+        <item quantity="other">%1$d déplacés dans la corbeille</item>
+        <item quantity="many">%1$d déplacés dans la corbeille</item>
     </plurals>
     <plurals name="restore_done">
-        <item quantity="one">%1$d restaurée</item>
-        <item quantity="other">%1$d restaurées</item>
-        <item quantity="many">%1$d restaurées</item>
+        <item quantity="one">%1$d restauré</item>
+        <item quantity="other">%1$d restaurés</item>
+        <item quantity="many">%1$d restaurés</item>
     </plurals>
     <plurals name="folders_count">
         <item quantity="one">%1$d image</item>
@@ -217,7 +217,7 @@
         <item quantity="many">%1$d vidéos</item>
     </plurals>
     <string name="settings_facts">Infos sur un fichier</string>
-    <string name="settings_facts_desc">Quelles données vous voyez en ouvrant Infos sur une image, et dans quel ordre. Le nom, les pixels et la taille sont toujours là ; une donnée absente du fichier n\'occupe aucune ligne.</string>
+    <string name="settings_facts_desc">Quelles données vous voyez en ouvrant Infos sur un fichier, et dans quel ordre. Le nom, les pixels et la taille sont toujours là ; une donnée absente du fichier n\'occupe aucune ligne.</string>
     <string name="settings_facts_always">Toujours affiché</string>
     <string name="settings_facts_up">Monter</string>
     <string name="settings_facts_down">Descendre</string>
@@ -255,7 +255,7 @@
     <string name="text_normal">Normal</string>
     <string name="text_large">Grand</string>
     <string name="tree_show_hidden">Afficher les fichiers cachés</string>
-    <string name="tree_pictures">Seulement les dossiers avec images</string>
+    <string name="tree_pictures">Seulement les dossiers avec images ou vidéos</string>
     <string name="columns_hint">Raccourci : appuyez longuement sur le bouton flottant pour les options d\'affichage.</string>
     <string name="settings_bin">Activer la corbeille</string>
     <string name="settings_bin_desc">La suppression d\'un fichier ne demande rien, mais l\'action est réversible avec un \'Restaurer\' depuis la corbeille (bouton flottant → \'Corbeille\'). Vous pouvez désactiver complètement la corbeille si vous préférez une suppression instantanée: dans ce cas, une confirmation apparaît avant chaque suppression.</string>

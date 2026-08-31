@@ -3,8 +3,8 @@
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
     <string name="app_short_name">AIV</string>
-    <string name="no_image">Hakuna picha ya kuonyesha</string>
-    <string name="open_failed">Picha hii haikuweza kufunguliwa</string>
+    <string name="no_image">Hakuna cha kuonyesha</string>
+    <string name="open_failed">Haikuwezekana kufungua faili hili</string>
     <string name="open_cleartext">Anwani isiyosimbwa (http): Android inaizuia, na kwa https haijibu</string>
     <string name="unsupported">Muundo huu bado hautumiki</string>
     <string name="too_large">Picha ni kubwa mno kwa kifaa hiki</string>
@@ -60,18 +60,18 @@
     <string name="settings_top">Juu</string>
     <string name="settings_bottom">Chini</string>
     <string name="settings_info_visible">Onyesha mstari tangu mwanzo</string>
-    <string name="settings_reverse_order">Geuza mpangilio wa picha (kwa tarehe)</string>
-    <string name="settings_reverse_order_desc">Ikizimwa, unapitia kutoka picha mpya kuelekea za zamani, kama kwenye ghala la simu. Ikiwashwa, kwa mpangilio wa wakati, kutoka ya zamani hadi mpya.</string>
+    <string name="settings_reverse_order">Geuza mpangilio (kwa tarehe)</string>
+    <string name="settings_reverse_order_desc">Ikizimwa, unapitia kutoka kipya kuelekea vya zamani, kama kwenye ghala la simu. Ikiwashwa, kwa mpangilio wa wakati, kutoka cha zamani hadi kipya.</string>
     <string name="settings_clipboard">Soma ubao wa kunakili unapoanza</string>
     <string name="settings_clipboard_desc">Ukifungua programu kwa aikoni yake, anwani iliyo kwenye ubao wa kunakili inayoelekea moja kwa moja kwenye picha hufungua picha hiyo. Android huonyesha taarifa kila programu inaposoma ubao huo: kuiacha imezimwa ni kutoiona kamwe.</string>
     <string name="settings_start_folder">Fungua folda unapoanza</string>
-    <string name="settings_start_folder_desc">Programu ikifunguka huonyesha moja kwa moja picha za folda uliyochagua, badala ya orodha ya folda.</string>
+    <string name="settings_start_folder_desc">Programu ikifunguka huonyesha moja kwa moja yaliyomo kwenye folda uliyochagua, badala ya orodha ya folda.</string>
     <string name="settings_start_folder_none">Hakuna folda iliyochaguliwa</string>
     <string name="settings_start_folder_pick">Chagua</string>
     <string name="folders_title">Folda</string>
     <string name="folders_permission">Kuorodhesha folda kunahitaji ufikiaji wa faili zote. Ni ruhusa ile ile inayokuwezesha kupitia folda, na hutolewa kwenye ukurasa wa mfumo.</string>
     <string name="folders_grant">Toa ufikiaji</string>
-    <string name="folders_none">Hakuna folda yenye picha.</string>
+    <string name="folders_none">Hakuna folda yenye kitu cha kuonyesha.</string>
     <string name="hub_open">Zaidi</string>
     <string name="hub_view_list">Mwonekano wa orodha</string>
     <string name="hub_view_grid">Mwonekano wa gridi</string>
@@ -81,20 +81,20 @@
     <string name="hub_settings">Mipangilio</string>
     <string name="url_open">Fungua</string>
     <string name="url_recent">Zilizofunguliwa awali</string>
-    <string name="folder_empty">Folda hii haina tena picha.</string>
+    <string name="folder_empty">Folda hii haina tena kitu chochote.</string>
     <string name="cancel">Ghairi</string>
     <string name="hide_folder_title">Ficha %1$s?</string>
-    <string name="hide_folder_desc">Haitaonekana tena kati ya folda za kupitia. Hakuna kinachofutwa: picha zinabaki zilipo, na unaweza kuirudisha folda kutoka kwenye mipangilio.</string>
+    <string name="hide_folder_desc">Haitaonekana tena kati ya folda za kupitia. Hakuna kinachofutwa: mafaili yanabaki yalipo, na unaweza kuirudisha folda kutoka kwenye mipangilio.</string>
     <string name="hide_folder_do">Ficha</string>
     <string name="settings_hidden">Folda zilizofichwa</string>
     <string name="settings_hidden_desc">Kubonyeza folda kwa muda mrefu huificha. Hizi hazionekani tena kwenye orodha, lakini kwenye simu hazijaguswa.</string>
     <string name="settings_hidden_show">Onyesha</string>
     <string name="search_hint">Tafuta kwenye jina la faili</string>
     <string name="search_clear">Futa</string>
-    <string name="search_none">Hakuna picha yenye \'%1$s\' kwenye jina lake.</string>
+    <string name="search_none">Hakuna faili yenye \'%1$s\' kwenye jina lake.</string>
     <string name="identity_repo">Fungua hazina ya AIV kwenye GitHub</string>
-    <string name="grid_item">Picha ya %1$d kati ya %2$d</string>
-    <string name="grid_item_last">Picha ya %1$d kati ya %2$d, uliyoiangalia mwisho</string>
+    <string name="grid_item">Kipengele cha %1$d kati ya %2$d</string>
+    <string name="grid_item_last">Kipengele cha %1$d kati ya %2$d, ulichokiangalia mwisho</string>
     <string name="pick_leave">Toka kwenye uteuzi</string>
     <string name="pick_all">Chagua zote</string>
     <string name="pick_info">Taarifa</string>
@@ -153,33 +153,33 @@
     <string name="dest_move_here">Hamishia ndani ya %1$s</string>
     <string name="menu_copy_here">Nakili</string>
     <plurals name="copy_done">
-        <item quantity="one">picha %1$d imenakiliwa</item>
-        <item quantity="other">picha %1$d zimenakiliwa</item>
+        <item quantity="one">kipengele %1$d kimenakiliwa</item>
+        <item quantity="other">vipengele %1$d vimenakiliwa</item>
     </plurals>
     <plurals name="move_done">
-        <item quantity="one">picha %1$d imehamishwa</item>
-        <item quantity="other">picha %1$d zimehamishwa</item>
+        <item quantity="one">kipengele %1$d kimehamishwa</item>
+        <item quantity="other">vipengele %1$d vimehamishwa</item>
     </plurals>
     <plurals name="rename_done">
-        <item quantity="one">picha %1$d imebadilishwa jina</item>
-        <item quantity="other">picha %1$d zimebadilishwa majina</item>
+        <item quantity="one">kipengele %1$d kimebadilishwa jina</item>
+        <item quantity="other">vipengele %1$d vimebadilishwa majina</item>
     </plurals>
     <plurals name="delete_done">
-        <item quantity="one">picha %1$d imefutwa</item>
-        <item quantity="other">picha %1$d zimefutwa</item>
+        <item quantity="one">kipengele %1$d kimefutwa</item>
+        <item quantity="other">vipengele %1$d vimefutwa</item>
     </plurals>
     <plurals name="op_failed">
-        <item quantity="one">%1$d haikufaulu</item>
-        <item quantity="other">%1$d hazikufaulu</item>
+        <item quantity="one">%1$d hakikufaulu</item>
+        <item quantity="other">%1$d havikufaulu</item>
     </plurals>
     <string name="rename_template">Jina</string>
     <string name="rename_start">Namba ya kwanza</string>
-    <string name="rename_hint">Kila mfululizo wa alama za reli huwa namba, na kadiri unavyoandika ndivyo tarakimu zitakavyokuwa: ## hutoa 01, ### hutoa 001. Kiendelezi hakiguswi kamwe, na picha hupewa namba kwa mpangilio wa alfabeti.</string>
+    <string name="rename_hint">Kila mfululizo wa alama za reli huwa namba, na kadiri unavyoandika ndivyo tarakimu zitakavyokuwa: ## hutoa 01, ### hutoa 001. Kiendelezi hakiguswi kamwe, na mafaili hupewa namba kwa mpangilio wa alfabeti.</string>
     <string name="rename_preview">Onyesho la awali</string>
     <string name="delete_ask">Uthibitishe kufuta?</string>
     <plurals name="delete_desc">
-        <item quantity="one">Unakaribia kufuta picha %1$d kabisa: inaondoka kwenye simu milele.</item>
-        <item quantity="other">Unakaribia kufuta picha %1$d kabisa: zinaondoka kwenye simu milele.</item>
+        <item quantity="one">Unakaribia kufuta kipengele %1$d kabisa: kinaondoka kwenye simu milele.</item>
+        <item quantity="other">Unakaribia kufuta vipengele %1$d kabisa: vinaondoka kwenye simu milele.</item>
     </plurals>
     <string name="bin_title">Tapishi</string>
     <string name="bin_none">Tapishi ni tupu.</string>
@@ -188,12 +188,12 @@
     <string name="bin_empty_ask">Kweli umwage tapishi?</string>
     <string name="bin_empty_desc">Yaliyomo hayatarudishwa tena.</string>
     <plurals name="trash_done">
-        <item quantity="one">picha %1$d imeenda tapishini</item>
-        <item quantity="other">picha %1$d zimeenda tapishini</item>
+        <item quantity="one">kipengele %1$d kimeenda tapishini</item>
+        <item quantity="other">vipengele %1$d vimeenda tapishini</item>
     </plurals>
     <plurals name="restore_done">
-        <item quantity="one">picha %1$d imerudishwa</item>
-        <item quantity="other">picha %1$d zimerudishwa</item>
+        <item quantity="one">kipengele %1$d kimerudishwa</item>
+        <item quantity="other">vipengele %1$d vimerudishwa</item>
     </plurals>
     <plurals name="folders_count">
         <item quantity="one">picha %1$d</item>
@@ -204,7 +204,7 @@
         <item quantity="other">video %1$d</item>
     </plurals>
     <string name="settings_facts">Taarifa za faili moja</string>
-    <string name="settings_facts_desc">Data zipi unaziona ukifungua Taarifa za picha, na kwa mpangilio upi. Jina, pikseli na ukubwa vipo daima; data ambayo faili haina haipati mstari hata kidogo.</string>
+    <string name="settings_facts_desc">Data zipi unaziona ukifungua Taarifa za faili, na kwa mpangilio upi. Jina, pikseli na ukubwa vipo daima; data ambayo faili haina haipati mstari hata kidogo.</string>
     <string name="settings_facts_always">Huonekana daima</string>
     <string name="settings_facts_up">Sogeza juu</string>
     <string name="settings_facts_down">Sogeza chini</string>
@@ -240,7 +240,7 @@
     <string name="text_normal">Kawaida</string>
     <string name="text_large">Kubwa</string>
     <string name="tree_show_hidden">Onyesha faili zilizofichwa</string>
-    <string name="tree_pictures">Folda zenye picha pekee</string>
+    <string name="tree_pictures">Folda zenye picha au video pekee</string>
     <string name="columns_hint">Njia ya mkato: shikilia kitufe kinachoelea ili kufungua chaguo za mwonekano.</string>
     <string name="settings_bin">Washa tapishi</string>
     <string name="settings_bin_desc">Kufuta faili hakuulizi kitu, lakini kitendo kinaweza kubatilishwa kwa \'Rudisha\' kutoka tapishi (kitufe kinachoelea → \'Tapishi\'). Unaweza kuzima tapishi kabisa ukipendelea kufuta papo hapo: hapo utaonyeshwa uthibitisho kabla ya kila kufuta.</string>

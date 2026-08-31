@@ -3,8 +3,8 @@
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
     <string name="app_short_name">AIV</string>
-    <string name="no_image">दाखवण्यासाठी कोणतीही प्रतिमा नाही</string>
-    <string name="open_failed">ही प्रतिमा उघडता आली नाही</string>
+    <string name="no_image">दाखवण्यासाठी काहीही नाही</string>
+    <string name="open_failed">ही संचिका उघडता आली नाही</string>
     <string name="open_cleartext">कूटबद्ध नसलेला पत्ता (http): Android तो अडवतो, आणि https वरही उत्तर मिळत नाही</string>
     <string name="unsupported">हे स्वरूप अजून समर्थित नाही</string>
     <string name="too_large">या उपकरणासाठी प्रतिमा खूप मोठी आहे</string>
@@ -60,18 +60,18 @@
     <string name="settings_top">वर</string>
     <string name="settings_bottom">खाली</string>
     <string name="settings_info_visible">सुरुवातीपासूनच पट्टी दिसावी</string>
-    <string name="settings_reverse_order">प्रतिमांच्या क्रमाची दिशा उलटी करा (दिनांकानुसार)</string>
-    <string name="settings_reverse_order_desc">बंद असल्यास नव्या प्रतिमेकडून जुन्यांकडे जाता, फोनच्या दालनासारखे. चालू असल्यास काळाच्या क्रमाने, जुन्याकडून नव्याकडे.</string>
+    <string name="settings_reverse_order">क्रमाची दिशा उलटी करा (दिनांकानुसार)</string>
+    <string name="settings_reverse_order_desc">बंद असल्यास नव्याकडून जुन्यांकडे जाता, फोनच्या दालनासारखे. चालू असल्यास काळाच्या क्रमाने, जुन्याकडून नव्याकडे.</string>
     <string name="settings_clipboard">सुरू होताना क्लिपबोर्ड वाचा</string>
     <string name="settings_clipboard_desc">अॅप त्याच्या चिन्हावरून उघडल्यावर, क्लिपबोर्डातील थेट एखाद्या प्रतिमेकडे निर्देश करणारा पत्ता ती प्रतिमा उघडतो. कोणतेही अॅप क्लिपबोर्ड वाचले की Android सूचना दाखवतो, म्हणून हे बंद ठेवणे म्हणजे ती कधीच न पाहणे.</string>
     <string name="settings_start_folder">सुरू होताना एक संचिकासंच उघडा</string>
-    <string name="settings_start_folder_desc">अॅप उघडल्यावर संचिकासंचांच्या यादीऐवजी निवडलेल्या संचिकासंचातील प्रतिमा थेट दिसतात.</string>
+    <string name="settings_start_folder_desc">अॅप उघडल्यावर संचिकासंचांच्या यादीऐवजी निवडलेल्या संचिकासंचातील सर्व काही थेट दिसते.</string>
     <string name="settings_start_folder_none">कोणताही संचिकासंच निवडलेला नाही</string>
     <string name="settings_start_folder_pick">निवडा</string>
     <string name="folders_title">संचिकासंच</string>
     <string name="folders_permission">संचिकासंचांची यादी करण्यासाठी सर्व संचिकांची परवानगी लागते. एखादा संचिकासंच पाहू देणारी तीच परवानगी आहे, आणि ती प्रणालीच्या एका पानावरून दिली जाते.</string>
     <string name="folders_grant">परवानगी द्या</string>
-    <string name="folders_none">कोणत्याही संचिकासंचात प्रतिमा नाहीत.</string>
+    <string name="folders_none">कोणत्याही संचिकासंचात दाखवण्यासारखे काही नाही.</string>
     <string name="hub_open">अधिक</string>
     <string name="hub_view_list">यादी रूप</string>
     <string name="hub_view_grid">जाळी रूप</string>
@@ -81,20 +81,20 @@
     <string name="hub_settings">सेटिंग्ज</string>
     <string name="url_open">उघडा</string>
     <string name="url_recent">आधी उघडलेले</string>
-    <string name="folder_empty">या संचिकासंचात आता प्रतिमा नाहीत.</string>
+    <string name="folder_empty">या संचिकासंचात आता काहीही नाही.</string>
     <string name="cancel">रद्द</string>
     <string name="hide_folder_title">%1$s लपवायचा?</string>
-    <string name="hide_folder_desc">पाहण्याच्या संचिकासंचांमध्ये हा आता दिसणार नाही. काहीही पुसले जात नाही: प्रतिमा जागेवरच राहतात, आणि सेटिंग्जमधून संचिकासंच परत आणता येतो.</string>
+    <string name="hide_folder_desc">पाहण्याच्या संचिकासंचांमध्ये हा आता दिसणार नाही. काहीही पुसले जात नाही: संचिका जागेवरच राहतात, आणि सेटिंग्जमधून संचिकासंच परत आणता येतो.</string>
     <string name="hide_folder_do">लपवा</string>
     <string name="settings_hidden">लपवलेले संचिकासंच</string>
     <string name="settings_hidden_desc">एखादा संचिकासंच दाबून धरल्यास तो लपतो. हे आता यादीत दिसत नाहीत, पण फोनवर तसेच अबाधित असतात.</string>
     <string name="settings_hidden_show">दाखवा</string>
     <string name="search_hint">संचिकेच्या नावात शोधा</string>
     <string name="search_clear">पुसा</string>
-    <string name="search_none">कोणत्याही प्रतिमेच्या नावात \'%1$s\' नाही.</string>
+    <string name="search_none">कोणत्याही संचिकेच्या नावात \'%1$s\' नाही.</string>
     <string name="identity_repo">GitHubवर AIV भांडार उघडा</string>
-    <string name="grid_item">%2$d पैकी %1$dवी प्रतिमा</string>
-    <string name="grid_item_last">%2$d पैकी %1$dवी प्रतिमा, तुम्ही शेवटी पाहिलेली</string>
+    <string name="grid_item">%2$d पैकी %1$dवी</string>
+    <string name="grid_item_last">%2$d पैकी %1$dवी, तुम्ही शेवटी पाहिलेली</string>
     <string name="pick_leave">निवडीतून बाहेर</string>
     <string name="pick_all">सर्व निवडा</string>
     <string name="pick_info">माहिती</string>
@@ -153,20 +153,20 @@
     <string name="dest_move_here">%1$s मध्ये हलवा</string>
     <string name="menu_copy_here">प्रत करा</string>
     <plurals name="copy_done">
-        <item quantity="one">%1$d प्रतिमेची प्रत झाली</item>
-        <item quantity="other">%1$d प्रतिमांच्या प्रती झाल्या</item>
+        <item quantity="one">%1$d संचिकेची प्रत झाली</item>
+        <item quantity="other">%1$d संचिकांच्या प्रती झाल्या</item>
     </plurals>
     <plurals name="move_done">
-        <item quantity="one">%1$d प्रतिमा हलवली</item>
-        <item quantity="other">%1$d प्रतिमा हलवल्या</item>
+        <item quantity="one">%1$d संचिका हलवली</item>
+        <item quantity="other">%1$d संचिका हलवल्या</item>
     </plurals>
     <plurals name="rename_done">
-        <item quantity="one">%1$d प्रतिमेचे नाव बदलले</item>
-        <item quantity="other">%1$d प्रतिमांची नावे बदलली</item>
+        <item quantity="one">%1$d संचिकेचे नाव बदलले</item>
+        <item quantity="other">%1$d संचिकांची नावे बदलली</item>
     </plurals>
     <plurals name="delete_done">
-        <item quantity="one">%1$d प्रतिमा पुसली</item>
-        <item quantity="other">%1$d प्रतिमा पुसल्या</item>
+        <item quantity="one">%1$d संचिका पुसली</item>
+        <item quantity="other">%1$d संचिका पुसल्या</item>
     </plurals>
     <plurals name="op_failed">
         <item quantity="one">%1$d झाली नाही</item>
@@ -174,12 +174,12 @@
     </plurals>
     <string name="rename_template">नाव</string>
     <string name="rename_start">पहिला क्रमांक</string>
-    <string name="rename_hint">चौकटीच्या खुणांची प्रत्येक मालिका क्रमांक होते, आणि जितक्या लिहाल तितके अंक: ## देते 01, ### देते 001. विस्ताराला कधीही हात लावला जात नाही, आणि प्रतिमांना अकारविल्हे क्रमांक मिळतात.</string>
+    <string name="rename_hint">चौकटीच्या खुणांची प्रत्येक मालिका क्रमांक होते, आणि जितक्या लिहाल तितके अंक: ## देते 01, ### देते 001. विस्ताराला कधीही हात लावला जात नाही, आणि संचिकांना अकारविल्हे क्रमांक मिळतात.</string>
     <string name="rename_preview">पूर्वदृश्य</string>
     <string name="delete_ask">पुसण्याची खात्री आहे?</string>
     <plurals name="delete_desc">
-        <item quantity="one">तुम्ही %1$d प्रतिमा कायमची पुसणार आहात: ती फोनवरून कायमची जाईल.</item>
-        <item quantity="other">तुम्ही %1$d प्रतिमा कायमच्या पुसणार आहात: त्या फोनवरून कायमच्या जातील.</item>
+        <item quantity="one">तुम्ही %1$d संचिका कायमची पुसणार आहात: ती फोनवरून कायमची जाईल.</item>
+        <item quantity="other">तुम्ही %1$d संचिका कायमच्या पुसणार आहात: त्या फोनवरून कायमच्या जातील.</item>
     </plurals>
     <string name="bin_title">कचरापेटी</string>
     <string name="bin_none">कचरापेटी रिकामी आहे.</string>
@@ -204,7 +204,7 @@
         <item quantity="other">%1$d चित्रफिती</item>
     </plurals>
     <string name="settings_facts">एका फाइलची माहिती</string>
-    <string name="settings_facts_desc">एखाद्या प्रतिमेची माहिती उघडल्यावर कोणती माहिती दिसावी, आणि कोणत्या क्रमाने. नाव, पिक्सेल आणि आकार सदैव असतात; संचिकेत नसलेल्या माहितीला एकही ओळ मिळत नाही.</string>
+    <string name="settings_facts_desc">एखाद्या संचिकेची माहिती उघडल्यावर कोणती माहिती दिसावी, आणि कोणत्या क्रमाने. नाव, पिक्सेल आणि आकार सदैव असतात; संचिकेत नसलेल्या माहितीला एकही ओळ मिळत नाही.</string>
     <string name="settings_facts_always">सदैव दिसते</string>
     <string name="settings_facts_up">वर सरकवा</string>
     <string name="settings_facts_down">खाली सरकवा</string>
@@ -240,7 +240,7 @@
     <string name="text_normal">सामान्य</string>
     <string name="text_large">मोठा</string>
     <string name="tree_show_hidden">लपलेल्या संचिका दाखवा</string>
-    <string name="tree_pictures">फक्त प्रतिमा असलेले संचिकासंच</string>
+    <string name="tree_pictures">फक्त प्रतिमा किंवा चित्रफिती असलेले संचिकासंच</string>
     <string name="columns_hint">शॉर्टकट: दर्शन पर्यायांसाठी तरंगते बटण दाबून धरा.</string>
     <string name="settings_bin">कचरापेटी सुरू करा</string>
     <string name="settings_bin_desc">फाइल पुसताना काहीही विचारले जात नाही, पण कचरापेटीतून \'पुन्हा आणा\' ने ही कृती उलटवता येते (फ्लोटिंग बटण → \'कचरापेटी\'). तुम्हाला तात्काळ पुसणे आवडत असेल तर कचरापेटी पूर्ण बंद करू शकता: तेव्हा प्रत्येक वेळी पुसण्यापूर्वी खात्री विचारली जाईल.</string>

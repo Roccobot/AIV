@@ -3,8 +3,8 @@
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
     <string name="app_short_name">AIV</string>
-    <string name="no_image">دکھانے کے لیے کوئی تصویر نہیں</string>
-    <string name="open_failed">یہ تصویر نہیں کھل سکی</string>
+    <string name="no_image">دکھانے کے لیے کچھ نہیں</string>
+    <string name="open_failed">یہ فائل نہیں کھل سکی</string>
     <string name="open_cleartext">غیر مرموز پتہ (http): اینڈرائیڈ اسے روکتا ہے، اور https پر بھی جواب نہیں دیتا</string>
     <string name="unsupported">یہ صورت ابھی معاون نہیں ہے</string>
     <string name="too_large">تصویر اس آلے کے لیے بہت بڑی ہے</string>
@@ -60,18 +60,18 @@
     <string name="settings_top">اوپر</string>
     <string name="settings_bottom">نیچے</string>
     <string name="settings_info_visible">پٹی شروع سے دکھے</string>
-    <string name="settings_reverse_order">تصویروں کی ترتیب کا رخ بدلیں (تاریخ کے حساب سے)</string>
-    <string name="settings_reverse_order_desc">بند ہو تو نئی تصویر سے پرانی کی طرف چلتے ہیں، جیسے فون کی گیلری۔ کھلا ہو تو وقت کی ترتیب میں، پرانی سے نئی کی طرف۔</string>
+    <string name="settings_reverse_order">ترتیب کا رخ بدلیں (تاریخ کے حساب سے)</string>
+    <string name="settings_reverse_order_desc">بند ہو تو نئی سے پرانی کی طرف چلتے ہیں، جیسے فون کی گیلری۔ کھلا ہو تو وقت کی ترتیب میں، پرانی سے نئی کی طرف۔</string>
     <string name="settings_clipboard">شروع میں کلپ بورڈ پڑھیں</string>
     <string name="settings_clipboard_desc">ایپ کو اس کے آئیکن سے کھولنے پر، کلپ بورڈ میں موجود پتہ جو سیدھا کسی تصویر کی طرف اشارہ کرے وہی تصویر کھول دیتا ہے۔ جب بھی کوئی ایپ کلپ بورڈ پڑھتی ہے اینڈرائیڈ اطلاع دکھاتا ہے، تو اسے بند رکھنے کا مطلب ہے وہ کبھی نہ دیکھنا۔</string>
     <string name="settings_start_folder">شروع میں ایک فولڈر کھولیں</string>
-    <string name="settings_start_folder_desc">ایپ کھلتے ہی چنے ہوئے فولڈر کی تصویریں سیدھی دکھتی ہیں، فولڈروں کی فہرست کے بجائے۔</string>
+    <string name="settings_start_folder_desc">ایپ کھلتے ہی چنے ہوئے فولڈر کا مواد سیدھا دکھتا ہے، فولڈروں کی فہرست کے بجائے۔</string>
     <string name="settings_start_folder_none">کوئی فولڈر نہیں چنا گیا</string>
     <string name="settings_start_folder_pick">چنیں</string>
     <string name="folders_title">فولڈر</string>
     <string name="folders_permission">فولڈر گنوانے کے لیے تمام فائلوں تک رسائی درکار ہے۔ یہ وہی اجازت ہے جو کسی فولڈر کو دیکھنے دیتی ہے، اور نظام کے ایک صفحے سے دی جاتی ہے۔</string>
     <string name="folders_grant">رسائی دیں</string>
-    <string name="folders_none">کسی فولڈر میں تصویریں نہیں ہیں۔</string>
+    <string name="folders_none">کسی فولڈر میں دکھانے کو کچھ نہیں ہے۔</string>
     <string name="hub_open">مزید</string>
     <string name="hub_view_list">فہرست کا منظر</string>
     <string name="hub_view_grid">گرڈ کا منظر</string>
@@ -81,20 +81,20 @@
     <string name="hub_settings">ترتیبات</string>
     <string name="url_open">کھولیں</string>
     <string name="url_recent">پہلے کھولے گئے</string>
-    <string name="folder_empty">اس فولڈر میں اب کوئی تصویر نہیں۔</string>
+    <string name="folder_empty">اس فولڈر میں اب کچھ نہیں۔</string>
     <string name="cancel">منسوخ</string>
     <string name="hide_folder_title">%1$s چھپائیں؟</string>
-    <string name="hide_folder_desc">یہ اب دیکھنے والے فولڈروں میں نہیں دکھے گا۔ کچھ نہیں مٹتا: تصویریں اپنی جگہ رہتی ہیں، اور فولڈر ترتیبات سے واپس لایا جا سکتا ہے۔</string>
+    <string name="hide_folder_desc">یہ اب دیکھنے والے فولڈروں میں نہیں دکھے گا۔ کچھ نہیں مٹتا: فائلیں اپنی جگہ رہتی ہیں، اور فولڈر ترتیبات سے واپس لایا جا سکتا ہے۔</string>
     <string name="hide_folder_do">چھپائیں</string>
     <string name="settings_hidden">چھپے ہوئے فولڈر</string>
     <string name="settings_hidden_desc">کسی فولڈر کو دبا کر رکھنا اسے چھپا دیتا ہے۔ یہ اب فہرست میں نہیں دکھتے، مگر فون میں جوں کے توں ہیں۔</string>
     <string name="settings_hidden_show">دکھائیں</string>
     <string name="search_hint">فائل کے نام میں تلاش کریں</string>
     <string name="search_clear">صاف کریں</string>
-    <string name="search_none">کسی تصویر کے نام میں \'%1$s\' نہیں ہے۔</string>
+    <string name="search_none">کسی فائل کے نام میں \'%1$s\' نہیں ہے۔</string>
     <string name="identity_repo">گٹ ہب پر AIV کا مخزن کھولیں</string>
-    <string name="grid_item">تصویر %1$d از %2$d</string>
-    <string name="grid_item_last">تصویر %1$d از %2$d، جو آپ نے آخر میں دیکھی</string>
+    <string name="grid_item">فائل %1$d از %2$d</string>
+    <string name="grid_item_last">فائل %1$d از %2$d، جو آپ نے آخر میں دیکھی</string>
     <string name="pick_leave">انتخاب سے نکلیں</string>
     <string name="pick_all">سب چنیں</string>
     <string name="pick_info">معلومات</string>
@@ -153,20 +153,20 @@
     <string name="dest_move_here">%1$s میں منتقل کریں</string>
     <string name="menu_copy_here">نقل کریں</string>
     <plurals name="copy_done">
-        <item quantity="one">%1$d تصویر نقل ہوئی</item>
-        <item quantity="other">%1$d تصویریں نقل ہوئیں</item>
+        <item quantity="one">%1$d فائل نقل ہوئی</item>
+        <item quantity="other">%1$d فائلیں نقل ہوئیں</item>
     </plurals>
     <plurals name="move_done">
-        <item quantity="one">%1$d تصویر منتقل ہوئی</item>
-        <item quantity="other">%1$d تصویریں منتقل ہوئیں</item>
+        <item quantity="one">%1$d فائل منتقل ہوئی</item>
+        <item quantity="other">%1$d فائلیں منتقل ہوئیں</item>
     </plurals>
     <plurals name="rename_done">
-        <item quantity="one">%1$d تصویر کا نام بدلا</item>
-        <item quantity="other">%1$d تصویروں کے نام بدلے</item>
+        <item quantity="one">%1$d فائل کا نام بدلا</item>
+        <item quantity="other">%1$d فائلوں کے نام بدلے</item>
     </plurals>
     <plurals name="delete_done">
-        <item quantity="one">%1$d تصویر مٹ گئی</item>
-        <item quantity="other">%1$d تصویریں مٹ گئیں</item>
+        <item quantity="one">%1$d فائل مٹ گئی</item>
+        <item quantity="other">%1$d فائلیں مٹ گئیں</item>
     </plurals>
     <plurals name="op_failed">
         <item quantity="one">%1$d نہیں ہو سکی</item>
@@ -174,12 +174,12 @@
     </plurals>
     <string name="rename_template">نام</string>
     <string name="rename_start">پہلا نمبر</string>
-    <string name="rename_hint">ہیش کے ہر سلسلے کی جگہ نمبر آتا ہے، اور جتنے لکھیں اتنے ہندسے ہوتے ہیں: ## سے 01 اور ### سے 001۔ توسیع کو کبھی نہیں چھیڑا جاتا، اور تصویروں کو حروف تہجی کی ترتیب میں نمبر ملتے ہیں۔</string>
+    <string name="rename_hint">ہیش کے ہر سلسلے کی جگہ نمبر آتا ہے، اور جتنے لکھیں اتنے ہندسے ہوتے ہیں: ## سے 01 اور ### سے 001۔ توسیع کو کبھی نہیں چھیڑا جاتا، اور فائلوں کو حروف تہجی کی ترتیب میں نمبر ملتے ہیں۔</string>
     <string name="rename_preview">پیش منظر</string>
     <string name="delete_ask">مٹانے کی تصدیق کریں؟</string>
     <plurals name="delete_desc">
-        <item quantity="one">آپ %1$d تصویر ہمیشہ کے لیے مٹانے والے ہیں: وہ فون سے ہمیشہ کے لیے چلی جائے گی۔</item>
-        <item quantity="other">آپ %1$d تصویریں ہمیشہ کے لیے مٹانے والے ہیں: وہ فون سے ہمیشہ کے لیے چلی جائیں گی۔</item>
+        <item quantity="one">آپ %1$d فائل ہمیشہ کے لیے مٹانے والے ہیں: وہ فون سے ہمیشہ کے لیے چلی جائے گی۔</item>
+        <item quantity="other">آپ %1$d فائلیں ہمیشہ کے لیے مٹانے والے ہیں: وہ فون سے ہمیشہ کے لیے چلی جائیں گی۔</item>
     </plurals>
     <string name="bin_title">ردی کی ٹوکری</string>
     <string name="bin_none">ردی کی ٹوکری خالی ہے۔</string>
@@ -204,7 +204,7 @@
         <item quantity="other">%1$d ویڈیوز</item>
     </plurals>
     <string name="settings_facts">ایک فائل کی معلومات</string>
-    <string name="settings_facts_desc">کسی تصویر کی معلومات کھولنے پر کون سے ڈیٹا دکھیں، اور کس ترتیب میں۔ نام، پکسل اور حجم ہمیشہ ہوتے ہیں؛ جو ڈیٹا فائل میں نہیں ہوتا اسے کوئی قطار نہیں ملتی۔</string>
+    <string name="settings_facts_desc">کسی فائل کی معلومات کھولنے پر کون سے ڈیٹا دکھیں، اور کس ترتیب میں۔ نام، پکسل اور حجم ہمیشہ ہوتے ہیں؛ جو ڈیٹا فائل میں نہیں ہوتا اسے کوئی قطار نہیں ملتی۔</string>
     <string name="settings_facts_always">ہمیشہ دکھتا ہے</string>
     <string name="settings_facts_up">اوپر لے جائیں</string>
     <string name="settings_facts_down">نیچے لے جائیں</string>
@@ -240,7 +240,7 @@
     <string name="text_normal">عام</string>
     <string name="text_large">بڑا</string>
     <string name="tree_show_hidden">پوشیدہ فائلیں دکھائیں</string>
-    <string name="tree_pictures">صرف تصاویر والے فولڈر</string>
+    <string name="tree_pictures">صرف تصاویر یا ویڈیو والے فولڈر</string>
     <string name="columns_hint">شارٹ کٹ: نمائش کے اختیارات کے لیے تیرتا بٹن دبائے رکھیں۔</string>
     <string name="settings_bin">ردی کی ٹوکری فعال کریں</string>
     <string name="settings_bin_desc">فائل مٹانا کچھ نہیں پوچھتا، لیکن یہ کام ردی کی ٹوکری سے \'بحال کریں\' کے ذریعے واپس ہو سکتا ہے (فلوٹنگ بٹن → \'ردی کی ٹوکری\')۔ اگر آپ فوری مٹانا پسند کرتے ہیں تو ردی کی ٹوکری مکمل بند کر سکتے ہیں: اس صورت میں ہر مٹانے سے پہلے تصدیق آئے گی۔</string>

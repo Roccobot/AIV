@@ -3,8 +3,8 @@
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
     <string name="app_short_name">AIV</string>
-    <string name="no_image">No hay ninguna imagen que mostrar</string>
-    <string name="open_failed">No se ha podido abrir esta imagen</string>
+    <string name="no_image">No hay nada que mostrar</string>
+    <string name="open_failed">No se ha podido abrir este archivo</string>
     <string name="open_cleartext">Dirección sin cifrar (http): Android la bloquea, y en https no responde</string>
     <string name="unsupported">Este formato todavía no es compatible</string>
     <string name="too_large">La imagen es demasiado grande para este dispositivo</string>
@@ -61,17 +61,17 @@
     <string name="settings_bottom">Abajo</string>
     <string name="settings_info_visible">Barra visible al principio</string>
     <string name="settings_reverse_order">Invertir el sentido de la secuencia (por fecha)</string>
-    <string name="settings_reverse_order_desc">Desactivado, pasas de la imagen más reciente hacia las más antiguas, como en la galería de un teléfono. Activado, en orden cronológico, de la más antigua a la más reciente.</string>
+    <string name="settings_reverse_order_desc">Desactivado, pasas del más reciente hacia los más antiguos, como en la galería de un teléfono. Activado, en orden cronológico, del más antiguo al más reciente.</string>
     <string name="settings_clipboard">Leer el portapapeles al arrancar</string>
     <string name="settings_clipboard_desc">Al abrir la aplicación desde su icono, una dirección del portapapeles que apunte directamente a una imagen abre esa imagen. Android muestra un aviso cada vez que una aplicación lee el portapapeles: dejar esto desactivado es no verlo nunca.</string>
     <string name="settings_start_folder">Abrir una carpeta al arrancar</string>
-    <string name="settings_start_folder_desc">Al abrir la aplicación se ven directamente las imágenes de la carpeta elegida, en vez de la lista de carpetas.</string>
+    <string name="settings_start_folder_desc">Al abrir la aplicación se ve directamente el contenido de la carpeta elegida, en vez de la lista de carpetas.</string>
     <string name="settings_start_folder_none">Ninguna carpeta elegida</string>
     <string name="settings_start_folder_pick">Elegir</string>
     <string name="folders_title">Carpetas</string>
     <string name="folders_permission">Para listar las carpetas hace falta acceso a todos los archivos. Es el mismo permiso que deja pasar por una carpeta, y se concede desde una página del sistema.</string>
     <string name="folders_grant">Conceder acceso</string>
-    <string name="folders_none">Ninguna carpeta contiene imágenes.</string>
+    <string name="folders_none">Ninguna carpeta contiene nada que mostrar.</string>
     <string name="hub_open">Más</string>
     <string name="hub_view_list">Vista de lista</string>
     <string name="hub_view_grid">Vista de cuadrícula</string>
@@ -81,20 +81,20 @@
     <string name="hub_settings">Ajustes</string>
     <string name="url_open">Abrir</string>
     <string name="url_recent">Abiertas antes</string>
-    <string name="folder_empty">Esta carpeta ya no contiene imágenes.</string>
+    <string name="folder_empty">Esta carpeta ya no contiene nada.</string>
     <string name="cancel">Cancelar</string>
     <string name="hide_folder_title">¿Ocultar %1$s?</string>
-    <string name="hide_folder_desc">Deja de aparecer entre las carpetas por las que pasar. No se borra nada: las imágenes se quedan donde están, y puedes recuperar la carpeta desde los ajustes.</string>
+    <string name="hide_folder_desc">Deja de aparecer entre las carpetas por las que pasar. No se borra nada: los archivos se quedan donde están, y puedes recuperar la carpeta desde los ajustes.</string>
     <string name="hide_folder_do">Ocultar</string>
     <string name="settings_hidden">Carpetas ocultas</string>
     <string name="settings_hidden_desc">Una pulsación larga sobre una carpeta la oculta. Estas ya no aparecen en la lista, pero siguen intactas en el teléfono.</string>
     <string name="settings_hidden_show">Mostrar</string>
     <string name="search_hint">Buscar en el nombre del archivo</string>
     <string name="search_clear">Borrar</string>
-    <string name="search_none">Ninguna imagen tiene \'%1$s\' en el nombre.</string>
+    <string name="search_none">Ningún archivo tiene \'%1$s\' en el nombre.</string>
     <string name="identity_repo">Abrir el repositorio de AIV en GitHub</string>
-    <string name="grid_item">Imagen %1$d de %2$d</string>
-    <string name="grid_item_last">Imagen %1$d de %2$d, la última que has mirado</string>
+    <string name="grid_item">Elemento %1$d de %2$d</string>
+    <string name="grid_item_last">Elemento %1$d de %2$d, el último que has mirado</string>
     <string name="pick_leave">Salir de la selección</string>
     <string name="pick_all">Seleccionar todo</string>
     <string name="pick_info">Info</string>
@@ -156,24 +156,24 @@
     <string name="dest_move_here">Mover a %1$s</string>
     <string name="menu_copy_here">Copiar</string>
     <plurals name="copy_done">
-        <item quantity="one">%1$d imagen copiada</item>
-        <item quantity="other">%1$d imágenes copiadas</item>
-        <item quantity="many">%1$d imágenes copiadas</item>
+        <item quantity="one">%1$d elemento copiado</item>
+        <item quantity="other">%1$d elementos copiados</item>
+        <item quantity="many">%1$d elementos copiados</item>
     </plurals>
     <plurals name="move_done">
-        <item quantity="one">%1$d imagen movida</item>
-        <item quantity="other">%1$d imágenes movidas</item>
-        <item quantity="many">%1$d imágenes movidas</item>
+        <item quantity="one">%1$d elemento movido</item>
+        <item quantity="other">%1$d elementos movidos</item>
+        <item quantity="many">%1$d elementos movidos</item>
     </plurals>
     <plurals name="rename_done">
-        <item quantity="one">%1$d imagen renombrada</item>
-        <item quantity="other">%1$d imágenes renombradas</item>
-        <item quantity="many">%1$d imágenes renombradas</item>
+        <item quantity="one">%1$d elemento renombrado</item>
+        <item quantity="other">%1$d elementos renombrados</item>
+        <item quantity="many">%1$d elementos renombrados</item>
     </plurals>
     <plurals name="delete_done">
-        <item quantity="one">%1$d imagen eliminada</item>
-        <item quantity="other">%1$d imágenes eliminadas</item>
-        <item quantity="many">%1$d imágenes eliminadas</item>
+        <item quantity="one">%1$d elemento eliminado</item>
+        <item quantity="other">%1$d elementos eliminados</item>
+        <item quantity="many">%1$d elementos eliminados</item>
     </plurals>
     <plurals name="op_failed">
         <item quantity="one">%1$d no ha salido bien</item>
@@ -182,13 +182,13 @@
     </plurals>
     <string name="rename_template">Nombre</string>
     <string name="rename_start">Primer número</string>
-    <string name="rename_hint">Cada serie de almohadillas se convierte en el número, y cuantas escribas, tantas cifras tendrá: ## da 01, ### da 001. La extensión no se toca nunca, y las imágenes se numeran por orden alfabético.</string>
+    <string name="rename_hint">Cada serie de almohadillas se convierte en el número, y cuantas escribas, tantas cifras tendrá: ## da 01, ### da 001. La extensión no se toca nunca, y los archivos se numeran por orden alfabético.</string>
     <string name="rename_preview">Vista previa</string>
     <string name="delete_ask">¿Confirmas la eliminación?</string>
     <plurals name="delete_desc">
-        <item quantity="one">Vas a eliminar definitivamente %1$d imagen: desaparece del teléfono para siempre.</item>
-        <item quantity="many">Vas a eliminar definitivamente %1$d imágenes: desaparecen del teléfono para siempre.</item>
-        <item quantity="other">Vas a eliminar definitivamente %1$d imágenes: desaparecen del teléfono para siempre.</item>
+        <item quantity="one">Vas a eliminar definitivamente %1$d elemento: desaparece del teléfono para siempre.</item>
+        <item quantity="many">Vas a eliminar definitivamente %1$d elementos: desaparecen del teléfono para siempre.</item>
+        <item quantity="other">Vas a eliminar definitivamente %1$d elementos: desaparecen del teléfono para siempre.</item>
     </plurals>
     <string name="bin_title">Papelera</string>
     <string name="bin_none">La papelera está vacía.</string>
@@ -197,14 +197,14 @@
     <string name="bin_empty_ask">¿Vaciar de verdad la papelera?</string>
     <string name="bin_empty_desc">No podrás recuperar su contenido.</string>
     <plurals name="trash_done">
-        <item quantity="one">%1$d movida a la papelera</item>
-        <item quantity="other">%1$d movidas a la papelera</item>
-        <item quantity="many">%1$d movidas a la papelera</item>
+        <item quantity="one">%1$d movido a la papelera</item>
+        <item quantity="other">%1$d movidos a la papelera</item>
+        <item quantity="many">%1$d movidos a la papelera</item>
     </plurals>
     <plurals name="restore_done">
-        <item quantity="one">%1$d restaurada</item>
-        <item quantity="other">%1$d restauradas</item>
-        <item quantity="many">%1$d restauradas</item>
+        <item quantity="one">%1$d restaurado</item>
+        <item quantity="other">%1$d restaurados</item>
+        <item quantity="many">%1$d restaurados</item>
     </plurals>
     <plurals name="folders_count">
         <item quantity="one">%1$d imagen</item>
@@ -217,7 +217,7 @@
         <item quantity="many">%1$d vídeos</item>
     </plurals>
     <string name="settings_facts">Información de un archivo</string>
-    <string name="settings_facts_desc">Qué datos ves al abrir Info sobre una imagen, y en qué orden. El nombre, los píxeles y el tamaño están siempre; un dato que el archivo no lleva no ocupa ninguna línea.</string>
+    <string name="settings_facts_desc">Qué datos ves al abrir Info sobre un archivo, y en qué orden. El nombre, los píxeles y el tamaño están siempre; un dato que el archivo no lleva no ocupa ninguna línea.</string>
     <string name="settings_facts_always">Siempre visible</string>
     <string name="settings_facts_up">Subir</string>
     <string name="settings_facts_down">Bajar</string>
@@ -255,7 +255,7 @@
     <string name="text_normal">Normal</string>
     <string name="text_large">Grande</string>
     <string name="tree_show_hidden">Mostrar archivos ocultos</string>
-    <string name="tree_pictures">Solo carpetas con imágenes</string>
+    <string name="tree_pictures">Solo carpetas con imágenes o vídeos</string>
     <string name="columns_hint">Atajo: mantén pulsado el botón flotante para las opciones de visualización.</string>
     <string name="settings_bin">Activar la papelera</string>
     <string name="settings_bin_desc">Eliminar un archivo no pregunta nada, pero la acción se puede deshacer con un \'Restaurar\' desde la papelera (botón flotante → \'Papelera\'). Puedes desactivar la papelera por completo si prefieres una eliminación instantánea: en ese caso, aparecerá una confirmación antes de cada eliminación.</string>

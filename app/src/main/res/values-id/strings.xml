@@ -3,8 +3,8 @@
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
     <string name="app_short_name">AIV</string>
-    <string name="no_image">Tidak ada gambar untuk ditampilkan</string>
-    <string name="open_failed">Gambar ini tidak dapat dibuka</string>
+    <string name="no_image">Tidak ada yang bisa ditampilkan</string>
+    <string name="open_failed">Berkas ini tidak dapat dibuka</string>
     <string name="open_cleartext">Alamat tanpa enkripsi (http): Android memblokirnya, dan lewat https juga tidak menjawab</string>
     <string name="unsupported">Format ini belum didukung</string>
     <string name="too_large">Gambar terlalu besar untuk perangkat ini</string>
@@ -60,18 +60,18 @@
     <string name="settings_top">Di atas</string>
     <string name="settings_bottom">Di bawah</string>
     <string name="settings_info_visible">Bilah tampak sejak awal</string>
-    <string name="settings_reverse_order">Ubah arah urutan gambar (menurut tanggal)</string>
-    <string name="settings_reverse_order_desc">Jika mati, kamu menelusuri dari gambar terbaru menuju yang lebih lama, seperti galeri ponsel. Jika hidup, menurut urutan waktu, dari yang tertua ke yang terbaru.</string>
+    <string name="settings_reverse_order">Ubah arah urutan (menurut tanggal)</string>
+    <string name="settings_reverse_order_desc">Jika mati, kamu menelusuri dari yang terbaru menuju yang lebih lama, seperti galeri ponsel. Jika hidup, menurut urutan waktu, dari yang tertua ke yang terbaru.</string>
     <string name="settings_clipboard">Baca papan klip saat mulai</string>
     <string name="settings_clipboard_desc">Saat membuka aplikasi dari ikonnya, sebuah alamat di papan klip yang mengarah langsung ke gambar akan membuka gambar itu. Android menampilkan pemberitahuan setiap kali aplikasi membaca papan klip, jadi membiarkan ini mati berarti tidak pernah melihatnya.</string>
     <string name="settings_start_folder">Buka folder saat mulai</string>
-    <string name="settings_start_folder_desc">Saat aplikasi dibuka, gambar di folder pilihanmu langsung tampil, bukan daftar folder.</string>
+    <string name="settings_start_folder_desc">Saat aplikasi dibuka, isi folder pilihanmu langsung tampil, bukan daftar folder.</string>
     <string name="settings_start_folder_none">Tidak ada folder terpilih</string>
     <string name="settings_start_folder_pick">Pilih</string>
     <string name="folders_title">Folder</string>
     <string name="folders_permission">Mendaftar folder memerlukan akses ke semua berkas. Izin yang sama memungkinkanmu menelusuri sebuah folder, dan diberikan dari halaman sistem.</string>
     <string name="folders_grant">Beri akses</string>
-    <string name="folders_none">Tidak ada folder yang berisi gambar.</string>
+    <string name="folders_none">Tidak ada folder yang berisi apa pun untuk ditampilkan.</string>
     <string name="hub_open">Lainnya</string>
     <string name="hub_view_list">Tampilan daftar</string>
     <string name="hub_view_grid">Tampilan kisi</string>
@@ -81,20 +81,20 @@
     <string name="hub_settings">Pengaturan</string>
     <string name="url_open">Buka</string>
     <string name="url_recent">Pernah dibuka</string>
-    <string name="folder_empty">Folder ini tidak berisi gambar lagi.</string>
+    <string name="folder_empty">Folder ini tidak berisi apa pun lagi.</string>
     <string name="cancel">Batal</string>
     <string name="hide_folder_title">Sembunyikan %1$s?</string>
-    <string name="hide_folder_desc">Folder ini tidak lagi muncul di antara folder yang ditelusuri. Tidak ada yang dihapus: gambarnya tetap di tempatnya, dan kamu bisa memunculkannya kembali dari pengaturan.</string>
+    <string name="hide_folder_desc">Folder ini tidak lagi muncul di antara folder yang ditelusuri. Tidak ada yang dihapus: berkasnya tetap di tempatnya, dan kamu bisa memunculkannya kembali dari pengaturan.</string>
     <string name="hide_folder_do">Sembunyikan</string>
     <string name="settings_hidden">Folder tersembunyi</string>
     <string name="settings_hidden_desc">Tekan lama sebuah folder untuk menyembunyikannya. Folder ini tidak lagi muncul di daftar, tetapi di ponsel tetap utuh.</string>
     <string name="settings_hidden_show">Tampilkan</string>
     <string name="search_hint">Cari pada nama berkas</string>
     <string name="search_clear">Bersihkan</string>
-    <string name="search_none">Tidak ada gambar dengan \'%1$s\' pada namanya.</string>
+    <string name="search_none">Tidak ada berkas dengan \'%1$s\' pada namanya.</string>
     <string name="identity_repo">Buka repositori AIV di GitHub</string>
-    <string name="grid_item">Gambar %1$d dari %2$d</string>
-    <string name="grid_item_last">Gambar %1$d dari %2$d, yang terakhir kamu lihat</string>
+    <string name="grid_item">Item %1$d dari %2$d</string>
+    <string name="grid_item_last">Item %1$d dari %2$d, yang terakhir kamu lihat</string>
     <string name="pick_leave">Keluar dari pemilihan</string>
     <string name="pick_all">Pilih semua</string>
     <string name="pick_info">Info</string>
@@ -150,27 +150,27 @@
     <string name="dest_move_here">Pindahkan ke dalam %1$s</string>
     <string name="menu_copy_here">Salin</string>
     <plurals name="copy_done">
-        <item quantity="other">%1$d gambar disalin</item>
+        <item quantity="other">%1$d item disalin</item>
     </plurals>
     <plurals name="move_done">
-        <item quantity="other">%1$d gambar dipindahkan</item>
+        <item quantity="other">%1$d item dipindahkan</item>
     </plurals>
     <plurals name="rename_done">
-        <item quantity="other">%1$d gambar diganti namanya</item>
+        <item quantity="other">%1$d item diganti namanya</item>
     </plurals>
     <plurals name="delete_done">
-        <item quantity="other">%1$d gambar dihapus</item>
+        <item quantity="other">%1$d item dihapus</item>
     </plurals>
     <plurals name="op_failed">
         <item quantity="other">%1$d tidak berhasil</item>
     </plurals>
     <string name="rename_template">Nama</string>
     <string name="rename_start">Angka pertama</string>
-    <string name="rename_hint">Setiap rangkaian tanda pagar menjadi angkanya, dan sebanyak yang kamu tulis itulah jumlah digitnya: ## menghasilkan 01, ### menghasilkan 001. Ekstensi tidak pernah disentuh, dan gambar dinomori menurut urutan abjad.</string>
+    <string name="rename_hint">Setiap rangkaian tanda pagar menjadi angkanya, dan sebanyak yang kamu tulis itulah jumlah digitnya: ## menghasilkan 01, ### menghasilkan 001. Ekstensi tidak pernah disentuh, dan berkas dinomori menurut urutan abjad.</string>
     <string name="rename_preview">Pratinjau</string>
     <string name="delete_ask">Konfirmasi penghapusan?</string>
     <plurals name="delete_desc">
-        <item quantity="other">Kamu akan menghapus %1$d gambar untuk selamanya: gambar itu hilang dari ponsel selamanya.</item>
+        <item quantity="other">Kamu akan menghapus %1$d item untuk selamanya: item itu hilang dari ponsel selamanya.</item>
     </plurals>
     <string name="bin_title">Tempat sampah</string>
     <string name="bin_none">Tempat sampah kosong.</string>
@@ -191,7 +191,7 @@
         <item quantity="other">%1$d video</item>
     </plurals>
     <string name="settings_facts">Info satu berkas</string>
-    <string name="settings_facts_desc">Data mana yang kamu lihat saat membuka Info sebuah gambar, dan dalam urutan apa. Nama, piksel dan ukuran selalu ada; data yang tidak dimiliki berkas tidak mendapat baris sama sekali.</string>
+    <string name="settings_facts_desc">Data mana yang kamu lihat saat membuka Info sebuah berkas, dan dalam urutan apa. Nama, piksel dan ukuran selalu ada; data yang tidak dimiliki berkas tidak mendapat baris sama sekali.</string>
     <string name="settings_facts_always">Selalu tampak</string>
     <string name="settings_facts_up">Naikkan</string>
     <string name="settings_facts_down">Turunkan</string>
@@ -225,7 +225,7 @@
     <string name="text_normal">Normal</string>
     <string name="text_large">Besar</string>
     <string name="tree_show_hidden">Tampilkan berkas tersembunyi</string>
-    <string name="tree_pictures">Hanya folder bergambar</string>
+    <string name="tree_pictures">Hanya folder dengan gambar atau video</string>
     <string name="columns_hint">Pintasan: tekan lama tombol mengambang untuk opsi tampilan.</string>
     <string name="settings_bin">Aktifkan tempat sampah</string>
     <string name="settings_bin_desc">Menghapus berkas tidak menanyakan apa pun, tetapi tindakan ini bisa dibatalkan dengan \'Pulihkan\' dari tempat sampah (tombol mengambang → \'Tempat sampah\'). Kamu bisa mematikan tempat sampah sepenuhnya jika lebih suka penghapusan langsung: dalam hal itu, konfirmasi akan muncul sebelum setiap penghapusan.</string>

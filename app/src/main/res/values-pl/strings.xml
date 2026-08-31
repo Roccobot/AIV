@@ -3,8 +3,8 @@
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
     <string name="app_short_name">AIV</string>
-    <string name="no_image">Brak obrazu do pokazania</string>
-    <string name="open_failed">Nie udało się otworzyć tego obrazu</string>
+    <string name="no_image">Nie ma nic do pokazania</string>
+    <string name="open_failed">Nie udało się otworzyć tego pliku</string>
     <string name="open_cleartext">Adres nieszyfrowany (http): Android go blokuje, a przez https nie odpowiada</string>
     <string name="unsupported">Ten format nie jest jeszcze obsługiwany</string>
     <string name="too_large">Obraz jest za duży dla tego urządzenia</string>
@@ -60,18 +60,18 @@
     <string name="settings_top">U góry</string>
     <string name="settings_bottom">U dołu</string>
     <string name="settings_info_visible">Pasek widoczny od początku</string>
-    <string name="settings_reverse_order">Odwróć kierunek kolejności obrazów (według daty)</string>
-    <string name="settings_reverse_order_desc">Wyłączone, przeglądasz od najnowszego obrazu w stronę starszych, tak jak galeria w telefonie. Włączone, w kolejności czasu, od najstarszego do najnowszego.</string>
+    <string name="settings_reverse_order">Odwróć kierunek kolejności (według daty)</string>
+    <string name="settings_reverse_order_desc">Wyłączone, przeglądasz od najnowszego w stronę starszych, tak jak galeria w telefonie. Włączone, w kolejności czasu, od najstarszego do najnowszego.</string>
     <string name="settings_clipboard">Czytaj schowek przy uruchomieniu</string>
     <string name="settings_clipboard_desc">Przy otwarciu aplikacji z jej ikony adres w schowku wskazujący wprost na obraz otwiera ten obraz. Android pokazuje powiadomienie za każdym razem, gdy aplikacja czyta schowek, więc pozostawienie tego wyłączonego oznacza, że nigdy go nie zobaczysz.</string>
     <string name="settings_start_folder">Otwórz folder przy uruchomieniu</string>
-    <string name="settings_start_folder_desc">Po otwarciu aplikacji od razu widać obrazy z wybranego folderu, a nie listę folderów.</string>
+    <string name="settings_start_folder_desc">Po otwarciu aplikacji od razu widać zawartość wybranego folderu, a nie listę folderów.</string>
     <string name="settings_start_folder_none">Nie wybrano folderu</string>
     <string name="settings_start_folder_pick">Wybierz</string>
     <string name="folders_title">Foldery</string>
     <string name="folders_permission">Wypisanie folderów wymaga dostępu do wszystkich plików. To ta sama zgoda, która pozwala przeglądać folder, i udziela się jej na stronie systemu.</string>
     <string name="folders_grant">Udziel dostępu</string>
-    <string name="folders_none">Żaden folder nie zawiera obrazów.</string>
+    <string name="folders_none">Żaden folder nie zawiera niczego do pokazania.</string>
     <string name="hub_open">Więcej</string>
     <string name="hub_view_list">Widok listy</string>
     <string name="hub_view_grid">Widok siatki</string>
@@ -81,20 +81,20 @@
     <string name="hub_settings">Ustawienia</string>
     <string name="url_open">Otwórz</string>
     <string name="url_recent">Otwierane wcześniej</string>
-    <string name="folder_empty">Ten folder nie zawiera już obrazów.</string>
+    <string name="folder_empty">Ten folder nie zawiera już niczego.</string>
     <string name="cancel">Anuluj</string>
     <string name="hide_folder_title">Ukryć %1$s?</string>
-    <string name="hide_folder_desc">Folder przestaje się pokazywać wśród tych do przeglądania. Nic nie zostaje usunięte: obrazy zostają na miejscu, a folder można przywrócić z ustawień.</string>
+    <string name="hide_folder_desc">Folder przestaje się pokazywać wśród tych do przeglądania. Nic nie zostaje usunięte: pliki zostają na miejscu, a folder można przywrócić z ustawień.</string>
     <string name="hide_folder_do">Ukryj</string>
     <string name="settings_hidden">Ukryte foldery</string>
     <string name="settings_hidden_desc">Przytrzymaj folder, aby go ukryć. Te nie pokazują się już na liście, ale w telefonie są nietknięte.</string>
     <string name="settings_hidden_show">Pokaż</string>
     <string name="search_hint">Szukaj w nazwie pliku</string>
     <string name="search_clear">Wyczyść</string>
-    <string name="search_none">Żaden obraz nie ma \'%1$s\' w nazwie.</string>
+    <string name="search_none">Żaden plik nie ma \'%1$s\' w nazwie.</string>
     <string name="identity_repo">Otwórz repozytorium AIV na GitHubie</string>
-    <string name="grid_item">Obraz %1$d z %2$d</string>
-    <string name="grid_item_last">Obraz %1$d z %2$d, ostatni, który oglądałeś</string>
+    <string name="grid_item">Element %1$d z %2$d</string>
+    <string name="grid_item_last">Element %1$d z %2$d, ostatni, który oglądałeś</string>
     <string name="pick_leave">Wyjdź z zaznaczania</string>
     <string name="pick_all">Zaznacz wszystko</string>
     <string name="pick_info">Informacje</string>
@@ -159,28 +159,28 @@
     <string name="dest_move_here">Przenieś do %1$s</string>
     <string name="menu_copy_here">Kopiuj</string>
     <plurals name="copy_done">
-        <item quantity="one">skopiowano %1$d obraz</item>
-        <item quantity="few">skopiowano %1$d obrazy</item>
-        <item quantity="many">skopiowano %1$d obrazów</item>
-        <item quantity="other">skopiowano %1$d obrazu</item>
+        <item quantity="one">skopiowano %1$d element</item>
+        <item quantity="few">skopiowano %1$d elementy</item>
+        <item quantity="many">skopiowano %1$d elementów</item>
+        <item quantity="other">skopiowano %1$d elementu</item>
     </plurals>
     <plurals name="move_done">
-        <item quantity="one">przeniesiono %1$d obraz</item>
-        <item quantity="few">przeniesiono %1$d obrazy</item>
-        <item quantity="many">przeniesiono %1$d obrazów</item>
-        <item quantity="other">przeniesiono %1$d obrazu</item>
+        <item quantity="one">przeniesiono %1$d element</item>
+        <item quantity="few">przeniesiono %1$d elementy</item>
+        <item quantity="many">przeniesiono %1$d elementów</item>
+        <item quantity="other">przeniesiono %1$d elementu</item>
     </plurals>
     <plurals name="rename_done">
-        <item quantity="one">zmieniono nazwę %1$d obrazu</item>
-        <item quantity="few">zmieniono nazwy %1$d obrazów</item>
-        <item quantity="many">zmieniono nazwy %1$d obrazów</item>
-        <item quantity="other">zmieniono nazwy %1$d obrazu</item>
+        <item quantity="one">zmieniono nazwę %1$d elementu</item>
+        <item quantity="few">zmieniono nazwy %1$d elementów</item>
+        <item quantity="many">zmieniono nazwy %1$d elementów</item>
+        <item quantity="other">zmieniono nazwy %1$d elementu</item>
     </plurals>
     <plurals name="delete_done">
-        <item quantity="one">usunięto %1$d obraz</item>
-        <item quantity="few">usunięto %1$d obrazy</item>
-        <item quantity="many">usunięto %1$d obrazów</item>
-        <item quantity="other">usunięto %1$d obrazu</item>
+        <item quantity="one">usunięto %1$d element</item>
+        <item quantity="few">usunięto %1$d elementy</item>
+        <item quantity="many">usunięto %1$d elementów</item>
+        <item quantity="other">usunięto %1$d elementu</item>
     </plurals>
     <plurals name="op_failed">
         <item quantity="one">%1$d się nie udało</item>
@@ -190,14 +190,14 @@
     </plurals>
     <string name="rename_template">Nazwa</string>
     <string name="rename_start">Pierwszy numer</string>
-    <string name="rename_hint">Każdy ciąg krzyżyków staje się numerem, a ile ich napiszesz, tyle będzie cyfr: ## daje 01, ### daje 001. Rozszerzenie nigdy nie jest ruszane, a obrazy są numerowane w kolejności alfabetycznej.</string>
+    <string name="rename_hint">Każdy ciąg krzyżyków staje się numerem, a ile ich napiszesz, tyle będzie cyfr: ## daje 01, ### daje 001. Rozszerzenie nigdy nie jest ruszane, a pliki są numerowane w kolejności alfabetycznej.</string>
     <string name="rename_preview">Podgląd</string>
     <string name="delete_ask">Potwierdzić usunięcie?</string>
     <plurals name="delete_desc">
-        <item quantity="one">Zamierzasz usunąć na zawsze %1$d obraz: zniknie z telefonu bezpowrotnie.</item>
-        <item quantity="few">Zamierzasz usunąć na zawsze %1$d obrazy: znikną z telefonu bezpowrotnie.</item>
-        <item quantity="many">Zamierzasz usunąć na zawsze %1$d obrazów: znikną z telefonu bezpowrotnie.</item>
-        <item quantity="other">Zamierzasz usunąć na zawsze %1$d obrazu: znikną z telefonu bezpowrotnie.</item>
+        <item quantity="one">Zamierzasz usunąć na zawsze %1$d element: zniknie z telefonu bezpowrotnie.</item>
+        <item quantity="few">Zamierzasz usunąć na zawsze %1$d elementy: znikną z telefonu bezpowrotnie.</item>
+        <item quantity="many">Zamierzasz usunąć na zawsze %1$d elementów: znikną z telefonu bezpowrotnie.</item>
+        <item quantity="other">Zamierzasz usunąć na zawsze %1$d elementu: znikną z telefonu bezpowrotnie.</item>
     </plurals>
     <string name="bin_title">Kosz</string>
     <string name="bin_none">Kosz jest pusty.</string>
@@ -230,7 +230,7 @@
         <item quantity="other">%1$d filmu</item>
     </plurals>
     <string name="settings_facts">Informacje o pliku</string>
-    <string name="settings_facts_desc">Które dane widzisz, otwierając Informacje o obrazie, i w jakiej kolejności. Nazwa, piksele i rozmiar są zawsze; dana, której plik nie ma, nie zajmuje żadnego wiersza.</string>
+    <string name="settings_facts_desc">Które dane widzisz, otwierając Informacje o pliku, i w jakiej kolejności. Nazwa, piksele i rozmiar są zawsze; dana, której plik nie ma, nie zajmuje żadnego wiersza.</string>
     <string name="settings_facts_always">Zawsze widoczne</string>
     <string name="settings_facts_up">Przenieś w górę</string>
     <string name="settings_facts_down">Przenieś w dół</string>
@@ -270,7 +270,7 @@
     <string name="text_normal">Normalny</string>
     <string name="text_large">Duży</string>
     <string name="tree_show_hidden">Pokaż ukryte pliki</string>
-    <string name="tree_pictures">Tylko foldery z obrazami</string>
+    <string name="tree_pictures">Tylko foldery z obrazami lub filmami</string>
     <string name="columns_hint">Skrót: przytrzymaj przycisk pływający, aby otworzyć opcje widoku.</string>
     <string name="settings_bin">Włącz kosz</string>
     <string name="settings_bin_desc">Usunięcie pliku o nic nie pyta, ale działanie można odwrócić przez \'Przywróć\' z kosza (pływający przycisk → \'Kosz\'). Możesz całkowicie wyłączyć kosz, jeśli wolisz natychmiastowe usuwanie: wtedy przed każdym usunięciem pojawi się potwierdzenie.</string>

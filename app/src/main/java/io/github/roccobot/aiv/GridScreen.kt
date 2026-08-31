@@ -45,7 +45,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
-import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.Deselect
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Menu
@@ -55,7 +54,9 @@ import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.outlined.FilterList
+import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -71,6 +72,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -91,6 +93,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
@@ -99,6 +102,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -1473,49 +1478,116 @@ private fun ClipBadge(uri: Uri, modifier: Modifier = Modifier) {
  * ⚠️⚠️ **STA DOVE STAVA 'SELEZIONA TUTTO'** (richiesta dell'utente, 2026-08-31), cioè in un
  * posto che era rimasto vuoto nella `0.72`: l'angolo in alto a destra di una schermata di
  * contenuti è dove ci si aspetta di trovare un modo di restringere quello che si vede.
- * ⚠️ **L'icona cambia quando il filtro è acceso, e non è decorazione**: il filtro si azzera
- * da sé cambiando cartella, ma dentro la stessa cartella resta, e senza un segno una
- * cartella con metà delle cose nascoste sembra una cartella che ha perso metà delle cose.
- * ⚠️ **Le tre voci vengono dall'enum e non da un elenco scritto a mano**: il giorno che i
- * generi diventassero tre, la voce nuova comparirebbe da sé o il `when` non compilerebbe.
+ * ⚠️⚠️ **IL TASTO PORTA L'ICONA DEL GENERE MOSTRATO, non un'icona di filtro 'accesa'**
+ * (richiesta dell'utente, 2026-08-31): spento sono le tre righe che si accorciano, acceso è
+ * la fotografia o la pellicola. Così il segno non dice soltanto *che* si sta filtrando, dice
+ * *che cosa* si vede, che è l'informazione che serve a chi guarda una cartella dimezzata.
+ * ⚠️ **Il tondo dietro è la seconda metà del segno e non un ornamento**: il glifo cambia
+ * disegno, quindi da solo si potrebbe leggere come un tasto diverso; il tondo dice
+ * 'quel tasto, adesso attivo' ed è la convenzione di Material per uno stato acceso. Il
+ * filtro si azzera da sé cambiando cartella, ma dentro la stessa cartella resta, e senza un
+ * segno una cartella con metà delle cose nascoste sembra una cartella che le ha perse.
+ * ⚠️ **Il popup è di soli SIMBOLI, in fila** (stessa richiesta): pellicola, fotografia e la
+ * croce che toglie il filtro. Tre voci con l'etichetta scritta sarebbero un menu, e questa è
+ * una levetta che si tocca al volo mentre si guardano le miniature.
+ * ⚠️⚠️ **`MediaKind.ALL` HA DUE DISEGNI, ed è voluto**: sul tasto è il filtro spento, quindi
+ * le tre righe; nel popup è il comando che lo toglie, quindi una croce. Stessa scelta sotto,
+ * due frasi diverse: 'non sto filtrando' e 'smetti di filtrare'. Un solo glifo per tutti e
+ * due avrebbe detto la cosa sbagliata da una delle due parti.
+ * ⚠️ **La croce non è un terzo genere ma un'AZIONE**, ed è la ragione per cui non si accende
+ * mai: gli altri due portano il tondo quando sono quello in vigore, lei no.
+ * ⚠️ **Le due icone sono quelle dei contatori sotto le copertine** (`Outlined.Image` e
+ * `Outlined.Movie`): in questa app quei due glifi vogliono già dire 'fotografie' e
+ * 'filmati', e un terzo disegno per la stessa cosa sarebbe una parola nuova per un concetto
+ * vecchio.
+ * ⚠️ **Lo stato lo annuncia `stateDescription` e non la descrizione dell'icona**: il tasto
+ * *fa* sempre la stessa cosa (apre il filtro), e a cambiare è come sta. Mettere il genere
+ * nella descrizione direbbe a chi legge con TalkBack che il tasto serve a mostrare i video.
  */
 @Composable
 private fun FilterKey(filter: MediaKind, onFilter: (MediaKind) -> Unit) {
     var open by remember { mutableStateOf(false) }
+    val res = LocalResources.current
     Box {
-        IconButton(onClick = { open = true }) {
-            Icon(
-                imageVector = if (filter == MediaKind.ALL) Icons.Outlined.FilterList
-                else Icons.Default.FilterAlt,
-                contentDescription = stringResource(R.string.filter_title),
-                tint = if (filter == MediaKind.ALL) LocalContentColor.current
-                else MaterialTheme.colorScheme.primary
-            )
+        IconButton(
+            onClick = { open = true },
+            modifier = Modifier.semantics { stateDescription = res.getString(filter.label()) }
+        ) {
+            FilterMark(lit = filter != MediaKind.ALL) {
+                Icon(
+                    imageVector = filter.onKey(),
+                    contentDescription = stringResource(R.string.filter_title)
+                )
+            }
         }
         DropdownMenu(
             expanded = open,
             onDismissRequest = { open = false },
             shape = RoundedCornerShape(PICK_CORNER)
         ) {
-            for (kind in MediaKind.entries) {
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            stringResource(
-                                when (kind) {
-                                    MediaKind.ALL -> R.string.filter_all
-                                    MediaKind.IMAGES -> R.string.filter_images
-                                    MediaKind.VIDEOS -> R.string.filter_videos
-                                }
+            Row(modifier = Modifier.padding(horizontal = FILTER_PAD)) {
+                // ⚠️ Pellicola, fotografia e croce, in quest'ordine: è quello chiesto, e non
+                // l'ordine dell'enum, che comincia da 'tutto'. La croce sta in fondo perché
+                // è l'unica che non sceglie niente.
+                for (kind in listOf(MediaKind.VIDEOS, MediaKind.IMAGES, MediaKind.ALL)) {
+                    IconButton(onClick = { open = false; onFilter(kind) }) {
+                        FilterMark(lit = kind != MediaKind.ALL && kind == filter) {
+                            Icon(
+                                imageVector = kind.inMenu(),
+                                contentDescription = stringResource(kind.label())
                             )
-                        )
-                    },
-                    leadingIcon = { if (kind == filter) Icon(Icons.Default.Check, null) },
-                    onClick = { open = false; onFilter(kind) }
-                )
+                        }
+                    }
+                }
             }
         }
     }
+}
+
+/**
+ * Il tondo che sta dietro all'icona del filtro quando il filtro è in vigore.
+ *
+ * ⚠️ **Più piccolo del bersaglio del tocco**: il tasto resta 48dp perché un bersaglio più
+ * stretto si manca, ma il tondo dipinto è [FILTER_MARK], così sta dentro la testata invece
+ * di sembrare un secondo tasto attaccato agli altri.
+ */
+@Composable
+private fun FilterMark(lit: Boolean, glyph: @Composable () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(FILTER_MARK)
+            .clip(CircleShape)
+            .background(
+                if (lit) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        CompositionLocalProvider(
+            LocalContentColor provides
+                if (lit) MaterialTheme.colorScheme.onSecondaryContainer
+                else LocalContentColor.current
+        ) { glyph() }
+    }
+}
+
+/** Il disegno che questo filtro porta **sul tasto**: spento sono le tre righe. */
+private fun MediaKind.onKey(): ImageVector = when (this) {
+    MediaKind.ALL -> Icons.Outlined.FilterList
+    MediaKind.IMAGES -> Icons.Outlined.Image
+    MediaKind.VIDEOS -> Icons.Outlined.Movie
+}
+
+/** Il disegno che questo filtro porta **nel popup**: 'tutto' là è la croce che lo toglie. */
+private fun MediaKind.inMenu(): ImageVector = when (this) {
+    MediaKind.ALL -> Icons.Default.Close
+    else -> onKey()
+}
+
+/** Come si chiama questo filtro, per chi legge lo schermo. */
+private fun MediaKind.label(): Int = when (this) {
+    MediaKind.ALL -> R.string.filter_all
+    MediaKind.IMAGES -> R.string.filter_images
+    MediaKind.VIDEOS -> R.string.filter_videos
 }
 
 /**
@@ -1766,6 +1838,23 @@ private fun PickMenu(open: Boolean, onDismiss: () -> Unit, content: @Composable 
  * quadrato, e su una forma quadrata lo stesso raggio si legge meno.
  */
 private val PICK_CORNER = 16.dp
+
+/**
+ * Il tondo che segna il filtro in vigore, dietro alla sua icona.
+ *
+ * ⚠️ **32 e non 48**: il tasto resta il bersaglio da 48 che Material chiede, ma il tondo
+ * dipinto è più stretto dell'icona più il suo respiro. A 48 toccherebbe i vicini e la
+ * testata sembrerebbe avere un tasto in più.
+ */
+private val FILTER_MARK = 32.dp
+
+/**
+ * Il respiro ai lati della fila di simboli del filtro.
+ *
+ * ⚠️ Serve perché quel popup non ha voci di menu, e senza voci non ha nemmeno il loro
+ * rientro: i tre tasti finirebbero appiccicati al bordo stondato.
+ */
+private val FILTER_PAD = 4.dp
 private val PICK_GAP = 12.dp
 
 /**

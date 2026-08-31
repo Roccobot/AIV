@@ -3,8 +3,8 @@
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
     <string name="app_short_name">AIV</string>
-    <string name="no_image">تصویری برای نمایش نیست</string>
-    <string name="open_failed">این تصویر باز نشد</string>
+    <string name="no_image">چیزی برای نمایش نیست</string>
+    <string name="open_failed">این فایل باز نشد</string>
     <string name="open_cleartext">نشانی رمزنگاری‌نشده (http): اندروید آن را مسدود می‌کند و با https هم پاسخ نمی‌دهد</string>
     <string name="unsupported">این قالب هنوز پشتیبانی نمی‌شود</string>
     <string name="too_large">تصویر برای این دستگاه بزرگ‌تر از حد است</string>
@@ -60,18 +60,18 @@
     <string name="settings_top">در بالا</string>
     <string name="settings_bottom">در پایین</string>
     <string name="settings_info_visible">نوار از آغاز دیده شود</string>
-    <string name="settings_reverse_order">برگرداندن ترتیب تصاویر (بر پایه تاریخ)</string>
-    <string name="settings_reverse_order_desc">خاموش، از تازه‌ترین تصویر به سوی قدیمی‌ترها مرور می‌کنید، همان‌گونه که گالری گوشی کار می‌کند. روشن، به ترتیب زمان، از قدیمی‌ترین به تازه‌ترین.</string>
+    <string name="settings_reverse_order">برگرداندن ترتیب (بر پایه تاریخ)</string>
+    <string name="settings_reverse_order_desc">خاموش، از تازه‌ترین به سوی قدیمی‌ترها مرور می‌کنید، همان‌گونه که گالری گوشی کار می‌کند. روشن، به ترتیب زمان، از قدیمی‌ترین به تازه‌ترین.</string>
     <string name="settings_clipboard">خواندن حافظه موقت در آغاز</string>
     <string name="settings_clipboard_desc">وقتی برنامه را از نماد آن باز می‌کنید، نشانی‌ای در حافظه موقت که یک‌راست به تصویری اشاره کند آن تصویر را باز می‌کند. اندروید هر بار که برنامه‌ای حافظه موقت را بخواند اعلانی نشان می‌دهد، پس خاموش گذاشتن این گزینه یعنی هرگز آن را ندیدن.</string>
     <string name="settings_start_folder">باز کردن پوشه در آغاز</string>
-    <string name="settings_start_folder_desc">با باز شدن برنامه، بی‌درنگ تصاویر پوشه برگزیده دیده می‌شود، نه فهرست پوشه‌ها.</string>
+    <string name="settings_start_folder_desc">با باز شدن برنامه، بی‌درنگ محتوای پوشه برگزیده دیده می‌شود، نه فهرست پوشه‌ها.</string>
     <string name="settings_start_folder_none">پوشه‌ای برگزیده نشده</string>
     <string name="settings_start_folder_pick">برگزیدن</string>
     <string name="folders_title">پوشه‌ها</string>
     <string name="folders_permission">فهرست کردن پوشه‌ها به دسترسی به همه فایل‌ها نیاز دارد. همان اجازه‌ای است که مرور یک پوشه را ممکن می‌کند، و از صفحه‌ای در سیستم داده می‌شود.</string>
     <string name="folders_grant">دادن دسترسی</string>
-    <string name="folders_none">هیچ پوشه‌ای تصویر ندارد.</string>
+    <string name="folders_none">هیچ پوشه‌ای چیزی برای نمایش ندارد.</string>
     <string name="hub_open">بیشتر</string>
     <string name="hub_view_list">نمای فهرستی</string>
     <string name="hub_view_grid">نمای شبکه‌ای</string>
@@ -81,20 +81,20 @@
     <string name="hub_settings">تنظیمات</string>
     <string name="url_open">باز کردن</string>
     <string name="url_recent">پیش‌تر باز شده</string>
-    <string name="folder_empty">این پوشه دیگر تصویری ندارد.</string>
+    <string name="folder_empty">این پوشه دیگر چیزی ندارد.</string>
     <string name="cancel">لغو</string>
     <string name="hide_folder_title">پنهان کردن %1$s؟</string>
-    <string name="hide_folder_desc">دیگر میان پوشه‌های قابل مرور دیده نمی‌شود. چیزی پاک نمی‌شود: تصاویر همان‌جا می‌مانند، و می‌توانید پوشه را از تنظیمات بازگردانید.</string>
+    <string name="hide_folder_desc">دیگر میان پوشه‌های قابل مرور دیده نمی‌شود. چیزی پاک نمی‌شود: فایل‌ها همان‌جا می‌مانند، و می‌توانید پوشه را از تنظیمات بازگردانید.</string>
     <string name="hide_folder_do">پنهان کردن</string>
     <string name="settings_hidden">پوشه‌های پنهان</string>
     <string name="settings_hidden_desc">فشار طولانی روی یک پوشه آن را پنهان می‌کند. اینها دیگر در فهرست دیده نمی‌شوند، اما در گوشی دست‌نخورده‌اند.</string>
     <string name="settings_hidden_show">نمایش</string>
     <string name="search_hint">جستجو در نام فایل</string>
     <string name="search_clear">پاک کردن</string>
-    <string name="search_none">هیچ تصویری \'%1$s\' در نام خود ندارد.</string>
+    <string name="search_none">هیچ فایلی \'%1$s\' در نام خود ندارد.</string>
     <string name="identity_repo">باز کردن مخزن AIV در گیت‌هاب</string>
-    <string name="grid_item">تصویر %1$d از %2$d</string>
-    <string name="grid_item_last">تصویر %1$d از %2$d، آخرینی که دیدید</string>
+    <string name="grid_item">مورد %1$d از %2$d</string>
+    <string name="grid_item_last">مورد %1$d از %2$d، آخرینی که دیدید</string>
     <string name="pick_leave">خروج از گزینش</string>
     <string name="pick_all">گزینش همه</string>
     <string name="pick_info">اطلاعات</string>
@@ -153,20 +153,20 @@
     <string name="dest_move_here">جابجایی به %1$s</string>
     <string name="menu_copy_here">رونوشت</string>
     <plurals name="copy_done">
-        <item quantity="one">%1$d تصویر رونوشت شد</item>
-        <item quantity="other">%1$d تصویر رونوشت شد</item>
+        <item quantity="one">%1$d مورد رونوشت شد</item>
+        <item quantity="other">%1$d مورد رونوشت شد</item>
     </plurals>
     <plurals name="move_done">
-        <item quantity="one">%1$d تصویر جابجا شد</item>
-        <item quantity="other">%1$d تصویر جابجا شد</item>
+        <item quantity="one">%1$d مورد جابجا شد</item>
+        <item quantity="other">%1$d مورد جابجا شد</item>
     </plurals>
     <plurals name="rename_done">
-        <item quantity="one">نام %1$d تصویر تغییر کرد</item>
-        <item quantity="other">نام %1$d تصویر تغییر کرد</item>
+        <item quantity="one">نام %1$d مورد تغییر کرد</item>
+        <item quantity="other">نام %1$d مورد تغییر کرد</item>
     </plurals>
     <plurals name="delete_done">
-        <item quantity="one">%1$d تصویر پاک شد</item>
-        <item quantity="other">%1$d تصویر پاک شد</item>
+        <item quantity="one">%1$d مورد پاک شد</item>
+        <item quantity="other">%1$d مورد پاک شد</item>
     </plurals>
     <plurals name="op_failed">
         <item quantity="one">%1$d انجام نشد</item>
@@ -174,12 +174,12 @@
     </plurals>
     <string name="rename_template">نام</string>
     <string name="rename_start">شماره نخست</string>
-    <string name="rename_hint">هر رشته از نشانه‌های مربع به شماره تبدیل می‌شود، و هر چند بنویسید همان‌قدر رقم می‌شود: ## می‌دهد 01 و ### می‌دهد 001. پسوند هرگز دست نمی‌خورد، و تصاویر به ترتیب الفبا شماره می‌گیرند.</string>
+    <string name="rename_hint">هر رشته از نشانه‌های مربع به شماره تبدیل می‌شود، و هر چند بنویسید همان‌قدر رقم می‌شود: ## می‌دهد 01 و ### می‌دهد 001. پسوند هرگز دست نمی‌خورد، و فایل‌ها به ترتیب الفبا شماره می‌گیرند.</string>
     <string name="rename_preview">پیش‌نمایش</string>
     <string name="delete_ask">پاک کردن را تأیید می‌کنید؟</string>
     <plurals name="delete_desc">
-        <item quantity="one">در آستانه پاک کردن همیشگی %1$d تصویر هستید: برای همیشه از گوشی می‌رود.</item>
-        <item quantity="other">در آستانه پاک کردن همیشگی %1$d تصویر هستید: برای همیشه از گوشی می‌روند.</item>
+        <item quantity="one">در آستانه پاک کردن همیشگی %1$d مورد هستید: برای همیشه از گوشی می‌رود.</item>
+        <item quantity="other">در آستانه پاک کردن همیشگی %1$d مورد هستید: برای همیشه از گوشی می‌روند.</item>
     </plurals>
     <string name="bin_title">سبد زباله</string>
     <string name="bin_none">سبد زباله خالی است.</string>
@@ -204,7 +204,7 @@
         <item quantity="other">%1$d ویدیو</item>
     </plurals>
     <string name="settings_facts">اطلاعات یک پرونده</string>
-    <string name="settings_facts_desc">کدام داده‌ها را هنگام باز کردن اطلاعات یک تصویر می‌بینید، و به چه ترتیبی. نام و پیکسل‌ها و اندازه همیشه هستند؛ داده‌ای که فایل ندارد هیچ سطری نمی‌گیرد.</string>
+    <string name="settings_facts_desc">کدام داده‌ها را هنگام باز کردن اطلاعات یک فایل می‌بینید، و به چه ترتیبی. نام و پیکسل‌ها و اندازه همیشه هستند؛ داده‌ای که فایل ندارد هیچ سطری نمی‌گیرد.</string>
     <string name="settings_facts_always">همیشه دیده می‌شود</string>
     <string name="settings_facts_up">بردن به بالا</string>
     <string name="settings_facts_down">بردن به پایین</string>
@@ -240,7 +240,7 @@
     <string name="text_normal">عادی</string>
     <string name="text_large">بزرگ</string>
     <string name="tree_show_hidden">نمایش پرونده‌های پنهان</string>
-    <string name="tree_pictures">فقط پوشه‌های دارای تصویر</string>
+    <string name="tree_pictures">فقط پوشه‌های دارای تصویر یا ویدیو</string>
     <string name="columns_hint">میان‌بر: دکمه شناور را نگه دارید تا گزینه‌های نمایش باز شود.</string>
     <string name="settings_bin">فعال کردن سبد زباله</string>
     <string name="settings_bin_desc">حذف فایل چیزی نمی‌پرسد، اما این کار با \'بازگرداندن\' از سبد زباله قابل بازگشت است (دکمه شناور → \'سبد زباله\'). اگر حذف فوری را ترجیح می‌دهید می‌توانید سبد زباله را کاملا خاموش کنید: در آن صورت پیش از هر حذف یک تایید نمایش داده می‌شود.</string>

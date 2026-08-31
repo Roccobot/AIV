@@ -3,8 +3,8 @@
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
     <string name="app_short_name">AIV</string>
-    <string name="no_image">Gösterilecek görsel yok</string>
-    <string name="open_failed">Bu görsel açılamadı</string>
+    <string name="no_image">Gösterilecek bir şey yok</string>
+    <string name="open_failed">Bu dosya açılamadı</string>
     <string name="open_cleartext">Şifresiz adres (http): Android bunu engelliyor ve https ile de yanıt vermiyor</string>
     <string name="unsupported">Bu biçim henüz desteklenmiyor</string>
     <string name="too_large">Görsel bu cihaz için fazla büyük</string>
@@ -60,18 +60,18 @@
     <string name="settings_top">Üstte</string>
     <string name="settings_bottom">Altta</string>
     <string name="settings_info_visible">Başlangıçta satır görünsün</string>
-    <string name="settings_reverse_order">Görsel sırasının yönünü çevir (tarihe göre)</string>
-    <string name="settings_reverse_order_desc">Kapalıyken en yeni görselden eskilere doğru, bir telefon galerisindeki gibi çevirirsin. Açıkken zaman sırasıyla, en eskiden en yeniye.</string>
+    <string name="settings_reverse_order">Sıralamanın yönünü çevir (tarihe göre)</string>
+    <string name="settings_reverse_order_desc">Kapalıyken en yeniden eskilere doğru, bir telefon galerisindeki gibi çevirirsin. Açıkken zaman sırasıyla, en eskiden en yeniye.</string>
     <string name="settings_clipboard">Açılışta panoyu oku</string>
     <string name="settings_clipboard_desc">Uygulamayı simgesinden açtığında, panodaki adres doğrudan bir görseli gösteriyorsa o görsel açılır. Bir uygulama panoyu her okuduğunda Android bir uyarı gösterir: kapalı bırakmak onu hiç görmemek demektir.</string>
     <string name="settings_start_folder">Açılışta bir klasör aç</string>
-    <string name="settings_start_folder_desc">Uygulama açıldığında klasör listesi yerine doğrudan seçilen klasörün görselleri gelir.</string>
+    <string name="settings_start_folder_desc">Uygulama açıldığında klasör listesi yerine doğrudan seçilen klasörün içeriği gelir.</string>
     <string name="settings_start_folder_none">Klasör seçilmedi</string>
     <string name="settings_start_folder_pick">Seç</string>
     <string name="folders_title">Klasörler</string>
     <string name="folders_permission">Klasörleri listelemek tüm dosyalara erişim ister. Bir klasörü çevirmeyi sağlayan izinle aynıdır ve bir sistem sayfasından verilir.</string>
     <string name="folders_grant">Erişim ver</string>
-    <string name="folders_none">Görsel içeren klasör yok.</string>
+    <string name="folders_none">Gösterilecek bir şey içeren klasör yok.</string>
     <string name="hub_open">Daha fazla</string>
     <string name="hub_view_list">Liste görünümü</string>
     <string name="hub_view_grid">Izgara görünümü</string>
@@ -81,20 +81,20 @@
     <string name="hub_settings">Ayarlar</string>
     <string name="url_open">Aç</string>
     <string name="url_recent">Daha önce açılanlar</string>
-    <string name="folder_empty">Bu klasörde artık görsel yok.</string>
+    <string name="folder_empty">Bu klasörde artık hiçbir şey yok.</string>
     <string name="cancel">Vazgeç</string>
     <string name="hide_folder_title">%1$s gizlensin mi?</string>
-    <string name="hide_folder_desc">Çevrilecek klasörler arasında artık görünmez. Hiçbir şey silinmez: görseller yerinde kalır ve klasörü ayarlardan geri getirebilirsin.</string>
+    <string name="hide_folder_desc">Çevrilecek klasörler arasında artık görünmez. Hiçbir şey silinmez: dosyalar yerinde kalır ve klasörü ayarlardan geri getirebilirsin.</string>
     <string name="hide_folder_do">Gizle</string>
     <string name="settings_hidden">Gizlenen klasörler</string>
     <string name="settings_hidden_desc">Bir klasöre uzun basmak onu gizler. Bunlar listede görünmez ama telefonda oldukları gibi durur.</string>
     <string name="settings_hidden_show">Göster</string>
     <string name="search_hint">Dosya adında ara</string>
     <string name="search_clear">Temizle</string>
-    <string name="search_none">Adında \'%1$s\' geçen görsel yok.</string>
+    <string name="search_none">Adında \'%1$s\' geçen dosya yok.</string>
     <string name="identity_repo">AIV deposunu GitHub\'da aç</string>
-    <string name="grid_item">%2$d görselden %1$d.</string>
-    <string name="grid_item_last">%2$d görselden %1$d., en son baktığın</string>
+    <string name="grid_item">%2$d ögeden %1$d.</string>
+    <string name="grid_item_last">%2$d ögeden %1$d., en son baktığın</string>
     <string name="pick_leave">Seçimden çık</string>
     <string name="pick_all">Tümünü seç</string>
     <string name="pick_info">Bilgi</string>
@@ -153,20 +153,20 @@
     <string name="dest_move_here">%1$s içine taşı</string>
     <string name="menu_copy_here">Kopyala</string>
     <plurals name="copy_done">
-        <item quantity="one">%1$d görsel kopyalandı</item>
-        <item quantity="other">%1$d görsel kopyalandı</item>
+        <item quantity="one">%1$d öge kopyalandı</item>
+        <item quantity="other">%1$d öge kopyalandı</item>
     </plurals>
     <plurals name="move_done">
-        <item quantity="one">%1$d görsel taşındı</item>
-        <item quantity="other">%1$d görsel taşındı</item>
+        <item quantity="one">%1$d öge taşındı</item>
+        <item quantity="other">%1$d öge taşındı</item>
     </plurals>
     <plurals name="rename_done">
-        <item quantity="one">%1$d görsel yeniden adlandırıldı</item>
-        <item quantity="other">%1$d görsel yeniden adlandırıldı</item>
+        <item quantity="one">%1$d öge yeniden adlandırıldı</item>
+        <item quantity="other">%1$d öge yeniden adlandırıldı</item>
     </plurals>
     <plurals name="delete_done">
-        <item quantity="one">%1$d görsel silindi</item>
-        <item quantity="other">%1$d görsel silindi</item>
+        <item quantity="one">%1$d öge silindi</item>
+        <item quantity="other">%1$d öge silindi</item>
     </plurals>
     <plurals name="op_failed">
         <item quantity="one">%1$d tanesi olmadı</item>
@@ -174,12 +174,12 @@
     </plurals>
     <string name="rename_template">Ad</string>
     <string name="rename_start">İlk numara</string>
-    <string name="rename_hint">Peş peşe gelen her diyez numaraya dönüşür ve kaç tane yazarsan o kadar basamak olur: ## 01 verir, ### 001 verir. Uzantıya hiç dokunulmaz ve görseller alfabetik sırayla numaralanır.</string>
+    <string name="rename_hint">Peş peşe gelen her diyez numaraya dönüşür ve kaç tane yazarsan o kadar basamak olur: ## 01 verir, ### 001 verir. Uzantıya hiç dokunulmaz ve dosyalar alfabetik sırayla numaralanır.</string>
     <string name="rename_preview">Önizleme</string>
     <string name="delete_ask">Silmeyi onaylıyor musun?</string>
     <plurals name="delete_desc">
-        <item quantity="one">%1$d resmi kalıcı olarak silmek üzeresin: telefondan sonsuza kadar gider.</item>
-        <item quantity="other">%1$d resmi kalıcı olarak silmek üzeresin: telefondan sonsuza kadar gider.</item>
+        <item quantity="one">%1$d ögeyi kalıcı olarak silmek üzeresin: telefondan sonsuza kadar gider.</item>
+        <item quantity="other">%1$d ögeyi kalıcı olarak silmek üzeresin: telefondan sonsuza kadar gider.</item>
     </plurals>
     <string name="bin_title">Çöp kutusu</string>
     <string name="bin_none">Çöp kutusu boş.</string>
@@ -188,12 +188,12 @@
     <string name="bin_empty_ask">Çöp kutusu gerçekten boşaltılsın mı?</string>
     <string name="bin_empty_desc">İçindekiler bir daha geri alınamaz.</string>
     <plurals name="trash_done">
-        <item quantity="one">%1$d görsel çöp kutusuna taşındı</item>
-        <item quantity="other">%1$d görsel çöp kutusuna taşındı</item>
+        <item quantity="one">%1$d öge çöp kutusuna taşındı</item>
+        <item quantity="other">%1$d öge çöp kutusuna taşındı</item>
     </plurals>
     <plurals name="restore_done">
-        <item quantity="one">%1$d görsel geri alındı</item>
-        <item quantity="other">%1$d görsel geri alındı</item>
+        <item quantity="one">%1$d öge geri alındı</item>
+        <item quantity="other">%1$d öge geri alındı</item>
     </plurals>
     <plurals name="folders_count">
         <item quantity="one">%1$d görsel</item>
@@ -204,7 +204,7 @@
         <item quantity="other">%1$d video</item>
     </plurals>
     <string name="settings_facts">Tek dosya bilgisi</string>
-    <string name="settings_facts_desc">Bir görselin Bilgi ekranını açtığında hangi verileri, hangi sırayla göreceğin. Ad, piksel ve boyut her zaman vardır; dosyada bulunmayan bir veri hiç satır almaz.</string>
+    <string name="settings_facts_desc">Bir dosyanın Bilgi ekranını açtığında hangi verileri, hangi sırayla göreceğin. Ad, piksel ve boyut her zaman vardır; dosyada bulunmayan bir veri hiç satır almaz.</string>
     <string name="settings_facts_always">Her zaman görünür</string>
     <string name="settings_facts_up">Yukarı taşı</string>
     <string name="settings_facts_down">Aşağı taşı</string>
@@ -240,7 +240,7 @@
     <string name="text_normal">Normal</string>
     <string name="text_large">Büyük</string>
     <string name="tree_show_hidden">Gizli dosyaları göster</string>
-    <string name="tree_pictures">Yalnızca görselli klasörler</string>
+    <string name="tree_pictures">Yalnızca görsel veya video içeren klasörler</string>
     <string name="columns_hint">Kısayol: görünüm seçenekleri için kayan düğmeyi basılı tutun.</string>
     <string name="settings_bin">Çöp kutusunu aç</string>
     <string name="settings_bin_desc">Bir dosyayı silmek hiçbir şey sormaz, ama işlem çöp kutusundan bir \'Geri al\' ile geri alınabilir (kayan düğme → \'Çöp kutusu\'). Anında silmeyi tercih ediyorsan çöp kutusunu tamamen kapatabilirsin: o zaman her silme işleminden önce bir onay görünür.</string>

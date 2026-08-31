@@ -3,8 +3,8 @@
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
     <string name="app_short_name">AIV</string>
-    <string name="no_image">ไม่มีภาพให้แสดง</string>
-    <string name="open_failed">เปิดภาพนี้ไม่ได้</string>
+    <string name="no_image">ไม่มีอะไรให้แสดง</string>
+    <string name="open_failed">เปิดไฟล์นี้ไม่ได้</string>
     <string name="open_cleartext">ที่อยู่ไม่เข้ารหัส (http): Android บล็อกไว้ และทาง https ก็ไม่ตอบสนอง</string>
     <string name="unsupported">ยังไม่รองรับรูปแบบนี้</string>
     <string name="too_large">ภาพใหญ่เกินกว่าที่อุปกรณ์นี้จะรับได้</string>
@@ -60,18 +60,18 @@
     <string name="settings_top">ด้านบน</string>
     <string name="settings_bottom">ด้านล่าง</string>
     <string name="settings_info_visible">แสดงแถบตั้งแต่แรก</string>
-    <string name="settings_reverse_order">กลับทิศลำดับของภาพ (ตามวันที่)</string>
-    <string name="settings_reverse_order_desc">เมื่อปิด คุณจะดูจากภาพใหม่สุดไปหาภาพเก่า อย่างที่แกลเลอรีของโทรศัพท์ทำ เมื่อเปิด จะเรียงตามเวลา จากเก่าสุดไปใหม่สุด</string>
+    <string name="settings_reverse_order">กลับทิศลำดับ (ตามวันที่)</string>
+    <string name="settings_reverse_order_desc">เมื่อปิด คุณจะดูจากใหม่สุดไปหาเก่า อย่างที่แกลเลอรีของโทรศัพท์ทำ เมื่อเปิด จะเรียงตามเวลา จากเก่าสุดไปใหม่สุด</string>
     <string name="settings_clipboard">อ่านคลิปบอร์ดเมื่อเริ่มต้น</string>
     <string name="settings_clipboard_desc">เมื่อเปิดแอปจากไอคอน ที่อยู่ในคลิปบอร์ดที่ชี้ตรงไปที่ภาพจะเปิดภาพนั้น Android จะแจ้งเตือนทุกครั้งที่แอปอ่านคลิปบอร์ด การปิดไว้จึงหมายถึงไม่เห็นการแจ้งเตือนนั้นเลย</string>
     <string name="settings_start_folder">เปิดโฟลเดอร์เมื่อเริ่มต้น</string>
-    <string name="settings_start_folder_desc">เมื่อเปิดแอป จะเห็นภาพในโฟลเดอร์ที่เลือกทันที แทนรายการโฟลเดอร์</string>
+    <string name="settings_start_folder_desc">เมื่อเปิดแอป จะเห็นสิ่งที่อยู่ในโฟลเดอร์ที่เลือกทันที แทนรายการโฟลเดอร์</string>
     <string name="settings_start_folder_none">ยังไม่ได้เลือกโฟลเดอร์</string>
     <string name="settings_start_folder_pick">เลือก</string>
     <string name="folders_title">โฟลเดอร์</string>
     <string name="folders_permission">การแสดงรายการโฟลเดอร์ต้องเข้าถึงไฟล์ทั้งหมด เป็นสิทธิ์เดียวกับที่ทำให้ดูโฟลเดอร์ได้ และให้จากหน้าของระบบ</string>
     <string name="folders_grant">ให้สิทธิ์เข้าถึง</string>
-    <string name="folders_none">ไม่มีโฟลเดอร์ใดมีภาพ</string>
+    <string name="folders_none">ไม่มีโฟลเดอร์ใดมีอะไรให้แสดง</string>
     <string name="hub_open">เพิ่มเติม</string>
     <string name="hub_view_list">มุมมองรายการ</string>
     <string name="hub_view_grid">มุมมองตาราง</string>
@@ -81,20 +81,20 @@
     <string name="hub_settings">การตั้งค่า</string>
     <string name="url_open">เปิด</string>
     <string name="url_recent">เคยเปิดแล้ว</string>
-    <string name="folder_empty">โฟลเดอร์นี้ไม่มีภาพอีกแล้ว</string>
+    <string name="folder_empty">โฟลเดอร์นี้ไม่มีอะไรอีกแล้ว</string>
     <string name="cancel">ยกเลิก</string>
     <string name="hide_folder_title">ซ่อน %1$s ไหม</string>
-    <string name="hide_folder_desc">โฟลเดอร์จะไม่ปรากฏในโฟลเดอร์ที่ใช้ดูอีก ไม่มีอะไรถูกลบ: ภาพยังอยู่ที่เดิม และคุณเรียกโฟลเดอร์กลับมาได้จากการตั้งค่า</string>
+    <string name="hide_folder_desc">โฟลเดอร์จะไม่ปรากฏในโฟลเดอร์ที่ใช้ดูอีก ไม่มีอะไรถูกลบ: ไฟล์ยังอยู่ที่เดิม และคุณเรียกโฟลเดอร์กลับมาได้จากการตั้งค่า</string>
     <string name="hide_folder_do">ซ่อน</string>
     <string name="settings_hidden">โฟลเดอร์ที่ซ่อนไว้</string>
     <string name="settings_hidden_desc">กดโฟลเดอร์ค้างไว้เพื่อซ่อน โฟลเดอร์เหล่านี้จะไม่ปรากฏในรายการอีก แต่ในโทรศัพท์ยังอยู่ครบ</string>
     <string name="settings_hidden_show">แสดง</string>
     <string name="search_hint">ค้นหาในชื่อไฟล์</string>
     <string name="search_clear">ล้าง</string>
-    <string name="search_none">ไม่มีภาพที่ชื่อมี \'%1$s\' อยู่</string>
+    <string name="search_none">ไม่มีไฟล์ที่ชื่อมี \'%1$s\' อยู่</string>
     <string name="identity_repo">เปิดคลังเก็บ AIV บน GitHub</string>
-    <string name="grid_item">ภาพที่ %1$d จาก %2$d</string>
-    <string name="grid_item_last">ภาพที่ %1$d จาก %2$d ภาพสุดท้ายที่คุณดู</string>
+    <string name="grid_item">รายการที่ %1$d จาก %2$d</string>
+    <string name="grid_item_last">รายการที่ %1$d จาก %2$d รายการสุดท้ายที่คุณดู</string>
     <string name="pick_leave">ออกจากการเลือก</string>
     <string name="pick_all">เลือกทั้งหมด</string>
     <string name="pick_info">ข้อมูล</string>
@@ -150,27 +150,27 @@
     <string name="dest_move_here">ย้ายไปที่ %1$s</string>
     <string name="menu_copy_here">คัดลอก</string>
     <plurals name="copy_done">
-        <item quantity="other">คัดลอกแล้ว %1$d ภาพ</item>
+        <item quantity="other">คัดลอกแล้ว %1$d รายการ</item>
     </plurals>
     <plurals name="move_done">
-        <item quantity="other">ย้ายแล้ว %1$d ภาพ</item>
+        <item quantity="other">ย้ายแล้ว %1$d รายการ</item>
     </plurals>
     <plurals name="rename_done">
-        <item quantity="other">เปลี่ยนชื่อแล้ว %1$d ภาพ</item>
+        <item quantity="other">เปลี่ยนชื่อแล้ว %1$d รายการ</item>
     </plurals>
     <plurals name="delete_done">
-        <item quantity="other">ลบแล้ว %1$d ภาพ</item>
+        <item quantity="other">ลบแล้ว %1$d รายการ</item>
     </plurals>
     <plurals name="op_failed">
         <item quantity="other">%1$d ไม่สำเร็จ</item>
     </plurals>
     <string name="rename_template">ชื่อ</string>
     <string name="rename_start">เลขเริ่มต้น</string>
-    <string name="rename_hint">เครื่องหมายสี่เหลี่ยมทุกชุดจะกลายเป็นเลข และเขียนกี่ตัวก็ได้กี่หลัก: ## ให้ 01 และ ### ให้ 001 ส่วนขยายไม่ถูกแตะต้องเลย และภาพจะได้เลขตามลำดับตัวอักษร</string>
+    <string name="rename_hint">เครื่องหมายสี่เหลี่ยมทุกชุดจะกลายเป็นเลข และเขียนกี่ตัวก็ได้กี่หลัก: ## ให้ 01 และ ### ให้ 001 ส่วนขยายไม่ถูกแตะต้องเลย และไฟล์จะได้เลขตามลำดับตัวอักษร</string>
     <string name="rename_preview">ตัวอย่าง</string>
     <string name="delete_ask">ยืนยันการลบไหม</string>
     <plurals name="delete_desc">
-        <item quantity="other">คุณกำลังจะลบ %1$d ภาพอย่างถาวร: ภาพจะหายไปจากโทรศัพท์ตลอดไป</item>
+        <item quantity="other">คุณกำลังจะลบ %1$d รายการอย่างถาวร: จะหายไปจากโทรศัพท์ตลอดไป</item>
     </plurals>
     <string name="bin_title">ถังขยะ</string>
     <string name="bin_none">ถังขยะว่างเปล่า</string>
@@ -191,7 +191,7 @@
         <item quantity="other">%1$d วิดีโอ</item>
     </plurals>
     <string name="settings_facts">ข้อมูลไฟล์เดียว</string>
-    <string name="settings_facts_desc">คุณจะเห็นข้อมูลใดเมื่อเปิดข้อมูลของภาพ และเรียงลำดับอย่างไร ชื่อ พิกเซล และขนาดมีอยู่เสมอ ข้อมูลที่ไฟล์ไม่มีจะไม่ได้แถวเลย</string>
+    <string name="settings_facts_desc">คุณจะเห็นข้อมูลใดเมื่อเปิดข้อมูลของไฟล์ และเรียงลำดับอย่างไร ชื่อ พิกเซล และขนาดมีอยู่เสมอ ข้อมูลที่ไฟล์ไม่มีจะไม่ได้แถวเลย</string>
     <string name="settings_facts_always">แสดงอยู่เสมอ</string>
     <string name="settings_facts_up">เลื่อนขึ้น</string>
     <string name="settings_facts_down">เลื่อนลง</string>
@@ -225,7 +225,7 @@
     <string name="text_normal">ปกติ</string>
     <string name="text_large">ใหญ่</string>
     <string name="tree_show_hidden">แสดงไฟล์ที่ซ่อน</string>
-    <string name="tree_pictures">เฉพาะโฟลเดอร์ที่มีภาพ</string>
+    <string name="tree_pictures">เฉพาะโฟลเดอร์ที่มีภาพหรือวิดีโอ</string>
     <string name="columns_hint">ทางลัด: กดค้างที่ปุ่มลอยเพื่อเปิดตัวเลือกการแสดงผล.</string>
     <string name="settings_bin">เปิดถังขยะ</string>
     <string name="settings_bin_desc">การลบไฟล์ไม่ถามอะไร แต่ย้อนกลับได้ด้วย \'กู้คืน\' จากถังขยะ (ปุ่มลอย → \'ถังขยะ\') คุณสามารถปิดถังขยะทั้งหมดได้หากต้องการลบทันที ในกรณีนั้นจะมีการยืนยันก่อนการลบทุกครั้ง</string>

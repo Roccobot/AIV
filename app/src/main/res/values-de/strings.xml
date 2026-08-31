@@ -3,8 +3,8 @@
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
     <string name="app_short_name">AIV</string>
-    <string name="no_image">Kein Bild zum Anzeigen</string>
-    <string name="open_failed">Dieses Bild konnte nicht geöffnet werden</string>
+    <string name="no_image">Nichts zu zeigen</string>
+    <string name="open_failed">Diese Datei konnte nicht geöffnet werden</string>
     <string name="open_cleartext">Unverschlüsselte Adresse (http): Android blockiert sie, und über https antwortet sie nicht</string>
     <string name="unsupported">Dieses Format wird noch nicht unterstützt</string>
     <string name="too_large">Das Bild ist zu groß für dieses Gerät</string>
@@ -61,17 +61,17 @@
     <string name="settings_bottom">Unten</string>
     <string name="settings_info_visible">Leiste zu Beginn sichtbar</string>
     <string name="settings_reverse_order">Richtung der Bildfolge umkehren (nach Datum)</string>
-    <string name="settings_reverse_order_desc">Aus blätterst du vom neuesten Bild zu den älteren, wie in einer Telefongalerie. An in zeitlicher Reihenfolge, vom ältesten zum neuesten.</string>
+    <string name="settings_reverse_order_desc">Aus blätterst du vom Neuesten zu den Älteren, so wie eine Telefongalerie es macht. An in chronologischer Reihenfolge, vom Ältesten zum Neuesten.</string>
     <string name="settings_clipboard">Zwischenablage beim Start lesen</string>
     <string name="settings_clipboard_desc">Wird die App über ihr Symbol geöffnet, öffnet eine Adresse in der Zwischenablage, die direkt auf ein Bild zeigt, dieses Bild. Android zeigt jedes Mal einen Hinweis, wenn eine App die Zwischenablage liest: aus bedeutet, ihn nie zu sehen.</string>
     <string name="settings_start_folder">Beim Start einen Ordner öffnen</string>
-    <string name="settings_start_folder_desc">Die App zeigt beim Öffnen sofort die Bilder des gewählten Ordners statt der Ordnerliste.</string>
+    <string name="settings_start_folder_desc">Beim Öffnen der App erscheint gleich der Inhalt des gewählten Ordners statt der Ordnerliste.</string>
     <string name="settings_start_folder_none">Kein Ordner gewählt</string>
     <string name="settings_start_folder_pick">Wählen</string>
     <string name="folders_title">Ordner</string>
     <string name="folders_permission">Für die Ordnerliste braucht es Zugriff auf alle Dateien. Es ist dieselbe Berechtigung, die das Durchblättern erlaubt, und sie wird auf einer Systemseite erteilt.</string>
     <string name="folders_grant">Zugriff erteilen</string>
-    <string name="folders_none">Kein Ordner enthält Bilder.</string>
+    <string name="folders_none">Kein Ordner enthält etwas zum Anzeigen.</string>
     <string name="hub_open">Mehr</string>
     <string name="hub_view_list">Listenansicht</string>
     <string name="hub_view_grid">Rasteransicht</string>
@@ -81,20 +81,20 @@
     <string name="hub_settings">Einstellungen</string>
     <string name="url_open">Öffnen</string>
     <string name="url_recent">Schon geöffnet</string>
-    <string name="folder_empty">Dieser Ordner enthält keine Bilder mehr.</string>
+    <string name="folder_empty">Dieser Ordner enthält nichts mehr.</string>
     <string name="cancel">Abbrechen</string>
     <string name="hide_folder_title">%1$s ausblenden?</string>
-    <string name="hide_folder_desc">Er erscheint nicht mehr unter den Ordnern zum Durchblättern. Es wird nichts gelöscht: die Bilder bleiben, wo sie sind, und du kannst den Ordner in den Einstellungen zurückholen.</string>
+    <string name="hide_folder_desc">Er taucht nicht mehr unter den Ordnern zum Durchblättern auf. Nichts wird gelöscht: die Dateien bleiben, wo sie sind, und du kannst den Ordner in den Einstellungen zurückholen.</string>
     <string name="hide_folder_do">Ausblenden</string>
     <string name="settings_hidden">Ausgeblendete Ordner</string>
     <string name="settings_hidden_desc">Ein langer Druck auf einen Ordner blendet ihn aus. Diese erscheinen nicht mehr in der Liste, auf dem Telefon sind sie unberührt.</string>
     <string name="settings_hidden_show">Anzeigen</string>
     <string name="search_hint">Im Dateinamen suchen</string>
     <string name="search_clear">Löschen</string>
-    <string name="search_none">Kein Bild hat \'%1$s\' im Namen.</string>
+    <string name="search_none">Keine Datei hat \'%1$s\' im Namen.</string>
     <string name="identity_repo">Das AIV-Repository auf GitHub öffnen</string>
-    <string name="grid_item">Bild %1$d von %2$d</string>
-    <string name="grid_item_last">Bild %1$d von %2$d, das zuletzt angesehene</string>
+    <string name="grid_item">Element %1$d von %2$d</string>
+    <string name="grid_item_last">Element %1$d von %2$d, das zuletzt angesehene</string>
     <string name="pick_leave">Auswahl verlassen</string>
     <string name="pick_all">Alle auswählen</string>
     <string name="pick_info">Infos</string>
@@ -153,20 +153,20 @@
     <string name="dest_move_here">Nach %1$s verschieben</string>
     <string name="menu_copy_here">Kopieren</string>
     <plurals name="copy_done">
-        <item quantity="one">%1$d Bild kopiert</item>
-        <item quantity="other">%1$d Bilder kopiert</item>
+        <item quantity="one">%1$d Element kopiert</item>
+        <item quantity="other">%1$d Elemente kopiert</item>
     </plurals>
     <plurals name="move_done">
-        <item quantity="one">%1$d Bild verschoben</item>
-        <item quantity="other">%1$d Bilder verschoben</item>
+        <item quantity="one">%1$d Element verschoben</item>
+        <item quantity="other">%1$d Elemente verschoben</item>
     </plurals>
     <plurals name="rename_done">
-        <item quantity="one">%1$d Bild umbenannt</item>
-        <item quantity="other">%1$d Bilder umbenannt</item>
+        <item quantity="one">%1$d Element umbenannt</item>
+        <item quantity="other">%1$d Elemente umbenannt</item>
     </plurals>
     <plurals name="delete_done">
-        <item quantity="one">%1$d Bild gelöscht</item>
-        <item quantity="other">%1$d Bilder gelöscht</item>
+        <item quantity="one">%1$d Element gelöscht</item>
+        <item quantity="other">%1$d Elemente gelöscht</item>
     </plurals>
     <plurals name="op_failed">
         <item quantity="one">%1$d hat nicht geklappt</item>
@@ -174,12 +174,12 @@
     </plurals>
     <string name="rename_template">Name</string>
     <string name="rename_start">Erste Nummer</string>
-    <string name="rename_hint">Jede Folge von Rauten wird zur Nummer, und wie viele du schreibst, so viele Stellen hat sie: ## ergibt 01, ### ergibt 001. Die Endung bleibt unberührt, und die Bilder werden in alphabetischer Reihenfolge nummeriert.</string>
+    <string name="rename_hint">Jede Folge von Rauten wird zur Zahl, und wie viele du schreibst, so viele Stellen hat sie: ## gibt 01, ### gibt 001. Die Endung wird nie angetastet, und die Dateien werden alphabetisch nummeriert.</string>
     <string name="rename_preview">Vorschau</string>
     <string name="delete_ask">Löschen bestätigen?</string>
     <plurals name="delete_desc">
-        <item quantity="one">Du löschst %1$d Bild endgültig: es verschwindet für immer vom Telefon.</item>
-        <item quantity="other">Du löschst %1$d Bilder endgültig: sie verschwinden für immer vom Telefon.</item>
+        <item quantity="one">Du löschst %1$d Element endgültig: es verschwindet für immer vom Telefon.</item>
+        <item quantity="other">Du löschst %1$d Elemente endgültig: sie verschwinden für immer vom Telefon.</item>
     </plurals>
     <string name="bin_title">Papierkorb</string>
     <string name="bin_none">Der Papierkorb ist leer.</string>
@@ -204,7 +204,7 @@
         <item quantity="other">%1$d Videos</item>
     </plurals>
     <string name="settings_facts">Infos zu einer Datei</string>
-    <string name="settings_facts_desc">Welche Daten du siehst, wenn du Infos zu einem Bild öffnest, und in welcher Reihenfolge. Name, Pixel und Größe sind immer dabei; ein Wert, den die Datei nicht enthält, bekommt keine Zeile.</string>
+    <string name="settings_facts_desc">Welche Daten du siehst, wenn du Info zu einer Datei öffnest, und in welcher Reihenfolge. Name, Pixel und Größe sind immer dabei; ein Datum, das die Datei nicht trägt, bekommt gar keine Zeile.</string>
     <string name="settings_facts_always">Immer sichtbar</string>
     <string name="settings_facts_up">Nach oben</string>
     <string name="settings_facts_down">Nach unten</string>
@@ -240,7 +240,7 @@
     <string name="text_normal">Normal</string>
     <string name="text_large">Groß</string>
     <string name="tree_show_hidden">Versteckte Dateien zeigen</string>
-    <string name="tree_pictures">Nur Ordner mit Bildern</string>
+    <string name="tree_pictures">Nur Ordner mit Bildern oder Videos</string>
     <string name="columns_hint">Kurzbefehl: Halte die schwebende Taste für die Anzeigeoptionen gedrückt.</string>
     <string name="settings_bin">Papierkorb einschalten</string>
     <string name="settings_bin_desc">Das Löschen einer Datei fragt nichts, aber die Aktion lässt sich mit einem \'Wiederherstellen\' aus dem Papierkorb umkehren (schwebende Schaltfläche → \'Papierkorb\'). Du kannst den Papierkorb ganz ausschalten, wenn du sofortiges Löschen bevorzugst: dann erscheint vor jedem Löschen eine Bestätigung.</string>

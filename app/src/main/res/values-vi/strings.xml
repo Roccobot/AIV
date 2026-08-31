@@ -3,8 +3,8 @@
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
     <string name="app_short_name">AIV</string>
-    <string name="no_image">Không có ảnh nào để hiển thị</string>
-    <string name="open_failed">Không thể mở ảnh này</string>
+    <string name="no_image">Không có gì để hiển thị</string>
+    <string name="open_failed">Không thể mở tệp này</string>
     <string name="open_cleartext">Địa chỉ không mã hóa (http): Android chặn nó, và qua https cũng không phản hồi</string>
     <string name="unsupported">Định dạng này chưa được hỗ trợ</string>
     <string name="too_large">Ảnh quá lớn đối với thiết bị này</string>
@@ -60,18 +60,18 @@
     <string name="settings_top">Ở trên</string>
     <string name="settings_bottom">Ở dưới</string>
     <string name="settings_info_visible">Thanh hiện ngay từ đầu</string>
-    <string name="settings_reverse_order">Đổi chiều thứ tự ảnh (theo ngày)</string>
-    <string name="settings_reverse_order_desc">Khi tắt, bạn xem từ ảnh mới nhất về những ảnh cũ hơn, như thư viện điện thoại. Khi bật, theo thứ tự thời gian, từ cũ nhất đến mới nhất.</string>
+    <string name="settings_reverse_order">Đổi chiều thứ tự (theo ngày)</string>
+    <string name="settings_reverse_order_desc">Khi tắt, bạn xem từ mới nhất về những cái cũ hơn, như thư viện điện thoại. Khi bật, theo thứ tự thời gian, từ cũ nhất đến mới nhất.</string>
     <string name="settings_clipboard">Đọc bảng nhớ tạm khi khởi động</string>
     <string name="settings_clipboard_desc">Khi mở ứng dụng từ biểu tượng của nó, một địa chỉ trong bảng nhớ tạm trỏ thẳng tới ảnh sẽ mở ảnh đó. Android hiện một thông báo mỗi lần ứng dụng đọc bảng nhớ tạm, nên để tắt mục này nghĩa là không bao giờ thấy nó.</string>
     <string name="settings_start_folder">Mở một thư mục khi khởi động</string>
-    <string name="settings_start_folder_desc">Khi mở ứng dụng, ảnh trong thư mục đã chọn hiện ra ngay, thay vì danh sách thư mục.</string>
+    <string name="settings_start_folder_desc">Khi mở ứng dụng, nội dung thư mục đã chọn hiện ra ngay, thay vì danh sách thư mục.</string>
     <string name="settings_start_folder_none">Chưa chọn thư mục nào</string>
     <string name="settings_start_folder_pick">Chọn</string>
     <string name="folders_title">Thư mục</string>
     <string name="folders_permission">Việc liệt kê thư mục cần quyền truy cập mọi tệp. Đó cũng chính là quyền cho phép bạn xem một thư mục, và được cấp từ một trang của hệ thống.</string>
     <string name="folders_grant">Cấp quyền</string>
-    <string name="folders_none">Không có thư mục nào chứa ảnh.</string>
+    <string name="folders_none">Không có thư mục nào chứa gì để hiển thị.</string>
     <string name="hub_open">Thêm</string>
     <string name="hub_view_list">Dạng danh sách</string>
     <string name="hub_view_grid">Dạng lưới</string>
@@ -81,20 +81,20 @@
     <string name="hub_settings">Cài đặt</string>
     <string name="url_open">Mở</string>
     <string name="url_recent">Đã mở trước đây</string>
-    <string name="folder_empty">Thư mục này không còn ảnh nào.</string>
+    <string name="folder_empty">Thư mục này không còn gì.</string>
     <string name="cancel">Hủy</string>
     <string name="hide_folder_title">Ẩn %1$s?</string>
-    <string name="hide_folder_desc">Thư mục sẽ không còn hiện trong số các thư mục để xem. Không có gì bị xóa: ảnh vẫn ở nguyên chỗ, và bạn có thể đưa thư mục trở lại từ phần cài đặt.</string>
+    <string name="hide_folder_desc">Thư mục sẽ không còn hiện trong số các thư mục để xem. Không có gì bị xóa: các tệp vẫn ở nguyên chỗ, và bạn có thể đưa thư mục trở lại từ phần cài đặt.</string>
     <string name="hide_folder_do">Ẩn</string>
     <string name="settings_hidden">Thư mục đã ẩn</string>
     <string name="settings_hidden_desc">Nhấn giữ một thư mục để ẩn nó. Những thư mục này không còn hiện trong danh sách, nhưng trên điện thoại chúng vẫn nguyên vẹn.</string>
     <string name="settings_hidden_show">Hiện</string>
     <string name="search_hint">Tìm trong tên tệp</string>
     <string name="search_clear">Xóa</string>
-    <string name="search_none">Không có ảnh nào có \'%1$s\' trong tên.</string>
+    <string name="search_none">Không có tệp nào có \'%1$s\' trong tên.</string>
     <string name="identity_repo">Mở kho AIV trên GitHub</string>
-    <string name="grid_item">Ảnh %1$d trong %2$d</string>
-    <string name="grid_item_last">Ảnh %1$d trong %2$d, ảnh bạn xem lần cuối</string>
+    <string name="grid_item">Mục %1$d trong %2$d</string>
+    <string name="grid_item_last">Mục %1$d trong %2$d, mục bạn xem lần cuối</string>
     <string name="pick_leave">Thoát khỏi chế độ chọn</string>
     <string name="pick_all">Chọn tất cả</string>
     <string name="pick_info">Thông tin</string>
@@ -150,27 +150,27 @@
     <string name="dest_move_here">Di chuyển vào %1$s</string>
     <string name="menu_copy_here">Sao chép</string>
     <plurals name="copy_done">
-        <item quantity="other">%1$d ảnh đã sao chép</item>
+        <item quantity="other">%1$d mục đã sao chép</item>
     </plurals>
     <plurals name="move_done">
-        <item quantity="other">%1$d ảnh đã di chuyển</item>
+        <item quantity="other">%1$d mục đã di chuyển</item>
     </plurals>
     <plurals name="rename_done">
-        <item quantity="other">%1$d ảnh đã đổi tên</item>
+        <item quantity="other">%1$d mục đã đổi tên</item>
     </plurals>
     <plurals name="delete_done">
-        <item quantity="other">%1$d ảnh đã xóa</item>
+        <item quantity="other">%1$d mục đã xóa</item>
     </plurals>
     <plurals name="op_failed">
         <item quantity="other">%1$d không thành công</item>
     </plurals>
     <string name="rename_template">Tên</string>
     <string name="rename_start">Số đầu tiên</string>
-    <string name="rename_hint">Mỗi dãy dấu thăng trở thành con số, và bạn viết bao nhiêu dấu thì có bấy nhiêu chữ số: ## cho 01, ### cho 001. Phần mở rộng không bao giờ bị đụng tới, và các ảnh được đánh số theo thứ tự bảng chữ cái.</string>
+    <string name="rename_hint">Mỗi dãy dấu thăng trở thành con số, và bạn viết bao nhiêu dấu thì có bấy nhiêu chữ số: ## cho 01, ### cho 001. Phần mở rộng không bao giờ bị đụng tới, và các tệp được đánh số theo thứ tự bảng chữ cái.</string>
     <string name="rename_preview">Xem trước</string>
     <string name="delete_ask">Xác nhận xóa?</string>
     <plurals name="delete_desc">
-        <item quantity="other">Bạn sắp xóa vĩnh viễn %1$d ảnh: chúng sẽ mất khỏi điện thoại mãi mãi.</item>
+        <item quantity="other">Bạn sắp xóa vĩnh viễn %1$d mục: chúng sẽ mất khỏi điện thoại mãi mãi.</item>
     </plurals>
     <string name="bin_title">Thùng rác</string>
     <string name="bin_none">Thùng rác trống.</string>
@@ -191,7 +191,7 @@
         <item quantity="other">%1$d video</item>
     </plurals>
     <string name="settings_facts">Thông tin một tệp</string>
-    <string name="settings_facts_desc">Những dữ liệu bạn thấy khi mở Thông tin của một ảnh, và theo thứ tự nào. Tên, điểm ảnh và kích thước luôn có; dữ liệu mà tệp không mang thì không chiếm dòng nào.</string>
+    <string name="settings_facts_desc">Những dữ liệu bạn thấy khi mở Thông tin của một tệp, và theo thứ tự nào. Tên, điểm ảnh và kích thước luôn có; dữ liệu mà tệp không mang thì không chiếm dòng nào.</string>
     <string name="settings_facts_always">Luôn hiện</string>
     <string name="settings_facts_up">Chuyển lên</string>
     <string name="settings_facts_down">Chuyển xuống</string>
@@ -225,7 +225,7 @@
     <string name="text_normal">Bình thường</string>
     <string name="text_large">Lớn</string>
     <string name="tree_show_hidden">Hiện tệp ẩn</string>
-    <string name="tree_pictures">Chỉ thư mục có ảnh</string>
+    <string name="tree_pictures">Chỉ thư mục có ảnh hoặc video</string>
     <string name="columns_hint">Lối tắt: nhấn giữ nút nổi để mở tùy chọn hiển thị.</string>
     <string name="settings_bin">Bật thùng rác</string>
     <string name="settings_bin_desc">Xóa một tệp không hỏi gì, nhưng hành động có thể hoàn tác bằng \'Phục hồi\' từ thùng rác (nút nổi → \'Thùng rác\'). Bạn có thể tắt hẳn thùng rác nếu thích xóa ngay: khi đó, một hộp xác nhận sẽ xuất hiện trước mỗi lần xóa.</string>

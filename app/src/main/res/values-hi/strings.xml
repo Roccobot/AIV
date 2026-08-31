@@ -3,8 +3,8 @@
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
     <string name="app_short_name">AIV</string>
-    <string name="no_image">दिखाने के लिए कोई चित्र नहीं है</string>
-    <string name="open_failed">यह चित्र नहीं खुल सका</string>
+    <string name="no_image">दिखाने के लिए कुछ नहीं है</string>
+    <string name="open_failed">यह फ़ाइल नहीं खुल सकी</string>
     <string name="open_cleartext">बिना एन्क्रिप्शन वाला पता (http): Android इसे रोकता है, और https पर भी उत्तर नहीं मिलता</string>
     <string name="unsupported">यह प्रारूप अभी समर्थित नहीं है</string>
     <string name="too_large">चित्र इस उपकरण के लिए बहुत बड़ा है</string>
@@ -60,18 +60,18 @@
     <string name="settings_top">ऊपर</string>
     <string name="settings_bottom">नीचे</string>
     <string name="settings_info_visible">शुरू में पट्टी दिखे</string>
-    <string name="settings_reverse_order">चित्रों का क्रम उलटें (तारीख से)</string>
-    <string name="settings_reverse_order_desc">बंद हो तो आप नए चित्र से पुराने की ओर पलटते हैं, जैसे फ़ोन की गैलरी में। चालू हो तो समय के क्रम में, सबसे पुराने से नए की ओर।</string>
+    <string name="settings_reverse_order">क्रम उलटें (तारीख से)</string>
+    <string name="settings_reverse_order_desc">बंद हो तो आप नए से पुराने की ओर पलटते हैं, जैसे फ़ोन की गैलरी में। चालू हो तो समय के क्रम में, सबसे पुराने से नए की ओर।</string>
     <string name="settings_clipboard">शुरू होते ही क्लिपबोर्ड पढ़ें</string>
     <string name="settings_clipboard_desc">ऐप को उसके चिह्न से खोलने पर, यदि क्लिपबोर्ड का पता सीधे किसी चित्र पर जाता है तो वही चित्र खुलता है। जब भी कोई ऐप क्लिपबोर्ड पढ़ता है, Android सूचना दिखाता है: इसे बंद रखना यानी वह सूचना कभी न देखना।</string>
     <string name="settings_start_folder">शुरू होते ही एक फ़ोल्डर खोलें</string>
-    <string name="settings_start_folder_desc">ऐप खुलते ही फ़ोल्डरों की सूची के बजाय चुने हुए फ़ोल्डर के चित्र सीधे दिखते हैं।</string>
+    <string name="settings_start_folder_desc">ऐप खुलते ही फ़ोल्डरों की सूची के बजाय चुने हुए फ़ोल्डर की सामग्री सीधे दिखती है।</string>
     <string name="settings_start_folder_none">कोई फ़ोल्डर नहीं चुना</string>
     <string name="settings_start_folder_pick">चुनें</string>
     <string name="folders_title">फ़ोल्डर</string>
     <string name="folders_permission">फ़ोल्डरों की सूची के लिए सभी फ़ाइलों तक पहुँच चाहिए। यह वही अनुमति है जो फ़ोल्डर पलटने देती है, और यह सिस्टम के पन्ने से दी जाती है।</string>
     <string name="folders_grant">पहुँच दें</string>
-    <string name="folders_none">किसी फ़ोल्डर में चित्र नहीं हैं।</string>
+    <string name="folders_none">किसी फ़ोल्डर में दिखाने को कुछ नहीं है।</string>
     <string name="hub_open">और</string>
     <string name="hub_view_list">सूची दृश्य</string>
     <string name="hub_view_grid">ग्रिड दृश्य</string>
@@ -81,20 +81,20 @@
     <string name="hub_settings">सेटिंग्स</string>
     <string name="url_open">खोलें</string>
     <string name="url_recent">पहले खोले गए</string>
-    <string name="folder_empty">इस फ़ोल्डर में अब कोई चित्र नहीं है।</string>
+    <string name="folder_empty">इस फ़ोल्डर में अब कुछ नहीं है।</string>
     <string name="cancel">रद्द करें</string>
     <string name="hide_folder_title">%1$s छिपाएँ?</string>
-    <string name="hide_folder_desc">यह पलटने वाले फ़ोल्डरों में दिखना बंद कर देगा। कुछ भी मिटता नहीं: चित्र जहाँ हैं वहीं रहते हैं, और फ़ोल्डर सेटिंग्स से वापस लाया जा सकता है।</string>
+    <string name="hide_folder_desc">यह पलटने वाले फ़ोल्डरों में दिखना बंद कर देगा। कुछ भी मिटता नहीं: फ़ाइलें जहाँ हैं वहीं रहती हैं, और फ़ोल्डर सेटिंग्स से वापस लाया जा सकता है।</string>
     <string name="hide_folder_do">छिपाएँ</string>
     <string name="settings_hidden">छिपे फ़ोल्डर</string>
     <string name="settings_hidden_desc">किसी फ़ोल्डर को देर तक दबाने से वह छिप जाता है। ये सूची में नहीं दिखते, पर फ़ोन में ज्यों के त्यों हैं।</string>
     <string name="settings_hidden_show">दिखाएँ</string>
     <string name="search_hint">फ़ाइल के नाम में खोजें</string>
     <string name="search_clear">साफ़ करें</string>
-    <string name="search_none">किसी चित्र के नाम में \'%1$s\' नहीं है।</string>
+    <string name="search_none">किसी फ़ाइल के नाम में \'%1$s\' नहीं है।</string>
     <string name="identity_repo">GitHub पर AIV का रिपॉज़िटरी खोलें</string>
-    <string name="grid_item">%2$d में से %1$d चित्र</string>
-    <string name="grid_item_last">%2$d में से %1$d चित्र, जिसे आपने आख़िर में देखा</string>
+    <string name="grid_item">%2$d में से %1$d आइटम</string>
+    <string name="grid_item_last">%2$d में से %1$d आइटम, जिसे आपने आख़िर में देखा</string>
     <string name="pick_leave">चयन से बाहर</string>
     <string name="pick_all">सभी चुनें</string>
     <string name="pick_info">जानकारी</string>
@@ -153,20 +153,20 @@
     <string name="dest_move_here">%1$s में ले जाएँ</string>
     <string name="menu_copy_here">कॉपी करें</string>
     <plurals name="copy_done">
-        <item quantity="one">%1$d चित्र कॉपी हुआ</item>
-        <item quantity="other">%1$d चित्र कॉपी हुए</item>
+        <item quantity="one">%1$d आइटम कॉपी हुआ</item>
+        <item quantity="other">%1$d आइटम कॉपी हुए</item>
     </plurals>
     <plurals name="move_done">
-        <item quantity="one">%1$d चित्र ले जाया गया</item>
-        <item quantity="other">%1$d चित्र ले जाए गए</item>
+        <item quantity="one">%1$d आइटम ले जाया गया</item>
+        <item quantity="other">%1$d आइटम ले जाए गए</item>
     </plurals>
     <plurals name="rename_done">
-        <item quantity="one">%1$d चित्र का नाम बदला</item>
-        <item quantity="other">%1$d चित्रों के नाम बदले</item>
+        <item quantity="one">%1$d आइटम का नाम बदला</item>
+        <item quantity="other">%1$d आइटमों के नाम बदले</item>
     </plurals>
     <plurals name="delete_done">
-        <item quantity="one">%1$d चित्र मिटाया</item>
-        <item quantity="other">%1$d चित्र मिटाए</item>
+        <item quantity="one">%1$d आइटम मिटाया</item>
+        <item quantity="other">%1$d आइटम मिटाए</item>
     </plurals>
     <plurals name="op_failed">
         <item quantity="one">%1$d नहीं हो सका</item>
@@ -174,12 +174,12 @@
     </plurals>
     <string name="rename_template">नाम</string>
     <string name="rename_start">पहला अंक</string>
-    <string name="rename_hint">हैश की हर कड़ी संख्या बन जाती है, और आप जितने लिखेंगे उतने अंक होंगे: ## से 01, ### से 001। एक्सटेंशन कभी नहीं बदलता, और चित्रों को वर्णक्रम में संख्या मिलती है।</string>
+    <string name="rename_hint">हैश की हर कड़ी संख्या बन जाती है, और आप जितने लिखेंगे उतने अंक होंगे: ## से 01, ### से 001। एक्सटेंशन कभी नहीं बदलता, और फ़ाइलों को वर्णक्रम में संख्या मिलती है।</string>
     <string name="rename_preview">झलक</string>
     <string name="delete_ask">क्या हटाना है?</string>
     <plurals name="delete_desc">
-        <item quantity="one">आप %1$d इमेज को हमेशा के लिए हटाने वाले हैं: वह फ़ोन से पूरी तरह चली जाएगी।</item>
-        <item quantity="other">आप %1$d इमेज को हमेशा के लिए हटाने वाले हैं: वे फ़ोन से पूरी तरह चली जाएंगी।</item>
+        <item quantity="one">आप %1$d आइटम को हमेशा के लिए हटाने वाले हैं: वह फ़ोन से पूरी तरह चला जाएगा।</item>
+        <item quantity="other">आप %1$d आइटम को हमेशा के लिए हटाने वाले हैं: वे फ़ोन से पूरी तरह चले जाएंगे।</item>
     </plurals>
     <string name="bin_title">कूड़ेदान</string>
     <string name="bin_none">कूड़ेदान खाली है।</string>
@@ -204,7 +204,7 @@
         <item quantity="other">%1$d वीडियो</item>
     </plurals>
     <string name="settings_facts">एक फ़ाइल की जानकारी</string>
-    <string name="settings_facts_desc">किसी चित्र की जानकारी खोलने पर कौन से आँकड़े दिखें और किस क्रम में। नाम, पिक्सेल और आकार हमेशा रहते हैं; जो आँकड़ा फ़ाइल में नहीं है उसकी पंक्ति ही नहीं बनती।</string>
+    <string name="settings_facts_desc">किसी फ़ाइल की जानकारी खोलने पर कौन से आँकड़े दिखें और किस क्रम में। नाम, पिक्सेल और आकार हमेशा रहते हैं; जो आँकड़ा फ़ाइल में नहीं है उसकी पंक्ति ही नहीं बनती।</string>
     <string name="settings_facts_always">हमेशा दिखता है</string>
     <string name="settings_facts_up">ऊपर ले जाएँ</string>
     <string name="settings_facts_down">नीचे ले जाएँ</string>
@@ -240,7 +240,7 @@
     <string name="text_normal">सामान्य</string>
     <string name="text_large">बड़ा</string>
     <string name="tree_show_hidden">छिपी फ़ाइलें दिखाएँ</string>
-    <string name="tree_pictures">केवल चित्रों वाले फ़ोल्डर</string>
+    <string name="tree_pictures">केवल चित्रों या वीडियो वाले फ़ोल्डर</string>
     <string name="columns_hint">शॉर्टकट: दिखाने के विकल्पों के लिए तैरता बटन दबाए रखें।</string>
     <string name="settings_bin">कूड़ेदान चालू करें</string>
     <string name="settings_bin_desc">फ़ाइल मिटाने पर कुछ नहीं पूछा जाता, लेकिन कूड़ेदान से \'वापस लाएँ\' के ज़रिये यह काम पलटा जा सकता है (फ़्लोटिंग बटन → \'कूड़ेदान\')। अगर आप तुरंत मिटाना पसंद करते हैं तो कूड़ेदान पूरी तरह बंद कर सकते हैं: उस स्थिति में हर बार मिटाने से पहले पुष्टि दिखेगी।</string>

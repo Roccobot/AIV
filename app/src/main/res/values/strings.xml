@@ -18,8 +18,8 @@
     <!-- Room under the icon is short: the full name shows up elsewhere. -->
     <string name="app_short_name">AIV</string>
 
-    <string name="no_image">No image to show</string>
-    <string name="open_failed">This image could not be opened</string>
+    <string name="no_image">Nothing to show</string>
+    <string name="open_failed">This file could not be opened</string>
     <string name="open_cleartext">Unencrypted address (http): Android blocks it, and it did not answer over https either</string>
     <string name="unsupported">This format is not supported yet</string>
     <string name="too_large">The image is too large for this device</string>
@@ -116,7 +116,7 @@
     <string name="settings_folder_count_desc">Under each cover, how many pictures and how many videos the folder holds. Turning it off makes the row shorter, and the title area at the top grows by as much.</string>
     <!-- Off by default: a gallery shows pictures, and a name under each one is data for
          someone working with files rather than looking at them. -->
-    <string name="settings_grid_names">File name in the photo grid</string>
+    <string name="settings_grid_names">File name in the grid</string>
     <string name="settings_grid_names_desc">Under each thumbnail, the file name on two lines at most. The extension is never split across lines and is always shown: when the name does not fit, it is the middle that gives way.</string>
 
     <string name="settings_fit_grow">Enlarge small pictures</string>
@@ -134,8 +134,8 @@
     <string name="settings_bottom">At the bottom</string>
     <string name="settings_info_visible">Bar showing at first</string>
 
-    <string name="settings_reverse_order">Change the direction of the picture sequence (by date)</string>
-    <string name="settings_reverse_order_desc">Off, you leaf from the newest picture towards the older ones, the way a phone gallery goes. On, in chronological order, from the oldest to the newest.</string>
+    <string name="settings_reverse_order">Change the direction of the sequence (by date)</string>
+    <string name="settings_reverse_order_desc">Off, you leaf from the newest towards the older ones, the way a phone gallery goes. On, in chronological order, from the oldest to the newest.</string>
     <!-- The switch that decides what deleting means, and with it whether a confirmation
          appears: the two go together, because you get asked exactly when there is no way
          back. The Italian wording is the user's, dictated word for word. -->
@@ -153,7 +153,7 @@
     <string name="settings_clipboard">Read the clipboard at startup</string>
     <string name="settings_clipboard_desc">Opening the app from its icon, an address in the clipboard that points straight at an image opens that image. Android shows a notice every time an app reads the clipboard, so leaving this off means never seeing it.</string>
     <string name="settings_start_folder">Open a folder at startup</string>
-    <string name="settings_start_folder_desc">Opening the app shows the pictures in the chosen folder straight away, instead of the folder list.</string>
+    <string name="settings_start_folder_desc">Opening the app shows what the chosen folder holds straight away, instead of the folder list.</string>
     <string name="settings_start_folder_none">No folder chosen</string>
     <string name="settings_start_folder_pick">Choose</string>
 
@@ -169,7 +169,7 @@
     <string name="folders_title">Folders</string>
     <string name="folders_permission">Listing the folders needs access to all files. It is the same permission that lets you leaf through a folder, and it is granted from a system page.</string>
     <string name="folders_grant">Grant access</string>
-    <string name="folders_none">No folder holds pictures.</string>
+    <string name="folders_none">No folder holds anything to show.</string>
     <!-- ── The little square button, bottom right of the folders screen ── -->
     <!-- It is the app's whole menu now that the opening screen is gone, so it has to
          say so rather than name one of the things behind it. -->
@@ -185,7 +185,7 @@
     <string name="text_normal">Normal</string>
     <string name="text_large">Large</string>
     <string name="tree_show_hidden">Show hidden files</string>
-    <string name="tree_pictures">Only folders with pictures</string>
+    <string name="tree_pictures">Only folders with pictures or films</string>
     <string name="columns_hint">Shortcut: press and hold the floating button for the display options.</string>
     <!-- Each of these names the view you would GET, not the one you are in: a menu
          entry is a thing you ask for. -->
@@ -212,11 +212,11 @@
     <string name="hub_settings">Settings</string>
     <string name="url_open">Open</string>
     <string name="url_recent">Opened before</string>
-    <string name="folder_empty">This folder holds no pictures any more.</string>
+    <string name="folder_empty">This folder holds nothing any more.</string>
     <string name="cancel">Cancel</string>
 
     <string name="hide_folder_title">Hide %1$s?</string>
-    <string name="hide_folder_desc">It stops showing up among the folders to leaf through. Nothing is deleted: the pictures stay where they are, and you can bring the folder back from the settings.</string>
+    <string name="hide_folder_desc">It stops showing up among the folders to leaf through. Nothing is deleted: the files stay where they are, and you can bring the folder back from the settings.</string>
     <string name="hide_folder_do">Hide</string>
     <string name="settings_hidden">Hidden folders</string>
     <string name="settings_hidden_desc">Long press a folder to hide it. These no longer show up in the list, but they are untouched on the phone.</string>
@@ -232,16 +232,16 @@
          name, not what is in the picture. -->
     <string name="search_hint">Search in the file name</string>
     <string name="search_clear">Clear</string>
-    <string name="search_none">No picture has \'%1$s\' in its name.</string>
+    <string name="search_none">No file has \'%1$s\' in its name.</string>
 
     <string name="identity_repo">Open the AIV repository on GitHub</string>
     <!-- ── The grid of one folder ── -->
     <!-- Every thumbnail is tappable, so it is not decoration: this is what a screen
          reader says on it, and it has to tell WHERE in the folder that picture is. -->
-    <string name="grid_item">Picture %1$d of %2$d</string>
+    <string name="grid_item">Item %1$d of %2$d</string>
     <!-- The one the reader came back from: a screen reader has to say so, because
          the ring around it is the visual form of exactly this. -->
-    <string name="grid_item_last">Picture %1$d of %2$d, the last one you looked at</string>
+    <string name="grid_item_last">Item %1$d of %2$d, the last one you looked at</string>
     <!-- The badge over a video thumbnail: for a screen reader it is the only thing
          that tells a film apart from a photograph, since the frame looks like one. -->
     <string name="grid_item_clip">Video</string>
@@ -328,20 +328,20 @@
     <string name="dest_move_here">Move into %1$s</string>
     <string name="menu_copy_here">Copy</string>
     <plurals name="copy_done">
-        <item quantity="one">%1$d picture copied</item>
-        <item quantity="other">%1$d pictures copied</item>
+        <item quantity="one">%1$d item copied</item>
+        <item quantity="other">%1$d items copied</item>
     </plurals>
     <plurals name="move_done">
-        <item quantity="one">%1$d picture moved</item>
-        <item quantity="other">%1$d pictures moved</item>
+        <item quantity="one">%1$d item moved</item>
+        <item quantity="other">%1$d items moved</item>
     </plurals>
     <plurals name="rename_done">
-        <item quantity="one">%1$d picture renamed</item>
-        <item quantity="other">%1$d pictures renamed</item>
+        <item quantity="one">%1$d item renamed</item>
+        <item quantity="other">%1$d items renamed</item>
     </plurals>
     <plurals name="delete_done">
-        <item quantity="one">%1$d picture deleted</item>
-        <item quantity="other">%1$d pictures deleted</item>
+        <item quantity="one">%1$d item deleted</item>
+        <item quantity="other">%1$d items deleted</item>
     </plurals>
     <!-- One for all four operations: 'did not go through' fitted a copy and read oddly
          after a deletion, and four wordings of the same notice are four places where a
@@ -354,7 +354,7 @@
     <!-- ── Renaming in bulk ── -->
     <string name="rename_template">Name</string>
     <string name="rename_start">First number</string>
-    <string name="rename_hint">Every run of hashes becomes the number, and how many you write is how many digits: ## gives 01, ### gives 001. The extension is never touched, and the pictures are numbered in alphabetical order.</string>
+    <string name="rename_hint">Every run of hashes becomes the number, and how many you write is how many digits: ## gives 01, ### gives 001. The extension is never touched, and the files are numbered in alphabetical order.</string>
     <string name="rename_preview">Preview</string>
 
     <!-- ── Deleting ── -->
@@ -362,8 +362,8 @@
     <!-- The definitive one: inside the bin, or when emptying it. The old text said AIV
          had no bin of its own, and from 0.64 that is no longer true. -->
     <plurals name="delete_desc">
-        <item quantity="one">You are about to delete %1$d picture for good: it goes from the phone for ever.</item>
-        <item quantity="other">You are about to delete %1$d pictures for good: they go from the phone for ever.</item>
+        <item quantity="one">You are about to delete %1$d item for good: it goes from the phone for ever.</item>
+        <item quantity="other">You are about to delete %1$d items for good: they go from the phone for ever.</item>
     </plurals>
 
     <!-- ── The bin ── -->
@@ -406,7 +406,7 @@
          label under an icon in the action pad, where three words would wrap to three
          lines. -->
     <string name="facts_title">Detailed file info</string>
-    <string name="settings_facts_desc">Which data you see when you open Info on a picture, and in which order. Name, pixels and size are always there; a datum the file does not carry gets no row at all.</string>
+    <string name="settings_facts_desc">Which data you see when you open Info on a file, and in which order. Name, pixels and size are always there; a datum the file does not carry gets no row at all.</string>
     <plurals name="settings_facts_count">
         <item quantity="one">%1$d field shown</item>
         <item quantity="other">%1$d fields shown</item>
