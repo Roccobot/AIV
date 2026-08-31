@@ -30,11 +30,14 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import java.text.DateFormat
@@ -406,8 +409,8 @@ private fun FileFacts(facts: Facts, one: OneFile, fields: List<FactField>) {
 }
 
 /**
- * Il nome del file in una pastiglia del colore d'accento, in grassetto, larga quanto il
- * dialogo e alta quanto serve fino a [NAME_LINES] righe.
+ * Il nome del file in una pastiglia del colore d'accento, larga quanto il dialogo e alta
+ * quanto serve fino a [NAME_LINES] righe.
  *
  * ⚠️ Prende `primaryContainer` e non `primary` benché in questa tavolozza valgano lo stesso:
  * è il ruolo giusto per una superficie colorata, e se un giorno i due si separassero questa
@@ -421,10 +424,26 @@ private fun FileFacts(facts: Facts, one: OneFile, fields: List<FactField>) {
  * evitare**: mette i tre punti alla **fine**, cioè mangia proprio l'estensione, che è la
  * parte che l'utente ha chiesto di salvare sempre. Serve un'ellissi **in mezzo**, che
  * Compose non ha: da qui la misura in [fitName].
+ *
+ * ⚠️⚠️ **L'ESTENSIONE È IN GRASSETTO E IL RESTO DEL NOME NON PIÙ, e la seconda metà di
+ * questa frase è una CONSEGUENZA e non una scelta a parte.** Nasce da un difetto che avevo
+ * dichiarato e che l'utente ha risolto meglio di come l'avevo posto: accorciando, i tre punti
+ * dell'ellissi finivano attaccati al punto dell'estensione, e si leggevano **quattro punti di
+ * fila** (`IMG_202....HEIC`). Il rimedio è suo: *uno spazio in più dopo i tre puntini
+ * dell'ellisse più l'estensione (incluso il suo punto) in grassetto*.
+ * - ⚠️ **La pastiglia era tutta in grassetto**, quindi mettere in grassetto l'estensione non
+ *   si sarebbe visto: il grassetto distingue solo da qualcosa che non lo è. Il nome passa
+ *   quindi al peso naturale di `titleSmall` (Medium) e il grassetto resta all'estensione.
+ * - ⚠️ **Il grassetto vale SEMPRE, non solo quando il nome si accorcia**: un'estensione che
+ *   ingrassa solo nei nomi lunghi si legge come un difetto di resa, e comunque
+ *   l'estensione è la parte più informativa del nome anche quando ci sta tutto.
+ * - ⚠️ **Lo spazio invece SOLO quando si accorcia**: serve a staccare l'ellissi dal punto, e
+ *   in un nome intero non ci sarebbe niente da staccare.
  */
 @Composable
 private fun NamePill(name: String, modifier: Modifier = Modifier) {
-    val style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
+    val style = MaterialTheme.typography.titleSmall
+    val grassetto = SpanStyle(fontWeight = FontWeight.Bold)
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(NAME_CORNER),
@@ -439,8 +458,8 @@ private fun NamePill(name: String, modifier: Modifier = Modifier) {
         ) {
             val measurer = rememberTextMeasurer()
             val room = with(LocalDensity.current) { maxWidth.roundToPx() }
-            val shown = remember(name, room, style, measurer) {
-                fitName(name, room, style, measurer)
+            val shown = remember(name, room, style, grassetto, measurer) {
+                fitName(name, room, style, grassetto, measurer)
             }
             Text(
                 text = shown,
@@ -454,12 +473,14 @@ private fun NamePill(name: String, modifier: Modifier = Modifier) {
 }
 
 /**
- * Il nome accorciato quanto basta a starci in [NAME_LINES] righe, con l'estensione salva.
+ * Il nome accorciato quanto basta a starci in [NAME_LINES] righe, con l'estensione salva,
+ * in grassetto e mai spezzata.
  *
- * ⚠️⚠️ **SI MISURA, non si conta**: un tetto di caratteri sarebbe sbagliato due volte, perché
- * le lettere non hanno tutte la stessa larghezza (`WWW` occupa il triplo di `iii`) e perché
- * la larghezza utile cambia col dialogo. Qui si chiede al misuratore se il testo sfora, che è
- * la stessa domanda che si farà il layout.
+ * ⚠️⚠️ **SI MISURA, non si conta**: un tetto di caratteri sarebbe sbagliato tre volte, perché
+ * le lettere non hanno tutte la stessa larghezza (`WWW` occupa il triplo di `iii`), perché il
+ * grassetto è più largo del peso normale, e perché la larghezza utile cambia col dialogo. Qui
+ * si chiede al misuratore se il testo sfora, che è la stessa domanda che si farà il layout, e
+ * gliela si chiede sul testo **già impaginato coi suoi pesi**.
  * ⚠️ **Ricerca binaria e non un ciclo che toglie una lettera per volta**: su un nome di
  * duecento caratteri sarebbero duecento misure a ogni composizione. Così sono otto.
  * ⚠️⚠️ **Il GIUNTORE DI PAROLE (`U+2060`) dentro l'estensione è l'unico modo di rispettare
@@ -467,10 +488,24 @@ private fun NamePill(name: String, modifier: Modifier = Modifier) {
  * caratteri qualunque, e `.HEIC` finirebbe a cavallo di due righe come `.HE` più `IC`.
  * Quel carattere è invisibile e dice al layout 'qui non si rompe'. Scritto per codepoint,
  * come vuole la regola del repo sui caratteri invisibili.
+ * ⚠️ **Lo spazio dopo l'ellissi, invece, è un punto in cui il layout PUÒ andare a capo**, e
+ * va bene: il vincolo era che l'estensione non si spezzi, non che stia sulla stessa riga del
+ * nome.
  */
-private fun fitName(name: String, room: Int, style: TextStyle, measurer: TextMeasurer): String {
-    fun sta(testo: String) = room <= 0 || !measurer.measure(
-        text = AnnotatedString(testo),
+private fun fitName(
+    name: String,
+    room: Int,
+    style: TextStyle,
+    grassetto: SpanStyle,
+    measurer: TextMeasurer
+): AnnotatedString {
+    fun comporre(testa: String, coda: String) = buildAnnotatedString {
+        append(testa)
+        if (coda.isNotEmpty()) withStyle(grassetto) { append(coda) }
+    }
+
+    fun sta(testo: AnnotatedString) = room <= 0 || !measurer.measure(
+        text = testo,
         style = style,
         maxLines = NAME_LINES,
         constraints = Constraints(maxWidth = room)
@@ -480,17 +515,18 @@ private fun fitName(name: String, room: Int, style: TextStyle, measurer: TextMea
     // ⚠️ `punto > 0` e non `>= 0`: un nome che comincia col punto è un file nascosto, e là
     // quel punto non introduce un'estensione, fa parte del nome.
     val coda = if (punto > 0) glue(name.substring(punto)) else ""
-    val intero = if (punto > 0) name.substring(0, punto) + coda else name
+    val corpo = if (punto > 0) name.substring(0, punto) else name
+
+    val intero = comporre(corpo, coda)
     if (sta(intero)) return intero
 
-    val corpo = if (punto > 0) name.substring(0, punto) else name
     var basso = 0
     var alto = corpo.length
     while (basso < alto) {
         val mezzo = (basso + alto + 1) / 2
-        if (sta(corpo.take(mezzo) + ELLIPSIS + coda)) basso = mezzo else alto = mezzo - 1
+        if (sta(comporre(corpo.take(mezzo) + CUT, coda))) basso = mezzo else alto = mezzo - 1
     }
-    return corpo.take(basso) + ELLIPSIS + coda
+    return comporre(corpo.take(basso) + CUT, coda)
 }
 
 /** L'estensione con un giuntore fra ogni carattere, così il layout non la spezza. */
@@ -544,8 +580,14 @@ private val NAME_PAD_TOP = 4.dp
  */
 private const val NAME_LINES = 3
 
-/** I tre punti, che nel repo si scrivono così e non col carattere unico. */
-private const val ELLIPSIS = "..."
+/**
+ * Il taglio: i tre punti e **uno spazio**.
+ *
+ * ⚠️ I tre punti si scrivono così e non col carattere unico, che il repo vieta. Lo spazio
+ * è la correzione dell'utente al difetto dei quattro punti di fila: senza di lui l'ellissi
+ * si salda al punto dell'estensione e si legge `....HEIC`.
+ */
+private const val CUT = "... "
 
 /**
  * `U+2060 WORD JOINER`: invisibile, e vieta al layout di andare a capo dove sta.
