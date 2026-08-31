@@ -222,4 +222,7 @@
     <string name="pick_duplicate">प्रत बनवा</string>
     <string name="settings_grid_names">ग्रिडमध्ये फाइलचे नाव</string>
     <string name="settings_grid_names_desc">प्रत्येक थंबनेलखाली फाइलचे नाव, जास्तीत जास्त दोन ओळींत. विस्तार कधीही तुटत नाही आणि नेहमी दिसतो: नाव मावले नाही तर मधला भाग लहान होतो.</string>
+    <string name="grid_item_clip">व्हिडिओ</string>
+    <string name="clip_play">चालवा</string>
+    <string name="clip_no_player">या फोनवरील कोणतेही ॲप हे चालवू शकत नाही</string>
 </resources>

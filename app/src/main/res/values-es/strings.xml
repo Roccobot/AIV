@@ -236,4 +236,7 @@
     <string name="pick_duplicate">Duplicar</string>
     <string name="settings_grid_names">Nombre del archivo en la cuadrícula</string>
     <string name="settings_grid_names_desc">Bajo cada miniatura, el nombre del archivo en dos líneas como mucho. La extensión nunca se parte y siempre se ve: si el nombre no cabe, lo que cede es el centro.</string>
+    <string name="grid_item_clip">Vídeo</string>
+    <string name="clip_play">Reproducir</string>
+    <string name="clip_no_player">Ninguna aplicación de este teléfono sabe reproducirlo</string>
 </resources>

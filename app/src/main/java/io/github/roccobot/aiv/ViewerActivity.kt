@@ -51,6 +51,21 @@ sealed interface ViewerState {
      */
     data class Loading(val progress: Float? = null) : ViewerState
     data class Ready(val image: LoadedImage) : ViewerState
+
+    /**
+     * Un FILMATO, che non si decodifica e non si sfoglia come una fotografia.
+     *
+     * ⚠️⚠️ **È il quarto stato dalla `0.83`, e sta accanto agli altri tre invece di essere
+     * un caso di [Ready]**: `Ready` porta una `LoadedImage`, cioè pixel, proporzioni, formato
+     * e profondità di colore, e un video non ha niente di tutto questo da dare. Fingere un
+     * `Ready` vuoto avrebbe fatto passare il filmato per tutta la catena dello zoom, della
+     * tavolozza e delle informazioni, che gli chiedono cose che non ha.
+     * ⚠️ **Porta il proprio indirizzo** anche se il modello ne ha già uno in `source`: chi
+     * disegna lo stato deve poter chiedere la miniatura e la durata senza incrociare due
+     * campi che potrebbero raccontare due momenti diversi.
+     */
+    data class Clip(val uri: Uri) : ViewerState
+
     data class Error(@param:StringRes val messageRes: Int, val detail: String?) : ViewerState
 }
 
@@ -429,6 +444,15 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         val context = getApplication<Application>()
         loadJob?.cancel()
         val token = ++loadToken
+        // ⚠️⚠️ **UN FILMATO NON ENTRA NEL DECODIFICATORE, e si ferma qui** (`0.83`): non c'è
+        // niente da aprire e niente da scaricare, quindi non c'è nemmeno un lavoro da
+        // annullare. Il contatore però si è già mosso: se una fotografia si stava aprendo,
+        // la sua percentuale in volo non deve comparire sopra il filmato.
+        if (Videos.isVideo(uri)) {
+            loadJob = null
+            state = ViewerState.Clip(uri)
+            return
+        }
         state = ViewerState.Loading()
         loadJob = viewModelScope.launch {
             val next = load(context, uri) { fraction ->

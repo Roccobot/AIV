@@ -208,4 +208,7 @@
     <string name="pick_duplicate">建立副本</string>
     <string name="settings_grid_names">格線中顯示檔名</string>
     <string name="settings_grid_names_desc">每張縮圖下顯示檔名，最多兩行。副檔名不會被換行拆開，一律可見：名稱放不下時，讓位的是中間部分。</string>
+    <string name="grid_item_clip">影片</string>
+    <string name="clip_play">播放</string>
+    <string name="clip_no_player">這支手機上沒有能播放它的應用程式</string>
 </resources>

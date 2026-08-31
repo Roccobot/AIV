@@ -222,4 +222,7 @@
     <string name="pick_duplicate">Duplizieren</string>
     <string name="settings_grid_names">Dateiname im Bilderraster</string>
     <string name="settings_grid_names_desc">Unter jedem Vorschaubild der Dateiname, auf höchstens zwei Zeilen. Die Endung wird nie umbrochen und ist immer zu sehen: passt der Name nicht, weicht die Mitte.</string>
+    <string name="grid_item_clip">Video</string>
+    <string name="clip_play">Abspielen</string>
+    <string name="clip_no_player">Keine App auf diesem Telefon kann es abspielen</string>
 </resources>

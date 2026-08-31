@@ -250,4 +250,7 @@
     <string name="pick_duplicate">Duplikuj</string>
     <string name="settings_grid_names">Nazwa pliku w siatce zdjęć</string>
     <string name="settings_grid_names_desc">Pod każdą miniaturą nazwa pliku, najwyżej w dwóch wierszach. Rozszerzenie nigdy nie jest dzielone i zawsze widoczne: gdy nazwa się nie mieści, ustępuje środek.</string>
+    <string name="grid_item_clip">Wideo</string>
+    <string name="clip_play">Odtwórz</string>
+    <string name="clip_no_player">Żadna aplikacja w tym telefonie nie odtworzy tego pliku</string>
 </resources>

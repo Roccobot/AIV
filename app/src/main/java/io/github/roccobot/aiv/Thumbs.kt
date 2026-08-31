@@ -205,9 +205,25 @@ private class SystemThumbnailFetcher(
         try {
             val bitmap = try {
                 when (uri.scheme?.lowercase()) {
+                    // ⚠️ Vale anche per i FILMATI, e senza una riga in più: `loadThumbnail`
+                    // chiede al provider la miniatura di quell'indirizzo, e il MediaStore
+                    // le genera per i video come per le fotografie. È la ragione per cui
+                    // il pezzo 1 dei video (`0.83`) non ha dovuto scrivere un secondo
+                    // caricatore.
                     "content" -> options.context.contentResolver.loadThumbnail(uri, wanted, signal)
+                    // ⚠️⚠️ **Qui invece le due funzioni sono DIVERSE**, e sbagliarle non dà
+                    // una miniatura brutta: `createImageThumbnail` su un filmato solleva, e
+                    // la richiesta finirebbe nella decodifica normale, che di un `mp4` non
+                    // sa che farsene. Il ramo `file://` è quello delle cartelle che il
+                    // MediaStore non conosce, dove non c'è nessuna tabella a dire il tipo:
+                    // lo dice l'estensione, come in `Folder.fromDisk`.
                     "file" -> uri.path?.let {
-                        ThumbnailUtils.createImageThumbnail(File(it), wanted, signal)
+                        val file = File(it)
+                        if (Videos.isVideo(uri)) {
+                            ThumbnailUtils.createVideoThumbnail(file, wanted, signal)
+                        } else {
+                            ThumbnailUtils.createImageThumbnail(file, wanted, signal)
+                        }
                     }
                     else -> null
                 }

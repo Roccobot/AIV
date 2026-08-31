@@ -236,4 +236,7 @@
     <string name="pick_duplicate">Dupliquer</string>
     <string name="settings_grid_names">Nom du fichier dans la grille</string>
     <string name="settings_grid_names_desc">Sous chaque vignette, le nom du fichier sur deux lignes au maximum. L\'extension n\'est jamais coupée et reste toujours visible: si le nom ne tient pas, c\'est le milieu qui cède.</string>
+    <string name="grid_item_clip">Vidéo</string>
+    <string name="clip_play">Lire</string>
+    <string name="clip_no_player">Aucune application de ce téléphone ne sait le lire</string>
 </resources>

@@ -208,4 +208,7 @@
     <string name="pick_duplicate">创建副本</string>
     <string name="settings_grid_names">网格中显示文件名</string>
     <string name="settings_grid_names_desc">每张缩略图下显示文件名，最多两行。扩展名不会被换行拆开，始终可见：名字放不下时，让位的是中间部分。</string>
+    <string name="grid_item_clip">视频</string>
+    <string name="clip_play">播放</string>
+    <string name="clip_no_player">这台手机上没有能播放它的应用</string>
 </resources>

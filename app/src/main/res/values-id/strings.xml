@@ -208,4 +208,7 @@
     <string name="pick_duplicate">Duplikat</string>
     <string name="settings_grid_names">Nama berkas di kisi foto</string>
     <string name="settings_grid_names_desc">Di bawah setiap gambar mini, nama berkas dalam dua baris paling banyak. Ekstensi tidak pernah dipenggal dan selalu terlihat: kalau nama tidak muat, bagian tengahnya yang mengalah.</string>
+    <string name="grid_item_clip">Video</string>
+    <string name="clip_play">Putar</string>
+    <string name="clip_no_player">Tidak ada aplikasi di ponsel ini yang bisa memutarnya</string>
 </resources>

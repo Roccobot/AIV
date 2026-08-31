@@ -212,9 +212,10 @@ object ImageActions {
      * vorrebbe dire scrivere qualche gigabyte per un gesto che dura un secondo. La copia
      * resta per i `file://`, che un'altra app non può leggere e che il nostro FileProvider
      * serve solo dalla sua cartella (`file_paths.xml`, una cartella sola apposta).
-     * ⚠️ **Il tipo dichiarato è il jolly delle immagini**, e qui non si può fare di
-     * meglio: una selezione può mescolare JPEG e HEIF, e dichiararne uno solo direbbe il
-     * falso su metà.
+     * ⚠️ **Il tipo dichiarato è un jolly**, e qui non si può fare di meglio: una selezione
+     * può mescolare JPEG e HEIF, e dichiararne uno solo direbbe il falso su metà. ⚠️ Ma è
+     * il jolly **della selezione** e non sempre quello delle immagini, dalla `0.83`: vedi
+     * la nota nel corpo.
      * ⚠️⚠️ **E quel jolly NON si scrive dentro un commento a blocco**: in Kotlin i
      * commenti a blocco si ANNIDANO, quindi una barra seguita da un asterisco ne apre un
      * secondo, e la chiusura che dovrebbe chiudere questo chiude quello. L'errore che ne
@@ -226,6 +227,15 @@ object ImageActions {
      * quarantanove. Se non ne resta nessuna, torna `false` e chi chiama lo dice.
      */
     suspend fun shareMany(context: Context, uris: List<Uri>): Boolean {
+        // ⚠️ **Il tipo si ricava dalla selezione dalla `0.83`**, da quando una cartella può
+        // contenere anche filmati: dichiarare `image/*` su un video farebbe comparire nel
+        // dialogo gli editor di fotografie, cioè programmi che quel file non aprono. Il
+        // jolly buono per un insieme misto è quello generale.
+        val kind = when {
+            uris.none { Videos.isVideo(it) } -> "image/*"
+            uris.all { Videos.isVideo(it) } -> "video/*"
+            else -> "*/*"
+        }
         val ready = ArrayList<Uri>(uris.size)
         for (uri in uris) {
             if (uri.scheme?.lowercase() == "content") {
@@ -240,7 +250,7 @@ object ImageActions {
         }
         if (ready.isEmpty()) return false
         val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
-            type = "image/*"
+            type = kind
             putParcelableArrayListExtra(Intent.EXTRA_STREAM, ready)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }

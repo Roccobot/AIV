@@ -158,9 +158,9 @@ object Folder {
         val found = LinkedHashMap<Long, Bucket>()
         runCatching {
             context.contentResolver.query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                TABLE,
                 COLUMNS,
-                null,
+                MEDIA,
                 null,
                 "${MediaStore.Images.Media.DATE_MODIFIED} DESC, ${MediaStore.Images.Media._ID} DESC"
             )?.use { c ->
@@ -175,6 +175,7 @@ object Folder {
                 val idAt = c.column(MediaStore.Images.Media._ID)
                 @Suppress("DEPRECATION")
                 val pathAt = c.column(MediaStore.Images.Media.DATA)
+                val kindAt = c.column(MediaStore.Files.FileColumns.MEDIA_TYPE)
                 while (c.moveToNext()) {
                     val id = c.getLong(bucketAt)
                     val seen = found[id]
@@ -195,7 +196,7 @@ object Folder {
                             id = id,
                             name = name,
                             count = 1,
-                            cover = idAt?.let { uriOf(c.getLong(it)) },
+                            cover = idAt?.let { uriOf(c.getLong(it), c.isClip(kindAt)) },
                             // La cartella che contiene la riga: il percorso del file
                             // meno il nome del file.
                             path = pathAt?.let { c.getString(it) }
@@ -226,9 +227,9 @@ object Folder {
      */
     suspend fun newestIn(context: Context, bucket: Long): Lookup = withContext(Dispatchers.IO) {
         if (!granted(context)) return@withContext Lookup.NoPermission
-        val ids = idsOf(context, bucket)
+        val ids = urisOf(context, bucket)
         if (ids.isEmpty()) return@withContext Lookup.Unreadable
-        Lookup.Found(Series(ids.map(::uriOf), 0))
+        Lookup.Found(Series(ids, 0))
     }
 
     /**
@@ -266,21 +267,22 @@ object Folder {
         val found = mutableListOf<Uri>()
         runCatching {
             context.contentResolver.query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                TABLE,
                 COLUMNS,
-                "${MediaStore.Images.Media.DISPLAY_NAME} LIKE ? ESCAPE '\\'",
+                media("${MediaStore.Images.Media.DISPLAY_NAME} LIKE ? ESCAPE '\\'"),
                 arrayOf(pattern),
                 "${MediaStore.Images.Media.DATE_MODIFIED} DESC, ${MediaStore.Images.Media._ID} DESC"
             )?.use { c ->
                 val idAt = c.column(MediaStore.Images.Media._ID) ?: return@use
                 @Suppress("DEPRECATION")
                 val pathAt = c.column(MediaStore.Images.Media.DATA)
+                val kindAt = c.column(MediaStore.Files.FileColumns.MEDIA_TYPE)
                 while (c.moveToNext()) {
                     val dir = pathAt?.let { c.getString(it) }
                         ?.substringBeforeLast('/')
                         ?.takeIf { it.isNotBlank() }
                     if (dir != null && hidden.any { dir == it || dir.startsWith("$it/") }) continue
-                    found += uriOf(c.getLong(idAt))
+                    found += uriOf(c.getLong(idAt), c.isClip(kindAt))
                 }
             }
         }
@@ -330,10 +332,15 @@ object Folder {
     )
 
     // ⚠️ L'ordine è quello degli indici usati sotto (0 id, 1 bucket, 2 nome, 3 peso,
-    // 4 percorso, 5 nome della cartella): chi ne aggiunge una la mette IN FONDO.
+    // 4 percorso, 5 nome della cartella, 6 tipo): chi ne aggiunge una la mette IN FONDO.
     // ⚠️ `DATA` è deprecata nell'API e serve lo stesso: è la sola colonna che dice
     // dove sta il file, ed è la chiave con cui l'indirizzo del selettore si riporta
     // alla riga giusta senza indovinare.
+    // ⚠️⚠️ **Le costanti restano quelle di `Images` anche ora che si legge la tabella
+    // dei FILE, e non è una svista**: sono `String` condivise, dichiarate identiche in
+    // `ImageColumns` e in `VideoColumns` perché la colonna sta sotto, nella tabella, non
+    // nella vista. Le sorelle di `MediaStore.MediaColumns` direbbero la stessa cosa ma
+    // esistono solo da Android 10, e `minSdk` qui è 28.
     @Suppress("DEPRECATION")
     private val COLUMNS = arrayOf(
         MediaStore.Images.Media._ID,
@@ -341,8 +348,37 @@ object Folder {
         MediaStore.Images.Media.DISPLAY_NAME,
         MediaStore.Images.Media.SIZE,
         MediaStore.Images.Media.DATA,
-        MediaStore.Images.Media.BUCKET_DISPLAY_NAME
+        MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
+        MediaStore.Files.FileColumns.MEDIA_TYPE
     )
+
+    /**
+     * La tabella che si interroga, e dalla `0.83` è quella dei FILE.
+     *
+     * ⚠️⚠️ **UNA QUERY SOLA PER IMMAGINI E VIDEO, e l'alternativa era peggiore.** Le due
+     * viste `Images.Media` e `Video.Media` sono due filtri sulla **stessa** tabella, quindi
+     * interrogarle tutte e due vorrebbe dire due cursori da fondere a mano tenendo l'ordine
+     * per data: un secondo ordinamento scritto in Kotlin che deve restare d'accordo con
+     * quello di SQLite, per sempre. La tabella sotto le contiene già in ordine.
+     * ⚠️ **Il volume si scrive per esteso e non con `MediaStore.VOLUME_EXTERNAL`**, che è
+     * arrivato con Android 10: la stringa è la stessa e vale anche sui telefoni più
+     * vecchi, che questa app sostiene fino ad Android 9.
+     */
+    private val TABLE: Uri = MediaStore.Files.getContentUri("external")
+
+    /**
+     * Il filtro che tiene fuori tutto ciò che non è una fotografia o un filmato.
+     *
+     * ⚠️⚠️ **SERVE SEMPRE, in ogni query di questo file**: la tabella dei file contiene
+     * anche i documenti, la musica e le **cartelle** (tipo 0). Dimenticarlo una volta sola
+     * vuol dire una griglia che mostra i PDF.
+     */
+    private val MEDIA = "${MediaStore.Files.FileColumns.MEDIA_TYPE} IN " +
+        "(${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}, " +
+        "${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO})"
+
+    /** Quel filtro più una condizione propria, che è il caso normale. */
+    private fun media(and: String): String = "$MEDIA AND ($and)"
 
     /**
      * The folder the picture at [uri] belongs to, or the REASON there is none.
@@ -411,8 +447,14 @@ object Folder {
      */
     private const val SYNTHETIC_MARK = "/.transforms/synthetic/"
 
-    /** Dove il MediaStore ha davvero trovato la foto: la cartella e la riga. */
-    private data class Located(val bucket: Long, val id: Long)
+    /**
+     * Dove il MediaStore ha davvero trovato la foto: la cartella, la riga e che cosa è.
+     *
+     * ⚠️ [video] serve a ricostruire l'indirizzo giusto ([uriOf]): la stessa riga, nelle
+     * due tabelle, ha due indirizzi diversi, e cercare quello sbagliato dentro la serie
+     * darebbe [Lookup.Lost] su un file che è lì.
+     */
+    private data class Located(val bucket: Long, val id: Long, val video: Boolean)
 
     private fun identify(context: Context, uri: Uri): Card? =
         runCatching {
@@ -472,10 +514,10 @@ object Folder {
         val guessed = runCatching { ContentUris.parseId(uri) }.getOrNull()
         if (guessed != null && guessed > 0) {
             rowById(context, guessed)?.let { row ->
-                val sameSize = !card.sizeKnown || row.second == card.size
+                val sameSize = !card.sizeKnown || row.size == card.size
                 // Il nome si confronta solo quando è vero: sintetico, non dice nulla.
-                val sameName = card.synthetic || row.third == card.name
-                if (sameSize && sameName) return Located(row.first, guessed)
+                val sameName = card.synthetic || row.name == card.name
+                if (sameSize && sameName) return Located(row.bucket, guessed, row.video)
             }
         }
 
@@ -528,6 +570,18 @@ object Folder {
     )
 
     /**
+     * Immagine o filmato: quello che una cartella letta dal disco deve mostrare.
+     *
+     * ⚠️ **I video ci sono dalla `0.83`**, e l'elenco delle loro estensioni vive in
+     * [Videos] insieme a tutto il resto che li riguarda, invece di essere copiato qui: due
+     * elenchi si separano al primo formato aggiunto in uno solo dei due.
+     */
+    private fun File.isMedia(): Boolean {
+        val ext = extension.lowercase()
+        return ext in EXTENSIONS || ext in Videos.EXTENSIONS
+    }
+
+    /**
      * La cartella letta dal FILESYSTEM, quando il MediaStore non riconosce la foto.
      *
      * ⚠️ L'ordine imita quello del MediaStore (data e poi nome, **decrescente**) invece
@@ -547,7 +601,7 @@ object Folder {
         val siblings = runCatching { dir.listFiles() }.getOrNull() ?: return null
 
         val images = siblings
-            .filter { it.isFile && it.extension.lowercase() in EXTENSIONS }
+            .filter { it.isFile && it.isMedia() }
             .sortedWith(compareByDescending<File> { it.lastModified() }.thenByDescending { it.name })
         if (images.size < 2) return Lookup.Alone
         val index = images.indexOfFirst { it.absolutePath == file.absolutePath }
@@ -557,17 +611,25 @@ object Folder {
         return Lookup.Found(Series(images.map { Uri.fromFile(it) }, index))
     }
 
-    /** Cartella, peso e nome della riga con quell'id, per poterla verificare. */
-    private fun rowById(context: Context, id: Long): Triple<Long, Long, String>? = runCatching {
+    /**
+     * Quello che di una riga serve a riconoscerla.
+     *
+     * ⚠️ Era una `Triple` fino alla `0.83`, e con la quarta cosa da portare (il tipo) i
+     * `.first` e `.second` sarebbero diventati indovinelli: qui i campi hanno un nome.
+     */
+    private data class Row(val bucket: Long, val size: Long, val name: String, val video: Boolean)
+
+    /** Cartella, peso, nome e tipo della riga con quell'id, per poterla verificare. */
+    private fun rowById(context: Context, id: Long): Row? = runCatching {
         context.contentResolver.query(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            TABLE,
             COLUMNS,
-            "${MediaStore.Images.Media._ID} = ?",
+            media("${MediaStore.Images.Media._ID} = ?"),
             arrayOf(id.toString()),
             null
         )?.use { c ->
             if (!c.moveToFirst()) return@use null
-            Triple(c.getLong(1), c.getLong(3), c.getString(2) ?: "")
+            Row(c.getLong(1), c.getLong(3), c.getString(2) ?: "", c.isClip(KIND_AT))
         }
     }.getOrNull()
 
@@ -575,9 +637,29 @@ object Folder {
     private fun rowByWhere(context: Context, where: String, args: Array<String>): Located? =
         runCatching {
             context.contentResolver.query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, COLUMNS, where, args, null
-            )?.use { c -> if (c.moveToFirst()) Located(c.getLong(1), c.getLong(0)) else null }
+                TABLE, COLUMNS, media(where), args, null
+            )?.use { c ->
+                if (c.moveToFirst()) Located(c.getLong(1), c.getLong(0), c.isClip(KIND_AT)) else null
+            }
         }.getOrNull()
+
+    /**
+     * Se la riga su cui è fermo il cursore è un filmato.
+     *
+     * ⚠️ La colonna può mancare, e allora la risposta è 'immagine': è quello che l'app ha
+     * fatto per ottantadue versioni, quindi come ripiego non introduce niente di nuovo.
+     */
+    private fun Cursor.isClip(at: Int?): Boolean =
+        at != null && !isNull(at) && getInt(at) == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO
+
+    /**
+     * L'indice della colonna del tipo dentro [COLUMNS], per chi legge per posizione.
+     *
+     * ⚠️ Le due funzioni qui sopra leggono le colonne **per indice** e non per nome, come
+     * facevano già: la proiezione è la stessa `COLUMNS` di sempre, quindi la posizione è
+     * nota. Chi aggiunge una colonna la mette in fondo, e questo numero resta buono.
+     */
+    private const val KIND_AT = 6
 
     /**
      * Everything in that bucket, in a fixed order, with the opened picture found
@@ -598,16 +680,16 @@ object Folder {
      * mano.
      */
     private fun list(context: Context, found: Located): Lookup {
-        val ids = idsOf(context, found.bucket)
+        val ids = urisOf(context, found.bucket)
         if (ids.size < 2) return Lookup.Alone
         // ⚠️⚠️ L'INDICE SI TROVA PER ID, e non più confrontando nome o peso: l'id è la
         // chiave della riga, quindi non può sbagliare e non può essere sintetico. Prima
         // si riconfrontavano nome e percorso, cioè proprio i due dati che il selettore
         // INVENTA, e la foto appena trovata rischiava di finire 'non ritrovata nella sua
         // cartella'.
-        val index = ids.indexOf(found.id)
+        val index = ids.indexOf(uriOf(found.id, found.video))
         if (index < 0) return Lookup.Lost
-        return Lookup.Found(Series(ids.map(::uriOf), index))
+        return Lookup.Found(Series(ids, index))
     }
 
     /**
@@ -621,24 +703,41 @@ object Folder {
      * l'impostazione serve a tornare all'ordine cronologico. ⚠️ Chi lo rimette crescente
      * 'per coerenza col MediaStore' rovescia il comportamento di tutta l'app.
      *
-     * ⚠️ Gli **id** e non gli indirizzi, perché di questa lista si cerca una posizione
-     * ([list]) o si prende un estremo ([newestIn]): confrontare numeri è esatto, mentre
-     * confrontare indirizzi ricostruiti è il genere di cosa che qui ha già fatto danni.
+     * ⚠️⚠️ **ERANO GLI ID FINO ALLA `0.82`, e adesso sono gli INDIRIZZI**, perché con i
+     * video l'id da solo non basta più a dire di che riga si parla: la stessa riga vive
+     * nelle due tabelle con due indirizzi, e per costruire quello giusto bisogna sapere il
+     * tipo. Portandosi dietro l'indirizzo intero il tipo viaggia con lui, che è la stessa
+     * decisione dichiarata in [Videos].
+     * ⚠️ Il confronto resta esatto: sono stringhe costruite qui, dalla stessa funzione, e
+     * non indirizzi ricostruiti altrove per somiglianza, che è il genere di cosa che in
+     * questo file ha già fatto danni.
      */
-    private fun idsOf(context: Context, bucket: Long): List<Long> {
-        val ids = mutableListOf<Long>()
+    private fun urisOf(context: Context, bucket: Long): List<Uri> {
+        val found = mutableListOf<Uri>()
         runCatching {
             context.contentResolver.query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                TABLE,
                 COLUMNS,
-                "${MediaStore.Images.Media.BUCKET_ID} = ?",
+                media("${MediaStore.Images.Media.BUCKET_ID} = ?"),
                 arrayOf(bucket.toString()),
                 "${MediaStore.Images.Media.DATE_MODIFIED} DESC, ${MediaStore.Images.Media._ID} DESC"
-            )?.use { c -> while (c.moveToNext()) ids.add(c.getLong(0)) }
+            )?.use { c -> while (c.moveToNext()) found.add(uriOf(c.getLong(0), c.isClip(KIND_AT))) }
         }
-        return ids
+        return found
     }
 
-    private fun uriOf(id: Long): Uri =
-        ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+    /**
+     * L'indirizzo di una riga, nella tabella che le compete.
+     *
+     * ⚠️⚠️ **NON si costruisce sulla tabella dei FILE anche se è quella che si interroga**,
+     * ed è la scelta che tiene in piedi tutto il resto: `content://media/external/file/12`
+     * non dice se è una fotografia o un filmato, mentre `.../video/media/12` sì. Il tipo
+     * dentro l'indirizzo è quello che permette a `Videos.isVideo` di essere una funzione
+     * pura, senza query, chiamabile per ogni riquadro che scorre.
+     */
+    private fun uriOf(id: Long, video: Boolean): Uri = ContentUris.withAppendedId(
+        if (video) MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+        else MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+        id
+    )
 }

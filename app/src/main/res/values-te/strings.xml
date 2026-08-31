@@ -222,4 +222,7 @@
     <string name="pick_duplicate">నకలు చేయి</string>
     <string name="settings_grid_names">గ్రిడ్‌లో ఫైల్ పేరు</string>
     <string name="settings_grid_names_desc">ప్రతి థంబ్‌నెయిల్ కింద ఫైల్ పేరు, గరిష్ఠంగా రెండు పంక్తులలో. పొడిగింపు ఎప్పుడూ విడిపోదు, ఎప్పుడూ కనిపిస్తుంది: పేరు పట్టకపోతే మధ్య భాగం కుదించబడుతుంది.</string>
+    <string name="grid_item_clip">వీడియో</string>
+    <string name="clip_play">ప్లే చేయి</string>
+    <string name="clip_no_player">దీన్ని ప్లే చేయగల యాప్ ఈ ఫోన్‌లో లేదు</string>
 </resources>

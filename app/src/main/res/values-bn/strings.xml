@@ -222,4 +222,7 @@
     <string name="pick_duplicate">প্রতিলিপি করুন</string>
     <string name="settings_grid_names">গ্রিডে ফাইলের নাম</string>
     <string name="settings_grid_names_desc">প্রতিটি থাম্বনেইলের নিচে ফাইলের নাম, বড়জোর দুই লাইনে। এক্সটেনশন কখনও ভাঙে না এবং সবসময় দেখা যায়: নাম না ধরলে মাঝখানটাই ছোট হয়।</string>
+    <string name="grid_item_clip">ভিডিও</string>
+    <string name="clip_play">চালান</string>
+    <string name="clip_no_player">এই ফোনের কোনও অ্যাপ এটি চালাতে পারে না</string>
 </resources>

@@ -236,4 +236,7 @@
     <string name="pick_duplicate">Duplicar</string>
     <string name="settings_grid_names">Nome do arquivo na grade</string>
     <string name="settings_grid_names_desc">Sob cada miniatura, o nome do arquivo em no máximo duas linhas. A extensão nunca é quebrada e aparece sempre: quando o nome não cabe, quem cede é o meio.</string>
+    <string name="grid_item_clip">Vídeo</string>
+    <string name="clip_play">Reproduzir</string>
+    <string name="clip_no_player">Nenhum app deste celular sabe reproduzi-lo</string>
 </resources>

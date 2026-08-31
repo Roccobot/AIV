@@ -26,4 +26,7 @@
     <string name="pick_all_hint">Atajo: mantén presionado el botón flotante para seleccionarlo todo.</string>
     <string name="bin_empty_hint">Atajo: mantén presionado el botón flotante para vaciar la papelera.</string>
     <string name="columns_hint">Atajo: mantén presionado el botón flotante para elegir el tamaño de la cuadrícula.</string>
+    <!-- En America Latina la palabra es llana y va sin tilde: solo eso cambia, y las
+         otras dos cadenas de los videos son iguales a las de Espana. -->
+    <string name="grid_item_clip">Video</string>
 </resources>
