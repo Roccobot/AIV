@@ -8,10 +8,14 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.splineBasedDecay
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -95,6 +99,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import coil3.SingletonImageLoader
 import coil3.compose.AsyncImagePainter
@@ -108,6 +113,7 @@ import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -155,6 +161,16 @@ private val PAGE_GAP = 16.dp
  * sfioramento) e sotto il colpo secco.
  */
 private val FLING_VELOCITY = 400.dp
+
+/**
+ * Sotto questa velocità l'inerzia non parte, in dp al secondo (poi tradotti in pixel).
+ *
+ * ⚠️ 120 e non 50 come la soglia di lancio di Android: quella decide se un elenco **deve**
+ * scorrere, qui la figura si è già mossa col dito e la domanda è un'altra, cioè se
+ * continuare. Un dito che si alza da fermo lascia qualche decina di dp al secondo, e sotto
+ * questa soglia lo scivolamento si leggerebbe come un sussulto.
+ */
+private val GLIDE_FLOOR = 120.dp
 
 /**
  * Quanto dura l'arrivo a destinazione, o il ritorno al posto.
@@ -1173,6 +1189,27 @@ private fun ImageCanvas(
             }
         }
 
+        /**
+         * Lo scivolamento in corso, e `null` quando la figura è ferma.
+         *
+         * ⚠️⚠️ **SI ANNULLA APPENA UN DITO TORNA GIÙ**, e senza questo l'inerzia diventerebbe
+         * un difetto invece di una comodità: chi appoggia il dito su una fotografia che
+         * scivola vuole fermarla, e due scrittori sullo stesso `offset` (l'animazione e il
+         * gesto) darebbero uno strappo. L'annullamento sta dentro [zoomAround] e [animateTo],
+         * cioè nei due soli punti da cui `offset` cambia per volontà di qualcuno.
+         */
+        var gliding by remember(image, settings) { mutableStateOf<Job?>(null) }
+
+        fun stopGlide() {
+            gliding?.cancel()
+            gliding = null
+        }
+
+        // ⚠️ La curva e la soglia si preparano una volta: la prima dipende dalla densità, la
+        // seconda è una velocità in dp al secondo che va tradotta in pixel.
+        val decay = remember(density) { splineBasedDecay<Offset>(density) }
+        val glideFloor = with(density) { GLIDE_FLOOR.toPx() }
+
         fun clampOffset(candidate: Offset, atScale: Float): Offset {
             val slackX = max(0f, (imageWidth * atScale - viewWidth) / 2f)
             val slackY = max(0f, (imageHeight * atScale - viewHeight) / 2f)
@@ -1184,6 +1221,7 @@ private fun ImageCanvas(
 
         /** Rescales around a point on screen, keeping what is under that point still. */
         fun zoomAround(anchor: Offset, next: Float, pan: Offset = Offset.Zero) {
+            stopGlide()
             val clamped = next.coerceIn(MIN_SCALE, settings.zoomMax)
             val fromCentre = anchor - Offset(viewWidth / 2f, viewHeight / 2f)
             val corrected = fromCentre - (fromCentre - offset) * (clamped / scale)
@@ -1192,12 +1230,48 @@ private fun ImageCanvas(
         }
 
         fun animateTo(target: Float) {
+            stopGlide()
             scope.launch {
                 val from = scale
                 val animation = Animatable(from)
                 animation.animateTo(target.coerceIn(MIN_SCALE, settings.zoomMax)) {
                     scale = value
                     offset = clampOffset(offset * (value / from), value)
+                }
+            }
+        }
+
+        /**
+         * L'inerzia della panoramica: al distacco la figura continua e frena da sé.
+         *
+         * ⚠️⚠️ **NASCE DALLA 0.81** (richiesta dell'utente: *inerzia del trascinamento*):
+         * prima la figura si fermava nell'istante in cui il dito si stacca, che su una
+         * fotografia ingrandita è il gesto più frequente di tutti e l'unico che sembrava di
+         * un'app di dieci anni fa.
+         * ⚠️⚠️ **LA CURVA DI FRENATA È QUELLA DEL SISTEMA** (`splineBasedDecay`), non
+         * un'esponenziale con un attrito scelto da me: è la stessa che Android usa per lo
+         * scorrimento di ogni elenco, quindi il gesto qui dentro finisce **come finisce
+         * altrove**, e non c'è nessun numero da tarare a naso.
+         * ⚠️ **Si ferma appena il bordo ferma la figura**, e senza questo controllo
+         * l'animazione continuerebbe a girare per il suo secondo intero mentre l'immagine è
+         * già ferma contro il limite: `clampOffset` la tiene dentro, quindi il valore
+         * calcolato smette di cambiare qualcosa e tanto vale smettere di calcolarlo.
+         * ⚠️ **Sotto [GLIDE_FLOOR] non parte niente**: un dito che si alza da fermo lascia
+         * una velocità piccola ma non nulla, e uno scivolamento di due pixel si legge come un
+         * sussulto invece che come inerzia.
+         */
+        fun glideBy(velocity: Velocity) {
+            val speed = Offset(velocity.x, velocity.y)
+            if (speed.getDistance() < glideFloor) return
+            stopGlide()
+            gliding = scope.launch {
+                // ⚠️ `AnimationState` e non `Animatable`, e la differenza è l'unica cosa che
+                // permette di fermarsi al bordo: il blocco di `Animatable` ha per ricevitore
+                // l'animabile stesso, quello di `AnimationState` un `AnimationScope`, che è
+                // dove vive `cancelAnimation`.
+                AnimationState(Offset.VectorConverter, offset, speed).animateDecay(decay) {
+                    val next = clampOffset(value, scale)
+                    if (next == offset) cancelAnimation() else offset = next
                 }
             }
         }
@@ -1335,6 +1409,7 @@ private fun ImageCanvas(
                         onTransform = { centroid, pan, zoom ->
                             zoomAround(centroid, scale * zoom, pan)
                         },
+                        onPanEnd = { glideBy(it) },
                         // ⚠️ La resistenza al capolinea NON è decorazione: senza, alla
                         // prima o all'ultima foto il dito trascinerebbe la pagina su un
                         // vuoto che non porta da nessuna parte. Frenata a un terzo, la
@@ -1445,6 +1520,16 @@ private suspend fun PointerInputScope.detectPanZoomOrSwipe(
     swipeEnabled: () -> Boolean,
     swipeThreshold: () -> Float,
     onTransform: (centroid: Offset, pan: Offset, zoom: Float) -> Unit,
+    /**
+     * Il dito si è alzato dopo una panoramica, e con quale velocità in pixel al secondo.
+     *
+     * ⚠️⚠️ **NASCE DALLA 0.81** (richiesta dell'utente: *inerzia del trascinamento*): senza,
+     * la figura si fermava nell'istante in cui il dito si stacca, che su una fotografia
+     * ingrandita è il gesto che si fa più spesso. ⚠️ **Esce solo per il dito SOLO**: dopo una
+     * pinza nessuno si aspetta che l'immagine continui, e il centroide che passa da due dita
+     * a una salta di netto, cioè inventerebbe una velocità che nessuno ha impresso.
+     */
+    onPanEnd: (Velocity) -> Unit,
     onSwipeDrag: (Float) -> Unit,
     onSwipeEnd: (Int) -> Unit
 ) {
@@ -1462,6 +1547,13 @@ private suspend fun PointerInputScope.detectPanZoomOrSwipe(
         // non capito. Si misura sul dito che ha cominciato e non sul centroide, che con
         // un dito solo è lo stesso punto e con due non è più una strisciata.
         val speed = VelocityTracker()
+        // ⚠️ Un secondo misuratore e non lo stesso: quello sopra segue la STRISCIATA (il
+        // dito che ha cominciato, in orizzontale), questo la PANORAMICA dentro la figura.
+        // Sono due gesti che si escludono, ma i loro numeri no: una strisciata annullata dal
+        // secondo dito azzera il primo, e la panoramica che ne segue non deve ereditarne la
+        // velocità.
+        val slide = VelocityTracker()
+        var panned = false
 
         val down = awaitFirstDown(requireUnconsumed = false)
         // ⚠️ Le due condizioni si leggono QUI, a dito appena sceso, e non fuori: fuori
@@ -1509,6 +1601,19 @@ private suspend fun PointerInputScope.detectPanZoomOrSwipe(
                         onSwipeDrag(travel)
                     } else if (zoomChange != 1f || panChange != Offset.Zero) {
                         onTransform(event.calculateCentroid(useCurrent = false), panChange, zoomChange)
+                        // ⚠️ Si misura la posizione del dito **solo quando è uno**: con due
+                        // il centroide è un punto che non appartiene a nessun dito, e nel
+                        // momento in cui uno si alza fa un salto che il misuratore leggerebbe
+                        // come una frustata. Con due dita si azzera, così una pinza non lascia
+                        // dietro di sé un'inerzia.
+                        val alone = event.changes.singleOrNull { it.pressed }
+                        if (alone != null) {
+                            slide.addPosition(alone.uptimeMillis, alone.position)
+                            panned = true
+                        } else {
+                            slide.resetTracking()
+                            panned = false
+                        }
                     }
                     // Si consuma in tutti e due i casi: è quello che dice al
                     // rilevatore dei tocchi che questo dito sta trascinando e non
@@ -1518,7 +1623,13 @@ private suspend fun PointerInputScope.detectPanZoomOrSwipe(
             }
         } while (!canceled && event.changes.any { it.pressed })
 
-        if (!dragged) return@awaitEachGesture
+        if (!dragged) {
+            // ⚠️ Non si è strisciato, quindi se si è spostata la figura il gesto finisce
+            // qui: l'inerzia parte al distacco, e un gesto annullato da un altro rilevatore
+            // non ne lascia.
+            if (panned && !canceled) onPanEnd(slide.calculateVelocity())
+            return@awaitEachGesture
+        }
         val vx = speed.calculateVelocity().x
         val step = when {
             canceled -> 0

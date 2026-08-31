@@ -3,34 +3,33 @@ package io.github.roccobot.aiv
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.PathBuilder
+import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import kotlin.math.hypot
 
 /**
- * Le icone che Material non ha, disegnate qui.
+ * Le icone che Material non ha.
  *
- * ⚠️⚠️ **ESISTONO PERCHÉ MANCAVANO DAVVERO, non per gusto, e ogni volta è stato cercato e
- * non supposto.** Il cursore di testo dei programmi da tavolo non c'è in nessuno dei due set
- * (la cosa più vicina è la matita di `Icons.Default.Edit`, che dice 'modifica' e non
- * 'rinomina'); il **sole** non c'è in nessuna delle icone-immagine di Material, che hanno
- * tutte le sole montagne (verificato sui sorgenti di `image`, `photo`, `photo_library` e
- * `collections`, che portano la stessa spezzata a due cime e nessun disco); e una cartella
- * **tratteggiata** non esiste in nessun set, né potrebbe: un vettore di Android non ha un
- * tratteggio, e i trattini vanno disegnati uno per uno (vedi [dashed]).
+ * ⚠️⚠️ **LE TRE DEL RIQUADRO LE HA DISEGNATE L'UTENTE, dalla 0.81** (*ecco le icone
+ * ridisegnate come le volevo*), e questo file le **trasporta** invece di interpretarle: sono
+ * tre tracciati pieni in una griglia 24x24, arrivati come SVG e copiati qui **verbatim** nella
+ * loro forma compatta. Fino alla `0.80` erano provvisorie, disegnate qui a tratti e curve
+ * dietro sua richiesta di provare: quel codice (rettangoli stondati, spezzate, dischi, e un
+ * tratteggio calcolato trattino per trattino) è sparito con loro, ed è la ragione per cui
+ * questo file è un terzo di quello che era.
+ * ⚠️ **Il tracciato è il disegno, e non c'è una seconda copia**: gli SVG di Illustrator
+ * portano 220 KB di metadati suoi che in un repo di codice non servono, mentre la `d` che sta
+ * qui, incollata in qualunque visualizzatore SVG dentro un `<path>`, ridà l'icona identica.
+ * ⚠️ **Le lettere di comando spezzano le righe e nient'altro**: ogni riga è un
+ * sottotracciato, e la loro concatenazione è **esattamente** la stringa dell'SVG. Chi la
+ * ricompone la può confrontare col file originale carattere per carattere.
+ *
+ * ⚠️ **Il cursore di testo resta disegnato qui**, ed è l'unico: l'utente l'ha approvato
+ * (*adesso è perfetta*) e Material non ha niente che gli somigli (la cosa più vicina è la
+ * matita di `Icons.Default.Edit`, che dice 'modifica' e non 'rinomina').
  * ⚠️ Chi volesse aggiungere qui un glifo che Material ha già sta duplicando un disegno
  * mantenuto da altri, e prima o poi i due divergeranno.
- *
- * ⚠️⚠️ **[FolderPair] E [FolderPairDashed] NASCONO DALLO STESSO STAMPO, e non è eleganza**:
- * la richiesta dell'utente era *disegnane una uguale a quella di Copia ma con quella sotto
- * tratteggiata*, e due disegni separati sarebbero due cartelle diverse che si somigliano.
- * Uguali per costruzione, l'unica differenza che si vede è quella che porta il significato.
- * ⚠️ È anche la ragione per cui 'Copia' **non usa più** `Icons.Outlined.FolderCopy`: quella
- * era una cartella di Material accanto a una disegnata in casa, cioè due mani nello stesso
- * riquadro.
  *
  * ⚠️ **Il colore dichiarato è nero e non è un difetto**: `Icon` disegna il vettore con un
  * `ColorFilter.tint`, quindi la tinta che si vede è quella passata a `Icon` e questa non si
@@ -41,9 +40,9 @@ object Glyphs {
     /**
      * Il cursore di testo, cioè la I con le due lineette.
      *
-     * ⚠️ **Di tratto e non di pieno**, a differenza di tutte le altre sei del riquadro: è
-     * l'unica fatta di aria, ed è il baratto dichiarato quando l'utente l'ha scelta. Lo
-     * spessore è 2, come le altre a 24dp, così non sembra più leggera.
+     * ⚠️ **Di tratto e non di pieno**, a differenza delle altre tre del riquadro: è l'unica
+     * fatta di aria, ed è il baratto dichiarato quando l'utente l'ha scelta. Lo spessore è 2,
+     * come le altre a 24dp, così non sembra più leggera.
      * ⚠️ **Le estremità sono tonde** (`StrokeCap.Round`): a spigolo vivo, a 24dp, i tre
      * tratti sembrano tagliati da una lama e l'insieme perde il richiamo al cursore.
      *
@@ -88,187 +87,58 @@ object Glyphs {
     /**
      * Due fogli sovrapposti, quello davanti con montagne e sole: 'Copia immagine'.
      *
-     * ⚠️⚠️ **IL SOLE È LA RAGIONE PER CUI QUESTO GLIFO ESISTE.** `Icons.Outlined.PhotoLibrary`
-     * ha già i due fogli e le montagne, e sarebbe bastata: ma nessuna icona-immagine di
-     * Material ha il **disco del sole**, e la richiesta dell'utente lo nomina (*il classico
-     * simbolo montagne più sole*), col permesso di disegnarne una se non esiste.
-     * ⚠️ **Il foglio dietro è una L e non un rettangolo**, come in `PhotoLibrary`: con tratti
-     * senza riempimento un rettangolo intero si vedrebbe **attraverso** quello davanti, e i
-     * due si leggerebbero come una griglia invece che come due fogli. Della cornice dietro si
-     * disegna solo quello che sporge.
-     * ⚠️ **Le montagne hanno due cime**, come quelle di Material, e non una: alla misura vera
-     * il profilo si impasta un poco, ma una cima sola legge 'triangolo' e non 'paesaggio'.
-     * Provato disegnandolo alle due misure, non deciso a mente.
+     * ⚠️ Il **sole** è la ragione per cui questo glifo esiste invece di
+     * `Icons.Outlined.PhotoLibrary`: nessuna icona-immagine di Material ha il disco del sole
+     * (verificato sui sorgenti di `image`, `photo`, `photo_library` e `collections`, che
+     * portano la stessa spezzata a due cime e nessun disco), e la richiesta dell'utente lo
+     * nominava.
      */
-    val PhotoPair: ImageVector by lazy {
-        glyph(
-            name = "PhotoPair",
-            // Il sole, che è l'unico pezzo pieno di tutto il file.
-            pieno = { disc(17.3f, 6.9f, SUN) }
-        ) {
-            // Il foglio dietro, in basso a sinistra: sporge di quattro unità per lato.
-            moveTo(4f, 8f)
-            verticalLineTo(20f)
-            horizontalLineTo(17.5f)
-            // La cornice davanti.
-            roundRect(8f, 3f, 21f, 16f, 2f)
-            // Le montagne.
-            moveTo(9.6f, 13.7f)
-            lineTo(11.9f, 10.1f)
-            lineTo(13.5f, 12.3f)
-            lineTo(15.7f, 9.6f)
-            lineTo(19.4f, 13.7f)
-        }
-    }
+    val PhotoPair: ImageVector by lazy { filled("PhotoPair", COPY_IMAGE) }
 
     /** Due cartelle sovrapposte: 'Copia'. */
-    val FolderPair: ImageVector by lazy {
-        glyph("FolderPair") {
-            polyline(FOLDER_BACK)
-            folder()
-        }
-    }
+    val FolderPair: ImageVector by lazy { filled("FolderPair", COPY) }
 
     /**
      * Due cartelle sovrapposte con quella dietro **tratteggiata**: 'Sposta'.
      *
      * ⚠️ Il tratteggio sta sulla cartella **di dietro** e non su quella davanti, e il verso
-     * conta: spostare vuol dire che l'originale non resta dov'era, quindi la cartella che
-     * si svuota è quella da cui si parte, cioè quella in fondo.
+     * conta: spostare vuol dire che l'originale non resta dov'era, quindi la cartella che si
+     * svuota è quella da cui si parte, cioè quella in fondo.
+     * ⚠️⚠️ **I TRATTINI SONO PEZZI DI TRACCIATO, e non un tratteggio**: un vettore di Android
+     * non ha un `stroke-dasharray`, quindi non esiste altro modo. Qui non si vede perché
+     * l'icona è **piena** e i trattini sono già cinque dei suoi sette sottotracciati: fino
+     * alla `0.80`, che li disegnava di tratto, li calcolava una funzione apposta.
      */
-    val FolderPairDashed: ImageVector by lazy {
-        glyph("FolderPairDashed") {
-            dashed(FOLDER_BACK, DASH_ON, DASH_OFF)
-            folder()
-        }
-    }
+    val FolderPairDashed: ImageVector by lazy { filled("FolderPairDashed", MOVE) }
 
     /**
-     * Il guscio di ogni glifo di questo file: un 24x24 con un tratto solo.
+     * Il guscio dei tre glifi dell'utente: un 24x24 con un tracciato pieno.
      *
-     * ⚠️ Esiste perché i quattro glifi condividono misura, spessore e capocchie, e ripetere
-     * quei numeri quattro volte vuol dire quattro occasioni di scriverne uno diverso. Chi
-     * cambia lo spessore lo cambia una volta.
+     * ⚠️ **Il riempimento è NON-ZERO**, che è il valore di serie di `addPath` e la regola di
+     * serie dell'SVG: i controcampi (l'interno delle cartelle, il cielo fra le montagne) sono
+     * sottotracciati che girano al contrario, e con la regola pari-dispari verrebbero uguali
+     * solo perché non si sovrappongono. Uguale per caso non è uguale.
+     * ⚠️ **`PathParser` e non `addPathNodes`**: quel richiamo comodo non c'è in questa versione
+     * di Compose (verificato nel bytecode di `PathNodeKt`, dove l'omonimo prende quattro
+     * parametri interni). ⚠️ E il tracciato si legge una volta sola, perché i glifi sono
+     * `by lazy`.
      */
-    private fun glyph(
-        name: String,
-        /**
-         * Un secondo tracciato, **pieno**, disegnato sotto quello di tratto.
-         *
-         * ⚠️ Serve al sole di [PhotoPair], e la ragione per cui non è un tratto è che un
-         * disco fatto col tratto dipenderebbe da come il motore disegna una **capocchia
-         * tonda su un segmento di lunghezza nulla**: in teoria è un disco, in pratica è un
-         * comportamento che non si può verificare senza un telefono. Un tracciato pieno
-         * disegna quello che dice, sempre.
-         */
-        pieno: (PathBuilder.() -> Unit)? = null,
-        disegno: PathBuilder.() -> Unit
-    ): ImageVector =
+    private fun filled(name: String, d: String): ImageVector =
         ImageVector.Builder(
             name = name,
             defaultWidth = SIZE,
             defaultHeight = SIZE,
             viewportWidth = GRID,
             viewportHeight = GRID
-        ).apply {
-            pieno?.let { path(fill = SolidColor(Color.Black), pathBuilder = it) }
-            path(
-                stroke = SolidColor(Color.Black),
-                strokeLineWidth = STROKE,
-                strokeLineCap = StrokeCap.Round,
-                strokeLineJoin = StrokeJoin.Round,
-                pathBuilder = disegno
-            )
-        }.build()
-
-    /**
-     * Un disco pieno, approssimato con quattro quadratiche.
-     *
-     * ⚠️ Quattro quadratiche e non quattro cubiche: l'errore massimo di questa
-     * approssimazione è il 5,6% del raggio, cioè **sei centesimi di unità** su un raggio di
-     * 1,15 in una griglia da 24. Invisibile, e in cambio non ci sono flag di arco da
-     * sbagliare (`isMoreThanHalf`, `isPositiveArc`), che sono il posto dove si sbaglia.
-     */
-    private fun PathBuilder.disc(cx: Float, cy: Float, r: Float) {
-        moveTo(cx, cy - r)
-        quadTo(cx + r, cy - r, cx + r, cy)
-        quadTo(cx + r, cy + r, cx, cy + r)
-        quadTo(cx - r, cy + r, cx - r, cy)
-        quadTo(cx - r, cy - r, cx, cy - r)
-        close()
-    }
-
-    /** Un rettangolo con gli angoli stondati, che `PathBuilder` non ha. */
-    private fun PathBuilder.roundRect(x0: Float, y0: Float, x1: Float, y1: Float, r: Float) {
-        moveTo(x0 + r, y0)
-        horizontalLineTo(x1 - r)
-        quadTo(x1, y0, x1, y0 + r)
-        verticalLineTo(y1 - r)
-        quadTo(x1, y1, x1 - r, y1)
-        horizontalLineTo(x0 + r)
-        quadTo(x0, y1, x0, y1 - r)
-        verticalLineTo(y0 + r)
-        quadTo(x0, y0, x0 + r, y0)
-        close()
-    }
-
-    /** Una spezzata, dal primo punto all'ultimo. */
-    private fun PathBuilder.polyline(punti: List<Pair<Float, Float>>) {
-        moveTo(punti.first().first, punti.first().second)
-        punti.drop(1).forEach { (x, y) -> lineTo(x, y) }
-    }
-
-    /** La cartella davanti, con la sua linguetta: la stessa nelle due coppie. */
-    private fun PathBuilder.folder() {
-        polyline(FOLDER_FRONT)
-        close()
-    }
-
-    /**
-     * La stessa spezzata, tagliata in trattini.
-     *
-     * ⚠️⚠️ **SERVE PERCHÉ UN VETTORE DI ANDROID NON SA TRATTEGGIARE**: `VectorDrawable` non
-     * ha un `stroke-dasharray`, e `ImageVector` nemmeno. L'unico modo è disegnare i trattini
-     * come sottotracciati separati, e l'unico modo sano di farlo è **calcolarli**: scriverli a
-     * mano vorrebbe dire ricalcolare a mano venti coppie di coordinate ogni volta che si
-     * ritocca la lunghezza di un trattino.
-     * ⚠️ **Gira una volta sola**, quando il glifo si costruisce: i vettori di questo file
-     * sono `by lazy`, quindi il conto si paga al primo disegno e mai più.
-     * ⚠️ Il passo prosegue **fra un segmento e l'altro** della spezzata invece di ripartire a
-     * ogni vertice: così l'angolo non prende sempre un trattino intero, che è quello che fa
-     * sembrare un tratteggio disegnato invece che calcolato.
-     */
-    private fun PathBuilder.dashed(punti: List<Pair<Float, Float>>, acceso: Float, spento: Float) {
-        var resto = acceso
-        var disegna = true
-        var da = punti.first()
-        if (disegna) moveTo(da.first, da.second)
-        for (a in 1 until punti.size) {
-            val b = punti[a]
-            val dx = b.first - da.first
-            val dy = b.second - da.second
-            val lungo = hypot(dx, dy)
-            var fatto = 0f
-            while (lungo - fatto > EPS) {
-                val passo = minOf(resto, lungo - fatto)
-                fatto += passo
-                resto -= passo
-                val x = da.first + dx * fatto / lungo
-                val y = da.second + dy * fatto / lungo
-                if (disegna) lineTo(x, y) else moveTo(x, y)
-                if (resto <= EPS) {
-                    disegna = !disegna
-                    resto = if (disegna) acceso else spento
-                }
-            }
-            da = b
-        }
-    }
+        ).addPath(
+            pathData = PathParser().parsePathString(d).toNodes(),
+            fill = SolidColor(Color.Black)
+        ).build()
 
     /** La griglia di Material: ogni icona del sistema è disegnata dentro un 24x24. */
     private const val GRID = 24f
 
-    /** Lo spessore delle altre icone a 24dp, in unità di griglia. */
+    /** Lo spessore del solo [TextCursor], in unità di griglia. */
     private const val STROKE = 2f
 
     /**
@@ -292,40 +162,27 @@ object Glyphs {
     private val SIZE = 24.dp
 
     /**
-     * La cartella davanti: linguetta a sinistra, corpo a destra.
-     *
-     * ⚠️ Le coordinate stanno **fuori** dai due glifi che la usano, e non per risparmiare
-     * righe: [FolderPair] e [FolderPairDashed] devono essere identiche tranne che nei
-     * trattini, e due copie della stessa spezzata si separano al primo ritocco di una.
+     * I tre tracciati dell'utente, una riga per sottotracciato. Vedi la nota in testa: la
+     * concatenazione è esattamente la `d` del suo SVG, e le righe non aggiungono niente.
      */
-    private val FOLDER_FRONT = listOf(
-        7f to 16.5f, 7f to 5f, 11.5f to 5f, 13.5f to 7f, 21f to 7f, 21f to 16.5f
-    )
+    private const val COPY =
+        "M3,19h16.6c.22,0,.4.18.4.4h0c0,.88-.72,1.6-1.6,1.6H3c-1.1,0-2-.9-2-2V7.6c0-.88.72-1.6,1.6-1.6h0c.22,0,.4.18.4.4v12.6Z" +
+            "M23,6v9c0,1.1-.9,2-2,2H7c-1.1,0-2-.9-2-2V4c.01-1.1.9-2,2-2h5l2,2h7c1.1,0,2,.9,2,2Z" +
+            "M7,15h14V6h-7.83l-2-2h-4.17v11Z"
 
-    /** La cartella dietro, di cui si vede solo quello che sporge: una L. */
-    private val FOLDER_BACK = listOf(3f to 8f, 3f to 19.5f, 17f to 19.5f)
+    private const val COPY_IMAGE =
+        "M13.06,15.26c.69,0,1.26-.56,1.26-1.26s-.56-1.26-1.26-1.26-1.26.56-1.26,1.26.56,1.26,1.26,1.26Z" +
+            "M16.4,2H4c-1.1,0-2,.9-2,2v12.4c0,.88.72,1.6,1.6,1.6h0c.22,0,.4-.18.4-.4V4h13.6c.22,0,.4-.18.4-.4h0c0-.89-.72-1.6-1.6-1.6Z" +
+            "M20,6h-12c-1.1,0-2,.9-2,2v12c0,1.1.9,2,2,2h12c1.1,0,2-.9,2-2v-12c0-1.1-.9-2-2-2Z" +
+            "M20,20h-12v-12h12v12Z" +
+            "M15.67,14.83l-2.48,3.1-1.69-2.26-2.5,3.33h10l-3.33-4.17Z"
 
-    /**
-     * Quanto è lungo un trattino e quanto lo stacco, in unità di griglia.
-     *
-     * ⚠️ **Lo stacco è il DOPPIO del trattino, e sembra sbagliato finché non si disegna**:
-     * la capocchia tonda sporge di mezzo spessore per parte, cioè di 1 in tutto, quindi un
-     * trattino di 1,6 si vede lungo 2,6 e uno stacco di 3,2 si vede lungo 2,2. Sulla carta
-     * il rapporto è 1 a 2, a schermo è quasi 1 a 1, che è il tratteggio che si voleva.
-     * Misurato disegnandolo alle due misure, non calcolato a mente.
-     */
-    private const val DASH_ON = 1.6f
-    private const val DASH_OFF = 3.2f
-
-    /**
-     * Il raggio del sole, in unità di griglia.
-     *
-     * ⚠️ 1,15 e non 1: un disco pieno di raggio 1 accanto a tratti spessi 2 si legge come un
-     * pallino sfuggito, non come un sole. Un filo più grosso del tratto lo rende un elemento
-     * del disegno.
-     */
-    private const val SUN = 1.15f
-
-    /** Sotto questo, una lunghezza è zero: serve a chiudere il ciclo di [dashed]. */
-    private const val EPS = 1e-4f
+    private const val MOVE =
+        "M3,11.91H1v4.42h2v-4.42Z" +
+            "M2.6,6h0c-.88,0-1.6.72-1.6,1.6v2.82h2v-4.02c0-.22-.18-.4-.4-.4Z" +
+            "M3,17.82H1v1.18c0,1.1.9,2,2,2h3.18v-2h-3.18v-1.18Z" +
+            "M14.58,21h3.82c.88,0,1.6-.72,1.6-1.6h0c0-.22-.18-.4-.4-.4h-5.02v2Z" +
+            "M7.67,21h5.42v-2h-5.42v2Z" +
+            "M21,4h-7l-2-2h-5c-1.1,0-1.99.9-1.99,2v11c-.01,1.1.89,2,1.99,2h14c1.1,0,2-.9,2-2V6c0-1.1-.9-2-2-2Z" +
+            "M21,15H7V4h4.17l2,2h7.83v9Z"
 }
