@@ -1,8 +1,6 @@
 package io.github.roccobot.aiv
 
-import android.content.ActivityNotFoundException
 import android.content.Context
-import android.content.Intent
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.provider.MediaStore
@@ -14,13 +12,12 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * I video: come si riconoscono, quanto durano, e chi li fa vedere.
  *
- * ⚠️⚠️ **PRIMO DEI TRE PEZZI del supporto ai video** (`0.83`), quello che l'utente ha
- * chiesto per primo (*quanto è complicato abilitare il supporto ai video? solo cose
- * terra-terra, oltre all'anteprima nelle cartelle*). Qui i video si **vedono**: nelle
- * cartelle, nelle griglie, nelle ricerche, con la durata sopra la miniatura; toccandone
- * uno si vede il suo fotogramma e il tastino che lo passa al lettore del telefono. La
- * riproduzione dentro l'app è il pezzo 2, e il resto dell'app (zoom, ritaglio, tavolozza,
- * ricerca per contenuto) è il pezzo 3.
+ * ⚠️⚠️ **NATO COL PRIMO DEI TRE PEZZI (`0.83`) e completo dal terzo (`0.86`)**, cioè dalla
+ * richiesta dell'utente (*quanto è complicato abilitare il supporto ai video? solo cose
+ * terra-terra, oltre all'anteprima nelle cartelle*). I video si **vedono** nelle cartelle,
+ * nelle griglie e nelle ricerche, con la durata sopra la miniatura; si **riproducono** in
+ * casa (vedi `ClipStage` in `ViewerScreen.kt`); e sfogliando si possono **saltare**, con
+ * l'impostazione 'Sfoglia solo le immagini', spenta di fabbrica.
  *
  * ⚠️⚠️ **IL TIPO VIAGGIA DENTRO L'INDIRIZZO, ed è LA decisione di questo pezzo.** Una
  * serie è una lista di indirizzi e basta (vedi `Folder.Series`), quindi ogni pezzo dell'app
@@ -125,17 +122,26 @@ object Videos {
     /**
      * La durata come si scrive sopra una miniatura: `0:07`, `3:41`, `1:02:15`.
      *
+     * ⚠️ **Serve anche al TEMPO del lettore dalla `0.86`**, che scorre mezzo secondo per
+     * volta: è la stessa forma, quindi la stessa funzione. Due formattazioni diverse per la
+     * durata e per la posizione si sarebbero notate proprio quando stanno una accanto
+     * all'altra, ai due capi della barra.
+     *
      * ⚠️ **I secondi si arrotondano invece di troncare**: un filmato di 7,6 secondi scritto
      * `0:07` contraddice il lettore, che alla fine dirà `0:08`. Arrotondando, i due numeri
      * combaciano.
-     * ⚠️ **E il minimo è `0:01`**: un video esiste, quindi non può durare `0:00`. Sotto il
-     * mezzo secondo l'arrotondamento darebbe zero, che si legge come 'file rotto'.
+     * ⚠️⚠️ **IL MINIMO `0:01` VALE PER UNA DURATA E NON PER UNA POSIZIONE, ed è quello che
+     * [floor] distingue**: un video esiste, quindi non può **durare** `0:00`, e sotto il
+     * mezzo secondo l'arrotondamento darebbe zero, che si legge come 'file rotto'; ma un
+     * filmato fermo all'inizio **sta** a `0:00`, e scrivere `0:01` sarebbe un tempo che non
+     * corrisponde a dove si trova la barra. Con un valore solo per i due casi, il lettore
+     * della `0.86` sarebbe partito da `0:01`.
      * ⚠️ **Le cifre seguono la lingua del telefono** (`Locale.getDefault()`): in arabo e in
      * bengalese i numeri hanno segni propri, e una durata in cifre occidentali in mezzo a
      * un'interfaccia tradotta è la stessa stonatura di una data all'americana.
      */
-    fun stamp(ms: Long): String {
-        val whole = ((ms + 500) / 1000).coerceAtLeast(1)
+    fun stamp(ms: Long, floor: Boolean = false): String {
+        val whole = ((ms + 500) / 1000).coerceAtLeast(if (floor) 1 else 0)
         val seconds = whole % 60
         val minutes = (whole / 60) % 60
         val hours = whole / 3600
@@ -144,52 +150,15 @@ object Videos {
         else String.format(locale, "%d:%02d", minutes, seconds)
     }
 
-    /**
-     * Passa il filmato al lettore del telefono, e dice se qualcuno l'ha preso.
-     *
-     * ⚠️⚠️ **È IL PEZZO 1, e la riproduzione dentro l'app è il 2**: qui non si decodifica
-     * niente, si consegna. Il baratto è dichiarato e si vede: si esce dall'app e ci si torna
-     * col tasto Indietro.
-     * ⚠️ **Il tipo si CHIEDE invece di scrivere il jolly dei filmati**: dichiararlo farebbe
-     * comparire nel dialogo anche i lettori che quel formato non aprono, e il tipo vero è
-     * una riga del MediaStore che si legge in un istante.
-     * ⚠️⚠️ **I `file://` restano fuori, e non è una dimenticanza**: un altro programma non
-     * può leggere un nostro `file://` (da Android 7 il sistema solleva), e il nostro
-     * FileProvider serve **una cartella sola**, quella delle condivisioni, apposta (vedi
-     * `ImageActions.shareMany`). Allargarlo a tutta la memoria per un caso raro sarebbe
-     * pagare in sicurezza una comodità: quelle cartelle sono le sole che il MediaStore non
-     * conosce, e il pezzo 2, che riproduce in casa, non ha questo problema.
-     */
-    fun play(context: Context, uri: Uri): Boolean {
-        if (uri.scheme?.lowercase() != "content") return false
-        val type = runCatching { context.contentResolver.getType(uri) }.getOrNull() ?: FALLBACK_TYPE
-        val intent = Intent(Intent.ACTION_VIEW).apply {
-            setDataAndType(uri, type)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-        return try {
-            context.startActivity(intent)
-            true
-        } catch (_: ActivityNotFoundException) {
-            false
-        }
-    }
+    // ⚠️⚠️ **QUI VIVEVA `play`, che consegnava il filmato al lettore del telefono, ed è
+    // uscita con la `0.86`**: dal pezzo 2 la riproduzione è in casa (vedi `ClipStage`), e
+    // quella funzione non aveva più chiamanti. ⚠️ Chi la volesse rimettere per aprire un
+    // formato che il lettore di casa non digerisce sappia il paletto che l'aveva limitata:
+    // i `file://` restavano fuori, perché un altro programma non li può leggere e il nostro
+    // FileProvider serve una cartella sola apposta.
 
     /** Il segmento che, in un indirizzo del MediaStore, dice 'questo è un filmato'. */
     private const val VIDEO_SEGMENT = "video"
-
-    /**
-     * Quando il MediaStore non dichiara il tipo: meglio il jolly che niente.
-     *
-     * ⚠️⚠️ **E IL JOLLY NON SI SCRIVE DENTRO UN COMMENTO A BLOCCO, mai**: in Kotlin i
-     * commenti a blocco si **annidano**, quindi una barra seguita da un asterisco ne apre un
-     * secondo, e la chiusura che dovrebbe chiudere questo chiude quello. L'errore che ne
-     * esce parla di commento non chiuso a fine file, cioè lontanissimo dalla riga colpevole,
-     * e per giunta segnala come 'non risolti' tutti i nomi dell'oggetto. È scritto anche in
-     * `ImageActions.shareMany`, ed è successo lo stesso qui: la nota là non basta a chi
-     * scrive un file nuovo.
-     */
-    private const val FALLBACK_TYPE = "video/*"
 
     /** Le durate già lette, in millisecondi, e -1 per quelle che non si sono sapute. */
     private val known = ConcurrentHashMap<Uri, Long>()

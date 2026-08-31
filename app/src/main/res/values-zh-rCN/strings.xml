@@ -210,10 +210,12 @@
     <string name="settings_grid_names_desc">每张缩略图下显示文件名，最多两行。扩展名不会被换行拆开，始终可见：名字放不下时，让位的是中间部分。</string>
     <string name="grid_item_clip">视频</string>
     <string name="clip_play">播放</string>
-    <string name="clip_no_player">这台手机上没有能播放它的应用</string>
     <string name="hub_view_tree">系统文件夹</string>
     <string name="tree_up">上一层文件夹</string>
     <string name="tree_empty">这里什么也没有。</string>
     <string name="tree_hidden">已隐藏</string>
     <string name="tree_unopenable">这台手机上没有能打开它的应用</string>
+    <string name="clip_pause">暂停</string>
+    <string name="settings_images_only">只翻阅图片</string>
+    <string name="settings_images_only_desc">在查看器里滑动会跳过视频，只显示图片。在网格中点按视频仍会播放：这管的是滑动，不是点按。</string>
 </resources>

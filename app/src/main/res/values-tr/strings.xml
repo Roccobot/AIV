@@ -224,10 +224,12 @@
     <string name="settings_grid_names_desc">Her küçük resmin altında dosya adı, en fazla iki satır. Uzantı asla bölünmez ve her zaman görünür: ad sığmazsa kısalan orta kısımdır.</string>
     <string name="grid_item_clip">Video</string>
     <string name="clip_play">Oynat</string>
-    <string name="clip_no_player">Bu telefonda bunu oynatabilecek bir uygulama yok</string>
     <string name="hub_view_tree">Sistem klasörleri</string>
     <string name="tree_up">Bir klasör yukarı</string>
     <string name="tree_empty">Burada hiçbir şey yok.</string>
     <string name="tree_hidden">gizli</string>
     <string name="tree_unopenable">Bu telefonda bunu açabilecek bir uygulama yok</string>
+    <string name="clip_pause">Duraklat</string>
+    <string name="settings_images_only">Yalnızca resimleri gezin</string>
+    <string name="settings_images_only_desc">Görüntüleyicide kaydırma videoları atlar ve yalnızca resimleri gösterir. Izgarada bir videoya dokunmak yine de oynatır: bu kaydırmayla ilgili, dokunmayla değil.</string>
 </resources>

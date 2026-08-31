@@ -210,10 +210,12 @@
     <string name="settings_grid_names_desc">各サムネイルの下にファイル名を最大2行で表示します。拡張子は改行で分割されず常に見えます。名前が収まらない場合は中ほどが省略されます。</string>
     <string name="grid_item_clip">動画</string>
     <string name="clip_play">再生</string>
-    <string name="clip_no_player">この端末には再生できるアプリがありません</string>
     <string name="hub_view_tree">システムのフォルダ</string>
     <string name="tree_up">一つ上のフォルダへ</string>
     <string name="tree_empty">ここには何もありません。</string>
     <string name="tree_hidden">非表示</string>
     <string name="tree_unopenable">この端末には開けるアプリがありません</string>
+    <string name="clip_pause">一時停止</string>
+    <string name="settings_images_only">写真だけをめくる</string>
+    <string name="settings_images_only_desc">ビューアでのスワイプが動画を飛ばし、写真だけを表示します。グリッドで動画をタップすれば再生されます。これはスワイプの話で、タップの話ではありません。</string>
 </resources>

@@ -224,10 +224,12 @@
     <string name="settings_grid_names_desc">ہر تھمب نیل کے نیچے فائل کا نام، زیادہ سے زیادہ دو سطروں میں۔ توسیع کبھی نہیں ٹوٹتی اور ہمیشہ نظر آتی ہے: نام نہ سمائے تو درمیان چھوٹا ہوتا ہے۔</string>
     <string name="grid_item_clip">ویڈیو</string>
     <string name="clip_play">چلائیں</string>
-    <string name="clip_no_player">اس فون میں کوئی ایپ اسے نہیں چلا سکتی</string>
     <string name="hub_view_tree">سسٹم فولڈرز</string>
     <string name="tree_up">ایک فولڈر اوپر</string>
     <string name="tree_empty">یہاں کچھ نہیں ہے۔</string>
     <string name="tree_hidden">پوشیدہ</string>
     <string name="tree_unopenable">اس فون میں کوئی ایپ اسے نہیں کھول سکتی</string>
+    <string name="clip_pause">وقفہ</string>
+    <string name="settings_images_only">صرف تصاویر دیکھیں</string>
+    <string name="settings_images_only_desc">ناظر میں سوائپ ویڈیوز کو چھوڑ دیتا ہے اور صرف تصاویر دکھاتا ہے۔ گرڈ میں ویڈیو پر ٹیپ کرنے سے وہ پھر بھی چلتی ہے: یہ سوائپ کے بارے میں ہے، ٹیپ کے بارے میں نہیں۔</string>
 </resources>

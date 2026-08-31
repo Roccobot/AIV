@@ -224,10 +224,12 @@
     <string name="settings_grid_names_desc">Chini ya kila kijipicha, jina la faili kwa mistari miwili zaidi. Kiendelezi hakikatwi kamwe na huonekana daima: jina lisipotoshea, sehemu ya katikati ndiyo hupungua.</string>
     <string name="grid_item_clip">Video</string>
     <string name="clip_play">Cheza</string>
-    <string name="clip_no_player">Hakuna programu kwenye simu hii inayoweza kuicheza</string>
     <string name="hub_view_tree">Folda za mfumo</string>
     <string name="tree_up">Panda folda moja</string>
     <string name="tree_empty">Hakuna kitu humu.</string>
     <string name="tree_hidden">imefichwa</string>
     <string name="tree_unopenable">Hakuna programu kwenye simu hii inayoweza kuifungua</string>
+    <string name="clip_pause">Sitisha</string>
+    <string name="settings_images_only">Pitia picha pekee</string>
+    <string name="settings_images_only_desc">Kwenye kitazamaji, kutelezesha kidole huruka video na kuonyesha picha pekee. Kugusa video kwenye gridi bado huicheza: hii inahusu ishara, si mgusa.</string>
 </resources>

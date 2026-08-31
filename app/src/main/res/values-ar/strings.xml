@@ -280,10 +280,12 @@
     <string name="settings_grid_names_desc">تحت كل صورة مصغرة اسم الملف، في سطرين على الأكثر. لا يُقطع الامتداد أبدا ويظهر دائما: إذا لم يتسع الاسم، فالوسط هو الذي يُختصر.</string>
     <string name="grid_item_clip">فيديو</string>
     <string name="clip_play">تشغيل</string>
-    <string name="clip_no_player">لا يوجد تطبيق على هذا الهاتف يستطيع تشغيله</string>
     <string name="hub_view_tree">مجلدات النظام</string>
     <string name="tree_up">مجلد للأعلى</string>
     <string name="tree_empty">لا يوجد شيء هنا.</string>
     <string name="tree_hidden">مخفي</string>
     <string name="tree_unopenable">لا يوجد تطبيق على هذا الهاتف يستطيع فتحه</string>
+    <string name="clip_pause">إيقاف مؤقت</string>
+    <string name="settings_images_only">تصفح الصور فقط</string>
+    <string name="settings_images_only_desc">في العارض، يتخطى التمرير مقاطع الفيديو ويعرض الصور فقط. النقر على مقطع في الشبكة يشغله على أي حال: هذا يخص التمرير، لا النقر.</string>
 </resources>

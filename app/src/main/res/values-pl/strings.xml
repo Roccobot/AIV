@@ -252,10 +252,12 @@
     <string name="settings_grid_names_desc">Pod każdą miniaturą nazwa pliku, najwyżej w dwóch wierszach. Rozszerzenie nigdy nie jest dzielone i zawsze widoczne: gdy nazwa się nie mieści, ustępuje środek.</string>
     <string name="grid_item_clip">Wideo</string>
     <string name="clip_play">Odtwórz</string>
-    <string name="clip_no_player">Żadna aplikacja w tym telefonie nie odtworzy tego pliku</string>
     <string name="hub_view_tree">Foldery systemowe</string>
     <string name="tree_up">Poziom wyżej</string>
     <string name="tree_empty">Tu nic nie ma.</string>
     <string name="tree_hidden">ukryty</string>
     <string name="tree_unopenable">Żadna aplikacja w tym telefonie tego nie otworzy</string>
+    <string name="clip_pause">Wstrzymaj</string>
+    <string name="settings_images_only">Przeglądaj tylko zdjęcia</string>
+    <string name="settings_images_only_desc">W podglądzie przesunięcie pomija filmy i pokazuje tylko zdjęcia. Dotknięcie filmu w siatce nadal go odtwarza: to dotyczy gestu, nie dotknięcia.</string>
 </resources>

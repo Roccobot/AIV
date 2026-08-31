@@ -29,4 +29,6 @@
     <!-- En America Latina la palabra es llana y va sin tilde: solo eso cambia, y las
          otras dos cadenas de los videos son iguales a las de Espana. -->
     <string name="grid_item_clip">Video</string>
+    <!-- video sin tilde, como arriba. -->
+    <string name="settings_images_only_desc">En el visor, el deslizamiento salta los videos y muestra solo imágenes. Tocar un video en la cuadrícula lo reproduce igualmente: esto es sobre el gesto, no sobre el toque.</string>
 </resources>

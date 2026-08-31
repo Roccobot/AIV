@@ -20,6 +20,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -30,6 +31,7 @@ import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -47,6 +49,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
@@ -64,8 +67,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
@@ -100,6 +105,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalResources
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
@@ -109,6 +117,14 @@ import androidx.compose.ui.unit.dp
 import coil3.SingletonImageLoader
 import coil3.compose.AsyncImagePainter
 import coil3.compose.asPainter
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.MediaItem
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.compose.PlayerSurface
+import androidx.media3.ui.compose.state.rememberPlayPauseButtonState
+import androidx.media3.ui.compose.state.rememberPresentationState
+import androidx.media3.ui.compose.state.rememberProgressStateWithTickInterval
 import coil3.compose.rememberAsyncImagePainter
 import java.util.Locale
 import kotlin.math.abs
@@ -605,13 +621,67 @@ private class InfoBar {
  * come due gesti diversi.
  */
 @Composable
+@androidx.annotation.OptIn(UnstableApi::class)
 private fun ClipStage(uri: Uri, stepping: Boolean, onStep: (Int) -> Unit) {
     val context = LocalContext.current
     val model = remember(uri, context) { Thumbs.request(context, uri) }
     val poster = rememberAsyncImagePainter(model = model)
-    val length by produceState(Videos.cachedLength(uri), uri, context) {
-        if (value == null) value = Videos.length(context, uri)
+
+    /*
+     * ⚠️⚠️ **UN LETTORE SOLO PER TUTTA LA VITA DELLA SCHERMATA, e non uno per filmato**:
+     * costruirne uno a ogni indirizzo vorrebbe dire buttare via la superficie video e
+     * ricrearla a ogni passo, cioè un lampo nero a ogni strisciata; e un lettore non
+     * rilasciato tiene un decodificatore hardware, che su un telefono sono pochi.
+     * ⚠️⚠️ **IL FUOCO AUDIO SI CHIEDE, e non è cortesia**: senza, un filmato aperto per
+     * sbaglio suonerebbe **sopra** la musica di un'altra app invece di metterla in pausa, e
+     * al ritorno la musica non ripartirebbe. `handleAudioFocus` fa la cosa giusta in tutti e
+     * due i versi. ⚠️ E `setHandleAudioBecomingNoisy` mette in pausa quando si sfilano le
+     * cuffie, che è quello che ogni lettore fa e che nessuno nota finché manca.
+     */
+    val player = remember(context) {
+        ExoPlayer.Builder(context)
+            .setAudioAttributes(AudioAttributes.DEFAULT, /* handleAudioFocus= */ true)
+            .setHandleAudioBecomingNoisy(true)
+            .build()
     }
+
+    /*
+     * ⚠️⚠️ **NON PARTE DA SÉ, ed è una scelta**: su questo stesso posto si arriva in due
+     * modi, toccando un filmato (dove partire sarebbe giusto) e **strisciando** da una
+     * fotografia (dove un audio che esplode è una sorpresa sgradevole). Fra i due, il caso
+     * da non rovinare è il secondo, perché è quello in cui la persona non ha chiesto niente.
+     * Chi tocca paga un tocco in più, e il tasto è grande in mezzo allo schermo.
+     */
+    LaunchedEffect(uri, player) {
+        player.setMediaItem(MediaItem.fromUri(uri))
+        player.prepare()
+    }
+
+    /*
+     * ⚠️⚠️ **SI FERMA QUANDO L'APP VA IN FONDO, e senza questo l'audio continuerebbe** a
+     * suonare da un'app che non si vede più: è il difetto che fa disinstallare un
+     * visualizzatore. `ON_STOP` e non `ON_PAUSE`, così un dialogo di sistema sopra il video
+     * non lo interrompe.
+     * ⚠️ **Il rilascio sta nello stesso posto**: chi crea rilascia, e un `DisposableEffect`
+     * separato sarebbe una seconda cosa da ricordare.
+     */
+    val owner = LocalLifecycleOwner.current
+    DisposableEffect(owner, player) {
+        val watcher = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP) player.pause()
+        }
+        owner.lifecycle.addObserver(watcher)
+        onDispose {
+            owner.lifecycle.removeObserver(watcher)
+            player.release()
+        }
+    }
+
+    val play = rememberPlayPauseButtonState(player)
+    val shown = rememberPresentationState(player)
+    val scope = rememberCoroutineScope()
+    val progress = rememberProgressStateWithTickInterval(player, TICK_MS, scope)
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -634,47 +704,146 @@ private fun ClipStage(uri: Uri, stepping: Boolean, onStep: (Int) -> Unit) {
             },
         contentAlignment = Alignment.Center
     ) {
-        Image(
-            painter = poster,
-            contentDescription = null,
-            // ⚠️ `Fit` e non `Crop`: un fotogramma tagliato per riempire lo schermo
-            // nasconderebbe proprio quello che si guarda per decidere se aprirlo.
-            contentScale = ContentScale.Fit,
-            modifier = Modifier.fillMaxSize()
+        /*
+         * ⚠️⚠️ **LA SUPERFICIE NON ASCOLTA NESSUN TOCCO, ed è la ragione per cui la
+         * strisciata qui sopra funziona**: `PlayerSurface` è una `SurfaceView` dentro un
+         * `AndroidView`, senza ascoltatori. Con `PlayerView` di `media3-ui`, che i comandi
+         * ce li ha già, il tocco sarebbe finito a lui e il gesto per cambiare fotografia
+         * non sarebbe mai arrivato qui.
+         */
+        PlayerSurface(player = player, modifier = Modifier.fillMaxSize())
+
+        /*
+         * ⚠️⚠️ **IL FOTOGRAMMA COPRE LA SUPERFICIE FINCHÉ IL VIDEO NON HA DA MOSTRARE
+         * NIENTE** (`coverSurface`), ed è la continuità con la `0.83`: è la stessa miniatura
+         * che la griglia ha già in memoria, quindi al posto del rettangolo nero
+         * dell'apertura si vede il filmato fermo. Senza, ogni apertura comincerebbe con un
+         * lampo nero, che è lo stesso difetto che le anteprime delle fotografie esistono per
+         * togliere.
+         */
+        if (shown.coverSurface) {
+            Image(
+                painter = poster,
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+
+        // ⚠️ Il tasto sta al centro e sparisce mentre si guarda: vedi [ClipKeys].
+        ClipKeys(
+            playing = !play.showPlay,
+            onPlayPause = { play.onClick() },
+            position = progress.currentPositionMs,
+            duration = progress.durationMs,
+            onSeek = { player.seekTo(it) }
         )
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(CLIP_GAP)
+    }
+}
+
+/**
+ * I comandi del filmato: il tasto grande in mezzo e la barra in fondo.
+ *
+ * ⚠️⚠️ **SCRITTI IN CASA E NON PRESI DA `PlayerView`**, e la ragione sta nella nota della
+ * dipendenza: quelli sono una `View` che si prende i tocchi, e con loro la strisciata per
+ * cambiare fotografia morirebbe. Sono un tasto e una barra: il prezzo di scriverli è basso,
+ * quello di perdere il gesto no.
+ * ⚠️⚠️ **SPARISCONO MENTRE IL FILMATO VA, e tornano toccando**: un tasto grande in mezzo
+ * allo schermo sopra un video in corso copre proprio quello che si sta guardando. In pausa
+ * restano, perché in pausa la cosa da fare è ripartire.
+ * ⚠️ **La barra si trascina** (`Slider`), perché saltare avanti è la sola cosa che si chiede
+ * a un lettore oltre a partire e fermarsi; e il tempo si legge accanto, perché una barra
+ * senza numeri non dice a che minuto si è.
+ */
+@Composable
+private fun BoxScope.ClipKeys(
+    playing: Boolean,
+    onPlayPause: () -> Unit,
+    position: Long,
+    duration: Long,
+    onSeek: (Long) -> Unit
+) {
+    var visible by remember { mutableStateOf(true) }
+    // ⚠️ La chiave è `playing`: ripartendo si nasconde dopo la pausa, e mettendo in pausa
+    // ricompare subito. Un timer solo, senza chiave, avrebbe continuato a contare.
+    LaunchedEffect(playing) {
+        if (playing) {
+            delay(CLIP_KEYS_LINGER)
+            visible = false
+        } else {
+            visible = true
+        }
+    }
+    // ⚠️ Il tocco che RICHIAMA i comandi sta qui e non sulla superficie: è un riquadro
+    // trasparente sopra il video, e vive solo quando i comandi sono nascosti, così quando
+    // ci sono non ruba il tocco al tasto.
+    if (!visible) {
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { visible = true }
+        )
+    }
+
+    AnimatedVisibility(visible = visible, enter = fadeIn(), exit = fadeOut()) {
+        Box(
+            modifier = Modifier
+                .size(CLIP_KEY)
+                .clip(CircleShape)
+                .background(CLIP_INK)
+                .clickable(onClick = onPlayPause),
+            contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .size(CLIP_KEY)
-                    .clip(CircleShape)
-                    .background(CLIP_INK)
-                    .clickable {
-                        if (!Videos.play(context, uri)) {
-                            Toast.makeText(context, R.string.clip_no_player, Toast.LENGTH_SHORT)
-                                .show()
-                        }
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.PlayArrow,
-                    contentDescription = stringResource(R.string.clip_play),
-                    tint = Color.White,
-                    modifier = Modifier.size(CLIP_GLYPH)
+            Icon(
+                imageVector = if (playing) Icons.Default.Pause else Icons.Default.PlayArrow,
+                contentDescription = stringResource(
+                    if (playing) R.string.clip_pause else R.string.clip_play
+                ),
+                tint = Color.White,
+                modifier = Modifier.size(CLIP_GLYPH)
+            )
+        }
+    }
+
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(),
+        exit = fadeOut(),
+        modifier = Modifier.align(Alignment.BottomCenter)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(CLIP_INK)
+                .padding(horizontal = CLIP_GAP, vertical = CLIP_LIP),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(CLIP_LIP)
+        ) {
+            Text(
+                text = Videos.stamp(position),
+                style = MaterialTheme.typography.labelMedium,
+                color = Color.White
+            )
+            // ⚠️ **Durata sconosciuta**: prima che il lettore l'abbia letta vale
+            // `C.TIME_UNSET`, che è un numero negativo enorme. Passarlo a `Slider` darebbe
+            // un intervallo rovesciato, quindi finché non si sa la barra non c'è.
+            if (duration > 0) {
+                Slider(
+                    value = position.coerceIn(0, duration).toFloat(),
+                    onValueChange = { onSeek(it.toLong()) },
+                    valueRange = 0f..duration.toFloat(),
+                    modifier = Modifier.weight(1f)
                 )
-            }
-            // ⚠️ La durata sta **sotto il tasto e non nella riga dei dettagli**, che per un
-            // filmato non compare: quella racconta pixel, formato e profondità di colore,
-            // cioè tre cose che un video non ha. Qui c'è l'unica che ha.
-            length?.let {
                 Text(
-                    text = Videos.stamp(it),
-                    style = MaterialTheme.typography.labelLarge,
+                    text = Videos.stamp(duration, floor = true),
+                    style = MaterialTheme.typography.labelMedium,
                     color = Color.White
                 )
+            } else {
+                Spacer(Modifier.weight(1f))
             }
         }
     }
@@ -689,8 +858,27 @@ private val CLIP_GLYPH = 40.dp
 /** Il nero del tasto: lo stesso mestiere della targhetta in griglia, sopra una fotografia. */
 private val CLIP_INK = Color(0x99000000)
 
-/** Quanto la durata si stacca dal tasto. */
+/** Quanto i comandi si staccano dal bordo. */
 private val CLIP_GAP = 12.dp
+
+/** Il respiro sopra e sotto la barra, e il distacco fra i suoi pezzi. */
+private val CLIP_LIP = 8.dp
+
+/**
+ * Quanto restano i comandi dopo che il filmato è partito.
+ *
+ * ⚠️ Due secondi e mezzo: abbastanza per vedere dov'è la barra, poco perché non dia
+ * fastidio. Da rivedere sul telefono, non a naso.
+ */
+private const val CLIP_KEYS_LINGER = 2500L
+
+/**
+ * Ogni quanto si aggiorna il tempo scritto accanto alla barra.
+ *
+ * ⚠️ Mezzo secondo e non ogni fotogramma: il numero si legge in secondi, quindi chiedere di
+ * più vorrebbe dire ricomporre due volte per ogni cifra che cambia.
+ */
+private const val TICK_MS = 500L
 
 /**
  * La MINIATURA mentre la fotografia vera si decodifica.

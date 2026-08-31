@@ -252,10 +252,12 @@
     <string name="settings_grid_names_desc">Під кожною мініатюрою назва файлу, не більше двох рядків. Розширення ніколи не переноситься і видно завжди: якщо назва не вміщається, скорочується середина.</string>
     <string name="grid_item_clip">Відео</string>
     <string name="clip_play">Відтворити</string>
-    <string name="clip_no_player">Жодна програма на цьому телефоні не може це відтворити</string>
     <string name="hub_view_tree">Папки пристрою</string>
     <string name="tree_up">На рівень вище</string>
     <string name="tree_empty">Тут нічого немає.</string>
     <string name="tree_hidden">прихована</string>
     <string name="tree_unopenable">Жодна програма на цьому телефоні не може це відкрити</string>
+    <string name="clip_pause">Пауза</string>
+    <string name="settings_images_only">Гортати лише фотографії</string>
+    <string name="settings_images_only_desc">У переглядачі гортання пропускає відео і показує лише фотографії. Дотик до відео в сітці все одно його відтворить: це про жест, а не про дотик.</string>
 </resources>

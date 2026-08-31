@@ -238,10 +238,12 @@
     <string name="settings_grid_names_desc">Bajo cada miniatura, el nombre del archivo en dos líneas como mucho. La extensión nunca se parte y siempre se ve: si el nombre no cabe, lo que cede es el centro.</string>
     <string name="grid_item_clip">Vídeo</string>
     <string name="clip_play">Reproducir</string>
-    <string name="clip_no_player">Ninguna aplicación de este teléfono sabe reproducirlo</string>
     <string name="hub_view_tree">Carpetas del sistema</string>
     <string name="tree_up">Subir una carpeta</string>
     <string name="tree_empty">Aquí dentro no hay nada.</string>
     <string name="tree_hidden">oculta</string>
     <string name="tree_unopenable">Ninguna aplicación de este teléfono sabe abrirlo</string>
+    <string name="clip_pause">Pausar</string>
+    <string name="settings_images_only">Pasar solo las imágenes</string>
+    <string name="settings_images_only_desc">En el visor, el deslizamiento salta los vídeos y muestra solo imágenes. Tocar un vídeo en la cuadrícula lo reproduce igualmente: esto es sobre el gesto, no sobre el toque.</string>
 </resources>

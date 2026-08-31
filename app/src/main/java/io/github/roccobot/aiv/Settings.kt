@@ -81,7 +81,7 @@ enum class ScaleMode(override val token: String) : Choice { PHYSICAL("physical")
 enum class InfoPosition(override val token: String) : Choice { TOP("top"), BOTTOM("bottom") }
 
 /**
- * Come si vede l'elenco delle cartelle.
+ * Come si guarda quello che c'è sul telefono: le tre viste della casa.
  *
  * ⚠️⚠️ **L'ELENCO È TORNATO A ESSERE UNA SCELTA, e non una versione superata.** La `0.37`
  * lo aveva **sostituito** con le copertine, che si riconoscono a colpo d'occhio ma
@@ -91,9 +91,6 @@ enum class InfoPosition(override val token: String) : Choice { TOP("top"), BOTTO
  * migliore dell'altra.
  * ⚠️ **La copertina resta in tutti e due**: la riga dell'elenco porta la stessa miniatura
  * piccola, perché l'icona di cartella uguale per tutte era proprio il difetto della `0.29`.
- */
-/**
- * Come si guarda quello che c'è sul telefono: le tre viste della casa.
  *
  * ⚠️⚠️ **LA TERZA È ARRIVATA CON LA `0.84`, ed è di un'altra natura**: [GRID] e [LIST] sono
  * due rese dello **stesso** elenco, le cartelle che il MediaStore conosce; [TREE] è la
@@ -234,6 +231,22 @@ data class Settings(
      */
     val binOn: Boolean = true,
     /**
+     * Se sfogliando nel visualizzatore si saltano i filmati.
+     *
+     * ⚠️⚠️ **SPENTA DI FABBRICA, ed è quello che decide l'architettura** (parole dell'utente,
+     * 2026-08-31: *dev'essere OFF di default, perciò sì, serve per forza il ramo decisionale
+     * e un secondo visualizzatore*). Spenta vuol dire che il caso normale è 'sfoglio anche i
+     * video', quindi il ramo che sceglie fra fotografia e filmato serve **sempre**, e non si
+     * poteva rimandare accendendo l'opzione per finta. Quel ramo esiste dalla `0.83`.
+     * ⚠️⚠️ **TOCCA IL SOLO SFOGLIO, e non il tocco**: da una griglia un filmato si apre
+     * comunque, perché toccarlo è una richiesta esplicita. Questa spegne il **gesto**, cioè
+     * il caso in cui il filmato arriva senza che nessuno l'abbia chiesto.
+     * ⚠️ **Il contatore mostra dei salti, ed è voluto**: la serie resta quella della
+     * cartella, quindi si passa da `3/10` a `5/10`. L'alternativa era rinumerare, cioè
+     * mentire su quante cose ci sono nella cartella.
+     */
+    val imagesOnly: Boolean = false,
+    /**
      * Se sotto ogni miniatura della griglia delle foto si legge il nome del file.
      *
      * ⚠️ **Spenta di fabbrica** (richiesta dell'utente): una galleria mostra fotografie, e un
@@ -313,6 +326,7 @@ object SettingsStore {
     private val UI_THEME = stringPreferencesKey("ui-theme")
     private val FOLDER_COLUMNS_KEY = intPreferencesKey("folder-columns")
     private val BIN_ON = booleanPreferencesKey("bin-on")
+    private val IMAGES_ONLY = booleanPreferencesKey("images-only")
     private val GRID_NAMES = booleanPreferencesKey("grid-names")
     private val FOLDER_COUNT = booleanPreferencesKey("folder-count")
     private val HIDDEN_FOLDERS = stringSetPreferencesKey("hidden-folders")
@@ -349,6 +363,7 @@ object SettingsStore {
             folderColumns = p[FOLDER_COLUMNS_KEY]?.takeIf { it in FOLDER_COLUMNS } ?: 2,
             folderCount = p[FOLDER_COUNT] ?: true,
             binOn = p[BIN_ON] ?: true,
+            imagesOnly = p[IMAGES_ONLY] ?: false,
             gridNames = p[GRID_NAMES] ?: false,
             hiddenFolders = p[HIDDEN_FOLDERS] ?: emptySet(),
             factOrder = factOrderOf((p[FACT_ORDER] ?: "").split(',')),
@@ -384,6 +399,7 @@ object SettingsStore {
             p[FOLDER_COLUMNS_KEY] = settings.folderColumns
             p[FOLDER_COUNT] = settings.folderCount
             p[BIN_ON] = settings.binOn
+            p[IMAGES_ONLY] = settings.imagesOnly
             p[GRID_NAMES] = settings.gridNames
             p[HIDDEN_FOLDERS] = settings.hiddenFolders
             p[FACT_ORDER] = settings.factOrder.joinToString(",") { it.token }

@@ -224,10 +224,12 @@
     <string name="settings_grid_names_desc">ஒவ்வொரு சிறுபடத்திற்கும் கீழே கோப்பின் பெயர், அதிகபட்சம் இரண்டு வரிகளில். நீட்டிப்பு ஒருபோதும் பிரிக்கப்படாது, எப்போதும் தெரியும்: பெயர் அடங்கவில்லை என்றால் நடுப்பகுதி சுருங்கும்.</string>
     <string name="grid_item_clip">வீடியோ</string>
     <string name="clip_play">இயக்கு</string>
-    <string name="clip_no_player">இதை இயக்கக்கூடிய பயன்பாடு இந்தத் தொலைபேசியில் இல்லை</string>
     <string name="hub_view_tree">கணினி கோப்புறைகள்</string>
     <string name="tree_up">ஒரு கோப்புறை மேலே</string>
     <string name="tree_empty">இங்கே எதுவும் இல்லை.</string>
     <string name="tree_hidden">மறைக்கப்பட்டது</string>
     <string name="tree_unopenable">இதைத் திறக்கக்கூடிய பயன்பாடு இந்தத் தொலைபேசியில் இல்லை</string>
+    <string name="clip_pause">இடைநிறுத்து</string>
+    <string name="settings_images_only">படங்களை மட்டும் புரட்டு</string>
+    <string name="settings_images_only_desc">காட்டியில் இழுத்தால் வீடியோக்கள் தவிர்க்கப்பட்டு படங்கள் மட்டும் காட்டப்படும். கட்டத்தில் வீடியோவைத் தொட்டால் அது இயங்கும்: இது இழுப்பதைப் பற்றியது, தொடுவதைப் பற்றியது அல்ல.</string>
 </resources>
