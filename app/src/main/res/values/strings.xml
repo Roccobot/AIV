@@ -137,6 +137,11 @@
     <!-- It is the app's whole menu now that the opening screen is gone, so it has to
          say so rather than name one of the things behind it. -->
     <string name="hub_open">More</string>
+    <!-- The long press on that same button: the grid size. It doubles as the label the
+         screen reader announces for the long press, so it has to name the thing rather
+         than the gesture. -->
+    <string name="columns_title">Grid size</string>
+    <string name="columns_hint">Shortcut: press and hold the floating button to choose the grid size.</string>
     <!-- Each of these names the view you would GET, not the one you are in: a menu
          entry is a thing you ask for. -->
     <string name="hub_view_list">List view</string>

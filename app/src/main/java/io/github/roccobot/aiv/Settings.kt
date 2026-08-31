@@ -428,7 +428,16 @@ object FolderAsk {
  */
 enum class Hint(token: String) {
     PICK_ALL("pick-all-hint-seen"),
-    BIN_EMPTY("bin-empty-hint-seen");
+    BIN_EMPTY("bin-empty-hint-seen"),
+
+    /**
+     * La scorciatoia delle colonne, dalla `0.78`: **solo nella schermata delle cartelle**.
+     *
+     * ⚠️ È la terza, e le prime due stanno nella griglia delle foto: il velo che la insegna
+     * vive quindi in un'altra schermata, ed è la ragione per cui il `when` sulle frasi in
+     * `GridScreen` ha un ramo che non si vedrà mai.
+     */
+    COLUMNS("columns-hint-seen");
 
     private val seen = booleanPreferencesKey(token)
 

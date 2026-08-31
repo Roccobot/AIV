@@ -234,4 +234,6 @@
     <string name="history_title">Historial de restauraciones</string>
     <string name="history_none">No se ha restaurado nada en los últimos %1$d días.</string>
     <string name="history_note">El historial guarda los últimos %1$d días y luego se vacía solo.</string>
+    <string name="columns_title">Tamaño de la cuadrícula</string>
+    <string name="columns_hint">Atajo: mantén pulsado el botón flotante para elegir el tamaño de la cuadrícula.</string>
 </resources>

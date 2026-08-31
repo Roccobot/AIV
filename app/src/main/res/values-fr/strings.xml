@@ -234,4 +234,6 @@
     <string name="history_title">Historique des restaurations</string>
     <string name="history_none">Rien n\'a été restauré au cours des %1$d derniers jours.</string>
     <string name="history_note">L\'historique garde les %1$d derniers jours, puis se vide de lui-même.</string>
+    <string name="columns_title">Taille de la grille</string>
+    <string name="columns_hint">Raccourci: appuyez longuement sur le bouton flottant pour choisir la taille de la grille.</string>
 </resources>

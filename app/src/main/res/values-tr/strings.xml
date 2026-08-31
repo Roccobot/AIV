@@ -219,4 +219,6 @@
     <string name="history_title">Geri alma geçmişi</string>
     <string name="history_none">Son %1$d günde hiçbir şey geri alınmadı.</string>
     <string name="history_note">Geçmiş son %1$d günü tutar, sonra kendini boşaltır.</string>
+    <string name="columns_title">Izgara boyutu</string>
+    <string name="columns_hint">Kısayol: ızgara boyutunu seçmek için kayan düğmeyi basılı tutun.</string>
 </resources>

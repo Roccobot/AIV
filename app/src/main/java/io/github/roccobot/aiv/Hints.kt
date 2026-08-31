@@ -1,0 +1,128 @@
+package io.github.roccobot.aiv
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+
+/**
+ * Il velo del mini onboarding: oscura la schermata, dice la frase e mette in evidenza una
+ * copia **funzionante** del tastino che sta insegnando.
+ *
+ * ⚠️⚠️ **NASCE COSÌ NELLA 0.67 E DIVENTA CONDIVISO NELLA 0.78** (richiesta dell'utente:
+ * *un mini onboarding grafico, che oscura la schermata ed evidenzia in arancione il FAB*).
+ * Serve perché il tocco lungo è una scorciatoia che **non si scopre da sola**: un tastino non
+ * dichiara i propri gesti. I veli sono diventati **tre** (selezione, cestino, colonne) e
+ * vivono in due schermate diverse: il colore, il contrasto misurato e la geometria stanno qui
+ * una volta sola, e quello che cambia sono la frase e il tastino.
+ *
+ * ⚠️⚠️ **LA COPIA EVIDENZIATA FUNZIONA, non è un disegno**, ed è la differenza fra insegnare
+ * e raccontare: chi tiene premuto sul velo fa la cosa mentre gliela si spiega, invece di
+ * doverla richiudere e rifare. È anche il motivo per cui è lo **stesso** [TapHoldFab] del
+ * tastino vero, alla stessa misura e nello stesso angolo: cade **sopra** l'originale.
+ *
+ * ⚠️⚠️ **IL VELO COPRE TUTTO LO SCHERMO dalla `0.73`**, testata e margini di sistema
+ * compresi, ed è una correzione: fino alla `0.72` copriva la sola griglia, perché nasceva
+ * dentro la `Column` che i margini li ha già applicati. Il rimedio non è stato spostare i
+ * margini ma **avvolgere la schermata in un `Box`** e far nascere il velo là. Per questo è
+ * un'estensione di [BoxScope]: senza un `Box` intorno, `matchParentSize` non esiste e il velo
+ * tornerebbe a coprire solo il suo pezzo.
+ *
+ * ⚠️ **Chi tocca il velo per chiuderlo senza leggerlo la scorciatoia non la scopre**, e la
+ * rete di sicurezza è l'etichetta che il lettore di schermo legge sul tocco lungo (vedi
+ * `holdLabel` di [TapHoldFab]). È il costo della scelta, ed è dichiarato.
+ */
+@Composable
+fun BoxScope.HintVeil(
+    text: String,
+    /**
+     * I rientri che portano la copia del tastino **esattamente** sopra l'originale.
+     *
+     * ⚠️⚠️ **NON SONO DECORAZIONE, e sono l'unica cosa che il velo non può ricavare da sé**:
+     * il tastino vero vive dentro il rientro di sistema più i margini della sua schermata, e
+     * il velo nasce fuori da tutti perché è il suo mestiere. Chi ne dimentica uno vede la
+     * copia scivolare in un angolo.
+     * ⚠️ Arriva come `Modifier` e non come misura perché le catene sono diverse: nella griglia
+     * sono tre (sistema, margine della schermata, margine del tastino), nelle cartelle due.
+     */
+    inset: Modifier,
+    onDone: () -> Unit,
+    fab: @Composable () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .matchParentSize()
+            .background(HINT_SCRIM)
+            // ⚠️ Niente increspatura e nessuna descrizione: questo non è un tasto, è il velo,
+            // e un tocco qualunque lo archivia. Un onboarding che si deve leggere due volte
+            // non è un onboarding.
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onDone
+            )
+    ) {
+        Column(
+            modifier = Modifier.align(Alignment.BottomEnd).then(inset),
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.spacedBy(HINT_GAP)
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White,
+                textAlign = TextAlign.End,
+                modifier = Modifier.widthIn(max = HINT_WIDTH)
+            )
+            fab()
+        }
+    }
+}
+
+/**
+ * Il velo del mini onboarding.
+ *
+ * ⚠️ **Il 70% di nero e non il 50%**: sotto c'è una griglia di fotografie, cioè il fondo più
+ * chiassoso che ci sia, e a metà velo le miniature continuano a chiamare l'occhio. Col 70% il
+ * bianco del testo misura 8.45 anche sulla fotografia più chiara possibile.
+ */
+private val HINT_SCRIM = Color(0xB3000000)
+
+/**
+ * L'arancione della copia evidenziata, e **l'unico posto in cui la tavolozza si rompe
+ * apposta** (richiesta dell'utente).
+ *
+ * ⚠️ L'accento dell'app è verde acqua: un velo che evidenzia col colore di casa non evidenzia
+ * niente, perché quel colore è già dappertutto. Misurato: 4.35 sul velo steso sulla fotografia
+ * più chiara possibile, cioè sopra il 3:1 delle grafiche non testuali nel caso peggiore, e
+ * 10.81 nel caso normale.
+ */
+val HINT_MARK = Color(0xFFFFA726)
+
+/** Il glifo sopra l'arancione: misurato 7.29, cioè leggibile senza discussioni. */
+val HINT_INK = Color(0xFF3E2600)
+
+/** Quanto sta lontano il testo dal tastino che indica: abbastanza da non sembrarne parte. */
+private val HINT_GAP = 14.dp
+
+/**
+ * Quanto è larga al massimo la frase del velo.
+ *
+ * ⚠️ Un limite serve perché la frase è lunga e le lingue non sono l'italiano: senza, in tedesco
+ * diventerebbe una riga sola da bordo a bordo, e in un telefono stretto si spezzerebbe dove
+ * capita invece che dove si legge.
+ */
+private val HINT_WIDTH = 260.dp

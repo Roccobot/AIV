@@ -279,4 +279,6 @@
     <string name="history_title">سجل الاستعادة</string>
     <string name="history_none">لم تتم استعادة أي شيء في آخر %1$d أيام.</string>
     <string name="history_note">يحفظ السجل آخر %1$d أيام ثم يُفرغ نفسه.</string>
+    <string name="columns_title">حجم الشبكة</string>
+    <string name="columns_hint">اختصار: اضغط مطولا على الزر العائم لاختيار حجم الشبكة.</string>
 </resources>

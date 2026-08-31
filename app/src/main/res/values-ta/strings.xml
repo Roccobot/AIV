@@ -219,4 +219,6 @@
     <string name="history_title">மீட்டெடுப்பு வரலாறு</string>
     <string name="history_none">கடந்த %1$d நாட்களில் எதுவும் மீட்டெடுக்கப்படவில்லை.</string>
     <string name="history_note">வரலாறு கடைசி %1$d நாட்களை வைத்திருக்கும், பிறகு தானே காலியாகும்.</string>
+    <string name="columns_title">கட்டத்தின் அளவு</string>
+    <string name="columns_hint">குறுக்குவழி: கட்டத்தின் அளவைத் தேர்வு செய்ய மிதக்கும் பொத்தானை அழுத்திப் பிடிக்கவும்.</string>
 </resources>

@@ -204,4 +204,6 @@
     <string name="history_title">元に戻した履歴</string>
     <string name="history_none">過去 %1$d 日間に元に戻したものはありません。</string>
     <string name="history_note">履歴は直近 %1$d 日間を保持し、その後自動的に消えます。</string>
+    <string name="columns_title">グリッドの大きさ</string>
+    <string name="columns_hint">ショートカット: フローティングボタンを長押しするとグリッドの大きさを選べます。</string>
 </resources>

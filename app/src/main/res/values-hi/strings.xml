@@ -219,4 +219,6 @@
     <string name="history_title">वापस लाने का इतिहास</string>
     <string name="history_none">पिछले %1$d दिनों में कुछ भी वापस नहीं लाया गया।</string>
     <string name="history_note">इतिहास पिछले %1$d दिन रखता है, फिर खुद खाली हो जाता है।</string>
+    <string name="columns_title">ग्रिड का आकार</string>
+    <string name="columns_hint">शॉर्टकट: ग्रिड का आकार चुनने के लिए फ़्लोटिंग बटन दबाए रखें।</string>
 </resources>

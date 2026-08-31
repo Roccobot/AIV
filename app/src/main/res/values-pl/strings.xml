@@ -249,4 +249,6 @@
     <string name="history_title">Historia przywracania</string>
     <string name="history_none">W ciągu ostatnich %1$d dni nic nie zostało przywrócone.</string>
     <string name="history_note">Historia przechowuje ostatnie %1$d dni, potem czyści się sama.</string>
+    <string name="columns_title">Rozmiar siatki</string>
+    <string name="columns_hint">Skrót: przytrzymaj pływający przycisk, aby wybrać rozmiar siatki.</string>
 </resources>

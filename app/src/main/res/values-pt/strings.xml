@@ -234,4 +234,6 @@
     <string name="history_title">Histórico de restaurações</string>
     <string name="history_none">Nada foi restaurado nos últimos %1$d dias.</string>
     <string name="history_note">O histórico guarda os últimos %1$d dias e depois se esvazia sozinho.</string>
+    <string name="columns_title">Tamanho da grade</string>
+    <string name="columns_hint">Atalho: mantenha o botão flutuante pressionado para escolher o tamanho da grade.</string>
 </resources>

@@ -296,4 +296,6 @@
     <string name="history_title">Cronologia dei ripristini</string>
     <string name="history_none">Non è stato ripristinato niente negli ultimi %1$d giorni.</string>
     <string name="history_note">La cronologia tiene gli ultimi %1$d giorni, poi si svuota da sé.</string>
+    <string name="columns_title">Dimensione della griglia</string>
+    <string name="columns_hint">Scorciatoia: tieni premuto il tasto flottante per scegliere la dimensione della griglia.</string>
 </resources>

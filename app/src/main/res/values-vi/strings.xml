@@ -204,4 +204,6 @@
     <string name="history_title">Lịch sử phục hồi</string>
     <string name="history_none">Không có gì được phục hồi trong %1$d ngày qua.</string>
     <string name="history_note">Lịch sử giữ %1$d ngày gần nhất, rồi tự xóa.</string>
+    <string name="columns_title">Kích thước lưới</string>
+    <string name="columns_hint">Lối tắt: nhấn giữ nút nổi để chọn kích thước lưới.</string>
 </resources>

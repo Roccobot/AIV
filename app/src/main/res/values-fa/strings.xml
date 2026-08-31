@@ -219,4 +219,6 @@
     <string name="history_title">تاریخچه بازگردانی</string>
     <string name="history_none">در %1$d روز گذشته چیزی بازگردانده نشده است.</string>
     <string name="history_note">تاریخچه %1$d روز آخر را نگه می‌دارد و سپس خودش خالی می‌شود.</string>
+    <string name="columns_title">اندازه شبکه</string>
+    <string name="columns_hint">میان‌بر: دکمه شناور را نگه دارید تا اندازه شبکه را انتخاب کنید.</string>
 </resources>

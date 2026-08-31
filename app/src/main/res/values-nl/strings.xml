@@ -219,4 +219,6 @@
     <string name="history_title">Geschiedenis van terugzetten</string>
     <string name="history_none">De afgelopen %1$d dagen is er niets teruggezet.</string>
     <string name="history_note">De geschiedenis bewaart de laatste %1$d dagen en wist zichzelf daarna.</string>
+    <string name="columns_title">Rastergrootte</string>
+    <string name="columns_hint">Sneltoets: houd de zwevende knop ingedrukt om de rastergrootte te kiezen.</string>
 </resources>
