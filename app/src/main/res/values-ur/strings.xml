@@ -269,4 +269,36 @@
     <string name="settings_content_blocked">پچھلی بار اس سے ایپ بند ہو گئی تھی (%1$s)، اس لیے یہ سہولت خود رک گئی۔ باقی سب ٹھیک ہے۔</string>
     <string name="settings_content_index">تصاویر ابھی فہرست میں لائیں</string>
     <string name="settings_content_indexing">فہرست سازی: %2$d میں سے %1$d</string>
+
+    <!-- Modificare una fotografia (1.03) -->
+    <string name="menu_edit">ترمیم</string>
+    <string name="editor_internal">اندرونی مدیر</string>
+    <string name="editor_pick">کس سے ترمیم کرتے ہیں؟</string>
+    <string name="editor_left">بائیں گھمائیں</string>
+    <string name="editor_right">دائیں گھمائیں</string>
+    <string name="editor_free">آزاد</string>
+    <string name="editor_save">محفوظ کریں</string>
+    <string name="editor_how">کیسے محفوظ کرنا ہے؟</string>
+    <string name="editor_overwrite">فائل پر ہی لکھ دیں</string>
+    <string name="editor_copy">ایک نقل محفوظ کریں</string>
+    <string name="editor_done">محفوظ ہو گیا</string>
+    <string name="editor_done_copy">نقل محفوظ ہو گئی</string>
+    <string name="editor_done_lossless">دوبارہ دبائے بغیر محفوظ ہو گیا</string>
+    <string name="editor_pick_none">اس فون کی کوئی اور ایپ تصویریں ترمیم کرنے کی پیشکش نہیں کرتی۔</string>
+    <string name="edit_no_file">یہ فائل فون پر نہیں ہے</string>
+    <string name="edit_too_big">تصویر اس آلے کے لیے بہت بڑی ہے</string>
+    <string name="edit_nothing">کچھ نہیں بدلا</string>
+    <string name="edit_no_overwrite">یہ شکل دوبارہ نہیں لکھی جا سکتی، سو صرف نقل بچتی ہے۔</string>
+    <string name="edit_failed">محفوظ نہ ہو سکا</string>
+    <string name="edit_app_gone">وہ مدیر اب نہیں رہا۔ کوئی اور چنیں۔</string>
+    <string name="settings_editor">تصویریں ترمیم کرنے کی ایپ</string>
+    <string name="settings_editor_desc">تصویر پر ترمیم چھونے سے کون سی ایپ کھلتی ہے۔ اندرونی والی گھماتی اور کاٹتی ہے، بس اتنا۔</string>
+    <string name="settings_editor_none">کوئی نہیں چنی گئی</string>
+    <string name="settings_editor_pick">چنیں</string>
+    <string name="view_grid">گرڈ</string>
+    <string name="view_list">فہرست</string>
+    <string name="view_tree">فولڈرز</string>
+    <string name="edit_no_backup">حفاظتی نقل نہ بن سکی، سو کسی چیز پر نہیں لکھا گیا</string>
+    <string name="settings_editor_backup">اوپر لکھنے سے پہلے حفاظتی نقل</string>
+    <string name="settings_editor_backup_desc">اندرونی مدیر کسی تصویر پر لکھے، اس سے پہلے پچھلی شکل ردی کی ٹوکری میں چلی جاتی ہے۔ یہ صرف اندرونی مدیر کے لیے ہے: دوسری ایپ اپنے طور پر محفوظ کرتی ہے۔</string>
 </resources>

@@ -269,4 +269,36 @@
     <string name="settings_content_blocked">Beim letzten Mal hat das die App beendet (%1$s), also hat sich die Funktion selbst gestoppt. Sonst ist nichts betroffen.</string>
     <string name="settings_content_index">Bilder jetzt indexieren</string>
     <string name="settings_content_indexing">Wird indiziert: %1$d von %2$d</string>
+
+    <!-- Modificare una fotografia (1.03) -->
+    <string name="menu_edit">Bearbeiten</string>
+    <string name="editor_internal">Eingebauter Editor</string>
+    <string name="editor_pick">Womit bearbeitest du?</string>
+    <string name="editor_left">Nach links drehen</string>
+    <string name="editor_right">Nach rechts drehen</string>
+    <string name="editor_free">Frei</string>
+    <string name="editor_save">Speichern</string>
+    <string name="editor_how">Wie soll gespeichert werden?</string>
+    <string name="editor_overwrite">Datei überschreiben</string>
+    <string name="editor_copy">Kopie speichern</string>
+    <string name="editor_done">Gespeichert</string>
+    <string name="editor_done_copy">Kopie gespeichert</string>
+    <string name="editor_done_lossless">Gespeichert, ohne neu zu komprimieren</string>
+    <string name="editor_pick_none">Keine andere App auf diesem Telefon bietet an, Bilder zu bearbeiten.</string>
+    <string name="edit_no_file">Diese Datei liegt nicht auf dem Telefon</string>
+    <string name="edit_too_big">Das Bild ist zu groß für dieses Gerät</string>
+    <string name="edit_nothing">Es hat sich nichts geändert</string>
+    <string name="edit_no_overwrite">Dieses Format lässt sich nicht zurückschreiben, es bleibt nur eine Kopie.</string>
+    <string name="edit_failed">Es konnte nicht gespeichert werden</string>
+    <string name="edit_app_gone">Dieser Editor ist weg. Wähle einen anderen.</string>
+    <string name="settings_editor">App zum Bearbeiten von Bildern</string>
+    <string name="settings_editor_desc">Welche App sich öffnet, wenn du bei einem Bild auf Bearbeiten tippst. Die eingebaute dreht und schneidet zu, sonst nichts.</string>
+    <string name="settings_editor_none">Keine gewählt</string>
+    <string name="settings_editor_pick">Wählen</string>
+    <string name="view_grid">Raster</string>
+    <string name="view_list">Liste</string>
+    <string name="view_tree">Ordner</string>
+    <string name="edit_no_backup">Die Sicherheitskopie ist fehlgeschlagen, es wurde nichts überschrieben</string>
+    <string name="settings_editor_backup">Sicherheitskopie vor dem Überschreiben</string>
+    <string name="settings_editor_backup_desc">Bevor der eingebaute Editor ein Bild überschreibt, wandert die Fassung von vorher in den Papierkorb. Gilt nur für den eingebauten Editor: eine andere App speichert selbst.</string>
 </resources>

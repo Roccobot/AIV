@@ -254,4 +254,36 @@
     <string name="settings_content_blocked">Terakhir kali ini menutup aplikasi (%1$s), jadi fitur ini berhenti sendiri. Selebihnya tidak terpengaruh.</string>
     <string name="settings_content_index">Indeks gambar sekarang</string>
     <string name="settings_content_indexing">Mengindeks: %1$d dari %2$d</string>
+
+    <!-- Modificare una fotografia (1.03) -->
+    <string name="menu_edit">Edit</string>
+    <string name="editor_internal">Editor bawaan</string>
+    <string name="editor_pick">Pakai apa untuk mengedit?</string>
+    <string name="editor_left">Putar ke kiri</string>
+    <string name="editor_right">Putar ke kanan</string>
+    <string name="editor_free">Bebas</string>
+    <string name="editor_save">Simpan</string>
+    <string name="editor_how">Mau disimpan bagaimana?</string>
+    <string name="editor_overwrite">Timpa berkasnya</string>
+    <string name="editor_copy">Simpan salinan</string>
+    <string name="editor_done">Tersimpan</string>
+    <string name="editor_done_copy">Salinan tersimpan</string>
+    <string name="editor_done_lossless">Tersimpan tanpa dikompres ulang</string>
+    <string name="editor_pick_none">Tidak ada aplikasi lain di ponsel ini yang menawarkan pengeditan gambar.</string>
+    <string name="edit_no_file">Berkas ini tidak ada di ponsel</string>
+    <string name="edit_too_big">Gambarnya terlalu besar untuk perangkat ini</string>
+    <string name="edit_nothing">Tidak ada yang berubah</string>
+    <string name="edit_no_overwrite">Format ini tidak bisa ditulis ulang, jadi hanya tersisa salinannya.</string>
+    <string name="edit_failed">Tidak bisa disimpan</string>
+    <string name="edit_app_gone">Editor itu sudah tidak ada. Pilih yang lain.</string>
+    <string name="settings_editor">Aplikasi untuk mengedit gambar</string>
+    <string name="settings_editor_desc">Aplikasi mana yang terbuka saat menyentuh Edit pada sebuah gambar. Yang bawaan memutar dan memotong, tidak lebih.</string>
+    <string name="settings_editor_none">Belum dipilih</string>
+    <string name="settings_editor_pick">Pilih</string>
+    <string name="view_grid">Kisi</string>
+    <string name="view_list">Daftar</string>
+    <string name="view_tree">Folder</string>
+    <string name="edit_no_backup">Salinan pengaman gagal, jadi tidak ada yang ditimpa</string>
+    <string name="settings_editor_backup">Salinan pengaman sebelum menimpa</string>
+    <string name="settings_editor_backup_desc">Sebelum editor bawaan menimpa sebuah gambar, versi sebelumnya masuk ke tempat sampah. Berlaku hanya untuk editor bawaan: aplikasi lain menyimpan sendiri.</string>
 </resources>

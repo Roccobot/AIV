@@ -299,4 +299,36 @@
     <string name="settings_content_blocked">Ostatnim razem to zamknęło aplikację (%1$s), więc funkcja sama się zatrzymała. Reszta działa normalnie.</string>
     <string name="settings_content_index">Zindeksuj obrazy teraz</string>
     <string name="settings_content_indexing">Indeksowanie: %1$d z %2$d</string>
+
+    <!-- Modificare una fotografia (1.03) -->
+    <string name="menu_edit">Edytuj</string>
+    <string name="editor_internal">Wbudowany edytor</string>
+    <string name="editor_pick">Czym edytujesz?</string>
+    <string name="editor_left">Obróć w lewo</string>
+    <string name="editor_right">Obróć w prawo</string>
+    <string name="editor_free">Dowolne</string>
+    <string name="editor_save">Zapisz</string>
+    <string name="editor_how">Jak chcesz to zapisać?</string>
+    <string name="editor_overwrite">Nadpisz plik</string>
+    <string name="editor_copy">Zapisz kopię</string>
+    <string name="editor_done">Zapisano</string>
+    <string name="editor_done_copy">Zapisano kopię</string>
+    <string name="editor_done_lossless">Zapisano bez ponownej kompresji</string>
+    <string name="editor_pick_none">Żadna inna aplikacja na tym telefonie nie oferuje edycji zdjęć.</string>
+    <string name="edit_no_file">Tego pliku nie ma w telefonie</string>
+    <string name="edit_too_big">Zdjęcie jest za duże dla tego urządzenia</string>
+    <string name="edit_nothing">Nic się nie zmieniło</string>
+    <string name="edit_no_overwrite">Tego formatu nie da się zapisać z powrotem, więc zostaje tylko kopia.</string>
+    <string name="edit_failed">Nie udało się zapisać</string>
+    <string name="edit_app_gone">Tego edytora już nie ma. Wybierz inny.</string>
+    <string name="settings_editor">Aplikacja do edycji zdjęć</string>
+    <string name="settings_editor_desc">Która aplikacja otwiera się po dotknięciu Edytuj na zdjęciu. Wbudowana obraca i przycina, i nic więcej.</string>
+    <string name="settings_editor_none">Nie wybrano</string>
+    <string name="settings_editor_pick">Wybierz</string>
+    <string name="view_grid">Siatka</string>
+    <string name="view_list">Lista</string>
+    <string name="view_tree">Foldery</string>
+    <string name="edit_no_backup">Kopia zapasowa się nie udała, więc nic nie zostało nadpisane</string>
+    <string name="settings_editor_backup">Kopia zapasowa przed nadpisaniem</string>
+    <string name="settings_editor_backup_desc">Zanim wbudowany edytor nadpisze zdjęcie, poprzednia wersja trafia do kosza. Dotyczy tylko wbudowanego edytora: inna aplikacja zapisuje po swojemu.</string>
 </resources>

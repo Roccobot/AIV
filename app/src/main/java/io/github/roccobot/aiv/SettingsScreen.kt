@@ -84,6 +84,8 @@ fun SettingsScreen(
     onChange: (Settings) -> Unit,
     onStartFolder: () -> Unit,
     onResetHints: () -> Unit,
+    /** Apre il selettore dell'app di modifica: la finestra la fa il modello. Vedi `chooseEditor`. */
+    onChooseEditor: () -> Unit,
     /** Che cosa c'è dei modelli della ricerca per contenuto. Vive nel modello: vedi `clipState`. */
     clipState: ClipModels.State,
     /** A che punto è l'indicizzazione. Vive nel modello: vedi `clipWork`. */
@@ -122,6 +124,7 @@ fun SettingsScreen(
                 onChange = onChange,
                 onStartFolder = onStartFolder,
                 onResetHints = onResetHints,
+                onChooseEditor = onChooseEditor,
                 clipState = clipState,
                 clipWork = clipWork,
                 clipBlocked = clipBlocked,
@@ -169,6 +172,7 @@ private fun ColumnScope.RootPage(
     onChange: (Settings) -> Unit,
     onStartFolder: () -> Unit,
     onResetHints: () -> Unit,
+    onChooseEditor: () -> Unit,
     clipState: ClipModels.State,
     /** A che punto è l'indicizzazione. Vive nel modello: vedi `clipWork`. */
     clipWork: Pair<Int, Int>?,
@@ -339,6 +343,65 @@ private fun ColumnScope.RootPage(
             settings.factRows.size
         ),
         onOpen = { onOpen(Page.FACTS) }
+    )
+
+    /*
+     * ⚠️⚠️ **STA NEL GRUPPO DEL VISUALIZZATORE perché è di là che si modifica**: la voce
+     * 'Modifica' vive nel menu del tocco lungo, e chi cerca l'impostazione la cerca accanto
+     * alle altre cose di quel menu, non in un gruppo di sistema.
+     * ⚠️⚠️ **È LO STESSO SELETTORE del primo utilizzo** (richiesta dell'utente), e la parola
+     * 'stesso' è tecnica e non descrittiva: la finestra è una sola, [EditorPicker], aperta
+     * dal modello (`chooseEditor`) invece che da questa schermata. Due finestre gemelle
+     * sarebbero divergite alla prima voce aggiunta.
+     */
+    val context = LocalContext.current
+    val noEditor = stringResource(R.string.settings_editor_none)
+    // ⚠️ Ricordato, e non chiesto a ogni disegno: leggerlo vuol dire interrogare il
+    // `PackageManager`, cioè elencare le app del telefono. La chiave è la scelta, e in più
+    // la frase di ripiego, che cambia quando cambia la lingua.
+    val editorName = remember(settings.editorApp, noEditor) {
+        Editors.labelOf(context, settings.editorApp)
+    } ?: noEditor
+    // ⚠️ La forma è ESATTAMENTE quella della cartella d'avvio qui sotto (titolo e spiegazione,
+    // poi una riga con il valore in vigore e il tasto): sono la stessa cosa, cioè una scelta
+    // che si fa altrove e qui si mostra, e due disposizioni diverse per lo stesso mestiere
+    // farebbero cercare il tasto due volte.
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.settings_editor),
+            style = MaterialTheme.typography.titleSmall
+        )
+        Detail(stringResource(R.string.settings_editor_desc))
+    }
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Text(
+            text = editorName,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f)
+        )
+        TextButton(onClick = onChooseEditor) {
+            Text(stringResource(R.string.settings_editor_pick))
+        }
+    }
+
+    /*
+     * ⚠️⚠️ **SOTTO LA SCELTA DELL'APP perché parla del SOLO editor di casa**: un'app di fuori
+     * salva per conto suo e AIV non ha modo di frapporsi, quindi l'interruttore non la
+     * riguarda. Metterlo altrove lo farebbe leggere come una promessa che vale per tutte.
+     */
+    SwitchRow(
+        label = stringResource(R.string.settings_editor_backup),
+        detail = stringResource(R.string.settings_editor_backup_desc),
+        checked = settings.editorBackup,
+        onChange = { onChange(settings.copy(editorBackup = it)) }
     )
 
     Group(stringResource(R.string.settings_group_browse))

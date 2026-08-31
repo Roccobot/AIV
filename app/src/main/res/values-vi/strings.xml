@@ -254,4 +254,36 @@
     <string name="settings_content_blocked">Lần trước việc này làm đóng ứng dụng (%1$s), nên tính năng đã tự dừng. Phần còn lại không bị ảnh hưởng.</string>
     <string name="settings_content_index">Lập chỉ mục ảnh ngay</string>
     <string name="settings_content_indexing">Đang lập chỉ mục: %1$d trên %2$d</string>
+
+    <!-- Modificare una fotografia (1.03) -->
+    <string name="menu_edit">Sửa</string>
+    <string name="editor_internal">Trình sửa có sẵn</string>
+    <string name="editor_pick">Sửa bằng gì?</string>
+    <string name="editor_left">Xoay trái</string>
+    <string name="editor_right">Xoay phải</string>
+    <string name="editor_free">Tự do</string>
+    <string name="editor_save">Lưu</string>
+    <string name="editor_how">Bạn muốn lưu thế nào?</string>
+    <string name="editor_overwrite">Ghi đè lên tệp</string>
+    <string name="editor_copy">Lưu một bản sao</string>
+    <string name="editor_done">Đã lưu</string>
+    <string name="editor_done_copy">Đã lưu bản sao</string>
+    <string name="editor_done_lossless">Đã lưu mà không nén lại</string>
+    <string name="editor_pick_none">Không ứng dụng nào khác trên máy này nhận sửa ảnh.</string>
+    <string name="edit_no_file">Tệp này không nằm trên máy</string>
+    <string name="edit_too_big">Ảnh quá lớn với thiết bị này</string>
+    <string name="edit_nothing">Chưa có gì thay đổi</string>
+    <string name="edit_no_overwrite">Định dạng này không ghi lại được, nên chỉ còn bản sao.</string>
+    <string name="edit_failed">Không lưu được</string>
+    <string name="edit_app_gone">Trình sửa đó không còn nữa. Hãy chọn cái khác.</string>
+    <string name="settings_editor">Ứng dụng để sửa ảnh</string>
+    <string name="settings_editor_desc">Ứng dụng nào mở ra khi chạm Sửa trên một tấm ảnh. Cái có sẵn chỉ xoay và cắt, không hơn.</string>
+    <string name="settings_editor_none">Chưa chọn cái nào</string>
+    <string name="settings_editor_pick">Chọn</string>
+    <string name="view_grid">Lưới</string>
+    <string name="view_list">Danh sách</string>
+    <string name="view_tree">Thư mục</string>
+    <string name="edit_no_backup">Không tạo được bản sao an toàn, nên chưa ghi đè gì cả</string>
+    <string name="settings_editor_backup">Bản sao an toàn trước khi ghi đè</string>
+    <string name="settings_editor_backup_desc">Trước khi trình sửa có sẵn ghi đè lên một tấm ảnh, bản trước đó sẽ vào thùng rác. Chỉ áp dụng cho trình sửa có sẵn: ứng dụng khác tự lưu lấy.</string>
 </resources>

@@ -269,4 +269,36 @@
     <string name="settings_content_blocked">গতবার এতে অ্যাপ বন্ধ হয়ে গিয়েছিল (%1$s), তাই সুবিধাটি নিজেই থেমে গেছে। বাকি কিছুতে প্রভাব পড়েনি।</string>
     <string name="settings_content_index">এখনই ছবি সূচিবদ্ধ করুন</string>
     <string name="settings_content_indexing">সূচি তৈরি: %2$d এর %1$d</string>
+
+    <!-- Modificare una fotografia (1.03) -->
+    <string name="menu_edit">সম্পাদনা</string>
+    <string name="editor_internal">অন্তর্নির্মিত সম্পাদক</string>
+    <string name="editor_pick">কী দিয়ে সম্পাদনা করেন?</string>
+    <string name="editor_left">বাঁয়ে ঘোরান</string>
+    <string name="editor_right">ডানে ঘোরান</string>
+    <string name="editor_free">মুক্ত</string>
+    <string name="editor_save">সংরক্ষণ করুন</string>
+    <string name="editor_how">কীভাবে সংরক্ষণ করবেন?</string>
+    <string name="editor_overwrite">ফাইলের উপরেই লিখুন</string>
+    <string name="editor_copy">একটি অনুলিপি সংরক্ষণ করুন</string>
+    <string name="editor_done">সংরক্ষিত হয়েছে</string>
+    <string name="editor_done_copy">অনুলিপি সংরক্ষিত হয়েছে</string>
+    <string name="editor_done_lossless">পুনরায় সংকুচিত না করেই সংরক্ষিত হয়েছে</string>
+    <string name="editor_pick_none">এই ফোনের আর কোনো অ্যাপ ছবি সম্পাদনার প্রস্তাব দেয় না।</string>
+    <string name="edit_no_file">এই ফাইলটি ফোনে নেই</string>
+    <string name="edit_too_big">ছবিটি এই যন্ত্রের পক্ষে অতি বড়</string>
+    <string name="edit_nothing">কিছুই বদলায়নি</string>
+    <string name="edit_no_overwrite">এই বিন্যাস আবার লেখা যায় না, তাই কেবল অনুলিপিই থাকে।</string>
+    <string name="edit_failed">সংরক্ষণ করা যায়নি</string>
+    <string name="edit_app_gone">সেই সম্পাদকটি আর নেই। অন্য একটি বাছুন।</string>
+    <string name="settings_editor">ছবি সম্পাদনার অ্যাপ</string>
+    <string name="settings_editor_desc">ছবিতে সম্পাদনা ছুঁলে কোন অ্যাপ খোলে। অন্তর্নির্মিতটি ঘোরায় আর ছাঁটে, এর বেশি নয়।</string>
+    <string name="settings_editor_none">কিছু বাছা হয়নি</string>
+    <string name="settings_editor_pick">বাছুন</string>
+    <string name="view_grid">গ্রিড</string>
+    <string name="view_list">তালিকা</string>
+    <string name="view_tree">ফোল্ডার</string>
+    <string name="edit_no_backup">নিরাপত্তা অনুলিপি হয়নি, তাই কিছুই উপরে লেখা হয়নি</string>
+    <string name="settings_editor_backup">উপরে লেখার আগে নিরাপত্তা অনুলিপি</string>
+    <string name="settings_editor_backup_desc">অন্তর্নির্মিত সম্পাদক কোনো ছবির উপরে লেখার আগে, আগের রূপটি আবর্জনায় যায়। এটি কেবল অন্তর্নির্মিত সম্পাদকের জন্য: অন্য অ্যাপ নিজের মতো সংরক্ষণ করে।</string>
 </resources>

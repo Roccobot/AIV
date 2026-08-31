@@ -269,4 +269,36 @@
     <string name="settings_content_blocked">पिछली बार इससे ऐप बंद हो गया था (%1$s), इसलिए यह सुविधा खुद रुक गई। बाकी सब पर कोई असर नहीं।</string>
     <string name="settings_content_index">अभी चित्र सूचीबद्ध करें</string>
     <string name="settings_content_indexing">सूचीबद्ध: %2$d में से %1$d</string>
+
+    <!-- Modificare una fotografia (1.03) -->
+    <string name="menu_edit">संपादित करें</string>
+    <string name="editor_internal">अंतर्निहित संपादक</string>
+    <string name="editor_pick">किससे संपादित करते हैं?</string>
+    <string name="editor_left">बाएँ घुमाएँ</string>
+    <string name="editor_right">दाएँ घुमाएँ</string>
+    <string name="editor_free">मुक्त</string>
+    <string name="editor_save">सहेजें</string>
+    <string name="editor_how">कैसे सहेजना है?</string>
+    <string name="editor_overwrite">फ़ाइल पर ही लिख दें</string>
+    <string name="editor_copy">एक प्रति सहेजें</string>
+    <string name="editor_done">सहेज लिया</string>
+    <string name="editor_done_copy">प्रति सहेज ली</string>
+    <string name="editor_done_lossless">दोबारा दबाए बिना सहेज लिया</string>
+    <string name="editor_pick_none">इस फ़ोन का कोई और ऐप तस्वीरें संपादित करने की पेशकश नहीं करता।</string>
+    <string name="edit_no_file">यह फ़ाइल फ़ोन पर नहीं है</string>
+    <string name="edit_too_big">तस्वीर इस उपकरण के लिए बहुत बड़ी है</string>
+    <string name="edit_nothing">कुछ नहीं बदला</string>
+    <string name="edit_no_overwrite">यह प्रारूप दोबारा लिखा नहीं जा सकता, इसलिए सिर्फ़ प्रति बचती है।</string>
+    <string name="edit_failed">सहेजा नहीं जा सका</string>
+    <string name="edit_app_gone">वह संपादक अब नहीं है। कोई और चुनें।</string>
+    <string name="settings_editor">तस्वीरें संपादित करने का ऐप</string>
+    <string name="settings_editor_desc">तस्वीर पर संपादित करें छूने से कौन सा ऐप खुलता है। अंतर्निहित वाला घुमाता और काटता है, बस इतना।</string>
+    <string name="settings_editor_none">कोई नहीं चुना</string>
+    <string name="settings_editor_pick">चुनें</string>
+    <string name="view_grid">ग्रिड</string>
+    <string name="view_list">सूची</string>
+    <string name="view_tree">फ़ोल्डर</string>
+    <string name="edit_no_backup">सुरक्षा प्रति नहीं बनी, इसलिए कुछ भी ऊपर नहीं लिखा गया</string>
+    <string name="settings_editor_backup">ऊपर लिखने से पहले सुरक्षा प्रति</string>
+    <string name="settings_editor_backup_desc">अंतर्निहित संपादक किसी तस्वीर पर लिखे, उससे पहले पिछला रूप कूड़ेदान में चला जाता है। यह सिर्फ़ अंतर्निहित संपादक के लिए है: दूसरा ऐप अपने आप सहेजता है।</string>
 </resources>

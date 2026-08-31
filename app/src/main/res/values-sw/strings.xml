@@ -269,4 +269,36 @@
     <string name="settings_content_blocked">Mara ya mwisho hii ilifunga programu (%1$s), kwa hivyo kipengele kilijizima chenyewe. Mengine hayajaathirika.</string>
     <string name="settings_content_index">Weka faharasa ya picha sasa</string>
     <string name="settings_content_indexing">Inaorodhesha: %1$d kati ya %2$d</string>
+
+    <!-- Modificare una fotografia (1.03) -->
+    <string name="menu_edit">Hariri</string>
+    <string name="editor_internal">Kihariri cha ndani</string>
+    <string name="editor_pick">Unahariri kwa kitu gani?</string>
+    <string name="editor_left">Zungusha kushoto</string>
+    <string name="editor_right">Zungusha kulia</string>
+    <string name="editor_free">Huru</string>
+    <string name="editor_save">Hifadhi</string>
+    <string name="editor_how">Unataka kuihifadhi vipi?</string>
+    <string name="editor_overwrite">Andika juu ya faili</string>
+    <string name="editor_copy">Hifadhi nakala</string>
+    <string name="editor_done">Imehifadhiwa</string>
+    <string name="editor_done_copy">Nakala imehifadhiwa</string>
+    <string name="editor_done_lossless">Imehifadhiwa bila kubana upya</string>
+    <string name="editor_pick_none">Hakuna programu nyingine kwenye simu hii inayojitolea kuhariri picha.</string>
+    <string name="edit_no_file">Faili hii haiko kwenye simu</string>
+    <string name="edit_too_big">Picha ni kubwa mno kwa kifaa hiki</string>
+    <string name="edit_nothing">Hakuna kilichobadilika</string>
+    <string name="edit_no_overwrite">Muundo huu hauwezi kuandikwa upya, hivyo inabaki nakala tu.</string>
+    <string name="edit_failed">Haikuweza kuhifadhiwa</string>
+    <string name="edit_app_gone">Kihariri hicho hakipo tena. Chagua kingine.</string>
+    <string name="settings_editor">Programu ya kuhariri picha</string>
+    <string name="settings_editor_desc">Programu ipi hufunguka ukigusa Hariri kwenye picha. Ya ndani huzungusha na kupunguza, si zaidi.</string>
+    <string name="settings_editor_none">Hakuna iliyochaguliwa</string>
+    <string name="settings_editor_pick">Chagua</string>
+    <string name="view_grid">Gridi</string>
+    <string name="view_list">Orodha</string>
+    <string name="view_tree">Folda</string>
+    <string name="edit_no_backup">Nakala ya usalama haikufanikiwa, hivyo hakuna kilichoandikwa juu</string>
+    <string name="settings_editor_backup">Nakala ya usalama kabla ya kuandika juu</string>
+    <string name="settings_editor_backup_desc">Kabla kihariri cha ndani hakijaandika juu ya picha, toleo la awali huenda kwenye tupio. Inahusu kihariri cha ndani pekee: programu nyingine huhifadhi yenyewe.</string>
 </resources>

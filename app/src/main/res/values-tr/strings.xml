@@ -269,4 +269,36 @@
     <string name="settings_content_blocked">Geçen sefer bu, uygulamayı kapattı (%1$s), bu yüzden özellik kendini durdurdu. Gerisi etkilenmedi.</string>
     <string name="settings_content_index">Görselleri şimdi dizinle</string>
     <string name="settings_content_indexing">Dizinleniyor: %2$d içinden %1$d</string>
+
+    <!-- Modificare una fotografia (1.03) -->
+    <string name="menu_edit">Düzenle</string>
+    <string name="editor_internal">Yerleşik düzenleyici</string>
+    <string name="editor_pick">Neyle düzenliyorsun?</string>
+    <string name="editor_left">Sola çevir</string>
+    <string name="editor_right">Sağa çevir</string>
+    <string name="editor_free">Serbest</string>
+    <string name="editor_save">Kaydet</string>
+    <string name="editor_how">Nasıl kaydedilsin?</string>
+    <string name="editor_overwrite">Dosyanın üzerine yaz</string>
+    <string name="editor_copy">Kopyasını kaydet</string>
+    <string name="editor_done">Kaydedildi</string>
+    <string name="editor_done_copy">Kopya kaydedildi</string>
+    <string name="editor_done_lossless">Yeniden sıkıştırmadan kaydedildi</string>
+    <string name="editor_pick_none">Bu telefonda resim düzenlemeyi üstlenen başka bir uygulama yok.</string>
+    <string name="edit_no_file">Bu dosya telefonda değil</string>
+    <string name="edit_too_big">Resim bu cihaz için fazla büyük</string>
+    <string name="edit_nothing">Hiçbir şey değişmedi</string>
+    <string name="edit_no_overwrite">Bu biçim geri yazılamaz, geriye yalnızca kopya kalır.</string>
+    <string name="edit_failed">Kaydedilemedi</string>
+    <string name="edit_app_gone">O düzenleyici artık yok. Başka birini seç.</string>
+    <string name="settings_editor">Resim düzenleme uygulaması</string>
+    <string name="settings_editor_desc">Bir resimde Düzenle\'ye dokununca hangi uygulama açılır. Yerleşik olan çevirir ve kırpar, başka bir şey yapmaz.</string>
+    <string name="settings_editor_none">Seçilmedi</string>
+    <string name="settings_editor_pick">Seç</string>
+    <string name="view_grid">Izgara</string>
+    <string name="view_list">Liste</string>
+    <string name="view_tree">Klasörler</string>
+    <string name="edit_no_backup">Yedek kopya alınamadı, bu yüzden hiçbir şeyin üzerine yazılmadı</string>
+    <string name="settings_editor_backup">Üzerine yazmadan önce yedek kopya</string>
+    <string name="settings_editor_backup_desc">Yerleşik düzenleyici bir resmin üzerine yazmadan önce, önceki hâli çöp kutusuna gider. Yalnızca yerleşik düzenleyici için geçerli: başka bir uygulama kendi başına kaydeder.</string>
 </resources>

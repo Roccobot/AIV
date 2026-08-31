@@ -254,4 +254,36 @@
     <string name="settings_content_blocked">前回これでアプリが終了したため (%1$s)、この機能は自分で停止しました。ほかには影響しません。</string>
     <string name="settings_content_index">画像を今すぐ索引に入れる</string>
     <string name="settings_content_indexing">索引作成: %2$d 件中 %1$d 件</string>
+
+    <!-- Modificare una fotografia (1.03) -->
+    <string name="menu_edit">編集</string>
+    <string name="editor_internal">内蔵エディター</string>
+    <string name="editor_pick">何で編集しますか</string>
+    <string name="editor_left">左に回す</string>
+    <string name="editor_right">右に回す</string>
+    <string name="editor_free">自由</string>
+    <string name="editor_save">保存</string>
+    <string name="editor_how">どう保存しますか</string>
+    <string name="editor_overwrite">ファイルに上書き</string>
+    <string name="editor_copy">コピーを保存</string>
+    <string name="editor_done">保存しました</string>
+    <string name="editor_done_copy">コピーを保存しました</string>
+    <string name="editor_done_lossless">再圧縮せずに保存しました</string>
+    <string name="editor_pick_none">この端末には画像を編集できる他のアプリがありません。</string>
+    <string name="edit_no_file">このファイルは端末にありません</string>
+    <string name="edit_too_big">この端末には画像が大きすぎます</string>
+    <string name="edit_nothing">何も変わっていません</string>
+    <string name="edit_no_overwrite">この形式は書き戻せないので、コピーだけになります。</string>
+    <string name="edit_failed">保存できませんでした</string>
+    <string name="edit_app_gone">そのエディターはもうありません。別のものを選んでください。</string>
+    <string name="settings_editor">画像を編集するアプリ</string>
+    <string name="settings_editor_desc">写真で編集を押したときに開くアプリ。内蔵のものは回転と切り抜きだけです。</string>
+    <string name="settings_editor_none">未選択</string>
+    <string name="settings_editor_pick">選ぶ</string>
+    <string name="view_grid">グリッド</string>
+    <string name="view_list">リスト</string>
+    <string name="view_tree">フォルダ</string>
+    <string name="edit_no_backup">安全のための控えが作れなかったので、何も上書きしていません</string>
+    <string name="settings_editor_backup">上書きの前に控えを取る</string>
+    <string name="settings_editor_backup_desc">内蔵エディターが画像を上書きする前に、前の版をごみ箱へ送ります。内蔵エディターだけが対象で、他のアプリは自分で保存します。</string>
 </resources>

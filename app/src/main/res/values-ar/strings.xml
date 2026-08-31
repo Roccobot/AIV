@@ -329,4 +329,36 @@
     <string name="settings_content_blocked">في المرة الماضية أدى هذا إلى إغلاق التطبيق (%1$s)، فأوقفت الميزة نفسها. لم يتأثر شيء آخر.</string>
     <string name="settings_content_index">فهرسة الصور الآن</string>
     <string name="settings_content_indexing">الفهرسة: %1$d من %2$d</string>
+
+    <!-- Modificare una fotografia (1.03) -->
+    <string name="menu_edit">تحرير</string>
+    <string name="editor_internal">المحرر المدمج</string>
+    <string name="editor_pick">بأي تطبيق تحرّر؟</string>
+    <string name="editor_left">تدوير لليسار</string>
+    <string name="editor_right">تدوير لليمين</string>
+    <string name="editor_free">حر</string>
+    <string name="editor_save">حفظ</string>
+    <string name="editor_how">كيف تريد حفظها؟</string>
+    <string name="editor_overwrite">الكتابة فوق الملف</string>
+    <string name="editor_copy">حفظ نسخة</string>
+    <string name="editor_done">تم الحفظ</string>
+    <string name="editor_done_copy">تم حفظ النسخة</string>
+    <string name="editor_done_lossless">تم الحفظ دون إعادة ضغط</string>
+    <string name="editor_pick_none">لا يوجد تطبيق آخر على هذا الهاتف يعرض تحرير الصور.</string>
+    <string name="edit_no_file">هذا الملف ليس على الهاتف</string>
+    <string name="edit_too_big">الصورة أكبر من طاقة هذا الجهاز</string>
+    <string name="edit_nothing">لم يتغير شيء</string>
+    <string name="edit_no_overwrite">لا يمكن إعادة كتابة هذه الصيغة، فتبقى النسخة وحدها.</string>
+    <string name="edit_failed">تعذّر الحفظ</string>
+    <string name="edit_app_gone">هذا المحرر لم يعد موجودًا. اختر غيره.</string>
+    <string name="settings_editor">تطبيق تحرير الصور</string>
+    <string name="settings_editor_desc">أي تطبيق يفتح عند لمس تحرير على صورة. المدمج يدوّر ويقصّ، لا أكثر.</string>
+    <string name="settings_editor_none">لم يُختر أي تطبيق</string>
+    <string name="settings_editor_pick">اختيار</string>
+    <string name="view_grid">شبكة</string>
+    <string name="view_list">قائمة</string>
+    <string name="view_tree">مجلدات</string>
+    <string name="edit_no_backup">تعذّرت نسخة الأمان، فلم تجرِ الكتابة فوق شيء</string>
+    <string name="settings_editor_backup">نسخة أمان قبل الكتابة فوق الملف</string>
+    <string name="settings_editor_backup_desc">قبل أن يكتب المحرر المدمج فوق صورة، تذهب نسختها السابقة إلى سلة المهملات. هذا للمحرر المدمج وحده: أي تطبيق آخر يحفظ بنفسه.</string>
 </resources>

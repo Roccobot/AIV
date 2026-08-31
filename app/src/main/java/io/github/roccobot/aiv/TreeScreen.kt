@@ -30,8 +30,8 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SdStorage
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -230,15 +230,14 @@ private fun PathBar(dir: File, up: File?, roots: List<Tree.Root>, onPath: (Strin
             roots.size > 1 -> ({ onPath(null) })
             else -> null
         }
-        if (above != null) {
-            IconButton(onClick = above) {
-                Icon(
-                    imageVector = Icons.Default.ArrowUpward,
-                    contentDescription = stringResource(R.string.tree_up)
-                )
-            }
-        }
-        Column(modifier = Modifier.padding(start = if (above == null) 4.dp else 0.dp)) {
+        /*
+         * ⚠️⚠️ **LA FRECCIA STA A DESTRA E DENTRO UN TONDO, dalla 1.03** (richiesta
+         * dell'utente): a sinistra spingeva il nome della cartella verso il centro e ne
+         * mangiava una fetta proprio sui percorsi lunghi, che sono quelli in cui il nome
+         * serve di più. A destra il testo comincia sempre allo stesso punto, e il tondo pieno
+         * la fa leggere come un comando invece che come una decorazione del titolo.
+         */
+        Column(modifier = Modifier.weight(1f).padding(start = 4.dp)) {
             Text(
                 text = dir.name,
                 style = MaterialTheme.typography.titleMedium,
@@ -252,6 +251,14 @@ private fun PathBar(dir: File, up: File?, roots: List<Tree.Root>, onPath: (Strin
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+        }
+        if (above != null) {
+            FilledTonalIconButton(onClick = above) {
+                Icon(
+                    imageVector = Icons.Default.ArrowUpward,
+                    contentDescription = stringResource(R.string.tree_up)
+                )
+            }
         }
     }
 }

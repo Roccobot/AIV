@@ -254,4 +254,36 @@
     <string name="settings_content_blocked">지난번에 이것 때문에 앱이 종료되어 (%1$s) 기능이 스스로 멈췄습니다. 다른 부분은 영향이 없습니다.</string>
     <string name="settings_content_index">지금 사진 색인 만들기</string>
     <string name="settings_content_indexing">색인 만드는 중: %2$d 중 %1$d</string>
+
+    <!-- Modificare una fotografia (1.03) -->
+    <string name="menu_edit">편집</string>
+    <string name="editor_internal">내장 편집기</string>
+    <string name="editor_pick">무엇으로 편집할까요?</string>
+    <string name="editor_left">왼쪽으로 돌리기</string>
+    <string name="editor_right">오른쪽으로 돌리기</string>
+    <string name="editor_free">자유</string>
+    <string name="editor_save">저장</string>
+    <string name="editor_how">어떻게 저장할까요?</string>
+    <string name="editor_overwrite">파일에 덮어쓰기</string>
+    <string name="editor_copy">사본으로 저장</string>
+    <string name="editor_done">저장했습니다</string>
+    <string name="editor_done_copy">사본을 저장했습니다</string>
+    <string name="editor_done_lossless">다시 압축하지 않고 저장했습니다</string>
+    <string name="editor_pick_none">이 휴대폰에는 사진을 편집하겠다는 다른 앱이 없습니다.</string>
+    <string name="edit_no_file">이 파일은 휴대폰에 없습니다</string>
+    <string name="edit_too_big">사진이 이 기기에 너무 큽니다</string>
+    <string name="edit_nothing">바뀐 것이 없습니다</string>
+    <string name="edit_no_overwrite">이 형식은 되쓸 수 없어서 사본만 남습니다.</string>
+    <string name="edit_failed">저장하지 못했습니다</string>
+    <string name="edit_app_gone">그 편집기가 사라졌습니다. 다른 것을 고르세요.</string>
+    <string name="settings_editor">사진 편집 앱</string>
+    <string name="settings_editor_desc">사진에서 편집을 누르면 열리는 앱. 내장 편집기는 돌리고 자르기만 합니다.</string>
+    <string name="settings_editor_none">선택하지 않음</string>
+    <string name="settings_editor_pick">선택</string>
+    <string name="view_grid">격자</string>
+    <string name="view_list">목록</string>
+    <string name="view_tree">폴더</string>
+    <string name="edit_no_backup">안전 사본을 만들지 못해서 아무것도 덮어쓰지 않았습니다</string>
+    <string name="settings_editor_backup">덮어쓰기 전에 안전 사본</string>
+    <string name="settings_editor_backup_desc">내장 편집기가 사진을 덮어쓰기 전에 이전 판이 휴지통으로 갑니다. 내장 편집기에만 해당하며, 다른 앱은 알아서 저장합니다.</string>
 </resources>
