@@ -266,5 +266,7 @@
     <string name="settings_content_remove">मॉडेल काढा (%1$s)</string>
     <string name="settings_content_broken">काहीतरी चालले नाही: %1$s</string>
     <string name="settings_content_retry">पुन्हा प्रयत्न करा</string>
+    <string name="settings_content_blocked">मागच्या वेळी यामुळे अ‍ॅप बंद झाले होते (%1$s), म्हणून ही सुविधा आपोआप थांबली. बाकी काहीही बाधित नाही.</string>
+    <string name="settings_content_index">आता प्रतिमांची सूची करा</string>
     <string name="settings_content_indexing">अनुक्रमणिका: %2$d पैकी %1$d</string>
 </resources>

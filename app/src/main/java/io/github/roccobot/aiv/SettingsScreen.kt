@@ -88,8 +88,12 @@ fun SettingsScreen(
     clipState: ClipModels.State,
     /** A che punto è l'indicizzazione. Vive nel modello: vedi `clipWork`. */
     clipWork: Pair<Int, Int>?,
+    /** Perché la ricerca per contenuto è ferma, e `null` se non lo è. Vedi `ClipGuard`. */
+    clipBlocked: String?,
     onClipFetch: () -> Unit,
     onClipStop: () -> Unit,
+    onClipIndex: () -> Unit,
+    onClipUnblock: () -> Unit,
     onClipRemove: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
@@ -120,8 +124,11 @@ fun SettingsScreen(
                 onResetHints = onResetHints,
                 clipState = clipState,
                 clipWork = clipWork,
+                clipBlocked = clipBlocked,
                 onClipFetch = onClipFetch,
                 onClipStop = onClipStop,
+                onClipIndex = onClipIndex,
+                onClipUnblock = onClipUnblock,
                 onClipRemove = onClipRemove,
                 onOpen = { page = it }
             )
@@ -165,8 +172,11 @@ private fun ColumnScope.RootPage(
     clipState: ClipModels.State,
     /** A che punto è l'indicizzazione. Vive nel modello: vedi `clipWork`. */
     clipWork: Pair<Int, Int>?,
+    clipBlocked: String?,
     onClipFetch: () -> Unit,
     onClipStop: () -> Unit,
+    onClipIndex: () -> Unit,
+    onClipUnblock: () -> Unit,
     onClipRemove: () -> Unit,
     onOpen: (Page) -> Unit
 ) {
@@ -423,7 +433,16 @@ private fun ColumnScope.RootPage(
 
     Group(stringResource(R.string.settings_group_content))
     Detail(stringResource(R.string.settings_content_desc))
-    ClipRow(clipState, clipWork, onClipFetch, onClipStop, onClipRemove)
+    ClipRow(
+        state = clipState,
+        indexing = clipWork,
+        blocked = clipBlocked,
+        onFetch = onClipFetch,
+        onStop = onClipStop,
+        onIndex = onClipIndex,
+        onUnblock = onClipUnblock,
+        onRemove = onClipRemove
+    )
 
     Group(stringResource(R.string.settings_group_start))
 
@@ -820,8 +839,12 @@ private fun ClipRow(
     state: ClipModels.State,
     /** A che punto è l'indicizzazione, e `null` quando non sta girando. */
     indexing: Pair<Int, Int>?,
+    /** Perché è ferma, e `null` se non lo è: vedi `ClipGuard`. */
+    blocked: String?,
     onFetch: () -> Unit,
     onStop: () -> Unit,
+    onIndex: () -> Unit,
+    onUnblock: () -> Unit,
     onRemove: () -> Unit
 ) {
     Column(
@@ -871,11 +894,29 @@ private fun ClipRow(
                         ),
                         style = MaterialTheme.typography.bodySmall
                     )
+                } else if (blocked != null) {
+                    // ⚠️⚠️ **LA SICURA SI DICE, non si nasconde**: se la funzione è ferma
+                    // perché l'ultima volta ha fatto morire l'app, chi guarda deve leggere
+                    // che è ferma e perché, o cercherà per contenuto senza capire che non
+                    // sta cercando niente. Il tasto qui sotto è l'unico modo di rientrare.
+                    Text(
+                        text = stringResource(R.string.settings_content_blocked, blocked),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                    FilledTonalButton(onClick = onUnblock) {
+                        Text(stringResource(R.string.settings_content_retry))
+                    }
                 } else {
                     Text(
                         text = stringResource(R.string.settings_content_ready),
                         style = MaterialTheme.typography.bodySmall
                     )
+                    // ⚠️ L'indicizzazione la chiede l'utente, dalla 1.02: partiva da sé a
+                    // ogni avvio, e quando il motore moriva l'app non si apriva più.
+                    FilledTonalButton(onClick = onIndex) {
+                        Text(stringResource(R.string.settings_content_index))
+                    }
                 }
                 OutlinedButton(onClick = onRemove) {
                     Text(

@@ -343,5 +343,7 @@
     <string name="settings_content_remove">Togli i modelli (%1$s)</string>
     <string name="settings_content_broken">Qualcosa non ha funzionato: %1$s</string>
     <string name="settings_content_retry">Riprova</string>
+    <string name="settings_content_blocked">L\'ultima volta ha fatto chiudere l\'app (%1$s), quindi si è fermata da sé. Il resto dell\'app non è toccato.</string>
+    <string name="settings_content_index">Indicizza adesso le fotografie</string>
     <string name="settings_content_indexing">Indicizzo: %1$d di %2$d</string>
 </resources>

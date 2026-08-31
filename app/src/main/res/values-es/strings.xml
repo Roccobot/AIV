@@ -281,5 +281,7 @@
     <string name="settings_content_remove">Quitar los modelos (%1$s)</string>
     <string name="settings_content_broken">Algo no ha funcionado: %1$s</string>
     <string name="settings_content_retry">Reintentar</string>
+    <string name="settings_content_blocked">La última vez esto cerró la aplicación (%1$s), así que la función se ha detenido sola. Lo demás no está afectado.</string>
+    <string name="settings_content_index">Indexar las imágenes ahora</string>
     <string name="settings_content_indexing">Indexando: %1$d de %2$d</string>
 </resources>

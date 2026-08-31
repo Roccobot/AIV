@@ -33,10 +33,36 @@ import kotlin.math.sqrt
  */
 class ClipEngine private constructor(
     private val env: OrtEnvironment,
-    private val vision: OrtSession,
-    private val text: OrtSession,
-    private val words: ClipTokenizer
+    private val visionPath: String,
+    private val textPath: String,
+    private val tokenizerJson: () -> String
 ) : Closeable {
+
+    /*
+     * ⚠️⚠️ **I DUE MODELLI SI APRONO SEPARATI E SOLO QUANDO SERVONO, dalla 1.02**: prima
+     * [open] li apriva tutti e due insieme più il tokenizzatore, cioè teneva in memoria 65 MB
+     * di pesi e un vocabolario da 49.408 voci anche per fare una cosa sola. Ma indicizzare usa
+     * il **solo** encoder immagine, e cercare il **solo** encoder testuale: la punta di memoria
+     * era il doppio del necessario senza che niente lo richiedesse, ed è il primo sospettato
+     * del crollo che rendeva l'app irrecuperabile (vedi [ClipGuard]).
+     * ⚠️ **Non è la prova della causa**, che resta ignota perché il processo muore senza
+     * lasciare un errore: è la riduzione della cosa più probabile. La protezione vera è la
+     * sicura, non questo.
+     */
+    private var vision: OrtSession? = null
+    private var text: OrtSession? = null
+    private var words: ClipTokenizer? = null
+
+    private fun visionSession(): OrtSession =
+        vision ?: env.createSession(visionPath, options()).also { vision = it }
+
+    private fun textSession(): OrtSession =
+        text ?: env.createSession(textPath, options()).also { text = it }
+
+    private fun tokenizer(): ClipTokenizer =
+        words ?: readTokenizer(tokenizerJson()).let { (vocab, merges) ->
+            ClipTokenizer(vocab, merges).also { words = it }
+        }
 
     /**
      * Il vettore di una fotografia: 512 numeri, già normalizzati.
@@ -48,8 +74,9 @@ class ClipEngine private constructor(
     fun ofImage(argb: IntArray, width: Int, height: Int): FloatArray {
         val pixels = ClipPixels.square(argb, width, height)
         val shape = longArrayOf(1, 3, ClipPixels.SIDE.toLong(), ClipPixels.SIDE.toLong())
+        val session = visionSession()
         OnnxTensor.createTensor(env, FloatBuffer.wrap(pixels), shape).use { tensor ->
-            vision.run(mapOf(IMAGE_IN to tensor)).use { result ->
+            session.run(mapOf(IMAGE_IN to tensor)).use { result ->
                 @Suppress("UNCHECKED_CAST")
                 val rows = result.get(0).value as Array<FloatArray>
                 return unit(rows[0])
@@ -59,11 +86,12 @@ class ClipEngine private constructor(
 
     /** Il vettore di una frase: 512 numeri, già normalizzati. */
     fun ofText(phrase: String): FloatArray {
-        val ids = words.encode(phrase)
+        val session = textSession()
+        val ids = tokenizer().encode(phrase)
         val longs = LongArray(ids.size) { ids[it].toLong() }
         val shape = longArrayOf(1, ids.size.toLong())
         OnnxTensor.createTensor(env, LongBuffer.wrap(longs), shape).use { tensor ->
-            text.run(mapOf(TEXT_IN to tensor)).use { result ->
+            session.run(mapOf(TEXT_IN to tensor)).use { result ->
                 @Suppress("UNCHECKED_CAST")
                 val rows = result.get(0).value as Array<FloatArray>
                 return unit(rows[0])
@@ -72,8 +100,11 @@ class ClipEngine private constructor(
     }
 
     override fun close() {
-        runCatching { vision.close() }
-        runCatching { text.close() }
+        runCatching { vision?.close() }
+        runCatching { text?.close() }
+        vision = null
+        text = null
+        words = null
     }
 
     companion object {
@@ -90,17 +121,27 @@ class ClipEngine private constructor(
          * ⚠️ **Prende PERCORSI e il JSON già letto**, non un `Context`: è quello che permette
          * di aprirlo su una JVM per provarlo. Chi lo usa nell'app passa i file di
          * `ClipModels`.
-         * ⚠️ **Costa qualche centinaio di millisecondi e 65 MB di memoria mappata**: si apre
-         * una volta e si tiene, non una volta per fotografia.
+         * ⚠️ **Questa chiamata non tocca ONNX Runtime**: tiene i percorsi e basta, e le
+         * sessioni nascono alla prima immagine o alla prima frase. Aprire costa qualche
+         * centinaio di millisecondi e decine di megabyte, e va fatto quando si sa che
+         * serviranno davvero.
          */
-        fun open(visionPath: String, textPath: String, tokenizerJson: String): ClipEngine {
-            val env = OrtEnvironment.getEnvironment()
-            val options = OrtSession.SessionOptions()
-            val vision = env.createSession(visionPath, options)
-            val text = env.createSession(textPath, options)
-            val (vocab, merges) = readTokenizer(tokenizerJson)
-            return ClipEngine(env, vision, text, ClipTokenizer(vocab, merges))
-        }
+        fun open(visionPath: String, textPath: String, tokenizerJson: () -> String): ClipEngine =
+            ClipEngine(OrtEnvironment.getEnvironment(), visionPath, textPath, tokenizerJson)
+
+        /**
+         * Come si apre una sessione.
+         *
+         * ⚠️ **Due fili e non tutti quelli che ci sono**: di serie ONNX Runtime ne prende
+         * quanti sono i nuclei, e su un telefono vuol dire otto arene di memoria per un
+         * lavoro che gira in sottofondo mentre l'utente sfoglia le fotografie. Due bastano a
+         * non far durare l'indicizzazione il doppio, e la punta di memoria si abbassa.
+         */
+        private fun options(): OrtSession.SessionOptions =
+            OrtSession.SessionOptions().apply { setIntraOpNumThreads(THREADS) }
+
+        /** Quanti fili per il motore. Vedi [options]. */
+        private const val THREADS = 2
 
         /**
          * Quanto due vettori si somigliano, da -1 a 1.

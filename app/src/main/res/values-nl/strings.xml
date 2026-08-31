@@ -266,5 +266,7 @@
     <string name="settings_content_remove">Modellen verwijderen (%1$s)</string>
     <string name="settings_content_broken">Er ging iets mis: %1$s</string>
     <string name="settings_content_retry">Opnieuw proberen</string>
+    <string name="settings_content_blocked">De vorige keer sloot dit de app af (%1$s), dus de functie heeft zichzelf gestopt. De rest blijft ongemoeid.</string>
+    <string name="settings_content_index">Afbeeldingen nu indexeren</string>
     <string name="settings_content_indexing">Indexeren: %1$d van %2$d</string>
 </resources>

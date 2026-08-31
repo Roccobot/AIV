@@ -266,5 +266,7 @@
     <string name="settings_content_remove">মডেল সরান (%1$s)</string>
     <string name="settings_content_broken">কিছু একটা কাজ করেনি: %1$s</string>
     <string name="settings_content_retry">আবার চেষ্টা করুন</string>
+    <string name="settings_content_blocked">গতবার এতে অ্যাপ বন্ধ হয়ে গিয়েছিল (%1$s), তাই সুবিধাটি নিজেই থেমে গেছে। বাকি কিছুতে প্রভাব পড়েনি।</string>
+    <string name="settings_content_index">এখনই ছবি সূচিবদ্ধ করুন</string>
     <string name="settings_content_indexing">সূচি তৈরি: %2$d এর %1$d</string>
 </resources>

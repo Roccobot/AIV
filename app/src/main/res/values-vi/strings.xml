@@ -251,5 +251,7 @@
     <string name="settings_content_remove">Gỡ các mô hình (%1$s)</string>
     <string name="settings_content_broken">Có gì đó không chạy: %1$s</string>
     <string name="settings_content_retry">Thử lại</string>
+    <string name="settings_content_blocked">Lần trước việc này làm đóng ứng dụng (%1$s), nên tính năng đã tự dừng. Phần còn lại không bị ảnh hưởng.</string>
+    <string name="settings_content_index">Lập chỉ mục ảnh ngay</string>
     <string name="settings_content_indexing">Đang lập chỉ mục: %1$d trên %2$d</string>
 </resources>

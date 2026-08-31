@@ -266,5 +266,7 @@
     <string name="settings_content_remove">மாதிரிகளை நீக்கு (%1$s)</string>
     <string name="settings_content_broken">ஏதோ சரியாக நடக்கவில்லை: %1$s</string>
     <string name="settings_content_retry">மீண்டும் முயற்சி</string>
+    <string name="settings_content_blocked">கடந்த முறை இதனால் செயலி மூடிவிட்டது (%1$s), எனவே இந்த வசதி தானாகவே நின்றது. மற்றவை பாதிக்கப்படவில்லை.</string>
+    <string name="settings_content_index">படங்களை இப்போது அட்டவணைப்படுத்து</string>
     <string name="settings_content_indexing">அட்டவணை: %2$d இல் %1$d</string>
 </resources>

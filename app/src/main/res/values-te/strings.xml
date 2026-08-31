@@ -266,5 +266,7 @@
     <string name="settings_content_remove">మోడల్‌లను తీసివేయి (%1$s)</string>
     <string name="settings_content_broken">ఏదో సరిగా జరగలేదు: %1$s</string>
     <string name="settings_content_retry">మళ్ళీ ప్రయత్నించు</string>
+    <string name="settings_content_blocked">గత సారి దీనితో యాప్ మూసుకుపోయింది (%1$s), అందుకే ఈ సౌకర్యం తనంతట తానే ఆగిపోయింది. మిగతావాటిపై ప్రభావం లేదు.</string>
+    <string name="settings_content_index">ఇప్పుడు చిత్రాలను సూచిక చేయి</string>
     <string name="settings_content_indexing">సూచిక: %2$d లో %1$d</string>
 </resources>

@@ -251,5 +251,7 @@
     <string name="settings_content_remove">ลบโมเดล (%1$s)</string>
     <string name="settings_content_broken">มีบางอย่างไม่ทำงาน: %1$s</string>
     <string name="settings_content_retry">ลองอีกครั้ง</string>
+    <string name="settings_content_blocked">ครั้งที่แล้วสิ่งนี้ทำให้แอปปิดลง (%1$s) ฟังก์ชันจึงหยุดตัวเอง ส่วนอื่นไม่ได้รับผลกระทบ</string>
+    <string name="settings_content_index">ทำดัชนีภาพตอนนี้</string>
     <string name="settings_content_indexing">กำลังทำดัชนี: %1$d จาก %2$d</string>
 </resources>
