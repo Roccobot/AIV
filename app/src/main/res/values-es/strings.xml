@@ -316,4 +316,6 @@
     <string name="edit_no_backup">La copia de seguridad ha fallado, así que no se ha sobrescrito nada</string>
     <string name="settings_editor_backup">Copia de seguridad antes de sobrescribir</string>
     <string name="settings_editor_backup_desc">Antes de que el editor interno sobrescriba una imagen, la versión anterior va a la papelera. Solo vale para el editor interno: otra app guarda por su cuenta.</string>
+    <string name="editor_tall">Vertical</string>
+    <string name="editor_wide">Horizontal</string>
 </resources>

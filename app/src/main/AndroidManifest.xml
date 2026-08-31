@@ -12,9 +12,27 @@
         un elenco di app scritto a mano, vecchio il giorno dopo. Vedi `Editors`.
     -->
     <queries>
+        <!--
+            ⚠️⚠️ DUE FORME DELLA STESSA DOMANDA, e la seconda non è ridondanza: un editor
+            che nel suo filtro pretende anche lo SCHEMA (`<data android:scheme="content" .../>`)
+            non risponde a un intent che porta il solo tipo, quindi con la sola prima riga
+            resta invisibile. Misurato sul campo il 2026-08-31: Photo Editor
+            (com.iudesk.android.photo.editor) e Magic Eraser (com.duygiangdg.magiceraser)
+            erano installati e non comparivano fra le scelte.
+            ⚠️ Il costo di sbagliare qui non si vede: l'elenco esce corto invece che vuoto, e
+            sembra che sul telefono non ci sia nessun editor.
+        -->
         <intent>
             <action android:name="android.intent.action.EDIT" />
             <data android:mimeType="image/*" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.EDIT" />
+            <data android:scheme="content" android:mimeType="image/*" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.EDIT" />
+            <data android:scheme="file" android:mimeType="image/*" />
         </intent>
     </queries>
 

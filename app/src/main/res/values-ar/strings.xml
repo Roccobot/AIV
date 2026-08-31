@@ -361,4 +361,6 @@
     <string name="edit_no_backup">تعذّرت نسخة الأمان، فلم تجرِ الكتابة فوق شيء</string>
     <string name="settings_editor_backup">نسخة أمان قبل الكتابة فوق الملف</string>
     <string name="settings_editor_backup_desc">قبل أن يكتب المحرر المدمج فوق صورة، تذهب نسختها السابقة إلى سلة المهملات. هذا للمحرر المدمج وحده: أي تطبيق آخر يحفظ بنفسه.</string>
+    <string name="editor_tall">طولي</string>
+    <string name="editor_wide">عرضي</string>
 </resources>

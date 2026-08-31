@@ -301,4 +301,6 @@
     <string name="edit_no_backup">نسخهٔ ایمنی ساخته نشد، پس چیزی بازنویسی نشد</string>
     <string name="settings_editor_backup">نسخهٔ ایمنی پیش از بازنویسی</string>
     <string name="settings_editor_backup_desc">پیش از آنکه ویرایشگر داخلی روی عکسی بنویسد، نسخهٔ پیشین به زبالهدان می‌رود. فقط برای ویرایشگر داخلی است: برنامهٔ دیگر خودش ذخیره می‌کند.</string>
+    <string name="editor_tall">عمودی</string>
+    <string name="editor_wide">افقی</string>
 </resources>

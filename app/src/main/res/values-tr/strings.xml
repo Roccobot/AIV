@@ -301,4 +301,6 @@
     <string name="edit_no_backup">Yedek kopya alınamadı, bu yüzden hiçbir şeyin üzerine yazılmadı</string>
     <string name="settings_editor_backup">Üzerine yazmadan önce yedek kopya</string>
     <string name="settings_editor_backup_desc">Yerleşik düzenleyici bir resmin üzerine yazmadan önce, önceki hâli çöp kutusuna gider. Yalnızca yerleşik düzenleyici için geçerli: başka bir uygulama kendi başına kaydeder.</string>
+    <string name="editor_tall">Dikey</string>
+    <string name="editor_wide">Yatay</string>
 </resources>

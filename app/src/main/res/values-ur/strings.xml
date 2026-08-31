@@ -301,4 +301,6 @@
     <string name="edit_no_backup">حفاظتی نقل نہ بن سکی، سو کسی چیز پر نہیں لکھا گیا</string>
     <string name="settings_editor_backup">اوپر لکھنے سے پہلے حفاظتی نقل</string>
     <string name="settings_editor_backup_desc">اندرونی مدیر کسی تصویر پر لکھے، اس سے پہلے پچھلی شکل ردی کی ٹوکری میں چلی جاتی ہے۔ یہ صرف اندرونی مدیر کے لیے ہے: دوسری ایپ اپنے طور پر محفوظ کرتی ہے۔</string>
+    <string name="editor_tall">عمودی</string>
+    <string name="editor_wide">افقی</string>
 </resources>
