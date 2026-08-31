@@ -984,7 +984,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         val context = getApplication<Application>()
         editorBusy = true
         viewModelScope.launch {
-            val esito = ImageEdit.save(context, here.uri, turns, crop, way)
+            val esito = ImageEdit.save(
+                context, here.uri, turns, crop, way,
+                backup = settings?.editorBackup ?: true
+            )
             editorBusy = false
             when (esito) {
                 is ImageEdit.Result.Failed -> notice = esito.why

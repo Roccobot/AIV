@@ -130,6 +130,41 @@ object Bin {
         }
 
     /**
+     * Mette nel cestino una **copia** di [from], lasciando l'originale dov'è.
+     *
+     * ⚠️⚠️ **COPIA E NON SPOSTA, ed è tutta la differenza con [send]**: qui il file non se ne
+     * va da nessuna parte, sta per essere **riscritto sopra** dall'editor, e quello che si
+     * salva è la sua versione di prima. Chiamare `send` distruggerebbe proprio la cosa che si
+     * voleva proteggere.
+     * ⚠️ **La riga d'archivio porta il percorso ORIGINALE**, come per un'eliminazione, quindi
+     * il ripristino sa dove rimettere la copia. Se là intanto c'è la versione modificata,
+     * `restore` non la schiaccia: usa [FileTree.freeName] e le si mette accanto, che è
+     * l'unico esito onesto quando esistono due versioni della stessa fotografia.
+     * ⚠️ **Niente `FileTree.scan` sull'origine**: l'originale non si è mosso, e dichiararlo
+     * cambiato qui vorrebbe dire una scansione in più subito prima di quella che l'editor fa
+     * comunque dopo aver scritto.
+     */
+    suspend fun keep(context: Context, from: File): Boolean =
+        withContext(Dispatchers.IO + NonCancellable) {
+            if (from.absolutePath.hasSeparators()) return@withContext false
+            lock.withLock {
+                val to = FileTree.freeName(ready(context), from.name)
+                val copied = runCatching {
+                    from.inputStream().use { input -> to.outputStream().use { input.copyTo(it) } }
+                    true
+                }.getOrDefault(false)
+                if (!copied) {
+                    to.delete()
+                    return@withLock false
+                }
+                val records = read(context).toMutableList()
+                records += Record(to.name, System.currentTimeMillis(), from.absolutePath)
+                write(context, records)
+                true
+            }
+        }
+
+    /**
      * Riporta ogni immagine nella cartella dove stava.
      *
      * ⚠️⚠️ **SENZA LA PROVENIENZA NON SI RIPRISTINA, e non si indovina**: un file che si

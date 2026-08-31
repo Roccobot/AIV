@@ -283,4 +283,7 @@
     <string name="view_grid">격자</string>
     <string name="view_list">목록</string>
     <string name="view_tree">폴더</string>
+    <string name="edit_no_backup">안전 사본을 만들지 못해서 아무것도 덮어쓰지 않았습니다</string>
+    <string name="settings_editor_backup">덮어쓰기 전에 안전 사본</string>
+    <string name="settings_editor_backup_desc">내장 편집기가 사진을 덮어쓰기 전에 이전 판이 휴지통으로 갑니다. 내장 편집기에만 해당하며, 다른 앱은 알아서 저장합니다.</string>
 </resources>

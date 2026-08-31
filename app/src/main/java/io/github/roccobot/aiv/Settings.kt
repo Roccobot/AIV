@@ -237,6 +237,18 @@ data class Settings(
      * per l'editor di casa. Vedi `Editors`.
      */
     val editorApp: String = "",
+
+    /**
+     * Se prima di sovrascrivere una fotografia se ne mette una copia nel cestino.
+     *
+     * ⚠️⚠️ **ACCESA DI FABBRICA, e la ragione è che il danno è ASIMMETRICO** (richiesta
+     * dell'utente, 2026-08-31): spenta, un ritaglio sbagliato si porta via l'originale e non
+     * c'è nessuna via di ritorno; accesa, il prezzo è un file in piu nel cestino, che si
+     * svuota con un tocco. Fra i due, il valore di serie deve essere quello che perdona.
+     * ⚠️ **Non dipende da [binOn]**: il cestino si raggiunge dal tastino di casa anche quando
+     * l'eliminazione non ci passa, quindi la copia resta recuperabile in tutti e due i casi.
+     */
+    val editorBackup: Boolean = true,
     /**
      * Se all'avvio si guarda negli appunti.
      *
@@ -407,6 +419,7 @@ object SettingsStore {
     private val HAND = stringPreferencesKey("hand")
     private val LIST_PATH = booleanPreferencesKey("list-path")
     private val EDITOR_APP = stringPreferencesKey("editor-app")
+    private val EDITOR_BACKUP = booleanPreferencesKey("editor-backup")
     private val LIST_COUNT = booleanPreferencesKey("list-count")
     private val LIST_TEXT = stringPreferencesKey("list-text")
     private val TREE_HIDDEN = booleanPreferencesKey("tree-hidden")
@@ -448,6 +461,7 @@ object SettingsStore {
             hand = Hand.entries.byToken(p[HAND], Hand.RIGHT),
             listPath = p[LIST_PATH] ?: false,
             editorApp = p[EDITOR_APP] ?: "",
+            editorBackup = p[EDITOR_BACKUP] ?: true,
             listCount = p[LIST_COUNT] ?: true,
             listText = TextSize.entries.byToken(p[LIST_TEXT], TextSize.NORMAL),
             treeHidden = p[TREE_HIDDEN] ?: false,
@@ -506,6 +520,7 @@ object SettingsStore {
             p[HAND] = settings.hand.token
             p[LIST_PATH] = settings.listPath
             p[EDITOR_APP] = settings.editorApp
+            p[EDITOR_BACKUP] = settings.editorBackup
             p[LIST_COUNT] = settings.listCount
             p[LIST_TEXT] = settings.listText.token
             p[TREE_HIDDEN] = settings.treeHidden

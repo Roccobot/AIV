@@ -328,4 +328,7 @@
     <string name="view_grid">Сітка</string>
     <string name="view_list">Список</string>
     <string name="view_tree">Папки</string>
+    <string name="edit_no_backup">Резервну копію не вдалося зробити, тож нічого не перезаписано</string>
+    <string name="settings_editor_backup">Резервна копія перед перезаписом</string>
+    <string name="settings_editor_backup_desc">Перш ніж вбудований редактор перезапише світлину, попередня версія йде в кошик. Це стосується лише вбудованого редактора: інший застосунок зберігає сам.</string>
 </resources>

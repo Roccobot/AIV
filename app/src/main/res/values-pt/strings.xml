@@ -313,4 +313,7 @@
     <string name="view_grid">Grade</string>
     <string name="view_list">Lista</string>
     <string name="view_tree">Pastas</string>
+    <string name="edit_no_backup">A cópia de segurança falhou, então nada foi sobrescrito</string>
+    <string name="settings_editor_backup">Cópia de segurança antes de sobrescrever</string>
+    <string name="settings_editor_backup_desc">Antes de o editor interno sobrescrever uma imagem, a versão anterior vai para a lixeira. Vale só para o editor interno: outro app salva por conta própria.</string>
 </resources>

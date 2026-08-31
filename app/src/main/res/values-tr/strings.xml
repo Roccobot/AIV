@@ -298,4 +298,7 @@
     <string name="view_grid">Izgara</string>
     <string name="view_list">Liste</string>
     <string name="view_tree">Klasörler</string>
+    <string name="edit_no_backup">Yedek kopya alınamadı, bu yüzden hiçbir şeyin üzerine yazılmadı</string>
+    <string name="settings_editor_backup">Üzerine yazmadan önce yedek kopya</string>
+    <string name="settings_editor_backup_desc">Yerleşik düzenleyici bir resmin üzerine yazmadan önce, önceki hâli çöp kutusuna gider. Yalnızca yerleşik düzenleyici için geçerli: başka bir uygulama kendi başına kaydeder.</string>
 </resources>

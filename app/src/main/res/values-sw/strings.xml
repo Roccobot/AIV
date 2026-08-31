@@ -298,4 +298,7 @@
     <string name="view_grid">Gridi</string>
     <string name="view_list">Orodha</string>
     <string name="view_tree">Folda</string>
+    <string name="edit_no_backup">Nakala ya usalama haikufanikiwa, hivyo hakuna kilichoandikwa juu</string>
+    <string name="settings_editor_backup">Nakala ya usalama kabla ya kuandika juu</string>
+    <string name="settings_editor_backup_desc">Kabla kihariri cha ndani hakijaandika juu ya picha, toleo la awali huenda kwenye tupio. Inahusu kihariri cha ndani pekee: programu nyingine huhifadhi yenyewe.</string>
 </resources>

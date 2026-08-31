@@ -298,4 +298,7 @@
     <string name="view_grid">شبکه</string>
     <string name="view_list">فهرست</string>
     <string name="view_tree">پوشه‌ها</string>
+    <string name="edit_no_backup">نسخهٔ ایمنی ساخته نشد، پس چیزی بازنویسی نشد</string>
+    <string name="settings_editor_backup">نسخهٔ ایمنی پیش از بازنویسی</string>
+    <string name="settings_editor_backup_desc">پیش از آنکه ویرایشگر داخلی روی عکسی بنویسد، نسخهٔ پیشین به زبالهدان می‌رود. فقط برای ویرایشگر داخلی است: برنامهٔ دیگر خودش ذخیره می‌کند.</string>
 </resources>

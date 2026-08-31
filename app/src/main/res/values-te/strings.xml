@@ -298,4 +298,7 @@
     <string name="view_grid">గడి</string>
     <string name="view_list">జాబితా</string>
     <string name="view_tree">ఫోల్డర్లు</string>
+    <string name="edit_no_backup">భద్రతా నకలు కాలేదు, కాబట్టి దేనిపైనా రాయలేదు</string>
+    <string name="settings_editor_backup">పైన రాసే ముందు భద్రతా నకలు</string>
+    <string name="settings_editor_backup_desc">లోపలి సవరణి ఒక బొమ్మపై రాసే ముందు, ముందటి రూపం చెత్తబుట్టలోకి వెళ్తుంది. ఇది లోపలి సవరణికి మాత్రమే: మరో యాప్ తనంతట తానే భద్రపరుస్తుంది.</string>
 </resources>

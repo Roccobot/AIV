@@ -283,4 +283,7 @@
     <string name="view_grid">Kisi</string>
     <string name="view_list">Daftar</string>
     <string name="view_tree">Folder</string>
+    <string name="edit_no_backup">Salinan pengaman gagal, jadi tidak ada yang ditimpa</string>
+    <string name="settings_editor_backup">Salinan pengaman sebelum menimpa</string>
+    <string name="settings_editor_backup_desc">Sebelum editor bawaan menimpa sebuah gambar, versi sebelumnya masuk ke tempat sampah. Berlaku hanya untuk editor bawaan: aplikasi lain menyimpan sendiri.</string>
 </resources>

@@ -298,4 +298,7 @@
     <string name="view_grid">Raster</string>
     <string name="view_list">Lijst</string>
     <string name="view_tree">Mappen</string>
+    <string name="edit_no_backup">De veiligheidskopie is mislukt, dus er is niets overschreven</string>
+    <string name="settings_editor_backup">Veiligheidskopie voor het overschrijven</string>
+    <string name="settings_editor_backup_desc">Voordat de ingebouwde editor een foto overschrijft, gaat de vorige versie naar de prullenbak. Geldt alleen voor de ingebouwde editor: een andere app slaat zelf op.</string>
 </resources>

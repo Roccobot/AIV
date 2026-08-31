@@ -283,4 +283,7 @@
     <string name="view_grid">网格</string>
     <string name="view_list">列表</string>
     <string name="view_tree">文件夹</string>
+    <string name="edit_no_backup">安全副本没能建立，所以什么都没有覆盖</string>
+    <string name="settings_editor_backup">覆盖前先留一份安全副本</string>
+    <string name="settings_editor_backup_desc">内置编辑器覆盖一张图片之前，先把原来的版本放进回收站。只对内置编辑器有效，别的应用自己保存。</string>
 </resources>

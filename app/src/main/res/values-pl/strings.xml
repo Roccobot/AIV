@@ -328,4 +328,7 @@
     <string name="view_grid">Siatka</string>
     <string name="view_list">Lista</string>
     <string name="view_tree">Foldery</string>
+    <string name="edit_no_backup">Kopia zapasowa się nie udała, więc nic nie zostało nadpisane</string>
+    <string name="settings_editor_backup">Kopia zapasowa przed nadpisaniem</string>
+    <string name="settings_editor_backup_desc">Zanim wbudowany edytor nadpisze zdjęcie, poprzednia wersja trafia do kosza. Dotyczy tylko wbudowanego edytora: inna aplikacja zapisuje po swojemu.</string>
 </resources>

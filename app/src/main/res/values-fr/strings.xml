@@ -313,4 +313,7 @@
     <string name="view_grid">Grille</string>
     <string name="view_list">Liste</string>
     <string name="view_tree">Dossiers</string>
+    <string name="edit_no_backup">La copie de sûreté a échoué, donc rien n\'a été écrasé</string>
+    <string name="settings_editor_backup">Copie de sûreté avant d\'écraser</string>
+    <string name="settings_editor_backup_desc">Avant que l\'éditeur intégré n\'écrase une image, la version d\'avant part à la corbeille. Cela ne vaut que pour l\'éditeur intégré : une autre app enregistre de son côté.</string>
 </resources>

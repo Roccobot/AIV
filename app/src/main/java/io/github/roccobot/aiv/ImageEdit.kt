@@ -98,6 +98,7 @@ object ImageEdit {
      *
      * @param turns quarti di giro in senso orario, da 0 a 3.
      * @param crop che cosa tenere, in frazioni, dopo la rotazione.
+     * @param backup se, sovrascrivendo, una copia della versione di prima va nel cestino.
      *
      * ⚠️ **`NonCancellable` come le altre operazioni sui file**: a metà scrittura una
      * cancellazione lascerebbe un file troncato dove prima c'era una fotografia.
@@ -107,12 +108,29 @@ object ImageEdit {
         uri: Uri,
         turns: Int,
         crop: Crop,
-        way: Way
+        way: Way,
+        backup: Boolean
     ): Result = withContext(Dispatchers.IO + NonCancellable) {
         val source = FileTree.fileOf(context, uri)
             ?: return@withContext Result.Failed(R.string.edit_no_file)
         val dir = source.parentFile ?: return@withContext Result.Failed(R.string.edit_no_file)
         if (turns == 0 && crop.whole) return@withContext Result.Failed(R.string.edit_nothing)
+
+        /*
+         * ⚠️⚠️ **LA COPIA DI SICUREZZA SI FA QUI, PRIMA DI OGNI ALTRA COSA, ed è l'unico
+         * punto che le copre tutte e due**: sia la via senza perdita sia il ridisegno
+         * riscrivono l'originale quando si sovrascrive, quindi metterla dentro una delle due
+         * vorrebbe dire dimenticarsene nell'altra il giorno che se ne aggiunge una terza.
+         * ⚠️⚠️ **UNA COPIA CHE NON RIESCE FERMA IL SALVATAGGIO, e non è eccesso di zelo**:
+         * chi ha acceso quell'interruttore ha chiesto di non poter perdere l'originale, e
+         * sovrascrivere lo stesso gli darebbe esattamente la cosa da cui si stava
+         * proteggendo, per giunta in silenzio.
+         * ⚠️ Con `Way.COPY` non serve: là l'originale non lo tocca nessuno, e una copia in
+         * più sarebbe un file nel cestino che nessuno ha chiesto.
+         */
+        if (way == Way.OVERWRITE && backup && !Bin.keep(context, source)) {
+            return@withContext Result.Failed(R.string.edit_no_backup)
+        }
 
         val jpeg = source.extension.lowercase() in JPEG_EXT
         // ⚠️ La via senza perdita vale solo se non c'è ritaglio: tagliare vuol dire per forza

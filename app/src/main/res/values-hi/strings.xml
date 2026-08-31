@@ -298,4 +298,7 @@
     <string name="view_grid">ग्रिड</string>
     <string name="view_list">सूची</string>
     <string name="view_tree">फ़ोल्डर</string>
+    <string name="edit_no_backup">सुरक्षा प्रति नहीं बनी, इसलिए कुछ भी ऊपर नहीं लिखा गया</string>
+    <string name="settings_editor_backup">ऊपर लिखने से पहले सुरक्षा प्रति</string>
+    <string name="settings_editor_backup_desc">अंतर्निहित संपादक किसी तस्वीर पर लिखे, उससे पहले पिछला रूप कूड़ेदान में चला जाता है। यह सिर्फ़ अंतर्निहित संपादक के लिए है: दूसरा ऐप अपने आप सहेजता है।</string>
 </resources>

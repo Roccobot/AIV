@@ -283,4 +283,7 @@
     <string name="view_grid">Lưới</string>
     <string name="view_list">Danh sách</string>
     <string name="view_tree">Thư mục</string>
+    <string name="edit_no_backup">Không tạo được bản sao an toàn, nên chưa ghi đè gì cả</string>
+    <string name="settings_editor_backup">Bản sao an toàn trước khi ghi đè</string>
+    <string name="settings_editor_backup_desc">Trước khi trình sửa có sẵn ghi đè lên một tấm ảnh, bản trước đó sẽ vào thùng rác. Chỉ áp dụng cho trình sửa có sẵn: ứng dụng khác tự lưu lấy.</string>
 </resources>

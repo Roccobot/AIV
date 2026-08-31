@@ -298,4 +298,7 @@
     <string name="view_grid">Raster</string>
     <string name="view_list">Liste</string>
     <string name="view_tree">Ordner</string>
+    <string name="edit_no_backup">Die Sicherheitskopie ist fehlgeschlagen, es wurde nichts überschrieben</string>
+    <string name="settings_editor_backup">Sicherheitskopie vor dem Überschreiben</string>
+    <string name="settings_editor_backup_desc">Bevor der eingebaute Editor ein Bild überschreibt, wandert die Fassung von vorher in den Papierkorb. Gilt nur für den eingebauten Editor: eine andere App speichert selbst.</string>
 </resources>

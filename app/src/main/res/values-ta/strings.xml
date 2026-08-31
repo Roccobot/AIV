@@ -298,4 +298,7 @@
     <string name="view_grid">கட்டம்</string>
     <string name="view_list">பட்டியல்</string>
     <string name="view_tree">கோப்புறைகள்</string>
+    <string name="edit_no_backup">பாதுகாப்பு நகல் எடுக்க முடியவில்லை, எனவே எதன் மேலும் எழுதப்படவில்லை</string>
+    <string name="settings_editor_backup">மேலெழுதும் முன் பாதுகாப்பு நகல்</string>
+    <string name="settings_editor_backup_desc">உள்ளமைந்த திருத்தி ஒரு படத்தின் மேல் எழுதும் முன், முந்தைய வடிவம் குப்பைத் தொட்டிக்குச் செல்லும். இது உள்ளமைந்த திருத்திக்கு மட்டுமே: வேறு செயலி தானே சேமிக்கும்.</string>
 </resources>

@@ -283,4 +283,7 @@
     <string name="view_grid">ตาราง</string>
     <string name="view_list">รายการ</string>
     <string name="view_tree">โฟลเดอร์</string>
+    <string name="edit_no_backup">สำเนาสำรองไม่สำเร็จ จึงไม่ได้เขียนทับอะไรเลย</string>
+    <string name="settings_editor_backup">สำเนาสำรองก่อนเขียนทับ</string>
+    <string name="settings_editor_backup_desc">ก่อนที่ตัวแก้ไขในตัวจะเขียนทับรูป รุ่นก่อนหน้าจะไปอยู่ในถังขยะ ใช้กับตัวแก้ไขในตัวเท่านั้น แอปอื่นบันทึกเอง</string>
 </resources>

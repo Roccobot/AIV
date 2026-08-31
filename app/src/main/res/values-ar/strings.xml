@@ -358,4 +358,7 @@
     <string name="view_grid">شبكة</string>
     <string name="view_list">قائمة</string>
     <string name="view_tree">مجلدات</string>
+    <string name="edit_no_backup">تعذّرت نسخة الأمان، فلم تجرِ الكتابة فوق شيء</string>
+    <string name="settings_editor_backup">نسخة أمان قبل الكتابة فوق الملف</string>
+    <string name="settings_editor_backup_desc">قبل أن يكتب المحرر المدمج فوق صورة، تذهب نسختها السابقة إلى سلة المهملات. هذا للمحرر المدمج وحده: أي تطبيق آخر يحفظ بنفسه.</string>
 </resources>

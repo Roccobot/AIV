@@ -313,4 +313,7 @@
     <string name="view_grid">Cuadrícula</string>
     <string name="view_list">Lista</string>
     <string name="view_tree">Carpetas</string>
+    <string name="edit_no_backup">La copia de seguridad ha fallado, así que no se ha sobrescrito nada</string>
+    <string name="settings_editor_backup">Copia de seguridad antes de sobrescribir</string>
+    <string name="settings_editor_backup_desc">Antes de que el editor interno sobrescriba una imagen, la versión anterior va a la papelera. Solo vale para el editor interno: otra app guarda por su cuenta.</string>
 </resources>

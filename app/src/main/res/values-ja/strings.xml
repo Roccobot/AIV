@@ -283,4 +283,7 @@
     <string name="view_grid">グリッド</string>
     <string name="view_list">リスト</string>
     <string name="view_tree">フォルダ</string>
+    <string name="edit_no_backup">安全のための控えが作れなかったので、何も上書きしていません</string>
+    <string name="settings_editor_backup">上書きの前に控えを取る</string>
+    <string name="settings_editor_backup_desc">内蔵エディターが画像を上書きする前に、前の版をごみ箱へ送ります。内蔵エディターだけが対象で、他のアプリは自分で保存します。</string>
 </resources>

@@ -328,4 +328,7 @@
     <string name="view_grid">Сетка</string>
     <string name="view_list">Список</string>
     <string name="view_tree">Папки</string>
+    <string name="edit_no_backup">Резервная копия не получилась, поэтому ничего не перезаписано</string>
+    <string name="settings_editor_backup">Резервная копия перед перезаписью</string>
+    <string name="settings_editor_backup_desc">Прежде чем встроенный редактор перезапишет снимок, прежняя версия уходит в корзину. Это касается только встроенного редактора: другое приложение сохраняет само.</string>
 </resources>

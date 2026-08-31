@@ -71,12 +71,17 @@
     <!-- The chosen app is not on the phone any more: the choice is dropped and the picker
          comes back, because an error alone would leave Edit broken for good. -->
     <string name="edit_app_gone">That editor is gone. Choose another one.</string>
+    <!-- Shown instead of saving: the safety copy could not be made, so the original was left
+         alone. Whoever turned that switch on asked not to be able to lose it. -->
+    <string name="edit_no_backup">The safety copy failed, so nothing was written over</string>
     <!-- Only when no installed app answers the edit request, so the list holds one entry. -->
     <string name="editor_pick_none">No other app on this phone offers to edit pictures.</string>
     <string name="settings_editor">App for editing pictures</string>
     <string name="settings_editor_desc">Which app opens when you tap Edit on a picture. The built in one turns and crops, and nothing else.</string>
     <string name="settings_editor_none">None chosen</string>
     <string name="settings_editor_pick">Choose</string>
+    <string name="settings_editor_backup">Safety copy before writing over</string>
+    <string name="settings_editor_backup_desc">Before the built in editor writes over a picture, the version from before goes into the bin. It only covers the built in editor: another app saves on its own.</string>
 
     <string name="toast_image_copied">Image copied</string>
     <string name="toast_copy_failed">The copy did not go through</string>

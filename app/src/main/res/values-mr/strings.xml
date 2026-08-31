@@ -298,4 +298,7 @@
     <string name="view_grid">जाळी</string>
     <string name="view_list">यादी</string>
     <string name="view_tree">फोल्डर</string>
+    <string name="edit_no_backup">सुरक्षा प्रत झाली नाही, म्हणून काहीही वर लिहिले गेले नाही</string>
+    <string name="settings_editor_backup">वर लिहिण्यापूर्वी सुरक्षा प्रत</string>
+    <string name="settings_editor_backup_desc">अंगभूत संपादक एखाद्या छायाचित्रावर लिहिण्यापूर्वी, आधीचे रूप कचरापेटीत जाते. हे फक्त अंगभूत संपादकासाठी आहे: दुसरे ॲप स्वतःच जतन करते.</string>
 </resources>

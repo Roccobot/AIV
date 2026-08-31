@@ -392,6 +392,18 @@ private fun ColumnScope.RootPage(
         }
     }
 
+    /*
+     * ⚠️⚠️ **SOTTO LA SCELTA DELL'APP perché parla del SOLO editor di casa**: un'app di fuori
+     * salva per conto suo e AIV non ha modo di frapporsi, quindi l'interruttore non la
+     * riguarda. Metterlo altrove lo farebbe leggere come una promessa che vale per tutte.
+     */
+    SwitchRow(
+        label = stringResource(R.string.settings_editor_backup),
+        detail = stringResource(R.string.settings_editor_backup_desc),
+        checked = settings.editorBackup,
+        onChange = { onChange(settings.copy(editorBackup = it)) }
+    )
+
     Group(stringResource(R.string.settings_group_browse))
 
     // ⚠️ Le colonne stanno accanto alle voci di sfoglio e non a quelle del
