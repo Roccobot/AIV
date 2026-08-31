@@ -234,4 +234,6 @@
     <string name="settings_bin">Activer la corbeille</string>
     <string name="settings_bin_desc">La suppression d\'un fichier ne demande rien, mais l\'action est réversible avec un \'Restaurer\' depuis la corbeille (bouton flottant -&gt; \'Corbeille\'). Vous pouvez désactiver complètement la corbeille si vous préférez une suppression instantanée: dans ce cas, une confirmation apparaît avant chaque suppression.</string>
     <string name="pick_duplicate">Dupliquer</string>
+    <string name="settings_grid_names">Nom du fichier dans la grille</string>
+    <string name="settings_grid_names_desc">Sous chaque vignette, le nom du fichier sur deux lignes au maximum. L\'extension n\'est jamais coupée et reste toujours visible: si le nom ne tient pas, c\'est le milieu qui cède.</string>
 </resources>

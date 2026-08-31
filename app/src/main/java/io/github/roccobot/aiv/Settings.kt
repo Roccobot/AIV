@@ -223,6 +223,15 @@ data class Settings(
      */
     val binOn: Boolean = true,
     /**
+     * Se sotto ogni miniatura della griglia delle foto si legge il nome del file.
+     *
+     * ⚠️ **Spenta di fabbrica** (richiesta dell'utente): una galleria mostra fotografie, e un
+     * nome sotto ognuna è un dato che serve a chi lavora coi file, non a chi guarda.
+     * ⚠️ **Accenderla costa una domanda al MediaStore per fotografia**, una volta sola per
+     * indirizzo: il nome di un `content://` non si ricava dall'indirizzo. Vedi [Names].
+     */
+    val gridNames: Boolean = false,
+    /**
      * I percorsi delle cartelle che non devono comparire fra quelle da sfogliare.
      *
      * ⚠️⚠️ **PERCORSI E NON IDENTIFICATIVI, ed è la scelta che regge la funzione**
@@ -293,6 +302,7 @@ object SettingsStore {
     private val UI_THEME = stringPreferencesKey("ui-theme")
     private val FOLDER_COLUMNS_KEY = intPreferencesKey("folder-columns")
     private val BIN_ON = booleanPreferencesKey("bin-on")
+    private val GRID_NAMES = booleanPreferencesKey("grid-names")
     private val FOLDER_COUNT = booleanPreferencesKey("folder-count")
     private val HIDDEN_FOLDERS = stringSetPreferencesKey("hidden-folders")
 
@@ -328,6 +338,7 @@ object SettingsStore {
             folderColumns = p[FOLDER_COLUMNS_KEY]?.takeIf { it in FOLDER_COLUMNS } ?: 2,
             folderCount = p[FOLDER_COUNT] ?: true,
             binOn = p[BIN_ON] ?: true,
+            gridNames = p[GRID_NAMES] ?: false,
             hiddenFolders = p[HIDDEN_FOLDERS] ?: emptySet(),
             factOrder = factOrderOf((p[FACT_ORDER] ?: "").split(',')),
             // ⚠️ I campi sempre visibili si tolgono **in lettura**: un archivio che li
@@ -362,6 +373,7 @@ object SettingsStore {
             p[FOLDER_COLUMNS_KEY] = settings.folderColumns
             p[FOLDER_COUNT] = settings.folderCount
             p[BIN_ON] = settings.binOn
+            p[GRID_NAMES] = settings.gridNames
             p[HIDDEN_FOLDERS] = settings.hiddenFolders
             p[FACT_ORDER] = settings.factOrder.joinToString(",") { it.token }
             p[FACT_OFF] = settings.factOff.filterNot { it.always }.map { it.token }.toSet()

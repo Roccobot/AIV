@@ -385,7 +385,14 @@ object FileTree {
     }
 
     /** Il nome del file dietro un indirizzo, che è quello che la copia deve conservare. */
-    private fun displayName(context: Context, uri: Uri): String? {
+    /**
+     * Il nome che il sistema dà a un indirizzo.
+     *
+     * ⚠️ **Non è più privata dalla 0.82**: la usa anche [Names], per il nome sotto le
+     * miniature. Una seconda lettura scritta là avrebbe voluto dire due modi di rispondere
+     * alla stessa domanda, e il ripiego sull'ultimo pezzo dell'indirizzo in uno solo dei due.
+     */
+    internal fun displayName(context: Context, uri: Uri): String? {
         if (uri.scheme?.lowercase() == "file") return uri.lastPathSegment
         return runCatching {
             context.contentResolver.query(

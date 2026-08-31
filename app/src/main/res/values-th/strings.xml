@@ -206,4 +206,6 @@
     <string name="settings_bin">เปิดถังขยะ</string>
     <string name="settings_bin_desc">การลบไฟล์ไม่ถามอะไร แต่ย้อนกลับได้ด้วย \'กู้คืน\' จากถังขยะ (ปุ่มลอย -&gt; \'ถังขยะ\') คุณสามารถปิดถังขยะทั้งหมดได้หากต้องการลบทันที ในกรณีนั้นจะมีการยืนยันก่อนการลบทุกครั้ง</string>
     <string name="pick_duplicate">ทำสำเนา</string>
+    <string name="settings_grid_names">ชื่อไฟล์ในตารางรูป</string>
+    <string name="settings_grid_names_desc">ใต้ภาพย่อแต่ละภาพคือชื่อไฟล์ ไม่เกินสองบรรทัด นามสกุลจะไม่ถูกตัดขึ้นบรรทัดใหม่และเห็นเสมอ ถ้าชื่อยาวเกินไป ส่วนกลางจะถูกย่อ</string>
 </resources>

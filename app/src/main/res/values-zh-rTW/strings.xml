@@ -206,4 +206,6 @@
     <string name="settings_bin">啟用回收筒</string>
     <string name="settings_bin_desc">刪除檔案不會有任何提示，但可以在回收筒裡用 \'還原\' 復原（浮動按鈕 -&gt; \'回收筒\'）。如果你偏好立即刪除，可以完全關閉回收筒：那樣每次刪除前都會出現確認。</string>
     <string name="pick_duplicate">建立副本</string>
+    <string name="settings_grid_names">格線中顯示檔名</string>
+    <string name="settings_grid_names_desc">每張縮圖下顯示檔名，最多兩行。副檔名不會被換行拆開，一律可見：名稱放不下時，讓位的是中間部分。</string>
 </resources>

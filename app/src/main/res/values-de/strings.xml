@@ -220,4 +220,6 @@
     <string name="settings_bin">Papierkorb einschalten</string>
     <string name="settings_bin_desc">Das Löschen einer Datei fragt nichts, aber die Aktion lässt sich mit einem \'Wiederherstellen\' aus dem Papierkorb umkehren (schwebende Schaltfläche -&gt; \'Papierkorb\'). Du kannst den Papierkorb ganz ausschalten, wenn du sofortiges Löschen bevorzugst: dann erscheint vor jedem Löschen eine Bestätigung.</string>
     <string name="pick_duplicate">Duplizieren</string>
+    <string name="settings_grid_names">Dateiname im Bilderraster</string>
+    <string name="settings_grid_names_desc">Unter jedem Vorschaubild der Dateiname, auf höchstens zwei Zeilen. Die Endung wird nie umbrochen und ist immer zu sehen: passt der Name nicht, weicht die Mitte.</string>
 </resources>

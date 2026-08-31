@@ -63,6 +63,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -90,6 +91,9 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -161,6 +165,13 @@ fun GridScreen(
      * quello di fabbrica dell'impostazione.
      */
     binOn: Boolean = true,
+    /**
+     * Se sotto ogni miniatura si legge il nome del file. Vedi `Settings.gridNames`.
+     *
+     * ⚠️ Il valore di serie è quello di fabbrica dell'impostazione, cioè **spento**: le
+     * anteprime e i richiami che non lo passano mostrano la griglia com'è di solito.
+     */
+    gridNames: Boolean = false,
     /**
      * Se questa griglia è il **cestino**.
      *
@@ -446,6 +457,23 @@ fun GridScreen(
     // pignoleria di lint: quest'ultimo non segue i cambi di configurazione, quindi dopo un
     // cambio di lingua o una rotazione servirebbe la versione vecchia. Si legge QUI,
     // mentre si compone, e si usa dentro le coroutine.
+    /**
+     * Quanto è larga una cella, in pixel, e zero finché la griglia non ha misurato.
+     *
+     * ⚠️⚠️ **SI CHIEDE ALLA GRIGLIA, non si ricalcola**: le colonne le decide
+     * `GridCells.Adaptive` a partire da [THUMB], e rifare quel conto qui vorrebbe dire una
+     * seconda formula da tenere d'accordo con Compose, che sbaglierebbe in silenzio il
+     * giorno che l'arrotondamento cambia. Qui il numero è quello **misurato**.
+     * ⚠️ **`derivedStateOf` e non una lettura nuda**: `layoutInfo` cambia a ogni fotogramma
+     * di scorrimento, la larghezza di una cella no, e senza il filtro ogni miniatura si
+     * ricomporrebbe a ogni pixel scorso.
+     * ⚠️ Serve **solo** al nome sotto la miniatura, che va accorciato a misura: senza quel
+     * numero `fitName` non saprebbe rispetto a cosa accorciare.
+     */
+    val cellPx by remember(state) {
+        derivedStateOf { state.layoutInfo.visibleItemsInfo.firstOrNull()?.size?.width ?: 0 }
+    }
+
     val res = LocalResources.current
 
     /**
@@ -730,6 +758,8 @@ fun GridScreen(
                             total = items.size,
                             marked = index == highlight,
                             chosen = uri in chosen,
+                            named = gridNames,
+                            room = cellPx,
                             // ⚠️ In selezione il tocco NORMALE sceglie invece di aprire,
                             // ed è la convenzione di ogni galleria: chi ne ha scelte
                             // cinque e tocca la sesta ne vuole sei, non vuole uscire e
@@ -1093,6 +1123,10 @@ private fun Thumbnail(
     total: Int,
     marked: Boolean,
     chosen: Boolean,
+    /** Se sotto la miniatura va il nome del file. Vedi `Settings.gridNames`. */
+    named: Boolean,
+    /** Quanto è larga la cella, in pixel: serve solo al nome. Vedi `cellPx`. */
+    room: Int,
     onClick: () -> Unit
 ) {
     val shape = RoundedCornerShape(CORNER)
@@ -1102,6 +1136,15 @@ private fun Thumbnail(
     val context = LocalContext.current
     val model = remember(uri, context) { Thumbs.request(context, uri) }
 
+    /*
+     * ⚠️⚠️ **LA COLONNA C'È ANCHE QUANDO IL NOME NON C'È, ed è la scelta più economica**:
+     * un ramo che avvolge la miniatura solo quando serve vorrebbe dire scrivere due volte
+     * tutto quello che sta nel riquadro, e un nodo di layout in più per cella non si misura.
+     * ⚠️ **Il quadrato sta in cima**, quindi le miniature di una riga restano allineate
+     * anche quando i nomi sotto sono di due righe e di una: quello che varia è l'altezza
+     * della cella, e la griglia dà a tutta la riga l'altezza della più alta.
+     */
+    Column(verticalArrangement = Arrangement.spacedBy(NAME_GAP)) {
     Box(modifier = Modifier.aspectRatio(1f)) {
         AsyncImage(
             // ⚠️ La richiesta viene da `Thumbs` e non è costruita qui: la misura è parte
@@ -1230,6 +1273,50 @@ private fun Thumbnail(
             }
         }
     }
+        if (named) GridName(uri, room)
+    }
+}
+
+/**
+ * Il nome del file sotto una miniatura, su **due righe al massimo**.
+ *
+ * ⚠️⚠️ **NASCE DALLA 0.82** (richiesta dell'utente, con le sue tre regole: *massimo 2 righe,
+ * estensione mai spezzata, ellissi nel nome se serve*). Sono le stesse tre della pastiglia di
+ * 'Info dettagliate sul file', e infatti a rispettarle è la stessa [fitName]: qui le righe
+ * ammesse sono due invece di tre, ed è l'unica differenza.
+ * ⚠️ **Il nome NON è nella lista che la griglia riceve**, che è fatta di soli indirizzi: si
+ * chiede a [Names], che lo legge una volta sola e se lo ricorda. Il primo valore è quello già
+ * in memoria, così una miniatura che rientra in vista non lampeggia senza nome.
+ * ⚠️ **`labelSmall` e non `bodySmall`**: sotto una fotografia il nome è un'etichetta, e a
+ * 11sp due righe stanno sotto una miniatura da 108dp senza rubarle spazio.
+ */
+@Composable
+private fun GridName(uri: Uri, room: Int) {
+    val context = LocalContext.current
+    val name by produceState(Names.cached(uri), uri, context) {
+        if (value == null) value = Names.of(context, uri)
+    }
+    val style = MaterialTheme.typography.labelSmall
+    val grassetto = remember { SpanStyle(fontWeight = FontWeight.Bold) }
+    val measurer = rememberTextMeasurer()
+    // ⚠️⚠️ **IL MARGINE SI TOGLIE DALLA MISURA, e senza questo il nome sforerebbe**: il
+    // numero che arriva è la larghezza della **cella**, e il testo ne ha due dp in meno per
+    // lato. Misurando sulla cella intera, `fitName` crederebbe di avere quattro dp che il
+    // layout poi non gli dà, e l'ultima lettera finirebbe tagliata.
+    // ⚠️ Il margine c'è perché il distacco fra le celle è 3dp: due nomi lunghi in due celle
+    // vicine si toccherebbero quasi.
+    val bordo = with(LocalDensity.current) { NAME_PAD.roundToPx() }
+    val utile = room - bordo * 2
+    val shown = remember(name, utile, style, grassetto, measurer) {
+        name?.let { fitName(it, utile, NAME_LINES, style, grassetto, measurer) }
+    } ?: return
+    Text(
+        text = shown,
+        style = style,
+        maxLines = NAME_LINES,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth().padding(horizontal = NAME_PAD)
+    )
 }
 
 /**
@@ -1244,6 +1331,21 @@ private val THUMB = 108.dp
 
 /** Il distacco fra le miniature: c'è, ma non deve leggersi come una cornice. */
 private val GAP = 3.dp
+
+/**
+ * Quante righe può prendere il nome sotto una miniatura: **due**, come chiesto.
+ *
+ * ⚠️ Due e non tre come nella pastiglia di 'Info': là il nome è il soggetto del dialogo, qui
+ * è una didascalia sotto una fotografia, e una terza riga la farebbe diventare il soggetto
+ * della cella.
+ */
+private const val NAME_LINES = 2
+
+/** Quanto stacca il nome dalla sua miniatura: poco, perché sono la stessa cosa. */
+private val NAME_GAP = 2.dp
+
+/** Il margine laterale del nome, che [GridName] toglie anche dalla misura. */
+private val NAME_PAD = 2.dp
 
 /**
  * Quanto è lungo il cateto del nastro dell'ultima foto vista, in frazione del lato.

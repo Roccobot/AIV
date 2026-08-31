@@ -305,6 +305,16 @@ private fun ColumnScope.RootPage(
         onChange = { onChange(settings.copy(folderCount = it)) }
     )
 
+    // ⚠️ Subito dopo, e non altrove: quella dice cosa si legge sotto una **cartella**,
+    // questa cosa si legge sotto una **foto**. Sono la stessa domanda in due griglie, e
+    // separarle vorrebbe dire cercarle in due posti.
+    SwitchRow(
+        label = stringResource(R.string.settings_grid_names),
+        detail = stringResource(R.string.settings_grid_names_desc),
+        checked = settings.gridNames,
+        onChange = { onChange(settings.copy(gridNames = it)) }
+    )
+
     SwitchRow(
         label = stringResource(R.string.settings_reverse_order),
         detail = stringResource(R.string.settings_reverse_order_desc),
