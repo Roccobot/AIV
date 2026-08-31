@@ -15,7 +15,6 @@
     <string name="menu_copy_image">نسخ إلى الحافظة</string>
     <string name="menu_share">مشاركة</string>
     <string name="menu_save">حفظ</string>
-    <string name="menu_details">التفاصيل</string>
     <string name="toast_image_copied">تم نسخ الصورة</string>
     <string name="toast_copy_failed">لم ينجح النسخ</string>
     <string name="toast_saved">تم الحفظ</string>
@@ -43,6 +42,8 @@
     <string name="settings_dark">داكن</string>
     <string name="settings_folder_columns">أعمدة شبكة المجلدات</string>
     <string name="settings_folder_columns_desc">كلما زادت الأعمدة زاد عدد المجلدات على الشاشة وصغر كل غلاف. عند أربعة أعمدة يُقتطع الاسم أسفله غالبًا.</string>
+    <string name="settings_folder_count">عدد الصور تحت المجلدات</string>
+    <string name="settings_folder_count_desc">تحت كل غلاف، عدد الصور التي يحتويها المجلد. عند الإيقاف يقصر السطر، ويكبر العنوان في الأعلى بالقدر نفسه.</string>
     <string name="settings_fit_grow">تكبير الصور الصغيرة</string>
     <string name="settings_fit_grow_desc">عند الإيقاف تظهر الصورة الأصغر من الشاشة بحجمها الحقيقي. وعند التفعيل تكبر حتى تملأ الشاشة.</string>
     <string name="settings_zoom_max">أقصى تكبير</string>
@@ -50,7 +51,7 @@
     <string name="settings_scale_physical">بكسل واحد من الملف لكل بكسل من الشاشة</string>
     <string name="settings_scale_logical">بكسل واحد من الملف لكل بكسل من التخطيط</string>
     <string name="settings_scale_desc">تحشر شاشة الهاتف بكسلين أو ثلاثة حقيقية داخل بكسل تخطيط واحد، لذا يبتعد الجوابان كثيرًا: الأول يعرض الملف كما هو، والثاني بالحجم الذي تعرضه به صفحة الويب.</string>
-    <string name="settings_info_position">شريط التفاصيل</string>
+    <string name="details_bar">شريط التفاصيل</string>
     <string name="settings_top">في الأعلى</string>
     <string name="settings_bottom">في الأسفل</string>
     <string name="settings_info_visible">إظهار الشريط من البداية</string>

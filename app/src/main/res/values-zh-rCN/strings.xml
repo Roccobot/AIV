@@ -15,7 +15,6 @@
     <string name="menu_copy_image">复制到剪贴板</string>
     <string name="menu_share">分享</string>
     <string name="menu_save">保存</string>
-    <string name="menu_details">详情</string>
     <string name="toast_image_copied">已复制图片</string>
     <string name="toast_copy_failed">复制没有成功</string>
     <string name="toast_saved">已保存</string>
@@ -43,6 +42,8 @@
     <string name="settings_dark">深色</string>
     <string name="settings_folder_columns">文件夹网格的列数</string>
     <string name="settings_folder_columns_desc">列数越多,屏幕上装下的文件夹越多,每张封面也越小。到四列时,下面的名字通常会被截断。</string>
+    <string name="settings_folder_count">在文件夹下方显示图片数量</string>
+    <string name="settings_folder_count_desc">在每个封面下方显示文件夹中的图片数量。关闭后行会变短，顶部的标题区域则相应变大。</string>
     <string name="settings_fit_grow">放大较小的图片</string>
     <string name="settings_fit_grow_desc">关闭时,比屏幕小的图片按真实尺寸显示。打开时,它会放大到填满视图。</string>
     <string name="settings_zoom_max">最大缩放</string>
@@ -50,7 +51,7 @@
     <string name="settings_scale_physical">文件的一个像素对应屏幕的一个像素</string>
     <string name="settings_scale_logical">文件的一个像素对应布局的一个像素</string>
     <string name="settings_scale_desc">手机屏幕会把两三个真实像素塞进一个布局像素,所以两个答案相差很远:前者按文件本来的样子显示,后者按网页上的大小显示。</string>
-    <string name="settings_info_position">详情栏</string>
+    <string name="details_bar">详情栏</string>
     <string name="settings_top">在顶部</string>
     <string name="settings_bottom">在底部</string>
     <string name="settings_info_visible">一开始就显示详情栏</string>

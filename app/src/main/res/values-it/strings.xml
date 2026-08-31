@@ -25,7 +25,6 @@
     <string name="menu_copy_image">Copia negli appunti</string>
     <string name="menu_share">Condividi</string>
     <string name="menu_save">Scarica</string>
-    <string name="menu_details">Dettagli</string>
 
     <string name="toast_image_copied">Immagine copiata</string>
     <string name="toast_copy_failed">La copia non è andata a buon fine</string>
@@ -66,6 +65,8 @@
 
     <string name="settings_folder_columns">Colonne della griglia delle cartelle</string>
     <string name="settings_folder_columns_desc">Più colonne fanno stare più cartelle sullo schermo e rimpiccioliscono le copertine. A quattro, il nome sotto di solito non ci sta per intero.</string>
+    <string name="settings_folder_count">Conto delle immagini sotto le cartelle</string>
+    <string name="settings_folder_count_desc">Sotto ogni copertina, quante immagini contiene la cartella. Spegnendolo la riga si accorcia, e il frontespizio in cima cresce di altrettanto.</string>
 
     <string name="settings_fit_grow">Ingrandisci le immagini piccole</string>
     <string name="settings_fit_grow_desc">Spento, un\'immagine più piccola dello schermo si vede alla sua misura vera. Acceso, cresce fino a riempire la vista.</string>
@@ -77,10 +78,10 @@
     <string name="settings_scale_logical">Un pixel del file per pixel di layout</string>
     <string name="settings_scale_desc">Lo schermo di un telefono stipa due o tre pixel veri in un pixel di layout, quindi le due risposte sono lontane: la prima mostra il file com\'è, la seconda lo mostra della misura che avrebbe in una pagina web.</string>
 
-    <string name="settings_info_position">Pannello dei dettagli</string>
+    <string name="details_bar">Barra dei dettagli</string>
     <string name="settings_top">In alto</string>
     <string name="settings_bottom">In basso</string>
-    <string name="settings_info_visible">Pannello visibile all\'apertura</string>
+    <string name="settings_info_visible">Barra visibile all\'apertura</string>
 
     <string name="settings_reverse_order">Cambia verso della sequenza immagini (in ordine di data)</string>
     <string name="settings_reverse_order_desc">Spento, si sfoglia dalla foto più recente verso le più vecchie, che è il verso della galleria del telefono. Acceso, in ordine cronologico, dalla più vecchia alla più recente.</string>

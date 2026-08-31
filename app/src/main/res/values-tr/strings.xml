@@ -15,7 +15,6 @@
     <string name="menu_copy_image">Panoya kopyala</string>
     <string name="menu_share">Paylaş</string>
     <string name="menu_save">Kaydet</string>
-    <string name="menu_details">Ayrıntılar</string>
     <string name="toast_image_copied">Görsel kopyalandı</string>
     <string name="toast_copy_failed">Kopyalama olmadı</string>
     <string name="toast_saved">Kaydedildi</string>
@@ -43,6 +42,8 @@
     <string name="settings_dark">Koyu</string>
     <string name="settings_folder_columns">Klasör ızgarasındaki sütunlar</string>
     <string name="settings_folder_columns_desc">Sütun arttıkça ekrana daha çok klasör sığar ve her kapak küçülür. Dörtte alttaki ad çoğunlukla kesilir.</string>
+    <string name="settings_folder_count">Klasörlerin altında resim sayısı</string>
+    <string name="settings_folder_count_desc">Her kapağın altında, klasörün kaç resim içerdiği. Kapatınca satır kısalır ve üstteki başlık alanı o kadar büyür.</string>
     <string name="settings_fit_grow">Küçük görselleri büyüt</string>
     <string name="settings_fit_grow_desc">Kapalıyken ekrandan küçük bir görsel gerçek boyutunda görünür. Açıkken görünümü dolduracak kadar büyür.</string>
     <string name="settings_zoom_max">En yüksek yakınlaştırma</string>
@@ -50,7 +51,7 @@
     <string name="settings_scale_physical">Dosyanın bir pikseli ekranın bir pikseline</string>
     <string name="settings_scale_logical">Dosyanın bir pikseli yerleşimin bir pikseline</string>
     <string name="settings_scale_desc">Bir telefon ekranı tek bir yerleşim pikseline iki üç gerçek piksel sığdırır, bu yüzden iki yanıt birbirinden çok uzaktır: ilki dosyayı olduğu gibi, ikincisi bir web sayfasındaki boyutuyla gösterir.</string>
-    <string name="settings_info_position">Ayrıntı satırı</string>
+    <string name="details_bar">Ayrıntı satırı</string>
     <string name="settings_top">Üstte</string>
     <string name="settings_bottom">Altta</string>
     <string name="settings_info_visible">Başlangıçta satır görünsün</string>

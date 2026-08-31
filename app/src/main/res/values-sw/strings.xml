@@ -15,7 +15,6 @@
     <string name="menu_copy_image">Nakili kwenye ubao wa kunakili</string>
     <string name="menu_share">Shiriki</string>
     <string name="menu_save">Hifadhi</string>
-    <string name="menu_details">Maelezo</string>
     <string name="toast_image_copied">Picha imenakiliwa</string>
     <string name="toast_copy_failed">Kunakili hakukufaulu</string>
     <string name="toast_saved">Imehifadhiwa</string>
@@ -43,6 +42,8 @@
     <string name="settings_dark">Nyeusi</string>
     <string name="settings_folder_columns">Safu kwenye gridi ya folda</string>
     <string name="settings_folder_columns_desc">Safu nyingi zaidi huingiza folda nyingi zaidi kwenye skrini na kufanya kila jalada kuwa dogo. Kwa nne, jina lililo chini mara nyingi hukatwa.</string>
+    <string name="settings_folder_count">Idadi ya picha chini ya folda</string>
+    <string name="settings_folder_count_desc">Chini ya kila jalada, picha ngapi zimo kwenye folda. Ukiizima mstari unakuwa mfupi, na kichwa cha ukurasa kinakua kwa kiasi hicho.</string>
     <string name="settings_fit_grow">Kuza picha ndogo</string>
     <string name="settings_fit_grow_desc">Ikizimwa, picha ndogo kuliko skrini huonyeshwa kwa ukubwa wake halisi. Ikiwashwa, hukua hadi ijaze skrini.</string>
     <string name="settings_zoom_max">Ukuzaji wa juu</string>
@@ -50,7 +51,7 @@
     <string name="settings_scale_physical">Pikseli moja ya faili kwa pikseli moja ya skrini</string>
     <string name="settings_scale_logical">Pikseli moja ya faili kwa pikseli moja ya mpangilio</string>
     <string name="settings_scale_desc">Skrini ya simu huweka pikseli mbili au tatu halisi ndani ya pikseli moja ya mpangilio, kwa hivyo majibu mawili yapo mbali sana: la kwanza linaonyesha faili kama ilivyo, la pili kwa ukubwa ambao ukurasa wa wavuti ungeonyesha.</string>
-    <string name="settings_info_position">Mstari wa maelezo</string>
+    <string name="details_bar">Mstari wa maelezo</string>
     <string name="settings_top">Juu</string>
     <string name="settings_bottom">Chini</string>
     <string name="settings_info_visible">Onyesha mstari tangu mwanzo</string>

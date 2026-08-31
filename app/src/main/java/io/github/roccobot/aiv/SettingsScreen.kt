@@ -174,8 +174,13 @@ fun SettingsScreen(
 
         HorizontalDivider(Modifier.padding(vertical = 12.dp))
 
+        // ⚠️⚠️ **LA STESSA STRINGA DEL MENU DEL VISUALIZZATORE** (`details_bar`, richiesta
+        // dell'utente: *deve chiamarsi così sia in questo menu che nelle impostazioni*). Due
+        // stringhe uguali si sarebbero separate al primo ritocco di una delle due; una
+        // stringa sola non può. ⚠️ Il nome vecchio era 'Pannello dei dettagli' in cinque
+        // lingue e 'barra' nelle altre undici: la rinomina ha toccato le cinque.
         Choices(
-            label = stringResource(R.string.settings_info_position),
+            label = stringResource(R.string.details_bar),
             detail = null,
             options = InfoPosition.entries,
             selected = settings.infoPosition,
@@ -268,6 +273,15 @@ fun SettingsScreen(
             selected = Columns(settings.folderColumns),
             nameOf = { it.n.toString() },
             onSelect = { onChange(settings.copy(folderColumns = it.n)) }
+        )
+
+        // ⚠️ Attaccata alle colonne e senza separatore in mezzo: parlano della **stessa**
+        // griglia, una di quante colonne ha e l'altra di cosa si legge sotto le copertine.
+        SwitchRow(
+            label = stringResource(R.string.settings_folder_count),
+            detail = stringResource(R.string.settings_folder_count_desc),
+            checked = settings.folderCount,
+            onChange = { onChange(settings.copy(folderCount = it)) }
         )
 
         HorizontalDivider(Modifier.padding(vertical = 12.dp))

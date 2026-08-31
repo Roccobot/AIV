@@ -15,7 +15,6 @@
     <string name="menu_copy_image">In die Zwischenablage kopieren</string>
     <string name="menu_share">Teilen</string>
     <string name="menu_save">Speichern</string>
-    <string name="menu_details">Details</string>
     <string name="toast_image_copied">Bild kopiert</string>
     <string name="toast_copy_failed">Das Kopieren hat nicht geklappt</string>
     <string name="toast_saved">Gespeichert</string>
@@ -43,6 +42,8 @@
     <string name="settings_dark">Dunkel</string>
     <string name="settings_folder_columns">Spalten im Ordnerraster</string>
     <string name="settings_folder_columns_desc">Mehr Spalten bringen mehr Ordner auf den Bildschirm und machen jedes Titelbild kleiner. Bei vier wird der Name darunter meist abgeschnitten.</string>
+    <string name="settings_folder_count">Bildanzahl unter den Ordnern</string>
+    <string name="settings_folder_count_desc">Unter jedem Titelbild, wie viele Bilder der Ordner enthält. Ausgeschaltet wird die Zeile kürzer, und der Kopfbereich wächst um genauso viel.</string>
     <string name="settings_fit_grow">Kleine Bilder vergrößern</string>
     <string name="settings_fit_grow_desc">Aus wird ein Bild, das kleiner als der Bildschirm ist, in seiner echten Größe gezeigt. An wächst es, bis es die Ansicht füllt.</string>
     <string name="settings_zoom_max">Größter Zoom</string>
@@ -50,7 +51,7 @@
     <string name="settings_scale_physical">Ein Pixel der Datei pro Bildschirmpixel</string>
     <string name="settings_scale_logical">Ein Pixel der Datei pro Layoutpixel</string>
     <string name="settings_scale_desc">Ein Telefonbildschirm packt zwei oder drei echte Pixel in einen Layoutpixel, deshalb liegen die beiden Antworten weit auseinander: die erste zeigt die Datei, wie sie ist, die zweite in der Größe, die eine Webseite hätte.</string>
-    <string name="settings_info_position">Detailleiste</string>
+    <string name="details_bar">Detailleiste</string>
     <string name="settings_top">Oben</string>
     <string name="settings_bottom">Unten</string>
     <string name="settings_info_visible">Leiste zu Beginn sichtbar</string>

@@ -6,6 +6,7 @@ import androidx.annotation.PluralsRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
@@ -285,7 +287,37 @@ private fun FactsDialog(uris: List<Uri>, fields: List<FactField>, onDismiss: () 
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.pick_info)) },
+        /*
+         * ⚠️⚠️ **IL NOME DEL FILE STA NELLA TESTATA, a destra e IN LINEA con 'Info'**
+         * (richiesta dell'utente sulla `0.68`, dove la pastiglia apriva il corpo). Là dentro
+         * era il primo di un elenco di dati; qui è quello di cui l'elenco parla, cioè il
+         * titolo insieme alla parola 'Info'.
+         * ⚠️⚠️ **SI SPECCHIA DA SÉ nelle lingue da destra a sinistra, e non c'è una riga da
+         * scrivere per ottenerlo**: `Row` dispone secondo la direzione del testo, quindi in
+         * arabo la parola va a destra e la pastiglia a sinistra. È la ragione per cui **non**
+         * si è usato un allineamento assoluto: `Alignment.End` sarebbe stato 'a destra'
+         * sempre, cioè sbagliato in due delle lingue che l'app parla.
+         * ⚠️ **Il nome può andare a capo e non si accorcia**: è il dato che si è venuti a
+         * leggere, e un `IMG_20260830_142233_HDR~2.jpg` tagliato a metà con tre punti
+         * costringerebbe ad aprire un altro programma per sapere come si chiama il file.
+         * ⚠️ Compare **quando i dati arrivano**: prima di allora non si sa ancora il nome, e
+         * mettere un segnaposto vorrebbe dire far cambiare la testata due volte.
+         */
+        title = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = stringResource(R.string.pick_info))
+                facts?.one?.name?.let { name ->
+                    NamePill(
+                        name = name,
+                        modifier = Modifier.weight(1f, fill = false).padding(start = 12.dp)
+                    )
+                }
+            }
+        },
         text = {
             val f = facts
             when {
@@ -341,25 +373,10 @@ private fun FileFacts(facts: Facts, one: OneFile, fields: List<FactField>) {
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         for (field in fields) {
+            // ⚠️ Il nome NON è più una riga di questo elenco: dalla `0.69` sta nella testata
+            // del dialogo, accanto alla parola 'Info'. Vedi [NamePill] e [FactsDialog].
+            if (field == FactField.NAME) continue
             val value = factValue(field, facts, one) ?: continue
-            if (field == FactField.NAME) {
-                Surface(
-                    shape = RoundedCornerShape(NAME_CORNER),
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                ) {
-                    Text(
-                        text = value,
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(
-                            horizontal = NAME_PAD_SIDE,
-                            vertical = NAME_PAD_TOP
-                        )
-                    )
-                }
-                continue
-            }
             FactRow(label = stringResource(field.label), value = value)
             /*
              * ⚠️⚠️ **L'ALTITUDINE È UNA VOCE A SÉ MA NON UN CAMPO A SÉ** (richiesta
@@ -378,6 +395,30 @@ private fun FileFacts(facts: Facts, one: OneFile, fields: List<FactField>) {
                 }
             }
         }
+    }
+}
+
+/**
+ * Il nome del file in una pastiglia del colore d'accento, in grassetto.
+ *
+ * ⚠️ Prende `primaryContainer` e non `primary` benché in questa tavolozza valgano lo stesso:
+ * è il ruolo giusto per una superficie colorata, e se un giorno i due si separassero questa
+ * resterebbe corretta. Il contrasto del testo sopra l'accento è misurato in `Theme.kt`: 5.19.
+ */
+@Composable
+private fun NamePill(name: String, modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(NAME_CORNER),
+        color = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+    ) {
+        Text(
+            text = name,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = NAME_PAD_SIDE, vertical = NAME_PAD_TOP)
+        )
     }
 }
 

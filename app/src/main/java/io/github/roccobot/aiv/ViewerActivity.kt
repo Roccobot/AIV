@@ -958,6 +958,7 @@ private fun AivApp(model: ViewerViewModel) {
             FolderScreen(
                 view = settings.folderView,
                 columns = settings.folderColumns,
+                counted = settings.folderCount,
                 hidden = settings.hiddenFolders,
                 // ⚠️ Una cartella senza percorso non si può nascondere, e allora non si
                 // finge: il dialogo l'ha già chiesto, quindi qui si scarta in silenzio

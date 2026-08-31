@@ -15,7 +15,6 @@
     <string name="menu_copy_image">Copiar al portapapeles</string>
     <string name="menu_share">Compartir</string>
     <string name="menu_save">Guardar</string>
-    <string name="menu_details">Detalles</string>
     <string name="toast_image_copied">Imagen copiada</string>
     <string name="toast_copy_failed">La copia no ha salido bien</string>
     <string name="toast_saved">Guardada</string>
@@ -43,6 +42,8 @@
     <string name="settings_dark">Oscuro</string>
     <string name="settings_folder_columns">Columnas en la cuadrícula de carpetas</string>
     <string name="settings_folder_columns_desc">Más columnas caben más carpetas en la pantalla y encogen cada portada. Con cuatro, el nombre de debajo suele quedar cortado.</string>
+    <string name="settings_folder_count">Recuento de imágenes bajo las carpetas</string>
+    <string name="settings_folder_count_desc">Bajo cada portada, cuántas imágenes contiene la carpeta. Al apagarlo la fila se acorta, y la cabecera crece otro tanto.</string>
     <string name="settings_fit_grow">Agrandar las imágenes pequeñas</string>
     <string name="settings_fit_grow_desc">Desactivado, una imagen más pequeña que la pantalla se muestra a su tamaño real. Activado, crece hasta llenar la vista.</string>
     <string name="settings_zoom_max">Zoom máximo</string>
@@ -50,10 +51,10 @@
     <string name="settings_scale_physical">Un píxel del archivo por píxel de pantalla</string>
     <string name="settings_scale_logical">Un píxel del archivo por píxel de diseño</string>
     <string name="settings_scale_desc">La pantalla de un teléfono mete dos o tres píxeles reales en un píxel de diseño, así que las dos respuestas quedan muy lejos: la primera muestra el archivo tal cual es, la segunda al tamaño que tendría en una página web.</string>
-    <string name="settings_info_position">Panel de detalles</string>
+    <string name="details_bar">Barra de detalles</string>
     <string name="settings_top">Arriba</string>
     <string name="settings_bottom">Abajo</string>
-    <string name="settings_info_visible">Panel visible al principio</string>
+    <string name="settings_info_visible">Barra visible al principio</string>
     <string name="settings_reverse_order">Invertir el sentido de la secuencia (por fecha)</string>
     <string name="settings_reverse_order_desc">Desactivado, pasas de la imagen más reciente hacia las más antiguas, como en la galería de un teléfono. Activado, en orden cronológico, de la más antigua a la más reciente.</string>
     <string name="settings_clipboard">Leer el portapapeles al arrancar</string>

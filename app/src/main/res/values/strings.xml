@@ -40,7 +40,6 @@
     <string name="menu_copy_image">Copy to clipboard</string>
     <string name="menu_share">Share</string>
     <string name="menu_save">Save</string>
-    <string name="menu_details">Details</string>
 
     <string name="toast_image_copied">Image copied</string>
     <string name="toast_copy_failed">The copy did not go through</string>
@@ -80,6 +79,8 @@
 
     <string name="settings_folder_columns">Columns in the folder grid</string>
     <string name="settings_folder_columns_desc">More columns fit more folders on screen and shrink each cover. At four the name under it is usually cut short.</string>
+    <string name="settings_folder_count">Picture count under the folders</string>
+    <string name="settings_folder_count_desc">Under each cover, how many pictures the folder holds. Turning it off makes the row shorter, and the title area at the top grows by as much.</string>
 
     <string name="settings_fit_grow">Enlarge small pictures</string>
     <string name="settings_fit_grow_desc">Off, a picture smaller than the screen is shown at its real size. On, it grows to fill the view.</string>
@@ -91,10 +92,10 @@
     <string name="settings_scale_logical">One pixel of the file per layout pixel</string>
     <string name="settings_scale_desc">A phone screen packs two or three real pixels into one layout pixel, so the two answers are a long way apart: the first shows the file as it is, the second shows it the size a web page would.</string>
 
-    <string name="settings_info_position">Details panel</string>
+    <string name="details_bar">Details bar</string>
     <string name="settings_top">At the top</string>
     <string name="settings_bottom">At the bottom</string>
-    <string name="settings_info_visible">Panel showing at first</string>
+    <string name="settings_info_visible">Bar showing at first</string>
 
     <string name="settings_reverse_order">Change the direction of the picture sequence (by date)</string>
     <string name="settings_reverse_order_desc">Off, you leaf from the newest picture towards the older ones, the way a phone gallery goes. On, in chronological order, from the oldest to the newest.</string>

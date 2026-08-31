@@ -15,7 +15,6 @@
     <string name="menu_copy_image">複製到剪貼簿</string>
     <string name="menu_share">分享</string>
     <string name="menu_save">儲存</string>
-    <string name="menu_details">詳細資料</string>
     <string name="toast_image_copied">已複製圖片</string>
     <string name="toast_copy_failed">複製沒有成功</string>
     <string name="toast_saved">已儲存</string>
@@ -43,6 +42,8 @@
     <string name="settings_dark">深色</string>
     <string name="settings_folder_columns">資料夾格狀檢視的欄數</string>
     <string name="settings_folder_columns_desc">欄數越多,螢幕上放得下的資料夾越多,每張封面也越小。到四欄時,下面的名稱通常會被截斷。</string>
+    <string name="settings_folder_count">在資料夾下方顯示圖片數量</string>
+    <string name="settings_folder_count_desc">在每個封面下方顯示資料夾中的圖片數量。關閉後列會變短，頂部的標題區域則相應變大。</string>
     <string name="settings_fit_grow">放大較小的圖片</string>
     <string name="settings_fit_grow_desc">關閉時,比螢幕小的圖片以實際大小顯示。開啟時,它會放大到填滿檢視。</string>
     <string name="settings_zoom_max">最大縮放</string>
@@ -50,7 +51,7 @@
     <string name="settings_scale_physical">檔案的一個像素對應螢幕的一個像素</string>
     <string name="settings_scale_logical">檔案的一個像素對應版面的一個像素</string>
     <string name="settings_scale_desc">手機螢幕會把兩三個真實像素塞進一個版面像素,所以兩個答案相差很遠:前者依檔案本來的樣子顯示,後者依網頁上的大小顯示。</string>
-    <string name="settings_info_position">詳細資料列</string>
+    <string name="details_bar">詳細資料列</string>
     <string name="settings_top">在上方</string>
     <string name="settings_bottom">在下方</string>
     <string name="settings_info_visible">一開始就顯示詳細資料列</string>
