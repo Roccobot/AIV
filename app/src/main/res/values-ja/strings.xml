@@ -251,5 +251,7 @@
     <string name="settings_content_remove">モデルを削除 (%1$s)</string>
     <string name="settings_content_broken">うまくいきませんでした: %1$s</string>
     <string name="settings_content_retry">やり直す</string>
+    <string name="settings_content_blocked">前回これでアプリが終了したため (%1$s)、この機能は自分で停止しました。ほかには影響しません。</string>
+    <string name="settings_content_index">画像を今すぐ索引に入れる</string>
     <string name="settings_content_indexing">索引作成: %2$d 件中 %1$d 件</string>
 </resources>

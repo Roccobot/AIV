@@ -87,6 +87,11 @@
          causes, three different things to do about it. -->
     <string name="settings_content_broken">Something went wrong: %1$s</string>
     <string name="settings_content_retry">Try again</string>
+    <!-- Shown when the content search stopped itself because the last try killed the app:
+         the reason for the safety catch lives in ClipGuard. The detail is the phase, and the
+         error when one could be caught at all. -->
+    <string name="settings_content_blocked">Last time this closed the app (%1$s), so the feature stopped itself. Nothing else is affected.</string>
+    <string name="settings_content_index">Index the pictures now</string>
 
     <string name="settings_group_start">Startup</string>
 

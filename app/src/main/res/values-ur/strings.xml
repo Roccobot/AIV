@@ -266,5 +266,7 @@
     <string name="settings_content_remove">ماڈل ہٹائیں (%1$s)</string>
     <string name="settings_content_broken">کچھ ٹھیک نہیں چلا: %1$s</string>
     <string name="settings_content_retry">دوبارہ کوشش کریں</string>
+    <string name="settings_content_blocked">پچھلی بار اس سے ایپ بند ہو گئی تھی (%1$s)، اس لیے یہ سہولت خود رک گئی۔ باقی سب ٹھیک ہے۔</string>
+    <string name="settings_content_index">تصاویر ابھی فہرست میں لائیں</string>
     <string name="settings_content_indexing">فہرست سازی: %2$d میں سے %1$d</string>
 </resources>

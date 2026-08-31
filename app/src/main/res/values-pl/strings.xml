@@ -296,5 +296,7 @@
     <string name="settings_content_remove">Usuń modele (%1$s)</string>
     <string name="settings_content_broken">Coś nie zadziałało: %1$s</string>
     <string name="settings_content_retry">Spróbuj ponownie</string>
+    <string name="settings_content_blocked">Ostatnim razem to zamknęło aplikację (%1$s), więc funkcja sama się zatrzymała. Reszta działa normalnie.</string>
+    <string name="settings_content_index">Zindeksuj obrazy teraz</string>
     <string name="settings_content_indexing">Indeksowanie: %1$d z %2$d</string>
 </resources>

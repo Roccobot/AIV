@@ -296,5 +296,7 @@
     <string name="settings_content_remove">Удалить модели (%1$s)</string>
     <string name="settings_content_broken">Что-то пошло не так: %1$s</string>
     <string name="settings_content_retry">Повторить</string>
+    <string name="settings_content_blocked">В прошлый раз из-за этого приложение закрылось (%1$s), поэтому функция остановилась сама. Остальное не затронуто.</string>
+    <string name="settings_content_index">Проиндексировать снимки сейчас</string>
     <string name="settings_content_indexing">Индексация: %1$d из %2$d</string>
 </resources>

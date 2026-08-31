@@ -35,7 +35,6 @@ import coil3.compose.setSingletonImageLoaderFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -314,19 +313,20 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch { Recents.flow(context).collect { recents = it } }
         viewModelScope.launch { FolderAsk.flow(context).collect { folderAsked = it } }
         /*
-         * ⚠️⚠️ **L'INDICIZZAZIONE PARTE ALL'AVVIO, e solo se i modelli ci sono**: chi ha
-         * acceso la ricerca per contenuto si aspetta che le foto scattate ieri siano
-         * cercabili oggi, e l'unico momento in cui si può recuperare il nuovo senza chiedere
-         * niente è l'apertura dell'app. Chi non l'ha accesa non paga niente: la prima cosa
-         * che [clipIndexing] fa è guardare se i modelli esistono, che sono tre `stat`.
-         * ⚠️ **Dopo il collettore delle impostazioni e non prima**: le cartelle nascoste
-         * decidono che cosa indicizzare, e partire senza vorrebbe dire indicizzare quello che
-         * l'utente ha tolto di mezzo.
+         * ⚠️⚠️ **QUI NON PARTE PIÙ NIENTE DELLA RICERCA PER CONTENUTO, dalla 1.02, e la
+         * ragione è un difetto che rendeva l'app irrecuperabile**: fino alla 1.01
+         * l'indicizzazione partiva da sola a ogni apertura se i modelli c'erano. Sul telefono
+         * dell'utente il motore faceva morire il processo, quindi l'app si chiudeva subito
+         * **a ogni avvio** e l'unico rimedio era cancellare i dati dell'app, cioè perdere
+         * anche il cestino.
+         * ⚠️ **Il rimedio non è un `try`**: quello che muore è codice nativo, e non passa da
+         * nessun `catch`. Adesso ci sono due paletti, e servono tutti e due: l'indicizzazione
+         * la chiede **l'utente** da un tasto, e prima di toccare il motore si lascia un segno
+         * sul disco (vedi [ClipGuard]) che al giro dopo dice se in mezzo si è tornati.
+         * ⚠️ **Il costo dichiarato**: le fotografie scattate dopo l'ultima indicizzazione non
+         * si trovano finché non la si rilancia. Prima lo faceva da sé, e per farlo metteva a
+         * rischio l'avvio dell'app: fra le due, questa è la parte che si può perdere.
          */
-        viewModelScope.launch {
-            SettingsStore.flow(context).first()
-            clipIndexing()
-        }
     }
 
     /**
@@ -921,12 +921,23 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         // disegna la griglia mentre si scrive.
         val ready = withContext(Dispatchers.IO) { ClipModels.state(context) }
         if (ready !is ClipModels.State.Ready) return emptyList()
+        // ⚠️⚠️ **ANCHE CERCARE PASSA DALLA SICURA**, e non solo indicizzare: a cercare si
+        // apre l'encoder testuale, che è codice nativo come l'altro. Senza questo, un motore
+        // che uccide il processo lo ucciderebbe a ogni lettera scritta nella ricerca, cioè
+        // in una schermata da cui non si sospetta niente.
+        if (withContext(Dispatchers.IO) { ClipGuard.tripped(context) } != null) return emptyList()
         val engine = clipEngine(context) ?: return emptyList()
         val index = clipIndex ?: ClipIndex.load(context).also { clipIndex = it }
         if (index.isEmpty()) return emptyList()
+        withContext(Dispatchers.IO) { ClipGuard.arm(context, "ricerca") }
         return withContext(Dispatchers.Default) {
-            val query = runCatching { engine.ofText(text) }.getOrNull()
-                ?: return@withContext emptyList()
+            val esito = runCatching { engine.ofText(text) }
+            withContext(Dispatchers.IO) {
+                val why = esito.exceptionOrNull()
+                if (why == null) ClipGuard.disarm(context)
+                else ClipGuard.note(context, "ricerca", why.toString())
+            }
+            val query = esito.getOrNull() ?: return@withContext emptyList()
             index.asSequence()
                 .map { (uri, code) -> uri to ClipIndex.score(query, code) }
                 .filter { it.second >= CLIP_FLOOR }
@@ -950,7 +961,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 ClipEngine.open(
                     visionPath = ClipModels.fileOf(context, ClipModels.PIECES[0]).absolutePath,
                     textPath = ClipModels.fileOf(context, ClipModels.PIECES[1]).absolutePath,
-                    tokenizerJson = ClipModels.fileOf(context, ClipModels.PIECES[2]).readText()
+                    // ⚠️ Una funzione e non la stringa: sono 2,2 MB, e a cercare non
+                    // servono, a indicizzare nemmeno. Si leggono alla prima frase scritta.
+                    tokenizerJson = { ClipModels.fileOf(context, ClipModels.PIECES[2]).readText() }
                 )
             }.getOrNull()?.also { clipMotor = it }
         }
@@ -984,16 +997,51 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         val context = getApplication<Application>()
         clipJob2 = viewModelScope.launch {
             if (ClipModels.state(context) !is ClipModels.State.Ready) return@launch
+            val fermo = withContext(Dispatchers.IO) { ClipGuard.tripped(context) }
+            if (fermo != null) {
+                clipBlocked = fermo
+                return@launch
+            }
             val engine = clipEngine(context) ?: return@launch
             val hidden = settings?.hiddenFolders.orEmpty()
             clipWork = 0 to 0
-            runCatching {
+            // ⚠️⚠️ **IL SEGNO SI LASCIA PRIMA E SI TOGLIE DOPO**: fra le due righe c'è
+            // l'unico codice che può uccidere il processo senza sollevare niente, e se il
+            // processo muore il segno resta. Vedi [ClipGuard] per il perché un `try` non
+            // basterebbe.
+            withContext(Dispatchers.IO) { ClipGuard.arm(context, "indice") }
+            val esito = runCatching {
                 ClipRun.index(context, engine, hidden) { done, total -> clipWork = done to total }
             }
+            withContext(Dispatchers.IO) {
+                val why = esito.exceptionOrNull()
+                if (why == null) ClipGuard.disarm(context)
+                else ClipGuard.note(context, "indice", why.toString())
+            }
+            clipBlocked = withContext(Dispatchers.IO) { ClipGuard.tripped(context) }
             // ⚠️ L'indice in memoria si butta: quello su file è cresciuto, e tenersi la
             // copia vecchia vorrebbe dire cercare fra le foto di prima.
             clipIndex = null
             clipWork = null
+        }
+    }
+
+    /**
+     * Perché la ricerca per contenuto è ferma, e `null` quando non lo è.
+     *
+     * ⚠️ È il testo del segno lasciato da [ClipGuard]: se c'è, l'ultimo giro nel motore non è
+     * tornato, e finché l'utente non dice di riprovare non ci si rientra.
+     */
+    var clipBlocked: String? by mutableStateOf(null)
+        private set
+
+    /** L'utente vuole riprovare: si toglie la sicura e si riparte con l'indicizzazione. */
+    fun clipUnblock() {
+        val context = getApplication<Application>()
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) { ClipGuard.clear(context) }
+            clipBlocked = null
+            clipIndexing()
         }
     }
 
@@ -1019,6 +1067,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             val context = getApplication<Application>()
             clipState = withContext(Dispatchers.IO) { ClipModels.state(context) }
+            clipBlocked = withContext(Dispatchers.IO) { ClipGuard.tripped(context) }
         }
     }
 
@@ -1036,10 +1085,11 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             clipState = ClipModels.fetch(context) { done, total ->
                 clipState = ClipModels.State.Fetching(done, total)
             }
-            // ⚠️ Appena i modelli ci sono, l'indicizzazione parte da sé: aspettare il
-            // riavvio dell'app vorrebbe dire una ricerca che non trova niente proprio nel
-            // momento in cui la si prova per la prima volta.
-            if (clipState is ClipModels.State.Ready) clipIndexing()
+            // ⚠️⚠️ **NON SI INDICIZZA DA SÉ, dalla 1.02**: fino alla 1.01 partiva qui, e
+            // il crollo del motore arrivava addosso a chi aveva appena finito di scaricare
+            // 65 MB, senza che avesse chiesto niente. Adesso finito lo scaricamento la
+            // schermata offre il tasto, e nel motore si entra solo su richiesta.
+            clipBlocked = withContext(Dispatchers.IO) { ClipGuard.tripped(context) }
         }
     }
 
@@ -1463,8 +1513,11 @@ private fun AivApp(model: ViewerViewModel) {
                 onResetHints = { model.resetHints() },
                 clipState = model.clipState,
                 clipWork = model.clipWork,
+                clipBlocked = model.clipBlocked,
                 onClipFetch = { model.clipFetch() },
                 onClipStop = { model.clipStop() },
+                onClipIndex = { model.clipIndexing() },
+                onClipUnblock = { model.clipUnblock() },
                 onClipRemove = { model.clipRemove() },
                 onBack = { model.leaveSettings() }
             )

@@ -266,5 +266,7 @@
     <string name="settings_content_remove">Modelleri kaldır (%1$s)</string>
     <string name="settings_content_broken">Bir şey yolunda gitmedi: %1$s</string>
     <string name="settings_content_retry">Yeniden dene</string>
+    <string name="settings_content_blocked">Geçen sefer bu, uygulamayı kapattı (%1$s), bu yüzden özellik kendini durdurdu. Gerisi etkilenmedi.</string>
+    <string name="settings_content_index">Görselleri şimdi dizinle</string>
     <string name="settings_content_indexing">Dizinleniyor: %2$d içinden %1$d</string>
 </resources>

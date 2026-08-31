@@ -251,5 +251,7 @@
     <string name="settings_content_remove">刪除模型（%1$s）</string>
     <string name="settings_content_broken">有一步沒成功：%1$s</string>
     <string name="settings_content_retry">重試</string>
+    <string name="settings_content_blocked">上一次這讓應用程式關閉了 (%1$s)，所以這項功能自己停了下來。其餘部分不受影響。</string>
+    <string name="settings_content_index">現在為圖片建立索引</string>
     <string name="settings_content_indexing">正在建立索引：%2$d 中的 %1$d</string>
 </resources>
