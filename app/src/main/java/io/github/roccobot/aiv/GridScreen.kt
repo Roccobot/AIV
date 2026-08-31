@@ -247,6 +247,17 @@ fun GridScreen(
     var sheetTall by remember { mutableIntStateOf(0) }
 
     /**
+     * Se in questa visita si è già eseguita un'operazione sui file.
+     *
+     * ⚠️⚠️ **LA CHIAVE È IL TITOLO E NON `items`, e con `items` NON FUNZIONEREBBE**: dopo
+     * un'operazione la lista si ricarica, quindi una bandierina legata a lei si
+     * riazzererebbe **proprio nell'istante** in cui serve leggerla, e la risalita non
+     * scatterebbe mai. Il titolo cambia quando si cambia cartella, che è la sola cosa che
+     * deve dimenticare l'operazione fatta.
+     */
+    var worked by remember(title) { mutableStateOf(false) }
+
+    /**
      * Il dialogo di un'operazione, e `null` quando non ce n'è aperto nessuno.
      *
      * ⚠️ **Uno stato solo per quattro dialoghi**, dalla `0.62`: erano quattro variabili, e
@@ -657,8 +668,29 @@ fun GridScreen(
         scope.launch {
             val out = work()
             Toast.makeText(context, outcomeText(res, out, kind.done), Toast.LENGTH_LONG).show()
+            worked = true
             onChanged()
         }
+    }
+
+    /*
+     * ⚠️⚠️ **SE LA CARTELLA SI SVUOTA OPERANDO, SI RISALE** (richiesta dell'utente,
+     * 2026-08-31: *se sposto in una nuova cartella TUTTE le immagini di una cartella, la
+     * mia vista si deve ri-spostare sul livello superiore*): restare in una cartella vuota
+     * appena svuotata da noi è una schermata che non ha più niente da dire, e il tasto
+     * Indietro sarebbe l'unica cosa da fare.
+     * ⚠️ **Solo dopo un'operazione NOSTRA**, e la bandierina esiste per questo: una cartella
+     * che era già vuota all'ingresso si apre e si guarda (ci si può arrivare da un
+     * collegamento o da una ricerca), e buttare fuori chi ci entra sarebbe una schermata
+     * che si rifiuta di esistere.
+     * ⚠️ **Il cestino NO**, ed è la sua natura: svuotarlo è la cosa che si va a fare là
+     * dentro, e ritrovarsi fuori dopo averlo fatto vorrebbe dire non vedere mai il
+     * risultato. Là il vuoto ha già la sua frase ('Il cestino è vuoto').
+     * ⚠️ **La ricerca nemmeno**: là il vuoto vuol dire 'nessun risultato', che è una
+     * risposta e non una cartella finita.
+     */
+    LaunchedEffect(worked, items) {
+        if (worked && !bin && query == null && items?.isEmpty() == true) onBack()
     }
 
     /*
