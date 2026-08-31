@@ -44,6 +44,10 @@
     <string name="settings_folder_columns">Colunas na grade de pastas</string>
     <string name="settings_folder_columns_desc">Mais colunas cabem mais pastas na tela e encolhem cada capa. Com quatro, o nome embaixo costuma ficar cortado.</string>
     <string name="settings_folder_count">Contagem de itens sob as pastas</string>
+    <string name="settings_hand">Posição das funções principais</string>
+    <string name="settings_right">Direita</string>
+    <string name="settings_left">Esquerda</string>
+    <string name="settings_list_path">Lista de arquivos: copiar o caminho da pasta</string>
     <string name="settings_folder_count_desc">Sob cada capa, quantas imagens a pasta contém. Ao desligar, a linha fica mais curta e o cabeçalho cresce o mesmo tanto.</string>
     <string name="settings_fit_grow">Ampliar imagens pequenas</string>
     <string name="settings_fit_grow_desc">Desligado, uma imagem menor que a tela aparece no tamanho real. Ligado, ela cresce até preencher a vista.</string>

@@ -44,6 +44,10 @@
     <string name="settings_folder_columns">資料夾格狀檢視的欄數</string>
     <string name="settings_folder_columns_desc">欄數越多,螢幕上放得下的資料夾越多,每張封面也越小。到四欄時,下面的名稱通常會被截斷。</string>
     <string name="settings_folder_count">在資料夾下方顯示項目數量</string>
+    <string name="settings_hand">主要功能的位置</string>
+    <string name="settings_right">右側</string>
+    <string name="settings_left">左側</string>
+    <string name="settings_list_path">檔案清單：一併複製資料夾路徑</string>
     <string name="settings_folder_count_desc">在每個封面下方顯示資料夾中的圖片數量。關閉後列會變短，頂部的標題區域則相應變大。</string>
     <string name="settings_fit_grow">放大較小的圖片</string>
     <string name="settings_fit_grow_desc">關閉時,比螢幕小的圖片以實際大小顯示。開啟時,它會放大到填滿檢視。</string>

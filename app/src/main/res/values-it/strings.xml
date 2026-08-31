@@ -67,6 +67,10 @@
     <string name="settings_folder_columns">Colonne della griglia delle cartelle</string>
     <string name="settings_folder_columns_desc">Più colonne fanno stare più cartelle sullo schermo e rimpiccioliscono le copertine. A quattro, il nome sotto di solito non ci sta per intero.</string>
     <string name="settings_folder_count">Contatore degli elementi sotto le cartelle</string>
+    <string name="settings_hand">Posizione delle funzioni principali</string>
+    <string name="settings_right">Destra</string>
+    <string name="settings_left">Sinistra</string>
+    <string name="settings_list_path">Lista file: copia il percorso della cartella contenitore</string>
     <string name="settings_folder_count_desc">Sotto ogni copertina, quante immagini contiene la cartella. Spegnendolo la riga si accorcia, e il frontespizio in cima cresce di altrettanto.</string>
 
     <string name="settings_fit_grow">Ingrandisci le immagini piccole</string>

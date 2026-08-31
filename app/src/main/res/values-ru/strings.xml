@@ -44,6 +44,10 @@
     <string name="settings_folder_columns">Столбцы в сетке папок</string>
     <string name="settings_folder_columns_desc">Чем больше столбцов, тем больше папок помещается на экране и тем меньше каждая обложка. При четырёх имя под ней обычно обрезается.</string>
     <string name="settings_folder_count">Число элементов под папками</string>
+    <string name="settings_hand">Расположение основных функций</string>
+    <string name="settings_right">Справа</string>
+    <string name="settings_left">Слева</string>
+    <string name="settings_list_path">Список файлов: копировать путь папки</string>
     <string name="settings_folder_count_desc">Под каждой обложкой, сколько изображений в папке. При отключении строка становится короче, а заголовок вверху вырастает на столько же.</string>
     <string name="settings_fit_grow">Увеличивать маленькие изображения</string>
     <string name="settings_fit_grow_desc">Выключено: изображение меньше экрана показывается в натуральную величину. Включено: оно растёт, пока не заполнит экран.</string>

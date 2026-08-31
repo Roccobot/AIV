@@ -44,6 +44,10 @@
     <string name="settings_folder_columns">సంచయ గడిలో నిలువు వరుసలు</string>
     <string name="settings_folder_columns_desc">నిలువు వరుసలు ఎక్కువైతే తెరపై ఎక్కువ సంచయాలు ఇమిడతాయి, ప్రతి ముఖచిత్రం చిన్నదవుతుంది. నాలుగు వద్ద కింది పేరు తరచుగా కత్తిరించబడుతుంది.</string>
     <string name="settings_folder_count">సంచయాల కింద అంశాల లెక్క</string>
+    <string name="settings_hand">ప్రధాన చర్యల స్థానం</string>
+    <string name="settings_right">కుడి</string>
+    <string name="settings_left">ఎడమ</string>
+    <string name="settings_list_path">దస్త్ర జాబితా: సంచయ మార్గాన్ని కూడా కాపీ చెయ్యి</string>
     <string name="settings_folder_count_desc">ప్రతి ముఖచిత్రం కింద, సంచయంలో ఎన్ని చిత్రాలున్నాయి. ఆపేస్తే వరుస పొట్టిగా అవుతుంది, పైన ఉన్న శీర్షిక భాగం అంతే పెరుగుతుంది.</string>
     <string name="settings_fit_grow">చిన్న చిత్రాలను పెద్దవి చేయి</string>
     <string name="settings_fit_grow_desc">ఆపి ఉంచితే తెర కంటే చిన్న చిత్రం దాని నిజమైన పరిమాణంలో కనబడుతుంది. వేసి ఉంచితే తెర నిండేవరకు పెరుగుతుంది.</string>

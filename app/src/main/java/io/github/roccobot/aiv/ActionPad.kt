@@ -258,8 +258,11 @@ private val PAD_CORNER = 10.dp
  * ⚠️ Cinque e non tre come il menu, e non è simmetria: le azioni là sono dieci, e a tre
  * colonne verrebbero quattro file, cioè un pannello alto quanto mezzo schermo sopra le
  * fotografie che si stanno scegliendo.
+ * ⚠️ **Non è privata perché la legge anche chi ROVESCIA le file** per la mano sinistra
+ * (`GridScreen`): là serve sapere dove finisce una fila, e un 5 scritto una seconda volta
+ * sarebbe il numero che un giorno diverge da questo.
  */
-private const val SHEET_COLUMNS = 5
+internal const val SHEET_COLUMNS = 5
 
 /** Lo smusso dei due angoli alti del pannello, che è quello di una bottomsheet Material. */
 private val SHEET_CORNER = 28.dp

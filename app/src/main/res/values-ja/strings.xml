@@ -44,6 +44,10 @@
     <string name="settings_folder_columns">フォルダ一覧の列数</string>
     <string name="settings_folder_columns_desc">列を増やすと画面に入るフォルダは増え、表紙は小さくなります。4列では下の名前はたいてい切れます。</string>
     <string name="settings_folder_count">フォルダーの下に項目の数</string>
+    <string name="settings_hand">主な機能の位置</string>
+    <string name="settings_right">右</string>
+    <string name="settings_left">左</string>
+    <string name="settings_list_path">ファイル一覧: フォルダーのパスもコピー</string>
     <string name="settings_folder_count_desc">各カバーの下に、フォルダー内の画像の枚数を表示します。オフにすると行が短くなり、その分だけ上部の見出しが広がります。</string>
     <string name="settings_fit_grow">小さい画像を拡大する</string>
     <string name="settings_fit_grow_desc">オフなら画面より小さい画像は実寸で表示します。オンなら画面いっぱいまで拡大します。</string>

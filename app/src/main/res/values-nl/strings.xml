@@ -44,6 +44,10 @@
     <string name="settings_folder_columns">Kolommen in het mappenraster</string>
     <string name="settings_folder_columns_desc">Meer kolommen laten meer mappen op het scherm passen en maken elke omslag kleiner. Bij vier wordt de naam eronder meestal afgekapt.</string>
     <string name="settings_folder_count">Aantal items onder de mappen</string>
+    <string name="settings_hand">Positie van de hoofdfuncties</string>
+    <string name="settings_right">Rechts</string>
+    <string name="settings_left">Links</string>
+    <string name="settings_list_path">Bestandslijst: pad van de map kopiëren</string>
     <string name="settings_folder_count_desc">Onder elke omslag, hoeveel afbeeldingen de map bevat. Uitgezet wordt de rij korter, en het titelgebied bovenaan groeit even zoveel.</string>
     <string name="settings_fit_grow">Kleine afbeeldingen vergroten</string>
     <string name="settings_fit_grow_desc">Uit wordt een afbeelding die kleiner is dan het scherm op ware grootte getoond. Aan groeit hij tot hij het beeld vult.</string>

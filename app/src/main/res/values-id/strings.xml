@@ -44,6 +44,10 @@
     <string name="settings_folder_columns">Kolom pada kisi folder</string>
     <string name="settings_folder_columns_desc">Semakin banyak kolom, semakin banyak folder yang masuk ke layar dan semakin kecil setiap sampul. Pada empat kolom, nama di bawahnya biasanya terpotong.</string>
     <string name="settings_folder_count">Jumlah item di bawah folder</string>
+    <string name="settings_hand">Posisi fungsi utama</string>
+    <string name="settings_right">Kanan</string>
+    <string name="settings_left">Kiri</string>
+    <string name="settings_list_path">Daftar berkas: salin juga jalur foldernya</string>
     <string name="settings_folder_count_desc">Di bawah setiap sampul, berapa gambar yang ada di folder itu. Jika dimatikan, barisnya menjadi lebih pendek dan bagian judul di atas tumbuh sebanyak itu.</string>
     <string name="settings_fit_grow">Perbesar gambar kecil</string>
     <string name="settings_fit_grow_desc">Jika mati, gambar yang lebih kecil dari layar ditampilkan pada ukuran aslinya. Jika hidup, ia tumbuh hingga memenuhi layar.</string>

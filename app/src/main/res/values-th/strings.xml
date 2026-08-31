@@ -44,6 +44,10 @@
     <string name="settings_folder_columns">จำนวนคอลัมน์ในตารางโฟลเดอร์</string>
     <string name="settings_folder_columns_desc">คอลัมน์ยิ่งมาก โฟลเดอร์ยิ่งลงหน้าจอได้มากและปกแต่ละอันยิ่งเล็ก ที่สี่คอลัมน์ ชื่อด้านล่างมักถูกตัด</string>
     <string name="settings_folder_count">จำนวนรายการใต้โฟลเดอร์</string>
+    <string name="settings_hand">ตำแหน่งของฟังก์ชันหลัก</string>
+    <string name="settings_right">ขวา</string>
+    <string name="settings_left">ซ้าย</string>
+    <string name="settings_list_path">รายชื่อไฟล์: คัดลอกเส้นทางโฟลเดอร์ด้วย</string>
     <string name="settings_folder_count_desc">ใต้ปกแต่ละอัน บอกว่าโฟลเดอร์มีภาพกี่ภาพ เมื่อปิด แถวจะสั้นลง และส่วนหัวด้านบนจะโตขึ้นเท่ากัน</string>
     <string name="settings_fit_grow">ขยายภาพเล็ก</string>
     <string name="settings_fit_grow_desc">เมื่อปิด ภาพที่เล็กกว่าหน้าจอจะแสดงตามขนาดจริง เมื่อเปิด จะโตขึ้นจนเต็มหน้าจอ</string>

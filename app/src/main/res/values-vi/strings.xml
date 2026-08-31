@@ -44,6 +44,10 @@
     <string name="settings_folder_columns">Số cột trong lưới thư mục</string>
     <string name="settings_folder_columns_desc">Càng nhiều cột thì càng nhiều thư mục vừa màn hình và mỗi ảnh bìa càng nhỏ. Ở bốn cột, tên bên dưới thường bị cắt.</string>
     <string name="settings_folder_count">Số mục dưới mỗi thư mục</string>
+    <string name="settings_hand">Vị trí các chức năng chính</string>
+    <string name="settings_right">Phải</string>
+    <string name="settings_left">Trái</string>
+    <string name="settings_list_path">Danh sách tệp: chép cả đường dẫn thư mục</string>
     <string name="settings_folder_count_desc">Dưới mỗi ảnh bìa, thư mục chứa bao nhiêu ảnh. Khi tắt, hàng sẽ ngắn lại và phần tiêu đề ở trên cao thêm đúng chừng ấy.</string>
     <string name="settings_fit_grow">Phóng to ảnh nhỏ</string>
     <string name="settings_fit_grow_desc">Khi tắt, ảnh nhỏ hơn màn hình được hiển thị ở kích thước thật. Khi bật, ảnh lớn lên cho đầy khung hình.</string>

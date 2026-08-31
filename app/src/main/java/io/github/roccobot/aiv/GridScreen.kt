@@ -173,6 +173,16 @@ fun GridScreen(
      */
     binOn: Boolean = true,
     /**
+     * Se le funzioni principali del pannello stanno a sinistra. Vedi `Settings.hand`.
+     *
+     * ⚠️ Arriva come booleano e non come [Hand]: qui serve una sola domanda ('si rovescia
+     * o no'), e passare l'enum vorrebbe dire che questa schermata conosce un tipo delle
+     * impostazioni per leggerne un caso.
+     */
+    leftHand: Boolean = false,
+    /** Se 'Copia lista' mette anche il percorso in testa. Vedi `Settings.listPath`. */
+    listPath: Boolean = false,
+    /**
      * Se sotto ogni miniatura si legge il nome del file. Vedi `Settings.gridNames`.
      *
      * ⚠️ Il valore di serie è quello di fabbrica dell'impostazione, cioè **spento**: le
@@ -507,7 +517,13 @@ fun GridScreen(
          */
         PadAction(Icons.AutoMirrored.Outlined.FormatListBulleted, R.string.pick_list) {
             val list = chosen.toList()
-            scope.launch { ImageActions.copyNames(context, list) }
+            scope.launch {
+                // ⚠️ Il percorso si chiede per UNA sola, non per tutte: gli elementi scelti
+                // stanno nella stessa cartella (la griglia è una cartella), quindi una
+                // interrogazione basta e le altre sarebbero la stessa risposta N volte.
+                val head = if (listPath) factsOf(context, list.take(1)).one?.folder else null
+                ImageActions.copyNames(context, list, head)
+            }
         },
         /*
          * ⚠️⚠️ **IL TOCCO LUNGO SALTA IL CESTINO** (richiesta dell'utente, 2026-08-31), ed
@@ -1036,9 +1052,20 @@ fun GridScreen(
                     }
                 }
 
+                /*
+                 * ⚠️⚠️ **A SINISTRA SI ROVESCIANO LE FILE, NON L'ELENCO**: girando la lista
+                 * intera, 'Copia' finirebbe nella seconda fila e 'Lista' nella prima, cioè
+                 * cambierebbe il raggruppamento invece della mano. Rovesciando ogni fila per
+                 * conto suo, le stesse cinque restano insieme e cambia solo da che parte
+                 * cominciano.
+                 */
                 PickSheet(
                     visible = picking && sheetOpen,
-                    actions = pickActions,
+                    actions = if (leftHand) {
+                        pickActions.chunked(SHEET_COLUMNS).flatMap { it.reversed() }
+                    } else {
+                        pickActions
+                    },
                     onHeight = { sheetTall = it }
                 )
 

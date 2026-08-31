@@ -44,6 +44,10 @@
     <string name="settings_folder_columns">संचिकासंच जाळीतील स्तंभ</string>
     <string name="settings_folder_columns_desc">जास्त स्तंभांत पडद्यावर जास्त संचिकासंच बसतात आणि प्रत्येक मुखपृष्ठ लहान होते. चार असताना खालचे नाव बहुधा कापले जाते.</string>
     <string name="settings_folder_count">संचिकासंचांखाली घटकांची संख्या</string>
+    <string name="settings_hand">मुख्य कार्यांची जागा</string>
+    <string name="settings_right">उजवीकडे</string>
+    <string name="settings_left">डावीकडे</string>
+    <string name="settings_list_path">संचिका यादी: संचिकासंचाचा मार्गही प्रत करा</string>
     <string name="settings_folder_count_desc">प्रत्येक मुखपृष्ठाखाली, संचिकासंचात किती प्रतिमा आहेत. बंद केल्यावर ओळ आखूड होते, आणि वरचा शीर्षकभाग तितकाच वाढतो.</string>
     <string name="settings_fit_grow">लहान प्रतिमा मोठ्या करा</string>
     <string name="settings_fit_grow_desc">बंद असल्यास पडद्यापेक्षा लहान प्रतिमा तिच्या खऱ्या आकारात दिसते. चालू असल्यास पडदा भरेपर्यंत वाढते.</string>

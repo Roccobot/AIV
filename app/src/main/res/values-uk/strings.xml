@@ -44,6 +44,10 @@
     <string name="settings_folder_columns">Стовпці в сітці тек</string>
     <string name="settings_folder_columns_desc">Що більше стовпців, то більше тек вміщується на екрані і то менша кожна обкладинка. За чотирьох ім\'я під нею зазвичай обрізається.</string>
     <string name="settings_folder_count">Кількість елементів під теками</string>
+    <string name="settings_hand">Розташування основних функцій</string>
+    <string name="settings_right">Праворуч</string>
+    <string name="settings_left">Ліворуч</string>
+    <string name="settings_list_path">Список файлів: копіювати шлях теки</string>
     <string name="settings_folder_count_desc">Під кожною обкладинкою, скільки зображень у теці. Якщо вимкнути, рядок стає коротшим, а заголовок угорі виростає на стільки ж.</string>
     <string name="settings_fit_grow">Збільшувати малі зображення</string>
     <string name="settings_fit_grow_desc">Вимкнено: зображення, менше за екран, показується в справжньому розмірі. Увімкнено: воно росте, доки не заповнить екран.</string>
