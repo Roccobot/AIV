@@ -419,18 +419,34 @@ fun FolderScreen(
              * **esattamente** al fondo su cui sta.
              */
             val ground = MaterialTheme.colorScheme.background
+            /*
+             * ⚠️⚠️ **UNA CURVA E NON QUATTRO FERMATE, dalla 0.92** (richiesta dell'utente,
+             * due volte: *più alta e graduale, in modo che il FAB ricada sempre in un'area
+             * neutra*, e poi *ancora più sfumata e graduale*). Due fermate sole dànno una
+             * rampa **dritta**, e l'occhio la legge come un bordo sfocato invece che come
+             * una dissolvenza: il difetto sta nei due spigoli, dove la salita comincia e
+             * dove finisce. `smoothstep` li toglie tutti e due, perché parte con pendenza
+             * zero e ci arriva con pendenza zero.
+             * ⚠️ **Si calcola invece di essere scritta**: le fermate a mano sarebbero
+             * dodici numeri da riscrivere ogni volta che si cambia l'altezza della fascia,
+             * e nessuno lo farebbe. Così [GRADIENT_TIMES] è l'unica manopola.
+             * ⚠️ Il colore è `background` e non `surface`: è quello che la `Surface` del
+             * tema mette dietro a tutta l'app (vedi `AivTheme`), quindi la sfumatura arriva
+             * **esattamente** al fondo su cui sta.
+             */
+            val ramp = remember(ground) {
+                Array(GRADIENT_STOPS + 1) { step ->
+                    val at = step / GRADIENT_STOPS.toFloat()
+                    val t = (at / SWALLOW).coerceAtMost(1f)
+                    at to ground.copy(alpha = t * t * (3f - 2f * t))
+                }
+            }
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .height(FAB_REACH)
-                    .background(
-                        Brush.verticalGradient(
-                            0f to Color.Transparent,
-                            SWALLOW to ground,
-                            1f to ground
-                        )
-                    )
+                    .height(GRADIENT_REACH)
+                    .background(Brush.verticalGradient(colorStops = ramp))
             )
             Hub(
                 view = view,
@@ -582,21 +598,29 @@ private fun Folder.Bucket.isHidden(hidden: Set<String>): Boolean {
  * frontespizio in quel caso si misura ad altezza nulla e sparisce da sé, e chi scorre non
  * perde niente perché là non c'era niente da chiudere.
  *
- * ⚠️⚠️ **QUI C'ERA UN TETTO AL 50% DELLO SCHERMO, ED ERA IL DIFETTO DELLA 0.68**
- * (riscontro dell'utente: *a volte restano visibili sul bordo inferiore parti di cartelle
- * che dovrebbero essere fuori dalla vista*). Il tetto rompeva l'identità su cui poggia tutto
- * questo conto: il frontespizio deve prendere **esattamente** quello che la tabella gli
- * lascia, o lo spazio che gli viene negato lo riceve la griglia, che lo riempie con un
- * pezzo di riga in più. Misurato prima di toccare il codice, su uno schermo da 360dp: a 3
- * colonne il tetto lasciava in vista **52dp** di una riga su 800dp d'altezza, **77** su 850
- * e **112** su 920, e a 4 colonne **35** su 920. A 2 colonne, che è il valore di fabbrica,
- * il conto tornava: è la ragione per cui il difetto si vedeva *a volte*.
- * ⚠️ **La nota vecchia diceva che sbagliava 'dalla parte giusta'**, cioè mostrando più righe
- * del previsto invece che meno. Era vero e non era il punto: l'utente non ha chiesto almeno
- * N righe, ha chiesto N righe.
- * ⚠️ Resta il solo `coerceAtLeast(0f)`, che serve **in orizzontale**: là il quadrato di
- * copertine chiede più dello schermo, il frontespizio va a zero e la griglia scorre. Lì i
- * pezzi di riga sono corretti, perché si sta scorrendo.
+ * ⚠️⚠️ **IL TETTO È TORNATO NELLA 0.92, ED È LA REGOLA DEL 60/40** (istruzione dell'utente,
+ * 2026-08-31: *applica semplicemente la regola che si avvicina maggiormente al vecchio
+ * vincolo del 60% della schermata dedicata alla griglia e il 40% superiore dedicato
+ * all'intestazione*). Non è il tetto di prima rimesso: è **[HEADER_SHARE]**, cioè la stessa
+ * costante che la vista a elenco non ha mai smesso di usare, quindi adesso la regola è
+ * **una sola** per tutte e due le viste invece di due numeri che si somigliano.
+ * ⚠️⚠️ **Perché la stessa cosa era un DIFETTO nella `0.68` e adesso è la richiesta**, che è
+ * l'unica parte che conta per chi legge fra due anni: allora l'utente aveva chiesto N righe
+ * e i pezzi di riga in fondo erano una violazione (*a volte restano visibili sul bordo
+ * inferiore parti di cartelle che dovrebbero essere fuori dalla vista*); adesso chiede
+ * esplicitamente di *far intuire la presenza di eventuali cartelle sottostanti*, quindi
+ * quel pezzo di riga è diventato il desiderato. È cambiata la richiesta, non il codice.
+ * ⚠️⚠️ **QUANTO MORDE, MISURATO SUGLI SCREENSHOT DELL'UTENTE, e la risposta è POCO**: sul
+ * suo telefono l'area utile (dentro le barre di sistema, che è quella che arriva qui) vale
+ * circa **807dp**, e il frontespizio libero ne prende **335 a 3 colonne (41%)** e **206 a 2
+ * (26%)**. Il tetto vale 323, quindi a 3 colonne taglia una quindicina di dp e a 2 non
+ * tocca niente. **Va detto invece di lasciarlo scoprire**: chi si aspetta che questa riga
+ * cambi la faccia della schermata resterà deluso, perché la proporzione del suo telefono
+ * era già quella. Il tetto serve dove il conto la supera davvero: schermi più alti, righe
+ * più basse, o un giorno un numero di colonne più grande.
+ * ⚠️ Resta il pavimento a zero, che serve **in orizzontale**: là il quadrato di copertine
+ * chiede più dello schermo, il frontespizio va a zero e la griglia scorre. Lì i pezzi di
+ * riga sono corretti, perché si sta scorrendo.
  *
  * ⚠️⚠️ **IL TASTINO ENTRA NEL CONTO DALLA 0.77, e prima non c'era** (riscontro dell'utente:
  * *la vista iniziale va ripensata perché il tastino copre*). Il conto teneva le righe dentro
@@ -623,7 +647,7 @@ private fun coverHeader(
     val rowPx = cellPx + CARD_GAP.toPx() * (if (counted) 2 else 1) + captionPx
     val gridPx = rowPx * lines + gapPx * (lines - 1)
     val freePx = (height - SCREEN_PAD - BELOW_FAB - HEADER_GAP).toPx() - gridPx
-    freePx.coerceAtLeast(0f).toDp()
+    freePx.coerceIn(0f, height.toPx() * HEADER_SHARE).toDp()
 }
 
 /**
@@ -1217,15 +1241,19 @@ private val FOLDER_CORNER = 12.dp
 private val ROW_COVER = 48.dp
 
 /**
- * Quanta parte dello schermo tiene il frontespizio da aperto **nella vista a elenco**.
+ * Quanta parte dello schermo tiene il frontespizio da aperto: **il 60/40**.
  *
  * ⚠️ Il numero viene dalla richiesta dell'utente letta al contrario: le cartelle nel
  * **60% basso**, quindi qui il 40% alto. Non è una proporzione estetica ma una misura di
  * portata del pollice, e ritoccarla verso il basso rimette le cartelle fuori tiro.
- * ⚠️⚠️ **Dalla `0.60` non vale più per le copertine**, che si fanno il conto da sé in
- * [coverHeader]: là la frazione fissa dava il numero di righe sbagliato appena si
- * cambiavano le colonne. Qui resta perché un elenco non ha colonne, quindi non ha un
- * quadrato da far quadrare.
+ * ⚠️⚠️ **Dalla `0.60` alla `0.91` è valsa per il solo ELENCO**, perché le copertine si
+ * facevano il conto da sé in [coverHeader] e una frazione fissa dava il numero di righe
+ * sbagliato appena si cambiavano le colonne. Dalla `0.92` vale di nuovo per tutte e due,
+ * ma in due modi diversi e non è un'incoerenza: nell'elenco è l'**altezza** del
+ * frontespizio, in griglia è il suo **tetto**. Cioè la griglia si prende almeno il 60%
+ * sempre, e di più quando le sue righe ci stanno in meno.
+ * ⚠️ **Un numero solo per la stessa regola**: prima di questo, cambiare il 60/40 voleva
+ * dire ricordarsi che esisteva anche altrove, ed è il genere di cosa che nessuno ricorda.
  */
 private const val HEADER_SHARE = 0.4f
 
@@ -1279,14 +1307,48 @@ private const val NAME_LINES = 2
 private const val NARROW_COLUMNS = 4
 
 /**
+ * Quante volte il tastino è alta la fascia dipinta.
+ *
+ * ⚠️⚠️ **DIPINGERE PIÙ IN ALTO NON COSTA ALTEZZA ALLA GRIGLIA, ed è tutto il senso di
+ * questa costante**: lo spazio **riservato** resta [BELOW_FAB], che entra nel conto del
+ * frontespizio; questa dice soltanto fin dove arriva il colore. Tenerle separate è la
+ * ragione per cui la sfumatura si può alzare quanto serve senza che la schermata perda una
+ * riga di cartelle, che è il difetto che l'utente ha visto (*mi pare che tutto si sia
+ * alzato troppo*).
+ */
+private const val GRADIENT_TIMES = 3f
+
+/**
+ * In quanti gradini si disegna la curva della sfumatura.
+ *
+ * ⚠️ Dodici, cioè abbastanza perché la curva non si veda a scalini e pochi perché la lista
+ * resti una cosa che si legge. Sotto i sei, su una fascia alta come questa, i gradini si
+ * distinguono a occhio nudo sui fondi chiari.
+ */
+private const val GRADIENT_STOPS = 12
+
+/** Quanto è alta la fascia dipinta sopra il tastino. */
+private val GRADIENT_REACH = FAB_REACH * GRADIENT_TIMES
+
+/**
  * A che punto della sua altezza la sfumatura sopra il tastino ha inghiottito tutto.
  *
- * ⚠️ 0,55 cioè **abbastanza velocemente**, come chiesto: sotto la metà della fascia il fondo
- * è pieno, e quello che scorre là sotto sparisce prima di arrivare al bordo dello schermo
- * invece di essere tagliato di netto. Più alto (0,9) si vedrebbe una riga di cartelle
- * mezza sbiadita, che è il difetto che la sfumatura deve togliere.
+ * ⚠️⚠️ **NON È PIÙ UN NUMERO SCELTO A OCCHIO (era 0,55): si RICAVA**, ed è così che la
+ * promessa 'il tastino cade sempre su un fondo neutro' diventa vera per costruzione invece
+ * che per fortuna. Il bordo superiore del tastino sta a [FAB_REACH] dal fondo, cioè a
+ * questa frazione della fascia dipinta: da lì in giù il colore è pieno, quindi sotto il
+ * tastino non passa mai una fotografia. Cambiando [GRADIENT_TIMES] il conto si rifà da sé.
+ * ⚠️ Il rovescio da conoscere: alzando ancora la fascia, la parte piena resta la stessa e
+ * cresce solo la dissolvenza sopra, che è esattamente ciò che 'più graduale' vuol dire.
+ * ⚠️⚠️ **L'utente ha concesso di NON arrivare al pieno** (*può andare anche il 20%: si
+ * intuisce comunque bene che è una cosa che va scomparendo*), e la concessione **non è
+ * stata usata**: con la fascia a tre volte il tastino la rampa ha spazio per arrivare al
+ * pieno restando dolce, e il pieno serve a tenere la promessa dell'altra richiesta, cioè
+ * che sotto il tastino non passi mai una fotografia. Sta scritto perché è una scelta e non
+ * una dimenticanza: chi un giorno volesse una fascia più corta sa che può spendere quel
+ * permesso invece di irripidire la curva.
  */
-private const val SWALLOW = 0.55f
+private const val SWALLOW = 1f / GRADIENT_TIMES
 
 /** L'icona del frontespizio: più grande di quella delle impostazioni, perché qui accoglie. */
 private val HEADER_ICON = 96.dp
