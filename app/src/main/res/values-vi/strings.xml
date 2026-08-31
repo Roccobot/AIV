@@ -199,4 +199,9 @@
     <string name="settings_reset_hints_desc">Phần giải thích lối tắt sẽ hiện lại, như khi mới cài đặt.</string>
     <string name="settings_reset_hints_do">Hiện lại</string>
     <string name="settings_reset_hints_done">Các gợi ý sẽ hiện lại</string>
+    <string name="bin_restore_all">Phục hồi tất cả</string>
+    <string name="bin_history">Lịch sử</string>
+    <string name="history_title">Lịch sử phục hồi</string>
+    <string name="history_none">Không có gì được phục hồi trong %1$d ngày qua.</string>
+    <string name="history_note">Lịch sử giữ %1$d ngày gần nhất, rồi tự xóa.</string>
 </resources>

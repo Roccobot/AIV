@@ -229,4 +229,9 @@
     <string name="settings_reset_hints_desc">As explicações dos atalhos voltam a aparecer, como numa instalação nova.</string>
     <string name="settings_reset_hints_do">Ver de novo</string>
     <string name="settings_reset_hints_done">Os avisos voltarão a aparecer</string>
+    <string name="bin_restore_all">Restaurar tudo</string>
+    <string name="bin_history">Histórico</string>
+    <string name="history_title">Histórico de restaurações</string>
+    <string name="history_none">Nada foi restaurado nos últimos %1$d dias.</string>
+    <string name="history_note">O histórico guarda os últimos %1$d dias e depois se esvazia sozinho.</string>
 </resources>

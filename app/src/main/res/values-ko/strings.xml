@@ -199,4 +199,9 @@
     <string name="settings_reset_hints_desc">단축 동작 설명이 새로 설치한 것처럼 다시 나타납니다.</string>
     <string name="settings_reset_hints_do">다시 보기</string>
     <string name="settings_reset_hints_done">안내가 다시 나타납니다</string>
+    <string name="bin_restore_all">모두 되돌리기</string>
+    <string name="bin_history">기록</string>
+    <string name="history_title">되돌린 기록</string>
+    <string name="history_none">지난 %1$d일 동안 되돌린 것이 없습니다.</string>
+    <string name="history_note">기록은 최근 %1$d일간 보관되고 그 후 자동으로 지워집니다.</string>
 </resources>

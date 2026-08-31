@@ -274,4 +274,9 @@
     <string name="settings_reset_hints_desc">تظهر شروح الاختصارات من جديد، كما في تثبيت جديد.</string>
     <string name="settings_reset_hints_do">إرجاع</string>
     <string name="settings_reset_hints_done">ستظهر التلميحات من جديد</string>
+    <string name="bin_restore_all">استعادة الكل</string>
+    <string name="bin_history">السجل</string>
+    <string name="history_title">سجل الاستعادة</string>
+    <string name="history_none">لم تتم استعادة أي شيء في آخر %1$d أيام.</string>
+    <string name="history_note">يحفظ السجل آخر %1$d أيام ثم يُفرغ نفسه.</string>
 </resources>

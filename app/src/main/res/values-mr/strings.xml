@@ -214,4 +214,9 @@
     <string name="settings_reset_hints_desc">शॉर्टकटची स्पष्टीकरणे पुन्हा दिसतील, नव्या स्थापनेप्रमाणे.</string>
     <string name="settings_reset_hints_do">परत आणा</string>
     <string name="settings_reset_hints_done">सूचना पुन्हा दिसतील</string>
+    <string name="bin_restore_all">सर्व पुन्हा आणा</string>
+    <string name="bin_history">इतिहास</string>
+    <string name="history_title">पुन्हा आणण्याचा इतिहास</string>
+    <string name="history_none">गेल्या %1$d दिवसांत काहीही पुन्हा आणले गेले नाही.</string>
+    <string name="history_note">इतिहास शेवटचे %1$d दिवस ठेवतो, नंतर स्वतःच रिकामा होतो.</string>
 </resources>

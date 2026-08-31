@@ -107,6 +107,15 @@ sealed interface Screen {
      * copia qui vorrebbe dire ricostruire la schermata a ogni eliminazione.
      */
     data object Bin : Screen
+
+    /**
+     * La cronologia dei ripristini, dalla 0.76.
+     *
+     * ⚠️ **Si apre SOLO dal cestino e ci torna**, quindi non ha bisogno di sapere da dove
+     * viene: la destinazione di Indietro è una sola, e scriverla qui sarebbe un dato che può
+     * solo assumere un valore.
+     */
+    data object History : Screen
 }
 
 /**
@@ -619,6 +628,24 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         return if (items.isEmpty()) whole else whole.atSequenceStart()
     }
 
+    /**
+     * Apre la cronologia dei ripristini, e ci si torna dal cestino.
+     *
+     * ⚠️⚠️ **NON AZZERA NIENTE, al contrario di [openBin]**, ed è la differenza che conta: si
+     * va e si torna, quindi la griglia del cestino deve ritrovarsi **pronta** invece di
+     * essere riletta dal disco. È la stessa scelta di `openSettings`, e la ragione per cui
+     * `leaveHistory` rimette in scena una schermata che non ha mai smesso di avere i suoi
+     * dati.
+     */
+    fun openHistory() {
+        screen = Screen.History
+    }
+
+    /** Indietro dalla cronologia: il cestino, che è il solo posto da cui si apre. */
+    fun leaveHistory() {
+        screen = Screen.Bin
+    }
+
     /** Si entra nella ricerca a mani vuote: il testo di ieri non serve a nessuno. */
     fun openSearch() {
         screen = Screen.Search
@@ -1049,8 +1076,14 @@ private fun AivApp(model: ViewerViewModel) {
                 onBack = { model.leaveGrid() },
                 onChanged = { model.reloadGrid() },
                 factFields = settings.factRows,
-                bin = true
+                bin = true,
+                onHistory = { model.openHistory() }
             )
+        }
+
+        Screen.History -> {
+            BackHandler { model.leaveHistory() }
+            HistoryScreen(onBack = { model.leaveHistory() })
         }
 
         Screen.Viewer -> {

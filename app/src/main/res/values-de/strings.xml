@@ -214,4 +214,9 @@
     <string name="settings_reset_hints_desc">Die Erklärungen der Kurzbefehle erscheinen wieder, wie bei einer frischen Installation.</string>
     <string name="settings_reset_hints_do">Zurückholen</string>
     <string name="settings_reset_hints_done">Die Hinweise erscheinen wieder</string>
+    <string name="bin_restore_all">Alles wiederherstellen</string>
+    <string name="bin_history">Verlauf</string>
+    <string name="history_title">Wiederherstellungsverlauf</string>
+    <string name="history_none">In den letzten %1$d Tagen wurde nichts wiederhergestellt.</string>
+    <string name="history_note">Der Verlauf behält die letzten %1$d Tage und leert sich dann selbst.</string>
 </resources>

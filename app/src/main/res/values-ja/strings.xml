@@ -199,4 +199,9 @@
     <string name="settings_reset_hints_desc">ショートカットの説明が、インストール直後と同じようにまた表示されます。</string>
     <string name="settings_reset_hints_do">もう一度表示</string>
     <string name="settings_reset_hints_done">ヒントがまた表示されます</string>
+    <string name="bin_restore_all">すべて元に戻す</string>
+    <string name="bin_history">履歴</string>
+    <string name="history_title">元に戻した履歴</string>
+    <string name="history_none">過去 %1$d 日間に元に戻したものはありません。</string>
+    <string name="history_note">履歴は直近 %1$d 日間を保持し、その後自動的に消えます。</string>
 </resources>

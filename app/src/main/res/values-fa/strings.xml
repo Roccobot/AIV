@@ -214,4 +214,9 @@
     <string name="settings_reset_hints_desc">توضیح میان‌برها دوباره نمایش داده می‌شود، مانند نصب تازه.</string>
     <string name="settings_reset_hints_do">بازگرداندن</string>
     <string name="settings_reset_hints_done">راهنماها دوباره نمایش داده می‌شوند</string>
+    <string name="bin_restore_all">بازگرداندن همه</string>
+    <string name="bin_history">تاریخچه</string>
+    <string name="history_title">تاریخچه بازگردانی</string>
+    <string name="history_none">در %1$d روز گذشته چیزی بازگردانده نشده است.</string>
+    <string name="history_note">تاریخچه %1$d روز آخر را نگه می‌دارد و سپس خودش خالی می‌شود.</string>
 </resources>

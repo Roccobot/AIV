@@ -45,6 +45,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
@@ -164,7 +165,15 @@ fun GridScreen(
      * offrire 'svuota il cestino'. Tutto il resto, miniature comprese, è la griglia di
      * sempre: era la richiesta, cioè che il cestino si navighi come una cartella qualunque.
      */
-    bin: Boolean = false
+    bin: Boolean = false,
+    /**
+     * Apre la cronologia dei ripristini. Vale **solo** quando [bin] è vero.
+     *
+     * ⚠️ Il valore di serie non fa niente, e va bene: fuori dal cestino la voce che lo
+     * chiama non esiste, e un parametro obbligatorio costringerebbe le altre due griglie
+     * (cartella e ricerca) a passare una funzione che non useranno mai.
+     */
+    onHistory: () -> Unit = {}
 ) {
     val state = rememberLazyGridState()
     val context = LocalContext.current
@@ -196,6 +205,17 @@ fun GridScreen(
     /** Se si sta chiedendo di svuotare il cestino. Vale solo quando [bin] è vero. */
     var emptying by remember { mutableStateOf(false) }
     val picking = chosen.isNotEmpty()
+
+    /**
+     * Se c'è qualcosa qui dentro.
+     *
+     * ⚠️ Serve alle due voci del cestino che agiscono su **tutto** (svuota e ripristina
+     * tutto): su un cestino vuoto non hanno niente da fare, e offrirle vorrebbe dire una
+     * conferma o un avviso che dice '0 fatti'. ⚠️ **Vale anche per la scorciatoia del tocco
+     * lungo**, o il menu direbbe di no e il tocco lungo di sì. Con la lista vuota resta la
+     * vibrazione e non succede niente, che è quello che 'tutte' fa già su una cartella vuota.
+     */
+    val filled = !items.isNullOrEmpty()
 
     // ⚠️ Indietro esce dalla SELEZIONE prima di uscire dalla cartella: chi ha scelto
     // trenta foto e tocca Indietro per sbaglio non deve ritrovarsi due schermate
@@ -283,9 +303,13 @@ fun GridScreen(
      * ⚠️⚠️ **IL TOCCO LUNGO È LA SCORCIATOIA DI QUELLO CHE IL TOCCO BREVE OFFRE**, ed è la
      * regola che decide questo `if` (richiesta dell'utente, 2026-08-31: *solo nel cestino,
      * il tocco lungo lo svuota*). Nel cestino **senza niente di scelto** il tocco breve apre
-     * un menu con una voce sola, 'Svuota il cestino': la scorciatoia è quella. Appena c'è
-     * una selezione, in cestino o in cartella, il tocco breve apre le sei operazioni e la
-     * scorciatoia torna a essere 'tutte'.
+     * il menu del cestino intero, la cui voce grossa è 'Svuota il cestino': la scorciatoia è
+     * quella. Appena c'è una selezione, in cestino o in cartella, il tocco breve apre le sei
+     * operazioni e la scorciatoia torna a essere 'tutte'.
+     * ⚠️ **La scorciatoia NON è cambiata quando il menu è passato a tre voci, dalla 0.76**, e
+     * la ragione è la regola qui sopra: le altre due ('Ripristina tutto' e 'Cronologia') sono
+     * raggiungibili in un tocco e non hanno bisogno di una scorciatoia, mentre svuotare resta
+     * la cosa che un cestino fa.
      * ⚠️ **Il cestino non si svuota MAI con una selezione in corso**, e non è timidezza: chi
      * ha scelto tre foto da ripristinare si aspetta che il gesto agisca su quelle tre, e
      * cancellare invece tutto il cestino sarebbe la sorpresa peggiore che l'app possa fare.
@@ -297,7 +321,7 @@ fun GridScreen(
     val shortcut: () -> Unit = if (bin && !picking) {
         {
             haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-            emptying = true
+            if (filled) emptying = true
         }
     } else takeAll
 
@@ -778,20 +802,52 @@ fun GridScreen(
                             onAll = { shortcut(); hintDone() }
                         )
                         PickMenu(open = menuOpen, onDismiss = { menuOpen = false }) {
-                            // ⚠️ Nel cestino senza niente scelto il tastino non porta le sei
-                            // operazioni, che non avrebbero su cosa agire, ma la sola voce
-                            // che riguarda il cestino intero.
+                            /*
+                             * ⚠️ Nel cestino senza niente scelto il tastino non porta le sei
+                             * operazioni, che non avrebbero su cosa agire, ma le tre voci che
+                             * riguardano il cestino **intero**.
+                             * ⚠️⚠️ **L'ORDINE NON È CASUALE**: prima quella che rimette a
+                             * posto, poi quella che racconta, ultima quella che cancella per
+                             * sempre. Chi tocca al buio la prima voce di un menu non deve
+                             * poterci svuotare il cestino, e 'Ripristina tutto' come prima
+                             * voce è la richiesta dell'utente.
+                             * ⚠️ **Le due azioni si spengono sul cestino vuoto**, la
+                             * cronologia no: quelle non avrebbero niente su cui agire e
+                             * direbbero '0 fatti', mentre la cronologia ha senso proprio
+                             * quando il cestino è vuoto perché si è ripristinato tutto.
+                             */
                             if (!picking) {
-                                DropdownMenuItem(
-                                    modifier = Modifier.padding(vertical = PICK_EDGE),
-                                    text = { Text(stringResource(R.string.bin_empty)) },
-                                    leadingIcon = { Icon(Icons.Default.DeleteForever, null) },
-                                    colors = MenuDefaults.itemColors(
-                                        textColor = MaterialTheme.colorScheme.error,
-                                        leadingIconColor = MaterialTheme.colorScheme.error
-                                    ),
-                                    onClick = { menuOpen = false; emptying = true }
-                                )
+                                Column(modifier = Modifier.padding(vertical = PICK_EDGE)) {
+                                    DropdownMenuItem(
+                                        enabled = filled,
+                                        text = { Text(stringResource(R.string.bin_restore_all)) },
+                                        leadingIcon = {
+                                            Icon(Icons.Default.SettingsBackupRestore, null)
+                                        },
+                                        // ⚠️ Nessuna conferma, come per il ripristino di una
+                                        // foto sola: rimette le cose come stavano, ed è
+                                        // reversibile (si rielimina). Vedi [FileJob.Restore].
+                                        onClick = {
+                                            menuOpen = false
+                                            job = FileJob.Restore(items.orEmpty())
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.bin_history)) },
+                                        leadingIcon = { Icon(Icons.Default.History, null) },
+                                        onClick = { menuOpen = false; onHistory() }
+                                    )
+                                    DropdownMenuItem(
+                                        enabled = filled,
+                                        text = { Text(stringResource(R.string.bin_empty)) },
+                                        leadingIcon = { Icon(Icons.Default.DeleteForever, null) },
+                                        colors = MenuDefaults.itemColors(
+                                            textColor = MaterialTheme.colorScheme.error,
+                                            leadingIconColor = MaterialTheme.colorScheme.error
+                                        ),
+                                        onClick = { menuOpen = false; emptying = true }
+                                    )
+                                }
                             } else ActionPad(
                                 actions = listOf(
                                     // ⚠️⚠️ **LE PRIME TRE ICONE SONO DISEGNATE IN CASA,

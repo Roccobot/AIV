@@ -244,4 +244,9 @@
     <string name="settings_reset_hints_desc">Objaśnienia skrótów pojawią się ponownie, jak przy nowej instalacji.</string>
     <string name="settings_reset_hints_do">Przywróć</string>
     <string name="settings_reset_hints_done">Wskazówki pojawią się ponownie</string>
+    <string name="bin_restore_all">Przywróć wszystko</string>
+    <string name="bin_history">Historia</string>
+    <string name="history_title">Historia przywracania</string>
+    <string name="history_none">W ciągu ostatnich %1$d dni nic nie zostało przywrócone.</string>
+    <string name="history_note">Historia przechowuje ostatnie %1$d dni, potem czyści się sama.</string>
 </resources>

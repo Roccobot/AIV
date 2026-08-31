@@ -199,4 +199,9 @@
     <string name="settings_reset_hints_desc">快捷操作的说明会重新出现，就像刚安装时一样。</string>
     <string name="settings_reset_hints_do">重新显示</string>
     <string name="settings_reset_hints_done">提示会重新出现</string>
+    <string name="bin_restore_all">全部还原</string>
+    <string name="bin_history">历史</string>
+    <string name="history_title">还原历史</string>
+    <string name="history_none">最近 %1$d 天内没有还原任何内容。</string>
+    <string name="history_note">历史只保留最近 %1$d 天，之后自动清空。</string>
 </resources>

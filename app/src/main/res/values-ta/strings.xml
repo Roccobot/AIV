@@ -214,4 +214,9 @@
     <string name="settings_reset_hints_desc">குறுக்குவழி விளக்கங்கள் புதிய நிறுவலைப் போல மீண்டும் தோன்றும்.</string>
     <string name="settings_reset_hints_do">மீண்டும் காட்டு</string>
     <string name="settings_reset_hints_done">குறிப்புகள் மீண்டும் தோன்றும்</string>
+    <string name="bin_restore_all">அனைத்தையும் மீட்டெடு</string>
+    <string name="bin_history">வரலாறு</string>
+    <string name="history_title">மீட்டெடுப்பு வரலாறு</string>
+    <string name="history_none">கடந்த %1$d நாட்களில் எதுவும் மீட்டெடுக்கப்படவில்லை.</string>
+    <string name="history_note">வரலாறு கடைசி %1$d நாட்களை வைத்திருக்கும், பிறகு தானே காலியாகும்.</string>
 </resources>

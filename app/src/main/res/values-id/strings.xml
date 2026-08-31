@@ -199,4 +199,9 @@
     <string name="settings_reset_hints_desc">Penjelasan pintasan muncul lagi, seperti pada pemasangan baru.</string>
     <string name="settings_reset_hints_do">Tampilkan lagi</string>
     <string name="settings_reset_hints_done">Petunjuk akan muncul lagi</string>
+    <string name="bin_restore_all">Pulihkan semua</string>
+    <string name="bin_history">Riwayat</string>
+    <string name="history_title">Riwayat pemulihan</string>
+    <string name="history_none">Tidak ada yang dipulihkan dalam %1$d hari terakhir.</string>
+    <string name="history_note">Riwayat menyimpan %1$d hari terakhir, lalu mengosongkan dirinya.</string>
 </resources>

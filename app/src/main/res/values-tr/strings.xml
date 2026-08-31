@@ -214,4 +214,9 @@
     <string name="settings_reset_hints_desc">Kısayol açıklamaları yeni bir kurulumdaki gibi yeniden görünür.</string>
     <string name="settings_reset_hints_do">Geri getir</string>
     <string name="settings_reset_hints_done">İpuçları yeniden görünecek</string>
+    <string name="bin_restore_all">Tümünü geri al</string>
+    <string name="bin_history">Geçmiş</string>
+    <string name="history_title">Geri alma geçmişi</string>
+    <string name="history_none">Son %1$d günde hiçbir şey geri alınmadı.</string>
+    <string name="history_note">Geçmiş son %1$d günü tutar, sonra kendini boşaltır.</string>
 </resources>

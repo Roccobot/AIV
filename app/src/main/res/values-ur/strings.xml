@@ -214,4 +214,9 @@
     <string name="settings_reset_hints_desc">شارٹ کٹس کی وضاحتیں دوبارہ نظر آئیں گی، جیسے نئی تنصیب میں۔</string>
     <string name="settings_reset_hints_do">واپس لائیں</string>
     <string name="settings_reset_hints_done">اشارے دوبارہ نظر آئیں گے</string>
+    <string name="bin_restore_all">سب بحال کریں</string>
+    <string name="bin_history">ہسٹری</string>
+    <string name="history_title">بحالی کی ہسٹری</string>
+    <string name="history_none">پچھلے %1$d دنوں میں کچھ بحال نہیں کیا گیا۔</string>
+    <string name="history_note">ہسٹری پچھلے %1$d دن رکھتی ہے، پھر خود خالی ہو جاتی ہے۔</string>
 </resources>

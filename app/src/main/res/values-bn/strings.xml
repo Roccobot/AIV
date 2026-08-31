@@ -214,4 +214,9 @@
     <string name="settings_reset_hints_desc">শর্টকাটের ব্যাখ্যা আবার দেখা যাবে, নতুন ইনস্টলের মতো।</string>
     <string name="settings_reset_hints_do">ফিরিয়ে আনুন</string>
     <string name="settings_reset_hints_done">সংকেত আবার দেখা যাবে</string>
+    <string name="bin_restore_all">সব ফিরিয়ে আনুন</string>
+    <string name="bin_history">ইতিহাস</string>
+    <string name="history_title">ফিরিয়ে আনার ইতিহাস</string>
+    <string name="history_none">গত %1$d দিনে কিছুই ফিরিয়ে আনা হয়নি।</string>
+    <string name="history_note">ইতিহাস শেষ %1$d দিন রাখে, তারপর নিজেই খালি হয়ে যায়।</string>
 </resources>

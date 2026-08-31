@@ -758,6 +758,10 @@ private fun neat(value: Double): String =
  * ⚠️ **Nessun formato scritto a mano** (`dd/MM/yyyy`): il giorno prima del mese è vero in
  * italiano e falso in inglese, e con quindici lingue in arrivo un formato fisso sarebbe
  * sbagliato in tredici.
+ * ⚠️ **Non è più privata dalla 0.76**: la usa anche la cronologia dei ripristini, per il capo
+ * di ogni gruppo. Una seconda copia là dentro avrebbe voluto dire due formati da tenere
+ * d'accordo, ed è precisamente il tipo di divergenza che nessuno nota fino a che una delle
+ * due schermate scrive la data all'americana.
  */
-private fun moment(millis: Long): String =
+internal fun moment(millis: Long): String =
     DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(millis))

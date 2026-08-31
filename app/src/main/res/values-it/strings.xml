@@ -291,4 +291,9 @@
     <string name="settings_reset_hints_desc">Le spiegazioni delle scorciatoie tornano a comparire, come alla prima installazione.</string>
     <string name="settings_reset_hints_do">Ripristina</string>
     <string name="settings_reset_hints_done">Gli avvisi torneranno a comparire</string>
+    <string name="bin_restore_all">Ripristina tutto</string>
+    <string name="bin_history">Cronologia</string>
+    <string name="history_title">Cronologia dei ripristini</string>
+    <string name="history_none">Non è stato ripristinato niente negli ultimi %1$d giorni.</string>
+    <string name="history_note">La cronologia tiene gli ultimi %1$d giorni, poi si svuota da sé.</string>
 </resources>
