@@ -3,8 +3,8 @@
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
     <string name="app_short_name">AIV</string>
-    <string name="no_image">দেখানোর মতো কোনো ছবি নেই</string>
-    <string name="open_failed">এই ছবিটি খোলা যায়নি</string>
+    <string name="no_image">দেখানোর মতো কিছু নেই</string>
+    <string name="open_failed">এই ফাইলটি খোলা যায়নি</string>
     <string name="open_cleartext">এনক্রিপশনহীন ঠিকানা (http): Android এটি আটকায়, আর https-এও সাড়া মেলেনি</string>
     <string name="unsupported">এই বিন্যাস এখনো সমর্থিত নয়</string>
     <string name="too_large">ছবিটি এই ডিভাইসের জন্য অনেক বড়</string>
@@ -60,18 +60,18 @@
     <string name="settings_top">উপরে</string>
     <string name="settings_bottom">নিচে</string>
     <string name="settings_info_visible">শুরু থেকেই বার দেখা যাবে</string>
-    <string name="settings_reverse_order">ছবির ক্রমের দিক বদলান (তারিখ অনুযায়ী)</string>
-    <string name="settings_reverse_order_desc">বন্ধ থাকলে নতুন ছবি থেকে পুরনোর দিকে যান, ফোনের গ্যালারির মতো। চালু থাকলে সময়ের ক্রমে, পুরনো থেকে নতুনের দিকে।</string>
+    <string name="settings_reverse_order">ক্রমের দিক বদলান (তারিখ অনুযায়ী)</string>
+    <string name="settings_reverse_order_desc">বন্ধ থাকলে নতুন থেকে পুরনোর দিকে যান, ফোনের গ্যালারির মতো। চালু থাকলে সময়ের ক্রমে, পুরনো থেকে নতুনের দিকে।</string>
     <string name="settings_clipboard">চালু করার সময় ক্লিপবোর্ড পড়ুন</string>
     <string name="settings_clipboard_desc">আইকন থেকে অ্যাপ খুললে, ক্লিপবোর্ডে থাকা কোনো ঠিকানা সরাসরি কোনো ছবির দিকে নির্দেশ করলে সেই ছবিটি খোলে। কোনো অ্যাপ ক্লিপবোর্ড পড়লেই Android একটি বিজ্ঞপ্তি দেখায়, তাই এটি বন্ধ রাখা মানে সেটি কখনো না দেখা।</string>
     <string name="settings_start_folder">চালু করার সময় একটি ফোল্ডার খুলুন</string>
-    <string name="settings_start_folder_desc">অ্যাপ খুললেই বাছাই করা ফোল্ডারের ছবিগুলো সরাসরি দেখা যায়, ফোল্ডারের তালিকার বদলে।</string>
+    <string name="settings_start_folder_desc">অ্যাপ খুললেই বাছাই করা ফোল্ডারে যা আছে তা সরাসরি দেখা যায়, ফোল্ডারের তালিকার বদলে।</string>
     <string name="settings_start_folder_none">কোনো ফোল্ডার বাছাই করা হয়নি</string>
     <string name="settings_start_folder_pick">বাছুন</string>
     <string name="folders_title">ফোল্ডার</string>
     <string name="folders_permission">ফোল্ডারের তালিকা করতে সব ফাইলে প্রবেশাধিকার দরকার। এটি সেই একই অনুমতি যা একটি ফোল্ডার দেখতে দেয়, আর সিস্টেমের একটি পাতা থেকে দেওয়া হয়।</string>
     <string name="folders_grant">প্রবেশাধিকার দিন</string>
-    <string name="folders_none">কোনো ফোল্ডারে ছবি নেই।</string>
+    <string name="folders_none">কোনো ফোল্ডারে দেখানোর মতো কিছু নেই।</string>
     <string name="hub_open">আরও</string>
     <string name="hub_view_list">তালিকা দৃশ্য</string>
     <string name="hub_view_grid">গ্রিড দৃশ্য</string>
@@ -81,20 +81,20 @@
     <string name="hub_settings">সেটিংস</string>
     <string name="url_open">খুলুন</string>
     <string name="url_recent">আগে খোলা হয়েছে</string>
-    <string name="folder_empty">এই ফোল্ডারে আর কোনো ছবি নেই।</string>
+    <string name="folder_empty">এই ফোল্ডারে আর কিছু নেই।</string>
     <string name="cancel">বাতিল</string>
     <string name="hide_folder_title">%1$s লুকাবেন?</string>
-    <string name="hide_folder_desc">এটি আর দেখার ফোল্ডারগুলোর মধ্যে দেখা যাবে না। কিছুই মুছে যায় না: ছবিগুলো যেখানে আছে সেখানেই থাকে, আর সেটিংস থেকে ফোল্ডারটি ফিরিয়ে আনা যায়।</string>
+    <string name="hide_folder_desc">এটি আর দেখার ফোল্ডারগুলোর মধ্যে দেখা যাবে না। কিছুই মুছে যায় না: ফাইলগুলো যেখানে আছে সেখানেই থাকে, আর সেটিংস থেকে ফোল্ডারটি ফিরিয়ে আনা যায়।</string>
     <string name="hide_folder_do">লুকান</string>
     <string name="settings_hidden">লুকানো ফোল্ডার</string>
     <string name="settings_hidden_desc">কোনো ফোল্ডার চেপে ধরে রাখলে সেটি লুকিয়ে যায়। এগুলো আর তালিকায় দেখা যায় না, কিন্তু ফোনে অটুট থাকে।</string>
     <string name="settings_hidden_show">দেখান</string>
     <string name="search_hint">ফাইলের নামে খুঁজুন</string>
     <string name="search_clear">মুছুন</string>
-    <string name="search_none">কোনো ছবির নামে \'%1$s\' নেই।</string>
+    <string name="search_none">কোনো ফাইলের নামে \'%1$s\' নেই।</string>
     <string name="identity_repo">GitHub-এ AIV-এর ভাণ্ডার খুলুন</string>
-    <string name="grid_item">%2$d-এর মধ্যে %1$d নম্বর ছবি</string>
-    <string name="grid_item_last">%2$d-এর মধ্যে %1$d নম্বর ছবি, শেষে যেটি দেখেছেন</string>
+    <string name="grid_item">%2$d-এর মধ্যে %1$d নম্বর</string>
+    <string name="grid_item_last">%2$d-এর মধ্যে %1$d নম্বর, শেষে যেটি দেখেছেন</string>
     <string name="pick_leave">বাছাই থেকে বেরোন</string>
     <string name="pick_all">সব বাছুন</string>
     <string name="pick_info">তথ্য</string>
@@ -153,20 +153,20 @@
     <string name="dest_move_here">%1$s-এ সরান</string>
     <string name="menu_copy_here">অনুলিপি</string>
     <plurals name="copy_done">
-        <item quantity="one">%1$d ছবি অনুলিপি হয়েছে</item>
-        <item quantity="other">%1$d ছবি অনুলিপি হয়েছে</item>
+        <item quantity="one">%1$d ফাইল অনুলিপি হয়েছে</item>
+        <item quantity="other">%1$d ফাইল অনুলিপি হয়েছে</item>
     </plurals>
     <plurals name="move_done">
-        <item quantity="one">%1$d ছবি সরানো হয়েছে</item>
-        <item quantity="other">%1$d ছবি সরানো হয়েছে</item>
+        <item quantity="one">%1$d ফাইল সরানো হয়েছে</item>
+        <item quantity="other">%1$d ফাইল সরানো হয়েছে</item>
     </plurals>
     <plurals name="rename_done">
-        <item quantity="one">%1$d ছবির নাম বদলেছে</item>
-        <item quantity="other">%1$d ছবির নাম বদলেছে</item>
+        <item quantity="one">%1$d ফাইলের নাম বদলেছে</item>
+        <item quantity="other">%1$d ফাইলের নাম বদলেছে</item>
     </plurals>
     <plurals name="delete_done">
-        <item quantity="one">%1$d ছবি মুছে গেছে</item>
-        <item quantity="other">%1$d ছবি মুছে গেছে</item>
+        <item quantity="one">%1$d ফাইল মুছে গেছে</item>
+        <item quantity="other">%1$d ফাইল মুছে গেছে</item>
     </plurals>
     <plurals name="op_failed">
         <item quantity="one">%1$d হয়নি</item>
@@ -174,12 +174,12 @@
     </plurals>
     <string name="rename_template">নাম</string>
     <string name="rename_start">প্রথম সংখ্যা</string>
-    <string name="rename_hint">হ্যাশের প্রতিটি সারি সংখ্যা হয়ে যায়, আর যতগুলো লিখবেন ততগুলো অঙ্ক হবে: ## দেয় 01, ### দেয় 001। এক্সটেনশনে কখনো হাত পড়ে না, আর ছবিগুলো বর্ণানুক্রমে নম্বর পায়।</string>
+    <string name="rename_hint">হ্যাশের প্রতিটি সারি সংখ্যা হয়ে যায়, আর যতগুলো লিখবেন ততগুলো অঙ্ক হবে: ## দেয় 01, ### দেয় 001। এক্সটেনশনে কখনো হাত পড়ে না, আর ফাইলগুলো বর্ণানুক্রমে নম্বর পায়।</string>
     <string name="rename_preview">পূর্বরূপ</string>
     <string name="delete_ask">মোছার কথা নিশ্চিত করবেন?</string>
     <plurals name="delete_desc">
-        <item quantity="one">আপনি %1$d ছবি চিরতরে মুছতে চলেছেন: এটি ফোন থেকে চিরকালের জন্য চলে যাবে।</item>
-        <item quantity="other">আপনি %1$d ছবি চিরতরে মুছতে চলেছেন: এগুলো ফোন থেকে চিরকালের জন্য চলে যাবে।</item>
+        <item quantity="one">আপনি %1$d ফাইল চিরতরে মুছতে চলেছেন: এটি ফোন থেকে চিরকালের জন্য চলে যাবে।</item>
+        <item quantity="other">আপনি %1$d ফাইল চিরতরে মুছতে চলেছেন: এগুলো ফোন থেকে চিরকালের জন্য চলে যাবে।</item>
     </plurals>
     <string name="bin_title">আবর্জনা</string>
     <string name="bin_none">আবর্জনা খালি।</string>
@@ -204,7 +204,7 @@
         <item quantity="other">%1$dটি ভিডিও</item>
     </plurals>
     <string name="settings_facts">একটি ফাইলের তথ্য</string>
-    <string name="settings_facts_desc">কোনো ছবির তথ্য খুললে কোন কোন উপাত্ত দেখবেন, আর কোন ক্রমে। নাম, পিক্সেল আর আকার সবসময় থাকে; ফাইলে যে উপাত্ত নেই সেটি কোনো সারিই পায় না।</string>
+    <string name="settings_facts_desc">কোনো ফাইলের তথ্য খুললে কোন কোন উপাত্ত দেখবেন, আর কোন ক্রমে। নাম, পিক্সেল আর আকার সবসময় থাকে; ফাইলে যে উপাত্ত নেই সেটি কোনো সারিই পায় না।</string>
     <string name="settings_facts_always">সবসময় দেখা যায়</string>
     <string name="settings_facts_up">উপরে সরান</string>
     <string name="settings_facts_down">নিচে সরান</string>
@@ -240,7 +240,7 @@
     <string name="text_normal">সাধারণ</string>
     <string name="text_large">বড়</string>
     <string name="tree_show_hidden">লুকানো ফাইল দেখান</string>
-    <string name="tree_pictures">শুধু ছবিসহ ফোল্ডার</string>
+    <string name="tree_pictures">শুধু ছবি বা ভিডিওসহ ফোল্ডার</string>
     <string name="columns_hint">শর্টকাট: প্রদর্শনের বিকল্পের জন্য ভাসমান বোতাম চেপে ধরুন।</string>
     <string name="settings_bin">আবর্জনা চালু করুন</string>
     <string name="settings_bin_desc">ফাইল মোছার সময় কিছু জিজ্ঞাসা করা হয় না, তবে আবর্জনা থেকে \'ফিরিয়ে আনুন\' দিয়ে কাজটি ফেরানো যায় (ভাসমান বোতাম → \'আবর্জনা\')। তাৎক্ষণিক মোছা পছন্দ করলে আবর্জনা পুরোপুরি বন্ধ করতে পারেন: তখন প্রতিবার মোছার আগে একটি নিশ্চিতকরণ দেখা যাবে।</string>

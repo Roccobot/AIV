@@ -3,8 +3,8 @@
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
     <string name="app_short_name">AIV</string>
-    <string name="no_image">Нет изображения для показа</string>
-    <string name="open_failed">Не удалось открыть это изображение</string>
+    <string name="no_image">Нечего показать</string>
+    <string name="open_failed">Не удалось открыть этот файл</string>
     <string name="open_cleartext">Адрес без шифрования (http): Android его блокирует, а по https он не отвечает</string>
     <string name="unsupported">Этот формат пока не поддерживается</string>
     <string name="too_large">Изображение слишком велико для этого устройства</string>
@@ -61,17 +61,17 @@
     <string name="settings_bottom">Снизу</string>
     <string name="settings_info_visible">Показывать строку сразу</string>
     <string name="settings_reverse_order">Изменить направление последовательности (по дате)</string>
-    <string name="settings_reverse_order_desc">Выключено: вы листаете от самого свежего снимка к более старым, как в галерее телефона. Включено: по времени, от самого старого к самому свежему.</string>
+    <string name="settings_reverse_order_desc">Выключено: вы листаете от самого свежего к более старым, как в галерее телефона. Включено: по времени, от самого старого к самому свежему.</string>
     <string name="settings_clipboard">Читать буфер обмена при запуске</string>
     <string name="settings_clipboard_desc">Если открыть приложение со значка, а в буфере обмена лежит адрес прямо на изображение, откроется это изображение. Android показывает уведомление каждый раз, когда приложение читает буфер: оставить выключенным значит никогда его не видеть.</string>
     <string name="settings_start_folder">Открывать папку при запуске</string>
-    <string name="settings_start_folder_desc">При открытии приложения сразу видны снимки выбранной папки, а не список папок.</string>
+    <string name="settings_start_folder_desc">При открытии приложения сразу видно содержимое выбранной папки, а не список папок.</string>
     <string name="settings_start_folder_none">Папка не выбрана</string>
     <string name="settings_start_folder_pick">Выбрать</string>
     <string name="folders_title">Папки</string>
     <string name="folders_permission">Для списка папок нужен доступ ко всем файлам. Это то же разрешение, которое позволяет листать папку, и оно даётся на системной странице.</string>
     <string name="folders_grant">Дать доступ</string>
-    <string name="folders_none">Ни в одной папке нет изображений.</string>
+    <string name="folders_none">Ни в одной папке нет ничего для показа.</string>
     <string name="hub_open">Ещё</string>
     <string name="hub_view_list">Вид списком</string>
     <string name="hub_view_grid">Вид сеткой</string>
@@ -81,20 +81,20 @@
     <string name="hub_settings">Настройки</string>
     <string name="url_open">Открыть</string>
     <string name="url_recent">Открывались раньше</string>
-    <string name="folder_empty">В этой папке больше нет изображений.</string>
+    <string name="folder_empty">В этой папке больше ничего нет.</string>
     <string name="cancel">Отмена</string>
     <string name="hide_folder_title">Скрыть %1$s?</string>
-    <string name="hide_folder_desc">Она перестанет появляться среди папок для просмотра. Ничего не удаляется: снимки остаются на месте, а папку можно вернуть из настроек.</string>
+    <string name="hide_folder_desc">Она перестанет появляться среди папок для просмотра. Ничего не удаляется: файлы остаются на месте, а папку можно вернуть из настроек.</string>
     <string name="hide_folder_do">Скрыть</string>
     <string name="settings_hidden">Скрытые папки</string>
     <string name="settings_hidden_desc">Долгое нажатие на папку скрывает её. Эти больше не появляются в списке, но на телефоне они нетронуты.</string>
     <string name="settings_hidden_show">Показать</string>
     <string name="search_hint">Искать в имени файла</string>
     <string name="search_clear">Очистить</string>
-    <string name="search_none">Ни у одного изображения нет \'%1$s\' в имени.</string>
+    <string name="search_none">Ни у одного файла нет \'%1$s\' в имени.</string>
     <string name="identity_repo">Открыть репозиторий AIV на GitHub</string>
-    <string name="grid_item">Изображение %1$d из %2$d</string>
-    <string name="grid_item_last">Изображение %1$d из %2$d, последнее просмотренное</string>
+    <string name="grid_item">Элемент %1$d из %2$d</string>
+    <string name="grid_item_last">Элемент %1$d из %2$d, последний просмотренный</string>
     <string name="pick_leave">Выйти из выбора</string>
     <string name="pick_all">Выбрать все</string>
     <string name="pick_info">Сведения</string>
@@ -159,28 +159,28 @@
     <string name="dest_move_here">Переместить в %1$s</string>
     <string name="menu_copy_here">Копировать</string>
     <plurals name="copy_done">
-        <item quantity="one">скопировано %1$d изображение</item>
-        <item quantity="few">скопировано %1$d изображения</item>
-        <item quantity="many">скопировано %1$d изображений</item>
-        <item quantity="other">скопировано %1$d изображений</item>
+        <item quantity="one">скопирован %1$d элемент</item>
+        <item quantity="few">скопировано %1$d элемента</item>
+        <item quantity="many">скопировано %1$d элементов</item>
+        <item quantity="other">скопировано %1$d элементов</item>
     </plurals>
     <plurals name="move_done">
-        <item quantity="one">перемещено %1$d изображение</item>
-        <item quantity="few">перемещено %1$d изображения</item>
-        <item quantity="many">перемещено %1$d изображений</item>
-        <item quantity="other">перемещено %1$d изображений</item>
+        <item quantity="one">перемещён %1$d элемент</item>
+        <item quantity="few">перемещено %1$d элемента</item>
+        <item quantity="many">перемещено %1$d элементов</item>
+        <item quantity="other">перемещено %1$d элементов</item>
     </plurals>
     <plurals name="rename_done">
-        <item quantity="one">переименовано %1$d изображение</item>
-        <item quantity="few">переименовано %1$d изображения</item>
-        <item quantity="many">переименовано %1$d изображений</item>
-        <item quantity="other">переименовано %1$d изображений</item>
+        <item quantity="one">переименован %1$d элемент</item>
+        <item quantity="few">переименовано %1$d элемента</item>
+        <item quantity="many">переименовано %1$d элементов</item>
+        <item quantity="other">переименовано %1$d элементов</item>
     </plurals>
     <plurals name="delete_done">
-        <item quantity="one">удалено %1$d изображение</item>
-        <item quantity="few">удалено %1$d изображения</item>
-        <item quantity="many">удалено %1$d изображений</item>
-        <item quantity="other">удалено %1$d изображений</item>
+        <item quantity="one">удалён %1$d элемент</item>
+        <item quantity="few">удалено %1$d элемента</item>
+        <item quantity="many">удалено %1$d элементов</item>
+        <item quantity="other">удалено %1$d элементов</item>
     </plurals>
     <plurals name="op_failed">
         <item quantity="one">с %1$d не вышло</item>
@@ -190,14 +190,14 @@
     </plurals>
     <string name="rename_template">Имя</string>
     <string name="rename_start">Первый номер</string>
-    <string name="rename_hint">Каждая цепочка решёток превращается в номер, и сколько их напишете, столько будет цифр: ## даёт 01, ### даёт 001. Расширение не трогается, а изображения нумеруются по алфавиту.</string>
+    <string name="rename_hint">Каждая цепочка решёток превращается в номер, и сколько их напишете, столько будет цифр: ## даёт 01, ### даёт 001. Расширение не трогается, а файлы нумеруются по алфавиту.</string>
     <string name="rename_preview">Предпросмотр</string>
     <string name="delete_ask">Подтвердить удаление?</string>
     <plurals name="delete_desc">
-        <item quantity="one">Вы окончательно удаляете %1$d изображение: оно исчезнет с телефона навсегда.</item>
-        <item quantity="few">Вы окончательно удаляете %1$d изображения: они исчезнут с телефона навсегда.</item>
-        <item quantity="many">Вы окончательно удаляете %1$d изображений: они исчезнут с телефона навсегда.</item>
-        <item quantity="other">Вы окончательно удаляете %1$d изображения: они исчезнут с телефона навсегда.</item>
+        <item quantity="one">Вы окончательно удаляете %1$d элемент: он исчезнет с телефона навсегда.</item>
+        <item quantity="few">Вы окончательно удаляете %1$d элемента: они исчезнут с телефона навсегда.</item>
+        <item quantity="many">Вы окончательно удаляете %1$d элементов: они исчезнут с телефона навсегда.</item>
+        <item quantity="other">Вы окончательно удаляете %1$d элемента: они исчезнут с телефона навсегда.</item>
     </plurals>
     <string name="bin_title">Корзина</string>
     <string name="bin_none">Корзина пуста.</string>
@@ -206,16 +206,16 @@
     <string name="bin_empty_ask">Действительно очистить корзину?</string>
     <string name="bin_empty_desc">Содержимое нельзя будет восстановить.</string>
     <plurals name="trash_done">
-        <item quantity="one">%1$d изображение в корзине</item>
-        <item quantity="few">%1$d изображения в корзине</item>
-        <item quantity="many">%1$d изображений в корзине</item>
-        <item quantity="other">%1$d изображений в корзине</item>
+        <item quantity="one">%1$d элемент в корзине</item>
+        <item quantity="few">%1$d элемента в корзине</item>
+        <item quantity="many">%1$d элементов в корзине</item>
+        <item quantity="other">%1$d элементов в корзине</item>
     </plurals>
     <plurals name="restore_done">
-        <item quantity="one">возвращено %1$d изображение</item>
-        <item quantity="few">возвращено %1$d изображения</item>
-        <item quantity="many">возвращено %1$d изображений</item>
-        <item quantity="other">возвращено %1$d изображений</item>
+        <item quantity="one">возвращён %1$d элемент</item>
+        <item quantity="few">возвращено %1$d элемента</item>
+        <item quantity="many">возвращено %1$d элементов</item>
+        <item quantity="other">возвращено %1$d элементов</item>
     </plurals>
     <plurals name="folders_count">
         <item quantity="one">%1$d изображение</item>
@@ -230,7 +230,7 @@
         <item quantity="other">%1$d видео</item>
     </plurals>
     <string name="settings_facts">Сведения об одном файле</string>
-    <string name="settings_facts_desc">Какие данные вы видите, открыв сведения о снимке, и в каком порядке. Имя, пиксели и размер есть всегда; данные, которых в файле нет, не занимают строки вовсе.</string>
+    <string name="settings_facts_desc">Какие данные вы видите, открыв сведения о файле, и в каком порядке. Имя, пиксели и размер есть всегда; данные, которых в файле нет, не занимают строки вовсе.</string>
     <string name="settings_facts_always">Всегда видно</string>
     <string name="settings_facts_up">Выше</string>
     <string name="settings_facts_down">Ниже</string>
@@ -270,7 +270,7 @@
     <string name="text_normal">Обычный</string>
     <string name="text_large">Крупный</string>
     <string name="tree_show_hidden">Показывать скрытые файлы</string>
-    <string name="tree_pictures">Только папки с изображениями</string>
+    <string name="tree_pictures">Только папки с изображениями или видео</string>
     <string name="columns_hint">Быстрый доступ: нажмите и удерживайте плавающую кнопку, чтобы открыть параметры вида.</string>
     <string name="settings_bin">Включить корзину</string>
     <string name="settings_bin_desc">Удаление файла ничего не спрашивает, но действие обратимо: \'Вернуть\' из корзины (плавающая кнопка → \'Корзина\'). Корзину можно совсем отключить, если вы предпочитаете мгновенное удаление: тогда перед каждым удалением появится подтверждение.</string>

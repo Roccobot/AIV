@@ -3,8 +3,8 @@
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
     <string name="app_short_name">AIV</string>
-    <string name="no_image">చూపడానికి చిత్రం లేదు</string>
-    <string name="open_failed">ఈ చిత్రాన్ని తెరవలేకపోయాం</string>
+    <string name="no_image">చూపడానికి ఏమీ లేదు</string>
+    <string name="open_failed">ఈ ఫైలును తెరవలేకపోయాం</string>
     <string name="open_cleartext">గుప్తీకరణ లేని చిరునామా (http): Android దీన్ని అడ్డుకుంటుంది, https లోనూ స్పందన లేదు</string>
     <string name="unsupported">ఈ రూపానికి ఇంకా మద్దతు లేదు</string>
     <string name="too_large">ఈ పరికరానికి చిత్రం చాలా పెద్దది</string>
@@ -60,18 +60,18 @@
     <string name="settings_top">పైన</string>
     <string name="settings_bottom">కింద</string>
     <string name="settings_info_visible">మొదటినుంచే పట్టీ కనబడాలి</string>
-    <string name="settings_reverse_order">చిత్రాల వరుస దిశను తిప్పు (తేదీ ప్రకారం)</string>
-    <string name="settings_reverse_order_desc">ఆపి ఉంచితే కొత్త చిత్రం నుంచి పాతవాటి వైపు చూస్తారు, ఫోను గ్యాలరీలా. వేసి ఉంచితే కాలక్రమంలో, పాతది నుంచి కొత్తది వైపు.</string>
+    <string name="settings_reverse_order">వరుస దిశను తిప్పు (తేదీ ప్రకారం)</string>
+    <string name="settings_reverse_order_desc">ఆపి ఉంచితే కొత్తదాని నుంచి పాతవాటి వైపు చూస్తారు, ఫోను గ్యాలరీలా. వేసి ఉంచితే కాలక్రమంలో, పాతది నుంచి కొత్తది వైపు.</string>
     <string name="settings_clipboard">మొదలైనప్పుడు క్లిప్‌బోర్డు చదువు</string>
     <string name="settings_clipboard_desc">యాప్‌ను దాని గుర్తునుంచి తెరిచినప్పుడు, క్లిప్‌బోర్డులో ఒక చిత్రాన్ని నేరుగా చూపే చిరునామా ఉంటే ఆ చిత్రం తెరుచుకుంటుంది. ఏ యాప్ క్లిప్‌బోర్డు చదివినా Android ఒక సూచన చూపుతుంది, అందుకే దీన్ని ఆపి ఉంచడం అంటే దాన్ని ఎప్పుడూ చూడకపోవడం.</string>
     <string name="settings_start_folder">మొదలైనప్పుడు ఒక సంచయం తెరువు</string>
-    <string name="settings_start_folder_desc">యాప్ తెరిచినప్పుడు సంచయాల జాబితాకు బదులు, ఎంచుకున్న సంచయపు చిత్రాలు నేరుగా కనబడతాయి.</string>
+    <string name="settings_start_folder_desc">యాప్ తెరిచినప్పుడు సంచయాల జాబితాకు బదులు, ఎంచుకున్న సంచయంలో ఉన్నవి నేరుగా కనబడతాయి.</string>
     <string name="settings_start_folder_none">సంచయం ఎంచుకోలేదు</string>
     <string name="settings_start_folder_pick">ఎంచుకో</string>
     <string name="folders_title">సంచయాలు</string>
     <string name="folders_permission">సంచయాలను జాబితా చేయడానికి అన్ని ఫైళ్ళపై అనుమతి కావాలి. ఒక సంచయాన్ని చూడనిచ్చే అదే అనుమతి ఇది, వ్యవస్థలోని ఒక పేజీ నుంచి ఇవ్వబడుతుంది.</string>
     <string name="folders_grant">అనుమతి ఇవ్వు</string>
-    <string name="folders_none">ఏ సంచయంలోనూ చిత్రాలు లేవు.</string>
+    <string name="folders_none">ఏ సంచయంలోనూ చూపడానికి ఏమీ లేదు.</string>
     <string name="hub_open">మరిన్ని</string>
     <string name="hub_view_list">జాబితా రూపం</string>
     <string name="hub_view_grid">గడి రూపం</string>
@@ -81,20 +81,20 @@
     <string name="hub_settings">అమరికలు</string>
     <string name="url_open">తెరువు</string>
     <string name="url_recent">ఇంతకుముందు తెరిచినవి</string>
-    <string name="folder_empty">ఈ సంచయంలో ఇకపై చిత్రాలు లేవు.</string>
+    <string name="folder_empty">ఈ సంచయంలో ఇకపై ఏమీ లేదు.</string>
     <string name="cancel">రద్దు</string>
     <string name="hide_folder_title">%1$sను దాచాలా?</string>
-    <string name="hide_folder_desc">చూసే సంచయాల మధ్య ఇది ఇకపై కనబడదు. ఏదీ తొలగించబడదు: చిత్రాలు అక్కడే ఉంటాయి, అమరికల నుంచి సంచయాన్ని తిరిగి తీసుకురావచ్చు.</string>
+    <string name="hide_folder_desc">చూసే సంచయాల మధ్య ఇది ఇకపై కనబడదు. ఏదీ తొలగించబడదు: ఫైళ్ళు అక్కడే ఉంటాయి, అమరికల నుంచి సంచయాన్ని తిరిగి తీసుకురావచ్చు.</string>
     <string name="hide_folder_do">దాచు</string>
     <string name="settings_hidden">దాచిన సంచయాలు</string>
     <string name="settings_hidden_desc">ఒక సంచయాన్ని నొక్కి పట్టుకుంటే దాచబడుతుంది. ఇవి ఇకపై జాబితాలో కనబడవు, కానీ ఫోనులో ముట్టుకోకుండా ఉంటాయి.</string>
     <string name="settings_hidden_show">చూపు</string>
     <string name="search_hint">ఫైలు పేరులో వెతుకు</string>
     <string name="search_clear">తుడిచేయి</string>
-    <string name="search_none">ఏ చిత్రం పేరులోనూ \'%1$s\' లేదు.</string>
+    <string name="search_none">ఏ ఫైలు పేరులోనూ \'%1$s\' లేదు.</string>
     <string name="identity_repo">GitHubలో AIV భాండాగారాన్ని తెరువు</string>
-    <string name="grid_item">%2$dలో %1$dవ చిత్రం</string>
-    <string name="grid_item_last">%2$dలో %1$dవ చిత్రం, మీరు చివరిగా చూసినది</string>
+    <string name="grid_item">%2$dలో %1$dవది</string>
+    <string name="grid_item_last">%2$dలో %1$dవది, మీరు చివరిగా చూసినది</string>
     <string name="pick_leave">ఎంపిక నుంచి బయటకు</string>
     <string name="pick_all">అన్నీ ఎంచుకో</string>
     <string name="pick_info">సమాచారం</string>
@@ -153,20 +153,20 @@
     <string name="dest_move_here">%1$sలోకి తరలించు</string>
     <string name="menu_copy_here">కాపీ</string>
     <plurals name="copy_done">
-        <item quantity="one">%1$d చిత్రం కాపీ అయింది</item>
-        <item quantity="other">%1$d చిత్రాలు కాపీ అయ్యాయి</item>
+        <item quantity="one">%1$d ఫైలు కాపీ అయింది</item>
+        <item quantity="other">%1$d ఫైళ్ళు కాపీ అయ్యాయి</item>
     </plurals>
     <plurals name="move_done">
-        <item quantity="one">%1$d చిత్రం తరలింది</item>
-        <item quantity="other">%1$d చిత్రాలు తరలాయి</item>
+        <item quantity="one">%1$d ఫైలు తరలింది</item>
+        <item quantity="other">%1$d ఫైళ్ళు తరలాయి</item>
     </plurals>
     <plurals name="rename_done">
-        <item quantity="one">%1$d చిత్రం పేరు మారింది</item>
-        <item quantity="other">%1$d చిత్రాల పేర్లు మారాయి</item>
+        <item quantity="one">%1$d ఫైలు పేరు మారింది</item>
+        <item quantity="other">%1$d ఫైళ్ళ పేర్లు మారాయి</item>
     </plurals>
     <plurals name="delete_done">
-        <item quantity="one">%1$d చిత్రం తొలగింది</item>
-        <item quantity="other">%1$d చిత్రాలు తొలగాయి</item>
+        <item quantity="one">%1$d ఫైలు తొలగింది</item>
+        <item quantity="other">%1$d ఫైళ్ళు తొలగాయి</item>
     </plurals>
     <plurals name="op_failed">
         <item quantity="one">%1$d జరగలేదు</item>
@@ -174,12 +174,12 @@
     </plurals>
     <string name="rename_template">పేరు</string>
     <string name="rename_start">మొదటి సంఖ్య</string>
-    <string name="rename_hint">గడి గుర్తుల ప్రతి వరుస సంఖ్యగా మారుతుంది, ఎన్ని రాస్తే అన్ని అంకెలు: ## ఇస్తుంది 01, ### ఇస్తుంది 001. పొడిగింపును ఎప్పుడూ ముట్టుకోరు, చిత్రాలకు అక్షర క్రమంలో సంఖ్యలు వస్తాయి.</string>
+    <string name="rename_hint">గడి గుర్తుల ప్రతి వరుస సంఖ్యగా మారుతుంది, ఎన్ని రాస్తే అన్ని అంకెలు: ## ఇస్తుంది 01, ### ఇస్తుంది 001. పొడిగింపును ఎప్పుడూ ముట్టుకోరు, ఫైళ్ళకు అక్షర క్రమంలో సంఖ్యలు వస్తాయి.</string>
     <string name="rename_preview">మునుజూపు</string>
     <string name="delete_ask">తొలగింపును నిర్ధారించాలా?</string>
     <plurals name="delete_desc">
-        <item quantity="one">%1$d చిత్రాన్ని శాశ్వతంగా తొలగించబోతున్నారు: అది ఫోను నుంచి ఎప్పటికీ పోతుంది.</item>
-        <item quantity="other">%1$d చిత్రాలను శాశ్వతంగా తొలగించబోతున్నారు: అవి ఫోను నుంచి ఎప్పటికీ పోతాయి.</item>
+        <item quantity="one">%1$d ఫైలును శాశ్వతంగా తొలగించబోతున్నారు: అది ఫోను నుంచి ఎప్పటికీ పోతుంది.</item>
+        <item quantity="other">%1$d ఫైళ్ళను శాశ్వతంగా తొలగించబోతున్నారు: అవి ఫోను నుంచి ఎప్పటికీ పోతాయి.</item>
     </plurals>
     <string name="bin_title">చెత్తబుట్ట</string>
     <string name="bin_none">చెత్తబుట్ట ఖాళీగా ఉంది.</string>
@@ -204,7 +204,7 @@
         <item quantity="other">%1$d వీడియోలు</item>
     </plurals>
     <string name="settings_facts">ఒక ఫైల్ సమాచారం</string>
-    <string name="settings_facts_desc">ఒక చిత్రం సమాచారం తెరిచినప్పుడు ఏ వివరాలు కనబడాలి, ఏ క్రమంలో. పేరు, పిక్సెళ్ళు, పరిమాణం ఎప్పుడూ ఉంటాయి; ఫైలులో లేని వివరానికి ఒక వరుస కూడా దక్కదు.</string>
+    <string name="settings_facts_desc">ఒక ఫైలు సమాచారం తెరిచినప్పుడు ఏ వివరాలు కనబడాలి, ఏ క్రమంలో. పేరు, పిక్సెళ్ళు, పరిమాణం ఎప్పుడూ ఉంటాయి; ఫైలులో లేని వివరానికి ఒక వరుస కూడా దక్కదు.</string>
     <string name="settings_facts_always">ఎప్పుడూ కనబడుతుంది</string>
     <string name="settings_facts_up">పైకి జరుపు</string>
     <string name="settings_facts_down">కిందికి జరుపు</string>
@@ -240,7 +240,7 @@
     <string name="text_normal">సాధారణం</string>
     <string name="text_large">పెద్దది</string>
     <string name="tree_show_hidden">దాచిన దస్త్రాలను చూపు</string>
-    <string name="tree_pictures">చిత్రాలున్న సంచయాలు మాత్రమే</string>
+    <string name="tree_pictures">చిత్రాలు లేదా వీడియోలున్న సంచయాలు మాత్రమే</string>
     <string name="columns_hint">సత్వరమార్గం: ప్రదర్శన ఎంపికల కోసం తేలియాడే బొత్తాన్ని నొక్కి పట్టుకోండి.</string>
     <string name="settings_bin">చెత్తబుట్టను ఆన్ చేయి</string>
     <string name="settings_bin_desc">ఫైల్ తొలగించేటప్పుడు ఏమీ అడగదు, కానీ చెత్తబుట్ట నుండి \'తిరిగి తెచ్చు\' ద్వారా దీన్ని వెనక్కి తీసుకోవచ్చు (ఫ్లోటింగ్ బటన్ → \'చెత్తబుట్ట\'). తక్షణ తొలగింపు ఇష్టమైతే చెత్తబుట్టను పూర్తిగా ఆఫ్ చేయవచ్చు: అప్పుడు ప్రతి తొలగింపుకు ముందు నిర్ధారణ కనిపిస్తుంది.</string>

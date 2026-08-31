@@ -3,8 +3,8 @@
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
     <string name="app_short_name">AIV</string>
-    <string name="no_image">보여줄 이미지가 없습니다</string>
-    <string name="open_failed">이 이미지를 열 수 없습니다</string>
+    <string name="no_image">보여줄 것이 없습니다</string>
+    <string name="open_failed">이 파일을 열 수 없습니다</string>
     <string name="open_cleartext">암호화되지 않은 주소(http)입니다. Android가 차단하며 https로도 응답하지 않습니다</string>
     <string name="unsupported">아직 지원하지 않는 형식입니다</string>
     <string name="too_large">이미지가 이 기기에는 너무 큽니다</string>
@@ -60,18 +60,18 @@
     <string name="settings_top">위쪽</string>
     <string name="settings_bottom">아래쪽</string>
     <string name="settings_info_visible">처음부터 상세 정보 표시</string>
-    <string name="settings_reverse_order">사진 순서 뒤집기 (날짜순)</string>
-    <string name="settings_reverse_order_desc">끄면 최신 사진에서 오래된 사진 쪽으로, 휴대전화 갤러리와 같은 방향으로 넘깁니다. 켜면 시간순으로, 가장 오래된 것에서 최신으로 넘깁니다.</string>
+    <string name="settings_reverse_order">순서 뒤집기 (날짜순)</string>
+    <string name="settings_reverse_order_desc">끄면 최신에서 오래된 것 쪽으로, 휴대전화 갤러리와 같은 방향으로 넘깁니다. 켜면 시간순으로, 가장 오래된 것에서 최신으로 넘깁니다.</string>
     <string name="settings_clipboard">시작할 때 클립보드 읽기</string>
     <string name="settings_clipboard_desc">아이콘으로 앱을 열 때, 클립보드의 주소가 이미지를 바로 가리키면 그 이미지를 엽니다. 앱이 클립보드를 읽을 때마다 안드로이드가 알림을 보여주므로, 꺼두면 그 알림을 볼 일이 없습니다.</string>
     <string name="settings_start_folder">시작할 때 폴더 열기</string>
-    <string name="settings_start_folder_desc">앱을 열면 폴더 목록 대신 선택한 폴더의 사진이 바로 보입니다.</string>
+    <string name="settings_start_folder_desc">앱을 열면 폴더 목록 대신 선택한 폴더의 내용이 바로 보입니다.</string>
     <string name="settings_start_folder_none">선택한 폴더 없음</string>
     <string name="settings_start_folder_pick">선택</string>
     <string name="folders_title">폴더</string>
     <string name="folders_permission">폴더 목록을 보려면 모든 파일 접근 권한이 필요합니다. 폴더를 넘겨보는 데 쓰는 것과 같은 권한이며, 시스템 페이지에서 허용합니다.</string>
     <string name="folders_grant">접근 허용</string>
-    <string name="folders_none">사진이 있는 폴더가 없습니다.</string>
+    <string name="folders_none">보여줄 것이 있는 폴더가 없습니다.</string>
     <string name="hub_open">더 보기</string>
     <string name="hub_view_list">목록 보기</string>
     <string name="hub_view_grid">격자 보기</string>
@@ -81,20 +81,20 @@
     <string name="hub_settings">설정</string>
     <string name="url_open">열기</string>
     <string name="url_recent">이전에 연 주소</string>
-    <string name="folder_empty">이 폴더에는 더 이상 사진이 없습니다.</string>
+    <string name="folder_empty">이 폴더에는 더 이상 아무것도 없습니다.</string>
     <string name="cancel">취소</string>
     <string name="hide_folder_title">%1$s을(를) 숨길까요?</string>
-    <string name="hide_folder_desc">넘겨볼 폴더 목록에 더는 나타나지 않습니다. 아무것도 지우지 않습니다. 사진은 그대로 있고, 설정에서 폴더를 다시 되돌릴 수 있습니다.</string>
+    <string name="hide_folder_desc">넘겨볼 폴더 목록에 더는 나타나지 않습니다. 아무것도 지우지 않습니다. 파일은 그대로 있고, 설정에서 폴더를 다시 되돌릴 수 있습니다.</string>
     <string name="hide_folder_do">숨기기</string>
     <string name="settings_hidden">숨긴 폴더</string>
     <string name="settings_hidden_desc">폴더를 길게 누르면 숨겨집니다. 목록에는 나오지 않지만 기기 안에서는 그대로입니다.</string>
     <string name="settings_hidden_show">표시</string>
     <string name="search_hint">파일 이름으로 검색</string>
     <string name="search_clear">지우기</string>
-    <string name="search_none">이름에 \'%1$s\'이(가) 들어간 사진이 없습니다.</string>
+    <string name="search_none">이름에 \'%1$s\'이(가) 들어간 파일이 없습니다.</string>
     <string name="identity_repo">GitHub에서 AIV 저장소 열기</string>
-    <string name="grid_item">%2$d장 중 %1$d번째</string>
-    <string name="grid_item_last">%2$d장 중 %1$d번째, 마지막으로 본 사진</string>
+    <string name="grid_item">%2$d개 중 %1$d번째</string>
+    <string name="grid_item_last">%2$d개 중 %1$d번째, 마지막으로 본 것</string>
     <string name="pick_leave">선택 해제</string>
     <string name="pick_all">모두 선택</string>
     <string name="pick_info">정보</string>
@@ -150,27 +150,27 @@
     <string name="dest_move_here">%1$s(으)로 이동</string>
     <string name="menu_copy_here">복사</string>
     <plurals name="copy_done">
-        <item quantity="other">%1$d장 복사했습니다</item>
+        <item quantity="other">%1$d개 복사했습니다</item>
     </plurals>
     <plurals name="move_done">
-        <item quantity="other">%1$d장 옮겼습니다</item>
+        <item quantity="other">%1$d개 옮겼습니다</item>
     </plurals>
     <plurals name="rename_done">
-        <item quantity="other">%1$d장의 이름을 바꿨습니다</item>
+        <item quantity="other">%1$d개의 이름을 바꿨습니다</item>
     </plurals>
     <plurals name="delete_done">
-        <item quantity="other">%1$d장 삭제했습니다</item>
+        <item quantity="other">%1$d개 삭제했습니다</item>
     </plurals>
     <plurals name="op_failed">
-        <item quantity="other">%1$d장은 실패했습니다</item>
+        <item quantity="other">%1$d개는 실패했습니다</item>
     </plurals>
     <string name="rename_template">이름</string>
     <string name="rename_start">첫 번호</string>
-    <string name="rename_hint">이어진 # 는 번호가 되고, 쓴 개수만큼 자릿수가 됩니다. ## 는 01, ### 는 001 입니다. 확장자는 건드리지 않으며, 사진은 알파벳 순서로 번호가 붙습니다.</string>
+    <string name="rename_hint">이어진 # 는 번호가 되고, 쓴 개수만큼 자릿수가 됩니다. ## 는 01, ### 는 001 입니다. 확장자는 건드리지 않으며, 파일은 알파벳 순서로 번호가 붙습니다.</string>
     <string name="rename_preview">미리보기</string>
     <string name="delete_ask">삭제할까요?</string>
     <plurals name="delete_desc">
-        <item quantity="other">이미지 %1$d개를 완전히 삭제합니다. 기기에서 영영 사라집니다.</item>
+        <item quantity="other">%1$d개를 완전히 삭제합니다. 기기에서 영영 사라집니다.</item>
     </plurals>
     <string name="bin_title">휴지통</string>
     <string name="bin_none">휴지통이 비어 있습니다.</string>
@@ -179,10 +179,10 @@
     <string name="bin_empty_ask">정말 휴지통을 비울까요?</string>
     <string name="bin_empty_desc">안에 있는 것은 되돌릴 수 없습니다.</string>
     <plurals name="trash_done">
-        <item quantity="other">%1$d장을 휴지통으로 옮겼습니다</item>
+        <item quantity="other">%1$d개를 휴지통으로 옮겼습니다</item>
     </plurals>
     <plurals name="restore_done">
-        <item quantity="other">%1$d장을 되돌렸습니다</item>
+        <item quantity="other">%1$d개를 되돌렸습니다</item>
     </plurals>
     <plurals name="folders_count">
         <item quantity="other">사진 %1$d장</item>
@@ -191,7 +191,7 @@
         <item quantity="other">동영상 %1$d개</item>
     </plurals>
     <string name="settings_facts">파일 하나의 정보</string>
-    <string name="settings_facts_desc">사진의 정보를 열었을 때 보이는 항목과 그 순서입니다. 이름, 픽셀, 크기는 항상 나옵니다. 파일에 없는 항목은 줄 자체가 나오지 않습니다.</string>
+    <string name="settings_facts_desc">파일의 정보를 열었을 때 보이는 항목과 그 순서입니다. 이름, 픽셀, 크기는 항상 나옵니다. 파일에 없는 항목은 줄 자체가 나오지 않습니다.</string>
     <string name="settings_facts_always">항상 표시</string>
     <string name="settings_facts_up">위로</string>
     <string name="settings_facts_down">아래로</string>
@@ -225,7 +225,7 @@
     <string name="text_normal">보통</string>
     <string name="text_large">크게</string>
     <string name="tree_show_hidden">숨긴 파일 표시</string>
-    <string name="tree_pictures">사진이 있는 폴더만</string>
+    <string name="tree_pictures">사진이나 동영상이 있는 폴더만</string>
     <string name="columns_hint">단축: 표시 옵션은 떠 있는 버튼을 길게 누르세요.</string>
     <string name="settings_bin">휴지통 사용</string>
     <string name="settings_bin_desc">파일을 삭제할 때는 아무것도 묻지 않지만, 휴지통에서 \'되돌리기\'로 되돌릴 수 있습니다 (플로팅 버튼 → \'휴지통\'). 즉시 삭제를 원하면 휴지통을 완전히 끌 수 있습니다. 그 경우에는 삭제할 때마다 확인이 표시됩니다.</string>

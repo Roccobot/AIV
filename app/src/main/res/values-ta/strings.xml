@@ -3,8 +3,8 @@
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
     <string name="app_short_name">AIV</string>
-    <string name="no_image">காட்ட படம் இல்லை</string>
-    <string name="open_failed">இந்தப் படத்தைத் திறக்க முடியவில்லை</string>
+    <string name="no_image">காட்ட எதுவும் இல்லை</string>
+    <string name="open_failed">இந்தக் கோப்பைத் திறக்க முடியவில்லை</string>
     <string name="open_cleartext">மறையாக்கம் இல்லாத முகவரி (http): Android அதைத் தடுக்கிறது, https இலும் பதில் இல்லை</string>
     <string name="unsupported">இந்த வடிவம் இன்னும் ஆதரிக்கப்படவில்லை</string>
     <string name="too_large">இந்தச் சாதனத்திற்குப் படம் மிகப் பெரியது</string>
@@ -60,18 +60,18 @@
     <string name="settings_top">மேலே</string>
     <string name="settings_bottom">கீழே</string>
     <string name="settings_info_visible">தொடக்கத்திலிருந்தே பட்டை தெரியும்</string>
-    <string name="settings_reverse_order">படங்களின் வரிசைத் திசையை மாற்று (தேதிப்படி)</string>
-    <string name="settings_reverse_order_desc">அணைத்திருந்தால் புதிய படத்திலிருந்து பழையவற்றை நோக்கிப் பார்ப்பீர்கள், கைபேசித் தொகுப்பு போல. இயக்கியிருந்தால் காலவரிசையில், பழையதிலிருந்து புதியதை நோக்கி.</string>
+    <string name="settings_reverse_order">வரிசைத் திசையை மாற்று (தேதிப்படி)</string>
+    <string name="settings_reverse_order_desc">அணைத்திருந்தால் புதியதிலிருந்து பழையவற்றை நோக்கிப் பார்ப்பீர்கள், கைபேசித் தொகுப்பு போல. இயக்கியிருந்தால் காலவரிசையில், பழையதிலிருந்து புதியதை நோக்கி.</string>
     <string name="settings_clipboard">தொடங்கும்போது பிடிப்புப் பலகையைப் படி</string>
     <string name="settings_clipboard_desc">செயலியை அதன் சின்னத்திலிருந்து திறக்கும்போது, பிடிப்புப் பலகையில் ஒரு படத்தை நேரடியாகச் சுட்டும் முகவரி இருந்தால் அப்படம் திறக்கும். ஒரு செயலி பிடிப்புப் பலகையைப் படிக்கும் ஒவ்வொரு முறையும் Android அறிவிப்பு காட்டும், எனவே இதை அணைத்து வைப்பது அதை ஒருபோதும் காணாமல் இருப்பது.</string>
     <string name="settings_start_folder">தொடங்கும்போது ஒரு கோப்புறையைத் திற</string>
-    <string name="settings_start_folder_desc">செயலியைத் திறக்கும்போது கோப்புறைப் பட்டியலுக்குப் பதிலாக, தேர்ந்த கோப்புறையின் படங்கள் நேரடியாகத் தெரியும்.</string>
+    <string name="settings_start_folder_desc">செயலியைத் திறக்கும்போது கோப்புறைப் பட்டியலுக்குப் பதிலாக, தேர்ந்த கோப்புறையில் உள்ளவை நேரடியாகத் தெரியும்.</string>
     <string name="settings_start_folder_none">கோப்புறை தேர்ந்தெடுக்கப்படவில்லை</string>
     <string name="settings_start_folder_pick">தேர்ந்தெடு</string>
     <string name="folders_title">கோப்புறைகள்</string>
     <string name="folders_permission">கோப்புறைகளைப் பட்டியலிட அனைத்துக் கோப்புகளுக்கும் அணுகல் தேவை. ஒரு கோப்புறையைப் பார்க்க அனுமதிக்கும் அதே அனுமதி இது, அமைப்பின் ஒரு பக்கத்திலிருந்து வழங்கப்படுகிறது.</string>
     <string name="folders_grant">அணுகல் வழங்கு</string>
-    <string name="folders_none">எந்தக் கோப்புறையிலும் படங்கள் இல்லை.</string>
+    <string name="folders_none">எந்தக் கோப்புறையிலும் காட்ட எதுவும் இல்லை.</string>
     <string name="hub_open">மேலும்</string>
     <string name="hub_view_list">பட்டியல் காட்சி</string>
     <string name="hub_view_grid">கட்டக் காட்சி</string>
@@ -81,20 +81,20 @@
     <string name="hub_settings">அமைப்புகள்</string>
     <string name="url_open">திற</string>
     <string name="url_recent">முன்பு திறந்தவை</string>
-    <string name="folder_empty">இந்தக் கோப்புறையில் இனி படங்கள் இல்லை.</string>
+    <string name="folder_empty">இந்தக் கோப்புறையில் இனி எதுவும் இல்லை.</string>
     <string name="cancel">ரத்து</string>
     <string name="hide_folder_title">%1$s-ஐ மறைக்கவா?</string>
-    <string name="hide_folder_desc">பார்க்கும் கோப்புறைகளுக்கு இடையே இது இனி தெரியாது. எதுவும் அழிக்கப்படுவதில்லை: படங்கள் அங்கேயே இருக்கும், அமைப்புகளிலிருந்து கோப்புறையைத் திரும்பக் கொண்டுவரலாம்.</string>
+    <string name="hide_folder_desc">பார்க்கும் கோப்புறைகளுக்கு இடையே இது இனி தெரியாது. எதுவும் அழிக்கப்படுவதில்லை: கோப்புகள் அங்கேயே இருக்கும், அமைப்புகளிலிருந்து கோப்புறையைத் திரும்பக் கொண்டுவரலாம்.</string>
     <string name="hide_folder_do">மறை</string>
     <string name="settings_hidden">மறைந்த கோப்புறைகள்</string>
     <string name="settings_hidden_desc">ஒரு கோப்புறையை அழுத்திப் பிடித்தால் மறையும். இவை இனி பட்டியலில் தெரியாது, ஆனால் கைபேசியில் தொடப்படாமல் இருக்கும்.</string>
     <string name="settings_hidden_show">காட்டு</string>
     <string name="search_hint">கோப்புப் பெயரில் தேடு</string>
     <string name="search_clear">அழி</string>
-    <string name="search_none">எந்தப் படத்தின் பெயரிலும் \'%1$s\' இல்லை.</string>
+    <string name="search_none">எந்தக் கோப்பின் பெயரிலும் \'%1$s\' இல்லை.</string>
     <string name="identity_repo">GitHub-இல் AIV களஞ்சியத்தைத் திற</string>
-    <string name="grid_item">%2$d-இல் %1$d-ஆவது படம்</string>
-    <string name="grid_item_last">%2$d-இல் %1$d-ஆவது படம், நீங்கள் கடைசியாகப் பார்த்தது</string>
+    <string name="grid_item">%2$d-இல் %1$d-ஆவது</string>
+    <string name="grid_item_last">%2$d-இல் %1$d-ஆவது, நீங்கள் கடைசியாகப் பார்த்தது</string>
     <string name="pick_leave">தேர்விலிருந்து வெளியேறு</string>
     <string name="pick_all">அனைத்தையும் தேர்ந்தெடு</string>
     <string name="pick_info">தகவல்</string>
@@ -153,20 +153,20 @@
     <string name="dest_move_here">%1$s-இல் நகர்த்து</string>
     <string name="menu_copy_here">நகலெடு</string>
     <plurals name="copy_done">
-        <item quantity="one">%1$d படம் நகலெடுக்கப்பட்டது</item>
-        <item quantity="other">%1$d படங்கள் நகலெடுக்கப்பட்டன</item>
+        <item quantity="one">%1$d கோப்பு நகலெடுக்கப்பட்டது</item>
+        <item quantity="other">%1$d கோப்புகள் நகலெடுக்கப்பட்டன</item>
     </plurals>
     <plurals name="move_done">
-        <item quantity="one">%1$d படம் நகர்த்தப்பட்டது</item>
-        <item quantity="other">%1$d படங்கள் நகர்த்தப்பட்டன</item>
+        <item quantity="one">%1$d கோப்பு நகர்த்தப்பட்டது</item>
+        <item quantity="other">%1$d கோப்புகள் நகர்த்தப்பட்டன</item>
     </plurals>
     <plurals name="rename_done">
-        <item quantity="one">%1$d படத்தின் பெயர் மாற்றப்பட்டது</item>
-        <item quantity="other">%1$d படங்களின் பெயர்கள் மாற்றப்பட்டன</item>
+        <item quantity="one">%1$d கோப்பின் பெயர் மாற்றப்பட்டது</item>
+        <item quantity="other">%1$d கோப்புகளின் பெயர்கள் மாற்றப்பட்டன</item>
     </plurals>
     <plurals name="delete_done">
-        <item quantity="one">%1$d படம் அழிக்கப்பட்டது</item>
-        <item quantity="other">%1$d படங்கள் அழிக்கப்பட்டன</item>
+        <item quantity="one">%1$d கோப்பு அழிக்கப்பட்டது</item>
+        <item quantity="other">%1$d கோப்புகள் அழிக்கப்பட்டன</item>
     </plurals>
     <plurals name="op_failed">
         <item quantity="one">%1$d நடக்கவில்லை</item>
@@ -174,12 +174,12 @@
     </plurals>
     <string name="rename_template">பெயர்</string>
     <string name="rename_start">முதல் எண்</string>
-    <string name="rename_hint">ஒவ்வொரு அடுக்கு கட்டக் குறிகளும் எண்ணாக மாறும், எத்தனை எழுதுகிறீர்களோ அத்தனை இலக்கங்கள்: ## தருவது 01, ### தருவது 001. நீட்டிப்பு ஒருபோதும் தொடப்படுவதில்லை, படங்கள் அகர வரிசையில் எண் பெறும்.</string>
+    <string name="rename_hint">ஒவ்வொரு அடுக்கு கட்டக் குறிகளும் எண்ணாக மாறும், எத்தனை எழுதுகிறீர்களோ அத்தனை இலக்கங்கள்: ## தருவது 01, ### தருவது 001. நீட்டிப்பு ஒருபோதும் தொடப்படுவதில்லை, கோப்புகள் அகர வரிசையில் எண் பெறும்.</string>
     <string name="rename_preview">முன்னோட்டம்</string>
     <string name="delete_ask">அழிப்பை உறுதிப்படுத்தவா?</string>
     <plurals name="delete_desc">
-        <item quantity="one">%1$d படத்தை என்றென்றைக்கும் அழிக்கப் போகிறீர்கள்: அது கைபேசியிலிருந்து என்றென்றும் போய்விடும்.</item>
-        <item quantity="other">%1$d படங்களை என்றென்றைக்கும் அழிக்கப் போகிறீர்கள்: அவை கைபேசியிலிருந்து என்றென்றும் போய்விடும்.</item>
+        <item quantity="one">%1$d கோப்பை என்றென்றைக்கும் அழிக்கப் போகிறீர்கள்: அது கைபேசியிலிருந்து என்றென்றும் போய்விடும்.</item>
+        <item quantity="other">%1$d கோப்புகளை என்றென்றைக்கும் அழிக்கப் போகிறீர்கள்: அவை கைபேசியிலிருந்து என்றென்றும் போய்விடும்.</item>
     </plurals>
     <string name="bin_title">குப்பைத் தொட்டி</string>
     <string name="bin_none">குப்பைத் தொட்டி காலியாக உள்ளது.</string>
@@ -204,7 +204,7 @@
         <item quantity="other">%1$d காணொளிகள்</item>
     </plurals>
     <string name="settings_facts">ஒரு கோப்பின் தகவல்</string>
-    <string name="settings_facts_desc">ஒரு படத்தின் தகவலைத் திறக்கும்போது எந்தத் தரவுகளைப் பார்ப்பீர்கள், எந்த வரிசையில். பெயர், படத்துணுக்குகள், அளவு எப்போதும் உண்டு; கோப்பில் இல்லாத தரவு ஒரு வரியும் பெறாது.</string>
+    <string name="settings_facts_desc">ஒரு கோப்பின் தகவலைத் திறக்கும்போது எந்தத் தரவுகளைப் பார்ப்பீர்கள், எந்த வரிசையில். பெயர், படத்துணுக்குகள், அளவு எப்போதும் உண்டு; கோப்பில் இல்லாத தரவு ஒரு வரியும் பெறாது.</string>
     <string name="settings_facts_always">எப்போதும் தெரியும்</string>
     <string name="settings_facts_up">மேலே நகர்த்து</string>
     <string name="settings_facts_down">கீழே நகர்த்து</string>
@@ -240,7 +240,7 @@
     <string name="text_normal">இயல்பு</string>
     <string name="text_large">பெரியது</string>
     <string name="tree_show_hidden">மறைந்த கோப்புகளைக் காட்டு</string>
-    <string name="tree_pictures">படங்கள் உள்ள கோப்புறைகள் மட்டும்</string>
+    <string name="tree_pictures">படங்கள் அல்லது காணொளிகள் உள்ள கோப்புறைகள் மட்டும்</string>
     <string name="columns_hint">குறுக்குவழி: காட்சி விருப்பங்களுக்கு மிதக்கும் பொத்தானை அழுத்திப் பிடிக்கவும்.</string>
     <string name="settings_bin">குப்பைத் தொட்டியை இயக்கு</string>
     <string name="settings_bin_desc">கோப்பை அழிக்கும்போது எதுவும் கேட்கப்படுவதில்லை, ஆனால் குப்பைத் தொட்டியிலிருந்து \'மீட்டெடு\' மூலம் அதைத் திரும்பப் பெறலாம் (மிதக்கும் பொத்தான் → \'குப்பைத் தொட்டி\'). உடனடி அழிப்பை விரும்பினால் குப்பைத் தொட்டியை முழுவதுமாக அணைக்கலாம்: அப்போது ஒவ்வொரு அழிப்புக்கு முன்பும் உறுதிப்படுத்தல் தோன்றும்.</string>

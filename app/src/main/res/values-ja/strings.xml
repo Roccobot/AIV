@@ -3,8 +3,8 @@
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
     <string name="app_short_name">AIV</string>
-    <string name="no_image">表示できる画像がありません</string>
-    <string name="open_failed">この画像を開けませんでした</string>
+    <string name="no_image">表示できるものがありません</string>
+    <string name="open_failed">このファイルを開けませんでした</string>
     <string name="open_cleartext">暗号化されていないアドレス (http) です。Android がブロックし、https でも応答がありません</string>
     <string name="unsupported">この形式にはまだ対応していません</string>
     <string name="too_large">この端末には画像が大きすぎます</string>
@@ -61,17 +61,17 @@
     <string name="settings_bottom">下</string>
     <string name="settings_info_visible">最初から詳細バーを表示</string>
     <string name="settings_reverse_order">並ぶ向きを逆にする (日付順)</string>
-    <string name="settings_reverse_order_desc">オフなら新しい画像から古い画像へ、スマートフォンのギャラリーと同じ向きにめくります。オンなら古いものから新しいものへ、時系列でめくります。</string>
+    <string name="settings_reverse_order_desc">オフなら新しいものから古いものへ、スマートフォンのギャラリーと同じ向きにめくります。オンなら古いものから新しいものへ、時系列でめくります。</string>
     <string name="settings_clipboard">起動時にクリップボードを読む</string>
     <string name="settings_clipboard_desc">アイコンからアプリを開いたとき、クリップボードのアドレスが画像を直接指していればその画像を開きます。Androidはアプリがクリップボードを読むたびに通知を出すので、オフのままなら通知は出ません。</string>
     <string name="settings_start_folder">起動時にフォルダを開く</string>
-    <string name="settings_start_folder_desc">アプリを開くとフォルダ一覧ではなく、選んだフォルダの画像がすぐ出ます。</string>
+    <string name="settings_start_folder_desc">アプリを開くとフォルダ一覧ではなく、選んだフォルダの中身がすぐ出ます。</string>
     <string name="settings_start_folder_none">フォルダを選んでいません</string>
     <string name="settings_start_folder_pick">選ぶ</string>
     <string name="folders_title">フォルダ</string>
     <string name="folders_permission">フォルダを一覧にするにはすべてのファイルへのアクセスが必要です。フォルダをめくるのと同じ権限で、システムのページで許可します。</string>
     <string name="folders_grant">アクセスを許可</string>
-    <string name="folders_none">画像のあるフォルダがありません。</string>
+    <string name="folders_none">中身のあるフォルダがありません。</string>
     <string name="hub_open">その他</string>
     <string name="hub_view_list">リスト表示</string>
     <string name="hub_view_grid">グリッド表示</string>
@@ -81,20 +81,20 @@
     <string name="hub_settings">設定</string>
     <string name="url_open">開く</string>
     <string name="url_recent">前に開いたもの</string>
-    <string name="folder_empty">このフォルダにはもう画像がありません。</string>
+    <string name="folder_empty">このフォルダにはもう何もありません。</string>
     <string name="cancel">キャンセル</string>
     <string name="hide_folder_title">%1$s を隠しますか?</string>
-    <string name="hide_folder_desc">めくるフォルダの一覧に出なくなります。何も削除しません。画像はそのままの場所にあり、設定から元に戻せます。</string>
+    <string name="hide_folder_desc">めくるフォルダの一覧に出なくなります。何も削除しません。ファイルはそのままの場所にあり、設定から元に戻せます。</string>
     <string name="hide_folder_do">隠す</string>
     <string name="settings_hidden">隠したフォルダ</string>
     <string name="settings_hidden_desc">フォルダを長押しすると隠せます。一覧には出ませんが、端末の中ではそのままです。</string>
     <string name="settings_hidden_show">表示する</string>
     <string name="search_hint">ファイル名で検索</string>
     <string name="search_clear">消す</string>
-    <string name="search_none">名前に \'%1$s\' を含む画像はありません。</string>
+    <string name="search_none">名前に \'%1$s\' を含むファイルはありません。</string>
     <string name="identity_repo">GitHubでAIVのリポジトリを開く</string>
-    <string name="grid_item">%2$d 枚中 %1$d 枚目</string>
-    <string name="grid_item_last">%2$d 枚中 %1$d 枚目、最後に見た画像</string>
+    <string name="grid_item">%2$d 件中 %1$d 件目</string>
+    <string name="grid_item_last">%2$d 件中 %1$d 件目、最後に見たもの</string>
     <string name="pick_leave">選択をやめる</string>
     <string name="pick_all">すべて選択</string>
     <string name="pick_info">情報</string>
@@ -150,27 +150,27 @@
     <string name="dest_move_here">%1$s に移動</string>
     <string name="menu_copy_here">コピー</string>
     <plurals name="copy_done">
-        <item quantity="other">%1$d 枚コピーしました</item>
+        <item quantity="other">%1$d 件コピーしました</item>
     </plurals>
     <plurals name="move_done">
-        <item quantity="other">%1$d 枚移動しました</item>
+        <item quantity="other">%1$d 件移動しました</item>
     </plurals>
     <plurals name="rename_done">
-        <item quantity="other">%1$d 枚の名前を変更しました</item>
+        <item quantity="other">%1$d 件の名前を変更しました</item>
     </plurals>
     <plurals name="delete_done">
-        <item quantity="other">%1$d 枚削除しました</item>
+        <item quantity="other">%1$d 件削除しました</item>
     </plurals>
     <plurals name="op_failed">
-        <item quantity="other">%1$d 枚は失敗しました</item>
+        <item quantity="other">%1$d 件は失敗しました</item>
     </plurals>
     <string name="rename_template">名前</string>
     <string name="rename_start">最初の番号</string>
-    <string name="rename_hint">連続する # が番号になり、書いた数だけ桁が増えます。## なら 01、### なら 001 です。拡張子は変わらず、画像はアルファベット順に番号が付きます。</string>
+    <string name="rename_hint">連続する # が番号になり、書いた数だけ桁が増えます。## なら 01、### なら 001 です。拡張子は変わらず、ファイルはアルファベット順に番号が付きます。</string>
     <string name="rename_preview">プレビュー</string>
     <string name="delete_ask">削除しますか？</string>
     <plurals name="delete_desc">
-        <item quantity="other">%1$d 件の画像を完全に削除します。端末から永久になくなります。</item>
+        <item quantity="other">%1$d 件を完全に削除します。端末から永久になくなります。</item>
     </plurals>
     <string name="bin_title">ゴミ箱</string>
     <string name="bin_none">ゴミ箱は空です。</string>
@@ -179,10 +179,10 @@
     <string name="bin_empty_ask">本当にゴミ箱を空にしますか?</string>
     <string name="bin_empty_desc">中身は元に戻せません。</string>
     <plurals name="trash_done">
-        <item quantity="other">%1$d 枚をゴミ箱に移動しました</item>
+        <item quantity="other">%1$d 件をゴミ箱に移動しました</item>
     </plurals>
     <plurals name="restore_done">
-        <item quantity="other">%1$d 枚を元に戻しました</item>
+        <item quantity="other">%1$d 件を元に戻しました</item>
     </plurals>
     <plurals name="folders_count">
         <item quantity="other">%1$d 枚</item>
@@ -191,7 +191,7 @@
         <item quantity="other">動画 %1$d 件</item>
     </plurals>
     <string name="settings_facts">1 件のファイルの情報</string>
-    <string name="settings_facts_desc">画像の情報を開いたときに見える項目と、その並び順です。名前、ピクセル、サイズは常に出ます。ファイルに無い項目は行そのものが出ません。</string>
+    <string name="settings_facts_desc">ファイルの情報を開いたときに見える項目と、その並び順です。名前、ピクセル、サイズは常に出ます。ファイルに無い項目は行そのものが出ません。</string>
     <string name="settings_facts_always">常に表示</string>
     <string name="settings_facts_up">上へ</string>
     <string name="settings_facts_down">下へ</string>
@@ -225,7 +225,7 @@
     <string name="text_normal">標準</string>
     <string name="text_large">大</string>
     <string name="tree_show_hidden">隠しファイルを表示</string>
-    <string name="tree_pictures">画像のあるフォルダーのみ</string>
+    <string name="tree_pictures">画像か動画のあるフォルダーのみ</string>
     <string name="columns_hint">ショートカット: 表示オプションはフローティングボタンを長押し。</string>
     <string name="settings_bin">ゴミ箱を有効にする</string>
     <string name="settings_bin_desc">ファイルの削除では何も確認しませんが、ゴミ箱から \'元に戻す\' で取り消せます (フローティングボタン → \'ゴミ箱\')。すぐに削除したい場合はゴミ箱を完全に無効にできます。その場合は削除のたびに確認が表示されます。</string>

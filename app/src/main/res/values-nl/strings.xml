@@ -3,8 +3,8 @@
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
     <string name="app_short_name">AIV</string>
-    <string name="no_image">Geen afbeelding om te tonen</string>
-    <string name="open_failed">Deze afbeelding kon niet worden geopend</string>
+    <string name="no_image">Niets om te tonen</string>
+    <string name="open_failed">Dit bestand kon niet worden geopend</string>
     <string name="open_cleartext">Onversleuteld adres (http): Android blokkeert het, en via https antwoordt het niet</string>
     <string name="unsupported">Deze indeling wordt nog niet ondersteund</string>
     <string name="too_large">De afbeelding is te groot voor dit toestel</string>
@@ -61,17 +61,17 @@
     <string name="settings_bottom">Onderaan</string>
     <string name="settings_info_visible">Balk vanaf het begin zichtbaar</string>
     <string name="settings_reverse_order">Richting van de reeks omkeren (op datum)</string>
-    <string name="settings_reverse_order_desc">Uit blader je van de nieuwste afbeelding naar de oudere, zoals een telefoongalerij doet. Aan in chronologische volgorde, van de oudste naar de nieuwste.</string>
+    <string name="settings_reverse_order_desc">Uit blader je van de nieuwste naar de oudere, zoals een telefoongalerij doet. Aan in chronologische volgorde, van de oudste naar de nieuwste.</string>
     <string name="settings_clipboard">Klembord lezen bij het starten</string>
     <string name="settings_clipboard_desc">Als je de app vanaf zijn pictogram opent, wordt een adres op het klembord dat rechtstreeks naar een afbeelding wijst geopend. Android laat een melding zien elke keer dat een app het klembord leest, dus dit uit laten betekent die melding nooit zien.</string>
     <string name="settings_start_folder">Een map openen bij het starten</string>
-    <string name="settings_start_folder_desc">Bij het openen van de app worden de afbeeldingen in de gekozen map direct getoond, in plaats van de lijst met mappen.</string>
+    <string name="settings_start_folder_desc">Bij het openen van de app verschijnt meteen de inhoud van de gekozen map, in plaats van de mappenlijst.</string>
     <string name="settings_start_folder_none">Geen map gekozen</string>
     <string name="settings_start_folder_pick">Kiezen</string>
     <string name="folders_title">Mappen</string>
     <string name="folders_permission">Voor het opsommen van de mappen is toegang tot alle bestanden nodig. Het is dezelfde toestemming die je een map laat doorbladeren, en ze wordt gegeven op een systeempagina.</string>
     <string name="folders_grant">Toegang geven</string>
-    <string name="folders_none">Geen map bevat afbeeldingen.</string>
+    <string name="folders_none">Geen enkele map bevat iets om te tonen.</string>
     <string name="hub_open">Meer</string>
     <string name="hub_view_list">Lijstweergave</string>
     <string name="hub_view_grid">Rasterweergave</string>
@@ -81,20 +81,20 @@
     <string name="hub_settings">Instellingen</string>
     <string name="url_open">Openen</string>
     <string name="url_recent">Eerder geopend</string>
-    <string name="folder_empty">Deze map bevat geen afbeeldingen meer.</string>
+    <string name="folder_empty">Deze map bevat niets meer.</string>
     <string name="cancel">Annuleren</string>
     <string name="hide_folder_title">%1$s verbergen?</string>
-    <string name="hide_folder_desc">De map verschijnt niet meer tussen de mappen om door te bladeren. Er wordt niets verwijderd: de afbeeldingen blijven waar ze zijn, en je kunt de map terughalen via de instellingen.</string>
+    <string name="hide_folder_desc">Hij verschijnt niet meer tussen de mappen om door te bladeren. Er wordt niets verwijderd: de bestanden blijven waar ze zijn, en je kunt de map terughalen via de instellingen.</string>
     <string name="hide_folder_do">Verbergen</string>
     <string name="settings_hidden">Verborgen mappen</string>
     <string name="settings_hidden_desc">Houd een map ingedrukt om ze te verbergen. Deze verschijnen niet meer in de lijst, maar op de telefoon zijn ze onaangeroerd.</string>
     <string name="settings_hidden_show">Tonen</string>
     <string name="search_hint">Zoeken in de bestandsnaam</string>
     <string name="search_clear">Wissen</string>
-    <string name="search_none">Geen afbeelding heeft \'%1$s\' in haar naam.</string>
+    <string name="search_none">Geen bestand heeft \'%1$s\' in de naam.</string>
     <string name="identity_repo">De AIV-opslagplaats op GitHub openen</string>
-    <string name="grid_item">Afbeelding %1$d van %2$d</string>
-    <string name="grid_item_last">Afbeelding %1$d van %2$d, de laatste die je bekeek</string>
+    <string name="grid_item">Item %1$d van %2$d</string>
+    <string name="grid_item_last">Item %1$d van %2$d, het laatste dat je bekeken hebt</string>
     <string name="pick_leave">Selectie verlaten</string>
     <string name="pick_all">Alles selecteren</string>
     <string name="pick_info">Info</string>
@@ -153,20 +153,20 @@
     <string name="dest_move_here">Verplaatsen naar %1$s</string>
     <string name="menu_copy_here">Kopiëren</string>
     <plurals name="copy_done">
-        <item quantity="one">%1$d afbeelding gekopieerd</item>
-        <item quantity="other">%1$d afbeeldingen gekopieerd</item>
+        <item quantity="one">%1$d item gekopieerd</item>
+        <item quantity="other">%1$d items gekopieerd</item>
     </plurals>
     <plurals name="move_done">
-        <item quantity="one">%1$d afbeelding verplaatst</item>
-        <item quantity="other">%1$d afbeeldingen verplaatst</item>
+        <item quantity="one">%1$d item verplaatst</item>
+        <item quantity="other">%1$d items verplaatst</item>
     </plurals>
     <plurals name="rename_done">
-        <item quantity="one">%1$d afbeelding hernoemd</item>
-        <item quantity="other">%1$d afbeeldingen hernoemd</item>
+        <item quantity="one">%1$d item hernoemd</item>
+        <item quantity="other">%1$d items hernoemd</item>
     </plurals>
     <plurals name="delete_done">
-        <item quantity="one">%1$d afbeelding verwijderd</item>
-        <item quantity="other">%1$d afbeeldingen verwijderd</item>
+        <item quantity="one">%1$d item verwijderd</item>
+        <item quantity="other">%1$d items verwijderd</item>
     </plurals>
     <plurals name="op_failed">
         <item quantity="one">%1$d is niet gelukt</item>
@@ -174,12 +174,12 @@
     </plurals>
     <string name="rename_template">Naam</string>
     <string name="rename_start">Eerste nummer</string>
-    <string name="rename_hint">Elke reeks hekjes wordt het nummer, en zoveel als je er schrijft, zoveel cijfers krijg je: ## geeft 01, ### geeft 001. De extensie wordt nooit aangeraakt, en de afbeeldingen worden op alfabetische volgorde genummerd.</string>
+    <string name="rename_hint">Elke reeks hekjes wordt het nummer, en hoeveel je er schrijft is het aantal cijfers: ## geeft 01, ### geeft 001. De extensie blijft altijd ongemoeid, en de bestanden worden alfabetisch genummerd.</string>
     <string name="rename_preview">Voorbeeld</string>
     <string name="delete_ask">Verwijderen bevestigen?</string>
     <plurals name="delete_desc">
-        <item quantity="one">Je gaat %1$d afbeelding definitief verwijderen: ze verdwijnt voorgoed van de telefoon.</item>
-        <item quantity="other">Je gaat %1$d afbeeldingen definitief verwijderen: ze verdwijnen voorgoed van de telefoon.</item>
+        <item quantity="one">Je gaat %1$d item definitief verwijderen: het verdwijnt voorgoed van de telefoon.</item>
+        <item quantity="other">Je gaat %1$d items definitief verwijderen: ze verdwijnen voorgoed van de telefoon.</item>
     </plurals>
     <string name="bin_title">Prullenbak</string>
     <string name="bin_none">De prullenbak is leeg.</string>
@@ -204,7 +204,7 @@
         <item quantity="other">%1$d video\'s</item>
     </plurals>
     <string name="settings_facts">Info over één bestand</string>
-    <string name="settings_facts_desc">Welke gegevens je ziet als je Info van een afbeelding opent, en in welke volgorde. Naam, pixels en grootte staan er altijd; een gegeven dat het bestand niet heeft krijgt helemaal geen rij.</string>
+    <string name="settings_facts_desc">Welke gegevens je ziet als je Info op een bestand opent, en in welke volgorde. Naam, pixels en grootte staan er altijd; een gegeven dat het bestand niet draagt krijgt geen regel.</string>
     <string name="settings_facts_always">Altijd zichtbaar</string>
     <string name="settings_facts_up">Naar boven</string>
     <string name="settings_facts_down">Naar beneden</string>
@@ -240,7 +240,7 @@
     <string name="text_normal">Normaal</string>
     <string name="text_large">Groot</string>
     <string name="tree_show_hidden">Verborgen bestanden tonen</string>
-    <string name="tree_pictures">Alleen mappen met afbeeldingen</string>
+    <string name="tree_pictures">Alleen mappen met afbeeldingen of video\'s</string>
     <string name="columns_hint">Snelkoppeling: houd de zwevende knop ingedrukt voor de weergaveopties.</string>
     <string name="settings_bin">Prullenbak aanzetten</string>
     <string name="settings_bin_desc">Het verwijderen van een bestand vraagt niets, maar de actie is omkeerbaar met een \'Terugzetten\' uit de prullenbak (zwevende knop → \'Prullenbak\'). Je kunt de prullenbak helemaal uitzetten als je liever direct verwijdert: dan verschijnt er voor elke verwijdering een bevestiging.</string>

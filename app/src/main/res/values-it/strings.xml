@@ -8,8 +8,8 @@
     <string name="app_name">Astonishing Image Viewer</string>
     <string name="app_short_name">AIV</string>
 
-    <string name="no_image">Nessuna immagine da mostrare</string>
-    <string name="open_failed">Questa immagine non si riesce ad aprire</string>
+    <string name="no_image">Niente da mostrare</string>
+    <string name="open_failed">Questo file non si riesce ad aprire</string>
     <string name="open_cleartext">Indirizzo in chiaro (http): Android lo blocca, e in https non risponde</string>
     <string name="unsupported">Questo formato non è ancora supportato</string>
     <string name="too_large">L\'immagine è troppo grande per questo dispositivo</string>
@@ -88,13 +88,13 @@
     <string name="settings_bottom">In basso</string>
     <string name="settings_info_visible">Barra visibile all\'apertura</string>
 
-    <string name="settings_reverse_order">Cambia verso della sequenza immagini (in ordine di data)</string>
-    <string name="settings_reverse_order_desc">Spento, si sfoglia dalla foto più recente verso le più vecchie, che è il verso della galleria del telefono. Acceso, in ordine cronologico, dalla più vecchia alla più recente.</string>
+    <string name="settings_reverse_order">Cambia verso della sequenza (in ordine di data)</string>
+    <string name="settings_reverse_order_desc">Spento, si sfoglia dal più recente verso i più vecchi, che è il verso della galleria del telefono. Acceso, in ordine cronologico, dal più vecchio al più recente.</string>
 
     <string name="settings_clipboard">All\'avvio leggi gli appunti</string>
     <string name="settings_clipboard_desc">Aprendo l\'app dalla sua icona, un indirizzo negli appunti che punta dritto a un\'immagine apre quell\'immagine. Android mostra un avviso ogni volta che un\'app legge gli appunti, quindi lasciandola spenta non lo si vede mai.</string>
     <string name="settings_start_folder">Apri una cartella all\'avvio</string>
-    <string name="settings_start_folder_desc">All\'apertura dell\'app si vedono subito le foto della cartella scelta, invece dell\'elenco delle cartelle.</string>
+    <string name="settings_start_folder_desc">All\'apertura dell\'app si vede subito il contenuto della cartella scelta, invece dell\'elenco delle cartelle.</string>
     <string name="settings_start_folder_none">Nessuna cartella scelta</string>
     <string name="settings_start_folder_pick">Scegli</string>
 
@@ -102,7 +102,7 @@
     <string name="folders_title">Cartelle</string>
     <string name="folders_permission">Per elencare le cartelle serve l\'accesso a tutti i file. È lo stesso permesso che serve a sfogliare una cartella, e si concede da una pagina di sistema.</string>
     <string name="folders_grant">Concedi l\'accesso</string>
-    <string name="folders_none">Nessuna cartella contiene immagini.</string>
+    <string name="folders_none">Nessuna cartella contiene niente da mostrare.</string>
     <!-- ── Il tastino quadrato in basso a destra ── -->
     <string name="hub_open">Altro</string>
     <string name="hub_view_list">Visualizzazione lista</string>
@@ -113,11 +113,11 @@
     <string name="hub_settings">Impostazioni</string>
     <string name="url_open">Apri</string>
     <string name="url_recent">Aperti in passato</string>
-    <string name="folder_empty">Questa cartella non contiene più immagini.</string>
+    <string name="folder_empty">Questa cartella non contiene più niente.</string>
     <string name="cancel">Annulla</string>
 
     <string name="hide_folder_title">Nascondere %1$s?</string>
-    <string name="hide_folder_desc">Smette di comparire fra le cartelle da sfogliare. Non si cancella niente: le foto restano dove sono, e la cartella si rivede dalle impostazioni.</string>
+    <string name="hide_folder_desc">Smette di comparire fra le cartelle da sfogliare. Non si cancella niente: i file restano dove sono, e la cartella si rivede dalle impostazioni.</string>
     <string name="hide_folder_do">Nascondi</string>
     <string name="settings_hidden">Cartelle nascoste</string>
     <string name="settings_hidden_desc">Si nasconde una cartella tenendola premuta nell\'elenco. Queste non compaiono più, ma sul telefono sono intatte.</string>
@@ -126,12 +126,12 @@
     <!-- ── Cercare fra le immagini del telefono ── -->
     <string name="search_hint">Cerca nel nome del file</string>
     <string name="search_clear">Cancella</string>
-    <string name="search_none">Nessuna immagine ha \'%1$s\' nel nome.</string>
+    <string name="search_none">Nessun file ha \'%1$s\' nel nome.</string>
 
     <string name="identity_repo">Apri il repository di AIV su GitHub</string>
     <!-- ── La griglia di una cartella ── -->
-    <string name="grid_item">Immagine %1$d di %2$d</string>
-    <string name="grid_item_last">Immagine %1$d di %2$d, l\'ultima che hai guardato</string>
+    <string name="grid_item">Elemento %1$d di %2$d</string>
+    <string name="grid_item_last">Elemento %1$d di %2$d, l\'ultimo che hai guardato</string>
 
     <!-- ── Scegliere più immagini in una cartella ── -->
     <string name="pick_leave">Esci dalla selezione</string>
@@ -203,46 +203,46 @@
     <string name="dest_move_here">Sposta in %1$s</string>
     <string name="menu_copy_here">Copia</string>
     <plurals name="copy_done">
-        <item quantity="one">%1$d immagine copiata</item>
-        <item quantity="other">%1$d immagini copiate</item>
-        <item quantity="many">%1$d immagini copiate</item>
+        <item quantity="one">%1$d elemento copiato</item>
+        <item quantity="other">%1$d elementi copiati</item>
+        <item quantity="many">%1$d elementi copiati</item>
     </plurals>
     <plurals name="move_done">
-        <item quantity="one">%1$d immagine spostata</item>
-        <item quantity="other">%1$d immagini spostate</item>
-        <item quantity="many">%1$d immagini spostate</item>
+        <item quantity="one">%1$d elemento spostato</item>
+        <item quantity="other">%1$d elementi spostati</item>
+        <item quantity="many">%1$d elementi spostati</item>
     </plurals>
     <plurals name="rename_done">
-        <item quantity="one">%1$d immagine rinominata</item>
-        <item quantity="other">%1$d immagini rinominate</item>
-        <item quantity="many">%1$d immagini rinominate</item>
+        <item quantity="one">%1$d elemento rinominato</item>
+        <item quantity="other">%1$d elementi rinominati</item>
+        <item quantity="many">%1$d elementi rinominati</item>
     </plurals>
     <plurals name="delete_done">
-        <item quantity="one">%1$d immagine eliminata</item>
-        <item quantity="other">%1$d immagini eliminate</item>
-        <item quantity="many">%1$d immagini eliminate</item>
+        <item quantity="one">%1$d elemento eliminato</item>
+        <item quantity="other">%1$d elementi eliminati</item>
+        <item quantity="many">%1$d elementi eliminati</item>
     </plurals>
     <!-- Una sola per tutte e quattro le operazioni: 'non è passata' andava bene per la
          copia e suonava storto per una cancellazione, e quattro varianti dello stesso
          avviso sono quattro posti in cui una traduzione può restare indietro. -->
     <plurals name="op_failed">
-        <item quantity="one">%1$d non è riuscita</item>
-        <item quantity="other">%1$d non sono riuscite</item>
-        <item quantity="many">%1$d non sono riuscite</item>
+        <item quantity="one">%1$d non è riuscito</item>
+        <item quantity="other">%1$d non sono riusciti</item>
+        <item quantity="many">%1$d non sono riusciti</item>
     </plurals>
 
     <!-- ── Rinominare in blocco ── -->
     <string name="rename_template">Nome</string>
     <string name="rename_start">Primo numero</string>
-    <string name="rename_hint">Ogni gruppo di cancelletti diventa il numero, e quanti ne scrivi sono le cifre: ## dà 01, ### dà 001. L\'estensione non si tocca mai, e le immagini si numerano in ordine alfabetico.</string>
+    <string name="rename_hint">Ogni gruppo di cancelletti diventa il numero, e quanti ne scrivi sono le cifre: ## dà 01, ### dà 001. L\'estensione non si tocca mai, e i file si numerano in ordine alfabetico.</string>
     <string name="rename_preview">Anteprima</string>
 
     <!-- ── Eliminare ── -->
     <string name="delete_ask">Confermi l\'eliminazione?</string>
     <plurals name="delete_desc">
-        <item quantity="one">Stai per eliminare definitivamente %1$d immagine: sparisce dal telefono per sempre.</item>
-        <item quantity="other">Stai per eliminare definitivamente %1$d immagini: spariscono dal telefono per sempre.</item>
-        <item quantity="many">Stai per eliminare definitivamente %1$d immagini: spariscono dal telefono per sempre.</item>
+        <item quantity="one">Stai per eliminare definitivamente %1$d elemento: sparisce dal telefono per sempre.</item>
+        <item quantity="other">Stai per eliminare definitivamente %1$d elementi: spariscono dal telefono per sempre.</item>
+        <item quantity="many">Stai per eliminare definitivamente %1$d elementi: spariscono dal telefono per sempre.</item>
     </plurals>
 
     <string name="bin_title">Cestino</string>
@@ -252,14 +252,14 @@
     <string name="bin_empty_ask">Vuoi davvero svuotare il cestino?</string>
     <string name="bin_empty_desc">Non potrai più recuperare il contenuto.</string>
     <plurals name="trash_done">
-        <item quantity="one">%1$d spostata nel cestino</item>
-        <item quantity="other">%1$d spostate nel cestino</item>
-        <item quantity="many">%1$d spostate nel cestino</item>
+        <item quantity="one">%1$d spostato nel cestino</item>
+        <item quantity="other">%1$d spostati nel cestino</item>
+        <item quantity="many">%1$d spostati nel cestino</item>
     </plurals>
     <plurals name="restore_done">
-        <item quantity="one">%1$d ripristinata</item>
-        <item quantity="other">%1$d ripristinate</item>
-        <item quantity="many">%1$d ripristinate</item>
+        <item quantity="one">%1$d ripristinato</item>
+        <item quantity="other">%1$d ripristinati</item>
+        <item quantity="many">%1$d ripristinati</item>
     </plurals>
 
     <plurals name="folders_count">
@@ -278,7 +278,7 @@
     </plurals>
 
     <string name="settings_facts">Info sul file singolo</string>
-    <string name="settings_facts_desc">Quali dati vedi quando apri Info su una fotografia, e in che ordine. Nome, pixel e peso ci sono sempre; un dato che il file non porta non prende nessuna riga.</string>
+    <string name="settings_facts_desc">Quali dati vedi quando apri Info su un file, e in che ordine. Nome, pixel e peso ci sono sempre; un dato che il file non porta non prende nessuna riga.</string>
     <string name="settings_facts_always">Sempre visibile</string>
     <string name="settings_facts_up">Sposta su</string>
     <string name="settings_facts_down">Sposta giù</string>
@@ -317,7 +317,7 @@
     <string name="text_normal">Normale</string>
     <string name="text_large">Grande</string>
     <string name="tree_show_hidden">Mostra i file nascosti</string>
-    <string name="tree_pictures">Solo le cartelle con immagini</string>
+    <string name="tree_pictures">Solo le cartelle con immagini o video</string>
     <string name="columns_hint">Scorciatoia: tieni premuto il tasto flottante per le opzioni di visualizzazione.</string>
     <string name="settings_bin">Attiva il cestino</string>
     <string name="settings_bin_desc">L\'eliminazione di file non prevede alcun avviso, ma l\'azione è reversibile con un \'Ripristina\' dal cestino (tasto flottante → \'Cestino\'). Puoi disattivare del tutto il cestino, se preferisci un\'eliminazione istantanea: in quel caso, apparirà una conferma prima di ogni eliminazione.</string>

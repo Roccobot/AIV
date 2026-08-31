@@ -3,8 +3,8 @@
 <resources>
     <string name="app_name">Astonishing Image Viewer</string>
     <string name="app_short_name">AIV</string>
-    <string name="no_image">沒有可顯示的圖片</string>
-    <string name="open_failed">無法開啟這張圖片</string>
+    <string name="no_image">沒有可顯示的內容</string>
+    <string name="open_failed">無法開啟這個檔案</string>
     <string name="open_cleartext">未加密的位址（http）：Android 會封鎖它，改用 https 也沒有回應</string>
     <string name="unsupported">尚未支援這種格式</string>
     <string name="too_large">圖片對這台裝置來說太大了</string>
@@ -60,18 +60,18 @@
     <string name="settings_top">在上方</string>
     <string name="settings_bottom">在下方</string>
     <string name="settings_info_visible">一開始就顯示詳細資料列</string>
-    <string name="settings_reverse_order">反轉圖片順序 (依日期)</string>
-    <string name="settings_reverse_order_desc">關閉時,從最新的圖片翻向較舊的,和手機圖庫一樣。開啟時,依時間先後,從最舊翻到最新。</string>
+    <string name="settings_reverse_order">反轉順序 (依日期)</string>
+    <string name="settings_reverse_order_desc">關閉時,從最新的翻向較舊的,和手機圖庫一樣。開啟時,依時間先後,從最舊翻到最新。</string>
     <string name="settings_clipboard">啟動時讀取剪貼簿</string>
     <string name="settings_clipboard_desc">從圖示開啟應用程式時,如果剪貼簿裡的網址直接指向一張圖片,就開啟那張圖片。每次應用程式讀取剪貼簿,Android 都會提示;保持關閉就永遠不會看到它。</string>
     <string name="settings_start_folder">啟動時開啟一個資料夾</string>
-    <string name="settings_start_folder_desc">開啟應用程式後直接顯示所選資料夾裡的圖片,而不是資料夾清單。</string>
+    <string name="settings_start_folder_desc">開啟應用程式後直接顯示所選資料夾裡的內容,而不是資料夾清單。</string>
     <string name="settings_start_folder_none">尚未選擇資料夾</string>
     <string name="settings_start_folder_pick">選擇</string>
     <string name="folders_title">資料夾</string>
     <string name="folders_permission">列出資料夾需要存取所有檔案的權限。這與翻看資料夾用的是同一個權限,在系統頁面裡授予。</string>
     <string name="folders_grant">授予存取權</string>
-    <string name="folders_none">沒有資料夾含有圖片。</string>
+    <string name="folders_none">沒有資料夾含有可顯示的內容。</string>
     <string name="hub_open">更多</string>
     <string name="hub_view_list">清單檢視</string>
     <string name="hub_view_grid">格狀檢視</string>
@@ -81,20 +81,20 @@
     <string name="hub_settings">設定</string>
     <string name="url_open">開啟</string>
     <string name="url_recent">之前開啟過</string>
-    <string name="folder_empty">這個資料夾裡已經沒有圖片了。</string>
+    <string name="folder_empty">這個資料夾裡已經什麼都沒有了。</string>
     <string name="cancel">取消</string>
     <string name="hide_folder_title">隱藏 %1$s 嗎?</string>
-    <string name="hide_folder_desc">它不再出現在可翻看的資料夾裡。不會刪除任何東西:圖片仍在原處,你可以在設定裡把資料夾找回來。</string>
+    <string name="hide_folder_desc">它不再出現在可翻看的資料夾裡。不會刪除任何東西:檔案仍在原處,你可以在設定裡把資料夾找回來。</string>
     <string name="hide_folder_do">隱藏</string>
     <string name="settings_hidden">已隱藏的資料夾</string>
     <string name="settings_hidden_desc">長按一個資料夾即可隱藏它。這些資料夾不再出現在清單裡,但在手機上原封不動。</string>
     <string name="settings_hidden_show">顯示</string>
     <string name="search_hint">在檔名中搜尋</string>
     <string name="search_clear">清除</string>
-    <string name="search_none">沒有圖片的名稱裡含有 \'%1$s\'。</string>
+    <string name="search_none">沒有檔案的名稱裡含有 \'%1$s\'。</string>
     <string name="identity_repo">在 GitHub 上開啟 AIV 的儲存庫</string>
-    <string name="grid_item">第 %1$d 張,共 %2$d 張</string>
-    <string name="grid_item_last">第 %1$d 張,共 %2$d 張,你最後看過的一張</string>
+    <string name="grid_item">第 %1$d 項,共 %2$d 項</string>
+    <string name="grid_item_last">第 %1$d 項,共 %2$d 項,你最後看過的一項</string>
     <string name="pick_leave">退出選取</string>
     <string name="pick_all">全選</string>
     <string name="pick_info">資訊</string>
@@ -150,27 +150,27 @@
     <string name="dest_move_here">移動到 %1$s</string>
     <string name="menu_copy_here">複製</string>
     <plurals name="copy_done">
-        <item quantity="other">已複製 %1$d 張</item>
+        <item quantity="other">已複製 %1$d 項</item>
     </plurals>
     <plurals name="move_done">
-        <item quantity="other">已移動 %1$d 張</item>
+        <item quantity="other">已移動 %1$d 項</item>
     </plurals>
     <plurals name="rename_done">
-        <item quantity="other">已重新命名 %1$d 張</item>
+        <item quantity="other">已重新命名 %1$d 項</item>
     </plurals>
     <plurals name="delete_done">
-        <item quantity="other">已刪除 %1$d 張</item>
+        <item quantity="other">已刪除 %1$d 項</item>
     </plurals>
     <plurals name="op_failed">
-        <item quantity="other">%1$d 張沒有成功</item>
+        <item quantity="other">%1$d 項沒有成功</item>
     </plurals>
     <string name="rename_template">名稱</string>
     <string name="rename_start">起始編號</string>
-    <string name="rename_hint">每一串井字號都會變成編號,你寫幾個就有幾位數:## 得到 01,### 得到 001。副檔名不會被更動,圖片依字母順序編號。</string>
+    <string name="rename_hint">每一串井字號都會變成編號,你寫幾個就有幾位數:## 得到 01,### 得到 001。副檔名不會被更動,檔案依字母順序編號。</string>
     <string name="rename_preview">預覽</string>
     <string name="delete_ask">確認刪除？</string>
     <plurals name="delete_desc">
-        <item quantity="other">即將徹底刪除 %1$d 張圖片：將從手機上永久消失。</item>
+        <item quantity="other">即將徹底刪除 %1$d 項：將從手機上永久消失。</item>
     </plurals>
     <string name="bin_title">回收筒</string>
     <string name="bin_none">回收筒是空的。</string>
@@ -179,10 +179,10 @@
     <string name="bin_empty_ask">確定清空回收筒？</string>
     <string name="bin_empty_desc">裡面的內容將無法救回。</string>
     <plurals name="trash_done">
-        <item quantity="other">已把 %1$d 張移入回收筒</item>
+        <item quantity="other">已把 %1$d 項移入回收筒</item>
     </plurals>
     <plurals name="restore_done">
-        <item quantity="other">已還原 %1$d 張</item>
+        <item quantity="other">已還原 %1$d 項</item>
     </plurals>
     <plurals name="folders_count">
         <item quantity="other">%1$d 張圖片</item>
@@ -191,7 +191,7 @@
         <item quantity="other">%1$d 部影片</item>
     </plurals>
     <string name="settings_facts">單一檔案的資訊</string>
-    <string name="settings_facts_desc">開啟某張圖片的資訊時會看到哪些資料,以及它們的順序。名稱、像素和大小一定會顯示;檔案裡沒有的資料不會佔用任何一行。</string>
+    <string name="settings_facts_desc">開啟某個檔案的資訊時會看到哪些資料,以及它們的順序。名稱、像素和大小一定會顯示;檔案裡沒有的資料不會佔用任何一行。</string>
     <string name="settings_facts_always">一律顯示</string>
     <string name="settings_facts_up">上移</string>
     <string name="settings_facts_down">下移</string>
@@ -225,7 +225,7 @@
     <string name="text_normal">正常</string>
     <string name="text_large">大</string>
     <string name="tree_show_hidden">顯示隱藏檔案</string>
-    <string name="tree_pictures">僅含圖片的資料夾</string>
+    <string name="tree_pictures">僅含圖片或影片的資料夾</string>
     <string name="columns_hint">快捷方式：長按浮動按鈕開啟顯示選項。</string>
     <string name="settings_bin">啟用回收筒</string>
     <string name="settings_bin_desc">刪除檔案不會有任何提示，但可以在回收筒裡用 \'還原\' 復原（浮動按鈕 → \'回收筒\'）。如果你偏好立即刪除，可以完全關閉回收筒：那樣每次刪除前都會出現確認。</string>
