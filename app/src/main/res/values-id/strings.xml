@@ -211,4 +211,9 @@
     <string name="grid_item_clip">Video</string>
     <string name="clip_play">Putar</string>
     <string name="clip_no_player">Tidak ada aplikasi di ponsel ini yang bisa memutarnya</string>
+    <string name="hub_view_tree">Folder sistem</string>
+    <string name="tree_up">Naik satu folder</string>
+    <string name="tree_empty">Tidak ada apa-apa di sini.</string>
+    <string name="tree_hidden">disembunyikan</string>
+    <string name="tree_unopenable">Tidak ada aplikasi di ponsel ini yang bisa membukanya</string>
 </resources>

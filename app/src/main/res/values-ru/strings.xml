@@ -253,4 +253,9 @@
     <string name="grid_item_clip">Видео</string>
     <string name="clip_play">Воспроизвести</string>
     <string name="clip_no_player">Ни одно приложение на этом телефоне не может это воспроизвести</string>
+    <string name="hub_view_tree">Папки устройства</string>
+    <string name="tree_up">На уровень выше</string>
+    <string name="tree_empty">Здесь ничего нет.</string>
+    <string name="tree_hidden">скрыта</string>
+    <string name="tree_unopenable">Ни одно приложение на этом телефоне не может это открыть</string>
 </resources>

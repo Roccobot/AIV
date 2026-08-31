@@ -225,4 +225,9 @@
     <string name="grid_item_clip">व्हिडिओ</string>
     <string name="clip_play">चालवा</string>
     <string name="clip_no_player">या फोनवरील कोणतेही ॲप हे चालवू शकत नाही</string>
+    <string name="hub_view_tree">सिस्टम फोल्डर</string>
+    <string name="tree_up">एक फोल्डर वर</string>
+    <string name="tree_empty">इथे काहीही नाही.</string>
+    <string name="tree_hidden">लपवलेले</string>
+    <string name="tree_unopenable">या फोनवरील कोणतेही ॲप हे उघडू शकत नाही</string>
 </resources>

@@ -225,4 +225,9 @@
     <string name="grid_item_clip">Video</string>
     <string name="clip_play">Cheza</string>
     <string name="clip_no_player">Hakuna programu kwenye simu hii inayoweza kuicheza</string>
+    <string name="hub_view_tree">Folda za mfumo</string>
+    <string name="tree_up">Panda folda moja</string>
+    <string name="tree_empty">Hakuna kitu humu.</string>
+    <string name="tree_hidden">imefichwa</string>
+    <string name="tree_unopenable">Hakuna programu kwenye simu hii inayoweza kuifungua</string>
 </resources>

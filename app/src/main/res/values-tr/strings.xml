@@ -225,4 +225,9 @@
     <string name="grid_item_clip">Video</string>
     <string name="clip_play">Oynat</string>
     <string name="clip_no_player">Bu telefonda bunu oynatabilecek bir uygulama yok</string>
+    <string name="hub_view_tree">Sistem klasörleri</string>
+    <string name="tree_up">Bir klasör yukarı</string>
+    <string name="tree_empty">Burada hiçbir şey yok.</string>
+    <string name="tree_hidden">gizli</string>
+    <string name="tree_unopenable">Bu telefonda bunu açabilecek bir uygulama yok</string>
 </resources>

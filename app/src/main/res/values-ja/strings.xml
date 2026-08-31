@@ -211,4 +211,9 @@
     <string name="grid_item_clip">動画</string>
     <string name="clip_play">再生</string>
     <string name="clip_no_player">この端末には再生できるアプリがありません</string>
+    <string name="hub_view_tree">システムのフォルダ</string>
+    <string name="tree_up">一つ上のフォルダへ</string>
+    <string name="tree_empty">ここには何もありません。</string>
+    <string name="tree_hidden">非表示</string>
+    <string name="tree_unopenable">この端末には開けるアプリがありません</string>
 </resources>

@@ -239,4 +239,9 @@
     <string name="grid_item_clip">Vidéo</string>
     <string name="clip_play">Lire</string>
     <string name="clip_no_player">Aucune application de ce téléphone ne sait le lire</string>
+    <string name="hub_view_tree">Dossiers du système</string>
+    <string name="tree_up">Remonter d\'un dossier</string>
+    <string name="tree_empty">Il n\'y a rien ici.</string>
+    <string name="tree_hidden">masqué</string>
+    <string name="tree_unopenable">Aucune application de ce téléphone ne sait l\'ouvrir</string>
 </resources>

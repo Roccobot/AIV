@@ -301,4 +301,9 @@
     <string name="grid_item_clip">Video</string>
     <string name="clip_play">Riproduci</string>
     <string name="clip_no_player">Nessuna app di questo telefono sa riprodurlo</string>
+    <string name="hub_view_tree">Cartelle di sistema</string>
+    <string name="tree_up">Sali di una cartella</string>
+    <string name="tree_empty">Qui dentro non c\'è niente.</string>
+    <string name="tree_hidden">nascosta</string>
+    <string name="tree_unopenable">Nessuna app di questo telefono sa aprirlo</string>
 </resources>

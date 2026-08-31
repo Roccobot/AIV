@@ -34,6 +34,7 @@ import coil3.compose.setSingletonImageLoaderFactory
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.io.File
 
 sealed interface ViewerState {
     /**
@@ -748,6 +749,71 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
+     * Dove sta la navigazione della vista 'Cartelle di sistema', e `null` vuol dire in cima.
+     *
+     * ⚠️⚠️ **VIVE QUI E NON NELLA SCHERMATA, dalla `0.84`**: si esce dalla casa ogni volta che
+     * si apre una fotografia, e al ritorno la navigazione deve ritrovarsi dov'era. Un ricordo
+     * dentro il composabile morirebbe a ogni andata e ritorno, riportando in cima dopo ogni
+     * foto guardata, che è il difetto che rende inutilizzabile un gestore di file.
+     * ⚠️ **Non si salva nelle impostazioni**, ed è voluto: è lo stato di una sessione, non una
+     * preferenza. Riaprendo l'app si riparte dalla radice, che è dove si sa di essere.
+     */
+    var treePath: String? by mutableStateOf(null)
+        private set
+
+    /**
+     * Se dalla cartella corrente si può risalire, cioè se il gesto Indietro ha un posto dove
+     * portare.
+     *
+     * ⚠️⚠️ **SI CALCOLA QUANDO SI NAVIGA e non a ogni lettura**: dirlo richiede di risolvere i
+     * collegamenti dei percorsi (`canonicalPath`), che è I/O sul disco, e una proprietà
+     * calcolata lo farebbe a ogni ricomposizione, cioè sul filo principale mentre si scorre.
+     */
+    var treeClimbing: Boolean by mutableStateOf(false)
+        private set
+
+    /** Entra in una cartella, o torna all'elenco delle memorie con `null`. */
+    fun treeTo(path: String?) {
+        treePath = path
+        treeClimbing = path != null &&
+            (treeRoots.size > 1 || Tree.parent(File(path), treeRoots) != null)
+    }
+
+    /** Risale di una cartella: dalla radice torna all'elenco delle memorie, se ce n'è uno. */
+    fun treeUp() {
+        val here = treePath ?: return
+        treeTo(Tree.parent(File(here), treeRoots)?.absolutePath)
+    }
+
+    /**
+     * Le memorie, lette una volta sola.
+     *
+     * ⚠️ Pigra e non nel costruttore: l'elenco delle memorie si chiede al sistema, e chi non
+     * apre mai quella vista non deve pagarlo all'avvio dell'app.
+     */
+    private val treeRoots: List<Tree.Root> by lazy { Tree.roots(getApplication()) }
+
+    /**
+     * Una fotografia toccata nella vista delle cartelle di sistema.
+     *
+     * ⚠️⚠️ **LA SERIE ARRIVA GIÀ FATTA da chi ha disegnato l'elenco, e non si rilegge**: così
+     * l'ordine che si sfoglia è **esattamente** quello che si aveva davanti agli occhi, per
+     * costruzione. Rileggere la cartella qui avrebbe voluto dire due letture e la possibilità
+     * che la seconda dia un elenco diverso dalla prima.
+     * ⚠️ **Non tocca `viewerBack`**: la destinazione del ritorno resta la casa, e la casa si
+     * ritrova nella sua terza vista, alla cartella giusta, perché [treePath] vive nel modello.
+     * ⚠️ **Nessun anello dell'ultima vista** (`gridVisited`): quello è il segno della griglia
+     * di una cartella, e qui la griglia non c'è.
+     */
+    fun openFromTree(items: List<Uri>, index: Int) {
+        val whole = Folder.Series(items, index)
+        if (whole.at(index) == null) return
+        viewerBack = HOME
+        screen = Screen.Viewer
+        showAt(whole, index)
+    }
+
+    /**
      * La foto toccata nella griglia.
      *
      * ⚠️ [index] è la posizione nell'ordine di **lettura**, cioè quello che la griglia
@@ -1019,6 +1085,17 @@ private fun AivApp(model: ViewerViewModel) {
             // ⚠️ Il gesto Indietro si intercetta SOLO nella veste 'scegli la cartella
             // d'avvio': nell'altra questa è la casa, e da casa Indietro chiude l'app.
             if (screen.forStart) BackHandler { model.leaveStartFolderChoice() }
+            /*
+             * ⚠️⚠️ **NELLA VISTA DELLE CARTELLE DI SISTEMA IL GESTO INDIETRO RISALE, e senza
+             * questo l'app si chiuderebbe da tre cartelle di profondità** (`0.84`). È l'unico
+             * posto in cui la casa ha uno stato di navigazione, e il gesto Indietro deve
+             * significare quello che significa dappertutto: torna al passo di prima.
+             * ⚠️ **Si arma solo quando c'è dove risalire**: in cima resta il comportamento di
+             * sempre, cioè Indietro chiude l'app. Un gestore aperto che ingoia il gesto senza
+             * fare niente è peggio di non averlo.
+             */
+            val climbing = settings.folderView == FolderView.TREE && model.treeClimbing
+            BackHandler(enabled = climbing) { model.treeUp() }
             FolderScreen(
                 view = settings.folderView,
                 columns = settings.folderColumns,
@@ -1047,6 +1124,9 @@ private fun AivApp(model: ViewerViewModel) {
                 // tutte le cartelle*), ed è la ragione per cui passa da `updateSettings`
                 // come ogni altra voce.
                 onColumns = { model.updateSettings(settings.copy(folderColumns = it)) },
+                treePath = model.treePath,
+                onTreePath = { model.treeTo(it) },
+                onTreeOpen = { items, at -> model.openFromTree(items, at) },
                 onBack = if (screen.forStart) ({ model.leaveStartFolderChoice() }) else null
             )
         }
