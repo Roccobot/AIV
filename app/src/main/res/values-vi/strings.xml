@@ -218,7 +218,15 @@
     <string name="history_none">Không có gì được phục hồi trong %1$d ngày qua.</string>
     <string name="history_note">Lịch sử giữ %1$d ngày gần nhất, rồi tự xóa.</string>
     <string name="columns_title">Kích thước lưới</string>
-    <string name="columns_hint">Lối tắt: nhấn giữ nút nổi để chọn kích thước lưới.</string>
+    <string name="view_options">Tùy chọn hiển thị</string>
+    <string name="list_count">Số mục</string>
+    <string name="text_size">Cỡ chữ</string>
+    <string name="text_small">Nhỏ</string>
+    <string name="text_normal">Bình thường</string>
+    <string name="text_large">Lớn</string>
+    <string name="tree_show_hidden">Hiện tệp ẩn</string>
+    <string name="tree_pictures">Chỉ thư mục có ảnh</string>
+    <string name="columns_hint">Lối tắt: nhấn giữ nút nổi để mở tùy chọn hiển thị.</string>
     <string name="settings_bin">Bật thùng rác</string>
     <string name="settings_bin_desc">Xóa một tệp không hỏi gì, nhưng hành động có thể hoàn tác bằng \'Phục hồi\' từ thùng rác (nút nổi → \'Thùng rác\'). Bạn có thể tắt hẳn thùng rác nếu thích xóa ngay: khi đó, một hộp xác nhận sẽ xuất hiện trước mỗi lần xóa.</string>
     <string name="pick_duplicate">Nhân bản</string>

@@ -233,7 +233,15 @@
     <string name="history_none">గత %1$d రోజులలో ఏదీ తిరిగి తెచ్చలేదు.</string>
     <string name="history_note">చరిత్ర చివరి %1$d రోజులను ఉంచుతుంది, తర్వాత తనంతట తానే ఖాళీ అవుతుంది.</string>
     <string name="columns_title">గ్రిడ్ పరిమాణం</string>
-    <string name="columns_hint">షార్ట్‌కట్: గ్రిడ్ పరిమాణం ఎంచుకోవడానికి ఫ్లోటింగ్ బటన్‌ను నొక్కి పట్టుకోండి.</string>
+    <string name="view_options">ప్రదర్శన ఎంపికలు</string>
+    <string name="list_count">అంశాల లెక్క</string>
+    <string name="text_size">పాఠ్య పరిమాణం</string>
+    <string name="text_small">చిన్నది</string>
+    <string name="text_normal">సాధారణం</string>
+    <string name="text_large">పెద్దది</string>
+    <string name="tree_show_hidden">దాచిన దస్త్రాలను చూపు</string>
+    <string name="tree_pictures">చిత్రాలున్న సంచయాలు మాత్రమే</string>
+    <string name="columns_hint">సత్వరమార్గం: ప్రదర్శన ఎంపికల కోసం తేలియాడే బొత్తాన్ని నొక్కి పట్టుకోండి.</string>
     <string name="settings_bin">చెత్తబుట్టను ఆన్ చేయి</string>
     <string name="settings_bin_desc">ఫైల్ తొలగించేటప్పుడు ఏమీ అడగదు, కానీ చెత్తబుట్ట నుండి \'తిరిగి తెచ్చు\' ద్వారా దీన్ని వెనక్కి తీసుకోవచ్చు (ఫ్లోటింగ్ బటన్ → \'చెత్తబుట్ట\'). తక్షణ తొలగింపు ఇష్టమైతే చెత్తబుట్టను పూర్తిగా ఆఫ్ చేయవచ్చు: అప్పుడు ప్రతి తొలగింపుకు ముందు నిర్ధారణ కనిపిస్తుంది.</string>
     <string name="pick_duplicate">నకలు చేయి</string>

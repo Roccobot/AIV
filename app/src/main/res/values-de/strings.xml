@@ -233,7 +233,15 @@
     <string name="history_none">In den letzten %1$d Tagen wurde nichts wiederhergestellt.</string>
     <string name="history_note">Der Verlauf behält die letzten %1$d Tage und leert sich dann selbst.</string>
     <string name="columns_title">Rastergröße</string>
-    <string name="columns_hint">Kurzbefehl: Halte die schwebende Schaltfläche gedrückt, um die Rastergröße zu wählen.</string>
+    <string name="view_options">Anzeigeoptionen</string>
+    <string name="list_count">Elementanzahl</string>
+    <string name="text_size">Textgröße</string>
+    <string name="text_small">Klein</string>
+    <string name="text_normal">Normal</string>
+    <string name="text_large">Groß</string>
+    <string name="tree_show_hidden">Versteckte Dateien zeigen</string>
+    <string name="tree_pictures">Nur Ordner mit Bildern</string>
+    <string name="columns_hint">Kurzbefehl: Halte die schwebende Taste für die Anzeigeoptionen gedrückt.</string>
     <string name="settings_bin">Papierkorb einschalten</string>
     <string name="settings_bin_desc">Das Löschen einer Datei fragt nichts, aber die Aktion lässt sich mit einem \'Wiederherstellen\' aus dem Papierkorb umkehren (schwebende Schaltfläche → \'Papierkorb\'). Du kannst den Papierkorb ganz ausschalten, wenn du sofortiges Löschen bevorzugst: dann erscheint vor jedem Löschen eine Bestätigung.</string>
     <string name="pick_duplicate">Duplizieren</string>

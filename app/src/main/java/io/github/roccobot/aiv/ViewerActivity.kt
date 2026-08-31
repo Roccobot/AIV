@@ -1513,6 +1513,16 @@ private fun AivApp(model: ViewerViewModel) {
                 // tutte le cartelle*), ed è la ragione per cui passa da `updateSettings`
                 // come ogni altra voce.
                 onColumns = { model.updateSettings(settings.copy(folderColumns = it)) },
+                // Le opzioni delle altre due viste, dallo stesso popup: passano da
+                // `updateSettings` come le colonne, per la stessa ragione.
+                listCount = settings.listCount,
+                listText = settings.listText,
+                treeHidden = settings.treeHidden,
+                treePictures = settings.treePictures,
+                onListCount = { model.updateSettings(settings.copy(listCount = it)) },
+                onListText = { model.updateSettings(settings.copy(listText = it)) },
+                onTreeHidden = { model.updateSettings(settings.copy(treeHidden = it)) },
+                onTreePictures = { model.updateSettings(settings.copy(treePictures = it)) },
                 treePath = model.treePath,
                 binOn = settings.binOn,
                 factFields = settings.factRows,

@@ -218,7 +218,15 @@
     <string name="history_none">ไม่มีอะไรถูกกู้คืนใน %1$d วันที่ผ่านมา</string>
     <string name="history_note">ประวัติเก็บไว้ %1$d วันล่าสุด แล้วล้างตัวเอง</string>
     <string name="columns_title">ขนาดตาราง</string>
-    <string name="columns_hint">ทางลัด: กดปุ่มลอยค้างไว้เพื่อเลือกขนาดตาราง</string>
+    <string name="view_options">ตัวเลือกการแสดงผล</string>
+    <string name="list_count">จำนวนรายการ</string>
+    <string name="text_size">ขนาดข้อความ</string>
+    <string name="text_small">เล็ก</string>
+    <string name="text_normal">ปกติ</string>
+    <string name="text_large">ใหญ่</string>
+    <string name="tree_show_hidden">แสดงไฟล์ที่ซ่อน</string>
+    <string name="tree_pictures">เฉพาะโฟลเดอร์ที่มีภาพ</string>
+    <string name="columns_hint">ทางลัด: กดค้างที่ปุ่มลอยเพื่อเปิดตัวเลือกการแสดงผล.</string>
     <string name="settings_bin">เปิดถังขยะ</string>
     <string name="settings_bin_desc">การลบไฟล์ไม่ถามอะไร แต่ย้อนกลับได้ด้วย \'กู้คืน\' จากถังขยะ (ปุ่มลอย → \'ถังขยะ\') คุณสามารถปิดถังขยะทั้งหมดได้หากต้องการลบทันที ในกรณีนั้นจะมีการยืนยันก่อนการลบทุกครั้ง</string>
     <string name="pick_duplicate">ทำสำเนา</string>

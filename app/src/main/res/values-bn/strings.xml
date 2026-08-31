@@ -233,7 +233,15 @@
     <string name="history_none">গত %1$d দিনে কিছুই ফিরিয়ে আনা হয়নি।</string>
     <string name="history_note">ইতিহাস শেষ %1$d দিন রাখে, তারপর নিজেই খালি হয়ে যায়।</string>
     <string name="columns_title">গ্রিডের আকার</string>
-    <string name="columns_hint">শর্টকাট: গ্রিডের আকার বাছতে ভাসমান বোতামটি চেপে ধরে রাখুন।</string>
+    <string name="view_options">প্রদর্শনের বিকল্প</string>
+    <string name="list_count">আইটেমের সংখ্যা</string>
+    <string name="text_size">লেখার আকার</string>
+    <string name="text_small">ছোট</string>
+    <string name="text_normal">সাধারণ</string>
+    <string name="text_large">বড়</string>
+    <string name="tree_show_hidden">লুকানো ফাইল দেখান</string>
+    <string name="tree_pictures">শুধু ছবিসহ ফোল্ডার</string>
+    <string name="columns_hint">শর্টকাট: প্রদর্শনের বিকল্পের জন্য ভাসমান বোতাম চেপে ধরুন।</string>
     <string name="settings_bin">আবর্জনা চালু করুন</string>
     <string name="settings_bin_desc">ফাইল মোছার সময় কিছু জিজ্ঞাসা করা হয় না, তবে আবর্জনা থেকে \'ফিরিয়ে আনুন\' দিয়ে কাজটি ফেরানো যায় (ভাসমান বোতাম → \'আবর্জনা\')। তাৎক্ষণিক মোছা পছন্দ করলে আবর্জনা পুরোপুরি বন্ধ করতে পারেন: তখন প্রতিবার মোছার আগে একটি নিশ্চিতকরণ দেখা যাবে।</string>
     <string name="pick_duplicate">প্রতিলিপি করুন</string>

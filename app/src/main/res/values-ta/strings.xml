@@ -233,7 +233,15 @@
     <string name="history_none">கடந்த %1$d நாட்களில் எதுவும் மீட்டெடுக்கப்படவில்லை.</string>
     <string name="history_note">வரலாறு கடைசி %1$d நாட்களை வைத்திருக்கும், பிறகு தானே காலியாகும்.</string>
     <string name="columns_title">கட்டத்தின் அளவு</string>
-    <string name="columns_hint">குறுக்குவழி: கட்டத்தின் அளவைத் தேர்வு செய்ய மிதக்கும் பொத்தானை அழுத்திப் பிடிக்கவும்.</string>
+    <string name="view_options">காட்சி விருப்பங்கள்</string>
+    <string name="list_count">உருப்படிகளின் எண்ணிக்கை</string>
+    <string name="text_size">உரை அளவு</string>
+    <string name="text_small">சிறியது</string>
+    <string name="text_normal">இயல்பு</string>
+    <string name="text_large">பெரியது</string>
+    <string name="tree_show_hidden">மறைந்த கோப்புகளைக் காட்டு</string>
+    <string name="tree_pictures">படங்கள் உள்ள கோப்புறைகள் மட்டும்</string>
+    <string name="columns_hint">குறுக்குவழி: காட்சி விருப்பங்களுக்கு மிதக்கும் பொத்தானை அழுத்திப் பிடிக்கவும்.</string>
     <string name="settings_bin">குப்பைத் தொட்டியை இயக்கு</string>
     <string name="settings_bin_desc">கோப்பை அழிக்கும்போது எதுவும் கேட்கப்படுவதில்லை, ஆனால் குப்பைத் தொட்டியிலிருந்து \'மீட்டெடு\' மூலம் அதைத் திரும்பப் பெறலாம் (மிதக்கும் பொத்தான் → \'குப்பைத் தொட்டி\'). உடனடி அழிப்பை விரும்பினால் குப்பைத் தொட்டியை முழுவதுமாக அணைக்கலாம்: அப்போது ஒவ்வொரு அழிப்புக்கு முன்பும் உறுதிப்படுத்தல் தோன்றும்.</string>
     <string name="pick_duplicate">நகலெடு</string>

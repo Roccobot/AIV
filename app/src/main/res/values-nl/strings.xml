@@ -233,7 +233,15 @@
     <string name="history_none">De afgelopen %1$d dagen is er niets teruggezet.</string>
     <string name="history_note">De geschiedenis bewaart de laatste %1$d dagen en wist zichzelf daarna.</string>
     <string name="columns_title">Rastergrootte</string>
-    <string name="columns_hint">Sneltoets: houd de zwevende knop ingedrukt om de rastergrootte te kiezen.</string>
+    <string name="view_options">Weergaveopties</string>
+    <string name="list_count">Aantal items</string>
+    <string name="text_size">Tekstgrootte</string>
+    <string name="text_small">Klein</string>
+    <string name="text_normal">Normaal</string>
+    <string name="text_large">Groot</string>
+    <string name="tree_show_hidden">Verborgen bestanden tonen</string>
+    <string name="tree_pictures">Alleen mappen met afbeeldingen</string>
+    <string name="columns_hint">Snelkoppeling: houd de zwevende knop ingedrukt voor de weergaveopties.</string>
     <string name="settings_bin">Prullenbak aanzetten</string>
     <string name="settings_bin_desc">Het verwijderen van een bestand vraagt niets, maar de actie is omkeerbaar met een \'Terugzetten\' uit de prullenbak (zwevende knop → \'Prullenbak\'). Je kunt de prullenbak helemaal uitzetten als je liever direct verwijdert: dan verschijnt er voor elke verwijdering een bevestiging.</string>
     <string name="pick_duplicate">Dupliceren</string>

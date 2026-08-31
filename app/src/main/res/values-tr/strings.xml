@@ -233,7 +233,15 @@
     <string name="history_none">Son %1$d günde hiçbir şey geri alınmadı.</string>
     <string name="history_note">Geçmiş son %1$d günü tutar, sonra kendini boşaltır.</string>
     <string name="columns_title">Izgara boyutu</string>
-    <string name="columns_hint">Kısayol: ızgara boyutunu seçmek için kayan düğmeyi basılı tutun.</string>
+    <string name="view_options">Görünüm seçenekleri</string>
+    <string name="list_count">Öge sayısı</string>
+    <string name="text_size">Yazı boyutu</string>
+    <string name="text_small">Küçük</string>
+    <string name="text_normal">Normal</string>
+    <string name="text_large">Büyük</string>
+    <string name="tree_show_hidden">Gizli dosyaları göster</string>
+    <string name="tree_pictures">Yalnızca görselli klasörler</string>
+    <string name="columns_hint">Kısayol: görünüm seçenekleri için kayan düğmeyi basılı tutun.</string>
     <string name="settings_bin">Çöp kutusunu aç</string>
     <string name="settings_bin_desc">Bir dosyayı silmek hiçbir şey sormaz, ama işlem çöp kutusundan bir \'Geri al\' ile geri alınabilir (kayan düğme → \'Çöp kutusu\'). Anında silmeyi tercih ediyorsan çöp kutusunu tamamen kapatabilirsin: o zaman her silme işleminden önce bir onay görünür.</string>
     <string name="pick_duplicate">Çoğalt</string>

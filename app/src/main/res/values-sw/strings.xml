@@ -233,7 +233,15 @@
     <string name="history_none">Hakuna kitu kilichorudishwa katika siku %1$d zilizopita.</string>
     <string name="history_note">Historia inaweka siku %1$d za mwisho, kisha inajifuta yenyewe.</string>
     <string name="columns_title">Ukubwa wa gridi</string>
-    <string name="columns_hint">Njia ya mkato: shikilia kitufe kinachoelea ili kuchagua ukubwa wa gridi.</string>
+    <string name="view_options">Chaguo za mwonekano</string>
+    <string name="list_count">Idadi ya vipengee</string>
+    <string name="text_size">Ukubwa wa maandishi</string>
+    <string name="text_small">Ndogo</string>
+    <string name="text_normal">Kawaida</string>
+    <string name="text_large">Kubwa</string>
+    <string name="tree_show_hidden">Onyesha faili zilizofichwa</string>
+    <string name="tree_pictures">Folda zenye picha pekee</string>
+    <string name="columns_hint">Njia ya mkato: shikilia kitufe kinachoelea ili kufungua chaguo za mwonekano.</string>
     <string name="settings_bin">Washa tapishi</string>
     <string name="settings_bin_desc">Kufuta faili hakuulizi kitu, lakini kitendo kinaweza kubatilishwa kwa \'Rudisha\' kutoka tapishi (kitufe kinachoelea → \'Tapishi\'). Unaweza kuzima tapishi kabisa ukipendelea kufuta papo hapo: hapo utaonyeshwa uthibitisho kabla ya kila kufuta.</string>
     <string name="pick_duplicate">Nakili hapa</string>

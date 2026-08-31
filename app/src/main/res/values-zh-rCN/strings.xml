@@ -218,7 +218,15 @@
     <string name="history_none">最近 %1$d 天内没有还原任何内容。</string>
     <string name="history_note">历史只保留最近 %1$d 天，之后自动清空。</string>
     <string name="columns_title">网格大小</string>
-    <string name="columns_hint">快捷操作：长按悬浮按钮可选择网格大小。</string>
+    <string name="view_options">显示选项</string>
+    <string name="list_count">项目数量</string>
+    <string name="text_size">文字大小</string>
+    <string name="text_small">小</string>
+    <string name="text_normal">正常</string>
+    <string name="text_large">大</string>
+    <string name="tree_show_hidden">显示隐藏文件</string>
+    <string name="tree_pictures">仅含图片的文件夹</string>
+    <string name="columns_hint">快捷方式：长按悬浮按钮打开显示选项。</string>
     <string name="settings_bin">启用回收站</string>
     <string name="settings_bin_desc">删除文件不会有任何提示，但可以在回收站里用 \'还原\' 撤销（悬浮按钮 → \'回收站\'）。如果你更喜欢立即删除，可以完全关闭回收站：那样每次删除前都会出现确认。</string>
     <string name="pick_duplicate">创建副本</string>

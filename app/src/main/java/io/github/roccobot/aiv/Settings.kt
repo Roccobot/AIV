@@ -89,6 +89,18 @@ enum class ScaleMode(override val token: String) : Choice { PHYSICAL("physical")
  */
 enum class Hand(override val token: String) : Choice { RIGHT("right"), LEFT("left") }
 
+/**
+ * Quanto è grande il testo nella vista a **elenco**.
+ *
+ * ⚠️ Vale per il solo elenco e non per tutta l'app: là ogni riga è nome più conto, e chi
+ * sceglie l'elenco lo sceglie per **leggere**, quindi il corpo è parte della vista come le
+ * colonne lo sono della griglia. Il corpo di sistema resta quello che decide tutto il
+ * resto, e questa scelta ci si moltiplica sopra invece di sostituirlo.
+ */
+enum class TextSize(override val token: String) : Choice {
+    SMALL("small"), NORMAL("normal"), LARGE("large")
+}
+
 /** Where the one line of details sits. Asked for by the user. */
 enum class InfoPosition(override val token: String) : Choice { TOP("top"), BOTTOM("bottom") }
 
@@ -182,6 +194,29 @@ data class Settings(
      */
     val folderView: FolderView = FolderView.GRID,
     /**
+     * Le quattro opzioni delle due viste che non sono la griglia, dalla `0.99`.
+     *
+     * ⚠️ **Stanno nelle impostazioni pur vivendo in un popup**, come le colonne: il popup è
+     * una **scorciatoia** a una scelta che deve sopravvivere alla chiusura dell'app, non
+     * uno stato di schermata. Il filtro dei generi, che invece è volatile per richiesta,
+     * infatti non è qui.
+     */
+    val listCount: Boolean = true,
+    val listText: TextSize = TextSize.NORMAL,
+    /** Se la vista ad albero mostra anche i file che cominciano per punto. */
+    val treeHidden: Boolean = false,
+    /** Se la vista ad albero nasconde le cartelle che non portano a nessuna immagine. */
+    val treePictures: Boolean = false,
+    /** Da che parte stanno le funzioni principali del pannello. Vedi [Hand]. */
+    val hand: Hand = Hand.RIGHT,
+    /**
+     * Se 'Copia lista' mette anche il percorso della cartella, in testa ai nomi.
+     *
+     * ⚠️ Spenta di fabbrica, come chiesto: una lista di nomi si incolla dove si vuole,
+     * mentre un percorso di sistema in testa è utile a chi sa che cosa farsene.
+     */
+    val listPath: Boolean = false,
+    /**
      * Se all'avvio si guarda negli appunti.
      *
      * ⚠️⚠️ **SPENTA DI DEFAULT, per volontà dell'utente dopo averla provata** (2026-08-29:
@@ -192,15 +227,6 @@ data class Settings(
      * mai. La scelta è di chi la usa e non nostra, ed è la ragione per cui è
      * un'impostazione e non un comportamento.
      */
-    /** Da che parte stanno le funzioni principali del pannello. Vedi [Hand]. */
-    val hand: Hand = Hand.RIGHT,
-    /**
-     * Se 'Copia lista' mette anche il percorso della cartella, in testa ai nomi.
-     *
-     * ⚠️ Spenta di fabbrica, come chiesto: una lista di nomi si incolla dove si vuole,
-     * mentre un percorso di sistema in testa è utile a chi sa che cosa farsene.
-     */
-    val listPath: Boolean = false,
     val clipboardStart: Boolean = false,
     /**
      * L'ultimo indirizzo degli appunti che l'app ha aperto da sé.
@@ -359,6 +385,10 @@ object SettingsStore {
     private val CLIPBOARD_DONE = stringPreferencesKey("clipboard-done")
     private val HAND = stringPreferencesKey("hand")
     private val LIST_PATH = booleanPreferencesKey("list-path")
+    private val LIST_COUNT = booleanPreferencesKey("list-count")
+    private val LIST_TEXT = stringPreferencesKey("list-text")
+    private val TREE_HIDDEN = booleanPreferencesKey("tree-hidden")
+    private val TREE_PICTURES = booleanPreferencesKey("tree-pictures")
     private val UI_THEME = stringPreferencesKey("ui-theme")
     private val FOLDER_COLUMNS_KEY = intPreferencesKey("folder-columns")
     private val BIN_ON = booleanPreferencesKey("bin-on")
@@ -395,6 +425,10 @@ object SettingsStore {
             clipboardDone = p[CLIPBOARD_DONE] ?: "",
             hand = Hand.entries.byToken(p[HAND], Hand.RIGHT),
             listPath = p[LIST_PATH] ?: false,
+            listCount = p[LIST_COUNT] ?: true,
+            listText = TextSize.entries.byToken(p[LIST_TEXT], TextSize.NORMAL),
+            treeHidden = p[TREE_HIDDEN] ?: false,
+            treePictures = p[TREE_PICTURES] ?: false,
             uiTheme = UiTheme.entries.byToken(p[UI_THEME], UiTheme.SYSTEM),
             // ⚠️ Ricondotto all'elenco ammesso e non solo letto: un numero fuori posto
             // nell'archivio (una versione futura, un file modificato a mano) darebbe una
@@ -448,6 +482,10 @@ object SettingsStore {
             p[CLIPBOARD_START] = settings.clipboardStart
             p[HAND] = settings.hand.token
             p[LIST_PATH] = settings.listPath
+            p[LIST_COUNT] = settings.listCount
+            p[LIST_TEXT] = settings.listText.token
+            p[TREE_HIDDEN] = settings.treeHidden
+            p[TREE_PICTURES] = settings.treePictures
             // ⚠️ Si riscrive anche qui, o il salvataggio della schermata delle impostazioni
             // (che scrive l'oggetto INTERO) cancellerebbe l'indirizzo già aperto, e gli
             // appunti tornerebbero a riaprirsi al primo avvio dopo un giro nelle opzioni.

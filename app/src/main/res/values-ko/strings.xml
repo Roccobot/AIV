@@ -218,7 +218,15 @@
     <string name="history_none">지난 %1$d일 동안 되돌린 것이 없습니다.</string>
     <string name="history_note">기록은 최근 %1$d일간 보관되고 그 후 자동으로 지워집니다.</string>
     <string name="columns_title">격자 크기</string>
-    <string name="columns_hint">단축 동작: 플로팅 버튼을 길게 누르면 격자 크기를 고를 수 있습니다.</string>
+    <string name="view_options">표시 옵션</string>
+    <string name="list_count">항목 개수</string>
+    <string name="text_size">글자 크기</string>
+    <string name="text_small">작게</string>
+    <string name="text_normal">보통</string>
+    <string name="text_large">크게</string>
+    <string name="tree_show_hidden">숨긴 파일 표시</string>
+    <string name="tree_pictures">사진이 있는 폴더만</string>
+    <string name="columns_hint">단축: 표시 옵션은 떠 있는 버튼을 길게 누르세요.</string>
     <string name="settings_bin">휴지통 사용</string>
     <string name="settings_bin_desc">파일을 삭제할 때는 아무것도 묻지 않지만, 휴지통에서 \'되돌리기\'로 되돌릴 수 있습니다 (플로팅 버튼 → \'휴지통\'). 즉시 삭제를 원하면 휴지통을 완전히 끌 수 있습니다. 그 경우에는 삭제할 때마다 확인이 표시됩니다.</string>
     <string name="pick_duplicate">복제</string>
