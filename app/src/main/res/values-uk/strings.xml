@@ -299,4 +299,33 @@
     <string name="settings_content_blocked">Минулого разу через це застосунок закрився (%1$s), тому функція зупинилася сама. Решти це не стосується.</string>
     <string name="settings_content_index">Проіндексувати знімки зараз</string>
     <string name="settings_content_indexing">Індексування: %1$d з %2$d</string>
+
+    <!-- Modificare una fotografia (1.03) -->
+    <string name="menu_edit">Змінити</string>
+    <string name="editor_internal">Вбудований редактор</string>
+    <string name="editor_pick">Чим редагувати?</string>
+    <string name="editor_left">Повернути ліворуч</string>
+    <string name="editor_right">Повернути праворуч</string>
+    <string name="editor_free">Вільно</string>
+    <string name="editor_save">Зберегти</string>
+    <string name="editor_how">Як зберегти?</string>
+    <string name="editor_overwrite">Перезаписати файл</string>
+    <string name="editor_copy">Зберегти копію</string>
+    <string name="editor_done">Збережено</string>
+    <string name="editor_done_copy">Копію збережено</string>
+    <string name="editor_done_lossless">Збережено без перестиснення</string>
+    <string name="editor_pick_none">Жоден інший застосунок на цьому телефоні не береться редагувати зображення.</string>
+    <string name="edit_no_file">Цього файлу немає на телефоні</string>
+    <string name="edit_too_big">Зображення завелике для цього пристрою</string>
+    <string name="edit_nothing">Нічого не змінилося</string>
+    <string name="edit_no_overwrite">Цей формат не можна перезаписати, тож лишається тільки копія.</string>
+    <string name="edit_failed">Зберегти не вдалося</string>
+    <string name="edit_app_gone">Цього редактора вже немає. Оберіть інший.</string>
+    <string name="settings_editor">Застосунок для редагування зображень</string>
+    <string name="settings_editor_desc">Який застосунок відкривається, коли торкаєшся Змінити на світлині. Вбудований повертає й обрізає, і більше нічого.</string>
+    <string name="settings_editor_none">Не обрано</string>
+    <string name="settings_editor_pick">Обрати</string>
+    <string name="view_grid">Сітка</string>
+    <string name="view_list">Список</string>
+    <string name="view_tree">Папки</string>
 </resources>

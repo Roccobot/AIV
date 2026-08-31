@@ -299,4 +299,33 @@
     <string name="settings_content_blocked">В прошлый раз из-за этого приложение закрылось (%1$s), поэтому функция остановилась сама. Остальное не затронуто.</string>
     <string name="settings_content_index">Проиндексировать снимки сейчас</string>
     <string name="settings_content_indexing">Индексация: %1$d из %2$d</string>
+
+    <!-- Modificare una fotografia (1.03) -->
+    <string name="menu_edit">Изменить</string>
+    <string name="editor_internal">Встроенный редактор</string>
+    <string name="editor_pick">Чем редактировать?</string>
+    <string name="editor_left">Повернуть влево</string>
+    <string name="editor_right">Повернуть вправо</string>
+    <string name="editor_free">Свободно</string>
+    <string name="editor_save">Сохранить</string>
+    <string name="editor_how">Как сохранить?</string>
+    <string name="editor_overwrite">Перезаписать файл</string>
+    <string name="editor_copy">Сохранить копию</string>
+    <string name="editor_done">Сохранено</string>
+    <string name="editor_done_copy">Копия сохранена</string>
+    <string name="editor_done_lossless">Сохранено без пересжатия</string>
+    <string name="editor_pick_none">Ни одно другое приложение на этом телефоне не берётся редактировать изображения.</string>
+    <string name="edit_no_file">Этого файла нет на телефоне</string>
+    <string name="edit_too_big">Изображение слишком большое для этого устройства</string>
+    <string name="edit_nothing">Ничего не изменилось</string>
+    <string name="edit_no_overwrite">Этот формат нельзя перезаписать, поэтому остаётся только копия.</string>
+    <string name="edit_failed">Сохранить не удалось</string>
+    <string name="edit_app_gone">Этого редактора больше нет. Выберите другой.</string>
+    <string name="settings_editor">Приложение для правки изображений</string>
+    <string name="settings_editor_desc">Какое приложение открывается при нажатии на Изменить у снимка. Встроенное поворачивает и обрезает, и больше ничего.</string>
+    <string name="settings_editor_none">Не выбрано</string>
+    <string name="settings_editor_pick">Выбрать</string>
+    <string name="view_grid">Сетка</string>
+    <string name="view_list">Список</string>
+    <string name="view_tree">Папки</string>
 </resources>

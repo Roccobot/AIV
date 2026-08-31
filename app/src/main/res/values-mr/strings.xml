@@ -269,4 +269,33 @@
     <string name="settings_content_blocked">मागच्या वेळी यामुळे अ‍ॅप बंद झाले होते (%1$s), म्हणून ही सुविधा आपोआप थांबली. बाकी काहीही बाधित नाही.</string>
     <string name="settings_content_index">आता प्रतिमांची सूची करा</string>
     <string name="settings_content_indexing">अनुक्रमणिका: %2$d पैकी %1$d</string>
+
+    <!-- Modificare una fotografia (1.03) -->
+    <string name="menu_edit">संपादन</string>
+    <string name="editor_internal">अंगभूत संपादक</string>
+    <string name="editor_pick">कशाने संपादन करता?</string>
+    <string name="editor_left">डावीकडे फिरवा</string>
+    <string name="editor_right">उजवीकडे फिरवा</string>
+    <string name="editor_free">मुक्त</string>
+    <string name="editor_save">जतन करा</string>
+    <string name="editor_how">कसे जतन करायचे?</string>
+    <string name="editor_overwrite">फाईलवरच लिहा</string>
+    <string name="editor_copy">एक प्रत जतन करा</string>
+    <string name="editor_done">जतन झाले</string>
+    <string name="editor_done_copy">प्रत जतन झाली</string>
+    <string name="editor_done_lossless">पुन्हा दाबल्याशिवाय जतन झाले</string>
+    <string name="editor_pick_none">या फोनवरचे दुसरे कोणतेही ॲप छायाचित्रे संपादित करण्याची तयारी दाखवत नाही.</string>
+    <string name="edit_no_file">ही फाईल फोनवर नाही</string>
+    <string name="edit_too_big">छायाचित्र या उपकरणासाठी फार मोठे आहे</string>
+    <string name="edit_nothing">काहीच बदलले नाही</string>
+    <string name="edit_no_overwrite">हे स्वरूप पुन्हा लिहिता येत नाही, म्हणून फक्त प्रतच उरते.</string>
+    <string name="edit_failed">जतन करता आले नाही</string>
+    <string name="edit_app_gone">तो संपादक आता नाही. दुसरा निवडा.</string>
+    <string name="settings_editor">छायाचित्रे संपादित करण्याचे ॲप</string>
+    <string name="settings_editor_desc">छायाचित्रावर संपादन दाबल्यावर कोणते ॲप उघडते. अंगभूत ॲप फिरवते आणि कापते, त्यापलीकडे काही नाही.</string>
+    <string name="settings_editor_none">काहीच निवडलेले नाही</string>
+    <string name="settings_editor_pick">निवडा</string>
+    <string name="view_grid">जाळी</string>
+    <string name="view_list">यादी</string>
+    <string name="view_tree">फोल्डर</string>
 </resources>

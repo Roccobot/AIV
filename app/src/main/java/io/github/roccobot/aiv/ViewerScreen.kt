@@ -57,6 +57,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.FitScreen
 import androidx.compose.material.icons.outlined.Info
@@ -282,6 +283,14 @@ fun ViewerScreen(
      */
     onFileChanged: () -> Unit,
     /**
+     * 'Modifica' dal menu del tocco lungo: la fotografia da aprire in un editor.
+     *
+     * ⚠️ **Sale al modello e non si risolve qui**, perché la risposta dipende da
+     * un'impostazione (quale app) e può **cambiare schermata** (l'editor di casa). Vedi
+     * `ViewerViewModel.edit`.
+     */
+    onEdit: (Uri) -> Unit,
+    /**
      * Se la fotografia che si sta guardando viene dal **cestino**.
      *
      * ⚠️ Cambia due voci del riquadro e niente altro: 'rinomina' diventa 'ripristina' (là
@@ -383,7 +392,7 @@ fun ViewerScreen(
         }
     }
 
-    val ops = remember(source, saver) {
+    val ops = remember(source, saver, onEdit) {
         MenuOps(
             job = { job = it },
             share = { picture ->
@@ -394,7 +403,11 @@ fun ViewerScreen(
                     }
                 }
             },
-            save = { picture -> saver.launch(ImageActions.fileName(picture, source)) }
+            save = { picture -> saver.launch(ImageActions.fileName(picture, source)) },
+            // ⚠️ Senza indirizzo non si fa niente e non si dice niente: la voce che chiama
+            // questa funzione compare **solo** con un file del telefono davanti, quindi qui
+            // il caso non capita, e un avviso sarebbe codice che nessuno può far girare.
+            edit = { source?.let(onEdit) }
         )
     }
 
@@ -565,7 +578,7 @@ fun ViewerScreen(
 }
 
 /**
- * Le tre richieste che il menu del tocco lungo **non esegue da sé**, e che passa a chi lo
+ * Le richieste che il menu del tocco lungo **non esegue da sé**, e che passa a chi lo
  * contiene.
  *
  * ⚠️⚠️ **LA RAGIONE È UNA SOLA: il menu si chiude prima che finiscano.** Toccare una voce
@@ -580,7 +593,18 @@ fun ViewerScreen(
 private class MenuOps(
     val job: (FileJob) -> Unit,
     val share: (LoadedImage) -> Unit,
-    val save: (LoadedImage) -> Unit
+    val save: (LoadedImage) -> Unit,
+    /**
+     * 'Modifica': apre l'editor scelto, o chiede quale usare la prima volta.
+     *
+     * ⚠️ **Non prende la fotografia**, al contrario delle altre due: quello che si modifica
+     * è il **file**, cioè `source`, che è già chiuso dentro questo contratto. Passare
+     * l'immagine decodificata inviterebbe a modificare i pixel in memoria, che non è quello
+     * che succede: l'editor riparte dal file.
+     * ⚠️ **Sale qui per la ragione dichiarata sopra e per una in più**: cambia SCHERMATA, e
+     * un cambio di schermata deciso dal menu smonterebbe il menu a metà chiamata.
+     */
+    val edit: () -> Unit
 )
 
 /**
@@ -701,6 +725,19 @@ private fun ClipStage(uri: Uri, stepping: Boolean, onStep: (Int) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
+            /*
+             * ⚠️⚠️ **NERO PURO SEMPRE, e copre la scacchiera di chi sta sotto** (richiesta
+             * dell'utente, 2026-08-31). Non è una preferenza di gusto: le bande sopra e
+             * sotto un filmato fanno parte di quello che si guarda, e qualunque altra tinta
+             * le trasforma in una cornice che sfarfalla intorno all'immagine. È anche il
+             * fondo di ogni lettore video esistente, quindi è la cosa che l'occhio si
+             * aspetta.
+             * ⚠️ **Vale a prescindere dal tema e dalla tinta scelta per le fotografie**: là
+             * la scacchiera serve a **mostrare la trasparenza**, che è un'informazione; un
+             * filmato non è mai trasparente, quindi quel fondo non racconterebbe niente e
+             * disturberebbe soltanto.
+             */
+            .background(Color.Black)
             .pointerInput(uri, stepping) {
                 val threshold = size.width / 5f
                 val reach = size.height * KNOB_SPAN
@@ -2281,6 +2318,31 @@ private fun ImageMenu(
                 }
             )
             /*
+             * ⚠️ **Lo schema dell'indirizzo decide DUE voci**, e per questo si legge una
+             * volta sola qui invece che dentro ognuna: dice se quello che si sta guardando
+             * è un file di questo telefono (`content://` o `file://`) o roba del web.
+             */
+            val scheme = source?.scheme?.lowercase()
+            /*
+             * ⚠️⚠️ **'Modifica' COMPARE SOLO SU UN FILE DEL TELEFONO, ed è l'esatto
+             * rovescio della condizione di 'Scarica' qui sotto**: modificare vuol dire
+             * riscrivere un file, e di una fotografia arrivata dal web non c'è nessun file
+             * da riscrivere. La voce ci sarebbe, si toccherebbe, e l'unica risposta
+             * possibile sarebbe un errore.
+             * ⚠️ **L'icona è la matita semplice e NON è la richiesta alla lettera** (che
+             * diceva *matita su immagine*): nel repertorio Material di questo progetto una
+             * matita posata su una fotografia non c'è, e comporla a mano vorrebbe dire un
+             * disegno nuovo. Vedi [Glyphs] per come entrano i disegni dell'utente: il
+             * giorno che ne arriva uno, si cambia qui e basta.
+             */
+            if (scheme == "content" || scheme == "file") {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.menu_edit)) },
+                    leadingIcon = { Icon(Icons.Outlined.Edit, null) },
+                    onClick = { onDismiss(); ops.edit() }
+                )
+            }
+            /*
              * ⚠️⚠️ **'Scarica' NON COMPARE SU UN FILE LOCALE** (richiesta dell'utente):
              * là scaricherebbe nella galleria una fotografia che nella galleria c'è già,
              * cioè farebbe un doppione senza dirlo.
@@ -2289,7 +2351,6 @@ private fun ImageMenu(
              * Senza indirizzo (`null`) la voce resta, perché quello che si sta guardando
              * non è un file di questo telefono e salvarlo ha senso.
              */
-            val scheme = source?.scheme?.lowercase()
             if (scheme != "content" && scheme != "file") {
                 DropdownMenuItem(
                     text = { Text(stringResource(R.string.menu_save)) },

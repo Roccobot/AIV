@@ -254,4 +254,33 @@
     <string name="settings_content_blocked">上一次這讓應用程式關閉了 (%1$s)，所以這項功能自己停了下來。其餘部分不受影響。</string>
     <string name="settings_content_index">現在為圖片建立索引</string>
     <string name="settings_content_indexing">正在建立索引：%2$d 中的 %1$d</string>
+
+    <!-- Modificare una fotografia (1.03) -->
+    <string name="menu_edit">編輯</string>
+    <string name="editor_internal">內建編輯器</string>
+    <string name="editor_pick">用什麼編輯？</string>
+    <string name="editor_left">向左旋轉</string>
+    <string name="editor_right">向右旋轉</string>
+    <string name="editor_free">自由</string>
+    <string name="editor_save">儲存</string>
+    <string name="editor_how">想怎麼儲存？</string>
+    <string name="editor_overwrite">覆寫原檔</string>
+    <string name="editor_copy">另存一份</string>
+    <string name="editor_done">已儲存</string>
+    <string name="editor_done_copy">副本已儲存</string>
+    <string name="editor_done_lossless">已儲存，未重新壓縮</string>
+    <string name="editor_pick_none">這支手機上沒有其他應用願意編輯圖片。</string>
+    <string name="edit_no_file">這個檔案不在手機上</string>
+    <string name="edit_too_big">圖片對這台裝置來說太大了</string>
+    <string name="edit_nothing">什麼都沒有改動</string>
+    <string name="edit_no_overwrite">這種格式無法寫回，只能留下副本。</string>
+    <string name="edit_failed">沒能儲存</string>
+    <string name="edit_app_gone">那個編輯器已經不在了。換一個吧。</string>
+    <string name="settings_editor">編輯圖片用的應用</string>
+    <string name="settings_editor_desc">在圖片上點編輯時開啟哪個應用。內建的只會旋轉和裁切。</string>
+    <string name="settings_editor_none">未選擇</string>
+    <string name="settings_editor_pick">選擇</string>
+    <string name="view_grid">格狀</string>
+    <string name="view_list">清單</string>
+    <string name="view_tree">資料夾</string>
 </resources>

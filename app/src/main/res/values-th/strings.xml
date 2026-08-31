@@ -254,4 +254,33 @@
     <string name="settings_content_blocked">ครั้งที่แล้วสิ่งนี้ทำให้แอปปิดลง (%1$s) ฟังก์ชันจึงหยุดตัวเอง ส่วนอื่นไม่ได้รับผลกระทบ</string>
     <string name="settings_content_index">ทำดัชนีภาพตอนนี้</string>
     <string name="settings_content_indexing">กำลังทำดัชนี: %1$d จาก %2$d</string>
+
+    <!-- Modificare una fotografia (1.03) -->
+    <string name="menu_edit">แก้ไข</string>
+    <string name="editor_internal">ตัวแก้ไขในตัว</string>
+    <string name="editor_pick">แก้ไขด้วยอะไร</string>
+    <string name="editor_left">หมุนซ้าย</string>
+    <string name="editor_right">หมุนขวา</string>
+    <string name="editor_free">อิสระ</string>
+    <string name="editor_save">บันทึก</string>
+    <string name="editor_how">อยากบันทึกแบบไหน</string>
+    <string name="editor_overwrite">เขียนทับไฟล์</string>
+    <string name="editor_copy">บันทึกเป็นสำเนา</string>
+    <string name="editor_done">บันทึกแล้ว</string>
+    <string name="editor_done_copy">บันทึกสำเนาแล้ว</string>
+    <string name="editor_done_lossless">บันทึกแล้วโดยไม่บีบอัดใหม่</string>
+    <string name="editor_pick_none">ไม่มีแอปอื่นในเครื่องนี้ที่เสนอตัวแก้ไขรูปภาพ</string>
+    <string name="edit_no_file">ไฟล์นี้ไม่ได้อยู่ในเครื่อง</string>
+    <string name="edit_too_big">รูปใหญ่เกินไปสำหรับเครื่องนี้</string>
+    <string name="edit_nothing">ไม่มีอะไรเปลี่ยน</string>
+    <string name="edit_no_overwrite">รูปแบบนี้เขียนกลับไม่ได้ จึงเหลือเพียงสำเนา</string>
+    <string name="edit_failed">บันทึกไม่สำเร็จ</string>
+    <string name="edit_app_gone">ตัวแก้ไขนั้นหายไปแล้ว เลือกอันอื่น</string>
+    <string name="settings_editor">แอปสำหรับแก้ไขรูปภาพ</string>
+    <string name="settings_editor_desc">แอปไหนจะเปิดขึ้นเมื่อแตะแก้ไขบนรูป ตัวที่มีในตัวหมุนและครอบตัดเท่านั้น</string>
+    <string name="settings_editor_none">ยังไม่ได้เลือก</string>
+    <string name="settings_editor_pick">เลือก</string>
+    <string name="view_grid">ตาราง</string>
+    <string name="view_list">รายการ</string>
+    <string name="view_tree">โฟลเดอร์</string>
 </resources>

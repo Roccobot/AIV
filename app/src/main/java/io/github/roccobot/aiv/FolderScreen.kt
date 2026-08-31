@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -46,6 +47,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -84,6 +86,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 import coil3.compose.AsyncImage
 import kotlin.math.ceil
 import kotlin.math.roundToInt
@@ -671,6 +674,21 @@ private fun FolderView.label(): Int = when (this) {
     FolderView.TREE -> R.string.hub_view_tree
 }
 
+/**
+ * Il nome corto della vista, per le pastiglie del dialogo delle opzioni.
+ *
+ * ⚠️⚠️ **DUE NOMI PER LA STESSA COSA, ed è voluto** (richiesta dell'utente, 2026-08-31): nel
+ * menu del tastino la voce dice 'Visualizzazione griglia', perché là dentro sta accanto ad
+ * 'Apri un indirizzo' e a 'Impostazioni' e deve dire di che cosa parla. Nel dialogo il titolo
+ * è già 'Opzioni di visualizzazione', quindi ripeterlo su ogni pastiglia è la stessa parola
+ * scritta quattro volte, e le pastiglie diventano lunghe il doppio del necessario.
+ */
+private fun FolderView.shortLabel(): Int = when (this) {
+    FolderView.GRID -> R.string.view_grid
+    FolderView.LIST -> R.string.view_list
+    FolderView.TREE -> R.string.view_tree
+}
+
 @Composable
 private fun Hub(
     view: FolderView,
@@ -878,7 +896,7 @@ private fun ViewOptions(
                         FilterChip(
                             selected = one == view,
                             onClick = { onView(one) },
-                            label = { Text(stringResource(one.label())) }
+                            label = { Text(stringResource(one.shortLabel())) }
                         )
                     }
                 }
@@ -902,14 +920,40 @@ private fun ViewOptions(
                     FolderView.LIST -> {
                         OptionSwitch(R.string.list_count, listCount, onListCount)
                         OptionLabel(R.string.text_size)
-                        FlowRow(horizontalArrangement = Arrangement.spacedBy(OPTION_GAP)) {
-                            TextSize.entries.forEach { one ->
-                                FilterChip(
-                                    selected = one == listText,
-                                    onClick = { onListText(one) },
-                                    label = { Text(stringResource(one.label())) }
-                                )
-                            }
+                        /*
+                         * ⚠️⚠️ **UNO SLIDER A TRE FERMI E NON TRE PASTIGLIE, dalla 1.03**
+                         * (richiesta dell'utente): le tre misure sono una scala, non tre
+                         * scelte alla pari, e in fila andavano a capo mangiandosi due righe
+                         * del dialogo. Con tre fermi il gesto dice già che si sta girando una
+                         * manopola, e la riga è una.
+                         * ⚠️ **`steps` conta gli scalini IN MEZZO**, non i fermi: per tre
+                         * posizioni se ne dichiara **uno**. Con 3 i fermi diventerebbero
+                         * cinque e due non avrebbero nome.
+                         */
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(OPTION_GAP)
+                        ) {
+                            Slider(
+                                value = listText.ordinal.toFloat(),
+                                onValueChange = { at ->
+                                    val step = at.roundToInt()
+                                        .coerceIn(0, TextSize.entries.lastIndex)
+                                    val want = TextSize.entries[step]
+                                    if (want != listText) onListText(want)
+                                },
+                                valueRange = 0f..TextSize.entries.lastIndex.toFloat(),
+                                steps = TextSize.entries.size - 2,
+                                modifier = Modifier.weight(1f)
+                            )
+                            // ⚠️ La larghezza minima tiene ferma la manopola: senza, lo
+                            // slider si allunga e si accorcia a ogni passo, perché 'Normale'
+                            // e 'Piccolo' non misurano uguale.
+                            Text(
+                                text = stringResource(listText.label()),
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.widthIn(min = SIZE_NAME)
+                            )
                         }
                     }
                     FolderView.TREE -> {
@@ -940,6 +984,11 @@ private fun OptionLabel(@StringRes text: Int) {
  *
  * ⚠️ Il tocco sta su **tutta la riga** e non sul solo interruttore: un bersaglio da 32dp in
  * un dialogo si manca, e la riga intera è la convenzione di ogni schermata di impostazioni.
+ * ⚠️⚠️ **L'ETICHETTA PRENDE IL PESO, e senza questo gli interruttori si disallineano**
+ * (difetto visto su uno screenshot dell'utente, 2026-08-31): con `SpaceBetween` e un testo
+ * senza peso, una riga lunga si prende tutta la larghezza e spinge il suo interruttore fuori
+ * squadra rispetto a quello sopra. Col peso il testo va a capo e l'interruttore resta
+ * incolonnato, centrato sulle due righe perché la riga allinea al centro.
  */
 @Composable
 private fun OptionSwitch(@StringRes text: Int, checked: Boolean, onChange: (Boolean) -> Unit) {
@@ -948,9 +997,13 @@ private fun OptionSwitch(@StringRes text: Int, checked: Boolean, onChange: (Bool
             .fillMaxWidth()
             .clickable { onChange(!checked) },
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.spacedBy(OPTION_GAP)
     ) {
-        Text(text = stringResource(text), style = MaterialTheme.typography.bodyMedium)
+        Text(
+            text = stringResource(text),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f)
+        )
         Switch(checked = checked, onCheckedChange = onChange)
     }
 }
@@ -1322,6 +1375,15 @@ private val ROW_COVER = 48.dp
  * storta a chi la guarda senza saperne il motivo.
  */
 private val OPTION_GAP = 8.dp
+
+/**
+ * Quanto spazio si tiene per il nome della misura accanto allo slider.
+ *
+ * ⚠️ Tarato sulla parola più lunga fra le tre ('Normale' in italiano, 'Normal' in inglese):
+ * senza un minimo, la manopola si accorcerebbe passando da 'Piccolo' a 'Grande' e il pollice
+ * si troverebbe il fermo spostato sotto il dito.
+ */
+private val SIZE_NAME = 72.dp
 
 /**
  * Quanta parte dello schermo tiene il frontespizio da aperto: **un terzo scarso**.

@@ -45,6 +45,38 @@
     <string name="menu_copy_image">Copy image</string>
     <string name="menu_share">Share</string>
     <string name="menu_save">Save</string>
+    <!-- ── Modificare una fotografia ── -->
+    <!-- The pencil entry in the long press menu, and the title of the built in editor: one
+         string for both, because they are the same idea and two would drift apart. -->
+    <string name="menu_edit">Edit</string>
+    <string name="editor_internal">Built in editor</string>
+    <string name="editor_pick">What do you edit with?</string>
+    <string name="editor_left">Turn left</string>
+    <string name="editor_right">Turn right</string>
+    <string name="editor_free">Free</string>
+    <string name="editor_save">Save</string>
+    <string name="editor_how">How do you want to save it?</string>
+    <string name="editor_overwrite">Write over the file</string>
+    <string name="editor_copy">Save a copy</string>
+    <string name="editor_done">Saved</string>
+    <!-- Said when the copy went next to the original instead of over it. -->
+    <string name="editor_done_copy">Copy saved</string>
+    <!-- Said when the turn only changed the orientation tag, so not one pixel was touched. -->
+    <string name="editor_done_lossless">Saved without recompressing</string>
+    <string name="edit_no_file">This file is not on the phone</string>
+    <string name="edit_too_big">The picture is too large for this device</string>
+    <string name="edit_nothing">Nothing has changed</string>
+    <string name="edit_no_overwrite">This format cannot be written back, so only a copy is left.</string>
+    <string name="edit_failed">It could not be saved</string>
+    <!-- The chosen app is not on the phone any more: the choice is dropped and the picker
+         comes back, because an error alone would leave Edit broken for good. -->
+    <string name="edit_app_gone">That editor is gone. Choose another one.</string>
+    <!-- Only when no installed app answers the edit request, so the list holds one entry. -->
+    <string name="editor_pick_none">No other app on this phone offers to edit pictures.</string>
+    <string name="settings_editor">App for editing pictures</string>
+    <string name="settings_editor_desc">Which app opens when you tap Edit on a picture. The built in one turns and crops, and nothing else.</string>
+    <string name="settings_editor_none">None chosen</string>
+    <string name="settings_editor_pick">Choose</string>
 
     <string name="toast_image_copied">Image copied</string>
     <string name="toast_copy_failed">The copy did not go through</string>
@@ -186,11 +218,17 @@
     <string name="view_options">Display options</string>
     <string name="list_count">Item count</string>
     <string name="text_size">Text size</string>
+    <!-- The short names of the three views, for the chips in the display options: the
+         long ones (hub_view_*) still name them in the button menu, where they have to
+         say what they are about. Here the dialog title already does. -->
+    <string name="view_grid">Grid</string>
+    <string name="view_list">List</string>
+    <string name="view_tree">Folders</string>
     <string name="text_small">Small</string>
     <string name="text_normal">Normal</string>
     <string name="text_large">Large</string>
     <string name="tree_show_hidden">Show hidden files</string>
-    <string name="tree_pictures">Only folders with pictures or films</string>
+    <string name="tree_pictures">Only folders with pictures/videos</string>
     <string name="columns_hint">Shortcut: press and hold the floating button for the display options.</string>
     <!-- Each of these names the view you would GET, not the one you are in: a menu
          entry is a thing you ask for. -->
@@ -203,7 +241,7 @@
 
     <!-- ── The system folders view ── -->
     <string name="tree_up">Up one folder</string>
-    <string name="tree_empty">Nothing in here.</string>
+    <string name="tree_empty">The folder is empty.</string>
     <!-- On a folder the owner hid from the other views: this one shows it anyway,
          because a file browser that hides a folder that IS on the disk lies about
          the disk. The mark says why it is missing elsewhere. -->

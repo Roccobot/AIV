@@ -135,6 +135,18 @@ sealed interface Screen {
      * solo assumere un valore.
      */
     data object History : Screen
+
+    /**
+     * L'editor di casa, dalla 1.03: si ritaglia e si gira, e basta.
+     *
+     * ⚠️ **Porta il nome del file oltre all'indirizzo**, per la stessa ragione di [Grid]: il
+     * nome serve in testata e serve al dialogo del salvataggio (per dire se il formato si può
+     * riscrivere), e chi apre l'editor lo ha già letto. Ricavarlo di nuovo vorrebbe dire una
+     * query al MediaStore per scrivere un titolo.
+     * ⚠️ **Si apre SOLO dal menu del tocco lungo**, quindi la destinazione di Indietro è una
+     * sola, il visualizzatore, e non ha bisogno di viaggiare qui dentro.
+     */
+    data class Editor(val uri: Uri, val name: String) : Screen
 }
 
 /**
@@ -388,6 +400,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     fun windowFocus(hasFocus: Boolean) {
         focused = hasFocus
         if (hasFocus) readClipboard()
+        if (hasFocus) backFromOutside()
     }
 
     private fun readClipboard() {
@@ -797,6 +810,199 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /** Indietro dalla cronologia: il cestino, che è il solo posto da cui si apre. */
     fun leaveHistory() {
         screen = Screen.Bin
+    }
+
+    // ── Modifica di una fotografia (1.03) ──
+
+    /**
+     * Se il selettore dell'app di modifica è davanti.
+     *
+     * ⚠️ **Vive nel modello e non nella schermata, perché lo aprono in DUE**: il menu del
+     * tocco lungo al primo uso, e le impostazioni quando si vuole cambiare idea. Tenuto in
+     * una delle due schermate, l'altra avrebbe dovuto averne una copia propria, e le due
+     * copie sarebbero divergite al primo ritocco.
+     */
+    var editorAsk: Boolean by mutableStateOf(false)
+        private set
+
+    /**
+     * La fotografia che aspetta un editor, e `null` quando la domanda arriva dalle
+     * impostazioni.
+     *
+     * ⚠️ È ciò che distingue i due usi del **medesimo** selettore: scelta l'app, con un
+     * indirizzo si prosegue e si apre la fotografia, senza si è solo cambiata un'impostazione.
+     * Non è uno stato di composizione (nessuno lo disegna), quindi non è `mutableStateOf`.
+     */
+    private var editorFor: Uri? = null
+
+    /** Se il salvataggio dell'editor di casa è in corso: il tasto deve smettere di rispondere. */
+    var editorBusy: Boolean by mutableStateOf(false)
+        private set
+
+    /**
+     * Una frase da mostrare e buttare, e `null` quando non ce n'è nessuna.
+     *
+     * ⚠️ **Sta nel modello perché l'esito arriva DOPO la schermata che l'ha chiesto**: il
+     * salvataggio chiude l'editor, quindi un avviso appeso a quella composizione morirebbe
+     * prima di comparire. Chi lo mostra lo azzera con [noticeShown], e senza quell'azzeramento
+     * tornerebbe a ogni ricomposizione.
+     */
+    var notice: Int? by mutableStateOf(null)
+        private set
+
+    /** L'avviso è stato mostrato: si toglie, o riapparirebbe al primo ridisegno. */
+    fun noticeShown() {
+        notice = null
+    }
+
+    /**
+     * Il menu chiede di modificare una fotografia: tre vie, e la prima volta si domanda.
+     *
+     * ⚠️ **L'impostazione vuota e 'nessuna' sono cose diverse**, ed è la ragione per cui il
+     * valore di fabbrica è la stringa vuota: vuota vuol dire *non ho mai chiesto*, ed è
+     * l'unico caso in cui si apre il selettore da sé. Vedi `Settings.editorApp`.
+     */
+    fun edit(uri: Uri) {
+        val chosen = settings?.editorApp.orEmpty()
+        when {
+            chosen.isBlank() -> {
+                editorFor = uri
+                editorAsk = true
+            }
+            chosen == Editors.INTERNAL -> openEditor(uri)
+            else -> openOutside(uri, chosen)
+        }
+    }
+
+    /** Le impostazioni vogliono cambiare l'app: stesso selettore, senza nessuna fotografia. */
+    fun chooseEditor() {
+        editorFor = null
+        editorAsk = true
+    }
+
+    /**
+     * L'utente ha scelto: si ricorda, e se c'era una fotografia in attesa si prosegue.
+     *
+     * ⚠️⚠️ **SI PROSEGUE CON `id` E NON RILEGGENDO LE IMPOSTAZIONI**: la scrittura è
+     * asincrona (DataStore), quindi un istante dopo `settings.editorApp` porta ancora il
+     * valore di prima, e ripassare da [edit] riaprirebbe il selettore appena chiuso.
+     */
+    fun editorChosen(id: String) {
+        editorAsk = false
+        val waiting = editorFor
+        editorFor = null
+        settings?.let { updateSettings(it.copy(editorApp = id)) }
+        if (waiting == null) return
+        if (id == Editors.INTERNAL) openEditor(waiting) else openOutside(waiting, id)
+    }
+
+    /** Selettore chiuso senza scegliere: non si ricorda niente e non si apre niente. */
+    fun editorSkip() {
+        editorAsk = false
+        editorFor = null
+    }
+
+    /** L'editor di casa: il nome serve alla testata e al dialogo del salvataggio. */
+    private fun openEditor(uri: Uri) {
+        val context = getApplication<Application>()
+        viewModelScope.launch {
+            val name = withContext(Dispatchers.IO) { FileTree.displayName(context, uri) }
+            if (name == null) {
+                notice = R.string.edit_no_file
+                return@launch
+            }
+            screen = Screen.Editor(uri, name)
+        }
+    }
+
+    /**
+     * Un'app di fuori.
+     *
+     * ⚠️ **Se non parte si torna a CHIEDERE invece di dire soltanto che è andata male**: il
+     * caso normale è l'app disinstallata, e un avviso senza via d'uscita lascerebbe la voce
+     * 'Modifica' rotta per sempre, perché la scelta memorizzata punta a qualcosa che non
+     * c'è. Riaprire il selettore è la sola risposta che rimette in piedi la funzione.
+     */
+    private fun openOutside(uri: Uri, id: String) {
+        val context = getApplication<Application>()
+        if (Editors.open(context, uri, id)) {
+            editedOutside = uri
+            return
+        }
+        notice = R.string.edit_app_gone
+        settings?.let { updateSettings(it.copy(editorApp = "")) }
+        editorFor = uri
+        editorAsk = true
+    }
+
+    /** Indietro dall'editor di casa: il visualizzatore, che è il solo posto da cui si apre. */
+    fun leaveEditor() {
+        screen = Screen.Viewer
+    }
+
+    /**
+     * La fotografia mandata a un'app di fuori, finché non si torna.
+     *
+     * ⚠️ Serve perché un editor esterno **non risponde**: si apre con `startActivity` e non
+     * con una richiesta di esito, quindi l'unico momento in cui si può sapere che il giro è
+     * finito è quando la finestra di AIV riprende il fuoco.
+     */
+    private var editedOutside: Uri? = null
+
+    /**
+     * Si torna da un'app di fuori: quello che ha modificato va riletto.
+     *
+     * ⚠️⚠️ **SENZA QUESTO SI TORNEREBBE ALLA FOTOGRAFIA DI PRIMA, e sembrerebbe che l'editor
+     * non abbia salvato**: l'indirizzo non cambia, quindi né la miniatura in memoria né
+     * l'immagine già decodificata hanno un motivo per rifarsi. È il difetto classico di chi
+     * apre un'app esterna e non ricarica al ritorno.
+     * ⚠️ **Si rilegge anche quando l'editor non ha salvato niente**, e va bene: costa una
+     * decodifica in un momento in cui non si sta facendo altro, mentre la via furba
+     * (guardare la data del file) sbaglierebbe su un editor che riscrive senza cambiarla.
+     */
+    private fun backFromOutside() {
+        val uri = editedOutside ?: return
+        editedOutside = null
+        val context = getApplication<Application>()
+        Thumbs.forget(context, uri)
+        if (source == uri) retry()
+        afterFileChanged()
+    }
+
+    /**
+     * Salva quello che l'editor di casa ha in mano.
+     *
+     * ⚠️⚠️ **GIRA NELL'AMBITO DEL MODELLO E NON DELLA SCHERMATA, ed è il punto**: il primo
+     * atto di un salvataggio riuscito è chiudere l'editor, cioè smontare la composizione che
+     * l'ha chiesto. Un lavoro appeso a quella morirebbe a metà scrittura, sul file vero.
+     * ⚠️ La miniatura si butta **solo dopo un esito buono**: il ritaglio fallito lascia il
+     * file com'era, e cancellarla costringerebbe a rigenerarla per niente.
+     */
+    fun editSave(turns: Int, crop: ImageEdit.Crop, way: ImageEdit.Way) {
+        if (editorBusy) return
+        val here = screen as? Screen.Editor ?: return
+        val context = getApplication<Application>()
+        editorBusy = true
+        viewModelScope.launch {
+            val esito = ImageEdit.save(context, here.uri, turns, crop, way)
+            editorBusy = false
+            when (esito) {
+                is ImageEdit.Result.Failed -> notice = esito.why
+                is ImageEdit.Result.Done -> {
+                    notice = when {
+                        way == ImageEdit.Way.COPY -> R.string.editor_done_copy
+                        esito.lossless -> R.string.editor_done_lossless
+                        else -> R.string.editor_done
+                    }
+                    if (way == ImageEdit.Way.OVERWRITE) {
+                        Thumbs.forget(context, here.uri)
+                        retry()
+                    }
+                    screen = Screen.Viewer
+                    afterFileChanged()
+                }
+            }
+        }
     }
 
     /** Si entra nella ricerca a mani vuote: il testo di ieri non serve a nessuno. */
@@ -1499,6 +1705,31 @@ private fun AivApp(model: ViewerViewModel) {
         }
         return
     }
+    /*
+     * ⚠️⚠️ **IL SELETTORE E L'AVVISO STANNO PRIMA DEL `when`, e non dentro un ramo**: la
+     * scelta dell'editor si chiede da due schermate diverse (il menu del tocco lungo e le
+     * impostazioni), e l'esito di un salvataggio arriva quando l'editor si è **già** chiuso.
+     * Scritti dentro un ramo morirebbero al cambio di schermata, cioè nell'istante esatto in
+     * cui devono comparire.
+     */
+    if (model.editorAsk) {
+        EditorPicker(
+            chosen = settings.editorApp,
+            onPick = { model.editorChosen(it) },
+            onDismiss = { model.editorSkip() }
+        )
+    }
+    val said = model.notice
+    if (said != null) {
+        val context = LocalContext.current
+        // ⚠️ L'avviso si azzera subito dopo averlo mostrato: senza, la chiave resterebbe la
+        // stessa e la frase tornerebbe identica al primo ridisegno, ma soprattutto non si
+        // potrebbe più mostrare **due volte** la stessa (due copie salvate di fila).
+        LaunchedEffect(said) {
+            Toast.makeText(context, said, Toast.LENGTH_LONG).show()
+            model.noticeShown()
+        }
+    }
     when (val screen = model.screen) {
         Screen.Settings -> {
             BackHandler { model.leaveSettings() }
@@ -1511,6 +1742,7 @@ private fun AivApp(model: ViewerViewModel) {
                 onChange = { model.updateSettings(it) },
                 onStartFolder = { model.chooseStartFolder() },
                 onResetHints = { model.resetHints() },
+                onChooseEditor = { model.chooseEditor() },
                 clipState = model.clipState,
                 clipWork = model.clipWork,
                 clipBlocked = model.clipBlocked,
@@ -1667,6 +1899,17 @@ private fun AivApp(model: ViewerViewModel) {
             HistoryScreen(onBack = { model.leaveHistory() })
         }
 
+        is Screen.Editor -> {
+            BackHandler { model.leaveEditor() }
+            EditorScreen(
+                uri = screen.uri,
+                name = screen.name,
+                busy = model.editorBusy,
+                onSave = { turns, crop, way -> model.editSave(turns, crop, way) },
+                onBack = { model.leaveEditor() }
+            )
+        }
+
         Screen.Viewer -> {
             // Back returns to where the viewer was opened from, and only if there is
             // such a place. Opened from a link, Back has to leave the app: swallowing
@@ -1686,6 +1929,7 @@ private fun AivApp(model: ViewerViewModel) {
                 onSettings = { model.openSettings() },
                 onRetry = { model.retry() },
                 onFileChanged = { model.afterFileChanged() },
+                onEdit = { model.edit(it) },
                 // ⚠️ Da dove si è entrati dice se si sta guardando il cestino: la
                 // fotografia in sé non lo sa, ed è la ragione per cui questo dato non vive
                 // nell'immagine.

@@ -4,6 +4,21 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <!--
+        ⚠️⚠️ **SENZA QUESTO BLOCCO L'ELENCO DEGLI EDITOR È VUOTO SU ANDROID 11 IN SU**, e non
+        dà nessun errore: da quella versione un'app non vede le altre se non dichiara che
+        cosa cerca, quindi `queryIntentActivities` risponde 'nessuno' su un telefono pieno di
+        editor. È il genere di difetto che non si vede su un telefono vecchio.
+        ⚠️ Si dichiara l'intento e non i nomi dei pacchetti: chiedere per nome vorrebbe dire
+        un elenco di app scritto a mano, vecchio il giorno dopo. Vedi `Editors`.
+    -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.EDIT" />
+            <data android:mimeType="image/*" />
+        </intent>
+    </queries>
+
+    <!--
         Serve a UNA cosa sola: sfogliare le altre immagini della stessa cartella
         dopo averne aperta una. Senza, l'app resta quella di prima e mostra la
         sola foto scelta.
@@ -36,12 +51,11 @@
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
     <!--
-        ⚠️ QUI VIVEVA UN BLOCCO `queries`, che dichiarava l'app Google perché da
-        Android 11 un'app non vede le altre se non le nomina. È uscito con la
-        ricerca immagine, nella 0.18: era la sola cosa che lo usava, e `queries` è
-        una finestra sulle app altrui che non si tiene aperta per niente. Chi
-        rimettesse la ricerca deve rimettere anche lui, o l'intent mirato fallirà
-        come se l'app non fosse installata.
+        ⚠️ IL BLOCCO `queries` È TORNATO, in cima, ma dichiara un'altra cosa: dalla
+        1.03 serve a trovare gli editor di immagini. Quello di prima nominava l'app
+        Google per la ricerca immagine ed è uscito con lei nella 0.18. La regola
+        resta quella: `queries` è una finestra sulle app altrui e non si tiene
+        aperta per niente, quindi chi toglie una funzione toglie anche la sua riga.
     -->
 
     <!--

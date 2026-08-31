@@ -284,4 +284,33 @@
     <string name="settings_content_blocked">La última vez esto cerró la aplicación (%1$s), así que la función se ha detenido sola. Lo demás no está afectado.</string>
     <string name="settings_content_index">Indexar las imágenes ahora</string>
     <string name="settings_content_indexing">Indexando: %1$d de %2$d</string>
+
+    <!-- Modificare una fotografia (1.03) -->
+    <string name="menu_edit">Editar</string>
+    <string name="editor_internal">Editor interno</string>
+    <string name="editor_pick">¿Con qué editas?</string>
+    <string name="editor_left">Girar a la izquierda</string>
+    <string name="editor_right">Girar a la derecha</string>
+    <string name="editor_free">Libre</string>
+    <string name="editor_save">Guardar</string>
+    <string name="editor_how">¿Cómo quieres guardarla?</string>
+    <string name="editor_overwrite">Sobrescribir el archivo</string>
+    <string name="editor_copy">Guardar una copia</string>
+    <string name="editor_done">Guardada</string>
+    <string name="editor_done_copy">Copia guardada</string>
+    <string name="editor_done_lossless">Guardada sin volver a comprimir</string>
+    <string name="editor_pick_none">Ninguna otra app de este teléfono se ofrece a editar imágenes.</string>
+    <string name="edit_no_file">Este archivo no está en el teléfono</string>
+    <string name="edit_too_big">La imagen es demasiado grande para este dispositivo</string>
+    <string name="edit_nothing">No ha cambiado nada</string>
+    <string name="edit_no_overwrite">Este formato no se puede reescribir, así que solo queda la copia.</string>
+    <string name="edit_failed">No se ha podido guardar</string>
+    <string name="edit_app_gone">Ese editor ya no está. Elige otro.</string>
+    <string name="settings_editor">App para editar imágenes</string>
+    <string name="settings_editor_desc">Qué app se abre al tocar Editar en una imagen. La interna gira y recorta, y nada más.</string>
+    <string name="settings_editor_none">Ninguna elegida</string>
+    <string name="settings_editor_pick">Elegir</string>
+    <string name="view_grid">Cuadrícula</string>
+    <string name="view_list">Lista</string>
+    <string name="view_tree">Carpetas</string>
 </resources>

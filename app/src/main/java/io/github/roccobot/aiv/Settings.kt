@@ -86,8 +86,19 @@ enum class ScaleMode(override val token: String) : Choice { PHYSICAL("physical")
  * lo stesso dito dell'altra mano.
  * ⚠️ **Rovescia le FILE e non l'ordine dell'elenco**: la prima fila resta la prima, cambia
  * solo da che parte comincia. Girando l'elenco intero, 'Copia' finirebbe nella seconda fila.
+ *
+ * ⚠️⚠️ **L'ORDINE DI DICHIARAZIONE È QUELLO DEI DUE TASTI, e la sinistra viene prima anche
+ * se il valore di fabbrica è la destra** (richiesta dell'utente, 2026-08-31: *anche se
+ * 'Destra' è predefinita, deve essere al secondo posto, in modo che 'Sinistra' sia a sinistra
+ * e 'Destra' a destra*). Questa scelta parla di **lati**, quindi i due tasti stanno dove
+ * stanno le mani: metterli in ordine di frequenza costringerebbe a leggere l'etichetta per
+ * capire quale si sta toccando.
+ * ⚠️ **Il valore predefinito NON dipende da quest'ordine e non è cambiato**: sta scritto due
+ * volte, nel valore di serie di `Settings.hand` e nel ripiego della rilettura, ed è `RIGHT`
+ * in tutti e due. ⚠️ E la memoria non si rompe: sul disco va il **token**, non la posizione
+ * (vedi `byToken`), quindi un telefono aggiornato ritrova la scelta di ieri.
  */
-enum class Hand(override val token: String) : Choice { RIGHT("right"), LEFT("left") }
+enum class Hand(override val token: String) : Choice { LEFT("left"), RIGHT("right") }
 
 /**
  * Quanto è grande il testo nella vista a **elenco**.
@@ -216,6 +227,16 @@ data class Settings(
      * mentre un percorso di sistema in testa è utile a chi sa che cosa farsene.
      */
     val listPath: Boolean = false,
+    /**
+     * Chi apre una fotografia quando si tocca 'Modifica', dalla `1.03`.
+     *
+     * ⚠️ **Vuoto vuol dire 'mai scelto', ed è diverso da 'nessuno'**: la prima volta il menu
+     * chiede, e da lì in poi non chiede più. Senza la distinzione, o si chiederebbe a ogni
+     * modifica o non si chiederebbe mai.
+     * ⚠️ **Il valore è un componente appiattito** (`pacchetto/classe`), o `Editors.INTERNAL`
+     * per l'editor di casa. Vedi `Editors`.
+     */
+    val editorApp: String = "",
     /**
      * Se all'avvio si guarda negli appunti.
      *
@@ -385,6 +406,7 @@ object SettingsStore {
     private val CLIPBOARD_DONE = stringPreferencesKey("clipboard-done")
     private val HAND = stringPreferencesKey("hand")
     private val LIST_PATH = booleanPreferencesKey("list-path")
+    private val EDITOR_APP = stringPreferencesKey("editor-app")
     private val LIST_COUNT = booleanPreferencesKey("list-count")
     private val LIST_TEXT = stringPreferencesKey("list-text")
     private val TREE_HIDDEN = booleanPreferencesKey("tree-hidden")
@@ -425,6 +447,7 @@ object SettingsStore {
             clipboardDone = p[CLIPBOARD_DONE] ?: "",
             hand = Hand.entries.byToken(p[HAND], Hand.RIGHT),
             listPath = p[LIST_PATH] ?: false,
+            editorApp = p[EDITOR_APP] ?: "",
             listCount = p[LIST_COUNT] ?: true,
             listText = TextSize.entries.byToken(p[LIST_TEXT], TextSize.NORMAL),
             treeHidden = p[TREE_HIDDEN] ?: false,
@@ -482,6 +505,7 @@ object SettingsStore {
             p[CLIPBOARD_START] = settings.clipboardStart
             p[HAND] = settings.hand.token
             p[LIST_PATH] = settings.listPath
+            p[EDITOR_APP] = settings.editorApp
             p[LIST_COUNT] = settings.listCount
             p[LIST_TEXT] = settings.listText.token
             p[TREE_HIDDEN] = settings.treeHidden

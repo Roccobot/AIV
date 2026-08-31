@@ -284,4 +284,33 @@
     <string name="settings_content_blocked">Da última vez isto fechou o aplicativo (%1$s), então o recurso se desligou sozinho. O resto não é afetado.</string>
     <string name="settings_content_index">Indexar as imagens agora</string>
     <string name="settings_content_indexing">Indexando: %1$d de %2$d</string>
+
+    <!-- Modificare una fotografia (1.03) -->
+    <string name="menu_edit">Editar</string>
+    <string name="editor_internal">Editor interno</string>
+    <string name="editor_pick">Com o que você edita?</string>
+    <string name="editor_left">Girar para a esquerda</string>
+    <string name="editor_right">Girar para a direita</string>
+    <string name="editor_free">Livre</string>
+    <string name="editor_save">Salvar</string>
+    <string name="editor_how">Como você quer salvar?</string>
+    <string name="editor_overwrite">Sobrescrever o arquivo</string>
+    <string name="editor_copy">Salvar uma cópia</string>
+    <string name="editor_done">Salva</string>
+    <string name="editor_done_copy">Cópia salva</string>
+    <string name="editor_done_lossless">Salva sem recomprimir</string>
+    <string name="editor_pick_none">Nenhum outro app deste telefone se oferece para editar imagens.</string>
+    <string name="edit_no_file">Este arquivo não está no telefone</string>
+    <string name="edit_too_big">A imagem é grande demais para este aparelho</string>
+    <string name="edit_nothing">Nada mudou</string>
+    <string name="edit_no_overwrite">Este formato não pode ser reescrito, então resta só a cópia.</string>
+    <string name="edit_failed">Não foi possível salvar</string>
+    <string name="edit_app_gone">Esse editor sumiu. Escolha outro.</string>
+    <string name="settings_editor">App para editar imagens</string>
+    <string name="settings_editor_desc">Qual app abre ao tocar em Editar numa imagem. O interno gira e recorta, e nada mais.</string>
+    <string name="settings_editor_none">Nenhum escolhido</string>
+    <string name="settings_editor_pick">Escolher</string>
+    <string name="view_grid">Grade</string>
+    <string name="view_list">Lista</string>
+    <string name="view_tree">Pastas</string>
 </resources>

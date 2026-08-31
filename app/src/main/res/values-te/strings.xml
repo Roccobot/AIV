@@ -269,4 +269,33 @@
     <string name="settings_content_blocked">గత సారి దీనితో యాప్ మూసుకుపోయింది (%1$s), అందుకే ఈ సౌకర్యం తనంతట తానే ఆగిపోయింది. మిగతావాటిపై ప్రభావం లేదు.</string>
     <string name="settings_content_index">ఇప్పుడు చిత్రాలను సూచిక చేయి</string>
     <string name="settings_content_indexing">సూచిక: %2$d లో %1$d</string>
+
+    <!-- Modificare una fotografia (1.03) -->
+    <string name="menu_edit">సవరించు</string>
+    <string name="editor_internal">లోపలి సవరణి</string>
+    <string name="editor_pick">దేనితో సవరిస్తారు?</string>
+    <string name="editor_left">ఎడమవైపు తిప్పు</string>
+    <string name="editor_right">కుడివైపు తిప్పు</string>
+    <string name="editor_free">స్వేచ్ఛ</string>
+    <string name="editor_save">భద్రపరచండి</string>
+    <string name="editor_how">ఎలా భద్రపరచాలి?</string>
+    <string name="editor_overwrite">దస్త్రంపైనే రాయండి</string>
+    <string name="editor_copy">ఒక నకలు భద్రపరచండి</string>
+    <string name="editor_done">భద్రపరచబడింది</string>
+    <string name="editor_done_copy">నకలు భద్రపరచబడింది</string>
+    <string name="editor_done_lossless">మళ్లీ కుదించకుండానే భద్రపరచబడింది</string>
+    <string name="editor_pick_none">ఈ ఫోన్లో బొమ్మలు సవరించడానికి ముందుకొచ్చే మరో యాప్ లేదు.</string>
+    <string name="edit_no_file">ఈ దస్త్రం ఫోన్లో లేదు</string>
+    <string name="edit_too_big">ఈ పరికరానికి బొమ్మ మరీ పెద్దది</string>
+    <string name="edit_nothing">ఏదీ మారలేదు</string>
+    <string name="edit_no_overwrite">ఈ రూపాన్ని తిరిగి రాయలేము, కాబట్టి నకలు మాత్రమే మిగులుతుంది.</string>
+    <string name="edit_failed">భద్రపరచలేకపోయాం</string>
+    <string name="edit_app_gone">ఆ సవరణి ఇక లేదు. మరొకటి ఎంచుకో.</string>
+    <string name="settings_editor">బొమ్మలు సవరించే యాప్</string>
+    <string name="settings_editor_desc">బొమ్మపై సవరించు తాకినప్పుడు ఏ యాప్ తెరుచుకుంటుంది. లోపలిది తిప్పుతుంది, కత్తిరిస్తుంది, అంతే.</string>
+    <string name="settings_editor_none">ఏదీ ఎంచుకోలేదు</string>
+    <string name="settings_editor_pick">ఎంచుకో</string>
+    <string name="view_grid">గడి</string>
+    <string name="view_list">జాబితా</string>
+    <string name="view_tree">ఫోల్డర్లు</string>
 </resources>

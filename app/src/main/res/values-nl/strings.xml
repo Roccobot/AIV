@@ -269,4 +269,33 @@
     <string name="settings_content_blocked">De vorige keer sloot dit de app af (%1$s), dus de functie heeft zichzelf gestopt. De rest blijft ongemoeid.</string>
     <string name="settings_content_index">Afbeeldingen nu indexeren</string>
     <string name="settings_content_indexing">Indexeren: %1$d van %2$d</string>
+
+    <!-- Modificare una fotografia (1.03) -->
+    <string name="menu_edit">Bewerken</string>
+    <string name="editor_internal">Ingebouwde editor</string>
+    <string name="editor_pick">Waarmee bewerk je?</string>
+    <string name="editor_left">Naar links draaien</string>
+    <string name="editor_right">Naar rechts draaien</string>
+    <string name="editor_free">Vrij</string>
+    <string name="editor_save">Opslaan</string>
+    <string name="editor_how">Hoe wil je het opslaan?</string>
+    <string name="editor_overwrite">Bestand overschrijven</string>
+    <string name="editor_copy">Kopie opslaan</string>
+    <string name="editor_done">Opgeslagen</string>
+    <string name="editor_done_copy">Kopie opgeslagen</string>
+    <string name="editor_done_lossless">Opgeslagen zonder opnieuw te comprimeren</string>
+    <string name="editor_pick_none">Geen andere app op deze telefoon biedt aan om foto\'s te bewerken.</string>
+    <string name="edit_no_file">Dit bestand staat niet op de telefoon</string>
+    <string name="edit_too_big">De afbeelding is te groot voor dit apparaat</string>
+    <string name="edit_nothing">Er is niets veranderd</string>
+    <string name="edit_no_overwrite">Dit formaat kan niet worden teruggeschreven, dus blijft alleen de kopie over.</string>
+    <string name="edit_failed">Opslaan is niet gelukt</string>
+    <string name="edit_app_gone">Die editor is weg. Kies een andere.</string>
+    <string name="settings_editor">App om foto\'s te bewerken</string>
+    <string name="settings_editor_desc">Welke app opengaat als je bij een foto op Bewerken tikt. De ingebouwde draait en snijdt bij, en verder niets.</string>
+    <string name="settings_editor_none">Geen gekozen</string>
+    <string name="settings_editor_pick">Kiezen</string>
+    <string name="view_grid">Raster</string>
+    <string name="view_list">Lijst</string>
+    <string name="view_tree">Mappen</string>
 </resources>

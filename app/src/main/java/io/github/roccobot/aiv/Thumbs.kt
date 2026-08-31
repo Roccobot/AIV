@@ -152,6 +152,23 @@ object Thumbs {
         val key = keys[uri.toString()] ?: return null
         return SingletonImageLoader.get(context).memoryCache?.get(key)?.image
     }
+
+    /**
+     * Butta la miniatura di [uri]: il file dietro quell'indirizzo è cambiato.
+     *
+     * ⚠️⚠️ **SERVE PERCHÉ LA CHIAVE È L'INDIRIZZO, non il contenuto**: sovrascrivendo una
+     * fotografia dall'editor interno l'indirizzo resta identico, quindi senza questa
+     * chiamata la griglia continuerebbe a mostrare la miniatura di **prima** del ritaglio,
+     * cioè un'immagine che sul telefono non esiste più.
+     * ⚠️ **Non tocca la miniatura del SISTEMA**, che è un'altra cache e non è nostra: quella
+     * la rifà il MediaScanner, ed è la ragione per cui [ImageEdit] chiama `FileTree.scan`
+     * dopo ogni scrittura. Qui si toglie la sola copia che teniamo noi.
+     */
+    @Synchronized
+    fun forget(context: Context, uri: AndroidUri) {
+        val key = keys.remove(uri.toString()) ?: return
+        SingletonImageLoader.get(context).memoryCache?.remove(key)
+    }
 }
 
 /**

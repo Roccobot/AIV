@@ -284,4 +284,33 @@
     <string name="settings_content_blocked">La dernière fois, cela a fermé l\'application (%1$s), donc la fonction s\'est arrêtée d\'elle-même. Le reste n\'est pas touché.</string>
     <string name="settings_content_index">Indexer les images maintenant</string>
     <string name="settings_content_indexing">Indexation: %1$d sur %2$d</string>
+
+    <!-- Modificare una fotografia (1.03) -->
+    <string name="menu_edit">Modifier</string>
+    <string name="editor_internal">Éditeur intégré</string>
+    <string name="editor_pick">Avec quoi modifier ?</string>
+    <string name="editor_left">Tourner à gauche</string>
+    <string name="editor_right">Tourner à droite</string>
+    <string name="editor_free">Libre</string>
+    <string name="editor_save">Enregistrer</string>
+    <string name="editor_how">Comment veux-tu l\'enregistrer ?</string>
+    <string name="editor_overwrite">Écraser le fichier</string>
+    <string name="editor_copy">Enregistrer une copie</string>
+    <string name="editor_done">Enregistrée</string>
+    <string name="editor_done_copy">Copie enregistrée</string>
+    <string name="editor_done_lossless">Enregistrée sans recompression</string>
+    <string name="editor_pick_none">Aucune autre app de ce téléphone ne propose de modifier des images.</string>
+    <string name="edit_no_file">Ce fichier n\'est pas sur le téléphone</string>
+    <string name="edit_too_big">L\'image est trop grande pour cet appareil</string>
+    <string name="edit_nothing">Rien n\'a changé</string>
+    <string name="edit_no_overwrite">Ce format ne peut pas être réécrit, il ne reste que la copie.</string>
+    <string name="edit_failed">L\'enregistrement a échoué</string>
+    <string name="edit_app_gone">Cet éditeur a disparu. Choisis-en un autre.</string>
+    <string name="settings_editor">App pour modifier les images</string>
+    <string name="settings_editor_desc">Quelle app s\'ouvre quand tu touches Modifier sur une image. Celle qui est intégrée tourne et recadre, rien de plus.</string>
+    <string name="settings_editor_none">Aucune choisie</string>
+    <string name="settings_editor_pick">Choisir</string>
+    <string name="view_grid">Grille</string>
+    <string name="view_list">Liste</string>
+    <string name="view_tree">Dossiers</string>
 </resources>
