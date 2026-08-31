@@ -77,6 +77,18 @@ enum class BgTheme(override val token: String) : Choice { AUTO("auto"), LIGHT("l
  */
 enum class ScaleMode(override val token: String) : Choice { PHYSICAL("physical"), LOGICAL("logical") }
 
+/**
+ * Da che parte stanno le funzioni usate più spesso, nel pannello della selezione.
+ *
+ * ⚠️⚠️ **NON È UN'IMPOSTAZIONE DI ESTETICA MA DI POLLICE** (richiesta dell'utente,
+ * 2026-08-31): le dieci azioni sono in fila, e chi tiene il telefono con la destra arriva
+ * comodo solo all'ultimo terzo. Rovesciando le due file, le stesse funzioni finiscono sotto
+ * lo stesso dito dell'altra mano.
+ * ⚠️ **Rovescia le FILE e non l'ordine dell'elenco**: la prima fila resta la prima, cambia
+ * solo da che parte comincia. Girando l'elenco intero, 'Copia' finirebbe nella seconda fila.
+ */
+enum class Hand(override val token: String) : Choice { RIGHT("right"), LEFT("left") }
+
 /** Where the one line of details sits. Asked for by the user. */
 enum class InfoPosition(override val token: String) : Choice { TOP("top"), BOTTOM("bottom") }
 
@@ -180,6 +192,15 @@ data class Settings(
      * mai. La scelta è di chi la usa e non nostra, ed è la ragione per cui è
      * un'impostazione e non un comportamento.
      */
+    /** Da che parte stanno le funzioni principali del pannello. Vedi [Hand]. */
+    val hand: Hand = Hand.RIGHT,
+    /**
+     * Se 'Copia lista' mette anche il percorso della cartella, in testa ai nomi.
+     *
+     * ⚠️ Spenta di fabbrica, come chiesto: una lista di nomi si incolla dove si vuole,
+     * mentre un percorso di sistema in testa è utile a chi sa che cosa farsene.
+     */
+    val listPath: Boolean = false,
     val clipboardStart: Boolean = false,
     /**
      * L'ultimo indirizzo degli appunti che l'app ha aperto da sé.
@@ -336,6 +357,8 @@ object SettingsStore {
     private val FOLDER_VIEW = stringPreferencesKey("folder-view")
     private val CLIPBOARD_START = booleanPreferencesKey("clipboard-start")
     private val CLIPBOARD_DONE = stringPreferencesKey("clipboard-done")
+    private val HAND = stringPreferencesKey("hand")
+    private val LIST_PATH = booleanPreferencesKey("list-path")
     private val UI_THEME = stringPreferencesKey("ui-theme")
     private val FOLDER_COLUMNS_KEY = intPreferencesKey("folder-columns")
     private val BIN_ON = booleanPreferencesKey("bin-on")
@@ -370,6 +393,8 @@ object SettingsStore {
             folderView = FolderView.entries.byToken(p[FOLDER_VIEW], FolderView.GRID),
             clipboardStart = p[CLIPBOARD_START] ?: false,
             clipboardDone = p[CLIPBOARD_DONE] ?: "",
+            hand = Hand.entries.byToken(p[HAND], Hand.RIGHT),
+            listPath = p[LIST_PATH] ?: false,
             uiTheme = UiTheme.entries.byToken(p[UI_THEME], UiTheme.SYSTEM),
             // ⚠️ Ricondotto all'elenco ammesso e non solo letto: un numero fuori posto
             // nell'archivio (una versione futura, un file modificato a mano) darebbe una
@@ -421,6 +446,8 @@ object SettingsStore {
             p[OPEN_AT_START] = settings.openAtStart
             p[FOLDER_VIEW] = settings.folderView.token
             p[CLIPBOARD_START] = settings.clipboardStart
+            p[HAND] = settings.hand.token
+            p[LIST_PATH] = settings.listPath
             // ⚠️ Si riscrive anche qui, o il salvataggio della schermata delle impostazioni
             // (che scrive l'oggetto INTERO) cancellerebbe l'indirizzo già aperto, e gli
             // appunti tornerebbero a riaprirsi al primo avvio dopo un giro nelle opzioni.

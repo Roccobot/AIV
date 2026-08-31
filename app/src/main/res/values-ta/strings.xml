@@ -44,6 +44,10 @@
     <string name="settings_folder_columns">கோப்புறைக் கட்டத்தின் நிரல்கள்</string>
     <string name="settings_folder_columns_desc">நிரல்கள் அதிகமானால் திரையில் அதிகக் கோப்புறைகள் அடங்கும், ஒவ்வொரு அட்டையும் சிறியதாகும். நான்கில் கீழே உள்ள பெயர் பெரும்பாலும் வெட்டப்படும்.</string>
     <string name="settings_folder_count">கோப்புறைகளுக்குக் கீழே உருப்படிகளின் எண்ணிக்கை</string>
+    <string name="settings_hand">முதன்மைச் செயல்களின் இடம்</string>
+    <string name="settings_right">வலது</string>
+    <string name="settings_left">இடது</string>
+    <string name="settings_list_path">கோப்புப் பட்டியல்: கோப்புறைப் பாதையையும் நகலெடு</string>
     <string name="settings_folder_count_desc">ஒவ்வொரு அட்டைக்குக் கீழே, கோப்புறையில் எத்தனை படங்கள் உள்ளன. அணைத்தால் வரி குறுகும், மேலே உள்ள தலைப்புப் பகுதி அதே அளவு வளரும்.</string>
     <string name="settings_fit_grow">சிறிய படங்களைப் பெரிதாக்கு</string>
     <string name="settings_fit_grow_desc">அணைத்திருந்தால் திரையை விடச் சிறிய படம் அதன் உண்மையான அளவில் காட்டப்படும். இயக்கியிருந்தால் திரையை நிரப்பும் வரை வளரும்.</string>

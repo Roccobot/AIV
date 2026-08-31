@@ -44,6 +44,10 @@
     <string name="settings_folder_columns">ستون‌های شبکه پوشه‌ها</string>
     <string name="settings_folder_columns_desc">ستون بیشتر پوشه‌های بیشتری را در صفحه جا می‌دهد و هر جلد را کوچک‌تر می‌کند. با چهار ستون، نام زیر آن بیشتر وقت‌ها بریده می‌شود.</string>
     <string name="settings_folder_count">شمار عنصرها زیر پوشه‌ها</string>
+    <string name="settings_hand">جای کارکردهای اصلی</string>
+    <string name="settings_right">راست</string>
+    <string name="settings_left">چپ</string>
+    <string name="settings_list_path">فهرست پرونده‌ها: نشانی پوشه هم رونوشت شود</string>
     <string name="settings_folder_count_desc">زیر هر جلد، پوشه چند تصویر دارد. با خاموش کردنش سطر کوتاه‌تر می‌شود و سرصفحه بالا به همان اندازه بزرگ‌تر.</string>
     <string name="settings_fit_grow">بزرگ کردن تصاویر کوچک</string>
     <string name="settings_fit_grow_desc">خاموش، تصویری کوچک‌تر از صفحه به اندازه واقعی خود نشان داده می‌شود. روشن، بزرگ می‌شود تا صفحه را پر کند.</string>

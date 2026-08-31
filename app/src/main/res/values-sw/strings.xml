@@ -44,6 +44,10 @@
     <string name="settings_folder_columns">Safu kwenye gridi ya folda</string>
     <string name="settings_folder_columns_desc">Safu nyingi zaidi huingiza folda nyingi zaidi kwenye skrini na kufanya kila jalada kuwa dogo. Kwa nne, jina lililo chini mara nyingi hukatwa.</string>
     <string name="settings_folder_count">Idadi ya vipengee chini ya folda</string>
+    <string name="settings_hand">Nafasi ya vitendo vikuu</string>
+    <string name="settings_right">Kulia</string>
+    <string name="settings_left">Kushoto</string>
+    <string name="settings_list_path">Orodha ya faili: nakili njia ya folda</string>
     <string name="settings_folder_count_desc">Chini ya kila jalada, picha ngapi zimo kwenye folda. Ukiizima mstari unakuwa mfupi, na kichwa cha ukurasa kinakua kwa kiasi hicho.</string>
     <string name="settings_fit_grow">Kuza picha ndogo</string>
     <string name="settings_fit_grow_desc">Ikizimwa, picha ndogo kuliko skrini huonyeshwa kwa ukubwa wake halisi. Ikiwashwa, hukua hadi ijaze skrini.</string>

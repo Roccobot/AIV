@@ -44,6 +44,10 @@
     <string name="settings_folder_columns">أعمدة شبكة المجلدات</string>
     <string name="settings_folder_columns_desc">كلما زادت الأعمدة زاد عدد المجلدات على الشاشة وصغر كل غلاف. عند أربعة أعمدة يُقتطع الاسم أسفله غالبًا.</string>
     <string name="settings_folder_count">عدد العناصر تحت المجلدات</string>
+    <string name="settings_hand">موضع الوظائف الرئيسية</string>
+    <string name="settings_right">يمين</string>
+    <string name="settings_left">يسار</string>
+    <string name="settings_list_path">قائمة الملفات: انسخ مسار المجلد</string>
     <string name="settings_folder_count_desc">تحت كل غلاف، عدد الصور التي يحتويها المجلد. عند الإيقاف يقصر السطر، ويكبر العنوان في الأعلى بالقدر نفسه.</string>
     <string name="settings_fit_grow">تكبير الصور الصغيرة</string>
     <string name="settings_fit_grow_desc">عند الإيقاف تظهر الصورة الأصغر من الشاشة بحجمها الحقيقي. وعند التفعيل تكبر حتى تملأ الشاشة.</string>

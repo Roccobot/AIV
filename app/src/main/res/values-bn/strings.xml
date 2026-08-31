@@ -44,6 +44,10 @@
     <string name="settings_folder_columns">ফোল্ডার গ্রিডের কলাম</string>
     <string name="settings_folder_columns_desc">বেশি কলামে পর্দায় বেশি ফোল্ডার আঁটে আর প্রতিটি প্রচ্ছদ ছোট হয়। চারটিতে নিচের নাম সাধারণত কাটা পড়ে।</string>
     <string name="settings_folder_count">ফোল্ডারের নিচে আইটেমের সংখ্যা</string>
+    <string name="settings_hand">প্রধান কাজের অবস্থান</string>
+    <string name="settings_right">ডানে</string>
+    <string name="settings_left">বামে</string>
+    <string name="settings_list_path">ফাইল তালিকা: ফোল্ডারের পথও কপি করুন</string>
     <string name="settings_folder_count_desc">প্রতিটি প্রচ্ছদের নিচে, ফোল্ডারে কতটি ছবি আছে। বন্ধ করলে সারি ছোট হয়, আর উপরের শিরোনামের জায়গা ততটাই বড় হয়।</string>
     <string name="settings_fit_grow">ছোট ছবি বড় করুন</string>
     <string name="settings_fit_grow_desc">বন্ধ থাকলে পর্দার চেয়ে ছোট ছবি তার আসল আকারে দেখানো হয়। চালু থাকলে পর্দা ভরে যাওয়া পর্যন্ত বড় হয়।</string>

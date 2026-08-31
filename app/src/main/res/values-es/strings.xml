@@ -44,6 +44,10 @@
     <string name="settings_folder_columns">Columnas en la cuadrícula de carpetas</string>
     <string name="settings_folder_columns_desc">Más columnas caben más carpetas en la pantalla y encogen cada portada. Con cuatro, el nombre de debajo suele quedar cortado.</string>
     <string name="settings_folder_count">Recuento de elementos bajo las carpetas</string>
+    <string name="settings_hand">Posición de las funciones principales</string>
+    <string name="settings_right">Derecha</string>
+    <string name="settings_left">Izquierda</string>
+    <string name="settings_list_path">Lista de archivos: copiar la ruta de la carpeta contenedora</string>
     <string name="settings_folder_count_desc">Bajo cada portada, cuántas imágenes contiene la carpeta. Al apagarlo la fila se acorta, y la cabecera crece otro tanto.</string>
     <string name="settings_fit_grow">Agrandar las imágenes pequeñas</string>
     <string name="settings_fit_grow_desc">Desactivado, una imagen más pequeña que la pantalla se muestra a su tamaño real. Activado, crece hasta llenar la vista.</string>

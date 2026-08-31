@@ -44,6 +44,10 @@
     <string name="settings_folder_columns">폴더 격자의 열 수</string>
     <string name="settings_folder_columns_desc">열이 많을수록 화면에 폴더가 더 많이 들어가고 표지는 작아집니다. 네 열에서는 아래의 이름이 대개 잘립니다.</string>
     <string name="settings_folder_count">폴더 아래에 항목 개수</string>
+    <string name="settings_hand">주요 기능의 위치</string>
+    <string name="settings_right">오른쪽</string>
+    <string name="settings_left">왼쪽</string>
+    <string name="settings_list_path">파일 목록: 폴더 경로도 복사</string>
     <string name="settings_folder_count_desc">각 표지 아래에 폴더가 담고 있는 이미지 개수를 보여줍니다. 끄면 행이 짧아지고 그만큼 위쪽 머리글이 커집니다.</string>
     <string name="settings_fit_grow">작은 이미지 확대</string>
     <string name="settings_fit_grow_desc">끄면 화면보다 작은 이미지는 실제 크기로 보입니다. 켜면 화면을 채울 때까지 커집니다.</string>

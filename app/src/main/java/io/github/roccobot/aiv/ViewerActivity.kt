@@ -1499,6 +1499,8 @@ private fun AivApp(model: ViewerViewModel) {
                 onChanged = { model.reloadGrid() },
                 factFields = settings.factRows,
                 binOn = settings.binOn,
+                leftHand = settings.hand == Hand.LEFT,
+                listPath = settings.listPath,
                 gridNames = settings.gridNames
             )
         }
@@ -1519,6 +1521,8 @@ private fun AivApp(model: ViewerViewModel) {
                 onQuery = { model.search(it) },
                 factFields = settings.factRows,
                 binOn = settings.binOn,
+                leftHand = settings.hand == Hand.LEFT,
+                listPath = settings.listPath,
                 gridNames = settings.gridNames
             )
         }
@@ -1539,6 +1543,8 @@ private fun AivApp(model: ViewerViewModel) {
                 onChanged = { model.reloadGrid() },
                 factFields = settings.factRows,
                 binOn = settings.binOn,
+                leftHand = settings.hand == Hand.LEFT,
+                listPath = settings.listPath,
                 gridNames = settings.gridNames,
                 bin = true,
                 onHistory = { model.openHistory() }

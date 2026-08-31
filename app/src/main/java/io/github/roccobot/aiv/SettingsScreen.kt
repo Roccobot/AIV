@@ -286,6 +286,34 @@ private fun ColumnScope.RootPage(
         onSelect = { onChange(settings.copy(infoPosition = it)) }
     )
 
+    /*
+     * ⚠️ **Le due della selezione stanno QUI, accanto a quelle della vista**, e non in un
+     * gruppo loro: una voce sola non fa un gruppo, e due mezze voci in fondo alla pagina
+     * sarebbero più difficili da trovare di due righe fra quelle che si leggono già.
+     */
+    Choices(
+        label = stringResource(R.string.settings_hand),
+        detail = null,
+        options = Hand.entries,
+        selected = settings.hand,
+        nameOf = {
+            stringResource(
+                when (it) {
+                    Hand.RIGHT -> R.string.settings_right
+                    Hand.LEFT -> R.string.settings_left
+                }
+            )
+        },
+        onSelect = { onChange(settings.copy(hand = it)) }
+    )
+
+    SwitchRow(
+        label = stringResource(R.string.settings_list_path),
+        detail = null,
+        checked = settings.listPath,
+        onChange = { onChange(settings.copy(listPath = it)) }
+    )
+
     SwitchRow(
         label = stringResource(R.string.settings_info_visible),
         detail = null,

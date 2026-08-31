@@ -44,6 +44,10 @@
     <string name="settings_folder_columns">Spalten im Ordnerraster</string>
     <string name="settings_folder_columns_desc">Mehr Spalten bringen mehr Ordner auf den Bildschirm und machen jedes Titelbild kleiner. Bei vier wird der Name darunter meist abgeschnitten.</string>
     <string name="settings_folder_count">Anzahl der Elemente unter den Ordnern</string>
+    <string name="settings_hand">Position der Hauptfunktionen</string>
+    <string name="settings_right">Rechts</string>
+    <string name="settings_left">Links</string>
+    <string name="settings_list_path">Dateiliste: Pfad des übergeordneten Ordners kopieren</string>
     <string name="settings_folder_count_desc">Unter jedem Titelbild, wie viele Bilder der Ordner enthält. Ausgeschaltet wird die Zeile kürzer, und der Kopfbereich wächst um genauso viel.</string>
     <string name="settings_fit_grow">Kleine Bilder vergrößern</string>
     <string name="settings_fit_grow_desc">Aus wird ein Bild, das kleiner als der Bildschirm ist, in seiner echten Größe gezeigt. An wächst es, bis es die Ansicht füllt.</string>

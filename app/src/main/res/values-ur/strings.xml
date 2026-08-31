@@ -44,6 +44,10 @@
     <string name="settings_folder_columns">فولڈر گرڈ کے کالم</string>
     <string name="settings_folder_columns_desc">زیادہ کالم اسکرین پر زیادہ فولڈر سماتے ہیں اور ہر سرورق چھوٹا کر دیتے ہیں۔ چار پر نیچے کا نام عموماً کٹ جاتا ہے۔</string>
     <string name="settings_folder_count">فولڈروں کے نیچے عناصر کی گنتی</string>
+    <string name="settings_hand">اہم افعال کی جگہ</string>
+    <string name="settings_right">دائیں</string>
+    <string name="settings_left">بائیں</string>
+    <string name="settings_list_path">فائل فہرست: فولڈر کا راستہ بھی نقل کریں</string>
     <string name="settings_folder_count_desc">ہر سرورق کے نیچے، فولڈر میں کتنی تصویریں ہیں۔ بند کرنے پر قطار چھوٹی ہو جاتی ہے، اور اوپر کا سرنامہ اتنا ہی بڑھ جاتا ہے۔</string>
     <string name="settings_fit_grow">چھوٹی تصویریں بڑی کریں</string>
     <string name="settings_fit_grow_desc">بند ہو تو اسکرین سے چھوٹی تصویر اپنے اصل حجم میں دکھائی جاتی ہے۔ کھلا ہو تو بڑھ کر اسکرین بھر دیتی ہے۔</string>

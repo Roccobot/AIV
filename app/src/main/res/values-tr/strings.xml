@@ -44,6 +44,10 @@
     <string name="settings_folder_columns">Klasör ızgarasındaki sütunlar</string>
     <string name="settings_folder_columns_desc">Sütun arttıkça ekrana daha çok klasör sığar ve her kapak küçülür. Dörtte alttaki ad çoğunlukla kesilir.</string>
     <string name="settings_folder_count">Klasörlerin altında öge sayısı</string>
+    <string name="settings_hand">Ana işlevlerin konumu</string>
+    <string name="settings_right">Sağ</string>
+    <string name="settings_left">Sol</string>
+    <string name="settings_list_path">Dosya listesi: klasör yolunu da kopyala</string>
     <string name="settings_folder_count_desc">Her kapağın altında, klasörün kaç resim içerdiği. Kapatınca satır kısalır ve üstteki başlık alanı o kadar büyür.</string>
     <string name="settings_fit_grow">Küçük görselleri büyüt</string>
     <string name="settings_fit_grow_desc">Kapalıyken ekrandan küçük bir görsel gerçek boyutunda görünür. Açıkken görünümü dolduracak kadar büyür.</string>

@@ -44,6 +44,10 @@
     <string name="settings_folder_columns">फ़ोल्डर ग्रिड के स्तंभ</string>
     <string name="settings_folder_columns_desc">जितने अधिक स्तंभ, उतने अधिक फ़ोल्डर स्क्रीन पर आते हैं और हर आवरण उतना ही छोटा होता है। चार पर नीचे का नाम अक्सर कट जाता है।</string>
     <string name="settings_folder_count">फ़ोल्डर के नीचे आइटम की संख्या</string>
+    <string name="settings_hand">मुख्य कार्यों की जगह</string>
+    <string name="settings_right">दाएँ</string>
+    <string name="settings_left">बाएँ</string>
+    <string name="settings_list_path">फ़ाइल सूची: फ़ोल्डर का पथ भी कॉपी करें</string>
     <string name="settings_folder_count_desc">हर कवर के नीचे, फ़ोल्डर में कितनी इमेज हैं। बंद करने पर पंक्ति छोटी हो जाती है, और ऊपर का शीर्षक उतना ही बड़ा हो जाता है।</string>
     <string name="settings_fit_grow">छोटे चित्र बड़े करें</string>
     <string name="settings_fit_grow_desc">बंद हो तो स्क्रीन से छोटा चित्र अपने असली आकार में दिखता है। चालू हो तो वह स्क्रीन भरने तक बढ़ता है।</string>

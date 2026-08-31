@@ -44,6 +44,10 @@
     <string name="settings_folder_columns">Kolumny w siatce folderów</string>
     <string name="settings_folder_columns_desc">Więcej kolumn mieści na ekranie więcej folderów i zmniejsza każdą okładkę. Przy czterech nazwa pod nią zwykle się urywa.</string>
     <string name="settings_folder_count">Liczba elementów pod folderami</string>
+    <string name="settings_hand">Położenie głównych funkcji</string>
+    <string name="settings_right">Prawa</string>
+    <string name="settings_left">Lewa</string>
+    <string name="settings_list_path">Lista plików: kopiuj ścieżkę folderu</string>
     <string name="settings_folder_count_desc">Pod każdą okładką, ile obrazów zawiera folder. Po wyłączeniu wiersz staje się krótszy, a nagłówek u góry rośnie o tyle samo.</string>
     <string name="settings_fit_grow">Powiększaj małe obrazy</string>
     <string name="settings_fit_grow_desc">Wyłączone, obraz mniejszy od ekranu jest pokazywany w prawdziwym rozmiarze. Włączone, rośnie aż wypełni ekran.</string>
