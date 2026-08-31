@@ -1125,6 +1125,8 @@ private fun AivApp(model: ViewerViewModel) {
                 // come ogni altra voce.
                 onColumns = { model.updateSettings(settings.copy(folderColumns = it)) },
                 treePath = model.treePath,
+                binOn = settings.binOn,
+                factFields = settings.factRows,
                 onTreePath = { model.treeTo(it) },
                 onTreeOpen = { items, at -> model.openFromTree(items, at) },
                 onBack = if (screen.forStart) ({ model.leaveStartFolderChoice() }) else null
