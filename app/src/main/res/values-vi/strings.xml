@@ -93,16 +93,20 @@
     <string name="grid_item_last">Ảnh %1$d trong %2$d, ảnh bạn xem lần cuối</string>
     <string name="pick_leave">Thoát khỏi chế độ chọn</string>
     <string name="pick_all">Chọn tất cả</string>
-    <string name="pick_all_hint">Lối tắt: nhấn giữ nút nổi để chọn tất cả.</string>
     <string name="pick_info">Thông tin</string>
     <string name="pick_close">Đóng</string>
     <string name="pick_actions">Thao tác trên phần đã chọn</string>
     <string name="pick_move">Di chuyển</string>
     <string name="pick_rename">Đổi tên</string>
     <string name="pick_delete">Xóa</string>
+    <string name="pick_list">Danh sách</string>
+    <string name="pick_invert">Đảo</string>
+    <string name="pick_all_short">Tất cả</string>
+    <string name="pick_none">Không</string>
+    <string name="pick_forever">Xóa hẳn</string>
     <string name="pick_counting">Đang đếm...</string>
     <plurals name="pick_count">
-        <item quantity="other">%1$d đã chọn</item>
+        <item quantity="other">%1$d mục</item>
     </plurals>
     <plurals name="pick_facts">
         <item quantity="other">%2$s trong %1$d tệp</item>

@@ -132,18 +132,22 @@
     <!-- ── Scegliere più immagini in una cartella ── -->
     <string name="pick_leave">Esci dalla selezione</string>
     <string name="pick_all">Seleziona tutte</string>
-    <string name="pick_all_hint">Scorciatoia: tieni premuto il tasto flottante per selezionare tutto.</string>
     <string name="pick_info">Info</string>
     <string name="pick_close">Chiudi</string>
     <string name="pick_actions">Operazioni sulla selezione</string>
     <string name="pick_move">Sposta</string>
     <string name="pick_rename">Rinomina</string>
     <string name="pick_delete">Elimina</string>
+    <string name="pick_list">Lista</string>
+    <string name="pick_invert">Inverti</string>
+    <string name="pick_all_short">Tutti</string>
+    <string name="pick_none">Nessuno</string>
+    <string name="pick_forever">Elimina del tutto</string>
     <string name="pick_counting">Sto contando...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d scelta</item>
-        <item quantity="other">%1$d scelte</item>
-        <item quantity="many">%1$d scelte</item>
+        <item quantity="one">%1$d elemento</item>
+        <item quantity="other">%1$d elementi</item>
+        <item quantity="many">%1$d elementi</item>
     </plurals>
     <!-- Il conto e il peso su una riga sola: sono la misura di una cosa sola, non due
          fatti separati. Con un file solo 'totali' non ha senso e cade. -->

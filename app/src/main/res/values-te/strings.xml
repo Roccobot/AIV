@@ -93,17 +93,21 @@
     <string name="grid_item_last">%2$dలో %1$dవ చిత్రం, మీరు చివరిగా చూసినది</string>
     <string name="pick_leave">ఎంపిక నుంచి బయటకు</string>
     <string name="pick_all">అన్నీ ఎంచుకో</string>
-    <string name="pick_all_hint">షార్ట్‌కట్: అన్నింటినీ ఎంచుకోవడానికి ఫ్లోటింగ్ బటన్‌ను నొక్కి పట్టుకోండి.</string>
     <string name="pick_info">సమాచారం</string>
     <string name="pick_close">మూసేయి</string>
     <string name="pick_actions">ఎంచుకున్నవాటిపై పనులు</string>
     <string name="pick_move">తరలించు</string>
     <string name="pick_rename">పేరు మార్చు</string>
     <string name="pick_delete">తొలగించు</string>
+    <string name="pick_list">జాబితా</string>
+    <string name="pick_invert">తలకిందులు</string>
+    <string name="pick_all_short">అన్నీ</string>
+    <string name="pick_none">ఏవీ కాదు</string>
+    <string name="pick_forever">పూర్తిగా తొలగించు</string>
     <string name="pick_counting">లెక్కిస్తోంది...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d ఎంచుకోబడింది</item>
-        <item quantity="other">%1$d ఎంచుకోబడ్డాయి</item>
+        <item quantity="one">%1$d అంశం</item>
+        <item quantity="other">%1$d అంశాలు</item>
     </plurals>
     <plurals name="pick_facts">
         <item quantity="one">%1$d ఫైలులో %2$s</item>

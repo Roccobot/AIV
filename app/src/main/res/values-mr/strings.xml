@@ -93,17 +93,21 @@
     <string name="grid_item_last">%2$d पैकी %1$dवी प्रतिमा, तुम्ही शेवटी पाहिलेली</string>
     <string name="pick_leave">निवडीतून बाहेर</string>
     <string name="pick_all">सर्व निवडा</string>
-    <string name="pick_all_hint">शॉर्टकट: सर्व निवडण्यासाठी फ्लोटिंग बटण दाबून धरा.</string>
     <string name="pick_info">माहिती</string>
     <string name="pick_close">बंद करा</string>
     <string name="pick_actions">निवडलेल्यांवर कामे</string>
     <string name="pick_move">हलवा</string>
     <string name="pick_rename">नाव बदला</string>
     <string name="pick_delete">पुसा</string>
+    <string name="pick_list">यादी</string>
+    <string name="pick_invert">उलटा</string>
+    <string name="pick_all_short">सर्व</string>
+    <string name="pick_none">काहीही नाही</string>
+    <string name="pick_forever">पूर्णपणे हटवा</string>
     <string name="pick_counting">मोजत आहे...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d निवडली</item>
-        <item quantity="other">%1$d निवडल्या</item>
+        <item quantity="one">%1$d घटक</item>
+        <item quantity="other">%1$d घटक</item>
     </plurals>
     <plurals name="pick_facts">
         <item quantity="one">%1$d संचिकेत %2$s</item>

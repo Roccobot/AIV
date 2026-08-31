@@ -51,7 +51,6 @@
 
     <string name="search_hint">Procurar no nome do ficheiro</string>
     <string name="grid_item_last">Imagem %1$d de %2$d, a última que viu</string>
-    <string name="pick_all_hint">Atalho: mantenha o botão flutuante premido para selecionar tudo.</string>
     <string name="pick_delete">Eliminar</string>
     <string name="facts_name">Nome do ficheiro</string>
     <string name="facts_kind">Tipo de ficheiro</string>

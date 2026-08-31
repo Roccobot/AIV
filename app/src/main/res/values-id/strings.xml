@@ -93,16 +93,20 @@
     <string name="grid_item_last">Gambar %1$d dari %2$d, yang terakhir kamu lihat</string>
     <string name="pick_leave">Keluar dari pemilihan</string>
     <string name="pick_all">Pilih semua</string>
-    <string name="pick_all_hint">Pintasan: tekan dan tahan tombol mengambang untuk memilih semua.</string>
     <string name="pick_info">Info</string>
     <string name="pick_close">Tutup</string>
     <string name="pick_actions">Tindakan atas yang dipilih</string>
     <string name="pick_move">Pindahkan</string>
     <string name="pick_rename">Ganti nama</string>
     <string name="pick_delete">Hapus</string>
+    <string name="pick_list">Daftar</string>
+    <string name="pick_invert">Balik</string>
+    <string name="pick_all_short">Semua</string>
+    <string name="pick_none">Tidak ada</string>
+    <string name="pick_forever">Hapus permanen</string>
     <string name="pick_counting">Menghitung...</string>
     <plurals name="pick_count">
-        <item quantity="other">%1$d dipilih</item>
+        <item quantity="other">%1$d item</item>
     </plurals>
     <plurals name="pick_facts">
         <item quantity="other">%2$s dalam %1$d berkas</item>

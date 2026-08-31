@@ -1,11 +1,17 @@
 package io.github.roccobot.aiv
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -18,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -50,19 +57,94 @@ import androidx.compose.ui.unit.dp
  * mirando. Costa una riga di testo e non un tocco.
  */
 @Composable
-fun ActionPad(actions: List<PadAction>, modifier: Modifier = Modifier) {
+fun ActionPad(
+    actions: List<PadAction>,
+    modifier: Modifier = Modifier,
+    columns: Int = PAD_COLUMNS,
+    /**
+     * Se le celle si dividono tutta la larghezza invece di misurare [PAD_CELL].
+     *
+     * ⚠️ **Serve alla bottomsheet della selezione, che è larga quanto lo schermo**: là
+     * cinque celle da 76dp lascerebbero un vuoto a destra su un telefono largo e
+     * sforerebbero su uno stretto. Nel menu del tocco lungo, che si apre attorno a un
+     * tastino, la larghezza fissa resta quella giusta: là è il riquadro a doversi
+     * adattare al contenuto, non il contrario.
+     */
+    stretch: Boolean = false
+) {
     Column(
         modifier = modifier.padding(horizontal = PAD_EDGE, vertical = PAD_GAP),
         verticalArrangement = Arrangement.spacedBy(PAD_GAP)
     ) {
-        // ⚠️ Le righe si ricavano a gruppi di [PAD_COLUMNS] invece di essere scritte a
-        // mano: con sei azioni fanno le due righe di tre che l'utente ha chiesto, e con
-        // cinque l'ultima riga ne tiene due invece di lasciare un buco da riempire con un
-        // tasto finto. Serve al cestino, dove 'rinomina' diventa 'ripristina' e le voci
-        // possono non essere sei.
-        for (row in actions.chunked(PAD_COLUMNS)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(PAD_GAP)) {
-                for (action in row) PadButton(action)
+        // ⚠️ Le righe si ricavano a gruppi invece di essere scritte a mano: con sei azioni
+        // fanno le due righe di tre del menu, con dieci le due da cinque della
+        // bottomsheet, e con cinque l'ultima riga ne tiene due invece di lasciare un buco
+        // da riempire con un tasto finto. Serve al cestino, dove 'rinomina' diventa
+        // 'ripristina' e le voci possono non essere sei.
+        for (row in actions.chunked(columns)) {
+            Row(
+                modifier = if (stretch) Modifier.fillMaxWidth() else Modifier,
+                horizontalArrangement = Arrangement.spacedBy(PAD_GAP)
+            ) {
+                for (action in row) {
+                    PadButton(action, if (stretch) Modifier.weight(1f) else Modifier.width(PAD_CELL))
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Le stesse operazioni, ma come **pannello che entra dal basso**: la selezione multipla.
+ *
+ * ⚠️⚠️ **NON È UNA `ModalBottomSheet`, ed è la richiesta a imporlo** (utente, 2026-08-31:
+ * *mentre la bottomsheet è attiva, si deve poter agire sia sui suoi tasti che sulla
+ * selezione*). Quella di Material mette un velo davanti a tutto il resto e si prende i
+ * tocchi, quindi con lei aperta non si potrebbe più aggiungere una fotografia alla
+ * selezione: sarebbe la contraddizione esatta della cosa chiesta. Qui è una `Surface`
+ * appoggiata in fondo al `Box` della schermata, che occupa il posto suo e basta.
+ * ⚠️ **Il tastino della selezione è morto con lei** (stessa istruzione: *il FAB di
+ * selezione non serve più*), e la ragione l'ha trovata l'utente: se il menu si apre da sé,
+ * un tastino che lo apre non ha più niente da fare.
+ * ⚠️ **La maniglia non trascina**: è un segno, non un comando. Il pannello si chiude col
+ * tasto Indietro, come chiesto, e si riapre da sé quando la selezione riparte. Farla
+ * trascinabile vorrebbe dire un gesto in più che compete con lo scorrimento della griglia
+ * sotto, e nessuno l'ha chiesto.
+ */
+@Composable
+fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (Int) -> Unit = {}) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = slideInVertically(initialOffsetY = { it }),
+        exit = slideOutVertically(targetOffsetY = { it }),
+        modifier = Modifier.align(Alignment.BottomCenter)
+    ) {
+        Surface(
+            /*
+             * ⚠️⚠️ **L'ALTEZZA SI MISURA E NON SI STIMA, e serve alla griglia sotto**: senza
+             * il numero vero, l'ultima fila di fotografie resterebbe sotto il pannello e
+             * nessuno scorrimento la porterebbe fuori. Una costante scritta a mano
+             * sbaglierebbe il giorno che un'etichetta va a capo in una lingua lunga, che è
+             * esattamente il caso in cui il pannello cresce.
+             */
+            modifier = Modifier.onSizeChanged { onHeight(it.height) },
+            shape = RoundedCornerShape(topStart = SHEET_CORNER, topEnd = SHEET_CORNER),
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            tonalElevation = SHEET_LIFT,
+            shadowElevation = SHEET_LIFT
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .padding(vertical = PAD_GAP)
+                        .size(width = GRIP_WIDE, height = GRIP_TALL)
+                        .clip(RoundedCornerShape(GRIP_TALL))
+                        .background(MaterialTheme.colorScheme.outlineVariant)
+                )
+                ActionPad(actions = actions, columns = SHEET_COLUMNS, stretch = true)
             }
         }
     }
@@ -103,13 +185,12 @@ class PadAction(
  * parola, che è l'area minima toccabile di Material.
  */
 @Composable
-private fun PadButton(action: PadAction) {
+private fun PadButton(action: PadAction, modifier: Modifier = Modifier) {
     val tint =
         if (action.danger) MaterialTheme.colorScheme.error
         else MaterialTheme.colorScheme.onSurface
     Column(
-        modifier = Modifier
-            .width(PAD_CELL)
+        modifier = modifier
             .clip(RoundedCornerShape(PAD_CORNER))
             // ⚠️⚠️ **`combinedClickable` SEMPRE, anche senza tocco lungo**: con
             // `onLongClick` a null si comporta come un `clickable`, quindi un `if` fra i due
@@ -170,6 +251,30 @@ private val PAD_EDGE = 4.dp
 
 /** Lo smusso dell'alone del tocco su una cella. */
 private val PAD_CORNER = 10.dp
+
+/**
+ * Quante colonne ha la bottomsheet della selezione: **cinque**, come chieste.
+ *
+ * ⚠️ Cinque e non tre come il menu, e non è simmetria: le azioni là sono dieci, e a tre
+ * colonne verrebbero quattro file, cioè un pannello alto quanto mezzo schermo sopra le
+ * fotografie che si stanno scegliendo.
+ */
+private const val SHEET_COLUMNS = 5
+
+/** Lo smusso dei due angoli alti del pannello, che è quello di una bottomsheet Material. */
+private val SHEET_CORNER = 28.dp
+
+/**
+ * Quanto il pannello si stacca da quello che ha sotto.
+ *
+ * ⚠️ Serve **doppio**, di tono e di ombra: il tono lo distingue dal fondo nel tema chiaro,
+ * dove un'ombra sola sparisce, e l'ombra nel tema scuro, dove i toni si somigliano tutti.
+ */
+private val SHEET_LIFT = 6.dp
+
+/** La maniglia: larga abbastanza da leggersi come un segno, bassa abbastanza da non pesare. */
+private val GRIP_WIDE = 32.dp
+private val GRIP_TALL = 4.dp
 
 /**
  * Lo smusso del tastino quadrato, uguale in tutte le schermate.

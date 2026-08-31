@@ -241,7 +241,6 @@
     <!-- ── Choosing several pictures in a folder ── -->
     <string name="pick_leave">Leave the selection</string>
     <string name="pick_all">Select all</string>
-    <string name="pick_all_hint">Shortcut: press and hold the floating button to select everything.</string>
     <string name="pick_info">Info</string>
     <string name="pick_close">Close</string>
     <!-- The label of the small button that opens the six file operations. It is not
@@ -253,10 +252,15 @@
     <string name="pick_duplicate">Duplicate</string>
     <string name="pick_rename">Rename</string>
     <string name="pick_delete">Delete</string>
+    <string name="pick_list">List</string>
+    <string name="pick_invert">Invert</string>
+    <string name="pick_all_short">All</string>
+    <string name="pick_none">None</string>
+    <string name="pick_forever">Delete for good</string>
     <string name="pick_counting">Counting...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d chosen</item>
-        <item quantity="other">%1$d chosen</item>
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
     </plurals>
     <!-- Count and size on one line: they measure one thing, not two separate facts.
          With a single file 'in total' says nothing and is dropped. -->

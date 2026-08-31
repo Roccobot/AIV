@@ -93,18 +93,22 @@
     <string name="grid_item_last">Imagem %1$d de %2$d, a última que você olhou</string>
     <string name="pick_leave">Sair da seleção</string>
     <string name="pick_all">Selecionar tudo</string>
-    <string name="pick_all_hint">Atalho: mantenha o botão flutuante pressionado para selecionar tudo.</string>
     <string name="pick_info">Info</string>
     <string name="pick_close">Fechar</string>
     <string name="pick_actions">Operações sobre a seleção</string>
     <string name="pick_move">Mover</string>
     <string name="pick_rename">Renomear</string>
     <string name="pick_delete">Excluir</string>
+    <string name="pick_list">Lista</string>
+    <string name="pick_invert">Inverter</string>
+    <string name="pick_all_short">Tudo</string>
+    <string name="pick_none">Nenhum</string>
+    <string name="pick_forever">Excluir de vez</string>
     <string name="pick_counting">Contando...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d escolhida</item>
-        <item quantity="other">%1$d escolhidas</item>
-        <item quantity="many">%1$d escolhidas</item>
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d itens</item>
+        <item quantity="many">%1$d itens</item>
     </plurals>
     <plurals name="pick_facts">
         <item quantity="one">%2$s em %1$d arquivo</item>
