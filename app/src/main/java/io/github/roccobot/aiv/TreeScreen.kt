@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -49,6 +50,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
@@ -137,7 +139,11 @@ fun TreeList(
      */
     val here = path ?: roots.singleOrNull()?.file?.absolutePath
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    // ⚠️ **A tutta ALTEZZA e non solo a tutta larghezza**, dal 2026-08-31: serve al `weight`
+    // del riquadro che centra 'la cartella è vuota' (vedi più sotto). Le due liste non
+    // cambiano di una virgola, perché una `LazyColumn` senza peso prendeva già tutto lo
+    // spazio che il genitore le concedeva.
+    Column(modifier = modifier.fillMaxSize()) {
         if (here == null) {
             Roots(roots, onPath)
             return@Column
@@ -162,11 +168,31 @@ fun TreeList(
         }
         when {
             spots == null -> Unit
-            spots!!.isEmpty() -> Text(
-                text = stringResource(R.string.tree_empty),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(top = 24.dp)
-            )
+            /*
+             * ⚠️⚠️ **LA FRASE STA AL CENTRO DEL VUOTO, e non appesa sotto il percorso**
+             * (richiesta dell'utente, 2026-08-31). Il vuoto di una cartella è tutto lo
+             * spazio che resta sotto la barra del percorso: una riga di testo posata in
+             * cima a quello spazio si legge come l'inizio di un elenco che non arriva mai,
+             * mentre in mezzo si legge per quello che è, cioè che qui non c'è niente.
+             * ⚠️ **Il `weight` funziona solo perché la colonna qui sopra è a tutta altezza**:
+             * in una colonna che si adatta al contenuto non c'è spazio residuo da
+             * distribuire, e questo riquadro verrebbe alto zero. Le due cose si tengono, e
+             * chi togliesse `fillMaxSize` rimetterebbe la frase in cima senza capire perché.
+             */
+            spots!!.isEmpty() -> Box(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(R.string.tree_empty),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    // ⚠️ Il margine dal basso è l'altezza del tastino: senza, su una
+                    // cartella vuota la frase finirebbe centrata **sotto** di lui.
+                    modifier = Modifier.padding(horizontal = 24.dp).padding(bottom = BELOW_FAB)
+                )
+            }
             else -> Spots(spots!!, hidden, onPath, onOpen) { acting = it }
         }
     }
