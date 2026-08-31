@@ -211,4 +211,9 @@
     <string name="grid_item_clip">วิดีโอ</string>
     <string name="clip_play">เล่น</string>
     <string name="clip_no_player">ไม่มีแอปในโทรศัพท์นี้ที่เล่นไฟล์นี้ได้</string>
+    <string name="hub_view_tree">โฟลเดอร์ของระบบ</string>
+    <string name="tree_up">ขึ้นหนึ่งโฟลเดอร์</string>
+    <string name="tree_empty">ในนี้ไม่มีอะไร</string>
+    <string name="tree_hidden">ซ่อนอยู่</string>
+    <string name="tree_unopenable">ไม่มีแอปในโทรศัพท์นี้ที่เปิดไฟล์นี้ได้</string>
 </resources>

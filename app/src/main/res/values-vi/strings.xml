@@ -211,4 +211,9 @@
     <string name="grid_item_clip">Video</string>
     <string name="clip_play">Phát</string>
     <string name="clip_no_player">Không có ứng dụng nào trên điện thoại này phát được tệp này</string>
+    <string name="hub_view_tree">Thư mục hệ thống</string>
+    <string name="tree_up">Lên một thư mục</string>
+    <string name="tree_empty">Trong này không có gì.</string>
+    <string name="tree_hidden">đã ẩn</string>
+    <string name="tree_unopenable">Không có ứng dụng nào trên điện thoại này mở được tệp này</string>
 </resources>

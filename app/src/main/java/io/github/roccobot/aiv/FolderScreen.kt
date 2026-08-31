@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -141,6 +142,18 @@ fun FolderScreen(
      * cambiata anche là. Era la richiesta (*che resta globale per tutte le cartelle*).
      */
     onColumns: (Int) -> Unit,
+    /**
+     * Dove sta la vista 'Cartelle di sistema', e `null` vuol dire in cima.
+     *
+     * ⚠️⚠️ **VIVE NEL MODELLO e non qui dentro**, ed è la ragione per cui arriva come
+     * parametro invece di essere un `remember`: si esce da questa schermata ogni volta che si
+     * apre una fotografia, e al ritorno la navigazione deve ritrovarsi dov'era. Un ricordo
+     * locale morirebbe a ogni andata e ritorno, riportando in cima.
+     */
+    treePath: String?,
+    onTreePath: (String?) -> Unit,
+    /** Una fotografia toccata nella vista delle cartelle di sistema: la serie e la posizione. */
+    onTreeOpen: (List<Uri>, Int) -> Unit,
     onBack: (() -> Unit)?,
     modifier: Modifier = Modifier
 ) {
@@ -350,6 +363,18 @@ fun FolderScreen(
                         }
                     }) { Text(stringResource(R.string.folders_grant)) }
                 }
+
+                // ⚠️ Prima dei rami che guardano `folders`, e non dopo: la vista delle
+                // cartelle di sistema legge il disco, non il MediaStore, quindi non ha
+                // niente da aspettare e non le importa se l'elenco delle cartelle è vuoto.
+                // ⚠️⚠️ **`home &&`, e senza quello la scelta della cartella d'avvio si
+                // romperebbe**: là la domanda è *quale cartella apro all'avvio*, e la
+                // risposta dev'essere una cartella **del MediaStore**, perché l'avvio ne apre
+                // la griglia. Navigando il disco non si produce quel genere di risposta, e
+                // toccare una cartella non sceglierebbe niente. Nella veste 'scegli la
+                // cartella' si scivola quindi sul ramo in fondo, cioè l'elenco.
+                view == FolderView.TREE && home ->
+                    TreeList(treePath, hidden, onTreePath, onTreeOpen)
 
                 folders == null -> CircularProgressIndicator(
                     Modifier.padding(top = 24.dp).size(28.dp).align(Alignment.CenterHorizontally)
@@ -704,6 +729,14 @@ private fun Header(fullPx: Float, icon: Dp, shut: () -> Float) {
  * fanno, cioè rumore; senza permesso è l'unica strada. La stessa voce, quindi, era
  * ridondante e indispensabile a seconda dello stato dell'app, e il menu ora lo riflette.
  */
+/** Come si chiama una vista nel menu. Vedi la nota dentro [Hub]. */
+@StringRes
+private fun FolderView.label(): Int = when (this) {
+    FolderView.GRID -> R.string.hub_view_grid
+    FolderView.LIST -> R.string.hub_view_list
+    FolderView.TREE -> R.string.hub_view_tree
+}
+
 @Composable
 private fun Hub(
     view: FolderView,
@@ -769,20 +802,20 @@ private fun Hub(
             // una per volta, quindi due registri diversi non si notano subito e restano.
             // Erano 'Vedile come elenco' e 'Vedile come copertine' fino alla 0.46,
             // quando l'utente le ha volute al nominale.
-            DropdownMenuItem(
-                text = {
-                    Text(
-                        stringResource(
-                            if (view == FolderView.GRID) R.string.hub_view_list
-                            else R.string.hub_view_grid
-                        )
-                    )
-                },
-                onClick = {
-                    open = false
-                    onView(if (view == FolderView.GRID) FolderView.LIST else FolderView.GRID)
-                }
-            )
+            // ⚠️⚠️ **DALLA `0.84` LE VISTE SONO TRE, e il menu mostra le DUE che non sono
+            // quella corrente**: con due bastava una riga sola che nominava l'altra, e la
+            // regola qui sopra resta intatta, perché una riga che nomina la vista in cui si
+            // è già non sarebbe una richiesta ma un indicatore di stato spento.
+            // ⚠️ **'Cartelle di sistema' non segue la forma delle altre due** ('Visualizzazione
+            // griglia', 'Visualizzazione lista'), e non è una dimenticanza: quello è il NOME
+            // che l'utente ha dato alla vista, non una descrizione, e piegarlo allo schema
+            // vorrebbe dire ribattezzare una cosa che ha già un nome.
+            FolderView.entries.filter { it != view }.forEach { other ->
+                DropdownMenuItem(
+                    text = { Text(stringResource(other.label())) },
+                    onClick = { open = false; onView(other) }
+                )
+            }
 
             HorizontalDivider()
 

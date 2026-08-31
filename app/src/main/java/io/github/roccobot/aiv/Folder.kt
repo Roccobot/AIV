@@ -576,10 +576,19 @@ object Folder {
      * [Videos] insieme a tutto il resto che li riguarda, invece di essere copiato qui: due
      * elenchi si separano al primo formato aggiunto in uno solo dei due.
      */
-    private fun File.isMedia(): Boolean {
-        val ext = extension.lowercase()
-        return ext in EXTENSIONS || ext in Videos.EXTENSIONS
-    }
+    private fun File.isMedia(): Boolean = isPicture(extension) || extension.lowercase() in
+        Videos.EXTENSIONS
+
+    /**
+     * Se quell'estensione è di una fotografia.
+     *
+     * ⚠️ **Interna e non privata dalla `0.84`**: la usa anche [Tree], la vista delle cartelle
+     * di sistema, che legge il disco e quindi ha lo stesso problema di questo file, cioè
+     * nessuno che dica di che tipo è un file. Copiare l'elenco là avrebbe voluto dire due
+     * elenchi che si separano al primo formato aggiunto in uno solo dei due, che è la stessa
+     * ragione per cui le estensioni dei video vivono tutte in [Videos].
+     */
+    internal fun isPicture(ext: String): Boolean = ext.lowercase() in EXTENSIONS
 
     /**
      * La cartella letta dal FILESYSTEM, quando il MediaStore non riconosce la foto.

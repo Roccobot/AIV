@@ -225,4 +225,9 @@
     <string name="grid_item_clip">ویدیو</string>
     <string name="clip_play">پخش</string>
     <string name="clip_no_player">هیچ برنامه‌ای در این گوشی نمی‌تواند آن را پخش کند</string>
+    <string name="hub_view_tree">پوشه‌های سیستم</string>
+    <string name="tree_up">یک پوشه بالاتر</string>
+    <string name="tree_empty">اینجا چیزی نیست.</string>
+    <string name="tree_hidden">پنهان</string>
+    <string name="tree_unopenable">هیچ برنامه‌ای در این گوشی نمی‌تواند آن را باز کند</string>
 </resources>

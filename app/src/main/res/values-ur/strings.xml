@@ -225,4 +225,9 @@
     <string name="grid_item_clip">ویڈیو</string>
     <string name="clip_play">چلائیں</string>
     <string name="clip_no_player">اس فون میں کوئی ایپ اسے نہیں چلا سکتی</string>
+    <string name="hub_view_tree">سسٹم فولڈرز</string>
+    <string name="tree_up">ایک فولڈر اوپر</string>
+    <string name="tree_empty">یہاں کچھ نہیں ہے۔</string>
+    <string name="tree_hidden">پوشیدہ</string>
+    <string name="tree_unopenable">اس فون میں کوئی ایپ اسے نہیں کھول سکتی</string>
 </resources>

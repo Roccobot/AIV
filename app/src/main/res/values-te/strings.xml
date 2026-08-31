@@ -225,4 +225,9 @@
     <string name="grid_item_clip">వీడియో</string>
     <string name="clip_play">ప్లే చేయి</string>
     <string name="clip_no_player">దీన్ని ప్లే చేయగల యాప్ ఈ ఫోన్‌లో లేదు</string>
+    <string name="hub_view_tree">సిస్టమ్ ఫోల్డర్లు</string>
+    <string name="tree_up">ఒక ఫోల్డర్ పైకి</string>
+    <string name="tree_empty">ఇక్కడ ఏమీ లేదు.</string>
+    <string name="tree_hidden">దాచినది</string>
+    <string name="tree_unopenable">దీన్ని తెరవగల యాప్ ఈ ఫోన్‌లో లేదు</string>
 </resources>

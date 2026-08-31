@@ -211,4 +211,9 @@
     <string name="grid_item_clip">동영상</string>
     <string name="clip_play">재생</string>
     <string name="clip_no_player">이 휴대전화에는 재생할 수 있는 앱이 없습니다</string>
+    <string name="hub_view_tree">시스템 폴더</string>
+    <string name="tree_up">상위 폴더로</string>
+    <string name="tree_empty">여기에는 아무것도 없습니다.</string>
+    <string name="tree_hidden">숨김</string>
+    <string name="tree_unopenable">이 휴대전화에는 열 수 있는 앱이 없습니다</string>
 </resources>

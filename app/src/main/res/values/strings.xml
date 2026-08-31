@@ -155,7 +155,22 @@
          entry is a thing you ask for. -->
     <string name="hub_view_list">List view</string>
     <string name="hub_view_grid">Grid view</string>
+    <!-- The third one does NOT follow the pattern of the other two, and that is on
+         purpose: it is the NAME the owner gave the view, not a description of it. -->
+    <string name="hub_view_tree">System folders</string>
     <string name="hub_search">Search</string>
+
+    <!-- ── The system folders view ── -->
+    <string name="tree_up">Up one folder</string>
+    <string name="tree_empty">Nothing in here.</string>
+    <!-- On a folder the owner hid from the other views: this one shows it anyway,
+         because a file browser that hides a folder that IS on the disk lies about
+         the disk. The mark says why it is missing elsewhere. -->
+    <string name="tree_hidden">hidden</string>
+    <!-- Said when a file that is neither a picture nor a film cannot be handed over:
+         either no app claims that kind, or the MediaStore has not indexed it yet and
+         there is no address to grant. -->
+    <string name="tree_unopenable">No app on this phone can open it</string>
     <string name="hub_url">Open an address</string>
     <string name="hub_pick">Open a picture</string>
     <string name="hub_settings">Settings</string>

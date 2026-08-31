@@ -253,4 +253,9 @@
     <string name="grid_item_clip">Wideo</string>
     <string name="clip_play">Odtwórz</string>
     <string name="clip_no_player">Żadna aplikacja w tym telefonie nie odtworzy tego pliku</string>
+    <string name="hub_view_tree">Foldery systemowe</string>
+    <string name="tree_up">Poziom wyżej</string>
+    <string name="tree_empty">Tu nic nie ma.</string>
+    <string name="tree_hidden">ukryty</string>
+    <string name="tree_unopenable">Żadna aplikacja w tym telefonie tego nie otworzy</string>
 </resources>

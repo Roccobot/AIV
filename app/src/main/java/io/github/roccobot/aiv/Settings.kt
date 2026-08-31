@@ -92,7 +92,18 @@ enum class InfoPosition(override val token: String) : Choice { TOP("top"), BOTTO
  * ⚠️ **La copertina resta in tutti e due**: la riga dell'elenco porta la stessa miniatura
  * piccola, perché l'icona di cartella uguale per tutte era proprio il difetto della `0.29`.
  */
-enum class FolderView(override val token: String) : Choice { GRID("grid"), LIST("list") }
+/**
+ * Come si guarda quello che c'è sul telefono: le tre viste della casa.
+ *
+ * ⚠️⚠️ **LA TERZA È ARRIVATA CON LA `0.84`, ed è di un'altra natura**: [GRID] e [LIST] sono
+ * due rese dello **stesso** elenco, le cartelle che il MediaStore conosce; [TREE] è la
+ * memoria del telefono navigata cartella per cartella, letta dal disco (vedi `Tree`). Sta
+ * accanto alle altre due perché rispondono tutte a 'dove sono le mie cose', ma sotto non
+ * condividono niente.
+ */
+enum class FolderView(override val token: String) : Choice {
+    GRID("grid"), LIST("list"), TREE("tree")
+}
 
 /**
  * Il tema dell'interfaccia, chiesto dall'utente il 2026-08-29.

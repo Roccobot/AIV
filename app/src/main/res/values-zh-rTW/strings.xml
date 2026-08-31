@@ -211,4 +211,9 @@
     <string name="grid_item_clip">影片</string>
     <string name="clip_play">播放</string>
     <string name="clip_no_player">這支手機上沒有能播放它的應用程式</string>
+    <string name="hub_view_tree">系統資料夾</string>
+    <string name="tree_up">上一層資料夾</string>
+    <string name="tree_empty">這裡什麼都沒有。</string>
+    <string name="tree_hidden">已隱藏</string>
+    <string name="tree_unopenable">這支手機上沒有能開啟它的應用程式</string>
 </resources>

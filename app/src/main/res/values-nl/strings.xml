@@ -225,4 +225,9 @@
     <string name="grid_item_clip">Video</string>
     <string name="clip_play">Afspelen</string>
     <string name="clip_no_player">Geen app op deze telefoon kan het afspelen</string>
+    <string name="hub_view_tree">Systeemmappen</string>
+    <string name="tree_up">Een map omhoog</string>
+    <string name="tree_empty">Hier staat niets.</string>
+    <string name="tree_hidden">verborgen</string>
+    <string name="tree_unopenable">Geen app op deze telefoon kan het openen</string>
 </resources>

@@ -225,4 +225,9 @@
     <string name="grid_item_clip">Video</string>
     <string name="clip_play">Abspielen</string>
     <string name="clip_no_player">Keine App auf diesem Telefon kann es abspielen</string>
+    <string name="hub_view_tree">Systemordner</string>
+    <string name="tree_up">Eine Ebene höher</string>
+    <string name="tree_empty">Hier ist nichts.</string>
+    <string name="tree_hidden">ausgeblendet</string>
+    <string name="tree_unopenable">Keine App auf diesem Telefon kann es öffnen</string>
 </resources>
