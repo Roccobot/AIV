@@ -12,7 +12,7 @@
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Oublier ces adresses</string>
     <string name="url_not_image">L\'adresse ne pointe pas vers une image</string>
-    <string name="menu_copy_image">Copier dans le presse-papiers</string>
+    <string name="menu_copy_image">Copier l\'image</string>
     <string name="menu_share">Partager</string>
     <string name="menu_save">Enregistrer</string>
     <string name="toast_image_copied">Image copiée</string>
@@ -203,14 +203,14 @@
         <item quantity="other">%1$d images</item>
         <item quantity="many">%1$d images</item>
     </plurals>
-    <string name="settings_facts">Informations sur le fichier</string>
+    <string name="settings_facts">Infos sur un fichier</string>
     <string name="settings_facts_desc">Quelles données vous voyez en ouvrant Infos sur une image, et dans quel ordre. Le nom, les pixels et la taille sont toujours là ; une donnée absente du fichier n\'occupe aucune ligne.</string>
     <string name="settings_facts_always">Toujours affiché</string>
     <string name="settings_facts_up">Monter</string>
     <string name="settings_facts_down">Descendre</string>
     <string name="settings_group_look">Apparence</string>
     <string name="settings_group_viewer">Visionneuse</string>
-    <string name="settings_group_browse">Dossiers et navigation</string>
+    <string name="settings_group_browse">Dossiers</string>
     <string name="settings_group_start">Démarrage</string>
     <string name="settings_hidden_none">Aucun dossier caché</string>
     <plurals name="settings_hidden_count">
@@ -219,9 +219,14 @@
         <item quantity="other">%1$d dossiers</item>
     </plurals>
     <plurals name="settings_facts_count">
-        <item quantity="one">%1$d donnée</item>
-        <item quantity="many">%1$d données</item>
-        <item quantity="other">%1$d données</item>
+        <item quantity="one">%1$d donnée affichée</item>
+        <item quantity="many">%1$d données affichées</item>
+        <item quantity="other">%1$d données affichées</item>
     </plurals>
     <string name="bin_empty_hint">Raccourci: appuyez longuement sur le bouton flottant pour vider la corbeille.</string>
+    <string name="facts_title">Infos détaillées du fichier</string>
+    <string name="settings_reset_hints">Revoir les astuces</string>
+    <string name="settings_reset_hints_desc">Les explications des raccourcis réapparaissent, comme à la première installation.</string>
+    <string name="settings_reset_hints_do">Revoir</string>
+    <string name="settings_reset_hints_done">Les astuces réapparaîtront</string>
 </resources>

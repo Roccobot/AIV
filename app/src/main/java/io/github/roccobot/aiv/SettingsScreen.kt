@@ -1,5 +1,6 @@
 package io.github.roccobot.aiv
 
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
@@ -40,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -78,6 +80,7 @@ fun SettingsScreen(
     settings: Settings,
     onChange: (Settings) -> Unit,
     onStartFolder: () -> Unit,
+    onResetHints: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -104,6 +107,7 @@ fun SettingsScreen(
                 settings = settings,
                 onChange = onChange,
                 onStartFolder = onStartFolder,
+                onResetHints = onResetHints,
                 onOpen = { page = it }
             )
         }
@@ -142,6 +146,7 @@ private fun ColumnScope.RootPage(
     settings: Settings,
     onChange: (Settings) -> Unit,
     onStartFolder: () -> Unit,
+    onResetHints: () -> Unit,
     onOpen: (Page) -> Unit
 ) {
     Group(stringResource(R.string.settings_group_look))
@@ -367,6 +372,40 @@ private fun ColumnScope.RootPage(
         TextButton(onClick = onStartFolder) {
             Text(stringResource(R.string.settings_start_folder_pick))
         }
+    }
+
+    /*
+     * ⚠️⚠️ **STA FUORI DAI QUATTRO GRUPPI, in fondo, e non è una dimenticanza**: non è
+     * un'impostazione, è un'**azione** sulla memoria dell'app, e non risponde a nessuna
+     * delle quattro domande che i gruppi fanno. Metterla dentro uno di loro direbbe che è
+     * una preferenza di quel tema; darle un gruppo suo vorrebbe dire un titolo per una riga
+     * sola, cioè una parola in più che non aiuta a trovarla. In fondo è il posto dove le
+     * azioni di ripristino stanno in ogni schermata di impostazioni, ed è dove si guarda.
+     * ⚠️ Chiesta *per motivi di test*, ma resta utile: i veli si mostrano una volta e mai
+     * più, quindi senza questa l'unica via per rivederli era cancellare i dati dell'app,
+     * che si porta via anche le impostazioni.
+     */
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(
+                text = stringResource(R.string.settings_reset_hints),
+                style = MaterialTheme.typography.titleSmall
+            )
+            Detail(stringResource(R.string.settings_reset_hints_desc))
+        }
+        val context = LocalContext.current
+        val done = stringResource(R.string.settings_reset_hints_done)
+        TextButton(onClick = {
+            onResetHints()
+            // ⚠️ L'avviso serve perché l'effetto non si vede QUI: i veli tornano in
+            // un'altra schermata, e un tasto che non dà segno di aver fatto qualcosa si
+            // preme due volte.
+            Toast.makeText(context, done, Toast.LENGTH_SHORT).show()
+        }) { Text(stringResource(R.string.settings_reset_hints_do)) }
     }
 
     // ⚠️ **L'UNICO filetto che resta**, e resta perché non separa due gruppi ma dice che

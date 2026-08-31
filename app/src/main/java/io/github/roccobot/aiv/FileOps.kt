@@ -4,6 +4,7 @@ import android.content.res.Resources
 import android.net.Uri
 import androidx.annotation.PluralsRes
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,12 +22,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import java.text.DateFormat
 import java.util.Date
@@ -288,34 +297,32 @@ private fun FactsDialog(uris: List<Uri>, fields: List<FactField>, onDismiss: () 
     AlertDialog(
         onDismissRequest = onDismiss,
         /*
-         * ⚠️⚠️ **IL NOME DEL FILE STA NELLA TESTATA, a destra e IN LINEA con 'Info'**
-         * (richiesta dell'utente sulla `0.68`, dove la pastiglia apriva il corpo). Là dentro
-         * era il primo di un elenco di dati; qui è quello di cui l'elenco parla, cioè il
-         * titolo insieme alla parola 'Info'.
-         * ⚠️⚠️ **SI SPECCHIA DA SÉ nelle lingue da destra a sinistra, e non c'è una riga da
-         * scrivere per ottenerlo**: `Row` dispone secondo la direzione del testo, quindi in
-         * arabo la parola va a destra e la pastiglia a sinistra. È la ragione per cui **non**
-         * si è usato un allineamento assoluto: `Alignment.End` sarebbe stato 'a destra'
-         * sempre, cioè sbagliato in due delle lingue che l'app parla.
-         * ⚠️ **Il nome può andare a capo e non si accorcia**: è il dato che si è venuti a
-         * leggere, e un `IMG_20260830_142233_HDR~2.jpg` tagliato a metà con tre punti
-         * costringerebbe ad aprire un altro programma per sapere come si chiama il file.
+         * ⚠️⚠️ **TITOLO CENTRATO SU UNA RIGA E PASTIGLIA SULLA SUA, dalla `0.73`**, come dal
+         * mockup dell'utente, ed è la correzione di un difetto che lui stesso ha chiamato
+         * suo: *è stato un mio errore chiederti titolo e nome del file sulla stessa riga,
+         * non mi ero reso conto di quanto fosse facile che si sforasse lo spazio*. Sulla
+         * stessa riga i due si dividevano la larghezza, quindi un nome un po' lungo faceva
+         * a gomitate col titolo; su due righe la pastiglia ha tutta la larghezza del dialogo.
+         * ⚠️ **Il titolo è una stringa SUA** (`facts_title`, 'Info dettagliate sul file') e
+         * non più `pick_info`: quella è anche l'etichetta sotto un'icona nel riquadro delle
+         * azioni, dove tre parole andrebbero a capo tre volte.
+         * ⚠️ **Non serve più nessun accorgimento per le lingue da destra a sinistra**: un
+         * testo centrato è centrato in tutte, e la riga di prima si specchiava perché era
+         * una `Row`. La `Column` non ha un verso da specchiare.
          * ⚠️ Compare **quando i dati arrivano**: prima di allora non si sa ancora il nome, e
          * mettere un segnaposto vorrebbe dire far cambiare la testata due volte.
          */
         title = {
-            Row(
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.SpaceBetween
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text(text = stringResource(R.string.pick_info))
-                facts?.one?.name?.let { name ->
-                    NamePill(
-                        name = name,
-                        modifier = Modifier.weight(1f, fill = false).padding(start = 12.dp)
-                    )
-                }
+                Text(
+                    text = stringResource(R.string.facts_title),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                facts?.one?.name?.let { name -> NamePill(name = name) }
             }
         },
         text = {
@@ -399,28 +406,95 @@ private fun FileFacts(facts: Facts, one: OneFile, fields: List<FactField>) {
 }
 
 /**
- * Il nome del file in una pastiglia del colore d'accento, in grassetto.
+ * Il nome del file in una pastiglia del colore d'accento, in grassetto, larga quanto il
+ * dialogo e alta quanto serve fino a [NAME_LINES] righe.
  *
  * ⚠️ Prende `primaryContainer` e non `primary` benché in questa tavolozza valgano lo stesso:
  * è il ruolo giusto per una superficie colorata, e se un giorno i due si separassero questa
  * resterebbe corretta. Il contrasto del testo sopra l'accento è misurato in `Theme.kt`: 5.19.
+ *
+ * ⚠️⚠️ **CRESCE IN VERTICALE FINO A TRE RIGHE E POI ACCORCIA, e le tre regole dell'utente
+ * sono tutte e tre necessarie** (2026-08-31: *massimo 3 righe, che per un nome file mi
+ * sembrano già un'enormità; se sfora ancora, metti un'ellissi finale nel nome, poi riporta
+ * comunque l'estensione; non spezzare mai l'estensione andando a capo*).
+ * ⚠️⚠️ **`TextOverflow.Ellipsis` NON serviva e faceva il danno esatto che si voleva
+ * evitare**: mette i tre punti alla **fine**, cioè mangia proprio l'estensione, che è la
+ * parte che l'utente ha chiesto di salvare sempre. Serve un'ellissi **in mezzo**, che
+ * Compose non ha: da qui la misura in [fitName].
  */
 @Composable
 private fun NamePill(name: String, modifier: Modifier = Modifier) {
+    val style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
     Surface(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(NAME_CORNER),
         color = MaterialTheme.colorScheme.primaryContainer,
         contentColor = MaterialTheme.colorScheme.onPrimaryContainer
     ) {
-        Text(
-            text = name,
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold,
+        // ⚠️ `BoxWithConstraints` e non una misura in dp: la larghezza utile dipende dal
+        // dialogo, che dipende dallo schermo, e una misura scritta a mano sarebbe giusta su
+        // un telefono solo.
+        BoxWithConstraints(
             modifier = Modifier.padding(horizontal = NAME_PAD_SIDE, vertical = NAME_PAD_TOP)
-        )
+        ) {
+            val measurer = rememberTextMeasurer()
+            val room = with(LocalDensity.current) { maxWidth.roundToPx() }
+            val shown = remember(name, room, style, measurer) {
+                fitName(name, room, style, measurer)
+            }
+            Text(
+                text = shown,
+                style = style,
+                maxLines = NAME_LINES,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
+
+/**
+ * Il nome accorciato quanto basta a starci in [NAME_LINES] righe, con l'estensione salva.
+ *
+ * ⚠️⚠️ **SI MISURA, non si conta**: un tetto di caratteri sarebbe sbagliato due volte, perché
+ * le lettere non hanno tutte la stessa larghezza (`WWW` occupa il triplo di `iii`) e perché
+ * la larghezza utile cambia col dialogo. Qui si chiede al misuratore se il testo sfora, che è
+ * la stessa domanda che si farà il layout.
+ * ⚠️ **Ricerca binaria e non un ciclo che toglie una lettera per volta**: su un nome di
+ * duecento caratteri sarebbero duecento misure a ogni composizione. Così sono otto.
+ * ⚠️⚠️ **Il GIUNTORE DI PAROLE (`U+2060`) dentro l'estensione è l'unico modo di rispettare
+ * il 'mai'**: un nome di file non ha spazi, quindi il layout può andare a capo fra due
+ * caratteri qualunque, e `.HEIC` finirebbe a cavallo di due righe come `.HE` più `IC`.
+ * Quel carattere è invisibile e dice al layout 'qui non si rompe'. Scritto per codepoint,
+ * come vuole la regola del repo sui caratteri invisibili.
+ */
+private fun fitName(name: String, room: Int, style: TextStyle, measurer: TextMeasurer): String {
+    fun sta(testo: String) = room <= 0 || !measurer.measure(
+        text = AnnotatedString(testo),
+        style = style,
+        maxLines = NAME_LINES,
+        constraints = Constraints(maxWidth = room)
+    ).hasVisualOverflow
+
+    val punto = name.lastIndexOf('.')
+    // ⚠️ `punto > 0` e non `>= 0`: un nome che comincia col punto è un file nascosto, e là
+    // quel punto non introduce un'estensione, fa parte del nome.
+    val coda = if (punto > 0) glue(name.substring(punto)) else ""
+    val intero = if (punto > 0) name.substring(0, punto) + coda else name
+    if (sta(intero)) return intero
+
+    val corpo = if (punto > 0) name.substring(0, punto) else name
+    var basso = 0
+    var alto = corpo.length
+    while (basso < alto) {
+        val mezzo = (basso + alto + 1) / 2
+        if (sta(corpo.take(mezzo) + ELLIPSIS + coda)) basso = mezzo else alto = mezzo - 1
+    }
+    return corpo.take(basso) + ELLIPSIS + coda
+}
+
+/** L'estensione con un giuntore fra ogni carattere, così il layout non la spezza. */
+private fun glue(ext: String): String = ext.toCharArray().joinToString(WORD_JOINER)
 
 /**
  * Una riga di dati: etichetta a sinistra, valore a destra.
@@ -460,6 +534,29 @@ private val NAME_CORNER = 8.dp
 /** Quanto respira il nome dentro la sua pastiglia, ai lati e sopra e sotto. */
 private val NAME_PAD_SIDE = 10.dp
 private val NAME_PAD_TOP = 4.dp
+
+/**
+ * Quante righe può prendere il nome nella pastiglia.
+ *
+ * ⚠️ Tre, scelta dell'utente: *che per un nome file mi sembrano già un'enormità, ma non
+ * oltre*. Alla larghezza di un dialogo su un telefono sono circa novanta caratteri, cioè
+ * più del doppio del nome più lungo che una fotocamera produce.
+ */
+private const val NAME_LINES = 3
+
+/** I tre punti, che nel repo si scrivono così e non col carattere unico. */
+private const val ELLIPSIS = "..."
+
+/**
+ * `U+2060 WORD JOINER`: invisibile, e vieta al layout di andare a capo dove sta.
+ *
+ * ⚠️ Scritto per **codepoint** e non incollato, come vuole la regola del repo sui caratteri
+ * invisibili: incollato, questo file conterrebbe un carattere che a schermo non si vede e
+ * che nessuno saprebbe di aver toccato.
+ * ⚠️ **Non è lo spazio insecabile** (`U+00A0`), che è vietato: quello è uno spazio e si
+ * vede, questo non occupa larghezza e serve solo a legare due caratteri.
+ */
+private const val WORD_JOINER = "\u2060"
 
 /**
  * Il valore di un campo, già scritto come si legge, oppure `null` se il file non ce l'ha.

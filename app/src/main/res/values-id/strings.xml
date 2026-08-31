@@ -12,7 +12,7 @@
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Lupakan ini</string>
     <string name="url_not_image">URL tidak mengarah ke sebuah gambar</string>
-    <string name="menu_copy_image">Salin ke papan klip</string>
+    <string name="menu_copy_image">Salin gambar</string>
     <string name="menu_share">Bagikan</string>
     <string name="menu_save">Simpan</string>
     <string name="toast_image_copied">Gambar disalin</string>
@@ -177,21 +177,26 @@
     <plurals name="folders_count">
         <item quantity="other">%1$d gambar</item>
     </plurals>
-    <string name="settings_facts">Informasi berkas</string>
+    <string name="settings_facts">Info satu berkas</string>
     <string name="settings_facts_desc">Data mana yang kamu lihat saat membuka Info sebuah gambar, dan dalam urutan apa. Nama, piksel dan ukuran selalu ada; data yang tidak dimiliki berkas tidak mendapat baris sama sekali.</string>
     <string name="settings_facts_always">Selalu tampak</string>
     <string name="settings_facts_up">Naikkan</string>
     <string name="settings_facts_down">Turunkan</string>
     <string name="settings_group_look">Tampilan</string>
     <string name="settings_group_viewer">Penampil</string>
-    <string name="settings_group_browse">Folder dan penelusuran</string>
+    <string name="settings_group_browse">Folder</string>
     <string name="settings_group_start">Permulaan</string>
     <string name="settings_hidden_none">Tidak ada folder tersembunyi</string>
     <plurals name="settings_hidden_count">
         <item quantity="other">%1$d folder</item>
     </plurals>
     <plurals name="settings_facts_count">
-        <item quantity="other">%1$d data</item>
+        <item quantity="other">%1$d data ditampilkan</item>
     </plurals>
     <string name="bin_empty_hint">Pintasan: tekan dan tahan tombol mengambang untuk mengosongkan tempat sampah.</string>
+    <string name="facts_title">Info lengkap berkas</string>
+    <string name="settings_reset_hints">Tampilkan lagi petunjuknya</string>
+    <string name="settings_reset_hints_desc">Penjelasan pintasan muncul lagi, seperti pada pemasangan baru.</string>
+    <string name="settings_reset_hints_do">Tampilkan lagi</string>
+    <string name="settings_reset_hints_done">Petunjuk akan muncul lagi</string>
 </resources>

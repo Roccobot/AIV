@@ -437,6 +437,18 @@ enum class Hint(token: String) {
     suspend fun remember(context: Context) {
         context.aivStore.edit { p -> p[seen] = true }
     }
+
+    /**
+     * Dimentica di averlo mostrato, così il velo torna.
+     *
+     * ⚠️ **Rimuove la chiave invece di scriverci `false`**, e la differenza si vede solo il
+     * giorno che si legge l'archivio a mano: una chiave assente vuol dire 'mai visto', che è
+     * la verità che si sta ripristinando, mentre un `false` scritto sopra racconta una
+     * storia in più. Per `flow` sono la stessa cosa, perché legge `?: false`.
+     */
+    suspend fun forget(context: Context) {
+        context.aivStore.edit { p -> p.remove(seen) }
+    }
 }
 
 object Recents {

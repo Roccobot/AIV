@@ -12,7 +12,7 @@
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Esquecer estes</string>
     <string name="url_not_image">O endereço não aponta para uma imagem</string>
-    <string name="menu_copy_image">Copiar para a área de transferência</string>
+    <string name="menu_copy_image">Copiar a imagem</string>
     <string name="menu_share">Compartilhar</string>
     <string name="menu_save">Salvar</string>
     <string name="toast_image_copied">Imagem copiada</string>
@@ -203,14 +203,14 @@
         <item quantity="other">%1$d imagens</item>
         <item quantity="many">%1$d imagens</item>
     </plurals>
-    <string name="settings_facts">Informações do arquivo</string>
+    <string name="settings_facts">Informações de um arquivo</string>
     <string name="settings_facts_desc">Quais dados você vê ao abrir Info numa imagem, e em que ordem. Nome, pixels e tamanho estão sempre lá; um dado que o arquivo não carrega não ocupa nenhuma linha.</string>
     <string name="settings_facts_always">Sempre visível</string>
     <string name="settings_facts_up">Subir</string>
     <string name="settings_facts_down">Descer</string>
     <string name="settings_group_look">Aparência</string>
     <string name="settings_group_viewer">Visualizador</string>
-    <string name="settings_group_browse">Pastas e navegação</string>
+    <string name="settings_group_browse">Pastas</string>
     <string name="settings_group_start">Início</string>
     <string name="settings_hidden_none">Nenhuma pasta oculta</string>
     <plurals name="settings_hidden_count">
@@ -219,9 +219,14 @@
         <item quantity="other">%1$d pastas</item>
     </plurals>
     <plurals name="settings_facts_count">
-        <item quantity="one">%1$d dado</item>
-        <item quantity="many">%1$d dados</item>
-        <item quantity="other">%1$d dados</item>
+        <item quantity="one">%1$d dado visível</item>
+        <item quantity="many">%1$d dados visíveis</item>
+        <item quantity="other">%1$d dados visíveis</item>
     </plurals>
     <string name="bin_empty_hint">Atalho: mantenha o botão flutuante pressionado para esvaziar a lixeira.</string>
+    <string name="facts_title">Informações detalhadas do arquivo</string>
+    <string name="settings_reset_hints">Ver os avisos de novo</string>
+    <string name="settings_reset_hints_desc">As explicações dos atalhos voltam a aparecer, como numa instalação nova.</string>
+    <string name="settings_reset_hints_do">Ver de novo</string>
+    <string name="settings_reset_hints_done">Os avisos voltarão a aparecer</string>
 </resources>

@@ -34,10 +34,14 @@
     <string name="url_not_image">The URL does not point to an image</string>
 
     <!-- ── The menu that a long press opens on the picture ── -->
-    <!-- "To the clipboard" and not just "Copy image": next to the icon pad, where
-         "Copy" means copying the file into another folder, the short label read as
-         the same entry written twice. -->
-    <string name="menu_copy_image">Copy to clipboard</string>
+    <!-- "Copy image" and not "To the clipboard", REVERSED on 2026-08-31: the older
+         wording tried to carry the difference from the pad's "Copy" (which copies the
+         file into another folder) in the words, and the user reported that it did not
+         land. So the label names the THING and the ICON carries the difference: two
+         sheets with a picture symbol on the front one, against two folders for the
+         other. A distinction a label cannot make on its own is not made by making the
+         label longer. -->
+    <string name="menu_copy_image">Copy image</string>
     <string name="menu_share">Share</string>
     <string name="menu_save">Save</string>
 
@@ -64,7 +68,7 @@
     <!-- The four groups the settings are gathered into. -->
     <string name="settings_group_look">Appearance</string>
     <string name="settings_group_viewer">Viewer</string>
-    <string name="settings_group_browse">Folders and browsing</string>
+    <string name="settings_group_browse">Folders</string>
     <string name="settings_group_start">Startup</string>
 
     <string name="settings_background">Behind the picture</string>
@@ -115,6 +119,14 @@
     <string name="settings_start_folder_desc">Opening the app shows the pictures in the chosen folder straight away, instead of the folder list.</string>
     <string name="settings_start_folder_none">No folder chosen</string>
     <string name="settings_start_folder_pick">Choose</string>
+
+    <!-- Asked for testing, kept because it is useful: the shortcut veils show once and
+         never again, so without this the only way back was clearing the app's data,
+         which takes the settings with it. -->
+    <string name="settings_reset_hints">Bring the tips back</string>
+    <string name="settings_reset_hints_desc">The shortcut explanations show again, as they do on a fresh install.</string>
+    <string name="settings_reset_hints_do">Bring back</string>
+    <string name="settings_reset_hints_done">The tips will show again</string>
 
 
     <string name="folders_title">Folders</string>
@@ -299,11 +311,15 @@
     </plurals>
 
     <!-- ── Which facts about a file to show, and in which order ── -->
-    <string name="settings_facts">File information</string>
+    <string name="settings_facts">Info on a single file</string>
+    <!-- The dialog's own title, centred. Separate from pick_info, which is also the
+         label under an icon in the action pad, where three words would wrap to three
+         lines. -->
+    <string name="facts_title">Detailed file info</string>
     <string name="settings_facts_desc">Which data you see when you open Info on a picture, and in which order. Name, pixels and size are always there; a datum the file does not carry gets no row at all.</string>
     <plurals name="settings_facts_count">
-        <item quantity="one">%1$d entry</item>
-        <item quantity="other">%1$d entries</item>
+        <item quantity="one">%1$d field shown</item>
+        <item quantity="other">%1$d fields shown</item>
     </plurals>
     <string name="settings_facts_always">Always shown</string>
     <string name="settings_facts_up">Move up</string>

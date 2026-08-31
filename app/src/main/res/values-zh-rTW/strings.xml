@@ -12,7 +12,7 @@
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">忘記這些</string>
     <string name="url_not_image">這個網址並不指向圖片</string>
-    <string name="menu_copy_image">複製到剪貼簿</string>
+    <string name="menu_copy_image">複製圖片</string>
     <string name="menu_share">分享</string>
     <string name="menu_save">儲存</string>
     <string name="toast_image_copied">已複製圖片</string>
@@ -177,21 +177,26 @@
     <plurals name="folders_count">
         <item quantity="other">%1$d 張圖片</item>
     </plurals>
-    <string name="settings_facts">檔案資訊</string>
+    <string name="settings_facts">單一檔案的資訊</string>
     <string name="settings_facts_desc">開啟某張圖片的資訊時會看到哪些資料,以及它們的順序。名稱、像素和大小一定會顯示;檔案裡沒有的資料不會佔用任何一行。</string>
     <string name="settings_facts_always">一律顯示</string>
     <string name="settings_facts_up">上移</string>
     <string name="settings_facts_down">下移</string>
     <string name="settings_group_look">外觀</string>
     <string name="settings_group_viewer">檢視器</string>
-    <string name="settings_group_browse">資料夾與瀏覽</string>
+    <string name="settings_group_browse">資料夾</string>
     <string name="settings_group_start">啟動</string>
     <string name="settings_hidden_none">沒有隱藏的資料夾</string>
     <plurals name="settings_hidden_count">
         <item quantity="other">%1$d 個資料夾</item>
     </plurals>
     <plurals name="settings_facts_count">
-        <item quantity="other">%1$d 項</item>
+        <item quantity="other">顯示 %1$d 項</item>
     </plurals>
     <string name="bin_empty_hint">快捷操作：長按浮動按鈕即可清空回收筒。</string>
+    <string name="facts_title">檔案詳細資訊</string>
+    <string name="settings_reset_hints">重新顯示提示</string>
+    <string name="settings_reset_hints_desc">快捷操作的說明會重新出現，就像剛安裝時一樣。</string>
+    <string name="settings_reset_hints_do">重新顯示</string>
+    <string name="settings_reset_hints_done">提示會重新出現</string>
 </resources>

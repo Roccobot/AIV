@@ -46,11 +46,8 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.outlined.CopyAll
-import androidx.compose.material.icons.outlined.FolderCopy
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
@@ -420,8 +417,21 @@ fun GridScreen(
         }
     }
 
+    /*
+     * ⚠️⚠️ **LA RADICE È UN `Box` E NON LA `Column`, e serve SOLO al velo** (difetto
+     * segnalato dall'utente il 2026-08-31: *l'intero schermo deve offuscarsi, non solo un
+     * riquadro interno*). Il velo dell'onboarding deve coprire **tutto**, testata e margini
+     * di sistema compresi, e da dentro la `Column` non poteva: là il rientro di sistema e i
+     * margini della schermata sono già stati applicati, quindi qualunque cosa nasca là
+     * dentro comincia sotto la testata.
+     * ⚠️ **Il `Box` non ha margini propri**, ed è quello che gli permette di arrivare fino
+     * al bordo dello schermo: i margini restano sulla `Column`, cioè sul contenuto. Chi ne
+     * spostasse uno sul `Box` rimetterebbe il difetto.
+     */
+    Box(modifier = modifier.fillMaxSize()) {
+
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .safeDrawingPadding()
             .padding(horizontal = 8.dp, vertical = 12.dp)
@@ -494,18 +504,20 @@ fun GridScreen(
                     }
                 }
             }
-            // ⚠️ 'Tutte' sta accanto al conto e non nel riquadro delle azioni, ed è la
-            // sola cosa rimasta qui: su una cartella da trecento foto il gesto
-            // alternativo è trecento tocchi, e non è un'operazione sui file ma un modo
-            // di scegliere. La barra parla della selezione, il tastino di cosa farne.
-            if (picking) {
-                IconButton(onClick = takeAll) {
-                    Icon(
-                        imageVector = Icons.Default.SelectAll,
-                        contentDescription = stringResource(R.string.pick_all)
-                    )
-                }
-            }
+            /*
+             * ⚠️⚠️ **QUI NON C'È PIÙ NIENTE, e la ragione per cui c'era è stata SOSTITUITA
+             * invece che dimenticata.** Fino alla `0.72` accanto al conto stava un tastino
+             * 'Tutte', messo lì perché su una cartella da trecento foto il gesto
+             * alternativo è trecento tocchi. Quel bisogno adesso lo copre il **tocco lungo
+             * sul tastino galleggiante**, che fa la stessa cosa, si annuncia a TalkBack e ha
+             * un onboarding che lo insegna una volta.
+             * ⚠️ Togliendolo si guadagna la coerenza, che è la ragione dell'utente
+             * (2026-08-31): *è un unicum e nessun'altra azione fa apparire qualcosa lì*.
+             * In questa barra non compariva nient'altro, mai, in nessun altro modo.
+             * ⚠️ Chi volesse rimetterlo tenga presente che ne servirebbe **anche** uno per
+             * 'nessuna', o la barra torna a essere un posto dove una sola azione su due ha
+             * un tastino.
+             */
         }
         Spacer(Modifier.height(8.dp))
 
@@ -758,21 +770,26 @@ fun GridScreen(
                                 )
                             } else ActionPad(
                                 actions = listOf(
-                                    // ⚠️⚠️ **LE TRE ICONE SONO CAMBIATE NELLA 0.69, e le
-                                    // stesse cambiano nel visualizzatore**: il riquadro è
-                                    // condiviso, e chi impara dove sta 'sposta' lo impara una
-                                    // volta. `FolderCopy` invece di `ContentCopy` perché
-                                    // questa copia il FILE in una cartella e non l'immagine
-                                    // negli appunti, e nel menu del visualizzatore le due
-                                    // convivono; `CopyAll` per Sposta è l'icona che l'utente
-                                    // ha scelto guardando Galleria FOSS; il cursore di testo
-                                    // per Rinomina è quello disegnato in [Glyphs].
-                                    PadAction(Icons.Outlined.FolderCopy, R.string.menu_copy_here) {
+                                    // ⚠️⚠️ **LE PRIME TRE ICONE SONO DISEGNATE IN CASA,
+                                    // dalla 0.73** (vedi [Glyphs]), e le stesse valgono nel
+                                    // visualizzatore: il riquadro è condiviso, e chi impara
+                                    // dove sta 'sposta' lo impara una volta.
+                                    // ⚠️ Copia e Sposta escono dallo **stesso stampo** e
+                                    // differiscono solo per il tratteggio, che sta sulla
+                                    // cartella di dietro: spostare vuol dire che l'originale
+                                    // non resta dov'era. Prima erano `FolderCopy` e
+                                    // `CopyAll` di Material, cioè due cartelle disegnate da
+                                    // due mani diverse, e l'utente ha detto che la seconda
+                                    // non andava bene.
+                                    // ⚠️ **Sono provvisorie**: l'utente ha chiesto gli SVG
+                                    // per ridisegnarle, e quando arrivano cambiano le
+                                    // coordinate in [Glyphs] e nient'altro.
+                                    PadAction(Glyphs.FolderPair, R.string.menu_copy_here) {
                                         menuOpen = false
                                         job = FileJob.Transfer(chosen.toList(), move = false)
                                     },
                                     PadAction(
-                                        Icons.Outlined.CopyAll,
+                                        Glyphs.FolderPairDashed,
                                         R.string.pick_move
                                     ) {
                                         menuOpen = false
@@ -823,82 +840,103 @@ fun GridScreen(
                     }
                 }
 
-                /*
-                 * ⚠️⚠️ **IL MINI ONBOARDING DEL TOCCO LUNGO** (richiesta dell'utente: *un
-                 * mini onboarding grafico, che oscura la schermata ed evidenzia in arancione
-                 * il FAB*). Serve perché il tocco lungo è una scorciatoia che **non si
-                 * scopre da sola**: un tastino non dichiara i propri gesti, e il tastino in
-                 * testata continua a esistere proprio per chi non leggerà mai questo velo.
-                 * ⚠️⚠️ **I VELI SONO DUE perché le scorciatoie sono due** (vedi `shortcut`),
-                 * e ognuno ha il suo promemoria in archivio: quello della selezione compare
-                 * alla prima selezione, quello del cestino alla prima apertura del cestino.
-                 * Prima era uno solo, mostrato anche nel cestino, e prometteva di
-                 * selezionare 'tutte le immagini della cartella' a chi in una cartella non
-                 * era: il comportamento era giusto, la frase no.
-                 * ⚠️⚠️ **La copia arancione FUNZIONA, non è un disegno**, ed è la
-                 * differenza fra insegnare e raccontare: chi tiene premuto sul velo fa la
-                 * cosa mentre gliela si spiega, invece di doverla richiudere e rifare. È
-                 * anche il motivo per cui è la stessa [PickFab] del tastino vero, alla
-                 * stessa misura e nello stesso angolo: cade **sopra** l'originale.
-                 * ⚠️ **L'arancione è l'unico posto in cui la tavolozza si rompe apposta**:
-                 * l'accento dell'app è verde acqua, e un velo che evidenzia col colore di
-                 * casa non evidenzia niente. Misurati: il glifo scuro sull'arancione fa
-                 * 7.29, e l'arancione sul velo fa 4.35 contro la fotografia più chiara
-                 * possibile, cioè sopra il 3:1 delle grafiche non testuali anche nel caso
-                 * peggiore.
-                 * ⚠️ **Il velo copre la griglia e non la testata**, e va detto invece di
-                 * lasciarlo scoprire: avvolgere anche la testata vorrebbe dire spostare di
-                 * rientro tutta la schermata, che è la stessa ragione per cui il riquadro
-                 * del tastino sta in questo `Box` e non più in alto.
-                 */
-                if (hint != null) {
-                    Box(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .background(HINT_SCRIM)
-                            // ⚠️ Niente increspatura e nessuna descrizione: questo non è
-                            // un tasto, è il velo, e un tocco qualunque lo archivia. Un
-                            // onboarding che si deve leggere due volte non è un
-                            // onboarding.
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                                onClick = hintDone
-                            )
-                    ) {
-                        Column(
-                            modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp),
-                            horizontalAlignment = Alignment.End,
-                            verticalArrangement = Arrangement.spacedBy(HINT_GAP)
-                        ) {
-                            Text(
-                                text = stringResource(
-                                    when (hint) {
-                                        Hint.PICK_ALL -> R.string.pick_all_hint
-                                        Hint.BIN_EMPTY -> R.string.bin_empty_hint
-                                    }
-                                ),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = Color.White,
-                                textAlign = TextAlign.End,
-                                modifier = Modifier.widthIn(max = HINT_WIDTH)
-                            )
-                            PickFab(
-                                container = HINT_MARK,
-                                ink = HINT_INK,
-                                // ⚠️ Nessuna ombra: sopra un velo non c'è niente da cui
-                                // staccarsi, e un'ombra su fondo scuro è solo sporco.
-                                lift = 0.dp,
-                                longLabel = stringResource(shortcutLabel),
-                                onOpen = { hintDone(); menuOpen = true },
-                                onAll = { shortcut(); hintDone() }
-                            )
-                        }
-                    }
-                }
             }
             }
         }
+    }
+
+        /*
+         * ⚠️⚠️ **IL MINI ONBOARDING DEL TOCCO LUNGO** (richiesta dell'utente: *un
+         * mini onboarding grafico, che oscura la schermata ed evidenzia in arancione
+         * il FAB*). Serve perché il tocco lungo è una scorciatoia che **non si
+         * scopre da sola**: un tastino non dichiara i propri gesti.
+         * ⚠️⚠️ **E dalla `0.73` è l'UNICA via a insegnarla**, perché il tastino 'Tutte' in
+         * testata non c'è più (vedi la nota là dove stava): finché c'era, questo velo era
+         * un aiuto e la barra la rete di sicurezza. Ora la rete è l'etichetta che TalkBack
+         * legge sul tocco lungo, e chi tocca il velo per chiuderlo senza leggerlo la
+         * scorciatoia non la scoprirà. È il costo della scelta, ed è dichiarato.
+         * ⚠️⚠️ **I VELI SONO DUE perché le scorciatoie sono due** (vedi `shortcut`),
+         * e ognuno ha il suo promemoria in archivio: quello della selezione compare
+         * alla prima selezione, quello del cestino alla prima apertura del cestino.
+         * Prima era uno solo, mostrato anche nel cestino, e prometteva di
+         * selezionare 'tutte le immagini della cartella' a chi in una cartella non
+         * era: il comportamento era giusto, la frase no.
+         * ⚠️⚠️ **La copia arancione FUNZIONA, non è un disegno**, ed è la
+         * differenza fra insegnare e raccontare: chi tiene premuto sul velo fa la
+         * cosa mentre gliela si spiega, invece di doverla richiudere e rifare. È
+         * anche il motivo per cui è la stessa [PickFab] del tastino vero, alla
+         * stessa misura e nello stesso angolo: cade **sopra** l'originale.
+         * ⚠️ **L'arancione è l'unico posto in cui la tavolozza si rompe apposta**:
+         * l'accento dell'app è verde acqua, e un velo che evidenzia col colore di
+         * casa non evidenzia niente. Misurati: il glifo scuro sull'arancione fa
+         * 7.29, e l'arancione sul velo fa 4.35 contro la fotografia più chiara
+         * possibile, cioè sopra il 3:1 delle grafiche non testuali anche nel caso
+         * peggiore.
+         * ⚠️⚠️ **IL VELO COPRE TUTTO LO SCHERMO dalla `0.73`**, testata e margini di
+         * sistema compresi, ed è una correzione: fino alla `0.72` copriva la sola griglia,
+         * perché nasceva dentro la `Column` che i margini li ha già applicati. Il rimedio
+         * non è stato spostare i margini ma **avvolgere la schermata in un `Box`** e far
+         * nascere il velo là (vedi la nota sulla radice): i margini restano dove servono,
+         * cioè sul contenuto, e il velo nasce fuori da tutti. La nota vecchia diceva che
+         * avvolgere la testata voleva dire spostare di rientro tutta la schermata: era
+         * vera per la strada che aveva in mente, non per questa.
+         */
+        if (hint != null) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(HINT_SCRIM)
+                    // ⚠️ Niente increspatura e nessuna descrizione: questo non è
+                    // un tasto, è il velo, e un tocco qualunque lo archivia. Un
+                    // onboarding che si deve leggere due volte non è un
+                    // onboarding.
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = hintDone
+                    )
+            ) {
+                Column(
+                    // ⚠️⚠️ **I RIENTRI DELLA `Column` SI RIFANNO QUI, e non sono
+                    // decorazione**: la copia arancione deve cadere ESATTAMENTE
+                    // sopra il tastino vero, e quello vive dentro il rientro di
+                    // sistema più i margini della schermata più i suoi 8dp. Il velo
+                    // invece nasce fuori da tutti e tre, perché è il suo mestiere.
+                    // Chi ne toglie uno vede la copia scivolare in un angolo.
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .safeDrawingPadding()
+                        .padding(horizontal = 8.dp, vertical = 12.dp)
+                        .padding(8.dp),
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(HINT_GAP)
+                ) {
+                    Text(
+                        text = stringResource(
+                            when (hint) {
+                                Hint.PICK_ALL -> R.string.pick_all_hint
+                                Hint.BIN_EMPTY -> R.string.bin_empty_hint
+                            }
+                        ),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.White,
+                        textAlign = TextAlign.End,
+                        modifier = Modifier.widthIn(max = HINT_WIDTH)
+                    )
+                    PickFab(
+                        container = HINT_MARK,
+                        ink = HINT_INK,
+                        // ⚠️ Nessuna ombra: sopra un velo non c'è niente da cui
+                        // staccarsi, e un'ombra su fondo scuro è solo sporco.
+                        lift = 0.dp,
+                        longLabel = stringResource(shortcutLabel),
+                        onOpen = { hintDone(); menuOpen = true },
+                        onAll = { shortcut(); hintDone() }
+                    )
+                }
+            }
+        }
+
     }
 
     /*
@@ -1086,7 +1124,7 @@ private fun Thumbnail(
                                 lineTo(0f, size.height - leg)
                                 close()
                             },
-                            color = tint
+                            color = tint.copy(alpha = MARK_ALPHA)
                         )
                     }
             )
@@ -1148,6 +1186,18 @@ private val GAP = 3.dp
  * di cateto, che è quanto serve perché si legga anche da lontano.
  */
 private const val MARK_LEG = 0.44f
+
+/**
+ * Quanto è OPACO il nastro dell'ultima foto vista.
+ *
+ * ⚠️ 85%, scelta dell'utente (2026-08-31). Il nastro è pieno del colore d'accento e sta
+ * sopra la fotografia: a opacità piena la copre, e un segno che copre quello che segnala
+ * lavora contro sé stesso. Un filo di trasparenza lascia intravedere l'angolo della foto e
+ * dice 'questa' senza cancellarne un pezzo.
+ * ⚠️ **Non è la stessa cosa di [PICKED_VEIL]**, che agisce sull'intera miniatura e la
+ * schiarisce: questo è l'opacità di un singolo triangolo dipinto sopra.
+ */
+private const val MARK_ALPHA = 0.85f
 
 /**
  * Quanto si SCHIARISCE una miniatura scelta.
