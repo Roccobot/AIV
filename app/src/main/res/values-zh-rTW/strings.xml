@@ -227,5 +227,5 @@
     <string name="settings_content_remove">刪除模型（%1$s）</string>
     <string name="settings_content_broken">有一步沒成功：%1$s</string>
     <string name="settings_content_retry">重試</string>
-    <string name="settings_content_soon">搜尋本身要到下一版才有：現在這一項只是把模型放到手機上。</string>
+    <string name="settings_content_indexing">正在建立索引：%2$d 中的 %1$d</string>
 </resources>

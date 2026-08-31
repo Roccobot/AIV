@@ -241,5 +241,5 @@
     <string name="settings_content_remove">Ondoa mifano (%1$s)</string>
     <string name="settings_content_broken">Kuna kitu hakikufanya kazi: %1$s</string>
     <string name="settings_content_retry">Jaribu tena</string>
-    <string name="settings_content_soon">Utafutaji wenyewe utakuja na toleo lijalo: kwa sasa mstari huu unaleta mifano kwenye simu tu.</string>
+    <string name="settings_content_indexing">Inaorodhesha: %1$d kati ya %2$d</string>
 </resources>

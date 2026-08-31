@@ -269,5 +269,5 @@
     <string name="settings_content_remove">Usuń modele (%1$s)</string>
     <string name="settings_content_broken">Coś nie zadziałało: %1$s</string>
     <string name="settings_content_retry">Spróbuj ponownie</string>
-    <string name="settings_content_soon">Samo wyszukiwanie pojawi się w następnej wersji: na razie ten wiersz tylko pobiera modele do telefonu.</string>
+    <string name="settings_content_indexing">Indeksowanie: %1$d z %2$d</string>
 </resources>

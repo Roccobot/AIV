@@ -255,5 +255,5 @@
     <string name="settings_content_remove">Remover os modelos (%1$s)</string>
     <string name="settings_content_broken">Algo não funcionou: %1$s</string>
     <string name="settings_content_retry">Tentar de novo</string>
-    <string name="settings_content_soon">A busca em si chega na próxima versão: por enquanto esta linha só traz os modelos para o celular.</string>
+    <string name="settings_content_indexing">Indexando: %1$d de %2$d</string>
 </resources>

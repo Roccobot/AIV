@@ -290,6 +290,51 @@ object Folder {
     }
 
     /**
+     * Tutte le **fotografie** del telefono, cartelle nascoste escluse.
+     *
+     * ⚠️⚠️ **SERVE ALL'INDICIZZAZIONE della ricerca per contenuto (`0.88`), e non alla
+     * navigazione**: nessuna schermata mostra 'tutte le foto' in un elenco solo, perché
+     * scorrerne diecimila non è un modo di trovarne una. Qui invece si vuole proprio
+     * l'elenco completo, una volta, per dare da mangiare al motore.
+     * ⚠️⚠️ **SOLO IMMAGINI, e il filtro è diverso da quello di tutte le altre query di questo
+     * file**: l'encoder immagine vuole un'immagine, e un filmato vorrebbe la scelta in più di
+     * quale fotogramma. Chi ci mette [MEDIA] al posto del tipo singolo indicizza anche i
+     * video, e la ricerca comincia a rispondere con dei filmati che nessuno ha guardato.
+     * ⚠️ **Le cartelle nascoste restano fuori**, come nella ricerca per nome: una cartella
+     * nascosta che ricompare fra i risultati non è nascosta.
+     */
+    suspend fun everyPicture(context: Context, hidden: Set<String>): List<Uri> =
+        withContext(Dispatchers.IO) {
+            if (!granted(context)) return@withContext emptyList()
+            val found = mutableListOf<Uri>()
+            runCatching {
+                context.contentResolver.query(
+                    TABLE,
+                    COLUMNS,
+                    "${MediaStore.Files.FileColumns.MEDIA_TYPE} = " +
+                        "${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}",
+                    null,
+                    "${MediaStore.Images.Media.DATE_MODIFIED} DESC, " +
+                        "${MediaStore.Images.Media._ID} DESC"
+                )?.use { c ->
+                    val idAt = c.column(MediaStore.Images.Media._ID) ?: return@use
+                    @Suppress("DEPRECATION")
+                    val pathAt = c.column(MediaStore.Images.Media.DATA)
+                    while (c.moveToNext()) {
+                        val dir = pathAt?.let { c.getString(it) }
+                            ?.substringBeforeLast('/')
+                            ?.takeIf { it.isNotBlank() }
+                        if (dir != null && hidden.any { dir == it || dir.startsWith("$it/") }) {
+                            continue
+                        }
+                        found += uriOf(c.getLong(idAt), video = false)
+                    }
+                }
+            }
+            found
+        }
+
+    /**
      * ⚠️⚠️ **Il permesso è quello PESANTE, l'accesso a tutti i file, ed è una scelta
      * dell'utente**: *preferisco chiedere un permesso pesante prima e poi essere a
      * posto per sempre*. Quello leggero (`READ_MEDIA_IMAGES`) sarebbe bastato a

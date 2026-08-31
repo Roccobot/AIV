@@ -227,5 +227,5 @@
     <string name="settings_content_remove">모델 지우기 (%1$s)</string>
     <string name="settings_content_broken">무언가 잘못되었습니다: %1$s</string>
     <string name="settings_content_retry">다시 시도</string>
-    <string name="settings_content_soon">검색 자체는 다음 버전에서 들어옵니다. 지금은 이 항목이 모델을 휴대전화로 가져오기만 합니다.</string>
+    <string name="settings_content_indexing">색인 만드는 중: %2$d 중 %1$d</string>
 </resources>

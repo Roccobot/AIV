@@ -317,5 +317,5 @@
     <string name="settings_content_remove">Togli i modelli (%1$s)</string>
     <string name="settings_content_broken">Qualcosa non ha funzionato: %1$s</string>
     <string name="settings_content_retry">Riprova</string>
-    <string name="settings_content_soon">La ricerca vera e propria arriva con la prossima versione: per ora questa voce porta soltanto i modelli sul telefono.</string>
+    <string name="settings_content_indexing">Indicizzo: %1$d di %2$d</string>
 </resources>

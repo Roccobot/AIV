@@ -241,5 +241,5 @@
     <string name="settings_content_remove">மாதிரிகளை நீக்கு (%1$s)</string>
     <string name="settings_content_broken">ஏதோ சரியாக நடக்கவில்லை: %1$s</string>
     <string name="settings_content_retry">மீண்டும் முயற்சி</string>
-    <string name="settings_content_soon">தேடல் அடுத்த பதிப்பில் வரும்: இப்போதைக்கு இந்த வரி மாதிரிகளைத் தொலைபேசிக்குக் கொண்டுவருகிறது மட்டுமே.</string>
+    <string name="settings_content_indexing">அட்டவணை: %2$d இல் %1$d</string>
 </resources>

@@ -20,15 +20,28 @@ android {
         // ogni formato, cioè il doppio del codice per telefoni del 2017.
         minSdk = 28
         targetSdk = 36
+
+        /*
+         * ⚠️⚠️ **SOLO `arm64-v8a` DALLA 0.88, ed è una rinuncia dichiarata**: ONNX
+         * Runtime porta una libreria nativa per architettura, e senza questo filtro
+         * l'APK le porterebbe tutte e quattro, cioè decine di megabyte moltiplicati
+         * per architetture che nessuno usa più. Questa app si scarica **da un sito**
+         * come APK unico, quindi non c'è nessuno split per ABI a fare il lavoro.
+         * ⚠️ **Il costo, dichiarato**: l'app non si installa più sui telefoni a 32
+         * bit (`armeabi-v7a`) né sugli emulatori `x86`. Tutti i telefoni Android
+         * usciti dal 2019 in poi sono a 64 bit, e Google Play li pretende tali dal
+         * 2019: la rinuncia riguarda hardware più vecchio del `minSdk`.
+         */
+        ndk { abiFilters += listOf("arm64-v8a") }
         // versionCode has to grow at every PUBLISHED build, or Android refuses
         // the update as a downgrade. It is not tied to versionName and nothing
         // checks it, so nothing will remind you: 0.11 went out carrying 1, so
         // from here on every published version needs its own number.
-        versionCode = 77
+        versionCode = 78
         // Single source of the version, in SlimVer. The release workflow reads
         // it from here and refuses to run when the tag disagrees, so the tag
         // confirms this number instead of being a second one.
-        versionName = "0.87"
+        versionName = "0.88"
     }
 
     // The signing material comes from the environment and never from the
@@ -132,6 +145,17 @@ dependencies {
      */
     implementation(libs.media3.exoplayer)
     implementation(libs.media3.ui.compose)
+
+    /*
+     * ⚠️⚠️ **ONNX RUNTIME ENTRA CON LA RICERCA PER CONTENUTO (0.88), e con lui il
+     * salto di peso dell'APK**: sono decine di megabyte di libreria nativa, ed è
+     * il prezzo di far girare due modelli sul telefono invece che su un server.
+     * I **modelli** invece restano fuori e si scaricano (vedi `ClipModels`): quelli
+     * sono altri 65 MB, e li paga solo chi accende la funzione.
+     * ⚠️ **Il motore che ci gira sopra è stato provato su una JVM** con la libreria
+     * desktop della stessa versione, che ha la stessa API Java: vedi `ClipEngine`.
+     */
+    implementation(libs.onnxruntime.android)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)

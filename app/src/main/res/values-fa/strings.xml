@@ -241,5 +241,5 @@
     <string name="settings_content_remove">حذف مدل‌ها (%1$s)</string>
     <string name="settings_content_broken">چیزی درست کار نکرد: %1$s</string>
     <string name="settings_content_retry">تلاش دوباره</string>
-    <string name="settings_content_soon">خود جستجو در نسخه بعدی می‌آید: فعلا این ردیف فقط مدل‌ها را روی گوشی می‌آورد.</string>
+    <string name="settings_content_indexing">نمایه‌سازی: %1$d از %2$d</string>
 </resources>

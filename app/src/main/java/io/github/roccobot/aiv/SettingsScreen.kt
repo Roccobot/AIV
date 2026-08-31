@@ -86,6 +86,8 @@ fun SettingsScreen(
     onResetHints: () -> Unit,
     /** Che cosa c'è dei modelli della ricerca per contenuto. Vive nel modello: vedi `clipState`. */
     clipState: ClipModels.State,
+    /** A che punto è l'indicizzazione. Vive nel modello: vedi `clipWork`. */
+    clipWork: Pair<Int, Int>?,
     onClipFetch: () -> Unit,
     onClipStop: () -> Unit,
     onClipRemove: () -> Unit,
@@ -117,6 +119,7 @@ fun SettingsScreen(
                 onStartFolder = onStartFolder,
                 onResetHints = onResetHints,
                 clipState = clipState,
+                clipWork = clipWork,
                 onClipFetch = onClipFetch,
                 onClipStop = onClipStop,
                 onClipRemove = onClipRemove,
@@ -160,6 +163,8 @@ private fun ColumnScope.RootPage(
     onStartFolder: () -> Unit,
     onResetHints: () -> Unit,
     clipState: ClipModels.State,
+    /** A che punto è l'indicizzazione. Vive nel modello: vedi `clipWork`. */
+    clipWork: Pair<Int, Int>?,
     onClipFetch: () -> Unit,
     onClipStop: () -> Unit,
     onClipRemove: () -> Unit,
@@ -390,11 +395,7 @@ private fun ColumnScope.RootPage(
 
     Group(stringResource(R.string.settings_group_content))
     Detail(stringResource(R.string.settings_content_desc))
-    // ⚠️ **DI PASSAGGIO, e se ne va col motore** (`0.87`): senza, accendere questa voce
-    // scarica 65 MB e poi non succede niente, che si legge come 'rotto'. Chi porta il
-    // motore toglie questa riga e la sua stringa in ventotto lingue.
-    Detail(stringResource(R.string.settings_content_soon))
-    ClipRow(clipState, onClipFetch, onClipStop, onClipRemove)
+    ClipRow(clipState, clipWork, onClipFetch, onClipStop, onClipRemove)
 
     Group(stringResource(R.string.settings_group_start))
 
@@ -789,6 +790,8 @@ private fun <T : Choice> Choices(
 @Composable
 private fun ClipRow(
     state: ClipModels.State,
+    /** A che punto è l'indicizzazione, e `null` quando non sta girando. */
+    indexing: Pair<Int, Int>?,
     onFetch: () -> Unit,
     onStop: () -> Unit,
     onRemove: () -> Unit
@@ -824,10 +827,28 @@ private fun ClipRow(
             }
 
             is ClipModels.State.Ready -> {
-                Text(
-                    text = stringResource(R.string.settings_content_ready),
-                    style = MaterialTheme.typography.bodySmall
-                )
+                // ⚠️⚠️ **L'AVANZAMENTO DELL'INDICE STA QUI e non in una schermata sua**: è
+                // l'unico posto in cui si è già andati per accendere la funzione, e mentre
+                // gira non c'è niente da fare se non sapere a che punto è.
+                val work = indexing
+                if (work != null) {
+                    val share = if (work.second > 0) work.first.toFloat() / work.second else 0f
+                    LinearProgressIndicator(
+                        progress = { share.coerceIn(0f, 1f) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.settings_content_indexing, work.first, work.second
+                        ),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.settings_content_ready),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
                 OutlinedButton(onClick = onRemove) {
                     Text(
                         stringResource(

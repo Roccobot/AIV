@@ -241,5 +241,5 @@
     <string name="settings_content_remove">मॉडल हटाएँ (%1$s)</string>
     <string name="settings_content_broken">कुछ ठीक नहीं हुआ: %1$s</string>
     <string name="settings_content_retry">फिर कोशिश करें</string>
-    <string name="settings_content_soon">खोज खुद अगले संस्करण में आएगी: फ़िलहाल यह पंक्ति सिर्फ़ मॉडल फ़ोन पर लाती है।</string>
+    <string name="settings_content_indexing">सूचीबद्ध: %2$d में से %1$d</string>
 </resources>
