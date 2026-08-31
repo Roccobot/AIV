@@ -107,6 +107,10 @@
     <string name="pick_invert">తలకిందులు</string>
     <string name="pick_all_short">అన్నీ</string>
     <string name="pick_none">ఏవీ కాదు</string>
+    <string name="filter_title">వడపోత</string>
+    <string name="filter_all">అన్నీ చూపు</string>
+    <string name="filter_images">చిత్రాలు మాత్రమే</string>
+    <string name="filter_videos">వీడియోలు మాత్రమే</string>
     <string name="pick_forever">పూర్తిగా తొలగించు</string>
     <string name="pick_counting">లెక్కిస్తోంది...</string>
     <plurals name="pick_count">

@@ -107,6 +107,10 @@
     <string name="pick_invert">反転</string>
     <string name="pick_all_short">すべて</string>
     <string name="pick_none">なし</string>
+    <string name="filter_title">絞り込み</string>
+    <string name="filter_all">すべて表示</string>
+    <string name="filter_images">画像のみ</string>
+    <string name="filter_videos">動画のみ</string>
     <string name="pick_forever">完全に削除</string>
     <string name="pick_counting">計算中...</string>
     <plurals name="pick_count">

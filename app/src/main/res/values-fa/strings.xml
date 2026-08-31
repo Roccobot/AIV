@@ -107,6 +107,10 @@
     <string name="pick_invert">وارونه</string>
     <string name="pick_all_short">همه</string>
     <string name="pick_none">هیچ</string>
+    <string name="filter_title">پالایه</string>
+    <string name="filter_all">نمایش همه</string>
+    <string name="filter_images">فقط تصویرها</string>
+    <string name="filter_videos">فقط ویدیوها</string>
     <string name="pick_forever">حذف کامل</string>
     <string name="pick_counting">در حال شمارش...</string>
     <plurals name="pick_count">

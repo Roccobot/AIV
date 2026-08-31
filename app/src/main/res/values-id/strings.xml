@@ -107,6 +107,10 @@
     <string name="pick_invert">Balik</string>
     <string name="pick_all_short">Semua</string>
     <string name="pick_none">Tidak ada</string>
+    <string name="filter_title">Saringan</string>
+    <string name="filter_all">Tampilkan semua</string>
+    <string name="filter_images">Hanya gambar</string>
+    <string name="filter_videos">Hanya video</string>
     <string name="pick_forever">Hapus permanen</string>
     <string name="pick_counting">Menghitung...</string>
     <plurals name="pick_count">

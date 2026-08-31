@@ -107,6 +107,10 @@
     <string name="pick_invert">Tersine çevir</string>
     <string name="pick_all_short">Tümü</string>
     <string name="pick_none">Hiçbiri</string>
+    <string name="filter_title">Süzgeç</string>
+    <string name="filter_all">Hepsini göster</string>
+    <string name="filter_images">Yalnızca görseller</string>
+    <string name="filter_videos">Yalnızca videolar</string>
     <string name="pick_forever">Tamamen sil</string>
     <string name="pick_counting">Sayılıyor...</string>
     <plurals name="pick_count">

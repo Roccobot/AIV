@@ -107,6 +107,10 @@
     <string name="pick_invert">반전</string>
     <string name="pick_all_short">전체</string>
     <string name="pick_none">없음</string>
+    <string name="filter_title">필터</string>
+    <string name="filter_all">모두 보기</string>
+    <string name="filter_images">사진만</string>
+    <string name="filter_videos">동영상만</string>
     <string name="pick_forever">완전히 삭제</string>
     <string name="pick_counting">세는 중...</string>
     <plurals name="pick_count">

@@ -107,6 +107,10 @@
     <string name="pick_invert">উল্টান</string>
     <string name="pick_all_short">সব</string>
     <string name="pick_none">কিছুই না</string>
+    <string name="filter_title">ছাঁকনি</string>
+    <string name="filter_all">সব দেখান</string>
+    <string name="filter_images">শুধু ছবি</string>
+    <string name="filter_videos">শুধু ভিডিও</string>
     <string name="pick_forever">একেবারে মুছুন</string>
     <string name="pick_counting">গোনা হচ্ছে...</string>
     <plurals name="pick_count">

@@ -30,6 +30,27 @@ import java.util.concurrent.ConcurrentHashMap
  * dichiarato nella `0.82` per i nomi: cambiare la forma di `Folder.Series` vuol dire
  * cambiare il visualizzatore, la ricerca, il cestino e la selezione, tutti insieme.
  */
+/**
+ * Che genere di roba si vuole vedere adesso: il filtro **volatile** della griglia.
+ *
+ * ⚠️⚠️ **NON È UN'IMPOSTAZIONE E NON SI RICORDA** (richiesta dell'utente, 2026-08-31: *è un
+ * filtro volatile, fatto per portare il focus su un solo tipo di oggetto multimediale al
+ * volo, ma non è memorizzato: si azzera a ogni cambio di cartella*). Per questo vive nel
+ * modello e non nell'archivio: un filtro dimenticato acceso è una cartella che sembra aver
+ * perso metà delle sue cose, e chi non ricorda di averlo messo cerca il difetto altrove.
+ * ⚠️ Il posto è questo file e non la schermata perché la domanda 'è un filmato' la sa
+ * rispondere [Videos], e la risposta deve essere **una sola** in tutta l'app.
+ */
+enum class MediaKind {
+    ALL, IMAGES, VIDEOS;
+
+    fun keeps(uri: Uri): Boolean = when (this) {
+        ALL -> true
+        IMAGES -> !Videos.isVideo(uri)
+        VIDEOS -> Videos.isVideo(uri)
+    }
+}
+
 object Videos {
 
     /**

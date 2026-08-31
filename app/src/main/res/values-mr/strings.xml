@@ -107,6 +107,10 @@
     <string name="pick_invert">उलटा</string>
     <string name="pick_all_short">सर्व</string>
     <string name="pick_none">काहीही नाही</string>
+    <string name="filter_title">गाळणी</string>
+    <string name="filter_all">सर्व दाखवा</string>
+    <string name="filter_images">फक्त प्रतिमा</string>
+    <string name="filter_videos">फक्त चित्रफिती</string>
     <string name="pick_forever">पूर्णपणे हटवा</string>
     <string name="pick_counting">मोजत आहे...</string>
     <plurals name="pick_count">

@@ -234,7 +234,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * qualche centinaio di voci, e senza cache la copia si rifarebbe a ogni lettura
      * durante la composizione.
      */
-    val folder: Folder.Lookup? by derivedStateOf { listed.oriented() }
+    val folder: Folder.Lookup? by derivedStateOf { listed.oriented().sifted() }
 
     /** Scorciatoia per chi della cartella vuole solo la serie, quando c'è. */
     val series: Folder.Series? get() = folder?.seriesOrNull
@@ -582,6 +582,45 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     private var upgraded = false
 
     /**
+     * Il filtro volatile della griglia: immagini, filmati o tutto.
+     *
+     * ⚠️⚠️ **SI AZZERA A OGNI INGRESSO IN UNA GRIGLIA, e non a mano** (richiesta
+     * dell'utente): la sua ragione di esistere è portare il fuoco su un tipo *al volo*, e
+     * un filtro che sopravvive al cambio di cartella diventa una cartella che sembra aver
+     * perso metà delle sue cose. Le tre porte d'ingresso lo rimettono a [MediaKind.ALL], e
+     * non c'è nessun altro posto in cui una griglia si apra.
+     * ⚠️ **Filtra la SERIE e non solo quello che si vede**, cioè vale anche per la
+     * strisciata nel visualizzatore: chi ha isolato i filmati e ne apre uno si aspetta di
+     * sfogliare i filmati, non di ritrovarsi in mezzo alle fotografie che aveva appena
+     * tolto di mezzo. È anche l'unica lettura che tiene gli indici d'accordo: la griglia e
+     * il visualizzatore leggono la **stessa** lista.
+     */
+    var gridFilter: MediaKind by mutableStateOf(MediaKind.ALL)
+        private set
+
+    fun sift(kind: MediaKind) {
+        gridFilter = kind
+    }
+
+    /**
+     * L'esito senza le cose che il filtro esclude.
+     *
+     * ⚠️ **L'indice segue la fotografia e non il numero**: filtrando, la posizione corrente
+     * cambia valore, e conservare il numero vecchio vorrebbe dire ritrovarsi l'anello su
+     * una fotografia diversa. Si cerca dove è finita quella di prima, e se il filtro l'ha
+     * appena esclusa si riparte da capo.
+     */
+    private fun Folder.Lookup?.sifted(): Folder.Lookup? {
+        val kind = gridFilter
+        if (kind == MediaKind.ALL) return this
+        val whole = this?.seriesOrNull ?: return this
+        val here = whole.items.getOrNull(whole.index)
+        val kept = whole.items.filter { kind.keeps(it) }
+        val at = kept.indexOf(here).coerceAtLeast(0)
+        return Folder.Lookup.Found(Folder.Series(kept, at))
+    }
+
+    /**
      * La finestra attorno a un indirizzo remoto, ricordandosi il criterio che ha vinto.
      *
      * ⚠️ Il criterio **non si dimentica** se questa volta non ne ha vinto nessuno: alla fine
@@ -671,6 +710,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * foto dalla griglia non costa nessuna seconda interrogazione del MediaStore.
      */
     fun openGrid(bucket: Long, name: String) {
+        gridFilter = MediaKind.ALL
         screen = Screen.Grid(bucket, name)
         listed = null
         source = null
@@ -715,6 +755,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * nessuna fotografia.
      */
     fun openBin() {
+        gridFilter = MediaKind.ALL
         screen = Screen.Bin
         listed = null
         source = null
@@ -760,6 +801,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
 
     /** Si entra nella ricerca a mani vuote: il testo di ieri non serve a nessuno. */
     fun openSearch() {
+        gridFilter = MediaKind.ALL
         screen = Screen.Search
         query = ""
         listed = Folder.Lookup.Found(Folder.Series(emptyList(), 0))
@@ -1501,6 +1543,8 @@ private fun AivApp(model: ViewerViewModel) {
                 binOn = settings.binOn,
                 leftHand = settings.hand == Hand.LEFT,
                 listPath = settings.listPath,
+                filter = model.gridFilter,
+                onFilter = { model.sift(it) },
                 gridNames = settings.gridNames
             )
         }
@@ -1523,6 +1567,8 @@ private fun AivApp(model: ViewerViewModel) {
                 binOn = settings.binOn,
                 leftHand = settings.hand == Hand.LEFT,
                 listPath = settings.listPath,
+                filter = model.gridFilter,
+                onFilter = { model.sift(it) },
                 gridNames = settings.gridNames
             )
         }
@@ -1545,6 +1591,8 @@ private fun AivApp(model: ViewerViewModel) {
                 binOn = settings.binOn,
                 leftHand = settings.hand == Hand.LEFT,
                 listPath = settings.listPath,
+                filter = model.gridFilter,
+                onFilter = { model.sift(it) },
                 gridNames = settings.gridNames,
                 bin = true,
                 onHistory = { model.openHistory() }
