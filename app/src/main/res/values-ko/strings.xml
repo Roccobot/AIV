@@ -5,6 +5,7 @@
     <string name="app_short_name">AIV</string>
     <string name="no_image">보여줄 이미지가 없습니다</string>
     <string name="open_failed">이 이미지를 열 수 없습니다</string>
+    <string name="open_cleartext">암호화되지 않은 주소(http)입니다. Android가 차단하며 https로도 응답하지 않습니다</string>
     <string name="unsupported">아직 지원하지 않는 형식입니다</string>
     <string name="too_large">이미지가 이 기기에는 너무 큽니다</string>
     <string name="error_retry">다시 시도</string>

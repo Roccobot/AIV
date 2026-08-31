@@ -5,6 +5,7 @@
     <string name="app_short_name">AIV</string>
     <string name="no_image">Gösterilecek görsel yok</string>
     <string name="open_failed">Bu görsel açılamadı</string>
+    <string name="open_cleartext">Şifresiz adres (http): Android bunu engelliyor ve https ile de yanıt vermiyor</string>
     <string name="unsupported">Bu biçim henüz desteklenmiyor</string>
     <string name="too_large">Görsel bu cihaz için fazla büyük</string>
     <string name="error_retry">Yeniden dene</string>

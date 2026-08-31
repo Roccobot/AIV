@@ -5,6 +5,7 @@
     <string name="app_short_name">AIV</string>
     <string name="no_image">দেখানোর মতো কোনো ছবি নেই</string>
     <string name="open_failed">এই ছবিটি খোলা যায়নি</string>
+    <string name="open_cleartext">এনক্রিপশনহীন ঠিকানা (http): Android এটি আটকায়, আর https-এও সাড়া মেলেনি</string>
     <string name="unsupported">এই বিন্যাস এখনো সমর্থিত নয়</string>
     <string name="too_large">ছবিটি এই ডিভাইসের জন্য অনেক বড়</string>
     <string name="error_retry">আবার চেষ্টা করুন</string>

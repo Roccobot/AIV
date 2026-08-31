@@ -5,6 +5,7 @@
     <string name="app_short_name">AIV</string>
     <string name="no_image">ไม่มีภาพให้แสดง</string>
     <string name="open_failed">เปิดภาพนี้ไม่ได้</string>
+    <string name="open_cleartext">ที่อยู่ไม่เข้ารหัส (http): Android บล็อกไว้ และทาง https ก็ไม่ตอบสนอง</string>
     <string name="unsupported">ยังไม่รองรับรูปแบบนี้</string>
     <string name="too_large">ภาพใหญ่เกินกว่าที่อุปกรณ์นี้จะรับได้</string>
     <string name="error_retry">ลองอีกครั้ง</string>

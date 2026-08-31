@@ -558,7 +558,7 @@ internal fun suggestTemplate(firstName: String, count: Int, start: Int): String 
  * `foto 7` valgono lo stesso numero, e senza l'ultimo confronto sul testo grezzo il loro
  * ordine dipenderebbe da come la lista è arrivata.
  */
-private fun naturalCompare(a: String, b: String): Int {
+internal fun naturalCompare(a: String, b: String): Int {
     var i = 0
     var j = 0
     while (i < a.length && j < b.length) {

@@ -5,6 +5,7 @@
     <string name="app_short_name">AIV</string>
     <string name="no_image">表示できる画像がありません</string>
     <string name="open_failed">この画像を開けませんでした</string>
+    <string name="open_cleartext">暗号化されていないアドレス (http) です。Android がブロックし、https でも応答がありません</string>
     <string name="unsupported">この形式にはまだ対応していません</string>
     <string name="too_large">この端末には画像が大きすぎます</string>
     <string name="error_retry">もう一度試す</string>

@@ -5,6 +5,7 @@
     <string name="app_short_name">AIV</string>
     <string name="no_image">Brak obrazu do pokazania</string>
     <string name="open_failed">Nie udało się otworzyć tego obrazu</string>
+    <string name="open_cleartext">Adres nieszyfrowany (http): Android go blokuje, a przez https nie odpowiada</string>
     <string name="unsupported">Ten format nie jest jeszcze obsługiwany</string>
     <string name="too_large">Obraz jest za duży dla tego urządzenia</string>
     <string name="error_retry">Spróbuj ponownie</string>

@@ -5,6 +5,7 @@
     <string name="app_short_name">AIV</string>
     <string name="no_image">Không có ảnh nào để hiển thị</string>
     <string name="open_failed">Không thể mở ảnh này</string>
+    <string name="open_cleartext">Địa chỉ không mã hóa (http): Android chặn nó, và qua https cũng không phản hồi</string>
     <string name="unsupported">Định dạng này chưa được hỗ trợ</string>
     <string name="too_large">Ảnh quá lớn đối với thiết bị này</string>
     <string name="error_retry">Thử lại</string>

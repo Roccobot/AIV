@@ -5,6 +5,7 @@
     <string name="app_short_name">AIV</string>
     <string name="no_image">No hay ninguna imagen que mostrar</string>
     <string name="open_failed">No se ha podido abrir esta imagen</string>
+    <string name="open_cleartext">Dirección sin cifrar (http): Android la bloquea, y en https no responde</string>
     <string name="unsupported">Este formato todavía no es compatible</string>
     <string name="too_large">La imagen es demasiado grande para este dispositivo</string>
     <string name="error_retry">Reintentar</string>
