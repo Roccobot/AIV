@@ -232,4 +232,14 @@
     <string name="clip_pause">Sitisha</string>
     <string name="settings_images_only">Pitia picha pekee</string>
     <string name="settings_images_only_desc">Kwenye kitazamaji, kutelezesha kidole huruka video na kuonyesha picha pekee. Kugusa video kwenye gridi bado huicheza: hii inahusu ishara, si mgusa.</string>
+    <string name="settings_group_content">Tafuta kwa maudhui</string>
+    <string name="settings_content_desc">Kupata picha kwa kile kilichomo, si kwa jina lake, kunahitaji mifano miwili isiyokuja ndani ya programu: hupakuliwa mara moja na inaweza kuondolewa. Kila kitu hufanyika kwenye simu, na hakuna kinachotumwa popote.</string>
+    <string name="settings_content_get">Pakua mifano (%1$s)</string>
+    <string name="settings_content_getting">%1$s kati ya %2$s</string>
+    <string name="settings_content_stop">Simamisha</string>
+    <string name="settings_content_ready">Mifano ipo kwenye simu.</string>
+    <string name="settings_content_remove">Ondoa mifano (%1$s)</string>
+    <string name="settings_content_broken">Kuna kitu hakikufanya kazi: %1$s</string>
+    <string name="settings_content_retry">Jaribu tena</string>
+    <string name="settings_content_soon">Utafutaji wenyewe utakuja na toleo lijalo: kwa sasa mstari huu unaleta mifano kwenye simu tu.</string>
 </resources>

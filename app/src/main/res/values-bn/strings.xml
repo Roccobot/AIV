@@ -232,4 +232,14 @@
     <string name="clip_pause">থামান</string>
     <string name="settings_images_only">শুধু ছবি দেখুন</string>
     <string name="settings_images_only_desc">ভিউয়ারে সোয়াইপ করলে ভিডিও বাদ পড়ে এবং শুধু ছবি দেখা যায়। গ্রিডে ভিডিওতে ট্যাপ করলে সেটি তবুও চলে: এটি সোয়াইপ নিয়ে, ট্যাপ নিয়ে নয়।</string>
+    <string name="settings_group_content">বিষয়বস্তু দিয়ে খোঁজা</string>
+    <string name="settings_content_desc">নাম দিয়ে নয়, ছবিতে যা আছে তা দিয়ে খুঁজতে দুটি মডেল লাগে, যা অ্যাপের ভিতরে থাকে না: একবার ডাউনলোড হয় এবং সরানো যায়। সবকিছু ফোনেই ঘটে, কোথাও কিছু পাঠানো হয় না।</string>
+    <string name="settings_content_get">মডেল ডাউনলোড করুন (%1$s)</string>
+    <string name="settings_content_getting">%2$s এর মধ্যে %1$s</string>
+    <string name="settings_content_stop">থামান</string>
+    <string name="settings_content_ready">মডেলগুলি ফোনে আছে।</string>
+    <string name="settings_content_remove">মডেল সরান (%1$s)</string>
+    <string name="settings_content_broken">কিছু একটা কাজ করেনি: %1$s</string>
+    <string name="settings_content_retry">আবার চেষ্টা করুন</string>
+    <string name="settings_content_soon">খোঁজাটা নিজেই আসবে পরের সংস্করণে: আপাতত এই সারিটি শুধু মডেলগুলি ফোনে আনে।</string>
 </resources>

@@ -232,4 +232,14 @@
     <string name="clip_pause">रोकें</string>
     <string name="settings_images_only">सिर्फ़ तस्वीरें देखें</string>
     <string name="settings_images_only_desc">व्यूअर में स्वाइप करने पर वीडियो छूट जाते हैं और सिर्फ़ तस्वीरें दिखती हैं। ग्रिड में वीडियो पर टैप करने से वह फिर भी चलता है: यह स्वाइप की बात है, टैप की नहीं।</string>
+    <string name="settings_group_content">सामग्री से खोज</string>
+    <string name="settings_content_desc">किसी तस्वीर को उसके नाम से नहीं, बल्कि उसमें जो है उससे ढूँढ़ने के लिए दो मॉडल चाहिए जो ऐप के अंदर नहीं आते: ये एक बार डाउनलोड होते हैं और हटाए जा सकते हैं। सब कुछ फ़ोन पर होता है, कहीं कुछ नहीं भेजा जाता।</string>
+    <string name="settings_content_get">मॉडल डाउनलोड करें (%1$s)</string>
+    <string name="settings_content_getting">%2$s में से %1$s</string>
+    <string name="settings_content_stop">रोकें</string>
+    <string name="settings_content_ready">मॉडल फ़ोन पर हैं।</string>
+    <string name="settings_content_remove">मॉडल हटाएँ (%1$s)</string>
+    <string name="settings_content_broken">कुछ ठीक नहीं हुआ: %1$s</string>
+    <string name="settings_content_retry">फिर कोशिश करें</string>
+    <string name="settings_content_soon">खोज खुद अगले संस्करण में आएगी: फ़िलहाल यह पंक्ति सिर्फ़ मॉडल फ़ोन पर लाती है।</string>
 </resources>

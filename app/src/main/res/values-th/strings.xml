@@ -218,4 +218,14 @@
     <string name="clip_pause">หยุดชั่วคราว</string>
     <string name="settings_images_only">เปิดดูเฉพาะรูปภาพ</string>
     <string name="settings_images_only_desc">ในหน้าดูภาพ การปัดจะข้ามวิดีโอและแสดงเฉพาะรูปภาพ การแตะวิดีโอในตารางยังคงเล่นได้ นี่เป็นเรื่องของการปัด ไม่ใช่การแตะ</string>
+    <string name="settings_group_content">ค้นหาจากเนื้อหา</string>
+    <string name="settings_content_desc">การหารูปจากสิ่งที่อยู่ในรูป ไม่ใช่จากชื่อไฟล์ ต้องใช้โมเดลสองตัวที่ไม่ได้มากับแอป ดาวน์โหลดครั้งเดียวและลบออกได้ ทุกอย่างเกิดขึ้นบนโทรศัพท์ และไม่มีอะไรถูกส่งออกไปที่ไหน</string>
+    <string name="settings_content_get">ดาวน์โหลดโมเดล (%1$s)</string>
+    <string name="settings_content_getting">%1$s จาก %2$s</string>
+    <string name="settings_content_stop">หยุด</string>
+    <string name="settings_content_ready">โมเดลอยู่บนโทรศัพท์แล้ว</string>
+    <string name="settings_content_remove">ลบโมเดล (%1$s)</string>
+    <string name="settings_content_broken">มีบางอย่างไม่ทำงาน: %1$s</string>
+    <string name="settings_content_retry">ลองอีกครั้ง</string>
+    <string name="settings_content_soon">ตัวการค้นหาจะมาในรุ่นถัดไป ตอนนี้แถวนี้แค่นำโมเดลมาไว้บนโทรศัพท์เท่านั้น</string>
 </resources>

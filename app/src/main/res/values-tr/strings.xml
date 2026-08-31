@@ -232,4 +232,14 @@
     <string name="clip_pause">Duraklat</string>
     <string name="settings_images_only">Yalnızca resimleri gezin</string>
     <string name="settings_images_only_desc">Görüntüleyicide kaydırma videoları atlar ve yalnızca resimleri gösterir. Izgarada bir videoya dokunmak yine de oynatır: bu kaydırmayla ilgili, dokunmayla değil.</string>
+    <string name="settings_group_content">İçeriğe göre arama</string>
+    <string name="settings_content_desc">Bir fotoğrafı adına göre değil içinde ne olduğuna göre bulmak, uygulamanın içinde gelmeyen iki model gerektirir: bir kez indirilir ve kaldırılabilir. Her şey telefonda olur, hiçbir yere bir şey gönderilmez.</string>
+    <string name="settings_content_get">Modelleri indir (%1$s)</string>
+    <string name="settings_content_getting">%2$s içinden %1$s</string>
+    <string name="settings_content_stop">Durdur</string>
+    <string name="settings_content_ready">Modeller telefonda.</string>
+    <string name="settings_content_remove">Modelleri kaldır (%1$s)</string>
+    <string name="settings_content_broken">Bir şey yolunda gitmedi: %1$s</string>
+    <string name="settings_content_retry">Yeniden dene</string>
+    <string name="settings_content_soon">Aramanın kendisi bir sonraki sürümde geliyor: şimdilik bu satır yalnızca modelleri telefona indiriyor.</string>
 </resources>

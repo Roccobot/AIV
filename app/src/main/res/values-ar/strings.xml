@@ -288,4 +288,14 @@
     <string name="clip_pause">إيقاف مؤقت</string>
     <string name="settings_images_only">تصفح الصور فقط</string>
     <string name="settings_images_only_desc">في العارض، يتخطى التمرير مقاطع الفيديو ويعرض الصور فقط. النقر على مقطع في الشبكة يشغله على أي حال: هذا يخص التمرير، لا النقر.</string>
+    <string name="settings_group_content">البحث بالمحتوى</string>
+    <string name="settings_content_desc">العثور على صورة بما فيها، لا باسمها، يحتاج نموذجين لا يأتيان داخل التطبيق: يُنزَّلان مرة واحدة ويمكن إزالتهما. كل شيء يجري على الهاتف، ولا يُرسَل شيء إلى أي مكان.</string>
+    <string name="settings_content_get">تنزيل النموذجين (%1$s)</string>
+    <string name="settings_content_getting">%1$s من %2$s</string>
+    <string name="settings_content_stop">إيقاف</string>
+    <string name="settings_content_ready">النموذجان على الهاتف.</string>
+    <string name="settings_content_remove">إزالة النموذجين (%1$s)</string>
+    <string name="settings_content_broken">شيء ما لم ينجح: %1$s</string>
+    <string name="settings_content_retry">إعادة المحاولة</string>
+    <string name="settings_content_soon">البحث نفسه يأتي مع الإصدار التالي: في الوقت الحالي يجلب هذا السطر النماذج إلى الهاتف فقط.</string>
 </resources>

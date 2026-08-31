@@ -246,4 +246,14 @@
     <string name="clip_pause">Mettre en pause</string>
     <string name="settings_images_only">Ne feuilleter que les images</string>
     <string name="settings_images_only_desc">Dans la visionneuse, le balayage saute les films et ne montre que les images. Toucher un film dans la grille le lit quand même: cela concerne le geste, pas le toucher.</string>
+    <string name="settings_group_content">Recherche par contenu</string>
+    <string name="settings_content_desc">Trouver une photo par ce qu\'elle montre, et non par son nom, demande deux modèles qui ne sont pas dans l\'application: ils se téléchargent une fois et peuvent être retirés. Tout se passe sur le téléphone, et rien n\'est envoyé nulle part.</string>
+    <string name="settings_content_get">Télécharger les modèles (%1$s)</string>
+    <string name="settings_content_getting">%1$s sur %2$s</string>
+    <string name="settings_content_stop">Arrêter</string>
+    <string name="settings_content_ready">Les modèles sont sur le téléphone.</string>
+    <string name="settings_content_remove">Retirer les modèles (%1$s)</string>
+    <string name="settings_content_broken">Quelque chose n\'a pas marché: %1$s</string>
+    <string name="settings_content_retry">Réessayer</string>
+    <string name="settings_content_soon">La recherche elle-même arrive avec la prochaine version: pour l\'instant cette ligne ne fait qu\'amener les modèles sur le téléphone.</string>
 </resources>

@@ -218,4 +218,14 @@
     <string name="clip_pause">Jeda</string>
     <string name="settings_images_only">Telusuri gambar saja</string>
     <string name="settings_images_only_desc">Di penampil, gesekan melewati video dan hanya menampilkan gambar. Mengetuk video di kisi tetap memutarnya: ini tentang gesekan, bukan ketukan.</string>
+    <string name="settings_group_content">Pencarian berdasarkan isi</string>
+    <string name="settings_content_desc">Menemukan foto dari apa yang ada di dalamnya, bukan dari namanya, memerlukan dua model yang tidak ikut di dalam aplikasi: diunduh sekali dan bisa dihapus. Semuanya terjadi di ponsel, dan tidak ada yang dikirim ke mana pun.</string>
+    <string name="settings_content_get">Unduh modelnya (%1$s)</string>
+    <string name="settings_content_getting">%1$s dari %2$s</string>
+    <string name="settings_content_stop">Hentikan</string>
+    <string name="settings_content_ready">Modelnya ada di ponsel.</string>
+    <string name="settings_content_remove">Hapus modelnya (%1$s)</string>
+    <string name="settings_content_broken">Ada yang tidak berjalan: %1$s</string>
+    <string name="settings_content_retry">Coba lagi</string>
+    <string name="settings_content_soon">Pencariannya sendiri datang di versi berikutnya: untuk sekarang baris ini hanya membawa modelnya ke ponsel.</string>
 </resources>

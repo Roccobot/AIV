@@ -260,4 +260,14 @@
     <string name="clip_pause">Пауза</string>
     <string name="settings_images_only">Гортати лише фотографії</string>
     <string name="settings_images_only_desc">У переглядачі гортання пропускає відео і показує лише фотографії. Дотик до відео в сітці все одно його відтворить: це про жест, а не про дотик.</string>
+    <string name="settings_group_content">Пошук за вмістом</string>
+    <string name="settings_content_desc">Щоб знайти фотографію за тим, що на ній, а не за назвою, потрібні дві моделі, яких немає всередині програми: вони завантажуються один раз, і їх можна прибрати. Усе відбувається на телефоні, і нікуди нічого не надсилається.</string>
+    <string name="settings_content_get">Завантажити моделі (%1$s)</string>
+    <string name="settings_content_getting">%1$s з %2$s</string>
+    <string name="settings_content_stop">Зупинити</string>
+    <string name="settings_content_ready">Моделі є на телефоні.</string>
+    <string name="settings_content_remove">Прибрати моделі (%1$s)</string>
+    <string name="settings_content_broken">Щось не спрацювало: %1$s</string>
+    <string name="settings_content_retry">Спробувати ще раз</string>
+    <string name="settings_content_soon">Сам пошук з\'явиться в наступній версії: поки що цей рядок лише завантажує моделі на телефон.</string>
 </resources>

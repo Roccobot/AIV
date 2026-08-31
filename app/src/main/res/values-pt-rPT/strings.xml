@@ -96,4 +96,9 @@
     <string name="tree_unopenable">Nenhuma aplicação deste telemóvel sabe abrir isso</string>
     <!-- grade -> grelha, como no resto deste ficheiro. -->
     <string name="settings_images_only_desc">No visualizador, deslizar salta os vídeos e mostra só imagens. Tocar num vídeo na grelha continua a reproduzir: isto é sobre o gesto, não sobre o toque.</string>
+    <!-- app -> aplicacao, celular -> telemovel, baixar -> transferir: as tres
+         palavras que ja mudam no resto deste ficheiro. -->
+    <string name="settings_content_desc">Achar uma foto pelo que há nela, e não pelo nome, precisa de dois modelos que não vêm dentro da aplicação: transferem-se uma vez e podem ser removidos. Tudo acontece no telemóvel, e nada é enviado para lado nenhum.</string>
+    <string name="settings_content_get">Transferir os modelos (%1$s)</string>
+    <string name="settings_content_ready">Os modelos estão no telemóvel.</string>
 </resources>

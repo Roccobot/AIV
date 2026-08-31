@@ -232,4 +232,14 @@
     <string name="clip_pause">పాజ్ చేయి</string>
     <string name="settings_images_only">చిత్రాలను మాత్రమే తిప్పు</string>
     <string name="settings_images_only_desc">వ్యూయర్‌లో స్వైప్ చేస్తే వీడియోలు దాటిపోతాయి, చిత్రాలు మాత్రమే కనిపిస్తాయి. గ్రిడ్‌లో వీడియోను తాకితే అది ఆడుతుంది: ఇది స్వైప్ గురించి, తాకడం గురించి కాదు.</string>
+    <string name="settings_group_content">విషయం ఆధారంగా వెతకడం</string>
+    <string name="settings_content_desc">ఫోటోను దాని పేరుతో కాక అందులో ఉన్నదాని ఆధారంగా వెతకడానికి రెండు మోడల్‌లు కావాలి, అవి యాప్‌లో రావు: ఒకసారి డౌన్‌లోడ్ అవుతాయి, తర్వాత తీసివేయవచ్చు. అంతా ఫోన్‌లోనే జరుగుతుంది, ఎక్కడికీ ఏమీ పంపబడదు.</string>
+    <string name="settings_content_get">మోడల్‌లను డౌన్‌లోడ్ చేయి (%1$s)</string>
+    <string name="settings_content_getting">%2$s లో %1$s</string>
+    <string name="settings_content_stop">ఆపు</string>
+    <string name="settings_content_ready">మోడల్‌లు ఫోన్‌లో ఉన్నాయి.</string>
+    <string name="settings_content_remove">మోడల్‌లను తీసివేయి (%1$s)</string>
+    <string name="settings_content_broken">ఏదో సరిగా జరగలేదు: %1$s</string>
+    <string name="settings_content_retry">మళ్ళీ ప్రయత్నించు</string>
+    <string name="settings_content_soon">వెతకడం తర్వాతి వెర్షన్‌లో వస్తుంది: ప్రస్తుతానికి ఈ వరుస మోడల్‌లను ఫోన్‌లోకి తెస్తుంది మాత్రమే.</string>
 </resources>

@@ -69,6 +69,24 @@
     <string name="settings_group_look">Appearance</string>
     <string name="settings_group_viewer">Viewer</string>
     <string name="settings_group_browse">Folders</string>
+    <!-- ── Searching by what is IN the picture ── -->
+    <string name="settings_group_content">Search by content</string>
+    <string name="settings_content_desc">Finding a picture by what is in it, not by its name, needs two models that do not ship inside the app: they are downloaded once and can be removed. Everything happens on the phone, and nothing is sent anywhere.</string>
+    <!-- TRANSITIONAL, and it goes away with the engine: without it, turning this on
+         downloads 65 MB and nothing happens, which reads as broken. -->
+    <string name="settings_content_soon">The search itself arrives with the next version: for now this row only brings the models onto the phone.</string>
+    <string name="settings_content_get">Download the models (%1$s)</string>
+    <!-- Two weights, done and total: a bare percentage on a download this size hides
+         whether it is moving at all. -->
+    <string name="settings_content_getting">%1$s of %2$s</string>
+    <string name="settings_content_stop">Stop</string>
+    <string name="settings_content_ready">The models are on the phone.</string>
+    <string name="settings_content_remove">Remove the models (%1$s)</string>
+    <!-- Says WHICH piece failed and why: the network, the fingerprint, the disk. Three
+         causes, three different things to do about it. -->
+    <string name="settings_content_broken">Something went wrong: %1$s</string>
+    <string name="settings_content_retry">Try again</string>
+
     <string name="settings_group_start">Startup</string>
 
     <string name="settings_background">Behind the picture</string>
