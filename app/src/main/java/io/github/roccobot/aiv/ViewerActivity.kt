@@ -406,6 +406,20 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         val context = getApplication<Application>()
         val uri = ImageActions.urlInClipboard(context) ?: return
         if (!ImageActions.looksLikeImage(uri)) return
+        /*
+         * ⚠️⚠️ **LO STESSO INDIRIZZO SI APRE UNA VOLTA SOLA** (richiesta dell'utente,
+         * 2026-08-31): negli appunti una cosa ci resta per giorni, quindi senza questa
+         * memoria l'app riaprirebbe la stessa fotografia a ogni avvio, e chi ha acceso
+         * l'impostazione si troverebbe l'app che non ascolta più il tocco sull'icona.
+         * ⚠️ Si confronta l'INDIRIZZO e non un 'già fatto' generico: copiando un indirizzo
+         * nuovo la funzione deve tornare a rispondere, che è la ragione per cui esiste.
+         */
+        val address = uri.toString()
+        if (address == fresh.clipboardDone) return
+        // ⚠️ La scrittura è a parte e non blocca: quello che decide è il valore appena
+        // confrontato, e l'apertura qui sotto deve restare **sincrona** per non perdere la
+        // corsa con la cartella d'avvio.
+        viewModelScope.launch { SettingsStore.clipboardOpened(context, address) }
         // ⚠️⚠️ **SPEGNE LA CARTELLA D'AVVIO, e senza questa riga l'ordine deciderebbe il
         // vincitore**: le impostazioni arrivano da una coroutine e il fuoco da un evento
         // di sistema, quindi quale dei due sia primo non è stabilito. Se il fuoco arriva

@@ -43,7 +43,7 @@
     <string name="settings_dark">Koyu</string>
     <string name="settings_folder_columns">Klasör ızgarasındaki sütunlar</string>
     <string name="settings_folder_columns_desc">Sütun arttıkça ekrana daha çok klasör sığar ve her kapak küçülür. Dörtte alttaki ad çoğunlukla kesilir.</string>
-    <string name="settings_folder_count">Klasörlerin altında resim sayısı</string>
+    <string name="settings_folder_count">Klasörlerin altında öge sayısı</string>
     <string name="settings_folder_count_desc">Her kapağın altında, klasörün kaç resim içerdiği. Kapatınca satır kısalır ve üstteki başlık alanı o kadar büyür.</string>
     <string name="settings_fit_grow">Küçük görselleri büyüt</string>
     <string name="settings_fit_grow_desc">Kapalıyken ekrandan küçük bir görsel gerçek boyutunda görünür. Açıkken görünümü dolduracak kadar büyür.</string>
@@ -219,7 +219,7 @@
     <string name="columns_title">Izgara boyutu</string>
     <string name="columns_hint">Kısayol: ızgara boyutunu seçmek için kayan düğmeyi basılı tutun.</string>
     <string name="settings_bin">Çöp kutusunu aç</string>
-    <string name="settings_bin_desc">Bir dosyayı silmek hiçbir şey sormaz, ama işlem çöp kutusundan bir \'Geri al\' ile geri alınabilir (kayan düğme -&gt; \'Çöp kutusu\'). Anında silmeyi tercih ediyorsan çöp kutusunu tamamen kapatabilirsin: o zaman her silme işleminden önce bir onay görünür.</string>
+    <string name="settings_bin_desc">Bir dosyayı silmek hiçbir şey sormaz, ama işlem çöp kutusundan bir \'Geri al\' ile geri alınabilir (kayan düğme → \'Çöp kutusu\'). Anında silmeyi tercih ediyorsan çöp kutusunu tamamen kapatabilirsin: o zaman her silme işleminden önce bir onay görünür.</string>
     <string name="pick_duplicate">Çoğalt</string>
     <string name="settings_grid_names">Izgarada dosya adı</string>
     <string name="settings_grid_names_desc">Her küçük resmin altında dosya adı, en fazla iki satır. Uzantı asla bölünmez ve her zaman görünür: ad sığmazsa kısalan orta kısımdır.</string>

@@ -43,7 +43,7 @@
     <string name="settings_dark">داكن</string>
     <string name="settings_folder_columns">أعمدة شبكة المجلدات</string>
     <string name="settings_folder_columns_desc">كلما زادت الأعمدة زاد عدد المجلدات على الشاشة وصغر كل غلاف. عند أربعة أعمدة يُقتطع الاسم أسفله غالبًا.</string>
-    <string name="settings_folder_count">عدد الصور تحت المجلدات</string>
+    <string name="settings_folder_count">عدد العناصر تحت المجلدات</string>
     <string name="settings_folder_count_desc">تحت كل غلاف، عدد الصور التي يحتويها المجلد. عند الإيقاف يقصر السطر، ويكبر العنوان في الأعلى بالقدر نفسه.</string>
     <string name="settings_fit_grow">تكبير الصور الصغيرة</string>
     <string name="settings_fit_grow_desc">عند الإيقاف تظهر الصورة الأصغر من الشاشة بحجمها الحقيقي. وعند التفعيل تكبر حتى تملأ الشاشة.</string>
@@ -275,7 +275,7 @@
     <string name="columns_title">حجم الشبكة</string>
     <string name="columns_hint">اختصار: اضغط مطولا على الزر العائم لاختيار حجم الشبكة.</string>
     <string name="settings_bin">تشغيل سلة المهملات</string>
-    <string name="settings_bin_desc">حذف ملف لا يطلب أي تأكيد، لكن الإجراء قابل للتراجع عبر \'استعادة\' من سلة المهملات (الزر العائم -&gt; \'سلة المهملات\'). يمكنك إيقاف سلة المهملات تماما إذا كنت تفضل الحذف الفوري: في تلك الحالة سيظهر تأكيد قبل كل عملية حذف.</string>
+    <string name="settings_bin_desc">حذف ملف لا يطلب أي تأكيد، لكن الإجراء قابل للتراجع عبر \'استعادة\' من سلة المهملات (الزر العائم → \'سلة المهملات\'). يمكنك إيقاف سلة المهملات تماما إذا كنت تفضل الحذف الفوري: في تلك الحالة سيظهر تأكيد قبل كل عملية حذف.</string>
     <string name="pick_duplicate">تكرار</string>
     <string name="settings_grid_names">اسم الملف في الشبكة</string>
     <string name="settings_grid_names_desc">تحت كل صورة مصغرة اسم الملف، في سطرين على الأكثر. لا يُقطع الامتداد أبدا ويظهر دائما: إذا لم يتسع الاسم، فالوسط هو الذي يُختصر.</string>

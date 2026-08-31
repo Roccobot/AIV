@@ -43,7 +43,7 @@
     <string name="settings_dark">Ciemne</string>
     <string name="settings_folder_columns">Kolumny w siatce folderów</string>
     <string name="settings_folder_columns_desc">Więcej kolumn mieści na ekranie więcej folderów i zmniejsza każdą okładkę. Przy czterech nazwa pod nią zwykle się urywa.</string>
-    <string name="settings_folder_count">Liczba obrazów pod folderami</string>
+    <string name="settings_folder_count">Liczba elementów pod folderami</string>
     <string name="settings_folder_count_desc">Pod każdą okładką, ile obrazów zawiera folder. Po wyłączeniu wiersz staje się krótszy, a nagłówek u góry rośnie o tyle samo.</string>
     <string name="settings_fit_grow">Powiększaj małe obrazy</string>
     <string name="settings_fit_grow_desc">Wyłączone, obraz mniejszy od ekranu jest pokazywany w prawdziwym rozmiarze. Włączone, rośnie aż wypełni ekran.</string>
@@ -247,7 +247,7 @@
     <string name="columns_title">Rozmiar siatki</string>
     <string name="columns_hint">Skrót: przytrzymaj pływający przycisk, aby wybrać rozmiar siatki.</string>
     <string name="settings_bin">Włącz kosz</string>
-    <string name="settings_bin_desc">Usunięcie pliku o nic nie pyta, ale działanie można odwrócić przez \'Przywróć\' z kosza (pływający przycisk -&gt; \'Kosz\'). Możesz całkowicie wyłączyć kosz, jeśli wolisz natychmiastowe usuwanie: wtedy przed każdym usunięciem pojawi się potwierdzenie.</string>
+    <string name="settings_bin_desc">Usunięcie pliku o nic nie pyta, ale działanie można odwrócić przez \'Przywróć\' z kosza (pływający przycisk → \'Kosz\'). Możesz całkowicie wyłączyć kosz, jeśli wolisz natychmiastowe usuwanie: wtedy przed każdym usunięciem pojawi się potwierdzenie.</string>
     <string name="pick_duplicate">Duplikuj</string>
     <string name="settings_grid_names">Nazwa pliku w siatce zdjęć</string>
     <string name="settings_grid_names_desc">Pod każdą miniaturą nazwa pliku, najwyżej w dwóch wierszach. Rozszerzenie nigdy nie jest dzielone i zawsze widoczne: gdy nazwa się nie mieści, ustępuje środek.</string>

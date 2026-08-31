@@ -43,7 +43,7 @@
     <string name="settings_dark">暗い</string>
     <string name="settings_folder_columns">フォルダ一覧の列数</string>
     <string name="settings_folder_columns_desc">列を増やすと画面に入るフォルダは増え、表紙は小さくなります。4列では下の名前はたいてい切れます。</string>
-    <string name="settings_folder_count">フォルダーの下に画像の枚数</string>
+    <string name="settings_folder_count">フォルダーの下に項目の数</string>
     <string name="settings_folder_count_desc">各カバーの下に、フォルダー内の画像の枚数を表示します。オフにすると行が短くなり、その分だけ上部の見出しが広がります。</string>
     <string name="settings_fit_grow">小さい画像を拡大する</string>
     <string name="settings_fit_grow_desc">オフなら画面より小さい画像は実寸で表示します。オンなら画面いっぱいまで拡大します。</string>
@@ -205,7 +205,7 @@
     <string name="columns_title">グリッドの大きさ</string>
     <string name="columns_hint">ショートカット: フローティングボタンを長押しするとグリッドの大きさを選べます。</string>
     <string name="settings_bin">ゴミ箱を有効にする</string>
-    <string name="settings_bin_desc">ファイルの削除では何も確認しませんが、ゴミ箱から \'元に戻す\' で取り消せます (フローティングボタン -&gt; \'ゴミ箱\')。すぐに削除したい場合はゴミ箱を完全に無効にできます。その場合は削除のたびに確認が表示されます。</string>
+    <string name="settings_bin_desc">ファイルの削除では何も確認しませんが、ゴミ箱から \'元に戻す\' で取り消せます (フローティングボタン → \'ゴミ箱\')。すぐに削除したい場合はゴミ箱を完全に無効にできます。その場合は削除のたびに確認が表示されます。</string>
     <string name="pick_duplicate">複製</string>
     <string name="settings_grid_names">グリッドにファイル名</string>
     <string name="settings_grid_names_desc">各サムネイルの下にファイル名を最大2行で表示します。拡張子は改行で分割されず常に見えます。名前が収まらない場合は中ほどが省略されます。</string>

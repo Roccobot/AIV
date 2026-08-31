@@ -43,7 +43,7 @@
     <string name="settings_dark">深色</string>
     <string name="settings_folder_columns">資料夾格狀檢視的欄數</string>
     <string name="settings_folder_columns_desc">欄數越多,螢幕上放得下的資料夾越多,每張封面也越小。到四欄時,下面的名稱通常會被截斷。</string>
-    <string name="settings_folder_count">在資料夾下方顯示圖片數量</string>
+    <string name="settings_folder_count">在資料夾下方顯示項目數量</string>
     <string name="settings_folder_count_desc">在每個封面下方顯示資料夾中的圖片數量。關閉後列會變短，頂部的標題區域則相應變大。</string>
     <string name="settings_fit_grow">放大較小的圖片</string>
     <string name="settings_fit_grow_desc">關閉時,比螢幕小的圖片以實際大小顯示。開啟時,它會放大到填滿檢視。</string>
@@ -205,7 +205,7 @@
     <string name="columns_title">格線大小</string>
     <string name="columns_hint">快捷操作：長按浮動按鈕即可選擇格線大小。</string>
     <string name="settings_bin">啟用回收筒</string>
-    <string name="settings_bin_desc">刪除檔案不會有任何提示，但可以在回收筒裡用 \'還原\' 復原（浮動按鈕 -&gt; \'回收筒\'）。如果你偏好立即刪除，可以完全關閉回收筒：那樣每次刪除前都會出現確認。</string>
+    <string name="settings_bin_desc">刪除檔案不會有任何提示，但可以在回收筒裡用 \'還原\' 復原（浮動按鈕 → \'回收筒\'）。如果你偏好立即刪除，可以完全關閉回收筒：那樣每次刪除前都會出現確認。</string>
     <string name="pick_duplicate">建立副本</string>
     <string name="settings_grid_names">格線中顯示檔名</string>
     <string name="settings_grid_names_desc">每張縮圖下顯示檔名，最多兩行。副檔名不會被換行拆開，一律可見：名稱放不下時，讓位的是中間部分。</string>

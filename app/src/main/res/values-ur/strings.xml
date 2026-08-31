@@ -43,7 +43,7 @@
     <string name="settings_dark">گہرا</string>
     <string name="settings_folder_columns">فولڈر گرڈ کے کالم</string>
     <string name="settings_folder_columns_desc">زیادہ کالم اسکرین پر زیادہ فولڈر سماتے ہیں اور ہر سرورق چھوٹا کر دیتے ہیں۔ چار پر نیچے کا نام عموماً کٹ جاتا ہے۔</string>
-    <string name="settings_folder_count">فولڈروں کے نیچے تصویروں کی گنتی</string>
+    <string name="settings_folder_count">فولڈروں کے نیچے عناصر کی گنتی</string>
     <string name="settings_folder_count_desc">ہر سرورق کے نیچے، فولڈر میں کتنی تصویریں ہیں۔ بند کرنے پر قطار چھوٹی ہو جاتی ہے، اور اوپر کا سرنامہ اتنا ہی بڑھ جاتا ہے۔</string>
     <string name="settings_fit_grow">چھوٹی تصویریں بڑی کریں</string>
     <string name="settings_fit_grow_desc">بند ہو تو اسکرین سے چھوٹی تصویر اپنے اصل حجم میں دکھائی جاتی ہے۔ کھلا ہو تو بڑھ کر اسکرین بھر دیتی ہے۔</string>
@@ -219,7 +219,7 @@
     <string name="columns_title">گرڈ کا سائز</string>
     <string name="columns_hint">شارٹ کٹ: گرڈ کا سائز چننے کے لیے فلوٹنگ بٹن دبائے رکھیں۔</string>
     <string name="settings_bin">ردی کی ٹوکری فعال کریں</string>
-    <string name="settings_bin_desc">فائل مٹانا کچھ نہیں پوچھتا، لیکن یہ کام ردی کی ٹوکری سے \'بحال کریں\' کے ذریعے واپس ہو سکتا ہے (فلوٹنگ بٹن -&gt; \'ردی کی ٹوکری\')۔ اگر آپ فوری مٹانا پسند کرتے ہیں تو ردی کی ٹوکری مکمل بند کر سکتے ہیں: اس صورت میں ہر مٹانے سے پہلے تصدیق آئے گی۔</string>
+    <string name="settings_bin_desc">فائل مٹانا کچھ نہیں پوچھتا، لیکن یہ کام ردی کی ٹوکری سے \'بحال کریں\' کے ذریعے واپس ہو سکتا ہے (فلوٹنگ بٹن → \'ردی کی ٹوکری\')۔ اگر آپ فوری مٹانا پسند کرتے ہیں تو ردی کی ٹوکری مکمل بند کر سکتے ہیں: اس صورت میں ہر مٹانے سے پہلے تصدیق آئے گی۔</string>
     <string name="pick_duplicate">نقل بنائیں</string>
     <string name="settings_grid_names">گرڈ میں فائل کا نام</string>
     <string name="settings_grid_names_desc">ہر تھمب نیل کے نیچے فائل کا نام، زیادہ سے زیادہ دو سطروں میں۔ توسیع کبھی نہیں ٹوٹتی اور ہمیشہ نظر آتی ہے: نام نہ سمائے تو درمیان چھوٹا ہوتا ہے۔</string>

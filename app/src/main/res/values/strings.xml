@@ -108,7 +108,7 @@
 
     <string name="settings_folder_columns">Columns in the folder grid</string>
     <string name="settings_folder_columns_desc">More columns fit more folders on screen and shrink each cover. At four the name under it is usually cut short.</string>
-    <string name="settings_folder_count">Picture count under the folders</string>
+    <string name="settings_folder_count">Item count under the folders</string>
     <string name="settings_folder_count_desc">Under each cover, how many pictures the folder holds. Turning it off makes the row shorter, and the title area at the top grows by as much.</string>
     <!-- Off by default: a gallery shows pictures, and a name under each one is data for
          someone working with files rather than looking at them. -->
@@ -136,7 +136,7 @@
          appears: the two go together, because you get asked exactly when there is no way
          back. The Italian wording is the user's, dictated word for word. -->
     <string name="settings_bin">Turn the bin on</string>
-    <string name="settings_bin_desc">Deleting a file asks nothing, but the action can be undone with a \'Restore\' from the bin (floating button -&gt; \'Bin\'). You can turn the bin off altogether if you prefer instant deletion: in that case, a confirmation will appear before every deletion.</string>
+    <string name="settings_bin_desc">Deleting a file asks nothing, but the action can be undone with a \'Restore\' from the bin (floating button → \'Bin\'). You can turn the bin off altogether if you prefer instant deletion: in that case, a confirmation will appear before every deletion.</string>
     <!-- The one that decides the architecture: OFF by default means the normal case
          is 'I leaf through videos too', so the branch that tells a picture from a film
          is always needed. Tapping a video still opens it: this is about the GESTURE. -->

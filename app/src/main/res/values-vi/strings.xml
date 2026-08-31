@@ -43,7 +43,7 @@
     <string name="settings_dark">Tối</string>
     <string name="settings_folder_columns">Số cột trong lưới thư mục</string>
     <string name="settings_folder_columns_desc">Càng nhiều cột thì càng nhiều thư mục vừa màn hình và mỗi ảnh bìa càng nhỏ. Ở bốn cột, tên bên dưới thường bị cắt.</string>
-    <string name="settings_folder_count">Số ảnh dưới mỗi thư mục</string>
+    <string name="settings_folder_count">Số mục dưới mỗi thư mục</string>
     <string name="settings_folder_count_desc">Dưới mỗi ảnh bìa, thư mục chứa bao nhiêu ảnh. Khi tắt, hàng sẽ ngắn lại và phần tiêu đề ở trên cao thêm đúng chừng ấy.</string>
     <string name="settings_fit_grow">Phóng to ảnh nhỏ</string>
     <string name="settings_fit_grow_desc">Khi tắt, ảnh nhỏ hơn màn hình được hiển thị ở kích thước thật. Khi bật, ảnh lớn lên cho đầy khung hình.</string>
@@ -205,7 +205,7 @@
     <string name="columns_title">Kích thước lưới</string>
     <string name="columns_hint">Lối tắt: nhấn giữ nút nổi để chọn kích thước lưới.</string>
     <string name="settings_bin">Bật thùng rác</string>
-    <string name="settings_bin_desc">Xóa một tệp không hỏi gì, nhưng hành động có thể hoàn tác bằng \'Phục hồi\' từ thùng rác (nút nổi -&gt; \'Thùng rác\'). Bạn có thể tắt hẳn thùng rác nếu thích xóa ngay: khi đó, một hộp xác nhận sẽ xuất hiện trước mỗi lần xóa.</string>
+    <string name="settings_bin_desc">Xóa một tệp không hỏi gì, nhưng hành động có thể hoàn tác bằng \'Phục hồi\' từ thùng rác (nút nổi → \'Thùng rác\'). Bạn có thể tắt hẳn thùng rác nếu thích xóa ngay: khi đó, một hộp xác nhận sẽ xuất hiện trước mỗi lần xóa.</string>
     <string name="pick_duplicate">Nhân bản</string>
     <string name="settings_grid_names">Tên tệp trong lưới ảnh</string>
     <string name="settings_grid_names_desc">Dưới mỗi ảnh thu nhỏ là tên tệp, nhiều nhất hai dòng. Phần mở rộng không bao giờ bị ngắt dòng và luôn hiện: nếu tên không vừa, phần giữa sẽ nhường chỗ.</string>

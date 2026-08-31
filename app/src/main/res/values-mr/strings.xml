@@ -43,7 +43,7 @@
     <string name="settings_dark">गडद</string>
     <string name="settings_folder_columns">संचिकासंच जाळीतील स्तंभ</string>
     <string name="settings_folder_columns_desc">जास्त स्तंभांत पडद्यावर जास्त संचिकासंच बसतात आणि प्रत्येक मुखपृष्ठ लहान होते. चार असताना खालचे नाव बहुधा कापले जाते.</string>
-    <string name="settings_folder_count">संचिकासंचांखाली प्रतिमांची संख्या</string>
+    <string name="settings_folder_count">संचिकासंचांखाली घटकांची संख्या</string>
     <string name="settings_folder_count_desc">प्रत्येक मुखपृष्ठाखाली, संचिकासंचात किती प्रतिमा आहेत. बंद केल्यावर ओळ आखूड होते, आणि वरचा शीर्षकभाग तितकाच वाढतो.</string>
     <string name="settings_fit_grow">लहान प्रतिमा मोठ्या करा</string>
     <string name="settings_fit_grow_desc">बंद असल्यास पडद्यापेक्षा लहान प्रतिमा तिच्या खऱ्या आकारात दिसते. चालू असल्यास पडदा भरेपर्यंत वाढते.</string>
@@ -219,7 +219,7 @@
     <string name="columns_title">ग्रिडचा आकार</string>
     <string name="columns_hint">शॉर्टकट: ग्रिडचा आकार निवडण्यासाठी फ्लोटिंग बटण दाबून धरा.</string>
     <string name="settings_bin">कचरापेटी सुरू करा</string>
-    <string name="settings_bin_desc">फाइल पुसताना काहीही विचारले जात नाही, पण कचरापेटीतून \'पुन्हा आणा\' ने ही कृती उलटवता येते (फ्लोटिंग बटण -&gt; \'कचरापेटी\'). तुम्हाला तात्काळ पुसणे आवडत असेल तर कचरापेटी पूर्ण बंद करू शकता: तेव्हा प्रत्येक वेळी पुसण्यापूर्वी खात्री विचारली जाईल.</string>
+    <string name="settings_bin_desc">फाइल पुसताना काहीही विचारले जात नाही, पण कचरापेटीतून \'पुन्हा आणा\' ने ही कृती उलटवता येते (फ्लोटिंग बटण → \'कचरापेटी\'). तुम्हाला तात्काळ पुसणे आवडत असेल तर कचरापेटी पूर्ण बंद करू शकता: तेव्हा प्रत्येक वेळी पुसण्यापूर्वी खात्री विचारली जाईल.</string>
     <string name="pick_duplicate">प्रत बनवा</string>
     <string name="settings_grid_names">ग्रिडमध्ये फाइलचे नाव</string>
     <string name="settings_grid_names_desc">प्रत्येक थंबनेलखाली फाइलचे नाव, जास्तीत जास्त दोन ओळींत. विस्तार कधीही तुटत नाही आणि नेहमी दिसतो: नाव मावले नाही तर मधला भाग लहान होतो.</string>

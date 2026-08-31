@@ -182,6 +182,18 @@ data class Settings(
      */
     val clipboardStart: Boolean = false,
     /**
+     * L'ultimo indirizzo degli appunti che l'app ha aperto da sé.
+     *
+     * ⚠️⚠️ **NON È UNA PREFERENZA MA UNO STATO, e vive qui per una ragione precisa**: la
+     * decisione di aprire o no si prende dentro [ViewerViewModel.readClipboard], che deve
+     * rispondere **subito** per non perdere la corsa con la cartella d'avvio (vedi la nota
+     * là). Un archivio a parte si leggerebbe con una sua coroutine, e quando la risposta
+     * arrivasse la fotografia sarebbe già stata aperta o già coperta. Le impostazioni
+     * invece quella funzione le aspetta già, quindi qui il valore c'è per costruzione.
+     * ⚠️ Vuoto vuol dire 'nessuno ancora', ed è diverso da 'non lo so'.
+     */
+    val clipboardDone: String = "",
+    /**
      * La cartella da aprire all'avvio, e `null` quando non se n'è scelta nessuna.
      *
      * ⚠️ **Due campi per una cosa sola, e il secondo non è ridondante**: l'id è quello
@@ -323,6 +335,7 @@ object SettingsStore {
     private val OPEN_AT_START = booleanPreferencesKey("open-at-start")
     private val FOLDER_VIEW = stringPreferencesKey("folder-view")
     private val CLIPBOARD_START = booleanPreferencesKey("clipboard-start")
+    private val CLIPBOARD_DONE = stringPreferencesKey("clipboard-done")
     private val UI_THEME = stringPreferencesKey("ui-theme")
     private val FOLDER_COLUMNS_KEY = intPreferencesKey("folder-columns")
     private val BIN_ON = booleanPreferencesKey("bin-on")
@@ -356,6 +369,7 @@ object SettingsStore {
             openAtStart = p[OPEN_AT_START] ?: false,
             folderView = FolderView.entries.byToken(p[FOLDER_VIEW], FolderView.GRID),
             clipboardStart = p[CLIPBOARD_START] ?: false,
+            clipboardDone = p[CLIPBOARD_DONE] ?: "",
             uiTheme = UiTheme.entries.byToken(p[UI_THEME], UiTheme.SYSTEM),
             // ⚠️ Ricondotto all'elenco ammesso e non solo letto: un numero fuori posto
             // nell'archivio (una versione futura, un file modificato a mano) darebbe una
@@ -377,6 +391,18 @@ object SettingsStore {
         )
     }
 
+    /**
+     * Segna che questo indirizzo degli appunti è stato aperto, e non si riaprirà più.
+     *
+     * ⚠️ Scrive la **sola** chiave invece di passare da [save]: quella riscrive l'oggetto
+     * intero, e chiamarla da qui vorrebbe dire riscrivere ventiquattro preferenze per
+     * ricordare una stringa, con in mezzo la possibilità di sovrascrivere con una copia
+     * vecchia quello che la schermata delle impostazioni ha cambiato nel frattempo.
+     */
+    suspend fun clipboardOpened(context: Context, address: String) {
+        context.aivStore.edit { p -> p[CLIPBOARD_DONE] = address }
+    }
+
     suspend fun save(context: Context, settings: Settings) {
         context.aivStore.edit { p ->
             p[BG_TYPE] = settings.bgType.token
@@ -395,6 +421,10 @@ object SettingsStore {
             p[OPEN_AT_START] = settings.openAtStart
             p[FOLDER_VIEW] = settings.folderView.token
             p[CLIPBOARD_START] = settings.clipboardStart
+            // ⚠️ Si riscrive anche qui, o il salvataggio della schermata delle impostazioni
+            // (che scrive l'oggetto INTERO) cancellerebbe l'indirizzo già aperto, e gli
+            // appunti tornerebbero a riaprirsi al primo avvio dopo un giro nelle opzioni.
+            p[CLIPBOARD_DONE] = settings.clipboardDone
             p[UI_THEME] = settings.uiTheme.token
             p[FOLDER_COLUMNS_KEY] = settings.folderColumns
             p[FOLDER_COUNT] = settings.folderCount

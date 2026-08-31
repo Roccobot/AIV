@@ -43,7 +43,7 @@
     <string name="settings_dark">Dunkel</string>
     <string name="settings_folder_columns">Spalten im Ordnerraster</string>
     <string name="settings_folder_columns_desc">Mehr Spalten bringen mehr Ordner auf den Bildschirm und machen jedes Titelbild kleiner. Bei vier wird der Name darunter meist abgeschnitten.</string>
-    <string name="settings_folder_count">Bildanzahl unter den Ordnern</string>
+    <string name="settings_folder_count">Anzahl der Elemente unter den Ordnern</string>
     <string name="settings_folder_count_desc">Unter jedem Titelbild, wie viele Bilder der Ordner enthält. Ausgeschaltet wird die Zeile kürzer, und der Kopfbereich wächst um genauso viel.</string>
     <string name="settings_fit_grow">Kleine Bilder vergrößern</string>
     <string name="settings_fit_grow_desc">Aus wird ein Bild, das kleiner als der Bildschirm ist, in seiner echten Größe gezeigt. An wächst es, bis es die Ansicht füllt.</string>
@@ -219,7 +219,7 @@
     <string name="columns_title">Rastergröße</string>
     <string name="columns_hint">Kurzbefehl: Halte die schwebende Schaltfläche gedrückt, um die Rastergröße zu wählen.</string>
     <string name="settings_bin">Papierkorb einschalten</string>
-    <string name="settings_bin_desc">Das Löschen einer Datei fragt nichts, aber die Aktion lässt sich mit einem \'Wiederherstellen\' aus dem Papierkorb umkehren (schwebende Schaltfläche -&gt; \'Papierkorb\'). Du kannst den Papierkorb ganz ausschalten, wenn du sofortiges Löschen bevorzugst: dann erscheint vor jedem Löschen eine Bestätigung.</string>
+    <string name="settings_bin_desc">Das Löschen einer Datei fragt nichts, aber die Aktion lässt sich mit einem \'Wiederherstellen\' aus dem Papierkorb umkehren (schwebende Schaltfläche → \'Papierkorb\'). Du kannst den Papierkorb ganz ausschalten, wenn du sofortiges Löschen bevorzugst: dann erscheint vor jedem Löschen eine Bestätigung.</string>
     <string name="pick_duplicate">Duplizieren</string>
     <string name="settings_grid_names">Dateiname im Bilderraster</string>
     <string name="settings_grid_names_desc">Unter jedem Vorschaubild der Dateiname, auf höchstens zwei Zeilen. Die Endung wird nie umbrochen und ist immer zu sehen: passt der Name nicht, weicht die Mitte.</string>

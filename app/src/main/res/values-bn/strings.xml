@@ -43,7 +43,7 @@
     <string name="settings_dark">গাঢ়</string>
     <string name="settings_folder_columns">ফোল্ডার গ্রিডের কলাম</string>
     <string name="settings_folder_columns_desc">বেশি কলামে পর্দায় বেশি ফোল্ডার আঁটে আর প্রতিটি প্রচ্ছদ ছোট হয়। চারটিতে নিচের নাম সাধারণত কাটা পড়ে।</string>
-    <string name="settings_folder_count">ফোল্ডারের নিচে ছবির সংখ্যা</string>
+    <string name="settings_folder_count">ফোল্ডারের নিচে আইটেমের সংখ্যা</string>
     <string name="settings_folder_count_desc">প্রতিটি প্রচ্ছদের নিচে, ফোল্ডারে কতটি ছবি আছে। বন্ধ করলে সারি ছোট হয়, আর উপরের শিরোনামের জায়গা ততটাই বড় হয়।</string>
     <string name="settings_fit_grow">ছোট ছবি বড় করুন</string>
     <string name="settings_fit_grow_desc">বন্ধ থাকলে পর্দার চেয়ে ছোট ছবি তার আসল আকারে দেখানো হয়। চালু থাকলে পর্দা ভরে যাওয়া পর্যন্ত বড় হয়।</string>
@@ -219,7 +219,7 @@
     <string name="columns_title">গ্রিডের আকার</string>
     <string name="columns_hint">শর্টকাট: গ্রিডের আকার বাছতে ভাসমান বোতামটি চেপে ধরে রাখুন।</string>
     <string name="settings_bin">আবর্জনা চালু করুন</string>
-    <string name="settings_bin_desc">ফাইল মোছার সময় কিছু জিজ্ঞাসা করা হয় না, তবে আবর্জনা থেকে \'ফিরিয়ে আনুন\' দিয়ে কাজটি ফেরানো যায় (ভাসমান বোতাম -&gt; \'আবর্জনা\')। তাৎক্ষণিক মোছা পছন্দ করলে আবর্জনা পুরোপুরি বন্ধ করতে পারেন: তখন প্রতিবার মোছার আগে একটি নিশ্চিতকরণ দেখা যাবে।</string>
+    <string name="settings_bin_desc">ফাইল মোছার সময় কিছু জিজ্ঞাসা করা হয় না, তবে আবর্জনা থেকে \'ফিরিয়ে আনুন\' দিয়ে কাজটি ফেরানো যায় (ভাসমান বোতাম → \'আবর্জনা\')। তাৎক্ষণিক মোছা পছন্দ করলে আবর্জনা পুরোপুরি বন্ধ করতে পারেন: তখন প্রতিবার মোছার আগে একটি নিশ্চিতকরণ দেখা যাবে।</string>
     <string name="pick_duplicate">প্রতিলিপি করুন</string>
     <string name="settings_grid_names">গ্রিডে ফাইলের নাম</string>
     <string name="settings_grid_names_desc">প্রতিটি থাম্বনেইলের নিচে ফাইলের নাম, বড়জোর দুই লাইনে। এক্সটেনশন কখনও ভাঙে না এবং সবসময় দেখা যায়: নাম না ধরলে মাঝখানটাই ছোট হয়।</string>
