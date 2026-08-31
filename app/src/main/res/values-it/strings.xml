@@ -270,4 +270,19 @@
     <string name="settings_facts_up">Sposta su</string>
     <string name="settings_facts_down">Sposta giù</string>
 
+    <string name="settings_group_look">Aspetto</string>
+    <string name="settings_group_viewer">Visualizzatore</string>
+    <string name="settings_group_browse">Cartelle e sfoglio</string>
+    <string name="settings_group_start">Avvio</string>
+    <string name="settings_hidden_none">Nessuna cartella nascosta</string>
+    <plurals name="settings_hidden_count">
+        <item quantity="one">%1$d cartella</item>
+        <item quantity="other">%1$d cartelle</item>
+        <item quantity="many">%1$d cartelle</item>
+    </plurals>
+    <plurals name="settings_facts_count">
+        <item quantity="one">%1$d dato</item>
+        <item quantity="other">%1$d dati</item>
+        <item quantity="many">%1$d dati</item>
+    </plurals>
 </resources>

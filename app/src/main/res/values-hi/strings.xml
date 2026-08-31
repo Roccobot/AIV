@@ -195,4 +195,17 @@
     <string name="settings_facts_always">हमेशा दिखता है</string>
     <string name="settings_facts_up">ऊपर ले जाएँ</string>
     <string name="settings_facts_down">नीचे ले जाएँ</string>
+    <string name="settings_group_look">रूप</string>
+    <string name="settings_group_viewer">प्रदर्शक</string>
+    <string name="settings_group_browse">फ़ोल्डर और ब्राउज़िंग</string>
+    <string name="settings_group_start">शुरुआत</string>
+    <string name="settings_hidden_none">कोई छिपा फ़ोल्डर नहीं</string>
+    <plurals name="settings_hidden_count">
+        <item quantity="one">%1$d फ़ोल्डर</item>
+        <item quantity="other">%1$d फ़ोल्डर</item>
+    </plurals>
+    <plurals name="settings_facts_count">
+        <item quantity="one">%1$d जानकारी</item>
+        <item quantity="other">%1$d जानकारियाँ</item>
+    </plurals>
 </resources>

@@ -182,4 +182,15 @@
     <string name="settings_facts_always">แสดงอยู่เสมอ</string>
     <string name="settings_facts_up">เลื่อนขึ้น</string>
     <string name="settings_facts_down">เลื่อนลง</string>
+    <string name="settings_group_look">รูปลักษณ์</string>
+    <string name="settings_group_viewer">ตัวแสดงภาพ</string>
+    <string name="settings_group_browse">โฟลเดอร์และการเรียกดู</string>
+    <string name="settings_group_start">การเริ่มต้น</string>
+    <string name="settings_hidden_none">ไม่มีโฟลเดอร์ที่ซ่อนไว้</string>
+    <plurals name="settings_hidden_count">
+        <item quantity="other">%1$d โฟลเดอร์</item>
+    </plurals>
+    <plurals name="settings_facts_count">
+        <item quantity="other">%1$d รายการ</item>
+    </plurals>
 </resources>

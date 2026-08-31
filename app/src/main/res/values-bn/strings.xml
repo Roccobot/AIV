@@ -195,4 +195,17 @@
     <string name="settings_facts_always">সবসময় দেখা যায়</string>
     <string name="settings_facts_up">উপরে সরান</string>
     <string name="settings_facts_down">নিচে সরান</string>
+    <string name="settings_group_look">উপস্থিতি</string>
+    <string name="settings_group_viewer">প্রদর্শক</string>
+    <string name="settings_group_browse">ফোল্ডার ও ব্রাউজিং</string>
+    <string name="settings_group_start">সূচনা</string>
+    <string name="settings_hidden_none">কোনো লুকানো ফোল্ডার নেই</string>
+    <plurals name="settings_hidden_count">
+        <item quantity="one">%1$dটি ফোল্ডার</item>
+        <item quantity="other">%1$dটি ফোল্ডার</item>
+    </plurals>
+    <plurals name="settings_facts_count">
+        <item quantity="one">%1$dটি তথ্য</item>
+        <item quantity="other">%1$dটি তথ্য</item>
+    </plurals>
 </resources>

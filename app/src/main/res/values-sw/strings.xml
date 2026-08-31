@@ -195,4 +195,17 @@
     <string name="settings_facts_always">Huonekana daima</string>
     <string name="settings_facts_up">Sogeza juu</string>
     <string name="settings_facts_down">Sogeza chini</string>
+    <string name="settings_group_look">Mwonekano</string>
+    <string name="settings_group_viewer">Kitazamaji</string>
+    <string name="settings_group_browse">Folda na kuvinjari</string>
+    <string name="settings_group_start">Kuanza</string>
+    <string name="settings_hidden_none">Hakuna folda zilizofichwa</string>
+    <plurals name="settings_hidden_count">
+        <item quantity="one">Folda %1$d</item>
+        <item quantity="other">Folda %1$d</item>
+    </plurals>
+    <plurals name="settings_facts_count">
+        <item quantity="one">Kipengele %1$d</item>
+        <item quantity="other">Vipengele %1$d</item>
+    </plurals>
 </resources>

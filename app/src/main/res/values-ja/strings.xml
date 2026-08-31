@@ -182,4 +182,15 @@
     <string name="settings_facts_always">常に表示</string>
     <string name="settings_facts_up">上へ</string>
     <string name="settings_facts_down">下へ</string>
+    <string name="settings_group_look">外観</string>
+    <string name="settings_group_viewer">ビューア</string>
+    <string name="settings_group_browse">フォルダーと閲覧</string>
+    <string name="settings_group_start">起動</string>
+    <string name="settings_hidden_none">非表示のフォルダーはありません</string>
+    <plurals name="settings_hidden_count">
+        <item quantity="other">%1$d 件のフォルダー</item>
+    </plurals>
+    <plurals name="settings_facts_count">
+        <item quantity="other">%1$d 項目</item>
+    </plurals>
 </resources>

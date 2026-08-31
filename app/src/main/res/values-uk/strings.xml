@@ -221,4 +221,21 @@
     <string name="settings_facts_always">Завжди видно</string>
     <string name="settings_facts_up">Вище</string>
     <string name="settings_facts_down">Нижче</string>
+    <string name="settings_group_look">Вигляд</string>
+    <string name="settings_group_viewer">Перегляд</string>
+    <string name="settings_group_browse">Теки й навігація</string>
+    <string name="settings_group_start">Запуск</string>
+    <string name="settings_hidden_none">Немає прихованих тек</string>
+    <plurals name="settings_hidden_count">
+        <item quantity="one">%1$d тека</item>
+        <item quantity="few">%1$d теки</item>
+        <item quantity="many">%1$d тек</item>
+        <item quantity="other">%1$d теки</item>
+    </plurals>
+    <plurals name="settings_facts_count">
+        <item quantity="one">%1$d поле</item>
+        <item quantity="few">%1$d поля</item>
+        <item quantity="many">%1$d полів</item>
+        <item quantity="other">%1$d поля</item>
+    </plurals>
 </resources>

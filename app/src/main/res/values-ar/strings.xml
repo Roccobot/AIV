@@ -247,4 +247,25 @@
     <string name="settings_facts_always">ظاهر دائمًا</string>
     <string name="settings_facts_up">تحريك لأعلى</string>
     <string name="settings_facts_down">تحريك لأسفل</string>
+    <string name="settings_group_look">المظهر</string>
+    <string name="settings_group_viewer">العارض</string>
+    <string name="settings_group_browse">المجلدات والتنقل</string>
+    <string name="settings_group_start">بدء التشغيل</string>
+    <string name="settings_hidden_none">لا توجد مجلدات مخفية</string>
+    <plurals name="settings_hidden_count">
+        <item quantity="zero">لا مجلدات</item>
+        <item quantity="one">مجلد واحد</item>
+        <item quantity="two">مجلدان</item>
+        <item quantity="few">%1$d مجلدات</item>
+        <item quantity="many">%1$d مجلدًا</item>
+        <item quantity="other">%1$d مجلد</item>
+    </plurals>
+    <plurals name="settings_facts_count">
+        <item quantity="zero">لا عناصر</item>
+        <item quantity="one">عنصر واحد</item>
+        <item quantity="two">عنصران</item>
+        <item quantity="few">%1$d عناصر</item>
+        <item quantity="many">%1$d عنصرًا</item>
+        <item quantity="other">%1$d عنصر</item>
+    </plurals>
 </resources>

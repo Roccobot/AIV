@@ -195,4 +195,17 @@
     <string name="settings_facts_always">எப்போதும் தெரியும்</string>
     <string name="settings_facts_up">மேலே நகர்த்து</string>
     <string name="settings_facts_down">கீழே நகர்த்து</string>
+    <string name="settings_group_look">தோற்றம்</string>
+    <string name="settings_group_viewer">காட்சியாளர்</string>
+    <string name="settings_group_browse">கோப்புறைகள் மற்றும் உலாவல்</string>
+    <string name="settings_group_start">தொடக்கம்</string>
+    <string name="settings_hidden_none">மறைக்கப்பட்ட கோப்புறைகள் இல்லை</string>
+    <plurals name="settings_hidden_count">
+        <item quantity="one">%1$d கோப்புறை</item>
+        <item quantity="other">%1$d கோப்புறைகள்</item>
+    </plurals>
+    <plurals name="settings_facts_count">
+        <item quantity="one">%1$d தகவல்</item>
+        <item quantity="other">%1$d தகவல்கள்</item>
+    </plurals>
 </resources>

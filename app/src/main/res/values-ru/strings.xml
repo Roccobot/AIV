@@ -221,4 +221,21 @@
     <string name="settings_facts_always">Всегда видно</string>
     <string name="settings_facts_up">Выше</string>
     <string name="settings_facts_down">Ниже</string>
+    <string name="settings_group_look">Внешний вид</string>
+    <string name="settings_group_viewer">Просмотр</string>
+    <string name="settings_group_browse">Папки и навигация</string>
+    <string name="settings_group_start">Запуск</string>
+    <string name="settings_hidden_none">Скрытых папок нет</string>
+    <plurals name="settings_hidden_count">
+        <item quantity="one">%1$d папка</item>
+        <item quantity="few">%1$d папки</item>
+        <item quantity="many">%1$d папок</item>
+        <item quantity="other">%1$d папки</item>
+    </plurals>
+    <plurals name="settings_facts_count">
+        <item quantity="one">%1$d поле</item>
+        <item quantity="few">%1$d поля</item>
+        <item quantity="many">%1$d полей</item>
+        <item quantity="other">%1$d поля</item>
+    </plurals>
 </resources>

@@ -182,4 +182,15 @@
     <string name="settings_facts_always">항상 표시</string>
     <string name="settings_facts_up">위로</string>
     <string name="settings_facts_down">아래로</string>
+    <string name="settings_group_look">모양</string>
+    <string name="settings_group_viewer">보기</string>
+    <string name="settings_group_browse">폴더와 탐색</string>
+    <string name="settings_group_start">시작</string>
+    <string name="settings_hidden_none">숨긴 폴더가 없습니다</string>
+    <plurals name="settings_hidden_count">
+        <item quantity="other">폴더 %1$d개</item>
+    </plurals>
+    <plurals name="settings_facts_count">
+        <item quantity="other">항목 %1$d개</item>
+    </plurals>
 </resources>
