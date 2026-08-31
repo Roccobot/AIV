@@ -52,7 +52,6 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -332,6 +331,25 @@ fun GridScreen(
         bin && !binSeen && !binOff -> Hint.BIN_EMPTY
         else -> null
     }
+
+    /*
+     * ⚠️⚠️ **IL MENU SI APRE DA SÉ QUANDO LA SELEZIONE COMINCIA, dalla 0.75** (richiesta
+     * dell'utente, *per usabilità*): scelta la prima foto, l'azione è la cosa che si vuole
+     * fare, e farla cercare dietro un tocco su un tastino piccolo in un angolo era un
+     * passaggio a vuoto.
+     * ⚠️⚠️ **MA NON SOPRA UN VELO DI ONBOARDING, e senza questa condizione i due si
+     * pestano**: il velo del tocco lungo compare esattamente nello stesso istante, cioè al
+     * primo ingresso in selezione, e un menu che si aprisse sotto di lui sarebbe un riquadro
+     * dentro un velo. Aspettando che il velo sia archiviato, l'effetto gira di nuovo (`hint`
+     * cambia) e il menu si apre appena il velo cade: la sequenza diventa insegna, chiudi,
+     * ecco il menu.
+     * ⚠️ **Non riapre il menu che l'utente ha chiuso a mano**: l'effetto dipende da `picking`
+     * e da `hint`, non da `menuOpen`, quindi chiuderlo col tastino non lo fa tornare.
+     * ⚠️ **Nel cestino non si apre da sé**: là `picking` è falso finché non si sceglie
+     * qualcosa, e un menu che si aprisse entrando mostrerebbe 'Svuota il cestino' senza che
+     * nessuno l'abbia chiesto.
+     */
+    LaunchedEffect(picking, hint) { if (picking && hint == null) menuOpen = true }
 
     /**
      * Il velo si archivia appena l'utente fa la cosa che insegnava, o appena la salta.
@@ -751,15 +769,21 @@ fun GridScreen(
                             ink = MaterialTheme.colorScheme.onPrimaryContainer,
                             lift = FAB_LIFT,
                             longLabel = stringResource(shortcutLabel),
-                            onOpen = { menuOpen = true },
+                            // ⚠️⚠️ **ALTERNA e non apre, dalla 0.75** (richiesta
+                            // dell'utente): il menu si apre da sé all'inizio della
+                            // selezione, quindi un tocco che 'apre' non avrebbe niente da
+                            // fare, mentre serve **chiuderlo** per vedere le foto sotto e
+                            // continuare a scegliere. Un altro tocco lo riporta.
+                            onOpen = { menuOpen = !menuOpen },
                             onAll = { shortcut(); hintDone() }
                         )
-                        DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                        PickMenu(open = menuOpen, onDismiss = { menuOpen = false }) {
                             // ⚠️ Nel cestino senza niente scelto il tastino non porta le sei
                             // operazioni, che non avrebbero su cosa agire, ma la sola voce
                             // che riguarda il cestino intero.
                             if (!picking) {
                                 DropdownMenuItem(
+                                    modifier = Modifier.padding(vertical = PICK_EDGE),
                                     text = { Text(stringResource(R.string.bin_empty)) },
                                     leadingIcon = { Icon(Icons.Default.DeleteForever, null) },
                                     colors = MenuDefaults.itemColors(
@@ -1326,6 +1350,51 @@ private fun PickFab(
         }
     }
 }
+
+/**
+ * Il menu delle operazioni: **al centro in basso**, sopra il tastino.
+ *
+ * ⚠️⚠️ **NON È PIÙ UN `DropdownMenu`, dalla 0.75** (richiesta dell'utente: *al centro in
+ * basso, con angoli un po' più stondati*). Un `DropdownMenu` si posiziona **accanto al suo
+ * genitore** e non accetta un posizionatore: attaccato a un tastino in basso a destra,
+ * usciva da quell'angolo, che è il posto peggiore per un riquadro su un telefono tenuto in
+ * una mano. La superficie e il posto stanno in [MenuShell] e [MenuAbove], condivisi col menu
+ * del visualizzatore, che è un `Popup` per la stessa ragione dalla `0.69`.
+ * ⚠️ **Non si chiude toccando fuori, e non è una dimenticanza**: qui è il tastino ad
+ * alternarlo, e le due cose insieme si pestano. Il perché sta in [MenuShell], sul parametro.
+ */
+@Composable
+private fun PickMenu(open: Boolean, onDismiss: () -> Unit, content: @Composable () -> Unit) {
+    if (!open) return
+    val gap = with(LocalDensity.current) { PICK_GAP.roundToPx() }
+    MenuShell(
+        position = remember(gap) { MenuAbove(gap) },
+        corner = PICK_CORNER,
+        dismissOnOutside = false,
+        onDismiss = onDismiss,
+        content = content
+    )
+}
+
+/**
+ * Quanto sono stondati gli angoli del menu, e quanto stacca dal bordo alto del tastino.
+ *
+ * ⚠️ 16dp, cioè *un po' più stondati* come chiesto: un `DropdownMenu` di Material ne ha 4,
+ * e il salto a 16 si vede senza trasformare il riquadro in una bolla. Il menu del
+ * visualizzatore ne ha 8 e resta com'è: quello è una lista larga e bassa, questo è quasi
+ * quadrato, e su una forma quadrata lo stesso raggio si legge meno.
+ */
+private val PICK_CORNER = 16.dp
+private val PICK_GAP = 12.dp
+
+/**
+ * Il margine sopra e sotto una voce sola.
+ *
+ * ⚠️ Serve **solo** al cestino: il riquadro delle sei azioni porta i suoi, una voce di menu
+ * no, e un `DropdownMenu` di Material glielo metteva lui. Senza, il testo toccherebbe
+ * l'angolo stondato.
+ */
+private val PICK_EDGE = 8.dp
 
 /** La misura di `SmallFloatingActionButton`, che [PickFab] rifà a mano. */
 private val FAB_SIZE = 40.dp
