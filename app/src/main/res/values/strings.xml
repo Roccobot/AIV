@@ -118,6 +118,11 @@
          back. The Italian wording is the user's, dictated word for word. -->
     <string name="settings_bin">Turn the bin on</string>
     <string name="settings_bin_desc">Deleting a file asks nothing, but the action can be undone with a \'Restore\' from the bin (floating button -&gt; \'Bin\'). You can turn the bin off altogether if you prefer instant deletion: in that case, a confirmation will appear before every deletion.</string>
+    <!-- The one that decides the architecture: OFF by default means the normal case
+         is 'I leaf through videos too', so the branch that tells a picture from a film
+         is always needed. Tapping a video still opens it: this is about the GESTURE. -->
+    <string name="settings_images_only">Leaf through pictures only</string>
+    <string name="settings_images_only_desc">Swiping in the viewer skips films and shows only pictures. Tapping a film in the grid still plays it: this is about the swipe, not the tap.</string>
 
     <!-- Off by default, and the second sentence is the reason why: the system notice
          is the cost of the feature, so it belongs next to the switch rather than as a
@@ -212,9 +217,7 @@
 
     <!-- ── Films ── -->
     <string name="clip_play">Play</string>
-    <!-- Said when the handover fails: this piece does not play anything itself, it
-         passes the file to the phone's player, and a phone can have none. -->
-    <string name="clip_no_player">No app on this phone can play it</string>
+    <string name="clip_pause">Pause</string>
 
     <!-- ── Choosing several pictures in a folder ── -->
     <string name="pick_leave">Leave the selection</string>

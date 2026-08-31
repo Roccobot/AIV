@@ -210,10 +210,12 @@
     <string name="settings_grid_names_desc">각 미리보기 아래에 파일 이름을 최대 두 줄로 표시합니다. 확장자는 줄바꿈으로 나뉘지 않고 항상 보이며, 이름이 다 들어가지 않으면 가운데가 줄어듭니다.</string>
     <string name="grid_item_clip">동영상</string>
     <string name="clip_play">재생</string>
-    <string name="clip_no_player">이 휴대전화에는 재생할 수 있는 앱이 없습니다</string>
     <string name="hub_view_tree">시스템 폴더</string>
     <string name="tree_up">상위 폴더로</string>
     <string name="tree_empty">여기에는 아무것도 없습니다.</string>
     <string name="tree_hidden">숨김</string>
     <string name="tree_unopenable">이 휴대전화에는 열 수 있는 앱이 없습니다</string>
+    <string name="clip_pause">일시정지</string>
+    <string name="settings_images_only">사진만 넘기기</string>
+    <string name="settings_images_only_desc">뷰어에서 밀기가 동영상을 건너뛰고 사진만 보여줍니다. 격자에서 동영상을 누르면 그대로 재생됩니다. 미는 동작에 대한 설정이지 누르기에 대한 것이 아닙니다.</string>
 </resources>

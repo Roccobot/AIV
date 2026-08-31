@@ -224,10 +224,12 @@
     <string name="settings_grid_names_desc">প্রতিটি থাম্বনেইলের নিচে ফাইলের নাম, বড়জোর দুই লাইনে। এক্সটেনশন কখনও ভাঙে না এবং সবসময় দেখা যায়: নাম না ধরলে মাঝখানটাই ছোট হয়।</string>
     <string name="grid_item_clip">ভিডিও</string>
     <string name="clip_play">চালান</string>
-    <string name="clip_no_player">এই ফোনের কোনও অ্যাপ এটি চালাতে পারে না</string>
     <string name="hub_view_tree">সিস্টেম ফোল্ডার</string>
     <string name="tree_up">এক ফোল্ডার উপরে</string>
     <string name="tree_empty">এখানে কিছু নেই।</string>
     <string name="tree_hidden">লুকানো</string>
     <string name="tree_unopenable">এই ফোনের কোনও অ্যাপ এটি খুলতে পারে না</string>
+    <string name="clip_pause">থামান</string>
+    <string name="settings_images_only">শুধু ছবি দেখুন</string>
+    <string name="settings_images_only_desc">ভিউয়ারে সোয়াইপ করলে ভিডিও বাদ পড়ে এবং শুধু ছবি দেখা যায়। গ্রিডে ভিডিওতে ট্যাপ করলে সেটি তবুও চলে: এটি সোয়াইপ নিয়ে, ট্যাপ নিয়ে নয়।</string>
 </resources>

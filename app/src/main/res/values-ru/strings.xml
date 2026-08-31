@@ -252,10 +252,12 @@
     <string name="settings_grid_names_desc">Под каждой миниатюрой имя файла, не более двух строк. Расширение никогда не переносится и видно всегда: если имя не помещается, сокращается середина.</string>
     <string name="grid_item_clip">Видео</string>
     <string name="clip_play">Воспроизвести</string>
-    <string name="clip_no_player">Ни одно приложение на этом телефоне не может это воспроизвести</string>
     <string name="hub_view_tree">Папки устройства</string>
     <string name="tree_up">На уровень выше</string>
     <string name="tree_empty">Здесь ничего нет.</string>
     <string name="tree_hidden">скрыта</string>
     <string name="tree_unopenable">Ни одно приложение на этом телефоне не может это открыть</string>
+    <string name="clip_pause">Пауза</string>
+    <string name="settings_images_only">Листать только фотографии</string>
+    <string name="settings_images_only_desc">В просмотрщике смахивание пропускает видео и показывает только фотографии. Нажатие на видео в сетке всё равно его откроет: это про жест, а не про нажатие.</string>
 </resources>

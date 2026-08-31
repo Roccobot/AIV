@@ -224,10 +224,12 @@
     <string name="settings_grid_names_desc">ప్రతి థంబ్‌నెయిల్ కింద ఫైల్ పేరు, గరిష్ఠంగా రెండు పంక్తులలో. పొడిగింపు ఎప్పుడూ విడిపోదు, ఎప్పుడూ కనిపిస్తుంది: పేరు పట్టకపోతే మధ్య భాగం కుదించబడుతుంది.</string>
     <string name="grid_item_clip">వీడియో</string>
     <string name="clip_play">ప్లే చేయి</string>
-    <string name="clip_no_player">దీన్ని ప్లే చేయగల యాప్ ఈ ఫోన్‌లో లేదు</string>
     <string name="hub_view_tree">సిస్టమ్ ఫోల్డర్లు</string>
     <string name="tree_up">ఒక ఫోల్డర్ పైకి</string>
     <string name="tree_empty">ఇక్కడ ఏమీ లేదు.</string>
     <string name="tree_hidden">దాచినది</string>
     <string name="tree_unopenable">దీన్ని తెరవగల యాప్ ఈ ఫోన్‌లో లేదు</string>
+    <string name="clip_pause">పాజ్ చేయి</string>
+    <string name="settings_images_only">చిత్రాలను మాత్రమే తిప్పు</string>
+    <string name="settings_images_only_desc">వ్యూయర్‌లో స్వైప్ చేస్తే వీడియోలు దాటిపోతాయి, చిత్రాలు మాత్రమే కనిపిస్తాయి. గ్రిడ్‌లో వీడియోను తాకితే అది ఆడుతుంది: ఇది స్వైప్ గురించి, తాకడం గురించి కాదు.</string>
 </resources>

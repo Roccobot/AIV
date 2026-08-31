@@ -24,11 +24,11 @@ android {
         // the update as a downgrade. It is not tied to versionName and nothing
         // checks it, so nothing will remind you: 0.11 went out carrying 1, so
         // from here on every published version needs its own number.
-        versionCode = 75
+        versionCode = 76
         // Single source of the version, in SlimVer. The release workflow reads
         // it from here and refuses to run when the tag disagrees, so the tag
         // confirms this number instead of being a second one.
-        versionName = "0.85"
+        versionName = "0.86"
     }
 
     // The signing material comes from the environment and never from the
@@ -104,6 +104,10 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    // ⚠️ Arriva col PEZZO 2 dei video (0.86) e serve a una cosa sola: `LocalLifecycleOwner`
+    // di `androidx.lifecycle.compose`, con cui il lettore si mette in pausa quando l'app va
+    // in fondo. Quello vecchio di `compose.ui.platform` è deprecato e rimanda qui.
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.exifinterface)
     implementation(libs.androidx.datastore.preferences)
@@ -111,6 +115,23 @@ dependencies {
     // versioni. ⚠️ Non porta niente per la rete (quello sarebbe
     // `coil-network-okhttp`), e non serve: qui le immagini sono locali.
     implementation(libs.coil.compose)
+
+    /*
+     * ⚠️⚠️ **MEDIA3 ENTRA COL PEZZO 2 DEI VIDEO (0.86)**: riprodurre un filmato in
+     * casa vuol dire un decoder, un buffer, la gestione del fuoco audio e i codici
+     * che ogni telefono implementa a modo suo, cioè esattamente quello che una
+     * libreria di sistema fa.
+     * ⚠️⚠️ **`media3-ui-compose` E NON `media3-ui`, ed è una scelta sui GESTI.**
+     * Il secondo porta `PlayerView`, cioè i comandi già fatti, ma è una `View`
+     * che si prende i tocchi: dentro un `AndroidView` a tutto schermo la
+     * strisciata per cambiare fotografia non arriverebbe più al genitore Compose,
+     * e sfogliando una cartella mista si resterebbe bloccati sul filmato, che è
+     * il difetto che la `0.83` esiste per non avere. `PlayerSurface` invece non
+     * ascolta nessun tocco: i comandi li scriviamo noi (sono un tasto e una
+     * barra) e i gesti restano quelli di Compose.
+     */
+    implementation(libs.media3.exoplayer)
+    implementation(libs.media3.ui.compose)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)

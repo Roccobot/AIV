@@ -1324,7 +1324,7 @@ private fun ClipBadge(uri: Uri, modifier: Modifier = Modifier) {
         )
         length?.let {
             Text(
-                text = Videos.stamp(it),
+                text = Videos.stamp(it, floor = true),
                 style = MaterialTheme.typography.labelSmall,
                 color = Color.White
             )

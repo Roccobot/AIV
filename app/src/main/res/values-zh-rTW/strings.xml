@@ -210,10 +210,12 @@
     <string name="settings_grid_names_desc">每張縮圖下顯示檔名，最多兩行。副檔名不會被換行拆開，一律可見：名稱放不下時，讓位的是中間部分。</string>
     <string name="grid_item_clip">影片</string>
     <string name="clip_play">播放</string>
-    <string name="clip_no_player">這支手機上沒有能播放它的應用程式</string>
     <string name="hub_view_tree">系統資料夾</string>
     <string name="tree_up">上一層資料夾</string>
     <string name="tree_empty">這裡什麼都沒有。</string>
     <string name="tree_hidden">已隱藏</string>
     <string name="tree_unopenable">這支手機上沒有能開啟它的應用程式</string>
+    <string name="clip_pause">暫停</string>
+    <string name="settings_images_only">只翻閱圖片</string>
+    <string name="settings_images_only_desc">在檢視器裡滑動會略過影片，只顯示圖片。在格線中輕觸影片仍會播放：這管的是滑動，不是輕觸。</string>
 </resources>

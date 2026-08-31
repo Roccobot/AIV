@@ -224,10 +224,12 @@
     <string name="settings_grid_names_desc">हर थंबनेल के नीचे फ़ाइल का नाम, ज़्यादा से ज़्यादा दो पंक्तियों में। एक्सटेंशन कभी नहीं टूटता और हमेशा दिखता है: नाम न समाए तो बीच का हिस्सा छोटा होता है।</string>
     <string name="grid_item_clip">वीडियो</string>
     <string name="clip_play">चलाएँ</string>
-    <string name="clip_no_player">इस फ़ोन में कोई ऐप इसे नहीं चला सकता</string>
     <string name="hub_view_tree">सिस्टम फ़ोल्डर</string>
     <string name="tree_up">एक फ़ोल्डर ऊपर</string>
     <string name="tree_empty">यहाँ कुछ नहीं है।</string>
     <string name="tree_hidden">छिपा हुआ</string>
     <string name="tree_unopenable">इस फ़ोन में कोई ऐप इसे नहीं खोल सकता</string>
+    <string name="clip_pause">रोकें</string>
+    <string name="settings_images_only">सिर्फ़ तस्वीरें देखें</string>
+    <string name="settings_images_only_desc">व्यूअर में स्वाइप करने पर वीडियो छूट जाते हैं और सिर्फ़ तस्वीरें दिखती हैं। ग्रिड में वीडियो पर टैप करने से वह फिर भी चलता है: यह स्वाइप की बात है, टैप की नहीं।</string>
 </resources>

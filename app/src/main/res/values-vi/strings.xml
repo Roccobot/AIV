@@ -210,10 +210,12 @@
     <string name="settings_grid_names_desc">Dưới mỗi ảnh thu nhỏ là tên tệp, nhiều nhất hai dòng. Phần mở rộng không bao giờ bị ngắt dòng và luôn hiện: nếu tên không vừa, phần giữa sẽ nhường chỗ.</string>
     <string name="grid_item_clip">Video</string>
     <string name="clip_play">Phát</string>
-    <string name="clip_no_player">Không có ứng dụng nào trên điện thoại này phát được tệp này</string>
     <string name="hub_view_tree">Thư mục hệ thống</string>
     <string name="tree_up">Lên một thư mục</string>
     <string name="tree_empty">Trong này không có gì.</string>
     <string name="tree_hidden">đã ẩn</string>
     <string name="tree_unopenable">Không có ứng dụng nào trên điện thoại này mở được tệp này</string>
+    <string name="clip_pause">Tạm dừng</string>
+    <string name="settings_images_only">Chỉ lướt qua ảnh</string>
+    <string name="settings_images_only_desc">Trong trình xem, vuốt sẽ bỏ qua video và chỉ hiện ảnh. Chạm vào video trong lưới vẫn phát: điều này nói về cử chỉ vuốt, không phải cú chạm.</string>
 </resources>

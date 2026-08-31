@@ -360,6 +360,18 @@ private fun ColumnScope.RootPage(
         onChange = { onChange(settings.copy(binOn = it)) }
     )
 
+    /*
+     * ⚠️ **Sta qui accanto al cestino per la stessa ragione dichiarata sopra**: parla del
+     * visualizzatore, che non ha un gruppo suo in questa schermata, e un titolo nuovo per una
+     * riga sarebbe un gruppo con dentro un interruttore.
+     */
+    SwitchRow(
+        label = stringResource(R.string.settings_images_only),
+        detail = stringResource(R.string.settings_images_only_desc),
+        checked = settings.imagesOnly,
+        onChange = { onChange(settings.copy(imagesOnly = it)) }
+    )
+
     Group(stringResource(R.string.settings_group_start))
 
     SwitchRow(

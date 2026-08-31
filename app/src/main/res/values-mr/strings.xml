@@ -224,10 +224,12 @@
     <string name="settings_grid_names_desc">प्रत्येक थंबनेलखाली फाइलचे नाव, जास्तीत जास्त दोन ओळींत. विस्तार कधीही तुटत नाही आणि नेहमी दिसतो: नाव मावले नाही तर मधला भाग लहान होतो.</string>
     <string name="grid_item_clip">व्हिडिओ</string>
     <string name="clip_play">चालवा</string>
-    <string name="clip_no_player">या फोनवरील कोणतेही ॲप हे चालवू शकत नाही</string>
     <string name="hub_view_tree">सिस्टम फोल्डर</string>
     <string name="tree_up">एक फोल्डर वर</string>
     <string name="tree_empty">इथे काहीही नाही.</string>
     <string name="tree_hidden">लपवलेले</string>
     <string name="tree_unopenable">या फोनवरील कोणतेही ॲप हे उघडू शकत नाही</string>
+    <string name="clip_pause">थांबवा</string>
+    <string name="settings_images_only">फक्त चित्रे पाहा</string>
+    <string name="settings_images_only_desc">व्ह्यूअरमध्ये स्वाइप केल्यास व्हिडिओ वगळले जातात आणि फक्त चित्रे दिसतात. ग्रिडमध्ये व्हिडिओवर टॅप केल्यास तो तरीही चालतो: हे स्वाइपबद्दल आहे, टॅपबद्दल नाही.</string>
 </resources>
