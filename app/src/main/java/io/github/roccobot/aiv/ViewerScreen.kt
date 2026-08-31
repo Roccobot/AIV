@@ -20,12 +20,14 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculateCentroid
 import androidx.compose.foundation.gestures.calculateCentroidSize
 import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateZoom
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -41,9 +43,11 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Download
@@ -77,6 +81,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -375,7 +380,12 @@ fun ViewerScreen(
     // ⚠️ Ricordato SENZA chiavi, e non per fotografia: nasce spento una volta sola,
     // quindi la primissima riga entra in dissolvenza e da lì in poi non si ricrea mai.
     val barState = remember { MutableTransitionState(false) }
-    barState.targetState = info.visible && shown != null
+    // ⚠️⚠️ **SU UN FILMATO LA RIGA SE NE VA, e non è una scelta di gusto: senza questa
+    // condizione racconterebbe il FALSO.** `shown` è l'ultima fotografia vista e resta
+    // apposta, perché è ciò che toglie il lampeggio fra una foto e l'altra; ma su un video
+    // non arriva nessuna fotografia nuova a sostituirla, quindi la riga resterebbe lì a
+    // dichiarare pixel, formato e peso di **un altro file**.
+    barState.targetState = info.visible && shown != null && state !is ViewerState.Clip
 
     /*
      * ⚠️⚠️ **LO SFONDO SI DIPINGE QUI, e prima viveva dentro `ImageCanvas`: era LUI il
@@ -435,6 +445,13 @@ fun ViewerScreen(
             )
             is ViewerState.Ready ->
                 ImageCanvas(state.image, settings, source, folder, info, onStep, ops, inBin)
+            is ViewerState.Clip -> ClipStage(
+                uri = state.uri,
+                // La strisciata porta avanti e indietro solo se c'è una serie: fuori da una
+                // cartella un filmato è un vicolo cieco, come una fotografia sola.
+                stepping = folder?.seriesOrNull != null,
+                onStep = onStep
+            )
         }
 
         AnimatedVisibility(
@@ -567,6 +584,113 @@ private class InfoBar {
      */
     var tiles by mutableStateOf<String?>(null)
 }
+
+/**
+ * Un FILMATO nel visualizzatore: il suo fotogramma, la durata e il tasto che lo apre.
+ *
+ * ⚠️⚠️ **PEZZO 1 DEI TRE, e qui non si riproduce niente**: si mostra quello che il sistema
+ * ha già (la miniatura, cioè un fotogramma) e si consegna il file al lettore del telefono.
+ * La riproduzione in casa è il pezzo 2, e prenderà **questo** posto: la sostituzione
+ * riguarda il centro di questa funzione, non l'impalcatura attorno.
+ * ⚠️⚠️ **LA STRISCIATA C'È, ed è la ragione per cui questa funzione non è solo un'immagine
+ * e un tasto**: sfogliando una cartella mista si arriva su un filmato, e senza il gesto ci
+ * si troverebbe **bloccati**, costretti a tornare alla griglia per riprendere da dopo. È il
+ * difetto peggiore che questo pezzo poteva avere.
+ * ⚠️ **Ma è una strisciata SEMPLICE, e la differenza si vede**: qui il dito non trascina la
+ * pagina, non c'è la vicina che entra dal bordo e non c'è la resistenza al capolinea. Tutta
+ * quella macchina vive in `ImageCanvas` e poggia su una fotografia decodificata, che qui non
+ * c'è. Il baratto è dichiarato: sul filmato il passaggio è secco.
+ * ⚠️ **La soglia è la stessa frazione di larghezza dell'altra strisciata** (un quinto), così
+ * il gesto ha la stessa taratura in tutti e due i posti: due numeri diversi si sentirebbero
+ * come due gesti diversi.
+ */
+@Composable
+private fun ClipStage(uri: Uri, stepping: Boolean, onStep: (Int) -> Unit) {
+    val context = LocalContext.current
+    val model = remember(uri, context) { Thumbs.request(context, uri) }
+    val poster = rememberAsyncImagePainter(model = model)
+    val length by produceState(Videos.cachedLength(uri), uri, context) {
+        if (value == null) value = Videos.length(context, uri)
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(uri, stepping) {
+                if (!stepping) return@pointerInput
+                val threshold = size.width / 5f
+                var travelled = 0f
+                detectHorizontalDragGestures(
+                    onDragStart = { travelled = 0f },
+                    // ⚠️ Il passo si dà alla FINE del gesto e non appena la soglia è
+                    // superata: durante il trascinamento il dito può tornare indietro, e
+                    // cambiare pagina a metà strada toglierebbe a chi striscia la
+                    // possibilità di ripensarci, che l'altra strisciata concede.
+                    onDragEnd = {
+                        if (travelled <= -threshold) onStep(1)
+                        else if (travelled >= threshold) onStep(-1)
+                    },
+                    onHorizontalDrag = { _, delta -> travelled += delta }
+                )
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = poster,
+            contentDescription = null,
+            // ⚠️ `Fit` e non `Crop`: un fotogramma tagliato per riempire lo schermo
+            // nasconderebbe proprio quello che si guarda per decidere se aprirlo.
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.fillMaxSize()
+        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(CLIP_GAP)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(CLIP_KEY)
+                    .clip(CircleShape)
+                    .background(CLIP_INK)
+                    .clickable {
+                        if (!Videos.play(context, uri)) {
+                            Toast.makeText(context, R.string.clip_no_player, Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.PlayArrow,
+                    contentDescription = stringResource(R.string.clip_play),
+                    tint = Color.White,
+                    modifier = Modifier.size(CLIP_GLYPH)
+                )
+            }
+            // ⚠️ La durata sta **sotto il tasto e non nella riga dei dettagli**, che per un
+            // filmato non compare: quella racconta pixel, formato e profondità di colore,
+            // cioè tre cose che un video non ha. Qui c'è l'unica che ha.
+            length?.let {
+                Text(
+                    text = Videos.stamp(it),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = Color.White
+                )
+            }
+        }
+    }
+}
+
+/** Il tasto che apre il filmato: grande, perché è la sola cosa da toccare in tutta la vista. */
+private val CLIP_KEY = 72.dp
+
+/** Il triangolo dentro il tasto. */
+private val CLIP_GLYPH = 40.dp
+
+/** Il nero del tasto: lo stesso mestiere della targhetta in griglia, sopra una fotografia. */
+private val CLIP_INK = Color(0x99000000)
+
+/** Quanto la durata si stacca dal tasto. */
+private val CLIP_GAP = 12.dp
 
 /**
  * La MINIATURA mentre la fotografia vera si decodifica.

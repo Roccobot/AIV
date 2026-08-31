@@ -222,4 +222,7 @@
     <string name="pick_duplicate">نقل بنائیں</string>
     <string name="settings_grid_names">گرڈ میں فائل کا نام</string>
     <string name="settings_grid_names_desc">ہر تھمب نیل کے نیچے فائل کا نام، زیادہ سے زیادہ دو سطروں میں۔ توسیع کبھی نہیں ٹوٹتی اور ہمیشہ نظر آتی ہے: نام نہ سمائے تو درمیان چھوٹا ہوتا ہے۔</string>
+    <string name="grid_item_clip">ویڈیو</string>
+    <string name="clip_play">چلائیں</string>
+    <string name="clip_no_player">اس فون میں کوئی ایپ اسے نہیں چلا سکتی</string>
 </resources>

@@ -298,4 +298,7 @@
     <string name="pick_duplicate">Duplica</string>
     <string name="settings_grid_names">Nome del file in vista griglia</string>
     <string name="settings_grid_names_desc">Sotto ogni miniatura, il nome del file su due righe al massimo. L\'estensione non va mai a capo e si vede sempre: quando il nome non ci sta, a cedere è la parte centrale.</string>
+    <string name="grid_item_clip">Video</string>
+    <string name="clip_play">Riproduci</string>
+    <string name="clip_no_player">Nessuna app di questo telefono sa riprodurlo</string>
 </resources>

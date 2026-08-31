@@ -222,4 +222,7 @@
     <string name="pick_duplicate">Dupliceren</string>
     <string name="settings_grid_names">Bestandsnaam in het raster</string>
     <string name="settings_grid_names_desc">Onder elke miniatuur de bestandsnaam, op hoogstens twee regels. De extensie wordt nooit afgebroken en is altijd te zien: past de naam niet, dan wijkt het midden.</string>
+    <string name="grid_item_clip">Video</string>
+    <string name="clip_play">Afspelen</string>
+    <string name="clip_no_player">Geen app op deze telefoon kan het afspelen</string>
 </resources>

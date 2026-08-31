@@ -222,4 +222,7 @@
     <string name="pick_duplicate">تکثیر</string>
     <string name="settings_grid_names">نام فایل در شبکه</string>
     <string name="settings_grid_names_desc">زیر هر تصویر بندانگشتی نام فایل، حداکثر در دو خط. پسوند هرگز شکسته نمی‌شود و همیشه دیده می‌شود: اگر نام جا نشود، میانه کوتاه می‌شود.</string>
+    <string name="grid_item_clip">ویدیو</string>
+    <string name="clip_play">پخش</string>
+    <string name="clip_no_player">هیچ برنامه‌ای در این گوشی نمی‌تواند آن را پخش کند</string>
 </resources>

@@ -278,4 +278,7 @@
     <string name="pick_duplicate">تكرار</string>
     <string name="settings_grid_names">اسم الملف في الشبكة</string>
     <string name="settings_grid_names_desc">تحت كل صورة مصغرة اسم الملف، في سطرين على الأكثر. لا يُقطع الامتداد أبدا ويظهر دائما: إذا لم يتسع الاسم، فالوسط هو الذي يُختصر.</string>
+    <string name="grid_item_clip">فيديو</string>
+    <string name="clip_play">تشغيل</string>
+    <string name="clip_no_player">لا يوجد تطبيق على هذا الهاتف يستطيع تشغيله</string>
 </resources>

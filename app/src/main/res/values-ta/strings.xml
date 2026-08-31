@@ -222,4 +222,7 @@
     <string name="pick_duplicate">நகலெடு</string>
     <string name="settings_grid_names">கட்டத்தில் கோப்பின் பெயர்</string>
     <string name="settings_grid_names_desc">ஒவ்வொரு சிறுபடத்திற்கும் கீழே கோப்பின் பெயர், அதிகபட்சம் இரண்டு வரிகளில். நீட்டிப்பு ஒருபோதும் பிரிக்கப்படாது, எப்போதும் தெரியும்: பெயர் அடங்கவில்லை என்றால் நடுப்பகுதி சுருங்கும்.</string>
+    <string name="grid_item_clip">வீடியோ</string>
+    <string name="clip_play">இயக்கு</string>
+    <string name="clip_no_player">இதை இயக்கக்கூடிய பயன்பாடு இந்தத் தொலைபேசியில் இல்லை</string>
 </resources>

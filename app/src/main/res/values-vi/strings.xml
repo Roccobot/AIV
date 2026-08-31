@@ -208,4 +208,7 @@
     <string name="pick_duplicate">Nhân bản</string>
     <string name="settings_grid_names">Tên tệp trong lưới ảnh</string>
     <string name="settings_grid_names_desc">Dưới mỗi ảnh thu nhỏ là tên tệp, nhiều nhất hai dòng. Phần mở rộng không bao giờ bị ngắt dòng và luôn hiện: nếu tên không vừa, phần giữa sẽ nhường chỗ.</string>
+    <string name="grid_item_clip">Video</string>
+    <string name="clip_play">Phát</string>
+    <string name="clip_no_player">Không có ứng dụng nào trên điện thoại này phát được tệp này</string>
 </resources>

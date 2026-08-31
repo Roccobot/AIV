@@ -208,4 +208,7 @@
     <string name="pick_duplicate">複製</string>
     <string name="settings_grid_names">グリッドにファイル名</string>
     <string name="settings_grid_names_desc">各サムネイルの下にファイル名を最大2行で表示します。拡張子は改行で分割されず常に見えます。名前が収まらない場合は中ほどが省略されます。</string>
+    <string name="grid_item_clip">動画</string>
+    <string name="clip_play">再生</string>
+    <string name="clip_no_player">この端末には再生できるアプリがありません</string>
 </resources>

@@ -222,4 +222,7 @@
     <string name="pick_duplicate">Nakili hapa</string>
     <string name="settings_grid_names">Jina la faili kwenye gridi</string>
     <string name="settings_grid_names_desc">Chini ya kila kijipicha, jina la faili kwa mistari miwili zaidi. Kiendelezi hakikatwi kamwe na huonekana daima: jina lisipotoshea, sehemu ya katikati ndiyo hupungua.</string>
+    <string name="grid_item_clip">Video</string>
+    <string name="clip_play">Cheza</string>
+    <string name="clip_no_player">Hakuna programu kwenye simu hii inayoweza kuicheza</string>
 </resources>

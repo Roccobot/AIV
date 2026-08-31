@@ -46,6 +46,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Info
@@ -1254,6 +1255,10 @@ private fun Thumbnail(
          * proprio la parte della fotografia che si sta guardando per decidere se
          * sceglierla.
          */
+        // ⚠️ Dopo il velo e il nastro, così resta leggibile su una piastrella scelta: dentro
+        // un `Box` si dipinge nell'ordine in cui si scrive, e il velo che schiarisce la
+        // fotografia schiarirebbe anche la durata.
+        if (Videos.isVideo(uri)) ClipBadge(uri, Modifier.align(Alignment.BottomEnd))
         if (chosen) {
             Box(
                 modifier = Modifier
@@ -1274,6 +1279,54 @@ private fun Thumbnail(
         }
     }
         if (named) GridName(uri, room)
+    }
+}
+
+/**
+ * La durata di un filmato, nell'angolo della sua miniatura.
+ *
+ * ⚠️⚠️ **È IL SOLO SEGNO CHE DICE 'QUESTO È UN VIDEO' dalla `0.83`**, e per questo compare
+ * anche quando la durata non si sa: là resta il solo triangolo. Un fotogramma senza nessun
+ * segno sopra è indistinguibile da una fotografia, e chi lo tocca si aspetta una foto.
+ * ⚠️ **L'angolo è quello in basso a destra**, l'unico dei quattro rimasto libero: la spunta
+ * della scelta sta in alto a destra, il nastro dell'ultima vista in basso a sinistra, e i tre
+ * segni non si toccano mai nemmeno sulla piastrella che li porta tutti.
+ * ⚠️ **Bianco su nero e non i colori del tema**, come il velo degli avvisi: questa targhetta
+ * sta sopra una fotografia qualunque, non sopra una superficie del tema, quindi il contrasto
+ * se lo deve portare da sé.
+ * ⚠️ **La durata si chiede una volta per indirizzo** e la prima risposta è quella già in
+ * memoria: senza, ogni miniatura che rientra in vista rifarebbe la domanda al MediaStore, e
+ * la targhetta comparirebbe con un fotogramma di ritardo ogni volta. Stessa forma di
+ * [GridName], stessa ragione.
+ */
+@Composable
+private fun ClipBadge(uri: Uri, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val length by produceState(Videos.cachedLength(uri), uri, context) {
+        if (value == null) value = Videos.length(context, uri)
+    }
+    Row(
+        modifier = modifier
+            .padding(BADGE_EDGE)
+            .clip(RoundedCornerShape(BADGE_CORNER))
+            .background(BADGE_INK)
+            .padding(horizontal = BADGE_PAD, vertical = BADGE_LIP),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(BADGE_LIP)
+    ) {
+        Icon(
+            imageVector = Icons.Default.PlayArrow,
+            contentDescription = stringResource(R.string.grid_item_clip),
+            tint = Color.White,
+            modifier = Modifier.size(BADGE_GLYPH)
+        )
+        length?.let {
+            Text(
+                text = Videos.stamp(it),
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.White
+            )
+        }
     }
 }
 
@@ -1346,6 +1399,25 @@ private val NAME_GAP = 2.dp
 
 /** Il margine laterale del nome, che [GridName] toglie anche dalla misura. */
 private val NAME_PAD = 2.dp
+
+// ── La targhetta della durata ───────────────────────────────────────────────
+/** Quanto la targhetta si stacca dall'angolo della miniatura. */
+private val BADGE_EDGE = 4.dp
+
+/** L'arrotondamento della targhetta: poco, perché è una targhetta e non una pastiglia. */
+private val BADGE_CORNER = 4.dp
+
+/** Il nero della targhetta, semitrasparente perché la fotografia si intraveda sotto. */
+private val BADGE_INK = Color(0x99000000)
+
+/** Il respiro ai lati del testo dentro la targhetta. */
+private val BADGE_PAD = 4.dp
+
+/** Il respiro sopra e sotto, e il distacco fra triangolo e cifre: sono la stessa misura. */
+private val BADGE_LIP = 2.dp
+
+/** Il triangolo: della misura del testo che gli sta accanto, non di più. */
+private val BADGE_GLYPH = 12.dp
 
 /**
  * Quanto è lungo il cateto del nastro dell'ultima foto vista, in frazione del lato.

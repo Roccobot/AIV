@@ -222,4 +222,7 @@
     <string name="pick_duplicate">प्रतिलिपि बनाएँ</string>
     <string name="settings_grid_names">ग्रिड में फ़ाइल का नाम</string>
     <string name="settings_grid_names_desc">हर थंबनेल के नीचे फ़ाइल का नाम, ज़्यादा से ज़्यादा दो पंक्तियों में। एक्सटेंशन कभी नहीं टूटता और हमेशा दिखता है: नाम न समाए तो बीच का हिस्सा छोटा होता है।</string>
+    <string name="grid_item_clip">वीडियो</string>
+    <string name="clip_play">चलाएँ</string>
+    <string name="clip_no_player">इस फ़ोन में कोई ऐप इसे नहीं चला सकता</string>
 </resources>

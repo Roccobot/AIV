@@ -91,4 +91,7 @@
         <item quantity="many">%1$d movidas para a reciclagem</item>
         <item quantity="other">%1$d movidas para a reciclagem</item>
     </plurals>
+    <!-- app -> aplicacao, celular -> telemovel: as duas palavras que ja mudam no
+         resto deste ficheiro. As outras duas cadeias dos videos sao iguais. -->
+    <string name="clip_no_player">Nenhuma aplicação deste telemóvel sabe reproduzi-lo</string>
 </resources>

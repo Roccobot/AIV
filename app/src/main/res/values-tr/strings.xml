@@ -222,4 +222,7 @@
     <string name="pick_duplicate">Çoğalt</string>
     <string name="settings_grid_names">Izgarada dosya adı</string>
     <string name="settings_grid_names_desc">Her küçük resmin altında dosya adı, en fazla iki satır. Uzantı asla bölünmez ve her zaman görünür: ad sığmazsa kısalan orta kısımdır.</string>
+    <string name="grid_item_clip">Video</string>
+    <string name="clip_play">Oynat</string>
+    <string name="clip_no_player">Bu telefonda bunu oynatabilecek bir uygulama yok</string>
 </resources>

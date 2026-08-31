@@ -191,6 +191,15 @@
     <!-- The one the reader came back from: a screen reader has to say so, because
          the ring around it is the visual form of exactly this. -->
     <string name="grid_item_last">Picture %1$d of %2$d, the last one you looked at</string>
+    <!-- The badge over a video thumbnail: for a screen reader it is the only thing
+         that tells a film apart from a photograph, since the frame looks like one. -->
+    <string name="grid_item_clip">Video</string>
+
+    <!-- ── Films ── -->
+    <string name="clip_play">Play</string>
+    <!-- Said when the handover fails: this piece does not play anything itself, it
+         passes the file to the phone's player, and a phone can have none. -->
+    <string name="clip_no_player">No app on this phone can play it</string>
 
     <!-- ── Choosing several pictures in a folder ── -->
     <string name="pick_leave">Leave the selection</string>
