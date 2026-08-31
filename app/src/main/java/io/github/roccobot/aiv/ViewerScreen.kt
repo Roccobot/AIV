@@ -28,6 +28,7 @@ import androidx.compose.foundation.gestures.calculateCentroid
 import androidx.compose.foundation.gestures.calculateCentroidSize
 import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateZoom
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,7 +47,9 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.VolumeUp
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Pause
@@ -54,6 +57,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.FitScreen
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.PhotoSizeSelectActual
@@ -122,6 +126,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.compose.PlayerSurface
+import androidx.media3.ui.compose.modifiers.resizeWithContentScale
 import androidx.media3.ui.compose.state.rememberPlayPauseButtonState
 import androidx.media3.ui.compose.state.rememberPresentationState
 import androidx.media3.ui.compose.state.rememberProgressStateWithTickInterval
@@ -682,24 +687,73 @@ private fun ClipStage(uri: Uri, stepping: Boolean, onStep: (Int) -> Unit) {
     val scope = rememberCoroutineScope()
     val progress = rememberProgressStateWithTickInterval(player, TICK_MS, scope)
 
+    val activity = remember(context) { Knobs.activityOf(context) }
+    var knob by remember { mutableStateOf<Knob?>(null) }
+    // ⚠️ La chiave è il valore: ogni movimento del dito rifà l'attesa, quindi l'indicatore
+    // sparisce un attimo dopo l'ULTIMO ritocco e non a metà del gesto.
+    LaunchedEffect(knob) {
+        if (knob != null) {
+            delay(KNOB_LINGER)
+            knob = null
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .pointerInput(uri, stepping) {
-                if (!stepping) return@pointerInput
                 val threshold = size.width / 5f
+                val reach = size.height * KNOB_SPAN
+                val middle = size.width / 2f
+                var axis = Axis.UNDECIDED
                 var travelled = 0f
-                detectHorizontalDragGestures(
-                    onDragStart = { travelled = 0f },
+                var onLeft = false
+                var started = 0f
+                detectDragGestures(
+                    onDragStart = { at ->
+                        axis = Axis.UNDECIDED
+                        travelled = 0f
+                        // ⚠️ Il lato si decide da DOVE IL DITO SI POSA, non da dove
+                        // arriva: chi comincia a sinistra e sconfina a destra sta ancora
+                        // regolando la luminosità, e cambiare manopola a metà gesto
+                        // sarebbe una sorpresa.
+                        onLeft = at.x < middle
+                    },
                     // ⚠️ Il passo si dà alla FINE del gesto e non appena la soglia è
                     // superata: durante il trascinamento il dito può tornare indietro, e
                     // cambiare pagina a metà strada toglierebbe a chi striscia la
                     // possibilità di ripensarci, che l'altra strisciata concede.
                     onDragEnd = {
+                        if (axis != Axis.SIDEWAYS || !stepping) return@detectDragGestures
                         if (travelled <= -threshold) onStep(1)
                         else if (travelled >= threshold) onStep(-1)
                     },
-                    onHorizontalDrag = { _, delta -> travelled += delta }
+                    onDrag = { _, delta ->
+                        /*
+                         * ⚠️⚠️ **L'ASSE SI DECIDE AL PRIMO MOVIMENTO E POI NON CAMBIA**, ed
+                         * è la sola cosa che tiene separati i tre gesti: senza il blocco,
+                         * una strisciata orizzontale un po' storta cambierebbe fotografia
+                         * **e** alzerebbe il volume, e una verticale un po' storta
+                         * salterebbe al filmato dopo.
+                         */
+                        if (axis == Axis.UNDECIDED) {
+                            axis = if (abs(delta.x) >= abs(delta.y)) Axis.SIDEWAYS else Axis.UPRIGHT
+                            if (axis == Axis.UPRIGHT) {
+                                started = if (onLeft) Knobs.brightness(activity) else Knobs.volume(context)
+                                travelled = 0f
+                            }
+                        }
+                        if (axis == Axis.SIDEWAYS) {
+                            travelled += delta.x
+                            return@detectDragGestures
+                        }
+                        travelled += delta.y
+                        // ⚠️ Il segno è rovesciato apposta: in su alza, come su ogni
+                        // lettore, mentre le coordinate dello schermo crescono in giù.
+                        val moved = (started - travelled / reach).coerceIn(0f, 1f)
+                        if (onLeft) Knobs.setBrightness(activity, moved) else Knobs.setVolume(context, moved)
+                        knob = Knob(onLeft, moved)
+                    }
                 )
             },
         contentAlignment = Alignment.Center
@@ -711,7 +765,18 @@ private fun ClipStage(uri: Uri, stepping: Boolean, onStep: (Int) -> Unit) {
          * ce li ha già, il tocco sarebbe finito a lui e il gesto per cambiare fotografia
          * non sarebbe mai arrivato qui.
          */
-        PlayerSurface(player = player, modifier = Modifier.fillMaxSize())
+        /*
+         * ⚠️⚠️ **LE PROPORZIONI LE TIENE QUESTO MODIFICATORE, e senza di lui il filmato era
+         * STIRATO** (riscontro dell'utente sulla `0.86`: in verticale un video orizzontale
+         * riempiva tutto lo schermo deformandosi). `PlayerSurface` da sola prende lo spazio
+         * che le si dà, e `fillMaxSize` gliene dava di ogni forma: la superficie non sa
+         * nulla del video che ci finisce sopra. `resizeWithContentScale` legge la misura
+         * vera del filmato da [rememberPresentationState] e ritaglia il riquadro.
+         * ⚠️ Lo stesso modificatore va **anche al fotogramma di copertura** qui sotto, o
+         * all'apertura si vedrebbe la miniatura in un riquadro e il video in un altro.
+         */
+        val scaled = Modifier.resizeWithContentScale(ContentScale.Fit, shown.videoSizeDp)
+        PlayerSurface(player = player, modifier = scaled)
 
         /*
          * ⚠️⚠️ **IL FOTOGRAMMA COPRE LA SUPERFICIE FINCHÉ IL VIDEO NON HA DA MOSTRARE
@@ -726,9 +791,13 @@ private fun ClipStage(uri: Uri, stepping: Boolean, onStep: (Int) -> Unit) {
                 painter = poster,
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
-                modifier = Modifier.fillMaxSize()
+                modifier = scaled
             )
         }
+
+        // ⚠️ L'indicatore sta sopra i comandi e sotto niente: è l'unica risposta visibile a
+        // un gesto che non tocca nessun tasto, e senza di lui la manopola sarebbe al buio.
+        knob?.let { KnobBadge(it) }
 
         // ⚠️ Il tasto sta al centro e sparisce mentre si guarda: vedi [ClipKeys].
         ClipKeys(
@@ -737,6 +806,50 @@ private fun ClipStage(uri: Uri, stepping: Boolean, onStep: (Int) -> Unit) {
             position = progress.currentPositionMs,
             duration = progress.durationMs,
             onSeek = { player.seekTo(it) }
+        )
+    }
+}
+
+/**
+ * Su quale asse si è mosso il dito sopra un filmato, deciso **una volta sola** per gesto.
+ *
+ * ⚠️ Tre valori e non un booleano: fra il dito che si posa e il primo movimento c'è un
+ * momento in cui l'asse non si sa ancora, e un booleano avrebbe dovuto fingere di saperlo.
+ */
+private enum class Axis { UNDECIDED, SIDEWAYS, UPRIGHT }
+
+/** Quale manopola si sta girando e a che punto sta, da 0 a 1. */
+private data class Knob(val brightness: Boolean, val value: Float)
+
+/**
+ * L'indicatore che dice che cosa sta cambiando mentre il dito scorre in verticale.
+ *
+ * ⚠️⚠️ **Senza di lui il gesto sarebbe al buio**: la luminosità si vede da sé, ma il volume
+ * di un filmato muto no, e in entrambi i casi non si saprebbe **quale** delle due manopole si
+ * è presa finché non succede qualcosa. Un numero e un'icona bastano, e spariscono da soli.
+ * ⚠️ Niente descrizione per l'icona: il valore accanto è già testo, e un lettore di schermo
+ * annuncerebbe due volte la stessa cosa mentre il dito è ancora sul vetro.
+ */
+@Composable
+private fun BoxScope.KnobBadge(knob: Knob) {
+    Column(
+        modifier = Modifier
+            .align(Alignment.Center)
+            .clip(RoundedCornerShape(KNOB_ROUND))
+            .background(CLIP_INK)
+            .padding(horizontal = CLIP_GAP, vertical = CLIP_LIP),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = if (knob.brightness) Icons.Outlined.LightMode else Icons.AutoMirrored.Outlined.VolumeUp,
+            contentDescription = null,
+            tint = Color.White,
+            modifier = Modifier.size(CLIP_GLYPH)
+        )
+        Text(
+            text = "${(knob.value * 100).roundToInt()}%",
+            color = Color.White,
+            style = MaterialTheme.typography.labelLarge
         )
     }
 }
@@ -871,6 +984,27 @@ private val CLIP_LIP = 8.dp
  * fastidio. Da rivedere sul telefono, non a naso.
  */
 private const val CLIP_KEYS_LINGER = 2500L
+
+/**
+ * Quanto resta l'indicatore della manopola dopo l'ultimo ritocco del dito.
+ *
+ * ⚠️ Molto meno dei comandi: quello risponde a un gesto **in corso**, e appena il dito si
+ * stacca la sua ragione di esistere è finita. Restare più a lungo lo farebbe leggere come un
+ * pannello invece che come un riscontro.
+ */
+private const val KNOB_LINGER = 700L
+
+/**
+ * Quanta parte dell'altezza dello schermo copre l'intera corsa di una manopola.
+ *
+ * ⚠️ **Il 70% e non tutto**, perché il dito non parte mai dal bordo e non arriva mai
+ * all'altro: chiedendo lo schermo intero, il massimo e il minimo sarebbero irraggiungibili
+ * senza due gesti. ⚠️ Da rivedere col pollice, come ogni numero di gesto.
+ */
+private const val KNOB_SPAN = 0.7f
+
+/** L'arrotondamento dell'indicatore della manopola: la stessa aria dei comandi. */
+private val KNOB_ROUND = 16.dp
 
 /**
  * Ogni quanto si aggiorna il tempo scritto accanto alla barra.
