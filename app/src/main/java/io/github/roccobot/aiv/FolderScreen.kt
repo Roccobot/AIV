@@ -33,6 +33,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -61,6 +62,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -820,6 +822,60 @@ private fun SizeDialog(current: Int, onPick: (Int) -> Unit, onDismiss: () -> Uni
     )
 }
 
+/**
+ * I due contatori sotto una copertina: le fotografie e, se ce ne sono, i filmati.
+ *
+ * ⚠️⚠️ **DUE COPPIE E NON UN NUMERO SOLO, dalla 0.98** (richiesta dell'utente): da quando i
+ * filmati si sfogliano, un numero unico dice 'ottantotto cose' a chi sta cercando di capire
+ * se là dentro ci sono i video delle vacanze o le foto.
+ * ⚠️ **Il secondo contatore compare solo se serve**: in una cartella di sole fotografie uno
+ * zero accanto a una pellicola è rumore, e la riga sotto le copertine è larga quanto una
+ * cella. In una cartella di soli filmati sparisce il primo, per la stessa ragione.
+ * ⚠️⚠️ **`clearAndSetSemantics` E NON `semantics`**: il tocco della scheda fonde le
+ * semantiche dei figli, quindi aggiungere una descrizione lascerebbe **anche** i numeri
+ * nudi, e TalkBack leggerebbe '1284 immagini 1284 12 video 12'. Qui si buttano quelle dei
+ * figli e si mette la frase intera.
+ */
+@Composable
+private fun Tally(bucket: Folder.Bucket) {
+    val pictures = pluralStringResource(
+        R.plurals.folders_count, bucket.pictures, bucket.pictures
+    )
+    val clips = pluralStringResource(R.plurals.folders_clips, bucket.clips, bucket.clips)
+    val spoken = when {
+        bucket.clips == 0 -> pictures
+        bucket.pictures == 0 -> clips
+        else -> "$pictures, $clips"
+    }
+    Row(
+        modifier = Modifier.clearAndSetSemantics { contentDescription = spoken },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(COUNT_GAP)
+    ) {
+        if (bucket.pictures > 0 || bucket.clips == 0) {
+            TallyPair(Icons.Outlined.Image, bucket.pictures)
+        }
+        if (bucket.clips > 0) TallyPair(Icons.Outlined.Movie, bucket.clips)
+    }
+}
+
+/** Un'icona e il suo numero: metà di [Tally]. */
+@Composable
+private fun TallyPair(icon: ImageVector, howMany: Int) {
+    Icon(
+        imageVector = icon,
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.size(COUNT_ICON)
+    )
+    Text(
+        text = howMany.toString(),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        maxLines = 1
+    )
+}
+
 /** Le cartelle come copertine. */
 @Composable
 private fun Covers(
@@ -911,12 +967,21 @@ private fun Rows(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+                    /*
+                     * ⚠️ **Nell'elenco i due conti sono PAROLE e non icone**, al contrario
+                     * delle copertine: là sotto ogni cella c'è spazio per un glifo e un
+                     * numero, qui la riga è larga e le parole si leggono meglio di due
+                     * pittogrammi appaiati. La distinzione arriva lo stesso.
+                     */
                     Text(
-                        text = pluralStringResource(
-                            R.plurals.folders_count,
-                            bucket.count,
-                            bucket.count
-                        ),
+                        text = listOfNotNull(
+                            pluralStringResource(
+                                R.plurals.folders_count, bucket.pictures, bucket.pictures
+                            ).takeIf { bucket.pictures > 0 || bucket.clips == 0 },
+                            pluralStringResource(
+                                R.plurals.folders_clips, bucket.clips, bucket.clips
+                            ).takeIf { bucket.clips > 0 }
+                        ).joinToString(", "),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -1006,32 +1071,7 @@ private fun FolderCard(
          * righe da far quadrare: una dicitura che va a capo fa ballare l'altezza di una
          * cella rispetto alle sue vicine, e la griglia diventa irregolare.
          */
-        if (counted) {
-            val spoken =
-                pluralStringResource(R.plurals.folders_count, bucket.count, bucket.count)
-            Row(
-                // ⚠️⚠️ **`clearAndSetSemantics` E NON `semantics`**: il tocco della scheda
-                // fonde le semantiche dei figli, quindi aggiungere una descrizione
-                // lascerebbe **anche** il numero nudo, e TalkBack leggerebbe '1284 immagini
-                // 1284'. Qui si buttano le semantiche dei figli e si mette la frase.
-                modifier = Modifier.clearAndSetSemantics { contentDescription = spoken },
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(COUNT_GAP)
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Image,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(COUNT_ICON)
-                )
-                Text(
-                    text = bucket.count.toString(),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1
-                )
-            }
-        }
+        if (counted) Tally(bucket)
     }
 }
 

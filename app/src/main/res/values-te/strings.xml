@@ -199,6 +199,10 @@
         <item quantity="one">%1$d చిత్రం</item>
         <item quantity="other">%1$d చిత్రాలు</item>
     </plurals>
+    <plurals name="folders_clips">
+        <item quantity="one">%1$d వీడియో</item>
+        <item quantity="other">%1$d వీడియోలు</item>
+    </plurals>
     <string name="settings_facts">ఒక ఫైల్ సమాచారం</string>
     <string name="settings_facts_desc">ఒక చిత్రం సమాచారం తెరిచినప్పుడు ఏ వివరాలు కనబడాలి, ఏ క్రమంలో. పేరు, పిక్సెళ్ళు, పరిమాణం ఎప్పుడూ ఉంటాయి; ఫైలులో లేని వివరానికి ఒక వరుస కూడా దక్కదు.</string>
     <string name="settings_facts_always">ఎప్పుడూ కనబడుతుంది</string>

@@ -223,6 +223,12 @@
         <item quantity="many">%1$d изображений</item>
         <item quantity="other">%1$d изображений</item>
     </plurals>
+    <plurals name="folders_clips">
+        <item quantity="one">%1$d видео</item>
+        <item quantity="few">%1$d видео</item>
+        <item quantity="many">%1$d видео</item>
+        <item quantity="other">%1$d видео</item>
+    </plurals>
     <string name="settings_facts">Сведения об одном файле</string>
     <string name="settings_facts_desc">Какие данные вы видите, открыв сведения о снимке, и в каком порядке. Имя, пиксели и размер есть всегда; данные, которых в файле нет, не занимают строки вовсе.</string>
     <string name="settings_facts_always">Всегда видно</string>

@@ -199,6 +199,10 @@
         <item quantity="one">%1$d görsel</item>
         <item quantity="other">%1$d görsel</item>
     </plurals>
+    <plurals name="folders_clips">
+        <item quantity="one">%1$d video</item>
+        <item quantity="other">%1$d video</item>
+    </plurals>
     <string name="settings_facts">Tek dosya bilgisi</string>
     <string name="settings_facts_desc">Bir görselin Bilgi ekranını açtığında hangi verileri, hangi sırayla göreceğin. Ad, piksel ve boyut her zaman vardır; dosyada bulunmayan bir veri hiç satır almaz.</string>
     <string name="settings_facts_always">Her zaman görünür</string>

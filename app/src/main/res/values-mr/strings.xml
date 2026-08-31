@@ -199,6 +199,10 @@
         <item quantity="one">%1$d प्रतिमा</item>
         <item quantity="other">%1$d प्रतिमा</item>
     </plurals>
+    <plurals name="folders_clips">
+        <item quantity="one">%1$d चित्रफीत</item>
+        <item quantity="other">%1$d चित्रफिती</item>
+    </plurals>
     <string name="settings_facts">एका फाइलची माहिती</string>
     <string name="settings_facts_desc">एखाद्या प्रतिमेची माहिती उघडल्यावर कोणती माहिती दिसावी, आणि कोणत्या क्रमाने. नाव, पिक्सेल आणि आकार सदैव असतात; संचिकेत नसलेल्या माहितीला एकही ओळ मिळत नाही.</string>
     <string name="settings_facts_always">सदैव दिसते</string>

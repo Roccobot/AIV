@@ -199,6 +199,10 @@
         <item quantity="one">%1$d Bild</item>
         <item quantity="other">%1$d Bilder</item>
     </plurals>
+    <plurals name="folders_clips">
+        <item quantity="one">%1$d Video</item>
+        <item quantity="other">%1$d Videos</item>
+    </plurals>
     <string name="settings_facts">Infos zu einer Datei</string>
     <string name="settings_facts_desc">Welche Daten du siehst, wenn du Infos zu einem Bild öffnest, und in welcher Reihenfolge. Name, Pixel und Größe sind immer dabei; ein Wert, den die Datei nicht enthält, bekommt keine Zeile.</string>
     <string name="settings_facts_always">Immer sichtbar</string>

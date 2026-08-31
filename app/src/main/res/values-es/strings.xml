@@ -211,6 +211,11 @@
         <item quantity="other">%1$d imágenes</item>
         <item quantity="many">%1$d imágenes</item>
     </plurals>
+    <plurals name="folders_clips">
+        <item quantity="one">%1$d vídeo</item>
+        <item quantity="other">%1$d vídeos</item>
+        <item quantity="many">%1$d vídeos</item>
+    </plurals>
     <string name="settings_facts">Información de un archivo</string>
     <string name="settings_facts_desc">Qué datos ves al abrir Info sobre una imagen, y en qué orden. El nombre, los píxeles y el tamaño están siempre; un dato que el archivo no lleva no ocupa ninguna línea.</string>
     <string name="settings_facts_always">Siempre visible</string>

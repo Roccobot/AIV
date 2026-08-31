@@ -187,6 +187,9 @@
     <plurals name="folders_count">
         <item quantity="other">%1$d ภาพ</item>
     </plurals>
+    <plurals name="folders_clips">
+        <item quantity="other">%1$d วิดีโอ</item>
+    </plurals>
     <string name="settings_facts">ข้อมูลไฟล์เดียว</string>
     <string name="settings_facts_desc">คุณจะเห็นข้อมูลใดเมื่อเปิดข้อมูลของภาพ และเรียงลำดับอย่างไร ชื่อ พิกเซล และขนาดมีอยู่เสมอ ข้อมูลที่ไฟล์ไม่มีจะไม่ได้แถวเลย</string>
     <string name="settings_facts_always">แสดงอยู่เสมอ</string>

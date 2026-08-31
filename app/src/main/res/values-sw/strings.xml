@@ -199,6 +199,10 @@
         <item quantity="one">picha %1$d</item>
         <item quantity="other">picha %1$d</item>
     </plurals>
+    <plurals name="folders_clips">
+        <item quantity="one">video %1$d</item>
+        <item quantity="other">video %1$d</item>
+    </plurals>
     <string name="settings_facts">Taarifa za faili moja</string>
     <string name="settings_facts_desc">Data zipi unaziona ukifungua Taarifa za picha, na kwa mpangilio upi. Jina, pikseli na ukubwa vipo daima; data ambayo faili haina haipati mstari hata kidogo.</string>
     <string name="settings_facts_always">Huonekana daima</string>

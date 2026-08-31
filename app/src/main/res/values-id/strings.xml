@@ -187,6 +187,9 @@
     <plurals name="folders_count">
         <item quantity="other">%1$d gambar</item>
     </plurals>
+    <plurals name="folders_clips">
+        <item quantity="other">%1$d video</item>
+    </plurals>
     <string name="settings_facts">Info satu berkas</string>
     <string name="settings_facts_desc">Data mana yang kamu lihat saat membuka Info sebuah gambar, dan dalam urutan apa. Nama, piksel dan ukuran selalu ada; data yang tidak dimiliki berkas tidak mendapat baris sama sekali.</string>
     <string name="settings_facts_always">Selalu tampak</string>

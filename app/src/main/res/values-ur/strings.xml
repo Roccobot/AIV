@@ -199,6 +199,10 @@
         <item quantity="one">%1$d تصویر</item>
         <item quantity="other">%1$d تصویریں</item>
     </plurals>
+    <plurals name="folders_clips">
+        <item quantity="one">%1$d ویڈیو</item>
+        <item quantity="other">%1$d ویڈیوز</item>
+    </plurals>
     <string name="settings_facts">ایک فائل کی معلومات</string>
     <string name="settings_facts_desc">کسی تصویر کی معلومات کھولنے پر کون سے ڈیٹا دکھیں، اور کس ترتیب میں۔ نام، پکسل اور حجم ہمیشہ ہوتے ہیں؛ جو ڈیٹا فائل میں نہیں ہوتا اسے کوئی قطار نہیں ملتی۔</string>
     <string name="settings_facts_always">ہمیشہ دکھتا ہے</string>

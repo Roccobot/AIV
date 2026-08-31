@@ -199,6 +199,10 @@
         <item quantity="one">%1$d ছবি</item>
         <item quantity="other">%1$d ছবি</item>
     </plurals>
+    <plurals name="folders_clips">
+        <item quantity="one">%1$dটি ভিডিও</item>
+        <item quantity="other">%1$dটি ভিডিও</item>
+    </plurals>
     <string name="settings_facts">একটি ফাইলের তথ্য</string>
     <string name="settings_facts_desc">কোনো ছবির তথ্য খুললে কোন কোন উপাত্ত দেখবেন, আর কোন ক্রমে। নাম, পিক্সেল আর আকার সবসময় থাকে; ফাইলে যে উপাত্ত নেই সেটি কোনো সারিই পায় না।</string>
     <string name="settings_facts_always">সবসময় দেখা যায়</string>

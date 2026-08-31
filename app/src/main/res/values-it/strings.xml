@@ -71,7 +71,7 @@
     <string name="settings_right">Destra</string>
     <string name="settings_left">Sinistra</string>
     <string name="settings_list_path">Lista file: copia il percorso della cartella contenitore</string>
-    <string name="settings_folder_count_desc">Sotto ogni copertina, quante immagini contiene la cartella. Spegnendolo la riga si accorcia, e il frontespizio in cima cresce di altrettanto.</string>
+    <string name="settings_folder_count_desc">Sotto ogni copertina, quante immagini e quanti video contiene la cartella. Spegnendolo la riga si accorcia, e l\'area del titolo in cima cresce di altrettanto.</string>
 
     <string name="settings_fit_grow">Ingrandisci le immagini piccole</string>
     <string name="settings_fit_grow_desc">Spento, un\'immagine più piccola dello schermo si vede alla sua misura vera. Acceso, cresce fino a riempire la vista.</string>
@@ -270,6 +270,11 @@
              va bene: coincidere è diverso da mancare. -->
         <item quantity="many">%1$d immagini</item>
         <item quantity="other">%1$d immagini</item>
+    </plurals>
+    <plurals name="folders_clips">
+        <item quantity="one">%1$d video</item>
+        <item quantity="many">%1$d video</item>
+        <item quantity="other">%1$d video</item>
     </plurals>
 
     <string name="settings_facts">Info sul file singolo</string>

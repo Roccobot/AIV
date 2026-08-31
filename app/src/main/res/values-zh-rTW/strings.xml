@@ -187,6 +187,9 @@
     <plurals name="folders_count">
         <item quantity="other">%1$d 張圖片</item>
     </plurals>
+    <plurals name="folders_clips">
+        <item quantity="other">%1$d 部影片</item>
+    </plurals>
     <string name="settings_facts">單一檔案的資訊</string>
     <string name="settings_facts_desc">開啟某張圖片的資訊時會看到哪些資料,以及它們的順序。名稱、像素和大小一定會顯示;檔案裡沒有的資料不會佔用任何一行。</string>
     <string name="settings_facts_always">一律顯示</string>
