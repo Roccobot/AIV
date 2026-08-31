@@ -151,6 +151,10 @@ fun FolderScreen(
      * locale morirebbe a ogni andata e ritorno, riportando in cima.
      */
     treePath: String?,
+    /** Se eliminare vuol dire mandare nel cestino: serve alle azioni della vista ad albero. */
+    binOn: Boolean,
+    /** I campi delle informazioni, per la voce 'Info' della vista ad albero. */
+    factFields: List<FactField>,
     onTreePath: (String?) -> Unit,
     /** Una fotografia toccata nella vista delle cartelle di sistema: la serie e la posizione. */
     onTreeOpen: (List<Uri>, Int) -> Unit,
@@ -374,7 +378,7 @@ fun FolderScreen(
                 // toccare una cartella non sceglierebbe niente. Nella veste 'scegli la
                 // cartella' si scivola quindi sul ramo in fondo, cioè l'elenco.
                 view == FolderView.TREE && home ->
-                    TreeList(treePath, hidden, onTreePath, onTreeOpen)
+                    TreeList(treePath, hidden, binOn, factFields, onTreePath, onTreeOpen)
 
                 folders == null -> CircularProgressIndicator(
                     Modifier.padding(top = 24.dp).size(28.dp).align(Alignment.CenterHorizontally)

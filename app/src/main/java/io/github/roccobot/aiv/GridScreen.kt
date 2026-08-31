@@ -902,9 +902,11 @@ fun GridScreen(
                                     // `CopyAll` di Material, cioè due cartelle disegnate da
                                     // due mani diverse, e l'utente ha detto che la seconda
                                     // non andava bene.
-                                    // ⚠️ **Sono provvisorie**: l'utente ha chiesto gli SVG
-                                    // per ridisegnarle, e quando arrivano cambiano le
-                                    // coordinate in [Glyphs] e nient'altro.
+                                    // ⚠️ **NON sono più provvisorie dalla `0.81`**: gli SVG
+                                    // dell'utente sono arrivati e [Glyphs] li porta
+                                    // verbatim. La nota vecchia diceva 'quando arrivano
+                                    // cambiano le coordinate e nient'altro', ed è andata
+                                    // esattamente così.
                                     // ⚠️⚠️ **IL TOCCO LUNGO SU 'COPIA' DUPLICA DOVE SEI,
                                     // dalla 0.79** (richiesta dell'utente): copiare chiede
                                     // dove, duplicare no.

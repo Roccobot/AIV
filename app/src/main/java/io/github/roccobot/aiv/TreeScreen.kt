@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,26 +24,35 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SdStorage
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
+import kotlinx.coroutines.launch
 import java.io.File
 
 /**
@@ -75,12 +85,45 @@ fun TreeList(
     path: String?,
     /** I percorsi che l'utente ha nascosto, per segnarli. Vedi `Settings.hiddenFolders`. */
     hidden: Set<String>,
+    /** Se eliminare vuol dire mandare nel cestino. Vedi `Settings.binOn`. */
+    binOn: Boolean,
+    /** I campi delle informazioni, nell'ordine scelto. Vedi `Settings.factRows`. */
+    factFields: List<FactField>,
     onPath: (String?) -> Unit,
     onOpen: (List<Uri>, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val res = LocalResources.current
+    val scope = rememberCoroutineScope()
     val roots = remember(context) { Tree.roots(context) }
+
+    /**
+     * Quante volte la cartella è stata toccata da un'operazione.
+     *
+     * ⚠️ **Serve a RILEGGERE senza cambiare cartella**: dopo un'eliminazione o una rinomina
+     * l'elenco che si ha in mano descrive un disco che non c'è più. Un numero che cresce è la
+     * chiave più piccola che fa ripartire la lettura.
+     */
+    var tick by remember { mutableIntStateOf(0) }
+
+    /** La riga su cui è aperto il riquadro delle azioni, e `null` quando non è aperto. */
+    var acting by remember { mutableStateOf<Tree.Spot?>(null) }
+    var job by remember { mutableStateOf<FileJob?>(null) }
+
+    /**
+     * ⚠️ **Chiude il riquadro PRIMA di lanciare**, come nella griglia: il lavoro vive
+     * nell'ambito della schermata e sopravvive al riquadro che si chiude, mentre un riquadro
+     * lasciato aperto sopra un'operazione in corso invita a toccarla due volte.
+     */
+    val perform: (FileKind, suspend () -> FileTree.Outcome) -> Unit = { kind, work ->
+        acting = null
+        scope.launch {
+            val out = work()
+            Toast.makeText(context, outcomeText(res, out, kind.done), Toast.LENGTH_LONG).show()
+            tick++
+        }
+    }
 
     /*
      * ⚠️⚠️ **CON UNA MEMORIA SOLA NON SI MOSTRA L'ELENCO DELLE MEMORIE**, ed è quello che
@@ -98,7 +141,17 @@ fun TreeList(
         val dir = remember(here) { File(here) }
         val up = remember(dir, roots) { Tree.parent(dir, roots) }
         PathBar(dir, up, roots, onPath)
-        val spots by produceState<List<Tree.Spot>?>(null, here) { value = Tree.list(File(here)) }
+        /*
+         * ⚠️⚠️ **DUE CHIAVI CON DUE EFFETTI DIVERSI, e il `remember` ne ha una sola**:
+         * cambiando cartella l'elenco si **azzera** (`remember(here)`), o per un istante si
+         * vedrebbero le righe della cartella di prima sotto il nome della nuova; rileggendo
+         * dopo un'operazione **non** si azzera, o la lista lampeggerebbe vuota per il tempo
+         * di una lettura di directory.
+         * ⚠️ Era un `produceState` nella `0.84`, e quello ricorda **senza chiavi**: il valore
+         * sopravviveva al cambio di cartella, cioè proprio il caso che qui si vuole azzerare.
+         */
+        var spots by remember(here) { mutableStateOf<List<Tree.Spot>?>(null) }
+        LaunchedEffect(here, tick) { spots = Tree.list(File(here)) }
         when {
             spots == null -> Unit
             spots!!.isEmpty() -> Text(
@@ -106,9 +159,19 @@ fun TreeList(
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(top = 24.dp)
             )
-            else -> Spots(spots!!, hidden, onPath, onOpen)
+            else -> Spots(spots!!, hidden, onPath, onOpen) { acting = it }
         }
     }
+
+    acting?.let { spot ->
+        SpotActions(
+            spot = spot,
+            binOn = binOn,
+            onDismiss = { acting = null },
+            onJob = { job = it; acting = null }
+        )
+    }
+    FileJobDialogs(job = job, fields = factFields, onClose = { job = null }, onRun = perform)
 }
 
 /** Le memorie da cui si può partire, quando ce n'è più di una. */
@@ -201,7 +264,8 @@ private fun Spots(
     spots: List<Tree.Spot>,
     hidden: Set<String>,
     onPath: (String?) -> Unit,
-    onOpen: (List<Uri>, Int) -> Unit
+    onOpen: (List<Uri>, Int) -> Unit,
+    onHold: (Tree.Spot) -> Unit
 ) {
     val context = LocalContext.current
     // ⚠️ Si ricava una volta per elenco e non a ogni tocco: la posizione di un file dentro i
@@ -214,6 +278,12 @@ private fun Spots(
             SpotRow(
                 spot = spot,
                 marked = spot.folder && spot.path in hidden,
+                // ⚠️⚠️ **IL TOCCO LUNGO SOLO SUI MEDIA, ed è la richiesta alla lettera**:
+                // *copia, sposta, elimina e rinomina restano possibili solo su immagini e
+                // video*. Su una cartella o su un documento il gesto non fa niente, e non
+                // c'è nessun riquadro che si apre con le voci spente: un menu di sei azioni
+                // tutte grigie è peggio di nessun menu.
+                onHold = if (spot.media) ({ onHold(spot) }) else null,
                 onClick = {
                     when {
                         spot.folder -> onPath(spot.path)
@@ -230,11 +300,16 @@ private fun Spots(
 }
 
 @Composable
-private fun SpotRow(spot: Tree.Spot, marked: Boolean, onClick: () -> Unit) {
+private fun SpotRow(
+    spot: Tree.Spot,
+    marked: Boolean,
+    onHold: (() -> Unit)?,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .combinedClickable(onClick = onClick, onLongClick = onHold)
             .padding(vertical = ROW_PAD, horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp)
@@ -271,6 +346,69 @@ private fun SpotRow(spot: Tree.Spot, marked: Boolean, onClick: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+    }
+}
+
+/**
+ * Le sei azioni su un file toccato a lungo nella vista ad albero.
+ *
+ * ⚠️⚠️ **È IL RIQUADRO DELLA SELEZIONE, lo stesso**: [ActionPad] con le stesse icone, lo
+ * stesso ordine e le stesse etichette che si vedono nella griglia e nel visualizzatore. Chi
+ * ha imparato dove sta 'sposta' lo sa anche qui, e un secondo riquadro scritto per questa
+ * schermata sarebbe divergente al primo ritocco.
+ * ⚠️ **Su UN file solo**, mentre nella griglia le stesse voci lavorano su una selezione: la
+ * macchina sotto ([FileJob]) prende comunque una lista, quindi qui la lista ha un elemento.
+ * Una selezione multipla in questa vista si può aggiungere quando servirà, e passerà da qui.
+ * ⚠️ **Al centro dello schermo**, come il menu del visualizzatore e non come quello della
+ * griglia (che sta sopra il suo tastino): qui non c'è nessun tastino da cui il riquadro
+ * possa nascere, perché il gesto parte da una riga qualunque dell'elenco.
+ */
+@Composable
+private fun SpotActions(
+    spot: Tree.Spot,
+    binOn: Boolean,
+    onDismiss: () -> Unit,
+    onJob: (FileJob) -> Unit
+) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val one = remember(spot.path) { listOf(Uri.fromFile(spot.file)) }
+    MenuShell(
+        position = MenuCenter,
+        corner = TREE_CORNER,
+        dismissOnOutside = true,
+        onDismiss = onDismiss
+    ) {
+        ActionPad(
+            actions = listOf(
+                PadAction(
+                    icon = Glyphs.FolderPair,
+                    label = R.string.menu_copy_here,
+                    // ⚠️ Il tocco lungo duplica dove sei, come in griglia dalla `0.79`:
+                    // copiare chiede dove, duplicare no.
+                    onHold = { onJob(FileJob.Duplicate(one)) },
+                    holdLabel = R.string.pick_duplicate
+                ) { onJob(FileJob.Transfer(one, move = false)) },
+                PadAction(Glyphs.FolderPairDashed, R.string.pick_move) {
+                    onJob(FileJob.Transfer(one, move = true))
+                },
+                PadAction(Icons.Default.Delete, R.string.pick_delete, danger = true) {
+                    // ⚠️ Col cestino spento si cancella per sempre, e `forGood` porta con sé
+                    // la conferma: vedi [FileJob.Delete].
+                    onJob(FileJob.Delete(one, forGood = !binOn))
+                },
+                PadAction(Glyphs.TextCursor, R.string.pick_rename) {
+                    onJob(FileJob.Rename(one))
+                },
+                PadAction(Icons.Default.Share, R.string.menu_share) {
+                    onDismiss()
+                    scope.launch { ImageActions.shareMany(context, one) }
+                },
+                PadAction(Icons.Outlined.Info, R.string.pick_info) {
+                    onJob(FileJob.Facts(one))
+                }
+            )
+        )
     }
 }
 
@@ -370,3 +508,6 @@ private val GLYPH = 44.dp
 
 /** Il respiro sopra e sotto una riga. */
 private val ROW_PAD = 8.dp
+
+/** L'arrotondamento del riquadro delle azioni: lo stesso del menu del visualizzatore. */
+private val TREE_CORNER = 8.dp
