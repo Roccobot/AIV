@@ -1,7 +1,6 @@
 package io.github.roccobot.aiv
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -74,11 +73,22 @@ fun ActionPad(actions: List<PadAction>, modifier: Modifier = Modifier) {
  *
  * ⚠️ [danger] non è 'importante': è **irreversibile**. Vale per l'eliminazione, e per
  * niente che si possa disfare con l'operazione contraria.
+ * ⚠️⚠️ **[onHold] È NULL PER QUASI TUTTE, dalla 0.79**: il tocco lungo su un tasto del
+ * riquadro è una scorciatoia in più, e per adesso ce l'ha la sola 'Copia' (duplica dove sei).
+ * Una scorciatoia su ogni tasto sarebbe sei gesti nascosti da imparare, e nessuno li scopre.
  */
 class PadAction(
     val icon: ImageVector,
     @StringRes val label: Int,
     val danger: Boolean = false,
+    /**
+     * Che cosa fa il tocco lungo, e `null` quando non fa niente.
+     *
+     * ⚠️ Va **insieme** a [holdLabel]: un gesto che il lettore di schermo non annuncia esiste
+     * solo per chi lo scopre per caso.
+     */
+    val onHold: (() -> Unit)? = null,
+    @StringRes val holdLabel: Int? = null,
     val onClick: () -> Unit
 )
 
@@ -101,7 +111,14 @@ private fun PadButton(action: PadAction) {
         modifier = Modifier
             .width(PAD_CELL)
             .clip(RoundedCornerShape(PAD_CORNER))
-            .clickable(onClick = action.onClick)
+            // ⚠️⚠️ **`combinedClickable` SEMPRE, anche senza tocco lungo**: con
+            // `onLongClick` a null si comporta come un `clickable`, quindi un `if` fra i due
+            // modificatori sarebbe due catene da tenere d'accordo per niente.
+            .combinedClickable(
+                onLongClickLabel = action.holdLabel?.let { stringResource(it) },
+                onLongClick = action.onHold,
+                onClick = action.onClick
+            )
             .padding(vertical = PAD_GAP),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(PAD_LABEL_GAP)

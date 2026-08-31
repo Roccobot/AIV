@@ -168,10 +168,6 @@
         <item quantity="one">Unakaribia kufuta picha %1$d kabisa: inaondoka kwenye simu milele.</item>
         <item quantity="other">Unakaribia kufuta picha %1$d kabisa: zinaondoka kwenye simu milele.</item>
     </plurals>
-    <plurals name="trash_desc">
-        <item quantity="one">Unakaribia kuhamishia picha %1$d kwenye tapishi: unaweza kuirudisha hadi ifutwe kabisa.</item>
-        <item quantity="other">Unakaribia kuhamishia picha %1$d kwenye tapishi: unaweza kuzirudisha hadi zifutwe kabisa.</item>
-    </plurals>
     <string name="bin_title">Tapishi</string>
     <string name="bin_none">Tapishi ni tupu.</string>
     <string name="bin_restore">Rudisha</string>
@@ -221,4 +217,7 @@
     <string name="history_note">Historia inaweka siku %1$d za mwisho, kisha inajifuta yenyewe.</string>
     <string name="columns_title">Ukubwa wa gridi</string>
     <string name="columns_hint">Njia ya mkato: shikilia kitufe kinachoelea ili kuchagua ukubwa wa gridi.</string>
+    <string name="settings_bin">Washa tapishi</string>
+    <string name="settings_bin_desc">Kufuta faili hakuulizi kitu, lakini kitendo kinaweza kubatilishwa kwa \'Rudisha\' kutoka tapishi (kitufe kinachoelea -&gt; \'Tapishi\'). Unaweza kuzima tapishi kabisa ukipendelea kufuta papo hapo: hapo utaonyeshwa uthibitisho kabla ya kila kufuta.</string>
+    <string name="pick_duplicate">Nakili hapa</string>
 </resources>

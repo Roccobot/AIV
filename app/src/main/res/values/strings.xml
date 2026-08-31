@@ -109,6 +109,11 @@
 
     <string name="settings_reverse_order">Change the direction of the picture sequence (by date)</string>
     <string name="settings_reverse_order_desc">Off, you leaf from the newest picture towards the older ones, the way a phone gallery goes. On, in chronological order, from the oldest to the newest.</string>
+    <!-- The switch that decides what deleting means, and with it whether a confirmation
+         appears: the two go together, because you get asked exactly when there is no way
+         back. The Italian wording is the user's, dictated word for word. -->
+    <string name="settings_bin">Turn the bin on</string>
+    <string name="settings_bin_desc">Deleting a file asks nothing, but the action can be undone with a \'Restore\' from the bin (floating button -&gt; \'Bin\'). You can turn the bin off altogether if you prefer instant deletion: in that case, a confirmation will appear before every deletion.</string>
 
     <!-- Off by default, and the second sentence is the reason why: the system notice
          is the cost of the feature, so it belongs next to the switch rather than as a
@@ -193,6 +198,9 @@
          "more actions": it is all of them, and there is nothing left in the bar. -->
     <string name="pick_actions">Operations on the selection</string>
     <string name="pick_move">Move</string>
+    <!-- Only the screen reader sees this one: it is the label of the long press on
+         'Copy', which duplicates the file where it already is. -->
+    <string name="pick_duplicate">Duplicate</string>
     <string name="pick_rename">Rename</string>
     <string name="pick_delete">Delete</string>
     <string name="pick_counting">Counting...</string>
@@ -286,11 +294,6 @@
     <plurals name="delete_desc">
         <item quantity="one">You are about to delete %1$d picture for good: it goes from the phone for ever.</item>
         <item quantity="other">You are about to delete %1$d pictures for good: they go from the phone for ever.</item>
-    </plurals>
-    <!-- The everyday one: deleting now means moving to the bin. -->
-    <plurals name="trash_desc">
-        <item quantity="one">You are about to move %1$d picture to the bin: you can get it back until it is deleted for good.</item>
-        <item quantity="other">You are about to move %1$d pictures to the bin: you can get them back until they are deleted for good.</item>
     </plurals>
 
     <!-- ── The bin ── -->

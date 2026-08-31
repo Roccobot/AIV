@@ -159,9 +159,6 @@
     <plurals name="delete_desc">
         <item quantity="other">%1$d 件の画像を完全に削除します。端末から永久になくなります。</item>
     </plurals>
-    <plurals name="trash_desc">
-        <item quantity="other">%1$d 件の画像をゴミ箱に移動します。完全に削除するまでは元に戻せます。</item>
-    </plurals>
     <string name="bin_title">ゴミ箱</string>
     <string name="bin_none">ゴミ箱は空です。</string>
     <string name="bin_restore">元に戻す</string>
@@ -206,4 +203,7 @@
     <string name="history_note">履歴は直近 %1$d 日間を保持し、その後自動的に消えます。</string>
     <string name="columns_title">グリッドの大きさ</string>
     <string name="columns_hint">ショートカット: フローティングボタンを長押しするとグリッドの大きさを選べます。</string>
+    <string name="settings_bin">ゴミ箱を有効にする</string>
+    <string name="settings_bin_desc">ファイルの削除では何も確認しませんが、ゴミ箱から \'元に戻す\' で取り消せます (フローティングボタン -&gt; \'ゴミ箱\')。すぐに削除したい場合はゴミ箱を完全に無効にできます。その場合は削除のたびに確認が表示されます。</string>
+    <string name="pick_duplicate">複製</string>
 </resources>

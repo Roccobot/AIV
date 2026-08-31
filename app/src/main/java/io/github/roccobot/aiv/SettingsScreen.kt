@@ -335,6 +335,21 @@ private fun ColumnScope.RootPage(
         )
     }
 
+    /*
+     * ⚠️⚠️ **STA IN QUESTO GRUPPO PER MANCANZA DI UNO MIGLIORE, e vale dirlo**: il cestino
+     * non è una faccenda di cartelle, ma è da questa schermata che si raggiunge (la voce sta
+     * nel menu del suo tastino), e un gruppo nuovo per un interruttore solo sarebbe un titolo
+     * con una riga sotto. Il giorno che le voci del cestino diventano due, il gruppo si fa.
+     * ⚠️ **Ultima del gruppo, dopo le nascoste**: le tre voci sopra parlano della griglia
+     * delle copertine, e infilarsi in mezzo a loro le avrebbe spezzate.
+     */
+    SwitchRow(
+        label = stringResource(R.string.settings_bin),
+        detail = stringResource(R.string.settings_bin_desc),
+        checked = settings.binOn,
+        onChange = { onChange(settings.copy(binOn = it)) }
+    )
+
     Group(stringResource(R.string.settings_group_start))
 
     SwitchRow(

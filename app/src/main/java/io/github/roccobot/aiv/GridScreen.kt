@@ -153,6 +153,15 @@ fun GridScreen(
      */
     factFields: List<FactField> = FactField.entries,
     /**
+     * Se il cestino è acceso. Vedi `Settings.binOn`.
+     *
+     * ⚠️ **Decide due cose insieme**: se 'elimina' sposta nel cestino o cancella, e se prima
+     * compaia una conferma. Il perché siano la stessa cosa sta in [FileJob.Delete].
+     * ⚠️ Il valore di serie tiene in piedi le anteprime e i richiami che non lo passano, ed è
+     * quello di fabbrica dell'impostazione.
+     */
+    binOn: Boolean = true,
+    /**
      * Se questa griglia è il **cestino**.
      *
      * ⚠️⚠️ **CAMBIA TRE COSE E NON L'ASPETTO**: 'elimina' diventa definitiva (là dentro non
@@ -865,7 +874,24 @@ fun GridScreen(
                                     // ⚠️ **Sono provvisorie**: l'utente ha chiesto gli SVG
                                     // per ridisegnarle, e quando arrivano cambiano le
                                     // coordinate in [Glyphs] e nient'altro.
-                                    PadAction(Glyphs.FolderPair, R.string.menu_copy_here) {
+                                    // ⚠️⚠️ **IL TOCCO LUNGO SU 'COPIA' DUPLICA DOVE SEI,
+                                    // dalla 0.79** (richiesta dell'utente): copiare chiede
+                                    // dove, duplicare no.
+                                    // ⚠️ **Nel cestino no**: un duplicato là dentro nascerebbe
+                                    // senza riga d'archivio, quindi non si potrebbe
+                                    // ripristinare, e sarebbe un file che il cestino non sa da
+                                    // dove viene.
+                                    PadAction(
+                                        icon = Glyphs.FolderPair,
+                                        label = R.string.menu_copy_here,
+                                        onHold = if (bin) null else {
+                                            {
+                                                menuOpen = false
+                                                job = FileJob.Duplicate(chosen.toList())
+                                            }
+                                        },
+                                        holdLabel = if (bin) null else R.string.pick_duplicate
+                                    ) {
                                         menuOpen = false
                                         job = FileJob.Transfer(chosen.toList(), move = false)
                                     },
@@ -882,7 +908,12 @@ fun GridScreen(
                                         danger = true
                                     ) {
                                         menuOpen = false
-                                        job = FileJob.Delete(chosen.toList(), forGood = bin)
+                                        // ⚠️ Definitiva nel cestino **o** col cestino
+                                        // spento: con `forGood` viaggia la conferma.
+                                        job = FileJob.Delete(
+                                            chosen.toList(),
+                                            forGood = bin || !binOn
+                                        )
                                     },
                                     // ⚠️ Nel cestino al posto della rinomina c'è il
                                     // ripristino: un file là dentro non si rinomina

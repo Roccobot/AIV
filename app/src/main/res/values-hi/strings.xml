@@ -168,10 +168,6 @@
         <item quantity="one">आप %1$d इमेज को हमेशा के लिए हटाने वाले हैं: वह फ़ोन से पूरी तरह चली जाएगी।</item>
         <item quantity="other">आप %1$d इमेज को हमेशा के लिए हटाने वाले हैं: वे फ़ोन से पूरी तरह चली जाएंगी।</item>
     </plurals>
-    <plurals name="trash_desc">
-        <item quantity="one">आप %1$d इमेज को कूड़ेदान में भेजने वाले हैं: पूरी तरह हटने तक उसे वापस लाया जा सकता है।</item>
-        <item quantity="other">आप %1$d इमेज को कूड़ेदान में भेजने वाले हैं: पूरी तरह हटने तक उन्हें वापस लाया जा सकता है।</item>
-    </plurals>
     <string name="bin_title">कूड़ेदान</string>
     <string name="bin_none">कूड़ेदान खाली है।</string>
     <string name="bin_restore">वापस लाएँ</string>
@@ -221,4 +217,7 @@
     <string name="history_note">इतिहास पिछले %1$d दिन रखता है, फिर खुद खाली हो जाता है।</string>
     <string name="columns_title">ग्रिड का आकार</string>
     <string name="columns_hint">शॉर्टकट: ग्रिड का आकार चुनने के लिए फ़्लोटिंग बटन दबाए रखें।</string>
+    <string name="settings_bin">कूड़ेदान चालू करें</string>
+    <string name="settings_bin_desc">फ़ाइल मिटाने पर कुछ नहीं पूछा जाता, लेकिन कूड़ेदान से \'वापस लाएँ\' के ज़रिये यह काम पलटा जा सकता है (फ़्लोटिंग बटन -&gt; \'कूड़ेदान\')। अगर आप तुरंत मिटाना पसंद करते हैं तो कूड़ेदान पूरी तरह बंद कर सकते हैं: उस स्थिति में हर बार मिटाने से पहले पुष्टि दिखेगी।</string>
+    <string name="pick_duplicate">प्रतिलिपि बनाएँ</string>
 </resources>

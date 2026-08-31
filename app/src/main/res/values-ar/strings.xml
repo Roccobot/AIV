@@ -204,14 +204,6 @@
         <item quantity="many">أنت على وشك حذف %1$d صورة نهائيا: ستزول من الهاتف إلى الأبد.</item>
         <item quantity="other">أنت على وشك حذف %1$d صورة نهائيا: ستزول من الهاتف إلى الأبد.</item>
     </plurals>
-    <plurals name="trash_desc">
-        <item quantity="zero">لا توجد صور لنقلها إلى سلة المهملات.</item>
-        <item quantity="one">أنت على وشك نقل صورة واحدة إلى سلة المهملات: يمكنك استعادتها حتى الحذف النهائي.</item>
-        <item quantity="two">أنت على وشك نقل صورتين إلى سلة المهملات: يمكنك استعادتهما حتى الحذف النهائي.</item>
-        <item quantity="few">أنت على وشك نقل %1$d صور إلى سلة المهملات: يمكنك استعادتها حتى الحذف النهائي.</item>
-        <item quantity="many">أنت على وشك نقل %1$d صورة إلى سلة المهملات: يمكنك استعادتها حتى الحذف النهائي.</item>
-        <item quantity="other">أنت على وشك نقل %1$d صورة إلى سلة المهملات: يمكنك استعادتها حتى الحذف النهائي.</item>
-    </plurals>
     <string name="bin_title">سلة المهملات</string>
     <string name="bin_none">سلة المهملات فارغة.</string>
     <string name="bin_restore">استعادة</string>
@@ -281,4 +273,7 @@
     <string name="history_note">يحفظ السجل آخر %1$d أيام ثم يُفرغ نفسه.</string>
     <string name="columns_title">حجم الشبكة</string>
     <string name="columns_hint">اختصار: اضغط مطولا على الزر العائم لاختيار حجم الشبكة.</string>
+    <string name="settings_bin">تشغيل سلة المهملات</string>
+    <string name="settings_bin_desc">حذف ملف لا يطلب أي تأكيد، لكن الإجراء قابل للتراجع عبر \'استعادة\' من سلة المهملات (الزر العائم -&gt; \'سلة المهملات\'). يمكنك إيقاف سلة المهملات تماما إذا كنت تفضل الحذف الفوري: في تلك الحالة سيظهر تأكيد قبل كل عملية حذف.</string>
+    <string name="pick_duplicate">تكرار</string>
 </resources>

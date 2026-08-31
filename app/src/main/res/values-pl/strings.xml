@@ -186,12 +186,6 @@
         <item quantity="many">Zamierzasz usunąć na zawsze %1$d obrazów: znikną z telefonu bezpowrotnie.</item>
         <item quantity="other">Zamierzasz usunąć na zawsze %1$d obrazu: znikną z telefonu bezpowrotnie.</item>
     </plurals>
-    <plurals name="trash_desc">
-        <item quantity="one">Zamierzasz przenieść %1$d obraz do kosza: możesz go odzyskać, dopóki nie zostanie usunięty na zawsze.</item>
-        <item quantity="few">Zamierzasz przenieść %1$d obrazy do kosza: możesz je odzyskać, dopóki nie zostaną usunięte na zawsze.</item>
-        <item quantity="many">Zamierzasz przenieść %1$d obrazów do kosza: możesz je odzyskać, dopóki nie zostaną usunięte na zawsze.</item>
-        <item quantity="other">Zamierzasz przenieść %1$d obrazu do kosza: możesz je odzyskać, dopóki nie zostaną usunięte na zawsze.</item>
-    </plurals>
     <string name="bin_title">Kosz</string>
     <string name="bin_none">Kosz jest pusty.</string>
     <string name="bin_restore">Przywróć</string>
@@ -251,4 +245,7 @@
     <string name="history_note">Historia przechowuje ostatnie %1$d dni, potem czyści się sama.</string>
     <string name="columns_title">Rozmiar siatki</string>
     <string name="columns_hint">Skrót: przytrzymaj pływający przycisk, aby wybrać rozmiar siatki.</string>
+    <string name="settings_bin">Włącz kosz</string>
+    <string name="settings_bin_desc">Usunięcie pliku o nic nie pyta, ale działanie można odwrócić przez \'Przywróć\' z kosza (pływający przycisk -&gt; \'Kosz\'). Możesz całkowicie wyłączyć kosz, jeśli wolisz natychmiastowe usuwanie: wtedy przed każdym usunięciem pojawi się potwierdzenie.</string>
+    <string name="pick_duplicate">Duplikuj</string>
 </resources>

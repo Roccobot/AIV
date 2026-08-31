@@ -168,10 +168,6 @@
         <item quantity="one">آپ %1$d تصویر ہمیشہ کے لیے مٹانے والے ہیں: وہ فون سے ہمیشہ کے لیے چلی جائے گی۔</item>
         <item quantity="other">آپ %1$d تصویریں ہمیشہ کے لیے مٹانے والے ہیں: وہ فون سے ہمیشہ کے لیے چلی جائیں گی۔</item>
     </plurals>
-    <plurals name="trash_desc">
-        <item quantity="one">آپ %1$d تصویر ردی کی ٹوکری میں بھیجنے والے ہیں: ہمیشہ کے لیے مٹنے تک اسے واپس لا سکتے ہیں۔</item>
-        <item quantity="other">آپ %1$d تصویریں ردی کی ٹوکری میں بھیجنے والے ہیں: ہمیشہ کے لیے مٹنے تک انہیں واپس لا سکتے ہیں۔</item>
-    </plurals>
     <string name="bin_title">ردی کی ٹوکری</string>
     <string name="bin_none">ردی کی ٹوکری خالی ہے۔</string>
     <string name="bin_restore">بحال کریں</string>
@@ -221,4 +217,7 @@
     <string name="history_note">ہسٹری پچھلے %1$d دن رکھتی ہے، پھر خود خالی ہو جاتی ہے۔</string>
     <string name="columns_title">گرڈ کا سائز</string>
     <string name="columns_hint">شارٹ کٹ: گرڈ کا سائز چننے کے لیے فلوٹنگ بٹن دبائے رکھیں۔</string>
+    <string name="settings_bin">ردی کی ٹوکری فعال کریں</string>
+    <string name="settings_bin_desc">فائل مٹانا کچھ نہیں پوچھتا، لیکن یہ کام ردی کی ٹوکری سے \'بحال کریں\' کے ذریعے واپس ہو سکتا ہے (فلوٹنگ بٹن -&gt; \'ردی کی ٹوکری\')۔ اگر آپ فوری مٹانا پسند کرتے ہیں تو ردی کی ٹوکری مکمل بند کر سکتے ہیں: اس صورت میں ہر مٹانے سے پہلے تصدیق آئے گی۔</string>
+    <string name="pick_duplicate">نقل بنائیں</string>
 </resources>

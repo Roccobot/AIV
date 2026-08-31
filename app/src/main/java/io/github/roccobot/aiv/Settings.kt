@@ -208,6 +208,21 @@ data class Settings(
      */
     val folderCount: Boolean = true,
     /**
+     * Se l'eliminazione manda le fotografie nel **cestino** invece di cancellarle.
+     *
+     * ⚠️⚠️ **DECIDE ANCHE SE C'È UNA CONFERMA, e i due fatti sono uno** (testo dettato
+     * dall'utente, dalla `0.79`): col cestino acceso eliminare **non chiede niente**, perché
+     * l'azione si disfa con un 'Ripristina'; spegnendolo l'eliminazione diventa istantanea e
+     * definitiva, quindi **prima** di ogni eliminazione compare una conferma. La regola che
+     * ne esce è una sola: si chiede conferma **quando e solo quando** non si può tornare
+     * indietro.
+     * ⚠️ **Accesa di serie**: un'app che cancella per sempre al primo tocco sbagliato non è
+     * quello che si attende da una galleria, e chi vuole l'eliminazione secca la sceglie.
+     * ⚠️ **Spegnerla NON svuota il cestino** e non lo rende irraggiungibile: quello che c'è
+     * dentro resta, e la sua voce nel menu del tastino pure. Sarebbe la sorpresa peggiore.
+     */
+    val binOn: Boolean = true,
+    /**
      * I percorsi delle cartelle che non devono comparire fra quelle da sfogliare.
      *
      * ⚠️⚠️ **PERCORSI E NON IDENTIFICATIVI, ed è la scelta che regge la funzione**
@@ -277,6 +292,7 @@ object SettingsStore {
     private val CLIPBOARD_START = booleanPreferencesKey("clipboard-start")
     private val UI_THEME = stringPreferencesKey("ui-theme")
     private val FOLDER_COLUMNS_KEY = intPreferencesKey("folder-columns")
+    private val BIN_ON = booleanPreferencesKey("bin-on")
     private val FOLDER_COUNT = booleanPreferencesKey("folder-count")
     private val HIDDEN_FOLDERS = stringSetPreferencesKey("hidden-folders")
 
@@ -311,6 +327,7 @@ object SettingsStore {
             // griglia a zero colonne, cioè una schermata vuota senza nessun errore.
             folderColumns = p[FOLDER_COLUMNS_KEY]?.takeIf { it in FOLDER_COLUMNS } ?: 2,
             folderCount = p[FOLDER_COUNT] ?: true,
+            binOn = p[BIN_ON] ?: true,
             hiddenFolders = p[HIDDEN_FOLDERS] ?: emptySet(),
             factOrder = factOrderOf((p[FACT_ORDER] ?: "").split(',')),
             // ⚠️ I campi sempre visibili si tolgono **in lettura**: un archivio che li
@@ -344,6 +361,7 @@ object SettingsStore {
             p[UI_THEME] = settings.uiTheme.token
             p[FOLDER_COLUMNS_KEY] = settings.folderColumns
             p[FOLDER_COUNT] = settings.folderCount
+            p[BIN_ON] = settings.binOn
             p[HIDDEN_FOLDERS] = settings.hiddenFolders
             p[FACT_ORDER] = settings.factOrder.joinToString(",") { it.token }
             p[FACT_OFF] = settings.factOff.filterNot { it.always }.map { it.token }.toSet()

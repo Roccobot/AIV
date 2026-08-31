@@ -159,9 +159,6 @@
     <plurals name="delete_desc">
         <item quantity="other">即将彻底删除 %1$d 张图片：将从手机上永久消失。</item>
     </plurals>
-    <plurals name="trash_desc">
-        <item quantity="other">即将把 %1$d 张图片移入回收站：在彻底删除前都可以还原。</item>
-    </plurals>
     <string name="bin_title">回收站</string>
     <string name="bin_none">回收站是空的。</string>
     <string name="bin_restore">还原</string>
@@ -206,4 +203,7 @@
     <string name="history_note">历史只保留最近 %1$d 天，之后自动清空。</string>
     <string name="columns_title">网格大小</string>
     <string name="columns_hint">快捷操作：长按悬浮按钮可选择网格大小。</string>
+    <string name="settings_bin">启用回收站</string>
+    <string name="settings_bin_desc">删除文件不会有任何提示，但可以在回收站里用 \'还原\' 撤销（悬浮按钮 -&gt; \'回收站\'）。如果你更喜欢立即删除，可以完全关闭回收站：那样每次删除前都会出现确认。</string>
+    <string name="pick_duplicate">创建副本</string>
 </resources>

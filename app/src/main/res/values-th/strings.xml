@@ -159,9 +159,6 @@
     <plurals name="delete_desc">
         <item quantity="other">คุณกำลังจะลบ %1$d ภาพอย่างถาวร: ภาพจะหายไปจากโทรศัพท์ตลอดไป</item>
     </plurals>
-    <plurals name="trash_desc">
-        <item quantity="other">คุณกำลังจะย้าย %1$d ภาพไปที่ถังขยะ: คุณกู้คืนได้จนกว่าจะถูกลบอย่างถาวร</item>
-    </plurals>
     <string name="bin_title">ถังขยะ</string>
     <string name="bin_none">ถังขยะว่างเปล่า</string>
     <string name="bin_restore">กู้คืน</string>
@@ -206,4 +203,7 @@
     <string name="history_note">ประวัติเก็บไว้ %1$d วันล่าสุด แล้วล้างตัวเอง</string>
     <string name="columns_title">ขนาดตาราง</string>
     <string name="columns_hint">ทางลัด: กดปุ่มลอยค้างไว้เพื่อเลือกขนาดตาราง</string>
+    <string name="settings_bin">เปิดถังขยะ</string>
+    <string name="settings_bin_desc">การลบไฟล์ไม่ถามอะไร แต่ย้อนกลับได้ด้วย \'กู้คืน\' จากถังขยะ (ปุ่มลอย -&gt; \'ถังขยะ\') คุณสามารถปิดถังขยะทั้งหมดได้หากต้องการลบทันที ในกรณีนั้นจะมีการยืนยันก่อนการลบทุกครั้ง</string>
+    <string name="pick_duplicate">ทำสำเนา</string>
 </resources>

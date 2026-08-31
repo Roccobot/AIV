@@ -159,9 +159,6 @@
     <plurals name="delete_desc">
         <item quantity="other">即將徹底刪除 %1$d 張圖片：將從手機上永久消失。</item>
     </plurals>
-    <plurals name="trash_desc">
-        <item quantity="other">即將把 %1$d 張圖片移入回收筒：在徹底刪除前都可以還原。</item>
-    </plurals>
     <string name="bin_title">回收筒</string>
     <string name="bin_none">回收筒是空的。</string>
     <string name="bin_restore">還原</string>
@@ -206,4 +203,7 @@
     <string name="history_note">歷程只保留最近 %1$d 天，之後自動清空。</string>
     <string name="columns_title">格線大小</string>
     <string name="columns_hint">快捷操作：長按浮動按鈕即可選擇格線大小。</string>
+    <string name="settings_bin">啟用回收筒</string>
+    <string name="settings_bin_desc">刪除檔案不會有任何提示，但可以在回收筒裡用 \'還原\' 復原（浮動按鈕 -&gt; \'回收筒\'）。如果你偏好立即刪除，可以完全關閉回收筒：那樣每次刪除前都會出現確認。</string>
+    <string name="pick_duplicate">建立副本</string>
 </resources>
