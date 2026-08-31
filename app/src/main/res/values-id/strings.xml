@@ -206,4 +206,6 @@
     <string name="settings_bin">Aktifkan tempat sampah</string>
     <string name="settings_bin_desc">Menghapus berkas tidak menanyakan apa pun, tetapi tindakan ini bisa dibatalkan dengan \'Pulihkan\' dari tempat sampah (tombol mengambang -&gt; \'Tempat sampah\'). Kamu bisa mematikan tempat sampah sepenuhnya jika lebih suka penghapusan langsung: dalam hal itu, konfirmasi akan muncul sebelum setiap penghapusan.</string>
     <string name="pick_duplicate">Duplikat</string>
+    <string name="settings_grid_names">Nama berkas di kisi foto</string>
+    <string name="settings_grid_names_desc">Di bawah setiap gambar mini, nama berkas dalam dua baris paling banyak. Ekstensi tidak pernah dipenggal dan selalu terlihat: kalau nama tidak muat, bagian tengahnya yang mengalah.</string>
 </resources>

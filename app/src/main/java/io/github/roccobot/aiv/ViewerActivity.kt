@@ -1045,7 +1045,8 @@ private fun AivApp(model: ViewerViewModel) {
                 onBack = { model.leaveGrid() },
                 onChanged = { model.reloadGrid() },
                 factFields = settings.factRows,
-                binOn = settings.binOn
+                binOn = settings.binOn,
+                gridNames = settings.gridNames
             )
         }
 
@@ -1064,7 +1065,8 @@ private fun AivApp(model: ViewerViewModel) {
                 query = model.query,
                 onQuery = { model.search(it) },
                 factFields = settings.factRows,
-                binOn = settings.binOn
+                binOn = settings.binOn,
+                gridNames = settings.gridNames
             )
         }
 
@@ -1084,6 +1086,7 @@ private fun AivApp(model: ViewerViewModel) {
                 onChanged = { model.reloadGrid() },
                 factFields = settings.factRows,
                 binOn = settings.binOn,
+                gridNames = settings.gridNames,
                 bin = true,
                 onHistory = { model.openHistory() }
             )

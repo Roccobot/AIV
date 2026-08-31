@@ -220,4 +220,6 @@
     <string name="settings_bin">Çöp kutusunu aç</string>
     <string name="settings_bin_desc">Bir dosyayı silmek hiçbir şey sormaz, ama işlem çöp kutusundan bir \'Geri al\' ile geri alınabilir (kayan düğme -&gt; \'Çöp kutusu\'). Anında silmeyi tercih ediyorsan çöp kutusunu tamamen kapatabilirsin: o zaman her silme işleminden önce bir onay görünür.</string>
     <string name="pick_duplicate">Çoğalt</string>
+    <string name="settings_grid_names">Izgarada dosya adı</string>
+    <string name="settings_grid_names_desc">Her küçük resmin altında dosya adı, en fazla iki satır. Uzantı asla bölünmez ve her zaman görünür: ad sığmazsa kısalan orta kısımdır.</string>
 </resources>

@@ -296,4 +296,6 @@
     <string name="settings_bin">Attiva il cestino</string>
     <string name="settings_bin_desc">L\'eliminazione di file non prevede alcun avviso, ma l\'azione è reversibile con un \'Ripristina\' dal cestino (tasto flottante -&gt; \'Cestino\'). Puoi disattivare del tutto il cestino, se preferisci un\'eliminazione istantanea: in quel caso, apparirà una conferma prima di ogni eliminazione.</string>
     <string name="pick_duplicate">Duplica</string>
+    <string name="settings_grid_names">Nome del file in vista griglia</string>
+    <string name="settings_grid_names_desc">Sotto ogni miniatura, il nome del file su due righe al massimo. L\'estensione non va mai a capo e si vede sempre: quando il nome non ci sta, a cedere è la parte centrale.</string>
 </resources>

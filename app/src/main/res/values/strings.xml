@@ -91,6 +91,10 @@
     <string name="settings_folder_columns_desc">More columns fit more folders on screen and shrink each cover. At four the name under it is usually cut short.</string>
     <string name="settings_folder_count">Picture count under the folders</string>
     <string name="settings_folder_count_desc">Under each cover, how many pictures the folder holds. Turning it off makes the row shorter, and the title area at the top grows by as much.</string>
+    <!-- Off by default: a gallery shows pictures, and a name under each one is data for
+         someone working with files rather than looking at them. -->
+    <string name="settings_grid_names">File name in the photo grid</string>
+    <string name="settings_grid_names_desc">Under each thumbnail, the file name on two lines at most. The extension is never split across lines and is always shown: when the name does not fit, it is the middle that gives way.</string>
 
     <string name="settings_fit_grow">Enlarge small pictures</string>
     <string name="settings_fit_grow_desc">Off, a picture smaller than the screen is shown at its real size. On, it grows to fill the view.</string>

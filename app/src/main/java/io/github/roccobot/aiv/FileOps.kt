@@ -499,7 +499,7 @@ private fun NamePill(name: String, modifier: Modifier = Modifier) {
             val measurer = rememberTextMeasurer()
             val room = with(LocalDensity.current) { maxWidth.roundToPx() }
             val shown = remember(name, room, style, grassetto, measurer) {
-                fitName(name, room, style, grassetto, measurer)
+                fitName(name, room, NAME_LINES, style, grassetto, measurer)
             }
             Text(
                 text = shown,
@@ -511,66 +511,6 @@ private fun NamePill(name: String, modifier: Modifier = Modifier) {
         }
     }
 }
-
-/**
- * Il nome accorciato quanto basta a starci in [NAME_LINES] righe, con l'estensione salva,
- * in grassetto e mai spezzata.
- *
- * ⚠️⚠️ **SI MISURA, non si conta**: un tetto di caratteri sarebbe sbagliato tre volte, perché
- * le lettere non hanno tutte la stessa larghezza (`WWW` occupa il triplo di `iii`), perché il
- * grassetto è più largo del peso normale, e perché la larghezza utile cambia col dialogo. Qui
- * si chiede al misuratore se il testo sfora, che è la stessa domanda che si farà il layout, e
- * gliela si chiede sul testo **già impaginato coi suoi pesi**.
- * ⚠️ **Ricerca binaria e non un ciclo che toglie una lettera per volta**: su un nome di
- * duecento caratteri sarebbero duecento misure a ogni composizione. Così sono otto.
- * ⚠️⚠️ **Il GIUNTORE DI PAROLE (`U+2060`) dentro l'estensione è l'unico modo di rispettare
- * il 'mai'**: un nome di file non ha spazi, quindi il layout può andare a capo fra due
- * caratteri qualunque, e `.HEIC` finirebbe a cavallo di due righe come `.HE` più `IC`.
- * Quel carattere è invisibile e dice al layout 'qui non si rompe'. Scritto per codepoint,
- * come vuole la regola del repo sui caratteri invisibili.
- * ⚠️ **Lo spazio dopo l'ellissi, invece, è un punto in cui il layout PUÒ andare a capo**, e
- * va bene: il vincolo era che l'estensione non si spezzi, non che stia sulla stessa riga del
- * nome.
- */
-private fun fitName(
-    name: String,
-    room: Int,
-    style: TextStyle,
-    grassetto: SpanStyle,
-    measurer: TextMeasurer
-): AnnotatedString {
-    fun comporre(testa: String, coda: String) = buildAnnotatedString {
-        append(testa)
-        if (coda.isNotEmpty()) withStyle(grassetto) { append(coda) }
-    }
-
-    fun sta(testo: AnnotatedString) = room <= 0 || !measurer.measure(
-        text = testo,
-        style = style,
-        maxLines = NAME_LINES,
-        constraints = Constraints(maxWidth = room)
-    ).hasVisualOverflow
-
-    val punto = name.lastIndexOf('.')
-    // ⚠️ `punto > 0` e non `>= 0`: un nome che comincia col punto è un file nascosto, e là
-    // quel punto non introduce un'estensione, fa parte del nome.
-    val coda = if (punto > 0) glue(name.substring(punto)) else ""
-    val corpo = if (punto > 0) name.substring(0, punto) else name
-
-    val intero = comporre(corpo, coda)
-    if (sta(intero)) return intero
-
-    var basso = 0
-    var alto = corpo.length
-    while (basso < alto) {
-        val mezzo = (basso + alto + 1) / 2
-        if (sta(comporre(corpo.take(mezzo) + CUT, coda))) basso = mezzo else alto = mezzo - 1
-    }
-    return comporre(corpo.take(basso) + CUT, coda)
-}
-
-/** L'estensione con un giuntore fra ogni carattere, così il layout non la spezza. */
-private fun glue(ext: String): String = ext.toCharArray().joinToString(WORD_JOINER)
 
 /**
  * Una riga di dati: etichetta a sinistra, valore a destra.
@@ -619,26 +559,6 @@ private val NAME_PAD_TOP = 4.dp
  * più del doppio del nome più lungo che una fotocamera produce.
  */
 private const val NAME_LINES = 3
-
-/**
- * Il taglio: i tre punti e **uno spazio**.
- *
- * ⚠️ I tre punti si scrivono così e non col carattere unico, che il repo vieta. Lo spazio
- * è la correzione dell'utente al difetto dei quattro punti di fila: senza di lui l'ellissi
- * si salda al punto dell'estensione e si legge `....HEIC`.
- */
-private const val CUT = "... "
-
-/**
- * `U+2060 WORD JOINER`: invisibile, e vieta al layout di andare a capo dove sta.
- *
- * ⚠️ Scritto per **codepoint** e non incollato, come vuole la regola del repo sui caratteri
- * invisibili: incollato, questo file conterrebbe un carattere che a schermo non si vede e
- * che nessuno saprebbe di aver toccato.
- * ⚠️ **Non è lo spazio insecabile** (`U+00A0`), che è vietato: quello è uno spazio e si
- * vede, questo non occupa larghezza e serve solo a legare due caratteri.
- */
-private const val WORD_JOINER = "\u2060"
 
 /**
  * Il valore di un campo, già scritto come si legge, oppure `null` se il file non ce l'ha.

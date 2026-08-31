@@ -234,4 +234,6 @@
     <string name="settings_bin">Ativar a lixeira</string>
     <string name="settings_bin_desc">Excluir um arquivo não pergunta nada, mas a ação pode ser desfeita com um \'Restaurar\' na lixeira (botão flutuante -&gt; \'Lixeira\'). Você pode desativar a lixeira por completo, se preferir uma exclusão instantânea: nesse caso, aparecerá uma confirmação antes de cada exclusão.</string>
     <string name="pick_duplicate">Duplicar</string>
+    <string name="settings_grid_names">Nome do arquivo na grade</string>
+    <string name="settings_grid_names_desc">Sob cada miniatura, o nome do arquivo em no máximo duas linhas. A extensão nunca é quebrada e aparece sempre: quando o nome não cabe, quem cede é o meio.</string>
 </resources>
