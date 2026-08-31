@@ -16,6 +16,14 @@ l'app nella propria lingua:
   Il russo ne vuole quattro, l'arabo sei, il giapponese una;
 - CARATTERI VIETATI dal repo: trattini lunghi, apici curvi, ellissi.
 
+⚠️⚠️ **LE VARIANTI REGIONALI PORTANO SOLO LE DIFFERENZE, e qui non si pretendono le
+chiavi**: `values-pt-rPT` e `values-b+es+419` (dalla 0.80) scrivono le sole stringhe che
+cambiano rispetto a `values-pt` e `values-es`, e tutto il resto lo risolve Android sulla
+cartella senza paese, **una risorsa per volta**. Verificato con `lintVitalRelease`, che su
+una variante parziale non si lamenta. Una variante si riconosce dal fatto che la cartella
+della sua lingua **esiste**: `values-zh-rCN` non ha nessuna `values-zh` sopra di sé, quindi
+resta una traduzione intera e va controllata come le altre.
+
 ⚠️ **Sui plurali la regola è il SOTTOINSIEME e non l'uguaglianza**: una forma può
 **omettere** il numero (in arabo 'una sola immagine' si scrive a parole, ed è giusto
 così), perché un argomento in più passato a `String.format` viene ignorato. Il difetto
@@ -78,6 +86,21 @@ def holders(text):
     return sorted(re.findall(r'%\d+\$[sd]', text or ''))
 
 
+def base_lang(lang):
+    """La lingua senza paese di una variante regionale: `pt-rPT` -> `pt`, `b+es+419` -> `es`.
+
+    ⚠️ Restituisce un codice anche per `zh-rCN`, che una variante non è: a decidere è chi
+    chiama, guardando se quella cartella esiste. Separare le due domande (come si chiama la
+    lingua, e se la sua cartella c'è) è ciò che tiene la funzione pura.
+    """
+    if lang.startswith('b+'):
+        parti = lang.split('+')
+        return parti[1] if len(parti) > 2 else None
+    if '-r' in lang:
+        return lang.split('-r')[0]
+    return None
+
+
 def read(path):
     strings, plurals = {}, {}
     for el in ET.parse(path).getroot():
@@ -98,18 +121,27 @@ def main():
         here_s, here_p = read(os.path.join(RES, 'values-%s' % lang, 'strings.xml'))
         said = []
 
+        # ⚠️ Vedi la nota in testa: una variante regionale porta solo le differenze, quindi
+        # le chiavi che non ha non sono un difetto, e le categorie di plurale sono quelle
+        # della sua lingua.
+        madre = base_lang(lang)
+        parziale = madre is not None and os.path.isdir(os.path.join(RES, 'values-%s' % madre))
+        cats = madre if parziale else lang
+
         for name, text in base_s.items():
             if name not in here_s:
-                said.append('manca la stringa %s' % name)
+                if not parziale:
+                    said.append('manca la stringa %s' % name)
             elif holders(here_s[name]) != holders(text):
                 said.append('segnaposto diversi in %s: %s contro %s'
                             % (name, holders(here_s[name]), holders(text)))
         for name, forms in base_p.items():
             if name not in here_p:
-                said.append('manca il plurale %s' % name)
+                if not parziale:
+                    said.append('manca il plurale %s' % name)
                 continue
             base = forms.get('other', '')
-            wanted = CATS.get(lang)
+            wanted = CATS.get(cats)
             if wanted is None:
                 said.append('lingua sconosciuta al controllo: aggiungila a CATS')
                 break
@@ -131,7 +163,8 @@ def main():
             said.append('chiavi che l\'inglese non ha: %s' % sorted(extra))
 
         problems += len(said)
-        print('%-8s %s' % (lang, 'a posto' if not said else '%d PROBLEMI' % len(said)))
+        etichetta = lang + (' (variante)' if parziale else '')
+        print('%-20s %s' % (etichetta, 'a posto' if not said else '%d PROBLEMI' % len(said)))
         for line in said[:10]:
             print('         -', line)
 

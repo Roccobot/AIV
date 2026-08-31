@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        LATIN AMERICAN SPANISH, and this file carries ONLY what differs from values-es,
+        which is the Spanish of Spain: everything not written here Android resolves
+        against that folder, per resource. Measured with lintVitalRelease, which does
+        not complain about the missing keys.
+
+        WHY the folder is b+es+419 and not es-rMX: 419 is the macro-region for the whole
+        of Latin America, so a phone set to es-AR or es-CO matches it too, while es-rMX
+        would only have caught Mexico and left everyone else on the European wording.
+        It needs Android 7, and the app asks for 9.
+
+        WHY SO FEW LINES, and it is a measured answer rather than laziness: values-es was
+        already written with neutral words, so out of 177 entries only 7 carry a real
+        regional difference. The canonical ones are Ajustes/Configuración and
+        pulsado/presionado, the two Google itself splits. What is NOT here was checked
+        and found shared: archivo (not fichero), papelera, pantalla, teléfono,
+        cuadrícula. Inventing differences to make the file look fuller would give the
+        region a translation nobody asked for.
+    -->
+    <string name="settings_title">Configuración</string>
+    <string name="hub_settings">Configuración</string>
+    <string name="hide_folder_desc">Deja de aparecer entre las carpetas por las que pasar. No se borra nada: las imágenes se quedan donde están, y puedes recuperar la carpeta desde la configuración.</string>
+    <string name="settings_hidden_desc">Un toque largo sobre una carpeta la oculta. Estas ya no aparecen en la lista, pero siguen intactas en el teléfono.</string>
+    <string name="pick_all_hint">Atajo: mantén presionado el botón flotante para seleccionarlo todo.</string>
+    <string name="bin_empty_hint">Atajo: mantén presionado el botón flotante para vaciar la papelera.</string>
+    <string name="columns_hint">Atajo: mantén presionado el botón flotante para elegir el tamaño de la cuadrícula.</string>
+</resources>
