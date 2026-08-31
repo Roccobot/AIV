@@ -92,7 +92,7 @@
     <string name="grid_item_last">Bild %1$d von %2$d, das zuletzt angesehene</string>
     <string name="pick_leave">Auswahl verlassen</string>
     <string name="pick_all">Alle auswählen</string>
-    <string name="pick_all_hint">Halte die schwebende Schaltfläche gedrückt, um alle Bilder des Ordners auszuwählen</string>
+    <string name="pick_all_hint">Kurzbefehl: Halte die schwebende Schaltfläche gedrückt, um alles auszuwählen.</string>
     <string name="pick_info">Infos</string>
     <string name="pick_close">Schließen</string>
     <string name="pick_actions">Aktionen für die Auswahl</string>
@@ -176,8 +176,8 @@
     <string name="bin_none">Der Papierkorb ist leer.</string>
     <string name="bin_restore">Wiederherstellen</string>
     <string name="bin_empty">Papierkorb leeren</string>
-    <string name="bin_empty_ask">Papierkorb leeren?</string>
-    <string name="bin_empty_desc">Alles darin verschwindet endgültig vom Telefon.</string>
+    <string name="bin_empty_ask">Papierkorb wirklich leeren?</string>
+    <string name="bin_empty_desc">Der Inhalt lässt sich nicht wiederherstellen.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d in den Papierkorb verschoben</item>
         <item quantity="other">%1$d in den Papierkorb verschoben</item>
@@ -208,4 +208,5 @@
         <item quantity="one">%1$d Angabe</item>
         <item quantity="other">%1$d Angaben</item>
     </plurals>
+    <string name="bin_empty_hint">Kurzbefehl: Halte die schwebende Schaltfläche gedrückt, um den Papierkorb zu leeren.</string>
 </resources>

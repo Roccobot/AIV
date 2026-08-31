@@ -92,7 +92,7 @@
     <string name="grid_item_last">Imagen %1$d de %2$d, la última que has mirado</string>
     <string name="pick_leave">Salir de la selección</string>
     <string name="pick_all">Seleccionar todo</string>
-    <string name="pick_all_hint">Mantén pulsado el botón flotante para seleccionar todas las imágenes de la carpeta</string>
+    <string name="pick_all_hint">Atajo: mantén pulsado el botón flotante para seleccionarlo todo.</string>
     <string name="pick_info">Info</string>
     <string name="pick_close">Cerrar</string>
     <string name="pick_actions">Operaciones sobre la selección</string>
@@ -186,8 +186,8 @@
     <string name="bin_none">La papelera está vacía.</string>
     <string name="bin_restore">Restaurar</string>
     <string name="bin_empty">Vaciar la papelera</string>
-    <string name="bin_empty_ask">¿Vaciar la papelera?</string>
-    <string name="bin_empty_desc">Todo lo que contiene se va del teléfono para siempre.</string>
+    <string name="bin_empty_ask">¿Vaciar de verdad la papelera?</string>
+    <string name="bin_empty_desc">No podrás recuperar su contenido.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d movida a la papelera</item>
         <item quantity="other">%1$d movidas a la papelera</item>
@@ -223,4 +223,5 @@
         <item quantity="many">%1$d datos</item>
         <item quantity="other">%1$d datos</item>
     </plurals>
+    <string name="bin_empty_hint">Atajo: mantén pulsado el botón flotante para vaciar la papelera.</string>
 </resources>

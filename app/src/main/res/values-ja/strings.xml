@@ -92,7 +92,7 @@
     <string name="grid_item_last">%2$d 枚中 %1$d 枚目、最後に見た画像</string>
     <string name="pick_leave">選択をやめる</string>
     <string name="pick_all">すべて選択</string>
-    <string name="pick_all_hint">フローティングボタンを長押しすると、フォルダー内のすべての画像を選択できます</string>
+    <string name="pick_all_hint">ショートカット: フローティングボタンを長押しするとすべて選択します。</string>
     <string name="pick_info">情報</string>
     <string name="pick_close">閉じる</string>
     <string name="pick_actions">選択した画像の操作</string>
@@ -166,8 +166,8 @@
     <string name="bin_none">ゴミ箱は空です。</string>
     <string name="bin_restore">元に戻す</string>
     <string name="bin_empty">ゴミ箱を空にする</string>
-    <string name="bin_empty_ask">ゴミ箱を空にしますか?</string>
-    <string name="bin_empty_desc">中身は端末から完全に消えます。</string>
+    <string name="bin_empty_ask">本当にゴミ箱を空にしますか?</string>
+    <string name="bin_empty_desc">中身は元に戻せません。</string>
     <plurals name="trash_done">
         <item quantity="other">%1$d 枚をゴミ箱に移動しました</item>
     </plurals>
@@ -193,4 +193,5 @@
     <plurals name="settings_facts_count">
         <item quantity="other">%1$d 項目</item>
     </plurals>
+    <string name="bin_empty_hint">ショートカット: フローティングボタンを長押しするとゴミ箱を空にします。</string>
 </resources>

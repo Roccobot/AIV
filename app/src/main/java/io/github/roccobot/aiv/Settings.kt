@@ -407,24 +407,35 @@ object FolderAsk {
 }
 
 /**
- * Se il mini onboarding del tocco lungo sul tastino si è già visto.
+ * I mini onboarding del tocco lungo sul tastino, e se si sono già visti.
  *
- * ⚠️⚠️ **Sta qui e NON in [Settings], e la differenza non è di comodo**: `Settings` è
- * quello che l'utente sceglie e ritrova nella schermata delle impostazioni, questo è un
- * promemoria che l'app tiene per sé. Metterlo là gli darebbe una riga in una schermata che
- * l'utente ha già chiesto di alleggerire, e sarebbe una riga che non decide niente.
- * ⚠️ Si archivia **una volta sola**, e da lì in poi non si mostra più: un onboarding che
- * torna è un avviso, e un avviso che torna insegna a chiuderlo senza leggerlo. Vale la
+ * ⚠️⚠️ **Stanno qui e NON in [Settings], e la differenza non è di comodo**: `Settings` è
+ * quello che l'utente sceglie e ritrova nella schermata delle impostazioni, questi sono
+ * promemoria che l'app tiene per sé. Metterli là darebbero righe in una schermata che
+ * l'utente ha già chiesto di alleggerire, e sarebbero righe che non decidono niente.
+ * ⚠️ Ognuno si archivia **una volta sola**, e da lì in poi non si mostra più: un onboarding
+ * che torna è un avviso, e un avviso che torna insegna a chiuderlo senza leggerlo. Vale la
  * stessa ragione già scritta per [FolderAsk].
+ *
+ * ⚠️⚠️ **SONO DUE PERCHÉ IL TOCCO LUNGO FA DUE COSE DIVERSE** (richiesta dell'utente,
+ * 2026-08-31): nella griglia sceglie tutto, nel cestino senza niente scelto lo svuota. Un
+ * promemoria solo insegnerebbe una delle due a chi si trova davanti l'altra, ed è
+ * esattamente il difetto che aveva la versione precedente, dove il velo del cestino
+ * prometteva di selezionare 'le immagini della cartella'.
+ * ⚠️ **La chiave di [PICK_ALL] è quella di prima e non si tocca**: cambiarla farebbe
+ * ricomparire il velo a chi l'aveva già chiuso, che è la cosa che questo archivio esiste
+ * per evitare.
  */
-object PickHint {
+enum class Hint(token: String) {
+    PICK_ALL("pick-all-hint-seen"),
+    BIN_EMPTY("bin-empty-hint-seen");
 
-    private val SEEN = booleanPreferencesKey("pick-all-hint-seen")
+    private val seen = booleanPreferencesKey(token)
 
-    fun flow(context: Context): Flow<Boolean> = context.aivStore.data.map { p -> p[SEEN] ?: false }
+    fun flow(context: Context): Flow<Boolean> = context.aivStore.data.map { p -> p[seen] ?: false }
 
     suspend fun remember(context: Context) {
-        context.aivStore.edit { p -> p[SEEN] = true }
+        context.aivStore.edit { p -> p[seen] = true }
     }
 }
 

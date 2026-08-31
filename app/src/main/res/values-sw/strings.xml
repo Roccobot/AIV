@@ -92,7 +92,7 @@
     <string name="grid_item_last">Picha ya %1$d kati ya %2$d, uliyoiangalia mwisho</string>
     <string name="pick_leave">Toka kwenye uteuzi</string>
     <string name="pick_all">Chagua zote</string>
-    <string name="pick_all_hint">Bonyeza na ushikilie kitufe kinachoelea ili kuchagua picha zote za folda</string>
+    <string name="pick_all_hint">Njia ya mkato: shikilia kitufe kinachoelea ili kuchagua vyote.</string>
     <string name="pick_info">Taarifa</string>
     <string name="pick_close">Funga</string>
     <string name="pick_actions">Vitendo kwa zilizochaguliwa</string>
@@ -176,8 +176,8 @@
     <string name="bin_none">Tapishi ni tupu.</string>
     <string name="bin_restore">Rudisha</string>
     <string name="bin_empty">Mwaga tapishi</string>
-    <string name="bin_empty_ask">Umwage tapishi?</string>
-    <string name="bin_empty_desc">Kila kilichomo kinaondoka kwenye simu milele.</string>
+    <string name="bin_empty_ask">Kweli umwage tapishi?</string>
+    <string name="bin_empty_desc">Yaliyomo hayatarudishwa tena.</string>
     <plurals name="trash_done">
         <item quantity="one">picha %1$d imeenda tapishini</item>
         <item quantity="other">picha %1$d zimeenda tapishini</item>
@@ -208,4 +208,5 @@
         <item quantity="one">Kipengele %1$d</item>
         <item quantity="other">Vipengele %1$d</item>
     </plurals>
+    <string name="bin_empty_hint">Njia ya mkato: shikilia kitufe kinachoelea ili kumwaga tapishi.</string>
 </resources>

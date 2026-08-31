@@ -92,7 +92,7 @@
     <string name="grid_item_last">%2$d-এর মধ্যে %1$d নম্বর ছবি, শেষে যেটি দেখেছেন</string>
     <string name="pick_leave">বাছাই থেকে বেরোন</string>
     <string name="pick_all">সব বাছুন</string>
-    <string name="pick_all_hint">ফোল্ডারের সব ছবি বাছতে ভাসমান বোতামটি চেপে ধরে রাখুন</string>
+    <string name="pick_all_hint">শর্টকাট: সব নির্বাচন করতে ভাসমান বোতামটি চেপে ধরে রাখুন।</string>
     <string name="pick_info">তথ্য</string>
     <string name="pick_close">বন্ধ করুন</string>
     <string name="pick_actions">বাছাই করা ছবিতে কাজ</string>
@@ -176,8 +176,8 @@
     <string name="bin_none">আবর্জনা খালি।</string>
     <string name="bin_restore">ফিরিয়ে আনুন</string>
     <string name="bin_empty">আবর্জনা খালি করুন</string>
-    <string name="bin_empty_ask">আবর্জনা খালি করবেন?</string>
-    <string name="bin_empty_desc">এর ভিতরের সবকিছু ফোন থেকে চিরকালের জন্য চলে যাবে।</string>
+    <string name="bin_empty_ask">সত্যিই আবর্জনা খালি করবেন?</string>
+    <string name="bin_empty_desc">এর ভিতরের জিনিস আর ফিরে পাওয়া যাবে না।</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d আবর্জনায় গেছে</item>
         <item quantity="other">%1$d আবর্জনায় গেছে</item>
@@ -208,4 +208,5 @@
         <item quantity="one">%1$dটি তথ্য</item>
         <item quantity="other">%1$dটি তথ্য</item>
     </plurals>
+    <string name="bin_empty_hint">শর্টকাট: আবর্জনা খালি করতে ভাসমান বোতামটি চেপে ধরে রাখুন।</string>
 </resources>

@@ -92,7 +92,7 @@
     <string name="grid_item_last">%2$d-இல் %1$d-ஆவது படம், நீங்கள் கடைசியாகப் பார்த்தது</string>
     <string name="pick_leave">தேர்விலிருந்து வெளியேறு</string>
     <string name="pick_all">அனைத்தையும் தேர்ந்தெடு</string>
-    <string name="pick_all_hint">கோப்புறையின் அனைத்துப் படங்களையும் தேர்ந்தெடுக்க மிதக்கும் பொத்தானை அழுத்திப் பிடிக்கவும்</string>
+    <string name="pick_all_hint">குறுக்குவழி: அனைத்தையும் தேர்ந்தெடுக்க மிதக்கும் பொத்தானை அழுத்திப் பிடிக்கவும்.</string>
     <string name="pick_info">தகவல்</string>
     <string name="pick_close">மூடு</string>
     <string name="pick_actions">தேர்ந்தவற்றின் மீது செயல்கள்</string>
@@ -176,8 +176,8 @@
     <string name="bin_none">குப்பைத் தொட்டி காலியாக உள்ளது.</string>
     <string name="bin_restore">மீட்டெடு</string>
     <string name="bin_empty">குப்பைத் தொட்டியைக் காலி செய்</string>
-    <string name="bin_empty_ask">குப்பைத் தொட்டியைக் காலி செய்யவா?</string>
-    <string name="bin_empty_desc">அதில் உள்ள அனைத்தும் கைபேசியிலிருந்து என்றென்றும் போய்விடும்.</string>
+    <string name="bin_empty_ask">குப்பைத் தொட்டியை உண்மையில் காலி செய்யவா?</string>
+    <string name="bin_empty_desc">உள்ளடக்கத்தை மீட்டெடுக்க முடியாது.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d குப்பைத் தொட்டிக்குப் போனது</item>
         <item quantity="other">%1$d குப்பைத் தொட்டிக்குப் போனவை</item>
@@ -208,4 +208,5 @@
         <item quantity="one">%1$d தகவல்</item>
         <item quantity="other">%1$d தகவல்கள்</item>
     </plurals>
+    <string name="bin_empty_hint">குறுக்குவழி: குப்பைத் தொட்டியைக் காலி செய்ய மிதக்கும் பொத்தானை அழுத்திப் பிடிக்கவும்.</string>
 </resources>

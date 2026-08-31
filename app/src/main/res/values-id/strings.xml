@@ -92,7 +92,7 @@
     <string name="grid_item_last">Gambar %1$d dari %2$d, yang terakhir kamu lihat</string>
     <string name="pick_leave">Keluar dari pemilihan</string>
     <string name="pick_all">Pilih semua</string>
-    <string name="pick_all_hint">Tekan dan tahan tombol mengapung untuk memilih semua gambar di folder</string>
+    <string name="pick_all_hint">Pintasan: tekan dan tahan tombol mengambang untuk memilih semua.</string>
     <string name="pick_info">Info</string>
     <string name="pick_close">Tutup</string>
     <string name="pick_actions">Tindakan atas yang dipilih</string>
@@ -166,8 +166,8 @@
     <string name="bin_none">Tempat sampah kosong.</string>
     <string name="bin_restore">Pulihkan</string>
     <string name="bin_empty">Kosongkan tempat sampah</string>
-    <string name="bin_empty_ask">Kosongkan tempat sampah?</string>
-    <string name="bin_empty_desc">Semua isinya hilang dari ponsel untuk selamanya.</string>
+    <string name="bin_empty_ask">Benar-benar kosongkan tempat sampah?</string>
+    <string name="bin_empty_desc">Isinya tidak bisa dikembalikan lagi.</string>
     <plurals name="trash_done">
         <item quantity="other">%1$d dipindahkan ke tempat sampah</item>
     </plurals>
@@ -193,4 +193,5 @@
     <plurals name="settings_facts_count">
         <item quantity="other">%1$d data</item>
     </plurals>
+    <string name="bin_empty_hint">Pintasan: tekan dan tahan tombol mengambang untuk mengosongkan tempat sampah.</string>
 </resources>

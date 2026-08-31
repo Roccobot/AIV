@@ -92,7 +92,7 @@
     <string name="grid_item_last">%2$d पैकी %1$dवी प्रतिमा, तुम्ही शेवटी पाहिलेली</string>
     <string name="pick_leave">निवडीतून बाहेर</string>
     <string name="pick_all">सर्व निवडा</string>
-    <string name="pick_all_hint">संचिकासंचातील सर्व प्रतिमा निवडण्यासाठी तरंगती कळ दाबून धरा</string>
+    <string name="pick_all_hint">शॉर्टकट: सर्व निवडण्यासाठी फ्लोटिंग बटण दाबून धरा.</string>
     <string name="pick_info">माहिती</string>
     <string name="pick_close">बंद करा</string>
     <string name="pick_actions">निवडलेल्यांवर कामे</string>
@@ -176,8 +176,8 @@
     <string name="bin_none">कचरापेटी रिकामी आहे.</string>
     <string name="bin_restore">पुन्हा आणा</string>
     <string name="bin_empty">कचरापेटी रिकामी करा</string>
-    <string name="bin_empty_ask">कचरापेटी रिकामी करायची?</string>
-    <string name="bin_empty_desc">त्यात असलेले सर्व फोनवरून कायमचे जाईल.</string>
+    <string name="bin_empty_ask">खरोखर कचरापेटी रिकामी करायची?</string>
+    <string name="bin_empty_desc">त्यातील मजकूर परत मिळणार नाही.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d कचरापेटीत गेली</item>
         <item quantity="other">%1$d कचरापेटीत गेल्या</item>
@@ -208,4 +208,5 @@
         <item quantity="one">%1$d माहिती</item>
         <item quantity="other">%1$d माहिती</item>
     </plurals>
+    <string name="bin_empty_hint">शॉर्टकट: कचरापेटी रिकामी करण्यासाठी फ्लोटिंग बटण दाबून धरा.</string>
 </resources>

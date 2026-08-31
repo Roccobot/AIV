@@ -255,7 +255,7 @@ fun GridScreen(
     val haptics = LocalHapticFeedback.current
 
     /**
-     * Se il mini onboarding del tocco lungo sul tastino si è già visto.
+     * Se i due mini onboarding del tocco lungo sul tastino si sono già visti.
      *
      * ⚠️⚠️ **Il valore di partenza è `true`, cioè 'già visto', e al contrario di quanto
      * sembra è la scelta prudente**: il valore vero arriva dall'archivio un attimo DOPO la
@@ -264,8 +264,11 @@ fun GridScreen(
      * da `true` il caso peggiore è che compaia un fotogramma più tardi, e nessuno se ne
      * accorge.
      */
-    val hintSeen by produceState(initialValue = true, context) {
-        PickHint.flow(context).collect { value = it }
+    val pickSeen by produceState(initialValue = true, context) {
+        Hint.PICK_ALL.flow(context).collect { value = it }
+    }
+    val binSeen by produceState(initialValue = true, context) {
+        Hint.BIN_EMPTY.flow(context).collect { value = it }
     }
 
     /**
@@ -281,17 +284,72 @@ fun GridScreen(
     }
 
     /**
-     * ⚠️ La bandierina locale esiste perché l'archivio risponde con un giro di ritardo:
+     * ⚠️⚠️ **IL TOCCO LUNGO È LA SCORCIATOIA DI QUELLO CHE IL TOCCO BREVE OFFRE**, ed è la
+     * regola che decide questo `if` (richiesta dell'utente, 2026-08-31: *solo nel cestino,
+     * il tocco lungo lo svuota*). Nel cestino **senza niente di scelto** il tocco breve apre
+     * un menu con una voce sola, 'Svuota il cestino': la scorciatoia è quella. Appena c'è
+     * una selezione, in cestino o in cartella, il tocco breve apre le sei operazioni e la
+     * scorciatoia torna a essere 'tutte'.
+     * ⚠️ **Il cestino non si svuota MAI con una selezione in corso**, e non è timidezza: chi
+     * ha scelto tre foto da ripristinare si aspetta che il gesto agisca su quelle tre, e
+     * cancellare invece tutto il cestino sarebbe la sorpresa peggiore che l'app possa fare.
+     * La conferma lo fermerebbe comunque, ma un dialogo che chiede una cosa che non hai
+     * chiesto è già un difetto.
+     * ⚠️ Lo svuotamento **non** si esegue qui: accende il dialogo, che è l'unico posto in
+     * cui quel comando esiste (vedi `emptying`).
+     */
+    val shortcut: () -> Unit = if (bin && !picking) {
+        {
+            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+            emptying = true
+        }
+    } else takeAll
+
+    /**
+     * Come TalkBack chiama il tocco lungo, che deve dire la stessa cosa che [shortcut] fa.
+     *
+     * ⚠️ Senza questa, chi usa il lettore di schermo si sentirebbe annunciare 'seleziona
+     * tutte' su un gesto che svuota il cestino: la scorciatoia esisterebbe solo per chi vede
+     * il velo, e per gli altri sarebbe una trappola.
+     */
+    val shortcutLabel = if (bin && !picking) R.string.bin_empty else R.string.pick_all
+
+    /**
+     * ⚠️ Le bandierine locali esistono perché l'archivio risponde con un giro di ritardo:
      * scrivere in DataStore e aspettare che il flusso riemetta vuol dire un fotogramma o
      * due col velo ancora steso, e nel caso peggiore col menu che si apre **sotto** di
-     * lui. Questa lo toglie sull'istante; la scrittura serve alle sessioni dopo.
+     * lui. Queste lo tolgono sull'istante; la scrittura serve alle sessioni dopo.
      */
-    var hintOff by remember { mutableStateOf(false) }
+    var pickOff by remember { mutableStateOf(false) }
+    var binOff by remember { mutableStateOf(false) }
 
-    /** Il velo si archivia appena l'utente fa la cosa che insegnava, o appena la salta. */
+    /**
+     * Quale dei due veli è steso adesso, o nessuno.
+     *
+     * ⚠️ La selezione viene **prima** apposta: nel cestino con una selezione in corso il
+     * gesto utile è 'tutte', quindi è quello che va insegnato, e il velo del cestino ha già
+     * avuto la sua occasione all'apertura.
+     */
+    val hint: Hint? = when {
+        picking && !pickSeen && !pickOff -> Hint.PICK_ALL
+        bin && !binSeen && !binOff -> Hint.BIN_EMPTY
+        else -> null
+    }
+
+    /**
+     * Il velo si archivia appena l'utente fa la cosa che insegnava, o appena la salta.
+     *
+     * ⚠️ Col ramo `null` che non fa niente, e non è ridondanza: questa funzione la chiama
+     * anche il tastino **vero**, dove un velo non c'è, e senza quel ramo un tocco lungo
+     * ordinario archivierebbe un promemoria mai mostrato.
+     */
     val hintDone: () -> Unit = {
-        hintOff = true
-        scope.launch { PickHint.remember(context) }
+        when (hint) {
+            Hint.PICK_ALL -> pickOff = true
+            Hint.BIN_EMPTY -> binOff = true
+            null -> Unit
+        }
+        hint?.let { seen -> scope.launch { seen.remember(context) } }
     }
 
     // Le due misure dello scorrimento ai bordi, in pixel: servono dentro un effetto, che
@@ -680,8 +738,9 @@ fun GridScreen(
                             container = MaterialTheme.colorScheme.primaryContainer,
                             ink = MaterialTheme.colorScheme.onPrimaryContainer,
                             lift = FAB_LIFT,
+                            longLabel = stringResource(shortcutLabel),
                             onOpen = { menuOpen = true },
-                            onAll = { takeAll(); hintDone() }
+                            onAll = { shortcut(); hintDone() }
                         )
                         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                             // ⚠️ Nel cestino senza niente scelto il tastino non porta le sei
@@ -767,10 +826,15 @@ fun GridScreen(
                 /*
                  * ⚠️⚠️ **IL MINI ONBOARDING DEL TOCCO LUNGO** (richiesta dell'utente: *un
                  * mini onboarding grafico, che oscura la schermata ed evidenzia in arancione
-                 * il FAB*). Serve perché 'Tutte' col tocco lungo è una scorciatoia che
-                 * **non si scopre da sola**: un tastino non dichiara i propri gesti, e
-                 * quello in testata continua a esistere proprio per chi non leggerà mai
-                 * questo velo.
+                 * il FAB*). Serve perché il tocco lungo è una scorciatoia che **non si
+                 * scopre da sola**: un tastino non dichiara i propri gesti, e il tastino in
+                 * testata continua a esistere proprio per chi non leggerà mai questo velo.
+                 * ⚠️⚠️ **I VELI SONO DUE perché le scorciatoie sono due** (vedi `shortcut`),
+                 * e ognuno ha il suo promemoria in archivio: quello della selezione compare
+                 * alla prima selezione, quello del cestino alla prima apertura del cestino.
+                 * Prima era uno solo, mostrato anche nel cestino, e prometteva di
+                 * selezionare 'tutte le immagini della cartella' a chi in una cartella non
+                 * era: il comportamento era giusto, la frase no.
                  * ⚠️⚠️ **La copia arancione FUNZIONA, non è un disegno**, ed è la
                  * differenza fra insegnare e raccontare: chi tiene premuto sul velo fa la
                  * cosa mentre gliela si spiega, invece di doverla richiudere e rifare. È
@@ -787,7 +851,7 @@ fun GridScreen(
                  * rientro tutta la schermata, che è la stessa ragione per cui il riquadro
                  * del tastino sta in questo `Box` e non più in alto.
                  */
-                if ((picking || bin) && !hintSeen && !hintOff) {
+                if (hint != null) {
                     Box(
                         modifier = Modifier
                             .matchParentSize()
@@ -808,7 +872,12 @@ fun GridScreen(
                             verticalArrangement = Arrangement.spacedBy(HINT_GAP)
                         ) {
                             Text(
-                                text = stringResource(R.string.pick_all_hint),
+                                text = stringResource(
+                                    when (hint) {
+                                        Hint.PICK_ALL -> R.string.pick_all_hint
+                                        Hint.BIN_EMPTY -> R.string.bin_empty_hint
+                                    }
+                                ),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = Color.White,
                                 textAlign = TextAlign.End,
@@ -820,8 +889,9 @@ fun GridScreen(
                                 // ⚠️ Nessuna ombra: sopra un velo non c'è niente da cui
                                 // staccarsi, e un'ombra su fondo scuro è solo sporco.
                                 lift = 0.dp,
+                                longLabel = stringResource(shortcutLabel),
                                 onOpen = { hintDone(); menuOpen = true },
-                                onAll = { takeAll(); hintDone() }
+                                onAll = { shortcut(); hintDone() }
                             )
                         }
                     }
@@ -1174,6 +1244,7 @@ private fun PickFab(
     container: Color,
     ink: Color,
     lift: Dp,
+    longLabel: String,
     onOpen: () -> Unit,
     onAll: () -> Unit
 ) {
@@ -1189,8 +1260,10 @@ private fun PickFab(
                 role = Role.Button,
                 // ⚠️ Il tocco lungo si DICHIARA a TalkBack, o resta una scorciatoia che
                 // esiste solo per chi vede il velo: l'etichetta la legge il lettore di
-                // schermo fra le azioni disponibili sul tastino.
-                onLongClickLabel = stringResource(R.string.pick_all),
+                // schermo fra le azioni disponibili sul tastino. ⚠️ Arriva da fuori perché
+                // il gesto fa due cose diverse (vedi `shortcut`), e un'etichetta fissa ne
+                // annuncerebbe una mentre succede l'altra.
+                onLongClickLabel = longLabel,
                 onLongClick = onAll,
                 onClick = onOpen
             ),
