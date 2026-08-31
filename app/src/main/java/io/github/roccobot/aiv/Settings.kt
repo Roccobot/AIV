@@ -197,6 +197,17 @@ data class Settings(
     /** Quante colonne ha la griglia delle cartelle. Vedi [FOLDER_COLUMNS]. */
     val folderColumns: Int = 2,
     /**
+     * Se sotto la copertina di una cartella si vede il conto delle immagini.
+     *
+     * ⚠️⚠️ **SPEGNENDOLA la riga di griglia si ACCORCIA, e il frontespizio cresce di
+     * altrettanto**: non resta uno spazio vuoto al suo posto. È la lettura di 'opzionale'
+     * che dà qualcosa in cambio, e tiene esatto il conto delle righe visibili
+     * (`coverHeader`), che è quello che l'utente ha chiesto al punto 1a.
+     * ⚠️ **Accesa di serie**: è un dato che si guarda, e togliere qualcosa a chi non l'ha
+     * chiesto è il modo di far cercare un'impostazione che non si sa di avere.
+     */
+    val folderCount: Boolean = true,
+    /**
      * I percorsi delle cartelle che non devono comparire fra quelle da sfogliare.
      *
      * ⚠️⚠️ **PERCORSI E NON IDENTIFICATIVI, ed è la scelta che regge la funzione**
@@ -266,6 +277,7 @@ object SettingsStore {
     private val CLIPBOARD_START = booleanPreferencesKey("clipboard-start")
     private val UI_THEME = stringPreferencesKey("ui-theme")
     private val FOLDER_COLUMNS_KEY = intPreferencesKey("folder-columns")
+    private val FOLDER_COUNT = booleanPreferencesKey("folder-count")
     private val HIDDEN_FOLDERS = stringSetPreferencesKey("hidden-folders")
 
     // ⚠️ Due chiavi e non una, perché sono due domande: in che ordine stanno i campi, e
@@ -298,6 +310,7 @@ object SettingsStore {
             // nell'archivio (una versione futura, un file modificato a mano) darebbe una
             // griglia a zero colonne, cioè una schermata vuota senza nessun errore.
             folderColumns = p[FOLDER_COLUMNS_KEY]?.takeIf { it in FOLDER_COLUMNS } ?: 2,
+            folderCount = p[FOLDER_COUNT] ?: true,
             hiddenFolders = p[HIDDEN_FOLDERS] ?: emptySet(),
             factOrder = factOrderOf((p[FACT_ORDER] ?: "").split(',')),
             // ⚠️ I campi sempre visibili si tolgono **in lettura**: un archivio che li
@@ -330,6 +343,7 @@ object SettingsStore {
             p[CLIPBOARD_START] = settings.clipboardStart
             p[UI_THEME] = settings.uiTheme.token
             p[FOLDER_COLUMNS_KEY] = settings.folderColumns
+            p[FOLDER_COUNT] = settings.folderCount
             p[HIDDEN_FOLDERS] = settings.hiddenFolders
             p[FACT_ORDER] = settings.factOrder.joinToString(",") { it.token }
             p[FACT_OFF] = settings.factOff.filterNot { it.always }.map { it.token }.toSet()

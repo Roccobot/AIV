@@ -15,7 +15,6 @@
     <string name="menu_copy_image">Copier dans le presse-papiers</string>
     <string name="menu_share">Partager</string>
     <string name="menu_save">Enregistrer</string>
-    <string name="menu_details">Détails</string>
     <string name="toast_image_copied">Image copiée</string>
     <string name="toast_copy_failed">La copie n\'a pas abouti</string>
     <string name="toast_saved">Enregistrée</string>
@@ -43,6 +42,8 @@
     <string name="settings_dark">Sombre</string>
     <string name="settings_folder_columns">Colonnes dans la grille des dossiers</string>
     <string name="settings_folder_columns_desc">Plus de colonnes font tenir plus de dossiers à l\'écran et rétrécissent chaque vignette. À quatre, le nom en dessous est souvent tronqué.</string>
+    <string name="settings_folder_count">Nombre d\'images sous les dossiers</string>
+    <string name="settings_folder_count_desc">Sous chaque couverture, combien d\'images contient le dossier. En le désactivant, la ligne raccourcit et l\'en-tête grandit d\'autant.</string>
     <string name="settings_fit_grow">Agrandir les petites images</string>
     <string name="settings_fit_grow_desc">Désactivé, une image plus petite que l\'écran s\'affiche à sa taille réelle. Activé, elle grandit pour remplir la vue.</string>
     <string name="settings_zoom_max">Zoom maximal</string>
@@ -50,10 +51,10 @@
     <string name="settings_scale_physical">Un pixel du fichier par pixel d\'écran</string>
     <string name="settings_scale_logical">Un pixel du fichier par pixel de mise en page</string>
     <string name="settings_scale_desc">Un écran de téléphone met deux ou trois pixels réels dans un pixel de mise en page, donc les deux réponses sont très éloignées : la première montre le fichier tel qu\'il est, la seconde à la taille qu\'aurait une page web.</string>
-    <string name="settings_info_position">Panneau des détails</string>
+    <string name="details_bar">Barre des détails</string>
     <string name="settings_top">En haut</string>
     <string name="settings_bottom">En bas</string>
-    <string name="settings_info_visible">Panneau visible au départ</string>
+    <string name="settings_info_visible">Barre visible au départ</string>
     <string name="settings_reverse_order">Inverser le sens de la séquence (par date)</string>
     <string name="settings_reverse_order_desc">Désactivé, vous parcourez de l\'image la plus récente vers les plus anciennes, comme dans une galerie de téléphone. Activé, dans l\'ordre chronologique, de la plus ancienne à la plus récente.</string>
     <string name="settings_clipboard">Lire le presse-papiers au démarrage</string>

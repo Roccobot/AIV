@@ -15,7 +15,6 @@
     <string name="menu_copy_image">클립보드에 복사</string>
     <string name="menu_share">공유</string>
     <string name="menu_save">저장</string>
-    <string name="menu_details">상세 정보</string>
     <string name="toast_image_copied">이미지를 복사했습니다</string>
     <string name="toast_copy_failed">복사하지 못했습니다</string>
     <string name="toast_saved">저장했습니다</string>
@@ -43,6 +42,8 @@
     <string name="settings_dark">어둡게</string>
     <string name="settings_folder_columns">폴더 격자의 열 수</string>
     <string name="settings_folder_columns_desc">열이 많을수록 화면에 폴더가 더 많이 들어가고 표지는 작아집니다. 네 열에서는 아래의 이름이 대개 잘립니다.</string>
+    <string name="settings_folder_count">폴더 아래에 이미지 개수</string>
+    <string name="settings_folder_count_desc">각 표지 아래에 폴더가 담고 있는 이미지 개수를 보여줍니다. 끄면 행이 짧아지고 그만큼 위쪽 머리글이 커집니다.</string>
     <string name="settings_fit_grow">작은 이미지 확대</string>
     <string name="settings_fit_grow_desc">끄면 화면보다 작은 이미지는 실제 크기로 보입니다. 켜면 화면을 채울 때까지 커집니다.</string>
     <string name="settings_zoom_max">최대 확대</string>
@@ -50,7 +51,7 @@
     <string name="settings_scale_physical">파일의 1픽셀을 화면의 1픽셀로</string>
     <string name="settings_scale_logical">파일의 1픽셀을 레이아웃의 1픽셀로</string>
     <string name="settings_scale_desc">휴대전화 화면은 레이아웃 1픽셀에 실제 픽셀 두세 개를 넣기 때문에 두 답은 크게 다릅니다. 앞의 것은 파일 그대로의 크기, 뒤의 것은 웹 페이지에서 보이는 크기입니다.</string>
-    <string name="settings_info_position">상세 정보 줄</string>
+    <string name="details_bar">상세 정보 줄</string>
     <string name="settings_top">위쪽</string>
     <string name="settings_bottom">아래쪽</string>
     <string name="settings_info_visible">처음부터 상세 정보 표시</string>

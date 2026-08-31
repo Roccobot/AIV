@@ -15,7 +15,6 @@
     <string name="menu_copy_image">クリップボードにコピー</string>
     <string name="menu_share">共有</string>
     <string name="menu_save">保存</string>
-    <string name="menu_details">詳細</string>
     <string name="toast_image_copied">画像をコピーしました</string>
     <string name="toast_copy_failed">コピーできませんでした</string>
     <string name="toast_saved">保存しました</string>
@@ -43,6 +42,8 @@
     <string name="settings_dark">暗い</string>
     <string name="settings_folder_columns">フォルダ一覧の列数</string>
     <string name="settings_folder_columns_desc">列を増やすと画面に入るフォルダは増え、表紙は小さくなります。4列では下の名前はたいてい切れます。</string>
+    <string name="settings_folder_count">フォルダーの下に画像の枚数</string>
+    <string name="settings_folder_count_desc">各カバーの下に、フォルダー内の画像の枚数を表示します。オフにすると行が短くなり、その分だけ上部の見出しが広がります。</string>
     <string name="settings_fit_grow">小さい画像を拡大する</string>
     <string name="settings_fit_grow_desc">オフなら画面より小さい画像は実寸で表示します。オンなら画面いっぱいまで拡大します。</string>
     <string name="settings_zoom_max">最大倍率</string>
@@ -50,7 +51,7 @@
     <string name="settings_scale_physical">ファイルの1ピクセルを画面の1ピクセルに</string>
     <string name="settings_scale_logical">ファイルの1ピクセルをレイアウトの1ピクセルに</string>
     <string name="settings_scale_desc">スマートフォンの画面はレイアウト1ピクセルに実ピクセルを2つか3つ詰めているので、2つの答えは大きく違います。前者はファイルそのままの大きさ、後者はウェブページで見える大きさです。</string>
-    <string name="settings_info_position">詳細バー</string>
+    <string name="details_bar">詳細バー</string>
     <string name="settings_top">上</string>
     <string name="settings_bottom">下</string>
     <string name="settings_info_visible">最初から詳細バーを表示</string>

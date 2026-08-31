@@ -8,7 +8,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -36,6 +38,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DriveFileMove
 import androidx.compose.material.icons.filled.ContentCopy
@@ -43,14 +47,23 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.CopyAll
+import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.FitScreen
+import androidx.compose.material.icons.outlined.FolderCopy
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.PhotoSizeSelectActual
+import androidx.compose.material.icons.outlined.Subtitles
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -91,6 +104,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import coil3.SingletonImageLoader
 import coil3.compose.AsyncImagePainter
 import coil3.compose.asPainter
@@ -1010,7 +1025,7 @@ private fun ImageCanvas(
         LaunchedEffect(oneToOne) {
             snapshotFlow { scale }.collect { info.percent = it / oneToOne }
         }
-        var menuAt by remember(image) { mutableStateOf<Offset?>(null) }
+        var menuOpen by remember(image) { mutableStateOf(false) }
         val scope = rememberCoroutineScope()
         val context = LocalContext.current
 
@@ -1350,7 +1365,7 @@ private fun ImageCanvas(
                 }
                 .pointerInput(image, settings) {
                     detectViewerGestures(
-                        onLongPress = { menuAt = it },
+                        onLongPress = { menuOpen = true },
                         onDoubleTap = {
                             // Two states only, as on the desktop viewer: whole, or
                             // one pixel of the file per pixel of the screen.
@@ -1363,24 +1378,27 @@ private fun ImageCanvas(
                 }
         )
 
-        menuAt?.let { at ->
-            // The menu is anchored where the finger was, like the right click menu
-            // it comes from. An empty Box at that point is the anchor: a
-            // DropdownMenu positions itself against its parent, and it flips on its
-            // own when there is no room below.
-            Box(modifier = Modifier.offset { IntOffset(at.x.roundToInt(), at.y.roundToInt()) }) {
-                ImageMenu(
-                    image = image,
-                    source = source,
-                    onDismiss = { menuAt = null },
-                    onZoom = { animateTo(it) },
-                    oneToOne = oneToOne,
-                    restScale = restScale,
-                    onToggleDetails = { info.visible = !info.visible },
-                    ops = ops,
-                    inBin = inBin
-                )
-            }
+        /*
+         * ⚠️⚠️ **NON C'È PIÙ NESSUN ANCORAGGIO, dalla 0.69** (richiesta dell'utente: *fai
+         * apparire il menu sempre al centro dello schermo*). Prima qui stava un `Box` vuoto
+         * spostato sul punto premuto, che faceva da ancora a un `DropdownMenu`; adesso il
+         * menu si posiziona da sé sulla finestra, quindi non serve un'ancora e **non serve
+         * sapere dove era il dito**: è la ragione per cui la posizione del tocco non si
+         * conserva più.
+         */
+        if (menuOpen) {
+            ImageMenu(
+                image = image,
+                source = source,
+                onDismiss = { menuOpen = false },
+                onZoom = { animateTo(it) },
+                oneToOne = oneToOne,
+                restScale = restScale,
+                detailsOn = info.visible,
+                onToggleDetails = { info.visible = !info.visible },
+                ops = ops,
+                inBin = inBin
+            )
         }
 
     }
@@ -1648,119 +1666,242 @@ private fun ImageMenu(
     onZoom: (Float) -> Unit,
     oneToOne: Float,
     restScale: Float,
+    /** Se la barra dei dettagli è accesa adesso: l'interruttore deve mostrare il suo stato. */
+    detailsOn: Boolean,
     onToggleDetails: () -> Unit,
     ops: MenuOps,
     inBin: Boolean
 ) {
     val context = LocalContext.current
 
-    DropdownMenu(expanded = true, onDismissRequest = onDismiss) {
-        // ⚠️ Gli appunti sono l'unica cosa che il menu fa da sé, e può: è una chiamata che
-        // non sospende e finisce prima che il menu si chiuda. Tutto il resto passa da
-        // [MenuOps], e là sta scritto perché.
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.menu_copy_image)) },
-            onClick = {
-                onDismiss()
-                Toast.makeText(
-                    context,
-                    if (ImageActions.copyImage(context, image)) R.string.toast_image_copied
-                    else R.string.toast_copy_failed,
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+    /*
+     * ⚠️ L'animazione parte al primo giro di composizione, e serve una bandierina perché
+     * `animateFloatAsState` anima un CAMBIAMENTO: partendo già a 1 non ci sarebbe niente da
+     * animare, e il menu comparirebbe di scatto come prima.
+     */
+    var grown by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { grown = true }
+    val show by animateFloatAsState(
+        targetValue = if (grown) 1f else 0f,
+        animationSpec = tween(durationMillis = MENU_IN, easing = MENU_EASE),
+        label = "menu"
+    )
+
+    /*
+     * ⚠️⚠️ **`Popup` E NON `DropdownMenu`, ed è quello che permette il centro**: un
+     * `DropdownMenu` si posiziona **contro il proprio genitore** e non accetta un
+     * posizionatore, quindi con lui 'sempre al centro dello schermo' non si può scrivere. Il
+     * `Popup` prende un allineamento sulla finestra, che è esattamente la richiesta.
+     * ⚠️ **Le voci restano `DropdownMenuItem`**: sono composabili come gli altri, quindi si
+     * usano dentro la nostra superficie e la resa Material (altezze, margini, corpi, icone
+     * ai lati) non si perde. Quello che si scrive a mano è **solo** la superficie e dove
+     * sta.
+     */
+    Popup(
+        alignment = Alignment.Center,
+        onDismissRequest = onDismiss,
+        properties = PopupProperties(
+            focusable = true,
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true
         )
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.menu_save)) },
-            onClick = { onDismiss(); ops.save(image) }
-        )
-
-        HorizontalDivider()
-
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.fit_label)) },
-            onClick = { onDismiss(); onZoom(restScale) }
-        )
-        DropdownMenuItem(
-            text = { Text("100%") },
-            onClick = { onDismiss(); onZoom(oneToOne) }
-        )
-
-        HorizontalDivider()
-
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.menu_details)) },
-            onClick = { onDismiss(); onToggleDetails() }
-        )
-
-        HorizontalDivider()
-
-        /*
-         * ⚠️⚠️ **SENZA INDIRIZZO NON C'È NIENTE DA FARE, e il riquadro non compare**: le sei
-         * operazioni agiscono su un **file**, e una fotografia arrivata da una chat o dal
-         * web non ne ha uno che questa app possa spostare. Mostrare sei tasti che
-         * risponderebbero 'non riuscito' sarebbe peggio di non mostrarli.
-         * ⚠️ **La condivisione sta nel riquadro ma NON passa dai file**: chiama la stessa
-         * `ImageActions.share` della voce di testo che ha sostituito, cioè condivide
-         * l'immagine caricata. È l'unica delle sei che funziona anche quando il file non si
-         * può toccare, e per questo è la ragione per cui il riquadro resterebbe utile anche
-         * senza indirizzo: il baratto è dichiarato e la scelta è tenerlo semplice.
-         */
-        source?.let { uri ->
-            val one = listOf(uri)
-            ActionPad(
-                actions = listOf(
-                    PadAction(Icons.Default.ContentCopy, R.string.menu_copy_here) {
+    ) {
+        Surface(
+            /*
+             * ⚠️⚠️ **CRESCE DA 0,96 E NON DA ZERO, in 170ms** (scelta dell'utente sul
+             * mockup). Prima sbucava **dal punto premuto** con una scala da 0,72: un menu che
+             * si gonfia da un angolo dello schermo tira l'occhio dove il dito era già, e
+             * l'utente ha chiesto una cosa sobria. Da 0,96 il movimento si sente e non si
+             * guarda.
+             * ⚠️ L'origine è il **centro** perché il menu adesso sta al centro: con
+             * l'origine di serie (anch'essa il centro) e una posizione ancorata al dito, la
+             * scala sembrava venire dal posto sbagliato.
+             */
+            modifier = Modifier.graphicsLayer {
+                alpha = show
+                val k = MENU_SMALL + (1f - MENU_SMALL) * show
+                scaleX = k
+                scaleY = k
+            },
+            shape = RoundedCornerShape(MENU_CORNER),
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            shadowElevation = MENU_LIFT
+        ) {
+            Column(modifier = Modifier.width(MENU_WIDTH).padding(vertical = MENU_EDGE)) {
+                /*
+                 * ⚠️⚠️ **OGNI VOCE HA LA SUA ICONA, dalla 0.69** (scelta dell'utente sul
+                 * mockup), e la conseguenza che vale più dell'aspetto: **l'allineamento dei
+                 * testi si risolve da sé**. Con icone su alcune voci e non su altre, i testi
+                 * cominciavano in due posti diversi e allinearli voleva dire un rientro
+                 * scritto a mano, cioè un numero da tenere d'accordo con Material.
+                 * ⚠️⚠️ **Due collisioni sono state sciolte, e le icone le hanno rese
+                 * visibili mentre le parole le nascondevano**: 'Copia negli appunti' e
+                 * 'Copia' avrebbero avuto la stessa icona, e così 'Barra dei dettagli' e
+                 * 'Info'. Gli appunti prendono `ContentCopy`, la cartella `FolderCopy`, e la
+                 * barra `Subtitles`, che è una striscia di testo su un fotogramma, cioè
+                 * quello che la barra è.
+                 * ⚠️ Gli appunti sono l'unica cosa che il menu fa da sé, e può: è una
+                 * chiamata che non sospende e finisce prima che il menu si chiuda. Tutto il
+                 * resto passa da [MenuOps], e là sta scritto perché.
+                 */
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.menu_copy_image)) },
+                    leadingIcon = { Icon(Icons.Outlined.ContentCopy, null) },
+                    onClick = {
                         onDismiss()
-                        ops.job(FileJob.Transfer(one, move = false))
-                    },
-                    PadAction(Icons.AutoMirrored.Filled.DriveFileMove, R.string.pick_move) {
-                        onDismiss()
-                        ops.job(FileJob.Transfer(one, move = true))
-                    },
-                    PadAction(Icons.Default.Delete, R.string.pick_delete, danger = true) {
-                        onDismiss()
-                        ops.job(FileJob.Delete(one, forGood = inBin))
-                    },
-                    // ⚠️ Stesso posto nel riquadro per due azioni che si escludono: nel
-                    // cestino si ripristina, fuori si rinomina. Le sei icone non ballano.
-                    if (inBin) {
-                        PadAction(Icons.Default.SettingsBackupRestore, R.string.bin_restore) {
-                            onDismiss()
-                            ops.job(FileJob.Restore(one))
-                        }
-                    } else {
-                        PadAction(Icons.Default.Edit, R.string.pick_rename) {
-                            onDismiss()
-                            ops.job(FileJob.Rename(one))
-                        }
-                    },
-                    PadAction(Icons.Default.Share, R.string.menu_share) {
-                        onDismiss()
-                        ops.share(image)
-                    },
-                    PadAction(Icons.Outlined.Info, R.string.pick_info) {
-                        onDismiss()
-                        ops.job(FileJob.Facts(one))
+                        Toast.makeText(
+                            context,
+                            if (ImageActions.copyImage(context, image)) R.string.toast_image_copied
+                            else R.string.toast_copy_failed,
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 )
-            )
+                /*
+                 * ⚠️⚠️ **'Scarica' NON COMPARE SU UN FILE LOCALE** (richiesta dell'utente):
+                 * là scaricherebbe nella galleria una fotografia che nella galleria c'è già,
+                 * cioè farebbe un doppione senza dirlo.
+                 * ⚠️ **Il test è lo SCHEMA dell'indirizzo** e non l'assenza di indirizzo: un
+                 * `content://` o un `file://` vengono dal telefono, tutto il resto dal web.
+                 * Senza indirizzo (`null`) la voce resta, perché quello che si sta guardando
+                 * non è un file di questo telefono e salvarlo ha senso.
+                 */
+                val scheme = source?.scheme?.lowercase()
+                if (scheme != "content" && scheme != "file") {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.menu_save)) },
+                        leadingIcon = { Icon(Icons.Outlined.Download, null) },
+                        onClick = { onDismiss(); ops.save(image) }
+                    )
+                }
+
+                HorizontalDivider()
+
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.fit_label)) },
+                    leadingIcon = { Icon(Icons.Outlined.FitScreen, null) },
+                    onClick = { onDismiss(); onZoom(restScale) }
+                )
+                DropdownMenuItem(
+                    text = { Text("100%") },
+                    leadingIcon = { Icon(Icons.Outlined.PhotoSizeSelectActual, null) },
+                    onClick = { onDismiss(); onZoom(oneToOne) }
+                )
+
+                HorizontalDivider()
+
+                /*
+                 * ⚠️⚠️ **UN TASTONE ON/OFF CHE MOSTRA IL SUO STATO** (richiesta dell'utente):
+                 * prima era una voce che diceva 'Dettagli' e non diceva se la barra era
+                 * accesa, quindi toccarla era una scommessa. L'interruttore la vince prima di
+                 * toccarla.
+                 * ⚠️⚠️ **E SI CHIAMA COME NELLE IMPOSTAZIONI, con la STESSA stringa**
+                 * (`details_bar`, richiesta dell'utente: *deve chiamarsi così sia in questo
+                 * menu che nelle impostazioni*). Due stringhe uguali si sarebbero separate al
+                 * primo ritocco di una delle due: una stringa sola non può.
+                 * ⚠️ L'interruttore NON ha un suo `onCheckedChange`: il tocco lo prende la
+                 * voce intera, che è un bersaglio da 48dp invece di uno da 32, e un
+                 * interruttore che si può toccare per conto suo dentro una voce toccabile dà
+                 * due bersagli per un solo effetto.
+                 */
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.details_bar)) },
+                    leadingIcon = { Icon(Icons.Outlined.Subtitles, null) },
+                    trailingIcon = { Switch(checked = detailsOn, onCheckedChange = null) },
+                    onClick = { onDismiss(); onToggleDetails() }
+                )
+
+                HorizontalDivider()
+
+                /*
+                 * ⚠️⚠️ **SENZA INDIRIZZO NON C'È NIENTE DA FARE, e il riquadro non compare**:
+                 * le sei operazioni agiscono su un **file**, e una fotografia arrivata da una
+                 * chat o dal web non ne ha uno che questa app possa spostare. Mostrare sei
+                 * tasti che risponderebbero 'non riuscito' sarebbe peggio di non mostrarli.
+                 * ⚠️ **La condivisione sta nel riquadro ma NON passa dai file**: chiama la
+                 * stessa `ImageActions.share` della voce di testo che ha sostituito, cioè
+                 * condivide l'immagine caricata. È l'unica delle sei che funziona anche
+                 * quando il file non si può toccare, e il baratto è dichiarato: la scelta è
+                 * tenerlo semplice.
+                 */
+                source?.let { uri ->
+                    val one = listOf(uri)
+                    ActionPad(
+                        actions = listOf(
+                            PadAction(Icons.Outlined.FolderCopy, R.string.menu_copy_here) {
+                                onDismiss()
+                                ops.job(FileJob.Transfer(one, move = false))
+                            },
+                            PadAction(Icons.Outlined.CopyAll, R.string.pick_move) {
+                                onDismiss()
+                                ops.job(FileJob.Transfer(one, move = true))
+                            },
+                            PadAction(Icons.Default.Delete, R.string.pick_delete, danger = true) {
+                                onDismiss()
+                                ops.job(FileJob.Delete(one, forGood = inBin))
+                            },
+                            // ⚠️ Stesso posto nel riquadro per due azioni che si escludono:
+                            // nel cestino si ripristina, fuori si rinomina. Le sei icone non
+                            // ballano.
+                            if (inBin) {
+                                PadAction(Icons.Default.SettingsBackupRestore, R.string.bin_restore) {
+                                    onDismiss()
+                                    ops.job(FileJob.Restore(one))
+                                }
+                            } else {
+                                PadAction(Glyphs.TextCursor, R.string.pick_rename) {
+                                    onDismiss()
+                                    ops.job(FileJob.Rename(one))
+                                }
+                            },
+                            PadAction(Icons.Default.Share, R.string.menu_share) {
+                                onDismiss()
+                                ops.share(image)
+                            },
+                            PadAction(Icons.Outlined.Info, R.string.pick_info) {
+                                onDismiss()
+                                ops.job(FileJob.Facts(one))
+                            }
+                        )
+                    )
+                }
+                // ⚠️⚠️ **QUI SOTTO C'ERANO LE IMPOSTAZIONI, e sono uscite nella 0.44**
+                // (istruzione dell'utente): erano arrivate nella 0.30 perché la loro rotella
+                // occupava un posto che serviva al contatore della cartella, e restavano
+                // l'unica via per raggiungerle da dentro una fotografia. Dalla 0.41 le porta
+                // il tastino della schermata delle cartelle, quindi questa voce era diventata
+                // la seconda porta di una stanza sola.
+                // ⚠️ LA RICERCA IMMAGINE NON C'È PIÙ, dalla 0.18, e non è una dimenticanza:
+                // l'utente l'ha spenta dopo averla provata sul telefono, perché non
+                // funzionava e faceva solo rumore in un menu tenuto corto apposta. Il codice
+                // sta nella storia git, al tag `v0.17`.
+            }
         }
-        // ⚠️⚠️ **QUI SOTTO C'ERANO LE IMPOSTAZIONI, e sono uscite nella 0.44** (istruzione
-        // dell'utente): erano arrivate nella 0.30 perché la loro rotella occupava un posto
-        // che serviva al contatore della cartella, e restavano l'unica via per
-        // raggiungerle da dentro una fotografia. Dalla 0.41 le porta il tastino della
-        // schermata delle cartelle, quindi questa voce era diventata la seconda porta di
-        // una stanza sola, in un menu tenuto corto apposta.
-        // ⚠️ LA RICERCA IMMAGINE NON C'È PIÙ, dalla 0.18, e non è una dimenticanza:
-        // l'utente l'ha spenta dopo averla provata sul telefono, perché non
-        // funzionava e faceva solo rumore in un menu tenuto corto apposta. Con
-        // lei sono usciti il suo motore fra le impostazioni, le tre risposte
-        // all'esito e la dichiarazione `queries` del manifest, che serviva solo a
-        // lei. Il codice sta nella storia git, al tag `v0.17`, e ci si torna se
-        // l'utente riporta il feedback che ha detto di voler raccogliere.
     }
 }
+
+/** Quanto è larga la tendina del tocco lungo: la misura del riquadro delle sei icone. */
+private val MENU_WIDTH = 252.dp
+
+/** Il raggio della tendina, e i margini sopra e sotto le voci. */
+private val MENU_CORNER = 8.dp
+private val MENU_EDGE = 8.dp
+
+/** L'ombra: al centro dello schermo, sopra una fotografia, è l'unica cosa che la stacca. */
+private val MENU_LIFT = 6.dp
+
+/**
+ * Da quanto piccola cresce la tendina, e in quanti millisecondi (scelta dell'utente).
+ *
+ * ⚠️ 0,96 e 170ms: prima era 0,72 in 220ms **dal punto premuto**. Il salto che si sentiva
+ * era la scala più della durata, ed è la ragione per cui è la scala il numero che è cambiato
+ * di più.
+ */
+private const val MENU_SMALL = 0.96f
+private const val MENU_IN = 170
+
+/** L'accelerazione di Material per una cosa che entra: parte deciso e si posa piano. */
+private val MENU_EASE = CubicBezierEasing(0.2f, 0f, 0f, 1f)
 
 /**
  * La riga dei dettagli, col contatore della cartella fisso al suo estremo destro.

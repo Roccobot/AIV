@@ -15,7 +15,6 @@
     <string name="menu_copy_image">Копіювати в буфер обміну</string>
     <string name="menu_share">Поділитися</string>
     <string name="menu_save">Зберегти</string>
-    <string name="menu_details">Подробиці</string>
     <string name="toast_image_copied">Зображення скопійовано</string>
     <string name="toast_copy_failed">Скопіювати не вдалося</string>
     <string name="toast_saved">Збережено</string>
@@ -43,6 +42,8 @@
     <string name="settings_dark">Темний</string>
     <string name="settings_folder_columns">Стовпці в сітці тек</string>
     <string name="settings_folder_columns_desc">Що більше стовпців, то більше тек вміщується на екрані і то менша кожна обкладинка. За чотирьох ім\'я під нею зазвичай обрізається.</string>
+    <string name="settings_folder_count">Кількість зображень під теками</string>
+    <string name="settings_folder_count_desc">Під кожною обкладинкою, скільки зображень у теці. Якщо вимкнути, рядок стає коротшим, а заголовок угорі виростає на стільки ж.</string>
     <string name="settings_fit_grow">Збільшувати малі зображення</string>
     <string name="settings_fit_grow_desc">Вимкнено: зображення, менше за екран, показується в справжньому розмірі. Увімкнено: воно росте, доки не заповнить екран.</string>
     <string name="settings_zoom_max">Найбільше збільшення</string>
@@ -50,7 +51,7 @@
     <string name="settings_scale_physical">Один піксель файлу на один піксель екрана</string>
     <string name="settings_scale_logical">Один піксель файлу на один піксель розмітки</string>
     <string name="settings_scale_desc">Екран телефона вміщує два чи три справжні пікселі в одному пікселі розмітки, тож дві відповіді дуже різні: перша показує файл таким, як він є, друга в розмірі, який дала б вебсторінка.</string>
-    <string name="settings_info_position">Рядок подробиць</string>
+    <string name="details_bar">Рядок подробиць</string>
     <string name="settings_top">Угорі</string>
     <string name="settings_bottom">Унизу</string>
     <string name="settings_info_visible">Показувати рядок одразу</string>

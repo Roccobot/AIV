@@ -15,7 +15,6 @@
     <string name="menu_copy_image">Copiar para a área de transferência</string>
     <string name="menu_share">Compartilhar</string>
     <string name="menu_save">Salvar</string>
-    <string name="menu_details">Detalhes</string>
     <string name="toast_image_copied">Imagem copiada</string>
     <string name="toast_copy_failed">A cópia não deu certo</string>
     <string name="toast_saved">Salva</string>
@@ -43,6 +42,8 @@
     <string name="settings_dark">Escuro</string>
     <string name="settings_folder_columns">Colunas na grade de pastas</string>
     <string name="settings_folder_columns_desc">Mais colunas cabem mais pastas na tela e encolhem cada capa. Com quatro, o nome embaixo costuma ficar cortado.</string>
+    <string name="settings_folder_count">Contagem de imagens sob as pastas</string>
+    <string name="settings_folder_count_desc">Sob cada capa, quantas imagens a pasta contém. Ao desligar, a linha fica mais curta e o cabeçalho cresce o mesmo tanto.</string>
     <string name="settings_fit_grow">Ampliar imagens pequenas</string>
     <string name="settings_fit_grow_desc">Desligado, uma imagem menor que a tela aparece no tamanho real. Ligado, ela cresce até preencher a vista.</string>
     <string name="settings_zoom_max">Zoom máximo</string>
@@ -50,10 +51,10 @@
     <string name="settings_scale_physical">Um pixel do arquivo por pixel da tela</string>
     <string name="settings_scale_logical">Um pixel do arquivo por pixel de layout</string>
     <string name="settings_scale_desc">A tela de um celular junta dois ou três pixels reais num pixel de layout, então as duas respostas ficam bem distantes: a primeira mostra o arquivo como ele é, a segunda no tamanho que teria numa página da web.</string>
-    <string name="settings_info_position">Painel de detalhes</string>
+    <string name="details_bar">Barra de detalhes</string>
     <string name="settings_top">No alto</string>
     <string name="settings_bottom">Embaixo</string>
-    <string name="settings_info_visible">Painel visível no início</string>
+    <string name="settings_info_visible">Barra visível no início</string>
     <string name="settings_reverse_order">Inverter o sentido da sequência (por data)</string>
     <string name="settings_reverse_order_desc">Desligado, você folheia da imagem mais recente para as mais antigas, como numa galeria de celular. Ligado, em ordem cronológica, da mais antiga para a mais recente.</string>
     <string name="settings_clipboard">Ler a área de transferência ao iniciar</string>

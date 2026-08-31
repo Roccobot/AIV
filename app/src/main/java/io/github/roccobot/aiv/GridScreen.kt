@@ -40,17 +40,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.DriveFileMove
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.CopyAll
+import androidx.compose.material.icons.outlined.FolderCopy
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
@@ -699,12 +699,21 @@ fun GridScreen(
                                 )
                             } else ActionPad(
                                 actions = listOf(
-                                    PadAction(Icons.Default.ContentCopy, R.string.menu_copy_here) {
+                                    // ⚠️⚠️ **LE TRE ICONE SONO CAMBIATE NELLA 0.69, e le
+                                    // stesse cambiano nel visualizzatore**: il riquadro è
+                                    // condiviso, e chi impara dove sta 'sposta' lo impara una
+                                    // volta. `FolderCopy` invece di `ContentCopy` perché
+                                    // questa copia il FILE in una cartella e non l'immagine
+                                    // negli appunti, e nel menu del visualizzatore le due
+                                    // convivono; `CopyAll` per Sposta è l'icona che l'utente
+                                    // ha scelto guardando Galleria FOSS; il cursore di testo
+                                    // per Rinomina è quello disegnato in [Glyphs].
+                                    PadAction(Icons.Outlined.FolderCopy, R.string.menu_copy_here) {
                                         menuOpen = false
                                         job = FileJob.Transfer(chosen.toList(), move = false)
                                     },
                                     PadAction(
-                                        Icons.AutoMirrored.Filled.DriveFileMove,
+                                        Icons.Outlined.CopyAll,
                                         R.string.pick_move
                                     ) {
                                         menuOpen = false
@@ -731,7 +740,7 @@ fun GridScreen(
                                             job = FileJob.Restore(chosen.toList())
                                         }
                                     } else {
-                                        PadAction(Icons.Default.Edit, R.string.pick_rename) {
+                                        PadAction(Glyphs.TextCursor, R.string.pick_rename) {
                                             menuOpen = false
                                             job = FileJob.Rename(chosen.toList())
                                         }

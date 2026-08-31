@@ -31,6 +31,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -65,6 +66,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -105,6 +108,14 @@ fun FolderScreen(
      * [coverHeader].
      */
     columns: Int,
+    /**
+     * Se sotto la copertina si vede il conto delle immagini. Vedi `Settings.folderCount`.
+     *
+     * ⚠️ **Entra nel conto dell'altezza di una riga**: spegnendolo la riga si accorcia e il
+     * frontespizio cresce di altrettanto, quindi il numero di righe visibili resta quello
+     * della tabella. Vedi [coverHeader].
+     */
+    counted: Boolean,
     /** I percorsi da non mostrare. Vedi `Settings.hiddenFolders`. */
     hidden: Set<String>,
     onHide: (Folder.Bucket) -> Unit,
@@ -165,15 +176,27 @@ fun FolderScreen(
         val measurer = rememberTextMeasurer()
         val nameStyle = MaterialTheme.typography.titleSmall
         val countStyle = MaterialTheme.typography.bodySmall
-        val captionPx = remember(measurer, nameStyle, countStyle) {
-            measurer.measure(CAPTION_SAMPLE, nameStyle, maxLines = 1).size.height +
-                measurer.measure(CAPTION_SAMPLE, countStyle, maxLines = 1).size.height
+        /*
+         * ⚠️⚠️ **IL CONTO SI SOMMA SOLO SE SI VEDE**, e senza questo `if` spegnere la
+         * dicitura lascerebbe un buco alto una riga di testo sotto ogni copertina.
+         * ⚠️⚠️ **E LA RIGA DEL CONTO È ALTA quanto il TESTO o quanto l'ICONA, il maggiore**:
+         * l'icona misura [COUNT_ICON] in dp, il testo `bodySmall` è alto 16sp, e i due si
+         * scavalcano perché **sp e dp non scalano insieme**. Con il corpo di sistema al
+         * minimo 16sp scende sotto i 15dp e a decidere l'altezza diventa l'icona: darla per
+         * vinta al testo vorrebbe dire sbagliare il conto delle righe proprio sui telefoni
+         * di chi rimpicciolisce i caratteri.
+         */
+        val captionPx = remember(measurer, nameStyle, countStyle, counted, density) {
+            val name = measurer.measure(CAPTION_SAMPLE, nameStyle, maxLines = 1).size.height
+            val count = measurer.measure(CAPTION_SAMPLE, countStyle, maxLines = 1).size.height
+            val icon = with(density) { COUNT_ICON.toPx() }
+            name + if (counted) maxOf(count, icon.toInt()) else 0
         }
 
         val headerMax = when {
             !home -> 0.dp
             view == FolderView.GRID ->
-                coverHeader(columns, maxWidth, maxHeight, captionPx, density)
+                coverHeader(columns, maxWidth, maxHeight, captionPx, counted, density)
             // ⚠️ L'elenco non ha colonne, quindi non ha niente da far quadrare: là resta la
             // frazione fissa, che è la regola di prima. Vedi [HEADER_SHARE].
             else -> maxHeight * HEADER_SHARE
@@ -288,7 +311,7 @@ fun FolderScreen(
                     modifier = Modifier.padding(top = 24.dp)
                 )
 
-                view == FolderView.GRID -> Covers(folders!!, columns, onPick) { hiding = it }
+                view == FolderView.GRID -> Covers(folders!!, columns, counted, onPick) { hiding = it }
                 else -> Rows(folders!!, onPick) { hiding = it }
             }
         }
@@ -386,17 +409,28 @@ private fun Folder.Bucket.isHidden(hidden: Set<String>): Boolean {
  * frontespizio in quel caso si misura ad altezza nulla e sparisce da sé, e chi scorre non
  * perde niente perché là non c'era niente da chiudere.
  *
- * ⚠️ **[HEADER_CAP] non è la regola, è il paletto**: su un telefono altissimo e strettissimo
- * il quadrato di copertine potrebbe lasciare libera più di metà schermo, e un frontespizio
- * più alto della metà rimetterebbe le cartelle fuori dalla portata del pollice, che è
- * esattamente il motivo per cui quello spazio esiste. Quando scatta si vedono **più** righe
- * del quadrato, mai meno: sbaglia dalla parte giusta.
+ * ⚠️⚠️ **QUI C'ERA UN TETTO AL 50% DELLO SCHERMO, ED ERA IL DIFETTO DELLA 0.68**
+ * (riscontro dell'utente: *a volte restano visibili sul bordo inferiore parti di cartelle
+ * che dovrebbero essere fuori dalla vista*). Il tetto rompeva l'identità su cui poggia tutto
+ * questo conto: il frontespizio deve prendere **esattamente** quello che la tabella gli
+ * lascia, o lo spazio che gli viene negato lo riceve la griglia, che lo riempie con un
+ * pezzo di riga in più. Misurato prima di toccare il codice, su uno schermo da 360dp: a 3
+ * colonne il tetto lasciava in vista **52dp** di una riga su 800dp d'altezza, **77** su 850
+ * e **112** su 920, e a 4 colonne **35** su 920. A 2 colonne, che è il valore di fabbrica,
+ * il conto tornava: è la ragione per cui il difetto si vedeva *a volte*.
+ * ⚠️ **La nota vecchia diceva che sbagliava 'dalla parte giusta'**, cioè mostrando più righe
+ * del previsto invece che meno. Era vero e non era il punto: l'utente non ha chiesto almeno
+ * N righe, ha chiesto N righe.
+ * ⚠️ Resta il solo `coerceAtLeast(0f)`, che serve **in orizzontale**: là il quadrato di
+ * copertine chiede più dello schermo, il frontespizio va a zero e la griglia scorre. Lì i
+ * pezzi di riga sono corretti, perché si sta scorrendo.
  */
 private fun coverHeader(
     columns: Int,
     width: Dp,
     height: Dp,
     captionPx: Int,
+    counted: Boolean,
     density: Density
 ): Dp = with(density) {
     val slots = columns.coerceAtLeast(1)
@@ -404,10 +438,12 @@ private fun coverHeader(
     val gapPx = FOLDER_GAP.toPx()
     val roomPx = (width - SCREEN_PAD * 2).toPx() - gapPx * (slots - 1)
     val cellPx = ceil(roomPx / slots).coerceAtLeast(0f)
-    val rowPx = cellPx + CARD_GAP.toPx() * 2 + captionPx
+    // ⚠️ I distacchi della scheda sono UNO IN MENO dei suoi figli: con il conto sono tre
+    // (copertina, nome, conto) e i distacchi due, senza il conto sono due e il distacco uno.
+    val rowPx = cellPx + CARD_GAP.toPx() * (if (counted) 2 else 1) + captionPx
     val gridPx = rowPx * lines + gapPx * (lines - 1)
     val freePx = (height - SCREEN_PAD * 2 - HEADER_GAP).toPx() - gridPx
-    freePx.coerceIn(0f, height.toPx() * HEADER_CAP).toDp()
+    freePx.coerceAtLeast(0f).toDp()
 }
 
 /**
@@ -608,6 +644,7 @@ private fun Hub(
 private fun Covers(
     folders: List<Folder.Bucket>,
     columns: Int,
+    counted: Boolean,
     onPick: (Folder.Bucket) -> Unit,
     onHide: (Folder.Bucket) -> Unit
 ) {
@@ -636,6 +673,7 @@ private fun Covers(
         ) { bucket ->
             FolderCard(
                 bucket = bucket,
+                counted = counted,
                 onClick = { onPick(bucket) },
                 onLongClick = { onHide(bucket) }
             )
@@ -722,6 +760,7 @@ private fun Rows(
 @Composable
 private fun FolderCard(
     bucket: Folder.Bucket,
+    counted: Boolean,
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
@@ -750,11 +789,47 @@ private fun FolderCard(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-        Text(
-            text = pluralStringResource(R.plurals.folders_count, bucket.count, bucket.count),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        /*
+         * ⚠️⚠️ **PRIMA L'ICONA, POI IL NUMERO, ed è la proposta B del mockup** (scelta
+         * dell'utente): l'icona è larga sempre uguale, quindi resta **incolonnata** sotto il
+         * nome in tutte le cartelle, e il numero cresce verso destra dove lo spazio è vuoto.
+         * Con l'ordine opposto sarebbe l'icona a spostarsi, di tante posizioni quante sono
+         * le cifre.
+         * ⚠️ **La parola 'immagini' non c'è più** (richiesta dell'utente): su quattro colonne
+         * si tagliava, e a schermo pieno erano dodici volte la stessa parola. Il plurale
+         * `folders_count` resta e serve alla **descrizione per TalkBack**, che di parole ha
+         * bisogno: là dentro 'x immagini' è l'informazione, non rumore.
+         * ⚠️⚠️ **`maxLines = 1` NON è pignoleria**: senza, una dicitura che va a capo rende
+         * la riga più alta di quanto [coverHeader] ha misurato, e in fondo alla schermata si
+         * vede il pezzo di riga che quel conto doveva tenere fuori. Era la seconda causa del
+         * difetto della `0.68`, insieme al tetto del frontespizio.
+         */
+        if (counted) {
+            val spoken =
+                pluralStringResource(R.plurals.folders_count, bucket.count, bucket.count)
+            Row(
+                // ⚠️⚠️ **`clearAndSetSemantics` E NON `semantics`**: il tocco della scheda
+                // fonde le semantiche dei figli, quindi aggiungere una descrizione
+                // lascerebbe **anche** il numero nudo, e TalkBack leggerebbe '1284 immagini
+                // 1284'. Qui si buttano le semantiche dei figli e si mette la frase.
+                modifier = Modifier.clearAndSetSemantics { contentDescription = spoken },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(COUNT_GAP)
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Image,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(COUNT_ICON)
+                )
+                Text(
+                    text = bucket.count.toString(),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1
+                )
+            }
+        }
     }
 }
 
@@ -839,11 +914,23 @@ private val ROW_COVER = 48.dp
  */
 private const val HEADER_SHARE = 0.4f
 
+// ⚠️ QUI VIVEVA `HEADER_CAP`, il tetto del frontespizio al 50% dello schermo, uscito nella
+// 0.69 perché ERA il difetto: vedi [coverHeader], dove sta la misura. Non si rimetta senza
+// aver letto quella nota, e senza rispondere alla domanda che il tetto lasciava aperta, cioè
+// chi si prende lo spazio che al frontespizio viene negato.
+
 /**
- * Il tetto del frontespizio in griglia, come frazione dello schermo. Vedi [coverHeader],
- * che spiega perché è un paletto e non la regola.
+ * Quanto è larga l'icona accanto al conto delle immagini.
+ *
+ * ⚠️ **15dp e non 16**: accanto a un corpo di 12sp (`bodySmall`) una da 16 pesa più del
+ * numero e diventa lei la voce principale, mentre qui il dato è il numero.
+ * ⚠️ Entra nel conto dell'altezza di una riga di griglia, perché a corpo di sistema piccolo
+ * è **lei** e non il testo a decidere quanto è alta la riga del conto. Vedi `captionPx`.
  */
-private const val HEADER_CAP = 0.5f
+private val COUNT_ICON = 15.dp
+
+/** Quanto sta l'icona dal numero: abbastanza da non toccarlo, non tanto da separarli. */
+private val COUNT_GAP = 4.dp
 
 /**
  * Il testo con cui si misura l'altezza di una riga di didascalia.

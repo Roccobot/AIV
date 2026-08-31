@@ -15,7 +15,6 @@
     <string name="menu_copy_image">Копировать в буфер обмена</string>
     <string name="menu_share">Поделиться</string>
     <string name="menu_save">Сохранить</string>
-    <string name="menu_details">Подробности</string>
     <string name="toast_image_copied">Изображение скопировано</string>
     <string name="toast_copy_failed">Скопировать не вышло</string>
     <string name="toast_saved">Сохранено</string>
@@ -43,6 +42,8 @@
     <string name="settings_dark">Тёмный</string>
     <string name="settings_folder_columns">Столбцы в сетке папок</string>
     <string name="settings_folder_columns_desc">Чем больше столбцов, тем больше папок помещается на экране и тем меньше каждая обложка. При четырёх имя под ней обычно обрезается.</string>
+    <string name="settings_folder_count">Число изображений под папками</string>
+    <string name="settings_folder_count_desc">Под каждой обложкой, сколько изображений в папке. При отключении строка становится короче, а заголовок вверху вырастает на столько же.</string>
     <string name="settings_fit_grow">Увеличивать маленькие изображения</string>
     <string name="settings_fit_grow_desc">Выключено: изображение меньше экрана показывается в натуральную величину. Включено: оно растёт, пока не заполнит экран.</string>
     <string name="settings_zoom_max">Наибольшее увеличение</string>
@@ -50,7 +51,7 @@
     <string name="settings_scale_physical">Один пиксель файла на один пиксель экрана</string>
     <string name="settings_scale_logical">Один пиксель файла на один пиксель разметки</string>
     <string name="settings_scale_desc">Экран телефона умещает два или три настоящих пикселя в одном пикселе разметки, поэтому два ответа сильно расходятся: первый показывает файл как он есть, второй - в том размере, в каком его показала бы веб-страница.</string>
-    <string name="settings_info_position">Строка подробностей</string>
+    <string name="details_bar">Строка подробностей</string>
     <string name="settings_top">Сверху</string>
     <string name="settings_bottom">Снизу</string>
     <string name="settings_info_visible">Показывать строку сразу</string>

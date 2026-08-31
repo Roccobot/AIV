@@ -15,7 +15,6 @@
     <string name="menu_copy_image">क्लिपबोर्ड पर कॉपी करें</string>
     <string name="menu_share">साझा करें</string>
     <string name="menu_save">सहेजें</string>
-    <string name="menu_details">विवरण</string>
     <string name="toast_image_copied">चित्र कॉपी हो गया</string>
     <string name="toast_copy_failed">कॉपी नहीं हो सका</string>
     <string name="toast_saved">सहेज लिया</string>
@@ -43,6 +42,8 @@
     <string name="settings_dark">गहरा</string>
     <string name="settings_folder_columns">फ़ोल्डर ग्रिड के स्तंभ</string>
     <string name="settings_folder_columns_desc">जितने अधिक स्तंभ, उतने अधिक फ़ोल्डर स्क्रीन पर आते हैं और हर आवरण उतना ही छोटा होता है। चार पर नीचे का नाम अक्सर कट जाता है।</string>
+    <string name="settings_folder_count">फ़ोल्डर के नीचे इमेज की संख्या</string>
+    <string name="settings_folder_count_desc">हर कवर के नीचे, फ़ोल्डर में कितनी इमेज हैं। बंद करने पर पंक्ति छोटी हो जाती है, और ऊपर का शीर्षक उतना ही बड़ा हो जाता है।</string>
     <string name="settings_fit_grow">छोटे चित्र बड़े करें</string>
     <string name="settings_fit_grow_desc">बंद हो तो स्क्रीन से छोटा चित्र अपने असली आकार में दिखता है। चालू हो तो वह स्क्रीन भरने तक बढ़ता है।</string>
     <string name="settings_zoom_max">अधिकतम ज़ूम</string>
@@ -50,7 +51,7 @@
     <string name="settings_scale_physical">फ़ाइल का एक पिक्सेल, स्क्रीन का एक पिक्सेल</string>
     <string name="settings_scale_logical">फ़ाइल का एक पिक्सेल, लेआउट का एक पिक्सेल</string>
     <string name="settings_scale_desc">फ़ोन की स्क्रीन एक लेआउट पिक्सेल में दो या तीन असली पिक्सेल भरती है, इसलिए दोनों उत्तर बहुत दूर हैं: पहला फ़ाइल को जैसा है वैसा दिखाता है, दूसरा उस आकार में जैसा वेब पन्ने पर दिखता।</string>
-    <string name="settings_info_position">विवरण पट्टी</string>
+    <string name="details_bar">विवरण पट्टी</string>
     <string name="settings_top">ऊपर</string>
     <string name="settings_bottom">नीचे</string>
     <string name="settings_info_visible">शुरू में पट्टी दिखे</string>
