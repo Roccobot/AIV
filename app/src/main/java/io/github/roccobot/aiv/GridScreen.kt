@@ -45,6 +45,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.Deselect
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Menu
@@ -53,13 +54,16 @@ import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
@@ -172,6 +176,9 @@ fun GridScreen(
      * quello di fabbrica dell'impostazione.
      */
     binOn: Boolean = true,
+    /** Che cosa il filtro volatile lascia vedere. Vedi `ViewerViewModel.gridFilter`. */
+    filter: MediaKind = MediaKind.ALL,
+    onFilter: (MediaKind) -> Unit = {},
     /**
      * Se le funzioni principali del pannello stanno a sinistra. Vedi `Settings.hand`.
      *
@@ -744,7 +751,7 @@ fun GridScreen(
             // ⚠️ Il peso sta FUORI dalla colonna del conto, non sotto: la richiesta dice
             // *in linea ma a destra, allineato al bordo destro*, e dentro la colonna
             // seguirebbe la larghezza del testo invece del bordo della barra.
-            if (picking) PickWeight(chosen)
+            if (picking) PickWeight(chosen) else FilterKey(filter, onFilter)
 
             /*
              * ⚠️⚠️ **QUI NON C'È PIÙ NIENTE, e la ragione per cui c'era è stata SOSTITUITA
@@ -1428,6 +1435,57 @@ private fun ClipBadge(uri: Uri, modifier: Modifier = Modifier) {
  * ⚠️ **`labelSmall` e non `bodySmall`**: sotto una fotografia il nome è un'etichetta, e a
  * 11sp due righe stanno sotto una miniatura da 108dp senza rubarle spazio.
  */
+/**
+ * Il tasto del filtro volatile, in testata a destra quando non si sta scegliendo.
+ *
+ * ⚠️⚠️ **STA DOVE STAVA 'SELEZIONA TUTTO'** (richiesta dell'utente, 2026-08-31), cioè in un
+ * posto che era rimasto vuoto nella `0.72`: l'angolo in alto a destra di una schermata di
+ * contenuti è dove ci si aspetta di trovare un modo di restringere quello che si vede.
+ * ⚠️ **L'icona cambia quando il filtro è acceso, e non è decorazione**: il filtro si azzera
+ * da sé cambiando cartella, ma dentro la stessa cartella resta, e senza un segno una
+ * cartella con metà delle cose nascoste sembra una cartella che ha perso metà delle cose.
+ * ⚠️ **Le tre voci vengono dall'enum e non da un elenco scritto a mano**: il giorno che i
+ * generi diventassero tre, la voce nuova comparirebbe da sé o il `when` non compilerebbe.
+ */
+@Composable
+private fun FilterKey(filter: MediaKind, onFilter: (MediaKind) -> Unit) {
+    var open by remember { mutableStateOf(false) }
+    Box {
+        IconButton(onClick = { open = true }) {
+            Icon(
+                imageVector = if (filter == MediaKind.ALL) Icons.Outlined.FilterList
+                else Icons.Default.FilterAlt,
+                contentDescription = stringResource(R.string.filter_title),
+                tint = if (filter == MediaKind.ALL) LocalContentColor.current
+                else MaterialTheme.colorScheme.primary
+            )
+        }
+        DropdownMenu(
+            expanded = open,
+            onDismissRequest = { open = false },
+            shape = RoundedCornerShape(PICK_CORNER)
+        ) {
+            for (kind in MediaKind.entries) {
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            stringResource(
+                                when (kind) {
+                                    MediaKind.ALL -> R.string.filter_all
+                                    MediaKind.IMAGES -> R.string.filter_images
+                                    MediaKind.VIDEOS -> R.string.filter_videos
+                                }
+                            )
+                        )
+                    },
+                    leadingIcon = { if (kind == filter) Icon(Icons.Default.Check, null) },
+                    onClick = { open = false; onFilter(kind) }
+                )
+            }
+        }
+    }
+}
+
 /**
  * Il peso totale di quello che si è scelto, in testata a destra.
  *

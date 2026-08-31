@@ -107,6 +107,10 @@
     <string name="pick_invert">عكس</string>
     <string name="pick_all_short">الكل</string>
     <string name="pick_none">لا شيء</string>
+    <string name="filter_title">مرشح</string>
+    <string name="filter_all">إظهار الكل</string>
+    <string name="filter_images">الصور فقط</string>
+    <string name="filter_videos">الفيديو فقط</string>
     <string name="pick_forever">حذف نهائي</string>
     <string name="pick_counting">جارٍ العد...</string>
     <plurals name="pick_count">

@@ -107,6 +107,10 @@
     <string name="pick_invert">الٹیں</string>
     <string name="pick_all_short">سب</string>
     <string name="pick_none">کوئی نہیں</string>
+    <string name="filter_title">فلٹر</string>
+    <string name="filter_all">سب دکھائیں</string>
+    <string name="filter_images">صرف تصاویر</string>
+    <string name="filter_videos">صرف ویڈیوز</string>
     <string name="pick_forever">مکمل حذف</string>
     <string name="pick_counting">گنتی جاری ہے...</string>
     <plurals name="pick_count">

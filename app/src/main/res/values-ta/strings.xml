@@ -107,6 +107,10 @@
     <string name="pick_invert">தலைகீழ்</string>
     <string name="pick_all_short">அனைத்தும்</string>
     <string name="pick_none">எதுவுமில்லை</string>
+    <string name="filter_title">வடிகட்டி</string>
+    <string name="filter_all">எல்லாம் காட்டு</string>
+    <string name="filter_images">படங்கள் மட்டும்</string>
+    <string name="filter_videos">காணொளிகள் மட்டும்</string>
     <string name="pick_forever">முற்றிலும் நீக்கு</string>
     <string name="pick_counting">எண்ணுகிறது...</string>
     <plurals name="pick_count">

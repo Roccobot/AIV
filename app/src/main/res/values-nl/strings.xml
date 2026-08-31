@@ -107,6 +107,10 @@
     <string name="pick_invert">Omkeren</string>
     <string name="pick_all_short">Alles</string>
     <string name="pick_none">Geen</string>
+    <string name="filter_title">Filter</string>
+    <string name="filter_all">Alles tonen</string>
+    <string name="filter_images">Alleen afbeeldingen</string>
+    <string name="filter_videos">Alleen video\'s</string>
     <string name="pick_forever">Definitief wissen</string>
     <string name="pick_counting">Aan het tellen...</string>
     <plurals name="pick_count">

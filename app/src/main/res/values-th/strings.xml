@@ -107,6 +107,10 @@
     <string name="pick_invert">สลับ</string>
     <string name="pick_all_short">ทั้งหมด</string>
     <string name="pick_none">ไม่เลือก</string>
+    <string name="filter_title">ตัวกรอง</string>
+    <string name="filter_all">แสดงทั้งหมด</string>
+    <string name="filter_images">เฉพาะภาพ</string>
+    <string name="filter_videos">เฉพาะวิดีโอ</string>
     <string name="pick_forever">ลบถาวร</string>
     <string name="pick_counting">กำลังนับ...</string>
     <plurals name="pick_count">

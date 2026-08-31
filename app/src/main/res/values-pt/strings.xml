@@ -107,6 +107,10 @@
     <string name="pick_invert">Inverter</string>
     <string name="pick_all_short">Tudo</string>
     <string name="pick_none">Nenhum</string>
+    <string name="filter_title">Filtro</string>
+    <string name="filter_all">Mostrar tudo</string>
+    <string name="filter_images">Só imagens</string>
+    <string name="filter_videos">Só vídeos</string>
     <string name="pick_forever">Excluir de vez</string>
     <string name="pick_counting">Contando...</string>
     <plurals name="pick_count">

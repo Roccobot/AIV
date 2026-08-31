@@ -260,6 +260,10 @@
     <string name="pick_invert">Invert</string>
     <string name="pick_all_short">All</string>
     <string name="pick_none">None</string>
+    <string name="filter_title">Filter</string>
+    <string name="filter_all">Show everything</string>
+    <string name="filter_images">Only pictures</string>
+    <string name="filter_videos">Only videos</string>
     <string name="pick_forever">Delete for good</string>
     <string name="pick_counting">Counting...</string>
     <plurals name="pick_count">

@@ -107,6 +107,10 @@
     <string name="pick_invert">Обернути</string>
     <string name="pick_all_short">Усе</string>
     <string name="pick_none">Нічого</string>
+    <string name="filter_title">Фільтр</string>
+    <string name="filter_all">Показувати все</string>
+    <string name="filter_images">Лише зображення</string>
+    <string name="filter_videos">Лише відео</string>
     <string name="pick_forever">Видалити назавжди</string>
     <string name="pick_counting">Триває підрахунок...</string>
     <plurals name="pick_count">

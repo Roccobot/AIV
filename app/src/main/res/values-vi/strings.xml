@@ -107,6 +107,10 @@
     <string name="pick_invert">Đảo</string>
     <string name="pick_all_short">Tất cả</string>
     <string name="pick_none">Không</string>
+    <string name="filter_title">Bộ lọc</string>
+    <string name="filter_all">Hiện tất cả</string>
+    <string name="filter_images">Chỉ ảnh</string>
+    <string name="filter_videos">Chỉ video</string>
     <string name="pick_forever">Xóa hẳn</string>
     <string name="pick_counting">Đang đếm...</string>
     <plurals name="pick_count">
