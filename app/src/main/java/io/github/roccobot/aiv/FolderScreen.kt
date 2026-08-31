@@ -56,6 +56,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -68,6 +70,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -174,7 +177,7 @@ fun FolderScreen(
         // dalle impostazioni di Android. Il misuratore usa i font veri e la densità vera,
         // che è la sola misura che questo repo accetta.
         val measurer = rememberTextMeasurer()
-        val nameStyle = MaterialTheme.typography.titleSmall
+        val nameStyle = folderNameStyle(columns)
         val countStyle = MaterialTheme.typography.bodySmall
         /*
          * ⚠️⚠️ **IL CONTO SI SOMMA SOLO SE SI VEDE**, e senza questo `if` spegnere la
@@ -187,7 +190,21 @@ fun FolderScreen(
          * di chi rimpicciolisce i caratteri.
          */
         val captionPx = remember(measurer, nameStyle, countStyle, counted, density) {
-            val name = measurer.measure(CAPTION_SAMPLE, nameStyle, maxLines = 1).size.height
+            /*
+             * ⚠️⚠️ **IL NOME SI MISURA AL CASO PEGGIORE, cioè a [NAME_LINES] righe, dalla
+             * 0.77**: da quando è ammesso un a capo, una riga di griglia è alta due righe di
+             * testo **se un nome va a capo**, e quale nome lo faccia dipende dalla cartella,
+             * dallo schermo e dal corpo di sistema. Misurando una riga sola, il primo nome
+             * lungo farebbe sforare la griglia e in fondo alla schermata ricomparirebbe il
+             * pezzo di riga che questo conto esiste per tenere fuori (il difetto della
+             * `0.68`).
+             * ⚠️ **Il prezzo è dichiarato**: quando nessun nome va a capo, la griglia finisce
+             * qualche decina di dp più in alto del previsto. Quello spazio cade **sotto**
+             * l'ultima riga, cioè dove ci sono il tastino e la sua sfumatura, e là non
+             * disturba nessuno.
+             */
+            val sample = List(NAME_LINES) { CAPTION_SAMPLE }.joinToString("\n")
+            val name = measurer.measure(sample, nameStyle, maxLines = NAME_LINES).size.height
             val count = measurer.measure(CAPTION_SAMPLE, countStyle, maxLines = 1).size.height
             val icon = with(density) { COUNT_ICON.toPx() }
             name + if (counted) maxOf(count, icon.toInt()) else 0
@@ -311,7 +328,8 @@ fun FolderScreen(
                     modifier = Modifier.padding(top = 24.dp)
                 )
 
-                view == FolderView.GRID -> Covers(folders!!, columns, counted, onPick) { hiding = it }
+                view == FolderView.GRID ->
+                    Covers(folders!!, columns, counted, nameStyle, onPick) { hiding = it }
                 else -> Rows(folders!!, onPick) { hiding = it }
             }
         }
@@ -320,6 +338,38 @@ fun FolderScreen(
         // ci sono le impostazioni, da cui si è arrivati, e un giro chiuso non serve a
         // nessuno.
         if (home) {
+            /*
+             * ⚠️⚠️ **LA SFUMATURA CHE INGHIOTTE QUELLO CHE STA SOTTO, dalla 0.77** (richiesta
+             * dell'utente: *dalla coordinata Y in cui comincia il tastino, una piccola
+             * sfumatura verso il colore di fondo del tema, che inghiotte ciò che sta giù
+             * abbastanza velocemente, in modo che dia poco fastidio, e che allo stesso tempo
+             * suggerisce che la griglia si scorre*). Al riposo non copre niente, perché
+             * [coverHeader] tiene le cartelle sopra di lei; serve quando si scorre, dove
+             * l'alternativa era una riga tagliata a metà dal bordo dello schermo.
+             * ⚠️⚠️ **STA PRIMA DEL TASTINO E NON DOPO**: in un `Box` l'ultimo figlio sta
+             * sopra, quindi scritta dopo dipingerebbe **sul** tastino invece che sotto.
+             * ⚠️⚠️ **NON RUBA I TOCCHI, e non è una speranza**: Compose fa la prova del tocco
+             * solo sui nodi che hanno un modificatore di puntatore, e questo ne ha uno solo di
+             * disegno. Senza questo fatto servirebbe un `pointerInput` che lascia passare, che
+             * è il rimedio a un problema che non c'è.
+             * ⚠️ Il colore è `background` e non `surface`: è quello che la `Surface` del tema
+             * mette dietro a tutta l'app (vedi `AivTheme`), quindi la sfumatura arriva
+             * **esattamente** al fondo su cui sta.
+             */
+            val ground = MaterialTheme.colorScheme.background
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(FAB_REACH)
+                    .background(
+                        Brush.verticalGradient(
+                            0f to Color.Transparent,
+                            SWALLOW to ground,
+                            1f to ground
+                        )
+                    )
+            )
             Hub(
                 view = view,
                 granted = granted,
@@ -330,7 +380,9 @@ fun FolderScreen(
                 onSettings = onSettings,
                 onSearch = onSearch,
                 onBin = onBin,
-                modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
+                // ⚠️ Costante e non numero: [FAB_REACH] la somma per sapere da dove parte la
+                // sfumatura, e [coverHeader] per tenere le cartelle sopra il tastino.
+                modifier = Modifier.align(Alignment.BottomEnd).padding(HUB_PAD)
             )
         }
     }
@@ -425,6 +477,13 @@ private fun Folder.Bucket.isHidden(hidden: Set<String>): Boolean {
  * ⚠️ Resta il solo `coerceAtLeast(0f)`, che serve **in orizzontale**: là il quadrato di
  * copertine chiede più dello schermo, il frontespizio va a zero e la griglia scorre. Lì i
  * pezzi di riga sono corretti, perché si sta scorrendo.
+ *
+ * ⚠️⚠️ **IL TASTINO ENTRA NEL CONTO DALLA 0.77, e prima non c'era** (riscontro dell'utente:
+ * *la vista iniziale va ripensata perché il tastino copre*). Il conto teneva le righe dentro
+ * lo schermo ma non sopra il tastino, quindi a due colonne la quarta cartella finiva sotto di
+ * lui: le righe ci stavano, e una era coperta. Al posto del margine di sotto si sottrae
+ * [BELOW_FAB], che è l'ingombro del tastino più un po' d'aria, ed è la stessa costante che
+ * tiene l'ultima cartella scoperta quando si è scorso fino in fondo.
  */
 private fun coverHeader(
     columns: Int,
@@ -443,7 +502,7 @@ private fun coverHeader(
     // (copertina, nome, conto) e i distacchi due, senza il conto sono due e il distacco uno.
     val rowPx = cellPx + CARD_GAP.toPx() * (if (counted) 2 else 1) + captionPx
     val gridPx = rowPx * lines + gapPx * (lines - 1)
-    val freePx = (height - SCREEN_PAD * 2 - HEADER_GAP).toPx() - gridPx
+    val freePx = (height - SCREEN_PAD - BELOW_FAB - HEADER_GAP).toPx() - gridPx
     freePx.coerceAtLeast(0f).toDp()
 }
 
@@ -465,6 +524,23 @@ private fun coverHeader(
  * aggiunge una riga e si guarda uno schermo, che è l'unico modo onesto di decidere.
  */
 private fun startRows(columns: Int): Int = if (columns <= 3) 2 else 3
+
+/**
+ * Il corpo del nome di una cartella, che dipende da quante colonne ci sono.
+ *
+ * ⚠️⚠️ **A QUATTRO COLONNE SCENDE** (richiesta dell'utente): là la cella è larga meno di un
+ * quarto di schermo, cioè 78dp su 360, e a `titleSmall` due parole ci stanno a stento.
+ * `labelMedium` toglie due punti e **tiene il peso medio**, che è quello che distingue il nome
+ * dal conto sotto: passare a `bodySmall` avrebbe reso i due indistinguibili.
+ * ⚠️ **Una funzione e non due posti**: la misura del sottotitolo (`captionPx`, che decide
+ * quanto è alta una riga di griglia) e il disegno della scheda devono usare lo **stesso**
+ * corpo, o il conto delle righe visibili sbaglia di qualche pixel per riga e in fondo alla
+ * schermata ricompare mezza cartella.
+ */
+@Composable
+private fun folderNameStyle(columns: Int): TextStyle =
+    if (columns >= NARROW_COLUMNS) MaterialTheme.typography.labelMedium
+    else MaterialTheme.typography.titleSmall
 
 /**
  * Il frontespizio dell'app, che si chiude scorrendo.
@@ -679,6 +755,8 @@ private fun Covers(
     folders: List<Folder.Bucket>,
     columns: Int,
     counted: Boolean,
+    /** Il corpo del nome, già scelto e già misurato da chi chiama. Vedi [FolderCard]. */
+    nameStyle: TextStyle,
     onPick: (Folder.Bucket) -> Unit,
     onHide: (Folder.Bucket) -> Unit
 ) {
@@ -708,6 +786,7 @@ private fun Covers(
             FolderCard(
                 bucket = bucket,
                 counted = counted,
+                nameStyle = nameStyle,
                 onClick = { onPick(bucket) },
                 onLongClick = { onHide(bucket) }
             )
@@ -795,6 +874,14 @@ private fun Rows(
 private fun FolderCard(
     bucket: Folder.Bucket,
     counted: Boolean,
+    /**
+     * Il corpo del nome, che dipende dalle colonne.
+     *
+     * ⚠️ **Arriva da fuori e non si ricava qui**: chi chiama lo ha già usato per misurare
+     * l'altezza di una riga di griglia, e un secondo [folderNameStyle] qui darebbe la stessa
+     * risposta oggi e sarebbe il posto da cui i due potrebbero divergere domani.
+     */
+    nameStyle: TextStyle,
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
@@ -817,10 +904,23 @@ private fun FolderCard(
         ) {
             Cover(bucket.cover)
         }
+        /*
+         * ⚠️⚠️ **UN A CAPO E NON PIÙ DI UNO, dalla 0.77** (richiesta dell'utente: *con
+         * qualunque numero di colonne è ammesso un a capo, non più di uno*). Fino alla `0.76`
+         * era una riga sola, e a quattro colonne quasi ogni nome finiva con i tre puntini
+         * dopo la prima parola.
+         * ⚠️ **L'ellissi resta**, perché due righe non bastano sempre: un nome che sfora
+         * anche la seconda si taglia là, e senza `Ellipsis` si taglierebbe a metà lettera
+         * senza dire che manca qualcosa.
+         * ⚠️⚠️ **E [NAME_LINES] È LA STESSA COSTANTE CHE MISURA L'ALTEZZA DELLA RIGA**, cioè
+         * chi la cambia qui cambia anche il conto del frontespizio, che è quello che vuole.
+         * Un numero scritto due volte qui avrebbe rifatto il difetto della `0.68`: mezza
+         * cartella in vista in fondo alla schermata.
+         */
         Text(
             text = bucket.name,
-            style = MaterialTheme.typography.titleSmall,
-            maxLines = 1,
+            style = nameStyle,
+            maxLines = NAME_LINES,
             overflow = TextOverflow.Ellipsis
         )
         /*
@@ -975,6 +1075,37 @@ private val COUNT_GAP = 4.dp
  * misuratore.
  */
 private const val CAPTION_SAMPLE = "Ag"
+
+/**
+ * Quante righe può prendere il nome di una cartella: **due**, cioè un a capo e non più di uno
+ * (richiesta dell'utente, dalla `0.77`).
+ *
+ * ⚠️⚠️ **Serve in DUE posti che devono restare d'accordo**, e sono l'unica ragione per cui è
+ * una costante e non un numero: il `maxLines` della scheda e la misura dell'altezza di una
+ * riga di griglia (`captionPx`). Alzata in uno solo, la griglia sfora e in fondo alla
+ * schermata compare mezza cartella.
+ */
+private const val NAME_LINES = 2
+
+/**
+ * Da quante colonne il nome della cartella passa a un corpo più piccolo. Vedi
+ * [folderNameStyle].
+ *
+ * ⚠️ Quattro è anche il massimo che le impostazioni offrono, quindi oggi la condizione vale
+ * per un solo valore: è scritta come soglia perché il giorno che le colonne diventassero
+ * cinque la risposta giusta sarebbe la stessa, e non una riga in più da ricordare.
+ */
+private const val NARROW_COLUMNS = 4
+
+/**
+ * A che punto della sua altezza la sfumatura sopra il tastino ha inghiottito tutto.
+ *
+ * ⚠️ 0,55 cioè **abbastanza velocemente**, come chiesto: sotto la metà della fascia il fondo
+ * è pieno, e quello che scorre là sotto sparisce prima di arrivare al bordo dello schermo
+ * invece di essere tagliato di netto. Più alto (0,9) si vedrebbe una riga di cartelle
+ * mezza sbiadita, che è il difetto che la sfumatura deve togliere.
+ */
+private const val SWALLOW = 0.55f
 
 /** L'icona del frontespizio: più grande di quella delle impostazioni, perché qui accoglie. */
 private val HEADER_ICON = 96.dp
