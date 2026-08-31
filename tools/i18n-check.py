@@ -33,6 +33,22 @@ SRC = os.path.join(RES, 'values', 'strings.xml')
 # aggiunta qui, o il controllo non sa che cosa pretendere.
 CATS = {
     'it': ['one', 'other', 'many'],
+    # Le undici arrivate nella 0.70. ⚠️ Il POLACCO ne vuole quattro come il russo, e le
+    # altre dieci una o due: la lingua decide, non il numero di forme che ha l'inglese.
+    # ⚠️ Indonesiano, vietnamita e thailandese ne vogliono UNA, come il giapponese: in
+    # quelle lingue il nome non cambia col numero, e scrivere una forma 'one' sarebbe una
+    # riga che il sistema non chiede mai.
+    'id': ['other'],
+    'vi': ['other'],
+    'th': ['other'],
+    'pl': ['one', 'few', 'many', 'other'],
+    'fa': ['one', 'other'],
+    'bn': ['one', 'other'],
+    'ta': ['one', 'other'],
+    'te': ['one', 'other'],
+    'mr': ['one', 'other'],
+    'ur': ['one', 'other'],
+    'nl': ['one', 'other'],
     # ⚠️ Francese, spagnolo e portoghese vogliono anche 'many', e non lo sapevo: CLDR la
     # usa per i milioni. Su un conto di fotografie non si raggiunge mai, ma la lingua ce
     # l'ha e lint la pretende, quindi vale 'other'.

@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- vi. Tradotto da AIV: la fonte di verità resta values/strings.xml, e ogni chiave nuova va aggiunta anche qui. -->
+<resources>
+    <string name="app_name">Astonishing Image Viewer</string>
+    <string name="app_short_name">AIV</string>
+    <string name="no_image">Không có ảnh nào để hiển thị</string>
+    <string name="open_failed">Không thể mở ảnh này</string>
+    <string name="unsupported">Định dạng này chưa được hỗ trợ</string>
+    <string name="too_large">Ảnh quá lớn đối với thiết bị này</string>
+    <string name="error_retry">Thử lại</string>
+    <string name="fit_label">Vừa khung hình</string>
+    <string name="url_hint">https://example.com/picture.jpg</string>
+    <string name="url_forget">Quên những địa chỉ này</string>
+    <string name="url_not_image">Địa chỉ không trỏ tới một ảnh</string>
+    <string name="menu_copy_image">Sao chép vào bảng nhớ tạm</string>
+    <string name="menu_share">Chia sẻ</string>
+    <string name="menu_save">Lưu</string>
+    <string name="toast_image_copied">Đã sao chép ảnh</string>
+    <string name="toast_copy_failed">Sao chép không thành công</string>
+    <string name="toast_saved">Đã lưu</string>
+    <string name="toast_save_failed">Lưu không thành công</string>
+    <string name="folder_why">Để xem những ảnh còn lại trong thư mục, AIV cần quyền truy cập mọi tệp. Hãy bật công tắc ở trang vừa mở.</string>
+    <string name="folder_no_access">không có quyền truy cập thư mục</string>
+    <string name="folder_unreadable">không đọc được tên và kích thước</string>
+    <string name="folder_not_in_gallery">không có trong thư viện (%1$s)</string>
+    <string name="folder_alone">một mình trong thư mục</string>
+    <string name="folder_lost">không tìm thấy trong thư mục</string>
+    <string name="settings_title">Cài đặt</string>
+    <string name="settings_back">Quay lại</string>
+    <string name="settings_background">Phía sau ảnh</string>
+    <string name="settings_bg_checker">Ô bàn cờ</string>
+    <string name="settings_bg_solid">Một màu</string>
+    <string name="settings_bg_desc">Ô bàn cờ là nền duy nhất cho thấy độ trong suốt, và trên một trình xem ảnh thì độ trong suốt là thông tin chứ không phải trang trí.</string>
+    <string name="settings_ui_theme">Chủ đề</string>
+    <string name="settings_ui_theme_desc">Bản thân ứng dụng là sáng hay tối. Khác với nền phía sau ảnh ngay bên dưới: ô bàn cờ ở đó để cho thấy độ trong suốt, không phải để hợp màu.</string>
+    <string name="settings_system">Theo hệ thống</string>
+    <string name="settings_theme_light">Sáng</string>
+    <string name="settings_theme_dark">Tối</string>
+    <string name="settings_bg_theme">Sắc nền</string>
+    <string name="settings_auto">Tự động</string>
+    <string name="settings_light">Sáng</string>
+    <string name="settings_dark">Tối</string>
+    <string name="settings_folder_columns">Số cột trong lưới thư mục</string>
+    <string name="settings_folder_columns_desc">Càng nhiều cột thì càng nhiều thư mục vừa màn hình và mỗi ảnh bìa càng nhỏ. Ở bốn cột, tên bên dưới thường bị cắt.</string>
+    <string name="settings_folder_count">Số ảnh dưới mỗi thư mục</string>
+    <string name="settings_folder_count_desc">Dưới mỗi ảnh bìa, thư mục chứa bao nhiêu ảnh. Khi tắt, hàng sẽ ngắn lại và phần tiêu đề ở trên cao thêm đúng chừng ấy.</string>
+    <string name="settings_fit_grow">Phóng to ảnh nhỏ</string>
+    <string name="settings_fit_grow_desc">Khi tắt, ảnh nhỏ hơn màn hình được hiển thị ở kích thước thật. Khi bật, ảnh lớn lên cho đầy khung hình.</string>
+    <string name="settings_zoom_max">Mức phóng xa nhất</string>
+    <string name="settings_scale_mode">100% nghĩa là gì</string>
+    <string name="settings_scale_physical">Một điểm ảnh của tệp trên một điểm ảnh màn hình</string>
+    <string name="settings_scale_logical">Một điểm ảnh của tệp trên một điểm ảnh bố cục</string>
+    <string name="settings_scale_desc">Màn hình điện thoại dồn hai hoặc ba điểm ảnh thật vào một điểm ảnh bố cục, nên hai câu trả lời cách nhau rất xa: cái đầu cho thấy tệp đúng như nó là, cái sau cho thấy nó ở kích thước mà một trang web sẽ hiển thị.</string>
+    <string name="details_bar">Thanh chi tiết</string>
+    <string name="settings_top">Ở trên</string>
+    <string name="settings_bottom">Ở dưới</string>
+    <string name="settings_info_visible">Thanh hiện ngay từ đầu</string>
+    <string name="settings_reverse_order">Đổi chiều thứ tự ảnh (theo ngày)</string>
+    <string name="settings_reverse_order_desc">Khi tắt, bạn xem từ ảnh mới nhất về những ảnh cũ hơn, như thư viện điện thoại. Khi bật, theo thứ tự thời gian, từ cũ nhất đến mới nhất.</string>
+    <string name="settings_clipboard">Đọc bảng nhớ tạm khi khởi động</string>
+    <string name="settings_clipboard_desc">Khi mở ứng dụng từ biểu tượng của nó, một địa chỉ trong bảng nhớ tạm trỏ thẳng tới ảnh sẽ mở ảnh đó. Android hiện một thông báo mỗi lần ứng dụng đọc bảng nhớ tạm, nên để tắt mục này nghĩa là không bao giờ thấy nó.</string>
+    <string name="settings_start_folder">Mở một thư mục khi khởi động</string>
+    <string name="settings_start_folder_desc">Khi mở ứng dụng, ảnh trong thư mục đã chọn hiện ra ngay, thay vì danh sách thư mục.</string>
+    <string name="settings_start_folder_none">Chưa chọn thư mục nào</string>
+    <string name="settings_start_folder_pick">Chọn</string>
+    <string name="folders_title">Thư mục</string>
+    <string name="folders_permission">Việc liệt kê thư mục cần quyền truy cập mọi tệp. Đó cũng chính là quyền cho phép bạn xem một thư mục, và được cấp từ một trang của hệ thống.</string>
+    <string name="folders_grant">Cấp quyền</string>
+    <string name="folders_none">Không có thư mục nào chứa ảnh.</string>
+    <string name="hub_open">Thêm</string>
+    <string name="hub_view_list">Dạng danh sách</string>
+    <string name="hub_view_grid">Dạng lưới</string>
+    <string name="hub_search">Tìm</string>
+    <string name="hub_url">Mở một địa chỉ</string>
+    <string name="hub_pick">Mở một ảnh</string>
+    <string name="hub_settings">Cài đặt</string>
+    <string name="url_open">Mở</string>
+    <string name="url_recent">Đã mở trước đây</string>
+    <string name="folder_empty">Thư mục này không còn ảnh nào.</string>
+    <string name="cancel">Hủy</string>
+    <string name="hide_folder_title">Ẩn %1$s?</string>
+    <string name="hide_folder_desc">Thư mục sẽ không còn hiện trong số các thư mục để xem. Không có gì bị xóa: ảnh vẫn ở nguyên chỗ, và bạn có thể đưa thư mục trở lại từ phần cài đặt.</string>
+    <string name="hide_folder_do">Ẩn</string>
+    <string name="settings_hidden">Thư mục đã ẩn</string>
+    <string name="settings_hidden_desc">Nhấn giữ một thư mục để ẩn nó. Những thư mục này không còn hiện trong danh sách, nhưng trên điện thoại chúng vẫn nguyên vẹn.</string>
+    <string name="settings_hidden_show">Hiện</string>
+    <string name="search_hint">Tìm trong tên tệp</string>
+    <string name="search_clear">Xóa</string>
+    <string name="search_none">Không có ảnh nào có \'%1$s\' trong tên.</string>
+    <string name="identity_repo">Mở kho AIV trên GitHub</string>
+    <string name="grid_item">Ảnh %1$d trong %2$d</string>
+    <string name="grid_item_last">Ảnh %1$d trong %2$d, ảnh bạn xem lần cuối</string>
+    <string name="pick_leave">Thoát khỏi chế độ chọn</string>
+    <string name="pick_all">Chọn tất cả</string>
+    <string name="pick_all_hint">Nhấn giữ nút nổi để chọn mọi ảnh trong thư mục</string>
+    <string name="pick_info">Thông tin</string>
+    <string name="pick_close">Đóng</string>
+    <string name="pick_actions">Thao tác trên phần đã chọn</string>
+    <string name="pick_move">Di chuyển</string>
+    <string name="pick_rename">Đổi tên</string>
+    <string name="pick_delete">Xóa</string>
+    <string name="pick_counting">Đang đếm...</string>
+    <plurals name="pick_count">
+        <item quantity="other">%1$d đã chọn</item>
+    </plurals>
+    <plurals name="pick_facts">
+        <item quantity="other">%2$s trong %1$d tệp</item>
+    </plurals>
+    <string name="facts_name">Tên tệp</string>
+    <string name="facts_kind">Loại tệp</string>
+    <string name="facts_pixels">Điểm ảnh</string>
+    <string name="facts_size">Kích thước</string>
+    <string name="facts_taken">Ngày chụp</string>
+    <string name="facts_modified">Sửa lần cuối</string>
+    <string name="facts_folder">Thư mục</string>
+    <string name="facts_encoding">Mã hóa</string>
+    <string name="facts_camera">Dữ liệu chụp</string>
+    <string name="facts_place">Tọa độ địa lý</string>
+    <string name="facts_pixels_value">%1$d x %2$d</string>
+    <string name="facts_pixels_mpx">%1$d x %2$d\n%3$s Mpx</string>
+    <string name="facts_progressive">lũy tiến</string>
+    <string name="facts_interlaced">xen dòng</string>
+    <plurals name="facts_bits">
+        <item quantity="other">%1$d bit</item>
+    </plurals>
+    <string name="facts_focal">%1$s mm</string>
+    <string name="facts_exposure_fraction">1/%1$d s</string>
+    <string name="facts_exposure_seconds">%1$s s</string>
+    <string name="facts_iso">ISO %1$d</string>
+    <string name="facts_altitude">%1$d m trên mực nước biển</string>
+    <string name="facts_altitude_label">Độ cao</string>
+    <string name="dest_storages">Bộ nhớ</string>
+    <string name="dest_empty">Không có thư mục nào ở đây.</string>
+    <string name="dest_new">Thư mục mới</string>
+    <string name="dest_create">Tạo</string>
+    <string name="dest_here">Sao chép vào %1$s</string>
+    <string name="dest_move_here">Di chuyển vào %1$s</string>
+    <string name="menu_copy_here">Sao chép</string>
+    <plurals name="copy_done">
+        <item quantity="other">%1$d ảnh đã sao chép</item>
+    </plurals>
+    <plurals name="move_done">
+        <item quantity="other">%1$d ảnh đã di chuyển</item>
+    </plurals>
+    <plurals name="rename_done">
+        <item quantity="other">%1$d ảnh đã đổi tên</item>
+    </plurals>
+    <plurals name="delete_done">
+        <item quantity="other">%1$d ảnh đã xóa</item>
+    </plurals>
+    <plurals name="op_failed">
+        <item quantity="other">%1$d không thành công</item>
+    </plurals>
+    <string name="rename_template">Tên</string>
+    <string name="rename_start">Số đầu tiên</string>
+    <string name="rename_hint">Mỗi dãy dấu thăng trở thành con số, và bạn viết bao nhiêu dấu thì có bấy nhiêu chữ số: ## cho 01, ### cho 001. Phần mở rộng không bao giờ bị đụng tới, và các ảnh được đánh số theo thứ tự bảng chữ cái.</string>
+    <string name="rename_preview">Xem trước</string>
+    <string name="delete_ask">Xác nhận xóa?</string>
+    <plurals name="delete_desc">
+        <item quantity="other">Bạn sắp xóa vĩnh viễn %1$d ảnh: chúng sẽ mất khỏi điện thoại mãi mãi.</item>
+    </plurals>
+    <plurals name="trash_desc">
+        <item quantity="other">Bạn sắp chuyển %1$d ảnh vào thùng rác: bạn có thể lấy lại cho đến khi chúng bị xóa vĩnh viễn.</item>
+    </plurals>
+    <string name="bin_title">Thùng rác</string>
+    <string name="bin_none">Thùng rác trống.</string>
+    <string name="bin_restore">Phục hồi</string>
+    <string name="bin_empty">Dọn thùng rác</string>
+    <string name="bin_empty_ask">Dọn thùng rác?</string>
+    <string name="bin_empty_desc">Mọi thứ trong đó sẽ mất khỏi điện thoại mãi mãi.</string>
+    <plurals name="trash_done">
+        <item quantity="other">%1$d đã chuyển vào thùng rác</item>
+    </plurals>
+    <plurals name="restore_done">
+        <item quantity="other">%1$d đã phục hồi</item>
+    </plurals>
+    <plurals name="folders_count">
+        <item quantity="other">%1$d ảnh</item>
+    </plurals>
+    <string name="settings_facts">Thông tin tệp</string>
+    <string name="settings_facts_desc">Những dữ liệu bạn thấy khi mở Thông tin của một ảnh, và theo thứ tự nào. Tên, điểm ảnh và kích thước luôn có; dữ liệu mà tệp không mang thì không chiếm dòng nào.</string>
+    <string name="settings_facts_always">Luôn hiện</string>
+    <string name="settings_facts_up">Chuyển lên</string>
+    <string name="settings_facts_down">Chuyển xuống</string>
+</resources>

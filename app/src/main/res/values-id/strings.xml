@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- id. Tradotto da AIV: la fonte di verità resta values/strings.xml, e ogni chiave nuova va aggiunta anche qui. -->
+<resources>
+    <string name="app_name">Astonishing Image Viewer</string>
+    <string name="app_short_name">AIV</string>
+    <string name="no_image">Tidak ada gambar untuk ditampilkan</string>
+    <string name="open_failed">Gambar ini tidak dapat dibuka</string>
+    <string name="unsupported">Format ini belum didukung</string>
+    <string name="too_large">Gambar terlalu besar untuk perangkat ini</string>
+    <string name="error_retry">Coba lagi</string>
+    <string name="fit_label">Sesuaikan ke layar</string>
+    <string name="url_hint">https://example.com/picture.jpg</string>
+    <string name="url_forget">Lupakan ini</string>
+    <string name="url_not_image">URL tidak mengarah ke sebuah gambar</string>
+    <string name="menu_copy_image">Salin ke papan klip</string>
+    <string name="menu_share">Bagikan</string>
+    <string name="menu_save">Simpan</string>
+    <string name="toast_image_copied">Gambar disalin</string>
+    <string name="toast_copy_failed">Penyalinan tidak berhasil</string>
+    <string name="toast_saved">Tersimpan</string>
+    <string name="toast_save_failed">Penyimpanan tidak berhasil</string>
+    <string name="folder_why">Untuk menelusuri sisa gambar di folder, AIV memerlukan akses ke semua berkas. Aktifkan sakelar di halaman yang baru terbuka.</string>
+    <string name="folder_no_access">tidak ada akses ke folder</string>
+    <string name="folder_unreadable">nama dan ukuran tidak terbaca</string>
+    <string name="folder_not_in_gallery">tidak ada di galeri (%1$s)</string>
+    <string name="folder_alone">sendirian di foldernya</string>
+    <string name="folder_lost">tidak ditemukan di foldernya</string>
+    <string name="settings_title">Pengaturan</string>
+    <string name="settings_back">Kembali</string>
+    <string name="settings_background">Di belakang gambar</string>
+    <string name="settings_bg_checker">Papan kotak</string>
+    <string name="settings_bg_solid">Satu warna</string>
+    <string name="settings_bg_desc">Papan kotak adalah satu-satunya latar yang menampakkan transparansi, dan pada penampil gambar transparansi adalah informasi, bukan hiasan.</string>
+    <string name="settings_ui_theme">Tema</string>
+    <string name="settings_ui_theme_desc">Apakah aplikasinya sendiri terang atau gelap. Berbeda dari latar di belakang gambar, tepat di bawah: papan kotak ada untuk menampakkan transparansi, bukan untuk menyelaraskan warna.</string>
+    <string name="settings_system">Ikuti sistem</string>
+    <string name="settings_theme_light">Terang</string>
+    <string name="settings_theme_dark">Gelap</string>
+    <string name="settings_bg_theme">Rona latar</string>
+    <string name="settings_auto">Otomatis</string>
+    <string name="settings_light">Terang</string>
+    <string name="settings_dark">Gelap</string>
+    <string name="settings_folder_columns">Kolom pada kisi folder</string>
+    <string name="settings_folder_columns_desc">Semakin banyak kolom, semakin banyak folder yang masuk ke layar dan semakin kecil setiap sampul. Pada empat kolom, nama di bawahnya biasanya terpotong.</string>
+    <string name="settings_folder_count">Jumlah gambar di bawah folder</string>
+    <string name="settings_folder_count_desc">Di bawah setiap sampul, berapa gambar yang ada di folder itu. Jika dimatikan, barisnya menjadi lebih pendek dan bagian judul di atas tumbuh sebanyak itu.</string>
+    <string name="settings_fit_grow">Perbesar gambar kecil</string>
+    <string name="settings_fit_grow_desc">Jika mati, gambar yang lebih kecil dari layar ditampilkan pada ukuran aslinya. Jika hidup, ia tumbuh hingga memenuhi layar.</string>
+    <string name="settings_zoom_max">Perbesaran terjauh</string>
+    <string name="settings_scale_mode">Arti 100%</string>
+    <string name="settings_scale_physical">Satu piksel berkas per piksel layar</string>
+    <string name="settings_scale_logical">Satu piksel berkas per piksel tata letak</string>
+    <string name="settings_scale_desc">Layar ponsel memadatkan dua atau tiga piksel nyata ke dalam satu piksel tata letak, jadi kedua jawabannya berjauhan: yang pertama menampilkan berkas apa adanya, yang kedua menampilkannya seukuran yang akan ditampilkan sebuah halaman web.</string>
+    <string name="details_bar">Bilah detail</string>
+    <string name="settings_top">Di atas</string>
+    <string name="settings_bottom">Di bawah</string>
+    <string name="settings_info_visible">Bilah tampak sejak awal</string>
+    <string name="settings_reverse_order">Ubah arah urutan gambar (menurut tanggal)</string>
+    <string name="settings_reverse_order_desc">Jika mati, kamu menelusuri dari gambar terbaru menuju yang lebih lama, seperti galeri ponsel. Jika hidup, menurut urutan waktu, dari yang tertua ke yang terbaru.</string>
+    <string name="settings_clipboard">Baca papan klip saat mulai</string>
+    <string name="settings_clipboard_desc">Saat membuka aplikasi dari ikonnya, sebuah alamat di papan klip yang mengarah langsung ke gambar akan membuka gambar itu. Android menampilkan pemberitahuan setiap kali aplikasi membaca papan klip, jadi membiarkan ini mati berarti tidak pernah melihatnya.</string>
+    <string name="settings_start_folder">Buka folder saat mulai</string>
+    <string name="settings_start_folder_desc">Saat aplikasi dibuka, gambar di folder pilihanmu langsung tampil, bukan daftar folder.</string>
+    <string name="settings_start_folder_none">Tidak ada folder terpilih</string>
+    <string name="settings_start_folder_pick">Pilih</string>
+    <string name="folders_title">Folder</string>
+    <string name="folders_permission">Mendaftar folder memerlukan akses ke semua berkas. Izin yang sama memungkinkanmu menelusuri sebuah folder, dan diberikan dari halaman sistem.</string>
+    <string name="folders_grant">Beri akses</string>
+    <string name="folders_none">Tidak ada folder yang berisi gambar.</string>
+    <string name="hub_open">Lainnya</string>
+    <string name="hub_view_list">Tampilan daftar</string>
+    <string name="hub_view_grid">Tampilan kisi</string>
+    <string name="hub_search">Cari</string>
+    <string name="hub_url">Buka alamat</string>
+    <string name="hub_pick">Buka gambar</string>
+    <string name="hub_settings">Pengaturan</string>
+    <string name="url_open">Buka</string>
+    <string name="url_recent">Pernah dibuka</string>
+    <string name="folder_empty">Folder ini tidak berisi gambar lagi.</string>
+    <string name="cancel">Batal</string>
+    <string name="hide_folder_title">Sembunyikan %1$s?</string>
+    <string name="hide_folder_desc">Folder ini tidak lagi muncul di antara folder yang ditelusuri. Tidak ada yang dihapus: gambarnya tetap di tempatnya, dan kamu bisa memunculkannya kembali dari pengaturan.</string>
+    <string name="hide_folder_do">Sembunyikan</string>
+    <string name="settings_hidden">Folder tersembunyi</string>
+    <string name="settings_hidden_desc">Tekan lama sebuah folder untuk menyembunyikannya. Folder ini tidak lagi muncul di daftar, tetapi di ponsel tetap utuh.</string>
+    <string name="settings_hidden_show">Tampilkan</string>
+    <string name="search_hint">Cari pada nama berkas</string>
+    <string name="search_clear">Bersihkan</string>
+    <string name="search_none">Tidak ada gambar dengan \'%1$s\' pada namanya.</string>
+    <string name="identity_repo">Buka repositori AIV di GitHub</string>
+    <string name="grid_item">Gambar %1$d dari %2$d</string>
+    <string name="grid_item_last">Gambar %1$d dari %2$d, yang terakhir kamu lihat</string>
+    <string name="pick_leave">Keluar dari pemilihan</string>
+    <string name="pick_all">Pilih semua</string>
+    <string name="pick_all_hint">Tekan dan tahan tombol mengapung untuk memilih semua gambar di folder</string>
+    <string name="pick_info">Info</string>
+    <string name="pick_close">Tutup</string>
+    <string name="pick_actions">Tindakan atas yang dipilih</string>
+    <string name="pick_move">Pindahkan</string>
+    <string name="pick_rename">Ganti nama</string>
+    <string name="pick_delete">Hapus</string>
+    <string name="pick_counting">Menghitung...</string>
+    <plurals name="pick_count">
+        <item quantity="other">%1$d dipilih</item>
+    </plurals>
+    <plurals name="pick_facts">
+        <item quantity="other">%2$s dalam %1$d berkas</item>
+    </plurals>
+    <string name="facts_name">Nama berkas</string>
+    <string name="facts_kind">Jenis berkas</string>
+    <string name="facts_pixels">Piksel</string>
+    <string name="facts_size">Ukuran</string>
+    <string name="facts_taken">Tanggal pengambilan</string>
+    <string name="facts_modified">Terakhir diubah</string>
+    <string name="facts_folder">Folder</string>
+    <string name="facts_encoding">Pengodean</string>
+    <string name="facts_camera">Data pengambilan</string>
+    <string name="facts_place">Koordinat geografis</string>
+    <string name="facts_pixels_value">%1$d x %2$d</string>
+    <string name="facts_pixels_mpx">%1$d x %2$d\n%3$s Mpx</string>
+    <string name="facts_progressive">progresif</string>
+    <string name="facts_interlaced">berjalin</string>
+    <plurals name="facts_bits">
+        <item quantity="other">%1$d bit</item>
+    </plurals>
+    <string name="facts_focal">%1$s mm</string>
+    <string name="facts_exposure_fraction">1/%1$d s</string>
+    <string name="facts_exposure_seconds">%1$s s</string>
+    <string name="facts_iso">ISO %1$d</string>
+    <string name="facts_altitude">%1$d m dpl</string>
+    <string name="facts_altitude_label">Ketinggian</string>
+    <string name="dest_storages">Penyimpanan</string>
+    <string name="dest_empty">Tidak ada folder di sini.</string>
+    <string name="dest_new">Folder baru</string>
+    <string name="dest_create">Buat</string>
+    <string name="dest_here">Salin ke dalam %1$s</string>
+    <string name="dest_move_here">Pindahkan ke dalam %1$s</string>
+    <string name="menu_copy_here">Salin</string>
+    <plurals name="copy_done">
+        <item quantity="other">%1$d gambar disalin</item>
+    </plurals>
+    <plurals name="move_done">
+        <item quantity="other">%1$d gambar dipindahkan</item>
+    </plurals>
+    <plurals name="rename_done">
+        <item quantity="other">%1$d gambar diganti namanya</item>
+    </plurals>
+    <plurals name="delete_done">
+        <item quantity="other">%1$d gambar dihapus</item>
+    </plurals>
+    <plurals name="op_failed">
+        <item quantity="other">%1$d tidak berhasil</item>
+    </plurals>
+    <string name="rename_template">Nama</string>
+    <string name="rename_start">Angka pertama</string>
+    <string name="rename_hint">Setiap rangkaian tanda pagar menjadi angkanya, dan sebanyak yang kamu tulis itulah jumlah digitnya: ## menghasilkan 01, ### menghasilkan 001. Ekstensi tidak pernah disentuh, dan gambar dinomori menurut urutan abjad.</string>
+    <string name="rename_preview">Pratinjau</string>
+    <string name="delete_ask">Konfirmasi penghapusan?</string>
+    <plurals name="delete_desc">
+        <item quantity="other">Kamu akan menghapus %1$d gambar untuk selamanya: gambar itu hilang dari ponsel selamanya.</item>
+    </plurals>
+    <plurals name="trash_desc">
+        <item quantity="other">Kamu akan memindahkan %1$d gambar ke tempat sampah: kamu bisa mengambilnya kembali sampai dihapus untuk selamanya.</item>
+    </plurals>
+    <string name="bin_title">Tempat sampah</string>
+    <string name="bin_none">Tempat sampah kosong.</string>
+    <string name="bin_restore">Pulihkan</string>
+    <string name="bin_empty">Kosongkan tempat sampah</string>
+    <string name="bin_empty_ask">Kosongkan tempat sampah?</string>
+    <string name="bin_empty_desc">Semua isinya hilang dari ponsel untuk selamanya.</string>
+    <plurals name="trash_done">
+        <item quantity="other">%1$d dipindahkan ke tempat sampah</item>
+    </plurals>
+    <plurals name="restore_done">
+        <item quantity="other">%1$d dipulihkan</item>
+    </plurals>
+    <plurals name="folders_count">
+        <item quantity="other">%1$d gambar</item>
+    </plurals>
+    <string name="settings_facts">Informasi berkas</string>
+    <string name="settings_facts_desc">Data mana yang kamu lihat saat membuka Info sebuah gambar, dan dalam urutan apa. Nama, piksel dan ukuran selalu ada; data yang tidak dimiliki berkas tidak mendapat baris sama sekali.</string>
+    <string name="settings_facts_always">Selalu tampak</string>
+    <string name="settings_facts_up">Naikkan</string>
+    <string name="settings_facts_down">Turunkan</string>
+</resources>
