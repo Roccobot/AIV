@@ -263,7 +263,15 @@
     <string name="history_none">За останні %1$d днів нічого не повернуто.</string>
     <string name="history_note">Історія зберігає останні %1$d днів, потім очищується сама.</string>
     <string name="columns_title">Розмір сітки</string>
-    <string name="columns_hint">Швидка дія: натисніть і утримуйте плаваючу кнопку, щоб вибрати розмір сітки.</string>
+    <string name="view_options">Параметри вигляду</string>
+    <string name="list_count">Кількість елементів</string>
+    <string name="text_size">Розмір тексту</string>
+    <string name="text_small">Дрібний</string>
+    <string name="text_normal">Звичайний</string>
+    <string name="text_large">Великий</string>
+    <string name="tree_show_hidden">Показувати приховані файли</string>
+    <string name="tree_pictures">Лише теки із зображеннями</string>
+    <string name="columns_hint">Швидкий доступ: натисніть і утримуйте плавну кнопку, щоб відкрити параметри вигляду.</string>
     <string name="settings_bin">Увімкнути кошик</string>
     <string name="settings_bin_desc">Видалення файлу нічого не запитує, але дію можна скасувати через \'Повернути\' з кошика (плаваюча кнопка → \'Кошик\'). Кошик можна зовсім вимкнути, якщо ви бажаєте миттєве видалення: тоді перед кожним видаленням з\'явиться підтвердження.</string>
     <string name="pick_duplicate">Дублювати</string>

@@ -233,7 +233,15 @@
     <string name="history_none">پچھلے %1$d دنوں میں کچھ بحال نہیں کیا گیا۔</string>
     <string name="history_note">ہسٹری پچھلے %1$d دن رکھتی ہے، پھر خود خالی ہو جاتی ہے۔</string>
     <string name="columns_title">گرڈ کا سائز</string>
-    <string name="columns_hint">شارٹ کٹ: گرڈ کا سائز چننے کے لیے فلوٹنگ بٹن دبائے رکھیں۔</string>
+    <string name="view_options">نمائش کے اختیارات</string>
+    <string name="list_count">عناصر کی گنتی</string>
+    <string name="text_size">متن کا حجم</string>
+    <string name="text_small">چھوٹا</string>
+    <string name="text_normal">عام</string>
+    <string name="text_large">بڑا</string>
+    <string name="tree_show_hidden">پوشیدہ فائلیں دکھائیں</string>
+    <string name="tree_pictures">صرف تصاویر والے فولڈر</string>
+    <string name="columns_hint">شارٹ کٹ: نمائش کے اختیارات کے لیے تیرتا بٹن دبائے رکھیں۔</string>
     <string name="settings_bin">ردی کی ٹوکری فعال کریں</string>
     <string name="settings_bin_desc">فائل مٹانا کچھ نہیں پوچھتا، لیکن یہ کام ردی کی ٹوکری سے \'بحال کریں\' کے ذریعے واپس ہو سکتا ہے (فلوٹنگ بٹن → \'ردی کی ٹوکری\')۔ اگر آپ فوری مٹانا پسند کرتے ہیں تو ردی کی ٹوکری مکمل بند کر سکتے ہیں: اس صورت میں ہر مٹانے سے پہلے تصدیق آئے گی۔</string>
     <string name="pick_duplicate">نقل بنائیں</string>

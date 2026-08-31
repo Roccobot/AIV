@@ -87,6 +87,10 @@ fun TreeList(
     hidden: Set<String>,
     /** Se eliminare vuol dire mandare nel cestino. Vedi `Settings.binOn`. */
     binOn: Boolean,
+    /** Se si vedono anche i file che cominciano per punto. Vedi `Settings.treeHidden`. */
+    showHidden: Boolean,
+    /** Se le cartelle senza immagini spariscono. Vedi `Settings.treePictures`. */
+    onlyPictures: Boolean,
     /** I campi delle informazioni, nell'ordine scelto. Vedi `Settings.factRows`. */
     factFields: List<FactField>,
     onPath: (String?) -> Unit,
@@ -151,7 +155,11 @@ fun TreeList(
          * sopravviveva al cambio di cartella, cioè proprio il caso che qui si vuole azzerare.
          */
         var spots by remember(here) { mutableStateOf<List<Tree.Spot>?>(null) }
-        LaunchedEffect(here, tick) { spots = Tree.list(File(here)) }
+        // ⚠️ Le due opzioni sono CHIAVI dell'effetto: cambiandole la cartella si rilegge,
+        // che è l'unico modo perché il filtro si veda senza uscire e rientrare.
+        LaunchedEffect(here, tick, showHidden, onlyPictures) {
+            spots = Tree.list(File(here), showHidden, onlyPictures)
+        }
         when {
             spots == null -> Unit
             spots!!.isEmpty() -> Text(

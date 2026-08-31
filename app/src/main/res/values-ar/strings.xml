@@ -293,7 +293,15 @@
     <string name="history_none">لم تتم استعادة أي شيء في آخر %1$d أيام.</string>
     <string name="history_note">يحفظ السجل آخر %1$d أيام ثم يُفرغ نفسه.</string>
     <string name="columns_title">حجم الشبكة</string>
-    <string name="columns_hint">اختصار: اضغط مطولا على الزر العائم لاختيار حجم الشبكة.</string>
+    <string name="view_options">خيارات العرض</string>
+    <string name="list_count">عدد العناصر</string>
+    <string name="text_size">حجم النص</string>
+    <string name="text_small">صغير</string>
+    <string name="text_normal">عادي</string>
+    <string name="text_large">كبير</string>
+    <string name="tree_show_hidden">إظهار الملفات المخفية</string>
+    <string name="tree_pictures">المجلدات التي بها صور فقط</string>
+    <string name="columns_hint">اختصار: اضغط مطولا على الزر العائم لفتح خيارات العرض.</string>
     <string name="settings_bin">تشغيل سلة المهملات</string>
     <string name="settings_bin_desc">حذف ملف لا يطلب أي تأكيد، لكن الإجراء قابل للتراجع عبر \'استعادة\' من سلة المهملات (الزر العائم → \'سلة المهملات\'). يمكنك إيقاف سلة المهملات تماما إذا كنت تفضل الحذف الفوري: في تلك الحالة سيظهر تأكيد قبل كل عملية حذف.</string>
     <string name="pick_duplicate">تكرار</string>

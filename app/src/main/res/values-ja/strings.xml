@@ -218,7 +218,15 @@
     <string name="history_none">過去 %1$d 日間に元に戻したものはありません。</string>
     <string name="history_note">履歴は直近 %1$d 日間を保持し、その後自動的に消えます。</string>
     <string name="columns_title">グリッドの大きさ</string>
-    <string name="columns_hint">ショートカット: フローティングボタンを長押しするとグリッドの大きさを選べます。</string>
+    <string name="view_options">表示オプション</string>
+    <string name="list_count">項目数</string>
+    <string name="text_size">文字の大きさ</string>
+    <string name="text_small">小</string>
+    <string name="text_normal">標準</string>
+    <string name="text_large">大</string>
+    <string name="tree_show_hidden">隠しファイルを表示</string>
+    <string name="tree_pictures">画像のあるフォルダーのみ</string>
+    <string name="columns_hint">ショートカット: 表示オプションはフローティングボタンを長押し。</string>
     <string name="settings_bin">ゴミ箱を有効にする</string>
     <string name="settings_bin_desc">ファイルの削除では何も確認しませんが、ゴミ箱から \'元に戻す\' で取り消せます (フローティングボタン → \'ゴミ箱\')。すぐに削除したい場合はゴミ箱を完全に無効にできます。その場合は削除のたびに確認が表示されます。</string>
     <string name="pick_duplicate">複製</string>

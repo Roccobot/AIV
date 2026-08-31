@@ -111,16 +111,55 @@ object Tree {
      * (`/storage/emulated/0/Android/data` è chiusa anche col permesso pesante), e chi entra
      * deve vedere 'niente qui dentro' invece di un errore.
      */
-    suspend fun list(dir: File): List<Spot> = withContext(Dispatchers.IO) {
+    suspend fun list(
+        dir: File,
+        hidden: Boolean = false,
+        onlyPictures: Boolean = false
+    ): List<Spot> = withContext(Dispatchers.IO) {
         val kids = runCatching { dir.listFiles() }.getOrNull().orEmpty()
         kids.asSequence()
-            .filterNot { it.name.startsWith('.') }
+            .filter { hidden || !it.name.startsWith('.') }
             .map { spot(it) }
+            .filter { !onlyPictures || !it.folder || leadsToMedia(it.file, hidden, DIG) }
             .sortedWith(
                 compareBy<Spot> { !it.folder }.thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
             )
             .toList()
     }
+
+    /**
+     * Se dentro questa cartella, o poco sotto, c'è almeno una fotografia o un filmato.
+     *
+     * ⚠️⚠️ **GUARDA IN PROFONDITÀ E NON SOLO DENTRO, e senza questo l'opzione sarebbe una
+     * TRAPPOLA**: su un telefono le foto stanno in `DCIM/Camera`, cioè un piano sotto, e un
+     * controllo che guardasse solo i figli diretti nasconderebbe `DCIM` insieme alla strada
+     * per arrivarci. L'opzione si chiama 'mostra solo le cartelle con immagini' e finirebbe
+     * per nascondere proprio quelle che le contengono.
+     * ⚠️⚠️ **MA CON UN FONDO, e il fondo è la ragione per cui la funzione è usabile**: una
+     * ricerca senza limite su una memoria da 128 GB scandirebbe tutto il telefono a ogni
+     * cartella aperta. Tre piani bastano per i casi veri (`DCIM/Camera`,
+     * `Android/media/...`), e chi ha le foto più in fondo vede la cartella sparire: è il
+     * prezzo dichiarato, e si paga spegnendo l'opzione.
+     * ⚠️ Si ferma alla **prima** cosa trovata: non conta niente, risponde sì o no.
+     */
+    private fun leadsToMedia(dir: File, hidden: Boolean, left: Int): Boolean {
+        if (left <= 0) return false
+        val kids = runCatching { dir.listFiles() }.getOrNull().orEmpty()
+        val seen = kids.filter { hidden || !it.name.startsWith('.') }
+        if (seen.any { !it.isDirectory && isMedia(it) }) return true
+        return seen.any { it.isDirectory && leadsToMedia(it, hidden, left - 1) }
+    }
+
+    /** Se questo file è una fotografia o un filmato, guardando la sola estensione. */
+    private fun isMedia(file: File): Boolean {
+        val ext = file.extension.lowercase()
+        return ext in Videos.EXTENSIONS || Folder.isPicture(ext)
+    }
+
+    /**
+     * Quanti piani si scendono cercando un'immagine. Tre: vedi [leadsToMedia].
+     */
+    private const val DIG = 3
 
     private fun spot(file: File): Spot {
         val folder = runCatching { file.isDirectory }.getOrDefault(false)

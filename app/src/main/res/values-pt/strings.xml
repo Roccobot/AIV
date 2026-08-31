@@ -248,7 +248,15 @@
     <string name="history_none">Nada foi restaurado nos últimos %1$d dias.</string>
     <string name="history_note">O histórico guarda os últimos %1$d dias e depois se esvazia sozinho.</string>
     <string name="columns_title">Tamanho da grade</string>
-    <string name="columns_hint">Atalho: mantenha o botão flutuante pressionado para escolher o tamanho da grade.</string>
+    <string name="view_options">Opções de exibição</string>
+    <string name="list_count">Contagem de itens</string>
+    <string name="text_size">Tamanho do texto</string>
+    <string name="text_small">Pequeno</string>
+    <string name="text_normal">Normal</string>
+    <string name="text_large">Grande</string>
+    <string name="tree_show_hidden">Mostrar arquivos ocultos</string>
+    <string name="tree_pictures">Só pastas com imagens</string>
+    <string name="columns_hint">Atalho: mantenha o botão flutuante pressionado para as opções de exibição.</string>
     <string name="settings_bin">Ativar a lixeira</string>
     <string name="settings_bin_desc">Excluir um arquivo não pergunta nada, mas a ação pode ser desfeita com um \'Restaurar\' na lixeira (botão flutuante → \'Lixeira\'). Você pode desativar a lixeira por completo, se preferir uma exclusão instantânea: nesse caso, aparecerá uma confirmação antes de cada exclusão.</string>
     <string name="pick_duplicate">Duplicar</string>

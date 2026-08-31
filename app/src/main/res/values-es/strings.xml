@@ -248,7 +248,15 @@
     <string name="history_none">No se ha restaurado nada en los últimos %1$d días.</string>
     <string name="history_note">El historial guarda los últimos %1$d días y luego se vacía solo.</string>
     <string name="columns_title">Tamaño de la cuadrícula</string>
-    <string name="columns_hint">Atajo: mantén pulsado el botón flotante para elegir el tamaño de la cuadrícula.</string>
+    <string name="view_options">Opciones de visualización</string>
+    <string name="list_count">Recuento de elementos</string>
+    <string name="text_size">Tamaño del texto</string>
+    <string name="text_small">Pequeño</string>
+    <string name="text_normal">Normal</string>
+    <string name="text_large">Grande</string>
+    <string name="tree_show_hidden">Mostrar archivos ocultos</string>
+    <string name="tree_pictures">Solo carpetas con imágenes</string>
+    <string name="columns_hint">Atajo: mantén pulsado el botón flotante para las opciones de visualización.</string>
     <string name="settings_bin">Activar la papelera</string>
     <string name="settings_bin_desc">Eliminar un archivo no pregunta nada, pero la acción se puede deshacer con un \'Restaurar\' desde la papelera (botón flotante → \'Papelera\'). Puedes desactivar la papelera por completo si prefieres una eliminación instantánea: en ese caso, aparecerá una confirmación antes de cada eliminación.</string>
     <string name="pick_duplicate">Duplicar</string>

@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -44,6 +46,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -144,6 +147,22 @@ fun FolderScreen(
      * cambiata anche là. Era la richiesta (*che resta globale per tutte le cartelle*).
      */
     onColumns: (Int) -> Unit,
+    /**
+     * Le opzioni delle altre due viste, dal popup del tocco lungo. Vedi `Settings`.
+     *
+     * ⚠️ **Senza valore predefinito apposta**: con uno, un giorno che il richiamo si
+     * dimenticasse di passarle il compilatore tacerebbe e la schermata mostrerebbe le
+     * opzioni funzionanti ma scollegate dalle preferenze, che è il difetto che non si
+     * vede. Il modificatore resta l'unico parametro con un valore suo.
+     */
+    listCount: Boolean,
+    listText: TextSize,
+    treeHidden: Boolean,
+    treePictures: Boolean,
+    onListCount: (Boolean) -> Unit,
+    onListText: (TextSize) -> Unit,
+    onTreeHidden: (Boolean) -> Unit,
+    onTreePictures: (Boolean) -> Unit,
     /**
      * Dove sta la vista 'Cartelle di sistema', e `null` vuol dire in cima.
      *
@@ -353,7 +372,16 @@ fun FolderScreen(
                 // toccare una cartella non sceglierebbe niente. Nella veste 'scegli la
                 // cartella' si scivola quindi sul ramo in fondo, cioè l'elenco.
                 view == FolderView.TREE && home ->
-                    TreeList(treePath, hidden, binOn, factFields, onTreePath, onTreeOpen)
+                    TreeList(
+                        path = treePath,
+                        hidden = hidden,
+                        binOn = binOn,
+                        showHidden = treeHidden,
+                        onlyPictures = treePictures,
+                        factFields = factFields,
+                        onPath = onTreePath,
+                        onOpen = onTreeOpen
+                    )
 
                 folders == null -> CircularProgressIndicator(
                     Modifier.padding(top = 24.dp).size(28.dp).align(Alignment.CenterHorizontally)
@@ -367,7 +395,7 @@ fun FolderScreen(
 
                 view == FolderView.GRID ->
                     Covers(folders!!, columns, counted, nameStyle, onPick) { hiding = it }
-                else -> Rows(folders!!, onPick) { hiding = it }
+                else -> Rows(folders!!, listCount, listText, onPick) { hiding = it }
             }
         }
 
@@ -492,9 +520,19 @@ fun FolderScreen(
     }
 
     if (sizing) {
-        SizeDialog(
-            current = columns,
-            onPick = onColumns,
+        ViewOptions(
+            view = view,
+            columns = columns,
+            listCount = listCount,
+            listText = listText,
+            treeHidden = treeHidden,
+            treePictures = treePictures,
+            onView = onView,
+            onColumns = onColumns,
+            onListCount = onListCount,
+            onListText = onListText,
+            onTreeHidden = onTreeHidden,
+            onTreePictures = onTreePictures,
             onDismiss = { sizing = false }
         )
     }
@@ -785,34 +823,99 @@ private fun Hub(
 }
 
 /**
- * La dimensione della griglia, chiesta col tocco lungo sul tastino.
+ * Le opzioni di visualizzazione, chieste col tocco lungo sul tastino.
  *
- * ⚠️⚠️ **È LA STESSA IMPOSTAZIONE DELLE PREFERENZE, non una seconda** (richiesta
- * dell'utente: *che resta globale per tutte le cartelle*): questa è una via più corta per
- * arrivarci, e chi la usa la ritrova cambiata anche là dentro. Un numero di colonne 'della
- * sessione' sarebbe una terza cosa da capire.
- * ⚠️ **Le pastiglie sono quelle delle impostazioni**, `FilterChip` con i numeri nudi: chi ha
- * già visto quella riga riconosce questa senza leggerla. Una copia della riga intera (con
- * titolo e spiegazione) non serviva: qui il titolo del dialogo dice già di che cosa si parla.
+ * ⚠️⚠️ **DALLA `0.99` PORTA ANCHE LA VISTA, e con lei le opzioni di ognuna** (richiesta
+ * dell'utente): prima era il solo numero di colonne, quindi la scorciatoia serviva a una
+ * vista su tre e nelle altre due apriva un dialogo che non c'entrava niente. Adesso la
+ * prima fila sceglie la vista e sotto compaiono le sue, cioè le colonne per la griglia, il
+ * contatore e il corpo del testo per l'elenco, i file nascosti e il filtro delle immagini
+ * per le cartelle di sistema.
+ * ⚠️⚠️ **SONO LE STESSE IMPOSTAZIONI DELLE PREFERENZE, non delle seconde** (richiesta
+ * dell'utente sulle colonne: *che resta globale per tutte le cartelle*, ed è il criterio di
+ * tutte): questa è una via più corta per arrivarci, e chi la usa le ritrova cambiate anche
+ * là dentro. Un valore 'della sessione' sarebbe una terza cosa da capire. Il solo filtro
+ * dei generi non è qui, perché per richiesta è volatile.
+ * ⚠️ **Le pastiglie sono quelle delle impostazioni**, `FilterChip` coi valori nudi: chi ha
+ * già visto quelle righe riconosce queste senza leggerle. Una copia della riga intera (con
+ * titolo e spiegazione) non serviva: qui il titolino dice già di che cosa si parla.
  * ⚠️⚠️ **SCEGLIERE NON CHIUDE, e non è una dimenticanza**: un dialogo di Material lascia
- * vedere quello che c'è dietro, quindi la griglia si riordina **sotto gli occhi** a ogni
+ * vedere quello che c'è dietro, quindi la schermata si rifà **sotto gli occhi** a ogni
  * pastiglia toccata, e si può provare 2, 3 e 4 senza riaprire niente. Chiudendo a ogni scelta,
  * confrontarle vorrebbe dire tre tocchi lunghi. Il tasto in basso quindi non conferma niente:
  * dice che si è finito.
  */
 @Composable
-private fun SizeDialog(current: Int, onPick: (Int) -> Unit, onDismiss: () -> Unit) {
+@OptIn(ExperimentalLayoutApi::class)
+private fun ViewOptions(
+    view: FolderView,
+    columns: Int,
+    listCount: Boolean,
+    listText: TextSize,
+    treeHidden: Boolean,
+    treePictures: Boolean,
+    onView: (FolderView) -> Unit,
+    onColumns: (Int) -> Unit,
+    onListCount: (Boolean) -> Unit,
+    onListText: (TextSize) -> Unit,
+    onTreeHidden: (Boolean) -> Unit,
+    onTreePictures: (Boolean) -> Unit,
+    onDismiss: () -> Unit
+) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.columns_title)) },
+        title = { Text(stringResource(R.string.view_options)) },
         text = {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FOLDER_COLUMNS.forEach { n ->
-                    FilterChip(
-                        selected = n == current,
-                        onClick = { onPick(n) },
-                        label = { Text(n.toString()) }
-                    )
+            Column(verticalArrangement = Arrangement.spacedBy(OPTION_GAP)) {
+                /*
+                 * ⚠️ **`FlowRow` e non `Row`**: le tre viste si chiamano 'Vista a griglia',
+                 * 'Vista a elenco' e 'Cartelle di sistema', e in fila su uno schermo stretto
+                 * l'ultima uscirebbe dal dialogo. Andando a capo da sé, la stessa riga vale
+                 * per ogni larghezza e per ogni lingua, comprese quelle che scrivono lungo.
+                 */
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(OPTION_GAP)) {
+                    FolderView.entries.forEach { one ->
+                        FilterChip(
+                            selected = one == view,
+                            onClick = { onView(one) },
+                            label = { Text(stringResource(one.label())) }
+                        )
+                    }
+                }
+                HorizontalDivider()
+                // ⚠️ Le opzioni sono quelle della vista SCELTA e non tutte insieme: un
+                // dialogo con nove voci di cui sei spente sarebbe un pannello di
+                // impostazioni, e questa è una scorciatoia.
+                when (view) {
+                    FolderView.GRID -> {
+                        OptionLabel(R.string.columns_title)
+                        Row(horizontalArrangement = Arrangement.spacedBy(OPTION_GAP)) {
+                            FOLDER_COLUMNS.forEach { n ->
+                                FilterChip(
+                                    selected = n == columns,
+                                    onClick = { onColumns(n) },
+                                    label = { Text(n.toString()) }
+                                )
+                            }
+                        }
+                    }
+                    FolderView.LIST -> {
+                        OptionSwitch(R.string.list_count, listCount, onListCount)
+                        OptionLabel(R.string.text_size)
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(OPTION_GAP)) {
+                            TextSize.entries.forEach { one ->
+                                FilterChip(
+                                    selected = one == listText,
+                                    onClick = { onListText(one) },
+                                    label = { Text(stringResource(one.label())) }
+                                )
+                            }
+                        }
+                    }
+                    FolderView.TREE -> {
+                        OptionSwitch(R.string.tree_show_hidden, treeHidden, onTreeHidden)
+                        OptionSwitch(R.string.tree_pictures, treePictures, onTreePictures)
+                    }
                 }
             }
         },
@@ -820,6 +923,42 @@ private fun SizeDialog(current: Int, onPick: (Int) -> Unit, onDismiss: () -> Uni
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.pick_close)) }
         }
     )
+}
+
+/** Il titolino sopra una fila di pastiglie, dentro il dialogo delle opzioni. */
+@Composable
+private fun OptionLabel(@StringRes text: Int) {
+    Text(
+        text = stringResource(text),
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+}
+
+/**
+ * Una voce con l'interruttore, dentro il dialogo delle opzioni.
+ *
+ * ⚠️ Il tocco sta su **tutta la riga** e non sul solo interruttore: un bersaglio da 32dp in
+ * un dialogo si manca, e la riga intera è la convenzione di ogni schermata di impostazioni.
+ */
+@Composable
+private fun OptionSwitch(@StringRes text: Int, checked: Boolean, onChange: (Boolean) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onChange(!checked) },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = stringResource(text), style = MaterialTheme.typography.bodyMedium)
+        Switch(checked = checked, onCheckedChange = onChange)
+    }
+}
+
+private fun TextSize.label(): Int = when (this) {
+    TextSize.SMALL -> R.string.text_small
+    TextSize.NORMAL -> R.string.text_normal
+    TextSize.LARGE -> R.string.text_large
 }
 
 /**
@@ -874,6 +1013,28 @@ private fun TallyPair(icon: ImageVector, howMany: Int) {
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         maxLines = 1
     )
+}
+
+/**
+ * I due corpi di una riga d'elenco, per la misura scelta.
+ *
+ * ⚠️ **Sono stili del tema e non numeri in sp**: il tema li scala già col corpo di sistema,
+ * quindi chi ha ingrandito i caratteri di Android continua a vederli ingranditi, e questa
+ * scelta gli si somma invece di sostituirlo. Con degli sp scritti a mano, 'grande' sarebbe
+ * diventato 'più piccolo di prima' proprio per chi ha bisogno del grande.
+ */
+@Composable
+private fun TextSize.title() = when (this) {
+    TextSize.SMALL -> MaterialTheme.typography.bodyMedium
+    TextSize.NORMAL -> MaterialTheme.typography.titleSmall
+    TextSize.LARGE -> MaterialTheme.typography.titleMedium
+}
+
+@Composable
+private fun TextSize.detail() = when (this) {
+    TextSize.SMALL -> MaterialTheme.typography.labelSmall
+    TextSize.NORMAL -> MaterialTheme.typography.bodySmall
+    TextSize.LARGE -> MaterialTheme.typography.bodyMedium
 }
 
 /** Le cartelle come copertine. */
@@ -932,6 +1093,10 @@ private fun Covers(
 @Composable
 private fun Rows(
     folders: List<Folder.Bucket>,
+    /** Se sotto il nome si legge il conto. Vedi `Settings.listCount`. */
+    counted: Boolean,
+    /** Il corpo del testo scelto per questa vista. Vedi `Settings.listText`. */
+    size: TextSize,
     onPick: (Folder.Bucket) -> Unit,
     onHide: (Folder.Bucket) -> Unit
 ) {
@@ -961,9 +1126,15 @@ private fun Rows(
                     Cover(bucket.cover)
                 }
                 Column(modifier = Modifier.weight(1f)) {
+                    /*
+                     * ⚠️ **Il corpo lo sceglie l'utente, dalla `0.99`**, e i due testi si
+                     * muovono insieme: il nome sale di un gradino e il conto lo segue, o a
+                     * corpo grande la riga diventerebbe un titolo con una didascalia
+                     * minuscola sotto.
+                     */
                     Text(
                         text = bucket.name,
-                        style = MaterialTheme.typography.titleSmall,
+                        style = size.title(),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -973,7 +1144,7 @@ private fun Rows(
                      * numero, qui la riga è larga e le parole si leggono meglio di due
                      * pittogrammi appaiati. La distinzione arriva lo stesso.
                      */
-                    Text(
+                    if (counted) Text(
                         text = listOfNotNull(
                             pluralStringResource(
                                 R.plurals.folders_count, bucket.pictures, bucket.pictures
@@ -982,7 +1153,7 @@ private fun Rows(
                                 R.plurals.folders_clips, bucket.clips, bucket.clips
                             ).takeIf { bucket.clips > 0 }
                         ).joinToString(", "),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = size.detail(),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -1142,6 +1313,15 @@ private val FOLDER_CORNER = 12.dp
 
 /** La copertina dell'elenco: grande quanto due righe di testo, che è l'altezza della riga. */
 private val ROW_COVER = 48.dp
+
+/**
+ * Lo spazio fra le voci del dialogo delle opzioni, e fra le pastiglie di una sua fila.
+ *
+ * ⚠️ **Lo stesso numero per le due cose apposta**: il dialogo è una colonna di righe che
+ * a loro volta sono file di pastiglie, e due spaziature diverse darebbero una griglia
+ * storta a chi la guarda senza saperne il motivo.
+ */
+private val OPTION_GAP = 8.dp
 
 /**
  * Quanta parte dello schermo tiene il frontespizio da aperto: **un terzo scarso**.

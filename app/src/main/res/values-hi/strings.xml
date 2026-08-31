@@ -233,7 +233,15 @@
     <string name="history_none">पिछले %1$d दिनों में कुछ भी वापस नहीं लाया गया।</string>
     <string name="history_note">इतिहास पिछले %1$d दिन रखता है, फिर खुद खाली हो जाता है।</string>
     <string name="columns_title">ग्रिड का आकार</string>
-    <string name="columns_hint">शॉर्टकट: ग्रिड का आकार चुनने के लिए फ़्लोटिंग बटन दबाए रखें।</string>
+    <string name="view_options">दिखाने के विकल्प</string>
+    <string name="list_count">आइटम की संख्या</string>
+    <string name="text_size">पाठ का आकार</string>
+    <string name="text_small">छोटा</string>
+    <string name="text_normal">सामान्य</string>
+    <string name="text_large">बड़ा</string>
+    <string name="tree_show_hidden">छिपी फ़ाइलें दिखाएँ</string>
+    <string name="tree_pictures">केवल चित्रों वाले फ़ोल्डर</string>
+    <string name="columns_hint">शॉर्टकट: दिखाने के विकल्पों के लिए तैरता बटन दबाए रखें।</string>
     <string name="settings_bin">कूड़ेदान चालू करें</string>
     <string name="settings_bin_desc">फ़ाइल मिटाने पर कुछ नहीं पूछा जाता, लेकिन कूड़ेदान से \'वापस लाएँ\' के ज़रिये यह काम पलटा जा सकता है (फ़्लोटिंग बटन → \'कूड़ेदान\')। अगर आप तुरंत मिटाना पसंद करते हैं तो कूड़ेदान पूरी तरह बंद कर सकते हैं: उस स्थिति में हर बार मिटाने से पहले पुष्टि दिखेगी।</string>
     <string name="pick_duplicate">प्रतिलिपि बनाएँ</string>

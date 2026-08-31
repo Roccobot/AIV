@@ -310,7 +310,15 @@
     <string name="history_none">Non è stato ripristinato niente negli ultimi %1$d giorni.</string>
     <string name="history_note">La cronologia tiene gli ultimi %1$d giorni, poi si svuota da sé.</string>
     <string name="columns_title">Dimensione della griglia</string>
-    <string name="columns_hint">Scorciatoia: tieni premuto il tasto flottante per scegliere la dimensione della griglia.</string>
+    <string name="view_options">Opzioni di visualizzazione</string>
+    <string name="list_count">Contatore elementi</string>
+    <string name="text_size">Corpo del testo</string>
+    <string name="text_small">Piccolo</string>
+    <string name="text_normal">Normale</string>
+    <string name="text_large">Grande</string>
+    <string name="tree_show_hidden">Mostra i file nascosti</string>
+    <string name="tree_pictures">Solo le cartelle con immagini</string>
+    <string name="columns_hint">Scorciatoia: tieni premuto il tasto flottante per le opzioni di visualizzazione.</string>
     <string name="settings_bin">Attiva il cestino</string>
     <string name="settings_bin_desc">L\'eliminazione di file non prevede alcun avviso, ma l\'azione è reversibile con un \'Ripristina\' dal cestino (tasto flottante → \'Cestino\'). Puoi disattivare del tutto il cestino, se preferisci un\'eliminazione istantanea: in quel caso, apparirà una conferma prima di ogni eliminazione.</string>
     <string name="pick_duplicate">Duplica</string>
