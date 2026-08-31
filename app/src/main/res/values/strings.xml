@@ -54,6 +54,10 @@
     <string name="editor_left">Turn left</string>
     <string name="editor_right">Turn right</string>
     <string name="editor_free">Free</string>
+    <!-- The two crop orientations. They stand on their own as chip labels, so they
+         say which way the selection stands, not which way the photograph does. -->
+    <string name="editor_tall">Portrait</string>
+    <string name="editor_wide">Landscape</string>
     <string name="editor_save">Save</string>
     <string name="editor_how">How do you want to save it?</string>
     <string name="editor_overwrite">Write over the file</string>

@@ -6,6 +6,7 @@ import android.graphics.ImageDecoder
 import android.graphics.Matrix
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import androidx.annotation.StringRes
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -27,8 +28,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Rotate90DegreesCcw
-import androidx.compose.material.icons.filled.Rotate90DegreesCw
+import androidx.compose.material.icons.filled.RotateLeft
+import androidx.compose.material.icons.filled.RotateRight
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -43,17 +44,20 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -107,7 +111,7 @@ fun EditorScreen(
     val context = LocalContext.current
     var base by remember(uri) { mutableStateOf<Bitmap?>(null) }
     var turns by remember(uri) { mutableIntStateOf(0) }
-    var ratio by remember(uri) { mutableStateOf<Ratio>(Ratio.FREE) }
+    var shape by remember(uri) { mutableStateOf(Shape.FREE) }
     var crop by remember(uri) { mutableStateOf(ImageEdit.Crop.WHOLE) }
     var asking by remember { mutableStateOf(false) }
 
@@ -129,6 +133,26 @@ fun EditorScreen(
             true
         ).asImageBitmap()
     }
+
+    /*
+     * ⚠️⚠️ **L'ORIENTAMENTO DELLA SELEZIONE LO DECIDE LA FOTOGRAFIA, e il quadrato conta come
+     * verticale** (richiesta dell'utente, 2026-08-31). La chiave è [base] e non [uri]: prima
+     * che l'anteprima arrivi non si sa che forma abbia, e un valore scelto a scatola chiusa
+     * sarebbe sbagliato la metà delle volte.
+     * ⚠️ **Girare la fotografia NON lo cambia**, ed è una scelta: dopo il primo tocco
+     * l'orientamento è una decisione dell'utente, e una rotazione che gliela ribalta sotto le
+     * dita gli toglie il comando. Il valore di partenza si decide una volta.
+     */
+    var lay by remember(base) { mutableStateOf(startLay(base)) }
+
+    /**
+     * Quante volte l'immagine mostrata è più larga che alta.
+     *
+     * ⚠️ Si ricava da [shown] e non dal riquadro disegnato, che è lo stesso numero: così i
+     * tasti qui sotto possono fare i loro conti senza sapere niente di dove sta l'immagine
+     * sullo schermo.
+     */
+    val aspect = shown?.let { it.width.toFloat() / it.height } ?: 1f
 
     Column(modifier = modifier.fillMaxSize().safeDrawingPadding()) {
         Row(
@@ -161,20 +185,23 @@ fun EditorScreen(
             } else {
                 val room = Size(constraints.maxWidth.toFloat(), constraints.maxHeight.toFloat())
                 val frame = remember(picture, room) { fitted(picture, room) }
-                // ⚠️ Il rettangolo nasce intero e si rifà a ogni cambio di proporzione o di
-                // giro: tenerlo fra i due sarebbe possibile, ma vorrebbe dire un rettangolo
-                // che dopo una rotazione taglia un pezzo diverso da quello che si vedeva.
-                LaunchedEffect(turns, ratio) {
-                    crop = ratio.fit(frame.width / frame.height)
-                }
-                val grip = with(LocalDensity.current) { GRIP.toPx() }
+                // ⚠️ Il rettangolo si rifà a ogni GIRO, e non a ogni cambio di forma: quelli
+                // li rifà il tasto che li sceglie, perché deve poterlo fare anche quando la
+                // forma è già quella (ritoccato il ritaglio, si ritocca il tasto per
+                // rimetterlo intero). Dopo una rotazione invece un rettangolo tenuto
+                // taglierebbe un pezzo diverso da quello che si vedeva.
+                LaunchedEffect(turns) { crop = shape.fit(aspect, lay) }
+                val density = LocalDensity.current
                 CropStage(
                     picture = picture,
                     frame = frame,
                     crop = crop,
-                    grip = grip,
+                    grip = with(density) { GRIP.toPx() },
+                    least = with(density) { LEAST_SIDE.toPx() },
+                    arm = with(density) { HANDLE_ARM.toPx() },
+                    thick = with(density) { HANDLE_THICK.toPx() },
                     onCrop = { crop = it },
-                    keep = ratio.value
+                    keep = shape.value(lay)
                 )
             }
         }
@@ -183,20 +210,60 @@ fun EditorScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
+            /*
+             * ⚠️ **Le frecce circolari e nient'altro** (richiesta dell'utente, 2026-08-31: le
+             * icone di rotazione devono essere le due frecce *senza forme geometriche*). Le
+             * `Rotate90Degrees*` di Material portano un quadrato che qui non vuol dire niente:
+             * non si gira un quadrato, si gira la fotografia.
+             * ⚠️⚠️ **NON si passa alle versioni `AutoMirrored`, e la deprecazione si zittisce
+             * apposta**: quelle si specchiano nelle lingue che si leggono da destra, e una
+             * freccia antioraria specchiata **diventa oraria**. Il verso di un giro è fisico,
+             * non dipende da come si legge: il tasto direbbe il falso in arabo, in persiano e
+             * in urdu, cioè in tre delle ventotto lingue dell'app. Il rispecchiamento serve
+             * alle frecce che indicano 'indietro' e 'avanti', dove il verso È quello della
+             * lettura.
+             */
+            @Suppress("DEPRECATION") val ccw = Icons.Default.RotateLeft
+            @Suppress("DEPRECATION") val cw = Icons.Default.RotateRight
             IconButton(onClick = { turns = (turns + 3).mod(4) }, enabled = !busy) {
-                Icon(
-                    Icons.Default.Rotate90DegreesCcw,
-                    stringResource(R.string.editor_left)
-                )
+                Icon(ccw, stringResource(R.string.editor_left))
             }
             IconButton(onClick = { turns = (turns + 1).mod(4) }, enabled = !busy) {
-                Icon(
-                    Icons.Default.Rotate90DegreesCw,
-                    stringResource(R.string.editor_right)
+                Icon(cw, stringResource(R.string.editor_right))
+            }
+        }
+
+        /*
+         * ⚠️⚠️ **DUE TASTI CHE SI ESCLUDONO, e cambiarli RIBALTA la selezione sul posto**
+         * (richiesta dell'utente, 2026-08-31): da 16:9 si passa a 9:16, e una selezione libera
+         * si inverte allo stesso modo. ⚠️ **Il centro non si muove**, ed è la parte che rende
+         * il gesto utile invece che spaesante: si sta scegliendo *che forma* dare al ritaglio,
+         * non *dove* metterlo. Il conto sta in [flipped], che sposta il centro solo quando il
+         * rettangolo ribaltato uscirebbe dall'immagine.
+         */
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = STAGE_PAD),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            for (one in Lay.entries) {
+                FilterChip(
+                    selected = one == lay,
+                    onClick = {
+                        if (one != lay) {
+                            crop = flipped(crop, aspect)
+                            lay = one
+                        }
+                    },
+                    enabled = !busy,
+                    label = { Text(stringResource(one.label)) },
+                    modifier = Modifier.weight(1f)
                 )
             }
         }
 
+        // ⚠️ Le proporzioni sono CINQUE e non otto, perché le stesse quattro forme lette
+        // nell'altro verso sono le altre quattro: '2:3' e '3:2' non sono due scelte, sono la
+        // stessa scelta con l'orientamento girato. Vedi [Shape].
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -204,12 +271,12 @@ fun EditorScreen(
                 .padding(horizontal = STAGE_PAD, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            for (one in Ratio.entries) {
+            for (one in Shape.entries) {
                 FilterChip(
-                    selected = one == ratio,
-                    onClick = { ratio = one },
+                    selected = one == shape,
+                    onClick = { shape = one; crop = one.fit(aspect, lay) },
                     enabled = !busy,
-                    label = { Text(one.text ?: stringResource(R.string.editor_free)) }
+                    label = { Text(one.text(lay) ?: stringResource(R.string.editor_free)) }
                 )
             }
         }
@@ -227,32 +294,46 @@ fun EditorScreen(
     }
 }
 
+/** Come sta la selezione: in piedi o coricata. Vedi i due tasti in [EditorScreen]. */
+private enum class Lay(@StringRes val label: Int) {
+    TALL(R.string.editor_tall),
+    WIDE(R.string.editor_wide)
+}
+
 /**
- * Le proporzioni ammesse, nell'ordine chiesto dall'utente.
+ * Con che forma si ritaglia, **senza** dire da che parte sta.
  *
- * ⚠️ **Il valore è larghezza diviso altezza, e `null` è 'libero'**: con un numero anche per
- * il libero servirebbe un caso speciale in ogni conto, mentre così il caso speciale è uno
- * solo e sta qui.
+ * ⚠️⚠️ **QUATTRO FORME E NON OTTO, ed è la struttura che la richiesta dell'utente impone**:
+ * '2:3' e '3:2' non sono due scelte diverse, sono la stessa forma letta nei due versi, e chi
+ * le tiene separate deve poi tenere d'accordo due elenchi ogni volta che l'orientamento
+ * cambia. Qui il verso lo dà [Lay], e la forma resta selezionata mentre gli si gira intorno.
+ * ⚠️ **Il valore è larghezza diviso altezza in verticale**, e in orizzontale è il suo
+ * reciproco: un numero solo per forma, e l'inversione è una divisione.
+ * ⚠️ **`null` è 'libero'**: con un numero anche per quello servirebbe un caso speciale in
+ * ogni conto, mentre così il caso speciale è uno solo e sta qui.
  * ⚠️ **Le etichette NON sono risorse, tranne 'Libero'**: '16:9' si scrive uguale in tutte le
  * lingue, e metterlo in ventotto file vorrebbe dire ventotto occasioni di scriverlo storto
  * per zero traduzioni.
  */
-private enum class Ratio(val value: Float?, val text: String?) {
-    FREE(null, null),
-    ONE(1f, "1:1"),
-    TWO_THREE(2f / 3f, "2:3"),
-    THREE_FOUR(3f / 4f, "3:4"),
-    NINE_SIXTEEN(9f / 16f, "9:16"),
-    THREE_TWO(3f / 2f, "3:2"),
-    FOUR_THREE(4f / 3f, "4:3"),
-    SIXTEEN_NINE(16f / 9f, "16:9");
+private enum class Shape(val tall: Float?, private val up: String?, private val flat: String?) {
+    FREE(null, null, null),
+    ONE(1f, "1:1", "1:1"),
+    TWO_THREE(2f / 3f, "2:3", "3:2"),
+    THREE_FOUR(3f / 4f, "3:4", "4:3"),
+    NINE_SIXTEEN(9f / 16f, "9:16", "16:9");
+
+    /** Larghezza diviso altezza in questo verso, e `null` se la forma è libera. */
+    fun value(lay: Lay): Float? = tall?.let { if (lay == Lay.TALL) it else 1f / it }
+
+    /** Come si scrive in questo verso, e `null` per 'libero', che è una risorsa. */
+    fun text(lay: Lay): String? = if (lay == Lay.TALL) up else flat
 
     /**
-     * Il rettangolo più grande con questa proporzione dentro un'immagine larga [frame] volte
-     * la sua altezza, centrato, in frazioni.
+     * Il rettangolo più grande con questa forma dentro un'immagine larga [frame] volte la sua
+     * altezza, centrato, in frazioni.
      */
-    fun fit(frame: Float): ImageEdit.Crop {
-        val want = value ?: return ImageEdit.Crop.WHOLE
+    fun fit(frame: Float, lay: Lay): ImageEdit.Crop {
+        val want = value(lay) ?: return ImageEdit.Crop.WHOLE
         return if (want >= frame) {
             // Sta largo quanto l'immagine, e avanza sopra e sotto.
             val h = (frame / want).coerceAtMost(1f)
@@ -266,6 +347,38 @@ private enum class Ratio(val value: Float?, val text: String?) {
     }
 }
 
+/** Da che parte sta una fotografia. ⚠️ Il quadrato conta come verticale: lo chiede l'utente. */
+private fun startLay(base: Bitmap?): Lay =
+    if (base != null && base.width > base.height) Lay.WIDE else Lay.TALL
+
+/**
+ * La stessa selezione girata di quarto: larghezza e altezza si scambiano, il centro resta.
+ *
+ * ⚠️⚠️ **LO SCAMBIO È IN PIXEL E NON IN FRAZIONI, ed è l'unico modo perché 16:9 diventi
+ * 9:16**: le frazioni sono relative ai due lati dell'immagine, che sono diversi, quindi
+ * scambiarle darebbe un rettangolo con una proporzione che non è né l'una né l'altra. Il
+ * passaggio per i pixel è la moltiplicazione e la divisione per [frame] qui sotto.
+ * ⚠️ **Se il rettangolo girato non ci sta, si RIMPICCIOLISCE invece di deformarsi**, e solo
+ * dopo, se serve, si sposta il centro quel tanto che basta a rientrare: la forma è la cosa
+ * che si è chiesta, la posizione è quella che si può cedere.
+ */
+private fun flipped(crop: ImageEdit.Crop, frame: Float): ImageEdit.Crop {
+    if (frame <= 0f) return crop
+    val cx = (crop.left + crop.right) / 2f
+    val cy = (crop.top + crop.bottom) / 2f
+    var w = (crop.bottom - crop.top) / frame
+    var h = (crop.right - crop.left) * frame
+    if (w <= 0f || h <= 0f) return crop
+    val room = min(1f, min(1f / w, 1f / h))
+    if (room < 1f) {
+        w *= room
+        h *= room
+    }
+    val x = cx.coerceIn(w / 2f, 1f - w / 2f)
+    val y = cy.coerceIn(h / 2f, 1f - h / 2f)
+    return ImageEdit.Crop(x - w / 2f, y - h / 2f, x + w / 2f, y + h / 2f)
+}
+
 /**
  * L'immagine con sopra il rettangolo del ritaglio, e le dita che lo muovono.
  *
@@ -275,6 +388,18 @@ private enum class Ratio(val value: Float?, val text: String?) {
  * schermo. Qui si converte una volta all'entrata e una all'uscita.
  * ⚠️ **La presa dell'angolo è più grande dell'angolo disegnato**: un bersaglio da 12dp non si
  * prende, e allargare il disegno per allargare il bersaglio coprirebbe la fotografia.
+ *
+ * ⚠️⚠️ **IL RETTANGOLO IN CORSO VIVE DENTRO IL GESTO, e NON si rilegge da [crop] a ogni
+ * spostamento**: è la correzione del 2026-08-31, e il difetto che toglieva era totale
+ * (segnalazione dell'utente: *la selezione non può essere ridimensionata né spostata,
+ * traballa senza rispondere*). La ragione è che il blocco di `pointerInput` è una **coroutine
+ * che dura quanto le sue chiavi**: il `crop` che vede è quello catturato quando è partita, e
+ * resta quello per tutto il trascinamento. Ogni movimento del dito calcolava quindi
+ * `iniziale + delta` invece di `corrente + delta`, cioè il rettangolo tornava indietro a ogni
+ * fotogramma e restava a tremare intorno al punto di partenza.
+ * ⚠️ **Non basta togliere le chiavi né aggiungerne**: con `crop` fra le chiavi il gesto
+ * verrebbe **riavviato** a ogni movimento, cioè si perderebbe il trascinamento invece di
+ * sbagliarlo. La cosa giusta è accumulare qui dentro, che è anche dove il conto ha senso.
  */
 @Composable
 private fun CropStage(
@@ -282,26 +407,37 @@ private fun CropStage(
     frame: Rect,
     crop: ImageEdit.Crop,
     grip: Float,
+    least: Float,
+    arm: Float,
+    thick: Float,
     keep: Float?,
     onCrop: (ImageEdit.Crop) -> Unit
 ) {
     val dim = Color.Black.copy(alpha = VEIL)
     val line = Color.White
     var held by remember { mutableStateOf(Grab.NONE) }
+    // ⚠️ Il valore più fresco senza rifare il gesto: `rememberUpdatedState` è fatto apposta
+    // per quello che sta dentro una coroutine di lunga vita.
+    val now by rememberUpdatedState(crop)
+    val report by rememberUpdatedState(onCrop)
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .pointerInput(frame, keep) {
+            .pointerInput(frame, keep, least) {
+                var going = Rect.Zero
                 detectDragGestures(
-                    onDragStart = { at -> held = grabbed(at, box(crop, frame), grip) },
+                    onDragStart = { at ->
+                        going = box(now, frame)
+                        held = grabbed(at, going, grip)
+                    },
                     onDragEnd = { held = Grab.NONE },
                     onDragCancel = { held = Grab.NONE }
                 ) { change, delta ->
                     change.consume()
                     if (held == Grab.NONE) return@detectDragGestures
-                    val moved = dragged(box(crop, frame), held, delta, frame, keep, grip)
-                    onCrop(fractions(moved, frame))
+                    going = dragged(going, held, delta, frame, keep, least)
+                    report(fractions(going, frame))
                 }
             }
     ) {
@@ -334,13 +470,20 @@ private fun CropStage(
                 drawLine(line.copy(alpha = 0.35f), Offset(x, r.top), Offset(x, r.bottom), THIRD_PX)
                 drawLine(line.copy(alpha = 0.35f), Offset(r.left, y), Offset(r.right, y), THIRD_PX)
             }
-            for (corner in corners(r)) {
-                drawRect(
-                    color = line,
-                    topLeft = Offset(corner.x - CORNER_PX / 2f, corner.y - CORNER_PX / 2f),
-                    size = Size(CORNER_PX, CORNER_PX)
-                )
-            }
+            /*
+             * ⚠️⚠️ **QUATTRO SQUADRETTE E NON QUATTRO QUADRATINI** (richiesta dell'utente,
+             * 2026-08-31: *manopole angolari più grandi e visibili*). Un quadratino centrato
+             * sull'angolo dice 'qui c'è un punto'; una squadretta appoggiata ai due lati dice
+             * **quali due lati** quel punto muove, che è l'informazione che serve mentre si
+             * tira. È anche la forma che ogni ritaglio moderno usa, quindi non va imparata.
+             * ⚠️ **Il braccio si accorcia sui ritagli piccoli**: a lato pieno resterebbe più
+             * lungo di metà rettangolo, e le due squadrette opposte si toccherebbero.
+             */
+            val reach = min(arm, min(r.width, r.height) / 2.5f)
+            bracket(Offset(r.left, r.top), 1, 1, reach, thick, line)
+            bracket(Offset(r.right, r.top), -1, 1, reach, thick, line)
+            bracket(Offset(r.left, r.bottom), 1, -1, reach, thick, line)
+            bracket(Offset(r.right, r.bottom), -1, -1, reach, thick, line)
         }
     }
 }
@@ -348,10 +491,35 @@ private fun CropStage(
 /** Quale presa ha preso il dito. */
 private enum class Grab { NONE, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, INSIDE }
 
-private fun corners(r: Rect) = listOf(
-    Offset(r.left, r.top), Offset(r.right, r.top),
-    Offset(r.left, r.bottom), Offset(r.right, r.bottom)
-)
+/**
+ * Una squadretta d'angolo: due bracci arrotondati appoggiati DENTRO al rettangolo.
+ *
+ * ⚠️ **Dentro e non a cavallo del bordo**: a cavallo coprirebbe un pezzo di fotografia fuori
+ * dal ritaglio, e quello che si sta guardando mentre si tira è proprio il bordo.
+ * [dx] e [dy] valgono `1` se da quell'angolo si va verso destra o verso il basso, `-1` se no.
+ */
+private fun DrawScope.bracket(
+    at: Offset,
+    dx: Int,
+    dy: Int,
+    arm: Float,
+    thick: Float,
+    color: Color
+) {
+    val round = CornerRadius(thick / 2f, thick / 2f)
+    drawRoundRect(
+        color = color,
+        topLeft = Offset(if (dx > 0) at.x else at.x - arm, if (dy > 0) at.y else at.y - thick),
+        size = Size(arm, thick),
+        cornerRadius = round
+    )
+    drawRoundRect(
+        color = color,
+        topLeft = Offset(if (dx > 0) at.x else at.x - thick, if (dy > 0) at.y else at.y - arm),
+        size = Size(thick, arm),
+        cornerRadius = round
+    )
+}
 
 private fun grabbed(at: Offset, r: Rect, grip: Float): Grab {
     val near = listOf(
@@ -360,7 +528,13 @@ private fun grabbed(at: Offset, r: Rect, grip: Float): Grab {
         Grab.BOTTOM_LEFT to Offset(r.left, r.bottom),
         Grab.BOTTOM_RIGHT to Offset(r.right, r.bottom)
     ).minByOrNull { (_, corner) -> (corner - at).getDistance() }
-    if (near != null && (near.second - at).getDistance() <= grip) return near.first
+    if (near != null && (near.second - at).getDistance() <= grip) {
+        // ⚠️⚠️ **MA NON QUANDO IL DITO È PIÙ VICINO AL CENTRO CHE ALL'ANGOLO**: su un ritaglio
+        // piccolo tutti e quattro gli angoli cadono dentro la presa, e senza questo confronto
+        // il rettangolo si potrebbe solo ridimensionare, mai più spostare. Il centro è
+        // l'unico riferimento che non dipende da quanto è grande la presa.
+        if ((near.second - at).getDistance() <= (r.center - at).getDistance()) return near.first
+    }
     return if (r.contains(at)) Grab.INSIDE else Grab.NONE
 }
 
@@ -377,14 +551,15 @@ private fun dragged(
     delta: Offset,
     frame: Rect,
     keep: Float?,
-    grip: Float
+    /** Il lato più corto che un ritaglio può avere. ⚠️ Non è la presa: quella è più larga. */
+    least: Float
 ): Rect {
     if (held == Grab.INSIDE) {
         val dx = delta.x.coerceIn(frame.left - r.left, frame.right - r.right)
         val dy = delta.y.coerceIn(frame.top - r.top, frame.bottom - r.bottom)
         return r.translate(dx, dy)
     }
-    val small = grip
+    val small = least
     var left = r.left
     var top = r.top
     var right = r.right
@@ -535,11 +710,28 @@ private const val EDGE_PX = 2f
 /** Le righe dei terzi, più leggere del bordo. */
 private const val THIRD_PX = 1f
 
-/** Il quadratino d'angolo, in pixel. */
-private const val CORNER_PX = 18f
+/** Il braccio della squadretta d'angolo, e il suo spessore. */
+private val HANDLE_ARM = 24.dp
+private val HANDLE_THICK = 4.dp
 
-/** Quanto lontano dall'angolo il dito lo prende ancora, e il lato minimo del ritaglio. */
-private val GRIP = 28.dp
+/**
+ * Quanto lontano dall'angolo il dito lo prende ancora.
+ *
+ * ⚠️ **Più largo della squadretta disegnata, e non per generosità**: il dito copre quello che
+ * tocca, quindi una presa grande esattamente quanto il disegno si prende solo guardando. 40dp
+ * è la misura che Material dà a un bersaglio comodo.
+ */
+private val GRIP = 40.dp
+
+/**
+ * Il lato più corto che un ritaglio può avere.
+ *
+ * ⚠️ **Separato dalla PRESA, e prima era lo stesso numero**: con un solo valore, allargare il
+ * bersaglio del dito allargava anche il ritaglio minimo, cioè si perdeva la possibilità di
+ * ritagliare in piccolo per guadagnare comodità. Sono due cose diverse e adesso lo sono anche
+ * nel codice.
+ */
+private val LEAST_SIDE = 32.dp
 
 /** Il respiro intorno alla fotografia nell'editor. */
 private val STAGE_PAD = 12.dp

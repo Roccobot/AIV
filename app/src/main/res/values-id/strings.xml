@@ -286,4 +286,6 @@
     <string name="edit_no_backup">Salinan pengaman gagal, jadi tidak ada yang ditimpa</string>
     <string name="settings_editor_backup">Salinan pengaman sebelum menimpa</string>
     <string name="settings_editor_backup_desc">Sebelum editor bawaan menimpa sebuah gambar, versi sebelumnya masuk ke tempat sampah. Berlaku hanya untuk editor bawaan: aplikasi lain menyimpan sendiri.</string>
+    <string name="editor_tall">Tegak</string>
+    <string name="editor_wide">Mendatar</string>
 </resources>

@@ -45,11 +45,32 @@ object Editors {
      */
     fun installed(context: Context): List<Choice> {
         val pm = context.packageManager
-        val ask = Intent(Intent.ACTION_EDIT).setType(MIME)
-        val found = runCatching {
-            @Suppress("DEPRECATION")
-            pm.queryIntentActivities(ask, PackageManager.MATCH_DEFAULT_ONLY)
-        }.getOrNull().orEmpty()
+        /*
+         * ⚠️⚠️ **SI DOMANDA IN TRE MODI E SI UNISCE, ed è la correzione del 2026-08-31**
+         * (segnalazione dell'utente: Photo Editor e Magic Eraser installati e non fra le
+         * scelte). Il difetto era doppio, e una sola delle due cause non bastava a spiegarlo:
+         * - **il TIPO da solo non basta**: un filtro che dichiara anche `android:scheme` non
+         *   risponde a un intent senza indirizzo, quindi l'app resta invisibile. Le due righe
+         *   con l'indirizzo finto coprono quel caso, e l'indirizzo non si apre mai: serve
+         *   soltanto a far combaciare il filtro.
+         * - **`MATCH_DEFAULT_ONLY` esclude chi non dichiara `CATEGORY_DEFAULT`**, e sono
+         *   tanti. Qui non serve a niente: quella categoria conta per la risoluzione
+         *   *implicita*, e [open] parte con un **componente esplicito**, dove non è richiesta.
+         * ⚠️ **L'elenco vuoto non è un errore visibile**, ed è la ragione per cui il difetto
+         * poteva restare: senza nessuna delle due correzioni il selettore mostra l'editor di
+         * casa e basta, che è esattamente quello che farebbe su un telefono spoglio.
+         */
+        val asks = listOf(
+            Intent(Intent.ACTION_EDIT).setType(MIME),
+            Intent(Intent.ACTION_EDIT).setDataAndType(SAMPLE_CONTENT, MIME),
+            Intent(Intent.ACTION_EDIT).setDataAndType(SAMPLE_FILE, MIME)
+        )
+        val found = asks.flatMap { ask ->
+            runCatching {
+                @Suppress("DEPRECATION")
+                pm.queryIntentActivities(ask, 0)
+            }.getOrNull().orEmpty()
+        }
         return found
             .asSequence()
             // ⚠️ AIV stessa non compare fra le scelte: sceglierla vorrebbe dire chiedere a
@@ -109,4 +130,15 @@ object Editors {
 
     /** Il tipo che si chiede e si dichiara: uno solo, e sta scritto in un posto solo. */
     private const val MIME = "image/*"
+
+    /**
+     * Due indirizzi finti, per la sola domanda al sistema.
+     *
+     * ⚠️⚠️ **NON SI APRONO MAI, e non devono esistere**: servono a far combaciare i filtri
+     * che pretendono uno schema, e la risposta che interessa è *quale app*, non *che cosa
+     * c'è là dentro*. Un indirizzo vero renderebbe la domanda dipendente da una fotografia
+     * che al momento della domanda potrebbe non esserci.
+     */
+    private val SAMPLE_CONTENT: Uri = Uri.parse("content://media/external/images/media/1")
+    private val SAMPLE_FILE: Uri = Uri.parse("file:///storage/emulated/0/Pictures/x.jpg")
 }

@@ -301,4 +301,6 @@
     <string name="edit_no_backup">De veiligheidskopie is mislukt, dus er is niets overschreven</string>
     <string name="settings_editor_backup">Veiligheidskopie voor het overschrijven</string>
     <string name="settings_editor_backup_desc">Voordat de ingebouwde editor een foto overschrijft, gaat de vorige versie naar de prullenbak. Geldt alleen voor de ingebouwde editor: een andere app slaat zelf op.</string>
+    <string name="editor_tall">Staand</string>
+    <string name="editor_wide">Liggend</string>
 </resources>

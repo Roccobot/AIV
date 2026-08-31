@@ -301,4 +301,6 @@
     <string name="edit_no_backup">নিরাপত্তা অনুলিপি হয়নি, তাই কিছুই উপরে লেখা হয়নি</string>
     <string name="settings_editor_backup">উপরে লেখার আগে নিরাপত্তা অনুলিপি</string>
     <string name="settings_editor_backup_desc">অন্তর্নির্মিত সম্পাদক কোনো ছবির উপরে লেখার আগে, আগের রূপটি আবর্জনায় যায়। এটি কেবল অন্তর্নির্মিত সম্পাদকের জন্য: অন্য অ্যাপ নিজের মতো সংরক্ষণ করে।</string>
+    <string name="editor_tall">লম্বালম্বি</string>
+    <string name="editor_wide">আড়াআড়ি</string>
 </resources>

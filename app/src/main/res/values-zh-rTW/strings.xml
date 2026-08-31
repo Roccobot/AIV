@@ -286,4 +286,6 @@
     <string name="edit_no_backup">安全副本沒能建立，所以什麼都沒有覆寫</string>
     <string name="settings_editor_backup">覆寫前先留一份安全副本</string>
     <string name="settings_editor_backup_desc">內建編輯器覆寫一張圖片之前，先把原來的版本放進回收桶。只對內建編輯器有效，別的應用自己儲存。</string>
+    <string name="editor_tall">直式</string>
+    <string name="editor_wide">橫式</string>
 </resources>

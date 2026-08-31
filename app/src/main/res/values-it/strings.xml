@@ -32,6 +32,8 @@
     <string name="editor_left">Gira a sinistra</string>
     <string name="editor_right">Gira a destra</string>
     <string name="editor_free">Libero</string>
+    <string name="editor_tall">Verticale</string>
+    <string name="editor_wide">Orizzontale</string>
     <string name="editor_save">Salva</string>
     <string name="editor_how">Come vuoi salvarla?</string>
     <string name="editor_overwrite">Sovrascrivi il file</string>
