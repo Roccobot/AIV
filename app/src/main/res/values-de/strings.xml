@@ -241,5 +241,5 @@
     <string name="settings_content_remove">Modelle entfernen (%1$s)</string>
     <string name="settings_content_broken">Etwas ist schiefgegangen: %1$s</string>
     <string name="settings_content_retry">Erneut versuchen</string>
-    <string name="settings_content_soon">Die Suche selbst kommt mit der nächsten Version: Vorerst holt diese Zeile nur die Modelle auf das Telefon.</string>
+    <string name="settings_content_indexing">Wird indiziert: %1$d von %2$d</string>
 </resources>

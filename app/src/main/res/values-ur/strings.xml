@@ -241,5 +241,5 @@
     <string name="settings_content_remove">ماڈل ہٹائیں (%1$s)</string>
     <string name="settings_content_broken">کچھ ٹھیک نہیں چلا: %1$s</string>
     <string name="settings_content_retry">دوبارہ کوشش کریں</string>
-    <string name="settings_content_soon">تلاش خود اگلی نسخے میں آئے گی: فی الحال یہ سطر صرف ماڈل فون پر لاتی ہے۔</string>
+    <string name="settings_content_indexing">فہرست سازی: %2$d میں سے %1$d</string>
 </resources>

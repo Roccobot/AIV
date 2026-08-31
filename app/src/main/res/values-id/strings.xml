@@ -227,5 +227,5 @@
     <string name="settings_content_remove">Hapus modelnya (%1$s)</string>
     <string name="settings_content_broken">Ada yang tidak berjalan: %1$s</string>
     <string name="settings_content_retry">Coba lagi</string>
-    <string name="settings_content_soon">Pencariannya sendiri datang di versi berikutnya: untuk sekarang baris ini hanya membawa modelnya ke ponsel.</string>
+    <string name="settings_content_indexing">Mengindeks: %1$d dari %2$d</string>
 </resources>

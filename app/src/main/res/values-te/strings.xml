@@ -241,5 +241,5 @@
     <string name="settings_content_remove">మోడల్‌లను తీసివేయి (%1$s)</string>
     <string name="settings_content_broken">ఏదో సరిగా జరగలేదు: %1$s</string>
     <string name="settings_content_retry">మళ్ళీ ప్రయత్నించు</string>
-    <string name="settings_content_soon">వెతకడం తర్వాతి వెర్షన్‌లో వస్తుంది: ప్రస్తుతానికి ఈ వరుస మోడల్‌లను ఫోన్‌లోకి తెస్తుంది మాత్రమే.</string>
+    <string name="settings_content_indexing">సూచిక: %2$d లో %1$d</string>
 </resources>

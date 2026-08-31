@@ -297,5 +297,5 @@
     <string name="settings_content_remove">إزالة النموذجين (%1$s)</string>
     <string name="settings_content_broken">شيء ما لم ينجح: %1$s</string>
     <string name="settings_content_retry">إعادة المحاولة</string>
-    <string name="settings_content_soon">البحث نفسه يأتي مع الإصدار التالي: في الوقت الحالي يجلب هذا السطر النماذج إلى الهاتف فقط.</string>
+    <string name="settings_content_indexing">الفهرسة: %1$d من %2$d</string>
 </resources>

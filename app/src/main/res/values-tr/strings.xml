@@ -241,5 +241,5 @@
     <string name="settings_content_remove">Modelleri kaldır (%1$s)</string>
     <string name="settings_content_broken">Bir şey yolunda gitmedi: %1$s</string>
     <string name="settings_content_retry">Yeniden dene</string>
-    <string name="settings_content_soon">Aramanın kendisi bir sonraki sürümde geliyor: şimdilik bu satır yalnızca modelleri telefona indiriyor.</string>
+    <string name="settings_content_indexing">Dizinleniyor: %2$d içinden %1$d</string>
 </resources>

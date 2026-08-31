@@ -227,5 +227,5 @@
     <string name="settings_content_remove">Gỡ các mô hình (%1$s)</string>
     <string name="settings_content_broken">Có gì đó không chạy: %1$s</string>
     <string name="settings_content_retry">Thử lại</string>
-    <string name="settings_content_soon">Bản thân việc tìm kiếm sẽ có ở phiên bản sau: hiện tại dòng này chỉ tải các mô hình về điện thoại.</string>
+    <string name="settings_content_indexing">Đang lập chỉ mục: %1$d trên %2$d</string>
 </resources>
