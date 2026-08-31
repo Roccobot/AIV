@@ -12,7 +12,7 @@
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">기록 지우기</string>
     <string name="url_not_image">이 주소는 이미지를 가리키지 않습니다</string>
-    <string name="menu_copy_image">클립보드에 복사</string>
+    <string name="menu_copy_image">이미지 복사</string>
     <string name="menu_share">공유</string>
     <string name="menu_save">저장</string>
     <string name="toast_image_copied">이미지를 복사했습니다</string>
@@ -177,21 +177,26 @@
     <plurals name="folders_count">
         <item quantity="other">사진 %1$d장</item>
     </plurals>
-    <string name="settings_facts">파일 정보</string>
+    <string name="settings_facts">파일 하나의 정보</string>
     <string name="settings_facts_desc">사진의 정보를 열었을 때 보이는 항목과 그 순서입니다. 이름, 픽셀, 크기는 항상 나옵니다. 파일에 없는 항목은 줄 자체가 나오지 않습니다.</string>
     <string name="settings_facts_always">항상 표시</string>
     <string name="settings_facts_up">위로</string>
     <string name="settings_facts_down">아래로</string>
     <string name="settings_group_look">모양</string>
     <string name="settings_group_viewer">보기</string>
-    <string name="settings_group_browse">폴더와 탐색</string>
+    <string name="settings_group_browse">폴더</string>
     <string name="settings_group_start">시작</string>
     <string name="settings_hidden_none">숨긴 폴더가 없습니다</string>
     <plurals name="settings_hidden_count">
         <item quantity="other">폴더 %1$d개</item>
     </plurals>
     <plurals name="settings_facts_count">
-        <item quantity="other">항목 %1$d개</item>
+        <item quantity="other">항목 %1$d개 표시</item>
     </plurals>
     <string name="bin_empty_hint">단축 동작: 플로팅 버튼을 길게 누르면 휴지통을 비웁니다.</string>
+    <string name="facts_title">파일 상세 정보</string>
+    <string name="settings_reset_hints">안내를 다시 보기</string>
+    <string name="settings_reset_hints_desc">단축 동작 설명이 새로 설치한 것처럼 다시 나타납니다.</string>
+    <string name="settings_reset_hints_do">다시 보기</string>
+    <string name="settings_reset_hints_done">안내가 다시 나타납니다</string>
 </resources>

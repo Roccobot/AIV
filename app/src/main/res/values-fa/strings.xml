@@ -12,7 +12,7 @@
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">فراموش کردن اینها</string>
     <string name="url_not_image">نشانی به یک تصویر اشاره نمی‌کند</string>
-    <string name="menu_copy_image">رونوشت در حافظه موقت</string>
+    <string name="menu_copy_image">کپی تصویر</string>
     <string name="menu_share">هم‌رسانی</string>
     <string name="menu_save">ذخیره</string>
     <string name="toast_image_copied">تصویر رونوشت شد</string>
@@ -190,14 +190,14 @@
         <item quantity="one">%1$d تصویر</item>
         <item quantity="other">%1$d تصویر</item>
     </plurals>
-    <string name="settings_facts">اطلاعات فایل</string>
+    <string name="settings_facts">اطلاعات یک پرونده</string>
     <string name="settings_facts_desc">کدام داده‌ها را هنگام باز کردن اطلاعات یک تصویر می‌بینید، و به چه ترتیبی. نام و پیکسل‌ها و اندازه همیشه هستند؛ داده‌ای که فایل ندارد هیچ سطری نمی‌گیرد.</string>
     <string name="settings_facts_always">همیشه دیده می‌شود</string>
     <string name="settings_facts_up">بردن به بالا</string>
     <string name="settings_facts_down">بردن به پایین</string>
     <string name="settings_group_look">ظاهر</string>
     <string name="settings_group_viewer">نمایشگر</string>
-    <string name="settings_group_browse">پوشه‌ها و مرور</string>
+    <string name="settings_group_browse">پوشه‌ها</string>
     <string name="settings_group_start">راه‌اندازی</string>
     <string name="settings_hidden_none">هیچ پوشه پنهانی نیست</string>
     <plurals name="settings_hidden_count">
@@ -205,8 +205,13 @@
         <item quantity="other">%1$d پوشه</item>
     </plurals>
     <plurals name="settings_facts_count">
-        <item quantity="one">%1$d مورد</item>
-        <item quantity="other">%1$d مورد</item>
+        <item quantity="one">%1$d مورد نمایش داده می‌شود</item>
+        <item quantity="other">%1$d مورد نمایش داده می‌شود</item>
     </plurals>
     <string name="bin_empty_hint">میان‌بر: دکمه شناور را نگه دارید تا سبد زباله خالی شود.</string>
+    <string name="facts_title">اطلاعات کامل پرونده</string>
+    <string name="settings_reset_hints">بازگرداندن راهنماها</string>
+    <string name="settings_reset_hints_desc">توضیح میان‌برها دوباره نمایش داده می‌شود، مانند نصب تازه.</string>
+    <string name="settings_reset_hints_do">بازگرداندن</string>
+    <string name="settings_reset_hints_done">راهنماها دوباره نمایش داده می‌شوند</string>
 </resources>

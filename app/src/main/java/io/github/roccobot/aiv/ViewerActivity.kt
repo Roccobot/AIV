@@ -874,6 +874,18 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch { Recents.clear(getApplication()) }
     }
 
+    /**
+     * Rimette in piedi tutti gli onboarding, come alla prima installazione.
+     *
+     * ⚠️ **Sta nel modello e non nella schermata**, come `forgetRecents`: quella scrive
+     * nell'archivio, e una schermata che scrive nell'archivio da sé smette di essere una
+     * schermata. ⚠️ Gira su **tutte** le voci di [Hint] e non su un elenco scritto a mano:
+     * il giorno che ne nasce una quarta, questa funzione la copre già.
+     */
+    fun resetHints() {
+        viewModelScope.launch { Hint.entries.forEach { it.forget(getApplication()) } }
+    }
+
     private fun LoadResult.Reason.messageRes(): Int = when (this) {
         LoadResult.Reason.NO_IMAGE -> R.string.no_image
         LoadResult.Reason.UNSUPPORTED -> R.string.unsupported
@@ -947,6 +959,7 @@ private fun AivApp(model: ViewerViewModel) {
                 settings = settings,
                 onChange = { model.updateSettings(it) },
                 onStartFolder = { model.chooseStartFolder() },
+                onResetHints = { model.resetHints() },
                 onBack = { model.leaveSettings() }
             )
         }

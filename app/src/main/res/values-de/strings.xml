@@ -12,7 +12,7 @@
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Diese vergessen</string>
     <string name="url_not_image">Die Adresse verweist nicht auf ein Bild</string>
-    <string name="menu_copy_image">In die Zwischenablage kopieren</string>
+    <string name="menu_copy_image">Bild kopieren</string>
     <string name="menu_share">Teilen</string>
     <string name="menu_save">Speichern</string>
     <string name="toast_image_copied">Bild kopiert</string>
@@ -190,14 +190,14 @@
         <item quantity="one">%1$d Bild</item>
         <item quantity="other">%1$d Bilder</item>
     </plurals>
-    <string name="settings_facts">Dateiinformationen</string>
+    <string name="settings_facts">Infos zu einer Datei</string>
     <string name="settings_facts_desc">Welche Daten du siehst, wenn du Infos zu einem Bild öffnest, und in welcher Reihenfolge. Name, Pixel und Größe sind immer dabei; ein Wert, den die Datei nicht enthält, bekommt keine Zeile.</string>
     <string name="settings_facts_always">Immer sichtbar</string>
     <string name="settings_facts_up">Nach oben</string>
     <string name="settings_facts_down">Nach unten</string>
     <string name="settings_group_look">Aussehen</string>
     <string name="settings_group_viewer">Betrachter</string>
-    <string name="settings_group_browse">Ordner und Blättern</string>
+    <string name="settings_group_browse">Ordner</string>
     <string name="settings_group_start">Start</string>
     <string name="settings_hidden_none">Keine versteckten Ordner</string>
     <plurals name="settings_hidden_count">
@@ -205,8 +205,13 @@
         <item quantity="other">%1$d Ordner</item>
     </plurals>
     <plurals name="settings_facts_count">
-        <item quantity="one">%1$d Angabe</item>
-        <item quantity="other">%1$d Angaben</item>
+        <item quantity="one">%1$d Angabe sichtbar</item>
+        <item quantity="other">%1$d Angaben sichtbar</item>
     </plurals>
     <string name="bin_empty_hint">Kurzbefehl: Halte die schwebende Schaltfläche gedrückt, um den Papierkorb zu leeren.</string>
+    <string name="facts_title">Ausführliche Dateiinfos</string>
+    <string name="settings_reset_hints">Hinweise zurückholen</string>
+    <string name="settings_reset_hints_desc">Die Erklärungen der Kurzbefehle erscheinen wieder, wie bei einer frischen Installation.</string>
+    <string name="settings_reset_hints_do">Zurückholen</string>
+    <string name="settings_reset_hints_done">Die Hinweise erscheinen wieder</string>
 </resources>

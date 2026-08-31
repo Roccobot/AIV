@@ -41,16 +41,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.outlined.ContentCopy
-import androidx.compose.material.icons.outlined.CopyAll
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.FitScreen
-import androidx.compose.material.icons.outlined.FolderCopy
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.PhotoSizeSelectActual
 import androidx.compose.material.icons.outlined.Subtitles
@@ -1733,19 +1729,25 @@ private fun ImageMenu(
                  * testi si risolve da sé**. Con icone su alcune voci e non su altre, i testi
                  * cominciavano in due posti diversi e allinearli voleva dire un rientro
                  * scritto a mano, cioè un numero da tenere d'accordo con Material.
-                 * ⚠️⚠️ **Due collisioni sono state sciolte, e le icone le hanno rese
-                 * visibili mentre le parole le nascondevano**: 'Copia negli appunti' e
-                 * 'Copia' avrebbero avuto la stessa icona, e così 'Barra dei dettagli' e
-                 * 'Info'. Gli appunti prendono `ContentCopy`, la cartella `FolderCopy`, e la
-                 * barra `Subtitles`, che è una striscia di testo su un fotogramma, cioè
-                 * quello che la barra è.
+                 * ⚠️⚠️ **Due collisioni sono state sciolte, e la prima è tornata a farsi
+                 * viva nella 0.72**: 'Copia' negli appunti e 'Copia' in una cartella
+                 * avrebbero avuto la stessa icona, e così 'Barra dei dettagli' e 'Info'. La
+                 * barra prende `Subtitles`, che è una striscia di testo su un fotogramma,
+                 * cioè quello che la barra è.
+                 * ⚠️⚠️ **La prima l'avevo sciolta con le PAROLE e non bastava** (riscontro
+                 * dell'utente, 2026-08-31: *non si capisce che il 'Copia negli appunti' è
+                 * diverso dal 'Copia' sotto*). Adesso la scioglie il **disegno**: questa
+                 * voce ha due fogli con montagne e sole ([Glyphs.PhotoPair]), l'altra due
+                 * cartelle, e l'etichetta torna a dire la cosa ('Copia immagine') invece
+                 * della destinazione. Una distinzione che un'etichetta non riesce a fare non
+                 * la si fa allungando l'etichetta.
                  * ⚠️ Gli appunti sono l'unica cosa che il menu fa da sé, e può: è una
                  * chiamata che non sospende e finisce prima che il menu si chiuda. Tutto il
                  * resto passa da [MenuOps], e là sta scritto perché.
                  */
                 DropdownMenuItem(
                     text = { Text(stringResource(R.string.menu_copy_image)) },
-                    leadingIcon = { Icon(Icons.Outlined.ContentCopy, null) },
+                    leadingIcon = { Icon(Glyphs.PhotoPair, null) },
                     onClick = {
                         onDismiss()
                         Toast.makeText(
@@ -1827,11 +1829,11 @@ private fun ImageMenu(
                     val one = listOf(uri)
                     ActionPad(
                         actions = listOf(
-                            PadAction(Icons.Outlined.FolderCopy, R.string.menu_copy_here) {
+                            PadAction(Glyphs.FolderPair, R.string.menu_copy_here) {
                                 onDismiss()
                                 ops.job(FileJob.Transfer(one, move = false))
                             },
-                            PadAction(Icons.Outlined.CopyAll, R.string.pick_move) {
+                            PadAction(Glyphs.FolderPairDashed, R.string.pick_move) {
                                 onDismiss()
                                 ops.job(FileJob.Transfer(one, move = true))
                             },

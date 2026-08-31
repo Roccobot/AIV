@@ -12,7 +12,7 @@
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">نسيان هذه العناوين</string>
     <string name="url_not_image">العنوان لا يشير إلى صورة</string>
-    <string name="menu_copy_image">نسخ إلى الحافظة</string>
+    <string name="menu_copy_image">نسخ الصورة</string>
     <string name="menu_share">مشاركة</string>
     <string name="menu_save">حفظ</string>
     <string name="toast_image_copied">تم نسخ الصورة</string>
@@ -242,14 +242,14 @@
         <item quantity="many">%1$d صورة</item>
         <item quantity="other">%1$d صورة</item>
     </plurals>
-    <string name="settings_facts">معلومات الملف</string>
+    <string name="settings_facts">معلومات ملف واحد</string>
     <string name="settings_facts_desc">أي البيانات تراها عند فتح معلومات صورة، وبأي ترتيب. الاسم والبكسلات والحجم موجودة دائمًا؛ وأي بيان لا يحمله الملف لا يأخذ سطرًا أصلًا.</string>
     <string name="settings_facts_always">ظاهر دائمًا</string>
     <string name="settings_facts_up">تحريك لأعلى</string>
     <string name="settings_facts_down">تحريك لأسفل</string>
     <string name="settings_group_look">المظهر</string>
     <string name="settings_group_viewer">العارض</string>
-    <string name="settings_group_browse">المجلدات والتنقل</string>
+    <string name="settings_group_browse">المجلدات</string>
     <string name="settings_group_start">بدء التشغيل</string>
     <string name="settings_hidden_none">لا توجد مجلدات مخفية</string>
     <plurals name="settings_hidden_count">
@@ -261,12 +261,17 @@
         <item quantity="other">%1$d مجلد</item>
     </plurals>
     <plurals name="settings_facts_count">
-        <item quantity="zero">لا عناصر</item>
-        <item quantity="one">عنصر واحد</item>
-        <item quantity="two">عنصران</item>
-        <item quantity="few">%1$d عناصر</item>
-        <item quantity="many">%1$d عنصرًا</item>
-        <item quantity="other">%1$d عنصر</item>
+        <item quantity="zero">لا عناصر ظاهرة</item>
+        <item quantity="one">عنصر واحد ظاهر</item>
+        <item quantity="two">عنصران ظاهران</item>
+        <item quantity="few">%1$d عناصر ظاهرة</item>
+        <item quantity="many">%1$d عنصرا ظاهرا</item>
+        <item quantity="other">%1$d عنصر ظاهر</item>
     </plurals>
     <string name="bin_empty_hint">اختصار: اضغط مطولا على الزر العائم لإفراغ سلة المهملات.</string>
+    <string name="facts_title">معلومات الملف بالتفصيل</string>
+    <string name="settings_reset_hints">إرجاع التلميحات</string>
+    <string name="settings_reset_hints_desc">تظهر شروح الاختصارات من جديد، كما في تثبيت جديد.</string>
+    <string name="settings_reset_hints_do">إرجاع</string>
+    <string name="settings_reset_hints_done">ستظهر التلميحات من جديد</string>
 </resources>

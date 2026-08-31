@@ -12,7 +12,7 @@
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Забути ці</string>
     <string name="url_not_image">Адреса не веде до зображення</string>
-    <string name="menu_copy_image">Копіювати в буфер обміну</string>
+    <string name="menu_copy_image">Копіювати зображення</string>
     <string name="menu_share">Поділитися</string>
     <string name="menu_save">Зберегти</string>
     <string name="toast_image_copied">Зображення скопійовано</string>
@@ -216,14 +216,14 @@
         <item quantity="many">%1$d зображень</item>
         <item quantity="other">%1$d зображень</item>
     </plurals>
-    <string name="settings_facts">Відомості про файл</string>
+    <string name="settings_facts">Відомості про один файл</string>
     <string name="settings_facts_desc">Які дані ви бачите, відкривши відомості про знімок, і в якому порядку. Ім\'я, пікселі та розмір є завжди; даних, яких у файлі немає, не буде і в рядку.</string>
     <string name="settings_facts_always">Завжди видно</string>
     <string name="settings_facts_up">Вище</string>
     <string name="settings_facts_down">Нижче</string>
     <string name="settings_group_look">Вигляд</string>
     <string name="settings_group_viewer">Перегляд</string>
-    <string name="settings_group_browse">Теки й навігація</string>
+    <string name="settings_group_browse">Теки</string>
     <string name="settings_group_start">Запуск</string>
     <string name="settings_hidden_none">Немає прихованих тек</string>
     <plurals name="settings_hidden_count">
@@ -233,10 +233,15 @@
         <item quantity="other">%1$d теки</item>
     </plurals>
     <plurals name="settings_facts_count">
-        <item quantity="one">%1$d поле</item>
-        <item quantity="few">%1$d поля</item>
-        <item quantity="many">%1$d полів</item>
-        <item quantity="other">%1$d поля</item>
+        <item quantity="one">%1$d поле показано</item>
+        <item quantity="few">%1$d поля показано</item>
+        <item quantity="many">%1$d полів показано</item>
+        <item quantity="other">%1$d поля показано</item>
     </plurals>
     <string name="bin_empty_hint">Швидка дія: натисніть і утримуйте плаваючу кнопку, щоб очистити кошик.</string>
+    <string name="facts_title">Докладні відомості про файл</string>
+    <string name="settings_reset_hints">Повернути підказки</string>
+    <string name="settings_reset_hints_desc">Пояснення швидких дій знову з\'являться, як після нового встановлення.</string>
+    <string name="settings_reset_hints_do">Повернути</string>
+    <string name="settings_reset_hints_done">Підказки з\'являться знову</string>
 </resources>

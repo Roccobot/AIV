@@ -12,7 +12,7 @@
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Bunları unut</string>
     <string name="url_not_image">Adres bir görseli göstermiyor</string>
-    <string name="menu_copy_image">Panoya kopyala</string>
+    <string name="menu_copy_image">Görüntüyü kopyala</string>
     <string name="menu_share">Paylaş</string>
     <string name="menu_save">Kaydet</string>
     <string name="toast_image_copied">Görsel kopyalandı</string>
@@ -190,14 +190,14 @@
         <item quantity="one">%1$d görsel</item>
         <item quantity="other">%1$d görsel</item>
     </plurals>
-    <string name="settings_facts">Dosya bilgileri</string>
+    <string name="settings_facts">Tek dosya bilgisi</string>
     <string name="settings_facts_desc">Bir görselin Bilgi ekranını açtığında hangi verileri, hangi sırayla göreceğin. Ad, piksel ve boyut her zaman vardır; dosyada bulunmayan bir veri hiç satır almaz.</string>
     <string name="settings_facts_always">Her zaman görünür</string>
     <string name="settings_facts_up">Yukarı taşı</string>
     <string name="settings_facts_down">Aşağı taşı</string>
     <string name="settings_group_look">Görünüm</string>
     <string name="settings_group_viewer">Görüntüleyici</string>
-    <string name="settings_group_browse">Klasörler ve gezinme</string>
+    <string name="settings_group_browse">Klasörler</string>
     <string name="settings_group_start">Başlangıç</string>
     <string name="settings_hidden_none">Gizli klasör yok</string>
     <plurals name="settings_hidden_count">
@@ -205,8 +205,13 @@
         <item quantity="other">%1$d klasör</item>
     </plurals>
     <plurals name="settings_facts_count">
-        <item quantity="one">%1$d bilgi</item>
-        <item quantity="other">%1$d bilgi</item>
+        <item quantity="one">%1$d bilgi görünür</item>
+        <item quantity="other">%1$d bilgi görünür</item>
     </plurals>
     <string name="bin_empty_hint">Kısayol: çöp kutusunu boşaltmak için kayan düğmeyi basılı tutun.</string>
+    <string name="facts_title">Ayrıntılı dosya bilgisi</string>
+    <string name="settings_reset_hints">İpuçlarını geri getir</string>
+    <string name="settings_reset_hints_desc">Kısayol açıklamaları yeni bir kurulumdaki gibi yeniden görünür.</string>
+    <string name="settings_reset_hints_do">Geri getir</string>
+    <string name="settings_reset_hints_done">İpuçları yeniden görünecek</string>
 </resources>

@@ -12,7 +12,7 @@
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Quên những địa chỉ này</string>
     <string name="url_not_image">Địa chỉ không trỏ tới một ảnh</string>
-    <string name="menu_copy_image">Sao chép vào bảng nhớ tạm</string>
+    <string name="menu_copy_image">Sao chép hình ảnh</string>
     <string name="menu_share">Chia sẻ</string>
     <string name="menu_save">Lưu</string>
     <string name="toast_image_copied">Đã sao chép ảnh</string>
@@ -177,21 +177,26 @@
     <plurals name="folders_count">
         <item quantity="other">%1$d ảnh</item>
     </plurals>
-    <string name="settings_facts">Thông tin tệp</string>
+    <string name="settings_facts">Thông tin một tệp</string>
     <string name="settings_facts_desc">Những dữ liệu bạn thấy khi mở Thông tin của một ảnh, và theo thứ tự nào. Tên, điểm ảnh và kích thước luôn có; dữ liệu mà tệp không mang thì không chiếm dòng nào.</string>
     <string name="settings_facts_always">Luôn hiện</string>
     <string name="settings_facts_up">Chuyển lên</string>
     <string name="settings_facts_down">Chuyển xuống</string>
     <string name="settings_group_look">Giao diện</string>
     <string name="settings_group_viewer">Trình xem</string>
-    <string name="settings_group_browse">Thư mục và duyệt</string>
+    <string name="settings_group_browse">Thư mục</string>
     <string name="settings_group_start">Khởi động</string>
     <string name="settings_hidden_none">Không có thư mục bị ẩn</string>
     <plurals name="settings_hidden_count">
         <item quantity="other">%1$d thư mục</item>
     </plurals>
     <plurals name="settings_facts_count">
-        <item quantity="other">%1$d mục</item>
+        <item quantity="other">Hiện %1$d mục</item>
     </plurals>
     <string name="bin_empty_hint">Lối tắt: nhấn giữ nút nổi để dọn thùng rác.</string>
+    <string name="facts_title">Thông tin chi tiết của tệp</string>
+    <string name="settings_reset_hints">Hiện lại các gợi ý</string>
+    <string name="settings_reset_hints_desc">Phần giải thích lối tắt sẽ hiện lại, như khi mới cài đặt.</string>
+    <string name="settings_reset_hints_do">Hiện lại</string>
+    <string name="settings_reset_hints_done">Các gợi ý sẽ hiện lại</string>
 </resources>

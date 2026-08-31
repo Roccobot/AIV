@@ -12,7 +12,7 @@
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Olvidar estas</string>
     <string name="url_not_image">La dirección no apunta a una imagen</string>
-    <string name="menu_copy_image">Copiar al portapapeles</string>
+    <string name="menu_copy_image">Copiar la imagen</string>
     <string name="menu_share">Compartir</string>
     <string name="menu_save">Guardar</string>
     <string name="toast_image_copied">Imagen copiada</string>
@@ -203,14 +203,14 @@
         <item quantity="other">%1$d imágenes</item>
         <item quantity="many">%1$d imágenes</item>
     </plurals>
-    <string name="settings_facts">Información del archivo</string>
+    <string name="settings_facts">Información de un archivo</string>
     <string name="settings_facts_desc">Qué datos ves al abrir Info sobre una imagen, y en qué orden. El nombre, los píxeles y el tamaño están siempre; un dato que el archivo no lleva no ocupa ninguna línea.</string>
     <string name="settings_facts_always">Siempre visible</string>
     <string name="settings_facts_up">Subir</string>
     <string name="settings_facts_down">Bajar</string>
     <string name="settings_group_look">Apariencia</string>
     <string name="settings_group_viewer">Visor</string>
-    <string name="settings_group_browse">Carpetas y navegación</string>
+    <string name="settings_group_browse">Carpetas</string>
     <string name="settings_group_start">Inicio</string>
     <string name="settings_hidden_none">Ninguna carpeta oculta</string>
     <plurals name="settings_hidden_count">
@@ -219,9 +219,14 @@
         <item quantity="other">%1$d carpetas</item>
     </plurals>
     <plurals name="settings_facts_count">
-        <item quantity="one">%1$d dato</item>
-        <item quantity="many">%1$d datos</item>
-        <item quantity="other">%1$d datos</item>
+        <item quantity="one">%1$d dato visible</item>
+        <item quantity="many">%1$d datos visibles</item>
+        <item quantity="other">%1$d datos visibles</item>
     </plurals>
     <string name="bin_empty_hint">Atajo: mantén pulsado el botón flotante para vaciar la papelera.</string>
+    <string name="facts_title">Información detallada del archivo</string>
+    <string name="settings_reset_hints">Volver a ver los avisos</string>
+    <string name="settings_reset_hints_desc">Las explicaciones de los atajos vuelven a aparecer, como en una instalación nueva.</string>
+    <string name="settings_reset_hints_do">Volver a ver</string>
+    <string name="settings_reset_hints_done">Los avisos volverán a aparecer</string>
 </resources>
