@@ -159,6 +159,29 @@ private val PAD_CORNER = 10.dp
 val FAB_CORNER = 12.dp
 
 /**
+ * Il margine del tastino quadrato dalle due sponde della schermata delle cartelle.
+ *
+ * ⚠️ Sta qui e non là perché [FAB_REACH] lo somma: il giorno che il tastino si sposta di un
+ * dp, il conto che tiene le cartelle sopra di lui deve muoversi con lui.
+ */
+val HUB_PAD = 16.dp
+
+/**
+ * Quanto arriva in su il tastino quadrato delle cartelle, misurato dal fondo dello schermo:
+ * il suo margine ([HUB_PAD]) più la sua altezza.
+ *
+ * ⚠️⚠️ **È LA Y DA CUI PARTE LA SFUMATURA che inghiotte quello che sta sotto** (richiesta
+ * dell'utente, dalla `0.77`). Comincia dove comincia il **tastino**, non dove finisce lo
+ * spazio che gli si lascia, che è [BELOW_FAB] e vale una ventina di dp in più: la differenza
+ * fra i due numeri è l'aria che al riposo resta fra l'ultima cartella e il tastino, e la
+ * sfumatura deve trovarla vuota.
+ * ⚠️ **40dp è la misura di `SmallFloatingActionButton`**, che Material non espone come
+ * costante pubblica: è un dato suo, non una nostra scelta, e lo stesso numero sta in
+ * `GridScreen` per la stessa ragione.
+ */
+val FAB_REACH = HUB_PAD + 40.dp
+
+/**
  * Quanto spazio resta sotto l'ultimo elemento di una griglia, perché il tastino non gli si
  * sieda sopra.
  *
@@ -166,5 +189,8 @@ val FAB_CORNER = 12.dp
  * selezione, quindi il fondo cresce da quel momento. Senza, la fotografia in basso a
  * destra resterebbe coperta proprio mentre si sta scegliendo, cioè quando la si deve poter
  * toccare.
+ * ⚠️ **Scritto come [FAB_REACH] più aria** dalla `0.77`, e prima era 76dp nudi: i due numeri
+ * descrivono la stessa cosa a due altezze diverse, e slegati si sarebbero mossi uno per
+ * volta.
  */
-val BELOW_FAB = 76.dp
+val BELOW_FAB = FAB_REACH + 20.dp
