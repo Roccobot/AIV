@@ -92,7 +92,7 @@
     <string name="grid_item_last">ภาพที่ %1$d จาก %2$d ภาพสุดท้ายที่คุณดู</string>
     <string name="pick_leave">ออกจากการเลือก</string>
     <string name="pick_all">เลือกทั้งหมด</string>
-    <string name="pick_all_hint">กดปุ่มลอยค้างไว้เพื่อเลือกภาพทั้งหมดในโฟลเดอร์</string>
+    <string name="pick_all_hint">ทางลัด: กดปุ่มลอยค้างไว้เพื่อเลือกทั้งหมด</string>
     <string name="pick_info">ข้อมูล</string>
     <string name="pick_close">ปิด</string>
     <string name="pick_actions">การทำงานกับที่เลือกไว้</string>
@@ -166,8 +166,8 @@
     <string name="bin_none">ถังขยะว่างเปล่า</string>
     <string name="bin_restore">กู้คืน</string>
     <string name="bin_empty">เทถังขยะ</string>
-    <string name="bin_empty_ask">เทถังขยะไหม</string>
-    <string name="bin_empty_desc">ทุกอย่างที่อยู่ในนั้นจะหายไปจากโทรศัพท์อย่างถาวร</string>
+    <string name="bin_empty_ask">เทถังขยะจริงหรือ?</string>
+    <string name="bin_empty_desc">จะกู้คืนสิ่งที่อยู่ข้างในไม่ได้อีก</string>
     <plurals name="trash_done">
         <item quantity="other">%1$d ย้ายไปที่ถังขยะ</item>
     </plurals>
@@ -193,4 +193,5 @@
     <plurals name="settings_facts_count">
         <item quantity="other">%1$d รายการ</item>
     </plurals>
+    <string name="bin_empty_hint">ทางลัด: กดปุ่มลอยค้างไว้เพื่อเทถังขยะ</string>
 </resources>

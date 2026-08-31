@@ -92,7 +92,7 @@
     <string name="grid_item_last">Зображення %1$d з %2$d, останнє переглянуте</string>
     <string name="pick_leave">Вийти з вибору</string>
     <string name="pick_all">Вибрати всі</string>
-    <string name="pick_all_hint">Натисніть і утримуйте плаваючу кнопку, щоб вибрати всі зображення папки</string>
+    <string name="pick_all_hint">Швидка дія: натисніть і утримуйте плаваючу кнопку, щоб вибрати все.</string>
     <string name="pick_info">Відомості</string>
     <string name="pick_close">Закрити</string>
     <string name="pick_actions">Дії над вибраним</string>
@@ -196,8 +196,8 @@
     <string name="bin_none">Кошик порожній.</string>
     <string name="bin_restore">Повернути</string>
     <string name="bin_empty">Очистити кошик</string>
-    <string name="bin_empty_ask">Очистити кошик?</string>
-    <string name="bin_empty_desc">Усе, що в ньому лежить, зникне з телефона назавжди.</string>
+    <string name="bin_empty_ask">Справді очистити кошик?</string>
+    <string name="bin_empty_desc">Вміст не вдасться відновити.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d зображення в кошику</item>
         <item quantity="few">%1$d зображення в кошику</item>
@@ -238,4 +238,5 @@
         <item quantity="many">%1$d полів</item>
         <item quantity="other">%1$d поля</item>
     </plurals>
+    <string name="bin_empty_hint">Швидка дія: натисніть і утримуйте плаваючу кнопку, щоб очистити кошик.</string>
 </resources>

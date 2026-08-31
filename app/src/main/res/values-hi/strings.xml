@@ -92,7 +92,7 @@
     <string name="grid_item_last">%2$d में से %1$d चित्र, जिसे आपने आख़िर में देखा</string>
     <string name="pick_leave">चयन से बाहर</string>
     <string name="pick_all">सभी चुनें</string>
-    <string name="pick_all_hint">फ़ोल्डर की सभी इमेज चुनने के लिए फ़्लोटिंग बटन को दबाकर रखें</string>
+    <string name="pick_all_hint">शॉर्टकट: सब चुनने के लिए फ़्लोटिंग बटन दबाए रखें।</string>
     <string name="pick_info">जानकारी</string>
     <string name="pick_close">बंद करें</string>
     <string name="pick_actions">चुने हुए पर कार्रवाई</string>
@@ -176,8 +176,8 @@
     <string name="bin_none">कूड़ेदान खाली है।</string>
     <string name="bin_restore">वापस लाएँ</string>
     <string name="bin_empty">कूड़ेदान खाली करें</string>
-    <string name="bin_empty_ask">कूड़ेदान खाली करें?</string>
-    <string name="bin_empty_desc">इसमें जो कुछ है वह फ़ोन से हमेशा के लिए चला जाएगा।</string>
+    <string name="bin_empty_ask">क्या सच में कूड़ेदान खाली करें?</string>
+    <string name="bin_empty_desc">इसकी सामग्री वापस नहीं मिल पाएगी।</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d कूड़ेदान में गया</item>
         <item quantity="other">%1$d कूड़ेदान में गए</item>
@@ -208,4 +208,5 @@
         <item quantity="one">%1$d जानकारी</item>
         <item quantity="other">%1$d जानकारियाँ</item>
     </plurals>
+    <string name="bin_empty_hint">शॉर्टकट: कूड़ेदान खाली करने के लिए फ़्लोटिंग बटन दबाए रखें।</string>
 </resources>

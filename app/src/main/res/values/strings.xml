@@ -169,7 +169,7 @@
     <!-- ── Choosing several pictures in a folder ── -->
     <string name="pick_leave">Leave the selection</string>
     <string name="pick_all">Select all</string>
-    <string name="pick_all_hint">Press and hold the floating button to select every image in the folder</string>
+    <string name="pick_all_hint">Shortcut: press and hold the floating button to select everything.</string>
     <string name="pick_info">Info</string>
     <string name="pick_close">Close</string>
     <!-- The label of the small button that opens the six file operations. It is not
@@ -281,8 +281,9 @@
     <string name="bin_none">The bin is empty.</string>
     <string name="bin_restore">Restore</string>
     <string name="bin_empty">Empty the bin</string>
-    <string name="bin_empty_ask">Empty the bin?</string>
-    <string name="bin_empty_desc">Everything it holds goes from the phone for good.</string>
+    <string name="bin_empty_ask">Really empty the bin?</string>
+    <string name="bin_empty_desc">You will not be able to get its contents back.</string>
+    <string name="bin_empty_hint">Shortcut: press and hold the floating button to empty the bin.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d moved to the bin</item>
         <item quantity="other">%1$d moved to the bin</item>

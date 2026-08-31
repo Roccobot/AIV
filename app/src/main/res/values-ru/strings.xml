@@ -92,7 +92,7 @@
     <string name="grid_item_last">Изображение %1$d из %2$d, последнее просмотренное</string>
     <string name="pick_leave">Выйти из выбора</string>
     <string name="pick_all">Выбрать все</string>
-    <string name="pick_all_hint">Нажмите и удерживайте плавающую кнопку, чтобы выбрать все изображения папки</string>
+    <string name="pick_all_hint">Быстрое действие: нажмите и удерживайте плавающую кнопку, чтобы выбрать всё.</string>
     <string name="pick_info">Сведения</string>
     <string name="pick_close">Закрыть</string>
     <string name="pick_actions">Действия над выбранным</string>
@@ -196,8 +196,8 @@
     <string name="bin_none">Корзина пуста.</string>
     <string name="bin_restore">Вернуть</string>
     <string name="bin_empty">Очистить корзину</string>
-    <string name="bin_empty_ask">Очистить корзину?</string>
-    <string name="bin_empty_desc">Всё, что в ней лежит, исчезнет с телефона навсегда.</string>
+    <string name="bin_empty_ask">Действительно очистить корзину?</string>
+    <string name="bin_empty_desc">Содержимое нельзя будет восстановить.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d изображение в корзине</item>
         <item quantity="few">%1$d изображения в корзине</item>
@@ -238,4 +238,5 @@
         <item quantity="many">%1$d полей</item>
         <item quantity="other">%1$d поля</item>
     </plurals>
+    <string name="bin_empty_hint">Быстрое действие: нажмите и удерживайте плавающую кнопку, чтобы очистить корзину.</string>
 </resources>

@@ -131,7 +131,7 @@
     <!-- ── Scegliere più immagini in una cartella ── -->
     <string name="pick_leave">Esci dalla selezione</string>
     <string name="pick_all">Seleziona tutte</string>
-    <string name="pick_all_hint">Tieni premuto il tasto flottante contestuale per selezionare tutte le immagini della cartella</string>
+    <string name="pick_all_hint">Scorciatoia: tieni premuto il tasto flottante per selezionare tutto.</string>
     <string name="pick_info">Info</string>
     <string name="pick_close">Chiudi</string>
     <string name="pick_actions">Operazioni sulla selezione</string>
@@ -241,8 +241,8 @@
     <string name="bin_none">Il cestino è vuoto.</string>
     <string name="bin_restore">Ripristina</string>
     <string name="bin_empty">Svuota il cestino</string>
-    <string name="bin_empty_ask">Svuotare il cestino?</string>
-    <string name="bin_empty_desc">Tutto quello che contiene va via dal telefono per sempre.</string>
+    <string name="bin_empty_ask">Vuoi davvero svuotare il cestino?</string>
+    <string name="bin_empty_desc">Non potrai più recuperare il contenuto.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d spostata nel cestino</item>
         <item quantity="other">%1$d spostate nel cestino</item>
@@ -285,4 +285,5 @@
         <item quantity="other">%1$d dati</item>
         <item quantity="many">%1$d dati</item>
     </plurals>
+    <string name="bin_empty_hint">Scorciatoia: tieni premuto il tasto flottante per svuotare il cestino.</string>
 </resources>

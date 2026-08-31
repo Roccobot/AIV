@@ -92,7 +92,7 @@
     <string name="grid_item_last">Imagem %1$d de %2$d, a última que você olhou</string>
     <string name="pick_leave">Sair da seleção</string>
     <string name="pick_all">Selecionar tudo</string>
-    <string name="pick_all_hint">Toque e segure o botão flutuante para selecionar todas as imagens da pasta</string>
+    <string name="pick_all_hint">Atalho: mantenha o botão flutuante pressionado para selecionar tudo.</string>
     <string name="pick_info">Info</string>
     <string name="pick_close">Fechar</string>
     <string name="pick_actions">Operações sobre a seleção</string>
@@ -186,8 +186,8 @@
     <string name="bin_none">A lixeira está vazia.</string>
     <string name="bin_restore">Restaurar</string>
     <string name="bin_empty">Esvaziar a lixeira</string>
-    <string name="bin_empty_ask">Esvaziar a lixeira?</string>
-    <string name="bin_empty_desc">Tudo o que ela contém sai do celular para sempre.</string>
+    <string name="bin_empty_ask">Esvaziar mesmo a lixeira?</string>
+    <string name="bin_empty_desc">Não será possível recuperar o conteúdo.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d movida para a lixeira</item>
         <item quantity="other">%1$d movidas para a lixeira</item>
@@ -223,4 +223,5 @@
         <item quantity="many">%1$d dados</item>
         <item quantity="other">%1$d dados</item>
     </plurals>
+    <string name="bin_empty_hint">Atalho: mantenha o botão flutuante pressionado para esvaziar a lixeira.</string>
 </resources>

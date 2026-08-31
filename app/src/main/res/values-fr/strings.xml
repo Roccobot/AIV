@@ -92,7 +92,7 @@
     <string name="grid_item_last">Image %1$d sur %2$d, la dernière que vous avez regardée</string>
     <string name="pick_leave">Quitter la sélection</string>
     <string name="pick_all">Tout sélectionner</string>
-    <string name="pick_all_hint">Maintenez le bouton flottant appuyé pour sélectionner toutes les images du dossier</string>
+    <string name="pick_all_hint">Raccourci: appuyez longuement sur le bouton flottant pour tout sélectionner.</string>
     <string name="pick_info">Infos</string>
     <string name="pick_close">Fermer</string>
     <string name="pick_actions">Opérations sur la sélection</string>
@@ -186,8 +186,8 @@
     <string name="bin_none">La corbeille est vide.</string>
     <string name="bin_restore">Restaurer</string>
     <string name="bin_empty">Vider la corbeille</string>
-    <string name="bin_empty_ask">Vider la corbeille ?</string>
-    <string name="bin_empty_desc">Tout ce qu\'elle contient quitte le téléphone définitivement.</string>
+    <string name="bin_empty_ask">Vider vraiment la corbeille ?</string>
+    <string name="bin_empty_desc">Vous ne pourrez plus récupérer son contenu.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d déplacée dans la corbeille</item>
         <item quantity="other">%1$d déplacées dans la corbeille</item>
@@ -223,4 +223,5 @@
         <item quantity="many">%1$d données</item>
         <item quantity="other">%1$d données</item>
     </plurals>
+    <string name="bin_empty_hint">Raccourci: appuyez longuement sur le bouton flottant pour vider la corbeille.</string>
 </resources>

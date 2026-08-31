@@ -92,7 +92,7 @@
     <string name="grid_item_last">الصورة %1$d من %2$d، آخر ما نظرت إليه</string>
     <string name="pick_leave">إنهاء التحديد</string>
     <string name="pick_all">تحديد الكل</string>
-    <string name="pick_all_hint">اضغط مطولا على الزر العائم لتحديد كل صور المجلد</string>
+    <string name="pick_all_hint">اختصار: اضغط مطولا على الزر العائم لتحديد الكل.</string>
     <string name="pick_info">معلومات</string>
     <string name="pick_close">إغلاق</string>
     <string name="pick_actions">إجراءات على المحدد</string>
@@ -216,8 +216,8 @@
     <string name="bin_none">سلة المهملات فارغة.</string>
     <string name="bin_restore">استعادة</string>
     <string name="bin_empty">إفراغ سلة المهملات</string>
-    <string name="bin_empty_ask">إفراغ سلة المهملات؟</string>
-    <string name="bin_empty_desc">كل ما فيها سيزول من الهاتف إلى الأبد.</string>
+    <string name="bin_empty_ask">هل تريد فعلا إفراغ سلة المهملات؟</string>
+    <string name="bin_empty_desc">لن تتمكن من استعادة محتواها.</string>
     <plurals name="trash_done">
         <item quantity="zero">لم يُنقل شيء إلى السلة</item>
         <item quantity="one">نُقلت صورة واحدة إلى السلة</item>
@@ -268,4 +268,5 @@
         <item quantity="many">%1$d عنصرًا</item>
         <item quantity="other">%1$d عنصر</item>
     </plurals>
+    <string name="bin_empty_hint">اختصار: اضغط مطولا على الزر العائم لإفراغ سلة المهملات.</string>
 </resources>

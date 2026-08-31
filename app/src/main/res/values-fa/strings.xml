@@ -92,7 +92,7 @@
     <string name="grid_item_last">تصویر %1$d از %2$d، آخرینی که دیدید</string>
     <string name="pick_leave">خروج از گزینش</string>
     <string name="pick_all">گزینش همه</string>
-    <string name="pick_all_hint">دکمه شناور را نگه دارید تا همه تصاویر پوشه گزیده شوند</string>
+    <string name="pick_all_hint">میان‌بر: دکمه شناور را نگه دارید تا همه انتخاب شوند.</string>
     <string name="pick_info">اطلاعات</string>
     <string name="pick_close">بستن</string>
     <string name="pick_actions">کارها بر گزیده‌ها</string>
@@ -176,8 +176,8 @@
     <string name="bin_none">سبد زباله خالی است.</string>
     <string name="bin_restore">بازگرداندن</string>
     <string name="bin_empty">خالی کردن سبد زباله</string>
-    <string name="bin_empty_ask">سبد زباله خالی شود؟</string>
-    <string name="bin_empty_desc">هر چه در آن است برای همیشه از گوشی می‌رود.</string>
+    <string name="bin_empty_ask">واقعا سبد زباله خالی شود؟</string>
+    <string name="bin_empty_desc">دیگر نمی‌توانید محتوای آن را بازگردانید.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d به سبد زباله رفت</item>
         <item quantity="other">%1$d به سبد زباله رفت</item>
@@ -208,4 +208,5 @@
         <item quantity="one">%1$d مورد</item>
         <item quantity="other">%1$d مورد</item>
     </plurals>
+    <string name="bin_empty_hint">میان‌بر: دکمه شناور را نگه دارید تا سبد زباله خالی شود.</string>
 </resources>

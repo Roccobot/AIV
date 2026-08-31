@@ -92,7 +92,7 @@
     <string name="grid_item_last">Afbeelding %1$d van %2$d, de laatste die je bekeek</string>
     <string name="pick_leave">Selectie verlaten</string>
     <string name="pick_all">Alles selecteren</string>
-    <string name="pick_all_hint">Houd de zwevende knop ingedrukt om alle afbeeldingen in de map te selecteren</string>
+    <string name="pick_all_hint">Sneltoets: houd de zwevende knop ingedrukt om alles te selecteren.</string>
     <string name="pick_info">Info</string>
     <string name="pick_close">Sluiten</string>
     <string name="pick_actions">Bewerkingen op de selectie</string>
@@ -176,8 +176,8 @@
     <string name="bin_none">De prullenbak is leeg.</string>
     <string name="bin_restore">Terugzetten</string>
     <string name="bin_empty">Prullenbak legen</string>
-    <string name="bin_empty_ask">Prullenbak legen?</string>
-    <string name="bin_empty_desc">Alles wat erin zit verdwijnt voorgoed van de telefoon.</string>
+    <string name="bin_empty_ask">Prullenbak echt legen?</string>
+    <string name="bin_empty_desc">De inhoud kun je niet meer terughalen.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d naar de prullenbak</item>
         <item quantity="other">%1$d naar de prullenbak</item>
@@ -208,4 +208,5 @@
         <item quantity="one">%1$d gegeven</item>
         <item quantity="other">%1$d gegevens</item>
     </plurals>
+    <string name="bin_empty_hint">Sneltoets: houd de zwevende knop ingedrukt om de prullenbak te legen.</string>
 </resources>

@@ -92,7 +92,7 @@
     <string name="grid_item_last">تصویر %1$d از %2$d، جو آپ نے آخر میں دیکھی</string>
     <string name="pick_leave">انتخاب سے نکلیں</string>
     <string name="pick_all">سب چنیں</string>
-    <string name="pick_all_hint">فولڈر کی تمام تصویریں چننے کے لیے تیرتے بٹن کو دبا کر رکھیں</string>
+    <string name="pick_all_hint">شارٹ کٹ: سب منتخب کرنے کے لیے فلوٹنگ بٹن دبائے رکھیں۔</string>
     <string name="pick_info">معلومات</string>
     <string name="pick_close">بند کریں</string>
     <string name="pick_actions">چنی ہوئی تصویروں پر کام</string>
@@ -176,8 +176,8 @@
     <string name="bin_none">ردی کی ٹوکری خالی ہے۔</string>
     <string name="bin_restore">بحال کریں</string>
     <string name="bin_empty">ردی کی ٹوکری خالی کریں</string>
-    <string name="bin_empty_ask">ردی کی ٹوکری خالی کریں؟</string>
-    <string name="bin_empty_desc">اس میں جو کچھ ہے وہ فون سے ہمیشہ کے لیے چلا جائے گا۔</string>
+    <string name="bin_empty_ask">کیا واقعی ردی کی ٹوکری خالی کریں؟</string>
+    <string name="bin_empty_desc">اس کا مواد دوبارہ حاصل نہیں کیا جا سکے گا۔</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d ردی کی ٹوکری میں گئی</item>
         <item quantity="other">%1$d ردی کی ٹوکری میں گئیں</item>
@@ -208,4 +208,5 @@
         <item quantity="one">%1$d تفصیل</item>
         <item quantity="other">%1$d تفصیلات</item>
     </plurals>
+    <string name="bin_empty_hint">شارٹ کٹ: ردی کی ٹوکری خالی کرنے کے لیے فلوٹنگ بٹن دبائے رکھیں۔</string>
 </resources>

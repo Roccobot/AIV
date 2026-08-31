@@ -92,7 +92,7 @@
     <string name="grid_item_last">Obraz %1$d z %2$d, ostatni, który oglądałeś</string>
     <string name="pick_leave">Wyjdź z zaznaczania</string>
     <string name="pick_all">Zaznacz wszystko</string>
-    <string name="pick_all_hint">Przytrzymaj przycisk pływający, aby zaznaczyć wszystkie obrazy w folderze</string>
+    <string name="pick_all_hint">Skrót: przytrzymaj pływający przycisk, aby zaznaczyć wszystko.</string>
     <string name="pick_info">Informacje</string>
     <string name="pick_close">Zamknij</string>
     <string name="pick_actions">Działania na zaznaczonych</string>
@@ -196,8 +196,8 @@
     <string name="bin_none">Kosz jest pusty.</string>
     <string name="bin_restore">Przywróć</string>
     <string name="bin_empty">Opróżnij kosz</string>
-    <string name="bin_empty_ask">Opróżnić kosz?</string>
-    <string name="bin_empty_desc">Wszystko, co w nim jest, zniknie z telefonu na zawsze.</string>
+    <string name="bin_empty_ask">Na pewno opróżnić kosz?</string>
+    <string name="bin_empty_desc">Zawartości nie da się już odzyskać.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d do kosza</item>
         <item quantity="few">%1$d do kosza</item>
@@ -238,4 +238,5 @@
         <item quantity="many">%1$d pól</item>
         <item quantity="other">%1$d pola</item>
     </plurals>
+    <string name="bin_empty_hint">Skrót: przytrzymaj pływający przycisk, aby opróżnić kosz.</string>
 </resources>

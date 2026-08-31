@@ -92,7 +92,7 @@
     <string name="grid_item_last">%2$d장 중 %1$d번째, 마지막으로 본 사진</string>
     <string name="pick_leave">선택 해제</string>
     <string name="pick_all">모두 선택</string>
-    <string name="pick_all_hint">플로팅 버튼을 길게 누르면 폴더의 모든 이미지가 선택됩니다</string>
+    <string name="pick_all_hint">단축 동작: 플로팅 버튼을 길게 누르면 전체 선택됩니다.</string>
     <string name="pick_info">정보</string>
     <string name="pick_close">닫기</string>
     <string name="pick_actions">선택한 사진에 대한 작업</string>
@@ -166,8 +166,8 @@
     <string name="bin_none">휴지통이 비어 있습니다.</string>
     <string name="bin_restore">되돌리기</string>
     <string name="bin_empty">휴지통 비우기</string>
-    <string name="bin_empty_ask">휴지통을 비울까요?</string>
-    <string name="bin_empty_desc">안에 있는 것이 모두 기기에서 영영 사라집니다.</string>
+    <string name="bin_empty_ask">정말 휴지통을 비울까요?</string>
+    <string name="bin_empty_desc">안에 있는 것은 되돌릴 수 없습니다.</string>
     <plurals name="trash_done">
         <item quantity="other">%1$d장을 휴지통으로 옮겼습니다</item>
     </plurals>
@@ -193,4 +193,5 @@
     <plurals name="settings_facts_count">
         <item quantity="other">항목 %1$d개</item>
     </plurals>
+    <string name="bin_empty_hint">단축 동작: 플로팅 버튼을 길게 누르면 휴지통을 비웁니다.</string>
 </resources>
