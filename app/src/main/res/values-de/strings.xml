@@ -93,17 +93,21 @@
     <string name="grid_item_last">Bild %1$d von %2$d, das zuletzt angesehene</string>
     <string name="pick_leave">Auswahl verlassen</string>
     <string name="pick_all">Alle auswählen</string>
-    <string name="pick_all_hint">Kurzbefehl: Halte die schwebende Schaltfläche gedrückt, um alles auszuwählen.</string>
     <string name="pick_info">Infos</string>
     <string name="pick_close">Schließen</string>
     <string name="pick_actions">Aktionen für die Auswahl</string>
     <string name="pick_move">Verschieben</string>
     <string name="pick_rename">Umbenennen</string>
     <string name="pick_delete">Löschen</string>
+    <string name="pick_list">Liste</string>
+    <string name="pick_invert">Umkehren</string>
+    <string name="pick_all_short">Alle</string>
+    <string name="pick_none">Keine</string>
+    <string name="pick_forever">Endgültig löschen</string>
     <string name="pick_counting">Wird gezählt...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d ausgewählt</item>
-        <item quantity="other">%1$d ausgewählt</item>
+        <item quantity="one">%1$d Element</item>
+        <item quantity="other">%1$d Elemente</item>
     </plurals>
     <plurals name="pick_facts">
         <item quantity="one">%2$s in %1$d Datei</item>

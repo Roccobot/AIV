@@ -93,17 +93,21 @@
     <string name="grid_item_last">%2$d-এর মধ্যে %1$d নম্বর ছবি, শেষে যেটি দেখেছেন</string>
     <string name="pick_leave">বাছাই থেকে বেরোন</string>
     <string name="pick_all">সব বাছুন</string>
-    <string name="pick_all_hint">শর্টকাট: সব নির্বাচন করতে ভাসমান বোতামটি চেপে ধরে রাখুন।</string>
     <string name="pick_info">তথ্য</string>
     <string name="pick_close">বন্ধ করুন</string>
     <string name="pick_actions">বাছাই করা ছবিতে কাজ</string>
     <string name="pick_move">সরান</string>
     <string name="pick_rename">নাম বদলান</string>
     <string name="pick_delete">মুছুন</string>
+    <string name="pick_list">তালিকা</string>
+    <string name="pick_invert">উল্টান</string>
+    <string name="pick_all_short">সব</string>
+    <string name="pick_none">কিছুই না</string>
+    <string name="pick_forever">একেবারে মুছুন</string>
     <string name="pick_counting">গোনা হচ্ছে...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d বাছাই হয়েছে</item>
-        <item quantity="other">%1$d বাছাই হয়েছে</item>
+        <item quantity="one">%1$dটি আইটেম</item>
+        <item quantity="other">%1$dটি আইটেম</item>
     </plurals>
     <plurals name="pick_facts">
         <item quantity="one">%1$d ফাইলে %2$s</item>

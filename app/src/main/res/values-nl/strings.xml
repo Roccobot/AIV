@@ -93,17 +93,21 @@
     <string name="grid_item_last">Afbeelding %1$d van %2$d, de laatste die je bekeek</string>
     <string name="pick_leave">Selectie verlaten</string>
     <string name="pick_all">Alles selecteren</string>
-    <string name="pick_all_hint">Sneltoets: houd de zwevende knop ingedrukt om alles te selecteren.</string>
     <string name="pick_info">Info</string>
     <string name="pick_close">Sluiten</string>
     <string name="pick_actions">Bewerkingen op de selectie</string>
     <string name="pick_move">Verplaatsen</string>
     <string name="pick_rename">Naam wijzigen</string>
     <string name="pick_delete">Verwijderen</string>
+    <string name="pick_list">Lijst</string>
+    <string name="pick_invert">Omkeren</string>
+    <string name="pick_all_short">Alles</string>
+    <string name="pick_none">Geen</string>
+    <string name="pick_forever">Definitief wissen</string>
     <string name="pick_counting">Aan het tellen...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d gekozen</item>
-        <item quantity="other">%1$d gekozen</item>
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
     </plurals>
     <plurals name="pick_facts">
         <item quantity="one">%2$s in %1$d bestand</item>

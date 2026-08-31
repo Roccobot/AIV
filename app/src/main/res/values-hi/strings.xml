@@ -93,17 +93,21 @@
     <string name="grid_item_last">%2$d में से %1$d चित्र, जिसे आपने आख़िर में देखा</string>
     <string name="pick_leave">चयन से बाहर</string>
     <string name="pick_all">सभी चुनें</string>
-    <string name="pick_all_hint">शॉर्टकट: सब चुनने के लिए फ़्लोटिंग बटन दबाए रखें।</string>
     <string name="pick_info">जानकारी</string>
     <string name="pick_close">बंद करें</string>
     <string name="pick_actions">चुने हुए पर कार्रवाई</string>
     <string name="pick_move">ले जाएँ</string>
     <string name="pick_rename">नाम बदलें</string>
     <string name="pick_delete">मिटाएँ</string>
+    <string name="pick_list">सूची</string>
+    <string name="pick_invert">उलटें</string>
+    <string name="pick_all_short">सभी</string>
+    <string name="pick_none">कोई नहीं</string>
+    <string name="pick_forever">पूरी तरह मिटाएँ</string>
     <string name="pick_counting">गिना जा रहा है...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d चुना</item>
-        <item quantity="other">%1$d चुने</item>
+        <item quantity="one">%1$d आइटम</item>
+        <item quantity="other">%1$d आइटम</item>
     </plurals>
     <plurals name="pick_facts">
         <item quantity="one">%1$d फ़ाइल में %2$s</item>

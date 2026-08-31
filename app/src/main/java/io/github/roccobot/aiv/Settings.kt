@@ -504,17 +504,14 @@ object FolderAsk {
  * che torna è un avviso, e un avviso che torna insegna a chiuderlo senza leggerlo. Vale la
  * stessa ragione già scritta per [FolderAsk].
  *
- * ⚠️⚠️ **SONO DUE PERCHÉ IL TOCCO LUNGO FA DUE COSE DIVERSE** (richiesta dell'utente,
- * 2026-08-31): nella griglia sceglie tutto, nel cestino senza niente scelto lo svuota. Un
- * promemoria solo insegnerebbe una delle due a chi si trova davanti l'altra, ed è
- * esattamente il difetto che aveva la versione precedente, dove il velo del cestino
- * prometteva di selezionare 'le immagini della cartella'.
- * ⚠️ **La chiave di [PICK_ALL] è quella di prima e non si tocca**: cambiarla farebbe
- * ricomparire il velo a chi l'aveva già chiuso, che è la cosa che questo archivio esiste
- * per evitare.
+ * ⚠️⚠️ **QUI C'ERA ANCHE `PICK_ALL`, il velo che insegnava il tocco lungo sul tastino
+ * della selezione, ed è uscito nella `0.94` col tastino stesso**: 'scegli tutto' adesso è
+ * un tasto della bottomsheet, che si vede, quindi non c'è più niente da insegnare. La sua
+ * chiave in archivio (`pick-all-hint-seen`) resta scritta sui telefoni di chi l'aveva già
+ * visto e non dà fastidio a nessuno: cancellarla vorrebbe dire una migrazione per liberare
+ * un booleano.
  */
 enum class Hint(token: String) {
-    PICK_ALL("pick-all-hint-seen"),
     BIN_EMPTY("bin-empty-hint-seen"),
 
     /**

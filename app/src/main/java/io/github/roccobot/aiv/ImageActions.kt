@@ -59,6 +59,30 @@ object ImageActions {
     }
 
     /**
+     * Mette negli appunti i **nomi** dei file scelti, uno per riga.
+     *
+     * ⚠️⚠️ **ORDINE ALFABETICO DI NOME E POI DI ESTENSIONE** (richiesta dell'utente,
+     * 2026-08-31), che è una cosa diversa dall'ordinare il nome intero: così `foto.jpg` e
+     * `foto.png` restano vicine invece di finire una prima e una dopo `foto2.jpg`. E
+     * l'ordine dentro ognuno dei due pezzi è quello **naturale**, cioè `foto9` prima di
+     * `foto10`, come dappertutto in questa app.
+     * ⚠️ **L'ordine NON è quello della griglia**, che è per data: chi copia una lista la
+     * incolla da qualche parte per leggerla, e una lista di nomi si legge in ordine di nome.
+     * ⚠️ [folder] è il percorso da mettere in testa, e `null` quando l'impostazione è
+     * spenta: la decisione sta in chi chiama, che le impostazioni le ha già in mano.
+     */
+    suspend fun copyNames(context: Context, uris: List<Uri>, folder: String? = null): Int {
+        val names = uris.map { Names.of(context, it) }.sortedWith { a, b ->
+            val stem = naturalCompare(a.substringBeforeLast('.', a), b.substringBeforeLast('.', b))
+            if (stem != 0) stem else naturalCompare(a.substringAfterLast('.', ""), b.substringAfterLast('.', ""))
+        }
+        val text = (listOfNotNull(folder) + names).joinToString("\n")
+        val clipboard = context.getSystemService(ClipboardManager::class.java)
+        clipboard.setPrimaryClip(ClipData.newPlainText("AIV", text))
+        return names.size
+    }
+
+    /**
      * The first web address the clipboard holds, or null.
      *
      * Two shapes are accepted, because both happen: a piece of text that contains

@@ -93,17 +93,21 @@
     <string name="grid_item_last">Picha ya %1$d kati ya %2$d, uliyoiangalia mwisho</string>
     <string name="pick_leave">Toka kwenye uteuzi</string>
     <string name="pick_all">Chagua zote</string>
-    <string name="pick_all_hint">Njia ya mkato: shikilia kitufe kinachoelea ili kuchagua vyote.</string>
     <string name="pick_info">Taarifa</string>
     <string name="pick_close">Funga</string>
     <string name="pick_actions">Vitendo kwa zilizochaguliwa</string>
     <string name="pick_move">Hamisha</string>
     <string name="pick_rename">Badilisha jina</string>
     <string name="pick_delete">Futa</string>
+    <string name="pick_list">Orodha</string>
+    <string name="pick_invert">Geuza</string>
+    <string name="pick_all_short">Vyote</string>
+    <string name="pick_none">Hakuna</string>
+    <string name="pick_forever">Futa kabisa</string>
     <string name="pick_counting">Inahesabu...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d imechaguliwa</item>
-        <item quantity="other">%1$d zimechaguliwa</item>
+        <item quantity="one">kipengee %1$d</item>
+        <item quantity="other">vipengee %1$d</item>
     </plurals>
     <plurals name="pick_facts">
         <item quantity="one">%2$s katika faili %1$d</item>

@@ -93,16 +93,20 @@
     <string name="grid_item_last">第 %1$d 张,共 %2$d 张,你最后看过的一张</string>
     <string name="pick_leave">退出选择</string>
     <string name="pick_all">全选</string>
-    <string name="pick_all_hint">快捷操作：长按悬浮按钮可全选。</string>
     <string name="pick_info">信息</string>
     <string name="pick_close">关闭</string>
     <string name="pick_actions">对所选图片的操作</string>
     <string name="pick_move">移动</string>
     <string name="pick_rename">重命名</string>
     <string name="pick_delete">删除</string>
+    <string name="pick_list">列表</string>
+    <string name="pick_invert">反选</string>
+    <string name="pick_all_short">全选</string>
+    <string name="pick_none">全不选</string>
+    <string name="pick_forever">彻底删除</string>
     <string name="pick_counting">正在统计...</string>
     <plurals name="pick_count">
-        <item quantity="other">已选 %1$d 张</item>
+        <item quantity="other">%1$d 项</item>
     </plurals>
     <plurals name="pick_facts">
         <item quantity="other">%1$d 个文件,共 %2$s</item>

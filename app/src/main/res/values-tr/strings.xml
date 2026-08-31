@@ -93,17 +93,21 @@
     <string name="grid_item_last">%2$d görselden %1$d., en son baktığın</string>
     <string name="pick_leave">Seçimden çık</string>
     <string name="pick_all">Tümünü seç</string>
-    <string name="pick_all_hint">Kısayol: tümünü seçmek için kayan düğmeyi basılı tutun.</string>
     <string name="pick_info">Bilgi</string>
     <string name="pick_close">Kapat</string>
     <string name="pick_actions">Seçim üzerindeki işlemler</string>
     <string name="pick_move">Taşı</string>
     <string name="pick_rename">Yeniden adlandır</string>
     <string name="pick_delete">Sil</string>
+    <string name="pick_list">Liste</string>
+    <string name="pick_invert">Tersine çevir</string>
+    <string name="pick_all_short">Tümü</string>
+    <string name="pick_none">Hiçbiri</string>
+    <string name="pick_forever">Tamamen sil</string>
     <string name="pick_counting">Sayılıyor...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d seçildi</item>
-        <item quantity="other">%1$d seçildi</item>
+        <item quantity="one">%1$d öge</item>
+        <item quantity="other">%1$d öge</item>
     </plurals>
     <plurals name="pick_facts">
         <item quantity="one">%1$d dosyada %2$s</item>

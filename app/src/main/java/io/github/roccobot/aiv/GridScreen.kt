@@ -39,16 +39,20 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.Deselect
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
@@ -66,6 +70,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -99,6 +104,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -210,6 +216,20 @@ fun GridScreen(
     var menuOpen by remember { mutableStateOf(false) }
 
     /**
+     * Se il pannello delle operazioni sulla selezione è in vista.
+     *
+     * ⚠️ **Separato da [menuOpen] e non lo stesso booleano**: quello apre il menu a tendina
+     * del cestino, che vive attaccato a un tastino, e questo un pannello che sta in fondo
+     * allo schermo. Un solo flag per due cose diverse funzionerebbe finché le due non
+     * possono essere aperte nello stesso momento, cioè finché nessuno sceglie qualcosa
+     * dentro il cestino.
+     */
+    var sheetOpen by remember { mutableStateOf(false) }
+
+    /** Quanto è alto il pannello, in pixel, per lasciargli il posto sotto la griglia. */
+    var sheetTall by remember { mutableIntStateOf(0) }
+
+    /**
      * Il dialogo di un'operazione, e `null` quando non ce n'è aperto nessuno.
      *
      * ⚠️ **Uno stato solo per quattro dialoghi**, dalla `0.62`: erano quattro variabili, e
@@ -234,10 +254,17 @@ fun GridScreen(
      */
     val filled = !items.isNullOrEmpty()
 
-    // ⚠️ Indietro esce dalla SELEZIONE prima di uscire dalla cartella: chi ha scelto
-    // trenta foto e tocca Indietro per sbaglio non deve ritrovarsi due schermate
-    // indietro con la selezione persa.
-    BackHandler(enabled = picking) { chosen = emptySet() }
+    /*
+     * ⚠️ Indietro esce dalla SELEZIONE prima di uscire dalla cartella: chi ha scelto
+     * trenta foto e tocca Indietro per sbaglio non deve ritrovarsi due schermate indietro
+     * con la selezione persa.
+     * ⚠️⚠️ **E DALLA 0.94 CHIUDE PRIMA IL PANNELLO**, che è la richiesta alla lettera (*la
+     * bottomsheet si chiude con Indietro di sistema*): due cose sullo stesso tasto vogliono
+     * un ordine, e questo è l'unico che non perde niente. Al contrario, chi tocca Indietro
+     * per far sparire il pannello e si vedesse sciogliere la selezione avrebbe perso trenta
+     * tocchi per un ripensamento.
+     */
+    BackHandler(enabled = picking) { if (sheetOpen) sheetOpen = false else chosen = emptySet() }
 
     /**
      * Dove sta il dito mentre trascina una selezione, e `null` quando non trascina.
@@ -297,9 +324,6 @@ fun GridScreen(
      * da `true` il caso peggiore è che compaia un fotogramma più tardi, e nessuno se ne
      * accorge.
      */
-    val pickSeen by produceState(initialValue = true, context) {
-        Hint.PICK_ALL.flow(context).collect { value = it }
-    }
     val binSeen by produceState(initialValue = true, context) {
         Hint.BIN_EMPTY.flow(context).collect { value = it }
     }
@@ -357,7 +381,6 @@ fun GridScreen(
      * due col velo ancora steso, e nel caso peggiore col menu che si apre **sotto** di
      * lui. Queste lo tolgono sull'istante; la scrittura serve alle sessioni dopo.
      */
-    var pickOff by remember { mutableStateOf(false) }
     var binOff by remember { mutableStateOf(false) }
 
     /**
@@ -368,7 +391,6 @@ fun GridScreen(
      * avuto la sua occasione all'apertura.
      */
     val hint: Hint? = when {
-        picking && !pickSeen && !pickOff -> Hint.PICK_ALL
         bin && !binSeen && !binOff -> Hint.BIN_EMPTY
         else -> null
     }
@@ -390,7 +412,7 @@ fun GridScreen(
      * qualcosa, e un menu che si aprisse entrando mostrerebbe 'Svuota il cestino' senza che
      * nessuno l'abbia chiesto.
      */
-    LaunchedEffect(picking, hint) { if (picking && hint == null) menuOpen = true }
+    LaunchedEffect(picking, hint) { if (picking && hint == null) sheetOpen = true }
 
     /**
      * Il velo si archivia appena l'utente fa la cosa che insegnava, o appena la salta.
@@ -401,7 +423,6 @@ fun GridScreen(
      */
     val hintDone: () -> Unit = {
         when (hint) {
-            Hint.PICK_ALL -> pickOff = true
             Hint.BIN_EMPTY -> binOff = true
             // ⚠️ Le colonne non si insegnano qui, ma il ramo c'è perché l'enum le porta:
             // il velo che le riguarda vive nella schermata delle cartelle.
@@ -410,6 +431,127 @@ fun GridScreen(
         }
         hint?.let { seen -> scope.launch { seen.remember(context) } }
     }
+
+    /**
+     * Le dieci operazioni sulla selezione, nell'ordine in cui l'utente le ha chieste.
+     *
+     * ⚠️⚠️ **DIECI E NON SEI, dalla 0.94** (richiesta dell'utente, con le sue etichette
+     * brevi): alle sei di prima si aggiungono 'Lista', 'Inverti', 'Tutti' e 'Nessuno'. Le
+     * ultime tre non toccano nessun file, e stare accanto a quelle che li toccano è
+     * deliberato: sono tutte cose che si fanno **sulla selezione**, e cercarle in due posti
+     * diversi era il passaggio a vuoto che questa versione toglie.
+     * ⚠️⚠️ **LA FILA È SBILANCIATA A DESTRA APPOSTA** (sue parole: *in modo che le funzioni
+     * usate più di frequente siano comodamente raggiungibili con il pollice*), quindi
+     * l'ordine non si 'sistema': 'Copia' in fondo alla prima fila e 'Nessuno' in fondo alla
+     * seconda sono la posizione più comoda, non l'ultimo posto rimasto.
+     * ⚠️ **Le operazioni sui file chiudono il pannello, quelle sulla selezione no**: dopo
+     * 'Sposta' si apre un dialogo e il pannello sarebbe una cosa in più da guardare; dopo
+     * 'Inverti' si sta ancora scegliendo, e chiudere costringerebbe a riaprire.
+     */
+    val pickActions = listOf(
+        // ⚠️ Nel cestino al posto della rinomina c'è il ripristino: un file là dentro non si
+        // rinomina (richiesta dell'utente), e il posto nel pannello è lo stesso, così le
+        // dieci icone non ballano.
+        if (bin) {
+            PadAction(Icons.Default.SettingsBackupRestore, R.string.bin_restore) {
+                sheetOpen = false
+                job = FileJob.Restore(chosen.toList())
+            }
+        } else {
+            PadAction(Glyphs.TextCursor, R.string.pick_rename) {
+                sheetOpen = false
+                job = FileJob.Rename(chosen.toList())
+            }
+        },
+        PadAction(Icons.Outlined.Info, R.string.pick_info) {
+            sheetOpen = false
+            job = FileJob.Facts(chosen.toList())
+        },
+        PadAction(Icons.Default.Share, R.string.menu_share) {
+            sheetOpen = false
+            // ⚠️ La lista si prende ADESSO: la condivisione gira in una coroutine, e
+            // leggere `chosen` da dentro leggerebbe una selezione che nel frattempo può
+            // essere cambiata.
+            val list = chosen.toList()
+            scope.launch { ImageActions.shareMany(context, list) }
+        },
+        PadAction(Glyphs.FolderPairDashed, R.string.pick_move) {
+            sheetOpen = false
+            job = FileJob.Transfer(chosen.toList(), move = true)
+        },
+        // ⚠️⚠️ **IL TOCCO LUNGO SU 'COPIA' DUPLICA DOVE SEI, dalla 0.79** (richiesta
+        // dell'utente): copiare chiede dove, duplicare no.
+        // ⚠️ **Nel cestino no**: un duplicato là dentro nascerebbe senza riga d'archivio,
+        // quindi non si potrebbe ripristinare, e sarebbe un file che il cestino non sa da
+        // dove viene.
+        PadAction(
+            icon = Glyphs.FolderPair,
+            label = R.string.menu_copy_here,
+            onHold = if (bin) null else {
+                {
+                    sheetOpen = false
+                    job = FileJob.Duplicate(chosen.toList())
+                }
+            },
+            holdLabel = if (bin) null else R.string.pick_duplicate
+        ) {
+            sheetOpen = false
+            job = FileJob.Transfer(chosen.toList(), move = false)
+        },
+        /*
+         * ⚠️ **'Lista' NON chiude il pannello e non dice niente**: su Android 13 e oltre è
+         * il **sistema** ad annunciare ogni copia negli appunti, e un nostro avviso sopra
+         * il suo sarebbe la stessa cosa detta due volte. Sotto quella versione non si vede
+         * nessuna conferma, ed è il prezzo dichiarato di non avere una barra dei messaggi
+         * in questa schermata.
+         */
+        PadAction(Icons.AutoMirrored.Outlined.FormatListBulleted, R.string.pick_list) {
+            val list = chosen.toList()
+            scope.launch { ImageActions.copyNames(context, list) }
+        },
+        /*
+         * ⚠️⚠️ **IL TOCCO LUNGO SALTA IL CESTINO** (richiesta dell'utente, 2026-08-31), ed
+         * è la sola scorciatoia irreversibile dell'app: per questo la conferma resta. Con
+         * il cestino spento il tocco breve fa già la stessa cosa, quindi là la scorciatoia
+         * non aggiunge niente e non si mette.
+         */
+        PadAction(
+            icon = Icons.Default.Delete,
+            label = R.string.pick_delete,
+            danger = true,
+            onHold = if (bin || !binOn) null else {
+                {
+                    sheetOpen = false
+                    job = FileJob.Delete(chosen.toList(), forGood = true)
+                }
+            },
+            holdLabel = if (bin || !binOn) null else R.string.pick_forever
+        ) {
+            sheetOpen = false
+            // ⚠️ Definitiva nel cestino **o** col cestino spento: con `forGood` viaggia la
+            // conferma.
+            job = FileJob.Delete(chosen.toList(), forGood = bin || !binOn)
+        },
+        // ⚠️ L'inversione lavora sull'elenco che si ha DAVANTI, non su tutta la cartella:
+        // con una ricerca in corso o un filtro acceso, `items` è già quello filtrato, ed è
+        // l'unica lettura che non sorprende.
+        PadAction(Icons.Default.SwapHoriz, R.string.pick_invert) {
+            chosen = items.orEmpty().toSet() - chosen
+        },
+        // ⚠️ Il tocco lungo su 'Tutti' fa il contrario, come chiesto: le due stanno
+        // accanto, e chi sbaglia mira ha la correzione sotto lo stesso dito.
+        PadAction(
+            icon = Icons.Default.SelectAll,
+            label = R.string.pick_all_short,
+            onHold = { chosen = emptySet() },
+            holdLabel = R.string.pick_none
+        ) {
+            takeAll()
+        },
+        PadAction(Icons.Default.Deselect, R.string.pick_none) {
+            chosen = emptySet()
+        }
+    )
 
     // Le due misure dello scorrimento ai bordi, in pixel: servono dentro un effetto, che
     // non ha una densità sotto mano.
@@ -583,6 +725,11 @@ fun GridScreen(
                     }
                 }
             }
+            // ⚠️ Il peso sta FUORI dalla colonna del conto, non sotto: la richiesta dice
+            // *in linea ma a destra, allineato al bordo destro*, e dentro la colonna
+            // seguirebbe la larghezza del testo invece del bordo della barra.
+            if (picking) PickWeight(chosen)
+
             /*
              * ⚠️⚠️ **QUI NON C'È PIÙ NIENTE, e la ragione per cui c'era è stata SOSTITUITA
              * invece che dimenticata.** Fino alla `0.72` accanto al conto stava un tastino
@@ -739,7 +886,19 @@ fun GridScreen(
                     // compare: senza, la fotografia in basso a destra resterebbe coperta
                     // proprio mentre la si deve poter toccare. Fuori dalla selezione il
                     // tastino non c'è e quello spazio sarebbe un buco.
-                    contentPadding = PaddingValues(bottom = if (picking) BELOW_FAB else 16.dp),
+                    /*
+                     * ⚠️⚠️ **SOTTO LA GRIGLIA CI VA IL PANNELLO MISURATO, dalla 0.94**: prima
+                     * bastava lo spazio del tastino, che è alto quanto un dito; il pannello
+                     * è due file di icone, e con [BELOW_FAB] l'ultima riga di fotografie
+                     * sarebbe rimasta sotto di lui senza modo di tirarla fuori.
+                     * ⚠️ Quando il pannello è chiuso torna [BELOW_FAB], che è quello che
+                     * serve al tastino del cestino.
+                     */
+                    contentPadding = PaddingValues(
+                        bottom = if (picking && sheetOpen) {
+                            with(LocalDensity.current) { sheetTall.toDp() }
+                        } else if (picking || bin) BELOW_FAB else 16.dp
+                    ),
                     modifier = Modifier.fillMaxWidth().then(grab)
                 ) {
                     itemsIndexed(
@@ -808,22 +967,15 @@ fun GridScreen(
                 }
 
                 /*
-                 * ⚠️⚠️ **LE OPERAZIONI STANNO IN UN TASTINO DEDICATO dalla 0.61**
-                 * (richiesta dell'utente: *le azioni disponibili devono comparire in un
-                 * FAB dedicato, icona diversa, tipo hamburger*). Prima stavano in testata,
-                 * un tastino per 'condividi' e un menu a tendina per le altre cinque, e
-                 * il conto delle foto scelte si giocava lo spazio con loro.
-                 * ⚠️ **Nella griglia delle foto non c'è nessun tastino da sostituire**, e
-                 * va detto invece di lasciarlo scoprire: quello quadrato vive nella
-                 * schermata delle cartelle. Qui il tastino **compare** con la selezione e
-                 * sparisce con lei, che è il modo di dire che si è in un modo diverso.
-                 * ⚠️ **Le sei azioni le disegna [ActionPad], che è condiviso col
-                 * visualizzatore**: l'ordine e le icone stanno là, una volta sola.
-                 * ⚠️ Il margine è 8 e non 16 come quello delle cartelle perché la griglia
-                 * sta già dentro il margine della schermata, e i due si sommano.
+                 * ⚠️⚠️ **IL TASTINO RESTA SOLO NEL CESTINO SENZA SELEZIONE, dalla 0.94.**
+                 * Con una selezione in corso le operazioni stanno nella bottomsheet qui
+                 * sotto, e il tastino è sparito perché non aveva più niente da fare (vedi
+                 * [PickSheet]). Qui invece porta le tre voci che riguardano il cestino
+                 * **intero**, che non sono operazioni su una selezione e non hanno un altro
+                 * posto dove stare.
                  */
                 FabPop(
-                    visible = picking || bin,
+                    visible = bin && !picking,
                     modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp)
                 ) {
                     Box {
@@ -834,19 +986,11 @@ fun GridScreen(
                             ink = MaterialTheme.colorScheme.onPrimaryContainer,
                             lift = FAB_LIFT,
                             holdLabel = stringResource(shortcutLabel),
-                            // ⚠️⚠️ **ALTERNA e non apre, dalla 0.75** (richiesta
-                            // dell'utente): il menu si apre da sé all'inizio della
-                            // selezione, quindi un tocco che 'apre' non avrebbe niente da
-                            // fare, mentre serve **chiuderlo** per vedere le foto sotto e
-                            // continuare a scegliere. Un altro tocco lo riporta.
                             onTap = { menuOpen = !menuOpen },
                             onHold = { shortcut(); hintDone() }
                         )
                         PickMenu(open = menuOpen, onDismiss = { menuOpen = false }) {
                             /*
-                             * ⚠️ Nel cestino senza niente scelto il tastino non porta le sei
-                             * operazioni, che non avrebbero su cosa agire, ma le tre voci che
-                             * riguardano il cestino **intero**.
                              * ⚠️⚠️ **L'ORDINE NON È CASUALE**: prima quella che rimette a
                              * posto, poi quella che racconta, ultima quella che cancella per
                              * sempre. Chi tocca al buio la prima voce di un menu non deve
@@ -857,133 +1001,46 @@ fun GridScreen(
                              * direbbero '0 fatti', mentre la cronologia ha senso proprio
                              * quando il cestino è vuoto perché si è ripristinato tutto.
                              */
-                            if (!picking) {
-                                Column(modifier = Modifier.padding(vertical = PICK_EDGE)) {
-                                    DropdownMenuItem(
-                                        enabled = filled,
-                                        text = { Text(stringResource(R.string.bin_restore_all)) },
-                                        leadingIcon = {
-                                            Icon(Icons.Default.SettingsBackupRestore, null)
-                                        },
-                                        // ⚠️ Nessuna conferma, come per il ripristino di una
-                                        // foto sola: rimette le cose come stavano, ed è
-                                        // reversibile (si rielimina). Vedi [FileJob.Restore].
-                                        onClick = {
-                                            menuOpen = false
-                                            job = FileJob.Restore(items.orEmpty())
-                                        }
-                                    )
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.bin_history)) },
-                                        leadingIcon = { Icon(Icons.Default.History, null) },
-                                        onClick = { menuOpen = false; onHistory() }
-                                    )
-                                    DropdownMenuItem(
-                                        enabled = filled,
-                                        text = { Text(stringResource(R.string.bin_empty)) },
-                                        leadingIcon = { Icon(Icons.Default.DeleteForever, null) },
-                                        colors = MenuDefaults.itemColors(
-                                            textColor = MaterialTheme.colorScheme.error,
-                                            leadingIconColor = MaterialTheme.colorScheme.error
-                                        ),
-                                        onClick = { menuOpen = false; emptying = true }
-                                    )
-                                }
-                            } else ActionPad(
-                                actions = listOf(
-                                    // ⚠️⚠️ **LE PRIME TRE ICONE SONO DISEGNATE IN CASA,
-                                    // dalla 0.73** (vedi [Glyphs]), e le stesse valgono nel
-                                    // visualizzatore: il riquadro è condiviso, e chi impara
-                                    // dove sta 'sposta' lo impara una volta.
-                                    // ⚠️ Copia e Sposta escono dallo **stesso stampo** e
-                                    // differiscono solo per il tratteggio, che sta sulla
-                                    // cartella di dietro: spostare vuol dire che l'originale
-                                    // non resta dov'era. Prima erano `FolderCopy` e
-                                    // `CopyAll` di Material, cioè due cartelle disegnate da
-                                    // due mani diverse, e l'utente ha detto che la seconda
-                                    // non andava bene.
-                                    // ⚠️ **NON sono più provvisorie dalla `0.81`**: gli SVG
-                                    // dell'utente sono arrivati e [Glyphs] li porta
-                                    // verbatim. La nota vecchia diceva 'quando arrivano
-                                    // cambiano le coordinate e nient'altro', ed è andata
-                                    // esattamente così.
-                                    // ⚠️⚠️ **IL TOCCO LUNGO SU 'COPIA' DUPLICA DOVE SEI,
-                                    // dalla 0.79** (richiesta dell'utente): copiare chiede
-                                    // dove, duplicare no.
-                                    // ⚠️ **Nel cestino no**: un duplicato là dentro nascerebbe
-                                    // senza riga d'archivio, quindi non si potrebbe
-                                    // ripristinare, e sarebbe un file che il cestino non sa da
-                                    // dove viene.
-                                    PadAction(
-                                        icon = Glyphs.FolderPair,
-                                        label = R.string.menu_copy_here,
-                                        onHold = if (bin) null else {
-                                            {
-                                                menuOpen = false
-                                                job = FileJob.Duplicate(chosen.toList())
-                                            }
-                                        },
-                                        holdLabel = if (bin) null else R.string.pick_duplicate
-                                    ) {
-                                        menuOpen = false
-                                        job = FileJob.Transfer(chosen.toList(), move = false)
+                            Column(modifier = Modifier.padding(vertical = PICK_EDGE)) {
+                                DropdownMenuItem(
+                                    enabled = filled,
+                                    text = { Text(stringResource(R.string.bin_restore_all)) },
+                                    leadingIcon = {
+                                        Icon(Icons.Default.SettingsBackupRestore, null)
                                     },
-                                    PadAction(
-                                        Glyphs.FolderPairDashed,
-                                        R.string.pick_move
-                                    ) {
+                                    // ⚠️ Nessuna conferma, come per il ripristino di una
+                                    // foto sola: rimette le cose come stavano, ed è
+                                    // reversibile (si rielimina). Vedi [FileJob.Restore].
+                                    onClick = {
                                         menuOpen = false
-                                        job = FileJob.Transfer(chosen.toList(), move = true)
-                                    },
-                                    PadAction(
-                                        Icons.Default.Delete,
-                                        R.string.pick_delete,
-                                        danger = true
-                                    ) {
-                                        menuOpen = false
-                                        // ⚠️ Definitiva nel cestino **o** col cestino
-                                        // spento: con `forGood` viaggia la conferma.
-                                        job = FileJob.Delete(
-                                            chosen.toList(),
-                                            forGood = bin || !binOn
-                                        )
-                                    },
-                                    // ⚠️ Nel cestino al posto della rinomina c'è il
-                                    // ripristino: un file là dentro non si rinomina
-                                    // (richiesta dell'utente), e il posto nel riquadro è
-                                    // lo stesso, così le sei icone non ballano.
-                                    if (bin) {
-                                        PadAction(
-                                            Icons.Default.SettingsBackupRestore,
-                                            R.string.bin_restore
-                                        ) {
-                                            menuOpen = false
-                                            job = FileJob.Restore(chosen.toList())
-                                        }
-                                    } else {
-                                        PadAction(Glyphs.TextCursor, R.string.pick_rename) {
-                                            menuOpen = false
-                                            job = FileJob.Rename(chosen.toList())
-                                        }
-                                    },
-                                    PadAction(Icons.Default.Share, R.string.menu_share) {
-                                        menuOpen = false
-                                        // ⚠️ La lista si prende ADESSO: la condivisione
-                                        // gira in una coroutine, e leggere `chosen` da
-                                        // dentro leggerebbe una selezione che nel
-                                        // frattempo può essere cambiata.
-                                        val list = chosen.toList()
-                                        scope.launch { ImageActions.shareMany(context, list) }
-                                    },
-                                    PadAction(Icons.Outlined.Info, R.string.pick_info) {
-                                        menuOpen = false
-                                        job = FileJob.Facts(chosen.toList())
+                                        job = FileJob.Restore(items.orEmpty())
                                     }
                                 )
-                            )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.bin_history)) },
+                                    leadingIcon = { Icon(Icons.Default.History, null) },
+                                    onClick = { menuOpen = false; onHistory() }
+                                )
+                                DropdownMenuItem(
+                                    enabled = filled,
+                                    text = { Text(stringResource(R.string.bin_empty)) },
+                                    leadingIcon = { Icon(Icons.Default.DeleteForever, null) },
+                                    colors = MenuDefaults.itemColors(
+                                        textColor = MaterialTheme.colorScheme.error,
+                                        leadingIconColor = MaterialTheme.colorScheme.error
+                                    ),
+                                    onClick = { menuOpen = false; emptying = true }
+                                )
+                            }
                         }
                     }
                 }
+
+                PickSheet(
+                    visible = picking && sheetOpen,
+                    actions = pickActions,
+                    onHeight = { sheetTall = it }
+                )
 
             }
             }
@@ -1008,7 +1065,6 @@ fun GridScreen(
             HintVeil(
                 text = stringResource(
                     when (hint) {
-                        Hint.PICK_ALL -> R.string.pick_all_hint
                         Hint.BIN_EMPTY -> R.string.bin_empty_hint
                         // ⚠️ Le colonne non si insegnano qui: quel velo vive nella schermata
                         // delle cartelle, dove sta il tastino che le cambia. Il ramo c'è
@@ -1345,6 +1401,37 @@ private fun ClipBadge(uri: Uri, modifier: Modifier = Modifier) {
  * ⚠️ **`labelSmall` e non `bodySmall`**: sotto una fotografia il nome è un'etichetta, e a
  * 11sp due righe stanno sotto una miniatura da 108dp senza rubarle spazio.
  */
+/**
+ * Il peso totale di quello che si è scelto, in testata a destra.
+ *
+ * ⚠️⚠️ **SI CHIEDE AL MEDIASTORE E NON SI SOMMA A OCCHIO**: il peso di un file non sta
+ * nell'indirizzo, quindi ogni cambio di selezione è una interrogazione. È la stessa
+ * `factsOf` del dialogo delle informazioni, che quel conto lo sa già fare.
+ * ⚠️⚠️ **L'ATTESA PRIMA DI CONTARE È LA COSA CHE RENDE LA FUNZIONE POSSIBILE**: scegliendo
+ * col trascinamento la selezione cambia decine di volte al secondo, e senza questa pausa
+ * partirebbe una interrogazione per ogni fotografia sfiorata. `produceState` annulla la
+ * precedente a ogni cambio, quindi durante il trascinamento non ne parte nessuna e il conto
+ * si fa quando il dito si ferma.
+ * ⚠️ **Vuoto e non uno zero mentre conta**: uno zero è un peso, e per un istante direbbe
+ * una cosa falsa. Lo spazio vuoto si legge come 'sto arrivando'.
+ */
+@Composable
+private fun PickWeight(chosen: Set<Uri>) {
+    val context = LocalContext.current
+    val weight by produceState<Long?>(null, chosen, context) {
+        value = null
+        delay(WEIGH_WAIT)
+        value = factsOf(context, chosen.toList()).bytes
+    }
+    Text(
+        text = weight?.let { formatBytes(it) }.orEmpty(),
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        maxLines = 1,
+        modifier = Modifier.padding(horizontal = 8.dp)
+    )
+}
+
 @Composable
 private fun GridName(uri: Uri, room: Int) {
     val context = LocalContext.current
@@ -1373,6 +1460,15 @@ private fun GridName(uri: Uri, room: Int) {
         modifier = Modifier.fillMaxWidth().padding(horizontal = NAME_PAD)
     )
 }
+
+/**
+ * Quanto si aspetta prima di contare il peso della selezione.
+ *
+ * ⚠️ Un terzo di secondo: abbastanza perché un trascinamento non faccia partire niente,
+ * poco perché un tocco singolo non sembri lento. Da rivedere col dito, come ogni numero
+ * che dipende da un gesto.
+ */
+private const val WEIGH_WAIT = 300L
 
 /**
  * Il lato minimo di una miniatura.

@@ -93,17 +93,21 @@
     <string name="grid_item_last">تصویر %1$d از %2$d، آخرینی که دیدید</string>
     <string name="pick_leave">خروج از گزینش</string>
     <string name="pick_all">گزینش همه</string>
-    <string name="pick_all_hint">میان‌بر: دکمه شناور را نگه دارید تا همه انتخاب شوند.</string>
     <string name="pick_info">اطلاعات</string>
     <string name="pick_close">بستن</string>
     <string name="pick_actions">کارها بر گزیده‌ها</string>
     <string name="pick_move">جابجایی</string>
     <string name="pick_rename">تغییر نام</string>
     <string name="pick_delete">پاک کردن</string>
+    <string name="pick_list">فهرست</string>
+    <string name="pick_invert">وارونه</string>
+    <string name="pick_all_short">همه</string>
+    <string name="pick_none">هیچ</string>
+    <string name="pick_forever">حذف کامل</string>
     <string name="pick_counting">در حال شمارش...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d گزیده شد</item>
-        <item quantity="other">%1$d گزیده شد</item>
+        <item quantity="one">%1$d عنصر</item>
+        <item quantity="other">%1$d عنصر</item>
     </plurals>
     <plurals name="pick_facts">
         <item quantity="one">%2$s در %1$d فایل</item>

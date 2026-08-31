@@ -93,16 +93,20 @@
     <string name="grid_item_last">%2$d장 중 %1$d번째, 마지막으로 본 사진</string>
     <string name="pick_leave">선택 해제</string>
     <string name="pick_all">모두 선택</string>
-    <string name="pick_all_hint">단축 동작: 플로팅 버튼을 길게 누르면 전체 선택됩니다.</string>
     <string name="pick_info">정보</string>
     <string name="pick_close">닫기</string>
     <string name="pick_actions">선택한 사진에 대한 작업</string>
     <string name="pick_move">이동</string>
     <string name="pick_rename">이름 바꾸기</string>
     <string name="pick_delete">삭제</string>
+    <string name="pick_list">목록</string>
+    <string name="pick_invert">반전</string>
+    <string name="pick_all_short">전체</string>
+    <string name="pick_none">없음</string>
+    <string name="pick_forever">완전히 삭제</string>
     <string name="pick_counting">세는 중...</string>
     <plurals name="pick_count">
-        <item quantity="other">%1$d장 선택</item>
+        <item quantity="other">%1$d개</item>
     </plurals>
     <plurals name="pick_facts">
         <item quantity="other">파일 %1$d개, %2$s</item>
