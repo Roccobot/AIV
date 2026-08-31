@@ -31,9 +31,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import coil3.compose.setSingletonImageLoaderFactory
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 sealed interface ViewerState {
@@ -749,6 +751,66 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
+     * Che cosa c'è sul telefono dei modelli della ricerca per contenuto.
+     *
+     * ⚠️⚠️ **LO SCARICAMENTO VIVE QUI E NON NELLA SCHERMATA, ed è la ragione per cui questo
+     * stato sta nel modello**: sono 65 MB, cioè minuti, e un lavoro appeso alla composizione
+     * morirebbe **uscendo dalle impostazioni**, che è la prima cosa che si fa mentre si
+     * aspetta. Nell'ambito del modello sopravvive a tutte le schermate e muore con l'app.
+     * ⚠️ **Non sopravvive alla chiusura dell'app**, e non è un difetto nascosto: riaprendo si
+     * riprende dal pezzo che mancava, perché quelli completi sono già sul disco (vedi
+     * `ClipModels.fetch`). Un lavoro che continua ad app chiusa vorrebbe WorkManager, cioè
+     * una dipendenza in più per un caso che si paga con un tocco.
+     */
+    var clipState: ClipModels.State by mutableStateOf(ClipModels.State.Absent)
+        private set
+
+    private var clipJob: Job? = null
+
+    /** Rilegge che cosa c'è: si chiama all'apertura delle impostazioni. */
+    fun clipRefresh() {
+        viewModelScope.launch {
+            val context = getApplication<Application>()
+            clipState = withContext(Dispatchers.IO) { ClipModels.state(context) }
+        }
+    }
+
+    /**
+     * Scarica quello che manca.
+     *
+     * ⚠️ **Un lavoro per volta**: toccare due volte il tasto non deve far partire due
+     * scaricamenti sullo stesso file, che si scriverebbero addosso a vicenda.
+     */
+    fun clipFetch() {
+        if (clipJob?.isActive == true) return
+        val context = getApplication<Application>()
+        clipState = ClipModels.State.Fetching(0L, ClipModels.WEIGHT)
+        clipJob = viewModelScope.launch {
+            clipState = ClipModels.fetch(context) { done, total ->
+                clipState = ClipModels.State.Fetching(done, total)
+            }
+        }
+    }
+
+    /** Ferma lo scaricamento: quello che è arrivato intero resta. */
+    fun clipStop() {
+        clipJob?.cancel()
+        clipJob = null
+        clipRefresh()
+    }
+
+    /** Toglie i modelli dal telefono, fermando prima quello che stava scaricando. */
+    fun clipRemove() {
+        clipJob?.cancel()
+        clipJob = null
+        val context = getApplication<Application>()
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) { ClipModels.remove(context) }
+            clipState = withContext(Dispatchers.IO) { ClipModels.state(context) }
+        }
+    }
+
+    /**
      * Dove sta la navigazione della vista 'Cartelle di sistema', e `null` vuol dire in cima.
      *
      * ⚠️⚠️ **VIVE QUI E NON NELLA SCHERMATA, dalla `0.84`**: si esce dalla casa ogni volta che
@@ -1103,11 +1165,19 @@ private fun AivApp(model: ViewerViewModel) {
     when (val screen = model.screen) {
         Screen.Settings -> {
             BackHandler { model.leaveSettings() }
+            // ⚠️ Si rilegge all'ENTRATA e non a ogni ricomposizione: quei file cambiano
+            // solo per mano di questa schermata, e guardarli a ogni disegno vorrebbe dire
+            // tre `stat` per fotogramma.
+            LaunchedEffect(Unit) { model.clipRefresh() }
             SettingsScreen(
                 settings = settings,
                 onChange = { model.updateSettings(it) },
                 onStartFolder = { model.chooseStartFolder() },
                 onResetHints = { model.resetHints() },
+                clipState = model.clipState,
+                onClipFetch = { model.clipFetch() },
+                onClipStop = { model.clipStop() },
+                onClipRemove = { model.clipRemove() },
                 onBack = { model.leaveSettings() }
             )
         }

@@ -218,4 +218,14 @@
     <string name="clip_pause">Tạm dừng</string>
     <string name="settings_images_only">Chỉ lướt qua ảnh</string>
     <string name="settings_images_only_desc">Trong trình xem, vuốt sẽ bỏ qua video và chỉ hiện ảnh. Chạm vào video trong lưới vẫn phát: điều này nói về cử chỉ vuốt, không phải cú chạm.</string>
+    <string name="settings_group_content">Tìm theo nội dung</string>
+    <string name="settings_content_desc">Tìm một tấm ảnh theo những gì có trong đó, chứ không theo tên, cần hai mô hình không nằm sẵn trong ứng dụng: chúng được tải một lần và có thể gỡ đi. Mọi thứ diễn ra trên điện thoại, và không có gì được gửi đi đâu cả.</string>
+    <string name="settings_content_get">Tải các mô hình (%1$s)</string>
+    <string name="settings_content_getting">%1$s trên %2$s</string>
+    <string name="settings_content_stop">Dừng</string>
+    <string name="settings_content_ready">Các mô hình đã có trên điện thoại.</string>
+    <string name="settings_content_remove">Gỡ các mô hình (%1$s)</string>
+    <string name="settings_content_broken">Có gì đó không chạy: %1$s</string>
+    <string name="settings_content_retry">Thử lại</string>
+    <string name="settings_content_soon">Bản thân việc tìm kiếm sẽ có ở phiên bản sau: hiện tại dòng này chỉ tải các mô hình về điện thoại.</string>
 </resources>

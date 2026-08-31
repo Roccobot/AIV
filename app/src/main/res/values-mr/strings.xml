@@ -232,4 +232,14 @@
     <string name="clip_pause">थांबवा</string>
     <string name="settings_images_only">फक्त चित्रे पाहा</string>
     <string name="settings_images_only_desc">व्ह्यूअरमध्ये स्वाइप केल्यास व्हिडिओ वगळले जातात आणि फक्त चित्रे दिसतात. ग्रिडमध्ये व्हिडिओवर टॅप केल्यास तो तरीही चालतो: हे स्वाइपबद्दल आहे, टॅपबद्दल नाही.</string>
+    <string name="settings_group_content">मजकुरावरून शोध</string>
+    <string name="settings_content_desc">फोटो त्याच्या नावाने नव्हे तर त्यात काय आहे यावरून शोधण्यासाठी दोन मॉडेल लागतात, जी ॲपमध्ये येत नाहीत: ती एकदा डाउनलोड होतात आणि काढता येतात. सर्व काही फोनवरच होते, कुठेही काही पाठवले जात नाही.</string>
+    <string name="settings_content_get">मॉडेल डाउनलोड करा (%1$s)</string>
+    <string name="settings_content_getting">%2$s पैकी %1$s</string>
+    <string name="settings_content_stop">थांबवा</string>
+    <string name="settings_content_ready">मॉडेल फोनवर आहेत.</string>
+    <string name="settings_content_remove">मॉडेल काढा (%1$s)</string>
+    <string name="settings_content_broken">काहीतरी चालले नाही: %1$s</string>
+    <string name="settings_content_retry">पुन्हा प्रयत्न करा</string>
+    <string name="settings_content_soon">शोध स्वतः पुढच्या आवृत्तीत येईल: सध्या ही ओळ फक्त मॉडेल फोनवर आणते.</string>
 </resources>

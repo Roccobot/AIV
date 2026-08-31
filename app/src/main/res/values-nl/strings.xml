@@ -232,4 +232,14 @@
     <string name="clip_pause">Pauzeren</string>
     <string name="settings_images_only">Alleen door foto\'s bladeren</string>
     <string name="settings_images_only_desc">In de weergave slaat vegen films over en toont alleen foto\'s. Op een film tikken in het raster speelt hem nog steeds af: dit gaat over het vegen, niet over het tikken.</string>
+    <string name="settings_group_content">Zoeken op inhoud</string>
+    <string name="settings_content_desc">Een foto vinden op wat erop staat, en niet op de naam, vraagt twee modellen die niet in de app zitten: ze worden een keer gedownload en kunnen weer weg. Alles gebeurt op de telefoon, en er wordt niets ergens heen gestuurd.</string>
+    <string name="settings_content_get">Modellen downloaden (%1$s)</string>
+    <string name="settings_content_getting">%1$s van %2$s</string>
+    <string name="settings_content_stop">Stoppen</string>
+    <string name="settings_content_ready">De modellen staan op de telefoon.</string>
+    <string name="settings_content_remove">Modellen verwijderen (%1$s)</string>
+    <string name="settings_content_broken">Er ging iets mis: %1$s</string>
+    <string name="settings_content_retry">Opnieuw proberen</string>
+    <string name="settings_content_soon">Het zoeken zelf komt met de volgende versie: voorlopig haalt deze regel alleen de modellen naar de telefoon.</string>
 </resources>

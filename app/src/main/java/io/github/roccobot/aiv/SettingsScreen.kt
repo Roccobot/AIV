@@ -25,11 +25,14 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -81,6 +84,11 @@ fun SettingsScreen(
     onChange: (Settings) -> Unit,
     onStartFolder: () -> Unit,
     onResetHints: () -> Unit,
+    /** Che cosa c'è dei modelli della ricerca per contenuto. Vive nel modello: vedi `clipState`. */
+    clipState: ClipModels.State,
+    onClipFetch: () -> Unit,
+    onClipStop: () -> Unit,
+    onClipRemove: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -108,6 +116,10 @@ fun SettingsScreen(
                 onChange = onChange,
                 onStartFolder = onStartFolder,
                 onResetHints = onResetHints,
+                clipState = clipState,
+                onClipFetch = onClipFetch,
+                onClipStop = onClipStop,
+                onClipRemove = onClipRemove,
                 onOpen = { page = it }
             )
         }
@@ -147,6 +159,10 @@ private fun ColumnScope.RootPage(
     onChange: (Settings) -> Unit,
     onStartFolder: () -> Unit,
     onResetHints: () -> Unit,
+    clipState: ClipModels.State,
+    onClipFetch: () -> Unit,
+    onClipStop: () -> Unit,
+    onClipRemove: () -> Unit,
     onOpen: (Page) -> Unit
 ) {
     Group(stringResource(R.string.settings_group_look))
@@ -371,6 +387,14 @@ private fun ColumnScope.RootPage(
         checked = settings.imagesOnly,
         onChange = { onChange(settings.copy(imagesOnly = it)) }
     )
+
+    Group(stringResource(R.string.settings_group_content))
+    Detail(stringResource(R.string.settings_content_desc))
+    // ⚠️ **DI PASSAGGIO, e se ne va col motore** (`0.87`): senza, accendere questa voce
+    // scarica 65 MB e poi non succede niente, che si legge come 'rotto'. Chi porta il
+    // motore toglie questa riga e la sua stringa in ventotto lingue.
+    Detail(stringResource(R.string.settings_content_soon))
+    ClipRow(clipState, onClipFetch, onClipStop, onClipRemove)
 
     Group(stringResource(R.string.settings_group_start))
 
@@ -746,6 +770,84 @@ private fun <T : Choice> Choices(
                 onClick = { onSelect(option) },
                 label = { Text(nameOf(option)) }
             )
+        }
+    }
+}
+
+/**
+ * La riga della ricerca per contenuto: che cosa c'è, e il tasto che serve adesso.
+ *
+ * ⚠️⚠️ **UN TASTO SOLO PER VOLTA, e cambia con lo stato**: scarica quando non c'è niente,
+ * annulla mentre scarica, togli quando è pronta. Tre tasti insieme, due dei quali spenti,
+ * sarebbero tre cose da leggere per capire quale funziona.
+ * ⚠️ **Il peso è scritto sul tasto**, non nella spiegazione: 65 MB è la sola cosa che
+ * qualcuno potrebbe non volere, e va letta nel momento in cui si decide, non tre righe sopra.
+ * ⚠️ **Guasto: si dice QUALE pezzo e perché**, invece di un 'errore'. Un download che
+ * fallisce ha tre cause diverse (la rete, l'impronta, il disco) e portano a tre reazioni
+ * diverse: riprovare, sospettare il file remoto, fare spazio.
+ */
+@Composable
+private fun ClipRow(
+    state: ClipModels.State,
+    onFetch: () -> Unit,
+    onStop: () -> Unit,
+    onRemove: () -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        when (state) {
+            is ClipModels.State.Absent -> FilledTonalButton(onClick = onFetch) {
+                Text(stringResource(R.string.settings_content_get, formatBytes(ClipModels.WEIGHT)))
+            }
+
+            is ClipModels.State.Fetching -> {
+                // ⚠️ La frazione si calcola qui e non nel modello: quello riferisce due
+                // numeri, che è quanto sa; come si mostrano è una faccenda di schermata.
+                val share = if (state.total > 0) state.done.toFloat() / state.total else 0f
+                LinearProgressIndicator(
+                    progress = { share.coerceIn(0f, 1f) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text(
+                    text = stringResource(
+                        R.string.settings_content_getting,
+                        formatBytes(state.done),
+                        formatBytes(state.total)
+                    ),
+                    style = MaterialTheme.typography.bodySmall
+                )
+                OutlinedButton(onClick = onStop) {
+                    Text(stringResource(R.string.settings_content_stop))
+                }
+            }
+
+            is ClipModels.State.Ready -> {
+                Text(
+                    text = stringResource(R.string.settings_content_ready),
+                    style = MaterialTheme.typography.bodySmall
+                )
+                OutlinedButton(onClick = onRemove) {
+                    Text(
+                        stringResource(
+                            R.string.settings_content_remove,
+                            formatBytes(ClipModels.WEIGHT)
+                        )
+                    )
+                }
+            }
+
+            is ClipModels.State.Broken -> {
+                Text(
+                    text = stringResource(R.string.settings_content_broken, state.detail),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error
+                )
+                FilledTonalButton(onClick = onFetch) {
+                    Text(stringResource(R.string.settings_content_retry))
+                }
+            }
         }
     }
 }

@@ -260,4 +260,14 @@
     <string name="clip_pause">Пауза</string>
     <string name="settings_images_only">Листать только фотографии</string>
     <string name="settings_images_only_desc">В просмотрщике смахивание пропускает видео и показывает только фотографии. Нажатие на видео в сетке всё равно его откроет: это про жест, а не про нажатие.</string>
+    <string name="settings_group_content">Поиск по содержимому</string>
+    <string name="settings_content_desc">Чтобы найти фотографию по тому, что на ней изображено, а не по названию, нужны две модели, которых нет внутри приложения: они загружаются один раз, и их можно удалить. Всё происходит на телефоне, и никуда ничего не отправляется.</string>
+    <string name="settings_content_get">Загрузить модели (%1$s)</string>
+    <string name="settings_content_getting">%1$s из %2$s</string>
+    <string name="settings_content_stop">Остановить</string>
+    <string name="settings_content_ready">Модели загружены на телефон.</string>
+    <string name="settings_content_remove">Удалить модели (%1$s)</string>
+    <string name="settings_content_broken">Что-то пошло не так: %1$s</string>
+    <string name="settings_content_retry">Повторить</string>
+    <string name="settings_content_soon">Сам поиск появится в следующей версии: пока эта строка только загружает модели на телефон.</string>
 </resources>

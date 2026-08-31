@@ -308,4 +308,14 @@
     <string name="clip_pause">Metti in pausa</string>
     <string name="settings_images_only">Sfoglia solo le immagini</string>
     <string name="settings_images_only_desc">Nel visualizzatore la strisciata salta i filmati e mostra solo immagini. Toccando un filmato in griglia parte lo stesso: questa riguarda il gesto, non il tocco.</string>
+    <string name="settings_group_content">Ricerca per contenuto</string>
+    <string name="settings_content_desc">Trovare una foto per quello che c\'è dentro, e non per il nome, richiede due modelli che non stanno dentro l\'app: si scaricano una volta e si possono togliere. Tutto avviene sul telefono, e niente viene mandato da nessuna parte.</string>
+    <string name="settings_content_get">Scarica i modelli (%1$s)</string>
+    <string name="settings_content_getting">%1$s di %2$s</string>
+    <string name="settings_content_stop">Ferma</string>
+    <string name="settings_content_ready">I modelli sono sul telefono.</string>
+    <string name="settings_content_remove">Togli i modelli (%1$s)</string>
+    <string name="settings_content_broken">Qualcosa non ha funzionato: %1$s</string>
+    <string name="settings_content_retry">Riprova</string>
+    <string name="settings_content_soon">La ricerca vera e propria arriva con la prossima versione: per ora questa voce porta soltanto i modelli sul telefono.</string>
 </resources>

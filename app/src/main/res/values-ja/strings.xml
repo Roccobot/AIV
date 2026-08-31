@@ -218,4 +218,14 @@
     <string name="clip_pause">一時停止</string>
     <string name="settings_images_only">写真だけをめくる</string>
     <string name="settings_images_only_desc">ビューアでのスワイプが動画を飛ばし、写真だけを表示します。グリッドで動画をタップすれば再生されます。これはスワイプの話で、タップの話ではありません。</string>
+    <string name="settings_group_content">内容で検索</string>
+    <string name="settings_content_desc">写真をファイル名ではなく写っているもので探すには、アプリに同梱されていない二つのモデルが必要です。一度だけダウンロードし、あとから削除できます。処理はすべて端末の中で行われ、どこにも何も送られません。</string>
+    <string name="settings_content_get">モデルをダウンロード (%1$s)</string>
+    <string name="settings_content_getting">%2$s 中 %1$s</string>
+    <string name="settings_content_stop">停止</string>
+    <string name="settings_content_ready">モデルは端末にあります。</string>
+    <string name="settings_content_remove">モデルを削除 (%1$s)</string>
+    <string name="settings_content_broken">うまくいきませんでした: %1$s</string>
+    <string name="settings_content_retry">やり直す</string>
+    <string name="settings_content_soon">検索そのものは次のバージョンで入ります。今のところ、この項目はモデルを端末に置くだけです。</string>
 </resources>

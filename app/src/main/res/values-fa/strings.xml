@@ -232,4 +232,14 @@
     <string name="clip_pause">توقف</string>
     <string name="settings_images_only">فقط تصویرها را ورق بزن</string>
     <string name="settings_images_only_desc">در نمایشگر، کشیدن انگشت ویدیوها را رد می‌کند و فقط تصویرها را نشان می‌دهد. ضربه زدن روی ویدیو در شبکه باز هم آن را پخش می‌کند: این درباره کشیدن است، نه ضربه.</string>
+    <string name="settings_group_content">جستجو بر پایه محتوا</string>
+    <string name="settings_content_desc">پیدا کردن عکس بر پایه آنچه در آن است، نه بر پایه نامش، به دو مدل نیاز دارد که درون برنامه نیستند: یک بار دانلود می‌شوند و می‌توان حذفشان کرد. همه چیز روی گوشی انجام می‌شود و چیزی به جایی فرستاده نمی‌شود.</string>
+    <string name="settings_content_get">دانلود مدل‌ها (%1$s)</string>
+    <string name="settings_content_getting">%1$s از %2$s</string>
+    <string name="settings_content_stop">توقف</string>
+    <string name="settings_content_ready">مدل‌ها روی گوشی هستند.</string>
+    <string name="settings_content_remove">حذف مدل‌ها (%1$s)</string>
+    <string name="settings_content_broken">چیزی درست کار نکرد: %1$s</string>
+    <string name="settings_content_retry">تلاش دوباره</string>
+    <string name="settings_content_soon">خود جستجو در نسخه بعدی می‌آید: فعلا این ردیف فقط مدل‌ها را روی گوشی می‌آورد.</string>
 </resources>

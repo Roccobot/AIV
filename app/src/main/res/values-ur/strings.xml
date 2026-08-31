@@ -232,4 +232,14 @@
     <string name="clip_pause">وقفہ</string>
     <string name="settings_images_only">صرف تصاویر دیکھیں</string>
     <string name="settings_images_only_desc">ناظر میں سوائپ ویڈیوز کو چھوڑ دیتا ہے اور صرف تصاویر دکھاتا ہے۔ گرڈ میں ویڈیو پر ٹیپ کرنے سے وہ پھر بھی چلتی ہے: یہ سوائپ کے بارے میں ہے، ٹیپ کے بارے میں نہیں۔</string>
+    <string name="settings_group_content">مواد سے تلاش</string>
+    <string name="settings_content_desc">تصویر کو اس کے نام سے نہیں بلکہ اس میں موجود چیزوں سے ڈھونڈنے کے لیے دو ماڈل چاہییں جو ایپ کے اندر نہیں آتے: یہ ایک بار ڈاؤن لوڈ ہوتے ہیں اور ہٹائے جا سکتے ہیں۔ سب کچھ فون پر ہوتا ہے، کہیں کچھ نہیں بھیجا جاتا۔</string>
+    <string name="settings_content_get">ماڈل ڈاؤن لوڈ کریں (%1$s)</string>
+    <string name="settings_content_getting">%2$s میں سے %1$s</string>
+    <string name="settings_content_stop">روکیں</string>
+    <string name="settings_content_ready">ماڈل فون پر موجود ہیں۔</string>
+    <string name="settings_content_remove">ماڈل ہٹائیں (%1$s)</string>
+    <string name="settings_content_broken">کچھ ٹھیک نہیں چلا: %1$s</string>
+    <string name="settings_content_retry">دوبارہ کوشش کریں</string>
+    <string name="settings_content_soon">تلاش خود اگلی نسخے میں آئے گی: فی الحال یہ سطر صرف ماڈل فون پر لاتی ہے۔</string>
 </resources>
