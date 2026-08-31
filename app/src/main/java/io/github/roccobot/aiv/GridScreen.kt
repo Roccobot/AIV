@@ -45,14 +45,11 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
-import androidx.compose.material.icons.filled.Deselect
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Info
@@ -574,20 +571,20 @@ fun GridScreen(
         // ⚠️ L'inversione lavora sull'elenco che si ha DAVANTI, non su tutta la cartella:
         // con una ricerca in corso o un filtro acceso, `items` è già quello filtrato, ed è
         // l'unica lettura che non sorprende.
-        PadAction(Icons.Default.SwapHoriz, R.string.pick_invert) {
+        PadAction(Glyphs.PickInvert, R.string.pick_invert) {
             chosen = items.orEmpty().toSet() - chosen
         },
         // ⚠️ Il tocco lungo su 'Tutti' fa il contrario, come chiesto: le due stanno
         // accanto, e chi sbaglia mira ha la correzione sotto lo stesso dito.
         PadAction(
-            icon = Icons.Default.SelectAll,
+            icon = Glyphs.PickAll,
             label = R.string.pick_all_short,
             onHold = { chosen = emptySet() },
             holdLabel = R.string.pick_none
         ) {
             takeAll()
         },
-        PadAction(Icons.Default.Deselect, R.string.pick_none) {
+        PadAction(Glyphs.PickNone, R.string.pick_none) {
             chosen = emptySet()
         }
     )

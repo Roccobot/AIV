@@ -11,13 +11,14 @@ import androidx.compose.ui.unit.dp
 /**
  * Le icone che Material non ha.
  *
- * ⚠️⚠️ **LE TRE DEL RIQUADRO LE HA DISEGNATE L'UTENTE, dalla 0.81** (*ecco le icone
- * ridisegnate come le volevo*), e questo file le **trasporta** invece di interpretarle: sono
- * tre tracciati pieni in una griglia 24x24, arrivati come SVG e copiati qui **verbatim** nella
- * loro forma compatta. Fino alla `0.80` erano provvisorie, disegnate qui a tratti e curve
- * dietro sua richiesta di provare: quel codice (rettangoli stondati, spezzate, dischi, e un
- * tratteggio calcolato trattino per trattino) è sparito con loro, ed è la ragione per cui
- * questo file è un terzo di quello che era.
+ * ⚠️⚠️ **SEI DELLE SETTE LE HA DISEGNATE L'UTENTE** (le tre del riquadro dalla `0.81`, *ecco
+ * le icone ridisegnate come le volevo*, e le tre della selezione dalla `1.01`), e questo file
+ * le **trasporta** invece di interpretarle: tracciati pieni in una griglia 24x24, arrivati
+ * come SVG e copiati qui **verbatim** nella loro forma compatta. Fino alla `0.80` le prime
+ * tre erano provvisorie, disegnate qui a tratti e curve dietro sua richiesta di provare: quel
+ * codice (rettangoli stondati, spezzate, dischi, e un tratteggio calcolato trattino per
+ * trattino) è sparito con loro, ed è la ragione per cui questo file è un terzo di quello che
+ * era.
  * ⚠️ **Il tracciato è il disegno, e non c'è una seconda copia**: gli SVG di Illustrator
  * portano 220 KB di metadati suoi che in un repo di codice non servono, mentre la `d` che sta
  * qui, incollata in qualunque visualizzatore SVG dentro un `<path>`, ridà l'icona identica.
@@ -112,12 +113,37 @@ object Glyphs {
     val FolderPairDashed: ImageVector by lazy { filled("FolderPairDashed", MOVE) }
 
     /**
-     * Il guscio dei tre glifi dell'utente: un 24x24 con un tracciato pieno.
+     * Un foglio dietro a un riquadro con **due spunte**: 'Seleziona tutto'.
+     *
+     * ⚠️ Due spunte e non una: una sola vuol dire 'questo è scelto', due vogliono dire
+     * 'tutti'. Il glifo di Material che stava qui prima (`SelectAll`) era invece un
+     * rettangolo tratteggiato, cioè il gesto del riquadro di selezione col mouse, che su un
+     * telefono non esiste.
+     */
+    val PickAll: ImageVector by lazy { filled("PickAll", PICK_ALL) }
+
+    /** Un foglio dietro a un riquadro con una **croce**: 'Annulla selezione'. */
+    val PickNone: ImageVector by lazy { filled("PickNone", PICK_NONE) }
+
+    /**
+     * Un foglio dietro a un riquadro con **due frecce che girano**: 'Inverti selezione'.
+     *
+     * ⚠️ Sostituisce `SwapHoriz` della `0.94`, cioè due frecce affiancate: quelle dicono
+     * 'scambia due cose' e non 'ribalta la scelta', ed era la sola delle dieci su cui avevo
+     * dichiarato un dubbio all'utente.
+     */
+    val PickInvert: ImageVector by lazy { filled("PickInvert", PICK_INVERT) }
+
+    /**
+     * Il guscio dei glifi dell'utente: un 24x24 con un tracciato pieno.
      *
      * ⚠️ **Il riempimento è NON-ZERO**, che è il valore di serie di `addPath` e la regola di
      * serie dell'SVG: i controcampi (l'interno delle cartelle, il cielo fra le montagne) sono
      * sottotracciati che girano al contrario, e con la regola pari-dispari verrebbero uguali
      * solo perché non si sovrappongono. Uguale per caso non è uguale.
+     * ⚠️ **Un tracciato solo per glifo, e regge perché i file arrivano così**: se un domani
+     * ne arrivasse uno con più `<path>`, la via è un `addPath` per ognuno e **non** la
+     * concatenazione delle loro `d`. Il perché sta sulle costanti, in fondo, ed è una misura.
      * ⚠️ **`PathParser` e non `addPathNodes`**: quel richiamo comodo non c'è in questa versione
      * di Compose (verificato nel bytecode di `PathNodeKt`, dove l'omonimo prende quattro
      * parametri interni). ⚠️ E il tracciato si legge una volta sola, perché i glifi sono
@@ -185,4 +211,37 @@ object Glyphs {
             "M7.67,21h5.42v-2h-5.42v2Z" +
             "M21,4h-7l-2-2h-5c-1.1,0-1.99.9-1.99,2v11c-.01,1.1.89,2,1.99,2h14c1.1,0,2-.9,2-2V6c0-1.1-.9-2-2-2Z" +
             "M21,15H7V4h4.17l2,2h7.83v9Z"
+
+    /**
+     * I tre tracciati delle icone della selezione, uno per icona.
+     *
+     * ⚠️ **Ognuno è UN tracciato composto**, e i primi due sottotracciati (il foglio dietro
+     * e il riquadro davanti) sono identici carattere per carattere nei tre file: è il segno
+     * di famiglia del riquadro della selezione, come le due cartelle sovrapposte lo sono di
+     * 'Copia' e 'Sposta'. Non si estraggono in una costante condivisa apposta: così la
+     * concatenazione delle righe di ognuna resta **esattamente** la `d` del file
+     * dell'utente, e la si confronta con l'originale carattere per carattere.
+     * ⚠️⚠️ **Se un domani un file arrivasse con PIÙ `<path>` separati, non si concatenano
+     * le loro `d`.** Misurato il 2026-08-31 sulla prima versione di queste tre, che arrivava
+     * così: rese in Chromium e confrontate pixel per pixel, le due forme tenute separate
+     * dànno zero scarto, concatenate ne dànno da 86 a 172, con differenze fino a 11 su 255.
+     * Non è l'avvolgimento che si rompe, è la cucitura fra le due forme che si sfrangia.
+     * La via giusta è un `addPath` per ognuno.
+     */
+    private const val PICK_ALL =
+        "M17.6,20H5.41c-.78,0-1.41-.63-1.41-1.41V6.4c0-.22-.18-.4-.4-.4-.88,0-1.6.72-1.6,1.6v12.4c0,1.1.9,2,2,2h12.4c.88,0,1.6-.72,1.6-1.6h0c0-.22-.18-.4-.4-.4Z" +
+            "M20,2h-12c-1.1,0-2,.9-2,2v12c0,1.1.9,2,2,2h12c1.1,0,2-.9,2-2V4c0-1.1-.9-2-2-2Z" +
+            "M18.23,9.64l-5,5c-.15.15-.39.15-.54,0l-2.92-2.92c-.15-.15-.15-.4,0-.55l.28-.28c.15-.15.4-.15.55,0l2.29,2.29s.1.04.14,0l4.38-4.38c.15-.15.39-.15.55,0l.28.28c.15.15.15.4,0,.55Z" +
+            "M18.23,6.18l-5,5c-.15.15-.39.15-.54,0l-2.92-2.92c-.15-.15-.15-.4,0-.55l.28-.28c.15-.15.4-.15.55,0l2.29,2.29s.1.04.14,0l4.38-4.38c.15-.15.39-.15.55,0l.28.28c.15.15.15.39,0,.55Z"
+
+    private const val PICK_NONE =
+        "M17.6,20H5.41c-.78,0-1.41-.63-1.41-1.41V6.4c0-.22-.18-.4-.4-.4-.88,0-1.6.72-1.6,1.6v12.4c0,1.1.9,2,2,2h12.4c.88,0,1.6-.72,1.6-1.6h0c0-.22-.18-.4-.4-.4Z" +
+            "M20,2h-12c-1.1,0-2,.9-2,2v12c0,1.1.9,2,2,2h12c1.1,0,2-.9,2-2V4c0-1.1-.9-2-2-2Z" +
+            "M18.2,13.38c.16.16.16.41,0,.57l-.25.25c-.16.16-.41.16-.57,0l-3.38-3.38-3.38,3.38c-.16.16-.41.16-.57,0l-.25-.25c-.16-.16-.16-.41,0-.57l3.38-3.38-3.38-3.38c-.16-.16-.16-.41,0-.57l.25-.25c.16-.16.41-.16.57,0l3.38,3.38,3.38-3.38c.16-.16.41-.16.57,0l.25.25c.16.16.16.41,0,.57l-3.38,3.38,3.38,3.38Z"
+
+    private const val PICK_INVERT =
+        "M17.6,20H5.41c-.78,0-1.41-.63-1.41-1.41V6.4c0-.22-.18-.4-.4-.4-.88,0-1.6.72-1.6,1.6v12.4c0,1.1.9,2,2,2h12.4c.88,0,1.6-.72,1.6-1.6h0c0-.22-.18-.4-.4-.4Z" +
+            "M20,2h-12c-1.1,0-2,.9-2,2v12c0,1.1.9,2,2,2h12c1.1,0,2-.9,2-2V4c0-1.1-.9-2-2-2Z" +
+            "M13.43,15.71c-2.9-.29-5.17-2.73-5.17-5.71,0-1.66.71-3.15,1.84-4.19l-1.26-1.26h3.05c.22,0,.4.18.4.4v3.05l-1.37-1.37c-.92.84-1.5,2.04-1.5,3.38,0,2.34,1.76,4.27,4.02,4.55.34,0,.61.3.58.62-.02.29-.27.53-.58.54Z" +
+            "M19.17,15.45h-3.05c-.22,0-.4-.18-.4-.4v-3.05l1.37,1.37c.92-.84,1.5-2.04,1.5-3.38,0-2.34-1.76-4.27-4.02-4.55-.34,0-.6-.3-.58-.62.02-.29.27-.53.58-.54,2.9.29,5.17,2.73,5.17,5.71,0,1.66-.71,3.15-1.84,4.19l1.26,1.26Z"
 }
