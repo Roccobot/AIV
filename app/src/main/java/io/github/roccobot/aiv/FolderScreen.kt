@@ -322,6 +322,7 @@ fun FolderScreen(
         if (home) {
             Hub(
                 view = view,
+                granted = granted,
                 recents = recents,
                 onOpen = onOpen,
                 onView = onView,
@@ -530,10 +531,24 @@ private fun Header(fullPx: Float, icon: Dp, shut: () -> Float) {
  * comodo**: è l'unica via per aprire un'immagine **senza il permesso** sui file. Chi
  * quel permesso non lo concede vede una schermata delle cartelle vuota, e senza questa
  * voce l'app non gli servirebbe più a niente.
+ * ⚠️⚠️ **Dalla `0.74` quella voce compare SE E SOLO SE il permesso manca** (decisione
+ * dell'utente), e il bivio scioglie una tensione vera invece di scegliere un lato: col
+ * permesso concesso il selettore era una seconda strada per una cosa che le cartelle già
+ * fanno, cioè rumore; senza permesso è l'unica strada. La stessa voce, quindi, era
+ * ridondante e indispensabile a seconda dello stato dell'app, e il menu ora lo riflette.
  */
 @Composable
 private fun Hub(
     view: FolderView,
+    /**
+     * Se l'app ha il permesso sui file, cioè se le cartelle si possono leggere.
+     *
+     * ⚠️ **Arriva da fuori e non si rilegge qui**: chi chiama ce l'ha già, e lo tiene
+     * aggiornato al ritorno dalla pagina di sistema. Un secondo `Folder.granted` in questo
+     * composabile darebbe la risposta giusta al primo disegno e poi resterebbe fermo,
+     * perché niente lo farebbe ricomporre.
+     */
+    granted: Boolean,
     recents: List<RecentImage>,
     onOpen: (Uri) -> Unit,
     onView: (FolderView) -> Unit,
@@ -600,15 +615,34 @@ private fun Hub(
                 text = { Text(stringResource(R.string.hub_url)) },
                 onClick = { open = false; asking = true }
             )
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.hub_pick)) },
-                onClick = {
-                    open = false
-                    picker.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                    )
-                }
-            )
+            /*
+             * ⚠️⚠️ **COMPARE SE E SOLO SE IL PERMESSO MANCA, dalla 0.74** (decisione
+             * dell'utente, 2026-08-31: *facciamo un bivio, lo mostriamo se e solo se l'app
+             * non ha il permesso di accedere alla memoria*). La richiesta di partenza era di
+             * toglierla del tutto, *a meno che non mi sia perso qualcosa*: quel qualcosa era
+             * che questa voce è l'**unica via per aprire un'immagine senza quel permesso**,
+             * ed è scritto sopra questo composabile.
+             * ⚠️ **Il bivio la rende utile invece di ridondante**, che è la ragione per cui
+             * dava fastidio: col permesso concesso le cartelle ci sono, e allora il selettore
+             * di sistema è una seconda strada per la stessa cosa; senza permesso è l'unica
+             * strada che c'è.
+             * ⚠️ **Sparisce da sé quando il permesso arriva**, senza uscire e rientrare: lo
+             * stato di `granted` si rinfresca al ritorno dalla pagina di sistema (vedi
+             * `fromSettings` in chi chiama), quindi il menu si ricompone.
+             */
+            if (!granted) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.hub_pick)) },
+                    onClick = {
+                        open = false
+                        picker.launch(
+                            PickVisualMediaRequest(
+                                ActivityResultContracts.PickVisualMedia.ImageOnly
+                            )
+                        )
+                    }
+                )
+            }
             // ⚠️⚠️ **IL CESTINO SI RAGGIUNGE SOLO DA QUI, ed è per costruzione**: le sue
             // fotografie stanno nella cartella dell'app, dove il MediaStore non guarda,
             // quindi non compaiono nell'elenco delle cartelle e non possono comparirci.
