@@ -199,6 +199,10 @@
         <item quantity="one">%1$d படம்</item>
         <item quantity="other">%1$d படங்கள்</item>
     </plurals>
+    <plurals name="folders_clips">
+        <item quantity="one">%1$d காணொளி</item>
+        <item quantity="other">%1$d காணொளிகள்</item>
+    </plurals>
     <string name="settings_facts">ஒரு கோப்பின் தகவல்</string>
     <string name="settings_facts_desc">ஒரு படத்தின் தகவலைத் திறக்கும்போது எந்தத் தரவுகளைப் பார்ப்பீர்கள், எந்த வரிசையில். பெயர், படத்துணுக்குகள், அளவு எப்போதும் உண்டு; கோப்பில் இல்லாத தரவு ஒரு வரியும் பெறாது.</string>
     <string name="settings_facts_always">எப்போதும் தெரியும்</string>

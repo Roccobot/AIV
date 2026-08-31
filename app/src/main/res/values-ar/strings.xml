@@ -247,6 +247,14 @@
         <item quantity="many">%1$d صورة</item>
         <item quantity="other">%1$d صورة</item>
     </plurals>
+    <plurals name="folders_clips">
+        <item quantity="zero">%1$d فيديو</item>
+        <item quantity="one">فيديو واحد</item>
+        <item quantity="two">فيديوان</item>
+        <item quantity="few">%1$d فيديوهات</item>
+        <item quantity="many">%1$d فيديو</item>
+        <item quantity="other">%1$d فيديو</item>
+    </plurals>
     <string name="settings_facts">معلومات ملف واحد</string>
     <string name="settings_facts_desc">أي البيانات تراها عند فتح معلومات صورة، وبأي ترتيب. الاسم والبكسلات والحجم موجودة دائمًا؛ وأي بيان لا يحمله الملف لا يأخذ سطرًا أصلًا.</string>
     <string name="settings_facts_always">ظاهر دائمًا</string>

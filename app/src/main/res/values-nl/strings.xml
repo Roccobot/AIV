@@ -199,6 +199,10 @@
         <item quantity="one">%1$d afbeelding</item>
         <item quantity="other">%1$d afbeeldingen</item>
     </plurals>
+    <plurals name="folders_clips">
+        <item quantity="one">%1$d video</item>
+        <item quantity="other">%1$d video\'s</item>
+    </plurals>
     <string name="settings_facts">Info over één bestand</string>
     <string name="settings_facts_desc">Welke gegevens je ziet als je Info van een afbeelding opent, en in welke volgorde. Naam, pixels en grootte staan er altijd; een gegeven dat het bestand niet heeft krijgt helemaal geen rij.</string>
     <string name="settings_facts_always">Altijd zichtbaar</string>

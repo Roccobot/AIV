@@ -199,6 +199,10 @@
         <item quantity="one">%1$d चित्र</item>
         <item quantity="other">%1$d चित्र</item>
     </plurals>
+    <plurals name="folders_clips">
+        <item quantity="one">%1$d वीडियो</item>
+        <item quantity="other">%1$d वीडियो</item>
+    </plurals>
     <string name="settings_facts">एक फ़ाइल की जानकारी</string>
     <string name="settings_facts_desc">किसी चित्र की जानकारी खोलने पर कौन से आँकड़े दिखें और किस क्रम में। नाम, पिक्सेल और आकार हमेशा रहते हैं; जो आँकड़ा फ़ाइल में नहीं है उसकी पंक्ति ही नहीं बनती।</string>
     <string name="settings_facts_always">हमेशा दिखता है</string>

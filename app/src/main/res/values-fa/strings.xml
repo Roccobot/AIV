@@ -199,6 +199,10 @@
         <item quantity="one">%1$d تصویر</item>
         <item quantity="other">%1$d تصویر</item>
     </plurals>
+    <plurals name="folders_clips">
+        <item quantity="one">%1$d ویدیو</item>
+        <item quantity="other">%1$d ویدیو</item>
+    </plurals>
     <string name="settings_facts">اطلاعات یک پرونده</string>
     <string name="settings_facts_desc">کدام داده‌ها را هنگام باز کردن اطلاعات یک تصویر می‌بینید، و به چه ترتیبی. نام و پیکسل‌ها و اندازه همیشه هستند؛ داده‌ای که فایل ندارد هیچ سطری نمی‌گیرد.</string>
     <string name="settings_facts_always">همیشه دیده می‌شود</string>

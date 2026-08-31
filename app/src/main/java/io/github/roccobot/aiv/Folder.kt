@@ -136,10 +136,25 @@ object Folder {
     data class Bucket(
         val id: Long,
         val name: String,
-        val count: Int,
+        /**
+         * Quante fotografie e quanti filmati, **contati a parte** dalla `0.98`.
+         *
+         * ⚠️⚠️ **DUE NUMERI E NON UNO** (richiesta dell'utente, 2026-08-31: *l'anteprima
+         * della cartella deve avere il contatore delle immagini e, separatamente con
+         * un'altra icona, anche quello dei video*): da quando i filmati si sfogliano, un
+         * numero solo dice 'ottantotto cose' a chi sta cercando di capire se là dentro ci
+         * sono i video delle vacanze o le foto.
+         * ⚠️ Non costa una query in più: la riga porta già il tipo, che serviva alla
+         * copertina, e il conto si fa nella stessa passata.
+         */
+        val pictures: Int,
+        val clips: Int,
         val cover: Uri?,
         val path: String? = null
-    )
+    ) {
+        /** Quante cose in tutto: la somma, per chi non ha bisogno della distinzione. */
+        val count: Int get() = pictures + clips
+    }
 
     /**
      * Le cartelle di immagini del telefono, quella toccata più di recente per prima.
@@ -178,6 +193,7 @@ object Folder {
                 val kindAt = c.column(MediaStore.Files.FileColumns.MEDIA_TYPE)
                 while (c.moveToNext()) {
                     val id = c.getLong(bucketAt)
+                    val clip = c.isClip(kindAt)
                     val seen = found[id]
                     found[id] = if (seen == null) {
                         // ⚠️ Il nome della cartella può mancare, e succede davvero: allora
@@ -195,16 +211,19 @@ object Folder {
                         Bucket(
                             id = id,
                             name = name,
-                            count = 1,
-                            cover = idAt?.let { uriOf(c.getLong(it), c.isClip(kindAt)) },
+                            pictures = if (clip) 0 else 1,
+                            clips = if (clip) 1 else 0,
+                            cover = idAt?.let { uriOf(c.getLong(it), clip) },
                             // La cartella che contiene la riga: il percorso del file
                             // meno il nome del file.
                             path = pathAt?.let { c.getString(it) }
                                 ?.substringBeforeLast('/')
                                 ?.takeIf { it.isNotBlank() }
                         )
+                    } else if (clip) {
+                        seen.copy(clips = seen.clips + 1)
                     } else {
-                        seen.copy(count = seen.count + 1)
+                        seen.copy(pictures = seen.pictures + 1)
                     }
                 }
             }

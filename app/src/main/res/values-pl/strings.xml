@@ -223,6 +223,12 @@
         <item quantity="many">%1$d obrazów</item>
         <item quantity="other">%1$d obrazu</item>
     </plurals>
+    <plurals name="folders_clips">
+        <item quantity="one">%1$d film</item>
+        <item quantity="few">%1$d filmy</item>
+        <item quantity="many">%1$d filmów</item>
+        <item quantity="other">%1$d filmu</item>
+    </plurals>
     <string name="settings_facts">Informacje o pliku</string>
     <string name="settings_facts_desc">Które dane widzisz, otwierając Informacje o obrazie, i w jakiej kolejności. Nazwa, piksele i rozmiar są zawsze; dana, której plik nie ma, nie zajmuje żadnego wiersza.</string>
     <string name="settings_facts_always">Zawsze widoczne</string>

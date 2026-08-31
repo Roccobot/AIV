@@ -113,7 +113,7 @@
     <string name="settings_right">Right</string>
     <string name="settings_left">Left</string>
     <string name="settings_list_path">File list: copy the containing folder path</string>
-    <string name="settings_folder_count_desc">Under each cover, how many pictures the folder holds. Turning it off makes the row shorter, and the title area at the top grows by as much.</string>
+    <string name="settings_folder_count_desc">Under each cover, how many pictures and how many videos the folder holds. Turning it off makes the row shorter, and the title area at the top grows by as much.</string>
     <!-- Off by default: a gallery shows pictures, and a name under each one is data for
          someone working with files rather than looking at them. -->
     <string name="settings_grid_names">File name in the photo grid</string>
@@ -386,6 +386,10 @@
     <plurals name="folders_count">
         <item quantity="one">%1$d picture</item>
         <item quantity="other">%1$d pictures</item>
+    </plurals>
+    <plurals name="folders_clips">
+        <item quantity="one">%1$d video</item>
+        <item quantity="other">%1$d videos</item>
     </plurals>
 
     <!-- ── Which facts about a file to show, and in which order ── -->

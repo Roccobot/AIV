@@ -187,6 +187,9 @@
     <plurals name="folders_count">
         <item quantity="other">%1$d 枚</item>
     </plurals>
+    <plurals name="folders_clips">
+        <item quantity="other">動画 %1$d 件</item>
+    </plurals>
     <string name="settings_facts">1 件のファイルの情報</string>
     <string name="settings_facts_desc">画像の情報を開いたときに見える項目と、その並び順です。名前、ピクセル、サイズは常に出ます。ファイルに無い項目は行そのものが出ません。</string>
     <string name="settings_facts_always">常に表示</string>
