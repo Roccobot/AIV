@@ -204,4 +204,6 @@
     <string name="history_title">ประวัติการกู้คืน</string>
     <string name="history_none">ไม่มีอะไรถูกกู้คืนใน %1$d วันที่ผ่านมา</string>
     <string name="history_note">ประวัติเก็บไว้ %1$d วันล่าสุด แล้วล้างตัวเอง</string>
+    <string name="columns_title">ขนาดตาราง</string>
+    <string name="columns_hint">ทางลัด: กดปุ่มลอยค้างไว้เพื่อเลือกขนาดตาราง</string>
 </resources>

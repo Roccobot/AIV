@@ -13,7 +13,6 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -58,7 +57,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -92,9 +90,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
@@ -386,6 +382,9 @@ fun GridScreen(
         when (hint) {
             Hint.PICK_ALL -> pickOff = true
             Hint.BIN_EMPTY -> binOff = true
+            // ⚠️ Le colonne non si insegnano qui, ma il ramo c'è perché l'enum le porta:
+            // il velo che le riguarda vive nella schermata delle cartelle.
+            Hint.COLUMNS -> Unit
             null -> Unit
         }
         hint?.let { seen -> scope.launch { seen.remember(context) } }
@@ -788,18 +787,20 @@ fun GridScreen(
                     modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp)
                 ) {
                     Box {
-                        PickFab(
+                        TapHoldFab(
+                            icon = Icons.Default.Menu,
+                            label = stringResource(R.string.pick_actions),
                             container = MaterialTheme.colorScheme.primaryContainer,
                             ink = MaterialTheme.colorScheme.onPrimaryContainer,
                             lift = FAB_LIFT,
-                            longLabel = stringResource(shortcutLabel),
+                            holdLabel = stringResource(shortcutLabel),
                             // ⚠️⚠️ **ALTERNA e non apre, dalla 0.75** (richiesta
                             // dell'utente): il menu si apre da sé all'inizio della
                             // selezione, quindi un tocco che 'apre' non avrebbe niente da
                             // fare, mentre serve **chiuderlo** per vedere le foto sotto e
                             // continuare a scegliere. Un altro tocco lo riporta.
-                            onOpen = { menuOpen = !menuOpen },
-                            onAll = { shortcut(); hintDone() }
+                            onTap = { menuOpen = !menuOpen },
+                            onHold = { shortcut(); hintDone() }
                         )
                         PickMenu(open = menuOpen, onDismiss = { menuOpen = false }) {
                             /*
@@ -926,94 +927,52 @@ fun GridScreen(
     }
 
         /*
-         * ⚠️⚠️ **IL MINI ONBOARDING DEL TOCCO LUNGO** (richiesta dell'utente: *un
-         * mini onboarding grafico, che oscura la schermata ed evidenzia in arancione
-         * il FAB*). Serve perché il tocco lungo è una scorciatoia che **non si
-         * scopre da sola**: un tastino non dichiara i propri gesti.
-         * ⚠️⚠️ **E dalla `0.73` è l'UNICA via a insegnarla**, perché il tastino 'Tutte' in
-         * testata non c'è più (vedi la nota là dove stava): finché c'era, questo velo era
-         * un aiuto e la barra la rete di sicurezza. Ora la rete è l'etichetta che TalkBack
-         * legge sul tocco lungo, e chi tocca il velo per chiuderlo senza leggerlo la
-         * scorciatoia non la scoprirà. È il costo della scelta, ed è dichiarato.
-         * ⚠️⚠️ **I VELI SONO DUE perché le scorciatoie sono due** (vedi `shortcut`),
-         * e ognuno ha il suo promemoria in archivio: quello della selezione compare
-         * alla prima selezione, quello del cestino alla prima apertura del cestino.
-         * Prima era uno solo, mostrato anche nel cestino, e prometteva di
-         * selezionare 'tutte le immagini della cartella' a chi in una cartella non
-         * era: il comportamento era giusto, la frase no.
-         * ⚠️⚠️ **La copia arancione FUNZIONA, non è un disegno**, ed è la
-         * differenza fra insegnare e raccontare: chi tiene premuto sul velo fa la
-         * cosa mentre gliela si spiega, invece di doverla richiudere e rifare. È
-         * anche il motivo per cui è la stessa [PickFab] del tastino vero, alla
-         * stessa misura e nello stesso angolo: cade **sopra** l'originale.
-         * ⚠️ **L'arancione è l'unico posto in cui la tavolozza si rompe apposta**:
-         * l'accento dell'app è verde acqua, e un velo che evidenzia col colore di
-         * casa non evidenzia niente. Misurati: il glifo scuro sull'arancione fa
-         * 7.29, e l'arancione sul velo fa 4.35 contro la fotografia più chiara
-         * possibile, cioè sopra il 3:1 delle grafiche non testuali anche nel caso
-         * peggiore.
-         * ⚠️⚠️ **IL VELO COPRE TUTTO LO SCHERMO dalla `0.73`**, testata e margini di
-         * sistema compresi, ed è una correzione: fino alla `0.72` copriva la sola griglia,
-         * perché nasceva dentro la `Column` che i margini li ha già applicati. Il rimedio
-         * non è stato spostare i margini ma **avvolgere la schermata in un `Box`** e far
-         * nascere il velo là (vedi la nota sulla radice): i margini restano dove servono,
-         * cioè sul contenuto, e il velo nasce fuori da tutti. La nota vecchia diceva che
-         * avvolgere la testata voleva dire spostare di rientro tutta la schermata: era
-         * vera per la strada che aveva in mente, non per questa.
+         * ⚠️⚠️ **IL MINI ONBOARDING DEL TOCCO LUNGO**, che dalla `0.78` è un velo condiviso:
+         * il colore, il contrasto misurato e la geometria stanno in [HintVeil], qui restano la
+         * frase e il tastino.
+         * ⚠️⚠️ **E dalla `0.73` è l'UNICA via a insegnare la scorciatoia**, perché il tastino
+         * 'Tutte' in testata non c'è più (vedi la nota là dove stava): finché c'era, questo
+         * velo era un aiuto e la barra la rete di sicurezza.
+         * ⚠️⚠️ **I VELI DI QUESTA SCHERMATA SONO DUE perché le scorciatoie sono due** (vedi
+         * `shortcut`), e ognuno ha il suo promemoria in archivio: quello della selezione
+         * compare alla prima selezione, quello del cestino alla prima apertura del cestino.
+         * Prima era uno solo, mostrato anche nel cestino, e prometteva di selezionare 'tutte
+         * le immagini della cartella' a chi in una cartella non era: il comportamento era
+         * giusto, la frase no.
          */
         if (hint != null) {
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .background(HINT_SCRIM)
-                    // ⚠️ Niente increspatura e nessuna descrizione: questo non è
-                    // un tasto, è il velo, e un tocco qualunque lo archivia. Un
-                    // onboarding che si deve leggere due volte non è un
-                    // onboarding.
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = hintDone
-                    )
+            HintVeil(
+                text = stringResource(
+                    when (hint) {
+                        Hint.PICK_ALL -> R.string.pick_all_hint
+                        Hint.BIN_EMPTY -> R.string.bin_empty_hint
+                        // ⚠️ Le colonne non si insegnano qui: quel velo vive nella schermata
+                        // delle cartelle, dove sta il tastino che le cambia. Il ramo c'è
+                        // perché [Hint] è un enum e il `when` deve essere completo, e questa
+                        // frase non si vedrà mai (vedi `hint`, che la esclude).
+                        Hint.COLUMNS -> R.string.columns_hint
+                    }
+                ),
+                // ⚠️ Tre rientri: quello di sistema, il margine della schermata e gli 8dp
+                // del tastino. Il perché sta in [HintVeil], sul parametro.
+                inset = Modifier
+                    .safeDrawingPadding()
+                    .padding(horizontal = 8.dp, vertical = 12.dp)
+                    .padding(8.dp),
+                onDone = hintDone
             ) {
-                Column(
-                    // ⚠️⚠️ **I RIENTRI DELLA `Column` SI RIFANNO QUI, e non sono
-                    // decorazione**: la copia arancione deve cadere ESATTAMENTE
-                    // sopra il tastino vero, e quello vive dentro il rientro di
-                    // sistema più i margini della schermata più i suoi 8dp. Il velo
-                    // invece nasce fuori da tutti e tre, perché è il suo mestiere.
-                    // Chi ne toglie uno vede la copia scivolare in un angolo.
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .safeDrawingPadding()
-                        .padding(horizontal = 8.dp, vertical = 12.dp)
-                        .padding(8.dp),
-                    horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(HINT_GAP)
-                ) {
-                    Text(
-                        text = stringResource(
-                            when (hint) {
-                                Hint.PICK_ALL -> R.string.pick_all_hint
-                                Hint.BIN_EMPTY -> R.string.bin_empty_hint
-                            }
-                        ),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color.White,
-                        textAlign = TextAlign.End,
-                        modifier = Modifier.widthIn(max = HINT_WIDTH)
-                    )
-                    PickFab(
-                        container = HINT_MARK,
-                        ink = HINT_INK,
-                        // ⚠️ Nessuna ombra: sopra un velo non c'è niente da cui
-                        // staccarsi, e un'ombra su fondo scuro è solo sporco.
-                        lift = 0.dp,
-                        longLabel = stringResource(shortcutLabel),
-                        onOpen = { hintDone(); menuOpen = true },
-                        onAll = { shortcut(); hintDone() }
-                    )
-                }
+                TapHoldFab(
+                    icon = Icons.Default.Menu,
+                    label = stringResource(R.string.pick_actions),
+                    container = HINT_MARK,
+                    ink = HINT_INK,
+                    // ⚠️ Nessuna ombra: sopra un velo non c'è niente da cui staccarsi, e
+                    // un'ombra su fondo scuro è solo sporco.
+                    lift = 0.dp,
+                    holdLabel = stringResource(shortcutLabel),
+                    onTap = { hintDone(); menuOpen = true },
+                    onHold = { shortcut(); hintDone() }
+                )
             }
         }
 
@@ -1354,60 +1313,6 @@ private fun FabPop(
 }
 
 /**
- * Il tastino galleggiante della selezione, con i suoi **due** gesti.
- *
- * ⚠️⚠️ **NON È `SmallFloatingActionButton`, e non è un capriccio**: quel composabile
- * prende un `onClick` solo, e il `modifier` che gli si passa finisce **fuori** dal suo
- * `clickable`, cioè come genitore. Un `combinedClickable` messo là non vedrebbe mai il
- * tocco lungo, perché nella passata `Main` il figlio consuma il down per primo: è
- * esattamente il meccanismo che aveva rotto il tocco lungo sulla griglia. Per avere due
- * gesti su un tastino bisogna che di nodo che ascolta ce ne sia **uno**.
- * ⚠️ **La resa non cambia**: `SmallFloatingActionButton` è una `Surface` da 40dp con
- * `primaryContainer`, il suo contrasto e 6dp d'ombra, e questa è quella. L'unica cosa che
- * si perde è l'ombra che cresce al passaggio del **mouse**, che su un telefono non
- * succede: in Material 3 la pressione lascia l'ombra dov'è.
- * ⚠️ Il gesto sta **dentro** la `Surface` e non sul suo modificatore, così l'increspatura
- * prende il colore del contenuto (`ink`) invece di quello che c'era fuori.
- */
-@Composable
-private fun PickFab(
-    container: Color,
-    ink: Color,
-    lift: Dp,
-    longLabel: String,
-    onOpen: () -> Unit,
-    onAll: () -> Unit
-) {
-    Surface(
-        modifier = Modifier.size(FAB_SIZE),
-        shape = RoundedCornerShape(FAB_CORNER),
-        color = container,
-        contentColor = ink,
-        shadowElevation = lift
-    ) {
-        Box(
-            modifier = Modifier.combinedClickable(
-                role = Role.Button,
-                // ⚠️ Il tocco lungo si DICHIARA a TalkBack, o resta una scorciatoia che
-                // esiste solo per chi vede il velo: l'etichetta la legge il lettore di
-                // schermo fra le azioni disponibili sul tastino. ⚠️ Arriva da fuori perché
-                // il gesto fa due cose diverse (vedi `shortcut`), e un'etichetta fissa ne
-                // annuncerebbe una mentre succede l'altra.
-                onLongClickLabel = longLabel,
-                onLongClick = onAll,
-                onClick = onOpen
-            ),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Default.Menu,
-                contentDescription = stringResource(R.string.pick_actions)
-            )
-        }
-    }
-}
-
-/**
  * Il menu delle operazioni: **al centro in basso**, sopra il tastino.
  *
  * ⚠️⚠️ **NON È PIÙ UN `DropdownMenu`, dalla 0.75** (richiesta dell'utente: *al centro in
@@ -1452,12 +1357,6 @@ private val PICK_GAP = 12.dp
  */
 private val PICK_EDGE = 8.dp
 
-/** La misura di `SmallFloatingActionButton`, che [PickFab] rifà a mano. */
-private val FAB_SIZE = 40.dp
-
-/** L'ombra di serie di un tastino galleggiante in Material 3. */
-private val FAB_LIFT = 6.dp
-
 /**
  * Da quanto piccolo entra il tastino, e a quanto piccolo torna uscendo.
  *
@@ -1473,37 +1372,3 @@ private const val FAB_IN = 90
 /** L'uscita, in millisecondi: secca, e più breve dell'entrata. */
 private const val FAB_OUT = 110
 
-/**
- * Il velo del mini onboarding.
- *
- * ⚠️ **Il 70% di nero e non il 50%**: sotto c'è una griglia di fotografie, cioè il fondo
- * più chiassoso che ci sia, e a metà velo le miniature continuano a chiamare l'occhio. Col
- * 70% il bianco del testo misura 8.45 anche sulla fotografia più chiara possibile.
- */
-private val HINT_SCRIM = Color(0xB3000000)
-
-/**
- * L'arancione della copia evidenziata, e **l'unico posto in cui la tavolozza si rompe
- * apposta** (richiesta dell'utente).
- *
- * ⚠️ L'accento dell'app è verde acqua: un velo che evidenzia col colore di casa non
- * evidenzia niente, perché quel colore è già dappertutto. Misurato: 4.35 sul velo steso
- * sulla fotografia più chiara possibile, cioè sopra il 3:1 delle grafiche non testuali nel
- * caso peggiore, e 10.81 nel caso normale.
- */
-private val HINT_MARK = Color(0xFFFFA726)
-
-/** Il glifo sopra l'arancione: misurato 7.29, cioè leggibile senza discussioni. */
-private val HINT_INK = Color(0xFF3E2600)
-
-/** Quanto sta lontano il testo dal tastino che indica: abbastanza da non sembrarne parte. */
-private val HINT_GAP = 14.dp
-
-/**
- * Quanto è larga al massimo la frase del velo.
- *
- * ⚠️ Un limite serve perché la frase è lunga e le lingue non sono l'italiano: senza, in
- * tedesco diventerebbe una riga sola da bordo a bordo, e in un telefono stretto si
- * spezzerebbe dove capita invece che dove si legge.
- */
-private val HINT_WIDTH = 260.dp

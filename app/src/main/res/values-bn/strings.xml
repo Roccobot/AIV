@@ -219,4 +219,6 @@
     <string name="history_title">ফিরিয়ে আনার ইতিহাস</string>
     <string name="history_none">গত %1$d দিনে কিছুই ফিরিয়ে আনা হয়নি।</string>
     <string name="history_note">ইতিহাস শেষ %1$d দিন রাখে, তারপর নিজেই খালি হয়ে যায়।</string>
+    <string name="columns_title">গ্রিডের আকার</string>
+    <string name="columns_hint">শর্টকাট: গ্রিডের আকার বাছতে ভাসমান বোতামটি চেপে ধরে রাখুন।</string>
 </resources>

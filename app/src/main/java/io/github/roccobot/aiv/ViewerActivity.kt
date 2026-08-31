@@ -1018,6 +1018,11 @@ private fun AivApp(model: ViewerViewModel) {
                 onSettings = { model.openSettings() },
                 onSearch = { model.openSearch() },
                 onBin = { model.openBin() },
+                // ⚠️ La scorciatoia scrive la STESSA impostazione della riga di pastiglie
+                // nelle preferenze, e non una sua: era la richiesta (*che resta globale per
+                // tutte le cartelle*), ed è la ragione per cui passa da `updateSettings`
+                // come ogni altra voce.
+                onColumns = { model.updateSettings(settings.copy(folderColumns = it)) },
                 onBack = if (screen.forStart) ({ model.leaveStartFolderChoice() }) else null
             )
         }

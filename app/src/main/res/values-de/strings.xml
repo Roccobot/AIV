@@ -219,4 +219,6 @@
     <string name="history_title">Wiederherstellungsverlauf</string>
     <string name="history_none">In den letzten %1$d Tagen wurde nichts wiederhergestellt.</string>
     <string name="history_note">Der Verlauf behält die letzten %1$d Tage und leert sich dann selbst.</string>
+    <string name="columns_title">Rastergröße</string>
+    <string name="columns_hint">Kurzbefehl: Halte die schwebende Schaltfläche gedrückt, um die Rastergröße zu wählen.</string>
 </resources>

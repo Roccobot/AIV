@@ -249,4 +249,6 @@
     <string name="history_title">История возвратов</string>
     <string name="history_none">За последние %1$d дней ничего не возвращено.</string>
     <string name="history_note">История хранит последние %1$d дней, потом очищается сама.</string>
+    <string name="columns_title">Размер сетки</string>
+    <string name="columns_hint">Быстрое действие: нажмите и удерживайте плавающую кнопку, чтобы выбрать размер сетки.</string>
 </resources>

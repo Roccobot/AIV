@@ -249,4 +249,6 @@
     <string name="history_title">Історія повернень</string>
     <string name="history_none">За останні %1$d днів нічого не повернуто.</string>
     <string name="history_note">Історія зберігає останні %1$d днів, потім очищується сама.</string>
+    <string name="columns_title">Розмір сітки</string>
+    <string name="columns_hint">Швидка дія: натисніть і утримуйте плаваючу кнопку, щоб вибрати розмір сітки.</string>
 </resources>

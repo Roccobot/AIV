@@ -37,11 +37,11 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -49,7 +49,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -80,6 +82,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import kotlin.math.ceil
 import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 
 /**
  * Le cartelle di immagini del telefono: **la schermata iniziale dell'app**, dalla `0.41`.
@@ -130,10 +133,19 @@ fun FolderScreen(
     onSettings: () -> Unit,
     onSearch: () -> Unit,
     onBin: () -> Unit,
+    /**
+     * Cambia il numero di colonne, dalla `0.78`: lo scrive la scorciatoia del tocco lungo.
+     *
+     * ⚠️ **La stessa impostazione delle preferenze e non una seconda**: la scorciatoia è una
+     * via più corta per la stessa manopola, quindi il numero resta globale e la si ritrova
+     * cambiata anche là. Era la richiesta (*che resta globale per tutte le cartelle*).
+     */
+    onColumns: (Int) -> Unit,
     onBack: (() -> Unit)?,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var granted by remember { mutableStateOf(Folder.granted(context)) }
     var folders by remember { mutableStateOf<List<Folder.Bucket>?>(null) }
 
@@ -147,6 +159,27 @@ fun FolderScreen(
      * finita, è il modo di far credere che l'app abbia perso delle foto.
      */
     var hiding by remember { mutableStateOf<Folder.Bucket?>(null) }
+
+    /** Se si sta scegliendo la dimensione della griglia col tocco lungo sul tastino. */
+    var sizing by remember { mutableStateOf(false) }
+
+    /**
+     * Se il velo che insegna la scorciatoia delle colonne si è già visto.
+     *
+     * ⚠️ **Parte da 'già visto', e come nella griglia delle foto è la scelta prudente**: il
+     * valore vero arriva dall'archivio un attimo DOPO la prima composizione, quindi partendo
+     * da `false` il velo comparirebbe per un fotogramma anche a chi l'ha già chiuso.
+     */
+    val columnsSeen by produceState(initialValue = true, context) {
+        Hint.COLUMNS.flow(context).collect { value = it }
+    }
+
+    /**
+     * ⚠️ La bandierina locale esiste perché l'archivio risponde con un giro di ritardo:
+     * scrivere in DataStore e aspettare che il flusso riemetta vuol dire un fotogramma o due
+     * col velo ancora steso, e nel caso peggiore col dialogo che si apre **sotto** di lui.
+     */
+    var columnsOff by remember { mutableStateOf(false) }
 
     // ⚠️ Al ritorno dalla pagina di sistema non arriva nessun esito, perché non è un
     // dialogo: si RICHIEDE allo stato delle cose, come fa il viewer.
@@ -380,11 +413,69 @@ fun FolderScreen(
                 onSettings = onSettings,
                 onSearch = onSearch,
                 onBin = onBin,
+                onSize = { sizing = true },
                 // ⚠️ Costante e non numero: [FAB_REACH] la somma per sapere da dove parte la
                 // sfumatura, e [coverHeader] per tenere le cartelle sopra il tastino.
                 modifier = Modifier.align(Alignment.BottomEnd).padding(HUB_PAD)
             )
         }
+
+        /*
+         * ⚠️⚠️ **IL VELO CHE INSEGNA LA SCORCIATOIA DELLE COLONNE, dalla 0.78** (richiesta
+         * dell'utente, con la sua frase): è il terzo della famiglia, e gli altri due stanno
+         * nella griglia delle foto. La macchina è la stessa, [HintVeil], e qui cambiano la
+         * frase e il tastino.
+         * ⚠️⚠️ **COMPARE SOLO QUANDO C'È UNA GRIGLIA DA DIMENSIONARE**, e ognuna delle
+         * condizioni serve: fuori dalla casa il tastino non c'è, senza il permesso non ci
+         * sono cartelle, senza cartelle non c'è niente da disporre, e nell'elenco le colonne
+         * non esistono. Al primo avvio, che è anche il primo posto in cui l'app si mostra,
+         * insegnare a dimensionare una griglia vuota sarebbe rumore sopra una schermata che
+         * chiede un permesso.
+         * ⚠️ **Il tocco sulla copia NON apre il menu**, al contrario di quella della
+         * selezione: là il tocco breve del tastino è l'azione principale (le operazioni),
+         * qui è il menu dell'app, che si scopre da sé perché è l'unica cosa che quel tastino
+         * fa da sempre. Quello che va insegnato è il tocco **lungo**, ed è quello che la
+         * copia fa.
+         */
+        val hint = home && granted && view == FolderView.GRID &&
+            !folders.isNullOrEmpty() && !columnsSeen && !columnsOff
+
+        /** Il velo si archivia appena l'utente fa la cosa che insegnava, o appena la salta. */
+        val hintDone: () -> Unit = {
+            columnsOff = true
+            scope.launch { Hint.COLUMNS.remember(context) }
+        }
+
+        if (hint) {
+            HintVeil(
+                text = stringResource(R.string.columns_hint),
+                // ⚠️ Due rientri e non tre come nella griglia delle foto: qui il tastino vive
+                // dentro il rientro di sistema più il suo margine, e basta. Il perché sta in
+                // [HintVeil], sul parametro.
+                inset = Modifier.safeDrawingPadding().padding(HUB_PAD),
+                onDone = hintDone
+            ) {
+                TapHoldFab(
+                    icon = Icons.Default.MoreHoriz,
+                    label = stringResource(R.string.hub_open),
+                    container = HINT_MARK,
+                    ink = HINT_INK,
+                    // ⚠️ Nessuna ombra: sopra un velo non c'è niente da cui staccarsi.
+                    lift = 0.dp,
+                    holdLabel = stringResource(R.string.columns_title),
+                    onTap = hintDone,
+                    onHold = { hintDone(); sizing = true }
+                )
+            }
+        }
+    }
+
+    if (sizing) {
+        SizeDialog(
+            current = columns,
+            onPick = onColumns,
+            onDismiss = { sizing = false }
+        )
     }
 
     hiding?.let { bucket ->
@@ -632,6 +723,14 @@ private fun Hub(
     onSettings: () -> Unit,
     onSearch: () -> Unit,
     onBin: () -> Unit,
+    /**
+     * Il tocco lungo: la scorciatoia della dimensione della griglia, dalla `0.78`.
+     *
+     * ⚠️ **Il dialogo lo apre chi chiama e non questo composabile**, come per il velo: sono
+     * cose della schermata, e un tastino che si apre un dialogo da sé diventa il posto in cui
+     * cercare quel dialogo, che non è dove sta.
+     */
+    onSize: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var open by remember { mutableStateOf(false) }
@@ -642,17 +741,24 @@ private fun Hub(
     ) { picked -> picked?.let(onOpen) }
 
     Box(modifier = modifier) {
-        SmallFloatingActionButton(
-            onClick = { open = true },
-            // Quadrato con gli angoli appena smussati, come chiesto: il tondo pieno
-            // griderebbe 'azione principale', e qui l'azione principale sono le cartelle.
-            shape = RoundedCornerShape(FAB_CORNER)
-        ) {
-            Icon(
-                imageVector = Icons.Default.MoreHoriz,
-                contentDescription = stringResource(R.string.hub_open)
-            )
-        }
+        /*
+         * ⚠️⚠️ **NON È PIÙ `SmallFloatingActionButton`, dalla 0.78**, e la ragione è la
+         * stessa del tastino della selezione: quel composabile prende un `onClick` solo, e un
+         * `combinedClickable` messo sul suo modificatore non vedrebbe mai il tocco lungo. La
+         * resa non cambia: [TapHoldFab] è la stessa `Surface` da 40dp, quadrata con gli
+         * angoli appena smussati come chiesto, perché il tondo pieno griderebbe 'azione
+         * principale' e qui l'azione principale sono le cartelle.
+         */
+        TapHoldFab(
+            icon = Icons.Default.MoreHoriz,
+            label = stringResource(R.string.hub_open),
+            container = MaterialTheme.colorScheme.primaryContainer,
+            ink = MaterialTheme.colorScheme.onPrimaryContainer,
+            lift = FAB_LIFT,
+            holdLabel = stringResource(R.string.columns_title),
+            onTap = { open = true },
+            onHold = onSize
+        )
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
             // ⚠️⚠️ **LA VOCE NOMINA LA VISTA CHE SI OTTIENE, non quella in cui si è**, ed
             // è la cosa da non rovesciare quando si riscrive l'etichetta: una riga di menu
@@ -747,6 +853,44 @@ private fun Hub(
             onDismiss = { asking = false }
         )
     }
+}
+
+/**
+ * La dimensione della griglia, chiesta col tocco lungo sul tastino.
+ *
+ * ⚠️⚠️ **È LA STESSA IMPOSTAZIONE DELLE PREFERENZE, non una seconda** (richiesta
+ * dell'utente: *che resta globale per tutte le cartelle*): questa è una via più corta per
+ * arrivarci, e chi la usa la ritrova cambiata anche là dentro. Un numero di colonne 'della
+ * sessione' sarebbe una terza cosa da capire.
+ * ⚠️ **Le pastiglie sono quelle delle impostazioni**, `FilterChip` con i numeri nudi: chi ha
+ * già visto quella riga riconosce questa senza leggerla. Una copia della riga intera (con
+ * titolo e spiegazione) non serviva: qui il titolo del dialogo dice già di che cosa si parla.
+ * ⚠️⚠️ **SCEGLIERE NON CHIUDE, e non è una dimenticanza**: un dialogo di Material lascia
+ * vedere quello che c'è dietro, quindi la griglia si riordina **sotto gli occhi** a ogni
+ * pastiglia toccata, e si può provare 2, 3 e 4 senza riaprire niente. Chiudendo a ogni scelta,
+ * confrontarle vorrebbe dire tre tocchi lunghi. Il tasto in basso quindi non conferma niente:
+ * dice che si è finito.
+ */
+@Composable
+private fun SizeDialog(current: Int, onPick: (Int) -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.columns_title)) },
+        text = {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FOLDER_COLUMNS.forEach { n ->
+                    FilterChip(
+                        selected = n == current,
+                        onClick = { onPick(n) },
+                        label = { Text(n.toString()) }
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.pick_close)) }
+        }
+    )
 }
 
 /** Le cartelle come copertine. */

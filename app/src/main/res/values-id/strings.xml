@@ -204,4 +204,6 @@
     <string name="history_title">Riwayat pemulihan</string>
     <string name="history_none">Tidak ada yang dipulihkan dalam %1$d hari terakhir.</string>
     <string name="history_note">Riwayat menyimpan %1$d hari terakhir, lalu mengosongkan dirinya.</string>
+    <string name="columns_title">Ukuran kisi</string>
+    <string name="columns_hint">Pintasan: tekan dan tahan tombol mengambang untuk memilih ukuran kisi.</string>
 </resources>

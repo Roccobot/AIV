@@ -219,4 +219,6 @@
     <string name="history_title">بحالی کی ہسٹری</string>
     <string name="history_none">پچھلے %1$d دنوں میں کچھ بحال نہیں کیا گیا۔</string>
     <string name="history_note">ہسٹری پچھلے %1$d دن رکھتی ہے، پھر خود خالی ہو جاتی ہے۔</string>
+    <string name="columns_title">گرڈ کا سائز</string>
+    <string name="columns_hint">شارٹ کٹ: گرڈ کا سائز چننے کے لیے فلوٹنگ بٹن دبائے رکھیں۔</string>
 </resources>

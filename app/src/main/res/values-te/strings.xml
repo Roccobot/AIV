@@ -219,4 +219,6 @@
     <string name="history_title">తిరిగి తెచ్చిన చరిత్ర</string>
     <string name="history_none">గత %1$d రోజులలో ఏదీ తిరిగి తెచ్చలేదు.</string>
     <string name="history_note">చరిత్ర చివరి %1$d రోజులను ఉంచుతుంది, తర్వాత తనంతట తానే ఖాళీ అవుతుంది.</string>
+    <string name="columns_title">గ్రిడ్ పరిమాణం</string>
+    <string name="columns_hint">షార్ట్‌కట్: గ్రిడ్ పరిమాణం ఎంచుకోవడానికి ఫ్లోటింగ్ బటన్‌ను నొక్కి పట్టుకోండి.</string>
 </resources>

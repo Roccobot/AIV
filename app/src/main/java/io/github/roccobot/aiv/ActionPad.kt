@@ -2,7 +2,9 @@ package io.github.roccobot.aiv
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -11,15 +13,19 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
@@ -159,6 +165,22 @@ private val PAD_CORNER = 10.dp
 val FAB_CORNER = 12.dp
 
 /**
+ * La misura di `SmallFloatingActionButton`, che [TapHoldFab] rifà a mano.
+ *
+ * ⚠️ È anche l'altezza che [FAB_REACH] somma al margine: i due numeri descrivono lo stesso
+ * tastino, e slegati si sarebbero mossi uno per volta.
+ */
+val FAB_SIZE = 40.dp
+
+/**
+ * L'ombra di serie di un tastino galleggiante in Material 3.
+ *
+ * ⚠️ Una sola per tutte e due le schermate dalla `0.78`: i tastini sono due e l'ombra di un
+ * tastino non è una scelta di schermata.
+ */
+val FAB_LIFT = 6.dp
+
+/**
  * Il margine del tastino quadrato dalle due sponde della schermata delle cartelle.
  *
  * ⚠️ Sta qui e non là perché [FAB_REACH] lo somma: il giorno che il tastino si sposta di un
@@ -175,11 +197,10 @@ val HUB_PAD = 16.dp
  * spazio che gli si lascia, che è [BELOW_FAB] e vale una ventina di dp in più: la differenza
  * fra i due numeri è l'aria che al riposo resta fra l'ultima cartella e il tastino, e la
  * sfumatura deve trovarla vuota.
- * ⚠️ **40dp è la misura di `SmallFloatingActionButton`**, che Material non espone come
- * costante pubblica: è un dato suo, non una nostra scelta, e lo stesso numero sta in
- * `GridScreen` per la stessa ragione.
+ * ⚠️ L'altezza è [FAB_SIZE], cioè la misura che Material dà a un tastino piccolo senza
+ * esporla come costante pubblica: è un dato suo, non una nostra scelta.
  */
-val FAB_REACH = HUB_PAD + 40.dp
+val FAB_REACH = HUB_PAD + FAB_SIZE
 
 /**
  * Quanto spazio resta sotto l'ultimo elemento di una griglia, perché il tastino non gli si
@@ -194,3 +215,66 @@ val FAB_REACH = HUB_PAD + 40.dp
  * volta.
  */
 val BELOW_FAB = FAB_REACH + 20.dp
+
+/**
+ * Un tastino galleggiante con **due** gesti: tocco breve e tocco lungo.
+ *
+ * ⚠️⚠️ **NON È `SmallFloatingActionButton`, e non è un capriccio**: quel composabile prende
+ * un `onClick` solo, e il `modifier` che gli si passa finisce **fuori** dal suo `clickable`,
+ * cioè come genitore. Un `combinedClickable` messo là non vedrebbe mai il tocco lungo, perché
+ * nella passata `Main` il figlio consuma il down per primo: è esattamente il meccanismo che
+ * aveva rotto il tocco lungo sulla griglia. Per avere due gesti su un tastino bisogna che di
+ * nodo che ascolta ce ne sia **uno**.
+ * ⚠️ **La resa non cambia**: `SmallFloatingActionButton` è una `Surface` da [FAB_SIZE] con
+ * `primaryContainer`, il suo contrasto e 6dp d'ombra, e questa è quella. L'unica cosa che si
+ * perde è l'ombra che cresce al passaggio del **mouse**, che su un telefono non succede: in
+ * Material 3 la pressione lascia l'ombra dov'è.
+ * ⚠️ Il gesto sta **dentro** la `Surface` e non sul suo modificatore, così l'increspatura
+ * prende il colore del contenuto ([ink]) invece di quello che c'era fuori.
+ *
+ * ⚠️⚠️ **STA QUI, CONDIVISO, DALLA 0.78**: i tastini col tocco lungo sono diventati **due**,
+ * quello della selezione e quello quadrato delle cartelle, e differiscono per il **glifo** e
+ * per quello che i due gesti fanno. Tutto il resto (misura, smusso, ombra, il nodo unico che
+ * ascolta, l'etichetta del tocco lungo per il lettore di schermo) è la stessa cosa scritta
+ * una volta.
+ */
+@Composable
+fun TapHoldFab(
+    icon: ImageVector,
+    /** Che cos'è il tastino, per il lettore di schermo: la sua azione breve. */
+    label: String,
+    container: Color,
+    ink: Color,
+    lift: Dp,
+    /**
+     * Che cosa fa il tocco lungo, per il lettore di schermo.
+     *
+     * ⚠️ **Si DICHIARA, o resta una scorciatoia che esiste solo per chi vede il velo**:
+     * l'etichetta la legge il lettore di schermo fra le azioni disponibili sul tastino.
+     * ⚠️ Arriva da fuori perché il gesto fa cose diverse a seconda della schermata e di dove
+     * si è dentro di lei, e un'etichetta fissa ne annuncerebbe una mentre succede l'altra.
+     */
+    holdLabel: String,
+    onTap: () -> Unit,
+    onHold: () -> Unit
+) {
+    Surface(
+        modifier = Modifier.size(FAB_SIZE),
+        shape = RoundedCornerShape(FAB_CORNER),
+        color = container,
+        contentColor = ink,
+        shadowElevation = lift
+    ) {
+        Box(
+            modifier = Modifier.combinedClickable(
+                role = Role.Button,
+                onLongClickLabel = holdLabel,
+                onLongClick = onHold,
+                onClick = onTap
+            ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(imageVector = icon, contentDescription = label)
+        }
+    }
+}

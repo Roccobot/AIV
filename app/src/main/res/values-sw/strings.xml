@@ -219,4 +219,6 @@
     <string name="history_title">Historia ya kurudisha</string>
     <string name="history_none">Hakuna kitu kilichorudishwa katika siku %1$d zilizopita.</string>
     <string name="history_note">Historia inaweka siku %1$d za mwisho, kisha inajifuta yenyewe.</string>
+    <string name="columns_title">Ukubwa wa gridi</string>
+    <string name="columns_hint">Njia ya mkato: shikilia kitufe kinachoelea ili kuchagua ukubwa wa gridi.</string>
 </resources>
