@@ -168,10 +168,6 @@
         <item quantity="one">আপনি %1$d ছবি চিরতরে মুছতে চলেছেন: এটি ফোন থেকে চিরকালের জন্য চলে যাবে।</item>
         <item quantity="other">আপনি %1$d ছবি চিরতরে মুছতে চলেছেন: এগুলো ফোন থেকে চিরকালের জন্য চলে যাবে।</item>
     </plurals>
-    <plurals name="trash_desc">
-        <item quantity="one">আপনি %1$d ছবি আবর্জনায় পাঠাতে চলেছেন: চিরতরে মোছা পর্যন্ত এটি ফিরিয়ে আনতে পারবেন।</item>
-        <item quantity="other">আপনি %1$d ছবি আবর্জনায় পাঠাতে চলেছেন: চিরতরে মোছা পর্যন্ত এগুলো ফিরিয়ে আনতে পারবেন।</item>
-    </plurals>
     <string name="bin_title">আবর্জনা</string>
     <string name="bin_none">আবর্জনা খালি।</string>
     <string name="bin_restore">ফিরিয়ে আনুন</string>
@@ -221,4 +217,7 @@
     <string name="history_note">ইতিহাস শেষ %1$d দিন রাখে, তারপর নিজেই খালি হয়ে যায়।</string>
     <string name="columns_title">গ্রিডের আকার</string>
     <string name="columns_hint">শর্টকাট: গ্রিডের আকার বাছতে ভাসমান বোতামটি চেপে ধরে রাখুন।</string>
+    <string name="settings_bin">আবর্জনা চালু করুন</string>
+    <string name="settings_bin_desc">ফাইল মোছার সময় কিছু জিজ্ঞাসা করা হয় না, তবে আবর্জনা থেকে \'ফিরিয়ে আনুন\' দিয়ে কাজটি ফেরানো যায় (ভাসমান বোতাম -&gt; \'আবর্জনা\')। তাৎক্ষণিক মোছা পছন্দ করলে আবর্জনা পুরোপুরি বন্ধ করতে পারেন: তখন প্রতিবার মোছার আগে একটি নিশ্চিতকরণ দেখা যাবে।</string>
+    <string name="pick_duplicate">প্রতিলিপি করুন</string>
 </resources>

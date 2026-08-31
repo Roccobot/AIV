@@ -177,11 +177,6 @@
         <item quantity="many">Você vai excluir %1$d imagens definitivamente: elas somem do telefone para sempre.</item>
         <item quantity="other">Você vai excluir %1$d imagens definitivamente: elas somem do telefone para sempre.</item>
     </plurals>
-    <plurals name="trash_desc">
-        <item quantity="one">Você vai mover %1$d imagem para a lixeira: poderá recuperá-la até a exclusão definitiva.</item>
-        <item quantity="many">Você vai mover %1$d imagens para a lixeira: poderá recuperá-las até a exclusão definitiva.</item>
-        <item quantity="other">Você vai mover %1$d imagens para a lixeira: poderá recuperá-las até a exclusão definitiva.</item>
-    </plurals>
     <string name="bin_title">Lixeira</string>
     <string name="bin_none">A lixeira está vazia.</string>
     <string name="bin_restore">Restaurar</string>
@@ -236,4 +231,7 @@
     <string name="history_note">O histórico guarda os últimos %1$d dias e depois se esvazia sozinho.</string>
     <string name="columns_title">Tamanho da grade</string>
     <string name="columns_hint">Atalho: mantenha o botão flutuante pressionado para escolher o tamanho da grade.</string>
+    <string name="settings_bin">Ativar a lixeira</string>
+    <string name="settings_bin_desc">Excluir um arquivo não pergunta nada, mas a ação pode ser desfeita com um \'Restaurar\' na lixeira (botão flutuante -&gt; \'Lixeira\'). Você pode desativar a lixeira por completo, se preferir uma exclusão instantânea: nesse caso, aparecerá uma confirmação antes de cada exclusão.</string>
+    <string name="pick_duplicate">Duplicar</string>
 </resources>

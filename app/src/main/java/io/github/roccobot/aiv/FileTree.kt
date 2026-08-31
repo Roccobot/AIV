@@ -119,6 +119,42 @@ object FileTree {
         }
 
     /**
+     * Duplica le immagini scelte **dove sono**, senza chiedere una destinazione.
+     *
+     * ⚠️⚠️ **NASCE DALLA 0.79 dal tocco lungo su 'Copia'** (richiesta dell'utente): copiare
+     * chiede dove, duplicare no, ed è la ragione per cui è un'operazione a sé e non la copia
+     * con la cartella corrente già scelta.
+     * ⚠️⚠️ **CHIAMA [copy] UN FILE PER VOLTA invece di rifarne il corpo**, e il baratto è
+     * dichiarato: la destinazione qui è **diversa per ogni file** (ognuno torna nella sua
+     * cartella, che in una ricerca possono essere venti diverse), mentre `copy` ne prende una
+     * per tutti. Rifare il ciclo dei byte qui vorrebbe dire una seconda copia della logica che
+     * non sovrascrive e che rimedia a metà strada, cioè il posto in cui le due divergono. Il
+     * prezzo è una scansione del MediaStore per file invece di una per lotto: è asincrona e su
+     * un duplicato per volta non si vede.
+     * ⚠️ **Il nome lo sceglie `freeName`**, quindi il duplicato è `nome (2).ext` e non
+     * sovrascrive niente: è la stessa anti-collisione del cestino, che l'utente ha indicato.
+     * ⚠️ **Un'immagine senza file non si duplica**: una fotografia arrivata da una chat non ha
+     * una cartella in cui mettere la copia, e inventarne una (i Download? la galleria?)
+     * sarebbe una destinazione che nessuno ha chiesto.
+     */
+    suspend fun duplicate(context: Context, uris: List<Uri>): Outcome =
+        withContext(Dispatchers.IO + NonCancellable) {
+            var done = 0
+            var failed = 0
+            for (uri in uris) {
+                val here = fileOf(context, uri)?.parentFile
+                if (here == null) {
+                    failed++
+                    continue
+                }
+                val out = copy(context, listOf(uri), here)
+                done += out.done
+                failed += out.failed
+            }
+            Outcome(done, failed)
+        }
+
+    /**
      * Sposta le immagini scelte dentro [dest].
      *
      * ⚠️⚠️ **PRIMA PROVA A RINOMINARE, e non è un'ottimizzazione**: dentro la stessa

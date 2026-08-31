@@ -106,16 +106,37 @@ fun FileJobDialogs(
             }
         )
 
-        is FileJob.Delete -> DeleteDialog(
-            count = job.uris.size,
-            forGood = job.forGood,
-            onDismiss = onClose,
-            onConfirm = {
-                onClose()
-                if (job.forGood) onRun(FileKind.DELETE) { FileTree.delete(context, job.uris) }
-                else onRun(FileKind.TRASH) { Bin.send(context, job.uris) }
+        /*
+         * ⚠️⚠️ **LA CONFERMA C'È QUANDO E SOLO QUANDO NON SI TORNA INDIETRO, dalla 0.79**
+         * (testo dettato dall'utente sull'interruttore 'Attiva il cestino': *l'eliminazione di
+         * file non prevede alcun avviso, ma l'azione è reversibile con un 'Ripristina' dal
+         * cestino... in quel caso, apparirà una conferma prima di ogni eliminazione*). Fino
+         * alla `0.78` si chiedeva conferma anche per il cestino, con la ragione scritta che su
+         * quaranta foto toccate per sbaglio valeva un tocco: quella ragione **decade**, perché
+         * il gesto si disfa dal cestino, e chiedere per una cosa reversibile insegna a
+         * confermare senza leggere.
+         * ⚠️ **`forGood` porta già la decisione** e non serve un secondo dato: vale nel cestino
+         * (là si cancella per davvero) e fuori quando l'interruttore è spento. Vedi
+         * [FileJob.Delete].
+         */
+        is FileJob.Delete ->
+            if (job.forGood) {
+                DeleteDialog(
+                    count = job.uris.size,
+                    onDismiss = onClose,
+                    onConfirm = {
+                        onClose()
+                        onRun(FileKind.DELETE) { FileTree.delete(context, job.uris) }
+                    }
+                )
+            } else {
+                // ⚠️ Parte da sé, come il ripristino: non c'è niente da chiedere. L'effetto è
+                // legato al lavoro e non alla composizione, e il perché sta là.
+                LaunchedEffect(job) {
+                    onRun(FileKind.TRASH) { Bin.send(context, job.uris) }
+                    onClose()
+                }
             }
-        )
 
         /*
          * ⚠️⚠️ **PARTE DA SÉ, ed è l'unica voce che non apre niente**: il ripristino non ha
@@ -128,6 +149,16 @@ fun FileJobDialogs(
          */
         is FileJob.Restore -> LaunchedEffect(job) {
             onRun(FileKind.RESTORE) { Bin.restore(context, job.uris) }
+            onClose()
+        }
+
+        /*
+         * ⚠️ **Come il ripristino, parte da sé**: non c'è niente da chiedere, perché la
+         * destinazione è la cartella in cui il file già sta. Passa da qui per usare lo stesso
+         * imbuto delle altre (l'avviso dell'esito, la rilettura, l'ambito che sopravvive).
+         */
+        is FileJob.Duplicate -> LaunchedEffect(job) {
+            onRun(FileKind.COPY) { FileTree.duplicate(context, job.uris) }
             onClose()
         }
 
@@ -158,10 +189,14 @@ sealed interface FileJob {
     /**
      * L'eliminazione, che dalla `0.64` vuol dire due cose diverse.
      *
-     * ⚠️⚠️ **[forGood] NON è un'opzione ma il POSTO in cui si è**: fuori dal cestino
-     * eliminare sposta là dentro, dentro il cestino cancella. Il dialogo lo dice con due
-     * testi diversi, e chi passasse `false` stando nel cestino manderebbe una foto del
-     * cestino nel cestino, cioè da nessuna parte.
+     * ⚠️⚠️ **[forGood] NON è un'opzione ma il POSTO in cui si è, più l'interruttore**: dentro
+     * il cestino si cancella sempre, fuori si sposta là dentro finché 'Attiva il cestino' è
+     * accesa. Chi passasse `false` stando nel cestino manderebbe una foto del cestino nel
+     * cestino, cioè da nessuna parte.
+     * ⚠️⚠️ **DECIDE ANCHE LA CONFERMA, dalla 0.79**: la si chiede quando e solo quando è
+     * `true`, cioè quando non si torna indietro. Le due cose viaggiano insieme perché sono la
+     * stessa cosa vista da due parti, e tenerle in due dati avrebbe permesso la combinazione
+     * senza senso: cancellare per sempre senza chiedere.
      */
     class Delete(override val uris: List<Uri>, val forGood: Boolean) : FileJob
 
@@ -174,6 +209,17 @@ sealed interface FileJob {
      * confermare senza leggere.
      */
     class Restore(override val uris: List<Uri>) : FileJob
+
+    /**
+     * La duplicazione dove il file già sta, dalla `0.79`: l'altra voce **senza dialogo**.
+     *
+     * ⚠️ **Non è [Transfer] con la cartella corrente**: quella ne prende **una** per tutti i
+     * file, e qui ogni file torna nella **sua**, che in una ricerca possono essere venti
+     * diverse. Il perché sta in `FileTree.duplicate`.
+     * ⚠️ **Nessuna conferma**: aggiunge un file e non ne tocca nessuno, quindi non c'è niente
+     * da perdere. Chi non lo voleva cancella il duplicato.
+     */
+    class Duplicate(override val uris: List<Uri>) : FileJob
     class Facts(override val uris: List<Uri>) : FileJob
 }
 
@@ -230,14 +276,15 @@ fun outcomeText(res: Resources, out: FileTree.Outcome, @PluralsRes doneRes: Int)
     }
 
 /**
- * La conferma dell'eliminazione, con due testi.
+ * La conferma dell'eliminazione **definitiva**.
  *
- * ⚠️⚠️ **IL TESTO CAMBIA PERCHÉ IL GESTO CAMBIA, dalla `0.64`**: fuori dal cestino le
- * fotografie ci vanno dentro e si possono ripristinare, dentro il cestino vanno via per
- * sempre. Fino alla `0.63` c'era un testo solo, e diceva *vanno via dal telefono per
- * sempre: AIV non ha un cestino suo*: era vero allora e sarebbe una bugia adesso.
- * ⚠️ **La conferma resta anche per il cestino**, benché il gesto sia reversibile: costa un
- * tocco, e su una selezione da quaranta fotografie toccate per sbaglio vale quel tocco.
+ * ⚠️⚠️ **UN TESTO SOLO DALLA 0.79, e prima erano due**: si vede soltanto quando la
+ * fotografia va via per davvero, cioè dentro il cestino o col cestino spento, quindi il testo
+ * che diceva *stai per spostare (X) immagini nel cestino* non aveva più occasione di
+ * comparire. È stato tolto dalle 27 lingue invece di restare a fare compagnia: una frase che
+ * nessuno può vedere è una frase che nessuno correggerà.
+ * ⚠️ **Chi rimettesse la conferma sul cestino** rifaccia anche quella, e sappia che va contro
+ * il testo dell'interruttore, che promette il contrario.
  *
  * ⚠️⚠️ **IL CONTO SI È SPOSTATO DAL TITOLO AL CORPO nella 0.68** (testo dettato
  * dall'utente: titolo *Confermi l'eliminazione?*, corpo *Stai per spostare (X) immagini nel
@@ -253,7 +300,6 @@ fun outcomeText(res: Resources, out: FileTree.Outcome, @PluralsRes doneRes: Int)
 @Composable
 private fun DeleteDialog(
     count: Int,
-    forGood: Boolean,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
@@ -261,13 +307,7 @@ private fun DeleteDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.delete_ask)) },
         text = {
-            Text(
-                pluralStringResource(
-                    if (forGood) R.plurals.delete_desc else R.plurals.trash_desc,
-                    count,
-                    count
-                )
-            )
+            Text(pluralStringResource(R.plurals.delete_desc, count, count))
         },
         confirmButton = {
             TextButton(

@@ -159,9 +159,6 @@
     <plurals name="delete_desc">
         <item quantity="other">Bạn sắp xóa vĩnh viễn %1$d ảnh: chúng sẽ mất khỏi điện thoại mãi mãi.</item>
     </plurals>
-    <plurals name="trash_desc">
-        <item quantity="other">Bạn sắp chuyển %1$d ảnh vào thùng rác: bạn có thể lấy lại cho đến khi chúng bị xóa vĩnh viễn.</item>
-    </plurals>
     <string name="bin_title">Thùng rác</string>
     <string name="bin_none">Thùng rác trống.</string>
     <string name="bin_restore">Phục hồi</string>
@@ -206,4 +203,7 @@
     <string name="history_note">Lịch sử giữ %1$d ngày gần nhất, rồi tự xóa.</string>
     <string name="columns_title">Kích thước lưới</string>
     <string name="columns_hint">Lối tắt: nhấn giữ nút nổi để chọn kích thước lưới.</string>
+    <string name="settings_bin">Bật thùng rác</string>
+    <string name="settings_bin_desc">Xóa một tệp không hỏi gì, nhưng hành động có thể hoàn tác bằng \'Phục hồi\' từ thùng rác (nút nổi -&gt; \'Thùng rác\'). Bạn có thể tắt hẳn thùng rác nếu thích xóa ngay: khi đó, một hộp xác nhận sẽ xuất hiện trước mỗi lần xóa.</string>
+    <string name="pick_duplicate">Nhân bản</string>
 </resources>

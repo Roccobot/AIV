@@ -168,10 +168,6 @@
         <item quantity="one">Du löschst %1$d Bild endgültig: es verschwindet für immer vom Telefon.</item>
         <item quantity="other">Du löschst %1$d Bilder endgültig: sie verschwinden für immer vom Telefon.</item>
     </plurals>
-    <plurals name="trash_desc">
-        <item quantity="one">Du verschiebst %1$d Bild in den Papierkorb: bis zum endgültigen Löschen kannst du es zurückholen.</item>
-        <item quantity="other">Du verschiebst %1$d Bilder in den Papierkorb: bis zum endgültigen Löschen kannst du sie zurückholen.</item>
-    </plurals>
     <string name="bin_title">Papierkorb</string>
     <string name="bin_none">Der Papierkorb ist leer.</string>
     <string name="bin_restore">Wiederherstellen</string>
@@ -221,4 +217,7 @@
     <string name="history_note">Der Verlauf behält die letzten %1$d Tage und leert sich dann selbst.</string>
     <string name="columns_title">Rastergröße</string>
     <string name="columns_hint">Kurzbefehl: Halte die schwebende Schaltfläche gedrückt, um die Rastergröße zu wählen.</string>
+    <string name="settings_bin">Papierkorb einschalten</string>
+    <string name="settings_bin_desc">Das Löschen einer Datei fragt nichts, aber die Aktion lässt sich mit einem \'Wiederherstellen\' aus dem Papierkorb umkehren (schwebende Schaltfläche -&gt; \'Papierkorb\'). Du kannst den Papierkorb ganz ausschalten, wenn du sofortiges Löschen bevorzugst: dann erscheint vor jedem Löschen eine Bestätigung.</string>
+    <string name="pick_duplicate">Duplizieren</string>
 </resources>

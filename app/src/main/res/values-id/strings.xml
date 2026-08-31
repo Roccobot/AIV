@@ -159,9 +159,6 @@
     <plurals name="delete_desc">
         <item quantity="other">Kamu akan menghapus %1$d gambar untuk selamanya: gambar itu hilang dari ponsel selamanya.</item>
     </plurals>
-    <plurals name="trash_desc">
-        <item quantity="other">Kamu akan memindahkan %1$d gambar ke tempat sampah: kamu bisa mengambilnya kembali sampai dihapus untuk selamanya.</item>
-    </plurals>
     <string name="bin_title">Tempat sampah</string>
     <string name="bin_none">Tempat sampah kosong.</string>
     <string name="bin_restore">Pulihkan</string>
@@ -206,4 +203,7 @@
     <string name="history_note">Riwayat menyimpan %1$d hari terakhir, lalu mengosongkan dirinya.</string>
     <string name="columns_title">Ukuran kisi</string>
     <string name="columns_hint">Pintasan: tekan dan tahan tombol mengambang untuk memilih ukuran kisi.</string>
+    <string name="settings_bin">Aktifkan tempat sampah</string>
+    <string name="settings_bin_desc">Menghapus berkas tidak menanyakan apa pun, tetapi tindakan ini bisa dibatalkan dengan \'Pulihkan\' dari tempat sampah (tombol mengambang -&gt; \'Tempat sampah\'). Kamu bisa mematikan tempat sampah sepenuhnya jika lebih suka penghapusan langsung: dalam hal itu, konfirmasi akan muncul sebelum setiap penghapusan.</string>
+    <string name="pick_duplicate">Duplikat</string>
 </resources>

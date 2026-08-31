@@ -168,10 +168,6 @@
         <item quantity="one">%1$d resmi kalıcı olarak silmek üzeresin: telefondan sonsuza kadar gider.</item>
         <item quantity="other">%1$d resmi kalıcı olarak silmek üzeresin: telefondan sonsuza kadar gider.</item>
     </plurals>
-    <plurals name="trash_desc">
-        <item quantity="one">%1$d resmi çöp kutusuna taşımak üzeresin: kalıcı olarak silinene kadar geri alabilirsin.</item>
-        <item quantity="other">%1$d resmi çöp kutusuna taşımak üzeresin: kalıcı olarak silinene kadar geri alabilirsin.</item>
-    </plurals>
     <string name="bin_title">Çöp kutusu</string>
     <string name="bin_none">Çöp kutusu boş.</string>
     <string name="bin_restore">Geri al</string>
@@ -221,4 +217,7 @@
     <string name="history_note">Geçmiş son %1$d günü tutar, sonra kendini boşaltır.</string>
     <string name="columns_title">Izgara boyutu</string>
     <string name="columns_hint">Kısayol: ızgara boyutunu seçmek için kayan düğmeyi basılı tutun.</string>
+    <string name="settings_bin">Çöp kutusunu aç</string>
+    <string name="settings_bin_desc">Bir dosyayı silmek hiçbir şey sormaz, ama işlem çöp kutusundan bir \'Geri al\' ile geri alınabilir (kayan düğme -&gt; \'Çöp kutusu\'). Anında silmeyi tercih ediyorsan çöp kutusunu tamamen kapatabilirsin: o zaman her silme işleminden önce bir onay görünür.</string>
+    <string name="pick_duplicate">Çoğalt</string>
 </resources>

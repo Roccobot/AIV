@@ -1387,7 +1387,8 @@ private fun ImageCanvas(
                 detailsOn = info.visible,
                 onToggleDetails = { info.visible = !info.visible },
                 ops = ops,
-                inBin = inBin
+                inBin = inBin,
+                binOn = settings.binOn
             )
         }
 
@@ -1660,7 +1661,16 @@ private fun ImageMenu(
     detailsOn: Boolean,
     onToggleDetails: () -> Unit,
     ops: MenuOps,
-    inBin: Boolean
+    inBin: Boolean,
+    /**
+     * Se il cestino è acceso: decide se 'elimina' sposta o cancella, e con lui se ci sia una
+     * conferma.
+     *
+     * ⚠️ **Arriva come booleano e non come impostazioni intere**: questo menu non usa
+     * nient'altro, e passarle tutte vorrebbe dire ricomporlo a ogni ritocco di una voce che
+     * qui non c'entra niente. È la stessa scelta di `factFields` nella griglia.
+     */
+    binOn: Boolean
 ) {
     val context = LocalContext.current
 
@@ -1784,7 +1794,20 @@ private fun ImageMenu(
                 val one = listOf(uri)
                 ActionPad(
                     actions = listOf(
-                        PadAction(Glyphs.FolderPair, R.string.menu_copy_here) {
+                        // ⚠️ Il tocco lungo duplica dove sei, come nella griglia: il
+                        // riquadro è condiviso, e una scorciatoia che c'è in un posto e non
+                        // nell'altro si impara e poi non funziona.
+                        PadAction(
+                            icon = Glyphs.FolderPair,
+                            label = R.string.menu_copy_here,
+                            onHold = if (inBin) null else {
+                                {
+                                    onDismiss()
+                                    ops.job(FileJob.Duplicate(one))
+                                }
+                            },
+                            holdLabel = if (inBin) null else R.string.pick_duplicate
+                        ) {
                             onDismiss()
                             ops.job(FileJob.Transfer(one, move = false))
                         },
@@ -1794,7 +1817,9 @@ private fun ImageMenu(
                         },
                         PadAction(Icons.Default.Delete, R.string.pick_delete, danger = true) {
                             onDismiss()
-                            ops.job(FileJob.Delete(one, forGood = inBin))
+                            // ⚠️ Definitiva nel cestino **o** col cestino spento, ed è la
+                            // stessa condizione della griglia: con lei viaggia la conferma.
+                            ops.job(FileJob.Delete(one, forGood = inBin || !binOn))
                         },
                         // ⚠️ Stesso posto nel riquadro per due azioni che si escludono:
                         // nel cestino si ripristina, fuori si rinomina. Le sei icone non

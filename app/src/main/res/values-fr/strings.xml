@@ -177,11 +177,6 @@
         <item quantity="many">Vous allez supprimer définitivement %1$d images : elles disparaissent du téléphone pour toujours.</item>
         <item quantity="other">Vous allez supprimer définitivement %1$d images : elles disparaissent du téléphone pour toujours.</item>
     </plurals>
-    <plurals name="trash_desc">
-        <item quantity="one">Vous allez déplacer %1$d image vers la corbeille : vous pourrez la récupérer jusqu\'à la suppression définitive.</item>
-        <item quantity="many">Vous allez déplacer %1$d images vers la corbeille : vous pourrez les récupérer jusqu\'à la suppression définitive.</item>
-        <item quantity="other">Vous allez déplacer %1$d images vers la corbeille : vous pourrez les récupérer jusqu\'à la suppression définitive.</item>
-    </plurals>
     <string name="bin_title">Corbeille</string>
     <string name="bin_none">La corbeille est vide.</string>
     <string name="bin_restore">Restaurer</string>
@@ -236,4 +231,7 @@
     <string name="history_note">L\'historique garde les %1$d derniers jours, puis se vide de lui-même.</string>
     <string name="columns_title">Taille de la grille</string>
     <string name="columns_hint">Raccourci: appuyez longuement sur le bouton flottant pour choisir la taille de la grille.</string>
+    <string name="settings_bin">Activer la corbeille</string>
+    <string name="settings_bin_desc">La suppression d\'un fichier ne demande rien, mais l\'action est réversible avec un \'Restaurer\' depuis la corbeille (bouton flottant -&gt; \'Corbeille\'). Vous pouvez désactiver complètement la corbeille si vous préférez une suppression instantanée: dans ce cas, une confirmation apparaît avant chaque suppression.</string>
+    <string name="pick_duplicate">Dupliquer</string>
 </resources>

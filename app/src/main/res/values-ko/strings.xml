@@ -159,9 +159,6 @@
     <plurals name="delete_desc">
         <item quantity="other">이미지 %1$d개를 완전히 삭제합니다. 기기에서 영영 사라집니다.</item>
     </plurals>
-    <plurals name="trash_desc">
-        <item quantity="other">이미지 %1$d개를 휴지통으로 옮깁니다. 완전히 삭제하기 전까지는 되돌릴 수 있습니다.</item>
-    </plurals>
     <string name="bin_title">휴지통</string>
     <string name="bin_none">휴지통이 비어 있습니다.</string>
     <string name="bin_restore">되돌리기</string>
@@ -206,4 +203,7 @@
     <string name="history_note">기록은 최근 %1$d일간 보관되고 그 후 자동으로 지워집니다.</string>
     <string name="columns_title">격자 크기</string>
     <string name="columns_hint">단축 동작: 플로팅 버튼을 길게 누르면 격자 크기를 고를 수 있습니다.</string>
+    <string name="settings_bin">휴지통 사용</string>
+    <string name="settings_bin_desc">파일을 삭제할 때는 아무것도 묻지 않지만, 휴지통에서 \'되돌리기\'로 되돌릴 수 있습니다 (플로팅 버튼 -&gt; \'휴지통\'). 즉시 삭제를 원하면 휴지통을 완전히 끌 수 있습니다. 그 경우에는 삭제할 때마다 확인이 표시됩니다.</string>
+    <string name="pick_duplicate">복제</string>
 </resources>

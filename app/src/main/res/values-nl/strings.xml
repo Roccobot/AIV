@@ -168,10 +168,6 @@
         <item quantity="one">Je gaat %1$d afbeelding definitief verwijderen: ze verdwijnt voorgoed van de telefoon.</item>
         <item quantity="other">Je gaat %1$d afbeeldingen definitief verwijderen: ze verdwijnen voorgoed van de telefoon.</item>
     </plurals>
-    <plurals name="trash_desc">
-        <item quantity="one">Je gaat %1$d afbeelding naar de prullenbak verplaatsen: je kunt haar terughalen tot ze definitief wordt verwijderd.</item>
-        <item quantity="other">Je gaat %1$d afbeeldingen naar de prullenbak verplaatsen: je kunt ze terughalen tot ze definitief worden verwijderd.</item>
-    </plurals>
     <string name="bin_title">Prullenbak</string>
     <string name="bin_none">De prullenbak is leeg.</string>
     <string name="bin_restore">Terugzetten</string>
@@ -221,4 +217,7 @@
     <string name="history_note">De geschiedenis bewaart de laatste %1$d dagen en wist zichzelf daarna.</string>
     <string name="columns_title">Rastergrootte</string>
     <string name="columns_hint">Sneltoets: houd de zwevende knop ingedrukt om de rastergrootte te kiezen.</string>
+    <string name="settings_bin">Prullenbak aanzetten</string>
+    <string name="settings_bin_desc">Het verwijderen van een bestand vraagt niets, maar de actie is omkeerbaar met een \'Terugzetten\' uit de prullenbak (zwevende knop -&gt; \'Prullenbak\'). Je kunt de prullenbak helemaal uitzetten als je liever direct verwijdert: dan verschijnt er voor elke verwijdering een bevestiging.</string>
+    <string name="pick_duplicate">Dupliceren</string>
 </resources>

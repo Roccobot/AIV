@@ -168,10 +168,6 @@
         <item quantity="one">در آستانه پاک کردن همیشگی %1$d تصویر هستید: برای همیشه از گوشی می‌رود.</item>
         <item quantity="other">در آستانه پاک کردن همیشگی %1$d تصویر هستید: برای همیشه از گوشی می‌روند.</item>
     </plurals>
-    <plurals name="trash_desc">
-        <item quantity="one">در آستانه بردن %1$d تصویر به سبد زباله هستید: تا پاک شدن همیشگی می‌توانید بازش گردانید.</item>
-        <item quantity="other">در آستانه بردن %1$d تصویر به سبد زباله هستید: تا پاک شدن همیشگی می‌توانید بازشان گردانید.</item>
-    </plurals>
     <string name="bin_title">سبد زباله</string>
     <string name="bin_none">سبد زباله خالی است.</string>
     <string name="bin_restore">بازگرداندن</string>
@@ -221,4 +217,7 @@
     <string name="history_note">تاریخچه %1$d روز آخر را نگه می‌دارد و سپس خودش خالی می‌شود.</string>
     <string name="columns_title">اندازه شبکه</string>
     <string name="columns_hint">میان‌بر: دکمه شناور را نگه دارید تا اندازه شبکه را انتخاب کنید.</string>
+    <string name="settings_bin">فعال کردن سبد زباله</string>
+    <string name="settings_bin_desc">حذف فایل چیزی نمی‌پرسد، اما این کار با \'بازگرداندن\' از سبد زباله قابل بازگشت است (دکمه شناور -&gt; \'سبد زباله\'). اگر حذف فوری را ترجیح می‌دهید می‌توانید سبد زباله را کاملا خاموش کنید: در آن صورت پیش از هر حذف یک تایید نمایش داده می‌شود.</string>
+    <string name="pick_duplicate">تکثیر</string>
 </resources>

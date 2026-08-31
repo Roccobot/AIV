@@ -231,11 +231,6 @@
         <item quantity="other">Stai per eliminare definitivamente %1$d immagini: spariscono dal telefono per sempre.</item>
         <item quantity="many">Stai per eliminare definitivamente %1$d immagini: spariscono dal telefono per sempre.</item>
     </plurals>
-    <plurals name="trash_desc">
-        <item quantity="one">Stai per spostare %1$d immagine nel cestino: potrai recuperarla fino all\'eliminazione definitiva.</item>
-        <item quantity="other">Stai per spostare %1$d immagini nel cestino: potrai recuperarle fino all\'eliminazione definitiva.</item>
-        <item quantity="many">Stai per spostare %1$d immagini nel cestino: potrai recuperarle fino all\'eliminazione definitiva.</item>
-    </plurals>
 
     <string name="bin_title">Cestino</string>
     <string name="bin_none">Il cestino è vuoto.</string>
@@ -298,4 +293,7 @@
     <string name="history_note">La cronologia tiene gli ultimi %1$d giorni, poi si svuota da sé.</string>
     <string name="columns_title">Dimensione della griglia</string>
     <string name="columns_hint">Scorciatoia: tieni premuto il tasto flottante per scegliere la dimensione della griglia.</string>
+    <string name="settings_bin">Attiva il cestino</string>
+    <string name="settings_bin_desc">L\'eliminazione di file non prevede alcun avviso, ma l\'azione è reversibile con un \'Ripristina\' dal cestino (tasto flottante -&gt; \'Cestino\'). Puoi disattivare del tutto il cestino, se preferisci un\'eliminazione istantanea: in quel caso, apparirà una conferma prima di ogni eliminazione.</string>
+    <string name="pick_duplicate">Duplica</string>
 </resources>

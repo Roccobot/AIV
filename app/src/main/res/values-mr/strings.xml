@@ -168,10 +168,6 @@
         <item quantity="one">तुम्ही %1$d प्रतिमा कायमची पुसणार आहात: ती फोनवरून कायमची जाईल.</item>
         <item quantity="other">तुम्ही %1$d प्रतिमा कायमच्या पुसणार आहात: त्या फोनवरून कायमच्या जातील.</item>
     </plurals>
-    <plurals name="trash_desc">
-        <item quantity="one">तुम्ही %1$d प्रतिमा कचरापेटीत हलवणार आहात: कायमची पुसली जाईपर्यंत ती परत आणता येईल.</item>
-        <item quantity="other">तुम्ही %1$d प्रतिमा कचरापेटीत हलवणार आहात: कायमच्या पुसल्या जाईपर्यंत त्या परत आणता येतील.</item>
-    </plurals>
     <string name="bin_title">कचरापेटी</string>
     <string name="bin_none">कचरापेटी रिकामी आहे.</string>
     <string name="bin_restore">पुन्हा आणा</string>
@@ -221,4 +217,7 @@
     <string name="history_note">इतिहास शेवटचे %1$d दिवस ठेवतो, नंतर स्वतःच रिकामा होतो.</string>
     <string name="columns_title">ग्रिडचा आकार</string>
     <string name="columns_hint">शॉर्टकट: ग्रिडचा आकार निवडण्यासाठी फ्लोटिंग बटण दाबून धरा.</string>
+    <string name="settings_bin">कचरापेटी सुरू करा</string>
+    <string name="settings_bin_desc">फाइल पुसताना काहीही विचारले जात नाही, पण कचरापेटीतून \'पुन्हा आणा\' ने ही कृती उलटवता येते (फ्लोटिंग बटण -&gt; \'कचरापेटी\'). तुम्हाला तात्काळ पुसणे आवडत असेल तर कचरापेटी पूर्ण बंद करू शकता: तेव्हा प्रत्येक वेळी पुसण्यापूर्वी खात्री विचारली जाईल.</string>
+    <string name="pick_duplicate">प्रत बनवा</string>
 </resources>
