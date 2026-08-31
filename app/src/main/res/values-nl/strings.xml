@@ -43,7 +43,7 @@
     <string name="settings_dark">Donker</string>
     <string name="settings_folder_columns">Kolommen in het mappenraster</string>
     <string name="settings_folder_columns_desc">Meer kolommen laten meer mappen op het scherm passen en maken elke omslag kleiner. Bij vier wordt de naam eronder meestal afgekapt.</string>
-    <string name="settings_folder_count">Aantal afbeeldingen onder de mappen</string>
+    <string name="settings_folder_count">Aantal items onder de mappen</string>
     <string name="settings_folder_count_desc">Onder elke omslag, hoeveel afbeeldingen de map bevat. Uitgezet wordt de rij korter, en het titelgebied bovenaan groeit even zoveel.</string>
     <string name="settings_fit_grow">Kleine afbeeldingen vergroten</string>
     <string name="settings_fit_grow_desc">Uit wordt een afbeelding die kleiner is dan het scherm op ware grootte getoond. Aan groeit hij tot hij het beeld vult.</string>
@@ -219,7 +219,7 @@
     <string name="columns_title">Rastergrootte</string>
     <string name="columns_hint">Sneltoets: houd de zwevende knop ingedrukt om de rastergrootte te kiezen.</string>
     <string name="settings_bin">Prullenbak aanzetten</string>
-    <string name="settings_bin_desc">Het verwijderen van een bestand vraagt niets, maar de actie is omkeerbaar met een \'Terugzetten\' uit de prullenbak (zwevende knop -&gt; \'Prullenbak\'). Je kunt de prullenbak helemaal uitzetten als je liever direct verwijdert: dan verschijnt er voor elke verwijdering een bevestiging.</string>
+    <string name="settings_bin_desc">Het verwijderen van een bestand vraagt niets, maar de actie is omkeerbaar met een \'Terugzetten\' uit de prullenbak (zwevende knop → \'Prullenbak\'). Je kunt de prullenbak helemaal uitzetten als je liever direct verwijdert: dan verschijnt er voor elke verwijdering een bevestiging.</string>
     <string name="pick_duplicate">Dupliceren</string>
     <string name="settings_grid_names">Bestandsnaam in het raster</string>
     <string name="settings_grid_names_desc">Onder elke miniatuur de bestandsnaam, op hoogstens twee regels. De extensie wordt nooit afgebroken en is altijd te zien: past de naam niet, dan wijkt het midden.</string>

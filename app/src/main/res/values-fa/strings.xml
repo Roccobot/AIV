@@ -43,7 +43,7 @@
     <string name="settings_dark">تیره</string>
     <string name="settings_folder_columns">ستون‌های شبکه پوشه‌ها</string>
     <string name="settings_folder_columns_desc">ستون بیشتر پوشه‌های بیشتری را در صفحه جا می‌دهد و هر جلد را کوچک‌تر می‌کند. با چهار ستون، نام زیر آن بیشتر وقت‌ها بریده می‌شود.</string>
-    <string name="settings_folder_count">شمار تصاویر زیر پوشه‌ها</string>
+    <string name="settings_folder_count">شمار عنصرها زیر پوشه‌ها</string>
     <string name="settings_folder_count_desc">زیر هر جلد، پوشه چند تصویر دارد. با خاموش کردنش سطر کوتاه‌تر می‌شود و سرصفحه بالا به همان اندازه بزرگ‌تر.</string>
     <string name="settings_fit_grow">بزرگ کردن تصاویر کوچک</string>
     <string name="settings_fit_grow_desc">خاموش، تصویری کوچک‌تر از صفحه به اندازه واقعی خود نشان داده می‌شود. روشن، بزرگ می‌شود تا صفحه را پر کند.</string>
@@ -219,7 +219,7 @@
     <string name="columns_title">اندازه شبکه</string>
     <string name="columns_hint">میان‌بر: دکمه شناور را نگه دارید تا اندازه شبکه را انتخاب کنید.</string>
     <string name="settings_bin">فعال کردن سبد زباله</string>
-    <string name="settings_bin_desc">حذف فایل چیزی نمی‌پرسد، اما این کار با \'بازگرداندن\' از سبد زباله قابل بازگشت است (دکمه شناور -&gt; \'سبد زباله\'). اگر حذف فوری را ترجیح می‌دهید می‌توانید سبد زباله را کاملا خاموش کنید: در آن صورت پیش از هر حذف یک تایید نمایش داده می‌شود.</string>
+    <string name="settings_bin_desc">حذف فایل چیزی نمی‌پرسد، اما این کار با \'بازگرداندن\' از سبد زباله قابل بازگشت است (دکمه شناور → \'سبد زباله\'). اگر حذف فوری را ترجیح می‌دهید می‌توانید سبد زباله را کاملا خاموش کنید: در آن صورت پیش از هر حذف یک تایید نمایش داده می‌شود.</string>
     <string name="pick_duplicate">تکثیر</string>
     <string name="settings_grid_names">نام فایل در شبکه</string>
     <string name="settings_grid_names_desc">زیر هر تصویر بندانگشتی نام فایل، حداکثر در دو خط. پسوند هرگز شکسته نمی‌شود و همیشه دیده می‌شود: اگر نام جا نشود، میانه کوتاه می‌شود.</string>

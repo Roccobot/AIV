@@ -66,7 +66,7 @@
 
     <string name="settings_folder_columns">Colonne della griglia delle cartelle</string>
     <string name="settings_folder_columns_desc">Più colonne fanno stare più cartelle sullo schermo e rimpiccioliscono le copertine. A quattro, il nome sotto di solito non ci sta per intero.</string>
-    <string name="settings_folder_count">Conto delle immagini sotto le cartelle</string>
+    <string name="settings_folder_count">Contatore degli elementi sotto le cartelle</string>
     <string name="settings_folder_count_desc">Sotto ogni copertina, quante immagini contiene la cartella. Spegnendolo la riga si accorcia, e il frontespizio in cima cresce di altrettanto.</string>
 
     <string name="settings_fit_grow">Ingrandisci le immagini piccole</string>
@@ -295,7 +295,7 @@
     <string name="columns_title">Dimensione della griglia</string>
     <string name="columns_hint">Scorciatoia: tieni premuto il tasto flottante per scegliere la dimensione della griglia.</string>
     <string name="settings_bin">Attiva il cestino</string>
-    <string name="settings_bin_desc">L\'eliminazione di file non prevede alcun avviso, ma l\'azione è reversibile con un \'Ripristina\' dal cestino (tasto flottante -&gt; \'Cestino\'). Puoi disattivare del tutto il cestino, se preferisci un\'eliminazione istantanea: in quel caso, apparirà una conferma prima di ogni eliminazione.</string>
+    <string name="settings_bin_desc">L\'eliminazione di file non prevede alcun avviso, ma l\'azione è reversibile con un \'Ripristina\' dal cestino (tasto flottante → \'Cestino\'). Puoi disattivare del tutto il cestino, se preferisci un\'eliminazione istantanea: in quel caso, apparirà una conferma prima di ogni eliminazione.</string>
     <string name="pick_duplicate">Duplica</string>
     <string name="settings_grid_names">Nome del file in vista griglia</string>
     <string name="settings_grid_names_desc">Sotto ogni miniatura, il nome del file su due righe al massimo. L\'estensione non va mai a capo e si vede sempre: quando il nome non ci sta, a cedere è la parte centrale.</string>

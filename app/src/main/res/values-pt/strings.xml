@@ -43,7 +43,7 @@
     <string name="settings_dark">Escuro</string>
     <string name="settings_folder_columns">Colunas na grade de pastas</string>
     <string name="settings_folder_columns_desc">Mais colunas cabem mais pastas na tela e encolhem cada capa. Com quatro, o nome embaixo costuma ficar cortado.</string>
-    <string name="settings_folder_count">Contagem de imagens sob as pastas</string>
+    <string name="settings_folder_count">Contagem de itens sob as pastas</string>
     <string name="settings_folder_count_desc">Sob cada capa, quantas imagens a pasta contém. Ao desligar, a linha fica mais curta e o cabeçalho cresce o mesmo tanto.</string>
     <string name="settings_fit_grow">Ampliar imagens pequenas</string>
     <string name="settings_fit_grow_desc">Desligado, uma imagem menor que a tela aparece no tamanho real. Ligado, ela cresce até preencher a vista.</string>
@@ -233,7 +233,7 @@
     <string name="columns_title">Tamanho da grade</string>
     <string name="columns_hint">Atalho: mantenha o botão flutuante pressionado para escolher o tamanho da grade.</string>
     <string name="settings_bin">Ativar a lixeira</string>
-    <string name="settings_bin_desc">Excluir um arquivo não pergunta nada, mas a ação pode ser desfeita com um \'Restaurar\' na lixeira (botão flutuante -&gt; \'Lixeira\'). Você pode desativar a lixeira por completo, se preferir uma exclusão instantânea: nesse caso, aparecerá uma confirmação antes de cada exclusão.</string>
+    <string name="settings_bin_desc">Excluir um arquivo não pergunta nada, mas a ação pode ser desfeita com um \'Restaurar\' na lixeira (botão flutuante → \'Lixeira\'). Você pode desativar a lixeira por completo, se preferir uma exclusão instantânea: nesse caso, aparecerá uma confirmação antes de cada exclusão.</string>
     <string name="pick_duplicate">Duplicar</string>
     <string name="settings_grid_names">Nome do arquivo na grade</string>
     <string name="settings_grid_names_desc">Sob cada miniatura, o nome do arquivo em no máximo duas linhas. A extensão nunca é quebrada e aparece sempre: quando o nome não cabe, quem cede é o meio.</string>

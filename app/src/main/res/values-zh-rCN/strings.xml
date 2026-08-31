@@ -43,7 +43,7 @@
     <string name="settings_dark">深色</string>
     <string name="settings_folder_columns">文件夹网格的列数</string>
     <string name="settings_folder_columns_desc">列数越多,屏幕上装下的文件夹越多,每张封面也越小。到四列时,下面的名字通常会被截断。</string>
-    <string name="settings_folder_count">在文件夹下方显示图片数量</string>
+    <string name="settings_folder_count">在文件夹下方显示项目数量</string>
     <string name="settings_folder_count_desc">在每个封面下方显示文件夹中的图片数量。关闭后行会变短，顶部的标题区域则相应变大。</string>
     <string name="settings_fit_grow">放大较小的图片</string>
     <string name="settings_fit_grow_desc">关闭时,比屏幕小的图片按真实尺寸显示。打开时,它会放大到填满视图。</string>
@@ -205,7 +205,7 @@
     <string name="columns_title">网格大小</string>
     <string name="columns_hint">快捷操作：长按悬浮按钮可选择网格大小。</string>
     <string name="settings_bin">启用回收站</string>
-    <string name="settings_bin_desc">删除文件不会有任何提示，但可以在回收站里用 \'还原\' 撤销（悬浮按钮 -&gt; \'回收站\'）。如果你更喜欢立即删除，可以完全关闭回收站：那样每次删除前都会出现确认。</string>
+    <string name="settings_bin_desc">删除文件不会有任何提示，但可以在回收站里用 \'还原\' 撤销（悬浮按钮 → \'回收站\'）。如果你更喜欢立即删除，可以完全关闭回收站：那样每次删除前都会出现确认。</string>
     <string name="pick_duplicate">创建副本</string>
     <string name="settings_grid_names">网格中显示文件名</string>
     <string name="settings_grid_names_desc">每张缩略图下显示文件名，最多两行。扩展名不会被换行拆开，始终可见：名字放不下时，让位的是中间部分。</string>

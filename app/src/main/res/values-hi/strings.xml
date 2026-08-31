@@ -43,7 +43,7 @@
     <string name="settings_dark">गहरा</string>
     <string name="settings_folder_columns">फ़ोल्डर ग्रिड के स्तंभ</string>
     <string name="settings_folder_columns_desc">जितने अधिक स्तंभ, उतने अधिक फ़ोल्डर स्क्रीन पर आते हैं और हर आवरण उतना ही छोटा होता है। चार पर नीचे का नाम अक्सर कट जाता है।</string>
-    <string name="settings_folder_count">फ़ोल्डर के नीचे इमेज की संख्या</string>
+    <string name="settings_folder_count">फ़ोल्डर के नीचे आइटम की संख्या</string>
     <string name="settings_folder_count_desc">हर कवर के नीचे, फ़ोल्डर में कितनी इमेज हैं। बंद करने पर पंक्ति छोटी हो जाती है, और ऊपर का शीर्षक उतना ही बड़ा हो जाता है।</string>
     <string name="settings_fit_grow">छोटे चित्र बड़े करें</string>
     <string name="settings_fit_grow_desc">बंद हो तो स्क्रीन से छोटा चित्र अपने असली आकार में दिखता है। चालू हो तो वह स्क्रीन भरने तक बढ़ता है।</string>
@@ -219,7 +219,7 @@
     <string name="columns_title">ग्रिड का आकार</string>
     <string name="columns_hint">शॉर्टकट: ग्रिड का आकार चुनने के लिए फ़्लोटिंग बटन दबाए रखें।</string>
     <string name="settings_bin">कूड़ेदान चालू करें</string>
-    <string name="settings_bin_desc">फ़ाइल मिटाने पर कुछ नहीं पूछा जाता, लेकिन कूड़ेदान से \'वापस लाएँ\' के ज़रिये यह काम पलटा जा सकता है (फ़्लोटिंग बटन -&gt; \'कूड़ेदान\')। अगर आप तुरंत मिटाना पसंद करते हैं तो कूड़ेदान पूरी तरह बंद कर सकते हैं: उस स्थिति में हर बार मिटाने से पहले पुष्टि दिखेगी।</string>
+    <string name="settings_bin_desc">फ़ाइल मिटाने पर कुछ नहीं पूछा जाता, लेकिन कूड़ेदान से \'वापस लाएँ\' के ज़रिये यह काम पलटा जा सकता है (फ़्लोटिंग बटन → \'कूड़ेदान\')। अगर आप तुरंत मिटाना पसंद करते हैं तो कूड़ेदान पूरी तरह बंद कर सकते हैं: उस स्थिति में हर बार मिटाने से पहले पुष्टि दिखेगी।</string>
     <string name="pick_duplicate">प्रतिलिपि बनाएँ</string>
     <string name="settings_grid_names">ग्रिड में फ़ाइल का नाम</string>
     <string name="settings_grid_names_desc">हर थंबनेल के नीचे फ़ाइल का नाम, ज़्यादा से ज़्यादा दो पंक्तियों में। एक्सटेंशन कभी नहीं टूटता और हमेशा दिखता है: नाम न समाए तो बीच का हिस्सा छोटा होता है।</string>

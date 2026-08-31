@@ -43,7 +43,7 @@
     <string name="settings_dark">어둡게</string>
     <string name="settings_folder_columns">폴더 격자의 열 수</string>
     <string name="settings_folder_columns_desc">열이 많을수록 화면에 폴더가 더 많이 들어가고 표지는 작아집니다. 네 열에서는 아래의 이름이 대개 잘립니다.</string>
-    <string name="settings_folder_count">폴더 아래에 이미지 개수</string>
+    <string name="settings_folder_count">폴더 아래에 항목 개수</string>
     <string name="settings_folder_count_desc">각 표지 아래에 폴더가 담고 있는 이미지 개수를 보여줍니다. 끄면 행이 짧아지고 그만큼 위쪽 머리글이 커집니다.</string>
     <string name="settings_fit_grow">작은 이미지 확대</string>
     <string name="settings_fit_grow_desc">끄면 화면보다 작은 이미지는 실제 크기로 보입니다. 켜면 화면을 채울 때까지 커집니다.</string>
@@ -205,7 +205,7 @@
     <string name="columns_title">격자 크기</string>
     <string name="columns_hint">단축 동작: 플로팅 버튼을 길게 누르면 격자 크기를 고를 수 있습니다.</string>
     <string name="settings_bin">휴지통 사용</string>
-    <string name="settings_bin_desc">파일을 삭제할 때는 아무것도 묻지 않지만, 휴지통에서 \'되돌리기\'로 되돌릴 수 있습니다 (플로팅 버튼 -&gt; \'휴지통\'). 즉시 삭제를 원하면 휴지통을 완전히 끌 수 있습니다. 그 경우에는 삭제할 때마다 확인이 표시됩니다.</string>
+    <string name="settings_bin_desc">파일을 삭제할 때는 아무것도 묻지 않지만, 휴지통에서 \'되돌리기\'로 되돌릴 수 있습니다 (플로팅 버튼 → \'휴지통\'). 즉시 삭제를 원하면 휴지통을 완전히 끌 수 있습니다. 그 경우에는 삭제할 때마다 확인이 표시됩니다.</string>
     <string name="pick_duplicate">복제</string>
     <string name="settings_grid_names">격자에 파일 이름 표시</string>
     <string name="settings_grid_names_desc">각 미리보기 아래에 파일 이름을 최대 두 줄로 표시합니다. 확장자는 줄바꿈으로 나뉘지 않고 항상 보이며, 이름이 다 들어가지 않으면 가운데가 줄어듭니다.</string>

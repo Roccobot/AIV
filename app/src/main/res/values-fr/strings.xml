@@ -43,7 +43,7 @@
     <string name="settings_dark">Sombre</string>
     <string name="settings_folder_columns">Colonnes dans la grille des dossiers</string>
     <string name="settings_folder_columns_desc">Plus de colonnes font tenir plus de dossiers à l\'écran et rétrécissent chaque vignette. À quatre, le nom en dessous est souvent tronqué.</string>
-    <string name="settings_folder_count">Nombre d\'images sous les dossiers</string>
+    <string name="settings_folder_count">Nombre d\'éléments sous les dossiers</string>
     <string name="settings_folder_count_desc">Sous chaque couverture, combien d\'images contient le dossier. En le désactivant, la ligne raccourcit et l\'en-tête grandit d\'autant.</string>
     <string name="settings_fit_grow">Agrandir les petites images</string>
     <string name="settings_fit_grow_desc">Désactivé, une image plus petite que l\'écran s\'affiche à sa taille réelle. Activé, elle grandit pour remplir la vue.</string>
@@ -233,7 +233,7 @@
     <string name="columns_title">Taille de la grille</string>
     <string name="columns_hint">Raccourci: appuyez longuement sur le bouton flottant pour choisir la taille de la grille.</string>
     <string name="settings_bin">Activer la corbeille</string>
-    <string name="settings_bin_desc">La suppression d\'un fichier ne demande rien, mais l\'action est réversible avec un \'Restaurer\' depuis la corbeille (bouton flottant -&gt; \'Corbeille\'). Vous pouvez désactiver complètement la corbeille si vous préférez une suppression instantanée: dans ce cas, une confirmation apparaît avant chaque suppression.</string>
+    <string name="settings_bin_desc">La suppression d\'un fichier ne demande rien, mais l\'action est réversible avec un \'Restaurer\' depuis la corbeille (bouton flottant → \'Corbeille\'). Vous pouvez désactiver complètement la corbeille si vous préférez une suppression instantanée: dans ce cas, une confirmation apparaît avant chaque suppression.</string>
     <string name="pick_duplicate">Dupliquer</string>
     <string name="settings_grid_names">Nom du fichier dans la grille</string>
     <string name="settings_grid_names_desc">Sous chaque vignette, le nom du fichier sur deux lignes au maximum. L\'extension n\'est jamais coupée et reste toujours visible: si le nom ne tient pas, c\'est le milieu qui cède.</string>

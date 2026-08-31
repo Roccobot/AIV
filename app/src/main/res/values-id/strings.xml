@@ -43,7 +43,7 @@
     <string name="settings_dark">Gelap</string>
     <string name="settings_folder_columns">Kolom pada kisi folder</string>
     <string name="settings_folder_columns_desc">Semakin banyak kolom, semakin banyak folder yang masuk ke layar dan semakin kecil setiap sampul. Pada empat kolom, nama di bawahnya biasanya terpotong.</string>
-    <string name="settings_folder_count">Jumlah gambar di bawah folder</string>
+    <string name="settings_folder_count">Jumlah item di bawah folder</string>
     <string name="settings_folder_count_desc">Di bawah setiap sampul, berapa gambar yang ada di folder itu. Jika dimatikan, barisnya menjadi lebih pendek dan bagian judul di atas tumbuh sebanyak itu.</string>
     <string name="settings_fit_grow">Perbesar gambar kecil</string>
     <string name="settings_fit_grow_desc">Jika mati, gambar yang lebih kecil dari layar ditampilkan pada ukuran aslinya. Jika hidup, ia tumbuh hingga memenuhi layar.</string>
@@ -205,7 +205,7 @@
     <string name="columns_title">Ukuran kisi</string>
     <string name="columns_hint">Pintasan: tekan dan tahan tombol mengambang untuk memilih ukuran kisi.</string>
     <string name="settings_bin">Aktifkan tempat sampah</string>
-    <string name="settings_bin_desc">Menghapus berkas tidak menanyakan apa pun, tetapi tindakan ini bisa dibatalkan dengan \'Pulihkan\' dari tempat sampah (tombol mengambang -&gt; \'Tempat sampah\'). Kamu bisa mematikan tempat sampah sepenuhnya jika lebih suka penghapusan langsung: dalam hal itu, konfirmasi akan muncul sebelum setiap penghapusan.</string>
+    <string name="settings_bin_desc">Menghapus berkas tidak menanyakan apa pun, tetapi tindakan ini bisa dibatalkan dengan \'Pulihkan\' dari tempat sampah (tombol mengambang → \'Tempat sampah\'). Kamu bisa mematikan tempat sampah sepenuhnya jika lebih suka penghapusan langsung: dalam hal itu, konfirmasi akan muncul sebelum setiap penghapusan.</string>
     <string name="pick_duplicate">Duplikat</string>
     <string name="settings_grid_names">Nama berkas di kisi foto</string>
     <string name="settings_grid_names_desc">Di bawah setiap gambar mini, nama berkas dalam dua baris paling banyak. Ekstensi tidak pernah dipenggal dan selalu terlihat: kalau nama tidak muat, bagian tengahnya yang mengalah.</string>
