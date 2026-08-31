@@ -296,6 +296,14 @@
     <string name="bin_empty_ask">Really empty the bin?</string>
     <string name="bin_empty_desc">You will not be able to get its contents back.</string>
     <string name="bin_empty_hint">Shortcut: press and hold the floating button to empty the bin.</string>
+    <string name="bin_restore_all">Restore everything</string>
+    <string name="bin_history">History</string>
+    <!-- The history of restores: where the files that left the bin ended up. The number
+         comes from History.DAYS instead of being written into the sentence, so the text
+         and the real deadline cannot drift apart. -->
+    <string name="history_title">Restore history</string>
+    <string name="history_none">Nothing has been restored in the last %1$d days.</string>
+    <string name="history_note">The history keeps the last %1$d days, then empties itself.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d moved to the bin</item>
         <item quantity="other">%1$d moved to the bin</item>

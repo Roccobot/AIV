@@ -214,4 +214,9 @@
     <string name="settings_reset_hints_desc">Maelezo ya njia za mkato yataonekana tena, kama katika usakinishaji mpya.</string>
     <string name="settings_reset_hints_do">Rejesha</string>
     <string name="settings_reset_hints_done">Vidokezo vitaonekana tena</string>
+    <string name="bin_restore_all">Rudisha zote</string>
+    <string name="bin_history">Historia</string>
+    <string name="history_title">Historia ya kurudisha</string>
+    <string name="history_none">Hakuna kitu kilichorudishwa katika siku %1$d zilizopita.</string>
+    <string name="history_note">Historia inaweka siku %1$d za mwisho, kisha inajifuta yenyewe.</string>
 </resources>

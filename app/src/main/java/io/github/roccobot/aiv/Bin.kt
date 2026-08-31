@@ -143,6 +143,10 @@ object Bin {
      * esattamente per questo.
      * ⚠️ **Le destinazioni si fanno scandire**, o la fotografia ripristinata resterebbe
      * invisibile alla galleria fino al prossimo giro dello scanner di sistema.
+     * ⚠️⚠️ **QUI SI SCRIVE LA CRONOLOGIA, dalla 0.76**, e questo è il solo posto che può
+     * farlo: la riga d'archivio di un file **sparisce** appena lo si ripristina, quindi
+     * l'istante in cui si sa dov'è finito è questo. Vale per tutte le vie del ripristino, il
+     * riquadro del visualizzatore compreso, perché passano tutte da qui. Vedi [History].
      */
     suspend fun restore(context: Context, uris: List<Uri>): FileTree.Outcome =
         withContext(Dispatchers.IO + NonCancellable) {
@@ -152,6 +156,10 @@ object Bin {
                 val touched = ArrayList<String>(uris.size)
                 var done = 0
                 var failed = 0
+                // ⚠️ Un istante solo per tutta l'operazione, ed è quello che rende un gruppo
+                // un gruppo nella cronologia: dentro il ciclo, dieci file darebbero dieci
+                // gruppi da un file.
+                val now = System.currentTimeMillis()
                 for (uri in uris) {
                     val from = FileTree.fileOf(context, uri)
                     val record = from?.let { byName[it.name] }
@@ -172,6 +180,7 @@ object Bin {
                     }
                 }
                 write(context, records)
+                History.add(context, now, touched)
                 FileTree.scan(context, touched)
                 FileTree.Outcome(done, failed)
             }

@@ -229,4 +229,9 @@
     <string name="settings_reset_hints_desc">Les explications des raccourcis réapparaissent, comme à la première installation.</string>
     <string name="settings_reset_hints_do">Revoir</string>
     <string name="settings_reset_hints_done">Les astuces réapparaîtront</string>
+    <string name="bin_restore_all">Tout restaurer</string>
+    <string name="bin_history">Historique</string>
+    <string name="history_title">Historique des restaurations</string>
+    <string name="history_none">Rien n\'a été restauré au cours des %1$d derniers jours.</string>
+    <string name="history_note">L\'historique garde les %1$d derniers jours, puis se vide de lui-même.</string>
 </resources>

@@ -244,4 +244,9 @@
     <string name="settings_reset_hints_desc">Объяснения быстрых действий снова появятся, как при новой установке.</string>
     <string name="settings_reset_hints_do">Вернуть</string>
     <string name="settings_reset_hints_done">Подсказки появятся снова</string>
+    <string name="bin_restore_all">Вернуть всё</string>
+    <string name="bin_history">История</string>
+    <string name="history_title">История возвратов</string>
+    <string name="history_none">За последние %1$d дней ничего не возвращено.</string>
+    <string name="history_note">История хранит последние %1$d дней, потом очищается сама.</string>
 </resources>

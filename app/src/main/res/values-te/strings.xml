@@ -214,4 +214,9 @@
     <string name="settings_reset_hints_desc">షార్ట్‌కట్ వివరణలు కొత్త ఇన్‌స్టాల్‌లా తిరిగి కనిపిస్తాయి.</string>
     <string name="settings_reset_hints_do">తిరిగి చూపు</string>
     <string name="settings_reset_hints_done">సూచనలు తిరిగి కనిపిస్తాయి</string>
+    <string name="bin_restore_all">అన్నీ తిరిగి తెచ్చు</string>
+    <string name="bin_history">చరిత్ర</string>
+    <string name="history_title">తిరిగి తెచ్చిన చరిత్ర</string>
+    <string name="history_none">గత %1$d రోజులలో ఏదీ తిరిగి తెచ్చలేదు.</string>
+    <string name="history_note">చరిత్ర చివరి %1$d రోజులను ఉంచుతుంది, తర్వాత తనంతట తానే ఖాళీ అవుతుంది.</string>
 </resources>
