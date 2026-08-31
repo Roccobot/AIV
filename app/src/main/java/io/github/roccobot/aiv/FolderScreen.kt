@@ -74,7 +74,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
@@ -110,17 +109,18 @@ fun FolderScreen(
     /**
      * Quante colonne mostrano le copertine. Vedi `FOLDER_COLUMNS` in `Settings.kt`.
      *
-     * ⚠️ **Dalla `0.60` decide anche quante RIGHE si vedono**, perché sono tante quante le
-     * colonne: il numero governa il quadrato di copertine, non solo la loro larghezza. Vedi
-     * [coverHeader].
+     * ⚠️ **Dalla `0.93` decide SOLO la larghezza delle copertine**, e quante righe si
+     * vedano è una conseguenza: il frontespizio si prende [HEADER_SHARE] dello schermo e la
+     * griglia riempie il resto. Fra la `0.60` e la `0.92` il numero governava anche le
+     * righe, che venivano riservate una per una.
      */
     columns: Int,
     /**
      * Se sotto la copertina si vede il conto delle immagini. Vedi `Settings.folderCount`.
      *
-     * ⚠️ **Entra nel conto dell'altezza di una riga**: spegnendolo la riga si accorcia e il
-     * frontespizio cresce di altrettanto, quindi il numero di righe visibili resta quello
-     * della tabella. Vedi [coverHeader].
+     * ⚠️ **Spegnendolo la riga si accorcia**, quindi nello stesso spazio ne entra qualcuna
+     * in più: dalla `0.93` il frontespizio non si adatta, ed è la griglia a riempire quello
+     * che le tocca.
      */
     counted: Boolean,
     /** I percorsi da non mostrare. Vedi `Settings.hiddenFolders`. */
@@ -221,53 +221,29 @@ fun FolderScreen(
     BoxWithConstraints(modifier = modifier.fillMaxSize().safeDrawingPadding()) {
         val density = LocalDensity.current
 
-        // ⚠️⚠️ **Le due righe sotto la copertina si MISURANO, non si stimano**: entrano nel
-        // conto dell'altezza di una riga di griglia (vedi [coverHeader]), e un'altezza
-        // presunta si porta dietro il corpo del carattere di sistema, che l'utente cambia
-        // dalle impostazioni di Android. Il misuratore usa i font veri e la densità vera,
-        // che è la sola misura che questo repo accetta.
-        val measurer = rememberTextMeasurer()
         val nameStyle = folderNameStyle(columns)
-        val countStyle = MaterialTheme.typography.bodySmall
-        /*
-         * ⚠️⚠️ **IL CONTO SI SOMMA SOLO SE SI VEDE**, e senza questo `if` spegnere la
-         * dicitura lascerebbe un buco alto una riga di testo sotto ogni copertina.
-         * ⚠️⚠️ **E LA RIGA DEL CONTO È ALTA quanto il TESTO o quanto l'ICONA, il maggiore**:
-         * l'icona misura [COUNT_ICON] in dp, il testo `bodySmall` è alto 16sp, e i due si
-         * scavalcano perché **sp e dp non scalano insieme**. Con il corpo di sistema al
-         * minimo 16sp scende sotto i 15dp e a decidere l'altezza diventa l'icona: darla per
-         * vinta al testo vorrebbe dire sbagliare il conto delle righe proprio sui telefoni
-         * di chi rimpicciolisce i caratteri.
-         */
-        val captionPx = remember(measurer, nameStyle, countStyle, counted, density) {
-            /*
-             * ⚠️⚠️ **IL NOME SI MISURA AL CASO PEGGIORE, cioè a [NAME_LINES] righe, dalla
-             * 0.77**: da quando è ammesso un a capo, una riga di griglia è alta due righe di
-             * testo **se un nome va a capo**, e quale nome lo faccia dipende dalla cartella,
-             * dallo schermo e dal corpo di sistema. Misurando una riga sola, il primo nome
-             * lungo farebbe sforare la griglia e in fondo alla schermata ricomparirebbe il
-             * pezzo di riga che questo conto esiste per tenere fuori (il difetto della
-             * `0.68`).
-             * ⚠️ **Il prezzo è dichiarato**: quando nessun nome va a capo, la griglia finisce
-             * qualche decina di dp più in alto del previsto. Quello spazio cade **sotto**
-             * l'ultima riga, cioè dove ci sono il tastino e la sua sfumatura, e là non
-             * disturba nessuno.
-             */
-            val sample = List(NAME_LINES) { CAPTION_SAMPLE }.joinToString("\n")
-            val name = measurer.measure(sample, nameStyle, maxLines = NAME_LINES).size.height
-            val count = measurer.measure(CAPTION_SAMPLE, countStyle, maxLines = 1).size.height
-            val icon = with(density) { COUNT_ICON.toPx() }
-            name + if (counted) maxOf(count, icon.toInt()) else 0
-        }
 
-        val headerMax = when {
-            !home -> 0.dp
-            view == FolderView.GRID ->
-                coverHeader(columns, maxWidth, maxHeight, captionPx, counted, density)
-            // ⚠️ L'elenco non ha colonne, quindi non ha niente da far quadrare: là resta la
-            // frazione fissa, che è la regola di prima. Vedi [HEADER_SHARE].
-            else -> maxHeight * HEADER_SHARE
-        }
+        /*
+         * ⚠️⚠️ **IL FRONTESPIZIO È UNA FRAZIONE FISSA, dalla 0.93, e prima si CALCOLAVA**
+         * (istruzione dell'utente, 2026-08-31: *preferisco semplificare e tornare alla
+         * logica precedente, che mi piaceva*). Qui viveva `coverHeader`, che riservava alla
+         * griglia un numero esatto di righe e dava al frontespizio quello che avanzava,
+         * misurando i due testi sotto ogni copertina per sapere quanto è alta una riga.
+         * Funzionava, e non era quello che serviva: l'utente vuole l'intestazione come
+         * spazio **deliberato**, per tenere le cartelle in basso a portata di pollice, e un
+         * avanzo non è uno spazio deliberato. Il suo riscontro è la misura di quel divario:
+         * *c'era una parte troppo grande della schermata dedicata alla griglia, e troppo
+         * poco spazio per l'intestazione*.
+         * ⚠️ **Quante righe si vedono adesso NON è più una scelta ma una conseguenza**, e va
+         * saputo prima di rimettere mano qui: con la frazione fissa il numero di righe cade
+         * dove cade, e a volte l'ultima è mezza. Non è il difetto della `0.68`: là i pezzi
+         * di riga contraddicevano una richiesta di N righe esatte, qui sono il modo in cui
+         * si vede che sotto c'è dell'altro.
+         * ⚠️ **Con `coverHeader` se ne sono andate `startRows` e la misura dei testi**, che
+         * servivano solo a lui. Il ragionamento che portavano vive nel corpo della PR e in
+         * questa nota, non in codice che nessuno chiama.
+         */
+        val headerMax = if (home) maxHeight * HEADER_SHARE else 0.dp
         val headerPx = with(density) { headerMax.toPx() }
 
         /**
@@ -320,9 +296,6 @@ fun FolderScreen(
                 .nestedScroll(paging)
                 // ⚠️ Il margine laterale è 12 e non 20 perché è quello che permette **due**
                 // colonne di copertine su uno schermo da 360dp. Il conto sta in `FOLDER_CELL`.
-                // ⚠️ Da qui in poi è una costante e non un numero scritto due volte:
-                // [coverHeader] deve togliere **esattamente** questo margine, o il conto
-                // delle righe visibili sbaglia di 24dp.
                 .padding(SCREEN_PAD)
         ) {
             if (home) {
@@ -406,8 +379,9 @@ fun FolderScreen(
              * sfumatura verso il colore di fondo del tema, che inghiotte ciò che sta giù
              * abbastanza velocemente, in modo che dia poco fastidio, e che allo stesso tempo
              * suggerisce che la griglia si scorre*). Al riposo non copre niente, perché
-             * [coverHeader] tiene le cartelle sopra di lei; serve quando si scorre, dove
-             * l'alternativa era una riga tagliata a metà dal bordo dello schermo.
+             * lo spazio riservato ([BELOW_FAB]) tiene l'ultima cartella sopra di lei; serve
+             * quando si scorre, dove l'alternativa era una riga tagliata di netto dal bordo
+             * dello schermo.
              * ⚠️⚠️ **STA PRIMA DEL TASTINO E NON DOPO**: in un `Box` l'ultimo figlio sta
              * sopra, quindi scritta dopo dipingerebbe **sul** tastino invece che sotto.
              * ⚠️⚠️ **NON RUBA I TOCCHI, e non è una speranza**: Compose fa la prova del tocco
@@ -459,8 +433,8 @@ fun FolderScreen(
                 onSearch = onSearch,
                 onBin = onBin,
                 onSize = { sizing = true },
-                // ⚠️ Costante e non numero: [FAB_REACH] la somma per sapere da dove parte la
-                // sfumatura, e [coverHeader] per tenere le cartelle sopra il tastino.
+                // ⚠️ Costante e non numero: [FAB_REACH] dice quanto è alta la fascia
+                // dipinta, e [BELOW_FAB] quanto spazio si lascia sotto l'ultima cartella.
                 modifier = Modifier.align(Alignment.BottomEnd).padding(HUB_PAD)
             )
         }
@@ -563,123 +537,15 @@ private fun Folder.Bucket.isHidden(hidden: Set<String>): Boolean {
 }
 
 /**
- * Quanto spazio resta al frontespizio quando la griglia si è presa le sue [startRows]
- * righe.
- *
- * ⚠️⚠️ **LA FORMA NON È PIÙ IL QUADRATO, dalla 0.68**: vedi [startRows], dove sta la
- * ragione. Fino alla 0.67 questo conto usava le colonne anche come numero di righe.
- *
- * ⚠️ **Storia, perché non si torni indietro di due passi**: fino alla `0.59` la griglia si
- * prendeva un **60% fisso** dello schermo, che rispondeva bene a due colonne e male alle
- * altre, perché con le copertine più strette le righe si accorciano e nel 60% ne entravano
- * quattro e mezza invece di tre. La `0.60` l'ha sostituito col quadrato, la `0.68` col
- * conto per colonne.
- *
- * ⚠️⚠️ **IL CONTO USA LE STESSE COSTANTI DEL DISEGNO, e non sono ricopiate**: [SCREEN_PAD]
- * per il margine, [FOLDER_GAP] per il distacco fra le copertine, [CARD_GAP] per quello fra
- * copertina e testo, [HEADER_GAP] per lo stacco sotto il frontespizio. Un numero scritto
- * due volte qui non si vedrebbe subito: la griglia mostrerebbe 3,8 righe invece di 4, che
- * sembra una scelta e non un errore.
- *
- * ⚠️ **Una riga di griglia è: copertina quadrata, distacco, nome, distacco, conto.** La
- * copertina è quadrata perché la scheda la disegna con `aspectRatio(1f)`, quindi la sua
- * altezza **è** la larghezza della cella, e l'altezza delle due righe di testo arriva
- * misurata da chi chiama (`captionPx`).
- *
- * ⚠️ **Si arrotonda la cella per ECCESSO**, e non è pignoleria da un pixel:
- * `LazyVerticalGrid` divide lo spazio fra le colonne e distribuisce i pixel di resto sulle
- * **prime**, quindi in ogni riga c'è una copertina più larga delle altre, ed è lei a
- * decidere l'altezza della riga. Per difetto, a quattro colonne, l'ultima riga resterebbe
- * tagliata di qualche pixel.
- *
- * ⚠️ **Se non ci sta, il frontespizio va a zero e la griglia scorre**: succede in
- * orizzontale, dove le copertine sono larghissime e due righe non entrerebbero comunque.
- * Restituire zero è l'esito onesto, perché lo spazio che manca non si inventa; il
- * frontespizio in quel caso si misura ad altezza nulla e sparisce da sé, e chi scorre non
- * perde niente perché là non c'era niente da chiudere.
- *
- * ⚠️⚠️ **IL TETTO È TORNATO NELLA 0.92, ED È LA REGOLA DEL 60/40** (istruzione dell'utente,
- * 2026-08-31: *applica semplicemente la regola che si avvicina maggiormente al vecchio
- * vincolo del 60% della schermata dedicata alla griglia e il 40% superiore dedicato
- * all'intestazione*). Non è il tetto di prima rimesso: è **[HEADER_SHARE]**, cioè la stessa
- * costante che la vista a elenco non ha mai smesso di usare, quindi adesso la regola è
- * **una sola** per tutte e due le viste invece di due numeri che si somigliano.
- * ⚠️⚠️ **Perché la stessa cosa era un DIFETTO nella `0.68` e adesso è la richiesta**, che è
- * l'unica parte che conta per chi legge fra due anni: allora l'utente aveva chiesto N righe
- * e i pezzi di riga in fondo erano una violazione (*a volte restano visibili sul bordo
- * inferiore parti di cartelle che dovrebbero essere fuori dalla vista*); adesso chiede
- * esplicitamente di *far intuire la presenza di eventuali cartelle sottostanti*, quindi
- * quel pezzo di riga è diventato il desiderato. È cambiata la richiesta, non il codice.
- * ⚠️⚠️ **QUANTO MORDE, MISURATO SUGLI SCREENSHOT DELL'UTENTE, e la risposta è POCO**: sul
- * suo telefono l'area utile (dentro le barre di sistema, che è quella che arriva qui) vale
- * circa **807dp**, e il frontespizio libero ne prende **335 a 3 colonne (41%)** e **206 a 2
- * (26%)**. Il tetto vale 323, quindi a 3 colonne taglia una quindicina di dp e a 2 non
- * tocca niente. **Va detto invece di lasciarlo scoprire**: chi si aspetta che questa riga
- * cambi la faccia della schermata resterà deluso, perché la proporzione del suo telefono
- * era già quella. Il tetto serve dove il conto la supera davvero: schermi più alti, righe
- * più basse, o un giorno un numero di colonne più grande.
- * ⚠️ Resta il pavimento a zero, che serve **in orizzontale**: là il quadrato di copertine
- * chiede più dello schermo, il frontespizio va a zero e la griglia scorre. Lì i pezzi di
- * riga sono corretti, perché si sta scorrendo.
- *
- * ⚠️⚠️ **IL TASTINO ENTRA NEL CONTO DALLA 0.77, e prima non c'era** (riscontro dell'utente:
- * *la vista iniziale va ripensata perché il tastino copre*). Il conto teneva le righe dentro
- * lo schermo ma non sopra il tastino, quindi a due colonne la quarta cartella finiva sotto di
- * lui: le righe ci stavano, e una era coperta. Al posto del margine di sotto si sottrae
- * [BELOW_FAB], che è l'ingombro del tastino più un po' d'aria, ed è la stessa costante che
- * tiene l'ultima cartella scoperta quando si è scorso fino in fondo.
- */
-private fun coverHeader(
-    columns: Int,
-    width: Dp,
-    height: Dp,
-    captionPx: Int,
-    counted: Boolean,
-    density: Density
-): Dp = with(density) {
-    val slots = columns.coerceAtLeast(1)
-    val lines = startRows(slots)
-    val gapPx = FOLDER_GAP.toPx()
-    val roomPx = (width - SCREEN_PAD * 2).toPx() - gapPx * (slots - 1)
-    val cellPx = ceil(roomPx / slots).coerceAtLeast(0f)
-    // ⚠️ I distacchi della scheda sono UNO IN MENO dei suoi figli: con il conto sono tre
-    // (copertina, nome, conto) e i distacchi due, senza il conto sono due e il distacco uno.
-    val rowPx = cellPx + CARD_GAP.toPx() * (if (counted) 2 else 1) + captionPx
-    val gridPx = rowPx * lines + gapPx * (lines - 1)
-    val freePx = (height - SCREEN_PAD - BELOW_FAB - HEADER_GAP).toPx() - gridPx
-    freePx.coerceIn(0f, height.toPx() * HEADER_SHARE).toDp()
-}
-
-/**
- * Quante righe di cartelle si vedono all'avvio, per numero di colonne: **2 righe fino a
- * tre colonne, 3 righe da quattro**. Cioè 4 cartelle a 2 colonne, 6 a 3, 12 a 4.
- *
- * ⚠️⚠️ **HA SOSTITUITO IL QUADRATO NELLA 0.68, e la ragione è che una RIGA NON È ALTA
- * QUANTO UNA COPERTINA** (revisione dell'utente sulla `0.60`: *non avevo considerato i
- * testi sotto le cartelle*). Sotto ogni copertina quadrata stanno il nome e il conto, cioè
- * due righe di testo più due distacchi: una riga di griglia è **più alta che larga**, e un
- * quadrato di righe per colonne è quindi più alto che largo di quel tanto moltiplicato per
- * il numero di righe. A quattro colonne il 4x4 chiedeva più dello schermo intero, e il
- * frontespizio andava a zero da sé senza che nessuno lo avesse deciso.
- *
- * ⚠️ **Non è una formula ma una tabella, e lo è apposta**: le colonne ammesse sono tre
- * (`FOLDER_COLUMNS`), e una formula su tre valori è un modo di nascondere una scelta
- * dietro un'aria di generalità. Se un giorno le colonne diventassero cinque, qui si
- * aggiunge una riga e si guarda uno schermo, che è l'unico modo onesto di decidere.
- */
-private fun startRows(columns: Int): Int = if (columns <= 3) 2 else 3
-
-/**
  * Il corpo del nome di una cartella, che dipende da quante colonne ci sono.
  *
  * ⚠️⚠️ **A QUATTRO COLONNE SCENDE** (richiesta dell'utente): là la cella è larga meno di un
  * quarto di schermo, cioè 78dp su 360, e a `titleSmall` due parole ci stanno a stento.
  * `labelMedium` toglie due punti e **tiene il peso medio**, che è quello che distingue il nome
  * dal conto sotto: passare a `bodySmall` avrebbe reso i due indistinguibili.
- * ⚠️ **Una funzione e non due posti**: la misura del sottotitolo (`captionPx`, che decide
- * quanto è alta una riga di griglia) e il disegno della scheda devono usare lo **stesso**
- * corpo, o il conto delle righe visibili sbaglia di qualche pixel per riga e in fondo alla
- * schermata ricompare mezza cartella.
+ * ⚠️ **Una funzione e non un corpo scritto due volte**: la scheda lo usa per disegnare, e
+ * fino alla `0.92` lo usava anche il conto delle righe. Quel conto non c'è più, ma la
+ * funzione resta la sola fonte del corpo del nome.
  */
 @Composable
 private fun folderNameStyle(columns: Int): TextStyle =
@@ -692,9 +558,9 @@ private fun folderNameStyle(columns: Int): TextStyle =
  * ⚠️⚠️ **NON È SPAZIO DECORATIVO: è spazio messo lì apposta perché ogni cartella sia
  * raggiungibile col pollice** tenendo il telefono a una mano (richiesta dell'utente). Poi
  * si scorre e la vista arriva al 100%, che è la seconda metà della stessa richiesta.
- * ⚠️ **Quanto sia alto NON lo decide lui**: in griglia lo decide [coverHeader], che gli
- * lascia quel che resta dopo il quadrato di copertine, e nell'elenco la frazione fissa
- * [HEADER_SHARE]. Fino alla `0.59` era il 40% in tutti i casi.
+ * ⚠️ **Quanto sia alto NON lo decide lui**: lo decide [HEADER_SHARE], in tutte e due le
+ * viste. Fra la `0.60` e la `0.92` la griglia faceva eccezione e si calcolava l'altezza da
+ * sé, e l'utente ha chiesto di tornare alla frazione fissa.
  *
  * ⚠️⚠️ **IL FIGLIO SI MISURA SEMPRE ALL'ALTEZZA PIENA e si RITAGLIA, non si schiaccia.**
  * Misurandolo con l'altezza che resta, l'icona verrebbe compressa mentre il frontespizio
@@ -1095,8 +961,6 @@ private fun FolderCard(
         // ⚠️ Il tocco lungo nasconde, ed è lo stesso gesto in tutte e due le viste: chi
         // impara a nascondere dalle copertine non deve reimpararlo nell'elenco.
         modifier = Modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick),
-        // ⚠️ Costante e non numero: [coverHeader] somma questo distacco due volte per
-        // sapere quanto è alta una riga di griglia.
         verticalArrangement = Arrangement.spacedBy(CARD_GAP)
     ) {
         Box(
@@ -1138,10 +1002,9 @@ private fun FolderCard(
          * si tagliava, e a schermo pieno erano dodici volte la stessa parola. Il plurale
          * `folders_count` resta e serve alla **descrizione per TalkBack**, che di parole ha
          * bisogno: là dentro 'x immagini' è l'informazione, non rumore.
-         * ⚠️⚠️ **`maxLines = 1` NON è pignoleria**: senza, una dicitura che va a capo rende
-         * la riga più alta di quanto [coverHeader] ha misurato, e in fondo alla schermata si
-         * vede il pezzo di riga che quel conto doveva tenere fuori. Era la seconda causa del
-         * difetto della `0.68`, insieme al tetto del frontespizio.
+         * ⚠️ **`maxLines = 1` resta**, anche se dalla `0.93` non c'è più un conto delle
+         * righe da far quadrare: una dicitura che va a capo fa ballare l'altezza di una
+         * cella rispetto alle sue vicine, e la griglia diventa irregolare.
          */
         if (counted) {
             val spoken =
@@ -1241,34 +1104,34 @@ private val FOLDER_CORNER = 12.dp
 private val ROW_COVER = 48.dp
 
 /**
- * Quanta parte dello schermo tiene il frontespizio da aperto: **il 60/40**.
+ * Quanta parte dello schermo tiene il frontespizio da aperto: **un terzo scarso**.
  *
- * ⚠️ Il numero viene dalla richiesta dell'utente letta al contrario: le cartelle nel
- * **60% basso**, quindi qui il 40% alto. Non è una proporzione estetica ma una misura di
- * portata del pollice, e ritoccarla verso il basso rimette le cartelle fuori tiro.
- * ⚠️⚠️ **Dalla `0.60` alla `0.91` è valsa per il solo ELENCO**, perché le copertine si
- * facevano il conto da sé in [coverHeader] e una frazione fissa dava il numero di righe
- * sbagliato appena si cambiavano le colonne. Dalla `0.92` vale di nuovo per tutte e due,
- * ma in due modi diversi e non è un'incoerenza: nell'elenco è l'**altezza** del
- * frontespizio, in griglia è il suo **tetto**. Cioè la griglia si prende almeno il 60%
- * sempre, e di più quando le sue righe ci stanno in meno.
- * ⚠️ **Un numero solo per la stessa regola**: prima di questo, cambiare il 60/40 voleva
- * dire ricordarsi che esisteva anche altrove, ed è il genere di cosa che nessuno ricorda.
+ * ⚠️⚠️ **NON È UNA PROPORZIONE ESTETICA ma una misura di portata del pollice**: l'utente
+ * usa l'intestazione come scusa per tenere le cartelle in basso, in stile OneUI (sue
+ * parole, 2026-08-31), quindi ritoccarla verso il basso rimette le cartelle fuori tiro e
+ * verso l'alto toglie righe che si vorrebbero vedere.
+ * ⚠️⚠️ **VALE PER TUTTE E DUE LE VISTE, dalla `0.93`**: fra la `0.60` e la `0.92` la
+ * griglia faceva eccezione e si riservava un numero esatto di righe, e l'utente ha chiesto
+ * di tornare alla frazione fissa perché quel calcolo dava alla griglia più di quanto lui
+ * volesse. Un numero solo per la stessa regola: prima, cambiarla voleva dire ricordarsi
+ * che esisteva anche altrove.
+ * ⚠️ **34 e non 40, ed è una misura**: con il 40% l'area della griglia scende a 484dp
+ * sullo schermo dell'utente, e la fascia sfumata (216dp) arriverebbe a coprire il conto
+ * sotto la SECONDA riga di cartelle, cioè velerebbe una riga vera invece di quella che
+ * fa capolino. Con il 34% la griglia sale a 533dp e la sfumatura comincia esattamente
+ * dove comincia la terza riga. L'utente ha autorizzato il cambio proprio per questo
+ * (*se pensi che sia troppo sacrificata possiamo passare a 66% alla griglia e 34%
+ * all'intestazione*).
  */
-private const val HEADER_SHARE = 0.4f
-
-// ⚠️ QUI VIVEVA `HEADER_CAP`, il tetto del frontespizio al 50% dello schermo, uscito nella
-// 0.69 perché ERA il difetto: vedi [coverHeader], dove sta la misura. Non si rimetta senza
-// aver letto quella nota, e senza rispondere alla domanda che il tetto lasciava aperta, cioè
-// chi si prende lo spazio che al frontespizio viene negato.
+private const val HEADER_SHARE = 0.34f
 
 /**
  * Quanto è larga l'icona accanto al conto delle immagini.
  *
  * ⚠️ **15dp e non 16**: accanto a un corpo di 12sp (`bodySmall`) una da 16 pesa più del
  * numero e diventa lei la voce principale, mentre qui il dato è il numero.
- * ⚠️ Entra nel conto dell'altezza di una riga di griglia, perché a corpo di sistema piccolo
- * è **lei** e non il testo a decidere quanto è alta la riga del conto. Vedi `captionPx`.
+ * ⚠️ A corpo di sistema piccolo è **lei** e non il testo a decidere quanto è alta la riga
+ * del conto, perché sp e dp non scalano insieme.
  */
 private val COUNT_ICON = 15.dp
 
@@ -1276,23 +1139,12 @@ private val COUNT_ICON = 15.dp
 private val COUNT_GAP = 4.dp
 
 /**
- * Il testo con cui si misura l'altezza di una riga di didascalia.
- *
- * ⚠️ **Una lettera alta e una bassa**, perché su una riga sola l'altezza la decide lo
- * stile e non i glifi, ma un campione con ascendente e discendente è quello che si
- * riconosce come misura in caso di dubbio. Non finisce sullo schermo: serve solo al
- * misuratore.
- */
-private const val CAPTION_SAMPLE = "Ag"
-
-/**
  * Quante righe può prendere il nome di una cartella: **due**, cioè un a capo e non più di uno
  * (richiesta dell'utente, dalla `0.77`).
  *
- * ⚠️⚠️ **Serve in DUE posti che devono restare d'accordo**, e sono l'unica ragione per cui è
- * una costante e non un numero: il `maxLines` della scheda e la misura dell'altezza di una
- * riga di griglia (`captionPx`). Alzata in uno solo, la griglia sfora e in fondo alla
- * schermata compare mezza cartella.
+ * ⚠️ Fino alla `0.92` serviva in due posti che dovevano restare d'accordo, il `maxLines`
+ * della scheda e la misura dell'altezza di una riga; adesso il secondo non c'è più, e
+ * resta una costante perché è una scelta dell'utente e non un dettaglio del disegno.
  */
 private const val NAME_LINES = 2
 
@@ -1310,13 +1162,16 @@ private const val NARROW_COLUMNS = 4
  * Quante volte il tastino è alta la fascia dipinta.
  *
  * ⚠️⚠️ **DIPINGERE PIÙ IN ALTO NON COSTA ALTEZZA ALLA GRIGLIA, ed è tutto il senso di
- * questa costante**: lo spazio **riservato** resta [BELOW_FAB], che entra nel conto del
- * frontespizio; questa dice soltanto fin dove arriva il colore. Tenerle separate è la
- * ragione per cui la sfumatura si può alzare quanto serve senza che la schermata perda una
- * riga di cartelle, che è il difetto che l'utente ha visto (*mi pare che tutto si sia
- * alzato troppo*).
+ * questa costante**: lo spazio **riservato** resta [BELOW_FAB]; questa dice soltanto fin
+ * dove arriva il colore. Tenerle separate è la ragione per cui la sfumatura si può alzare
+ * senza che la schermata perda una riga di cartelle.
+ * ⚠️⚠️ **DUE E NON TRE, ed è una misura e non un gusto**: sullo schermo dell'utente la
+ * griglia ha 533dp e le sue righe sono alte 184, quindi la terza comincia a 392, cioè
+ * 141dp sopra il fondo. Con 2 la fascia è alta 144 e la dissolvenza comincia **esattamente
+ * lì**, sulla riga che fa capolino; con 3 sarebbe 216 e arriverebbe a velare il conto
+ * sotto la SECONDA riga, che è una riga vera. Chi la alza ancora tolga prima quel conto.
  */
-private const val GRADIENT_TIMES = 3f
+private const val GRADIENT_TIMES = 2f
 
 /**
  * In quanti gradini si disegna la curva della sfumatura.
