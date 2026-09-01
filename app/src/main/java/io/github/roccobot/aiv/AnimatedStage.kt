@@ -14,7 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.outlined.AddPhotoAlternate
 import androidx.compose.material.icons.outlined.NavigateBefore
 import androidx.compose.material.icons.outlined.NavigateNext
 import androidx.compose.material3.Icon
@@ -40,6 +39,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -88,7 +88,7 @@ class Animation(private val source: Animated) {
      * ⚠️ **Mettere in pausa fa parte del comando**: chiedere un fotogramma preciso mentre
      * l'animazione corre vorrebbe dire vederlo per un decimo di secondo e perderlo.
      */
-    suspend fun stepForward() {
+    suspend fun stepForward() = guarded {
         playing = false
         withContext(Dispatchers.Default) { source.advance() }
         draw()
@@ -108,7 +108,7 @@ class Animation(private val source: Animated) {
      * `seek` dentro i lettori, che il formato non permette. Non c'è ancora perché costa
      * memoria (larghezza per altezza per quattro byte a fotogramma) e potrebbe non servire.
      */
-    suspend fun stepBack() {
+    suspend fun stepBack() = guarded {
         playing = false
         val target = if (source.index <= 0) source.frameCount - 1 else source.index - 1
         withContext(Dispatchers.Default) {
@@ -141,7 +141,7 @@ class Animation(private val source: Animated) {
      * in fretta possibile', e preso alla lettera sarebbe un ciclo stretto che scalda il
      * telefono. I browser fanno la stessa cosa da vent'anni.
      */
-    suspend fun run() {
+    private suspend fun run() {
         // Il primo fotogramma si disegna subito, anche in pausa: senza, una GIF aperta e
         // messa in pausa prima del primo scatto resterebbe un rettangolo vuoto.
         draw()
@@ -149,6 +149,36 @@ class Animation(private val source: Animated) {
             delay(source.delayOf(source.index).coerceAtLeast(FLOOR).toLong())
             withContext(Dispatchers.Default) { source.advance() }
             draw()
+        }
+    }
+
+    /**
+     * Il ciclo di riproduzione, con la sicura.
+     *
+     * ⚠️⚠️ **UN ERRORE QUI DENTRO CHIUDE L'APP, e non è teorico: è successo nella `1.13`**
+     * (segnalazione dell'utente: *manda in crash 10 volte su 10*). Questo ciclo gira dentro
+     * una coroutine di composizione, e quello che vi si solleva non lo prende nessuno.
+     * ⚠️ **Fermare l'animazione è la risposta giusta**: sotto c'è sempre l'immagine ferma
+     * disegnata dal visualizzatore, quindi il peggio che si vede è una GIF che non si muove,
+     * e non un'app che se ne va. ⚠️ La causa vera della `1.13` è corretta a monte, in
+     * [rememberAnimation]: questa resta perché una funzione nuova non deve poter chiudere
+     * l'app, qualunque cosa le succeda dentro.
+     */
+    suspend fun play() = guarded { run() }
+
+    /**
+     * Esegue [corpo] senza che un suo errore possa arrivare fino all'applicazione.
+     */
+    private suspend fun guarded(corpo: suspend () -> Unit) {
+        try {
+            corpo()
+        } catch (cancelled: CancellationException) {
+            // ⚠️ La cancellazione NON è un errore e va lasciata passare: è il modo in cui
+            // Compose spegne questo ciclo quando si cambia fotografia o si mette in pausa.
+            // Inghiottirla vorrebbe dire una coroutine che non si ferma quando le si chiede.
+            throw cancelled
+        } catch (failure: Throwable) {
+            playing = false
         }
     }
 
@@ -178,6 +208,20 @@ class Animation(private val source: Animated) {
  * apre, che è esattamente quello che deve succedere.
  * ⚠️ **Torna `null` per tutto quello che animato non è**, ed è il caso normale: una fotografia
  * ferma non paga niente, perché [Animations.open] guarda i primi byte e se ne va.
+ *
+ * ⚠️⚠️ **L'ANIMAZIONE NON PUÒ STARE FRA LE CHIAVI DEL `DisposableEffect`, e metterla ci ha
+ * fatto uscire una `1.13` che chiudeva l'app su ogni GIF** (segnalazione dell'utente,
+ * 2026-09-01: *manda in crash 10 volte su 10*). `onDispose` non riceve il valore vecchio: legge
+ * la variabile **nel momento in cui gira**. Con `animation` fra le chiavi, l'istante in cui
+ * l'apertura la porta da `null` a un lettore fa scadere l'effetto, e il suo `onDispose`
+ * chiude il lettore **appena creato**. Chiuderlo e continuare a usarlo è il difetto.
+ * ⚠️⚠️ **E si è visto solo sulle GIF per un'asimmetria fra i due lettori**, che è la parte
+ * che rendeva il sintomo incomprensibile: [AnimatedWebp.close] butta la tela e la rifà alla
+ * prima richiesta, mentre [AnimatedGif.close] passa da `GifDecoder.clear()`, che azzera
+ * l'intestazione, e da lì `frameCount`, `delayOf` e `advance` sollevano un errore di
+ * riferimento nullo. La stessa identica chiusura sbagliata: una la sopporta, l'altra no.
+ * ⚠️ **La chiave giusta è il solo indirizzo**: l'effetto scade quando si cambia fotografia o
+ * si esce, e in quei due momenti la variabile porta davvero il lettore da chiudere.
  */
 @Composable
 fun rememberAnimation(source: Uri?): Animation? {
@@ -189,14 +233,14 @@ fun rememberAnimation(source: Uri?): Animation? {
             ?.let { withContext(Dispatchers.IO) { Animations.open(context, it) } }
             ?.let { Animation(it) }
     }
-    DisposableEffect(source, animation) {
+    DisposableEffect(source) {
         onDispose { animation?.close() }
     }
     // ⚠️ Rilanciato anche al cambio di `playing`: è cosi che la ripresa riparte, e la pausa
-    // lascia morire il ciclo invece di tenerlo in giro a controllare una bandierina.
+    // lascia esaurire il ciclo invece di tenerlo in giro a controllare una bandierina.
     val current = animation
     LaunchedEffect(current, current?.playing) {
-        current?.run()
+        current?.play()
     }
     return animation
 }
@@ -209,9 +253,18 @@ fun rememberAnimation(source: Uri?): Animation? {
  * il pollice che copre proprio la cosa che si sta osservando cambiare.
  * ⚠️ **Il contatore sta nella fila e non altrove**: è l'unica cosa che dice se un comando ha
  * fatto effetto, e separato dai tasti si guarderebbe in due posti.
+ * ⚠️ **E si può spegnere dalle impostazioni** ([Settings.animCounter], acceso di fabbrica):
+ * è la sola parte della fila che non è un comando, quindi la sola che qualcuno possa voler
+ * togliere per guardare e basta. Spento, la fila si stringe da sé: il numero è l'ultimo
+ * elemento della riga e non lascia un vuoto.
  */
 @Composable
-fun AnimatedBar(animation: Animation, name: String?, modifier: Modifier = Modifier) {
+fun AnimatedBar(
+    animation: Animation,
+    name: String?,
+    counter: Boolean,
+    modifier: Modifier = Modifier
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -268,19 +321,21 @@ fun AnimatedBar(animation: Animation, name: String?, modifier: Modifier = Modifi
         Key(Icons.Outlined.NavigateNext, R.string.anim_next) {
             scope.launch { animation.stepForward() }
         }
-        Key(Icons.Outlined.AddPhotoAlternate, R.string.anim_export) {
+        Key(Glyphs.PhotoOut, R.string.anim_export) {
             scope.launch {
                 val shot = animation.snapshot() ?: return@launch
                 pending = shot
                 exporter.launch(frameName(name, animation.shown))
             }
         }
-        Text(
-            text = "${animation.shown} / ${animation.frameCount}",
-            style = MaterialTheme.typography.labelMedium,
-            color = BAR_TEXT,
-            modifier = Modifier.padding(end = 10.dp, start = 2.dp)
-        )
+        if (counter) {
+            Text(
+                text = "${animation.shown} / ${animation.frameCount}",
+                style = MaterialTheme.typography.labelMedium,
+                color = BAR_TEXT,
+                modifier = Modifier.padding(end = 10.dp, start = 2.dp)
+            )
+        }
     }
 }
 

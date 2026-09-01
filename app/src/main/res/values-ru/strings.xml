@@ -60,6 +60,8 @@
     <string name="settings_top">Сверху</string>
     <string name="settings_bottom">Снизу</string>
     <string name="settings_info_visible">Показывать строку сразу</string>
+    <string name="settings_anim_counter">Счётчик кадров</string>
+    <string name="settings_anim_counter_desc">Показывается на панели управления анимированных изображений.</string>
     <string name="settings_reverse_order">Изменить направление последовательности (по дате)</string>
     <string name="settings_reverse_order_desc">Выключено: вы листаете от самого свежего к более старым, как в галерее телефона. Включено: по времени, от самого старого к самому свежему.</string>
     <string name="settings_clipboard">Читать буфер обмена при запуске</string>

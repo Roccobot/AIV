@@ -60,6 +60,8 @@
     <string name="settings_top">上</string>
     <string name="settings_bottom">下</string>
     <string name="settings_info_visible">最初から詳細バーを表示</string>
+    <string name="settings_anim_counter">フレームカウンター</string>
+    <string name="settings_anim_counter_desc">アニメーション画像の操作バーに表示します。</string>
     <string name="settings_reverse_order">並ぶ向きを逆にする (日付順)</string>
     <string name="settings_reverse_order_desc">オフなら新しいものから古いものへ、スマートフォンのギャラリーと同じ向きにめくります。オンなら古いものから新しいものへ、時系列でめくります。</string>
     <string name="settings_clipboard">起動時にクリップボードを読む</string>

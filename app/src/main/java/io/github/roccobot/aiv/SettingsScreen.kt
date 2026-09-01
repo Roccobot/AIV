@@ -317,6 +317,18 @@ private fun ColumnScope.RootPage(
         onChange = { onChange(settings.copy(infoVisible = it)) }
     )
 
+    /*
+     * ⚠️ **Accanto alla barra delle info e non fra le voci dell'editor**: sono le due sole
+     * impostazioni che dicono che cosa si vede SOPRA l'immagine mentre la si guarda, e chi
+     * cerca l'una trova l'altra.
+     */
+    SwitchRow(
+        label = stringResource(R.string.settings_anim_counter),
+        detail = stringResource(R.string.settings_anim_counter_desc),
+        checked = settings.animCounter,
+        onChange = { onChange(settings.copy(animCounter = it)) }
+    )
+
     PageRow(
         label = stringResource(R.string.settings_facts),
         summary = pluralStringResource(
@@ -375,9 +387,12 @@ private fun ColumnScope.RootPage(
     }
 
     /*
-     * ⚠️⚠️ **SOTTO LA SCELTA DELL'APP perché parla del SOLO editor di casa**: un'app di fuori
-     * salva per conto suo e AIV non ha modo di frapporsi, quindi l'interruttore non la
-     * riguarda. Metterlo altrove lo farebbe leggere come una promessa che vale per tutte.
+     * ⚠️⚠️ **VALE PER TUTTI GLI EDITOR DALLA `1.13`, ed è il rovescio di quello che c'era
+     * scritto qui** (domanda dell'utente: *vale solo per l'editor interno o per tutti quelli
+     * che supportano 'Modifica'?*). Fino alla `1.12` copriva il solo editor di casa, e la
+     * nota di allora spiegava perché un'app di fuori non si potesse coprire: la copia si fa
+     * **prima** di lanciarla, quindi si può eccome. Sta sotto la scelta dell'app perché è la
+     * stessa faccenda, non perché ne riguardi una sola.
      */
     SwitchRow(
         label = stringResource(R.string.settings_editor_backup),

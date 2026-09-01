@@ -60,6 +60,8 @@
     <string name="settings_top">Di atas</string>
     <string name="settings_bottom">Di bawah</string>
     <string name="settings_info_visible">Bilah tampak sejak awal</string>
+    <string name="settings_anim_counter">Penghitung bingkai</string>
+    <string name="settings_anim_counter_desc">Muncul di bilah kontrol gambar bergerak.</string>
     <string name="settings_reverse_order">Ubah arah urutan (menurut tanggal)</string>
     <string name="settings_reverse_order_desc">Jika mati, kamu menelusuri dari yang terbaru menuju yang lebih lama, seperti galeri ponsel. Jika hidup, menurut urutan waktu, dari yang tertua ke yang terbaru.</string>
     <string name="settings_clipboard">Baca papan klip saat mulai</string>

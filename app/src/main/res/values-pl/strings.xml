@@ -60,6 +60,8 @@
     <string name="settings_top">U góry</string>
     <string name="settings_bottom">U dołu</string>
     <string name="settings_info_visible">Pasek widoczny od początku</string>
+    <string name="settings_anim_counter">Licznik klatek</string>
+    <string name="settings_anim_counter_desc">Pojawia się na pasku sterowania obrazów animowanych.</string>
     <string name="settings_reverse_order">Odwróć kierunek kolejności (według daty)</string>
     <string name="settings_reverse_order_desc">Wyłączone, przeglądasz od najnowszego w stronę starszych, tak jak galeria w telefonie. Włączone, w kolejności czasu, od najstarszego do najnowszego.</string>
     <string name="settings_clipboard">Czytaj schowek przy uruchomieniu</string>

@@ -60,6 +60,8 @@
     <string name="settings_top">పైన</string>
     <string name="settings_bottom">కింద</string>
     <string name="settings_info_visible">మొదటినుంచే పట్టీ కనబడాలి</string>
+    <string name="settings_anim_counter">ఫ్రేమ్ కౌంటర్</string>
+    <string name="settings_anim_counter_desc">కదిలే చిత్రాల నియంత్రణ పట్టీలో కనిపిస్తుంది.</string>
     <string name="settings_reverse_order">వరుస దిశను తిప్పు (తేదీ ప్రకారం)</string>
     <string name="settings_reverse_order_desc">ఆపి ఉంచితే కొత్తదాని నుంచి పాతవాటి వైపు చూస్తారు, ఫోను గ్యాలరీలా. వేసి ఉంచితే కాలక్రమంలో, పాతది నుంచి కొత్తది వైపు.</string>
     <string name="settings_clipboard">మొదలైనప్పుడు క్లిప్‌బోర్డు చదువు</string>

@@ -60,6 +60,8 @@
     <string name="settings_top">En haut</string>
     <string name="settings_bottom">En bas</string>
     <string name="settings_info_visible">Barre visible au départ</string>
+    <string name="settings_anim_counter">Compteur d\'images</string>
+    <string name="settings_anim_counter_desc">Affiché dans la barre de commandes des images animées.</string>
     <string name="settings_reverse_order">Inverser le sens de la séquence (par date)</string>
     <string name="settings_reverse_order_desc">Désactivé, vous parcourez du plus récent vers les plus anciens, comme dans une galerie de téléphone. Activé, dans l\'ordre chronologique, du plus ancien au plus récent.</string>
     <string name="settings_clipboard">Lire le presse-papiers au démarrage</string>

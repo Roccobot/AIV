@@ -60,6 +60,8 @@
     <string name="settings_top">Üstte</string>
     <string name="settings_bottom">Altta</string>
     <string name="settings_info_visible">Başlangıçta satır görünsün</string>
+    <string name="settings_anim_counter">Kare sayacı</string>
+    <string name="settings_anim_counter_desc">Hareketli görüntülerin denetim çubuğunda görünür.</string>
     <string name="settings_reverse_order">Sıralamanın yönünü çevir (tarihe göre)</string>
     <string name="settings_reverse_order_desc">Kapalıyken en yeniden eskilere doğru, bir telefon galerisindeki gibi çevirirsin. Açıkken zaman sırasıyla, en eskiden en yeniye.</string>
     <string name="settings_clipboard">Açılışta panoyu oku</string>

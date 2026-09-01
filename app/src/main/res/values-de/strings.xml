@@ -60,6 +60,8 @@
     <string name="settings_top">Oben</string>
     <string name="settings_bottom">Unten</string>
     <string name="settings_info_visible">Leiste zu Beginn sichtbar</string>
+    <string name="settings_anim_counter">Bildzähler</string>
+    <string name="settings_anim_counter_desc">Erscheint in der Steuerleiste animierter Bilder.</string>
     <string name="settings_reverse_order">Richtung der Bildfolge umkehren (nach Datum)</string>
     <string name="settings_reverse_order_desc">Aus blätterst du vom Neuesten zu den Älteren, so wie eine Telefongalerie es macht. An in chronologischer Reihenfolge, vom Ältesten zum Neuesten.</string>
     <string name="settings_clipboard">Zwischenablage beim Start lesen</string>

@@ -60,6 +60,8 @@
     <string name="settings_top">在顶部</string>
     <string name="settings_bottom">在底部</string>
     <string name="settings_info_visible">一开始就显示详情栏</string>
+    <string name="settings_anim_counter">帧计数器</string>
+    <string name="settings_anim_counter_desc">显示在动态图像的控制栏中。</string>
     <string name="settings_reverse_order">反转顺序 (按日期)</string>
     <string name="settings_reverse_order_desc">关闭时,从最新的翻向更早的,和手机图库一样。打开时,按时间先后,从最早翻到最新。</string>
     <string name="settings_clipboard">启动时读取剪贴板</string>

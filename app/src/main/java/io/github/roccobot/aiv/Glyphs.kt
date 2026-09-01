@@ -135,6 +135,17 @@ object Glyphs {
     val PickInvert: ImageVector by lazy { filled("PickInvert", PICK_INVERT) }
 
     /**
+     * Una cornice con le montagne e una freccia che ne esce: 'Esporta il fotogramma'.
+     *
+     * ⚠️ **Sostituisce `Icons.Outlined.AddPhotoAlternate`, che l'utente aveva chiesto come
+     * base e poi ridisegnato**: quella dice 'aggiungi una fotografia a una raccolta', cioè il
+     * verso opposto. Qui il verso è tutto: il fotogramma **esce** dall'animazione e diventa un
+     * file a sé, e la freccia che buca il lato destro della cornice è la sola parte del glifo
+     * che lo dice.
+     */
+    val PhotoOut: ImageVector by lazy { filled("PhotoOut", EXPORT_IMAGE) }
+
+    /**
      * Il guscio dei glifi dell'utente: un 24x24 con un tracciato pieno.
      *
      * ⚠️ **Il riempimento è NON-ZERO**, che è il valore di serie di `addPath` e la regola di
@@ -244,4 +255,10 @@ object Glyphs {
             "M20,2h-12c-1.1,0-2,.9-2,2v12c0,1.1.9,2,2,2h12c1.1,0,2-.9,2-2V4c0-1.1-.9-2-2-2Z" +
             "M13.43,15.71c-2.9-.29-5.17-2.73-5.17-5.71,0-1.66.71-3.15,1.84-4.19l-1.26-1.26h3.05c.22,0,.4.18.4.4v3.05l-1.37-1.37c-.92.84-1.5,2.04-1.5,3.38,0,2.34,1.76,4.27,4.02,4.55.34,0,.61.3.58.62-.02.29-.27.53-.58.54Z" +
             "M19.17,15.45h-3.05c-.22,0-.4-.18-.4-.4v-3.05l1.37,1.37c.92-.84,1.5-2.04,1.5-3.38,0-2.34-1.76-4.27-4.02-4.55-.34,0-.6-.3-.58-.62.02-.29.27-.53.58-.54,2.9.29,5.17,2.73,5.17,5.71,0,1.66-.71,3.15-1.84,4.19l1.26,1.26Z"
+
+    /** Il tracciato dell'esportazione: montagne, cornice aperta a destra, freccia che esce. */
+    private const val EXPORT_IMAGE =
+        "M10.21,16.83l-1.96-2.36-2.75,3.53h11l-3.54-4.71-2.75,3.54Z" +
+            "M19.6,12.43h-1.19c-.22,0-.4.18-.4.4v7.17H4V6h8.6c.22,0,.4-.18.4-.4v-1.2c0-.22-.18-.4-.4-.4H4c-1.1,0-2,.9-2,2v14c0,1.1.9,2,2,2h14c1.1,0,2-.9,2-2v-7.17c0-.22-.18-.4-.4-.4Z" +
+            "M10,8.41v1.15c0,.22.18.4.4.4h4.6v4.01l4.97-4.98-4.97-4.98v4.01h-4.6c-.22,0-.4.18-.4.4Z"
 }

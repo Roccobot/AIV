@@ -60,6 +60,8 @@
     <string name="settings_top">वर</string>
     <string name="settings_bottom">खाली</string>
     <string name="settings_info_visible">सुरुवातीपासूनच पट्टी दिसावी</string>
+    <string name="settings_anim_counter">फ्रेम काउंटर</string>
+    <string name="settings_anim_counter_desc">हलत्या प्रतिमांच्या नियंत्रण पट्टीत दिसतो.</string>
     <string name="settings_reverse_order">क्रमाची दिशा उलटी करा (दिनांकानुसार)</string>
     <string name="settings_reverse_order_desc">बंद असल्यास नव्याकडून जुन्यांकडे जाता, फोनच्या दालनासारखे. चालू असल्यास काळाच्या क्रमाने, जुन्याकडून नव्याकडे.</string>
     <string name="settings_clipboard">सुरू होताना क्लिपबोर्ड वाचा</string>

@@ -60,6 +60,8 @@
     <string name="settings_top">ऊपर</string>
     <string name="settings_bottom">नीचे</string>
     <string name="settings_info_visible">शुरू में पट्टी दिखे</string>
+    <string name="settings_anim_counter">फ़्रेम काउंटर</string>
+    <string name="settings_anim_counter_desc">चलती छवियों की नियंत्रण पट्टी में दिखता है।</string>
     <string name="settings_reverse_order">क्रम उलटें (तारीख से)</string>
     <string name="settings_reverse_order_desc">बंद हो तो आप नए से पुराने की ओर पलटते हैं, जैसे फ़ोन की गैलरी में। चालू हो तो समय के क्रम में, सबसे पुराने से नए की ओर।</string>
     <string name="settings_clipboard">शुरू होते ही क्लिपबोर्ड पढ़ें</string>

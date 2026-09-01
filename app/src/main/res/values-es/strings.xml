@@ -60,6 +60,8 @@
     <string name="settings_top">Arriba</string>
     <string name="settings_bottom">Abajo</string>
     <string name="settings_info_visible">Barra visible al principio</string>
+    <string name="settings_anim_counter">Contador de fotogramas</string>
+    <string name="settings_anim_counter_desc">Aparece en la barra de controles de las imágenes animadas.</string>
     <string name="settings_reverse_order">Invertir el sentido de la secuencia (por fecha)</string>
     <string name="settings_reverse_order_desc">Desactivado, pasas del más reciente hacia los más antiguos, como en la galería de un teléfono. Activado, en orden cronológico, del más antiguo al más reciente.</string>
     <string name="settings_clipboard">Leer el portapapeles al arrancar</string>

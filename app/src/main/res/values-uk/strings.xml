@@ -60,6 +60,8 @@
     <string name="settings_top">Угорі</string>
     <string name="settings_bottom">Унизу</string>
     <string name="settings_info_visible">Показувати рядок одразу</string>
+    <string name="settings_anim_counter">Лічильник кадрів</string>
+    <string name="settings_anim_counter_desc">З\'являється на панелі керування анімованих зображень.</string>
     <string name="settings_reverse_order">Змінити напрям послідовності (за датою)</string>
     <string name="settings_reverse_order_desc">Вимкнено: ви гортаєте від найновішого до старіших, як у галереї телефона. Увімкнено: за часом, від найстарішого до найновішого.</string>
     <string name="settings_clipboard">Читати буфер обміну під час запуску</string>

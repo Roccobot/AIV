@@ -60,6 +60,8 @@
     <string name="settings_top">மேலே</string>
     <string name="settings_bottom">கீழே</string>
     <string name="settings_info_visible">தொடக்கத்திலிருந்தே பட்டை தெரியும்</string>
+    <string name="settings_anim_counter">சட்டக எண்ணிக்கை</string>
+    <string name="settings_anim_counter_desc">அசையும் படங்களின் கட்டுப்பாட்டுப் பட்டையில் தோன்றும்.</string>
     <string name="settings_reverse_order">வரிசைத் திசையை மாற்று (தேதிப்படி)</string>
     <string name="settings_reverse_order_desc">அணைத்திருந்தால் புதியதிலிருந்து பழையவற்றை நோக்கிப் பார்ப்பீர்கள், கைபேசித் தொகுப்பு போல. இயக்கியிருந்தால் காலவரிசையில், பழையதிலிருந்து புதியதை நோக்கி.</string>
     <string name="settings_clipboard">தொடங்கும்போது பிடிப்புப் பலகையைப் படி</string>
