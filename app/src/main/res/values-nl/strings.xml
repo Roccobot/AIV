@@ -60,6 +60,8 @@
     <string name="settings_top">Bovenaan</string>
     <string name="settings_bottom">Onderaan</string>
     <string name="settings_info_visible">Balk vanaf het begin zichtbaar</string>
+    <string name="settings_anim_counter">Frameteller</string>
+    <string name="settings_anim_counter_desc">Verschijnt in de knoppenbalk van bewegende afbeeldingen.</string>
     <string name="settings_reverse_order">Richting van de reeks omkeren (op datum)</string>
     <string name="settings_reverse_order_desc">Uit blader je van de nieuwste naar de oudere, zoals een telefoongalerij doet. Aan in chronologische volgorde, van de oudste naar de nieuwste.</string>
     <string name="settings_clipboard">Klembord lezen bij het starten</string>

@@ -157,6 +157,8 @@
     <string name="settings_top">At the top</string>
     <string name="settings_bottom">At the bottom</string>
     <string name="settings_info_visible">Bar showing at first</string>
+    <string name="settings_anim_counter">Frame counter</string>
+    <string name="settings_anim_counter_desc">Shown in the controls of animated images.</string>
 
     <string name="settings_reverse_order">Change the direction of the sequence (by date)</string>
     <string name="settings_reverse_order_desc">Off, you leaf from the newest towards the older ones, the way a phone gallery goes. On, in chronological order, from the oldest to the newest.</string>

@@ -60,6 +60,8 @@
     <string name="settings_top">위쪽</string>
     <string name="settings_bottom">아래쪽</string>
     <string name="settings_info_visible">처음부터 상세 정보 표시</string>
+    <string name="settings_anim_counter">프레임 카운터</string>
+    <string name="settings_anim_counter_desc">움직이는 이미지의 제어 막대에 표시됩니다.</string>
     <string name="settings_reverse_order">순서 뒤집기 (날짜순)</string>
     <string name="settings_reverse_order_desc">끄면 최신에서 오래된 것 쪽으로, 휴대전화 갤러리와 같은 방향으로 넘깁니다. 켜면 시간순으로, 가장 오래된 것에서 최신으로 넘깁니다.</string>
     <string name="settings_clipboard">시작할 때 클립보드 읽기</string>

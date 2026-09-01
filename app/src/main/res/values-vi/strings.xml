@@ -60,6 +60,8 @@
     <string name="settings_top">Ở trên</string>
     <string name="settings_bottom">Ở dưới</string>
     <string name="settings_info_visible">Thanh hiện ngay từ đầu</string>
+    <string name="settings_anim_counter">Bộ đếm khung hình</string>
+    <string name="settings_anim_counter_desc">Hiển thị trên thanh điều khiển của ảnh động.</string>
     <string name="settings_reverse_order">Đổi chiều thứ tự (theo ngày)</string>
     <string name="settings_reverse_order_desc">Khi tắt, bạn xem từ mới nhất về những cái cũ hơn, như thư viện điện thoại. Khi bật, theo thứ tự thời gian, từ cũ nhất đến mới nhất.</string>
     <string name="settings_clipboard">Đọc bảng nhớ tạm khi khởi động</string>

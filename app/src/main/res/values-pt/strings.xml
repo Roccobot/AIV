@@ -60,6 +60,8 @@
     <string name="settings_top">No alto</string>
     <string name="settings_bottom">Embaixo</string>
     <string name="settings_info_visible">Barra visível no início</string>
+    <string name="settings_anim_counter">Contador de quadros</string>
+    <string name="settings_anim_counter_desc">Aparece na barra de controles das imagens animadas.</string>
     <string name="settings_reverse_order">Inverter o sentido da sequência (por data)</string>
     <string name="settings_reverse_order_desc">Desligado, você folheia do mais recente para os mais antigos, como numa galeria de telefone. Ligado, em ordem cronológica, do mais antigo para o mais recente.</string>
     <string name="settings_clipboard">Ler a área de transferência ao iniciar</string>

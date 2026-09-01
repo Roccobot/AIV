@@ -116,6 +116,8 @@
     <string name="settings_top">In alto</string>
     <string name="settings_bottom">In basso</string>
     <string name="settings_info_visible">Barra visibile all\'apertura</string>
+    <string name="settings_anim_counter">Contatore dei fotogrammi</string>
+    <string name="settings_anim_counter_desc">Compare nella fila dei comandi delle immagini animate.</string>
 
     <string name="settings_reverse_order">Cambia verso della sequenza (in ordine di data)</string>
     <string name="settings_reverse_order_desc">Spento, si sfoglia dal più recente verso i più vecchi, che è il verso della galleria del telefono. Acceso, in ordine cronologico, dal più vecchio al più recente.</string>

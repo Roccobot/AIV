@@ -60,6 +60,8 @@
     <string name="settings_top">في الأعلى</string>
     <string name="settings_bottom">في الأسفل</string>
     <string name="settings_info_visible">إظهار الشريط من البداية</string>
+    <string name="settings_anim_counter">عدّاد الإطارات</string>
+    <string name="settings_anim_counter_desc">يظهر في شريط تحكّم الصور المتحركة.</string>
     <string name="settings_reverse_order">عكس الترتيب (حسب التاريخ)</string>
     <string name="settings_reverse_order_desc">عند الإيقاف تتصفح من الأحدث إلى الأقدم، كما في معرض الهاتف. وعند التفعيل بالترتيب الزمني، من الأقدم إلى الأحدث.</string>
     <string name="settings_clipboard">قراءة الحافظة عند البدء</string>

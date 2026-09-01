@@ -264,6 +264,16 @@ data class Settings(
      */
     val editorBackup: Boolean = true,
     /**
+     * Se la fila dei comandi di un'immagine animata mostra il contatore dei fotogrammi.
+     *
+     * ⚠️⚠️ **ACCESO DI FABBRICA, ed è l'utente ad averlo chiesto insieme all'interruttore**
+     * (2026-09-01: *contatore: sì, lo voglio, ma mettiamo un on/off*). L'interruttore non
+     * nasce da un dubbio sul contatore: nasce dal fatto che un numero sopra l'immagine è
+     * l'unica parte della fila che non è un comando, quindi è la sola che qualcuno possa
+     * voler togliere per guardare e basta.
+     */
+    val animCounter: Boolean = true,
+    /**
      * Se all'avvio si guarda negli appunti.
      *
      * ⚠️⚠️ **SPENTA DI DEFAULT, per volontà dell'utente dopo averla provata** (2026-08-29:
@@ -435,6 +445,7 @@ object SettingsStore {
     private val PICK_WEIGHT = booleanPreferencesKey("pick-weight")
     private val EDITOR_APP = stringPreferencesKey("editor-app")
     private val EDITOR_BACKUP = booleanPreferencesKey("editor-backup")
+    private val ANIM_COUNTER = booleanPreferencesKey("anim-counter")
     private val LIST_COUNT = booleanPreferencesKey("list-count")
     private val LIST_TEXT = stringPreferencesKey("list-text")
     private val TREE_HIDDEN = booleanPreferencesKey("tree-hidden")
@@ -478,6 +489,7 @@ object SettingsStore {
             pickWeight = p[PICK_WEIGHT] ?: true,
             editorApp = p[EDITOR_APP] ?: "",
             editorBackup = p[EDITOR_BACKUP] ?: true,
+            animCounter = p[ANIM_COUNTER] ?: true,
             listCount = p[LIST_COUNT] ?: true,
             listText = TextSize.entries.byToken(p[LIST_TEXT], TextSize.NORMAL),
             treeHidden = p[TREE_HIDDEN] ?: false,
@@ -538,6 +550,7 @@ object SettingsStore {
             p[PICK_WEIGHT] = settings.pickWeight
             p[EDITOR_APP] = settings.editorApp
             p[EDITOR_BACKUP] = settings.editorBackup
+            p[ANIM_COUNTER] = settings.animCounter
             p[LIST_COUNT] = settings.listCount
             p[LIST_TEXT] = settings.listText.token
             p[TREE_HIDDEN] = settings.treeHidden

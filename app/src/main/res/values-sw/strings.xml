@@ -60,6 +60,8 @@
     <string name="settings_top">Juu</string>
     <string name="settings_bottom">Chini</string>
     <string name="settings_info_visible">Onyesha mstari tangu mwanzo</string>
+    <string name="settings_anim_counter">Kihesabu fremu</string>
+    <string name="settings_anim_counter_desc">Huonekana kwenye upau wa vidhibiti vya picha zinazosonga.</string>
     <string name="settings_reverse_order">Geuza mpangilio (kwa tarehe)</string>
     <string name="settings_reverse_order_desc">Ikizimwa, unapitia kutoka kipya kuelekea vya zamani, kama kwenye ghala la simu. Ikiwashwa, kwa mpangilio wa wakati, kutoka cha zamani hadi kipya.</string>
     <string name="settings_clipboard">Soma ubao wa kunakili unapoanza</string>

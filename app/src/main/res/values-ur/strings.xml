@@ -60,6 +60,8 @@
     <string name="settings_top">اوپر</string>
     <string name="settings_bottom">نیچے</string>
     <string name="settings_info_visible">پٹی شروع سے دکھے</string>
+    <string name="settings_anim_counter">فریم شمار</string>
+    <string name="settings_anim_counter_desc">متحرک تصاویر کی کنٹرول پٹی میں دکھایا جاتا ہے۔</string>
     <string name="settings_reverse_order">ترتیب کا رخ بدلیں (تاریخ کے حساب سے)</string>
     <string name="settings_reverse_order_desc">بند ہو تو نئی سے پرانی کی طرف چلتے ہیں، جیسے فون کی گیلری۔ کھلا ہو تو وقت کی ترتیب میں، پرانی سے نئی کی طرف۔</string>
     <string name="settings_clipboard">شروع میں کلپ بورڈ پڑھیں</string>

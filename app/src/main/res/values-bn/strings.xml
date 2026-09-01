@@ -60,6 +60,8 @@
     <string name="settings_top">উপরে</string>
     <string name="settings_bottom">নিচে</string>
     <string name="settings_info_visible">শুরু থেকেই বার দেখা যাবে</string>
+    <string name="settings_anim_counter">ফ্রেম কাউন্টার</string>
+    <string name="settings_anim_counter_desc">চলমান ছবির নিয়ন্ত্রণ বারে দেখা যায়।</string>
     <string name="settings_reverse_order">ক্রমের দিক বদলান (তারিখ অনুযায়ী)</string>
     <string name="settings_reverse_order_desc">বন্ধ থাকলে নতুন থেকে পুরনোর দিকে যান, ফোনের গ্যালারির মতো। চালু থাকলে সময়ের ক্রমে, পুরনো থেকে নতুনের দিকে।</string>
     <string name="settings_clipboard">চালু করার সময় ক্লিপবোর্ড পড়ুন</string>

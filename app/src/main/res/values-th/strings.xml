@@ -60,6 +60,8 @@
     <string name="settings_top">ด้านบน</string>
     <string name="settings_bottom">ด้านล่าง</string>
     <string name="settings_info_visible">แสดงแถบตั้งแต่แรก</string>
+    <string name="settings_anim_counter">ตัวนับเฟรม</string>
+    <string name="settings_anim_counter_desc">แสดงในแถบควบคุมของภาพเคลื่อนไหว</string>
     <string name="settings_reverse_order">กลับทิศลำดับ (ตามวันที่)</string>
     <string name="settings_reverse_order_desc">เมื่อปิด คุณจะดูจากใหม่สุดไปหาเก่า อย่างที่แกลเลอรีของโทรศัพท์ทำ เมื่อเปิด จะเรียงตามเวลา จากเก่าสุดไปใหม่สุด</string>
     <string name="settings_clipboard">อ่านคลิปบอร์ดเมื่อเริ่มต้น</string>

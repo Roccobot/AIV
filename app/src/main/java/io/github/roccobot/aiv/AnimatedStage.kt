@@ -14,7 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.outlined.AddPhotoAlternate
 import androidx.compose.material.icons.outlined.NavigateBefore
 import androidx.compose.material.icons.outlined.NavigateNext
 import androidx.compose.material3.Icon
@@ -209,9 +208,18 @@ fun rememberAnimation(source: Uri?): Animation? {
  * il pollice che copre proprio la cosa che si sta osservando cambiare.
  * ⚠️ **Il contatore sta nella fila e non altrove**: è l'unica cosa che dice se un comando ha
  * fatto effetto, e separato dai tasti si guarderebbe in due posti.
+ * ⚠️ **E si può spegnere dalle impostazioni** ([Settings.animCounter], acceso di fabbrica):
+ * è la sola parte della fila che non è un comando, quindi la sola che qualcuno possa voler
+ * togliere per guardare e basta. Spento, la fila si stringe da sé: il numero è l'ultimo
+ * elemento della riga e non lascia un vuoto.
  */
 @Composable
-fun AnimatedBar(animation: Animation, name: String?, modifier: Modifier = Modifier) {
+fun AnimatedBar(
+    animation: Animation,
+    name: String?,
+    counter: Boolean,
+    modifier: Modifier = Modifier
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -268,19 +276,21 @@ fun AnimatedBar(animation: Animation, name: String?, modifier: Modifier = Modifi
         Key(Icons.Outlined.NavigateNext, R.string.anim_next) {
             scope.launch { animation.stepForward() }
         }
-        Key(Icons.Outlined.AddPhotoAlternate, R.string.anim_export) {
+        Key(Glyphs.PhotoOut, R.string.anim_export) {
             scope.launch {
                 val shot = animation.snapshot() ?: return@launch
                 pending = shot
                 exporter.launch(frameName(name, animation.shown))
             }
         }
-        Text(
-            text = "${animation.shown} / ${animation.frameCount}",
-            style = MaterialTheme.typography.labelMedium,
-            color = BAR_TEXT,
-            modifier = Modifier.padding(end = 10.dp, start = 2.dp)
-        )
+        if (counter) {
+            Text(
+                text = "${animation.shown} / ${animation.frameCount}",
+                style = MaterialTheme.typography.labelMedium,
+                color = BAR_TEXT,
+                modifier = Modifier.padding(end = 10.dp, start = 2.dp)
+            )
+        }
     }
 }
 
