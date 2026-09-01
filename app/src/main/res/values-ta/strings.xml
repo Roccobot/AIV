@@ -298,4 +298,6 @@
     <string name="pick_list_done">கோப்புப் பட்டியல் இடைநிலைப் பலகைக்கு நகலெடுக்கப்பட்டது</string>
     <string name="settings_pick_weight">தேர்வின் அளவு</string>
     <string name="settings_pick_weight_desc">தேர்வின் மேலே, எண்ணிக்கைக்குப் பக்கத்தில், தேர்ந்தெடுத்த உருப்படிகளின் மொத்த அளவு தெரியும். தேர்வு நின்றதும் அளவு அமைப்பிடம் கேட்கப்படுகிறது: அணைத்தால் அந்தக் கேள்வி கேட்கப்படுவதில்லை.</string>
+    <string name="anim_play">இயக்கு</string>
+    <string name="anim_pause">இடைநிறுத்து</string>
 </resources>

@@ -298,4 +298,6 @@
     <string name="pick_list_done">فائلوں کی فہرست کلپ بورڈ پر نقل ہو گئی</string>
     <string name="settings_pick_weight">انتخاب کا حجم</string>
     <string name="settings_pick_weight_desc">انتخاب کے اوپر، گنتی کے ساتھ، منتخب آئٹمز کا کل حجم نظر آتا ہے۔ حجم ہر بار انتخاب رکنے پر نظام سے پوچھا جاتا ہے: بند ہونے پر یہ سوال نہیں پوچھا جاتا۔</string>
+    <string name="anim_play">چلائیں</string>
+    <string name="anim_pause">وقفہ</string>
 </resources>

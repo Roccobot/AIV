@@ -283,4 +283,6 @@
     <string name="pick_list_done">Đã sao chép danh sách tệp vào bảng nhớ tạm</string>
     <string name="settings_pick_weight">Dung lượng lựa chọn</string>
     <string name="settings_pick_weight_desc">Ở đầu phần lựa chọn, cạnh số đếm, hiện tổng dung lượng của các mục đã chọn. Dung lượng được hỏi hệ thống mỗi khi lựa chọn dừng lại: khi tắt, câu hỏi đó không bao giờ được đặt ra.</string>
+    <string name="anim_play">Phát</string>
+    <string name="anim_pause">Tạm dừng</string>
 </resources>

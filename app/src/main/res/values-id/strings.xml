@@ -283,4 +283,6 @@
     <string name="pick_list_done">Daftar berkas disalin ke papan klip</string>
     <string name="settings_pick_weight">Ukuran pilihan</string>
     <string name="settings_pick_weight_desc">Di bagian atas pilihan, di samping jumlahnya, terbaca berapa ukuran total item yang dipilih. Ukuran ditanyakan ke sistem setiap kali pilihan berhenti: saat dimatikan, pertanyaan itu tidak pernah diajukan.</string>
+    <string name="anim_play">Putar</string>
+    <string name="anim_pause">Jeda</string>
 </resources>

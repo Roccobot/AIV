@@ -298,4 +298,6 @@
     <string name="pick_list_done">Dateiliste in die Zwischenablage kopiert</string>
     <string name="settings_pick_weight">Grösse der Auswahl</string>
     <string name="settings_pick_weight_desc">Oben in der Auswahl steht neben der Anzahl, wie viel die gewählten Elemente zusammen wiegen. Das Gewicht wird bei jeder ruhenden Auswahl beim System erfragt: ausgeschaltet, wird diese Frage nie gestellt.</string>
+    <string name="anim_play">Abspielen</string>
+    <string name="anim_pause">Pause</string>
 </resources>

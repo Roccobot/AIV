@@ -328,4 +328,6 @@
     <string name="pick_list_done">Список файлов скопирован в буфер обмена</string>
     <string name="settings_pick_weight">Размер выделенного</string>
     <string name="settings_pick_weight_desc">Вверху выделения, рядом со счётчиком, видно, сколько весят выбранные элементы вместе. Размер запрашивается у системы каждый раз, когда выделение останавливается: при выключенном этот запрос не отправляется.</string>
+    <string name="anim_play">Воспроизвести</string>
+    <string name="anim_pause">Пауза</string>
 </resources>

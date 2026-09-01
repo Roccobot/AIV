@@ -283,4 +283,6 @@
     <string name="pick_list_done">คัดลอกรายการไฟล์ไปยังคลิปบอร์ดแล้ว</string>
     <string name="settings_pick_weight">ขนาดของสิ่งที่เลือก</string>
     <string name="settings_pick_weight_desc">ที่หัวของการเลือก ถัดจากจำนวน จะอ่านได้ว่ารายการที่เลือกมีขนาดรวมเท่าใด ขนาดจะถูกถามจากระบบทุกครั้งที่การเลือกหยุดนิ่ง เมื่อปิดไว้ คำถามนั้นจะไม่ถูกถาม</string>
+    <string name="anim_play">เล่น</string>
+    <string name="anim_pause">หยุดชั่วคราว</string>
 </resources>

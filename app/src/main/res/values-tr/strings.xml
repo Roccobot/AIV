@@ -298,4 +298,6 @@
     <string name="pick_list_done">Dosya listesi panoya kopyalandı</string>
     <string name="settings_pick_weight">Seçimin boyutu</string>
     <string name="settings_pick_weight_desc">Seçimin başında, sayının yanında, seçilen ögelerin toplam boyutu okunur. Boyut, seçim her durduğunda sisteme sorulur: kapalıyken bu soru hiç sorulmaz.</string>
+    <string name="anim_play">Oynat</string>
+    <string name="anim_pause">Duraklat</string>
 </resources>

@@ -373,4 +373,6 @@
     <string name="pick_list_done">Lista file copiata negli appunti</string>
     <string name="settings_pick_weight">Peso della selezione</string>
     <string name="settings_pick_weight_desc">In testa alla selezione, accanto al conto, si legge quanto pesano in tutto gli elementi scelti. Il peso si chiede al sistema ogni volta che la selezione si ferma: spento, quella domanda non parte.</string>
+    <string name="anim_play">Riproduci</string>
+    <string name="anim_pause">Pausa</string>
 </resources>

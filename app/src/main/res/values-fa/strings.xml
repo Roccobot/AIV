@@ -298,4 +298,6 @@
     <string name="pick_list_done">فهرست فایل‌ها در بریده‌دان کپی شد</string>
     <string name="settings_pick_weight">حجم انتخاب</string>
     <string name="settings_pick_weight_desc">در بالای انتخاب، کنار شمارش، حجم کل موردهای انتخاب‌شده دیده می‌شود. حجم هر بار که انتخاب متوقف می‌شود از سیستم پرسیده می‌شود: با خاموش بودن، این پرسش هرگز مطرح نمی‌شود.</string>
+    <string name="anim_play">پخش</string>
+    <string name="anim_pause">مکث</string>
 </resources>

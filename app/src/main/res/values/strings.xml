@@ -452,4 +452,6 @@
     <string name="pick_list_done">File list copied to the clipboard</string>
     <string name="settings_pick_weight">Weight of the selection</string>
     <string name="settings_pick_weight_desc">At the head of the selection, next to the count, you read how much the picked items weigh altogether. The weight is asked of the system every time the selection settles: with this off, that question is never asked.</string>
+    <string name="anim_play">Play</string>
+    <string name="anim_pause">Pause</string>
 </resources>

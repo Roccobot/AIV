@@ -298,4 +298,6 @@
     <string name="pick_list_done">ఫైళ్ల జాబితా క్లిప్‌బోర్డ్‌కు కాపీ అయింది</string>
     <string name="settings_pick_weight">ఎంపిక పరిమాణం</string>
     <string name="settings_pick_weight_desc">ఎంపిక పైన, లెక్క పక్కన, ఎంచుకున్న అంశాల మొత్తం పరిమాణం కనిపిస్తుంది. ఎంపిక ఆగిన ప్రతిసారీ పరిమాణాన్ని సిస్టమ్‌ను అడుగుతుంది: ఆపివేస్తే ఆ ప్రశ్న అడగబడదు.</string>
+    <string name="anim_play">ప్లే చేయి</string>
+    <string name="anim_pause">పాజ్ చేయి</string>
 </resources>

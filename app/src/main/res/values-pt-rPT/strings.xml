@@ -101,4 +101,6 @@
     <string name="editor_pick_send_desc">Recebem uma cópia e guardam-na onde quiserem. O original fica como está.</string>
     <string name="menu_edit_hold">Escolher a aplicação</string>
     <string name="settings_editor_backup_desc">A versão anterior de cada imagem substituída é mantida na reciclagem.</string>
+    <string name="anim_play">Reproduzir</string>
+    <string name="anim_pause">Pausar</string>
 </resources>

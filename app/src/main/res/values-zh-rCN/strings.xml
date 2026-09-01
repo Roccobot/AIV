@@ -283,4 +283,6 @@
     <string name="pick_list_done">文件列表已复制到剪贴板</string>
     <string name="settings_pick_weight">所选内容的大小</string>
     <string name="settings_pick_weight_desc">在选择的顶部、数量旁边，可以看到所选项目的总大小。每当选择停下来时都会向系统查询大小；关闭后就不再查询。</string>
+    <string name="anim_play">播放</string>
+    <string name="anim_pause">暂停</string>
 </resources>

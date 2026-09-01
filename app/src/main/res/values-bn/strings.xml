@@ -298,4 +298,6 @@
     <string name="pick_list_done">ফাইলের তালিকা ক্লিপবোর্ডে অনুলিপি হয়েছে</string>
     <string name="settings_pick_weight">নির্বাচনের আকার</string>
     <string name="settings_pick_weight_desc">নির্বাচনের উপরে, গণনার পাশে, নির্বাচিত আইটেমগুলির মোট আকার দেখা যায়। নির্বাচন থামলেই আকারটি সিস্টেমকে জিজ্ঞাসা করা হয়: বন্ধ থাকলে সেই প্রশ্ন করা হয় না।</string>
+    <string name="anim_play">চালান</string>
+    <string name="anim_pause">বিরতি</string>
 </resources>

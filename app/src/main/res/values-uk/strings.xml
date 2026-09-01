@@ -328,4 +328,6 @@
     <string name="pick_list_done">Список файлів скопійовано в буфер обміну</string>
     <string name="settings_pick_weight">Розмір вибраного</string>
     <string name="settings_pick_weight_desc">Угорі вибору, поряд із лічильником, видно, скільки важать вибрані елементи разом. Розмір запитується в системи щоразу, коли вибір зупиняється: якщо вимкнено, цей запит не надсилається.</string>
+    <string name="anim_play">Відтворити</string>
+    <string name="anim_pause">Пауза</string>
 </resources>

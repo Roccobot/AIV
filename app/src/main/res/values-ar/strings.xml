@@ -358,4 +358,6 @@
     <string name="pick_list_done">تم نسخ قائمة الملفات إلى الحافظة</string>
     <string name="settings_pick_weight">حجم التحديد</string>
     <string name="settings_pick_weight_desc">في أعلى التحديد، بجانب العدد، يظهر حجم العناصر المحددة كلها. يطلب الحجم من النظام في كل مرة يتوقف فيها التحديد: عند الإيقاف، لا يطرح هذا السؤال.</string>
+    <string name="anim_play">تشغيل</string>
+    <string name="anim_pause">إيقاف مؤقت</string>
 </resources>

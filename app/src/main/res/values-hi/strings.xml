@@ -298,4 +298,6 @@
     <string name="pick_list_done">फ़ाइल सूची क्लिपबोर्ड पर कॉपी हो गई</string>
     <string name="settings_pick_weight">चयन का आकार</string>
     <string name="settings_pick_weight_desc">चयन के शीर्ष पर, गिनती के बगल में, चुने गए आइटम का कुल आकार दिखता है। हर बार चयन रुकने पर आकार सिस्टम से पूछा जाता है: बंद होने पर यह सवाल नहीं पूछा जाता।</string>
+    <string name="anim_play">चलाएँ</string>
+    <string name="anim_pause">रोकें</string>
 </resources>

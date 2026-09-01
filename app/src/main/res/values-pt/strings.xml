@@ -313,4 +313,6 @@
     <string name="pick_list_done">Lista de arquivos copiada para a área de transferência</string>
     <string name="settings_pick_weight">Peso da seleção</string>
     <string name="settings_pick_weight_desc">No topo da seleção, ao lado da contagem, você lê quanto pesam no total os itens escolhidos. O peso é perguntado ao sistema sempre que a seleção para: desligado, essa pergunta não é feita.</string>
+    <string name="anim_play">Reproduzir</string>
+    <string name="anim_pause">Pausar</string>
 </resources>
