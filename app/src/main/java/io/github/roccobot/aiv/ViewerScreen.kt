@@ -525,7 +525,8 @@ fun ViewerScreen(
                 val animation = rememberAnimation(source)
                 ImageCanvas(
                     state.image, settings, source, folder, info, onStep, ops, inBin,
-                    animation?.frame
+                    animation?.frame,
+                    onSingleTap = { animation?.toggle() }
                 )
                 if (animation != null) {
                     AnimatedBar(
@@ -1536,7 +1537,15 @@ private fun ImageCanvas(
      * ⚠️ **`null` è il caso normale**: una fotografia ferma non sa nemmeno che questo
      * parametro esiste.
      */
-    frame: ImageBitmap? = null
+    frame: ImageBitmap? = null,
+    /**
+     * Che cosa fa un tocco solo in mezzo allo schermo, e di serie **niente**.
+     *
+     * ⚠️ Arriva da fuori perché la cosa da fare la sa il chiamante e non questa tela: sopra
+     * un'immagine animata mette in pausa, e sopra una ferma non c'è niente da fare. Vedi
+     * `onSingleTap` in [detectViewerGestures] per il ritardo che comporta.
+     */
+    onSingleTap: () -> Unit = {}
 ) {
     val density = LocalDensity.current
 
@@ -2023,6 +2032,17 @@ private fun ImageCanvas(
                 .pointerInput(image, settings) {
                     detectViewerGestures(
                         onLongPress = { menuOpen = true },
+                        /*
+                         * ⚠️⚠️ **UN TOCCO IN MEZZO ALLO SCHERMO METTE IN PAUSA, dalla 1.18**
+                         * (richiesta dell'utente, 2026-09-01: *visto che non sono previste
+                         * azioni al singolo tocco istantaneo, con le immagini animate un
+                         * semplice tocco in mezzo allo schermo deve essere equivalente a
+                         * pausa/play*). L'icona della fila cambia da sé, perché legge lo
+                         * stesso `playing`.
+                         * ⚠️ **Su una fotografia ferma non fa niente**, e non è una
+                         * dimenticanza: `animation` è `null` fuori dalle immagini animate.
+                         */
+                        onSingleTap = { onSingleTap() },
                         onDoubleTap = {
                             // Two states only, as on the desktop viewer: whole, or
                             // one pixel of the file per pixel of the screen.
@@ -2258,6 +2278,18 @@ private suspend fun PointerInputScope.detectPanZoomOrSwipe(
  */
 private suspend fun PointerInputScope.detectViewerGestures(
     onLongPress: (Offset) -> Unit,
+    /**
+     * Un tocco solo, che non è diventato né un doppio tocco né altro.
+     *
+     * ⚠️⚠️ **ARRIVA DOPO LA FINESTRA DEL DOPPIO TOCCO, e non si può fare altrimenti**: finché
+     * quella finestra è aperta, un tocco solo e il primo di due sono indistinguibili. Il
+     * ritardo è quello di sistema (`doubleTapTimeoutMillis`), qualche decimo di secondo, e su
+     * un comando che mette in pausa si sopporta. Chiamarlo subito vorrebbe dire mettere in
+     * pausa a ogni doppio tocco, cioè rompere l'ingrandimento per aggiungere una scorciatoia.
+     * ⚠️ **Sulle immagini ferme non fa niente**, ed è la ragione per cui esiste: là un tocco
+     * solo non era previsto (l'utente, 2026-09-01), quindi il posto era libero.
+     */
+    onSingleTap: (Offset) -> Unit,
     onDoubleTap: (Offset) -> Unit,
     onZoomDrag: (anchor: Offset, dy: Float) -> Unit
 ) {
@@ -2303,7 +2335,10 @@ private suspend fun PointerInputScope.detectViewerGestures(
         // Phase two: a second finger within the double tap window, or nothing.
         val second = withTimeoutOrNull(viewConfiguration.doubleTapTimeoutMillis) {
             awaitFirstDown(requireUnconsumed = false)
-        } ?: return@awaitEachGesture
+        } ?: run {
+            onSingleTap(first.position)
+            return@awaitEachGesture
+        }
 
         // Phase three: it is a double tap until it moves, and a zoom once it does.
         // The anchor stays where the second tap landed for the whole drag, so the
