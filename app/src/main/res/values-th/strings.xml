@@ -228,7 +228,7 @@
     <string name="tree_pictures">เฉพาะโฟลเดอร์ที่มีภาพหรือวิดีโอ</string>
     <string name="columns_hint">ทางลัด: กดค้างที่ปุ่มลอยเพื่อเปิดตัวเลือกการแสดงผล.</string>
     <string name="settings_bin">เปิดถังขยะ</string>
-    <string name="settings_bin_desc">การลบไฟล์ไม่ถามอะไร แต่ย้อนกลับได้ด้วย \'กู้คืน\' จากถังขยะ (ปุ่มลอย → \'ถังขยะ\') คุณสามารถปิดถังขยะทั้งหมดได้หากต้องการลบทันที ในกรณีนั้นจะมีการยืนยันก่อนการลบทุกครั้ง</string>
+    <string name="settings_bin_desc">การลบไฟล์ไม่ถามอะไร แต่ย้อนกลับได้ด้วย \'กู้คืน\' จากถังขยะ (ปุ่มลอย →\u00A0\'ถังขยะ\') คุณสามารถปิดถังขยะทั้งหมดได้หากต้องการลบทันที ในกรณีนั้นจะมีการยืนยันก่อนการลบทุกครั้ง\n\n⚠️ คำเตือน: ถ้าถอนการติดตั้งแอป ถังขยะจะถูกล้างและกู้คืนไม่ได้</string>
     <string name="pick_duplicate">ทำสำเนา</string>
     <string name="settings_grid_names">ชื่อไฟล์ในตารางรูป</string>
     <string name="settings_grid_names_desc">ใต้ภาพย่อแต่ละภาพคือชื่อไฟล์ ไม่เกินสองบรรทัด นามสกุลจะไม่ถูกตัดขึ้นบรรทัดใหม่และเห็นเสมอ ถ้าชื่อยาวเกินไป ส่วนกลางจะถูกย่อ</string>
@@ -288,4 +288,12 @@
     <string name="settings_editor_backup_desc">ก่อนที่ตัวแก้ไขในตัวจะเขียนทับรูป รุ่นก่อนหน้าจะไปอยู่ในถังขยะ ใช้กับตัวแก้ไขในตัวเท่านั้น แอปอื่นบันทึกเอง</string>
     <string name="editor_tall">แนวตั้ง</string>
     <string name="editor_wide">แนวนอน</string>
+    <string name="pick_drop_ask">ยกเลิกการเลือกไหม</string>
+    <plurals name="pick_drop_desc">
+        <item quantity="other">%1$d รายการจะไม่ถูกเลือกอีกต่อไป ไฟล์ยังอยู่ที่เดิม</item>
+    </plurals>
+    <string name="pick_drop">ยกเลิก</string>
+    <string name="pick_list_done">คัดลอกรายการไฟล์ไปยังคลิปบอร์ดแล้ว</string>
+    <string name="settings_pick_weight">ขนาดของสิ่งที่เลือก</string>
+    <string name="settings_pick_weight_desc">ที่หัวของการเลือก ถัดจากจำนวน จะอ่านได้ว่ารายการที่เลือกมีขนาดรวมเท่าใด ขนาดจะถูกถามจากระบบทุกครั้งที่การเลือกหยุดนิ่ง เมื่อปิดไว้ คำถามนั้นจะไม่ถูกถาม</string>
 </resources>

@@ -14,6 +14,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -191,6 +192,8 @@ fun GridScreen(
     leftHand: Boolean = false,
     /** Se 'Copia lista' mette anche il percorso in testa. Vedi `Settings.listPath`. */
     listPath: Boolean = false,
+    /** Se in testa alla selezione si legge il peso. Vedi `Settings.pickWeight`. */
+    pickWeight: Boolean = true,
     /**
      * Se sotto ogni miniatura si legge il nome del file. Vedi `Settings.gridNames`.
      *
@@ -221,6 +224,12 @@ fun GridScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    // ⚠️ Le risorse si prendono da `LocalResources` e non da `context.resources`, e non è
+    // pignoleria di lint: quest'ultimo non segue i cambi di configurazione, quindi dopo un
+    // cambio di lingua o una rotazione servirebbe la versione vecchia. Si legge QUI,
+    // mentre si compone, e si usa dentro le coroutine.
+    val res = LocalResources.current
+
     /**
      * Gli INDIRIZZI scelti, non le posizioni.
      *
@@ -234,19 +243,30 @@ fun GridScreen(
     var chosen by remember(items) { mutableStateOf<Set<Uri>>(emptySet()) }
     var menuOpen by remember { mutableStateOf(false) }
 
-    /**
-     * Se il pannello delle operazioni sulla selezione è in vista.
-     *
-     * ⚠️ **Separato da [menuOpen] e non lo stesso booleano**: quello apre il menu a tendina
-     * del cestino, che vive attaccato a un tastino, e questo un pannello che sta in fondo
-     * allo schermo. Un solo flag per due cose diverse funzionerebbe finché le due non
-     * possono essere aperte nello stesso momento, cioè finché nessuno sceglie qualcosa
-     * dentro il cestino.
+    /*
+     * ⚠️⚠️ **IL PANNELLO NON HA PIÙ UN INTERRUTTORE PROPRIO, dalla 1.06** (riscontro
+     * dell'utente sul collaudo: *selezione e bottomsheet devono sempre convivere e
+     * apparire/sparire insieme*). Fino alla `1.05` c'era un `sheetOpen` separato da
+     * `picking`, e le due cose potevano stare in tre stati invece che in due: il terzo era
+     * una selezione **viva e invisibile**, senza il pannello che dice che cosa farci. Ci si
+     * finiva col gesto Indietro, che chiudeva prima il pannello e lasciava le spunte accese.
+     * ⚠️ Adesso il pannello si vede **esattamente** quando c'è una selezione, e non esiste
+     * più nessuno stato da tenere d'accordo con lei. Chi volesse rimettere un modo di
+     * nascondere il pannello tenendo la selezione rimetterebbe quel terzo stato.
      */
-    var sheetOpen by remember { mutableStateOf(false) }
 
     /** Quanto è alto il pannello, in pixel, per lasciargli il posto sotto la griglia. */
     var sheetTall by remember { mutableIntStateOf(0) }
+
+    /**
+     * Se si sta chiedendo conferma di buttare via la selezione.
+     *
+     * ⚠️ Lo apre il **solo** gesto Indietro, e non la croce in testata: quella è una
+     * richiesta esplicita di uscire dalla selezione, e chiedere conferma a chi ha appena
+     * toccato il tasto che serve a quello sarebbe un giro a vuoto. Indietro invece si tocca
+     * anche per sbaglio, ed è il caso che la conferma esiste per coprire.
+     */
+    var discarding by remember { mutableStateOf(false) }
 
     /**
      * Se in questa visita si è già eseguita un'operazione sui file.
@@ -288,13 +308,15 @@ fun GridScreen(
      * ⚠️ Indietro esce dalla SELEZIONE prima di uscire dalla cartella: chi ha scelto
      * trenta foto e tocca Indietro per sbaglio non deve ritrovarsi due schermate indietro
      * con la selezione persa.
-     * ⚠️⚠️ **E DALLA 0.94 CHIUDE PRIMA IL PANNELLO**, che è la richiesta alla lettera (*la
-     * bottomsheet si chiude con Indietro di sistema*): due cose sullo stesso tasto vogliono
-     * un ordine, e questo è l'unico che non perde niente. Al contrario, chi tocca Indietro
-     * per far sparire il pannello e si vedesse sciogliere la selezione avrebbe perso trenta
-     * tocchi per un ripensamento.
+     * ⚠️⚠️ **E DALLA 1.06 CHIEDE, invece di sciogliere la selezione in silenzio**
+     * (riscontro dell'utente sul collaudo: *Indietro deve mostrare un avviso tipo 'Vuoi
+     * scartare la selezione?'*). Dalla `0.94` alla `1.05` chiudeva prima il **pannello** e
+     * solo al secondo tocco la selezione: era un modo di non perdere trenta tocchi per
+     * sbaglio, ma il prezzo era una selezione viva e senza pannello, cioè uno stato in cui
+     * non si capisce più di esserci dentro. La conferma protegge dallo stesso sbaglio senza
+     * fabbricare quello stato.
      */
-    BackHandler(enabled = picking) { if (sheetOpen) sheetOpen = false else chosen = emptySet() }
+    BackHandler(enabled = picking) { discarding = true }
 
     /**
      * Dove sta il dito mentre trascina una selezione, e `null` quando non trascina.
@@ -426,23 +448,17 @@ fun GridScreen(
     }
 
     /*
-     * ⚠️⚠️ **IL MENU SI APRE DA SÉ QUANDO LA SELEZIONE COMINCIA, dalla 0.75** (richiesta
-     * dell'utente, *per usabilità*): scelta la prima foto, l'azione è la cosa che si vuole
-     * fare, e farla cercare dietro un tocco su un tastino piccolo in un angolo era un
-     * passaggio a vuoto.
-     * ⚠️⚠️ **MA NON SOPRA UN VELO DI ONBOARDING, e senza questa condizione i due si
-     * pestano**: il velo del tocco lungo compare esattamente nello stesso istante, cioè al
-     * primo ingresso in selezione, e un menu che si aprisse sotto di lui sarebbe un riquadro
-     * dentro un velo. Aspettando che il velo sia archiviato, l'effetto gira di nuovo (`hint`
-     * cambia) e il menu si apre appena il velo cade: la sequenza diventa insegna, chiudi,
-     * ecco il menu.
-     * ⚠️ **Non riapre il menu che l'utente ha chiuso a mano**: l'effetto dipende da `picking`
-     * e da `hint`, non da `menuOpen`, quindi chiuderlo col tastino non lo fa tornare.
-     * ⚠️ **Nel cestino non si apre da sé**: là `picking` è falso finché non si sceglie
-     * qualcosa, e un menu che si aprisse entrando mostrerebbe 'Svuota il cestino' senza che
-     * nessuno l'abbia chiesto.
+     * ⚠️⚠️ **IL PANNELLO C'È PERCHÉ C'È LA SELEZIONE, e non perché un effetto l'ha aperto**
+     * (vedi la nota su `sheetOpen`, tolto nella `1.06`). Dalla `0.75` alla `1.05` qui stava
+     * un `LaunchedEffect` che lo apriva da sé alla prima foto scelta, e serviva perché il
+     * pannello aveva una vita propria: adesso non ce l'ha più, quindi non c'è niente da
+     * aprire e la richiesta di allora (*scelta la prima foto, l'azione è la cosa che si
+     * vuole fare*) è vera per costruzione.
+     * ⚠️ **Sotto il velo dell'onboarding il pannello si vede, ed è innocuo**: quel velo
+     * copre lo schermo intero (`1.03`), quindi quello che gli sta sotto non si vede
+     * comunque. Prima l'effetto doveva aspettarlo perché un menu **a comparsa** sarebbe
+     * spuntato *sopra* il velo, che è un'altra cosa.
      */
-    LaunchedEffect(picking, hint) { if (picking && hint == null) sheetOpen = true }
 
     /**
      * Il velo si archivia appena l'utente fa la cosa che insegnava, o appena la salta.
@@ -474,9 +490,12 @@ fun GridScreen(
      * usate più di frequente siano comodamente raggiungibili con il pollice*), quindi
      * l'ordine non si 'sistema': 'Copia' in fondo alla prima fila e 'Nessuno' in fondo alla
      * seconda sono la posizione più comoda, non l'ultimo posto rimasto.
-     * ⚠️ **Le operazioni sui file chiudono il pannello, quelle sulla selezione no**: dopo
-     * 'Sposta' si apre un dialogo e il pannello sarebbe una cosa in più da guardare; dopo
-     * 'Inverti' si sta ancora scegliendo, e chiudere costringerebbe a riaprire.
+     * ⚠️⚠️ **NESSUNA VOCE CHIUDE PIÙ IL PANNELLO, dalla 1.06**: fino alla `1.05` le
+     * operazioni sui file lo chiudevano prima di aprire il proprio dialogo, ed era corretto
+     * finché il pannello era una cosa a sé. Adesso il pannello **è** la selezione (vedi la
+     * nota su `sheetOpen`), quindi chiuderlo vorrebbe dire scioglierla: il dialogo di
+     * un'operazione gli si disegna sopra, e alla fine dell'operazione la selezione si svuota
+     * da sé (`perform`) portandosi via il pannello.
      */
     val pickActions = listOf(
         // ⚠️ Nel cestino al posto della rinomina c'è il ripristino: un file là dentro non si
@@ -484,21 +503,17 @@ fun GridScreen(
         // dieci icone non ballano.
         if (bin) {
             PadAction(Icons.Default.SettingsBackupRestore, R.string.bin_restore) {
-                sheetOpen = false
                 job = FileJob.Restore(chosen.toList())
             }
         } else {
             PadAction(Glyphs.TextCursor, R.string.pick_rename) {
-                sheetOpen = false
                 job = FileJob.Rename(chosen.toList())
             }
         },
         PadAction(Icons.Outlined.Info, R.string.pick_info) {
-            sheetOpen = false
             job = FileJob.Facts(chosen.toList())
         },
         PadAction(Icons.Default.Share, R.string.menu_share) {
-            sheetOpen = false
             // ⚠️ La lista si prende ADESSO: la condivisione gira in una coroutine, e
             // leggere `chosen` da dentro leggerebbe una selezione che nel frattempo può
             // essere cambiata.
@@ -506,7 +521,6 @@ fun GridScreen(
             scope.launch { ImageActions.shareMany(context, list) }
         },
         PadAction(Glyphs.FolderPairDashed, R.string.pick_move) {
-            sheetOpen = false
             job = FileJob.Transfer(chosen.toList(), move = true)
         },
         // ⚠️⚠️ **IL TOCCO LUNGO SU 'COPIA' DUPLICA DOVE SEI, dalla 0.79** (richiesta
@@ -519,21 +533,26 @@ fun GridScreen(
             label = R.string.menu_copy_here,
             onHold = if (bin) null else {
                 {
-                    sheetOpen = false
                     job = FileJob.Duplicate(chosen.toList())
                 }
             },
             holdLabel = if (bin) null else R.string.pick_duplicate
         ) {
-            sheetOpen = false
             job = FileJob.Transfer(chosen.toList(), move = false)
         },
         /*
-         * ⚠️ **'Lista' NON chiude il pannello e non dice niente**: su Android 13 e oltre è
-         * il **sistema** ad annunciare ogni copia negli appunti, e un nostro avviso sopra
-         * il suo sarebbe la stessa cosa detta due volte. Sotto quella versione non si vede
-         * nessuna conferma, ed è il prezzo dichiarato di non avere una barra dei messaggi
-         * in questa schermata.
+         * ⚠️⚠️ **'Lista' LO DICE, dalla 1.06, e la nota di prima diceva il contrario**
+         * (riscontro dell'utente sul collaudo: *serve una notifica toast 'Lista file copiata
+         * negli appunti'*). Il ragionamento vecchio era che su Android 13 e oltre è il
+         * **sistema** ad annunciare ogni copia negli appunti, quindi un nostro avviso
+         * sarebbe la stessa cosa detta due volte: l'errore era prendere quella conferma di
+         * sistema per una risposta alla domanda che si fa qui. Quella dice 'qualcosa è
+         * finito negli appunti' e mostra l'inizio del testo; qui la domanda è **quanti nomi
+         * sono partiti**, e la risposta non c'è in nessuno dei due posti.
+         * ⚠️ **La frase è quella dettata dall'utente**, senza il conto dei nomi che sarebbe
+         * stato facile aggiungere: quello che serve sapere è che la lista è partita, e un
+         * numero in più su un avviso che dura due secondi è una cosa da leggere invece che
+         * da vedere.
          */
         PadAction(Icons.AutoMirrored.Outlined.FormatListBulleted, R.string.pick_list) {
             val list = chosen.toList()
@@ -543,6 +562,11 @@ fun GridScreen(
                 // interrogazione basta e le altre sarebbero la stessa risposta N volte.
                 val head = if (listPath) factsOf(context, list.take(1)).one?.folder else null
                 ImageActions.copyNames(context, list, head)
+                Toast.makeText(
+                    context,
+                    res.getString(R.string.pick_list_done),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         },
         /*
@@ -557,13 +581,11 @@ fun GridScreen(
             danger = true,
             onHold = if (bin || !binOn) null else {
                 {
-                    sheetOpen = false
                     job = FileJob.Delete(chosen.toList(), forGood = true)
                 }
             },
             holdLabel = if (bin || !binOn) null else R.string.pick_forever
         ) {
-            sheetOpen = false
             // ⚠️ Definitiva nel cestino **o** col cestino spento: con `forGood` viaggia la
             // conferma.
             job = FileJob.Delete(chosen.toList(), forGood = bin || !binOn)
@@ -632,10 +654,6 @@ fun GridScreen(
         if (!whole) state.scrollToItem(highlight)
     }
 
-    // ⚠️ Le risorse si prendono da `LocalResources` e non da `context.resources`, e non è
-    // pignoleria di lint: quest'ultimo non segue i cambi di configurazione, quindi dopo un
-    // cambio di lingua o una rotazione servirebbe la versione vecchia. Si legge QUI,
-    // mentre si compone, e si usa dentro le coroutine.
     /**
      * Quanto è larga una cella, in pixel, e zero finché la griglia non ha misurato.
      *
@@ -652,8 +670,6 @@ fun GridScreen(
     val cellPx by remember(state) {
         derivedStateOf { state.layoutInfo.visibleItemsInfo.firstOrNull()?.size?.width ?: 0 }
     }
-
-    val res = LocalResources.current
 
     /**
      * Il giro che fanno tutte e quattro le operazioni: si parte, si dice com'è andata, si
@@ -785,7 +801,14 @@ fun GridScreen(
             // ⚠️ Il peso sta FUORI dalla colonna del conto, non sotto: la richiesta dice
             // *in linea ma a destra, allineato al bordo destro*, e dentro la colonna
             // seguirebbe la larghezza del testo invece del bordo della barra.
-            if (picking) PickWeight(chosen) else FilterKey(filter, onFilter)
+            // ⚠️ **Spento il peso, in selezione qui non va NIENTE**, e non il filtro: quello
+            // sceglie che cosa mostrare nella cartella, e in mezzo a una selezione
+            // cambierebbe l'elenco sotto le spunte già date.
+            when {
+                picking && pickWeight -> PickWeight(chosen)
+                picking -> Unit
+                else -> FilterKey(filter, onFilter)
+            }
 
             /*
              * ⚠️⚠️ **QUI NON C'È PIÙ NIENTE, e la ragione per cui c'era è stata SOSTITUITA
@@ -804,9 +827,23 @@ fun GridScreen(
         }
         Spacer(Modifier.height(8.dp))
 
+        /*
+         * ⚠️⚠️ **IL RIQUADRO AVVOLGE TUTTI E TRE I CASI, dalla 1.06, e non il solo elenco
+         * pieno** (riscontro dell'utente sul collaudo: *il FAB deve apparire anche a cestino
+         * vuoto, altrimenti è irraggiungibile*). Fino alla `1.05` il tastino nasceva dentro
+         * il ramo dell'elenco pieno, quindi in un cestino vuoto non esisteva: e siccome la
+         * **Cronologia** vive nel suo menu, un cestino appena svuotato si portava via l'unica
+         * via per sapere che cosa c'era dentro. Il ramo che lo nascondeva era proprio quello
+         * in cui serve di più.
+         * ⚠️ Il `weight` serve: senza, con tre sole fotografie il riquadro sarebbe alto
+         * quanto loro e il tastino finirebbe a mezza schermata invece che in basso.
+         */
+        Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
         when {
             items == null -> CircularProgressIndicator(
-                Modifier.padding(top = 24.dp).size(28.dp).align(Alignment.CenterHorizontally)
+                // ⚠️ `TopCenter` e non `CenterHorizontally`: qui il genitore è un `Box`, e
+                // l'allineamento di colonna non esiste più.
+                Modifier.padding(top = 24.dp).size(28.dp).align(Alignment.TopCenter)
             )
 
             // ⚠️ Un elenco vuoto vuol dire due cose diverse, e dirle con la stessa frase
@@ -922,16 +959,7 @@ fun GridScreen(
                 }
             }
 
-            /*
-             * ⚠️⚠️ **IL RIQUADRO STA IN UN `Box` INTORNO ALLA SOLA GRIGLIA, e non intorno
-             * a tutta la schermata**: è la parte su cui il tastino galleggia, quindi
-             * avvolgere il resto avrebbe voluto dire spostare di rientro trecento righe
-             * per niente. ⚠️ Il `weight` serve: senza, con tre sole fotografie il `Box`
-             * sarebbe alto quanto loro e il tastino finirebbe a mezza schermata invece che
-             * in basso.
-             */
-            Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
-                LazyVerticalGrid(
+            LazyVerticalGrid(
                     // ⚠️ `Adaptive` e non un numero fisso di colonne: la stessa misura
                     // minima dà tre colonne su un telefono e sei su un tablet o in
                     // orizzontale, senza un ramo per ogni forma di schermo.
@@ -948,13 +976,13 @@ fun GridScreen(
                      * bastava lo spazio del tastino, che è alto quanto un dito; il pannello
                      * è due file di icone, e con [BELOW_FAB] l'ultima riga di fotografie
                      * sarebbe rimasta sotto di lui senza modo di tirarla fuori.
-                     * ⚠️ Quando il pannello è chiuso torna [BELOW_FAB], che è quello che
-                     * serve al tastino del cestino.
+                     * ⚠️ Fuori dalla selezione il pannello non c'è, e resta [BELOW_FAB] per
+                     * il solo tastino del cestino.
                      */
                     contentPadding = PaddingValues(
-                        bottom = if (picking && sheetOpen) {
+                        bottom = if (picking) {
                             with(LocalDensity.current) { sheetTall.toDp() }
-                        } else if (picking || bin) BELOW_FAB else 16.dp
+                        } else if (bin) BELOW_FAB else 16.dp
                     ),
                     modifier = Modifier.fillMaxWidth().then(grab)
                 ) {
@@ -1022,98 +1050,127 @@ fun GridScreen(
                         )
                     }
                 }
+            }
+        }
 
-                /*
-                 * ⚠️⚠️ **IL TASTINO RESTA SOLO NEL CESTINO SENZA SELEZIONE, dalla 0.94.**
-                 * Con una selezione in corso le operazioni stanno nella bottomsheet qui
-                 * sotto, e il tastino è sparito perché non aveva più niente da fare (vedi
-                 * [PickSheet]). Qui invece porta le tre voci che riguardano il cestino
-                 * **intero**, che non sono operazioni su una selezione e non hanno un altro
-                 * posto dove stare.
-                 */
-                FabPop(
-                    visible = bin && !picking,
-                    modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp)
-                ) {
-                    Box {
-                        TapHoldFab(
-                            icon = Icons.Default.Menu,
-                            label = stringResource(R.string.pick_actions),
-                            container = MaterialTheme.colorScheme.primaryContainer,
-                            ink = MaterialTheme.colorScheme.onPrimaryContainer,
-                            lift = FAB_LIFT,
-                            holdLabel = stringResource(shortcutLabel),
-                            onTap = { menuOpen = !menuOpen },
-                            onHold = { shortcut(); hintDone() }
-                        )
-                        PickMenu(open = menuOpen, onDismiss = { menuOpen = false }) {
-                            /*
-                             * ⚠️⚠️ **L'ORDINE NON È CASUALE**: prima quella che rimette a
-                             * posto, poi quella che racconta, ultima quella che cancella per
-                             * sempre. Chi tocca al buio la prima voce di un menu non deve
-                             * poterci svuotare il cestino, e 'Ripristina tutto' come prima
-                             * voce è la richiesta dell'utente.
-                             * ⚠️ **Le due azioni si spengono sul cestino vuoto**, la
-                             * cronologia no: quelle non avrebbero niente su cui agire e
-                             * direbbero '0 fatti', mentre la cronologia ha senso proprio
-                             * quando il cestino è vuoto perché si è ripristinato tutto.
-                             */
-                            Column(modifier = Modifier.padding(vertical = PICK_EDGE)) {
-                                DropdownMenuItem(
-                                    enabled = filled,
-                                    text = { Text(stringResource(R.string.bin_restore_all)) },
-                                    leadingIcon = {
-                                        Icon(Icons.Default.SettingsBackupRestore, null)
-                                    },
-                                    // ⚠️ Nessuna conferma, come per il ripristino di una
-                                    // foto sola: rimette le cose come stavano, ed è
-                                    // reversibile (si rielimina). Vedi [FileJob.Restore].
-                                    onClick = {
-                                        menuOpen = false
-                                        job = FileJob.Restore(items.orEmpty())
-                                    }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.bin_history)) },
-                                    leadingIcon = { Icon(Icons.Default.History, null) },
-                                    onClick = { menuOpen = false; onHistory() }
-                                )
-                                DropdownMenuItem(
-                                    enabled = filled,
-                                    text = { Text(stringResource(R.string.bin_empty)) },
-                                    leadingIcon = { Icon(Icons.Default.DeleteForever, null) },
-                                    colors = MenuDefaults.itemColors(
-                                        textColor = MaterialTheme.colorScheme.error,
-                                        leadingIconColor = MaterialTheme.colorScheme.error
-                                    ),
-                                    onClick = { menuOpen = false; emptying = true }
-                                )
-                            }
+            /*
+             * ⚠️⚠️ **IL TASTINO RESTA SOLO NEL CESTINO SENZA SELEZIONE, dalla 0.94.**
+             * Con una selezione in corso le operazioni stanno nella bottomsheet qui
+             * sotto, e il tastino è sparito perché non aveva più niente da fare (vedi
+             * [PickSheet]). Qui invece porta le tre voci che riguardano il cestino
+             * **intero**, che non sono operazioni su una selezione e non hanno un altro
+             * posto dove stare.
+             */
+            FabPop(
+                visible = bin && !picking,
+                modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp)
+            ) {
+                Box {
+                    TapHoldFab(
+                        icon = Icons.Default.Menu,
+                        label = stringResource(R.string.pick_actions),
+                        container = MaterialTheme.colorScheme.primaryContainer,
+                        ink = MaterialTheme.colorScheme.onPrimaryContainer,
+                        lift = FAB_LIFT,
+                        holdLabel = stringResource(shortcutLabel),
+                        // ⚠️ **Apre e basta, dalla 1.06**: a menu aperto il tocco non
+                        // arriva più qui, perché lo mangia il velo trasparente (vedi
+                        // `menuOpen` in fondo alla schermata). Un'alternanza qui
+                        // riaprirebbe il menu che quel velo ha appena chiuso.
+                        onTap = { menuOpen = true },
+                        onHold = { shortcut(); hintDone() }
+                    )
+                    PickMenu(open = menuOpen, onDismiss = { menuOpen = false }) {
+                        /*
+                         * ⚠️⚠️ **L'ORDINE NON È CASUALE**: prima quella che rimette a
+                         * posto, poi quella che racconta, ultima quella che cancella per
+                         * sempre. Chi tocca al buio la prima voce di un menu non deve
+                         * poterci svuotare il cestino, e 'Ripristina tutto' come prima
+                         * voce è la richiesta dell'utente.
+                         * ⚠️ **Le due azioni si spengono sul cestino vuoto**, la
+                         * cronologia no: quelle non avrebbero niente su cui agire e
+                         * direbbero '0 fatti', mentre la cronologia ha senso proprio
+                         * quando il cestino è vuoto perché si è ripristinato tutto.
+                         */
+                        Column(modifier = Modifier.padding(vertical = PICK_EDGE)) {
+                            DropdownMenuItem(
+                                enabled = filled,
+                                text = { Text(stringResource(R.string.bin_restore_all)) },
+                                leadingIcon = {
+                                    Icon(Icons.Default.SettingsBackupRestore, null)
+                                },
+                                // ⚠️ Nessuna conferma, come per il ripristino di una
+                                // foto sola: rimette le cose come stavano, ed è
+                                // reversibile (si rielimina). Vedi [FileJob.Restore].
+                                onClick = {
+                                    menuOpen = false
+                                    job = FileJob.Restore(items.orEmpty())
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.bin_history)) },
+                                leadingIcon = { Icon(Icons.Default.History, null) },
+                                onClick = { menuOpen = false; onHistory() }
+                            )
+                            DropdownMenuItem(
+                                enabled = filled,
+                                text = { Text(stringResource(R.string.bin_empty)) },
+                                leadingIcon = { Icon(Icons.Default.DeleteForever, null) },
+                                colors = MenuDefaults.itemColors(
+                                    textColor = MaterialTheme.colorScheme.error,
+                                    leadingIconColor = MaterialTheme.colorScheme.error
+                                ),
+                                onClick = { menuOpen = false; emptying = true }
+                            )
                         }
                     }
                 }
-
-                /*
-                 * ⚠️⚠️ **A SINISTRA SI ROVESCIANO LE FILE, NON L'ELENCO**: girando la lista
-                 * intera, 'Copia' finirebbe nella seconda fila e 'Lista' nella prima, cioè
-                 * cambierebbe il raggruppamento invece della mano. Rovesciando ogni fila per
-                 * conto suo, le stesse cinque restano insieme e cambia solo da che parte
-                 * cominciano.
-                 */
-                PickSheet(
-                    visible = picking && sheetOpen,
-                    actions = if (leftHand) {
-                        pickActions.chunked(SHEET_COLUMNS).flatMap { it.reversed() }
-                    } else {
-                        pickActions
-                    },
-                    onHeight = { sheetTall = it }
-                )
-
             }
-            }
+
+            /*
+             * ⚠️⚠️ **A SINISTRA SI ROVESCIANO LE FILE, NON L'ELENCO**: girando la lista
+             * intera, 'Copia' finirebbe nella seconda fila e 'Lista' nella prima, cioè
+             * cambierebbe il raggruppamento invece della mano. Rovesciando ogni fila per
+             * conto suo, le stesse cinque restano insieme e cambia solo da che parte
+             * cominciano.
+             */
+            PickSheet(
+                visible = picking,
+                actions = if (leftHand) {
+                    pickActions.chunked(SHEET_COLUMNS).flatMap { it.reversed() }
+                } else {
+                    pickActions
+                },
+                onHeight = { sheetTall = it }
+            )
         }
     }
+
+        /*
+         * ⚠️⚠️ **IL VELO CHE CHIUDE IL MENU DEL TASTINO, dalla 1.06** (riscontro dell'utente
+         * sul collaudo: *tutti i menu di tutti i FAB devono andarsene se si tocca un punto
+         * qualsiasi fuori dal popup, incluso il FAB stesso*).
+         * ⚠️⚠️ **IL SOLO `dismissOnClickOutside` NON BASTA, ed è la ragione per cui fino alla
+         * `1.05` era spento**: da Android 12 la finestra di un popup non è modale al tocco,
+         * quindi un tocco sul tastino arriva **a tutti e due**. Il popup lo legge come 'fuori'
+         * e si chiude, il tastino lo legge come il suo tocco e riapre: si vede un lampeggio
+         * invece di una chiusura. Prima si toglieva la chiusura di fuori, cioè si rinunciava
+         * a metà della funzione; adesso si toglie il **secondo** dei due destinatari.
+         * ⚠️ **Trasparente e senza `clickable`**: `detectTapGestures` consuma la pressione, e
+         * quello che sta sotto (tastino compreso) non la vede mai. Un `clickable` avrebbe
+         * anche l'increspatura e una voce per il lettore di schermo, che qui sarebbero un
+         * tasto finto in mezzo allo schermo.
+         * ⚠️ **Copre lo schermo INTERO**, testata compresa, ed è la ragione per cui vive qui
+         * e non dentro la `Column`: là comincerebbe sotto la barra del titolo, e un tocco sul
+         * titolo tornerebbe a essere il caso non coperto.
+         */
+        if (menuOpen) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .pointerInput(Unit) { detectTapGestures { menuOpen = false } }
+            )
+        }
 
         /*
          * ⚠️⚠️ **IL MINI ONBOARDING DEL TOCCO LUNGO**, che dalla `0.78` è un velo condiviso:
@@ -1174,6 +1231,38 @@ fun GridScreen(
      * ⚠️ L'esito usa l'avviso dell'eliminazione, che è quello che succede: i file vanno via
      * per davvero.
      */
+    /*
+     * ⚠️⚠️ **LA CONFERMA DI BUTTARE VIA LA SELEZIONE, dalla 1.06** (riscontro dell'utente sul
+     * collaudo): la chiede il **solo** gesto Indietro, e il perché sta su `discarding`.
+     * ⚠️ Non passa da [FileJob]: quello è fatto di elenchi di file su cui operare, e qui non
+     * si tocca nessun file. Sta accanto allo svuotamento del cestino, che è l'altra conferma
+     * che non riguarda dei file scelti.
+     */
+    if (discarding) {
+        AlertDialog(
+            onDismissRequest = { discarding = false },
+            title = { Text(stringResource(R.string.pick_drop_ask)) },
+            text = {
+                Text(
+                    pluralStringResource(R.plurals.pick_drop_desc, chosen.size, chosen.size)
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { discarding = false; chosen = emptySet() }) {
+                    Text(stringResource(R.string.pick_drop))
+                }
+            },
+            // ⚠️ 'Annulla' è quello che c'è già, e non se ne aggiunge un secondo: la
+            // parola è la stessa in tutte e 28 le lingue, e due chiavi per la stessa
+            // parola divergono al primo ritocco di una delle due.
+            dismissButton = {
+                TextButton(onClick = { discarding = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
     if (emptying) {
         AlertDialog(
             onDismissRequest = { emptying = false },
@@ -1547,6 +1636,10 @@ private fun FilterKey(filter: MediaKind, onFilter: (MediaKind) -> Unit) {
  * ⚠️ **Più piccolo del bersaglio del tocco**: il tasto resta 48dp perché un bersaglio più
  * stretto si manca, ma il tondo dipinto è [FILTER_MARK], così sta dentro la testata invece
  * di sembrare un secondo tasto attaccato agli altri.
+ * ⚠️ **36dp e non 32, dalla 1.06** (riscontro dell'utente sul collaudo: *tondo più grande ma
+ * proprio di un filo, poco di più*). Quattro punti sono il massimo che si può prendere
+ * restando dentro il bersaglio da 48: da lì in su il tondo comincia a toccarne i bordi, e
+ * torna a sembrare un tasto invece di un segno.
  */
 @Composable
 private fun FilterMark(lit: Boolean, glyph: @Composable () -> Unit) {
@@ -1810,8 +1903,12 @@ private fun FabPop(
  * usciva da quell'angolo, che è il posto peggiore per un riquadro su un telefono tenuto in
  * una mano. La superficie e il posto stanno in [MenuShell] e [MenuAbove], condivisi col menu
  * del visualizzatore, che è un `Popup` per la stessa ragione dalla `0.69`.
- * ⚠️ **Non si chiude toccando fuori, e non è una dimenticanza**: qui è il tastino ad
- * alternarlo, e le due cose insieme si pestano. Il perché sta in [MenuShell], sul parametro.
+ * ⚠️⚠️ **DALLA 1.06 SI CHIUDE TOCCANDO FUORI**, che fino alla `1.05` era spento apposta
+ * perché il tastino lo **alternava** e le due cose si pestavano (il perché sta in
+ * [MenuShell], sul parametro). Adesso il tastino si limita ad aprire, e a chiudere ci pensa
+ * il velo trasparente della schermata: nessuno dei due può più riaprire quello che l'altro
+ * ha appena chiuso. Questo resta acceso per il caso che il velo non copre, cioè un tocco
+ * fuori dalla finestra dell'app.
  */
 @Composable
 private fun PickMenu(open: Boolean, onDismiss: () -> Unit, content: @Composable () -> Unit) {
@@ -1820,7 +1917,7 @@ private fun PickMenu(open: Boolean, onDismiss: () -> Unit, content: @Composable 
     MenuShell(
         position = remember(gap) { MenuAbove(gap) },
         corner = PICK_CORNER,
-        dismissOnOutside = false,
+        dismissOnOutside = true,
         onDismiss = onDismiss,
         content = content
     )
@@ -1843,7 +1940,7 @@ private val PICK_CORNER = 16.dp
  * dipinto è più stretto dell'icona più il suo respiro. A 48 toccherebbe i vicini e la
  * testata sembrerebbe avere un tasto in più.
  */
-private val FILTER_MARK = 32.dp
+private val FILTER_MARK = 36.dp
 
 /**
  * Il respiro ai lati della fila di simboli del filtro.

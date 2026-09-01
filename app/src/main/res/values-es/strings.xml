@@ -258,7 +258,7 @@
     <string name="tree_pictures">Solo carpetas con imágenes o vídeos</string>
     <string name="columns_hint">Atajo: mantén pulsado el botón flotante para las opciones de visualización.</string>
     <string name="settings_bin">Activar la papelera</string>
-    <string name="settings_bin_desc">Eliminar un archivo no pregunta nada, pero la acción se puede deshacer con un \'Restaurar\' desde la papelera (botón flotante → \'Papelera\'). Puedes desactivar la papelera por completo si prefieres una eliminación instantánea: en ese caso, aparecerá una confirmación antes de cada eliminación.</string>
+    <string name="settings_bin_desc">Eliminar un archivo no pregunta nada, pero la acción se puede deshacer con un \'Restaurar\' desde la papelera (botón flotante →\u00A0\'Papelera\'). Puedes desactivar la papelera por completo si prefieres una eliminación instantánea: en ese caso, aparecerá una confirmación antes de cada eliminación.\n\n⚠️ ATENCIÓN: si desinstalas la aplicación, la papelera se vacía y no se puede recuperar.</string>
     <string name="pick_duplicate">Duplicar</string>
     <string name="settings_grid_names">Nombre del archivo en la cuadrícula</string>
     <string name="settings_grid_names_desc">Bajo cada miniatura, el nombre del archivo en dos líneas como mucho. La extensión nunca se parte y siempre se ve: si el nombre no cabe, lo que cede es el centro.</string>
@@ -318,4 +318,14 @@
     <string name="settings_editor_backup_desc">Antes de que el editor interno sobrescriba una imagen, la versión anterior va a la papelera. Solo vale para el editor interno: otra app guarda por su cuenta.</string>
     <string name="editor_tall">Vertical</string>
     <string name="editor_wide">Horizontal</string>
+    <string name="pick_drop_ask">¿Descartar la selección?</string>
+    <plurals name="pick_drop_desc">
+        <item quantity="one">%1$d elemento dejará de estar seleccionado. Los archivos se quedan donde están.</item>
+        <item quantity="other">%1$d elementos dejarán de estar seleccionados. Los archivos se quedan donde están.</item>
+        <item quantity="many">%1$d elementos dejarán de estar seleccionados. Los archivos se quedan donde están.</item>
+    </plurals>
+    <string name="pick_drop">Descartar</string>
+    <string name="pick_list_done">Lista de archivos copiada al portapapeles</string>
+    <string name="settings_pick_weight">Peso de la selección</string>
+    <string name="settings_pick_weight_desc">Al principio de la selección, junto al recuento, se lee cuánto pesan en total los elementos elegidos. El peso se le pregunta al sistema cada vez que la selección se detiene: apagado, esa pregunta no se hace.</string>
 </resources>

@@ -1543,11 +1543,24 @@ private fun ImageCanvas(
 
         val pageGap = with(density) { PAGE_GAP.toPx() }
         val series = folder?.seriesOrNull
-        // ⚠️ Nell'ordine di LETTURA, lo stesso che conta `onStep`: la 'dopo' è quella che
-        // arriva strisciando verso sinistra, cioè quella che `onStep(1)` aprirà. Se le due
-        // divergessero, si vedrebbe entrare una foto e comparirne un'altra.
-        val nextUri = series?.at(series.index + 1)
-        val prevUri = series?.at(series.index - 1)
+        /*
+         * ⚠️ Nell'ordine di LETTURA, lo stesso che conta `onStep`: la 'dopo' è quella che
+         * arriva strisciando verso sinistra, cioè quella che `onStep(1)` aprirà. Se le due
+         * divergessero, si vedrebbe entrare una foto e comparirne un'altra.
+         * ⚠️⚠️ **E DALLA 1.06 SALTANO I FILMATI COME LI SALTA IL PASSO**: prima erano un
+         * `index ± 1` crudo, e con 'Sfoglia solo le immagini' acceso divergevano proprio nel
+         * modo che la nota qui sopra prometteva di evitare. Il filmato scivolava dentro dal
+         * bordo, il dito si alzava, e il passo saltava a quello dopo: si vedeva un filmato
+         * *per un istante*, che è il difetto segnalato dall'utente. Il salto adesso è uno
+         * solo, e vive su `Folder.Series`.
+         * ⚠️ **Da qui viene anche la resistenza al capolinea**: con soli filmati di là,
+         * `toward` risponde `null`, quindi il gesto frena come all'ultima fotografia. Prima
+         * la pagina si lasciava trascinare fino in fondo per poi non andare da nessuna
+         * parte.
+         */
+        val skipVideos = settings.imagesOnly
+        val nextUri = series?.toward(1, skipVideos)
+        val prevUri = series?.toward(-1, skipVideos)
 
         // ⚠️⚠️ LE DUE VICINE SI CHIEDONO SUBITO, e non quando il dito le tira dentro:
         // una miniatura che comincia a generarsi nell'istante del gesto arriva **dopo**

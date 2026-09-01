@@ -186,7 +186,7 @@
          appears: the two go together, because you get asked exactly when there is no way
          back. The Italian wording is the user's, dictated word for word. -->
     <string name="settings_bin">Turn the bin on</string>
-    <string name="settings_bin_desc">Deleting a file asks nothing, but the action can be undone with a \'Restore\' from the bin (floating button → \'Bin\'). You can turn the bin off altogether if you prefer instant deletion: in that case, a confirmation will appear before every deletion.</string>
+    <string name="settings_bin_desc">Deleting a file asks nothing, but the action can be undone with a \'Restore\' from the bin (floating button →\u00A0\'Bin\'). You can turn the bin off altogether if you prefer instant deletion: in that case, a confirmation will appear before every deletion.\n\n⚠️ WARNING: if you uninstall the app, the bin is emptied and cannot be recovered.</string>
     <!-- The one that decides the architecture: OFF by default means the normal case
          is 'I leaf through videos too', so the branch that tells a picture from a film
          is always needed. Tapping a video still opens it: this is about the GESTURE. -->
@@ -467,4 +467,13 @@
     <string name="settings_facts_up">Move up</string>
     <string name="settings_facts_down">Move down</string>
 
+    <string name="pick_drop_ask">Discard the selection?</string>
+    <plurals name="pick_drop_desc">
+        <item quantity="one">%1$d item will no longer be selected. The files stay where they are.</item>
+        <item quantity="other">%1$d items will no longer be selected. The files stay where they are.</item>
+    </plurals>
+    <string name="pick_drop">Discard</string>
+    <string name="pick_list_done">File list copied to the clipboard</string>
+    <string name="settings_pick_weight">Weight of the selection</string>
+    <string name="settings_pick_weight_desc">At the head of the selection, next to the count, you read how much the picked items weigh altogether. The weight is asked of the system every time the selection settles: with this off, that question is never asked.</string>
 </resources>

@@ -328,6 +328,16 @@ private fun ColumnScope.RootPage(
         onChange = { onChange(settings.copy(listPath = it)) }
     )
 
+    // ⚠️ Accanto alle altre voci della selezione, e non fra quelle del visualizzatore: parla
+    // della testata che compare scegliendo, come il lato dominante e il percorso in testa
+    // alla lista. Il costo che l'interruttore esiste per togliere sta su `Settings.pickWeight`.
+    SwitchRow(
+        label = stringResource(R.string.settings_pick_weight),
+        detail = stringResource(R.string.settings_pick_weight_desc),
+        checked = settings.pickWeight,
+        onChange = { onChange(settings.copy(pickWeight = it)) }
+    )
+
     SwitchRow(
         label = stringResource(R.string.settings_info_visible),
         detail = null,

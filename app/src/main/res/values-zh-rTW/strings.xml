@@ -228,7 +228,7 @@
     <string name="tree_pictures">僅含圖片或影片的資料夾</string>
     <string name="columns_hint">快捷方式：長按浮動按鈕開啟顯示選項。</string>
     <string name="settings_bin">啟用回收筒</string>
-    <string name="settings_bin_desc">刪除檔案不會有任何提示，但可以在回收筒裡用 \'還原\' 復原（浮動按鈕 → \'回收筒\'）。如果你偏好立即刪除，可以完全關閉回收筒：那樣每次刪除前都會出現確認。</string>
+    <string name="settings_bin_desc">刪除檔案不會有任何提示，但可以在回收筒裡用 \'還原\' 復原（浮動按鈕 →\u00A0\'回收筒\'）。如果你偏好立即刪除，可以完全關閉回收筒：那樣每次刪除前都會出現確認。\n\n⚠️ 注意：解除安裝應用程式後，回收筒會被清空且無法復原。</string>
     <string name="pick_duplicate">建立副本</string>
     <string name="settings_grid_names">格線中顯示檔名</string>
     <string name="settings_grid_names_desc">每張縮圖下顯示檔名，最多兩行。副檔名不會被換行拆開，一律可見：名稱放不下時，讓位的是中間部分。</string>
@@ -288,4 +288,12 @@
     <string name="settings_editor_backup_desc">內建編輯器覆寫一張圖片之前，先把原來的版本放進回收桶。只對內建編輯器有效，別的應用自己儲存。</string>
     <string name="editor_tall">直式</string>
     <string name="editor_wide">橫式</string>
+    <string name="pick_drop_ask">要取消選取嗎？</string>
+    <plurals name="pick_drop_desc">
+        <item quantity="other">%1$d 項將不再處於選取狀態。檔案仍留在原處。</item>
+    </plurals>
+    <string name="pick_drop">取消選取</string>
+    <string name="pick_list_done">檔案清單已複製到剪貼簿</string>
+    <string name="settings_pick_weight">所選內容的大小</string>
+    <string name="settings_pick_weight_desc">在選取的頂端、數量旁邊，可以看到所選項目的總大小。每當選取停下來時都會向系統查詢大小；關閉後就不再查詢。</string>
 </resources>
