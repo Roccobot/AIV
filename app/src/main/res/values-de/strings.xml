@@ -245,7 +245,7 @@
     <string name="tree_pictures">Nur Ordner mit Bildern oder Videos</string>
     <string name="columns_hint">Kurzbefehl: Halte die schwebende Taste für die Anzeigeoptionen gedrückt.</string>
     <string name="settings_bin">Papierkorb einschalten</string>
-    <string name="settings_bin_desc">Das Löschen einer Datei fragt nichts, aber die Aktion lässt sich mit einem \'Wiederherstellen\' aus dem Papierkorb umkehren (schwebende Schaltfläche →\u00A0\'Papierkorb\'). Du kannst den Papierkorb ganz ausschalten, wenn du sofortiges Löschen bevorzugst: dann erscheint vor jedem Löschen eine Bestätigung.\n\n⚠️ ACHTUNG: Wenn du die App deinstallierst, wird der Papierkorb geleert und ist nicht wiederherstellbar.</string>
+    <string name="settings_bin_desc">Das Löschen einer Datei fragt nichts, aber die Aktion lässt sich mit einem \'Wiederherstellen\' aus dem Papierkorb umkehren (schwebende Schaltfläche →\u00A0\'Papierkorb\'). Du kannst den Papierkorb ganz ausschalten, wenn du sofortiges Löschen bevorzugst: dann erscheint vor jedem Löschen eine Bestätigung.\n⚠️ ACHTUNG: Wenn du die App deinstallierst, wird der Papierkorb geleert und ist nicht wiederherstellbar.</string>
     <string name="pick_duplicate">Duplizieren</string>
     <string name="settings_grid_names">Dateiname im Bilderraster</string>
     <string name="settings_grid_names_desc">Unter jedem Vorschaubild der Dateiname, auf höchstens zwei Zeilen. Die Endung wird nie umbrochen und ist immer zu sehen: passt der Name nicht, weicht die Mitte.</string>
@@ -302,11 +302,8 @@
     <string name="editor_tall">Hochformat</string>
     <string name="editor_wide">Querformat</string>
     <string name="pick_drop_ask">Auswahl verwerfen?</string>
-    <plurals name="pick_drop_desc">
-        <item quantity="one">%1$d Element ist dann nicht mehr ausgewählt. Die Dateien bleiben, wo sie sind.</item>
-        <item quantity="other">%1$d Elemente sind dann nicht mehr ausgewählt. Die Dateien bleiben, wo sie sind.</item>
-    </plurals>
     <string name="pick_drop">Verwerfen</string>
+    <string name="pick_keep">Behalten</string>
     <string name="pick_list_done">Dateiliste in die Zwischenablage kopiert</string>
     <string name="settings_pick_weight">Grösse der Auswahl</string>
     <string name="settings_pick_weight_desc">Oben in der Auswahl steht neben der Anzahl, wie viel die gewählten Elemente zusammen wiegen. Das Gewicht wird bei jeder ruhenden Auswahl beim System erfragt: ausgeschaltet, wird diese Frage nie gestellt.</string>

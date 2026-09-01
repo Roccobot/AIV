@@ -245,7 +245,7 @@
     <string name="tree_pictures">فقط پوشه‌های دارای تصویر یا ویدیو</string>
     <string name="columns_hint">میان‌بر: دکمه شناور را نگه دارید تا گزینه‌های نمایش باز شود.</string>
     <string name="settings_bin">فعال کردن سبد زباله</string>
-    <string name="settings_bin_desc">حذف فایل چیزی نمی‌پرسد، اما این کار با \'بازگرداندن\' از سبد زباله قابل بازگشت است (دکمه شناور →\u00A0\'سبد زباله\'). اگر حذف فوری را ترجیح می‌دهید می‌توانید سبد زباله را کاملا خاموش کنید: در آن صورت پیش از هر حذف یک تایید نمایش داده می‌شود.\n\n⚠️ هشدار: اگر برنامه را حذف کنید، سطل زباله خالی می‌شود و قابل بازیابی نیست.</string>
+    <string name="settings_bin_desc">حذف فایل چیزی نمی‌پرسد، اما این کار با \'بازگرداندن\' از سبد زباله قابل بازگشت است (دکمه شناور →\u00A0\'سبد زباله\'). اگر حذف فوری را ترجیح می‌دهید می‌توانید سبد زباله را کاملا خاموش کنید: در آن صورت پیش از هر حذف یک تایید نمایش داده می‌شود.\n⚠️ هشدار: اگر برنامه را حذف کنید، سطل زباله خالی می‌شود و قابل بازیابی نیست.</string>
     <string name="pick_duplicate">تکثیر</string>
     <string name="settings_grid_names">نام فایل در شبکه</string>
     <string name="settings_grid_names_desc">زیر هر تصویر بندانگشتی نام فایل، حداکثر در دو خط. پسوند هرگز شکسته نمی‌شود و همیشه دیده می‌شود: اگر نام جا نشود، میانه کوتاه می‌شود.</string>
@@ -302,11 +302,8 @@
     <string name="editor_tall">عمودی</string>
     <string name="editor_wide">افقی</string>
     <string name="pick_drop_ask">انتخاب لغو شود؟</string>
-    <plurals name="pick_drop_desc">
-        <item quantity="one">%1$d مورد دیگر انتخاب نخواهد بود. فایل‌ها سر جای خود می‌مانند.</item>
-        <item quantity="other">%1$d مورد دیگر انتخاب نخواهند بود. فایل‌ها سر جای خود می‌مانند.</item>
-    </plurals>
     <string name="pick_drop">لغو انتخاب</string>
+    <string name="pick_keep">نگه داشتن</string>
     <string name="pick_list_done">فهرست فایل‌ها در بریده‌دان کپی شد</string>
     <string name="settings_pick_weight">حجم انتخاب</string>
     <string name="settings_pick_weight_desc">در بالای انتخاب، کنار شمارش، حجم کل موردهای انتخاب‌شده دیده می‌شود. حجم هر بار که انتخاب متوقف می‌شود از سیستم پرسیده می‌شود: با خاموش بودن، این پرسش هرگز مطرح نمی‌شود.</string>

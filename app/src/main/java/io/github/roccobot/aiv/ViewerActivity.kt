@@ -1264,20 +1264,20 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         private set
 
     /**
-     * Il segno della sicura, con accanto quello che il sistema sa della morte.
+     * Il segno della sicura, con accanto quello che il sistema sa della chiusura.
      *
      * ⚠️⚠️ **DUE FONTI CHE DA SOLE NON BASTANO, dalla 1.07**: `ClipGuard` sa **dove** si era
      * arrivati (è un file che scriviamo noi), il sistema sa **che cosa** è successo (il
-     * registro dei processi morti, vedi [Autopsy]). Un crollo nativo non lascia niente in
-     * Kotlin, quindi finché si guardava la sola sicura si leggeva 'indice' e si restava
-     * esattamente dove si era prima di guardare.
+     * registro delle chiusure dei processi, vedi [ExitLog]). Un errore nel codice nativo non
+     * lascia niente in Kotlin, quindi finché si guardava la sola sicura si leggeva 'indice' e
+     * si restava esattamente dove si era prima di guardare.
      * ⚠️ Le due si uniscono **qui** e non dentro la sicura: quella deve restare un file e
      * basta, o diventa il posto in cui si accumulano le diagnosi.
      */
     private fun clipWhy(context: Context): String? {
         val phase = ClipGuard.tripped(context) ?: return null
-        val death = Autopsy.lastDeath(context) ?: return phase
-        return "$phase - $death"
+        val exit = ExitLog.lastExit(context) ?: return phase
+        return "$phase - $exit"
     }
 
     /** L'utente vuole riprovare: si toglie la sicura e si riparte con l'indicizzazione. */

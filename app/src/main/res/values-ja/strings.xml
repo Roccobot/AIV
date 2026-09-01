@@ -230,7 +230,7 @@
     <string name="tree_pictures">画像か動画のあるフォルダーのみ</string>
     <string name="columns_hint">ショートカット: 表示オプションはフローティングボタンを長押し。</string>
     <string name="settings_bin">ゴミ箱を有効にする</string>
-    <string name="settings_bin_desc">ファイルの削除では何も確認しませんが、ゴミ箱から \'元に戻す\' で取り消せます (フローティングボタン →\u00A0\'ゴミ箱\')。すぐに削除したい場合はゴミ箱を完全に無効にできます。その場合は削除のたびに確認が表示されます。\n\n⚠️ 注意: アプリをアンインストールすると、ゴミ箱は空になり、元に戻せません。</string>
+    <string name="settings_bin_desc">ファイルの削除では何も確認しませんが、ゴミ箱から \'元に戻す\' で取り消せます (フローティングボタン →\u00A0\'ゴミ箱\')。すぐに削除したい場合はゴミ箱を完全に無効にできます。その場合は削除のたびに確認が表示されます。\n⚠️ 注意: アプリをアンインストールすると、ゴミ箱は空になり、元に戻せません。</string>
     <string name="pick_duplicate">複製</string>
     <string name="settings_grid_names">グリッドにファイル名</string>
     <string name="settings_grid_names_desc">各サムネイルの下にファイル名を最大2行で表示します。拡張子は改行で分割されず常に見えます。名前が収まらない場合は中ほどが省略されます。</string>
@@ -287,10 +287,8 @@
     <string name="editor_tall">縦</string>
     <string name="editor_wide">横</string>
     <string name="pick_drop_ask">選択を取り消しますか？</string>
-    <plurals name="pick_drop_desc">
-        <item quantity="other">%1$d 件が選択されていない状態に戻ります。ファイルはそのままです。</item>
-    </plurals>
     <string name="pick_drop">取り消す</string>
+    <string name="pick_keep">残す</string>
     <string name="pick_list_done">ファイル一覧をクリップボードにコピーしました</string>
     <string name="settings_pick_weight">選択のサイズ</string>
     <string name="settings_pick_weight_desc">選択の先頭、件数の隣に、選んだ項目の合計サイズが表示されます。サイズは選択が止まるたびにシステムへ問い合わせます。オフにすると、その問い合わせは行われません。</string>

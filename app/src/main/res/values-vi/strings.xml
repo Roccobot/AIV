@@ -230,7 +230,7 @@
     <string name="tree_pictures">Chỉ thư mục có ảnh hoặc video</string>
     <string name="columns_hint">Lối tắt: nhấn giữ nút nổi để mở tùy chọn hiển thị.</string>
     <string name="settings_bin">Bật thùng rác</string>
-    <string name="settings_bin_desc">Xóa một tệp không hỏi gì, nhưng hành động có thể hoàn tác bằng \'Phục hồi\' từ thùng rác (nút nổi →\u00A0\'Thùng rác\'). Bạn có thể tắt hẳn thùng rác nếu thích xóa ngay: khi đó, một hộp xác nhận sẽ xuất hiện trước mỗi lần xóa.\n\n⚠️ CẢNH BÁO: nếu gỡ cài đặt ứng dụng, thùng rác sẽ bị xoá sạch và không thể khôi phục.</string>
+    <string name="settings_bin_desc">Xóa một tệp không hỏi gì, nhưng hành động có thể hoàn tác bằng \'Phục hồi\' từ thùng rác (nút nổi →\u00A0\'Thùng rác\'). Bạn có thể tắt hẳn thùng rác nếu thích xóa ngay: khi đó, một hộp xác nhận sẽ xuất hiện trước mỗi lần xóa.\n⚠️ CẢNH BÁO: nếu gỡ cài đặt ứng dụng, thùng rác sẽ bị xoá sạch và không thể khôi phục.</string>
     <string name="pick_duplicate">Nhân bản</string>
     <string name="settings_grid_names">Tên tệp trong lưới ảnh</string>
     <string name="settings_grid_names_desc">Dưới mỗi ảnh thu nhỏ là tên tệp, nhiều nhất hai dòng. Phần mở rộng không bao giờ bị ngắt dòng và luôn hiện: nếu tên không vừa, phần giữa sẽ nhường chỗ.</string>
@@ -287,10 +287,8 @@
     <string name="editor_tall">Dọc</string>
     <string name="editor_wide">Ngang</string>
     <string name="pick_drop_ask">Bỏ lựa chọn?</string>
-    <plurals name="pick_drop_desc">
-        <item quantity="other">%1$d mục sẽ không còn được chọn. Các tệp vẫn ở nguyên chỗ cũ.</item>
-    </plurals>
     <string name="pick_drop">Bỏ</string>
+    <string name="pick_keep">Giữ</string>
     <string name="pick_list_done">Đã sao chép danh sách tệp vào bảng nhớ tạm</string>
     <string name="settings_pick_weight">Dung lượng lựa chọn</string>
     <string name="settings_pick_weight_desc">Ở đầu phần lựa chọn, cạnh số đếm, hiện tổng dung lượng của các mục đã chọn. Dung lượng được hỏi hệ thống mỗi khi lựa chọn dừng lại: khi tắt, câu hỏi đó không bao giờ được đặt ra.</string>

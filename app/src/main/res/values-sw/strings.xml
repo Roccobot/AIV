@@ -245,7 +245,7 @@
     <string name="tree_pictures">Folda zenye picha au video pekee</string>
     <string name="columns_hint">Njia ya mkato: shikilia kitufe kinachoelea ili kufungua chaguo za mwonekano.</string>
     <string name="settings_bin">Washa tapishi</string>
-    <string name="settings_bin_desc">Kufuta faili hakuulizi kitu, lakini kitendo kinaweza kubatilishwa kwa \'Rudisha\' kutoka tapishi (kitufe kinachoelea →\u00A0\'Tapishi\'). Unaweza kuzima tapishi kabisa ukipendelea kufuta papo hapo: hapo utaonyeshwa uthibitisho kabla ya kila kufuta.\n\n⚠️ TAHADHARI: ukiondoa programu, pipa hufutwa na haliwezi kurudishwa.</string>
+    <string name="settings_bin_desc">Kufuta faili hakuulizi kitu, lakini kitendo kinaweza kubatilishwa kwa \'Rudisha\' kutoka tapishi (kitufe kinachoelea →\u00A0\'Tapishi\'). Unaweza kuzima tapishi kabisa ukipendelea kufuta papo hapo: hapo utaonyeshwa uthibitisho kabla ya kila kufuta.\n⚠️ TAHADHARI: ukiondoa programu, pipa hufutwa na haliwezi kurudishwa.</string>
     <string name="pick_duplicate">Nakili hapa</string>
     <string name="settings_grid_names">Jina la faili kwenye gridi</string>
     <string name="settings_grid_names_desc">Chini ya kila kijipicha, jina la faili kwa mistari miwili zaidi. Kiendelezi hakikatwi kamwe na huonekana daima: jina lisipotoshea, sehemu ya katikati ndiyo hupungua.</string>
@@ -302,11 +302,8 @@
     <string name="editor_tall">Wima</string>
     <string name="editor_wide">Mlalo</string>
     <string name="pick_drop_ask">Uache uteuzi?</string>
-    <plurals name="pick_drop_desc">
-        <item quantity="one">Kipengee %1$d hakitakuwa kimeteuliwa tena. Faili zinabaki zilipo.</item>
-        <item quantity="other">Vipengee %1$d havitakuwa vimeteuliwa tena. Faili zinabaki zilipo.</item>
-    </plurals>
     <string name="pick_drop">Acha</string>
+    <string name="pick_keep">Weka</string>
     <string name="pick_list_done">Orodha ya faili imenakiliwa kwenye ubao wa kunakili</string>
     <string name="settings_pick_weight">Ukubwa wa uteuzi</string>
     <string name="settings_pick_weight_desc">Juu ya uteuzi, kando ya idadi, unasoma ukubwa wa jumla wa vipengee vilivyochaguliwa. Ukubwa huulizwa mfumo kila uteuzi unaposimama: ukizima, swali hilo haliulizwi.</string>

@@ -275,7 +275,7 @@
     <string name="tree_pictures">Tylko foldery z obrazami lub filmami</string>
     <string name="columns_hint">Skrót: przytrzymaj przycisk pływający, aby otworzyć opcje widoku.</string>
     <string name="settings_bin">Włącz kosz</string>
-    <string name="settings_bin_desc">Usunięcie pliku o nic nie pyta, ale działanie można odwrócić przez \'Przywróć\' z kosza (pływający przycisk →\u00A0\'Kosz\'). Możesz całkowicie wyłączyć kosz, jeśli wolisz natychmiastowe usuwanie: wtedy przed każdym usunięciem pojawi się potwierdzenie.\n\n⚠️ UWAGA: po odinstalowaniu aplikacji kosz zostaje opróżniony i nie da się go odzyskać.</string>
+    <string name="settings_bin_desc">Usunięcie pliku o nic nie pyta, ale działanie można odwrócić przez \'Przywróć\' z kosza (pływający przycisk →\u00A0\'Kosz\'). Możesz całkowicie wyłączyć kosz, jeśli wolisz natychmiastowe usuwanie: wtedy przed każdym usunięciem pojawi się potwierdzenie.\n⚠️ UWAGA: po odinstalowaniu aplikacji kosz zostaje opróżniony i nie da się go odzyskać.</string>
     <string name="pick_duplicate">Duplikuj</string>
     <string name="settings_grid_names">Nazwa pliku w siatce zdjęć</string>
     <string name="settings_grid_names_desc">Pod każdą miniaturą nazwa pliku, najwyżej w dwóch wierszach. Rozszerzenie nigdy nie jest dzielone i zawsze widoczne: gdy nazwa się nie mieści, ustępuje środek.</string>
@@ -332,13 +332,8 @@
     <string name="editor_tall">Pionowo</string>
     <string name="editor_wide">Poziomo</string>
     <string name="pick_drop_ask">Odrzucić zaznaczenie?</string>
-    <plurals name="pick_drop_desc">
-        <item quantity="one">%1$d element nie będzie już zaznaczony. Pliki zostają na swoim miejscu.</item>
-        <item quantity="few">%1$d elementy nie będą już zaznaczone. Pliki zostają na swoim miejscu.</item>
-        <item quantity="many">%1$d elementów nie będzie już zaznaczonych. Pliki zostają na swoim miejscu.</item>
-        <item quantity="other">%1$d elementu nie będzie już zaznaczone. Pliki zostają na swoim miejscu.</item>
-    </plurals>
     <string name="pick_drop">Odrzuć</string>
+    <string name="pick_keep">Zachowaj</string>
     <string name="pick_list_done">Lista plików skopiowana do schowka</string>
     <string name="settings_pick_weight">Rozmiar zaznaczenia</string>
     <string name="settings_pick_weight_desc">Na górze zaznaczenia, obok liczby, widać ile ważą razem wybrane elementy. Rozmiar jest pytany systemu przy każdym zatrzymaniu zaznaczenia: wyłączony, to pytanie nigdy nie pada.</string>

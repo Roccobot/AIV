@@ -245,7 +245,7 @@
     <string name="tree_pictures">Alleen mappen met afbeeldingen of video\'s</string>
     <string name="columns_hint">Snelkoppeling: houd de zwevende knop ingedrukt voor de weergaveopties.</string>
     <string name="settings_bin">Prullenbak aanzetten</string>
-    <string name="settings_bin_desc">Het verwijderen van een bestand vraagt niets, maar de actie is omkeerbaar met een \'Terugzetten\' uit de prullenbak (zwevende knop →\u00A0\'Prullenbak\'). Je kunt de prullenbak helemaal uitzetten als je liever direct verwijdert: dan verschijnt er voor elke verwijdering een bevestiging.\n\n⚠️ LET OP: als je de app verwijdert, wordt de prullenbak geleegd en is hij niet meer terug te halen.</string>
+    <string name="settings_bin_desc">Het verwijderen van een bestand vraagt niets, maar de actie is omkeerbaar met een \'Terugzetten\' uit de prullenbak (zwevende knop →\u00A0\'Prullenbak\'). Je kunt de prullenbak helemaal uitzetten als je liever direct verwijdert: dan verschijnt er voor elke verwijdering een bevestiging.\n⚠️ LET OP: als je de app verwijdert, wordt de prullenbak geleegd en is hij niet meer terug te halen.</string>
     <string name="pick_duplicate">Dupliceren</string>
     <string name="settings_grid_names">Bestandsnaam in het raster</string>
     <string name="settings_grid_names_desc">Onder elke miniatuur de bestandsnaam, op hoogstens twee regels. De extensie wordt nooit afgebroken en is altijd te zien: past de naam niet, dan wijkt het midden.</string>
@@ -302,11 +302,8 @@
     <string name="editor_tall">Staand</string>
     <string name="editor_wide">Liggend</string>
     <string name="pick_drop_ask">Selectie loslaten?</string>
-    <plurals name="pick_drop_desc">
-        <item quantity="one">%1$d item is dan niet meer geselecteerd. De bestanden blijven waar ze zijn.</item>
-        <item quantity="other">%1$d items zijn dan niet meer geselecteerd. De bestanden blijven waar ze zijn.</item>
-    </plurals>
     <string name="pick_drop">Loslaten</string>
+    <string name="pick_keep">Behouden</string>
     <string name="pick_list_done">Bestandenlijst naar het klembord gekopieerd</string>
     <string name="settings_pick_weight">Grootte van de selectie</string>
     <string name="settings_pick_weight_desc">Boven aan de selectie staat naast het aantal hoeveel de gekozen items samen wegen. De grootte wordt bij elke stilstaande selectie aan het systeem gevraagd: uit, wordt die vraag nooit gesteld.</string>

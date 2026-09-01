@@ -260,7 +260,7 @@
     <string name="tree_pictures">Só pastas com imagens ou vídeos</string>
     <string name="columns_hint">Atalho: mantenha o botão flutuante pressionado para as opções de exibição.</string>
     <string name="settings_bin">Ativar a lixeira</string>
-    <string name="settings_bin_desc">Excluir um arquivo não pergunta nada, mas a ação pode ser desfeita com um \'Restaurar\' na lixeira (botão flutuante →\u00A0\'Lixeira\'). Você pode desativar a lixeira por completo, se preferir uma exclusão instantânea: nesse caso, aparecerá uma confirmação antes de cada exclusão.\n\n⚠️ ATENÇÃO: se você desinstalar o app, a lixeira é esvaziada e não pode ser recuperada.</string>
+    <string name="settings_bin_desc">Excluir um arquivo não pergunta nada, mas a ação pode ser desfeita com um \'Restaurar\' na lixeira (botão flutuante →\u00A0\'Lixeira\'). Você pode desativar a lixeira por completo, se preferir uma exclusão instantânea: nesse caso, aparecerá uma confirmação antes de cada exclusão.\n⚠️ ATENÇÃO: se você desinstalar o app, a lixeira é esvaziada e não pode ser recuperada.</string>
     <string name="pick_duplicate">Duplicar</string>
     <string name="settings_grid_names">Nome do arquivo na grade</string>
     <string name="settings_grid_names_desc">Sob cada miniatura, o nome do arquivo em no máximo duas linhas. A extensão nunca é quebrada e aparece sempre: quando o nome não cabe, quem cede é o meio.</string>
@@ -317,12 +317,8 @@
     <string name="editor_tall">Retrato</string>
     <string name="editor_wide">Paisagem</string>
     <string name="pick_drop_ask">Descartar a seleção?</string>
-    <plurals name="pick_drop_desc">
-        <item quantity="one">%1$d item deixará de estar selecionado. Os arquivos ficam onde estão.</item>
-        <item quantity="other">%1$d itens deixarão de estar selecionados. Os arquivos ficam onde estão.</item>
-        <item quantity="many">%1$d itens deixarão de estar selecionados. Os arquivos ficam onde estão.</item>
-    </plurals>
     <string name="pick_drop">Descartar</string>
+    <string name="pick_keep">Manter</string>
     <string name="pick_list_done">Lista de arquivos copiada para a área de transferência</string>
     <string name="settings_pick_weight">Peso da seleção</string>
     <string name="settings_pick_weight_desc">No topo da seleção, ao lado da contagem, você lê quanto pesam no total os itens escolhidos. O peso é perguntado ao sistema sempre que a seleção para: desligado, essa pergunta não é feita.</string>
