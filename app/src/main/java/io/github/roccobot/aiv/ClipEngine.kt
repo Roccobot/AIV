@@ -153,9 +153,44 @@ class ClipEngine private constructor(
          * quanti sono i nuclei, e su un telefono vuol dire otto arene di memoria per un
          * lavoro che gira in sottofondo mentre l'utente sfoglia le fotografie. Due bastano a
          * non far durare l'indicizzazione il doppio, e la punta di memoria si abbassa.
+         *
+         * ⚠️⚠️⚠️ **`mlas.disable_kleidiai` SPEGNE I NUCLEI SME DI ARM, ED È LA CORREZIONE DEL
+         * CROLLO CHE UCCIDEVA L'APP** (segnalato dalla `0.88`, diagnosticato il 2026-09-01).
+         * Non è una congettura: è la fine di una catena di misure, e vale la pena averla
+         * scritta perché nessuno la rifaccia.
+         * 1. **Dove muore**: la sicura della `1.07` ha risposto `indice 0/1468 - exit:
+         *    CRASH_NATIVE / crash / rss 65.67 MB`. Quindi la sessione si era **aperta**, il
+         *    processo è morto alla **prima** fotografia, e con 65 MB in mano non era memoria.
+         * 2. **Lo stesso file NON muore su x86**: `vision_model_fp16.onnx` (impronta
+         *    identica a quella scaricata) gira su una JVM con lo **stesso** ONNX Runtime
+         *    `1.29.0` in 0,04 secondi. Quindi non è il modello e non è la forma della
+         *    chiamata: è una strada che esiste solo su ARM.
+         * 3. **Quale strada**: il modello ha **227 initializer, tutti float16**, e 95 nodi
+         *    `Conv`. Su x86 non ci sono nuclei fp16 e ORT rimette tutto in fp32
+         *    (`CastFloat16Transformer`); su arm64 no, e la moltiplicazione fp16 passa per
+         *    `ArmKleidiAI::MlasHalfGemmBatch`.
+         * 4. **Che cos'è quel codice**: dentro la `libonnxruntime.so` arm64 che l'app spedisce,
+         *    **ogni** nucleo fp16 di KleidiAI è **SME/SME2**
+         *    (`kai_run_imatmul_clamp_f16_..._sme2_mopa` e compagni), cioè assembly per
+         *    un'estensione di silicio nuovissima. Di NEON fp16 in KleidiAI non ce n'è nessuno.
+         * ⚠️ **Spento, si torna ai nuclei fp16 di MLAS**, che sono vecchi di anni e provati:
+         * si perde un po' di velocità nell'indicizzazione, che è lavoro in sottofondo, e si
+         * guadagna un'app che non sparisce.
+         * ⚠️ **Il valore sbagliato non farebbe danni silenziosi**: una chiave sconosciuta ORT
+         * la ignora, un valore fuori posto solleva, e la sicura lo scriverebbe. La chiave è
+         * stata letta **dentro** la libreria spedita, non ricordata.
+         * ⚠️ **Quando si potrà togliere**: il giorno che una versione di ORT dichiara risolto
+         * il difetto dei nuclei SME. Non prima, e non 'perché adesso funziona': funziona anche
+         * adesso su un telefono senza SME.
          */
         private fun options(): OrtSession.SessionOptions =
-            OrtSession.SessionOptions().apply { setIntraOpNumThreads(THREADS) }
+            OrtSession.SessionOptions().apply {
+                setIntraOpNumThreads(THREADS)
+                addConfigEntry(NO_SME, "1")
+            }
+
+        /** La chiave che spegne KleidiAI, letta dentro la libreria arm64 spedita. */
+        private const val NO_SME = "mlas.disable_kleidiai"
 
         /** Quanti fili per il motore. Vedi [options]. */
         private const val THREADS = 2

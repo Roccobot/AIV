@@ -139,7 +139,9 @@
     <string name="hub_settings">Impostazioni</string>
     <string name="url_open">Apri</string>
     <string name="url_recent">Aperti in passato</string>
-    <string name="folder_empty">Questa cartella non contiene più niente.</string>
+    <string name="folder_empty">La cartella è vuota.</string>
+    <string name="folder_no_images">La cartella non contiene foto.</string>
+    <string name="folder_no_videos">La cartella non contiene video.</string>
     <string name="cancel">Annulla</string>
 
     <string name="hide_folder_title">Nascondere %1$s?</string>
@@ -357,19 +359,18 @@
     <string name="clip_play">Riproduci</string>
     <string name="hub_view_tree">Cartelle di sistema</string>
     <string name="tree_up">Sali di una cartella</string>
-    <string name="tree_empty">La cartella è vuota.</string>
     <string name="tree_hidden">nascosta</string>
     <string name="tree_unopenable">Nessuna app di questo telefono sa aprirlo</string>
     <string name="clip_pause">Metti in pausa</string>
     <string name="settings_images_only">Sfoglia solo le immagini</string>
     <string name="settings_images_only_desc">Nel visualizzatore la strisciata salta i filmati e mostra solo immagini. Toccando un filmato in griglia parte lo stesso: questa riguarda il gesto, non il tocco.</string>
     <string name="settings_group_content">Ricerca per contenuto</string>
-    <string name="settings_content_desc">Trovare una foto per quello che c\'è dentro, e non per il nome, richiede due modelli che non stanno dentro l\'app: si scaricano una volta e si possono togliere. Tutto avviene sul telefono, e niente viene mandato da nessuna parte.</string>
+    <string name="settings_content_desc">Scarica i modelli di riconoscimento immagini per abilitare la ricerca per contenuto (es. \'gatto rosso\'). Il download è opzionale e una tantum; il pacchetto può essere rimosso in qualsiasi momento. Il riconoscimento e la ricerca avvengono in locale, senza inviare immagini né dati a terzi.</string>
     <string name="settings_content_get">Scarica i modelli (%1$s)</string>
     <string name="settings_content_getting">%1$s di %2$s</string>
     <string name="settings_content_stop">Ferma</string>
     <string name="settings_content_ready">I modelli sono sul telefono.</string>
-    <string name="settings_content_remove">Togli i modelli (%1$s)</string>
+    <string name="settings_content_remove">Rimuovi il pacchetto modelli (%1$s)</string>
     <string name="settings_content_broken">Qualcosa non ha funzionato: %1$s</string>
     <string name="settings_content_retry">Riprova</string>
     <string name="settings_content_blocked">L\'ultima volta ha fatto chiudere l\'app (%1$s), quindi si è fermata da sé. Il resto dell\'app non è toccato.</string>

@@ -83,7 +83,18 @@ object ClipRun {
              * quella: un'eccezione Kotlin la sicura la scriveva già, e l'utente vede il
              * processo **morire**. È un difetto trovato leggendo, e si ripara perché c'è.
              */
-            val vector = runCatching { vectorOf(context, engine, uri) }.getOrNull()
+            /*
+             * ⚠️⚠️ **IL SEGNO DISTINGUE LA MINIATURA DAL MODELLO, dalla 1.09**: `indice N/M`
+             * copriva due cose native diverse, la decodifica dell'immagine e l'inferenza, e
+             * una lapide che non si riesce a leggere lascerebbe la domanda aperta. Sono due
+             * scritture di venti byte per fotografia, cioè qualche millesimo di secondo su un
+             * lavoro che per ognuna ne dura cento.
+             */
+            val vector = runCatching {
+                vectorOf(context, engine, uri) { passo ->
+                    ClipGuard.arm(context, "indice $done/${todo.size} $passo")
+                }
+            }.getOrNull()
             if (vector != null) batch.add(uri.toString() to ClipIndex.pack(vector))
             done++
             if (batch.size >= CHUNK) {
@@ -113,7 +124,13 @@ object ClipRun {
      * legge i pixel e quello che li dà al modello sono due modi di non riuscire sulla stessa
      * fotografia, e chi chiama deve solo sapere se questa foto è entrata nell'indice o no.
      */
-    private fun vectorOf(context: Context, engine: ClipEngine, uri: Uri): FloatArray? {
+    private fun vectorOf(
+        context: Context,
+        engine: ClipEngine,
+        uri: Uri,
+        onStage: (String) -> Unit
+    ): FloatArray? {
+        onStage("miniatura")
         val shot = small(context, uri) ?: return null
         // ⚠️ Le misure si prendono PRIMA di liberare la mappa di pixel: dopo `recycle`
         // quell'oggetto non è più buono, e leggerne i lati è il genere di cosa che funziona
@@ -127,6 +144,7 @@ object ClipRun {
         val pixels = IntArray(w * h)
         shot.getPixels(pixels, 0, w, 0, 0, w, h)
         shot.recycle()
+        onStage("modello")
         return engine.ofImage(pixels, w, h)
     }
 

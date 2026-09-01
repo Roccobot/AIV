@@ -846,31 +846,45 @@ fun GridScreen(
                 Modifier.padding(top = 24.dp).size(28.dp).align(Alignment.TopCenter)
             )
 
-            // ⚠️ Un elenco vuoto vuol dire due cose diverse, e dirle con la stessa frase
-            // sarebbe un piccolo inganno: in una cartella significa che le foto non ci sono
-            // più, in una ricerca che nessun nome combacia, e a ricerca ancora da scrivere
-            // non significa niente e non si dice nulla.
-            items.isEmpty() -> when {
-                // ⚠️ Tre frasi per tre vuoti diversi, e dirle con la stessa sarebbe un
-                // piccolo inganno: un cestino vuoto è una buona notizia, una cartella
-                // vuota vuol dire che le foto non ci sono più, e una ricerca senza esito
-                // che nessun nome combacia.
-                bin -> Text(
-                    text = stringResource(R.string.bin_none),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 24.dp, start = 12.dp)
-                )
-                query == null -> Text(
-                    text = stringResource(R.string.folder_empty),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 24.dp, start = 12.dp)
-                )
-                query.isNotBlank() -> Text(
-                    text = stringResource(R.string.search_none, query),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 24.dp, start = 12.dp)
-                )
-                else -> Unit
+            /*
+             * ⚠️⚠️ **CINQUE VUOTI DIVERSI, CINQUE FRASI, e dirli con la stessa sarebbe un
+             * piccolo inganno**: un cestino vuoto è una buona notizia, una cartella vuota
+             * dice che non c'è niente, un **filtro** senza esito dice che manca **quel
+             * genere** e non che la cartella è vuota, e una ricerca senza esito dice che
+             * nessun nome combacia. A ricerca ancora da scrivere non significa niente, e
+             * allora non si dice nulla.
+             * ⚠️⚠️ **IL FILTRO SI GUARDA PRIMA DELLA CARTELLA, dalla 1.09** (riscontro
+             * dell'utente): con 'solo foto' acceso in una cartella di soli filmati, dire 'La
+             * cartella è vuota' è **falso**, perché là dentro c'è roba. La frase deve dire
+             * che cosa manca, non lamentare un vuoto che non c'è.
+             * ⚠️ **La ricerca vince sul filtro**: se si sta cercando, quello che si vuole
+             * sapere è se il nome combacia, e il filtro è una condizione in più che l'utente
+             * ha in testa.
+             */
+            items.isEmpty() -> {
+                val nulla = when {
+                    bin -> stringResource(R.string.bin_none)
+                    query != null && query.isNotBlank() ->
+                        stringResource(R.string.search_none, query)
+                    query != null -> null
+                    filter == MediaKind.IMAGES -> stringResource(R.string.folder_no_images)
+                    filter == MediaKind.VIDEOS -> stringResource(R.string.folder_no_videos)
+                    else -> stringResource(R.string.folder_empty)
+                }
+                // ⚠️ **Al centro dello spazio vuoto** (richiesta dell'utente), come nella
+                // vista ad albero dalla `1.04`: una frase appesa in alto a sinistra sembra
+                // l'inizio di un elenco che non arriva mai.
+                if (nulla != null) {
+                    Text(
+                        text = nulla,
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(horizontal = 24.dp)
+                            .padding(bottom = BELOW_FAB)
+                    )
+                }
             }
 
             else -> {
