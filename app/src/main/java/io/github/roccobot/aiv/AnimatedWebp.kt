@@ -107,9 +107,15 @@ class AnimatedWebp private constructor(
         index = if (index + 1 >= frames.size) 0 else index + 1
     }
 
-    override fun rewind() {
-        index = 0
-        drawn = -1
+    /**
+     * ⚠️ **Qui basta spostare l'indice**, al contrario della GIF: [compose] confronta quello
+     * che la tela mostra con quello che le si chiede, e se il salto va all'indietro ripulisce
+     * e rifà la pila da capo. La correzione della scia riguardava il lettore GIF, dove
+     * spostarsi e comporre sono due cose separate; questo lettore la tela ce l'ha in mano.
+     */
+    override fun seek(target: Int) {
+        if (frames.isEmpty()) return
+        index = target.coerceIn(0, frames.size - 1)
     }
 
     override fun close() {

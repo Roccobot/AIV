@@ -148,10 +148,11 @@ class Animation(private val source: Animated) {
         playing = false
         turn.withLock {
             val target = if (source.index <= 0) source.frameCount - 1 else source.index - 1
-            withContext(Dispatchers.Default) {
-                source.rewind()
-                repeat(target) { source.advance() }
-            }
+            // ⚠️⚠️ **`seek` E NON `rewind` PIÙ N VOLTE `advance`, dalla 1.21**: quella era la
+            // scia. Spostare l'indice non compone niente, quindi il fotogramma d'arrivo
+            // finiva sopra tutti quelli già in scena. Il perché per esteso sta su
+            // [Animated.seek], che esiste per questo.
+            withContext(Dispatchers.Default) { source.seek(target) }
             draw()
         }
     }
