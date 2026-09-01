@@ -625,6 +625,21 @@ object FolderAsk {
     suspend fun remember(context: Context) {
         context.aivStore.edit { p -> p[ASKED] = true }
     }
+
+    /**
+     * Dimentica di aver chiesto, così la domanda torna alla prossima immagine locale.
+     *
+     * ⚠️⚠️ **È L'UNICA VIA DI RITORNO da un 'no', ed è la ragione per cui esiste** (chiesta
+     * dall'utente, 2026-09-01, insieme al ripristino degli onboarding): la domanda si fa una
+     * volta sola per non insegnare a rifiutare per riflesso, ma quella scelta di disegno,
+     * senza questa funzione, chiuderebbe la porta per sempre a chi ha toccato 'no' di fretta.
+     * ⚠️ **Non concede niente**: rimette in piedi la **domanda**, e il permesso resta quello
+     * che il sistema dice. Chi l'ha già concesso non vedrà nulla, perché la richiesta guarda
+     * prima `Folder.granted`.
+     */
+    suspend fun forget(context: Context) {
+        context.aivStore.edit { p -> p.remove(ASKED) }
+    }
 }
 
 /**

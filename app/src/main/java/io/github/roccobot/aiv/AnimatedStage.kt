@@ -43,6 +43,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 /**
@@ -76,6 +78,23 @@ class Animation(private val source: Animated) {
     var shown by mutableIntStateOf(1)
         private set
 
+    /**
+     * Un comando per volta sul lettore.
+     *
+     * ⚠️⚠️ **SENZA QUESTO IL CICLO DI RIPRODUZIONE E I DUE PASSI SI PESTANO I PIEDI, ed è il
+     * difetto che l'utente ha visto come 'scia' sulle GIF e rettangoli bianchi e neri sulle
+     * WebP** (riscontro del 2026-09-01). I due passi mettono in pausa, ma **la pausa non è
+     * istantanea**: il ciclo può essere già dentro `advance()` o dentro la composizione, e
+     * cancellarlo non lo ferma a metà di quelle. Per un istante due coroutine compongono
+     * sulla **stessa tela**, e quello che si vede è una tela scritta da due mani.
+     * ⚠️ **Il rimedio è la serializzazione e non un ritardo**: aspettare un attimo prima di
+     * fare il passo renderebbe il difetto raro invece di impossibile, e i difetti rari sono
+     * quelli che tornano dopo il rilascio.
+     * ⚠️ **Copre anche [snapshot]**, che legge il fotogramma corrente per esportarlo: senza
+     * il lucchetto potrebbe copiarne uno composto a metà.
+     */
+    private val turn = Mutex()
+
     val frameCount: Int get() = source.frameCount
 
     fun toggle() {
@@ -90,8 +109,10 @@ class Animation(private val source: Animated) {
      */
     suspend fun stepForward() = guarded {
         playing = false
-        withContext(Dispatchers.Default) { source.advance() }
-        draw()
+        turn.withLock {
+            withContext(Dispatchers.Default) { source.advance() }
+            draw()
+        }
     }
 
     /**
@@ -110,12 +131,14 @@ class Animation(private val source: Animated) {
      */
     suspend fun stepBack() = guarded {
         playing = false
-        val target = if (source.index <= 0) source.frameCount - 1 else source.index - 1
-        withContext(Dispatchers.Default) {
-            source.rewind()
-            repeat(target) { source.advance() }
+        turn.withLock {
+            val target = if (source.index <= 0) source.frameCount - 1 else source.index - 1
+            withContext(Dispatchers.Default) {
+                source.rewind()
+                repeat(target) { source.advance() }
+            }
+            draw()
         }
-        draw()
     }
 
     /**
@@ -125,10 +148,12 @@ class Animation(private val source: Animated) {
      * restituiscono è **loro** e viene riscritto al fotogramma dopo. Salvando quello si
      * scriverebbe su file un'immagine che intanto cambia sotto le mani.
      */
-    suspend fun snapshot(): android.graphics.Bitmap? = withContext(Dispatchers.Default) {
-        runCatching {
-            source.current()?.copy(android.graphics.Bitmap.Config.ARGB_8888, false)
-        }.getOrNull()
+    suspend fun snapshot(): android.graphics.Bitmap? = turn.withLock {
+        withContext(Dispatchers.Default) {
+            runCatching {
+                source.current()?.copy(android.graphics.Bitmap.Config.ARGB_8888, false)
+            }.getOrNull()
+        }
     }
 
     /**
@@ -144,11 +169,13 @@ class Animation(private val source: Animated) {
     private suspend fun run() {
         // Il primo fotogramma si disegna subito, anche in pausa: senza, una GIF aperta e
         // messa in pausa prima del primo scatto resterebbe un rettangolo vuoto.
-        draw()
+        turn.withLock { draw() }
         while (playing) {
             delay(source.delayOf(source.index).coerceAtLeast(FLOOR).toLong())
-            withContext(Dispatchers.Default) { source.advance() }
-            draw()
+            turn.withLock {
+                withContext(Dispatchers.Default) { source.advance() }
+                draw()
+            }
         }
     }
 
@@ -257,12 +284,19 @@ fun rememberAnimation(source: Uri?): Animation? {
  * è la sola parte della fila che non è un comando, quindi la sola che qualcuno possa voler
  * togliere per guardare e basta. Spento, la fila si stringe da sé: il numero è l'ultimo
  * elemento della riga e non lascia un vuoto.
+ *
+ * @param onExported il fotogramma è stato scritto su file. ⚠️ **Serve perché la cartella
+ *   aperta è un elenco già letto**: il file nuovo c'è sul disco e nel MediaStore, ma la
+ *   griglia dietro al visualizzatore tiene in mano la lista di prima, quindi tornando
+ *   indietro il fotogramma appena salvato non si vedrebbe finché non si esce dalla cartella
+ *   e ci si rientra. Riscontro dell'utente, 2026-09-01.
  */
 @Composable
 fun AnimatedBar(
     animation: Animation,
     name: String?,
     counter: Boolean,
+    onExported: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -299,6 +333,7 @@ fun AnimatedBar(
                 if (ok) R.string.toast_saved else R.string.toast_save_failed,
                 Toast.LENGTH_SHORT
             ).show()
+            if (ok) onExported()
         }
     }
 
@@ -330,8 +365,10 @@ fun AnimatedBar(
         }
         if (counter) {
             Text(
-                text = "${animation.shown} / ${animation.frameCount}",
-                style = MaterialTheme.typography.labelMedium,
+                text = counterText(animation.shown, animation.frameCount),
+                // ⚠️ Vedi [counterText]: le cifre tabulari sono metà della cura, e senza
+                // di loro il riempimento non basterebbe.
+                style = MaterialTheme.typography.labelMedium.copy(fontFeatureSettings = "tnum"),
                 color = BAR_TEXT,
                 modifier = Modifier.padding(end = 10.dp, start = 2.dp)
             )
@@ -362,6 +399,34 @@ private fun frameName(name: String?, frame: Int): String {
     val base = name?.substringBeforeLast('.')?.takeIf { it.isNotBlank() } ?: "fotogramma"
     return "%s-%04d.png".format(base, frame)
 }
+
+/**
+ * Il contatore dei fotogrammi, di larghezza **costante**: `  7 / 120` e non `7 / 120`.
+ *
+ * ⚠️⚠️ **DUE CAUSE DIVERSE FANNO BALLARE LA FILA, e una sola cura non basta**, perché il
+ * numero è l'ultimo elemento di una riga che si stringe sul contenuto: se il testo cambia
+ * larghezza, si spostano anche i quattro tasti.
+ * 1. **Le cifre non sono larghe uguali**: in un carattere proporzionale l'`1` è più stretto
+ *    dell'`8`, quindi la riga si muove **a ogni fotogramma**, non solo ai cambi di
+ *    lunghezza. La cura è `tnum`, la variante tabulare, che dà a tutte le cifre lo stesso
+ *    passo. È l'unico modo: nessun riempimento può pareggiare glifi di larghezza diversa.
+ * 2. **Cambia il numero delle cifre**, da `9` a `10` e da `99` a `100`. La cura è riempire a
+ *    sinistra fino alle cifre del totale, che è il numero più lungo che si possa mostrare.
+ *
+ * ⚠️ **Il riempimento è lo SPAZIO CIFRA (U+2007) e non lo spazio normale**: quello è largo
+ * quanto una cifra **per definizione**, mentre lo spazio ordinario è più stretto e lascerebbe
+ * un residuo di ballo proprio al cambio di lunghezza, cioè nel caso che doveva risolvere.
+ */
+private fun counterText(shown: Int, total: Int): String =
+    "${shown.toString().padStart(total.toString().length, FIGURE_SPACE)} / $total"
+
+/**
+ * Lo spazio largo come una cifra, usato per riempire il contatore.
+ *
+ * ⚠️ **Si scrive col CODICE e non col carattere**: nel sorgente sarebbe indistinguibile da
+ * uno spazio normale, e il primo che riallinea la riga lo sostituirebbe senza accorgersene.
+ */
+private const val FIGURE_SPACE = '\u2007'
 
 /** Il fondo scuro della fila: legge sopra qualunque immagine, chiara o scura. */
 private val BAR_INK = Color(0xB8121316)

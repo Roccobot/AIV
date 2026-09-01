@@ -16,6 +16,25 @@
     <string name="menu_copy_image">ছবি কপি করুন</string>
     <string name="menu_share">শেয়ার করুন</string>
     <string name="menu_save">সংরক্ষণ করুন</string>
+    <string name="menu_convert">রূপান্তর ও রপ্তানি</string>
+    <string name="convert_format">বিন্যাস</string>
+    <string name="convert_jpeg">JPEG</string>
+    <string name="convert_png">PNG</string>
+    <string name="convert_webp">WebP</string>
+    <string name="convert_webp_lossless">WebP ক্ষতিহীন</string>
+    <string name="convert_quality">গুণমান</string>
+    <string name="convert_size">আকার</string>
+    <string name="convert_no_alpha">JPEG স্বচ্ছতা রাখে না: ওই অংশগুলি সাদা হয়ে যায়।</string>
+    <string name="convert_elsewhere">অন্যান্য বিন্যাস</string>
+    <string name="convert_elsewhere_desc">অ্যান্ড্রয়েড কেবল উপরের বিন্যাসগুলিই লিখতে পারে। বাকিগুলির জন্য এই পরিষেবাগুলি আছে, যেগুলি ব্রাউজারে খোলে: ছবিটি সেখানেই, ফোনের মেমরি থেকে বেছে নিন।</string>
+    <string name="convert_open">খুলুন</string>
+    <string name="convert_export">রপ্তানি করুন</string>
+    <string name="convert_ezgif">EzGif</string>
+    <string name="convert_ezgif_why">প্রায় সবকিছু থেকে ও সবকিছুতে রূপান্তর করে, অ্যানিমেটেড GIF সহ।</string>
+    <string name="convert_squoosh">Squoosh</string>
+    <string name="convert_squoosh_why">গুগলের, ব্রাউজারেই কাজ করে: ছবি কোথাও আপলোড হয় না।</string>
+    <string name="convert_cloudconvert">CloudConvert</string>
+    <string name="convert_cloudconvert_why">বিন্যাসের দীর্ঘতম তালিকা, AVIF ও TIFF সহ।</string>
     <string name="toast_image_copied">ছবি অনুলিপি হয়েছে</string>
     <string name="toast_copy_failed">অনুলিপি হয়নি</string>
     <string name="toast_saved">সংরক্ষিত হয়েছে</string>
@@ -135,6 +154,17 @@
     <string name="facts_modified">শেষ পরিবর্তন</string>
     <string name="facts_folder">ফোল্ডার</string>
     <string name="facts_encoding">সংকেতায়ন</string>
+    <string name="facts_colours">রঙের পদ্ধতি</string>
+    <string name="facts_frames">ফ্রেম</string>
+    <string name="facts_duration">স্থিতিকাল</string>
+    <string name="facts_colour_grey">ধূসর স্কেল</string>
+    <string name="facts_colour_indexed">সূচিবদ্ধ রঙ</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s %2$d বিট</string>
+    <string name="facts_colour_channel">%1$d বিট/চ্যানেল</string>
+    <string name="facts_colour_alpha">স্বচ্ছতা সহ</string>
+    <string name="facts_duration_s">%1$s সেকেন্ড</string>
     <string name="facts_camera">তোলার তথ্য</string>
     <string name="facts_place">ভৌগোলিক স্থানাঙ্ক</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
@@ -307,4 +337,8 @@
     <string name="anim_prev">আগের ফ্রেম</string>
     <string name="anim_next">পরের ফ্রেম</string>
     <string name="anim_export">এই ফ্রেম রপ্তানি করুন</string>
+    <plurals name="facts_colour_count">
+        <item quantity="one">%1$d রঙ</item>
+        <item quantity="other">%1$d রঙ</item>
+    </plurals>
 </resources>

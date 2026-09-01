@@ -16,6 +16,25 @@
     <string name="menu_copy_image">Salin gambar</string>
     <string name="menu_share">Bagikan</string>
     <string name="menu_save">Simpan</string>
+    <string name="menu_convert">Konversi dan ekspor</string>
+    <string name="convert_format">Format</string>
+    <string name="convert_jpeg">JPEG</string>
+    <string name="convert_png">PNG</string>
+    <string name="convert_webp">WebP</string>
+    <string name="convert_webp_lossless">WebP tanpa kehilangan</string>
+    <string name="convert_quality">Kualitas</string>
+    <string name="convert_size">Ukuran</string>
+    <string name="convert_no_alpha">JPEG tidak menyimpan transparansi: bagian itu menjadi putih.</string>
+    <string name="convert_elsewhere">Format lain</string>
+    <string name="convert_elsewhere_desc">Android hanya bisa menulis format di atas. Untuk selebihnya ada layanan berikut, yang terbuka di peramban: gambar dipilih di sana, dari memori ponsel.</string>
+    <string name="convert_open">Buka</string>
+    <string name="convert_export">Ekspor</string>
+    <string name="convert_ezgif">EzGif</string>
+    <string name="convert_ezgif_why">Mengonversi dari dan ke hampir apa saja, termasuk GIF animasi.</string>
+    <string name="convert_squoosh">Squoosh</string>
+    <string name="convert_squoosh_why">Buatan Google, bekerja di peramban: gambar tidak diunggah ke mana pun.</string>
+    <string name="convert_cloudconvert">CloudConvert</string>
+    <string name="convert_cloudconvert_why">Daftar format terpanjang, termasuk AVIF dan TIFF.</string>
     <string name="toast_image_copied">Gambar disalin</string>
     <string name="toast_copy_failed">Penyalinan tidak berhasil</string>
     <string name="toast_saved">Tersimpan</string>
@@ -133,6 +152,17 @@
     <string name="facts_modified">Terakhir diubah</string>
     <string name="facts_folder">Folder</string>
     <string name="facts_encoding">Pengodean</string>
+    <string name="facts_colours">Mode warna</string>
+    <string name="facts_frames">Bingkai</string>
+    <string name="facts_duration">Durasi</string>
+    <string name="facts_colour_grey">Skala abu-abu</string>
+    <string name="facts_colour_indexed">Warna terindeks</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s %2$d bit</string>
+    <string name="facts_colour_channel">%1$d bit/kanal</string>
+    <string name="facts_colour_alpha">dengan transparansi</string>
+    <string name="facts_duration_s">%1$s dtk</string>
     <string name="facts_camera">Data pengambilan</string>
     <string name="facts_place">Koordinat geografis</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
@@ -292,4 +322,7 @@
     <string name="anim_prev">Bingkai sebelumnya</string>
     <string name="anim_next">Bingkai berikutnya</string>
     <string name="anim_export">Ekspor bingkai ini</string>
+    <plurals name="facts_colour_count">
+        <item quantity="other">%1$d warna</item>
+    </plurals>
 </resources>

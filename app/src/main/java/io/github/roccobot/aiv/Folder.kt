@@ -623,7 +623,7 @@ object Folder {
      * dei filtri del manifest, che è dove vive l'idea che l'app ha di 'immagine'.
      */
     private val EXTENSIONS = setOf(
-        "jpg", "jpeg", "png", "gif", "webp", "avif", "heic", "heif", "tif", "tiff", "bmp"
+        "jpg", "jpeg", "jpe", "png", "gif", "webp", "avif", "heic", "heif", "tif", "tiff", "bmp"
     )
 
     /**

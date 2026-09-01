@@ -34,9 +34,9 @@
     <string name="convert_webp_lossless">WebP senza perdita</string>
     <string name="convert_quality">Qualità</string>
     <string name="convert_size">Dimensioni</string>
-    <string name="convert_no_alpha">Il JPEG non conserva la trasparenza: le parti trasparenti diventano nere.</string>
+    <string name="convert_no_alpha">Il JPEG non conserva la trasparenza: quelle parti diventano bianche.</string>
     <string name="convert_elsewhere">Altri formati</string>
-    <string name="convert_elsewhere_desc">Android sa scrivere solo i formati qui sopra. Per gli altri, questi servizi aprono nel browser: l\'immagine va scelta di là, dalla memoria del telefono.</string>
+    <string name="convert_elsewhere_desc">Android sa scrivere solo i formati qui sopra. Per gli altri ci sono questi servizi, che si aprono nel browser: l\'immagine si sceglie da lì, dalla memoria del telefono.</string>
     <string name="convert_open">Apri</string>
     <string name="convert_export">Esporta</string>
     <string name="convert_ezgif">EzGif</string>
@@ -231,7 +231,7 @@
     <string name="facts_frames">Fotogrammi</string>
     <string name="facts_duration">Durata</string>
     <string name="facts_colour_grey">Scala di grigio</string>
-    <string name="facts_colour_indexed">Scala di colore</string>
+    <string name="facts_colour_indexed">Colore indicizzato</string>
     <string name="facts_colour_rgb">RGB</string>
     <string name="facts_colour_rgba">RGBA</string>
     <string name="facts_colour_bits">%1$s %2$d bit</string>
@@ -415,5 +415,6 @@
     <plurals name="facts_colour_count">
         <item quantity="one">%1$d colore</item>
         <item quantity="other">%1$d colori</item>
+        <item quantity="many">%1$d colori</item>
     </plurals>
 </resources>

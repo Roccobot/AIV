@@ -16,6 +16,25 @@
     <string name="menu_copy_image">చిత్రాన్ని కాపీ చేయి</string>
     <string name="menu_share">పంచుకోండి</string>
     <string name="menu_save">భద్రపరచండి</string>
+    <string name="menu_convert">మార్చి ఎగుమతి చేయి</string>
+    <string name="convert_format">ఫార్మాట్</string>
+    <string name="convert_jpeg">JPEG</string>
+    <string name="convert_png">PNG</string>
+    <string name="convert_webp">WebP</string>
+    <string name="convert_webp_lossless">WebP నష్టరహితం</string>
+    <string name="convert_quality">నాణ్యత</string>
+    <string name="convert_size">పరిమాణం</string>
+    <string name="convert_no_alpha">JPEG పారదర్శకతను ఉంచదు: ఆ భాగాలు తెలుపుగా మారతాయి.</string>
+    <string name="convert_elsewhere">ఇతర ఫార్మాట్లు</string>
+    <string name="convert_elsewhere_desc">పైన ఉన్న ఫార్మాట్లను మాత్రమే Android రాయగలదు. మిగతా వాటికి ఈ సేవలు ఉన్నాయి, అవి బ్రౌజర్‌లో తెరుచుకుంటాయి: చిత్రాన్ని అక్కడే, ఫోన్ మెమరీ నుండి ఎంచుకోండి.</string>
+    <string name="convert_open">తెరువు</string>
+    <string name="convert_export">ఎగుమతి చేయి</string>
+    <string name="convert_ezgif">EzGif</string>
+    <string name="convert_ezgif_why">దాదాపు అన్నింటి నుండి అన్నింటికీ మారుస్తుంది, కదిలే GIFలతో సహా.</string>
+    <string name="convert_squoosh">Squoosh</string>
+    <string name="convert_squoosh_why">గూగుల్‌ది, బ్రౌజర్‌లోనే పనిచేస్తుంది: చిత్రం ఎక్కడికీ అప్‌లోడ్ కాదు.</string>
+    <string name="convert_cloudconvert">CloudConvert</string>
+    <string name="convert_cloudconvert_why">ఫార్మాట్ల జాబితా అన్నింటికంటే పొడవైనది, AVIF మరియు TIFFతో సహా.</string>
     <string name="toast_image_copied">చిత్రం కాపీ అయింది</string>
     <string name="toast_copy_failed">కాపీ జరగలేదు</string>
     <string name="toast_saved">భద్రపరచబడింది</string>
@@ -135,6 +154,17 @@
     <string name="facts_modified">చివరి మార్పు</string>
     <string name="facts_folder">సంచయం</string>
     <string name="facts_encoding">సంకేతీకరణ</string>
+    <string name="facts_colours">రంగు విధానం</string>
+    <string name="facts_frames">ఫ్రేములు</string>
+    <string name="facts_duration">వ్యవధి</string>
+    <string name="facts_colour_grey">బూడిద ఛాయలు</string>
+    <string name="facts_colour_indexed">సూచీ రంగు</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s %2$d బిట్</string>
+    <string name="facts_colour_channel">%1$d బిట్/ఛానెల్</string>
+    <string name="facts_colour_alpha">పారదర్శకతతో</string>
+    <string name="facts_duration_s">%1$s సెకన్లు</string>
     <string name="facts_camera">తీసిన వివరాలు</string>
     <string name="facts_place">భౌగోళిక అక్షాంశాలు</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
@@ -307,4 +337,8 @@
     <string name="anim_prev">మునుపటి ఫ్రేమ్</string>
     <string name="anim_next">తదుపరి ఫ్రేమ్</string>
     <string name="anim_export">ఈ ఫ్రేమ్‌ను ఎగుమతి చేయి</string>
+    <plurals name="facts_colour_count">
+        <item quantity="one">%1$d రంగు</item>
+        <item quantity="other">%1$d రంగులు</item>
+    </plurals>
 </resources>

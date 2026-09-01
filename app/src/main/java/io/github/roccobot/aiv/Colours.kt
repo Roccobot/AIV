@@ -6,7 +6,7 @@ import java.io.InputStream
  * Come un'immagine tiene i suoi colori, e quanti fotogrammi ha.
  *
  * ⚠️⚠️ **SI LEGGONO LE INTESTAZIONI E NON SI DECODIFICA NIENTE, come in [Encoding]**: dire
- * 'scala di colore, 256 colori' costa una manciata di byte, mentre ricavarlo dai pixel
+ * 'colore indicizzato, 256 colori' costa una manciata di byte, mentre ricavarlo dai pixel
  * vorrebbe dire ricostruire l'immagine intera per scrivere una riga. Vale anche per il
  * conteggio dei fotogrammi: si cammina di blocco in blocco saltando i dati compressi, senza
  * mai srotolarne uno.

@@ -16,6 +16,25 @@
     <string name="menu_copy_image">Sao chép hình ảnh</string>
     <string name="menu_share">Chia sẻ</string>
     <string name="menu_save">Lưu</string>
+    <string name="menu_convert">Chuyển đổi và xuất</string>
+    <string name="convert_format">Định dạng</string>
+    <string name="convert_jpeg">JPEG</string>
+    <string name="convert_png">PNG</string>
+    <string name="convert_webp">WebP</string>
+    <string name="convert_webp_lossless">WebP không mất dữ liệu</string>
+    <string name="convert_quality">Chất lượng</string>
+    <string name="convert_size">Kích thước</string>
+    <string name="convert_no_alpha">JPEG không giữ độ trong suốt: những vùng đó sẽ thành màu trắng.</string>
+    <string name="convert_elsewhere">Định dạng khác</string>
+    <string name="convert_elsewhere_desc">Android chỉ ghi được các định dạng ở trên. Với những định dạng còn lại thì có các dịch vụ sau, chúng mở trong trình duyệt: hãy chọn ảnh ở đó, từ bộ nhớ điện thoại.</string>
+    <string name="convert_open">Mở</string>
+    <string name="convert_export">Xuất</string>
+    <string name="convert_ezgif">EzGif</string>
+    <string name="convert_ezgif_why">Chuyển đổi từ và sang gần như mọi thứ, kể cả GIF động.</string>
+    <string name="convert_squoosh">Squoosh</string>
+    <string name="convert_squoosh_why">Của Google, chạy ngay trong trình duyệt: ảnh không được tải lên đâu cả.</string>
+    <string name="convert_cloudconvert">CloudConvert</string>
+    <string name="convert_cloudconvert_why">Danh sách định dạng dài nhất, kể cả AVIF và TIFF.</string>
     <string name="toast_image_copied">Đã sao chép ảnh</string>
     <string name="toast_copy_failed">Sao chép không thành công</string>
     <string name="toast_saved">Đã lưu</string>
@@ -133,6 +152,17 @@
     <string name="facts_modified">Sửa lần cuối</string>
     <string name="facts_folder">Thư mục</string>
     <string name="facts_encoding">Mã hóa</string>
+    <string name="facts_colours">Chế độ màu</string>
+    <string name="facts_frames">Khung hình</string>
+    <string name="facts_duration">Thời lượng</string>
+    <string name="facts_colour_grey">Thang xám</string>
+    <string name="facts_colour_indexed">Màu chỉ mục</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s %2$d bit</string>
+    <string name="facts_colour_channel">%1$d bit/kênh</string>
+    <string name="facts_colour_alpha">có độ trong suốt</string>
+    <string name="facts_duration_s">%1$s giây</string>
     <string name="facts_camera">Dữ liệu chụp</string>
     <string name="facts_place">Tọa độ địa lý</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
@@ -292,4 +322,7 @@
     <string name="anim_prev">Khung hình trước</string>
     <string name="anim_next">Khung hình sau</string>
     <string name="anim_export">Xuất khung hình này</string>
+    <plurals name="facts_colour_count">
+        <item quantity="other">%1$d màu</item>
+    </plurals>
 </resources>

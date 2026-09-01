@@ -55,8 +55,10 @@ object Convert {
 
         /**
          * ⚠️⚠️ **IL JPEG NON HA LA TRASPARENZA, e va detto PRIMA e non dopo**: convertendo
-         * una PNG o una WebP con le parti trasparenti, quelle diventano **nere**, in silenzio.
-         * Chi se ne accorge lo fa guardando il file salvato, cioè quando è tardi.
+         * una PNG o una WebP con le parti trasparenti, quelle diventano un colore pieno, e
+         * chi se ne accorge lo fa guardando il file salvato, cioè quando è tardi.
+         * ⚠️ **Quel colore è BIANCO e non nero dalla 1.16** (scelta dell'utente, 2026-09-01):
+         * vedi [flatten] per il come e per il perché il nero non era una scelta di nessuno.
          */
         val keepsAlpha: Boolean get() = this != JPEG
     }
@@ -115,14 +117,43 @@ object Convert {
                 whole, size.applyTo(whole.width), size.applyTo(whole.height), true
             )
         }.getOrDefault(whole)
+        val flat = if (target.keepsAlpha) scaled else flatten(scaled)
         val done = runCatching {
             context.contentResolver.openOutputStream(destination)?.use { out ->
-                scaled.compress(target.format, quality.coerceIn(1, 100), out)
+                flat.compress(target.format, quality.coerceIn(1, 100), out)
             } ?: false
         }.getOrDefault(false)
+        if (flat !== scaled) flat.recycle()
         if (scaled !== whole) scaled.recycle()
         if (whole !== fallback) whole.recycle()
         done
+    }
+
+    /**
+     * L'immagine su fondo **bianco**, per i formati che la trasparenza non la sanno tenere.
+     *
+     * ⚠️⚠️ **IL NERO NON ERA UNA SCELTA DI NESSUNO, ed è la ragione per cui questa funzione
+     * esiste**: `compress` in JPEG butta via il canale alfa e basta, quindi un pixel
+     * trasparente resta con i suoi valori di colore, che in un PNG sono quasi sempre zero,
+     * cioè nero. Non è il JPEG a decidere il colore: è la sorte. Disegnando prima su una tela
+     * piena, il colore lo decidiamo noi.
+     * ⚠️ **Bianco perché è il fondo su cui l'immagine verrà quasi certamente guardata** (una
+     * pagina, un documento, una chat chiara), e perché di un disegno con lo sfondo tolto è la
+     * resa che somiglia di più all'originale. Il nero riempiva di inchiostro proprio le parti
+     * che qualcuno aveva cancellato apposta. Scelta dell'utente, 2026-09-01.
+     * ⚠️ **Si salta quando non serve**: senza canale alfa la copia sarebbe una tela in più
+     * grande come l'immagine, per disegnarci sopra la stessa cosa.
+     */
+    private fun flatten(source: Bitmap): Bitmap {
+        if (!source.hasAlpha()) return source
+        return runCatching {
+            val out = Bitmap.createBitmap(source.width, source.height, Bitmap.Config.ARGB_8888)
+            android.graphics.Canvas(out).apply {
+                drawColor(android.graphics.Color.WHITE)
+                drawBitmap(source, 0f, 0f, null)
+            }
+            out
+        }.getOrDefault(source)
     }
 
     /**

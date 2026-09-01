@@ -16,6 +16,25 @@
     <string name="menu_copy_image">تصویر کاپی کریں</string>
     <string name="menu_share">شیئر کریں</string>
     <string name="menu_save">محفوظ کریں</string>
+    <string name="menu_convert">تبدیل اور برآمد</string>
+    <string name="convert_format">فارمیٹ</string>
+    <string name="convert_jpeg">JPEG</string>
+    <string name="convert_png">PNG</string>
+    <string name="convert_webp">WebP</string>
+    <string name="convert_webp_lossless">WebP بلا نقصان</string>
+    <string name="convert_quality">معیار</string>
+    <string name="convert_size">حجم</string>
+    <string name="convert_no_alpha">JPEG شفافیت نہیں رکھتا: وہ حصے سفید ہو جاتے ہیں۔</string>
+    <string name="convert_elsewhere">دوسرے فارمیٹ</string>
+    <string name="convert_elsewhere_desc">اینڈرائیڈ صرف اوپر والے فارمیٹ لکھ سکتا ہے۔ باقی کے لیے یہ خدمات ہیں، جو براؤزر میں کھلتی ہیں: تصویر وہیں، فون کی یادداشت سے منتخب کریں۔</string>
+    <string name="convert_open">کھولیں</string>
+    <string name="convert_export">برآمد کریں</string>
+    <string name="convert_ezgif">EzGif</string>
+    <string name="convert_ezgif_why">تقریباً ہر چیز سے اور ہر چیز میں تبدیل کرتا ہے، متحرک GIF سمیت۔</string>
+    <string name="convert_squoosh">Squoosh</string>
+    <string name="convert_squoosh_why">گوگل کا، براؤزر ہی میں کام کرتا ہے: تصویر کہیں اپ لوڈ نہیں ہوتی۔</string>
+    <string name="convert_cloudconvert">CloudConvert</string>
+    <string name="convert_cloudconvert_why">فارمیٹس کی سب سے لمبی فہرست، AVIF اور TIFF سمیت۔</string>
     <string name="toast_image_copied">تصویر نقل ہو گئی</string>
     <string name="toast_copy_failed">نقل نہیں ہو سکی</string>
     <string name="toast_saved">محفوظ ہو گیا</string>
@@ -135,6 +154,17 @@
     <string name="facts_modified">آخری تبدیلی</string>
     <string name="facts_folder">فولڈر</string>
     <string name="facts_encoding">رمز کاری</string>
+    <string name="facts_colours">رنگ کا طریقہ</string>
+    <string name="facts_frames">فریم</string>
+    <string name="facts_duration">دورانیہ</string>
+    <string name="facts_colour_grey">سرمئی درجات</string>
+    <string name="facts_colour_indexed">اشاریہ بند رنگ</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s %2$d بٹ</string>
+    <string name="facts_colour_channel">%1$d بٹ/چینل</string>
+    <string name="facts_colour_alpha">شفافیت کے ساتھ</string>
+    <string name="facts_duration_s">%1$s سیکنڈ</string>
     <string name="facts_camera">کھینچنے کا ڈیٹا</string>
     <string name="facts_place">جغرافیائی محددات</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
@@ -307,4 +337,8 @@
     <string name="anim_prev">پچھلا فریم</string>
     <string name="anim_next">اگلا فریم</string>
     <string name="anim_export">یہ فریم برآمد کریں</string>
+    <plurals name="facts_colour_count">
+        <item quantity="one">%1$d رنگ</item>
+        <item quantity="other">%1$d رنگ</item>
+    </plurals>
 </resources>

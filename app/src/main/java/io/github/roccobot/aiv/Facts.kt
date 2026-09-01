@@ -55,7 +55,7 @@ class OneFile(
      *
      * ⚠️ **È un dato diverso da [encoding], anche se i due si leggono negli stessi byte**:
      * quello dice come l'immagine è **compressa**, questo che cosa contiene un pixel. Su un
-     * PNG a tavolozza le due righe dicono 'PNG, 8 bit' e 'scala di colore, 256 colori', che
+     * PNG a tavolozza le due righe dicono 'PNG, 8 bit' e 'colore indicizzato, 256 colori', che
      * sono due informazioni e non due modi di dire la stessa.
      */
     val colours: Colours?,

@@ -46,11 +46,16 @@ import kotlin.math.roundToInt
  * quattro sarebbe una promessa rotta a metà elenco.
  * ⚠️ **I pixel che escono si leggono PRIMA di esportare**: la percentuale da sola non dice
  * quanto sarà grande il file, e chi riduce lo fa proprio per quello.
+ *
+ * @param onSaved il file convertito è stato scritto. ⚠️ Serve a far rileggere la cartella
+ *   aperta dietro al visualizzatore, che altrimenti resterebbe con la lista di prima: vedi
+ *   `AnimatedBar`, dove il difetto si è visto per la prima volta.
  */
 @Composable
 fun ConvertDialog(
     image: LoadedImage,
     source: Uri?,
+    onSaved: () -> Unit,
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
@@ -91,6 +96,7 @@ fun ConvertDialog(
                 if (ok) R.string.toast_saved else R.string.toast_save_failed,
                 Toast.LENGTH_SHORT
             ).show()
+            if (ok) onSaved()
             onDismiss()
         }
     }

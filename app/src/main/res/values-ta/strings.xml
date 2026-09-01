@@ -16,6 +16,25 @@
     <string name="menu_copy_image">படத்தை நகலெடு</string>
     <string name="menu_share">பகிர்</string>
     <string name="menu_save">சேமி</string>
+    <string name="menu_convert">மாற்றி ஏற்றுமதி செய்</string>
+    <string name="convert_format">வடிவம்</string>
+    <string name="convert_jpeg">JPEG</string>
+    <string name="convert_png">PNG</string>
+    <string name="convert_webp">WebP</string>
+    <string name="convert_webp_lossless">WebP இழப்பற்றது</string>
+    <string name="convert_quality">தரம்</string>
+    <string name="convert_size">அளவு</string>
+    <string name="convert_no_alpha">JPEG ஒளிஊடுருவலைத் தக்கவைக்காது: அந்தப் பகுதிகள் வெள்ளையாகிவிடும்.</string>
+    <string name="convert_elsewhere">பிற வடிவங்கள்</string>
+    <string name="convert_elsewhere_desc">மேலே உள்ள வடிவங்களை மட்டுமே Android எழுத முடியும். மற்றவற்றுக்கு இந்தச் சேவைகள் உள்ளன, அவை உலாவியில் திறக்கும்: படத்தை அங்கேயே, தொலைபேசி நினைவகத்திலிருந்து தேர்ந்தெடுக்கவும்.</string>
+    <string name="convert_open">திற</string>
+    <string name="convert_export">ஏற்றுமதி செய்</string>
+    <string name="convert_ezgif">EzGif</string>
+    <string name="convert_ezgif_why">கிட்டத்தட்ட எல்லாவற்றிலிருந்தும் எல்லாவற்றுக்கும் மாற்றுகிறது, அசையும் GIF உட்பட.</string>
+    <string name="convert_squoosh">Squoosh</string>
+    <string name="convert_squoosh_why">Google உருவாக்கியது, உலாவியிலேயே இயங்குகிறது: படம் எங்கும் பதிவேற்றப்படுவதில்லை.</string>
+    <string name="convert_cloudconvert">CloudConvert</string>
+    <string name="convert_cloudconvert_why">வடிவங்களின் மிக நீண்ட பட்டியல், AVIF மற்றும் TIFF உட்பட.</string>
     <string name="toast_image_copied">படம் நகலெடுக்கப்பட்டது</string>
     <string name="toast_copy_failed">நகலெடுப்பு நடக்கவில்லை</string>
     <string name="toast_saved">சேமிக்கப்பட்டது</string>
@@ -135,6 +154,17 @@
     <string name="facts_modified">கடைசி மாற்றம்</string>
     <string name="facts_folder">கோப்புறை</string>
     <string name="facts_encoding">குறியாக்கம்</string>
+    <string name="facts_colours">வண்ண முறை</string>
+    <string name="facts_frames">சட்டகங்கள்</string>
+    <string name="facts_duration">கால அளவு</string>
+    <string name="facts_colour_grey">சாம்பல் அளவு</string>
+    <string name="facts_colour_indexed">அட்டவணை வண்ணம்</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s %2$d பிட்</string>
+    <string name="facts_colour_channel">%1$d பிட்/சேனல்</string>
+    <string name="facts_colour_alpha">ஒளிஊடுருவலுடன்</string>
+    <string name="facts_duration_s">%1$s விநாடி</string>
     <string name="facts_camera">எடுப்பின் தரவு</string>
     <string name="facts_place">புவியியல் ஆயத்தொலைவுகள்</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
@@ -307,4 +337,8 @@
     <string name="anim_prev">முந்தைய சட்டகம்</string>
     <string name="anim_next">அடுத்த சட்டகம்</string>
     <string name="anim_export">இந்தச் சட்டகத்தை ஏற்றுமதி செய்</string>
+    <plurals name="facts_colour_count">
+        <item quantity="one">%1$d வண்ணம்</item>
+        <item quantity="other">%1$d வண்ணங்கள்</item>
+    </plurals>
 </resources>

@@ -284,6 +284,16 @@ fun ViewerScreen(
      */
     onFileChanged: () -> Unit,
     /**
+     * Un file **nuovo** è comparso nella cartella: un fotogramma esportato, una conversione.
+     *
+     * ⚠️⚠️ **NON È [onFileChanged], e confonderli sposterebbe la fotografia sotto gli occhi
+     * di chi guarda**: quella rilegge la cartella e mostra *quello che sta in quella
+     * posizione*, che dopo un'aggiunta è la foto precedente, perché l'ordine è per data e il
+     * file nuovo entra in cima. Qui invece non cambia niente di quello che si sta guardando:
+     * si segna soltanto che la **griglia** dietro è vecchia, e si rilegge quando ci si torna.
+     */
+    onFileAdded: () -> Unit,
+    /**
      * 'Modifica' dal menu del tocco lungo: la fotografia da aprire in un editor.
      *
      * ⚠️ **Sale al modello e non si risolve qui**, perché la risposta dipende da
@@ -375,7 +385,12 @@ fun ViewerScreen(
     // tondo. Senza immagine il dialogo semplicemente non c'è, e il caso non capita perché la
     // voce che lo apre vive dentro un menu che senza immagine non si apre.
     shown?.takeIf { converting }?.let { picture ->
-        ConvertDialog(image = picture, source = source, onDismiss = { converting = false })
+        ConvertDialog(
+            image = picture,
+            source = source,
+            onSaved = onFileAdded,
+            onDismiss = { converting = false }
+        )
     }
 
     /*
@@ -517,6 +532,7 @@ fun ViewerScreen(
                         animation = animation,
                         name = state.image.displayName,
                         counter = settings.animCounter,
+                        onExported = onFileAdded,
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
                             // ⚠️ **PRIMA TARATURA, DA GUARDARE SUL TELEFONO**: la riga dei

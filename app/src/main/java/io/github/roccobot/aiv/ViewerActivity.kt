@@ -1349,10 +1349,41 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 screen = dest
                 source = null
                 stopLoad()
+                // ⚠️ **Dopo** l'assegnazione di `screen`, e non prima: [reloadGrid] guarda
+                // lì per sapere quale delle tre griglie rileggere, e chiamata un attimo
+                // prima leggerebbe ancora `Screen.Viewer`, cioè il suo ramo che non fa
+                // niente. Vedi [afterFileAdded].
+                if (gridStale) {
+                    gridStale = false
+                    reloadGrid()
+                }
             }
             else -> goHome()
         }
     }
+
+    /**
+     * Mentre si guardava una fotografia è comparso un file nuovo nella cartella.
+     *
+     * ⚠️⚠️ **NON SI RILEGGE SUBITO, e non è pigrizia**: la griglia in questo momento non è in
+     * scena, e rileggerla vorrebbe dire una query per una schermata che nessuno sta
+     * guardando, mentre si sta guardando altro. Si segna soltanto che è vecchia, e la
+     * rilettura si paga al ritorno, che è quando serve.
+     * ⚠️⚠️ **E soprattutto NON si passa da [afterFileChanged], che sposterebbe la fotografia
+     * sotto gli occhi**: quella conserva la **posizione** nella cartella, e un file nuovo
+     * entra in cima all'ordine per data, quindi la stessa posizione dopo l'aggiunta è la foto
+     * di prima. Chi esporta un fotogramma si ritroverebbe davanti un'altra immagine, senza
+     * aver toccato niente.
+     * ⚠️ Chi la chiama: l'esportazione di un fotogramma (`AnimatedBar`) e 'Converti/Esporta'
+     * (`ConvertDialog`). Difetto riscontrato dall'utente il 2026-09-01: il fotogramma salvato
+     * non compariva finché non si usciva dalla cartella e ci si rientrava.
+     */
+    fun afterFileAdded() {
+        gridStale = true
+    }
+
+    /** Se la griglia dietro al visualizzatore è da rileggere. Vedi [afterFileAdded]. */
+    private var gridStale = false
 
     /**
      * La fotografia che si sta guardando non è più a quell'indirizzo: si rilegge la
@@ -1507,15 +1538,31 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Rimette in piedi tutti gli onboarding, come alla prima installazione.
+     * Rimette in piedi tutto quello che si mostra **una volta sola**, come alla prima
+     * installazione.
      *
      * ⚠️ **Sta nel modello e non nella schermata**, come `forgetRecents`: quella scrive
      * nell'archivio, e una schermata che scrive nell'archivio da sé smette di essere una
      * schermata. ⚠️ Gira su **tutte** le voci di [Hint] e non su un elenco scritto a mano:
      * il giorno che ne nasce una quarta, questa funzione la copre già.
+     *
+     * ⚠️⚠️ **DALLA 1.16 AZZERA ANCHE [FolderAsk], e non è un di più**: il testo del tasto
+     * promette 'i suggerimenti **e gli avvisi**', e la richiesta della cartella iniziale è
+     * l'unica cosa una-tantum che restava fuori. Era anche la più costosa da subire: gli
+     * onboarding tornano da soli cancellando i dati dell'app, mentre un 'no' alla cartella
+     * chiudeva la porta per sempre, ed è proprio il caso in cui serve tornare indietro
+     * (richiesta dell'utente, 2026-09-01).
+     * ⚠️ **Quello che NON copre, perché non esiste**: un avviso alla prima eliminazione (la
+     * conferma esce **ogni** volta, ed è una conferma, non un onboarding) e uno al primo
+     * salvataggio dell'editor (c'era fino alla `1.07`, ed è uscito con la domanda
+     * 'sovrascrivi o copia'). Sta scritto qui perché sono le due cose che si va a cercare.
      */
     fun resetHints() {
-        viewModelScope.launch { Hint.entries.forEach { it.forget(getApplication()) } }
+        val context = getApplication<Application>()
+        viewModelScope.launch {
+            Hint.entries.forEach { it.forget(context) }
+            FolderAsk.forget(context)
+        }
     }
 
     /**
@@ -1810,6 +1857,7 @@ private fun AivApp(model: ViewerViewModel) {
                 onSettings = { model.openSettings() },
                 onRetry = { model.retry() },
                 onFileChanged = { model.afterFileChanged() },
+                onFileAdded = { model.afterFileAdded() },
                 onEdit = { model.edit(it) },
                 onEditWith = { model.editWith(it) },
                 // ⚠️ Da dove si è entrati dice se si sta guardando il cestino: la

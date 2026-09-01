@@ -16,6 +16,25 @@
     <string name="menu_copy_image">छवि कॉपी करें</string>
     <string name="menu_share">साझा करें</string>
     <string name="menu_save">सहेजें</string>
+    <string name="menu_convert">बदलें और निर्यात करें</string>
+    <string name="convert_format">प्रारूप</string>
+    <string name="convert_jpeg">JPEG</string>
+    <string name="convert_png">PNG</string>
+    <string name="convert_webp">WebP</string>
+    <string name="convert_webp_lossless">WebP दोषरहित</string>
+    <string name="convert_quality">गुणवत्ता</string>
+    <string name="convert_size">आकार</string>
+    <string name="convert_no_alpha">JPEG पारदर्शिता नहीं रखता: वे हिस्से सफ़ेद हो जाते हैं।</string>
+    <string name="convert_elsewhere">अन्य प्रारूप</string>
+    <string name="convert_elsewhere_desc">एंड्रॉइड केवल ऊपर दिए प्रारूप ही लिख सकता है। बाकी के लिए ये सेवाएँ हैं, जो ब्राउज़र में खुलती हैं: छवि वहीं, फ़ोन की मेमोरी से चुनें।</string>
+    <string name="convert_open">खोलें</string>
+    <string name="convert_export">निर्यात करें</string>
+    <string name="convert_ezgif">EzGif</string>
+    <string name="convert_ezgif_why">लगभग हर चीज़ से और हर चीज़ में बदलता है, एनिमेटेड GIF सहित।</string>
+    <string name="convert_squoosh">Squoosh</string>
+    <string name="convert_squoosh_why">गूगल का, ब्राउज़र में ही चलता है: छवि कहीं अपलोड नहीं होती।</string>
+    <string name="convert_cloudconvert">CloudConvert</string>
+    <string name="convert_cloudconvert_why">प्रारूपों की सबसे लंबी सूची, AVIF और TIFF सहित।</string>
     <string name="toast_image_copied">चित्र कॉपी हो गया</string>
     <string name="toast_copy_failed">कॉपी नहीं हो सका</string>
     <string name="toast_saved">सहेज लिया</string>
@@ -135,6 +154,17 @@
     <string name="facts_modified">अंतिम बदलाव</string>
     <string name="facts_folder">फ़ोल्डर</string>
     <string name="facts_encoding">एन्कोडिंग</string>
+    <string name="facts_colours">रंग विधि</string>
+    <string name="facts_frames">फ़्रेम</string>
+    <string name="facts_duration">अवधि</string>
+    <string name="facts_colour_grey">ग्रेस्केल</string>
+    <string name="facts_colour_indexed">अनुक्रमित रंग</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s %2$d बिट</string>
+    <string name="facts_colour_channel">%1$d बिट/चैनल</string>
+    <string name="facts_colour_alpha">पारदर्शिता के साथ</string>
+    <string name="facts_duration_s">%1$s सेकंड</string>
     <string name="facts_camera">शूटिंग डेटा</string>
     <string name="facts_place">भौगोलिक निर्देशांक</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
@@ -307,4 +337,8 @@
     <string name="anim_prev">पिछला फ़्रेम</string>
     <string name="anim_next">अगला फ़्रेम</string>
     <string name="anim_export">यह फ़्रेम निर्यात करें</string>
+    <plurals name="facts_colour_count">
+        <item quantity="one">%1$d रंग</item>
+        <item quantity="other">%1$d रंग</item>
+    </plurals>
 </resources>

@@ -16,6 +16,25 @@
     <string name="menu_copy_image">Копіювати зображення</string>
     <string name="menu_share">Поділитися</string>
     <string name="menu_save">Зберегти</string>
+    <string name="menu_convert">Перетворити й експортувати</string>
+    <string name="convert_format">Формат</string>
+    <string name="convert_jpeg">JPEG</string>
+    <string name="convert_png">PNG</string>
+    <string name="convert_webp">WebP</string>
+    <string name="convert_webp_lossless">WebP без втрат</string>
+    <string name="convert_quality">Якість</string>
+    <string name="convert_size">Розмір</string>
+    <string name="convert_no_alpha">JPEG не зберігає прозорість: ці ділянки стануть білими.</string>
+    <string name="convert_elsewhere">Інші формати</string>
+    <string name="convert_elsewhere_desc">Android уміє записувати лише формати вище. Для решти є ці служби, вони відкриваються у браузері: зображення вибирається там, з пам\'яті телефона.</string>
+    <string name="convert_open">Відкрити</string>
+    <string name="convert_export">Експортувати</string>
+    <string name="convert_ezgif">EzGif</string>
+    <string name="convert_ezgif_why">Перетворює майже з усього і майже на все, разом з анімованими GIF.</string>
+    <string name="convert_squoosh">Squoosh</string>
+    <string name="convert_squoosh_why">Від Google, працює у браузері: зображення нікуди не надсилається.</string>
+    <string name="convert_cloudconvert">CloudConvert</string>
+    <string name="convert_cloudconvert_why">Найдовший список форматів, разом з AVIF і TIFF.</string>
     <string name="toast_image_copied">Зображення скопійовано</string>
     <string name="toast_copy_failed">Скопіювати не вдалося</string>
     <string name="toast_saved">Збережено</string>
@@ -139,6 +158,17 @@
     <string name="facts_modified">Остання зміна</string>
     <string name="facts_folder">Тека</string>
     <string name="facts_encoding">Кодування</string>
+    <string name="facts_colours">Колірний режим</string>
+    <string name="facts_frames">Кадри</string>
+    <string name="facts_duration">Тривалість</string>
+    <string name="facts_colour_grey">Відтінки сірого</string>
+    <string name="facts_colour_indexed">Індексований колір</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s %2$d біт</string>
+    <string name="facts_colour_channel">%1$d біт/канал</string>
+    <string name="facts_colour_alpha">з прозорістю</string>
+    <string name="facts_duration_s">%1$s с</string>
     <string name="facts_camera">Дані зйомки</string>
     <string name="facts_place">Географічні координати</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
@@ -337,4 +367,10 @@
     <string name="anim_prev">Попередній кадр</string>
     <string name="anim_next">Наступний кадр</string>
     <string name="anim_export">Експортувати цей кадр</string>
+    <plurals name="facts_colour_count">
+        <item quantity="one">%1$d колір</item>
+        <item quantity="few">%1$d кольори</item>
+        <item quantity="many">%1$d кольорів</item>
+        <item quantity="other">%1$d кольору</item>
+    </plurals>
 </resources>

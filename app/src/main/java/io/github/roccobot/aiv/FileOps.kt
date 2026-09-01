@@ -637,6 +637,11 @@ private fun encodingText(encoding: Encoding?): String? {
  * trasparenza)`, e `RGBA 32 bit` a capo `8 bit/canale`). Sopra sta **che cosa** contiene un
  * pixel, sotto **quanto** ne contiene: sono due domande diverse, e su una riga sola separate
  * da una virgola si leggono come un elenco di dettagli.
+ * ⚠️ **Ma il NOME nel primo esempio è corretto in 'Colore indicizzato'**, ed è una modifica a
+ * un testo dell'utente, dichiarata qui perché si veda: `Metodo colore` e `Scala di grigio`
+ * sono i termini italiani di Photoshop, e in quel vocabolario la tavolozza si chiama
+ * 'Colore indicizzato'. `Scala di colore` non esiste da nessuna parte, e accanto agli altri
+ * due si legge come un refuso proprio perché gli altri due sono giusti.
  * ⚠️ **La trasparenza non ha una voce sua**, ed è la stessa richiesta: entra nella seconda
  * riga di questa, perché è una proprietà del metodo colore e non un dato a sé.
  * ⚠️ **Su RGBA e su grigio con alfa non si ripete**: la `A` del nome lo dice già, e
