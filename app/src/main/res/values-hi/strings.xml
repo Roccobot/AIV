@@ -258,21 +258,10 @@
     <string name="clip_pause">रोकें</string>
     <string name="settings_images_only">सिर्फ़ तस्वीरें देखें</string>
     <string name="settings_images_only_desc">व्यूअर में स्वाइप करने पर वीडियो छूट जाते हैं और सिर्फ़ तस्वीरें दिखती हैं। ग्रिड में वीडियो पर टैप करने से वह फिर भी चलता है: यह स्वाइप की बात है, टैप की नहीं।</string>
-    <string name="settings_group_content">सामग्री से खोज</string>
-    <string name="settings_content_desc">सामग्री से खोज चालू करने के लिए छवि पहचान के मॉडल डाउनलोड करें (जैसे \'लाल बिल्ली\')। डाउनलोड वैकल्पिक है और एक ही बार होता है; पैकेज कभी भी हटाया जा सकता है। पहचान और खोज डिवाइस पर ही होती है, कोई छवि या डेटा किसी तीसरे पक्ष को नहीं भेजा जाता।</string>
-    <string name="settings_content_get">मॉडल डाउनलोड करें (%1$s)</string>
-    <string name="settings_content_getting">%2$s में से %1$s</string>
-    <string name="settings_content_stop">रोकें</string>
-    <string name="settings_content_ready">मॉडल फ़ोन पर हैं।</string>
-    <string name="settings_content_remove">मॉडल पैकेज हटाएं (%1$s)</string>
-    <string name="settings_content_broken">कुछ ठीक नहीं हुआ: %1$s</string>
-    <string name="settings_content_retry">फिर कोशिश करें</string>
-    <string name="settings_content_blocked">पिछली बार इससे ऐप बंद हो गया था (%1$s), इसलिए यह सुविधा खुद रुक गई। बाकी सब पर कोई असर नहीं।</string>
-    <string name="settings_content_index">अभी चित्र सूचीबद्ध करें</string>
-    <string name="settings_content_indexing">सूचीबद्ध: %2$d में से %1$d</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">संपादित करें</string>
+    <string name="menu_edit_hold">ऐप चुनें</string>
     <string name="editor_internal">अंतर्निहित संपादक</string>
     <string name="editor_pick">किससे संपादित करते हैं?</string>
     <string name="editor_left">बाएँ घुमाएँ</string>

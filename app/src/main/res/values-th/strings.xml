@@ -243,21 +243,10 @@
     <string name="clip_pause">หยุดชั่วคราว</string>
     <string name="settings_images_only">เปิดดูเฉพาะรูปภาพ</string>
     <string name="settings_images_only_desc">ในหน้าดูภาพ การปัดจะข้ามวิดีโอและแสดงเฉพาะรูปภาพ การแตะวิดีโอในตารางยังคงเล่นได้ นี่เป็นเรื่องของการปัด ไม่ใช่การแตะ</string>
-    <string name="settings_group_content">ค้นหาจากเนื้อหา</string>
-    <string name="settings_content_desc">ดาวน์โหลดโมเดลรู้จำภาพเพื่อเปิดการค้นหาตามเนื้อหา (เช่น \'แมวสีส้ม\') การดาวน์โหลดเป็นทางเลือกและทำเพียงครั้งเดียว ถอดแพ็กเกจออกได้ทุกเมื่อ การรู้จำและการค้นหาเกิดขึ้นบนเครื่อง โดยไม่ส่งภาพหรือข้อมูลให้บุคคลที่สาม</string>
-    <string name="settings_content_get">ดาวน์โหลดโมเดล (%1$s)</string>
-    <string name="settings_content_getting">%1$s จาก %2$s</string>
-    <string name="settings_content_stop">หยุด</string>
-    <string name="settings_content_ready">โมเดลอยู่บนโทรศัพท์แล้ว</string>
-    <string name="settings_content_remove">ลบแพ็กเกจโมเดล (%1$s)</string>
-    <string name="settings_content_broken">มีบางอย่างไม่ทำงาน: %1$s</string>
-    <string name="settings_content_retry">ลองอีกครั้ง</string>
-    <string name="settings_content_blocked">ครั้งที่แล้วสิ่งนี้ทำให้แอปปิดลง (%1$s) ฟังก์ชันจึงหยุดตัวเอง ส่วนอื่นไม่ได้รับผลกระทบ</string>
-    <string name="settings_content_index">ทำดัชนีภาพตอนนี้</string>
-    <string name="settings_content_indexing">กำลังทำดัชนี: %1$d จาก %2$d</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">แก้ไข</string>
+    <string name="menu_edit_hold">เลือกแอป</string>
     <string name="editor_internal">ตัวแก้ไขในตัว</string>
     <string name="editor_pick">แก้ไขด้วยอะไร</string>
     <string name="editor_left">หมุนซ้าย</string>

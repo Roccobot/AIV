@@ -258,21 +258,10 @@
     <string name="clip_pause">Sitisha</string>
     <string name="settings_images_only">Pitia picha pekee</string>
     <string name="settings_images_only_desc">Kwenye kitazamaji, kutelezesha kidole huruka video na kuonyesha picha pekee. Kugusa video kwenye gridi bado huicheza: hii inahusu ishara, si mgusa.</string>
-    <string name="settings_group_content">Tafuta kwa maudhui</string>
-    <string name="settings_content_desc">Pakua miundo ya kutambua picha ili kuwasha utafutaji kwa maudhui (mf. \'paka mwekundu\'). Upakuaji ni wa hiari na wa mara moja; kifurushi kinaweza kuondolewa wakati wowote. Utambuzi na utafutaji hufanyika kwenye kifaa, bila kutuma picha wala data kwa wengine.</string>
-    <string name="settings_content_get">Pakua mifano (%1$s)</string>
-    <string name="settings_content_getting">%1$s kati ya %2$s</string>
-    <string name="settings_content_stop">Simamisha</string>
-    <string name="settings_content_ready">Mifano ipo kwenye simu.</string>
-    <string name="settings_content_remove">Ondoa kifurushi cha miundo (%1$s)</string>
-    <string name="settings_content_broken">Kuna kitu hakikufanya kazi: %1$s</string>
-    <string name="settings_content_retry">Jaribu tena</string>
-    <string name="settings_content_blocked">Mara ya mwisho hii ilifunga programu (%1$s), kwa hivyo kipengele kilijizima chenyewe. Mengine hayajaathirika.</string>
-    <string name="settings_content_index">Weka faharasa ya picha sasa</string>
-    <string name="settings_content_indexing">Inaorodhesha: %1$d kati ya %2$d</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Hariri</string>
+    <string name="menu_edit_hold">Chagua programu</string>
     <string name="editor_internal">Kihariri cha ndani</string>
     <string name="editor_pick">Unahariri kwa kitu gani?</string>
     <string name="editor_left">Zungusha kushoto</string>

@@ -273,21 +273,10 @@
     <string name="clip_pause">Pausar</string>
     <string name="settings_images_only">Pasar solo las imágenes</string>
     <string name="settings_images_only_desc">En el visor, el deslizamiento salta los vídeos y muestra solo imágenes. Tocar un vídeo en la cuadrícula lo reproduce igualmente: esto es sobre el gesto, no sobre el toque.</string>
-    <string name="settings_group_content">Búsqueda por contenido</string>
-    <string name="settings_content_desc">Descarga los modelos de reconocimiento de imágenes para habilitar la búsqueda por contenido (p. ej. \'gato rojo\'). La descarga es opcional y se hace una sola vez; el paquete se puede quitar en cualquier momento. El reconocimiento y la búsqueda ocurren en local, sin enviar imágenes ni datos a terceros.</string>
-    <string name="settings_content_get">Descargar los modelos (%1$s)</string>
-    <string name="settings_content_getting">%1$s de %2$s</string>
-    <string name="settings_content_stop">Detener</string>
-    <string name="settings_content_ready">Los modelos están en el teléfono.</string>
-    <string name="settings_content_remove">Quitar el paquete de modelos (%1$s)</string>
-    <string name="settings_content_broken">Algo no ha funcionado: %1$s</string>
-    <string name="settings_content_retry">Reintentar</string>
-    <string name="settings_content_blocked">La última vez esto cerró la aplicación (%1$s), así que la función se ha detenido sola. Lo demás no está afectado.</string>
-    <string name="settings_content_index">Indexar las imágenes ahora</string>
-    <string name="settings_content_indexing">Indexando: %1$d de %2$d</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Editar</string>
+    <string name="menu_edit_hold">Elegir la aplicación</string>
     <string name="editor_internal">Editor interno</string>
     <string name="editor_pick">¿Con qué editas?</string>
     <string name="editor_left">Girar a la izquierda</string>

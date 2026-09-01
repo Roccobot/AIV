@@ -3,11 +3,20 @@ package io.github.roccobot.aiv
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.Text
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -15,8 +24,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -37,6 +48,8 @@ import androidx.compose.ui.window.PopupProperties
  * ⚠️ **Le voci restano `DropdownMenuItem`**: sono composabili come gli altri, quindi si usano
  * dentro la nostra superficie e la resa Material (altezze, margini, corpi, icone ai lati) non
  * si perde. Quello che si scrive a mano è **solo** la superficie e dove sta.
+ * ⚠️ **L'unica eccezione è [TapHoldMenuItem]**, e là sta scritto perché una voce con due
+ * gesti non può essere un `DropdownMenuItem`.
  *
  * ⚠️⚠️ **STA IN UN FILE A SÉ dalla 0.75, quando i menu sono diventati due**: il secondo
  * avrebbe copiato la superficie, l'ombra e i tre numeri dell'animazione, e un'animazione
@@ -191,3 +204,64 @@ private const val MENU_IN = 170
 
 /** L'accelerazione di Material per una cosa che entra: parte decisa e si posa piano. */
 private val MENU_EASE = CubicBezierEasing(0.2f, 0f, 0f, 1f)
+
+/**
+ * Una voce di menu con **due** gesti: tocco breve e tocco lungo.
+ *
+ * ⚠️⚠️ **NON È UN `DropdownMenuItem`, e non si poteva usare quello**: il suo `clickable` sta
+ * **dentro**, in fondo alla propria catena di modificatori, quindi un `combinedClickable`
+ * passato nel `modifier` gli finisce prima e non vede mai la pressione. Nella passata `Main`
+ * il nodo più interno riceve per primo e consuma il down. È lo stesso meccanismo per cui
+ * [TapHoldFab] non è un `SmallFloatingActionButton`, ed è la stessa conclusione: per avere
+ * due gesti su un comando, il nodo che ascolta dev'essere **uno**.
+ *
+ * ⚠️⚠️ **LE MISURE SONO LETTE NEL BYTECODE DI `MenuKt`, NON RICORDATE** (`material3`
+ * `1.5.0-alpha26`), perché questa voce sta in mezzo alle altre e una differenza di due pixel
+ * si vede: altezza minima **48dp** (`MenuListItemContainerHeight`), rientro orizzontale
+ * **12dp** (`DropdownMenuItemHorizontalPadding`), spazio fra icona e testo **8dp**
+ * (`DropdownMenuIconTextPadding`, che diventa 12 solo con la resa da puntatore di
+ * precisione, cioè col mouse), corpo **labelLarge**.
+ * ⚠️ **I colori invece si CHIEDONO a Material** (`MenuDefaults.itemColors()`) invece di
+ * essere copiati: quelli cambiano con la tavolozza, e una copia si scollerebbe al primo tema
+ * diverso.
+ *
+ * @param holdLabel che cosa fa il tocco lungo, per il lettore di schermo. ⚠️ Senza, il gesto
+ *   esiste solo per chi lo scopre per caso.
+ */
+@Composable
+fun TapHoldMenuItem(
+    text: String,
+    icon: ImageVector,
+    holdLabel: String,
+    onTap: () -> Unit,
+    onHold: () -> Unit
+) {
+    val colors = MenuDefaults.itemColors()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .sizeIn(minHeight = MENU_ITEM_HEIGHT)
+            .combinedClickable(
+                onLongClickLabel = holdLabel,
+                onLongClick = onHold,
+                onClick = onTap
+            )
+            .padding(horizontal = MENU_ITEM_SIDE),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(MENU_ITEM_GAP)
+    ) {
+        // ⚠️ L'icona non porta descrizione e il testo sì: `combinedClickable` fonde le
+        // semantiche dei figli, quindi TalkBack legge una voce sola. Vedi `PadButton`.
+        Icon(imageVector = icon, contentDescription = null, tint = colors.leadingIconColor)
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelLarge,
+            color = colors.textColor
+        )
+    }
+}
+
+/** Le tre misure di una voce di menu, lette in `MenuKt`. Vedi [TapHoldMenuItem]. */
+private val MENU_ITEM_HEIGHT = 48.dp
+private val MENU_ITEM_SIDE = 12.dp
+private val MENU_ITEM_GAP = 8.dp

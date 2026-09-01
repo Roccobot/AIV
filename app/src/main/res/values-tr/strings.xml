@@ -258,21 +258,10 @@
     <string name="clip_pause">Duraklat</string>
     <string name="settings_images_only">Yalnızca resimleri gezin</string>
     <string name="settings_images_only_desc">Görüntüleyicide kaydırma videoları atlar ve yalnızca resimleri gösterir. Izgarada bir videoya dokunmak yine de oynatır: bu kaydırmayla ilgili, dokunmayla değil.</string>
-    <string name="settings_group_content">İçeriğe göre arama</string>
-    <string name="settings_content_desc">İçeriğe göre aramayı etkinleştirmek için görüntü tanıma modellerini indir (ör. \'kızıl kedi\'). İndirme isteğe bağlıdır ve bir kez yapılır; paket istediğin zaman kaldırılabilir. Tanıma ve arama cihazda yapılır, görseller ve veriler üçüncü taraflara gönderilmez.</string>
-    <string name="settings_content_get">Modelleri indir (%1$s)</string>
-    <string name="settings_content_getting">%2$s içinden %1$s</string>
-    <string name="settings_content_stop">Durdur</string>
-    <string name="settings_content_ready">Modeller telefonda.</string>
-    <string name="settings_content_remove">Model paketini kaldır (%1$s)</string>
-    <string name="settings_content_broken">Bir şey yolunda gitmedi: %1$s</string>
-    <string name="settings_content_retry">Yeniden dene</string>
-    <string name="settings_content_blocked">Geçen sefer bu, uygulamayı kapattı (%1$s), bu yüzden özellik kendini durdurdu. Gerisi etkilenmedi.</string>
-    <string name="settings_content_index">Görselleri şimdi dizinle</string>
-    <string name="settings_content_indexing">Dizinleniyor: %2$d içinden %1$d</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Düzenle</string>
+    <string name="menu_edit_hold">Uygulamayı seç</string>
     <string name="editor_internal">Yerleşik düzenleyici</string>
     <string name="editor_pick">Neyle düzenliyorsun?</string>
     <string name="editor_left">Sola çevir</string>

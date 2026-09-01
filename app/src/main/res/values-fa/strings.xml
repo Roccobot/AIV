@@ -258,21 +258,10 @@
     <string name="clip_pause">توقف</string>
     <string name="settings_images_only">فقط تصویرها را ورق بزن</string>
     <string name="settings_images_only_desc">در نمایشگر، کشیدن انگشت ویدیوها را رد می‌کند و فقط تصویرها را نشان می‌دهد. ضربه زدن روی ویدیو در شبکه باز هم آن را پخش می‌کند: این درباره کشیدن است، نه ضربه.</string>
-    <string name="settings_group_content">جستجو بر پایه محتوا</string>
-    <string name="settings_content_desc">برای فعال کردن جست‌وجو بر پایه محتوا، مدل‌های تشخیص تصویر را دانلود کنید (مثلا \'گربه نارنجی\'). دانلود اختیاری و یک‌باره است و بسته را هر وقت بخواهید می‌توانید حذف کنید. تشخیص و جست‌وجو روی خود دستگاه انجام می‌شود و هیچ تصویر یا داده‌ای به جای دیگری فرستاده نمی‌شود.</string>
-    <string name="settings_content_get">دانلود مدل‌ها (%1$s)</string>
-    <string name="settings_content_getting">%1$s از %2$s</string>
-    <string name="settings_content_stop">توقف</string>
-    <string name="settings_content_ready">مدل‌ها روی گوشی هستند.</string>
-    <string name="settings_content_remove">حذف بسته مدل‌ها (%1$s)</string>
-    <string name="settings_content_broken">چیزی درست کار نکرد: %1$s</string>
-    <string name="settings_content_retry">تلاش دوباره</string>
-    <string name="settings_content_blocked">بار پیش این باعث بسته شدن برنامه شد (%1$s)، پس این قابلیت خودش را متوقف کرد. چیز دیگری تحت تأثیر نیست.</string>
-    <string name="settings_content_index">هم‌اکنون تصاویر را فهرست کن</string>
-    <string name="settings_content_indexing">نمایه‌سازی: %1$d از %2$d</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">ویرایش</string>
+    <string name="menu_edit_hold">انتخاب برنامه</string>
     <string name="editor_internal">ویرایشگر داخلی</string>
     <string name="editor_pick">با چه چیزی ویرایش می‌کنی؟</string>
     <string name="editor_left">چرخش به چپ</string>

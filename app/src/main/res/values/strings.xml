@@ -49,6 +49,7 @@
     <!-- The pencil entry in the long press menu, and the title of the built in editor: one
          string for both, because they are the same idea and two would drift apart. -->
     <string name="menu_edit">Edit</string>
+    <string name="menu_edit_hold">Choose the app</string>
     <string name="editor_internal">Built in editor</string>
     <string name="editor_pick">What do you edit with?</string>
     <string name="editor_left">Turn left</string>
@@ -110,28 +111,6 @@
     <string name="settings_group_look">Appearance</string>
     <string name="settings_group_viewer">Viewer</string>
     <string name="settings_group_browse">Folders</string>
-    <!-- ── Searching by what is IN the picture ── -->
-    <string name="settings_group_content">Search by content</string>
-    <string name="settings_content_desc">Download the image recognition models to enable search by content (e.g. \'red cat\'). The download is optional and one time only; the package can be removed at any time. Recognition and search happen locally, without sending images or data to third parties.</string>
-    <string name="settings_content_get">Download the models (%1$s)</string>
-    <!-- Two weights, done and total: a bare percentage on a download this size hides
-         whether it is moving at all. -->
-    <string name="settings_content_getting">%1$s of %2$s</string>
-    <string name="settings_content_stop">Stop</string>
-    <string name="settings_content_ready">The models are on the phone.</string>
-    <!-- While the index is being built: two counts and not a percentage, because on a
-         big gallery a percentage that moves slowly reads as stuck. -->
-    <string name="settings_content_indexing">Indexing: %1$d of %2$d</string>
-    <string name="settings_content_remove">Remove the model package (%1$s)</string>
-    <!-- Says WHICH piece failed and why: the network, the fingerprint, the disk. Three
-         causes, three different things to do about it. -->
-    <string name="settings_content_broken">Something went wrong: %1$s</string>
-    <string name="settings_content_retry">Try again</string>
-    <!-- Shown when the content search stopped itself because the last try killed the app:
-         the reason for the safety catch lives in ClipGuard. The detail is the phase, and the
-         error when one could be caught at all. -->
-    <string name="settings_content_blocked">Last time this closed the app (%1$s), so the feature stopped itself. Nothing else is affected.</string>
-    <string name="settings_content_index">Index the pictures now</string>
 
     <string name="settings_group_start">Startup</string>
 

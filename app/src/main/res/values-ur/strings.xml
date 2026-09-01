@@ -258,21 +258,10 @@
     <string name="clip_pause">وقفہ</string>
     <string name="settings_images_only">صرف تصاویر دیکھیں</string>
     <string name="settings_images_only_desc">ناظر میں سوائپ ویڈیوز کو چھوڑ دیتا ہے اور صرف تصاویر دکھاتا ہے۔ گرڈ میں ویڈیو پر ٹیپ کرنے سے وہ پھر بھی چلتی ہے: یہ سوائپ کے بارے میں ہے، ٹیپ کے بارے میں نہیں۔</string>
-    <string name="settings_group_content">مواد سے تلاش</string>
-    <string name="settings_content_desc">مواد کے مطابق تلاش کو فعال کرنے کے لیے تصویر شناخت کے ماڈل ڈاؤن لوڈ کریں (مثلا \'سرخ بلی\')۔ ڈاؤن لوڈ اختیاری اور صرف ایک بار ہے؛ پیکیج کسی بھی وقت ہٹایا جا سکتا ہے۔ شناخت اور تلاش مقامی طور پر ہوتی ہے، کوئی تصویر یا ڈیٹا کسی تیسرے فریق کو نہیں بھیجا جاتا۔</string>
-    <string name="settings_content_get">ماڈل ڈاؤن لوڈ کریں (%1$s)</string>
-    <string name="settings_content_getting">%2$s میں سے %1$s</string>
-    <string name="settings_content_stop">روکیں</string>
-    <string name="settings_content_ready">ماڈل فون پر موجود ہیں۔</string>
-    <string name="settings_content_remove">ماڈل پیکیج ہٹائیں (%1$s)</string>
-    <string name="settings_content_broken">کچھ ٹھیک نہیں چلا: %1$s</string>
-    <string name="settings_content_retry">دوبارہ کوشش کریں</string>
-    <string name="settings_content_blocked">پچھلی بار اس سے ایپ بند ہو گئی تھی (%1$s)، اس لیے یہ سہولت خود رک گئی۔ باقی سب ٹھیک ہے۔</string>
-    <string name="settings_content_index">تصاویر ابھی فہرست میں لائیں</string>
-    <string name="settings_content_indexing">فہرست سازی: %2$d میں سے %1$d</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">ترمیم</string>
+    <string name="menu_edit_hold">ایپ منتخب کریں</string>
     <string name="editor_internal">اندرونی مدیر</string>
     <string name="editor_pick">کس سے ترمیم کرتے ہیں؟</string>
     <string name="editor_left">بائیں گھمائیں</string>

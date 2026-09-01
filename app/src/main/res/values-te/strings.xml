@@ -258,21 +258,10 @@
     <string name="clip_pause">పాజ్ చేయి</string>
     <string name="settings_images_only">చిత్రాలను మాత్రమే తిప్పు</string>
     <string name="settings_images_only_desc">వ్యూయర్‌లో స్వైప్ చేస్తే వీడియోలు దాటిపోతాయి, చిత్రాలు మాత్రమే కనిపిస్తాయి. గ్రిడ్‌లో వీడియోను తాకితే అది ఆడుతుంది: ఇది స్వైప్ గురించి, తాకడం గురించి కాదు.</string>
-    <string name="settings_group_content">విషయం ఆధారంగా వెతకడం</string>
-    <string name="settings_content_desc">కంటెంట్ ఆధారంగా వెతకడానికి చిత్ర గుర్తింపు మోడల్‌లను డౌన్‌లోడ్ చేయండి (ఉదా. \'ఎర్ర పిల్లి\'). డౌన్‌లోడ్ ఐచ్ఛికం, ఒకేసారి; ప్యాకేజీని ఎప్పుడైనా తీసివేయవచ్చు. గుర్తింపు, వెతుకులాట పరికరంలోనే జరుగుతాయి, ఏ చిత్రమూ డేటా మూడో పక్షానికి పంపబడదు.</string>
-    <string name="settings_content_get">మోడల్‌లను డౌన్‌లోడ్ చేయి (%1$s)</string>
-    <string name="settings_content_getting">%2$s లో %1$s</string>
-    <string name="settings_content_stop">ఆపు</string>
-    <string name="settings_content_ready">మోడల్‌లు ఫోన్‌లో ఉన్నాయి.</string>
-    <string name="settings_content_remove">మోడల్ ప్యాకేజీని తీసివేయి (%1$s)</string>
-    <string name="settings_content_broken">ఏదో సరిగా జరగలేదు: %1$s</string>
-    <string name="settings_content_retry">మళ్ళీ ప్రయత్నించు</string>
-    <string name="settings_content_blocked">గత సారి దీనితో యాప్ మూసుకుపోయింది (%1$s), అందుకే ఈ సౌకర్యం తనంతట తానే ఆగిపోయింది. మిగతావాటిపై ప్రభావం లేదు.</string>
-    <string name="settings_content_index">ఇప్పుడు చిత్రాలను సూచిక చేయి</string>
-    <string name="settings_content_indexing">సూచిక: %2$d లో %1$d</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">సవరించు</string>
+    <string name="menu_edit_hold">యాప్‌ను ఎంచుకోండి</string>
     <string name="editor_internal">లోపలి సవరణి</string>
     <string name="editor_pick">దేనితో సవరిస్తారు?</string>
     <string name="editor_left">ఎడమవైపు తిప్పు</string>
