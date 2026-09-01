@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -87,7 +88,7 @@ class Animation(private val source: Animated) {
      * ⚠️ **Mettere in pausa fa parte del comando**: chiedere un fotogramma preciso mentre
      * l'animazione corre vorrebbe dire vederlo per un decimo di secondo e perderlo.
      */
-    suspend fun stepForward() {
+    suspend fun stepForward() = guarded {
         playing = false
         withContext(Dispatchers.Default) { source.advance() }
         draw()
@@ -107,7 +108,7 @@ class Animation(private val source: Animated) {
      * `seek` dentro i lettori, che il formato non permette. Non c'è ancora perché costa
      * memoria (larghezza per altezza per quattro byte a fotogramma) e potrebbe non servire.
      */
-    suspend fun stepBack() {
+    suspend fun stepBack() = guarded {
         playing = false
         val target = if (source.index <= 0) source.frameCount - 1 else source.index - 1
         withContext(Dispatchers.Default) {
@@ -140,7 +141,7 @@ class Animation(private val source: Animated) {
      * in fretta possibile', e preso alla lettera sarebbe un ciclo stretto che scalda il
      * telefono. I browser fanno la stessa cosa da vent'anni.
      */
-    suspend fun run() {
+    private suspend fun run() {
         // Il primo fotogramma si disegna subito, anche in pausa: senza, una GIF aperta e
         // messa in pausa prima del primo scatto resterebbe un rettangolo vuoto.
         draw()
@@ -148,6 +149,36 @@ class Animation(private val source: Animated) {
             delay(source.delayOf(source.index).coerceAtLeast(FLOOR).toLong())
             withContext(Dispatchers.Default) { source.advance() }
             draw()
+        }
+    }
+
+    /**
+     * Il ciclo di riproduzione, con la sicura.
+     *
+     * ⚠️⚠️ **UN ERRORE QUI DENTRO CHIUDE L'APP, e non è teorico: è successo nella `1.13`**
+     * (segnalazione dell'utente: *manda in crash 10 volte su 10*). Questo ciclo gira dentro
+     * una coroutine di composizione, e quello che vi si solleva non lo prende nessuno.
+     * ⚠️ **Fermare l'animazione è la risposta giusta**: sotto c'è sempre l'immagine ferma
+     * disegnata dal visualizzatore, quindi il peggio che si vede è una GIF che non si muove,
+     * e non un'app che se ne va. ⚠️ La causa vera della `1.13` è corretta a monte, in
+     * [rememberAnimation]: questa resta perché una funzione nuova non deve poter chiudere
+     * l'app, qualunque cosa le succeda dentro.
+     */
+    suspend fun play() = guarded { run() }
+
+    /**
+     * Esegue [corpo] senza che un suo errore possa arrivare fino all'applicazione.
+     */
+    private suspend fun guarded(corpo: suspend () -> Unit) {
+        try {
+            corpo()
+        } catch (cancelled: CancellationException) {
+            // ⚠️ La cancellazione NON è un errore e va lasciata passare: è il modo in cui
+            // Compose spegne questo ciclo quando si cambia fotografia o si mette in pausa.
+            // Inghiottirla vorrebbe dire una coroutine che non si ferma quando le si chiede.
+            throw cancelled
+        } catch (failure: Throwable) {
+            playing = false
         }
     }
 
@@ -177,6 +208,20 @@ class Animation(private val source: Animated) {
  * apre, che è esattamente quello che deve succedere.
  * ⚠️ **Torna `null` per tutto quello che animato non è**, ed è il caso normale: una fotografia
  * ferma non paga niente, perché [Animations.open] guarda i primi byte e se ne va.
+ *
+ * ⚠️⚠️ **L'ANIMAZIONE NON PUÒ STARE FRA LE CHIAVI DEL `DisposableEffect`, e metterla ci ha
+ * fatto uscire una `1.13` che chiudeva l'app su ogni GIF** (segnalazione dell'utente,
+ * 2026-09-01: *manda in crash 10 volte su 10*). `onDispose` non riceve il valore vecchio: legge
+ * la variabile **nel momento in cui gira**. Con `animation` fra le chiavi, l'istante in cui
+ * l'apertura la porta da `null` a un lettore fa scadere l'effetto, e il suo `onDispose`
+ * chiude il lettore **appena creato**. Chiuderlo e continuare a usarlo è il difetto.
+ * ⚠️⚠️ **E si è visto solo sulle GIF per un'asimmetria fra i due lettori**, che è la parte
+ * che rendeva il sintomo incomprensibile: [AnimatedWebp.close] butta la tela e la rifà alla
+ * prima richiesta, mentre [AnimatedGif.close] passa da `GifDecoder.clear()`, che azzera
+ * l'intestazione, e da lì `frameCount`, `delayOf` e `advance` sollevano un errore di
+ * riferimento nullo. La stessa identica chiusura sbagliata: una la sopporta, l'altra no.
+ * ⚠️ **La chiave giusta è il solo indirizzo**: l'effetto scade quando si cambia fotografia o
+ * si esce, e in quei due momenti la variabile porta davvero il lettore da chiudere.
  */
 @Composable
 fun rememberAnimation(source: Uri?): Animation? {
@@ -188,14 +233,14 @@ fun rememberAnimation(source: Uri?): Animation? {
             ?.let { withContext(Dispatchers.IO) { Animations.open(context, it) } }
             ?.let { Animation(it) }
     }
-    DisposableEffect(source, animation) {
+    DisposableEffect(source) {
         onDispose { animation?.close() }
     }
     // ⚠️ Rilanciato anche al cambio di `playing`: è cosi che la ripresa riparte, e la pausa
-    // lascia morire il ciclo invece di tenerlo in giro a controllare una bandierina.
+    // lascia esaurire il ciclo invece di tenerlo in giro a controllare una bandierina.
     val current = animation
     LaunchedEffect(current, current?.playing) {
-        current?.run()
+        current?.play()
     }
     return animation
 }

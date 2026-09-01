@@ -38,10 +38,26 @@ class AnimatedGif private constructor(
     private val decoder: GifDecoder
 ) : Animated {
 
-    override val width: Int get() = decoder.width
-    override val height: Int get() = decoder.height
-    override val frameCount: Int get() = decoder.frameCount
-    override val index: Int get() = decoder.currentFrameIndex
+    /**
+     * Se [close] è già passato di qui.
+     *
+     * ⚠️⚠️ **ESISTE PERCHÉ UN DECODIFICATORE CHIUSO NON DICE DI ESSERLO, LO DIMOSTRA
+     * SOLLEVANDO UN ERRORE**: `GifDecoder.clear()` azzera l'intestazione, e da lì
+     * `frameCount`, `getDelay` e `advance` cadono su un riferimento nullo. Con un lettore in
+     * mano a un ciclo di riproduzione, quell'errore arriva dentro una coroutine e chiude
+     * l'app. È successo nella `1.13`, per una chiusura sbagliata in [rememberAnimation] che
+     * adesso non c'è più: questa bandierina è la rete sotto quella correzione, perché
+     * chiudere due volte o usare un lettore chiuso deve costare un fotogramma mancante, non
+     * l'applicazione.
+     * ⚠️ **Non rende [AnimatedWebp] e questo lettore diversi: li rende uguali.** L'altro
+     * regge già la stessa sequenza da sé, perché la sua chiusura butta soltanto la tela.
+     */
+    private var closed = false
+
+    override val width: Int get() = if (closed) 0 else decoder.width
+    override val height: Int get() = if (closed) 0 else decoder.height
+    override val frameCount: Int get() = if (closed) 0 else runCatching { decoder.frameCount }.getOrDefault(0)
+    override val index: Int get() = if (closed) 0 else decoder.currentFrameIndex
 
     /**
      * ⚠️ `getNetscapeLoopCount` è il numero **scritto nel file**, e vale 0 per 'per sempre':
@@ -52,7 +68,8 @@ class AnimatedGif private constructor(
     override val loopCount: Int
         get() = decoder.netscapeLoopCount.let { if (it < 0) 1 else it }
 
-    override fun delayOf(index: Int): Int = decoder.getDelay(index).coerceAtLeast(0)
+    override fun delayOf(index: Int): Int =
+        if (closed) 0 else runCatching { decoder.getDelay(index) }.getOrDefault(0).coerceAtLeast(0)
 
     /**
      * ⚠️⚠️ **`getNextFrame` NON è 'il prossimo': è IL CORRENTE, ed è il nome più
@@ -65,10 +82,12 @@ class AnimatedGif private constructor(
      * (l'esportazione, una cache) ne fa una copia. Qui si restituisce l'originale, perché
      * disegnarlo e basta è il caso normale e copiare a ogni fotogramma sarebbe uno spreco.
      */
-    override fun current(): Bitmap? = runCatching { decoder.nextFrame }.getOrNull()
+    override fun current(): Bitmap? =
+        if (closed) null else runCatching { decoder.nextFrame }.getOrNull()
 
     override fun advance() {
-        decoder.advance()
+        if (closed) return
+        runCatching { decoder.advance() }
     }
 
     /**
@@ -80,11 +99,16 @@ class AnimatedGif private constructor(
      * rende vera la promessa scritta in [Animated.rewind].
      */
     override fun rewind() {
-        decoder.resetFrameIndex()
-        decoder.advance()
+        if (closed) return
+        runCatching {
+            decoder.resetFrameIndex()
+            decoder.advance()
+        }
     }
 
     override fun close() {
+        if (closed) return
+        closed = true
         runCatching { decoder.clear() }
     }
 
