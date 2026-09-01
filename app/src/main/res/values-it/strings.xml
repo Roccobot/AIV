@@ -227,6 +227,17 @@
     <string name="facts_modified">Ultima modifica</string>
     <string name="facts_folder">Cartella</string>
     <string name="facts_encoding">Codifica</string>
+    <string name="facts_colours">Metodo colore</string>
+    <string name="facts_frames">Fotogrammi</string>
+    <string name="facts_duration">Durata</string>
+    <string name="facts_colour_grey">Scala di grigio</string>
+    <string name="facts_colour_indexed">Scala di colore</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s %2$d bit</string>
+    <string name="facts_colour_channel">%1$d bit/canale</string>
+    <string name="facts_colour_alpha">con trasparenza</string>
+    <string name="facts_duration_s">%1$s s</string>
     <string name="facts_camera">Dati di scatto</string>
     <string name="facts_place">Coordinate geografiche</string>
 
@@ -401,4 +412,8 @@
     <string name="anim_prev">Fotogramma precedente</string>
     <string name="anim_next">Fotogramma successivo</string>
     <string name="anim_export">Esporta il fotogramma</string>
+    <plurals name="facts_colour_count">
+        <item quantity="one">%1$d colore</item>
+        <item quantity="other">%1$d colori</item>
+    </plurals>
 </resources>

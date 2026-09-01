@@ -351,6 +351,17 @@
     <string name="facts_modified">Last modified</string>
     <string name="facts_folder">Folder</string>
     <string name="facts_encoding">Encoding</string>
+    <string name="facts_colours">Colour mode</string>
+    <string name="facts_frames">Frames</string>
+    <string name="facts_duration">Duration</string>
+    <string name="facts_colour_grey">Greyscale</string>
+    <string name="facts_colour_indexed">Indexed colour</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s %2$d bit</string>
+    <string name="facts_colour_channel">%1$d bit/channel</string>
+    <string name="facts_colour_alpha">with transparency</string>
+    <string name="facts_duration_s">%1$s s</string>
     <string name="facts_camera">Shot data</string>
     <string name="facts_place">Geographic coordinates</string>
 
@@ -480,4 +491,8 @@
     <string name="anim_prev">Previous frame</string>
     <string name="anim_next">Next frame</string>
     <string name="anim_export">Export this frame</string>
+    <plurals name="facts_colour_count">
+        <item quantity="one">%1$d colour</item>
+        <item quantity="other">%1$d colours</item>
+    </plurals>
 </resources>

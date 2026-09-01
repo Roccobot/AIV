@@ -174,7 +174,13 @@ private fun pngEncoding(input: InputStream): Encoding? {
  * `ContentResolver` capita per davvero, e un parser che si fida della prima lettura
  * sbaglierebbe l'intestazione una volta su cento, cioè nel modo più difficile da ritrovare.
  */
-private fun InputStream.readFully(into: ByteArray, count: Int): Int {
+/*
+ * ⚠️ **Queste due sono `internal` e non private dalla 1.16**: le usa anche [coloursOf], che
+ * legge le stesse intestazioni per un'altra ragione. Copiarle di là avrebbe dato due
+ * versioni della stessa insidia (un `read` può tornare meno byte di quelli chiesti senza che
+ * il flusso sia finito), e la seconda copia è quella che prima o poi dimentica il ciclo.
+ */
+internal fun InputStream.readFully(into: ByteArray, count: Int): Int {
     var got = 0
     while (got < count) {
         val step = read(into, got, count - got)
@@ -185,7 +191,7 @@ private fun InputStream.readFully(into: ByteArray, count: Int): Int {
 }
 
 /** Come sopra per il salto: anche `skip` ha licenza di saltarne meno di quanti chiesti. */
-private fun InputStream.skipFully(count: Long): Long {
+internal fun InputStream.skipFully(count: Long): Long {
     var done = 0L
     while (done < count) {
         val step = skip(count - done)

@@ -584,6 +584,9 @@ private fun factValue(field: FactField, facts: Facts, one: OneFile): String? = w
     FactField.MODIFIED -> one.modified?.let { moment(it) }
     FactField.FOLDER -> one.folder
     FactField.ENCODING -> encodingText(one.encoding)
+    FactField.COLOURS -> coloursText(one.colours)
+    FactField.FRAMES -> one.motion?.frames?.toString()
+    FactField.DURATION -> one.motion?.let { durationText(it.durationMs) }
     FactField.CAMERA -> cameraText(one)
     FactField.PLACE -> placeText(one)
 }
@@ -624,6 +627,70 @@ private fun encodingText(encoding: Encoding?): String? {
         )
     }
     return parts.joinToString(", ")
+}
+
+/**
+ * Il metodo colore, su DUE righe.
+ *
+ * ⚠️⚠️ **LE DUE RIGHE SONO UNA RICHIESTA ALLA LETTERA, e non una scelta tipografica**
+ * (l'utente, 2026-09-01, con i suoi due esempi: `Scala di colore` a capo `(256 colori, con
+ * trasparenza)`, e `RGBA 32 bit` a capo `8 bit/canale`). Sopra sta **che cosa** contiene un
+ * pixel, sotto **quanto** ne contiene: sono due domande diverse, e su una riga sola separate
+ * da una virgola si leggono come un elenco di dettagli.
+ * ⚠️ **La trasparenza non ha una voce sua**, ed è la stessa richiesta: entra nella seconda
+ * riga di questa, perché è una proprietà del metodo colore e non un dato a sé.
+ * ⚠️ **Su RGBA e su grigio con alfa non si ripete**: la `A` del nome lo dice già, e
+ * aggiungere 'con trasparenza' sarebbe dirlo due volte nella stessa voce. Si scrive dove
+ * serve davvero, cioè su un RGB o una tavolozza che dichiarano un colore trasparente.
+ */
+@Composable
+private fun coloursText(colours: Colours?): String? {
+    if (colours == null) return null
+    val name = stringResource(
+        when (colours.model) {
+            Colours.Model.GREY, Colours.Model.GREY_ALPHA -> R.string.facts_colour_grey
+            Colours.Model.INDEXED -> R.string.facts_colour_indexed
+            Colours.Model.RGB -> R.string.facts_colour_rgb
+            Colours.Model.RGBA -> R.string.facts_colour_rgba
+        }
+    )
+    val first = colours.bitsPerPixel?.let { stringResource(R.string.facts_colour_bits, name, it) }
+        ?: name
+    val second = ArrayList<String>(2)
+    if (colours.model == Colours.Model.INDEXED) {
+        colours.palette?.let {
+            second += pluralStringResource(R.plurals.facts_colour_count, it, it)
+        }
+    } else {
+        colours.bitsPerChannel?.let {
+            second += stringResource(R.string.facts_colour_channel, it)
+        }
+    }
+    // ⚠️ **Solo RGBA lo sottintende, e non il grigio con alfa**: la `A` sta nel nome del
+    // primo e non nel secondo, che si chiama 'scala di grigio' come quello senza. Là la
+    // trasparenza va detta, o due file diversi mostrerebbero la stessa riga.
+    if (colours.transparent && colours.model != Colours.Model.RGBA) {
+        second += stringResource(R.string.facts_colour_alpha)
+    }
+    if (second.isEmpty()) return first
+    val tail = second.joinToString(", ")
+    return if (colours.model == Colours.Model.INDEXED) "$first\n($tail)" else "$first\n$tail"
+}
+
+/**
+ * Quanto dura un'animazione.
+ *
+ * ⚠️⚠️ **SOTTO IL MINUTO SI SCRIVONO I SECONDI CON UN DECIMALE, e non `0:01`**: una GIF dura
+ * quasi sempre un paio di secondi, e la forma dell'orologio la schiaccerebbe in un numero
+ * solo, perdendo proprio la cifra che distingue un'animazione svelta da una lenta. Sopra il
+ * minuto torna [Videos.stamp], che è la forma che l'utente legge già sulle miniature dei
+ * filmati: due formati, ma ognuno dove dice qualcosa.
+ */
+@Composable
+private fun durationText(ms: Int): String? {
+    if (ms <= 0) return null
+    if (ms >= 60_000) return Videos.stamp(ms.toLong())
+    return stringResource(R.string.facts_duration_s, neat(ms / 1000.0))
 }
 
 /**
