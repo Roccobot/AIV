@@ -43,31 +43,33 @@
     <string name="settings_dark">Koyu</string>
     <string name="settings_folder_columns">Klasör ızgarasındaki sütunlar</string>
     <string name="settings_folder_columns_desc">Sütun arttıkça ekrana daha çok klasör sığar ve her kapak küçülür. Dörtte alttaki ad çoğunlukla kesilir.</string>
-    <string name="settings_folder_count">Klasörlerin altında öge sayısı</string>
+    <string name="settings_folder_count">Izgara görünümünde klasörlerin altındaki öge sayacı</string>
     <string name="settings_hand">Ana işlevlerin konumu</string>
     <string name="settings_right">Sağ</string>
     <string name="settings_left">Sol</string>
     <string name="settings_list_path">Dosya listesi: klasör yolunu da kopyala</string>
-    <string name="settings_folder_count_desc">Her kapağın altında, klasörün kaç resim içerdiği. Kapatınca satır kısalır ve üstteki başlık alanı o kadar büyür.</string>
+    <string name="settings_folder_count_desc">Her klasör önizlemesinin altında bir görüntü sayacı ve bir video sayacı görünecek.</string>
     <string name="settings_fit_grow">Küçük görselleri büyüt</string>
     <string name="settings_fit_grow_desc">Kapalıyken ekrandan küçük bir görsel gerçek boyutunda görünür. Açıkken görünümü dolduracak kadar büyür.</string>
     <string name="settings_zoom_max">En yüksek yakınlaştırma</string>
-    <string name="settings_scale_mode" formatted="false">100% ne demek</string>
+    <string name="settings_zoom_page">Sığdırma ve yakınlaştırma</string>
+    <string name="settings_zoom_page_summary">Büyütme, en çok yakınlaştırma, piksel işleme</string>
+    <string name="settings_scale_mode" formatted="false">Piksel işleme</string>
     <string name="settings_scale_physical">Dosyanın bir pikseli ekranın bir pikseline</string>
     <string name="settings_scale_logical">Dosyanın bir pikseli yerleşimin bir pikseline</string>
-    <string name="settings_scale_desc">Bir telefon ekranı tek bir yerleşim pikseline iki üç gerçek piksel sığdırır, bu yüzden iki yanıt birbirinden çok uzaktır: ilki dosyayı olduğu gibi, ikincisi bir web sayfasındaki boyutuyla gösterir.</string>
+    <string name="settings_scale_desc">Gerçek piksellere yakınlaştırmanın neye karşılık geldiğini belirler. Her modern cihazın ekranı, her mantıksal pikseli iki ya da üç gerçek pikselden oluşan bir kareyle çizer. İlk seçim mantıksal pikselleri yok sayar ve her noktayı tek bir gerçek piksele eşler; ikincisi her nesneyi bir web sayfasında sahip olacağı boyutta gösterir.</string>
     <string name="details_bar">Ayrıntı satırı</string>
     <string name="settings_top">Üstte</string>
     <string name="settings_bottom">Altta</string>
-    <string name="settings_info_visible">Başlangıçta satır görünsün</string>
+    <string name="settings_info_visible">Açılışta bilgi çubuğu</string>
     <string name="settings_anim_counter">Kare sayacı</string>
     <string name="settings_anim_counter_desc">Hareketli görüntülerin denetim çubuğunda görünür.</string>
-    <string name="settings_reverse_order">Sıralamanın yönünü çevir (tarihe göre)</string>
-    <string name="settings_reverse_order_desc">Kapalıyken en yeniden eskilere doğru, bir telefon galerisindeki gibi çevirirsin. Açıkken zaman sırasıyla, en eskiden en yeniye.</string>
-    <string name="settings_clipboard">Açılışta panoyu oku</string>
-    <string name="settings_clipboard_desc">Uygulamayı simgesinden açtığında, panodaki adres doğrudan bir görseli gösteriyorsa o görsel açılır. Bir uygulama panoyu her okuduğunda Android bir uyarı gösterir: kapalı bırakmak onu hiç görmemek demektir.</string>
+    <string name="settings_reverse_order">Görüntüleri en eskiden başlayarak sağa doğru gezin</string>
+    <string name="settings_reverse_order_desc">Android galerileri varsayılan olarak en üstteki ilk ögeyi en yeni sayar ve geriye doğru gezinilir. Dosya yöneticisi sıralaması için bu seçeneği açın: en eskiden en yeniye.</string>
+    <string name="settings_clipboard">Açılışta pano içeriğini oku</string>
+    <string name="settings_clipboard_desc">Uygulamayı açtığınızda (yeni bir başlatma), sistem panosunda bir görüntüye doğrudan bağlantı varsa, o görüntü ana ekran yerine doğrudan görüntüleyicide açılır.</string>
     <string name="settings_start_folder">Açılışta bir klasör aç</string>
-    <string name="settings_start_folder_desc">Uygulama açıldığında klasör listesi yerine doğrudan seçilen klasörün içeriği gelir.</string>
+    <string name="settings_start_folder_desc">Açılışta ana ekran yerine belirli bir klasörün içeriğini gösterir.</string>
     <string name="settings_start_folder_none">Klasör seçilmedi</string>
     <string name="settings_start_folder_pick">Seç</string>
     <string name="folders_title">Klasörler</string>
@@ -228,7 +230,7 @@
     <string name="bin_empty_hint">Kısayol: çöp kutusunu boşaltmak için kayan düğmeyi basılı tutun.</string>
     <string name="facts_title">Ayrıntılı dosya bilgisi</string>
     <string name="settings_reset_hints">İpuçlarını geri getir</string>
-    <string name="settings_reset_hints_desc">Kısayol açıklamaları yeni bir kurulumdaki gibi yeniden görünür.</string>
+    <string name="settings_reset_hints_desc">Normalde yalnızca ilk açılışta görünen mini eğitimler, tanıtım, ipuçları ve uyarılar yeniden görünür olur (bir kez).</string>
     <string name="settings_reset_hints_do">Geri getir</string>
     <string name="settings_reset_hints_done">İpuçları yeniden görünecek</string>
     <string name="bin_restore_all">Tümünü geri al</string>
@@ -250,7 +252,7 @@
     <string name="settings_bin_desc">Bir dosyayı silmek hiçbir şey sormaz, ama işlem çöp kutusundan bir \'Geri al\' ile geri alınabilir (kayan düğme →\u00A0\'Çöp kutusu\'). Anında silmeyi tercih ediyorsan çöp kutusunu tamamen kapatabilirsin: o zaman her silme işleminden önce bir onay görünür.\n⚠️ DİKKAT: uygulamayı kaldırırsan çöp kutusundaki içerik kaybolur ve geri getirilemez.</string>
     <string name="pick_duplicate">Çoğalt</string>
     <string name="settings_grid_names">Izgarada dosya adı</string>
-    <string name="settings_grid_names_desc">Her küçük resmin altında dosya adı, en fazla iki satır. Uzantı asla bölünmez ve her zaman görünür: ad sığmazsa kısalan orta kısımdır.</string>
+    <string name="settings_grid_names_desc">Dosya adını ızgara görünümünde de, küçük resmin altında gösterir. En çok iki satır.</string>
     <string name="grid_item_clip">Video</string>
     <string name="clip_play">Oynat</string>
     <string name="hub_view_tree">Sistem klasörleri</string>
@@ -259,7 +261,7 @@
     <string name="tree_unopenable">Bu telefonda bunu açabilecek bir uygulama yok</string>
     <string name="clip_pause">Duraklat</string>
     <string name="settings_images_only">Yalnızca resimleri gezin</string>
-    <string name="settings_images_only_desc">Görüntüleyicide kaydırma videoları atlar ve yalnızca resimleri gösterir. Izgarada bir videoya dokunmak yine de oynatır: bu kaydırmayla ilgili, dokunmayla değil.</string>
+    <string name="settings_images_only_desc">Görüntüleyicide sağa ve sola kaydırma videoları atlar ve yalnızca görüntüleri dikkate alır. Bir videoyu ızgara, liste ya da klasörlerden tek dokunuşla yine oynatabilirsiniz.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Düzenle</string>
@@ -282,8 +284,8 @@
     <string name="edit_no_overwrite">Bu biçim geri yazılamaz, geriye yalnızca kopya kalır.</string>
     <string name="edit_failed">Kaydedilemedi</string>
     <string name="edit_app_gone">O düzenleyici artık yok. Başka birini seç.</string>
-    <string name="settings_editor">Resim düzenleme uygulaması</string>
-    <string name="settings_editor_desc">Bir görselde Düzenle dokunuşuyla açılan uygulama. Yerleşik olan döndürür ve kırpar.</string>
+    <string name="settings_editor">Görüntü düzenleyici</string>
+    <string name="settings_editor_desc">Görüntüleyici menüsündeki \'Düzenle\' komutuna bağlı uygulama. Kısayol: uygulamayı anında değiştirmek için \'Düzenle\' üzerine uzun basın (seçim hatırlanır). Astonishing Image Viewer\'in yerleşik düzenleyicisini de seçebilirsiniz; o görüntüler üzerinde yalnızca iki işleme izin verir: kırpma ve döndürme.</string>
     <string name="settings_editor_none">Seçilmedi</string>
     <string name="settings_editor_pick">Seç</string>
     <string name="view_grid">Izgara</string>
@@ -291,15 +293,15 @@
     <string name="view_tree">Klasörler</string>
     <string name="edit_no_backup">Yedek kopya alınamadı, bu yüzden hiçbir şeyin üzerine yazılmadı</string>
     <string name="settings_editor_backup">Üzerine yazmadan önce yedek kopya</string>
-    <string name="settings_editor_backup_desc">Üzerine yazılan her görselin önceki sürümü çöp kutusunda saklanır.</string>
+    <string name="settings_editor_backup_desc">Bir düzenleyici bir görüntünün üzerine yazmadan önce, bir kopyasını çöp kutusuna kaydeder; oradan geri alabilirsiniz. Gerekmiyorsa bir sonraki \'Çöp kutusunu boşalt\' işleminde silinir.</string>
     <string name="editor_tall">Dikey</string>
     <string name="editor_wide">Yatay</string>
     <string name="pick_drop_ask">Seçim bırakılsın mı?</string>
     <string name="pick_drop">Bırak</string>
     <string name="pick_keep">Koru</string>
     <string name="pick_list_done">Dosya listesi panoya kopyalandı</string>
-    <string name="settings_pick_weight">Seçimin boyutu</string>
-    <string name="settings_pick_weight_desc">Seçimin başında, sayının yanında, seçilen ögelerin toplam boyutu okunur. Boyut, seçim her durduğunda sisteme sorulur: kapalıyken bu soru hiç sorulmaz.</string>
+    <string name="settings_pick_weight">Seçili dosyaların boyutu</string>
+    <string name="settings_pick_weight_desc">Seçimin başında, sayacın yanında, seçili tüm ögelerin toplam boyutu görünür. Seçimdeki her değişiklikte değişir.</string>
     <string name="anim_play">Oynat</string>
     <string name="anim_pause">Duraklat</string>
     <string name="anim_prev">Önceki kare</string>

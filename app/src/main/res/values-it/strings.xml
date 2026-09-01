@@ -121,7 +121,7 @@
     <string name="settings_anim_counter">Contatore dei fotogrammi</string>
     <string name="settings_anim_counter_desc">Compare nella fila dei comandi delle immagini animate.</string>
 
-    <string name="settings_reverse_order">Sfoglia le foto verso destra dalla meno recente</string>
+    <string name="settings_reverse_order">Sfoglia le immagini verso destra dalla meno recente</string>
     <string name="settings_reverse_order_desc">Per impostazione predefinita, le gallerie di Android considerano la prima (più in alto) la più recente, e si sfoglia a ritroso. Attiva questa opzione per un ordinamento da gestore di file: dalla meno recente alla più recente.</string>
 
     <string name="settings_clipboard">Leggi il contenuto degli appunti all\'avvio</string>

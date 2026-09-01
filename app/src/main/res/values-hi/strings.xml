@@ -43,31 +43,33 @@
     <string name="settings_dark">गहरा</string>
     <string name="settings_folder_columns">फ़ोल्डर ग्रिड के स्तंभ</string>
     <string name="settings_folder_columns_desc">जितने अधिक स्तंभ, उतने अधिक फ़ोल्डर स्क्रीन पर आते हैं और हर आवरण उतना ही छोटा होता है। चार पर नीचे का नाम अक्सर कट जाता है।</string>
-    <string name="settings_folder_count">फ़ोल्डर के नीचे आइटम की संख्या</string>
+    <string name="settings_folder_count">ग्रिड दृश्य में फ़ोल्डरों के नीचे वस्तुओं की गिनती</string>
     <string name="settings_hand">मुख्य कार्यों की जगह</string>
     <string name="settings_right">दाएँ</string>
     <string name="settings_left">बाएँ</string>
     <string name="settings_list_path">फ़ाइल सूची: फ़ोल्डर का पथ भी कॉपी करें</string>
-    <string name="settings_folder_count_desc">हर कवर के नीचे, फ़ोल्डर में कितनी इमेज हैं। बंद करने पर पंक्ति छोटी हो जाती है, और ऊपर का शीर्षक उतना ही बड़ा हो जाता है।</string>
+    <string name="settings_folder_count_desc">हर फ़ोल्डर की झलक के नीचे छवियों की एक और वीडियो की एक गिनती दिखेगी।</string>
     <string name="settings_fit_grow">छोटे चित्र बड़े करें</string>
     <string name="settings_fit_grow_desc">बंद हो तो स्क्रीन से छोटा चित्र अपने असली आकार में दिखता है। चालू हो तो वह स्क्रीन भरने तक बढ़ता है।</string>
     <string name="settings_zoom_max">अधिकतम ज़ूम</string>
-    <string name="settings_scale_mode" formatted="false">100% का अर्थ</string>
+    <string name="settings_zoom_page">समायोजन और ज़ूम</string>
+    <string name="settings_zoom_page_summary">बड़ा करना, अधिकतम ज़ूम, पिक्सेल रेंडरिंग</string>
+    <string name="settings_scale_mode" formatted="false">पिक्सेल रेंडरिंग</string>
     <string name="settings_scale_physical">फ़ाइल का एक पिक्सेल, स्क्रीन का एक पिक्सेल</string>
     <string name="settings_scale_logical">फ़ाइल का एक पिक्सेल, लेआउट का एक पिक्सेल</string>
-    <string name="settings_scale_desc">फ़ोन की स्क्रीन एक लेआउट पिक्सेल में दो या तीन असली पिक्सेल भरती है, इसलिए दोनों उत्तर बहुत दूर हैं: पहला फ़ाइल को जैसा है वैसा दिखाता है, दूसरा उस आकार में जैसा वेब पन्ने पर दिखता।</string>
+    <string name="settings_scale_desc">तय करता है कि वास्तविक पिक्सेल पर ज़ूम करने का क्या अर्थ है। किसी भी आधुनिक उपकरण की स्क्रीन हर तार्किक पिक्सेल को दो या तीन वास्तविक पिक्सेल के वर्ग से बनाती है। पहला विकल्प तार्किक पिक्सेल को अनदेखा करके हर बिंदु को एक वास्तविक पिक्सेल पर रखता है; दूसरा हर वस्तु को उस माप में दिखाता है जो उसे किसी वेब पृष्ठ पर मिलती।</string>
     <string name="details_bar">विवरण पट्टी</string>
     <string name="settings_top">ऊपर</string>
     <string name="settings_bottom">नीचे</string>
-    <string name="settings_info_visible">शुरू में पट्टी दिखे</string>
+    <string name="settings_info_visible">शुरू होने पर जानकारी पट्टी</string>
     <string name="settings_anim_counter">फ़्रेम काउंटर</string>
     <string name="settings_anim_counter_desc">चलती छवियों की नियंत्रण पट्टी में दिखता है।</string>
-    <string name="settings_reverse_order">क्रम उलटें (तारीख से)</string>
-    <string name="settings_reverse_order_desc">बंद हो तो आप नए से पुराने की ओर पलटते हैं, जैसे फ़ोन की गैलरी में। चालू हो तो समय के क्रम में, सबसे पुराने से नए की ओर।</string>
-    <string name="settings_clipboard">शुरू होते ही क्लिपबोर्ड पढ़ें</string>
-    <string name="settings_clipboard_desc">ऐप को उसके चिह्न से खोलने पर, यदि क्लिपबोर्ड का पता सीधे किसी चित्र पर जाता है तो वही चित्र खुलता है। जब भी कोई ऐप क्लिपबोर्ड पढ़ता है, Android सूचना दिखाता है: इसे बंद रखना यानी वह सूचना कभी न देखना।</string>
+    <string name="settings_reverse_order">सबसे पुरानी से दाईं ओर छवियाँ पलटें</string>
+    <string name="settings_reverse_order_desc">डिफ़ॉल्ट रूप से Android की गैलरी सबसे ऊपर की पहली वस्तु को सबसे नई मानती है और पन्ने पीछे की ओर पलटते हैं। फ़ाइल प्रबंधक जैसी क्रम व्यवस्था के लिए यह विकल्प चालू करें: सबसे पुरानी से सबसे नई तक।</string>
+    <string name="settings_clipboard">शुरू होने पर क्लिपबोर्ड की सामग्री पढ़ें</string>
+    <string name="settings_clipboard_desc">जब आप ऐप खोलते हैं (नई शुरुआत) और सिस्टम के क्लिपबोर्ड में किसी छवि का सीधा लिंक हो, तो होम स्क्रीन के बजाय वही छवि सीधे दर्शक में खुल जाती है।</string>
     <string name="settings_start_folder">शुरू होते ही एक फ़ोल्डर खोलें</string>
-    <string name="settings_start_folder_desc">ऐप खुलते ही फ़ोल्डरों की सूची के बजाय चुने हुए फ़ोल्डर की सामग्री सीधे दिखती है।</string>
+    <string name="settings_start_folder_desc">शुरू होने पर होम स्क्रीन के बजाय किसी निश्चित फ़ोल्डर की सामग्री दिखाता है।</string>
     <string name="settings_start_folder_none">कोई फ़ोल्डर नहीं चुना</string>
     <string name="settings_start_folder_pick">चुनें</string>
     <string name="folders_title">फ़ोल्डर</string>
@@ -228,7 +230,7 @@
     <string name="bin_empty_hint">शॉर्टकट: कूड़ेदान खाली करने के लिए फ़्लोटिंग बटन दबाए रखें।</string>
     <string name="facts_title">फ़ाइल की विस्तृत जानकारी</string>
     <string name="settings_reset_hints">संकेत फिर दिखाएँ</string>
-    <string name="settings_reset_hints_desc">शॉर्टकट की व्याख्याएँ फिर दिखेंगी, जैसे नई इंस्टॉलेशन में।</string>
+    <string name="settings_reset_hints_desc">छोटे मार्गदर्शक, परिचय, सुझाव और चेतावनियाँ, जो आम तौर पर केवल पहली बार चलाने पर दिखते हैं, फिर से दिखने लगते हैं (केवल एक बार)।</string>
     <string name="settings_reset_hints_do">फिर दिखाएँ</string>
     <string name="settings_reset_hints_done">संकेत फिर दिखेंगे</string>
     <string name="bin_restore_all">सब वापस लाएँ</string>
@@ -250,7 +252,7 @@
     <string name="settings_bin_desc">फ़ाइल मिटाने पर कुछ नहीं पूछा जाता, लेकिन कूड़ेदान से \'वापस लाएँ\' के ज़रिये यह काम पलटा जा सकता है (फ़्लोटिंग बटन →\u00A0\'कूड़ेदान\')। अगर आप तुरंत मिटाना पसंद करते हैं तो कूड़ेदान पूरी तरह बंद कर सकते हैं: उस स्थिति में हर बार मिटाने से पहले पुष्टि दिखेगी।\n⚠️ चेतावनी: ऐप अनइंस्टॉल करने पर कूड़ेदान की सामग्री खो जाती है और वापस नहीं मिलती।</string>
     <string name="pick_duplicate">प्रतिलिपि बनाएँ</string>
     <string name="settings_grid_names">ग्रिड में फ़ाइल का नाम</string>
-    <string name="settings_grid_names_desc">हर थंबनेल के नीचे फ़ाइल का नाम, ज़्यादा से ज़्यादा दो पंक्तियों में। एक्सटेंशन कभी नहीं टूटता और हमेशा दिखता है: नाम न समाए तो बीच का हिस्सा छोटा होता है।</string>
+    <string name="settings_grid_names_desc">ग्रिड दृश्य में भी थंबनेल के नीचे फ़ाइल का नाम दिखाता है। अधिक से अधिक दो पंक्तियाँ।</string>
     <string name="grid_item_clip">वीडियो</string>
     <string name="clip_play">चलाएँ</string>
     <string name="hub_view_tree">सिस्टम फ़ोल्डर</string>
@@ -259,7 +261,7 @@
     <string name="tree_unopenable">इस फ़ोन में कोई ऐप इसे नहीं खोल सकता</string>
     <string name="clip_pause">रोकें</string>
     <string name="settings_images_only">सिर्फ़ तस्वीरें देखें</string>
-    <string name="settings_images_only_desc">व्यूअर में स्वाइप करने पर वीडियो छूट जाते हैं और सिर्फ़ तस्वीरें दिखती हैं। ग्रिड में वीडियो पर टैप करने से वह फिर भी चलता है: यह स्वाइप की बात है, टैप की नहीं।</string>
+    <string name="settings_images_only_desc">दर्शक में दाएँ-बाएँ सरकाने पर वीडियो छूट जाते हैं और केवल छवियाँ गिनी जाती हैं। ग्रिड, सूची या फ़ोल्डर से एक स्पर्श पर वीडियो फिर भी चलता है।</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">संपादित करें</string>
@@ -282,8 +284,8 @@
     <string name="edit_no_overwrite">यह प्रारूप दोबारा लिखा नहीं जा सकता, इसलिए सिर्फ़ प्रति बचती है।</string>
     <string name="edit_failed">सहेजा नहीं जा सका</string>
     <string name="edit_app_gone">वह संपादक अब नहीं है। कोई और चुनें।</string>
-    <string name="settings_editor">तस्वीरें संपादित करने का ऐप</string>
-    <string name="settings_editor_desc">किसी छवि पर संपादित करें छूने पर खुलने वाला अनुप्रयोग। अंतर्निहित वाला घुमाता और काटता है।</string>
+    <string name="settings_editor">छवि संपादक</string>
+    <string name="settings_editor_desc">दर्शक के मेन्यू में \'संपादित करें\' आदेश से जुड़ा ऐप। शॉर्टकट: तुरंत ऐप बदलने के लिए \'संपादित करें\' को देर तक दबाएँ, चुनाव याद रखा जाता है। आप Astonishing Image Viewer का आंतरिक संपादक भी चुन सकते हैं, जो छवियों पर केवल दो काम करता है: कतरन और घुमाव।</string>
     <string name="settings_editor_none">कोई नहीं चुना</string>
     <string name="settings_editor_pick">चुनें</string>
     <string name="view_grid">ग्रिड</string>
@@ -291,15 +293,15 @@
     <string name="view_tree">फ़ोल्डर</string>
     <string name="edit_no_backup">सुरक्षा प्रति नहीं बनी, इसलिए कुछ भी ऊपर नहीं लिखा गया</string>
     <string name="settings_editor_backup">ऊपर लिखने से पहले सुरक्षा प्रति</string>
-    <string name="settings_editor_backup_desc">अधिलेखित की गई हर छवि का पिछला रूप कूड़ेदान में सुरक्षित रहता है।</string>
+    <string name="settings_editor_backup_desc">किसी संपादक द्वारा छवि पर लिखे जाने से पहले, उसकी एक प्रति रद्दी में रख दी जाती है, जहाँ से आप उसे वापस ले सकते हैं; ज़रूरत न हो तो अगली बार \'रद्दी खाली करें\' पर वह हट जाएगी।</string>
     <string name="editor_tall">खड़ा</string>
     <string name="editor_wide">आड़ा</string>
     <string name="pick_drop_ask">चयन छोड़ें?</string>
     <string name="pick_drop">छोड़ें</string>
     <string name="pick_keep">रखें</string>
     <string name="pick_list_done">फ़ाइल सूची क्लिपबोर्ड पर कॉपी हो गई</string>
-    <string name="settings_pick_weight">चयन का आकार</string>
-    <string name="settings_pick_weight_desc">चयन के शीर्ष पर, गिनती के बगल में, चुने गए आइटम का कुल आकार दिखता है। हर बार चयन रुकने पर आकार सिस्टम से पूछा जाता है: बंद होने पर यह सवाल नहीं पूछा जाता।</string>
+    <string name="settings_pick_weight">चुनी गई फ़ाइलों का आकार</string>
+    <string name="settings_pick_weight_desc">चयन के शीर्ष पर, गिनती के पास, सभी चुनी गई वस्तुओं का कुल आकार दिखता है। चयन बदलने पर यह हर बार बदलता है।</string>
     <string name="anim_play">चलाएँ</string>
     <string name="anim_pause">रोकें</string>
     <string name="anim_prev">पिछला फ़्रेम</string>

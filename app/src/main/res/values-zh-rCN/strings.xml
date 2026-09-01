@@ -43,31 +43,33 @@
     <string name="settings_dark">深色</string>
     <string name="settings_folder_columns">文件夹网格的列数</string>
     <string name="settings_folder_columns_desc">列数越多,屏幕上装下的文件夹越多,每张封面也越小。到四列时,下面的名字通常会被截断。</string>
-    <string name="settings_folder_count">在文件夹下方显示项目数量</string>
+    <string name="settings_folder_count">网格视图中文件夹下方的项目计数</string>
     <string name="settings_hand">主要功能的位置</string>
     <string name="settings_right">右侧</string>
     <string name="settings_left">左侧</string>
     <string name="settings_list_path">文件列表：一并复制文件夹路径</string>
-    <string name="settings_folder_count_desc">在每个封面下方显示文件夹中的图片数量。关闭后行会变短，顶部的标题区域则相应变大。</string>
+    <string name="settings_folder_count_desc">每个文件夹预览下方会出现一个图像计数和一个视频计数。</string>
     <string name="settings_fit_grow">放大较小的图片</string>
     <string name="settings_fit_grow_desc">关闭时,比屏幕小的图片按真实尺寸显示。打开时,它会放大到填满视图。</string>
     <string name="settings_zoom_max">最大缩放</string>
-    <string name="settings_scale_mode" formatted="false">100% 的含义</string>
+    <string name="settings_zoom_page">适配与缩放</string>
+    <string name="settings_zoom_page_summary">放大、最大缩放、像素渲染</string>
+    <string name="settings_scale_mode" formatted="false">像素渲染</string>
     <string name="settings_scale_physical">文件的一个像素对应屏幕的一个像素</string>
     <string name="settings_scale_logical">文件的一个像素对应布局的一个像素</string>
-    <string name="settings_scale_desc">手机屏幕会把两三个真实像素塞进一个布局像素,所以两个答案相差很远:前者按文件本来的样子显示,后者按网页上的大小显示。</string>
+    <string name="settings_scale_desc">决定按真实像素缩放意味着什么。任何现代设备的屏幕都会把一个逻辑像素画成两三个真实像素组成的方块。第一项忽略逻辑像素，把每一点对应到一个真实像素；第二项按对象在网页上应有的大小显示。</string>
     <string name="details_bar">详情栏</string>
     <string name="settings_top">在顶部</string>
     <string name="settings_bottom">在底部</string>
-    <string name="settings_info_visible">一开始就显示详情栏</string>
+    <string name="settings_info_visible">启动时显示信息栏</string>
     <string name="settings_anim_counter">帧计数器</string>
     <string name="settings_anim_counter_desc">显示在动态图像的控制栏中。</string>
-    <string name="settings_reverse_order">反转顺序 (按日期)</string>
-    <string name="settings_reverse_order_desc">关闭时,从最新的翻向更早的,和手机图库一样。打开时,按时间先后,从最早翻到最新。</string>
-    <string name="settings_clipboard">启动时读取剪贴板</string>
-    <string name="settings_clipboard_desc">从图标打开应用时,如果剪贴板里的地址直接指向一张图片,就打开那张图片。每次应用读取剪贴板,Android 都会给出提示;保持关闭就永远不会看到它。</string>
+    <string name="settings_reverse_order">从最旧的一张起向右翻阅图像</string>
+    <string name="settings_reverse_order_desc">默认情况下，Android 图库把最上面的第一项视为最新的，翻阅方向是往回。想要文件管理器式的排序，请打开此项：从最旧到最新。</string>
+    <string name="settings_clipboard">启动时读取剪贴板内容</string>
+    <string name="settings_clipboard_desc">打开应用时（新的一次启动），如果系统剪贴板中有指向某张图像的直接链接，将直接在查看器中打开该图像，而不是主界面。</string>
     <string name="settings_start_folder">启动时打开一个文件夹</string>
-    <string name="settings_start_folder_desc">打开应用后直接显示所选文件夹里的内容,而不是文件夹列表。</string>
+    <string name="settings_start_folder_desc">启动时显示指定文件夹的内容，而不是主界面。</string>
     <string name="settings_start_folder_none">尚未选择文件夹</string>
     <string name="settings_start_folder_pick">选择</string>
     <string name="folders_title">文件夹</string>
@@ -213,7 +215,7 @@
     <string name="bin_empty_hint">快捷操作：长按悬浮按钮可清空回收站。</string>
     <string name="facts_title">文件详细信息</string>
     <string name="settings_reset_hints">重新显示提示</string>
-    <string name="settings_reset_hints_desc">快捷操作的说明会重新出现，就像刚安装时一样。</string>
+    <string name="settings_reset_hints_desc">通常只在首次启动时出现的小教程、引导、提示和提醒会再次显示（仅一次）。</string>
     <string name="settings_reset_hints_do">重新显示</string>
     <string name="settings_reset_hints_done">提示会重新出现</string>
     <string name="bin_restore_all">全部还原</string>
@@ -235,7 +237,7 @@
     <string name="settings_bin_desc">删除文件不会有任何提示，但可以在回收站里用 \'还原\' 撤销（悬浮按钮 →\u00A0\'回收站\'）。如果你更喜欢立即删除，可以完全关闭回收站：那样每次删除前都会出现确认。\n⚠️ 注意：卸载应用后，回收站里的内容会丢失且无法恢复。</string>
     <string name="pick_duplicate">创建副本</string>
     <string name="settings_grid_names">网格中显示文件名</string>
-    <string name="settings_grid_names_desc">每张缩略图下显示文件名，最多两行。扩展名不会被换行拆开，始终可见：名字放不下时，让位的是中间部分。</string>
+    <string name="settings_grid_names_desc">在网格视图中也在缩略图下方显示文件名。最多两行。</string>
     <string name="grid_item_clip">视频</string>
     <string name="clip_play">播放</string>
     <string name="hub_view_tree">系统文件夹</string>
@@ -244,7 +246,7 @@
     <string name="tree_unopenable">这台手机上没有能打开它的应用</string>
     <string name="clip_pause">暂停</string>
     <string name="settings_images_only">只翻阅图片</string>
-    <string name="settings_images_only_desc">在查看器里滑动会跳过视频，只显示图片。在网格中点按视频仍会播放：这管的是滑动，不是点按。</string>
+    <string name="settings_images_only_desc">在查看器中左右滑动会跳过视频，只考虑图像。仍然可以在网格、列表或文件夹中轻触播放视频。</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">编辑</string>
@@ -267,8 +269,8 @@
     <string name="edit_no_overwrite">这种格式无法写回，只能留下副本。</string>
     <string name="edit_failed">没能保存</string>
     <string name="edit_app_gone">那个编辑器已经不在了。换一个吧。</string>
-    <string name="settings_editor">编辑图片用的应用</string>
-    <string name="settings_editor_desc">在图像上点按编辑时打开的应用。内置的可旋转和裁剪。</string>
+    <string name="settings_editor">图像编辑器</string>
+    <string name="settings_editor_desc">与查看器菜单中\'编辑\'命令关联的应用。快捷方式：长按\'编辑\'即可当场更换应用，选择会被记住。也可以选择 Astonishing Image Viewer 的内置编辑器，它对图像只提供两项操作：裁剪和旋转。</string>
     <string name="settings_editor_none">未选择</string>
     <string name="settings_editor_pick">选择</string>
     <string name="view_grid">网格</string>
@@ -276,15 +278,15 @@
     <string name="view_tree">文件夹</string>
     <string name="edit_no_backup">安全副本没能建立，所以什么都没有覆盖</string>
     <string name="settings_editor_backup">覆盖前先留一份安全副本</string>
-    <string name="settings_editor_backup_desc">每张被覆盖图像的先前版本都会保存在回收站中。</string>
+    <string name="settings_editor_backup_desc">在编辑器覆盖一张图像之前，会先把副本存入回收站，可以从那里找回；如果不需要，下次\'清空回收站\'时会被删除。</string>
     <string name="editor_tall">竖向</string>
     <string name="editor_wide">横向</string>
     <string name="pick_drop_ask">要取消选择吗？</string>
     <string name="pick_drop">取消选择</string>
     <string name="pick_keep">保留</string>
     <string name="pick_list_done">文件列表已复制到剪贴板</string>
-    <string name="settings_pick_weight">所选内容的大小</string>
-    <string name="settings_pick_weight_desc">在选择的顶部、数量旁边，可以看到所选项目的总大小。每当选择停下来时都会向系统查询大小；关闭后就不再查询。</string>
+    <string name="settings_pick_weight">所选文件的大小</string>
+    <string name="settings_pick_weight_desc">在所选项目的顶部、计数器旁边，会显示全部所选项目的总大小。选择每次变动，它都会随之变化。</string>
     <string name="anim_play">播放</string>
     <string name="anim_pause">暂停</string>
     <string name="anim_prev">上一帧</string>

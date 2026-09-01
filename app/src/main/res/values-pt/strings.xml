@@ -43,31 +43,33 @@
     <string name="settings_dark">Escuro</string>
     <string name="settings_folder_columns">Colunas na grade de pastas</string>
     <string name="settings_folder_columns_desc">Mais colunas cabem mais pastas na tela e encolhem cada capa. Com quatro, o nome embaixo costuma ficar cortado.</string>
-    <string name="settings_folder_count">Contagem de itens sob as pastas</string>
+    <string name="settings_folder_count">Contador de itens sob as pastas na visualização em grade</string>
     <string name="settings_hand">Posição das funções principais</string>
     <string name="settings_right">Direita</string>
     <string name="settings_left">Esquerda</string>
     <string name="settings_list_path">Lista de arquivos: copiar o caminho da pasta</string>
-    <string name="settings_folder_count_desc">Sob cada capa, quantas imagens a pasta contém. Ao desligar, a linha fica mais curta e o cabeçalho cresce o mesmo tanto.</string>
+    <string name="settings_folder_count_desc">Sob cada prévia de pasta aparecerão um contador de imagens e um de vídeos.</string>
     <string name="settings_fit_grow">Ampliar imagens pequenas</string>
     <string name="settings_fit_grow_desc">Desligado, uma imagem menor que a tela aparece no tamanho real. Ligado, ela cresce até preencher a vista.</string>
     <string name="settings_zoom_max">Zoom máximo</string>
-    <string name="settings_scale_mode" formatted="false">O que quer dizer 100%</string>
+    <string name="settings_zoom_page">Ajuste e zoom</string>
+    <string name="settings_zoom_page_summary">Ampliação, zoom máximo, renderização dos pixels</string>
+    <string name="settings_scale_mode" formatted="false">Renderização dos pixels</string>
     <string name="settings_scale_physical">Um pixel do arquivo por pixel da tela</string>
     <string name="settings_scale_logical">Um pixel do arquivo por pixel de layout</string>
-    <string name="settings_scale_desc">A tela de um celular junta dois ou três pixels reais num pixel de layout, então as duas respostas ficam bem distantes: a primeira mostra o arquivo como ele é, a segunda no tamanho que teria numa página da web.</string>
+    <string name="settings_scale_desc">Define a que corresponde o zoom em pixels reais. A tela de qualquer aparelho moderno desenha cada pixel lógico com um quadrado de dois ou três pixels reais. A primeira escolha ignora os pixels lógicos e mapeia cada ponto em um pixel real; a segunda mostra cada objeto no tamanho que teria em uma página da web.</string>
     <string name="details_bar">Barra de detalhes</string>
     <string name="settings_top">No alto</string>
     <string name="settings_bottom">Embaixo</string>
-    <string name="settings_info_visible">Barra visível no início</string>
+    <string name="settings_info_visible">Barra de informações ao iniciar</string>
     <string name="settings_anim_counter">Contador de quadros</string>
     <string name="settings_anim_counter_desc">Aparece na barra de controles das imagens animadas.</string>
-    <string name="settings_reverse_order">Inverter o sentido da sequência (por data)</string>
-    <string name="settings_reverse_order_desc">Desligado, você folheia do mais recente para os mais antigos, como numa galeria de telefone. Ligado, em ordem cronológica, do mais antigo para o mais recente.</string>
-    <string name="settings_clipboard">Ler a área de transferência ao iniciar</string>
-    <string name="settings_clipboard_desc">Abrindo o aplicativo pelo ícone, um endereço na área de transferência que aponte direto para uma imagem abre essa imagem. O Android mostra um aviso toda vez que um aplicativo lê a área de transferência: deixar isto desligado é nunca vê-lo.</string>
+    <string name="settings_reverse_order">Passar as imagens para a direita a partir da mais antiga</string>
+    <string name="settings_reverse_order_desc">Por padrão, as galerias do Android consideram o primeiro item, no topo, como o mais recente, e a navegação vai para trás. Ative esta opção para uma ordem de gerenciador de arquivos: do menos recente ao mais recente.</string>
+    <string name="settings_clipboard">Ler o conteúdo da área de transferência ao iniciar</string>
+    <string name="settings_clipboard_desc">Quando você abre o aplicativo (novo início), se a área de transferência do sistema contiver um link direto para uma imagem, ela abre direto no visualizador em vez da tela inicial.</string>
     <string name="settings_start_folder">Abrir uma pasta ao iniciar</string>
-    <string name="settings_start_folder_desc">Ao abrir o aplicativo aparece direto o conteúdo da pasta escolhida, em vez da lista de pastas.</string>
+    <string name="settings_start_folder_desc">Mostra ao iniciar o conteúdo de uma pasta específica, em vez da tela inicial.</string>
     <string name="settings_start_folder_none">Nenhuma pasta escolhida</string>
     <string name="settings_start_folder_pick">Escolher</string>
     <string name="folders_title">Pastas</string>
@@ -243,7 +245,7 @@
     <string name="bin_empty_hint">Atalho: mantenha o botão flutuante pressionado para esvaziar a lixeira.</string>
     <string name="facts_title">Informações detalhadas do arquivo</string>
     <string name="settings_reset_hints">Ver os avisos de novo</string>
-    <string name="settings_reset_hints_desc">As explicações dos atalhos voltam a aparecer, como numa instalação nova.</string>
+    <string name="settings_reset_hints_desc">Os minitutoriais, a introdução, as dicas e os avisos, normalmente exibidos apenas no primeiro início, voltam a ficar visíveis (uma só vez).</string>
     <string name="settings_reset_hints_do">Ver de novo</string>
     <string name="settings_reset_hints_done">Os avisos voltarão a aparecer</string>
     <string name="bin_restore_all">Restaurar tudo</string>
@@ -265,7 +267,7 @@
     <string name="settings_bin_desc">Excluir um arquivo não pergunta nada, mas a ação pode ser desfeita com um \'Restaurar\' na lixeira (botão flutuante →\u00A0\'Lixeira\'). Você pode desativar a lixeira por completo, se preferir uma exclusão instantânea: nesse caso, aparecerá uma confirmação antes de cada exclusão.\n⚠️ ATENÇÃO: se você desinstalar o app, o conteúdo da lixeira é perdido e não pode ser recuperado.</string>
     <string name="pick_duplicate">Duplicar</string>
     <string name="settings_grid_names">Nome do arquivo na grade</string>
-    <string name="settings_grid_names_desc">Sob cada miniatura, o nome do arquivo em no máximo duas linhas. A extensão nunca é quebrada e aparece sempre: quando o nome não cabe, quem cede é o meio.</string>
+    <string name="settings_grid_names_desc">Mostra o nome do arquivo também na visualização em grade, sob a miniatura. No máximo duas linhas.</string>
     <string name="grid_item_clip">Vídeo</string>
     <string name="clip_play">Reproduzir</string>
     <string name="hub_view_tree">Pastas do sistema</string>
@@ -274,7 +276,7 @@
     <string name="tree_unopenable">Nenhum app deste celular sabe abrir isso</string>
     <string name="clip_pause">Pausar</string>
     <string name="settings_images_only">Folhear só as imagens</string>
-    <string name="settings_images_only_desc">No visualizador, deslizar pula os vídeos e mostra só imagens. Tocar num vídeo na grade continua reproduzindo: isto é sobre o gesto, não sobre o toque.</string>
+    <string name="settings_images_only_desc">No visualizador, o deslize para a direita e para a esquerda ignora os vídeos e considera apenas as imagens. Você ainda pode reproduzir um vídeo com um toque na grade, na lista ou nas pastas.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Editar</string>
@@ -297,8 +299,8 @@
     <string name="edit_no_overwrite">Este formato não pode ser reescrito, então resta só a cópia.</string>
     <string name="edit_failed">Não foi possível salvar</string>
     <string name="edit_app_gone">Esse editor sumiu. Escolha outro.</string>
-    <string name="settings_editor">App para editar imagens</string>
-    <string name="settings_editor_desc">O aplicativo que abre ao tocar em Editar numa imagem. O interno gira e recorta.</string>
+    <string name="settings_editor">Editor de imagens</string>
+    <string name="settings_editor_desc">Aplicativo associado ao comando \'Editar\', no menu do visualizador. Atalho: mantenha \'Editar\' pressionado para trocar de aplicativo na hora (a escolha fica memorizada). Você também pode escolher o editor interno do Astonishing Image Viewer, que permite apenas duas operações nas imagens: recorte e rotação.</string>
     <string name="settings_editor_none">Nenhum escolhido</string>
     <string name="settings_editor_pick">Escolher</string>
     <string name="view_grid">Grade</string>
@@ -306,15 +308,15 @@
     <string name="view_tree">Pastas</string>
     <string name="edit_no_backup">A cópia de segurança falhou, então nada foi sobrescrito</string>
     <string name="settings_editor_backup">Cópia de segurança antes de sobrescrever</string>
-    <string name="settings_editor_backup_desc">A versão anterior de cada imagem sobrescrita é mantida na lixeira.</string>
+    <string name="settings_editor_backup_desc">Antes que um editor sobrescreva uma imagem, ele guarda uma cópia na lixeira, onde você poderá recuperá-la; se não precisar dela, será excluída no próximo \'Esvaziar lixeira\'.</string>
     <string name="editor_tall">Retrato</string>
     <string name="editor_wide">Paisagem</string>
     <string name="pick_drop_ask">Descartar a seleção?</string>
     <string name="pick_drop">Descartar</string>
     <string name="pick_keep">Manter</string>
     <string name="pick_list_done">Lista de arquivos copiada para a área de transferência</string>
-    <string name="settings_pick_weight">Peso da seleção</string>
-    <string name="settings_pick_weight_desc">No topo da seleção, ao lado da contagem, você lê quanto pesam no total os itens escolhidos. O peso é perguntado ao sistema sempre que a seleção para: desligado, essa pergunta não é feita.</string>
+    <string name="settings_pick_weight">Tamanho dos arquivos selecionados</string>
+    <string name="settings_pick_weight_desc">No topo da seleção, ao lado do contador, aparece o tamanho total de todos os itens selecionados. Muda a cada alteração da seleção.</string>
     <string name="anim_play">Reproduzir</string>
     <string name="anim_pause">Pausar</string>
     <string name="anim_prev">Quadro anterior</string>

@@ -43,31 +43,33 @@
     <string name="settings_dark">Тёмный</string>
     <string name="settings_folder_columns">Столбцы в сетке папок</string>
     <string name="settings_folder_columns_desc">Чем больше столбцов, тем больше папок помещается на экране и тем меньше каждая обложка. При четырёх имя под ней обычно обрезается.</string>
-    <string name="settings_folder_count">Число элементов под папками</string>
+    <string name="settings_folder_count">Счётчик элементов под папками в режиме сетки</string>
     <string name="settings_hand">Расположение основных функций</string>
     <string name="settings_right">Справа</string>
     <string name="settings_left">Слева</string>
     <string name="settings_list_path">Список файлов: копировать путь папки</string>
-    <string name="settings_folder_count_desc">Под каждой обложкой, сколько изображений в папке. При отключении строка становится короче, а заголовок вверху вырастает на столько же.</string>
+    <string name="settings_folder_count_desc">Под каждым эскизом папки появятся счётчик изображений и счётчик видео.</string>
     <string name="settings_fit_grow">Увеличивать маленькие изображения</string>
     <string name="settings_fit_grow_desc">Выключено: изображение меньше экрана показывается в натуральную величину. Включено: оно растёт, пока не заполнит экран.</string>
     <string name="settings_zoom_max">Наибольшее увеличение</string>
-    <string name="settings_scale_mode" formatted="false">Что значит 100%</string>
+    <string name="settings_zoom_page">Подгонка и масштаб</string>
+    <string name="settings_zoom_page_summary">Увеличение, максимальный масштаб, отрисовка пикселей</string>
+    <string name="settings_scale_mode" formatted="false">Отрисовка пикселей</string>
     <string name="settings_scale_physical">Один пиксель файла на один пиксель экрана</string>
     <string name="settings_scale_logical">Один пиксель файла на один пиксель разметки</string>
-    <string name="settings_scale_desc">Экран телефона умещает два или три настоящих пикселя в одном пикселе разметки, поэтому два ответа сильно расходятся: первый показывает файл как он есть, второй - в том размере, в каком его показала бы веб-страница.</string>
+    <string name="settings_scale_desc">Задаёт, чему соответствует масштаб в реальных пикселях. Экран любого современного устройства рисует каждый логический пиксель квадратом из двух или трёх реальных. Первый вариант не учитывает логические пиксели и переводит каждую точку в один реальный пиксель; второй показывает каждый объект того размера, который он имел бы на веб-странице.</string>
     <string name="details_bar">Строка подробностей</string>
     <string name="settings_top">Сверху</string>
     <string name="settings_bottom">Снизу</string>
-    <string name="settings_info_visible">Показывать строку сразу</string>
+    <string name="settings_info_visible">Строка сведений при запуске</string>
     <string name="settings_anim_counter">Счётчик кадров</string>
     <string name="settings_anim_counter_desc">Показывается на панели управления анимированных изображений.</string>
-    <string name="settings_reverse_order">Изменить направление последовательности (по дате)</string>
-    <string name="settings_reverse_order_desc">Выключено: вы листаете от самого свежего к более старым, как в галерее телефона. Включено: по времени, от самого старого к самому свежему.</string>
-    <string name="settings_clipboard">Читать буфер обмена при запуске</string>
-    <string name="settings_clipboard_desc">Если открыть приложение со значка, а в буфере обмена лежит адрес прямо на изображение, откроется это изображение. Android показывает уведомление каждый раз, когда приложение читает буфер: оставить выключенным значит никогда его не видеть.</string>
+    <string name="settings_reverse_order">Листать изображения вправо от самого старого</string>
+    <string name="settings_reverse_order_desc">По умолчанию галереи Android считают первый элемент, самый верхний, самым новым, и пролистывание идёт назад. Включите этот параметр для порядка файлового менеджера: от самого старого к самому новому.</string>
+    <string name="settings_clipboard">Читать содержимое буфера обмена при запуске</string>
+    <string name="settings_clipboard_desc">Когда вы открываете приложение (новый запуск) и в системном буфере обмена есть прямая ссылка на изображение, оно откроется сразу в просмотре вместо главного экрана.</string>
     <string name="settings_start_folder">Открывать папку при запуске</string>
-    <string name="settings_start_folder_desc">При открытии приложения сразу видно содержимое выбранной папки, а не список папок.</string>
+    <string name="settings_start_folder_desc">Показывает при запуске содержимое выбранной папки вместо главного экрана.</string>
     <string name="settings_start_folder_none">Папка не выбрана</string>
     <string name="settings_start_folder_pick">Выбрать</string>
     <string name="folders_title">Папки</string>
@@ -258,7 +260,7 @@
     <string name="bin_empty_hint">Быстрое действие: нажмите и удерживайте плавающую кнопку, чтобы очистить корзину.</string>
     <string name="facts_title">Подробные сведения о файле</string>
     <string name="settings_reset_hints">Вернуть подсказки</string>
-    <string name="settings_reset_hints_desc">Объяснения быстрых действий снова появятся, как при новой установке.</string>
+    <string name="settings_reset_hints_desc">Мини-руководства, вводные подсказки, советы и предупреждения, которые обычно видны только при первом запуске, снова станут видимыми (один раз).</string>
     <string name="settings_reset_hints_do">Вернуть</string>
     <string name="settings_reset_hints_done">Подсказки появятся снова</string>
     <string name="bin_restore_all">Вернуть всё</string>
@@ -280,7 +282,7 @@
     <string name="settings_bin_desc">Удаление файла ничего не спрашивает, но действие обратимо: \'Вернуть\' из корзины (плавающая кнопка →\u00A0\'Корзина\'). Корзину можно совсем отключить, если вы предпочитаете мгновенное удаление: тогда перед каждым удалением появится подтверждение.\n⚠️ ВНИМАНИЕ: если удалить приложение, содержимое корзины будет потеряно и его не восстановить.</string>
     <string name="pick_duplicate">Дублировать</string>
     <string name="settings_grid_names">Имя файла в сетке</string>
-    <string name="settings_grid_names_desc">Под каждой миниатюрой имя файла, не более двух строк. Расширение никогда не переносится и видно всегда: если имя не помещается, сокращается середина.</string>
+    <string name="settings_grid_names_desc">Показывает имя файла и в режиме сетки, под эскизом. Не более двух строк.</string>
     <string name="grid_item_clip">Видео</string>
     <string name="clip_play">Воспроизвести</string>
     <string name="hub_view_tree">Папки устройства</string>
@@ -289,7 +291,7 @@
     <string name="tree_unopenable">Ни одно приложение на этом телефоне не может это открыть</string>
     <string name="clip_pause">Пауза</string>
     <string name="settings_images_only">Листать только фотографии</string>
-    <string name="settings_images_only_desc">В просмотрщике смахивание пропускает видео и показывает только фотографии. Нажатие на видео в сетке всё равно его откроет: это про жест, а не про нажатие.</string>
+    <string name="settings_images_only_desc">В просмотре смахивание вправо и влево пропускает видео и учитывает только изображения. Видео по-прежнему можно воспроизвести касанием из сетки, списка или папок.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Изменить</string>
@@ -312,8 +314,8 @@
     <string name="edit_no_overwrite">Этот формат нельзя перезаписать, поэтому остаётся только копия.</string>
     <string name="edit_failed">Сохранить не удалось</string>
     <string name="edit_app_gone">Этого редактора больше нет. Выберите другой.</string>
-    <string name="settings_editor">Приложение для правки изображений</string>
-    <string name="settings_editor_desc">Приложение, которое открывается по нажатию Изменить на изображении. Встроенное поворачивает и обрезает.</string>
+    <string name="settings_editor">Редактор изображений</string>
+    <string name="settings_editor_desc">Приложение, связанное с командой \'Изменить\' в меню просмотра. Быстрый способ: удерживайте \'Изменить\', чтобы сразу сменить приложение (выбор запоминается). Можно выбрать и встроенный редактор Astonishing Image Viewer, который выполняет над изображениями лишь две операции: обрезку и поворот.</string>
     <string name="settings_editor_none">Не выбрано</string>
     <string name="settings_editor_pick">Выбрать</string>
     <string name="view_grid">Сетка</string>
@@ -321,15 +323,15 @@
     <string name="view_tree">Папки</string>
     <string name="edit_no_backup">Резервная копия не получилась, поэтому ничего не перезаписано</string>
     <string name="settings_editor_backup">Резервная копия перед перезаписью</string>
-    <string name="settings_editor_backup_desc">Предыдущая версия каждого перезаписанного изображения сохраняется в корзине.</string>
+    <string name="settings_editor_backup_desc">Прежде чем редактор перезапишет изображение, он сохраняет его копию в корзине, откуда её можно вернуть; если она не нужна, она будет удалена при следующей очистке корзины.</string>
     <string name="editor_tall">Портрет</string>
     <string name="editor_wide">Пейзаж</string>
     <string name="pick_drop_ask">Отменить выделение?</string>
     <string name="pick_drop">Отменить</string>
     <string name="pick_keep">Оставить</string>
     <string name="pick_list_done">Список файлов скопирован в буфер обмена</string>
-    <string name="settings_pick_weight">Размер выделенного</string>
-    <string name="settings_pick_weight_desc">Вверху выделения, рядом со счётчиком, видно, сколько весят выбранные элементы вместе. Размер запрашивается у системы каждый раз, когда выделение останавливается: при выключенном этот запрос не отправляется.</string>
+    <string name="settings_pick_weight">Размер выбранных файлов</string>
+    <string name="settings_pick_weight_desc">В начале выделения, рядом со счётчиком, появляется общий размер всех выбранных элементов. Он меняется при каждом изменении выделения.</string>
     <string name="anim_play">Воспроизвести</string>
     <string name="anim_pause">Пауза</string>
     <string name="anim_prev">Предыдущий кадр</string>

@@ -162,7 +162,7 @@
     <string name="settings_anim_counter">Frame counter</string>
     <string name="settings_anim_counter_desc">Shown in the controls of animated images.</string>
 
-    <string name="settings_reverse_order">Browse photos rightwards from the oldest</string>
+    <string name="settings_reverse_order">Browse images rightwards from the oldest</string>
     <string name="settings_reverse_order_desc">By default Android galleries treat the first item, at the top, as the most recent, and you browse backwards. Turn this on for file-manager ordering: from the oldest to the most recent.</string>
     <!-- The switch that decides what deleting means, and with it whether a confirmation
          appears: the two go together, because you get asked exactly when there is no way

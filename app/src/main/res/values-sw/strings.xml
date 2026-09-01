@@ -43,31 +43,33 @@
     <string name="settings_dark">Nyeusi</string>
     <string name="settings_folder_columns">Safu kwenye gridi ya folda</string>
     <string name="settings_folder_columns_desc">Safu nyingi zaidi huingiza folda nyingi zaidi kwenye skrini na kufanya kila jalada kuwa dogo. Kwa nne, jina lililo chini mara nyingi hukatwa.</string>
-    <string name="settings_folder_count">Idadi ya vipengee chini ya folda</string>
+    <string name="settings_folder_count">Kihesabu cha vipengele chini ya folda katika mwonekano wa gridi</string>
     <string name="settings_hand">Nafasi ya vitendo vikuu</string>
     <string name="settings_right">Kulia</string>
     <string name="settings_left">Kushoto</string>
     <string name="settings_list_path">Orodha ya faili: nakili njia ya folda</string>
-    <string name="settings_folder_count_desc">Chini ya kila jalada, picha ngapi zimo kwenye folda. Ukiizima mstari unakuwa mfupi, na kichwa cha ukurasa kinakua kwa kiasi hicho.</string>
+    <string name="settings_folder_count_desc">Chini ya kila hakikisho la folda vitaonekana kihesabu cha picha na kihesabu cha video.</string>
     <string name="settings_fit_grow">Kuza picha ndogo</string>
     <string name="settings_fit_grow_desc">Ikizimwa, picha ndogo kuliko skrini huonyeshwa kwa ukubwa wake halisi. Ikiwashwa, hukua hadi ijaze skrini.</string>
     <string name="settings_zoom_max">Ukuzaji wa juu</string>
-    <string name="settings_scale_mode" formatted="false">Maana ya 100%</string>
+    <string name="settings_zoom_page">Ulinganishaji na ukuzaji</string>
+    <string name="settings_zoom_page_summary">Ukuzaji wa picha ndogo, ukuzaji wa juu, uchoraji wa pikseli</string>
+    <string name="settings_scale_mode" formatted="false">Uchoraji wa pikseli</string>
     <string name="settings_scale_physical">Pikseli moja ya faili kwa pikseli moja ya skrini</string>
     <string name="settings_scale_logical">Pikseli moja ya faili kwa pikseli moja ya mpangilio</string>
-    <string name="settings_scale_desc">Skrini ya simu huweka pikseli mbili au tatu halisi ndani ya pikseli moja ya mpangilio, kwa hivyo majibu mawili yapo mbali sana: la kwanza linaonyesha faili kama ilivyo, la pili kwa ukubwa ambao ukurasa wa wavuti ungeonyesha.</string>
+    <string name="settings_scale_desc">Huamua maana ya kukuza hadi pikseli halisi. Skrini ya kifaa chochote cha kisasa huchora kila pikseli ya kimantiki kwa mraba wa pikseli halisi mbili au tatu. Chaguo la kwanza hupuuza pikseli za kimantiki na kuweka kila nukta kwenye pikseli halisi moja; la pili huonyesha kila kitu kwa ukubwa ambao kingekuwa nao kwenye ukurasa wa wavuti.</string>
     <string name="details_bar">Mstari wa maelezo</string>
     <string name="settings_top">Juu</string>
     <string name="settings_bottom">Chini</string>
-    <string name="settings_info_visible">Onyesha mstari tangu mwanzo</string>
+    <string name="settings_info_visible">Upau wa taarifa wakati wa kuanza</string>
     <string name="settings_anim_counter">Kihesabu fremu</string>
     <string name="settings_anim_counter_desc">Huonekana kwenye upau wa vidhibiti vya picha zinazosonga.</string>
-    <string name="settings_reverse_order">Geuza mpangilio (kwa tarehe)</string>
-    <string name="settings_reverse_order_desc">Ikizimwa, unapitia kutoka kipya kuelekea vya zamani, kama kwenye ghala la simu. Ikiwashwa, kwa mpangilio wa wakati, kutoka cha zamani hadi kipya.</string>
-    <string name="settings_clipboard">Soma ubao wa kunakili unapoanza</string>
-    <string name="settings_clipboard_desc">Ukifungua programu kwa aikoni yake, anwani iliyo kwenye ubao wa kunakili inayoelekea moja kwa moja kwenye picha hufungua picha hiyo. Android huonyesha taarifa kila programu inaposoma ubao huo: kuiacha imezimwa ni kutoiona kamwe.</string>
+    <string name="settings_reverse_order">Pitia picha kuelekea kulia kuanzia ya zamani zaidi</string>
+    <string name="settings_reverse_order_desc">Kwa kawaida maghala ya Android huchukulia kipengele cha kwanza, kilicho juu kabisa, kuwa kipya zaidi, na kupitia huenda nyuma. Washa chaguo hili kwa mpangilio wa kidhibiti faili: kutoka cha zamani zaidi hadi kipya zaidi.</string>
+    <string name="settings_clipboard">Soma yaliyomo kwenye ubao wa kunakili wakati wa kuanza</string>
+    <string name="settings_clipboard_desc">Unapofungua programu (kuanza upya), kama ubao wa kunakili wa mfumo una kiungo cha moja kwa moja cha picha, picha hiyo hufunguka moja kwa moja kwenye kitazamaji badala ya skrini ya mwanzo.</string>
     <string name="settings_start_folder">Fungua folda unapoanza</string>
-    <string name="settings_start_folder_desc">Programu ikifunguka huonyesha moja kwa moja yaliyomo kwenye folda uliyochagua, badala ya orodha ya folda.</string>
+    <string name="settings_start_folder_desc">Wakati wa kuanza, huonyesha yaliyomo katika folda maalum badala ya skrini ya mwanzo.</string>
     <string name="settings_start_folder_none">Hakuna folda iliyochaguliwa</string>
     <string name="settings_start_folder_pick">Chagua</string>
     <string name="folders_title">Folda</string>
@@ -228,7 +230,7 @@
     <string name="bin_empty_hint">Njia ya mkato: shikilia kitufe kinachoelea ili kumwaga tapishi.</string>
     <string name="facts_title">Taarifa kamili za faili</string>
     <string name="settings_reset_hints">Rejesha vidokezo</string>
-    <string name="settings_reset_hints_desc">Maelezo ya njia za mkato yataonekana tena, kama katika usakinishaji mpya.</string>
+    <string name="settings_reset_hints_desc">Miongozo mifupi, utangulizi, vidokezo na maonyo, ambayo kwa kawaida huonekana tu wakati wa kuanza mara ya kwanza, yatarudi kuonekana (mara moja tu).</string>
     <string name="settings_reset_hints_do">Rejesha</string>
     <string name="settings_reset_hints_done">Vidokezo vitaonekana tena</string>
     <string name="bin_restore_all">Rudisha zote</string>
@@ -250,7 +252,7 @@
     <string name="settings_bin_desc">Kufuta faili hakuulizi kitu, lakini kitendo kinaweza kubatilishwa kwa \'Rudisha\' kutoka tapishi (kitufe kinachoelea →\u00A0\'Tapishi\'). Unaweza kuzima tapishi kabisa ukipendelea kufuta papo hapo: hapo utaonyeshwa uthibitisho kabla ya kila kufuta.\n⚠️ TAHADHARI: ukiondoa programu, yaliyomo kwenye tapishi hupotea na hayawezi kurudishwa.</string>
     <string name="pick_duplicate">Nakili hapa</string>
     <string name="settings_grid_names">Jina la faili kwenye gridi</string>
-    <string name="settings_grid_names_desc">Chini ya kila kijipicha, jina la faili kwa mistari miwili zaidi. Kiendelezi hakikatwi kamwe na huonekana daima: jina lisipotoshea, sehemu ya katikati ndiyo hupungua.</string>
+    <string name="settings_grid_names_desc">Huonyesha jina la faili pia katika mwonekano wa gridi, chini ya kijipicha. Mistari miwili kwa juu zaidi.</string>
     <string name="grid_item_clip">Video</string>
     <string name="clip_play">Cheza</string>
     <string name="hub_view_tree">Folda za mfumo</string>
@@ -259,7 +261,7 @@
     <string name="tree_unopenable">Hakuna programu kwenye simu hii inayoweza kuifungua</string>
     <string name="clip_pause">Sitisha</string>
     <string name="settings_images_only">Pitia picha pekee</string>
-    <string name="settings_images_only_desc">Kwenye kitazamaji, kutelezesha kidole huruka video na kuonyesha picha pekee. Kugusa video kwenye gridi bado huicheza: hii inahusu ishara, si mgusa.</string>
+    <string name="settings_images_only_desc">Katika kitazamaji, kutelezesha kulia na kushoto huruka video na kuhesabu picha pekee. Bado unaweza kucheza video kwa mguso mmoja kutoka kwenye gridi, orodha au folda.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Hariri</string>
@@ -282,8 +284,8 @@
     <string name="edit_no_overwrite">Muundo huu hauwezi kuandikwa upya, hivyo inabaki nakala tu.</string>
     <string name="edit_failed">Haikuweza kuhifadhiwa</string>
     <string name="edit_app_gone">Kihariri hicho hakipo tena. Chagua kingine.</string>
-    <string name="settings_editor">Programu ya kuhariri picha</string>
-    <string name="settings_editor_desc">Programu inayofunguka unapogusa Hariri kwenye picha. Ile ya ndani huzungusha na kupunguza.</string>
+    <string name="settings_editor">Kihariri cha picha</string>
+    <string name="settings_editor_desc">Programu iliyounganishwa na amri \'Hariri\' katika menyu ya kitazamaji. Njia ya mkato: bonyeza \'Hariri\' kwa muda mrefu ili kubadilisha programu papo hapo; chaguo hukumbukwa. Unaweza pia kuchagua kihariri cha ndani cha Astonishing Image Viewer, ambacho hufanya mambo mawili tu kwenye picha: kupunguza na kuzungusha.</string>
     <string name="settings_editor_none">Hakuna iliyochaguliwa</string>
     <string name="settings_editor_pick">Chagua</string>
     <string name="view_grid">Gridi</string>
@@ -291,15 +293,15 @@
     <string name="view_tree">Folda</string>
     <string name="edit_no_backup">Nakala ya usalama haikufanikiwa, hivyo hakuna kilichoandikwa juu</string>
     <string name="settings_editor_backup">Nakala ya usalama kabla ya kuandika juu</string>
-    <string name="settings_editor_backup_desc">Toleo la awali la kila picha inayoandikwa juu huhifadhiwa kwenye tapishi.</string>
+    <string name="settings_editor_backup_desc">Kabla kihariri hakijaandika juu ya picha, huhifadhi nakala yake kwenye pipa la taka, ambapo unaweza kuirejesha; usipoihitaji, itafutwa wakati wa \'Mwaga pipa la taka\' unaofuata.</string>
     <string name="editor_tall">Wima</string>
     <string name="editor_wide">Mlalo</string>
     <string name="pick_drop_ask">Uache uteuzi?</string>
     <string name="pick_drop">Acha</string>
     <string name="pick_keep">Weka</string>
     <string name="pick_list_done">Orodha ya faili imenakiliwa kwenye ubao wa kunakili</string>
-    <string name="settings_pick_weight">Ukubwa wa uteuzi</string>
-    <string name="settings_pick_weight_desc">Juu ya uteuzi, kando ya idadi, unasoma ukubwa wa jumla wa vipengee vilivyochaguliwa. Ukubwa huulizwa mfumo kila uteuzi unaposimama: ukizima, swali hilo haliulizwi.</string>
+    <string name="settings_pick_weight">Ukubwa wa faili zilizochaguliwa</string>
+    <string name="settings_pick_weight_desc">Juu ya uteuzi, kando ya kihesabu, huonekana ukubwa wa jumla wa vipengele vyote vilivyochaguliwa. Hubadilika kila uteuzi unapobadilika.</string>
     <string name="anim_play">Cheza</string>
     <string name="anim_pause">Sitisha</string>
     <string name="anim_prev">Fremu iliyotangulia</string>
