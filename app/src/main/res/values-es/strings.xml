@@ -321,7 +321,8 @@
     <string name="editor_save">Guardar</string>
     <string name="editor_apply">Aplicar</string>
     <string name="editor_undo">Deshacer</string>
-    <string name="editor_reset">Restablecer</string>
+    <string name="editor_redo">Rehacer</string>
+    <string name="editor_original">Original</string>
     <string name="editor_center_across">Centrar en horizontal</string>
     <string name="editor_center_down">Centrar en vertical</string>
     <string name="editor_done">Guardada</string>

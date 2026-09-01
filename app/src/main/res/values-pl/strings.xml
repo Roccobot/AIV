@@ -336,7 +336,8 @@
     <string name="editor_save">Zapisz</string>
     <string name="editor_apply">Zastosuj</string>
     <string name="editor_undo">Cofnij</string>
-    <string name="editor_reset">Przywróć</string>
+    <string name="editor_redo">Ponów</string>
+    <string name="editor_original">Oryginał</string>
     <string name="editor_center_across">Wyśrodkuj w poziomie</string>
     <string name="editor_center_down">Wyśrodkuj w pionie</string>
     <string name="editor_done">Zapisano</string>

@@ -291,7 +291,8 @@
     <string name="editor_save">保存</string>
     <string name="editor_apply">適用</string>
     <string name="editor_undo">元に戻す</string>
-    <string name="editor_reset">リセット</string>
+    <string name="editor_redo">やり直す</string>
+    <string name="editor_original">元の画像</string>
     <string name="editor_center_across">左右中央に</string>
     <string name="editor_center_down">上下中央に</string>
     <string name="editor_done">保存しました</string>

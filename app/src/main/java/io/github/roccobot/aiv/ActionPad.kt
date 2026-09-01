@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -71,21 +70,7 @@ fun ActionPad(
      * tastino, la larghezza fissa resta quella giusta: là è il riquadro a doversi
      * adattare al contenuto, non il contrario.
      */
-    stretch: Boolean = false,
-    /**
-     * Se le file corte si pareggiano con celle vuote, per tenere le colonne allineate.
-     *
-     * ⚠️⚠️ **SERVE ALLA BOTTOMSHEET DELL'EDITOR, e là è una richiesta** (utente, 2026-09-01:
-     * *nella riga più in basso, lascia lo spazio anche per 'Ripristina'*): quattro tasti sopra
-     * e tre sotto, con le celle che si dividono la larghezza, dànno due griglie diverse, e
-     * l'ultima icona in basso finisce trenta pixel più a sinistra di quella sopra. Con le
-     * colonne pareggiate le due file si leggono come un'unica tabella.
-     * ⚠️ **Spento di serie, e non è pigrizia**: nel menu dei file l'ultima fila corta si
-     * allarga apposta invece di lasciare un buco (vedi la nota sulle file qui sotto), ed è una
-     * scelta già presa. Le due cose sono giuste ognuna al suo posto, e questo interruttore è
-     * il modo di averle tutte e due senza due componenti.
-     */
-    keepGrid: Boolean = false
+    stretch: Boolean = false
 ) {
     Column(
         modifier = modifier.padding(horizontal = PAD_EDGE, vertical = PAD_GAP),
@@ -103,9 +88,6 @@ fun ActionPad(
             ) {
                 for (action in row) {
                     PadButton(action, if (stretch) Modifier.weight(1f) else Modifier.width(PAD_CELL))
-                }
-                if (keepGrid && stretch) {
-                    repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
         }

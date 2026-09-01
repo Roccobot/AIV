@@ -291,7 +291,8 @@
     <string name="editor_save">儲存</string>
     <string name="editor_apply">套用</string>
     <string name="editor_undo">復原</string>
-    <string name="editor_reset">重設</string>
+    <string name="editor_redo">重做</string>
+    <string name="editor_original">原圖</string>
     <string name="editor_center_across">水平置中</string>
     <string name="editor_center_down">垂直置中</string>
     <string name="editor_done">已儲存</string>

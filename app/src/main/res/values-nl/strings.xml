@@ -306,7 +306,8 @@
     <string name="editor_save">Opslaan</string>
     <string name="editor_apply">Toepassen</string>
     <string name="editor_undo">Ongedaan maken</string>
-    <string name="editor_reset">Herstellen</string>
+    <string name="editor_redo">Opnieuw</string>
+    <string name="editor_original">Origineel</string>
     <string name="editor_center_across">Horizontaal centreren</string>
     <string name="editor_center_down">Verticaal centreren</string>
     <string name="editor_done">Opgeslagen</string>

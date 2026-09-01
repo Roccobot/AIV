@@ -306,7 +306,8 @@
     <string name="editor_save">சேமி</string>
     <string name="editor_apply">பயன்படுத்து</string>
     <string name="editor_undo">செயல்தவிர்</string>
-    <string name="editor_reset">மீட்டமை</string>
+    <string name="editor_redo">மீண்டும் செய்</string>
+    <string name="editor_original">அசல்</string>
     <string name="editor_center_across">கிடைமட்டமாக நடுவில்</string>
     <string name="editor_center_down">செங்குத்தாக நடுவில்</string>
     <string name="editor_done">சேமிக்கப்பட்டது</string>

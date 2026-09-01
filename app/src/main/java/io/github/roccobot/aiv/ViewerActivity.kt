@@ -1834,7 +1834,8 @@ private fun AivApp(model: ViewerViewModel) {
                 uri = screen.uri,
                 busy = model.editorBusy,
                 onSave = { turns, crop -> model.editSave(turns, crop) },
-                onBack = { model.leaveEditor() }
+                onBack = { model.leaveEditor() },
+                leftHand = settings.hand == Hand.LEFT
             )
         }
 

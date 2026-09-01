@@ -306,7 +306,8 @@
     <string name="editor_save">Kaydet</string>
     <string name="editor_apply">Uygula</string>
     <string name="editor_undo">Geri al</string>
-    <string name="editor_reset">Sıfırla</string>
+    <string name="editor_redo">Yinele</string>
+    <string name="editor_original">Özgün</string>
     <string name="editor_center_across">Yatayda ortala</string>
     <string name="editor_center_down">Dikeyde ortala</string>
     <string name="editor_done">Kaydedildi</string>

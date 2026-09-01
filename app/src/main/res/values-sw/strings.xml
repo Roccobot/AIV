@@ -306,7 +306,8 @@
     <string name="editor_save">Hifadhi</string>
     <string name="editor_apply">Tumia</string>
     <string name="editor_undo">Tendua</string>
-    <string name="editor_reset">Rejesha</string>
+    <string name="editor_redo">Rudia</string>
+    <string name="editor_original">Asili</string>
     <string name="editor_center_across">Weka katikati mlalo</string>
     <string name="editor_center_down">Weka katikati wima</string>
     <string name="editor_done">Imehifadhiwa</string>

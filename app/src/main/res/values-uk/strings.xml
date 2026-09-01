@@ -336,7 +336,8 @@
     <string name="editor_save">Зберегти</string>
     <string name="editor_apply">Застосувати</string>
     <string name="editor_undo">Скасувати</string>
-    <string name="editor_reset">Скинути</string>
+    <string name="editor_redo">Повторити</string>
+    <string name="editor_original">Оригінал</string>
     <string name="editor_center_across">По центру горизонтально</string>
     <string name="editor_center_down">По центру вертикально</string>
     <string name="editor_done">Збережено</string>

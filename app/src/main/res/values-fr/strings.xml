@@ -321,7 +321,8 @@
     <string name="editor_save">Enregistrer</string>
     <string name="editor_apply">Appliquer</string>
     <string name="editor_undo">Annuler</string>
-    <string name="editor_reset">Réinitialiser</string>
+    <string name="editor_redo">Rétablir</string>
+    <string name="editor_original">Original</string>
     <string name="editor_center_across">Centrer horizontalement</string>
     <string name="editor_center_down">Centrer verticalement</string>
     <string name="editor_done">Enregistrée</string>

@@ -306,7 +306,8 @@
     <string name="editor_save">ذخیره</string>
     <string name="editor_apply">اعمال</string>
     <string name="editor_undo">واگرد</string>
-    <string name="editor_reset">بازنشانی</string>
+    <string name="editor_redo">انجام دوباره</string>
+    <string name="editor_original">اصل</string>
     <string name="editor_center_across">وسط‌چین افقی</string>
     <string name="editor_center_down">وسط‌چین عمودی</string>
     <string name="editor_done">ذخیره شد</string>

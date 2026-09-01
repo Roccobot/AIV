@@ -366,7 +366,8 @@
     <string name="editor_save">حفظ</string>
     <string name="editor_apply">تطبيق</string>
     <string name="editor_undo">تراجع</string>
-    <string name="editor_reset">إعادة تعيين</string>
+    <string name="editor_redo">إعادة</string>
+    <string name="editor_original">الأصل</string>
     <string name="editor_center_across">توسيط أفقي</string>
     <string name="editor_center_down">توسيط رأسي</string>
     <string name="editor_done">تم الحفظ</string>

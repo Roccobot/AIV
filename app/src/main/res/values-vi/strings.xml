@@ -291,7 +291,8 @@
     <string name="editor_save">Lưu</string>
     <string name="editor_apply">Áp dụng</string>
     <string name="editor_undo">Hoàn tác</string>
-    <string name="editor_reset">Đặt lại</string>
+    <string name="editor_redo">Làm lại</string>
+    <string name="editor_original">Ảnh gốc</string>
     <string name="editor_center_across">Căn giữa theo chiều ngang</string>
     <string name="editor_center_down">Căn giữa theo chiều dọc</string>
     <string name="editor_done">Đã lưu</string>

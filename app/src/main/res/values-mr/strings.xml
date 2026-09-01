@@ -306,7 +306,8 @@
     <string name="editor_save">जतन करा</string>
     <string name="editor_apply">लागू करा</string>
     <string name="editor_undo">पूर्ववत</string>
-    <string name="editor_reset">पुन्हा सेट करा</string>
+    <string name="editor_redo">पुन्हा करा</string>
+    <string name="editor_original">मूळ</string>
     <string name="editor_center_across">आडवे मध्यभागी</string>
     <string name="editor_center_down">उभे मध्यभागी</string>
     <string name="editor_done">जतन झाले</string>

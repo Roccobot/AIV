@@ -321,7 +321,8 @@
     <string name="editor_save">Salvar</string>
     <string name="editor_apply">Aplicar</string>
     <string name="editor_undo">Desfazer</string>
-    <string name="editor_reset">Restaurar</string>
+    <string name="editor_redo">Refazer</string>
+    <string name="editor_original">Original</string>
     <string name="editor_center_across">Centralizar na horizontal</string>
     <string name="editor_center_down">Centralizar na vertical</string>
     <string name="editor_done">Salva</string>
