@@ -306,7 +306,8 @@
     <string name="editor_save">భద్రపరచండి</string>
     <string name="editor_apply">వర్తింపజేయి</string>
     <string name="editor_undo">చర్యరద్దు</string>
-    <string name="editor_reset">రీసెట్</string>
+    <string name="editor_redo">మళ్ళీ చేయి</string>
+    <string name="editor_original">అసలు</string>
     <string name="editor_center_across">అడ్డంగా మధ్యలో</string>
     <string name="editor_center_down">నిలువుగా మధ్యలో</string>
     <string name="editor_done">భద్రపరచబడింది</string>

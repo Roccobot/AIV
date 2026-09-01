@@ -291,7 +291,8 @@
     <string name="editor_save">Simpan</string>
     <string name="editor_apply">Terapkan</string>
     <string name="editor_undo">Urungkan</string>
-    <string name="editor_reset">Setel ulang</string>
+    <string name="editor_redo">Ulangi</string>
+    <string name="editor_original">Asli</string>
     <string name="editor_center_across">Tengahkan mendatar</string>
     <string name="editor_center_down">Tengahkan tegak</string>
     <string name="editor_done">Tersimpan</string>

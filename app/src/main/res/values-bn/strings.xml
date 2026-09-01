@@ -306,7 +306,8 @@
     <string name="editor_save">সংরক্ষণ করুন</string>
     <string name="editor_apply">প্রয়োগ করুন</string>
     <string name="editor_undo">পূর্বাবস্থা</string>
-    <string name="editor_reset">পুনরায় সেট</string>
+    <string name="editor_redo">পুনরায় করুন</string>
+    <string name="editor_original">মূল</string>
     <string name="editor_center_across">আনুভূমিকভাবে কেন্দ্রে</string>
     <string name="editor_center_down">উল্লম্বভাবে কেন্দ্রে</string>
     <string name="editor_done">সংরক্ষিত হয়েছে</string>

@@ -291,7 +291,8 @@
     <string name="editor_save">저장</string>
     <string name="editor_apply">적용</string>
     <string name="editor_undo">실행 취소</string>
-    <string name="editor_reset">초기화</string>
+    <string name="editor_redo">다시 실행</string>
+    <string name="editor_original">원본</string>
     <string name="editor_center_across">가로 가운데로</string>
     <string name="editor_center_down">세로 가운데로</string>
     <string name="editor_done">저장했습니다</string>

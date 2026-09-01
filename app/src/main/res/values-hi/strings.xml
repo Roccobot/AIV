@@ -306,7 +306,8 @@
     <string name="editor_save">सहेजें</string>
     <string name="editor_apply">लागू करें</string>
     <string name="editor_undo">पूर्ववत</string>
-    <string name="editor_reset">रीसेट</string>
+    <string name="editor_redo">फिर से करें</string>
+    <string name="editor_original">मूल</string>
     <string name="editor_center_across">क्षैतिज रूप से बीच में</string>
     <string name="editor_center_down">लंबवत रूप से बीच में</string>
     <string name="editor_done">सहेज लिया</string>

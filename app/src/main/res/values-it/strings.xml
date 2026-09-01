@@ -57,7 +57,8 @@
     <string name="editor_save">Salva</string>
     <string name="editor_apply">Applica</string>
     <string name="editor_undo">Annulla</string>
-    <string name="editor_reset">Ripristina</string>
+    <string name="editor_redo">Ripristina</string>
+    <string name="editor_original">Originale</string>
     <string name="editor_center_across">Centra in orizzontale</string>
     <string name="editor_center_down">Centra in verticale</string>
     <string name="editor_done">Salvata</string>

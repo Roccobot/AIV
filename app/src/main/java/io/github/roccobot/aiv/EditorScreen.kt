@@ -10,6 +10,7 @@ import androidx.annotation.StringRes
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -17,9 +18,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
@@ -29,6 +30,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.Redo
 import androidx.compose.material.icons.automirrored.outlined.Undo
 import androidx.compose.material.icons.filled.RotateLeft
 import androidx.compose.material.icons.filled.RotateRight
@@ -39,7 +41,6 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.RestartAlt
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -71,6 +72,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -117,6 +120,14 @@ fun EditorScreen(
      */
     onSave: (turns: Int, crop: ImageEdit.Crop) -> Unit,
     onBack: () -> Unit,
+    /**
+     * Se i comandi vanno disposti per la mano **sinistra**.
+     *
+     * ⚠️ Non cambia che cosa fanno, cambia **dove stanno**: vedi [EditorSheet], dove le due
+     * file sono scritte per esteso nei due versi. È la stessa impostazione che rovescia le
+     * file della bottomsheet della selezione.
+     */
+    leftHand: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -135,6 +146,18 @@ fun EditorScreen(
      * si preme di fretta.
      */
     var steps by remember(uri) { mutableStateOf<List<Step>>(emptyList()) }
+
+    /**
+     * I passi disfatti con 'Annulla', pronti a tornare con 'Ripristina'.
+     *
+     * ⚠️⚠️ **'RIPRISTINA' QUI VUOL DIRE 'UN PASSO AVANTI', non 'com'era all'inizio'**
+     * (chiarito dall'utente, 2026-09-01, che l'icona sbagliata aveva fatto leggere al
+     * contrario): il ritorno all'originale è un tasto a sé, **'Originale'**, e la sua icona è
+     * quella del riavvio. Chi scambia i due scambia un passo con tutta la storia.
+     * ⚠️ **Un 'Applica' nuovo la svuota**, come in ogni editor: da lì in poi la strada è
+     * un'altra, e i passi disfatti appartenevano a quella vecchia.
+     */
+    var undone by remember(uri) { mutableStateOf<List<Step>>(emptyList()) }
 
     /** L'immagine su cui si sta lavorando adesso: l'ultimo passo, o l'originale. */
     val base = steps.lastOrNull()?.preview ?: origin
@@ -262,8 +285,10 @@ fun EditorScreen(
             lay = lay,
             busy = busy,
             ready = shown != null,
+            leftHand = leftHand,
             pending = pending,
             applied = steps.isNotEmpty(),
+            undone = undone.isNotEmpty(),
             onShape = { one ->
                 /*
                  * ⚠️⚠️ **LA SELEZIONE TIENE IL POSTO ANCHE AL CAMBIO DI PROPORZIONE, dalla
@@ -297,6 +322,7 @@ fun EditorScreen(
             onApply = {
                 val picture = base ?: return@EditorSheet
                 steps = steps + applied(picture, steps.lastOrNull()?.done ?: Done.NOTHING, turns, crop)
+                undone = emptyList()
             },
             onUndo = {
                 // ⚠️ **Un passo indietro solo, e il passo è quello che si vede**: se c'è un
@@ -309,10 +335,18 @@ fun EditorScreen(
                     crop = ImageEdit.Crop.WHOLE
                     shape = Shape.FREE
                 } else {
+                    steps.lastOrNull()?.let { undone = undone + it }
                     steps = steps.dropLast(1)
                 }
             },
-            onReset = { steps = emptyList() }
+            onRedo = {
+                undone.lastOrNull()?.let { steps = steps + it }
+                undone = undone.dropLast(1)
+            },
+            onOriginal = {
+                steps = emptyList()
+                undone = emptyList()
+            }
         )
     }
 }
@@ -482,10 +516,14 @@ private fun EditorSheet(
     busy: Boolean,
     /** Se l'anteprima è arrivata: prima non c'è niente su cui agire. */
     ready: Boolean,
+    /** Se le due file di tasti vanno nell'ordine della mano sinistra. */
+    leftHand: Boolean,
     /** Se c'è un ritocco non ancora confermato. */
     pending: Boolean,
     /** Se c'è almeno un 'Applica' alle spalle. */
     applied: Boolean,
+    /** Se c'è almeno un passo disfatto che 'Ripristina' può rimettere. */
+    undone: Boolean,
     onShape: (Shape) -> Unit,
     onLay: (Lay) -> Unit,
     /** Un quarto di giro: `1` in senso orario, `3` antiorario. */
@@ -494,7 +532,8 @@ private fun EditorSheet(
     onCentreDown: () -> Unit,
     onApply: () -> Unit,
     onUndo: () -> Unit,
-    onReset: () -> Unit
+    onRedo: () -> Unit,
+    onOriginal: () -> Unit
 ) {
     val live = ready && !busy
     Surface(
@@ -537,17 +576,17 @@ private fun EditorSheet(
              * parola, e nella lingua in cui non ci stanno **va a capo** invece di uscire dallo
              * schermo. Una `Row` semplice, senza scorrimento, là sborderebbe in silenzio.
              */
-            FlowRow(
+            Row(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = STAGE_SIDE),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 for (one in Shape.entries) {
-                    FilterChip(
+                    SheetChip(
+                        text = one.text(lay) ?: stringResource(R.string.editor_free),
                         selected = one == shape,
-                        onClick = { onShape(one) },
                         enabled = live,
-                        label = { Text(one.text(lay) ?: stringResource(R.string.editor_free)) }
+                        onClick = { onShape(one) },
+                        modifier = Modifier.weight(1f)
                     )
                 }
             }
@@ -561,14 +600,14 @@ private fun EditorSheet(
              */
             Row(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = STAGE_SIDE, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 for (one in Lay.entries) {
-                    FilterChip(
+                    SheetChip(
+                        text = stringResource(one.label),
                         selected = one == lay,
-                        onClick = { onLay(one) },
                         enabled = live,
-                        label = { Text(stringResource(one.label)) },
+                        onClick = { onLay(one) },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -588,24 +627,56 @@ private fun EditorSheet(
              */
             @Suppress("DEPRECATION") val ccw = Icons.Default.RotateLeft
             @Suppress("DEPRECATION") val cw = Icons.Default.RotateRight
+
+            val turnLeft = PadAction(ccw, R.string.editor_left, enabled = live) { onTurn(3) }
+            val turnRight = PadAction(cw, R.string.editor_right, enabled = live) { onTurn(1) }
+            val acrossKey = PadAction(
+                Icons.Outlined.AlignHorizontalCenter, R.string.editor_center_across,
+                enabled = live
+            ) { onCentreAcross() }
+            val downKey = PadAction(
+                Icons.Outlined.AlignVerticalCenter, R.string.editor_center_down,
+                enabled = live
+            ) { onCentreDown() }
+
+            val applyKey = PadAction(
+                Icons.Outlined.Check, R.string.editor_apply, enabled = live && pending
+            ) { onApply() }
+            val undoKey = PadAction(
+                Icons.AutoMirrored.Outlined.Undo, R.string.editor_undo,
+                enabled = live && (pending || applied)
+            ) { onUndo() }
+            val redoKey = PadAction(
+                Icons.AutoMirrored.Outlined.Redo, R.string.editor_redo,
+                // ⚠️⚠️ **SPENTO FINCHÉ C'È UN RITOCCO IN SOSPESO, e non è pignoleria**: il
+                // rettangolo in corso è in frazioni dell'immagine di **adesso**, e rimettere
+                // un passo sotto di lui gli farebbe selezionare un'altra cosa senza che
+                // nessuno l'abbia mosso. 'Annulla' toglie il ritocco e lo riaccende.
+                enabled = live && undone && !pending
+            ) { onRedo() }
+            val originalKey = PadAction(
+                Icons.Outlined.RestartAlt, R.string.editor_original,
+                enabled = live && (pending || applied || undone)
+            ) { onOriginal() }
+
+            /*
+             * ⚠️⚠️ **LE DUE FILE SONO SCRITTE PER ESTESO NEI DUE VERSI, e NON si ricavano
+             * rovesciando una lista** (ordine dettato dall'utente, 2026-09-01). Rovesciarla
+             * darebbe l'ordine sbagliato in due punti su otto, ed è il genere di errore che
+             * si vede solo provando: 'Ruota a sinistra' e 'Ruota a destra' restano in
+             * quest'ordine anche per la mano sinistra, perché il loro verso è quello delle
+             * frecce e non quello della lettura, e lo stesso vale per 'Annulla' e
+             * 'Ripristina', che sono le due direzioni della stessa cronologia. A scambiarsi
+             * sono i **gruppi**, e le due coppie interne di centratura e di conferma.
+             * ⚠️ **Il criterio, che è quello che regge la scelta**: il tasto che si usa di
+             * più finisce sotto il pollice, cioè al bordo della mano che tiene il telefono.
+             */
             ActionPad(
                 columns = SHEET_KEYS,
                 stretch = true,
-                keepGrid = true,
-                actions = listOf(
-                    PadAction(ccw, R.string.editor_left, enabled = live) { onTurn(3) },
-                    PadAction(cw, R.string.editor_right, enabled = live) { onTurn(1) },
-                    PadAction(
-                        Icons.Outlined.AlignHorizontalCenter,
-                        R.string.editor_center_across,
-                        enabled = live
-                    ) { onCentreAcross() },
-                    PadAction(
-                        Icons.Outlined.AlignVerticalCenter,
-                        R.string.editor_center_down,
-                        enabled = live
-                    ) { onCentreDown() }
-                )
+                actions =
+                    if (leftHand) listOf(turnLeft, turnRight, acrossKey, downKey)
+                    else listOf(downKey, acrossKey, turnLeft, turnRight)
             )
 
             HorizontalDivider(modifier = Modifier.padding(horizontal = STAGE_SIDE))
@@ -613,32 +684,73 @@ private fun EditorSheet(
             ActionPad(
                 columns = SHEET_KEYS,
                 stretch = true,
-                keepGrid = true,
-                actions = listOf(
-                    PadAction(
-                        Icons.Outlined.Check, R.string.editor_apply,
-                        enabled = live && pending
-                    ) { onApply() },
-                    PadAction(
-                        Icons.AutoMirrored.Outlined.Undo, R.string.editor_undo,
-                        enabled = live && (pending || applied)
-                    ) { onUndo() },
-                    PadAction(
-                        Icons.Outlined.RestartAlt, R.string.editor_reset,
-                        enabled = live && applied
-                    ) { onReset() }
-                )
+                actions =
+                    if (leftHand) listOf(applyKey, undoKey, redoKey, originalKey)
+                    else listOf(originalKey, undoKey, redoKey, applyKey)
             )
         }
     }
 }
 
 /**
+ * Un chip del pannello, scritto in casa.
+ *
+ * ⚠️⚠️ **NON È IL `FilterChip` DI MATERIAL, e la ragione è una misura**: l'utente vuole i
+ * cinque chip delle proporzioni **larghi uguali e da bordo a bordo** (2026-09-01, con lo
+ * schizzo). Quello di Material tiene 16dp di rientro **fissi** per lato, che non si possono
+ * cambiare perché non espone nessun `contentPadding`: su uno schermo da 360dp, a un quinto
+ * della larghezza, dei 60dp di cella ne resterebbero 28 per la parola, e là non ci sta
+ * nemmeno '9:16'. Con 6dp di rientro ne restano quasi 50, e ci sta anche il 'Libero' russo.
+ * ⚠️ **La resa è la sua, non un'altra cosa**: stessa altezza di 32dp, stesso smusso, stesso
+ * `secondaryContainer` da scelto e stesso filetto da non scelto. Quello che cambia è solo il
+ * rientro, che è la cosa per cui è stato riscritto.
+ * ⚠️ **L'ellissi resta come rete**: in una lingua che dovesse sforare comunque, la parola si
+ * accorcia invece di sbordare fuori dal chip.
+ */
+@Composable
+private fun SheetChip(
+    text: String,
+    selected: Boolean,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val scheme = MaterialTheme.colorScheme
+    Surface(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = modifier.height(CHIP_TALL),
+        shape = RoundedCornerShape(CHIP_ROUND),
+        color = if (selected) scheme.secondaryContainer else Color.Transparent,
+        contentColor = if (selected) scheme.onSecondaryContainer else scheme.onSurfaceVariant,
+        border = if (selected) null else BorderStroke(CHIP_EDGE, scheme.outlineVariant)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize().padding(horizontal = CHIP_PAD),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+/** Le misure del chip di casa: quelle di Material, tranne il rientro. */
+private val CHIP_TALL = 32.dp
+private val CHIP_ROUND = 8.dp
+private val CHIP_EDGE = 1.dp
+private val CHIP_PAD = 6.dp
+
+/**
  * Quante colonne hanno le due file di tasti del pannello: **quattro tutte e due**.
  *
- * ⚠️ La seconda fila ne ha solo tre, e la quarta cella resta vuota apposta: vedi `keepGrid`
- * in [ActionPad]. Un secondo numero qui sotto avrebbe rimesso le due file su due griglie
- * diverse, che è esattamente il difetto che l'utente ha visto.
+ * ⚠️ Il numero è uno solo apposta: due file con un numero diverso di celle stanno su due
+ * griglie diverse, e l'ultima icona di sotto finirebbe spostata rispetto a quella di sopra.
  */
 private const val SHEET_KEYS = 4
 

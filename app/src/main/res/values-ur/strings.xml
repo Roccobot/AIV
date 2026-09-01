@@ -306,7 +306,8 @@
     <string name="editor_save">محفوظ کریں</string>
     <string name="editor_apply">لاگو کریں</string>
     <string name="editor_undo">کالعدم</string>
-    <string name="editor_reset">دوبارہ ترتیب</string>
+    <string name="editor_redo">دوبارہ کریں</string>
+    <string name="editor_original">اصل</string>
     <string name="editor_center_across">افقی طور پر درمیان میں</string>
     <string name="editor_center_down">عمودی طور پر درمیان میں</string>
     <string name="editor_done">محفوظ ہو گیا</string>

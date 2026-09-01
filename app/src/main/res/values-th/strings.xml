@@ -291,7 +291,8 @@
     <string name="editor_save">บันทึก</string>
     <string name="editor_apply">ใช้</string>
     <string name="editor_undo">เลิกทำ</string>
-    <string name="editor_reset">ตั้งค่าใหม่</string>
+    <string name="editor_redo">ทำซ้ำ</string>
+    <string name="editor_original">ต้นฉบับ</string>
     <string name="editor_center_across">จัดกึ่งกลางแนวนอน</string>
     <string name="editor_center_down">จัดกึ่งกลางแนวตั้ง</string>
     <string name="editor_done">บันทึกแล้ว</string>

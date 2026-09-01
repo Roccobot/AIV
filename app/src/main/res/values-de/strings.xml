@@ -306,7 +306,8 @@
     <string name="editor_save">Speichern</string>
     <string name="editor_apply">Anwenden</string>
     <string name="editor_undo">Rückgängig</string>
-    <string name="editor_reset">Zurücksetzen</string>
+    <string name="editor_redo">Wiederholen</string>
+    <string name="editor_original">Original</string>
     <string name="editor_center_across">Waagerecht zentrieren</string>
     <string name="editor_center_down">Senkrecht zentrieren</string>
     <string name="editor_done">Gespeichert</string>

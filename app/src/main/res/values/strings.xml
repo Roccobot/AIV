@@ -81,7 +81,8 @@
     <string name="editor_save">Save</string>
     <string name="editor_apply">Apply</string>
     <string name="editor_undo">Undo</string>
-    <string name="editor_reset">Reset</string>
+    <string name="editor_redo">Redo</string>
+    <string name="editor_original">Original</string>
     <string name="editor_center_across">Centre horizontally</string>
     <string name="editor_center_down">Centre vertically</string>
     <string name="editor_done">Saved</string>
