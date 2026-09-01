@@ -5,11 +5,25 @@ plugins {
 
 android {
     namespace = "io.github.roccobot.aiv"
-    // Compiled against 37 because the Compose alpha demands it; the platform
-    // itself is a preview one, installed from the SDK preview channel. targetSdk
-    // stays on the last stable API: compiling against a newer SDK and opting in
-    // to its runtime behaviour are two separate decisions, and only the first is
-    // forced on us here.
+    /*
+     * Compiled against 37 because the whole Compose stack demands it: dropping to 36
+     * fails the build with eleven dependencies at once (foundation 1.12.0, material3
+     * 1.5.0-alpha26, animation, ui-graphics, and Coil 3.6.0), each asking for
+     * "compileSdk of at least 37". Measured on 2026-09-01, not assumed.
+     *
+     * ⚠️⚠️ **API 37 IS STABLE, and the note that used to sit here said the opposite.**
+     * It called the platform "a preview one, installed from the SDK preview channel",
+     * and that mattered: an artifact built against a preview SDK is refused by Google
+     * Play, so the stale line read as a blocker to publishing. The measurement that
+     * settles it is the platform's own `source.properties`, where a preview carries a
+     * codename and a stable one carries none: both android-37.0 and android-37.1 have
+     * `AndroidVersion.CodeName=` empty. Stable libraries requiring it say the same
+     * thing from the other side.
+     *
+     * targetSdk stays on 36 on purpose: compiling against a newer SDK and opting in to
+     * its runtime behaviour are two separate decisions, and only the first is forced on
+     * us here. Play's current floor is API 36, so 36 is compliant.
+     */
     compileSdk = 37
 
     defaultConfig {
