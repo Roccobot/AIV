@@ -273,21 +273,10 @@
     <string name="clip_pause">Mettre en pause</string>
     <string name="settings_images_only">Ne feuilleter que les images</string>
     <string name="settings_images_only_desc">Dans la visionneuse, le balayage saute les films et ne montre que les images. Toucher un film dans la grille le lit quand même: cela concerne le geste, pas le toucher.</string>
-    <string name="settings_group_content">Recherche par contenu</string>
-    <string name="settings_content_desc">Télécharge les modèles de reconnaissance d\'images pour activer la recherche par contenu (par ex. \'chat roux\'). Le téléchargement est facultatif et se fait une seule fois ; le paquet peut être retiré à tout moment. La reconnaissance et la recherche se font en local, sans envoyer d\'images ni de données à des tiers.</string>
-    <string name="settings_content_get">Télécharger les modèles (%1$s)</string>
-    <string name="settings_content_getting">%1$s sur %2$s</string>
-    <string name="settings_content_stop">Arrêter</string>
-    <string name="settings_content_ready">Les modèles sont sur le téléphone.</string>
-    <string name="settings_content_remove">Retirer le paquet de modèles (%1$s)</string>
-    <string name="settings_content_broken">Quelque chose n\'a pas marché: %1$s</string>
-    <string name="settings_content_retry">Réessayer</string>
-    <string name="settings_content_blocked">La dernière fois, cela a fermé l\'application (%1$s), donc la fonction s\'est arrêtée d\'elle-même. Le reste n\'est pas touché.</string>
-    <string name="settings_content_index">Indexer les images maintenant</string>
-    <string name="settings_content_indexing">Indexation: %1$d sur %2$d</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Modifier</string>
+    <string name="menu_edit_hold">Choisir l\'application</string>
     <string name="editor_internal">Éditeur intégré</string>
     <string name="editor_pick">Avec quoi modifier ?</string>
     <string name="editor_left">Tourner à gauche</string>

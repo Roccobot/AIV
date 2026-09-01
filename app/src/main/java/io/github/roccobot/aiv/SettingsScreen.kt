@@ -86,17 +86,6 @@ fun SettingsScreen(
     onResetHints: () -> Unit,
     /** Apre il selettore dell'app di modifica: la finestra la fa il modello. Vedi `chooseEditor`. */
     onChooseEditor: () -> Unit,
-    /** Che cosa c'è dei modelli della ricerca per contenuto. Vive nel modello: vedi `clipState`. */
-    clipState: ClipModels.State,
-    /** A che punto è l'indicizzazione. Vive nel modello: vedi `clipWork`. */
-    clipWork: Pair<Int, Int>?,
-    /** Perché la ricerca per contenuto è ferma, e `null` se non lo è. Vedi `ClipGuard`. */
-    clipBlocked: String?,
-    onClipFetch: () -> Unit,
-    onClipStop: () -> Unit,
-    onClipIndex: () -> Unit,
-    onClipUnblock: () -> Unit,
-    onClipRemove: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -125,14 +114,6 @@ fun SettingsScreen(
                 onStartFolder = onStartFolder,
                 onResetHints = onResetHints,
                 onChooseEditor = onChooseEditor,
-                clipState = clipState,
-                clipWork = clipWork,
-                clipBlocked = clipBlocked,
-                onClipFetch = onClipFetch,
-                onClipStop = onClipStop,
-                onClipIndex = onClipIndex,
-                onClipUnblock = onClipUnblock,
-                onClipRemove = onClipRemove,
                 onOpen = { page = it }
             )
         }
@@ -173,15 +154,6 @@ private fun ColumnScope.RootPage(
     onStartFolder: () -> Unit,
     onResetHints: () -> Unit,
     onChooseEditor: () -> Unit,
-    clipState: ClipModels.State,
-    /** A che punto è l'indicizzazione. Vive nel modello: vedi `clipWork`. */
-    clipWork: Pair<Int, Int>?,
-    clipBlocked: String?,
-    onClipFetch: () -> Unit,
-    onClipStop: () -> Unit,
-    onClipIndex: () -> Unit,
-    onClipUnblock: () -> Unit,
-    onClipRemove: () -> Unit,
     onOpen: (Page) -> Unit
 ) {
     Group(stringResource(R.string.settings_group_look))
@@ -502,19 +474,6 @@ private fun ColumnScope.RootPage(
         detail = stringResource(R.string.settings_images_only_desc),
         checked = settings.imagesOnly,
         onChange = { onChange(settings.copy(imagesOnly = it)) }
-    )
-
-    Group(stringResource(R.string.settings_group_content))
-    Detail(stringResource(R.string.settings_content_desc))
-    ClipRow(
-        state = clipState,
-        indexing = clipWork,
-        blocked = clipBlocked,
-        onFetch = onClipFetch,
-        onStop = onClipStop,
-        onIndex = onClipIndex,
-        onUnblock = onClipUnblock,
-        onRemove = onClipRemove
     )
 
     Group(stringResource(R.string.settings_group_start))
@@ -891,126 +850,6 @@ private fun <T : Choice> Choices(
                 onClick = { onSelect(option) },
                 label = { Text(nameOf(option)) }
             )
-        }
-    }
-}
-
-/**
- * La riga della ricerca per contenuto: che cosa c'è, e il tasto che serve adesso.
- *
- * ⚠️⚠️ **UN TASTO SOLO PER VOLTA, e cambia con lo stato**: scarica quando non c'è niente,
- * annulla mentre scarica, togli quando è pronta. Tre tasti insieme, due dei quali spenti,
- * sarebbero tre cose da leggere per capire quale funziona.
- * ⚠️ **Il peso è scritto sul tasto**, non nella spiegazione: 86 MB è la sola cosa che
- * qualcuno potrebbe non volere, e va letta nel momento in cui si decide, non tre righe sopra.
- * ⚠️ **Guasto: si dice QUALE pezzo e perché**, invece di un 'errore'. Un download che
- * fallisce ha tre cause diverse (la rete, l'impronta, il disco) e portano a tre reazioni
- * diverse: riprovare, sospettare il file remoto, fare spazio.
- */
-@Composable
-private fun ClipRow(
-    state: ClipModels.State,
-    /** A che punto è l'indicizzazione, e `null` quando non sta girando. */
-    indexing: Pair<Int, Int>?,
-    /** Perché è ferma, e `null` se non lo è: vedi `ClipGuard`. */
-    blocked: String?,
-    onFetch: () -> Unit,
-    onStop: () -> Unit,
-    onIndex: () -> Unit,
-    onUnblock: () -> Unit,
-    onRemove: () -> Unit
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        when (state) {
-            is ClipModels.State.Absent -> FilledTonalButton(onClick = onFetch) {
-                Text(stringResource(R.string.settings_content_get, formatBytes(ClipModels.WEIGHT)))
-            }
-
-            is ClipModels.State.Fetching -> {
-                // ⚠️ La frazione si calcola qui e non nel modello: quello riferisce due
-                // numeri, che è quanto sa; come si mostrano è una faccenda di schermata.
-                val share = if (state.total > 0) state.done.toFloat() / state.total else 0f
-                LinearProgressIndicator(
-                    progress = { share.coerceIn(0f, 1f) },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Text(
-                    text = stringResource(
-                        R.string.settings_content_getting,
-                        formatBytes(state.done),
-                        formatBytes(state.total)
-                    ),
-                    style = MaterialTheme.typography.bodySmall
-                )
-                OutlinedButton(onClick = onStop) {
-                    Text(stringResource(R.string.settings_content_stop))
-                }
-            }
-
-            is ClipModels.State.Ready -> {
-                // ⚠️⚠️ **L'AVANZAMENTO DELL'INDICE STA QUI e non in una schermata sua**: è
-                // l'unico posto in cui si è già andati per accendere la funzione, e mentre
-                // gira non c'è niente da fare se non sapere a che punto è.
-                val work = indexing
-                if (work != null) {
-                    val share = if (work.second > 0) work.first.toFloat() / work.second else 0f
-                    LinearProgressIndicator(
-                        progress = { share.coerceIn(0f, 1f) },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.settings_content_indexing, work.first, work.second
-                        ),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                } else if (blocked != null) {
-                    // ⚠️⚠️ **LA SICURA SI DICE, non si nasconde**: se la funzione è ferma
-                    // perché l'ultima volta ha fatto morire l'app, chi guarda deve leggere
-                    // che è ferma e perché, o cercherà per contenuto senza capire che non
-                    // sta cercando niente. Il tasto qui sotto è l'unico modo di rientrare.
-                    Text(
-                        text = stringResource(R.string.settings_content_blocked, blocked),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                    FilledTonalButton(onClick = onUnblock) {
-                        Text(stringResource(R.string.settings_content_retry))
-                    }
-                } else {
-                    Text(
-                        text = stringResource(R.string.settings_content_ready),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    // ⚠️ L'indicizzazione la chiede l'utente, dalla 1.02: partiva da sé a
-                    // ogni avvio, e quando il motore moriva l'app non si apriva più.
-                    FilledTonalButton(onClick = onIndex) {
-                        Text(stringResource(R.string.settings_content_index))
-                    }
-                }
-                OutlinedButton(onClick = onRemove) {
-                    Text(
-                        stringResource(
-                            R.string.settings_content_remove,
-                            formatBytes(ClipModels.WEIGHT)
-                        )
-                    )
-                }
-            }
-
-            is ClipModels.State.Broken -> {
-                Text(
-                    text = stringResource(R.string.settings_content_broken, state.detail),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error
-                )
-                FilledTonalButton(onClick = onFetch) {
-                    Text(stringResource(R.string.settings_content_retry))
-                }
-            }
         }
     }
 }

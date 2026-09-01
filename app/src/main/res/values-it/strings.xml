@@ -27,6 +27,7 @@
     <string name="menu_share">Condividi</string>
     <string name="menu_save">Scarica</string>
     <string name="menu_edit">Modifica</string>
+    <string name="menu_edit_hold">Scegli l\'app</string>
     <string name="editor_internal">Editor interno</string>
     <string name="editor_pick">Con che cosa modifichi?</string>
     <string name="editor_left">Gira a sinistra</string>
@@ -366,18 +367,6 @@
     <string name="clip_pause">Metti in pausa</string>
     <string name="settings_images_only">Sfoglia solo le immagini</string>
     <string name="settings_images_only_desc">Nel visualizzatore la strisciata salta i filmati e mostra solo immagini. Toccando un filmato in griglia parte lo stesso: questa riguarda il gesto, non il tocco.</string>
-    <string name="settings_group_content">Ricerca per contenuto</string>
-    <string name="settings_content_desc">Scarica i modelli di riconoscimento immagini per abilitare la ricerca per contenuto (es. \'gatto rosso\'). Il download è opzionale e una tantum; il pacchetto può essere rimosso in qualsiasi momento. Il riconoscimento e la ricerca avvengono in locale, senza inviare immagini né dati a terzi.</string>
-    <string name="settings_content_get">Scarica i modelli (%1$s)</string>
-    <string name="settings_content_getting">%1$s di %2$s</string>
-    <string name="settings_content_stop">Ferma</string>
-    <string name="settings_content_ready">I modelli sono sul telefono.</string>
-    <string name="settings_content_remove">Rimuovi il pacchetto modelli (%1$s)</string>
-    <string name="settings_content_broken">Qualcosa non ha funzionato: %1$s</string>
-    <string name="settings_content_retry">Riprova</string>
-    <string name="settings_content_blocked">L\'ultima volta ha fatto chiudere l\'app (%1$s), quindi si è fermata da sé. Il resto dell\'app non è toccato.</string>
-    <string name="settings_content_index">Indicizza adesso le fotografie</string>
-    <string name="settings_content_indexing">Indicizzo: %1$d di %2$d</string>
     <string name="pick_drop_ask">Vuoi scartare la selezione?</string>
     <string name="pick_drop">Scarta</string>
     <string name="pick_keep">Mantieni</string>

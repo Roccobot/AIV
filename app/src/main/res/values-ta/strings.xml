@@ -258,21 +258,10 @@
     <string name="clip_pause">இடைநிறுத்து</string>
     <string name="settings_images_only">படங்களை மட்டும் புரட்டு</string>
     <string name="settings_images_only_desc">காட்டியில் இழுத்தால் வீடியோக்கள் தவிர்க்கப்பட்டு படங்கள் மட்டும் காட்டப்படும். கட்டத்தில் வீடியோவைத் தொட்டால் அது இயங்கும்: இது இழுப்பதைப் பற்றியது, தொடுவதைப் பற்றியது அல்ல.</string>
-    <string name="settings_group_content">உள்ளடக்கத்தால் தேடல்</string>
-    <string name="settings_content_desc">உள்ளடக்கத்தால் தேட, படம் அடையாளம் காணும் மாதிரிகளைப் பதிவிறக்கவும் (எ.கா. \'சிவப்பு பூனை\'). பதிவிறக்கம் விருப்பத்திற்குரியது, ஒரே முறை; தொகுப்பை எப்போது வேண்டுமானாலும் நீக்கலாம். அடையாளம் காணுதலும் தேடலும் சாதனத்திலேயே நடக்கின்றன, எந்தப் படமும் தரவும் மூன்றாம் தரப்பினருக்கு அனுப்பப்படுவதில்லை.</string>
-    <string name="settings_content_get">மாதிரிகளைப் பதிவிறக்கு (%1$s)</string>
-    <string name="settings_content_getting">%2$s இல் %1$s</string>
-    <string name="settings_content_stop">நிறுத்து</string>
-    <string name="settings_content_ready">மாதிரிகள் தொலைபேசியில் உள்ளன.</string>
-    <string name="settings_content_remove">மாதிரித் தொகுப்பை நீக்கு (%1$s)</string>
-    <string name="settings_content_broken">ஏதோ சரியாக நடக்கவில்லை: %1$s</string>
-    <string name="settings_content_retry">மீண்டும் முயற்சி</string>
-    <string name="settings_content_blocked">கடந்த முறை இதனால் செயலி மூடிவிட்டது (%1$s), எனவே இந்த வசதி தானாகவே நின்றது. மற்றவை பாதிக்கப்படவில்லை.</string>
-    <string name="settings_content_index">படங்களை இப்போது அட்டவணைப்படுத்து</string>
-    <string name="settings_content_indexing">அட்டவணை: %2$d இல் %1$d</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">திருத்து</string>
+    <string name="menu_edit_hold">செயலியைத் தேர்ந்தெடு</string>
     <string name="editor_internal">உள்ளமைந்த திருத்தி</string>
     <string name="editor_pick">எதைக் கொண்டு திருத்துகிறீர்கள்?</string>
     <string name="editor_left">இடப்புறம் சுழற்று</string>

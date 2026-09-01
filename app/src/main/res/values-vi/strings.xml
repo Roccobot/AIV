@@ -243,21 +243,10 @@
     <string name="clip_pause">Tạm dừng</string>
     <string name="settings_images_only">Chỉ lướt qua ảnh</string>
     <string name="settings_images_only_desc">Trong trình xem, vuốt sẽ bỏ qua video và chỉ hiện ảnh. Chạm vào video trong lưới vẫn phát: điều này nói về cử chỉ vuốt, không phải cú chạm.</string>
-    <string name="settings_group_content">Tìm theo nội dung</string>
-    <string name="settings_content_desc">Tải các mô hình nhận dạng hình ảnh để bật tìm kiếm theo nội dung (ví dụ \'mèo vàng\'). Việc tải là tuỳ chọn và chỉ một lần; gói có thể gỡ bất cứ lúc nào. Việc nhận dạng và tìm kiếm diễn ra ngay trên máy, không gửi hình ảnh hay dữ liệu cho bên thứ ba.</string>
-    <string name="settings_content_get">Tải các mô hình (%1$s)</string>
-    <string name="settings_content_getting">%1$s trên %2$s</string>
-    <string name="settings_content_stop">Dừng</string>
-    <string name="settings_content_ready">Các mô hình đã có trên điện thoại.</string>
-    <string name="settings_content_remove">Gỡ gói mô hình (%1$s)</string>
-    <string name="settings_content_broken">Có gì đó không chạy: %1$s</string>
-    <string name="settings_content_retry">Thử lại</string>
-    <string name="settings_content_blocked">Lần trước việc này làm đóng ứng dụng (%1$s), nên tính năng đã tự dừng. Phần còn lại không bị ảnh hưởng.</string>
-    <string name="settings_content_index">Lập chỉ mục ảnh ngay</string>
-    <string name="settings_content_indexing">Đang lập chỉ mục: %1$d trên %2$d</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Sửa</string>
+    <string name="menu_edit_hold">Chọn ứng dụng</string>
     <string name="editor_internal">Trình sửa có sẵn</string>
     <string name="editor_pick">Sửa bằng gì?</string>
     <string name="editor_left">Xoay trái</string>

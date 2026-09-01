@@ -288,21 +288,10 @@
     <string name="clip_pause">Wstrzymaj</string>
     <string name="settings_images_only">Przeglądaj tylko zdjęcia</string>
     <string name="settings_images_only_desc">W podglądzie przesunięcie pomija filmy i pokazuje tylko zdjęcia. Dotknięcie filmu w siatce nadal go odtwarza: to dotyczy gestu, nie dotknięcia.</string>
-    <string name="settings_group_content">Szukanie po zawartości</string>
-    <string name="settings_content_desc">Pobierz modele rozpoznawania obrazów, aby włączyć wyszukiwanie po zawartości (np. \'rudy kot\'). Pobranie jest opcjonalne i jednorazowe; pakiet można usunąć w dowolnej chwili. Rozpoznawanie i wyszukiwanie odbywają się lokalnie, bez wysyłania zdjęć ani danych do osób trzecich.</string>
-    <string name="settings_content_get">Pobierz modele (%1$s)</string>
-    <string name="settings_content_getting">%1$s z %2$s</string>
-    <string name="settings_content_stop">Zatrzymaj</string>
-    <string name="settings_content_ready">Modele są w telefonie.</string>
-    <string name="settings_content_remove">Usuń pakiet modeli (%1$s)</string>
-    <string name="settings_content_broken">Coś nie zadziałało: %1$s</string>
-    <string name="settings_content_retry">Spróbuj ponownie</string>
-    <string name="settings_content_blocked">Ostatnim razem to zamknęło aplikację (%1$s), więc funkcja sama się zatrzymała. Reszta działa normalnie.</string>
-    <string name="settings_content_index">Zindeksuj obrazy teraz</string>
-    <string name="settings_content_indexing">Indeksowanie: %1$d z %2$d</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Edytuj</string>
+    <string name="menu_edit_hold">Wybierz aplikację</string>
     <string name="editor_internal">Wbudowany edytor</string>
     <string name="editor_pick">Czym edytujesz?</string>
     <string name="editor_left">Obróć w lewo</string>

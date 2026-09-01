@@ -95,15 +95,9 @@
     <string name="tree_unopenable">Nenhuma aplicação deste telemóvel sabe abrir isso</string>
     <!-- grade -> grelha, como no resto deste ficheiro. -->
     <string name="settings_images_only_desc">No visualizador, deslizar salta os vídeos e mostra só imagens. Tocar num vídeo na grelha continua a reproduzir: isto é sobre o gesto, não sobre o toque.</string>
-    <!-- app -> aplicacao, celular -> telemovel, baixar -> transferir: as tres
-         palavras que ja mudam no resto deste ficheiro. -->
-    <string name="settings_content_desc">Descarrega os modelos de reconhecimento de imagens para ativar a pesquisa por conteúdo (ex. \'gato ruivo\'). A descarga é opcional e feita uma única vez; o pacote pode ser removido a qualquer momento. O reconhecimento e a pesquisa acontecem localmente, sem enviar imagens nem dados a terceiros.</string>
-    <string name="settings_content_get">Transferir os modelos (%1$s)</string>
-    <string name="settings_content_ready">Os modelos estão no telemóvel.</string>
-    <string name="settings_content_blocked">Da última vez isto fechou a aplicação (%1$s), por isso a funcionalidade parou sozinha. O resto não é afetado.</string>
-    <string name="settings_content_index">Indexar as imagens agora</string>
     <string name="pick_list_done">Lista de ficheiros copiada para a área de transferência</string>
     <string name="settings_pick_weight_desc">No topo da seleção, ao lado da contagem, lê-se quanto pesam no total os itens escolhidos. O peso é perguntado ao sistema sempre que a seleção para: desligado, essa pergunta não é feita.</string>
     <string name="editor_pick_send">Por partilha</string>
     <string name="editor_pick_send_desc">Recebem uma cópia e guardam-na onde quiserem. O original fica como está.</string>
+    <string name="menu_edit_hold">Escolher a aplicação</string>
 </resources>

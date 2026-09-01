@@ -273,21 +273,10 @@
     <string name="clip_pause">Pausar</string>
     <string name="settings_images_only">Folhear só as imagens</string>
     <string name="settings_images_only_desc">No visualizador, deslizar pula os vídeos e mostra só imagens. Tocar num vídeo na grade continua reproduzindo: isto é sobre o gesto, não sobre o toque.</string>
-    <string name="settings_group_content">Busca por conteúdo</string>
-    <string name="settings_content_desc">Baixe os modelos de reconhecimento de imagens para habilitar a busca por conteúdo (ex. \'gato ruivo\'). O download é opcional e feito uma única vez; o pacote pode ser removido a qualquer momento. O reconhecimento e a busca acontecem localmente, sem enviar imagens nem dados a terceiros.</string>
-    <string name="settings_content_get">Baixar os modelos (%1$s)</string>
-    <string name="settings_content_getting">%1$s de %2$s</string>
-    <string name="settings_content_stop">Parar</string>
-    <string name="settings_content_ready">Os modelos estão no celular.</string>
-    <string name="settings_content_remove">Remover o pacote de modelos (%1$s)</string>
-    <string name="settings_content_broken">Algo não funcionou: %1$s</string>
-    <string name="settings_content_retry">Tentar de novo</string>
-    <string name="settings_content_blocked">Da última vez isto fechou o aplicativo (%1$s), então o recurso se desligou sozinho. O resto não é afetado.</string>
-    <string name="settings_content_index">Indexar as imagens agora</string>
-    <string name="settings_content_indexing">Indexando: %1$d de %2$d</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Editar</string>
+    <string name="menu_edit_hold">Escolher o app</string>
     <string name="editor_internal">Editor interno</string>
     <string name="editor_pick">Com o que você edita?</string>
     <string name="editor_left">Girar para a esquerda</string>

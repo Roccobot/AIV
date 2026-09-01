@@ -258,21 +258,10 @@
     <string name="clip_pause">थांबवा</string>
     <string name="settings_images_only">फक्त चित्रे पाहा</string>
     <string name="settings_images_only_desc">व्ह्यूअरमध्ये स्वाइप केल्यास व्हिडिओ वगळले जातात आणि फक्त चित्रे दिसतात. ग्रिडमध्ये व्हिडिओवर टॅप केल्यास तो तरीही चालतो: हे स्वाइपबद्दल आहे, टॅपबद्दल नाही.</string>
-    <string name="settings_group_content">मजकुरावरून शोध</string>
-    <string name="settings_content_desc">आशयानुसार शोध सुरू करण्यासाठी प्रतिमा ओळखीचे मॉडेल डाउनलोड करा (उदा. \'लाल मांजर\'). डाउनलोड ऐच्छिक असून एकदाच होते; पॅकेज कधीही काढता येते. ओळख आणि शोध उपकरणावरच होतात, कोणतीही प्रतिमा किंवा माहिती तिसऱ्या पक्षाला पाठवली जात नाही.</string>
-    <string name="settings_content_get">मॉडेल डाउनलोड करा (%1$s)</string>
-    <string name="settings_content_getting">%2$s पैकी %1$s</string>
-    <string name="settings_content_stop">थांबवा</string>
-    <string name="settings_content_ready">मॉडेल फोनवर आहेत.</string>
-    <string name="settings_content_remove">मॉडेल पॅकेज काढा (%1$s)</string>
-    <string name="settings_content_broken">काहीतरी चालले नाही: %1$s</string>
-    <string name="settings_content_retry">पुन्हा प्रयत्न करा</string>
-    <string name="settings_content_blocked">मागच्या वेळी यामुळे अ‍ॅप बंद झाले होते (%1$s), म्हणून ही सुविधा आपोआप थांबली. बाकी काहीही बाधित नाही.</string>
-    <string name="settings_content_index">आता प्रतिमांची सूची करा</string>
-    <string name="settings_content_indexing">अनुक्रमणिका: %2$d पैकी %1$d</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">संपादन</string>
+    <string name="menu_edit_hold">ॲप निवडा</string>
     <string name="editor_internal">अंगभूत संपादक</string>
     <string name="editor_pick">कशाने संपादन करता?</string>
     <string name="editor_left">डावीकडे फिरवा</string>

@@ -169,16 +169,6 @@ private val HOME = Screen.Folders(forStart = false)
 private const val SEARCH_PAUSE_MS = 280L
 
 /**
- * Quanto una fotografia deve somigliare alla domanda per comparire.
- *
- * ⚠️ **Prima taratura e non misura**: vedi la nota di `clipHits`. Da rivedere sul telefono.
- */
-private const val CLIP_FLOOR = 0.15f
-
-/** Quante somiglianze al massimo: una griglia lunga non è una risposta. */
-private const val CLIP_TOP = 120
-
-/**
  * The decoded picture lives in the ViewModel and not in the composition: a
  * rotation must not send the phone back to the network, and on a big file that
  * would be a visible pause rather than a purist's detail.
@@ -324,21 +314,26 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         }
         viewModelScope.launch { Recents.flow(context).collect { recents = it } }
         viewModelScope.launch { FolderAsk.flow(context).collect { folderAsked = it } }
-        /*
-         * ⚠️⚠️ **QUI NON PARTE PIÙ NIENTE DELLA RICERCA PER CONTENUTO, dalla 1.02, e la
-         * ragione è un difetto che rendeva l'app irrecuperabile**: fino alla 1.01
-         * l'indicizzazione partiva da sola a ogni apertura se i modelli c'erano. Sul telefono
-         * dell'utente il motore faceva morire il processo, quindi l'app si chiudeva subito
-         * **a ogni avvio** e l'unico rimedio era cancellare i dati dell'app, cioè perdere
-         * anche il cestino.
-         * ⚠️ **Il rimedio non è un `try`**: quello che muore è codice nativo, e non passa da
-         * nessun `catch`. Adesso ci sono due paletti, e servono tutti e due: l'indicizzazione
-         * la chiede **l'utente** da un tasto, e prima di toccare il motore si lascia un segno
-         * sul disco (vedi [ClipGuard]) che al giro dopo dice se in mezzo si è tornati.
-         * ⚠️ **Il costo dichiarato**: le fotografie scattate dopo l'ultima indicizzazione non
-         * si trovano finché non la si rilancia. Prima lo faceva da sé, e per farlo metteva a
-         * rischio l'avvio dell'app: fra le due, questa è la parte che si può perdere.
-         */
+        viewModelScope.launch { sweepClipLeftovers(context) }
+    }
+
+    /**
+     * Butta via i modelli della ricerca per contenuto, che la `1.12` ha tolto.
+     *
+     * ⚠️⚠️ **SERVE PERCHÉ SUL TELEFONO DI CHI AGGIORNA RESTANO 86 MB CHE NESSUNO PUÒ PIÙ
+     * TOGLIERE**: quei file li scaricava l'app in `filesDir/clip`, e il tasto che li
+     * cancellava se n'è andato con la funzione. Senza questa riga sopravvivrebbero fino alla
+     * disinstallazione o a un 'cancella dati', che porterebbe via anche il cestino.
+     * ⚠️ **Costa un `stat` su una cartella che quasi sempre non c'è**, quindi non si tiene
+     * una preferenza per ricordarsi di averlo fatto: quella sarebbe una chiave in archivio
+     * per sempre, per risparmiare una chiamata al filesystem a ogni avvio.
+     * ⚠️ **Si potrà togliere fra qualche versione**, quando nessuno aggiornerà più da una
+     * `1.11` o precedente. Non prima, e non 'tanto ormai': chi salta dieci versioni esiste.
+     */
+    private suspend fun sweepClipLeftovers(context: Context) {
+        withContext(Dispatchers.IO) {
+            runCatching { File(context.filesDir, "clip").deleteRecursively() }
+        }
     }
 
     /**
@@ -874,6 +869,22 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    /**
+     * Il tocco lungo su 'Modifica': si sceglie l'app **adesso**, per questa fotografia.
+     *
+     * ⚠️⚠️ **LA DIFFERENZA CON [edit] È UNA SOLA, e sta tutta qui**: [edit] apre il selettore
+     * **solo** la prima volta e poi non lo chiede più, che è quello che deve fare una scelta
+     * memorizzata; questo lo apre **sempre**, perché è il gesto con cui si cambia idea senza
+     * passare dalle impostazioni.
+     * ⚠️ **La scelta resta memorizzata** (richiesta dell'utente): non è un'apertura 'con
+     * un'altra app solo stavolta', è la stessa scelta di sempre fatta da un posto più comodo.
+     * Ci pensa [editorChosen], che è lo stesso di prima e non sa da dove gli arriva l'utente.
+     */
+    fun editWith(uri: Uri) {
+        editorFor = uri
+        editorAsk = true
+    }
+
     /** Le impostazioni vogliono cambiare l'app: stesso selettore, senza nessuna fotografia. */
     fun chooseEditor() {
         editorFor = null
@@ -1053,7 +1064,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         val hidden = settings?.hiddenFolders.orEmpty()
         searching = viewModelScope.launch {
             delay(SEARCH_PAUSE_MS)
-            listed = both(context, text, hidden).atSequenceStart()
+            listed = Folder.byName(context, text, hidden).atSequenceStart()
             // Una ricerca nuova è un elenco nuovo: l'anello dell'ultima foto vista
             // indicherebbe una posizione della lista di prima.
             gridVisited = false
@@ -1092,7 +1103,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 val text = query
                 searching?.cancel()
                 searching = viewModelScope.launch {
-                    listed = both(context, text, hidden).atSequenceStart()
+                    listed = Folder.byName(context, text, hidden).atSequenceStart()
                 }
             }
             // ⚠️ Il cestino si rilegge dal disco e non dal MediaStore, che là non guarda:
@@ -1102,268 +1113,6 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    /**
-     * I risultati della ricerca: **il nome e il contenuto insieme**.
-     *
-     * ⚠️⚠️ **I NOMI PRIMA, E IL CONTENUTO DOPO, ed è una scelta sull'affidabilità**: un nome
-     * che contiene la parola cercata è un fatto, mentre una somiglianza di contenuto è un
-     * giudizio di un modello. Mettere i secondi in mezzo ai primi vorrebbe dire che una foto
-     * chiamata *gatto.jpg* può finire sotto una foto che al modello **sembra** un gatto.
-     * ⚠️ **Senza doppioni**: una foto che soddisfa tutti e due i criteri compare una volta
-     * sola, nella metà dei nomi.
-     * ⚠️ **Se i modelli non ci sono, questa funzione è la ricerca per nome e basta**: nessun
-     * ramo da spegnere altrove, e la ricerca continua a funzionare come dalla `0.59`.
-     */
-    private suspend fun both(
-        context: Context,
-        text: String,
-        hidden: Set<String>
-    ): Folder.Lookup {
-        val byName = Folder.byName(context, text, hidden)
-        val names = byName.seriesOrNull ?: return byName
-        val seen = names.items.toHashSet()
-        val alike = clipHits(context, text).filterNot { it in seen }
-        if (alike.isEmpty()) return byName
-        return Folder.Lookup.Found(Folder.Series(names.items + alike, 0))
-    }
-
-    /**
-     * Le fotografie che **somigliano** a quello che si è scritto.
-     *
-     * ⚠️⚠️ **LA SOGLIA È UNA PRIMA TARATURA, non una misura**: sulla sola fotografia provata
-     * (un gatto, sul banco JVM del 2026-08-31) la parola giusta ha dato **+0,2212**, quella
-     * sbagliata **+0,1204** e una lontanissima **+0,0943**. `0.15` sta in mezzo, ma una
-     * fotografia sola non fa una taratura: il numero va rivisto sul telefono, con una
-     * galleria vera, ed è la prima cosa da guardare se la ricerca risponde troppo o troppo
-     * poco.
-     * ⚠️ **E c'è un tetto**, perché una soglia da sola su diecimila foto può lasciar passare
-     * centinaia di risultati mediocri, e una griglia lunga non è una risposta.
-     */
-    private suspend fun clipHits(context: Context, text: String): List<Uri> {
-        if (text.isBlank()) return emptyList()
-        // ⚠️ Tre `stat` sul disco, quindi non sul filo principale: sono pochi, ma stanno
-        // dentro una funzione che gira a ogni ricerca, e il filo principale è quello che
-        // disegna la griglia mentre si scrive.
-        val ready = withContext(Dispatchers.IO) { ClipModels.state(context) }
-        if (ready !is ClipModels.State.Ready) return emptyList()
-        // ⚠️⚠️ **ANCHE CERCARE PASSA DALLA SICURA**, e non solo indicizzare: a cercare si
-        // apre l'encoder testuale, che è codice nativo come l'altro. Senza questo, un motore
-        // che uccide il processo lo ucciderebbe a ogni lettera scritta nella ricerca, cioè
-        // in una schermata da cui non si sospetta niente.
-        // ⚠️ Qui basta SAPERE che la sicura è scattata, e non perché: la ragione la si
-        // compone quando la si deve mostrare, e chiederla a ogni ricerca vorrebbe dire
-        // interrogare il registro dei processi morti a ogni lettera digitata.
-        if (withContext(Dispatchers.IO) { ClipGuard.tripped(context) } != null) return emptyList()
-        val engine = clipEngine(context) ?: return emptyList()
-        val index = clipIndex ?: ClipIndex.load(context).also { clipIndex = it }
-        if (index.isEmpty()) return emptyList()
-        withContext(Dispatchers.IO) { ClipGuard.arm(context, "ricerca") }
-        return withContext(Dispatchers.Default) {
-            val esito = runCatching { engine.ofText(text) }
-            withContext(Dispatchers.IO) {
-                val why = esito.exceptionOrNull()
-                if (why == null) ClipGuard.disarm(context)
-                else ClipGuard.note(context, "ricerca", why.toString())
-            }
-            val query = esito.getOrNull() ?: return@withContext emptyList()
-            index.asSequence()
-                .map { (uri, code) -> uri to ClipIndex.score(query, code) }
-                .filter { it.second >= CLIP_FLOOR }
-                .sortedByDescending { it.second }
-                .take(CLIP_TOP)
-                .map { it.first.toUri() }
-                .toList()
-        }
-    }
-
-    /**
-     * Il motore, aperto la prima volta che serve e poi tenuto.
-     *
-     * ⚠️ **Aprirlo costa qualche centinaio di millisecondi e decine di MB mappati**: farlo a ogni
-     * ricerca vorrebbe dire una pausa a ogni lettera digitata.
-     */
-    private suspend fun clipEngine(context: Context): ClipEngine? {
-        clipMotor?.let { return it }
-        return withContext(Dispatchers.IO) {
-            runCatching {
-                ClipEngine.open(
-                    visionPath = ClipModels.fileOf(context, ClipModels.PIECES[0]).absolutePath,
-                    textPath = ClipModels.fileOf(context, ClipModels.PIECES[1]).absolutePath,
-                    // ⚠️ Una funzione e non la stringa: sono 2,2 MB, e a cercare non
-                    // servono, a indicizzare nemmeno. Si leggono alla prima frase scritta.
-                    tokenizerJson = { ClipModels.fileOf(context, ClipModels.PIECES[2]).readText() }
-                )
-            }.getOrNull()?.also { clipMotor = it }
-        }
-    }
-
-    private var clipMotor: ClipEngine? = null
-    private var clipIndex: LinkedHashMap<String, ByteArray>? = null
-
-    /**
-     * A che punto è l'indicizzazione: `null` quando non sta girando.
-     *
-     * ⚠️ Sta nel modello come lo scaricamento, e per la stessa ragione: dura minuti e deve
-     * sopravvivere all'uscita dalle impostazioni.
-     */
-    var clipWork: Pair<Int, Int>? by mutableStateOf(null)
-        private set
-
-    private var clipJob2: Job? = null
-
-    /**
-     * Indicizza quello che manca, se i modelli ci sono.
-     *
-     * ⚠️⚠️ **NON C'È UN INTERRUTTORE OLTRE AI MODELLI, ed è deliberato**: la funzione è accesa
-     * se e solo se i modelli sono sul telefono. Un interruttore in più avrebbe permesso la
-     * combinazione senza senso 'modelli scaricati e funzione spenta', cioè 86 MB fermi.
-     * ⚠️ **Parte all'avvio dell'app e dopo uno scaricamento riuscito**, e non a ogni ricerca:
-     * indicizzare mentre si cerca vorrebbe dire una ricerca lenta proprio la prima volta.
-     */
-    fun clipIndexing() {
-        if (clipJob2?.isActive == true) return
-        val context = getApplication<Application>()
-        clipJob2 = viewModelScope.launch {
-            if (ClipModels.state(context) !is ClipModels.State.Ready) return@launch
-            val fermo = withContext(Dispatchers.IO) { clipWhy(context) }
-            if (fermo != null) {
-                clipBlocked = fermo
-                return@launch
-            }
-            val engine = clipEngine(context) ?: return@launch
-            val hidden = settings?.hiddenFolders.orEmpty()
-            clipWork = 0 to 0
-            // ⚠️⚠️ **IL SEGNO SI LASCIA PRIMA E SI TOGLIE DOPO**: fra le due righe c'è
-            // l'unico codice che può uccidere il processo senza sollevare niente, e se il
-            // processo muore il segno resta. Vedi [ClipGuard] per il perché un `try` non
-            // basterebbe.
-            withContext(Dispatchers.IO) { ClipGuard.arm(context, "indice") }
-            val esito = runCatching {
-                ClipRun.index(context, engine, hidden) { done, total -> clipWork = done to total }
-            }
-            withContext(Dispatchers.IO) {
-                val why = esito.exceptionOrNull()
-                if (why == null) ClipGuard.disarm(context)
-                else ClipGuard.note(context, "indice", why.toString())
-            }
-            clipBlocked = withContext(Dispatchers.IO) { clipWhy(context) }
-            // ⚠️ L'indice in memoria si butta: quello su file è cresciuto, e tenersi la
-            // copia vecchia vorrebbe dire cercare fra le foto di prima.
-            clipIndex = null
-            clipWork = null
-        }
-    }
-
-    /**
-     * Perché la ricerca per contenuto è ferma, e `null` quando non lo è.
-     *
-     * ⚠️ È il testo del segno lasciato da [ClipGuard]: se c'è, l'ultimo giro nel motore non è
-     * tornato, e finché l'utente non dice di riprovare non ci si rientra.
-     */
-    var clipBlocked: String? by mutableStateOf(null)
-        private set
-
-    /**
-     * Il segno della sicura, con accanto quello che il sistema sa della chiusura.
-     *
-     * ⚠️⚠️ **DUE FONTI CHE DA SOLE NON BASTANO, dalla 1.07**: `ClipGuard` sa **dove** si era
-     * arrivati (è un file che scriviamo noi), il sistema sa **che cosa** è successo (il
-     * registro delle chiusure dei processi, vedi [ExitLog]). Un errore nel codice nativo non
-     * lascia niente in Kotlin, quindi finché si guardava la sola sicura si leggeva 'indice' e
-     * si restava esattamente dove si era prima di guardare.
-     * ⚠️ Le due si uniscono **qui** e non dentro la sicura: quella deve restare un file e
-     * basta, o diventa il posto in cui si accumulano le diagnosi.
-     */
-    private fun clipWhy(context: Context): String? {
-        val phase = ClipGuard.tripped(context) ?: return null
-        val exit = ExitLog.lastExit(context) ?: return phase
-        return "$phase - $exit"
-    }
-
-    /** L'utente vuole riprovare: si toglie la sicura e si riparte con l'indicizzazione. */
-    fun clipUnblock() {
-        val context = getApplication<Application>()
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) { ClipGuard.clear(context) }
-            clipBlocked = null
-            clipIndexing()
-        }
-    }
-
-    /**
-     * Che cosa c'è sul telefono dei modelli della ricerca per contenuto.
-     *
-     * ⚠️⚠️ **LO SCARICAMENTO VIVE QUI E NON NELLA SCHERMATA, ed è la ragione per cui questo
-     * stato sta nel modello**: sono 86 MB, cioè minuti, e un lavoro appeso alla composizione
-     * morirebbe **uscendo dalle impostazioni**, che è la prima cosa che si fa mentre si
-     * aspetta. Nell'ambito del modello sopravvive a tutte le schermate e muore con l'app.
-     * ⚠️ **Non sopravvive alla chiusura dell'app**, e non è un difetto nascosto: riaprendo si
-     * riprende dal pezzo che mancava, perché quelli completi sono già sul disco (vedi
-     * `ClipModels.fetch`). Un lavoro che continua ad app chiusa vorrebbe WorkManager, cioè
-     * una dipendenza in più per un caso che si paga con un tocco.
-     */
-    var clipState: ClipModels.State by mutableStateOf(ClipModels.State.Absent)
-        private set
-
-    private var clipJob: Job? = null
-
-    /** Rilegge che cosa c'è: si chiama all'apertura delle impostazioni. */
-    fun clipRefresh() {
-        viewModelScope.launch {
-            val context = getApplication<Application>()
-            clipState = withContext(Dispatchers.IO) { ClipModels.state(context) }
-            clipBlocked = withContext(Dispatchers.IO) { clipWhy(context) }
-        }
-    }
-
-    /**
-     * Scarica quello che manca.
-     *
-     * ⚠️ **Un lavoro per volta**: toccare due volte il tasto non deve far partire due
-     * scaricamenti sullo stesso file, che si scriverebbero addosso a vicenda.
-     */
-    fun clipFetch() {
-        if (clipJob?.isActive == true) return
-        val context = getApplication<Application>()
-        clipState = ClipModels.State.Fetching(0L, ClipModels.WEIGHT)
-        clipJob = viewModelScope.launch {
-            clipState = ClipModels.fetch(context) { done, total ->
-                clipState = ClipModels.State.Fetching(done, total)
-            }
-            // ⚠️⚠️ **NON SI INDICIZZA DA SÉ, dalla 1.02**: fino alla 1.01 partiva qui, e
-            // il crollo del motore arrivava addosso a chi aveva appena finito di scaricare
-            // 86 MB, senza che avesse chiesto niente. Adesso finito lo scaricamento la
-            // schermata offre il tasto, e nel motore si entra solo su richiesta.
-            clipBlocked = withContext(Dispatchers.IO) { clipWhy(context) }
-        }
-    }
-
-    /** Ferma lo scaricamento: quello che è arrivato intero resta. */
-    fun clipStop() {
-        clipJob?.cancel()
-        clipJob = null
-        clipRefresh()
-    }
-
-    /** Toglie i modelli dal telefono, fermando prima quello che stava scaricando. */
-    fun clipRemove() {
-        clipJob?.cancel()
-        clipJob = null
-        val context = getApplication<Application>()
-        clipJob2?.cancel()
-        clipJob2 = null
-        clipMotor?.close()
-        clipMotor = null
-        clipIndex = null
-        clipWork = null
-        viewModelScope.launch {
-            // ⚠️ **Anche l'indice se ne va**, ed è la cosa giusta: senza modelli non si
-            // possono più confrontare quei vettori, e cinque megabyte di numeri che nessuno
-            // sa più leggere sono spazzatura che sopravvive.
-            withContext(Dispatchers.IO) { ClipIndex.clear(context); ClipModels.remove(context) }
-            clipState = withContext(Dispatchers.IO) { ClipModels.state(context) }
-        }
-    }
 
     /**
      * Dove sta la navigazione della vista 'Cartelle di sistema', e `null` vuol dire in cima.
@@ -1676,9 +1425,6 @@ class ViewerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        // ⚠️ Prima di qualunque altra cosa, perché deve valere anche per quello che parte
-        // da qui in poi: vedi `ClipGuard.watch`, che spiega perché un `catch` non basta.
-        ClipGuard.watch(this)
         // Only on a fresh start: on a rotation the ViewModel already holds the
         // picture, and re-reading the intent would load it a second time.
         if (savedInstanceState == null) model.handleIntent(intent)
@@ -1758,24 +1504,12 @@ private fun AivApp(model: ViewerViewModel) {
     when (val screen = model.screen) {
         Screen.Settings -> {
             BackHandler { model.leaveSettings() }
-            // ⚠️ Si rilegge all'ENTRATA e non a ogni ricomposizione: quei file cambiano
-            // solo per mano di questa schermata, e guardarli a ogni disegno vorrebbe dire
-            // tre `stat` per fotogramma.
-            LaunchedEffect(Unit) { model.clipRefresh() }
             SettingsScreen(
                 settings = settings,
                 onChange = { model.updateSettings(it) },
                 onStartFolder = { model.chooseStartFolder() },
                 onResetHints = { model.resetHints() },
                 onChooseEditor = { model.chooseEditor() },
-                clipState = model.clipState,
-                clipWork = model.clipWork,
-                clipBlocked = model.clipBlocked,
-                onClipFetch = { model.clipFetch() },
-                onClipStop = { model.clipStop() },
-                onClipIndex = { model.clipIndexing() },
-                onClipUnblock = { model.clipUnblock() },
-                onClipRemove = { model.clipRemove() },
                 onBack = { model.leaveSettings() }
             )
         }
@@ -1957,6 +1691,7 @@ private fun AivApp(model: ViewerViewModel) {
                 onRetry = { model.retry() },
                 onFileChanged = { model.afterFileChanged() },
                 onEdit = { model.edit(it) },
+                onEditWith = { model.editWith(it) },
                 // ⚠️ Da dove si è entrati dice se si sta guardando il cestino: la
                 // fotografia in sé non lo sa, ed è la ragione per cui questo dato non vive
                 // nell'immagine.

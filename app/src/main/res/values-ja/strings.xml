@@ -243,21 +243,10 @@
     <string name="clip_pause">一時停止</string>
     <string name="settings_images_only">写真だけをめくる</string>
     <string name="settings_images_only_desc">ビューアでのスワイプが動画を飛ばし、写真だけを表示します。グリッドで動画をタップすれば再生されます。これはスワイプの話で、タップの話ではありません。</string>
-    <string name="settings_group_content">内容で検索</string>
-    <string name="settings_content_desc">内容で検索できるようにするには、画像認識モデルをダウンロードします (例: \'赤い猫\')。ダウンロードは任意で一度きりです。パッケージはいつでも削除できます。認識と検索は端末内で行われ、画像もデータも外部には送りません。</string>
-    <string name="settings_content_get">モデルをダウンロード (%1$s)</string>
-    <string name="settings_content_getting">%2$s 中 %1$s</string>
-    <string name="settings_content_stop">停止</string>
-    <string name="settings_content_ready">モデルは端末にあります。</string>
-    <string name="settings_content_remove">モデルパッケージを削除 (%1$s)</string>
-    <string name="settings_content_broken">うまくいきませんでした: %1$s</string>
-    <string name="settings_content_retry">やり直す</string>
-    <string name="settings_content_blocked">前回これでアプリが終了したため (%1$s)、この機能は自分で停止しました。ほかには影響しません。</string>
-    <string name="settings_content_index">画像を今すぐ索引に入れる</string>
-    <string name="settings_content_indexing">索引作成: %2$d 件中 %1$d 件</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">編集</string>
+    <string name="menu_edit_hold">アプリを選ぶ</string>
     <string name="editor_internal">内蔵エディター</string>
     <string name="editor_pick">何で編集しますか</string>
     <string name="editor_left">左に回す</string>

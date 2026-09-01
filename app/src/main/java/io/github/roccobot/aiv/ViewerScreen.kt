@@ -290,6 +290,7 @@ fun ViewerScreen(
      * `ViewerViewModel.edit`.
      */
     onEdit: (Uri) -> Unit,
+    onEditWith: (Uri) -> Unit,
     /**
      * Se la fotografia che si sta guardando viene dal **cestino**.
      *
@@ -392,7 +393,7 @@ fun ViewerScreen(
         }
     }
 
-    val ops = remember(source, saver, onEdit) {
+    val ops = remember(source, saver, onEdit, onEditWith) {
         MenuOps(
             job = { job = it },
             share = { picture ->
@@ -407,7 +408,8 @@ fun ViewerScreen(
             // ⚠️ Senza indirizzo non si fa niente e non si dice niente: la voce che chiama
             // questa funzione compare **solo** con un file del telefono davanti, quindi qui
             // il caso non capita, e un avviso sarebbe codice che nessuno può far girare.
-            edit = { source?.let(onEdit) }
+            edit = { source?.let(onEdit) },
+            editWith = { source?.let(onEditWith) }
         )
     }
 
@@ -604,7 +606,15 @@ private class MenuOps(
      * ⚠️ **Sale qui per la ragione dichiarata sopra e per una in più**: cambia SCHERMATA, e
      * un cambio di schermata deciso dal menu smonterebbe il menu a metà chiamata.
      */
-    val edit: () -> Unit
+    val edit: () -> Unit,
+    /**
+     * Tocco lungo su 'Modifica': fa scegliere l'app adesso, e la scelta resta.
+     *
+     * ⚠️ **È una seconda funzione e non un parametro di [edit]**, perché il menu non deve
+     * sapere che cosa distingue i due casi: lui riferisce **quale gesto** è arrivato, e chi
+     * ha le impostazioni in mano decide. Vedi `ViewerViewModel.editWith`.
+     */
+    val editWith: () -> Unit
 )
 
 /**
@@ -2348,11 +2358,26 @@ private fun ImageMenu(
              * disegno nuovo. Vedi [Glyphs] per come entrano i disegni dell'utente: il
              * giorno che ne arriva uno, si cambia qui e basta.
              */
+            /*
+             * ⚠️⚠️ **IL TOCCO LUNGO SU 'Modifica' FA SCEGLIERE L'APP, dalla 1.12**
+             * (richiesta dell'utente): il tocco breve apre quella scelta, il tocco lungo
+             * apre il selettore e la nuova scelta **resta memorizzata**. Prima, per
+             * cambiare editor, bisognava andare nelle impostazioni.
+             * ⚠️ **È l'idioma già in casa e non un gesto nuovo da imparare**: 'Copia' nel
+             * riquadro della selezione duplica col tocco lungo esattamente così, dalla
+             * `0.79`. Un secondo modo di fare la stessa cosa sarebbe stato il costo vero.
+             * ⚠️ **Questa voce NON è un `DropdownMenuItem`** come le altre, e non è una
+             * distrazione: un `DropdownMenuItem` non può portare due gesti. Il perché, e le
+             * misure che le fanno tenere la fila con le vicine, stanno in
+             * [TapHoldMenuItem].
+             */
             if (scheme == "content" || scheme == "file") {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.menu_edit)) },
-                    leadingIcon = { Icon(Icons.Outlined.Edit, null) },
-                    onClick = { onDismiss(); ops.edit() }
+                TapHoldMenuItem(
+                    text = stringResource(R.string.menu_edit),
+                    icon = Icons.Outlined.Edit,
+                    holdLabel = stringResource(R.string.menu_edit_hold),
+                    onTap = { onDismiss(); ops.edit() },
+                    onHold = { onDismiss(); ops.editWith() }
                 )
             }
             /*

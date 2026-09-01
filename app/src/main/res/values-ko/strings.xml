@@ -243,21 +243,10 @@
     <string name="clip_pause">일시정지</string>
     <string name="settings_images_only">사진만 넘기기</string>
     <string name="settings_images_only_desc">뷰어에서 밀기가 동영상을 건너뛰고 사진만 보여줍니다. 격자에서 동영상을 누르면 그대로 재생됩니다. 미는 동작에 대한 설정이지 누르기에 대한 것이 아닙니다.</string>
-    <string name="settings_group_content">내용으로 검색</string>
-    <string name="settings_content_desc">내용으로 검색하려면 이미지 인식 모델을 내려받으세요 (예: \'빨간 고양이\'). 내려받기는 선택 사항이며 한 번만 하면 됩니다. 패키지는 언제든 지울 수 있습니다. 인식과 검색은 기기 안에서 이뤄지며, 사진이나 데이터를 외부로 보내지 않습니다.</string>
-    <string name="settings_content_get">모델 내려받기 (%1$s)</string>
-    <string name="settings_content_getting">%2$s 중 %1$s</string>
-    <string name="settings_content_stop">중지</string>
-    <string name="settings_content_ready">모델이 휴대전화에 있습니다.</string>
-    <string name="settings_content_remove">모델 패키지 삭제 (%1$s)</string>
-    <string name="settings_content_broken">무언가 잘못되었습니다: %1$s</string>
-    <string name="settings_content_retry">다시 시도</string>
-    <string name="settings_content_blocked">지난번에 이것 때문에 앱이 종료되어 (%1$s) 기능이 스스로 멈췄습니다. 다른 부분은 영향이 없습니다.</string>
-    <string name="settings_content_index">지금 사진 색인 만들기</string>
-    <string name="settings_content_indexing">색인 만드는 중: %2$d 중 %1$d</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">편집</string>
+    <string name="menu_edit_hold">앱 선택</string>
     <string name="editor_internal">내장 편집기</string>
     <string name="editor_pick">무엇으로 편집할까요?</string>
     <string name="editor_left">왼쪽으로 돌리기</string>

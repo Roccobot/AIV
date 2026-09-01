@@ -243,21 +243,10 @@
     <string name="clip_pause">Jeda</string>
     <string name="settings_images_only">Telusuri gambar saja</string>
     <string name="settings_images_only_desc">Di penampil, gesekan melewati video dan hanya menampilkan gambar. Mengetuk video di kisi tetap memutarnya: ini tentang gesekan, bukan ketukan.</string>
-    <string name="settings_group_content">Pencarian berdasarkan isi</string>
-    <string name="settings_content_desc">Unduh model pengenalan gambar untuk mengaktifkan pencarian menurut isi (mis. \'kucing oranye\'). Unduhan bersifat opsional dan sekali saja; paket dapat dihapus kapan saja. Pengenalan dan pencarian berlangsung di perangkat, tanpa mengirim gambar atau data ke pihak ketiga.</string>
-    <string name="settings_content_get">Unduh modelnya (%1$s)</string>
-    <string name="settings_content_getting">%1$s dari %2$s</string>
-    <string name="settings_content_stop">Hentikan</string>
-    <string name="settings_content_ready">Modelnya ada di ponsel.</string>
-    <string name="settings_content_remove">Hapus paket model (%1$s)</string>
-    <string name="settings_content_broken">Ada yang tidak berjalan: %1$s</string>
-    <string name="settings_content_retry">Coba lagi</string>
-    <string name="settings_content_blocked">Terakhir kali ini menutup aplikasi (%1$s), jadi fitur ini berhenti sendiri. Selebihnya tidak terpengaruh.</string>
-    <string name="settings_content_index">Indeks gambar sekarang</string>
-    <string name="settings_content_indexing">Mengindeks: %1$d dari %2$d</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Edit</string>
+    <string name="menu_edit_hold">Pilih aplikasi</string>
     <string name="editor_internal">Editor bawaan</string>
     <string name="editor_pick">Pakai apa untuk mengedit?</string>
     <string name="editor_left">Putar ke kiri</string>
