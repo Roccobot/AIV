@@ -87,7 +87,7 @@ sealed interface Screen {
      * cinque vie le trova dentro il tastino di `FolderScreen`.
      * ⚠️ Porta [forStart] perché la stessa schermata risponde a due domande: 'quale
      * cartella apro adesso' e 'quale cartella apro all'avvio'. È l'unico dato che
-     * distingue i due usi, e sta qui e non nel modello perché muore con la schermata.
+     * distingue i due usi, e sta qui e non nel modello perché se ne va con la schermata.
      */
     data class Folders(val forStart: Boolean) : Screen
 
@@ -856,7 +856,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * Una frase da mostrare e buttare, e `null` quando non ce n'è nessuna.
      *
      * ⚠️ **Sta nel modello perché l'esito arriva DOPO la schermata che l'ha chiesto**: il
-     * salvataggio chiude l'editor, quindi un avviso appeso a quella composizione morirebbe
+     * salvataggio chiude l'editor, quindi un avviso appeso a quella composizione se ne andrebbe
      * prima di comparire. Chi lo mostra lo azzera con [noticeShown], e senza quell'azzeramento
      * tornerebbe a ogni ricomposizione.
      */
@@ -1105,7 +1105,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      *
      * ⚠️⚠️ **GIRA NELL'AMBITO DEL MODELLO E NON DELLA SCHERMATA, ed è il punto**: il primo
      * atto di un salvataggio riuscito è chiudere l'editor, cioè smontare la composizione che
-     * l'ha chiesto. Un lavoro appeso a quella morirebbe a metà scrittura, sul file vero.
+     * l'ha chiesto. Un lavoro appeso a quella si interromperebbe a metà scrittura, sul file vero.
      * ⚠️ La miniatura si butta **solo dopo un esito buono**: il ritaglio fallito lascia il
      * file com'era, e cancellarla costringerebbe a rigenerarla per niente.
      */
@@ -1239,7 +1239,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      *
      * ⚠️⚠️ **VIVE QUI E NON NELLA SCHERMATA, dalla `0.84`**: si esce dalla casa ogni volta che
      * si apre una fotografia, e al ritorno la navigazione deve ritrovarsi dov'era. Un ricordo
-     * dentro il composabile morirebbe a ogni andata e ritorno, riportando in cima dopo ogni
+     * dentro il composabile si azzererebbe a ogni andata e ritorno, riportando in cima dopo ogni
      * foto guardata, che è il difetto che rende inutilizzabile un gestore di file.
      * ⚠️ **Non si salva nelle impostazioni**, ed è voluto: è lo stato di una sessione, non una
      * preferenza. Riaprendo l'app si riparte dalla radice, che è dove si sa di essere.
@@ -1600,7 +1600,7 @@ private fun AivApp(model: ViewerViewModel) {
      * ⚠️⚠️ **IL SELETTORE E L'AVVISO STANNO PRIMA DEL `when`, e non dentro un ramo**: la
      * scelta dell'editor si chiede da due schermate diverse (il menu del tocco lungo e le
      * impostazioni), e l'esito di un salvataggio arriva quando l'editor si è **già** chiuso.
-     * Scritti dentro un ramo morirebbero al cambio di schermata, cioè nell'istante esatto in
+     * Scritti dentro un ramo si perderebbero al cambio di schermata, cioè nell'istante esatto in
      * cui devono comparire.
      */
     if (model.editorAsk) {
@@ -1863,7 +1863,7 @@ private fun FolderPermission(model: ViewerViewModel) {
         Toast.makeText(context, R.string.folder_why, Toast.LENGTH_LONG).show()
         // ⚠️ Il ripiego sulla pagina generale non è un lusso: quella mirata
         // all'app manca su qualche sistema, e senza il secondo tentativo la
-        // richiesta morirebbe con un'eccezione invece di portare da qualche parte.
+        // richiesta fallirebbe con un'eccezione invece di portare da qualche parte.
         val opened = Folder.settingsIntents(context).any { runCatching { fromSettings.launch(it) }.isSuccess }
         if (!opened) model.folderAnswered(false)
     }

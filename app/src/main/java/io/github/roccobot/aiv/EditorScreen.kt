@@ -98,7 +98,7 @@ fun EditorScreen(
      * Che cosa salvare.
      *
      * ⚠️⚠️ **IL LAVORO LO FA CHI CHIAMA, e non questa schermata**: una scrittura da venti
-     * megapixel dura secondi, e appesa alla composizione morirebbe nel momento in cui la
+     * megapixel dura secondi, e appesa alla composizione si interromperebbe nel momento in cui la
      * schermata si chiude, cioè proprio quando l'utente ha finito. Nell'ambito del modello
      * invece arriva in fondo.
      * ⚠️⚠️ **E DALLA 1.08 NON DICE PIÙ 'COME', ed è la richiesta dell'utente**: si sovrascrive

@@ -320,7 +320,7 @@ fun ViewerScreen(
      * più si avverte chi sa che cosa mostrare al suo posto.
      *
      * ⚠️⚠️ **GIRA NELL'AMBITO DI QUESTA SCHERMATA, e non in quello del menu o della tela**:
-     * quelli muoiono, il primo quando il menu si chiude e la seconda al cambio di stato,
+     * quelli se ne vanno, il primo quando il menu si chiude e la seconda al cambio di stato,
      * cioè **esattamente** nell'istante in cui un'eliminazione riesce. Una coroutine
      * lasciata là dentro verrebbe annullata alla prima sospensione, e si perderebbero
      * l'avviso e la rilettura, non il lavoro sui file, che `FileTree` protegge da sé.
@@ -619,7 +619,7 @@ fun ViewerScreen(
  * contiene.
  *
  * ⚠️⚠️ **LA RAGIONE È UNA SOLA: il menu si chiude prima che finiscano.** Toccare una voce
- * chiama `onDismiss`, quindi il menu esce dalla composizione, e con lui muoiono il suo
+ * chiama `onDismiss`, quindi il menu esce dalla composizione, e con lui se ne vanno il suo
  * ambito di coroutine e i suoi richiami registrati. Una condivisione si annullerebbe alla
  * prima sospensione, l'esito del selettore di sistema non tornerebbe a nessuno, e un
  * dialogo aperto da là sparirebbe insieme alla fotografia su cui agisce.
@@ -653,7 +653,7 @@ private class MenuOps(
 )
 
 /**
- * Quello che la riga dei dettagli deve sapere, e che **non muore con la fotografia**.
+ * Quello che la riga dei dettagli deve sapere, e che **non se ne va con la fotografia**.
  *
  * ⚠️ Due soli campi, e nessuno dei due è un dato della fotografia: sono la sua
  * **visibilità**, che l'utente comanda dal menu, e la **percentuale di zoom**, che cambia
@@ -941,7 +941,7 @@ private fun BoxScope.KnobBadge(knob: Knob) {
  *
  * ⚠️⚠️ **SCRITTI IN CASA E NON PRESI DA `PlayerView`**, e la ragione sta nella nota della
  * dipendenza: quelli sono una `View` che si prende i tocchi, e con loro la strisciata per
- * cambiare fotografia morirebbe. Sono un tasto e una barra: il prezzo di scriverli è basso,
+ * cambiare fotografia non arriverebbe mai. Sono un tasto e una barra: il prezzo di scriverli è basso,
  * quello di perdere il gesto no.
  * ⚠️⚠️ **SPARISCONO MENTRE IL FILMATO VA, e tornano toccando**: un tasto grande in mezzo
  * allo schermo sopra un video in corso copre proprio quello che si sta guardando. In pausa
@@ -1926,7 +1926,7 @@ private fun ImageCanvas(
          * ⚠️ **Regola che vale oltre questo caso**: uno stato che cambia DURANTE un gesto non
          * può essere una chiave di `pointerInput`, perché quel gesto è la prima cosa che il
          * cambiamento distrugge. Vale anche per `folder`, che cambia quando la ricerca della
-         * cartella risponde e uccideva le pinze fatte subito dopo l'apertura.
+         * cartella risponde e annullava le pinze fatte subito dopo l'apertura.
          * ⚠️ Letto **una volta per gesto** e non a ogni evento: così una panoramica che entra
          * nella banda dell'adattamento resta una panoramica invece di diventare a metà strada
          * una strisciata che cambia immagine.
@@ -2030,7 +2030,7 @@ private fun ImageCanvas(
  * `detectTransformGestures`, con un commento che dava l'ordine per garanzia. Non lo
  * è, e la strisciata **non ha mai funzionato**: le due cose nascono dallo stesso
  * dito che si muove, quindi si contendono il gesto, e chi supera per primo la soglia
- * di movimento consuma le variazioni e fa morire l'altro.
+ * di movimento consuma le variazioni e lascia l'altro senza niente.
  *
  * ⚠️⚠️ **A perdere era sempre la strisciata, e non per un pelo.** Le due soglie non
  * misurano la stessa cosa: `detectTransformGestures` guarda il **modulo** dello
@@ -2304,7 +2304,7 @@ private suspend fun PointerInputScope.detectViewerGestures(
  * selezione nella griglia, quindi le icone e il loro ordine si decidono in un posto solo:
  * chi impara dove sta 'sposta' lo impara una volta.
  * ⚠️⚠️ **E 'Condividi' è uscita dalle voci di testo perché il riquadro la porta**, con la
- * stessa chiamata di prima: due voci identiche nello stesso menu sono peso morto, e questo
+ * stessa chiamata di prima: due voci identiche nello stesso menu sono un ingombro, e questo
  * menu è tenuto corto apposta.
  * ⚠️ **'Copia immagine' invece resta, e non è un doppione di 'copia'**: quella mette la
  * fotografia negli **appunti**, questa copia il **file** in un'altra cartella. Sono due

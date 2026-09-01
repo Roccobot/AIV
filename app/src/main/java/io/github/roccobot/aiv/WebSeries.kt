@@ -82,7 +82,7 @@ object WebSeries {
      *
      * ⚠️⚠️ **Android BLOCCA il traffico in chiaro per impostazione predefinita** da
      * `targetSdk 28` in su, e qui non c'è nessun `usesCleartextTraffic` né configurazione
-     * di rete: un indirizzo `http://` arriva fino al caricatore e muore lì. Il manifesto
+     * di rete: un indirizzo `http://` arriva fino al caricatore e si ferma lì. Il manifesto
      * però dichiara i filtri per `http`, quindi l'app **si offre** di aprire una cosa che
      * non sa aprire, ed è un difetto che nessuno vedeva.
      * ⚠️ **La correzione è riscrivere, non aprire il chiaro** (decisione dell'utente,

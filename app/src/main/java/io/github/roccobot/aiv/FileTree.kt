@@ -414,7 +414,7 @@ object FileTree {
      * file dov'è. Con l'accesso a tutti i file quel percorso è scrivibile, ed è la ragione
      * per cui queste operazioni possono esistere.
      * ⚠️ **Si controlla che sia davvero un file**: una riga del MediaStore può restare
-     * dopo che il file è sparito, e agire su un percorso morto conterebbe come riuscito.
+     * dopo che il file è sparito, e agire su un percorso che non esiste più conterebbe come riuscito.
      */
     /**
      * Il file vero dietro un indirizzo, o `null` se non ce n'è uno raggiungibile.

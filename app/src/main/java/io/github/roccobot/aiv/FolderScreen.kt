@@ -172,7 +172,7 @@ fun FolderScreen(
      * ⚠️⚠️ **VIVE NEL MODELLO e non qui dentro**, ed è la ragione per cui arriva come
      * parametro invece di essere un `remember`: si esce da questa schermata ogni volta che si
      * apre una fotografia, e al ritorno la navigazione deve ritrovarsi dov'era. Un ricordo
-     * locale morirebbe a ogni andata e ritorno, riportando in cima.
+     * locale si azzererebbe a ogni andata e ritorno, riportando in cima.
      */
     treePath: String?,
     /** Se eliminare vuol dire mandare nel cestino: serve alle azioni della vista ad albero. */
