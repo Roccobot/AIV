@@ -79,6 +79,11 @@
     <string name="editor_tall">Portrait</string>
     <string name="editor_wide">Landscape</string>
     <string name="editor_save">Save</string>
+    <string name="editor_apply">Apply</string>
+    <string name="editor_undo">Undo</string>
+    <string name="editor_reset">Reset</string>
+    <string name="editor_center_across">Centre horizontally</string>
+    <string name="editor_center_down">Centre vertically</string>
     <string name="editor_done">Saved</string>
     <!-- Said when the copy went next to the original instead of over it. -->
     <string name="editor_done_copy">Copy saved</string>
@@ -153,9 +158,11 @@
     <string name="settings_folder_columns_desc">More columns fit more folders on screen and shrink each cover. At four the name under it is usually cut short.</string>
     <string name="settings_folder_count">Item counter under folders in grid view</string>
     <string name="settings_hand">Position of the main actions</string>
+    <string name="settings_hand_desc">Based on the hand you mostly use to work the device.</string>
     <string name="settings_right">Right</string>
     <string name="settings_left">Left</string>
     <string name="settings_list_path">File list: copy the containing folder path</string>
+    <string name="settings_list_path_desc">When you copy a list of file names, the full path of the source folder is added at the top.</string>
     <string name="settings_folder_count_desc">Under every folder preview an image counter and a video counter will appear.</string>
     <!-- Off by default: a gallery shows pictures, and a name under each one is data for
          someone working with files rather than looking at them. -->
@@ -177,7 +184,7 @@
     <string name="details_bar">Details bar</string>
     <string name="settings_top">At the top</string>
     <string name="settings_bottom">At the bottom</string>
-    <string name="settings_info_visible">Info bar at startup</string>
+    <string name="settings_info_visible">Info bar</string>
     <string name="settings_anim_counter">Frame counter</string>
     <string name="settings_anim_counter_desc">Shown in the controls of animated images.</string>
 

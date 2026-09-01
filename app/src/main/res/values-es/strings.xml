@@ -64,9 +64,11 @@
     <string name="settings_folder_columns_desc">Más columnas caben más carpetas en la pantalla y encogen cada portada. Con cuatro, el nombre de debajo suele quedar cortado.</string>
     <string name="settings_folder_count">Contador de elementos bajo las carpetas en vista de cuadrícula</string>
     <string name="settings_hand">Posición de las funciones principales</string>
+    <string name="settings_hand_desc">Según la mano que más usas para manejar el dispositivo.</string>
     <string name="settings_right">Derecha</string>
     <string name="settings_left">Izquierda</string>
     <string name="settings_list_path">Lista de archivos: copiar la ruta de la carpeta contenedora</string>
+    <string name="settings_list_path_desc">Al copiar una lista de nombres de archivo, añade arriba la ruta completa de la carpeta de origen.</string>
     <string name="settings_folder_count_desc">Bajo cada vista previa de carpeta aparecerán un contador de imágenes y otro de vídeos.</string>
     <string name="settings_fit_grow">Agrandar las imágenes pequeñas</string>
     <string name="settings_fit_grow_desc">Desactivado, una imagen más pequeña que la pantalla se muestra a su tamaño real. Activado, crece hasta llenar la vista.</string>
@@ -80,7 +82,7 @@
     <string name="details_bar">Barra de detalles</string>
     <string name="settings_top">Arriba</string>
     <string name="settings_bottom">Abajo</string>
-    <string name="settings_info_visible">Barra de información al inicio</string>
+    <string name="settings_info_visible">Barra de información</string>
     <string name="settings_anim_counter">Contador de fotogramas</string>
     <string name="settings_anim_counter_desc">Aparece en la barra de controles de las imágenes animadas.</string>
     <string name="settings_reverse_order">Pasar las imágenes hacia la derecha desde la más antigua</string>
@@ -317,6 +319,11 @@
     <string name="editor_right">Girar a la derecha</string>
     <string name="editor_free">Libre</string>
     <string name="editor_save">Guardar</string>
+    <string name="editor_apply">Aplicar</string>
+    <string name="editor_undo">Deshacer</string>
+    <string name="editor_reset">Restablecer</string>
+    <string name="editor_center_across">Centrar en horizontal</string>
+    <string name="editor_center_down">Centrar en vertical</string>
     <string name="editor_done">Guardada</string>
     <string name="editor_done_copy">Copia guardada</string>
     <string name="editor_done_lossless">Guardada sin volver a comprimir</string>

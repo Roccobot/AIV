@@ -13,30 +13,38 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.Undo
 import androidx.compose.material.icons.filled.RotateLeft
 import androidx.compose.material.icons.filled.RotateRight
+import androidx.compose.material.icons.outlined.AlignHorizontalCenter
+import androidx.compose.material.icons.outlined.AlignVerticalCenter
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.RestartAlt
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -73,6 +81,7 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
 /**
  * L'editor di casa: si gira di novanta gradi e si ritaglia, e basta.
@@ -111,15 +120,33 @@ fun EditorScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    var base by remember(uri) { mutableStateOf<Bitmap?>(null) }
-    var turns by remember(uri) { mutableIntStateOf(0) }
-    var shape by remember(uri) { mutableStateOf(Shape.FREE) }
-    var crop by remember(uri) { mutableStateOf(ImageEdit.Crop.WHOLE) }
+    var origin by remember(uri) { mutableStateOf<Bitmap?>(null) }
+
+    /**
+     * I passi già confermati con 'Applica', dal primo all'ultimo.
+     *
+     * ⚠️⚠️ **OGNI PASSO PORTA LA TRASFORMAZIONE COMPOSTA DALL'ORIGINALE, non la propria**, e
+     * questa è la scelta che tiene in piedi tutto il resto: al salvataggio serve **una**
+     * rotazione e **un** rettangolo, perché è quello che `ImageEdit` sa applicare al file
+     * vero. Tenendo la catena dei passi bisognerebbe comporla là, cioè in un posto che di
+     * ritagli non sa niente. Vedi [after] per il conto, che è esatto e non approssima.
+     * ⚠️ **E porta anche l'anteprima che ne esce**, perché disfare vuol dire ritrovarla:
+     * ricalcolarla dall'originale a ogni 'Annulla' costerebbe una decodifica per un tasto che
+     * si preme di fretta.
+     */
+    var steps by remember(uri) { mutableStateOf<List<Step>>(emptyList()) }
+
+    /** L'immagine su cui si sta lavorando adesso: l'ultimo passo, o l'originale. */
+    val base = steps.lastOrNull()?.preview ?: origin
+
+    var turns by remember(base) { mutableIntStateOf(0) }
+    var shape by remember(base) { mutableStateOf(Shape.FREE) }
+    var crop by remember(base) { mutableStateOf(ImageEdit.Crop.WHOLE) }
 
     BackHandler { onBack() }
 
     LaunchedEffect(uri) {
-        base = withContext(Dispatchers.IO) { preview(context, uri) }
+        origin = withContext(Dispatchers.IO) { preview(context, uri) }
     }
 
     // ⚠️ L'anteprima girata si ricalcola SOLO quando cambia il quarto di giro: girare una
@@ -155,6 +182,12 @@ fun EditorScreen(
      */
     val aspect = shown?.let { it.width.toFloat() / it.height } ?: 1f
 
+    /** Se c'è qualcosa di non ancora confermato con 'Applica'. */
+    val pending = turns != 0 || !crop.whole
+
+    /** Tutto quello che si è fatto finora, composto in una rotazione e un rettangolo soli. */
+    val total = after(steps.lastOrNull()?.done ?: Done.NOTHING, turns, crop)
+
     Column(modifier = modifier.fillMaxSize().safeDrawingPadding()) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
@@ -182,10 +215,15 @@ fun EditorScreen(
              * i pixel si leggono e non si riscrivono, quindi là esce per forza un JPEG
              * accanto. Adesso lo decide il modello guardando il formato, e l'avviso finale lo
              * dice; prima lo si spiegava dentro il dialogo. Vedi `ImageEdit.canOverwrite`.
+             *
+             * ⚠️⚠️ **DALLA 1.17 SALVA IL TOTALE, non l'ultimo ritocco**: con 'Applica' i passi
+             * possono essere parecchi, e quello che si scrive sul file è la loro composizione.
+             * Chi passasse `turns` e `crop` da soli butterebbe via tutto quello che è stato
+             * confermato prima, cioè quasi tutto il lavoro.
              */
             TextButton(
-                onClick = { onSave(turns, crop) },
-                enabled = shown != null && !busy && !(turns == 0 && crop.whole)
+                onClick = { onSave(total.turns, total.crop) },
+                enabled = shown != null && !busy && !(total.turns == 0 && total.crop.whole)
             ) {
                 Text(stringResource(R.string.editor_save))
             }
@@ -204,12 +242,6 @@ fun EditorScreen(
             } else {
                 val room = Size(constraints.maxWidth.toFloat(), constraints.maxHeight.toFloat())
                 val frame = remember(picture, room) { fitted(picture, room) }
-                // ⚠️ Il rettangolo si rifà a ogni GIRO, e non a ogni cambio di forma: quelli
-                // li rifà il tasto che li sceglie, perché deve poterlo fare anche quando la
-                // forma è già quella (ritoccato il ritaglio, si ritocca il tasto per
-                // rimetterlo intero). Dopo una rotazione invece un rettangolo tenuto
-                // taglierebbe un pezzo diverso da quello che si vedeva.
-                LaunchedEffect(turns) { crop = shape.fit(aspect, lay) }
                 val density = LocalDensity.current
                 CropStage(
                     picture = picture,
@@ -225,10 +257,323 @@ fun EditorScreen(
             }
         }
 
-        Row(
+        EditorSheet(
+            shape = shape,
+            lay = lay,
+            busy = busy,
+            ready = shown != null,
+            pending = pending,
+            applied = steps.isNotEmpty(),
+            onShape = { one ->
+                /*
+                 * ⚠️⚠️ **LA SELEZIONE TIENE IL POSTO ANCHE AL CAMBIO DI PROPORZIONE, dalla
+                 * 1.17** (richiesta dell'utente: *se la selezione mantiene la sua posizione al
+                 * cambio di orientamento, deve mantenerlo anche al cambio di proporzione*).
+                 * Prima ogni tocco su una proporzione rimetteva il rettangolo grande al
+                 * massimo e in mezzo, cioè buttava via la mira appena presa.
+                 * ⚠️ **Ritoccare la proporzione GIÀ scelta invece lo rimette intero**, ed è la
+                 * via di fuga che c'era prima e che qui si conserva apposta: senza, una
+                 * selezione ridotta per sbaglio non avrebbe più un modo rapido di tornare
+                 * grande, e 'Ripristina' azzererebbe anche i passi confermati.
+                 */
+                crop = if (one == shape) one.fit(aspect, lay) else reshaped(crop, aspect, one.value(lay))
+                shape = one
+            },
+            onLay = { one ->
+                if (one != lay) {
+                    crop = flipped(crop, aspect)
+                    lay = one
+                }
+            },
+            onTurn = { way ->
+                turns = (turns + way).mod(4)
+                // ⚠️ La proporzione si rifà sull'aspetto NUOVO, che è il reciproco di quello
+                // di adesso: dopo un quarto di giro i due lati si scambiano, e il conto fatto
+                // con l'aspetto vecchio darebbe un rettangolo storto per un fotogramma.
+                crop = shape.fit(1f / aspect, lay)
+            },
+            onCentreAcross = { crop = centredAcross(crop) },
+            onCentreDown = { crop = centredDown(crop) },
+            onApply = {
+                val picture = base ?: return@EditorSheet
+                steps = steps + applied(picture, steps.lastOrNull()?.done ?: Done.NOTHING, turns, crop)
+            },
+            onUndo = {
+                // ⚠️ **Un passo indietro solo, e il passo è quello che si vede**: se c'è un
+                // ritocco non confermato è lui il passo, altrimenti è l'ultimo 'Applica'. È la
+                // regola di ogni annullamento, e l'alternativa (disfare sempre un 'Applica'
+                // lasciando in piedi il ritocco in corso) farebbe sparire un pezzo di immagine
+                // mentre il rettangolo resta dov'è.
+                if (pending) {
+                    turns = 0
+                    crop = ImageEdit.Crop.WHOLE
+                    shape = Shape.FREE
+                } else {
+                    steps = steps.dropLast(1)
+                }
+            },
+            onReset = { steps = emptyList() }
+        )
+    }
+}
+
+/**
+ * Un passo confermato con 'Applica'.
+ *
+ * ⚠️ **[done] è composto dall'originale e non dal passo prima**: vedi la nota su `steps` in
+ * [EditorScreen]. [preview] è l'immagine che ne esce, tenuta per poterla ritrovare disfacendo.
+ * ⚠️ **I bitmap dei passi disfatti NON si riciclano**, ed è voluto: sono grandi quanto
+ * un'anteprima e sempre più piccoli, mentre uno di loro può essere ancora dentro un
+ * [ImageBitmap] che Compose sta disegnando. Riciclare quello manderebbe in errore il disegno,
+ * e lasciarli al raccoglitore costa qualche decina di millisecondi di memoria in più.
+ */
+private class Step(val done: Done, val preview: Bitmap)
+
+/** Una rotazione e un rettangolo: quello che si sa applicare al file vero. */
+private data class Done(val turns: Int, val crop: ImageEdit.Crop) {
+    companion object {
+        val NOTHING = Done(0, ImageEdit.Crop.WHOLE)
+    }
+}
+
+/**
+ * Quello che si ottiene facendo [turns] e [crop] **dopo** [done].
+ *
+ * ⚠️⚠️ **LA COMPOSIZIONE È ESATTA, non un'approssimazione, e vale la pena sapere perché**: la
+ * catena è sempre 'gira, poi ritaglia' (lo è in `ImageEdit.redraw`), e girare un ritaglio è la
+ * stessa cosa che ritagliare l'immagine girata, col rettangolo girato dentro il quadrato
+ * unitario ([turnedRect]). Portata fuori la rotazione, restano due ritagli uno dentro l'altro,
+ * e due ritagli si compongono in uno ([insideOf]). Quindi n passi qualunque diventano una
+ * rotazione e un rettangolo, sempre, senza perdere niente.
+ */
+private fun after(done: Done, turns: Int, crop: ImageEdit.Crop): Done = Done(
+    (done.turns + turns).mod(4),
+    insideOf(turnedRect(done.crop, turns), crop)
+)
+
+/** Il passo nuovo: la composizione, e l'anteprima che ne esce. */
+private fun applied(base: Bitmap, done: Done, turns: Int, crop: ImageEdit.Crop): Step {
+    val spun = turnedBitmap(base, turns)
+    val cut = cutBitmap(spun, crop)
+    if (spun !== base && spun !== cut) spun.recycle()
+    return Step(after(done, turns, crop), cut)
+}
+
+/**
+ * Lo stesso rettangolo dopo [turns] quarti di giro **in senso orario**, in frazioni.
+ *
+ * ⚠️ Girando di un quarto in senso orario il punto `(x, y)` va in `(1 - y, x)`, quindi il lato
+ * sinistro nuovo viene dal fondo vecchio. Chi la ritocca la riderivi da lì e non a occhio: il
+ * segno sbagliato dà un ritaglio speculare, che su una fotografia simmetrica non si vede.
+ */
+private fun turnedRect(crop: ImageEdit.Crop, turns: Int): ImageEdit.Crop {
+    var out = crop
+    repeat(turns.mod(4)) {
+        out = ImageEdit.Crop(1f - out.bottom, out.left, 1f - out.top, out.right)
+    }
+    return out
+}
+
+/** Il rettangolo [inner], che è in frazioni di [outer], scritto in frazioni dell'intero. */
+private fun insideOf(outer: ImageEdit.Crop, inner: ImageEdit.Crop): ImageEdit.Crop {
+    val w = outer.right - outer.left
+    val h = outer.bottom - outer.top
+    return ImageEdit.Crop(
+        outer.left + inner.left * w,
+        outer.top + inner.top * h,
+        outer.left + inner.right * w,
+        outer.top + inner.bottom * h
+    )
+}
+
+/** L'anteprima girata di [turns] quarti, o quella di prima se non si gira. */
+private fun turnedBitmap(source: Bitmap, turns: Int): Bitmap =
+    if (turns.mod(4) == 0) source
+    else runCatching {
+        Bitmap.createBitmap(
+            source, 0, 0, source.width, source.height,
+            Matrix().apply { postRotate(90f * turns) },
+            true
+        )
+    }.getOrDefault(source)
+
+/**
+ * L'anteprima ritagliata.
+ *
+ * ⚠️ **Gli arrotondamenti sono gli STESSI di `ImageEdit.redraw`**, e non per caso: se qui si
+ * troncasse e là si arrotondasse, l'anteprima e il file salvato mostrerebbero due ritagli
+ * diversi di un pixel, e la differenza si vedrebbe solo sul risultato finale.
+ */
+private fun cutBitmap(source: Bitmap, crop: ImageEdit.Crop): Bitmap {
+    if (crop.whole) return source
+    return runCatching {
+        val x = (crop.left * source.width).toInt().coerceIn(0, source.width - 1)
+        val y = (crop.top * source.height).toInt().coerceIn(0, source.height - 1)
+        val w = ((crop.right - crop.left) * source.width).toInt().coerceIn(1, source.width - x)
+        val h = ((crop.bottom - crop.top) * source.height).toInt().coerceIn(1, source.height - y)
+        Bitmap.createBitmap(source, x, y, w, h)
+    }.getOrDefault(source)
+}
+
+/** La selezione portata a metà larghezza, senza cambiare misura. */
+private fun centredAcross(crop: ImageEdit.Crop): ImageEdit.Crop {
+    val w = crop.right - crop.left
+    return ImageEdit.Crop((1f - w) / 2f, crop.top, (1f + w) / 2f, crop.bottom)
+}
+
+/** La selezione portata a metà altezza, senza cambiare misura. */
+private fun centredDown(crop: ImageEdit.Crop): ImageEdit.Crop {
+    val h = crop.bottom - crop.top
+    return ImageEdit.Crop(crop.left, (1f - h) / 2f, crop.right, (1f + h) / 2f)
+}
+
+/**
+ * La stessa selezione con una proporzione nuova: stesso centro, stessa **area**.
+ *
+ * ⚠️⚠️ **SI CONSERVA L'AREA E NON UN LATO, ed è quello che rende il cambio prevedibile**:
+ * tenendo la larghezza, passare da 16:9 a 9:16 farebbe un rettangolo altissimo che esce
+ * dall'immagine; tenendo l'altezza, il contrario. L'area è l'unica misura che non privilegia
+ * un verso, e a occhio si legge come 'la stessa selezione, di un'altra forma'.
+ * ⚠️ **Le frazioni non sono la proporzione**: i due lati dell'immagine sono diversi, quindi
+ * il rapporto fra le frazioni è quello dei pixel diviso [frame]. È la stessa correzione che
+ * fa [flipped], e saltarla dà forme sbagliate su ogni immagine non quadrata.
+ * ⚠️ **Se non ci sta si rimpicciolisce, e solo dopo si sposta**: la forma è quello che si è
+ * chiesto, la posizione è quello che si può cedere. Come in [flipped].
+ */
+private fun reshaped(crop: ImageEdit.Crop, frame: Float, want: Float?): ImageEdit.Crop {
+    if (want == null || frame <= 0f) return crop
+    val area = (crop.right - crop.left) * (crop.bottom - crop.top)
+    if (area <= 0f) return crop
+    val ratio = want / frame
+    var w = sqrt(area * ratio)
+    var h = sqrt(area / ratio)
+    if (w <= 0f || h <= 0f) return crop
+    val room = min(1f, min(1f / w, 1f / h))
+    if (room < 1f) {
+        w *= room
+        h *= room
+    }
+    val x = ((crop.left + crop.right) / 2f).coerceIn(w / 2f, 1f - w / 2f)
+    val y = ((crop.top + crop.bottom) / 2f).coerceIn(h / 2f, 1f - h / 2f)
+    return ImageEdit.Crop(x - w / 2f, y - h / 2f, x + w / 2f, y + h / 2f)
+}
+
+/**
+ * I comandi dell'editor, come pannello appoggiato in fondo alla schermata.
+ *
+ * ⚠️⚠️ **È UNA BOTTOMSHEET PERCHÉ I TASTI SONO DIVENTATI SETTE** (richiesta dell'utente,
+ * 2026-09-01: *visto che il numero di tasti totali è salito, per coerenza con un'altra parte
+ * importante di UI, mettiamo il tutto in una bella bottomsheet ordinata*). Prima erano tre
+ * file sciolte appese al fondo della colonna, che con sette tasti sarebbero diventate quattro
+ * e avrebbero mangiato l'immagine senza nemmeno sembrare un gruppo.
+ * ⚠️⚠️ **E NON è una `ModalBottomSheet`, per la stessa ragione della selezione** (vedi
+ * [PickSheet]): quella mette un velo davanti a tutto e si prende i tocchi, e qui sotto c'è il
+ * rettangolo che si sta trascinando col dito. Un pannello che copre la cosa su cui agisce non
+ * è un pannello, è una porta chiusa.
+ * ⚠️ **Le due file di tasti sono DUE `ActionPad` e non uno da sette**: uno solo le
+ * spezzerebbe a quattro più tre lasciando le celle dell'ultima fila più larghe delle altre, e
+ * soprattutto direbbe che sono sette cose dello stesso genere. Sopra si **trasforma**, sotto
+ * si **conferma o si torna indietro**: il filetto in mezzo è quella differenza.
+ */
+@Composable
+private fun EditorSheet(
+    shape: Shape,
+    lay: Lay,
+    busy: Boolean,
+    /** Se l'anteprima è arrivata: prima non c'è niente su cui agire. */
+    ready: Boolean,
+    /** Se c'è un ritocco non ancora confermato. */
+    pending: Boolean,
+    /** Se c'è almeno un 'Applica' alle spalle. */
+    applied: Boolean,
+    onShape: (Shape) -> Unit,
+    onLay: (Lay) -> Unit,
+    /** Un quarto di giro: `1` in senso orario, `3` antiorario. */
+    onTurn: (Int) -> Unit,
+    onCentreAcross: () -> Unit,
+    onCentreDown: () -> Unit,
+    onApply: () -> Unit,
+    onUndo: () -> Unit,
+    onReset: () -> Unit
+) {
+    val live = ready && !busy
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(topStart = SHEET_ROUND, topEnd = SHEET_ROUND),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        tonalElevation = SHEET_RISE,
+        shadowElevation = SHEET_RISE
+    ) {
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // ⚠️ La maniglia è un segno e non un comando, come nella bottomsheet della
+            // selezione: dice 'questo è un pannello', e non si trascina.
+            Box(
+                modifier = Modifier
+                    .padding(vertical = 8.dp)
+                    .size(width = SHEET_GRIP_WIDE, height = SHEET_GRIP_TALL)
+                    .clip(RoundedCornerShape(SHEET_GRIP_TALL))
+                    .background(MaterialTheme.colorScheme.outlineVariant)
+            )
+
+            /*
+             * ⚠️ Le proporzioni sono CINQUE e non otto, perché le stesse quattro forme lette
+             * nell'altro verso sono le altre quattro: '2:3' e '3:2' non sono due scelte, sono
+             * la stessa scelta con l'orientamento girato. Vedi [Shape].
+             *
+             * ⚠️⚠️ **PRENDONO TUTTA LA LARGHEZZA, ed è una richiesta** (utente, 2026-09-01:
+             * *fa' in modo che le 5 proporzioni occupino tutto lo spazio orizzontale della
+             * bottomsheet: è più elegante e ordinato*). Prima la fila scorreva di lato e
+             * finiva dove finivano le parole, lasciando un vuoto a destra.
+             * ⚠️⚠️ **MA NON a celle uguali, e la ragione è una misura**: su uno schermo da
+             * 360dp, tolti i due margini da 24 e i quattro distacchi da 8, a ogni quinto
+             * restano una sessantina di dp, e un chip di Material se ne mangia 32 di rientri.
+             * Nei 28 che avanzano non ci sta nemmeno '9:16', figurarsi 'Свободно', che è il
+             * 'Libero' russo. Celle uguali vorrebbe dire etichette tagliate in mezza Europa.
+             * ⚠️ **Perciò [FlowRow] con [Arrangement.SpaceBetween]**: la fila arriva ai due
+             * bordi, i distacchi sono tutti uguali, ogni chip resta largo quanto la sua
+             * parola, e nella lingua in cui non ci stanno **va a capo** invece di uscire dallo
+             * schermo. Una `Row` semplice, senza scorrimento, là sborderebbe in silenzio.
+             */
+            FlowRow(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = STAGE_SIDE),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                for (one in Shape.entries) {
+                    FilterChip(
+                        selected = one == shape,
+                        onClick = { onShape(one) },
+                        enabled = live,
+                        label = { Text(one.text(lay) ?: stringResource(R.string.editor_free)) }
+                    )
+                }
+            }
+
+            /*
+             * ⚠️⚠️ **DUE TASTI CHE SI ESCLUDONO, e cambiarli RIBALTA la selezione sul posto**
+             * (richiesta dell'utente, 2026-08-31): da 16:9 si passa a 9:16, e una selezione
+             * libera si inverte allo stesso modo. ⚠️ **Il centro non si muove**, ed è la parte
+             * che rende il gesto utile invece che spaesante: si sta scegliendo *che forma*
+             * dare al ritaglio, non *dove* metterlo.
+             */
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = STAGE_SIDE, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                for (one in Lay.entries) {
+                    FilterChip(
+                        selected = one == lay,
+                        onClick = { onLay(one) },
+                        enabled = live,
+                        label = { Text(stringResource(one.label)) },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
             /*
              * ⚠️ **Le frecce circolari e nient'altro** (richiesta dell'utente, 2026-08-31: le
              * icone di rotazione devono essere le due frecce *senza forme geometriche*). Le
@@ -238,72 +583,71 @@ fun EditorScreen(
              * apposta**: quelle si specchiano nelle lingue che si leggono da destra, e una
              * freccia antioraria specchiata **diventa oraria**. Il verso di un giro è fisico,
              * non dipende da come si legge: il tasto direbbe il falso in arabo, in persiano e
-             * in urdu, cioè in tre delle ventotto lingue dell'app. Il rispecchiamento serve
-             * alle frecce che indicano 'indietro' e 'avanti', dove il verso È quello della
-             * lettura.
+             * in urdu, cioè in tre delle ventotto lingue dell'app. ⚠️ L'annullamento qui sotto
+             * invece È `AutoMirrored`, e va bene: là 'indietro' segue davvero la lettura.
              */
             @Suppress("DEPRECATION") val ccw = Icons.Default.RotateLeft
             @Suppress("DEPRECATION") val cw = Icons.Default.RotateRight
-            IconButton(onClick = { turns = (turns + 3).mod(4) }, enabled = !busy) {
-                Icon(ccw, stringResource(R.string.editor_left))
-            }
-            IconButton(onClick = { turns = (turns + 1).mod(4) }, enabled = !busy) {
-                Icon(cw, stringResource(R.string.editor_right))
-            }
-        }
-
-        /*
-         * ⚠️⚠️ **DUE TASTI CHE SI ESCLUDONO, e cambiarli RIBALTA la selezione sul posto**
-         * (richiesta dell'utente, 2026-08-31): da 16:9 si passa a 9:16, e una selezione libera
-         * si inverte allo stesso modo. ⚠️ **Il centro non si muove**, ed è la parte che rende
-         * il gesto utile invece che spaesante: si sta scegliendo *che forma* dare al ritaglio,
-         * non *dove* metterlo. Il conto sta in [flipped], che sposta il centro solo quando il
-         * rettangolo ribaltato uscirebbe dall'immagine.
-         */
-        Row(
-            // ⚠️ Gli stessi bordi del riquadro qui sopra: due rientri diversi sulla stessa
-            // colonna si vedono come uno scalino, e il numero giusto è quello che comanda,
-            // cioè quello della fotografia.
-            modifier = Modifier.fillMaxWidth().padding(horizontal = STAGE_SIDE),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            for (one in Lay.entries) {
-                FilterChip(
-                    selected = one == lay,
-                    onClick = {
-                        if (one != lay) {
-                            crop = flipped(crop, aspect)
-                            lay = one
-                        }
-                    },
-                    enabled = !busy,
-                    label = { Text(stringResource(one.label)) },
-                    modifier = Modifier.weight(1f)
+            ActionPad(
+                columns = SHEET_KEYS,
+                stretch = true,
+                keepGrid = true,
+                actions = listOf(
+                    PadAction(ccw, R.string.editor_left, enabled = live) { onTurn(3) },
+                    PadAction(cw, R.string.editor_right, enabled = live) { onTurn(1) },
+                    PadAction(
+                        Icons.Outlined.AlignHorizontalCenter,
+                        R.string.editor_center_across,
+                        enabled = live
+                    ) { onCentreAcross() },
+                    PadAction(
+                        Icons.Outlined.AlignVerticalCenter,
+                        R.string.editor_center_down,
+                        enabled = live
+                    ) { onCentreDown() }
                 )
-            }
-        }
+            )
 
-        // ⚠️ Le proporzioni sono CINQUE e non otto, perché le stesse quattro forme lette
-        // nell'altro verso sono le altre quattro: '2:3' e '3:2' non sono due scelte, sono la
-        // stessa scelta con l'orientamento girato. Vedi [Shape].
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-                .padding(horizontal = STAGE_SIDE, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            for (one in Shape.entries) {
-                FilterChip(
-                    selected = one == shape,
-                    onClick = { shape = one; crop = one.fit(aspect, lay) },
-                    enabled = !busy,
-                    label = { Text(one.text(lay) ?: stringResource(R.string.editor_free)) }
+            HorizontalDivider(modifier = Modifier.padding(horizontal = STAGE_SIDE))
+
+            ActionPad(
+                columns = SHEET_KEYS,
+                stretch = true,
+                keepGrid = true,
+                actions = listOf(
+                    PadAction(
+                        Icons.Outlined.Check, R.string.editor_apply,
+                        enabled = live && pending
+                    ) { onApply() },
+                    PadAction(
+                        Icons.AutoMirrored.Outlined.Undo, R.string.editor_undo,
+                        enabled = live && (pending || applied)
+                    ) { onUndo() },
+                    PadAction(
+                        Icons.Outlined.RestartAlt, R.string.editor_reset,
+                        enabled = live && applied
+                    ) { onReset() }
                 )
-            }
+            )
         }
     }
 }
+
+/**
+ * Quante colonne hanno le due file di tasti del pannello: **quattro tutte e due**.
+ *
+ * ⚠️ La seconda fila ne ha solo tre, e la quarta cella resta vuota apposta: vedi `keepGrid`
+ * in [ActionPad]. Un secondo numero qui sotto avrebbe rimesso le due file su due griglie
+ * diverse, che è esattamente il difetto che l'utente ha visto.
+ */
+private const val SHEET_KEYS = 4
+
+/** Lo smusso dei due angoli alti, e quanto il pannello si stacca: come la bottomsheet della
+ * selezione, perché è la stessa cosa in un'altra schermata. */
+private val SHEET_ROUND = 28.dp
+private val SHEET_RISE = 6.dp
+private val SHEET_GRIP_WIDE = 32.dp
+private val SHEET_GRIP_TALL = 4.dp
 
 /** Come sta la selezione: in piedi o coricata. Vedi i due tasti in [EditorScreen]. */
 private enum class Lay(@StringRes val label: Int) {

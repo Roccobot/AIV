@@ -64,9 +64,11 @@
     <string name="settings_folder_columns_desc">Чем больше столбцов, тем больше папок помещается на экране и тем меньше каждая обложка. При четырёх имя под ней обычно обрезается.</string>
     <string name="settings_folder_count">Счётчик элементов под папками в режиме сетки</string>
     <string name="settings_hand">Расположение основных функций</string>
+    <string name="settings_hand_desc">По руке, которой вы чаще пользуетесь для управления устройством.</string>
     <string name="settings_right">Справа</string>
     <string name="settings_left">Слева</string>
     <string name="settings_list_path">Список файлов: копировать путь папки</string>
+    <string name="settings_list_path_desc">При копировании списка имён файлов сверху добавляется полный путь исходной папки.</string>
     <string name="settings_folder_count_desc">Под каждым эскизом папки появятся счётчик изображений и счётчик видео.</string>
     <string name="settings_fit_grow">Увеличивать маленькие изображения</string>
     <string name="settings_fit_grow_desc">Выключено: изображение меньше экрана показывается в натуральную величину. Включено: оно растёт, пока не заполнит экран.</string>
@@ -80,7 +82,7 @@
     <string name="details_bar">Строка подробностей</string>
     <string name="settings_top">Сверху</string>
     <string name="settings_bottom">Снизу</string>
-    <string name="settings_info_visible">Строка сведений при запуске</string>
+    <string name="settings_info_visible">Панель сведений</string>
     <string name="settings_anim_counter">Счётчик кадров</string>
     <string name="settings_anim_counter_desc">Показывается на панели управления анимированных изображений.</string>
     <string name="settings_reverse_order">Листать изображения вправо от самого старого</string>
@@ -332,6 +334,11 @@
     <string name="editor_right">Повернуть вправо</string>
     <string name="editor_free">Свободно</string>
     <string name="editor_save">Сохранить</string>
+    <string name="editor_apply">Применить</string>
+    <string name="editor_undo">Отменить</string>
+    <string name="editor_reset">Сбросить</string>
+    <string name="editor_center_across">По центру по горизонтали</string>
+    <string name="editor_center_down">По центру по вертикали</string>
     <string name="editor_done">Сохранено</string>
     <string name="editor_done_copy">Копия сохранена</string>
     <string name="editor_done_lossless">Сохранено без пересжатия</string>

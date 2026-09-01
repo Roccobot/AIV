@@ -64,9 +64,11 @@
     <string name="settings_folder_columns_desc">คอลัมน์ยิ่งมาก โฟลเดอร์ยิ่งลงหน้าจอได้มากและปกแต่ละอันยิ่งเล็ก ที่สี่คอลัมน์ ชื่อด้านล่างมักถูกตัด</string>
     <string name="settings_folder_count">ตัวนับรายการใต้โฟลเดอร์ในมุมมองตาราง</string>
     <string name="settings_hand">ตำแหน่งของฟังก์ชันหลัก</string>
+    <string name="settings_hand_desc">ตามมือที่คุณใช้ควบคุมเครื่องเป็นหลัก</string>
     <string name="settings_right">ขวา</string>
     <string name="settings_left">ซ้าย</string>
     <string name="settings_list_path">รายชื่อไฟล์: คัดลอกเส้นทางโฟลเดอร์ด้วย</string>
+    <string name="settings_list_path_desc">เมื่อคัดลอกรายชื่อไฟล์ จะเพิ่มเส้นทางเต็มของโฟลเดอร์ต้นทางไว้ด้านบน</string>
     <string name="settings_folder_count_desc">ใต้ภาพตัวอย่างของแต่ละโฟลเดอร์จะปรากฏตัวนับภาพหนึ่งตัวและตัวนับวิดีโอหนึ่งตัว</string>
     <string name="settings_fit_grow">ขยายภาพเล็ก</string>
     <string name="settings_fit_grow_desc">เมื่อปิด ภาพที่เล็กกว่าหน้าจอจะแสดงตามขนาดจริง เมื่อเปิด จะโตขึ้นจนเต็มหน้าจอ</string>
@@ -80,7 +82,7 @@
     <string name="details_bar">แถบรายละเอียด</string>
     <string name="settings_top">ด้านบน</string>
     <string name="settings_bottom">ด้านล่าง</string>
-    <string name="settings_info_visible">แถบข้อมูลเมื่อเริ่มต้น</string>
+    <string name="settings_info_visible">แถบข้อมูล</string>
     <string name="settings_anim_counter">ตัวนับเฟรม</string>
     <string name="settings_anim_counter_desc">แสดงในแถบควบคุมของภาพเคลื่อนไหว</string>
     <string name="settings_reverse_order">เลื่อนดูภาพไปทางขวาจากภาพเก่าที่สุด</string>
@@ -287,6 +289,11 @@
     <string name="editor_right">หมุนขวา</string>
     <string name="editor_free">อิสระ</string>
     <string name="editor_save">บันทึก</string>
+    <string name="editor_apply">ใช้</string>
+    <string name="editor_undo">เลิกทำ</string>
+    <string name="editor_reset">ตั้งค่าใหม่</string>
+    <string name="editor_center_across">จัดกึ่งกลางแนวนอน</string>
+    <string name="editor_center_down">จัดกึ่งกลางแนวตั้ง</string>
     <string name="editor_done">บันทึกแล้ว</string>
     <string name="editor_done_copy">บันทึกสำเนาแล้ว</string>
     <string name="editor_done_lossless">บันทึกแล้วโดยไม่บีบอัดใหม่</string>

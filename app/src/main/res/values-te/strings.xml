@@ -64,9 +64,11 @@
     <string name="settings_folder_columns_desc">నిలువు వరుసలు ఎక్కువైతే తెరపై ఎక్కువ సంచయాలు ఇమిడతాయి, ప్రతి ముఖచిత్రం చిన్నదవుతుంది. నాలుగు వద్ద కింది పేరు తరచుగా కత్తిరించబడుతుంది.</string>
     <string name="settings_folder_count">గ్రిడ్ వీక్షణలో సంచయాల కింద అంశాల లెక్క</string>
     <string name="settings_hand">ప్రధాన చర్యల స్థానం</string>
+    <string name="settings_hand_desc">మీరు పరికరాన్ని ఎక్కువగా వాడే చేతిని బట్టి.</string>
     <string name="settings_right">కుడి</string>
     <string name="settings_left">ఎడమ</string>
     <string name="settings_list_path">దస్త్ర జాబితా: సంచయ మార్గాన్ని కూడా కాపీ చెయ్యి</string>
+    <string name="settings_list_path_desc">ఫైలు పేర్ల జాబితాను కాపీ చేసినప్పుడు, పైన మూల సంచయం పూర్తి మార్గాన్ని చేరుస్తుంది.</string>
     <string name="settings_folder_count_desc">ప్రతి సంచయం మునుజూపు కింద చిత్రాల లెక్క ఒకటి, వీడియోల లెక్క ఒకటి కనిపిస్తాయి.</string>
     <string name="settings_fit_grow">చిన్న చిత్రాలను పెద్దవి చేయి</string>
     <string name="settings_fit_grow_desc">ఆపి ఉంచితే తెర కంటే చిన్న చిత్రం దాని నిజమైన పరిమాణంలో కనబడుతుంది. వేసి ఉంచితే తెర నిండేవరకు పెరుగుతుంది.</string>
@@ -80,7 +82,7 @@
     <string name="details_bar">వివరాల పట్టీ</string>
     <string name="settings_top">పైన</string>
     <string name="settings_bottom">కింద</string>
-    <string name="settings_info_visible">ప్రారంభంలో సమాచార పట్టీ</string>
+    <string name="settings_info_visible">సమాచార పట్టీ</string>
     <string name="settings_anim_counter">ఫ్రేమ్ కౌంటర్</string>
     <string name="settings_anim_counter_desc">కదిలే చిత్రాల నియంత్రణ పట్టీలో కనిపిస్తుంది.</string>
     <string name="settings_reverse_order">పాతదాని నుంచి కుడివైపుకు చిత్రాలను తిరగేయి</string>
@@ -302,6 +304,11 @@
     <string name="editor_right">కుడివైపు తిప్పు</string>
     <string name="editor_free">స్వేచ్ఛ</string>
     <string name="editor_save">భద్రపరచండి</string>
+    <string name="editor_apply">వర్తింపజేయి</string>
+    <string name="editor_undo">చర్యరద్దు</string>
+    <string name="editor_reset">రీసెట్</string>
+    <string name="editor_center_across">అడ్డంగా మధ్యలో</string>
+    <string name="editor_center_down">నిలువుగా మధ్యలో</string>
     <string name="editor_done">భద్రపరచబడింది</string>
     <string name="editor_done_copy">నకలు భద్రపరచబడింది</string>
     <string name="editor_done_lossless">మళ్లీ కుదించకుండానే భద్రపరచబడింది</string>

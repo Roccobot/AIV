@@ -55,6 +55,11 @@
     <string name="editor_tall">Verticale</string>
     <string name="editor_wide">Orizzontale</string>
     <string name="editor_save">Salva</string>
+    <string name="editor_apply">Applica</string>
+    <string name="editor_undo">Annulla</string>
+    <string name="editor_reset">Ripristina</string>
+    <string name="editor_center_across">Centra in orizzontale</string>
+    <string name="editor_center_down">Centra in verticale</string>
     <string name="editor_done">Salvata</string>
     <string name="editor_done_copy">Copia salvata</string>
     <string name="editor_done_lossless">Salvata senza ricomprimere</string>
@@ -116,9 +121,11 @@
     <string name="settings_folder_columns_desc">Più colonne fanno stare più cartelle sullo schermo e rimpiccioliscono le copertine. A quattro, il nome sotto di solito non ci sta per intero.</string>
     <string name="settings_folder_count">Contatore degli elementi sotto le cartelle in vista griglia</string>
     <string name="settings_hand">Posizione delle funzioni principali</string>
+    <string name="settings_hand_desc">In base alla mano che usi di più per interagire col dispositivo.</string>
     <string name="settings_right">Destra</string>
     <string name="settings_left">Sinistra</string>
     <string name="settings_list_path">Lista file: copia il percorso della cartella contenitore</string>
+    <string name="settings_list_path_desc">Quando copi una lista di nomi di file, aggiunge in cima il percorso completo della cartella di origine.</string>
     <string name="settings_folder_count_desc">Sotto ogni anteprima di cartella appariranno un contatore di immagini e uno di video.</string>
 
     <string name="settings_fit_grow">Ingrandisci le immagini piccole</string>
@@ -136,7 +143,7 @@
     <string name="details_bar">Barra dei dettagli</string>
     <string name="settings_top">In alto</string>
     <string name="settings_bottom">In basso</string>
-    <string name="settings_info_visible">Barra delle info all\'avvio</string>
+    <string name="settings_info_visible">Barra delle info</string>
     <string name="settings_anim_counter">Contatore dei fotogrammi</string>
     <string name="settings_anim_counter_desc">Compare nella fila dei comandi delle immagini animate.</string>
 

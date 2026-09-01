@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -70,7 +71,21 @@ fun ActionPad(
      * tastino, la larghezza fissa resta quella giusta: là è il riquadro a doversi
      * adattare al contenuto, non il contrario.
      */
-    stretch: Boolean = false
+    stretch: Boolean = false,
+    /**
+     * Se le file corte si pareggiano con celle vuote, per tenere le colonne allineate.
+     *
+     * ⚠️⚠️ **SERVE ALLA BOTTOMSHEET DELL'EDITOR, e là è una richiesta** (utente, 2026-09-01:
+     * *nella riga più in basso, lascia lo spazio anche per 'Ripristina'*): quattro tasti sopra
+     * e tre sotto, con le celle che si dividono la larghezza, dànno due griglie diverse, e
+     * l'ultima icona in basso finisce trenta pixel più a sinistra di quella sopra. Con le
+     * colonne pareggiate le due file si leggono come un'unica tabella.
+     * ⚠️ **Spento di serie, e non è pigrizia**: nel menu dei file l'ultima fila corta si
+     * allarga apposta invece di lasciare un buco (vedi la nota sulle file qui sotto), ed è una
+     * scelta già presa. Le due cose sono giuste ognuna al suo posto, e questo interruttore è
+     * il modo di averle tutte e due senza due componenti.
+     */
+    keepGrid: Boolean = false
 ) {
     Column(
         modifier = modifier.padding(horizontal = PAD_EDGE, vertical = PAD_GAP),
@@ -88,6 +103,9 @@ fun ActionPad(
             ) {
                 for (action in row) {
                     PadButton(action, if (stretch) Modifier.weight(1f) else Modifier.width(PAD_CELL))
+                }
+                if (keepGrid && stretch) {
+                    repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
         }
@@ -164,6 +182,17 @@ class PadAction(
     @StringRes val label: Int,
     val danger: Boolean = false,
     /**
+     * Se il tasto si può premere adesso.
+     *
+     * ⚠️⚠️ **SPENTO E NON NASCOSTO, ed è la ragione per cui è nato** (bottomsheet dell'editor,
+     * 1.17): 'Applica' e 'Annulla' non hanno sempre qualcosa da fare, e una fila che perde e
+     * riacquista tasti si riordina sotto le dita, cioè sposta gli altri proprio mentre li si
+     * mira. Spento, il posto resta suo e si vede che esiste.
+     * ⚠️ **Nelle sei azioni sui file non lo usa nessuno**, e va bene: là un'operazione o c'è
+     * per tutta la selezione o non c'è la voce.
+     */
+    val enabled: Boolean = true,
+    /**
      * Che cosa fa il tocco lungo, e `null` quando non fa niente.
      *
      * ⚠️ Va **insieme** a [holdLabel]: un gesto che il lettore di schermo non annuncia esiste
@@ -186,9 +215,12 @@ class PadAction(
  */
 @Composable
 private fun PadButton(action: PadAction, modifier: Modifier = Modifier) {
-    val tint =
+    val full =
         if (action.danger) MaterialTheme.colorScheme.error
         else MaterialTheme.colorScheme.onSurface
+    // ⚠️ Lo spento è il colore di sempre a un terzo, che è il valore di Material per un
+    // comando inattivo: un grigio scritto a mano andrebbe bene in un tema e non nell'altro.
+    val tint = if (action.enabled) full else full.copy(alpha = OFF_INK)
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(PAD_CORNER))
@@ -196,6 +228,7 @@ private fun PadButton(action: PadAction, modifier: Modifier = Modifier) {
             // `onLongClick` a null si comporta come un `clickable`, quindi un `if` fra i due
             // modificatori sarebbe due catene da tenere d'accordo per niente.
             .combinedClickable(
+                enabled = action.enabled,
                 onLongClickLabel = action.holdLabel?.let { stringResource(it) },
                 onLongClick = action.onHold,
                 onClick = action.onClick
@@ -228,6 +261,9 @@ private fun PadButton(action: PadAction, modifier: Modifier = Modifier) {
 
 /** Quante colonne ha il riquadro: tre, come l'utente le ha chieste. */
 private const val PAD_COLUMNS = 3
+
+/** Quanto resta di un tasto spento: il valore di Material per un comando inattivo. */
+private const val OFF_INK = 0.38f
 
 /**
  * La larghezza di una cella.

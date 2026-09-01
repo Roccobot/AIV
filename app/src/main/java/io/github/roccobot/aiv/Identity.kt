@@ -67,7 +67,7 @@ fun Identity(
             textAlign = TextAlign.Center
         )
         Text(
-            text = "(AIV) by Roccobot 天",
+            text = "by Roccobot 天",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center

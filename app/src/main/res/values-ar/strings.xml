@@ -64,9 +64,11 @@
     <string name="settings_folder_columns_desc">كلما زادت الأعمدة زاد عدد المجلدات على الشاشة وصغر كل غلاف. عند أربعة أعمدة يُقتطع الاسم أسفله غالبًا.</string>
     <string name="settings_folder_count">عدّاد العناصر تحت المجلدات في عرض الشبكة</string>
     <string name="settings_hand">موضع الوظائف الرئيسية</string>
+    <string name="settings_hand_desc">حسب اليد التي تستخدمها أكثر للتعامل مع الجهاز.</string>
     <string name="settings_right">يمين</string>
     <string name="settings_left">يسار</string>
     <string name="settings_list_path">قائمة الملفات: انسخ مسار المجلد</string>
+    <string name="settings_list_path_desc">عند نسخ قائمة بأسماء الملفات، يضيف في الأعلى المسار الكامل للمجلد المصدر.</string>
     <string name="settings_folder_count_desc">تحت كل معاينة مجلد سيظهر عدّاد للصور وآخر لمقاطع الفيديو.</string>
     <string name="settings_fit_grow">تكبير الصور الصغيرة</string>
     <string name="settings_fit_grow_desc">عند الإيقاف تظهر الصورة الأصغر من الشاشة بحجمها الحقيقي. وعند التفعيل تكبر حتى تملأ الشاشة.</string>
@@ -80,7 +82,7 @@
     <string name="details_bar">شريط التفاصيل</string>
     <string name="settings_top">في الأعلى</string>
     <string name="settings_bottom">في الأسفل</string>
-    <string name="settings_info_visible">شريط المعلومات عند البدء</string>
+    <string name="settings_info_visible">شريط المعلومات</string>
     <string name="settings_anim_counter">عدّاد الإطارات</string>
     <string name="settings_anim_counter_desc">يظهر في شريط تحكّم الصور المتحركة.</string>
     <string name="settings_reverse_order">تصفّح الصور نحو اليمين بدءًا من الأقدم</string>
@@ -362,6 +364,11 @@
     <string name="editor_right">تدوير لليمين</string>
     <string name="editor_free">حر</string>
     <string name="editor_save">حفظ</string>
+    <string name="editor_apply">تطبيق</string>
+    <string name="editor_undo">تراجع</string>
+    <string name="editor_reset">إعادة تعيين</string>
+    <string name="editor_center_across">توسيط أفقي</string>
+    <string name="editor_center_down">توسيط رأسي</string>
     <string name="editor_done">تم الحفظ</string>
     <string name="editor_done_copy">تم حفظ النسخة</string>
     <string name="editor_done_lossless">تم الحفظ دون إعادة ضغط</string>

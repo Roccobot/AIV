@@ -64,9 +64,11 @@
     <string name="settings_folder_columns_desc">বেশি কলামে পর্দায় বেশি ফোল্ডার আঁটে আর প্রতিটি প্রচ্ছদ ছোট হয়। চারটিতে নিচের নাম সাধারণত কাটা পড়ে।</string>
     <string name="settings_folder_count">গ্রিড দৃশ্যে ফোল্ডারের নিচে জিনিসের গণনা</string>
     <string name="settings_hand">প্রধান কাজের অবস্থান</string>
+    <string name="settings_hand_desc">আপনি যে হাত দিয়ে বেশি যন্ত্রটি চালান সেই অনুযায়ী।</string>
     <string name="settings_right">ডানে</string>
     <string name="settings_left">বামে</string>
     <string name="settings_list_path">ফাইল তালিকা: ফোল্ডারের পথও কপি করুন</string>
+    <string name="settings_list_path_desc">ফাইলের নামের তালিকা কপি করলে, উপরে উৎস ফোল্ডারের সম্পূর্ণ পথ যোগ করে।</string>
     <string name="settings_folder_count_desc">প্রতিটি ফোল্ডারের পূর্বদৃশ্যের নিচে ছবির একটি ও ভিডিওর একটি গণনা দেখা যাবে।</string>
     <string name="settings_fit_grow">ছোট ছবি বড় করুন</string>
     <string name="settings_fit_grow_desc">বন্ধ থাকলে পর্দার চেয়ে ছোট ছবি তার আসল আকারে দেখানো হয়। চালু থাকলে পর্দা ভরে যাওয়া পর্যন্ত বড় হয়।</string>
@@ -80,7 +82,7 @@
     <string name="details_bar">বিবরণের বার</string>
     <string name="settings_top">উপরে</string>
     <string name="settings_bottom">নিচে</string>
-    <string name="settings_info_visible">চালু হওয়ার সময় তথ্যপট্টি</string>
+    <string name="settings_info_visible">তথ্য বার</string>
     <string name="settings_anim_counter">ফ্রেম কাউন্টার</string>
     <string name="settings_anim_counter_desc">চলমান ছবির নিয়ন্ত্রণ বারে দেখা যায়।</string>
     <string name="settings_reverse_order">সবচেয়ে পুরনো থেকে ডানদিকে ছবি ওল্টান</string>
@@ -302,6 +304,11 @@
     <string name="editor_right">ডানে ঘোরান</string>
     <string name="editor_free">মুক্ত</string>
     <string name="editor_save">সংরক্ষণ করুন</string>
+    <string name="editor_apply">প্রয়োগ করুন</string>
+    <string name="editor_undo">পূর্বাবস্থা</string>
+    <string name="editor_reset">পুনরায় সেট</string>
+    <string name="editor_center_across">আনুভূমিকভাবে কেন্দ্রে</string>
+    <string name="editor_center_down">উল্লম্বভাবে কেন্দ্রে</string>
     <string name="editor_done">সংরক্ষিত হয়েছে</string>
     <string name="editor_done_copy">অনুলিপি সংরক্ষিত হয়েছে</string>
     <string name="editor_done_lossless">পুনরায় সংকুচিত না করেই সংরক্ষিত হয়েছে</string>

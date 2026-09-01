@@ -64,9 +64,11 @@
     <string name="settings_folder_columns_desc">நிரல்கள் அதிகமானால் திரையில் அதிகக் கோப்புறைகள் அடங்கும், ஒவ்வொரு அட்டையும் சிறியதாகும். நான்கில் கீழே உள்ள பெயர் பெரும்பாலும் வெட்டப்படும்.</string>
     <string name="settings_folder_count">கட்டக் காட்சியில் கோப்புறைகளுக்குக் கீழே பொருள் எண்ணிக்கை</string>
     <string name="settings_hand">முதன்மைச் செயல்களின் இடம்</string>
+    <string name="settings_hand_desc">சாதனத்தை நீங்கள் அதிகம் பயன்படுத்தும் கையின்படி.</string>
     <string name="settings_right">வலது</string>
     <string name="settings_left">இடது</string>
     <string name="settings_list_path">கோப்புப் பட்டியல்: கோப்புறைப் பாதையையும் நகலெடு</string>
+    <string name="settings_list_path_desc">கோப்புப் பெயர்களின் பட்டியலை நகலெடுக்கும்போது, மேலே மூலக் கோப்புறையின் முழுப் பாதையைச் சேர்க்கும்.</string>
     <string name="settings_folder_count_desc">ஒவ்வொரு கோப்புறை முன்னோட்டத்திற்கும் கீழே படங்களுக்கு ஒரு எண்ணிக்கையும் காணொளிகளுக்கு ஒரு எண்ணிக்கையும் தோன்றும்.</string>
     <string name="settings_fit_grow">சிறிய படங்களைப் பெரிதாக்கு</string>
     <string name="settings_fit_grow_desc">அணைத்திருந்தால் திரையை விடச் சிறிய படம் அதன் உண்மையான அளவில் காட்டப்படும். இயக்கியிருந்தால் திரையை நிரப்பும் வரை வளரும்.</string>
@@ -80,7 +82,7 @@
     <string name="details_bar">விவரப் பட்டை</string>
     <string name="settings_top">மேலே</string>
     <string name="settings_bottom">கீழே</string>
-    <string name="settings_info_visible">தொடங்கும்போது தகவல் பட்டை</string>
+    <string name="settings_info_visible">தகவல் பட்டை</string>
     <string name="settings_anim_counter">சட்டக எண்ணிக்கை</string>
     <string name="settings_anim_counter_desc">அசையும் படங்களின் கட்டுப்பாட்டுப் பட்டையில் தோன்றும்.</string>
     <string name="settings_reverse_order">பழையதிலிருந்து வலப்புறமாகப் படங்களைப் புரட்டு</string>
@@ -302,6 +304,11 @@
     <string name="editor_right">வலப்புறம் சுழற்று</string>
     <string name="editor_free">தடையற்றது</string>
     <string name="editor_save">சேமி</string>
+    <string name="editor_apply">பயன்படுத்து</string>
+    <string name="editor_undo">செயல்தவிர்</string>
+    <string name="editor_reset">மீட்டமை</string>
+    <string name="editor_center_across">கிடைமட்டமாக நடுவில்</string>
+    <string name="editor_center_down">செங்குத்தாக நடுவில்</string>
     <string name="editor_done">சேமிக்கப்பட்டது</string>
     <string name="editor_done_copy">நகல் சேமிக்கப்பட்டது</string>
     <string name="editor_done_lossless">மீண்டும் சுருக்காமல் சேமிக்கப்பட்டது</string>

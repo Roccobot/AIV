@@ -64,9 +64,11 @@
     <string name="settings_folder_columns_desc">Semakin banyak kolom, semakin banyak folder yang masuk ke layar dan semakin kecil setiap sampul. Pada empat kolom, nama di bawahnya biasanya terpotong.</string>
     <string name="settings_folder_count">Penghitung item di bawah folder pada tampilan kisi</string>
     <string name="settings_hand">Posisi fungsi utama</string>
+    <string name="settings_hand_desc">Sesuai tangan yang paling sering Anda pakai untuk mengoperasikan ponsel.</string>
     <string name="settings_right">Kanan</string>
     <string name="settings_left">Kiri</string>
     <string name="settings_list_path">Daftar berkas: salin juga jalur foldernya</string>
+    <string name="settings_list_path_desc">Saat menyalin daftar nama berkas, jalur lengkap folder asal ditambahkan di bagian atas.</string>
     <string name="settings_folder_count_desc">Di bawah setiap pratinjau folder akan muncul satu penghitung gambar dan satu penghitung video.</string>
     <string name="settings_fit_grow">Perbesar gambar kecil</string>
     <string name="settings_fit_grow_desc">Jika mati, gambar yang lebih kecil dari layar ditampilkan pada ukuran aslinya. Jika hidup, ia tumbuh hingga memenuhi layar.</string>
@@ -80,7 +82,7 @@
     <string name="details_bar">Bilah detail</string>
     <string name="settings_top">Di atas</string>
     <string name="settings_bottom">Di bawah</string>
-    <string name="settings_info_visible">Bilah info saat mulai</string>
+    <string name="settings_info_visible">Bilah info</string>
     <string name="settings_anim_counter">Penghitung bingkai</string>
     <string name="settings_anim_counter_desc">Muncul di bilah kontrol gambar bergerak.</string>
     <string name="settings_reverse_order">Telusuri gambar ke kanan mulai dari yang terlama</string>
@@ -287,6 +289,11 @@
     <string name="editor_right">Putar ke kanan</string>
     <string name="editor_free">Bebas</string>
     <string name="editor_save">Simpan</string>
+    <string name="editor_apply">Terapkan</string>
+    <string name="editor_undo">Urungkan</string>
+    <string name="editor_reset">Setel ulang</string>
+    <string name="editor_center_across">Tengahkan mendatar</string>
+    <string name="editor_center_down">Tengahkan tegak</string>
     <string name="editor_done">Tersimpan</string>
     <string name="editor_done_copy">Salinan tersimpan</string>
     <string name="editor_done_lossless">Tersimpan tanpa dikompres ulang</string>

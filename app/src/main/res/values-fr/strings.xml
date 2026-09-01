@@ -64,9 +64,11 @@
     <string name="settings_folder_columns_desc">Plus de colonnes font tenir plus de dossiers à l\'écran et rétrécissent chaque vignette. À quatre, le nom en dessous est souvent tronqué.</string>
     <string name="settings_folder_count">Compteur des éléments sous les dossiers en vue grille</string>
     <string name="settings_hand">Position des fonctions principales</string>
+    <string name="settings_hand_desc">Selon la main avec laquelle vous utilisez le plus l\'appareil.</string>
     <string name="settings_right">Droite</string>
     <string name="settings_left">Gauche</string>
     <string name="settings_list_path">Liste de fichiers : copier le chemin du dossier parent</string>
+    <string name="settings_list_path_desc">En copiant une liste de noms de fichiers, le chemin complet du dossier source est ajouté en haut.</string>
     <string name="settings_folder_count_desc">Sous chaque aperçu de dossier apparaîtront un compteur d\'images et un compteur de vidéos.</string>
     <string name="settings_fit_grow">Agrandir les petites images</string>
     <string name="settings_fit_grow_desc">Désactivé, une image plus petite que l\'écran s\'affiche à sa taille réelle. Activé, elle grandit pour remplir la vue.</string>
@@ -80,7 +82,7 @@
     <string name="details_bar">Barre des détails</string>
     <string name="settings_top">En haut</string>
     <string name="settings_bottom">En bas</string>
-    <string name="settings_info_visible">Barre d\'infos au démarrage</string>
+    <string name="settings_info_visible">Barre d\'informations</string>
     <string name="settings_anim_counter">Compteur d\'images</string>
     <string name="settings_anim_counter_desc">Affiché dans la barre de commandes des images animées.</string>
     <string name="settings_reverse_order">Feuilleter les images vers la droite depuis la plus ancienne</string>
@@ -317,6 +319,11 @@
     <string name="editor_right">Tourner à droite</string>
     <string name="editor_free">Libre</string>
     <string name="editor_save">Enregistrer</string>
+    <string name="editor_apply">Appliquer</string>
+    <string name="editor_undo">Annuler</string>
+    <string name="editor_reset">Réinitialiser</string>
+    <string name="editor_center_across">Centrer horizontalement</string>
+    <string name="editor_center_down">Centrer verticalement</string>
     <string name="editor_done">Enregistrée</string>
     <string name="editor_done_copy">Copie enregistrée</string>
     <string name="editor_done_lossless">Enregistrée sans recompression</string>

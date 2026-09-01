@@ -64,9 +64,11 @@
     <string name="settings_folder_columns_desc">زیادہ کالم اسکرین پر زیادہ فولڈر سماتے ہیں اور ہر سرورق چھوٹا کر دیتے ہیں۔ چار پر نیچے کا نام عموماً کٹ جاتا ہے۔</string>
     <string name="settings_folder_count">گرڈ منظر میں فولڈروں کے نیچے اشیا کا شمار کنندہ</string>
     <string name="settings_hand">اہم افعال کی جگہ</string>
+    <string name="settings_hand_desc">اُس ہاتھ کے مطابق جس سے آپ زیادہ تر آلہ چلاتے ہیں۔</string>
     <string name="settings_right">دائیں</string>
     <string name="settings_left">بائیں</string>
     <string name="settings_list_path">فائل فہرست: فولڈر کا راستہ بھی نقل کریں</string>
+    <string name="settings_list_path_desc">فائل ناموں کی فہرست کاپی کرتے وقت، اوپر ماخذ فولڈر کا مکمل راستہ شامل کرتا ہے۔</string>
     <string name="settings_folder_count_desc">ہر فولڈر کے پیش منظر کے نیچے تصویروں کا ایک اور ویڈیو کا ایک شمار کنندہ ظاہر ہوگا۔</string>
     <string name="settings_fit_grow">چھوٹی تصویریں بڑی کریں</string>
     <string name="settings_fit_grow_desc">بند ہو تو اسکرین سے چھوٹی تصویر اپنے اصل حجم میں دکھائی جاتی ہے۔ کھلا ہو تو بڑھ کر اسکرین بھر دیتی ہے۔</string>
@@ -80,7 +82,7 @@
     <string name="details_bar">تفصیلات کی پٹی</string>
     <string name="settings_top">اوپر</string>
     <string name="settings_bottom">نیچے</string>
-    <string name="settings_info_visible">آغاز پر معلوماتی پٹی</string>
+    <string name="settings_info_visible">معلوماتی پٹی</string>
     <string name="settings_anim_counter">فریم شمار</string>
     <string name="settings_anim_counter_desc">متحرک تصاویر کی کنٹرول پٹی میں دکھایا جاتا ہے۔</string>
     <string name="settings_reverse_order">پرانی تصویر سے دائیں طرف تصویریں دیکھیں</string>
@@ -302,6 +304,11 @@
     <string name="editor_right">دائیں گھمائیں</string>
     <string name="editor_free">آزاد</string>
     <string name="editor_save">محفوظ کریں</string>
+    <string name="editor_apply">لاگو کریں</string>
+    <string name="editor_undo">کالعدم</string>
+    <string name="editor_reset">دوبارہ ترتیب</string>
+    <string name="editor_center_across">افقی طور پر درمیان میں</string>
+    <string name="editor_center_down">عمودی طور پر درمیان میں</string>
     <string name="editor_done">محفوظ ہو گیا</string>
     <string name="editor_done_copy">نقل محفوظ ہو گئی</string>
     <string name="editor_done_lossless">دوبارہ دبائے بغیر محفوظ ہو گیا</string>

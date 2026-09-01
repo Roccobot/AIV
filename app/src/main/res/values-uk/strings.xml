@@ -64,9 +64,11 @@
     <string name="settings_folder_columns_desc">Що більше стовпців, то більше тек вміщується на екрані і то менша кожна обкладинка. За чотирьох ім\'я під нею зазвичай обрізається.</string>
     <string name="settings_folder_count">Лічильник елементів під теками в режимі сітки</string>
     <string name="settings_hand">Розташування основних функцій</string>
+    <string name="settings_hand_desc">За рукою, якою ви частіше користуєтеся пристроєм.</string>
     <string name="settings_right">Праворуч</string>
     <string name="settings_left">Ліворуч</string>
     <string name="settings_list_path">Список файлів: копіювати шлях теки</string>
+    <string name="settings_list_path_desc">Копіюючи список імен файлів, зверху додає повний шлях вихідної теки.</string>
     <string name="settings_folder_count_desc">Під кожним ескізом теки з\'являться лічильник зображень і лічильник відео.</string>
     <string name="settings_fit_grow">Збільшувати малі зображення</string>
     <string name="settings_fit_grow_desc">Вимкнено: зображення, менше за екран, показується в справжньому розмірі. Увімкнено: воно росте, доки не заповнить екран.</string>
@@ -80,7 +82,7 @@
     <string name="details_bar">Рядок подробиць</string>
     <string name="settings_top">Угорі</string>
     <string name="settings_bottom">Унизу</string>
-    <string name="settings_info_visible">Смуга відомостей під час запуску</string>
+    <string name="settings_info_visible">Панель відомостей</string>
     <string name="settings_anim_counter">Лічильник кадрів</string>
     <string name="settings_anim_counter_desc">З\'являється на панелі керування анімованих зображень.</string>
     <string name="settings_reverse_order">Гортати зображення праворуч від найстарішого</string>
@@ -332,6 +334,11 @@
     <string name="editor_right">Повернути праворуч</string>
     <string name="editor_free">Вільно</string>
     <string name="editor_save">Зберегти</string>
+    <string name="editor_apply">Застосувати</string>
+    <string name="editor_undo">Скасувати</string>
+    <string name="editor_reset">Скинути</string>
+    <string name="editor_center_across">По центру горизонтально</string>
+    <string name="editor_center_down">По центру вертикально</string>
     <string name="editor_done">Збережено</string>
     <string name="editor_done_copy">Копію збережено</string>
     <string name="editor_done_lossless">Збережено без перестиснення</string>

@@ -64,9 +64,11 @@
     <string name="settings_folder_columns_desc">जास्त स्तंभांत पडद्यावर जास्त संचिकासंच बसतात आणि प्रत्येक मुखपृष्ठ लहान होते. चार असताना खालचे नाव बहुधा कापले जाते.</string>
     <string name="settings_folder_count">जाळी दृश्यात फोल्डरखाली घटकांची मोजणी</string>
     <string name="settings_hand">मुख्य कार्यांची जागा</string>
+    <string name="settings_hand_desc">तुम्ही उपकरण चालवण्यासाठी जास्त वापरता त्या हातानुसार.</string>
     <string name="settings_right">उजवीकडे</string>
     <string name="settings_left">डावीकडे</string>
     <string name="settings_list_path">संचिका यादी: संचिकासंचाचा मार्गही प्रत करा</string>
+    <string name="settings_list_path_desc">संचिकांच्या नावांची यादी कॉपी करताना, वर मूळ धारिकेचा पूर्ण मार्ग जोडतो.</string>
     <string name="settings_folder_count_desc">प्रत्येक फोल्डरच्या झलकेखाली प्रतिमांची एक आणि व्हिडिओंची एक मोजणी दिसेल.</string>
     <string name="settings_fit_grow">लहान प्रतिमा मोठ्या करा</string>
     <string name="settings_fit_grow_desc">बंद असल्यास पडद्यापेक्षा लहान प्रतिमा तिच्या खऱ्या आकारात दिसते. चालू असल्यास पडदा भरेपर्यंत वाढते.</string>
@@ -80,7 +82,7 @@
     <string name="details_bar">तपशिलांची पट्टी</string>
     <string name="settings_top">वर</string>
     <string name="settings_bottom">खाली</string>
-    <string name="settings_info_visible">सुरू होताना माहितीपट्टी</string>
+    <string name="settings_info_visible">माहिती पट्टी</string>
     <string name="settings_anim_counter">फ्रेम काउंटर</string>
     <string name="settings_anim_counter_desc">हलत्या प्रतिमांच्या नियंत्रण पट्टीत दिसतो.</string>
     <string name="settings_reverse_order">सर्वात जुन्यापासून उजवीकडे प्रतिमा पलटा</string>
@@ -302,6 +304,11 @@
     <string name="editor_right">उजवीकडे फिरवा</string>
     <string name="editor_free">मुक्त</string>
     <string name="editor_save">जतन करा</string>
+    <string name="editor_apply">लागू करा</string>
+    <string name="editor_undo">पूर्ववत</string>
+    <string name="editor_reset">पुन्हा सेट करा</string>
+    <string name="editor_center_across">आडवे मध्यभागी</string>
+    <string name="editor_center_down">उभे मध्यभागी</string>
     <string name="editor_done">जतन झाले</string>
     <string name="editor_done_copy">प्रत जतन झाली</string>
     <string name="editor_done_lossless">पुन्हा दाबल्याशिवाय जतन झाले</string>

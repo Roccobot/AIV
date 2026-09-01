@@ -64,9 +64,11 @@
     <string name="settings_folder_columns_desc">列数越多,屏幕上装下的文件夹越多,每张封面也越小。到四列时,下面的名字通常会被截断。</string>
     <string name="settings_folder_count">网格视图中文件夹下方的项目计数</string>
     <string name="settings_hand">主要功能的位置</string>
+    <string name="settings_hand_desc">按你操作手机时主要使用的那只手。</string>
     <string name="settings_right">右侧</string>
     <string name="settings_left">左侧</string>
     <string name="settings_list_path">文件列表：一并复制文件夹路径</string>
+    <string name="settings_list_path_desc">复制文件名列表时，会在顶部加上来源文件夹的完整路径。</string>
     <string name="settings_folder_count_desc">每个文件夹预览下方会出现一个图像计数和一个视频计数。</string>
     <string name="settings_fit_grow">放大较小的图片</string>
     <string name="settings_fit_grow_desc">关闭时,比屏幕小的图片按真实尺寸显示。打开时,它会放大到填满视图。</string>
@@ -80,7 +82,7 @@
     <string name="details_bar">详情栏</string>
     <string name="settings_top">在顶部</string>
     <string name="settings_bottom">在底部</string>
-    <string name="settings_info_visible">启动时显示信息栏</string>
+    <string name="settings_info_visible">信息栏</string>
     <string name="settings_anim_counter">帧计数器</string>
     <string name="settings_anim_counter_desc">显示在动态图像的控制栏中。</string>
     <string name="settings_reverse_order">从最旧的一张起向右翻阅图像</string>
@@ -287,6 +289,11 @@
     <string name="editor_right">向右旋转</string>
     <string name="editor_free">自由</string>
     <string name="editor_save">保存</string>
+    <string name="editor_apply">应用</string>
+    <string name="editor_undo">撤销</string>
+    <string name="editor_reset">重置</string>
+    <string name="editor_center_across">水平居中</string>
+    <string name="editor_center_down">垂直居中</string>
     <string name="editor_done">已保存</string>
     <string name="editor_done_copy">副本已保存</string>
     <string name="editor_done_lossless">已保存，未重新压缩</string>

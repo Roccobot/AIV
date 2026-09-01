@@ -64,9 +64,11 @@
     <string name="settings_folder_columns_desc">Mehr Spalten bringen mehr Ordner auf den Bildschirm und machen jedes Titelbild kleiner. Bei vier wird der Name darunter meist abgeschnitten.</string>
     <string name="settings_folder_count">Zähler der Elemente unter den Ordnern in der Rasteransicht</string>
     <string name="settings_hand">Position der Hauptfunktionen</string>
+    <string name="settings_hand_desc">Nach der Hand, mit der Sie das Gerät meistens bedienen.</string>
     <string name="settings_right">Rechts</string>
     <string name="settings_left">Links</string>
     <string name="settings_list_path">Dateiliste: Pfad des übergeordneten Ordners kopieren</string>
+    <string name="settings_list_path_desc">Beim Kopieren einer Liste von Dateinamen wird oben der vollständige Pfad des Quellordners eingefügt.</string>
     <string name="settings_folder_count_desc">Unter jeder Ordnervorschau erscheinen ein Zähler für Bilder und einer für Videos.</string>
     <string name="settings_fit_grow">Kleine Bilder vergrößern</string>
     <string name="settings_fit_grow_desc">Aus wird ein Bild, das kleiner als der Bildschirm ist, in seiner echten Größe gezeigt. An wächst es, bis es die Ansicht füllt.</string>
@@ -80,7 +82,7 @@
     <string name="details_bar">Detailleiste</string>
     <string name="settings_top">Oben</string>
     <string name="settings_bottom">Unten</string>
-    <string name="settings_info_visible">Infoleiste beim Start</string>
+    <string name="settings_info_visible">Infoleiste</string>
     <string name="settings_anim_counter">Bildzähler</string>
     <string name="settings_anim_counter_desc">Erscheint in der Steuerleiste animierter Bilder.</string>
     <string name="settings_reverse_order">Bilder nach rechts vom ältesten an durchblättern</string>
@@ -302,6 +304,11 @@
     <string name="editor_right">Nach rechts drehen</string>
     <string name="editor_free">Frei</string>
     <string name="editor_save">Speichern</string>
+    <string name="editor_apply">Anwenden</string>
+    <string name="editor_undo">Rückgängig</string>
+    <string name="editor_reset">Zurücksetzen</string>
+    <string name="editor_center_across">Waagerecht zentrieren</string>
+    <string name="editor_center_down">Senkrecht zentrieren</string>
     <string name="editor_done">Gespeichert</string>
     <string name="editor_done_copy">Kopie gespeichert</string>
     <string name="editor_done_lossless">Gespeichert, ohne neu zu komprimieren</string>
