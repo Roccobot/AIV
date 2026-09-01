@@ -285,4 +285,7 @@
     <string name="settings_pick_weight_desc">在選取的頂端、數量旁邊，可以看到所選項目的總大小。每當選取停下來時都會向系統查詢大小；關閉後就不再查詢。</string>
     <string name="anim_play">播放</string>
     <string name="anim_pause">暫停</string>
+    <string name="anim_prev">上一幀</string>
+    <string name="anim_next">下一幀</string>
+    <string name="anim_export">匯出此幀</string>
 </resources>

@@ -71,8 +71,17 @@ class AnimatedGif private constructor(
         decoder.advance()
     }
 
+    /**
+     * ⚠️⚠️ **`resetFrameIndex` DA SOLO NON BASTA, ed è un difetto di contratto trovato
+     * scrivendo il passo indietro**: quel metodo riporta l'indice a **-1**, cioè a 'prima
+     * del primo', mentre [AnimatedWebp] dopo `rewind` è già sul fotogramma **0**. Due
+     * lettori che rispondono in modo diverso alla stessa chiamata avrebbero fatto sbagliare
+     * di uno ogni salto all'indietro, e solo sulle GIF. L'`advance` qui sotto è quello che
+     * rende vera la promessa scritta in [Animated.rewind].
+     */
     override fun rewind() {
         decoder.resetFrameIndex()
+        decoder.advance()
     }
 
     override fun close() {

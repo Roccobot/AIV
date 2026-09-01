@@ -285,4 +285,7 @@
     <string name="settings_pick_weight_desc">Ở đầu phần lựa chọn, cạnh số đếm, hiện tổng dung lượng của các mục đã chọn. Dung lượng được hỏi hệ thống mỗi khi lựa chọn dừng lại: khi tắt, câu hỏi đó không bao giờ được đặt ra.</string>
     <string name="anim_play">Phát</string>
     <string name="anim_pause">Tạm dừng</string>
+    <string name="anim_prev">Khung hình trước</string>
+    <string name="anim_next">Khung hình sau</string>
+    <string name="anim_export">Xuất khung hình này</string>
 </resources>

@@ -330,4 +330,7 @@
     <string name="settings_pick_weight_desc">Угорі вибору, поряд із лічильником, видно, скільки важать вибрані елементи разом. Розмір запитується в системи щоразу, коли вибір зупиняється: якщо вимкнено, цей запит не надсилається.</string>
     <string name="anim_play">Відтворити</string>
     <string name="anim_pause">Пауза</string>
+    <string name="anim_prev">Попередній кадр</string>
+    <string name="anim_next">Наступний кадр</string>
+    <string name="anim_export">Експортувати цей кадр</string>
 </resources>

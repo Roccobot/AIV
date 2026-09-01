@@ -330,4 +330,7 @@
     <string name="settings_pick_weight_desc">Na górze zaznaczenia, obok liczby, widać ile ważą razem wybrane elementy. Rozmiar jest pytany systemu przy każdym zatrzymaniu zaznaczenia: wyłączony, to pytanie nigdy nie pada.</string>
     <string name="anim_play">Odtwórz</string>
     <string name="anim_pause">Wstrzymaj</string>
+    <string name="anim_prev">Poprzednia klatka</string>
+    <string name="anim_next">Następna klatka</string>
+    <string name="anim_export">Eksportuj tę klatkę</string>
 </resources>

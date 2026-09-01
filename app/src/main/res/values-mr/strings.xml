@@ -300,4 +300,7 @@
     <string name="settings_pick_weight_desc">निवडीच्या वर, मोजणीशेजारी, निवडलेल्या घटकांचा एकूण आकार दिसतो. निवड थांबताच आकार प्रणालीला विचारला जातो: बंद असल्यास तो प्रश्न विचारला जात नाही.</string>
     <string name="anim_play">प्ले करा</string>
     <string name="anim_pause">थांबवा</string>
+    <string name="anim_prev">मागील फ्रेम</string>
+    <string name="anim_next">पुढील फ्रेम</string>
+    <string name="anim_export">ही फ्रेम निर्यात करा</string>
 </resources>

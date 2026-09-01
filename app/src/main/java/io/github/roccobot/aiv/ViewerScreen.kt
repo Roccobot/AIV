@@ -498,6 +498,7 @@ fun ViewerScreen(
                 if (animation != null) {
                     AnimatedBar(
                         animation = animation,
+                        name = state.image.displayName,
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
                             // ⚠️ **PRIMA TARATURA, DA GUARDARE SUL TELEFONO**: la riga dei

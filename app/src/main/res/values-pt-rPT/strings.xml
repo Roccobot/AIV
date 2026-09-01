@@ -103,4 +103,7 @@
     <string name="settings_editor_backup_desc">A versão anterior de cada imagem substituída é mantida na reciclagem.</string>
     <string name="anim_play">Reproduzir</string>
     <string name="anim_pause">Pausar</string>
+    <string name="anim_prev">Fotograma anterior</string>
+    <string name="anim_next">Fotograma seguinte</string>
+    <string name="anim_export">Exportar este fotograma</string>
 </resources>

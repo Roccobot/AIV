@@ -285,4 +285,7 @@
     <string name="settings_pick_weight_desc">ที่หัวของการเลือก ถัดจากจำนวน จะอ่านได้ว่ารายการที่เลือกมีขนาดรวมเท่าใด ขนาดจะถูกถามจากระบบทุกครั้งที่การเลือกหยุดนิ่ง เมื่อปิดไว้ คำถามนั้นจะไม่ถูกถาม</string>
     <string name="anim_play">เล่น</string>
     <string name="anim_pause">หยุดชั่วคราว</string>
+    <string name="anim_prev">เฟรมก่อนหน้า</string>
+    <string name="anim_next">เฟรมถัดไป</string>
+    <string name="anim_export">ส่งออกเฟรมนี้</string>
 </resources>

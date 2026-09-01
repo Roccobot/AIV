@@ -375,4 +375,7 @@
     <string name="settings_pick_weight_desc">In testa alla selezione, accanto al conto, si legge quanto pesano in tutto gli elementi scelti. Il peso si chiede al sistema ogni volta che la selezione si ferma: spento, quella domanda non parte.</string>
     <string name="anim_play">Riproduci</string>
     <string name="anim_pause">Pausa</string>
+    <string name="anim_prev">Fotogramma precedente</string>
+    <string name="anim_next">Fotogramma successivo</string>
+    <string name="anim_export">Esporta il fotogramma</string>
 </resources>

@@ -330,4 +330,7 @@
     <string name="settings_pick_weight_desc">Вверху выделения, рядом со счётчиком, видно, сколько весят выбранные элементы вместе. Размер запрашивается у системы каждый раз, когда выделение останавливается: при выключенном этот запрос не отправляется.</string>
     <string name="anim_play">Воспроизвести</string>
     <string name="anim_pause">Пауза</string>
+    <string name="anim_prev">Предыдущий кадр</string>
+    <string name="anim_next">Следующий кадр</string>
+    <string name="anim_export">Экспортировать этот кадр</string>
 </resources>

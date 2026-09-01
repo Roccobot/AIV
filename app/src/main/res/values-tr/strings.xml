@@ -300,4 +300,7 @@
     <string name="settings_pick_weight_desc">Seçimin başında, sayının yanında, seçilen ögelerin toplam boyutu okunur. Boyut, seçim her durduğunda sisteme sorulur: kapalıyken bu soru hiç sorulmaz.</string>
     <string name="anim_play">Oynat</string>
     <string name="anim_pause">Duraklat</string>
+    <string name="anim_prev">Önceki kare</string>
+    <string name="anim_next">Sonraki kare</string>
+    <string name="anim_export">Bu kareyi dışa aktar</string>
 </resources>

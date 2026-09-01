@@ -285,4 +285,7 @@
     <string name="settings_pick_weight_desc">在选择的顶部、数量旁边，可以看到所选项目的总大小。每当选择停下来时都会向系统查询大小；关闭后就不再查询。</string>
     <string name="anim_play">播放</string>
     <string name="anim_pause">暂停</string>
+    <string name="anim_prev">上一帧</string>
+    <string name="anim_next">下一帧</string>
+    <string name="anim_export">导出此帧</string>
 </resources>

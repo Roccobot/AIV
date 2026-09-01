@@ -285,4 +285,7 @@
     <string name="settings_pick_weight_desc">선택 항목 맨 위, 개수 옆에 고른 항목의 전체 크기가 표시됩니다. 크기는 선택이 멈출 때마다 시스템에 묻습니다. 끄면 그 질문을 하지 않습니다.</string>
     <string name="anim_play">재생</string>
     <string name="anim_pause">일시정지</string>
+    <string name="anim_prev">이전 프레임</string>
+    <string name="anim_next">다음 프레임</string>
+    <string name="anim_export">이 프레임 내보내기</string>
 </resources>

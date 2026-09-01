@@ -300,4 +300,7 @@
     <string name="settings_pick_weight_desc">ఎంపిక పైన, లెక్క పక్కన, ఎంచుకున్న అంశాల మొత్తం పరిమాణం కనిపిస్తుంది. ఎంపిక ఆగిన ప్రతిసారీ పరిమాణాన్ని సిస్టమ్‌ను అడుగుతుంది: ఆపివేస్తే ఆ ప్రశ్న అడగబడదు.</string>
     <string name="anim_play">ప్లే చేయి</string>
     <string name="anim_pause">పాజ్ చేయి</string>
+    <string name="anim_prev">మునుపటి ఫ్రేమ్</string>
+    <string name="anim_next">తదుపరి ఫ్రేమ్</string>
+    <string name="anim_export">ఈ ఫ్రేమ్‌ను ఎగుమతి చేయి</string>
 </resources>

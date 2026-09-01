@@ -315,4 +315,7 @@
     <string name="settings_pick_weight_desc">No topo da seleção, ao lado da contagem, você lê quanto pesam no total os itens escolhidos. O peso é perguntado ao sistema sempre que a seleção para: desligado, essa pergunta não é feita.</string>
     <string name="anim_play">Reproduzir</string>
     <string name="anim_pause">Pausar</string>
+    <string name="anim_prev">Quadro anterior</string>
+    <string name="anim_next">Próximo quadro</string>
+    <string name="anim_export">Exportar este quadro</string>
 </resources>

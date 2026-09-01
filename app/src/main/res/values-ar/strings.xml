@@ -360,4 +360,7 @@
     <string name="settings_pick_weight_desc">في أعلى التحديد، بجانب العدد، يظهر حجم العناصر المحددة كلها. يطلب الحجم من النظام في كل مرة يتوقف فيها التحديد: عند الإيقاف، لا يطرح هذا السؤال.</string>
     <string name="anim_play">تشغيل</string>
     <string name="anim_pause">إيقاف مؤقت</string>
+    <string name="anim_prev">الإطار السابق</string>
+    <string name="anim_next">الإطار التالي</string>
+    <string name="anim_export">تصدير هذا الإطار</string>
 </resources>

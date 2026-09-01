@@ -300,4 +300,7 @@
     <string name="settings_pick_weight_desc">নির্বাচনের উপরে, গণনার পাশে, নির্বাচিত আইটেমগুলির মোট আকার দেখা যায়। নির্বাচন থামলেই আকারটি সিস্টেমকে জিজ্ঞাসা করা হয়: বন্ধ থাকলে সেই প্রশ্ন করা হয় না।</string>
     <string name="anim_play">চালান</string>
     <string name="anim_pause">বিরতি</string>
+    <string name="anim_prev">আগের ফ্রেম</string>
+    <string name="anim_next">পরের ফ্রেম</string>
+    <string name="anim_export">এই ফ্রেম রপ্তানি করুন</string>
 </resources>

@@ -285,4 +285,7 @@
     <string name="settings_pick_weight_desc">選択の先頭、件数の隣に、選んだ項目の合計サイズが表示されます。サイズは選択が止まるたびにシステムへ問い合わせます。オフにすると、その問い合わせは行われません。</string>
     <string name="anim_play">再生</string>
     <string name="anim_pause">一時停止</string>
+    <string name="anim_prev">前のフレーム</string>
+    <string name="anim_next">次のフレーム</string>
+    <string name="anim_export">このフレームを書き出す</string>
 </resources>

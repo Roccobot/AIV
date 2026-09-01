@@ -300,4 +300,7 @@
     <string name="settings_pick_weight_desc">चयन के शीर्ष पर, गिनती के बगल में, चुने गए आइटम का कुल आकार दिखता है। हर बार चयन रुकने पर आकार सिस्टम से पूछा जाता है: बंद होने पर यह सवाल नहीं पूछा जाता।</string>
     <string name="anim_play">चलाएँ</string>
     <string name="anim_pause">रोकें</string>
+    <string name="anim_prev">पिछला फ़्रेम</string>
+    <string name="anim_next">अगला फ़्रेम</string>
+    <string name="anim_export">यह फ़्रेम निर्यात करें</string>
 </resources>

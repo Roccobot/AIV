@@ -300,4 +300,7 @@
     <string name="settings_pick_weight_desc">Juu ya uteuzi, kando ya idadi, unasoma ukubwa wa jumla wa vipengee vilivyochaguliwa. Ukubwa huulizwa mfumo kila uteuzi unaposimama: ukizima, swali hilo haliulizwi.</string>
     <string name="anim_play">Cheza</string>
     <string name="anim_pause">Sitisha</string>
+    <string name="anim_prev">Fremu iliyotangulia</string>
+    <string name="anim_next">Fremu inayofuata</string>
+    <string name="anim_export">Hamisha fremu hii</string>
 </resources>

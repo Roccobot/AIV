@@ -300,4 +300,7 @@
     <string name="settings_pick_weight_desc">Boven aan de selectie staat naast het aantal hoeveel de gekozen items samen wegen. De grootte wordt bij elke stilstaande selectie aan het systeem gevraagd: uit, wordt die vraag nooit gesteld.</string>
     <string name="anim_play">Afspelen</string>
     <string name="anim_pause">Pauzeren</string>
+    <string name="anim_prev">Vorig beeld</string>
+    <string name="anim_next">Volgend beeld</string>
+    <string name="anim_export">Dit beeld exporteren</string>
 </resources>

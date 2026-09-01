@@ -454,4 +454,7 @@
     <string name="settings_pick_weight_desc">At the head of the selection, next to the count, you read how much the picked items weigh altogether. The weight is asked of the system every time the selection settles: with this off, that question is never asked.</string>
     <string name="anim_play">Play</string>
     <string name="anim_pause">Pause</string>
+    <string name="anim_prev">Previous frame</string>
+    <string name="anim_next">Next frame</string>
+    <string name="anim_export">Export this frame</string>
 </resources>

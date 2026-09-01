@@ -300,4 +300,7 @@
     <string name="settings_pick_weight_desc">در بالای انتخاب، کنار شمارش، حجم کل موردهای انتخاب‌شده دیده می‌شود. حجم هر بار که انتخاب متوقف می‌شود از سیستم پرسیده می‌شود: با خاموش بودن، این پرسش هرگز مطرح نمی‌شود.</string>
     <string name="anim_play">پخش</string>
     <string name="anim_pause">مکث</string>
+    <string name="anim_prev">فریم پیشین</string>
+    <string name="anim_next">فریم بعدی</string>
+    <string name="anim_export">برون‌بری این فریم</string>
 </resources>
