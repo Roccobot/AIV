@@ -47,6 +47,9 @@
     <string name="folder_lost">не знайдено у своїй теці</string>
     <string name="settings_title">Налаштування</string>
     <string name="settings_back">Назад</string>
+    <string name="settings_search">Пошук у налаштуваннях</string>
+    <string name="settings_search_clear">Очистити пошук</string>
+    <string name="settings_search_none">Нічого не знайдено</string>
     <string name="settings_background">За зображенням</string>
     <string name="settings_bg_checker">Шахівниця</string>
     <string name="settings_bg_solid">Однотонний</string>
@@ -79,10 +82,10 @@
     <string name="settings_scale_physical">Один піксель файлу на один піксель екрана</string>
     <string name="settings_scale_logical">Один піксель файлу на один піксель розмітки</string>
     <string name="settings_scale_desc">Визначає, чому відповідає масштаб у реальних пікселях. Екран будь-якого сучасного пристрою малює кожен логічний піксель квадратом із двох або трьох реальних. Перший вибір не зважає на логічні пікселі й переводить кожну точку в один реальний піксель; другий показує кожен об\'єкт того розміру, який він мав би на вебсторінці.</string>
-    <string name="details_bar">Рядок подробиць</string>
     <string name="settings_top">Угорі</string>
     <string name="settings_bottom">Унизу</string>
     <string name="settings_info_visible">Панель відомостей</string>
+    <string name="settings_info_position">Розташування</string>
     <string name="settings_anim_counter">Лічильник кадрів</string>
     <string name="settings_anim_counter_desc">З\'являється на панелі керування анімованих зображень.</string>
     <string name="settings_reverse_order">Гортати зображення праворуч від найстарішого</string>

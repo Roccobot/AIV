@@ -20,6 +20,7 @@
         region a translation nobody asked for.
     -->
     <string name="settings_title">Configuración</string>
+    <string name="settings_search">Buscar en la configuración</string>
     <string name="hub_settings">Configuración</string>
     <string name="hide_folder_desc">Deja de aparecer entre las carpetas por las que pasar. No se borra nada: los archivos se quedan donde están, y puedes recuperar la carpeta desde la configuración.</string>
     <string name="settings_hidden_desc">Un toque largo sobre una carpeta la oculta. Estas ya no aparecen en la lista, pero siguen intactas en el teléfono.</string>

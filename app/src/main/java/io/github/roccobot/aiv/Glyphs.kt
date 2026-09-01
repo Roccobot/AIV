@@ -143,7 +143,61 @@ object Glyphs {
      * file a sé, e la freccia che buca il lato destro della cornice è la sola parte del glifo
      * che lo dice.
      */
-    val PhotoOut: ImageVector by lazy { filled("PhotoOut", EXPORT_IMAGE) }
+    /**
+     * Centra la selezione in orizzontale, e la sua gemella in verticale.
+     *
+     * ⚠️⚠️ **DISEGNATE DALL'UTENTE** (2026-09-01) e arrivate in una griglia **800x800**,
+     * non nel 24x24 di Material: il tracciato si trasporta **verbatim** come tutti gli
+     * altri, e a cambiare è la sola dichiarazione del riquadro. Riscalarne i numeri a mano
+     * per farli stare in 24 vorrebbe dire mille arrotondamenti e un disegno che non si può
+     * più confrontare col file di partenza.
+     * ⚠️ **Misurate prima di entrare**: l'inchiostro sta in 568x466 unità su 800 ed è
+     * centrato in (400, 400) esatte, quindi non serve nessuna correzione. Il glifo
+     * dell'esportazione, misurato lo stesso giorno, non lo era: vedi [PhotoOut].
+     * ⚠️ **Sostituiscono `Icons.Outlined.AlignHorizontalCenter` e la sua gemella**, che
+     * l'utente ha giudicato non abbastanza chiare (voce `ed-sheet` del collaudo).
+     */
+    val AlignAcross: ImageVector by lazy { grande("AlignAcross", ALIGN_ACROSS) }
+
+    /** Vedi [AlignAcross]: è la stessa icona girata di un quarto. */
+    val AlignDown: ImageVector by lazy { grande("AlignDown", ALIGN_DOWN) }
+
+    /**
+     * Il fotogramma che esce dall'animazione.
+     *
+     * ⚠️⚠️ **NON È UN `filled` COME GLI ALTRI, e le due correzioni sono MISURATE**
+     * (riscontro dell'utente, 2026-09-01: *deve spostarsi in alto di 1 pixel apparente e
+     * probabilmente rimpicciolirla al 90%*). Renderizzando il tracciato a 960 px e leggendo
+     * il riquadro dell'inchiostro: sta in **18x18 unità** su 24, ma il suo centro cade in
+     * **(11, 13)** invece che in (12, 12). Era basso di un'unità e spostato a sinistra di
+     * una, che a 24dp su uno schermo a densità 3 fanno tre pixel: quello che si vedeva.
+     * ⚠️ **La correzione sta nel GRUPPO e non nel tracciato**: la `d` resta identica al file
+     * dell'utente e si può ancora confrontare carattere per carattere. Il gruppo scala di
+     * [SHRINK] intorno al centro della griglia e poi trasla di quel tanto che porta il
+     * centro dell'inchiostro esattamente su (12, 12).
+     * ⚠️ **La traslazione vale [SHRINK] e non 1**, ed è la parte che si sbaglia: la scala
+     * agisce **prima**, e avvicina già il centro sbagliato a quello giusto di un decimo.
+     */
+    val PhotoOut: ImageVector by lazy {
+        ImageVector.Builder(
+            name = "PhotoOut",
+            defaultWidth = SIZE,
+            defaultHeight = SIZE,
+            viewportWidth = GRID,
+            viewportHeight = GRID
+        ).addGroup(
+            name = "centratura",
+            pivotX = GRID / 2f,
+            pivotY = GRID / 2f,
+            scaleX = SHRINK,
+            scaleY = SHRINK,
+            translationX = SHRINK,
+            translationY = -SHRINK
+        ).addPath(
+            pathData = PathParser().parsePathString(EXPORT_IMAGE).toNodes(),
+            fill = SolidColor(Color.Black)
+        ).build()
+    }
 
     /**
      * Il guscio dei glifi dell'utente: un 24x24 con un tracciato pieno.
@@ -172,8 +226,27 @@ object Glyphs {
             fill = SolidColor(Color.Black)
         ).build()
 
+    /** Il guscio dei glifi arrivati in una griglia più grande. Vedi [AlignAcross]. */
+    private fun grande(name: String, d: String): ImageVector =
+        ImageVector.Builder(
+            name = name,
+            defaultWidth = SIZE,
+            defaultHeight = SIZE,
+            viewportWidth = WIDE_GRID,
+            viewportHeight = WIDE_GRID
+        ).addPath(
+            pathData = PathParser().parsePathString(d).toNodes(),
+            fill = SolidColor(Color.Black)
+        ).build()
+
     /** La griglia di Material: ogni icona del sistema è disegnata dentro un 24x24. */
     private const val GRID = 24f
+
+    /** La griglia dei due glifi di allineamento, che Illustrator ha esportato a 800. */
+    private const val WIDE_GRID = 800f
+
+    /** Di quanto rimpicciolisce [PhotoOut] rispetto alla sua griglia. */
+    private const val SHRINK = 0.9f
 
     /** Lo spessore del solo [TextCursor], in unità di griglia. */
     private const val STROKE = 2f
@@ -257,6 +330,34 @@ object Glyphs {
             "M19.17,15.45h-3.05c-.22,0-.4-.18-.4-.4v-3.05l1.37,1.37c.92-.84,1.5-2.04,1.5-3.38,0-2.34-1.76-4.27-4.02-4.55-.34,0-.6-.3-.58-.62.02-.29.27-.53.58-.54,2.9.29,5.17,2.73,5.17,5.71,0,1.66-.71,3.15-1.84,4.19l1.26,1.26Z"
 
     /** Il tracciato dell'esportazione: montagne, cornice aperta a destra, freccia che esce. */
+    private const val ALIGN_ACROSS =
+            "M173.37,578.33c4.39,7.6,10.7,13.91,18.3,18.3,11.6,6.7,27.18,6.7,58.33,6.7h124.9c.06,0,.1" +
+            ".05.1.1v76.56c0,2.21,1.79,4,4,4h41.99c2.21,0,4-1.79,4-4v-76.56c0-.06.05-.1.1-.1h124.9c31" +
+            ".15,0,46.73,0,58.33-6.7,7.6-4.39,13.91-10.7,18.3-18.3,6.7-11.6,6.7-27.18,6.7-58.33s0-46." +
+            "73-6.7-58.33c-4.39-7.6-10.7-13.91-18.3-18.3-11.6-6.7-27.18-6.7-58.33-6.7h-124.9c-.06,0-." +
+            "1-.05-.1-.1v-73.13c0-.06.05-.1.1-.1h58.23c31.15,0,46.73,0,58.33-6.7,7.6-4.39,13.91-10.7," +
+            "18.3-18.3,6.7-11.6,6.7-27.18,6.7-58.33s0-46.73-6.7-58.33c-4.39-7.6-10.7-13.91-18.3-18.3-" +
+            "11.6-6.7-27.18-6.7-58.33-6.7h-58.23c-.06,0-.1-.05-.1-.1v-76.56c0-2.21-1.79-4-4-4h-42c-2." +
+            "21,0-4,1.79-4,4v76.56c0,.06-.05.1-.1.1h-58.23c-31.15,0-46.73,0-58.33,6.7-7.6,4.39-13.91," +
+            "10.7-18.3,18.3-6.7,11.6-6.7,27.18-6.7,58.33s0,46.73,6.7,58.33c4.39,7.6,10.7,13.91,18.3,1" +
+            "8.3,11.6,6.7,27.18,6.7,58.33,6.7h58.23c.06,0,.1.05.1.1v73.13c0,.06-.05.1-.1.1h-124.9c-31" +
+            ".15,0-46.73,0-58.33,6.7-7.6,4.39-13.91,10.7-18.3,18.3-6.7,11.6-6.7,27.18-6.7,58.33s0,46." +
+            "73,6.7,58.33Z"
+
+    private const val ALIGN_DOWN =
+            "M221.67,173.37c-7.6,4.39-13.91,10.7-18.3,18.3-6.7,11.6-6.7,27.18-6.7,58.33v124.9c0,.06-." +
+            "05.1-.1.1h-76.56c-2.21,0-4,1.79-4,4v41.99c0,2.21,1.79,4,4,4h76.56c.06,0,.1.05.1.1v124.9c" +
+            "0,31.15,0,46.73,6.7,58.33,4.39,7.6,10.7,13.91,18.3,18.3,11.6,6.7,27.18,6.7,58.33,6.7s46." +
+            "73,0,58.33-6.7c7.6-4.39,13.91-10.7,18.3-18.3,6.7-11.6,6.7-27.18,6.7-58.33v-124.9c0-.06.0" +
+            "5-.1.1-.1h73.13c.06,0,.1.05.1.1v58.23c0,31.15,0,46.73,6.7,58.33,4.39,7.6,10.7,13.91,18.3" +
+            ",18.3,11.6,6.7,27.18,6.7,58.33,6.7s46.73,0,58.33-6.7c7.6-4.39,13.91-10.7,18.3-18.3,6.7-1" +
+            "1.6,6.7-27.18,6.7-58.33v-58.23c0-.06.05-.1.1-.1h76.56c2.21,0,4-1.79,4-4v-42c0-2.21-1.79-" +
+            "4-4-4h-76.56c-.06,0-.1-.05-.1-.1v-58.23c0-31.15,0-46.73-6.7-58.33-4.39-7.6-10.7-13.91-18" +
+            ".3-18.3-11.6-6.7-27.18-6.7-58.33-6.7s-46.73,0-58.33,6.7c-7.6,4.39-13.91,10.7-18.3,18.3-6" +
+            ".7,11.6-6.7,27.18-6.7,58.33v58.23c0,.06-.05.1-.1.1h-73.13c-.06,0-.1-.05-.1-.1v-124.9c0-3" +
+            "1.15,0-46.73-6.7-58.33-4.39-7.6-10.7-13.91-18.3-18.3-11.6-6.7-27.18-6.7-58.33-6.7s-46.73" +
+            ",0-58.33,6.7Z"
+
     private const val EXPORT_IMAGE =
         "M10.21,16.83l-1.96-2.36-2.75,3.53h11l-3.54-4.71-2.75,3.54Z" +
             "M19.6,12.43h-1.19c-.22,0-.4.18-.4.4v7.17H4V6h8.6c.22,0,.4-.18.4-.4v-1.2c0-.22-.18-.4-.4-.4H4c-1.1,0-2,.9-2,2v14c0,1.1.9,2,2,2h14c1.1,0,2-.9,2-2v-7.17c0-.22-.18-.4-.4-.4Z" +

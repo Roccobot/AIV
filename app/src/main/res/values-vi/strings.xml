@@ -47,6 +47,9 @@
     <string name="folder_lost">không tìm thấy trong thư mục</string>
     <string name="settings_title">Cài đặt</string>
     <string name="settings_back">Quay lại</string>
+    <string name="settings_search">Tìm trong cài đặt</string>
+    <string name="settings_search_clear">Xóa tìm kiếm</string>
+    <string name="settings_search_none">Không có kết quả</string>
     <string name="settings_background">Phía sau ảnh</string>
     <string name="settings_bg_checker">Ô bàn cờ</string>
     <string name="settings_bg_solid">Một màu</string>
@@ -79,10 +82,10 @@
     <string name="settings_scale_physical">Một điểm ảnh của tệp trên một điểm ảnh màn hình</string>
     <string name="settings_scale_logical">Một điểm ảnh của tệp trên một điểm ảnh bố cục</string>
     <string name="settings_scale_desc">Xác định việc thu phóng theo điểm ảnh thật có nghĩa là gì. Màn hình của mọi thiết bị hiện đại vẽ mỗi điểm ảnh lô-gic bằng một ô vuông gồm hai hoặc ba điểm ảnh thật. Lựa chọn thứ nhất bỏ qua điểm ảnh lô-gic và đặt mỗi điểm vào đúng một điểm ảnh thật; lựa chọn thứ hai hiển thị mọi đối tượng với kích thước nó sẽ có trên một trang web.</string>
-    <string name="details_bar">Thanh chi tiết</string>
     <string name="settings_top">Ở trên</string>
     <string name="settings_bottom">Ở dưới</string>
     <string name="settings_info_visible">Thanh thông tin</string>
+    <string name="settings_info_position">Vị trí</string>
     <string name="settings_anim_counter">Bộ đếm khung hình</string>
     <string name="settings_anim_counter_desc">Hiển thị trên thanh điều khiển của ảnh động.</string>
     <string name="settings_reverse_order">Lướt ảnh sang phải từ ảnh cũ nhất</string>

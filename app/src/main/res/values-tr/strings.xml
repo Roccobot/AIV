@@ -47,6 +47,9 @@
     <string name="folder_lost">klasöründe bulunamadı</string>
     <string name="settings_title">Ayarlar</string>
     <string name="settings_back">Geri</string>
+    <string name="settings_search">Ayarlarda ara</string>
+    <string name="settings_search_clear">Aramayı temizle</string>
+    <string name="settings_search_none">Sonuç yok</string>
     <string name="settings_background">Görselin arkası</string>
     <string name="settings_bg_checker">Dama tahtası</string>
     <string name="settings_bg_solid">Düz renk</string>
@@ -79,10 +82,10 @@
     <string name="settings_scale_physical">Dosyanın bir pikseli ekranın bir pikseline</string>
     <string name="settings_scale_logical">Dosyanın bir pikseli yerleşimin bir pikseline</string>
     <string name="settings_scale_desc">Gerçek piksellere yakınlaştırmanın neye karşılık geldiğini belirler. Her modern cihazın ekranı, her mantıksal pikseli iki ya da üç gerçek pikselden oluşan bir kareyle çizer. İlk seçim mantıksal pikselleri yok sayar ve her noktayı tek bir gerçek piksele eşler; ikincisi her nesneyi bir web sayfasında sahip olacağı boyutta gösterir.</string>
-    <string name="details_bar">Ayrıntı satırı</string>
     <string name="settings_top">Üstte</string>
     <string name="settings_bottom">Altta</string>
     <string name="settings_info_visible">Bilgi çubuğu</string>
+    <string name="settings_info_position">Konum</string>
     <string name="settings_anim_counter">Kare sayacı</string>
     <string name="settings_anim_counter_desc">Hareketli görüntülerin denetim çubuğunda görünür.</string>
     <string name="settings_reverse_order">Görüntüleri en eskiden başlayarak sağa doğru gezin</string>

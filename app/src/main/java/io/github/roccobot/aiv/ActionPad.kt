@@ -21,12 +21,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
@@ -197,6 +200,15 @@ class PadAction(
  */
 @Composable
 private fun PadButton(action: PadAction, modifier: Modifier = Modifier) {
+    val haptics = LocalHapticFeedback.current
+    val hold = remember(action.onHold, haptics) {
+        action.onHold?.let { premuto ->
+            {
+                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                premuto()
+            }
+        }
+    }
     val full =
         if (action.danger) MaterialTheme.colorScheme.error
         else MaterialTheme.colorScheme.onSurface
@@ -212,7 +224,9 @@ private fun PadButton(action: PadAction, modifier: Modifier = Modifier) {
             .combinedClickable(
                 enabled = action.enabled,
                 onLongClickLabel = action.holdLabel?.let { stringResource(it) },
-                onLongClick = action.onHold,
+                // ⚠️ Qui il gesto può non esserci, quindi la vibrazione si compone a mano
+                // invece di passare da [withHaptics]: vedi la sua nota.
+                onLongClick = hold,
                 onClick = action.onClick
             )
             .padding(vertical = PAD_GAP),
@@ -238,6 +252,38 @@ private fun PadButton(action: PadAction, modifier: Modifier = Modifier) {
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
+    }
+}
+
+/**
+ * Lo stesso gesto, con la vibrazione breve del sistema davanti.
+ *
+ * ⚠️⚠️ **COMPOSE NON VIBRA DA SÉ SUL TOCCO LUNGO, e questa è la differenza con le View di
+ * Android**, dove `setOnLongClickListener` lo fa per conto suo quando il richiamo risponde
+ * `true`. `combinedClickable` no: il gesto arriva muto, e su un telefono un tocco lungo che
+ * non si sente non si distingue da un tocco lungo non riuscito. Richiesta dell'utente,
+ * 2026-09-01: *feedback aptico in tutti gli eventi a pressione lunga*.
+ * ⚠️ **Sta qui e non in dieci punti**, ed è la ragione per cui è una funzione: i tocchi
+ * lunghi dell'app sono sette in cinque file, e il giorno che ne nasce l'ottavo lo prende
+ * anche lui se passa di qui. Un `performHapticFeedback` copiato sette volte se lo dimentica
+ * l'ottavo.
+ * ⚠️ **`LongPress` e non `TextHandleMove`**: sono due vibrazioni diverse del sistema, e la
+ * prima è quella che Android usa per questo gesto dappertutto. La seconda, più leggera, la
+ * griglia la usa apposta per il tocco che **aggiunge** una foto alla selezione, che è un
+ * gesto ripetuto: là una vibrazione piena a ogni foto sarebbe un martello.
+ * ⚠️ **Prende un gesto che C'È**: l'unico punto in cui il tocco lungo è opzionale è
+ * [PadButton], e là la vibrazione si scrive sul posto. Una funzione nullabile in entrata e in
+ * uscita avrebbe costretto tutti gli altri, che il gesto ce l'hanno, a spiegare al
+ * compilatore che non è nullo.
+ */
+@Composable
+fun withHaptics(action: () -> Unit): () -> Unit {
+    val haptics = LocalHapticFeedback.current
+    return remember(action, haptics) {
+        {
+            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+            action()
+        }
     }
 }
 
@@ -412,7 +458,7 @@ fun TapHoldFab(
             modifier = Modifier.combinedClickable(
                 role = Role.Button,
                 onLongClickLabel = holdLabel,
-                onLongClick = onHold,
+                onLongClick = withHaptics(onHold),
                 onClick = onTap
             ),
             contentAlignment = Alignment.Center

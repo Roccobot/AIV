@@ -47,6 +47,9 @@
     <string name="folder_lost">తన సంచయంలో దొరకలేదు</string>
     <string name="settings_title">అమరికలు</string>
     <string name="settings_back">వెనక్కి</string>
+    <string name="settings_search">అమరికలలో వెతకండి</string>
+    <string name="settings_search_clear">శోధనను తొలగించు</string>
+    <string name="settings_search_none">ఫలితాలు లేవు</string>
     <string name="settings_background">చిత్రం వెనుక</string>
     <string name="settings_bg_checker">చదరంగపు గళ్ళు</string>
     <string name="settings_bg_solid">ఒకే రంగు</string>
@@ -79,10 +82,10 @@
     <string name="settings_scale_physical">తెర ఒక పిక్సెల్‌కు ఫైలు ఒక పిక్సెల్</string>
     <string name="settings_scale_logical">అమరిక ఒక పిక్సెల్‌కు ఫైలు ఒక పిక్సెల్</string>
     <string name="settings_scale_desc">నిజమైన పిక్సెళ్ల వరకు జూమ్ చేయడం అంటే ఏమిటో నిర్ణయిస్తుంది. ఏ ఆధునిక పరికరం తెరైనా ప్రతి తార్కిక పిక్సెల్‌ను రెండు లేదా మూడు నిజమైన పిక్సెళ్ల చతురస్రంతో గీస్తుంది. మొదటి ఎంపిక తార్కిక పిక్సెళ్లను పట్టించుకోకుండా ప్రతి బిందువును ఒక నిజమైన పిక్సెల్‌పై ఉంచుతుంది; రెండోది ప్రతి వస్తువును వెబ్ పేజీలో ఉండే కొలతలో చూపుతుంది.</string>
-    <string name="details_bar">వివరాల పట్టీ</string>
     <string name="settings_top">పైన</string>
     <string name="settings_bottom">కింద</string>
     <string name="settings_info_visible">సమాచార పట్టీ</string>
+    <string name="settings_info_position">స్థానం</string>
     <string name="settings_anim_counter">ఫ్రేమ్ కౌంటర్</string>
     <string name="settings_anim_counter_desc">కదిలే చిత్రాల నియంత్రణ పట్టీలో కనిపిస్తుంది.</string>
     <string name="settings_reverse_order">పాతదాని నుంచి కుడివైపుకు చిత్రాలను తిరగేయి</string>

@@ -243,7 +243,7 @@ fun TapHoldMenuItem(
             .sizeIn(minHeight = MENU_ITEM_HEIGHT)
             .combinedClickable(
                 onLongClickLabel = holdLabel,
-                onLongClick = onHold,
+                onLongClick = withHaptics(onHold),
                 onClick = onTap
             )
             .padding(horizontal = MENU_ITEM_SIDE),

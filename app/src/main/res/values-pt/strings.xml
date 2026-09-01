@@ -47,6 +47,9 @@
     <string name="folder_lost">não encontrada na pasta</string>
     <string name="settings_title">Configurações</string>
     <string name="settings_back">Voltar</string>
+    <string name="settings_search">Pesquisar nas configurações</string>
+    <string name="settings_search_clear">Limpar a pesquisa</string>
+    <string name="settings_search_none">Nenhum resultado</string>
     <string name="settings_background">Atrás da imagem</string>
     <string name="settings_bg_checker">Xadrez</string>
     <string name="settings_bg_solid">Cor lisa</string>
@@ -79,10 +82,10 @@
     <string name="settings_scale_physical">Um pixel do arquivo por pixel da tela</string>
     <string name="settings_scale_logical">Um pixel do arquivo por pixel de layout</string>
     <string name="settings_scale_desc">Define a que corresponde o zoom em pixels reais. A tela de qualquer aparelho moderno desenha cada pixel lógico com um quadrado de dois ou três pixels reais. A primeira escolha ignora os pixels lógicos e mapeia cada ponto em um pixel real; a segunda mostra cada objeto no tamanho que teria em uma página da web.</string>
-    <string name="details_bar">Barra de detalhes</string>
     <string name="settings_top">No alto</string>
     <string name="settings_bottom">Embaixo</string>
     <string name="settings_info_visible">Barra de informações</string>
+    <string name="settings_info_position">Posição</string>
     <string name="settings_anim_counter">Contador de quadros</string>
     <string name="settings_anim_counter_desc">Aparece na barra de controles das imagens animadas.</string>
     <string name="settings_reverse_order">Passar as imagens para a direita a partir da mais antiga</string>

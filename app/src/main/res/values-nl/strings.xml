@@ -47,6 +47,9 @@
     <string name="folder_lost">niet gevonden in zijn map</string>
     <string name="settings_title">Instellingen</string>
     <string name="settings_back">Terug</string>
+    <string name="settings_search">Zoeken in instellingen</string>
+    <string name="settings_search_clear">Zoekopdracht wissen</string>
+    <string name="settings_search_none">Geen resultaten</string>
     <string name="settings_background">Achter de afbeelding</string>
     <string name="settings_bg_checker">Schaakbordpatroon</string>
     <string name="settings_bg_solid">Effen kleur</string>
@@ -79,10 +82,10 @@
     <string name="settings_scale_physical">Eén pixel van het bestand per schermpixel</string>
     <string name="settings_scale_logical">Eén pixel van het bestand per lay-outpixel</string>
     <string name="settings_scale_desc">Bepaalt wat zoomen op echte pixels betekent. Het scherm van elk modern apparaat tekent elke logische pixel als een vierkant van twee of drie echte pixels. De eerste keuze negeert de logische pixels en zet elk punt op één echte pixel; de tweede toont elk object op de grootte die het op een webpagina zou hebben.</string>
-    <string name="details_bar">Detailbalk</string>
     <string name="settings_top">Bovenaan</string>
     <string name="settings_bottom">Onderaan</string>
     <string name="settings_info_visible">Infobalk</string>
+    <string name="settings_info_position">Positie</string>
     <string name="settings_anim_counter">Frameteller</string>
     <string name="settings_anim_counter_desc">Verschijnt in de knoppenbalk van bewegende afbeeldingen.</string>
     <string name="settings_reverse_order">Afbeeldingen naar rechts doorbladeren vanaf de oudste</string>

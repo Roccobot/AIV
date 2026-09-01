@@ -47,6 +47,9 @@
     <string name="folder_lost">अपने फ़ोल्डर में नहीं मिला</string>
     <string name="settings_title">सेटिंग्स</string>
     <string name="settings_back">वापस</string>
+    <string name="settings_search">सेटिंग्स में खोजें</string>
+    <string name="settings_search_clear">खोज मिटाएँ</string>
+    <string name="settings_search_none">कोई परिणाम नहीं</string>
     <string name="settings_background">चित्र के पीछे</string>
     <string name="settings_bg_checker">शतरंज की बिसात</string>
     <string name="settings_bg_solid">सादा रंग</string>
@@ -79,10 +82,10 @@
     <string name="settings_scale_physical">फ़ाइल का एक पिक्सेल, स्क्रीन का एक पिक्सेल</string>
     <string name="settings_scale_logical">फ़ाइल का एक पिक्सेल, लेआउट का एक पिक्सेल</string>
     <string name="settings_scale_desc">तय करता है कि वास्तविक पिक्सेल पर ज़ूम करने का क्या अर्थ है। किसी भी आधुनिक उपकरण की स्क्रीन हर तार्किक पिक्सेल को दो या तीन वास्तविक पिक्सेल के वर्ग से बनाती है। पहला विकल्प तार्किक पिक्सेल को अनदेखा करके हर बिंदु को एक वास्तविक पिक्सेल पर रखता है; दूसरा हर वस्तु को उस माप में दिखाता है जो उसे किसी वेब पृष्ठ पर मिलती।</string>
-    <string name="details_bar">विवरण पट्टी</string>
     <string name="settings_top">ऊपर</string>
     <string name="settings_bottom">नीचे</string>
     <string name="settings_info_visible">जानकारी पट्टी</string>
+    <string name="settings_info_position">स्थान</string>
     <string name="settings_anim_counter">फ़्रेम काउंटर</string>
     <string name="settings_anim_counter_desc">चलती छवियों की नियंत्रण पट्टी में दिखता है।</string>
     <string name="settings_reverse_order">सबसे पुरानी से दाईं ओर छवियाँ पलटें</string>

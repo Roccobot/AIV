@@ -47,6 +47,9 @@
     <string name="folder_lost">nie znaleziono w folderze</string>
     <string name="settings_title">Ustawienia</string>
     <string name="settings_back">Wróć</string>
+    <string name="settings_search">Szukaj w ustawieniach</string>
+    <string name="settings_search_clear">Wyczyść wyszukiwanie</string>
+    <string name="settings_search_none">Brak wyników</string>
     <string name="settings_background">Za obrazem</string>
     <string name="settings_bg_checker">Szachownica</string>
     <string name="settings_bg_solid">Jednolity kolor</string>
@@ -79,10 +82,10 @@
     <string name="settings_scale_physical">Jeden piksel pliku na piksel ekranu</string>
     <string name="settings_scale_logical">Jeden piksel pliku na piksel układu</string>
     <string name="settings_scale_desc">Określa, czemu odpowiada powiększenie do pikseli rzeczywistych. Ekran każdego współczesnego urządzenia rysuje każdy piksel logiczny kwadratem z dwóch lub trzech pikseli rzeczywistych. Pierwszy wybór pomija piksele logiczne i odwzorowuje każdy punkt na jednym pikselu rzeczywistym; drugi pokazuje każdy obiekt w rozmiarze, jaki miałby na stronie internetowej.</string>
-    <string name="details_bar">Pasek szczegółów</string>
     <string name="settings_top">U góry</string>
     <string name="settings_bottom">U dołu</string>
     <string name="settings_info_visible">Pasek informacji</string>
+    <string name="settings_info_position">Pozycja</string>
     <string name="settings_anim_counter">Licznik klatek</string>
     <string name="settings_anim_counter_desc">Pojawia się na pasku sterowania obrazów animowanych.</string>
     <string name="settings_reverse_order">Przeglądaj obrazy w prawo od najstarszego</string>

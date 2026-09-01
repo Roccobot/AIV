@@ -47,6 +47,9 @@
     <string name="folder_lost">غير موجودة في مجلدها</string>
     <string name="settings_title">الإعدادات</string>
     <string name="settings_back">رجوع</string>
+    <string name="settings_search">البحث في الإعدادات</string>
+    <string name="settings_search_clear">مسح البحث</string>
+    <string name="settings_search_none">لا توجد نتائج</string>
     <string name="settings_background">خلف الصورة</string>
     <string name="settings_bg_checker">رقعة الشطرنج</string>
     <string name="settings_bg_solid">لون واحد</string>
@@ -79,10 +82,10 @@
     <string name="settings_scale_physical">بكسل واحد من الملف لكل بكسل من الشاشة</string>
     <string name="settings_scale_logical">بكسل واحد من الملف لكل بكسل من التخطيط</string>
     <string name="settings_scale_desc">يحدّد ما يعنيه التكبير إلى البكسلات الحقيقية. تَرسم شاشة أي جهاز حديث كل بكسل منطقي بمربع من بكسلين أو ثلاثة بكسلات حقيقية. الخيار الأول يتجاهل البكسلات المنطقية ويقابل كل نقطة ببكسل حقيقي واحد؛ والثاني يعرض كل عنصر بالحجم الذي سيكون له في صفحة ويب.</string>
-    <string name="details_bar">شريط التفاصيل</string>
     <string name="settings_top">في الأعلى</string>
     <string name="settings_bottom">في الأسفل</string>
     <string name="settings_info_visible">شريط المعلومات</string>
+    <string name="settings_info_position">الموضع</string>
     <string name="settings_anim_counter">عدّاد الإطارات</string>
     <string name="settings_anim_counter_desc">يظهر في شريط تحكّم الصور المتحركة.</string>
     <string name="settings_reverse_order">تصفّح الصور نحو اليمين بدءًا من الأقدم</string>

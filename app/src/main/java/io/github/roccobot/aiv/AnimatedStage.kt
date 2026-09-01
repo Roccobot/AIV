@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
@@ -37,6 +38,9 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CancellationException
@@ -364,13 +368,34 @@ fun AnimatedBar(
             }
         }
         if (counter) {
+            val stile = MaterialTheme.typography.labelMedium.copy(fontFeatureSettings = "tnum")
+            /*
+             * ⚠️⚠️ **LARGHEZZA FISSA MISURATA SUL PIÙ LUNGO CHE POSSA CAPITARE, e il
+             * riempimento a spazi è uscito** (istruzione dell'utente, 2026-09-01: *allarga e
+             * prenditi lo spazio che basterebbe per 1000/1000, e fa' in modo che stia
+             * allineato a destra*). Il riempimento con lo spazio-cifra copriva il cambio di
+             * lunghezza ma non tutto il resto, perché quel carattere è largo come una cifra
+             * **per definizione tipografica**, non in ogni carattere che esiste: restava un
+             * ballo su un fotogramma su dieci, ed è esattamente quello che l'utente ha
+             * misurato provando.
+             * ⚠️ **Si misura, non si scrive in dp**: un numero fisso andrebbe storto appena
+             * qualcuno ingrandisce il testo di sistema, e [rememberTextMeasurer] dà la
+             * larghezza vera del carattere in uso adesso.
+             * ⚠️ **Le cifre tabulari restano**, e non sono un doppione: dentro una larghezza
+             * fissa tengono ferme anche le cifre **in mezzo** al numero.
+             */
+            val metro = rememberTextMeasurer()
+            val larghezza = with(LocalDensity.current) {
+                metro.measure(COUNTER_WIDEST, stile).size.width.toDp()
+            }
             Text(
-                text = counterText(animation.shown, animation.frameCount),
-                // ⚠️ Vedi [counterText]: le cifre tabulari sono metà della cura, e senza
-                // di loro il riempimento non basterebbe.
-                style = MaterialTheme.typography.labelMedium.copy(fontFeatureSettings = "tnum"),
+                text = "${animation.shown} / ${animation.frameCount}",
+                style = stile,
                 color = BAR_TEXT,
-                modifier = Modifier.padding(end = 10.dp, start = 2.dp)
+                textAlign = TextAlign.End,
+                modifier = Modifier
+                    .padding(end = 10.dp, start = 2.dp)
+                    .widthIn(min = larghezza)
             )
         }
     }
@@ -401,32 +426,15 @@ private fun frameName(name: String?, frame: Int): String {
 }
 
 /**
- * Il contatore dei fotogrammi, di larghezza **costante**: `  7 / 120` e non `7 / 120`.
+ * Il numero più lungo che il contatore possa dover mostrare.
  *
- * ⚠️⚠️ **DUE CAUSE DIVERSE FANNO BALLARE LA FILA, e una sola cura non basta**, perché il
- * numero è l'ultimo elemento di una riga che si stringe sul contenuto: se il testo cambia
- * larghezza, si spostano anche i quattro tasti.
- * 1. **Le cifre non sono larghe uguali**: in un carattere proporzionale l'`1` è più stretto
- *    dell'`8`, quindi la riga si muove **a ogni fotogramma**, non solo ai cambi di
- *    lunghezza. La cura è `tnum`, la variante tabulare, che dà a tutte le cifre lo stesso
- *    passo. È l'unico modo: nessun riempimento può pareggiare glifi di larghezza diversa.
- * 2. **Cambia il numero delle cifre**, da `9` a `10` e da `99` a `100`. La cura è riempire a
- *    sinistra fino alle cifre del totale, che è il numero più lungo che si possa mostrare.
- *
- * ⚠️ **Il riempimento è lo SPAZIO CIFRA (U+2007) e non lo spazio normale**: quello è largo
- * quanto una cifra **per definizione**, mentre lo spazio ordinario è più stretto e lascerebbe
- * un residuo di ballo proprio al cambio di lunghezza, cioè nel caso che doveva risolvere.
+ * ⚠️ **Mille e non il totale vero**: la larghezza si prende una volta e non deve cambiare
+ * fra un'animazione e l'altra, e un'animazione da più di mille fotogrammi in un
+ * visualizzatore di fotografie non esiste. Se un giorno esistesse, il contatore si
+ * allargherebbe da sé, perché il minimo è un minimo e non un taglio.
  */
-private fun counterText(shown: Int, total: Int): String =
-    "${shown.toString().padStart(total.toString().length, FIGURE_SPACE)} / $total"
+private const val COUNTER_WIDEST = "1000 / 1000"
 
-/**
- * Lo spazio largo come una cifra, usato per riempire il contatore.
- *
- * ⚠️ **Si scrive col CODICE e non col carattere**: nel sorgente sarebbe indistinguibile da
- * uno spazio normale, e il primo che riallinea la riga lo sostituirebbe senza accorgersene.
- */
-private const val FIGURE_SPACE = '\u2007'
 
 /** Il fondo scuro della fila: legge sopra qualunque immagine, chiara o scura. */
 private val BAR_INK = Color(0xB8121316)
