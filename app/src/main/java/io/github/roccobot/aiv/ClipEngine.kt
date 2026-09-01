@@ -40,7 +40,7 @@ class ClipEngine private constructor(
 
     /*
      * ⚠️⚠️ **I DUE MODELLI SI APRONO SEPARATI E SOLO QUANDO SERVONO, dalla 1.02**: prima
-     * [open] li apriva tutti e due insieme più il tokenizzatore, cioè teneva in memoria 65 MB
+     * [open] li apriva tutti e due insieme più il tokenizzatore, cioè teneva in memoria 86 MB
      * di pesi e un vocabolario da 49.408 voci anche per fare una cosa sola. Ma indicizzare usa
      * il **solo** encoder immagine, e cercare il **solo** encoder testuale: la punta di memoria
      * era il doppio del necessario senza che niente lo richiedesse, ed è il primo sospettato
@@ -149,54 +149,50 @@ class ClipEngine private constructor(
         /**
          * Come si apre una sessione.
          *
-         * ⚠️⚠️⚠️ **UN FILO SOLO, dalla 1.10, E LA RAGIONE È DIAGNOSTICA PRIMA CHE DI
-         * PRESTAZIONI.** Sulla `1.09` il processo è terminato con **`SIGABRT`** dentro
-         * `OrtSession.run`, con `libc++.so` nella traccia: è la firma di un'**eccezione C++
-         * non catturata**, che chiama `std::terminate` e quindi `abort`.
-         * ⚠️ **Perché quell'eccezione non diventa un errore Java**: l'API C di ONNX Runtime
-         * non lascia passare eccezioni, restituisce uno stato, e il livello Java lo trasforma
-         * in `OrtException`. Quel meccanismo copre il filo che **chiama**; un'eccezione
-         * sollevata dentro un filo del pool intra-op non ha nessuno che la raccolga, e
-         * termina il processo.
-         * ⚠️ **Con `1` il pool non nasce proprio**: ONNX Runtime esegue gli operatori sul filo
-         * chiamante, quindi l'eccezione arriva al confine JNI, diventa `OrtException`, la
-         * prende il `runCatching` dell'indicizzazione, e la sicura ne **scrive il messaggio**.
-         * Da 'il processo è sparito' si passa a una frase che dice che cosa non ha funzionato.
-         * ⚠️ **Può anche essere la correzione, e non solo la misura**: se il difetto sta nel
-         * percorso parallelo, con un filo solo non si presenta. Non lo si dà per scontato.
-         * ⚠️ **Il costo è trascurabile**: l'indicizzazione gira in sottofondo, e su millecinque
-         * cento fotografie sono decine di secondi in più su un lavoro di minuti.
-         * ⚠️ **Prima erano due**, per non prendere un filo per nucleo (otto arene di memoria
-         * per un lavoro di sottofondo). Quel motivo resta valido, e questo è più forte.
+         * ⚠️⚠️⚠️ **QUESTE DUE RIGHE SONO DUE TENTATIVI FALLITI DI FERMARE IL CROLLO
+         * DELL'INDICIZZAZIONE, e restano perché non fanno danno, NON perché abbiano
+         * funzionato.** Chi legge deve saperlo subito: il crollo è stato segnalato dalla
+         * `0.88` e alla `1.10` c'era ancora. La correzione tentata dalla `1.11` non è qui, è
+         * nel **modello**, che è passato a `fp32` (vedi [ClipModels]).
          *
-         * ⚠️⚠️⚠️ **`mlas.disable_kleidiai` SPEGNE I NUCLEI SME DI ARM, ED È LA CORREZIONE DEL
-         * CROLLO CHE UCCIDEVA L'APP** (segnalato dalla `0.88`, diagnosticato il 2026-09-01).
-         * Non è una congettura: è la fine di una catena di misure, e vale la pena averla
-         * scritta perché nessuno la rifaccia.
+         * **La catena delle misure, che non va rifatta.**
          * 1. **Dove muore**: la sicura della `1.07` ha risposto `indice 0/1468 - exit:
          *    CRASH_NATIVE / crash / rss 65.67 MB`. Quindi la sessione si era **aperta**, il
-         *    processo è morto alla **prima** fotografia, e con 65 MB in mano non era memoria.
-         * 2. **Lo stesso file NON muore su x86**: `vision_model_fp16.onnx` (impronta
-         *    identica a quella scaricata) gira su una JVM con lo **stesso** ONNX Runtime
-         *    `1.29.0` in 0,04 secondi. Quindi non è il modello e non è la forma della
-         *    chiamata: è una strada che esiste solo su ARM.
-         * 3. **Quale strada**: il modello ha **227 initializer, tutti float16**, e 95 nodi
-         *    `Conv`. Su x86 non ci sono nuclei fp16 e ORT rimette tutto in fp32
+         *    processo moriva alla **prima** fotografia, e con 65 MB in mano non era memoria.
+         * 2. **Lo stesso file NON muore su x86**: `vision_model_fp16.onnx` (impronta identica
+         *    a quella scaricata) gira su una JVM con lo **stesso** ONNX Runtime `1.29.0` in
+         *    0,04 secondi. Quindi non è il modello e non è la forma della chiamata: è una
+         *    strada che esiste solo su ARM.
+         * 3. **Quale strada**: quel modello aveva **227 initializer, tutti float16**, e 95
+         *    nodi `Conv`. Su x86 non ci sono nuclei fp16 e ORT rimette tutto in fp32
          *    (`CastFloat16Transformer`); su arm64 no, e la moltiplicazione fp16 passa per
          *    `ArmKleidiAI::MlasHalfGemmBatch`.
-         * 4. **Che cos'è quel codice**: dentro la `libonnxruntime.so` arm64 che l'app spedisce,
-         *    **ogni** nucleo fp16 di KleidiAI è **SME/SME2**
-         *    (`kai_run_imatmul_clamp_f16_..._sme2_mopa` e compagni), cioè assembly per
+         * 4. **Che cos'è quel codice**: dentro la `libonnxruntime.so` arm64 che l'app
+         *    spedisce, **ogni** nucleo fp16 di KleidiAI è **SME/SME2**
+         *    (`kai_run_imatmul_clamp_f16_..._sme2_mopa` e compagni), assembly per
          *    un'estensione di silicio nuovissima. Di NEON fp16 in KleidiAI non ce n'è nessuno.
-         * ⚠️ **Spento, si torna ai nuclei fp16 di MLAS**, che sono vecchi di anni e provati:
-         * si perde un po' di velocità nell'indicizzazione, che è lavoro in sottofondo, e si
-         * guadagna un'app che non sparisce.
-         * ⚠️ **Il valore sbagliato non farebbe danni silenziosi**: una chiave sconosciuta ORT
-         * la ignora, un valore fuori posto solleva, e la sicura lo scriverebbe. La chiave è
-         * stata letta **dentro** la libreria spedita, non ricordata.
-         * ⚠️ **Quando si potrà togliere**: il giorno che una versione di ORT dichiara risolto
-         * il difetto dei nuclei SME. Non prima, e non 'perché adesso funziona': funziona anche
-         * adesso su un telefono senza SME.
+         *
+         * ⚠️ **`mlas.disable_kleidiai` spegne quei nuclei, e sulla `1.09` NON È BASTATO**: il
+         * processo è terminato lo stesso, con **`SIGABRT`** dentro `OrtSession.run` e
+         * `libc++.so` nella traccia, cioè la firma di un'eccezione C++ non catturata
+         * (`std::terminate` e quindi `abort`). Resta acceso perché KleidiAI ha nuclei SME
+         * anche fuori dalla fp16, e il costo è qualche punto percentuale di velocità su un
+         * lavoro di sottofondo. ⚠️ La chiave è stata letta **dentro** la libreria spedita, non
+         * ricordata: sbagliarla non farebbe danni silenziosi, perché una chiave sconosciuta
+         * ORT la ignora e un valore fuori posto solleva.
+         *
+         * ⚠️ **`1` filo intra-op ha CAMBIATO la natura dell'errore senza toglierlo**: sulla
+         * `1.10` il processo non è più morto nel codice nativo ma con un `CRASH`, cioè
+         * un'eccezione **Java**. Il ragionamento che l'ha suggerito resta valido (l'API C di
+         * ORT non lascia passare eccezioni e il livello Java le trasforma in `OrtException`,
+         * ma solo sul filo **chiamante**: dentro un filo del pool intra-op nessuno le
+         * raccoglie, e il processo termina). Resta a uno perché con un filo l'errore è più
+         * vicino a essere leggibile, e perché l'indicizzazione è lavoro di sottofondo: su
+         * millecinquecento fotografie sono decine di secondi in più su un lavoro di minuti.
+         * ⚠️ **Ma nemmeno quell'eccezione Java arriva dal filo dell'indicizzazione**, e la
+         * cosa è dirimente: il segno diceva `indice 0/1448 modello`, e quella riga sta dentro
+         * due `runCatching` annidati. Chi la solleva è un altro filo, ed è la ragione per cui
+         * dalla `1.11` c'è `ClipGuard.watch`.
          */
         private fun options(): OrtSession.SessionOptions =
             OrtSession.SessionOptions().apply {

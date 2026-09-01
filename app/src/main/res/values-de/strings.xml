@@ -245,7 +245,7 @@
     <string name="tree_pictures">Nur Ordner mit Bildern oder Videos</string>
     <string name="columns_hint">Kurzbefehl: Halte die schwebende Taste für die Anzeigeoptionen gedrückt.</string>
     <string name="settings_bin">Papierkorb einschalten</string>
-    <string name="settings_bin_desc">Das Löschen einer Datei fragt nichts, aber die Aktion lässt sich mit einem \'Wiederherstellen\' aus dem Papierkorb umkehren (schwebende Schaltfläche →\u00A0\'Papierkorb\'). Du kannst den Papierkorb ganz ausschalten, wenn du sofortiges Löschen bevorzugst: dann erscheint vor jedem Löschen eine Bestätigung.\n⚠️ ACHTUNG: Wenn du die App deinstallierst, wird der Papierkorb geleert und ist nicht wiederherstellbar.</string>
+    <string name="settings_bin_desc">Das Löschen einer Datei fragt nichts, aber die Aktion lässt sich mit einem \'Wiederherstellen\' aus dem Papierkorb umkehren (schwebende Schaltfläche →\u00A0\'Papierkorb\'). Du kannst den Papierkorb ganz ausschalten, wenn du sofortiges Löschen bevorzugst: dann erscheint vor jedem Löschen eine Bestätigung.\n⚠️ ACHTUNG: Wenn du die App deinstallierst, geht der Inhalt des Papierkorbs verloren und ist nicht wiederherstellbar.</string>
     <string name="pick_duplicate">Duplizieren</string>
     <string name="settings_grid_names">Dateiname im Bilderraster</string>
     <string name="settings_grid_names_desc">Unter jedem Vorschaubild der Dateiname, auf höchstens zwei Zeilen. Die Endung wird nie umbrochen und ist immer zu sehen: passt der Name nicht, weicht die Mitte.</string>
@@ -283,6 +283,8 @@
     <string name="editor_done_copy">Kopie gespeichert</string>
     <string name="editor_done_lossless">Gespeichert, ohne neu zu komprimieren</string>
     <string name="editor_pick_none">Keine andere App auf diesem Telefon bietet an, Bilder zu bearbeiten.</string>
+    <string name="editor_pick_send">Per Teilen</string>
+    <string name="editor_pick_send_desc">Sie erhalten eine Kopie und speichern sie, wo sie wollen. Das Original bleibt, wie es ist.</string>
     <string name="edit_no_file">Diese Datei liegt nicht auf dem Telefon</string>
     <string name="edit_too_big">Das Bild ist zu groß für dieses Gerät</string>
     <string name="edit_nothing">Es hat sich nichts geändert</string>
@@ -298,7 +300,7 @@
     <string name="view_tree">Ordner</string>
     <string name="edit_no_backup">Die Sicherheitskopie ist fehlgeschlagen, es wurde nichts überschrieben</string>
     <string name="settings_editor_backup">Sicherheitskopie vor dem Überschreiben</string>
-    <string name="settings_editor_backup_desc">Bevor der eingebaute Editor ein Bild überschreibt, wandert die Fassung von vorher in den Papierkorb. Gilt nur für den eingebauten Editor: eine andere App speichert selbst. ⚠️ Ausgeschaltet gibt es keinen Weg zurück, denn der eingebaute Editor überschreibt immer.</string>
+    <string name="settings_editor_backup_desc">Bevor der eingebaute Editor ein Bild überschreibt, wandert die Fassung von vorher in den Papierkorb. Gilt nur für den eingebauten Editor: eine andere App speichert selbst.</string>
     <string name="editor_tall">Hochformat</string>
     <string name="editor_wide">Querformat</string>
     <string name="pick_drop_ask">Auswahl verwerfen?</string>

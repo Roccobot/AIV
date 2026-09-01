@@ -13,14 +13,14 @@ import kotlin.coroutines.coroutineContext
 /**
  * I due modelli della ricerca per contenuto, e il tokenizzatore: dove stanno e come arrivano.
  *
- * ⚠️⚠️ **NON STANNO DENTRO L'APK, e sono 65 MB**: l'app pesa tre megabyte e mezzo, e la
+ * ⚠️⚠️ **NON STANNO DENTRO L'APK, e sono 86 MB**: l'app pesa tre megabyte e mezzo, e la
  * ricerca per contenuto è **spenta di fabbrica**. Metterli dentro vorrebbe dire far scaricare
  * a tutti venti volte l'app per una funzione che molti non accenderanno mai. Si scaricano
  * quando si accende l'interruttore, e si possono togliere.
  *
  * ⚠️⚠️ **DA HUGGING FACE E NON DA UNA RELEASE DI AIV, ed è uno scostamento dal piano
  * dichiarato**: il brief prevedeva di ospitarli fra gli asset di una release, e questa
- * sessione non può caricarci 65 MB. Il rischio dello scostamento è che i file cambino o
+ * sessione non può caricarci 86 MB. Il rischio dello scostamento è che i file cambino o
  * spariscano da sotto, e il rimedio è la ragione per cui esistono le impronte qui sotto:
  * quello che si scarica si **verifica**, e se non combacia non si usa. Chi un domani li
  * ospita altrove cambia [BASE] e nient'altro.
@@ -29,8 +29,21 @@ import kotlin.coroutines.coroutineContext
  * quantizzazione `int8` distrugge l'encoder **immagine** e non quello **testuale**. Con
  * `vision int8` i punteggi si schiacciano fra 0,10 e 0,14 e la classifica è casuale (margini
  * +0,009 contro i +0,102 della versione buona), e la cosa **non dà nessun errore**: la
- * ricerca semplicemente risponde a caso. Chi cambia `vision_model_fp16` in `int8` per
- * risparmiare 15 MB rompe tutto in silenzio.
+ * ricerca semplicemente risponde a caso. Chi cambia l'encoder immagine in `int8` per
+ * risparmiare 30 MB rompe tutto in silenzio.
+ *
+ * ⚠️⚠️ **L'ENCODER IMMAGINE È `fp32` DALLA 1.11, E COSTA 23 MB IN PIÙ: è il tentativo di far
+ * funzionare la funzione su ARM.** Fino alla `1.10` era `vision_model_fp16.onnx`, 22.876.479
+ * byte, e su un telefono vero l'indicizzazione **chiudeva il processo alla prima fotografia**
+ * a ogni giro, mentre lo stesso file girava su x86 in 0,04 secondi (catena di misure in
+ * [ClipEngine], `options`). Il sospetto che regge tutte le misure è la strada **float16 su
+ * arm64**, e questo file la toglie del tutto: dei 227 initializer, zero sono `FLOAT16`.
+ * ⚠️ **La ricerca non cambia**: stesso nome d'ingresso, stessa forma, e i due vettori
+ * misurati sulla stessa immagine hanno coseno **0,999997**. Non è una stima, è una prova
+ * fatta con lo stesso ONNX Runtime `1.29.0`.
+ * ⚠️⚠️ **SE ANCHE COSÌ SI CHIUDE, LA FUNZIONE VA TOLTA, non tentata una quarta volta**: gli
+ * altri due sospetti (i nuclei SME di KleidiAI, il pool di fili) sono già stati spenti e non
+ * è bastato. Rimettere `fp16` per riguadagnare 23 MB significa rimettere il crollo.
  */
 object ClipModels {
 
@@ -63,7 +76,8 @@ object ClipModels {
     private const val BASE = "https://huggingface.co/Xenova/mobileclip_s0/resolve/main/"
 
     /**
-     * I tre pezzi, con peso e impronta **misurati il 2026-08-31** scaricandoli davvero.
+     * I tre pezzi, con peso e impronta **misurati scaricandoli davvero** (i due invariati il
+     * 2026-08-31, l'encoder immagine il 2026-09-01 quando è passato a `fp32`).
      *
      * ⚠️ Il `tokenizer.json` sta qui e non fra gli asset dell'APK per la stessa ragione degli
      * altri due: sono 2,2 MB che servono solo a chi accende la ricerca per contenuto, e
@@ -74,9 +88,9 @@ object ClipModels {
     val PIECES = listOf(
         Piece(
             name = "vision.onnx",
-            path = "onnx/vision_model_fp16.onnx",
-            size = 22_876_479L,
-            print = "22b1d36ecc6837e8205aee05003440a25e1c1ee0c7e2945dbb9dd597211c59dc"
+            path = "onnx/vision_model.onnx",
+            size = 45_543_630L,
+            print = "17d3c037b1d488c10c50e09f6009ea5a198caef4e0e8f4ea5617b7cb2d067ac0"
         ),
         Piece(
             name = "text.onnx",
@@ -103,7 +117,7 @@ object ClipModels {
     /**
      * Che cosa c'è, guardando i file.
      *
-     * ⚠️⚠️ **NON RICALCOLA LE IMPRONTE, e guarda solo i pesi**: verificare 65 MB costa quasi
+     * ⚠️⚠️ **NON RICALCOLA LE IMPRONTE, e guarda solo i pesi**: verificare 86 MB costa quasi
      * un secondo, e questa risposta serve a disegnare una schermata. L'impronta si controlla
      * una volta, **quando si scarica**, che è il momento in cui può essere sbagliata; da lì
      * in poi quei file li tocca solo il sistema operativo.
@@ -129,7 +143,7 @@ object ClipModels {
      * ⚠️⚠️ **L'IMPRONTA SI CONTROLLA PRIMA DI RINOMINARE**: è il momento in cui costa nulla
      * (il file è appena passato in memoria) ed è l'unico in cui serve.
      * ⚠️ **Quello che c'è già non si riscarica**: riaccendendo l'interruttore dopo una caduta
-     * si riprende dal pezzo mancante, non dai 65 MB.
+     * si riprende dal pezzo mancante, non dagli 86 MB.
      * ⚠️ **L'annullamento è vero**: il ciclo controlla la coroutine a ogni blocco, quindi
      * spegnere l'interruttore ferma il traffico invece di lasciarlo correre in sottofondo.
      */
@@ -168,7 +182,7 @@ object ClipModels {
             state(context)
         }
 
-    /** Toglie tutto: 65 MB non si tengono per una funzione spenta. */
+    /** Toglie tutto: 86 MB non si tengono per una funzione spenta. */
     fun remove(context: Context) {
         home(context).listFiles()?.forEach { it.delete() }
     }
@@ -176,7 +190,7 @@ object ClipModels {
     /**
      * Scarica un pezzo e ne torna l'impronta, riferendo l'avanzamento.
      *
-     * ⚠️ **L'impronta si calcola MENTRE si scrive**, non rileggendo il file dopo: sono 65 MB,
+     * ⚠️ **L'impronta si calcola MENTRE si scrive**, non rileggendo il file dopo: sono 86 MB,
      * e leggerli due volte raddoppia l'unica parte lenta che non sia la rete.
      */
     private suspend fun pull(piece: Piece, into: File, onStep: (Long) -> Unit): String {

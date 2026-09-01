@@ -743,6 +743,17 @@ fun EditorPicker(
     // ⚠️ Chiesto una volta sola: l'elenco viene dal `PackageManager`, cioè da una scansione
     // delle app installate, e questa finestra si ridisegna a ogni tocco.
     val others = remember { Editors.installed(context) }
+    /*
+     * ⚠️⚠️ **DUE FAMIGLIE SEPARATE E NON UN ELENCO SOLO, dalla 1.11**: le prime si dichiarano
+     * editor ad Android e riscrivono la fotografia dov'è; le seconde ricevono una copia per
+     * condivisione e salvano dove decidono loro. Mescolarle vorrebbe dire promettere la stessa
+     * cosa a due comportamenti diversi, e chi sceglie se ne accorgerebbe solo dopo aver perso
+     * una modifica cercandola nella cartella sbagliata.
+     * ⚠️ La seconda famiglia esce da un'euristica dichiarata (vedi `Editors`), quindi può
+     * portare dentro qualcosa che non c'entra: separarla è anche il modo di dirlo senza una
+     * frase in più.
+     */
+    val (edit, send) = remember(others) { others.partition { !it.shared } }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.editor_pick)) },
@@ -757,13 +768,34 @@ fun EditorPicker(
                     here = chosen == Editors.INTERNAL,
                     onClick = { onPick(Editors.INTERNAL) }
                 )
-                others.forEach { one ->
+                edit.forEach { one ->
                     PickRow(
                         label = one.label,
                         icon = one.icon,
                         here = chosen == one.id,
                         onClick = { onPick(one.id) }
                     )
+                }
+                if (send.isNotEmpty()) {
+                    Text(
+                        text = stringResource(R.string.editor_pick_send),
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.padding(top = 12.dp, start = 4.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.editor_pick_send_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 4.dp, start = 4.dp)
+                    )
+                    send.forEach { one ->
+                        PickRow(
+                            label = one.label,
+                            icon = one.icon,
+                            here = chosen == one.id,
+                            onClick = { onPick(one.id) }
+                        )
+                    }
                 }
                 // ⚠️ La frase compare solo a elenco vuoto, e serve: senza, la finestra
                 // mostrerebbe una voce sola e sembrerebbe non aver finito di caricare.

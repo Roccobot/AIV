@@ -230,7 +230,7 @@
     <string name="tree_pictures">เฉพาะโฟลเดอร์ที่มีภาพหรือวิดีโอ</string>
     <string name="columns_hint">ทางลัด: กดค้างที่ปุ่มลอยเพื่อเปิดตัวเลือกการแสดงผล.</string>
     <string name="settings_bin">เปิดถังขยะ</string>
-    <string name="settings_bin_desc">การลบไฟล์ไม่ถามอะไร แต่ย้อนกลับได้ด้วย \'กู้คืน\' จากถังขยะ (ปุ่มลอย →\u00A0\'ถังขยะ\') คุณสามารถปิดถังขยะทั้งหมดได้หากต้องการลบทันที ในกรณีนั้นจะมีการยืนยันก่อนการลบทุกครั้ง\n⚠️ คำเตือน: ถ้าถอนการติดตั้งแอป ถังขยะจะถูกล้างและกู้คืนไม่ได้</string>
+    <string name="settings_bin_desc">การลบไฟล์ไม่ถามอะไร แต่ย้อนกลับได้ด้วย \'กู้คืน\' จากถังขยะ (ปุ่มลอย →\u00A0\'ถังขยะ\') คุณสามารถปิดถังขยะทั้งหมดได้หากต้องการลบทันที ในกรณีนั้นจะมีการยืนยันก่อนการลบทุกครั้ง\n⚠️ คำเตือน: ถ้าถอนการติดตั้งแอป เนื้อหาในถังขยะจะสูญหายและกู้คืนไม่ได้</string>
     <string name="pick_duplicate">ทำสำเนา</string>
     <string name="settings_grid_names">ชื่อไฟล์ในตารางรูป</string>
     <string name="settings_grid_names_desc">ใต้ภาพย่อแต่ละภาพคือชื่อไฟล์ ไม่เกินสองบรรทัด นามสกุลจะไม่ถูกตัดขึ้นบรรทัดใหม่และเห็นเสมอ ถ้าชื่อยาวเกินไป ส่วนกลางจะถูกย่อ</string>
@@ -268,6 +268,8 @@
     <string name="editor_done_copy">บันทึกสำเนาแล้ว</string>
     <string name="editor_done_lossless">บันทึกแล้วโดยไม่บีบอัดใหม่</string>
     <string name="editor_pick_none">ไม่มีแอปอื่นในเครื่องนี้ที่เสนอตัวแก้ไขรูปภาพ</string>
+    <string name="editor_pick_send">ผ่านการแชร์</string>
+    <string name="editor_pick_send_desc">แอปจะได้รับสำเนาและบันทึกไว้ที่ใดก็ได้ตามที่เลือก ไฟล์ต้นฉบับยังคงเดิม</string>
     <string name="edit_no_file">ไฟล์นี้ไม่ได้อยู่ในเครื่อง</string>
     <string name="edit_too_big">รูปใหญ่เกินไปสำหรับเครื่องนี้</string>
     <string name="edit_nothing">ไม่มีอะไรเปลี่ยน</string>
@@ -283,7 +285,7 @@
     <string name="view_tree">โฟลเดอร์</string>
     <string name="edit_no_backup">สำเนาสำรองไม่สำเร็จ จึงไม่ได้เขียนทับอะไรเลย</string>
     <string name="settings_editor_backup">สำเนาสำรองก่อนเขียนทับ</string>
-    <string name="settings_editor_backup_desc">ก่อนที่ตัวแก้ไขในตัวจะเขียนทับรูป รุ่นก่อนหน้าจะไปอยู่ในถังขยะ ใช้กับตัวแก้ไขในตัวเท่านั้น แอปอื่นบันทึกเอง ⚠️ เมื่อปิดไว้จะย้อนกลับไม่ได้ เพราะตัวแก้ไขในตัวจะเขียนทับเสมอ</string>
+    <string name="settings_editor_backup_desc">ก่อนที่ตัวแก้ไขในตัวจะเขียนทับรูป รุ่นก่อนหน้าจะไปอยู่ในถังขยะ ใช้กับตัวแก้ไขในตัวเท่านั้น แอปอื่นบันทึกเอง</string>
     <string name="editor_tall">แนวตั้ง</string>
     <string name="editor_wide">แนวนอน</string>
     <string name="pick_drop_ask">ยกเลิกการเลือกไหม</string>

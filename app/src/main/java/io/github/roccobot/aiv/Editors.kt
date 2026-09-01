@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
 import android.graphics.drawable.Drawable
 import android.net.Uri
 
@@ -34,8 +35,23 @@ object Editors {
     /** Il valore che vuol dire 'l'editor dentro AIV'. Vedi `Settings.editorApp`. */
     const val INTERNAL = "interno"
 
+    /**
+     * Il prefisso che marca una scelta raggiunta con la CONDIVISIONE invece che con la
+     * modifica.
+     *
+     * ⚠️⚠️ **STA DENTRO L'IDENTIFICATIVO SALVATO, e non in un campo a parte**: la scelta
+     * vive nelle impostazioni come **una stringa** (`Settings.editorApp`), e aggiungere un
+     * secondo campo vorrebbe dire due valori da tenere d'accordo per sempre. Un identificativo
+     * senza prefisso resta quello che era, quindi le scelte già salvate continuano a valere.
+     */
+    const val SHARED = "send:"
+
     /** Una voce dell'elenco: che cosa scegliere, come si chiama, e la sua icona. */
-    data class Choice(val id: String, val label: String, val icon: Drawable?)
+    data class Choice(val id: String, val label: String, val icon: Drawable?) {
+
+        /** Se ci si arriva condividendo la fotografia invece che aprendola per modificarla. */
+        val shared: Boolean get() = id.startsWith(SHARED)
+    }
 
     /**
      * Le app che sanno modificare un'immagine, in ordine alfabetico.
@@ -60,35 +76,75 @@ object Editors {
          * poteva restare: senza nessuna delle due correzioni il selettore mostra l'editor di
          * casa e basta, che è esattamente quello che farebbe su un telefono spoglio.
          */
+        val found = ask(pm, Intent.ACTION_EDIT, MIME)
+        val editors = found.toChoices(context, pm, "")
+
+        /*
+         * ⚠️⚠️ **CHI NON SI DICHIARA EDITOR SI RAGGIUNGE CONDIVIDENDO, dalla 1.11** (prova
+         * dell'utente: Magic Eraser non compare in nessun 'Modifica', e compare fra i primi
+         * risultati di 'Condividi'). Non è un difetto della domanda: quell'app **non ha** un
+         * filtro `ACTION_EDIT`, quindi nemmeno Android la considera un editor, e nessuna
+         * query di modifica la troverà mai. L'unica via che esiste è quella che l'app stessa
+         * dichiara.
+         * ⚠️⚠️ **IL FILTRO CHE RENDE L'ELENCO USABILE: si toglie chi accetta anche il TESTO.**
+         * Domandare chi riceve un'immagine risponde con la messaggistica, la posta, il cloud,
+         * il Bluetooth: quaranta voci di cui tre sono foto-app. Un'app che tratta fotografie
+         * accetta immagini e **non** testo semplice; una che serve a mandare roba in giro
+         * accetta tutti e due. Sottraendo il secondo elenco dal primo resta quasi solo quello
+         * che interessa.
+         * ⚠️ **È un'euristica e si dichiara**: può lasciare fuori un editor che accetta anche
+         * testo (raro) e può tenere dentro un archivio in rete. Per questo le due famiglie
+         * restano **separate** nel selettore invece di essere mescolate: chi sceglie vede da
+         * quale delle due sta pescando.
+         */
+        val shares = ask(pm, Intent.ACTION_SEND, MIME).toChoices(context, pm, SHARED)
+        val talkers = ask(pm, Intent.ACTION_SEND, TEXT)
+            .mapNotNull { it.activityInfo?.packageName }
+            .toSet()
+        val known = editors.map { it.id.substringAfterLast(':') }.toSet()
+        val others = shares.filterNot {
+            it.id.removePrefix(SHARED).substringBefore('/') in talkers ||
+                it.id.removePrefix(SHARED) in known
+        }
+        return editors + others
+    }
+
+    /** Chi risponde a questa azione con questo tipo, nelle tre forme che i filtri assumono. */
+    private fun ask(pm: PackageManager, action: String, type: String): List<ResolveInfo> {
         val asks = listOf(
-            Intent(Intent.ACTION_EDIT).setType(MIME),
-            Intent(Intent.ACTION_EDIT).setDataAndType(SAMPLE_CONTENT, MIME),
-            Intent(Intent.ACTION_EDIT).setDataAndType(SAMPLE_FILE, MIME)
+            Intent(action).setType(type),
+            Intent(action).setDataAndType(SAMPLE_CONTENT, type),
+            Intent(action).setDataAndType(SAMPLE_FILE, type)
         )
-        val found = asks.flatMap { ask ->
+        return asks.flatMap { one ->
             runCatching {
                 @Suppress("DEPRECATION")
-                pm.queryIntentActivities(ask, 0)
+                pm.queryIntentActivities(one, 0)
             }.getOrNull().orEmpty()
         }
-        return found
-            .asSequence()
-            // ⚠️ AIV stessa non compare fra le scelte: sceglierla vorrebbe dire chiedere a
-            // questa app di aprire questa app, che non è quello che la voce promette.
-            .filter { it.activityInfo?.packageName != context.packageName }
-            .mapNotNull { info ->
-                val act = info.activityInfo ?: return@mapNotNull null
-                Choice(
-                    id = ComponentName(act.packageName, act.name).flattenToString(),
-                    label = runCatching { info.loadLabel(pm).toString() }.getOrNull()
-                        ?: act.packageName,
-                    icon = runCatching { info.loadIcon(pm) }.getOrNull()
-                )
-            }
-            .distinctBy { it.id }
-            .sortedBy { it.label.lowercase() }
-            .toList()
     }
+
+    /** Da risposte del sistema a voci dell'elenco, in ordine alfabetico. */
+    private fun List<ResolveInfo>.toChoices(
+        context: Context,
+        pm: PackageManager,
+        mark: String
+    ): List<Choice> = asSequence()
+        // ⚠️ AIV stessa non compare fra le scelte: sceglierla vorrebbe dire chiedere a
+        // questa app di aprire questa app, che non è quello che la voce promette.
+        .filter { it.activityInfo?.packageName != context.packageName }
+        .mapNotNull { info ->
+            val act = info.activityInfo ?: return@mapNotNull null
+            Choice(
+                id = mark + ComponentName(act.packageName, act.name).flattenToString(),
+                label = runCatching { info.loadLabel(pm).toString() }.getOrNull()
+                    ?: act.packageName,
+                icon = runCatching { info.loadIcon(pm) }.getOrNull()
+            )
+        }
+        .distinctBy { it.id }
+        .sortedBy { it.label.lowercase() }
+        .toList()
 
     /**
      * Come si chiama quello scelto, e `null` se non è più installato.
@@ -115,13 +171,32 @@ object Editors {
      * memoria della scelta doveva togliere.
      */
     fun open(context: Context, uri: Uri, id: String): Boolean {
-        val component = ComponentName.unflattenFromString(id) ?: return false
-        val intent = Intent(Intent.ACTION_EDIT).apply {
-            setDataAndType(uri, MIME)
-            this.component = component
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val shared = id.startsWith(SHARED)
+        val component = ComponentName.unflattenFromString(id.removePrefix(SHARED)) ?: return false
+        /*
+         * ⚠️⚠️ **CONDIVIDERE NON È MODIFICARE, e la differenza si vede nel risultato**: con
+         * `ACTION_EDIT` l'app riceve **la fotografia** e la riscrive dov'era; con
+         * `ACTION_SEND` ne riceve una copia e salva **dove decide lei**, di solito in una
+         * cartella sua. L'originale non viene toccato.
+         * ⚠️ **Alla condivisione non si dà il permesso di SCRITTURA**, e non è una svista:
+         * quell'app non deve riscrivere niente, e un permesso che non serve non si concede.
+         */
+        val intent = if (shared) {
+            Intent(Intent.ACTION_SEND).apply {
+                type = MIME
+                putExtra(Intent.EXTRA_STREAM, uri)
+                this.component = component
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        } else {
+            Intent(Intent.ACTION_EDIT).apply {
+                setDataAndType(uri, MIME)
+                this.component = component
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
         }
         // ⚠️ Il falso copre tutti i modi di non partire, non solo l'app sparita: chi chiama
         // deve solo sapere se dire all'utente che non si è aperto niente.
@@ -130,6 +205,9 @@ object Editors {
 
     /** Il tipo che si chiede e si dichiara: uno solo, e sta scritto in un posto solo. */
     private const val MIME = "image/*"
+
+    /** Il tipo che serve solo a **escludere**: chi accetta anche questo non è una foto-app. */
+    private const val TEXT = "text/plain"
 
     /**
      * Due indirizzi finti, per la sola domanda al sistema.

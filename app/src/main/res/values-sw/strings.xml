@@ -245,7 +245,7 @@
     <string name="tree_pictures">Folda zenye picha au video pekee</string>
     <string name="columns_hint">Njia ya mkato: shikilia kitufe kinachoelea ili kufungua chaguo za mwonekano.</string>
     <string name="settings_bin">Washa tapishi</string>
-    <string name="settings_bin_desc">Kufuta faili hakuulizi kitu, lakini kitendo kinaweza kubatilishwa kwa \'Rudisha\' kutoka tapishi (kitufe kinachoelea →\u00A0\'Tapishi\'). Unaweza kuzima tapishi kabisa ukipendelea kufuta papo hapo: hapo utaonyeshwa uthibitisho kabla ya kila kufuta.\n⚠️ TAHADHARI: ukiondoa programu, pipa hufutwa na haliwezi kurudishwa.</string>
+    <string name="settings_bin_desc">Kufuta faili hakuulizi kitu, lakini kitendo kinaweza kubatilishwa kwa \'Rudisha\' kutoka tapishi (kitufe kinachoelea →\u00A0\'Tapishi\'). Unaweza kuzima tapishi kabisa ukipendelea kufuta papo hapo: hapo utaonyeshwa uthibitisho kabla ya kila kufuta.\n⚠️ TAHADHARI: ukiondoa programu, yaliyomo kwenye tapishi hupotea na hayawezi kurudishwa.</string>
     <string name="pick_duplicate">Nakili hapa</string>
     <string name="settings_grid_names">Jina la faili kwenye gridi</string>
     <string name="settings_grid_names_desc">Chini ya kila kijipicha, jina la faili kwa mistari miwili zaidi. Kiendelezi hakikatwi kamwe na huonekana daima: jina lisipotoshea, sehemu ya katikati ndiyo hupungua.</string>
@@ -283,6 +283,8 @@
     <string name="editor_done_copy">Nakala imehifadhiwa</string>
     <string name="editor_done_lossless">Imehifadhiwa bila kubana upya</string>
     <string name="editor_pick_none">Hakuna programu nyingine kwenye simu hii inayojitolea kuhariri picha.</string>
+    <string name="editor_pick_send">Kwa kushiriki</string>
+    <string name="editor_pick_send_desc">Hupokea nakala na kuihifadhi mahali wanapotaka. Faili halisi hubaki kama ilivyo.</string>
     <string name="edit_no_file">Faili hii haiko kwenye simu</string>
     <string name="edit_too_big">Picha ni kubwa mno kwa kifaa hiki</string>
     <string name="edit_nothing">Hakuna kilichobadilika</string>
@@ -298,7 +300,7 @@
     <string name="view_tree">Folda</string>
     <string name="edit_no_backup">Nakala ya usalama haikufanikiwa, hivyo hakuna kilichoandikwa juu</string>
     <string name="settings_editor_backup">Nakala ya usalama kabla ya kuandika juu</string>
-    <string name="settings_editor_backup_desc">Kabla kihariri cha ndani hakijaandika juu ya picha, toleo la awali huenda kwenye tupio. Inahusu kihariri cha ndani pekee: programu nyingine huhifadhi yenyewe. ⚠️ Ukizima hakuna njia ya kurudi, kwa sababu kihariri cha ndani hubadilisha faili kila mara.</string>
+    <string name="settings_editor_backup_desc">Kabla kihariri cha ndani hakijaandika juu ya picha, toleo la awali huenda kwenye tupio. Inahusu kihariri cha ndani pekee: programu nyingine huhifadhi yenyewe.</string>
     <string name="editor_tall">Wima</string>
     <string name="editor_wide">Mlalo</string>
     <string name="pick_drop_ask">Uache uteuzi?</string>

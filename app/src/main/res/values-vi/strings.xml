@@ -230,7 +230,7 @@
     <string name="tree_pictures">Chỉ thư mục có ảnh hoặc video</string>
     <string name="columns_hint">Lối tắt: nhấn giữ nút nổi để mở tùy chọn hiển thị.</string>
     <string name="settings_bin">Bật thùng rác</string>
-    <string name="settings_bin_desc">Xóa một tệp không hỏi gì, nhưng hành động có thể hoàn tác bằng \'Phục hồi\' từ thùng rác (nút nổi →\u00A0\'Thùng rác\'). Bạn có thể tắt hẳn thùng rác nếu thích xóa ngay: khi đó, một hộp xác nhận sẽ xuất hiện trước mỗi lần xóa.\n⚠️ CẢNH BÁO: nếu gỡ cài đặt ứng dụng, thùng rác sẽ bị xoá sạch và không thể khôi phục.</string>
+    <string name="settings_bin_desc">Xóa một tệp không hỏi gì, nhưng hành động có thể hoàn tác bằng \'Phục hồi\' từ thùng rác (nút nổi →\u00A0\'Thùng rác\'). Bạn có thể tắt hẳn thùng rác nếu thích xóa ngay: khi đó, một hộp xác nhận sẽ xuất hiện trước mỗi lần xóa.\n⚠️ CẢNH BÁO: nếu gỡ cài đặt ứng dụng, nội dung thùng rác sẽ mất và không thể khôi phục.</string>
     <string name="pick_duplicate">Nhân bản</string>
     <string name="settings_grid_names">Tên tệp trong lưới ảnh</string>
     <string name="settings_grid_names_desc">Dưới mỗi ảnh thu nhỏ là tên tệp, nhiều nhất hai dòng. Phần mở rộng không bao giờ bị ngắt dòng và luôn hiện: nếu tên không vừa, phần giữa sẽ nhường chỗ.</string>
@@ -268,6 +268,8 @@
     <string name="editor_done_copy">Đã lưu bản sao</string>
     <string name="editor_done_lossless">Đã lưu mà không nén lại</string>
     <string name="editor_pick_none">Không ứng dụng nào khác trên máy này nhận sửa ảnh.</string>
+    <string name="editor_pick_send">Qua chia sẻ</string>
+    <string name="editor_pick_send_desc">Chúng nhận một bản sao và lưu ở nơi chúng chọn. Tệp gốc vẫn giữ nguyên.</string>
     <string name="edit_no_file">Tệp này không nằm trên máy</string>
     <string name="edit_too_big">Ảnh quá lớn với thiết bị này</string>
     <string name="edit_nothing">Chưa có gì thay đổi</string>
@@ -283,7 +285,7 @@
     <string name="view_tree">Thư mục</string>
     <string name="edit_no_backup">Không tạo được bản sao an toàn, nên chưa ghi đè gì cả</string>
     <string name="settings_editor_backup">Bản sao an toàn trước khi ghi đè</string>
-    <string name="settings_editor_backup_desc">Trước khi trình sửa có sẵn ghi đè lên một tấm ảnh, bản trước đó sẽ vào thùng rác. Chỉ áp dụng cho trình sửa có sẵn: ứng dụng khác tự lưu lấy. ⚠️ Khi tắt sẽ không còn đường lui, vì trình chỉnh sửa nội bộ luôn ghi đè.</string>
+    <string name="settings_editor_backup_desc">Trước khi trình sửa có sẵn ghi đè lên một tấm ảnh, bản trước đó sẽ vào thùng rác. Chỉ áp dụng cho trình sửa có sẵn: ứng dụng khác tự lưu lấy.</string>
     <string name="editor_tall">Dọc</string>
     <string name="editor_wide">Ngang</string>
     <string name="pick_drop_ask">Bỏ lựa chọn?</string>

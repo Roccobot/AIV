@@ -260,7 +260,7 @@
     <string name="tree_pictures">Solo carpetas con imágenes o vídeos</string>
     <string name="columns_hint">Atajo: mantén pulsado el botón flotante para las opciones de visualización.</string>
     <string name="settings_bin">Activar la papelera</string>
-    <string name="settings_bin_desc">Eliminar un archivo no pregunta nada, pero la acción se puede deshacer con un \'Restaurar\' desde la papelera (botón flotante →\u00A0\'Papelera\'). Puedes desactivar la papelera por completo si prefieres una eliminación instantánea: en ese caso, aparecerá una confirmación antes de cada eliminación.\n⚠️ ATENCIÓN: si desinstalas la aplicación, la papelera se vacía y no se puede recuperar.</string>
+    <string name="settings_bin_desc">Eliminar un archivo no pregunta nada, pero la acción se puede deshacer con un \'Restaurar\' desde la papelera (botón flotante →\u00A0\'Papelera\'). Puedes desactivar la papelera por completo si prefieres una eliminación instantánea: en ese caso, aparecerá una confirmación antes de cada eliminación.\n⚠️ ATENCIÓN: si desinstalas la aplicación, el contenido de la papelera se pierde y no se puede recuperar.</string>
     <string name="pick_duplicate">Duplicar</string>
     <string name="settings_grid_names">Nombre del archivo en la cuadrícula</string>
     <string name="settings_grid_names_desc">Bajo cada miniatura, el nombre del archivo en dos líneas como mucho. La extensión nunca se parte y siempre se ve: si el nombre no cabe, lo que cede es el centro.</string>
@@ -298,6 +298,8 @@
     <string name="editor_done_copy">Copia guardada</string>
     <string name="editor_done_lossless">Guardada sin volver a comprimir</string>
     <string name="editor_pick_none">Ninguna otra app de este teléfono se ofrece a editar imágenes.</string>
+    <string name="editor_pick_send">Al compartir</string>
+    <string name="editor_pick_send_desc">Reciben una copia y la guardan donde deciden. El original se queda como está.</string>
     <string name="edit_no_file">Este archivo no está en el teléfono</string>
     <string name="edit_too_big">La imagen es demasiado grande para este dispositivo</string>
     <string name="edit_nothing">No ha cambiado nada</string>
@@ -313,7 +315,7 @@
     <string name="view_tree">Carpetas</string>
     <string name="edit_no_backup">La copia de seguridad ha fallado, así que no se ha sobrescrito nada</string>
     <string name="settings_editor_backup">Copia de seguridad antes de sobrescribir</string>
-    <string name="settings_editor_backup_desc">Antes de que el editor interno sobrescriba una imagen, la versión anterior va a la papelera. Solo vale para el editor interno: otra app guarda por su cuenta. ⚠️ Con esto apagado no queda vuelta atrás, porque el editor interno siempre sobrescribe.</string>
+    <string name="settings_editor_backup_desc">Antes de que el editor interno sobrescriba una imagen, la versión anterior va a la papelera. Solo vale para el editor interno: otra app guarda por su cuenta.</string>
     <string name="editor_tall">Vertical</string>
     <string name="editor_wide">Horizontal</string>
     <string name="pick_drop_ask">¿Descartar la selección?</string>

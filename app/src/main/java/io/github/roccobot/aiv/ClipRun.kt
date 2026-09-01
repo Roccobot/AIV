@@ -41,7 +41,8 @@ object ClipRun {
      * Indicizza quello che manca, e torna quante foto ha aggiunto.
      *
      * ⚠️ **Chi chiama passa il motore già aperto**: aprirlo costa qualche centinaio di
-     * millisecondi e 65 MB mappati, e va fatto una volta per tutta l'indicizzazione.
+     * millisecondi e i 45 MB dell'encoder immagine mappati, e va fatto una volta per tutta
+     * l'indicizzazione.
      * ⚠️ **L'annullamento è vero**, come nello scaricamento: si controlla la coroutine a ogni
      * fotografia, così spegnere la funzione ferma il lavoro invece di lasciarlo correre.
      */

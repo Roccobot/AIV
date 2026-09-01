@@ -245,7 +245,7 @@
     <string name="tree_pictures">صرف تصاویر یا ویڈیو والے فولڈر</string>
     <string name="columns_hint">شارٹ کٹ: نمائش کے اختیارات کے لیے تیرتا بٹن دبائے رکھیں۔</string>
     <string name="settings_bin">ردی کی ٹوکری فعال کریں</string>
-    <string name="settings_bin_desc">فائل مٹانا کچھ نہیں پوچھتا، لیکن یہ کام ردی کی ٹوکری سے \'بحال کریں\' کے ذریعے واپس ہو سکتا ہے (فلوٹنگ بٹن →\u00A0\'ردی کی ٹوکری\')۔ اگر آپ فوری مٹانا پسند کرتے ہیں تو ردی کی ٹوکری مکمل بند کر سکتے ہیں: اس صورت میں ہر مٹانے سے پہلے تصدیق آئے گی۔\n⚠️ انتباہ: اگر آپ ایپ ان انسٹال کریں تو ردی کی ٹوکری خالی ہو جاتی ہے اور واپس نہیں آتی۔</string>
+    <string name="settings_bin_desc">فائل مٹانا کچھ نہیں پوچھتا، لیکن یہ کام ردی کی ٹوکری سے \'بحال کریں\' کے ذریعے واپس ہو سکتا ہے (فلوٹنگ بٹن →\u00A0\'ردی کی ٹوکری\')۔ اگر آپ فوری مٹانا پسند کرتے ہیں تو ردی کی ٹوکری مکمل بند کر سکتے ہیں: اس صورت میں ہر مٹانے سے پہلے تصدیق آئے گی۔\n⚠️ انتباہ: اگر آپ ایپ ان انسٹال کریں تو ردی کی ٹوکری کا مواد ضائع ہو جاتا ہے اور واپس نہیں آتا۔</string>
     <string name="pick_duplicate">نقل بنائیں</string>
     <string name="settings_grid_names">گرڈ میں فائل کا نام</string>
     <string name="settings_grid_names_desc">ہر تھمب نیل کے نیچے فائل کا نام، زیادہ سے زیادہ دو سطروں میں۔ توسیع کبھی نہیں ٹوٹتی اور ہمیشہ نظر آتی ہے: نام نہ سمائے تو درمیان چھوٹا ہوتا ہے۔</string>
@@ -283,6 +283,8 @@
     <string name="editor_done_copy">نقل محفوظ ہو گئی</string>
     <string name="editor_done_lossless">دوبارہ دبائے بغیر محفوظ ہو گیا</string>
     <string name="editor_pick_none">اس فون کی کوئی اور ایپ تصویریں ترمیم کرنے کی پیشکش نہیں کرتی۔</string>
+    <string name="editor_pick_send">شیئر کے ذریعے</string>
+    <string name="editor_pick_send_desc">یہ ایک نقل لیتے ہیں اور جہاں چاہیں محفوظ کرتے ہیں۔ اصل فائل ویسی ہی رہتی ہے۔</string>
     <string name="edit_no_file">یہ فائل فون پر نہیں ہے</string>
     <string name="edit_too_big">تصویر اس آلے کے لیے بہت بڑی ہے</string>
     <string name="edit_nothing">کچھ نہیں بدلا</string>
@@ -298,7 +300,7 @@
     <string name="view_tree">فولڈرز</string>
     <string name="edit_no_backup">حفاظتی نقل نہ بن سکی، سو کسی چیز پر نہیں لکھا گیا</string>
     <string name="settings_editor_backup">اوپر لکھنے سے پہلے حفاظتی نقل</string>
-    <string name="settings_editor_backup_desc">اندرونی مدیر کسی تصویر پر لکھے، اس سے پہلے پچھلی شکل ردی کی ٹوکری میں چلی جاتی ہے۔ یہ صرف اندرونی مدیر کے لیے ہے: دوسری ایپ اپنے طور پر محفوظ کرتی ہے۔ ⚠️ بند ہونے پر واپسی کا کوئی راستہ نہیں، کیونکہ اندرونی ایڈیٹر ہمیشہ اوپر لکھ دیتا ہے۔</string>
+    <string name="settings_editor_backup_desc">اندرونی مدیر کسی تصویر پر لکھے، اس سے پہلے پچھلی شکل ردی کی ٹوکری میں چلی جاتی ہے۔ یہ صرف اندرونی مدیر کے لیے ہے: دوسری ایپ اپنے طور پر محفوظ کرتی ہے۔</string>
     <string name="editor_tall">عمودی</string>
     <string name="editor_wide">افقی</string>
     <string name="pick_drop_ask">انتخاب منسوخ کریں؟</string>

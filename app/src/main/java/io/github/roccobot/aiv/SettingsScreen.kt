@@ -901,7 +901,7 @@ private fun <T : Choice> Choices(
  * ⚠️⚠️ **UN TASTO SOLO PER VOLTA, e cambia con lo stato**: scarica quando non c'è niente,
  * annulla mentre scarica, togli quando è pronta. Tre tasti insieme, due dei quali spenti,
  * sarebbero tre cose da leggere per capire quale funziona.
- * ⚠️ **Il peso è scritto sul tasto**, non nella spiegazione: 65 MB è la sola cosa che
+ * ⚠️ **Il peso è scritto sul tasto**, non nella spiegazione: 86 MB è la sola cosa che
  * qualcuno potrebbe non volere, e va letta nel momento in cui si decide, non tre righe sopra.
  * ⚠️ **Guasto: si dice QUALE pezzo e perché**, invece di un 'errore'. Un download che
  * fallisce ha tre cause diverse (la rete, l'impronta, il disco) e portano a tre reazioni

@@ -245,7 +245,7 @@
     <string name="tree_pictures">फक्त प्रतिमा किंवा चित्रफिती असलेले संचिकासंच</string>
     <string name="columns_hint">शॉर्टकट: दर्शन पर्यायांसाठी तरंगते बटण दाबून धरा.</string>
     <string name="settings_bin">कचरापेटी सुरू करा</string>
-    <string name="settings_bin_desc">फाइल पुसताना काहीही विचारले जात नाही, पण कचरापेटीतून \'पुन्हा आणा\' ने ही कृती उलटवता येते (फ्लोटिंग बटण →\u00A0\'कचरापेटी\'). तुम्हाला तात्काळ पुसणे आवडत असेल तर कचरापेटी पूर्ण बंद करू शकता: तेव्हा प्रत्येक वेळी पुसण्यापूर्वी खात्री विचारली जाईल.\n⚠️ इशारा: ॲप काढून टाकल्यास कचरापेटी रिकामी होते आणि परत मिळत नाही.</string>
+    <string name="settings_bin_desc">फाइल पुसताना काहीही विचारले जात नाही, पण कचरापेटीतून \'पुन्हा आणा\' ने ही कृती उलटवता येते (फ्लोटिंग बटण →\u00A0\'कचरापेटी\'). तुम्हाला तात्काळ पुसणे आवडत असेल तर कचरापेटी पूर्ण बंद करू शकता: तेव्हा प्रत्येक वेळी पुसण्यापूर्वी खात्री विचारली जाईल.\n⚠️ इशारा: ॲप काढून टाकल्यास कचरापेटीतील सामग्री हरवते आणि परत मिळत नाही.</string>
     <string name="pick_duplicate">प्रत बनवा</string>
     <string name="settings_grid_names">ग्रिडमध्ये फाइलचे नाव</string>
     <string name="settings_grid_names_desc">प्रत्येक थंबनेलखाली फाइलचे नाव, जास्तीत जास्त दोन ओळींत. विस्तार कधीही तुटत नाही आणि नेहमी दिसतो: नाव मावले नाही तर मधला भाग लहान होतो.</string>
@@ -283,6 +283,8 @@
     <string name="editor_done_copy">प्रत जतन झाली</string>
     <string name="editor_done_lossless">पुन्हा दाबल्याशिवाय जतन झाले</string>
     <string name="editor_pick_none">या फोनवरचे दुसरे कोणतेही ॲप छायाचित्रे संपादित करण्याची तयारी दाखवत नाही.</string>
+    <string name="editor_pick_send">सामायिक करून</string>
+    <string name="editor_pick_send_desc">ते एक प्रत घेतात आणि त्यांना हवे तिथे साठवतात. मूळ फाइल तशीच राहते.</string>
     <string name="edit_no_file">ही फाईल फोनवर नाही</string>
     <string name="edit_too_big">छायाचित्र या उपकरणासाठी फार मोठे आहे</string>
     <string name="edit_nothing">काहीच बदलले नाही</string>
@@ -298,7 +300,7 @@
     <string name="view_tree">फोल्डर</string>
     <string name="edit_no_backup">सुरक्षा प्रत झाली नाही, म्हणून काहीही वर लिहिले गेले नाही</string>
     <string name="settings_editor_backup">वर लिहिण्यापूर्वी सुरक्षा प्रत</string>
-    <string name="settings_editor_backup_desc">अंगभूत संपादक एखाद्या छायाचित्रावर लिहिण्यापूर्वी, आधीचे रूप कचरापेटीत जाते. हे फक्त अंगभूत संपादकासाठी आहे: दुसरे ॲप स्वतःच जतन करते. ⚠️ बंद असल्यास परत जाण्याचा मार्ग नाही, कारण अंतर्गत संपादक नेहमी वर लिहितो.</string>
+    <string name="settings_editor_backup_desc">अंगभूत संपादक एखाद्या छायाचित्रावर लिहिण्यापूर्वी, आधीचे रूप कचरापेटीत जाते. हे फक्त अंगभूत संपादकासाठी आहे: दुसरे ॲप स्वतःच जतन करते.</string>
     <string name="editor_tall">उभे</string>
     <string name="editor_wide">आडवे</string>
     <string name="pick_drop_ask">निवड सोडायची?</string>

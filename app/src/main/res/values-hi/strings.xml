@@ -245,7 +245,7 @@
     <string name="tree_pictures">केवल चित्रों या वीडियो वाले फ़ोल्डर</string>
     <string name="columns_hint">शॉर्टकट: दिखाने के विकल्पों के लिए तैरता बटन दबाए रखें।</string>
     <string name="settings_bin">कूड़ेदान चालू करें</string>
-    <string name="settings_bin_desc">फ़ाइल मिटाने पर कुछ नहीं पूछा जाता, लेकिन कूड़ेदान से \'वापस लाएँ\' के ज़रिये यह काम पलटा जा सकता है (फ़्लोटिंग बटन →\u00A0\'कूड़ेदान\')। अगर आप तुरंत मिटाना पसंद करते हैं तो कूड़ेदान पूरी तरह बंद कर सकते हैं: उस स्थिति में हर बार मिटाने से पहले पुष्टि दिखेगी।\n⚠️ चेतावनी: ऐप अनइंस्टॉल करने पर रद्दी खाली हो जाती है और वापस नहीं मिलती।</string>
+    <string name="settings_bin_desc">फ़ाइल मिटाने पर कुछ नहीं पूछा जाता, लेकिन कूड़ेदान से \'वापस लाएँ\' के ज़रिये यह काम पलटा जा सकता है (फ़्लोटिंग बटन →\u00A0\'कूड़ेदान\')। अगर आप तुरंत मिटाना पसंद करते हैं तो कूड़ेदान पूरी तरह बंद कर सकते हैं: उस स्थिति में हर बार मिटाने से पहले पुष्टि दिखेगी।\n⚠️ चेतावनी: ऐप अनइंस्टॉल करने पर कूड़ेदान की सामग्री खो जाती है और वापस नहीं मिलती।</string>
     <string name="pick_duplicate">प्रतिलिपि बनाएँ</string>
     <string name="settings_grid_names">ग्रिड में फ़ाइल का नाम</string>
     <string name="settings_grid_names_desc">हर थंबनेल के नीचे फ़ाइल का नाम, ज़्यादा से ज़्यादा दो पंक्तियों में। एक्सटेंशन कभी नहीं टूटता और हमेशा दिखता है: नाम न समाए तो बीच का हिस्सा छोटा होता है।</string>
@@ -283,6 +283,8 @@
     <string name="editor_done_copy">प्रति सहेज ली</string>
     <string name="editor_done_lossless">दोबारा दबाए बिना सहेज लिया</string>
     <string name="editor_pick_none">इस फ़ोन का कोई और ऐप तस्वीरें संपादित करने की पेशकश नहीं करता।</string>
+    <string name="editor_pick_send">साझा करके</string>
+    <string name="editor_pick_send_desc">वे एक प्रति लेते हैं और जहां चाहें सहेजते हैं। मूल फ़ाइल वैसी ही रहती है।</string>
     <string name="edit_no_file">यह फ़ाइल फ़ोन पर नहीं है</string>
     <string name="edit_too_big">तस्वीर इस उपकरण के लिए बहुत बड़ी है</string>
     <string name="edit_nothing">कुछ नहीं बदला</string>
@@ -298,7 +300,7 @@
     <string name="view_tree">फ़ोल्डर</string>
     <string name="edit_no_backup">सुरक्षा प्रति नहीं बनी, इसलिए कुछ भी ऊपर नहीं लिखा गया</string>
     <string name="settings_editor_backup">ऊपर लिखने से पहले सुरक्षा प्रति</string>
-    <string name="settings_editor_backup_desc">अंतर्निहित संपादक किसी तस्वीर पर लिखे, उससे पहले पिछला रूप कूड़ेदान में चला जाता है। यह सिर्फ़ अंतर्निहित संपादक के लिए है: दूसरा ऐप अपने आप सहेजता है। ⚠️ बंद होने पर वापसी का कोई रास्ता नहीं, क्योंकि आंतरिक संपादक हमेशा ऊपर लिख देता है।</string>
+    <string name="settings_editor_backup_desc">अंतर्निहित संपादक किसी तस्वीर पर लिखे, उससे पहले पिछला रूप कूड़ेदान में चला जाता है। यह सिर्फ़ अंतर्निहित संपादक के लिए है: दूसरा ऐप अपने आप सहेजता है।</string>
     <string name="editor_tall">खड़ा</string>
     <string name="editor_wide">आड़ा</string>
     <string name="pick_drop_ask">चयन छोड़ें?</string>

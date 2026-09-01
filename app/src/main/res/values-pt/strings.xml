@@ -260,7 +260,7 @@
     <string name="tree_pictures">Só pastas com imagens ou vídeos</string>
     <string name="columns_hint">Atalho: mantenha o botão flutuante pressionado para as opções de exibição.</string>
     <string name="settings_bin">Ativar a lixeira</string>
-    <string name="settings_bin_desc">Excluir um arquivo não pergunta nada, mas a ação pode ser desfeita com um \'Restaurar\' na lixeira (botão flutuante →\u00A0\'Lixeira\'). Você pode desativar a lixeira por completo, se preferir uma exclusão instantânea: nesse caso, aparecerá uma confirmação antes de cada exclusão.\n⚠️ ATENÇÃO: se você desinstalar o app, a lixeira é esvaziada e não pode ser recuperada.</string>
+    <string name="settings_bin_desc">Excluir um arquivo não pergunta nada, mas a ação pode ser desfeita com um \'Restaurar\' na lixeira (botão flutuante →\u00A0\'Lixeira\'). Você pode desativar a lixeira por completo, se preferir uma exclusão instantânea: nesse caso, aparecerá uma confirmação antes de cada exclusão.\n⚠️ ATENÇÃO: se você desinstalar o app, o conteúdo da lixeira é perdido e não pode ser recuperado.</string>
     <string name="pick_duplicate">Duplicar</string>
     <string name="settings_grid_names">Nome do arquivo na grade</string>
     <string name="settings_grid_names_desc">Sob cada miniatura, o nome do arquivo em no máximo duas linhas. A extensão nunca é quebrada e aparece sempre: quando o nome não cabe, quem cede é o meio.</string>
@@ -298,6 +298,8 @@
     <string name="editor_done_copy">Cópia salva</string>
     <string name="editor_done_lossless">Salva sem recomprimir</string>
     <string name="editor_pick_none">Nenhum outro app deste telefone se oferece para editar imagens.</string>
+    <string name="editor_pick_send">Por compartilhamento</string>
+    <string name="editor_pick_send_desc">Recebem uma cópia e a salvam onde quiserem. O original fica como está.</string>
     <string name="edit_no_file">Este arquivo não está no telefone</string>
     <string name="edit_too_big">A imagem é grande demais para este aparelho</string>
     <string name="edit_nothing">Nada mudou</string>
@@ -313,7 +315,7 @@
     <string name="view_tree">Pastas</string>
     <string name="edit_no_backup">A cópia de segurança falhou, então nada foi sobrescrito</string>
     <string name="settings_editor_backup">Cópia de segurança antes de sobrescrever</string>
-    <string name="settings_editor_backup_desc">Antes de o editor interno sobrescrever uma imagem, a versão anterior vai para a lixeira. Vale só para o editor interno: outro app salva por conta própria. ⚠️ Desligado, não há como voltar atrás, porque o editor interno sempre sobrescreve.</string>
+    <string name="settings_editor_backup_desc">Antes de o editor interno sobrescrever uma imagem, a versão anterior vai para a lixeira. Vale só para o editor interno: outro app salva por conta própria.</string>
     <string name="editor_tall">Retrato</string>
     <string name="editor_wide">Paisagem</string>
     <string name="pick_drop_ask">Descartar a seleção?</string>

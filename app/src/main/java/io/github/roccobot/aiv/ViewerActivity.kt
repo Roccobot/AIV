@@ -1179,7 +1179,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /**
      * Il motore, aperto la prima volta che serve e poi tenuto.
      *
-     * ⚠️ **Aprirlo costa qualche centinaio di millisecondi e 65 MB mappati**: farlo a ogni
+     * ⚠️ **Aprirlo costa qualche centinaio di millisecondi e decine di MB mappati**: farlo a ogni
      * ricerca vorrebbe dire una pausa a ogni lettera digitata.
      */
     private suspend fun clipEngine(context: Context): ClipEngine? {
@@ -1216,7 +1216,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      *
      * ⚠️⚠️ **NON C'È UN INTERRUTTORE OLTRE AI MODELLI, ed è deliberato**: la funzione è accesa
      * se e solo se i modelli sono sul telefono. Un interruttore in più avrebbe permesso la
-     * combinazione senza senso 'modelli scaricati e funzione spenta', cioè 65 MB fermi.
+     * combinazione senza senso 'modelli scaricati e funzione spenta', cioè 86 MB fermi.
      * ⚠️ **Parte all'avvio dell'app e dopo uno scaricamento riuscito**, e non a ogni ricerca:
      * indicizzare mentre si cerca vorrebbe dire una ricerca lenta proprio la prima volta.
      */
@@ -1294,7 +1294,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * Che cosa c'è sul telefono dei modelli della ricerca per contenuto.
      *
      * ⚠️⚠️ **LO SCARICAMENTO VIVE QUI E NON NELLA SCHERMATA, ed è la ragione per cui questo
-     * stato sta nel modello**: sono 65 MB, cioè minuti, e un lavoro appeso alla composizione
+     * stato sta nel modello**: sono 86 MB, cioè minuti, e un lavoro appeso alla composizione
      * morirebbe **uscendo dalle impostazioni**, che è la prima cosa che si fa mentre si
      * aspetta. Nell'ambito del modello sopravvive a tutte le schermate e muore con l'app.
      * ⚠️ **Non sopravvive alla chiusura dell'app**, e non è un difetto nascosto: riaprendo si
@@ -1332,7 +1332,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             }
             // ⚠️⚠️ **NON SI INDICIZZA DA SÉ, dalla 1.02**: fino alla 1.01 partiva qui, e
             // il crollo del motore arrivava addosso a chi aveva appena finito di scaricare
-            // 65 MB, senza che avesse chiesto niente. Adesso finito lo scaricamento la
+            // 86 MB, senza che avesse chiesto niente. Adesso finito lo scaricamento la
             // schermata offre il tasto, e nel motore si entra solo su richiesta.
             clipBlocked = withContext(Dispatchers.IO) { clipWhy(context) }
         }
@@ -1676,6 +1676,9 @@ class ViewerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        // ⚠️ Prima di qualunque altra cosa, perché deve valere anche per quello che parte
+        // da qui in poi: vedi `ClipGuard.watch`, che spiega perché un `catch` non basta.
+        ClipGuard.watch(this)
         // Only on a fresh start: on a rotation the ViewModel already holds the
         // picture, and re-reading the intent would load it a second time.
         if (savedInstanceState == null) model.handleIntent(intent)
