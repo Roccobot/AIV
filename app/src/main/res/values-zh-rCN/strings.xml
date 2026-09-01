@@ -230,7 +230,7 @@
     <string name="tree_pictures">仅含图片或视频的文件夹</string>
     <string name="columns_hint">快捷方式：长按悬浮按钮打开显示选项。</string>
     <string name="settings_bin">启用回收站</string>
-    <string name="settings_bin_desc">删除文件不会有任何提示，但可以在回收站里用 \'还原\' 撤销（悬浮按钮 →\u00A0\'回收站\'）。如果你更喜欢立即删除，可以完全关闭回收站：那样每次删除前都会出现确认。\n\n⚠️ 注意：卸载应用后，回收站会被清空且无法恢复。</string>
+    <string name="settings_bin_desc">删除文件不会有任何提示，但可以在回收站里用 \'还原\' 撤销（悬浮按钮 →\u00A0\'回收站\'）。如果你更喜欢立即删除，可以完全关闭回收站：那样每次删除前都会出现确认。\n⚠️ 注意：卸载应用后，回收站会被清空且无法恢复。</string>
     <string name="pick_duplicate">创建副本</string>
     <string name="settings_grid_names">网格中显示文件名</string>
     <string name="settings_grid_names_desc">每张缩略图下显示文件名，最多两行。扩展名不会被换行拆开，始终可见：名字放不下时，让位的是中间部分。</string>
@@ -287,10 +287,8 @@
     <string name="editor_tall">竖向</string>
     <string name="editor_wide">横向</string>
     <string name="pick_drop_ask">要取消选择吗？</string>
-    <plurals name="pick_drop_desc">
-        <item quantity="other">%1$d 项将不再处于选中状态。文件仍留在原处。</item>
-    </plurals>
     <string name="pick_drop">取消选择</string>
+    <string name="pick_keep">保留</string>
     <string name="pick_list_done">文件列表已复制到剪贴板</string>
     <string name="settings_pick_weight">所选内容的大小</string>
     <string name="settings_pick_weight_desc">在选择的顶部、数量旁边，可以看到所选项目的总大小。每当选择停下来时都会向系统查询大小；关闭后就不再查询。</string>

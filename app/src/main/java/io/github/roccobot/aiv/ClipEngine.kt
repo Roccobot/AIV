@@ -149,10 +149,25 @@ class ClipEngine private constructor(
         /**
          * Come si apre una sessione.
          *
-         * ⚠️ **Due fili e non tutti quelli che ci sono**: di serie ONNX Runtime ne prende
-         * quanti sono i nuclei, e su un telefono vuol dire otto arene di memoria per un
-         * lavoro che gira in sottofondo mentre l'utente sfoglia le fotografie. Due bastano a
-         * non far durare l'indicizzazione il doppio, e la punta di memoria si abbassa.
+         * ⚠️⚠️⚠️ **UN FILO SOLO, dalla 1.10, E LA RAGIONE È DIAGNOSTICA PRIMA CHE DI
+         * PRESTAZIONI.** Sulla `1.09` il processo è terminato con **`SIGABRT`** dentro
+         * `OrtSession.run`, con `libc++.so` nella traccia: è la firma di un'**eccezione C++
+         * non catturata**, che chiama `std::terminate` e quindi `abort`.
+         * ⚠️ **Perché quell'eccezione non diventa un errore Java**: l'API C di ONNX Runtime
+         * non lascia passare eccezioni, restituisce uno stato, e il livello Java lo trasforma
+         * in `OrtException`. Quel meccanismo copre il filo che **chiama**; un'eccezione
+         * sollevata dentro un filo del pool intra-op non ha nessuno che la raccolga, e
+         * termina il processo.
+         * ⚠️ **Con `1` il pool non nasce proprio**: ONNX Runtime esegue gli operatori sul filo
+         * chiamante, quindi l'eccezione arriva al confine JNI, diventa `OrtException`, la
+         * prende il `runCatching` dell'indicizzazione, e la sicura ne **scrive il messaggio**.
+         * Da 'il processo è sparito' si passa a una frase che dice che cosa non ha funzionato.
+         * ⚠️ **Può anche essere la correzione, e non solo la misura**: se il difetto sta nel
+         * percorso parallelo, con un filo solo non si presenta. Non lo si dà per scontato.
+         * ⚠️ **Il costo è trascurabile**: l'indicizzazione gira in sottofondo, e su millecinque
+         * cento fotografie sono decine di secondi in più su un lavoro di minuti.
+         * ⚠️ **Prima erano due**, per non prendere un filo per nucleo (otto arene di memoria
+         * per un lavoro di sottofondo). Quel motivo resta valido, e questo è più forte.
          *
          * ⚠️⚠️⚠️ **`mlas.disable_kleidiai` SPEGNE I NUCLEI SME DI ARM, ED È LA CORREZIONE DEL
          * CROLLO CHE UCCIDEVA L'APP** (segnalato dalla `0.88`, diagnosticato il 2026-09-01).
@@ -192,8 +207,8 @@ class ClipEngine private constructor(
         /** La chiave che spegne KleidiAI, letta dentro la libreria arm64 spedita. */
         private const val NO_SME = "mlas.disable_kleidiai"
 
-        /** Quanti fili per il motore. Vedi [options]. */
-        private const val THREADS = 2
+        /** Quanti fili per il motore. Vedi [options]: **uno**, e non è per la memoria. */
+        private const val THREADS = 1
 
         /**
          * Quanto due vettori si somigliano, da -1 a 1.

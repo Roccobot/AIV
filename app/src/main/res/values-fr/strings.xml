@@ -260,7 +260,7 @@
     <string name="tree_pictures">Seulement les dossiers avec images ou vidéos</string>
     <string name="columns_hint">Raccourci : appuyez longuement sur le bouton flottant pour les options d\'affichage.</string>
     <string name="settings_bin">Activer la corbeille</string>
-    <string name="settings_bin_desc">La suppression d\'un fichier ne demande rien, mais l\'action est réversible avec un \'Restaurer\' depuis la corbeille (bouton flottant →\u00A0\'Corbeille\'). Vous pouvez désactiver complètement la corbeille si vous préférez une suppression instantanée: dans ce cas, une confirmation apparaît avant chaque suppression.\n\n⚠️ ATTENTION : si tu désinstalles l\'application, la corbeille est vidée et devient irrécupérable.</string>
+    <string name="settings_bin_desc">La suppression d\'un fichier ne demande rien, mais l\'action est réversible avec un \'Restaurer\' depuis la corbeille (bouton flottant →\u00A0\'Corbeille\'). Vous pouvez désactiver complètement la corbeille si vous préférez une suppression instantanée: dans ce cas, une confirmation apparaît avant chaque suppression.\n⚠️ ATTENTION : si tu désinstalles l\'application, la corbeille est vidée et devient irrécupérable.</string>
     <string name="pick_duplicate">Dupliquer</string>
     <string name="settings_grid_names">Nom du fichier dans la grille</string>
     <string name="settings_grid_names_desc">Sous chaque vignette, le nom du fichier sur deux lignes au maximum. L\'extension n\'est jamais coupée et reste toujours visible: si le nom ne tient pas, c\'est le milieu qui cède.</string>
@@ -317,12 +317,8 @@
     <string name="editor_tall">Portrait</string>
     <string name="editor_wide">Paysage</string>
     <string name="pick_drop_ask">Abandonner la sélection ?</string>
-    <plurals name="pick_drop_desc">
-        <item quantity="one">%1$d élément ne sera plus sélectionné. Les fichiers restent où ils sont.</item>
-        <item quantity="other">%1$d éléments ne seront plus sélectionnés. Les fichiers restent où ils sont.</item>
-        <item quantity="many">%1$d éléments ne seront plus sélectionnés. Les fichiers restent où ils sont.</item>
-    </plurals>
     <string name="pick_drop">Abandonner</string>
+    <string name="pick_keep">Garder</string>
     <string name="pick_list_done">Liste des fichiers copiée dans le presse-papiers</string>
     <string name="settings_pick_weight">Poids de la sélection</string>
     <string name="settings_pick_weight_desc">En tête de la sélection, à côté du compte, on lit combien pèsent en tout les éléments choisis. Le poids est demandé au système chaque fois que la sélection s\'arrête : désactivé, cette question n\'est jamais posée.</string>

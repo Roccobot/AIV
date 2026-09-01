@@ -305,7 +305,7 @@
     <string name="tree_pictures">المجلدات التي بها صور أو فيديو فقط</string>
     <string name="columns_hint">اختصار: اضغط مطولا على الزر العائم لفتح خيارات العرض.</string>
     <string name="settings_bin">تشغيل سلة المهملات</string>
-    <string name="settings_bin_desc">حذف ملف لا يطلب أي تأكيد، لكن الإجراء قابل للتراجع عبر \'استعادة\' من سلة المهملات (الزر العائم →\u00A0\'سلة المهملات\'). يمكنك إيقاف سلة المهملات تماما إذا كنت تفضل الحذف الفوري: في تلك الحالة سيظهر تأكيد قبل كل عملية حذف.\n\n⚠️ تنبيه: إذا أزلت التطبيق، تفرغ سلة المهملات ولا يمكن استرجاعها.</string>
+    <string name="settings_bin_desc">حذف ملف لا يطلب أي تأكيد، لكن الإجراء قابل للتراجع عبر \'استعادة\' من سلة المهملات (الزر العائم →\u00A0\'سلة المهملات\'). يمكنك إيقاف سلة المهملات تماما إذا كنت تفضل الحذف الفوري: في تلك الحالة سيظهر تأكيد قبل كل عملية حذف.\n⚠️ تنبيه: إذا أزلت التطبيق، تفرغ سلة المهملات ولا يمكن استرجاعها.</string>
     <string name="pick_duplicate">تكرار</string>
     <string name="settings_grid_names">اسم الملف في الشبكة</string>
     <string name="settings_grid_names_desc">تحت كل صورة مصغرة اسم الملف، في سطرين على الأكثر. لا يُقطع الامتداد أبدا ويظهر دائما: إذا لم يتسع الاسم، فالوسط هو الذي يُختصر.</string>
@@ -362,15 +362,8 @@
     <string name="editor_tall">طولي</string>
     <string name="editor_wide">عرضي</string>
     <string name="pick_drop_ask">هل تريد إلغاء التحديد؟</string>
-    <plurals name="pick_drop_desc">
-        <item quantity="zero">%1$d عنصر لن يعود محددا. الملفات تبقى مكانها.</item>
-        <item quantity="one">عنصر واحد لن يعود محددا. الملفات تبقى مكانها.</item>
-        <item quantity="two">عنصران لن يعودا محددين. الملفات تبقى مكانها.</item>
-        <item quantity="few">%1$d عناصر لن تعود محددة. الملفات تبقى مكانها.</item>
-        <item quantity="many">%1$d عنصرا لن يعود محددا. الملفات تبقى مكانها.</item>
-        <item quantity="other">%1$d عنصر لن يعود محددا. الملفات تبقى مكانها.</item>
-    </plurals>
     <string name="pick_drop">إلغاء التحديد</string>
+    <string name="pick_keep">احتفاظ</string>
     <string name="pick_list_done">تم نسخ قائمة الملفات إلى الحافظة</string>
     <string name="settings_pick_weight">حجم التحديد</string>
     <string name="settings_pick_weight_desc">في أعلى التحديد، بجانب العدد، يظهر حجم العناصر المحددة كلها. يطلب الحجم من النظام في كل مرة يتوقف فيها التحديد: عند الإيقاف، لا يطرح هذا السؤال.</string>

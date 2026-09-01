@@ -1253,25 +1253,28 @@ fun GridScreen(
      * che non riguarda dei file scelti.
      */
     if (discarding) {
+        /*
+         * ⚠️⚠️ **SOLO LA DOMANDA E DUE VERBI, dalla 1.10** (riscontro dell'utente: *non
+         * servono descrizioni: abbassa il popup e mostra i tasti 'Mantieni' e 'Scarta'*).
+         * Nella `1.09` sotto il titolo c'era una riga che contava gli elementi e rassicurava
+         * che i file restavano dove sono: diceva una cosa vera che **nessuno aveva chiesto**,
+         * e per dirla allungava di due righe un dialogo la cui unica funzione è farsi
+         * rispondere in un tocco.
+         * ⚠️ **I due tasti sono VERBI e non 'Annulla' e 'OK'**: chi legge 'Annulla' su una
+         * domanda deve ancora capire che cosa annulla, la domanda o la selezione. 'Mantieni'
+         * e 'Scarta' dicono l'esito, quindi la domanda si può anche non rileggere.
+         */
         AlertDialog(
             onDismissRequest = { discarding = false },
             title = { Text(stringResource(R.string.pick_drop_ask)) },
-            text = {
-                Text(
-                    pluralStringResource(R.plurals.pick_drop_desc, chosen.size, chosen.size)
-                )
-            },
             confirmButton = {
                 TextButton(onClick = { discarding = false; chosen = emptySet() }) {
                     Text(stringResource(R.string.pick_drop))
                 }
             },
-            // ⚠️ 'Annulla' è quello che c'è già, e non se ne aggiunge un secondo: la
-            // parola è la stessa in tutte e 28 le lingue, e due chiavi per la stessa
-            // parola divergono al primo ritocco di una delle due.
             dismissButton = {
                 TextButton(onClick = { discarding = false }) {
-                    Text(stringResource(R.string.cancel))
+                    Text(stringResource(R.string.pick_keep))
                 }
             }
         )

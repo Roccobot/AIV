@@ -351,7 +351,7 @@
     <string name="tree_pictures">Solo cartelle con immagini/video</string>
     <string name="columns_hint">Scorciatoia: tieni premuto il tasto flottante per le opzioni di visualizzazione.</string>
     <string name="settings_bin">Attiva il cestino</string>
-    <string name="settings_bin_desc">L\'eliminazione di file non prevede alcun avviso, ma l\'azione è reversibile con un \'Ripristina\' dal cestino (tasto flottante →\u00A0\'Cestino\'). Puoi disattivare del tutto il cestino, se preferisci un\'eliminazione istantanea: in quel caso, apparirà una conferma prima di ogni eliminazione.\n\n⚠️ ATTENZIONE: se disinstalli l\'app, il cestino è svuotato e diventa irrecuperabile.</string>
+    <string name="settings_bin_desc">L\'eliminazione di file non prevede alcun avviso, ma l\'azione è reversibile con un \'Ripristina\' dal cestino (tasto flottante →\u00A0\'Cestino\'). Puoi disattivare del tutto il cestino, se preferisci un\'eliminazione istantanea: in quel caso, apparirà una conferma prima di ogni eliminazione.\n⚠️ ATTENZIONE: se disinstalli l\'app, il cestino è svuotato e diventa irrecuperabile.</string>
     <string name="pick_duplicate">Duplica</string>
     <string name="settings_grid_names">Nome del file in vista griglia</string>
     <string name="settings_grid_names_desc">Sotto ogni miniatura, il nome del file su due righe al massimo. L\'estensione non va mai a capo e si vede sempre: quando il nome non ci sta, a cedere è la parte centrale.</string>
@@ -376,13 +376,9 @@
     <string name="settings_content_blocked">L\'ultima volta ha fatto chiudere l\'app (%1$s), quindi si è fermata da sé. Il resto dell\'app non è toccato.</string>
     <string name="settings_content_index">Indicizza adesso le fotografie</string>
     <string name="settings_content_indexing">Indicizzo: %1$d di %2$d</string>
-    <string name="pick_drop_ask">Scartare la selezione?</string>
-    <plurals name="pick_drop_desc">
-        <item quantity="one">%1$d elemento non sarà più scelto. I file restano dove sono.</item>
-        <item quantity="other">%1$d elementi non saranno più scelti. I file restano dove sono.</item>
-        <item quantity="many">%1$d elementi non saranno più scelti. I file restano dove sono.</item>
-    </plurals>
+    <string name="pick_drop_ask">Vuoi scartare la selezione?</string>
     <string name="pick_drop">Scarta</string>
+    <string name="pick_keep">Mantieni</string>
     <string name="pick_list_done">Lista file copiata negli appunti</string>
     <string name="settings_pick_weight">Peso della selezione</string>
     <string name="settings_pick_weight_desc">In testa alla selezione, accanto al conto, si legge quanto pesano in tutto gli elementi scelti. Il peso si chiede al sistema ogni volta che la selezione si ferma: spento, quella domanda non parte.</string>
