@@ -43,31 +43,33 @@
     <string name="settings_dark">暗い</string>
     <string name="settings_folder_columns">フォルダ一覧の列数</string>
     <string name="settings_folder_columns_desc">列を増やすと画面に入るフォルダは増え、表紙は小さくなります。4列では下の名前はたいてい切れます。</string>
-    <string name="settings_folder_count">フォルダーの下に項目の数</string>
+    <string name="settings_folder_count">グリッド表示でフォルダーの下に項目数を表示</string>
     <string name="settings_hand">主な機能の位置</string>
     <string name="settings_right">右</string>
     <string name="settings_left">左</string>
     <string name="settings_list_path">ファイル一覧: フォルダーのパスもコピー</string>
-    <string name="settings_folder_count_desc">各カバーの下に、フォルダー内の画像の枚数を表示します。オフにすると行が短くなり、その分だけ上部の見出しが広がります。</string>
+    <string name="settings_folder_count_desc">各フォルダーのプレビューの下に、画像の数と動画の数が表示されます。</string>
     <string name="settings_fit_grow">小さい画像を拡大する</string>
     <string name="settings_fit_grow_desc">オフなら画面より小さい画像は実寸で表示します。オンなら画面いっぱいまで拡大します。</string>
     <string name="settings_zoom_max">最大倍率</string>
-    <string name="settings_scale_mode" formatted="false">100%の意味</string>
+    <string name="settings_zoom_page">表示サイズとズーム</string>
+    <string name="settings_zoom_page_summary">拡大、最大ズーム、ピクセルの描画</string>
+    <string name="settings_scale_mode" formatted="false">ピクセルの描画</string>
     <string name="settings_scale_physical">ファイルの1ピクセルを画面の1ピクセルに</string>
     <string name="settings_scale_logical">ファイルの1ピクセルをレイアウトの1ピクセルに</string>
-    <string name="settings_scale_desc">スマートフォンの画面はレイアウト1ピクセルに実ピクセルを2つか3つ詰めているので、2つの答えは大きく違います。前者はファイルそのままの大きさ、後者はウェブページで見える大きさです。</string>
+    <string name="settings_scale_desc">実ピクセル等倍の拡大が何を意味するかを決めます。現代の端末の画面は、論理ピクセル1個を実ピクセル2〜3個の正方形で描きます。最初の選択は論理ピクセルを無視し、画像の1点を実ピクセル1個に対応させます。2番目は、ウェブページで表示されるのと同じ大きさで表示します。</string>
     <string name="details_bar">詳細バー</string>
     <string name="settings_top">上</string>
     <string name="settings_bottom">下</string>
-    <string name="settings_info_visible">最初から詳細バーを表示</string>
+    <string name="settings_info_visible">起動時に情報バーを表示</string>
     <string name="settings_anim_counter">フレームカウンター</string>
     <string name="settings_anim_counter_desc">アニメーション画像の操作バーに表示します。</string>
-    <string name="settings_reverse_order">並ぶ向きを逆にする (日付順)</string>
-    <string name="settings_reverse_order_desc">オフなら新しいものから古いものへ、スマートフォンのギャラリーと同じ向きにめくります。オンなら古いものから新しいものへ、時系列でめくります。</string>
-    <string name="settings_clipboard">起動時にクリップボードを読む</string>
-    <string name="settings_clipboard_desc">アイコンからアプリを開いたとき、クリップボードのアドレスが画像を直接指していればその画像を開きます。Androidはアプリがクリップボードを読むたびに通知を出すので、オフのままなら通知は出ません。</string>
+    <string name="settings_reverse_order">古い順に右へ画像をめくる</string>
+    <string name="settings_reverse_order_desc">Android のギャラリーは既定で、いちばん上の項目を最新とみなし、さかのぼる向きにめくります。ファイルマネージャーの並び順にするには、この項目をオンにしてください。古いものから新しいものへ進みます。</string>
+    <string name="settings_clipboard">起動時にクリップボードの内容を読む</string>
+    <string name="settings_clipboard_desc">アプリを開いたとき（新規の起動）、システムのクリップボードに画像への直接のリンクがあれば、ホーム画面ではなくその画像がビューアーで直接開きます。</string>
     <string name="settings_start_folder">起動時にフォルダを開く</string>
-    <string name="settings_start_folder_desc">アプリを開くとフォルダ一覧ではなく、選んだフォルダの中身がすぐ出ます。</string>
+    <string name="settings_start_folder_desc">起動時に、ホーム画面ではなく指定したフォルダーの中身を表示します。</string>
     <string name="settings_start_folder_none">フォルダを選んでいません</string>
     <string name="settings_start_folder_pick">選ぶ</string>
     <string name="folders_title">フォルダ</string>
@@ -213,7 +215,7 @@
     <string name="bin_empty_hint">ショートカット: フローティングボタンを長押しするとゴミ箱を空にします。</string>
     <string name="facts_title">ファイルの詳細情報</string>
     <string name="settings_reset_hints">ヒントをもう一度表示</string>
-    <string name="settings_reset_hints_desc">ショートカットの説明が、インストール直後と同じようにまた表示されます。</string>
+    <string name="settings_reset_hints_desc">通常は初回起動時にだけ表示されるミニチュートリアル、案内、ヒント、注意書きが、もう一度だけ表示されるようになります。</string>
     <string name="settings_reset_hints_do">もう一度表示</string>
     <string name="settings_reset_hints_done">ヒントがまた表示されます</string>
     <string name="bin_restore_all">すべて元に戻す</string>
@@ -235,7 +237,7 @@
     <string name="settings_bin_desc">ファイルの削除では何も確認しませんが、ゴミ箱から \'元に戻す\' で取り消せます (フローティングボタン →\u00A0\'ゴミ箱\')。すぐに削除したい場合はゴミ箱を完全に無効にできます。その場合は削除のたびに確認が表示されます。\n⚠️ 注意: アプリをアンインストールすると、ゴミ箱の中身は失われ、元に戻せません。</string>
     <string name="pick_duplicate">複製</string>
     <string name="settings_grid_names">グリッドにファイル名</string>
-    <string name="settings_grid_names_desc">各サムネイルの下にファイル名を最大2行で表示します。拡張子は改行で分割されず常に見えます。名前が収まらない場合は中ほどが省略されます。</string>
+    <string name="settings_grid_names_desc">グリッド表示でもサムネイルの下にファイル名を表示します。最大2行です。</string>
     <string name="grid_item_clip">動画</string>
     <string name="clip_play">再生</string>
     <string name="hub_view_tree">システムのフォルダ</string>
@@ -244,7 +246,7 @@
     <string name="tree_unopenable">この端末には開けるアプリがありません</string>
     <string name="clip_pause">一時停止</string>
     <string name="settings_images_only">写真だけをめくる</string>
-    <string name="settings_images_only_desc">ビューアでのスワイプが動画を飛ばし、写真だけを表示します。グリッドで動画をタップすれば再生されます。これはスワイプの話で、タップの話ではありません。</string>
+    <string name="settings_images_only_desc">ビューアーで左右にスワイプすると動画を飛ばし、画像だけを対象にします。グリッド・リスト・フォルダーから軽くたたけば動画も再生できます。</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">編集</string>
@@ -267,8 +269,8 @@
     <string name="edit_no_overwrite">この形式は書き戻せないので、コピーだけになります。</string>
     <string name="edit_failed">保存できませんでした</string>
     <string name="edit_app_gone">そのエディターはもうありません。別のものを選んでください。</string>
-    <string name="settings_editor">画像を編集するアプリ</string>
-    <string name="settings_editor_desc">画像で編集をタップしたときに開くアプリです。内蔵のものは回転と切り抜きを行います。</string>
+    <string name="settings_editor">画像エディター</string>
+    <string name="settings_editor_desc">ビューアーのメニューの「編集」に割り当てるアプリです。近道として、「編集」を長押しするとその場でアプリを変更でき、選択は記憶されます。Astonishing Image Viewer 内蔵のエディターも選べます。こちらは画像に対して切り抜きと回転の2つの操作だけを行えます。</string>
     <string name="settings_editor_none">未選択</string>
     <string name="settings_editor_pick">選ぶ</string>
     <string name="view_grid">グリッド</string>
@@ -276,15 +278,15 @@
     <string name="view_tree">フォルダ</string>
     <string name="edit_no_backup">安全のための控えが作れなかったので、何も上書きしていません</string>
     <string name="settings_editor_backup">上書きの前に控えを取る</string>
-    <string name="settings_editor_backup_desc">上書きされた画像の以前の版はゴミ箱に保管されます。</string>
+    <string name="settings_editor_backup_desc">エディターが画像を上書きする前に、そのコピーをごみ箱に保存します。そこから復元でき、不要なら次回の「ごみ箱を空にする」で削除されます。</string>
     <string name="editor_tall">縦</string>
     <string name="editor_wide">横</string>
     <string name="pick_drop_ask">選択を取り消しますか？</string>
     <string name="pick_drop">取り消す</string>
     <string name="pick_keep">残す</string>
     <string name="pick_list_done">ファイル一覧をクリップボードにコピーしました</string>
-    <string name="settings_pick_weight">選択のサイズ</string>
-    <string name="settings_pick_weight_desc">選択の先頭、件数の隣に、選んだ項目の合計サイズが表示されます。サイズは選択が止まるたびにシステムへ問い合わせます。オフにすると、その問い合わせは行われません。</string>
+    <string name="settings_pick_weight">選択したファイルのサイズ</string>
+    <string name="settings_pick_weight_desc">選択の先頭、カウンターの隣に、選択したすべての項目の合計サイズが表示されます。選択を変えるたびに変化します。</string>
     <string name="anim_play">再生</string>
     <string name="anim_pause">一時停止</string>
     <string name="anim_prev">前のフレーム</string>

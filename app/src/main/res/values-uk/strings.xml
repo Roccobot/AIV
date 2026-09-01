@@ -43,31 +43,33 @@
     <string name="settings_dark">Темний</string>
     <string name="settings_folder_columns">Стовпці в сітці тек</string>
     <string name="settings_folder_columns_desc">Що більше стовпців, то більше тек вміщується на екрані і то менша кожна обкладинка. За чотирьох ім\'я під нею зазвичай обрізається.</string>
-    <string name="settings_folder_count">Кількість елементів під теками</string>
+    <string name="settings_folder_count">Лічильник елементів під теками в режимі сітки</string>
     <string name="settings_hand">Розташування основних функцій</string>
     <string name="settings_right">Праворуч</string>
     <string name="settings_left">Ліворуч</string>
     <string name="settings_list_path">Список файлів: копіювати шлях теки</string>
-    <string name="settings_folder_count_desc">Під кожною обкладинкою, скільки зображень у теці. Якщо вимкнути, рядок стає коротшим, а заголовок угорі виростає на стільки ж.</string>
+    <string name="settings_folder_count_desc">Під кожним ескізом теки з\'являться лічильник зображень і лічильник відео.</string>
     <string name="settings_fit_grow">Збільшувати малі зображення</string>
     <string name="settings_fit_grow_desc">Вимкнено: зображення, менше за екран, показується в справжньому розмірі. Увімкнено: воно росте, доки не заповнить екран.</string>
     <string name="settings_zoom_max">Найбільше збільшення</string>
-    <string name="settings_scale_mode" formatted="false">Що означає 100%</string>
+    <string name="settings_zoom_page">Припасування та масштаб</string>
+    <string name="settings_zoom_page_summary">Збільшення, найбільший масштаб, відтворення пікселів</string>
+    <string name="settings_scale_mode" formatted="false">Відтворення пікселів</string>
     <string name="settings_scale_physical">Один піксель файлу на один піксель екрана</string>
     <string name="settings_scale_logical">Один піксель файлу на один піксель розмітки</string>
-    <string name="settings_scale_desc">Екран телефона вміщує два чи три справжні пікселі в одному пікселі розмітки, тож дві відповіді дуже різні: перша показує файл таким, як він є, друга в розмірі, який дала б вебсторінка.</string>
+    <string name="settings_scale_desc">Визначає, чому відповідає масштаб у реальних пікселях. Екран будь-якого сучасного пристрою малює кожен логічний піксель квадратом із двох або трьох реальних. Перший вибір не зважає на логічні пікселі й переводить кожну точку в один реальний піксель; другий показує кожен об\'єкт того розміру, який він мав би на вебсторінці.</string>
     <string name="details_bar">Рядок подробиць</string>
     <string name="settings_top">Угорі</string>
     <string name="settings_bottom">Унизу</string>
-    <string name="settings_info_visible">Показувати рядок одразу</string>
+    <string name="settings_info_visible">Смуга відомостей під час запуску</string>
     <string name="settings_anim_counter">Лічильник кадрів</string>
     <string name="settings_anim_counter_desc">З\'являється на панелі керування анімованих зображень.</string>
-    <string name="settings_reverse_order">Змінити напрям послідовності (за датою)</string>
-    <string name="settings_reverse_order_desc">Вимкнено: ви гортаєте від найновішого до старіших, як у галереї телефона. Увімкнено: за часом, від найстарішого до найновішого.</string>
-    <string name="settings_clipboard">Читати буфер обміну під час запуску</string>
-    <string name="settings_clipboard_desc">Якщо відкрити застосунок зі значка, а в буфері обміну лежить адреса просто на зображення, воно відкриється. Android показує сповіщення щоразу, коли застосунок читає буфер: залишити вимкненим означає ніколи його не бачити.</string>
+    <string name="settings_reverse_order">Гортати зображення праворуч від найстарішого</string>
+    <string name="settings_reverse_order_desc">Типово галереї Android вважають перший елемент, найвищий, найновішим, і гортання йде назад. Увімкніть цей параметр для порядку файлового менеджера: від найстарішого до найновішого.</string>
+    <string name="settings_clipboard">Читати вміст буфера обміну під час запуску</string>
+    <string name="settings_clipboard_desc">Коли ви відкриваєте застосунок (новий запуск), а системний буфер обміну містить пряме посилання на зображення, воно відкриється одразу в переглядачі замість головного екрана.</string>
     <string name="settings_start_folder">Відкривати теку під час запуску</string>
-    <string name="settings_start_folder_desc">Коли застосунок відкривається, одразу видно вміст обраної теки, а не список тек.</string>
+    <string name="settings_start_folder_desc">Показує під час запуску вміст вибраної теки замість головного екрана.</string>
     <string name="settings_start_folder_none">Теку не обрано</string>
     <string name="settings_start_folder_pick">Обрати</string>
     <string name="folders_title">Теки</string>
@@ -258,7 +260,7 @@
     <string name="bin_empty_hint">Швидка дія: натисніть і утримуйте плаваючу кнопку, щоб очистити кошик.</string>
     <string name="facts_title">Докладні відомості про файл</string>
     <string name="settings_reset_hints">Повернути підказки</string>
-    <string name="settings_reset_hints_desc">Пояснення швидких дій знову з\'являться, як після нового встановлення.</string>
+    <string name="settings_reset_hints_desc">Мініпосібники, вступні підказки, поради та попередження, які зазвичай видно лише під час першого запуску, знову стануть видимими (один раз).</string>
     <string name="settings_reset_hints_do">Повернути</string>
     <string name="settings_reset_hints_done">Підказки з\'являться знову</string>
     <string name="bin_restore_all">Повернути все</string>
@@ -280,7 +282,7 @@
     <string name="settings_bin_desc">Видалення файлу нічого не запитує, але дію можна скасувати через \'Повернути\' з кошика (плаваюча кнопка →\u00A0\'Кошик\'). Кошик можна зовсім вимкнути, якщо ви бажаєте миттєве видалення: тоді перед кожним видаленням з\'явиться підтвердження.\n⚠️ УВАГА: якщо видалити застосунок, вміст кошика буде втрачено і його не відновити.</string>
     <string name="pick_duplicate">Дублювати</string>
     <string name="settings_grid_names">Назва файлу в сітці</string>
-    <string name="settings_grid_names_desc">Під кожною мініатюрою назва файлу, не більше двох рядків. Розширення ніколи не переноситься і видно завжди: якщо назва не вміщається, скорочується середина.</string>
+    <string name="settings_grid_names_desc">Показує назву файлу й у режимі сітки, під ескізом. Щонайбільше два рядки.</string>
     <string name="grid_item_clip">Відео</string>
     <string name="clip_play">Відтворити</string>
     <string name="hub_view_tree">Папки пристрою</string>
@@ -289,7 +291,7 @@
     <string name="tree_unopenable">Жодна програма на цьому телефоні не може це відкрити</string>
     <string name="clip_pause">Пауза</string>
     <string name="settings_images_only">Гортати лише фотографії</string>
-    <string name="settings_images_only_desc">У переглядачі гортання пропускає відео і показує лише фотографії. Дотик до відео в сітці все одно його відтворить: це про жест, а не про дотик.</string>
+    <string name="settings_images_only_desc">У переглядачі проведення праворуч і ліворуч пропускає відео й враховує лише зображення. Відео все одно можна відтворити дотиком із сітки, списку або тек.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Змінити</string>
@@ -312,8 +314,8 @@
     <string name="edit_no_overwrite">Цей формат не можна перезаписати, тож лишається тільки копія.</string>
     <string name="edit_failed">Зберегти не вдалося</string>
     <string name="edit_app_gone">Цього редактора вже немає. Оберіть інший.</string>
-    <string name="settings_editor">Застосунок для редагування зображень</string>
-    <string name="settings_editor_desc">Застосунок, який відкривається після дотику до Змінити на зображенні. Вбудований обертає та обрізає.</string>
+    <string name="settings_editor">Редактор зображень</string>
+    <string name="settings_editor_desc">Застосунок, пов\'язаний із командою \'Змінити\' в меню переглядача. Швидкий спосіб: утримуйте \'Змінити\', щоб одразу змінити застосунок (вибір запам\'ятовується). Можна вибрати й внутрішній редактор Astonishing Image Viewer, який виконує над зображеннями лише дві дії: обрізання та обертання.</string>
     <string name="settings_editor_none">Не обрано</string>
     <string name="settings_editor_pick">Обрати</string>
     <string name="view_grid">Сітка</string>
@@ -321,15 +323,15 @@
     <string name="view_tree">Папки</string>
     <string name="edit_no_backup">Резервну копію не вдалося зробити, тож нічого не перезаписано</string>
     <string name="settings_editor_backup">Резервна копія перед перезаписом</string>
-    <string name="settings_editor_backup_desc">Попередня версія кожного перезаписаного зображення зберігається в кошику.</string>
+    <string name="settings_editor_backup_desc">Перш ніж редактор перезапише зображення, він зберігає його копію в кошику, звідки її можна повернути; якщо вона не потрібна, її буде вилучено під час наступного очищення кошика.</string>
     <string name="editor_tall">Портрет</string>
     <string name="editor_wide">Пейзаж</string>
     <string name="pick_drop_ask">Скасувати вибір?</string>
     <string name="pick_drop">Скасувати</string>
     <string name="pick_keep">Залишити</string>
     <string name="pick_list_done">Список файлів скопійовано в буфер обміну</string>
-    <string name="settings_pick_weight">Розмір вибраного</string>
-    <string name="settings_pick_weight_desc">Угорі вибору, поряд із лічильником, видно, скільки важать вибрані елементи разом. Розмір запитується в системи щоразу, коли вибір зупиняється: якщо вимкнено, цей запит не надсилається.</string>
+    <string name="settings_pick_weight">Розмір вибраних файлів</string>
+    <string name="settings_pick_weight_desc">На початку вибору, поруч із лічильником, з\'являється загальний розмір усіх вибраних елементів. Він змінюється з кожною зміною вибору.</string>
     <string name="anim_play">Відтворити</string>
     <string name="anim_pause">Пауза</string>
     <string name="anim_prev">Попередній кадр</string>

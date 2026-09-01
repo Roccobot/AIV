@@ -43,31 +43,33 @@
     <string name="settings_dark">深色</string>
     <string name="settings_folder_columns">資料夾格狀檢視的欄數</string>
     <string name="settings_folder_columns_desc">欄數越多,螢幕上放得下的資料夾越多,每張封面也越小。到四欄時,下面的名稱通常會被截斷。</string>
-    <string name="settings_folder_count">在資料夾下方顯示項目數量</string>
+    <string name="settings_folder_count">格狀檢視中資料夾下方的項目計數</string>
     <string name="settings_hand">主要功能的位置</string>
     <string name="settings_right">右側</string>
     <string name="settings_left">左側</string>
     <string name="settings_list_path">檔案清單：一併複製資料夾路徑</string>
-    <string name="settings_folder_count_desc">在每個封面下方顯示資料夾中的圖片數量。關閉後列會變短，頂部的標題區域則相應變大。</string>
+    <string name="settings_folder_count_desc">每個資料夾預覽下方會出現一個影像計數與一個影片計數。</string>
     <string name="settings_fit_grow">放大較小的圖片</string>
     <string name="settings_fit_grow_desc">關閉時,比螢幕小的圖片以實際大小顯示。開啟時,它會放大到填滿檢視。</string>
     <string name="settings_zoom_max">最大縮放</string>
-    <string name="settings_scale_mode" formatted="false">100% 的意思</string>
+    <string name="settings_zoom_page">調整與縮放</string>
+    <string name="settings_zoom_page_summary">放大、最大縮放、像素算繪</string>
+    <string name="settings_scale_mode" formatted="false">像素算繪</string>
     <string name="settings_scale_physical">檔案的一個像素對應螢幕的一個像素</string>
     <string name="settings_scale_logical">檔案的一個像素對應版面的一個像素</string>
-    <string name="settings_scale_desc">手機螢幕會把兩三個真實像素塞進一個版面像素,所以兩個答案相差很遠:前者依檔案本來的樣子顯示,後者依網頁上的大小顯示。</string>
+    <string name="settings_scale_desc">決定依實際像素縮放代表什麼。任何現代裝置的螢幕都會把一個邏輯像素畫成兩三個實際像素組成的方塊。第一項忽略邏輯像素，把每一點對應到一個實際像素；第二項則以物件在網頁上應有的大小顯示。</string>
     <string name="details_bar">詳細資料列</string>
     <string name="settings_top">在上方</string>
     <string name="settings_bottom">在下方</string>
-    <string name="settings_info_visible">一開始就顯示詳細資料列</string>
+    <string name="settings_info_visible">啟動時顯示資訊列</string>
     <string name="settings_anim_counter">影格計數器</string>
     <string name="settings_anim_counter_desc">顯示於動態影像的控制列中。</string>
-    <string name="settings_reverse_order">反轉順序 (依日期)</string>
-    <string name="settings_reverse_order_desc">關閉時,從最新的翻向較舊的,和手機圖庫一樣。開啟時,依時間先後,從最舊翻到最新。</string>
-    <string name="settings_clipboard">啟動時讀取剪貼簿</string>
-    <string name="settings_clipboard_desc">從圖示開啟應用程式時,如果剪貼簿裡的網址直接指向一張圖片,就開啟那張圖片。每次應用程式讀取剪貼簿,Android 都會提示;保持關閉就永遠不會看到它。</string>
+    <string name="settings_reverse_order">從最舊的一張起向右翻閱影像</string>
+    <string name="settings_reverse_order_desc">預設情況下，Android 圖庫把最上面的第一個項目視為最新的，翻閱方向是往回。想要檔案管理員式的排序，請開啟此項：從最舊到最新。</string>
+    <string name="settings_clipboard">啟動時讀取剪貼簿內容</string>
+    <string name="settings_clipboard_desc">開啟應用程式時（新的一次啟動），若系統剪貼簿中有指向某張影像的直接連結，將直接在檢視器中開啟該影像，而不是主畫面。</string>
     <string name="settings_start_folder">啟動時開啟一個資料夾</string>
-    <string name="settings_start_folder_desc">開啟應用程式後直接顯示所選資料夾裡的內容,而不是資料夾清單。</string>
+    <string name="settings_start_folder_desc">啟動時顯示指定資料夾的內容，而不是主畫面。</string>
     <string name="settings_start_folder_none">尚未選擇資料夾</string>
     <string name="settings_start_folder_pick">選擇</string>
     <string name="folders_title">資料夾</string>
@@ -213,7 +215,7 @@
     <string name="bin_empty_hint">快捷操作：長按浮動按鈕即可清空回收筒。</string>
     <string name="facts_title">檔案詳細資訊</string>
     <string name="settings_reset_hints">重新顯示提示</string>
-    <string name="settings_reset_hints_desc">快捷操作的說明會重新出現，就像剛安裝時一樣。</string>
+    <string name="settings_reset_hints_desc">通常只在首次啟動時出現的小教學、導覽、提示與警告會再次顯示（僅一次）。</string>
     <string name="settings_reset_hints_do">重新顯示</string>
     <string name="settings_reset_hints_done">提示會重新出現</string>
     <string name="bin_restore_all">全部還原</string>
@@ -235,7 +237,7 @@
     <string name="settings_bin_desc">刪除檔案不會有任何提示，但可以在回收筒裡用 \'還原\' 復原（浮動按鈕 →\u00A0\'回收筒\'）。如果你偏好立即刪除，可以完全關閉回收筒：那樣每次刪除前都會出現確認。\n⚠️ 注意：解除安裝應用程式後，回收筒裡的內容會遺失且無法復原。</string>
     <string name="pick_duplicate">建立副本</string>
     <string name="settings_grid_names">格線中顯示檔名</string>
-    <string name="settings_grid_names_desc">每張縮圖下顯示檔名，最多兩行。副檔名不會被換行拆開，一律可見：名稱放不下時，讓位的是中間部分。</string>
+    <string name="settings_grid_names_desc">在格狀檢視中也於縮圖下方顯示檔名。最多兩行。</string>
     <string name="grid_item_clip">影片</string>
     <string name="clip_play">播放</string>
     <string name="hub_view_tree">系統資料夾</string>
@@ -244,7 +246,7 @@
     <string name="tree_unopenable">這支手機上沒有能開啟它的應用程式</string>
     <string name="clip_pause">暫停</string>
     <string name="settings_images_only">只翻閱圖片</string>
-    <string name="settings_images_only_desc">在檢視器裡滑動會略過影片，只顯示圖片。在格線中輕觸影片仍會播放：這管的是滑動，不是輕觸。</string>
+    <string name="settings_images_only_desc">在檢視器中左右滑動會略過影片，只考慮影像。仍可在格狀、清單或資料夾中輕觸播放影片。</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">編輯</string>
@@ -267,8 +269,8 @@
     <string name="edit_no_overwrite">這種格式無法寫回，只能留下副本。</string>
     <string name="edit_failed">沒能儲存</string>
     <string name="edit_app_gone">那個編輯器已經不在了。換一個吧。</string>
-    <string name="settings_editor">編輯圖片用的應用</string>
-    <string name="settings_editor_desc">在影像上輕觸編輯時開啟的應用程式。內建的可旋轉與裁切。</string>
+    <string name="settings_editor">影像編輯器</string>
+    <string name="settings_editor_desc">與檢視器選單中\'編輯\'指令連結的應用程式。捷徑：長按\'編輯\'即可當場更換應用程式，選擇會被記住。也可以選擇 Astonishing Image Viewer 的內建編輯器，它對影像只提供兩項操作：裁切與旋轉。</string>
     <string name="settings_editor_none">未選擇</string>
     <string name="settings_editor_pick">選擇</string>
     <string name="view_grid">格狀</string>
@@ -276,15 +278,15 @@
     <string name="view_tree">資料夾</string>
     <string name="edit_no_backup">安全副本沒能建立，所以什麼都沒有覆寫</string>
     <string name="settings_editor_backup">覆寫前先留一份安全副本</string>
-    <string name="settings_editor_backup_desc">每張被覆寫影像的先前版本都會保存在回收筒中。</string>
+    <string name="settings_editor_backup_desc">在編輯器覆寫一張影像之前，會先把副本存入回收筒，可以從那裡取回；若不需要，下次\'清空回收筒\'時會被刪除。</string>
     <string name="editor_tall">直式</string>
     <string name="editor_wide">橫式</string>
     <string name="pick_drop_ask">要取消選取嗎？</string>
     <string name="pick_drop">取消選取</string>
     <string name="pick_keep">保留</string>
     <string name="pick_list_done">檔案清單已複製到剪貼簿</string>
-    <string name="settings_pick_weight">所選內容的大小</string>
-    <string name="settings_pick_weight_desc">在選取的頂端、數量旁邊，可以看到所選項目的總大小。每當選取停下來時都會向系統查詢大小；關閉後就不再查詢。</string>
+    <string name="settings_pick_weight">所選檔案的大小</string>
+    <string name="settings_pick_weight_desc">在所選項目的最上方、計數器旁邊，會顯示所有所選項目的總大小。選取內容每次變動，它都會跟著變。</string>
     <string name="anim_play">播放</string>
     <string name="anim_pause">暫停</string>
     <string name="anim_prev">上一幀</string>

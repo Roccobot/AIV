@@ -43,31 +43,33 @@
     <string name="settings_dark">داكن</string>
     <string name="settings_folder_columns">أعمدة شبكة المجلدات</string>
     <string name="settings_folder_columns_desc">كلما زادت الأعمدة زاد عدد المجلدات على الشاشة وصغر كل غلاف. عند أربعة أعمدة يُقتطع الاسم أسفله غالبًا.</string>
-    <string name="settings_folder_count">عدد العناصر تحت المجلدات</string>
+    <string name="settings_folder_count">عدّاد العناصر تحت المجلدات في عرض الشبكة</string>
     <string name="settings_hand">موضع الوظائف الرئيسية</string>
     <string name="settings_right">يمين</string>
     <string name="settings_left">يسار</string>
     <string name="settings_list_path">قائمة الملفات: انسخ مسار المجلد</string>
-    <string name="settings_folder_count_desc">تحت كل غلاف، عدد الصور التي يحتويها المجلد. عند الإيقاف يقصر السطر، ويكبر العنوان في الأعلى بالقدر نفسه.</string>
+    <string name="settings_folder_count_desc">تحت كل معاينة مجلد سيظهر عدّاد للصور وآخر لمقاطع الفيديو.</string>
     <string name="settings_fit_grow">تكبير الصور الصغيرة</string>
     <string name="settings_fit_grow_desc">عند الإيقاف تظهر الصورة الأصغر من الشاشة بحجمها الحقيقي. وعند التفعيل تكبر حتى تملأ الشاشة.</string>
     <string name="settings_zoom_max">أقصى تكبير</string>
-    <string name="settings_scale_mode" formatted="false">معنى 100%</string>
+    <string name="settings_zoom_page">الملاءمة والتكبير</string>
+    <string name="settings_zoom_page_summary">التكبير، أقصى تكبير، عرض البكسلات</string>
+    <string name="settings_scale_mode" formatted="false">عرض البكسلات</string>
     <string name="settings_scale_physical">بكسل واحد من الملف لكل بكسل من الشاشة</string>
     <string name="settings_scale_logical">بكسل واحد من الملف لكل بكسل من التخطيط</string>
-    <string name="settings_scale_desc">تحشر شاشة الهاتف بكسلين أو ثلاثة حقيقية داخل بكسل تخطيط واحد، لذا يبتعد الجوابان كثيرًا: الأول يعرض الملف كما هو، والثاني بالحجم الذي تعرضه به صفحة الويب.</string>
+    <string name="settings_scale_desc">يحدّد ما يعنيه التكبير إلى البكسلات الحقيقية. تَرسم شاشة أي جهاز حديث كل بكسل منطقي بمربع من بكسلين أو ثلاثة بكسلات حقيقية. الخيار الأول يتجاهل البكسلات المنطقية ويقابل كل نقطة ببكسل حقيقي واحد؛ والثاني يعرض كل عنصر بالحجم الذي سيكون له في صفحة ويب.</string>
     <string name="details_bar">شريط التفاصيل</string>
     <string name="settings_top">في الأعلى</string>
     <string name="settings_bottom">في الأسفل</string>
-    <string name="settings_info_visible">إظهار الشريط من البداية</string>
+    <string name="settings_info_visible">شريط المعلومات عند البدء</string>
     <string name="settings_anim_counter">عدّاد الإطارات</string>
     <string name="settings_anim_counter_desc">يظهر في شريط تحكّم الصور المتحركة.</string>
-    <string name="settings_reverse_order">عكس الترتيب (حسب التاريخ)</string>
-    <string name="settings_reverse_order_desc">عند الإيقاف تتصفح من الأحدث إلى الأقدم، كما في معرض الهاتف. وعند التفعيل بالترتيب الزمني، من الأقدم إلى الأحدث.</string>
-    <string name="settings_clipboard">قراءة الحافظة عند البدء</string>
-    <string name="settings_clipboard_desc">عند فتح التطبيق من أيقونته، إذا كان في الحافظة عنوان يشير مباشرة إلى صورة فُتحت تلك الصورة. يُظهر Android تنبيهًا كلما قرأ تطبيق الحافظة: إبقاء هذا موقوفًا يعني ألا تراه أبدًا.</string>
+    <string name="settings_reverse_order">تصفّح الصور نحو اليمين بدءًا من الأقدم</string>
+    <string name="settings_reverse_order_desc">تعتبر معارض أندرويد افتراضيًا العنصر الأول، في الأعلى، هو الأحدث، ويجري التصفّح إلى الوراء. فعّل هذا الخيار لترتيب على طريقة مدير الملفات: من الأقدم إلى الأحدث.</string>
+    <string name="settings_clipboard">اقرأ محتوى الحافظة عند البدء</string>
+    <string name="settings_clipboard_desc">عند فتح التطبيق (بدء جديد)، إذا كانت حافظة النظام تحتوي على رابط مباشر لصورة، فستُفتَح تلك الصورة في العارض مباشرةً بدلًا من الشاشة الرئيسية.</string>
     <string name="settings_start_folder">فتح مجلد عند البدء</string>
-    <string name="settings_start_folder_desc">عند فتح التطبيق يظهر مباشرة محتوى المجلد المختار بدل قائمة المجلدات.</string>
+    <string name="settings_start_folder_desc">يعرض عند البدء محتوى مجلد محدّد بدلًا من الشاشة الرئيسية.</string>
     <string name="settings_start_folder_none">لم يُختر أي مجلد</string>
     <string name="settings_start_folder_pick">اختيار</string>
     <string name="folders_title">المجلدات</string>
@@ -288,7 +290,7 @@
     <string name="bin_empty_hint">اختصار: اضغط مطولا على الزر العائم لإفراغ سلة المهملات.</string>
     <string name="facts_title">معلومات الملف بالتفصيل</string>
     <string name="settings_reset_hints">إرجاع التلميحات</string>
-    <string name="settings_reset_hints_desc">تظهر شروح الاختصارات من جديد، كما في تثبيت جديد.</string>
+    <string name="settings_reset_hints_desc">تعود الشروح المصغّرة والتعريف والتلميحات والتنبيهات، التي تظهر عادةً عند أول تشغيل فقط، إلى الظهور مرةً واحدة.</string>
     <string name="settings_reset_hints_do">إرجاع</string>
     <string name="settings_reset_hints_done">ستظهر التلميحات من جديد</string>
     <string name="bin_restore_all">استعادة الكل</string>
@@ -310,7 +312,7 @@
     <string name="settings_bin_desc">حذف ملف لا يطلب أي تأكيد، لكن الإجراء قابل للتراجع عبر \'استعادة\' من سلة المهملات (الزر العائم →\u00A0\'سلة المهملات\'). يمكنك إيقاف سلة المهملات تماما إذا كنت تفضل الحذف الفوري: في تلك الحالة سيظهر تأكيد قبل كل عملية حذف.\n⚠️ تنبيه: إذا أزلت التطبيق، يضيع محتوى سلة المهملات ولا يمكن استرجاعه.</string>
     <string name="pick_duplicate">تكرار</string>
     <string name="settings_grid_names">اسم الملف في الشبكة</string>
-    <string name="settings_grid_names_desc">تحت كل صورة مصغرة اسم الملف، في سطرين على الأكثر. لا يُقطع الامتداد أبدا ويظهر دائما: إذا لم يتسع الاسم، فالوسط هو الذي يُختصر.</string>
+    <string name="settings_grid_names_desc">يعرض اسم الملف في عرض الشبكة أيضًا، تحت المصغّرة. سطران على الأكثر.</string>
     <string name="grid_item_clip">فيديو</string>
     <string name="clip_play">تشغيل</string>
     <string name="hub_view_tree">مجلدات النظام</string>
@@ -319,7 +321,7 @@
     <string name="tree_unopenable">لا يوجد تطبيق على هذا الهاتف يستطيع فتحه</string>
     <string name="clip_pause">إيقاف مؤقت</string>
     <string name="settings_images_only">تصفح الصور فقط</string>
-    <string name="settings_images_only_desc">في العارض، يتخطى التمرير مقاطع الفيديو ويعرض الصور فقط. النقر على مقطع في الشبكة يشغله على أي حال: هذا يخص التمرير، لا النقر.</string>
+    <string name="settings_images_only_desc">في العارض، يتخطّى السحب يمينًا ويسارًا مقاطع الفيديو ويأخذ الصور وحدها بالحسبان. ويظل بإمكانك تشغيل مقطع فيديو بلمسة من الشبكة أو القائمة أو المجلدات.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">تحرير</string>
@@ -342,8 +344,8 @@
     <string name="edit_no_overwrite">لا يمكن إعادة كتابة هذه الصيغة، فتبقى النسخة وحدها.</string>
     <string name="edit_failed">تعذّر الحفظ</string>
     <string name="edit_app_gone">هذا المحرر لم يعد موجودًا. اختر غيره.</string>
-    <string name="settings_editor">تطبيق تحرير الصور</string>
-    <string name="settings_editor_desc">التطبيق الذي يفتح عند لمس تحرير على صورة. المدمج يدير ويقص.</string>
+    <string name="settings_editor">محرّر الصور</string>
+    <string name="settings_editor_desc">التطبيق المرتبط بأمر \'تحرير\' في قائمة العارض. اختصار: اضغط مطوّلًا على \'تحرير\' لتغيير التطبيق في الحال، ويُحفَظ الاختيار. يمكنك أيضًا اختيار المحرّر الداخلي في Astonishing Image Viewer، وهو يتيح عمليتين فقط على الصور: القص والتدوير.</string>
     <string name="settings_editor_none">لم يُختر أي تطبيق</string>
     <string name="settings_editor_pick">اختيار</string>
     <string name="view_grid">شبكة</string>
@@ -351,15 +353,15 @@
     <string name="view_tree">مجلدات</string>
     <string name="edit_no_backup">تعذّرت نسخة الأمان، فلم تجرِ الكتابة فوق شيء</string>
     <string name="settings_editor_backup">نسخة أمان قبل الكتابة فوق الملف</string>
-    <string name="settings_editor_backup_desc">تحفظ النسخة السابقة من كل صورة يعاد كتابتها في سلة المهملات.</string>
+    <string name="settings_editor_backup_desc">قبل أن يستبدل المحرّر صورةً، يحفظ نسخةً منها في سلة المهملات حيث يمكنك استعادتها؛ وإن لم تحتَجها فستُحذَف عند \'إفراغ سلة المهملات\' التالي.</string>
     <string name="editor_tall">طولي</string>
     <string name="editor_wide">عرضي</string>
     <string name="pick_drop_ask">هل تريد إلغاء التحديد؟</string>
     <string name="pick_drop">إلغاء التحديد</string>
     <string name="pick_keep">احتفاظ</string>
     <string name="pick_list_done">تم نسخ قائمة الملفات إلى الحافظة</string>
-    <string name="settings_pick_weight">حجم التحديد</string>
-    <string name="settings_pick_weight_desc">في أعلى التحديد، بجانب العدد، يظهر حجم العناصر المحددة كلها. يطلب الحجم من النظام في كل مرة يتوقف فيها التحديد: عند الإيقاف، لا يطرح هذا السؤال.</string>
+    <string name="settings_pick_weight">حجم الملفات المحددة</string>
+    <string name="settings_pick_weight_desc">في أعلى التحديد، بجانب العدّاد، يظهر الحجم الإجمالي لكل العناصر المحددة. ويتغيّر مع كل تعديل على التحديد.</string>
     <string name="anim_play">تشغيل</string>
     <string name="anim_pause">إيقاف مؤقت</string>
     <string name="anim_prev">الإطار السابق</string>

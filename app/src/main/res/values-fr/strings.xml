@@ -43,31 +43,33 @@
     <string name="settings_dark">Sombre</string>
     <string name="settings_folder_columns">Colonnes dans la grille des dossiers</string>
     <string name="settings_folder_columns_desc">Plus de colonnes font tenir plus de dossiers à l\'écran et rétrécissent chaque vignette. À quatre, le nom en dessous est souvent tronqué.</string>
-    <string name="settings_folder_count">Nombre d\'éléments sous les dossiers</string>
+    <string name="settings_folder_count">Compteur des éléments sous les dossiers en vue grille</string>
     <string name="settings_hand">Position des fonctions principales</string>
     <string name="settings_right">Droite</string>
     <string name="settings_left">Gauche</string>
     <string name="settings_list_path">Liste de fichiers : copier le chemin du dossier parent</string>
-    <string name="settings_folder_count_desc">Sous chaque couverture, combien d\'images contient le dossier. En le désactivant, la ligne raccourcit et l\'en-tête grandit d\'autant.</string>
+    <string name="settings_folder_count_desc">Sous chaque aperçu de dossier apparaîtront un compteur d\'images et un compteur de vidéos.</string>
     <string name="settings_fit_grow">Agrandir les petites images</string>
     <string name="settings_fit_grow_desc">Désactivé, une image plus petite que l\'écran s\'affiche à sa taille réelle. Activé, elle grandit pour remplir la vue.</string>
     <string name="settings_zoom_max">Zoom maximal</string>
-    <string name="settings_scale_mode" formatted="false">Ce que veut dire 100%</string>
+    <string name="settings_zoom_page">Ajustement et zoom</string>
+    <string name="settings_zoom_page_summary">Agrandissement, zoom maximal, rendu des pixels</string>
+    <string name="settings_scale_mode" formatted="false">Rendu des pixels</string>
     <string name="settings_scale_physical">Un pixel du fichier par pixel d\'écran</string>
     <string name="settings_scale_logical">Un pixel du fichier par pixel de mise en page</string>
-    <string name="settings_scale_desc">Un écran de téléphone met deux ou trois pixels réels dans un pixel de mise en page, donc les deux réponses sont très éloignées : la première montre le fichier tel qu\'il est, la seconde à la taille qu\'aurait une page web.</string>
+    <string name="settings_scale_desc">Définit ce que signifie le zoom en pixels réels. L\'écran de tout appareil moderne dessine chaque pixel logique par un carré de deux ou trois pixels réels. Le premier choix ignore les pixels logiques et fait correspondre chaque point à un pixel réel ; le second montre chaque objet à la taille qu\'il aurait sur une page Web.</string>
     <string name="details_bar">Barre des détails</string>
     <string name="settings_top">En haut</string>
     <string name="settings_bottom">En bas</string>
-    <string name="settings_info_visible">Barre visible au départ</string>
+    <string name="settings_info_visible">Barre d\'infos au démarrage</string>
     <string name="settings_anim_counter">Compteur d\'images</string>
     <string name="settings_anim_counter_desc">Affiché dans la barre de commandes des images animées.</string>
-    <string name="settings_reverse_order">Inverser le sens de la séquence (par date)</string>
-    <string name="settings_reverse_order_desc">Désactivé, vous parcourez du plus récent vers les plus anciens, comme dans une galerie de téléphone. Activé, dans l\'ordre chronologique, du plus ancien au plus récent.</string>
-    <string name="settings_clipboard">Lire le presse-papiers au démarrage</string>
-    <string name="settings_clipboard_desc">En ouvrant l\'application depuis son icône, une adresse du presse-papiers qui pointe vers une image ouvre cette image. Android affiche un avis chaque fois qu\'une application lit le presse-papiers : laisser ceci désactivé, c\'est ne jamais le voir.</string>
+    <string name="settings_reverse_order">Feuilleter les images vers la droite depuis la plus ancienne</string>
+    <string name="settings_reverse_order_desc">Par défaut, les galeries d\'Android considèrent le premier élément, tout en haut, comme le plus récent, et l\'on feuillette à rebours. Activez cette option pour un classement de gestionnaire de fichiers : du plus ancien au plus récent.</string>
+    <string name="settings_clipboard">Lire le contenu du presse-papiers au démarrage</string>
+    <string name="settings_clipboard_desc">Quand vous ouvrez l\'application (nouveau démarrage), si le presse-papiers du système contient un lien direct vers une image, celle-ci s\'ouvre directement dans la visionneuse à la place de l\'écran d\'accueil.</string>
     <string name="settings_start_folder">Ouvrir un dossier au démarrage</string>
-    <string name="settings_start_folder_desc">L\'application affiche directement le contenu du dossier choisi, au lieu de la liste des dossiers.</string>
+    <string name="settings_start_folder_desc">Affiche au démarrage le contenu d\'un dossier précis, à la place de l\'écran d\'accueil.</string>
     <string name="settings_start_folder_none">Aucun dossier choisi</string>
     <string name="settings_start_folder_pick">Choisir</string>
     <string name="folders_title">Dossiers</string>
@@ -243,7 +245,7 @@
     <string name="bin_empty_hint">Raccourci: appuyez longuement sur le bouton flottant pour vider la corbeille.</string>
     <string name="facts_title">Infos détaillées du fichier</string>
     <string name="settings_reset_hints">Revoir les astuces</string>
-    <string name="settings_reset_hints_desc">Les explications des raccourcis réapparaissent, comme à la première installation.</string>
+    <string name="settings_reset_hints_desc">Les mini-tutoriels, l\'introduction, les conseils et les avertissements, normalement affichés au seul premier démarrage, redeviennent visibles (une seule fois).</string>
     <string name="settings_reset_hints_do">Revoir</string>
     <string name="settings_reset_hints_done">Les astuces réapparaîtront</string>
     <string name="bin_restore_all">Tout restaurer</string>
@@ -265,7 +267,7 @@
     <string name="settings_bin_desc">La suppression d\'un fichier ne demande rien, mais l\'action est réversible avec un \'Restaurer\' depuis la corbeille (bouton flottant →\u00A0\'Corbeille\'). Vous pouvez désactiver complètement la corbeille si vous préférez une suppression instantanée: dans ce cas, une confirmation apparaît avant chaque suppression.\n⚠️ ATTENTION : si vous désinstallez l\'application, le contenu de la corbeille est perdu et devient irrécupérable.</string>
     <string name="pick_duplicate">Dupliquer</string>
     <string name="settings_grid_names">Nom du fichier dans la grille</string>
-    <string name="settings_grid_names_desc">Sous chaque vignette, le nom du fichier sur deux lignes au maximum. L\'extension n\'est jamais coupée et reste toujours visible: si le nom ne tient pas, c\'est le milieu qui cède.</string>
+    <string name="settings_grid_names_desc">Affiche le nom du fichier aussi en vue grille, sous la miniature. Deux lignes au maximum.</string>
     <string name="grid_item_clip">Vidéo</string>
     <string name="clip_play">Lire</string>
     <string name="hub_view_tree">Dossiers du système</string>
@@ -274,7 +276,7 @@
     <string name="tree_unopenable">Aucune application de ce téléphone ne sait l\'ouvrir</string>
     <string name="clip_pause">Mettre en pause</string>
     <string name="settings_images_only">Ne feuilleter que les images</string>
-    <string name="settings_images_only_desc">Dans la visionneuse, le balayage saute les films et ne montre que les images. Toucher un film dans la grille le lit quand même: cela concerne le geste, pas le toucher.</string>
+    <string name="settings_images_only_desc">Dans la visionneuse, le balayage vers la droite et la gauche ignore les vidéos et ne considère que les images. Vous pouvez toujours lire une vidéo d\'une touche depuis la grille, la liste ou les dossiers.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Modifier</string>
@@ -297,8 +299,8 @@
     <string name="edit_no_overwrite">Ce format ne peut pas être réécrit, il ne reste que la copie.</string>
     <string name="edit_failed">L\'enregistrement a échoué</string>
     <string name="edit_app_gone">Cet éditeur a disparu. Choisis-en un autre.</string>
-    <string name="settings_editor">App pour modifier les images</string>
-    <string name="settings_editor_desc">L\'application qui s\'ouvre en touchant Modifier sur une image. Celle qui est intégrée pivote et recadre.</string>
+    <string name="settings_editor">Éditeur d\'images</string>
+    <string name="settings_editor_desc">Application associée à la commande \'Modifier\', dans le menu de la visionneuse. Raccourci : appuyez longuement sur \'Modifier\' pour changer d\'application à la volée (le choix est mémorisé). Vous pouvez aussi choisir l\'éditeur interne d\'Astonishing Image Viewer, qui ne permet que deux opérations sur les images : le recadrage et la rotation.</string>
     <string name="settings_editor_none">Aucune choisie</string>
     <string name="settings_editor_pick">Choisir</string>
     <string name="view_grid">Grille</string>
@@ -306,15 +308,15 @@
     <string name="view_tree">Dossiers</string>
     <string name="edit_no_backup">La copie de sûreté a échoué, donc rien n\'a été écrasé</string>
     <string name="settings_editor_backup">Copie de sûreté avant d\'écraser</string>
-    <string name="settings_editor_backup_desc">La version précédente de chaque image écrasée est conservée dans la corbeille.</string>
+    <string name="settings_editor_backup_desc">Avant qu\'un éditeur n\'écrase une image, il en enregistre une copie dans la corbeille, où vous pourrez la récupérer ; si elle ne vous sert pas, elle sera supprimée au prochain \'Vider la corbeille\'.</string>
     <string name="editor_tall">Portrait</string>
     <string name="editor_wide">Paysage</string>
     <string name="pick_drop_ask">Abandonner la sélection ?</string>
     <string name="pick_drop">Abandonner</string>
     <string name="pick_keep">Garder</string>
     <string name="pick_list_done">Liste des fichiers copiée dans le presse-papiers</string>
-    <string name="settings_pick_weight">Poids de la sélection</string>
-    <string name="settings_pick_weight_desc">En tête de la sélection, à côté du compte, on lit combien pèsent en tout les éléments choisis. Le poids est demandé au système chaque fois que la sélection s\'arrête : désactivé, cette question n\'est jamais posée.</string>
+    <string name="settings_pick_weight">Taille des fichiers sélectionnés</string>
+    <string name="settings_pick_weight_desc">En tête de la sélection, à côté du compteur, apparaît la taille totale de tous les éléments sélectionnés. Elle varie à chaque modification de la sélection.</string>
     <string name="anim_play">Lire</string>
     <string name="anim_pause">Pause</string>
     <string name="anim_prev">Image précédente</string>

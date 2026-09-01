@@ -49,12 +49,12 @@
     <string name="editor_pick_none">Nessun\'altra app di questo telefono si offre di modificare le immagini.</string>
     <string name="editor_pick_send">Per condivisione</string>
     <string name="editor_pick_send_desc">Ricevono una copia e la salvano dove decidono loro. L\'originale resta com\'è.</string>
-    <string name="settings_editor">App per la modifica di immagini</string>
-    <string name="settings_editor_desc">L\'applicazione che si apre toccando Modifica su un\'immagine. Quella interna ruota e ritaglia.</string>
+    <string name="settings_editor">Editor immagini</string>
+    <string name="settings_editor_desc">App associata al comando \'Modifica\', nel menu del visualizzatore. Scorciatoia: premi a lungo \'Modifica\' per cambiare app al volo (resta memorizzata). Puoi scegliere anche l\'editor interno di Astonishing Image Viewer, che consente solo due operazioni sulle immagini: ritaglio e rotazione.</string>
     <string name="settings_editor_none">Nessuna scelta</string>
     <string name="settings_editor_pick">Scegli</string>
     <string name="settings_editor_backup">Copia di sicurezza prima di sovrascrivere</string>
-    <string name="settings_editor_backup_desc">La versione precedente di ogni immagine sovrascritta viene conservata nel cestino.</string>
+    <string name="settings_editor_backup_desc">Prima di sovrascrivere un\'immagine, l\'editor ne salva una copia nel cestino, dove potrai recuperarla; se non ti serve, sarà eliminata al successivo \'Svuota cestino\'.</string>
 
     <string name="toast_image_copied">Immagine copiata</string>
     <string name="toast_copy_failed">La copia non è andata a buon fine</string>
@@ -95,37 +95,39 @@
 
     <string name="settings_folder_columns">Colonne della griglia delle cartelle</string>
     <string name="settings_folder_columns_desc">Più colonne fanno stare più cartelle sullo schermo e rimpiccioliscono le copertine. A quattro, il nome sotto di solito non ci sta per intero.</string>
-    <string name="settings_folder_count">Contatore degli elementi sotto le cartelle</string>
+    <string name="settings_folder_count">Contatore degli elementi sotto le cartelle in vista griglia</string>
     <string name="settings_hand">Posizione delle funzioni principali</string>
     <string name="settings_right">Destra</string>
     <string name="settings_left">Sinistra</string>
     <string name="settings_list_path">Lista file: copia il percorso della cartella contenitore</string>
-    <string name="settings_folder_count_desc">Sotto ogni copertina, quante immagini e quanti video contiene la cartella. Spegnendolo la riga si accorcia, e l\'area del titolo in cima cresce di altrettanto.</string>
+    <string name="settings_folder_count_desc">Sotto ogni anteprima di cartella appariranno un contatore di immagini e uno di video.</string>
 
     <string name="settings_fit_grow">Ingrandisci le immagini piccole</string>
     <string name="settings_fit_grow_desc">Spento, un\'immagine più piccola dello schermo si vede alla sua misura vera. Acceso, cresce fino a riempire la vista.</string>
 
     <string name="settings_zoom_max">Zoom massimo</string>
+    <string name="settings_zoom_page">Adattamento e zoom</string>
+    <string name="settings_zoom_page_summary">Ingrandimento, zoom massimo, rendering dei pixel</string>
 
-    <string name="settings_scale_mode" formatted="false">Che cosa significa 100%</string>
+    <string name="settings_scale_mode" formatted="false">Rendering dei pixel</string>
     <string name="settings_scale_physical">Un pixel del file per pixel dello schermo</string>
     <string name="settings_scale_logical">Un pixel del file per pixel di layout</string>
-    <string name="settings_scale_desc">Lo schermo di un telefono stipa due o tre pixel veri in un pixel di layout, quindi le due risposte sono lontane: la prima mostra il file com\'è, la seconda lo mostra della misura che avrebbe in una pagina web.</string>
+    <string name="settings_scale_desc">Stabilisce a cosa corrisponde lo zoom a pixel reali. Lo schermo di qualsiasi dispositivo moderno disegna ogni pixel logico con un quadrato di due o tre pixel reali. La prima scelta ignora i pixel logici e mappa ogni punto su un pixel reale; la seconda mostra ogni oggetto della misura che avrebbe in una pagina Web.</string>
 
     <string name="details_bar">Barra dei dettagli</string>
     <string name="settings_top">In alto</string>
     <string name="settings_bottom">In basso</string>
-    <string name="settings_info_visible">Barra visibile all\'apertura</string>
+    <string name="settings_info_visible">Barra delle info all\'avvio</string>
     <string name="settings_anim_counter">Contatore dei fotogrammi</string>
     <string name="settings_anim_counter_desc">Compare nella fila dei comandi delle immagini animate.</string>
 
-    <string name="settings_reverse_order">Cambia verso della sequenza (in ordine di data)</string>
-    <string name="settings_reverse_order_desc">Spento, si sfoglia dal più recente verso i più vecchi, che è il verso della galleria del telefono. Acceso, in ordine cronologico, dal più vecchio al più recente.</string>
+    <string name="settings_reverse_order">Sfoglia le immagini verso destra dalla meno recente</string>
+    <string name="settings_reverse_order_desc">Per impostazione predefinita, le gallerie di Android considerano la prima (più in alto) la più recente, e si sfoglia a ritroso. Attiva questa opzione per un ordinamento da gestore di file: dalla meno recente alla più recente.</string>
 
-    <string name="settings_clipboard">All\'avvio leggi gli appunti</string>
-    <string name="settings_clipboard_desc">Aprendo l\'app dalla sua icona, un indirizzo negli appunti che punta dritto a un\'immagine apre quell\'immagine. Android mostra un avviso ogni volta che un\'app legge gli appunti, quindi lasciandola spenta non lo si vede mai.</string>
+    <string name="settings_clipboard">Leggi il contenuto degli appunti all\'avvio</string>
+    <string name="settings_clipboard_desc">Quando apri l\'app (nuovo avvio), se gli appunti di sistema contengono un link diretto a un\'immagine, questa si aprirà direttamente nel visualizzatore al posto della schermata home.</string>
     <string name="settings_start_folder">Apri una cartella all\'avvio</string>
-    <string name="settings_start_folder_desc">All\'apertura dell\'app si vede subito il contenuto della cartella scelta, invece dell\'elenco delle cartelle.</string>
+    <string name="settings_start_folder_desc">Visualizza il contenuto di una cartella specifica all\'avvio, al posto della schermata home.</string>
     <string name="settings_start_folder_none">Nessuna cartella scelta</string>
     <string name="settings_start_folder_pick">Scegli</string>
 
@@ -334,7 +336,7 @@
     <string name="bin_empty_hint">Scorciatoia: tieni premuto il tasto flottante per svuotare il cestino.</string>
     <string name="facts_title">Info dettagliate sul file</string>
     <string name="settings_reset_hints">Ripristina gli avvisi</string>
-    <string name="settings_reset_hints_desc">Le spiegazioni delle scorciatoie tornano a comparire, come alla prima installazione.</string>
+    <string name="settings_reset_hints_desc">I mini-tutorial, gli onboarding, i suggerimenti e gli avvisi, visualizzati di norma solo al primo avvio, tornano visibili (una sola volta).</string>
     <string name="settings_reset_hints_do">Ripristina</string>
     <string name="settings_reset_hints_done">Gli avvisi torneranno a comparire</string>
     <string name="bin_restore_all">Ripristina tutto</string>
@@ -359,7 +361,7 @@
     <string name="settings_bin_desc">L\'eliminazione di file non prevede alcun avviso, ma l\'azione è reversibile con un \'Ripristina\' dal cestino (tasto flottante →\u00A0\'Cestino\'). Puoi disattivare del tutto il cestino, se preferisci un\'eliminazione istantanea: in quel caso, apparirà una conferma prima di ogni eliminazione.\n⚠️ ATTENZIONE: se disinstalli l\'app, il contenuto del cestino va perso e diventa irrecuperabile.</string>
     <string name="pick_duplicate">Duplica</string>
     <string name="settings_grid_names">Nome del file in vista griglia</string>
-    <string name="settings_grid_names_desc">Sotto ogni miniatura, il nome del file su due righe al massimo. L\'estensione non va mai a capo e si vede sempre: quando il nome non ci sta, a cedere è la parte centrale.</string>
+    <string name="settings_grid_names_desc">Mostra il nome del file anche in vista griglia, sotto la miniatura. Massimo due righe.</string>
     <string name="grid_item_clip">Video</string>
     <string name="clip_play">Riproduci</string>
     <string name="hub_view_tree">Cartelle di sistema</string>
@@ -368,13 +370,13 @@
     <string name="tree_unopenable">Nessuna app di questo telefono sa aprirlo</string>
     <string name="clip_pause">Metti in pausa</string>
     <string name="settings_images_only">Sfoglia solo le immagini</string>
-    <string name="settings_images_only_desc">Nel visualizzatore la strisciata salta i filmati e mostra solo immagini. Toccando un filmato in griglia parte lo stesso: questa riguarda il gesto, non il tocco.</string>
+    <string name="settings_images_only_desc">Nel visualizzatore, lo scorrimento verso destra/sinistra ignora i video e considera solo le immagini. Puoi comunque riprodurre un video con un tocco dalla lista griglia, lista o cartelle.</string>
     <string name="pick_drop_ask">Vuoi scartare la selezione?</string>
     <string name="pick_drop">Scarta</string>
     <string name="pick_keep">Mantieni</string>
     <string name="pick_list_done">Lista file copiata negli appunti</string>
-    <string name="settings_pick_weight">Peso della selezione</string>
-    <string name="settings_pick_weight_desc">In testa alla selezione, accanto al conto, si legge quanto pesano in tutto gli elementi scelti. Il peso si chiede al sistema ogni volta che la selezione si ferma: spento, quella domanda non parte.</string>
+    <string name="settings_pick_weight">Dimensioni dei file selezionati</string>
+    <string name="settings_pick_weight_desc">In testa alla selezione, accanto al contatore, appare il peso totale di tutti gli elementi selezionati. Varia ad ogni modifica della selezione.</string>
     <string name="anim_play">Riproduci</string>
     <string name="anim_pause">Pausa</string>
     <string name="anim_prev">Fotogramma precedente</string>

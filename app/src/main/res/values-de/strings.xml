@@ -43,31 +43,33 @@
     <string name="settings_dark">Dunkel</string>
     <string name="settings_folder_columns">Spalten im Ordnerraster</string>
     <string name="settings_folder_columns_desc">Mehr Spalten bringen mehr Ordner auf den Bildschirm und machen jedes Titelbild kleiner. Bei vier wird der Name darunter meist abgeschnitten.</string>
-    <string name="settings_folder_count">Anzahl der Elemente unter den Ordnern</string>
+    <string name="settings_folder_count">Zähler der Elemente unter den Ordnern in der Rasteransicht</string>
     <string name="settings_hand">Position der Hauptfunktionen</string>
     <string name="settings_right">Rechts</string>
     <string name="settings_left">Links</string>
     <string name="settings_list_path">Dateiliste: Pfad des übergeordneten Ordners kopieren</string>
-    <string name="settings_folder_count_desc">Unter jedem Titelbild, wie viele Bilder der Ordner enthält. Ausgeschaltet wird die Zeile kürzer, und der Kopfbereich wächst um genauso viel.</string>
+    <string name="settings_folder_count_desc">Unter jeder Ordnervorschau erscheinen ein Zähler für Bilder und einer für Videos.</string>
     <string name="settings_fit_grow">Kleine Bilder vergrößern</string>
     <string name="settings_fit_grow_desc">Aus wird ein Bild, das kleiner als der Bildschirm ist, in seiner echten Größe gezeigt. An wächst es, bis es die Ansicht füllt.</string>
     <string name="settings_zoom_max">Größter Zoom</string>
-    <string name="settings_scale_mode" formatted="false">Was 100% bedeutet</string>
+    <string name="settings_zoom_page">Anpassung und Zoom</string>
+    <string name="settings_zoom_page_summary">Vergrößerung, maximaler Zoom, Pixel-Darstellung</string>
+    <string name="settings_scale_mode" formatted="false">Pixel-Darstellung</string>
     <string name="settings_scale_physical">Ein Pixel der Datei pro Bildschirmpixel</string>
     <string name="settings_scale_logical">Ein Pixel der Datei pro Layoutpixel</string>
-    <string name="settings_scale_desc">Ein Telefonbildschirm packt zwei oder drei echte Pixel in einen Layoutpixel, deshalb liegen die beiden Antworten weit auseinander: die erste zeigt die Datei, wie sie ist, die zweite in der Größe, die eine Webseite hätte.</string>
+    <string name="settings_scale_desc">Legt fest, was der Zoom auf echte Pixel bedeutet. Der Bildschirm jedes modernen Geräts zeichnet jedes logische Pixel als Quadrat aus zwei oder drei echten Pixeln. Die erste Wahl ignoriert die logischen Pixel und bildet jeden Punkt auf ein echtes Pixel ab; die zweite zeigt jedes Objekt in der Größe, die es auf einer Webseite hätte.</string>
     <string name="details_bar">Detailleiste</string>
     <string name="settings_top">Oben</string>
     <string name="settings_bottom">Unten</string>
-    <string name="settings_info_visible">Leiste zu Beginn sichtbar</string>
+    <string name="settings_info_visible">Infoleiste beim Start</string>
     <string name="settings_anim_counter">Bildzähler</string>
     <string name="settings_anim_counter_desc">Erscheint in der Steuerleiste animierter Bilder.</string>
-    <string name="settings_reverse_order">Richtung der Bildfolge umkehren (nach Datum)</string>
-    <string name="settings_reverse_order_desc">Aus blätterst du vom Neuesten zu den Älteren, so wie eine Telefongalerie es macht. An in chronologischer Reihenfolge, vom Ältesten zum Neuesten.</string>
-    <string name="settings_clipboard">Zwischenablage beim Start lesen</string>
-    <string name="settings_clipboard_desc">Wird die App über ihr Symbol geöffnet, öffnet eine Adresse in der Zwischenablage, die direkt auf ein Bild zeigt, dieses Bild. Android zeigt jedes Mal einen Hinweis, wenn eine App die Zwischenablage liest: aus bedeutet, ihn nie zu sehen.</string>
+    <string name="settings_reverse_order">Bilder nach rechts vom ältesten an durchblättern</string>
+    <string name="settings_reverse_order_desc">Standardmäßig gilt in den Galerien von Android das erste Element, ganz oben, als das neueste, und geblättert wird rückwärts. Diese Option schaltet auf die Reihenfolge eines Dateimanagers um: vom ältesten zum neuesten.</string>
+    <string name="settings_clipboard">Inhalt der Zwischenablage beim Start lesen</string>
+    <string name="settings_clipboard_desc">Wenn Sie die App öffnen (neuer Start) und die Zwischenablage des Systems einen direkten Link zu einem Bild enthält, öffnet sich dieses Bild sofort im Betrachter statt des Startbildschirms.</string>
     <string name="settings_start_folder">Beim Start einen Ordner öffnen</string>
-    <string name="settings_start_folder_desc">Beim Öffnen der App erscheint gleich der Inhalt des gewählten Ordners statt der Ordnerliste.</string>
+    <string name="settings_start_folder_desc">Zeigt beim Start den Inhalt eines bestimmten Ordners statt des Startbildschirms.</string>
     <string name="settings_start_folder_none">Kein Ordner gewählt</string>
     <string name="settings_start_folder_pick">Wählen</string>
     <string name="folders_title">Ordner</string>
@@ -228,7 +230,7 @@
     <string name="bin_empty_hint">Kurzbefehl: Halte die schwebende Schaltfläche gedrückt, um den Papierkorb zu leeren.</string>
     <string name="facts_title">Ausführliche Dateiinfos</string>
     <string name="settings_reset_hints">Hinweise zurückholen</string>
-    <string name="settings_reset_hints_desc">Die Erklärungen der Kurzbefehle erscheinen wieder, wie bei einer frischen Installation.</string>
+    <string name="settings_reset_hints_desc">Die Mini-Anleitungen, die Einführung, die Tipps und die Hinweise, die sonst nur beim ersten Start erscheinen, werden wieder sichtbar (einmalig).</string>
     <string name="settings_reset_hints_do">Zurückholen</string>
     <string name="settings_reset_hints_done">Die Hinweise erscheinen wieder</string>
     <string name="bin_restore_all">Alles wiederherstellen</string>
@@ -250,7 +252,7 @@
     <string name="settings_bin_desc">Das Löschen einer Datei fragt nichts, aber die Aktion lässt sich mit einem \'Wiederherstellen\' aus dem Papierkorb umkehren (schwebende Schaltfläche →\u00A0\'Papierkorb\'). Du kannst den Papierkorb ganz ausschalten, wenn du sofortiges Löschen bevorzugst: dann erscheint vor jedem Löschen eine Bestätigung.\n⚠️ ACHTUNG: Wenn du die App deinstallierst, geht der Inhalt des Papierkorbs verloren und ist nicht wiederherstellbar.</string>
     <string name="pick_duplicate">Duplizieren</string>
     <string name="settings_grid_names">Dateiname im Bilderraster</string>
-    <string name="settings_grid_names_desc">Unter jedem Vorschaubild der Dateiname, auf höchstens zwei Zeilen. Die Endung wird nie umbrochen und ist immer zu sehen: passt der Name nicht, weicht die Mitte.</string>
+    <string name="settings_grid_names_desc">Zeigt den Dateinamen auch in der Rasteransicht, unter dem Miniaturbild. Höchstens zwei Zeilen.</string>
     <string name="grid_item_clip">Video</string>
     <string name="clip_play">Abspielen</string>
     <string name="hub_view_tree">Systemordner</string>
@@ -259,7 +261,7 @@
     <string name="tree_unopenable">Keine App auf diesem Telefon kann es öffnen</string>
     <string name="clip_pause">Pause</string>
     <string name="settings_images_only">Nur Bilder durchblättern</string>
-    <string name="settings_images_only_desc">Im Betrachter überspringt das Wischen Filme und zeigt nur Bilder. Ein Tippen auf einen Film im Raster spielt ihn trotzdem ab: Es geht um die Wischgeste, nicht um das Tippen.</string>
+    <string name="settings_images_only_desc">Im Betrachter überspringt das Wischen nach rechts und links die Videos und berücksichtigt nur Bilder. Ein Video lässt sich weiterhin mit einer Berührung aus Raster, Liste oder Ordnern abspielen.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Bearbeiten</string>
@@ -282,8 +284,8 @@
     <string name="edit_no_overwrite">Dieses Format lässt sich nicht zurückschreiben, es bleibt nur eine Kopie.</string>
     <string name="edit_failed">Es konnte nicht gespeichert werden</string>
     <string name="edit_app_gone">Dieser Editor ist weg. Wähle einen anderen.</string>
-    <string name="settings_editor">App zum Bearbeiten von Bildern</string>
-    <string name="settings_editor_desc">Die Anwendung, die beim Tippen auf Bearbeiten geöffnet wird. Die eingebaute dreht und schneidet zu.</string>
+    <string name="settings_editor">Bildbearbeitung</string>
+    <string name="settings_editor_desc">Die App, die mit dem Befehl \'Bearbeiten\' im Menü des Betrachters verknüpft ist. Kurzweg: \'Bearbeiten\' lange drücken, um die App sofort zu wechseln (die Wahl wird gemerkt). Wählbar ist auch der interne Editor von Astonishing Image Viewer, der nur zwei Vorgänge an Bildern erlaubt: Zuschneiden und Drehen.</string>
     <string name="settings_editor_none">Keine gewählt</string>
     <string name="settings_editor_pick">Wählen</string>
     <string name="view_grid">Raster</string>
@@ -291,15 +293,15 @@
     <string name="view_tree">Ordner</string>
     <string name="edit_no_backup">Die Sicherheitskopie ist fehlgeschlagen, es wurde nichts überschrieben</string>
     <string name="settings_editor_backup">Sicherheitskopie vor dem Überschreiben</string>
-    <string name="settings_editor_backup_desc">Von jedem überschriebenen Bild wird die vorherige Fassung im Papierkorb aufbewahrt.</string>
+    <string name="settings_editor_backup_desc">Bevor ein Editor ein Bild überschreibt, legt er eine Kopie in den Papierkorb, wo sie wiederherstellbar bleibt; wird sie nicht gebraucht, verschwindet sie beim nächsten \'Papierkorb leeren\'.</string>
     <string name="editor_tall">Hochformat</string>
     <string name="editor_wide">Querformat</string>
     <string name="pick_drop_ask">Auswahl verwerfen?</string>
     <string name="pick_drop">Verwerfen</string>
     <string name="pick_keep">Behalten</string>
     <string name="pick_list_done">Dateiliste in die Zwischenablage kopiert</string>
-    <string name="settings_pick_weight">Grösse der Auswahl</string>
-    <string name="settings_pick_weight_desc">Oben in der Auswahl steht neben der Anzahl, wie viel die gewählten Elemente zusammen wiegen. Das Gewicht wird bei jeder ruhenden Auswahl beim System erfragt: ausgeschaltet, wird diese Frage nie gestellt.</string>
+    <string name="settings_pick_weight">Größe der ausgewählten Dateien</string>
+    <string name="settings_pick_weight_desc">Oben in der Auswahl erscheint neben dem Zähler die Gesamtgröße aller ausgewählten Elemente. Sie ändert sich mit jeder Änderung der Auswahl.</string>
     <string name="anim_play">Abspielen</string>
     <string name="anim_pause">Pause</string>
     <string name="anim_prev">Vorheriges Bild</string>

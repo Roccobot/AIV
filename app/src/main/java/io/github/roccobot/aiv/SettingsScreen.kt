@@ -134,11 +134,19 @@ fun SettingsScreen(
         ) {
             HiddenFolders(settings = settings, onChange = onChange)
         }
+
+        Page.ZOOM -> Shell(
+            title = stringResource(R.string.settings_zoom_page),
+            onBack = { page = Page.ROOT },
+            modifier = modifier
+        ) {
+            ZoomAndFit(settings = settings, onChange = onChange)
+        }
     }
 }
 
-/** Quale delle tre pagine si sta guardando. */
-private enum class Page { ROOT, FACTS, HIDDEN }
+/** Quale delle quattro pagine si sta guardando. */
+private enum class Page { ROOT, FACTS, HIDDEN, ZOOM }
 
 /**
  * Le impostazioni di una riga sola, nei loro quattro gruppi.
@@ -216,40 +224,20 @@ private fun ColumnScope.RootPage(
 
     Group(stringResource(R.string.settings_group_viewer))
 
-    SwitchRow(
-        label = stringResource(R.string.settings_fit_grow),
-        detail = stringResource(R.string.settings_fit_grow_desc),
-        checked = settings.fitGrow,
-        onChange = { onChange(settings.copy(fitGrow = it)) }
-    )
-
-    Text(
-        text = stringResource(R.string.settings_zoom_max) + "   " +
-            settings.zoomMax.roundToInt() + "x",
-        style = MaterialTheme.typography.titleSmall,
-        modifier = Modifier.padding(top = 12.dp)
-    )
-    Slider(
-        value = settings.zoomMax,
-        onValueChange = { onChange(settings.copy(zoomMax = it.roundToInt().toFloat())) },
-        valueRange = SettingsStore.ZOOM_MAX_MIN..SettingsStore.ZOOM_MAX_MAX,
-        modifier = Modifier.fillMaxWidth()
-    )
-
-    Choices(
-        label = stringResource(R.string.settings_scale_mode),
-        detail = stringResource(R.string.settings_scale_desc),
-        options = ScaleMode.entries,
-        selected = settings.scaleMode,
-        nameOf = {
-            stringResource(
-                when (it) {
-                    ScaleMode.PHYSICAL -> R.string.settings_scale_physical
-                    ScaleMode.LOGICAL -> R.string.settings_scale_logical
-                }
-            )
-        },
-        onSelect = { onChange(settings.copy(scaleMode = it)) }
+    /*
+     * ⚠️⚠️ **LE TRE VOCI DELICATE STANNO IN UNA SOTTO-PAGINA, per volontà dell'utente**
+     * (2026-09-01: *sono impostazioni delicate: le voglio in una sotto-pagina 'Adattamento e
+     * zoom'*). Sono le sole del pannello che cambiano il modo in cui un'immagine viene
+     * **misurata** invece di che cosa si vede intorno: sbagliarle non rompe niente, ma rende
+     * ogni fotografia diversa da come ci si aspetta, e chi le incontra per caso scorrendo
+     * l'elenco non ha modo di saperlo.
+     * ⚠️ **Restano nel gruppo del visualizzatore**, in cima: la sotto-pagina le raccoglie, non
+     * le sposta altrove.
+     */
+    PageRow(
+        label = stringResource(R.string.settings_zoom_page),
+        summary = stringResource(R.string.settings_zoom_page_summary),
+        onOpen = { onOpen(Page.ZOOM) }
     )
 
     // ⚠️⚠️ **LA STESSA STRINGA DEL MENU DEL VISUALIZZATORE** (`details_bar`, richiesta
@@ -695,6 +683,51 @@ private fun PageRow(label: String, summary: String, onOpen: () -> Unit) {
  * pagina che si svuotasse in silenzio sembrerebbe rotta. La riga che porta qui invece
  * sparisce, ma la si rivede solo tornando indietro.
  */
+/**
+ * La sotto-pagina 'Adattamento e zoom': le tre voci che decidono come si misura un'immagine.
+ *
+ * ⚠️ **Sono esattamente quelle che stavano in cima al gruppo del visualizzatore, nello stesso
+ * ordine**: chi le conosceva le ritrova dove le lasciate, un gradino più in là.
+ */
+@Composable
+private fun ZoomAndFit(settings: Settings, onChange: (Settings) -> Unit) {
+    SwitchRow(
+        label = stringResource(R.string.settings_fit_grow),
+        detail = stringResource(R.string.settings_fit_grow_desc),
+        checked = settings.fitGrow,
+        onChange = { onChange(settings.copy(fitGrow = it)) }
+    )
+
+    Text(
+        text = stringResource(R.string.settings_zoom_max) + "   " +
+            settings.zoomMax.roundToInt() + "x",
+        style = MaterialTheme.typography.titleSmall,
+        modifier = Modifier.padding(top = 12.dp)
+    )
+    Slider(
+        value = settings.zoomMax,
+        onValueChange = { onChange(settings.copy(zoomMax = it.roundToInt().toFloat())) },
+        valueRange = SettingsStore.ZOOM_MAX_MIN..SettingsStore.ZOOM_MAX_MAX,
+        modifier = Modifier.fillMaxWidth()
+    )
+
+    Choices(
+        label = stringResource(R.string.settings_scale_mode),
+        detail = stringResource(R.string.settings_scale_desc),
+        options = ScaleMode.entries,
+        selected = settings.scaleMode,
+        nameOf = {
+            stringResource(
+                when (it) {
+                    ScaleMode.PHYSICAL -> R.string.settings_scale_physical
+                    ScaleMode.LOGICAL -> R.string.settings_scale_logical
+                }
+            )
+        },
+        onSelect = { onChange(settings.copy(scaleMode = it)) }
+    )
+}
+
 @Composable
 private fun HiddenFolders(settings: Settings, onChange: (Settings) -> Unit) {
     Detail(stringResource(R.string.settings_hidden_desc))

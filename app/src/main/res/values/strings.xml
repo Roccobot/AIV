@@ -80,12 +80,12 @@
     <string name="editor_pick_none">No other app on this phone offers to edit pictures.</string>
     <string name="editor_pick_send">By sharing</string>
     <string name="editor_pick_send_desc">They receive a copy and save it where they choose. The original stays as it is.</string>
-    <string name="settings_editor">App for editing pictures</string>
-    <string name="settings_editor_desc">The application that opens when you tap Edit on an image. The built in one rotates and crops.</string>
+    <string name="settings_editor">Image editor</string>
+    <string name="settings_editor_desc">The app tied to the \'Edit\' command in the viewer menu. Shortcut: press and hold \'Edit\' to change app on the spot (the choice is remembered). You can also choose the editor built into Astonishing Image Viewer, which allows only two operations on images: cropping and rotation.</string>
     <string name="settings_editor_none">None chosen</string>
     <string name="settings_editor_pick">Choose</string>
     <string name="settings_editor_backup">Safety copy before writing over</string>
-    <string name="settings_editor_backup_desc">The previous version of every overwritten image is kept in the bin.</string>
+    <string name="settings_editor_backup_desc">Before an editor writes over an image, it saves a copy in the bin, where you can recover it; if you do not need it, it will be deleted at the next \'Empty bin\'.</string>
 
     <string name="toast_image_copied">Image copied</string>
     <string name="toast_copy_failed">The copy did not go through</string>
@@ -132,36 +132,38 @@
 
     <string name="settings_folder_columns">Columns in the folder grid</string>
     <string name="settings_folder_columns_desc">More columns fit more folders on screen and shrink each cover. At four the name under it is usually cut short.</string>
-    <string name="settings_folder_count">Item count under the folders</string>
+    <string name="settings_folder_count">Item counter under folders in grid view</string>
     <string name="settings_hand">Position of the main actions</string>
     <string name="settings_right">Right</string>
     <string name="settings_left">Left</string>
     <string name="settings_list_path">File list: copy the containing folder path</string>
-    <string name="settings_folder_count_desc">Under each cover, how many pictures and how many videos the folder holds. Turning it off makes the row shorter, and the title area at the top grows by as much.</string>
+    <string name="settings_folder_count_desc">Under every folder preview an image counter and a video counter will appear.</string>
     <!-- Off by default: a gallery shows pictures, and a name under each one is data for
          someone working with files rather than looking at them. -->
     <string name="settings_grid_names">File name in the grid</string>
-    <string name="settings_grid_names_desc">Under each thumbnail, the file name on two lines at most. The extension is never split across lines and is always shown: when the name does not fit, it is the middle that gives way.</string>
+    <string name="settings_grid_names_desc">Shows the file name in grid view too, under the thumbnail. Two lines at most.</string>
 
     <string name="settings_fit_grow">Enlarge small pictures</string>
     <string name="settings_fit_grow_desc">Off, a picture smaller than the screen is shown at its real size. On, it grows to fill the view.</string>
 
     <string name="settings_zoom_max">Furthest zoom</string>
+    <string name="settings_zoom_page">Fit and zoom</string>
+    <string name="settings_zoom_page_summary">Enlargement, maximum zoom, pixel rendering</string>
 
-    <string name="settings_scale_mode" formatted="false">What 100% means</string>
+    <string name="settings_scale_mode" formatted="false">Pixel rendering</string>
     <string name="settings_scale_physical">One pixel of the file per screen pixel</string>
     <string name="settings_scale_logical">One pixel of the file per layout pixel</string>
-    <string name="settings_scale_desc">A phone screen packs two or three real pixels into one layout pixel, so the two answers are a long way apart: the first shows the file as it is, the second shows it the size a web page would.</string>
+    <string name="settings_scale_desc">Sets what zooming to actual pixels means. The screen of any modern device draws each logical pixel as a square of two or three real pixels. The first choice ignores logical pixels and maps every point onto one real pixel; the second shows every object at the size it would have on a web page.</string>
 
     <string name="details_bar">Details bar</string>
     <string name="settings_top">At the top</string>
     <string name="settings_bottom">At the bottom</string>
-    <string name="settings_info_visible">Bar showing at first</string>
+    <string name="settings_info_visible">Info bar at startup</string>
     <string name="settings_anim_counter">Frame counter</string>
     <string name="settings_anim_counter_desc">Shown in the controls of animated images.</string>
 
-    <string name="settings_reverse_order">Change the direction of the sequence (by date)</string>
-    <string name="settings_reverse_order_desc">Off, you leaf from the newest towards the older ones, the way a phone gallery goes. On, in chronological order, from the oldest to the newest.</string>
+    <string name="settings_reverse_order">Browse images rightwards from the oldest</string>
+    <string name="settings_reverse_order_desc">By default Android galleries treat the first item, at the top, as the most recent, and you browse backwards. Turn this on for file-manager ordering: from the oldest to the most recent.</string>
     <!-- The switch that decides what deleting means, and with it whether a confirmation
          appears: the two go together, because you get asked exactly when there is no way
          back. The Italian wording is the user's, dictated word for word. -->
@@ -171,15 +173,15 @@
          is 'I leaf through videos too', so the branch that tells a picture from a film
          is always needed. Tapping a video still opens it: this is about the GESTURE. -->
     <string name="settings_images_only">Leaf through pictures only</string>
-    <string name="settings_images_only_desc">Swiping in the viewer skips films and shows only pictures. Tapping a film in the grid still plays it: this is about the swipe, not the tap.</string>
+    <string name="settings_images_only_desc">In the viewer, swiping right and left ignores videos and considers images only. You can still play a video with a tap from the grid, list or folders view.</string>
 
     <!-- Off by default, and the second sentence is the reason why: the system notice
          is the cost of the feature, so it belongs next to the switch rather than as a
          surprise the first time the app opens. -->
-    <string name="settings_clipboard">Read the clipboard at startup</string>
-    <string name="settings_clipboard_desc">Opening the app from its icon, an address in the clipboard that points straight at an image opens that image. Android shows a notice every time an app reads the clipboard, so leaving this off means never seeing it.</string>
+    <string name="settings_clipboard">Read the clipboard contents at startup</string>
+    <string name="settings_clipboard_desc">When you open the app (a fresh start), if the system clipboard holds a direct link to an image, that image opens straight in the viewer instead of the home screen.</string>
     <string name="settings_start_folder">Open a folder at startup</string>
-    <string name="settings_start_folder_desc">Opening the app shows what the chosen folder holds straight away, instead of the folder list.</string>
+    <string name="settings_start_folder_desc">Shows the contents of a specific folder at startup, instead of the home screen.</string>
     <string name="settings_start_folder_none">No folder chosen</string>
     <string name="settings_start_folder_pick">Choose</string>
 
@@ -187,7 +189,7 @@
          never again, so without this the only way back was clearing the app's data,
          which takes the settings with it. -->
     <string name="settings_reset_hints">Bring the tips back</string>
-    <string name="settings_reset_hints_desc">The shortcut explanations show again, as they do on a fresh install.</string>
+    <string name="settings_reset_hints_desc">The mini-tutorials, the onboarding, the tips and the warnings, normally shown only at first launch, become visible again (once).</string>
     <string name="settings_reset_hints_do">Bring back</string>
     <string name="settings_reset_hints_done">The tips will show again</string>
 
@@ -452,8 +454,8 @@
     <string name="pick_drop">Discard</string>
     <string name="pick_keep">Keep</string>
     <string name="pick_list_done">File list copied to the clipboard</string>
-    <string name="settings_pick_weight">Weight of the selection</string>
-    <string name="settings_pick_weight_desc">At the head of the selection, next to the count, you read how much the picked items weigh altogether. The weight is asked of the system every time the selection settles: with this off, that question is never asked.</string>
+    <string name="settings_pick_weight">Size of the selected files</string>
+    <string name="settings_pick_weight_desc">At the top of the selection, next to the counter, the total size of every selected item appears. It changes with every change to the selection.</string>
     <string name="anim_play">Play</string>
     <string name="anim_pause">Pause</string>
     <string name="anim_prev">Previous frame</string>
