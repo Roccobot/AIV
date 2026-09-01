@@ -35,6 +35,7 @@
     <string name="convert_quality">Qualità</string>
     <string name="convert_size">Dimensioni</string>
     <string name="convert_no_alpha">Il JPEG non conserva la trasparenza: quelle parti diventano bianche.</string>
+    <string name="convert_this_frame">Stai esportando il fotogramma %1$d, quello che hai davanti.</string>
     <string name="convert_elsewhere">Altri formati</string>
     <string name="convert_elsewhere_desc">Android sa scrivere solo i formati qui sopra. Per gli altri ci sono questi servizi, che si aprono nel browser: l\'immagine si sceglie da lì, dalla memoria del telefono.</string>
     <string name="convert_open">Apri</string>
@@ -422,7 +423,6 @@
     <string name="anim_pause">Pausa</string>
     <string name="anim_prev">Fotogramma precedente</string>
     <string name="anim_next">Fotogramma successivo</string>
-    <string name="anim_export">Esporta il fotogramma</string>
     <plurals name="facts_colour_count">
         <item quantity="one">%1$d colore</item>
         <item quantity="other">%1$d colori</item>

@@ -25,6 +25,7 @@
     <string name="convert_quality">الجودة</string>
     <string name="convert_size">الحجم</string>
     <string name="convert_no_alpha">صيغة JPEG لا تحفظ الشفافية: تتحول تلك المناطق إلى الأبيض.</string>
+    <string name="convert_this_frame">يجري تصدير اللقطة %1$d، وهي المعروضة على الشاشة.</string>
     <string name="convert_elsewhere">صيغ أخرى</string>
     <string name="convert_elsewhere_desc">لا يستطيع أندرويد كتابة سوى الصيغ أعلاه. أما البقية فتوفرها هذه الخدمات، وهي تُفتح في المتصفح: اختر الصورة هناك من ذاكرة الهاتف.</string>
     <string name="convert_open">فتح</string>
@@ -407,7 +408,6 @@
     <string name="anim_pause">إيقاف مؤقت</string>
     <string name="anim_prev">الإطار السابق</string>
     <string name="anim_next">الإطار التالي</string>
-    <string name="anim_export">تصدير هذا الإطار</string>
     <plurals name="facts_colour_count">
         <item quantity="zero">لا ألوان</item>
         <item quantity="one">لون واحد</item>

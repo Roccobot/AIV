@@ -56,7 +56,6 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.launch
 import java.io.File
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 
 /**
@@ -359,7 +358,7 @@ private fun SpotRow(
     val hold = remember(onHold, haptics) {
         onHold?.let { premuto ->
             {
-                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                haptics.performHapticFeedback(HOLD_BUZZ)
                 premuto()
             }
         }

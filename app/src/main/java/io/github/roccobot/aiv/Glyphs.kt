@@ -153,7 +153,9 @@ object Glyphs {
      * più confrontare col file di partenza.
      * ⚠️ **Misurate prima di entrare**: l'inchiostro sta in 568x466 unità su 800 ed è
      * centrato in (400, 400) esatte, quindi non serve nessuna correzione. Il glifo
-     * dell'esportazione, misurato lo stesso giorno, non lo era: vedi [PhotoOut].
+     * dell'esportazione, misurato lo stesso giorno, non lo era, e andava ricentrato con un
+     * gruppo: se n'è andato con il suo tasto nella 1.21, e la misura resta scritta nel
+     * messaggio di quel commit.
      * ⚠️ **Sostituiscono `Icons.Outlined.AlignHorizontalCenter` e la sua gemella**, che
      * l'utente ha giudicato non abbastanza chiare (voce `ed-sheet` del collaudo).
      */
@@ -161,43 +163,6 @@ object Glyphs {
 
     /** Vedi [AlignAcross]: è la stessa icona girata di un quarto. */
     val AlignDown: ImageVector by lazy { grande("AlignDown", ALIGN_DOWN) }
-
-    /**
-     * Il fotogramma che esce dall'animazione.
-     *
-     * ⚠️⚠️ **NON È UN `filled` COME GLI ALTRI, e le due correzioni sono MISURATE**
-     * (riscontro dell'utente, 2026-09-01: *deve spostarsi in alto di 1 pixel apparente e
-     * probabilmente rimpicciolirla al 90%*). Renderizzando il tracciato a 960 px e leggendo
-     * il riquadro dell'inchiostro: sta in **18x18 unità** su 24, ma il suo centro cade in
-     * **(11, 13)** invece che in (12, 12). Era basso di un'unità e spostato a sinistra di
-     * una, che a 24dp su uno schermo a densità 3 fanno tre pixel: quello che si vedeva.
-     * ⚠️ **La correzione sta nel GRUPPO e non nel tracciato**: la `d` resta identica al file
-     * dell'utente e si può ancora confrontare carattere per carattere. Il gruppo scala di
-     * [SHRINK] intorno al centro della griglia e poi trasla di quel tanto che porta il
-     * centro dell'inchiostro esattamente su (12, 12).
-     * ⚠️ **La traslazione vale [SHRINK] e non 1**, ed è la parte che si sbaglia: la scala
-     * agisce **prima**, e avvicina già il centro sbagliato a quello giusto di un decimo.
-     */
-    val PhotoOut: ImageVector by lazy {
-        ImageVector.Builder(
-            name = "PhotoOut",
-            defaultWidth = SIZE,
-            defaultHeight = SIZE,
-            viewportWidth = GRID,
-            viewportHeight = GRID
-        ).addGroup(
-            name = "centratura",
-            pivotX = GRID / 2f,
-            pivotY = GRID / 2f,
-            scaleX = SHRINK,
-            scaleY = SHRINK,
-            translationX = SHRINK,
-            translationY = -SHRINK
-        ).addPath(
-            pathData = PathParser().parsePathString(EXPORT_IMAGE).toNodes(),
-            fill = SolidColor(Color.Black)
-        ).build()
-    }
 
     /**
      * Il guscio dei glifi dell'utente: un 24x24 con un tracciato pieno.
@@ -245,8 +210,6 @@ object Glyphs {
     /** La griglia dei due glifi di allineamento, che Illustrator ha esportato a 800. */
     private const val WIDE_GRID = 800f
 
-    /** Di quanto rimpicciolisce [PhotoOut] rispetto alla sua griglia. */
-    private const val SHRINK = 0.9f
 
     /** Lo spessore del solo [TextCursor], in unità di griglia. */
     private const val STROKE = 2f
@@ -358,8 +321,4 @@ object Glyphs {
             "1.15,0-46.73-6.7-58.33-4.39-7.6-10.7-13.91-18.3-18.3-11.6-6.7-27.18-6.7-58.33-6.7s-46.73" +
             ",0-58.33,6.7Z"
 
-    private const val EXPORT_IMAGE =
-        "M10.21,16.83l-1.96-2.36-2.75,3.53h11l-3.54-4.71-2.75,3.54Z" +
-            "M19.6,12.43h-1.19c-.22,0-.4.18-.4.4v7.17H4V6h8.6c.22,0,.4-.18.4-.4v-1.2c0-.22-.18-.4-.4-.4H4c-1.1,0-2,.9-2,2v14c0,1.1.9,2,2,2h14c1.1,0,2-.9,2-2v-7.17c0-.22-.18-.4-.4-.4Z" +
-            "M10,8.41v1.15c0,.22.18.4.4.4h4.6v4.01l4.97-4.98-4.97-4.98v4.01h-4.6c-.22,0-.4.18-.4.4Z"
 }

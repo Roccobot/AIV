@@ -25,6 +25,7 @@
     <string name="convert_quality">Якість</string>
     <string name="convert_size">Розмір</string>
     <string name="convert_no_alpha">JPEG не зберігає прозорість: ці ділянки стануть білими.</string>
+    <string name="convert_this_frame">Експортується кадр %1$d, той, що на екрані.</string>
     <string name="convert_elsewhere">Інші формати</string>
     <string name="convert_elsewhere_desc">Android уміє записувати лише формати вище. Для решти є ці служби, вони відкриваються у браузері: зображення вибирається там, з пам\'яті телефона.</string>
     <string name="convert_open">Відкрити</string>
@@ -377,7 +378,6 @@
     <string name="anim_pause">Пауза</string>
     <string name="anim_prev">Попередній кадр</string>
     <string name="anim_next">Наступний кадр</string>
-    <string name="anim_export">Експортувати цей кадр</string>
     <plurals name="facts_colour_count">
         <item quantity="one">%1$d колір</item>
         <item quantity="few">%1$d кольори</item>

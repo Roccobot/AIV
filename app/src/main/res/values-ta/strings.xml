@@ -25,6 +25,7 @@
     <string name="convert_quality">தரம்</string>
     <string name="convert_size">அளவு</string>
     <string name="convert_no_alpha">JPEG ஒளிஊடுருவலைத் தக்கவைக்காது: அந்தப் பகுதிகள் வெள்ளையாகிவிடும்.</string>
+    <string name="convert_this_frame">திரையில் உள்ள %1$d ஆவது சட்டகம் ஏற்றுமதி செய்யப்படுகிறது.</string>
     <string name="convert_elsewhere">பிற வடிவங்கள்</string>
     <string name="convert_elsewhere_desc">மேலே உள்ள வடிவங்களை மட்டுமே Android எழுத முடியும். மற்றவற்றுக்கு இந்தச் சேவைகள் உள்ளன, அவை உலாவியில் திறக்கும்: படத்தை அங்கேயே, தொலைபேசி நினைவகத்திலிருந்து தேர்ந்தெடுக்கவும்.</string>
     <string name="convert_open">திற</string>
@@ -347,7 +348,6 @@
     <string name="anim_pause">இடைநிறுத்து</string>
     <string name="anim_prev">முந்தைய சட்டகம்</string>
     <string name="anim_next">அடுத்த சட்டகம்</string>
-    <string name="anim_export">இந்தச் சட்டகத்தை ஏற்றுமதி செய்</string>
     <plurals name="facts_colour_count">
         <item quantity="one">%1$d வண்ணம்</item>
         <item quantity="other">%1$d வண்ணங்கள்</item>

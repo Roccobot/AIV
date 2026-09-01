@@ -25,6 +25,7 @@
     <string name="convert_quality">दर्जा</string>
     <string name="convert_size">आकार</string>
     <string name="convert_no_alpha">JPEG पारदर्शकता ठेवत नाही: ते भाग पांढरे होतात.</string>
+    <string name="convert_this_frame">फ्रेम %1$d निर्यात होत आहे, तीच जी स्क्रीनवर आहे.</string>
     <string name="convert_elsewhere">इतर स्वरूपे</string>
     <string name="convert_elsewhere_desc">अँड्रॉइड फक्त वरील स्वरूपेच लिहू शकते. बाकीच्यांसाठी या सेवा आहेत, ज्या ब्राउझरमध्ये उघडतात: प्रतिमा तिथेच, फोनच्या स्मृतीतून निवडा.</string>
     <string name="convert_open">उघडा</string>
@@ -347,7 +348,6 @@
     <string name="anim_pause">थांबवा</string>
     <string name="anim_prev">मागील फ्रेम</string>
     <string name="anim_next">पुढील फ्रेम</string>
-    <string name="anim_export">ही फ्रेम निर्यात करा</string>
     <plurals name="facts_colour_count">
         <item quantity="one">%1$d रंग</item>
         <item quantity="other">%1$d रंग</item>

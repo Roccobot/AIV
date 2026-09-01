@@ -25,6 +25,7 @@
     <string name="convert_quality">Ubora</string>
     <string name="convert_size">Ukubwa</string>
     <string name="convert_no_alpha">JPEG haihifadhi uwazi: sehemu hizo huwa nyeupe.</string>
+    <string name="convert_this_frame">Inahamisha fremu ya %1$d, ile iliyo skrini.</string>
     <string name="convert_elsewhere">Miundo mingine</string>
     <string name="convert_elsewhere_desc">Android inaweza kuandika miundo iliyo hapo juu pekee. Kwa mingine kuna huduma hizi, zinazofunguka katika kivinjari: picha huchaguliwa huko, kutoka kwenye hifadhi ya simu.</string>
     <string name="convert_open">Fungua</string>
@@ -347,7 +348,6 @@
     <string name="anim_pause">Sitisha</string>
     <string name="anim_prev">Fremu iliyotangulia</string>
     <string name="anim_next">Fremu inayofuata</string>
-    <string name="anim_export">Hamisha fremu hii</string>
     <plurals name="facts_colour_count">
         <item quantity="one">rangi %1$d</item>
         <item quantity="other">rangi %1$d</item>

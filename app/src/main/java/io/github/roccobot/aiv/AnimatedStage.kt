@@ -106,6 +106,17 @@ class Animation(private val source: Animated) {
     }
 
     /**
+     * Ferma la riproduzione, e se era già ferma non fa niente.
+     *
+     * ⚠️ **Non è [toggle], ed è la differenza che conta**: la chiama il tocco lungo che apre
+     * il menu (richiesta dell'utente, 2026-09-01), e chi apre il menu su un'animazione già in
+     * pausa non se la deve vedere ripartire in faccia.
+     */
+    fun pause() {
+        playing = false
+    }
+
+    /**
      * Un fotogramma avanti, e mette in pausa se stava andando.
      *
      * ⚠️ **Mettere in pausa fa parte del comando**: chiedere un fotogramma preciso mentre
@@ -289,57 +300,23 @@ fun rememberAnimation(source: Uri?): Animation? {
  * togliere per guardare e basta. Spento, la fila si stringe da sé: il numero è l'ultimo
  * elemento della riga e non lascia un vuoto.
  *
- * @param onExported il fotogramma è stato scritto su file. ⚠️ **Serve perché la cartella
- *   aperta è un elenco già letto**: il file nuovo c'è sul disco e nel MediaStore, ma la
- *   griglia dietro al visualizzatore tiene in mano la lista di prima, quindi tornando
- *   indietro il fotogramma appena salvato non si vedrebbe finché non si esce dalla cartella
- *   e ci si rientra. Riscontro dell'utente, 2026-09-01.
+ * ⚠️⚠️ **IL TASTO DELL'ESPORTAZIONE SE N'È ANDATO NELLA 1.21, ed è una richiesta**
+ * (utente, 2026-09-01: *si può togliere del tutto quel tasto e usare direttamente la
+ * funzionalità 'Esporta' del menu a pressione lunga, che agisce sul fotogramma corrente*).
+ * Il motivo che l'ha fatto nascere era evitare i tocchi accidentali: premendo 'avanti' più
+ * volte di fila il dito finiva sul tasto accanto, che apriva un selettore di file. Adesso
+ * quella funzione sta nel menu del tocco lungo, cioè dietro un gesto che non si fa per
+ * sbaglio, e la fila torna a essere fatta di soli comandi di riproduzione.
+ * ⚠️ **Con lui se ne sono andati il selettore, il fotogramma tenuto da parte e `onExported`**:
+ * quel giro adesso lo fa `ConvertDialog`, che ha già il suo `onSaved`.
  */
 @Composable
 fun AnimatedBar(
     animation: Animation,
-    name: String?,
     counter: Boolean,
-    onExported: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
-
-    /*
-     * ⚠️⚠️ **UN SELETTORE TUTTO SUO, e NON il riuso di quello di 'Scarica'**: quello scrive
-     * il **file originale** byte per byte e dichiara il tipo della sorgente; qui si scrive un
-     * fotogramma composto in memoria, e il tipo è PNG qualunque cosa fosse il file di
-     * partenza. Due contenuti diversi vogliono due contratti diversi.
-     * ⚠️ **PNG e non JPEG**: un fotogramma di GIF o WebP può avere trasparenza, e il JPEG non
-     * la sa tenere. Salvarlo in JPEG riempirebbe di nero le parti trasparenti, in silenzio.
-     * ⚠️ **Il fotogramma si prende PRIMA di aprire il selettore**, e si tiene qui: fra il
-     * tocco e la scelta della cartella passano secondi, e in quel tempo l'animazione
-     * potrebbe essere ripartita.
-     */
-    var pending by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
-    val exporter = rememberLauncherForActivityResult(
-        remember { ActivityResultContracts.CreateDocument("image/png") }
-    ) { target ->
-        val shot = pending
-        pending = null
-        if (target == null || shot == null) return@rememberLauncherForActivityResult
-        scope.launch {
-            val ok = withContext(Dispatchers.IO) {
-                runCatching {
-                    context.contentResolver.openOutputStream(target)?.use { out ->
-                        shot.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, out)
-                    } ?: false
-                }.getOrDefault(false)
-            }
-            Toast.makeText(
-                context,
-                if (ok) R.string.toast_saved else R.string.toast_save_failed,
-                Toast.LENGTH_SHORT
-            ).show()
-            if (ok) onExported()
-        }
-    }
 
     Row(
         modifier = modifier
@@ -359,13 +336,6 @@ fun AnimatedBar(
         }
         Key(Icons.Outlined.NavigateNext, R.string.anim_next) {
             scope.launch { animation.stepForward() }
-        }
-        Key(Glyphs.PhotoOut, R.string.anim_export) {
-            scope.launch {
-                val shot = animation.snapshot() ?: return@launch
-                pending = shot
-                exporter.launch(frameName(name, animation.shown))
-            }
         }
         if (counter) {
             val stile = MaterialTheme.typography.labelMedium.copy(fontFeatureSettings = "tnum")
@@ -411,18 +381,6 @@ private fun Key(icon: ImageVector, @StringRes label: Int, onClick: () -> Unit) {
             tint = Color.White
         )
     }
-}
-
-/**
- * Il nome proposto per il fotogramma esportato.
- *
- * ⚠️ **Porta il numero del fotogramma**, o esportandone tre dalla stessa animazione si
- * otterrebbero tre file che si chiamano uguale e il selettore aggiungerebbe '(1)', '(2)'.
- * Con il numero, i file si riordinano da soli e si capisce da dove vengono.
- */
-private fun frameName(name: String?, frame: Int): String {
-    val base = name?.substringBeforeLast('.')?.takeIf { it.isNotBlank() } ?: "fotogramma"
-    return "%s-%04d.png".format(base, frame)
 }
 
 /**

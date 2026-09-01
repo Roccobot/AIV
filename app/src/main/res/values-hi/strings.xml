@@ -25,6 +25,7 @@
     <string name="convert_quality">गुणवत्ता</string>
     <string name="convert_size">आकार</string>
     <string name="convert_no_alpha">JPEG पारदर्शिता नहीं रखता: वे हिस्से सफ़ेद हो जाते हैं।</string>
+    <string name="convert_this_frame">फ़्रेम %1$d निर्यात हो रहा है, वही जो स्क्रीन पर है.</string>
     <string name="convert_elsewhere">अन्य प्रारूप</string>
     <string name="convert_elsewhere_desc">एंड्रॉइड केवल ऊपर दिए प्रारूप ही लिख सकता है। बाकी के लिए ये सेवाएँ हैं, जो ब्राउज़र में खुलती हैं: छवि वहीं, फ़ोन की मेमोरी से चुनें।</string>
     <string name="convert_open">खोलें</string>
@@ -347,7 +348,6 @@
     <string name="anim_pause">रोकें</string>
     <string name="anim_prev">पिछला फ़्रेम</string>
     <string name="anim_next">अगला फ़्रेम</string>
-    <string name="anim_export">यह फ़्रेम निर्यात करें</string>
     <plurals name="facts_colour_count">
         <item quantity="one">%1$d रंग</item>
         <item quantity="other">%1$d रंग</item>

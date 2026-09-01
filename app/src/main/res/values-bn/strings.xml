@@ -25,6 +25,7 @@
     <string name="convert_quality">গুণমান</string>
     <string name="convert_size">আকার</string>
     <string name="convert_no_alpha">JPEG স্বচ্ছতা রাখে না: ওই অংশগুলি সাদা হয়ে যায়।</string>
+    <string name="convert_this_frame">%1$d নম্বর ফ্রেম রপ্তানি হচ্ছে, যেটি স্ক্রিনে দেখা যাচ্ছে।</string>
     <string name="convert_elsewhere">অন্যান্য বিন্যাস</string>
     <string name="convert_elsewhere_desc">অ্যান্ড্রয়েড কেবল উপরের বিন্যাসগুলিই লিখতে পারে। বাকিগুলির জন্য এই পরিষেবাগুলি আছে, যেগুলি ব্রাউজারে খোলে: ছবিটি সেখানেই, ফোনের মেমরি থেকে বেছে নিন।</string>
     <string name="convert_open">খুলুন</string>
@@ -347,7 +348,6 @@
     <string name="anim_pause">বিরতি</string>
     <string name="anim_prev">আগের ফ্রেম</string>
     <string name="anim_next">পরের ফ্রেম</string>
-    <string name="anim_export">এই ফ্রেম রপ্তানি করুন</string>
     <plurals name="facts_colour_count">
         <item quantity="one">%1$d রঙ</item>
         <item quantity="other">%1$d রঙ</item>

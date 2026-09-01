@@ -1992,6 +1992,14 @@ private fun AivApp(model: ViewerViewModel) {
                 onFileAdded = { model.afterFileAdded() },
                 onEdit = { model.edit(it) },
                 onEditWith = { model.editWith(it) },
+                // ⚠️ Scrive le STESSE due chiavi che scrive la schermata delle impostazioni,
+                // e non una copia volatile: la scorciatoia del tocco lungo su 'Info' deve
+                // restare, ed è quello che l'utente ha chiesto ('e si memorizza').
+                onInfoBar = { visible, where ->
+                    model.updateSettings(
+                        settings.copy(infoVisible = visible, infoPosition = where)
+                    )
+                },
                 // ⚠️ Da dove si è entrati dice se si sta guardando il cestino: la
                 // fotografia in sé non lo sa, ed è la ragione per cui questo dato non vive
                 // nell'immagine.

@@ -25,6 +25,7 @@
     <string name="convert_quality">Kualitas</string>
     <string name="convert_size">Ukuran</string>
     <string name="convert_no_alpha">JPEG tidak menyimpan transparansi: bagian itu menjadi putih.</string>
+    <string name="convert_this_frame">Mengekspor bingkai %1$d, yang tampil di layar.</string>
     <string name="convert_elsewhere">Format lain</string>
     <string name="convert_elsewhere_desc">Android hanya bisa menulis format di atas. Untuk selebihnya ada layanan berikut, yang terbuka di peramban: gambar dipilih di sana, dari memori ponsel.</string>
     <string name="convert_open">Buka</string>
@@ -332,7 +333,6 @@
     <string name="anim_pause">Jeda</string>
     <string name="anim_prev">Bingkai sebelumnya</string>
     <string name="anim_next">Bingkai berikutnya</string>
-    <string name="anim_export">Ekspor bingkai ini</string>
     <plurals name="facts_colour_count">
         <item quantity="other">%1$d warna</item>
     </plurals>

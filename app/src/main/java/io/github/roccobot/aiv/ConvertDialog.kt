@@ -55,6 +55,21 @@ import kotlin.math.roundToInt
 fun ConvertDialog(
     image: LoadedImage,
     source: Uri?,
+    /**
+     * Il fotogramma da esportare al posto del file, e `null` per ogni fotografia ferma.
+     *
+     * ⚠️⚠️ **DALLA 1.21 QUESTO DIALOGO È ANCHE L'ESPORTAZIONE DEL FOTOGRAMMA** (richiesta
+     * dell'utente, 2026-09-01: *si può togliere del tutto quel tasto e usare direttamente la
+     * funzionalità 'Esporta' del menu a pressione lunga, che agisce sul fotogramma
+     * corrente*). Prima era un tasto a sé nella fila dei comandi, che scriveva PNG e basta;
+     * qui si eredita la scelta del formato, la qualità e la riduzione, che quel tasto non
+     * offriva.
+     * ⚠️ **Il fotogramma lo prende chi apre il dialogo**, non questo dialogo: fra il tocco e
+     * la scelta della cartella passano secondi. Vedi `ViewerScreen`.
+     */
+    frame: android.graphics.Bitmap? = null,
+    /** Quale fotogramma è, per dirlo nel dialogo. Vale solo insieme a [frame]. */
+    shownFrame: Int = 0,
     onSaved: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -84,8 +99,16 @@ fun ConvertDialog(
         scope.launch {
             val ok = Convert.write(
                 context = context,
-                source = source,
-                fallback = image.bitmap.let { runCatching { it.asAndroidBitmap() }.getOrNull() },
+                /*
+                 * ⚠️⚠️ **CON UN FOTOGRAMMA IN MANO L'INDIRIZZO SI PASSA `null`, ed è
+                 * l'inversione che fa funzionare la cosa**: `Convert.write` preferisce
+                 * sempre il file, e rileggerlo qui vorrebbe dire esportare il **primo**
+                 * fotogramma della GIF invece di quello che si sta guardando. Lasciandolo
+                 * senza indirizzo, gli resta solo il ripiego, che è appunto il fotogramma.
+                 */
+                source = if (frame != null) null else source,
+                fallback = frame
+                    ?: image.bitmap.let { runCatching { it.asAndroidBitmap() }.getOrNull() },
                 target = target,
                 quality = quality,
                 size = size,
@@ -109,6 +132,15 @@ fun ConvertDialog(
                 modifier = Modifier.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
+                /*
+                 * ⚠️ **Il dialogo dice su CHE COSA sta lavorando quando non è ovvio**: con
+                 * un'animazione davanti, 'Converti' potrebbe significare il file intero, e
+                 * chi lo credesse si troverebbe un PNG da un fotogramma senza sapere perché.
+                 * Su una fotografia ferma la riga non c'è, perché non c'è ambiguità.
+                 */
+                if (frame != null) {
+                    Note(stringResource(R.string.convert_this_frame, shownFrame))
+                }
                 Heading(stringResource(R.string.convert_format))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Convert.Target.entries.forEach { option ->
@@ -177,7 +209,17 @@ fun ConvertDialog(
         },
         confirmButton = {
             TextButton(
-                onClick = { exporter.launch(Convert.nameFor(image.displayName, target)) }
+                /*
+                 * ⚠️ **Il nome proposto porta il numero del fotogramma**, o esportandone
+                 * tre da una GIF si proporrebbe tre volte lo stesso nome, e il selettore di
+                 * sistema aggiungerebbe '(1)' e '(2)' senza dire di che si tratta.
+                 */
+                onClick = {
+                    exporter.launch(
+                        if (frame != null) Convert.frameName(image.displayName, shownFrame, target)
+                        else Convert.nameFor(image.displayName, target)
+                    )
+                }
             ) {
                 Text(stringResource(R.string.convert_export))
             }

@@ -54,6 +54,7 @@
     <string name="convert_quality">Quality</string>
     <string name="convert_size">Size</string>
     <string name="convert_no_alpha">JPEG does not keep transparency: those areas turn white.</string>
+    <string name="convert_this_frame">Exporting frame %1$d, the one on screen.</string>
     <string name="convert_elsewhere">Other formats</string>
     <string name="convert_elsewhere_desc">Android can only write the formats above. For the others there are these services, which open in the browser: pick the image there, from the phone\'s storage.</string>
     <string name="convert_open">Open</string>
@@ -501,7 +502,6 @@
     <string name="anim_pause">Pause</string>
     <string name="anim_prev">Previous frame</string>
     <string name="anim_next">Next frame</string>
-    <string name="anim_export">Export this frame</string>
     <plurals name="facts_colour_count">
         <item quantity="one">%1$d colour</item>
         <item quantity="other">%1$d colours</item>

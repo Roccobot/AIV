@@ -25,6 +25,7 @@
     <string name="convert_quality">画質</string>
     <string name="convert_size">サイズ</string>
     <string name="convert_no_alpha">JPEG は透明部分を保持できません。その部分は白くなります。</string>
+    <string name="convert_this_frame">表示中のコマ %1$d を書き出します。</string>
     <string name="convert_elsewhere">ほかの形式</string>
     <string name="convert_elsewhere_desc">Android が書き出せるのは上の形式だけです。ほかの形式には次のサービスがあり、ブラウザーで開きます。画像はそこで、端末のストレージから選びます。</string>
     <string name="convert_open">開く</string>
@@ -332,7 +333,6 @@
     <string name="anim_pause">一時停止</string>
     <string name="anim_prev">前のフレーム</string>
     <string name="anim_next">次のフレーム</string>
-    <string name="anim_export">このフレームを書き出す</string>
     <plurals name="facts_colour_count">
         <item quantity="other">%1$d 色</item>
     </plurals>

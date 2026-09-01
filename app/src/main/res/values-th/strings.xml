@@ -25,6 +25,7 @@
     <string name="convert_quality">คุณภาพ</string>
     <string name="convert_size">ขนาด</string>
     <string name="convert_no_alpha">JPEG ไม่เก็บความโปร่งใส ส่วนเหล่านั้นจะกลายเป็นสีขาว</string>
+    <string name="convert_this_frame">กำลังส่งออกเฟรมที่ %1$d ซึ่งเป็นเฟรมที่แสดงอยู่</string>
     <string name="convert_elsewhere">รูปแบบอื่น</string>
     <string name="convert_elsewhere_desc">แอนดรอยด์เขียนได้เฉพาะรูปแบบข้างบนเท่านั้น สำหรับรูปแบบอื่นมีบริการเหล่านี้ ซึ่งเปิดในเบราว์เซอร์ แล้วเลือกภาพจากหน่วยความจำของโทรศัพท์ที่นั่น</string>
     <string name="convert_open">เปิด</string>
@@ -332,7 +333,6 @@
     <string name="anim_pause">หยุดชั่วคราว</string>
     <string name="anim_prev">เฟรมก่อนหน้า</string>
     <string name="anim_next">เฟรมถัดไป</string>
-    <string name="anim_export">ส่งออกเฟรมนี้</string>
     <plurals name="facts_colour_count">
         <item quantity="other">%1$d สี</item>
     </plurals>

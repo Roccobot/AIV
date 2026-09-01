@@ -25,6 +25,7 @@
     <string name="convert_quality">کیفیت</string>
     <string name="convert_size">اندازه</string>
     <string name="convert_no_alpha">JPEG شفافیت را نگه نمی‌دارد: آن بخش‌ها سفید می‌شوند.</string>
+    <string name="convert_this_frame">در حال صدور فریم %1$d، همان که روی صفحه است.</string>
     <string name="convert_elsewhere">قالب‌های دیگر</string>
     <string name="convert_elsewhere_desc">اندروید فقط قالب‌های بالا را می‌نویسد. برای بقیه این سرویس‌ها هستند که در مرورگر باز می‌شوند: تصویر را همان‌جا، از حافظهٔ گوشی انتخاب کنید.</string>
     <string name="convert_open">باز کردن</string>
@@ -347,7 +348,6 @@
     <string name="anim_pause">مکث</string>
     <string name="anim_prev">فریم پیشین</string>
     <string name="anim_next">فریم بعدی</string>
-    <string name="anim_export">برون‌بری این فریم</string>
     <plurals name="facts_colour_count">
         <item quantity="one">%1$d رنگ</item>
         <item quantity="other">%1$d رنگ</item>
