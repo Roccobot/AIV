@@ -228,7 +228,7 @@
     <string name="tree_pictures">Hanya folder dengan gambar atau video</string>
     <string name="columns_hint">Pintasan: tekan lama tombol mengambang untuk opsi tampilan.</string>
     <string name="settings_bin">Aktifkan tempat sampah</string>
-    <string name="settings_bin_desc">Menghapus berkas tidak menanyakan apa pun, tetapi tindakan ini bisa dibatalkan dengan \'Pulihkan\' dari tempat sampah (tombol mengambang → \'Tempat sampah\'). Kamu bisa mematikan tempat sampah sepenuhnya jika lebih suka penghapusan langsung: dalam hal itu, konfirmasi akan muncul sebelum setiap penghapusan.</string>
+    <string name="settings_bin_desc">Menghapus berkas tidak menanyakan apa pun, tetapi tindakan ini bisa dibatalkan dengan \'Pulihkan\' dari tempat sampah (tombol mengambang →\u00A0\'Tempat sampah\'). Kamu bisa mematikan tempat sampah sepenuhnya jika lebih suka penghapusan langsung: dalam hal itu, konfirmasi akan muncul sebelum setiap penghapusan.\n\n⚠️ PERHATIAN: jika aplikasi dicopot, tempat sampah dikosongkan dan tidak dapat dipulihkan.</string>
     <string name="pick_duplicate">Duplikat</string>
     <string name="settings_grid_names">Nama berkas di kisi foto</string>
     <string name="settings_grid_names_desc">Di bawah setiap gambar mini, nama berkas dalam dua baris paling banyak. Ekstensi tidak pernah dipenggal dan selalu terlihat: kalau nama tidak muat, bagian tengahnya yang mengalah.</string>
@@ -288,4 +288,12 @@
     <string name="settings_editor_backup_desc">Sebelum editor bawaan menimpa sebuah gambar, versi sebelumnya masuk ke tempat sampah. Berlaku hanya untuk editor bawaan: aplikasi lain menyimpan sendiri.</string>
     <string name="editor_tall">Tegak</string>
     <string name="editor_wide">Mendatar</string>
+    <string name="pick_drop_ask">Batalkan pilihan?</string>
+    <plurals name="pick_drop_desc">
+        <item quantity="other">%1$d item tidak lagi terpilih. Berkasnya tetap di tempatnya.</item>
+    </plurals>
+    <string name="pick_drop">Batalkan</string>
+    <string name="pick_list_done">Daftar berkas disalin ke papan klip</string>
+    <string name="settings_pick_weight">Ukuran pilihan</string>
+    <string name="settings_pick_weight_desc">Di bagian atas pilihan, di samping jumlahnya, terbaca berapa ukuran total item yang dipilih. Ukuran ditanyakan ke sistem setiap kali pilihan berhenti: saat dimatikan, pertanyaan itu tidak pernah diajukan.</string>
 </resources>

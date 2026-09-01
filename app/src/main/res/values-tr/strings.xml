@@ -243,7 +243,7 @@
     <string name="tree_pictures">Yalnızca görsel veya video içeren klasörler</string>
     <string name="columns_hint">Kısayol: görünüm seçenekleri için kayan düğmeyi basılı tutun.</string>
     <string name="settings_bin">Çöp kutusunu aç</string>
-    <string name="settings_bin_desc">Bir dosyayı silmek hiçbir şey sormaz, ama işlem çöp kutusundan bir \'Geri al\' ile geri alınabilir (kayan düğme → \'Çöp kutusu\'). Anında silmeyi tercih ediyorsan çöp kutusunu tamamen kapatabilirsin: o zaman her silme işleminden önce bir onay görünür.</string>
+    <string name="settings_bin_desc">Bir dosyayı silmek hiçbir şey sormaz, ama işlem çöp kutusundan bir \'Geri al\' ile geri alınabilir (kayan düğme →\u00A0\'Çöp kutusu\'). Anında silmeyi tercih ediyorsan çöp kutusunu tamamen kapatabilirsin: o zaman her silme işleminden önce bir onay görünür.\n\n⚠️ DİKKAT: uygulamayı kaldırırsan çöp kutusu boşaltılır ve geri getirilemez.</string>
     <string name="pick_duplicate">Çoğalt</string>
     <string name="settings_grid_names">Izgarada dosya adı</string>
     <string name="settings_grid_names_desc">Her küçük resmin altında dosya adı, en fazla iki satır. Uzantı asla bölünmez ve her zaman görünür: ad sığmazsa kısalan orta kısımdır.</string>
@@ -303,4 +303,13 @@
     <string name="settings_editor_backup_desc">Yerleşik düzenleyici bir resmin üzerine yazmadan önce, önceki hâli çöp kutusuna gider. Yalnızca yerleşik düzenleyici için geçerli: başka bir uygulama kendi başına kaydeder.</string>
     <string name="editor_tall">Dikey</string>
     <string name="editor_wide">Yatay</string>
+    <string name="pick_drop_ask">Seçim bırakılsın mı?</string>
+    <plurals name="pick_drop_desc">
+        <item quantity="one">%1$d öge artık seçili olmayacak. Dosyalar yerinde kalır.</item>
+        <item quantity="other">%1$d öge artık seçili olmayacak. Dosyalar yerinde kalır.</item>
+    </plurals>
+    <string name="pick_drop">Bırak</string>
+    <string name="pick_list_done">Dosya listesi panoya kopyalandı</string>
+    <string name="settings_pick_weight">Seçimin boyutu</string>
+    <string name="settings_pick_weight_desc">Seçimin başında, sayının yanında, seçilen ögelerin toplam boyutu okunur. Boyut, seçim her durduğunda sisteme sorulur: kapalıyken bu soru hiç sorulmaz.</string>
 </resources>

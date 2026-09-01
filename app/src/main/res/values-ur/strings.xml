@@ -243,7 +243,7 @@
     <string name="tree_pictures">صرف تصاویر یا ویڈیو والے فولڈر</string>
     <string name="columns_hint">شارٹ کٹ: نمائش کے اختیارات کے لیے تیرتا بٹن دبائے رکھیں۔</string>
     <string name="settings_bin">ردی کی ٹوکری فعال کریں</string>
-    <string name="settings_bin_desc">فائل مٹانا کچھ نہیں پوچھتا، لیکن یہ کام ردی کی ٹوکری سے \'بحال کریں\' کے ذریعے واپس ہو سکتا ہے (فلوٹنگ بٹن → \'ردی کی ٹوکری\')۔ اگر آپ فوری مٹانا پسند کرتے ہیں تو ردی کی ٹوکری مکمل بند کر سکتے ہیں: اس صورت میں ہر مٹانے سے پہلے تصدیق آئے گی۔</string>
+    <string name="settings_bin_desc">فائل مٹانا کچھ نہیں پوچھتا، لیکن یہ کام ردی کی ٹوکری سے \'بحال کریں\' کے ذریعے واپس ہو سکتا ہے (فلوٹنگ بٹن →\u00A0\'ردی کی ٹوکری\')۔ اگر آپ فوری مٹانا پسند کرتے ہیں تو ردی کی ٹوکری مکمل بند کر سکتے ہیں: اس صورت میں ہر مٹانے سے پہلے تصدیق آئے گی۔\n\n⚠️ انتباہ: اگر آپ ایپ ان انسٹال کریں تو ردی کی ٹوکری خالی ہو جاتی ہے اور واپس نہیں آتی۔</string>
     <string name="pick_duplicate">نقل بنائیں</string>
     <string name="settings_grid_names">گرڈ میں فائل کا نام</string>
     <string name="settings_grid_names_desc">ہر تھمب نیل کے نیچے فائل کا نام، زیادہ سے زیادہ دو سطروں میں۔ توسیع کبھی نہیں ٹوٹتی اور ہمیشہ نظر آتی ہے: نام نہ سمائے تو درمیان چھوٹا ہوتا ہے۔</string>
@@ -303,4 +303,13 @@
     <string name="settings_editor_backup_desc">اندرونی مدیر کسی تصویر پر لکھے، اس سے پہلے پچھلی شکل ردی کی ٹوکری میں چلی جاتی ہے۔ یہ صرف اندرونی مدیر کے لیے ہے: دوسری ایپ اپنے طور پر محفوظ کرتی ہے۔</string>
     <string name="editor_tall">عمودی</string>
     <string name="editor_wide">افقی</string>
+    <string name="pick_drop_ask">انتخاب منسوخ کریں؟</string>
+    <plurals name="pick_drop_desc">
+        <item quantity="one">%1$d آئٹم اب منتخب نہیں رہے گا۔ فائلیں اپنی جگہ رہتی ہیں۔</item>
+        <item quantity="other">%1$d آئٹمز اب منتخب نہیں رہیں گے۔ فائلیں اپنی جگہ رہتی ہیں۔</item>
+    </plurals>
+    <string name="pick_drop">منسوخ کریں</string>
+    <string name="pick_list_done">فائلوں کی فہرست کلپ بورڈ پر نقل ہو گئی</string>
+    <string name="settings_pick_weight">انتخاب کا حجم</string>
+    <string name="settings_pick_weight_desc">انتخاب کے اوپر، گنتی کے ساتھ، منتخب آئٹمز کا کل حجم نظر آتا ہے۔ حجم ہر بار انتخاب رکنے پر نظام سے پوچھا جاتا ہے: بند ہونے پر یہ سوال نہیں پوچھا جاتا۔</string>
 </resources>

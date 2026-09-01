@@ -228,6 +228,20 @@ data class Settings(
      */
     val listPath: Boolean = false,
     /**
+     * Se in testa alla selezione si legge anche il **peso** di quello che si è scelto.
+     *
+     * ⚠️⚠️ **L'INTERRUTTORE ESISTE PERCHÉ IL PESO COSTA, dalla 1.06** (riscontro dell'utente
+     * sul collaudo: *meglio renderla attivabile/disattivabile dalle impostazioni*): quel
+     * numero non sta nell'indirizzo, quindi ogni selezione ferma è una interrogazione al
+     * MediaStore su tutti gli elementi scelti. Chi non lo guarda mai la paga lo stesso.
+     * ⚠️ **Governa il solo peso e non il conto**, che è il titolo della selezione: senza il
+     * conto la testata resterebbe vuota, e l'impostazione diventerebbe un modo di rompere la
+     * schermata invece di alleggerirla.
+     * ⚠️ **Accesa di fabbrica**: è la funzione così com'era fino alla `1.05`, e spegnerla di
+     * default vorrebbe dire toglierla a chi non sa che esiste.
+     */
+    val pickWeight: Boolean = true,
+    /**
      * Chi apre una fotografia quando si tocca 'Modifica', dalla `1.03`.
      *
      * ⚠️ **Vuoto vuol dire 'mai scelto', ed è diverso da 'nessuno'**: la prima volta il menu
@@ -418,6 +432,7 @@ object SettingsStore {
     private val CLIPBOARD_DONE = stringPreferencesKey("clipboard-done")
     private val HAND = stringPreferencesKey("hand")
     private val LIST_PATH = booleanPreferencesKey("list-path")
+    private val PICK_WEIGHT = booleanPreferencesKey("pick-weight")
     private val EDITOR_APP = stringPreferencesKey("editor-app")
     private val EDITOR_BACKUP = booleanPreferencesKey("editor-backup")
     private val LIST_COUNT = booleanPreferencesKey("list-count")
@@ -460,6 +475,7 @@ object SettingsStore {
             clipboardDone = p[CLIPBOARD_DONE] ?: "",
             hand = Hand.entries.byToken(p[HAND], Hand.RIGHT),
             listPath = p[LIST_PATH] ?: false,
+            pickWeight = p[PICK_WEIGHT] ?: true,
             editorApp = p[EDITOR_APP] ?: "",
             editorBackup = p[EDITOR_BACKUP] ?: true,
             listCount = p[LIST_COUNT] ?: true,
@@ -519,6 +535,7 @@ object SettingsStore {
             p[CLIPBOARD_START] = settings.clipboardStart
             p[HAND] = settings.hand.token
             p[LIST_PATH] = settings.listPath
+            p[PICK_WEIGHT] = settings.pickWeight
             p[EDITOR_APP] = settings.editorApp
             p[EDITOR_BACKUP] = settings.editorBackup
             p[LIST_COUNT] = settings.listCount

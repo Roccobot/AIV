@@ -228,7 +228,7 @@
     <string name="tree_pictures">사진이나 동영상이 있는 폴더만</string>
     <string name="columns_hint">단축: 표시 옵션은 떠 있는 버튼을 길게 누르세요.</string>
     <string name="settings_bin">휴지통 사용</string>
-    <string name="settings_bin_desc">파일을 삭제할 때는 아무것도 묻지 않지만, 휴지통에서 \'되돌리기\'로 되돌릴 수 있습니다 (플로팅 버튼 → \'휴지통\'). 즉시 삭제를 원하면 휴지통을 완전히 끌 수 있습니다. 그 경우에는 삭제할 때마다 확인이 표시됩니다.</string>
+    <string name="settings_bin_desc">파일을 삭제할 때는 아무것도 묻지 않지만, 휴지통에서 \'되돌리기\'로 되돌릴 수 있습니다 (플로팅 버튼 →\u00A0\'휴지통\'). 즉시 삭제를 원하면 휴지통을 완전히 끌 수 있습니다. 그 경우에는 삭제할 때마다 확인이 표시됩니다.\n\n⚠️ 주의: 앱을 삭제하면 휴지통이 비워지고 되돌릴 수 없습니다.</string>
     <string name="pick_duplicate">복제</string>
     <string name="settings_grid_names">격자에 파일 이름 표시</string>
     <string name="settings_grid_names_desc">각 미리보기 아래에 파일 이름을 최대 두 줄로 표시합니다. 확장자는 줄바꿈으로 나뉘지 않고 항상 보이며, 이름이 다 들어가지 않으면 가운데가 줄어듭니다.</string>
@@ -288,4 +288,12 @@
     <string name="settings_editor_backup_desc">내장 편집기가 사진을 덮어쓰기 전에 이전 판이 휴지통으로 갑니다. 내장 편집기에만 해당하며, 다른 앱은 알아서 저장합니다.</string>
     <string name="editor_tall">세로</string>
     <string name="editor_wide">가로</string>
+    <string name="pick_drop_ask">선택을 취소할까요?</string>
+    <plurals name="pick_drop_desc">
+        <item quantity="other">%1$d개 항목이 더 이상 선택되지 않습니다. 파일은 그대로 있습니다.</item>
+    </plurals>
+    <string name="pick_drop">취소</string>
+    <string name="pick_list_done">파일 목록을 클립보드에 복사했습니다</string>
+    <string name="settings_pick_weight">선택 항목의 크기</string>
+    <string name="settings_pick_weight_desc">선택 항목 맨 위, 개수 옆에 고른 항목의 전체 크기가 표시됩니다. 크기는 선택이 멈출 때마다 시스템에 묻습니다. 끄면 그 질문을 하지 않습니다.</string>
 </resources>

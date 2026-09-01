@@ -35,7 +35,7 @@
     <string name="settings_scale_desc">O ecrã de um telemóvel junta dois ou três pixels reais num pixel de layout, por isso as duas respostas ficam bem distantes: a primeira mostra o ficheiro como ele é, a segunda no tamanho que teria numa página web.</string>
     <string name="settings_reverse_order_desc">Desligado, folheia do mais recente para os mais antigos, como numa galeria de telemóvel. Ligado, por ordem cronológica, do mais antigo para o mais recente.</string>
     <string name="settings_bin">Ativar a reciclagem</string>
-    <string name="settings_bin_desc">Eliminar um ficheiro não pergunta nada, mas a ação pode ser desfeita com um \'Restaurar\' na reciclagem (botão flutuante → \'Reciclagem\'). Pode desativar a reciclagem por completo, se preferir uma eliminação instantânea: nesse caso, aparecerá uma confirmação antes de cada eliminação.</string>
+    <string name="settings_bin_desc">Eliminar um ficheiro não pergunta nada, mas a ação pode ser desfeita com um \'Restaurar\' na reciclagem (botão flutuante →\u00A0\'Reciclagem\'). Pode desativar a reciclagem por completo, se preferir uma eliminação instantânea: nesse caso, aparecerá uma confirmação antes de cada eliminação.\n\n⚠️ ATENÇÃO: se desinstalares a aplicação, a reciclagem é esvaziada e não pode ser recuperada.</string>
     <string name="settings_clipboard_desc">Ao abrir a aplicação pelo ícone, um endereço na área de transferência que aponte diretamente para uma imagem abre essa imagem. O Android mostra um aviso de cada vez que uma aplicação lê a área de transferência: deixar isto desligado é nunca o ver.</string>
     <string name="settings_start_folder_desc">Ao abrir a aplicação aparece diretamente o conteúdo da pasta escolhida, em vez da lista de pastas.</string>
     <string name="settings_hidden_desc">Um toque longo numa pasta oculta-a. Estas não aparecem mais na lista, mas estão intactas no telemóvel.</string>
@@ -102,4 +102,11 @@
     <string name="settings_content_ready">Os modelos estão no telemóvel.</string>
     <string name="settings_content_blocked">Da última vez isto fechou a aplicação (%1$s), por isso a funcionalidade parou sozinha. O resto não é afetado.</string>
     <string name="settings_content_index">Indexar as imagens agora</string>
+    <plurals name="pick_drop_desc">
+        <item quantity="one">%1$d item deixará de estar selecionado. Os ficheiros ficam onde estão.</item>
+        <item quantity="other">%1$d itens deixarão de estar selecionados. Os ficheiros ficam onde estão.</item>
+        <item quantity="many">%1$d itens deixarão de estar selecionados. Os ficheiros ficam onde estão.</item>
+    </plurals>
+    <string name="pick_list_done">Lista de ficheiros copiada para a área de transferência</string>
+    <string name="settings_pick_weight_desc">No topo da seleção, ao lado da contagem, lê-se quanto pesam no total os itens escolhidos. O peso é perguntado ao sistema sempre que a seleção para: desligado, essa pergunta não é feita.</string>
 </resources>

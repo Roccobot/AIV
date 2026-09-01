@@ -47,6 +47,44 @@ object Folder {
          * girare e a tornare indietro (vedi `ViewerViewModel.step`).
          */
         fun reversed(): Series = Series(items.reversed(), items.lastIndex - index)
+
+        /**
+         * Di quanti posti si sposta davvero una strisciata di [delta], saltando i filmati
+         * quando [skipVideos].
+         *
+         * ⚠️⚠️ **STA QUI, SULLA SERIE, E NON NEL MODELLO, dalla 1.06**: fino alla `1.05`
+         * viveva dentro `ViewerViewModel`, privata, e la **schermata** non poteva
+         * chiamarla. Così le vicine che scivolano dentro dal bordo si calcolavano con un
+         * `index ± 1` crudo, e sfogliando compariva per un istante il filmato che
+         * l'impostazione prometteva di non far vedere (riscontro dell'utente sul collaudo:
+         * *i video compaiono per un istante anche quando è attiva l'opzione per ignorarli
+         * sfogliando*). Il passo era giusto, la vicina no: due conti diversi per la stessa
+         * domanda, ed è il difetto che una funzione condivisa non può avere.
+         * ⚠️ **Se di là ci sono solo filmati il passo esce dalla serie**, e non si ferma
+         * sull'ultima immagine: chi chiama trova `null` da [at], che è la stessa risposta
+         * del capolinea. Fermarsi **sul** filmato sarebbe stato più gentile e più
+         * sbagliato, perché l'impostazione dice di non mostrarlo proprio nel caso in cui
+         * era stata accesa apposta.
+         */
+        fun stepping(delta: Int, skipVideos: Boolean): Int {
+            if (!skipVideos || delta == 0) return delta
+            val verso = if (delta > 0) 1 else -1
+            var step = delta
+            while (true) {
+                val uri = at(index + step) ?: return step
+                if (!Videos.isVideo(uri)) return step
+                step += verso
+            }
+        }
+
+        /**
+         * L'indirizzo che una strisciata di [delta] raggiunge davvero, e `null` se non c'è.
+         *
+         * ⚠️ È [stepping] più [at], e serve a chi vuole **la foto** e non il numero di
+         * posti: la schermata, per disegnare le vicine e per sapere se il gesto ha ancora
+         * dove andare.
+         */
+        fun toward(delta: Int, skipVideos: Boolean): Uri? = at(index + stepping(delta, skipVideos))
     }
 
     /**

@@ -1510,40 +1510,23 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * verso cronologico acceso. Chi cerca il verso della strisciata non trova nessun segno
      * qui, ed è voluto: l'impostazione gira la serie, non il gesto.
      */
-    fun step(delta: Int) {
-        val current = series ?: return
-        showAt(current, current.index + skipping(current, delta))
-    }
-
-    /**
-     * Di quanti posti spostarsi davvero, saltando i filmati quando l'impostazione lo chiede.
-     *
-     * ⚠️⚠️ **È IL PEZZO 3 DEI VIDEO, e sta QUI perché il gesto è uno solo** (`0.86`,
-     * impostazione 'Sfoglia solo le immagini', spenta di fabbrica): l'alternativa era una
-     * seconda serie, filtrata, da tenere d'accordo con la prima; ma una serie filtrata
-     * avrebbe cambiato anche il **contatore** e la griglia, che dei video li mostrano. Qui
-     * cambia solo di quanto avanza il dito, che è esattamente ciò che l'impostazione dice.
+    /*
+     * ⚠️⚠️ **È IL PEZZO 3 DEI VIDEO** (`0.86`, impostazione 'Sfoglia solo le immagini',
+     * spenta di fabbrica): l'alternativa era una seconda serie, filtrata, da tenere
+     * d'accordo con la prima; ma una serie filtrata avrebbe cambiato anche il **contatore**
+     * e la griglia, che dei video li mostrano. Così cambia solo di quanto avanza il dito,
+     * che è esattamente ciò che l'impostazione dice.
      * ⚠️ **Il tocco sulla griglia NON passa di qui** ([openFromGrid] chiama [showAt] con una
      * posizione), ed è la richiesta alla lettera: *toccando un video dalla griglia parte la
      * riproduzione*. Questa spegne il gesto, non il tocco.
-     * ⚠️⚠️ **SE DI LÀ CI SONO SOLO FILMATI, LA STRISCIATA NON FA NIENTE, e questa è la
-     * risposta giusta**: con l'impostazione accesa le immagini di là sono finite, quindi si
-     * è al capolinea, ed è lo stesso esito che la strisciata ha già all'ultima fotografia
-     * della cartella. Fermarsi **sul** filmato sarebbe stato più gentile e più sbagliato:
-     * l'impostazione dice di non farmelo vedere sfogliando, e mostrarlo perché non c'era
-     * altro la contraddice proprio nel caso in cui era stata accesa apposta.
-     * ⚠️ Il passo torna quindi **fuori** dalla serie, e [showAt] su una posizione che non
-     * esiste non fa niente per costruzione.
+     * ⚠️⚠️ **IL CONTO STA SULLA SERIE, dalla 1.06** (`Folder.Series.stepping`), e non più
+     * qui dentro: là lo vede anche la schermata, che delle vicine da disegnare ha bisogno
+     * dello stesso identico salto. Il perché e il difetto che l'ha fatto spostare stanno
+     * scritti là.
      */
-    private fun skipping(current: Folder.Series, delta: Int): Int {
-        if (settings?.imagesOnly != true || delta == 0) return delta
-        val verso = if (delta > 0) 1 else -1
-        var step = delta
-        while (true) {
-            val uri = current.at(current.index + step) ?: return step
-            if (!Videos.isVideo(uri)) return step
-            step += verso
-        }
+    fun step(delta: Int) {
+        val current = series ?: return
+        showAt(current, current.index + current.stepping(delta, settings?.imagesOnly == true))
     }
 
     /**
@@ -1841,6 +1824,7 @@ private fun AivApp(model: ViewerViewModel) {
                 binOn = settings.binOn,
                 leftHand = settings.hand == Hand.LEFT,
                 listPath = settings.listPath,
+                pickWeight = settings.pickWeight,
                 filter = model.gridFilter,
                 onFilter = { model.sift(it) },
                 gridNames = settings.gridNames
@@ -1865,6 +1849,7 @@ private fun AivApp(model: ViewerViewModel) {
                 binOn = settings.binOn,
                 leftHand = settings.hand == Hand.LEFT,
                 listPath = settings.listPath,
+                pickWeight = settings.pickWeight,
                 filter = model.gridFilter,
                 onFilter = { model.sift(it) },
                 gridNames = settings.gridNames
@@ -1889,6 +1874,7 @@ private fun AivApp(model: ViewerViewModel) {
                 binOn = settings.binOn,
                 leftHand = settings.hand == Hand.LEFT,
                 listPath = settings.listPath,
+                pickWeight = settings.pickWeight,
                 filter = model.gridFilter,
                 onFilter = { model.sift(it) },
                 gridNames = settings.gridNames,
