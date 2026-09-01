@@ -15,8 +15,17 @@ committato, alla sessione dopo quel documento è perso.
 
 | documento | a che cosa serve | indirizzo |
 |---|---|---|
-| **Collaudo AIV** | le voci da provare della versione appena uscita, con i tre esiti e i commenti dell'utente. **Chiede.** | <https://claude.ai/code/artifact/a026a5d9-3bd0-4732-a8ea-69033d04fb48> |
+| **Feedback AIV** | le voci da provare della versione appena uscita, con i tre esiti e i commenti dell'utente. **Chiede.** | <https://claude.ai/code/artifact/a026a5d9-3bd0-4732-a8ea-69033d04fb48> |
 | **Changelog AIV** | che cosa è cambiato a ogni versione pubblicata, in breve. **Racconta.** | <https://claude.ai/code/artifact/2dc50535-30a7-4a5c-88f5-0319c6107a5a> |
+
+⚠️ **Il primo ha QUATTRO nomi equivalenti** (istruzione dell'utente, 2026-09-01: *d'ora in
+avanti si chiamerà 'Feedback AIV', 'Documento di lavoro', 'Foglio condiviso' o simili*):
+**Feedback AIV** è il nome scritto in testa al documento, e **documento di lavoro**, **foglio
+condiviso** e **collaudo** sono sinonimi che l'utente alterna. Nessuno dei quattro va
+corretto. ⚠️ **'Collaudo' resta il nome della PROCEDURA**, ed è la ragione per cui non è
+terminologia morta: la regola universale si chiama ancora `Roccobot.md` § '🔁 Il giro del
+collaudo: rilascio, documento, riscontro', e cambiare quel titolo romperebbe i rimandi senza
+guadagnare niente. Il documento ha un nome nuovo, il giro no.
 
 ⚠️ **Tengono lo STESSO indirizzo a ogni ripubblicazione**: l'utente li ha fra i preferiti, e
 un collegamento nuovo a ogni giro vuol dire un documento da ritrovare ogni volta.
