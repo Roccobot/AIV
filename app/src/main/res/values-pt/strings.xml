@@ -64,9 +64,11 @@
     <string name="settings_folder_columns_desc">Mais colunas cabem mais pastas na tela e encolhem cada capa. Com quatro, o nome embaixo costuma ficar cortado.</string>
     <string name="settings_folder_count">Contador de itens sob as pastas na visualização em grade</string>
     <string name="settings_hand">Posição das funções principais</string>
+    <string name="settings_hand_desc">Conforme a mão que você mais usa para operar o aparelho.</string>
     <string name="settings_right">Direita</string>
     <string name="settings_left">Esquerda</string>
     <string name="settings_list_path">Lista de arquivos: copiar o caminho da pasta</string>
+    <string name="settings_list_path_desc">Ao copiar uma lista de nomes de arquivos, adiciona no topo o caminho completo da pasta de origem.</string>
     <string name="settings_folder_count_desc">Sob cada prévia de pasta aparecerão um contador de imagens e um de vídeos.</string>
     <string name="settings_fit_grow">Ampliar imagens pequenas</string>
     <string name="settings_fit_grow_desc">Desligado, uma imagem menor que a tela aparece no tamanho real. Ligado, ela cresce até preencher a vista.</string>
@@ -80,7 +82,7 @@
     <string name="details_bar">Barra de detalhes</string>
     <string name="settings_top">No alto</string>
     <string name="settings_bottom">Embaixo</string>
-    <string name="settings_info_visible">Barra de informações ao iniciar</string>
+    <string name="settings_info_visible">Barra de informações</string>
     <string name="settings_anim_counter">Contador de quadros</string>
     <string name="settings_anim_counter_desc">Aparece na barra de controles das imagens animadas.</string>
     <string name="settings_reverse_order">Passar as imagens para a direita a partir da mais antiga</string>
@@ -317,6 +319,11 @@
     <string name="editor_right">Girar para a direita</string>
     <string name="editor_free">Livre</string>
     <string name="editor_save">Salvar</string>
+    <string name="editor_apply">Aplicar</string>
+    <string name="editor_undo">Desfazer</string>
+    <string name="editor_reset">Restaurar</string>
+    <string name="editor_center_across">Centralizar na horizontal</string>
+    <string name="editor_center_down">Centralizar na vertical</string>
     <string name="editor_done">Salva</string>
     <string name="editor_done_copy">Cópia salva</string>
     <string name="editor_done_lossless">Salva sem recomprimir</string>

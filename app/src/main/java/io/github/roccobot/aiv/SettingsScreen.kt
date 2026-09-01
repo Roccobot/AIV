@@ -267,7 +267,11 @@ private fun ColumnScope.RootPage(
      */
     Choices(
         label = stringResource(R.string.settings_hand),
-        detail = null,
+        // ⚠️ La spiegazione c'è dalla 1.17, ed è una richiesta: 'Posizione delle funzioni
+        // principali' dice DOVE finiscono, non in base a che cosa si sceglie, e chi legge
+        // 'Destra' o 'Sinistra' senza quella riga deve indovinare se parlano della mano o
+        // del lato dello schermo.
+        detail = stringResource(R.string.settings_hand_desc),
         options = Hand.entries,
         selected = settings.hand,
         nameOf = {
@@ -283,7 +287,10 @@ private fun ColumnScope.RootPage(
 
     SwitchRow(
         label = stringResource(R.string.settings_list_path),
-        detail = null,
+        // ⚠️ Anche qui la spiegazione arriva dopo l'etichetta, e per la stessa ragione: il
+        // titolo dice che cosa si copia, non DOVE finisce nella lista, e 'in cima' è
+        // esattamente il dettaglio che decide se l'interruttore serve.
+        detail = stringResource(R.string.settings_list_path_desc),
         checked = settings.listPath,
         onChange = { onChange(settings.copy(listPath = it)) }
     )

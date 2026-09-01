@@ -64,9 +64,11 @@
     <string name="settings_folder_columns_desc">जितने अधिक स्तंभ, उतने अधिक फ़ोल्डर स्क्रीन पर आते हैं और हर आवरण उतना ही छोटा होता है। चार पर नीचे का नाम अक्सर कट जाता है।</string>
     <string name="settings_folder_count">ग्रिड दृश्य में फ़ोल्डरों के नीचे वस्तुओं की गिनती</string>
     <string name="settings_hand">मुख्य कार्यों की जगह</string>
+    <string name="settings_hand_desc">उस हाथ के अनुसार जिससे आप ज़्यादातर उपकरण चलाते हैं।</string>
     <string name="settings_right">दाएँ</string>
     <string name="settings_left">बाएँ</string>
     <string name="settings_list_path">फ़ाइल सूची: फ़ोल्डर का पथ भी कॉपी करें</string>
+    <string name="settings_list_path_desc">फ़ाइल नामों की सूची कॉपी करने पर, ऊपर स्रोत फ़ोल्डर का पूरा पथ जोड़ता है।</string>
     <string name="settings_folder_count_desc">हर फ़ोल्डर की झलक के नीचे छवियों की एक और वीडियो की एक गिनती दिखेगी।</string>
     <string name="settings_fit_grow">छोटे चित्र बड़े करें</string>
     <string name="settings_fit_grow_desc">बंद हो तो स्क्रीन से छोटा चित्र अपने असली आकार में दिखता है। चालू हो तो वह स्क्रीन भरने तक बढ़ता है।</string>
@@ -80,7 +82,7 @@
     <string name="details_bar">विवरण पट्टी</string>
     <string name="settings_top">ऊपर</string>
     <string name="settings_bottom">नीचे</string>
-    <string name="settings_info_visible">शुरू होने पर जानकारी पट्टी</string>
+    <string name="settings_info_visible">जानकारी पट्टी</string>
     <string name="settings_anim_counter">फ़्रेम काउंटर</string>
     <string name="settings_anim_counter_desc">चलती छवियों की नियंत्रण पट्टी में दिखता है।</string>
     <string name="settings_reverse_order">सबसे पुरानी से दाईं ओर छवियाँ पलटें</string>
@@ -302,6 +304,11 @@
     <string name="editor_right">दाएँ घुमाएँ</string>
     <string name="editor_free">मुक्त</string>
     <string name="editor_save">सहेजें</string>
+    <string name="editor_apply">लागू करें</string>
+    <string name="editor_undo">पूर्ववत</string>
+    <string name="editor_reset">रीसेट</string>
+    <string name="editor_center_across">क्षैतिज रूप से बीच में</string>
+    <string name="editor_center_down">लंबवत रूप से बीच में</string>
     <string name="editor_done">सहेज लिया</string>
     <string name="editor_done_copy">प्रति सहेज ली</string>
     <string name="editor_done_lossless">दोबारा दबाए बिना सहेज लिया</string>

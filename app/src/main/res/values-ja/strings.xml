@@ -64,9 +64,11 @@
     <string name="settings_folder_columns_desc">列を増やすと画面に入るフォルダは増え、表紙は小さくなります。4列では下の名前はたいてい切れます。</string>
     <string name="settings_folder_count">グリッド表示でフォルダーの下に項目数を表示</string>
     <string name="settings_hand">主な機能の位置</string>
+    <string name="settings_hand_desc">端末を操作するときに主に使う手に合わせます。</string>
     <string name="settings_right">右</string>
     <string name="settings_left">左</string>
     <string name="settings_list_path">ファイル一覧: フォルダーのパスもコピー</string>
+    <string name="settings_list_path_desc">ファイル名の一覧をコピーするとき、先頭に元のフォルダーの完全なパスを付けます。</string>
     <string name="settings_folder_count_desc">各フォルダーのプレビューの下に、画像の数と動画の数が表示されます。</string>
     <string name="settings_fit_grow">小さい画像を拡大する</string>
     <string name="settings_fit_grow_desc">オフなら画面より小さい画像は実寸で表示します。オンなら画面いっぱいまで拡大します。</string>
@@ -80,7 +82,7 @@
     <string name="details_bar">詳細バー</string>
     <string name="settings_top">上</string>
     <string name="settings_bottom">下</string>
-    <string name="settings_info_visible">起動時に情報バーを表示</string>
+    <string name="settings_info_visible">情報バー</string>
     <string name="settings_anim_counter">フレームカウンター</string>
     <string name="settings_anim_counter_desc">アニメーション画像の操作バーに表示します。</string>
     <string name="settings_reverse_order">古い順に右へ画像をめくる</string>
@@ -287,6 +289,11 @@
     <string name="editor_right">右に回す</string>
     <string name="editor_free">自由</string>
     <string name="editor_save">保存</string>
+    <string name="editor_apply">適用</string>
+    <string name="editor_undo">元に戻す</string>
+    <string name="editor_reset">リセット</string>
+    <string name="editor_center_across">左右中央に</string>
+    <string name="editor_center_down">上下中央に</string>
     <string name="editor_done">保存しました</string>
     <string name="editor_done_copy">コピーを保存しました</string>
     <string name="editor_done_lossless">再圧縮せずに保存しました</string>

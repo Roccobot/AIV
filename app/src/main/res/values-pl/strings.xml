@@ -64,9 +64,11 @@
     <string name="settings_folder_columns_desc">Więcej kolumn mieści na ekranie więcej folderów i zmniejsza każdą okładkę. Przy czterech nazwa pod nią zwykle się urywa.</string>
     <string name="settings_folder_count">Licznik elementów pod folderami w widoku siatki</string>
     <string name="settings_hand">Położenie głównych funkcji</string>
+    <string name="settings_hand_desc">Zależnie od ręki, którą najczęściej obsługujesz urządzenie.</string>
     <string name="settings_right">Prawa</string>
     <string name="settings_left">Lewa</string>
     <string name="settings_list_path">Lista plików: kopiuj ścieżkę folderu</string>
+    <string name="settings_list_path_desc">Przy kopiowaniu listy nazw plików na górze dodaje pełną ścieżkę folderu źródłowego.</string>
     <string name="settings_folder_count_desc">Pod każdym podglądem folderu pojawią się licznik obrazów i licznik filmów.</string>
     <string name="settings_fit_grow">Powiększaj małe obrazy</string>
     <string name="settings_fit_grow_desc">Wyłączone, obraz mniejszy od ekranu jest pokazywany w prawdziwym rozmiarze. Włączone, rośnie aż wypełni ekran.</string>
@@ -80,7 +82,7 @@
     <string name="details_bar">Pasek szczegółów</string>
     <string name="settings_top">U góry</string>
     <string name="settings_bottom">U dołu</string>
-    <string name="settings_info_visible">Pasek informacji przy uruchomieniu</string>
+    <string name="settings_info_visible">Pasek informacji</string>
     <string name="settings_anim_counter">Licznik klatek</string>
     <string name="settings_anim_counter_desc">Pojawia się na pasku sterowania obrazów animowanych.</string>
     <string name="settings_reverse_order">Przeglądaj obrazy w prawo od najstarszego</string>
@@ -332,6 +334,11 @@
     <string name="editor_right">Obróć w prawo</string>
     <string name="editor_free">Dowolne</string>
     <string name="editor_save">Zapisz</string>
+    <string name="editor_apply">Zastosuj</string>
+    <string name="editor_undo">Cofnij</string>
+    <string name="editor_reset">Przywróć</string>
+    <string name="editor_center_across">Wyśrodkuj w poziomie</string>
+    <string name="editor_center_down">Wyśrodkuj w pionie</string>
     <string name="editor_done">Zapisano</string>
     <string name="editor_done_copy">Zapisano kopię</string>
     <string name="editor_done_lossless">Zapisano bez ponownej kompresji</string>

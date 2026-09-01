@@ -64,9 +64,11 @@
     <string name="settings_folder_columns_desc">Sütun arttıkça ekrana daha çok klasör sığar ve her kapak küçülür. Dörtte alttaki ad çoğunlukla kesilir.</string>
     <string name="settings_folder_count">Izgara görünümünde klasörlerin altındaki öge sayacı</string>
     <string name="settings_hand">Ana işlevlerin konumu</string>
+    <string name="settings_hand_desc">Cihazı çoğunlukla hangi elinizle kullandığınıza göre.</string>
     <string name="settings_right">Sağ</string>
     <string name="settings_left">Sol</string>
     <string name="settings_list_path">Dosya listesi: klasör yolunu da kopyala</string>
+    <string name="settings_list_path_desc">Dosya adları listesini kopyalarken, en üste kaynak klasörün tam yolunu ekler.</string>
     <string name="settings_folder_count_desc">Her klasör önizlemesinin altında bir görüntü sayacı ve bir video sayacı görünecek.</string>
     <string name="settings_fit_grow">Küçük görselleri büyüt</string>
     <string name="settings_fit_grow_desc">Kapalıyken ekrandan küçük bir görsel gerçek boyutunda görünür. Açıkken görünümü dolduracak kadar büyür.</string>
@@ -80,7 +82,7 @@
     <string name="details_bar">Ayrıntı satırı</string>
     <string name="settings_top">Üstte</string>
     <string name="settings_bottom">Altta</string>
-    <string name="settings_info_visible">Açılışta bilgi çubuğu</string>
+    <string name="settings_info_visible">Bilgi çubuğu</string>
     <string name="settings_anim_counter">Kare sayacı</string>
     <string name="settings_anim_counter_desc">Hareketli görüntülerin denetim çubuğunda görünür.</string>
     <string name="settings_reverse_order">Görüntüleri en eskiden başlayarak sağa doğru gezin</string>
@@ -302,6 +304,11 @@
     <string name="editor_right">Sağa çevir</string>
     <string name="editor_free">Serbest</string>
     <string name="editor_save">Kaydet</string>
+    <string name="editor_apply">Uygula</string>
+    <string name="editor_undo">Geri al</string>
+    <string name="editor_reset">Sıfırla</string>
+    <string name="editor_center_across">Yatayda ortala</string>
+    <string name="editor_center_down">Dikeyde ortala</string>
     <string name="editor_done">Kaydedildi</string>
     <string name="editor_done_copy">Kopya kaydedildi</string>
     <string name="editor_done_lossless">Yeniden sıkıştırmadan kaydedildi</string>

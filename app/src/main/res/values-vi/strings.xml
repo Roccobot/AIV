@@ -64,9 +64,11 @@
     <string name="settings_folder_columns_desc">Càng nhiều cột thì càng nhiều thư mục vừa màn hình và mỗi ảnh bìa càng nhỏ. Ở bốn cột, tên bên dưới thường bị cắt.</string>
     <string name="settings_folder_count">Bộ đếm mục dưới các thư mục ở chế độ lưới</string>
     <string name="settings_hand">Vị trí các chức năng chính</string>
+    <string name="settings_hand_desc">Theo bàn tay bạn dùng nhiều nhất để thao tác trên máy.</string>
     <string name="settings_right">Phải</string>
     <string name="settings_left">Trái</string>
     <string name="settings_list_path">Danh sách tệp: chép cả đường dẫn thư mục</string>
+    <string name="settings_list_path_desc">Khi sao chép danh sách tên tệp, đường dẫn đầy đủ của thư mục nguồn được thêm ở đầu.</string>
     <string name="settings_folder_count_desc">Dưới mỗi ảnh xem trước của thư mục sẽ hiện một bộ đếm ảnh và một bộ đếm video.</string>
     <string name="settings_fit_grow">Phóng to ảnh nhỏ</string>
     <string name="settings_fit_grow_desc">Khi tắt, ảnh nhỏ hơn màn hình được hiển thị ở kích thước thật. Khi bật, ảnh lớn lên cho đầy khung hình.</string>
@@ -80,7 +82,7 @@
     <string name="details_bar">Thanh chi tiết</string>
     <string name="settings_top">Ở trên</string>
     <string name="settings_bottom">Ở dưới</string>
-    <string name="settings_info_visible">Thanh thông tin khi khởi động</string>
+    <string name="settings_info_visible">Thanh thông tin</string>
     <string name="settings_anim_counter">Bộ đếm khung hình</string>
     <string name="settings_anim_counter_desc">Hiển thị trên thanh điều khiển của ảnh động.</string>
     <string name="settings_reverse_order">Lướt ảnh sang phải từ ảnh cũ nhất</string>
@@ -287,6 +289,11 @@
     <string name="editor_right">Xoay phải</string>
     <string name="editor_free">Tự do</string>
     <string name="editor_save">Lưu</string>
+    <string name="editor_apply">Áp dụng</string>
+    <string name="editor_undo">Hoàn tác</string>
+    <string name="editor_reset">Đặt lại</string>
+    <string name="editor_center_across">Căn giữa theo chiều ngang</string>
+    <string name="editor_center_down">Căn giữa theo chiều dọc</string>
     <string name="editor_done">Đã lưu</string>
     <string name="editor_done_copy">Đã lưu bản sao</string>
     <string name="editor_done_lossless">Đã lưu mà không nén lại</string>

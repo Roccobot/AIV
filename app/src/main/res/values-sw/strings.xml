@@ -64,9 +64,11 @@
     <string name="settings_folder_columns_desc">Safu nyingi zaidi huingiza folda nyingi zaidi kwenye skrini na kufanya kila jalada kuwa dogo. Kwa nne, jina lililo chini mara nyingi hukatwa.</string>
     <string name="settings_folder_count">Kihesabu cha vipengele chini ya folda katika mwonekano wa gridi</string>
     <string name="settings_hand">Nafasi ya vitendo vikuu</string>
+    <string name="settings_hand_desc">Kulingana na mkono unaoutumia zaidi kuendesha kifaa.</string>
     <string name="settings_right">Kulia</string>
     <string name="settings_left">Kushoto</string>
     <string name="settings_list_path">Orodha ya faili: nakili njia ya folda</string>
+    <string name="settings_list_path_desc">Unaponakili orodha ya majina ya faili, huongeza juu njia kamili ya folda ya asili.</string>
     <string name="settings_folder_count_desc">Chini ya kila hakikisho la folda vitaonekana kihesabu cha picha na kihesabu cha video.</string>
     <string name="settings_fit_grow">Kuza picha ndogo</string>
     <string name="settings_fit_grow_desc">Ikizimwa, picha ndogo kuliko skrini huonyeshwa kwa ukubwa wake halisi. Ikiwashwa, hukua hadi ijaze skrini.</string>
@@ -80,7 +82,7 @@
     <string name="details_bar">Mstari wa maelezo</string>
     <string name="settings_top">Juu</string>
     <string name="settings_bottom">Chini</string>
-    <string name="settings_info_visible">Upau wa taarifa wakati wa kuanza</string>
+    <string name="settings_info_visible">Upau wa maelezo</string>
     <string name="settings_anim_counter">Kihesabu fremu</string>
     <string name="settings_anim_counter_desc">Huonekana kwenye upau wa vidhibiti vya picha zinazosonga.</string>
     <string name="settings_reverse_order">Pitia picha kuelekea kulia kuanzia ya zamani zaidi</string>
@@ -302,6 +304,11 @@
     <string name="editor_right">Zungusha kulia</string>
     <string name="editor_free">Huru</string>
     <string name="editor_save">Hifadhi</string>
+    <string name="editor_apply">Tumia</string>
+    <string name="editor_undo">Tendua</string>
+    <string name="editor_reset">Rejesha</string>
+    <string name="editor_center_across">Weka katikati mlalo</string>
+    <string name="editor_center_down">Weka katikati wima</string>
     <string name="editor_done">Imehifadhiwa</string>
     <string name="editor_done_copy">Nakala imehifadhiwa</string>
     <string name="editor_done_lossless">Imehifadhiwa bila kubana upya</string>

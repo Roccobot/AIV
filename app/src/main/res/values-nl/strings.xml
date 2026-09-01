@@ -64,9 +64,11 @@
     <string name="settings_folder_columns_desc">Meer kolommen laten meer mappen op het scherm passen en maken elke omslag kleiner. Bij vier wordt de naam eronder meestal afgekapt.</string>
     <string name="settings_folder_count">Teller van de items onder de mappen in rasterweergave</string>
     <string name="settings_hand">Positie van de hoofdfuncties</string>
+    <string name="settings_hand_desc">Op basis van de hand waarmee je het toestel meestal bedient.</string>
     <string name="settings_right">Rechts</string>
     <string name="settings_left">Links</string>
     <string name="settings_list_path">Bestandslijst: pad van de map kopiëren</string>
+    <string name="settings_list_path_desc">Bij het kopiëren van een lijst met bestandsnamen komt bovenaan het volledige pad van de bronmap.</string>
     <string name="settings_folder_count_desc">Onder elke mapvoorbeeldweergave verschijnen een teller voor afbeeldingen en een voor video\'s.</string>
     <string name="settings_fit_grow">Kleine afbeeldingen vergroten</string>
     <string name="settings_fit_grow_desc">Uit wordt een afbeelding die kleiner is dan het scherm op ware grootte getoond. Aan groeit hij tot hij het beeld vult.</string>
@@ -80,7 +82,7 @@
     <string name="details_bar">Detailbalk</string>
     <string name="settings_top">Bovenaan</string>
     <string name="settings_bottom">Onderaan</string>
-    <string name="settings_info_visible">Infobalk bij het opstarten</string>
+    <string name="settings_info_visible">Infobalk</string>
     <string name="settings_anim_counter">Frameteller</string>
     <string name="settings_anim_counter_desc">Verschijnt in de knoppenbalk van bewegende afbeeldingen.</string>
     <string name="settings_reverse_order">Afbeeldingen naar rechts doorbladeren vanaf de oudste</string>
@@ -302,6 +304,11 @@
     <string name="editor_right">Naar rechts draaien</string>
     <string name="editor_free">Vrij</string>
     <string name="editor_save">Opslaan</string>
+    <string name="editor_apply">Toepassen</string>
+    <string name="editor_undo">Ongedaan maken</string>
+    <string name="editor_reset">Herstellen</string>
+    <string name="editor_center_across">Horizontaal centreren</string>
+    <string name="editor_center_down">Verticaal centreren</string>
     <string name="editor_done">Opgeslagen</string>
     <string name="editor_done_copy">Kopie opgeslagen</string>
     <string name="editor_done_lossless">Opgeslagen zonder opnieuw te comprimeren</string>
