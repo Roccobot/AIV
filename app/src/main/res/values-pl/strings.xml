@@ -25,6 +25,7 @@
     <string name="convert_quality">Jakość</string>
     <string name="convert_size">Rozmiar</string>
     <string name="convert_no_alpha">JPEG nie zachowuje przezroczystości: te obszary staną się białe.</string>
+    <string name="convert_this_frame">Eksportujesz klatkę %1$d, tę widoczną na ekranie.</string>
     <string name="convert_elsewhere">Inne formaty</string>
     <string name="convert_elsewhere_desc">Android potrafi zapisać tylko formaty powyżej. Dla pozostałych są te serwisy, które otwierają się w przeglądarce: obraz wybiera się tam, z pamięci telefonu.</string>
     <string name="convert_open">Otwórz</string>
@@ -377,7 +378,6 @@
     <string name="anim_pause">Wstrzymaj</string>
     <string name="anim_prev">Poprzednia klatka</string>
     <string name="anim_next">Następna klatka</string>
-    <string name="anim_export">Eksportuj tę klatkę</string>
     <plurals name="facts_colour_count">
         <item quantity="one">%1$d kolor</item>
         <item quantity="few">%1$d kolory</item>

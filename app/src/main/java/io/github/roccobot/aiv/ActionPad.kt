@@ -204,7 +204,7 @@ private fun PadButton(action: PadAction, modifier: Modifier = Modifier) {
     val hold = remember(action.onHold, haptics) {
         action.onHold?.let { premuto ->
             {
-                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                haptics.performHapticFeedback(HOLD_BUZZ)
                 premuto()
             }
         }
@@ -267,10 +267,6 @@ private fun PadButton(action: PadAction, modifier: Modifier = Modifier) {
  * lunghi dell'app sono sette in cinque file, e il giorno che ne nasce l'ottavo lo prende
  * anche lui se passa di qui. Un `performHapticFeedback` copiato sette volte se lo dimentica
  * l'ottavo.
- * ⚠️ **`LongPress` e non `TextHandleMove`**: sono due vibrazioni diverse del sistema, e la
- * prima è quella che Android usa per questo gesto dappertutto. La seconda, più leggera, la
- * griglia la usa apposta per il tocco che **aggiunge** una foto alla selezione, che è un
- * gesto ripetuto: là una vibrazione piena a ogni foto sarebbe un martello.
  * ⚠️ **Prende un gesto che C'È**: l'unico punto in cui il tocco lungo è opzionale è
  * [PadButton], e là la vibrazione si scrive sul posto. Una funzione nullabile in entrata e in
  * uscita avrebbe costretto tutti gli altri, che il gesto ce l'hanno, a spiegare al
@@ -281,11 +277,32 @@ fun withHaptics(action: () -> Unit): () -> Unit {
     val haptics = LocalHapticFeedback.current
     return remember(action, haptics) {
         {
-            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+            haptics.performHapticFeedback(HOLD_BUZZ)
             action()
         }
     }
 }
+
+/**
+ * Il colpetto di **ogni** pressione lunga dell'app, scritto in un posto solo.
+ *
+ * ⚠️⚠️ **DALLA 1.21 È `TextHandleMove` E NON `LongPress`, per riscontro dell'utente**
+ * (2026-09-01: *vorrei una vibrazione leggermente più breve di quella attualmente impostata:
+ * dev'essere morbida e discreta*). `LongPress` è la vibrazione piena che Android usa per
+ * questo gesto di serie, e sul suo telefono era troppo: `TextHandleMove` è il colpetto
+ * leggero delle maniglie del testo, cioè la stessa cosa più corta.
+ * ⚠️⚠️ **E NON `SegmentTick` o `ToggleOn`, che per nome sarebbero i tipi giusti**: quelle
+ * costanti sono arrivate con **Android 14**, e Compose passa il numero grezzo a
+ * `performHapticFeedback` **senza nessun ripiego** (verificato sul bytecode di
+ * `DefaultHapticFeedback`). Sotto Android 14 il telefono riceve una costante che non conosce
+ * e **non vibra affatto**, e il minSdk qui è 28. `TextHandleMove` esiste dall'API 27.
+ * ⚠️ **Con questo cade la distinzione fra ENTRARE nella selezione e muoversi dentro**, che
+ * fino alla 1.20 era un colpetto forte contro uno leggero: adesso sono lo stesso. È una
+ * conseguenza voluta della richiesta, non una svista, e si dichiara perché il giorno che
+ * l'ingresso nella selezione dovesse tornare a farsi sentire, quello è il posto da cui
+ * ripartire.
+ */
+val HOLD_BUZZ = HapticFeedbackType.TextHandleMove
 
 /** Quante colonne ha il riquadro: tre, come l'utente le ha chieste. */
 private const val PAD_COLUMNS = 3

@@ -25,6 +25,7 @@
     <string name="convert_quality">Kalite</string>
     <string name="convert_size">Boyut</string>
     <string name="convert_no_alpha">JPEG saydamlığı korumaz: o bölümler beyaza döner.</string>
+    <string name="convert_this_frame">%1$d. kare dışa aktarılıyor, ekrandaki kare.</string>
     <string name="convert_elsewhere">Diğer biçimler</string>
     <string name="convert_elsewhere_desc">Android yalnızca yukarıdaki biçimleri yazabilir. Diğerleri için tarayıcıda açılan şu hizmetler var: görüntü orada, telefonun belleğinden seçilir.</string>
     <string name="convert_open">Aç</string>
@@ -347,7 +348,6 @@
     <string name="anim_pause">Duraklat</string>
     <string name="anim_prev">Önceki kare</string>
     <string name="anim_next">Sonraki kare</string>
-    <string name="anim_export">Bu kareyi dışa aktar</string>
     <plurals name="facts_colour_count">
         <item quantity="one">%1$d renk</item>
         <item quantity="other">%1$d renk</item>

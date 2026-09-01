@@ -25,6 +25,7 @@
     <string name="convert_quality">Chất lượng</string>
     <string name="convert_size">Kích thước</string>
     <string name="convert_no_alpha">JPEG không giữ độ trong suốt: những vùng đó sẽ thành màu trắng.</string>
+    <string name="convert_this_frame">Đang xuất khung hình %1$d, khung đang hiển thị.</string>
     <string name="convert_elsewhere">Định dạng khác</string>
     <string name="convert_elsewhere_desc">Android chỉ ghi được các định dạng ở trên. Với những định dạng còn lại thì có các dịch vụ sau, chúng mở trong trình duyệt: hãy chọn ảnh ở đó, từ bộ nhớ điện thoại.</string>
     <string name="convert_open">Mở</string>
@@ -332,7 +333,6 @@
     <string name="anim_pause">Tạm dừng</string>
     <string name="anim_prev">Khung hình trước</string>
     <string name="anim_next">Khung hình sau</string>
-    <string name="anim_export">Xuất khung hình này</string>
     <plurals name="facts_colour_count">
         <item quantity="other">%1$d màu</item>
     </plurals>

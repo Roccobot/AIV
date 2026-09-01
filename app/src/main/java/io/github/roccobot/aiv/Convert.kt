@@ -91,6 +91,18 @@ object Convert {
     }
 
     /**
+     * Come [nameFor], ma per un fotogramma solo di un'immagine animata.
+     *
+     * ⚠️ **Il numero è riempito di zeri a quattro cifre**, così i fotogrammi di una stessa
+     * GIF si ordinano da soli nella cartella: `foto-0009` prima di `foto-0010`, che scritti
+     * senza riempimento starebbero al contrario.
+     */
+    fun frameName(original: String?, frame: Int, target: Target): String {
+        val base = (original ?: "immagine").substringBeforeLast('.', original ?: "immagine")
+        return "%s-%04d.%s".format(base, frame, target.extension)
+    }
+
+    /**
      * Scrive l'immagine di [source] in [destination], nel formato chiesto.
      *
      * @param fallback il bitmap già in mano al visualizzatore, usato solo se il file non si

@@ -25,6 +25,7 @@
     <string name="convert_quality">质量</string>
     <string name="convert_size">尺寸</string>
     <string name="convert_no_alpha">JPEG 不保留透明度：那些区域会变成白色。</string>
+    <string name="convert_this_frame">正在导出第 %1$d 帧，也就是屏幕上这一帧。</string>
     <string name="convert_elsewhere">其他格式</string>
     <string name="convert_elsewhere_desc">安卓只能写入上面这些格式。其余格式可以用这些服务，它们在浏览器中打开：图片在那里从手机存储中选择。</string>
     <string name="convert_open">打开</string>
@@ -332,7 +333,6 @@
     <string name="anim_pause">暂停</string>
     <string name="anim_prev">上一帧</string>
     <string name="anim_next">下一帧</string>
-    <string name="anim_export">导出此帧</string>
     <plurals name="facts_colour_count">
         <item quantity="other">%1$d 种颜色</item>
     </plurals>

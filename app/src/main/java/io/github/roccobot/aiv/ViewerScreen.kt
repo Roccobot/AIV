@@ -72,6 +72,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
@@ -108,7 +111,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalDensity
@@ -305,6 +307,13 @@ fun ViewerScreen(
     onEdit: (Uri) -> Unit,
     onEditWith: (Uri) -> Unit,
     /**
+     * La barra delle info cambiata al volo dal tocco lungo su 'Info': accesa e dove sta.
+     *
+     * ⚠️ **Due booleani e non le impostazioni intere**, come `binOn` e `factFields`: questa
+     * schermata non ne cambia altre, e passare il mutatore completo inviterebbe a farlo.
+     */
+    onInfoBar: (Boolean, InfoPosition) -> Unit,
+    /**
      * Se la fotografia che si sta guardando viene dal **cestino**.
      *
      * ⚠️ Cambia due voci del riquadro e niente altro: 'rinomina' diventa 'ripristina' (là
@@ -382,6 +391,47 @@ fun ViewerScreen(
      * per forza vivere fuori dal menu.
      */
     var converting by remember { mutableStateOf(false) }
+
+    /*
+     * ⚠️⚠️ **L'ANIMAZIONE SI APRE QUI E NON PIÙ DENTRO IL RAMO `Ready`, dalla 1.21**, e la
+     * ragione è che adesso la guardano in due: la fila dei comandi, che sta là sotto, e
+     * 'Converti/Esporta', che vive quassù perché il menu che lo apre si chiude nell'istante
+     * in cui lo si tocca. Aperta in un ramo, il dialogo non l'avrebbe mai vista.
+     * ⚠️ **Costa quanto prima su una fotografia ferma**: `rememberAnimation` guarda i primi
+     * byte del file e se ne va. Su una animata comincia un attimo prima, mentre l'immagine si
+     * sta ancora caricando, e non si vede: i fotogrammi li disegna la tela, che non c'è
+     * ancora.
+     */
+    val animation = rememberAnimation(source)
+
+    /*
+     * ⚠️⚠️ **IL FOTOGRAMMA SI PRENDE QUANDO SI TOCCA LA VOCE, non quando si preme 'Esporta'
+     * nel dialogo**, ed è la stessa ragione per cui lo faceva la fila dei comandi: fra il
+     * tocco e la scelta della cartella passano secondi. Qui in più la riproduzione è già
+     * ferma (la apre il tocco lungo, vedi `onHold`), ma prendere l'istante giusto non deve
+     * dipendere da quella garanzia.
+     * ⚠️ **`null` vuol dire 'converti il file intero'**, che è il caso di ogni fotografia
+     * ferma: il dialogo lo legge così.
+     */
+    var shot by remember(source) { mutableStateOf<android.graphics.Bitmap?>(null) }
+
+    /** L'animazione com'è **adesso**, per i richiami che vivono dentro un `remember`. */
+    val liveAnimation = rememberUpdatedState(animation)
+
+    /*
+     * ⚠️ **Vive qui e non nel menu**, per la stessa ragione del dialogo qui sopra: il menu si
+     * chiude nell'istante in cui si tocca la voce, e quello che gli è appeso si chiude con
+     * lui.
+     */
+    var barOpen by remember { mutableStateOf(false) }
+    if (barOpen) {
+        InfoBarPopup(
+            settings = settings,
+            onChange = onInfoBar,
+            onDismiss = { barOpen = false }
+        )
+    }
+
     // ⚠️ Il `takeIf` sta sull'immagine e non in un `if` esterno: così non si scrive mai su
     // uno stato **durante** la composizione, che è il modo classico di far ricomporre in
     // tondo. Senza immagine il dialogo semplicemente non c'è, e il caso non capita perché la
@@ -390,8 +440,13 @@ fun ViewerScreen(
         ConvertDialog(
             image = picture,
             source = source,
+            frame = shot,
+            shownFrame = animation?.shown ?: 0,
             onSaved = onFileAdded,
-            onDismiss = { converting = false }
+            onDismiss = {
+                converting = false
+                shot = null
+            }
         )
     }
 
@@ -443,7 +498,22 @@ fun ViewerScreen(
             // il caso non capita, e un avviso sarebbe codice che nessuno può far girare.
             edit = { source?.let(onEdit) },
             editWith = { source?.let(onEditWith) },
-            convert = { converting = true }
+            /*
+             * ⚠️⚠️ **L'ANIMAZIONE SI LEGGE DA UNO STATO AGGIORNATO e non si cattura qui**:
+             * questo blocco vive dentro un `remember`, quindi quello che cattura è il valore
+             * di **quel** momento, e in quel momento `rememberAnimation` non ha ancora
+             * finito di aprire il file: catturarla direttamente vorrebbe dire un `null` per
+             * sempre, cioè l'esportazione del fotogramma che non funziona mai su nessuna
+             * animazione. Il difetto non darebbe nessun errore: convertirebbe il file
+             * intero, che è un esito plausibile.
+             */
+            convert = {
+                scope.launch {
+                    shot = liveAnimation.value?.snapshot()
+                    converting = true
+                }
+            },
+            bar = { barOpen = true }
         )
     }
 
@@ -521,21 +591,28 @@ fun ViewerScreen(
                  * ramo suo, come lo è `Clip` per i filmati, si perderebbero ingrandimento,
                  * trascinamento, tasselli e riquadro di riposo, cioè tutto quello che
                  * distingue un visualizzatore da un riproduttore.
-                 * ⚠️ **Su una fotografia ferma non costa niente**: `rememberAnimation` guarda
-                 * i primi byte del file e se ne va.
+                 * ⚠️ **Si apre più in su, dalla 1.21**, perché la guarda anche il dialogo di
+                 * 'Converti/Esporta': la ragione sta là.
                  */
-                val animation = rememberAnimation(source)
                 ImageCanvas(
                     state.image, settings, source, folder, info, onStep, ops, inBin,
                     animation?.frame,
-                    onSingleTap = { animation?.toggle() }
+                    onSingleTap = { animation?.toggle() },
+                    /*
+                     * ⚠️⚠️ **IL TOCCO LUNGO FERMA LA RIPRODUZIONE, dalla 1.21** (richiesta
+                     * dell'utente, 2026-09-01: *condizione: la pressione lunga e la comparsa
+                     * del menu fermano la riproduzione*). Senza, 'Converti/Esporta' agirebbe
+                     * su un fotogramma che nel frattempo è già cambiato, e il menu aperto
+                     * coprirebbe un'immagine che continua a muoversi sotto.
+                     * ⚠️ **Ferma e basta, non alterna**: chi apre il menu su un'animazione
+                     * già in pausa non se la vede ripartire in faccia.
+                     */
+                    onHold = { animation?.pause() }
                 )
                 if (animation != null) {
                     AnimatedBar(
                         animation = animation,
-                        name = state.image.displayName,
                         counter = settings.animCounter,
-                        onExported = onFileAdded,
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
                             // ⚠️ **PRIMA TARATURA, DA GUARDARE SUL TELEFONO**: la riga dei
@@ -692,8 +769,80 @@ private class MenuOps(
      * ⚠️ **Non prende niente**: il dialogo ha già in mano l'immagine e il suo indirizzo,
      * perché vive accanto a chi li tiene. Questa è solo la richiesta di aprirlo.
      */
-    val convert: () -> Unit
+    val convert: () -> Unit,
+    /**
+     * Tocco lungo su 'Info': apre il riquadrino della barra delle info.
+     *
+     * ⚠️ **Non prende niente e non decide niente**, come [convert]: il riquadro vive accanto
+     * a chi ha le impostazioni in mano, e questa è solo la richiesta di aprirlo.
+     */
+    val bar: () -> Unit
 )
+
+/**
+ * Il riquadrino della barra delle info, aperto dal tocco lungo su 'Info'.
+ *
+ * ⚠️⚠️ **LE STESSE DUE SCELTE DELLE IMPOSTAZIONI, e le stesse parole**: le stringhe sono
+ * quelle di là (`settings_info_visible`, `settings_top`, `settings_bottom`), quindi le due
+ * schermate non possono chiamare la stessa cosa in due modi. È il difetto che la 1.20 aveva
+ * appena tolto, e riscriverlo qui a mano lo avrebbe rimesso in scena dalla porta di dietro.
+ * ⚠️ **Si applica subito e si salva subito**, senza un tasto di conferma: era la richiesta
+ * (*da qui si fa al volo, e si memorizza*), e un riquadro da due comandi con un 'Applica'
+ * sarebbe un tocco in più per niente. 'Chiudi' chiude e basta.
+ * ⚠️ **Le pastiglie restano toccabili con la barra spenta**, e non è una svista: chi la
+ * riaccende trova la posizione che voleva invece di doverla ridire. Spegnerle vorrebbe dire
+ * un comando che si accende e si spegne mentre lo si guarda.
+ */
+@Composable
+private fun InfoBarPopup(
+    settings: Settings,
+    onChange: (Boolean, InfoPosition) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.settings_info_visible)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = stringResource(R.string.settings_info_visible),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Switch(
+                        checked = settings.infoVisible,
+                        onCheckedChange = { onChange(it, settings.infoPosition) }
+                    )
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    InfoPosition.entries.forEach { where ->
+                        FilterChip(
+                            selected = where == settings.infoPosition,
+                            onClick = { onChange(settings.infoVisible, where) },
+                            label = {
+                                Text(
+                                    stringResource(
+                                        when (where) {
+                                            InfoPosition.TOP -> R.string.settings_top
+                                            InfoPosition.BOTTOM -> R.string.settings_bottom
+                                        }
+                                    )
+                                )
+                            }
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.pick_close)) }
+        }
+    )
+}
 
 /**
  * Quello che la riga dei dettagli deve sapere, e che **non se ne va con la fotografia**.
@@ -1547,7 +1696,14 @@ private fun ImageCanvas(
      * un'immagine animata mette in pausa, e sopra una ferma non c'è niente da fare. Vedi
      * `onSingleTap` in [detectViewerGestures] per il ritardo che comporta.
      */
-    onSingleTap: () -> Unit = {}
+    onSingleTap: () -> Unit = {},
+    /**
+     * Che cosa fare **prima** che il tocco lungo apra il menu, e di serie niente.
+     *
+     * ⚠️ Serve a fermare un'animazione: la tela non sa che l'immagine si muove, quindi la
+     * cosa da fare la sa il chiamante, come per [onSingleTap].
+     */
+    onHold: () -> Unit = {}
 ) {
     val density = LocalDensity.current
     // Vedi [withHaptics]: qui il gesto non passa da `combinedClickable`, quindi la
@@ -2041,7 +2197,8 @@ private fun ImageCanvas(
                         // `combinedClickable` ma dal rilevatore scritto in casa, quindi la
                         // vibrazione si chiama a mano.
                         onLongPress = {
-                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                            haptics.performHapticFeedback(HOLD_BUZZ)
+                            onHold()
                             menuOpen = true
                         },
                         /*
@@ -2622,7 +2779,27 @@ private fun ImageMenu(
                             onDismiss()
                             ops.share(image)
                         },
-                        PadAction(Icons.Outlined.Info, R.string.pick_info) {
+                        /*
+                         * ⚠️⚠️ **IL TOCCO LUNGO SU 'Info' GOVERNA LA BARRA DELLE INFO, dalla
+                         * 1.21** (richiesta dell'utente, 2026-09-01, che la chiama *un trick
+                         * / easter egg*): il tocco breve apre le informazioni sul file, il
+                         * tocco lungo apre un riquadrino con acceso/spento e sopra/sotto,
+                         * che si applicano subito e **restano memorizzati**.
+                         * ⚠️ **Non è la voce che la 1.20 aveva tolto da questo menu**, ed è
+                         * la differenza che rende le due cose compatibili: quella era una
+                         * riga sempre in scena, che si leggeva come un comando sull'immagine
+                         * e non lo era. Questa è una scorciatoia nascosta dietro un gesto, e
+                         * non occupa nessuno spazio: chi non la conosce vede il menu di
+                         * prima.
+                         * ⚠️ **L'idioma è quello di casa**: 'Modifica' qui sopra e 'Copia'
+                         * nel riquadro della selezione fanno esattamente così dal 2026-08-31.
+                         */
+                        PadAction(
+                            icon = Icons.Outlined.Info,
+                            label = R.string.pick_info,
+                            onHold = { onDismiss(); ops.bar() },
+                            holdLabel = R.string.settings_info_visible
+                        ) {
                             onDismiss()
                             ops.job(FileJob.Facts(one))
                         }

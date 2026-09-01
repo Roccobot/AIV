@@ -25,6 +25,7 @@
     <string name="convert_quality">معیار</string>
     <string name="convert_size">حجم</string>
     <string name="convert_no_alpha">JPEG شفافیت نہیں رکھتا: وہ حصے سفید ہو جاتے ہیں۔</string>
+    <string name="convert_this_frame">فریم %1$d برآمد کیا جا رہا ہے، وہی جو اسکرین پر ہے۔</string>
     <string name="convert_elsewhere">دوسرے فارمیٹ</string>
     <string name="convert_elsewhere_desc">اینڈرائیڈ صرف اوپر والے فارمیٹ لکھ سکتا ہے۔ باقی کے لیے یہ خدمات ہیں، جو براؤزر میں کھلتی ہیں: تصویر وہیں، فون کی یادداشت سے منتخب کریں۔</string>
     <string name="convert_open">کھولیں</string>
@@ -347,7 +348,6 @@
     <string name="anim_pause">وقفہ</string>
     <string name="anim_prev">پچھلا فریم</string>
     <string name="anim_next">اگلا فریم</string>
-    <string name="anim_export">یہ فریم برآمد کریں</string>
     <plurals name="facts_colour_count">
         <item quantity="one">%1$d رنگ</item>
         <item quantity="other">%1$d رنگ</item>

@@ -25,6 +25,7 @@
     <string name="convert_quality">Qualidade</string>
     <string name="convert_size">Tamanho</string>
     <string name="convert_no_alpha">O JPEG não mantém a transparência: essas partes ficam brancas.</string>
+    <string name="convert_this_frame">Você está exportando o quadro %1$d, o que está na tela.</string>
     <string name="convert_elsewhere">Outros formatos</string>
     <string name="convert_elsewhere_desc">O Android só sabe gravar os formatos acima. Para os demais existem estes serviços, que abrem no navegador: a imagem é escolhida por lá, na memória do telefone.</string>
     <string name="convert_open">Abrir</string>
@@ -362,7 +363,6 @@
     <string name="anim_pause">Pausar</string>
     <string name="anim_prev">Quadro anterior</string>
     <string name="anim_next">Próximo quadro</string>
-    <string name="anim_export">Exportar este quadro</string>
     <plurals name="facts_colour_count">
         <item quantity="one">%1$d cor</item>
         <item quantity="many">%1$d cores</item>

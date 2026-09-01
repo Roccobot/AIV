@@ -25,6 +25,7 @@
     <string name="convert_quality">Qualität</string>
     <string name="convert_size">Größe</string>
     <string name="convert_no_alpha">JPEG behält keine Transparenz: Diese Bereiche werden weiß.</string>
+    <string name="convert_this_frame">Exportiert wird Bild %1$d, das gerade angezeigte.</string>
     <string name="convert_elsewhere">Andere Formate</string>
     <string name="convert_elsewhere_desc">Android kann nur die Formate oben schreiben. Für die übrigen gibt es diese Dienste, die im Browser öffnen: Das Bild wird dort aus dem Speicher des Telefons ausgewählt.</string>
     <string name="convert_open">Öffnen</string>
@@ -347,7 +348,6 @@
     <string name="anim_pause">Pause</string>
     <string name="anim_prev">Vorheriges Bild</string>
     <string name="anim_next">Nächstes Bild</string>
-    <string name="anim_export">Dieses Bild exportieren</string>
     <plurals name="facts_colour_count">
         <item quantity="one">%1$d Farbe</item>
         <item quantity="other">%1$d Farben</item>

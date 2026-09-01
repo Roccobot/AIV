@@ -25,6 +25,7 @@
     <string name="convert_quality">నాణ్యత</string>
     <string name="convert_size">పరిమాణం</string>
     <string name="convert_no_alpha">JPEG పారదర్శకతను ఉంచదు: ఆ భాగాలు తెలుపుగా మారతాయి.</string>
+    <string name="convert_this_frame">తెరపై ఉన్న %1$d వ ఫ్రేమ్ ఎగుమతి అవుతోంది.</string>
     <string name="convert_elsewhere">ఇతర ఫార్మాట్లు</string>
     <string name="convert_elsewhere_desc">పైన ఉన్న ఫార్మాట్లను మాత్రమే Android రాయగలదు. మిగతా వాటికి ఈ సేవలు ఉన్నాయి, అవి బ్రౌజర్‌లో తెరుచుకుంటాయి: చిత్రాన్ని అక్కడే, ఫోన్ మెమరీ నుండి ఎంచుకోండి.</string>
     <string name="convert_open">తెరువు</string>
@@ -347,7 +348,6 @@
     <string name="anim_pause">పాజ్ చేయి</string>
     <string name="anim_prev">మునుపటి ఫ్రేమ్</string>
     <string name="anim_next">తదుపరి ఫ్రేమ్</string>
-    <string name="anim_export">ఈ ఫ్రేమ్‌ను ఎగుమతి చేయి</string>
     <plurals name="facts_colour_count">
         <item quantity="one">%1$d రంగు</item>
         <item quantity="other">%1$d రంగులు</item>

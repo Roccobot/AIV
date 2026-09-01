@@ -94,7 +94,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -377,16 +376,9 @@ fun GridScreen(
      */
     var dragOff by remember { mutableStateOf(false) }
 
-    /**
-     * ⚠️⚠️ **[HapticFeedbackType.TextHandleMove] e non `SegmentTick` o `ToggleOn`**, che
-     * sarebbero i tipi giusti per nome: quelle costanti sono arrivate con **Android 14**, e
-     * Compose passa il numero grezzo a `performHapticFeedback` **senza nessun ripiego**
-     * (verificato sul bytecode di `DefaultHapticFeedback`, che mappa `SegmentTick` a 26 e
-     * `ToggleOn` a 21 e li consegna così). Sotto Android 14 il telefono riceve una costante
-     * che non conosce e **non vibra affatto**, e il minSdk qui è 28. `TextHandleMove` esiste
-     * dall'API 27 ed è il tocco leggero che Android usa per le maniglie del testo, cioè
-     * esattamente il colpetto chiesto.
-     */
+    // ⚠️ Quale vibrazione, e perché quella, sta su [HOLD_BUZZ]: qui c'era la nota, e la
+    // scelta si è spostata là quando è diventata una sola per tutta l'app. Due copie della
+    // stessa spiegazione divergono alla prima modifica.
     val haptics = LocalHapticFeedback.current
 
     /**
@@ -411,7 +403,7 @@ fun GridScreen(
      * tre volte vorrebbe dire tre occasioni di dimenticare la vibrazione in uno dei tre.
      */
     val takeAll: () -> Unit = {
-        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+        haptics.performHapticFeedback(HOLD_BUZZ)
         chosen = items?.toSet() ?: emptySet()
     }
 
@@ -436,7 +428,7 @@ fun GridScreen(
      */
     val shortcut: () -> Unit = if (bin && !picking) {
         {
-            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+            haptics.performHapticFeedback(HOLD_BUZZ)
             if (filled) emptying = true
         }
     } else takeAll
@@ -935,16 +927,12 @@ fun GridScreen(
                             // ⚠️ Il verso si legge PRIMA di toccare la selezione, o la
                             // riga dopo lo avrebbe già falsato.
                             dragOff = items[hit] in chosen
-                            // ⚠️⚠️ **Il colpetto forte lo dà solo l'INGRESSO nel modo
-                            // selezione**, che è il passaggio da raccontare; dentro al
-                            // modo ogni gesto ne dà uno leggero. Darne uno forte ogni
-                            // volta vorrebbe dire annunciare un passaggio che non
-                            // avviene, e in una selezione da cinquanta foto sarebbe un
-                            // martello.
-                            haptics.performHapticFeedback(
-                                if (picking) HapticFeedbackType.TextHandleMove
-                                else HapticFeedbackType.LongPress
-                            )
+                            // ⚠️ **Il colpetto è UNO SOLO dalla 1.21**, e qui stava il
+                            // condizionale che dava quello forte all'ingresso nel modo
+                            // selezione e quello leggero ai gesti dentro. Adesso sono la
+                            // stessa cosa perché la vibrazione l'utente la vuole discreta
+                            // dappertutto: il perché sta su [HOLD_BUZZ].
+                            haptics.performHapticFeedback(HOLD_BUZZ)
                             chosen =
                                 if (dragOff) chosen - items[hit] else chosen + items[hit]
                             dragAt = at
@@ -1076,9 +1064,7 @@ fun GridScreen(
                                 when {
                                     dragFrom != null -> Unit
                                     picking -> {
-                                        haptics.performHapticFeedback(
-                                            HapticFeedbackType.TextHandleMove
-                                        )
+                                        haptics.performHapticFeedback(HOLD_BUZZ)
                                         chosen = chosen.toggle(uri)
                                     }
                                     else -> onOpen(index)

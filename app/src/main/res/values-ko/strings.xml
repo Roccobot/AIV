@@ -25,6 +25,7 @@
     <string name="convert_quality">품질</string>
     <string name="convert_size">크기</string>
     <string name="convert_no_alpha">JPEG는 투명도를 유지하지 못합니다. 투명한 부분은 희게 변합니다.</string>
+    <string name="convert_this_frame">화면에 보이는 %1$d번째 프레임을 내보냅니다.</string>
     <string name="convert_elsewhere">다른 형식</string>
     <string name="convert_elsewhere_desc">안드로이드가 쓸 수 있는 형식은 위의 것뿐입니다. 나머지는 이 서비스들이 브라우저에서 열리니, 이미지는 거기에서 휴대전화 저장소를 통해 고르세요.</string>
     <string name="convert_open">열기</string>
@@ -332,7 +333,6 @@
     <string name="anim_pause">일시정지</string>
     <string name="anim_prev">이전 프레임</string>
     <string name="anim_next">다음 프레임</string>
-    <string name="anim_export">이 프레임 내보내기</string>
     <plurals name="facts_colour_count">
         <item quantity="other">%1$d색</item>
     </plurals>

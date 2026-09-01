@@ -25,6 +25,7 @@
     <string name="convert_quality">Kwaliteit</string>
     <string name="convert_size">Grootte</string>
     <string name="convert_no_alpha">JPEG behoudt geen transparantie: die delen worden wit.</string>
+    <string name="convert_this_frame">Je exporteert frame %1$d, het frame op het scherm.</string>
     <string name="convert_elsewhere">Andere formaten</string>
     <string name="convert_elsewhere_desc">Android kan alleen de formaten hierboven schrijven. Voor de rest zijn er deze diensten, die in de browser openen: de afbeelding kies je daar, uit het geheugen van de telefoon.</string>
     <string name="convert_open">Openen</string>
@@ -347,7 +348,6 @@
     <string name="anim_pause">Pauzeren</string>
     <string name="anim_prev">Vorig beeld</string>
     <string name="anim_next">Volgend beeld</string>
-    <string name="anim_export">Dit beeld exporteren</string>
     <plurals name="facts_colour_count">
         <item quantity="one">%1$d kleur</item>
         <item quantity="other">%1$d kleuren</item>
