@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">ایک رنگ</string>
     <string name="settings_bg_desc">شطرنجی خانے واحد پس منظر ہیں جو شفافیت دکھاتے ہیں، اور تصویر دیکھنے والے میں شفافیت معلومات ہے، سجاوٹ نہیں۔</string>
     <string name="settings_ui_theme">خاکہ</string>
-    <string name="settings_ui_theme_desc">ایپ خود روشن ہو یا گہری۔ یہ نیچے دیے گئے تصویر کے پس منظر سے الگ ہے: شطرنجی خانے شفافیت دکھانے کے لیے ہیں، رنگ ملانے کے لیے نہیں۔</string>
+    <string name="settings_ui_theme_desc">انٹرفیس روشن ہے یا تاریک۔ اس کا تعلق نیچے دیے گئے تصویر کے پس منظر سے نہیں: شطرنجی خانے شفافیت ظاہر کرتے ہیں، تھیم کی پیروی نہیں کرتے۔</string>
     <string name="settings_system">نظام کے مطابق</string>
     <string name="settings_theme_light">روشن</string>
     <string name="settings_theme_dark">گہرا</string>
@@ -82,7 +82,7 @@
     <string name="url_open">کھولیں</string>
     <string name="url_recent">پہلے کھولے گئے</string>
     <string name="folder_empty">یہاں کچھ نہیں ہے۔</string>
-    <string name="folder_no_images">فولڈر میں کوئی تصویر نہیں۔</string>
+    <string name="folder_no_images">فولڈر میں کوئی تصویر نہیں ہے۔</string>
     <string name="folder_no_videos">فولڈر میں کوئی ویڈیو نہیں۔</string>
     <string name="cancel">منسوخ</string>
     <string name="hide_folder_title">%1$s چھپائیں؟</string>
@@ -281,7 +281,7 @@
     <string name="edit_failed">محفوظ نہ ہو سکا</string>
     <string name="edit_app_gone">وہ مدیر اب نہیں رہا۔ کوئی اور چنیں۔</string>
     <string name="settings_editor">تصویریں ترمیم کرنے کی ایپ</string>
-    <string name="settings_editor_desc">تصویر پر ترمیم چھونے سے کون سی ایپ کھلتی ہے۔ اندرونی والی گھماتی اور کاٹتی ہے، بس اتنا۔</string>
+    <string name="settings_editor_desc">تصویر پر ترمیم چھونے سے کھلنے والی ایپلی کیشن۔ اندرونی ایپ گھماتی اور تراشتی ہے۔</string>
     <string name="settings_editor_none">کوئی نہیں چنی گئی</string>
     <string name="settings_editor_pick">چنیں</string>
     <string name="view_grid">گرڈ</string>
@@ -289,7 +289,7 @@
     <string name="view_tree">فولڈرز</string>
     <string name="edit_no_backup">حفاظتی نقل نہ بن سکی، سو کسی چیز پر نہیں لکھا گیا</string>
     <string name="settings_editor_backup">اوپر لکھنے سے پہلے حفاظتی نقل</string>
-    <string name="settings_editor_backup_desc">اندرونی مدیر کسی تصویر پر لکھے، اس سے پہلے پچھلی شکل ردی کی ٹوکری میں چلی جاتی ہے۔ یہ صرف اندرونی مدیر کے لیے ہے: دوسری ایپ اپنے طور پر محفوظ کرتی ہے۔</string>
+    <string name="settings_editor_backup_desc">ہر اوور رائٹ شدہ تصویر کا پچھلا نسخہ ردی کی ٹوکری میں محفوظ رہتا ہے۔</string>
     <string name="editor_tall">عمودی</string>
     <string name="editor_wide">افقی</string>
     <string name="pick_drop_ask">انتخاب منسوخ کریں؟</string>

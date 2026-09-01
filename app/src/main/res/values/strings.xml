@@ -81,11 +81,11 @@
     <string name="editor_pick_send">By sharing</string>
     <string name="editor_pick_send_desc">They receive a copy and save it where they choose. The original stays as it is.</string>
     <string name="settings_editor">App for editing pictures</string>
-    <string name="settings_editor_desc">Which app opens when you tap Edit on a picture. The built in one turns and crops, and nothing else.</string>
+    <string name="settings_editor_desc">The application that opens when you tap Edit on an image. The built in one rotates and crops.</string>
     <string name="settings_editor_none">None chosen</string>
     <string name="settings_editor_pick">Choose</string>
     <string name="settings_editor_backup">Safety copy before writing over</string>
-    <string name="settings_editor_backup_desc">Before the built in editor writes over a picture, the version from before goes into the bin. It only covers the built in editor: another app saves on its own.</string>
+    <string name="settings_editor_backup_desc">The previous version of every overwritten image is kept in the bin.</string>
 
     <string name="toast_image_copied">Image copied</string>
     <string name="toast_copy_failed">The copy did not go through</string>
@@ -120,7 +120,7 @@
     <string name="settings_bg_desc">The checkerboard is the only background that makes transparency visible, which on a viewer is information rather than decoration.</string>
 
     <string name="settings_ui_theme">Theme</string>
-    <string name="settings_ui_theme_desc">Whether the app itself is light or dark. Separate from the background behind a picture, just below: a checkerboard is there to show transparency, not to match.</string>
+    <string name="settings_ui_theme_desc">Whether the interface is light or dark. It does not govern the background behind the image, below: the chequerboard reveals transparency, it does not follow the theme.</string>
     <string name="settings_system">System</string>
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_dark">Dark</string>
@@ -242,7 +242,7 @@
     <string name="url_open">Open</string>
     <string name="url_recent">Opened before</string>
     <string name="folder_empty">The folder is empty.</string>
-    <string name="folder_no_images">The folder holds no pictures.</string>
+    <string name="folder_no_images">The folder contains no images.</string>
     <string name="folder_no_videos">The folder holds no videos.</string>
     <string name="cancel">Cancel</string>
 

@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">Couleur unie</string>
     <string name="settings_bg_desc">Le damier est le seul fond qui rend la transparence visible, ce qui dans une visionneuse est une information et non une décoration.</string>
     <string name="settings_ui_theme">Thème</string>
-    <string name="settings_ui_theme_desc">Si l\'application elle-même est claire ou sombre. Distinct du fond derrière une image, juste en dessous : un damier sert à montrer la transparence, pas à s\'accorder.</string>
+    <string name="settings_ui_theme_desc">Si l\'interface est claire ou sombre. Cela ne concerne pas le fond derrière l\'image, plus bas : le damier révèle la transparence, il ne suit pas le thème.</string>
     <string name="settings_system">Système</string>
     <string name="settings_theme_light">Clair</string>
     <string name="settings_theme_dark">Sombre</string>
@@ -82,7 +82,7 @@
     <string name="url_open">Ouvrir</string>
     <string name="url_recent">Déjà ouvertes</string>
     <string name="folder_empty">Il n\'y a rien ici.</string>
-    <string name="folder_no_images">Le dossier ne contient aucune photo.</string>
+    <string name="folder_no_images">Le dossier ne contient aucune image.</string>
     <string name="folder_no_videos">Le dossier ne contient aucune vidéo.</string>
     <string name="cancel">Annuler</string>
     <string name="hide_folder_title">Masquer %1$s ?</string>
@@ -296,7 +296,7 @@
     <string name="edit_failed">L\'enregistrement a échoué</string>
     <string name="edit_app_gone">Cet éditeur a disparu. Choisis-en un autre.</string>
     <string name="settings_editor">App pour modifier les images</string>
-    <string name="settings_editor_desc">Quelle app s\'ouvre quand tu touches Modifier sur une image. Celle qui est intégrée tourne et recadre, rien de plus.</string>
+    <string name="settings_editor_desc">L\'application qui s\'ouvre en touchant Modifier sur une image. Celle qui est intégrée pivote et recadre.</string>
     <string name="settings_editor_none">Aucune choisie</string>
     <string name="settings_editor_pick">Choisir</string>
     <string name="view_grid">Grille</string>
@@ -304,7 +304,7 @@
     <string name="view_tree">Dossiers</string>
     <string name="edit_no_backup">La copie de sûreté a échoué, donc rien n\'a été écrasé</string>
     <string name="settings_editor_backup">Copie de sûreté avant d\'écraser</string>
-    <string name="settings_editor_backup_desc">Avant que l\'éditeur intégré n\'écrase une image, la version d\'avant part à la corbeille. Cela ne vaut que pour l\'éditeur intégré : une autre app enregistre de son côté.</string>
+    <string name="settings_editor_backup_desc">La version précédente de chaque image écrasée est conservée dans la corbeille.</string>
     <string name="editor_tall">Portrait</string>
     <string name="editor_wide">Paysage</string>
     <string name="pick_drop_ask">Abandonner la sélection ?</string>

@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">Jednolity kolor</string>
     <string name="settings_bg_desc">Szachownica to jedyne tło, na którym widać przezroczystość, a w przeglądarce obrazów przezroczystość jest informacją, nie ozdobą.</string>
     <string name="settings_ui_theme">Motyw</string>
-    <string name="settings_ui_theme_desc">Czy sama aplikacja jest jasna czy ciemna. To coś innego niż tło za obrazem poniżej: szachownica jest po to, żeby pokazać przezroczystość, a nie żeby dopasować kolory.</string>
+    <string name="settings_ui_theme_desc">Czy interfejs jest jasny czy ciemny. Nie dotyczy tła za obrazem, poniżej: szachownica ujawnia przezroczystość, nie podąża za motywem.</string>
     <string name="settings_system">Jak system</string>
     <string name="settings_theme_light">Jasny</string>
     <string name="settings_theme_dark">Ciemny</string>
@@ -82,7 +82,7 @@
     <string name="url_open">Otwórz</string>
     <string name="url_recent">Otwierane wcześniej</string>
     <string name="folder_empty">Tu nic nie ma.</string>
-    <string name="folder_no_images">Folder nie zawiera zdjęć.</string>
+    <string name="folder_no_images">Folder nie zawiera obrazów.</string>
     <string name="folder_no_videos">Folder nie zawiera filmów.</string>
     <string name="cancel">Anuluj</string>
     <string name="hide_folder_title">Ukryć %1$s?</string>
@@ -311,7 +311,7 @@
     <string name="edit_failed">Nie udało się zapisać</string>
     <string name="edit_app_gone">Tego edytora już nie ma. Wybierz inny.</string>
     <string name="settings_editor">Aplikacja do edycji zdjęć</string>
-    <string name="settings_editor_desc">Która aplikacja otwiera się po dotknięciu Edytuj na zdjęciu. Wbudowana obraca i przycina, i nic więcej.</string>
+    <string name="settings_editor_desc">Aplikacja otwierana po dotknięciu Edytuj na obrazie. Wbudowana obraca i przycina.</string>
     <string name="settings_editor_none">Nie wybrano</string>
     <string name="settings_editor_pick">Wybierz</string>
     <string name="view_grid">Siatka</string>
@@ -319,7 +319,7 @@
     <string name="view_tree">Foldery</string>
     <string name="edit_no_backup">Kopia zapasowa się nie udała, więc nic nie zostało nadpisane</string>
     <string name="settings_editor_backup">Kopia zapasowa przed nadpisaniem</string>
-    <string name="settings_editor_backup_desc">Zanim wbudowany edytor nadpisze zdjęcie, poprzednia wersja trafia do kosza. Dotyczy tylko wbudowanego edytora: inna aplikacja zapisuje po swojemu.</string>
+    <string name="settings_editor_backup_desc">Poprzednia wersja każdego nadpisanego obrazu zostaje zachowana w koszu.</string>
     <string name="editor_tall">Pionowo</string>
     <string name="editor_wide">Poziomo</string>
     <string name="pick_drop_ask">Odrzucić zaznaczenie?</string>

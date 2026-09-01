@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">純色</string>
     <string name="settings_bg_desc">棋盤格是唯一能讓透明可見的背景,而在看圖程式裡,透明是資訊而不是裝飾。</string>
     <string name="settings_ui_theme">主題</string>
-    <string name="settings_ui_theme_desc">應用程式本身是淺色還是深色。這與緊接在下面的圖片背景是兩回事:棋盤格是用來顯示透明的,不是用來配色的。</string>
+    <string name="settings_ui_theme_desc">介面是淺色還是深色。這與下方影像背後的背景無關：棋盤格用於顯示透明區域，不隨主題變化。</string>
     <string name="settings_system">跟隨系統</string>
     <string name="settings_theme_light">淺色</string>
     <string name="settings_theme_dark">深色</string>
@@ -82,7 +82,7 @@
     <string name="url_open">開啟</string>
     <string name="url_recent">之前開啟過</string>
     <string name="folder_empty">這裡什麼都沒有。</string>
-    <string name="folder_no_images">資料夾中沒有相片。</string>
+    <string name="folder_no_images">資料夾中沒有影像。</string>
     <string name="folder_no_videos">資料夾中沒有影片。</string>
     <string name="cancel">取消</string>
     <string name="hide_folder_title">隱藏 %1$s 嗎?</string>
@@ -266,7 +266,7 @@
     <string name="edit_failed">沒能儲存</string>
     <string name="edit_app_gone">那個編輯器已經不在了。換一個吧。</string>
     <string name="settings_editor">編輯圖片用的應用</string>
-    <string name="settings_editor_desc">在圖片上點編輯時開啟哪個應用。內建的只會旋轉和裁切。</string>
+    <string name="settings_editor_desc">在影像上輕觸編輯時開啟的應用程式。內建的可旋轉與裁切。</string>
     <string name="settings_editor_none">未選擇</string>
     <string name="settings_editor_pick">選擇</string>
     <string name="view_grid">格狀</string>
@@ -274,7 +274,7 @@
     <string name="view_tree">資料夾</string>
     <string name="edit_no_backup">安全副本沒能建立，所以什麼都沒有覆寫</string>
     <string name="settings_editor_backup">覆寫前先留一份安全副本</string>
-    <string name="settings_editor_backup_desc">內建編輯器覆寫一張圖片之前，先把原來的版本放進回收桶。只對內建編輯器有效，別的應用自己儲存。</string>
+    <string name="settings_editor_backup_desc">每張被覆寫影像的先前版本都會保存在回收筒中。</string>
     <string name="editor_tall">直式</string>
     <string name="editor_wide">橫式</string>
     <string name="pick_drop_ask">要取消選取嗎？</string>

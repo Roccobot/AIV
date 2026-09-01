@@ -50,11 +50,11 @@
     <string name="editor_pick_send">Per condivisione</string>
     <string name="editor_pick_send_desc">Ricevono una copia e la salvano dove decidono loro. L\'originale resta com\'è.</string>
     <string name="settings_editor">App per la modifica di immagini</string>
-    <string name="settings_editor_desc">Quale app si apre toccando Modifica su una fotografia. Quello interno gira e ritaglia, e nient\'altro.</string>
+    <string name="settings_editor_desc">L\'applicazione che si apre toccando Modifica su un\'immagine. Quella interna ruota e ritaglia.</string>
     <string name="settings_editor_none">Nessuna scelta</string>
     <string name="settings_editor_pick">Scegli</string>
     <string name="settings_editor_backup">Copia di sicurezza prima di sovrascrivere</string>
-    <string name="settings_editor_backup_desc">Prima che l\'editor interno sovrascriva una fotografia, la versione di prima finisce nel cestino. Vale per il solo editor interno: un\'altra app salva per conto suo.</string>
+    <string name="settings_editor_backup_desc">La versione precedente di ogni immagine sovrascritta viene conservata nel cestino.</string>
 
     <string name="toast_image_copied">Immagine copiata</string>
     <string name="toast_copy_failed">La copia non è andata a buon fine</string>
@@ -83,7 +83,7 @@
     <string name="settings_bg_desc">La scacchiera è l\'unico fondo che rende visibile la trasparenza, che su un visualizzatore è un\'informazione e non un vezzo.</string>
 
     <string name="settings_ui_theme">Tema</string>
-    <string name="settings_ui_theme_desc">Se l\'app è chiara o scura. È un\'altra cosa dal fondo dietro la fotografia, qui sotto: la scacchiera serve a far vedere la trasparenza, non a intonarsi.</string>
+    <string name="settings_ui_theme_desc">Se l\'interfaccia è chiara o scura. Non riguarda lo sfondo dietro l\'immagine, qui sotto: la scacchiera rivela la trasparenza, non accompagna il tema.</string>
     <string name="settings_system">Sistema</string>
     <string name="settings_theme_light">Chiaro</string>
     <string name="settings_theme_dark">Scuro</string>
@@ -143,7 +143,7 @@
     <string name="url_open">Apri</string>
     <string name="url_recent">Aperti in passato</string>
     <string name="folder_empty">La cartella è vuota.</string>
-    <string name="folder_no_images">La cartella non contiene foto.</string>
+    <string name="folder_no_images">La cartella non contiene immagini.</string>
     <string name="folder_no_videos">La cartella non contiene video.</string>
     <string name="cancel">Annulla</string>
 

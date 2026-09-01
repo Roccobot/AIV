@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">纯色</string>
     <string name="settings_bg_desc">棋盘格是唯一能让透明可见的背景,而在看图应用里,透明是信息而不是装饰。</string>
     <string name="settings_ui_theme">主题</string>
-    <string name="settings_ui_theme_desc">应用本身是浅色还是深色。这与紧接下面的图片背景是两回事:棋盘格是用来显示透明的,不是用来配色的。</string>
+    <string name="settings_ui_theme_desc">界面是浅色还是深色。这与下方图像背后的背景无关：棋盘格用于显示透明区域，不随主题变化。</string>
     <string name="settings_system">跟随系统</string>
     <string name="settings_theme_light">浅色</string>
     <string name="settings_theme_dark">深色</string>
@@ -82,7 +82,7 @@
     <string name="url_open">打开</string>
     <string name="url_recent">之前打开过</string>
     <string name="folder_empty">这里什么也没有。</string>
-    <string name="folder_no_images">文件夹中没有照片。</string>
+    <string name="folder_no_images">文件夹中没有图像。</string>
     <string name="folder_no_videos">文件夹中没有视频。</string>
     <string name="cancel">取消</string>
     <string name="hide_folder_title">隐藏 %1$s 吗?</string>
@@ -266,7 +266,7 @@
     <string name="edit_failed">没能保存</string>
     <string name="edit_app_gone">那个编辑器已经不在了。换一个吧。</string>
     <string name="settings_editor">编辑图片用的应用</string>
-    <string name="settings_editor_desc">在图片上点编辑时打开哪个应用。内置的只会旋转和裁剪。</string>
+    <string name="settings_editor_desc">在图像上点按编辑时打开的应用。内置的可旋转和裁剪。</string>
     <string name="settings_editor_none">未选择</string>
     <string name="settings_editor_pick">选择</string>
     <string name="view_grid">网格</string>
@@ -274,7 +274,7 @@
     <string name="view_tree">文件夹</string>
     <string name="edit_no_backup">安全副本没能建立，所以什么都没有覆盖</string>
     <string name="settings_editor_backup">覆盖前先留一份安全副本</string>
-    <string name="settings_editor_backup_desc">内置编辑器覆盖一张图片之前，先把原来的版本放进回收站。只对内置编辑器有效，别的应用自己保存。</string>
+    <string name="settings_editor_backup_desc">每张被覆盖图像的先前版本都会保存在回收站中。</string>
     <string name="editor_tall">竖向</string>
     <string name="editor_wide">横向</string>
     <string name="pick_drop_ask">要取消选择吗？</string>

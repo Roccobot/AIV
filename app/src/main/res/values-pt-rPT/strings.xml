@@ -26,7 +26,7 @@
     <string name="folder_why">Para folhear o resto da pasta, o AIV precisa de acesso a todos os ficheiros. Ative o interruptor na página que acabou de abrir.</string>
 
     <string name="settings_title">Definições</string>
-    <string name="settings_ui_theme_desc">Se a aplicação em si é clara ou escura. É diferente do fundo atrás de uma imagem, logo abaixo: o xadrez serve para mostrar a transparência, não para combinar.</string>
+    <string name="settings_ui_theme_desc">Se a interface é clara ou escura. Não diz respeito ao fundo atrás da imagem, abaixo: o xadrez revela a transparência, não acompanha o tema.</string>
     <string name="settings_folder_columns">Colunas na grelha de pastas</string>
     <string name="settings_folder_columns_desc">Mais colunas cabem mais pastas no ecrã e encolhem cada capa. Com quatro, o nome abaixo costuma ficar cortado.</string>
     <string name="settings_fit_grow_desc">Desligado, uma imagem menor que o ecrã aparece no tamanho real. Ligado, cresce até preencher a vista.</string>
@@ -100,4 +100,5 @@
     <string name="editor_pick_send">Por partilha</string>
     <string name="editor_pick_send_desc">Recebem uma cópia e guardam-na onde quiserem. O original fica como está.</string>
     <string name="menu_edit_hold">Escolher a aplicação</string>
+    <string name="settings_editor_backup_desc">A versão anterior de cada imagem substituída é mantida na reciclagem.</string>
 </resources>

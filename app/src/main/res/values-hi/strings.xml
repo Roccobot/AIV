@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">सादा रंग</string>
     <string name="settings_bg_desc">बिसात ही एकमात्र पृष्ठभूमि है जो पारदर्शिता दिखाती है, और एक चित्र दर्शक में पारदर्शिता सजावट नहीं, जानकारी है।</string>
     <string name="settings_ui_theme">थीम</string>
-    <string name="settings_ui_theme_desc">ऐप स्वयं हल्का हो या गहरा। यह ठीक नीचे वाले चित्र की पृष्ठभूमि से अलग है: बिसात पारदर्शिता दिखाने के लिए है, रंग मिलाने के लिए नहीं।</string>
+    <string name="settings_ui_theme_desc">इंटरफ़ेस हल्का है या गहरा। यह नीचे दी गई छवि की पृष्ठभूमि पर लागू नहीं होता: शतरंज की बिसात पारदर्शिता दिखाती है, थीम का अनुसरण नहीं करती।</string>
     <string name="settings_system">सिस्टम जैसा</string>
     <string name="settings_theme_light">हल्का</string>
     <string name="settings_theme_dark">गहरा</string>
@@ -82,7 +82,7 @@
     <string name="url_open">खोलें</string>
     <string name="url_recent">पहले खोले गए</string>
     <string name="folder_empty">यहाँ कुछ नहीं है।</string>
-    <string name="folder_no_images">फ़ोल्डर में कोई फ़ोटो नहीं है।</string>
+    <string name="folder_no_images">फ़ोल्डर में कोई छवि नहीं है।</string>
     <string name="folder_no_videos">फ़ोल्डर में कोई वीडियो नहीं है।</string>
     <string name="cancel">रद्द करें</string>
     <string name="hide_folder_title">%1$s छिपाएँ?</string>
@@ -281,7 +281,7 @@
     <string name="edit_failed">सहेजा नहीं जा सका</string>
     <string name="edit_app_gone">वह संपादक अब नहीं है। कोई और चुनें।</string>
     <string name="settings_editor">तस्वीरें संपादित करने का ऐप</string>
-    <string name="settings_editor_desc">तस्वीर पर संपादित करें छूने से कौन सा ऐप खुलता है। अंतर्निहित वाला घुमाता और काटता है, बस इतना।</string>
+    <string name="settings_editor_desc">किसी छवि पर संपादित करें छूने पर खुलने वाला अनुप्रयोग। अंतर्निहित वाला घुमाता और काटता है।</string>
     <string name="settings_editor_none">कोई नहीं चुना</string>
     <string name="settings_editor_pick">चुनें</string>
     <string name="view_grid">ग्रिड</string>
@@ -289,7 +289,7 @@
     <string name="view_tree">फ़ोल्डर</string>
     <string name="edit_no_backup">सुरक्षा प्रति नहीं बनी, इसलिए कुछ भी ऊपर नहीं लिखा गया</string>
     <string name="settings_editor_backup">ऊपर लिखने से पहले सुरक्षा प्रति</string>
-    <string name="settings_editor_backup_desc">अंतर्निहित संपादक किसी तस्वीर पर लिखे, उससे पहले पिछला रूप कूड़ेदान में चला जाता है। यह सिर्फ़ अंतर्निहित संपादक के लिए है: दूसरा ऐप अपने आप सहेजता है।</string>
+    <string name="settings_editor_backup_desc">अधिलेखित की गई हर छवि का पिछला रूप कूड़ेदान में सुरक्षित रहता है।</string>
     <string name="editor_tall">खड़ा</string>
     <string name="editor_wide">आड़ा</string>
     <string name="pick_drop_ask">चयन छोड़ें?</string>

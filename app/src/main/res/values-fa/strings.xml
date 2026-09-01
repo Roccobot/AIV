@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">یک رنگ</string>
     <string name="settings_bg_desc">شطرنجی تنها پس‌زمینه‌ای است که شفافیت را نشان می‌دهد، و در یک نمایشگر تصویر شفافیت اطلاعات است نه تزئین.</string>
     <string name="settings_ui_theme">پوسته</string>
-    <string name="settings_ui_theme_desc">اینکه خود برنامه روشن باشد یا تیره. این با پس‌زمینه پشت تصویر که همین پایین است تفاوت دارد: شطرنجی برای نشان دادن شفافیت است، نه برای هماهنگی رنگ.</string>
+    <string name="settings_ui_theme_desc">روشن یا تیره بودن رابط کاربری. به پس‌زمینهٔ پشت تصویر، پایین‌تر، مربوط نیست: صفحهٔ شطرنجی شفافیت را نشان می‌دهد و از پوسته پیروی نمی‌کند.</string>
     <string name="settings_system">مانند سیستم</string>
     <string name="settings_theme_light">روشن</string>
     <string name="settings_theme_dark">تیره</string>
@@ -82,7 +82,7 @@
     <string name="url_open">باز کردن</string>
     <string name="url_recent">پیش‌تر باز شده</string>
     <string name="folder_empty">اینجا چیزی نیست.</string>
-    <string name="folder_no_images">پوشه عکسی ندارد.</string>
+    <string name="folder_no_images">این پوشه تصویری ندارد.</string>
     <string name="folder_no_videos">پوشه ویدیویی ندارد.</string>
     <string name="cancel">لغو</string>
     <string name="hide_folder_title">پنهان کردن %1$s؟</string>
@@ -281,7 +281,7 @@
     <string name="edit_failed">ذخیره نشد</string>
     <string name="edit_app_gone">آن ویرایشگر دیگر نیست. یکی دیگر برگزین.</string>
     <string name="settings_editor">برنامهٔ ویرایش تصویر</string>
-    <string name="settings_editor_desc">با زدن ویرایش روی یک عکس کدام برنامه باز می‌شود. برنامهٔ داخلی می‌چرخاند و می‌برد، و همین.</string>
+    <string name="settings_editor_desc">برنامه‌ای که با لمس ویرایش روی یک تصویر باز می‌شود. برنامهٔ داخلی می‌چرخاند و برش می‌زند.</string>
     <string name="settings_editor_none">چیزی برگزیده نشده</string>
     <string name="settings_editor_pick">برگزیدن</string>
     <string name="view_grid">شبکه</string>
@@ -289,7 +289,7 @@
     <string name="view_tree">پوشه‌ها</string>
     <string name="edit_no_backup">نسخهٔ ایمنی ساخته نشد، پس چیزی بازنویسی نشد</string>
     <string name="settings_editor_backup">نسخهٔ ایمنی پیش از بازنویسی</string>
-    <string name="settings_editor_backup_desc">پیش از آنکه ویرایشگر داخلی روی عکسی بنویسد، نسخهٔ پیشین به زبالهدان می‌رود. فقط برای ویرایشگر داخلی است: برنامهٔ دیگر خودش ذخیره می‌کند.</string>
+    <string name="settings_editor_backup_desc">نسخهٔ پیشین هر تصویری که بازنویسی شود در سبد زباله نگهداری می‌شود.</string>
     <string name="editor_tall">عمودی</string>
     <string name="editor_wide">افقی</string>
     <string name="pick_drop_ask">انتخاب لغو شود؟</string>

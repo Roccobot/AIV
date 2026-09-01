@@ -36,6 +36,7 @@ coil = "3.6.0"
 media3 = "1.11.0"
 
 [libraries]
+gifdecoder = { group = "com.github.bumptech.glide", name = "gifdecoder", version = "5.0.9" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
 androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }

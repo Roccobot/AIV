@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">단색</string>
     <string name="settings_bg_desc">체크무늬는 투명을 보이게 하는 유일한 배경이고, 이미지 뷰어에서 투명은 장식이 아니라 정보입니다.</string>
     <string name="settings_ui_theme">테마</string>
-    <string name="settings_ui_theme_desc">앱 자체를 밝게 할지 어둡게 할지입니다. 바로 아래의 이미지 배경과는 다른 설정입니다. 체크무늬는 투명을 보여주려고 있는 것이지 색을 맞추려고 있는 것이 아닙니다.</string>
+    <string name="settings_ui_theme_desc">인터페이스를 밝게 할지 어둡게 할지. 아래의 이미지 뒤 배경은 해당되지 않습니다. 체크무늬는 투명도를 드러낼 뿐 테마를 따르지 않습니다.</string>
     <string name="settings_system">시스템</string>
     <string name="settings_theme_light">밝게</string>
     <string name="settings_theme_dark">어둡게</string>
@@ -82,7 +82,7 @@
     <string name="url_open">열기</string>
     <string name="url_recent">이전에 연 주소</string>
     <string name="folder_empty">여기에는 아무것도 없습니다.</string>
-    <string name="folder_no_images">폴더에 사진이 없습니다.</string>
+    <string name="folder_no_images">폴더에 이미지가 없습니다.</string>
     <string name="folder_no_videos">폴더에 동영상이 없습니다.</string>
     <string name="cancel">취소</string>
     <string name="hide_folder_title">%1$s을(를) 숨길까요?</string>
@@ -266,7 +266,7 @@
     <string name="edit_failed">저장하지 못했습니다</string>
     <string name="edit_app_gone">그 편집기가 사라졌습니다. 다른 것을 고르세요.</string>
     <string name="settings_editor">사진 편집 앱</string>
-    <string name="settings_editor_desc">사진에서 편집을 누르면 열리는 앱. 내장 편집기는 돌리고 자르기만 합니다.</string>
+    <string name="settings_editor_desc">이미지에서 편집을 누르면 열리는 애플리케이션입니다. 내장된 것은 회전과 자르기를 합니다.</string>
     <string name="settings_editor_none">선택하지 않음</string>
     <string name="settings_editor_pick">선택</string>
     <string name="view_grid">격자</string>
@@ -274,7 +274,7 @@
     <string name="view_tree">폴더</string>
     <string name="edit_no_backup">안전 사본을 만들지 못해서 아무것도 덮어쓰지 않았습니다</string>
     <string name="settings_editor_backup">덮어쓰기 전에 안전 사본</string>
-    <string name="settings_editor_backup_desc">내장 편집기가 사진을 덮어쓰기 전에 이전 판이 휴지통으로 갑니다. 내장 편집기에만 해당하며, 다른 앱은 알아서 저장합니다.</string>
+    <string name="settings_editor_backup_desc">덮어쓴 모든 이미지의 이전 판은 휴지통에 보관됩니다.</string>
     <string name="editor_tall">세로</string>
     <string name="editor_wide">가로</string>
     <string name="pick_drop_ask">선택을 취소할까요?</string>

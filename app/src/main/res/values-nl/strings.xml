@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">Effen kleur</string>
     <string name="settings_bg_desc">Het schaakbordpatroon is de enige achtergrond die transparantie zichtbaar maakt, en in een viewer is transparantie informatie en geen versiering.</string>
     <string name="settings_ui_theme">Thema</string>
-    <string name="settings_ui_theme_desc">Of de app zelf licht of donker is. Dit staat los van de achtergrond achter een afbeelding, net hieronder: een schaakbordpatroon is er om transparantie te tonen, niet om kleuren te laten samengaan.</string>
+    <string name="settings_ui_theme_desc">Of de interface licht of donker is. Het gaat niet over de achtergrond achter de afbeelding, hieronder: het dambordpatroon toont transparantie, het volgt het thema niet.</string>
     <string name="settings_system">Systeem</string>
     <string name="settings_theme_light">Licht</string>
     <string name="settings_theme_dark">Donker</string>
@@ -82,7 +82,7 @@
     <string name="url_open">Openen</string>
     <string name="url_recent">Eerder geopend</string>
     <string name="folder_empty">Hier staat niets.</string>
-    <string name="folder_no_images">De map bevat geen foto\'s.</string>
+    <string name="folder_no_images">De map bevat geen afbeeldingen.</string>
     <string name="folder_no_videos">De map bevat geen video\'s.</string>
     <string name="cancel">Annuleren</string>
     <string name="hide_folder_title">%1$s verbergen?</string>
@@ -281,7 +281,7 @@
     <string name="edit_failed">Opslaan is niet gelukt</string>
     <string name="edit_app_gone">Die editor is weg. Kies een andere.</string>
     <string name="settings_editor">App om foto\'s te bewerken</string>
-    <string name="settings_editor_desc">Welke app opengaat als je bij een foto op Bewerken tikt. De ingebouwde draait en snijdt bij, en verder niets.</string>
+    <string name="settings_editor_desc">De toepassing die opent bij het tikken op Bewerken op een afbeelding. De ingebouwde draait en snijdt bij.</string>
     <string name="settings_editor_none">Geen gekozen</string>
     <string name="settings_editor_pick">Kiezen</string>
     <string name="view_grid">Raster</string>
@@ -289,7 +289,7 @@
     <string name="view_tree">Mappen</string>
     <string name="edit_no_backup">De veiligheidskopie is mislukt, dus er is niets overschreven</string>
     <string name="settings_editor_backup">Veiligheidskopie voor het overschrijven</string>
-    <string name="settings_editor_backup_desc">Voordat de ingebouwde editor een foto overschrijft, gaat de vorige versie naar de prullenbak. Geldt alleen voor de ingebouwde editor: een andere app slaat zelf op.</string>
+    <string name="settings_editor_backup_desc">Van elke overschreven afbeelding blijft de vorige versie in de prullenbak.</string>
     <string name="editor_tall">Staand</string>
     <string name="editor_wide">Liggend</string>
     <string name="pick_drop_ask">Selectie loslaten?</string>
