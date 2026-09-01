@@ -1129,7 +1129,7 @@ private fun Covers(
                 counted = counted,
                 nameStyle = nameStyle,
                 onClick = { onPick(bucket) },
-                onLongClick = { onHide(bucket) }
+                onLongClick = withHaptics { onHide(bucket) }
             )
         }
     }
@@ -1163,7 +1163,7 @@ private fun Rows(
                     .fillMaxWidth()
                     .combinedClickable(
                         onClick = { onPick(bucket) },
-                        onLongClick = { onHide(bucket) }
+                        onLongClick = withHaptics { onHide(bucket) }
                     )
                     .padding(vertical = 8.dp, horizontal = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -1249,7 +1249,7 @@ private fun FolderCard(
     Column(
         // ⚠️ Il tocco lungo nasconde, ed è lo stesso gesto in tutte e due le viste: chi
         // impara a nascondere dalle copertine non deve reimpararlo nell'elenco.
-        modifier = Modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick),
+        modifier = Modifier.combinedClickable(onClick = onClick, onLongClick = withHaptics(onLongClick)),
         verticalArrangement = Arrangement.spacedBy(CARD_GAP)
     ) {
         Box(

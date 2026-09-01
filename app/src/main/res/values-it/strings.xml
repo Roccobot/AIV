@@ -9,7 +9,7 @@
     <string name="app_short_name">AIV</string>
 
     <string name="no_image">Niente da mostrare</string>
-    <string name="open_failed">Questo file non si riesce ad aprire</string>
+    <string name="open_failed">Non riesco ad aprire questo file</string>
     <string name="open_cleartext">Indirizzo in chiaro (http): Android lo blocca, e in https non risponde</string>
     <string name="unsupported">Questo formato non è ancora supportato</string>
     <string name="too_large">L\'immagine è troppo grande per questo dispositivo</string>
@@ -49,8 +49,8 @@
     <string name="menu_edit_hold">Scegli l\'app</string>
     <string name="editor_internal">Editor interno</string>
     <string name="editor_pick">Con che cosa modifichi?</string>
-    <string name="editor_left">Gira a sinistra</string>
-    <string name="editor_right">Gira a destra</string>
+    <string name="editor_left">Ruota\na sinistra</string>
+    <string name="editor_right">Ruota\na destra</string>
     <string name="editor_free">Libero</string>
     <string name="editor_tall">Verticale</string>
     <string name="editor_wide">Orizzontale</string>
@@ -58,7 +58,7 @@
     <string name="editor_apply">Applica</string>
     <string name="editor_undo">Annulla</string>
     <string name="editor_redo">Ripristina</string>
-    <string name="editor_original">Originale</string>
+    <string name="editor_original">Azzera</string>
     <string name="editor_center_across">Centra in orizzontale</string>
     <string name="editor_center_down">Centra in verticale</string>
     <string name="editor_done">Salvata</string>

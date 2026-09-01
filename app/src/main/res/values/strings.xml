@@ -19,7 +19,7 @@
     <string name="app_short_name">AIV</string>
 
     <string name="no_image">Nothing to show</string>
-    <string name="open_failed">This file could not be opened</string>
+    <string name="open_failed">I cannot open this file</string>
     <string name="open_cleartext">Unencrypted address (http): Android blocks it, and it did not answer over https either</string>
     <string name="unsupported">This format is not supported yet</string>
     <string name="too_large">The image is too large for this device</string>
@@ -71,8 +71,8 @@
     <string name="menu_edit_hold">Choose the app</string>
     <string name="editor_internal">Built in editor</string>
     <string name="editor_pick">What do you edit with?</string>
-    <string name="editor_left">Turn left</string>
-    <string name="editor_right">Turn right</string>
+    <string name="editor_left">Rotate\nleft</string>
+    <string name="editor_right">Rotate\nright</string>
     <string name="editor_free">Free</string>
     <!-- The two crop orientations. They stand on their own as chip labels, so they
          say which way the selection stands, not which way the photograph does. -->
@@ -82,7 +82,7 @@
     <string name="editor_apply">Apply</string>
     <string name="editor_undo">Undo</string>
     <string name="editor_redo">Redo</string>
-    <string name="editor_original">Original</string>
+    <string name="editor_original">Reset</string>
     <string name="editor_center_across">Centre horizontally</string>
     <string name="editor_center_down">Centre vertically</string>
     <string name="editor_done">Saved</string>

@@ -56,6 +56,8 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.launch
 import java.io.File
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 
 /**
  * La vista **'Cartelle di sistema'**, la terza dopo la griglia e la lista.
@@ -351,10 +353,21 @@ private fun SpotRow(
     onHold: (() -> Unit)?,
     onClick: () -> Unit
 ) {
+    // ⚠️ Il tocco lungo qui può non esserci (le cartelle senza foto non ne hanno uno),
+    // quindi la vibrazione si compone sul posto: vedi la nota di [withHaptics].
+    val haptics = LocalHapticFeedback.current
+    val hold = remember(onHold, haptics) {
+        onHold?.let { premuto ->
+            {
+                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                premuto()
+            }
+        }
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .combinedClickable(onClick = onClick, onLongClick = onHold)
+            .combinedClickable(onClick = onClick, onLongClick = hold)
             .padding(vertical = ROW_PAD, horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp)

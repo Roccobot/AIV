@@ -108,7 +108,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalResources
 import androidx.lifecycle.Lifecycle
@@ -1548,6 +1550,9 @@ private fun ImageCanvas(
     onSingleTap: () -> Unit = {}
 ) {
     val density = LocalDensity.current
+    // Vedi [withHaptics]: qui il gesto non passa da `combinedClickable`, quindi la
+    // vibrazione del tocco lungo si chiama a mano.
+    val haptics = LocalHapticFeedback.current
 
     // ⚠️ Lo sfondo NON si dipinge più qui: vedi `ViewerScreen`, e la ragione per cui
     // spostarlo era l'unico modo di togliere il lampeggio.
@@ -2031,7 +2036,14 @@ private fun ImageCanvas(
                 }
                 .pointerInput(image, settings) {
                     detectViewerGestures(
-                        onLongPress = { menuOpen = true },
+                        // ⚠️ Anche questo vibra, ed è quello che l'utente ha nominato
+                        // per primo: vedi [withHaptics]. Qui non passa da
+                        // `combinedClickable` ma dal rilevatore scritto in casa, quindi la
+                        // vibrazione si chiama a mano.
+                        onLongPress = {
+                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                            menuOpen = true
+                        },
                         /*
                          * ⚠️⚠️ **UN TOCCO IN MEZZO ALLO SCHERMO METTE IN PAUSA, dalla 1.18**
                          * (richiesta dell'utente, 2026-09-01: *visto che non sono previste

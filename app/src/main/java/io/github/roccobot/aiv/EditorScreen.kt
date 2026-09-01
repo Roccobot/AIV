@@ -34,8 +34,6 @@ import androidx.compose.material.icons.automirrored.outlined.Redo
 import androidx.compose.material.icons.automirrored.outlined.Undo
 import androidx.compose.material.icons.filled.RotateLeft
 import androidx.compose.material.icons.filled.RotateRight
-import androidx.compose.material.icons.outlined.AlignHorizontalCenter
-import androidx.compose.material.icons.outlined.AlignVerticalCenter
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.RestartAlt
@@ -580,13 +578,23 @@ private fun EditorSheet(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = STAGE_SIDE),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
+                /*
+                 * ⚠️⚠️ **'Libero' È PIÙ LARGO DEGLI ALTRI QUATTRO, e le celle uguali sono
+                 * durate una versione** (correzione dell'utente, 2026-09-01, voce `ed-chip`
+                 * del collaudo: *la richiesta non era che fossero tutte uguali, ma che
+                 * occupassero tutto lo spazio*). Le quattro proporzioni portano numeri che
+                 * **non si traducono**, quindi la loro larghezza è nota e non cresce mai;
+                 * 'Libero' è l'unica parola vera della fila, ed è quella che in tedesco, in
+                 * russo o in tamil può aver bisogno di posto. Dare a tutti la stessa cella
+                 * vuol dire tararla sul caso peggiore di uno solo, e sprecarla per quattro.
+                 */
                 for (one in Shape.entries) {
                     SheetChip(
                         text = one.text(lay) ?: stringResource(R.string.editor_free),
                         selected = one == shape,
                         enabled = live,
                         onClick = { onShape(one) },
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(if (one == Shape.FREE) FREE_ROOM else 1f)
                     )
                 }
             }
@@ -630,12 +638,17 @@ private fun EditorSheet(
 
             val turnLeft = PadAction(ccw, R.string.editor_left, enabled = live) { onTurn(3) }
             val turnRight = PadAction(cw, R.string.editor_right, enabled = live) { onTurn(1) }
+            /*
+              * ⚠️ **Le due icone sono DISEGNATE DALL'UTENTE** (2026-09-01, voce `ed-sheet`
+              * del collaudo: *usa le mie icone che ti ho già passato*): quelle di Material
+              * non gli dicevano abbastanza. Vedi [Glyphs.AlignAcross].
+              */
             val acrossKey = PadAction(
-                Icons.Outlined.AlignHorizontalCenter, R.string.editor_center_across,
+                Glyphs.AlignAcross, R.string.editor_center_across,
                 enabled = live
             ) { onCentreAcross() }
             val downKey = PadAction(
-                Icons.Outlined.AlignVerticalCenter, R.string.editor_center_down,
+                Glyphs.AlignDown, R.string.editor_center_down,
                 enabled = live
             ) { onCentreDown() }
 
@@ -739,6 +752,15 @@ private fun SheetChip(
         }
     }
 }
+
+/**
+ * Quanto è più larga la cella di 'Libero' rispetto a una delle quattro proporzioni.
+ *
+ * ⚠️ Con 1,6 la fila resta piena da bordo a bordo e la parola prende quasi il 29% invece
+ * del 20: su uno schermo da 360dp sono una settantina di dp netti, che bastano al 'Libero'
+ * di tutte e ventotto le lingue. Vedi la nota sulla fila dei chip.
+ */
+private const val FREE_ROOM = 1.6f
 
 /** Le misure del chip di casa: quelle di Material, tranne il rientro. */
 private val CHIP_TALL = 32.dp
