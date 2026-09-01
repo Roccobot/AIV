@@ -230,7 +230,7 @@
     <string name="tree_pictures">僅含圖片或影片的資料夾</string>
     <string name="columns_hint">快捷方式：長按浮動按鈕開啟顯示選項。</string>
     <string name="settings_bin">啟用回收筒</string>
-    <string name="settings_bin_desc">刪除檔案不會有任何提示，但可以在回收筒裡用 \'還原\' 復原（浮動按鈕 →\u00A0\'回收筒\'）。如果你偏好立即刪除，可以完全關閉回收筒：那樣每次刪除前都會出現確認。\n⚠️ 注意：解除安裝應用程式後，回收筒會被清空且無法復原。</string>
+    <string name="settings_bin_desc">刪除檔案不會有任何提示，但可以在回收筒裡用 \'還原\' 復原（浮動按鈕 →\u00A0\'回收筒\'）。如果你偏好立即刪除，可以完全關閉回收筒：那樣每次刪除前都會出現確認。\n⚠️ 注意：解除安裝應用程式後，回收筒裡的內容會遺失且無法復原。</string>
     <string name="pick_duplicate">建立副本</string>
     <string name="settings_grid_names">格線中顯示檔名</string>
     <string name="settings_grid_names_desc">每張縮圖下顯示檔名，最多兩行。副檔名不會被換行拆開，一律可見：名稱放不下時，讓位的是中間部分。</string>
@@ -268,6 +268,8 @@
     <string name="editor_done_copy">副本已儲存</string>
     <string name="editor_done_lossless">已儲存，未重新壓縮</string>
     <string name="editor_pick_none">這支手機上沒有其他應用願意編輯圖片。</string>
+    <string name="editor_pick_send">透過分享</string>
+    <string name="editor_pick_send_desc">它們會收到一份副本，並儲存到自己選定的位置。原圖維持不變。</string>
     <string name="edit_no_file">這個檔案不在手機上</string>
     <string name="edit_too_big">圖片對這台裝置來說太大了</string>
     <string name="edit_nothing">什麼都沒有改動</string>
@@ -283,7 +285,7 @@
     <string name="view_tree">資料夾</string>
     <string name="edit_no_backup">安全副本沒能建立，所以什麼都沒有覆寫</string>
     <string name="settings_editor_backup">覆寫前先留一份安全副本</string>
-    <string name="settings_editor_backup_desc">內建編輯器覆寫一張圖片之前，先把原來的版本放進回收桶。只對內建編輯器有效，別的應用自己儲存。 ⚠️ 關閉後就沒有退路了，因為內建編輯器一律覆寫原圖。</string>
+    <string name="settings_editor_backup_desc">內建編輯器覆寫一張圖片之前，先把原來的版本放進回收桶。只對內建編輯器有效，別的應用自己儲存。</string>
     <string name="editor_tall">直式</string>
     <string name="editor_wide">橫式</string>
     <string name="pick_drop_ask">要取消選取嗎？</string>

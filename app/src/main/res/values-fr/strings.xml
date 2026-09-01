@@ -260,7 +260,7 @@
     <string name="tree_pictures">Seulement les dossiers avec images ou vidéos</string>
     <string name="columns_hint">Raccourci : appuyez longuement sur le bouton flottant pour les options d\'affichage.</string>
     <string name="settings_bin">Activer la corbeille</string>
-    <string name="settings_bin_desc">La suppression d\'un fichier ne demande rien, mais l\'action est réversible avec un \'Restaurer\' depuis la corbeille (bouton flottant →\u00A0\'Corbeille\'). Vous pouvez désactiver complètement la corbeille si vous préférez une suppression instantanée: dans ce cas, une confirmation apparaît avant chaque suppression.\n⚠️ ATTENTION : si tu désinstalles l\'application, la corbeille est vidée et devient irrécupérable.</string>
+    <string name="settings_bin_desc">La suppression d\'un fichier ne demande rien, mais l\'action est réversible avec un \'Restaurer\' depuis la corbeille (bouton flottant →\u00A0\'Corbeille\'). Vous pouvez désactiver complètement la corbeille si vous préférez une suppression instantanée: dans ce cas, une confirmation apparaît avant chaque suppression.\n⚠️ ATTENTION : si vous désinstallez l\'application, le contenu de la corbeille est perdu et devient irrécupérable.</string>
     <string name="pick_duplicate">Dupliquer</string>
     <string name="settings_grid_names">Nom du fichier dans la grille</string>
     <string name="settings_grid_names_desc">Sous chaque vignette, le nom du fichier sur deux lignes au maximum. L\'extension n\'est jamais coupée et reste toujours visible: si le nom ne tient pas, c\'est le milieu qui cède.</string>
@@ -298,6 +298,8 @@
     <string name="editor_done_copy">Copie enregistrée</string>
     <string name="editor_done_lossless">Enregistrée sans recompression</string>
     <string name="editor_pick_none">Aucune autre app de ce téléphone ne propose de modifier des images.</string>
+    <string name="editor_pick_send">Par partage</string>
+    <string name="editor_pick_send_desc">Elles reçoivent une copie et l\'enregistrent où elles veulent. L\'original reste tel quel.</string>
     <string name="edit_no_file">Ce fichier n\'est pas sur le téléphone</string>
     <string name="edit_too_big">L\'image est trop grande pour cet appareil</string>
     <string name="edit_nothing">Rien n\'a changé</string>
@@ -313,7 +315,7 @@
     <string name="view_tree">Dossiers</string>
     <string name="edit_no_backup">La copie de sûreté a échoué, donc rien n\'a été écrasé</string>
     <string name="settings_editor_backup">Copie de sûreté avant d\'écraser</string>
-    <string name="settings_editor_backup_desc">Avant que l\'éditeur intégré n\'écrase une image, la version d\'avant part à la corbeille. Cela ne vaut que pour l\'éditeur intégré : une autre app enregistre de son côté. ⚠️ Désactivé, il n\'y a plus de retour en arrière, car l\'éditeur interne écrase toujours.</string>
+    <string name="settings_editor_backup_desc">Avant que l\'éditeur intégré n\'écrase une image, la version d\'avant part à la corbeille. Cela ne vaut que pour l\'éditeur intégré : une autre app enregistre de son côté.</string>
     <string name="editor_tall">Portrait</string>
     <string name="editor_wide">Paysage</string>
     <string name="pick_drop_ask">Abandonner la sélection ?</string>

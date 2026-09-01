@@ -230,7 +230,7 @@
     <string name="tree_pictures">Hanya folder dengan gambar atau video</string>
     <string name="columns_hint">Pintasan: tekan lama tombol mengambang untuk opsi tampilan.</string>
     <string name="settings_bin">Aktifkan tempat sampah</string>
-    <string name="settings_bin_desc">Menghapus berkas tidak menanyakan apa pun, tetapi tindakan ini bisa dibatalkan dengan \'Pulihkan\' dari tempat sampah (tombol mengambang →\u00A0\'Tempat sampah\'). Kamu bisa mematikan tempat sampah sepenuhnya jika lebih suka penghapusan langsung: dalam hal itu, konfirmasi akan muncul sebelum setiap penghapusan.\n⚠️ PERHATIAN: jika aplikasi dicopot, tempat sampah dikosongkan dan tidak dapat dipulihkan.</string>
+    <string name="settings_bin_desc">Menghapus berkas tidak menanyakan apa pun, tetapi tindakan ini bisa dibatalkan dengan \'Pulihkan\' dari tempat sampah (tombol mengambang →\u00A0\'Tempat sampah\'). Kamu bisa mematikan tempat sampah sepenuhnya jika lebih suka penghapusan langsung: dalam hal itu, konfirmasi akan muncul sebelum setiap penghapusan.\n⚠️ PERHATIAN: jika aplikasi dicopot, isi tempat sampah hilang dan tidak dapat dipulihkan.</string>
     <string name="pick_duplicate">Duplikat</string>
     <string name="settings_grid_names">Nama berkas di kisi foto</string>
     <string name="settings_grid_names_desc">Di bawah setiap gambar mini, nama berkas dalam dua baris paling banyak. Ekstensi tidak pernah dipenggal dan selalu terlihat: kalau nama tidak muat, bagian tengahnya yang mengalah.</string>
@@ -268,6 +268,8 @@
     <string name="editor_done_copy">Salinan tersimpan</string>
     <string name="editor_done_lossless">Tersimpan tanpa dikompres ulang</string>
     <string name="editor_pick_none">Tidak ada aplikasi lain di ponsel ini yang menawarkan pengeditan gambar.</string>
+    <string name="editor_pick_send">Lewat berbagi</string>
+    <string name="editor_pick_send_desc">Aplikasi menerima salinan dan menyimpannya di tempat pilihannya. Berkas asli tetap sama.</string>
     <string name="edit_no_file">Berkas ini tidak ada di ponsel</string>
     <string name="edit_too_big">Gambarnya terlalu besar untuk perangkat ini</string>
     <string name="edit_nothing">Tidak ada yang berubah</string>
@@ -283,7 +285,7 @@
     <string name="view_tree">Folder</string>
     <string name="edit_no_backup">Salinan pengaman gagal, jadi tidak ada yang ditimpa</string>
     <string name="settings_editor_backup">Salinan pengaman sebelum menimpa</string>
-    <string name="settings_editor_backup_desc">Sebelum editor bawaan menimpa sebuah gambar, versi sebelumnya masuk ke tempat sampah. Berlaku hanya untuk editor bawaan: aplikasi lain menyimpan sendiri. ⚠️ Saat dimatikan tidak ada jalan kembali, karena editor bawaan selalu menimpa.</string>
+    <string name="settings_editor_backup_desc">Sebelum editor bawaan menimpa sebuah gambar, versi sebelumnya masuk ke tempat sampah. Berlaku hanya untuk editor bawaan: aplikasi lain menyimpan sendiri.</string>
     <string name="editor_tall">Tegak</string>
     <string name="editor_wide">Mendatar</string>
     <string name="pick_drop_ask">Batalkan pilihan?</string>

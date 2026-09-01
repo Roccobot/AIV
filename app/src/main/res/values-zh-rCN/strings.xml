@@ -230,7 +230,7 @@
     <string name="tree_pictures">仅含图片或视频的文件夹</string>
     <string name="columns_hint">快捷方式：长按悬浮按钮打开显示选项。</string>
     <string name="settings_bin">启用回收站</string>
-    <string name="settings_bin_desc">删除文件不会有任何提示，但可以在回收站里用 \'还原\' 撤销（悬浮按钮 →\u00A0\'回收站\'）。如果你更喜欢立即删除，可以完全关闭回收站：那样每次删除前都会出现确认。\n⚠️ 注意：卸载应用后，回收站会被清空且无法恢复。</string>
+    <string name="settings_bin_desc">删除文件不会有任何提示，但可以在回收站里用 \'还原\' 撤销（悬浮按钮 →\u00A0\'回收站\'）。如果你更喜欢立即删除，可以完全关闭回收站：那样每次删除前都会出现确认。\n⚠️ 注意：卸载应用后，回收站里的内容会丢失且无法恢复。</string>
     <string name="pick_duplicate">创建副本</string>
     <string name="settings_grid_names">网格中显示文件名</string>
     <string name="settings_grid_names_desc">每张缩略图下显示文件名，最多两行。扩展名不会被换行拆开，始终可见：名字放不下时，让位的是中间部分。</string>
@@ -268,6 +268,8 @@
     <string name="editor_done_copy">副本已保存</string>
     <string name="editor_done_lossless">已保存，未重新压缩</string>
     <string name="editor_pick_none">这台手机上没有别的应用愿意编辑图片。</string>
+    <string name="editor_pick_send">通过分享</string>
+    <string name="editor_pick_send_desc">它们收到一份副本，并保存到自己选定的位置。原图保持不变。</string>
     <string name="edit_no_file">这个文件不在手机上</string>
     <string name="edit_too_big">图片对这台设备来说太大了</string>
     <string name="edit_nothing">什么都没有改动</string>
@@ -283,7 +285,7 @@
     <string name="view_tree">文件夹</string>
     <string name="edit_no_backup">安全副本没能建立，所以什么都没有覆盖</string>
     <string name="settings_editor_backup">覆盖前先留一份安全副本</string>
-    <string name="settings_editor_backup_desc">内置编辑器覆盖一张图片之前，先把原来的版本放进回收站。只对内置编辑器有效，别的应用自己保存。 ⚠️ 关闭后就没有退路了，因为内置编辑器总是覆盖原图。</string>
+    <string name="settings_editor_backup_desc">内置编辑器覆盖一张图片之前，先把原来的版本放进回收站。只对内置编辑器有效，别的应用自己保存。</string>
     <string name="editor_tall">竖向</string>
     <string name="editor_wide">横向</string>
     <string name="pick_drop_ask">要取消选择吗？</string>

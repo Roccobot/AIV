@@ -230,7 +230,7 @@
     <string name="tree_pictures">사진이나 동영상이 있는 폴더만</string>
     <string name="columns_hint">단축: 표시 옵션은 떠 있는 버튼을 길게 누르세요.</string>
     <string name="settings_bin">휴지통 사용</string>
-    <string name="settings_bin_desc">파일을 삭제할 때는 아무것도 묻지 않지만, 휴지통에서 \'되돌리기\'로 되돌릴 수 있습니다 (플로팅 버튼 →\u00A0\'휴지통\'). 즉시 삭제를 원하면 휴지통을 완전히 끌 수 있습니다. 그 경우에는 삭제할 때마다 확인이 표시됩니다.\n⚠️ 주의: 앱을 삭제하면 휴지통이 비워지고 되돌릴 수 없습니다.</string>
+    <string name="settings_bin_desc">파일을 삭제할 때는 아무것도 묻지 않지만, 휴지통에서 \'되돌리기\'로 되돌릴 수 있습니다 (플로팅 버튼 →\u00A0\'휴지통\'). 즉시 삭제를 원하면 휴지통을 완전히 끌 수 있습니다. 그 경우에는 삭제할 때마다 확인이 표시됩니다.\n⚠️ 주의: 앱을 삭제하면 휴지통의 내용이 사라지고 되돌릴 수 없습니다.</string>
     <string name="pick_duplicate">복제</string>
     <string name="settings_grid_names">격자에 파일 이름 표시</string>
     <string name="settings_grid_names_desc">각 미리보기 아래에 파일 이름을 최대 두 줄로 표시합니다. 확장자는 줄바꿈으로 나뉘지 않고 항상 보이며, 이름이 다 들어가지 않으면 가운데가 줄어듭니다.</string>
@@ -268,6 +268,8 @@
     <string name="editor_done_copy">사본을 저장했습니다</string>
     <string name="editor_done_lossless">다시 압축하지 않고 저장했습니다</string>
     <string name="editor_pick_none">이 휴대폰에는 사진을 편집하겠다는 다른 앱이 없습니다.</string>
+    <string name="editor_pick_send">공유로</string>
+    <string name="editor_pick_send_desc">사본을 받아 각자의 위치에 저장합니다. 원본은 그대로 남습니다.</string>
     <string name="edit_no_file">이 파일은 휴대폰에 없습니다</string>
     <string name="edit_too_big">사진이 이 기기에 너무 큽니다</string>
     <string name="edit_nothing">바뀐 것이 없습니다</string>
@@ -283,7 +285,7 @@
     <string name="view_tree">폴더</string>
     <string name="edit_no_backup">안전 사본을 만들지 못해서 아무것도 덮어쓰지 않았습니다</string>
     <string name="settings_editor_backup">덮어쓰기 전에 안전 사본</string>
-    <string name="settings_editor_backup_desc">내장 편집기가 사진을 덮어쓰기 전에 이전 판이 휴지통으로 갑니다. 내장 편집기에만 해당하며, 다른 앱은 알아서 저장합니다. ⚠️ 끄면 되돌릴 방법이 없습니다. 내장 편집기는 항상 덮어씁니다.</string>
+    <string name="settings_editor_backup_desc">내장 편집기가 사진을 덮어쓰기 전에 이전 판이 휴지통으로 갑니다. 내장 편집기에만 해당하며, 다른 앱은 알아서 저장합니다.</string>
     <string name="editor_tall">세로</string>
     <string name="editor_wide">가로</string>
     <string name="pick_drop_ask">선택을 취소할까요?</string>

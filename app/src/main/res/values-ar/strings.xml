@@ -305,7 +305,7 @@
     <string name="tree_pictures">المجلدات التي بها صور أو فيديو فقط</string>
     <string name="columns_hint">اختصار: اضغط مطولا على الزر العائم لفتح خيارات العرض.</string>
     <string name="settings_bin">تشغيل سلة المهملات</string>
-    <string name="settings_bin_desc">حذف ملف لا يطلب أي تأكيد، لكن الإجراء قابل للتراجع عبر \'استعادة\' من سلة المهملات (الزر العائم →\u00A0\'سلة المهملات\'). يمكنك إيقاف سلة المهملات تماما إذا كنت تفضل الحذف الفوري: في تلك الحالة سيظهر تأكيد قبل كل عملية حذف.\n⚠️ تنبيه: إذا أزلت التطبيق، تفرغ سلة المهملات ولا يمكن استرجاعها.</string>
+    <string name="settings_bin_desc">حذف ملف لا يطلب أي تأكيد، لكن الإجراء قابل للتراجع عبر \'استعادة\' من سلة المهملات (الزر العائم →\u00A0\'سلة المهملات\'). يمكنك إيقاف سلة المهملات تماما إذا كنت تفضل الحذف الفوري: في تلك الحالة سيظهر تأكيد قبل كل عملية حذف.\n⚠️ تنبيه: إذا أزلت التطبيق، يضيع محتوى سلة المهملات ولا يمكن استرجاعه.</string>
     <string name="pick_duplicate">تكرار</string>
     <string name="settings_grid_names">اسم الملف في الشبكة</string>
     <string name="settings_grid_names_desc">تحت كل صورة مصغرة اسم الملف، في سطرين على الأكثر. لا يُقطع الامتداد أبدا ويظهر دائما: إذا لم يتسع الاسم، فالوسط هو الذي يُختصر.</string>
@@ -343,6 +343,8 @@
     <string name="editor_done_copy">تم حفظ النسخة</string>
     <string name="editor_done_lossless">تم الحفظ دون إعادة ضغط</string>
     <string name="editor_pick_none">لا يوجد تطبيق آخر على هذا الهاتف يعرض تحرير الصور.</string>
+    <string name="editor_pick_send">عبر المشاركة</string>
+    <string name="editor_pick_send_desc">تتلقى نسخة وتحفظها حيث تشاء. يبقى الأصل كما هو.</string>
     <string name="edit_no_file">هذا الملف ليس على الهاتف</string>
     <string name="edit_too_big">الصورة أكبر من طاقة هذا الجهاز</string>
     <string name="edit_nothing">لم يتغير شيء</string>
@@ -358,7 +360,7 @@
     <string name="view_tree">مجلدات</string>
     <string name="edit_no_backup">تعذّرت نسخة الأمان، فلم تجرِ الكتابة فوق شيء</string>
     <string name="settings_editor_backup">نسخة أمان قبل الكتابة فوق الملف</string>
-    <string name="settings_editor_backup_desc">قبل أن يكتب المحرر المدمج فوق صورة، تذهب نسختها السابقة إلى سلة المهملات. هذا للمحرر المدمج وحده: أي تطبيق آخر يحفظ بنفسه. ⚠️ عند الإيقاف لا توجد طريقة للرجوع، لأن المحرر الداخلي يكتب فوق الملف دائما.</string>
+    <string name="settings_editor_backup_desc">قبل أن يكتب المحرر المدمج فوق صورة، تذهب نسختها السابقة إلى سلة المهملات. هذا للمحرر المدمج وحده: أي تطبيق آخر يحفظ بنفسه.</string>
     <string name="editor_tall">طولي</string>
     <string name="editor_wide">عرضي</string>
     <string name="pick_drop_ask">هل تريد إلغاء التحديد؟</string>

@@ -245,7 +245,7 @@
     <string name="tree_pictures">Alleen mappen met afbeeldingen of video\'s</string>
     <string name="columns_hint">Snelkoppeling: houd de zwevende knop ingedrukt voor de weergaveopties.</string>
     <string name="settings_bin">Prullenbak aanzetten</string>
-    <string name="settings_bin_desc">Het verwijderen van een bestand vraagt niets, maar de actie is omkeerbaar met een \'Terugzetten\' uit de prullenbak (zwevende knop →\u00A0\'Prullenbak\'). Je kunt de prullenbak helemaal uitzetten als je liever direct verwijdert: dan verschijnt er voor elke verwijdering een bevestiging.\n⚠️ LET OP: als je de app verwijdert, wordt de prullenbak geleegd en is hij niet meer terug te halen.</string>
+    <string name="settings_bin_desc">Het verwijderen van een bestand vraagt niets, maar de actie is omkeerbaar met een \'Terugzetten\' uit de prullenbak (zwevende knop →\u00A0\'Prullenbak\'). Je kunt de prullenbak helemaal uitzetten als je liever direct verwijdert: dan verschijnt er voor elke verwijdering een bevestiging.\n⚠️ LET OP: als je de app verwijdert, gaat de inhoud van de prullenbak verloren en is die niet meer terug te halen.</string>
     <string name="pick_duplicate">Dupliceren</string>
     <string name="settings_grid_names">Bestandsnaam in het raster</string>
     <string name="settings_grid_names_desc">Onder elke miniatuur de bestandsnaam, op hoogstens twee regels. De extensie wordt nooit afgebroken en is altijd te zien: past de naam niet, dan wijkt het midden.</string>
@@ -283,6 +283,8 @@
     <string name="editor_done_copy">Kopie opgeslagen</string>
     <string name="editor_done_lossless">Opgeslagen zonder opnieuw te comprimeren</string>
     <string name="editor_pick_none">Geen andere app op deze telefoon biedt aan om foto\'s te bewerken.</string>
+    <string name="editor_pick_send">Via delen</string>
+    <string name="editor_pick_send_desc">Ze krijgen een kopie en bewaren die waar ze willen. Het origineel blijft zoals het is.</string>
     <string name="edit_no_file">Dit bestand staat niet op de telefoon</string>
     <string name="edit_too_big">De afbeelding is te groot voor dit apparaat</string>
     <string name="edit_nothing">Er is niets veranderd</string>
@@ -298,7 +300,7 @@
     <string name="view_tree">Mappen</string>
     <string name="edit_no_backup">De veiligheidskopie is mislukt, dus er is niets overschreven</string>
     <string name="settings_editor_backup">Veiligheidskopie voor het overschrijven</string>
-    <string name="settings_editor_backup_desc">Voordat de ingebouwde editor een foto overschrijft, gaat de vorige versie naar de prullenbak. Geldt alleen voor de ingebouwde editor: een andere app slaat zelf op. ⚠️ Uitgeschakeld is er geen weg terug, want de ingebouwde editor overschrijft altijd.</string>
+    <string name="settings_editor_backup_desc">Voordat de ingebouwde editor een foto overschrijft, gaat de vorige versie naar de prullenbak. Geldt alleen voor de ingebouwde editor: een andere app slaat zelf op.</string>
     <string name="editor_tall">Staand</string>
     <string name="editor_wide">Liggend</string>
     <string name="pick_drop_ask">Selectie loslaten?</string>

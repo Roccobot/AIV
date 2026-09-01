@@ -77,12 +77,14 @@
     <string name="edit_no_backup">The safety copy failed, so nothing was written over</string>
     <!-- Only when no installed app answers the edit request, so the list holds one entry. -->
     <string name="editor_pick_none">No other app on this phone offers to edit pictures.</string>
+    <string name="editor_pick_send">By sharing</string>
+    <string name="editor_pick_send_desc">They receive a copy and save it where they choose. The original stays as it is.</string>
     <string name="settings_editor">App for editing pictures</string>
     <string name="settings_editor_desc">Which app opens when you tap Edit on a picture. The built in one turns and crops, and nothing else.</string>
     <string name="settings_editor_none">None chosen</string>
     <string name="settings_editor_pick">Choose</string>
     <string name="settings_editor_backup">Safety copy before writing over</string>
-    <string name="settings_editor_backup_desc">Before the built in editor writes over a picture, the version from before goes into the bin. It only covers the built in editor: another app saves on its own. ⚠️ With this off there is no way back, because the built in editor always writes over.</string>
+    <string name="settings_editor_backup_desc">Before the built in editor writes over a picture, the version from before goes into the bin. It only covers the built in editor: another app saves on its own.</string>
 
     <string name="toast_image_copied">Image copied</string>
     <string name="toast_copy_failed">The copy did not go through</string>
@@ -183,7 +185,7 @@
          appears: the two go together, because you get asked exactly when there is no way
          back. The Italian wording is the user's, dictated word for word. -->
     <string name="settings_bin">Turn the bin on</string>
-    <string name="settings_bin_desc">Deleting a file asks nothing, but the action can be undone with a \'Restore\' from the bin (floating button →\u00A0\'Bin\'). You can turn the bin off altogether if you prefer instant deletion: in that case, a confirmation will appear before every deletion.\n⚠️ WARNING: if you uninstall the app, the bin is emptied and cannot be recovered.</string>
+    <string name="settings_bin_desc">Deleting a file asks nothing, but the action can be undone with a \'Restore\' from the bin (floating button →\u00A0\'Bin\'). You can turn the bin off altogether if you prefer instant deletion: in that case, a confirmation will appear before every deletion.\n⚠️ WARNING: if you uninstall the app, the contents of the bin are lost and cannot be recovered.</string>
     <!-- The one that decides the architecture: OFF by default means the normal case
          is 'I leaf through videos too', so the branch that tells a picture from a film
          is always needed. Tapping a video still opens it: this is about the GESTURE. -->

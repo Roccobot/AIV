@@ -245,7 +245,7 @@
     <string name="tree_pictures">Yalnızca görsel veya video içeren klasörler</string>
     <string name="columns_hint">Kısayol: görünüm seçenekleri için kayan düğmeyi basılı tutun.</string>
     <string name="settings_bin">Çöp kutusunu aç</string>
-    <string name="settings_bin_desc">Bir dosyayı silmek hiçbir şey sormaz, ama işlem çöp kutusundan bir \'Geri al\' ile geri alınabilir (kayan düğme →\u00A0\'Çöp kutusu\'). Anında silmeyi tercih ediyorsan çöp kutusunu tamamen kapatabilirsin: o zaman her silme işleminden önce bir onay görünür.\n⚠️ DİKKAT: uygulamayı kaldırırsan çöp kutusu boşaltılır ve geri getirilemez.</string>
+    <string name="settings_bin_desc">Bir dosyayı silmek hiçbir şey sormaz, ama işlem çöp kutusundan bir \'Geri al\' ile geri alınabilir (kayan düğme →\u00A0\'Çöp kutusu\'). Anında silmeyi tercih ediyorsan çöp kutusunu tamamen kapatabilirsin: o zaman her silme işleminden önce bir onay görünür.\n⚠️ DİKKAT: uygulamayı kaldırırsan çöp kutusundaki içerik kaybolur ve geri getirilemez.</string>
     <string name="pick_duplicate">Çoğalt</string>
     <string name="settings_grid_names">Izgarada dosya adı</string>
     <string name="settings_grid_names_desc">Her küçük resmin altında dosya adı, en fazla iki satır. Uzantı asla bölünmez ve her zaman görünür: ad sığmazsa kısalan orta kısımdır.</string>
@@ -283,6 +283,8 @@
     <string name="editor_done_copy">Kopya kaydedildi</string>
     <string name="editor_done_lossless">Yeniden sıkıştırmadan kaydedildi</string>
     <string name="editor_pick_none">Bu telefonda resim düzenlemeyi üstlenen başka bir uygulama yok.</string>
+    <string name="editor_pick_send">Paylaşarak</string>
+    <string name="editor_pick_send_desc">Bir kopya alır ve istedikleri yere kaydeder. Özgün dosya olduğu gibi kalır.</string>
     <string name="edit_no_file">Bu dosya telefonda değil</string>
     <string name="edit_too_big">Resim bu cihaz için fazla büyük</string>
     <string name="edit_nothing">Hiçbir şey değişmedi</string>
@@ -298,7 +300,7 @@
     <string name="view_tree">Klasörler</string>
     <string name="edit_no_backup">Yedek kopya alınamadı, bu yüzden hiçbir şeyin üzerine yazılmadı</string>
     <string name="settings_editor_backup">Üzerine yazmadan önce yedek kopya</string>
-    <string name="settings_editor_backup_desc">Yerleşik düzenleyici bir resmin üzerine yazmadan önce, önceki hâli çöp kutusuna gider. Yalnızca yerleşik düzenleyici için geçerli: başka bir uygulama kendi başına kaydeder. ⚠️ Kapalıyken geri dönüş yoktur, çünkü yerleşik düzenleyici her zaman üzerine yazar.</string>
+    <string name="settings_editor_backup_desc">Yerleşik düzenleyici bir resmin üzerine yazmadan önce, önceki hâli çöp kutusuna gider. Yalnızca yerleşik düzenleyici için geçerli: başka bir uygulama kendi başına kaydeder.</string>
     <string name="editor_tall">Dikey</string>
     <string name="editor_wide">Yatay</string>
     <string name="pick_drop_ask">Seçim bırakılsın mı?</string>

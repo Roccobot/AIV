@@ -34,6 +34,25 @@
             <action android:name="android.intent.action.EDIT" />
             <data android:scheme="file" android:mimeType="image/*" />
         </intent>
+        <!--
+            ⚠️⚠️ LA CONDIVISIONE, dalla 1.11, e serve perché certe foto-app NON hanno un
+            filtro di modifica: Magic Eraser (com.duygiangdg.magiceraser) non compare in
+            nessun 'Modifica' di nessuna galleria, e compare fra i primi risultati di
+            'Condividi'. Prova fatta dall'utente il 2026-09-01. Senza queste righe l'app
+            resta invisibile anche a una query su ACTION_SEND, perché da Android 11 la
+            visibilità dei pacchetti si dichiara qui.
+            ⚠️ La riga sul TESTO non serve ad aprire niente: serve a ESCLUDERE. Chi accetta
+            anche il testo semplice è messaggistica, posta o cloud, non una foto-app, e
+            senza quel confronto l'elenco delle scelte esce con quaranta voci. Vedi Editors.
+        -->
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="image/*" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="text/plain" />
+        </intent>
     </queries>
 
     <!--

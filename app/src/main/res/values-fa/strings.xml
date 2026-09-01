@@ -245,7 +245,7 @@
     <string name="tree_pictures">فقط پوشه‌های دارای تصویر یا ویدیو</string>
     <string name="columns_hint">میان‌بر: دکمه شناور را نگه دارید تا گزینه‌های نمایش باز شود.</string>
     <string name="settings_bin">فعال کردن سبد زباله</string>
-    <string name="settings_bin_desc">حذف فایل چیزی نمی‌پرسد، اما این کار با \'بازگرداندن\' از سبد زباله قابل بازگشت است (دکمه شناور →\u00A0\'سبد زباله\'). اگر حذف فوری را ترجیح می‌دهید می‌توانید سبد زباله را کاملا خاموش کنید: در آن صورت پیش از هر حذف یک تایید نمایش داده می‌شود.\n⚠️ هشدار: اگر برنامه را حذف کنید، سطل زباله خالی می‌شود و قابل بازیابی نیست.</string>
+    <string name="settings_bin_desc">حذف فایل چیزی نمی‌پرسد، اما این کار با \'بازگرداندن\' از سبد زباله قابل بازگشت است (دکمه شناور →\u00A0\'سبد زباله\'). اگر حذف فوری را ترجیح می‌دهید می‌توانید سبد زباله را کاملا خاموش کنید: در آن صورت پیش از هر حذف یک تایید نمایش داده می‌شود.\n⚠️ هشدار: اگر برنامه را حذف کنید، محتوای سبد زباله از دست می‌رود و قابل بازیابی نیست.</string>
     <string name="pick_duplicate">تکثیر</string>
     <string name="settings_grid_names">نام فایل در شبکه</string>
     <string name="settings_grid_names_desc">زیر هر تصویر بندانگشتی نام فایل، حداکثر در دو خط. پسوند هرگز شکسته نمی‌شود و همیشه دیده می‌شود: اگر نام جا نشود، میانه کوتاه می‌شود.</string>
@@ -283,6 +283,8 @@
     <string name="editor_done_copy">رونوشت ذخیره شد</string>
     <string name="editor_done_lossless">بدون فشرده‌سازی دوباره ذخیره شد</string>
     <string name="editor_pick_none">هیچ برنامهٔ دیگری در این گوشی ویرایش تصویر را برعهده نمی‌گیرد.</string>
+    <string name="editor_pick_send">با هم‌رسانی</string>
+    <string name="editor_pick_send_desc">یک رونوشت می‌گیرند و هرجا بخواهند ذخیره می‌کنند. اصل فایل دست‌نخورده می‌ماند.</string>
     <string name="edit_no_file">این فایل روی گوشی نیست</string>
     <string name="edit_too_big">تصویر برای این دستگاه خیلی بزرگ است</string>
     <string name="edit_nothing">چیزی عوض نشده</string>
@@ -298,7 +300,7 @@
     <string name="view_tree">پوشه‌ها</string>
     <string name="edit_no_backup">نسخهٔ ایمنی ساخته نشد، پس چیزی بازنویسی نشد</string>
     <string name="settings_editor_backup">نسخهٔ ایمنی پیش از بازنویسی</string>
-    <string name="settings_editor_backup_desc">پیش از آنکه ویرایشگر داخلی روی عکسی بنویسد، نسخهٔ پیشین به زبالهدان می‌رود. فقط برای ویرایشگر داخلی است: برنامهٔ دیگر خودش ذخیره می‌کند. ⚠️ با خاموش بودن راه بازگشتی نیست، چون ویرایشگر داخلی همیشه روی فایل می‌نویسد.</string>
+    <string name="settings_editor_backup_desc">پیش از آنکه ویرایشگر داخلی روی عکسی بنویسد، نسخهٔ پیشین به زبالهدان می‌رود. فقط برای ویرایشگر داخلی است: برنامهٔ دیگر خودش ذخیره می‌کند.</string>
     <string name="editor_tall">عمودی</string>
     <string name="editor_wide">افقی</string>
     <string name="pick_drop_ask">انتخاب لغو شود؟</string>
