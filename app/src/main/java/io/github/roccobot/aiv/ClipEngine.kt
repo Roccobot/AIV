@@ -65,6 +65,23 @@ class ClipEngine private constructor(
         }
 
     /**
+     * Apre la sessione dell'encoder immagine, senza darle niente da fare.
+     *
+     * ⚠️⚠️ **ESISTE PER POTER DIRE DOVE SI MUORE, dalla 1.07**: aprire un modello e dargli
+     * una fotografia sono i due punti in cui il processo può sparire senza lasciare un
+     * errore, e finché stavano nella stessa chiamata la sicura non poteva distinguerli.
+     * Separati, il segno lasciato prima dice quale dei due era in corso, e le due cause non
+     * si somigliano affatto: la prima è il file del modello o il runtime, la seconda è una
+     * fotografia o un accumulo.
+     * ⚠️ **Non è un riscaldamento per andare più veloce**, e chi legge il nome potrebbe
+     * crederlo: la sessione si sarebbe aperta comunque alla prima immagine, e qui si sposta
+     * soltanto il momento in cui succede.
+     */
+    fun warmImage() {
+        visionSession()
+    }
+
+    /**
      * Il vettore di una fotografia: 512 numeri, già normalizzati.
      *
      * ⚠️ Chi chiama arriva coi pixel **già rimpiccioliti** quanto basta (vedi [ClipPixels]):

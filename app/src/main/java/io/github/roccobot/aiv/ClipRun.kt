@@ -56,33 +56,78 @@ object ClipRun {
         val todo = all.filterNot { it.toString() in known }
         if (todo.isEmpty()) return@withContext 0
 
+        /*
+         * ⚠️⚠️ **IL MODELLO SI APRE QUI, E CON UN SEGNO TUTTO SUO, dalla 1.07**: si sarebbe
+         * aperto comunque alla prima fotografia, ma dentro la stessa riga, e la sicura non
+         * avrebbe potuto dire quale dei due passi era in corso. Sono le due cause più
+         * probabili del crollo che l'utente vede, e non si somigliano: se il segno dice
+         * `modello` il sospetto è il file scaricato o il runtime nativo, se dice `indice 0/N`
+         * è la prima fotografia. Distinguerle costa queste tre righe.
+         */
+        ClipGuard.arm(context, "modello")
+        engine.warmImage()
+        ClipGuard.arm(context, "indice 0/${todo.size}")
+
         var done = 0
         val batch = ArrayList<Pair<String, ByteArray>>(CHUNK)
         for (uri in todo) {
             coroutineContext.ensureActive()
-            val shot = runCatching { small(context, uri) }.getOrNull()
-            if (shot != null) {
-                // ⚠️ Le misure si prendono PRIMA di liberare la mappa di pixel: dopo
-                // `recycle` quell'oggetto non è più buono, e leggerne i lati è il genere di
-                // cosa che funziona finché non smette.
-                val w = shot.width
-                val h = shot.height
-                val pixels = IntArray(w * h)
-                shot.getPixels(pixels, 0, w, 0, 0, w, h)
-                shot.recycle()
-                val vector = runCatching { engine.ofImage(pixels, w, h) }.getOrNull()
-                if (vector != null) batch.add(uri.toString() to ClipIndex.pack(vector))
-            }
+            /*
+             * ⚠️⚠️ **UNA FOTOGRAFIA SOLA NON PUÒ FERMARE TUTTO, dalla 1.07**: fino alla
+             * `1.06` la lettura dei pixel stava **fuori** da ogni `runCatching`, quindi una
+             * sola immagine illeggibile (un file troncato, una miniatura che il sistema non
+             * sa dare, un formato che la decodifica rifiuta) faceva saltare l'intera
+             * indicizzazione e lasciava il segno della sicura, cioè spegneva la funzione.
+             * Con diecimila fotografie basta che **una** sia storta.
+             * ⚠️ Non è la causa del crollo che si sta cercando, e non va scambiata per
+             * quella: un'eccezione Kotlin la sicura la scriveva già, e l'utente vede il
+             * processo **morire**. È un difetto trovato leggendo, e si ripara perché c'è.
+             */
+            val vector = runCatching { vectorOf(context, engine, uri) }.getOrNull()
+            if (vector != null) batch.add(uri.toString() to ClipIndex.pack(vector))
             done++
             if (batch.size >= CHUNK) {
                 ClipIndex.append(context, batch)
                 batch.clear()
                 onStep(done, todo.size)
+                /*
+                 * ⚠️⚠️ **IL SEGNO SI RISCRIVE A OGNI PEZZO, dalla 1.07, e porta il punto**:
+                 * prima diceva 'indice' e basta, quindi al giro dopo si sapeva che il motore
+                 * non era tornato ma non **dove**. È la differenza fra due cause opposte:
+                 * morire a `0/8000` vuol dire che è l'apertura del modello, morire a
+                 * `6000/8000` vuol dire una fotografia o un accumulo. Una scrittura di venti
+                 * byte ogni quaranta fotografie, cioè qualche centinaio in un quarto d'ora.
+                 */
+                ClipGuard.arm(context, "indice $done/${todo.size}")
             }
         }
         ClipIndex.append(context, batch)
         onStep(done, todo.size)
         done
+    }
+
+    /**
+     * Il vettore di una fotografia, dalla miniatura ai 512 numeri.
+     *
+     * ⚠️ **Sta in una funzione a sé perché deve poter fallire tutta insieme**: il pezzo che
+     * legge i pixel e quello che li dà al modello sono due modi di non riuscire sulla stessa
+     * fotografia, e chi chiama deve solo sapere se questa foto è entrata nell'indice o no.
+     */
+    private fun vectorOf(context: Context, engine: ClipEngine, uri: Uri): FloatArray? {
+        val shot = small(context, uri) ?: return null
+        // ⚠️ Le misure si prendono PRIMA di liberare la mappa di pixel: dopo `recycle`
+        // quell'oggetto non è più buono, e leggerne i lati è il genere di cosa che funziona
+        // finché non smette.
+        val w = shot.width
+        val h = shot.height
+        if (w <= 0 || h <= 0) {
+            shot.recycle()
+            return null
+        }
+        val pixels = IntArray(w * h)
+        shot.getPixels(pixels, 0, w, 0, 0, w, h)
+        shot.recycle()
+        return engine.ofImage(pixels, w, h)
     }
 
     /**

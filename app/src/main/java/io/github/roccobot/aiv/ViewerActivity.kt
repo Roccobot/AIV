@@ -1134,6 +1134,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         // apre l'encoder testuale, che è codice nativo come l'altro. Senza questo, un motore
         // che uccide il processo lo ucciderebbe a ogni lettera scritta nella ricerca, cioè
         // in una schermata da cui non si sospetta niente.
+        // ⚠️ Qui basta SAPERE che la sicura è scattata, e non perché: la ragione la si
+        // compone quando la si deve mostrare, e chiederla a ogni ricerca vorrebbe dire
+        // interrogare il registro dei processi morti a ogni lettera digitata.
         if (withContext(Dispatchers.IO) { ClipGuard.tripped(context) } != null) return emptyList()
         val engine = clipEngine(context) ?: return emptyList()
         val index = clipIndex ?: ClipIndex.load(context).also { clipIndex = it }
@@ -1206,7 +1209,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         val context = getApplication<Application>()
         clipJob2 = viewModelScope.launch {
             if (ClipModels.state(context) !is ClipModels.State.Ready) return@launch
-            val fermo = withContext(Dispatchers.IO) { ClipGuard.tripped(context) }
+            val fermo = withContext(Dispatchers.IO) { clipWhy(context) }
             if (fermo != null) {
                 clipBlocked = fermo
                 return@launch
@@ -1227,7 +1230,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 if (why == null) ClipGuard.disarm(context)
                 else ClipGuard.note(context, "indice", why.toString())
             }
-            clipBlocked = withContext(Dispatchers.IO) { ClipGuard.tripped(context) }
+            clipBlocked = withContext(Dispatchers.IO) { clipWhy(context) }
             // ⚠️ L'indice in memoria si butta: quello su file è cresciuto, e tenersi la
             // copia vecchia vorrebbe dire cercare fra le foto di prima.
             clipIndex = null
@@ -1243,6 +1246,23 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      */
     var clipBlocked: String? by mutableStateOf(null)
         private set
+
+    /**
+     * Il segno della sicura, con accanto quello che il sistema sa della morte.
+     *
+     * ⚠️⚠️ **DUE FONTI CHE DA SOLE NON BASTANO, dalla 1.07**: `ClipGuard` sa **dove** si era
+     * arrivati (è un file che scriviamo noi), il sistema sa **che cosa** è successo (il
+     * registro dei processi morti, vedi [Autopsy]). Un crollo nativo non lascia niente in
+     * Kotlin, quindi finché si guardava la sola sicura si leggeva 'indice' e si restava
+     * esattamente dove si era prima di guardare.
+     * ⚠️ Le due si uniscono **qui** e non dentro la sicura: quella deve restare un file e
+     * basta, o diventa il posto in cui si accumulano le diagnosi.
+     */
+    private fun clipWhy(context: Context): String? {
+        val phase = ClipGuard.tripped(context) ?: return null
+        val death = Autopsy.lastDeath(context) ?: return phase
+        return "$phase - $death"
+    }
 
     /** L'utente vuole riprovare: si toglie la sicura e si riparte con l'indicizzazione. */
     fun clipUnblock() {
@@ -1276,7 +1296,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             val context = getApplication<Application>()
             clipState = withContext(Dispatchers.IO) { ClipModels.state(context) }
-            clipBlocked = withContext(Dispatchers.IO) { ClipGuard.tripped(context) }
+            clipBlocked = withContext(Dispatchers.IO) { clipWhy(context) }
         }
     }
 
@@ -1298,7 +1318,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             // il crollo del motore arrivava addosso a chi aveva appena finito di scaricare
             // 65 MB, senza che avesse chiesto niente. Adesso finito lo scaricamento la
             // schermata offre il tasto, e nel motore si entra solo su richiesta.
-            clipBlocked = withContext(Dispatchers.IO) { ClipGuard.tripped(context) }
+            clipBlocked = withContext(Dispatchers.IO) { clipWhy(context) }
         }
     }
 
