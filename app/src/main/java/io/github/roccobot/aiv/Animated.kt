@@ -19,8 +19,11 @@ import java.io.Closeable
  * ⚠️⚠️ **I FOTOGRAMMI SI SCORRONO IN AVANTI, e non si salta a piacere**: in tutti e due i
  * formati un fotogramma è una **toppa** disegnata sopra quello di prima, non un'immagine a
  * sé. Per vedere il fotogramma N bisogna aver composto tutti i precedenti, ed è il motivo
- * per cui qui c'è [advance] e non un `frameAt(n)`. Il salto all'indietro si costruirà
- * sopra questo contratto con una cache, non dentro i lettori.
+ * per cui qui c'è [advance] e non un `frameAt(n)`.
+ * ⚠️ **[seek] non è la smentita di quella riga, è la sua conseguenza**: il salto esiste, ma
+ * costa la ricostruzione della pila, e sta nel contratto proprio perché farlo bene richiede
+ * di sapere come è fatto il lettore. Una cache dei fotogrammi già composti, se un giorno
+ * servisse, va **sopra** questo contratto e non dentro i lettori.
  *
  * ⚠️ **[current] può tornare `null`**, e chi chiama deve reggerlo: un file troncato o un
  * fotogramma che il decodificatore rifiuta non sono un caso raro su immagini prese dal web.
@@ -54,8 +57,31 @@ interface Animated : Closeable {
     /** Va al fotogramma dopo. Dopo l'ultimo si torna al primo. */
     fun advance()
 
-    /** Torna al primo fotogramma, come se il file si fosse appena aperto. */
-    fun rewind()
+    /*
+     * ⚠️ **`rewind()` NON STA PIÙ QUI, dalla 1.21**: era la sola via per tornare indietro,
+     * e chi la usava doveva poi rifare la pila a mano, che è esattamente l'errore che ha
+     * prodotto la scia. Adesso quel lavoro lo fa [seek], e il riavvolgimento è un dettaglio
+     * interno di chi sa come è fatta la propria tela.
+     */
+
+    /**
+     * Porta l'animazione al fotogramma [target], ricostruendo la pila quel tanto che serve.
+     *
+     * ⚠️⚠️ **ESISTE PERCHÉ SALTARE NON È RIPETERE `advance`, ed è il difetto della scia**
+     * (riscontro dell'utente, 2026-09-01, con la fotografia della scia: *se muovo all'indietro
+     * i fotogrammi succede questo*). Nella GIF il decodificatore separa lo **spostamento**
+     * dell'indice dalla **composizione** del fotogramma: `advance()` muove e basta, la toppa
+     * la posa la lettura. Un salto scritto come `rewind()` più N `advance()` sposta l'indice
+     * di N caselle **senza comporre nessuno** dei fotogrammi attraversati, e la tela resta
+     * quella di prima: la toppa del fotogramma d'arrivo si posa sopra tutte le altre, e le
+     * palline restano tutte in scena. Era esattamente quello che si vedeva.
+     * ⚠️ **Costa quello che il formato impone**: tornare indietro di uno vuol dire rifare la
+     * pila da capo, cioè decodificare N fotogrammi. Non è una lentezza da togliere: è la
+     * proprietà di un formato in cui il fotogramma N esiste solo come somma dei precedenti.
+     * La cura, se un giorno servisse, è una cache dei fotogrammi già composti **sopra**
+     * questo contratto.
+     */
+    fun seek(target: Int)
 
     /**
      * Quanto dura tutta l'animazione, in millisecondi.

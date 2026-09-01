@@ -96,13 +96,53 @@ class AnimatedGif private constructor(
      * del primo', mentre [AnimatedWebp] dopo `rewind` è già sul fotogramma **0**. Due
      * lettori che rispondono in modo diverso alla stessa chiamata avrebbero fatto sbagliare
      * di uno ogni salto all'indietro, e solo sulle GIF. L'`advance` qui sotto è quello che
-     * rende vera la promessa scritta in [Animated.rewind].
+     * pareggia i due: dopo questa funzione l'indice è **0** in tutti e due i lettori.
+     * ⚠️ **Privata dalla 1.21**: l'unico che la chiama è [seek], perché riavvolgere senza poi
+     * ricomporre la pila è precisamente l'errore che ha prodotto la scia.
      */
-    override fun rewind() {
+    private fun rewind() {
         if (closed) return
         runCatching {
             decoder.resetFrameIndex()
             decoder.advance()
+        }
+    }
+
+    /**
+     * ⚠️⚠️ **OGNI PASSO CHIEDE ANCHE IL FOTOGRAMMA, e quel `nextFrame` apparentemente inutile
+     * è tutta la correzione**: è la lettura a comporre la toppa sulla tela, non `advance()`.
+     * Saltando con soli `advance()` la tela non viene toccata, e il fotogramma d'arrivo si
+     * posa sopra quello che c'era: da lì la scia. Il valore restituito si butta apposta,
+     * perché quello che serve è **l'effetto** sulla tela interna del decodificatore.
+     * ⚠️ **All'indietro si riavvolge**, perché la pila si può solo rifare da capo: dopo
+     * `rewind()` l'indice è 0 e la tela viene ripulita dal decodificatore stesso, che a
+     * fotogramma zero non ha nessun precedente da conservare.
+     * ⚠️ **Il ciclo conta i PASSI e non confronta gli indici**: `advance()` gira in tondo
+     * dopo l'ultimo fotogramma, quindi un `while (index != target)` su un file con un solo
+     * fotogramma, o su un indice che il decodificatore rifiuta di muovere, non finirebbe mai.
+     */
+    override fun seek(target: Int) {
+        if (closed) return
+        runCatching {
+            val quanti = decoder.frameCount
+            if (quanti <= 0) return
+            val dove = target.coerceIn(0, quanti - 1)
+            if (dove < decoder.currentFrameIndex) {
+                rewind()
+                // ⚠️⚠️ **ANCHE IL FOTOGRAMMA ZERO VA CHIESTO, e dimenticarlo lascia il
+                // difetto intero**: è la lettura a fotogramma 0 a ripulire la tela, perché è
+                // il solo indice in cui il decodificatore non ha un precedente da conservare.
+                // Riavvolgendo e ripartendo dal fotogramma 1, la tela vecchia sopravvive e la
+                // scia resta esattamente com'era. Trovato rileggendo questa funzione, non
+                // provandola.
+                decoder.nextFrame
+            }
+            var passi = dove - decoder.currentFrameIndex
+            if (passi < 0) passi = 0
+            repeat(passi) {
+                decoder.advance()
+                decoder.nextFrame
+            }
         }
     }
 
