@@ -110,7 +110,7 @@
     <string name="settings_group_browse">Folders</string>
     <!-- ── Searching by what is IN the picture ── -->
     <string name="settings_group_content">Search by content</string>
-    <string name="settings_content_desc">Finding a picture by what is in it, not by its name, needs two models that do not ship inside the app: they are downloaded once and can be removed. Everything happens on the phone, and nothing is sent anywhere.</string>
+    <string name="settings_content_desc">Download the image recognition models to enable search by content (e.g. \'red cat\'). The download is optional and one time only; the package can be removed at any time. Recognition and search happen locally, without sending images or data to third parties.</string>
     <string name="settings_content_get">Download the models (%1$s)</string>
     <!-- Two weights, done and total: a bare percentage on a download this size hides
          whether it is moving at all. -->
@@ -120,7 +120,7 @@
     <!-- While the index is being built: two counts and not a percentage, because on a
          big gallery a percentage that moves slowly reads as stuck. -->
     <string name="settings_content_indexing">Indexing: %1$d of %2$d</string>
-    <string name="settings_content_remove">Remove the models (%1$s)</string>
+    <string name="settings_content_remove">Remove the model package (%1$s)</string>
     <!-- Says WHICH piece failed and why: the network, the fingerprint, the disk. Three
          causes, three different things to do about it. -->
     <string name="settings_content_broken">Something went wrong: %1$s</string>
@@ -247,7 +247,6 @@
 
     <!-- ── The system folders view ── -->
     <string name="tree_up">Up one folder</string>
-    <string name="tree_empty">The folder is empty.</string>
     <!-- On a folder the owner hid from the other views: this one shows it anyway,
          because a file browser that hides a folder that IS on the disk lies about
          the disk. The mark says why it is missing elsewhere. -->
@@ -261,7 +260,9 @@
     <string name="hub_settings">Settings</string>
     <string name="url_open">Open</string>
     <string name="url_recent">Opened before</string>
-    <string name="folder_empty">This folder holds nothing any more.</string>
+    <string name="folder_empty">The folder is empty.</string>
+    <string name="folder_no_images">The folder holds no pictures.</string>
+    <string name="folder_no_videos">The folder holds no videos.</string>
     <string name="cancel">Cancel</string>
 
     <string name="hide_folder_title">Hide %1$s?</string>

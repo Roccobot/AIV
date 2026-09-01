@@ -184,7 +184,11 @@ fun TreeList(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = stringResource(R.string.tree_empty),
+                    // ⚠️ La stessa chiave della griglia, dalla 1.09: erano due stringhe con
+                    // lo stesso significato in 28 lingue, e due frasi per un'idea sola
+                    // divergono al primo ritocco di una delle due (era già successo: qui
+                    // 'La cartella è vuota', là 'Questa cartella non contiene più niente').
+                    text = stringResource(R.string.folder_empty),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,

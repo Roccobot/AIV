@@ -56,8 +56,73 @@ object Autopsy {
         // ⚠️ La memoria in uso è il secondo numero che conta: un crollo nativo con mezzo
         // gigabyte in mano e uno con trenta megabyte non hanno la stessa causa.
         val room = last.pss.takeIf { it > 0 }?.let { " / rss " + formatBytes(it * 1024) }.orEmpty()
-        return listOfNotNull("exit: $name", detail).joinToString(" / ") + room
+        val where = frames(last)?.let { " / $it" }.orEmpty()
+        return listOfNotNull("exit: $name", detail).joinToString(" / ") + room + where
     }
+
+    /**
+     * I nomi che compaiono nella lapide di un crollo nativo: la libreria e la funzione.
+     *
+     * ⚠️⚠️ **È LA SOLA COSA CHE DICE *CHE COSA* È ESPLOSO, e non solo che è esploso**: la
+     * ragione e il segnale dicono 'codice nativo', il che restringe a trentadue megabyte di
+     * runtime. Un nome di funzione restringe a una riga.
+     * ⚠️⚠️ **SI LEGGE A FORZA DI STRINGHE, e non decodificando il protobuf**: la lapide è un
+     * messaggio `Tombstone` di Android, e per leggerlo per bene servirebbe il suo schema, cioè
+     * una dipendenza e un generatore di codice per estrarre otto parole. I nomi dentro sono
+     * testo ASCII, quindi si pescano quelli e basta: è approssimativo, e la sola cosa che
+     * rischia è di riportare **meno** di quello che c'era.
+     * ⚠️ **La lapide esiste dalla 31**, e sotto non si dice niente invece di inventare.
+     * ⚠️ **Il tetto sui byte letti c'è apposta**: una lapide con tutte le mappe di memoria
+     * arriva a qualche megabyte, e qui interessano le prime righe della pila.
+     */
+    private fun frames(last: ApplicationExitInfo): String? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return null
+        if (last.reason != ApplicationExitInfo.REASON_CRASH_NATIVE) return null
+        val raw = runCatching {
+            last.traceInputStream?.use { it.readNBytes(TOMB_CAP) }
+        }.getOrNull() ?: return null
+        val words = ascii(raw).filter { it.telling() }.distinct().take(TOMB_WORDS)
+        return words.takeIf { it.isNotEmpty() }?.joinToString(" < ")
+    }
+
+    /** Le sequenze di testo leggibile dentro un blocco di byte. */
+    private fun ascii(raw: ByteArray): List<String> {
+        val out = ArrayList<String>()
+        val word = StringBuilder()
+        for (b in raw) {
+            val c = b.toInt()
+            if (c in 0x20..0x7E) {
+                word.append(c.toChar())
+            } else {
+                if (word.length >= LEAST_WORD) out.add(word.toString())
+                word.setLength(0)
+            }
+        }
+        if (word.length >= LEAST_WORD) out.add(word.toString())
+        return out
+    }
+
+    /**
+     * Se questa parola dice qualcosa su dove si è morti.
+     *
+     * ⚠️ **Un elenco di indizi e non 'tutto quello che è leggibile'**: una lapide è piena di
+     * percorsi di sistema e di nomi di thread, e riportarli tutti vorrebbe dire una riga rossa
+     * illeggibile che nasconde le tre parole che contano.
+     */
+    private fun String.telling(): Boolean =
+        startsWith("SIG") ||
+            endsWith(".so") ||
+            contains("kai_") ||
+            contains("Mlas") ||
+            contains("Kleidi") ||
+            contains("onnxruntime")
+
+    /** Quanti byte di lapide si leggono, e quante parole se ne tengono. */
+    private const val TOMB_CAP = 256 * 1024
+    private const val TOMB_WORDS = 8
+
+    /** Sotto questa lunghezza una sequenza leggibile è rumore. */
+    private const val LEAST_WORD = 4
 
     /**
      * Il nome della ragione, e `null` per le morti che non spiegano niente.
