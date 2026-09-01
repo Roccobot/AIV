@@ -16,6 +16,25 @@
     <string name="menu_copy_image">Afbeelding kopiëren</string>
     <string name="menu_share">Delen</string>
     <string name="menu_save">Opslaan</string>
+    <string name="menu_convert">Omzetten en exporteren</string>
+    <string name="convert_format">Formaat</string>
+    <string name="convert_jpeg">JPEG</string>
+    <string name="convert_png">PNG</string>
+    <string name="convert_webp">WebP</string>
+    <string name="convert_webp_lossless">WebP verliesvrij</string>
+    <string name="convert_quality">Kwaliteit</string>
+    <string name="convert_size">Grootte</string>
+    <string name="convert_no_alpha">JPEG behoudt geen transparantie: die delen worden wit.</string>
+    <string name="convert_elsewhere">Andere formaten</string>
+    <string name="convert_elsewhere_desc">Android kan alleen de formaten hierboven schrijven. Voor de rest zijn er deze diensten, die in de browser openen: de afbeelding kies je daar, uit het geheugen van de telefoon.</string>
+    <string name="convert_open">Openen</string>
+    <string name="convert_export">Exporteren</string>
+    <string name="convert_ezgif">EzGif</string>
+    <string name="convert_ezgif_why">Zet om van en naar bijna alles, geanimeerde GIF\'s inbegrepen.</string>
+    <string name="convert_squoosh">Squoosh</string>
+    <string name="convert_squoosh_why">Van Google, werkt in de browser: de afbeelding wordt nergens geüpload.</string>
+    <string name="convert_cloudconvert">CloudConvert</string>
+    <string name="convert_cloudconvert_why">De langste lijst met formaten, AVIF en TIFF inbegrepen.</string>
     <string name="toast_image_copied">Afbeelding gekopieerd</string>
     <string name="toast_copy_failed">Het kopiëren is niet gelukt</string>
     <string name="toast_saved">Opgeslagen</string>
@@ -135,6 +154,17 @@
     <string name="facts_modified">Laatst gewijzigd</string>
     <string name="facts_folder">Map</string>
     <string name="facts_encoding">Codering</string>
+    <string name="facts_colours">Kleurmodus</string>
+    <string name="facts_frames">Beelden</string>
+    <string name="facts_duration">Duur</string>
+    <string name="facts_colour_grey">Grijswaarden</string>
+    <string name="facts_colour_indexed">Geïndexeerde kleur</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s %2$d bit</string>
+    <string name="facts_colour_channel">%1$d bit/kanaal</string>
+    <string name="facts_colour_alpha">met transparantie</string>
+    <string name="facts_duration_s">%1$s s</string>
     <string name="facts_camera">Opnamegegevens</string>
     <string name="facts_place">Geografische coördinaten</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
@@ -307,4 +337,8 @@
     <string name="anim_prev">Vorig beeld</string>
     <string name="anim_next">Volgend beeld</string>
     <string name="anim_export">Dit beeld exporteren</string>
+    <plurals name="facts_colour_count">
+        <item quantity="one">%1$d kleur</item>
+        <item quantity="other">%1$d kleuren</item>
+    </plurals>
 </resources>

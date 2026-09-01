@@ -16,6 +16,25 @@
     <string name="menu_copy_image">Копировать изображение</string>
     <string name="menu_share">Поделиться</string>
     <string name="menu_save">Сохранить</string>
+    <string name="menu_convert">Преобразовать и экспортировать</string>
+    <string name="convert_format">Формат</string>
+    <string name="convert_jpeg">JPEG</string>
+    <string name="convert_png">PNG</string>
+    <string name="convert_webp">WebP</string>
+    <string name="convert_webp_lossless">WebP без потерь</string>
+    <string name="convert_quality">Качество</string>
+    <string name="convert_size">Размер</string>
+    <string name="convert_no_alpha">JPEG не сохраняет прозрачность: эти области станут белыми.</string>
+    <string name="convert_elsewhere">Другие форматы</string>
+    <string name="convert_elsewhere_desc">Android умеет записывать только форматы выше. Для остальных есть эти сервисы, они открываются в браузере: изображение выбирается там, из памяти телефона.</string>
+    <string name="convert_open">Открыть</string>
+    <string name="convert_export">Экспортировать</string>
+    <string name="convert_ezgif">EzGif</string>
+    <string name="convert_ezgif_why">Преобразует почти из всего и почти во всё, включая анимированные GIF.</string>
+    <string name="convert_squoosh">Squoosh</string>
+    <string name="convert_squoosh_why">От Google, работает в браузере: изображение никуда не загружается.</string>
+    <string name="convert_cloudconvert">CloudConvert</string>
+    <string name="convert_cloudconvert_why">Самый длинный список форматов, включая AVIF и TIFF.</string>
     <string name="toast_image_copied">Изображение скопировано</string>
     <string name="toast_copy_failed">Скопировать не вышло</string>
     <string name="toast_saved">Сохранено</string>
@@ -139,6 +158,17 @@
     <string name="facts_modified">Последнее изменение</string>
     <string name="facts_folder">Папка</string>
     <string name="facts_encoding">Кодирование</string>
+    <string name="facts_colours">Цветовой режим</string>
+    <string name="facts_frames">Кадры</string>
+    <string name="facts_duration">Длительность</string>
+    <string name="facts_colour_grey">Оттенки серого</string>
+    <string name="facts_colour_indexed">Индексированный цвет</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s %2$d бит</string>
+    <string name="facts_colour_channel">%1$d бит/канал</string>
+    <string name="facts_colour_alpha">с прозрачностью</string>
+    <string name="facts_duration_s">%1$s с</string>
     <string name="facts_camera">Данные съёмки</string>
     <string name="facts_place">Географические координаты</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
@@ -337,4 +367,10 @@
     <string name="anim_prev">Предыдущий кадр</string>
     <string name="anim_next">Следующий кадр</string>
     <string name="anim_export">Экспортировать этот кадр</string>
+    <plurals name="facts_colour_count">
+        <item quantity="one">%1$d цвет</item>
+        <item quantity="few">%1$d цвета</item>
+        <item quantity="many">%1$d цветов</item>
+        <item quantity="other">%1$d цвета</item>
+    </plurals>
 </resources>

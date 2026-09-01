@@ -63,6 +63,7 @@ import androidx.compose.material.icons.outlined.FitScreen
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.PhotoSizeSelectActual
 import androidx.compose.material.icons.outlined.Subtitles
+import androidx.compose.material.icons.outlined.SwapHoriz
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -283,6 +284,16 @@ fun ViewerScreen(
      */
     onFileChanged: () -> Unit,
     /**
+     * Un file **nuovo** è comparso nella cartella: un fotogramma esportato, una conversione.
+     *
+     * ⚠️⚠️ **NON È [onFileChanged], e confonderli sposterebbe la fotografia sotto gli occhi
+     * di chi guarda**: quella rilegge la cartella e mostra *quello che sta in quella
+     * posizione*, che dopo un'aggiunta è la foto precedente, perché l'ordine è per data e il
+     * file nuovo entra in cima. Qui invece non cambia niente di quello che si sta guardando:
+     * si segna soltanto che la **griglia** dietro è vecchia, e si rilegge quando ci si torna.
+     */
+    onFileAdded: () -> Unit,
+    /**
      * 'Modifica' dal menu del tocco lungo: la fotografia da aprire in un editor.
      *
      * ⚠️ **Sale al modello e non si risolve qui**, perché la risposta dipende da
@@ -363,6 +374,26 @@ fun ViewerScreen(
     LaunchedEffect(state) { (state as? ViewerState.Ready)?.let { shown = it.image } }
 
     /*
+     * ⚠️ **Il dialogo della conversione vive QUI e non dentro il menu**, per la stessa ragione
+     * del selettore qui sotto: il menu si chiude nell'istante in cui si tocca la voce, e
+     * quello che gli è appeso si chiude con lui. Un dialogo aperto da una voce di menu deve
+     * per forza vivere fuori dal menu.
+     */
+    var converting by remember { mutableStateOf(false) }
+    // ⚠️ Il `takeIf` sta sull'immagine e non in un `if` esterno: così non si scrive mai su
+    // uno stato **durante** la composizione, che è il modo classico di far ricomporre in
+    // tondo. Senza immagine il dialogo semplicemente non c'è, e il caso non capita perché la
+    // voce che lo apre vive dentro un menu che senza immagine non si apre.
+    shown?.takeIf { converting }?.let { picture ->
+        ConvertDialog(
+            image = picture,
+            source = source,
+            onSaved = onFileAdded,
+            onDismiss = { converting = false }
+        )
+    }
+
+    /*
      * Il selettore di sistema con cui si scarica la fotografia: così salvare non chiede
      * nessun permesso e il posto lo scegli tu. Su Android 9, che questa app ancora
      * sostiene, scrivere nella galleria dal MediaStore avrebbe voluto
@@ -409,7 +440,8 @@ fun ViewerScreen(
             // questa funzione compare **solo** con un file del telefono davanti, quindi qui
             // il caso non capita, e un avviso sarebbe codice che nessuno può far girare.
             edit = { source?.let(onEdit) },
-            editWith = { source?.let(onEditWith) }
+            editWith = { source?.let(onEditWith) },
+            convert = { converting = true }
         )
     }
 
@@ -500,6 +532,7 @@ fun ViewerScreen(
                         animation = animation,
                         name = state.image.displayName,
                         counter = settings.animCounter,
+                        onExported = onFileAdded,
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
                             // ⚠️ **PRIMA TARATURA, DA GUARDARE SUL TELEFONO**: la riga dei
@@ -649,7 +682,14 @@ private class MenuOps(
      * sapere che cosa distingue i due casi: lui riferisce **quale gesto** è arrivato, e chi
      * ha le impostazioni in mano decide. Vedi `ViewerViewModel.editWith`.
      */
-    val editWith: () -> Unit
+    val editWith: () -> Unit,
+    /**
+     * 'Converti/Esporta': apre il dialogo che salva l'immagine in un altro formato.
+     *
+     * ⚠️ **Non prende niente**: il dialogo ha già in mano l'immagine e il suo indirizzo,
+     * perché vive accanto a chi li tiene. Questa è solo la richiesta di aprirlo.
+     */
+    val convert: () -> Unit
 )
 
 /**
@@ -2426,6 +2466,17 @@ private fun ImageMenu(
                     onHold = { onDismiss(); ops.editWith() }
                 )
             }
+            /*
+             * ⚠️ **Sta accanto a 'Modifica' perché è la stessa famiglia**: le due sole voci
+             * che producono un file **nuovo** partendo da quello che si sta guardando. La
+             * differenza è che una lo riscrive e l'altra lo affianca.
+             */
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.menu_convert)) },
+                leadingIcon = { Icon(Icons.Outlined.SwapHoriz, null) },
+                onClick = { onDismiss(); ops.convert() }
+            )
+
             /*
              * ⚠️⚠️ **'Scarica' NON COMPARE SU UN FILE LOCALE** (richiesta dell'utente):
              * là scaricherebbe nella galleria una fotografia che nella galleria c'è già,

@@ -16,6 +16,25 @@
     <string name="menu_copy_image">画像をコピー</string>
     <string name="menu_share">共有</string>
     <string name="menu_save">保存</string>
+    <string name="menu_convert">変換して書き出す</string>
+    <string name="convert_format">形式</string>
+    <string name="convert_jpeg">JPEG</string>
+    <string name="convert_png">PNG</string>
+    <string name="convert_webp">WebP</string>
+    <string name="convert_webp_lossless">WebP 可逆</string>
+    <string name="convert_quality">画質</string>
+    <string name="convert_size">サイズ</string>
+    <string name="convert_no_alpha">JPEG は透明部分を保持できません。その部分は白くなります。</string>
+    <string name="convert_elsewhere">ほかの形式</string>
+    <string name="convert_elsewhere_desc">Android が書き出せるのは上の形式だけです。ほかの形式には次のサービスがあり、ブラウザーで開きます。画像はそこで、端末のストレージから選びます。</string>
+    <string name="convert_open">開く</string>
+    <string name="convert_export">書き出す</string>
+    <string name="convert_ezgif">EzGif</string>
+    <string name="convert_ezgif_why">ほぼあらゆる形式から、あらゆる形式へ変換できます。アニメーション GIF も含みます。</string>
+    <string name="convert_squoosh">Squoosh</string>
+    <string name="convert_squoosh_why">Google 製で、ブラウザー内で動きます。画像はどこにもアップロードされません。</string>
+    <string name="convert_cloudconvert">CloudConvert</string>
+    <string name="convert_cloudconvert_why">対応形式がもっとも多く、AVIF や TIFF も含みます。</string>
     <string name="toast_image_copied">画像をコピーしました</string>
     <string name="toast_copy_failed">コピーできませんでした</string>
     <string name="toast_saved">保存しました</string>
@@ -133,6 +152,17 @@
     <string name="facts_modified">最終更新</string>
     <string name="facts_folder">フォルダ</string>
     <string name="facts_encoding">符号化</string>
+    <string name="facts_colours">カラーモード</string>
+    <string name="facts_frames">フレーム数</string>
+    <string name="facts_duration">長さ</string>
+    <string name="facts_colour_grey">グレースケール</string>
+    <string name="facts_colour_indexed">インデックスカラー</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s %2$d ビット</string>
+    <string name="facts_colour_channel">%1$d ビット/チャンネル</string>
+    <string name="facts_colour_alpha">透明部分あり</string>
+    <string name="facts_duration_s">%1$s 秒</string>
     <string name="facts_camera">撮影データ</string>
     <string name="facts_place">地理座標</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
@@ -292,4 +322,7 @@
     <string name="anim_prev">前のフレーム</string>
     <string name="anim_next">次のフレーム</string>
     <string name="anim_export">このフレームを書き出す</string>
+    <plurals name="facts_colour_count">
+        <item quantity="other">%1$d 色</item>
+    </plurals>
 </resources>

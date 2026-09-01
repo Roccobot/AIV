@@ -50,6 +50,17 @@ class OneFile(
     /** Il percorso della cartella che lo contiene, senza il nome del file. */
     val folder: String?,
     val encoding: Encoding?,
+    /**
+     * Come tiene i suoi colori. Vedi [coloursOf].
+     *
+     * ⚠️ **È un dato diverso da [encoding], anche se i due si leggono negli stessi byte**:
+     * quello dice come l'immagine è **compressa**, questo che cosa contiene un pixel. Su un
+     * PNG a tavolozza le due righe dicono 'PNG, 8 bit' e 'colore indicizzato, 256 colori', che
+     * sono due informazioni e non due modi di dire la stessa.
+     */
+    val colours: Colours?,
+    /** Fotogrammi e durata, se è animata. `null` su un'immagine ferma. Vedi [motionOf]. */
+    val motion: Motion?,
     val focalMm: Double?,
     val exposureSec: Double?,
     val iso: Int?,
@@ -66,6 +77,10 @@ class OneFile(
  * modifica, percorso, codifica, altri EXIF, posizione. Chi riordina le costanti cambia
  * l'aspetto predefinito della schermata di ogni telefono che non ha mai toccato
  * l'impostazione, quindi non si riordina per estetica.
+ * ⚠️⚠️ **I TRE CAMPI DELLA `1.16` STANNO DOPO LA CODIFICA, e non in fondo**: metodo colore,
+ * fotogrammi e durata parlano di **come è fatto il file**, come la codifica, e la riga che li
+ * spiega si legge accanto a lei. Chi aveva già riordinato la lista non li perde e non li vede
+ * spostati: [factOrderOf] aggiunge in coda i gettoni che il suo archivio non nomina.
  * ⚠️ **[always] sono i tre non negoziabili** (nome, pixel e peso): l'utente li ha dichiarati
  * sempre visibili, quindi l'interruttore per loro non esiste. Restano **spostabili**, che è
  * un'altra cosa: la richiesta dice 'sempre visibili', non 'in posizione fissa'.
@@ -92,6 +107,9 @@ enum class FactField(
     MODIFIED("modified", R.string.facts_modified),
     FOLDER("folder", R.string.facts_folder),
     ENCODING("encoding", R.string.facts_encoding),
+    COLOURS("colours", R.string.facts_colours),
+    FRAMES("frames", R.string.facts_frames),
+    DURATION("duration", R.string.facts_duration),
     CAMERA("camera", R.string.facts_camera),
     PLACE("place", R.string.facts_place)
 }
@@ -180,6 +198,29 @@ suspend fun factsOf(context: Context, uris: List<Uri>): Facts = withContext(Disp
             folder = file?.parent,
             encoding = runCatching {
                 context.contentResolver.openInputStream(uri)?.use { encodingOf(it) }
+            }.getOrNull(),
+            /*
+             * ⚠️⚠️ **TRE APERTURE E NON UNA, ed è una scelta e non una svista**: ogni lettore
+             * cammina il file in avanti e a distanze diverse (la codifica si ferma al primo
+             * SOF, il metodo colore arriva ai chunk, il conteggio dei fotogrammi va in fondo),
+             * quindi un flusso solo andrebbe riavvolto, e un `InputStream` di un `content://`
+             * non si riavvolge. Aprire tre volte costa tre `open` e nessuna decodifica.
+             * ⚠️ **La trasparenza di una GIF è una quarta lettura**, e solo per le GIF: là
+             * sta nei blocchi dei fotogrammi, non nell'intestazione.
+             */
+            colours = runCatching {
+                val read = context.contentResolver.openInputStream(uri)?.use { coloursOf(it) }
+                if (read != null && read.model == Colours.Model.INDEXED && !read.transparent &&
+                    context.contentResolver.openInputStream(uri)
+                        ?.use { gifTransparencyOf(it) } == true
+                ) {
+                    Colours(read.model, read.bitsPerChannel, read.palette, true)
+                } else {
+                    read
+                }
+            }.getOrNull(),
+            motion = runCatching {
+                context.contentResolver.openInputStream(uri)?.use { motionOf(it) }
             }.getOrNull(),
             focalMm = exif?.getAttributeDouble(ExifInterface.TAG_FOCAL_LENGTH, 0.0)
                 ?.takeIf { it > 0.0 },

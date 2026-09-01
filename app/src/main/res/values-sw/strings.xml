@@ -16,6 +16,25 @@
     <string name="menu_copy_image">Nakili picha</string>
     <string name="menu_share">Shiriki</string>
     <string name="menu_save">Hifadhi</string>
+    <string name="menu_convert">Badilisha na kuhamisha</string>
+    <string name="convert_format">Muundo</string>
+    <string name="convert_jpeg">JPEG</string>
+    <string name="convert_png">PNG</string>
+    <string name="convert_webp">WebP</string>
+    <string name="convert_webp_lossless">WebP bila hasara</string>
+    <string name="convert_quality">Ubora</string>
+    <string name="convert_size">Ukubwa</string>
+    <string name="convert_no_alpha">JPEG haihifadhi uwazi: sehemu hizo huwa nyeupe.</string>
+    <string name="convert_elsewhere">Miundo mingine</string>
+    <string name="convert_elsewhere_desc">Android inaweza kuandika miundo iliyo hapo juu pekee. Kwa mingine kuna huduma hizi, zinazofunguka katika kivinjari: picha huchaguliwa huko, kutoka kwenye hifadhi ya simu.</string>
+    <string name="convert_open">Fungua</string>
+    <string name="convert_export">Hamisha</string>
+    <string name="convert_ezgif">EzGif</string>
+    <string name="convert_ezgif_why">Hubadilisha kutoka na kwenda karibu kila kitu, pamoja na GIF zinazosogea.</string>
+    <string name="convert_squoosh">Squoosh</string>
+    <string name="convert_squoosh_why">Ya Google, hufanya kazi ndani ya kivinjari: picha haipakiwi popote.</string>
+    <string name="convert_cloudconvert">CloudConvert</string>
+    <string name="convert_cloudconvert_why">Orodha ndefu zaidi ya miundo, pamoja na AVIF na TIFF.</string>
     <string name="toast_image_copied">Picha imenakiliwa</string>
     <string name="toast_copy_failed">Kunakili hakukufaulu</string>
     <string name="toast_saved">Imehifadhiwa</string>
@@ -135,6 +154,17 @@
     <string name="facts_modified">Mabadiliko ya mwisho</string>
     <string name="facts_folder">Folda</string>
     <string name="facts_encoding">Usimbaji</string>
+    <string name="facts_colours">Mtindo wa rangi</string>
+    <string name="facts_frames">Fremu</string>
+    <string name="facts_duration">Muda</string>
+    <string name="facts_colour_grey">Kijivu</string>
+    <string name="facts_colour_indexed">Rangi zilizoorodheshwa</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s biti %2$d</string>
+    <string name="facts_colour_channel">biti %1$d/mkondo</string>
+    <string name="facts_colour_alpha">yenye uwazi</string>
+    <string name="facts_duration_s">sekunde %1$s</string>
     <string name="facts_camera">Data ya upigaji</string>
     <string name="facts_place">Viwianishi vya kijiografia</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
@@ -307,4 +337,8 @@
     <string name="anim_prev">Fremu iliyotangulia</string>
     <string name="anim_next">Fremu inayofuata</string>
     <string name="anim_export">Hamisha fremu hii</string>
+    <plurals name="facts_colour_count">
+        <item quantity="one">rangi %1$d</item>
+        <item quantity="other">rangi %1$d</item>
+    </plurals>
 </resources>

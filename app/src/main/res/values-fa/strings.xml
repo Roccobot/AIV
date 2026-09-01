@@ -16,6 +16,25 @@
     <string name="menu_copy_image">کپی تصویر</string>
     <string name="menu_share">هم‌رسانی</string>
     <string name="menu_save">ذخیره</string>
+    <string name="menu_convert">تبدیل و برون‌بری</string>
+    <string name="convert_format">قالب</string>
+    <string name="convert_jpeg">JPEG</string>
+    <string name="convert_png">PNG</string>
+    <string name="convert_webp">WebP</string>
+    <string name="convert_webp_lossless">WebP بدون اتلاف</string>
+    <string name="convert_quality">کیفیت</string>
+    <string name="convert_size">اندازه</string>
+    <string name="convert_no_alpha">JPEG شفافیت را نگه نمی‌دارد: آن بخش‌ها سفید می‌شوند.</string>
+    <string name="convert_elsewhere">قالب‌های دیگر</string>
+    <string name="convert_elsewhere_desc">اندروید فقط قالب‌های بالا را می‌نویسد. برای بقیه این سرویس‌ها هستند که در مرورگر باز می‌شوند: تصویر را همان‌جا، از حافظهٔ گوشی انتخاب کنید.</string>
+    <string name="convert_open">باز کردن</string>
+    <string name="convert_export">برون‌بری</string>
+    <string name="convert_ezgif">EzGif</string>
+    <string name="convert_ezgif_why">از تقریباً همه‌چیز و به تقریباً همه‌چیز تبدیل می‌کند، از جمله GIF متحرک.</string>
+    <string name="convert_squoosh">Squoosh</string>
+    <string name="convert_squoosh_why">از گوگل، در مرورگر کار می‌کند: تصویر جایی بارگذاری نمی‌شود.</string>
+    <string name="convert_cloudconvert">CloudConvert</string>
+    <string name="convert_cloudconvert_why">بلندترین فهرست قالب‌ها، از جمله AVIF و TIFF.</string>
     <string name="toast_image_copied">تصویر رونوشت شد</string>
     <string name="toast_copy_failed">رونوشت انجام نشد</string>
     <string name="toast_saved">ذخیره شد</string>
@@ -135,6 +154,17 @@
     <string name="facts_modified">آخرین تغییر</string>
     <string name="facts_folder">پوشه</string>
     <string name="facts_encoding">رمزگذاری</string>
+    <string name="facts_colours">حالت رنگ</string>
+    <string name="facts_frames">فریم‌ها</string>
+    <string name="facts_duration">مدت</string>
+    <string name="facts_colour_grey">خاکستری</string>
+    <string name="facts_colour_indexed">رنگ نمایه‌ای</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s %2$d بیت</string>
+    <string name="facts_colour_channel">%1$d بیت/کانال</string>
+    <string name="facts_colour_alpha">با شفافیت</string>
+    <string name="facts_duration_s">%1$s ثانیه</string>
     <string name="facts_camera">داده‌های عکاسی</string>
     <string name="facts_place">مختصات جغرافیایی</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
@@ -307,4 +337,8 @@
     <string name="anim_prev">فریم پیشین</string>
     <string name="anim_next">فریم بعدی</string>
     <string name="anim_export">برون‌بری این فریم</string>
+    <plurals name="facts_colour_count">
+        <item quantity="one">%1$d رنگ</item>
+        <item quantity="other">%1$d رنگ</item>
+    </plurals>
 </resources>

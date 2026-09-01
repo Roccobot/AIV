@@ -16,6 +16,25 @@
     <string name="menu_copy_image">Görüntüyü kopyala</string>
     <string name="menu_share">Paylaş</string>
     <string name="menu_save">Kaydet</string>
+    <string name="menu_convert">Dönüştür ve dışa aktar</string>
+    <string name="convert_format">Biçim</string>
+    <string name="convert_jpeg">JPEG</string>
+    <string name="convert_png">PNG</string>
+    <string name="convert_webp">WebP</string>
+    <string name="convert_webp_lossless">WebP kayıpsız</string>
+    <string name="convert_quality">Kalite</string>
+    <string name="convert_size">Boyut</string>
+    <string name="convert_no_alpha">JPEG saydamlığı korumaz: o bölümler beyaza döner.</string>
+    <string name="convert_elsewhere">Diğer biçimler</string>
+    <string name="convert_elsewhere_desc">Android yalnızca yukarıdaki biçimleri yazabilir. Diğerleri için tarayıcıda açılan şu hizmetler var: görüntü orada, telefonun belleğinden seçilir.</string>
+    <string name="convert_open">Aç</string>
+    <string name="convert_export">Dışa aktar</string>
+    <string name="convert_ezgif">EzGif</string>
+    <string name="convert_ezgif_why">Hemen her şeyden ve her şeye dönüştürür, hareketli GIF\'ler dahil.</string>
+    <string name="convert_squoosh">Squoosh</string>
+    <string name="convert_squoosh_why">Google\'ın, tarayıcıda çalışır: görüntü hiçbir yere yüklenmez.</string>
+    <string name="convert_cloudconvert">CloudConvert</string>
+    <string name="convert_cloudconvert_why">En uzun biçim listesi, AVIF ve TIFF dahil.</string>
     <string name="toast_image_copied">Görsel kopyalandı</string>
     <string name="toast_copy_failed">Kopyalama olmadı</string>
     <string name="toast_saved">Kaydedildi</string>
@@ -135,6 +154,17 @@
     <string name="facts_modified">Son değişiklik</string>
     <string name="facts_folder">Klasör</string>
     <string name="facts_encoding">Kodlama</string>
+    <string name="facts_colours">Renk kipi</string>
+    <string name="facts_frames">Kareler</string>
+    <string name="facts_duration">Süre</string>
+    <string name="facts_colour_grey">Gri tonlama</string>
+    <string name="facts_colour_indexed">Dizinli renk</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s %2$d bit</string>
+    <string name="facts_colour_channel">%1$d bit/kanal</string>
+    <string name="facts_colour_alpha">saydamlıkla</string>
+    <string name="facts_duration_s">%1$s sn</string>
     <string name="facts_camera">Çekim verileri</string>
     <string name="facts_place">Coğrafi koordinatlar</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
@@ -307,4 +337,8 @@
     <string name="anim_prev">Önceki kare</string>
     <string name="anim_next">Sonraki kare</string>
     <string name="anim_export">Bu kareyi dışa aktar</string>
+    <plurals name="facts_colour_count">
+        <item quantity="one">%1$d renk</item>
+        <item quantity="other">%1$d renk</item>
+    </plurals>
 </resources>

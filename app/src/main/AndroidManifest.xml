@@ -172,6 +172,8 @@
                 <data android:pathPattern=".*\\.JPG" />
                 <data android:pathPattern=".*\\.jpeg" />
                 <data android:pathPattern=".*\\.JPEG" />
+                <data android:pathPattern=".*\\.jpe" />
+                <data android:pathPattern=".*\\.JPE" />
                 <data android:pathPattern=".*\\.png" />
                 <data android:pathPattern=".*\\.PNG" />
                 <data android:pathPattern=".*\\.gif" />
@@ -239,6 +241,8 @@
                 <data android:pathSuffix=".JPG" />
                 <data android:pathSuffix=".jpeg" />
                 <data android:pathSuffix=".JPEG" />
+                <data android:pathSuffix=".jpe" />
+                <data android:pathSuffix=".JPE" />
                 <data android:pathSuffix=".png" />
                 <data android:pathSuffix=".PNG" />
                 <data android:pathSuffix=".gif" />

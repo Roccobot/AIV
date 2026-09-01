@@ -16,6 +16,25 @@
     <string name="menu_copy_image">复制图片</string>
     <string name="menu_share">分享</string>
     <string name="menu_save">保存</string>
+    <string name="menu_convert">转换并导出</string>
+    <string name="convert_format">格式</string>
+    <string name="convert_jpeg">JPEG</string>
+    <string name="convert_png">PNG</string>
+    <string name="convert_webp">WebP</string>
+    <string name="convert_webp_lossless">WebP 无损</string>
+    <string name="convert_quality">质量</string>
+    <string name="convert_size">尺寸</string>
+    <string name="convert_no_alpha">JPEG 不保留透明度：那些区域会变成白色。</string>
+    <string name="convert_elsewhere">其他格式</string>
+    <string name="convert_elsewhere_desc">安卓只能写入上面这些格式。其余格式可以用这些服务，它们在浏览器中打开：图片在那里从手机存储中选择。</string>
+    <string name="convert_open">打开</string>
+    <string name="convert_export">导出</string>
+    <string name="convert_ezgif">EzGif</string>
+    <string name="convert_ezgif_why">几乎可以在任意格式之间转换，包括动态 GIF。</string>
+    <string name="convert_squoosh">Squoosh</string>
+    <string name="convert_squoosh_why">谷歌出品，在浏览器里运行：图片不会上传到任何地方。</string>
+    <string name="convert_cloudconvert">CloudConvert</string>
+    <string name="convert_cloudconvert_why">格式列表最长，包括 AVIF 和 TIFF。</string>
     <string name="toast_image_copied">已复制图片</string>
     <string name="toast_copy_failed">复制没有成功</string>
     <string name="toast_saved">已保存</string>
@@ -133,6 +152,17 @@
     <string name="facts_modified">最后修改</string>
     <string name="facts_folder">文件夹</string>
     <string name="facts_encoding">编码</string>
+    <string name="facts_colours">颜色模式</string>
+    <string name="facts_frames">帧数</string>
+    <string name="facts_duration">时长</string>
+    <string name="facts_colour_grey">灰度</string>
+    <string name="facts_colour_indexed">索引颜色</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s %2$d 位</string>
+    <string name="facts_colour_channel">每通道 %1$d 位</string>
+    <string name="facts_colour_alpha">带透明度</string>
+    <string name="facts_duration_s">%1$s 秒</string>
     <string name="facts_camera">拍摄参数</string>
     <string name="facts_place">地理坐标</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
@@ -292,4 +322,7 @@
     <string name="anim_prev">上一帧</string>
     <string name="anim_next">下一帧</string>
     <string name="anim_export">导出此帧</string>
+    <plurals name="facts_colour_count">
+        <item quantity="other">%1$d 种颜色</item>
+    </plurals>
 </resources>

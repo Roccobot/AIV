@@ -45,6 +45,25 @@
     <string name="menu_copy_image">Copy image</string>
     <string name="menu_share">Share</string>
     <string name="menu_save">Save</string>
+    <string name="menu_convert">Convert and export</string>
+    <string name="convert_format">Format</string>
+    <string name="convert_jpeg">JPEG</string>
+    <string name="convert_png">PNG</string>
+    <string name="convert_webp">WebP</string>
+    <string name="convert_webp_lossless">WebP lossless</string>
+    <string name="convert_quality">Quality</string>
+    <string name="convert_size">Size</string>
+    <string name="convert_no_alpha">JPEG does not keep transparency: those areas turn white.</string>
+    <string name="convert_elsewhere">Other formats</string>
+    <string name="convert_elsewhere_desc">Android can only write the formats above. For the others there are these services, which open in the browser: pick the image there, from the phone\'s storage.</string>
+    <string name="convert_open">Open</string>
+    <string name="convert_export">Export</string>
+    <string name="convert_ezgif">EzGif</string>
+    <string name="convert_ezgif_why">Converts from and to almost anything, animated GIFs included.</string>
+    <string name="convert_squoosh">Squoosh</string>
+    <string name="convert_squoosh_why">By Google, works in the browser: the image is not uploaded anywhere.</string>
+    <string name="convert_cloudconvert">CloudConvert</string>
+    <string name="convert_cloudconvert_why">The longest list of formats, AVIF and TIFF included.</string>
     <!-- ── Modificare una fotografia ── -->
     <!-- The pencil entry in the long press menu, and the title of the built in editor: one
          string for both, because they are the same idea and two would drift apart. -->
@@ -332,6 +351,17 @@
     <string name="facts_modified">Last modified</string>
     <string name="facts_folder">Folder</string>
     <string name="facts_encoding">Encoding</string>
+    <string name="facts_colours">Colour mode</string>
+    <string name="facts_frames">Frames</string>
+    <string name="facts_duration">Duration</string>
+    <string name="facts_colour_grey">Greyscale</string>
+    <string name="facts_colour_indexed">Indexed colour</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s %2$d bit</string>
+    <string name="facts_colour_channel">%1$d bit/channel</string>
+    <string name="facts_colour_alpha">with transparency</string>
+    <string name="facts_duration_s">%1$s s</string>
     <string name="facts_camera">Shot data</string>
     <string name="facts_place">Geographic coordinates</string>
 
@@ -461,4 +491,8 @@
     <string name="anim_prev">Previous frame</string>
     <string name="anim_next">Next frame</string>
     <string name="anim_export">Export this frame</string>
+    <plurals name="facts_colour_count">
+        <item quantity="one">%1$d colour</item>
+        <item quantity="other">%1$d colours</item>
+    </plurals>
 </resources>

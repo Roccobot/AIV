@@ -16,6 +16,25 @@
     <string name="menu_copy_image">Copiar la imagen</string>
     <string name="menu_share">Compartir</string>
     <string name="menu_save">Guardar</string>
+    <string name="menu_convert">Convertir y exportar</string>
+    <string name="convert_format">Formato</string>
+    <string name="convert_jpeg">JPEG</string>
+    <string name="convert_png">PNG</string>
+    <string name="convert_webp">WebP</string>
+    <string name="convert_webp_lossless">WebP sin pérdida</string>
+    <string name="convert_quality">Calidad</string>
+    <string name="convert_size">Tamaño</string>
+    <string name="convert_no_alpha">El JPEG no conserva la transparencia: esas zonas se vuelven blancas.</string>
+    <string name="convert_elsewhere">Otros formatos</string>
+    <string name="convert_elsewhere_desc">Android solo sabe escribir los formatos de arriba. Para los demás están estos servicios, que se abren en el navegador: la imagen se elige allí, desde la memoria del teléfono.</string>
+    <string name="convert_open">Abrir</string>
+    <string name="convert_export">Exportar</string>
+    <string name="convert_ezgif">EzGif</string>
+    <string name="convert_ezgif_why">Convierte desde y hacia casi todo, GIF animados incluidos.</string>
+    <string name="convert_squoosh">Squoosh</string>
+    <string name="convert_squoosh_why">De Google, funciona en el navegador: la imagen no se sube a ninguna parte.</string>
+    <string name="convert_cloudconvert">CloudConvert</string>
+    <string name="convert_cloudconvert_why">La lista de formatos más larga, AVIF y TIFF incluidos.</string>
     <string name="toast_image_copied">Imagen copiada</string>
     <string name="toast_copy_failed">La copia no ha salido bien</string>
     <string name="toast_saved">Guardada</string>
@@ -137,6 +156,17 @@
     <string name="facts_modified">Última modificación</string>
     <string name="facts_folder">Carpeta</string>
     <string name="facts_encoding">Codificación</string>
+    <string name="facts_colours">Modo de color</string>
+    <string name="facts_frames">Fotogramas</string>
+    <string name="facts_duration">Duración</string>
+    <string name="facts_colour_grey">Escala de grises</string>
+    <string name="facts_colour_indexed">Color indexado</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s %2$d bits</string>
+    <string name="facts_colour_channel">%1$d bits/canal</string>
+    <string name="facts_colour_alpha">con transparencia</string>
+    <string name="facts_duration_s">%1$s s</string>
     <string name="facts_camera">Datos de la toma</string>
     <string name="facts_place">Coordenadas geográficas</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
@@ -322,4 +352,9 @@
     <string name="anim_prev">Fotograma anterior</string>
     <string name="anim_next">Fotograma siguiente</string>
     <string name="anim_export">Exportar este fotograma</string>
+    <plurals name="facts_colour_count">
+        <item quantity="one">%1$d color</item>
+        <item quantity="many">%1$d colores</item>
+        <item quantity="other">%1$d colores</item>
+    </plurals>
 </resources>

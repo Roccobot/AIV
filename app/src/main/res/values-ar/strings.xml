@@ -16,6 +16,25 @@
     <string name="menu_copy_image">نسخ الصورة</string>
     <string name="menu_share">مشاركة</string>
     <string name="menu_save">حفظ</string>
+    <string name="menu_convert">تحويل وتصدير</string>
+    <string name="convert_format">الصيغة</string>
+    <string name="convert_jpeg">JPEG</string>
+    <string name="convert_png">PNG</string>
+    <string name="convert_webp">WebP</string>
+    <string name="convert_webp_lossless">WebP بلا فقدان</string>
+    <string name="convert_quality">الجودة</string>
+    <string name="convert_size">الحجم</string>
+    <string name="convert_no_alpha">صيغة JPEG لا تحفظ الشفافية: تتحول تلك المناطق إلى الأبيض.</string>
+    <string name="convert_elsewhere">صيغ أخرى</string>
+    <string name="convert_elsewhere_desc">لا يستطيع أندرويد كتابة سوى الصيغ أعلاه. أما البقية فتوفرها هذه الخدمات، وهي تُفتح في المتصفح: اختر الصورة هناك من ذاكرة الهاتف.</string>
+    <string name="convert_open">فتح</string>
+    <string name="convert_export">تصدير</string>
+    <string name="convert_ezgif">EzGif</string>
+    <string name="convert_ezgif_why">يحوّل من كل شيء تقريبًا وإليه، بما في ذلك صور GIF المتحركة.</string>
+    <string name="convert_squoosh">Squoosh</string>
+    <string name="convert_squoosh_why">من غوغل، ويعمل داخل المتصفح: لا تُرفع الصورة إلى أي مكان.</string>
+    <string name="convert_cloudconvert">CloudConvert</string>
+    <string name="convert_cloudconvert_why">أطول قائمة صيغ، بما فيها AVIF وTIFF.</string>
     <string name="toast_image_copied">تم نسخ الصورة</string>
     <string name="toast_copy_failed">لم ينجح النسخ</string>
     <string name="toast_saved">تم الحفظ</string>
@@ -143,6 +162,17 @@
     <string name="facts_modified">آخر تعديل</string>
     <string name="facts_folder">المجلد</string>
     <string name="facts_encoding">الترميز</string>
+    <string name="facts_colours">نمط الألوان</string>
+    <string name="facts_frames">الإطارات</string>
+    <string name="facts_duration">المدة</string>
+    <string name="facts_colour_grey">تدرج الرمادي</string>
+    <string name="facts_colour_indexed">ألوان مفهرسة</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s %2$d بت</string>
+    <string name="facts_colour_channel">%1$d بت/قناة</string>
+    <string name="facts_colour_alpha">مع شفافية</string>
+    <string name="facts_duration_s">%1$s ث</string>
     <string name="facts_camera">بيانات الالتقاط</string>
     <string name="facts_place">الإحداثيات الجغرافية</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
@@ -367,4 +397,12 @@
     <string name="anim_prev">الإطار السابق</string>
     <string name="anim_next">الإطار التالي</string>
     <string name="anim_export">تصدير هذا الإطار</string>
+    <plurals name="facts_colour_count">
+        <item quantity="zero">لا ألوان</item>
+        <item quantity="one">لون واحد</item>
+        <item quantity="two">لونان</item>
+        <item quantity="few">%1$d ألوان</item>
+        <item quantity="many">%1$d لونًا</item>
+        <item quantity="other">%1$d لون</item>
+    </plurals>
 </resources>

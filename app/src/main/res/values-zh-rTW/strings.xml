@@ -16,6 +16,25 @@
     <string name="menu_copy_image">複製圖片</string>
     <string name="menu_share">分享</string>
     <string name="menu_save">儲存</string>
+    <string name="menu_convert">轉換並匯出</string>
+    <string name="convert_format">格式</string>
+    <string name="convert_jpeg">JPEG</string>
+    <string name="convert_png">PNG</string>
+    <string name="convert_webp">WebP</string>
+    <string name="convert_webp_lossless">WebP 無損</string>
+    <string name="convert_quality">品質</string>
+    <string name="convert_size">尺寸</string>
+    <string name="convert_no_alpha">JPEG 不保留透明度：那些區域會變成白色。</string>
+    <string name="convert_elsewhere">其他格式</string>
+    <string name="convert_elsewhere_desc">Android 只能寫入上面這些格式。其餘格式可以用這些服務，它們會在瀏覽器中開啟：圖片請在那裡從手機儲存空間選取。</string>
+    <string name="convert_open">開啟</string>
+    <string name="convert_export">匯出</string>
+    <string name="convert_ezgif">EzGif</string>
+    <string name="convert_ezgif_why">幾乎可以在任何格式之間轉換，包括動態 GIF。</string>
+    <string name="convert_squoosh">Squoosh</string>
+    <string name="convert_squoosh_why">Google 出品，在瀏覽器裡執行：圖片不會上傳到任何地方。</string>
+    <string name="convert_cloudconvert">CloudConvert</string>
+    <string name="convert_cloudconvert_why">格式清單最長，包括 AVIF 和 TIFF。</string>
     <string name="toast_image_copied">已複製圖片</string>
     <string name="toast_copy_failed">複製沒有成功</string>
     <string name="toast_saved">已儲存</string>
@@ -133,6 +152,17 @@
     <string name="facts_modified">最後修改</string>
     <string name="facts_folder">資料夾</string>
     <string name="facts_encoding">編碼</string>
+    <string name="facts_colours">顏色模式</string>
+    <string name="facts_frames">幀數</string>
+    <string name="facts_duration">長度</string>
+    <string name="facts_colour_grey">灰階</string>
+    <string name="facts_colour_indexed">索引色</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s %2$d 位元</string>
+    <string name="facts_colour_channel">每通道 %1$d 位元</string>
+    <string name="facts_colour_alpha">含透明度</string>
+    <string name="facts_duration_s">%1$s 秒</string>
     <string name="facts_camera">拍攝參數</string>
     <string name="facts_place">地理座標</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
@@ -292,4 +322,7 @@
     <string name="anim_prev">上一幀</string>
     <string name="anim_next">下一幀</string>
     <string name="anim_export">匯出此幀</string>
+    <plurals name="facts_colour_count">
+        <item quantity="other">%1$d 種顏色</item>
+    </plurals>
 </resources>

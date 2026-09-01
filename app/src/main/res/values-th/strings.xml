@@ -16,6 +16,25 @@
     <string name="menu_copy_image">คัดลอกรูปภาพ</string>
     <string name="menu_share">แบ่งปัน</string>
     <string name="menu_save">บันทึก</string>
+    <string name="menu_convert">แปลงและส่งออก</string>
+    <string name="convert_format">รูปแบบ</string>
+    <string name="convert_jpeg">JPEG</string>
+    <string name="convert_png">PNG</string>
+    <string name="convert_webp">WebP</string>
+    <string name="convert_webp_lossless">WebP ไม่สูญเสีย</string>
+    <string name="convert_quality">คุณภาพ</string>
+    <string name="convert_size">ขนาด</string>
+    <string name="convert_no_alpha">JPEG ไม่เก็บความโปร่งใส ส่วนเหล่านั้นจะกลายเป็นสีขาว</string>
+    <string name="convert_elsewhere">รูปแบบอื่น</string>
+    <string name="convert_elsewhere_desc">แอนดรอยด์เขียนได้เฉพาะรูปแบบข้างบนเท่านั้น สำหรับรูปแบบอื่นมีบริการเหล่านี้ ซึ่งเปิดในเบราว์เซอร์ แล้วเลือกภาพจากหน่วยความจำของโทรศัพท์ที่นั่น</string>
+    <string name="convert_open">เปิด</string>
+    <string name="convert_export">ส่งออก</string>
+    <string name="convert_ezgif">EzGif</string>
+    <string name="convert_ezgif_why">แปลงจากและเป็นเกือบทุกอย่าง รวมถึง GIF เคลื่อนไหว</string>
+    <string name="convert_squoosh">Squoosh</string>
+    <string name="convert_squoosh_why">ของกูเกิล ทำงานในเบราว์เซอร์ ภาพไม่ถูกอัปโหลดไปที่ใด</string>
+    <string name="convert_cloudconvert">CloudConvert</string>
+    <string name="convert_cloudconvert_why">รายการรูปแบบยาวที่สุด รวมถึง AVIF และ TIFF</string>
     <string name="toast_image_copied">คัดลอกภาพแล้ว</string>
     <string name="toast_copy_failed">การคัดลอกไม่สำเร็จ</string>
     <string name="toast_saved">บันทึกแล้ว</string>
@@ -133,6 +152,17 @@
     <string name="facts_modified">แก้ไขครั้งล่าสุด</string>
     <string name="facts_folder">โฟลเดอร์</string>
     <string name="facts_encoding">การเข้ารหัส</string>
+    <string name="facts_colours">โหมดสี</string>
+    <string name="facts_frames">เฟรม</string>
+    <string name="facts_duration">ความยาว</string>
+    <string name="facts_colour_grey">ระดับสีเทา</string>
+    <string name="facts_colour_indexed">สีแบบดัชนี</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s %2$d บิต</string>
+    <string name="facts_colour_channel">%1$d บิต/ช่อง</string>
+    <string name="facts_colour_alpha">มีความโปร่งใส</string>
+    <string name="facts_duration_s">%1$s วิ</string>
     <string name="facts_camera">ข้อมูลการถ่าย</string>
     <string name="facts_place">พิกัดภูมิศาสตร์</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
@@ -292,4 +322,7 @@
     <string name="anim_prev">เฟรมก่อนหน้า</string>
     <string name="anim_next">เฟรมถัดไป</string>
     <string name="anim_export">ส่งออกเฟรมนี้</string>
+    <plurals name="facts_colour_count">
+        <item quantity="other">%1$d สี</item>
+    </plurals>
 </resources>

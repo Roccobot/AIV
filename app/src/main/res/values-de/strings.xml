@@ -16,6 +16,25 @@
     <string name="menu_copy_image">Bild kopieren</string>
     <string name="menu_share">Teilen</string>
     <string name="menu_save">Speichern</string>
+    <string name="menu_convert">Umwandeln und exportieren</string>
+    <string name="convert_format">Format</string>
+    <string name="convert_jpeg">JPEG</string>
+    <string name="convert_png">PNG</string>
+    <string name="convert_webp">WebP</string>
+    <string name="convert_webp_lossless">WebP verlustfrei</string>
+    <string name="convert_quality">Qualität</string>
+    <string name="convert_size">Größe</string>
+    <string name="convert_no_alpha">JPEG behält keine Transparenz: Diese Bereiche werden weiß.</string>
+    <string name="convert_elsewhere">Andere Formate</string>
+    <string name="convert_elsewhere_desc">Android kann nur die Formate oben schreiben. Für die übrigen gibt es diese Dienste, die im Browser öffnen: Das Bild wird dort aus dem Speicher des Telefons ausgewählt.</string>
+    <string name="convert_open">Öffnen</string>
+    <string name="convert_export">Exportieren</string>
+    <string name="convert_ezgif">EzGif</string>
+    <string name="convert_ezgif_why">Wandelt aus fast allem und in fast alles um, animierte GIFs eingeschlossen.</string>
+    <string name="convert_squoosh">Squoosh</string>
+    <string name="convert_squoosh_why">Von Google, läuft im Browser: Das Bild wird nirgendwohin hochgeladen.</string>
+    <string name="convert_cloudconvert">CloudConvert</string>
+    <string name="convert_cloudconvert_why">Die längste Formatliste, AVIF und TIFF eingeschlossen.</string>
     <string name="toast_image_copied">Bild kopiert</string>
     <string name="toast_copy_failed">Das Kopieren hat nicht geklappt</string>
     <string name="toast_saved">Gespeichert</string>
@@ -135,6 +154,17 @@
     <string name="facts_modified">Zuletzt geändert</string>
     <string name="facts_folder">Ordner</string>
     <string name="facts_encoding">Kodierung</string>
+    <string name="facts_colours">Farbmodus</string>
+    <string name="facts_frames">Einzelbilder</string>
+    <string name="facts_duration">Dauer</string>
+    <string name="facts_colour_grey">Graustufen</string>
+    <string name="facts_colour_indexed">Indizierte Farben</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s %2$d Bit</string>
+    <string name="facts_colour_channel">%1$d Bit/Kanal</string>
+    <string name="facts_colour_alpha">mit Transparenz</string>
+    <string name="facts_duration_s">%1$s s</string>
     <string name="facts_camera">Aufnahmedaten</string>
     <string name="facts_place">Geografische Koordinaten</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
@@ -307,4 +337,8 @@
     <string name="anim_prev">Vorheriges Bild</string>
     <string name="anim_next">Nächstes Bild</string>
     <string name="anim_export">Dieses Bild exportieren</string>
+    <plurals name="facts_colour_count">
+        <item quantity="one">%1$d Farbe</item>
+        <item quantity="other">%1$d Farben</item>
+    </plurals>
 </resources>

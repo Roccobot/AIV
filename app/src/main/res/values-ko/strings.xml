@@ -16,6 +16,25 @@
     <string name="menu_copy_image">이미지 복사</string>
     <string name="menu_share">공유</string>
     <string name="menu_save">저장</string>
+    <string name="menu_convert">변환 및 내보내기</string>
+    <string name="convert_format">형식</string>
+    <string name="convert_jpeg">JPEG</string>
+    <string name="convert_png">PNG</string>
+    <string name="convert_webp">WebP</string>
+    <string name="convert_webp_lossless">WebP 무손실</string>
+    <string name="convert_quality">품질</string>
+    <string name="convert_size">크기</string>
+    <string name="convert_no_alpha">JPEG는 투명도를 유지하지 못합니다. 투명한 부분은 희게 변합니다.</string>
+    <string name="convert_elsewhere">다른 형식</string>
+    <string name="convert_elsewhere_desc">안드로이드가 쓸 수 있는 형식은 위의 것뿐입니다. 나머지는 이 서비스들이 브라우저에서 열리니, 이미지는 거기에서 휴대전화 저장소를 통해 고르세요.</string>
+    <string name="convert_open">열기</string>
+    <string name="convert_export">내보내기</string>
+    <string name="convert_ezgif">EzGif</string>
+    <string name="convert_ezgif_why">거의 모든 형식에서, 거의 모든 형식으로 변환합니다. 움직이는 GIF도 됩니다.</string>
+    <string name="convert_squoosh">Squoosh</string>
+    <string name="convert_squoosh_why">구글이 만들었고 브라우저에서 동작합니다. 이미지는 어디에도 올라가지 않습니다.</string>
+    <string name="convert_cloudconvert">CloudConvert</string>
+    <string name="convert_cloudconvert_why">형식 목록이 가장 깁니다. AVIF와 TIFF도 있습니다.</string>
     <string name="toast_image_copied">이미지를 복사했습니다</string>
     <string name="toast_copy_failed">복사하지 못했습니다</string>
     <string name="toast_saved">저장했습니다</string>
@@ -133,6 +152,17 @@
     <string name="facts_modified">마지막 수정</string>
     <string name="facts_folder">폴더</string>
     <string name="facts_encoding">인코딩</string>
+    <string name="facts_colours">색상 모드</string>
+    <string name="facts_frames">프레임</string>
+    <string name="facts_duration">길이</string>
+    <string name="facts_colour_grey">회색조</string>
+    <string name="facts_colour_indexed">인덱스 색상</string>
+    <string name="facts_colour_rgb">RGB</string>
+    <string name="facts_colour_rgba">RGBA</string>
+    <string name="facts_colour_bits">%1$s %2$d비트</string>
+    <string name="facts_colour_channel">%1$d비트/채널</string>
+    <string name="facts_colour_alpha">투명도 있음</string>
+    <string name="facts_duration_s">%1$s초</string>
     <string name="facts_camera">촬영 정보</string>
     <string name="facts_place">지리 좌표</string>
     <string name="facts_pixels_value">%1$d x %2$d</string>
@@ -292,4 +322,7 @@
     <string name="anim_prev">이전 프레임</string>
     <string name="anim_next">다음 프레임</string>
     <string name="anim_export">이 프레임 내보내기</string>
+    <plurals name="facts_colour_count">
+        <item quantity="other">%1$d색</item>
+    </plurals>
 </resources>
