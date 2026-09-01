@@ -278,9 +278,6 @@
     <string name="editor_right">ডানে ঘোরান</string>
     <string name="editor_free">মুক্ত</string>
     <string name="editor_save">সংরক্ষণ করুন</string>
-    <string name="editor_how">কীভাবে সংরক্ষণ করবেন?</string>
-    <string name="editor_overwrite">ফাইলের উপরেই লিখুন</string>
-    <string name="editor_copy">একটি অনুলিপি সংরক্ষণ করুন</string>
     <string name="editor_done">সংরক্ষিত হয়েছে</string>
     <string name="editor_done_copy">অনুলিপি সংরক্ষিত হয়েছে</string>
     <string name="editor_done_lossless">পুনরায় সংকুচিত না করেই সংরক্ষিত হয়েছে</string>
@@ -300,7 +297,7 @@
     <string name="view_tree">ফোল্ডার</string>
     <string name="edit_no_backup">নিরাপত্তা অনুলিপি হয়নি, তাই কিছুই উপরে লেখা হয়নি</string>
     <string name="settings_editor_backup">উপরে লেখার আগে নিরাপত্তা অনুলিপি</string>
-    <string name="settings_editor_backup_desc">অন্তর্নির্মিত সম্পাদক কোনো ছবির উপরে লেখার আগে, আগের রূপটি আবর্জনায় যায়। এটি কেবল অন্তর্নির্মিত সম্পাদকের জন্য: অন্য অ্যাপ নিজের মতো সংরক্ষণ করে।</string>
+    <string name="settings_editor_backup_desc">অন্তর্নির্মিত সম্পাদক কোনো ছবির উপরে লেখার আগে, আগের রূপটি আবর্জনায় যায়। এটি কেবল অন্তর্নির্মিত সম্পাদকের জন্য: অন্য অ্যাপ নিজের মতো সংরক্ষণ করে। ⚠️ বন্ধ থাকলে ফেরার উপায় নেই, কারণ অভ্যন্তরীণ সম্পাদক সবসময় উপরে লেখে।</string>
     <string name="editor_tall">লম্বালম্বি</string>
     <string name="editor_wide">আড়াআড়ি</string>
     <string name="pick_drop_ask">নির্বাচন বাতিল করবেন?</string>

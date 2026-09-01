@@ -278,9 +278,6 @@
     <string name="editor_right">Zungusha kulia</string>
     <string name="editor_free">Huru</string>
     <string name="editor_save">Hifadhi</string>
-    <string name="editor_how">Unataka kuihifadhi vipi?</string>
-    <string name="editor_overwrite">Andika juu ya faili</string>
-    <string name="editor_copy">Hifadhi nakala</string>
     <string name="editor_done">Imehifadhiwa</string>
     <string name="editor_done_copy">Nakala imehifadhiwa</string>
     <string name="editor_done_lossless">Imehifadhiwa bila kubana upya</string>
@@ -300,7 +297,7 @@
     <string name="view_tree">Folda</string>
     <string name="edit_no_backup">Nakala ya usalama haikufanikiwa, hivyo hakuna kilichoandikwa juu</string>
     <string name="settings_editor_backup">Nakala ya usalama kabla ya kuandika juu</string>
-    <string name="settings_editor_backup_desc">Kabla kihariri cha ndani hakijaandika juu ya picha, toleo la awali huenda kwenye tupio. Inahusu kihariri cha ndani pekee: programu nyingine huhifadhi yenyewe.</string>
+    <string name="settings_editor_backup_desc">Kabla kihariri cha ndani hakijaandika juu ya picha, toleo la awali huenda kwenye tupio. Inahusu kihariri cha ndani pekee: programu nyingine huhifadhi yenyewe. ⚠️ Ukizima hakuna njia ya kurudi, kwa sababu kihariri cha ndani hubadilisha faili kila mara.</string>
     <string name="editor_tall">Wima</string>
     <string name="editor_wide">Mlalo</string>
     <string name="pick_drop_ask">Uache uteuzi?</string>

@@ -263,9 +263,6 @@
     <string name="editor_right">오른쪽으로 돌리기</string>
     <string name="editor_free">자유</string>
     <string name="editor_save">저장</string>
-    <string name="editor_how">어떻게 저장할까요?</string>
-    <string name="editor_overwrite">파일에 덮어쓰기</string>
-    <string name="editor_copy">사본으로 저장</string>
     <string name="editor_done">저장했습니다</string>
     <string name="editor_done_copy">사본을 저장했습니다</string>
     <string name="editor_done_lossless">다시 압축하지 않고 저장했습니다</string>
@@ -285,7 +282,7 @@
     <string name="view_tree">폴더</string>
     <string name="edit_no_backup">안전 사본을 만들지 못해서 아무것도 덮어쓰지 않았습니다</string>
     <string name="settings_editor_backup">덮어쓰기 전에 안전 사본</string>
-    <string name="settings_editor_backup_desc">내장 편집기가 사진을 덮어쓰기 전에 이전 판이 휴지통으로 갑니다. 내장 편집기에만 해당하며, 다른 앱은 알아서 저장합니다.</string>
+    <string name="settings_editor_backup_desc">내장 편집기가 사진을 덮어쓰기 전에 이전 판이 휴지통으로 갑니다. 내장 편집기에만 해당하며, 다른 앱은 알아서 저장합니다. ⚠️ 끄면 되돌릴 방법이 없습니다. 내장 편집기는 항상 덮어씁니다.</string>
     <string name="editor_tall">세로</string>
     <string name="editor_wide">가로</string>
     <string name="pick_drop_ask">선택을 취소할까요?</string>

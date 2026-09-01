@@ -293,9 +293,6 @@
     <string name="editor_right">Girar a la derecha</string>
     <string name="editor_free">Libre</string>
     <string name="editor_save">Guardar</string>
-    <string name="editor_how">¿Cómo quieres guardarla?</string>
-    <string name="editor_overwrite">Sobrescribir el archivo</string>
-    <string name="editor_copy">Guardar una copia</string>
     <string name="editor_done">Guardada</string>
     <string name="editor_done_copy">Copia guardada</string>
     <string name="editor_done_lossless">Guardada sin volver a comprimir</string>
@@ -315,7 +312,7 @@
     <string name="view_tree">Carpetas</string>
     <string name="edit_no_backup">La copia de seguridad ha fallado, así que no se ha sobrescrito nada</string>
     <string name="settings_editor_backup">Copia de seguridad antes de sobrescribir</string>
-    <string name="settings_editor_backup_desc">Antes de que el editor interno sobrescriba una imagen, la versión anterior va a la papelera. Solo vale para el editor interno: otra app guarda por su cuenta.</string>
+    <string name="settings_editor_backup_desc">Antes de que el editor interno sobrescriba una imagen, la versión anterior va a la papelera. Solo vale para el editor interno: otra app guarda por su cuenta. ⚠️ Con esto apagado no queda vuelta atrás, porque el editor interno siempre sobrescribe.</string>
     <string name="editor_tall">Vertical</string>
     <string name="editor_wide">Horizontal</string>
     <string name="pick_drop_ask">¿Descartar la selección?</string>

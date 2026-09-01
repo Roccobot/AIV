@@ -308,9 +308,6 @@
     <string name="editor_right">Повернуть вправо</string>
     <string name="editor_free">Свободно</string>
     <string name="editor_save">Сохранить</string>
-    <string name="editor_how">Как сохранить?</string>
-    <string name="editor_overwrite">Перезаписать файл</string>
-    <string name="editor_copy">Сохранить копию</string>
     <string name="editor_done">Сохранено</string>
     <string name="editor_done_copy">Копия сохранена</string>
     <string name="editor_done_lossless">Сохранено без пересжатия</string>
@@ -330,7 +327,7 @@
     <string name="view_tree">Папки</string>
     <string name="edit_no_backup">Резервная копия не получилась, поэтому ничего не перезаписано</string>
     <string name="settings_editor_backup">Резервная копия перед перезаписью</string>
-    <string name="settings_editor_backup_desc">Прежде чем встроенный редактор перезапишет снимок, прежняя версия уходит в корзину. Это касается только встроенного редактора: другое приложение сохраняет само.</string>
+    <string name="settings_editor_backup_desc">Прежде чем встроенный редактор перезапишет снимок, прежняя версия уходит в корзину. Это касается только встроенного редактора: другое приложение сохраняет само. ⚠️ Если выключено, пути назад нет: встроенный редактор всегда перезаписывает.</string>
     <string name="editor_tall">Портрет</string>
     <string name="editor_wide">Пейзаж</string>
     <string name="pick_drop_ask">Отменить выделение?</string>

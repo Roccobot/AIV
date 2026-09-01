@@ -278,9 +278,6 @@
     <string name="editor_right">دائیں گھمائیں</string>
     <string name="editor_free">آزاد</string>
     <string name="editor_save">محفوظ کریں</string>
-    <string name="editor_how">کیسے محفوظ کرنا ہے؟</string>
-    <string name="editor_overwrite">فائل پر ہی لکھ دیں</string>
-    <string name="editor_copy">ایک نقل محفوظ کریں</string>
     <string name="editor_done">محفوظ ہو گیا</string>
     <string name="editor_done_copy">نقل محفوظ ہو گئی</string>
     <string name="editor_done_lossless">دوبارہ دبائے بغیر محفوظ ہو گیا</string>
@@ -300,7 +297,7 @@
     <string name="view_tree">فولڈرز</string>
     <string name="edit_no_backup">حفاظتی نقل نہ بن سکی، سو کسی چیز پر نہیں لکھا گیا</string>
     <string name="settings_editor_backup">اوپر لکھنے سے پہلے حفاظتی نقل</string>
-    <string name="settings_editor_backup_desc">اندرونی مدیر کسی تصویر پر لکھے، اس سے پہلے پچھلی شکل ردی کی ٹوکری میں چلی جاتی ہے۔ یہ صرف اندرونی مدیر کے لیے ہے: دوسری ایپ اپنے طور پر محفوظ کرتی ہے۔</string>
+    <string name="settings_editor_backup_desc">اندرونی مدیر کسی تصویر پر لکھے، اس سے پہلے پچھلی شکل ردی کی ٹوکری میں چلی جاتی ہے۔ یہ صرف اندرونی مدیر کے لیے ہے: دوسری ایپ اپنے طور پر محفوظ کرتی ہے۔ ⚠️ بند ہونے پر واپسی کا کوئی راستہ نہیں، کیونکہ اندرونی ایڈیٹر ہمیشہ اوپر لکھ دیتا ہے۔</string>
     <string name="editor_tall">عمودی</string>
     <string name="editor_wide">افقی</string>
     <string name="pick_drop_ask">انتخاب منسوخ کریں؟</string>

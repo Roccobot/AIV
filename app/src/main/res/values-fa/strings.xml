@@ -278,9 +278,6 @@
     <string name="editor_right">چرخش به راست</string>
     <string name="editor_free">آزاد</string>
     <string name="editor_save">ذخیره</string>
-    <string name="editor_how">چطور ذخیره شود؟</string>
-    <string name="editor_overwrite">بازنویسی روی فایل</string>
-    <string name="editor_copy">ذخیرهٔ یک رونوشت</string>
     <string name="editor_done">ذخیره شد</string>
     <string name="editor_done_copy">رونوشت ذخیره شد</string>
     <string name="editor_done_lossless">بدون فشرده‌سازی دوباره ذخیره شد</string>
@@ -300,7 +297,7 @@
     <string name="view_tree">پوشه‌ها</string>
     <string name="edit_no_backup">نسخهٔ ایمنی ساخته نشد، پس چیزی بازنویسی نشد</string>
     <string name="settings_editor_backup">نسخهٔ ایمنی پیش از بازنویسی</string>
-    <string name="settings_editor_backup_desc">پیش از آنکه ویرایشگر داخلی روی عکسی بنویسد، نسخهٔ پیشین به زبالهدان می‌رود. فقط برای ویرایشگر داخلی است: برنامهٔ دیگر خودش ذخیره می‌کند.</string>
+    <string name="settings_editor_backup_desc">پیش از آنکه ویرایشگر داخلی روی عکسی بنویسد، نسخهٔ پیشین به زبالهدان می‌رود. فقط برای ویرایشگر داخلی است: برنامهٔ دیگر خودش ذخیره می‌کند. ⚠️ با خاموش بودن راه بازگشتی نیست، چون ویرایشگر داخلی همیشه روی فایل می‌نویسد.</string>
     <string name="editor_tall">عمودی</string>
     <string name="editor_wide">افقی</string>
     <string name="pick_drop_ask">انتخاب لغو شود؟</string>

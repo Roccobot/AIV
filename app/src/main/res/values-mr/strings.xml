@@ -278,9 +278,6 @@
     <string name="editor_right">उजवीकडे फिरवा</string>
     <string name="editor_free">मुक्त</string>
     <string name="editor_save">जतन करा</string>
-    <string name="editor_how">कसे जतन करायचे?</string>
-    <string name="editor_overwrite">फाईलवरच लिहा</string>
-    <string name="editor_copy">एक प्रत जतन करा</string>
     <string name="editor_done">जतन झाले</string>
     <string name="editor_done_copy">प्रत जतन झाली</string>
     <string name="editor_done_lossless">पुन्हा दाबल्याशिवाय जतन झाले</string>
@@ -300,7 +297,7 @@
     <string name="view_tree">फोल्डर</string>
     <string name="edit_no_backup">सुरक्षा प्रत झाली नाही, म्हणून काहीही वर लिहिले गेले नाही</string>
     <string name="settings_editor_backup">वर लिहिण्यापूर्वी सुरक्षा प्रत</string>
-    <string name="settings_editor_backup_desc">अंगभूत संपादक एखाद्या छायाचित्रावर लिहिण्यापूर्वी, आधीचे रूप कचरापेटीत जाते. हे फक्त अंगभूत संपादकासाठी आहे: दुसरे ॲप स्वतःच जतन करते.</string>
+    <string name="settings_editor_backup_desc">अंगभूत संपादक एखाद्या छायाचित्रावर लिहिण्यापूर्वी, आधीचे रूप कचरापेटीत जाते. हे फक्त अंगभूत संपादकासाठी आहे: दुसरे ॲप स्वतःच जतन करते. ⚠️ बंद असल्यास परत जाण्याचा मार्ग नाही, कारण अंतर्गत संपादक नेहमी वर लिहितो.</string>
     <string name="editor_tall">उभे</string>
     <string name="editor_wide">आडवे</string>
     <string name="pick_drop_ask">निवड सोडायची?</string>

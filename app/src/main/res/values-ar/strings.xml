@@ -338,9 +338,6 @@
     <string name="editor_right">تدوير لليمين</string>
     <string name="editor_free">حر</string>
     <string name="editor_save">حفظ</string>
-    <string name="editor_how">كيف تريد حفظها؟</string>
-    <string name="editor_overwrite">الكتابة فوق الملف</string>
-    <string name="editor_copy">حفظ نسخة</string>
     <string name="editor_done">تم الحفظ</string>
     <string name="editor_done_copy">تم حفظ النسخة</string>
     <string name="editor_done_lossless">تم الحفظ دون إعادة ضغط</string>
@@ -360,7 +357,7 @@
     <string name="view_tree">مجلدات</string>
     <string name="edit_no_backup">تعذّرت نسخة الأمان، فلم تجرِ الكتابة فوق شيء</string>
     <string name="settings_editor_backup">نسخة أمان قبل الكتابة فوق الملف</string>
-    <string name="settings_editor_backup_desc">قبل أن يكتب المحرر المدمج فوق صورة، تذهب نسختها السابقة إلى سلة المهملات. هذا للمحرر المدمج وحده: أي تطبيق آخر يحفظ بنفسه.</string>
+    <string name="settings_editor_backup_desc">قبل أن يكتب المحرر المدمج فوق صورة، تذهب نسختها السابقة إلى سلة المهملات. هذا للمحرر المدمج وحده: أي تطبيق آخر يحفظ بنفسه. ⚠️ عند الإيقاف لا توجد طريقة للرجوع، لأن المحرر الداخلي يكتب فوق الملف دائما.</string>
     <string name="editor_tall">طولي</string>
     <string name="editor_wide">عرضي</string>
     <string name="pick_drop_ask">هل تريد إلغاء التحديد؟</string>

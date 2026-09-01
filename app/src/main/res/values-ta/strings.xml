@@ -278,9 +278,6 @@
     <string name="editor_right">வலப்புறம் சுழற்று</string>
     <string name="editor_free">தடையற்றது</string>
     <string name="editor_save">சேமி</string>
-    <string name="editor_how">எப்படிச் சேமிக்க வேண்டும்?</string>
-    <string name="editor_overwrite">கோப்பின் மேலேயே எழுது</string>
-    <string name="editor_copy">ஒரு நகலைச் சேமி</string>
     <string name="editor_done">சேமிக்கப்பட்டது</string>
     <string name="editor_done_copy">நகல் சேமிக்கப்பட்டது</string>
     <string name="editor_done_lossless">மீண்டும் சுருக்காமல் சேமிக்கப்பட்டது</string>
@@ -300,7 +297,7 @@
     <string name="view_tree">கோப்புறைகள்</string>
     <string name="edit_no_backup">பாதுகாப்பு நகல் எடுக்க முடியவில்லை, எனவே எதன் மேலும் எழுதப்படவில்லை</string>
     <string name="settings_editor_backup">மேலெழுதும் முன் பாதுகாப்பு நகல்</string>
-    <string name="settings_editor_backup_desc">உள்ளமைந்த திருத்தி ஒரு படத்தின் மேல் எழுதும் முன், முந்தைய வடிவம் குப்பைத் தொட்டிக்குச் செல்லும். இது உள்ளமைந்த திருத்திக்கு மட்டுமே: வேறு செயலி தானே சேமிக்கும்.</string>
+    <string name="settings_editor_backup_desc">உள்ளமைந்த திருத்தி ஒரு படத்தின் மேல் எழுதும் முன், முந்தைய வடிவம் குப்பைத் தொட்டிக்குச் செல்லும். இது உள்ளமைந்த திருத்திக்கு மட்டுமே: வேறு செயலி தானே சேமிக்கும். ⚠️ அணைத்திருந்தால் திரும்பிச் செல்ல வழி இல்லை, ஏனெனில் உள்ளமைந்த திருத்தி எப்போதும் மேலெழுதுகிறது.</string>
     <string name="editor_tall">நெடுக்கு</string>
     <string name="editor_wide">குறுக்கு</string>
     <string name="pick_drop_ask">தேர்வை விடவா?</string>

@@ -308,9 +308,6 @@
     <string name="editor_right">Obróć w prawo</string>
     <string name="editor_free">Dowolne</string>
     <string name="editor_save">Zapisz</string>
-    <string name="editor_how">Jak chcesz to zapisać?</string>
-    <string name="editor_overwrite">Nadpisz plik</string>
-    <string name="editor_copy">Zapisz kopię</string>
     <string name="editor_done">Zapisano</string>
     <string name="editor_done_copy">Zapisano kopię</string>
     <string name="editor_done_lossless">Zapisano bez ponownej kompresji</string>
@@ -330,7 +327,7 @@
     <string name="view_tree">Foldery</string>
     <string name="edit_no_backup">Kopia zapasowa się nie udała, więc nic nie zostało nadpisane</string>
     <string name="settings_editor_backup">Kopia zapasowa przed nadpisaniem</string>
-    <string name="settings_editor_backup_desc">Zanim wbudowany edytor nadpisze zdjęcie, poprzednia wersja trafia do kosza. Dotyczy tylko wbudowanego edytora: inna aplikacja zapisuje po swojemu.</string>
+    <string name="settings_editor_backup_desc">Zanim wbudowany edytor nadpisze zdjęcie, poprzednia wersja trafia do kosza. Dotyczy tylko wbudowanego edytora: inna aplikacja zapisuje po swojemu. ⚠️ Po wyłączeniu nie ma odwrotu, bo wbudowany edytor zawsze nadpisuje.</string>
     <string name="editor_tall">Pionowo</string>
     <string name="editor_wide">Poziomo</string>
     <string name="pick_drop_ask">Odrzucić zaznaczenie?</string>

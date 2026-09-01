@@ -263,9 +263,6 @@
     <string name="editor_right">向右旋轉</string>
     <string name="editor_free">自由</string>
     <string name="editor_save">儲存</string>
-    <string name="editor_how">想怎麼儲存？</string>
-    <string name="editor_overwrite">覆寫原檔</string>
-    <string name="editor_copy">另存一份</string>
     <string name="editor_done">已儲存</string>
     <string name="editor_done_copy">副本已儲存</string>
     <string name="editor_done_lossless">已儲存，未重新壓縮</string>
@@ -285,7 +282,7 @@
     <string name="view_tree">資料夾</string>
     <string name="edit_no_backup">安全副本沒能建立，所以什麼都沒有覆寫</string>
     <string name="settings_editor_backup">覆寫前先留一份安全副本</string>
-    <string name="settings_editor_backup_desc">內建編輯器覆寫一張圖片之前，先把原來的版本放進回收桶。只對內建編輯器有效，別的應用自己儲存。</string>
+    <string name="settings_editor_backup_desc">內建編輯器覆寫一張圖片之前，先把原來的版本放進回收桶。只對內建編輯器有效，別的應用自己儲存。 ⚠️ 關閉後就沒有退路了，因為內建編輯器一律覆寫原圖。</string>
     <string name="editor_tall">直式</string>
     <string name="editor_wide">橫式</string>
     <string name="pick_drop_ask">要取消選取嗎？</string>
