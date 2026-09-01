@@ -128,7 +128,7 @@ object ImageEdit {
          * ⚠️ Con `Way.COPY` non serve: là l'originale non lo tocca nessuno, e una copia in
          * più sarebbe un file nel cestino che nessuno ha chiesto.
          */
-        if (way == Way.OVERWRITE && backup && !Bin.keep(context, source)) {
+        if (way == Way.OVERWRITE && backup && Bin.keep(context, source) == null) {
             return@withContext Result.Failed(R.string.edit_no_backup)
         }
 

@@ -143,10 +143,18 @@ object Bin {
      * ⚠️ **Niente `FileTree.scan` sull'origine**: l'originale non si è mosso, e dichiararlo
      * cambiato qui vorrebbe dire una scansione in più subito prima di quella che l'editor fa
      * comunque dopo aver scritto.
+     *
+     * @return la copia appena messa nel cestino, o `null` se non si è potuta fare.
+     *
+     * ⚠️⚠️ **RESTITUISCE IL FILE E NON UN SÌ O NO, dalla 1.13, perché un chiamante ha
+     * bisogno di RIPRENDERSELA**: la copia fatta prima di aprire un editor **esterno** va
+     * buttata se al ritorno si scopre che quell'editor non ha salvato niente, e senza sapere
+     * come si chiama non la si ritrova (il nome può essere cambiato: vedi
+     * [FileTree.freeName]). Chi vuole solo sapere se è andata bene guarda se è `null`.
      */
-    suspend fun keep(context: Context, from: File): Boolean =
+    suspend fun keep(context: Context, from: File): File? =
         withContext(Dispatchers.IO + NonCancellable) {
-            if (from.absolutePath.hasSeparators()) return@withContext false
+            if (from.absolutePath.hasSeparators()) return@withContext null
             lock.withLock {
                 val to = FileTree.freeName(ready(context), from.name)
                 val copied = runCatching {
@@ -155,12 +163,34 @@ object Bin {
                 }.getOrDefault(false)
                 if (!copied) {
                     to.delete()
-                    return@withLock false
+                    return@withLock null
                 }
                 val records = read(context).toMutableList()
                 records += Record(to.name, System.currentTimeMillis(), from.absolutePath)
                 write(context, records)
-                true
+                to
+            }
+        }
+
+    /**
+     * Toglie dal cestino una copia che si è rivelata inutile, file e riga d'archivio.
+     *
+     * ⚠️⚠️ **È IL RIMEDIO A UNA COPIA DI TROPPO, NON UNA CANCELLAZIONE OFFERTA ALL'UTENTE, e
+     * la distinzione tiene in piedi la promessa del cestino**: si chiama solo su una copia
+     * che [keep] ha appena fatto e che si è dimostrata identica all'originale, cioè su un
+     * file che non contiene niente che non esista ancora. Un cestino che si svuota da sé
+     * sarebbe il contrario di quello che l'utente ha chiesto accendendo l'interruttore.
+     * ⚠️ **La riga d'archivio se ne va anche se il file resta**: una riga che punta a un file
+     * cancellato manderebbe il ripristino in errore, e un file senza riga finisce comunque in
+     * fondo alla lista senza poter tornare a casa. Fra i due mali, il file orfano è quello
+     * che l'utente può ancora vedere e buttare a mano.
+     */
+    suspend fun drop(context: Context, kept: File): Boolean =
+        withContext(Dispatchers.IO + NonCancellable) {
+            lock.withLock {
+                val gone = runCatching { kept.delete() }.getOrDefault(false)
+                write(context, read(context).filterNot { it.name == kept.name })
+                gone
             }
         }
 
