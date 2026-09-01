@@ -183,6 +183,15 @@ fun FolderScreen(
     /** Una fotografia toccata nella vista delle cartelle di sistema: la serie e la posizione. */
     onTreeOpen: (List<Uri>, Int) -> Unit,
     onBack: (() -> Unit)?,
+    /**
+     * Quante volte il disco è cambiato da fuori. Vedi `ViewerViewModel.outsideStamp`.
+     *
+     * ⚠️⚠️ **È UNA CHIAVE E NON UN DATO: non si legge, si usa per far ripartire la
+     * lettura.** Questa schermata l'elenco se lo legge da sé, quindi il modello non può
+     * ricaricarglielo: l'unico modo di dirle 'sul disco è cambiato qualcosa' è cambiarle una
+     * chiave sotto il naso. Il valore di serie tiene in piedi le anteprime.
+     */
+    stamp: Int = 0,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -232,8 +241,9 @@ fun FolderScreen(
     // impostazioni sono una faccenda della schermata, e una funzione che legge il
     // MediaStore non deve sapere che cosa l'utente ha deciso di non guardare.
     // ⚠️ La chiave comprende `hidden`, o nascondere una cartella non si vedrebbe finché
-    // non si esce e si rientra.
-    LaunchedEffect(granted, hidden) {
+    // non si esce e si rientra. E comprende `stamp`, o una cartella arrivata da fuori
+    // (una foto ricevuta, una cartella nuova) resterebbe invisibile per la stessa ragione.
+    LaunchedEffect(granted, hidden, stamp) {
         folders = if (granted) Folder.buckets(context).filterNot { it.isHidden(hidden) }
         else emptyList()
     }

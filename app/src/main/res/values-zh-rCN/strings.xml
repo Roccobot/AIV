@@ -47,6 +47,9 @@
     <string name="folder_lost">在文件夹里找不到</string>
     <string name="settings_title">设置</string>
     <string name="settings_back">返回</string>
+    <string name="settings_search">搜索设置</string>
+    <string name="settings_search_clear">清除搜索</string>
+    <string name="settings_search_none">没有结果</string>
     <string name="settings_background">图片背后</string>
     <string name="settings_bg_checker">棋盘格</string>
     <string name="settings_bg_solid">纯色</string>
@@ -79,10 +82,10 @@
     <string name="settings_scale_physical">文件的一个像素对应屏幕的一个像素</string>
     <string name="settings_scale_logical">文件的一个像素对应布局的一个像素</string>
     <string name="settings_scale_desc">决定按真实像素缩放意味着什么。任何现代设备的屏幕都会把一个逻辑像素画成两三个真实像素组成的方块。第一项忽略逻辑像素，把每一点对应到一个真实像素；第二项按对象在网页上应有的大小显示。</string>
-    <string name="details_bar">详情栏</string>
     <string name="settings_top">在顶部</string>
     <string name="settings_bottom">在底部</string>
     <string name="settings_info_visible">信息栏</string>
+    <string name="settings_info_position">位置</string>
     <string name="settings_anim_counter">帧计数器</string>
     <string name="settings_anim_counter_desc">显示在动态图像的控制栏中。</string>
     <string name="settings_reverse_order">从最旧的一张起向右翻阅图像</string>

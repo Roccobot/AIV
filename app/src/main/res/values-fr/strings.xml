@@ -47,6 +47,9 @@
     <string name="folder_lost">introuvable dans son dossier</string>
     <string name="settings_title">Réglages</string>
     <string name="settings_back">Retour</string>
+    <string name="settings_search">Rechercher dans les réglages</string>
+    <string name="settings_search_clear">Effacer la recherche</string>
+    <string name="settings_search_none">Aucun résultat</string>
     <string name="settings_background">Derrière l\'image</string>
     <string name="settings_bg_checker">Damier</string>
     <string name="settings_bg_solid">Couleur unie</string>
@@ -79,10 +82,10 @@
     <string name="settings_scale_physical">Un pixel du fichier par pixel d\'écran</string>
     <string name="settings_scale_logical">Un pixel du fichier par pixel de mise en page</string>
     <string name="settings_scale_desc">Définit ce que signifie le zoom en pixels réels. L\'écran de tout appareil moderne dessine chaque pixel logique par un carré de deux ou trois pixels réels. Le premier choix ignore les pixels logiques et fait correspondre chaque point à un pixel réel ; le second montre chaque objet à la taille qu\'il aurait sur une page Web.</string>
-    <string name="details_bar">Barre des détails</string>
     <string name="settings_top">En haut</string>
     <string name="settings_bottom">En bas</string>
     <string name="settings_info_visible">Barre d\'informations</string>
+    <string name="settings_info_position">Position</string>
     <string name="settings_anim_counter">Compteur d\'images</string>
     <string name="settings_anim_counter_desc">Affiché dans la barre de commandes des images animées.</string>
     <string name="settings_reverse_order">Feuilleter les images vers la droite depuis la plus ancienne</string>

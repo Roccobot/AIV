@@ -131,6 +131,9 @@
     <!-- ── Settings ── -->
     <string name="settings_title">Settings</string>
     <string name="settings_back">Back</string>
+    <string name="settings_search">Search settings</string>
+    <string name="settings_search_clear">Clear the search</string>
+    <string name="settings_search_none">No results</string>
 
     <!-- The four groups the settings are gathered into. -->
     <string name="settings_group_look">Appearance</string>
@@ -182,10 +185,10 @@
     <string name="settings_scale_logical">One pixel of the file per layout pixel</string>
     <string name="settings_scale_desc">Sets what zooming to actual pixels means. The screen of any modern device draws each logical pixel as a square of two or three real pixels. The first choice ignores logical pixels and maps every point onto one real pixel; the second shows every object at the size it would have on a web page.</string>
 
-    <string name="details_bar">Details bar</string>
     <string name="settings_top">At the top</string>
     <string name="settings_bottom">At the bottom</string>
     <string name="settings_info_visible">Info bar</string>
+    <string name="settings_info_position">Position</string>
     <string name="settings_anim_counter">Frame counter</string>
     <string name="settings_anim_counter_desc">Shown in the controls of animated images.</string>
 

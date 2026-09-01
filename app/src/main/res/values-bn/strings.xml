@@ -47,6 +47,9 @@
     <string name="folder_lost">নিজের ফোল্ডারে পাওয়া যায়নি</string>
     <string name="settings_title">সেটিংস</string>
     <string name="settings_back">ফিরে যান</string>
+    <string name="settings_search">সেটিংসে খুঁজুন</string>
+    <string name="settings_search_clear">খোঁজা মুছুন</string>
+    <string name="settings_search_none">কোনো ফলাফল নেই</string>
     <string name="settings_background">ছবির পিছনে</string>
     <string name="settings_bg_checker">দাবার ছক</string>
     <string name="settings_bg_solid">একটি রং</string>
@@ -79,10 +82,10 @@
     <string name="settings_scale_physical">পর্দার প্রতি পিক্সেলে ফাইলের এক পিক্সেল</string>
     <string name="settings_scale_logical">বিন্যাসের প্রতি পিক্সেলে ফাইলের এক পিক্সেল</string>
     <string name="settings_scale_desc">প্রকৃত পিক্সেলে জুম করার অর্থ কী তা ঠিক করে। যেকোনো আধুনিক যন্ত্রের পর্দা প্রতিটি যৌক্তিক পিক্সেলকে দুই বা তিনটি প্রকৃত পিক্সেলের বর্গ দিয়ে আঁকে। প্রথম পছন্দটি যৌক্তিক পিক্সেল উপেক্ষা করে প্রতিটি বিন্দুকে একটি প্রকৃত পিক্সেলে বসায়; দ্বিতীয়টি প্রতিটি বস্তুকে ওয়েব পৃষ্ঠায় যে মাপ পেত সেই মাপে দেখায়।</string>
-    <string name="details_bar">বিবরণের বার</string>
     <string name="settings_top">উপরে</string>
     <string name="settings_bottom">নিচে</string>
     <string name="settings_info_visible">তথ্য বার</string>
+    <string name="settings_info_position">অবস্থান</string>
     <string name="settings_anim_counter">ফ্রেম কাউন্টার</string>
     <string name="settings_anim_counter_desc">চলমান ছবির নিয়ন্ত্রণ বারে দেখা যায়।</string>
     <string name="settings_reverse_order">সবচেয়ে পুরনো থেকে ডানদিকে ছবি ওল্টান</string>

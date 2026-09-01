@@ -3,9 +3,12 @@ package io.github.roccobot.aiv
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.database.ContentObserver
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -150,6 +153,17 @@ sealed interface Screen {
 }
 
 /**
+ * Se questa schermata è una griglia di miniature, cioè una delle tre che `reloadGrid`
+ * sa rileggere.
+ *
+ * ⚠️ Le tre sono la cartella, i risultati di una ricerca e il cestino: si guardano allo
+ * stesso modo e hanno la stessa selezione, quindi la domanda 'sono in una griglia' si fa in
+ * più punti e scritta a mano ne dimenticherebbe una.
+ */
+private fun Screen.isGrid(): Boolean =
+    this is Screen.Grid || this == Screen.Search || this == Screen.Bin
+
+/**
  * La casa dell'app.
  *
  * ⚠️ Un nome solo perché i posti che ci tornano sono sei (l'avvio, l'uscita dal
@@ -167,6 +181,16 @@ private val HOME = Screen.Folders(forStart = false)
  * non a naso.
  */
 private const val SEARCH_PAUSE_MS = 280L
+
+/**
+ * Quanto si aspetta, dopo l'ultima notizia del MediaStore, prima di rileggere la cartella.
+ *
+ * ⚠️ Molto più lunga di quella della ricerca, e per il motivo opposto: là si insegue un dito
+ * che scrive e il ritardo si sente, qui si aspetta che un trasferimento finisca, e chi manda
+ * venti file da un altro dispositivo li manda in qualche secondo. Sotto il mezzo secondo si
+ * rileggerebbe a metà copia, e l'elenco crescerebbe a scatti sotto gli occhi.
+ */
+private const val OUTSIDE_PAUSE_MS = 700L
 
 /**
  * Fills [into] as far as the stream goes, and answers how many bytes it put there.
@@ -1385,6 +1409,109 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     /** Se la griglia dietro al visualizzatore è da rileggere. Vedi [afterFileAdded]. */
     private var gridStale = false
 
+    /*
+     * ══════════════ Quando i file cambiano per mano di qualcun altro ══════════════
+     *
+     * ⚠️⚠️ **NASCE DA UN RISCONTRO PRECISO** (utente, 2026-09-01: *i file che arrivano in
+     * Download da NearDrop o da Blip hanno ancora bisogno di uscire e rientrare nella
+     * cartella. Serve un tasto Aggiorna?*). La risposta è **no, non serve**, e vale dire
+     * perché: un tasto Aggiorna chiede a chi guarda di sapere che l'elenco è vecchio, cioè
+     * proprio la cosa che non può sapere. Il MediaStore invece **avvisa** quando qualcuno
+     * scrive, e ascoltarlo costa un osservatore.
+     */
+
+    /**
+     * Quante volte il disco è cambiato da fuori, da quando l'app è aperta.
+     *
+     * ⚠️ **Un contatore e non un booleano**: le schermate che leggono da sé (la casa e
+     * l'albero delle cartelle) lo usano come chiave di un `LaunchedEffect`, e una chiave
+     * deve **cambiare** a ogni notizia. Un `true` che resta `true` non farebbe ripartire
+     * niente dalla seconda volta in poi.
+     */
+    var outsideStamp: Int by mutableStateOf(0)
+        private set
+
+    /**
+     * Se la griglia sta facendo qualcosa che una rilettura rovinerebbe: oggi, una selezione
+     * viva.
+     *
+     * ⚠️⚠️ **SENZA QUESTO L'AGGIORNAMENTO AUTOMATICO SAREBBE UN DANNO**: la selezione della
+     * griglia è `remember(items)`, quindi una lista nuova la azzera. Chi ha spuntato trenta
+     * foto e riceve un file da fuori se le vedrebbe sparire tutte, senza aver toccato
+     * niente, e non capirebbe mai perché. Meglio un elenco vecchio di qualche secondo.
+     * ⚠️ Il debito non si perde: appena la selezione si scioglie, la rilettura rimandata si
+     * paga qui sotto.
+     */
+    var gridBusy: Boolean = false
+        set(value) {
+            field = value
+            if (!value && gridStale && screen.isGrid()) {
+                gridStale = false
+                reloadGrid()
+            }
+        }
+
+    /**
+     * L'orecchio sul MediaStore, acceso finché il modello vive.
+     *
+     * ⚠️ **`notifyForDescendants` acceso**: l'indirizzo registrato è quello della collezione,
+     * e le notizie arrivano su quello della singola riga. Senza, non si sentirebbe niente.
+     * ⚠️ **`Files` e non `Images`**: l'app sfoglia anche i video, e una copia in arrivo può
+     * essere l'uno o l'altro.
+     * ⚠️⚠️ **SI REGISTRA QUI E NON NEL BLOCCO `init`, e non è una preferenza di stile**: le
+     * proprietà si inizializzano nell'ordine in cui sono scritte, e `init` sta più in su,
+     * quindi da là questo osservatore non esiste ancora ('Variable must be initialized', che
+     * è un errore di compilazione e non un difetto in agguato). Registrandosi da sé, il
+     * momento giusto è garantito da dove sta scritto.
+     * ⚠️ **Acceso per tutta la vita del modello e non a schermata**: il modello sopravvive
+     * alla rotazione e ai passaggi fra le schermate, mentre un osservatore acceso e spento a
+     * ogni passaggio perderebbe proprio le notizie che arrivano mentre si cambia pagina. Chi
+     * le riceve decide da sé se gli servono.
+     */
+    private val outsideWatch = object : ContentObserver(Handler(Looper.getMainLooper())) {
+        override fun onChange(selfChange: Boolean, uri: Uri?) = outsideChange()
+    }.also {
+        getApplication<Application>().contentResolver
+            .registerContentObserver(Folder.TABLE, true, it)
+    }
+
+    private var outsideJob: Job? = null
+
+    /**
+     * Qualcuno ha scritto sul disco: si rilegge quello che è in scena.
+     *
+     * ⚠️⚠️ **CON UNA PAUSA, e non a ogni notizia**: una copia di venti file arriva come venti
+     * notizie in due secondi, e senza la pausa sarebbero venti query di fila mentre si
+     * guarda. Il timer riparte a ogni notizia, quindi si legge una volta sola, quando il
+     * traffico si ferma.
+     * ⚠️ **Anche le nostre scritture passano di qui**, e va bene così: la rilettura che segue
+     * una conversione o un'esportazione è già chiesta da chi la fa, e questa arriva dopo,
+     * trova le stesse righe, e non si vede.
+     */
+    private fun outsideChange() {
+        outsideJob?.cancel()
+        outsideJob = viewModelScope.launch {
+            delay(OUTSIDE_PAUSE_MS)
+            outsideStamp++
+            when {
+                // ⚠️ Il cestino NON si rilegge da qui: le sue righe stanno nella cartella
+                // privata dell'app, dove il MediaStore non guarda, quindi una notizia che lo
+                // riguarda non arriva mai e una che arriva non parla di lui.
+                screen == Screen.Bin -> Unit
+                screen.isGrid() -> if (gridBusy) gridStale = true else reloadGrid()
+                // ⚠️ Mentre si guarda una fotografia si segna e basta, per la stessa ragione
+                // di [afterFileAdded]: la griglia non è in scena, e la si paga al ritorno.
+                screen == Screen.Viewer || screen is Screen.Editor -> gridStale = true
+                else -> Unit
+            }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        getApplication<Application>().contentResolver.unregisterContentObserver(outsideWatch)
+    }
+
     /**
      * La fotografia che si sta guardando non è più a quell'indirizzo: si rilegge la
      * cartella e si mostra quella che ha preso il suo posto.
@@ -1739,7 +1866,8 @@ private fun AivApp(model: ViewerViewModel) {
                 factFields = settings.factRows,
                 onTreePath = { model.treeTo(it) },
                 onTreeOpen = { items, at -> model.openFromTree(items, at) },
-                onBack = if (screen.forStart) ({ model.leaveStartFolderChoice() }) else null
+                onBack = if (screen.forStart) ({ model.leaveStartFolderChoice() }) else null,
+                stamp = model.outsideStamp
             )
         }
 
@@ -1767,7 +1895,8 @@ private fun AivApp(model: ViewerViewModel) {
                 pickWeight = settings.pickWeight,
                 filter = model.gridFilter,
                 onFilter = { model.sift(it) },
-                gridNames = settings.gridNames
+                gridNames = settings.gridNames,
+                onBusy = { model.gridBusy = it }
             )
         }
 
@@ -1792,7 +1921,8 @@ private fun AivApp(model: ViewerViewModel) {
                 pickWeight = settings.pickWeight,
                 filter = model.gridFilter,
                 onFilter = { model.sift(it) },
-                gridNames = settings.gridNames
+                gridNames = settings.gridNames,
+                onBusy = { model.gridBusy = it }
             )
         }
 
@@ -1819,7 +1949,8 @@ private fun AivApp(model: ViewerViewModel) {
                 onFilter = { model.sift(it) },
                 gridNames = settings.gridNames,
                 bin = true,
-                onHistory = { model.openHistory() }
+                onHistory = { model.openHistory() },
+                onBusy = { model.gridBusy = it }
             )
         }
 

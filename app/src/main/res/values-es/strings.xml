@@ -47,6 +47,9 @@
     <string name="folder_lost">no se encuentra en su carpeta</string>
     <string name="settings_title">Ajustes</string>
     <string name="settings_back">Atrás</string>
+    <string name="settings_search">Buscar en los ajustes</string>
+    <string name="settings_search_clear">Borrar la búsqueda</string>
+    <string name="settings_search_none">Sin resultados</string>
     <string name="settings_background">Detrás de la imagen</string>
     <string name="settings_bg_checker">Damero</string>
     <string name="settings_bg_solid">Color liso</string>
@@ -79,10 +82,10 @@
     <string name="settings_scale_physical">Un píxel del archivo por píxel de pantalla</string>
     <string name="settings_scale_logical">Un píxel del archivo por píxel de diseño</string>
     <string name="settings_scale_desc">Establece a qué corresponde el zoom a píxeles reales. La pantalla de cualquier dispositivo moderno dibuja cada píxel lógico con un cuadrado de dos o tres píxeles reales. La primera opción ignora los píxeles lógicos y asigna cada punto a un píxel real; la segunda muestra cada objeto con el tamaño que tendría en una página web.</string>
-    <string name="details_bar">Barra de detalles</string>
     <string name="settings_top">Arriba</string>
     <string name="settings_bottom">Abajo</string>
     <string name="settings_info_visible">Barra de información</string>
+    <string name="settings_info_position">Posición</string>
     <string name="settings_anim_counter">Contador de fotogramas</string>
     <string name="settings_anim_counter_desc">Aparece en la barra de controles de las imágenes animadas.</string>
     <string name="settings_reverse_order">Pasar las imágenes hacia la derecha desde la más antigua</string>

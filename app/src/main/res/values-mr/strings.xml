@@ -47,6 +47,9 @@
     <string name="folder_lost">आपल्या संचिकासंचात सापडली नाही</string>
     <string name="settings_title">सेटिंग्ज</string>
     <string name="settings_back">मागे</string>
+    <string name="settings_search">सेटिंग्जमध्ये शोधा</string>
+    <string name="settings_search_clear">शोध साफ करा</string>
+    <string name="settings_search_none">कोणताही परिणाम नाही</string>
     <string name="settings_background">प्रतिमेच्या मागे</string>
     <string name="settings_bg_checker">बुद्धिबळाचे चौकोन</string>
     <string name="settings_bg_solid">एकच रंग</string>
@@ -79,10 +82,10 @@
     <string name="settings_scale_physical">पडद्याच्या एका पिक्सेलला संचिकेचा एक पिक्सेल</string>
     <string name="settings_scale_logical">मांडणीच्या एका पिक्सेलला संचिकेचा एक पिक्सेल</string>
     <string name="settings_scale_desc">प्रत्यक्ष पिक्सेलपर्यंत झूम करण्याचा अर्थ काय, हे ठरवते. कोणत्याही आधुनिक उपकरणाचा पडदा प्रत्येक तार्किक पिक्सेल दोन किंवा तीन प्रत्यक्ष पिक्सेलच्या चौरसाने काढतो. पहिला पर्याय तार्किक पिक्सेलकडे दुर्लक्ष करून प्रत्येक बिंदू एका प्रत्यक्ष पिक्सेलवर बसवतो; दुसरा प्रत्येक वस्तू वेब पानावर जेवढी दिसली असती तेवढ्या मापात दाखवतो.</string>
-    <string name="details_bar">तपशिलांची पट्टी</string>
     <string name="settings_top">वर</string>
     <string name="settings_bottom">खाली</string>
     <string name="settings_info_visible">माहिती पट्टी</string>
+    <string name="settings_info_position">स्थान</string>
     <string name="settings_anim_counter">फ्रेम काउंटर</string>
     <string name="settings_anim_counter_desc">हलत्या प्रतिमांच्या नियंत्रण पट्टीत दिसतो.</string>
     <string name="settings_reverse_order">सर्वात जुन्यापासून उजवीकडे प्रतिमा पलटा</string>

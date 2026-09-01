@@ -47,6 +47,9 @@
     <string name="folder_lost">haikupatikana kwenye folda</string>
     <string name="settings_title">Mipangilio</string>
     <string name="settings_back">Rudi</string>
+    <string name="settings_search">Tafuta katika mipangilio</string>
+    <string name="settings_search_clear">Futa utafutaji</string>
+    <string name="settings_search_none">Hakuna matokeo</string>
     <string name="settings_background">Nyuma ya picha</string>
     <string name="settings_bg_checker">Chesi</string>
     <string name="settings_bg_solid">Rangi moja</string>
@@ -79,10 +82,10 @@
     <string name="settings_scale_physical">Pikseli moja ya faili kwa pikseli moja ya skrini</string>
     <string name="settings_scale_logical">Pikseli moja ya faili kwa pikseli moja ya mpangilio</string>
     <string name="settings_scale_desc">Huamua maana ya kukuza hadi pikseli halisi. Skrini ya kifaa chochote cha kisasa huchora kila pikseli ya kimantiki kwa mraba wa pikseli halisi mbili au tatu. Chaguo la kwanza hupuuza pikseli za kimantiki na kuweka kila nukta kwenye pikseli halisi moja; la pili huonyesha kila kitu kwa ukubwa ambao kingekuwa nao kwenye ukurasa wa wavuti.</string>
-    <string name="details_bar">Mstari wa maelezo</string>
     <string name="settings_top">Juu</string>
     <string name="settings_bottom">Chini</string>
     <string name="settings_info_visible">Upau wa maelezo</string>
+    <string name="settings_info_position">Mahali</string>
     <string name="settings_anim_counter">Kihesabu fremu</string>
     <string name="settings_anim_counter_desc">Huonekana kwenye upau wa vidhibiti vya picha zinazosonga.</string>
     <string name="settings_reverse_order">Pitia picha kuelekea kulia kuanzia ya zamani zaidi</string>

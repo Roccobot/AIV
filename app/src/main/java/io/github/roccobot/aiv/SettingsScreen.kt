@@ -21,9 +21,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
@@ -33,21 +35,26 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import java.text.Normalizer
 import kotlin.math.roundToInt
 
 /**
@@ -96,10 +103,17 @@ fun SettingsScreen(
     // sopravvive al passaggio, perché `SettingsScreen` non esce di scena. Le sotto-pagine
     // invece il proprio lo vogliono nuovo: si entra dall'inizio.
     val rootScroll = rememberScrollState()
+    // ⚠️ Sta QUI e non dentro `RootPage` per la stessa ragione dello scorrimento: una
+    // sotto-pagina e il ritorno non devono cancellare quello che si stava cercando.
+    var query by remember { mutableStateOf("") }
     // ⚠️ Vince su quello dell'attività (`ViewerActivity`, che qui chiama `leaveSettings`)
     // perché è registrato DOPO: il dispatcher di Android serve l'ultimo arrivato fra quelli
     // accesi. È lo stesso annidamento della selezione nella griglia, che regge da versioni.
     BackHandler(enabled = page != Page.ROOT) { page = Page.ROOT }
+    // ⚠️ Con una ricerca in corso Indietro la annulla invece di uscire, ed è quello che fa
+    // ogni ricerca dentro un elenco: uscire dalle impostazioni lasciando l'elenco filtrato
+    // costringerebbe a rientrare per rivederlo intero. I due non sono mai accesi insieme.
+    BackHandler(enabled = page == Page.ROOT && query.isNotBlank()) { query = "" }
 
     when (page) {
         Page.ROOT -> Shell(
@@ -108,14 +122,44 @@ fun SettingsScreen(
             modifier = modifier,
             scroll = rootScroll
         ) {
-            RootPage(
-                settings = settings,
-                onChange = onChange,
-                onStartFolder = onStartFolder,
-                onResetHints = onResetHints,
-                onChooseEditor = onChooseEditor,
-                onOpen = { page = it }
-            )
+            SearchField(query = query, onQuery = { query = it })
+            /*
+             * ⚠️⚠️ **LA COLONNA IN PIÙ È IL MODO DI SAPERE SE LA RICERCA HA TROVATO
+             * QUALCOSA, e non un annidamento di troppo**: le righe si filtrano una per una e
+             * nessuno le conta, quindi l'unica cosa che sa quante ne sono rimaste è il
+             * **layout**, che senza figli misura zero. Contarle durante la composizione
+             * vorrebbe dire leggere un totale scritto da chi viene dopo, cioè mostrare
+             * 'nessun risultato' per un fotogramma anche quando i risultati ci sono.
+             * ⚠️ La spaziatura è la stessa del guscio, se no le voci si stringerebbero fra
+             * loro appena entrano in questa colonna.
+             */
+            var empty by remember { mutableStateOf(false) }
+            Column(
+                modifier = Modifier.onSizeChanged { empty = it.height == 0 },
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                CompositionLocalProvider(LocalQuery provides query) {
+                    RootPage(
+                        settings = settings,
+                        onChange = onChange,
+                        onStartFolder = onStartFolder,
+                        onResetHints = onResetHints,
+                        onChooseEditor = onChooseEditor,
+                        onOpen = { page = it }
+                    )
+                }
+            }
+            // ⚠️ Una pagina vuota sotto un campo di ricerca si legge come un'app rotta, non
+            // come 'non c'è niente': la riga dice che la ricerca ha funzionato e non ha
+            // trovato, che sono due cose diverse.
+            if (empty && query.isNotBlank()) {
+                Text(
+                    text = stringResource(R.string.settings_search_none),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 24.dp)
+                )
+            }
         }
 
         Page.FACTS -> Shell(
@@ -147,6 +191,99 @@ fun SettingsScreen(
 
 /** Quale delle quattro pagine si sta guardando. */
 private enum class Page { ROOT, FACTS, HIDDEN, ZOOM }
+
+/**
+ * Che cosa si sta cercando nelle impostazioni, e stringa vuota quando non si cerca.
+ *
+ * ⚠️⚠️ **UN `CompositionLocal` E NON UN PARAMETRO IN VENTOTTO RIGHE** (richiesta
+ * dell'utente, 2026-09-01: *aggiungi un 'cerca' nelle impostazioni*). Le voci di questa
+ * schermata sono una trentina, e ognuna è una chiamata a sé con le sue stringhe: passare il
+ * testo cercato a mano vorrebbe dire trenta parametri da tenere d'accordo, e la voce nuova
+ * che si dimentica di filtrarsi resterebbe in scena mentendo.
+ * ⚠️ **Filtra la RIGA e non l'elenco**: non esiste un modello di dati delle impostazioni da
+ * setacciare, esistono i composabili che le disegnano, e l'unico posto che conosce le
+ * parole di una riga è la riga stessa.
+ */
+private val LocalQuery = compositionLocalOf { "" }
+
+/**
+ * Se una riga con questi testi deve comparire adesso.
+ *
+ * ⚠️ **Senza ricerca in corso compare tutto**, ed è il caso normale: la stringa vuota non è
+ * un filtro che non trova niente, è l'assenza di filtro.
+ * ⚠️ **Confronto senza maiuscole e senza accenti**: chi cerca 'cestino' lo scrive minuscolo,
+ * e chi cerca la qualità la digita quasi sempre senza accento. Le ventotto lingue rendono il
+ * secondo caso la regola e non l'eccezione.
+ */
+@Composable
+private fun shown(vararg texts: String?): Boolean {
+    val query = plain(LocalQuery.current)
+    if (query.isEmpty()) return true
+    return texts.any { it != null && plain(it).contains(query) }
+}
+
+/**
+ * Il testo ridotto a quello che serve per confrontarlo: minuscolo e senza segni.
+ *
+ * ⚠️ **`Normalizer` e non una tabella di lettere**: la scomposizione canonica stacca il segno
+ * dalla lettera in **tutte** le lingue, e il filtro che toglie i segni combinanti vale per
+ * l'italiano come per il vietnamita. Una tabella scritta a mano coprirebbe le vocali
+ * accentate italiane e sbaglierebbe le altre ventisette lingue.
+ */
+private fun plain(text: String): String =
+    Normalizer.normalize(text.trim().lowercase(), Normalizer.Form.NFD)
+        .replace(SIGNS, "")
+
+private val SIGNS = Regex("\\p{Mn}+")
+
+/**
+ * Un blocco che non è una riga di serie, e che la ricerca deve poter nascondere.
+ *
+ * ⚠️ Serve ai pochi blocchi scritti a mano (l'editor, la cartella d'avvio, il ripristino
+ * degli avvisi): quelli costruiti con [Choices], [SwitchRow] e [PageRow] si filtrano da sé.
+ */
+@Composable
+private fun Searchable(vararg texts: String?, content: @Composable () -> Unit) {
+    if (shown(*texts)) content()
+}
+
+/**
+ * Il campo in cui si scrive che cosa si cerca, in testa alla pagina.
+ *
+ * ⚠️ **Scorre con l'elenco invece di restare inchiodato in testata**, ed è una scelta: appena
+ * si scrive qualcosa l'elenco si accorcia a poche righe e il campo resta in vista da sé,
+ * mentre una testata fissa costerebbe uno strato in più su tutte e quattro le pagine per un
+ * caso che non capita.
+ * ⚠️ La crocetta compare **solo con qualcosa scritto**: un tasto che non ha niente da
+ * cancellare è un bersaglio che si preme per sbaglio.
+ */
+@Composable
+private fun SearchField(query: String, onQuery: (String) -> Unit) {
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQuery,
+        // ⚠️ Una riga sola: il testo cercato è una parola, e un campo che si allarga
+        // spingerebbe l'elenco giù mentre lo si guarda.
+        singleLine = true,
+        placeholder = { Text(stringResource(R.string.settings_search)) },
+        leadingIcon = {
+            // ⚠️ Senza descrizione per lo schermo: la lente ripete quello che il campo dice
+            // già col suo suggerimento, e il lettore leggerebbe 'cerca' due volte.
+            Icon(imageVector = Icons.Default.Search, contentDescription = null)
+        },
+        trailingIcon = {
+            if (query.isNotEmpty()) {
+                IconButton(onClick = { onQuery("") }) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = stringResource(R.string.settings_search_clear)
+                    )
+                }
+            }
+        },
+        modifier = Modifier.fillMaxWidth()
+    )
+}
 
 /**
  * Le impostazioni di una riga sola, nei loro quattro gruppi.
@@ -240,26 +377,6 @@ private fun ColumnScope.RootPage(
         onOpen = { onOpen(Page.ZOOM) }
     )
 
-    // ⚠️⚠️ **LA STESSA STRINGA DEL MENU DEL VISUALIZZATORE** (`details_bar`, richiesta
-    // dell'utente: *deve chiamarsi così sia in questo menu che nelle impostazioni*). Due
-    // stringhe uguali si sarebbero separate al primo ritocco di una delle due; una
-    // stringa sola non può.
-    Choices(
-        label = stringResource(R.string.details_bar),
-        detail = null,
-        options = InfoPosition.entries,
-        selected = settings.infoPosition,
-        nameOf = {
-            stringResource(
-                when (it) {
-                    InfoPosition.TOP -> R.string.settings_top
-                    InfoPosition.BOTTOM -> R.string.settings_bottom
-                }
-            )
-        },
-        onSelect = { onChange(settings.copy(infoPosition = it)) }
-    )
-
     /*
      * ⚠️ **Le due della selezione stanno QUI, accanto a quelle della vista**, e non in un
      * gruppo loro: una voce sola non fa un gruppo, e due mezze voci in fondo alla pagina
@@ -313,6 +430,32 @@ private fun ColumnScope.RootPage(
     )
 
     /*
+     * ⚠️⚠️ **LA POSIZIONE STA SOTTO IL SUO INTERRUTTORE, dalla 1.20** (istruzione
+     * dell'utente, 2026-09-01: *la voce 'Barra delle info' ha già un interruttore:
+     * aggiungi una riga 'Posizione' riferita alla barra*). Prima viveva più in su, con un
+     * nome tutto suo ('Barra dei dettagli'), e la stessa cosa aveva due nomi in due punti
+     * della stessa pagina: chi spegneva l'una si domandava a che cosa servisse l'altra.
+     * ⚠️ **Si chiama 'Posizione' e basta**, senza ripetere di che cosa: sta attaccata alla
+     * riga che lo dice, e un titolo che ripete il titolo di sopra si legge come un'altra
+     * impostazione.
+     */
+    Choices(
+        label = stringResource(R.string.settings_info_position),
+        detail = null,
+        options = InfoPosition.entries,
+        selected = settings.infoPosition,
+        nameOf = {
+            stringResource(
+                when (it) {
+                    InfoPosition.TOP -> R.string.settings_top
+                    InfoPosition.BOTTOM -> R.string.settings_bottom
+                }
+            )
+        },
+        onSelect = { onChange(settings.copy(infoPosition = it)) }
+    )
+
+    /*
      * ⚠️ **Accanto alla barra delle info e non fra le voci dell'editor**: sono le due sole
      * impostazioni che dicono che cosa si vede SOPRA l'immagine mentre la si guarda, e chi
      * cerca l'una trova l'altra.
@@ -343,41 +486,42 @@ private fun ColumnScope.RootPage(
      * dal modello (`chooseEditor`) invece che da questa schermata. Due finestre gemelle
      * sarebbero divergite alla prima voce aggiunta.
      */
-    val context = LocalContext.current
-    val noEditor = stringResource(R.string.settings_editor_none)
-    // ⚠️ Ricordato, e non chiesto a ogni disegno: leggerlo vuol dire interrogare il
-    // `PackageManager`, cioè elencare le app del telefono. La chiave è la scelta, e in più
-    // la frase di ripiego, che cambia quando cambia la lingua.
-    val editorName = remember(settings.editorApp, noEditor) {
-        Editors.labelOf(context, settings.editorApp)
-    } ?: noEditor
-    // ⚠️ La forma è ESATTAMENTE quella della cartella d'avvio qui sotto (titolo e spiegazione,
-    // poi una riga con il valore in vigore e il tasto): sono la stessa cosa, cioè una scelta
-    // che si fa altrove e qui si mostra, e due disposizioni diverse per lo stesso mestiere
-    // farebbero cercare il tasto due volte.
-    Column(
-        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(2.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.settings_editor),
-            style = MaterialTheme.typography.titleSmall
-        )
-        Detail(stringResource(R.string.settings_editor_desc))
-    }
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text(
-            text = editorName,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.weight(1f)
-        )
-        TextButton(onClick = onChooseEditor) {
-            Text(stringResource(R.string.settings_editor_pick))
+    val editorLabel = stringResource(R.string.settings_editor)
+    val editorDesc = stringResource(R.string.settings_editor_desc)
+    Searchable(editorLabel, editorDesc) {
+        val context = LocalContext.current
+        val noEditor = stringResource(R.string.settings_editor_none)
+        // ⚠️ Ricordato, e non chiesto a ogni disegno: leggerlo vuol dire interrogare il
+        // `PackageManager`, cioè elencare le app del telefono. La chiave è la scelta, e in più
+        // la frase di ripiego, che cambia quando cambia la lingua.
+        val editorName = remember(settings.editorApp, noEditor) {
+            Editors.labelOf(context, settings.editorApp)
+        } ?: noEditor
+        // ⚠️ La forma è ESATTAMENTE quella della cartella d'avvio qui sotto (titolo e
+        // spiegazione, poi una riga con il valore in vigore e il tasto): sono la stessa cosa,
+        // cioè una scelta che si fa altrove e qui si mostra, e due disposizioni diverse per lo
+        // stesso mestiere farebbero cercare il tasto due volte.
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Text(text = editorLabel, style = MaterialTheme.typography.titleSmall)
+            Detail(editorDesc)
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = editorName,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f)
+            )
+            TextButton(onClick = onChooseEditor) {
+                Text(stringResource(R.string.settings_editor_pick))
+            }
         }
     }
 
@@ -495,33 +639,40 @@ private fun ColumnScope.RootPage(
         onChange = { onChange(settings.copy(clipboardStart = it)) }
     )
 
-    SwitchRow(
-        label = stringResource(R.string.settings_start_folder),
-        detail = stringResource(R.string.settings_start_folder_desc),
-        checked = settings.openAtStart,
-        // ⚠️ Acceso senza una cartella scelta porta ALL'ELENCO invece di accendersi
-        // e non fare niente: un interruttore che dipende da un'altra voce e non lo
-        // dice è il modo classico di far sembrare rotta un'impostazione.
-        onChange = {
-            if (it && settings.startFolder == null) onStartFolder()
-            else onChange(settings.copy(openAtStart = it))
-        }
-    )
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text(
-            text = settings.startFolderName.ifBlank {
-                stringResource(R.string.settings_start_folder_none)
-            },
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.weight(1f)
+    // ⚠️ L'interruttore e la riga della cartella si mostrano e si nascondono INSIEME, e per
+    // questo la ricerca li tratta come un blocco solo: la riga sotto non ha un titolo suo, e
+    // rimasta sola direbbe un nome di cartella senza dire di che cosa parla.
+    val startLabel = stringResource(R.string.settings_start_folder)
+    val startDesc = stringResource(R.string.settings_start_folder_desc)
+    Searchable(startLabel, startDesc) {
+        SwitchRow(
+            label = startLabel,
+            detail = startDesc,
+            checked = settings.openAtStart,
+            // ⚠️ Acceso senza una cartella scelta porta ALL'ELENCO invece di accendersi
+            // e non fare niente: un interruttore che dipende da un'altra voce e non lo
+            // dice è il modo classico di far sembrare rotta un'impostazione.
+            onChange = {
+                if (it && settings.startFolder == null) onStartFolder()
+                else onChange(settings.copy(openAtStart = it))
+            }
         )
-        TextButton(onClick = onStartFolder) {
-            Text(stringResource(R.string.settings_start_folder_pick))
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = settings.startFolderName.ifBlank {
+                    stringResource(R.string.settings_start_folder_none)
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f)
+            )
+            TextButton(onClick = onStartFolder) {
+                Text(stringResource(R.string.settings_start_folder_pick))
+            }
         }
     }
 
@@ -536,28 +687,37 @@ private fun ColumnScope.RootPage(
      * più, quindi senza questa l'unica via per rivederli era cancellare i dati dell'app,
      * che si porta via anche le impostazioni.
      */
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(
-                text = stringResource(R.string.settings_reset_hints),
-                style = MaterialTheme.typography.titleSmall
-            )
-            Detail(stringResource(R.string.settings_reset_hints_desc))
+    val resetLabel = stringResource(R.string.settings_reset_hints)
+    val resetDesc = stringResource(R.string.settings_reset_hints_desc)
+    Searchable(resetLabel, resetDesc) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(text = resetLabel, style = MaterialTheme.typography.titleSmall)
+                Detail(resetDesc)
+            }
+            val context = LocalContext.current
+            val done = stringResource(R.string.settings_reset_hints_done)
+            TextButton(onClick = {
+                onResetHints()
+                // ⚠️ L'avviso serve perché l'effetto non si vede QUI: i veli tornano in
+                // un'altra schermata, e un tasto che non dà segno di aver fatto qualcosa si
+                // preme due volte.
+                Toast.makeText(context, done, Toast.LENGTH_SHORT).show()
+            }) { Text(stringResource(R.string.settings_reset_hints_do)) }
         }
-        val context = LocalContext.current
-        val done = stringResource(R.string.settings_reset_hints_done)
-        TextButton(onClick = {
-            onResetHints()
-            // ⚠️ L'avviso serve perché l'effetto non si vede QUI: i veli tornano in
-            // un'altra schermata, e un tasto che non dà segno di aver fatto qualcosa si
-            // preme due volte.
-            Toast.makeText(context, done, Toast.LENGTH_SHORT).show()
-        }) { Text(stringResource(R.string.settings_reset_hints_do)) }
     }
+
+    // ⚠️ Mentre si cerca il piede non c'è: il filetto dice 'le impostazioni finiscono qui' e
+    // il logo è la firma della pagina intera, e sotto due risultati direbbero l'una e l'altra
+    // cosa di un elenco che non è la pagina.
+    if (LocalQuery.current.isNotBlank()) return
 
     // ⚠️ **L'UNICO filetto che resta**, e resta perché non separa due gruppi ma dice che
     // i gruppi sono finiti: sotto non c'è un'altra impostazione, c'è il piede.
@@ -627,6 +787,10 @@ private fun Shell(
  */
 @Composable
 private fun Group(title: String) {
+    // ⚠️ Mentre si cerca i titoli di gruppo NON compaiono: i risultati vengono da gruppi
+    // diversi e mescolati, e un titolo rimasto in piedi sopra due righe che non gli
+    // appartengono direbbe il falso. È il comportamento di ogni ricerca in un elenco.
+    if (LocalQuery.current.isNotBlank()) return
     Text(
         text = title,
         style = MaterialTheme.typography.titleMedium,
@@ -656,6 +820,7 @@ private fun Detail(text: String) {
  */
 @Composable
 private fun PageRow(label: String, summary: String, onOpen: () -> Unit) {
+    if (!shown(label, summary)) return
     Row(
         // ⚠️ `clickable` PRIMA di `padding`: così il tocco prende anche il margine, e la
         // riga arriva ai 48dp di bersaglio senza scriverli.
@@ -892,6 +1057,14 @@ private fun <T : Choice> Choices(
     nameOf: @Composable (T) -> String,
     onSelect: (T) -> Unit
 ) {
+    // ⚠️⚠️ **ANCHE I NOMI DELLE PASTIGLIE entrano nella ricerca**, e non solo il titolo della
+    // riga: 'Scacchiera', 'Chiaro' e 'In alto' sono i nomi con cui si pensa a
+    // quell'impostazione, mentre il titolo che le contiene ('Sfondo', 'Posizione') è la
+    // parola che non si ricorda. Cercare quello che si vuole ottenere è il caso normale.
+    // ⚠️ Calcolati UNA volta e riusati sotto: `nameOf` è una `stringResource`, e chiamarla
+    // due volte per pastiglia raddoppierebbe le letture a ogni tasto premuto.
+    val names = options.map { nameOf(it) }
+    if (!shown(label, detail, *names.toTypedArray())) return
     Text(
         text = label,
         style = MaterialTheme.typography.titleSmall,
@@ -899,11 +1072,11 @@ private fun <T : Choice> Choices(
     )
     detail?.let { Detail(it) }
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        options.forEach { option ->
+        options.forEachIndexed { at, option ->
             FilterChip(
                 selected = option == selected,
                 onClick = { onSelect(option) },
-                label = { Text(nameOf(option)) }
+                label = { Text(names[at]) }
             )
         }
     }
@@ -916,6 +1089,7 @@ private fun SwitchRow(
     checked: Boolean,
     onChange: (Boolean) -> Unit
 ) {
+    if (!shown(label, detail)) return
     Row(
         modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
         verticalAlignment = Alignment.CenterVertically,

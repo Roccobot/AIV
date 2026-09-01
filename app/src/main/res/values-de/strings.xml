@@ -47,6 +47,9 @@
     <string name="folder_lost">im Ordner nicht gefunden</string>
     <string name="settings_title">Einstellungen</string>
     <string name="settings_back">Zurück</string>
+    <string name="settings_search">Einstellungen durchsuchen</string>
+    <string name="settings_search_clear">Suche löschen</string>
+    <string name="settings_search_none">Keine Treffer</string>
     <string name="settings_background">Hinter dem Bild</string>
     <string name="settings_bg_checker">Schachbrett</string>
     <string name="settings_bg_solid">Einfarbig</string>
@@ -79,10 +82,10 @@
     <string name="settings_scale_physical">Ein Pixel der Datei pro Bildschirmpixel</string>
     <string name="settings_scale_logical">Ein Pixel der Datei pro Layoutpixel</string>
     <string name="settings_scale_desc">Legt fest, was der Zoom auf echte Pixel bedeutet. Der Bildschirm jedes modernen Geräts zeichnet jedes logische Pixel als Quadrat aus zwei oder drei echten Pixeln. Die erste Wahl ignoriert die logischen Pixel und bildet jeden Punkt auf ein echtes Pixel ab; die zweite zeigt jedes Objekt in der Größe, die es auf einer Webseite hätte.</string>
-    <string name="details_bar">Detailleiste</string>
     <string name="settings_top">Oben</string>
     <string name="settings_bottom">Unten</string>
     <string name="settings_info_visible">Infoleiste</string>
+    <string name="settings_info_position">Position</string>
     <string name="settings_anim_counter">Bildzähler</string>
     <string name="settings_anim_counter_desc">Erscheint in der Steuerleiste animierter Bilder.</string>
     <string name="settings_reverse_order">Bilder nach rechts vom ältesten an durchblättern</string>

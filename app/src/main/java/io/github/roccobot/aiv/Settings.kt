@@ -180,7 +180,14 @@ data class Settings(
     val fitGrow: Boolean = false,
     val zoomMax: Float = 40f,
     val scaleMode: ScaleMode = ScaleMode.PHYSICAL,
-    val infoPosition: InfoPosition = InfoPosition.BOTTOM,
+    /**
+     * Dove sta la barra delle info.
+     *
+     * ⚠️ **In alto di serie dalla 1.20** (scelta dell'utente, 2026-09-01): là non finisce
+     * sotto il pollice di chi sfoglia, e non litiga con la fila dei comandi delle immagini
+     * animate, che sta in basso al centro.
+     */
+    val infoPosition: InfoPosition = InfoPosition.TOP,
     val infoVisible: Boolean = true,
     /**
      * Se la sequenza si sfoglia in ordine **cronologico** invece che dalla più recente.
@@ -475,7 +482,7 @@ object SettingsStore {
             fitGrow = p[FIT_GROW] ?: false,
             zoomMax = (p[ZOOM_MAX] ?: 40f).coerceIn(ZOOM_MAX_MIN, ZOOM_MAX_MAX),
             scaleMode = ScaleMode.entries.byToken(p[SCALE_MODE], ScaleMode.PHYSICAL),
-            infoPosition = InfoPosition.entries.byToken(p[INFO_POSITION], InfoPosition.BOTTOM),
+            infoPosition = InfoPosition.entries.byToken(p[INFO_POSITION], InfoPosition.TOP),
             infoVisible = p[INFO_VISIBLE] ?: true,
             reverseSequence = p[REVERSE_SEQUENCE] ?: false,
             startFolder = p[START_FOLDER],

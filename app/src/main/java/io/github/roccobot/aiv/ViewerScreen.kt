@@ -2083,8 +2083,6 @@ private fun ImageCanvas(
                 onZoom = { animateTo(it) },
                 oneToOne = oneToOne,
                 restScale = restScale,
-                detailsOn = info.visible,
-                onToggleDetails = { info.visible = !info.visible },
                 ops = ops,
                 inBin = inBin,
                 binOn = settings.binOn
@@ -2407,9 +2405,6 @@ private fun ImageMenu(
     onZoom: (Float) -> Unit,
     oneToOne: Float,
     restScale: Float,
-    /** Se la barra dei dettagli è accesa adesso: l'interruttore deve mostrare il suo stato. */
-    detailsOn: Boolean,
-    onToggleDetails: () -> Unit,
     ops: MenuOps,
     inBin: Boolean,
     /**
@@ -2554,28 +2549,16 @@ private fun ImageMenu(
                 onClick = { onDismiss(); onZoom(oneToOne) }
             )
 
-            HorizontalDivider()
-
             /*
-             * ⚠️⚠️ **UN TASTONE ON/OFF CHE MOSTRA IL SUO STATO** (richiesta dell'utente):
-             * prima era una voce che diceva 'Dettagli' e non diceva se la barra era
-             * accesa, quindi toccarla era una scommessa. L'interruttore la vince prima di
-             * toccarla.
-             * ⚠️⚠️ **E SI CHIAMA COME NELLE IMPOSTAZIONI, con la STESSA stringa**
-             * (`details_bar`, richiesta dell'utente: *deve chiamarsi così sia in questo
-             * menu che nelle impostazioni*). Due stringhe uguali si sarebbero separate al
-             * primo ritocco di una delle due: una stringa sola non può.
-             * ⚠️ L'interruttore NON ha un suo `onCheckedChange`: il tocco lo prende la
-             * voce intera, che è un bersaglio da 48dp invece di uno da 32, e un
-             * interruttore che si può toccare per conto suo dentro una voce toccabile dà
-             * due bersagli per un solo effetto.
+             * ⚠️⚠️ **LA BARRA DELLE INFO NON STA PIÙ IN QUESTO MENU, dalla 1.20**
+             * (istruzione dell'utente, 2026-09-01: *togli del tutto i riferimenti alla
+             * barra delle info dal menu a pressione lunga; si decide tutto dalle
+             * impostazioni*). Qui era arrivata come interruttore per non far scommettere
+             * sul suo stato, ma restava la sola voce del menu che non fa niente
+             * all'immagine: cambia una preferenza, e le preferenze hanno una schermata.
+             * ⚠️ **E là adesso ce ne sono DUE, l'acceso e la posizione**, che in un menu
+             * sarebbero state due voci per una cosa sola.
              */
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.details_bar)) },
-                leadingIcon = { Icon(Icons.Outlined.Subtitles, null) },
-                trailingIcon = { Switch(checked = detailsOn, onCheckedChange = null) },
-                onClick = { onDismiss(); onToggleDetails() }
-            )
 
             HorizontalDivider()
 

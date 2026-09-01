@@ -47,6 +47,9 @@
     <string name="folder_lost">தன் கோப்புறையில் கிடைக்கவில்லை</string>
     <string name="settings_title">அமைப்புகள்</string>
     <string name="settings_back">பின்செல்</string>
+    <string name="settings_search">அமைப்புகளில் தேடு</string>
+    <string name="settings_search_clear">தேடலை அழி</string>
+    <string name="settings_search_none">முடிவுகள் இல்லை</string>
     <string name="settings_background">படத்தின் பின்னால்</string>
     <string name="settings_bg_checker">சதுரங்கக் கட்டம்</string>
     <string name="settings_bg_solid">ஒரே நிறம்</string>
@@ -79,10 +82,10 @@
     <string name="settings_scale_physical">திரையின் ஒரு படத்துணுக்குக்கு கோப்பின் ஒரு படத்துணுக்கு</string>
     <string name="settings_scale_logical">அமைப்பின் ஒரு படத்துணுக்குக்கு கோப்பின் ஒரு படத்துணுக்கு</string>
     <string name="settings_scale_desc">உண்மையான பிக்சல்களுக்குப் பெரிதாக்குவது எதைக் குறிக்கிறது என்பதை நிர்ணயிக்கிறது. இன்றைய எந்தச் சாதனத்தின் திரையும் ஒவ்வொரு தருக்கப் பிக்சலையும் இரண்டு அல்லது மூன்று உண்மையான பிக்சல்களின் சதுரமாக வரைகிறது. முதல் தேர்வு தருக்கப் பிக்சல்களைப் புறக்கணித்து ஒவ்வொரு புள்ளியையும் ஒரு உண்மையான பிக்சலில் பொருத்துகிறது; இரண்டாவது ஒவ்வொரு பொருளையும் இணையப் பக்கத்தில் இருக்கும் அளவில் காட்டுகிறது.</string>
-    <string name="details_bar">விவரப் பட்டை</string>
     <string name="settings_top">மேலே</string>
     <string name="settings_bottom">கீழே</string>
     <string name="settings_info_visible">தகவல் பட்டை</string>
+    <string name="settings_info_position">இடம்</string>
     <string name="settings_anim_counter">சட்டக எண்ணிக்கை</string>
     <string name="settings_anim_counter_desc">அசையும் படங்களின் கட்டுப்பாட்டுப் பட்டையில் தோன்றும்.</string>
     <string name="settings_reverse_order">பழையதிலிருந்து வலப்புறமாகப் படங்களைப் புரட்டு</string>

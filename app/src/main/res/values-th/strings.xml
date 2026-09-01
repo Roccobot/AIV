@@ -47,6 +47,9 @@
     <string name="folder_lost">ไม่พบในโฟลเดอร์</string>
     <string name="settings_title">การตั้งค่า</string>
     <string name="settings_back">ย้อนกลับ</string>
+    <string name="settings_search">ค้นหาในการตั้งค่า</string>
+    <string name="settings_search_clear">ล้างการค้นหา</string>
+    <string name="settings_search_none">ไม่พบผลลัพธ์</string>
     <string name="settings_background">ด้านหลังภาพ</string>
     <string name="settings_bg_checker">ลายตาหมากรุก</string>
     <string name="settings_bg_solid">สีเดียว</string>
@@ -79,10 +82,10 @@
     <string name="settings_scale_physical">หนึ่งพิกเซลของไฟล์ต่อหนึ่งพิกเซลหน้าจอ</string>
     <string name="settings_scale_logical">หนึ่งพิกเซลของไฟล์ต่อหนึ่งพิกเซลของเลย์เอาต์</string>
     <string name="settings_scale_desc">กำหนดว่าการซูมเป็นพิกเซลจริงหมายถึงอะไร หน้าจอของอุปกรณ์สมัยใหม่ทุกเครื่องวาดพิกเซลเชิงตรรกะหนึ่งพิกเซลด้วยสี่เหลี่ยมจัตุรัสของพิกเซลจริงสองหรือสามพิกเซล ตัวเลือกแรกไม่สนใจพิกเซลเชิงตรรกะและจับทุกจุดให้ตรงกับพิกเซลจริงหนึ่งพิกเซล ส่วนตัวเลือกที่สองแสดงทุกวัตถุในขนาดที่ควรมีบนหน้าเว็บ</string>
-    <string name="details_bar">แถบรายละเอียด</string>
     <string name="settings_top">ด้านบน</string>
     <string name="settings_bottom">ด้านล่าง</string>
     <string name="settings_info_visible">แถบข้อมูล</string>
+    <string name="settings_info_position">ตำแหน่ง</string>
     <string name="settings_anim_counter">ตัวนับเฟรม</string>
     <string name="settings_anim_counter_desc">แสดงในแถบควบคุมของภาพเคลื่อนไหว</string>
     <string name="settings_reverse_order">เลื่อนดูภาพไปทางขวาจากภาพเก่าที่สุด</string>

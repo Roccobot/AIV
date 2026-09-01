@@ -71,6 +71,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -218,7 +219,19 @@ fun GridScreen(
      * chiama non esiste, e un parametro obbligatorio costringerebbe le altre due griglie
      * (cartella e ricerca) a passare una funzione che non useranno mai.
      */
-    onHistory: () -> Unit = {}
+    onHistory: () -> Unit = {},
+    /**
+     * Avvisa che la griglia ha una selezione viva, cioè che una rilettura le farebbe danno.
+     *
+     * ⚠️⚠️ **SERVE ALL'AGGIORNAMENTO AUTOMATICO e a nient'altro**: quando arriva un file da
+     * fuori il modello rilegge la cartella da sé, e una lista nuova azzera la selezione (è
+     * `remember(items)`, poco più sotto). Senza questo avviso, trenta foto spuntate
+     * sparirebbero perché qualcuno ha mandato una fotografia da un altro dispositivo. Il
+     * perché la rilettura non si limiti ad aspettare sta su `ViewerViewModel.gridBusy`.
+     * ⚠️ Il valore di serie non fa niente: le anteprime e i richiami che non lo passano non
+     * hanno un modello dietro da avvisare.
+     */
+    onBusy: (Boolean) -> Unit = {}
 ) {
     val state = rememberLazyGridState()
     val context = LocalContext.current
@@ -292,6 +305,16 @@ fun GridScreen(
     /** Se si sta chiedendo di svuotare il cestino. Vale solo quando [bin] è vero. */
     var emptying by remember { mutableStateOf(false) }
     val picking = chosen.isNotEmpty()
+
+    // ⚠️ In un effetto e non a filo della composizione: avvisare il modello è un cambiamento
+    // di stato fuori da qui, e farlo mentre si disegna vorrebbe dire scrivere e leggere lo
+    // stesso dato nello stesso giro. La chiave è il **se** e non l'insieme: aggiungere la
+    // trentunesima foto alla selezione non è una notizia nuova.
+    LaunchedEffect(picking) { onBusy(picking) }
+    // ⚠️ E uscendo dalla griglia la selezione se ne va con la schermata, quindi il modello va
+    // liberato: senza resterebbe convinto che c'è una selezione viva, e non rileggerebbe mai
+    // più da sé.
+    DisposableEffect(Unit) { onDispose { onBusy(false) } }
 
     /**
      * Se c'è qualcosa qui dentro.

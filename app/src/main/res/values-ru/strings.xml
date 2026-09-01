@@ -47,6 +47,9 @@
     <string name="folder_lost">не найдено в своей папке</string>
     <string name="settings_title">Настройки</string>
     <string name="settings_back">Назад</string>
+    <string name="settings_search">Поиск в настройках</string>
+    <string name="settings_search_clear">Очистить поиск</string>
+    <string name="settings_search_none">Ничего не найдено</string>
     <string name="settings_background">За изображением</string>
     <string name="settings_bg_checker">Шахматка</string>
     <string name="settings_bg_solid">Однотонный</string>
@@ -79,10 +82,10 @@
     <string name="settings_scale_physical">Один пиксель файла на один пиксель экрана</string>
     <string name="settings_scale_logical">Один пиксель файла на один пиксель разметки</string>
     <string name="settings_scale_desc">Задаёт, чему соответствует масштаб в реальных пикселях. Экран любого современного устройства рисует каждый логический пиксель квадратом из двух или трёх реальных. Первый вариант не учитывает логические пиксели и переводит каждую точку в один реальный пиксель; второй показывает каждый объект того размера, который он имел бы на веб-странице.</string>
-    <string name="details_bar">Строка подробностей</string>
     <string name="settings_top">Сверху</string>
     <string name="settings_bottom">Снизу</string>
     <string name="settings_info_visible">Панель сведений</string>
+    <string name="settings_info_position">Положение</string>
     <string name="settings_anim_counter">Счётчик кадров</string>
     <string name="settings_anim_counter_desc">Показывается на панели управления анимированных изображений.</string>
     <string name="settings_reverse_order">Листать изображения вправо от самого старого</string>

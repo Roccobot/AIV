@@ -420,8 +420,11 @@ object Folder {
      * ⚠️ **Il volume si scrive per esteso e non con `MediaStore.VOLUME_EXTERNAL`**, che è
      * arrivato con Android 10: la stringa è la stessa e vale anche sui telefoni più
      * vecchi, che questa app sostiene fino ad Android 9.
+     * ⚠️ **Non è privata perché è anche l'indirizzo che si ascolta**: `ViewerViewModel` ci
+     * registra l'osservatore che accorge l'app dei file arrivati da fuori, e la tabella da
+     * ascoltare deve essere per forza quella che si legge.
      */
-    private val TABLE: Uri = MediaStore.Files.getContentUri("external")
+    val TABLE: Uri = MediaStore.Files.getContentUri("external")
 
     /**
      * Il filtro che tiene fuori tutto ciò che non è una fotografia o un filmato.

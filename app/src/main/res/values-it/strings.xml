@@ -101,6 +101,9 @@
     <!-- ── Impostazioni ── -->
     <string name="settings_title">Impostazioni</string>
     <string name="settings_back">Indietro</string>
+    <string name="settings_search">Cerca nelle impostazioni</string>
+    <string name="settings_search_clear">Cancella la ricerca</string>
+    <string name="settings_search_none">Nessun risultato</string>
 
     <string name="settings_background">Dietro all\'immagine</string>
     <string name="settings_bg_checker">Scacchiera</string>
@@ -141,10 +144,10 @@
     <string name="settings_scale_logical">Un pixel del file per pixel di layout</string>
     <string name="settings_scale_desc">Stabilisce a cosa corrisponde lo zoom a pixel reali. Lo schermo di qualsiasi dispositivo moderno disegna ogni pixel logico con un quadrato di due o tre pixel reali. La prima scelta ignora i pixel logici e mappa ogni punto su un pixel reale; la seconda mostra ogni oggetto della misura che avrebbe in una pagina Web.</string>
 
-    <string name="details_bar">Barra dei dettagli</string>
     <string name="settings_top">In alto</string>
     <string name="settings_bottom">In basso</string>
     <string name="settings_info_visible">Barra delle info</string>
+    <string name="settings_info_position">Posizione</string>
     <string name="settings_anim_counter">Contatore dei fotogrammi</string>
     <string name="settings_anim_counter_desc">Compare nella fila dei comandi delle immagini animate.</string>
 
