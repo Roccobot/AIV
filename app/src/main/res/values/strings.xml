@@ -59,9 +59,6 @@
     <string name="editor_tall">Portrait</string>
     <string name="editor_wide">Landscape</string>
     <string name="editor_save">Save</string>
-    <string name="editor_how">How do you want to save it?</string>
-    <string name="editor_overwrite">Write over the file</string>
-    <string name="editor_copy">Save a copy</string>
     <string name="editor_done">Saved</string>
     <!-- Said when the copy went next to the original instead of over it. -->
     <string name="editor_done_copy">Copy saved</string>
@@ -85,7 +82,7 @@
     <string name="settings_editor_none">None chosen</string>
     <string name="settings_editor_pick">Choose</string>
     <string name="settings_editor_backup">Safety copy before writing over</string>
-    <string name="settings_editor_backup_desc">Before the built in editor writes over a picture, the version from before goes into the bin. It only covers the built in editor: another app saves on its own.</string>
+    <string name="settings_editor_backup_desc">Before the built in editor writes over a picture, the version from before goes into the bin. It only covers the built in editor: another app saves on its own. ⚠️ With this off there is no way back, because the built in editor always writes over.</string>
 
     <string name="toast_image_copied">Image copied</string>
     <string name="toast_copy_failed">The copy did not go through</string>

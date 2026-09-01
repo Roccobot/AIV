@@ -293,9 +293,6 @@
     <string name="editor_right">Girar para a direita</string>
     <string name="editor_free">Livre</string>
     <string name="editor_save">Salvar</string>
-    <string name="editor_how">Como você quer salvar?</string>
-    <string name="editor_overwrite">Sobrescrever o arquivo</string>
-    <string name="editor_copy">Salvar uma cópia</string>
     <string name="editor_done">Salva</string>
     <string name="editor_done_copy">Cópia salva</string>
     <string name="editor_done_lossless">Salva sem recomprimir</string>
@@ -315,7 +312,7 @@
     <string name="view_tree">Pastas</string>
     <string name="edit_no_backup">A cópia de segurança falhou, então nada foi sobrescrito</string>
     <string name="settings_editor_backup">Cópia de segurança antes de sobrescrever</string>
-    <string name="settings_editor_backup_desc">Antes de o editor interno sobrescrever uma imagem, a versão anterior vai para a lixeira. Vale só para o editor interno: outro app salva por conta própria.</string>
+    <string name="settings_editor_backup_desc">Antes de o editor interno sobrescrever uma imagem, a versão anterior vai para a lixeira. Vale só para o editor interno: outro app salva por conta própria. ⚠️ Desligado, não há como voltar atrás, porque o editor interno sempre sobrescreve.</string>
     <string name="editor_tall">Retrato</string>
     <string name="editor_wide">Paisagem</string>
     <string name="pick_drop_ask">Descartar a seleção?</string>

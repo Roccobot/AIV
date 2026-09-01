@@ -278,9 +278,6 @@
     <string name="editor_right">Sağa çevir</string>
     <string name="editor_free">Serbest</string>
     <string name="editor_save">Kaydet</string>
-    <string name="editor_how">Nasıl kaydedilsin?</string>
-    <string name="editor_overwrite">Dosyanın üzerine yaz</string>
-    <string name="editor_copy">Kopyasını kaydet</string>
     <string name="editor_done">Kaydedildi</string>
     <string name="editor_done_copy">Kopya kaydedildi</string>
     <string name="editor_done_lossless">Yeniden sıkıştırmadan kaydedildi</string>
@@ -300,7 +297,7 @@
     <string name="view_tree">Klasörler</string>
     <string name="edit_no_backup">Yedek kopya alınamadı, bu yüzden hiçbir şeyin üzerine yazılmadı</string>
     <string name="settings_editor_backup">Üzerine yazmadan önce yedek kopya</string>
-    <string name="settings_editor_backup_desc">Yerleşik düzenleyici bir resmin üzerine yazmadan önce, önceki hâli çöp kutusuna gider. Yalnızca yerleşik düzenleyici için geçerli: başka bir uygulama kendi başına kaydeder.</string>
+    <string name="settings_editor_backup_desc">Yerleşik düzenleyici bir resmin üzerine yazmadan önce, önceki hâli çöp kutusuna gider. Yalnızca yerleşik düzenleyici için geçerli: başka bir uygulama kendi başına kaydeder. ⚠️ Kapalıyken geri dönüş yoktur, çünkü yerleşik düzenleyici her zaman üzerine yazar.</string>
     <string name="editor_tall">Dikey</string>
     <string name="editor_wide">Yatay</string>
     <string name="pick_drop_ask">Seçim bırakılsın mı?</string>

@@ -293,9 +293,6 @@
     <string name="editor_right">Tourner à droite</string>
     <string name="editor_free">Libre</string>
     <string name="editor_save">Enregistrer</string>
-    <string name="editor_how">Comment veux-tu l\'enregistrer ?</string>
-    <string name="editor_overwrite">Écraser le fichier</string>
-    <string name="editor_copy">Enregistrer une copie</string>
     <string name="editor_done">Enregistrée</string>
     <string name="editor_done_copy">Copie enregistrée</string>
     <string name="editor_done_lossless">Enregistrée sans recompression</string>
@@ -315,7 +312,7 @@
     <string name="view_tree">Dossiers</string>
     <string name="edit_no_backup">La copie de sûreté a échoué, donc rien n\'a été écrasé</string>
     <string name="settings_editor_backup">Copie de sûreté avant d\'écraser</string>
-    <string name="settings_editor_backup_desc">Avant que l\'éditeur intégré n\'écrase une image, la version d\'avant part à la corbeille. Cela ne vaut que pour l\'éditeur intégré : une autre app enregistre de son côté.</string>
+    <string name="settings_editor_backup_desc">Avant que l\'éditeur intégré n\'écrase une image, la version d\'avant part à la corbeille. Cela ne vaut que pour l\'éditeur intégré : une autre app enregistre de son côté. ⚠️ Désactivé, il n\'y a plus de retour en arrière, car l\'éditeur interne écrase toujours.</string>
     <string name="editor_tall">Portrait</string>
     <string name="editor_wide">Paysage</string>
     <string name="pick_drop_ask">Abandonner la sélection ?</string>

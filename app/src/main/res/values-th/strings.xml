@@ -263,9 +263,6 @@
     <string name="editor_right">หมุนขวา</string>
     <string name="editor_free">อิสระ</string>
     <string name="editor_save">บันทึก</string>
-    <string name="editor_how">อยากบันทึกแบบไหน</string>
-    <string name="editor_overwrite">เขียนทับไฟล์</string>
-    <string name="editor_copy">บันทึกเป็นสำเนา</string>
     <string name="editor_done">บันทึกแล้ว</string>
     <string name="editor_done_copy">บันทึกสำเนาแล้ว</string>
     <string name="editor_done_lossless">บันทึกแล้วโดยไม่บีบอัดใหม่</string>
@@ -285,7 +282,7 @@
     <string name="view_tree">โฟลเดอร์</string>
     <string name="edit_no_backup">สำเนาสำรองไม่สำเร็จ จึงไม่ได้เขียนทับอะไรเลย</string>
     <string name="settings_editor_backup">สำเนาสำรองก่อนเขียนทับ</string>
-    <string name="settings_editor_backup_desc">ก่อนที่ตัวแก้ไขในตัวจะเขียนทับรูป รุ่นก่อนหน้าจะไปอยู่ในถังขยะ ใช้กับตัวแก้ไขในตัวเท่านั้น แอปอื่นบันทึกเอง</string>
+    <string name="settings_editor_backup_desc">ก่อนที่ตัวแก้ไขในตัวจะเขียนทับรูป รุ่นก่อนหน้าจะไปอยู่ในถังขยะ ใช้กับตัวแก้ไขในตัวเท่านั้น แอปอื่นบันทึกเอง ⚠️ เมื่อปิดไว้จะย้อนกลับไม่ได้ เพราะตัวแก้ไขในตัวจะเขียนทับเสมอ</string>
     <string name="editor_tall">แนวตั้ง</string>
     <string name="editor_wide">แนวนอน</string>
     <string name="pick_drop_ask">ยกเลิกการเลือกไหม</string>

@@ -92,19 +92,21 @@ import kotlin.math.roundToInt
 @Composable
 fun EditorScreen(
     uri: Uri,
-    /** Il nome del file: serve a sapere se si può sovrascrivere. */
-    name: String,
     /** Se una scrittura è in corso: i comandi si spengono, o si salverebbe due volte. */
     busy: Boolean,
     /**
-     * Che cosa salvare e come.
+     * Che cosa salvare.
      *
      * ⚠️⚠️ **IL LAVORO LO FA CHI CHIAMA, e non questa schermata**: una scrittura da venti
      * megapixel dura secondi, e appesa alla composizione morirebbe nel momento in cui la
      * schermata si chiude, cioè proprio quando l'utente ha finito. Nell'ambito del modello
      * invece arriva in fondo.
+     * ⚠️⚠️ **E DALLA 1.08 NON DICE PIÙ 'COME', ed è la richiesta dell'utente**: si sovrascrive
+     * e basta. Il perché sta sul tasto Salva. Anche la scelta fra sovrascrivere e copiare non
+     * è più di questa schermata: la decide il formato del file, e il formato lo conosce il
+     * modello.
      */
-    onSave: (turns: Int, crop: ImageEdit.Crop, way: ImageEdit.Way) -> Unit,
+    onSave: (turns: Int, crop: ImageEdit.Crop) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -113,7 +115,6 @@ fun EditorScreen(
     var turns by remember(uri) { mutableIntStateOf(0) }
     var shape by remember(uri) { mutableStateOf(Shape.FREE) }
     var crop by remember(uri) { mutableStateOf(ImageEdit.Crop.WHOLE) }
-    var asking by remember { mutableStateOf(false) }
 
     BackHandler { onBack() }
 
@@ -167,8 +168,23 @@ fun EditorScreen(
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.weight(1f)
             )
+            /*
+             * ⚠️⚠️ **SALVA SOVRASCRIVE, E NON CHIEDE PIÙ, dalla 1.08** (richiesta dell'utente:
+             * *dato che ora c'è la rete di sicurezza dell'immagine nel cestino, rendi
+             * predefinita e non modificabile la sovrascrittura*). Fino alla `1.07` qui si
+             * apriva un dialogo con 'Sovrascrivi' e 'Salva una copia', e la ragione scritta
+             * allora era giusta: sovrascrivere era l'unica cosa irreversibile che questa
+             * schermata sapeva fare. Non lo è più, perché la `1.03` ha portato la copia di
+             * sicurezza nel cestino: la domanda proteggeva da un rischio che nel frattempo
+             * qualcun altro ha coperto, e una domanda che non protegge più da niente è solo
+             * un tocco in più a ogni salvataggio.
+             * ⚠️ **Il caso 'non si può sovrascrivere' non sparisce, cambia posto**: di un HEIC
+             * i pixel si leggono e non si riscrivono, quindi là esce per forza un JPEG
+             * accanto. Adesso lo decide il modello guardando il formato, e l'avviso finale lo
+             * dice; prima lo si spiegava dentro il dialogo. Vedi `ImageEdit.canOverwrite`.
+             */
             TextButton(
-                onClick = { asking = true },
+                onClick = { onSave(turns, crop) },
                 enabled = shown != null && !busy && !(turns == 0 && crop.whole)
             ) {
                 Text(stringResource(R.string.editor_save))
@@ -176,7 +192,10 @@ fun EditorScreen(
         }
 
         BoxWithConstraints(
-            modifier = Modifier.weight(1f).fillMaxWidth().padding(STAGE_PAD),
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(horizontal = STAGE_SIDE, vertical = STAGE_PAD),
             contentAlignment = Alignment.Center
         ) {
             val picture = shown
@@ -242,7 +261,10 @@ fun EditorScreen(
          * rettangolo ribaltato uscirebbe dall'immagine.
          */
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = STAGE_PAD),
+            // ⚠️ Gli stessi bordi del riquadro qui sopra: due rientri diversi sulla stessa
+            // colonna si vedono come uno scalino, e il numero giusto è quello che comanda,
+            // cioè quello della fotografia.
+            modifier = Modifier.fillMaxWidth().padding(horizontal = STAGE_SIDE),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             for (one in Lay.entries) {
@@ -268,7 +290,7 @@ fun EditorScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState())
-                .padding(horizontal = STAGE_PAD, vertical = 8.dp),
+                .padding(horizontal = STAGE_SIDE, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             for (one in Shape.entries) {
@@ -280,17 +302,6 @@ fun EditorScreen(
                 )
             }
         }
-    }
-
-    if (asking) {
-        SaveDialog(
-            canOverwrite = ImageEdit.canOverwrite(name),
-            onPick = { way ->
-                asking = false
-                onSave(turns, crop, way)
-            },
-            onDismiss = { asking = false }
-        )
     }
 }
 
@@ -629,51 +640,6 @@ private fun fractions(r: Rect, frame: Rect) = ImageEdit.Crop(
 )
 
 /**
- * Il dialogo del salvataggio.
- *
- * ⚠️⚠️ **CHIEDE SEMPRE, ed è una richiesta dell'utente**: sovrascrivere è l'unica cosa
- * irreversibile che questa schermata sa fare, e un editor che salva sopra senza domandare
- * distrugge un originale al primo tocco sbagliato.
- * ⚠️ **Con un formato che non si sa riscrivere resta la sola copia**, e il dialogo lo dice
- * invece di mostrare un tasto spento: un tasto che non si può premere non spiega perché.
- */
-@Composable
-private fun SaveDialog(
-    canOverwrite: Boolean,
-    onPick: (ImageEdit.Way) -> Unit,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.editor_how)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                if (!canOverwrite) {
-                    Text(
-                        text = stringResource(R.string.edit_no_overwrite),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                if (canOverwrite) {
-                    TextButton(
-                        onClick = { onPick(ImageEdit.Way.OVERWRITE) },
-                        modifier = Modifier.fillMaxWidth()
-                    ) { Text(stringResource(R.string.editor_overwrite)) }
-                }
-                TextButton(
-                    onClick = { onPick(ImageEdit.Way.COPY) },
-                    modifier = Modifier.fillMaxWidth()
-                ) { Text(stringResource(R.string.editor_copy)) }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.pick_close)) }
-        }
-    )
-}
-
-/**
  * L'anteprima su cui si lavora.
  *
  * ⚠️ **Campionata a [PREVIEW] sul lato lungo**: il ritaglio si sceglie a occhio su uno
@@ -733,8 +699,25 @@ private val GRIP = 40.dp
  */
 private val LEAST_SIDE = 32.dp
 
-/** Il respiro intorno alla fotografia nell'editor. */
+/**
+ * Il respiro intorno alla fotografia nell'editor, e quanto sta lontana dai bordi laterali.
+ *
+ * ⚠️⚠️ **I DUE NUMERI SONO DIVERSI, dalla 1.08, e la ragione è FISICA e non estetica**
+ * (richiesta dell'utente: *spostare la selezione fino al bordo estremo è difficile se per
+ * qualche motivo, es. una cover con bordo sporgente, non si riesce ad arrivare col dito
+ * esattamente sul bordo*). Il rettangolo del ritaglio non può uscire dalla fotografia, quindi
+ * per portarlo a filo il dito deve **raggiungere** il bordo dell'immagine: se quel bordo sta a
+ * dodici punti dal vetro, con una cover sporgente il dito non ci arriva e l'ultima striscia di
+ * fotografia diventa impossibile da tenere.
+ * ⚠️ **Solo di lato, e non sopra e sotto**: là il riquadro confina con la testata e con la
+ * fila delle rotazioni, non col bordo dello schermo, quindi il problema non esiste e lo spazio
+ * verticale è quello scarso (il riquadro se lo divide con quattro file di comandi).
+ * ⚠️ **Il prezzo è dichiarato**: l'anteprima si stringe di ventiquattro punti in tutto, cioè
+ * meno di un decimo di uno schermo da telefono, e in cambio l'ultimo pixel dell'immagine è
+ * raggiungibile.
+ */
 private val STAGE_PAD = 12.dp
+private val STAGE_SIDE = 24.dp
 
 /**
  * Chi modifica le fotografie: si sceglie la prima volta e si cambia dalle impostazioni.

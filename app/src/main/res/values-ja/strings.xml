@@ -263,9 +263,6 @@
     <string name="editor_right">右に回す</string>
     <string name="editor_free">自由</string>
     <string name="editor_save">保存</string>
-    <string name="editor_how">どう保存しますか</string>
-    <string name="editor_overwrite">ファイルに上書き</string>
-    <string name="editor_copy">コピーを保存</string>
     <string name="editor_done">保存しました</string>
     <string name="editor_done_copy">コピーを保存しました</string>
     <string name="editor_done_lossless">再圧縮せずに保存しました</string>
@@ -285,7 +282,7 @@
     <string name="view_tree">フォルダ</string>
     <string name="edit_no_backup">安全のための控えが作れなかったので、何も上書きしていません</string>
     <string name="settings_editor_backup">上書きの前に控えを取る</string>
-    <string name="settings_editor_backup_desc">内蔵エディターが画像を上書きする前に、前の版をごみ箱へ送ります。内蔵エディターだけが対象で、他のアプリは自分で保存します。</string>
+    <string name="settings_editor_backup_desc">内蔵エディターが画像を上書きする前に、前の版をごみ箱へ送ります。内蔵エディターだけが対象で、他のアプリは自分で保存します。 ⚠️ オフにすると戻す手だてはありません。内蔵エディタは常に上書きします。</string>
     <string name="editor_tall">縦</string>
     <string name="editor_wide">横</string>
     <string name="pick_drop_ask">選択を取り消しますか？</string>

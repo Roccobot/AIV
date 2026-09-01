@@ -278,9 +278,6 @@
     <string name="editor_right">Nach rechts drehen</string>
     <string name="editor_free">Frei</string>
     <string name="editor_save">Speichern</string>
-    <string name="editor_how">Wie soll gespeichert werden?</string>
-    <string name="editor_overwrite">Datei überschreiben</string>
-    <string name="editor_copy">Kopie speichern</string>
     <string name="editor_done">Gespeichert</string>
     <string name="editor_done_copy">Kopie gespeichert</string>
     <string name="editor_done_lossless">Gespeichert, ohne neu zu komprimieren</string>
@@ -300,7 +297,7 @@
     <string name="view_tree">Ordner</string>
     <string name="edit_no_backup">Die Sicherheitskopie ist fehlgeschlagen, es wurde nichts überschrieben</string>
     <string name="settings_editor_backup">Sicherheitskopie vor dem Überschreiben</string>
-    <string name="settings_editor_backup_desc">Bevor der eingebaute Editor ein Bild überschreibt, wandert die Fassung von vorher in den Papierkorb. Gilt nur für den eingebauten Editor: eine andere App speichert selbst.</string>
+    <string name="settings_editor_backup_desc">Bevor der eingebaute Editor ein Bild überschreibt, wandert die Fassung von vorher in den Papierkorb. Gilt nur für den eingebauten Editor: eine andere App speichert selbst. ⚠️ Ausgeschaltet gibt es keinen Weg zurück, denn der eingebaute Editor überschreibt immer.</string>
     <string name="editor_tall">Hochformat</string>
     <string name="editor_wide">Querformat</string>
     <string name="pick_drop_ask">Auswahl verwerfen?</string>

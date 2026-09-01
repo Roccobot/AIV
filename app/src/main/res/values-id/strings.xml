@@ -263,9 +263,6 @@
     <string name="editor_right">Putar ke kanan</string>
     <string name="editor_free">Bebas</string>
     <string name="editor_save">Simpan</string>
-    <string name="editor_how">Mau disimpan bagaimana?</string>
-    <string name="editor_overwrite">Timpa berkasnya</string>
-    <string name="editor_copy">Simpan salinan</string>
     <string name="editor_done">Tersimpan</string>
     <string name="editor_done_copy">Salinan tersimpan</string>
     <string name="editor_done_lossless">Tersimpan tanpa dikompres ulang</string>
@@ -285,7 +282,7 @@
     <string name="view_tree">Folder</string>
     <string name="edit_no_backup">Salinan pengaman gagal, jadi tidak ada yang ditimpa</string>
     <string name="settings_editor_backup">Salinan pengaman sebelum menimpa</string>
-    <string name="settings_editor_backup_desc">Sebelum editor bawaan menimpa sebuah gambar, versi sebelumnya masuk ke tempat sampah. Berlaku hanya untuk editor bawaan: aplikasi lain menyimpan sendiri.</string>
+    <string name="settings_editor_backup_desc">Sebelum editor bawaan menimpa sebuah gambar, versi sebelumnya masuk ke tempat sampah. Berlaku hanya untuk editor bawaan: aplikasi lain menyimpan sendiri. ⚠️ Saat dimatikan tidak ada jalan kembali, karena editor bawaan selalu menimpa.</string>
     <string name="editor_tall">Tegak</string>
     <string name="editor_wide">Mendatar</string>
     <string name="pick_drop_ask">Batalkan pilihan?</string>

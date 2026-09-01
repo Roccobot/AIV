@@ -978,10 +978,26 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * ⚠️ La miniatura si butta **solo dopo un esito buono**: il ritaglio fallito lascia il
      * file com'era, e cancellarla costringerebbe a rigenerarla per niente.
      */
-    fun editSave(turns: Int, crop: ImageEdit.Crop, way: ImageEdit.Way) {
+    fun editSave(turns: Int, crop: ImageEdit.Crop) {
         if (editorBusy) return
         val here = screen as? Screen.Editor ?: return
         val context = getApplication<Application>()
+        /*
+         * ⚠️⚠️ **SI SOVRASCRIVE, E NON LO SI CHIEDE PIÙ, dalla 1.08** (richiesta dell'utente):
+         * la domanda proteggeva dalla sola cosa irreversibile dell'editor, e dalla `1.03`
+         * quella cosa non è più irreversibile, perché l'originale finisce nel cestino prima di
+         * essere riscritto.
+         * ⚠️⚠️ **LA COPIA RESTA PER I FORMATI CHE NON SI SANNO RISCRIVERE, e non è una
+         * scappatoia**: di un HEIC o di un AVIF si leggono i pixel e non si sanno rimettere
+         * dentro, quindi l'unica uscita è un JPEG, e un JPEG dentro un file che si chiama
+         * `.heic` mentirebbe per sempre sul proprio contenuto. Là esce una copia accanto,
+         * l'avviso finale lo dice, e non c'è niente da scegliere: lo decide il formato.
+         * ⚠️ **Il formato lo guarda il MODELLO e non la schermata**: quella sceglie che cosa
+         * tagliare e di quanto girare, che è il suo mestiere; come si chiama il file che ne
+         * esce è una faccenda di file.
+         */
+        val way = if (ImageEdit.canOverwrite(here.name)) ImageEdit.Way.OVERWRITE
+        else ImageEdit.Way.COPY
         editorBusy = true
         viewModelScope.launch {
             val esito = ImageEdit.save(
@@ -1912,9 +1928,8 @@ private fun AivApp(model: ViewerViewModel) {
             BackHandler { model.leaveEditor() }
             EditorScreen(
                 uri = screen.uri,
-                name = screen.name,
                 busy = model.editorBusy,
-                onSave = { turns, crop, way -> model.editSave(turns, crop, way) },
+                onSave = { turns, crop -> model.editSave(turns, crop) },
                 onBack = { model.leaveEditor() }
             )
         }

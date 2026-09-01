@@ -263,9 +263,6 @@
     <string name="editor_right">向右旋转</string>
     <string name="editor_free">自由</string>
     <string name="editor_save">保存</string>
-    <string name="editor_how">想怎么保存？</string>
-    <string name="editor_overwrite">覆盖原文件</string>
-    <string name="editor_copy">另存一份</string>
     <string name="editor_done">已保存</string>
     <string name="editor_done_copy">副本已保存</string>
     <string name="editor_done_lossless">已保存，未重新压缩</string>
@@ -285,7 +282,7 @@
     <string name="view_tree">文件夹</string>
     <string name="edit_no_backup">安全副本没能建立，所以什么都没有覆盖</string>
     <string name="settings_editor_backup">覆盖前先留一份安全副本</string>
-    <string name="settings_editor_backup_desc">内置编辑器覆盖一张图片之前，先把原来的版本放进回收站。只对内置编辑器有效，别的应用自己保存。</string>
+    <string name="settings_editor_backup_desc">内置编辑器覆盖一张图片之前，先把原来的版本放进回收站。只对内置编辑器有效，别的应用自己保存。 ⚠️ 关闭后就没有退路了，因为内置编辑器总是覆盖原图。</string>
     <string name="editor_tall">竖向</string>
     <string name="editor_wide">横向</string>
     <string name="pick_drop_ask">要取消选择吗？</string>

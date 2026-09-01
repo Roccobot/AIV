@@ -278,9 +278,6 @@
     <string name="editor_right">Naar rechts draaien</string>
     <string name="editor_free">Vrij</string>
     <string name="editor_save">Opslaan</string>
-    <string name="editor_how">Hoe wil je het opslaan?</string>
-    <string name="editor_overwrite">Bestand overschrijven</string>
-    <string name="editor_copy">Kopie opslaan</string>
     <string name="editor_done">Opgeslagen</string>
     <string name="editor_done_copy">Kopie opgeslagen</string>
     <string name="editor_done_lossless">Opgeslagen zonder opnieuw te comprimeren</string>
@@ -300,7 +297,7 @@
     <string name="view_tree">Mappen</string>
     <string name="edit_no_backup">De veiligheidskopie is mislukt, dus er is niets overschreven</string>
     <string name="settings_editor_backup">Veiligheidskopie voor het overschrijven</string>
-    <string name="settings_editor_backup_desc">Voordat de ingebouwde editor een foto overschrijft, gaat de vorige versie naar de prullenbak. Geldt alleen voor de ingebouwde editor: een andere app slaat zelf op.</string>
+    <string name="settings_editor_backup_desc">Voordat de ingebouwde editor een foto overschrijft, gaat de vorige versie naar de prullenbak. Geldt alleen voor de ingebouwde editor: een andere app slaat zelf op. ⚠️ Uitgeschakeld is er geen weg terug, want de ingebouwde editor overschrijft altijd.</string>
     <string name="editor_tall">Staand</string>
     <string name="editor_wide">Liggend</string>
     <string name="pick_drop_ask">Selectie loslaten?</string>

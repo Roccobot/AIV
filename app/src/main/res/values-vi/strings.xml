@@ -263,9 +263,6 @@
     <string name="editor_right">Xoay phải</string>
     <string name="editor_free">Tự do</string>
     <string name="editor_save">Lưu</string>
-    <string name="editor_how">Bạn muốn lưu thế nào?</string>
-    <string name="editor_overwrite">Ghi đè lên tệp</string>
-    <string name="editor_copy">Lưu một bản sao</string>
     <string name="editor_done">Đã lưu</string>
     <string name="editor_done_copy">Đã lưu bản sao</string>
     <string name="editor_done_lossless">Đã lưu mà không nén lại</string>
@@ -285,7 +282,7 @@
     <string name="view_tree">Thư mục</string>
     <string name="edit_no_backup">Không tạo được bản sao an toàn, nên chưa ghi đè gì cả</string>
     <string name="settings_editor_backup">Bản sao an toàn trước khi ghi đè</string>
-    <string name="settings_editor_backup_desc">Trước khi trình sửa có sẵn ghi đè lên một tấm ảnh, bản trước đó sẽ vào thùng rác. Chỉ áp dụng cho trình sửa có sẵn: ứng dụng khác tự lưu lấy.</string>
+    <string name="settings_editor_backup_desc">Trước khi trình sửa có sẵn ghi đè lên một tấm ảnh, bản trước đó sẽ vào thùng rác. Chỉ áp dụng cho trình sửa có sẵn: ứng dụng khác tự lưu lấy. ⚠️ Khi tắt sẽ không còn đường lui, vì trình chỉnh sửa nội bộ luôn ghi đè.</string>
     <string name="editor_tall">Dọc</string>
     <string name="editor_wide">Ngang</string>
     <string name="pick_drop_ask">Bỏ lựa chọn?</string>

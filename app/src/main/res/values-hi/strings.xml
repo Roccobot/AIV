@@ -278,9 +278,6 @@
     <string name="editor_right">दाएँ घुमाएँ</string>
     <string name="editor_free">मुक्त</string>
     <string name="editor_save">सहेजें</string>
-    <string name="editor_how">कैसे सहेजना है?</string>
-    <string name="editor_overwrite">फ़ाइल पर ही लिख दें</string>
-    <string name="editor_copy">एक प्रति सहेजें</string>
     <string name="editor_done">सहेज लिया</string>
     <string name="editor_done_copy">प्रति सहेज ली</string>
     <string name="editor_done_lossless">दोबारा दबाए बिना सहेज लिया</string>
@@ -300,7 +297,7 @@
     <string name="view_tree">फ़ोल्डर</string>
     <string name="edit_no_backup">सुरक्षा प्रति नहीं बनी, इसलिए कुछ भी ऊपर नहीं लिखा गया</string>
     <string name="settings_editor_backup">ऊपर लिखने से पहले सुरक्षा प्रति</string>
-    <string name="settings_editor_backup_desc">अंतर्निहित संपादक किसी तस्वीर पर लिखे, उससे पहले पिछला रूप कूड़ेदान में चला जाता है। यह सिर्फ़ अंतर्निहित संपादक के लिए है: दूसरा ऐप अपने आप सहेजता है।</string>
+    <string name="settings_editor_backup_desc">अंतर्निहित संपादक किसी तस्वीर पर लिखे, उससे पहले पिछला रूप कूड़ेदान में चला जाता है। यह सिर्फ़ अंतर्निहित संपादक के लिए है: दूसरा ऐप अपने आप सहेजता है। ⚠️ बंद होने पर वापसी का कोई रास्ता नहीं, क्योंकि आंतरिक संपादक हमेशा ऊपर लिख देता है।</string>
     <string name="editor_tall">खड़ा</string>
     <string name="editor_wide">आड़ा</string>
     <string name="pick_drop_ask">चयन छोड़ें?</string>
