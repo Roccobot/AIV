@@ -51,7 +51,7 @@ import java.io.File
  * Dove mettere le fotografie scelte: un giro fra le cartelle **vere** del telefono.
  *
  * ⚠️⚠️ **È UN DIALOGO A TUTTO SCHERMO E NON UNA SCHERMATA DEL MODELLO, e la ragione è la
- * SELEZIONE**: quello che si sta per copiare vive in `GridScreen` e muore con lei
+ * SELEZIONE**: quello che si sta per copiare vive in `GridScreen` e se ne va con lei
  * (deliberatamente: uscire da una cartella vuol dire 'lascia stare'). Navigando davvero
  * verso un'altra schermata la selezione sparirebbe proprio mentre la si sta usando, e per
  * evitarlo bisognerebbe spostarla nel modello, cioè farle sopravvivere anche quando non

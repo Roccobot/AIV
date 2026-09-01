@@ -378,7 +378,7 @@ object Folder {
      *
      * ⚠️ Ne esistono DUE, e la seconda non è un lusso: quella mirata all'app manca
      * su qualche sistema, e senza il ripiego sull'elenco generale la richiesta
-     * morirebbe con un'eccezione invece di portare da qualche parte.
+     * fallirebbe con un'eccezione invece di portare da qualche parte.
      */
     fun settingsIntents(context: Context): List<Intent> = listOf(
         Intent(

@@ -237,7 +237,7 @@ fun GridScreen(
      * cartella cambia, e un indice che era la terza foto diventa la terza **di un'altra
      * lista** senza che niente lo dica. Un indirizzo o c'è ancora o non c'è, e nel secondo
      * caso sparisce dalla selezione da sé.
-     * ⚠️ Vive nella SCHERMATA e non nel modello, perché muore con lei: uscire da una
+     * ⚠️ Vive nella SCHERMATA e non nel modello, perché se ne va con lei: uscire da una
      * cartella è il modo naturale di dire 'lascia stare'.
      */
     var chosen by remember(items) { mutableStateOf<Set<Uri>>(emptySet()) }
@@ -896,7 +896,7 @@ fun GridScreen(
              * ⚠️⚠️ **LA CHIAVE DEL `pointerInput` NON COMPRENDE LA SELEZIONE, e sarebbe il
              * difetto che è già costato una versione** (la `0.32`): cambiare una chiave
              * **annulla il gesto in corso**, quindi con `chosen` fra le chiavi il
-             * trascinamento morirebbe alla prima foto aggiunta, cioè subito. La selezione
+             * trascinamento si interromperebbe alla prima foto aggiunta, cioè subito. La selezione
              * si legge **dentro** il gesto, che è lettura e non chiave.
              * ⚠️ Il gesto si limita a dire **dove** sta il dito: chi estende la selezione è
              * l'effetto qui sotto, e averne uno solo vuol dire che il conto è identico sia

@@ -120,7 +120,7 @@
         benché lint lo dichiari inutile con minSdk 28 (avviso ObsoleteSdkInt,
         'merge all the resources in this folder into mipmap-anydpi'). Provato:
         rinominata la cartella in `mipmap-anydpi`, AAPT2 non registra più la
-        risorsa e il build muore con 'resource mipmap/ic_launcher not found'.
+        risorsa e il build fallisce con 'resource mipmap/ic_launcher not found'.
         È un consiglio che rompe, e senza questa nota il prossimo che legge
         l'avviso lo rifà.
     -->

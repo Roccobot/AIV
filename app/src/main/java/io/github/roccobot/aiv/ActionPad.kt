@@ -103,7 +103,7 @@ fun ActionPad(
  * tocchi, quindi con lei aperta non si potrebbe più aggiungere una fotografia alla
  * selezione: sarebbe la contraddizione esatta della cosa chiesta. Qui è una `Surface`
  * appoggiata in fondo al `Box` della schermata, che occupa il posto suo e basta.
- * ⚠️ **Il tastino della selezione è morto con lei** (stessa istruzione: *il FAB di
+ * ⚠️ **Il tastino della selezione se n'è andato con lei** (stessa istruzione: *il FAB di
  * selezione non serve più*), e la ragione l'ha trovata l'utente: se il menu si apre da sé,
  * un tastino che lo apre non ha più niente da fare.
  * ⚠️ **La maniglia non trascina**: è un segno, non un comando. Il pannello si chiude col

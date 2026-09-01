@@ -120,7 +120,7 @@ object Thumbs {
      * in memoria. A tutto schermo quel fotogramma è un lampo.
      * ⚠️⚠️ **E nasce a ogni cambio di pagina**: la vicina che scivola dentro vive in
      * `ImageCanvas`, che al passaggio a 'sto caricando' viene smontato, e al centro nasce
-     * un'anteprima nuova con la **stessa** immagine. Un elemento muore e un altro rifà il
+     * un'anteprima nuova con la **stessa** immagine. Un elemento esce di scena e un altro rifà il
      * suo lavoro da capo: è la stessa lezione della riga dei dettagli nella `0.42`, questa
      * volta sull'immagine.
      * ⚠️ Si tiene la **chiave** e non l'immagine, e la differenza è tutta: i pixel restano
