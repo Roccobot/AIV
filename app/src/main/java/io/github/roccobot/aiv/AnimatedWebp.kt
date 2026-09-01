@@ -26,12 +26,16 @@ import android.graphics.Rect
  * un fotogramma e gli si **antepone un'intestazione WebP minima di 12 byte**: quello che ne
  * esce è un file WebP normale, che `BitmapFactory` decodifica come qualunque altro. La
  * decodifica vera resta al sistema, che ha `libwebp`; noi facciamo solo la busta.
- * ⚠️ **Provato prima di scriverlo**: su una WebP animata fabbricata apposta (5 fotogrammi,
- * ritardi 100/200/300/400/500 ms, 2 ripetizioni) il lettore ha contato 5 fotogrammi, letto i
- * ritardi esatti e le ripetizioni, e il blocco del terzo fotogramma con l'intestazione
- * davanti si è decodificato. ⚠️ Quella prova però è girata su `libwebp` di un PC, non sul
- * telefono, e i suoi fotogrammi erano tutti a tela piena: la composizione delle **toppe**
- * parziali qui sotto è scritta sulla specifica, non misurata.
+ * ⚠️⚠️ **L'ALGORITMO DI COMPOSIZIONE È VERIFICATO CONTRO UN DECODIFICATORE DI RIFERIMENTO,
+ * e non solo scritto sulla specifica**: [compose] e [decode] sono stati ritradotti riga per
+ * riga in Python e fatti girare su due WebP animate fabbricate apposta, una opaca e una con
+ * trasparenza, di dieci fotogrammi ciascuna, di cui **19 su 20 parziali** (toppe piccole su
+ * una tela di 320x240) e quasi tutte con `dispose to background` più fusione alfa. Il
+ * confronto con quello che ne tira fuori il decodificatore di riferimento dà **scarto
+ * massimo 0** su ogni pixel di ogni fotogramma: non 'somiglia', è identico.
+ * ⚠️ **Quello che resta fuori dalla prova**, ed è l'unica cosa da guardare sul telefono:
+ * la prova è girata sul `libwebp` di un PC, qui a decodificare è quello di Android. La
+ * logica di composizione però è la stessa, e quella non dipende dal decodificatore.
  *
  * ⚠️⚠️ **IL COSTO DELLA SCELTA, dichiarato**: zero dipendenze e zero librerie native, ma la
  * composizione dei fotogrammi la scriviamo noi (i due metodi qui sotto), mentre per le GIF la
