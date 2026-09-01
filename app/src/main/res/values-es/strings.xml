@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">Color liso</string>
     <string name="settings_bg_desc">El damero es el único fondo que hace visible la transparencia, y en un visor eso es información y no adorno.</string>
     <string name="settings_ui_theme">Tema</string>
-    <string name="settings_ui_theme_desc">Si la aplicación en sí es clara u oscura. Es distinto del fondo que hay detrás de una imagen, justo abajo: un damero sirve para mostrar la transparencia, no para hacer juego.</string>
+    <string name="settings_ui_theme_desc">Si la interfaz es clara u oscura. No afecta al fondo detrás de la imagen, más abajo: el damero revela la transparencia, no acompaña al tema.</string>
     <string name="settings_system">Sistema</string>
     <string name="settings_theme_light">Claro</string>
     <string name="settings_theme_dark">Oscuro</string>
@@ -82,7 +82,7 @@
     <string name="url_open">Abrir</string>
     <string name="url_recent">Abiertas antes</string>
     <string name="folder_empty">Aquí dentro no hay nada.</string>
-    <string name="folder_no_images">La carpeta no contiene fotos.</string>
+    <string name="folder_no_images">La carpeta no contiene imágenes.</string>
     <string name="folder_no_videos">La carpeta no contiene vídeos.</string>
     <string name="cancel">Cancelar</string>
     <string name="hide_folder_title">¿Ocultar %1$s?</string>
@@ -296,7 +296,7 @@
     <string name="edit_failed">No se ha podido guardar</string>
     <string name="edit_app_gone">Ese editor ya no está. Elige otro.</string>
     <string name="settings_editor">App para editar imágenes</string>
-    <string name="settings_editor_desc">Qué app se abre al tocar Editar en una imagen. La interna gira y recorta, y nada más.</string>
+    <string name="settings_editor_desc">La aplicación que se abre al tocar Editar en una imagen. La interna rota y recorta.</string>
     <string name="settings_editor_none">Ninguna elegida</string>
     <string name="settings_editor_pick">Elegir</string>
     <string name="view_grid">Cuadrícula</string>
@@ -304,7 +304,7 @@
     <string name="view_tree">Carpetas</string>
     <string name="edit_no_backup">La copia de seguridad ha fallado, así que no se ha sobrescrito nada</string>
     <string name="settings_editor_backup">Copia de seguridad antes de sobrescribir</string>
-    <string name="settings_editor_backup_desc">Antes de que el editor interno sobrescriba una imagen, la versión anterior va a la papelera. Solo vale para el editor interno: otra app guarda por su cuenta.</string>
+    <string name="settings_editor_backup_desc">La versión anterior de cada imagen sobrescrita se conserva en la papelera.</string>
     <string name="editor_tall">Vertical</string>
     <string name="editor_wide">Horizontal</string>
     <string name="pick_drop_ask">¿Descartar la selección?</string>
@@ -313,4 +313,9 @@
     <string name="pick_list_done">Lista de archivos copiada al portapapeles</string>
     <string name="settings_pick_weight">Peso de la selección</string>
     <string name="settings_pick_weight_desc">Al principio de la selección, junto al recuento, se lee cuánto pesan en total los elementos elegidos. El peso se le pregunta al sistema cada vez que la selección se detiene: apagado, esa pregunta no se hace.</string>
+    <string name="anim_play">Reproducir</string>
+    <string name="anim_pause">Pausar</string>
+    <string name="anim_prev">Fotograma anterior</string>
+    <string name="anim_next">Fotograma siguiente</string>
+    <string name="anim_export">Exportar este fotograma</string>
 </resources>

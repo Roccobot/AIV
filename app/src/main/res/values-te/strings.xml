@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">ఒకే రంగు</string>
     <string name="settings_bg_desc">పారదర్శకతను చూపే ఒకే ఒక నేపథ్యం చదరంగపు గళ్ళు, చిత్రాలు చూసే యాప్‌లో పారదర్శకత అలంకారం కాదు, సమాచారం.</string>
     <string name="settings_ui_theme">వైఖరి</string>
-    <string name="settings_ui_theme_desc">యాప్ తానే వెలుతురుగా ఉండాలా చీకటిగా. కింద ఉన్న చిత్రం నేపథ్యానికి ఇది వేరు: చదరంగపు గళ్ళు పారదర్శకత చూపడానికి, రంగుకు సరిపోవడానికి కాదు.</string>
+    <string name="settings_ui_theme_desc">ఇంటర్‌ఫేస్ లేతదా ముదురుదా. కింద ఉన్న చిత్రం వెనుక నేపథ్యానికి ఇది వర్తించదు: చదరంగపు గళ్లు పారదర్శకతను చూపుతాయి, థీమ్‌ను అనుసరించవు.</string>
     <string name="settings_system">వ్యవస్థ ప్రకారం</string>
     <string name="settings_theme_light">వెలుతురు</string>
     <string name="settings_theme_dark">చీకటి</string>
@@ -82,7 +82,7 @@
     <string name="url_open">తెరువు</string>
     <string name="url_recent">ఇంతకుముందు తెరిచినవి</string>
     <string name="folder_empty">ఇక్కడ ఏమీ లేదు.</string>
-    <string name="folder_no_images">ఫోల్డర్‌లో ఫోటోలు లేవు.</string>
+    <string name="folder_no_images">ఫోల్డర్‌లో చిత్రాలు లేవు.</string>
     <string name="folder_no_videos">ఫోల్డర్‌లో వీడియోలు లేవు.</string>
     <string name="cancel">రద్దు</string>
     <string name="hide_folder_title">%1$sను దాచాలా?</string>
@@ -281,7 +281,7 @@
     <string name="edit_failed">భద్రపరచలేకపోయాం</string>
     <string name="edit_app_gone">ఆ సవరణి ఇక లేదు. మరొకటి ఎంచుకో.</string>
     <string name="settings_editor">బొమ్మలు సవరించే యాప్</string>
-    <string name="settings_editor_desc">బొమ్మపై సవరించు తాకినప్పుడు ఏ యాప్ తెరుచుకుంటుంది. లోపలిది తిప్పుతుంది, కత్తిరిస్తుంది, అంతే.</string>
+    <string name="settings_editor_desc">ఒక చిత్రంపై సవరించు తాకినప్పుడు తెరుచుకునే యాప్. లోపలిది తిప్పుతుంది, కత్తిరిస్తుంది.</string>
     <string name="settings_editor_none">ఏదీ ఎంచుకోలేదు</string>
     <string name="settings_editor_pick">ఎంచుకో</string>
     <string name="view_grid">గడి</string>
@@ -289,7 +289,7 @@
     <string name="view_tree">ఫోల్డర్లు</string>
     <string name="edit_no_backup">భద్రతా నకలు కాలేదు, కాబట్టి దేనిపైనా రాయలేదు</string>
     <string name="settings_editor_backup">పైన రాసే ముందు భద్రతా నకలు</string>
-    <string name="settings_editor_backup_desc">లోపలి సవరణి ఒక బొమ్మపై రాసే ముందు, ముందటి రూపం చెత్తబుట్టలోకి వెళ్తుంది. ఇది లోపలి సవరణికి మాత్రమే: మరో యాప్ తనంతట తానే భద్రపరుస్తుంది.</string>
+    <string name="settings_editor_backup_desc">తిరిగి రాయబడిన ప్రతి చిత్రం యొక్క మునుపటి రూపం చెత్తబుట్టలో భద్రపరచబడుతుంది.</string>
     <string name="editor_tall">నిలువు</string>
     <string name="editor_wide">అడ్డం</string>
     <string name="pick_drop_ask">ఎంపికను వదిలేయాలా?</string>
@@ -298,4 +298,9 @@
     <string name="pick_list_done">ఫైళ్ల జాబితా క్లిప్‌బోర్డ్‌కు కాపీ అయింది</string>
     <string name="settings_pick_weight">ఎంపిక పరిమాణం</string>
     <string name="settings_pick_weight_desc">ఎంపిక పైన, లెక్క పక్కన, ఎంచుకున్న అంశాల మొత్తం పరిమాణం కనిపిస్తుంది. ఎంపిక ఆగిన ప్రతిసారీ పరిమాణాన్ని సిస్టమ్‌ను అడుగుతుంది: ఆపివేస్తే ఆ ప్రశ్న అడగబడదు.</string>
+    <string name="anim_play">ప్లే చేయి</string>
+    <string name="anim_pause">పాజ్ చేయి</string>
+    <string name="anim_prev">మునుపటి ఫ్రేమ్</string>
+    <string name="anim_next">తదుపరి ఫ్రేమ్</string>
+    <string name="anim_export">ఈ ఫ్రేమ్‌ను ఎగుమతి చేయి</string>
 </resources>

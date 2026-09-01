@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">Rangi moja</string>
     <string name="settings_bg_desc">Chesi ndiyo mandharinyuma pekee inayoonyesha uwazi, na kwenye kionyeshi cha picha uwazi ni habari, si urembo.</string>
     <string name="settings_ui_theme">Mandhari</string>
-    <string name="settings_ui_theme_desc">Kama programu yenyewe iwe nyepesi au nyeusi. Ni tofauti na mandharinyuma ya picha hapo chini: chesi ipo kuonyesha uwazi, si kulingana na rangi.</string>
+    <string name="settings_ui_theme_desc">Kiolesura ni chepesi au cheusi. Halihusu mandharinyuma ya picha, hapa chini: ubao wa chesi hudhihirisha uwazi, haufuati mandhari.</string>
     <string name="settings_system">Kama mfumo</string>
     <string name="settings_theme_light">Nyepesi</string>
     <string name="settings_theme_dark">Nyeusi</string>
@@ -281,7 +281,7 @@
     <string name="edit_failed">Haikuweza kuhifadhiwa</string>
     <string name="edit_app_gone">Kihariri hicho hakipo tena. Chagua kingine.</string>
     <string name="settings_editor">Programu ya kuhariri picha</string>
-    <string name="settings_editor_desc">Programu ipi hufunguka ukigusa Hariri kwenye picha. Ya ndani huzungusha na kupunguza, si zaidi.</string>
+    <string name="settings_editor_desc">Programu inayofunguka unapogusa Hariri kwenye picha. Ile ya ndani huzungusha na kupunguza.</string>
     <string name="settings_editor_none">Hakuna iliyochaguliwa</string>
     <string name="settings_editor_pick">Chagua</string>
     <string name="view_grid">Gridi</string>
@@ -289,7 +289,7 @@
     <string name="view_tree">Folda</string>
     <string name="edit_no_backup">Nakala ya usalama haikufanikiwa, hivyo hakuna kilichoandikwa juu</string>
     <string name="settings_editor_backup">Nakala ya usalama kabla ya kuandika juu</string>
-    <string name="settings_editor_backup_desc">Kabla kihariri cha ndani hakijaandika juu ya picha, toleo la awali huenda kwenye tupio. Inahusu kihariri cha ndani pekee: programu nyingine huhifadhi yenyewe.</string>
+    <string name="settings_editor_backup_desc">Toleo la awali la kila picha inayoandikwa juu huhifadhiwa kwenye tapishi.</string>
     <string name="editor_tall">Wima</string>
     <string name="editor_wide">Mlalo</string>
     <string name="pick_drop_ask">Uache uteuzi?</string>
@@ -298,4 +298,9 @@
     <string name="pick_list_done">Orodha ya faili imenakiliwa kwenye ubao wa kunakili</string>
     <string name="settings_pick_weight">Ukubwa wa uteuzi</string>
     <string name="settings_pick_weight_desc">Juu ya uteuzi, kando ya idadi, unasoma ukubwa wa jumla wa vipengee vilivyochaguliwa. Ukubwa huulizwa mfumo kila uteuzi unaposimama: ukizima, swali hilo haliulizwi.</string>
+    <string name="anim_play">Cheza</string>
+    <string name="anim_pause">Sitisha</string>
+    <string name="anim_prev">Fremu iliyotangulia</string>
+    <string name="anim_next">Fremu inayofuata</string>
+    <string name="anim_export">Hamisha fremu hii</string>
 </resources>

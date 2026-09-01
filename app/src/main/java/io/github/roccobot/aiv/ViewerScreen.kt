@@ -479,8 +479,42 @@ fun ViewerScreen(
                 onRetry = onRetry.takeIf { source != null },
                 modifier = Modifier.align(Alignment.Center)
             )
-            is ViewerState.Ready ->
-                ImageCanvas(state.image, settings, source, folder, info, onStep, ops, inBin)
+            is ViewerState.Ready -> {
+                /*
+                 * ⚠️⚠️ **L'ANIMAZIONE NON È UNO STATO A PARTE, ed è la scelta che salva zoom e
+                 * panoramica**: una GIF resta una `Ready` con la sua `LoadedImage`, e
+                 * l'animazione le passa **solo i pixel** del fotogramma corrente. Se fosse un
+                 * ramo suo, come lo è `Clip` per i filmati, si perderebbero ingrandimento,
+                 * trascinamento, tasselli e riquadro di riposo, cioè tutto quello che
+                 * distingue un visualizzatore da un riproduttore.
+                 * ⚠️ **Su una fotografia ferma non costa niente**: `rememberAnimation` guarda
+                 * i primi byte del file e se ne va.
+                 */
+                val animation = rememberAnimation(source)
+                ImageCanvas(
+                    state.image, settings, source, folder, info, onStep, ops, inBin,
+                    animation?.frame
+                )
+                if (animation != null) {
+                    AnimatedBar(
+                        animation = animation,
+                        name = state.image.displayName,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            // ⚠️ **PRIMA TARATURA, DA GUARDARE SUL TELEFONO**: la riga dei
+                            // dettagli può stare in basso, e allora i comandi le vanno
+                            // sopra. L'altezza di quella riga non è una costante, quindi
+                            // questo numero è una stima e non una misura.
+                            .padding(
+                                bottom = if (settings.infoPosition == InfoPosition.BOTTOM) {
+                                    ANIM_OVER_INFO
+                                } else {
+                                    ANIM_LIP
+                                }
+                            )
+                    )
+                }
+            }
             is ViewerState.Clip -> ClipStage(
                 uri = state.uri,
                 // La strisciata porta avanti e indietro solo se c'è una serie: fuori da una
@@ -1450,7 +1484,18 @@ private fun ImageCanvas(
     /** Le richieste del menu che devono sopravvivere al menu. Vedi [MenuOps]. */
     ops: MenuOps,
     /** Vedi il parametro omonimo di `ViewerScreen`. */
-    inBin: Boolean
+    inBin: Boolean,
+    /**
+     * Il fotogramma da disegnare al posto dell'immagine ferma, quando è animata.
+     *
+     * ⚠️⚠️ **SOSTITUISCE SOLO I PIXEL, NON LA GEOMETRIA, ed è il motivo per cui basta un
+     * parametro**: zoom, panoramica, riquadro di riposo e tasselli si calcolano tutti su
+     * `image`, e i fotogrammi di un'animazione hanno per forza la stessa misura della sua
+     * tela. Passare di qui un'immagine di misura diversa spezzerebbe quei conti in silenzio.
+     * ⚠️ **`null` è il caso normale**: una fotografia ferma non sa nemmeno che questo
+     * parametro esiste.
+     */
+    frame: ImageBitmap? = null
 ) {
     val density = LocalDensity.current
 
@@ -1804,7 +1849,7 @@ private fun ImageCanvas(
         //   mostrava un pixel per pixel. Un difetto solo, due sintomi.
         // ⚠️ Il ritaglio non si perde: il `BoxWithConstraints` qui sopra ha `clipToBounds`.
         Image(
-            bitmap = image.bitmap,
+            bitmap = frame ?: image.bitmap,
             contentDescription = image.displayName,
             modifier = Modifier
                 .align(Alignment.Center)
@@ -2683,3 +2728,8 @@ internal fun formatBytes(value: Long): String = when {
     // '4231.77 MB', che è un numero da contare con le dita.
     else -> String.format(Locale.US, "%.2f GB", value / (1024f * 1024f * 1024f))
 }
+
+/** Quanto la fila dei comandi si stacca dal fondo, e quanto in più se sotto c'è la riga dei
+ * dettagli. Vedi la nota alla chiamata: sono tarature, non misure. */
+private val ANIM_LIP = 24.dp
+private val ANIM_OVER_INFO = 96.dp

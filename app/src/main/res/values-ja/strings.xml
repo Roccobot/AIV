@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">単色</string>
     <string name="settings_bg_desc">市松模様は透明を見せられる唯一の背景で、ビューアーではそれは飾りではなく情報です。</string>
     <string name="settings_ui_theme">テーマ</string>
-    <string name="settings_ui_theme_desc">アプリ自体を明るくするか暗くするか。すぐ下にある画像の背景とは別の設定です。市松模様は透明を示すためのもので、色を合わせるためではありません。</string>
+    <string name="settings_ui_theme_desc">インターフェイスを明るくするか暗くするか。下にある画像の背景は含みません。市松模様は透明部分を示すもので、テーマには従いません。</string>
     <string name="settings_system">システム</string>
     <string name="settings_theme_light">明るい</string>
     <string name="settings_theme_dark">暗い</string>
@@ -82,7 +82,7 @@
     <string name="url_open">開く</string>
     <string name="url_recent">前に開いたもの</string>
     <string name="folder_empty">ここには何もありません。</string>
-    <string name="folder_no_images">フォルダーに写真はありません。</string>
+    <string name="folder_no_images">フォルダーに画像はありません。</string>
     <string name="folder_no_videos">フォルダーに動画はありません。</string>
     <string name="cancel">キャンセル</string>
     <string name="hide_folder_title">%1$s を隠しますか?</string>
@@ -266,7 +266,7 @@
     <string name="edit_failed">保存できませんでした</string>
     <string name="edit_app_gone">そのエディターはもうありません。別のものを選んでください。</string>
     <string name="settings_editor">画像を編集するアプリ</string>
-    <string name="settings_editor_desc">写真で編集を押したときに開くアプリ。内蔵のものは回転と切り抜きだけです。</string>
+    <string name="settings_editor_desc">画像で編集をタップしたときに開くアプリです。内蔵のものは回転と切り抜きを行います。</string>
     <string name="settings_editor_none">未選択</string>
     <string name="settings_editor_pick">選ぶ</string>
     <string name="view_grid">グリッド</string>
@@ -274,7 +274,7 @@
     <string name="view_tree">フォルダ</string>
     <string name="edit_no_backup">安全のための控えが作れなかったので、何も上書きしていません</string>
     <string name="settings_editor_backup">上書きの前に控えを取る</string>
-    <string name="settings_editor_backup_desc">内蔵エディターが画像を上書きする前に、前の版をごみ箱へ送ります。内蔵エディターだけが対象で、他のアプリは自分で保存します。</string>
+    <string name="settings_editor_backup_desc">上書きされた画像の以前の版はゴミ箱に保管されます。</string>
     <string name="editor_tall">縦</string>
     <string name="editor_wide">横</string>
     <string name="pick_drop_ask">選択を取り消しますか？</string>
@@ -283,4 +283,9 @@
     <string name="pick_list_done">ファイル一覧をクリップボードにコピーしました</string>
     <string name="settings_pick_weight">選択のサイズ</string>
     <string name="settings_pick_weight_desc">選択の先頭、件数の隣に、選んだ項目の合計サイズが表示されます。サイズは選択が止まるたびにシステムへ問い合わせます。オフにすると、その問い合わせは行われません。</string>
+    <string name="anim_play">再生</string>
+    <string name="anim_pause">一時停止</string>
+    <string name="anim_prev">前のフレーム</string>
+    <string name="anim_next">次のフレーム</string>
+    <string name="anim_export">このフレームを書き出す</string>
 </resources>

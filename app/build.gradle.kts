@@ -38,11 +38,11 @@ android {
         // the update as a downgrade. It is not tied to versionName and nothing
         // checks it, so nothing will remind you: 0.11 went out carrying 1, so
         // from here on every published version needs its own number.
-        versionCode = 102
+        versionCode = 103
         // Single source of the version, in SlimVer. The release workflow reads
         // it from here and refuses to run when the tag disagrees, so the tag
         // confirms this number instead of being a second one.
-        versionName = "1.12"
+        versionName = "1.13"
     }
 
     // The signing material comes from the environment and never from the
@@ -146,6 +146,8 @@ dependencies {
      */
     implementation(libs.media3.exoplayer)
     implementation(libs.media3.ui.compose)
+
+    implementation(libs.gifdecoder)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)

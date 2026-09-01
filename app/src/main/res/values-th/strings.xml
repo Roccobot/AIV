@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">สีเดียว</string>
     <string name="settings_bg_desc">ลายตาหมากรุกเป็นพื้นหลังเดียวที่ทำให้เห็นความโปรงใส และในโปรแกรมดูภาพความโปร่งใสคือข้อมูล ไม่ใช่การประดับ</string>
     <string name="settings_ui_theme">ธีม</string>
-    <string name="settings_ui_theme_desc">แอปเองจะสว่างหรือมืด ต่างจากพื้นหลังด้านหลังภาพที่อยู่ถัดลงไป: ลายตาหมากรุกมีไว้เพื่อแสดงความโปร่งใส ไม่ใช่เพื่อให้สีเข้ากัน</string>
+    <string name="settings_ui_theme_desc">อินเทอร์เฟซสว่างหรือมืด ไม่รวมถึงพื้นหลังด้านหลังภาพที่อยู่ด้านล่าง ลายหมากรุกเผยให้เห็นความโปร่งใส ไม่ได้ตามธีม</string>
     <string name="settings_system">ตามระบบ</string>
     <string name="settings_theme_light">สว่าง</string>
     <string name="settings_theme_dark">มืด</string>
@@ -82,7 +82,7 @@
     <string name="url_open">เปิด</string>
     <string name="url_recent">เคยเปิดแล้ว</string>
     <string name="folder_empty">ในนี้ไม่มีอะไร</string>
-    <string name="folder_no_images">โฟลเดอร์ไม่มีรูปภาพ</string>
+    <string name="folder_no_images">โฟลเดอร์นี้ไม่มีรูปภาพ</string>
     <string name="folder_no_videos">โฟลเดอร์ไม่มีวิดีโอ</string>
     <string name="cancel">ยกเลิก</string>
     <string name="hide_folder_title">ซ่อน %1$s ไหม</string>
@@ -266,7 +266,7 @@
     <string name="edit_failed">บันทึกไม่สำเร็จ</string>
     <string name="edit_app_gone">ตัวแก้ไขนั้นหายไปแล้ว เลือกอันอื่น</string>
     <string name="settings_editor">แอปสำหรับแก้ไขรูปภาพ</string>
-    <string name="settings_editor_desc">แอปไหนจะเปิดขึ้นเมื่อแตะแก้ไขบนรูป ตัวที่มีในตัวหมุนและครอบตัดเท่านั้น</string>
+    <string name="settings_editor_desc">แอปที่เปิดขึ้นเมื่อแตะแก้ไขบนภาพ แอปในตัวหมุนและครอบตัด</string>
     <string name="settings_editor_none">ยังไม่ได้เลือก</string>
     <string name="settings_editor_pick">เลือก</string>
     <string name="view_grid">ตาราง</string>
@@ -274,7 +274,7 @@
     <string name="view_tree">โฟลเดอร์</string>
     <string name="edit_no_backup">สำเนาสำรองไม่สำเร็จ จึงไม่ได้เขียนทับอะไรเลย</string>
     <string name="settings_editor_backup">สำเนาสำรองก่อนเขียนทับ</string>
-    <string name="settings_editor_backup_desc">ก่อนที่ตัวแก้ไขในตัวจะเขียนทับรูป รุ่นก่อนหน้าจะไปอยู่ในถังขยะ ใช้กับตัวแก้ไขในตัวเท่านั้น แอปอื่นบันทึกเอง</string>
+    <string name="settings_editor_backup_desc">ภาพเดิมของทุกไฟล์ที่ถูกเขียนทับจะถูกเก็บไว้ในถังขยะ</string>
     <string name="editor_tall">แนวตั้ง</string>
     <string name="editor_wide">แนวนอน</string>
     <string name="pick_drop_ask">ยกเลิกการเลือกไหม</string>
@@ -283,4 +283,9 @@
     <string name="pick_list_done">คัดลอกรายการไฟล์ไปยังคลิปบอร์ดแล้ว</string>
     <string name="settings_pick_weight">ขนาดของสิ่งที่เลือก</string>
     <string name="settings_pick_weight_desc">ที่หัวของการเลือก ถัดจากจำนวน จะอ่านได้ว่ารายการที่เลือกมีขนาดรวมเท่าใด ขนาดจะถูกถามจากระบบทุกครั้งที่การเลือกหยุดนิ่ง เมื่อปิดไว้ คำถามนั้นจะไม่ถูกถาม</string>
+    <string name="anim_play">เล่น</string>
+    <string name="anim_pause">หยุดชั่วคราว</string>
+    <string name="anim_prev">เฟรมก่อนหน้า</string>
+    <string name="anim_next">เฟรมถัดไป</string>
+    <string name="anim_export">ส่งออกเฟรมนี้</string>
 </resources>

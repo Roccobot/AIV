@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">Однотонний</string>
     <string name="settings_bg_desc">Шахівниця це єдине тло, яке робить прозорість видимою, а в переглядачі прозорість це відомості, а не оздоба.</string>
     <string name="settings_ui_theme">Тема</string>
-    <string name="settings_ui_theme_desc">Світлий чи темний сам застосунок. Це не те саме, що тло за зображенням трохи нижче: шахівниця потрібна, щоб показати прозорість, а не щоб пасувати за кольором.</string>
+    <string name="settings_ui_theme_desc">Світлий інтерфейс чи темний. Це не стосується тла за зображенням, нижче: шахівниця показує прозорість і не слідує темі.</string>
     <string name="settings_system">Як у системі</string>
     <string name="settings_theme_light">Світла</string>
     <string name="settings_theme_dark">Темна</string>
@@ -82,7 +82,7 @@
     <string name="url_open">Відкрити</string>
     <string name="url_recent">Відкривалися раніше</string>
     <string name="folder_empty">Тут нічого немає.</string>
-    <string name="folder_no_images">У теці немає фотографій.</string>
+    <string name="folder_no_images">У теці немає зображень.</string>
     <string name="folder_no_videos">У теці немає відео.</string>
     <string name="cancel">Скасувати</string>
     <string name="hide_folder_title">Сховати %1$s?</string>
@@ -311,7 +311,7 @@
     <string name="edit_failed">Зберегти не вдалося</string>
     <string name="edit_app_gone">Цього редактора вже немає. Оберіть інший.</string>
     <string name="settings_editor">Застосунок для редагування зображень</string>
-    <string name="settings_editor_desc">Який застосунок відкривається, коли торкаєшся Змінити на світлині. Вбудований повертає й обрізає, і більше нічого.</string>
+    <string name="settings_editor_desc">Застосунок, який відкривається після дотику до Змінити на зображенні. Вбудований обертає та обрізає.</string>
     <string name="settings_editor_none">Не обрано</string>
     <string name="settings_editor_pick">Обрати</string>
     <string name="view_grid">Сітка</string>
@@ -319,7 +319,7 @@
     <string name="view_tree">Папки</string>
     <string name="edit_no_backup">Резервну копію не вдалося зробити, тож нічого не перезаписано</string>
     <string name="settings_editor_backup">Резервна копія перед перезаписом</string>
-    <string name="settings_editor_backup_desc">Перш ніж вбудований редактор перезапише світлину, попередня версія йде в кошик. Це стосується лише вбудованого редактора: інший застосунок зберігає сам.</string>
+    <string name="settings_editor_backup_desc">Попередня версія кожного перезаписаного зображення зберігається в кошику.</string>
     <string name="editor_tall">Портрет</string>
     <string name="editor_wide">Пейзаж</string>
     <string name="pick_drop_ask">Скасувати вибір?</string>
@@ -328,4 +328,9 @@
     <string name="pick_list_done">Список файлів скопійовано в буфер обміну</string>
     <string name="settings_pick_weight">Розмір вибраного</string>
     <string name="settings_pick_weight_desc">Угорі вибору, поряд із лічильником, видно, скільки важать вибрані елементи разом. Розмір запитується в системи щоразу, коли вибір зупиняється: якщо вимкнено, цей запит не надсилається.</string>
+    <string name="anim_play">Відтворити</string>
+    <string name="anim_pause">Пауза</string>
+    <string name="anim_prev">Попередній кадр</string>
+    <string name="anim_next">Наступний кадр</string>
+    <string name="anim_export">Експортувати цей кадр</string>
 </resources>

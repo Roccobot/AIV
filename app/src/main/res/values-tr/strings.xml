@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">Düz renk</string>
     <string name="settings_bg_desc">Saydamlığı görünür kılan tek arka plan dama tahtasıdır ve bir görüntüleyicide saydamlık süs değil bilgidir.</string>
     <string name="settings_ui_theme">Tema</string>
-    <string name="settings_ui_theme_desc">Uygulamanın kendisi açık mı koyu mu olsun. Hemen altındaki görsel arka planından ayrıdır: dama tahtası saydamlığı göstermek içindir, uyum sağlamak için değil.</string>
+    <string name="settings_ui_theme_desc">Arayüzün açık mı koyu mu olduğu. Aşağıdaki, görselin arkasındaki zemini kapsamaz: dama deseni saydamlığı gösterir, temayı izlemez.</string>
     <string name="settings_system">Sistem</string>
     <string name="settings_theme_light">Açık</string>
     <string name="settings_theme_dark">Koyu</string>
@@ -82,7 +82,7 @@
     <string name="url_open">Aç</string>
     <string name="url_recent">Daha önce açılanlar</string>
     <string name="folder_empty">Burada hiçbir şey yok.</string>
-    <string name="folder_no_images">Klasörde fotoğraf yok.</string>
+    <string name="folder_no_images">Klasörde görsel yok.</string>
     <string name="folder_no_videos">Klasörde video yok.</string>
     <string name="cancel">Vazgeç</string>
     <string name="hide_folder_title">%1$s gizlensin mi?</string>
@@ -281,7 +281,7 @@
     <string name="edit_failed">Kaydedilemedi</string>
     <string name="edit_app_gone">O düzenleyici artık yok. Başka birini seç.</string>
     <string name="settings_editor">Resim düzenleme uygulaması</string>
-    <string name="settings_editor_desc">Bir resimde Düzenle\'ye dokununca hangi uygulama açılır. Yerleşik olan çevirir ve kırpar, başka bir şey yapmaz.</string>
+    <string name="settings_editor_desc">Bir görselde Düzenle dokunuşuyla açılan uygulama. Yerleşik olan döndürür ve kırpar.</string>
     <string name="settings_editor_none">Seçilmedi</string>
     <string name="settings_editor_pick">Seç</string>
     <string name="view_grid">Izgara</string>
@@ -289,7 +289,7 @@
     <string name="view_tree">Klasörler</string>
     <string name="edit_no_backup">Yedek kopya alınamadı, bu yüzden hiçbir şeyin üzerine yazılmadı</string>
     <string name="settings_editor_backup">Üzerine yazmadan önce yedek kopya</string>
-    <string name="settings_editor_backup_desc">Yerleşik düzenleyici bir resmin üzerine yazmadan önce, önceki hâli çöp kutusuna gider. Yalnızca yerleşik düzenleyici için geçerli: başka bir uygulama kendi başına kaydeder.</string>
+    <string name="settings_editor_backup_desc">Üzerine yazılan her görselin önceki sürümü çöp kutusunda saklanır.</string>
     <string name="editor_tall">Dikey</string>
     <string name="editor_wide">Yatay</string>
     <string name="pick_drop_ask">Seçim bırakılsın mı?</string>
@@ -298,4 +298,9 @@
     <string name="pick_list_done">Dosya listesi panoya kopyalandı</string>
     <string name="settings_pick_weight">Seçimin boyutu</string>
     <string name="settings_pick_weight_desc">Seçimin başında, sayının yanında, seçilen ögelerin toplam boyutu okunur. Boyut, seçim her durduğunda sisteme sorulur: kapalıyken bu soru hiç sorulmaz.</string>
+    <string name="anim_play">Oynat</string>
+    <string name="anim_pause">Duraklat</string>
+    <string name="anim_prev">Önceki kare</string>
+    <string name="anim_next">Sonraki kare</string>
+    <string name="anim_export">Bu kareyi dışa aktar</string>
 </resources>

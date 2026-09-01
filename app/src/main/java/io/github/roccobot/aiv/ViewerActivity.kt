@@ -169,6 +169,24 @@ private val HOME = Screen.Folders(forStart = false)
 private const val SEARCH_PAUSE_MS = 280L
 
 /**
+ * Fills [into] as far as the stream goes, and answers how many bytes it put there.
+ *
+ * ⚠️⚠️ **A SINGLE `read` IS ALLOWED TO RETURN LESS THAN IT WAS ASKED FOR, and that is the
+ * whole reason this exists**: a comparison written on a bare `read` would see two identical
+ * files answer with different chunk sizes and call them different. The loop is what makes a
+ * short read a non-event.
+ */
+private fun java.io.InputStream.fill(into: ByteArray): Int {
+    var done = 0
+    while (done < into.size) {
+        val step = read(into, done, into.size - done)
+        if (step < 0) break
+        done += step
+    }
+    return done
+}
+
+/**
  * The decoded picture lives in the ViewModel and not in the composition: a
  * rotation must not send the phone back to the network, and on a big file that
  * would be a visible pause rather than a purist's detail.
@@ -933,17 +951,53 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * caso normale è l'app disinstallata, e un avviso senza via d'uscita lascerebbe la voce
      * 'Modifica' rotta per sempre, perché la scelta memorizzata punta a qualcosa che non
      * c'è. Riaprire il selettore è la sola risposta che rimette in piedi la funzione.
+     *
+     * ⚠️⚠️ **LA COPIA DI SICUREZZA VALE ANCHE QUI, dalla 1.13** (domanda dell'utente: *vale
+     * solo per l'editor interno o per tutti quelli che supportano 'Modifica'?*). L'interruttore
+     * promette che una modifica non fa perdere l'originale, e chi lo accende non sta pensando
+     * a **quale** editor riscriverà il file: un'app di fuori lo riscrive esattamente come
+     * quello di casa, e prima della 1.13 era la sola via da cui l'originale se ne andava per
+     * sempre.
+     * ⚠️⚠️ **SI COPIA PRIMA DI LANCIARE, e l'ordine è tutto**: l'editor esterno può salvare
+     * un istante dopo essersi aperto, quindi una copia fatta 'intanto' arriverebbe a
+     * fotografare il file già riscritto, cioè salverebbe il nulla credendo di aver salvato
+     * qualcosa.
+     * ⚠️ **Una copia che non riesce ferma il giro**, come nell'editor di casa e per la stessa
+     * ragione: aprire lo stesso vorrebbe dire dare a chi si stava proteggendo proprio il
+     * rischio da cui si proteggeva, in silenzio.
+     * ⚠️ **Se poi l'editor non parte, la copia si ritira**: quel file non è stato toccato da
+     * nessuno, e lasciare nel cestino una copia di un'immagine ancora intatta è spazzatura
+     * che l'utente dovrebbe capire e buttare da sé.
+     * ⚠️⚠️ **DOVE NON C'È UN FILE NOSTRO NON SI BLOCCA NIENTE, e senza questa riga la
+     * modifica si sarebbe rotta su tutte le immagini prese dal web**: un indirizzo che non
+     * corrisponde a un file su disco (una pagina remota, un allegato di un'altra app) non ha
+     * un originale che noi possiamo perdere, quindi la promessa dell'interruttore è già
+     * mantenuta senza fare niente. Trattare quel caso come una copia fallita avrebbe negato
+     * l'editor proprio dove non c'era nulla da proteggere.
      */
     private fun openOutside(uri: Uri, id: String) {
         val context = getApplication<Application>()
-        if (Editors.open(context, uri, id)) {
-            editedOutside = uri
-            return
+        viewModelScope.launch {
+            var kept: File? = null
+            val file = withContext(Dispatchers.IO) { FileTree.fileOf(context, uri) }
+            if (settings?.editorBackup != false && file != null) {
+                kept = Bin.keep(context, file)
+                if (kept == null) {
+                    notice = R.string.edit_no_backup
+                    return@launch
+                }
+            }
+            if (Editors.open(context, uri, id)) {
+                editedOutside = uri
+                keptOutside = kept
+                return@launch
+            }
+            kept?.let { Bin.drop(context, it) }
+            notice = R.string.edit_app_gone
+            settings?.let { updateSettings(it.copy(editorApp = "")) }
+            editorFor = uri
+            editorAsk = true
         }
-        notice = R.string.edit_app_gone
-        settings?.let { updateSettings(it.copy(editorApp = "")) }
-        editorFor = uri
-        editorAsk = true
     }
 
     /** Indietro dall'editor di casa: il visualizzatore, che è il solo posto da cui si apre. */
@@ -960,6 +1014,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      */
     private var editedOutside: Uri? = null
 
+    /** La copia messa nel cestino prima di uscire, finché non si sa se è servita. */
+    private var keptOutside: File? = null
+
     /**
      * Si torna da un'app di fuori: quello che ha modificato va riletto.
      *
@@ -970,14 +1027,77 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * ⚠️ **Si rilegge anche quando l'editor non ha salvato niente**, e va bene: costa una
      * decodifica in un momento in cui non si sta facendo altro, mentre la via furba
      * (guardare la data del file) sbaglierebbe su un editor che riscrive senza cambiarla.
+     *
+     * ⚠️⚠️ **QUI SI DECIDE SE LA COPIA RESTA, e la domanda non è 'l'editor ha salvato?' ma
+     * 'il file è cambiato?'**: un editor esterno non risponde niente, quindi la sola prova
+     * che esista è il file stesso. Chi apre 'Modifica' e poi esce senza toccare niente non
+     * deve trovarsi un doppione nel cestino a ogni ripensamento.
+     * ⚠️⚠️ **SI CONFRONTA IL CONTENUTO E NON LA DATA, ed è già scritto qui sopra perché
+     * questa funzione ci era cascata una volta**: la data di modifica la cambia anche chi
+     * riscrive gli stessi identici byte, e non la cambia affatto qualche editor che la
+     * conserva apposta. Sbaglierebbe in tutte e due le direzioni, e quella grave è buttare
+     * la copia di un file che invece è stato riscritto.
      */
     private fun backFromOutside() {
         val uri = editedOutside ?: return
         editedOutside = null
+        val kept = keptOutside
+        keptOutside = null
         val context = getApplication<Application>()
+        if (kept != null) {
+            viewModelScope.launch {
+                val same = withContext(Dispatchers.IO) {
+                    FileTree.fileOf(context, uri)?.let { sameBytes(kept, it) } == true
+                }
+                if (same) Bin.drop(context, kept)
+            }
+        }
         Thumbs.forget(context, uri)
         if (source == uri) retry()
         afterFileChanged()
+    }
+
+    /**
+     * Se due file portano gli stessi identici byte.
+     *
+     * ⚠️ **La lunghezza si guarda per prima e chiude quasi tutti i casi**: un editor che
+     * salva cambia quasi sempre il peso del file, e leggerne due da capo a fondo per
+     * scoprirlo sarebbe lavoro buttato. Restano da leggere davvero i soli file che pesano
+     * uguale, che sono il caso raro.
+     * ⚠️ **A blocchi e non tutto in memoria**: qui non c'è il tetto che [Animations] si
+     * impone, perché una fotografia da centinaia di megabyte è rara ma non impossibile, e
+     * leggerne due intere per confrontarle la renderebbe una chiusura dell'app.
+     * ⚠️ **In caso di errore risponde 'diversi'**, che è la risposta prudente: la copia
+     * resta nel cestino, e il peggio che succede è un file di troppo da buttare a mano.
+     */
+    private fun sameBytes(one: File, two: File): Boolean {
+        if (one.length() != two.length()) return false
+        val step = 64 * 1024
+        return runCatching {
+            one.inputStream().use { a ->
+                two.inputStream().use { b ->
+                    val left = ByteArray(step)
+                    val right = ByteArray(step)
+                    var same = true
+                    var going = true
+                    while (going && same) {
+                        val read = a.fill(left)
+                        if (b.fill(right) != read) {
+                            same = false
+                        } else {
+                            for (i in 0 until read) {
+                                if (left[i] != right[i]) {
+                                    same = false
+                                    break
+                                }
+                            }
+                        }
+                        going = read == step
+                    }
+                    same
+                }
+            }
+        }.getOrDefault(false)
     }
 
     /**

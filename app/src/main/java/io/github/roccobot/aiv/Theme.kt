@@ -33,23 +33,37 @@ import androidx.compose.ui.graphics.Color
 
 /**
  * ⚠️ **IL FONDO CHIARO È QUASI BIANCO E LEGGERMENTE GIALLO** (richiesta dell'utente):
- * `#FCFBF5` sta un soffio sotto il bianco e ha il rosso e il verde più alti del blu, che
+ * `#FCFBF8` sta un soffio sotto il bianco e ha il rosso e il verde più alti del blu, che
  * è quello che si legge come calore. ⚠️ Non è un beige: serve a togliere il taglio del
  * bianco puro senza che il fondo diventi un colore.
- * ⚠️⚠️ **LA SATURAZIONE È SCESA NELLA 0.45, ed è una misura e non un aggiustamento a
- * occhio** (l'utente sulla `0.44`: *solo leggermente meno saturo, dev'essere solo un
- * accenno di giallo/crema*). Il `#FAF8EF` di prima aveva **11 punti su 255** fra il canale
- * più alto e il più basso, cioè il **4.4%** di saturazione; questo ne ha **7**, cioè il
- * **2.8%**. Chi lo ritocca ancora usi quel numero e non l'occhio: su un fondo quasi bianco
- * la differenza fra 'accenno' e 'crema' sta in tre punti.
- * ⚠️ **Tutta la famiglia chiara è scesa con lui**, superfici e contenitori compresi:
- * abbassare il solo fondo avrebbe lasciato le schede più gialle della pagina, che è il
- * modo in cui una tavolozza smette di sembrare una tavolozza.
+ * ⚠️⚠️ **LA SATURAZIONE È SCESA DUE VOLTE, e ogni volta è una misura e non un
+ * aggiustamento a occhio**: si conta la distanza fra il canale più alto e il più basso,
+ * su 255.
+ *
+ * | quando | fondo | punti | saturazione |
+ * |---|---|---|---|
+ * | fino alla `0.44` | `#FAF8EF` | 11 | 4.4% |
+ * | `0.45` | `#FCFBF5` | 7 | 2.8% |
+ * | `1.13` | `#FCFBF8` | 4 | 1.6% |
+ *
+ * Le due richieste sono la stessa richiesta fatta due volte (`0.44`: *solo leggermente meno
+ * saturo, dev'essere solo un accenno di giallo/crema*; `1.13`: *ancora leggermente meno
+ * saturazione del giallo*), ed è il motivo per cui i valori scartati restano scritti qui:
+ * chi ritocca la terza volta deve sapere da dove si scende, o rifarà il primo passo.
+ * ⚠️ **Su un fondo quasi bianco la differenza fra 'accenno' e 'crema' sta in tre punti**, e
+ * il passo di questa scala è appunto tre.
+ * ⚠️ **Tutta la famiglia chiara scende insieme**, superfici e contenitori compresi, e il
+ * fattore è lo stesso per tutti (i punti di ciascuno moltiplicati per 4/7, cioè il rapporto
+ * fra il fondo nuovo e quello di prima): abbassare il solo fondo lascerebbe le schede più
+ * gialle della pagina, che è il modo in cui una tavolozza smette di sembrare una tavolozza.
+ * ⚠️⚠️ **E scende con loro `window_background` di `colors.xml`, che è l'unico valore fuori
+ * da questo file**: lo dipinge il sistema prima che la composizione esista, quindi se resta
+ * indietro l'app si apre con un lampo del fondo vecchio.
  */
-private val LIGHT_BACK = Color(0xFFFCFBF5)
+private val LIGHT_BACK = Color(0xFFFCFBF8)
 
 /** La superficie chiara: un filo sopra il fondo, così una scheda si stacca da sola. */
-private val LIGHT_SURFACE = Color(0xFFFFFEFA)
+private val LIGHT_SURFACE = Color(0xFFFFFEFC)
 
 /**
  * ⚠️ **IL FONDO SCURO È GRIGIO, NON VERDE** (richiesta dell'utente: grigio scuro
@@ -99,7 +113,7 @@ private val ACCENT_DARK = Color(0xFF00727B)
  * chiesto e non si tocca; quello che si tocca è l'unico posto in cui l'accento finiva
  * sotto forma di parole, cioè il collegamento a `roccobot.me` in fondo alle impostazioni.
  * ⚠️ **Restano i colori dell'icona**, che è il punto della richiesta: il chiaro è la
- * stessa tinta scurita (**6.20** sul fondo), lo scuro è **esattamente** il glifo
+ * stessa tinta scurita (**6.21** sul fondo), lo scuro è **esattamente** il glifo
  * dell'icona scura, `launcher_foreground` di `values-night` (**9.97** sul fondo).
  * ⚠️ Chi volesse un accento leggibile dappertutto deve scurire `ACCENT_LIGHT`, e allora
  * questa coppia sparisce da sé: è nata da una deroga, non da una preferenza.
@@ -136,15 +150,15 @@ private val LightScheme: ColorScheme = lightColorScheme(
     onBackground = Color(0xFF1A1C1B),
     surface = LIGHT_SURFACE,
     onSurface = Color(0xFF1A1C1B),
-    surfaceVariant = Color(0xFFEFEEE7),
+    surfaceVariant = Color(0xFFEFEEEA),
     onSurfaceVariant = Color(0xFF5B6360),
     surfaceContainerLowest = Color(0xFFFFFFFF),
-    surfaceContainerLow = Color(0xFFFDFCF8),
-    surfaceContainer = Color(0xFFF8F7F1),
-    surfaceContainerHigh = Color(0xFFF3F1EB),
-    surfaceContainerHighest = Color(0xFFEDECE5),
+    surfaceContainerLow = Color(0xFFFDFCFA),
+    surfaceContainer = Color(0xFFF8F7F4),
+    surfaceContainerHigh = Color(0xFFF3F1EE),
+    surfaceContainerHighest = Color(0xFFEDECE8),
     outline = Color(0xFF79817D),
-    outlineVariant = Color(0xFFDAD9D2)
+    outlineVariant = Color(0xFFDAD9D5)
 )
 
 private val DarkScheme: ColorScheme = darkColorScheme(

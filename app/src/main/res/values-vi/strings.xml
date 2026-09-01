@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">Một màu</string>
     <string name="settings_bg_desc">Ô bàn cờ là nền duy nhất cho thấy độ trong suốt, và trên một trình xem ảnh thì độ trong suốt là thông tin chứ không phải trang trí.</string>
     <string name="settings_ui_theme">Chủ đề</string>
-    <string name="settings_ui_theme_desc">Bản thân ứng dụng là sáng hay tối. Khác với nền phía sau ảnh ngay bên dưới: ô bàn cờ ở đó để cho thấy độ trong suốt, không phải để hợp màu.</string>
+    <string name="settings_ui_theme_desc">Giao diện sáng hay tối. Không áp dụng cho nền phía sau hình ảnh, bên dưới: ô bàn cờ cho thấy độ trong suốt, không theo chủ đề.</string>
     <string name="settings_system">Theo hệ thống</string>
     <string name="settings_theme_light">Sáng</string>
     <string name="settings_theme_dark">Tối</string>
@@ -82,7 +82,7 @@
     <string name="url_open">Mở</string>
     <string name="url_recent">Đã mở trước đây</string>
     <string name="folder_empty">Trong này không có gì.</string>
-    <string name="folder_no_images">Thư mục không có ảnh.</string>
+    <string name="folder_no_images">Thư mục không có hình ảnh nào.</string>
     <string name="folder_no_videos">Thư mục không có video.</string>
     <string name="cancel">Hủy</string>
     <string name="hide_folder_title">Ẩn %1$s?</string>
@@ -266,7 +266,7 @@
     <string name="edit_failed">Không lưu được</string>
     <string name="edit_app_gone">Trình sửa đó không còn nữa. Hãy chọn cái khác.</string>
     <string name="settings_editor">Ứng dụng để sửa ảnh</string>
-    <string name="settings_editor_desc">Ứng dụng nào mở ra khi chạm Sửa trên một tấm ảnh. Cái có sẵn chỉ xoay và cắt, không hơn.</string>
+    <string name="settings_editor_desc">Ứng dụng mở ra khi chạm Chỉnh sửa trên một hình ảnh. Ứng dụng có sẵn xoay và cắt.</string>
     <string name="settings_editor_none">Chưa chọn cái nào</string>
     <string name="settings_editor_pick">Chọn</string>
     <string name="view_grid">Lưới</string>
@@ -274,7 +274,7 @@
     <string name="view_tree">Thư mục</string>
     <string name="edit_no_backup">Không tạo được bản sao an toàn, nên chưa ghi đè gì cả</string>
     <string name="settings_editor_backup">Bản sao an toàn trước khi ghi đè</string>
-    <string name="settings_editor_backup_desc">Trước khi trình sửa có sẵn ghi đè lên một tấm ảnh, bản trước đó sẽ vào thùng rác. Chỉ áp dụng cho trình sửa có sẵn: ứng dụng khác tự lưu lấy.</string>
+    <string name="settings_editor_backup_desc">Bản trước của mọi hình ảnh bị ghi đè được giữ trong thùng rác.</string>
     <string name="editor_tall">Dọc</string>
     <string name="editor_wide">Ngang</string>
     <string name="pick_drop_ask">Bỏ lựa chọn?</string>
@@ -283,4 +283,9 @@
     <string name="pick_list_done">Đã sao chép danh sách tệp vào bảng nhớ tạm</string>
     <string name="settings_pick_weight">Dung lượng lựa chọn</string>
     <string name="settings_pick_weight_desc">Ở đầu phần lựa chọn, cạnh số đếm, hiện tổng dung lượng của các mục đã chọn. Dung lượng được hỏi hệ thống mỗi khi lựa chọn dừng lại: khi tắt, câu hỏi đó không bao giờ được đặt ra.</string>
+    <string name="anim_play">Phát</string>
+    <string name="anim_pause">Tạm dừng</string>
+    <string name="anim_prev">Khung hình trước</string>
+    <string name="anim_next">Khung hình sau</string>
+    <string name="anim_export">Xuất khung hình này</string>
 </resources>

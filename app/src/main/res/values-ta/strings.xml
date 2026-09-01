@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">ஒரே நிறம்</string>
     <string name="settings_bg_desc">ஒளிபுகுதலைக் காட்டும் ஒரே பின்னணி சதுரங்கக் கட்டம்தான், படம் பார்க்கும் செயலியில் ஒளிபுகுதல் அலங்காரம் அல்ல, தகவல்.</string>
     <string name="settings_ui_theme">தோற்றம்</string>
-    <string name="settings_ui_theme_desc">செயலியே வெளிச்சமாகவா இருளாகவா என்பது. கீழே உள்ள படத்தின் பின்னணியிலிருந்து இது வேறு: சதுரங்கக் கட்டம் ஒளிபுகுதலைக் காட்டுவதற்கு, நிறத்திற்கு ஒத்துப்போவதற்கு அல்ல.</string>
+    <string name="settings_ui_theme_desc">இடைமுகம் ஒளிர்வானதா இருண்டதா. கீழே உள்ள படத்தின் பின்னணிக்கு இது பொருந்தாது: சதுரங்கக் கட்டம் ஒளிஊடுருவலைக் காட்டுகிறது, தோற்றத்தைப் பின்பற்றுவதில்லை.</string>
     <string name="settings_system">அமைப்பின்படி</string>
     <string name="settings_theme_light">வெளிச்சம்</string>
     <string name="settings_theme_dark">இருள்</string>
@@ -82,7 +82,7 @@
     <string name="url_open">திற</string>
     <string name="url_recent">முன்பு திறந்தவை</string>
     <string name="folder_empty">இங்கே எதுவும் இல்லை.</string>
-    <string name="folder_no_images">கோப்புறையில் புகைப்படங்கள் இல்லை.</string>
+    <string name="folder_no_images">கோப்புறையில் படங்கள் இல்லை.</string>
     <string name="folder_no_videos">கோப்புறையில் காணொலிகள் இல்லை.</string>
     <string name="cancel">ரத்து</string>
     <string name="hide_folder_title">%1$s-ஐ மறைக்கவா?</string>
@@ -281,7 +281,7 @@
     <string name="edit_failed">சேமிக்க முடியவில்லை</string>
     <string name="edit_app_gone">அந்தத் திருத்தி இப்போது இல்லை. வேறொன்றைத் தேர்ந்தெடு.</string>
     <string name="settings_editor">படங்களைத் திருத்தும் செயலி</string>
-    <string name="settings_editor_desc">ஒரு படத்தில் திருத்து என்பதைத் தொடும்போது எந்தச் செயலி திறக்கும். உள்ளமைந்தது சுழற்றும், வெட்டும், அவ்வளவே.</string>
+    <string name="settings_editor_desc">ஒரு படத்தில் திருத்து என்பதைத் தொடும்போது திறக்கும் செயலி. உள்ளமைந்தது சுழற்றி வெட்டுகிறது.</string>
     <string name="settings_editor_none">எதுவும் தேர்ந்தெடுக்கப்படவில்லை</string>
     <string name="settings_editor_pick">தேர்ந்தெடு</string>
     <string name="view_grid">கட்டம்</string>
@@ -289,7 +289,7 @@
     <string name="view_tree">கோப்புறைகள்</string>
     <string name="edit_no_backup">பாதுகாப்பு நகல் எடுக்க முடியவில்லை, எனவே எதன் மேலும் எழுதப்படவில்லை</string>
     <string name="settings_editor_backup">மேலெழுதும் முன் பாதுகாப்பு நகல்</string>
-    <string name="settings_editor_backup_desc">உள்ளமைந்த திருத்தி ஒரு படத்தின் மேல் எழுதும் முன், முந்தைய வடிவம் குப்பைத் தொட்டிக்குச் செல்லும். இது உள்ளமைந்த திருத்திக்கு மட்டுமே: வேறு செயலி தானே சேமிக்கும்.</string>
+    <string name="settings_editor_backup_desc">மேலெழுதப்படும் ஒவ்வொரு படத்தின் முந்தைய வடிவமும் குப்பைத் தொட்டியில் பாதுகாக்கப்படும்.</string>
     <string name="editor_tall">நெடுக்கு</string>
     <string name="editor_wide">குறுக்கு</string>
     <string name="pick_drop_ask">தேர்வை விடவா?</string>
@@ -298,4 +298,9 @@
     <string name="pick_list_done">கோப்புப் பட்டியல் இடைநிலைப் பலகைக்கு நகலெடுக்கப்பட்டது</string>
     <string name="settings_pick_weight">தேர்வின் அளவு</string>
     <string name="settings_pick_weight_desc">தேர்வின் மேலே, எண்ணிக்கைக்குப் பக்கத்தில், தேர்ந்தெடுத்த உருப்படிகளின் மொத்த அளவு தெரியும். தேர்வு நின்றதும் அளவு அமைப்பிடம் கேட்கப்படுகிறது: அணைத்தால் அந்தக் கேள்வி கேட்கப்படுவதில்லை.</string>
+    <string name="anim_play">இயக்கு</string>
+    <string name="anim_pause">இடைநிறுத்து</string>
+    <string name="anim_prev">முந்தைய சட்டகம்</string>
+    <string name="anim_next">அடுத்த சட்டகம்</string>
+    <string name="anim_export">இந்தச் சட்டகத்தை ஏற்றுமதி செய்</string>
 </resources>

@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">एकच रंग</string>
     <string name="settings_bg_desc">पारदर्शकता दाखवणारी एकमेव पार्श्वभूमी बुद्धिबळाचे चौकोन आहे, आणि प्रतिमा पाहणाऱ्या अॅपमध्ये पारदर्शकता ही सजावट नाही, माहिती आहे.</string>
     <string name="settings_ui_theme">रूप</string>
-    <string name="settings_ui_theme_desc">अॅप स्वतः उजळ असावे की गडद. हे खालच्या प्रतिमेच्या पार्श्वभूमीपेक्षा वेगळे आहे: बुद्धिबळाचे चौकोन पारदर्शकता दाखवण्यासाठी आहेत, रंग जुळवण्यासाठी नाही.</string>
+    <string name="settings_ui_theme_desc">इंटरफेस उजळ आहे की गडद. खालील प्रतिमेमागील पार्श्वभूमी यात येत नाही: बुद्धिबळाचा पट पारदर्शकता दाखवतो, थीमचे अनुसरण करत नाही.</string>
     <string name="settings_system">प्रणालीप्रमाणे</string>
     <string name="settings_theme_light">उजळ</string>
     <string name="settings_theme_dark">गडद</string>
@@ -82,7 +82,7 @@
     <string name="url_open">उघडा</string>
     <string name="url_recent">आधी उघडलेले</string>
     <string name="folder_empty">इथे काहीही नाही.</string>
-    <string name="folder_no_images">फोल्डरमध्ये फोटो नाहीत.</string>
+    <string name="folder_no_images">फोल्डरमध्ये कोणतीही प्रतिमा नाही.</string>
     <string name="folder_no_videos">फोल्डरमध्ये व्हिडिओ नाहीत.</string>
     <string name="cancel">रद्द</string>
     <string name="hide_folder_title">%1$s लपवायचा?</string>
@@ -281,7 +281,7 @@
     <string name="edit_failed">जतन करता आले नाही</string>
     <string name="edit_app_gone">तो संपादक आता नाही. दुसरा निवडा.</string>
     <string name="settings_editor">छायाचित्रे संपादित करण्याचे ॲप</string>
-    <string name="settings_editor_desc">छायाचित्रावर संपादन दाबल्यावर कोणते ॲप उघडते. अंगभूत ॲप फिरवते आणि कापते, त्यापलीकडे काही नाही.</string>
+    <string name="settings_editor_desc">प्रतिमेवर संपादित करा स्पर्श केल्यावर उघडणारे ॲप. अंगभूत ॲप फिरवते आणि कापते.</string>
     <string name="settings_editor_none">काहीच निवडलेले नाही</string>
     <string name="settings_editor_pick">निवडा</string>
     <string name="view_grid">जाळी</string>
@@ -289,7 +289,7 @@
     <string name="view_tree">फोल्डर</string>
     <string name="edit_no_backup">सुरक्षा प्रत झाली नाही, म्हणून काहीही वर लिहिले गेले नाही</string>
     <string name="settings_editor_backup">वर लिहिण्यापूर्वी सुरक्षा प्रत</string>
-    <string name="settings_editor_backup_desc">अंगभूत संपादक एखाद्या छायाचित्रावर लिहिण्यापूर्वी, आधीचे रूप कचरापेटीत जाते. हे फक्त अंगभूत संपादकासाठी आहे: दुसरे ॲप स्वतःच जतन करते.</string>
+    <string name="settings_editor_backup_desc">पुनर्लेखन झालेल्या प्रत्येक प्रतिमेचे आधीचे रूप कचरापेटीत जपले जाते.</string>
     <string name="editor_tall">उभे</string>
     <string name="editor_wide">आडवे</string>
     <string name="pick_drop_ask">निवड सोडायची?</string>
@@ -298,4 +298,9 @@
     <string name="pick_list_done">फाइल यादी क्लिपबोर्डवर कॉपी झाली</string>
     <string name="settings_pick_weight">निवडीचा आकार</string>
     <string name="settings_pick_weight_desc">निवडीच्या वर, मोजणीशेजारी, निवडलेल्या घटकांचा एकूण आकार दिसतो. निवड थांबताच आकार प्रणालीला विचारला जातो: बंद असल्यास तो प्रश्न विचारला जात नाही.</string>
+    <string name="anim_play">प्ले करा</string>
+    <string name="anim_pause">थांबवा</string>
+    <string name="anim_prev">मागील फ्रेम</string>
+    <string name="anim_next">पुढील फ्रेम</string>
+    <string name="anim_export">ही फ्रेम निर्यात करा</string>
 </resources>

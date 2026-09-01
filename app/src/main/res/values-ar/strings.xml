@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">لون واحد</string>
     <string name="settings_bg_desc">رقعة الشطرنج هي الخلفية الوحيدة التي تُظهر الشفافية، وفي عارض الصور الشفافية معلومة لا زينة.</string>
     <string name="settings_ui_theme">المظهر</string>
-    <string name="settings_ui_theme_desc">أن يكون التطبيق نفسه فاتحًا أو داكنًا. وهذا غير الخلفية التي خلف الصورة أسفله مباشرة: رقعة الشطرنج لإظهار الشفافية لا لمجاراة الألوان.</string>
+    <string name="settings_ui_theme_desc">ما إذا كانت الواجهة فاتحة أم داكنة. لا يشمل ذلك الخلفية خلف الصورة، أدناه: رقعة الشطرنج تكشف الشفافية ولا تتبع السمة.</string>
     <string name="settings_system">حسب النظام</string>
     <string name="settings_theme_light">فاتح</string>
     <string name="settings_theme_dark">داكن</string>
@@ -341,7 +341,7 @@
     <string name="edit_failed">تعذّر الحفظ</string>
     <string name="edit_app_gone">هذا المحرر لم يعد موجودًا. اختر غيره.</string>
     <string name="settings_editor">تطبيق تحرير الصور</string>
-    <string name="settings_editor_desc">أي تطبيق يفتح عند لمس تحرير على صورة. المدمج يدوّر ويقصّ، لا أكثر.</string>
+    <string name="settings_editor_desc">التطبيق الذي يفتح عند لمس تحرير على صورة. المدمج يدير ويقص.</string>
     <string name="settings_editor_none">لم يُختر أي تطبيق</string>
     <string name="settings_editor_pick">اختيار</string>
     <string name="view_grid">شبكة</string>
@@ -349,7 +349,7 @@
     <string name="view_tree">مجلدات</string>
     <string name="edit_no_backup">تعذّرت نسخة الأمان، فلم تجرِ الكتابة فوق شيء</string>
     <string name="settings_editor_backup">نسخة أمان قبل الكتابة فوق الملف</string>
-    <string name="settings_editor_backup_desc">قبل أن يكتب المحرر المدمج فوق صورة، تذهب نسختها السابقة إلى سلة المهملات. هذا للمحرر المدمج وحده: أي تطبيق آخر يحفظ بنفسه.</string>
+    <string name="settings_editor_backup_desc">تحفظ النسخة السابقة من كل صورة يعاد كتابتها في سلة المهملات.</string>
     <string name="editor_tall">طولي</string>
     <string name="editor_wide">عرضي</string>
     <string name="pick_drop_ask">هل تريد إلغاء التحديد؟</string>
@@ -358,4 +358,9 @@
     <string name="pick_list_done">تم نسخ قائمة الملفات إلى الحافظة</string>
     <string name="settings_pick_weight">حجم التحديد</string>
     <string name="settings_pick_weight_desc">في أعلى التحديد، بجانب العدد، يظهر حجم العناصر المحددة كلها. يطلب الحجم من النظام في كل مرة يتوقف فيها التحديد: عند الإيقاف، لا يطرح هذا السؤال.</string>
+    <string name="anim_play">تشغيل</string>
+    <string name="anim_pause">إيقاف مؤقت</string>
+    <string name="anim_prev">الإطار السابق</string>
+    <string name="anim_next">الإطار التالي</string>
+    <string name="anim_export">تصدير هذا الإطار</string>
 </resources>

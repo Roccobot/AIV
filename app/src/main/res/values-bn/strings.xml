@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">একটি রং</string>
     <string name="settings_bg_desc">দাবার ছকই একমাত্র পটভূমি যা স্বচ্ছতা দেখায়, আর ছবি দেখার অ্যাপে স্বচ্ছতা তথ্য, সাজসজ্জা নয়।</string>
     <string name="settings_ui_theme">থিম</string>
-    <string name="settings_ui_theme_desc">অ্যাপটি নিজে হালকা না গাঢ়। এটি ঠিক নিচের ছবির পটভূমি থেকে আলাদা: দাবার ছক স্বচ্ছতা দেখানোর জন্য, রং মেলানোর জন্য নয়।</string>
+    <string name="settings_ui_theme_desc">ইন্টারফেস হালকা না গাঢ়। নিচের ছবির পটভূমি এর আওতায় নেই: দাবার ছক স্বচ্ছতা দেখায়, থিম অনুসরণ করে না।</string>
     <string name="settings_system">সিস্টেম অনুযায়ী</string>
     <string name="settings_theme_light">হালকা</string>
     <string name="settings_theme_dark">গাঢ়</string>
@@ -281,7 +281,7 @@
     <string name="edit_failed">সংরক্ষণ করা যায়নি</string>
     <string name="edit_app_gone">সেই সম্পাদকটি আর নেই। অন্য একটি বাছুন।</string>
     <string name="settings_editor">ছবি সম্পাদনার অ্যাপ</string>
-    <string name="settings_editor_desc">ছবিতে সম্পাদনা ছুঁলে কোন অ্যাপ খোলে। অন্তর্নির্মিতটি ঘোরায় আর ছাঁটে, এর বেশি নয়।</string>
+    <string name="settings_editor_desc">কোনো ছবিতে সম্পাদনা স্পর্শ করলে যে অ্যাপ খোলে। অন্তর্নির্মিতটি ঘোরায় ও ছাঁটে।</string>
     <string name="settings_editor_none">কিছু বাছা হয়নি</string>
     <string name="settings_editor_pick">বাছুন</string>
     <string name="view_grid">গ্রিড</string>
@@ -289,7 +289,7 @@
     <string name="view_tree">ফোল্ডার</string>
     <string name="edit_no_backup">নিরাপত্তা অনুলিপি হয়নি, তাই কিছুই উপরে লেখা হয়নি</string>
     <string name="settings_editor_backup">উপরে লেখার আগে নিরাপত্তা অনুলিপি</string>
-    <string name="settings_editor_backup_desc">অন্তর্নির্মিত সম্পাদক কোনো ছবির উপরে লেখার আগে, আগের রূপটি আবর্জনায় যায়। এটি কেবল অন্তর্নির্মিত সম্পাদকের জন্য: অন্য অ্যাপ নিজের মতো সংরক্ষণ করে।</string>
+    <string name="settings_editor_backup_desc">প্রতিটি পুনর্লিখিত ছবির আগের রূপ আবর্জনায় সংরক্ষিত থাকে।</string>
     <string name="editor_tall">লম্বালম্বি</string>
     <string name="editor_wide">আড়াআড়ি</string>
     <string name="pick_drop_ask">নির্বাচন বাতিল করবেন?</string>
@@ -298,4 +298,9 @@
     <string name="pick_list_done">ফাইলের তালিকা ক্লিপবোর্ডে অনুলিপি হয়েছে</string>
     <string name="settings_pick_weight">নির্বাচনের আকার</string>
     <string name="settings_pick_weight_desc">নির্বাচনের উপরে, গণনার পাশে, নির্বাচিত আইটেমগুলির মোট আকার দেখা যায়। নির্বাচন থামলেই আকারটি সিস্টেমকে জিজ্ঞাসা করা হয়: বন্ধ থাকলে সেই প্রশ্ন করা হয় না।</string>
+    <string name="anim_play">চালান</string>
+    <string name="anim_pause">বিরতি</string>
+    <string name="anim_prev">আগের ফ্রেম</string>
+    <string name="anim_next">পরের ফ্রেম</string>
+    <string name="anim_export">এই ফ্রেম রপ্তানি করুন</string>
 </resources>

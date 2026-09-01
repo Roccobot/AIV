@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">Satu warna</string>
     <string name="settings_bg_desc">Papan kotak adalah satu-satunya latar yang menampakkan transparansi, dan pada penampil gambar transparansi adalah informasi, bukan hiasan.</string>
     <string name="settings_ui_theme">Tema</string>
-    <string name="settings_ui_theme_desc">Apakah aplikasinya sendiri terang atau gelap. Berbeda dari latar di belakang gambar, tepat di bawah: papan kotak ada untuk menampakkan transparansi, bukan untuk menyelaraskan warna.</string>
+    <string name="settings_ui_theme_desc">Antarmuka terang atau gelap. Tidak mencakup latar di belakang gambar, di bawah: pola papan catur menampakkan transparansi, bukan mengikuti tema.</string>
     <string name="settings_system">Ikuti sistem</string>
     <string name="settings_theme_light">Terang</string>
     <string name="settings_theme_dark">Gelap</string>
@@ -82,7 +82,7 @@
     <string name="url_open">Buka</string>
     <string name="url_recent">Pernah dibuka</string>
     <string name="folder_empty">Tidak ada apa-apa di sini.</string>
-    <string name="folder_no_images">Folder tidak berisi foto.</string>
+    <string name="folder_no_images">Folder tidak berisi gambar.</string>
     <string name="folder_no_videos">Folder tidak berisi video.</string>
     <string name="cancel">Batal</string>
     <string name="hide_folder_title">Sembunyikan %1$s?</string>
@@ -266,7 +266,7 @@
     <string name="edit_failed">Tidak bisa disimpan</string>
     <string name="edit_app_gone">Editor itu sudah tidak ada. Pilih yang lain.</string>
     <string name="settings_editor">Aplikasi untuk mengedit gambar</string>
-    <string name="settings_editor_desc">Aplikasi mana yang terbuka saat menyentuh Edit pada sebuah gambar. Yang bawaan memutar dan memotong, tidak lebih.</string>
+    <string name="settings_editor_desc">Aplikasi yang terbuka saat mengetuk Edit pada sebuah gambar. Yang bawaan memutar dan memangkas.</string>
     <string name="settings_editor_none">Belum dipilih</string>
     <string name="settings_editor_pick">Pilih</string>
     <string name="view_grid">Kisi</string>
@@ -274,7 +274,7 @@
     <string name="view_tree">Folder</string>
     <string name="edit_no_backup">Salinan pengaman gagal, jadi tidak ada yang ditimpa</string>
     <string name="settings_editor_backup">Salinan pengaman sebelum menimpa</string>
-    <string name="settings_editor_backup_desc">Sebelum editor bawaan menimpa sebuah gambar, versi sebelumnya masuk ke tempat sampah. Berlaku hanya untuk editor bawaan: aplikasi lain menyimpan sendiri.</string>
+    <string name="settings_editor_backup_desc">Versi sebelumnya dari setiap gambar yang ditimpa disimpan di tempat sampah.</string>
     <string name="editor_tall">Tegak</string>
     <string name="editor_wide">Mendatar</string>
     <string name="pick_drop_ask">Batalkan pilihan?</string>
@@ -283,4 +283,9 @@
     <string name="pick_list_done">Daftar berkas disalin ke papan klip</string>
     <string name="settings_pick_weight">Ukuran pilihan</string>
     <string name="settings_pick_weight_desc">Di bagian atas pilihan, di samping jumlahnya, terbaca berapa ukuran total item yang dipilih. Ukuran ditanyakan ke sistem setiap kali pilihan berhenti: saat dimatikan, pertanyaan itu tidak pernah diajukan.</string>
+    <string name="anim_play">Putar</string>
+    <string name="anim_pause">Jeda</string>
+    <string name="anim_prev">Bingkai sebelumnya</string>
+    <string name="anim_next">Bingkai berikutnya</string>
+    <string name="anim_export">Ekspor bingkai ini</string>
 </resources>

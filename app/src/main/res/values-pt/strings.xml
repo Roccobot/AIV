@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">Cor lisa</string>
     <string name="settings_bg_desc">O xadrez é o único fundo que torna a transparência visível, e num visualizador isso é informação e não enfeite.</string>
     <string name="settings_ui_theme">Tema</string>
-    <string name="settings_ui_theme_desc">Se o aplicativo em si é claro ou escuro. É diferente do fundo atrás de uma imagem, logo abaixo: o xadrez serve para mostrar a transparência, não para combinar.</string>
+    <string name="settings_ui_theme_desc">Se a interface é clara ou escura. Não diz respeito ao fundo atrás da imagem, abaixo: o xadrez revela a transparência, não acompanha o tema.</string>
     <string name="settings_system">Sistema</string>
     <string name="settings_theme_light">Claro</string>
     <string name="settings_theme_dark">Escuro</string>
@@ -82,7 +82,7 @@
     <string name="url_open">Abrir</string>
     <string name="url_recent">Abertas antes</string>
     <string name="folder_empty">Não tem nada aqui dentro.</string>
-    <string name="folder_no_images">A pasta não contém fotos.</string>
+    <string name="folder_no_images">A pasta não contém imagens.</string>
     <string name="folder_no_videos">A pasta não contém vídeos.</string>
     <string name="cancel">Cancelar</string>
     <string name="hide_folder_title">Ocultar %1$s?</string>
@@ -296,7 +296,7 @@
     <string name="edit_failed">Não foi possível salvar</string>
     <string name="edit_app_gone">Esse editor sumiu. Escolha outro.</string>
     <string name="settings_editor">App para editar imagens</string>
-    <string name="settings_editor_desc">Qual app abre ao tocar em Editar numa imagem. O interno gira e recorta, e nada mais.</string>
+    <string name="settings_editor_desc">O aplicativo que abre ao tocar em Editar numa imagem. O interno gira e recorta.</string>
     <string name="settings_editor_none">Nenhum escolhido</string>
     <string name="settings_editor_pick">Escolher</string>
     <string name="view_grid">Grade</string>
@@ -304,7 +304,7 @@
     <string name="view_tree">Pastas</string>
     <string name="edit_no_backup">A cópia de segurança falhou, então nada foi sobrescrito</string>
     <string name="settings_editor_backup">Cópia de segurança antes de sobrescrever</string>
-    <string name="settings_editor_backup_desc">Antes de o editor interno sobrescrever uma imagem, a versão anterior vai para a lixeira. Vale só para o editor interno: outro app salva por conta própria.</string>
+    <string name="settings_editor_backup_desc">A versão anterior de cada imagem sobrescrita é mantida na lixeira.</string>
     <string name="editor_tall">Retrato</string>
     <string name="editor_wide">Paisagem</string>
     <string name="pick_drop_ask">Descartar a seleção?</string>
@@ -313,4 +313,9 @@
     <string name="pick_list_done">Lista de arquivos copiada para a área de transferência</string>
     <string name="settings_pick_weight">Peso da seleção</string>
     <string name="settings_pick_weight_desc">No topo da seleção, ao lado da contagem, você lê quanto pesam no total os itens escolhidos. O peso é perguntado ao sistema sempre que a seleção para: desligado, essa pergunta não é feita.</string>
+    <string name="anim_play">Reproduzir</string>
+    <string name="anim_pause">Pausar</string>
+    <string name="anim_prev">Quadro anterior</string>
+    <string name="anim_next">Próximo quadro</string>
+    <string name="anim_export">Exportar este quadro</string>
 </resources>

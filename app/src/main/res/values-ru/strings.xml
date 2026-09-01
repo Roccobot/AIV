@@ -33,7 +33,7 @@
     <string name="settings_bg_solid">Однотонный</string>
     <string name="settings_bg_desc">Шахматка - единственный фон, который делает прозрачность видимой, а в просмотрщике прозрачность это сведения, а не украшение.</string>
     <string name="settings_ui_theme">Тема</string>
-    <string name="settings_ui_theme_desc">Светлое или тёмное само приложение. Это не то же самое, что фон за изображением чуть ниже: шахматка нужна, чтобы показать прозрачность, а не чтобы подойти по цвету.</string>
+    <string name="settings_ui_theme_desc">Светлый интерфейс или тёмный. Это не касается фона за изображением, ниже: шахматная сетка показывает прозрачность и не следует теме.</string>
     <string name="settings_system">Как в системе</string>
     <string name="settings_theme_light">Светлая</string>
     <string name="settings_theme_dark">Тёмная</string>
@@ -82,7 +82,7 @@
     <string name="url_open">Открыть</string>
     <string name="url_recent">Открывались раньше</string>
     <string name="folder_empty">Здесь ничего нет.</string>
-    <string name="folder_no_images">В папке нет фотографий.</string>
+    <string name="folder_no_images">В папке нет изображений.</string>
     <string name="folder_no_videos">В папке нет видео.</string>
     <string name="cancel">Отмена</string>
     <string name="hide_folder_title">Скрыть %1$s?</string>
@@ -311,7 +311,7 @@
     <string name="edit_failed">Сохранить не удалось</string>
     <string name="edit_app_gone">Этого редактора больше нет. Выберите другой.</string>
     <string name="settings_editor">Приложение для правки изображений</string>
-    <string name="settings_editor_desc">Какое приложение открывается при нажатии на Изменить у снимка. Встроенное поворачивает и обрезает, и больше ничего.</string>
+    <string name="settings_editor_desc">Приложение, которое открывается по нажатию Изменить на изображении. Встроенное поворачивает и обрезает.</string>
     <string name="settings_editor_none">Не выбрано</string>
     <string name="settings_editor_pick">Выбрать</string>
     <string name="view_grid">Сетка</string>
@@ -319,7 +319,7 @@
     <string name="view_tree">Папки</string>
     <string name="edit_no_backup">Резервная копия не получилась, поэтому ничего не перезаписано</string>
     <string name="settings_editor_backup">Резервная копия перед перезаписью</string>
-    <string name="settings_editor_backup_desc">Прежде чем встроенный редактор перезапишет снимок, прежняя версия уходит в корзину. Это касается только встроенного редактора: другое приложение сохраняет само.</string>
+    <string name="settings_editor_backup_desc">Предыдущая версия каждого перезаписанного изображения сохраняется в корзине.</string>
     <string name="editor_tall">Портрет</string>
     <string name="editor_wide">Пейзаж</string>
     <string name="pick_drop_ask">Отменить выделение?</string>
@@ -328,4 +328,9 @@
     <string name="pick_list_done">Список файлов скопирован в буфер обмена</string>
     <string name="settings_pick_weight">Размер выделенного</string>
     <string name="settings_pick_weight_desc">Вверху выделения, рядом со счётчиком, видно, сколько весят выбранные элементы вместе. Размер запрашивается у системы каждый раз, когда выделение останавливается: при выключенном этот запрос не отправляется.</string>
+    <string name="anim_play">Воспроизвести</string>
+    <string name="anim_pause">Пауза</string>
+    <string name="anim_prev">Предыдущий кадр</string>
+    <string name="anim_next">Следующий кадр</string>
+    <string name="anim_export">Экспортировать этот кадр</string>
 </resources>
