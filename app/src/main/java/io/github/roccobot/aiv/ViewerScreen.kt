@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -117,6 +118,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -842,7 +845,22 @@ private fun InfoBarPopup(
          * barra e riaccendendola si ritrova il lato scelto. Vedi `InfoChoice` là.
          */
         text = {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            /*
+             * ⚠️⚠️ **`FlowRow` E NON `Row`, e fino alla 1.33 era un `Row`: è il difetto che
+             * SPEZZAVA 'In basso' DENTRO IL GETTONE.** Su un dialogo largo 280dp i tre
+             * gettoni non ci stanno in fila, e un `Row` non manda nessuno a capo: stringe il
+             * terzo e la sua parola si rompe a metà, *In / bass / o* (segnalato dall'utente
+             * con una schermata, 2026-09-02). Con `FlowRow` il gettone che non ci sta scende
+             * sulla riga sotto, intero.
+             * ⚠️ **La stessa scelta era già in casa e questo era l'unico fuori**: la riga
+             * omologa delle impostazioni usa `FlowRow` da quando è nata, e per la stessa
+             * ragione (vedi `Choices` in `SettingsScreen.kt`). Le due schermate comandano la
+             * stessa cosa con le stesse parole: dovevano anche disporle allo stesso modo.
+             */
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 val acceso = settings.infoVisible
                 BarPick.entries.forEach { scelta ->
                     FilterChip(
@@ -2893,6 +2911,23 @@ private val MENU_WIDTH = 252.dp
 private val MENU_EDGE = 8.dp
 
 /**
+ * Il segno dell'immagine ridotta, al posto della parola.
+ *
+ * ⚠️⚠️ **DALLA `1.34` È UN SIMBOLO E NON UNA PAROLA, e la ragione è lo SPAZIO** (riscontro
+ * dell'utente sulla `1.31`, voce `barra-ridotta`: *riservare una riga esclusivamente a quella
+ * dicitura mi pare troppo; aggiungerei un simbolo tipo questo, che non ha nemmeno bisogno di
+ * traduzione, sulla stessa riga di testo che contiene le info base*). Il difetto vero era che
+ * `(ridotta)` allungava la riga dei dati abbastanza da mandarla **a capo** su un telefono, e
+ * da fuori quel secondo rigo si legge come una riga dedicata a lei.
+ * ⚠️ **La parola tradotta NON è stata cancellata**: `bar_reduced` resta in 28 lingue ed è
+ * quello che legge un lettore di schermo, perché su questo carattere non direbbe niente di
+ * utile. Vedi il modificatore in [DetailsPanel].
+ * ⚠️ **Scritto per codepoint**: `U+25F1`, WHITE SQUARE WITH LOWER LEFT QUADRANT, cioè un
+ * quadrato pieno per un quarto. È il carattere che l'utente ha indicato.
+ */
+private const val REDUCED_MARK = "\u25f1"
+
+/**
  * La riga dei dettagli, col contatore della cartella fisso al suo estremo destro.
  *
  * ⚠️⚠️ **LÀ C'ERA LA ROTELLA DELLE IMPOSTAZIONI, ed è uscita nella 0.30** (istruzione
@@ -2957,8 +2992,7 @@ private fun DetailsPanel(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = buildString {
+            val dati = buildString {
                     append(image.mimeType?.substringAfter('/')?.uppercase() ?: "?")
                     append("  ")
                     append(image.pixelWidth).append(" x ").append(image.pixelHeight)
@@ -2984,17 +3018,34 @@ private fun DetailsPanel(
                      * ⚠️ Solo per le immagini **ridotte**: su tutte le altre la parola non
                      * dice niente, e sarebbe rumore su ogni foto.
                      */
-                    if (image.sampled) {
-                        append("  (").append(reduced).append(')')
-                    }
+                    if (image.sampled) append("  ").append(REDUCED_MARK)
                     // ⚠️ Il perché di una cartella che non c'è resta QUI, col resto del testo,
                     // e non va nell'angolo del contatore: è una frase, non un numero, e in
                     // quello spazio starebbe stretta o lo farebbe crescere rimettendo in
                     // movimento il contatore che si è appena fissato.
                     folderNote?.let { append("  ").append(it) }
-                },
+            }
+            Text(
+                text = dati,
                 style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.weight(1f)
+                /*
+                 * ⚠️⚠️ **IL SIMBOLO SI VEDE E LA PAROLA SI SENTE, dalla `1.34`.** Il segno
+                 * non ha bisogno di traduzione (era la ragione dell'utente), ma un lettore
+                 * di schermo su `◱` non dice niente di utile: quindi la stringa tradotta
+                 * `bar_reduced` **resta** e diventa quello che TalkBack legge. Se un domani
+                 * il simbolo cambia, la parola non si tocca.
+                 * ⚠️ **Si dichiara solo quando serve**: su un'immagine intera la
+                 * descrizione sarebbe una copia del testo, cioè lavoro per niente e un
+                 * posto in più dove le due versioni possono divergere.
+                 */
+                modifier = Modifier
+                    .weight(1f)
+                    .then(
+                        if (!image.sampled) Modifier
+                        else Modifier.semantics {
+                            contentDescription = dati.replace(REDUCED_MARK, reduced)
+                        }
+                    )
             )
             folder?.seriesOrNull?.let {
                 Text(

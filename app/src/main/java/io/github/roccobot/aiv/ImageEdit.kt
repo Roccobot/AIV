@@ -87,10 +87,23 @@ object ImageEdit {
      *
      * ⚠️ Il nome cambia **solo** se cambia il formato: chi ritaglia un JPEG si aspetta un
      * JPEG che si chiama come prima, non una copia con l'estensione diversa.
+     *
+     * ⚠️⚠️ **DAI FORMATI CON LA TRASPARENZA ESCE UN PNG, dalla `1.34`, e prima era sempre un
+     * JPEG**: richiesta dell'utente sugli SVG (giro della `1.31`, voce `svg-modifica`: *le
+     * modifiche agli SVG devono salvare un PNG, non un JPG*). Ritagliare un disegno col fondo
+     * tolto e riceverne un JPEG vuol dire perdere l'unica cosa per cui quel formato era stato
+     * scelto, e la perdita è irreversibile.
+     * ⚠️ **Ma dai formati FOTOGRAFICI esce ancora un JPEG** ([ALPHA_EXT] non li elenca), e non
+     * è una dimenticanza: un PNG di ventiquattro megapixel sono decine di megabyte per una
+     * fotografia che non ha niente di trasparente da salvare. Là la trasparenza, se c'è, viene
+     * appiattita su fondo **bianco**: vedi la nota dentro [redraw].
      */
     fun outputName(name: String): String {
         if (format(name) != null) return name
-        return name.substringBeforeLast('.', name) + ".jpg"
+        val base = name.substringBeforeLast('.', name)
+        val coda = if (name.substringAfterLast('.', "").lowercase() in ALPHA_EXT) ".png"
+        else ".jpg"
+        return base + coda
     }
 
     /**
@@ -251,9 +264,26 @@ object ImageEdit {
             }
 
             val kind = format(target.name) ?: Bitmap.CompressFormat.JPEG
+            /*
+             * ⚠️⚠️ **LA TRASPARENZA VA SU FONDO BIANCO, e fino alla 1.33 QUI diventava
+             * NERA**: il JPEG butta via il canale alfa e basta, quindi un pixel trasparente
+             * resta coi suoi valori di colore, che in un PNG o in un SVG sono quasi sempre
+             * zero, cioè nero. Non lo decideva il JPEG, lo decideva la sorte. 'Converti /
+             * Esporta' dipingeva la tela di bianco **dalla `1.16`**, ma questa è un'altra
+             * strada e la correzione non l'aveva mai vista: segnalato dall'utente sugli SVG
+             * (giro della `1.31`, voce `svg-modifica`: *voglio che sia SEMPRE bianco*), e non
+             * riguardava solo loro.
+             * ⚠️ **La funzione è quella di [Convert] e non una seconda copia**: un secondo
+             * `drawColor` scritto qui sarebbe la stessa scelta in due posti, cioè due posti
+             * da cambiare il giorno che il colore diventa un'opzione.
+             * ⚠️ **Si salta dove non serve**: `flatten` torna la stessa immagine se non ha
+             * canale alfa, e per PNG e WebP non la si chiama nemmeno.
+             */
+            val piatta = if (kind == Bitmap.CompressFormat.JPEG) Convert.flatten(cut) else cut
             val written = runCatching {
-                temp.outputStream().use { cut.compress(kind, QUALITY, it) }
+                temp.outputStream().use { piatta.compress(kind, QUALITY, it) }
             }.getOrDefault(false)
+            if (piatta !== cut) piatta.recycle()
             if (!written) {
                 temp.delete()
                 return Result.Failed(R.string.edit_failed)
@@ -355,6 +385,19 @@ object ImageEdit {
 
     /** Le due estensioni del JPEG, che sono l'unico formato con la via senza perdita. */
     private val JPEG_EXT = setOf("jpg", "jpeg")
+
+    /**
+     * I formati di partenza da cui esce un PNG invece di un JPEG.
+     *
+     * ⚠️ **Sono quelli in cui la trasparenza è normale e il contenuto è grafica**: un SVG, un
+     * `.svgz`, una GIF, un BMP. Il criterio non è 'può avere il canale alfa' (ce l'hanno anche
+     * l'AVIF e l'HEIF), è **quanto costa sbagliare**: là il fondo tolto è il senso del file,
+     * qui sarebbe un PNG enorme al posto di una fotografia.
+     * ⚠️ **Non è l'elenco di [Folder]**: quello dice che cosa si mostra in una cartella,
+     * questo che cosa si scrive uscendo. Metterli insieme farebbe uscire un PNG anche da un
+     * HEIC.
+     */
+    private val ALPHA_EXT = setOf("svg", "svgz", "gif", "bmp")
 
     /**
      * Quanto si comprime quando si deve ricomprimere.

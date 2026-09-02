@@ -34,17 +34,30 @@ import androidx.compose.ui.unit.dp
  */
 fun Modifier.lowered(): Modifier = layout { measurable, constraints ->
     val placed = measurable.measure(constraints)
-    /*
-     * ⚠️ La misura riportata è quella VERA (senza lo spostamento), e lo spostamento sta nel
-     * solo `place`: così il genitore continua a centrare il contenuto come farebbe sempre, e
-     * la discesa si somma a quel centro. Riportando un'altezza gonfiata il genitore
-     * centrerebbe la scatola gonfia, cioè annullerebbe metà del movimento.
-     */
     val free = (constraints.maxHeight - placed.height).coerceAtLeast(0)
     val air = LOWER_AIR.roundToPx()
     val room = (free / 2 - air).coerceAtLeast(0)
     val wanted = (constraints.maxHeight * LOWER_BY).toInt()
-    layout(placed.width, placed.height) { placed.place(0, minOf(wanted, room)) }
+    val shift = minOf(wanted, room)
+    /*
+     * ⚠️⚠️ **LO SPOSTAMENTO STA DENTRO L'ALTEZZA RIPORTATA, e fino alla 1.33 NON c'era: è
+     * il difetto che TAGLIAVA I DIALOGHI ALTI.** La nota di prima diceva l'opposto (misura
+     * vera e movimento nel solo `place`, *così il genitore continua a centrare*), e la
+     * ragione sembrava buona: un genitore che centra la scatola gonfia annulla metà del
+     * movimento. Il guaio è che un figlio posato **fuori** dalla scatola dichiarata viene
+     * **ritagliato**, e la finestra di un dialogo si dimensiona proprio su quella scatola:
+     * il pannello scendeva del 15% e perdeva gli ultimi pixel, cioè la fila dei tasti.
+     * Segnalato dall'utente con tre schermate (2026-09-02, voce `centro-15`): il dialogo
+     * 'Info' senza la sua riga di comandi, e la rinomina tagliata a metà dei tasti.
+     * ⚠️ **Il RADDOPPIO è quel conto, non una compensazione a occhio**: la finestra si
+     * dimensiona sull'altezza dichiarata e la centra, quindi una scatola più alta di
+     * `2*shift` sposta il contenuto vero di `shift`, che è la misura voluta. Chi togliesse
+     * il `2` dimezzerebbe il movimento senza accorgersene, perché il difetto non si vede.
+     * ⚠️ **E la stretta resta la stessa di prima**: `shift` non supera l'aria che c'è sotto
+     * meno [LOWER_AIR], quindi su un dialogo alto quanto la finestra vale zero e la scatola
+     * non si gonfia affatto.
+     */
+    layout(placed.width, placed.height + shift * 2) { placed.place(0, shift * 2) }
 }
 
 /**

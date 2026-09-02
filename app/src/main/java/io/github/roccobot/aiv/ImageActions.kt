@@ -197,9 +197,13 @@ object ImageActions {
      * ⚠️ **Dalla `1.32` i tre elenchi combaciano di nuovo su `tif`**, che era la sola
      * discordanza rimasta: qui non c'era mai stato, e nella `1.32` è uscito anche dagli altri
      * due perché l'app non lo sa aprire. Il perché sta su [Folder] e nel manifest.
+     * ⚠️ **`.svgz` arriva con la `1.34`**, su richiesta dell'utente, e nei tre elenchi
+     * insieme: il decodificatore lo leggeva già (vedi [Folder]), quindi qui non c'era niente
+     * da aspettare.
      */
     private val IMAGE_SUFFIXES = listOf(
-        ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".heic", ".heif", ".avif", ".svg"
+        ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".heic", ".heif", ".avif",
+        ".svg", ".svgz"
     )
 
     // ── Copying the original out ────────────────────────────────────────────

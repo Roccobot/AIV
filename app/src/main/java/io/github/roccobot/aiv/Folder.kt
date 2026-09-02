@@ -638,9 +638,15 @@ object Folder {
      * **dichiarato e non supportato**.
      * ⚠️ **Chi ne trova uno in una cartella non lo vede più**, e questo è il cambiamento
      * visibile: non è una regressione, è la fine di un invito che l'app non poteva onorare.
+     * ⚠️⚠️ **`svgz` ARRIVA CON LA `1.34` E NON È COSTATO NIENTE DI DECODIFICA**, ed è la
+     * differenza col caso del TIFF: un `.svgz` è un SVG **compresso con gzip**, e il parser
+     * di androidsvg riconosce da sé la firma e si avvolge in un `GZIPInputStream`. Quindi qui
+     * la dichiarazione arriva **dopo** la capacità, che è il verso giusto. L'ha chiesto
+     * l'utente (giro della `1.31`, voce `svg-elenchi`: *aggiungi anche SVGZ*).
      */
     private val EXTENSIONS = setOf(
-        "jpg", "jpeg", "jpe", "png", "gif", "webp", "avif", "heic", "heif", "bmp", "svg"
+        "jpg", "jpeg", "jpe", "png", "gif", "webp", "avif", "heic", "heif", "bmp",
+        "svg", "svgz"
     )
 
     /**
