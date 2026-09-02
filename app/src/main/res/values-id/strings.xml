@@ -30,7 +30,13 @@
     <string name="convert_elsewhere">Format lain</string>
     <string name="convert_elsewhere_desc">Android hanya bisa menulis format di atas. Untuk selebihnya ada layanan berikut, yang terbuka di peramban: gambar dipilih di sana, dari memori ponsel.</string>
     <string name="convert_clean">Bersihkan</string>
-    <string name="convert_clean_why">Pakai CleanSVG untuk mengecilkan berkas vektor sampai 99%, dengan membuang metadata dan bidang lain yang bukan bagian dari gambar. Pembersihan ini benar-benar aman: bentuk, garis, gambar, dan teks tidak tersentuh.</string>
+    <string name="convert_clean_why">Menghapus metadata, komentar, skrip, dan sisa-sisa editor, yang pada berkas nyata hampir seluruh bobotnya. Jalur tidak ditulis ulang, dan bentuk, garis, gambar, serta teks tidak disentuh. Untuk penulisan ulang lengkap ada CleanSVG, yang terbuka di peramban.</string>
+    <string name="convert_clean_c2pa">⚠️ PERHATIAN: asal-usul C2PA juga hilang, yaitu bagian yang menyebut siapa yang membuat berkas. Simpan salinan jika kamu membutuhkannya.</string>
+    <string name="clean_now">Bersihkan di sini</string>
+    <string name="clean_done">Dibersihkan: dari %1$s menjadi %2$s.</string>
+    <string name="clean_nothing">Tidak ada yang perlu dihapus: berkas sudah bersih.</string>
+    <string name="clean_failed">Berkas tidak dapat dibersihkan.</string>
+    <string name="clean_not_svg">Berkas ini bukan SVG yang bisa dibaca.</string>
     <string name="convert_open">Buka</string>
     <string name="convert_export">Ekspor</string>
     <string name="convert_ezgif">EzGif</string>

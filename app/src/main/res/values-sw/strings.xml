@@ -30,7 +30,13 @@
     <string name="convert_elsewhere">Miundo mingine</string>
     <string name="convert_elsewhere_desc">Android inaweza kuandika miundo iliyo hapo juu pekee. Kwa mingine kuna huduma hizi, zinazofunguka katika kivinjari: picha huchaguliwa huko, kutoka kwenye hifadhi ya simu.</string>
     <string name="convert_clean">Safisha</string>
-    <string name="convert_clean_why">Tumia CleanSVG kupunguza faili ya vekta hadi 99%, kwa kuondoa metadata na sehemu nyingine zisizo za mchoro. Usafishaji ni salama kabisa: maumbo, mistari, michoro na maandishi hayaguswi.</string>
+    <string name="convert_clean_why">Huondoa metadata, maoni, skripti na masalia ya vihariri, ambayo katika faili za kweli ni karibu uzito wote. Haiandiki upya njia, na haigusi maumbo, mistari, michoro au maandishi. Kwa uandikaji upya kamili kuna CleanSVG, inayofunguka katika kivinjari.</string>
+    <string name="convert_clean_c2pa">⚠️ TAHADHARI: chimbuko la C2PA pia linaondoka, sehemu inayosema ni nani aliyetengeneza faili. Weka nakala kama unaihitaji.</string>
+    <string name="clean_now">Safisha hapa</string>
+    <string name="clean_done">Imesafishwa: kutoka %1$s hadi %2$s.</string>
+    <string name="clean_nothing">Hakukuwa na kitu cha kuondoa: faili ilikuwa safi tayari.</string>
+    <string name="clean_failed">Faili haikuweza kusafishwa.</string>
+    <string name="clean_not_svg">Faili hii si SVG inayoweza kusomwa.</string>
     <string name="convert_open">Fungua</string>
     <string name="convert_export">Hamisha</string>
     <string name="convert_ezgif">EzGif</string>

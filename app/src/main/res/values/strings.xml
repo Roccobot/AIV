@@ -59,7 +59,13 @@
     <string name="convert_elsewhere">Other formats</string>
     <string name="convert_elsewhere_desc">Android can only write the formats above. For the others there are these services, which open in the browser: pick the image there, from the phone\'s storage.</string>
     <string name="convert_clean">Clean up</string>
-    <string name="convert_clean_why">Use CleanSVG to shrink a vector file by up to 99%, stripping metadata and other fields that are not part of the drawing. Cleaning is completely safe: shapes, lines, drawings and text are untouched.</string>
+    <string name="convert_clean_why">Strips metadata, comments, scripts and editor leftovers, which in real files are almost all of the weight. It does not rewrite the paths, and it does not touch shapes, lines, drawings or text. For a full rewrite there is CleanSVG, which opens in the browser.</string>
+    <string name="convert_clean_c2pa">⚠️ WARNING: the C2PA provenance goes too, the part that says who made the file. Keep a copy if you need it.</string>
+    <string name="clean_now">Clean here</string>
+    <string name="clean_done">Cleaned up: from %1$s to %2$s.</string>
+    <string name="clean_nothing">There was nothing to strip: the file was already clean.</string>
+    <string name="clean_failed">The file could not be cleaned up.</string>
+    <string name="clean_not_svg">This file is not a readable SVG.</string>
     <string name="convert_open">Open</string>
     <string name="convert_export">Export</string>
     <string name="convert_ezgif">EzGif</string>

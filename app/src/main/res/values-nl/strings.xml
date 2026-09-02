@@ -30,7 +30,13 @@
     <string name="convert_elsewhere">Andere formaten</string>
     <string name="convert_elsewhere_desc">Android kan alleen de formaten hierboven schrijven. Voor de rest zijn er deze diensten, die in de browser openen: de afbeelding kies je daar, uit het geheugen van de telefoon.</string>
     <string name="convert_clean">Opschonen</string>
-    <string name="convert_clean_why">Gebruik CleanSVG om een vectorbestand tot 99% kleiner te maken door metadata en andere velden die niet bij de tekening horen te verwijderen. Opschonen is volkomen veilig: vormen, lijnen, tekeningen en teksten blijven ongemoeid.</string>
+    <string name="convert_clean_why">Verwijdert metadata, commentaar, scripts en resten van editors, die in echte bestanden bijna al het gewicht zijn. De paden worden niet herschreven, en vormen, lijnen, tekeningen en tekst blijven onaangeroerd. Voor het volledige herschrijven is er CleanSVG, dat in de browser opent.</string>
+    <string name="convert_clean_c2pa">⚠️ LET OP: ook de C2PA-herkomst gaat weg, het deel dat zegt wie het bestand heeft gemaakt. Houd een kopie als je die nodig hebt.</string>
+    <string name="clean_now">Hier opschonen</string>
+    <string name="clean_done">Opgeschoond: van %1$s naar %2$s.</string>
+    <string name="clean_nothing">Er was niets te verwijderen: het bestand was al schoon.</string>
+    <string name="clean_failed">Het bestand kon niet worden opgeschoond.</string>
+    <string name="clean_not_svg">Dit bestand is geen leesbare SVG.</string>
     <string name="convert_open">Openen</string>
     <string name="convert_export">Exporteren</string>
     <string name="convert_ezgif">EzGif</string>

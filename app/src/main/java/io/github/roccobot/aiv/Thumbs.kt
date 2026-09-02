@@ -252,11 +252,20 @@ private class SystemThumbnailFetcher(
          * vede il fondo del riquadro, che è `surfaceVariant`, cioè lo stesso `#EFEEEA` che lui
          * vede sugli SVG (e la sua controparte scura, senza scriverla qui). Il ripiego di Coil
          * fa la seconda cosa da sé: basta tirarsi indietro.
-         * ⚠️ **IL COSTO SI PAGA, e va detto invece di scoprirlo**: la miniatura di un PNG
-         * grande adesso passa dal file intero (campionato), non dalla copia già pronta del
-         * provider. Su una cartella di PNG da molti megapixel lo scorrimento può farsi sentire
-         * la prima volta; la cache in memoria di Coil copre le successive. È lo stesso baratto
-         * dell'AVIF, che qui accanto ha perfino una cache su disco.
+         * ⚠️⚠️ **E DALLA 1.37 IL COSTO SI PAGA SOLO DOVE SERVE DAVVERO, chiedendo al FILE
+         * invece che al formato** (proposta accettata dall'utente, 2026-09-02, sul riscontro
+         * `mini-alfa`: la sua domanda era se costasse meno fare l'opposto, cioè annerire il
+         * fondo degli SVG, e la risposta è che costa meno ma paga in **informazione**, perché
+         * un PNG col fondo trasparente e uno col fondo nero diventerebbero indistinguibili).
+         * La terza via: **poche decine di byte di intestazione** dicono se l'alfa c'è, e la via
+         * lenta si prende solo allora. La maggior parte dei PNG non ha alfa, quindi là il costo
+         * sparisce del tutto. Vedi [seeThrough].
+         * ⚠️ **IL COSTO CHE RESTA, e va detto invece di scoprirlo**: sui file che l'alfa ce
+         * l'hanno per davvero la miniatura passa dal file intero (campionato), non dalla copia
+         * già pronta del provider. Su una cartella di PNG trasparenti da molti megapixel lo
+         * scorrimento può farsi sentire la prima volta; la cache in memoria di Coil copre le
+         * successive. È lo stesso baratto dell'AVIF, che qui accanto ha perfino una cache su
+         * disco.
          * ⚠️ **I filmati e i JPEG non cambiano strada**: quelli non portano trasparenza, e
          * per loro la miniatura di sistema resta la cosa giusta.
          */
@@ -511,15 +520,153 @@ private fun seeThrough(context: Context, uri: AndroidUri): Boolean {
     } else {
         null
     }
-    if (mime != null) return mime in SEE_THROUGH_MIME
-    val name = uri.lastPathSegment?.lowercase() ?: return false
-    return SEE_THROUGH_EXT.any { name.endsWith(".$it") }
+    val forma = when {
+        mime != null -> SEE_THROUGH_MIME[mime]
+        else -> {
+            val name = uri.lastPathSegment?.lowercase() ?: return false
+            SEE_THROUGH_EXT.entries.firstOrNull { name.endsWith(".${it.key}") }?.value
+        }
+    } ?: return false
+    /*
+     * ⚠️⚠️ **SOLO PNG E WEBP SI FANNO CHIEDERE, dalla 1.37, e le altre due forme NO**: in un
+     * GIF la trasparenza non sta in un'intestazione a posizione fissa ma in un blocco di
+     * estensione prima di ogni fotogramma, quindi per saperlo bisognerebbe scandire il file, e
+     * a quel punto tanto vale decodificarlo. Un GIF resta quindi sempre sulla via lenta.
+     * ⚠️ **Il BMP è uscito dall'elenco**, non messo sulla via lenta: parole dell'utente
+     * (2026-09-02), *il BMP è un formato morto e sepolto, potremmo anche ignorarlo*. Quindi
+     * torna alla miniatura di sistema come un JPEG, ed è una scelta sua e non una svista.
+     */
+    return when (forma) {
+        Alpha.SEMPRE -> true
+        Alpha.SE_DICHIARATA -> declaresAlpha(context, uri)
+    }
 }
 
-/** I tipi che possono avere un canale alfa. Vedi [seeThrough]. */
-private val SEE_THROUGH_MIME = setOf(
-    "image/png", "image/webp", "image/gif", "image/bmp", "image/x-ms-bmp", "image/svg+xml"
+/**
+ * Se il file **dichiara** un canale alfa nella propria intestazione.
+ *
+ * ⚠️⚠️ **NEL DUBBIO RISPONDE SÌ, ed è la parte che conta**: un falso sì costa una decodifica
+ * in più, un falso no ridà il fondo nero che questa storia doveva togliere. Quindi ogni
+ * intestazione illeggibile, troncata o inattesa vale come 'forse'.
+ * ⚠️ **Legge [SNIFF] byte e basta**: in un PNG i chunk che possono dichiarare trasparenza
+ * stanno **prima** di `IDAT` per specifica, quindi la finestra li contiene sempre tranne nei
+ * file con profili di colore enormi in testa, dove si ricade sul 'forse'.
+ * ⚠️ **Non usa `BitmapFactory` con `inJustDecodeBounds`, che sarebbe la via ovvia**: quella
+ * dice `hasAlpha` solo dopo aver deciso una configurazione, e su una PNG a palette con `tRNS`
+ * risponde in modo che dipende dalla versione di Android. I byte del file no.
+ */
+private fun declaresAlpha(context: Context, uri: AndroidUri): Boolean {
+    val testa = runCatching {
+        when (uri.scheme?.lowercase()) {
+            "content" -> context.contentResolver.openInputStream(uri)
+            "file" -> uri.path?.let { File(it).inputStream() }
+            else -> null
+        }?.use { flusso ->
+            val buffer = ByteArray(SNIFF)
+            var letti = 0
+            while (letti < SNIFF) {
+                val n = flusso.read(buffer, letti, SNIFF - letti)
+                if (n <= 0) break
+                letti += n
+            }
+            buffer.copyOf(letti)
+        }
+    }.getOrNull() ?: return true
+    if (testa.size < 32) return true
+
+    // ── PNG: il tipo di colore sta a 25, e la palette può portare un `tRNS` ──
+    if (testa.size >= 26 && PNG_MAGIC.indices.all { testa[it] == PNG_MAGIC[it] }) {
+        return when (testa[25].toInt()) {
+            // 4 = grigio più alfa, 6 = RGBA: l'alfa è nel formato stesso.
+            4, 6 -> true
+            // 3 = palette: l'alfa esiste solo se c'è un chunk `tRNS` prima di `IDAT`.
+            3 -> fourcc(testa, "tRNS") ?: true
+            // 0 = grigio, 2 = RGB: nessun canale alfa possibile.
+            0, 2 -> false
+            else -> true
+        }
+    }
+
+    // ── WebP: lo dice il flag del chunk VP8X, e le altre due forme per costruzione ──
+    if (String(testa, 0, 4, Charsets.US_ASCII) == "RIFF" &&
+        String(testa, 8, 4, Charsets.US_ASCII) == "WEBP"
+    ) {
+        return when (String(testa, 12, 4, Charsets.US_ASCII)) {
+            // Il bit 0x10 del byte dei flag è ALPHA, per specifica.
+            "VP8X" -> testa.size > 20 && (testa[20].toInt() and 0x10) != 0
+            /*
+             * ⚠️ Il senza-perdita dichiara l'alfa **nel proprio flusso di bit**, e il bit si
+             * legge: dopo la firma `0x2F` a 20 vengono 14 bit di larghezza, 14 di altezza e
+             * poi `alpha_is_used`, cioè il bit 28 dei quattro byte a partire da 21, letti
+             * little-endian. ⚠️ Misurato su file veri e non dedotto dalla specifica: un
+             * lossless RGBA dà 1 e due lossless RGB dànno 0.
+             */
+            "VP8L" -> if (testa.size >= 25) {
+                val v = (testa[21].toInt() and 0xFF) or
+                    ((testa[22].toInt() and 0xFF) shl 8) or
+                    ((testa[23].toInt() and 0xFF) shl 16) or
+                    ((testa[24].toInt() and 0xFF) shl 24)
+                ((v ushr 28) and 1) == 1
+            } else {
+                true
+            }
+            // Il lossy semplice non ha alfa: senza un VP8X davanti, non ce n'è.
+            "VP8 " -> false
+            else -> true
+        }
+    }
+    return true
+}
+
+/**
+ * Se la sigla di quattro lettere compare prima di `IDAT`, e `null` se la finestra finisce
+ * prima di poterlo dire. Vedi [declaresAlpha]: il `null` è il 'forse'.
+ */
+private fun fourcc(testa: ByteArray, cerca: String): Boolean? {
+    var pos = 8
+    while (pos + 8 <= testa.size) {
+        val length = ((testa[pos].toInt() and 0xFF) shl 24) or
+            ((testa[pos + 1].toInt() and 0xFF) shl 16) or
+            ((testa[pos + 2].toInt() and 0xFF) shl 8) or
+            (testa[pos + 3].toInt() and 0xFF)
+        if (length < 0) return null
+        val tipo = String(testa, pos + 4, 4, Charsets.US_ASCII)
+        if (tipo == cerca) return true
+        if (tipo == "IDAT") return false
+        // 4 di lunghezza, 4 di sigla, il corpo, 4 di CRC.
+        pos += 12 + length
+    }
+    return null
+}
+
+/** Quanto si legge in testa a un file per sapere se dichiara l'alfa. Vedi [declaresAlpha]. */
+private const val SNIFF = 4096
+
+private val PNG_MAGIC = byteArrayOf(
+    0x89.toByte(), 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A
+)
+
+/** Come si sa se un formato può avere l'alfa: sempre, o solo se il file lo dichiara. */
+private enum class Alpha { SEMPRE, SE_DICHIARATA }
+
+/**
+ * I tipi che possono avere un canale alfa, e come lo si accerta. Vedi [seeThrough].
+ *
+ * ⚠️ **`image/bmp` NON è più qui dalla 1.37**, per scelta dell'utente: formato morto, torna
+ * alla miniatura di sistema come un JPEG.
+ */
+private val SEE_THROUGH_MIME = mapOf(
+    "image/png" to Alpha.SE_DICHIARATA,
+    "image/webp" to Alpha.SE_DICHIARATA,
+    "image/gif" to Alpha.SEMPRE,
+    "image/svg+xml" to Alpha.SEMPRE
 )
 
 /** Le code degli stessi formati, per quando il tipo non lo dichiara nessuno. */
-private val SEE_THROUGH_EXT = setOf("png", "webp", "gif", "bmp", "svg", "svgz")
+private val SEE_THROUGH_EXT = mapOf(
+    "png" to Alpha.SE_DICHIARATA,
+    "webp" to Alpha.SE_DICHIARATA,
+    "gif" to Alpha.SEMPRE,
+    "svg" to Alpha.SEMPRE,
+    "svgz" to Alpha.SEMPRE
+)

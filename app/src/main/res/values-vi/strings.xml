@@ -30,7 +30,13 @@
     <string name="convert_elsewhere">Định dạng khác</string>
     <string name="convert_elsewhere_desc">Android chỉ ghi được các định dạng ở trên. Với những định dạng còn lại thì có các dịch vụ sau, chúng mở trong trình duyệt: hãy chọn ảnh ở đó, từ bộ nhớ điện thoại.</string>
     <string name="convert_clean">Làm sạch</string>
-    <string name="convert_clean_why">Dùng CleanSVG để giảm tới 99% kích thước tệp vector, loại bỏ siêu dữ liệu và các trường khác không thuộc hình vẽ. Việc làm sạch hoàn toàn an toàn: hình khối, đường nét, hình vẽ và chữ đều không bị thay đổi.</string>
+    <string name="convert_clean_why">Loại bỏ siêu dữ liệu, chú thích, tập lệnh và phần dư của các trình soạn thảo, những thứ chiếm gần như toàn bộ dung lượng trong các tệp thực. Nó không viết lại các đường nét, và không chạm vào hình, đường kẻ, hình vẽ hay chữ. Để viết lại đầy đủ thì có CleanSVG, mở trong trình duyệt.</string>
+    <string name="convert_clean_c2pa">⚠️ CHÚ Ý: nguồn gốc C2PA cũng mất, tức là phần cho biết ai đã tạo tệp. Hãy giữ một bản sao nếu bạn cần.</string>
+    <string name="clean_now">Dọn ở đây</string>
+    <string name="clean_done">Đã dọn: từ %1$s xuống %2$s.</string>
+    <string name="clean_nothing">Không có gì để loại bỏ: tệp đã sạch.</string>
+    <string name="clean_failed">Không thể dọn tệp.</string>
+    <string name="clean_not_svg">Tệp này không phải là SVG đọc được.</string>
     <string name="convert_open">Mở</string>
     <string name="convert_export">Xuất</string>
     <string name="convert_ezgif">EzGif</string>

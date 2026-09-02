@@ -30,7 +30,13 @@
     <string name="convert_elsewhere">다른 형식</string>
     <string name="convert_elsewhere_desc">안드로이드가 쓸 수 있는 형식은 위의 것뿐입니다. 나머지는 이 서비스들이 브라우저에서 열리니, 이미지는 거기에서 휴대전화 저장소를 통해 고르세요.</string>
     <string name="convert_clean">정리하기</string>
-    <string name="convert_clean_why">CleanSVG로 벡터 파일 크기를 최대 99%까지 줄일 수 있습니다. 메타데이터와 그림과 무관한 다른 항목이 제거됩니다. 이 정리는 완전히 안전하며 도형, 선, 그림, 글자는 그대로 남습니다.</string>
+    <string name="convert_clean_why">메타데이터, 주석, 스크립트, 편집기 잔여물을 걷어냅니다. 실제 파일에서는 그것들이 용량의 거의 전부입니다. 경로는 다시 쓰지 않으며, 도형, 선, 그림, 글자는 건드리지 않습니다. 완전한 재작성에는 브라우저에서 열리는 CleanSVG가 있습니다.</string>
+    <string name="convert_clean_c2pa">⚠️ 주의: 누가 파일을 만들었는지 알려 주는 C2PA 출처도 사라집니다. 필요하면 사본을 보관하세요.</string>
+    <string name="clean_now">여기서 정리</string>
+    <string name="clean_done">정리했습니다: %1$s에서 %2$s(으)로.</string>
+    <string name="clean_nothing">걷어낼 것이 없었습니다. 파일은 이미 깨끗합니다.</string>
+    <string name="clean_failed">파일을 정리할 수 없었습니다.</string>
+    <string name="clean_not_svg">이 파일은 읽을 수 있는 SVG가 아닙니다.</string>
     <string name="convert_open">열기</string>
     <string name="convert_export">내보내기</string>
     <string name="convert_ezgif">EzGif</string>

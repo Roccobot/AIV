@@ -30,7 +30,13 @@
     <string name="convert_elsewhere">ఇతర ఫార్మాట్లు</string>
     <string name="convert_elsewhere_desc">పైన ఉన్న ఫార్మాట్లను మాత్రమే Android రాయగలదు. మిగతా వాటికి ఈ సేవలు ఉన్నాయి, అవి బ్రౌజర్‌లో తెరుచుకుంటాయి: చిత్రాన్ని అక్కడే, ఫోన్ మెమరీ నుండి ఎంచుకోండి.</string>
     <string name="convert_clean">శుభ్రం చేయి</string>
-    <string name="convert_clean_why">CleanSVG తో వెక్టర్ ఫైలు పరిమాణాన్ని 99% వరకు తగ్గించండి: మెటాడేటా, బొమ్మకు సంబంధం లేని ఇతర క్షేత్రాలు తొలగిపోతాయి. ఈ శుభ్రత పూర్తిగా సురక్షితం, ఆకారాలు, గీతలు, బొమ్మలు, పాఠ్యం మారవు.</string>
+    <string name="convert_clean_why">మెటాడేటా, వ్యాఖ్యలు, స్క్రిప్ట్‌లు, ఎడిటర్ అవశేషాలను తీసేస్తుంది; నిజమైన ఫైళ్లలో అవే దాదాపు మొత్తం బరువు. ఇది మార్గాలను తిరిగి రాయదు, ఆకారాలు, గీతలు, బొమ్మలు, పాఠ్యాన్ని తాకదు. పూర్తి పునర్లేఖనానికి బ్రౌజర్‌లో తెరుచుకునే CleanSVG ఉంది.</string>
+    <string name="convert_clean_c2pa">⚠️ హెచ్చరిక: ఫైల్‌ను ఎవరు తయారు చేశారో చెప్పే C2PA మూలం కూడా పోతుంది. అవసరమైతే ఒక కాపీ ఉంచుకో.</string>
+    <string name="clean_now">ఇక్కడే శుభ్రం చేయి</string>
+    <string name="clean_done">శుభ్రం చేసింది: %1$s నుంచి %2$s కి.</string>
+    <string name="clean_nothing">తీసేయడానికి ఏమీ లేదు: ఫైల్ ఇప్పటికే శుభ్రంగా ఉంది.</string>
+    <string name="clean_failed">ఫైల్‌ను శుభ్రం చేయలేకపోయాం.</string>
+    <string name="clean_not_svg">ఈ ఫైల్ చదవగల SVG కాదు.</string>
     <string name="convert_open">తెరువు</string>
     <string name="convert_export">ఎగుమతి చేయి</string>
     <string name="convert_ezgif">EzGif</string>

@@ -30,7 +30,13 @@
     <string name="convert_elsewhere">इतर स्वरूपे</string>
     <string name="convert_elsewhere_desc">अँड्रॉइड फक्त वरील स्वरूपेच लिहू शकते. बाकीच्यांसाठी या सेवा आहेत, ज्या ब्राउझरमध्ये उघडतात: प्रतिमा तिथेच, फोनच्या स्मृतीतून निवडा.</string>
     <string name="convert_clean">स्वच्छ करा</string>
-    <string name="convert_clean_why">CleanSVG वापरून वेक्टर फाइलचा आकार 99% पर्यंत कमी करा: मेटाडेटा आणि रेखाटनाशी संबंध नसलेली इतर क्षेत्रे निघून जातात. ही स्वच्छता पूर्णपणे सुरक्षित आहे आणि आकार, रेषा, रेखाटने किंवा मजकूर बदलत नाही.</string>
+    <string name="convert_clean_why">मेटाडेटा, टिपण्या, स्क्रिप्ट आणि संपादकांचे अवशेष काढून टाकते, जे खऱ्या फाइलींमध्ये जवळपास सगळे वजन असतात. ते मार्ग पुन्हा लिहीत नाही, आणि आकार, रेषा, चित्रे किंवा मजकूर यांना स्पर्श करत नाही. संपूर्ण पुनर्लेखनासाठी CleanSVG आहे, जे ब्राउझरमध्ये उघडते.</string>
+    <string name="convert_clean_c2pa">⚠️ इशारा: C2PA उगमही निघून जातो, म्हणजे फाइल कोणी बनवली हे सांगणारा भाग. गरज असेल तर एक प्रत ठेवा.</string>
+    <string name="clean_now">येथेच स्वच्छ करा</string>
+    <string name="clean_done">स्वच्छ केले: %1$s वरून %2$s पर्यंत.</string>
+    <string name="clean_nothing">काढण्यासारखे काही नव्हते: फाइल आधीच स्वच्छ होती.</string>
+    <string name="clean_failed">फाइल स्वच्छ करता आली नाही.</string>
+    <string name="clean_not_svg">ही फाइल वाचनीय SVG नाही.</string>
     <string name="convert_open">उघडा</string>
     <string name="convert_export">निर्यात करा</string>
     <string name="convert_ezgif">EzGif</string>

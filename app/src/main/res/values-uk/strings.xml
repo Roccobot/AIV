@@ -30,7 +30,13 @@
     <string name="convert_elsewhere">Інші формати</string>
     <string name="convert_elsewhere_desc">Android уміє записувати лише формати вище. Для решти є ці служби, вони відкриваються у браузері: зображення вибирається там, з пам\'яті телефона.</string>
     <string name="convert_clean">Очистити</string>
-    <string name="convert_clean_why">CleanSVG зменшує векторний файл до 99%, прибираючи метадані та інші поля, що не належать до малюнка. Очищення цілком безпечне: форми, лінії, малюнки й текст лишаються недоторканими.</string>
+    <string name="convert_clean_why">Прибирає метадані, коментарі, скрипти та залишки редакторів, які в справжніх файлах становлять майже всю вагу. Контури не перезаписуються, а форми, лінії, малюнки й текст залишаються недоторканими. Для повного перезапису є CleanSVG, що відкривається у браузері.</string>
+    <string name="convert_clean_c2pa">⚠️ УВАГА: зникає й походження C2PA, тобто частина, яка каже, хто зробив файл. Збережіть копію, якщо вона потрібна.</string>
+    <string name="clean_now">Очистити тут</string>
+    <string name="clean_done">Очищено: з %1$s до %2$s.</string>
+    <string name="clean_nothing">Прибирати було нічого: файл уже був чистий.</string>
+    <string name="clean_failed">Не вдалося очистити файл.</string>
+    <string name="clean_not_svg">Цей файл не є читабельним SVG.</string>
     <string name="convert_open">Відкрити</string>
     <string name="convert_export">Експортувати</string>
     <string name="convert_ezgif">EzGif</string>

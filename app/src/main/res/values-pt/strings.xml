@@ -30,7 +30,13 @@
     <string name="convert_elsewhere">Outros formatos</string>
     <string name="convert_elsewhere_desc">O Android só sabe gravar os formatos acima. Para os demais existem estes serviços, que abrem no navegador: a imagem é escolhida por lá, na memória do telefone.</string>
     <string name="convert_clean">Limpar</string>
-    <string name="convert_clean_why">Use o CleanSVG para reduzir até 99% o tamanho de um arquivo vetorial, removendo metadados e outros campos alheios ao desenho. A limpeza é totalmente segura e não altera formas, linhas, desenhos ou textos.</string>
+    <string name="convert_clean_why">Remove metadados, comentários, scripts e restos dos editores, que nos arquivos reais são quase todo o peso. Não reescreve os traçados e não toca em formas, linhas, desenhos ou textos. Para a reescrita completa existe o CleanSVG, que abre no navegador.</string>
+    <string name="convert_clean_c2pa">⚠️ ATENÇÃO: a procedência C2PA também vai embora, a parte que diz quem fez o arquivo. Guarde uma cópia se precisar dela.</string>
+    <string name="clean_now">Limpar aqui</string>
+    <string name="clean_done">Limpo: de %1$s para %2$s.</string>
+    <string name="clean_nothing">Não havia nada a remover: o arquivo já estava limpo.</string>
+    <string name="clean_failed">Não foi possível limpar o arquivo.</string>
+    <string name="clean_not_svg">Este arquivo não é um SVG legível.</string>
     <string name="convert_open">Abrir</string>
     <string name="convert_export">Exportar</string>
     <string name="convert_ezgif">EzGif</string>

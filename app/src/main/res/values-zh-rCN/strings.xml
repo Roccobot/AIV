@@ -30,7 +30,13 @@
     <string name="convert_elsewhere">其他格式</string>
     <string name="convert_elsewhere_desc">安卓只能写入上面这些格式。其余格式可以用这些服务，它们在浏览器中打开：图片在那里从手机存储中选择。</string>
     <string name="convert_clean">清理</string>
-    <string name="convert_clean_why">用 CleanSVG 可以把矢量文件缩小最多 99%，去掉元数据和与图形无关的其他字段。清理完全安全，形状、线条、图形和文字都不会改动。</string>
+    <string name="convert_clean_why">去掉元数据、注释、脚本和编辑器残留，在真实文件里它们几乎就是全部体积。它不会重写路径，也不碰形状、线条、图形和文字。要完整重写，还有在浏览器里打开的 CleanSVG。</string>
+    <string name="convert_clean_c2pa">⚠️ 注意：C2PA 来源信息也会一起消失，也就是说明文件由谁制作的那部分。如果需要，请留一份副本。</string>
+    <string name="clean_now">在这里清理</string>
+    <string name="clean_done">已清理：从 %1$s 到 %2$s。</string>
+    <string name="clean_nothing">没有可去掉的东西：文件本来就是干净的。</string>
+    <string name="clean_failed">无法清理这个文件。</string>
+    <string name="clean_not_svg">这个文件不是可读的 SVG。</string>
     <string name="convert_open">打开</string>
     <string name="convert_export">导出</string>
     <string name="convert_ezgif">EzGif</string>
