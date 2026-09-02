@@ -142,6 +142,15 @@ e il job le scrive su disco per la durata di una sola esecuzione.
 - ⚠️ **`refcheck.py` NON vive qui** ma in `roccobot.github.io/.memo/scripts/`: in una sessione
   che non monta quel repo i controlli sui caratteri e sui rimandi non girano, e prima di un
   commit va detto invece di darli per fatti.
+  - ⚠️⚠️ **MA DAL 2026-09-02 QUESTO FILE È COPERTO, e prima no**: `AIV/CLAUDE.md` è un file di
+    **regole**, non un documento di repo terzo, quindi i suoi titoli entrano nell'indice dei
+    rimandi e le altre regole possono citarne una sezione. Fino a quel giorno era fuori
+    copertura, e un rimando **corretto** a una sua sezione veniva segnalato come 'sezione
+    inesistente': è il sintomo rovesciato già visto due volte nel repo del sito, e là c'è
+    scritto per esteso (`roccobot.github.io/CLAUDE.md`, la voce sui controlli pre-commit).
+  - ⚠️ **Il rovescio vale ancora, e adesso è dichiarato**: in una sessione che monta il sito
+    ma non AIV, i rimandi che nominano questo repo restano **non verificabili** e non
+    bloccano il commit, e il verificatore stampa quanti sono.
 
 ## 🌿 Branch
 
