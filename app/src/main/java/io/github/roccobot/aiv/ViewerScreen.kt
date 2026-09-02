@@ -70,6 +70,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.AlertDialog
@@ -2954,6 +2955,22 @@ private fun DetailsPanel(
  * vorrebbe dire che lo stesso nome si legge in due modi in due schermate.
  * ⚠️ **`BoxWithConstraints` e non una misura in dp**: la larghezza utile è quella dello schermo
  * meno i margini, e scritta a mano sarebbe giusta su un telefono solo.
+ *
+ * ⚠️⚠️ **ALLINEATO A DESTRA, dalla 1.24** (richiesta dell'utente, 2026-09-02: *fa' in modo che
+ * a destra finisca esattamente dove finisce l'indice numerico dell'immagine visualizzata*).
+ * Allineato a sinistra com'era nella `1.23`, un nome corto finiva in mezzo alla riga e non
+ * finiva da nessuna parte in particolare; a destra finisce sul **contatore**, che è l'unico
+ * altro estremo fisso della barra. ⚠️ **I due estremi coincidono perché la scatola è la
+ * stessa**: il nome riempie la larghezza del contenuto, e il contatore è l'ultimo della riga
+ * sotto, quindi entrambi finiscono al margine destro. Non c'è nessun conto da tenere allineato
+ * a mano, ed è la ragione per cui questo si fa con `TextAlign.End` e non con un `padding`.
+ * ⚠️ **Chi lo rimettesse a sinistra 'per uniformità' con la riga dei dati** rifarebbe il
+ * difetto: quella riga ha il suo estremo fisso a destra (il contatore), e il nome sopra ne
+ * segue uno, non l'altro.
+ *
+ * ⚠️ **Meno opaco dei dati** (stessa richiesta: *rendi il testo leggermente meno opaco*), e il
+ * colore di partenza è quello della `Surface` che sta dietro, preso da `LocalContentColor`:
+ * scriverne uno nuovo qui vorrebbe dire un secondo colore da tenere d'accordo col tema.
  */
 @Composable
 private fun NameLine(name: String) {
@@ -2965,9 +2982,26 @@ private fun NameLine(name: String) {
         val shown = remember(name, room, style, grassetto, measurer) {
             fitName(name, room, 1, style, grassetto, measurer)
         }
-        Text(text = shown, style = style, maxLines = 1)
+        Text(
+            text = shown,
+            style = style,
+            maxLines = 1,
+            color = LocalContentColor.current.copy(alpha = NAME_FADE),
+            textAlign = TextAlign.End,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
+
+/**
+ * Quanto il nome del file è meno acceso dei dati sotto di lui.
+ *
+ * ⚠️ **Poco, e di proposito**: la richiesta era *leggermente* meno opaco, e questo è il gradino
+ * che Material chiama 'emphasis media', cioè quello che distingue un testo secondario senza
+ * farlo sembrare disattivato. Più giù il nome diventerebbe illeggibile sopra una fotografia
+ * chiara, che è proprio il fondo su cui questa barra deve reggere.
+ */
+private const val NAME_FADE = 0.74f
 
 /**
  * Quanto copre il velo dietro la riga dei dettagli.
