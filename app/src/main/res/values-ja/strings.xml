@@ -30,7 +30,13 @@
     <string name="convert_elsewhere">ほかの形式</string>
     <string name="convert_elsewhere_desc">Android が書き出せるのは上の形式だけです。ほかの形式には次のサービスがあり、ブラウザーで開きます。画像はそこで、端末のストレージから選びます。</string>
     <string name="convert_clean">整理する</string>
-    <string name="convert_clean_why">CleanSVG を使うと、ベクター画像のファイルを最大 99% 小さくできます。メタデータや図とは関係のない項目が取り除かれます。この整理は完全に安全で、形・線・図・文字はそのままです。</string>
+    <string name="convert_clean_why">メタデータ、コメント、スクリプト、エディタの残骸を取り除きます。実際のファイルではそれらがほぼすべての容量です。パスは書き換えず、図形、線、描画、テキストには触れません。完全な書き換えにはブラウザで開く CleanSVG があります。</string>
+    <string name="convert_clean_c2pa">⚠️ 注意: 誰がファイルを作ったかを示す C2PA の来歴も消えます。必要ならコピーを残してください。</string>
+    <string name="clean_now">ここで整理</string>
+    <string name="clean_done">整理しました: %1$s から %2$s へ。</string>
+    <string name="clean_nothing">取り除くものはありませんでした。ファイルはすでにきれいです。</string>
+    <string name="clean_failed">ファイルを整理できませんでした。</string>
+    <string name="clean_not_svg">このファイルは読める SVG ではありません。</string>
     <string name="convert_open">開く</string>
     <string name="convert_export">書き出す</string>
     <string name="convert_ezgif">EzGif</string>

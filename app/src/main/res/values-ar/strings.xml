@@ -30,7 +30,13 @@
     <string name="convert_elsewhere">صيغ أخرى</string>
     <string name="convert_elsewhere_desc">لا يستطيع أندرويد كتابة سوى الصيغ أعلاه. أما البقية فتوفرها هذه الخدمات، وهي تُفتح في المتصفح: اختر الصورة هناك من ذاكرة الهاتف.</string>
     <string name="convert_clean">تنظيف</string>
-    <string name="convert_clean_why">استخدم CleanSVG لتصغير ملف متجهي حتى 99%، بإزالة البيانات الوصفية والحقول الأخرى الغريبة عن الرسم. التنظيف آمن تمامًا ولا يمس الأشكال ولا الخطوط ولا الرسوم ولا النصوص.</string>
+    <string name="convert_clean_why">يزيل البيانات الوصفية والتعليقات والنصوص البرمجية وبقايا المحرِّرات، وهي في الملفات الحقيقية كل الوزن تقريبًا. لا يعيد كتابة المسارات، ولا يمس الأشكال ولا الخطوط ولا الرسوم ولا النصوص. لإعادة الكتابة الكاملة هناك CleanSVG، الذي يُفتح في المتصفح.</string>
+    <string name="convert_clean_c2pa">⚠️ تنبيه: يذهب أيضًا أصل C2PA، أي الجزء الذي يقول من صنع الملف. احتفظ بنسخة إن كنت بحاجة إليها.</string>
+    <string name="clean_now">نظِّف هنا</string>
+    <string name="clean_done">تم التنظيف: من %1$s إلى %2$s.</string>
+    <string name="clean_nothing">لم يكن هناك ما يُزال: الملف كان نظيفًا بالفعل.</string>
+    <string name="clean_failed">لم يتم تنظيف الملف.</string>
+    <string name="clean_not_svg">هذا الملف ليس ملف SVG قابلًا للقراءة.</string>
     <string name="convert_open">فتح</string>
     <string name="convert_export">تصدير</string>
     <string name="convert_ezgif">EzGif</string>

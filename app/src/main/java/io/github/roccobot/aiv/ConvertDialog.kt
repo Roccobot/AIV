@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -79,6 +80,20 @@ fun ConvertDialog(
     var target by remember { mutableStateOf(Convert.Target.JPEG) }
     var size by remember { mutableStateOf(Convert.Size.FULL) }
     var quality by remember { mutableIntStateOf(92) }
+
+    /*
+     * ⚠️ Lo stato della pulizia SVG: l'esito da mostrare e la bandierina che spegne il tasto
+     * mentre lavora. Vedi [SvgClean], e la nota sui due tasti più sotto.
+     * ⚠️ **Il backup si legge dalle impostazioni e non si chiede qui**: è lo stesso
+     * interruttore dell'editor ('Copia nel cestino prima di sovrascrivere'), perché la
+     * domanda è la stessa e due interruttori per una domanda sola sono due posti in cui
+     * dimenticarsene.
+     */
+    var esito by remember { mutableStateOf<SvgClean.Result?>(null) }
+    var pulendo by remember { mutableStateOf(false) }
+    val backup by produceState(true) {
+        SettingsStore.flow(context).collect { value = it.editorBackup }
+    }
 
     /*
      * ⚠️ **Il selettore di cartella è suo e non quello di 'Scarica'**: quello scrive il file
@@ -197,25 +212,68 @@ fun ConvertDialog(
                  * ⚠️⚠️ **PORTA FUORI E NON MANDA IL FILE, e la differenza va detta**: CleanSVG
                  * è una pagina web che lavora **nel browser**, e per riceverne un file
                  * vorrebbe un intento di condivisione che una pagina non può dichiarare.
-                 * Quindi qui si apre l'indirizzo, e il file lo si scieglie là. È lo stesso
+                 * Quindi qui si apre l'indirizzo, e il file lo si sceglie là. È lo stesso
                  * contratto dei tre servizi qui sotto.
                  * ⚠️ **Il testo è suo, parola per parola**, numeri compresi (*fino al 99%*):
                  * quella è la misura che ha fatto lui sul suo strumento, non una mia stima.
                  */
                 if (isVector(image)) {
                     HorizontalDivider(modifier = Modifier.padding(top = 12.dp))
+                    Text(
+                        text = stringResource(R.string.convert_clean),
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(top = 10.dp)
+                    )
+                    Note(stringResource(R.string.convert_clean_why))
+                    Note(stringResource(R.string.convert_clean_c2pa))
+                    /*
+                     * ⚠️ **L'esito sta SOPRA i tasti e resta scritto**, invece di essere un
+                     * avviso che passa: dice due pesi, e due numeri che si vogliono
+                     * confrontare non si leggono in tre secondi. È anche il solo posto in cui
+                     * si vede che non c'era niente da togliere, che è un'informazione e non un
+                     * errore.
+                     */
+                    esito?.let { fatto ->
+                        Note(
+                            when (fatto) {
+                                is SvgClean.Result.Done -> stringResource(
+                                    R.string.clean_done,
+                                    formatBytes(fatto.before),
+                                    formatBytes(fatto.after)
+                                )
+                                SvgClean.Result.Nothing -> stringResource(R.string.clean_nothing)
+                                is SvgClean.Result.Failed -> stringResource(fatto.why)
+                            }
+                        )
+                    }
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.End
                     ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = stringResource(R.string.convert_clean),
-                                style = MaterialTheme.typography.titleSmall
-                            )
-                            Note(stringResource(R.string.convert_clean_why))
-                        }
+                        /*
+                         * ⚠️⚠️ **DUE TASTI E NON UNO, e la differenza è dichiarata nel testo
+                         * sopra**: 'Pulisci qui' lavora **in casa e senza rete** e non riscrive
+                         * i tracciati; 'Apri' porta a CleanSVG, che con SVGO li riscrive. Sono
+                         * due lavori diversi sullo stesso file, non due vie per lo stesso.
+                         * ⚠️ **Si spegne senza un file su cui lavorare**: la pulizia riscrive
+                         * un file del telefono, quindi su un SVG arrivato dal web non c'è
+                         * niente da riscrivere. CleanSVG invece resta acceso: là il file lo
+                         * sceglie l'utente.
+                         */
+                        TextButton(
+                            enabled = source != null && !pulendo,
+                            onClick = {
+                                val uri = source ?: return@TextButton
+                                pulendo = true
+                                scope.launch {
+                                    val fatto = SvgClean.clean(context, uri, backup)
+                                    esito = fatto
+                                    pulendo = false
+                                    if (fatto is SvgClean.Result.Done) onSaved()
+                                }
+                            }
+                        ) { Text(stringResource(R.string.clean_now)) }
                         TextButton(onClick = { open(context, CLEANSVG) }) {
                             Text(stringResource(R.string.convert_open))
                         }

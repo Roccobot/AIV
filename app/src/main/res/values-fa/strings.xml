@@ -30,7 +30,13 @@
     <string name="convert_elsewhere">قالب‌های دیگر</string>
     <string name="convert_elsewhere_desc">اندروید فقط قالب‌های بالا را می‌نویسد. برای بقیه این سرویس‌ها هستند که در مرورگر باز می‌شوند: تصویر را همان‌جا، از حافظهٔ گوشی انتخاب کنید.</string>
     <string name="convert_clean">پاک‌سازی</string>
-    <string name="convert_clean_why">با CleanSVG اندازهٔ یک فایل برداری تا 99% کم می‌شود؛ فراداده و دیگر فیلدهای بی‌ربط به تصویر برداشته می‌شوند. این پاک‌سازی کاملاً بی‌خطر است و شکل‌ها، خط‌ها، نقش‌ها و متن‌ها دست‌نخورده می‌مانند.</string>
+    <string name="convert_clean_why">فرا‌داده‌ها، توضیحات، اسکریپت‌ها و باقی‌مانده‌های ویرایشگرها را برمی‌دارد، که در پرونده‌های واقعی تقریباً تمام حجم هستند. مسیرها را بازنویسی نمی‌کند و به شکل‌ها، خط‌ها، نقاشی‌ها و متن دست نمی‌زند. برای بازنویسی کامل CleanSVG هست، که در مرورگر باز می‌شود.</string>
+    <string name="convert_clean_c2pa">⚠️ هشدار: خاستگاه C2PA هم می‌رود، یعنی بخشی که می‌گوید پرونده را چه کسی ساخته است. اگر لازم داری یک رونوشت نگه دار.</string>
+    <string name="clean_now">همین‌جا پاک‌سازی کن</string>
+    <string name="clean_done">پاک‌سازی شد: از %1$s به %2$s.</string>
+    <string name="clean_nothing">چیزی برای برداشتن نبود: پرونده از قبل پاک بود.</string>
+    <string name="clean_failed">پرونده پاک‌سازی نشد.</string>
+    <string name="clean_not_svg">این پرونده یک SVG خواندنی نیست.</string>
     <string name="convert_open">باز کردن</string>
     <string name="convert_export">برون‌بری</string>
     <string name="convert_ezgif">EzGif</string>

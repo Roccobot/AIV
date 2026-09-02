@@ -30,7 +30,13 @@
     <string name="convert_elsewhere">รูปแบบอื่น</string>
     <string name="convert_elsewhere_desc">แอนดรอยด์เขียนได้เฉพาะรูปแบบข้างบนเท่านั้น สำหรับรูปแบบอื่นมีบริการเหล่านี้ ซึ่งเปิดในเบราว์เซอร์ แล้วเลือกภาพจากหน่วยความจำของโทรศัพท์ที่นั่น</string>
     <string name="convert_clean">ล้างข้อมูล</string>
-    <string name="convert_clean_why">ใช้ CleanSVG เพื่อลดขนาดไฟล์เวกเตอร์ได้ถึง 99% โดยตัดข้อมูลกำกับและฟิลด์อื่นที่ไม่เกี่ยวกับภาพวาดออก การล้างนี้ปลอดภัยอย่างสมบูรณ์ ไม่กระทบรูปทรง เส้น ภาพวาด หรือข้อความ</string>
+    <string name="convert_clean_why">ลบข้อมูลกำกับ ความคิดเห็น สคริปต์ และเศษที่โปรแกรมแก้ไขทิ้งไว้ ซึ่งในไฟล์จริงคือน้ำหนักเกือบทั้งหมด ไม่เขียนเส้นทางใหม่ และไม่แตะรูปทรง เส้น ภาพวาด หรือข้อความ สำหรับการเขียนใหม่ทั้งหมดมี CleanSVG ที่เปิดในเบราว์เซอร์</string>
+    <string name="convert_clean_c2pa">⚠️ คำเตือน: ที่มาแบบ C2PA ก็หายไปด้วย นั่นคือส่วนที่บอกว่าใครสร้างไฟล์ ถ้าจำเป็นให้เก็บสำเนาไว้</string>
+    <string name="clean_now">ทำความสะอาดที่นี่</string>
+    <string name="clean_done">ทำความสะอาดแล้ว: จาก %1$s เป็น %2$s</string>
+    <string name="clean_nothing">ไม่มีอะไรให้ลบ: ไฟล์สะอาดอยู่แล้ว</string>
+    <string name="clean_failed">ทำความสะอาดไฟล์ไม่ได้</string>
+    <string name="clean_not_svg">ไฟล์นี้ไม่ใช่ SVG ที่อ่านได้</string>
     <string name="convert_open">เปิด</string>
     <string name="convert_export">ส่งออก</string>
     <string name="convert_ezgif">EzGif</string>
