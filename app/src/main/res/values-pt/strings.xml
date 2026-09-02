@@ -88,6 +88,9 @@
     <string name="settings_bottom">Embaixo</string>
     <string name="settings_info_visible">Barra de informações</string>
     <string name="settings_info_position">Posição</string>
+    <string name="settings_zoom_menu">Zoom no menu do visualizador</string>
+    <string name="settings_zoom_menu_desc">Devolve \'Ajustar à vista\' e \'100%\' ao menu de toque longo. Está desligado porque um toque duplo na imagem já faz isso.</string>
+    <string name="hint_zoom_tap">Toque duas vezes na imagem para passar do zoom atual para 100% ou para o tamanho que cabe na tela, e assim por diante.</string>
     <string name="settings_anim_counter">Contador de quadros</string>
     <string name="settings_anim_counter_desc">Aparece na barra de controles das imagens animadas.</string>
     <string name="settings_reverse_order">Passar as imagens para a direita a partir da mais antiga</string>

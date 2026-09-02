@@ -88,6 +88,9 @@
     <string name="settings_bottom">নিচে</string>
     <string name="settings_info_visible">তথ্য বার</string>
     <string name="settings_info_position">অবস্থান</string>
+    <string name="settings_zoom_menu">ভিউয়ার মেনুতে জুম</string>
+    <string name="settings_zoom_menu_desc">\'পর্দায় মেলান\' এবং \'100%\' দীর্ঘক্ষণ চেপে খোলা মেনুতে ফিরিয়ে আনে। বন্ধ আছে, কারণ ছবিতে ডবল ট্যাপ করলেই এটা হয়।</string>
+    <string name="hint_zoom_tap">ছবিতে ডবল ট্যাপ করলে বর্তমান জুম থেকে 100% বা পর্দায় মেলানো মাপে যায়, আর ঘুরে ফিরে চলতে থাকে।</string>
     <string name="settings_anim_counter">ফ্রেম কাউন্টার</string>
     <string name="settings_anim_counter_desc">চলমান ছবির নিয়ন্ত্রণ বারে দেখা যায়।</string>
     <string name="settings_reverse_order">সবচেয়ে পুরনো থেকে ডানদিকে ছবি ওল্টান</string>

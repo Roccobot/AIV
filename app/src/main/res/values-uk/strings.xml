@@ -88,6 +88,9 @@
     <string name="settings_bottom">Унизу</string>
     <string name="settings_info_visible">Панель відомостей</string>
     <string name="settings_info_position">Розташування</string>
+    <string name="settings_zoom_menu">Масштаб у меню перегляду</string>
+    <string name="settings_zoom_menu_desc">Повертає \'Вписати в екран\' і \'100%\' до меню довгого натискання. Вимкнено, бо подвійний дотик до знімка робить те саме.</string>
+    <string name="hint_zoom_tap">Торкніться знімка двічі, щоб перейти від поточного масштабу до 100% або до розміру за екраном, і так по колу.</string>
     <string name="settings_anim_counter">Лічильник кадрів</string>
     <string name="settings_anim_counter_desc">З\'являється на панелі керування анімованих зображень.</string>
     <string name="settings_reverse_order">Гортати зображення праворуч від найстарішого</string>

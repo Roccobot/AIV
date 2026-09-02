@@ -88,6 +88,9 @@
     <string name="settings_bottom">Altta</string>
     <string name="settings_info_visible">Bilgi çubuğu</string>
     <string name="settings_info_position">Konum</string>
+    <string name="settings_zoom_menu">Görüntüleyici menüsünde yakınlaştırma</string>
+    <string name="settings_zoom_menu_desc">\'Görünüme sığdır\' ve \'100%\' ögelerini uzun basma menüsüne geri koyar. Resme çift dokunmak zaten bunu yaptığı için kapalı.</string>
+    <string name="hint_zoom_tap">Resme çift dokunarak geçerli yakınlaştırmadan 100% değerine ya da görünüme sığan boyuta geçin, sırayla.</string>
     <string name="settings_anim_counter">Kare sayacı</string>
     <string name="settings_anim_counter_desc">Hareketli görüntülerin denetim çubuğunda görünür.</string>
     <string name="settings_reverse_order">Görüntüleri en eskiden başlayarak sağa doğru gezin</string>

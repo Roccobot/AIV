@@ -486,8 +486,9 @@ fun GridScreen(
         when (hint) {
             Hint.BIN_EMPTY -> binOff = true
             // ⚠️ Le colonne non si insegnano qui, ma il ramo c'è perché l'enum le porta:
-            // il velo che le riguarda vive nella schermata delle cartelle.
-            Hint.COLUMNS -> Unit
+            // il velo che le riguarda vive nella schermata delle cartelle. Dalla 1.25 vale
+            // lo stesso per il doppio tocco, che vive nel visualizzatore.
+            Hint.COLUMNS, Hint.ZOOM_TAP -> Unit
             null -> Unit
         }
         hint?.let { seen -> scope.launch { seen.remember(context) } }
@@ -1219,6 +1220,9 @@ fun GridScreen(
                         // perché [Hint] è un enum e il `when` deve essere completo, e questa
                         // frase non si vedrà mai (vedi `hint`, che la esclude).
                         Hint.COLUMNS -> R.string.columns_hint
+                        // ⚠️ Idem per il doppio tocco, che vive nel visualizzatore e non ha
+                        // nemmeno un tastino da evidenziare: là il velo è `HintCentre`.
+                        Hint.ZOOM_TAP -> R.string.hint_zoom_tap
                     }
                 ),
                 // ⚠️ Tre rientri: quello di sistema, il margine della schermata e gli 8dp

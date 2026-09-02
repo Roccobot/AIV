@@ -88,6 +88,9 @@
     <string name="settings_bottom">在下方</string>
     <string name="settings_info_visible">資訊列</string>
     <string name="settings_info_position">位置</string>
+    <string name="settings_zoom_menu">檢視器選單中的縮放</string>
+    <string name="settings_zoom_menu_desc">把 \'符合檢視\' 和 \'100%\' 放回長按選單。預設關閉，因為在圖片上點兩下就能做到。</string>
+    <string name="hint_zoom_tap">在圖片上點兩下，可在目前縮放、100% 與符合檢視的大小之間循環切換。</string>
     <string name="settings_anim_counter">影格計數器</string>
     <string name="settings_anim_counter_desc">顯示於動態影像的控制列中。</string>
     <string name="settings_reverse_order">從最舊的一張起向右翻閱影像</string>

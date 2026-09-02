@@ -88,6 +88,9 @@
     <string name="settings_bottom">در پایین</string>
     <string name="settings_info_visible">نوار اطلاعات</string>
     <string name="settings_info_position">موقعیت</string>
+    <string name="settings_zoom_menu">بزرگ‌نمایی در منوی نمایشگر</string>
+    <string name="settings_zoom_menu_desc">\'جا شدن در صفحه\' و \'100%\' را به منوی فشار طولانی برمی‌گرداند. خاموش است چون دو ضربه روی تصویر همین کار را می‌کند.</string>
+    <string name="hint_zoom_tap">دو ضربه روی تصویر بزنید تا از بزرگ‌نمایی فعلی به 100% یا به اندازه متناسب با صفحه برود، و همین‌طور به نوبت.</string>
     <string name="settings_anim_counter">شمارنده فریم</string>
     <string name="settings_anim_counter_desc">در نوار فرمان تصاویر متحرک نمایش داده می‌شود.</string>
     <string name="settings_reverse_order">مرور تصویرها به سمت راست از قدیمی‌ترین</string>

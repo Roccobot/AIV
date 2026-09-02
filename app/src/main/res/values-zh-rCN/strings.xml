@@ -88,6 +88,9 @@
     <string name="settings_bottom">在底部</string>
     <string name="settings_info_visible">信息栏</string>
     <string name="settings_info_position">位置</string>
+    <string name="settings_zoom_menu">查看器菜单中的缩放</string>
+    <string name="settings_zoom_menu_desc">把 \'适应视图\' 和 \'100%\' 放回长按菜单。默认关闭，因为双击图片就能做到。</string>
+    <string name="hint_zoom_tap">双击图片，可在当前缩放、100% 与适应视图的大小之间循环切换。</string>
     <string name="settings_anim_counter">帧计数器</string>
     <string name="settings_anim_counter_desc">显示在动态图像的控制栏中。</string>
     <string name="settings_reverse_order">从最旧的一张起向右翻阅图像</string>

@@ -88,6 +88,9 @@
     <string name="settings_bottom">Di bawah</string>
     <string name="settings_info_visible">Bilah info</string>
     <string name="settings_info_position">Posisi</string>
+    <string name="settings_zoom_menu">Zoom di menu penampil</string>
+    <string name="settings_zoom_menu_desc">Mengembalikan \'Sesuaikan ke layar\' dan \'100%\' ke menu tekan lama. Mati karena ketuk ganda pada gambar sudah melakukannya.</string>
+    <string name="hint_zoom_tap">Ketuk dua kali gambar untuk berpindah dari zoom saat ini ke 100% atau ke ukuran yang pas di layar, lalu berulang.</string>
     <string name="settings_anim_counter">Penghitung bingkai</string>
     <string name="settings_anim_counter_desc">Muncul di bilah kontrol gambar bergerak.</string>
     <string name="settings_reverse_order">Telusuri gambar ke kanan mulai dari yang terlama</string>

@@ -88,6 +88,9 @@
     <string name="settings_bottom">Chini</string>
     <string name="settings_info_visible">Upau wa maelezo</string>
     <string name="settings_info_position">Mahali</string>
+    <string name="settings_zoom_menu">Ukuzaji katika menyu ya kitazamaji</string>
+    <string name="settings_zoom_menu_desc">Hurudisha \'Iingie kwenye skrini\' na \'100%\' kwenye menyu ya kubonyeza kwa muda mrefu. Imezimwa kwa sababu kugusa picha mara mbili hufanya hivyo.</string>
+    <string name="hint_zoom_tap">Gusa picha mara mbili ili kutoka ukuzaji wa sasa hadi 100% au hadi ukubwa unaoingia skrini, na kuendelea hivyo.</string>
     <string name="settings_anim_counter">Kihesabu fremu</string>
     <string name="settings_anim_counter_desc">Huonekana kwenye upau wa vidhibiti vya picha zinazosonga.</string>
     <string name="settings_reverse_order">Pitia picha kuelekea kulia kuanzia ya zamani zaidi</string>

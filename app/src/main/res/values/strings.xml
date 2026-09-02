@@ -193,6 +193,12 @@
     <string name="settings_bottom">At the bottom</string>
     <string name="settings_info_visible">Info bar</string>
     <string name="settings_info_position">Position</string>
+    <!-- Setting that puts 'Fit to view' and '100%' back into the long-press menu. Off by
+         default: the double tap does the same thing. -->
+    <string name="settings_zoom_menu">Zoom in the viewer menu</string>
+    <string name="settings_zoom_menu_desc">Puts \'Fit to view\' and \'100%\' back into the long-press menu. They are off because a double tap on the picture already does it.</string>
+    <!-- The one-off veil shown over the first picture after installing. -->
+    <string name="hint_zoom_tap">Double tap the picture to go from the current zoom to 100% or to the size that fits the view, and round again.</string>
     <string name="settings_anim_counter">Frame counter</string>
     <string name="settings_anim_counter_desc">Shown in the controls of animated images.</string>
 
