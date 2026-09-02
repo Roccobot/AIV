@@ -71,7 +71,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Switch
@@ -830,10 +829,21 @@ private fun InfoBarPopup(
     onChange: (Boolean, InfoPosition) -> Unit,
     onDismiss: () -> Unit
 ) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        modifier = Modifier.lowered(),
-        title = { Text(stringResource(R.string.settings_info_visible)) },
+    /*
+     * ⚠️⚠️ **[SubPanel] E NON `AlertDialog`, dalla 1.37, e serve alla STRISCIA**: l'utente l'ha
+     * chiesta anche sui sotto-menu e ha nominato proprio questo (riscontro `striscia-sette`:
+     * *va aggiunta sui sotto-menu, es. pressione lunga su Info*). Un `AlertDialog` non lascia
+     * disegnare in fondo alla propria superficie, quindi la striscia si poteva mettere solo
+     * sopra i tasti, che è un altro posto. Il guscio riscrive i numeri di Material, e il perché
+     * sta su [SubPanel].
+     */
+    SubPanel(
+        title = stringResource(R.string.settings_info_visible),
+        onDismiss = onDismiss,
+        buttons = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.pick_close)) }
+        }
+    ) {
         /*
          * ⚠️⚠️ **TRE GETTONI E NON UN INTERRUTTORE PIÙ DUE, dalla 1.29** (richiesta
          * dell'utente, 2026-09-02: *per coerenza, applica lo stesso trattamento grafico a
@@ -845,50 +855,44 @@ private fun InfoBarPopup(
          * fanno dubitare che siano due comandi.
          * ⚠️ Sotto restano due valori (acceso e lato), come nelle impostazioni: spegnendo la
          * barra e riaccendendola si ritrova il lato scelto. Vedi `InfoChoice` là.
+         *
+         * ⚠️⚠️ **IMPILATI, TUTTI DELLA STESSA LARGHEZZA E CENTRATI, dalla 1.37, ed è la
+         * TERZA disposizione di questi tre gettoni**: `Row` fino alla 1.33 (spezzava 'In
+         * basso' dentro il gettone, *In / bass / o*), `FlowRow` fino alla 1.36, e adesso
+         * la colonna. La ragione del cambio è un riscontro dell'utente con schermata
+         * (voce `chip-impilati`, 2026-09-02: *non va bene nemmeno in italiano*): `FlowRow`
+         * mandava a capo **dove capitava**, quindi in italiano si vedevano due gettoni
+         * sopra e uno sotto, di tre larghezze diverse, che si legge come un difetto e non
+         * come una scelta.
+         * ⚠️⚠️ **E LA RIGA OMOLOGA DELLE IMPOSTAZIONI ERA GIÀ COSÌ dalla 1.36**: là il
+         * lavoro è stato fatto (`Choices`, parametro `stacked`) e qui no, quindi lo stesso
+         * comando aveva due disposizioni. È il difetto che questo pannellino si porta
+         * dietro da tre versioni, sempre nella stessa forma: **si copia la disposizione
+         * dell'altro posto**, non se ne inventa una terza.
+         * ⚠️ **Due colonne annidate**, come là: quella di fuori occupa la larghezza del
+         * dialogo e centra, quella di dentro prende la larghezza intrinseca massima, cioè
+         * quella del gettone più largo nella lingua in vigore, e la impone a tutti.
          */
-        text = {
-            /*
-             * ⚠️⚠️ **IMPILATI, TUTTI DELLA STESSA LARGHEZZA E CENTRATI, dalla 1.37, ed è la
-             * TERZA disposizione di questi tre gettoni**: `Row` fino alla 1.33 (spezzava 'In
-             * basso' dentro il gettone, *In / bass / o*), `FlowRow` fino alla 1.36, e adesso
-             * la colonna. La ragione del cambio è un riscontro dell'utente con schermata
-             * (voce `chip-impilati`, 2026-09-02: *non va bene nemmeno in italiano*): `FlowRow`
-             * mandava a capo **dove capitava**, quindi in italiano si vedevano due gettoni
-             * sopra e uno sotto, di tre larghezze diverse, che si legge come un difetto e non
-             * come una scelta.
-             * ⚠️⚠️ **E LA RIGA OMOLOGA DELLE IMPOSTAZIONI ERA GIÀ COSÌ dalla 1.36**: là il
-             * lavoro è stato fatto (`Choices`, parametro `stacked`) e qui no, quindi lo stesso
-             * comando aveva due disposizioni. È il difetto che questo pannellino si porta
-             * dietro da tre versioni, sempre nella stessa forma: **si copia la disposizione
-             * dell'altro posto**, non se ne inventa una terza.
-             * ⚠️ **Due colonne annidate**, come là: quella di fuori occupa la larghezza del
-             * dialogo e centra, quella di dentro prende la larghezza intrinseca massima, cioè
-             * quella del gettone più largo nella lingua in vigore, e la impone a tutti.
-             */
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier.width(IntrinsicSize.Max),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Column(
-                    modifier = Modifier.width(IntrinsicSize.Max),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    val acceso = settings.infoVisible
-                    BarPick.entries.forEach { scelta ->
-                        FilterChip(
-                            selected = scelta.matches(acceso, settings.infoPosition),
-                            onClick = { scelta.apply(settings, onChange) },
-                            label = { Text(stringResource(scelta.label)) },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
+                val acceso = settings.infoVisible
+                BarPick.entries.forEach { scelta ->
+                    FilterChip(
+                        selected = scelta.matches(acceso, settings.infoPosition),
+                        onClick = { scelta.apply(settings, onChange) },
+                        label = { Text(stringResource(scelta.label)) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.pick_close)) }
         }
-    )
+    }
 }
 
 /**

@@ -36,6 +36,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -386,9 +388,15 @@ private fun pairing(
  * ⚠️ **La freccia scende con loro**: fra le due pastiglie diventa un `↓`, perché una freccia a
  * destra fra due cose incolonnate indicherebbe il verso sbagliato.
  *
- * ⚠️ **I nomi passano da [unbroken]**: senza, il layout va a capo dentro l'estensione, e
+ * ⚠️ **I nomi passano da [nameWithExt]**: senza, il layout va a capo dentro l'estensione, e
  * un `.a` su una riga e un `vif` sull'altra non si leggono più come AVIF. È la prima delle tre
- * richieste di questo giro, e vale come regola generale.
+ * richieste del giro della 1.30, e vale come regola generale.
+ * ⚠️⚠️ **E L'ESTENSIONE È IN GRASSETTO DALLA 1.37** (riscontro `ext-griglia`: *evidenzia
+ * l'estensione, punto incluso, mettendola in grassetto*). Fino alla 1.36 questi due nomi
+ * passavano da `unbroken`, che è una `String` nuda: il peso lo dava la pastiglia a tutto il
+ * testo. ⚠️ **Negli altri posti c'era già** (la pastiglia di 'Info', la griglia, la barra del
+ * visualizzatore) perché quelli passano da [fitName], che l'estensione la compone col
+ * grassetto dalla 0.82: era l'anteprima l'unica fuori.
  */
 @Composable
 private fun PreviewRow(row: Pairing) {
@@ -406,7 +414,7 @@ private fun PreviewRow(row: Pairing) {
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         NamePill(
-            text = unbroken(row.before),
+            text = nameWithExt(row.before, GRASSETTO),
             back = MaterialTheme.colorScheme.surfaceVariant,
             front = MaterialTheme.colorScheme.onSurfaceVariant,
             weight = FontWeight.Normal,
@@ -430,7 +438,7 @@ private fun PreviewRow(row: Pairing) {
             modifier = Modifier.align(Alignment.CenterHorizontally).size(ARROW_SIZE)
         )
         NamePill(
-            text = unbroken(row.after),
+            text = nameWithExt(row.after, GRASSETTO),
             back = MaterialTheme.colorScheme.secondaryContainer,
             front = MaterialTheme.colorScheme.onSecondaryContainer,
             weight = FontWeight.Medium,
@@ -449,9 +457,19 @@ private fun PreviewRow(row: Pairing) {
  */
 private val ARROW_SIZE = 20.dp
 
+/**
+ * Il peso dell'estensione nelle due pastiglie dell'anteprima.
+ *
+ * ⚠️ **`Bold` e non `SemiBold`**: le due pastiglie hanno già pesi diversi fra loro (`Normal`
+ * quella di adesso, `Medium` quella di dopo), quindi un grassetto intermedio si distinguerebbe
+ * in una e non nell'altra. È lo stesso peso che [fitName] dà all'estensione dovunque un nome
+ * si accorci, e la coerenza fra i due posti è il punto della richiesta.
+ */
+private val GRASSETTO = SpanStyle(fontWeight = FontWeight.Bold)
+
 @Composable
 private fun NamePill(
-    text: String,
+    text: AnnotatedString,
     back: Color,
     front: Color,
     weight: FontWeight,

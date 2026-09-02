@@ -46,8 +46,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
@@ -1094,7 +1094,21 @@ fun GridScreen(
             ) {
                 Box {
                     TapHoldFab(
-                        icon = Icons.Default.Menu,
+                        /*
+                         * ⚠️⚠️ **UN PALLINO E NON L'HAMBURGER, dalla 1.37, e il disegno è una
+                         * richiesta dell'utente** (riscontro `fab-colori`: *adesso che vedo il
+                         * cestino con i nuovi colori non mi piace più: metti un pallino singolo
+                         * al centro*). Le tre righe di `Icons.Default.Menu` dicono 'apri il
+                         * cassetto', che è un'altra cosa da 'apri le azioni del cestino', e coi
+                         * colori dell'icona dell'app pesavano.
+                         * ⚠️ **È di Material e non disegnato in casa**: `FiberManualRecord` è
+                         * esattamente un disco pieno centrato (raggio 8 su griglia 24, cioè
+                         * 16dp di diametro), e la nota in testa a `Glyphs.kt` dice di non
+                         * ridisegnare quello che Material ha già.
+                         * ⚠️ **Se il pallino va cambiato di misura la via è un'altra icona, non
+                         * una scala**: `Icons.Filled.Circle` è lo stesso disco a raggio 10.
+                         */
+                        icon = Icons.Filled.FiberManualRecord,
                         label = stringResource(R.string.pick_actions),
                         // ⚠️ I colori dell'icona dell'app, dalla `1.36`, come il tastino della
                         // schermata iniziale: il perché per esteso sta là, e i due tastini sono
@@ -1244,7 +1258,10 @@ fun GridScreen(
                 onDone = hintDone
             ) {
                 TapHoldFab(
-                    icon = Icons.Default.Menu,
+                    // ⚠️ Lo STESSO glifo del tastino vero, che dalla 1.37 è un pallino: questo
+                    // è la sua copia illuminata sopra il velo, e un velo che evidenzia un
+                    // disegno diverso da quello che sta sotto indica il tasto sbagliato.
+                    icon = Icons.Filled.FiberManualRecord,
                     label = stringResource(R.string.pick_actions),
                     container = HINT_MARK,
                     ink = HINT_INK,

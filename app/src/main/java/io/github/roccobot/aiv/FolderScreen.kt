@@ -873,7 +873,12 @@ private fun Hub(
 
             // ⚠️ In fondo al contenuto e non fuori dal menu: dentro, i due angoli in basso la
             // tagliano con sé. Il perché sta su [MenuStripe].
-            MenuStripe()
+            // ⚠️⚠️ **`giu` PERCHÉ QUESTO MENU È UN `DropdownMenu` DI MATERIAL**, che mette 8dp
+            // sotto la propria colonna: senza quella compensazione la striscia si ferma a 8dp
+            // più su che in tutti gli altri menu, ed è il difetto che l'utente ha visto nella
+            // 1.36 (*troppo staccata dal margine inferiore*). Il numero e la sua misura stanno
+            // su `MENU_DROPDOWN_PAD`.
+            MenuStripe(giu = MENU_DROPDOWN_PAD)
         }
     }
 
