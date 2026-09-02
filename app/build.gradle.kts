@@ -52,11 +52,11 @@ android {
         // the update as a downgrade. It is not tied to versionName and nothing
         // checks it, so nothing will remind you: 0.11 went out carrying 1, so
         // from here on every published version needs its own number.
-        versionCode = 115
+        versionCode = 116
         // Single source of the version, in SlimVer. The release workflow reads
         // it from here and refuses to run when the tag disagrees, so the tag
         // confirms this number instead of being a second one.
-        versionName = "1.25"
+        versionName = "1.26"
     }
 
     // The signing material comes from the environment and never from the
@@ -112,6 +112,29 @@ android {
         disable += "ScopedStorage"
     }
 
+    /*
+     * ⚠️⚠️ **LE DUE VARIANTI x86 DI LIBAVIF RESTANO FUORI, e vale 2,9 MB su un APK che
+     * ne pesa 5.** Misurate dentro l'AAR e non stimate: `x86` 1.131.128 byte e `x86_64`
+     * 1.829.008, contro 868.592 di `arm64-v8a` e 655.780 di `armeabi-v7a`. Una libreria
+     * nativa nell'APK sta **non compressa**, quindi quei byte si pagano tutti.
+     * ⚠️ **Chi userebbe le due escluse sono gli EMULATORI**, e qui l'APK si scarica da un
+     * sito, dove nessuno spacchetta per architettura: l'unica conseguenza è che su un
+     * emulatore x86 gli AVIF non si aprono, mentre l'app si installa e funziona come
+     * prima. È la stessa scelta che il progetto aveva già fatto per ONNX Runtime, e la
+     * nota in `defaultConfig` la prevedeva: *se un domani rientra una libreria nativa,
+     * quella riga torna con lei*.
+     * ⚠️⚠️ **NON è un `abiFilters`**, ed è la differenza che conta: quello butterebbe
+     * **tutte** le librerie x86, comprese le due di AndroidX, e l'app smetterebbe di
+     * installarsi su quei dispositivi. Qui esce un file solo, e `Avif.ready` se ne accorge
+     * da sé perché `System.loadLibrary` solleva.
+     */
+    packaging {
+        jniLibs {
+            excludes += "lib/x86/libavif_android.so"
+            excludes += "lib/x86_64/libavif_android.so"
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -162,6 +185,17 @@ dependencies {
     implementation(libs.media3.ui.compose)
 
     implementation(libs.gifdecoder)
+
+    /*
+     * ⚠️⚠️ **LIBAVIF ENTRA CON LA 1.26**, e la ragione non è che AVIF mancasse: è che
+     * `ImageDecoder` lo dichiara da API 31 e poi lo gira al decodificatore AV1 del
+     * telefono, che sui file veri risponde `getPixels failed with error invalid input`.
+     * La misura sul file dell'utente sta in testa a `Avif.kt`: profilo AV1 High, croma
+     * 4:4:4, livello 6.0, 24 megapixel, cioè tre cose che la CDD di Android non obbliga
+     * nessun telefono a saper leggere. Questa libreria decodifica in **software**, quindi
+     * non dipende da che cosa sa fare l'apparecchio.
+     */
+    implementation(libs.avif.android)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)

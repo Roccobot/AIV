@@ -10,10 +10,12 @@ import java.io.InputStream
  * vorrebbe dire ricostruire l'immagine intera per scrivere una riga. Vale anche per il
  * conteggio dei fotogrammi: si cammina di blocco in blocco saltando i dati compressi, senza
  * mai srotolarne uno.
- * ⚠️ **Quattro formati e il resto tace**: PNG, GIF, JPEG e WebP sono quelli la cui
- * intestazione si legge in poche righe e senza ambiguità. HEIC e AVIF stanno dentro un
- * contenitore ISO-BMFF che vorrebbe un lettore suo, e una risposta inventata su quei due
- * sarebbe peggio di nessuna risposta.
+ * ⚠️ **Cinque formati e il resto tace**: PNG, GIF, JPEG e WebP sono quelli la cui
+ * intestazione si legge in poche righe e senza ambiguità, e dalla `1.26` c'è anche
+ * **AVIF**, che il lettore suo adesso ce l'ha (vedi [Avif]) perché serviva comunque alla
+ * decodifica. ⚠️ **HEIC no**, benché stia nello stesso contenitore: là il metodo colore va
+ * cercato in scatole diverse (`hvcC` invece di `av1C`) e nessuno ha un file su cui
+ * provarlo, e una risposta inventata è peggio di nessuna risposta.
  */
 
 /**
@@ -62,9 +64,24 @@ fun coloursOf(input: InputStream): Colours? = runCatching {
         got >= 4 && head[0] == 0xFF.toByte() && head[1] == 0xD8.toByte() -> jpegColours(input)
         got >= 16 && head.startsWith(RIFF_SIGNATURE) &&
             String(head, 8, 4, Charsets.US_ASCII) == "WEBP" -> webpColours(head, got, input)
+        got >= 12 && Avif.looksLike(head) -> Avif.colours(avifHead(head, got, input))
         else -> null
     }
 }.getOrNull()
+
+/**
+ * I byte in cui cercare le scatole di un AVIF: [HEAD] più il seguito, fino a [Avif.HEAD].
+ *
+ * ⚠️ **Il flusso è già avanti di [HEAD] byte**, quindi qui si legge il **seguito** e si
+ * incolla: riavvolgere non si può, ed è la stessa ragione per cui ogni lettore di questo
+ * file riceve un flusso suo.
+ */
+private fun avifHead(head: ByteArray, valid: Int, input: InputStream): ByteArray {
+    if (valid < head.size) return head.copyOf(valid)
+    val more = ByteArray(Avif.HEAD - head.size)
+    val got = input.readFully(more, more.size)
+    return head + more.copyOf(got)
+}
 
 /**
  * Quanti fotogrammi e quanto dura, dai byte del file.
