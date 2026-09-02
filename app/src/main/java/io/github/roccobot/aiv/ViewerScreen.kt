@@ -706,7 +706,6 @@ fun ViewerScreen(
                         DetailsPanel(
                             image = shownNow,
                             percent = info.percent,
-                            tiles = info.tiles,
                             // ⚠️⚠️ **Il silenzio non basta a dire perché**, ed è il difetto
                             // che ha fatto perdere DUE versioni sulla strisciata: senza
                             // serie il gesto non fa niente, e 'non fa niente' è identico a
@@ -2911,10 +2910,13 @@ private val MENU_EDGE = 8.dp
 private fun DetailsPanel(
     image: LoadedImage,
     percent: Float,
-    /** Vedi `InfoBar.tiles`: solo per le fotografie ridotte, e `null` finché non si sa. */
-    tiles: String?,
     folder: Folder.Lookup?
 ) {
+    /*
+     * ⚠️ Letta fuori dal `buildString`, che non è un contesto composable: è la stessa ragione
+     * per cui `folderNote` sta qui sotto.
+     */
+    val reduced = stringResource(R.string.bar_reduced)
     // Letta fuori dal `buildString`, che non è un contesto composable. Null mentre
     // la ricerca è in corso e sulle immagini che una cartella non ce l'hanno.
     val folderNote = when (folder) {
@@ -2962,18 +2964,28 @@ private fun DetailsPanel(
                     append(image.pixelWidth).append(" x ").append(image.pixelHeight)
                     image.byteSize?.let { append("  ").append(formatBytes(it)) }
                     append("  ").append((percent * 100).roundToInt()).append('%')
-                    // ⚠️⚠️ **QUESTA È DIAGNOSTICA, e va difesa come quella della cartella**:
-                    // `sampled` da solo diceva che la fotografia era stata ridotta, ma non se
-                    // il rattoppo a piena risoluzione stesse funzionando, e 'non si vede
-                    // niente' è identico fra una funzione rotta, una che ha deciso di non fare
-                    // niente e un formato che non si sa rileggere. Con il motivo scritto, il
-                    // difetto della `0.49` si è potuto nominare invece che indovinare.
-                    // ⚠️ Solo per le fotografie **ridotte**: su tutte le altre i tasselli non
-                    // c'entrano, e una parola in più sarebbe rumore su ogni foto.
+                    /*
+                     * ⚠️⚠️ **DALLA 1.31 DICE UNA PAROLA TRADOTTA E NON UNA DIAGNOSTICA**
+                     * (domanda dell'utente, 2026-09-02, che sul suo AVIF leggeva
+                     * `(sampled, no tile: format)`: *leggere quella cosa mi serve davvero, a
+                     * parte motivi di debug? Pensavo di sbarazzarmene o di riscriverla in
+                     * modo più amichevole*). La risposta è che **metà serviva e metà no**:
+                     * 'ridotta' è un fatto sull'immagine che si sta guardando, cioè che non
+                     * è a piena risoluzione; il motivo per cui i tasselli non si applicano
+                     * era per me, ed era in inglese in mezzo a un'interfaccia tradotta.
+                     * ⚠️⚠️ **E SU UN AVIF QUELLA CODA C'È SEMPRE**, che è la ragione per cui
+                     * il rumore si notava adesso: `RegionSource` non sa rileggere un AVIF
+                     * (nessun `BitmapRegionDecoder` per quel formato), quindi ogni AVIF
+                     * grande portava `no tile: format` per sempre.
+                     * ⚠️ **Il motivo dei tasselli resta nel codice** (`info.tiles`, che
+                     * `sharpen` continua a riempire): il giorno che serve di nuovo si
+                     * rimette in scena una riga, e il difetto della `0.49` si è potuto
+                     * nominare grazie a lui.
+                     * ⚠️ Solo per le immagini **ridotte**: su tutte le altre la parola non
+                     * dice niente, e sarebbe rumore su ogni foto.
+                     */
                     if (image.sampled) {
-                        append("  (sampled")
-                        tiles?.let { append(", ").append(it) }
-                        append(')')
+                        append("  (").append(reduced).append(')')
                     }
                     // ⚠️ Il perché di una cartella che non c'è resta QUI, col resto del testo,
                     // e non va nell'angolo del contatore: è una frase, non un numero, e in

@@ -10,6 +10,7 @@
     <string name="too_large">圖片對這台裝置來說太大了</string>
     <string name="error_retry">重試</string>
     <string name="fit_label">符合檢視</string>
+    <string name="bar_reduced">已縮小</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">忘記這些</string>
     <string name="url_not_image">這個網址並不指向圖片</string>

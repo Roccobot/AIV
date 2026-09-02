@@ -10,6 +10,7 @@
     <string name="too_large">ఈ పరికరానికి చిత్రం చాలా పెద్దది</string>
     <string name="error_retry">మళ్ళీ ప్రయత్నించండి</string>
     <string name="fit_label">తెరకు సరిపోయేలా</string>
+    <string name="bar_reduced">తగ్గించబడింది</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">ఇవి మరచిపోండి</string>
     <string name="url_not_image">చిరునామా ఒక చిత్రాన్ని చూపడం లేదు</string>

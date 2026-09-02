@@ -1246,6 +1246,12 @@ private fun fractions(r: Rect, frame: Rect) = ImageEdit.Crop(
  * ⚠️ **Campionata a [PREVIEW] sul lato lungo**: il ritaglio si sceglie a occhio su uno
  * schermo da mille punti, e tenere in memoria l'originale intero per tutto il tempo in cui la
  * schermata è aperta vorrebbe dire duecento megabyte fermi mentre si decide.
+ *
+ * ⚠️⚠️ **IL `?:` IN FONDO TOGLIE UN'ATTESA INFINITA, e c'era dalla `1.26`**: su un AVIF (e
+ * ora su un SVG) `ImageDecoder` fallisce, questa funzione tornava `null`, e la schermata
+ * restava a girare senza mai dire niente, perché il suo stato di partenza è 'sto ancora
+ * leggendo'. Il perché la catena dei ripieghi non arrivasse fin qui sta su
+ * [ImageSource.rescue].
  */
 private fun preview(context: Context, uri: Uri): Bitmap? = runCatching {
     ImageDecoder.decodeBitmap(
@@ -1256,7 +1262,7 @@ private fun preview(context: Context, uri: Uri): Bitmap? = runCatching {
         decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
         decoder.isMutableRequired = false
     }
-}.getOrNull()
+}.getOrNull() ?: ImageSource.rescue(context, uri, PREVIEW)
 
 /** Il campionamento: potenza di due, come `ImageDecoder` vuole. */
 private fun sample(long: Int): Int {

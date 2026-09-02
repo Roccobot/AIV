@@ -28,6 +28,7 @@
     <string name="error_retry">Try again</string>
 
     <string name="fit_label">Fit to view</string>
+    <string name="bar_reduced">reduced</string>
 
     <!-- ── Asking for an address ── -->
     <string name="url_hint">https://example.com/picture.jpg</string>

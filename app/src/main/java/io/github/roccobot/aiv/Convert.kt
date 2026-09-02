@@ -177,6 +177,11 @@ object Convert {
      * ⚠️ **Un fallimento qui non è un errore da mostrare**: su un'immagine enorme la memoria
      * può non bastare, e allora si converte quello che il visualizzatore ha già, che è
      * ridotto ma esiste. Il dialogo lo dice quando la sorgente è ridotta.
+     *
+     * ⚠️ **Il ripiego in fondo guadagna la risoluzione VERA su AVIF e SVG**: senza, un AVIF
+     * si convertiva sempre dal bitmap del visualizzatore, che può essere campionato, mentre
+     * qui `ImageDecoder` fallisce e non per mancanza di memoria. Non era un errore visibile,
+     * era qualità persa in silenzio.
      */
     private fun full(context: Context, uri: Uri): Bitmap? = runCatching {
         ImageDecoder.decodeBitmap(
@@ -185,7 +190,7 @@ object Convert {
             decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
             decoder.isMutableRequired = false
         }
-    }.getOrNull()
+    }.getOrNull() ?: ImageSource.rescue(context, uri, 0)
 
     /**
      * I servizi di fuori, per tutto quello che Android non sa scrivere.

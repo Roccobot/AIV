@@ -43,6 +43,17 @@ media3 = "1.11.0"
 # commit da cui è costruita, quindi `1.3.0.841110fd` è una stringa intera e non un
 # `1.3.0` con un suffisso da togliere.
 avif = "1.3.0.841110fd"
+# androidsvg entra con la VISUALIZZAZIONE DEGLI SVG (1.31): Android non sa
+# disegnare un SVG e non l'ha mai saputo. `ImageDecoder` conosce i formati a
+# pixel, e la grafica vettoriale del sistema è un'altra cosa (`VectorDrawable`,
+# che è un XML di Android e non un SVG). La misura sta in testa a `Svg.kt`.
+# ⚠️ Il numero è LETTO da `repo1.maven.org/.../maven-metadata.xml` il 2026-09-02:
+# la `1.4` è l'ultima e l'unica dopo la `1.3`, ed è del 2019. ⚠️ **Ferma non vuol
+# dire abbandonata a caso**: è la stessa che Coil si porta dietro nel suo
+# `coil-svg` (letto nel POM di `coil-svg-android` 3.6.0, che la dichiara come
+# dipendenza a runtime), cioè la scelta di chi fa il caricatore che questo
+# progetto già usa.
+androidsvg = "1.4"
 
 [libraries]
 gifdecoder = { group = "com.github.bumptech.glide", name = "gifdecoder", version = "5.0.9" }
@@ -62,6 +73,7 @@ androidx-datastore-preferences = { group = "androidx.datastore", name = "datasto
 androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exif" }
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 avif-android = { group = "org.aomedia.avif.android", name = "avif", version.ref = "avif" }
+androidsvg = { group = "com.caverock", name = "androidsvg-aar", version.ref = "androidsvg" }
 media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3" }
 media3-ui-compose = { group = "androidx.media3", name = "media3-ui-compose", version.ref = "media3" }
 

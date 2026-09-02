@@ -16,6 +16,7 @@
     <string name="error_retry">Riprova</string>
 
     <string name="fit_label">Adatta alla vista</string>
+    <string name="bar_reduced">ridotta</string>
 
     <!-- ── Chiedere un indirizzo ── -->
     <string name="url_hint">https://esempio.it/immagine.jpg</string>

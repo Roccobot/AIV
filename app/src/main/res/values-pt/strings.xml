@@ -10,6 +10,7 @@
     <string name="too_large">A imagem é grande demais para este aparelho</string>
     <string name="error_retry">Tentar de novo</string>
     <string name="fit_label">Ajustar à vista</string>
+    <string name="bar_reduced">reduzida</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Esquecer estes</string>
     <string name="url_not_image">O endereço não aponta para uma imagem</string>

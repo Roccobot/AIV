@@ -10,6 +10,7 @@
     <string name="too_large">De afbeelding is te groot voor dit toestel</string>
     <string name="error_retry">Opnieuw proberen</string>
     <string name="fit_label">Passend maken</string>
+    <string name="bar_reduced">verkleind</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Deze vergeten</string>
     <string name="url_not_image">De URL wijst niet naar een afbeelding</string>

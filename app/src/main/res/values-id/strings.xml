@@ -10,6 +10,7 @@
     <string name="too_large">Gambar terlalu besar untuk perangkat ini</string>
     <string name="error_retry">Coba lagi</string>
     <string name="fit_label">Sesuaikan ke layar</string>
+    <string name="bar_reduced">diperkecil</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Lupakan ini</string>
     <string name="url_not_image">URL tidak mengarah ke sebuah gambar</string>

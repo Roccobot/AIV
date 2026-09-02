@@ -183,8 +183,21 @@ object ImageActions {
         return IMAGE_SUFFIXES.any { path.endsWith(it) }
     }
 
+    /**
+     * Le code che [looksLikeImage] riconosce.
+     *
+     * ⚠️⚠️ **`.svg` C'È DALLA 1.31, e l'ha chiesto l'utente insieme alla visualizzazione**
+     * (*va anche aggiunta l'estensione nello schema di ricerca dell'URL da aprire
+     * all'avvio*): senza, un indirizzo di SVG copiato negli appunti non veniva nemmeno
+     * proposto, cioè il formato si sapeva aprire ma non si sapeva **offrire**.
+     * ⚠️ **Non è l'elenco del manifest e non è quello di [Folder]**, ed è la ragione per cui
+     * i tre non si possono unire senza pensarci: questo decide se **proporre da soli** un
+     * indirizzo che nessuno ha chiesto di aprire, quindi sbaglia nel verso giusto se è più
+     * corto. `.tif` e `.tiff` restano fuori apposta: sono nel manifest ma nessun
+     * decodificatore dell'app li legge.
+     */
     private val IMAGE_SUFFIXES = listOf(
-        ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".heic", ".heif", ".avif"
+        ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".heic", ".heif", ".avif", ".svg"
     )
 
     // ── Copying the original out ────────────────────────────────────────────

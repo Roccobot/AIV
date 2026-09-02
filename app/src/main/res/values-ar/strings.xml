@@ -10,6 +10,7 @@
     <string name="too_large">الصورة أكبر من طاقة هذا الجهاز</string>
     <string name="error_retry">إعادة المحاولة</string>
     <string name="fit_label">ملاءمة الشاشة</string>
+    <string name="bar_reduced">مصغّرة</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">نسيان هذه العناوين</string>
     <string name="url_not_image">العنوان لا يشير إلى صورة</string>

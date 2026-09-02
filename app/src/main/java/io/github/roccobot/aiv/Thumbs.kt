@@ -29,6 +29,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import okio.Buffer
 import java.io.File
 
 /**
@@ -82,12 +83,23 @@ object Thumbs {
         .components {
             add(SystemThumbnailFactory())
             // ⚠️⚠️ **IL SECONDO SERVE PERCHÉ IL PRIMO SU UN AVIF NON HA NIENTE DA DARE**:
-            // `loadThumbnail` e `createImageThumbnail` chiedono al telefono, e il telefono
-            // su questi file si rifiuta (vedi [Avif]). Da lì la richiesta prosegue verso la
-            // decodifica normale di Coil, che usa `BitmapFactory` e si rifiuta uguale: era
-            // il 'non mostra nemmeno le miniature' del riscontro. Questo la intercetta
-            // prima, e vale sia per la griglia sia per le copertine delle cartelle.
+            // `loadThumbnail` e `createImageThumbnail` chiedono al telefono, e il telefono su
+            // questi file si rifiuta (vedi [Avif]). Da lì la richiesta proseguirebbe verso la
+            // decodifica normale di Coil, che usa `BitmapFactory` e si rifiuta uguale: era il
+            // 'non mostra nemmeno le miniature' del riscontro. Questo la intercetta prima, e
+            // vale sia per la griglia sia per le copertine delle cartelle.
+            // ⚠️ **L'ORDINE CONTA**: al sistema si chiede per primo, e per un AVIF si tira
+            // indietro da sé tornando `null`. Invertirli vorrebbe dire decodificare in casa
+            // anche i formati per cui il telefono ha già la miniatura pronta.
             add(AvifThumbnailFactory())
+            // ⚠️⚠️ **IL TERZO È UN `Decoder` E NON UN `Fetcher`, e la differenza dice a che
+            // punto della catena entra**: i due sopra prendono la richiesta **prima** che il
+            // file venga letto, perché la miniatura può arrivare da un'altra parte; questo
+            // entra **dopo**, quando i byte ci sono già e resta solo da capirci un'immagine,
+            // che è esattamente il caso di un SVG. ⚠️ Fra i due elenchi non c'è ordine da
+            // rispettare, perché Coil li tiene separati: conta solo che sia dichiarato qui,
+            // e quindi prima del decodificatore predefinito che di un SVG non sa niente.
+            add(SvgThumbnailFactory())
         }
         .diskCache(null)
         .build()
@@ -303,55 +315,153 @@ private class SystemThumbnailFactory : Fetcher.Factory<Uri> {
 }
 
 /**
- * La miniatura di un AVIF, decodificata da libavif invece che dal telefono.
+ * La miniatura di un AVIF, fatta da libavif invece che dal telefono, e tenuta su disco.
  *
- * ⚠️ **Costa quanto aprire la fotografia intera**, e va detto invece di lasciarlo scoprire:
- * un AVIF non porta una miniatura incorporata che il sistema sappia estrarre, quindi per
- * fare un riquadro da 512 px bisogna decodificare i 24 megapixel e poi ridurli. È il prezzo
- * che paga anche Fossify Gallery, e la cache di Coil fa sì che si paghi una volta sola per
- * fotografia. ⚠️ I piani decodificati stanno nella memoria **nativa** di libavif, non
- * nell'heap dell'app: quello che arriva in Java è già il riquadro piccolo.
+ * ⚠️ **Costa quanto aprire l'immagine intera la PRIMA volta**, e va detto invece di lasciarlo
+ * scoprire: un AVIF non porta dentro una miniatura già pronta come fa un JPEG, quindi per un
+ * riquadro da 512 pixel bisogna decodificare i 24 megapixel e poi ridurli. Dalla `1.31` si
+ * paga **una volta sola per file**, perché il risultato finisce in [AvifCache]: prima si
+ * pagava a ogni apertura della cartella, ed è la segnalazione che ha fatto nascere quella
+ * cache.
+ * ⚠️ I piani decodificati stanno nella memoria **nativa** di libavif, non nell'heap dell'app:
+ * quello che arriva in Java è già il riquadro piccolo.
+ *
+ * ⚠️⚠️ **È UN `Fetcher` E NON UN `Decoder`, ed è cambiato nella 1.31**: un decodificatore
+ * riceve i **byte** e non sa da quale file vengono, mentre la cache su disco ha bisogno
+ * dell'indirizzo come chiave. Un `Fetcher.Factory<Uri>` lo riceve come parametro, quindi la
+ * cache si può guardare **prima** di leggere venticinque megabyte, che è il punto di averla.
  */
-private class AvifThumbnailDecoder(
+@RequiresApi(Build.VERSION_CODES.Q)
+private class AvifThumbnailFetcher(
+    private val data: Uri,
+    private val options: Options,
+) : Fetcher {
+
+    override suspend fun fetch(): FetchResult? = withContext(Dispatchers.IO) {
+        if (!Avif.ready) return@withContext null
+        val uri = data.toAndroidUri()
+        val box = maxOf(
+            options.size.width.pxOrElse { FALLBACK_PX },
+            options.size.height.pxOrElse { FALLBACK_PX }
+        )
+
+        // ⚠️⚠️ **PRIMA IL DISCO, e questa è tutta la correzione**: sta prima di aprire il
+        // file, perché aprirlo vorrebbe dire portare in memoria venticinque megabyte per poi
+        // scoprire che la miniatura c'era già.
+        AvifCache.read(options.context, uri, box)?.let { pronta ->
+            return@withContext ImageFetchResult(
+                image = pronta.asImage(),
+                isSampled = true,
+                dataSource = DataSource.DISK
+            )
+        }
+
+        /*
+         * ⚠️ **Si legge il file INTERO e non a pezzi**, perché libavif vuole tutto il flusso
+         * in un buffer diretto: non esiste un modo di decodificare un AVIF leggendone solo la
+         * testa. ⚠️ E si legge **solo** dopo aver riconosciuto il formato dai primi byte, o
+         * questa riga porterebbe in memoria ogni JPEG della cartella.
+         */
+        val bytes = runCatching {
+            options.context.contentResolver.openInputStream(uri)?.use { stream ->
+                val head = ByteArray(Avif.SNIFF)
+                val got = stream.readFully(head, Avif.SNIFF)
+                if (!Avif.looksLike(head.copyOf(got))) null else head.copyOf(got) + stream.readBytes()
+            }
+        }.getOrNull() ?: return@withContext null
+        coroutineContext.ensureActive()
+
+        val bitmap = Avif.thumbnail(bytes, box) ?: return@withContext null
+        AvifCache.write(options.context, uri, box, bitmap)
+        ImageFetchResult(
+            image = bitmap.asImage(),
+            isSampled = true,
+            dataSource = DataSource.DISK
+        )
+    }
+}
+
+/**
+ * Chi decide se il caricatore AVIF serve.
+ *
+ * ⚠️ **Non guarda i byte, e non potrebbe**: `create` non sospende, e aprire un file qui
+ * vorrebbe dire un accesso al disco durante la composizione. Il riconoscimento sta dentro
+ * `fetch`, che gira su IO e torna `null` quando il file non è un AVIF: da lì la richiesta
+ * prosegue verso la decodifica normale di Coil, come vuole il contratto di `Fetcher`.
+ * ⚠️ **Sta DOPO la fabbrica di sistema** nel registro, e l'ordine è la ragione per cui le due
+ * convivono: al sistema si chiede per primo, e per un AVIF si tira indietro da sé.
+ */
+private class AvifThumbnailFactory : Fetcher.Factory<Uri> {
+    override fun create(data: Uri, options: Options, imageLoader: ImageLoader): Fetcher? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return null
+        return when (data.scheme?.lowercase()) {
+            "content", "file" -> AvifThumbnailFetcher(data, options)
+            else -> null
+        }
+    }
+}
+
+/**
+ * La miniatura di un SVG, disegnata da androidsvg.
+ *
+ * ⚠️ **Costa poco, al contrario di quella di un AVIF, e per questo non ha una cache su
+ * disco**: là bisogna decodificare ventiquattro megapixel per ricavarne 512, qui si disegna
+ * un documento di qualche kilobyte **direttamente** nella misura giusta. Non c'è nessun
+ * lavoro grande da buttare via, quindi non c'è niente da conservare.
+ * ⚠️ **Il tetto ai pixel non si passa**, e il perché sta su [Svg.FREE]: con un lato lungo di
+ * 512 non potrebbe scattare mai.
+ */
+private class SvgThumbnailDecoder(
     private val source: coil3.decode.ImageSource,
     private val options: Options,
 ) : Decoder {
 
     override suspend fun decode(): DecodeResult? = withContext(Dispatchers.IO) {
-        val bytes = source.source().readByteArray()
-        coroutineContext.ensureActive()
         val box = maxOf(
             options.size.width.pxOrElse { FALLBACK_PX },
             options.size.height.pxOrElse { FALLBACK_PX }
         )
-        val bitmap = Avif.thumbnail(bytes, box) ?: return@withContext null
-        DecodeResult(image = bitmap.asImage(), isSampled = true)
+        coroutineContext.ensureActive()
+        // ⚠️ **Uno stream e non un array di byte**, ed è la ragione per cui qui non c'è
+        // nessun tetto di lettura: il parser legge il documento mentre scorre, quindi un
+        // file grosso non passa mai per un array grande quanto lui.
+        val drawn = Svg.render(source.source().inputStream(), box) ?: return@withContext null
+        DecodeResult(
+            image = drawn.bitmap.asImage(),
+            // ⚠️ **`true` sempre, e NON il `sampled` del disegno**: quel campo dice se il
+            // raster è più piccolo del documento, mentre a Coil serve sapere se questa è
+            // l'immagine **intera**, e una miniatura non lo è mai. Dichiarandola intera,
+            // Coil la riuserebbe per una richiesta più grande, cioè un'icona da 512 pixel
+            // stirata a schermo pieno.
+            isSampled = true
+        )
     }
 }
 
 /**
- * Chi decide se il decodificatore AVIF serve: lo dicono i byte, non il nome del file.
+ * Chi decide se il disegnatore SVG serve.
  *
- * ⚠️ **Si sbircia senza consumare** (`peek`), perché una fabbrica che dice di no deve
- * lasciare la sorgente intatta per chi viene dopo: leggerla qui vorrebbe dire rompere la
- * decodifica di ogni JPEG dell'app per riconoscere gli AVIF.
+ * ⚠️⚠️ **SI GUARDANO I BYTE, E SI GUARDANO SENZA CONSUMARLI**: `peek()` dà un secondo
+ * lettore sullo stesso buffer, quindi il decodificatore predefinito trova la sorgente intatta
+ * quando questo si sfila. Senza, un JPEG resterebbe senza i suoi primi mille byte.
+ * ⚠️ **Il tipo dichiarato conta come il contenuto**, ed è la stessa coppia di prove che usa
+ * Coil nel suo `SvgDecoder.Factory`: un `content://` può dichiarare `image/svg+xml` senza che
+ * i byte comincino col tag, per esempio quando in testa c'è una dichiarazione XML lunga.
  */
-private class AvifThumbnailFactory : Decoder.Factory {
+private class SvgThumbnailFactory : Decoder.Factory {
     override fun create(
         result: SourceFetchResult,
         options: Options,
-        imageLoader: ImageLoader,
+        imageLoader: ImageLoader
     ): Decoder? {
-        if (!Avif.ready) return null
-        val head = try {
-            result.source.source().peek().use { peek ->
-                peek.require(Avif.SNIFF.toLong())
-                peek.readByteArray(Avif.SNIFF.toLong())
-            }
-        } catch (e: Exception) {
-            return null
-        }
-        if (!Avif.looksLike(head)) return null
-        return AvifThumbnailDecoder(result.source, options)
+        if (!Svg.ready) return null
+        if (result.mimeType != Svg.MIME && !looksLike(result)) return null
+        return SvgThumbnailDecoder(result.source, options)
     }
+
+    private fun looksLike(result: SourceFetchResult): Boolean = runCatching {
+        val head = Buffer()
+        result.source.source().peek().read(head, Svg.SNIFF.toLong())
+        Svg.looksLike(head.readByteArray())
+    }.getOrDefault(false)
 }
