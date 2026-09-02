@@ -157,7 +157,10 @@ jobs:
           cp "$src" "${RUNNER_TEMP}/out/${name}"
           echo "name=${name}" >> "$GITHUB_OUTPUT"
           echo "path=${RUNNER_TEMP}/out/${name}" >> "$GITHUB_OUTPUT"
-          echo "size=$(du -h "$src" | cut -f1)" >> "$GITHUB_OUTPUT"
+          # No `size` output any more: its only reader was the __SIZE__ sed of
+          # the publish step, and since the 1.36 the page asks the GitHub API
+          # for the asset size instead. The log line below keeps the figure
+          # where a human looks for it.
           echo "Produced ${name} ($(du -h "$src" | cut -f1)), from $(basename "$src")"
 
       # `signed=true` only says the SECRET was there. If the keystore path had
@@ -227,7 +230,6 @@ jobs:
           VERSION: ${{ steps.ver.outputs.version }}
           APK_NAME: ${{ steps.apk.outputs.name }}
           APK_PATH: ${{ steps.apk.outputs.path }}
-          APK_SIZE: ${{ steps.apk.outputs.size }}
           SIGNED: ${{ steps.keystore.outputs.signed }}
         run: |
           set -euo pipefail
@@ -248,19 +250,22 @@ jobs:
           # with old builds would need the page to list and rank them. The
           # archive is the releases page, which keeps every version for free.
           # (Size is no longer the argument it looked like: the minified release
-          # apk is 1634026 bytes against the 64 MB of the debug build. Measure
-          # the SERVED file and not the run artefact: that one is a zip of the
-          # apk and reads about half, because an apk holds uncompressed entries
-          # the outer zip squeezes.)
+          # apk is 6696189 bytes in the 1.36 against the 64 MB of the debug
+          # build, and the figure carries its version because it ages at every
+          # release. Measure the SERVED file and not the run artefact: that one
+          # is a zip of the apk and reads about half, because an apk holds
+          # uncompressed entries the outer zip squeezes.)
           rm -f site/AIV/*.apk
           cp "${APK_PATH}" "site/AIV/${APK_NAME}"
 
-          sed -e "s|__VERSION__|${VERSION}|g" \
-              -e "s|__APK__|${APK_NAME}|g" \
-              -e "s|__SIZE__|${APK_SIZE}|g" \
-              -e "s|__DATE__|$(date -u '+%Y-%m-%d')|g" \
-              -e "s|__YEAR__|$(date -u '+%Y')|g" \
-              publish/index.html > site/AIV/index.html
+          # A plain copy, and no substitution: the page used to carry five
+          # placeholders (__VERSION__, __APK__, __SIZE__, __DATE__, __YEAR__)
+          # filled in here with sed, so it went stale between two tags whenever
+          # a release did not touch it. Since the 1.36 it asks the GitHub API
+          # for all five at load time. Whoever puts a placeholder back in the
+          # page has to put the sed back here too, AND the `size` output the
+          # step above no longer produces.
+          cp publish/index.html site/AIV/index.html
 
           cd site
           git config user.name "github-actions[bot]"
