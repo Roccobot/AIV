@@ -16,7 +16,7 @@
     <string name="menu_copy_image">చిత్రాన్ని కాపీ చేయి</string>
     <string name="menu_share">పంచుకోండి</string>
     <string name="menu_save">భద్రపరచండి</string>
-    <string name="menu_convert">మార్చి ఎగుమతి చేయి</string>
+    <string name="menu_convert">ఎగుమతి చేసి మార్చు</string>
     <string name="convert_format">ఫార్మాట్</string>
     <string name="convert_jpeg">JPEG</string>
     <string name="convert_png">PNG</string>

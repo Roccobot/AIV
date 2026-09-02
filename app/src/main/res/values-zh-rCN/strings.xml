@@ -16,7 +16,7 @@
     <string name="menu_copy_image">复制图片</string>
     <string name="menu_share">分享</string>
     <string name="menu_save">保存</string>
-    <string name="menu_convert">转换并导出</string>
+    <string name="menu_convert">导出并转换</string>
     <string name="convert_format">格式</string>
     <string name="convert_jpeg">JPEG</string>
     <string name="convert_png">PNG</string>

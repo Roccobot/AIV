@@ -16,7 +16,7 @@
     <string name="menu_copy_image">Nakili picha</string>
     <string name="menu_share">Shiriki</string>
     <string name="menu_save">Hifadhi</string>
-    <string name="menu_convert">Badilisha na kuhamisha</string>
+    <string name="menu_convert">Hamisha na kubadilisha</string>
     <string name="convert_format">Muundo</string>
     <string name="convert_jpeg">JPEG</string>
     <string name="convert_png">PNG</string>

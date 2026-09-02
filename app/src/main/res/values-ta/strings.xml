@@ -16,7 +16,7 @@
     <string name="menu_copy_image">படத்தை நகலெடு</string>
     <string name="menu_share">பகிர்</string>
     <string name="menu_save">சேமி</string>
-    <string name="menu_convert">மாற்றி ஏற்றுமதி செய்</string>
+    <string name="menu_convert">ஏற்றுமதி செய்து மாற்று</string>
     <string name="convert_format">வடிவம்</string>
     <string name="convert_jpeg">JPEG</string>
     <string name="convert_png">PNG</string>

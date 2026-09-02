@@ -16,7 +16,7 @@
     <string name="menu_copy_image">نسخ الصورة</string>
     <string name="menu_share">مشاركة</string>
     <string name="menu_save">حفظ</string>
-    <string name="menu_convert">تحويل وتصدير</string>
+    <string name="menu_convert">تصدير وتحويل</string>
     <string name="convert_format">الصيغة</string>
     <string name="convert_jpeg">JPEG</string>
     <string name="convert_png">PNG</string>

@@ -16,7 +16,7 @@
     <string name="menu_copy_image">Kopiuj obraz</string>
     <string name="menu_share">Udostępnij</string>
     <string name="menu_save">Zapisz</string>
-    <string name="menu_convert">Konwertuj i eksportuj</string>
+    <string name="menu_convert">Eksportuj i konwertuj</string>
     <string name="convert_format">Format</string>
     <string name="convert_jpeg">JPEG</string>
     <string name="convert_png">PNG</string>

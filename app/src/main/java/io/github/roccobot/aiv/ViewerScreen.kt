@@ -66,7 +66,6 @@ import androidx.compose.material.icons.outlined.Subtitles
 import androidx.compose.material.icons.outlined.SwapHoriz
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -2618,7 +2617,6 @@ private fun ImageMenu(
      */
     MenuShell(
         position = MenuCenter,
-        corner = MENU_CORNER,
         dismissOnOutside = true,
         onDismiss = onDismiss
     ) {
@@ -2645,10 +2643,10 @@ private fun ImageMenu(
              * chiamata che non sospende e finisce prima che il menu si chiuda. Tutto il
              * resto passa da [MenuOps], e là sta scritto perché.
              */
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.menu_copy_image)) },
-                leadingIcon = { Icon(Glyphs.PhotoPair, null) },
-                onClick = {
+            MenuRow(
+                text = stringResource(R.string.menu_copy_image),
+                icon = Glyphs.PhotoPair,
+                onTap = {
                     onDismiss()
                     Toast.makeText(
                         context,
@@ -2684,17 +2682,18 @@ private fun ImageMenu(
              * ⚠️ **È l'idioma già in casa e non un gesto nuovo da imparare**: 'Copia' nel
              * riquadro della selezione duplica col tocco lungo esattamente così, dalla
              * `0.79`. Un secondo modo di fare la stessa cosa sarebbe stato il costo vero.
-             * ⚠️ **Questa voce NON è un `DropdownMenuItem`** come le altre, e non è una
-             * distrazione: un `DropdownMenuItem` non può portare due gesti. Il perché, e le
-             * misure che le fanno tenere la fila con le vicine, stanno in
-             * [TapHoldMenuItem].
+             * ⚠️⚠️ **DALLA 1.28 TUTTE LE VOCI DI QUESTO MENU SONO [MenuRow], e prima no**:
+             * questa era scritta a mano (un `DropdownMenuItem` non può portare due gesti) e
+             * le altre erano di Material, cioè due disposizioni diverse della stessa fila.
+             * L'utente ha visto il disallineamento e lo ha disegnato. Adesso si allineano
+             * per costruzione, e il perché sta in [MenuRow].
              */
             if (scheme == "content" || scheme == "file") {
-                TapHoldMenuItem(
+                MenuRow(
                     text = stringResource(R.string.menu_edit),
                     icon = Icons.Outlined.Edit,
-                    holdLabel = stringResource(R.string.menu_edit_hold),
                     onTap = { onDismiss(); ops.edit() },
+                    holdLabel = stringResource(R.string.menu_edit_hold),
                     onHold = { onDismiss(); ops.editWith() }
                 )
             }
@@ -2703,10 +2702,10 @@ private fun ImageMenu(
              * che producono un file **nuovo** partendo da quello che si sta guardando. La
              * differenza è che una lo riscrive e l'altra lo affianca.
              */
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.menu_convert)) },
-                leadingIcon = { Icon(Icons.Outlined.SwapHoriz, null) },
-                onClick = { onDismiss(); ops.convert() }
+            MenuRow(
+                text = stringResource(R.string.menu_convert),
+                icon = Icons.Outlined.SwapHoriz,
+                onTap = { onDismiss(); ops.convert() }
             )
 
             /*
@@ -2719,10 +2718,10 @@ private fun ImageMenu(
              * non è un file di questo telefono e salvarlo ha senso.
              */
             if (scheme != "content" && scheme != "file") {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.menu_save)) },
-                    leadingIcon = { Icon(Icons.Outlined.Download, null) },
-                    onClick = { onDismiss(); ops.save(image) }
+                MenuRow(
+                    text = stringResource(R.string.menu_save),
+                    icon = Icons.Outlined.Download,
+                    onTap = { onDismiss(); ops.save(image) }
                 )
             }
 
@@ -2741,15 +2740,15 @@ private fun ImageMenu(
             if (zoomRows) {
                 HorizontalDivider()
 
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.fit_label)) },
-                    leadingIcon = { Icon(Icons.Outlined.FitScreen, null) },
-                    onClick = { onDismiss(); onZoom(restScale) }
+                MenuRow(
+                    text = stringResource(R.string.fit_label),
+                    icon = Icons.Outlined.FitScreen,
+                    onTap = { onDismiss(); onZoom(restScale) }
                 )
-                DropdownMenuItem(
-                    text = { Text("100%") },
-                    leadingIcon = { Icon(Icons.Outlined.PhotoSizeSelectActual, null) },
-                    onClick = { onDismiss(); onZoom(oneToOne) }
+                MenuRow(
+                    text = "100%",
+                    icon = Icons.Outlined.PhotoSizeSelectActual,
+                    onTap = { onDismiss(); onZoom(oneToOne) }
                 )
             }
 
@@ -2871,13 +2870,12 @@ private fun ImageMenu(
 private val MENU_WIDTH = 252.dp
 
 /**
- * Il raggio della tendina, e i margini sopra e sotto le voci.
+ * L'aria sopra e sotto le voci della tendina.
  *
- * ⚠️ Resta 8 mentre il menu della selezione è passato a 16, e non è una svista: quello è
- * quasi quadrato, questo è una lista larga 252dp e bassa, e su una forma allungata lo stesso
- * raggio si legge di più.
+ * ⚠️ **Il raggio non sta più qui, dalla 1.28**: era 8 mentre il menu della selezione era 16 e
+ * quello del navigatore 8, cioè tre numeri per la stessa cosa, e l'utente li ha visti diversi
+ * prima di noi. Adesso è uno solo, in `Menus.kt`, e non passa più come parametro.
  */
-private val MENU_CORNER = 8.dp
 private val MENU_EDGE = 8.dp
 
 /**

@@ -16,7 +16,7 @@
     <string name="menu_copy_image">Sao chép hình ảnh</string>
     <string name="menu_share">Chia sẻ</string>
     <string name="menu_save">Lưu</string>
-    <string name="menu_convert">Chuyển đổi và xuất</string>
+    <string name="menu_convert">Xuất và chuyển đổi</string>
     <string name="convert_format">Định dạng</string>
     <string name="convert_jpeg">JPEG</string>
     <string name="convert_png">PNG</string>
