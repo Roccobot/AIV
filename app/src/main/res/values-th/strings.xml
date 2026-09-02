@@ -86,11 +86,11 @@
     <string name="settings_scale_desc">กำหนดว่าการซูมเป็นพิกเซลจริงหมายถึงอะไร หน้าจอของอุปกรณ์สมัยใหม่ทุกเครื่องวาดพิกเซลเชิงตรรกะหนึ่งพิกเซลด้วยสี่เหลี่ยมจัตุรัสของพิกเซลจริงสองหรือสามพิกเซล ตัวเลือกแรกไม่สนใจพิกเซลเชิงตรรกะและจับทุกจุดให้ตรงกับพิกเซลจริงหนึ่งพิกเซล ส่วนตัวเลือกที่สองแสดงทุกวัตถุในขนาดที่ควรมีบนหน้าเว็บ</string>
     <string name="settings_top">ด้านบน</string>
     <string name="settings_bottom">ด้านล่าง</string>
+    <string name="settings_off">ปิด</string>
     <string name="settings_info_visible">แถบข้อมูล</string>
-    <string name="settings_info_position">ตำแหน่ง</string>
     <string name="settings_zoom_menu">การซูมในเมนูของโปรแกรมดู</string>
     <string name="settings_zoom_menu_desc">นำ \'พอดีหน้าจอ\' และ \'100%\' กลับเข้าเมนูกดค้าง ปิดอยู่เพราะแตะสองครั้งบนภาพก็ทำแบบเดียวกัน</string>
-    <string name="hint_zoom_tap">แตะสองครั้งบนภาพเพื่อสลับจากการซูมปัจจุบันไปที่ 100% หรือขนาดที่พอดีหน้าจอ วนไปเรื่อย ๆ</string>
+    <string name="hint_zoom_tap">ซูมเร็ว: แตะสองครั้งที่รูปเพื่อให้พอดีกับหน้าจอ แตะสองครั้งอีกทีเพื่อดูพิกเซลจริง แตะต่อไปเพื่อสลับระหว่างพอดีและ 100%</string>
     <string name="settings_anim_counter">ตัวนับเฟรม</string>
     <string name="settings_anim_counter_desc">แสดงในแถบควบคุมของภาพเคลื่อนไหว</string>
     <string name="settings_reverse_order">เลื่อนดูภาพไปทางขวาจากภาพเก่าที่สุด</string>

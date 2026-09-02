@@ -451,41 +451,38 @@ private fun ColumnScope.RootPage(
         onChange = { onChange(settings.copy(pickWeight = it)) }
     )
 
-    SwitchRow(
+    /*
+     * ⚠️⚠️ **UNA RIGA SOLA CON TRE GETTONI, e nella 1.26 questa è la TERZA forma in tre
+     * versioni**: vale la pena saperlo per non riproporre le prime due. La `1.20` aveva un
+     * interruttore più una riga 'Posizione' sotto; la `1.25` ha reso quella riga subordinata
+     * (titolo leggero, rientrata, gettoni a destra); la `1.26` le fonde, ed è ancora una
+     * richiesta dell'utente (2026-09-02: *'Posizione' adesso è l'unica riga che parte con un
+     * rientro. Semplifichiamo: tutto in un unico posto. Tre chip: Disattivata, In alto, In
+     * basso*).
+     * ⚠️ **Il difetto che toglie non era la subordinazione ma la SOLITUDINE del rientro**:
+     * una riga rientrata in una pagina dove nessun'altra lo è si legge come un errore di
+     * impaginazione prima che come una gerarchia. Un rientro dice qualcosa solo dove ce ne
+     * sono altri.
+     * ⚠️⚠️ **'Disattivata' NON è un terzo valore nei dati, ed è voluto**: sotto restano
+     * `infoVisible` e `infoPosition`, così spegnendo la barra e riaccendendola si ritrova il
+     * lato che si era scelto. Un enum a tre valori l'avrebbe dimenticato, e questa riga è
+     * proprio quella che si tocca per provare l'una e l'altra posizione.
+     */
+    Choices(
         label = stringResource(R.string.settings_info_visible),
         detail = null,
-        checked = settings.infoVisible,
-        onChange = { onChange(settings.copy(infoVisible = it)) }
-    )
-
-    /*
-     * ⚠️⚠️ **LA POSIZIONE STA SOTTO IL SUO INTERRUTTORE, dalla 1.20** (istruzione
-     * dell'utente, 2026-09-01: *la voce 'Barra delle info' ha già un interruttore:
-     * aggiungi una riga 'Posizione' riferita alla barra*). Prima viveva più in su, con un
-     * nome tutto suo ('Barra dei dettagli'), e la stessa cosa aveva due nomi in due punti
-     * della stessa pagina: chi spegneva l'una si domandava a che cosa servisse l'altra.
-     * ⚠️ **Si chiama 'Posizione' e basta**, senza ripetere di che cosa: sta attaccata alla
-     * riga che lo dice, e un titolo che ripete il titolo di sopra si legge come un'altra
-     * impostazione.
-     * ⚠️⚠️ **E DALLA 1.25 SI VEDE CHE È SUBORDINATA, invece di essere una riga come le altre**
-     * (riscontro dell'utente, 2026-09-02: *'Posizione' non dev'essere in grassetto, e dev'essere
-     * chiaro che è riferito alla riga sopra; 'In alto' e 'In basso' devono essere appoggiati a
-     * destra ma in linea con 'Posizione'*). Con [SubChoices] invece di [Choices]: il titolo
-     * perde il peso di un'impostazione a sé, rientra, e i due gettoni salgono sulla sua riga.
-     */
-    SubChoices(
-        label = stringResource(R.string.settings_info_position),
-        options = InfoPosition.entries,
-        selected = settings.infoPosition,
+        options = InfoChoice.entries,
+        selected = InfoChoice.of(settings),
         nameOf = {
             stringResource(
                 when (it) {
-                    InfoPosition.TOP -> R.string.settings_top
-                    InfoPosition.BOTTOM -> R.string.settings_bottom
+                    InfoChoice.OFF -> R.string.settings_off
+                    InfoChoice.TOP -> R.string.settings_top
+                    InfoChoice.BOTTOM -> R.string.settings_bottom
                 }
             )
         },
-        onSelect = { onChange(settings.copy(infoPosition = it)) }
+        onSelect = { onChange(it.applyTo(settings)) }
     )
 
     /*
@@ -498,21 +495,6 @@ private fun ColumnScope.RootPage(
         detail = stringResource(R.string.settings_anim_counter_desc),
         checked = settings.animCounter,
         onChange = { onChange(settings.copy(animCounter = it)) }
-    )
-
-    /*
-     * ⚠️⚠️ **QUESTA RIGA RIMETTE DUE VOCI CHE LA 1.25 HA TOLTO** (richiesta dell'utente,
-     * 2026-09-02), e sta qui insieme alle altre due che parlano di quello che si vede mentre
-     * si guarda una fotografia. ⚠️ **Spenta di fabbrica**: 'Adatta alla vista' e '100%' fanno
-     * quello che il doppio tocco fa già, e stavano in mezzo a comandi che agiscono sul file.
-     * La descrizione nomina il doppio tocco, perché una riga che dice solo 'rimetti due voci'
-     * non direbbe da che cosa si viene.
-     */
-    SwitchRow(
-        label = stringResource(R.string.settings_zoom_menu),
-        detail = stringResource(R.string.settings_zoom_menu_desc),
-        checked = settings.zoomInMenu,
-        onChange = { onChange(settings.copy(zoomInMenu = it)) }
     )
 
     PageRow(
@@ -946,6 +928,51 @@ private fun ZoomAndFit(settings: Settings, onChange: (Settings) -> Unit) {
         },
         onSelect = { onChange(settings.copy(scaleMode = it)) }
     )
+
+    /*
+     * ⚠️⚠️ **STA QUI DALLA 1.26, e nella 1.25 stava nella pagina principale**: è una
+     * correzione dell'utente (2026-09-02: *l'opzione relativa allo zoom va messa nella
+     * sotto-pagina 'Adattamento e zoom' delle impostazioni. Quando aggiungi un'impostazione
+     * nuova, attenzione a metterla nel posto giusto*). L'avevo messa accanto alla barra
+     * delle info perché parla di quello che si vede **sopra** l'immagine; ma parla di
+     * **zoom**, e questa è la pagina dello zoom: chi cerca un'impostazione la cerca per
+     * argomento, non per dove compare.
+     * ⚠️ **Spenta di fabbrica**: 'Adatta alla vista' e '100%' fanno quello che il doppio
+     * tocco fa già, e stavano in mezzo a comandi che agiscono sul file. La descrizione nomina
+     * il doppio tocco, perché una riga che dice solo 'rimetti due voci' non direbbe da che
+     * cosa si viene.
+     */
+    SwitchRow(
+        label = stringResource(R.string.settings_zoom_menu),
+        detail = stringResource(R.string.settings_zoom_menu_desc),
+        checked = settings.zoomInMenu,
+        onChange = { onChange(settings.copy(zoomInMenu = it)) }
+    )
+}
+
+/**
+ * Le tre scelte della barra delle info come le vede chi guarda le impostazioni.
+ *
+ * ⚠️⚠️ **È una vista e non un dato**: sotto restano `infoVisible` e `infoPosition`, e la
+ * ragione sta nella riga che la usa. Vive qui e non in `Settings.kt` perché non è un valore
+ * salvato: è il modo in cui questa pagina presenta due valori che restano due.
+ */
+private enum class InfoChoice(override val token: String) : Choice {
+    OFF("off"), TOP("top"), BOTTOM("bottom");
+
+    fun applyTo(settings: Settings): Settings = when (this) {
+        OFF -> settings.copy(infoVisible = false)
+        TOP -> settings.copy(infoVisible = true, infoPosition = InfoPosition.TOP)
+        BOTTOM -> settings.copy(infoVisible = true, infoPosition = InfoPosition.BOTTOM)
+    }
+
+    companion object {
+        fun of(settings: Settings): InfoChoice = when {
+            !settings.infoVisible -> OFF
+            settings.infoPosition == InfoPosition.TOP -> TOP
+            else -> BOTTOM
+        }
+    }
 }
 
 @Composable
@@ -1129,62 +1156,6 @@ private fun <T : Choice> Choices(
         }
     }
 }
-
-/**
- * Una scelta **subordinata alla riga di sopra**: titolo leggero e rientrato a sinistra,
- * gettoni appoggiati a destra sulla sua stessa riga.
- *
- * ⚠️⚠️ **NON È [Choices] CON UN'ALTRA VESTE, e le due non si fondono**: quella è una
- * impostazione a sé, con un titolo del peso degli altri e i gettoni sotto, perché due delle
- * sue righe portano etichette lunghe una frase e su uno schermo stretto devono andare a capo.
- * Questa è il **parametro** di quella sopra, e per dirlo deve costare poco: un titolo che pesa
- * come gli altri afferma di essere un'altra impostazione, ed era esattamente il difetto.
- * ⚠️ **I gettoni stanno in una `FlowRow` e non in una `Row`**: in linea ci vanno perché sono
- * due e corti, ma in una lingua che li scrive lunghi devono poter andare a capo invece di
- * uscire dallo schermo. Il titolo prende il peso della riga, quindi si stringe per primo e
- * lascia il posto a loro.
- */
-@Composable
-private fun <T : Choice> SubChoices(
-    label: String,
-    options: List<T>,
-    selected: T,
-    nameOf: @Composable (T) -> String,
-    onSelect: (T) -> Unit
-) {
-    val names = options.map { nameOf(it) }
-    if (!shown(label, null, *names.toTypedArray())) return
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(start = SUB_INDENT, top = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.weight(1f)
-        )
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) {
-            options.forEachIndexed { at, option ->
-                FilterChip(
-                    selected = option == selected,
-                    onClick = { onSelect(option) },
-                    label = { Text(names[at]) }
-                )
-            }
-        }
-    }
-}
-
-/**
- * Di quanto rientra una riga subordinata.
- *
- * ⚠️ **Un rientro e non un filetto o un riquadro**: sono tre modi di dire 'questa dipende da
- * quella', e il rientro è il solo che non aggiunge un segno grafico a una pagina che l'utente
- * ha già chiesto di alleggerire.
- */
-private val SUB_INDENT = 16.dp
 
 @Composable
 private fun SwitchRow(

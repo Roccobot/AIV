@@ -86,11 +86,11 @@
     <string name="settings_scale_desc">तय करता है कि वास्तविक पिक्सेल पर ज़ूम करने का क्या अर्थ है। किसी भी आधुनिक उपकरण की स्क्रीन हर तार्किक पिक्सेल को दो या तीन वास्तविक पिक्सेल के वर्ग से बनाती है। पहला विकल्प तार्किक पिक्सेल को अनदेखा करके हर बिंदु को एक वास्तविक पिक्सेल पर रखता है; दूसरा हर वस्तु को उस माप में दिखाता है जो उसे किसी वेब पृष्ठ पर मिलती।</string>
     <string name="settings_top">ऊपर</string>
     <string name="settings_bottom">नीचे</string>
+    <string name="settings_off">बंद</string>
     <string name="settings_info_visible">जानकारी पट्टी</string>
-    <string name="settings_info_position">स्थान</string>
     <string name="settings_zoom_menu">व्यूअर मेन्यू में ज़ूम</string>
     <string name="settings_zoom_menu_desc">\'स्क्रीन में समाएँ\' और \'100%\' को देर तक दबाने वाले मेन्यू में वापस लाता है। बंद है, क्योंकि चित्र पर दो बार टैप करने से यही होता है।</string>
-    <string name="hint_zoom_tap">चित्र पर दो बार टैप करें: मौजूदा ज़ूम से 100% या स्क्रीन में समाने वाले आकार पर, बारी-बारी से।</string>
+    <string name="hint_zoom_tap">तेज़ ज़ूम: छवि पर दो बार टैप करें ताकि वह दृश्य में समा जाए, फिर दो बार टैप करने पर असली पिक्सेल दिखेंगे. टैप करते रहें और समाई हुई तथा 100% के बीच बदलते रहें.</string>
     <string name="settings_anim_counter">फ़्रेम काउंटर</string>
     <string name="settings_anim_counter_desc">चलती छवियों की नियंत्रण पट्टी में दिखता है।</string>
     <string name="settings_reverse_order">सबसे पुरानी से दाईं ओर छवियाँ पलटें</string>

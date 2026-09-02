@@ -32,6 +32,22 @@ un collegamento nuovo a ogni giro vuol dire un documento da ritrovare ogni volta
 ⚠️ **Non si fondono**, per quanto si somiglino: la ragione sta in `rules/Roccobot.md`,
 § '🧾 Il changelog, il terzo pezzo di ogni rilascio'.
 
+## 🗣️ Come si chiamano le cose
+
+⚠️⚠️ **'IMMAGINE' E NON 'FOTOGRAFIA', e non è una sfumatura di stile** (correzione
+dell'utente, 2026-09-02, su una mia frase nel documento di collaudo: *'Fotografia' usato in
+modo improprio*). Questa app apre GIF, WebP animate, PNG con trasparenza, tavole, scansioni,
+schermate: **una fotografia è un caso particolare di immagine**, e chiamare tutto
+'fotografia' esclude a parole metà di quello che il visualizzatore fa. Vale per i testi
+dell'interfaccia, per i commenti del codice, per le voci del collaudo e per le risposte in
+chat.
+
+- **Quando 'fotografia' è invece la parola giusta**: quando si parla davvero di uno scatto,
+  cioè di dati EXIF, di tempi e diaframmi, del sensore, della galleria del telefono.
+- ⚠️ **Le stringhe dell'interfaccia erano già a posto** (misurato il 2026-09-02: nessuna
+  occorrenza in `values/` né in `values-it/`), quindi il difetto vive nella **prosa**, che è
+  il posto in cui nessun verificatore lo guarda.
+
 ## 🚀 Che cosa produce un rilascio
 
 **Tre cose, e vanno insieme**: il numero di **versione**, le voci nuove nel **collaudo**, e le

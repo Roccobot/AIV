@@ -86,11 +86,11 @@
     <string name="settings_scale_desc">Legt fest, was der Zoom auf echte Pixel bedeutet. Der Bildschirm jedes modernen Geräts zeichnet jedes logische Pixel als Quadrat aus zwei oder drei echten Pixeln. Die erste Wahl ignoriert die logischen Pixel und bildet jeden Punkt auf ein echtes Pixel ab; die zweite zeigt jedes Objekt in der Größe, die es auf einer Webseite hätte.</string>
     <string name="settings_top">Oben</string>
     <string name="settings_bottom">Unten</string>
+    <string name="settings_off">Aus</string>
     <string name="settings_info_visible">Infoleiste</string>
-    <string name="settings_info_position">Position</string>
     <string name="settings_zoom_menu">Zoom im Menü des Betrachters</string>
     <string name="settings_zoom_menu_desc">Stellt \'An die Ansicht anpassen\' und \'100%\' wieder in das Menü der langen Berührung. Aus, weil ein Doppeltippen auf das Bild das schon macht.</string>
-    <string name="hint_zoom_tap">Doppelt auf das Bild tippen, um vom aktuellen Zoom auf 100% oder auf die passende Größe zu wechseln, immer der Reihe nach.</string>
+    <string name="hint_zoom_tap">Schnellzoom: Doppeltippen passt das Bild an die Ansicht an, noch einmal zeigt echte Pixel. Weiter tippen wechselt zwischen angepasst und 100%.</string>
     <string name="settings_anim_counter">Bildzähler</string>
     <string name="settings_anim_counter_desc">Erscheint in der Steuerleiste animierter Bilder.</string>
     <string name="settings_reverse_order">Bilder nach rechts vom ältesten an durchblättern</string>

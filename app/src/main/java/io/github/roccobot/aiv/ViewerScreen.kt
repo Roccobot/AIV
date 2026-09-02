@@ -3047,7 +3047,18 @@ private fun NameLine(name: String) {
  * apparenti', e fra i due estremi si prende quello che si vede, perché due punti su uno
  * schermo a tre volte sono sei pixel fisici, cioè al limite del percepibile.
  */
-private const val NAME_FADE = 0.65f
+/**
+ * Quanto è spento il nome del file in testa alla barra.
+ *
+ * ⚠️ **Sceso tre volte in tre versioni**, e la scala è quella: 0.74 nella `1.23`, **0.65**
+ * nella `1.25` e **0.52** nella `1.26` (riscontro dell'utente, 2026-09-02: *forse il nome mi
+ * piacerà di più con ancora meno opacità, diminuisci di un altro 20%*). Il numero è quello
+ * di prima meno un quinto, cioè la richiesta presa alla lettera e non a occhio.
+ * ⚠️ **Sotto di qui c'è un limite vero**: 0.38 è il velo che Material mette sui comandi
+ * spenti, e un testo che lo raggiunge smette di dire 'sono secondario' e dice 'sono
+ * disattivato'. Da qui a là restano due gradini come questo.
+ */
+private const val NAME_FADE = 0.52f
 private val NAME_GAP = 3.dp
 
 /**

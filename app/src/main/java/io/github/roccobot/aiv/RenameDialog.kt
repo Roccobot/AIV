@@ -1,16 +1,20 @@
 package io.github.roccobot.aiv
 
 import android.net.Uri
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -20,11 +24,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 /**
@@ -133,11 +141,7 @@ fun RenameDialog(
                     )
                     Spacer(Modifier.height(4.dp))
                     for (row in previewOf(listed, clean, first)) {
-                        Text(
-                            text = row,
-                            style = MaterialTheme.typography.bodySmall,
-                            maxLines = 2
-                        )
+                        PreviewRow(row)
                     }
                 }
             }
@@ -161,18 +165,100 @@ fun RenameDialog(
  * cifre del template bastano: con `##` e centoventi file, la riga finale dice `120` e si
  * capisce al volo che i nomi non si ordineranno come ci si aspetta.
  */
-private fun previewOf(names: List<String>, template: String, start: Int): List<String> {
+private fun previewOf(names: List<String>, template: String, start: Int): List<Pairing> {
     if (names.isEmpty()) return emptyList()
-    val rows = ArrayList<String>(5)
+    val rows = ArrayList<Pairing>(5)
     val head = minOf(names.size, 3)
     for (at in 0 until head) rows += pairing(names[at], template, start + at)
-    if (names.size > head + 1) rows += "..."
+    if (names.size > head + 1) rows += Pairing(null, null)
     if (names.size > head) rows += pairing(names.last(), template, start + names.lastIndex)
     return rows
 }
 
-/** Un nome di adesso e quello di dopo, sulla stessa riga. */
-private fun pairing(name: String, template: String, number: Int): String {
+/**
+ * Un nome di adesso e quello di dopo. Con tutti e due a `null` è la riga dei puntini, cioè
+ * il buco fra i primi tre abbinamenti e l'ultimo.
+ */
+private data class Pairing(val before: String?, val after: String?)
+
+private fun pairing(name: String, template: String, number: Int): Pairing {
     val extension = name.substringAfterLast('.', "")
-    return "$name  ->  ${renderName(template, number, extension)}"
+    return Pairing(name, renderName(template, number, extension))
+}
+
+/**
+ * Una riga dell'anteprima: due pastiglie di colore diverso, con la freccia in mezzo.
+ *
+ * ⚠️⚠️ **PRIMA ERA UNA STRINGA SOLA** (`vecchio  ->  nuovo`) e i due nomi si confondevano
+ * (riscontro dell'utente, 2026-09-02: *stavo pensando ad un modo per differenziare meglio e
+ * far saltare all'occhio nome vecchio VS nome nuovo*). Adesso ognuno sta nella sua
+ * pastiglia: quella di sinistra è **spenta**, perché è il nome che se ne va, e quella di
+ * destra è **accesa** col colore del contenitore secondario, perché è il risultato, che è la
+ * sola cosa che si sta decidendo.
+ * ⚠️ **Le due pastiglie hanno lo stesso peso** (`weight(1f)` a testa) e non si stringono a
+ * seconda del testo: nomi di lunghezza diversa farebbero ballare la freccia da una riga
+ * all'altra, e cinque righe di anteprima diventerebbero cinque colonne disallineate.
+ * ⚠️ **Due righe per pastiglia**, come chiesto: un nome lungo va a capo dentro la sua
+ * invece di essere tagliato al primo giro.
+ */
+@Composable
+private fun PreviewRow(row: Pairing) {
+    if (row.before == null || row.after == null) {
+        Text(
+            text = "...",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(vertical = 2.dp)
+        )
+        return
+    }
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        NamePill(
+            text = row.before,
+            back = MaterialTheme.colorScheme.surfaceVariant,
+            front = MaterialTheme.colorScheme.onSurfaceVariant,
+            weight = FontWeight.Normal,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            // ⚠️ La freccia vera e non `->` (richiesta dell'utente, 2026-09-02): due segni di
+            // interpunzione che fanno finta di essere una freccia si leggono come tali solo
+            // dopo averli guardati, e qui il verso è tutto il senso della riga.
+            text = "→",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        NamePill(
+            text = row.after,
+            back = MaterialTheme.colorScheme.secondaryContainer,
+            front = MaterialTheme.colorScheme.onSecondaryContainer,
+            weight = FontWeight.Medium,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+private fun NamePill(
+    text: String,
+    back: Color,
+    front: Color,
+    weight: FontWeight,
+    modifier: Modifier = Modifier
+) {
+    Surface(color = back, shape = MaterialTheme.shapes.small, modifier = modifier) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodySmall,
+            color = front,
+            fontWeight = weight,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+        )
+    }
 }

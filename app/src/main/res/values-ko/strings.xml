@@ -86,11 +86,11 @@
     <string name="settings_scale_desc">실제 픽셀 확대가 무엇을 뜻하는지 정합니다. 요즘 기기의 화면은 논리 픽셀 하나를 실제 픽셀 두세 개의 사각형으로 그립니다. 첫 번째 선택은 논리 픽셀을 무시하고 모든 점을 실제 픽셀 하나에 대응시키며, 두 번째는 웹 페이지에서 가질 크기로 모든 대상을 보여 줍니다.</string>
     <string name="settings_top">위쪽</string>
     <string name="settings_bottom">아래쪽</string>
+    <string name="settings_off">끄기</string>
     <string name="settings_info_visible">정보 표시줄</string>
-    <string name="settings_info_position">위치</string>
     <string name="settings_zoom_menu">뷰어 메뉴의 확대</string>
     <string name="settings_zoom_menu_desc">\'화면에 맞추기\'와 \'100%\'를 길게 누르기 메뉴에 되돌립니다. 사진을 두 번 누르면 같은 일이 일어나므로 기본은 꺼짐입니다.</string>
-    <string name="hint_zoom_tap">사진을 두 번 누르면 현재 배율에서 100%, 화면에 맞춘 크기로 차례로 바뀝니다.</string>
+    <string name="hint_zoom_tap">빠른 확대: 이미지를 두 번 누르면 화면에 맞추고, 다시 두 번 누르면 실제 픽셀로 봅니다. 계속 누르면 맞춤과 100%를 오갑니다.</string>
     <string name="settings_anim_counter">프레임 카운터</string>
     <string name="settings_anim_counter_desc">움직이는 이미지의 제어 막대에 표시됩니다.</string>
     <string name="settings_reverse_order">오래된 것부터 오른쪽으로 이미지 넘기기</string>
