@@ -106,17 +106,18 @@ fun Identity(
  * col glifo un quarto più grande di quello vero (segnalazione dell'utente: *è rimasta
  * quella sbagliata, voglio che entrambe appaiano come nel launcher*).
  * ⚠️ **I numeri, perché nessuno debba rifare la misura**: sull'icona del launcher il
- * glifo occupa **0.4398** del lato della maschera in larghezza e **0.5759** in altezza.
+ * glifo occupava **0.4398** del lato della maschera in larghezza e **0.5759** in altezza.
  * I 72dp centrali senza alcun ingrandimento ne prevedono **0.4436** e **0.5819**, cioè
  * uno scarto dell'**1%**; l'ipotesi del 1.3 ne prevede 0.5767 e 0.7565, cioè uno scarto
  * del **24%**. Non è un dubbio fra due letture vicine: una delle due è fuori di un
  * quarto.
- * ⚠️⚠️ **MA IL DRAWABLE NON SI TOCCA, e la distinzione è tutta**: quel `1.3` vive anche
- * nella scala del disegno (`ic_launcher_foreground.xml`), dove significa un glifo più
- * piccolo del massimo teorico. Là è **il risultato che l'utente ha dichiarato perfetto**,
- * quindi resta; qui era un divario da colmare che non esiste, quindi esce. Chi
- * 'uniformasse' i due posti rimpicciolirebbe l'icona sul telefono per far tornare un
- * conto.
+ * ⚠️⚠️ **QUEL `1.3` NON VIVE PIÙ DA NESSUNA PARTE, e fino alla 1.32 questa nota diceva
+ * il contrario**: stava nella scala di `ic_launcher_foreground.xml`, dove valeva come
+ * preferenza di misura dell'utente sul glifo di allora, e la nota qui avvisava di non
+ * 'uniformare' i due posti. Col disegno nuovo del 2026-09-02 quel drawable è stato
+ * riscritto e la sua scala ha un'altra ragione, dichiarata là: **2/3**, cioè `72/108`,
+ * perché il master arrivava composto per una piastrella piena. Qui invece niente cambia,
+ * e la ragione per cui questa costante vale 1.5 è la stessa di prima.
  */
 private const val LAUNCHER_ZOOM = 1.5f
 
