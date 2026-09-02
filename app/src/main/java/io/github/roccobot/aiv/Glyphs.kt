@@ -3,6 +3,7 @@ package io.github.roccobot.aiv
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.graphics.vector.path
@@ -11,60 +12,67 @@ import androidx.compose.ui.unit.dp
 /**
  * Le icone che Material non ha.
  *
- * ⚠️⚠️ **SEI DELLE SETTE LE HA DISEGNATE L'UTENTE** (le tre del riquadro dalla `0.81`, *ecco
- * le icone ridisegnate come le volevo*, e le tre della selezione dalla `1.01`), e questo file
- * le **trasporta** invece di interpretarle: tracciati pieni in una griglia 24x24, arrivati
- * come SVG e copiati qui **verbatim** nella loro forma compatta. Fino alla `0.80` le prime
- * tre erano provvisorie, disegnate qui a tratti e curve dietro sua richiesta di provare: quel
- * codice (rettangoli stondati, spezzate, dischi, e un tratteggio calcolato trattino per
- * trattino) è sparito con loro, ed è la ragione per cui questo file è un terzo di quello che
- * era.
- * ⚠️ **Il tracciato è il disegno, e non c'è una seconda copia**: gli SVG di Illustrator
- * portano 220 KB di metadati suoi che in un repo di codice non servono, mentre la `d` che sta
- * qui, incollata in qualunque visualizzatore SVG dentro un `<path>`, ridà l'icona identica.
- * ⚠️ **Le lettere di comando spezzano le righe e nient'altro**: ogni riga è un
- * sottotracciato, e la loro concatenazione è **esattamente** la stringa dell'SVG. Chi la
- * ricompone la può confrontare col file originale carattere per carattere.
+ * ⚠️⚠️ **LE HA DISEGNATE L'UTENTE, e otto sono state RIDISEGNATE INSIEME il
+ * 2026-09-02**: arrivano in `dev/glifi/` con un brief che ne dichiara la **grammatica comune**,
+ * ed è quella la cosa nuova. Prima erano nate a scaglioni (le tre del riquadro dalla `0.81`, le
+ * tre della selezione dalla `1.01`, le due dell'allineamento dalla `1.21`), ognuna col suo
+ * criterio: piene, in griglie diverse, senza un tratto condiviso.
+ * ⚠️ **La grammatica, da applicare a ogni glifo futuro della famiglia**: tratto **1,8** con
+ * capi e giunti tondi e niente sotto quel valore; la coppia copia/sposta è una **staffa a L a
+ * due tratti** dietro, non una seconda forma cava; la forma davanti è piena (cartella) o
+ * contornata (lastra immagine), **mai entrambe cave**, perché a 24px il contorno interno si
+ * chiude; copiare contro spostare è staffa continua contro **tratteggiata**; le tre voci di
+ * selezione condividono **un solo riquadro** e si distinguono per il segno dentro.
  *
- * ⚠️ **Il cursore di testo resta disegnato qui**, ed è l'unico: l'utente l'ha approvato
- * (*adesso è perfetta*) e Material non ha niente che gli somigli (la cosa più vicina è la
- * matita di `Icons.Default.Edit`, che dice 'modifica' e non 'rinomina').
+ * ⚠️⚠️ **QUESTA FAMIGLIA NON È UN TRASPORTO VERBATIM, e la differenza va saputa perché la
+ * nota che stava qui prometteva il contrario.** I file dell'utente usano `<rect rx>`, `<circle>`
+ * e `stroke-dasharray`, e nessuno dei tre esiste in un tracciato di Compose: il primo e il
+ * secondo diventano archi, il terzo diventa **sei segmenti separati**. Quindi la `d` che sta qui
+ * non si confronta più carattere per carattere con la sorgente, e al suo posto c'è una
+ * **misura**: le due versioni rese in Chromium a 240px (dieci volte la griglia) e confrontate
+ * pixel per pixel dànno da 0 a 25 pixel di scarto su 57.600, con il massimo su
+ * `folder-pair-dashed`, che è il glifo dove i trattini vanno ricostruiti a mano.
+ * ⚠️ **I pezzi condivisi stanno in una costante ognuno** ([BRACKET_SIDE], [BRACKET_FOOT],
+ * [PICK_FRAME], [FOLDER]), e questo prima era vietato apposta: la ragione di allora era tenere
+ * la concatenazione delle righe identica alla `d` del file, e con un `addPath` per `<path>` quel
+ * confronto non passa più da una concatenazione. Il guadagno è che il segno di famiglia si vede
+ * nel codice invece di essere ripetuto quattro volte.
+ *
+ * ⚠️ **Il cursore di testo resta come era, ed è l'unico**: il brief lo dichiara esplicitamente
+ * fuori dal giro (*il nono, `text-cursor`, non è toccato*). L'utente l'aveva approvato (*adesso
+ * è perfetta*) e Material non ha niente che gli somigli (la cosa più vicina è la matita di
+ * `Icons.Default.Edit`, che dice 'modifica' e non 'rinomina').
  * ⚠️ Chi volesse aggiungere qui un glifo che Material ha già sta duplicando un disegno
  * mantenuto da altri, e prima o poi i due divergeranno.
  *
  * ⚠️ **Il colore dichiarato è nero e non è un difetto**: `Icon` disegna il vettore con un
- * `ColorFilter.tint`, quindi la tinta che si vede è quella passata a `Icon` e questa non si
- * vede mai. È la stessa convenzione delle icone di Material, che dichiarano tutte nero.
+ * `ColorFilter.tint`, quindi la tinta che si vede è quella passata a `Icon` e questa non si vede
+ * mai. È la stessa convenzione delle icone di Material, che dichiarano tutte nero.
  */
 object Glyphs {
 
     /**
      * Il cursore di testo, cioè la I con le due lineette.
      *
-     * ⚠️ **Di tratto e non di pieno**, a differenza delle altre tre del riquadro: è l'unica
-     * fatta di aria, ed è il baratto dichiarato quando l'utente l'ha scelta. Lo spessore è 2,
-     * come le altre a 24dp, così non sembra più leggera.
-     * ⚠️ **Le estremità sono tonde** (`StrokeCap.Round`): a spigolo vivo, a 24dp, i tre
-     * tratti sembrano tagliati da una lama e l'insieme perde il richiamo al cursore.
+     * ⚠️ **Di tratto e non di pieno**: è l'unica fatta di aria, ed è il baratto dichiarato
+     * quando l'utente l'ha scelta. Lo spessore è [CURSOR_STROKE] e **non** l'1,8 della famiglia
+     * nuova, perché il brief del 2026-09-02 lo lascia fuori dal ridisegno: la nota che diceva
+     * 'come le altre' è superata, le altre ora sono più sottili di lui.
+     * ⚠️ **Le estremità sono tonde** (`StrokeCap.Round`): a spigolo vivo, a 24dp, i tre tratti
+     * sembrano tagliati da una lama e l'insieme perde il richiamo al cursore.
      *
      * ⚠️⚠️ **LE DUE LINEETTE RIENTRANO VERSO IL CENTRO**, richiesta dell'utente (*un accenno
-     * di rientranza sopra e sotto al centro delle lineette orizzontali, appena
-     * percettibile*): è la forma della I maiuscola dei caratteri con le grazie, ed è ciò che
-     * distingue un cursore di testo da una I stampatello. La rientranza vale [NOTCH] unità
-     * di griglia su 24, cioè un trentesimo dell'icona: a densità 2,75 sono due pixel scarsi,
-     * che è esattamente il 'appena percettibile' chiesto.
+     * di rientranza sopra e sotto al centro delle lineette orizzontali, appena percettibile*):
+     * è la forma della I maiuscola dei caratteri con le grazie, ed è ciò che distingue un cursore
+     * di testo da una I stampatello. La rientranza vale [NOTCH] unità di griglia su 24, cioè un
+     * trentesimo dell'icona: a densità 2,75 sono due pixel scarsi, che è esattamente il 'appena
+     * percettibile' chiesto.
      */
     val TextCursor: ImageVector by lazy {
-        ImageVector.Builder(
-            name = "TextCursor",
-            defaultWidth = SIZE,
-            defaultHeight = SIZE,
-            viewportWidth = GRID,
-            viewportHeight = GRID
-        ).apply {
+        glifo("TextCursor") {
             path(
                 stroke = SolidColor(Color.Black),
-                strokeLineWidth = STROKE,
+                strokeLineWidth = CURSOR_STROKE,
                 strokeLineCap = StrokeCap.Round
             ) {
                 // La lineetta in alto, che si incurva verso il basso.
@@ -74,179 +82,263 @@ object Glyphs {
                 moveTo(9f, 20f)
                 quadTo(12f, 20f - PULL, 15f, 20f)
                 // ⚠️⚠️ L'asta si ferma sul VENTRE della curva, non sui 4 e sui 20 dove
-                // stanno le punte delle lineette: lassù sporgerebbe oltre la rientranza e
-                // il glifo diventerebbe una farfalla. Provato disegnandolo, perché a
-                // leggerlo sembrava indifferente. ⚠️ La capocchia tonda sporge di mezzo
-                // spessore, cioè di 1, e va a coincidere col bordo esterno del tratto
-                // della lineetta: è per questo che i due si saldano senza gradino.
+                // stanno le punte delle lineette: lassù sporgerebbe oltre la rientranza e il
+                // glifo diventerebbe una farfalla. Provato disegnandolo, perché a leggerlo
+                // sembrava indifferente. ⚠️ La capocchia tonda sporge di mezzo spessore, cioè
+                // di 1, e va a coincidere col bordo esterno del tratto della lineetta: è per
+                // questo che i due si saldano senza gradino.
                 moveTo(12f, 4f + NOTCH)
                 verticalLineTo(20f - NOTCH)
             }
-        }.build()
+        }
     }
 
     /**
-     * Due fogli sovrapposti, quello davanti con montagne e sole: 'Copia immagine'.
+     * Due lastre sovrapposte, quella davanti con montagne e sole: 'Copia immagine'.
      *
      * ⚠️ Il **sole** è la ragione per cui questo glifo esiste invece di
      * `Icons.Outlined.PhotoLibrary`: nessuna icona-immagine di Material ha il disco del sole
-     * (verificato sui sorgenti di `image`, `photo`, `photo_library` e `collections`, che
-     * portano la stessa spezzata a due cime e nessun disco), e la richiesta dell'utente lo
-     * nominava.
+     * (verificato sui sorgenti di `image`, `photo`, `photo_library` e `collections`, che portano
+     * la stessa spezzata a due cime e nessun disco), e la richiesta dell'utente lo nominava.
+     * ⚠️ **La lastra davanti è CONTORNATA e non piena**, mentre nella coppia delle cartelle la
+     * forma davanti è piena: è la regola della famiglia, e serve a distinguere le due coppie a
+     * colpo d'occhio quando stanno nello stesso menu.
      */
-    val PhotoPair: ImageVector by lazy { filled("PhotoPair", COPY_IMAGE) }
+    val PhotoPair: ImageVector by lazy {
+        glifo("PhotoPair") {
+            tratto("M3.2 16.6V5.4A2.2 2.2 0 0 1 5.4 3.2h11.2")
+            tratto(
+                "M10,7.6 H18.4 A2.4,2.4 0 0 1 20.8,10 V18.4 A2.4,2.4 0 0 1 18.4,20.8 H10" +
+                    " A2.4,2.4 0 0 1 7.6,18.4 V10 A2.4,2.4 0 0 1 10,7.6 Z"
+            )
+            pieno("M10,11.7 A1.7,1.7 0 0 1 13.4,11.7 A1.7,1.7 0 0 1 10,11.7 Z")
+            pieno("M9.2 18.6 L12.6 13.7 L15.1 17 L16.7 14.9 L19.2 18.6 Z")
+        }
+    }
 
     /**
      * Una matita dentro un riquadro: 'Modifica'.
      *
      * ⚠️⚠️ **DISEGNATA DALL'UTENTE, dalla 1.29, e sostituisce `Icons.Outlined.Edit`**: la
-     * matita nuda di Material diceva 'modifica' e non 'modifica un'immagine', e nel menu
-     * stava accanto a due voci che il riquadro ce l'hanno. Il riquadro è il segno di
-     * famiglia, come le due cartelle sovrapposte lo sono di 'Copia' e 'Sposta'.
-     * ⚠️ **DUE tracciati e non uno**, ed è la prima volta che capita: il file ne porta tre,
-     * di cui uno è il rettangolo trasparente con cui Illustrator dichiara la tela e che qui
-     * non serve. La nota su [filled] lo prevedeva, e la via è `addPath` per ognuno.
+     * matita nuda di Material diceva 'modifica' e non 'modifica un'immagine', e nel menu stava
+     * accanto a due voci che il riquadro ce l'hanno. Il riquadro è il segno di famiglia, come le
+     * due cartelle sovrapposte lo sono di 'Copia' e 'Sposta'.
+     * ⚠️ **Resta PIENA**, e non è stata ridisegnata col giro del 2026-09-02: quel brief nomina
+     * otto glifi e questo non è fra loro.
      */
-    val ImageEdit: ImageVector by lazy { filled("ImageEdit", EDIT_FRAME, EDIT_PENCIL) }
+    val ImageEdit: ImageVector by lazy {
+        glifo("ImageEdit") {
+            pieno(EDIT_FRAME)
+            pieno(EDIT_PENCIL)
+        }
+    }
 
     /**
      * Due frecce opposte dentro un riquadro: 'Esporta/Converti'.
      *
      * ⚠️⚠️ **DISEGNATA DALL'UTENTE, dalla 1.29, e sostituisce `Icons.Outlined.SwapHoriz`**:
-     * quelle erano due frecce nude, cioè 'scambia', che è quello che fa un convertitore ma
-     * non dice su che cosa. Col riquadro dice su un'immagine, e sta in fila con le altre due.
+     * quelle erano due frecce nude, cioè 'scambia', che è quello che fa un convertitore ma non
+     * dice su che cosa. Col riquadro dice su un'immagine, e sta in fila con le altre due.
      */
-    val ImageConvert: ImageVector by lazy { filled("ImageConvert", CONVERT) }
+    val ImageConvert: ImageVector by lazy {
+        glifo("ImageConvert") { pieno(CONVERT) }
+    }
 
-    /** Due cartelle sovrapposte: 'Copia'. */
-    val FolderPair: ImageVector by lazy { filled("FolderPair", COPY) }
-
-    /**
-     * Due cartelle sovrapposte con quella dietro **tratteggiata**: 'Sposta'.
-     *
-     * ⚠️ Il tratteggio sta sulla cartella **di dietro** e non su quella davanti, e il verso
-     * conta: spostare vuol dire che l'originale non resta dov'era, quindi la cartella che si
-     * svuota è quella da cui si parte, cioè quella in fondo.
-     * ⚠️⚠️ **I TRATTINI SONO PEZZI DI TRACCIATO, e non un tratteggio**: un vettore di Android
-     * non ha un `stroke-dasharray`, quindi non esiste altro modo. Qui non si vede perché
-     * l'icona è **piena** e i trattini sono già cinque dei suoi sette sottotracciati: fino
-     * alla `0.80`, che li disegnava di tratto, li calcolava una funzione apposta.
-     */
-    val FolderPairDashed: ImageVector by lazy { filled("FolderPairDashed", MOVE) }
+    /** Una cartella davanti alla staffa a L: 'Copia'. */
+    val FolderPair: ImageVector by lazy {
+        glifo("FolderPair") {
+            tratto(BRACKET_SIDE)
+            tratto(BRACKET_FOOT)
+            pieno(FOLDER)
+        }
+    }
 
     /**
-     * Un foglio dietro a un riquadro con **due spunte**: 'Seleziona tutto'.
+     * La stessa cartella, con la staffa dietro **tratteggiata**: 'Sposta'.
      *
-     * ⚠️ Due spunte e non una: una sola vuol dire 'questo è scelto', due vogliono dire
-     * 'tutti'. Il glifo di Material che stava qui prima (`SelectAll`) era invece un
-     * rettangolo tratteggiato, cioè il gesto del riquadro di selezione col mouse, che su un
-     * telefono non esiste.
+     * ⚠️ Il tratteggio sta sulla staffa **di dietro** e non sulla cartella davanti, e il verso
+     * conta: spostare vuol dire che l'originale non resta dov'era, quindi quello che si svuota è
+     * il posto da cui si parte, cioè quello in fondo.
+     * ⚠️⚠️ **I TRATTINI SONO SEI SEGMENTI, e non un tratteggio**: un tracciato di Compose non
+     * ha `stroke-dasharray`, quindi non esiste altra via. Il file dell'utente li dichiara con
+     * `2.8 2.6`, e i sei pezzi qui sotto sono quel conto svolto: è il glifo con lo scarto più
+     * alto della famiglia (25 pixel su 57.600), tutto sulle estremità tonde dei trattini.
      */
-    val PickAll: ImageVector by lazy { filled("PickAll", PICK_ALL) }
-
-    /** Un foglio dietro a un riquadro con una **croce**: 'Annulla selezione'. */
-    val PickNone: ImageVector by lazy { filled("PickNone", PICK_NONE) }
+    val FolderPairDashed: ImageVector by lazy {
+        glifo("FolderPairDashed") {
+            tratto("M3.4,7.6 L3.4,10.4")
+            tratto("M3.4,13 L3.4,15.8")
+            tratto("M3.4,18.4 L3.4,18.6")
+            tratto("M3.4,18.6 L6.2,18.6")
+            tratto("M8.8,18.6 L11.6,18.6")
+            tratto("M14.2,18.6 L16.4,18.6")
+            pieno(FOLDER)
+        }
+    }
 
     /**
-     * Un foglio dietro a un riquadro con **due frecce che girano**: 'Inverti selezione'.
+     * Il riquadro della selezione con **due spunte**: 'Seleziona tutto'.
      *
-     * ⚠️ Sostituisce `SwapHoriz` della `0.94`, cioè due frecce affiancate: quelle dicono
-     * 'scambia due cose' e non 'ribalta la scelta', ed era la sola delle dieci su cui avevo
-     * dichiarato un dubbio all'utente.
+     * ⚠️ Due spunte e non una: una sola vuol dire 'questo è scelto', due vogliono dire 'tutti'.
+     * Il glifo di Material che stava qui prima (`SelectAll`) era invece un rettangolo
+     * tratteggiato, cioè il gesto del riquadro di selezione col mouse, che su un telefono non
+     * esiste.
      */
-    val PickInvert: ImageVector by lazy { filled("PickInvert", PICK_INVERT) }
+    val PickAll: ImageVector by lazy {
+        glifo("PickAll") {
+            tratto(BRACKET_SIDE)
+            tratto(BRACKET_FOOT)
+            tratto(PICK_FRAME)
+            tratto("M10.2 9.6l2.4 2.4 5-5.2")
+            tratto("M10.2 14.8l2.4 2.4 5-5.2")
+        }
+    }
+
+    /** Il riquadro della selezione con una **croce**: 'Annulla selezione'. */
+    val PickNone: ImageVector by lazy {
+        glifo("PickNone") {
+            tratto(BRACKET_SIDE)
+            tratto(BRACKET_FOOT)
+            tratto(PICK_FRAME)
+            tratto("M11 7.8l7 7.6M18 7.8l-7 7.6")
+        }
+    }
 
     /**
-     * Una cornice con le montagne e una freccia che ne esce: 'Esporta il fotogramma'.
+     * Il riquadro della selezione **mezzo pieno in diagonale**: 'Inverti selezione'.
      *
-     * ⚠️ **Sostituisce `Icons.Outlined.AddPhotoAlternate`, che l'utente aveva chiesto come
-     * base e poi ridisegnato**: quella dice 'aggiungi una fotografia a una raccolta', cioè il
-     * verso opposto. Qui il verso è tutto: il fotogramma **esce** dall'animazione e diventa un
-     * file a sé, e la freccia che buca il lato destro della cornice è la sola parte del glifo
-     * che lo dice.
+     * ⚠️ Il mezzo riquadro sostituisce le due frecce che girano della `1.01`, e prima ancora
+     * `SwapHoriz` della `0.94`: due frecce dicono 'scambia due cose' e non 'ribalta la scelta'.
+     * Mezzo riquadro pieno lo dice in una forma sola, ed è il terzo segno del gruppo.
      */
+    val PickInvert: ImageVector by lazy {
+        glifo("PickInvert") {
+            tratto(BRACKET_SIDE)
+            tratto(BRACKET_FOOT)
+            pieno("M9.4 17.4L20.4 6.4v9.6a1.4 1.4 0 0 1-1.4 1.4z")
+            tratto(PICK_FRAME)
+        }
+    }
+
     /**
-     * Centra la selezione in orizzontale, e la sua gemella in verticale.
+     * Centra la selezione in orizzontale, e la sua gemella in verticale: un asse più tre
+     * blocchi, e l'una è l'altra girata di un quarto.
      *
-     * ⚠️⚠️ **DISEGNATE DALL'UTENTE** (2026-09-01) e arrivate in una griglia **800x800**,
-     * non nel 24x24 di Material: il tracciato si trasporta **verbatim** come tutti gli
-     * altri, e a cambiare è la sola dichiarazione del riquadro. Riscalarne i numeri a mano
-     * per farli stare in 24 vorrebbe dire mille arrotondamenti e un disegno che non si può
-     * più confrontare col file di partenza.
-     * ⚠️ **Misurate prima di entrare**: l'inchiostro sta in 568x466 unità su 800 ed è
-     * centrato in (400, 400) esatte, quindi non serve nessuna correzione. Il glifo
-     * dell'esportazione, misurato lo stesso giorno, non lo era, e andava ricentrato con un
-     * gruppo: se n'è andato con il suo tasto nella 1.21, e la misura resta scritta nel
-     * messaggio di quel commit.
-     * ⚠️ **Sostituiscono `Icons.Outlined.AlignHorizontalCenter` e la sua gemella**, che
-     * l'utente ha giudicato non abbastanza chiare (voce `ed-sheet` del collaudo).
+     * ⚠️⚠️ **RIDISEGNATE NELLA GRIGLIA 24 col giro del 2026-09-02**, e questo è il fatto
+     * nuovo: dalla `1.21` arrivavano in una griglia **800x800** di Illustrator, e questo file
+     * dichiarava un riquadro a parte per loro due. Ora sono su 24 come tutte le altre, quindi
+     * quel guscio (la funzione `grande` e la costante `WIDE_GRID`) è uscito insieme ai loro
+     * tracciati vecchi.
+     * ⚠️ **Sostituiscono `Icons.Outlined.AlignHorizontalCenter` e la sua gemella**, che l'utente
+     * ha giudicato non abbastanza chiare (voce `ed-sheet` del collaudo).
      */
-    val AlignAcross: ImageVector by lazy { grande("AlignAcross", ALIGN_ACROSS) }
+    val AlignAcross: ImageVector by lazy {
+        glifo("AlignAcross") {
+            tratto("M2.6 12h18.8")
+            pieno(
+                "M4.6,8 H7.2 A1.2,1.2 0 0 1 8.4,9.2 V14.8 A1.2,1.2 0 0 1 7.2,16 H4.6" +
+                    " A1.2,1.2 0 0 1 3.4,14.8 V9.2 A1.2,1.2 0 0 1 4.6,8 Z"
+            )
+            pieno(
+                "M10.7,8 H13.3 A1.2,1.2 0 0 1 14.5,9.2 V14.8 A1.2,1.2 0 0 1 13.3,16 H10.7" +
+                    " A1.2,1.2 0 0 1 9.5,14.8 V9.2 A1.2,1.2 0 0 1 10.7,8 Z"
+            )
+            pieno(
+                "M16.8,8 H19.4 A1.2,1.2 0 0 1 20.6,9.2 V14.8 A1.2,1.2 0 0 1 19.4,16 H16.8" +
+                    " A1.2,1.2 0 0 1 15.6,14.8 V9.2 A1.2,1.2 0 0 1 16.8,8 Z"
+            )
+        }
+    }
 
     /** Vedi [AlignAcross]: è la stessa icona girata di un quarto. */
-    val AlignDown: ImageVector by lazy { grande("AlignDown", ALIGN_DOWN) }
+    val AlignDown: ImageVector by lazy {
+        glifo("AlignDown") {
+            tratto("M12 2.6v18.8")
+            pieno(
+                "M9.2,3.4 H14.8 A1.2,1.2 0 0 1 16,4.6 V7.2 A1.2,1.2 0 0 1 14.8,8.4 H9.2" +
+                    " A1.2,1.2 0 0 1 8,7.2 V4.6 A1.2,1.2 0 0 1 9.2,3.4 Z"
+            )
+            pieno(
+                "M9.2,9.5 H14.8 A1.2,1.2 0 0 1 16,10.7 V13.3 A1.2,1.2 0 0 1 14.8,14.5 H9.2" +
+                    " A1.2,1.2 0 0 1 8,13.3 V10.7 A1.2,1.2 0 0 1 9.2,9.5 Z"
+            )
+            pieno(
+                "M9.2,15.6 H14.8 A1.2,1.2 0 0 1 16,16.8 V19.4 A1.2,1.2 0 0 1 14.8,20.6 H9.2" +
+                    " A1.2,1.2 0 0 1 8,19.4 V16.8 A1.2,1.2 0 0 1 9.2,15.6 Z"
+            )
+        }
+    }
 
     /**
-     * Il guscio dei glifi dell'utente: un 24x24 con un tracciato pieno.
+     * Il guscio di ogni glifo: un 24x24 da riempire con [pieno] e [tratto].
      *
-     * ⚠️ **Il riempimento è NON-ZERO**, che è il valore di serie di `addPath` e la regola di
-     * serie dell'SVG: i controcampi (l'interno delle cartelle, il cielo fra le montagne) sono
-     * sottotracciati che girano al contrario, e con la regola pari-dispari verrebbero uguali
-     * solo perché non si sovrappongono. Uguale per caso non è uguale.
-     * ⚠️ **Un tracciato solo per glifo, e regge perché i file arrivano così**: se un domani
-     * ne arrivasse uno con più `<path>`, la via è un `addPath` per ognuno e **non** la
-     * concatenazione delle loro `d`. Il perché sta sulle costanti, in fondo, ed è una misura.
      * ⚠️ **`PathParser` e non `addPathNodes`**: quel richiamo comodo non c'è in questa versione
      * di Compose (verificato nel bytecode di `PathNodeKt`, dove l'omonimo prende quattro
      * parametri interni). ⚠️ E il tracciato si legge una volta sola, perché i glifi sono
      * `by lazy`.
      */
-    private fun filled(name: String, vararg d: String): ImageVector =
+    private fun glifo(name: String, corpo: ImageVector.Builder.() -> Unit): ImageVector =
         ImageVector.Builder(
             name = name,
             defaultWidth = SIZE,
             defaultHeight = SIZE,
             viewportWidth = GRID,
             viewportHeight = GRID
-        ).apply {
-            // ⚠️ **Un `addPath` per ogni `<path>` del file**, e la ragione (misurata) sta
-            // sulle costanti in fondo: concatenare le `d` sfrangia la cucitura fra le forme.
-            for (uno in d) {
-                addPath(
-                    pathData = PathParser().parsePathString(uno).toNodes(),
-                    fill = SolidColor(Color.Black)
-                )
-            }
-        }.build()
+        ).apply(corpo).build()
 
-    /** Il guscio dei glifi arrivati in una griglia più grande. Vedi [AlignAcross]. */
-    private fun grande(name: String, d: String): ImageVector =
-        ImageVector.Builder(
-            name = name,
-            defaultWidth = SIZE,
-            defaultHeight = SIZE,
-            viewportWidth = WIDE_GRID,
-            viewportHeight = WIDE_GRID
-        ).addPath(
-            pathData = PathParser().parsePathString(d).toNodes(),
-            fill = SolidColor(Color.Black)
-        ).build()
+    /**
+     * Un tracciato pieno, cioè **un `<path>` del file**.
+     *
+     * ⚠️ **Il riempimento è NON-ZERO**, che è il valore di serie di `addPath` e la regola di
+     * serie dell'SVG: i controcampi (l'interno di una cartella, il cielo fra le montagne) sono
+     * sottotracciati che girano al contrario, e con la regola pari-dispari verrebbero uguali solo
+     * perché non si sovrappongono. Uguale per caso non è uguale.
+     * ⚠️⚠️ **UN RICHIAMO PER OGNI `<path>`, e le `d` NON si concatenano.** Misurato il
+     * 2026-08-31 sulla prima versione dei tre glifi della selezione, che arrivava così: rese in
+     * Chromium e confrontate pixel per pixel, le forme tenute separate dànno zero scarto,
+     * concatenate ne dànno da 86 a 172, con differenze fino a 11 su 255. Non è l'avvolgimento
+     * che si rompe, è la cucitura fra le due forme che si sfrangia.
+     */
+    private fun ImageVector.Builder.pieno(d: String) = addPath(
+        pathData = PathParser().parsePathString(d).toNodes(),
+        fill = SolidColor(Color.Black)
+    )
+
+    /**
+     * Un tracciato di tratto, nello spessore della famiglia.
+     *
+     * ⚠️ **Capi e giunti tondi, e vale per tutti e otto**: il brief li chiede insieme allo
+     * spessore, e sono la metà della grammatica. Un giunto a spigolo, su un tratto largo 1,8,
+     * sporgerebbe di mezzo spessore oltre la punta, cioè di un ventisettesimo dell'icona.
+     */
+    private fun ImageVector.Builder.tratto(d: String) = addPath(
+        pathData = PathParser().parsePathString(d).toNodes(),
+        stroke = SolidColor(Color.Black),
+        strokeLineWidth = FAMILY_STROKE,
+        strokeLineCap = StrokeCap.Round,
+        strokeLineJoin = StrokeJoin.Round
+    )
 
     /** La griglia di Material: ogni icona del sistema è disegnata dentro un 24x24. */
     private const val GRID = 24f
 
-    /** La griglia dei due glifi di allineamento, che Illustrator ha esportato a 800. */
-    private const val WIDE_GRID = 800f
+    /**
+     * Lo spessore di tutta la famiglia, in unità di griglia.
+     *
+     * ⚠️ **1,8 è un minimo oltre che un valore** (brief dell'utente: *niente tratto sotto
+     * 1,8*): sotto quello, a 24dp e su uno schermo a densità 2,75, il tratto scende sotto i
+     * cinque pixel e il glifo si sfarina accanto alle icone piene di Material.
+     */
+    private const val FAMILY_STROKE = 1.8f
 
-
-    /** Lo spessore del solo [TextCursor], in unità di griglia. */
-    private const val STROKE = 2f
+    /** Lo spessore del solo [TextCursor], che il ridisegno del 2026-09-02 non ha toccato. */
+    private const val CURSOR_STROKE = 2f
 
     /**
-     * Quanto rientra il centro di una lineetta, in unità di griglia.
+     * Quanto rientra il centro di una lineetta del [TextCursor], in unità di griglia.
      *
-     * ⚠️ Scelto fra quattro provini (0 / 0,5 / 0,8 / 1,2) mostrati all'utente: sotto lo
-     * 0,5 la curva sparisce nell'antialiasing, sopra l'1 il glifo diventa una clessidra.
+     * ⚠️ Scelto fra quattro provini (0 / 0,5 / 0,8 / 1,2) mostrati all'utente: sotto lo 0,5 la
+     * curva sparisce nell'antialiasing, sopra l'1 il glifo diventa una clessidra.
      */
     private const val NOTCH = 0.8f
 
@@ -255,25 +347,48 @@ object Glyphs {
      *
      * ⚠️⚠️ Una quadratica passa a **metà** fra la corda e il suo punto di controllo, quindi
      * per una rientranza vera di [NOTCH] il controllo va al doppio. Chi mettesse [NOTCH] qui
-     * otterrebbe metà rientranza e la crederebbe giusta, perché il numero nel codice
-     * direbbe la cosa voluta.
+     * otterrebbe metà rientranza e la crederebbe giusta, perché il numero nel codice direbbe la
+     * cosa voluta.
      */
     private const val PULL = NOTCH * 2f
 
     private val SIZE = 24.dp
 
     /**
-     * I tre tracciati dell'utente, una riga per sottotracciato. Vedi la nota in testa: la
-     * concatenazione è esattamente la `d` del suo SVG, e le righe non aggiungono niente.
+     * La staffa a L dietro la cartella, in due tratti: il fianco e il piede.
+     *
+     * ⚠️ **Due tratti e non un rettangolo cavo**, ed è la regola della famiglia: una seconda
+     * forma chiusa dietro la prima, a 24px, si legge come una cornice e non come 'la cartella di
+     * prima'. Gli stessi due tratti stanno dietro i tre glifi della selezione.
      */
+    private const val BRACKET_SIDE = "M3.4 7.6V18.6"
+
+    /** Vedi [BRACKET_SIDE]: è il piede della stessa staffa. */
+    private const val BRACKET_FOOT = "M3.4 18.6H16.4"
+
     /**
-     * I tracciati delle due icone del menu, arrivate il 2026-09-02.
+     * Il riquadro condiviso dai tre glifi della selezione: `6.8,4`, lato 15,2, raggio 2,4.
+     *
+     * ⚠️ **Uno solo per tutti e tre**, come il brief lo dichiara: i tre si distinguono per il
+     * segno che portano dentro (due spunte, croce, mezzo riquadro pieno), e il riquadro è il
+     * loro segno di famiglia, come la cartella lo è di 'Copia' e 'Sposta'.
+     */
+    private const val PICK_FRAME =
+        "M9.2,4 H19.6 A2.4,2.4 0 0 1 22,6.4 V16.8 A2.4,2.4 0 0 1 19.6,19.2 H9.2 A2.4,2.4 0 0 1 6.8,16.8 V6.4 A2.4,2.4 0 0 1 9.2,4 Z"
+
+    /** La cartella piena davanti alla staffa, condivisa da 'Copia' e 'Sposta'. */
+    private const val FOLDER =
+        "M8 4.2h4.4l1.8 1.8h6.4a1.2 1.2 0 0 1 1.2 1.2v7.6a1.2 1.2 0 0 1-1.2 1.2H8a1.2 1.2 0 0" +
+            " 1-1.2-1.2V5.4A1.2 1.2 0 0 1 8 4.2z"
+
+    /**
+     * I due tracciati dell'icona 'Modifica', arrivata il 2026-09-02 e non ridisegnata col giro
+     * degli otto.
      *
      * ⚠️ **Il rettangolo trasparente del file di `imageEdit.svg` NON è qui**: Illustrator lo
-     * esporta con `fill="none"` per dichiarare la tela da 24, e in un `ImageVector` la tela
-     * la dichiarano `viewportWidth` e `viewportHeight`. Portarlo dentro aggiungerebbe un
-     * tracciato nero a tutta l'icona, perché qui il riempimento è dichiarato dal codice e non
-     * dal file.
+     * esporta con `fill="none"` per dichiarare la tela da 24, e in un `ImageVector` la tela la
+     * dichiarano `viewportWidth` e `viewportHeight`. Portarlo dentro aggiungerebbe un tracciato
+     * nero a tutta l'icona, perché qui il riempimento è dichiarato dal codice e non dal file.
      */
     private const val EDIT_FRAME =
         "M19,5v14H5V5h14M19,3H5c-1.1,0-2,.9-2,2v14c0,1.1.9,2,2,2h14c1.1,0,2-.9,2-2V5c0-1.1-.9-2-2-2Z"
@@ -285,88 +400,4 @@ object Glyphs {
     private const val CONVERT =
         "M19,3H5c-1.1,0-2,.9-2,2v14c0,1.1.9,2,2,2h14c1.1,0,2-.9,2-2V5c0-1.1-.9-2-2-2Z" +
             "M5,19v-3.66l2.68,2.69v-2.58h6.04v-1.72h-6.04v-2.58l-2.68,2.69V5h14v3.66l-2.68-2.69v2.58h-6.04v1.72h6.04v2.58l2.68-2.69v8.83H5Z"
-
-    private const val COPY =
-        "M3,19h16.6c.22,0,.4.18.4.4h0c0,.88-.72,1.6-1.6,1.6H3c-1.1,0-2-.9-2-2V7.6c0-.88.72-1.6,1.6-1.6h0c.22,0,.4.18.4.4v12.6Z" +
-            "M23,6v9c0,1.1-.9,2-2,2H7c-1.1,0-2-.9-2-2V4c.01-1.1.9-2,2-2h5l2,2h7c1.1,0,2,.9,2,2Z" +
-            "M7,15h14V6h-7.83l-2-2h-4.17v11Z"
-
-    private const val COPY_IMAGE =
-        "M13.06,15.26c.69,0,1.26-.56,1.26-1.26s-.56-1.26-1.26-1.26-1.26.56-1.26,1.26.56,1.26,1.26,1.26Z" +
-            "M16.4,2H4c-1.1,0-2,.9-2,2v12.4c0,.88.72,1.6,1.6,1.6h0c.22,0,.4-.18.4-.4V4h13.6c.22,0,.4-.18.4-.4h0c0-.89-.72-1.6-1.6-1.6Z" +
-            "M20,6h-12c-1.1,0-2,.9-2,2v12c0,1.1.9,2,2,2h12c1.1,0,2-.9,2-2v-12c0-1.1-.9-2-2-2Z" +
-            "M20,20h-12v-12h12v12Z" +
-            "M15.67,14.83l-2.48,3.1-1.69-2.26-2.5,3.33h10l-3.33-4.17Z"
-
-    private const val MOVE =
-        "M3,11.91H1v4.42h2v-4.42Z" +
-            "M2.6,6h0c-.88,0-1.6.72-1.6,1.6v2.82h2v-4.02c0-.22-.18-.4-.4-.4Z" +
-            "M3,17.82H1v1.18c0,1.1.9,2,2,2h3.18v-2h-3.18v-1.18Z" +
-            "M14.58,21h3.82c.88,0,1.6-.72,1.6-1.6h0c0-.22-.18-.4-.4-.4h-5.02v2Z" +
-            "M7.67,21h5.42v-2h-5.42v2Z" +
-            "M21,4h-7l-2-2h-5c-1.1,0-1.99.9-1.99,2v11c-.01,1.1.89,2,1.99,2h14c1.1,0,2-.9,2-2V6c0-1.1-.9-2-2-2Z" +
-            "M21,15H7V4h4.17l2,2h7.83v9Z"
-
-    /**
-     * I tre tracciati delle icone della selezione, uno per icona.
-     *
-     * ⚠️ **Ognuno è UN tracciato composto**, e i primi due sottotracciati (il foglio dietro
-     * e il riquadro davanti) sono identici carattere per carattere nei tre file: è il segno
-     * di famiglia del riquadro della selezione, come le due cartelle sovrapposte lo sono di
-     * 'Copia' e 'Sposta'. Non si estraggono in una costante condivisa apposta: così la
-     * concatenazione delle righe di ognuna resta **esattamente** la `d` del file
-     * dell'utente, e la si confronta con l'originale carattere per carattere.
-     * ⚠️⚠️ **Se un domani un file arrivasse con PIÙ `<path>` separati, non si concatenano
-     * le loro `d`.** Misurato il 2026-08-31 sulla prima versione di queste tre, che arrivava
-     * così: rese in Chromium e confrontate pixel per pixel, le due forme tenute separate
-     * dànno zero scarto, concatenate ne dànno da 86 a 172, con differenze fino a 11 su 255.
-     * Non è l'avvolgimento che si rompe, è la cucitura fra le due forme che si sfrangia.
-     * La via giusta è un `addPath` per ognuno.
-     */
-    private const val PICK_ALL =
-        "M17.6,20H5.41c-.78,0-1.41-.63-1.41-1.41V6.4c0-.22-.18-.4-.4-.4-.88,0-1.6.72-1.6,1.6v12.4c0,1.1.9,2,2,2h12.4c.88,0,1.6-.72,1.6-1.6h0c0-.22-.18-.4-.4-.4Z" +
-            "M20,2h-12c-1.1,0-2,.9-2,2v12c0,1.1.9,2,2,2h12c1.1,0,2-.9,2-2V4c0-1.1-.9-2-2-2Z" +
-            "M18.23,9.64l-5,5c-.15.15-.39.15-.54,0l-2.92-2.92c-.15-.15-.15-.4,0-.55l.28-.28c.15-.15.4-.15.55,0l2.29,2.29s.1.04.14,0l4.38-4.38c.15-.15.39-.15.55,0l.28.28c.15.15.15.4,0,.55Z" +
-            "M18.23,6.18l-5,5c-.15.15-.39.15-.54,0l-2.92-2.92c-.15-.15-.15-.4,0-.55l.28-.28c.15-.15.4-.15.55,0l2.29,2.29s.1.04.14,0l4.38-4.38c.15-.15.39-.15.55,0l.28.28c.15.15.15.39,0,.55Z"
-
-    private const val PICK_NONE =
-        "M17.6,20H5.41c-.78,0-1.41-.63-1.41-1.41V6.4c0-.22-.18-.4-.4-.4-.88,0-1.6.72-1.6,1.6v12.4c0,1.1.9,2,2,2h12.4c.88,0,1.6-.72,1.6-1.6h0c0-.22-.18-.4-.4-.4Z" +
-            "M20,2h-12c-1.1,0-2,.9-2,2v12c0,1.1.9,2,2,2h12c1.1,0,2-.9,2-2V4c0-1.1-.9-2-2-2Z" +
-            "M18.2,13.38c.16.16.16.41,0,.57l-.25.25c-.16.16-.41.16-.57,0l-3.38-3.38-3.38,3.38c-.16.16-.41.16-.57,0l-.25-.25c-.16-.16-.16-.41,0-.57l3.38-3.38-3.38-3.38c-.16-.16-.16-.41,0-.57l.25-.25c.16-.16.41-.16.57,0l3.38,3.38,3.38-3.38c.16-.16.41-.16.57,0l.25.25c.16.16.16.41,0,.57l-3.38,3.38,3.38,3.38Z"
-
-    private const val PICK_INVERT =
-        "M17.6,20H5.41c-.78,0-1.41-.63-1.41-1.41V6.4c0-.22-.18-.4-.4-.4-.88,0-1.6.72-1.6,1.6v12.4c0,1.1.9,2,2,2h12.4c.88,0,1.6-.72,1.6-1.6h0c0-.22-.18-.4-.4-.4Z" +
-            "M20,2h-12c-1.1,0-2,.9-2,2v12c0,1.1.9,2,2,2h12c1.1,0,2-.9,2-2V4c0-1.1-.9-2-2-2Z" +
-            "M13.43,15.71c-2.9-.29-5.17-2.73-5.17-5.71,0-1.66.71-3.15,1.84-4.19l-1.26-1.26h3.05c.22,0,.4.18.4.4v3.05l-1.37-1.37c-.92.84-1.5,2.04-1.5,3.38,0,2.34,1.76,4.27,4.02,4.55.34,0,.61.3.58.62-.02.29-.27.53-.58.54Z" +
-            "M19.17,15.45h-3.05c-.22,0-.4-.18-.4-.4v-3.05l1.37,1.37c.92-.84,1.5-2.04,1.5-3.38,0-2.34-1.76-4.27-4.02-4.55-.34,0-.6-.3-.58-.62.02-.29.27-.53.58-.54,2.9.29,5.17,2.73,5.17,5.71,0,1.66-.71,3.15-1.84,4.19l1.26,1.26Z"
-
-    /** Il tracciato dell'esportazione: montagne, cornice aperta a destra, freccia che esce. */
-    private const val ALIGN_ACROSS =
-            "M173.37,578.33c4.39,7.6,10.7,13.91,18.3,18.3,11.6,6.7,27.18,6.7,58.33,6.7h124.9c.06,0,.1" +
-            ".05.1.1v76.56c0,2.21,1.79,4,4,4h41.99c2.21,0,4-1.79,4-4v-76.56c0-.06.05-.1.1-.1h124.9c31" +
-            ".15,0,46.73,0,58.33-6.7,7.6-4.39,13.91-10.7,18.3-18.3,6.7-11.6,6.7-27.18,6.7-58.33s0-46." +
-            "73-6.7-58.33c-4.39-7.6-10.7-13.91-18.3-18.3-11.6-6.7-27.18-6.7-58.33-6.7h-124.9c-.06,0-." +
-            "1-.05-.1-.1v-73.13c0-.06.05-.1.1-.1h58.23c31.15,0,46.73,0,58.33-6.7,7.6-4.39,13.91-10.7," +
-            "18.3-18.3,6.7-11.6,6.7-27.18,6.7-58.33s0-46.73-6.7-58.33c-4.39-7.6-10.7-13.91-18.3-18.3-" +
-            "11.6-6.7-27.18-6.7-58.33-6.7h-58.23c-.06,0-.1-.05-.1-.1v-76.56c0-2.21-1.79-4-4-4h-42c-2." +
-            "21,0-4,1.79-4,4v76.56c0,.06-.05.1-.1.1h-58.23c-31.15,0-46.73,0-58.33,6.7-7.6,4.39-13.91," +
-            "10.7-18.3,18.3-6.7,11.6-6.7,27.18-6.7,58.33s0,46.73,6.7,58.33c4.39,7.6,10.7,13.91,18.3,1" +
-            "8.3,11.6,6.7,27.18,6.7,58.33,6.7h58.23c.06,0,.1.05.1.1v73.13c0,.06-.05.1-.1.1h-124.9c-31" +
-            ".15,0-46.73,0-58.33,6.7-7.6,4.39-13.91,10.7-18.3,18.3-6.7,11.6-6.7,27.18-6.7,58.33s0,46." +
-            "73,6.7,58.33Z"
-
-    private const val ALIGN_DOWN =
-            "M221.67,173.37c-7.6,4.39-13.91,10.7-18.3,18.3-6.7,11.6-6.7,27.18-6.7,58.33v124.9c0,.06-." +
-            "05.1-.1.1h-76.56c-2.21,0-4,1.79-4,4v41.99c0,2.21,1.79,4,4,4h76.56c.06,0,.1.05.1.1v124.9c" +
-            "0,31.15,0,46.73,6.7,58.33,4.39,7.6,10.7,13.91,18.3,18.3,11.6,6.7,27.18,6.7,58.33,6.7s46." +
-            "73,0,58.33-6.7c7.6-4.39,13.91-10.7,18.3-18.3,6.7-11.6,6.7-27.18,6.7-58.33v-124.9c0-.06.0" +
-            "5-.1.1-.1h73.13c.06,0,.1.05.1.1v58.23c0,31.15,0,46.73,6.7,58.33,4.39,7.6,10.7,13.91,18.3" +
-            ",18.3,11.6,6.7,27.18,6.7,58.33,6.7s46.73,0,58.33-6.7c7.6-4.39,13.91-10.7,18.3-18.3,6.7-1" +
-            "1.6,6.7-27.18,6.7-58.33v-58.23c0-.06.05-.1.1-.1h76.56c2.21,0,4-1.79,4-4v-42c0-2.21-1.79-" +
-            "4-4-4h-76.56c-.06,0-.1-.05-.1-.1v-58.23c0-31.15,0-46.73-6.7-58.33-4.39-7.6-10.7-13.91-18" +
-            ".3-18.3-11.6-6.7-27.18-6.7-58.33-6.7s-46.73,0-58.33,6.7c-7.6,4.39-13.91,10.7-18.3,18.3-6" +
-            ".7,11.6-6.7,27.18-6.7,58.33v58.23c0,.06-.05.1-.1.1h-73.13c-.06,0-.1-.05-.1-.1v-124.9c0-3" +
-            "1.15,0-46.73-6.7-58.33-4.39-7.6-10.7-13.91-18.3-18.3-11.6-6.7-27.18-6.7-58.33-6.7s-46.73" +
-            ",0-58.33,6.7Z"
-
 }

@@ -1,108 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Adaptive icon foreground: la A di AIV, fornita dall'utente come SVG su tela
-     1024 e portata qui senza ritoccare un solo punto.
+<!-- Adaptive icon foreground: la A di AIV col disco solare in alto a sinistra e il
+     controcampo trasparente, disegno dell'utente arrivato il 2026-09-02 in
+     `dev/icona/` insieme al suo brief.
 
-     ⚠️⚠️ IL TRACCIATO NON È STATO RISCALATO A MANO: sta ancora nelle sue
-     coordinate originali, e a portarlo nella tela da 108 ci pensa il `group` qui
-     sotto. È l'unico modo che lascia il path confrontabile con la sorgente:
-     riscrivere i numeri sarebbe irreversibile e senza modo di accorgersi di un
-     errore. La riscrittura con gli spazi che il path ha subito è invece provata
-     identica, rendendo le due versioni e confrontando i pixel (stesso sha256).
+     ⚠️⚠️ IL CONTROCAMPO DELLA A: IL FILE FORNITO LO CHIUDE, E QUESTO NON LO FA.
+     È la ragione per cui il tracciato qui non è quello di
+     `dev/icona/ic_launcher_foreground.xml` copiato: quel file chiede un
+     `strokeWidth="10"` su un tracciato con DUE sottotracciati (il contorno della A
+     e il suo controcampo), e un VectorDrawable ha **un solo spessore per
+     `<path>`**. Quei 10 arrotondano gli angoli di fuori e nello stesso momento
+     ingrassano di 5 unità anche il triangolo di dentro, cioè lo riempiono quasi
+     del tutto: il brief che accompagna il disegno dice l'opposto (*il controcampo
+     della A è trasparente, così il background traspare: non riempirlo*), quindi il
+     file contraddice sé stesso.
+     - MISURATO, non dedotto: rese le tre versioni in Chromium a 432px (4 unità per
+       pixel) sopra il fondo `#43B59E`, il controcampo vale **6.094 pixel** nel
+       master SVG, **6.102** in questo tracciato e **114** nel file fornito, cioè
+       chiuso al 98%.
+     - COME SI TIENE APERTO: il tratto è **incorporato nel contorno**. I 10 unità
+       del master sono un ingrossamento verso l'esterno di 5 con i giunti tondi,
+       cioè ogni lato spostato in fuori di 5 e un arco di raggio 5 su ogni vertice:
+       calcolato e scritto qui come tracciato, quindi non serve più nessun
+       `strokeWidth` e il riempimento `evenOdd` fa il resto. Il controcampo porta lo
+       stesso conto con 2,5, perché nel master il suo tratto è 5 nel colore del
+       FONDO, che su un livello di primo piano a una tinta sola non è esprimibile.
+     - QUANTO SI DISCOSTA DAL MASTER: **123 pixel su 186.624**, cioè lo 0,066%, con
+       uno scarto massimo di 60 su 255 sui soli bordi dell'antialiasing. Il file
+       fornito, misurato allo stesso modo, ne discosta **6.189**, cioè il 3,3%.
+     - ⚠️ IL VERSO DEGLI ARCHI SI GUARDA, NON SI DEDUCE: il flag `sweep` di un arco
+       SVG dipende dal verso in cui gira il poligono, e sbagliarlo non dà un errore,
+       dà i vertici **rientranti** invece che tondi. Qui è stato visto reso; chi
+       ricalcolasse questi numeri faccia lo stesso.
 
-     ⚠️⚠️ LA MISURA È SUL RAGGIO, NON SUL RETTANGOLO DEI LIMITI, ed è la cosa da
-     sapere prima di toccare la scala. La maschera più stretta che un launcher
-     applica è un cerchio di diametro 72 al centro della tela da 108, quindi
-     quello che conta è la distanza massima di un punto dal centro. Misurata
-     parsando il path e campionando le curve: 473.76 su 1024, contro limiti di
-     593.94 x 779.13. Il glifo è portato a 25.48dp di raggio, e viene
-     31.94 x 41.90dp.
-     - ⚠️⚠️ LA SCALA È IL PRODOTTO DI DUE CORREZIONI, entrambe misure dell'utente
-       sul suo telefono e non scelte di gusto. La prima è **36 diviso 1.3**: il
-       launcher di HyperOS ingrandisce il livello di primo piano di circa un
-       terzo rispetto a quanto lo mostra l'anteprima dentro l'app, e a 36 (il
-       limite teorico della maschera) l'icona sul telefono veniva 1.3 volte
-       troppo grande. La seconda è un **meno 8%** chiesto guardando il
-       risultato. Il numero teorico resta 36: qui si compensa un launcher, e su
-       uno che non ingrandisce l'icona verrà più piccola del necessario.
-     - ⚠️⚠️ LA PRIMA CORREZIONE NON È PIÙ IN DUE POSTI, ED È QUI IL FATTO NUOVO:
-       fino alla 0.49 `AppIcon` rendeva questo file a 1.95 invece di 1.5 (la
-       costante `LAUNCHER_ZOOM`), cioè 1.5 per lo stesso 1.3, perché l'anteprima
-       e il launcher mostrassero la stessa cosa. MISURATO SULLO SCREENSHOT DEL
-       LAUNCHER il 2026-08-29, quel divario NON ESISTE: sul telefono il glifo
-       occupa 0.4398 del lato della maschera in larghezza e 0.5759 in altezza, e
-       i 72dp centrali senza alcun ingrandimento ne prevedono 0.4436 e 0.5819,
-       cioè l'1% di scarto; l'ipotesi del 1.3 ne prevede 0.5767 e 0.7565, cioè il
-       24%. Quindi il launcher NON ingrandisce, e dalla 0.50 `LAUNCHER_ZOOM` vale
-       1.5, che è pura geometria.
-       - ⚠️⚠️ MA LA SCALA DI QUESTO FILE RESTA COM'È, e la distinzione è tutta:
-         quel 1.3 qui dentro produce un glifo più piccolo del massimo teorico, ed
-         è il risultato che l'utente ha guardato sul telefono e ha dichiarato
-         PERFETTO. Non è più una compensazione che torna, è una preferenza di
-         misura, e vince lei. Chi 'uniformasse' i due posti rimpicciolirebbe
-         l'icona vera per far tornare un conto.
-       ⚠️ Il meno 8% invece **non** si compensa, e la differenza è voluta: quello
-       riguarda il disegno, non il divario fra i due posti in cui compare, quindi
-       deve valere in tutti e due.
-       - ⚠️⚠️ MA FINO ALLA 0.27 QUELL'INGRANDIMENTO NON AVVENIVA, e l'icona di
-         qui non c'entrava niente: là stava scritto con un `Modifier.size`, che
-         **negozia** col genitore e veniva ricondotto ai 96dp della piastrella,
-         quindi l'anteprima mostrava la tela intera e un glifo 1.95 volte più
-         piccolo di quello del launcher. Sistemato passando a una
-         trasformazione di disegno. Conta perché il sintomo somigliava a un
-         difetto di questo file, e non lo era.
-     - ⚠️⚠️ IL GLIFO È ALZATO DI 1.44dp, ED È CONTRO IL SUO BARICENTRO. La
-       traslazione verticale non è quella che centrerebbe la forma: l'utente ha
-       chiesto un allineamento OTTICO, cioè la regola classica per cui il centro
-       percepito di un contenitore sta circa il 2% della sua altezza sopra quello
-       geometrico (2% di 72 fa appunto 1.44). ⚠️ La misura dice il contrario, e
-       sta scritta qui perché nessuno la rifaccia credendo di trovare un difetto:
-       il baricentro dei pixel pieni sta **17.23 unità su 1024 SOPRA** il centro
-       dei limiti, cioè il glifo è già pesante in alto, e l'alzata si somma a
-       quello. È una scelta dell'utente davanti al risultato vero, e vince lei.
-     - ⚠️ LA MISURA NON SI EREDITA DA UN'ICONA ALL'ALTRA, si rifà. Questo
-       disegno è molto più pieno del precedente: gli stessi 1024 di tela portano
-       limiti 593.94 x 779.13 contro 339.85 x 614.36, e un raggio di 473.76
-       contro 336.77. Mapparlo 1:1 (scala 108/1024, che sul glifo di prima
-       sarebbe stata quasi giusta) darebbe 50.04dp di raggio e taglierebbe arco
-       e piedi: provato e reso, non dedotto.
-     - I candidati sono stati resi con Chromium e guardati sotto le due
-       maschere, cerchio e squircle, nelle due coppie di colori.
+     ⚠️⚠️ LA SCALA È 2/3, E IL DISEGNO ARRIVAVA COMPOSTO PER UNA PIASTRELLA PIENA.
+     Il master `dev/icona/aiv-icon-light.svg` è un'icona **intera**: un rettangolo
+     stondato da 108 col glifo dentro, cioè il disegno è composto sul lato visibile.
+     Ma di un'icona adattiva si vedono **solo i 72dp centrali** della tela da 108,
+     quindi trasportarlo 1:1 non è fedeltà, è un cambio di spazio di lavoro non
+     dichiarato: `72/108`, cioè 2/3, è il fattore che rimette il glifo dentro l'area
+     visibile nella stessa proporzione in cui sta dentro il rettangolo del master.
+     La traslazione di 18 tiene fermo il centro (54,54).
+     - LE MISURE, sullo stesso rendering di sopra: come disegnato il glifo arriva a
+       **44,73 unità di raggio** dal centro (contro i 36 della maschera circolare
+       più stretta e i 33 della zona sicura da 66), con il **10,52%** dei suoi pixel
+       fuori dal cerchio da 72 e il **17,15%** fuori dalla zona sicura, e occupa il
+       64,6% del lato in larghezza. A 2/3 il raggio massimo è **29,87**, fuori dalle
+       due maschere sta **zero**, e l'inchiostro occupa il **43,1%** del lato.
+     - ⚠️ Il 43% non è un caso: la regola universale sulle icone Android
+       (`Roccobot.md`, § 'Grafica') dice *il soggetto sta al 45% del lato circa, non
+       di più*, e il disegno come arrivava ne occupava i due terzi.
+     - ⚠️ IL PEZZO CHE SPORGE PIÙ DI TUTTI È IL DISCO, non le punte della A: il suo
+       bordo esterno sta a 44,73 dal centro, l'angolo di base della A a 41,1. Chi
+       guardasse solo la A crederebbe che basti un ritocco.
+     - ⚠️ IL BRIEF DICHIARA IL CONTRARIO (*estensione reale 24→84 in x, 19→74 in
+       y*), e non è una svista sua: sono i limiti del tracciato **senza il tratto**.
+       Con i 10 del tratto il glifo arriva a 19→88,8 e 19→78,8, ed è la ragione per
+       cui la verifica va fatta sul disegno finito e non sui numeri di partenza.
 
-     Il colore NON è qui: è una risorsa, così values/ e values-night/ ne danno
-     due versioni intere. Il livello monochrome riusa questo stesso file, e gli
-     serve esattamente una forma piatta a un colore: il sistema ne tiene la sola
-     alfa e mette la propria tinta.
-     - ⚠️ Il contorno bianco che l'SVG di partenza portava NON è stato riportato,
-       ed è giusto così: qui la forma è a una tinta sola, quindi un contorno
-       dello stesso colore la ingrasserebbe di mezza unità su 1024 e basta, e
-       sul livello monochrome non avrebbe alcun senso. -->
+     ⚠️ NESSUN GRUPPO DI CENTRATURA E NESSUNA ALZATA OTTICA, a differenza del file
+     che stava qui fino alla 1.32: quello portava il tracciato nelle coordinate
+     originali su 1024 e un'alzata di 1,44dp chiesta dall'utente per il glifo di
+     allora. Questo disegno è composto dentro la sua piastrella, quindi il suo
+     centro è il centro della tela: alzarlo lo scollerebbe dal master, e la
+     preferenza andrebbe ridecisa guardando il risultato, non ereditata.
+
+     Il colore NON è qui: è una risorsa, così values/ e values-night/ ne dànno due
+     versioni intere (`#EBFFF7` su `#43B59E`, `#4FD9BE` su `#00727B`, le coppie del
+     brief, che erano già quelle). Il livello monochrome riusa questo stesso file, e
+     gli serve esattamente una forma piatta a un colore: il sistema ne tiene la sola
+     alfa e mette la propria tinta. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
     <group
-        android:scaleX="0.053776"
-        android:scaleY="0.053776"
-        android:translateX="26.4668"
-        android:translateY="25.0268">
+        android:scaleX="0.666667"
+        android:scaleY="0.666667"
+        android:translateX="18"
+        android:translateY="18">
+        <!-- Il disco solare, fuori dalla A, in alto a sinistra. -->
+        <path
+            android:fillColor="@color/launcher_foreground"
+            android:pathData="M30,19a10,10 0 1,0 0,20a10,10 0 1,0 0,-20z" />
+        <!-- La A: contorno e controcampo in un tracciato solo, `evenOdd`, col tratto
+             del master già incorporato. Vedi la nota in testa. -->
         <path
             android:fillColor="@color/launcher_foreground"
             android:fillType="evenOdd"
-            android:pathData="M 512 122.43
-c -165.79 0 -301.35 119.17 -296.86 285.34
-v 458.47
-c 0 35.32 45.94 35.32 69.52 35.32
-s 72.78 0 72.78 -35.32
-V 583.36
-c 44.65 6.45 96.63 11.1 154.56 11.1 45.11 0 97.22 -2.82 154.56 -11.1
-v 282.88
-c 0 35.32 49.2 35.32 72.78 35.32
-s 69.52 0 69.52 -35.32
-V 407.77
-c 4.5 -166.16 -131.07 -285.34 -296.86 -285.34
-m 151.78 330.64
-c -10.49 9.79 -22.77 11.52 -29 12.56 -40.75 4.73 -81.77 6.7 -122.78 5.89 -39.47 -.78 -75.53 -4.06 -107.58 -8.52 -5.61 -.32 -30.91 -1.93 -50.05 -23.04 -12.71 -14.03 -20.46 -33.29 -20.22 -54.47 .49 -42.36 32.72 -76.33 72.01 -75.89 16.61 .19 31.82 6.52 43.81 16.95 13.41 -40.37 49.39 -69.08 91.36 -68.6 52.91 .6 95.26 47.34 94.63 104.39 -.06 5.22 -.48 10.35 -1.24 15.35 .35 -.03 .71 -.04 1.06 -.05 17.51 -.26 40.46 20.14 40.29 44.46 .06 2.77 .61 18.91 -12.3 30.97
-z" />
+            android:pathData="M58.1311,27.1833
+L88.1311,71.1833
+A5,5 0 0 1 84,79
+L24,79
+A5,5 0 0 1 19.8689,71.1833
+L49.8689,27.1833
+A5,5 0 0 1 58.1311,27.1833
+Z
+M56.0424,49.5583
+L68.0424,66.5583
+A2.5,2.5 0 0 1 66,70.5
+L42,70.5
+A2.5,2.5 0 0 1 39.9576,66.5583
+L51.9576,49.5583
+A2.5,2.5 0 0 1 56.0424,49.5583
+Z" />
     </group>
 </vector>
