@@ -238,6 +238,9 @@
     <string name="rename_start">Pierwszy numer</string>
     <string name="rename_hint">Każdy ciąg krzyżyków staje się numerem, a ile ich napiszesz, tyle będzie cyfr: ## daje 01, ### daje 001. Rozszerzenie nigdy nie jest ruszane, a pliki są numerowane w kolejności alfabetycznej.</string>
     <string name="rename_preview">Podgląd</string>
+    <string name="rename_ext">Rozszerzenie</string>
+    <string name="rename_ext_label">Nowe rozszerzenie</string>
+    <string name="rename_ext_note">Zmienia NAZWĘ, a nie format: plik zachowuje swoją zawartość. Aby naprawdę go przekonwertować, użyj \'Eksportuj i konwertuj\'.</string>
     <string name="delete_ask">Potwierdzić usunięcie?</string>
     <plurals name="delete_desc">
         <item quantity="one">Zamierzasz usunąć na zawsze %1$d element: zniknie z telefonu bezpowrotnie.</item>

@@ -230,6 +230,9 @@
     <string name="rename_start">Primeiro número</string>
     <string name="rename_hint">Cada sequência de cerquilhas vira o número, e quantas você escrever, tantos dígitos ele terá: ## dá 01, ### dá 001. A extensão nunca é tocada, e os arquivos são numerados em ordem alfabética.</string>
     <string name="rename_preview">Prévia</string>
+    <string name="rename_ext">Extensão</string>
+    <string name="rename_ext_label">Nova extensão</string>
+    <string name="rename_ext_note">Muda o NOME, não o formato: o arquivo mantém o conteúdo que tem. Para converter de verdade use \'Exportar e converter\'.</string>
     <string name="delete_ask">Confirmar a exclusão?</string>
     <plurals name="delete_desc">
         <item quantity="one">Você vai excluir %1$d item definitivamente: ele some do telefone para sempre.</item>

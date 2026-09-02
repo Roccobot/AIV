@@ -238,6 +238,9 @@
     <string name="rename_start">Первый номер</string>
     <string name="rename_hint">Каждая цепочка решёток превращается в номер, и сколько их напишете, столько будет цифр: ## даёт 01, ### даёт 001. Расширение не трогается, а файлы нумеруются по алфавиту.</string>
     <string name="rename_preview">Предпросмотр</string>
+    <string name="rename_ext">Расширение</string>
+    <string name="rename_ext_label">Новое расширение</string>
+    <string name="rename_ext_note">Меняется ИМЯ, а не формат: содержимое файла остаётся тем же. Чтобы действительно преобразовать, используйте \'Экспортировать и преобразовать\'.</string>
     <string name="delete_ask">Подтвердить удаление?</string>
     <plurals name="delete_desc">
         <item quantity="one">Вы окончательно удаляете %1$d элемент: он исчезнет с телефона навсегда.</item>

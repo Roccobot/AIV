@@ -222,6 +222,9 @@
     <string name="rename_start">మొదటి సంఖ్య</string>
     <string name="rename_hint">గడి గుర్తుల ప్రతి వరుస సంఖ్యగా మారుతుంది, ఎన్ని రాస్తే అన్ని అంకెలు: ## ఇస్తుంది 01, ### ఇస్తుంది 001. పొడిగింపును ఎప్పుడూ ముట్టుకోరు, ఫైళ్ళకు అక్షర క్రమంలో సంఖ్యలు వస్తాయి.</string>
     <string name="rename_preview">మునుజూపు</string>
+    <string name="rename_ext">పొడిగింపు</string>
+    <string name="rename_ext_label">కొత్త పొడిగింపు</string>
+    <string name="rename_ext_note">ఇది పేరును మార్చుతుంది, ఆకృతిని కాదు: ఫైల్ కంటెంట్ అలాగే ఉంటుంది. నిజంగా మార్చడానికి \'ఎగుమతి చేసి మార్చు\' వాడండి.</string>
     <string name="delete_ask">తొలగింపును నిర్ధారించాలా?</string>
     <plurals name="delete_desc">
         <item quantity="one">%1$d ఫైలును శాశ్వతంగా తొలగించబోతున్నారు: అది ఫోను నుంచి ఎప్పటికీ పోతుంది.</item>

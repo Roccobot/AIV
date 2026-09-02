@@ -222,6 +222,9 @@
     <string name="rename_start">شماره نخست</string>
     <string name="rename_hint">هر رشته از نشانه‌های مربع به شماره تبدیل می‌شود، و هر چند بنویسید همان‌قدر رقم می‌شود: ## می‌دهد 01 و ### می‌دهد 001. پسوند هرگز دست نمی‌خورد، و فایل‌ها به ترتیب الفبا شماره می‌گیرند.</string>
     <string name="rename_preview">پیش‌نمایش</string>
+    <string name="rename_ext">پسوند</string>
+    <string name="rename_ext_label">پسوند جدید</string>
+    <string name="rename_ext_note">نام را تغییر می‌دهد نه قالب را: محتوای فایل همان می‌ماند. برای تبدیل واقعی از \'برون‌بری و تبدیل\' استفاده کنید.</string>
     <string name="delete_ask">پاک کردن را تأیید می‌کنید؟</string>
     <plurals name="delete_desc">
         <item quantity="one">در آستانه پاک کردن همیشگی %1$d مورد هستید: برای همیشه از گوشی می‌رود.</item>

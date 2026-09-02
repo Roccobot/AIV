@@ -222,6 +222,9 @@
     <string name="rename_start">پہلا نمبر</string>
     <string name="rename_hint">ہیش کے ہر سلسلے کی جگہ نمبر آتا ہے، اور جتنے لکھیں اتنے ہندسے ہوتے ہیں: ## سے 01 اور ### سے 001۔ توسیع کو کبھی نہیں چھیڑا جاتا، اور فائلوں کو حروف تہجی کی ترتیب میں نمبر ملتے ہیں۔</string>
     <string name="rename_preview">پیش منظر</string>
+    <string name="rename_ext">لاحقہ</string>
+    <string name="rename_ext_label">نیا لاحقہ</string>
+    <string name="rename_ext_note">یہ نام بدلتا ہے، فارمیٹ نہیں: فائل کا مواد وہی رہتا ہے۔ واقعی تبدیل کرنے کے لیے \'برآمد اور تبدیل\' استعمال کریں۔</string>
     <string name="delete_ask">مٹانے کی تصدیق کریں؟</string>
     <plurals name="delete_desc">
         <item quantity="one">آپ %1$d فائل ہمیشہ کے لیے مٹانے والے ہیں: وہ فون سے ہمیشہ کے لیے چلی جائے گی۔</item>

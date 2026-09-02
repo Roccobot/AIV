@@ -317,6 +317,9 @@
     <string name="rename_start">Primo numero</string>
     <string name="rename_hint">Ogni gruppo di cancelletti diventa il numero, e quanti ne scrivi sono le cifre: ## dà 01, ### dà 001. L\'estensione non si tocca mai, e i file si numerano in ordine alfabetico.</string>
     <string name="rename_preview">Anteprima</string>
+    <string name="rename_ext">Estensione</string>
+    <string name="rename_ext_label">Nuova estensione</string>
+    <string name="rename_ext_note">Cambia il NOME, non il formato: il file conserva il contenuto che ha. Per convertirlo davvero usa \'Esporta/Converti\'.</string>
 
     <!-- ── Eliminare ── -->
     <string name="delete_ask">Confermi l\'eliminazione?</string>

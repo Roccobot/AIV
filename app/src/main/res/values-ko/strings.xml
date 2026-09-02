@@ -214,6 +214,9 @@
     <string name="rename_start">첫 번호</string>
     <string name="rename_hint">이어진 # 는 번호가 되고, 쓴 개수만큼 자릿수가 됩니다. ## 는 01, ### 는 001 입니다. 확장자는 건드리지 않으며, 파일은 알파벳 순서로 번호가 붙습니다.</string>
     <string name="rename_preview">미리보기</string>
+    <string name="rename_ext">확장자</string>
+    <string name="rename_ext_label">새 확장자</string>
+    <string name="rename_ext_note">이름만 바꾸고 형식은 바꾸지 않습니다: 파일 내용은 그대로입니다. 실제로 변환하려면 \'내보내기 및 변환\'를 사용하세요.</string>
     <string name="delete_ask">삭제할까요?</string>
     <plurals name="delete_desc">
         <item quantity="other">%1$d개를 완전히 삭제합니다. 기기에서 영영 사라집니다.</item>

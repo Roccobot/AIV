@@ -3,6 +3,7 @@ package io.github.roccobot.aiv
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -32,7 +34,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 /**
@@ -53,7 +54,7 @@ import androidx.compose.ui.unit.dp
 fun RenameDialog(
     uris: List<Uri>,
     onDismiss: () -> Unit,
-    onRename: (template: String, start: Int) -> Unit
+    onRename: (template: String, start: Int, extension: String?) -> Unit
 ) {
     val context = LocalContext.current
     val names by produceState<List<String>?>(null, uris) {
@@ -63,6 +64,16 @@ fun RenameDialog(
     var template by rememberSaveable { mutableStateOf("") }
     var start by rememberSaveable { mutableStateOf("1") }
     var proposed by rememberSaveable { mutableStateOf(false) }
+
+    /*
+     * ⚠️ **`null` vuol dire 'ognuno tiene la sua', dalla 1.30** (richiesta dell'utente,
+     * 2026-09-02), e non è la stessa cosa di una stringa vuota, che vorrebbe dire 'nessuna
+     * estensione'. Il pannellino la propone già riempita con quella corrente, quindi finché
+     * non lo si apre questa resta `null` e i file conservano ognuno la propria: importa con
+     * una selezione mista, dove mettere l'estensione del primo a tutti sarebbe un danno.
+     */
+    var extension by rememberSaveable { mutableStateOf<String?>(null) }
+    var asking by rememberSaveable { mutableStateOf(false) }
 
     // ⚠️⚠️ **UN FILE SOLO NON È UNA RINOMINA IN BLOCCO, e dalla 1.25 non ne ha più l'aria**
     // (riscontro dell'utente, 2026-09-02: *`Rinomina` sul file singolo deve partire dal nome
@@ -141,23 +152,118 @@ fun RenameDialog(
                         style = MaterialTheme.typography.labelLarge
                     )
                     Spacer(Modifier.height(4.dp))
-                    for (row in previewOf(listed, clean, first)) {
+                    for (row in previewOf(listed, clean, first, extension)) {
                         PreviewRow(row)
                     }
                 }
             }
         },
+        /*
+         * ⚠️⚠️ **IL TASTO DELL'ESTENSIONE STA A DESTRA DI 'Rinomina', IN LINEA** (richiesta
+         * dell'utente, 2026-09-02), quindi la fila dei tasti diventa 'Annulla', 'Rinomina',
+         * 'Estensione'. ⚠️ **Non è l'ordine che Material consiglia** (l'azione principale
+         * ultima a destra), ed è una scelta dichiarata: il tasto in più non conferma niente,
+         * apre un pannellino, e metterlo in mezzo lo farebbe leggere come una seconda
+         * conferma.
+         * ⚠️⚠️ **L'ETICHETTA È LA CORTA, 'Estensione', e la ragione è una misura**: in questa
+         * fila ci sono già 'Annulla' (~70dp) e 'Rinomina' (~80dp), e 'Cambia estensione' ne
+         * vuole circa 150: su un dialogo largo 280 la fila andrebbe a capo. L'utente aveva
+         * previsto il caso (*se non ci sta, solo 'Estensione'*).
+         */
         confirmButton = {
-            TextButton(
-                onClick = { onRename(clean, first ?: 1) },
-                enabled = ready
-            ) { Text(stringResource(R.string.pick_rename)) }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                TextButton(
+                    onClick = { onRename(clean, first ?: 1, extension) },
+                    enabled = ready
+                ) { Text(stringResource(R.string.pick_rename)) }
+                FilledTonalButton(
+                    onClick = { asking = true },
+                    shape = MaterialTheme.shapes.large,
+                    contentPadding = EXT_PAD
+                ) {
+                    Text(
+                        text = stringResource(R.string.rename_ext),
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+        }
+    )
+
+    if (asking) {
+        ExtensionDialog(
+            // ⚠️ Il valore di partenza è quello **corrente**: l'estensione già scelta se c'è,
+            // altrimenti quella del primo file, che con una selezione omogenea è quella di
+            // tutti. Senza il punto, come chiesto.
+            initial = extension ?: listed?.firstOrNull()?.substringAfterLast('.', "").orEmpty(),
+            onDismiss = { asking = false },
+            onPick = { extension = it; asking = false }
+        )
+    }
+}
+
+/**
+ * Il pannellino della sola estensione.
+ *
+ * ⚠️⚠️ **CAMBIA IL NOME E NON IL FORMATO, e lo dice** (nota in fondo): rinominare `foto.jpg`
+ * in `foto.png` lascia dentro un JPEG con l'etichetta sbagliata, e l'app che poi lo apre si
+ * fida del contenuto e non del nome, quindi il file funziona ma mente. Chi vuole cambiare
+ * davvero formato usa 'Esporta/Converti', e la nota lo manda là.
+ * ⚠️ **Il punto non si scrive**, e il campo lo scarta insieme a tutto quello che un nome di
+ * file non può contenere: il punto lo rimette [renderName], e uno scritto qui darebbe
+ * `foto..jpg`.
+ */
+@Composable
+private fun ExtensionDialog(initial: String, onDismiss: () -> Unit, onPick: (String) -> Unit) {
+    var typed by rememberSaveable { mutableStateOf(initial) }
+    val clean = typed.trim().trimStart('.')
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        modifier = Modifier.lowered(),
+        title = { Text(stringResource(R.string.rename_ext)) },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = typed,
+                    // ⚠️ Si filtra mentre si scrive invece di validare dopo: qui dentro va
+                    // una parola di tre lettere, e un messaggio d'errore per un carattere
+                    // che non doveva entrare costa più della lettera che si è tolta.
+                    onValueChange = { t -> typed = t.filter { it.isLetterOrDigit() }.take(12) },
+                    label = { Text(stringResource(R.string.rename_ext_label)) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.rename_ext_note),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        confirmButton = {
+            // ⚠️ Si riusa `editor_apply` ('Applica') invece di aggiungere una stringa: è la
+            // stessa parola per la stessa idea, esiste già in 28 lingue, e una copia sarebbe
+            // un secondo posto da tenere d'accordo col primo.
+            TextButton(onClick = { onPick(clean) }) {
+                Text(stringResource(R.string.editor_apply))
+            }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
         }
     )
 }
+
+/** Quanto stringe il tasto dell'estensione, che sta in una fila già piena. */
+private val EXT_PAD = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
 
 /**
  * Le righe dell'anteprima: i primi tre abbinamenti e **l'ultimo**.
@@ -166,13 +272,20 @@ fun RenameDialog(
  * cifre del template bastano: con `##` e centoventi file, la riga finale dice `120` e si
  * capisce al volo che i nomi non si ordineranno come ci si aspetta.
  */
-private fun previewOf(names: List<String>, template: String, start: Int): List<Pairing> {
+private fun previewOf(
+    names: List<String>,
+    template: String,
+    start: Int,
+    extension: String?
+): List<Pairing> {
     if (names.isEmpty()) return emptyList()
     val rows = ArrayList<Pairing>(5)
     val head = minOf(names.size, 3)
-    for (at in 0 until head) rows += pairing(names[at], template, start + at)
+    for (at in 0 until head) rows += pairing(names[at], template, start + at, extension)
     if (names.size > head + 1) rows += Pairing(null, null)
-    if (names.size > head) rows += pairing(names.last(), template, start + names.lastIndex)
+    if (names.size > head) {
+        rows += pairing(names.last(), template, start + names.lastIndex, extension)
+    }
     return rows
 }
 
@@ -182,25 +295,33 @@ private fun previewOf(names: List<String>, template: String, start: Int): List<P
  */
 private data class Pairing(val before: String?, val after: String?)
 
-private fun pairing(name: String, template: String, number: Int): Pairing {
-    val extension = name.substringAfterLast('.', "")
-    return Pairing(name, renderName(template, number, extension))
-}
+private fun pairing(
+    name: String,
+    template: String,
+    number: Int,
+    extension: String?
+): Pairing = Pairing(
+    before = name,
+    after = renderName(template, number, extension ?: name.substringAfterLast('.', ""))
+)
 
 /**
- * Una riga dell'anteprima: due pastiglie di colore diverso, con la freccia in mezzo.
+ * Una riga dell'anteprima: due pastiglie di colore diverso, una **sopra l'altra**.
  *
- * ⚠️⚠️ **PRIMA ERA UNA STRINGA SOLA** (`vecchio  ->  nuovo`) e i due nomi si confondevano
- * (riscontro dell'utente, 2026-09-02: *stavo pensando ad un modo per differenziare meglio e
- * far saltare all'occhio nome vecchio VS nome nuovo*). Adesso ognuno sta nella sua
- * pastiglia: quella di sinistra è **spenta**, perché è il nome che se ne va, e quella di
- * destra è **accesa** col colore del contenitore secondario, perché è il risultato, che è la
- * sola cosa che si sta decidendo.
- * ⚠️ **Le due pastiglie hanno lo stesso peso** (`weight(1f)` a testa) e non si stringono a
- * seconda del testo: nomi di lunghezza diversa farebbero ballare la freccia da una riga
- * all'altra, e cinque righe di anteprima diventerebbero cinque colonne disallineate.
- * ⚠️ **Due righe per pastiglia**, come chiesto: un nome lungo va a capo dentro la sua
- * invece di essere tagliato al primo giro.
+ * ⚠️⚠️ **AFFIANCATE ERANO SBAGLIATE, e la ragione è la larghezza dei nomi veri** (riscontro
+ * dell'utente, 2026-09-02: *ho spesso a che fare con nomi lunghi, e su una colonna larga
+ * praticamente il 35% dello schermo i loro nomi lunghissimi dovrebbero andare a capo molte
+ * volte. Proviamo la versione sopra -> sotto*). Fino alla `1.29` stavano una accanto all'altra
+ * con peso uguale, cioè ognuna su un terzo del dialogo: su un nome di quaranta caratteri quel
+ * terzo diventa cinque righe, e cinque righe per due nomi sono dieci righe per un abbinamento.
+ * Impilate, ognuna ha tutta la larghezza. ⚠️ **L'altezza cresce e non è un problema**, parole
+ * sue: due righe intere si leggono meglio di dieci spezzoni.
+ * ⚠️ **La freccia scende con loro**: fra le due pastiglie diventa un `↓`, perché una freccia a
+ * destra fra due cose incolonnate indicherebbe il verso sbagliato.
+ *
+ * ⚠️ **I nomi passano da [unbroken]**: senza, il layout va a capo dentro l'estensione, e
+ * un `.a` su una riga e un `vif` sull'altra non si leggono più come AVIF. È la prima delle tre
+ * richieste di questo giro, e vale come regola generale.
  */
 @Composable
 private fun PreviewRow(row: Pairing) {
@@ -213,35 +334,41 @@ private fun PreviewRow(row: Pairing) {
         )
         return
     }
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         NamePill(
-            text = row.before,
+            text = unbroken(row.before),
             back = MaterialTheme.colorScheme.surfaceVariant,
             front = MaterialTheme.colorScheme.onSurfaceVariant,
             weight = FontWeight.Normal,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.fillMaxWidth()
         )
         Text(
-            // ⚠️ La freccia vera e non `->` (richiesta dell'utente, 2026-09-02): due segni di
-            // interpunzione che fanno finta di essere una freccia si leggono come tali solo
-            // dopo averli guardati, e qui il verso è tutto il senso della riga.
-            text = "→",
+            text = "↓",
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = ARROW_INDENT)
         )
         NamePill(
-            text = row.after,
+            text = unbroken(row.after),
             back = MaterialTheme.colorScheme.secondaryContainer,
             front = MaterialTheme.colorScheme.onSecondaryContainer,
             weight = FontWeight.Medium,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
+
+/**
+ * Quanto rientra la freccia fra le due pastiglie.
+ *
+ * ⚠️ **Rientrata e non centrata**: centrata sulla larghezza si sposterebbe con la larghezza
+ * del dialogo e non avrebbe niente a cui allinearsi, mentre qui sta sopra la prima lettera dei
+ * due nomi, che è il posto da cui l'occhio parte a leggerli.
+ */
+private val ARROW_INDENT = 10.dp
 
 @Composable
 private fun NamePill(
@@ -257,8 +384,13 @@ private fun NamePill(
             style = MaterialTheme.typography.bodySmall,
             color = front,
             fontWeight = weight,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
+            /*
+             * ⚠️ **Nessun tetto di righe dalla 1.30**, e prima erano due: impilate le
+             * pastiglie hanno tutta la larghezza, quindi un nome ci sta quasi sempre in una
+             * riga o due, e un tetto taglierebbe proprio i nomi lunghissimi per cui l'utente
+             * ha chiesto questa forma. L'anteprima mostra al massimo cinque abbinamenti: non
+             * può crescere senza limite.
+             */
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
         )
     }

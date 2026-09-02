@@ -222,6 +222,9 @@
     <string name="rename_start">প্রথম সংখ্যা</string>
     <string name="rename_hint">হ্যাশের প্রতিটি সারি সংখ্যা হয়ে যায়, আর যতগুলো লিখবেন ততগুলো অঙ্ক হবে: ## দেয় 01, ### দেয় 001। এক্সটেনশনে কখনো হাত পড়ে না, আর ফাইলগুলো বর্ণানুক্রমে নম্বর পায়।</string>
     <string name="rename_preview">পূর্বরূপ</string>
+    <string name="rename_ext">এক্সটেনশন</string>
+    <string name="rename_ext_label">নতুন এক্সটেনশন</string>
+    <string name="rename_ext_note">এটি নাম বদলায়, ফরম্যাট নয়: ফাইলের বিষয়বস্তু একই থাকে. সত্যিই রূপান্তর করতে \'রপ্তানি ও রূপান্তর\' ব্যবহার করুন.</string>
     <string name="delete_ask">মোছার কথা নিশ্চিত করবেন?</string>
     <plurals name="delete_desc">
         <item quantity="one">আপনি %1$d ফাইল চিরতরে মুছতে চলেছেন: এটি ফোন থেকে চিরকালের জন্য চলে যাবে।</item>

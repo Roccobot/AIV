@@ -263,7 +263,17 @@ object FileTree {
         context: Context,
         uris: List<Uri>,
         template: String,
-        start: Int
+        start: Int,
+        /**
+         * L'estensione da mettere a **tutti**, senza il punto, o `null` per tenere quella
+         * che ogni file ha già.
+         *
+         * ⚠️⚠️ **CAMBIA IL NOME E NON IL FORMATO**, e chi la usa deve saperlo: rinominare
+         * `foto.jpg` in `foto.png` lascia dentro un JPEG con l'etichetta sbagliata. Il
+         * pannellino che la raccoglie lo scrive; qui resta scritto perché questa funzione
+         * non ha modo di impedirlo e non deve provarci.
+         */
+        extension: String? = null
     ): Outcome = withContext(Dispatchers.IO + NonCancellable) {
         val files = ordered(context, uris)
         var failed = uris.size - files.size
@@ -275,7 +285,11 @@ object FileTree {
         val parked = ArrayList<Pair<File, Pair<File, String>>>(files.size)
         files.forEachIndexed { at, file ->
             val dir = file.parentFile
-            val wanted = renderName(template, start + at, file.name.substringAfterLast('.', ""))
+            val wanted = renderName(
+                template,
+                start + at,
+                extension ?: file.name.substringAfterLast('.', "")
+            )
             val temp = if (dir == null) null else File(dir, ".aiv-$stamp-$at")
             if (temp != null && runCatching { file.renameTo(temp) }.getOrDefault(false)) {
                 parked += temp to (file to wanted)

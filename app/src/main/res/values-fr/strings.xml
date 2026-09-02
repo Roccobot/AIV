@@ -230,6 +230,9 @@
     <string name="rename_start">Premier numéro</string>
     <string name="rename_hint">Chaque suite de dièses devient le numéro, et le nombre que vous écrivez donne le nombre de chiffres : ## donne 01, ### donne 001. L\'extension n\'est jamais touchée, et les fichiers sont numérotés par ordre alphabétique.</string>
     <string name="rename_preview">Aperçu</string>
+    <string name="rename_ext">Extension</string>
+    <string name="rename_ext_label">Nouvelle extension</string>
+    <string name="rename_ext_note">Cela change le NOM, pas le format: le fichier garde son contenu. Pour vraiment le convertir, utilise \'Exporter et convertir\'.</string>
     <string name="delete_ask">Confirmer la suppression ?</string>
     <plurals name="delete_desc">
         <item quantity="one">Vous allez supprimer définitivement %1$d élément : il disparaît du téléphone pour toujours.</item>

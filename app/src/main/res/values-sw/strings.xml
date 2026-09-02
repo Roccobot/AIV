@@ -222,6 +222,9 @@
     <string name="rename_start">Namba ya kwanza</string>
     <string name="rename_hint">Kila mfululizo wa alama za reli huwa namba, na kadiri unavyoandika ndivyo tarakimu zitakavyokuwa: ## hutoa 01, ### hutoa 001. Kiendelezi hakiguswi kamwe, na mafaili hupewa namba kwa mpangilio wa alfabeti.</string>
     <string name="rename_preview">Onyesho la awali</string>
+    <string name="rename_ext">Kiendelezi</string>
+    <string name="rename_ext_label">Kiendelezi kipya</string>
+    <string name="rename_ext_note">Hubadilisha JINA, sio muundo: faili huhifadhi maudhui yake. Ili kuibadilisha kweli, tumia \'Hamisha na kubadilisha\'.</string>
     <string name="delete_ask">Uthibitishe kufuta?</string>
     <plurals name="delete_desc">
         <item quantity="one">Unakaribia kufuta kipengele %1$d kabisa: kinaondoka kwenye simu milele.</item>

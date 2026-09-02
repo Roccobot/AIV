@@ -238,6 +238,9 @@
     <string name="rename_start">Перший номер</string>
     <string name="rename_hint">Кожен ланцюжок ґраток стає номером, і скільки їх напишете, стільки буде цифр: ## дає 01, ### дає 001. Розширення не чіпається, а файли нумеруються за абеткою.</string>
     <string name="rename_preview">Перегляд</string>
+    <string name="rename_ext">Розширення</string>
+    <string name="rename_ext_label">Нове розширення</string>
+    <string name="rename_ext_note">Змінюється ІМ\'Я, а не формат: вміст файлу залишається тим самим. Щоб справді перетворити, скористайтеся \'Експортувати й перетворити\'.</string>
     <string name="delete_ask">Підтвердити видалення?</string>
     <plurals name="delete_desc">
         <item quantity="one">Ви остаточно видаляєте %1$d елемент: він зникне з телефона назавжди.</item>

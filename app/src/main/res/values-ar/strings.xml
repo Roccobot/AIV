@@ -254,6 +254,9 @@
     <string name="rename_start">الرقم الأول</string>
     <string name="rename_hint">كل سلسلة من علامات المربع تصير الرقم، وبعدد ما تكتب منها تكون الخانات: ## تعطي 01، و### تعطي 001. الامتداد لا يُمس أبدًا، وتُرقّم الملفات بالترتيب الأبجدي.</string>
     <string name="rename_preview">معاينة</string>
+    <string name="rename_ext">الامتداد</string>
+    <string name="rename_ext_label">الامتداد الجديد</string>
+    <string name="rename_ext_note">يغيّر الاسم لا الصيغة: يحفظ الملف محتواه. لتحويله فعلاً استخدم \'تصدير وتحويل\'.</string>
     <string name="delete_ask">تأكيد الحذف؟</string>
     <plurals name="delete_desc">
         <item quantity="zero">لا توجد عناصر لحذفها.</item>

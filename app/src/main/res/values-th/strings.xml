@@ -214,6 +214,9 @@
     <string name="rename_start">เลขเริ่มต้น</string>
     <string name="rename_hint">เครื่องหมายสี่เหลี่ยมทุกชุดจะกลายเป็นเลข และเขียนกี่ตัวก็ได้กี่หลัก: ## ให้ 01 และ ### ให้ 001 ส่วนขยายไม่ถูกแตะต้องเลย และไฟล์จะได้เลขตามลำดับตัวอักษร</string>
     <string name="rename_preview">ตัวอย่าง</string>
+    <string name="rename_ext">นามสกุล</string>
+    <string name="rename_ext_label">นามสกุลใหม่</string>
+    <string name="rename_ext_note">เปลี่ยนชื่อ ไม่ใช่รูปแบบ: เนื้อหาไฟล์ยังเหมือนเดิม หากต้องการแปลงจริงให้ใช้ \'ส่งออกและแปลง\'</string>
     <string name="delete_ask">ยืนยันการลบไหม</string>
     <plurals name="delete_desc">
         <item quantity="other">คุณกำลังจะลบ %1$d รายการอย่างถาวร: จะหายไปจากโทรศัพท์ตลอดไป</item>
