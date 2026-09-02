@@ -37,6 +37,7 @@
     <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">বিন্যাসের দীর্ঘতম তালিকা, AVIF ও TIFF সহ।</string>
     <string name="toast_image_copied">ছবি অনুলিপি হয়েছে</string>
+    <string name="toast_name_copied">ফাইলের নাম অনুলিপি হয়েছে</string>
     <string name="toast_copy_failed">অনুলিপি হয়নি</string>
     <string name="toast_saved">সংরক্ষিত হয়েছে</string>
     <string name="toast_save_failed">সংরক্ষণ হয়নি</string>

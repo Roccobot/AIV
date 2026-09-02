@@ -37,6 +37,7 @@
     <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">स्वरूपांची सर्वात मोठी यादी, AVIF आणि TIFF सह.</string>
     <string name="toast_image_copied">प्रतिमेची प्रत झाली</string>
+    <string name="toast_name_copied">फाइलचे नाव कॉपी झाले</string>
     <string name="toast_copy_failed">प्रत झाली नाही</string>
     <string name="toast_saved">जतन झाले</string>
     <string name="toast_save_failed">जतन झाले नाही</string>

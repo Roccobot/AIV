@@ -114,6 +114,9 @@
     <string name="settings_editor_backup_desc">Before an editor writes over an image, it saves a copy in the bin, where you can recover it; if you do not need it, it will be deleted at the next \'Empty bin\'.</string>
 
     <string name="toast_image_copied">Image copied</string>
+    <!-- Said after a long press on the file name in the file info dialog: the whole
+         name, extension included, is now in the clipboard. -->
+    <string name="toast_name_copied">File name copied</string>
     <string name="toast_copy_failed">The copy did not go through</string>
     <string name="toast_saved">Saved</string>
     <string name="toast_save_failed">Saving did not go through</string>

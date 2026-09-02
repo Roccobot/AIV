@@ -83,6 +83,7 @@
     <string name="settings_editor_backup_desc">Prima di sovrascrivere un\'immagine, l\'editor ne salva una copia nel cestino, dove potrai recuperarla; se non ti serve, sarà eliminata al successivo \'Svuota cestino\'.</string>
 
     <string name="toast_image_copied">Immagine copiata</string>
+    <string name="toast_name_copied">Nome del file copiato</string>
     <string name="toast_copy_failed">La copia non è andata a buon fine</string>
     <string name="toast_saved">Salvata</string>
     <string name="toast_save_failed">Il salvataggio non è andato a buon fine</string>

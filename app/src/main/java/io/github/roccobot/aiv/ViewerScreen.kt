@@ -119,6 +119,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -2873,49 +2876,96 @@ private fun DetailsPanel(
     // sta là. ⚠️ Il colore del testo arriva da quella `Surface` tramite `LocalContentColor`,
     // quindi qui non si dichiara: dichiararlo di nuovo vorrebbe dire due fonti per la
     // stessa scelta.
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .safeDrawingPadding()
-            .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 4.dp)
     ) {
-        Text(
-            text = buildString {
-                append(image.mimeType?.substringAfter('/')?.uppercase() ?: "?")
-                append("  ")
-                append(image.pixelWidth).append(" x ").append(image.pixelHeight)
-                image.byteSize?.let { append("  ").append(formatBytes(it)) }
-                append("  ").append((percent * 100).roundToInt()).append('%')
-                // ⚠️⚠️ **QUESTA È DIAGNOSTICA, e va difesa come quella della cartella**:
-                // `sampled` da solo diceva che la fotografia era stata ridotta, ma non se
-                // il rattoppo a piena risoluzione stesse funzionando, e 'non si vede
-                // niente' è identico fra una funzione rotta, una che ha deciso di non fare
-                // niente e un formato che non si sa rileggere. Con il motivo scritto, il
-                // difetto della `0.49` si è potuto nominare invece che indovinare.
-                // ⚠️ Solo per le fotografie **ridotte**: su tutte le altre i tasselli non
-                // c'entrano, e una parola in più sarebbe rumore su ogni foto.
-                if (image.sampled) {
-                    append("  (sampled")
-                    tiles?.let { append(", ").append(it) }
-                    append(')')
-                }
-                // ⚠️ Il perché di una cartella che non c'è resta QUI, col resto del testo,
-                // e non va nell'angolo del contatore: è una frase, non un numero, e in
-                // quello spazio starebbe stretta o lo farebbe crescere rimettendo in
-                // movimento il contatore che si è appena fissato.
-                folderNote?.let { append("  ").append(it) }
-            },
-            style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.weight(1f)
-        )
-        folder?.seriesOrNull?.let {
+        /*
+         * ⚠️⚠️ **IL NOME STA SOPRA I DATI E NON IN MEZZO A LORO** (richiesta dell'utente,
+         * 2026-09-02: *sopra i dati già esistenti, in piccolo, in una sola riga con ellissi
+         * centrale*). Infilato nella riga di sotto avrebbe rubato lo spazio al formato, alla
+         * misura e alla percentuale, che sono corti e stanno tutti insieme proprio perché si
+         * leggono in un colpo d'occhio; e allungandosi col nome avrebbe rimesso in movimento il
+         * contatore, che tre note qui intorno difendono dall'essere spostato.
+         * ⚠️ **Più piccolo dei dati e non più grande**: è il titolo di quello che si guarda, ma
+         * la riga esiste per i dati, e un nome in grande sopra una riga di numeri li farebbe
+         * sembrare una didascalia. `labelMedium` contro il `labelLarge` di sotto.
+         */
+        image.displayName?.takeIf { it.isNotBlank() }?.let { NameLine(it) }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
-                text = "${it.index + 1}/${it.size}",
+                text = buildString {
+                    append(image.mimeType?.substringAfter('/')?.uppercase() ?: "?")
+                    append("  ")
+                    append(image.pixelWidth).append(" x ").append(image.pixelHeight)
+                    image.byteSize?.let { append("  ").append(formatBytes(it)) }
+                    append("  ").append((percent * 100).roundToInt()).append('%')
+                    // ⚠️⚠️ **QUESTA È DIAGNOSTICA, e va difesa come quella della cartella**:
+                    // `sampled` da solo diceva che la fotografia era stata ridotta, ma non se
+                    // il rattoppo a piena risoluzione stesse funzionando, e 'non si vede
+                    // niente' è identico fra una funzione rotta, una che ha deciso di non fare
+                    // niente e un formato che non si sa rileggere. Con il motivo scritto, il
+                    // difetto della `0.49` si è potuto nominare invece che indovinare.
+                    // ⚠️ Solo per le fotografie **ridotte**: su tutte le altre i tasselli non
+                    // c'entrano, e una parola in più sarebbe rumore su ogni foto.
+                    if (image.sampled) {
+                        append("  (sampled")
+                        tiles?.let { append(", ").append(it) }
+                        append(')')
+                    }
+                    // ⚠️ Il perché di una cartella che non c'è resta QUI, col resto del testo,
+                    // e non va nell'angolo del contatore: è una frase, non un numero, e in
+                    // quello spazio starebbe stretta o lo farebbe crescere rimettendo in
+                    // movimento il contatore che si è appena fissato.
+                    folderNote?.let { append("  ").append(it) }
+                },
                 style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.padding(start = 12.dp)
+                modifier = Modifier.weight(1f)
             )
+            folder?.seriesOrNull?.let {
+                Text(
+                    text = "${it.index + 1}/${it.size}",
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.padding(start = 12.dp)
+                )
+            }
         }
+    }
+}
+
+/**
+ * Il nome del file sopra la riga dei dati: una riga sola, con l'ellissi in mezzo.
+ *
+ * ⚠️⚠️ **È [fitName], lo stesso di GRIGLIA E PASTIGLIA, e non un accorciamento nuovo**: qui
+ * bastava un `TextOverflow.Ellipsis`, ma quello mette i tre punti alla **fine**, cioè mangia
+ * l'estensione, che è la parte che dice che cosa si sta guardando ed è la sola che l'utente ha
+ * chiesto di non perdere mai. Un'ellissi in mezzo Compose non ce l'ha: è misurata là dentro, e
+ * questo posto è il terzo che la usa.
+ * ⚠️ **Una riga sola** (`lines = 1`), che è la differenza con gli altri due: la pastiglia del
+ * dialogo ne concede tre e la griglia due, perché là il nome è il contenuto; qui è la testatina
+ * di una riga di dati, e una seconda riga la farebbe crescere sopra la fotografia.
+ * ⚠️ **L'estensione in grassetto anche qui**, e non per decorazione: è l'accorgimento che
+ * distingue i tre punti dell'ellissi dal punto dell'estensione, e cambiarlo in un posto solo
+ * vorrebbe dire che lo stesso nome si legge in due modi in due schermate.
+ * ⚠️ **`BoxWithConstraints` e non una misura in dp**: la larghezza utile è quella dello schermo
+ * meno i margini, e scritta a mano sarebbe giusta su un telefono solo.
+ */
+@Composable
+private fun NameLine(name: String) {
+    val style = MaterialTheme.typography.labelMedium
+    val grassetto = SpanStyle(fontWeight = FontWeight.Bold)
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        val measurer = rememberTextMeasurer()
+        val room = with(LocalDensity.current) { maxWidth.roundToPx() }
+        val shown = remember(name, room, style, grassetto, measurer) {
+            fitName(name, room, 1, style, grassetto, measurer)
+        }
+        Text(text = shown, style = style, maxLines = 1)
     }
 }
 

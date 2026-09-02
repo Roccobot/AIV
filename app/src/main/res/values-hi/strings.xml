@@ -37,6 +37,7 @@
     <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">प्रारूपों की सबसे लंबी सूची, AVIF और TIFF सहित।</string>
     <string name="toast_image_copied">चित्र कॉपी हो गया</string>
+    <string name="toast_name_copied">फ़ाइल का नाम कॉपी हो गया</string>
     <string name="toast_copy_failed">कॉपी नहीं हो सका</string>
     <string name="toast_saved">सहेज लिया</string>
     <string name="toast_save_failed">सहेजा नहीं जा सका</string>

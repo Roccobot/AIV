@@ -37,6 +37,7 @@
     <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">ఫార్మాట్ల జాబితా అన్నింటికంటే పొడవైనది, AVIF మరియు TIFFతో సహా.</string>
     <string name="toast_image_copied">చిత్రం కాపీ అయింది</string>
+    <string name="toast_name_copied">ఫైల్ పేరు కాపీ అయింది</string>
     <string name="toast_copy_failed">కాపీ జరగలేదు</string>
     <string name="toast_saved">భద్రపరచబడింది</string>
     <string name="toast_save_failed">భద్రపరచడం జరగలేదు</string>

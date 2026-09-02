@@ -37,6 +37,7 @@
     <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">بلندترین فهرست قالب‌ها، از جمله AVIF و TIFF.</string>
     <string name="toast_image_copied">تصویر رونوشت شد</string>
+    <string name="toast_name_copied">نام فایل کپی شد</string>
     <string name="toast_copy_failed">رونوشت انجام نشد</string>
     <string name="toast_saved">ذخیره شد</string>
     <string name="toast_save_failed">ذخیره انجام نشد</string>

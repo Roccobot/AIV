@@ -37,6 +37,7 @@
     <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">Daftar format terpanjang, termasuk AVIF dan TIFF.</string>
     <string name="toast_image_copied">Gambar disalin</string>
+    <string name="toast_name_copied">Nama berkas disalin</string>
     <string name="toast_copy_failed">Penyalinan tidak berhasil</string>
     <string name="toast_saved">Tersimpan</string>
     <string name="toast_save_failed">Penyimpanan tidak berhasil</string>

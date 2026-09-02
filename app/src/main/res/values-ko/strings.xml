@@ -37,6 +37,7 @@
     <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">형식 목록이 가장 깁니다. AVIF와 TIFF도 있습니다.</string>
     <string name="toast_image_copied">이미지를 복사했습니다</string>
+    <string name="toast_name_copied">파일 이름을 복사했습니다</string>
     <string name="toast_copy_failed">복사하지 못했습니다</string>
     <string name="toast_saved">저장했습니다</string>
     <string name="toast_save_failed">저장하지 못했습니다</string>

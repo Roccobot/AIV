@@ -76,10 +76,28 @@ object ImageActions {
             val stem = naturalCompare(a.substringBeforeLast('.', a), b.substringBeforeLast('.', b))
             if (stem != 0) stem else naturalCompare(a.substringAfterLast('.', ""), b.substringAfterLast('.', ""))
         }
-        val text = (listOfNotNull(folder) + names).joinToString("\n")
+        copyText(context, (listOfNotNull(folder) + names).joinToString("\n"))
+        return names.size
+    }
+
+    /**
+     * Mette negli appunti UN nome, intero.
+     *
+     * ⚠️⚠️ **PRENDE IL NOME GIÀ IN MANO A CHI CHIAMA, e non lo va a rileggere**: chi la usa è
+     * il dialogo delle info, che il nome ce l'ha perché lo sta mostrando, e una seconda
+     * interrogazione al MediaStore potrebbe rispondere una cosa diversa da quella che si legge
+     * a schermo. Quello che si copia dev'essere quello che si vede.
+     * ⚠️ **È [copyNames] con una lista di uno? No, e la differenza conta**: quella legge i nomi
+     * dagli indirizzi, li ordina e ci può mettere davanti il percorso della cartella. Qui il
+     * risultato deve essere il nome e basta, senza una riga in più da cancellare a mano dopo
+     * averlo incollato.
+     */
+    fun copyName(context: Context, name: String) = copyText(context, name)
+
+    /** Il testo negli appunti, con l'etichetta di casa: l'unico posto che parla col sistema. */
+    private fun copyText(context: Context, text: String) {
         val clipboard = context.getSystemService(ClipboardManager::class.java)
         clipboard.setPrimaryClip(ClipData.newPlainText("AIV", text))
-        return names.size
     }
 
     /**

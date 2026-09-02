@@ -37,6 +37,7 @@
     <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">فارمیٹس کی سب سے لمبی فہرست، AVIF اور TIFF سمیت۔</string>
     <string name="toast_image_copied">تصویر نقل ہو گئی</string>
+    <string name="toast_name_copied">فائل کا نام نقل ہو گیا</string>
     <string name="toast_copy_failed">نقل نہیں ہو سکی</string>
     <string name="toast_saved">محفوظ ہو گیا</string>
     <string name="toast_save_failed">محفوظ نہیں ہو سکا</string>
