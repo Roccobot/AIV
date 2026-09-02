@@ -131,7 +131,7 @@
     <string name="search_hint">Rechercher dans le nom du fichier</string>
     <string name="search_clear">Effacer</string>
     <string name="search_none">Aucun fichier n\'a \'%1$s\' dans son nom.</string>
-    <string name="identity_repo">Ouvrir le dépôt AIV sur GitHub</string>
+    <string name="identity_page">Ouvrir la page de téléchargement AIV</string>
     <string name="grid_item">Élément %1$d sur %2$d</string>
     <string name="grid_item_last">Élément %1$d sur %2$d, le dernier que vous avez regardé</string>
     <string name="pick_leave">Quitter la sélection</string>

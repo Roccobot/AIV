@@ -131,7 +131,7 @@
     <string name="search_hint">ค้นหาในชื่อไฟล์</string>
     <string name="search_clear">ล้าง</string>
     <string name="search_none">ไม่มีไฟล์ที่ชื่อมี \'%1$s\' อยู่</string>
-    <string name="identity_repo">เปิดคลังเก็บ AIV บน GitHub</string>
+    <string name="identity_page">เปิดหน้าดาวน์โหลด AIV</string>
     <string name="grid_item">รายการที่ %1$d จาก %2$d</string>
     <string name="grid_item_last">รายการที่ %1$d จาก %2$d รายการสุดท้ายที่คุณดู</string>
     <string name="pick_leave">ออกจากการเลือก</string>

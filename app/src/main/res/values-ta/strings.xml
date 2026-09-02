@@ -131,7 +131,7 @@
     <string name="search_hint">கோப்புப் பெயரில் தேடு</string>
     <string name="search_clear">அழி</string>
     <string name="search_none">எந்தக் கோப்பின் பெயரிலும் \'%1$s\' இல்லை.</string>
-    <string name="identity_repo">GitHub-இல் AIV களஞ்சியத்தைத் திற</string>
+    <string name="identity_page">AIV பதிவிறக்கப் பக்கத்தைத் திற</string>
     <string name="grid_item">%2$d-இல் %1$d-ஆவது</string>
     <string name="grid_item_last">%2$d-இல் %1$d-ஆவது, நீங்கள் கடைசியாகப் பார்த்தது</string>
     <string name="pick_leave">தேர்விலிருந்து வெளியேறு</string>

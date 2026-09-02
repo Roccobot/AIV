@@ -131,7 +131,7 @@
     <string name="search_hint">在檔名中搜尋</string>
     <string name="search_clear">清除</string>
     <string name="search_none">沒有檔案的名稱裡含有 \'%1$s\'。</string>
-    <string name="identity_repo">在 GitHub 上開啟 AIV 的儲存庫</string>
+    <string name="identity_page">開啟 AIV 的下載頁面</string>
     <string name="grid_item">第 %1$d 項,共 %2$d 項</string>
     <string name="grid_item_last">第 %1$d 項,共 %2$d 項,你最後看過的一項</string>
     <string name="pick_leave">退出選取</string>

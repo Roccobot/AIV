@@ -131,7 +131,7 @@
     <string name="search_hint">फ़ाइल के नाम में खोजें</string>
     <string name="search_clear">साफ़ करें</string>
     <string name="search_none">किसी फ़ाइल के नाम में \'%1$s\' नहीं है।</string>
-    <string name="identity_repo">GitHub पर AIV का रिपॉज़िटरी खोलें</string>
+    <string name="identity_page">AIV डाउनलोड पेज खोलें</string>
     <string name="grid_item">%2$d में से %1$d आइटम</string>
     <string name="grid_item_last">%2$d में से %1$d आइटम, जिसे आपने आख़िर में देखा</string>
     <string name="pick_leave">चयन से बाहर</string>

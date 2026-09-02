@@ -131,7 +131,7 @@
     <string name="search_hint">Tìm trong tên tệp</string>
     <string name="search_clear">Xóa</string>
     <string name="search_none">Không có tệp nào có \'%1$s\' trong tên.</string>
-    <string name="identity_repo">Mở kho AIV trên GitHub</string>
+    <string name="identity_page">Mở trang tải xuống AIV</string>
     <string name="grid_item">Mục %1$d trong %2$d</string>
     <string name="grid_item_last">Mục %1$d trong %2$d, mục bạn xem lần cuối</string>
     <string name="pick_leave">Thoát khỏi chế độ chọn</string>

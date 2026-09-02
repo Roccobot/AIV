@@ -131,7 +131,7 @@
     <string name="search_hint">संचिकेच्या नावात शोधा</string>
     <string name="search_clear">पुसा</string>
     <string name="search_none">कोणत्याही संचिकेच्या नावात \'%1$s\' नाही.</string>
-    <string name="identity_repo">GitHubवर AIV भांडार उघडा</string>
+    <string name="identity_page">AIV डाउनलोड पृष्ठ उघडा</string>
     <string name="grid_item">%2$d पैकी %1$dवी</string>
     <string name="grid_item_last">%2$d पैकी %1$dवी, तुम्ही शेवटी पाहिलेली</string>
     <string name="pick_leave">निवडीतून बाहेर</string>

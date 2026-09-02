@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.width
@@ -369,7 +371,28 @@ fun MenuRow(
     ) {
         // ⚠️ L'icona non porta descrizione e il testo sì: il modificatore di gesto fonde le
         // semantiche dei figli, quindi TalkBack legge una voce sola. Vedi `PadButton`.
-        Icon(imageVector = icon, contentDescription = null, tint = colors.leadingIconColor)
+        /*
+         * ⚠️⚠️ **LO SLOT È SEMPRE 24dp E IL DISEGNO PUÒ ESSERE PIÙ GRANDE, dalla 1.37**:
+         * `Glyphs.PhotoPair` è 25dp perché il suo foglio dietro esce dalla tela (il perché
+         * sta su `Glyphs.COPY_IMAGE`), e quel dp in più deve **sporgere** invece di entrare
+         * nel conto della fila. Se entrasse, quella voce avrebbe l'icona larga 25 e il suo
+         * testo comincerebbe 1dp più a destra delle altre, che è il disallineamento dei
+         * testi già visto e corretto nella 1.28.
+         * ⚠️ **`requiredSize` e non `size`**: `size` negozia col genitore, quindi lo slot da
+         * 24 schiaccerebbe il disegno da 25 e il quadrato-base tornerebbe 17,28 invece di 18.
+         * La differenza fra i due è misurata e sta in `Identity.kt`, su `LAUNCHER_ZOOM`.
+         * ⚠️ **In basso a destra**, così quello che sporge va a sinistra e in alto, che è da
+         * dove esce quel glifo. Per i glifi da 24, che sono tutti gli altri, questo `Box` non
+         * cambia niente: 24 in uno slot da 24 sta fermo qualunque allineamento si dia.
+         */
+        Box(modifier = Modifier.size(MENU_ITEM_ICON), contentAlignment = Alignment.BottomEnd) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = colors.leadingIconColor,
+                modifier = Modifier.requiredSize(icon.defaultWidth, icon.defaultHeight)
+            )
+        }
         Text(
             text = text,
             style = MaterialTheme.typography.labelLarge,
@@ -382,6 +405,15 @@ fun MenuRow(
 private val MENU_ITEM_HEIGHT = 48.dp
 private val MENU_ITEM_SIDE = 12.dp
 private val MENU_ITEM_GAP = 8.dp
+
+/**
+ * Lo slot dell'icona di una voce, e vale per ogni glifo qualunque sia il suo disegno.
+ *
+ * ⚠️ È la misura di serie di `Icon` scritta a mano, e serve scritta perché adesso c'è un
+ * glifo che dichiara 25dp: senza questo numero lo slot lo deciderebbe il disegno più grande.
+ * Vedi [MenuRow].
+ */
+private val MENU_ITEM_ICON = 24.dp
 
 /**
  * Lo stondamento di **ogni** menu, e la striscia d'accento in fondo.

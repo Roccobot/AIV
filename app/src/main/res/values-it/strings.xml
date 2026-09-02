@@ -202,7 +202,7 @@
     <string name="search_clear">Cancella</string>
     <string name="search_none">Nessun file ha \'%1$s\' nel nome.</string>
 
-    <string name="identity_repo">Apri il repository di AIV su GitHub</string>
+    <string name="identity_page">Apri la pagina di download di AIV</string>
     <!-- ── La griglia di una cartella ── -->
     <string name="grid_item">Elemento %1$d di %2$d</string>
     <string name="grid_item_last">Elemento %1$d di %2$d, l\'ultimo che hai guardato</string>

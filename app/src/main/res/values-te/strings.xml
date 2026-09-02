@@ -131,7 +131,7 @@
     <string name="search_hint">ఫైలు పేరులో వెతుకు</string>
     <string name="search_clear">తుడిచేయి</string>
     <string name="search_none">ఏ ఫైలు పేరులోనూ \'%1$s\' లేదు.</string>
-    <string name="identity_repo">GitHubలో AIV భాండాగారాన్ని తెరువు</string>
+    <string name="identity_page">AIV డౌన్‌లోడ్ పేజీని తెరువు</string>
     <string name="grid_item">%2$dలో %1$dవది</string>
     <string name="grid_item_last">%2$dలో %1$dవది, మీరు చివరిగా చూసినది</string>
     <string name="pick_leave">ఎంపిక నుంచి బయటకు</string>

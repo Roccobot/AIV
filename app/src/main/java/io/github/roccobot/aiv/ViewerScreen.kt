@@ -35,10 +35,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -848,28 +848,40 @@ private fun InfoBarPopup(
          */
         text = {
             /*
-             * ⚠️⚠️ **`FlowRow` E NON `Row`, e fino alla 1.33 era un `Row`: è il difetto che
-             * SPEZZAVA 'In basso' DENTRO IL GETTONE.** Su un dialogo largo 280dp i tre
-             * gettoni non ci stanno in fila, e un `Row` non manda nessuno a capo: stringe il
-             * terzo e la sua parola si rompe a metà, *In / bass / o* (segnalato dall'utente
-             * con una schermata, 2026-09-02). Con `FlowRow` il gettone che non ci sta scende
-             * sulla riga sotto, intero.
-             * ⚠️ **La stessa scelta era già in casa e questo era l'unico fuori**: la riga
-             * omologa delle impostazioni usa `FlowRow` da quando è nata, e per la stessa
-             * ragione (vedi `Choices` in `SettingsScreen.kt`). Le due schermate comandano la
-             * stessa cosa con le stesse parole: dovevano anche disporle allo stesso modo.
+             * ⚠️⚠️ **IMPILATI, TUTTI DELLA STESSA LARGHEZZA E CENTRATI, dalla 1.37, ed è la
+             * TERZA disposizione di questi tre gettoni**: `Row` fino alla 1.33 (spezzava 'In
+             * basso' dentro il gettone, *In / bass / o*), `FlowRow` fino alla 1.36, e adesso
+             * la colonna. La ragione del cambio è un riscontro dell'utente con schermata
+             * (voce `chip-impilati`, 2026-09-02: *non va bene nemmeno in italiano*): `FlowRow`
+             * mandava a capo **dove capitava**, quindi in italiano si vedevano due gettoni
+             * sopra e uno sotto, di tre larghezze diverse, che si legge come un difetto e non
+             * come una scelta.
+             * ⚠️⚠️ **E LA RIGA OMOLOGA DELLE IMPOSTAZIONI ERA GIÀ COSÌ dalla 1.36**: là il
+             * lavoro è stato fatto (`Choices`, parametro `stacked`) e qui no, quindi lo stesso
+             * comando aveva due disposizioni. È il difetto che questo pannellino si porta
+             * dietro da tre versioni, sempre nella stessa forma: **si copia la disposizione
+             * dell'altro posto**, non se ne inventa una terza.
+             * ⚠️ **Due colonne annidate**, come là: quella di fuori occupa la larghezza del
+             * dialogo e centra, quella di dentro prende la larghezza intrinseca massima, cioè
+             * quella del gettone più largo nella lingua in vigore, e la impone a tutti.
              */
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                val acceso = settings.infoVisible
-                BarPick.entries.forEach { scelta ->
-                    FilterChip(
-                        selected = scelta.matches(acceso, settings.infoPosition),
-                        onClick = { scelta.apply(settings, onChange) },
-                        label = { Text(stringResource(scelta.label)) }
-                    )
+                Column(
+                    modifier = Modifier.width(IntrinsicSize.Max),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    val acceso = settings.infoVisible
+                    BarPick.entries.forEach { scelta ->
+                        FilterChip(
+                            selected = scelta.matches(acceso, settings.infoPosition),
+                            onClick = { scelta.apply(settings, onChange) },
+                            label = { Text(stringResource(scelta.label)) },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
             }
         },
@@ -889,9 +901,12 @@ private fun InfoBarPopup(
  * condivisa sarebbero tre righe.
  */
 private enum class BarPick(val label: Int) {
-    OFF(R.string.settings_off),
+    // ⚠️ **L'ordine è quello che si vede, e dalla 1.37 è quello di `InfoChoice`**: 'In alto',
+    // 'In basso', 'Disattivata'. Là era già cambiato nella 1.36 su richiesta dell'utente e qui
+    // no, quindi lo stesso comando elencava le sue tre scelte in due ordini diversi.
     TOP(R.string.settings_top),
-    BOTTOM(R.string.settings_bottom);
+    BOTTOM(R.string.settings_bottom),
+    OFF(R.string.settings_off);
 
     fun matches(on: Boolean, where: InfoPosition): Boolean = when (this) {
         OFF -> !on
@@ -2934,9 +2949,16 @@ private const val REDUCED_MARK = "\u25f1"
  *
  * ⚠️ **È una scelta, non una misura**, e il perché sta accanto all'uso: il carattere vero non
  * c'era in sessione, quindi il rapporto fra il suo inchiostro e l'altezza di una maiuscola non
- * è verificato. 1,2 è quello che serve a un glifo disegnato all'altezza della x per arrivarci.
+ * è verificato. 1,2 era quello che serve a un glifo disegnato all'altezza della x per
+ * arrivarci.
+ * ⚠️⚠️ **1,25 DALLA 1.37, e il numero l'ha dato l'utente guardandolo sul telefono** (voce
+ * `segno-formato`: *4-5% più grande, ma va già benissimo*). 1,25 su 1,2 sono il **4,2%** in
+ * più, cioè il basso di quella forbice: la voce diceva che andava già bene, quindi fra il 4 e
+ * il 5 si prende il 4. ⚠️ Questa resta una scelta e non diventa una misura: quello che è
+ * misurato è il **giudizio a occhio sul telefono**, che vale più di un rapporto calcolato
+ * senza il carattere vero.
  */
-private const val MARK_GROW = 1.2f
+private const val MARK_GROW = 1.25f
 
 /**
  * L'aria sopra e sotto la riga dei dati.

@@ -131,7 +131,7 @@
     <string name="search_hint">Tafuta kwenye jina la faili</string>
     <string name="search_clear">Futa</string>
     <string name="search_none">Hakuna faili yenye \'%1$s\' kwenye jina lake.</string>
-    <string name="identity_repo">Fungua hazina ya AIV kwenye GitHub</string>
+    <string name="identity_page">Fungua ukurasa wa kupakua AIV</string>
     <string name="grid_item">Kipengele cha %1$d kati ya %2$d</string>
     <string name="grid_item_last">Kipengele cha %1$d kati ya %2$d, ulichokiangalia mwisho</string>
     <string name="pick_leave">Toka kwenye uteuzi</string>

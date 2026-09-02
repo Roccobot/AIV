@@ -131,7 +131,7 @@
     <string name="search_hint">Шукати в імені файлу</string>
     <string name="search_clear">Очистити</string>
     <string name="search_none">У жодного файлу немає \'%1$s\' в імені.</string>
-    <string name="identity_repo">Відкрити репозиторій AIV на GitHub</string>
+    <string name="identity_page">Відкрити сторінку завантаження AIV</string>
     <string name="grid_item">Елемент %1$d з %2$d</string>
     <string name="grid_item_last">Елемент %1$d з %2$d, останній переглянутий</string>
     <string name="pick_leave">Вийти з вибору</string>

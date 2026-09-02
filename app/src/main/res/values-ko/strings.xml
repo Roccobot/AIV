@@ -131,7 +131,7 @@
     <string name="search_hint">파일 이름으로 검색</string>
     <string name="search_clear">지우기</string>
     <string name="search_none">이름에 \'%1$s\'이(가) 들어간 파일이 없습니다.</string>
-    <string name="identity_repo">GitHub에서 AIV 저장소 열기</string>
+    <string name="identity_page">AIV 다운로드 페이지 열기</string>
     <string name="grid_item">%2$d개 중 %1$d번째</string>
     <string name="grid_item_last">%2$d개 중 %1$d번째, 마지막으로 본 것</string>
     <string name="pick_leave">선택 해제</string>

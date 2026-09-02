@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.PathParser
+import androidx.compose.ui.graphics.vector.group
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
@@ -112,8 +113,13 @@ object Glyphs {
      * (verificato sui sorgenti di `image`, `photo`, `photo_library` e `collections`, che
      * portano la stessa spezzata a due cime e nessun disco), e la richiesta dell'utente lo
      * nominava.
+     *
+     * ⚠️⚠️ **È IL SOLO GLIFO CHE ESCE DALLA PROPRIA TELA, dalla 1.37**, e per questo passa
+     * da [sporgente] e non da [filled]: il suo quadrato-base sta dove ce l'hanno [ImageEdit]
+     * e [ImageConvert], e il foglio dietro arriva a -1. Il perché per esteso, con le misure,
+     * sta su [COPY_IMAGE].
      */
-    val PhotoPair: ImageVector by lazy { filled("PhotoPair", COPY_IMAGE) }
+    val PhotoPair: ImageVector by lazy { sporgente("PhotoPair", COPY_IMAGE) }
 
     /**
      * Una matita dentro un riquadro: 'Modifica'.
@@ -176,15 +182,6 @@ object Glyphs {
     val PickInvert: ImageVector by lazy { filled("PickInvert", PICK_INVERT) }
 
     /**
-     * Una cornice con le montagne e una freccia che ne esce: 'Esporta il fotogramma'.
-     *
-     * ⚠️ **Sostituisce `Icons.Outlined.AddPhotoAlternate`, che l'utente aveva chiesto come
-     * base e poi ridisegnato**: quella dice 'aggiungi una fotografia a una raccolta', cioè il
-     * verso opposto. Qui il verso è tutto: il fotogramma **esce** dall'animazione e diventa un
-     * file a sé, e la freccia che buca il lato destro della cornice è la sola parte del glifo
-     * che lo dice.
-     */
-    /**
      * Centra la selezione in orizzontale, e la sua gemella in verticale.
      *
      * ⚠️⚠️ **DISEGNATE DALL'UTENTE** (2026-09-01) e arrivate in una griglia **800x800**,
@@ -238,6 +235,41 @@ object Glyphs {
             }
         }.build()
 
+    /**
+     * Il guscio del solo glifo che **esce dalla propria tela**: 25 unità invece di 24, col
+     * disegno spostato di 1 da un gruppo. Vedi [COPY_IMAGE], che è il perché.
+     *
+     * ⚠️⚠️ **UN `ImageVector` NON HA UN'ORIGINE DI VIEWPORT**: dichiara `viewportWidth` e
+     * `viewportHeight` e nient'altro, quindi l'origine è sempre (0,0) e un tracciato con
+     * coordinate negative viene ritagliato. Un SVG risolverebbe la cosa con
+     * `viewBox="-1 -1 25 25"`; qui la via è un **gruppo che traspone di 1**, e la tela che
+     * cresce di 1 in entrambi i versi.
+     * ⚠️ **La traslazione NON è una riscrittura dei numeri del tracciato**, ed è la ragione
+     * per cui si fa così invece di sommare 1 a mano a ogni coordinata: la `d` resta
+     * **verbatim** quella del file dell'utente e la si confronta carattere per carattere,
+     * come prescrive la nota in testa a questo file.
+     * ⚠️⚠️ **E LA MISURA CRESCE CON LA TELA, di proposito**: `defaultWidth` va a 25dp
+     * insieme al viewport, così **un'unità resta un dp** e il disegno ha esattamente la
+     * scala degli altri glifi. Se restasse 24dp, `Icon` schiaccerebbe 25 unità in 24 e il
+     * quadrato-base diventerebbe 17,28 invece di 18: cioè si perderebbe proprio la cosa per
+     * cui questo guscio esiste.
+     * ⚠️ **Chi lo disegna deve dargli uno slot da 24**, o l'icona sposta il testo della sua
+     * fila di 1dp: come, sta in `MenuRow` di `Menus.kt`.
+     */
+    private fun sporgente(name: String, d: String): ImageVector =
+        ImageVector.Builder(
+            name = name,
+            defaultWidth = OVER_SIZE,
+            defaultHeight = OVER_SIZE,
+            viewportWidth = OVER_GRID,
+            viewportHeight = OVER_GRID
+        ).group(translationX = OVER, translationY = OVER) {
+            addPath(
+                pathData = PathParser().parsePathString(d).toNodes(),
+                fill = SolidColor(Color.Black)
+            )
+        }.build()
+
     /** Il guscio dei glifi arrivati in una griglia più grande. Vedi [AlignAcross]. */
     private fun grande(name: String, d: String): ImageVector =
         ImageVector.Builder(
@@ -253,6 +285,15 @@ object Glyphs {
 
     /** La griglia di Material: ogni icona del sistema è disegnata dentro un 24x24. */
     private const val GRID = 24f
+
+    /**
+     * Di quanto esce dalla tela il solo glifo che ne esce, e quindi di quanto crescono la
+     * sua griglia e la sua misura. Vedi [sporgente]: i tre numeri sono lo stesso numero, e
+     * scriverli separati sarebbe un invito a farli divergere.
+     */
+    private const val OVER = 1f
+    private const val OVER_GRID = GRID + OVER
+    private val OVER_SIZE = (GRID + OVER).dp
 
     /** La griglia dei due glifi di allineamento, che Illustrator ha esportato a 800. */
     private const val WIDE_GRID = 800f
@@ -282,10 +323,6 @@ object Glyphs {
     private val SIZE = 24.dp
 
     /**
-     * I tre tracciati dell'utente, una riga per sottotracciato. Vedi la nota in testa: la
-     * concatenazione è esattamente la `d` del suo SVG, e le righe non aggiungono niente.
-     */
-    /**
      * I tracciati delle due icone del menu, arrivate il 2026-09-02.
      *
      * ⚠️ **Il rettangolo trasparente del file di `imageEdit.svg` NON è qui**: Illustrator lo
@@ -310,12 +347,26 @@ object Glyphs {
             "M23,6v9c0,1.1-.9,2-2,2H7c-1.1,0-2-.9-2-2V4c.01-1.1.9-2,2-2h5l2,2h7c1.1,0,2,.9,2,2Z" +
             "M7,15h14V6h-7.83l-2-2h-4.17v11Z"
 
+    /**
+     * ⚠️⚠️ **QUESTO TRACCIATO ESCE DALLA TELA A SINISTRA E IN ALTO, e non è un difetto del
+     * file**: il foglio dietro arriva a **-1** su un `viewBox="0 0 24 24"`. È il prezzo
+     * dell'allineamento che l'utente ha chiesto, e il conto è misurato in Chromium con
+     * `getBBox`: il quadrato-base sta in **x 3..21, y 3..21**, cioè **esattamente** dove ce
+     * l'hanno [ImageEdit] e [ImageConvert], e per starci il foglio dietro deve sporgere.
+     * Vedi [sporgente], che è il guscio che glielo permette.
+     * ⚠️ **Il disegno di prima aveva il quadrato in 6..22 e grande 16 invece di 18**, ed è
+     * il difetto che l'utente ha visto: *'Copia' ha il quadrato-base più piccolo e non
+     * sembra allineato alle altre due*. Non era una svista di trasporto, era il disegno.
+     * ⚠️ **Delle due versioni che ha mandato è la 1**, e la scelta è sua: la 2 è centrata
+     * (inchiostro 1..23) e quindi ha il quadrato in 5..23, che non si allinea. I due file
+     * stanno in `dev/copia/`.
+     */
     private const val COPY_IMAGE =
-        "M13.06,15.26c.69,0,1.26-.56,1.26-1.26s-.56-1.26-1.26-1.26-1.26.56-1.26,1.26.56,1.26,1.26,1.26Z" +
-            "M16.4,2H4c-1.1,0-2,.9-2,2v12.4c0,.88.72,1.6,1.6,1.6h0c.22,0,.4-.18.4-.4V4h13.6c.22,0,.4-.18.4-.4h0c0-.89-.72-1.6-1.6-1.6Z" +
-            "M20,6h-12c-1.1,0-2,.9-2,2v12c0,1.1.9,2,2,2h12c1.1,0,2-.9,2-2v-12c0-1.1-.9-2-2-2Z" +
-            "M20,20h-12v-12h12v12Z" +
-            "M15.67,14.83l-2.48,3.1-1.69-2.26-2.5,3.33h10l-3.33-4.17Z"
+        "M19,3H5c-1.1,0-2,.9-2,2v14c0,1.1.9,2,2,2h14c1.1,0,2-.9,2-2V5c0-1.1-.9-2-2-2Z" +
+            "M19,19H5V5h14v14Z" +
+            "M10.97,13.75c.76,0,1.38-.62,1.38-1.38s-.62-1.38-1.38-1.38-1.38.62-1.38,1.38.62,1.38,1.38,1.38Z" +
+            "M15,.6c0-.89-.72-1.6-1.6-1.6H1C-.1-1-1-.1-1,1v12.4c0,.88.72,1.6,1.6,1.6.22,0,.4-.18.4-.4V1h13.6c.22,0,.4-.18.4-.4Z" +
+            "M13.84,13.28l-2.73,3.41-1.86-2.49-2.75,3.66h11l-3.66-4.59Z"
 
     private const val MOVE =
         "M3,11.91H1v4.42h2v-4.42Z" +
@@ -353,13 +404,22 @@ object Glyphs {
             "M20,2h-12c-1.1,0-2,.9-2,2v12c0,1.1.9,2,2,2h12c1.1,0,2-.9,2-2V4c0-1.1-.9-2-2-2Z" +
             "M18.2,13.38c.16.16.16.41,0,.57l-.25.25c-.16.16-.41.16-.57,0l-3.38-3.38-3.38,3.38c-.16.16-.41.16-.57,0l-.25-.25c-.16-.16-.16-.41,0-.57l3.38-3.38-3.38-3.38c-.16-.16-.16-.41,0-.57l.25-.25c.16-.16.41-.16.57,0l3.38,3.38,3.38-3.38c.16-.16.41-.16.57,0l.25.25c.16.16.16.41,0,.57l-3.38,3.38,3.38,3.38Z"
 
+    /**
+     * ⚠️ **Il terzo sottotracciato è UN TRIANGOLO e non due frecce, dalla 1.37**: i primi
+     * due sono identici carattere per carattere a quelli di [PICK_ALL] e [PICK_NONE], come
+     * vuole il segno di famiglia, e a cambiare è solo quello dentro il riquadro. Le due
+     * frecce che girano dicevano 'ricomincia', il mezzo quadrato pieno dice 'l'altra metà'.
+     * ⚠️ **Il triangolo gira al CONTRARIO del riquadro** (misurato: area con segno -496 il
+     * riquadro, +144 il triangolo), quindi col riempimento non-zero di [filled] buca la metà
+     * in alto a sinistra invece di riempirla. È lo stesso meccanismo con cui le due frecce di
+     * prima stavano in negativo.
+     */
     private const val PICK_INVERT =
         "M17.6,20H5.41c-.78,0-1.41-.63-1.41-1.41V6.4c0-.22-.18-.4-.4-.4-.88,0-1.6.72-1.6,1.6v12.4c0,1.1.9,2,2,2h12.4c.88,0,1.6-.72,1.6-1.6h0c0-.22-.18-.4-.4-.4Z" +
             "M20,2h-12c-1.1,0-2,.9-2,2v12c0,1.1.9,2,2,2h12c1.1,0,2-.9,2-2V4c0-1.1-.9-2-2-2Z" +
-            "M13.43,15.71c-2.9-.29-5.17-2.73-5.17-5.71,0-1.66.71-3.15,1.84-4.19l-1.26-1.26h3.05c.22,0,.4.18.4.4v3.05l-1.37-1.37c-.92.84-1.5,2.04-1.5,3.38,0,2.34,1.76,4.27,4.02,4.55.34,0,.61.3.58.62-.02.29-.27.53-.58.54Z" +
-            "M19.17,15.45h-3.05c-.22,0-.4-.18-.4-.4v-3.05l1.37,1.37c.92-.84,1.5-2.04,1.5-3.38,0-2.34-1.76-4.27-4.02-4.55-.34,0-.6-.3-.58-.62.02-.29.27-.53.58-.54,2.9.29,5.17,2.73,5.17,5.71,0,1.66-.71,3.15-1.84,4.19l1.26,1.26Z"
+            "M8,16V4h12l-12,12Z"
 
-    /** Il tracciato dell'esportazione: montagne, cornice aperta a destra, freccia che esce. */
+    /** I due tracciati dell'allineamento, su griglia 800. Vedi [AlignAcross]. */
     private const val ALIGN_ACROSS =
             "M173.37,578.33c4.39,7.6,10.7,13.91,18.3,18.3,11.6,6.7,27.18,6.7,58.33,6.7h124.9c.06,0,.1" +
             ".05.1.1v76.56c0,2.21,1.79,4,4,4h41.99c2.21,0,4-1.79,4-4v-76.56c0-.06.05-.1.1-.1h124.9c31" +

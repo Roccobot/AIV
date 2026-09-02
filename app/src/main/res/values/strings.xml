@@ -316,7 +316,7 @@
     <string name="search_clear">Clear</string>
     <string name="search_none">No file has \'%1$s\' in its name.</string>
 
-    <string name="identity_repo">Open the AIV repository on GitHub</string>
+    <string name="identity_page">Open the AIV download page</string>
     <!-- ── The grid of one folder ── -->
     <!-- Every thumbnail is tappable, so it is not decoration: this is what a screen
          reader says on it, and it has to tell WHERE in the folder that picture is. -->
