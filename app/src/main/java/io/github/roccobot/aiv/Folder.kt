@@ -630,13 +630,17 @@ object Folder {
      * quindi l'app si offriva di aprire un formato che poi non compariva nemmeno in una
      * cartella letta dal disco. La domanda dell'utente (*che mi dici degli SVG?*) ha trovato
      * i due elenchi che si contraddicevano.
-     * ⚠️ **`tif` e `tiff` restano un caso aperto**, e conviene saperlo prima di prenderli per
-     * buoni: stanno qui e nel manifest, ma `ImageDecoder` non legge il TIFF e nessun ripiego
-     * lo copre, quindi quei due si aprono solo se il telefono ha un decodificatore suo.
+     * ⚠️⚠️ **`tif` e `tiff` SONO USCITI NELLA `1.32`**, su istruzione dell'utente (*togli*),
+     * e insieme a loro le otto righe che li dichiaravano nel manifest: `ImageDecoder` non
+     * legge il TIFF e nessun ripiego lo copre, quindi elencarli qui voleva dire mostrarli in
+     * una cartella per poi dare errore aprendoli. Era il gemello del difetto dell'SVG,
+     * scoperto insieme a lui: là un formato **supportato e non dichiarato**, qui uno
+     * **dichiarato e non supportato**.
+     * ⚠️ **Chi ne trova uno in una cartella non lo vede più**, e questo è il cambiamento
+     * visibile: non è una regressione, è la fine di un invito che l'app non poteva onorare.
      */
     private val EXTENSIONS = setOf(
-        "jpg", "jpeg", "jpe", "png", "gif", "webp", "avif", "heic", "heif", "tif", "tiff",
-        "bmp", "svg"
+        "jpg", "jpeg", "jpe", "png", "gif", "webp", "avif", "heic", "heif", "bmp", "svg"
     )
 
     /**

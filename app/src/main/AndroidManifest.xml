@@ -160,7 +160,22 @@
                 <data android:mimeType="image/*" />
             </intent-filter>
 
-            <!-- 2) link diretti, fino ad Android 11 -->
+            <!--
+                2) link diretti, fino ad Android 11
+
+                ⚠️⚠️ **`.tif` E `.tiff` SONO USCITI DA QUI E DAL FILTRO 3 NELLA `1.32`**, su
+                istruzione dell'utente (*togli*), e la ragione è che l'app **non li sa
+                aprire**: `ImageDecoder` non conosce il TIFF e non c'è nessun ripiego, quindi
+                dichiararli voleva dire offrirsi per un formato che poi dà errore. Era lo
+                stesso difetto che l'SVG aveva al contrario, cioè dichiarato e non disegnato,
+                scoperto insieme a lui.
+                ⚠️ **Quello che NON si può togliere è l'`image/*` del filtro 1**: un intent
+                filter non sa escludere un tipo, quindi un TIFF condiviso da un'altra app
+                arriva ancora qui e finisce con 'formato non supportato'. Restringere quel
+                filtro vorrebbe dire elencare i tipi ammessi uno per uno e perdere ogni
+                formato nuovo che il telefono impara: il baratto è dichiarato ed è a favore
+                di com'è adesso.
+            -->
             <intent-filter android:autoVerify="false" android:label="@string/app_short_name">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -178,10 +193,6 @@
                 <data android:pathPattern=".*\\.PNG" />
                 <data android:pathPattern=".*\\.gif" />
                 <data android:pathPattern=".*\\.GIF" />
-                <data android:pathPattern=".*\\.tif" />
-                <data android:pathPattern=".*\\.TIF" />
-                <data android:pathPattern=".*\\.tiff" />
-                <data android:pathPattern=".*\\.TIFF" />
                 <data android:pathPattern=".*\\.webp" />
                 <data android:pathPattern=".*\\.WEBP" />
                 <data android:pathPattern=".*\\.avif" />
@@ -247,10 +258,6 @@
                 <data android:pathSuffix=".PNG" />
                 <data android:pathSuffix=".gif" />
                 <data android:pathSuffix=".GIF" />
-                <data android:pathSuffix=".tif" />
-                <data android:pathSuffix=".TIF" />
-                <data android:pathSuffix=".tiff" />
-                <data android:pathSuffix=".TIFF" />
                 <data android:pathSuffix=".webp" />
                 <data android:pathSuffix=".WEBP" />
                 <data android:pathSuffix=".avif" />
