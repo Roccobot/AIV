@@ -1279,6 +1279,7 @@ fun GridScreen(
          */
         AlertDialog(
             onDismissRequest = { discarding = false },
+            modifier = Modifier.lowered(),
             title = { Text(stringResource(R.string.pick_drop_ask)) },
             confirmButton = {
                 TextButton(onClick = { discarding = false; chosen = emptySet() }) {
@@ -1296,6 +1297,7 @@ fun GridScreen(
     if (emptying) {
         AlertDialog(
             onDismissRequest = { emptying = false },
+            modifier = Modifier.lowered(),
             title = { Text(stringResource(R.string.bin_empty_ask)) },
             text = { Text(stringResource(R.string.bin_empty_desc)) },
             confirmButton = {

@@ -96,6 +96,28 @@ object Glyphs {
      */
     val PhotoPair: ImageVector by lazy { filled("PhotoPair", COPY_IMAGE) }
 
+    /**
+     * Una matita dentro un riquadro: 'Modifica'.
+     *
+     * ⚠️⚠️ **DISEGNATA DALL'UTENTE, dalla 1.29, e sostituisce `Icons.Outlined.Edit`**: la
+     * matita nuda di Material diceva 'modifica' e non 'modifica un'immagine', e nel menu
+     * stava accanto a due voci che il riquadro ce l'hanno. Il riquadro è il segno di
+     * famiglia, come le due cartelle sovrapposte lo sono di 'Copia' e 'Sposta'.
+     * ⚠️ **DUE tracciati e non uno**, ed è la prima volta che capita: il file ne porta tre,
+     * di cui uno è il rettangolo trasparente con cui Illustrator dichiara la tela e che qui
+     * non serve. La nota su [filled] lo prevedeva, e la via è `addPath` per ognuno.
+     */
+    val ImageEdit: ImageVector by lazy { filled("ImageEdit", EDIT_FRAME, EDIT_PENCIL) }
+
+    /**
+     * Due frecce opposte dentro un riquadro: 'Esporta/Converti'.
+     *
+     * ⚠️⚠️ **DISEGNATA DALL'UTENTE, dalla 1.29, e sostituisce `Icons.Outlined.SwapHoriz`**:
+     * quelle erano due frecce nude, cioè 'scambia', che è quello che fa un convertitore ma
+     * non dice su che cosa. Col riquadro dice su un'immagine, e sta in fila con le altre due.
+     */
+    val ImageConvert: ImageVector by lazy { filled("ImageConvert", CONVERT) }
+
     /** Due cartelle sovrapposte: 'Copia'. */
     val FolderPair: ImageVector by lazy { filled("FolderPair", COPY) }
 
@@ -179,17 +201,23 @@ object Glyphs {
      * parametri interni). ⚠️ E il tracciato si legge una volta sola, perché i glifi sono
      * `by lazy`.
      */
-    private fun filled(name: String, d: String): ImageVector =
+    private fun filled(name: String, vararg d: String): ImageVector =
         ImageVector.Builder(
             name = name,
             defaultWidth = SIZE,
             defaultHeight = SIZE,
             viewportWidth = GRID,
             viewportHeight = GRID
-        ).addPath(
-            pathData = PathParser().parsePathString(d).toNodes(),
-            fill = SolidColor(Color.Black)
-        ).build()
+        ).apply {
+            // ⚠️ **Un `addPath` per ogni `<path>` del file**, e la ragione (misurata) sta
+            // sulle costanti in fondo: concatenare le `d` sfrangia la cucitura fra le forme.
+            for (uno in d) {
+                addPath(
+                    pathData = PathParser().parsePathString(uno).toNodes(),
+                    fill = SolidColor(Color.Black)
+                )
+            }
+        }.build()
 
     /** Il guscio dei glifi arrivati in una griglia più grande. Vedi [AlignAcross]. */
     private fun grande(name: String, d: String): ImageVector =
@@ -238,6 +266,26 @@ object Glyphs {
      * I tre tracciati dell'utente, una riga per sottotracciato. Vedi la nota in testa: la
      * concatenazione è esattamente la `d` del suo SVG, e le righe non aggiungono niente.
      */
+    /**
+     * I tracciati delle due icone del menu, arrivate il 2026-09-02.
+     *
+     * ⚠️ **Il rettangolo trasparente del file di `imageEdit.svg` NON è qui**: Illustrator lo
+     * esporta con `fill="none"` per dichiarare la tela da 24, e in un `ImageVector` la tela
+     * la dichiarano `viewportWidth` e `viewportHeight`. Portarlo dentro aggiungerebbe un
+     * tracciato nero a tutta l'icona, perché qui il riempimento è dichiarato dal codice e non
+     * dal file.
+     */
+    private const val EDIT_FRAME =
+        "M19,5v14H5V5h14M19,3H5c-1.1,0-2,.9-2,2v14c0,1.1.9,2,2,2h14c1.1,0,2-.9,2-2V5c0-1.1-.9-2-2-2Z"
+
+    private const val EDIT_PENCIL =
+        "M15.08,6.99c-.14,0-.28.06-.39.16l-1.02,1.02,2.09,2.09,1.26-1.26c.08-.08.08-.22,0-.3l-1.54-1.54c-.11-.11-.25-.16-.4-.16Z" +
+            "M13.08,8.76l-6.16,6.16v2.09h2.09l6.16-6.16-2.09-2.09Z"
+
+    private const val CONVERT =
+        "M19,3H5c-1.1,0-2,.9-2,2v14c0,1.1.9,2,2,2h14c1.1,0,2-.9,2-2V5c0-1.1-.9-2-2-2Z" +
+            "M5,19v-3.66l2.68,2.69v-2.58h6.04v-1.72h-6.04v-2.58l-2.68,2.69V5h14v3.66l-2.68-2.69v2.58h-6.04v1.72h6.04v2.58l2.68-2.69v8.83H5Z"
+
     private const val COPY =
         "M3,19h16.6c.22,0,.4.18.4.4h0c0,.88-.72,1.6-1.6,1.6H3c-1.1,0-2-.9-2-2V7.6c0-.88.72-1.6,1.6-1.6h0c.22,0,.4.18.4.4v12.6Z" +
             "M23,6v9c0,1.1-.9,2-2,2H7c-1.1,0-2-.9-2-2V4c.01-1.1.9-2,2-2h5l2,2h7c1.1,0,2,.9,2,2Z" +

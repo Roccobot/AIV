@@ -159,10 +159,30 @@ fun MenuShell(
                  * corretto sugli angoli.
                  */
                 Box(
+                    /*
+                     * ⚠️⚠️ **NON ARRIVA AI BORDI, dalla 1.29** (riscontro dell'utente,
+                     * 2026-09-02: *va bene in basso, ma leggermente più spessa e non fino in
+                     * fondo, né di lato né in basso, come se intorno ci fosse un filetto
+                     * sovrapposto dello stesso colore dello sfondo*). Il rientro è un
+                     * `padding` sui tre lati, che è **esattamente** il filetto che descrive:
+                     * la superficie del menu resta intorno, quindi la striscia si stacca dal
+                     * bordo senza che nessuno disegni una cornice.
+                     * ⚠️ **Il rientro è più grande dello spessore**, e va così: una striscia
+                     * appoggiata al bordo con un filo d'aria sembra un errore di un pixel,
+                     * mentre con un rientro visibile diventa una scelta.
+                     */
                     modifier = Modifier
                         .fillMaxWidth()
+                        .padding(
+                            start = MENU_STRIPE_INSET,
+                            end = MENU_STRIPE_INSET,
+                            bottom = MENU_STRIPE_INSET
+                        )
                         .height(MENU_STRIPE)
-                        .background(MaterialTheme.colorScheme.primary)
+                        .background(
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = RoundedCornerShape(MENU_STRIPE / 2)
+                        )
                 )
             }
         }
@@ -187,19 +207,23 @@ object MenuCenter : PopupPositionProvider {
         /*
          * ⚠️⚠️ **NON È PIÙ AL CENTRO ESATTO, dalla 1.28** (richiesta dell'utente, 2026-09-02:
          * *è meglio se appare un po' spostato verso il basso, perché si raggiunge meglio con
-         * il pollice. Non uno spostamento enorme, diciamo un 15/20% più giù*). Il 17% è la
-         * metà del suo intervallo, e si misura sull'**altezza della finestra**: sul residuo
-         * fra menu e schermo sarebbe una frazione di una frazione, cioè un movimento che a
-         * menu lungo sparisce proprio dove il pollice fatica di più.
+         * il pollice*), e si misura sull'**altezza della finestra**: sul residuo fra menu e
+         * schermo sarebbe una frazione di una frazione, cioè un movimento che a menu lungo
+         * sparisce proprio dove il pollice fatica di più.
+         * ⚠️⚠️ **DALLA 1.29 IL NUMERO È QUELLO DI TUTTA L'APP, [LOWER_BY]**: qui era 17%,
+         * cioè la metà di un intervallo indicato a occhio, e poi l'utente ha definito che
+         * 'centrato' in AIV vuol dire **centrato più il 15% in basso**, per ogni elemento che
+         * si apre in mezzo. Due numeri per la stessa idea sono la stessa trappola degli
+         * angoli dei menu, e fra 15 e 17 non c'è niente da vedere.
          * ⚠️ **La stretta esiste perché lo spostamento può portare fuori**: un menu alto
-         * quasi quanto lo schermo, spinto giù del 17%, uscirebbe dal bordo inferiore. Il
-         * limite lo riporta dentro con [MENU_EDGE_GAP] di aria, e a quel punto il menu è
-         * comunque in basso, che è quello che serviva.
+         * quasi quanto lo schermo, spinto giù, uscirebbe dal bordo inferiore. Il limite lo
+         * riporta dentro con [MENU_AIR] di aria, e a quel punto il menu è comunque in basso,
+         * che è quello che serviva.
          */
         val free = windowSize.height - popupContentSize.height
         val centre = free / 2
         val floor = free - (windowSize.height * MENU_AIR).toInt()
-        val wanted = centre + (windowSize.height * MENU_DOWN).toInt()
+        val wanted = centre + (windowSize.height * LOWER_BY).toInt()
         return IntOffset(
             x = (windowSize.width - popupContentSize.width) / 2,
             y = if (floor <= centre) centre else wanted.coerceAtMost(floor)
@@ -208,14 +232,14 @@ object MenuCenter : PopupPositionProvider {
 }
 
 /**
- * Di quanto scende il menu rispetto al centro, e quanta aria resta comunque sotto: tutti e
- * due in frazione dell'altezza della finestra. Vedi [MenuCenter].
+ * Quanta aria resta comunque sotto il menu, in frazione dell'altezza della finestra.
  *
- * ⚠️ **Frazioni e non pixel**, perché qui la densità non c'è: `calculatePosition` riceve
- * misure in pixel e nessun `Density`, quindi un numero fisso sarebbe otto volte più grande
- * su un telefono di dieci anni fa che su uno di adesso.
+ * ⚠️ **Una frazione e non pixel**, perché qui la densità non c'è: `calculatePosition` riceve
+ * misure in pixel e nessun `Density`, quindi un numero fisso sarebbe otto volte più grande su
+ * un telefono di dieci anni fa che su uno di adesso. ⚠️ **Ed è la ragione per cui questo
+ * numero non è [LOWER_AIR]**, che invece è in dp perché là il `Density` c'è: sono la stessa
+ * idea misurata in due unità, e unirle vorrebbe dire toglierne una a chi non può usarla.
  */
-private const val MENU_DOWN = 0.17f
 private const val MENU_AIR = 0.02f
 
 /**
@@ -347,8 +371,13 @@ private val MENU_ITEM_GAP = 8.dp
  * ⚠️ **20 e non 28**: le bottomsheet stanno a 28 e vanno bene così (parole sue), e un menu
  * che le raggiungesse smetterebbe di distinguersi da loro. 20 è il gradino sopra il 16 della
  * selezione, cioè quello che era già il più morbido dei tre.
- * ⚠️ **La striscia è 3dp**: sul mockup ne misura poco più di tre, ed è la misura in cui si
- * legge come un bordo e non come una barra.
+ * ⚠️ **La striscia è 5dp dalla 1.29**, ed era 3 (*leggermente più spessa*): a 3, col rientro
+ * nuovo, sarebbe rimasta un filo. Le sue estremità sono **tonde**, perché una striscia che si
+ * stacca dai bordi ha due punte, e due punte quadrate in mezzo a una superficie stondata
+ * sarebbero la sola cosa spigolosa del riquadro.
+ * ⚠️ **Il rientro (8dp) è più grande dello spessore**, e non è un caso: con un filo d'aria la
+ * striscia sembrerebbe un errore di un pixel, mentre con un rientro visibile è una scelta.
  */
 val MENU_ROUND = 20.dp
-private val MENU_STRIPE = 3.dp
+private val MENU_STRIPE = 5.dp
+private val MENU_STRIPE_INSET = 8.dp

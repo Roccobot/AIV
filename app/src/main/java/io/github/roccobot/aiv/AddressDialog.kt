@@ -99,6 +99,7 @@ fun AddressDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.lowered(),
         title = { Text(stringResource(R.string.hub_url)) },
         text = {
             Column(

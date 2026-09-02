@@ -48,6 +48,34 @@ chat.
   occorrenza in `values/` né in `values-it/`), quindi il difetto vive nella **prosa**, che è
   il posto in cui nessun verificatore lo guarda.
 
+## 📍 Che cosa vuol dire 'centrato'
+
+⚠️⚠️ **CENTRATO IN ORIZZONTALE, E CENTRATO MA IL 15% PIÙ IN BASSO IN VERTICALE**
+(definizione dell'utente, 2026-09-02: *da questo momento in AIV dire 'centrato' (su elementi
+di UI di questo tipo) significa centrato in orizzontale + centrato, ma un 15% più in basso, in
+verticale*). Il pollice arriva più facilmente sotto la metà dello schermo, e su un telefono
+grande un dialogo esattamente al centro fa allungare la mano.
+
+- **Vale per tutto quello che si apre in mezzo**: dialoghi di conferma, pannelli, modali, la
+  scheda delle informazioni sul file, i menu a pressione lunga.
+- ⚠️ **La stretta è parte della definizione**, non una prudenza aggiunta: *le cose
+  particolarmente alte si prendono lo spazio che serve*. Lo spostamento si riduce da sé fino a
+  sparire quando sotto non c'è più aria.
+- ⚠️ **Il 15% si misura sull'altezza della FINESTRA**, non sullo spazio libero: sullo spazio
+  libero sarebbe una frazione di una frazione, quindi su un dialogo alto il movimento
+  sparirebbe proprio dove il pollice fatica di più.
+- **Come si applica**: `Modifier.lowered()`, che vive in `Centred.kt` insieme al numero. ⚠️ La
+  riga si scrive a **ogni** chiamata e non c'è modo di evitarlo: in Compose non esiste un
+  aggancio globale per i dialoghi, perché `AlertDialog` centra la sua superficie dentro la
+  propria finestra e nessuna sua proprietà sposta quel centro. Quello che si può avere è **un**
+  modificatore, e ce l'ha: chi apre un dialogo nuovo lo aggiunge, e il valore non è mai scritto
+  due volte.
+- ⚠️ **I menu non usano quel modificatore ma lo stesso numero**: là il posto lo decide un
+  `PopupPositionProvider` (`MenuCenter` in `Menus.kt`), che riceve pixel e nessun `Density`. Il
+  15% è la costante `LOWER_BY`, condivisa.
+- ⚠️ **Un dialogo a tutto schermo NON si sposta**, e non è una dimenticanza: `DestinationDialog`
+  riempie la finestra, quindi non c'è nessun centro da spostare.
+
 ## 🚀 Che cosa produce un rilascio
 
 **Tre cose, e vanno insieme**: il numero di **versione**, le voci nuove nel **collaudo**, e le
