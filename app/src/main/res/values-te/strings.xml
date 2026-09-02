@@ -86,11 +86,11 @@
     <string name="settings_scale_desc">నిజమైన పిక్సెళ్ల వరకు జూమ్ చేయడం అంటే ఏమిటో నిర్ణయిస్తుంది. ఏ ఆధునిక పరికరం తెరైనా ప్రతి తార్కిక పిక్సెల్‌ను రెండు లేదా మూడు నిజమైన పిక్సెళ్ల చతురస్రంతో గీస్తుంది. మొదటి ఎంపిక తార్కిక పిక్సెళ్లను పట్టించుకోకుండా ప్రతి బిందువును ఒక నిజమైన పిక్సెల్‌పై ఉంచుతుంది; రెండోది ప్రతి వస్తువును వెబ్ పేజీలో ఉండే కొలతలో చూపుతుంది.</string>
     <string name="settings_top">పైన</string>
     <string name="settings_bottom">కింద</string>
+    <string name="settings_off">ఆఫ్</string>
     <string name="settings_info_visible">సమాచార పట్టీ</string>
-    <string name="settings_info_position">స్థానం</string>
     <string name="settings_zoom_menu">వీక్షణ మెనూలో జూమ్</string>
     <string name="settings_zoom_menu_desc">\'తెరకు సరిపోయేలా\' మరియు \'100%\' ను దీర్ఘ నొక్కు మెనూకు తిరిగి తెస్తుంది. చిత్రంపై రెండుసార్లు తాకితే ఇదే జరుగుతుంది కాబట్టి ఆఫ్‌లో ఉంది.</string>
-    <string name="hint_zoom_tap">చిత్రంపై రెండుసార్లు తాకండి: ప్రస్తుత జూమ్ నుండి 100% లేదా తెరకు సరిపోయే పరిమాణానికి, వరుసగా.</string>
+    <string name="hint_zoom_tap">వేగవంతమైన జూమ్: చిత్రంపై రెండుసార్లు నొక్కితే వీక్షణకు సరిపోతుంది, మళ్లీ రెండుసార్లు నొక్కితే నిజమైన పిక్సెల్‌లు కనిపిస్తాయి. నొక్కుతూ ఉంటే సరిపోయినది మరియు 100% మధ్య మారుతుంది.</string>
     <string name="settings_anim_counter">ఫ్రేమ్ కౌంటర్</string>
     <string name="settings_anim_counter_desc">కదిలే చిత్రాల నియంత్రణ పట్టీలో కనిపిస్తుంది.</string>
     <string name="settings_reverse_order">పాతదాని నుంచి కుడివైపుకు చిత్రాలను తిరగేయి</string>
