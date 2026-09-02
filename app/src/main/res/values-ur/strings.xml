@@ -88,6 +88,9 @@
     <string name="settings_bottom">نیچے</string>
     <string name="settings_info_visible">معلوماتی پٹی</string>
     <string name="settings_info_position">مقام</string>
+    <string name="settings_zoom_menu">ویور مینو میں زوم</string>
+    <string name="settings_zoom_menu_desc">\'اسکرین میں سمائیں\' اور \'100%\' کو دیر تک دبانے والے مینو میں واپس لاتا ہے۔ بند ہے، کیونکہ تصویر پر دو بار ٹیپ کرنے سے یہی ہوتا ہے۔</string>
+    <string name="hint_zoom_tap">تصویر پر دو بار ٹیپ کریں: موجودہ زوم سے 100% یا اسکرین میں سمانے والے سائز تک، باری باری۔</string>
     <string name="settings_anim_counter">فریم شمار</string>
     <string name="settings_anim_counter_desc">متحرک تصاویر کی کنٹرول پٹی میں دکھایا جاتا ہے۔</string>
     <string name="settings_reverse_order">پرانی تصویر سے دائیں طرف تصویریں دیکھیں</string>

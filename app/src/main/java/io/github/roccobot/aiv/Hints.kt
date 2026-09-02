@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -93,6 +94,46 @@ fun BoxScope.HintVeil(
 }
 
 /**
+ * Il velo che dice una cosa e basta: frase **in mezzo allo schermo**, nessun tastino da
+ * evidenziare.
+ *
+ * ⚠️⚠️ **NASCE NELLA 1.25 PERCHÉ IL GESTO NON HA UN POSTO** (richiesta dell'utente,
+ * 2026-09-02: *nuovo mini-onboarding, con testo centrato in mezzo allo schermo, alla
+ * visualizzazione della prima immagine dopo l'installazione*). Gli altri tre veli indicano un
+ * **tastino** e ne mettono in scena una copia funzionante; il doppio tocco si fa sulla
+ * fotografia intera, quindi non c'è niente da indicare, e una copia evidenziata coprirebbe
+ * proprio la cosa di cui si sta parlando.
+ * ⚠️ **Sono la stessa macchina di [HintVeil]**, e condividono il velo e la sua misura di
+ * contrasto: cambiano dove sta il testo e il fatto che qui non c'è un tastino. Chi li fondesse
+ * in una funzione sola con due parametri opzionali otterrebbe una firma che nessuno dei due
+ * usa per intero.
+ * ⚠️ **Un tocco qualunque lo archivia**, come gli altri: un onboarding che si deve leggere due
+ * volte non è un onboarding.
+ */
+@Composable
+fun BoxScope.HintCentre(text: String, onDone: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .matchParentSize()
+            .background(HINT_SCRIM)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onDone
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.titleMedium,
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = HINT_SIDE).widthIn(max = HINT_WIDTH)
+        )
+    }
+}
+
+/**
  * Il velo del mini onboarding.
  *
  * ⚠️ **Il 70% di nero e non il 50%**: sotto c'è una griglia di fotografie, cioè il fondo più
@@ -100,6 +141,15 @@ fun BoxScope.HintVeil(
  * bianco del testo misura 8.45 anche sulla fotografia più chiara possibile.
  */
 private val HINT_SCRIM = Color(0xB3000000)
+
+/**
+ * Quanto la frase centrata sta lontana dai bordi.
+ *
+ * ⚠️ Serve solo a [HintCentre]: là il testo è in mezzo allo schermo e senza margine, su un
+ * telefono stretto, una frase lunga toccherebbe i due bordi. Il velo con il tastino non ne ha
+ * bisogno perché il suo margine glielo dà il rientro del tastino.
+ */
+private val HINT_SIDE = 32.dp
 
 /**
  * L'arancione della copia evidenziata, e **l'unico posto in cui la tavolozza si rompe

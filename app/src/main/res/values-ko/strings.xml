@@ -88,6 +88,9 @@
     <string name="settings_bottom">아래쪽</string>
     <string name="settings_info_visible">정보 표시줄</string>
     <string name="settings_info_position">위치</string>
+    <string name="settings_zoom_menu">뷰어 메뉴의 확대</string>
+    <string name="settings_zoom_menu_desc">\'화면에 맞추기\'와 \'100%\'를 길게 누르기 메뉴에 되돌립니다. 사진을 두 번 누르면 같은 일이 일어나므로 기본은 꺼짐입니다.</string>
+    <string name="hint_zoom_tap">사진을 두 번 누르면 현재 배율에서 100%, 화면에 맞춘 크기로 차례로 바뀝니다.</string>
     <string name="settings_anim_counter">프레임 카운터</string>
     <string name="settings_anim_counter_desc">움직이는 이미지의 제어 막대에 표시됩니다.</string>
     <string name="settings_reverse_order">오래된 것부터 오른쪽으로 이미지 넘기기</string>

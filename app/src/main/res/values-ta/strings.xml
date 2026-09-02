@@ -88,6 +88,9 @@
     <string name="settings_bottom">கீழே</string>
     <string name="settings_info_visible">தகவல் பட்டை</string>
     <string name="settings_info_position">இடம்</string>
+    <string name="settings_zoom_menu">காட்டி மெனுவில் பெரிதாக்கம்</string>
+    <string name="settings_zoom_menu_desc">\'திரைக்கு பொருத்து\' மற்றும் \'100%\' ஐ நீண்ட அழுத்த மெனுவுக்குத் திருப்பித் தருகிறது. படத்தில் இரட்டைத் தட்டல் இதையே செய்வதால் அணைக்கப்பட்டுள்ளது.</string>
+    <string name="hint_zoom_tap">படத்தில் இரட்டைத் தட்டல்: தற்போதைய பெரிதாக்கத்திலிருந்து 100% அல்லது திரைக்கு பொருந்தும் அளவுக்கு, சுழற்சியாக.</string>
     <string name="settings_anim_counter">சட்டக எண்ணிக்கை</string>
     <string name="settings_anim_counter_desc">அசையும் படங்களின் கட்டுப்பாட்டுப் பட்டையில் தோன்றும்.</string>
     <string name="settings_reverse_order">பழையதிலிருந்து வலப்புறமாகப் படங்களைப் புரட்டு</string>

@@ -88,6 +88,9 @@
     <string name="settings_bottom">Onderaan</string>
     <string name="settings_info_visible">Infobalk</string>
     <string name="settings_info_position">Positie</string>
+    <string name="settings_zoom_menu">Zoom in het menu van de viewer</string>
+    <string name="settings_zoom_menu_desc">Zet \'Passend maken\' en \'100%\' terug in het menu van de lange druk. Uit, omdat dubbeltikken op de foto dit al doet.</string>
+    <string name="hint_zoom_tap">Dubbeltik op de foto om van de huidige zoom naar 100% of naar de passende grootte te gaan, en zo verder.</string>
     <string name="settings_anim_counter">Frameteller</string>
     <string name="settings_anim_counter_desc">Verschijnt in de knoppenbalk van bewegende afbeeldingen.</string>
     <string name="settings_reverse_order">Afbeeldingen naar rechts doorbladeren vanaf de oudste</string>

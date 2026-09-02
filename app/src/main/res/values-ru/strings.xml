@@ -88,6 +88,9 @@
     <string name="settings_bottom">Снизу</string>
     <string name="settings_info_visible">Панель сведений</string>
     <string name="settings_info_position">Положение</string>
+    <string name="settings_zoom_menu">Масштаб в меню просмотра</string>
+    <string name="settings_zoom_menu_desc">Возвращает \'Вписать в экран\' и \'100%\' в меню долгого нажатия. Выключено, потому что двойное касание снимка делает то же самое.</string>
+    <string name="hint_zoom_tap">Коснитесь снимка дважды, чтобы перейти от текущего масштаба к 100% или к размеру по экрану, и так по кругу.</string>
     <string name="settings_anim_counter">Счётчик кадров</string>
     <string name="settings_anim_counter_desc">Показывается на панели управления анимированных изображений.</string>
     <string name="settings_reverse_order">Листать изображения вправо от самого старого</string>

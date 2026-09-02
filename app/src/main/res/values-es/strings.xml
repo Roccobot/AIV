@@ -88,6 +88,9 @@
     <string name="settings_bottom">Abajo</string>
     <string name="settings_info_visible">Barra de información</string>
     <string name="settings_info_position">Posición</string>
+    <string name="settings_zoom_menu">Zoom en el menú del visor</string>
+    <string name="settings_zoom_menu_desc">Devuelve \'Ajustar a la vista\' y \'100%\' al menú de pulsación larga. Está apagado porque un toque doble en la imagen ya lo hace.</string>
+    <string name="hint_zoom_tap">Toca dos veces la imagen para pasar del zoom actual al 100% o al tamaño que se ajusta a la vista, y vuelta a empezar.</string>
     <string name="settings_anim_counter">Contador de fotogramas</string>
     <string name="settings_anim_counter_desc">Aparece en la barra de controles de las imágenes animadas.</string>
     <string name="settings_reverse_order">Pasar las imágenes hacia la derecha desde la más antigua</string>

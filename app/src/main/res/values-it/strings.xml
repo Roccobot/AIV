@@ -150,6 +150,9 @@
     <string name="settings_bottom">In basso</string>
     <string name="settings_info_visible">Barra delle info</string>
     <string name="settings_info_position">Posizione</string>
+    <string name="settings_zoom_menu">Zoom nel menu del visualizzatore</string>
+    <string name="settings_zoom_menu_desc">Rimette \'Adatta alla vista\' e \'100%\' nel menu a pressione lunga. È spento perché il doppio tocco sull\'immagine lo fa già.</string>
+    <string name="hint_zoom_tap">Doppio tocco sull\'immagine per passare dallo zoom corrente a 100% o alla dimensione adattata alla vista, ciclicamente.</string>
     <string name="settings_anim_counter">Contatore dei fotogrammi</string>
     <string name="settings_anim_counter_desc">Compare nella fila dei comandi delle immagini animate.</string>
 

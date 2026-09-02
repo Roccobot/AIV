@@ -56,11 +56,21 @@ fun RenameDialog(
     var start by rememberSaveable { mutableStateOf("1") }
     var proposed by rememberSaveable { mutableStateOf(false) }
 
+    // ⚠️⚠️ **UN FILE SOLO NON È UNA RINOMINA IN BLOCCO, e dalla 1.25 non ne ha più l'aria**
+    // (riscontro dell'utente, 2026-09-02: *`Rinomina` sul file singolo deve partire dal nome
+    // originale, non da un template di rinomina batch*). Con un file la schermata proponeva
+    // `Museo ##`, chiedeva da che numero partire e spiegava i cancelletti: tre cose che
+    // servono a numerare ottanta foto e nessuna che serva a cambiare un nome.
+    val singolo = uris.size == 1
+
     val listed = names
     LaunchedEffect(listed) {
         if (proposed || listed.isNullOrEmpty()) return@LaunchedEffect
         proposed = true
-        template = suggestTemplate(listed.first(), listed.size, start.toIntOrNull() ?: 1)
+        // ⚠️ Il nome **senza estensione**, perché l'estensione la rimette `renderName`: con
+        // lei dentro il template il file diventerebbe `foto.jpg.jpg`.
+        template = if (singolo) listed.first().substringBeforeLast('.', listed.first())
+        else suggestTemplate(listed.first(), listed.size, start.toIntOrNull() ?: 1)
     }
 
     val first = start.toIntOrNull()
@@ -82,30 +92,39 @@ fun RenameDialog(
                     onValueChange = { template = it },
                     label = { Text(stringResource(R.string.rename_template)) },
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = start,
-                    // ⚠️ Si filtra alle cifre invece di validare dopo: una tastiera
-                    // numerica su Android serve comunque virgole e segni, e un numero
-                    // negativo qui non vuol dire niente.
-                    onValueChange = { typed -> start = typed.filter { it.isDigit() }.take(6) },
-                    label = { Text(stringResource(R.string.rename_start)) },
-                    singleLine = true,
+                    // ⚠️ Con un file solo il tasto della tastiera dice 'fine' e non 'avanti':
+                    // sotto non c'è più nessuna casella dove andare.
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Done
+                        imeAction = if (singolo) ImeAction.Done else ImeAction.Next
                     ),
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    text = stringResource(R.string.rename_hint),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                // ⚠️ Il primo numero e la spiegazione dei cancelletti escono di scena con un
+                // file solo: là non c'è niente da numerare, e una casella che non decide
+                // niente si legge come una cosa da riempire.
+                if (!singolo) {
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = start,
+                        // ⚠️ Si filtra alle cifre invece di validare dopo: una tastiera
+                        // numerica su Android serve comunque virgole e segni, e un numero
+                        // negativo qui non vuol dire niente.
+                        onValueChange = { typed -> start = typed.filter { it.isDigit() }.take(6) },
+                        label = { Text(stringResource(R.string.rename_start)) },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Done
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(R.string.rename_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
                 if (listed != null && first != null && clean.isNotEmpty()) {
                     Spacer(Modifier.height(12.dp))
                     Text(

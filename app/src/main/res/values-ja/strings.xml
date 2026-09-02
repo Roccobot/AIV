@@ -88,6 +88,9 @@
     <string name="settings_bottom">下</string>
     <string name="settings_info_visible">情報バー</string>
     <string name="settings_info_position">位置</string>
+    <string name="settings_zoom_menu">ビューアーのメニューに拡大表示</string>
+    <string name="settings_zoom_menu_desc">\'画面に合わせる\' と \'100%\' を長押しメニューに戻します。画像をダブルタップすれば同じことができるので、既定ではオフです。</string>
+    <string name="hint_zoom_tap">画像をダブルタップすると、現在の倍率から100%、画面に合わせたサイズへと順に切り替わります。</string>
     <string name="settings_anim_counter">フレームカウンター</string>
     <string name="settings_anim_counter_desc">アニメーション画像の操作バーに表示します。</string>
     <string name="settings_reverse_order">古い順に右へ画像をめくる</string>

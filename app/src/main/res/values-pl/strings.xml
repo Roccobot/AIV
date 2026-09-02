@@ -88,6 +88,9 @@
     <string name="settings_bottom">U dołu</string>
     <string name="settings_info_visible">Pasek informacji</string>
     <string name="settings_info_position">Pozycja</string>
+    <string name="settings_zoom_menu">Powiększenie w menu przeglądarki</string>
+    <string name="settings_zoom_menu_desc">Przywraca \'Dopasuj do ekranu\' i \'100%\' do menu długiego naciśnięcia. Wyłączone, bo dwukrotne stuknięcie w zdjęcie robi to samo.</string>
+    <string name="hint_zoom_tap">Stuknij dwukrotnie w zdjęcie, aby przejść z bieżącego powiększenia na 100% albo na rozmiar dopasowany do ekranu, i tak w kółko.</string>
     <string name="settings_anim_counter">Licznik klatek</string>
     <string name="settings_anim_counter_desc">Pojawia się na pasku sterowania obrazów animowanych.</string>
     <string name="settings_reverse_order">Przeglądaj obrazy w prawo od najstarszego</string>

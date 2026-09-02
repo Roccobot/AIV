@@ -88,6 +88,9 @@
     <string name="settings_bottom">नीचे</string>
     <string name="settings_info_visible">जानकारी पट्टी</string>
     <string name="settings_info_position">स्थान</string>
+    <string name="settings_zoom_menu">व्यूअर मेन्यू में ज़ूम</string>
+    <string name="settings_zoom_menu_desc">\'स्क्रीन में समाएँ\' और \'100%\' को देर तक दबाने वाले मेन्यू में वापस लाता है। बंद है, क्योंकि चित्र पर दो बार टैप करने से यही होता है।</string>
+    <string name="hint_zoom_tap">चित्र पर दो बार टैप करें: मौजूदा ज़ूम से 100% या स्क्रीन में समाने वाले आकार पर, बारी-बारी से।</string>
     <string name="settings_anim_counter">फ़्रेम काउंटर</string>
     <string name="settings_anim_counter_desc">चलती छवियों की नियंत्रण पट्टी में दिखता है।</string>
     <string name="settings_reverse_order">सबसे पुरानी से दाईं ओर छवियाँ पलटें</string>

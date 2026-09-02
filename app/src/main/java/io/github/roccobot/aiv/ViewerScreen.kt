@@ -338,6 +338,14 @@ fun ViewerScreen(
     // cambi di configurazione, e l'esito si compone dentro una coroutine. Vedi `GridScreen`.
     val res = LocalResources.current
 
+    /*
+     * ⚠️⚠️ **PARTE DA 'GIÀ VISTO' e non da 'mai visto'**, come nella griglia: l'archivio si
+     * legge in una coroutine, quindi per un fotogramma non si sa ancora niente, e col valore
+     * opposto il velo lampeggerebbe addosso a chi l'aveva già archiviato mesi fa.
+     */
+    val zoomSeen by produceState(true) { Hint.ZOOM_TAP.flow(context).collect { value = it } }
+    val zoomHint = !zoomSeen
+
     /** Il dialogo di un'operazione sui file, e `null` quando non ce n'è aperto nessuno. */
     var job by remember { mutableStateOf<FileJob?>(null) }
 
@@ -715,6 +723,24 @@ fun ViewerScreen(
                     }
                 }
             }
+        }
+
+        /*
+         * ⚠️⚠️ **IL VELO DEL DOPPIO TOCCO, dalla 1.25** (richiesta dell'utente, 2026-09-02:
+         * *alla visualizzazione della prima immagine dopo l'installazione*). È la contropartita
+         * delle due voci dello zoom uscite dal menu: senza, il gesto resterebbe un segreto.
+         * ⚠️ **Alla prima FOTOGRAFIA e non all'avvio**: su un filmato il doppio tocco non fa
+         * niente, e su una schermata di caricamento si parlerebbe di un'immagine che non si
+         * vede ancora. Da qui la condizione su `Ready`.
+         * ⚠️ **Sta in fondo al `Box` della schermata**, dopo la barra delle info: un velo che
+         * si lascia scavalcare da qualcosa non è un velo. E `matchParentSize` esiste solo qui
+         * dentro, che è la ragione per cui `HintCentre` è un'estensione di `BoxScope`.
+         */
+        if (zoomHint && state is ViewerState.Ready) {
+            HintCentre(
+                text = stringResource(R.string.hint_zoom_tap),
+                onDone = { scope.launch { Hint.ZOOM_TAP.remember(context) } }
+            )
         }
     }
 
@@ -2246,6 +2272,7 @@ private fun ImageCanvas(
                 restScale = restScale,
                 ops = ops,
                 inBin = inBin,
+                zoomRows = settings.zoomInMenu,
                 binOn = settings.binOn
             )
         }
@@ -2568,6 +2595,8 @@ private fun ImageMenu(
     restScale: Float,
     ops: MenuOps,
     inBin: Boolean,
+    /** Se il menu porta anche 'Adatta alla vista' e '100%'. Vedi `Settings.zoomInMenu`. */
+    zoomRows: Boolean,
     /**
      * Se il cestino è acceso: decide se 'elimina' sposta o cancella, e con lui se ci sia una
      * conferma.
@@ -2697,18 +2726,32 @@ private fun ImageMenu(
                 )
             }
 
-            HorizontalDivider()
+            /*
+             * ⚠️⚠️ **LE DUE VOCI DELLO ZOOM SONO SPENTE DI FABBRICA, dalla 1.25** (richiesta
+             * dell'utente, 2026-09-02: *togli '100%' e 'Adatta alla vista' dal menu a
+             * pressione lunga; ricompaiono se si accende quell'opzione*). Fanno quello che il
+             * **doppio tocco** fa già, e stavano in mezzo a comandi che agiscono sul file: chi
+             * apre questo menu cerca quasi sempre un'altra cosa.
+             * ⚠️ **Sparisce anche il filetto sopra di loro**, e non è un dettaglio: un divisore
+             * che separa il nulla dal nulla lascia in scena il posto vuoto delle voci tolte.
+             * ⚠️ **Non sono state cancellate ma messe dietro un interruttore**, perché il gesto
+             * che le sostituisce è nascosto: chi non lo conosce resterebbe senza. Il velo del
+             * doppio tocco (`Hint.ZOOM_TAP`) è la vera contropartita.
+             */
+            if (zoomRows) {
+                HorizontalDivider()
 
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.fit_label)) },
-                leadingIcon = { Icon(Icons.Outlined.FitScreen, null) },
-                onClick = { onDismiss(); onZoom(restScale) }
-            )
-            DropdownMenuItem(
-                text = { Text("100%") },
-                leadingIcon = { Icon(Icons.Outlined.PhotoSizeSelectActual, null) },
-                onClick = { onDismiss(); onZoom(oneToOne) }
-            )
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.fit_label)) },
+                    leadingIcon = { Icon(Icons.Outlined.FitScreen, null) },
+                    onClick = { onDismiss(); onZoom(restScale) }
+                )
+                DropdownMenuItem(
+                    text = { Text("100%") },
+                    leadingIcon = { Icon(Icons.Outlined.PhotoSizeSelectActual, null) },
+                    onClick = { onDismiss(); onZoom(oneToOne) }
+                )
+            }
 
             /*
              * ⚠️⚠️ **LA BARRA DELLE INFO NON STA PIÙ IN QUESTO MENU, dalla 1.20**
@@ -2956,27 +2999,29 @@ private fun DetailsPanel(
  * ⚠️ **`BoxWithConstraints` e non una misura in dp**: la larghezza utile è quella dello schermo
  * meno i margini, e scritta a mano sarebbe giusta su un telefono solo.
  *
- * ⚠️⚠️ **ALLINEATO A DESTRA, dalla 1.24** (richiesta dell'utente, 2026-09-02: *fa' in modo che
- * a destra finisca esattamente dove finisce l'indice numerico dell'immagine visualizzata*).
- * Allineato a sinistra com'era nella `1.23`, un nome corto finiva in mezzo alla riga e non
- * finiva da nessuna parte in particolare; a destra finisce sul **contatore**, che è l'unico
- * altro estremo fisso della barra. ⚠️ **I due estremi coincidono perché la scatola è la
- * stessa**: il nome riempie la larghezza del contenuto, e il contatore è l'ultimo della riga
- * sotto, quindi entrambi finiscono al margine destro. Non c'è nessun conto da tenere allineato
- * a mano, ed è la ragione per cui questo si fa con `TextAlign.End` e non con un `padding`.
- * ⚠️ **Chi lo rimettesse a sinistra 'per uniformità' con la riga dei dati** rifarebbe il
- * difetto: quella riga ha il suo estremo fisso a destra (il contatore), e il nome sopra ne
- * segue uno, non l'altro.
+ * ⚠️⚠️ **ALLINEATO A SINISTRA, e la 1.24 lo aveva messo a DESTRA per un mio errore di
+ * lettura.** La richiesta del 2026-09-02 diceva *fa' in modo che a destra finisca esattamente
+ * dove finisce l'indice numerico dell'immagine visualizzata*, e l'avevo letta come 'allinea a
+ * destra'. La correzione dell'utente dice che cosa intendeva: *il nome del file dev'essere
+ * sempre allineato a sinistra; volevo dire che un nome lungo con l'ellissi in mezzo deve
+ * finire allineato a destra con l'indice, ma forse era già così*. Era già così: la scatola del
+ * nome è larga quanto il contenuto, quindi un nome accorciato arriva al margine destro, che è
+ * dove finisce il contatore. ⚠️ **Non c'era niente da aggiustare, e allineare a destra ha
+ * spostato anche i nomi CORTI**, che è il difetto che la 1.25 toglie.
  *
- * ⚠️ **Meno opaco dei dati** (stessa richiesta: *rendi il testo leggermente meno opaco*), e il
- * colore di partenza è quello della `Surface` che sta dietro, preso da `LocalContentColor`:
- * scriverne uno nuovo qui vorrebbe dire un secondo colore da tenere d'accordo col tema.
+ * ⚠️ **Meno acceso dei dati, e la 1.25 lo abbassa ancora** (*abbassa ancora leggermente
+ * l'opacità*). Il colore di partenza è quello della `Surface` che sta dietro, preso da
+ * `LocalContentColor`: scriverne uno nuovo qui vorrebbe dire un secondo colore da tenere
+ * d'accordo col tema.
+ * ⚠️ **E si stacca dai dati di [NAME_GAP]** (*distanzia il nome di altri 2/3 pixel apparenti
+ * dalle altre info*): attaccato com'era, il nome si leggeva come la prima parola della riga di
+ * sotto invece che come la sua testatina.
  */
 @Composable
 private fun NameLine(name: String) {
     val style = MaterialTheme.typography.labelMedium
     val grassetto = SpanStyle(fontWeight = FontWeight.Bold)
-    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth().padding(bottom = NAME_GAP)) {
         val measurer = rememberTextMeasurer()
         val room = with(LocalDensity.current) { maxWidth.roundToPx() }
         val shown = remember(name, room, style, grassetto, measurer) {
@@ -2986,22 +3031,24 @@ private fun NameLine(name: String) {
             text = shown,
             style = style,
             maxLines = 1,
-            color = LocalContentColor.current.copy(alpha = NAME_FADE),
-            textAlign = TextAlign.End,
-            modifier = Modifier.fillMaxWidth()
+            color = LocalContentColor.current.copy(alpha = NAME_FADE)
         )
     }
 }
 
 /**
- * Quanto il nome del file è meno acceso dei dati sotto di lui.
+ * Quanto il nome del file è meno acceso dei dati sotto di lui, e quanto se ne stacca.
  *
- * ⚠️ **Poco, e di proposito**: la richiesta era *leggermente* meno opaco, e questo è il gradino
- * che Material chiama 'emphasis media', cioè quello che distingue un testo secondario senza
- * farlo sembrare disattivato. Più giù il nome diventerebbe illeggibile sopra una fotografia
- * chiara, che è proprio il fondo su cui questa barra deve reggere.
+ * ⚠️ **0.65 dalla 1.25, e prima era 0.74**, cioè il gradino che Material chiama 'emphasis
+ * media'. La richiesta era di abbassare *ancora leggermente*, e questo è un passo solo: sotto
+ * si va verso il valore che Material riserva ai comandi **disattivati** (0.38), e un nome che
+ * sembra spento sopra una fotografia chiara non si legge più.
+ * ⚠️ **Lo stacco è di tre punti e non di due**: la richiesta diceva 'altri 2/3 pixel
+ * apparenti', e fra i due estremi si prende quello che si vede, perché due punti su uno
+ * schermo a tre volte sono sei pixel fisici, cioè al limite del percepibile.
  */
-private const val NAME_FADE = 0.74f
+private const val NAME_FADE = 0.65f
+private val NAME_GAP = 3.dp
 
 /**
  * Quanto copre il velo dietro la riga dei dettagli.

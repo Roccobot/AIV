@@ -341,6 +341,25 @@ private fun FactsDialog(uris: List<Uri>, fields: List<FactField>, onDismiss: () 
     val context = LocalContext.current
     val facts by produceState<Facts?>(null, uris) { value = factsOf(context, uris) }
 
+    /*
+     * ⚠️⚠️ **SU UN FILE SOLO IL DIALOGO NON SI APRE FINCHÉ NON HA I DATI, dalla 1.25**
+     * (riscontro dell'utente, 2026-09-02: *deve apparire in modo elegante, ma più semplice,
+     * senza slide-in*). Il difetto era che si apriva **due volte**: prima con la sola riga
+     * 'Sto contando...', poi, arrivati i dati, gli comparivano dentro la pastiglia del nome e
+     * dieci righe di elenco. Un dialogo è centrato, quindi crescere vuol dire che tutto il
+     * contenuto scivola in su e in giù: quello è lo scorrimento che si vedeva, e non c'è
+     * nessuna animazione da spegnere, perché nessuno l'aveva scritta.
+     * ⚠️ **Solo su un file, e su molti resta com'era**: là l'attesa è vera (si chiede il peso
+     * di ognuno) e un dialogo che tarda mezzo secondo senza dire niente si legge come un tocco
+     * andato a vuoto. Con un file solo è una interrogazione sola, cioè decine di millisecondi:
+     * l'attesa non si vede, e quello che si vede è il dialogo già completo.
+     * ⚠️ **Se lo scorrimento si vedesse ancora, allora è del SISTEMA e non nostro**: un dialogo
+     * di Compose è una finestra vera, e l'animazione di entrata la decide il telefono quando la
+     * apre. Da dentro non si spegne; si toglierebbe solo rifacendo questo riquadro come un
+     * pannello dentro la schermata, che è un lavoro a sé e non si fa senza chiederlo.
+     */
+    if (facts == null && uris.size == 1) return
+
     AlertDialog(
         onDismissRequest = onDismiss,
         /*
@@ -484,18 +503,26 @@ private fun FileFacts(facts: Facts, one: OneFile, fields: List<FactField>) {
  * - ⚠️ **Lo spazio invece SOLO quando si accorcia**: serve a staccare l'ellissi dal punto, e
  *   in un nome intero non ci sarebbe niente da staccare.
  *
- * ⚠️⚠️ **IL TOCCO LUNGO COPIA IL NOME INTERO, non quello che si vede** (richiesta dell'utente,
+ * ⚠️⚠️ **IL TOCCO COPIA IL NOME INTERO, non quello che si vede** (richiesta dell'utente,
  * 2026-09-02: *tener premuta la pillola del nome deve copiare il nome completo
  * (nome.estensione) negli appunti*), e la distinzione è tutta la funzione: a schermo il nome
  * può essere accorciato dall'ellissi, e copiare quello vorrebbe dire incollare `IMG_202... .HEIC`
  * in mezzo a un messaggio. Negli appunti va [name], la stringa di partenza.
- * ⚠️ **[detectTapGestures] e non [androidx.compose.foundation.combinedClickable]**: quello vuole
- * anche un tocco breve, e qui il tocco breve non deve fare niente. Dandogli una funzione vuota
- * la pastiglia mostrerebbe l'onda del tocco a ogni sfioramento, cioè prometterebbe un comando
- * che non c'è.
- * ⚠️ **La vibrazione è [HOLD_BUZZ], la stessa di ogni tocco lungo dell'app**: senza, questo
- * gesto nascosto non darebbe alcun segno di essere stato riconosciuto, e il messaggio da solo
- * arriva un istante dopo. Chi la cambiasse qui avrebbe due tocchi lunghi che si sentono diversi.
+ * ⚠️⚠️ **E DALLA 1.25 VALE ANCHE IL TOCCO BREVE, con lo stesso effetto e la stessa
+ * vibrazione** (riscontro dell'utente: *quando vedo una pillola con il nome, mi viene più
+ * naturale fare un normale tap anziché un tocco lungo*). ⚠️ **Non è una scorciatoia in più
+ * per la stessa cosa: è la CORREZIONE di un gesto indovinato male.** Una pastiglia sembra un
+ * tasto, quindi il gesto che chiede è il tocco; il tocco lungo lo scopre chi lo sa già.
+ * Tenerli diversi vorrebbe dire una pastiglia che al tocco non fa niente, che è esattamente
+ * quello che l'utente ha provato.
+ * ⚠️ **[detectTapGestures] e non [androidx.compose.foundation.combinedClickable]**: adesso
+ * che i due gesti fanno la stessa cosa quello basterebbe, ma porterebbe con sé l'onda del
+ * tocco su una superficie che è il **titolo** del dialogo, e un titolo che si illumina si
+ * legge come una voce di elenco.
+ * ⚠️ **La vibrazione è [HOLD_BUZZ], la stessa di ogni tocco lungo dell'app**, e la si sente
+ * anche sul tocco breve perché era la richiesta (*entrambi hanno la stessa vibrazione e lo
+ * stesso effetto*): qui è il solo segno che qualcosa è successo, dato che il messaggio arriva
+ * un istante dopo.
  */
 @Composable
 private fun NamePill(name: String, modifier: Modifier = Modifier) {
@@ -504,17 +531,18 @@ private fun NamePill(name: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val haptics = LocalHapticFeedback.current
     val said = stringResource(R.string.toast_name_copied)
+    // ⚠️ Una funzione sola per i due gesti, e non due copie: 'stesso effetto' è la richiesta,
+    // e due corpi uguali divergerebbero al primo ritocco.
+    val copia = {
+        haptics.performHapticFeedback(HOLD_BUZZ)
+        ImageActions.copyName(context, name)
+        Toast.makeText(context, said, Toast.LENGTH_SHORT).show()
+    }
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .pointerInput(name) {
-                detectTapGestures(
-                    onLongPress = {
-                        haptics.performHapticFeedback(HOLD_BUZZ)
-                        ImageActions.copyName(context, name)
-                        Toast.makeText(context, said, Toast.LENGTH_SHORT).show()
-                    }
-                )
+                detectTapGestures(onTap = { copia() }, onLongPress = { copia() })
             },
         shape = RoundedCornerShape(NAME_CORNER),
         color = MaterialTheme.colorScheme.primaryContainer,

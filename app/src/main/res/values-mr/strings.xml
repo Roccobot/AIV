@@ -88,6 +88,9 @@
     <string name="settings_bottom">खाली</string>
     <string name="settings_info_visible">माहिती पट्टी</string>
     <string name="settings_info_position">स्थान</string>
+    <string name="settings_zoom_menu">व्ह्यूअर मेनूमध्ये झूम</string>
+    <string name="settings_zoom_menu_desc">\'पडद्यात बसवा\' आणि \'100%\' दीर्घ दाबाच्या मेनूमध्ये परत आणते. बंद आहे, कारण प्रतिमेवर दोनदा टॅप केल्यास तेच होते.</string>
+    <string name="hint_zoom_tap">प्रतिमेवर दोनदा टॅप करा: सध्याच्या झूमवरून 100% किंवा पडद्यात बसणाऱ्या आकारावर, आळीपाळीने.</string>
     <string name="settings_anim_counter">फ्रेम काउंटर</string>
     <string name="settings_anim_counter_desc">हलत्या प्रतिमांच्या नियंत्रण पट्टीत दिसतो.</string>
     <string name="settings_reverse_order">सर्वात जुन्यापासून उजवीकडे प्रतिमा पलटा</string>

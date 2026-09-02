@@ -190,6 +190,20 @@ data class Settings(
     val infoPosition: InfoPosition = InfoPosition.TOP,
     val infoVisible: Boolean = true,
     /**
+     * Se il menu a pressione lunga porta anche 'Adatta alla vista' e '100%'.
+     *
+     * ⚠️⚠️ **SPENTA DI FABBRICA, ed è una RIMOZIONE travestita da impostazione** (richiesta
+     * dell'utente, 2026-09-02: *aggiungi 'Mostra zoom nel menu contestuale del visualizzatore'
+     * nelle impostazioni (default: spento); come conseguenza, togli '100%' e 'Adatta alla
+     * vista' dal menu a pressione lunga*). Quelle due voci fanno quello che il **doppio tocco**
+     * fa già, e stanno in mezzo a comandi che agiscono sul file: chi apre quel menu cerca di
+     * solito un'altra cosa.
+     * ⚠️ **L'interruttore esiste lo stesso perché la scorciatoia è nascosta**: un gesto non si
+     * dichiara da sé, e chi non lo conosce resterebbe senza. Da qui l'onboarding del doppio
+     * tocco (vedi `Hint.ZOOM_TAP`), che è la vera contropartita della rimozione.
+     */
+    val zoomInMenu: Boolean = false,
+    /**
      * Se la sequenza si sfoglia in ordine **cronologico** invece che dalla più recente.
      *
      * ⚠️⚠️ **IL SIGNIFICATO SI È ROVESCIATO NELLA 0.30, e per questo la chiave è NUOVA**
@@ -440,6 +454,7 @@ object SettingsStore {
     private val SCALE_MODE = stringPreferencesKey("scale-mode")
     private val INFO_POSITION = stringPreferencesKey("info-position")
     private val INFO_VISIBLE = booleanPreferencesKey("info-visible")
+    private val ZOOM_IN_MENU = booleanPreferencesKey("zoom-in-menu")
     private val REVERSE_SEQUENCE = booleanPreferencesKey("sequence-reversed")
     private val START_FOLDER = longPreferencesKey("start-folder")
     private val START_FOLDER_NAME = stringPreferencesKey("start-folder-name")
@@ -484,6 +499,7 @@ object SettingsStore {
             scaleMode = ScaleMode.entries.byToken(p[SCALE_MODE], ScaleMode.PHYSICAL),
             infoPosition = InfoPosition.entries.byToken(p[INFO_POSITION], InfoPosition.TOP),
             infoVisible = p[INFO_VISIBLE] ?: true,
+            zoomInMenu = p[ZOOM_IN_MENU] ?: false,
             reverseSequence = p[REVERSE_SEQUENCE] ?: false,
             startFolder = p[START_FOLDER],
             startFolderName = p[START_FOLDER_NAME] ?: "",
@@ -543,6 +559,7 @@ object SettingsStore {
             p[SCALE_MODE] = settings.scaleMode.token
             p[INFO_POSITION] = settings.infoPosition.token
             p[INFO_VISIBLE] = settings.infoVisible
+            p[ZOOM_IN_MENU] = settings.zoomInMenu
             p[REVERSE_SEQUENCE] = settings.reverseSequence
             // ⚠️ Una cartella tolta si CANCELLA invece di essere scritta a zero: zero è
             // un id come un altro, e un giorno finirebbe per somigliare a una cartella
@@ -677,7 +694,20 @@ enum class Hint(token: String) {
      * vive quindi in un'altra schermata, ed è la ragione per cui il `when` sulle frasi in
      * `GridScreen` ha un ramo che non si vedrà mai.
      */
-    COLUMNS("columns-hint-seen");
+    COLUMNS("columns-hint-seen"),
+
+    /**
+     * Il doppio tocco che cambia lo zoom, dalla `1.25`: **nel visualizzatore**, alla prima
+     * fotografia che si apre.
+     *
+     * ⚠️⚠️ **NASCE COME CONTROPARTITA DI UNA RIMOZIONE** (richiesta dell'utente, 2026-09-02):
+     * 'Adatta alla vista' e '100%' escono dal menu a pressione lunga, e senza un avviso il
+     * doppio tocco resterebbe un gesto che nessuno sa di avere. È il primo velo che non
+     * insegna una **scorciatoia**: insegna l'unico modo rimasto.
+     * ⚠️ **È anche il primo che non evidenzia un tastino**, perché il gesto si fa sulla
+     * fotografia intera: da qui `HintCentre` invece di `HintVeil`.
+     */
+    ZOOM_TAP("zoom-tap-hint-seen");
 
     private val seen = booleanPreferencesKey(token)
 
