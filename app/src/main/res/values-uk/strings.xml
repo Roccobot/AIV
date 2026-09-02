@@ -10,6 +10,7 @@
     <string name="too_large">Зображення завелике для цього пристрою</string>
     <string name="error_retry">Спробувати ще раз</string>
     <string name="fit_label">Вписати в екран</string>
+    <string name="bar_reduced">зменшено</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Забути ці</string>
     <string name="url_not_image">Адреса не веде до зображення</string>

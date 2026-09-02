@@ -52,11 +52,11 @@ android {
         // the update as a downgrade. It is not tied to versionName and nothing
         // checks it, so nothing will remind you: 0.11 went out carrying 1, so
         // from here on every published version needs its own number.
-        versionCode = 120
+        versionCode = 121
         // Single source of the version, in SlimVer. The release workflow reads
         // it from here and refuses to run when the tag disagrees, so the tag
         // confirms this number instead of being a second one.
-        versionName = "1.30"
+        versionName = "1.31"
     }
 
     // The signing material comes from the environment and never from the
@@ -196,6 +196,25 @@ dependencies {
      * non dipende da che cosa sa fare l'apparecchio.
      */
     implementation(libs.avif.android)
+
+    /*
+     * ⚠️⚠️ **ANDROIDSVG ENTRA CON LA 1.31**, e qui non c'è nessun decodificatore di
+     * sistema da provare prima: Android non sa disegnare un SVG e non l'ha mai saputo.
+     * `ImageDecoder` conosce i formati a pixel, e la grafica vettoriale del sistema è
+     * un'altra cosa, cioè `VectorDrawable`, che è un XML di Android e **non** un SVG (non
+     * ha CSS, non ha `<text>`, non ha i filtri, e vive dentro le risorse dell'app). Quindi
+     * la scelta non era 'sistema o libreria': era 'libreria o niente'.
+     * ⚠️ **Pesa 202.395 byte di AAR**, misurati sul file scaricato da Maven Central e non
+     * stimati, ed è **tutto Java**: nessuna libreria nativa, quindi nessun byte per
+     * architettura e nessuna esclusione da fare come per libavif.
+     * ⚠️⚠️ **NELL'APK NE ARRIVA LA METÀ, e il numero è un CONFRONTO e non una stima**: due
+     * `assembleRelease` sulla stessa macchina e con gli stessi flag, uno sull'albero della
+     * `1.30` e uno su questo, dànno 6.536.925 e 6.636.649 byte, cioè **+99.724 byte
+     * (+1,5%)**. La differenza col peso dell'AAR è il minificatore, che qui può lavorare
+     * perché è codice Java: sulla libreria nativa di libavif non poteva, ed è la ragione per
+     * cui quella costava 1,5 MB veri.
+     */
+    implementation(libs.androidsvg)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)

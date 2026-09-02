@@ -10,6 +10,7 @@
     <string name="too_large">ภาพใหญ่เกินกว่าที่อุปกรณ์นี้จะรับได้</string>
     <string name="error_retry">ลองอีกครั้ง</string>
     <string name="fit_label">พอดีหน้าจอ</string>
+    <string name="bar_reduced">ย่อขนาด</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">ลืมที่อยู่เหล่านี้</string>
     <string name="url_not_image">ที่อยู่นี้ไม่ได้ชี้ไปที่ภาพ</string>

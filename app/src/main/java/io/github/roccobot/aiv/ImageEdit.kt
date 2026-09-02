@@ -215,6 +215,10 @@ object ImageEdit {
         var turned: Bitmap? = null
         var cut: Bitmap? = null
         try {
+            // ⚠️ **Il secondo tentativo serve ai formati che il sistema non apre**, AVIF e
+            // SVG: senza, un ritaglio su quei file rispondeva 'troppo grande', che è un
+            // messaggio sbagliato su un file di venti kilobyte. Lo zero vuol dire 'grande
+            // quanto viene', perché qui si sta per riscrivere e non si mostra niente.
             full = runCatching {
                 ImageDecoder.decodeBitmap(
                     ImageDecoder.createSource(context.contentResolver, uri)
@@ -222,7 +226,9 @@ object ImageEdit {
                     decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
                     decoder.isMutableRequired = false
                 }
-            }.getOrNull() ?: return Result.Failed(R.string.edit_too_big)
+            }.getOrNull()
+                ?: ImageSource.rescue(context, uri, 0)
+                ?: return Result.Failed(R.string.edit_too_big)
 
             turned = if (turns == 0) full else Bitmap.createBitmap(
                 full, 0, 0, full.width, full.height,

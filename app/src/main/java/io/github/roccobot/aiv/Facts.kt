@@ -187,6 +187,10 @@ suspend fun factsOf(context: Context, uris: List<Uri>): Facts = withContext(Disp
      * (vedi [Avif]), quindi `inJustDecodeBounds` torna a mani vuote e la scheda scriverebbe
      * '?' proprio sul formato che la `1.26` ha aggiunto. Le misure le dice l'intestazione,
      * e [Avif.dimensions] gira già i lati se il file dichiara una rotazione.
+     * ⚠️⚠️ **E SU UN SVG NON LE DICE PER UN'ALTRA RAGIONE (1.31)**: là il decodificatore si
+     * rifiuta, qui il formato non lo conosce nessuno, perché `BitmapFactory` legge i formati
+     * a pixel. Il sintomo però è lo stesso, cioè `inJustDecodeBounds` a mani vuote, e per
+     * questo le due letture stanno nello stesso posto.
      * ⚠️ **Si legge SOLO quando l'altra strada ha fallito**: su un JPEG questa riga non
      * apre niente.
      */
@@ -195,7 +199,20 @@ suspend fun factsOf(context: Context, uris: List<Uri>): Facts = withContext(Disp
             context.contentResolver.openInputStream(uri)?.use { stream ->
                 val head = ByteArray(Avif.HEAD)
                 val got = stream.readFully(head, Avif.HEAD)
-                head.copyOf(got).takeIf { Avif.looksLike(it) }?.let { Avif.dimensions(it) }
+                val head2 = head.copyOf(got)
+                when {
+                    Avif.looksLike(head2) -> Avif.dimensions(head2)
+                    /*
+                     * ⚠️⚠️ **QUI SI RIAPRE IL FILE, e non si può fare altrimenti**: un SVG va
+                     * letto **intero** per sapere quanto è grande, perché è un documento XML e
+                     * non un'intestazione, e questo stream è già stato consumato per i primi
+                     * 128 kilobyte. ⚠️ Il costo è quello di un file di testo di pochi
+                     * kilobyte, non quello di una decodifica: non si disegna niente.
+                     */
+                    Svg.looksLike(head2) -> context.contentResolver.openInputStream(uri)
+                        ?.use { Svg.dimensions(it) }
+                    else -> null
+                }
             }
         }.getOrNull()
     } else {

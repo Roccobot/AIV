@@ -10,6 +10,7 @@
     <string name="too_large">この端末には画像が大きすぎます</string>
     <string name="error_retry">もう一度試す</string>
     <string name="fit_label">画面に合わせる</string>
+    <string name="bar_reduced">縮小</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">履歴を消す</string>
     <string name="url_not_image">このアドレスは画像を指していません</string>

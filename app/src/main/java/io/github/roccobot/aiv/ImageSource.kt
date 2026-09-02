@@ -54,6 +54,11 @@ sealed interface LoadResult {
  *   AVIF si riprova con libavif. **In quest'ordine e non al contrario**: dove il
  *   telefono ce la fa, decodifica lui, con la sua accelerazione e il suo orientamento
  *   EXIF, e il ripiego non gli toglie niente.
+ * - ⚠️ **L'SVG è un ripiego a sua volta ma per una ragione opposta (1.31)**: là il sistema
+ *   dichiara il formato e poi si rifiuta, qui non lo dichiara affatto, perché `ImageDecoder`
+ *   conosce i formati **a pixel** e un vettore non è uno di quelli. Vedi [Svg]. La strada è
+ *   la stessa perché il sintomo è lo stesso, cioè `decodeBitmap` che solleva, e i due
+ *   tentativi si distinguono **dai byte** e non dall'estensione.
  * - Remote images are downloaded into memory first. A stream cannot be rewound,
  *   and ImageDecoder needs to read the header, decide the sample size and then
  *   read the pixels: with a plain stream that means either two requests or a
@@ -109,7 +114,7 @@ object ImageSource {
             mimeType = resolver.getType(uri),
             byteSize = localSize(resolver, uri),
             displayName = localName(resolver, uri),
-            // ⚠️ **Una lambda e non i byte**, ed è il punto: il ripiego AVIF vuole il file
+            // ⚠️ **Una lambda e non i byte**, ed è il punto: il ripiego vuole il file
             // intero in memoria, che su una fotografia da 25 MB non è poco. Chiedendoli
             // così si leggono **solo** quando `ImageDecoder` ha già fallito, cioè quasi
             // mai, e il percorso normale continua a leggere in streaming come prima.
@@ -249,7 +254,7 @@ object ImageSource {
             // tentativo AVIF che finirebbe la memoria una seconda volta. Stessa cosa per
             // l'annullamento, che non è un errore di formato.
             if (e is OutOfMemoryError || e is CancellationException) throw e
-            return avifFallback(raw, mimeType, byteSize, displayName)
+            return fallback(raw, mimeType, byteSize, displayName)
                 ?: LoadResult.Failed(LoadResult.Reason.UNSUPPORTED, e.message)
         }
         return LoadResult.Ok(
@@ -266,30 +271,52 @@ object ImageSource {
     }
 
     /**
-     * Il secondo tentativo, con libavif, per i soli file che dicono di essere AVIF.
+     * Il secondo tentativo, per i soli formati che il sistema non apre: AVIF e SVG.
      *
      * Torna `null` quando non c'è niente da tentare: così chi chiama conserva **il proprio**
      * errore, che è quello vero, invece di sostituirlo con 'non è un AVIF'.
      *
-     * ⚠️ **La misura si chiede allo stesso [pixelBudget] del percorso normale**, e non a un
-     * tetto scritto a mano: libavif scala dentro il bitmap che gli si dà, quindi il budget
-     * è l'unico posto in cui decidere quanto grande, ed è già quello che il resto dell'app
-     * usa per la stessa domanda.
+     * ⚠️⚠️ **I BYTE SI LEGGONO UNA VOLTA SOLA, e questa funzione esiste per quello**: fino
+     * alla `1.30` il ripiego era uno, quindi bastava che si leggesse i suoi byte da sé. Con
+     * due, due funzioni indipendenti aprirebbero il file **due volte** ogni volta che il
+     * primo non riconosce niente, e su una fotografia da 25 MB si vede.
+     * ⚠️ **Il riconoscimento decide, non l'estensione**: un file rinominato a mano si apre
+     * comunque, e un `.svg` che dentro è un JPEG non fa perdere tempo a nessuno.
      */
-    private fun avifFallback(
+    private fun fallback(
         raw: () -> ByteArray?,
         mimeType: String?,
         byteSize: Long?,
         displayName: String?
     ): LoadResult? {
-        if (!Avif.ready) return null
         val bytes = try {
             raw()
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             null
         } ?: return null
-        if (!Avif.looksLike(bytes)) return null
+        return when {
+            Avif.ready && Avif.looksLike(bytes) ->
+                fromAvif(bytes, mimeType, byteSize, displayName)
+            Svg.looksLike(bytes) -> fromSvg(bytes, mimeType, byteSize, displayName)
+            else -> null
+        }
+    }
+
+    /**
+     * L'AVIF, con libavif.
+     *
+     * ⚠️ **La misura si chiede allo stesso [pixelBudget] del percorso normale**, e non a un
+     * tetto scritto a mano: libavif scala dentro il bitmap che gli si dà, quindi il budget
+     * è l'unico posto in cui decidere quanto grande, ed è già quello che il resto dell'app
+     * usa per la stessa domanda.
+     */
+    private fun fromAvif(
+        bytes: ByteArray,
+        mimeType: String?,
+        byteSize: Long?,
+        displayName: String?
+    ): LoadResult? {
         val decoded = Avif.decode(bytes, pixelBudget()) ?: return null
         return LoadResult.Ok(
             LoadedImage(
@@ -305,6 +332,82 @@ object ImageSource {
                 displayName = displayName
             )
         )
+    }
+
+    /**
+     * L'SVG, con androidsvg.
+     *
+     * ⚠️⚠️ **QUI IL BUDGET È UN TETTO E NON UNA MISURA, al contrario dell'AVIF**, e la
+     * differenza sta nella natura del formato: un AVIF ha i suoi pixel e la domanda è
+     * quanti tenerne, un vettore non ne ha nessuno e la misura la si **sceglie**. La
+     * scelta è [Svg.BOX], col budget a ridurla su un telefono a corto di memoria: le due
+     * ragioni del numero stanno là.
+     */
+    private fun fromSvg(
+        bytes: ByteArray,
+        mimeType: String?,
+        byteSize: Long?,
+        displayName: String?
+    ): LoadResult? {
+        val drawn = Svg.render(bytes, Svg.BOX, pixelBudget()) ?: return null
+        return LoadResult.Ok(
+            LoadedImage(
+                bitmap = drawn.bitmap.asImageBitmap(),
+                mimeType = mimeType ?: Svg.MIME,
+                byteSize = byteSize ?: bytes.size.toLong(),
+                // ⚠️ Le misure sono quelle **dichiarate dal documento** e non quelle del
+                // bitmap disegnato: il perché sta su [Svg.dimensions], e la scheda delle
+                // informazioni dice lo stesso numero passando da un'altra strada.
+                pixelWidth = drawn.fullWidth,
+                pixelHeight = drawn.fullHeight,
+                sampled = drawn.sampled,
+                displayName = displayName
+            )
+        )
+    }
+
+    /**
+     * I pixel di un file che `ImageDecoder` non apre, per chi **non** passa da [load].
+     *
+     * ⚠️⚠️ **ESISTE PERCHÉ L'EDITOR INTERNO SI PIANTAVA, e non da oggi**: `EditorScreen` e
+     * [ImageEdit] decodificano per conto loro, quindi la catena dei ripieghi non li toccava.
+     * Su un AVIF (dalla `1.26`) e su un SVG (da ora) l'anteprima tornava `null` e la
+     * schermata restava a girare **per sempre**, senza un errore da leggere: non un formato
+     * rifiutato, un'attesa infinita. La `1.31` la chiude per tutti e due insieme, perché la
+     * causa era una sola.
+     * ⚠️ **Si chiama SOLO dopo che `ImageDecoder` ha già fallito**, e i due chiamanti lo
+     * fanno con un `?:` che lascia la strada normale identica a com'era: su un JPEG questa
+     * funzione non viene nemmeno interpellata.
+     *
+     * @param box il lato lungo massimo, oppure 0 per 'grande quanto viene'.
+     */
+    fun rescue(context: Context, uri: Uri, box: Int): Bitmap? {
+        val bytes = try {
+            context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            null
+        } ?: return null
+        return when {
+            // ⚠️ **Due funzioni diverse a seconda del riquadro**, e non è una svista:
+            // `thumbnail` chiede a libavif una misura esatta, `decode` gli chiede la
+            // fotografia intera entro il budget, che è quello che vuole chi sta per
+            // ritagliare e riscrivere.
+            Avif.ready && Avif.looksLike(bytes) -> if (box > 0) {
+                Avif.thumbnail(bytes, box)
+            } else {
+                Avif.decode(bytes, pixelBudget())?.bitmap
+            }
+            // ⚠️ **Su un vettore [Svg.BOX] è anche il tetto del 'grande quanto viene'**: non
+            // esiste una risoluzione vera da rispettare, quindi la misura più grande che
+            // abbia senso chiedere è quella che il visualizzatore già usa.
+            Svg.looksLike(bytes) -> Svg.render(
+                bytes = bytes,
+                box = if (box > 0) minOf(box, Svg.BOX) else Svg.BOX,
+                cap = pixelBudget()
+            )?.bitmap
+            else -> null
+        }
     }
 
     /**

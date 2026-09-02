@@ -10,6 +10,7 @@
     <string name="too_large">تصویر اس آلے کے لیے بہت بڑی ہے</string>
     <string name="error_retry">دوبارہ کوشش کریں</string>
     <string name="fit_label">اسکرین میں سمائیں</string>
+    <string name="bar_reduced">کم کیا گیا</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">یہ پتے بھول جائیں</string>
     <string name="url_not_image">پتہ کسی تصویر کی طرف اشارہ نہیں کرتا</string>

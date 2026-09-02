@@ -10,6 +10,7 @@
     <string name="too_large">Picha ni kubwa mno kwa kifaa hiki</string>
     <string name="error_retry">Jaribu tena</string>
     <string name="fit_label">Iingie kwenye skrini</string>
+    <string name="bar_reduced">imepunguzwa</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Sahau hizi</string>
     <string name="url_not_image">Anwani hii haielekezi kwenye picha</string>

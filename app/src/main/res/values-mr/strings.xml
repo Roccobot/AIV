@@ -10,6 +10,7 @@
     <string name="too_large">या उपकरणासाठी प्रतिमा खूप मोठी आहे</string>
     <string name="error_retry">पुन्हा प्रयत्न करा</string>
     <string name="fit_label">पडद्यात बसवा</string>
+    <string name="bar_reduced">कमी केलेली</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">हे पत्ते विसरा</string>
     <string name="url_not_image">पत्ता कोणत्याही प्रतिमेकडे निर्देश करत नाही</string>

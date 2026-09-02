@@ -28,8 +28,12 @@ import kotlinx.coroutines.flow.map
  * - Everything about the **wheel** is gone, and it is most of the userscript's
  *   panel: direction, step, mode, sensitivity. There is no wheel on a phone, and
  *   pinch is handled by the system with its own tuning.
- * - The **SVG export** settings (two DPI values) have nothing to act on yet: this
- *   viewer does not do SVG.
+ * - The **SVG export** settings (two DPI values) still have nothing to act on, and
+ *   from 1.31 the reason is a narrower one than the note used to give: the viewer
+ *   does read SVG now (see [Svg]), but those two values are about *writing* one,
+ *   which nothing here does. ⚠️ They are however the obvious home for the raster
+ *   size of an incoming SVG, today the constant [Svg.BOX]: if sharper zoom on a
+ *   vector is ever asked for, this is where the number would move.
  * - The **text nudge** is desktop typography, measured on a font this app never
  *   loads.
  *

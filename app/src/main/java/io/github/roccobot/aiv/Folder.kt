@@ -624,9 +624,19 @@ object Folder {
      * ⚠️ Un elenco serve perché una directory contiene di tutto, e il MediaStore,
      * che qui non c'è, era proprio quello che sapeva distinguere. Sono le stesse
      * dei filtri del manifest, che è dove vive l'idea che l'app ha di 'immagine'.
+     *
+     * ⚠️⚠️ **`svg` C'È DALLA 1.31, e la sua assenza era un difetto vero e non una scelta**:
+     * i filtri del manifest lo dichiaravano già (`pathPattern` e `pathSuffix`, dalla `0.16`),
+     * quindi l'app si offriva di aprire un formato che poi non compariva nemmeno in una
+     * cartella letta dal disco. La domanda dell'utente (*che mi dici degli SVG?*) ha trovato
+     * i due elenchi che si contraddicevano.
+     * ⚠️ **`tif` e `tiff` restano un caso aperto**, e conviene saperlo prima di prenderli per
+     * buoni: stanno qui e nel manifest, ma `ImageDecoder` non legge il TIFF e nessun ripiego
+     * lo copre, quindi quei due si aprono solo se il telefono ha un decodificatore suo.
      */
     private val EXTENSIONS = setOf(
-        "jpg", "jpeg", "jpe", "png", "gif", "webp", "avif", "heic", "heif", "tif", "tiff", "bmp"
+        "jpg", "jpeg", "jpe", "png", "gif", "webp", "avif", "heic", "heif", "tif", "tiff",
+        "bmp", "svg"
     )
 
     /**

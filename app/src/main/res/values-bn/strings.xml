@@ -10,6 +10,7 @@
     <string name="too_large">ছবিটি এই ডিভাইসের জন্য অনেক বড়</string>
     <string name="error_retry">আবার চেষ্টা করুন</string>
     <string name="fit_label">পর্দায় মেলান</string>
+    <string name="bar_reduced">হ্রাসকৃত</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">এগুলো ভুলে যান</string>
     <string name="url_not_image">ঠিকানাটি কোনো ছবির দিকে নির্দেশ করে না</string>

@@ -10,6 +10,7 @@
     <string name="too_large">이미지가 이 기기에는 너무 큽니다</string>
     <string name="error_retry">다시 시도</string>
     <string name="fit_label">화면에 맞추기</string>
+    <string name="bar_reduced">축소됨</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">기록 지우기</string>
     <string name="url_not_image">이 주소는 이미지를 가리키지 않습니다</string>

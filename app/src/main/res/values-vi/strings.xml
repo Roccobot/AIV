@@ -10,6 +10,7 @@
     <string name="too_large">Ảnh quá lớn đối với thiết bị này</string>
     <string name="error_retry">Thử lại</string>
     <string name="fit_label">Vừa khung hình</string>
+    <string name="bar_reduced">đã giảm</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Quên những địa chỉ này</string>
     <string name="url_not_image">Địa chỉ không trỏ tới một ảnh</string>

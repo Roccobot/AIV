@@ -10,6 +10,7 @@
     <string name="too_large">تصویر برای این دستگاه بزرگ‌تر از حد است</string>
     <string name="error_retry">تلاش دوباره</string>
     <string name="fit_label">جا شدن در صفحه</string>
+    <string name="bar_reduced">کاهش یافته</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">فراموش کردن اینها</string>
     <string name="url_not_image">نشانی به یک تصویر اشاره نمی‌کند</string>
