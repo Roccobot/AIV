@@ -442,6 +442,9 @@
     <string name="rename_start">First number</string>
     <string name="rename_hint">Every run of hashes becomes the number, and how many you write is how many digits: ## gives 01, ### gives 001. The extension is never touched, and the files are numbered in alphabetical order.</string>
     <string name="rename_preview">Preview</string>
+    <string name="rename_ext">Extension</string>
+    <string name="rename_ext_label">New extension</string>
+    <string name="rename_ext_note">It changes the NAME, not the format: the file keeps the content it has. To really convert it, use \'Export and convert\'.</string>
 
     <!-- ── Deleting ── -->
     <string name="delete_ask">Confirm deletion?</string>

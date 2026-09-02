@@ -222,6 +222,9 @@
     <string name="rename_start">पहिला क्रमांक</string>
     <string name="rename_hint">चौकटीच्या खुणांची प्रत्येक मालिका क्रमांक होते, आणि जितक्या लिहाल तितके अंक: ## देते 01, ### देते 001. विस्ताराला कधीही हात लावला जात नाही, आणि संचिकांना अकारविल्हे क्रमांक मिळतात.</string>
     <string name="rename_preview">पूर्वदृश्य</string>
+    <string name="rename_ext">विस्तार</string>
+    <string name="rename_ext_label">नवीन विस्तार</string>
+    <string name="rename_ext_note">हे नाव बदलते, स्वरूप नाही: फाइलचा मजकूर तसाच राहतो. खरोखर रूपांतर करण्यासाठी \'निर्यात आणि रूपांतर\' वापरा.</string>
     <string name="delete_ask">पुसण्याची खात्री आहे?</string>
     <plurals name="delete_desc">
         <item quantity="one">तुम्ही %1$d संचिका कायमची पुसणार आहात: ती फोनवरून कायमची जाईल.</item>

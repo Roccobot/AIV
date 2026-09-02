@@ -79,6 +79,29 @@ fun fitName(
     return comporre(corpo.take(basso) + CUT, coda)
 }
 
+/**
+ * Lo stesso nome, ma con l'estensione che **non si può spezzare** andando a capo.
+ *
+ * ⚠️⚠️ **È UNA REGOLA GENERALE E NON UN RITOCCO DELL'ANTEPRIMA** (riscontro dell'utente,
+ * 2026-09-02, sulla rinomina: *il nome del file va a capo spezzando l'estensione (nella mia
+ * prova: `.a⏎vif`) -> da mettere a posto: è una regola generale*). Un nome di file si legge
+ * come **corpo più estensione**, e un'estensione tagliata in due smette di essere
+ * riconoscibile: `.a` su una riga e `vif` sull'altra non si leggono più come AVIF.
+ * ⚠️ **Serve dove il nome sta su PIÙ righe**, cioè dove [fitName] non arriva: quella
+ * accorcia in mezzo e tiene una riga sola, quindi l'estensione la salda già da sé (la stessa
+ * [WORD_JOINER], usata dentro). Qui il nome resta intero e si va a capo, e il giuntore è
+ * l'unica cosa che dice al layout dove non può tagliare.
+ * ⚠️ **Il punto entra nel pezzo saldato**, non solo le lettere: senza, il layout potrebbe
+ * andare a capo **dopo** il punto, che è esattamente il caso che l'utente ha visto.
+ */
+fun unbroken(name: String): String {
+    // ⚠️ `punto > 0` e non `>= 0`, come in [fitName]: un nome che comincia col punto è un
+    // file nascosto, e là quel punto non introduce un'estensione.
+    val punto = name.lastIndexOf('.')
+    if (punto <= 0) return name
+    return name.substring(0, punto) + glue(name.substring(punto))
+}
+
 /** L'estensione con un giuntore fra ogni carattere, così il layout non la spezza. */
 private fun glue(ext: String): String = ext.toCharArray().joinToString(WORD_JOINER)
 

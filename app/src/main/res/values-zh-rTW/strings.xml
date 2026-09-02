@@ -214,6 +214,9 @@
     <string name="rename_start">起始編號</string>
     <string name="rename_hint">每一串井字號都會變成編號,你寫幾個就有幾位數:## 得到 01,### 得到 001。副檔名不會被更動,檔案依字母順序編號。</string>
     <string name="rename_preview">預覽</string>
+    <string name="rename_ext">延伸檔名</string>
+    <string name="rename_ext_label">新的延伸檔名</string>
+    <string name="rename_ext_note">只改名稱, 不改格式: 檔案內容保持不變. 要真正轉換請使用 \'匯出並轉換\'.</string>
     <string name="delete_ask">確認刪除？</string>
     <plurals name="delete_desc">
         <item quantity="other">即將徹底刪除 %1$d 項：將從手機上永久消失。</item>

@@ -230,6 +230,9 @@
     <string name="rename_start">Primer número</string>
     <string name="rename_hint">Cada serie de almohadillas se convierte en el número, y cuantas escribas, tantas cifras tendrá: ## da 01, ### da 001. La extensión no se toca nunca, y los archivos se numeran por orden alfabético.</string>
     <string name="rename_preview">Vista previa</string>
+    <string name="rename_ext">Extensión</string>
+    <string name="rename_ext_label">Nueva extensión</string>
+    <string name="rename_ext_note">Cambia el NOMBRE, no el formato: el archivo conserva su contenido. Para convertirlo de verdad usa \'Exportar y convertir\'.</string>
     <string name="delete_ask">¿Confirmas la eliminación?</string>
     <plurals name="delete_desc">
         <item quantity="one">Vas a eliminar definitivamente %1$d elemento: desaparece del teléfono para siempre.</item>

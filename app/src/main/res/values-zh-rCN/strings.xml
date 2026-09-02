@@ -214,6 +214,9 @@
     <string name="rename_start">起始编号</string>
     <string name="rename_hint">每一串井号都会变成编号,你写几个就有几位数:## 得到 01,### 得到 001。扩展名不会被改动,文件按字母顺序编号。</string>
     <string name="rename_preview">预览</string>
+    <string name="rename_ext">扩展名</string>
+    <string name="rename_ext_label">新扩展名</string>
+    <string name="rename_ext_note">只改名称, 不改格式: 文件内容保持不变. 要真正转换请使用 \'导出并转换\'.</string>
     <string name="delete_ask">确认删除？</string>
     <plurals name="delete_desc">
         <item quantity="other">即将彻底删除 %1$d 项：将从手机上永久消失。</item>

@@ -222,6 +222,9 @@
     <string name="rename_start">Eerste nummer</string>
     <string name="rename_hint">Elke reeks hekjes wordt het nummer, en hoeveel je er schrijft is het aantal cijfers: ## geeft 01, ### geeft 001. De extensie blijft altijd ongemoeid, en de bestanden worden alfabetisch genummerd.</string>
     <string name="rename_preview">Voorbeeld</string>
+    <string name="rename_ext">Extensie</string>
+    <string name="rename_ext_label">Nieuwe extensie</string>
+    <string name="rename_ext_note">Het verandert de NAAM, niet het formaat: de inhoud blijft hetzelfde. Gebruik \'Exporteren en omzetten\' om echt om te zetten.</string>
     <string name="delete_ask">Verwijderen bevestigen?</string>
     <plurals name="delete_desc">
         <item quantity="one">Je gaat %1$d item definitief verwijderen: het verdwijnt voorgoed van de telefoon.</item>

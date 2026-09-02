@@ -222,6 +222,9 @@
     <string name="rename_start">Erste Nummer</string>
     <string name="rename_hint">Jede Folge von Rauten wird zur Zahl, und wie viele du schreibst, so viele Stellen hat sie: ## gibt 01, ### gibt 001. Die Endung wird nie angetastet, und die Dateien werden alphabetisch nummeriert.</string>
     <string name="rename_preview">Vorschau</string>
+    <string name="rename_ext">Endung</string>
+    <string name="rename_ext_label">Neue Endung</string>
+    <string name="rename_ext_note">Es ändert den NAMEN, nicht das Format: der Inhalt der Datei bleibt derselbe. Um sie wirklich umzuwandeln, nimm \'Exportieren und umwandeln\'.</string>
     <string name="delete_ask">Löschen bestätigen?</string>
     <plurals name="delete_desc">
         <item quantity="one">Du löschst %1$d Element endgültig: es verschwindet für immer vom Telefon.</item>

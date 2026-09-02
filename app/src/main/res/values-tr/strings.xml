@@ -222,6 +222,9 @@
     <string name="rename_start">İlk numara</string>
     <string name="rename_hint">Peş peşe gelen her diyez numaraya dönüşür ve kaç tane yazarsan o kadar basamak olur: ## 01 verir, ### 001 verir. Uzantıya hiç dokunulmaz ve dosyalar alfabetik sırayla numaralanır.</string>
     <string name="rename_preview">Önizleme</string>
+    <string name="rename_ext">Uzantı</string>
+    <string name="rename_ext_label">Yeni uzantı</string>
+    <string name="rename_ext_note">ADI değiştirir, biçimi değil: dosya içeriğini korur. Gerçekten dönüştürmek için \'Dışa aktar ve dönüştür\' kullan.</string>
     <string name="delete_ask">Silmeyi onaylıyor musun?</string>
     <plurals name="delete_desc">
         <item quantity="one">%1$d ögeyi kalıcı olarak silmek üzeresin: telefondan sonsuza kadar gider.</item>

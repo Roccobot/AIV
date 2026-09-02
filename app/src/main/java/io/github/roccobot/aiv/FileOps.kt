@@ -104,9 +104,11 @@ fun FileJobDialogs(
         is FileJob.Rename -> RenameDialog(
             uris = job.uris,
             onDismiss = onClose,
-            onRename = { template, start ->
+            onRename = { template, start, extension ->
                 onClose()
-                onRun(FileKind.RENAME) { FileTree.rename(context, job.uris, template, start) }
+                onRun(FileKind.RENAME) {
+                    FileTree.rename(context, job.uris, template, start, extension)
+                }
             }
         )
 

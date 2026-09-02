@@ -214,6 +214,9 @@
     <string name="rename_start">最初の番号</string>
     <string name="rename_hint">連続する # が番号になり、書いた数だけ桁が増えます。## なら 01、### なら 001 です。拡張子は変わらず、ファイルはアルファベット順に番号が付きます。</string>
     <string name="rename_preview">プレビュー</string>
+    <string name="rename_ext">拡張子</string>
+    <string name="rename_ext_label">新しい拡張子</string>
+    <string name="rename_ext_note">変えるのは名前だけで、形式は変わりません: 中身はそのままです。本当に変換するには \'書き出して変換\' を使ってください。</string>
     <string name="delete_ask">削除しますか？</string>
     <plurals name="delete_desc">
         <item quantity="other">%1$d 件を完全に削除します。端末から永久になくなります。</item>

@@ -214,6 +214,9 @@
     <string name="rename_start">Angka pertama</string>
     <string name="rename_hint">Setiap rangkaian tanda pagar menjadi angkanya, dan sebanyak yang kamu tulis itulah jumlah digitnya: ## menghasilkan 01, ### menghasilkan 001. Ekstensi tidak pernah disentuh, dan berkas dinomori menurut urutan abjad.</string>
     <string name="rename_preview">Pratinjau</string>
+    <string name="rename_ext">Ekstensi</string>
+    <string name="rename_ext_label">Ekstensi baru</string>
+    <string name="rename_ext_note">Ini mengubah NAMA, bukan formatnya: isi berkas tetap sama. Untuk benar-benar mengonversi, gunakan \'Ekspor dan konversi\'.</string>
     <string name="delete_ask">Konfirmasi penghapusan?</string>
     <plurals name="delete_desc">
         <item quantity="other">Kamu akan menghapus %1$d item untuk selamanya: item itu hilang dari ponsel selamanya.</item>

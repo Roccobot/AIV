@@ -222,6 +222,9 @@
     <string name="rename_start">पहला अंक</string>
     <string name="rename_hint">हैश की हर कड़ी संख्या बन जाती है, और आप जितने लिखेंगे उतने अंक होंगे: ## से 01, ### से 001। एक्सटेंशन कभी नहीं बदलता, और फ़ाइलों को वर्णक्रम में संख्या मिलती है।</string>
     <string name="rename_preview">झलक</string>
+    <string name="rename_ext">एक्सटेंशन</string>
+    <string name="rename_ext_label">नया एक्सटेंशन</string>
+    <string name="rename_ext_note">यह नाम बदलता है, प्रारूप नहीं: फ़ाइल की सामग्री वही रहती है. वास्तव में बदलने के लिए \'निर्यात करें और बदलें\' का उपयोग करें.</string>
     <string name="delete_ask">क्या हटाना है?</string>
     <plurals name="delete_desc">
         <item quantity="one">आप %1$d आइटम को हमेशा के लिए हटाने वाले हैं: वह फ़ोन से पूरी तरह चला जाएगा।</item>
