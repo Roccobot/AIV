@@ -309,6 +309,7 @@ private fun DeleteDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.lowered(),
         title = { Text(stringResource(R.string.delete_ask)) },
         text = {
             Text(pluralStringResource(R.plurals.delete_desc, count, count))
@@ -362,6 +363,7 @@ private fun FactsDialog(uris: List<Uri>, fields: List<FactField>, onDismiss: () 
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.lowered(),
         /*
          * ⚠️⚠️ **TITOLO CENTRATO SU UNA RIGA E PASTIGLIA SULLA SUA, dalla `0.73`**, come dal
          * mockup dell'utente, ed è la correzione di un difetto che lui stesso ha chiamato

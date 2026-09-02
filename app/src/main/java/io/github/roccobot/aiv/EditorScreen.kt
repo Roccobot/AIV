@@ -35,7 +35,6 @@ import androidx.compose.material.icons.automirrored.outlined.Undo
 import androidx.compose.material.icons.filled.RotateLeft
 import androidx.compose.material.icons.filled.RotateRight
 import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.RestartAlt
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -1373,6 +1372,7 @@ fun EditorPicker(
     val (edit, send) = remember(others) { others.partition { !it.shared } }
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.lowered(),
         title = { Text(stringResource(R.string.editor_pick)) },
         text = {
             Column(
@@ -1460,11 +1460,13 @@ private fun PickRow(label: String, icon: Drawable?, here: Boolean, onClick: () -
     ) {
         Box(modifier = Modifier.size(PICK_ICON), contentAlignment = Alignment.Center) {
             // ⚠️ L'editor di casa non ha un'icona di sistema perché non è un'app: prende la
-            // stessa matita della voce di menu, che è il modo per dire che è la stessa cosa.
+            // **stessa** icona della voce di menu, che è il modo per dire che è la stessa
+            // cosa. Dalla 1.29 è quella disegnata dall'utente, e cambiarla qui non era
+            // opzionale: due disegni diversi per lo stesso editor lo farebbero sembrare due.
             if (shot != null) {
                 Image(bitmap = shot, contentDescription = null, modifier = Modifier.size(PICK_ICON))
             } else {
-                Icon(Icons.Outlined.Edit, contentDescription = null)
+                Icon(Glyphs.ImageEdit, contentDescription = null)
             }
         }
         Text(text = label, style = MaterialTheme.typography.bodyLarge)

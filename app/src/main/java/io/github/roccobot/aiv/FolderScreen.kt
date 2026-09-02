@@ -553,6 +553,7 @@ fun FolderScreen(
     hiding?.let { bucket ->
         AlertDialog(
             onDismissRequest = { hiding = null },
+            modifier = Modifier.lowered(),
             title = { Text(stringResource(R.string.hide_folder_title, bucket.name)) },
             // ⚠️ Il testo dice DOVE va a finire, e dirlo qui è metà della funzione: una
             // cartella che sparisce senza che si sappia come riaverla è indistinguibile
@@ -892,6 +893,7 @@ private fun ViewOptions(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.lowered(),
         title = { Text(stringResource(R.string.view_options)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(OPTION_GAP)) {

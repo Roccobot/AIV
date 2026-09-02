@@ -57,13 +57,11 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Download
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.FitScreen
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.PhotoSizeSelectActual
 import androidx.compose.material.icons.outlined.Subtitles
-import androidx.compose.material.icons.outlined.SwapHoriz
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.FilledTonalButton
@@ -830,40 +828,29 @@ private fun InfoBarPopup(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.lowered(),
         title = { Text(stringResource(R.string.settings_info_visible)) },
+        /*
+         * ⚠️⚠️ **TRE GETTONI E NON UN INTERRUTTORE PIÙ DUE, dalla 1.29** (richiesta
+         * dell'utente, 2026-09-02: *per coerenza, applica lo stesso trattamento grafico a
+         * tre gettoni anche per l'azione a pressione lunga su Info*). Sono esattamente le
+         * tre scelte che la `1.27` ha messo nelle impostazioni: Disattivata, In alto, In
+         * basso.
+         * ⚠️ **La coerenza qui vale doppio**, perché questa scorciatoia e quella riga delle
+         * impostazioni comandano **la stessa cosa**: due vesti diverse per un comando solo
+         * fanno dubitare che siano due comandi.
+         * ⚠️ Sotto restano due valori (acceso e lato), come nelle impostazioni: spegnendo la
+         * barra e riaccendendola si ritrova il lato scelto. Vedi `InfoChoice` là.
+         */
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = stringResource(R.string.settings_info_visible),
-                        style = MaterialTheme.typography.bodyLarge
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                val acceso = settings.infoVisible
+                BarPick.entries.forEach { scelta ->
+                    FilterChip(
+                        selected = scelta.matches(acceso, settings.infoPosition),
+                        onClick = { scelta.apply(settings, onChange) },
+                        label = { Text(stringResource(scelta.label)) }
                     )
-                    Switch(
-                        checked = settings.infoVisible,
-                        onCheckedChange = { onChange(it, settings.infoPosition) }
-                    )
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    InfoPosition.entries.forEach { where ->
-                        FilterChip(
-                            selected = where == settings.infoPosition,
-                            onClick = { onChange(settings.infoVisible, where) },
-                            label = {
-                                Text(
-                                    stringResource(
-                                        when (where) {
-                                            InfoPosition.TOP -> R.string.settings_top
-                                            InfoPosition.BOTTOM -> R.string.settings_bottom
-                                        }
-                                    )
-                                )
-                            }
-                        )
-                    }
                 }
             }
         },
@@ -871,6 +858,33 @@ private fun InfoBarPopup(
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.pick_close)) }
         }
     )
+}
+
+/**
+ * Le tre scelte della barra delle info nel pannellino del tocco lungo su 'Info'.
+ *
+ * ⚠️ **Non è `InfoChoice` di `SettingsScreen.kt`, e non si fondono**: quella lavora su un
+ * `Settings` intero e ne restituisce uno nuovo, perché là si scrive tutto insieme; questa
+ * chiama `onChange(acceso, lato)`, che è la firma di questo pannellino. Fondendole servirebbe
+ * una firma comune a due schermate che non hanno lo stesso modo di salvare, e la parte
+ * condivisa sarebbero tre righe.
+ */
+private enum class BarPick(val label: Int) {
+    OFF(R.string.settings_off),
+    TOP(R.string.settings_top),
+    BOTTOM(R.string.settings_bottom);
+
+    fun matches(on: Boolean, where: InfoPosition): Boolean = when (this) {
+        OFF -> !on
+        TOP -> on && where == InfoPosition.TOP
+        BOTTOM -> on && where == InfoPosition.BOTTOM
+    }
+
+    fun apply(settings: Settings, onChange: (Boolean, InfoPosition) -> Unit) = when (this) {
+        OFF -> onChange(false, settings.infoPosition)
+        TOP -> onChange(true, InfoPosition.TOP)
+        BOTTOM -> onChange(true, InfoPosition.BOTTOM)
+    }
 }
 
 /**
@@ -2668,11 +2682,12 @@ private fun ImageMenu(
              * riscrivere un file, e di una fotografia arrivata dal web non c'è nessun file
              * da riscrivere. La voce ci sarebbe, si toccherebbe, e l'unica risposta
              * possibile sarebbe un errore.
-             * ⚠️ **L'icona è la matita semplice e NON è la richiesta alla lettera** (che
-             * diceva *matita su immagine*): nel repertorio Material di questo progetto una
-             * matita posata su una fotografia non c'è, e comporla a mano vorrebbe dire un
-             * disegno nuovo. Vedi [Glyphs] per come entrano i disegni dell'utente: il
-             * giorno che ne arriva uno, si cambia qui e basta.
+             * ⚠️⚠️ **L'ICONA È QUELLA CHE L'UTENTE HA DISEGNATO, dalla 1.29**, e la
+             * richiesta originale era proprio quella: *matita su immagine*. Fino alla `1.28`
+             * era la matita nuda di Material, perché nel suo repertorio una matita posata su
+             * un'immagine non c'è e comporla a mano voleva dire un disegno nuovo. Quel
+             * giorno è arrivato, il disegno è suo, e qui è cambiata una riga: è esattamente
+             * quello che la nota vecchia prevedeva.
              */
             /*
              * ⚠️⚠️ **IL TOCCO LUNGO SU 'Modifica' FA SCEGLIERE L'APP, dalla 1.12**
@@ -2691,7 +2706,7 @@ private fun ImageMenu(
             if (scheme == "content" || scheme == "file") {
                 MenuRow(
                     text = stringResource(R.string.menu_edit),
-                    icon = Icons.Outlined.Edit,
+                    icon = Glyphs.ImageEdit,
                     onTap = { onDismiss(); ops.edit() },
                     holdLabel = stringResource(R.string.menu_edit_hold),
                     onHold = { onDismiss(); ops.editWith() }
@@ -2704,7 +2719,7 @@ private fun ImageMenu(
              */
             MenuRow(
                 text = stringResource(R.string.menu_convert),
-                icon = Icons.Outlined.SwapHoriz,
+                icon = Glyphs.ImageConvert,
                 onTap = { onDismiss(); ops.convert() }
             )
 

@@ -92,6 +92,7 @@ fun RenameDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.lowered(),
         title = { Text(stringResource(R.string.pick_rename)) },
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
