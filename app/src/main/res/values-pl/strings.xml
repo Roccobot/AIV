@@ -29,6 +29,8 @@
     <string name="convert_this_frame">Eksportujesz klatkę %1$d, tę widoczną na ekranie.</string>
     <string name="convert_elsewhere">Inne formaty</string>
     <string name="convert_elsewhere_desc">Android potrafi zapisać tylko formaty powyżej. Dla pozostałych są te serwisy, które otwierają się w przeglądarce: obraz wybiera się tam, z pamięci telefonu.</string>
+    <string name="convert_clean">Wyczyść</string>
+    <string name="convert_clean_why">Użyj CleanSVG, aby zmniejszyć plik wektorowy nawet o 99%, usuwając metadane i inne pola niezwiązane z rysunkiem. Czyszczenie jest całkowicie bezpieczne i nie rusza kształtów, linii, rysunków ani tekstów.</string>
     <string name="convert_open">Otwórz</string>
     <string name="convert_export">Eksportuj</string>
     <string name="convert_ezgif">EzGif</string>
@@ -92,6 +94,7 @@
     <string name="settings_zoom_menu">Powiększenie w menu przeglądarki</string>
     <string name="settings_zoom_menu_desc">Przywraca \'Dopasuj do ekranu\' i \'100%\' do menu długiego naciśnięcia. Wyłączone, bo dwukrotne stuknięcie w zdjęcie robi to samo.</string>
     <string name="hint_zoom_tap">Szybkie powiększenie: dwukrotnie dotknij obrazu, aby dopasować go do widoku, jeszcze raz, aby zobaczyć rzeczywiste piksele. Dotykaj dalej, aby przełączać dopasowany i 100%.</string>
+    <string name="hint_ext_warn">⚠️ Zmiana rozszerzenia pliku to nie to samo co konwersja między formatami: do tego służy \'Eksportuj i konwertuj\'.\n\n⚠️ Jeśli nadasz obrazowi lub filmowi rozszerzenie, które nie należy do pliku multimedialnego, element zniknie z widoku siatki i listy.</string>
     <string name="settings_anim_counter">Licznik klatek</string>
     <string name="settings_anim_counter_desc">Pojawia się na pasku sterowania obrazów animowanych.</string>
     <string name="settings_reverse_order">Przeglądaj obrazy w prawo od najstarszego</string>
@@ -288,6 +291,9 @@
     <string name="settings_group_viewer">Podgląd</string>
     <string name="settings_group_browse">Foldery</string>
     <string name="settings_group_start">Uruchamianie</string>
+    <string name="settings_group_advanced">Funkcje zaawansowane</string>
+    <string name="settings_ext_edit">Zmiana rozszerzeń w \'Zmień nazwę\'</string>
+    <string name="settings_ext_edit_desc">Panel zmiany nazwy pozwala zmieniać rozszerzenia plików. Jeśli nie wiesz, co robisz, nie włączaj tej opcji: może sprawić, że obrazy staną się nieczytelne.</string>
     <string name="settings_hidden_none">Brak ukrytych folderów</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d folder</item>

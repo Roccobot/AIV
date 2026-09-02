@@ -121,9 +121,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
@@ -2928,6 +2930,23 @@ private val MENU_EDGE = 8.dp
 private const val REDUCED_MARK = "\u25f1"
 
 /**
+ * Quanto è più grande del testo il segno dell'immagine ridotta.
+ *
+ * ⚠️ **È una scelta, non una misura**, e il perché sta accanto all'uso: il carattere vero non
+ * c'era in sessione, quindi il rapporto fra il suo inchiostro e l'altezza di una maiuscola non
+ * è verificato. 1,2 è quello che serve a un glifo disegnato all'altezza della x per arrivarci.
+ */
+private const val MARK_GROW = 1.2f
+
+/**
+ * L'aria sopra e sotto la riga dei dati.
+ *
+ * ⚠️ **Due e non quattro, dalla 1.36**: la coda diagnostica che chiedeva spazio è uscita nella
+ * `1.31` e al suo posto c'è un segno, quindi la barra si può stringere (riscontro dell'utente).
+ */
+private val BAR_AIR = 2.dp
+
+/**
  * La riga dei dettagli, col contatore della cartella fisso al suo estremo destro.
  *
  * ⚠️⚠️ **LÀ C'ERA LA ROTELLA DELLE IMPOSTAZIONI, ed è uscita nella 0.30** (istruzione
@@ -2974,7 +2993,16 @@ private fun DetailsPanel(
         modifier = Modifier
             .fillMaxWidth()
             .safeDrawingPadding()
-            .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 4.dp)
+            /*
+             * ⚠️ **Sopra e sotto due punti e non quattro, dalla 1.36** (riscontro dell'utente,
+             * 2026-09-02: *togli qualche pixel di spazio dedicato alla barra info sotto/sopra
+             * le info base, visto che non ne serve più quanto prima*). Quello 'prima' era la
+             * coda diagnostica della `1.30`, che occupava mezza riga e chiedeva aria: adesso al
+             * suo posto c'è un segno, e la barra può stringersi.
+             * ⚠️ **Ai lati restano 16**, che è il margine di ogni cosa in questa schermata: la
+             * richiesta parlava di sopra e sotto.
+             */
+            .padding(start = 16.dp, end = 16.dp, top = BAR_AIR, bottom = BAR_AIR)
     ) {
         /*
          * ⚠️⚠️ **IL NOME STA SOPRA I DATI E NON IN MEZZO A LORO** (richiesta dell'utente,
@@ -2992,8 +3020,8 @@ private fun DetailsPanel(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val dati = buildString {
-                    append(image.mimeType?.substringAfter('/')?.uppercase() ?: "?")
+            val formato = image.mimeType?.substringAfter('/')?.uppercase() ?: "?"
+            val resto = buildString {
                     append("  ")
                     append(image.pixelWidth).append(" x ").append(image.pixelHeight)
                     image.byteSize?.let { append("  ").append(formatBytes(it)) }
@@ -3018,16 +3046,44 @@ private fun DetailsPanel(
                      * ⚠️ Solo per le immagini **ridotte**: su tutte le altre la parola non
                      * dice niente, e sarebbe rumore su ogni foto.
                      */
-                    if (image.sampled) append("  ").append(REDUCED_MARK)
                     // ⚠️ Il perché di una cartella che non c'è resta QUI, col resto del testo,
                     // e non va nell'angolo del contatore: è una frase, non un numero, e in
                     // quello spazio starebbe stretta o lo farebbe crescere rimettendo in
                     // movimento il contatore che si è appena fissato.
                     folderNote?.let { append("  ").append(it) }
             }
+            /*
+             * ⚠️⚠️ **IL SEGNO STA SUBITO DOPO IL FORMATO, dalla 1.36, e prima stava in CODA**
+             * (riscontro dell'utente, 2026-09-02: *forse il segno è meglio piazzarlo subito
+             * dopo il formato (es. `AVIF ◱`), in modo che non ci sia jitter quando si passa da
+             * 9% a 10% di zoom*). Il difetto era vero e si vedeva ingrandendo: la percentuale
+             * cresce di una cifra, la riga si allunga, e un segno agganciato alla fine ballava
+             * a ogni decina. Dopo il formato invece non si muove mai, perché quello che ha
+             * davanti non cambia lunghezza.
+             * ⚠️⚠️ **E È PIÙ GRANDE DEL TESTO di [MARK_GROW]** (*leggermente ingrandito perché
+             * sia grande quanto un carattere maiuscolo*). ⚠️ **Il fattore è una SCELTA e non
+             * una misura**, e va detto: `U+25F1` è disegnato all'altezza della x in quasi
+             * tutti i caratteri, quindi per arrivare a una maiuscola serve circa un quinto in
+             * più; ma senza il carattere vero sotto mano (in sessione non c'è Roboto) il
+             * rapporto fra il suo inchiostro e l'altezza delle maiuscole non è stato
+             * verificato. Se sul telefono risulta grosso o piccolo, si tocca questo numero.
+             * ⚠️ **Relativo e non in `sp`**: parte dal corpo della riga, quindi segue chi
+             * cambia la dimensione dei caratteri nelle impostazioni di sistema.
+             */
+            val corpo = MaterialTheme.typography.labelLarge
+            val dati = buildAnnotatedString {
+                append(formato)
+                if (image.sampled) {
+                    append(' ')
+                    withStyle(SpanStyle(fontSize = corpo.fontSize * MARK_GROW)) {
+                        append(REDUCED_MARK)
+                    }
+                }
+                append(resto)
+            }
             Text(
                 text = dati,
-                style = MaterialTheme.typography.labelLarge,
+                style = corpo,
                 /*
                  * ⚠️⚠️ **IL SIMBOLO SI VEDE E LA PAROLA SI SENTE, dalla `1.34`.** Il segno
                  * non ha bisogno di traduzione (era la ragione dell'utente), ma un lettore
@@ -3037,13 +3093,17 @@ private fun DetailsPanel(
                  * ⚠️ **Si dichiara solo quando serve**: su un'immagine intera la
                  * descrizione sarebbe una copia del testo, cioè lavoro per niente e un
                  * posto in più dove le due versioni possono divergere.
+                 * ⚠️ **Si ricompone dai pezzi invece di sostituire nel testo**: da quando il
+                 * segno porta un corpo suo il testo è un `AnnotatedString`, e cercare un
+                 * carattere dentro di lui per cambiarlo sarebbe girare intorno alla forma
+                 * con cui è stato costruito.
                  */
                 modifier = Modifier
                     .weight(1f)
                     .then(
                         if (!image.sampled) Modifier
                         else Modifier.semantics {
-                            contentDescription = dati.replace(REDUCED_MARK, reduced)
+                            contentDescription = "$formato $reduced$resto"
                         }
                     )
             )

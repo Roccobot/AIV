@@ -32,7 +32,16 @@
        dà i vertici **rientranti** invece che tondi. Qui è stato visto reso; chi
        ricalcolasse questi numeri faccia lo stesso.
 
-     ⚠️⚠️ LA SCALA È 2/3, E IL DISEGNO ARRIVAVA COMPOSTO PER UNA PIASTRELLA PIENA.
+     ⚠️⚠️ LA SCALA È 0,65 DALLA 1.36, E FINO ALLA 1.35 ERA 2/3 (0,666667). Il 2,5% di
+     differenza è un riscontro dell'utente sull'icona vera, sul telefono (voce
+     `icona-nuova`: *un aggiustamento minimo: un pelo (tipo 2/3%) più piccola;
+     mantieni la centratura, già PERFETTA*). ⚠️ La traslazione è cambiata CON LEI e
+     non è un secondo numero da scegliere: tiene fermo il centro (54,54), quindi
+     vale `54 * (1 - scala)`, cioè 18 con 2/3 e **18,9** con 0,65. Chi tocca la
+     scala senza toccarla sposta il glifo in alto a sinistra, che è esattamente la
+     centratura che lui ha chiamata perfetta.
+
+     LA SCALA NASCE DA 2/3 PERCHÉ IL DISEGNO ARRIVAVA COMPOSTO PER UNA PIASTRELLA PIENA.
      Il master `dev/icona/aiv-icon-light.svg` è un'icona **intera**: un rettangolo
      stondato da 108 col glifo dentro, cioè il disegno è composto sul lato visibile.
      Ma di un'icona adattiva si vedono **solo i 72dp centrali** della tela da 108,
@@ -75,10 +84,10 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
     <group
-        android:scaleX="0.666667"
-        android:scaleY="0.666667"
-        android:translateX="18"
-        android:translateY="18">
+        android:scaleX="0.65"
+        android:scaleY="0.65"
+        android:translateX="18.9"
+        android:translateY="18.9">
         <!-- Il disco solare, fuori dalla A, in alto a sinistra. -->
         <path
             android:fillColor="@color/launcher_foreground"

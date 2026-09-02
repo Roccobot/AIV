@@ -28,6 +28,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -39,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
 /**
  * Rinominare in blocco: un template col numero dentro, e il primo numero.
@@ -78,6 +80,29 @@ fun RenameDialog(
      */
     var extension by rememberSaveable { mutableStateOf<String?>(null) }
     var asking by rememberSaveable { mutableStateOf(false) }
+
+    /*
+     * ⚠️⚠️ **IL TASTO C'È SOLO SE L'IMPOSTAZIONE È ACCESA, dalla 1.36**, ed è la griglia di
+     * sicurezza chiesta dall'utente: il perché per esteso sta su [Settings.extEdit], e in
+     * breve è che cambiare l'estensione non converte niente e può far sparire un'immagine
+     * dalle viste. Di fabbrica è spenta.
+     * ⚠️⚠️ **LE DUE LETTURE SI FANNO QUI E NON ARRIVANO DA FUORI, ed è una scelta contro la
+     * convenzione di questo file** (`FileJobDialogs` dichiara di non sapere niente delle
+     * impostazioni e si fa passare i campi delle info). La ragione è il numero di posti: le
+     * tre schermate che aprono questi dialoghi sono griglia, albero e visualizzatore, e solo
+     * l'ultima ha le impostazioni in mano; le altre due dovrebbero farsi passare un booleano
+     * dai **loro** chiamanti, cioè quattro firme in più per un valore che si legge in una
+     * riga. La stessa strada la fanno già i veli (`Hint.flow`), che nascono in schermate che
+     * non hanno lo stato dell'app.
+     * ⚠️ **`false` come valore iniziale**: mentre la lettura è in corso il tasto non c'è, che
+     * è il verso prudente. Al contrario comparirebbe per un istante anche a chi l'ha spento.
+     */
+    val extAllowed by produceState(false) {
+        SettingsStore.flow(context).collect { value = it.extEdit }
+    }
+    val warned by produceState(true) { Hint.EXT_WARN.flow(context).collect { value = it } }
+    var warning by rememberSaveable { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     // ⚠️⚠️ **UN FILE SOLO NON È UNA RINOMINA IN BLOCCO, e dalla 1.25 non ne ha più l'aria**
     // (riscontro dell'utente, 2026-09-02: *`Rinomina` sul file singolo deve partire dal nome
@@ -127,15 +152,23 @@ fun RenameDialog(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(stringResource(R.string.pick_rename))
-                FilledTonalButton(
-                    onClick = { asking = true },
-                    shape = MaterialTheme.shapes.large,
-                    contentPadding = EXT_PAD
-                ) {
-                    Text(
-                        text = stringResource(R.string.rename_ext),
-                        style = MaterialTheme.typography.labelLarge
-                    )
+                if (extAllowed) {
+                    FilledTonalButton(
+                        /*
+                         * ⚠️ **Il velo PRIMA del pannellino e non insieme**: l'avviso dice che
+                         * cosa comporta la cosa che si sta per fare, e uno che comparisse
+                         * sopra il campo già aperto arriverebbe dopo il gesto. Chi lo chiude
+                         * trova il pannellino, quindi il tocco non va perso.
+                         */
+                        onClick = { if (warned) asking = true else warning = true },
+                        shape = MaterialTheme.shapes.large,
+                        contentPadding = EXT_PAD
+                    ) {
+                        Text(
+                            text = stringResource(R.string.rename_ext),
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
                 }
             }
         },
@@ -193,16 +226,13 @@ fun RenameDialog(
             }
         },
         /*
-         * ⚠️⚠️ **IL TASTO DELL'ESTENSIONE STA A DESTRA DI 'Rinomina', IN LINEA** (richiesta
-         * dell'utente, 2026-09-02), quindi la fila dei tasti diventa 'Annulla', 'Rinomina',
-         * 'Estensione'. ⚠️ **Non è l'ordine che Material consiglia** (l'azione principale
-         * ultima a destra), ed è una scelta dichiarata: il tasto in più non conferma niente,
-         * apre un pannellino, e metterlo in mezzo lo farebbe leggere come una seconda
-         * conferma.
-         * ⚠️⚠️ **L'ETICHETTA È LA CORTA, 'Estensione', e la ragione è una misura**: in questa
-         * fila ci sono già 'Annulla' (~70dp) e 'Rinomina' (~80dp), e 'Cambia estensione' ne
-         * vuole circa 150: su un dialogo largo 280 la fila andrebbe a capo. L'utente aveva
-         * previsto il caso (*se non ci sta, solo 'Estensione'*).
+         * ⚠️ **La fila dei tasti è quella di Material**, 'Annulla' e 'Rinomina', dalla `1.34`:
+         * il tasto dell'estensione sta sulla riga del titolo (vedi la nota là sopra), e la nota
+         * che dichiarava un ordine strano è decaduta insieme al tasto che la rendeva necessaria.
+         * ⚠️ **L'ETICHETTA DELL'ALTRO TASTO È LA CORTA, 'Estensione', e la ragione è una
+         * misura**: 'Cambia estensione' vuole circa 150dp, e accanto al titolo su un dialogo
+         * largo 280 la riga andrebbe a capo. L'utente aveva previsto il caso (*se non ci sta,
+         * solo 'Estensione'*).
          */
         confirmButton = {
             TextButton(
@@ -214,6 +244,24 @@ fun RenameDialog(
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
         }
     )
+
+    /*
+     * ⚠️⚠️ **È UN VELO IN UNA FINESTRA SUA, e la ragione sta su [HintNotice]**: qui dentro
+     * siamo già in un dialogo, e un velo steso sul contenuto coprirebbe la finestrella invece
+     * dello schermo. L'utente ha chiesto un avviso *in mezzo allo schermo*.
+     * ⚠️ **Si archivia alla chiusura e si apre il pannellino nello stesso gesto**: l'avviso si
+     * legge una volta sola, e chi ha toccato 'Estensione' voleva aprirlo.
+     */
+    if (warning) {
+        HintNotice(
+            text = stringResource(R.string.hint_ext_warn),
+            onDone = {
+                warning = false
+                asking = true
+                scope.launch { Hint.EXT_WARN.remember(context) }
+            }
+        )
+    }
 
     if (asking) {
         ExtensionDialog(
@@ -391,13 +439,6 @@ private fun PreviewRow(row: Pairing) {
     }
 }
 
-/**
- * Quanto rientra la freccia fra le due pastiglie.
- *
- * ⚠️ **Rientrata e non centrata**: centrata sulla larghezza si sposterebbe con la larghezza
- * del dialogo e non avrebbe niente a cui allinearsi, mentre qui sta sopra la prima lettera dei
- * due nomi, che è il posto da cui l'occhio parte a leggerli.
- */
 /**
  * Quanto è grande la freccia fra le due pastiglie dell'anteprima.
  *

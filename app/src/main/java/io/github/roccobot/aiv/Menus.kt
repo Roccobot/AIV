@@ -147,63 +147,68 @@ fun MenuShell(
              */
             Column(modifier = Modifier.width(IntrinsicSize.Max)) {
                 content()
-                /*
-                 * ⚠️⚠️ **LA STRISCIA D'ACCENTO È UN DISEGNO DELL'UTENTE** (mockup del
-                 * 2026-09-02: *solo per un tocco di carattere e di colore*), e sta **dentro**
-                 * la superficie invece che sotto: così i due angoli in basso la tagliano
-                 * insieme al resto, e la striscia sembra parte del riquadro e non un nastro
-                 * appoggiato sopra.
-                 * ⚠️ **Sta su TUTTI i menu e non solo su quello che ha disegnato**, perché è
-                 * il segno che dice 'questa superficie è un menu': metterlo su uno solo
-                 * direbbe che gli altri due sono un'altra cosa, che è il difetto appena
-                 * corretto sugli angoli.
-                 */
-                Box(
-                    /*
-                     * ⚠️⚠️ **NON ARRIVA AI BORDI, dalla 1.29** (riscontro dell'utente,
-                     * 2026-09-02: *va bene in basso, ma leggermente più spessa e non fino in
-                     * fondo, né di lato né in basso, come se intorno ci fosse un filetto
-                     * sovrapposto dello stesso colore dello sfondo*). Il rientro è un
-                     * `padding` sui tre lati, che è **esattamente** il filetto che descrive:
-                     * la superficie del menu resta intorno, quindi la striscia si stacca dal
-                     * bordo senza che nessuno disegni una cornice.
-                     * ⚠️ **Il rientro è più grande dello spessore**, e va così: una striscia
-                     * appoggiata al bordo con un filo d'aria sembra un errore di un pixel,
-                     * mentre con un rientro visibile diventa una scelta.
-                     */
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            start = MENU_STRIPE_SIDE,
-                            end = MENU_STRIPE_SIDE,
-                            bottom = MENU_STRIPE_UNDER
-                        )
-                        .height(MENU_STRIPE)
-                        /*
-                         * ⚠️⚠️ **LA FORMA È MISURATA SUL SUO MOCKUP, dalla 1.34, e prima era
-                         * una PASTIGLIA**: l'utente ha bocciato la versione della `1.29` e ha
-                         * mandato la forma che voleva (voce `striscia-spessa`: *la forma
-                         * dovrebbe essere questa*). Misurata sulla sua schermata, colonna per
-                         * colonna: **spigoli quasi vivi in alto** e **angoli in basso che
-                         * seguono la curva della scheda**, non due punte tonde.
-                         * ⚠️ **Il raggio in basso è quello del menu meno il rientro**: così i
-                         * due archi restano **paralleli**, che è quello che l'occhio legge
-                         * come 'dentro la scheda'. Compose lo stringe da sé all'altezza
-                         * disponibile, quindi il numero grande non sfonda una striscia bassa.
-                         */
-                        .background(
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = RoundedCornerShape(
-                                topStart = MENU_STRIPE_TOP,
-                                topEnd = MENU_STRIPE_TOP,
-                                bottomStart = MENU_ROUND - MENU_STRIPE_UNDER,
-                                bottomEnd = MENU_ROUND - MENU_STRIPE_UNDER
-                            )
-                        )
-                )
+                MenuStripe()
             }
         }
     }
+}
+
+/**
+ * La striscia d'accento in fondo a un menu.
+ *
+ * ⚠️⚠️ **È UN DISEGNO DELL'UTENTE** (mockup del 2026-09-02: *solo per un tocco di carattere e
+ * di colore*), e sta **dentro** la superficie invece che sotto: così i due angoli in basso la
+ * tagliano insieme al resto, e la striscia sembra parte del riquadro e non un nastro appoggiato
+ * sopra.
+ * ⚠️ **Sta su TUTTI i menu e non solo su quello che l'ha vista nascere**, perché è il segno che
+ * dice 'questa superficie è un menu': metterla su uno solo direbbe che gli altri sono un'altra
+ * cosa.
+ * ⚠️⚠️ **È COMPOSABILE A SÉ DALLA 1.36, e prima era scritta dentro [MenuShell]**: il menu del
+ * tastino della schermata iniziale è un `DropdownMenu` di Material (si posiziona da sé contro
+ * l'ancora, che è quello che serve a un tastino in un angolo), quindi non passa da quella
+ * superficie e la striscia gli va aggiunta in fondo al contenuto. Scritta due volte
+ * divergerebbe al primo ritocco, ed è già la seconda volta che questa striscia si ritocca.
+ */
+@Composable
+fun MenuStripe() {
+    Box(
+        /*
+         * ⚠️⚠️ **NON ARRIVA AI BORDI, dalla 1.29** (riscontro dell'utente, 2026-09-02: *va
+         * bene in basso, ma leggermente più spessa e non fino in fondo, né di lato né in
+         * basso, come se intorno ci fosse un filetto sovrapposto dello stesso colore dello
+         * sfondo*). Il rientro è un `padding` sui tre lati, che è **esattamente** il filetto
+         * che descrive: la superficie del menu resta intorno, quindi la striscia si stacca dal
+         * bordo senza che nessuno disegni una cornice.
+         */
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                start = MENU_STRIPE_SIDE,
+                end = MENU_STRIPE_SIDE,
+                bottom = MENU_STRIPE_UNDER
+            )
+            .height(MENU_STRIPE)
+            /*
+             * ⚠️⚠️ **LA FORMA È MISURATA SUL SUO MOCKUP, dalla 1.34, e prima era una
+             * PASTIGLIA**: l'utente ha bocciato la versione della `1.29` e ha mandato la forma
+             * che voleva (voce `striscia-spessa`: *la forma dovrebbe essere questa*). Misurata
+             * sulla sua schermata, colonna per colonna: **spigoli quasi vivi in alto** e
+             * **angoli in basso che seguono la curva della scheda**, non due punte tonde.
+             * ⚠️ **Il raggio in basso è quello del menu meno il rientro**: così i due archi
+             * restano **paralleli**, che è quello che l'occhio legge come 'dentro la scheda'.
+             * Compose lo stringe da sé all'altezza disponibile, quindi il numero grande non
+             * sfonda una striscia bassa.
+             */
+            .background(
+                color = MaterialTheme.colorScheme.primary,
+                shape = RoundedCornerShape(
+                    topStart = MENU_STRIPE_TOP,
+                    topEnd = MENU_STRIPE_TOP,
+                    bottomStart = MENU_ROUND - MENU_STRIPE_UNDER,
+                    bottomEnd = MENU_ROUND - MENU_STRIPE_UNDER
+                )
+            )
+    )
 }
 
 /**
@@ -404,7 +409,14 @@ private val MENU_ITEM_GAP = 8.dp
  * decaduta con la forma che la reggeva.
  */
 val MENU_ROUND = 20.dp
-private val MENU_STRIPE = 6.dp
+/*
+ * ⚠️ **7 e non 6, dalla 1.36**: la forma della `1.34` è passata (voce `striscia-forma`: *non è
+ * proprio uguale, mi va bene lo stesso, ma a questo punto falla leggermente più spessa e sono a
+ * posto*). È il secondo aumento di un punto: 5 nella `1.29`, 6 nella `1.34`, 7 adesso, e ogni
+ * volta è stato lui a guardarla sul telefono. ⚠️ Il rientro sotto resta 2, quindi la striscia
+ * cresce **verso l'alto** e continua ad appoggiarsi al fondo della scheda.
+ */
+private val MENU_STRIPE = 7.dp
 private val MENU_STRIPE_SIDE = 4.dp
 private val MENU_STRIPE_UNDER = 2.dp
 

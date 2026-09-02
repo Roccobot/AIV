@@ -29,6 +29,8 @@
     <string name="convert_this_frame">正在导出第 %1$d 帧，也就是屏幕上这一帧。</string>
     <string name="convert_elsewhere">其他格式</string>
     <string name="convert_elsewhere_desc">安卓只能写入上面这些格式。其余格式可以用这些服务，它们在浏览器中打开：图片在那里从手机存储中选择。</string>
+    <string name="convert_clean">清理</string>
+    <string name="convert_clean_why">用 CleanSVG 可以把矢量文件缩小最多 99%，去掉元数据和与图形无关的其他字段。清理完全安全，形状、线条、图形和文字都不会改动。</string>
     <string name="convert_open">打开</string>
     <string name="convert_export">导出</string>
     <string name="convert_ezgif">EzGif</string>
@@ -92,6 +94,7 @@
     <string name="settings_zoom_menu">查看器菜单中的缩放</string>
     <string name="settings_zoom_menu_desc">把 \'适应视图\' 和 \'100%\' 放回长按菜单。默认关闭，因为双击图片就能做到。</string>
     <string name="hint_zoom_tap">快速缩放: 双击图片可适应视图, 再双击一次显示实际像素. 继续双击可在适应和 100% 之间循环.</string>
+    <string name="hint_ext_warn">⚠️ 修改扩展名和在格式之间转换不是一回事：转换请用 \'导出并转换\'。\n\n⚠️ 如果给图片或视频一个并非媒体文件的扩展名，该项会从网格视图和列表视图中消失。</string>
     <string name="settings_anim_counter">帧计数器</string>
     <string name="settings_anim_counter_desc">显示在动态图像的控制栏中。</string>
     <string name="settings_reverse_order">从最旧的一张起向右翻阅图像</string>
@@ -249,6 +252,9 @@
     <string name="settings_group_viewer">查看器</string>
     <string name="settings_group_browse">文件夹</string>
     <string name="settings_group_start">启动</string>
+    <string name="settings_group_advanced">高级功能</string>
+    <string name="settings_ext_edit">在 \'重命名\' 中修改扩展名</string>
+    <string name="settings_ext_edit_desc">重命名面板可以修改文件的扩展名。如果不清楚自己在做什么，请不要打开：图片可能会变得无法读取。</string>
     <string name="settings_hidden_none">没有隐藏的文件夹</string>
     <plurals name="settings_hidden_count">
         <item quantity="other">%1$d 个文件夹</item>

@@ -35,9 +35,23 @@ un collegamento nuovo a ogni giro vuol dire un documento da ritrovare ogni volta
 ## 🎨 Il design system, che vive fuori dal repository
 
 ⚠️⚠️ **LE FONTI VISIVE DI AIV STANNO IN CLAUDE DESIGN, nel progetto `Roccobot Design`**, e non
-in questo repository: chi cerca un colore, una misura o un componente lo cerca là prima di
-riscriverlo. Come si aggancia e che cosa contiene sta in `rules/Roccobot.md`, § '🎨 Grafica' →
-'🎨 Claude Design, dove vive il design system'; qui restano i tre pezzi che riguardano AIV.
+in questo repository. Come si aggancia e che cosa contiene sta in `rules/Roccobot.md`,
+§ '🎨 Grafica' → '🎨 Claude Design, dove vive il design system'; qui restano i tre pezzi che
+riguardano AIV.
+
+⚠️⚠️ **MA NON SI VA A PESCARE LÀ DA SÉ: È L'UTENTE CHE DICE, DI VOLTA IN VOLTA, CHE COSA
+PRENDERE** (istruzione del 2026-09-02: *ti dico io di volta in volta cosa cercare: con Design
+mi piace sperimentare, non vorrei ripetere lo stesso errore dell'ultima volta*). Là dentro lui
+**prova** delle cose, quindi quello che ci si trova non è per forza approvato: è un banco di
+lavoro, non un capitolato.
+- ⚠️ **L'errore che la regola evita è già costato una versione**: nella `1.33` sono entrati
+  otto glifi nuovi perché stavano nel brief dei disegni, e nella `1.35` sono usciti tutti
+  (*volevo cambiare solo l'icona principale e la pagina di download*). Il perché sta in testa
+  a `Glyphs.kt`.
+- **Quindi il verso giusto è**: si legge Design quando serve **quello che lui ha chiesto**
+  (un colore che ha nominato, una misura che ha nominato, un componente che ha nominato), e
+  tutto il resto che ci si trova accanto non si porta nell'app nemmeno se sembra migliore.
+  Se una cosa sembra da cambiare, si **propone** e si aspetta.
 
 - **`ui_kits/aiv_android/`** è la ricostruzione delle **quattro schermate** dell'app (cartelle,
   griglia, visualizzatore, impostazioni), fatta **dal sorgente Compose** e non dagli

@@ -29,6 +29,8 @@
     <string name="convert_this_frame">Vous exportez l\'image %1$d, celle qui est affichée.</string>
     <string name="convert_elsewhere">Autres formats</string>
     <string name="convert_elsewhere_desc">Android ne sait écrire que les formats ci-dessus. Pour les autres, il y a ces services, qui s\'ouvrent dans le navigateur : l\'image se choisit là-bas, depuis la mémoire du téléphone.</string>
+    <string name="convert_clean">Nettoyer</string>
+    <string name="convert_clean_why">Utilise CleanSVG pour réduire jusqu\'à 99% la taille d\'un fichier vectoriel, en supprimant les métadonnées et les autres champs étrangers au dessin. Le nettoyage est totalement sûr : formes, lignes, dessins et textes restent intacts.</string>
     <string name="convert_open">Ouvrir</string>
     <string name="convert_export">Exporter</string>
     <string name="convert_ezgif">EzGif</string>
@@ -92,6 +94,7 @@
     <string name="settings_zoom_menu">Zoom dans le menu de la visionneuse</string>
     <string name="settings_zoom_menu_desc">Remet \'Ajuster à la vue\' et \'100%\' dans le menu de l\'appui long. Désactivé parce qu\'un double appui sur l\'image le fait déjà.</string>
     <string name="hint_zoom_tap">Zoom rapide: double tapez sur l\'image pour l\'ajuster à la vue, double tapez encore pour les pixels réels. Continuez pour alterner entre ajusté et 100%.</string>
+    <string name="hint_ext_warn">⚠️ Changer l\'extension d\'un fichier n\'équivaut pas à passer d\'un format à un autre : pour cela il y a \'Exporter et convertir\'.\n\n⚠️ Si tu donnes à une image ou à une vidéo une extension qui n\'appartient pas à un fichier multimédia, l\'élément disparaîtra des vues grille et liste.</string>
     <string name="settings_anim_counter">Compteur d\'images</string>
     <string name="settings_anim_counter_desc">Affiché dans la barre de commandes des images animées.</string>
     <string name="settings_reverse_order">Feuilleter les images vers la droite depuis la plus ancienne</string>
@@ -275,6 +278,9 @@
     <string name="settings_group_viewer">Visionneuse</string>
     <string name="settings_group_browse">Dossiers</string>
     <string name="settings_group_start">Démarrage</string>
+    <string name="settings_group_advanced">Fonctions avancées</string>
+    <string name="settings_ext_edit">Modifier les extensions depuis \'Renommer\'</string>
+    <string name="settings_ext_edit_desc">Le panneau de renommage permet de changer l\'extension des fichiers. Si tu ne sais pas ce que tu fais, laisse cette option désactivée : elle peut rendre les images illisibles.</string>
     <string name="settings_hidden_none">Aucun dossier caché</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d dossier</item>

@@ -102,6 +102,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -488,7 +489,9 @@ fun GridScreen(
             // ⚠️ Le colonne non si insegnano qui, ma il ramo c'è perché l'enum le porta:
             // il velo che le riguarda vive nella schermata delle cartelle. Dalla 1.25 vale
             // lo stesso per il doppio tocco, che vive nel visualizzatore.
-            Hint.COLUMNS, Hint.ZOOM_TAP -> Unit
+            // ⚠️ Dalla 1.36 c'è anche l'avviso sul cambio di estensione, che vive dentro
+            // la finestra di rinomina: stessa storia, ramo obbligato dall'enum.
+            Hint.COLUMNS, Hint.ZOOM_TAP, Hint.EXT_WARN -> Unit
             null -> Unit
         }
         hint?.let { seen -> scope.launch { seen.remember(context) } }
@@ -1093,8 +1096,11 @@ fun GridScreen(
                     TapHoldFab(
                         icon = Icons.Default.Menu,
                         label = stringResource(R.string.pick_actions),
-                        container = MaterialTheme.colorScheme.primaryContainer,
-                        ink = MaterialTheme.colorScheme.onPrimaryContainer,
+                        // ⚠️ I colori dell'icona dell'app, dalla `1.36`, come il tastino della
+                        // schermata iniziale: il perché per esteso sta là, e i due tastini sono
+                        // lo stesso oggetto in due schermate.
+                        container = colorResource(R.color.launcher_background),
+                        ink = colorResource(R.color.launcher_foreground),
                         lift = FAB_LIFT,
                         holdLabel = stringResource(shortcutLabel),
                         // ⚠️ **Apre e basta, dalla 1.06**: a menu aperto il tocco non
@@ -1223,6 +1229,10 @@ fun GridScreen(
                         // ⚠️ Idem per il doppio tocco, che vive nel visualizzatore e non ha
                         // nemmeno un tastino da evidenziare: là il velo è `HintCentre`.
                         Hint.ZOOM_TAP -> R.string.hint_zoom_tap
+                        // ⚠️ E idem per l'avviso sulle estensioni, che non è nemmeno un velo
+                        // di questa forma: è un `HintNotice`, cioè una finestra sua, aperta
+                        // dalla finestra di rinomina.
+                        Hint.EXT_WARN -> R.string.hint_ext_warn
                     }
                 ),
                 // ⚠️ Tre rientri: quello di sistema, il margine della schermata e gli 8dp

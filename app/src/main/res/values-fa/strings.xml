@@ -29,6 +29,8 @@
     <string name="convert_this_frame">در حال صدور فریم %1$d، همان که روی صفحه است.</string>
     <string name="convert_elsewhere">قالب‌های دیگر</string>
     <string name="convert_elsewhere_desc">اندروید فقط قالب‌های بالا را می‌نویسد. برای بقیه این سرویس‌ها هستند که در مرورگر باز می‌شوند: تصویر را همان‌جا، از حافظهٔ گوشی انتخاب کنید.</string>
+    <string name="convert_clean">پاک‌سازی</string>
+    <string name="convert_clean_why">با CleanSVG اندازهٔ یک فایل برداری تا 99% کم می‌شود؛ فراداده و دیگر فیلدهای بی‌ربط به تصویر برداشته می‌شوند. این پاک‌سازی کاملاً بی‌خطر است و شکل‌ها، خط‌ها، نقش‌ها و متن‌ها دست‌نخورده می‌مانند.</string>
     <string name="convert_open">باز کردن</string>
     <string name="convert_export">برون‌بری</string>
     <string name="convert_ezgif">EzGif</string>
@@ -92,6 +94,7 @@
     <string name="settings_zoom_menu">بزرگ‌نمایی در منوی نمایشگر</string>
     <string name="settings_zoom_menu_desc">\'جا شدن در صفحه\' و \'100%\' را به منوی فشار طولانی برمی‌گرداند. خاموش است چون دو ضربه روی تصویر همین کار را می‌کند.</string>
     <string name="hint_zoom_tap">بزرگ‌نمایی سریع: دو بار روی تصویر بزنید تا با نما جور شود، دو بار دیگر برای پیکسل‌های واقعی. باز هم بزنید تا بین جورشده و 100% جابه‌جا شوید.</string>
+    <string name="hint_ext_warn">⚠️ عوض کردن پسوند یک فایل مثل تبدیل از یک قالب به قالب دیگر نیست: برای آن \'برون‌بری و تبدیل\' هست.\n\n⚠️ اگر به یک تصویر یا ویدیو پسوندی بدهید که به فایل چندرسانه‌ای مربوط نباشد، آن مورد از نمای شبکه‌ای و فهرستی ناپدید می‌شود.</string>
     <string name="settings_anim_counter">شمارنده فریم</string>
     <string name="settings_anim_counter_desc">در نوار فرمان تصاویر متحرک نمایش داده می‌شود.</string>
     <string name="settings_reverse_order">مرور تصویرها به سمت راست از قدیمی‌ترین</string>
@@ -262,6 +265,9 @@
     <string name="settings_group_viewer">نمایشگر</string>
     <string name="settings_group_browse">پوشه‌ها</string>
     <string name="settings_group_start">راه‌اندازی</string>
+    <string name="settings_group_advanced">قابلیت‌های پیشرفته</string>
+    <string name="settings_ext_edit">تغییر پسوندها از \'تغییر نام\'</string>
+    <string name="settings_ext_edit_desc">پنجرهٔ تغییر نام اجازه می‌دهد پسوند فایل‌ها را عوض کنید. اگر مطمئن نیستید این گزینه را روشن نکنید: می‌تواند تصویرها را ناخوانا کند.</string>
     <string name="settings_hidden_none">هیچ پوشه پنهانی نیست</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d پوشه</item>

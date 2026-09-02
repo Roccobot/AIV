@@ -29,6 +29,8 @@
     <string name="convert_this_frame">Inahamisha fremu ya %1$d, ile iliyo skrini.</string>
     <string name="convert_elsewhere">Miundo mingine</string>
     <string name="convert_elsewhere_desc">Android inaweza kuandika miundo iliyo hapo juu pekee. Kwa mingine kuna huduma hizi, zinazofunguka katika kivinjari: picha huchaguliwa huko, kutoka kwenye hifadhi ya simu.</string>
+    <string name="convert_clean">Safisha</string>
+    <string name="convert_clean_why">Tumia CleanSVG kupunguza faili ya vekta hadi 99%, kwa kuondoa metadata na sehemu nyingine zisizo za mchoro. Usafishaji ni salama kabisa: maumbo, mistari, michoro na maandishi hayaguswi.</string>
     <string name="convert_open">Fungua</string>
     <string name="convert_export">Hamisha</string>
     <string name="convert_ezgif">EzGif</string>
@@ -92,6 +94,7 @@
     <string name="settings_zoom_menu">Ukuzaji katika menyu ya kitazamaji</string>
     <string name="settings_zoom_menu_desc">Hurudisha \'Iingie kwenye skrini\' na \'100%\' kwenye menyu ya kubonyeza kwa muda mrefu. Imezimwa kwa sababu kugusa picha mara mbili hufanya hivyo.</string>
     <string name="hint_zoom_tap">Kukuza haraka: gusa mara mbili picha ili itoshee skrini, gusa mara mbili tena kwa pikseli halisi. Endelea kugusa ili kubadilisha kati ya iliyotosheshwa na 100%.</string>
+    <string name="hint_ext_warn">⚠️ Kubadilisha kiambishi cha faili si sawa na kubadilisha muundo: kwa hilo kuna \'Hamisha na kubadilisha\'.\n\n⚠️ Ukimpa picha au video kiambishi ambacho si cha faili ya media, kipengee kitatoweka katika mwonekano wa gridi na wa orodha.</string>
     <string name="settings_anim_counter">Kihesabu fremu</string>
     <string name="settings_anim_counter_desc">Huonekana kwenye upau wa vidhibiti vya picha zinazosonga.</string>
     <string name="settings_reverse_order">Pitia picha kuelekea kulia kuanzia ya zamani zaidi</string>
@@ -262,6 +265,9 @@
     <string name="settings_group_viewer">Kitazamaji</string>
     <string name="settings_group_browse">Folda</string>
     <string name="settings_group_start">Kuanza</string>
+    <string name="settings_group_advanced">Vipengele vya juu</string>
+    <string name="settings_ext_edit">Badilisha viambishi kwa \'Badilisha jina\'</string>
+    <string name="settings_ext_edit_desc">Kidirisha cha kubadilisha jina huruhusu kubadilisha viambishi vya faili. Kama hujui unafanya nini, usiwashe hii: inaweza kufanya picha zisisomeke.</string>
     <string name="settings_hidden_none">Hakuna folda zilizofichwa</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">Folda %1$d</item>

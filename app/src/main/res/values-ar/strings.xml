@@ -29,6 +29,8 @@
     <string name="convert_this_frame">يجري تصدير اللقطة %1$d، وهي المعروضة على الشاشة.</string>
     <string name="convert_elsewhere">صيغ أخرى</string>
     <string name="convert_elsewhere_desc">لا يستطيع أندرويد كتابة سوى الصيغ أعلاه. أما البقية فتوفرها هذه الخدمات، وهي تُفتح في المتصفح: اختر الصورة هناك من ذاكرة الهاتف.</string>
+    <string name="convert_clean">تنظيف</string>
+    <string name="convert_clean_why">استخدم CleanSVG لتصغير ملف متجهي حتى 99%، بإزالة البيانات الوصفية والحقول الأخرى الغريبة عن الرسم. التنظيف آمن تمامًا ولا يمس الأشكال ولا الخطوط ولا الرسوم ولا النصوص.</string>
     <string name="convert_open">فتح</string>
     <string name="convert_export">تصدير</string>
     <string name="convert_ezgif">EzGif</string>
@@ -92,6 +94,7 @@
     <string name="settings_zoom_menu">التكبير في قائمة العارض</string>
     <string name="settings_zoom_menu_desc">يعيد \'ملاءمة الشاشة\' و\'100%\' إلى قائمة الضغط المطول. مطفأة لأن النقر المزدوج على الصورة يفعل ذلك.</string>
     <string name="hint_zoom_tap">تكبير سريع: انقر نقرًا مزدوجًا على الصورة لملاءمتها للعرض، وانقر مزدوجًا مرة أخرى للبكسلات الحقيقية. تابع النقر للتبديل بين الملاءمة و100%.</string>
+    <string name="hint_ext_warn">⚠️ تغيير امتداد ملف ليس مثل التحويل من صيغة إلى أخرى: لذلك هناك \'تصدير وتحويل\'.\n\n⚠️ إذا أعطيت صورة أو مقطعًا امتدادًا لا يخص ملفات الوسائط، فسيختفي العنصر من عرض الشبكة وعرض القائمة.</string>
     <string name="settings_anim_counter">عدّاد الإطارات</string>
     <string name="settings_anim_counter_desc">يظهر في شريط تحكّم الصور المتحركة.</string>
     <string name="settings_reverse_order">تصفّح الصور نحو اليمين بدءًا من الأقدم</string>
@@ -314,6 +317,9 @@
     <string name="settings_group_viewer">العارض</string>
     <string name="settings_group_browse">المجلدات</string>
     <string name="settings_group_start">بدء التشغيل</string>
+    <string name="settings_group_advanced">ميزات متقدمة</string>
+    <string name="settings_ext_edit">تغيير الامتدادات من \'إعادة تسمية\'</string>
+    <string name="settings_ext_edit_desc">تتيح لوحة إعادة التسمية تغيير امتدادات الملفات. إن لم تكن متأكدًا فلا تُشغّل هذا الخيار: قد يجعل الصور غير قابلة للقراءة.</string>
     <string name="settings_hidden_none">لا توجد مجلدات مخفية</string>
     <plurals name="settings_hidden_count">
         <item quantity="zero">لا مجلدات</item>

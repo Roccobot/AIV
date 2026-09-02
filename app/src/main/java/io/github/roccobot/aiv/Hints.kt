@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
@@ -18,6 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 
 /**
  * Il velo del mini onboarding: oscura la schermata, dice la frase e mette in evidenza una
@@ -130,6 +133,51 @@ fun BoxScope.HintCentre(text: String, onDone: () -> Unit) {
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = HINT_SIDE).widthIn(max = HINT_WIDTH)
         )
+    }
+}
+
+/**
+ * Lo stesso velo centrato, ma **sopra un dialogo**: una finestra sua, che copre lo schermo.
+ *
+ * ⚠️⚠️ **ESISTE PERCHÉ UN VELO DENTRO UN DIALOGO COPRE IL DIALOGO E NON LO SCHERMO** (nasce
+ * nella `1.36` per l'avviso sul cambio di estensione, che parte da dentro la finestra di
+ * rinomina). [HintCentre] è un'estensione di `BoxScope` e si stende sul `Box` che lo contiene:
+ * là dentro sarebbe un velo largo come la finestrella, cioè un riquadro scuro in mezzo a un
+ * dialogo, mentre l'utente ha chiesto un avviso **in mezzo allo schermo**. Una finestra
+ * propria è l'unico modo di stare sopra un'altra finestra.
+ * ⚠️ **`usePlatformDefaultWidth = false` è la riga che conta**: senza, il dialogo prende la
+ * larghezza di un dialogo Material (il 90% meno i margini) e il velo si vedrebbe come una
+ * scheda scura invece che come un velo.
+ * ⚠️ **Il velo, il corpo e il margine sono gli STESSI di [HintCentre]**, e non una copia con
+ * altri numeri: cambia soltanto la finestra in cui vivono. Il giorno che il contrasto del velo
+ * si ritocca, si ritocca una volta.
+ * ⚠️ **Un tocco qualunque lo archivia**, come tutti gli altri.
+ */
+@Composable
+fun HintNotice(text: String, onDone: () -> Unit) {
+    Dialog(
+        onDismissRequest = onDone,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(HINT_SCRIM)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onDone
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = HINT_SIDE).widthIn(max = HINT_WIDTH)
+            )
+        }
     }
 }
 

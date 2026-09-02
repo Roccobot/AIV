@@ -58,6 +58,8 @@
     <string name="convert_this_frame">Exporting frame %1$d, the one on screen.</string>
     <string name="convert_elsewhere">Other formats</string>
     <string name="convert_elsewhere_desc">Android can only write the formats above. For the others there are these services, which open in the browser: pick the image there, from the phone\'s storage.</string>
+    <string name="convert_clean">Clean up</string>
+    <string name="convert_clean_why">Use CleanSVG to shrink a vector file by up to 99%, stripping metadata and other fields that are not part of the drawing. Cleaning is completely safe: shapes, lines, drawings and text are untouched.</string>
     <string name="convert_open">Open</string>
     <string name="convert_export">Export</string>
     <string name="convert_ezgif">EzGif</string>
@@ -146,6 +148,9 @@
     <string name="settings_group_browse">Folders</string>
 
     <string name="settings_group_start">Startup</string>
+    <string name="settings_group_advanced">Advanced features</string>
+    <string name="settings_ext_edit">Edit extensions from \'Rename\'</string>
+    <string name="settings_ext_edit_desc">The rename panel can change file extensions. If you do not know what you are doing, do not turn this on: it can make images unreadable.</string>
 
     <string name="settings_background">Behind the picture</string>
     <string name="settings_bg_checker">Checkerboard</string>
@@ -200,6 +205,7 @@
     <string name="settings_zoom_menu_desc">Puts \'Fit to view\' and \'100%\' back into the long-press menu. They are off because a double tap on the picture already does it.</string>
     <!-- The one-off veil shown over the first picture after installing. -->
     <string name="hint_zoom_tap">Quick zoom: double tap the image to fit it to the view, double tap again for actual pixels. Keep tapping to go round between fitted and 100%.</string>
+    <string name="hint_ext_warn">⚠️ Changing a file extension is not the same as switching between formats: for that there is \'Export and convert\'.\n\n⚠️ If you give an image or a video an extension that does not belong to a media file, the item will vanish from the grid and list views.</string>
     <string name="settings_anim_counter">Frame counter</string>
     <string name="settings_anim_counter_desc">Shown in the controls of animated images.</string>
 

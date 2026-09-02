@@ -29,6 +29,8 @@
     <string name="convert_this_frame">กำลังส่งออกเฟรมที่ %1$d ซึ่งเป็นเฟรมที่แสดงอยู่</string>
     <string name="convert_elsewhere">รูปแบบอื่น</string>
     <string name="convert_elsewhere_desc">แอนดรอยด์เขียนได้เฉพาะรูปแบบข้างบนเท่านั้น สำหรับรูปแบบอื่นมีบริการเหล่านี้ ซึ่งเปิดในเบราว์เซอร์ แล้วเลือกภาพจากหน่วยความจำของโทรศัพท์ที่นั่น</string>
+    <string name="convert_clean">ล้างข้อมูล</string>
+    <string name="convert_clean_why">ใช้ CleanSVG เพื่อลดขนาดไฟล์เวกเตอร์ได้ถึง 99% โดยตัดข้อมูลกำกับและฟิลด์อื่นที่ไม่เกี่ยวกับภาพวาดออก การล้างนี้ปลอดภัยอย่างสมบูรณ์ ไม่กระทบรูปทรง เส้น ภาพวาด หรือข้อความ</string>
     <string name="convert_open">เปิด</string>
     <string name="convert_export">ส่งออก</string>
     <string name="convert_ezgif">EzGif</string>
@@ -92,6 +94,7 @@
     <string name="settings_zoom_menu">การซูมในเมนูของโปรแกรมดู</string>
     <string name="settings_zoom_menu_desc">นำ \'พอดีหน้าจอ\' และ \'100%\' กลับเข้าเมนูกดค้าง ปิดอยู่เพราะแตะสองครั้งบนภาพก็ทำแบบเดียวกัน</string>
     <string name="hint_zoom_tap">ซูมเร็ว: แตะสองครั้งที่รูปเพื่อให้พอดีกับหน้าจอ แตะสองครั้งอีกทีเพื่อดูพิกเซลจริง แตะต่อไปเพื่อสลับระหว่างพอดีและ 100%</string>
+    <string name="hint_ext_warn">⚠️ การเปลี่ยนนามสกุลไฟล์ไม่เหมือนการแปลงจากรูปแบบหนึ่งไปอีกรูปแบบ สำหรับสิ่งนั้นมี \'ส่งออกและแปลง\' อยู่แล้ว\n\n⚠️ ถ้าตั้งนามสกุลที่ไม่ใช่ของไฟล์สื่อให้รูปหรือวิดีโอ รายการนั้นจะหายไปจากมุมมองตารางและรายการ</string>
     <string name="settings_anim_counter">ตัวนับเฟรม</string>
     <string name="settings_anim_counter_desc">แสดงในแถบควบคุมของภาพเคลื่อนไหว</string>
     <string name="settings_reverse_order">เลื่อนดูภาพไปทางขวาจากภาพเก่าที่สุด</string>
@@ -249,6 +252,9 @@
     <string name="settings_group_viewer">ตัวแสดงภาพ</string>
     <string name="settings_group_browse">โฟลเดอร์</string>
     <string name="settings_group_start">การเริ่มต้น</string>
+    <string name="settings_group_advanced">ฟีเจอร์ขั้นสูง</string>
+    <string name="settings_ext_edit">เปลี่ยนนามสกุลจาก \'เปลี่ยนชื่อ\'</string>
+    <string name="settings_ext_edit_desc">แผงเปลี่ยนชื่อสามารถเปลี่ยนนามสกุลของไฟล์ได้ ถ้าไม่แน่ใจว่ากำลังทำอะไร อย่าเปิดตัวเลือกนี้ เพราะอาจทำให้รูปอ่านไม่ได้</string>
     <string name="settings_hidden_none">ไม่มีโฟลเดอร์ที่ซ่อนไว้</string>
     <plurals name="settings_hidden_count">
         <item quantity="other">%1$d โฟลเดอร์</item>

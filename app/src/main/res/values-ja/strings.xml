@@ -29,6 +29,8 @@
     <string name="convert_this_frame">表示中のコマ %1$d を書き出します。</string>
     <string name="convert_elsewhere">ほかの形式</string>
     <string name="convert_elsewhere_desc">Android が書き出せるのは上の形式だけです。ほかの形式には次のサービスがあり、ブラウザーで開きます。画像はそこで、端末のストレージから選びます。</string>
+    <string name="convert_clean">整理する</string>
+    <string name="convert_clean_why">CleanSVG を使うと、ベクター画像のファイルを最大 99% 小さくできます。メタデータや図とは関係のない項目が取り除かれます。この整理は完全に安全で、形・線・図・文字はそのままです。</string>
     <string name="convert_open">開く</string>
     <string name="convert_export">書き出す</string>
     <string name="convert_ezgif">EzGif</string>
@@ -92,6 +94,7 @@
     <string name="settings_zoom_menu">ビューアーのメニューに拡大表示</string>
     <string name="settings_zoom_menu_desc">\'画面に合わせる\' と \'100%\' を長押しメニューに戻します。画像をダブルタップすれば同じことができるので、既定ではオフです。</string>
     <string name="hint_zoom_tap">クイックズーム: 画像をダブルタップすると画面に合わせ、もう一度ダブルタップすると実寸のピクセルになります。続けてタップすると、合わせた表示と100%を交互に切り替えます。</string>
+    <string name="hint_ext_warn">⚠️ 拡張子を変えることは形式を変換することとは違います。変換には \'書き出して変換\' があります。\n\n⚠️ 画像や動画にメディアファイル以外の拡張子を付けると、その項目はグリッド表示とリスト表示から消えます。</string>
     <string name="settings_anim_counter">フレームカウンター</string>
     <string name="settings_anim_counter_desc">アニメーション画像の操作バーに表示します。</string>
     <string name="settings_reverse_order">古い順に右へ画像をめくる</string>
@@ -249,6 +252,9 @@
     <string name="settings_group_viewer">ビューア</string>
     <string name="settings_group_browse">フォルダー</string>
     <string name="settings_group_start">起動</string>
+    <string name="settings_group_advanced">詳細機能</string>
+    <string name="settings_ext_edit">\'名前を変更\' から拡張子を変える</string>
+    <string name="settings_ext_edit_desc">名前変更のパネルではファイルの拡張子を変えられます。よく分からない場合はオンにしないでください。画像が読めなくなることがあります。</string>
     <string name="settings_hidden_none">非表示のフォルダーはありません</string>
     <plurals name="settings_hidden_count">
         <item quantity="other">%1$d 件のフォルダー</item>

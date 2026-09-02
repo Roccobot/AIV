@@ -29,6 +29,8 @@
     <string name="convert_this_frame">फ्रेम %1$d निर्यात होत आहे, तीच जी स्क्रीनवर आहे.</string>
     <string name="convert_elsewhere">इतर स्वरूपे</string>
     <string name="convert_elsewhere_desc">अँड्रॉइड फक्त वरील स्वरूपेच लिहू शकते. बाकीच्यांसाठी या सेवा आहेत, ज्या ब्राउझरमध्ये उघडतात: प्रतिमा तिथेच, फोनच्या स्मृतीतून निवडा.</string>
+    <string name="convert_clean">स्वच्छ करा</string>
+    <string name="convert_clean_why">CleanSVG वापरून वेक्टर फाइलचा आकार 99% पर्यंत कमी करा: मेटाडेटा आणि रेखाटनाशी संबंध नसलेली इतर क्षेत्रे निघून जातात. ही स्वच्छता पूर्णपणे सुरक्षित आहे आणि आकार, रेषा, रेखाटने किंवा मजकूर बदलत नाही.</string>
     <string name="convert_open">उघडा</string>
     <string name="convert_export">निर्यात करा</string>
     <string name="convert_ezgif">EzGif</string>
@@ -92,6 +94,7 @@
     <string name="settings_zoom_menu">व्ह्यूअर मेनूमध्ये झूम</string>
     <string name="settings_zoom_menu_desc">\'पडद्यात बसवा\' आणि \'100%\' दीर्घ दाबाच्या मेनूमध्ये परत आणते. बंद आहे, कारण प्रतिमेवर दोनदा टॅप केल्यास तेच होते.</string>
     <string name="hint_zoom_tap">जलद झूम: प्रतिमेवर दोनदा टॅप केल्यास ती दृश्यात बसते, पुन्हा दोनदा टॅप केल्यास खरे पिक्सेल दिसतात. टॅप करत राहिल्यास बसवलेली आणि 100% यांमध्ये बदलत राहते.</string>
+    <string name="hint_ext_warn">⚠️ फाइलचे एक्स्टेंशन बदलणे म्हणजे एका स्वरूपातून दुसऱ्यात रूपांतर करणे नाही: त्यासाठी \'निर्यात आणि रूपांतर\' आहे.\n\n⚠️ चित्राला किंवा चित्रफितीला माध्यम फाइलचे नसलेले एक्स्टेंशन दिल्यास ती जाळी आणि यादी दृश्यातून नाहीशी होईल.</string>
     <string name="settings_anim_counter">फ्रेम काउंटर</string>
     <string name="settings_anim_counter_desc">हलत्या प्रतिमांच्या नियंत्रण पट्टीत दिसतो.</string>
     <string name="settings_reverse_order">सर्वात जुन्यापासून उजवीकडे प्रतिमा पलटा</string>
@@ -262,6 +265,9 @@
     <string name="settings_group_viewer">प्रदर्शक</string>
     <string name="settings_group_browse">फोल्डर</string>
     <string name="settings_group_start">सुरुवात</string>
+    <string name="settings_group_advanced">प्रगत सुविधा</string>
+    <string name="settings_ext_edit">\'नाव बदला\' मधून एक्स्टेंशन बदला</string>
+    <string name="settings_ext_edit_desc">नाव बदलण्याचा पॅनेल फाइलचे एक्स्टेंशन बदलू देतो. काय करत आहात याची खात्री नसेल तर हे चालू करू नका: चित्रे न वाचता येण्यासारखी होऊ शकतात.</string>
     <string name="settings_hidden_none">कोणतेही लपवलेले फोल्डर नाही</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d फोल्डर</item>

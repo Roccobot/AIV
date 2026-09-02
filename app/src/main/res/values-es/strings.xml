@@ -29,6 +29,8 @@
     <string name="convert_this_frame">Estás exportando el fotograma %1$d, el que ves ahora.</string>
     <string name="convert_elsewhere">Otros formatos</string>
     <string name="convert_elsewhere_desc">Android solo sabe escribir los formatos de arriba. Para los demás están estos servicios, que se abren en el navegador: la imagen se elige allí, desde la memoria del teléfono.</string>
+    <string name="convert_clean">Limpiar</string>
+    <string name="convert_clean_why">Usa CleanSVG para reducir hasta un 99% el tamaño de un archivo vectorial, quitando metadatos y otros campos ajenos al dibujo. La limpieza es completamente segura y no toca formas, líneas, dibujos ni textos.</string>
     <string name="convert_open">Abrir</string>
     <string name="convert_export">Exportar</string>
     <string name="convert_ezgif">EzGif</string>
@@ -92,6 +94,7 @@
     <string name="settings_zoom_menu">Zoom en el menú del visor</string>
     <string name="settings_zoom_menu_desc">Devuelve \'Ajustar a la vista\' y \'100%\' al menú de pulsación larga. Está apagado porque un toque doble en la imagen ya lo hace.</string>
     <string name="hint_zoom_tap">Zoom rápido: toca dos veces la imagen para ajustarla a la vista, otras dos para ver los píxeles reales. Sigue tocando para alternar entre ajustada y 100%.</string>
+    <string name="hint_ext_warn">⚠️ Cambiar la extensión de un archivo no es lo mismo que pasar de un formato a otro: para eso está \'Exportar y convertir\'.\n\n⚠️ Si le das a una imagen o a un vídeo una extensión que no sea de un archivo multimedia, el elemento desaparecerá de las vistas de cuadrícula y de lista.</string>
     <string name="settings_anim_counter">Contador de fotogramas</string>
     <string name="settings_anim_counter_desc">Aparece en la barra de controles de las imágenes animadas.</string>
     <string name="settings_reverse_order">Pasar las imágenes hacia la derecha desde la más antigua</string>
@@ -275,6 +278,9 @@
     <string name="settings_group_viewer">Visor</string>
     <string name="settings_group_browse">Carpetas</string>
     <string name="settings_group_start">Inicio</string>
+    <string name="settings_group_advanced">Funciones avanzadas</string>
+    <string name="settings_ext_edit">Cambiar extensiones desde \'Renombrar\'</string>
+    <string name="settings_ext_edit_desc">El panel de renombrado permite cambiar la extensión de los archivos. Si no sabes lo que haces, no actives esta opción: puede dejar las imágenes ilegibles.</string>
     <string name="settings_hidden_none">Ninguna carpeta oculta</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d carpeta</item>

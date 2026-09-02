@@ -29,6 +29,8 @@
     <string name="convert_this_frame">Đang xuất khung hình %1$d, khung đang hiển thị.</string>
     <string name="convert_elsewhere">Định dạng khác</string>
     <string name="convert_elsewhere_desc">Android chỉ ghi được các định dạng ở trên. Với những định dạng còn lại thì có các dịch vụ sau, chúng mở trong trình duyệt: hãy chọn ảnh ở đó, từ bộ nhớ điện thoại.</string>
+    <string name="convert_clean">Làm sạch</string>
+    <string name="convert_clean_why">Dùng CleanSVG để giảm tới 99% kích thước tệp vector, loại bỏ siêu dữ liệu và các trường khác không thuộc hình vẽ. Việc làm sạch hoàn toàn an toàn: hình khối, đường nét, hình vẽ và chữ đều không bị thay đổi.</string>
     <string name="convert_open">Mở</string>
     <string name="convert_export">Xuất</string>
     <string name="convert_ezgif">EzGif</string>
@@ -92,6 +94,7 @@
     <string name="settings_zoom_menu">Thu phóng trong menu của trình xem</string>
     <string name="settings_zoom_menu_desc">Đưa \'Vừa khung hình\' và \'100%\' trở lại menu nhấn giữ. Đang tắt vì chạm hai lần vào ảnh cũng làm điều đó.</string>
     <string name="hint_zoom_tap">Thu phóng nhanh: chạm hai lần vào ảnh để vừa khung nhìn, chạm hai lần nữa để xem điểm ảnh thật. Chạm tiếp để chuyển qua lại giữa vừa khung và 100%.</string>
+    <string name="hint_ext_warn">⚠️ Đổi phần mở rộng của tệp không giống với chuyển từ định dạng này sang định dạng khác: việc đó có \'Xuất và chuyển đổi\'.\n\n⚠️ Nếu bạn đặt cho ảnh hoặc video một phần mở rộng không thuộc tệp đa phương tiện, mục đó sẽ biến mất khỏi dạng lưới và dạng danh sách.</string>
     <string name="settings_anim_counter">Bộ đếm khung hình</string>
     <string name="settings_anim_counter_desc">Hiển thị trên thanh điều khiển của ảnh động.</string>
     <string name="settings_reverse_order">Lướt ảnh sang phải từ ảnh cũ nhất</string>
@@ -249,6 +252,9 @@
     <string name="settings_group_viewer">Trình xem</string>
     <string name="settings_group_browse">Thư mục</string>
     <string name="settings_group_start">Khởi động</string>
+    <string name="settings_group_advanced">Tính năng nâng cao</string>
+    <string name="settings_ext_edit">Đổi phần mở rộng trong \'Đổi tên\'</string>
+    <string name="settings_ext_edit_desc">Bảng đổi tên cho phép đổi phần mở rộng của tệp. Nếu không rõ mình đang làm gì thì đừng bật: ảnh có thể trở nên không đọc được.</string>
     <string name="settings_hidden_none">Không có thư mục bị ẩn</string>
     <plurals name="settings_hidden_count">
         <item quantity="other">%1$d thư mục</item>

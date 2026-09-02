@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -56,6 +58,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import java.text.Normalizer
 import kotlin.math.roundToInt
@@ -482,6 +485,17 @@ private fun ColumnScope.RootPage(
                 }
             )
         },
+        /*
+         * ⚠️⚠️ **IMPILATE DALLA 1.36, ed è la QUARTA forma di questa riga in quattro
+         * versioni** (riscontro dell'utente, 2026-09-02: *voglio che vada bene in tutte le
+         * lingue. Facciamo tre gettoni impilati e centrati, tutti della stessa larghezza*).
+         * In riga stavano bene in italiano e andavano a capo altrove: il perché per esteso
+         * sta sul parametro di [Choices].
+         * ⚠️ **L'ordine è il suo**: 'In alto', 'In basso', 'Disattivata', cioè le due
+         * posizioni prima e lo spegnimento in fondo. È anche l'ordine dell'enum, perché una
+         * lista e la sua vista che divergono sono un difetto in attesa.
+         */
+        stacked = true,
         onSelect = { onChange(it.applyTo(settings)) }
     )
 
@@ -705,6 +719,29 @@ private fun ColumnScope.RootPage(
             }
         }
     }
+
+    /*
+     * ⚠️⚠️ **IL GRUPPO DELLE 'FUNZIONALITÀ AVANZATE' NASCE NELLA 1.36 CON UNA VOCE SOLA, e
+     * questa volta il gruppo per una riga si fa** (richiesta dell'utente, 2026-09-02: *nelle
+     * impostazioni creiamo una nuova sezione 'Funzionalità avanzate' al cui interno c'è una
+     * voce...*). Due note qui sopra dicono il contrario per il cestino e per lo sfoglio delle
+     * sole immagini, e la differenza non è il numero di righe: quelle due sono impostazioni
+     * normali senza un tema proprio, questa è una funzione che **può fare danni** e il titolo
+     * è metà dell'avviso. Un interruttore così in mezzo agli altri sarebbe uno dei tanti.
+     * ⚠️ **In fondo alla pagina, dopo tutti i gruppi**: chi scorre fin qui sta cercando
+     * qualcosa di insolito, ed è esattamente il pubblico di questa voce.
+     * ⚠️ **Il paragrafo è il `detail` della riga**, cioè lo stesso posto delle altre
+     * spiegazioni: l'utente l'ha chiesto *sotto* la voce, che è dove `SwitchRow` lo mette già.
+     * Il testo è **suo, parola per parola**.
+     */
+    Group(stringResource(R.string.settings_group_advanced))
+
+    SwitchRow(
+        label = stringResource(R.string.settings_ext_edit),
+        detail = stringResource(R.string.settings_ext_edit_desc),
+        checked = settings.extEdit,
+        onChange = { onChange(settings.copy(extEdit = it)) }
+    )
 
     /*
      * ⚠️⚠️ **STA FUORI DAI QUATTRO GRUPPI, in fondo, e non è una dimenticanza**: non è
@@ -958,7 +995,10 @@ private fun ZoomAndFit(settings: Settings, onChange: (Settings) -> Unit) {
  * salvato: è il modo in cui questa pagina presenta due valori che restano due.
  */
 private enum class InfoChoice(override val token: String) : Choice {
-    OFF("off"), TOP("top"), BOTTOM("bottom");
+    // ⚠️ **L'ordine è quello che si vede**, dalla `1.36`: le pastiglie seguono `entries`, e
+    // l'utente le ha chieste 'In alto', 'In basso', 'Disattivata'. Fino alla `1.35`
+    // 'Disattivata' era la prima, com'era stata chiesta allora.
+    TOP("top"), BOTTOM("bottom"), OFF("off");
 
     fun applyTo(settings: Settings): Settings = when (this) {
         OFF -> settings.copy(infoVisible = false)
@@ -1130,6 +1170,22 @@ private fun <T : Choice> Choices(
     options: List<T>,
     selected: T,
     nameOf: @Composable (T) -> String,
+    /**
+     * Le pastiglie **una sopra l'altra**, tutte della stessa larghezza e centrate.
+     *
+     * ⚠️⚠️ **NASCE NELLA 1.36 PER FARLE STARE IN 28 LINGUE** (riscontro dell'utente,
+     * 2026-09-02, sulla posizione della barra info: *voglio che vada bene in tutte le lingue.
+     * Facciamo tre gettoni impilati e centrati, tutti della stessa larghezza, sufficiente per
+     * la parola più lunga nella lingua che esige più spazio*). In fila, `FlowRow` mandava a
+     * capo dove capitava, quindi la stessa riga era una fila in italiano, due in tedesco e
+     * tre in tamil: tre disposizioni diverse della stessa scelta.
+     * ⚠️ **La larghezza NON è un numero**: è la massima intrinseca della colonna, cioè quella
+     * della pastiglia più larga **nella lingua in vigore**. Un numero in dp sarebbe giusto in
+     * una lingua e sbagliato nelle altre 27, che è esattamente il difetto da togliere.
+     * ⚠️ **Non è il default**: le altre file (sfondo, tema, colonne, mano) stanno bene in
+     * riga, e impilarle tutte allungherebbe la pagina di tre schermate.
+     */
+    stacked: Boolean = false,
     onSelect: (T) -> Unit
 ) {
     // ⚠️⚠️ **ANCHE I NOMI DELLE PASTIGLIE entrano nella ricerca**, e non solo il titolo della
@@ -1146,6 +1202,40 @@ private fun <T : Choice> Choices(
         modifier = Modifier.padding(top = 12.dp)
     )
     detail?.let { Detail(it) }
+    if (stacked) {
+        // ⚠️ **Due colonne annidate e non una**: quella di fuori occupa la riga e centra,
+        // quella di dentro prende la larghezza della pastiglia più larga e la impone a tutte.
+        // Con una sola colonna, `fillMaxWidth` sulle pastiglie le farebbe larghe quanto la
+        // pagina, e `wrapContentWidth` le farebbe ognuna della propria misura.
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Column(
+                modifier = Modifier.width(IntrinsicSize.Max),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                options.forEachIndexed { at, option ->
+                    FilterChip(
+                        selected = option == selected,
+                        onClick = { onSelect(option) },
+                        // ⚠️ Il testo prende tutta la pastiglia e si centra: senza,
+                        // resterebbe attaccato a sinistra e le tre parole di lunghezza
+                        // diversa sembrerebbero disallineate dentro pastiglie uguali.
+                        label = {
+                            Text(
+                                text = names[at],
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        }
+        return
+    }
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         options.forEachIndexed { at, option ->
             FilterChip(
