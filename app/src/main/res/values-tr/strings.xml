@@ -37,6 +37,7 @@
     <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">En uzun biçim listesi, AVIF ve TIFF dahil.</string>
     <string name="toast_image_copied">Görsel kopyalandı</string>
+    <string name="toast_name_copied">Dosya adı kopyalandı</string>
     <string name="toast_copy_failed">Kopyalama olmadı</string>
     <string name="toast_saved">Kaydedildi</string>
     <string name="toast_save_failed">Kaydetme olmadı</string>

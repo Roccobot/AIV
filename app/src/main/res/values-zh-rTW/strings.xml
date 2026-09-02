@@ -37,6 +37,7 @@
     <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">格式清單最長，包括 AVIF 和 TIFF。</string>
     <string name="toast_image_copied">已複製圖片</string>
+    <string name="toast_name_copied">已複製檔案名稱</string>
     <string name="toast_copy_failed">複製沒有成功</string>
     <string name="toast_saved">已儲存</string>
     <string name="toast_save_failed">儲存沒有成功</string>

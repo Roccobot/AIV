@@ -37,6 +37,7 @@
     <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">対応形式がもっとも多く、AVIF や TIFF も含みます。</string>
     <string name="toast_image_copied">画像をコピーしました</string>
+    <string name="toast_name_copied">ファイル名をコピーしました</string>
     <string name="toast_copy_failed">コピーできませんでした</string>
     <string name="toast_saved">保存しました</string>
     <string name="toast_save_failed">保存できませんでした</string>

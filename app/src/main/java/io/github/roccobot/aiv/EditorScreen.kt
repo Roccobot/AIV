@@ -61,11 +61,15 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -272,6 +276,8 @@ fun EditorScreen(
                     least = with(density) { LEAST_SIDE.toPx() },
                     arm = with(density) { HANDLE_ARM.toPx() },
                     thick = with(density) { HANDLE_THICK.toPx() },
+                    loupe = with(density) { LOUPE_SIDE.toPx() },
+                    edge = with(density) { LOUPE_EDGE.toPx() },
                     onCrop = { crop = it },
                     keep = shape.value(lay)
                 )
@@ -899,6 +905,9 @@ private fun CropStage(
     least: Float,
     arm: Float,
     thick: Float,
+    /** Il diametro della lente e quanto sta lontana dai bordi. Vedi [lens]. */
+    loupe: Float,
+    edge: Float,
     keep: Float?,
     onCrop: (ImageEdit.Crop) -> Unit
 ) {
@@ -973,8 +982,123 @@ private fun CropStage(
             bracket(Offset(r.right, r.top), -1, 1, reach, thick, line)
             bracket(Offset(r.left, r.bottom), 1, -1, reach, thick, line)
             bracket(Offset(r.right, r.bottom), -1, -1, reach, thick, line)
+
+            // ── La lente ──
+            eyeOf(held, r)?.let { eye ->
+                lens(eye, picture, frame, r, loupe, edge, thick, line)
+            }
         }
     }
+}
+
+/**
+ * L'angolo che la lente deve guardare, e `null` quando non c'è niente da guardare.
+ *
+ * ⚠️⚠️ **SOLO GLI ANGOLI, e lo spostamento del rettangolo intero NON ne ha uno**: muovendolo
+ * da dentro i punti da mirare sono **quattro**, e sceglierne uno vorrebbe dire ingrandire un
+ * angolo qualunque mentre si guarda l'inquadratura tutta insieme. La domanda dell'utente era
+ * *su quale pixel sto rilasciando il rettangolo di selezione*, e quel pixel esiste solo
+ * mentre si tira un angolo.
+ */
+private fun eyeOf(held: Grab, r: Rect): Offset? = when (held) {
+    Grab.TOP_LEFT -> r.topLeft
+    Grab.TOP_RIGHT -> r.topRight
+    Grab.BOTTOM_LEFT -> r.bottomLeft
+    Grab.BOTTOM_RIGHT -> r.bottomRight
+    Grab.INSIDE, Grab.NONE -> null
+}
+
+/**
+ * La lente: un cerchio in alto con dentro [eye] ingrandito [LOUPE_ZOOM] volte.
+ *
+ * ⚠️⚠️ **STA IN ALTO E DALLA PARTE OPPOSTA AL DITO, non attaccata al dito**: una lente che
+ * segue il dito è quella che tutti conoscono dalla selezione del testo, ma là sopra il dito c'è
+ * sempre spazio perché la riga di testo sta in mezzo alla pagina; qui il rettangolo arriva fino
+ * al bordo dell'immagine, e una lente attaccata all'angolo alto uscirebbe dal riquadro proprio
+ * nel caso in cui serve di più. Fissata all'angolo alto opposto non esce mai e non finisce mai
+ * sotto la mano: il dito che tira l'angolo sinistro la trova a destra e viceversa, e tirando un
+ * angolo basso il posto in alto è libero comunque.
+ * ⚠️ **La scelta guarda la METÀ dello schermo in cui sta il dito**, non quale dei quattro
+ * angoli è: è la stessa regola per gli angoli alti e per quelli bassi, e un rettangolo tirato
+ * tutto a sinistra manda la lente a destra qualunque angolo si tenga.
+ * ⚠️ **E si ridecide a ogni movimento, quindi la lente SALTA da una parte all'altra quando
+ * l'angolo attraversa la metà dello schermo**: è voluto, e l'alternativa è peggio. Decidendo
+ * il lato una volta sola alla presa, un angolo trascinato da un capo all'altro si porterebbe
+ * la lente sotto il dito proprio alla fine della corsa, cioè la spegnerebbe nel momento in cui
+ * si mira. Il salto invece capita in mezzo a uno spostamento lungo, dove non si sta mirando
+ * niente.
+ *
+ * ⚠️⚠️ **DENTRO CI VA ANCHE IL BORDO DEL RITAGLIO, e senza quello la lente non servirebbe a
+ * niente**: ingrandire i soli pixel direbbe *che cosa* c'è sotto il dito ma non *dove* passa il
+ * taglio, che è la domanda. Le due righe bianche che si incrociano al centro della lente sono
+ * il bordo vero, disegnato nello stesso spazio ingrandito e con lo spessore diviso per
+ * l'ingrandimento, così a schermo resta il filo sottile di sempre invece di diventare una fascia
+ * larga quanto quello che dovrebbe mostrare.
+ *
+ * ⚠️⚠️ **SENZA INTERPOLAZIONE ([FilterQuality.None]), ed è la differenza fra una lente e un
+ * ingrandimento sfocato**: col filtro predefinito i pixel ingranditi sfumano l'uno nell'altro e
+ * il bordo del taglio torna a essere indeciso, cioè si ripaga il difetto che la lente doveva
+ * togliere. Così invece i pixel diventano quadretti netti e il bordo cade visibilmente fra due.
+ * ⚠️ **Ma i pixel sono quelli dell'ANTEPRIMA, non quelli del file**: qui si lavora su una copia
+ * campionata a [PREVIEW] sul lato lungo (vedi `preview`), quindi il quadretto che si vede può
+ * valere più di un pixel dell'originale. Non è un difetto di questa lente ed è la ragione per
+ * cui vale dirlo: il ritaglio si conserva in **frazioni** e si applica al file intero alla
+ * massima risoluzione, quindi la mira è più fine del quadretto che la mostra.
+ *
+ * ⚠️ **Il fondo nero sotto tutto**: tirando un angolo a filo dell'immagine metà lente cade
+ * fuori dalla fotografia, e senza un fondo pieno là si vedrebbe per trasparenza quello che sta
+ * dietro, cioè la fotografia **non** ingrandita. Due scale della stessa immagine dentro lo
+ * stesso cerchio si leggono come un difetto di disegno.
+ *
+ * ⚠️ **L'anello è spesso quanto le squadrette d'angolo ([thick]) e non quanto il bordo del
+ * ritaglio ([EDGE_PX])**, che è un filo di due pixel **fisici**: su uno schermo a tre volte
+ * quel filo vale due terzi di punto, giusto per un bordo che deve coprire il meno possibile e
+ * invisibile per un attrezzo che galleggia sopra la fotografia. Con la misura delle squadrette
+ * gli arnesi del ritaglio hanno tutti lo stesso peso, che è anche il modo di dire che sono la
+ * stessa cosa.
+ */
+private fun DrawScope.lens(
+    eye: Offset,
+    picture: ImageBitmap,
+    frame: Rect,
+    r: Rect,
+    side: Float,
+    edge: Float,
+    thick: Float,
+    line: Color
+) {
+    val radius = side / 2f
+    val centre = Offset(
+        x = if (eye.x < size.width / 2f) size.width - edge - radius else edge + radius,
+        y = edge + radius
+    )
+    val glass = Path().apply { addOval(Rect(center = centre, radius = radius)) }
+    clipPath(glass) {
+        drawRect(
+            color = Color.Black,
+            topLeft = Offset(centre.x - radius, centre.y - radius),
+            size = Size(side, side)
+        )
+        withTransform({
+            // Il punto mirato finisce al centro della lente: p -> centre + (p - eye) * zoom.
+            translate(left = centre.x - eye.x * LOUPE_ZOOM, top = centre.y - eye.y * LOUPE_ZOOM)
+            scale(scaleX = LOUPE_ZOOM, scaleY = LOUPE_ZOOM, pivot = Offset.Zero)
+        }) {
+            drawImage(
+                image = picture,
+                dstOffset = IntOffset(frame.left.roundToInt(), frame.top.roundToInt()),
+                dstSize = IntSize(frame.width.roundToInt(), frame.height.roundToInt()),
+                filterQuality = FilterQuality.None
+            )
+            drawRect(
+                color = line.copy(alpha = 0.9f),
+                topLeft = r.topLeft,
+                size = r.size,
+                style = Stroke(width = EDGE_PX / LOUPE_ZOOM)
+            )
+        }
+    }
+    drawCircle(color = line, radius = radius, center = centre, style = Stroke(width = thick))
 }
 
 /** Quale presa ha preso il dito. */
@@ -1153,6 +1277,21 @@ private const val EDGE_PX = 2f
 
 /** Le righe dei terzi, più leggere del bordo. */
 private const val THIRD_PX = 1f
+
+/**
+ * L'ingrandimento della lente, il suo diametro e quanto sta lontana dai bordi del riquadro.
+ *
+ * ⚠️ **Quattro volte, e il conto è quello del dito**: un polpastrello copre una quarantina di
+ * punti, e a quattro ingrandimenti in una lente da 112 se ne vedono ventotto, cioè poco meno di
+ * quello che il dito nasconde. Ingrandendo di più si vedrebbe un francobollo di fotografia e si
+ * perderebbe il contesto che serve a capire dove si è; ingrandendo di meno la lente mostrerebbe
+ * quasi le stesse dimensioni dello schermo, cioè non servirebbe.
+ * ⚠️ Lo spessore dell'anello **non** è qui: è quello delle squadrette d'angolo, e il perché sta
+ * in [lens].
+ */
+private const val LOUPE_ZOOM = 4f
+private val LOUPE_SIDE = 112.dp
+private val LOUPE_EDGE = 8.dp
 
 /** Il braccio della squadretta d'angolo, e il suo spessore. */
 private val HANDLE_ARM = 24.dp

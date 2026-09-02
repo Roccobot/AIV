@@ -37,6 +37,7 @@
     <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">أطول قائمة صيغ، بما فيها AVIF وTIFF.</string>
     <string name="toast_image_copied">تم نسخ الصورة</string>
+    <string name="toast_name_copied">تم نسخ اسم الملف</string>
     <string name="toast_copy_failed">لم ينجح النسخ</string>
     <string name="toast_saved">تم الحفظ</string>
     <string name="toast_save_failed">لم ينجح الحفظ</string>

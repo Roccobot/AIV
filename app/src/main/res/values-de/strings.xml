@@ -37,6 +37,7 @@
     <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">Die längste Formatliste, AVIF und TIFF eingeschlossen.</string>
     <string name="toast_image_copied">Bild kopiert</string>
+    <string name="toast_name_copied">Dateiname kopiert</string>
     <string name="toast_copy_failed">Das Kopieren hat nicht geklappt</string>
     <string name="toast_saved">Gespeichert</string>
     <string name="toast_save_failed">Das Speichern hat nicht geklappt</string>

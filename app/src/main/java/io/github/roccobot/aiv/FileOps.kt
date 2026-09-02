@@ -2,7 +2,9 @@ package io.github.roccobot.aiv
 
 import android.content.res.Resources
 import android.net.Uri
+import android.widget.Toast
 import androidx.annotation.PluralsRes
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -25,8 +27,10 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -479,13 +483,39 @@ private fun FileFacts(facts: Facts, one: OneFile, fields: List<FactField>) {
  *   l'estensione è la parte più informativa del nome anche quando ci sta tutto.
  * - ⚠️ **Lo spazio invece SOLO quando si accorcia**: serve a staccare l'ellissi dal punto, e
  *   in un nome intero non ci sarebbe niente da staccare.
+ *
+ * ⚠️⚠️ **IL TOCCO LUNGO COPIA IL NOME INTERO, non quello che si vede** (richiesta dell'utente,
+ * 2026-09-02: *tener premuta la pillola del nome deve copiare il nome completo
+ * (nome.estensione) negli appunti*), e la distinzione è tutta la funzione: a schermo il nome
+ * può essere accorciato dall'ellissi, e copiare quello vorrebbe dire incollare `IMG_202... .HEIC`
+ * in mezzo a un messaggio. Negli appunti va [name], la stringa di partenza.
+ * ⚠️ **[detectTapGestures] e non [androidx.compose.foundation.combinedClickable]**: quello vuole
+ * anche un tocco breve, e qui il tocco breve non deve fare niente. Dandogli una funzione vuota
+ * la pastiglia mostrerebbe l'onda del tocco a ogni sfioramento, cioè prometterebbe un comando
+ * che non c'è.
+ * ⚠️ **La vibrazione è [HOLD_BUZZ], la stessa di ogni tocco lungo dell'app**: senza, questo
+ * gesto nascosto non darebbe alcun segno di essere stato riconosciuto, e il messaggio da solo
+ * arriva un istante dopo. Chi la cambiasse qui avrebbe due tocchi lunghi che si sentono diversi.
  */
 @Composable
 private fun NamePill(name: String, modifier: Modifier = Modifier) {
     val style = MaterialTheme.typography.titleSmall
     val grassetto = SpanStyle(fontWeight = FontWeight.Bold)
+    val context = LocalContext.current
+    val haptics = LocalHapticFeedback.current
+    val said = stringResource(R.string.toast_name_copied)
     Surface(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .pointerInput(name) {
+                detectTapGestures(
+                    onLongPress = {
+                        haptics.performHapticFeedback(HOLD_BUZZ)
+                        ImageActions.copyName(context, name)
+                        Toast.makeText(context, said, Toast.LENGTH_SHORT).show()
+                    }
+                )
+            },
         shape = RoundedCornerShape(NAME_CORNER),
         color = MaterialTheme.colorScheme.primaryContainer,
         contentColor = MaterialTheme.colorScheme.onPrimaryContainer

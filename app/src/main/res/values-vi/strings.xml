@@ -37,6 +37,7 @@
     <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">Danh sách định dạng dài nhất, kể cả AVIF và TIFF.</string>
     <string name="toast_image_copied">Đã sao chép ảnh</string>
+    <string name="toast_name_copied">Đã sao chép tên tệp</string>
     <string name="toast_copy_failed">Sao chép không thành công</string>
     <string name="toast_saved">Đã lưu</string>
     <string name="toast_save_failed">Lưu không thành công</string>

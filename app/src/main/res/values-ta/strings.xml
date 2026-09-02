@@ -37,6 +37,7 @@
     <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">வடிவங்களின் மிக நீண்ட பட்டியல், AVIF மற்றும் TIFF உட்பட.</string>
     <string name="toast_image_copied">படம் நகலெடுக்கப்பட்டது</string>
+    <string name="toast_name_copied">கோப்பின் பெயர் நகலெடுக்கப்பட்டது</string>
     <string name="toast_copy_failed">நகலெடுப்பு நடக்கவில்லை</string>
     <string name="toast_saved">சேமிக்கப்பட்டது</string>
     <string name="toast_save_failed">சேமிப்பு நடக்கவில்லை</string>

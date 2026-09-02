@@ -107,4 +107,5 @@
     <string name="anim_prev">Fotograma anterior</string>
     <string name="anim_next">Fotograma seguinte</string>
     <string name="convert_this_frame">Está a exportar o fotograma %1$d, o que está no ecrã.</string>
+    <string name="toast_name_copied">Nome do ficheiro copiado</string>
 </resources>

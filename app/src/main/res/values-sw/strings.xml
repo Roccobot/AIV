@@ -37,6 +37,7 @@
     <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">Orodha ndefu zaidi ya miundo, pamoja na AVIF na TIFF.</string>
     <string name="toast_image_copied">Picha imenakiliwa</string>
+    <string name="toast_name_copied">Jina la faili limenakiliwa</string>
     <string name="toast_copy_failed">Kunakili hakukufaulu</string>
     <string name="toast_saved">Imehifadhiwa</string>
     <string name="toast_save_failed">Kuhifadhi hakukufaulu</string>

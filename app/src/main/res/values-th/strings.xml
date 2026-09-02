@@ -37,6 +37,7 @@
     <string name="convert_cloudconvert">CloudConvert</string>
     <string name="convert_cloudconvert_why">รายการรูปแบบยาวที่สุด รวมถึง AVIF และ TIFF</string>
     <string name="toast_image_copied">คัดลอกภาพแล้ว</string>
+    <string name="toast_name_copied">คัดลอกชื่อไฟล์แล้ว</string>
     <string name="toast_copy_failed">การคัดลอกไม่สำเร็จ</string>
     <string name="toast_saved">บันทึกแล้ว</string>
     <string name="toast_save_failed">การบันทึกไม่สำเร็จ</string>
