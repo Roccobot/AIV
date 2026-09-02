@@ -115,9 +115,14 @@ object Avif {
      * fallisce: chi chiama resta col proprio errore invece di riceverne uno nuovo.
      */
     fun decode(bytes: ByteArray, cap: Long): Decoded? {
-        val info = header(bytes) ?: return null
+        // ⚠️ **Il buffer diretto si costruisce UNA volta e si passa in giro**: è una copia
+        // dell'intero file in memoria nativa, e su una fotografia da 25 MB farne due (una
+        // per l'intestazione e una per i pixel) vorrebbe dire cinquanta megabyte per niente.
+        val buffer = direct(bytes)
+        val info = header(buffer) ?: return null
         val step = stepFor(info.width, info.height, cap)
         return run(
+            buffer = buffer,
             bytes = bytes,
             info = info,
             target = Size(
@@ -138,7 +143,8 @@ object Avif {
      * serve: una miniatura è campionata per definizione.
      */
     fun thumbnail(bytes: ByteArray, box: Int): Bitmap? {
-        val info = header(bytes) ?: return null
+        val buffer = direct(bytes)
+        val info = header(buffer) ?: return null
         val long = maxOf(info.width, info.height)
         val target = if (long <= box) {
             Size(info.width, info.height)
@@ -148,26 +154,33 @@ object Avif {
                 (info.height.toLong() * box / long).toInt().coerceAtLeast(1)
             )
         }
-        return run(bytes, info, target)?.bitmap
+        return run(buffer, bytes, info, target)?.bitmap
     }
 
     /** L'intestazione, o `null` se questo non è un AVIF leggibile. */
-    private fun header(bytes: ByteArray): AvifDecoder.Info? {
+    private fun header(buffer: ByteBuffer): AvifDecoder.Info? {
         if (!ready) return null
         val info = AvifDecoder.Info()
-        val buffer = direct(bytes)
+        buffer.rewind()
         if (!AvifDecoder.getInfo(buffer, buffer.remaining(), info)) return null
         if (info.width <= 0 || info.height <= 0) return null
         return info
     }
 
-    private fun run(bytes: ByteArray, info: AvifDecoder.Info, target: Size): Decoded? {
-        val buffer = direct(bytes)
+    private fun run(
+        buffer: ByteBuffer,
+        bytes: ByteArray,
+        info: AvifDecoder.Info,
+        target: Size
+    ): Decoded? {
         val bitmap = try {
             Bitmap.createBitmap(target.width, target.height, Bitmap.Config.ARGB_8888)
         } catch (e: OutOfMemoryError) {
             return null
         }
+        // ⚠️ Si riparte da capo: `getInfo` ha già camminato questo stesso buffer, e un
+        // `ByteBuffer` porta con sé la propria posizione.
+        buffer.rewind()
         val done = try {
             AvifDecoder.decode(buffer, buffer.remaining(), bitmap, THREADS)
         } catch (t: Throwable) {
@@ -177,10 +190,15 @@ object Avif {
             bitmap.recycle()
             return null
         }
+        // ⚠️ **Anche le misure dichiarate si girano**, non solo i pixel: sono quelle che
+        // finiscono nella barra delle info, e una fotografia mostrata in verticale con
+        // scritto sotto '6016 x 4016' si contraddice da sola.
+        val quarters = quarters(bytes)
+        val dritta = quarters % 2 == 0
         return Decoded(
-            bitmap = turn(bitmap, quarters(bytes)),
-            fullWidth = info.width,
-            fullHeight = info.height,
+            bitmap = turn(bitmap, quarters),
+            fullWidth = if (dritta) info.width else info.height,
+            fullHeight = if (dritta) info.height else info.width,
             sampled = target.width < info.width || target.height < info.height
         )
     }
