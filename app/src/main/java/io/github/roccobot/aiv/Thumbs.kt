@@ -237,6 +237,31 @@ private class SystemThumbnailFetcher(
         )
         val uri = data.toAndroidUri()
 
+        /*
+         * ⚠️⚠️ **I FORMATI CON LA TRASPARENZA NON PASSANO DA QUI, dalla 1.36, e la
+         * ragione è il NERO** (riscontro dell'utente, 2026-09-02, voce `esporta-png`: *la
+         * trasparenza è sempre scacchiera nel visualizzatore, ma nelle anteprime è variabile:
+         * per gli SVG è mostrata come #EFEEEA, mentre per le PNG come nero. Voglio che ci sia
+         * coerenza fra tutte le rappresentazioni di trasparenza nelle miniature*).
+         * ⚠⚠ **La causa: le miniature del MediaStore sono JPEG**, e un JPEG non ha canale
+         * alfa: dove l'immagine era trasparente restano i byte del colore, che per un PNG
+         * appena decodificato sono zero, cioè nero. Il nero non è dipinto da noi e non si può
+         * ridipingere dopo: arriva **cotto** dentro la miniatura.
+         * ⚠️ **Quindi si sceglie DA CHE PARTE stare**: chiedendo al sistema si ha una
+         * miniatura veloce col fondo nero, decodificando in casa si ha l'alfa vera e sotto si
+         * vede il fondo del riquadro, che è `surfaceVariant`, cioè lo stesso `#EFEEEA` che lui
+         * vede sugli SVG (e la sua controparte scura, senza scriverla qui). Il ripiego di Coil
+         * fa la seconda cosa da sé: basta tirarsi indietro.
+         * ⚠️ **IL COSTO SI PAGA, e va detto invece di scoprirlo**: la miniatura di un PNG
+         * grande adesso passa dal file intero (campionato), non dalla copia già pronta del
+         * provider. Su una cartella di PNG da molti megapixel lo scorrimento può farsi sentire
+         * la prima volta; la cache in memoria di Coil copre le successive. È lo stesso baratto
+         * dell'AVIF, che qui accanto ha perfino una cache su disco.
+         * ⚠️ **I filmati e i JPEG non cambiano strada**: quelli non portano trasparenza, e
+         * per loro la miniatura di sistema resta la cosa giusta.
+         */
+        if (seeThrough(options.context, uri)) return@withContext null
+
         // ⚠️⚠️ L'ANNULLAMENTO È VERO, ed è metà della fluidità: scorrendo in fretta Coil
         // annulla le richieste dei riquadri usciti dallo schermo, e senza questo aggancio
         // il sistema continuerebbe a generare miniature che nessuno guarderà più,
@@ -465,3 +490,36 @@ private class SvgThumbnailFactory : Decoder.Factory {
         Svg.looksLike(head.readByteArray())
     }.getOrDefault(false)
 }
+
+/**
+ * Se il file può portare **trasparenza**, e quindi la sua miniatura non si chiede al sistema.
+ *
+ * ⚠️ **Il tipo prima e il nome dopo**: su un `content://` del MediaStore il percorso non
+ * porta nessuna estensione (è un numero), quindi l'unica via è chiedere il tipo al provider;
+ * su un `file://` invece il tipo non lo dichiara nessuno e l'estensione c'è sempre. Nessuna
+ * delle due prove basta da sola.
+ * ⚠️ **Gira su IO**, dentro `fetch`, e non nella fabbrica: `create` non sospende, e
+ * chiedere il tipo a un provider durante la composizione vorrebbe dire un accesso al disco nel
+ * mezzo di un disegno.
+ * ⚠️ **Gli SVG ci sono per completezza ma non passano da qui**: li prende il loro
+ * decodificatore, che sta più avanti nel registro. Toglierli dall'elenco renderebbe la
+ * risposta di questa funzione una mezza verità da tenere a mente.
+ */
+private fun seeThrough(context: Context, uri: AndroidUri): Boolean {
+    val mime = if (uri.scheme?.lowercase() == "content") {
+        runCatching { context.contentResolver.getType(uri) }.getOrNull()?.lowercase()
+    } else {
+        null
+    }
+    if (mime != null) return mime in SEE_THROUGH_MIME
+    val name = uri.lastPathSegment?.lowercase() ?: return false
+    return SEE_THROUGH_EXT.any { name.endsWith(".$it") }
+}
+
+/** I tipi che possono avere un canale alfa. Vedi [seeThrough]. */
+private val SEE_THROUGH_MIME = setOf(
+    "image/png", "image/webp", "image/gif", "image/bmp", "image/x-ms-bmp", "image/svg+xml"
+)
+
+/** Le code degli stessi formati, per quando il tipo non lo dichiara nessuno. */
+private val SEE_THROUGH_EXT = setOf("png", "webp", "gif", "bmp", "svg", "svgz")

@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.appendInlineContent
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,6 +25,8 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -30,6 +35,7 @@ import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 
 /**
  * L'icona, il nome e da dove viene.
@@ -66,12 +72,7 @@ fun Identity(
             style = MaterialTheme.typography.titleMedium,
             textAlign = TextAlign.Center
         )
-        Text(
-            text = "by Roccobot 天",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
-        )
+        Signature()
         if (!link) return@Column
         // ⚠️ Non `primary`: l'accento come TESTO non si legge, e la ragione col numero
         // sta accanto a `LINK_LIGHT` in `Theme.kt`. Si legge QUI e non dentro il
@@ -79,7 +80,7 @@ fun Identity(
         val ink = accentInk()
         Text(
             text = buildAnnotatedString {
-                withLink(LinkAnnotation.Url("https://roccobot.me")) {
+                withLink(LinkAnnotation.Url(HOME)) {
                     withStyle(
                         SpanStyle(color = ink, textDecoration = TextDecoration.Underline)
                     ) { append("roccobot.me") }
@@ -123,6 +124,15 @@ private const val LAUNCHER_ZOOM = 1.5f
 
 /** Il repository dell'app, dove porta il tocco sull'icona. */
 private const val REPO = "https://github.com/Roccobot/AIV"
+
+/**
+ * Il dominio personale dell'utente, dove portano la firma e la riga del dominio.
+ *
+ * ⚠️ **Una costante e non due stringhe uguali, dalla 1.36**: da quando 'Roccobot' nella firma
+ * è un collegamento, questo indirizzo compare in due posti della stessa colonna, e scritto due
+ * volte prima o poi ne resta uno vecchio.
+ */
+private const val HOME = "https://roccobot.me"
 
 /**
  * L'icona del launcher, disegnata grande.
@@ -179,3 +189,79 @@ private fun AppIcon(size: Dp, link: Boolean) {
         )
     }
 }
+
+/**
+ * La firma: `✦ made with love by Roccobot` col glifo personale dell'utente in coda.
+ *
+ * ⚠️⚠️ **LA RIGA È DETTATA DALL'UTENTE, dalla 1.36** (2026-09-02: *sotto 'Astonishing
+ * Image Viewer' c'è scritto 'by Roccobot 天' -> diventa `✦ made with love by Roccobot [logo]`;
+ * 'Roccobot': link a roccobot.me; [logo]: il mio glifo personale, dello stesso colore del
+ * carattere, preso dal mio design system*). Fino alla `1.35` era `by Roccobot 天`, cioè la
+ * stessa firma col carattere cinese al posto del suo glifo.
+ * ⚠️ **RESTA NON TRADOTTA, come prima**: è una firma, non un testo dell'interfaccia, e la
+ * ragione per esteso sta in testa a questo file. Tradurre 'made with love' sarebbe un errore
+ * per la stessa ragione per cui non si traduce 'by Roccobot'.
+ *
+ * ⚠️⚠️ **IL GLIFO È UN `InlineTextContent` E NON UN'ICONA ACCANTO AL TESTO**, ed è quello
+ * che lo fa stare **dentro** la riga: accanto, in una `Row`, si allineerebbe al riquadro del
+ * testo e non alla sua linea di base, e su una firma di un corpo piccolo la differenza si vede.
+ * Il segnaposto è misurato in `em`, quindi cresce col carattere di chi ha i testi grandi.
+ * ⚠️ **Il colore lo passa chi disegna e non `LocalContentColor`**: qui la tinta deve essere
+ * quella del testo (parole sue: *dello stesso colore del carattere*), e dentro il contenuto in
+ * linea il colore d'ambiente è quello della schermata, non quello di questa riga.
+ * ⚠️ **Il testo alternativo del segnaposto è il carattere cinese**: è quello che un lettore
+ * di schermo legge dove il disegno non si vede, e la forma è quella.
+ *
+ * ⚠️⚠️ **IL COLLEGAMENTO ADESSO C'È ANCHE NELLA SCHERMATA INIZIALE, e prima NO**: la
+ * regola di questo file era che là il blocco non porta fuori dall'app (vedi la nota in testa),
+ * e l'utente ha chiesto il collegamento proprio su quella riga. Vale la pena saperlo perché la
+ * nota sopra [Identity] descrive ancora il resto del blocco: l'icona porta al repository e il
+ * dominio per esteso compare **solo** dove `link` è vero, cioè in fondo alle impostazioni.
+ */
+@Composable
+private fun Signature() {
+    val ink = MaterialTheme.colorScheme.onSurfaceVariant
+    val glifo = "glifo"
+    Text(
+        text = buildAnnotatedString {
+            append("✦ made with love by ")
+            withLink(LinkAnnotation.Url(HOME)) {
+                withStyle(SpanStyle(color = accentInk(), textDecoration = TextDecoration.Underline)) {
+                    append("Roccobot")
+                }
+            }
+            append(" ")
+            appendInlineContent(glifo, "天")
+        },
+        inlineContent = mapOf(
+            glifo to InlineTextContent(
+                Placeholder(
+                    width = MARK_WIDE,
+                    height = MARK_TALL,
+                    placeholderVerticalAlign = PlaceholderVerticalAlign.Center
+                )
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_tian),
+                    contentDescription = null,
+                    tint = ink
+                )
+            }
+        ),
+        style = MaterialTheme.typography.bodySmall,
+        color = ink,
+        textAlign = TextAlign.Center
+    )
+}
+
+/**
+ * Quanto spazio si prende il glifo dentro la riga della firma.
+ *
+ * ⚠️ **In `em` e non in dp**: è un carattere in mezzo a delle lettere, quindi la sua misura
+ * è quella del corpo del testo. In dp resterebbe fermo mentre le lettere intorno crescono con
+ * le impostazioni di sistema.
+ * ⚠️ **Più largo che alto**, perché il disegno lo è: 160 per 145 unità nel file del design
+ * system, cioè un rapporto di 1,1. Un segnaposto quadrato lo schiaccerebbe.
+ */
+private val MARK_WIDE = 1.21.em
+private val MARK_TALL = 1.1.em

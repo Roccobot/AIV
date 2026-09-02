@@ -185,6 +185,43 @@ fun ConvertDialog(
                     Note(stringResource(R.string.convert_no_alpha))
                 }
 
+                /*
+                 * ⚠️⚠️ **'PULISCI' COMPARE SOLO SU UN SVG, ed è una richiesta dell'utente**
+                 * (2026-09-02: *se sto visualizzando un SVG, voglio che il menu
+                 * 'Esporta/Converti' includa anche un 'Pulisci' prima di 'Altri formati'*). Su
+                 * una fotografia non avrebbe senso: CleanSVG toglie i metadati da un
+                 * **documento vettoriale**, e su un JPEG non c'è niente da ripulire con lui.
+                 * ⚠️ **Prima di 'Altri formati' e dopo l'esportazione**, come chiesto: quello
+                 * che si fa più spesso resta in cima, e questa è una via di mezzo fra il
+                 * convertire (sopra) e il mandare fuori (sotto).
+                 * ⚠️⚠️ **PORTA FUORI E NON MANDA IL FILE, e la differenza va detta**: CleanSVG
+                 * è una pagina web che lavora **nel browser**, e per riceverne un file
+                 * vorrebbe un intento di condivisione che una pagina non può dichiarare.
+                 * Quindi qui si apre l'indirizzo, e il file lo si scieglie là. È lo stesso
+                 * contratto dei tre servizi qui sotto.
+                 * ⚠️ **Il testo è suo, parola per parola**, numeri compresi (*fino al 99%*):
+                 * quella è la misura che ha fatto lui sul suo strumento, non una mia stima.
+                 */
+                if (isVector(image)) {
+                    HorizontalDivider(modifier = Modifier.padding(top = 12.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.convert_clean),
+                                style = MaterialTheme.typography.titleSmall
+                            )
+                            Note(stringResource(R.string.convert_clean_why))
+                        }
+                        TextButton(onClick = { open(context, CLEANSVG) }) {
+                            Text(stringResource(R.string.convert_open))
+                        }
+                    }
+                }
+
                 HorizontalDivider(modifier = Modifier.padding(top = 12.dp))
                 Heading(stringResource(R.string.convert_elsewhere))
                 Note(stringResource(R.string.convert_elsewhere_desc))
@@ -266,3 +303,20 @@ private fun open(context: android.content.Context, url: String) {
 /** Qualità minima e massima del cursore, in centesimi. */
 private const val QUALITY_MIN = 10f
 private const val QUALITY_MAX = 100f
+
+/** La paginetta dell'utente che ripulisce un SVG, dallo stesso sito che serve l'APK. */
+private const val CLEANSVG = "https://roccobot.github.io/CleanSVG/"
+
+/**
+ * Se quello che si sta guardando è un documento **vettoriale**.
+ *
+ * ⚠️ **Due prove e non una**: il tipo dichiarato è quello giusto quando c'è, ma un `content://`
+ * può servire un SVG come `application/octet-stream` (succede coi file arrivati da fuori), e
+ * allora l'unica traccia è il nome. È la stessa coppia di prove che usa il riconoscimento delle
+ * miniature, dove i byte però si possono guardare e qui no: qui l'immagine è già decodificata.
+ */
+private fun isVector(image: LoadedImage): Boolean {
+    if (image.mimeType == Svg.MIME) return true
+    val name = image.displayName?.lowercase() ?: return false
+    return name.endsWith(".svg") || name.endsWith(".svgz")
+}

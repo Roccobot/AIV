@@ -29,6 +29,8 @@
     <string name="convert_this_frame">Експортується кадр %1$d, той, що на екрані.</string>
     <string name="convert_elsewhere">Інші формати</string>
     <string name="convert_elsewhere_desc">Android уміє записувати лише формати вище. Для решти є ці служби, вони відкриваються у браузері: зображення вибирається там, з пам\'яті телефона.</string>
+    <string name="convert_clean">Очистити</string>
+    <string name="convert_clean_why">CleanSVG зменшує векторний файл до 99%, прибираючи метадані та інші поля, що не належать до малюнка. Очищення цілком безпечне: форми, лінії, малюнки й текст лишаються недоторканими.</string>
     <string name="convert_open">Відкрити</string>
     <string name="convert_export">Експортувати</string>
     <string name="convert_ezgif">EzGif</string>
@@ -92,6 +94,7 @@
     <string name="settings_zoom_menu">Масштаб у меню перегляду</string>
     <string name="settings_zoom_menu_desc">Повертає \'Вписати в екран\' і \'100%\' до меню довгого натискання. Вимкнено, бо подвійний дотик до знімка робить те саме.</string>
     <string name="hint_zoom_tap">Швидке масштабування: подвійний дотик підганяє зображення під екран, ще один показує справжні пікселі. Торкайтеся далі, щоб перемикати між підігнаним і 100%.</string>
+    <string name="hint_ext_warn">⚠️ Зміна розширення файла не те саме, що перетворення з одного формату в інший: для цього є \'Експортувати й перетворити\'.\n\n⚠️ Якщо надати зображенню чи відео розширення, яке не належить медіафайлу, елемент зникне з вигляду сіткою та списком.</string>
     <string name="settings_anim_counter">Лічильник кадрів</string>
     <string name="settings_anim_counter_desc">З\'являється на панелі керування анімованих зображень.</string>
     <string name="settings_reverse_order">Гортати зображення праворуч від найстарішого</string>
@@ -288,6 +291,9 @@
     <string name="settings_group_viewer">Перегляд</string>
     <string name="settings_group_browse">Теки</string>
     <string name="settings_group_start">Запуск</string>
+    <string name="settings_group_advanced">Розширені функції</string>
+    <string name="settings_ext_edit">Змінювати розширення у \'Перейменувати\'</string>
+    <string name="settings_ext_edit_desc">Панель перейменування дозволяє змінювати розширення файлів. Якщо ви не впевнені, не вмикайте це: зображення можуть стати нечитабельними.</string>
     <string name="settings_hidden_none">Немає прихованих тек</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d тека</item>

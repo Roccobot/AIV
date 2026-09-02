@@ -29,6 +29,8 @@
     <string name="convert_this_frame">화면에 보이는 %1$d번째 프레임을 내보냅니다.</string>
     <string name="convert_elsewhere">다른 형식</string>
     <string name="convert_elsewhere_desc">안드로이드가 쓸 수 있는 형식은 위의 것뿐입니다. 나머지는 이 서비스들이 브라우저에서 열리니, 이미지는 거기에서 휴대전화 저장소를 통해 고르세요.</string>
+    <string name="convert_clean">정리하기</string>
+    <string name="convert_clean_why">CleanSVG로 벡터 파일 크기를 최대 99%까지 줄일 수 있습니다. 메타데이터와 그림과 무관한 다른 항목이 제거됩니다. 이 정리는 완전히 안전하며 도형, 선, 그림, 글자는 그대로 남습니다.</string>
     <string name="convert_open">열기</string>
     <string name="convert_export">내보내기</string>
     <string name="convert_ezgif">EzGif</string>
@@ -92,6 +94,7 @@
     <string name="settings_zoom_menu">뷰어 메뉴의 확대</string>
     <string name="settings_zoom_menu_desc">\'화면에 맞추기\'와 \'100%\'를 길게 누르기 메뉴에 되돌립니다. 사진을 두 번 누르면 같은 일이 일어나므로 기본은 꺼짐입니다.</string>
     <string name="hint_zoom_tap">빠른 확대: 이미지를 두 번 누르면 화면에 맞추고, 다시 두 번 누르면 실제 픽셀로 봅니다. 계속 누르면 맞춤과 100%를 오갑니다.</string>
+    <string name="hint_ext_warn">⚠️ 확장자를 바꾸는 것은 형식을 변환하는 것과 다릅니다. 변환에는 \'내보내기 및 변환\'이 있습니다.\n\n⚠️ 이미지나 동영상에 미디어 파일이 아닌 확장자를 주면 그 항목은 격자 보기와 목록 보기에서 사라집니다.</string>
     <string name="settings_anim_counter">프레임 카운터</string>
     <string name="settings_anim_counter_desc">움직이는 이미지의 제어 막대에 표시됩니다.</string>
     <string name="settings_reverse_order">오래된 것부터 오른쪽으로 이미지 넘기기</string>
@@ -249,6 +252,9 @@
     <string name="settings_group_viewer">보기</string>
     <string name="settings_group_browse">폴더</string>
     <string name="settings_group_start">시작</string>
+    <string name="settings_group_advanced">고급 기능</string>
+    <string name="settings_ext_edit">\'이름 바꾸기\'에서 확장자 변경</string>
+    <string name="settings_ext_edit_desc">이름 바꾸기 창에서 파일 확장자를 바꿀 수 있습니다. 무엇을 하는지 잘 모르면 켜지 마세요. 이미지를 읽을 수 없게 될 수 있습니다.</string>
     <string name="settings_hidden_none">숨긴 폴더가 없습니다</string>
     <plurals name="settings_hidden_count">
         <item quantity="other">폴더 %1$d개</item>

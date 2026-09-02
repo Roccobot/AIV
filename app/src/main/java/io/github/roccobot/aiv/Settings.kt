@@ -397,6 +397,24 @@ data class Settings(
      */
     val gridNames: Boolean = false,
     /**
+     * Se la finestra di rinomina porta il tasto che cambia l'**estensione**.
+     *
+     * ⚠️⚠️ **SPENTA DI FABBRICA, ED È UNA GRIGLIA DI SICUREZZA CHIESTA DALL'UTENTE**
+     * (2026-09-02: *per far sì che la funzionalità sia usata solo da chi sa cosa sta facendo,
+     * la disattiviamo di default*). Cambiare l'estensione **non converte niente**: lascia
+     * dentro un JPEG con l'etichetta di un PNG, e su un'estensione non multimediale il file
+     * sparisce dalle viste a griglia e a lista, che è il modo peggiore di perdere una
+     * fotografia, perché sembra cancellata.
+     * ⚠️ **Ma la funzione serve, e per questo non è stata tolta**: il caso vero è il suo
+     * (*a volte mi capita di dover rinominare un .svg in .txt perché l'app Claude non è in
+     * grado di allegare file .svg in chat*), cioè aggirare il filtro di un'altra app.
+     * ⚠️ **Tre presidi e non uno**: questo interruttore, il paragrafo che sta sotto di lui
+     * nelle impostazioni, e il velo che compare la **prima volta** che si apre quel
+     * pannellino (vedi `Hint.EXT_EDIT`). Il primo tiene fuori chi non la cerca, il terzo
+     * avvisa chi la cerca senza sapere che cosa comporta.
+     */
+    val extEdit: Boolean = false,
+    /**
      * I percorsi delle cartelle che non devono comparire fra quelle da sfogliare.
      *
      * ⚠️⚠️ **PERCORSI E NON IDENTIFICATIVI, ed è la scelta che regge la funzione**
@@ -481,6 +499,7 @@ object SettingsStore {
     private val BIN_ON = booleanPreferencesKey("bin-on")
     private val IMAGES_ONLY = booleanPreferencesKey("images-only")
     private val GRID_NAMES = booleanPreferencesKey("grid-names")
+    private val EXT_EDIT = booleanPreferencesKey("ext-edit")
     private val FOLDER_COUNT = booleanPreferencesKey("folder-count")
     private val HIDDEN_FOLDERS = stringSetPreferencesKey("hidden-folders")
 
@@ -530,6 +549,7 @@ object SettingsStore {
             binOn = p[BIN_ON] ?: true,
             imagesOnly = p[IMAGES_ONLY] ?: false,
             gridNames = p[GRID_NAMES] ?: false,
+            extEdit = p[EXT_EDIT] ?: false,
             hiddenFolders = p[HIDDEN_FOLDERS] ?: emptySet(),
             factOrder = factOrderOf((p[FACT_ORDER] ?: "").split(',')),
             // ⚠️ I campi sempre visibili si tolgono **in lettura**: un archivio che li
@@ -593,6 +613,7 @@ object SettingsStore {
             p[BIN_ON] = settings.binOn
             p[IMAGES_ONLY] = settings.imagesOnly
             p[GRID_NAMES] = settings.gridNames
+            p[EXT_EDIT] = settings.extEdit
             p[HIDDEN_FOLDERS] = settings.hiddenFolders
             p[FACT_ORDER] = settings.factOrder.joinToString(",") { it.token }
             p[FACT_OFF] = settings.factOff.filterNot { it.always }.map { it.token }.toSet()
@@ -711,7 +732,26 @@ enum class Hint(token: String) {
      * ⚠️ **È anche il primo che non evidenzia un tastino**, perché il gesto si fa sulla
      * fotografia intera: da qui `HintCentre` invece di `HintVeil`.
      */
-    ZOOM_TAP("zoom-tap-hint-seen");
+    ZOOM_TAP("zoom-tap-hint-seen"),
+
+    /**
+     * I due rischi del cambio di estensione, dalla `1.36`: **nel pannellino della rinomina**,
+     * la prima volta che si apre.
+     *
+     * ⚠️⚠️ **È IL TERZO PRESIDIO DELLA GRIGLIA DI SICUREZZA** (richiesta dell'utente,
+     * 2026-09-02: *la prima volta che l'utente usa la funzione di rinomina delle estensioni,
+     * deve apparire un mini-onboarding in mezzo allo schermo*), e gli altri due sono
+     * l'interruttore spento di fabbrica e il paragrafo che lo accompagna (vedi
+     * [Settings.extEdit]).
+     * ⚠️⚠️ **È IL PRIMO VELO CHE NON INSEGNA UNA SCORCIATOIA: AVVISA.** Gli altri quattro
+     * dicono 'esiste anche questo', questo dice 'attento a che cosa comporta'. Da qui il testo
+     * con due punti esclamativi invece di una frase sola, e il fatto che compaia **prima** che
+     * il pannellino si apra: un avviso dopo il gesto non è un avviso.
+     * ⚠️ **Non ha bisogno di un secondo interruttore**: chi ha acceso la funzione ha già letto
+     * il paragrafo nelle impostazioni, e questo velo è quello che si vede **mentre** la si usa,
+     * cioè nel momento in cui serve.
+     */
+    EXT_WARN("ext-warn-hint-seen");
 
     private val seen = booleanPreferencesKey(token)
 

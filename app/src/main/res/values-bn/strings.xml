@@ -29,6 +29,8 @@
     <string name="convert_this_frame">%1$d নম্বর ফ্রেম রপ্তানি হচ্ছে, যেটি স্ক্রিনে দেখা যাচ্ছে।</string>
     <string name="convert_elsewhere">অন্যান্য বিন্যাস</string>
     <string name="convert_elsewhere_desc">অ্যান্ড্রয়েড কেবল উপরের বিন্যাসগুলিই লিখতে পারে। বাকিগুলির জন্য এই পরিষেবাগুলি আছে, যেগুলি ব্রাউজারে খোলে: ছবিটি সেখানেই, ফোনের মেমরি থেকে বেছে নিন।</string>
+    <string name="convert_clean">পরিষ্কার</string>
+    <string name="convert_clean_why">CleanSVG দিয়ে ভেক্টর ফাইলের আকার 99% পর্যন্ত কমান: মেটাডেটা ও আঁকার সঙ্গে সম্পর্কহীন অন্য ক্ষেত্র সরে যায়। এই পরিষ্কার সম্পূর্ণ নিরাপদ, আকার, রেখা, আঁকা বা লেখা বদলায় না।</string>
     <string name="convert_open">খুলুন</string>
     <string name="convert_export">রপ্তানি করুন</string>
     <string name="convert_ezgif">EzGif</string>
@@ -92,6 +94,7 @@
     <string name="settings_zoom_menu">ভিউয়ার মেনুতে জুম</string>
     <string name="settings_zoom_menu_desc">\'পর্দায় মেলান\' এবং \'100%\' দীর্ঘক্ষণ চেপে খোলা মেনুতে ফিরিয়ে আনে। বন্ধ আছে, কারণ ছবিতে ডবল ট্যাপ করলেই এটা হয়।</string>
     <string name="hint_zoom_tap">দ্রুত জুম: ছবিতে দুবার ট্যাপ করলে সেটি ভিউয়ে মানানসই হবে, আবার দুবার ট্যাপ করলে আসল পিক্সেল দেখাবে. ট্যাপ করতে থাকলে মানানসই আর 100% এর মধ্যে বদলাতে থাকবে.</string>
+    <string name="hint_ext_warn">⚠️ ফাইলের এক্সটেনশন বদলানো এক ফরম্যাট থেকে অন্যটিতে রূপান্তরের সমান নয়: তার জন্য \'রপ্তানি ও রূপান্তর\' আছে।\n\n⚠️ কোনো ছবি বা ভিডিওকে মিডিয়া ফাইলের নয় এমন এক্সটেনশন দিলে সেটি গ্রিড ও তালিকা দৃশ্য থেকে হারিয়ে যাবে।</string>
     <string name="settings_anim_counter">ফ্রেম কাউন্টার</string>
     <string name="settings_anim_counter_desc">চলমান ছবির নিয়ন্ত্রণ বারে দেখা যায়।</string>
     <string name="settings_reverse_order">সবচেয়ে পুরনো থেকে ডানদিকে ছবি ওল্টান</string>
@@ -262,6 +265,9 @@
     <string name="settings_group_viewer">প্রদর্শক</string>
     <string name="settings_group_browse">ফোল্ডার</string>
     <string name="settings_group_start">সূচনা</string>
+    <string name="settings_group_advanced">উন্নত সুবিধা</string>
+    <string name="settings_ext_edit">\'নাম বদলান\' থেকে এক্সটেনশন বদলান</string>
+    <string name="settings_ext_edit_desc">নাম বদলানোর প্যানেল ফাইলের এক্সটেনশন বদলাতে দেয়। কী করছেন নিশ্চিত না হলে এটি চালু করবেন না: ছবি অপাঠ্য হয়ে যেতে পারে।</string>
     <string name="settings_hidden_none">কোনো লুকানো ফোল্ডার নেই</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$dটি ফোল্ডার</item>

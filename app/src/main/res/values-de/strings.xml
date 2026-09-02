@@ -29,6 +29,8 @@
     <string name="convert_this_frame">Exportiert wird Bild %1$d, das gerade angezeigte.</string>
     <string name="convert_elsewhere">Andere Formate</string>
     <string name="convert_elsewhere_desc">Android kann nur die Formate oben schreiben. Für die übrigen gibt es diese Dienste, die im Browser öffnen: Das Bild wird dort aus dem Speicher des Telefons ausgewählt.</string>
+    <string name="convert_clean">Aufräumen</string>
+    <string name="convert_clean_why">Mit CleanSVG wird eine Vektordatei um bis zu 99% kleiner: Metadaten und andere Felder, die nicht zur Zeichnung gehören, fallen weg. Das Aufräumen ist völlig sicher, Formen, Linien, Zeichnungen und Texte bleiben unberührt.</string>
     <string name="convert_open">Öffnen</string>
     <string name="convert_export">Exportieren</string>
     <string name="convert_ezgif">EzGif</string>
@@ -92,6 +94,7 @@
     <string name="settings_zoom_menu">Zoom im Menü des Betrachters</string>
     <string name="settings_zoom_menu_desc">Stellt \'An die Ansicht anpassen\' und \'100%\' wieder in das Menü der langen Berührung. Aus, weil ein Doppeltippen auf das Bild das schon macht.</string>
     <string name="hint_zoom_tap">Schnellzoom: Doppeltippen passt das Bild an die Ansicht an, noch einmal zeigt echte Pixel. Weiter tippen wechselt zwischen angepasst und 100%.</string>
+    <string name="hint_ext_warn">⚠️ Eine Dateiendung zu ändern ist nicht dasselbe wie zwischen Formaten umzuwandeln: dafür gibt es \'Exportieren und umwandeln\'.\n\n⚠️ Wenn du einem Bild oder Video eine Endung gibst, die zu keiner Mediendatei gehört, verschwindet der Eintrag aus der Raster- und der Listenansicht.</string>
     <string name="settings_anim_counter">Bildzähler</string>
     <string name="settings_anim_counter_desc">Erscheint in der Steuerleiste animierter Bilder.</string>
     <string name="settings_reverse_order">Bilder nach rechts vom ältesten an durchblättern</string>
@@ -262,6 +265,9 @@
     <string name="settings_group_viewer">Betrachter</string>
     <string name="settings_group_browse">Ordner</string>
     <string name="settings_group_start">Start</string>
+    <string name="settings_group_advanced">Erweiterte Funktionen</string>
+    <string name="settings_ext_edit">Dateiendungen über \'Umbenennen\' ändern</string>
+    <string name="settings_ext_edit_desc">Im Umbenennen-Fenster lassen sich Dateiendungen ändern. Wenn du nicht weißt, was du tust, lass das aus: Bilder können dadurch unlesbar werden.</string>
     <string name="settings_hidden_none">Keine versteckten Ordner</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d Ordner</item>

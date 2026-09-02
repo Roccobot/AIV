@@ -29,6 +29,8 @@
     <string name="convert_this_frame">తెరపై ఉన్న %1$d వ ఫ్రేమ్ ఎగుమతి అవుతోంది.</string>
     <string name="convert_elsewhere">ఇతర ఫార్మాట్లు</string>
     <string name="convert_elsewhere_desc">పైన ఉన్న ఫార్మాట్లను మాత్రమే Android రాయగలదు. మిగతా వాటికి ఈ సేవలు ఉన్నాయి, అవి బ్రౌజర్‌లో తెరుచుకుంటాయి: చిత్రాన్ని అక్కడే, ఫోన్ మెమరీ నుండి ఎంచుకోండి.</string>
+    <string name="convert_clean">శుభ్రం చేయి</string>
+    <string name="convert_clean_why">CleanSVG తో వెక్టర్ ఫైలు పరిమాణాన్ని 99% వరకు తగ్గించండి: మెటాడేటా, బొమ్మకు సంబంధం లేని ఇతర క్షేత్రాలు తొలగిపోతాయి. ఈ శుభ్రత పూర్తిగా సురక్షితం, ఆకారాలు, గీతలు, బొమ్మలు, పాఠ్యం మారవు.</string>
     <string name="convert_open">తెరువు</string>
     <string name="convert_export">ఎగుమతి చేయి</string>
     <string name="convert_ezgif">EzGif</string>
@@ -92,6 +94,7 @@
     <string name="settings_zoom_menu">వీక్షణ మెనూలో జూమ్</string>
     <string name="settings_zoom_menu_desc">\'తెరకు సరిపోయేలా\' మరియు \'100%\' ను దీర్ఘ నొక్కు మెనూకు తిరిగి తెస్తుంది. చిత్రంపై రెండుసార్లు తాకితే ఇదే జరుగుతుంది కాబట్టి ఆఫ్‌లో ఉంది.</string>
     <string name="hint_zoom_tap">వేగవంతమైన జూమ్: చిత్రంపై రెండుసార్లు నొక్కితే వీక్షణకు సరిపోతుంది, మళ్లీ రెండుసార్లు నొక్కితే నిజమైన పిక్సెల్‌లు కనిపిస్తాయి. నొక్కుతూ ఉంటే సరిపోయినది మరియు 100% మధ్య మారుతుంది.</string>
+    <string name="hint_ext_warn">⚠️ ఫైలు పొడిగింపు మార్చడం ఒక ఆకృతి నుంచి మరొకదానికి మార్చడం కాదు: దానికి \'ఎగుమతి చేసి మార్చు\' ఉంది.\n\n⚠️ చిత్రానికి లేదా వీడియోకు మీడియా ఫైలుకు చెందని పొడిగింపు ఇస్తే, అది గ్రిడ్ మరియు జాబితా వీక్షణల నుంచి మాయమవుతుంది.</string>
     <string name="settings_anim_counter">ఫ్రేమ్ కౌంటర్</string>
     <string name="settings_anim_counter_desc">కదిలే చిత్రాల నియంత్రణ పట్టీలో కనిపిస్తుంది.</string>
     <string name="settings_reverse_order">పాతదాని నుంచి కుడివైపుకు చిత్రాలను తిరగేయి</string>
@@ -262,6 +265,9 @@
     <string name="settings_group_viewer">వీక్షకం</string>
     <string name="settings_group_browse">ఫోల్డర్‌లు</string>
     <string name="settings_group_start">ప్రారంభం</string>
+    <string name="settings_group_advanced">అధునాతన సౌకర్యాలు</string>
+    <string name="settings_ext_edit">\'పేరు మార్చు\' నుంచి పొడిగింపులు మార్చు</string>
+    <string name="settings_ext_edit_desc">పేరు మార్చే పలక ఫైళ్ల పొడిగింపును మార్చనిస్తుంది. మీరు ఏం చేస్తున్నారో ఖచ్చితంగా తెలియకపోతే దీన్ని ఆన్ చేయవద్దు: చిత్రాలు చదవలేనివిగా మారవచ్చు.</string>
     <string name="settings_hidden_none">దాచిన ఫోల్డర్‌లు లేవు</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d ఫోల్డర్</item>

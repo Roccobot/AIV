@@ -29,6 +29,8 @@
     <string name="convert_this_frame">Você está exportando o quadro %1$d, o que está na tela.</string>
     <string name="convert_elsewhere">Outros formatos</string>
     <string name="convert_elsewhere_desc">O Android só sabe gravar os formatos acima. Para os demais existem estes serviços, que abrem no navegador: a imagem é escolhida por lá, na memória do telefone.</string>
+    <string name="convert_clean">Limpar</string>
+    <string name="convert_clean_why">Use o CleanSVG para reduzir até 99% o tamanho de um arquivo vetorial, removendo metadados e outros campos alheios ao desenho. A limpeza é totalmente segura e não altera formas, linhas, desenhos ou textos.</string>
     <string name="convert_open">Abrir</string>
     <string name="convert_export">Exportar</string>
     <string name="convert_ezgif">EzGif</string>
@@ -92,6 +94,7 @@
     <string name="settings_zoom_menu">Zoom no menu do visualizador</string>
     <string name="settings_zoom_menu_desc">Devolve \'Ajustar à vista\' e \'100%\' ao menu de toque longo. Está desligado porque um toque duplo na imagem já faz isso.</string>
     <string name="hint_zoom_tap">Zoom rápido: toque duas vezes na imagem para ajustá-la à vista, mais duas para os pixels reais. Continue tocando para alternar entre ajustada e 100%.</string>
+    <string name="hint_ext_warn">⚠️ Alterar a extensão de um arquivo não é o mesmo que passar de um formato para outro: para isso existe \'Exportar e converter\'.\n\n⚠️ Se você der a uma imagem ou a um vídeo uma extensão que não pertence a um arquivo de mídia, o item desaparecerá das visualizações em grade e em lista.</string>
     <string name="settings_anim_counter">Contador de quadros</string>
     <string name="settings_anim_counter_desc">Aparece na barra de controles das imagens animadas.</string>
     <string name="settings_reverse_order">Passar as imagens para a direita a partir da mais antiga</string>
@@ -275,6 +278,9 @@
     <string name="settings_group_viewer">Visualizador</string>
     <string name="settings_group_browse">Pastas</string>
     <string name="settings_group_start">Início</string>
+    <string name="settings_group_advanced">Recursos avançados</string>
+    <string name="settings_ext_edit">Alterar extensões em \'Renomear\'</string>
+    <string name="settings_ext_edit_desc">O painel de renomeação permite alterar a extensão dos arquivos. Se você não sabe o que está fazendo, não ative esta opção: pode tornar as imagens ilegíveis.</string>
     <string name="settings_hidden_none">Nenhuma pasta oculta</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d pasta</item>

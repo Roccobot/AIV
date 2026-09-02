@@ -29,6 +29,8 @@
     <string name="convert_this_frame">फ़्रेम %1$d निर्यात हो रहा है, वही जो स्क्रीन पर है.</string>
     <string name="convert_elsewhere">अन्य प्रारूप</string>
     <string name="convert_elsewhere_desc">एंड्रॉइड केवल ऊपर दिए प्रारूप ही लिख सकता है। बाकी के लिए ये सेवाएँ हैं, जो ब्राउज़र में खुलती हैं: छवि वहीं, फ़ोन की मेमोरी से चुनें।</string>
+    <string name="convert_clean">साफ़ करें</string>
+    <string name="convert_clean_why">CleanSVG से वेक्टर फ़ाइल का आकार 99% तक घटाएँ: मेटाडेटा और चित्र से असंबंधित अन्य फ़ील्ड हट जाते हैं। यह सफ़ाई पूरी तरह सुरक्षित है और आकृतियों, रेखाओं, चित्रों या पाठ को नहीं छूती।</string>
     <string name="convert_open">खोलें</string>
     <string name="convert_export">निर्यात करें</string>
     <string name="convert_ezgif">EzGif</string>
@@ -92,6 +94,7 @@
     <string name="settings_zoom_menu">व्यूअर मेन्यू में ज़ूम</string>
     <string name="settings_zoom_menu_desc">\'स्क्रीन में समाएँ\' और \'100%\' को देर तक दबाने वाले मेन्यू में वापस लाता है। बंद है, क्योंकि चित्र पर दो बार टैप करने से यही होता है।</string>
     <string name="hint_zoom_tap">तेज़ ज़ूम: छवि पर दो बार टैप करें ताकि वह दृश्य में समा जाए, फिर दो बार टैप करने पर असली पिक्सेल दिखेंगे. टैप करते रहें और समाई हुई तथा 100% के बीच बदलते रहें.</string>
+    <string name="hint_ext_warn">⚠️ फ़ाइल का एक्सटेंशन बदलना एक फ़ॉर्मैट से दूसरे में बदलने जैसा नहीं है: उसके लिए \'निर्यात करें और बदलें\' है।\n\n⚠️ अगर किसी तस्वीर या वीडियो को मीडिया फ़ाइल से बाहर का एक्सटेंशन दे दें, तो वह ग्रिड और सूची दृश्य से गायब हो जाएगी।</string>
     <string name="settings_anim_counter">फ़्रेम काउंटर</string>
     <string name="settings_anim_counter_desc">चलती छवियों की नियंत्रण पट्टी में दिखता है।</string>
     <string name="settings_reverse_order">सबसे पुरानी से दाईं ओर छवियाँ पलटें</string>
@@ -262,6 +265,9 @@
     <string name="settings_group_viewer">प्रदर्शक</string>
     <string name="settings_group_browse">फ़ोल्डर</string>
     <string name="settings_group_start">शुरुआत</string>
+    <string name="settings_group_advanced">उन्नत सुविधाएँ</string>
+    <string name="settings_ext_edit">\'नाम बदलें\' से एक्सटेंशन बदलें</string>
+    <string name="settings_ext_edit_desc">नाम बदलने का पैनल फ़ाइलों का एक्सटेंशन बदलने देता है। अगर आपको पक्का पता न हो तो इसे चालू न करें: तस्वीरें पढ़ी न जा सकने वाली हो सकती हैं।</string>
     <string name="settings_hidden_none">कोई छिपा फ़ोल्डर नहीं</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d फ़ोल्डर</item>

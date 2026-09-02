@@ -76,6 +76,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -748,14 +749,46 @@ private fun Hub(
         TapHoldFab(
             icon = Icons.Default.MoreHoriz,
             label = stringResource(R.string.hub_open),
-            container = MaterialTheme.colorScheme.primaryContainer,
-            ink = MaterialTheme.colorScheme.onPrimaryContainer,
+            /*
+             * ⚠️⚠️ **I COLORI SONO QUELLI DELL'ICONA DELL'APP, dalla 1.36** (richiesta
+             * dell'utente, 2026-09-02: *il FAB deve rispecchiare nei colori (sfondo e glifo) la
+             * combinazione dell'icona nuova nei due temi*). Prima erano `primaryContainer` e il
+             * suo inchiostro, cioè la coppia che Material ricava dalla tavolozza: vicina, ma
+             * un'altra cosa.
+             * ⚠️⚠️ **SI PRENDONO DALLE RISORSE DELL'ICONA e non si riscrivono qui**, ed è la
+             * parte che conta: `launcher_background` e `launcher_foreground` hanno già la loro
+             * versione in `values-night`, quindi il tastino segue il tema **per costruzione** e
+             * il giorno che l'utente cambia la coppia dell'icona cambia anche il tastino. Due
+             * numeri copiati qui si scollerebbero al primo ritocco dell'icona.
+             * ⚠️ **Il contrasto è quello dell'icona e non è stato rimisurato**: 2,42 nella
+             * coppia chiara e 3,25 nella scura, con la ragione scritta in `colors.xml`. Sono
+             * colori scelti da lui, e questo tastino porta un glifo, non del testo.
+             */
+            container = colorResource(R.color.launcher_background),
+            ink = colorResource(R.color.launcher_foreground),
             lift = FAB_LIFT,
             holdLabel = stringResource(R.string.columns_title),
             onTap = { open = true },
             onHold = onSize
         )
-        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+        /*
+         * ⚠️⚠️ **LO STONDAMENTO È QUELLO DI TUTTI I MENU, dalla 1.36, e fino alla 1.35 QUESTO
+         * ERA RIMASTO FUORI** (segnalazione dell'utente, 2026-09-02, con la schermata: *il menu
+         * del FAB nella schermata home ha ancora la vecchia stondatura piccola*). La `1.28`
+         * aveva unificato il raggio di 'tutti i menu', ma quelli che passano da `MenuShell`:
+         * questo è un `DropdownMenu` di Material, perché si posiziona da sé contro il tastino
+         * in un angolo, e l'unificazione non lo aveva toccato. Adesso porta anche lui
+         * [MENU_ROUND] e la [MenuStripe].
+         * ⚠️ **Resta un `DropdownMenu` e non diventa un `MenuShell`**: quella superficie vuole
+         * un posizionatore, e i due che esistono mettono il menu al centro della finestra o
+         * sopra il tastino centrato. Qui il menu deve nascere **dal** tastino, che è nell'angolo
+         * in basso a destra, e il posizionamento di Material fa già esattamente quello.
+         */
+        DropdownMenu(
+            expanded = open,
+            onDismissRequest = { open = false },
+            shape = RoundedCornerShape(MENU_ROUND)
+        ) {
             // ⚠️⚠️ **LA VOCE NOMINA LA VISTA CHE SI OTTIENE, non quella in cui si è**, ed
             // è la cosa da non rovesciare quando si riscrive l'etichetta: una riga di menu
             // è una richiesta, non un indicatore di stato, quindi in griglia si legge
@@ -838,6 +871,10 @@ private fun Hub(
                 text = { Text(stringResource(R.string.hub_settings)) },
                 onClick = { open = false; onSettings() }
             )
+
+            // ⚠️ In fondo al contenuto e non fuori dal menu: dentro, i due angoli in basso la
+            // tagliano con sé. Il perché sta su [MenuStripe].
+            MenuStripe()
         }
     }
 

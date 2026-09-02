@@ -29,6 +29,8 @@
     <string name="convert_this_frame">%1$d. kare dışa aktarılıyor, ekrandaki kare.</string>
     <string name="convert_elsewhere">Diğer biçimler</string>
     <string name="convert_elsewhere_desc">Android yalnızca yukarıdaki biçimleri yazabilir. Diğerleri için tarayıcıda açılan şu hizmetler var: görüntü orada, telefonun belleğinden seçilir.</string>
+    <string name="convert_clean">Temizle</string>
+    <string name="convert_clean_why">CleanSVG ile bir vektör dosyasını %99\'a kadar küçültebilirsin: üst veriler ve çizime ait olmayan diğer alanlar kaldırılır. Temizlik tamamen güvenlidir; şekiller, çizgiler, çizimler ve metinler değişmez.</string>
     <string name="convert_open">Aç</string>
     <string name="convert_export">Dışa aktar</string>
     <string name="convert_ezgif">EzGif</string>
@@ -92,6 +94,7 @@
     <string name="settings_zoom_menu">Görüntüleyici menüsünde yakınlaştırma</string>
     <string name="settings_zoom_menu_desc">\'Görünüme sığdır\' ve \'100%\' ögelerini uzun basma menüsüne geri koyar. Resme çift dokunmak zaten bunu yaptığı için kapalı.</string>
     <string name="hint_zoom_tap">Hızlı yakınlaştırma: görüntüye iki kez dokunun, görünüme sığar; bir kez daha dokunun, gerçek pikselleri gösterir. Dokunmaya devam ederek sığdırılmış ile 100% arasında geçiş yapın.</string>
+    <string name="hint_ext_warn">⚠️ Bir dosyanın uzantısını değiştirmek, biçimler arasında dönüştürmekle aynı şey değildir: onun için \'Dışa aktar ve dönüştür\' var.\n\n⚠️ Bir görüntüye veya videoya ortam dosyasına ait olmayan bir uzantı verirsen, öğe ızgara ve liste görünümlerinden kaybolur.</string>
     <string name="settings_anim_counter">Kare sayacı</string>
     <string name="settings_anim_counter_desc">Hareketli görüntülerin denetim çubuğunda görünür.</string>
     <string name="settings_reverse_order">Görüntüleri en eskiden başlayarak sağa doğru gezin</string>
@@ -262,6 +265,9 @@
     <string name="settings_group_viewer">Görüntüleyici</string>
     <string name="settings_group_browse">Klasörler</string>
     <string name="settings_group_start">Başlangıç</string>
+    <string name="settings_group_advanced">Gelişmiş özellikler</string>
+    <string name="settings_ext_edit">Uzantıları \'Yeniden adlandır\' ile değiştir</string>
+    <string name="settings_ext_edit_desc">Yeniden adlandırma paneli dosya uzantılarını değiştirmeye izin verir. Ne yaptığını bilmiyorsan bunu açma: görüntüleri okunamaz hâle getirebilir.</string>
     <string name="settings_hidden_none">Gizli klasör yok</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d klasör</item>

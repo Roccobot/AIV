@@ -29,6 +29,8 @@
     <string name="convert_this_frame">Je exporteert frame %1$d, het frame op het scherm.</string>
     <string name="convert_elsewhere">Andere formaten</string>
     <string name="convert_elsewhere_desc">Android kan alleen de formaten hierboven schrijven. Voor de rest zijn er deze diensten, die in de browser openen: de afbeelding kies je daar, uit het geheugen van de telefoon.</string>
+    <string name="convert_clean">Opschonen</string>
+    <string name="convert_clean_why">Gebruik CleanSVG om een vectorbestand tot 99% kleiner te maken door metadata en andere velden die niet bij de tekening horen te verwijderen. Opschonen is volkomen veilig: vormen, lijnen, tekeningen en teksten blijven ongemoeid.</string>
     <string name="convert_open">Openen</string>
     <string name="convert_export">Exporteren</string>
     <string name="convert_ezgif">EzGif</string>
@@ -92,6 +94,7 @@
     <string name="settings_zoom_menu">Zoom in het menu van de viewer</string>
     <string name="settings_zoom_menu_desc">Zet \'Passend maken\' en \'100%\' terug in het menu van de lange druk. Uit, omdat dubbeltikken op de foto dit al doet.</string>
     <string name="hint_zoom_tap">Snel zoomen: dubbeltik op de afbeelding om hem passend te maken, nog een keer voor echte pixels. Blijf tikken om te wisselen tussen passend en 100%.</string>
+    <string name="hint_ext_warn">⚠️ Een extensie wijzigen is niet hetzelfde als omzetten naar een ander formaat: daarvoor is er \'Exporteren en omzetten\'.\n\n⚠️ Als je een afbeelding of video een extensie geeft die niet bij een mediabestand hoort, verdwijnt het item uit de raster- en lijstweergave.</string>
     <string name="settings_anim_counter">Frameteller</string>
     <string name="settings_anim_counter_desc">Verschijnt in de knoppenbalk van bewegende afbeeldingen.</string>
     <string name="settings_reverse_order">Afbeeldingen naar rechts doorbladeren vanaf de oudste</string>
@@ -262,6 +265,9 @@
     <string name="settings_group_viewer">Viewer</string>
     <string name="settings_group_browse">Mappen</string>
     <string name="settings_group_start">Opstarten</string>
+    <string name="settings_group_advanced">Geavanceerde functies</string>
+    <string name="settings_ext_edit">Extensies wijzigen via \'Naam wijzigen\'</string>
+    <string name="settings_ext_edit_desc">In het venster voor naamswijziging kun je bestandsextensies aanpassen. Als je niet weet wat je doet, laat dit dan uit: het kan afbeeldingen onleesbaar maken.</string>
     <string name="settings_hidden_none">Geen verborgen mappen</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d map</item>

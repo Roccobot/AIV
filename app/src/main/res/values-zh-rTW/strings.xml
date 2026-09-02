@@ -29,6 +29,8 @@
     <string name="convert_this_frame">正在匯出第 %1$d 格，也就是畫面上這一格。</string>
     <string name="convert_elsewhere">其他格式</string>
     <string name="convert_elsewhere_desc">Android 只能寫入上面這些格式。其餘格式可以用這些服務，它們會在瀏覽器中開啟：圖片請在那裡從手機儲存空間選取。</string>
+    <string name="convert_clean">清理</string>
+    <string name="convert_clean_why">用 CleanSVG 可將向量檔縮小最多 99%，移除中繼資料與和圖形無關的其他欄位。清理完全安全，形狀、線條、圖形與文字都不會改動。</string>
     <string name="convert_open">開啟</string>
     <string name="convert_export">匯出</string>
     <string name="convert_ezgif">EzGif</string>
@@ -92,6 +94,7 @@
     <string name="settings_zoom_menu">檢視器選單中的縮放</string>
     <string name="settings_zoom_menu_desc">把 \'符合檢視\' 和 \'100%\' 放回長按選單。預設關閉，因為在圖片上點兩下就能做到。</string>
     <string name="hint_zoom_tap">快速縮放: 雙擊圖片可符合視窗, 再雙擊一次顯示實際像素. 繼續雙擊可在符合與 100% 之間循環.</string>
+    <string name="hint_ext_warn">⚠️ 修改副檔名和在格式之間轉換不是同一件事：轉換請用 \'匯出並轉換\'。\n\n⚠️ 若給圖片或影片一個並非媒體檔案的副檔名，該項目會從格狀檢視與清單檢視中消失。</string>
     <string name="settings_anim_counter">影格計數器</string>
     <string name="settings_anim_counter_desc">顯示於動態影像的控制列中。</string>
     <string name="settings_reverse_order">從最舊的一張起向右翻閱影像</string>
@@ -249,6 +252,9 @@
     <string name="settings_group_viewer">檢視器</string>
     <string name="settings_group_browse">資料夾</string>
     <string name="settings_group_start">啟動</string>
+    <string name="settings_group_advanced">進階功能</string>
+    <string name="settings_ext_edit">在 \'重新命名\' 中修改副檔名</string>
+    <string name="settings_ext_edit_desc">重新命名面板可以修改檔案的副檔名。若不清楚自己在做什麼，請不要開啟：圖片可能會變得無法讀取。</string>
     <string name="settings_hidden_none">沒有隱藏的資料夾</string>
     <plurals name="settings_hidden_count">
         <item quantity="other">%1$d 個資料夾</item>

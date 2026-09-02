@@ -39,6 +39,8 @@
     <string name="convert_this_frame">Stai esportando il fotogramma %1$d, quello che hai davanti.</string>
     <string name="convert_elsewhere">Altri formati</string>
     <string name="convert_elsewhere_desc">Android sa scrivere solo i formati qui sopra. Per gli altri ci sono questi servizi, che si aprono nel browser: l\'immagine si sceglie da lì, dalla memoria del telefono.</string>
+    <string name="convert_clean">Pulisci</string>
+    <string name="convert_clean_why">Usa CleanSVG per ridurre fino al 99% le dimensioni del file vettoriale, eliminando metadati e altri campi estranei all\'illustrazione. La pulizia è completamente sicura e non intacca forme, linee, disegni o testi.</string>
     <string name="convert_open">Apri</string>
     <string name="convert_export">Esporta</string>
     <string name="convert_ezgif">EzGif</string>
@@ -154,6 +156,7 @@
     <string name="settings_zoom_menu">Zoom nel menu del visualizzatore</string>
     <string name="settings_zoom_menu_desc">Rimette \'Adatta alla vista\' e \'100%\' nel menu a pressione lunga. È spento perché il doppio tocco sull\'immagine lo fa già.</string>
     <string name="hint_zoom_tap">Zoom rapido: doppio tocco sull\'immagine per adattare alla vista, altro doppio tocco per passare ai pixel reali. Ripeti ancora per passare ciclicamente da adattata a 100%.</string>
+    <string name="hint_ext_warn">⚠️ Modificare l\'estensione di un file non equivale a passare da un formato all\'altro: per quello c\'è \'Esporta/Converti\'.\n\n⚠️ Se cambi l\'estensione di un\'immagine o video assegnandone una nuova non associata a un file multimediale, l\'elemento sparirà dalle viste griglia e lista.</string>
     <string name="settings_anim_counter">Contatore dei fotogrammi</string>
     <string name="settings_anim_counter_desc">Compare nella fila dei comandi delle immagini animate.</string>
 
@@ -372,6 +375,9 @@
     <string name="settings_group_viewer">Visualizzatore</string>
     <string name="settings_group_browse">Cartelle</string>
     <string name="settings_group_start">Avvio</string>
+    <string name="settings_group_advanced">Funzionalità avanzate</string>
+    <string name="settings_ext_edit">Modifica le estensioni con \'Rinomina\'</string>
+    <string name="settings_ext_edit_desc">Il pannello di rinomina consente di modificare le estensioni dei file. Se non sai cosa stai facendo, non attivare questa opzione: può rendere le immagini illeggibili.</string>
     <string name="settings_hidden_none">Nessuna cartella nascosta</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d cartella</item>

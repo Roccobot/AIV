@@ -29,6 +29,8 @@
     <string name="convert_this_frame">திரையில் உள்ள %1$d ஆவது சட்டகம் ஏற்றுமதி செய்யப்படுகிறது.</string>
     <string name="convert_elsewhere">பிற வடிவங்கள்</string>
     <string name="convert_elsewhere_desc">மேலே உள்ள வடிவங்களை மட்டுமே Android எழுத முடியும். மற்றவற்றுக்கு இந்தச் சேவைகள் உள்ளன, அவை உலாவியில் திறக்கும்: படத்தை அங்கேயே, தொலைபேசி நினைவகத்திலிருந்து தேர்ந்தெடுக்கவும்.</string>
+    <string name="convert_clean">சுத்தம் செய்</string>
+    <string name="convert_clean_why">CleanSVG மூலம் ஒரு வெக்டர் கோப்பை 99% வரை சிறியதாக்கலாம்: மேனிலைத் தரவும் வரைபடத்துக்கு உரியதல்லாத பிற புலங்களும் நீக்கப்படும். இந்தச் சுத்தம் முற்றிலும் பாதுகாப்பானது; வடிவங்கள், கோடுகள், வரைபடங்கள், உரை அப்படியே இருக்கும்.</string>
     <string name="convert_open">திற</string>
     <string name="convert_export">ஏற்றுமதி செய்</string>
     <string name="convert_ezgif">EzGif</string>
@@ -92,6 +94,7 @@
     <string name="settings_zoom_menu">காட்டி மெனுவில் பெரிதாக்கம்</string>
     <string name="settings_zoom_menu_desc">\'திரைக்கு பொருத்து\' மற்றும் \'100%\' ஐ நீண்ட அழுத்த மெனுவுக்குத் திருப்பித் தருகிறது. படத்தில் இரட்டைத் தட்டல் இதையே செய்வதால் அணைக்கப்பட்டுள்ளது.</string>
     <string name="hint_zoom_tap">விரைவு பெரிதாக்கல்: படத்தில் இருமுறை தட்டினால் காட்சிக்கு ஏற்ப பொருந்தும், மீண்டும் இருமுறை தட்டினால் உண்மையான பிக்சல்கள் தெரியும். தொடர்ந்து தட்டினால் பொருந்தியதுக்கும் 100% க்கும் இடையே மாறும்.</string>
+    <string name="hint_ext_warn">⚠️ கோப்பின் நீட்டிப்பை மாற்றுவது ஒரு வடிவத்திலிருந்து இன்னொன்றுக்கு மாற்றுவது அல்ல: அதற்கு \'ஏற்றுமதி செய்து மாற்று\' உள்ளது.\n\n⚠️ ஒரு படத்துக்கோ காணொளிக்கோ ஊடகக் கோப்புக்கு உரியதல்லாத நீட்டிப்பைக் கொடுத்தால், அது கட்டம் மற்றும் பட்டியல் காட்சிகளிலிருந்து மறைந்துவிடும்.</string>
     <string name="settings_anim_counter">சட்டக எண்ணிக்கை</string>
     <string name="settings_anim_counter_desc">அசையும் படங்களின் கட்டுப்பாட்டுப் பட்டையில் தோன்றும்.</string>
     <string name="settings_reverse_order">பழையதிலிருந்து வலப்புறமாகப் படங்களைப் புரட்டு</string>
@@ -262,6 +265,9 @@
     <string name="settings_group_viewer">காட்சியாளர்</string>
     <string name="settings_group_browse">கோப்புறைகள்</string>
     <string name="settings_group_start">தொடக்கம்</string>
+    <string name="settings_group_advanced">மேம்பட்ட வசதிகள்</string>
+    <string name="settings_ext_edit">\'பெயர் மாற்று\' இல் நீட்டிப்புகளை மாற்று</string>
+    <string name="settings_ext_edit_desc">பெயர் மாற்றும் பலகம் கோப்பு நீட்டிப்புகளை மாற்ற அனுமதிக்கிறது. என்ன செய்கிறீர்கள் என்று உறுதியாகத் தெரியாவிட்டால் இதை இயக்க வேண்டாம்: படங்கள் படிக்க முடியாதவையாகிவிடலாம்.</string>
     <string name="settings_hidden_none">மறைக்கப்பட்ட கோப்புறைகள் இல்லை</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d கோப்புறை</item>

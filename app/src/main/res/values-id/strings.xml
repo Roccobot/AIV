@@ -29,6 +29,8 @@
     <string name="convert_this_frame">Mengekspor bingkai %1$d, yang tampil di layar.</string>
     <string name="convert_elsewhere">Format lain</string>
     <string name="convert_elsewhere_desc">Android hanya bisa menulis format di atas. Untuk selebihnya ada layanan berikut, yang terbuka di peramban: gambar dipilih di sana, dari memori ponsel.</string>
+    <string name="convert_clean">Bersihkan</string>
+    <string name="convert_clean_why">Pakai CleanSVG untuk mengecilkan berkas vektor sampai 99%, dengan membuang metadata dan bidang lain yang bukan bagian dari gambar. Pembersihan ini benar-benar aman: bentuk, garis, gambar, dan teks tidak tersentuh.</string>
     <string name="convert_open">Buka</string>
     <string name="convert_export">Ekspor</string>
     <string name="convert_ezgif">EzGif</string>
@@ -92,6 +94,7 @@
     <string name="settings_zoom_menu">Zoom di menu penampil</string>
     <string name="settings_zoom_menu_desc">Mengembalikan \'Sesuaikan ke layar\' dan \'100%\' ke menu tekan lama. Mati karena ketuk ganda pada gambar sudah melakukannya.</string>
     <string name="hint_zoom_tap">Zoom cepat: ketuk dua kali gambar agar pas di layar, ketuk dua kali lagi untuk piksel asli. Terus ketuk untuk berganti antara pas dan 100%.</string>
+    <string name="hint_ext_warn">⚠️ Mengubah ekstensi berkas tidak sama dengan mengubah format: untuk itu ada \'Ekspor dan konversi\'.\n\n⚠️ Kalau gambar atau video diberi ekstensi yang bukan milik berkas media, item itu akan hilang dari tampilan kisi dan daftar.</string>
     <string name="settings_anim_counter">Penghitung bingkai</string>
     <string name="settings_anim_counter_desc">Muncul di bilah kontrol gambar bergerak.</string>
     <string name="settings_reverse_order">Telusuri gambar ke kanan mulai dari yang terlama</string>
@@ -249,6 +252,9 @@
     <string name="settings_group_viewer">Penampil</string>
     <string name="settings_group_browse">Folder</string>
     <string name="settings_group_start">Permulaan</string>
+    <string name="settings_group_advanced">Fitur lanjutan</string>
+    <string name="settings_ext_edit">Ubah ekstensi dari \'Ganti nama\'</string>
+    <string name="settings_ext_edit_desc">Panel ganti nama bisa mengubah ekstensi berkas. Kalau tidak yakin, jangan nyalakan ini: gambar bisa jadi tidak terbaca.</string>
     <string name="settings_hidden_none">Tidak ada folder tersembunyi</string>
     <plurals name="settings_hidden_count">
         <item quantity="other">%1$d folder</item>
