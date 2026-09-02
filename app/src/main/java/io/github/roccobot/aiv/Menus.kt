@@ -10,8 +10,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
@@ -34,11 +37,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
@@ -172,7 +177,7 @@ fun MenuShell(
  * divergerebbe al primo ritocco, ed è già la seconda volta che questa striscia si ritocca.
  */
 @Composable
-fun MenuStripe() {
+fun MenuStripe(giu: Dp = 0.dp, round: Dp = MENU_ROUND) {
     Box(
         /*
          * ⚠️⚠️ **NON ARRIVA AI BORDI, dalla 1.29** (riscontro dell'utente, 2026-09-02: *va
@@ -184,6 +189,18 @@ fun MenuStripe() {
          */
         modifier = Modifier
             .fillMaxWidth()
+            /*
+             * ⚠️⚠️ **`giu` SERVE A UNA SUPERFICIE CHE AGGIUNGE PADDING SOTTO IL CONTENUTO,
+             * e oggi è una sola**: il `DropdownMenu` di Material mette 8dp sopra e sotto la
+             * propria colonna, quindi là la striscia si fermava a 8 + [MENU_STRIPE_UNDER]
+             * dal fondo della scheda mentre in [MenuShell] si fermava a 2. L'utente ha visto
+             * le due e le ha giudicate entrambe sbagliate (riscontro `striscia-sette`:
+             * *FAB della schermata home troppo staccata dal margine inferiore; FAB del
+             * cestino l'opposto: troppo vicina. Una via di mezzo sarebbe l'ideale*).
+             * ⚠️ **Adesso il numero è UNO** ([MENU_STRIPE_UNDER], la via di mezzo), e chi ha
+             * del padding sotto lo dichiara qui invece di ritrovarsi una distanza diversa.
+             */
+            .offset(y = giu)
             .padding(
                 start = MENU_STRIPE_SIDE,
                 end = MENU_STRIPE_SIDE,
@@ -201,17 +218,89 @@ fun MenuStripe() {
              * Compose lo stringe da sé all'altezza disponibile, quindi il numero grande non
              * sfonda una striscia bassa.
              */
+            /*
+             * ⚠️ **`round` è lo stondamento della SUPERFICIE che la contiene**, e di serie è
+             * quello dei menu: dalla 1.37 la striscia sta anche sui pannellini, che sono
+             * dialoghi e hanno l'angolo di un dialogo. Il raggio in basso è quello della
+             * superficie **meno il rientro**, che è ciò che tiene i due archi paralleli: con
+             * un numero fisso, su una superficie più tonda i due archi divergono e la striscia
+             * si legge come appoggiata sopra invece che dentro.
+             */
             .background(
                 color = MaterialTheme.colorScheme.primary,
                 shape = RoundedCornerShape(
                     topStart = MENU_STRIPE_TOP,
                     topEnd = MENU_STRIPE_TOP,
-                    bottomStart = MENU_ROUND - MENU_STRIPE_UNDER,
-                    bottomEnd = MENU_ROUND - MENU_STRIPE_UNDER
+                    bottomStart = round - MENU_STRIPE_UNDER,
+                    bottomEnd = round - MENU_STRIPE_UNDER
                 )
             )
     )
 }
+
+/**
+ * Un **sotto-menu**: un pannellino che si apre da una voce di menu e porta una scelta.
+ *
+ * ⚠️⚠️ **NASCE PER LA STRISCIA, dalla 1.37** (riscontro `striscia-sette`: *OK sul menu a
+ * pressione lunga. Va aggiunta sui sotto-menu (es. pressione lunga su Info)*). Un `AlertDialog`
+ * di Material **non** lascia disegnare in fondo alla propria superficie: sotto i tasti c'è il
+ * suo padding e la superficie è sua, quindi la striscia si poteva mettere solo dentro il
+ * contenuto, cioè **sopra** i tasti, che è un altro posto. Per averla in fondo bisogna
+ * possedere la superficie, e questo guscio è quella.
+ * ⚠️⚠️ **I NUMERI SONO QUELLI DI MATERIAL, scritti a mano perché adesso la superficie è
+ * nostra**: contenitore `surfaceContainerHigh`, angolo `extraLarge` (28dp), 24dp di rientro
+ * tutto attorno e 16 sotto il titolo, letti nei token e nel bytecode di `AlertDialogKt`
+ * (`TitlePadding` è un `PaddingValues` col solo bordo inferiore a 16). ⚠️ Se un giorno un
+ * pannellino si vedesse diverso dai dodici dialoghi che restano di Material, è qui che si
+ * guarda: la differenza sarebbe un numero fuori posto, non una scelta.
+ * ⚠️⚠️ **NON VA SUI DIALOGHI CHE NON SONO MENU, e la riga è dichiarata**: la conferma di una
+ * cancellazione, la rinomina, la conversione e l'indirizzo sono **moduli** (un campo, due
+ * tasti), non scelte, e una striscia d'accento su di loro direbbe 'questo è un menu' di una
+ * cosa che non lo è. Il criterio è: si apre da una voce di menu **e** offre una scelta.
+ * ⚠️ **La stretta del 15% resta la sua**: [Modifier.lowered] sta sulla superficie, dove stava
+ * sul dialogo di Material.
+ */
+@Composable
+fun SubPanel(
+    title: String,
+    onDismiss: () -> Unit,
+    buttons: @Composable RowScope.() -> Unit,
+    content: @Composable () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            modifier = Modifier.lowered(),
+            shape = RoundedCornerShape(PANEL_ROUND),
+            color = MaterialTheme.colorScheme.surfaceContainerHigh
+        ) {
+            Column {
+                Column(modifier = Modifier.padding(PANEL_PAD)) {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(Modifier.height(PANEL_GAP))
+                    content()
+                    Spacer(Modifier.height(PANEL_GAP))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                        content = buttons
+                    )
+                }
+                // ⚠️ Fuori dal rientro e in fondo alla colonna: è il fondo della SUPERFICIE
+                // che si colora, e per questo il guscio esiste.
+                MenuStripe(round = PANEL_ROUND)
+            }
+        }
+    }
+}
+
+/** L'angolo, il rientro e l'aria di un sotto-menu. Vedi [SubPanel]: sono i numeri di Material. */
+private val PANEL_ROUND = 28.dp
+private val PANEL_PAD = 24.dp
+private val PANEL_GAP = 16.dp
 
 /**
  * Il menu al centro della finestra: quello del visualizzatore.
@@ -450,7 +539,34 @@ val MENU_ROUND = 20.dp
  */
 private val MENU_STRIPE = 7.dp
 private val MENU_STRIPE_SIDE = 4.dp
-private val MENU_STRIPE_UNDER = 2.dp
+
+/**
+ * Quanto la striscia si stacca dal fondo della scheda.
+ *
+ * ⚠️⚠️ **5 DALLA 1.37, ED È LA VIA DI MEZZO FRA DUE COSE CHE L'UTENTE HA VISTO SBAGLIATE**
+ * (riscontro `striscia-sette`): 2 nel menu del cestino, *troppo vicina al margine inferiore*,
+ * e 10 in quello della schermata iniziale, *troppo staccata*, perché là il `DropdownMenu` di
+ * Material aggiunge i suoi 8 sotto il contenuto. Quegli 8 sono **misurati e non supposti**:
+ * `MenuKt.getDropdownMenuVerticalPadding` ritorna `bipush 8` e finisce in un
+ * `padding(vertical = ...)` intorno alla colonna del menu, letto nel bytecode di
+ * `material3-android`.
+ * ⚠️ **Non è la media aritmetica (che farebbe 6) ma il numero che sta in mezzo alle sue due
+ * parole**: 'troppo vicina' a 2 e 'troppo staccata' a 10 non dicono che il giusto sia 6, e 5
+ * è il gradino che tiene la striscia dentro la scheda senza appoggiarla al bordo. Resta una
+ * **scelta**: se sul telefono non è quella, il numero da girare è questo, uno solo.
+ */
+private val MENU_STRIPE_UNDER = 5.dp
+
+/**
+ * Il padding verticale che il `DropdownMenu` di Material mette intorno alla propria colonna.
+ *
+ * ⚠️ **Sta qui perché è di Material e non nostro**: si passa a [MenuStripe] come `giu` dal solo
+ * menu che quella superficie usa (il tastino della schermata iniziale), e serve a far cadere la
+ * striscia a [MENU_STRIPE_UNDER] dal fondo come in tutti gli altri. ⚠️ Letto nel bytecode, non
+ * supposto: vedi la nota di [MENU_STRIPE_UNDER]. Se un domani Material lo cambia, il sintomo è
+ * la striscia di quel solo menu che si stacca o si incolla al bordo.
+ */
+val MENU_DROPDOWN_PAD = 8.dp
 
 /**
  * Quanto sono stondati gli spigoli **in alto** della striscia.
