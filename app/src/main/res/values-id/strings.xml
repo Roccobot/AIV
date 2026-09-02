@@ -131,7 +131,7 @@
     <string name="search_hint">Cari pada nama berkas</string>
     <string name="search_clear">Bersihkan</string>
     <string name="search_none">Tidak ada berkas dengan \'%1$s\' pada namanya.</string>
-    <string name="identity_repo">Buka repositori AIV di GitHub</string>
+    <string name="identity_page">Buka halaman unduhan AIV</string>
     <string name="grid_item">Item %1$d dari %2$d</string>
     <string name="grid_item_last">Item %1$d dari %2$d, yang terakhir kamu lihat</string>
     <string name="pick_leave">Keluar dari pemilihan</string>

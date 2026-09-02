@@ -131,7 +131,7 @@
     <string name="search_hint">ফাইলের নামে খুঁজুন</string>
     <string name="search_clear">মুছুন</string>
     <string name="search_none">কোনো ফাইলের নামে \'%1$s\' নেই।</string>
-    <string name="identity_repo">GitHub-এ AIV-এর ভাণ্ডার খুলুন</string>
+    <string name="identity_page">AIV ডাউনলোড পৃষ্ঠা খুলুন</string>
     <string name="grid_item">%2$d-এর মধ্যে %1$d নম্বর</string>
     <string name="grid_item_last">%2$d-এর মধ্যে %1$d নম্বর, শেষে যেটি দেখেছেন</string>
     <string name="pick_leave">বাছাই থেকে বেরোন</string>

@@ -131,7 +131,7 @@
     <string name="search_hint">Dosya adında ara</string>
     <string name="search_clear">Temizle</string>
     <string name="search_none">Adında \'%1$s\' geçen dosya yok.</string>
-    <string name="identity_repo">AIV deposunu GitHub\'da aç</string>
+    <string name="identity_page">AIV indirme sayfasını aç</string>
     <string name="grid_item">%2$d ögeden %1$d.</string>
     <string name="grid_item_last">%2$d ögeden %1$d., en son baktığın</string>
     <string name="pick_leave">Seçimden çık</string>

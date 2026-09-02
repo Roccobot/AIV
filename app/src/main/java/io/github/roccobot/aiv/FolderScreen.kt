@@ -650,7 +650,6 @@ private fun Header(fullPx: Float, icon: Dp, shut: () -> Float) {
     ) {
         Identity(
             iconSize = icon,
-            link = false,
             modifier = Modifier.graphicsLayer {
                 val open = if (fullPx > 0f) (1f - shut() / fullPx).coerceIn(0f, 1f) else 0f
                 alpha = open * open

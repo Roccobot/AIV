@@ -131,7 +131,7 @@
     <string name="search_hint">جستجو در نام فایل</string>
     <string name="search_clear">پاک کردن</string>
     <string name="search_none">هیچ فایلی \'%1$s\' در نام خود ندارد.</string>
-    <string name="identity_repo">باز کردن مخزن AIV در گیت‌هاب</string>
+    <string name="identity_page">باز کردن صفحه دانلود AIV</string>
     <string name="grid_item">مورد %1$d از %2$d</string>
     <string name="grid_item_last">مورد %1$d از %2$d، آخرینی که دیدید</string>
     <string name="pick_leave">خروج از گزینش</string>

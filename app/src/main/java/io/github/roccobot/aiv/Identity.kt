@@ -43,29 +43,36 @@ import androidx.compose.ui.unit.em
  * ⚠️ **Sta in DUE posti, e non è un doppione**: in cima alla schermata delle cartelle,
  * dove è il volto dell'app all'apertura, e in fondo alle impostazioni, dove ogni app
  * mette il proprio 'chi siamo'. Sono due usi diversi della stessa cosa, quindi un
- * composable solo con due misure e con il collegamento facoltativo: là c'è, qui no,
- * perché una schermata iniziale che porta fuori dall'app al primo tocco sbagliato non
- * è quello che serve.
- * ⚠️ Nessuno di questi testi è una stringa di risorsa, ed è deliberato: sono un nome,
- * una firma e un dominio. Tradurre 'by Roccobot' sarebbe un errore, non una cortesia, e
- * una risorsa inviterebbe a farlo. ⚠️ L'unica stringa tradotta è la **descrizione** del
- * tocco sull'icona, che non è un nome ma una frase che qualcuno si fa leggere.
- * ⚠️⚠️ **Il collegamento è UNO SOLO PER USO, e i due non sono lo stesso**: il dominio
- * personale sta sotto la firma, il repository sta **sull'icona**. Sono governati dallo
- * stesso [link] perché rispondono alla stessa domanda, cioè se questo blocco può portare
- * fuori dall'app: sulla schermata iniziale no, e vale per tutti e due.
+ * composable solo con due misure.
+ * ⚠️ Nessuno di questi testi è una stringa di risorsa, ed è deliberato: sono un nome e
+ * una firma. Tradurre 'by Roccobot' sarebbe un errore, non una cortesia, e una risorsa
+ * inviterebbe a farlo. ⚠️ L'unica stringa tradotta è la **descrizione** del tocco
+ * sull'icona, che non è un nome ma una frase che qualcuno si fa leggere.
+ * ⚠️⚠️ **L'ICONA PORTA ALLA PAGINA DI DOWNLOAD IN TUTTI E DUE I POSTI, dalla 1.37**
+ * (istruzione dell'utente, 2026-09-02: *icona sia in schermata home che nelle impostazioni
+ * deve portare alla pagina di download*), e prima erano due scelte diverse: portava al
+ * **repository**, e sulla schermata iniziale non portava da nessuna parte, perché una
+ * schermata iniziale che esce dall'app al primo tocco sbagliato non era quello che
+ * serviva. Adesso il parametro `link` non c'è più: non aveva altro da governare.
+ * ⚠️ **Un indirizzo NON si scrive dentro un commento con l'asterisco del corsivo attaccato**,
+ * e questa riga è nata da quel difetto: `AIV/` più `*` fa `/*`, che in Kotlin **apre un
+ * commento annidato**, quindi il `*/` in fondo chiudeva quello di dentro e il file non
+ * compilava più, con un 'Unclosed comment' cinquanta righe più giù.
+ * ⚠️⚠️ **E LA RIGA `roccobot.me` NON C'È PIÙ, dalla 1.37** (riscontro `firma-nuova`:
+ * *impostazioni: la riga con roccobot.me va tolta*): dalla 1.36 'Roccobot' **dentro la
+ * firma** è già un collegamento allo stesso indirizzo, quindi quella riga era il secondo
+ * collegamento identico nella stessa colonna. Il dominio si raggiunge dalla firma.
  */
 @Composable
 fun Identity(
     iconSize: Dp,
-    modifier: Modifier = Modifier,
-    link: Boolean = true
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        AppIcon(iconSize, link)
+        AppIcon(iconSize)
         Spacer(Modifier.height(10.dp))
         Text(
             text = "Astonishing Image Viewer",
@@ -73,22 +80,6 @@ fun Identity(
             textAlign = TextAlign.Center
         )
         Signature()
-        if (!link) return@Column
-        // ⚠️ Non `primary`: l'accento come TESTO non si legge, e la ragione col numero
-        // sta accanto a `LINK_LIGHT` in `Theme.kt`. Si legge QUI e non dentro il
-        // costruttore del testo, che non è un contesto componibile.
-        val ink = accentInk()
-        Text(
-            text = buildAnnotatedString {
-                withLink(LinkAnnotation.Url(HOME)) {
-                    withStyle(
-                        SpanStyle(color = ink, textDecoration = TextDecoration.Underline)
-                    ) { append("roccobot.me") }
-                }
-            },
-            style = MaterialTheme.typography.bodySmall,
-            textAlign = TextAlign.Center
-        )
     }
 }
 
@@ -122,15 +113,22 @@ fun Identity(
  */
 private const val LAUNCHER_ZOOM = 1.5f
 
-/** Il repository dell'app, dove porta il tocco sull'icona. */
-private const val REPO = "https://github.com/Roccobot/AIV"
+/**
+ * La pagina di download dell'app, dove porta il tocco sull'icona.
+ *
+ * ⚠️ **E non il repository, dalla 1.37**: quello è il posto dove sta il codice, e chi tocca
+ * l'icona dell'app dentro l'app cerca l'app, non i suoi sorgenti. La pagina offre l'apk
+ * firmato, il peso, le note di rilascio, e da lì il collegamento al codice c'è comunque.
+ */
+private const val PAGINA = "https://roccobot.github.io/AIV/"
 
 /**
- * Il dominio personale dell'utente, dove portano la firma e la riga del dominio.
+ * Il dominio personale dell'utente, dove porta la firma.
  *
- * ⚠️ **Una costante e non due stringhe uguali, dalla 1.36**: da quando 'Roccobot' nella firma
- * è un collegamento, questo indirizzo compare in due posti della stessa colonna, e scritto due
- * volte prima o poi ne resta uno vecchio.
+ * ⚠️ **Una costante e non due stringhe uguali**: nata nella 1.36, quando la firma e la riga
+ * del dominio lo portavano tutte e due. Dalla 1.37 la riga non c'è più (vedi [Identity]) e il
+ * lettore è uno, ma la costante resta: un indirizzo scritto dentro un `buildAnnotatedString`
+ * non si trova cercando.
  */
 private const val HOME = "https://roccobot.me"
 
@@ -163,9 +161,9 @@ private const val HOME = "https://roccobot.me"
  * limitare, e il ritaglio del `Box` continua a valere.
  */
 @Composable
-private fun AppIcon(size: Dp, link: Boolean) {
+private fun AppIcon(size: Dp) {
     val opener = LocalUriHandler.current
-    val label = stringResource(R.string.identity_repo)
+    val label = stringResource(R.string.identity_page)
     Box(
         modifier = Modifier
             .size(size)
@@ -173,18 +171,16 @@ private fun AppIcon(size: Dp, link: Boolean) {
             // intero e gli angoli fuori dalla forma risponderebbero comunque.
             .clip(RoundedCornerShape(percent = 24))
             .background(colorResource(R.color.launcher_background))
-            .then(
-                if (!link) Modifier
-                else Modifier.clickable(onClickLabel = label) { opener.openUri(REPO) }
-            ),
+            .clickable(onClickLabel = label) { opener.openUri(PAGINA) },
         contentAlignment = Alignment.Center
     ) {
         Image(
             painter = painterResource(R.drawable.ic_launcher_foreground),
-            // ⚠️ Descritta solo quando è toccabile: da ferma è decorazione, e il nome
-            // dell'app sta scritto sotto in lettere. Da toccabile invece è un comando, e
-            // un comando senza nome è un comando che nessuno può usare al buio.
-            contentDescription = if (link) label else null,
+            // ⚠️ Descritta perché è un comando, e un comando senza nome è un comando che
+            // nessuno può usare al buio. ⚠️ Fino alla 1.36 la descrizione era condizionata,
+            // perché sulla schermata iniziale l'icona non si toccava e là era decorazione:
+            // adesso si tocca in tutti e due i posti, quindi la condizione non c'è più.
+            contentDescription = label,
             modifier = Modifier.fillMaxSize().scale(LAUNCHER_ZOOM)
         )
     }

@@ -131,7 +131,7 @@
     <string name="search_hint">فائل کے نام میں تلاش کریں</string>
     <string name="search_clear">صاف کریں</string>
     <string name="search_none">کسی فائل کے نام میں \'%1$s\' نہیں ہے۔</string>
-    <string name="identity_repo">گٹ ہب پر AIV کا مخزن کھولیں</string>
+    <string name="identity_page">AIV ڈاؤن لوڈ صفحہ کھولیں</string>
     <string name="grid_item">فائل %1$d از %2$d</string>
     <string name="grid_item_last">فائل %1$d از %2$d، جو آپ نے آخر میں دیکھی</string>
     <string name="pick_leave">انتخاب سے نکلیں</string>

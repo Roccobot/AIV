@@ -131,7 +131,7 @@
     <string name="search_hint">Im Dateinamen suchen</string>
     <string name="search_clear">Löschen</string>
     <string name="search_none">Keine Datei hat \'%1$s\' im Namen.</string>
-    <string name="identity_repo">Das AIV-Repository auf GitHub öffnen</string>
+    <string name="identity_page">Die AIV-Downloadseite öffnen</string>
     <string name="grid_item">Element %1$d von %2$d</string>
     <string name="grid_item_last">Element %1$d von %2$d, das zuletzt angesehene</string>
     <string name="pick_leave">Auswahl verlassen</string>
