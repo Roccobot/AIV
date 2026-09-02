@@ -7,6 +7,7 @@ import android.util.Size
 import com.caverock.androidsvg.SVG
 import java.io.ByteArrayInputStream
 import java.io.InputStream
+import java.util.zip.GZIPInputStream
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
@@ -37,11 +38,11 @@ import kotlin.math.sqrt
  * visualizzatore e in tutto quello che ci passa. Sta scritto qui perché è il primo posto in
  * cui guardare se l'utente chiederà gli SVG nitidi a 40 ingrandimenti.
  *
- * ⚠️ **Il `.svgz` funzionerebbe senza codice nuovo**, e vale saperlo perché la spesa è di
- * tre righe: il parser legge i primi due byte e, se sono la firma gzip, si avvolge da sé in
- * un `GZIPInputStream` (letto nel bytecode di `SVGParser.parse`). Non è stato aggiunto
- * perché nessuno l'ha chiesto e perché l'estensione andrebbe messa anche nei filtri del
- * manifest e nei due elenchi di [Folder] e [ImageActions]: quando servirà, si sa dove.
+ * ⚠️⚠️ **IL `.svgz` C'È DALLA `1.34`, e la decodifica non è costata NIENTE**: il parser legge
+ * i primi due byte e, se sono la firma gzip, si avvolge da sé in un `GZIPInputStream` (letto
+ * nel bytecode di `SVGParser.parse`). L'ha chiesto l'utente (giro della `1.31`, voce
+ * `svg-elenchi`). Quello che è costato qualcosa è **riconoscerlo**: vedi [looksLike], perché
+ * un file compresso non contiene la stringa `<svg` da nessuna parte.
  */
 object Svg {
 
@@ -121,10 +122,56 @@ object Svg {
      */
     fun looksLike(head: ByteArray): Boolean {
         if (head.isEmpty()) return false
-        val text = String(head, 0, minOf(head.size, SNIFF), Charsets.ISO_8859_1)
+        val letto = if (gzipped(head)) unzip(head) ?: return false else head
+        val text = String(letto, 0, minOf(letto.size, SNIFF), Charsets.ISO_8859_1)
             .filter { it != NUL }
         return text.contains("<svg", ignoreCase = true)
     }
+
+    /**
+     * La firma gzip, cioè un `.svgz`.
+     *
+     * ⚠️⚠️ **SENZA QUESTO, DICHIARARE `.svgz` SAREBBE STATO IL DIFETTO DEL TIFF**: la
+     * `1.34` mette quell'estensione nei filtri del manifest e nei due elenchi, e il parser
+     * sa decomprimerla da sé, **ma il riconoscimento del contenuto no**. Un file compresso
+     * non contiene la stringa `<svg` da nessuna parte, quindi [looksLike] rispondeva no e la
+     * miniatura non si faceva: un formato dichiarato e non aperto, che è esattamente
+     * l'errore che i `.tif` sono usciti per non commettere più.
+     * ⚠️ **Due byte e non l'estensione**: qui non c'è nessun nome di file (un decodificatore
+     * riceve i byte), ed è la stessa ragione per cui `Avif.looksLike` guarda la scatola
+     * `ftyp` e non la coda del nome.
+     */
+    private fun gzipped(head: ByteArray): Boolean =
+        head.size >= 2 && head[0] == GZIP_1 && head[1] == GZIP_2
+
+    /**
+     * I primi [SNIFF] byte di un `.svgz`, scompattati.
+     *
+     * ⚠️ **Si legge SOLO quel tanto e si butta il resto**: qui la domanda è 'somiglia a un
+     * SVG', non 'disegnalo', e un `.svgz` di dieci megabyte scompattato per intero per
+     * guardarne il primo tag sarebbe memoria buttata a ogni riquadro della griglia.
+     * ⚠️ **Il troncamento non fa male**: `GZIPInputStream` legge a blocchi e chiudere prima
+     * della fine è legittimo. ⚠️ E un archivio rotto torna `null` invece di sollevare, come
+     * ogni altro riconoscimento di questo file.
+     */
+    private fun unzip(head: ByteArray): ByteArray? = try {
+        GZIPInputStream(ByteArrayInputStream(head)).use { zip ->
+            val fuori = ByteArray(SNIFF)
+            var quanti = 0
+            while (quanti < SNIFF) {
+                val n = zip.read(fuori, quanti, SNIFF - quanti)
+                if (n <= 0) break
+                quanti += n
+            }
+            if (quanti == 0) null else fuori.copyOf(quanti)
+        }
+    } catch (t: Throwable) {
+        null
+    }
+
+    /** I due byte della firma gzip, scritti per valore: `1f 8b`. */
+    private const val GZIP_1: Byte = 0x1f
+    private const val GZIP_2: Byte = 0x8b.toByte()
 
     /** Come [render], per chi ha già i byte in mano. */
     fun render(bytes: ByteArray, box: Int, cap: Long = FREE): Rendered? =

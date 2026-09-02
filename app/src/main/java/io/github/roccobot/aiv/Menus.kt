@@ -174,14 +174,31 @@ fun MenuShell(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
-                            start = MENU_STRIPE_INSET,
-                            end = MENU_STRIPE_INSET,
-                            bottom = MENU_STRIPE_INSET
+                            start = MENU_STRIPE_SIDE,
+                            end = MENU_STRIPE_SIDE,
+                            bottom = MENU_STRIPE_UNDER
                         )
                         .height(MENU_STRIPE)
+                        /*
+                         * ⚠️⚠️ **LA FORMA È MISURATA SUL SUO MOCKUP, dalla 1.34, e prima era
+                         * una PASTIGLIA**: l'utente ha bocciato la versione della `1.29` e ha
+                         * mandato la forma che voleva (voce `striscia-spessa`: *la forma
+                         * dovrebbe essere questa*). Misurata sulla sua schermata, colonna per
+                         * colonna: **spigoli quasi vivi in alto** e **angoli in basso che
+                         * seguono la curva della scheda**, non due punte tonde.
+                         * ⚠️ **Il raggio in basso è quello del menu meno il rientro**: così i
+                         * due archi restano **paralleli**, che è quello che l'occhio legge
+                         * come 'dentro la scheda'. Compose lo stringe da sé all'altezza
+                         * disponibile, quindi il numero grande non sfonda una striscia bassa.
+                         */
                         .background(
                             color = MaterialTheme.colorScheme.primary,
-                            shape = RoundedCornerShape(MENU_STRIPE / 2)
+                            shape = RoundedCornerShape(
+                                topStart = MENU_STRIPE_TOP,
+                                topEnd = MENU_STRIPE_TOP,
+                                bottomStart = MENU_ROUND - MENU_STRIPE_UNDER,
+                                bottomEnd = MENU_ROUND - MENU_STRIPE_UNDER
+                            )
                         )
                 )
             }
@@ -371,13 +388,32 @@ private val MENU_ITEM_GAP = 8.dp
  * ⚠️ **20 e non 28**: le bottomsheet stanno a 28 e vanno bene così (parole sue), e un menu
  * che le raggiungesse smetterebbe di distinguersi da loro. 20 è il gradino sopra il 16 della
  * selezione, cioè quello che era già il più morbido dei tre.
- * ⚠️ **La striscia è 5dp dalla 1.29**, ed era 3 (*leggermente più spessa*): a 3, col rientro
- * nuovo, sarebbe rimasta un filo. Le sue estremità sono **tonde**, perché una striscia che si
- * stacca dai bordi ha due punte, e due punte quadrate in mezzo a una superficie stondata
- * sarebbero la sola cosa spigolosa del riquadro.
- * ⚠️ **Il rientro (8dp) è più grande dello spessore**, e non è un caso: con un filo d'aria la
- * striscia sembrerebbe un errore di un pixel, mentre con un rientro visibile è una scelta.
+ * ⚠️⚠️ **I TRE NUMERI DELLA STRISCIA SONO MISURATI SUL MOCKUP DELL'UTENTE, dalla 1.34, e la
+ * versione della 1.29 era BOCCIATA** (voce `striscia-spessa`: *la forma dovrebbe essere
+ * questa*, con una schermata). Quella era 5dp di spessore, 8dp di rientro su tre lati e le
+ * estremità **tonde** come una pastiglia; le note che lo spiegavano stanno nella storia git
+ * della `1.29`, e il ragionamento era buono ma il risultato no.
+ * ⚠️ **Come sono stati letti**: la sua schermata è stata misurata colonna per colonna, e la
+ * scala si ricava dalla larghezza del menu ([MENU_WIDTH], 252dp, che nel suo ritaglio sono 808
+ * pixel, cioè 3,2 pixel per dp). Da lì: spessore **18px = 5,6dp**, rientro laterale **12px =
+ * 3,7dp**, aria sotto **6px = 1,9dp**, spigoli in alto quasi vivi. Arrotondati ai valori qui
+ * sotto.
+ * ⚠️⚠️ **IL RIENTRO NON È PIÙ UGUALE SUI TRE LATI, ed è la differenza che si vede**: sotto è
+ * un terzo dei lati, quindi la striscia sta **appoggiata** al fondo della scheda invece di
+ * galleggiarci in mezzo. La regola vecchia (*il rientro è più grande dello spessore*) è
+ * decaduta con la forma che la reggeva.
  */
 val MENU_ROUND = 20.dp
-private val MENU_STRIPE = 5.dp
-private val MENU_STRIPE_INSET = 8.dp
+private val MENU_STRIPE = 6.dp
+private val MENU_STRIPE_SIDE = 4.dp
+private val MENU_STRIPE_UNDER = 2.dp
+
+/**
+ * Quanto sono stondati gli spigoli **in alto** della striscia.
+ *
+ * ⚠️ **Quasi vivi e non tondi**: nel mockup l'arrotondamento in alto è di un paio di pixel su
+ * uno spessore di diciotto, cioè un accenno. Le punte tonde della `1.29` facevano leggere la
+ * striscia come un nastro appoggiato sopra la scheda, mentre così è il fondo della scheda che
+ * si colora.
+ */
+private val MENU_STRIPE_TOP = 2.dp

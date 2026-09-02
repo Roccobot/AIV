@@ -156,7 +156,10 @@ object Convert {
      * ⚠️ **Si salta quando non serve**: senza canale alfa la copia sarebbe una tela in più
      * grande come l'immagine, per disegnarci sopra la stessa cosa.
      */
-    private fun flatten(source: Bitmap): Bitmap {
+    // ⚠️ **Non più privata dalla `1.34`**: la usa anche l'editor interno, che scriveva
+    // JPEG senza appiattire e faceva diventare nera la trasparenza. Una seconda copia là
+    // sarebbe stata la stessa scelta in due posti.
+    internal fun flatten(source: Bitmap): Bitmap {
         if (!source.hasAlpha()) return source
         return runCatching {
             val out = Bitmap.createBitmap(source.width, source.height, Bitmap.Config.ARGB_8888)

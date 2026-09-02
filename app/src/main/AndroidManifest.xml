@@ -203,6 +203,8 @@
                 <data android:pathPattern=".*\\.HEIF" />
                 <data android:pathPattern=".*\\.svg" />
                 <data android:pathPattern=".*\\.SVG" />
+                <data android:pathPattern=".*\\.svgz" />
+                <data android:pathPattern=".*\\.SVGZ" />
             </intent-filter>
 
             <!--
@@ -268,6 +270,8 @@
                 <data android:pathSuffix=".HEIF" />
                 <data android:pathSuffix=".svg" />
                 <data android:pathSuffix=".SVG" />
+                <data android:pathSuffix=".svgz" />
+                <data android:pathSuffix=".SVGZ" />
             </intent-filter>
         </activity>
 

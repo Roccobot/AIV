@@ -9,10 +9,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -104,7 +108,37 @@ fun RenameDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = Modifier.lowered(),
-        title = { Text(stringResource(R.string.pick_rename)) },
+        /*
+         * ⚠️⚠️ **'Estensione' STA SULLA RIGA DEL TITOLO, dalla 1.34, e nella 1.30 stava
+         * nella fila dei tasti**: era una mia lettura sbagliata della richiesta, e l'utente
+         * l'ha chiarita con un mockup (voce `ren-ext`: *'Estensione' in alto a destra,
+         * allineato con gli altri elementi ma sulla stessa riga del titolo; intendevo QUEL
+         * 'Rinomina'*). La sua frase della `1.30` diceva 'a destra di Rinomina', e i
+         * 'Rinomina' in questo dialogo sono **due**: il titolo e il tasto di conferma. Ho
+         * scelto quello sbagliato.
+         * ⚠️ **E così la fila dei tasti torna quella di Material**: 'Annulla' e 'Rinomina',
+         * la conferma in fondo a destra. La nota che dichiarava l'ordine strano è decaduta
+         * insieme al tasto che la rendeva necessaria.
+         */
+        title = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(stringResource(R.string.pick_rename))
+                FilledTonalButton(
+                    onClick = { asking = true },
+                    shape = MaterialTheme.shapes.large,
+                    contentPadding = EXT_PAD
+                ) {
+                    Text(
+                        text = stringResource(R.string.rename_ext),
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
+            }
+        },
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 OutlinedTextField(
@@ -171,25 +205,10 @@ fun RenameDialog(
          * previsto il caso (*se non ci sta, solo 'Estensione'*).
          */
         confirmButton = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                TextButton(
-                    onClick = { onRename(clean, first ?: 1, extension) },
-                    enabled = ready
-                ) { Text(stringResource(R.string.pick_rename)) }
-                FilledTonalButton(
-                    onClick = { asking = true },
-                    shape = MaterialTheme.shapes.large,
-                    contentPadding = EXT_PAD
-                ) {
-                    Text(
-                        text = stringResource(R.string.rename_ext),
-                        style = MaterialTheme.typography.labelLarge
-                    )
-                }
-            }
+            TextButton(
+                onClick = { onRename(clean, first ?: 1, extension) },
+                enabled = ready
+            ) { Text(stringResource(R.string.pick_rename)) }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
@@ -345,11 +364,22 @@ private fun PreviewRow(row: Pairing) {
             weight = FontWeight.Normal,
             modifier = Modifier.fillMaxWidth()
         )
-        Text(
-            text = "↓",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(start = ARROW_INDENT)
+        /*
+         * ⚠️⚠️ **UN'ICONA CENTRATA E NON UNA FRECCIA DI TESTO, dalla 1.34** (mockup
+         * dell'utente, voce `ren-ext`: *una freccia più visibile e centrata, probabilmente
+         * in grigio*). Il carattere `U+2193` a corpo di testo era **una lettera**: sottile
+         * come il testo intorno, allineata a sinistra col rientro di una lettera, e nella
+         * fila di due pastiglie larghe non si vedeva. Un'icona ha un peso suo e sta in mezzo
+         * fra le due, che è dove l'occhio la cerca.
+         * ⚠️ **Non porta descrizione**, come le altre icone decorative: quello che dice lo
+         * dicono le due pastiglie, e un lettore di schermo che annunciasse 'freccia in basso'
+         * fra due nomi di file leggerebbe un'informazione in più che non aggiunge niente.
+         */
+        Icon(
+            imageVector = Icons.Filled.ArrowDownward,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.align(Alignment.CenterHorizontally).size(ARROW_SIZE)
         )
         NamePill(
             text = unbroken(row.after),
@@ -368,7 +398,15 @@ private fun PreviewRow(row: Pairing) {
  * del dialogo e non avrebbe niente a cui allinearsi, mentre qui sta sopra la prima lettera dei
  * due nomi, che è il posto da cui l'occhio parte a leggerli.
  */
-private val ARROW_INDENT = 10.dp
+/**
+ * Quanto è grande la freccia fra le due pastiglie dell'anteprima.
+ *
+ * ⚠️ **20 e non 24**: è la misura di Material per un'icona **dentro** un testo, e qui la
+ * freccia sta fra due righe di nomi. A 24 diventava il pezzo più grosso del dialogo.
+ * ⚠️ **Al posto di `ARROW_INDENT`, che era 10dp di rientro**: con la freccia centrata un
+ * rientro da sinistra non vuol più dire niente.
+ */
+private val ARROW_SIZE = 20.dp
 
 @Composable
 private fun NamePill(
