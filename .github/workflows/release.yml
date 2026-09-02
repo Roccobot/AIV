@@ -267,6 +267,15 @@ jobs:
           # step above no longer produces.
           cp publish/index.html site/AIV/index.html
 
+          # The page shows two REAL screenshots of the app (light and dark), and
+          # they live next to it. Mirror the whole folder rather than copying
+          # named files: an added screenshot then needs no change here, and a
+          # deleted one does not linger on the website. Wiping first is safe
+          # because nothing else writes into that folder, and cp -R keeps this
+          # portable (no rsync dependency on the runner).
+          rm -rf site/AIV/schermate
+          cp -R publish/schermate site/AIV/schermate
+
           cd site
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
