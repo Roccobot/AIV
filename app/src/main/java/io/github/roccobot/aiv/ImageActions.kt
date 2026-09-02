@@ -193,8 +193,10 @@ object ImageActions {
      * ⚠️ **Non è l'elenco del manifest e non è quello di [Folder]**, ed è la ragione per cui
      * i tre non si possono unire senza pensarci: questo decide se **proporre da soli** un
      * indirizzo che nessuno ha chiesto di aprire, quindi sbaglia nel verso giusto se è più
-     * corto. `.tif` e `.tiff` restano fuori apposta: sono nel manifest ma nessun
-     * decodificatore dell'app li legge.
+     * corto.
+     * ⚠️ **Dalla `1.32` i tre elenchi combaciano di nuovo su `tif`**, che era la sola
+     * discordanza rimasta: qui non c'era mai stato, e nella `1.32` è uscito anche dagli altri
+     * due perché l'app non lo sa aprire. Il perché sta su [Folder] e nel manifest.
      */
     private val IMAGE_SUFFIXES = listOf(
         ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".heic", ".heif", ".avif", ".svg"
