@@ -32,6 +32,29 @@ un collegamento nuovo a ogni giro vuol dire un documento da ritrovare ogni volta
 ⚠️ **Non si fondono**, per quanto si somiglino: la ragione sta in `rules/Roccobot.md`,
 § '🧾 Il changelog, il terzo pezzo di ogni rilascio'.
 
+## 🎨 Il design system, che vive fuori dal repository
+
+⚠️⚠️ **LE FONTI VISIVE DI AIV STANNO IN CLAUDE DESIGN, nel progetto `Roccobot Design`**, e non
+in questo repository: chi cerca un colore, una misura o un componente lo cerca là prima di
+riscriverlo. Come si aggancia e che cosa contiene sta in `rules/Roccobot.md`, § '🎨 Grafica' →
+'🎨 Claude Design, dove vive il design system'; qui restano i tre pezzi che riguardano AIV.
+
+- **`ui_kits/aiv_android/`** è la ricostruzione delle **quattro schermate** dell'app (cartelle,
+  griglia, visualizzatore, impostazioni), fatta **dal sorgente Compose** e non dagli
+  screenshot, col suo `README.md` che dichiara anche quello che è finto (nessuna fotografia
+  vera, e il clic destro al posto del tocco lungo).
+- **`assets/aiv-mark.svg`** è la A di AIV senza la piastrella, quella che firma un testo. ⚠️ Il
+  brief dei disegni del 2026-09-02 diceva di **sostituirla** con la sua versione nuova: non è
+  stato fatto, perché è un lavoro nel design system e non nell'app.
+- **`assets/icons/`** porta i nove glifi, gli otto della famiglia nuova più `text-cursor`. ⚠️
+  Nell'app **non** ci sono: sono entrati con la `1.33` e sono usciti con la `1.35`, e il perché
+  sta in testa a `Glyphs.kt`.
+
+⚠️⚠️ **MA LE FRASI DELLA PAGINETTA DI DOWNLOAD NON SONO LÀ**, ed è la ragione per cui quel
+lavoro è fermo: vivono in un **documento** di Claude Design (`.dc.html`), che sta fuori dai
+progetti di design system e quindi non si raggiunge con lo strumento. Serve che l'utente lo
+mandi in chat o lo semini nello spazio di lavoro.
+
 ## 🗣️ Come si chiamano le cose
 
 ⚠️⚠️ **'IMMAGINE' E NON 'FOTOGRAFIA', e non è una sfumatura di stile** (correzione
