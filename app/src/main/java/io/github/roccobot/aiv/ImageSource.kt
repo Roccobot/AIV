@@ -48,6 +48,12 @@ sealed interface LoadResult {
  *   WebP, HEIF and, from API 31, AVIF, and it applies the EXIF orientation on
  *   its own. Writing that by hand would be a second implementation of something
  *   the platform already gets right.
+ * - ⚠️⚠️ **Per l'AVIF però quel 'da API 31' vale solo a parole**, e dietro c'è il
+ *   decodificatore AV1 del telefono, che sui file veri si rifiuta: vedi [Avif] per la
+ *   misura sul file dell'utente. Quindi quando `ImageDecoder` fallisce e i byte dicono
+ *   AVIF si riprova con libavif. **In quest'ordine e non al contrario**: dove il
+ *   telefono ce la fa, decodifica lui, con la sua accelerazione e il suo orientamento
+ *   EXIF, e il ripiego non gli toglie niente.
  * - Remote images are downloaded into memory first. A stream cannot be rewound,
  *   and ImageDecoder needs to read the header, decide the sample size and then
  *   read the pixels: with a plain stream that means either two requests or a
@@ -98,7 +104,17 @@ object ImageSource {
     private fun loadLocal(context: Context, uri: Uri): LoadResult {
         val resolver = context.contentResolver
         val source = ImageDecoder.createSource(resolver, uri)
-        return decode(source, resolver.getType(uri), localSize(resolver, uri), localName(resolver, uri))
+        return decode(
+            source = source,
+            mimeType = resolver.getType(uri),
+            byteSize = localSize(resolver, uri),
+            displayName = localName(resolver, uri),
+            // ⚠️ **Una lambda e non i byte**, ed è il punto: il ripiego AVIF vuole il file
+            // intero in memoria, che su una fotografia da 25 MB non è poco. Chiedendoli
+            // così si leggono **solo** quando `ImageDecoder` ha già fallito, cioè quasi
+            // mai, e il percorso normale continua a leggere in streaming come prima.
+            raw = { resolver.openInputStream(uri)?.use { it.readBytes() } }
+        )
     }
 
     private suspend fun loadRemote(context: Context, uri: Uri, onProgress: (Float) -> Unit): LoadResult {
@@ -109,10 +125,11 @@ object ImageSource {
         // tenere d'accordo con il primo.
         RemoteCache.read(context, uri)?.let { cached ->
             return decode(
-                ImageDecoder.createSource(ByteBuffer.wrap(cached)),
-                null,
-                cached.size.toLong(),
-                uri.lastPathSegment
+                source = ImageDecoder.createSource(ByteBuffer.wrap(cached)),
+                mimeType = null,
+                byteSize = cached.size.toLong(),
+                displayName = uri.lastPathSegment,
+                raw = { cached }
             )
         }
         val connection = (URL(uri.toString()).openConnection() as HttpURLConnection).apply {
@@ -173,7 +190,13 @@ object ImageSource {
             }
             if (bytes.isEmpty()) return LoadResult.Failed(LoadResult.Reason.OPEN_FAILED, "empty answer")
             val source = ImageDecoder.createSource(ByteBuffer.wrap(bytes))
-            val result = decode(source, declaredType, bytes.size.toLong(), uri.lastPathSegment)
+            val result = decode(
+                source = source,
+                mimeType = declaredType,
+                byteSize = bytes.size.toLong(),
+                displayName = uri.lastPathSegment,
+                raw = { bytes }
+            )
             // ⚠️⚠️ SI TIENE DA PARTE SOLO QUELLO CHE SI È APERTO DAVVERO, ed è
             // l'ordine opposto a quello che verrebbe naturale. Tenerli prima
             // salverebbe il download da una decodifica che finisce la memoria, ma
@@ -192,7 +215,8 @@ object ImageSource {
         source: ImageDecoder.Source,
         mimeType: String?,
         byteSize: Long?,
-        displayName: String?
+        displayName: String?,
+        raw: () -> ByteArray?
     ): LoadResult {
         var fullWidth = 0
         var fullHeight = 0
@@ -203,19 +227,30 @@ object ImageSource {
         // dettagli direbbe '?' la seconda volta che si guarda la stessa immagine, e
         // sembrerebbe che l'app abbia dimenticato qualcosa.
         var decodedType: String? = null
-        val bitmap: Bitmap = ImageDecoder.decodeBitmap(source) { decoder, info, _ ->
-            fullWidth = info.size.width
-            fullHeight = info.size.height
-            decodedType = info.mimeType
-            val sample = sampleSizeFor(info.size)
-            if (sample > 1) {
-                sampled = true
-                decoder.setTargetSampleSize(sample)
+        val bitmap: Bitmap = try {
+            ImageDecoder.decodeBitmap(source) { decoder, info, _ ->
+                fullWidth = info.size.width
+                fullHeight = info.size.height
+                decodedType = info.mimeType
+                val sample = sampleSizeFor(info.size)
+                if (sample > 1) {
+                    sampled = true
+                    decoder.setTargetSampleSize(sample)
+                }
+                // SOFTWARE, not hardware: a hardware bitmap cannot be read back, and
+                // the details panel plus any future pixel work need to read it.
+                decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
+                decoder.isMutableRequired = false
             }
-            // SOFTWARE, not hardware: a hardware bitmap cannot be read back, and
-            // the details panel plus any future pixel work need to read it.
-            decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
-            decoder.isMutableRequired = false
+        } catch (e: Throwable) {
+            // ⚠️⚠️ `Throwable` E NON `Exception`, perché qui dentro può arrivare anche un
+            // `OutOfMemoryError`: quello lo raccoglie già [load] e lo racconta come
+            // 'troppo grande', quindi va **rilanciato** invece di trasformato in un
+            // tentativo AVIF che finirebbe la memoria una seconda volta. Stessa cosa per
+            // l'annullamento, che non è un errore di formato.
+            if (e is OutOfMemoryError || e is CancellationException) throw e
+            return avifFallback(raw, mimeType, byteSize, displayName)
+                ?: LoadResult.Failed(LoadResult.Reason.UNSUPPORTED, e.message)
         }
         return LoadResult.Ok(
             LoadedImage(
@@ -225,6 +260,48 @@ object ImageSource {
                 pixelWidth = fullWidth.takeIf { it > 0 } ?: bitmap.width,
                 pixelHeight = fullHeight.takeIf { it > 0 } ?: bitmap.height,
                 sampled = sampled,
+                displayName = displayName
+            )
+        )
+    }
+
+    /**
+     * Il secondo tentativo, con libavif, per i soli file che dicono di essere AVIF.
+     *
+     * Torna `null` quando non c'è niente da tentare: così chi chiama conserva **il proprio**
+     * errore, che è quello vero, invece di sostituirlo con 'non è un AVIF'.
+     *
+     * ⚠️ **La misura si chiede allo stesso [pixelBudget] del percorso normale**, e non a un
+     * tetto scritto a mano: libavif scala dentro il bitmap che gli si dà, quindi il budget
+     * è l'unico posto in cui decidere quanto grande, ed è già quello che il resto dell'app
+     * usa per la stessa domanda.
+     */
+    private fun avifFallback(
+        raw: () -> ByteArray?,
+        mimeType: String?,
+        byteSize: Long?,
+        displayName: String?
+    ): LoadResult? {
+        if (!Avif.ready) return null
+        val bytes = try {
+            raw()
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            null
+        } ?: return null
+        if (!Avif.looksLike(bytes)) return null
+        val decoded = Avif.decode(bytes, pixelBudget()) ?: return null
+        return LoadResult.Ok(
+            LoadedImage(
+                bitmap = decoded.bitmap.asImageBitmap(),
+                // ⚠️ Il tipo si dichiara qui perché nessuno l'ha letto: la strada normale lo
+                // ricava da `ImageDecoder`, che su questo file non è arrivato in fondo. Senza,
+                // la barra delle info direbbe '?' proprio sul formato che è il punto.
+                mimeType = mimeType ?: "image/avif",
+                byteSize = byteSize ?: bytes.size.toLong(),
+                pixelWidth = decoded.fullWidth,
+                pixelHeight = decoded.fullHeight,
+                sampled = decoded.sampled,
                 displayName = displayName
             )
         )

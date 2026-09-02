@@ -14,9 +14,12 @@ import android.net.Uri as AndroidUri
 import coil3.Uri
 import coil3.asImage
 import coil3.decode.DataSource
+import coil3.decode.DecodeResult
+import coil3.decode.Decoder
 import coil3.fetch.FetchResult
 import coil3.fetch.Fetcher
 import coil3.fetch.ImageFetchResult
+import coil3.fetch.SourceFetchResult
 import coil3.request.ImageRequest
 import coil3.request.Options
 import coil3.size.pxOrElse
@@ -76,7 +79,16 @@ object Thumbs {
      * il caricatore di rete), ma un domani basterebbe un componente nuovo.
      */
     fun loader(context: PlatformContext): ImageLoader = ImageLoader.Builder(context)
-        .components { add(SystemThumbnailFactory()) }
+        .components {
+            add(SystemThumbnailFactory())
+            // ⚠️⚠️ **IL SECONDO SERVE PERCHÉ IL PRIMO SU UN AVIF NON HA NIENTE DA DARE**:
+            // `loadThumbnail` e `createImageThumbnail` chiedono al telefono, e il telefono
+            // su questi file si rifiuta (vedi [Avif]). Da lì la richiesta prosegue verso la
+            // decodifica normale di Coil, che usa `BitmapFactory` e si rifiuta uguale: era
+            // il 'non mostra nemmeno le miniature' del riscontro. Questo la intercetta
+            // prima, e vale sia per la griglia sia per le copertine delle cartelle.
+            add(AvifThumbnailFactory())
+        }
         .diskCache(null)
         .build()
 
@@ -287,5 +299,59 @@ private class SystemThumbnailFactory : Fetcher.Factory<Uri> {
             "content", "file" -> SystemThumbnailFetcher(data, options)
             else -> null
         }
+    }
+}
+
+/**
+ * La miniatura di un AVIF, decodificata da libavif invece che dal telefono.
+ *
+ * ⚠️ **Costa quanto aprire la fotografia intera**, e va detto invece di lasciarlo scoprire:
+ * un AVIF non porta una miniatura incorporata che il sistema sappia estrarre, quindi per
+ * fare un riquadro da 512 px bisogna decodificare i 24 megapixel e poi ridurli. È il prezzo
+ * che paga anche Fossify Gallery, e la cache di Coil fa sì che si paghi una volta sola per
+ * fotografia. ⚠️ I piani decodificati stanno nella memoria **nativa** di libavif, non
+ * nell'heap dell'app: quello che arriva in Java è già il riquadro piccolo.
+ */
+private class AvifThumbnailDecoder(
+    private val source: coil3.decode.ImageSource,
+    private val options: Options,
+) : Decoder {
+
+    override suspend fun decode(): DecodeResult? = withContext(Dispatchers.IO) {
+        val bytes = source.source().readByteArray()
+        coroutineContext.ensureActive()
+        val box = maxOf(
+            options.size.width.pxOrElse { FALLBACK_PX },
+            options.size.height.pxOrElse { FALLBACK_PX }
+        )
+        val bitmap = Avif.thumbnail(bytes, box) ?: return@withContext null
+        DecodeResult(image = bitmap.asImage(), isSampled = true)
+    }
+}
+
+/**
+ * Chi decide se il decodificatore AVIF serve: lo dicono i byte, non il nome del file.
+ *
+ * ⚠️ **Si sbircia senza consumare** (`peek`), perché una fabbrica che dice di no deve
+ * lasciare la sorgente intatta per chi viene dopo: leggerla qui vorrebbe dire rompere la
+ * decodifica di ogni JPEG dell'app per riconoscere gli AVIF.
+ */
+private class AvifThumbnailFactory : Decoder.Factory {
+    override fun create(
+        result: SourceFetchResult,
+        options: Options,
+        imageLoader: ImageLoader,
+    ): Decoder? {
+        if (!Avif.ready) return null
+        val head = try {
+            result.source.source().peek().use { peek ->
+                peek.require(Avif.SNIFF.toLong())
+                peek.readByteArray(Avif.SNIFF.toLong())
+            }
+        } catch (e: Exception) {
+            return null
+        }
+        if (!Avif.looksLike(head)) return null
+        return AvifThumbnailDecoder(result.source, options)
     }
 }
