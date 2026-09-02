@@ -3,11 +3,15 @@ package io.github.roccobot.aiv
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -28,7 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -48,23 +51,27 @@ import androidx.compose.ui.window.PopupProperties
  * ⚠️ **Le voci restano `DropdownMenuItem`**: sono composabili come gli altri, quindi si usano
  * dentro la nostra superficie e la resa Material (altezze, margini, corpi, icone ai lati) non
  * si perde. Quello che si scrive a mano è **solo** la superficie e dove sta.
- * ⚠️ **L'unica eccezione è [TapHoldMenuItem]**, e là sta scritto perché una voce con due
- * gesti non può essere un `DropdownMenuItem`.
+ * ⚠️⚠️ **DALLA 1.28 LE VOCI NON SONO PIÙ `DropdownMenuItem` ma [MenuRow]**, e la riga qui
+ * sopra racconta com'era: prendere le voci di Material senza il suo posizionamento andava
+ * bene finché tutte erano sue, ma una di loro ha due gesti e non poteva esserlo. Due
+ * disposizioni diverse della stessa fila non si allineano, e si vedeva.
  *
  * ⚠️⚠️ **STA IN UN FILE A SÉ dalla 0.75, quando i menu sono diventati due**: il secondo
  * avrebbe copiato la superficie, l'ombra e i tre numeri dell'animazione, e un'animazione
  * scritta in due posti diverge al primo ritocco. Quei numeri li ha scelti l'utente su un
  * mockup, quindi valgono per i menu, non per uno.
- * ⚠️ **Quello che NON è condiviso sono il posto e il raggio**, ed è la ragione per cui sono
- * parametri: il menu della selezione è quasi quadrato e ne vuole 16, quello del
- * visualizzatore è una lista larga e bassa e resta a 8.
+ * ⚠️⚠️ **DALLA 1.28 IL RAGGIO NON È PIÙ UN PARAMETRO, ed è la correzione di un difetto vero**
+ * (richiesta dell'utente, 2026-09-02: *va uniformato TUTTO*). Fino alla `1.27` ogni menu
+ * portava il suo numero, e i numeri erano **tre**: 8 nel visualizzatore, 8 nel navigatore, 16
+ * nella selezione. Erano nati come 'dipende dalla forma del contenuto', che è una ragione
+ * plausibile e sbagliata: uno stondamento dice **che cosa è** quella superficie, non quanto è
+ * larga, e tre valori diversi dicevano che erano tre cose diverse. Adesso è [MENU_ROUND], uno
+ * solo, e non si può più far divergere passandogli un numero.
  */
 @Composable
 fun MenuShell(
     /** Dove va il menu: [MenuCenter] o [MenuAbove]. */
     position: PopupPositionProvider,
-    /** Il raggio degli angoli, che dipende dalla forma del contenuto. */
-    corner: Dp,
     /**
      * Se un tocco **fuori** dal menu lo chiude.
      *
@@ -122,7 +129,7 @@ fun MenuShell(
                 scaleX = k
                 scaleY = k
             },
-            shape = RoundedCornerShape(corner),
+            shape = RoundedCornerShape(MENU_ROUND),
             color = MaterialTheme.colorScheme.surfaceContainer,
             shadowElevation = MENU_LIFT
         ) {
@@ -138,7 +145,26 @@ fun MenuShell(
              * caso del visualizzatore: la larghezza intrinseca di una misura fissa è quella
              * misura.
              */
-            Column(modifier = Modifier.width(IntrinsicSize.Max)) { content() }
+            Column(modifier = Modifier.width(IntrinsicSize.Max)) {
+                content()
+                /*
+                 * ⚠️⚠️ **LA STRISCIA D'ACCENTO È UN DISEGNO DELL'UTENTE** (mockup del
+                 * 2026-09-02: *solo per un tocco di carattere e di colore*), e sta **dentro**
+                 * la superficie invece che sotto: così i due angoli in basso la tagliano
+                 * insieme al resto, e la striscia sembra parte del riquadro e non un nastro
+                 * appoggiato sopra.
+                 * ⚠️ **Sta su TUTTI i menu e non solo su quello che ha disegnato**, perché è
+                 * il segno che dice 'questa superficie è un menu': metterlo su uno solo
+                 * direbbe che gli altri due sono un'altra cosa, che è il difetto appena
+                 * corretto sugli angoli.
+                 */
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(MENU_STRIPE)
+                        .background(MaterialTheme.colorScheme.primary)
+                )
+            }
         }
     }
 }
@@ -157,11 +183,40 @@ object MenuCenter : PopupPositionProvider {
         windowSize: IntSize,
         layoutDirection: LayoutDirection,
         popupContentSize: IntSize
-    ): IntOffset = IntOffset(
-        x = (windowSize.width - popupContentSize.width) / 2,
-        y = (windowSize.height - popupContentSize.height) / 2
-    )
+    ): IntOffset {
+        /*
+         * ⚠️⚠️ **NON È PIÙ AL CENTRO ESATTO, dalla 1.28** (richiesta dell'utente, 2026-09-02:
+         * *è meglio se appare un po' spostato verso il basso, perché si raggiunge meglio con
+         * il pollice. Non uno spostamento enorme, diciamo un 15/20% più giù*). Il 17% è la
+         * metà del suo intervallo, e si misura sull'**altezza della finestra**: sul residuo
+         * fra menu e schermo sarebbe una frazione di una frazione, cioè un movimento che a
+         * menu lungo sparisce proprio dove il pollice fatica di più.
+         * ⚠️ **La stretta esiste perché lo spostamento può portare fuori**: un menu alto
+         * quasi quanto lo schermo, spinto giù del 17%, uscirebbe dal bordo inferiore. Il
+         * limite lo riporta dentro con [MENU_EDGE_GAP] di aria, e a quel punto il menu è
+         * comunque in basso, che è quello che serviva.
+         */
+        val free = windowSize.height - popupContentSize.height
+        val centre = free / 2
+        val floor = free - (windowSize.height * MENU_AIR).toInt()
+        val wanted = centre + (windowSize.height * MENU_DOWN).toInt()
+        return IntOffset(
+            x = (windowSize.width - popupContentSize.width) / 2,
+            y = if (floor <= centre) centre else wanted.coerceAtMost(floor)
+        )
+    }
 }
+
+/**
+ * Di quanto scende il menu rispetto al centro, e quanta aria resta comunque sotto: tutti e
+ * due in frazione dell'altezza della finestra. Vedi [MenuCenter].
+ *
+ * ⚠️ **Frazioni e non pixel**, perché qui la densità non c'è: `calculatePosition` riceve
+ * misure in pixel e nessun `Density`, quindi un numero fisso sarebbe otto volte più grande
+ * su un telefono di dieci anni fa che su uno di adesso.
+ */
+private const val MENU_DOWN = 0.17f
+private const val MENU_AIR = 0.02f
 
 /**
  * Il menu **sopra l'ancora** e centrato nella finestra: quello della selezione.
@@ -206,51 +261,67 @@ private const val MENU_IN = 170
 private val MENU_EASE = CubicBezierEasing(0.2f, 0f, 0f, 1f)
 
 /**
- * Una voce di menu con **due** gesti: tocco breve e tocco lungo.
+ * Una voce di menu a tutta larghezza: icona, testo, e un tocco lungo se serve.
  *
- * ⚠️⚠️ **NON È UN `DropdownMenuItem`, e non si poteva usare quello**: il suo `clickable` sta
- * **dentro**, in fondo alla propria catena di modificatori, quindi un `combinedClickable`
- * passato nel `modifier` gli finisce prima e non vede mai la pressione. Nella passata `Main`
- * il nodo più interno riceve per primo e consuma il down. È lo stesso meccanismo per cui
- * [TapHoldFab] non è un `SmallFloatingActionButton`, ed è la stessa conclusione: per avere
- * due gesti su un comando, il nodo che ascolta dev'essere **uno**.
+ * ⚠️⚠️ **DALLA 1.28 LA USANO TUTTE, e prima no: era la causa dell'ALLINEAMENTO SBAGLIATO**
+ * (mockup dell'utente, 2026-09-02, con la riga rossa che lo mostra: *'Modifica' non è
+ * allineato alle altre voci scritte per esteso*). 'Modifica' era l'unica voce scritta a mano,
+ * perché ha due gesti, e le altre erano `DropdownMenuItem`: due implementazioni diverse della
+ * stessa fila. Material dispone la sua voce con un `Layout` suo, che riserva all'icona uno
+ * spazio proprio (`LeadingIconLayoutId`, letto nel bytecode di `MenuKt`), mentre questa
+ * metteva icona e testo in una `Row`, dove il testo comincia dove finisce l'icona.
+ * ⚠️⚠️ **La cura NON è stata copiare il numero di Material, ed è la parte da tenere**: un
+ * numero copiato allinea finché la libreria non lo cambia, e allora si scolla in silenzio.
+ * Adesso **tutte** le voci a tutta larghezza dei menu passano di qui, quindi si allineano
+ * **per costruzione**: qualunque numero abbia questa funzione, ce l'hanno tutte.
  *
- * ⚠️⚠️ **LE MISURE SONO LETTE NEL BYTECODE DI `MenuKt`, NON RICORDATE** (`material3`
- * `1.5.0-alpha26`), perché questa voce sta in mezzo alle altre e una differenza di due pixel
- * si vede: altezza minima **48dp** (`MenuListItemContainerHeight`), rientro orizzontale
- * **12dp** (`DropdownMenuItemHorizontalPadding`), spazio fra icona e testo **8dp**
- * (`DropdownMenuIconTextPadding`, che diventa 12 solo con la resa da puntatore di
- * precisione, cioè col mouse), corpo **labelLarge**.
+ * ⚠️⚠️ **NON PUÒ ESSERE UN `DropdownMenuItem`, e non si poteva usare quello**: il suo
+ * `clickable` sta **dentro**, in fondo alla propria catena di modificatori, quindi un
+ * `combinedClickable` passato nel `modifier` gli finisce prima e non vede mai la pressione.
+ * Nella passata `Main` il nodo più interno riceve per primo e consuma il down. È lo stesso
+ * meccanismo per cui [TapHoldFab] non è un `SmallFloatingActionButton`, ed è la stessa
+ * conclusione: per avere due gesti su un comando, il nodo che ascolta dev'essere **uno**.
+ *
+ * ⚠️ **LE MISURE SONO LETTE NEL BYTECODE DI `MenuKt`, NON RICORDATE** (`material3`
+ * `1.5.0-alpha26`), perché queste voci stanno in mezzo al resto e due pixel si vedono:
+ * altezza minima **48dp**, rientro orizzontale **12dp**, spazio fra icona e testo **8dp**
+ * (`DropdownMenuIconTextPadding`, che diventa 12 solo con la resa da puntatore di precisione,
+ * cioè col mouse), corpo **labelLarge**.
  * ⚠️ **I colori invece si CHIEDONO a Material** (`MenuDefaults.itemColors()`) invece di
  * essere copiati: quelli cambiano con la tavolozza, e una copia si scollerebbe al primo tema
  * diverso.
  *
  * @param holdLabel che cosa fa il tocco lungo, per il lettore di schermo. ⚠️ Senza, il gesto
- *   esiste solo per chi lo scopre per caso.
+ *   esiste solo per chi lo scopre per caso. Va insieme a [onHold]: o tutti e due o nessuno.
  */
 @Composable
-fun TapHoldMenuItem(
+fun MenuRow(
     text: String,
     icon: ImageVector,
-    holdLabel: String,
     onTap: () -> Unit,
-    onHold: () -> Unit
+    holdLabel: String? = null,
+    onHold: (() -> Unit)? = null
 ) {
     val colors = MenuDefaults.itemColors()
+    val gestures = if (onHold != null) {
+        Modifier.combinedClickable(
+            onLongClickLabel = holdLabel,
+            onLongClick = withHaptics(onHold),
+            onClick = onTap
+        )
+    } else {
+        Modifier.clickable(onClick = onTap)
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .sizeIn(minHeight = MENU_ITEM_HEIGHT)
-            .combinedClickable(
-                onLongClickLabel = holdLabel,
-                onLongClick = withHaptics(onHold),
-                onClick = onTap
-            )
+            .then(gestures)
             .padding(horizontal = MENU_ITEM_SIDE),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MENU_ITEM_GAP)
     ) {
-        // ⚠️ L'icona non porta descrizione e il testo sì: `combinedClickable` fonde le
+        // ⚠️ L'icona non porta descrizione e il testo sì: il modificatore di gesto fonde le
         // semantiche dei figli, quindi TalkBack legge una voce sola. Vedi `PadButton`.
         Icon(imageVector = icon, contentDescription = null, tint = colors.leadingIconColor)
         Text(
@@ -261,7 +332,23 @@ fun TapHoldMenuItem(
     }
 }
 
-/** Le tre misure di una voce di menu, lette in `MenuKt`. Vedi [TapHoldMenuItem]. */
+/** Le tre misure di una voce di menu, lette in `MenuKt`. Vedi [MenuRow]. */
 private val MENU_ITEM_HEIGHT = 48.dp
 private val MENU_ITEM_SIDE = 12.dp
 private val MENU_ITEM_GAP = 8.dp
+
+/**
+ * Lo stondamento di **ogni** menu, e la striscia d'accento in fondo.
+ *
+ * ⚠️⚠️ **UNO SOLO PER TUTTI, dalla 1.28**: prima erano tre numeri in tre file (8 nel
+ * visualizzatore, 8 nel navigatore, 16 nella selezione), e l'utente li ha visti diversi
+ * prima di noi. Stanno qui, accanto alla superficie che li usa, e non passano più come
+ * parametro: un parametro è un invito a ridiventare tre.
+ * ⚠️ **20 e non 28**: le bottomsheet stanno a 28 e vanno bene così (parole sue), e un menu
+ * che le raggiungesse smetterebbe di distinguersi da loro. 20 è il gradino sopra il 16 della
+ * selezione, cioè quello che era già il più morbido dei tre.
+ * ⚠️ **La striscia è 3dp**: sul mockup ne misura poco più di tre, ed è la misura in cui si
+ * legge come un bordo e non come una barra.
+ */
+val MENU_ROUND = 20.dp
+private val MENU_STRIPE = 3.dp

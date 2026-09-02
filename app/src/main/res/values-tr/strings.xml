@@ -16,7 +16,7 @@
     <string name="menu_copy_image">Görüntüyü kopyala</string>
     <string name="menu_share">Paylaş</string>
     <string name="menu_save">Kaydet</string>
-    <string name="menu_convert">Dönüştür ve dışa aktar</string>
+    <string name="menu_convert">Dışa aktar ve dönüştür</string>
     <string name="convert_format">Biçim</string>
     <string name="convert_jpeg">JPEG</string>
     <string name="convert_png">PNG</string>

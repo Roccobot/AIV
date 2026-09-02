@@ -16,7 +16,7 @@
     <string name="menu_copy_image">画像をコピー</string>
     <string name="menu_share">共有</string>
     <string name="menu_save">保存</string>
-    <string name="menu_convert">変換して書き出す</string>
+    <string name="menu_convert">書き出して変換</string>
     <string name="convert_format">形式</string>
     <string name="convert_jpeg">JPEG</string>
     <string name="convert_png">PNG</string>

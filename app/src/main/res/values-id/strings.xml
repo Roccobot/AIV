@@ -16,7 +16,7 @@
     <string name="menu_copy_image">Salin gambar</string>
     <string name="menu_share">Bagikan</string>
     <string name="menu_save">Simpan</string>
-    <string name="menu_convert">Konversi dan ekspor</string>
+    <string name="menu_convert">Ekspor dan konversi</string>
     <string name="convert_format">Format</string>
     <string name="convert_jpeg">JPEG</string>
     <string name="convert_png">PNG</string>

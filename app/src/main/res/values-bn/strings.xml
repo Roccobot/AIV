@@ -16,7 +16,7 @@
     <string name="menu_copy_image">ছবি কপি করুন</string>
     <string name="menu_share">শেয়ার করুন</string>
     <string name="menu_save">সংরক্ষণ করুন</string>
-    <string name="menu_convert">রূপান্তর ও রপ্তানি</string>
+    <string name="menu_convert">রপ্তানি ও রূপান্তর</string>
     <string name="convert_format">বিন্যাস</string>
     <string name="convert_jpeg">JPEG</string>
     <string name="convert_png">PNG</string>

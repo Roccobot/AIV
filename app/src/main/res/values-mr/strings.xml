@@ -16,7 +16,7 @@
     <string name="menu_copy_image">प्रतिमा कॉपी करा</string>
     <string name="menu_share">सहभागी करा</string>
     <string name="menu_save">जतन करा</string>
-    <string name="menu_convert">रूपांतर आणि निर्यात</string>
+    <string name="menu_convert">निर्यात आणि रूपांतर</string>
     <string name="convert_format">स्वरूप</string>
     <string name="convert_jpeg">JPEG</string>
     <string name="convert_png">PNG</string>

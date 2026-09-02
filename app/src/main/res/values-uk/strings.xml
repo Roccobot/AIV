@@ -16,7 +16,7 @@
     <string name="menu_copy_image">Копіювати зображення</string>
     <string name="menu_share">Поділитися</string>
     <string name="menu_save">Зберегти</string>
-    <string name="menu_convert">Перетворити й експортувати</string>
+    <string name="menu_convert">Експортувати й перетворити</string>
     <string name="convert_format">Формат</string>
     <string name="convert_jpeg">JPEG</string>
     <string name="convert_png">PNG</string>

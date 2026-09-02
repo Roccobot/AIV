@@ -16,7 +16,7 @@
     <string name="menu_copy_image">Afbeelding kopiëren</string>
     <string name="menu_share">Delen</string>
     <string name="menu_save">Opslaan</string>
-    <string name="menu_convert">Omzetten en exporteren</string>
+    <string name="menu_convert">Exporteren en omzetten</string>
     <string name="convert_format">Formaat</string>
     <string name="convert_jpeg">JPEG</string>
     <string name="convert_png">PNG</string>

@@ -1639,7 +1639,7 @@ private fun FilterKey(filter: MediaKind, onFilter: (MediaKind) -> Unit) {
         DropdownMenu(
             expanded = open,
             onDismissRequest = { open = false },
-            shape = RoundedCornerShape(PICK_CORNER)
+            shape = RoundedCornerShape(MENU_ROUND)
         ) {
             Row(modifier = Modifier.padding(horizontal = FILTER_PAD)) {
                 // ⚠️ Pellicola, fotografia e croce, in quest'ordine: è quello chiesto, e non
@@ -1946,22 +1946,19 @@ private fun PickMenu(open: Boolean, onDismiss: () -> Unit, content: @Composable 
     val gap = with(LocalDensity.current) { PICK_GAP.roundToPx() }
     MenuShell(
         position = remember(gap) { MenuAbove(gap) },
-        corner = PICK_CORNER,
         dismissOnOutside = true,
         onDismiss = onDismiss,
         content = content
     )
 }
 
-/**
- * Quanto sono stondati gli angoli del menu, e quanto stacca dal bordo alto del tastino.
- *
- * ⚠️ 16dp, cioè *un po' più stondati* come chiesto: un `DropdownMenu` di Material ne ha 4,
- * e il salto a 16 si vede senza trasformare il riquadro in una bolla. Il menu del
- * visualizzatore ne ha 8 e resta com'è: quello è una lista larga e bassa, questo è quasi
- * quadrato, e su una forma quadrata lo stesso raggio si legge meno.
+/*
+ * ⚠️ **Lo stondamento non vive più qui, dalla 1.28**: era 16 mentre gli altri due menu
+ * erano a 8, e adesso è `MENU_ROUND` in `Menus.kt`, uno per tutti. La nota vecchia
+ * spiegava perché questo ne volesse più degli altri (quasi quadrato contro lista larga):
+ * l'argomento era buono e la conclusione sbagliata, perché uno stondamento dice che cosa
+ * è una superficie, non quanto è larga.
  */
-private val PICK_CORNER = 16.dp
 
 /**
  * Il tondo che segna il filtro in vigore, dietro alla sua icona.

@@ -432,7 +432,6 @@ private fun SpotActions(
     val one = remember(spot.path) { listOf(Uri.fromFile(spot.file)) }
     MenuShell(
         position = MenuCenter,
-        corner = TREE_CORNER,
         dismissOnOutside = true,
         onDismiss = onDismiss
     ) {
@@ -566,5 +565,8 @@ private val GLYPH = 44.dp
 /** Il respiro sopra e sotto una riga. */
 private val ROW_PAD = 8.dp
 
-/** L'arrotondamento del riquadro delle azioni: lo stesso del menu del visualizzatore. */
-private val TREE_CORNER = 8.dp
+/*
+ * ⚠️ **L'arrotondamento non vive più qui, dalla 1.28**: diceva 'lo stesso del menu del
+ * visualizzatore' e lo teneva copiando il numero, che è il modo in cui due valori uguali
+ * diventano diversi. Adesso è `MENU_ROUND` in `Menus.kt`, e non si può più copiare.
+ */

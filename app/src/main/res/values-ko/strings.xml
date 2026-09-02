@@ -16,7 +16,7 @@
     <string name="menu_copy_image">이미지 복사</string>
     <string name="menu_share">공유</string>
     <string name="menu_save">저장</string>
-    <string name="menu_convert">변환 및 내보내기</string>
+    <string name="menu_convert">내보내기 및 변환</string>
     <string name="convert_format">형식</string>
     <string name="convert_jpeg">JPEG</string>
     <string name="convert_png">PNG</string>
