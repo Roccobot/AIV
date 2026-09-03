@@ -49,13 +49,26 @@ import androidx.compose.ui.window.PopupProperties
  * `DropdownMenu` si posiziona **contro il proprio genitore** e non accetta un posizionatore,
  * quindi con lui non si potevano scrivere né 'al centro dello schermo' (il visualizzatore,
  * dalla `0.69`) né 'sopra il tastino e al centro' (la selezione, dalla `0.75`).
- * ⚠️ **Le voci restano `DropdownMenuItem`**: sono composabili come gli altri, quindi si usano
- * dentro la nostra superficie e la resa Material (altezze, margini, corpi, icone ai lati) non
- * si perde. Quello che si scrive a mano è **solo** la superficie e dove sta.
- * ⚠️⚠️ **DALLA 1.28 LE VOCI NON SONO PIÙ `DropdownMenuItem` ma [MenuRow]**, e la riga qui
- * sopra racconta com'era: prendere le voci di Material senza il suo posizionamento andava
- * bene finché tutte erano sue, ma una di loro ha due gesti e non poteva esserlo. Due
- * disposizioni diverse della stessa fila non si allineano, e si vedeva.
+ * ⚠️ **Le voci sono composabili a parte**: sono le stesse di sempre, quindi si usano dentro
+ * questa superficie e la resa Material (altezze, margini, corpi, icone ai lati) non si perde.
+ * Quello che si scrive a mano è **solo** la superficie e dove sta.
+ * ⚠️⚠️ **MA NON SONO SCRITTE TUTTE ALLO STESSO MODO, e la nota che c'era qui diceva il
+ * contrario.** Fino alla `1.46` questo blocco dichiarava che *dalla 1.28 le voci non sono più
+ * `DropdownMenuItem` ma [MenuRow]*: vale per il **solo** menu del visualizzatore, che è quello
+ * che la `1.28` ha rifatto perché una sua voce ha due gesti e un `DropdownMenuItem` non ne
+ * porta due. Censito il 2026-09-03, dentro questa stessa superficie convivono tre modi:
+ * - **[MenuRow]** nel visualizzatore (`ViewerScreen.kt`);
+ * - **`DropdownMenuItem`** nel menu del tastino del cestino (`GridScreen.kt`), che ha due voci
+ *   che si spengono e una in colore d'errore, cose che [MenuRow] oggi non sa fare;
+ * - un **riquadro di tasti** (`ActionPad`) nel tocco lungo su una cartella
+ *   (`TreeScreen.kt`), e quello **non** è un difetto: è una disposizione diversa perché lì si
+ *   scelgono operazioni su un oggetto, ed è la forma che l'utente ha approvato.
+ *
+ * ⚠️ **Quindi quello da uniformare è UNO: il cestino**, e il prezzo è dare a [MenuRow] uno
+ * spento e un colore d'errore. Chi lo fa guardi che il suo rientro di sinistra è di tre punti
+ * più largo del margine di Material, e quel margine esiste per il glifo che sporge nel menu
+ * del visualizzatore: portarlo nel cestino allinea i due menu fra loro, che è lo scopo, ma
+ * sposta le voci del cestino di tre punti da dove stanno oggi.
  *
  * ⚠️⚠️ **STA IN UN FILE A SÉ dalla 0.75, quando i menu sono diventati due**: il secondo
  * avrebbe copiato la superficie, l'ombra e i tre numeri dell'animazione, e un'animazione

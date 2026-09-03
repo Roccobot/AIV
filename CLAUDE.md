@@ -248,8 +248,17 @@ grande un dialogo esattamente al centro fa allungare la mano.
         nessuno toccasse questa riga. Il criterio che lo vieta è universale e sta in
         `rules/Roccobot.md` § '🪶 Come si mantiene un file di regole'.
   - ⚠️ **Chi apre un `Popup` o un `Dialog` scritto in casa chiama `WindowVeil()` a mano**,
-    perché là il modificatore non passa: lo fanno `MenuShell`, il menu del tastino della
-    schermata iniziale e `Sheet`.
+    perché là il modificatore non passa: lo fanno `MenuShell`, i **due** `DropdownMenu`
+    dell'app (il menu del tastino della schermata iniziale e il filtro nella testata della
+    griglia) e `Sheet`.
+    - ⚠️⚠️ **QUESTO ELENCO NE DICEVA DUE FINO ALLA 1.46, e il terzo era senza velo**: il
+      filtro non chiamava `WindowVeil()`, quindi accendendo l'impostazione era l'unica
+      superficie dell'app a restare senza. A nasconderlo è stata una frase falsa nel codice,
+      che dava il menu della schermata iniziale per *l'unico menu dell'app che non passa da
+      `MenuShell`*: chi cercava i chiamanti ne trovava due e la nota gli diceva che erano
+      tutti. ⚠️ **Un velo mancante non si vede**, come dice il blocco qui sopra, e con
+      l'impostazione spenta di fabbrica non si vedeva nemmeno accendendola per caso: la sola
+      difesa è che questo elenco sia vero.
 - ⚠️ **I menu non usano quel modificatore ma lo stesso numero**: là il posto lo decide un
   `PopupPositionProvider` (`MenuCenter` in `Menus.kt`), che riceve pixel e nessun `Density`. Il
   15% è la costante `LOWER_BY`, condivisa.

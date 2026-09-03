@@ -778,9 +778,14 @@ private fun Hub(
             onDismissRequest = { open = false },
             shape = RoundedCornerShape(MENU_ROUND)
         ) {
-            // ⚠️ Il velo va chiesto anche qui, e non arriva da solo: questo è l'unico menu
-            // dell'app che non passa da `MenuShell` (vedi la nota qui sopra sul perché resta
-            // un `DropdownMenu`), quindi è l'unico che se lo deve aggiungere.
+            // ⚠️ Il velo va chiesto anche qui, e non arriva da solo: questo è uno dei DUE
+            // menu dell'app che non passano da `MenuShell` (vedi la nota qui sopra sul perché
+            // resta un `DropdownMenu`), quindi se lo deve aggiungere.
+            // ⚠️⚠️ **FINO ALLA 1.46 QUESTA RIGA DICEVA 'L'UNICO', ED ERA FALSO**: l'altro è il
+            // filtro nella testata della griglia, e per una versione è stato l'unico menu
+            // dell'app **senza** velo. La frase falsa è ciò che lo ha nascosto, perché chi
+            // cercava i chiamanti di `WindowVeil` ne trovava due e la nota gli diceva che
+            // erano tutti. Non si vedeva perché il velo è spento di fabbrica dalla `1.39`.
             WindowVeil()
             // ⚠️⚠️ **LA VOCE NOMINA LA VISTA CHE SI OTTIENE, non quella in cui si è**, ed
             // è la cosa da non rovesciare quando si riscrive l'etichetta: una riga di menu

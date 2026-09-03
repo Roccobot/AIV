@@ -1751,6 +1751,20 @@ private fun FilterKey(filter: MediaKind, onFilter: (MediaKind) -> Unit) {
             onDismissRequest = { open = false },
             shape = RoundedCornerShape(MENU_ROUND)
         ) {
+            /*
+             * ⚠️⚠️ **IL VELO SE LO DEVE CHIEDERE, e per una versione NON lo ha fatto**: il
+             * modificatore che lo porta viaggia con `lowered()`, che qui non passa, e
+             * `MenuShell` lo chiama per i menu che ci passano dentro. Questo e quello del
+             * tastino della home sono i due `DropdownMenu` dell'app, quindi sono gli unici
+             * due che se lo aggiungono a mano.
+             * ⚠️ **Il difetto era nascosto da una frase falsa**, ed è la parte che vale: il
+             * commento sul menu della home diceva che quello era 'l'unico menu dell'app che
+             * non passa da `MenuShell`', quindi chi cercava i chiamanti di `WindowVeil` si
+             * fermava a due e li trovava tutti. Erano due su **tre** superfici che lo
+             * vogliono a mano. Non si vedeva perché il velo è spento di fabbrica dalla
+             * `1.39`: accendendolo, questo era il solo menu senza.
+             */
+            WindowVeil()
             Row(modifier = Modifier.padding(horizontal = FILTER_PAD)) {
                 // ⚠️ Pellicola, fotografia e croce, in quest'ordine: è quello chiesto, e non
                 // l'ordine dell'enum, che comincia da 'tutto'. La croce sta in fondo perché
