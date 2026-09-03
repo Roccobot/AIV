@@ -362,9 +362,8 @@
     <string name="settings_editor_backup_desc">எடிட்டர் ஒரு படத்தின் மேல் எழுதுவதற்கு முன், அதன் நகலை மறுசுழற்சிக் கூடையில் சேமிக்கிறது; அங்கிருந்து மீட்கலாம். தேவையில்லை என்றால் அடுத்த \'கூடையைக் காலி செய்\' போது நீக்கப்படும்.</string>
     <string name="editor_tall">நெடுக்கு</string>
     <string name="editor_wide">குறுக்கு</string>
-    <string name="pick_drop_ask">தேர்வை விடவா?</string>
-    <string name="pick_drop">விடு</string>
-    <string name="pick_keep">வைத்திரு</string>
+    <string name="pick_cleared">தேர்வு அழிக்கப்பட்டது</string>
+    <string name="pick_undo">செயல்தவிர்</string>
     <string name="pick_list_done">கோப்புப் பட்டியல் இடைநிலைப் பலகைக்கு நகலெடுக்கப்பட்டது</string>
     <string name="settings_pick_weight">தேர்ந்தெடுத்த கோப்புகளின் அளவு</string>
     <string name="settings_pick_weight_desc">தேர்வின் மேலே, எண்ணிக்கைக்கு அருகில், தேர்ந்தெடுத்த எல்லாப் பொருள்களின் மொத்த அளவு தோன்றும். தேர்வு மாறும்போதெல்லாம் அதுவும் மாறும்.</string>

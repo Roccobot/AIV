@@ -392,9 +392,8 @@
     <string name="settings_editor_backup_desc">Zanim edytor nadpisze obraz, zapisuje jego kopię w koszu, skąd będzie można ją odzyskać; jeśli nie będzie potrzebna, zniknie przy następnym \'Opróżnij kosz\'.</string>
     <string name="editor_tall">Pionowo</string>
     <string name="editor_wide">Poziomo</string>
-    <string name="pick_drop_ask">Odrzucić zaznaczenie?</string>
-    <string name="pick_drop">Odrzuć</string>
-    <string name="pick_keep">Zachowaj</string>
+    <string name="pick_cleared">Wyczyszczono zaznaczenie</string>
+    <string name="pick_undo">Cofnij</string>
     <string name="pick_list_done">Lista plików skopiowana do schowka</string>
     <string name="settings_pick_weight">Rozmiar wybranych plików</string>
     <string name="settings_pick_weight_desc">Na początku zaznaczenia, obok licznika, pojawia się łączny rozmiar wszystkich wybranych elementów. Zmienia się przy każdej zmianie zaznaczenia.</string>

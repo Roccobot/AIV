@@ -392,9 +392,8 @@
     <string name="settings_editor_backup_desc">Перш ніж редактор перезапише зображення, він зберігає його копію в кошику, звідки її можна повернути; якщо вона не потрібна, її буде вилучено під час наступного очищення кошика.</string>
     <string name="editor_tall">Портрет</string>
     <string name="editor_wide">Пейзаж</string>
-    <string name="pick_drop_ask">Скасувати вибір?</string>
-    <string name="pick_drop">Скасувати</string>
-    <string name="pick_keep">Залишити</string>
+    <string name="pick_cleared">Вибір скасовано</string>
+    <string name="pick_undo">Скасувати</string>
     <string name="pick_list_done">Список файлів скопійовано в буфер обміну</string>
     <string name="settings_pick_weight">Розмір вибраних файлів</string>
     <string name="settings_pick_weight_desc">На початку вибору, поруч із лічильником, з\'являється загальний розмір усіх вибраних елементів. Він змінюється з кожною зміною вибору.</string>

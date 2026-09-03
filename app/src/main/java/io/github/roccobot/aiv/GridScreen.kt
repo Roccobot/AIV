@@ -5,12 +5,15 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
@@ -27,6 +30,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
@@ -65,6 +69,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -107,6 +113,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
@@ -270,14 +277,36 @@ fun GridScreen(
     var sheetTall by remember { mutableIntStateOf(0) }
 
     /**
-     * Se si sta chiedendo conferma di buttare via la selezione.
+     * La selezione che il gesto Indietro ha appena azzerato, e `null` quando non c'è niente da
+     * rimettere. È lei a far comparire la notifica con 'Annulla'.
      *
-     * ⚠️ Lo apre il **solo** gesto Indietro, e non la croce in testata: quella è una
-     * richiesta esplicita di uscire dalla selezione, e chiedere conferma a chi ha appena
-     * toccato il tasto che serve a quello sarebbe un giro a vuoto. Indietro invece si tocca
-     * anche per sbaglio, ed è il caso che la conferma esiste per coprire.
+     * ⚠️⚠️ **DALLA 1.44 INDIETRO AZZERA SENZA CHIEDERE, e la conferma della 1.06 è uscita**
+     * (istruzione dell'utente, 2026-09-03: *'indietro' di sistema dalla selezione la deve
+     * cancellare e far sparire la bottomsheet, senza conferma. Ma allo stesso tempo deve
+     * apparire per 3 secondi una notifica in basso*). Il difetto che la conferma copriva è lo
+     * stesso (trenta tocchi persi per sbaglio), ma la cura è cambiata: **prima** si chiedeva e
+     * si aspettava, **adesso** si fa e si offre di disfare. Un dialogo si paga sempre, una
+     * notifica solo se serve.
+     * ⚠️ **Tiene la selezione e non un booleano**: 'annulla' deve rimettere *quelle*
+     * fotografie, e un flag saprebbe solo che qualcosa è stato azzerato.
+     * ⚠️⚠️ **LA CHIAVE È IL TITOLO, ed è quello che la fa sparire cambiando cartella** (*o
+     * finché non si cambia cartella*): il titolo è la sola cosa che cambia quando si esce da
+     * questa cartella, ed è già la chiave che [worked] usa per la stessa ragione. Con `items`
+     * si azzererebbe a ogni ricarica della lista, cioè anche restando qui.
      */
-    var discarding by remember { mutableStateOf(false) }
+    var cleared by remember(title) { mutableStateOf<Set<Uri>?>(null) }
+
+    /*
+     * ⚠️ **Tre secondi, come li ha chiesti**, e il conto riparte da zero se si azzera una
+     * seconda selezione: la chiave dell'effetto è [cleared], quindi un'altra pressione di
+     * Indietro rimette la notifica in scena per tre secondi suoi.
+     */
+    LaunchedEffect(cleared) {
+        if (cleared != null) {
+            delay(UNDO_MS)
+            cleared = null
+        }
+    }
 
     /**
      * Se in questa visita si è già eseguita un'operazione sui file.
@@ -309,6 +338,18 @@ fun GridScreen(
     // stesso dato nello stesso giro. La chiave è il **se** e non l'insieme: aggiungere la
     // trentunesima foto alla selezione non è una notizia nuova.
     LaunchedEffect(picking) { onBusy(picking) }
+    /*
+     * ⚠️⚠️ **UNA SELEZIONE NUOVA SPENDE IL 'DISFA', ed è la ragione per cui questo effetto
+     * esiste**: 'Annulla' rimette *quelle* immagini, quindi con una selezione nuova in corso
+     * non saprebbe se sostituirla o sommarsi, e in tutti e due i casi porterebbe via qualcosa
+     * che l'utente ha appena scelto. La notifica se ne va, e il gesto Indietro ricomincia il
+     * giro da capo con la selezione di adesso.
+     * ⚠️ **Sta in un effetto sulla chiave `picking` e non nei punti in cui una selezione
+     * nasce**, che sono tre (il trascinamento dopo il tocco lungo, `takeAll` e l'inversione),
+     * e il primo di loro scrive la selezione a ogni fotogramma: là sarebbe una riga da
+     * ricordare in tre posti, qui è la regola scritta una volta.
+     */
+    LaunchedEffect(picking) { if (picking) cleared = null }
     // ⚠️ E uscendo dalla griglia la selezione se ne va con la schermata, quindi il modello va
     // liberato: senza resterebbe convinto che c'è una selezione viva, e non rileggerebbe mai
     // più da sé.
@@ -329,15 +370,19 @@ fun GridScreen(
      * ⚠️ Indietro esce dalla SELEZIONE prima di uscire dalla cartella: chi ha scelto
      * trenta foto e tocca Indietro per sbaglio non deve ritrovarsi due schermate indietro
      * con la selezione persa.
-     * ⚠️⚠️ **E DALLA 1.06 CHIEDE, invece di sciogliere la selezione in silenzio**
-     * (riscontro dell'utente sul collaudo: *Indietro deve mostrare un avviso tipo 'Vuoi
-     * scartare la selezione?'*). Dalla `0.94` alla `1.05` chiudeva prima il **pannello** e
-     * solo al secondo tocco la selezione: era un modo di non perdere trenta tocchi per
-     * sbaglio, ma il prezzo era una selezione viva e senza pannello, cioè uno stato in cui
-     * non si capisce più di esserci dentro. La conferma protegge dallo stesso sbaglio senza
-     * fabbricare quello stato.
+     * ⚠️⚠️ **AZZERA SUBITO E OFFRE DI DISFARE, dalla 1.44: la conferma della 1.06 è uscita.**
+     * Il perché del cambio sta su [cleared]. ⚠️ **Il terzo giro di una stessa questione**, e
+     * conviene conoscerli tutti e tre per non tornare al primo: dalla `0.94` alla `1.05`
+     * Indietro chiudeva prima il **pannello** e solo al secondo tocco la selezione, che
+     * lasciava una selezione viva senza pannello, cioè uno stato in cui non si capisce di
+     * esserci dentro; dalla `1.06` chiedeva conferma con un dialogo; da adesso fa e offre di
+     * disfare. Le tre coprono lo stesso sbaglio, e questa è la sola che non costa niente a chi
+     * il gesto lo aveva fatto per davvero.
      */
-    BackHandler(enabled = picking) { discarding = true }
+    BackHandler(enabled = picking) {
+        cleared = chosen
+        chosen = emptySet()
+    }
 
     /**
      * Dove sta il dito mentre trascina una selezione, e `null` quando non trascina.
@@ -1086,8 +1131,17 @@ fun GridScreen(
              * **intero**, che non sono operazioni su una selezione e non hanno un altro
              * posto dove stare.
              */
+            /*
+             * ⚠️⚠️ **E DALLA 1.44 SI FA DA PARTE ANCHE PER LA NOTIFICA**: il gesto Indietro
+             * azzera la selezione, quindi in quell'istante `picking` diventa falso e il
+             * tastino tornerebbe **proprio dove** compare la notifica, che è larga tutto lo
+             * schermo. Coprirebbe il tasto 'Annulla', cioè la sola cosa che quella notifica
+             * ha da offrire.
+             * ⚠️ **Riguarda il solo cestino**, come tutto questo tastino: in una cartella
+             * normale non c'è e la notifica ha il fondo tutto per sé.
+             */
             FabPop(
-                visible = bin && !picking,
+                visible = bin && !picking && cleared == null,
                 modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp)
             ) {
                 Box {
@@ -1218,6 +1272,33 @@ fun GridScreen(
         )
 
         /*
+         * ⚠️⚠️ **LA NOTIFICA DELL'AZZERAMENTO, dalla 1.44**, che è la seconda metà della
+         * richiesta con cui la conferma è uscita (istruzione dell'utente, 2026-09-03: *deve
+         * apparire per 3 secondi (o finché non si cambia cartella) una notifica in basso che
+         * a sinistra dice 'Selezione azzerata' e a destra un pulsante 'Annulla' che la
+         * ripristina e fa riapparire la bottomsheet*).
+         * ⚠️⚠️ **STA DOPO LA SCHEDA E PRIMA DEI DUE VELI, e l'ordine è la funzione**: in un
+         * `Box` chi è scritto dopo sta sopra, e queste due non si vedono mai insieme (una
+         * selezione nuova spegne la notifica, vedi l'effetto su `picking`), quindi fra loro
+         * l'ordine non conta; conta invece che i veli restino sopra tutte e due, o un tocco
+         * fuori dal menu del tastino finirebbe sul tasto 'Annulla'.
+         * ⚠️ **Non serve dire alla griglia che c'è**: [sheetTall] esiste perché la scheda
+         * delle azioni copre l'ultima fila di immagini per tutto il tempo della selezione,
+         * mentre questa passa in tre secondi e non porta niente da raggiungere sotto di lei.
+         */
+        UndoNotice(
+            visible = cleared != null,
+            modifier = Modifier.align(Alignment.BottomCenter),
+            // ⚠️ `orEmpty()` e non `!!`: fra il tocco e questa riga il conto dei tre secondi
+            // può essere scaduto, e con la notifica già in uscita il tasto non deve far
+            // cadere l'app. Rimettere una selezione vuota è quello che c'è adesso.
+            onUndo = {
+                chosen = cleared.orEmpty()
+                cleared = null
+            }
+        )
+
+        /*
          * ⚠️⚠️ **IL VELO CHE CHIUDE IL MENU DEL TASTINO, dalla 1.06** (riscontro dell'utente
          * sul collaudo: *tutti i menu di tutti i FAB devono andarsene se si tocca un punto
          * qualsiasi fuori dal popup, incluso il FAB stesso*).
@@ -1313,40 +1394,13 @@ fun GridScreen(
      * per davvero.
      */
     /*
-     * ⚠️⚠️ **LA CONFERMA DI BUTTARE VIA LA SELEZIONE, dalla 1.06** (riscontro dell'utente sul
-     * collaudo): la chiede il **solo** gesto Indietro, e il perché sta su `discarding`.
-     * ⚠️ Non passa da [FileJob]: quello è fatto di elenchi di file su cui operare, e qui non
-     * si tocca nessun file. Sta accanto allo svuotamento del cestino, che è l'altra conferma
-     * che non riguarda dei file scelti.
+     * ⚠️⚠️ **QUI VIVEVA LA CONFERMA DI BUTTARE VIA LA SELEZIONE, dalla 1.06 alla 1.43**, con
+     * la domanda e i due verbi 'Mantieni' e 'Scarta' (che erano verbi e non 'Annulla' e 'OK'
+     * per una ragione ancora buona: su una domanda 'Annulla' non dice **che cosa** annulla).
+     * L'ha tolta l'utente, e al suo posto c'è la notifica con 'Annulla' in fondo alla
+     * schermata: il perché sta su [cleared]. ⚠️ Chi la rimettesse avrebbe due cure per lo
+     * stesso sbaglio, una che chiede prima e una che disfa dopo.
      */
-    if (discarding) {
-        /*
-         * ⚠️⚠️ **SOLO LA DOMANDA E DUE VERBI, dalla 1.10** (riscontro dell'utente: *non
-         * servono descrizioni: abbassa il popup e mostra i tasti 'Mantieni' e 'Scarta'*).
-         * Nella `1.09` sotto il titolo c'era una riga che contava gli elementi e rassicurava
-         * che i file restavano dove sono: diceva una cosa vera che **nessuno aveva chiesto**,
-         * e per dirla allungava di due righe un dialogo la cui unica funzione è farsi
-         * rispondere in un tocco.
-         * ⚠️ **I due tasti sono VERBI e non 'Annulla' e 'OK'**: chi legge 'Annulla' su una
-         * domanda deve ancora capire che cosa annulla, la domanda o la selezione. 'Mantieni'
-         * e 'Scarta' dicono l'esito, quindi la domanda si può anche non rileggere.
-         */
-        AlertDialog(
-            onDismissRequest = { discarding = false },
-            modifier = Modifier.lowered(),
-            title = { Text(stringResource(R.string.pick_drop_ask)) },
-            confirmButton = {
-                TextButton(onClick = { discarding = false; chosen = emptySet() }) {
-                    Text(stringResource(R.string.pick_drop))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { discarding = false }) {
-                    Text(stringResource(R.string.pick_keep))
-                }
-            }
-        )
-    }
 
     if (emptying) {
         AlertDialog(
@@ -1980,6 +2034,84 @@ private fun FabPop(
 }
 
 /**
+ * La notifica che dice che la selezione è stata azzerata, e offre di rimetterla.
+ *
+ * ⚠️⚠️ **È UNO `Snackbar` DI MATERIAL E NON UNA SUPERFICIE DISEGNATA IN CASA**: la frase a
+ * sinistra e l'azione a destra sulla stessa riga sono esattamente la sua forma, e con lui
+ * arrivano il colore rovesciato, lo stondamento, i rientri e i due stili di testo, che
+ * rifatti a mano sarebbero sei valori da indovinare (la nota in testa a `Glyphs.kt` dice di
+ * non ridisegnare quello che Material ha già).
+ * ⚠️⚠️ **SENZA `SnackbarHost` E SENZA `SnackbarHostState`, e non è una scorciatoia**: quella
+ * coppia serve a chi ha una **coda** di messaggi da mostrare a turno, e vuole un
+ * `Scaffold`, che questa schermata non ha; qui il messaggio è uno solo, e la sua durata la
+ * decide già l'effetto su `cleared`, che è anche il posto in cui 'o finché non si cambia
+ * cartella' si può scrivere. Con la coda, la durata sarebbe di Material e quella condizione
+ * non ci starebbe dentro.
+ * ⚠️ **Il colore del tasto si scrive a mano**: dentro `Snackbar` un `TextButton` prende il
+ * suo `primary` di fabbrica, che è pensato per il fondo della pagina e non per quello
+ * rovesciato di una notifica. [SnackbarDefaults.actionContentColor] è il colore che
+ * Material ha scelto per **quel** fondo.
+ * ⚠️⚠️ **ARRIVA E SE NE VA COME LE DUE SCHEDE, con gli stessi numeri** ([ARRIVO_RIGIDITA],
+ * [SHEET_FADE_MS], [USCITA_MS], [ACCELERA] in `Sheet.kt`): dalla 1.43 'arrivare dal basso'
+ * in questa app ha una definizione, e una notifica che comparisse di scatto accanto a due
+ * schede che scorrono direbbe di essere un'altra famiglia di cose. ⚠️ **Non è la molla di
+ * fabbrica**: quella non l'aveva scelta nessuno, ed è la ragione per cui in `ActionPad` è
+ * stata sostituita anche dove funzionava.
+ * ⚠️ **Sta in una funzione a sé per la stessa ragione di [FabPop]**: chiamata sul posto,
+ * `AnimatedVisibility` finisce sull'overload di `ColumnScope` e il compilatore la rifiuta.
+ */
+@Composable
+private fun UndoNotice(
+    visible: Boolean,
+    onUndo: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    AnimatedVisibility(
+        visible = visible,
+        modifier = modifier,
+        enter = slideInVertically(
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioNoBouncy,
+                stiffness = ARRIVO_RIGIDITA,
+                visibilityThreshold = IntOffset.VisibilityThreshold
+            ),
+            initialOffsetY = { it }
+        ) + fadeIn(animationSpec = tween(durationMillis = SHEET_FADE_MS)),
+        exit = slideOutVertically(
+            animationSpec = tween(durationMillis = USCITA_MS, easing = ACCELERA),
+            targetOffsetY = { it }
+        ) + fadeOut(
+            animationSpec = tween(
+                durationMillis = SHEET_FADE_MS,
+                delayMillis = USCITA_MS - SHEET_FADE_MS
+            )
+        )
+    ) {
+        Snackbar(
+            modifier = Modifier
+                // ⚠️ **Il rientro di sistema se lo mette da sé**, come le due schede: questa
+                // vive nel `Box` di radice della schermata, che arriva al bordo dello
+                // schermo, quindi senza questa riga starebbe sotto la barra di navigazione.
+                // ⚠️ **E qui la scheda si comporta al contrario**: là il fondo passa sotto
+                // la barra apposta (per prenderne il colore) e il rientro sta sul contenuto;
+                // una notifica non è appoggiata a niente e va spostata intera.
+                .navigationBarsPadding()
+                .padding(NOTICE_EDGE),
+            action = {
+                TextButton(
+                    onClick = onUndo,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = SnackbarDefaults.actionContentColor
+                    )
+                ) { Text(stringResource(R.string.pick_undo)) }
+            }
+        ) {
+            Text(stringResource(R.string.pick_cleared))
+        }
+    }
+}
+
+/**
  * Il menu delle operazioni: **al centro in basso**, sopra il tastino.
  *
  * ⚠️⚠️ **NON È PIÙ UN `DropdownMenu`, dalla 0.75** (richiesta dell'utente: *al centro in
@@ -2056,4 +2188,23 @@ private const val FAB_IN = 90
 
 /** L'uscita, in millisecondi: secca, e più breve dell'entrata. */
 private const val FAB_OUT = 110
+
+/**
+ * Quanto resta in scena la notifica dell'azzeramento.
+ *
+ * ⚠️ **Tre secondi, come li ha chiesti** (*deve apparire per 3 secondi*), e non è il valore
+ * di Material: `SnackbarDuration.Short` sono 4 secondi e `Long` 10. Con la coda di Material
+ * non si potrebbe nemmeno scegliere, ed è una delle ragioni per cui qui non c'è (vedi
+ * [UndoNotice]).
+ */
+private const val UNDO_MS = 3000L
+
+/**
+ * Il respiro fra la notifica e i tre bordi che la circondano.
+ *
+ * ⚠️ **12dp, che è quello che `SnackbarHost` di Material mette da sé**: qui l'ospite non
+ * c'è, quindi il margine che avrebbe messo lui va scritto. Senza, la notifica toccherebbe
+ * i lati dello schermo e la barra di sistema.
+ */
+private val NOTICE_EDGE = 12.dp
 

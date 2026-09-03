@@ -347,9 +347,8 @@
     <string name="settings_editor_backup_desc">ก่อนที่โปรแกรมแก้ไขจะเขียนทับภาพ ระบบจะเก็บสำเนาไว้ในถังขยะ ซึ่งคุณกู้คืนได้ หากไม่ต้องการ สำเนานั้นจะถูกลบเมื่อ \'ล้างถังขยะ\' ครั้งต่อไป</string>
     <string name="editor_tall">แนวตั้ง</string>
     <string name="editor_wide">แนวนอน</string>
-    <string name="pick_drop_ask">ยกเลิกการเลือกไหม</string>
-    <string name="pick_drop">ยกเลิก</string>
-    <string name="pick_keep">เก็บไว้</string>
+    <string name="pick_cleared">ล้างการเลือกแล้ว</string>
+    <string name="pick_undo">เลิกทำ</string>
     <string name="pick_list_done">คัดลอกรายการไฟล์ไปยังคลิปบอร์ดแล้ว</string>
     <string name="settings_pick_weight">ขนาดของไฟล์ที่เลือก</string>
     <string name="settings_pick_weight_desc">ด้านบนของการเลือก ถัดจากตัวนับ จะปรากฏขนาดรวมของรายการที่เลือกทั้งหมด และเปลี่ยนทุกครั้งที่การเลือกเปลี่ยนไป</string>

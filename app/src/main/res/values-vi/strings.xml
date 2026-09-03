@@ -347,9 +347,8 @@
     <string name="settings_editor_backup_desc">Trước khi một trình sửa ghi đè lên một ảnh, nó lưu một bản sao vào thùng rác, nơi bạn có thể lấy lại; nếu không cần, bản sao sẽ bị xoá ở lần \'Dọn thùng rác\' kế tiếp.</string>
     <string name="editor_tall">Dọc</string>
     <string name="editor_wide">Ngang</string>
-    <string name="pick_drop_ask">Bỏ lựa chọn?</string>
-    <string name="pick_drop">Bỏ</string>
-    <string name="pick_keep">Giữ</string>
+    <string name="pick_cleared">Đã bỏ lựa chọn</string>
+    <string name="pick_undo">Hoàn tác</string>
     <string name="pick_list_done">Đã sao chép danh sách tệp vào bảng nhớ tạm</string>
     <string name="settings_pick_weight">Kích thước của các tệp đã chọn</string>
     <string name="settings_pick_weight_desc">Ở đầu vùng chọn, bên cạnh bộ đếm, hiện tổng kích thước của mọi mục đã chọn. Con số này thay đổi theo từng thay đổi của vùng chọn.</string>

@@ -362,9 +362,8 @@
     <string name="settings_editor_backup_desc">किसी संपादक द्वारा छवि पर लिखे जाने से पहले, उसकी एक प्रति रद्दी में रख दी जाती है, जहाँ से आप उसे वापस ले सकते हैं; ज़रूरत न हो तो अगली बार \'रद्दी खाली करें\' पर वह हट जाएगी।</string>
     <string name="editor_tall">खड़ा</string>
     <string name="editor_wide">आड़ा</string>
-    <string name="pick_drop_ask">चयन छोड़ें?</string>
-    <string name="pick_drop">छोड़ें</string>
-    <string name="pick_keep">रखें</string>
+    <string name="pick_cleared">चयन हटाया गया</string>
+    <string name="pick_undo">पूर्ववत</string>
     <string name="pick_list_done">फ़ाइल सूची क्लिपबोर्ड पर कॉपी हो गई</string>
     <string name="settings_pick_weight">चुनी गई फ़ाइलों का आकार</string>
     <string name="settings_pick_weight_desc">चयन के शीर्ष पर, गिनती के पास, सभी चुनी गई वस्तुओं का कुल आकार दिखता है। चयन बदलने पर यह हर बार बदलता है।</string>

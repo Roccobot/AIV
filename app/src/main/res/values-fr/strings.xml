@@ -377,9 +377,8 @@
     <string name="settings_editor_backup_desc">Avant qu\'un éditeur n\'écrase une image, il en enregistre une copie dans la corbeille, où vous pourrez la récupérer ; si elle ne vous sert pas, elle sera supprimée au prochain \'Vider la corbeille\'.</string>
     <string name="editor_tall">Portrait</string>
     <string name="editor_wide">Paysage</string>
-    <string name="pick_drop_ask">Abandonner la sélection ?</string>
-    <string name="pick_drop">Abandonner</string>
-    <string name="pick_keep">Garder</string>
+    <string name="pick_cleared">Sélection effacée</string>
+    <string name="pick_undo">Annuler</string>
     <string name="pick_list_done">Liste des fichiers copiée dans le presse-papiers</string>
     <string name="settings_pick_weight">Taille des fichiers sélectionnés</string>
     <string name="settings_pick_weight_desc">En tête de la sélection, à côté du compteur, apparaît la taille totale de tous les éléments sélectionnés. Elle varie à chaque modification de la sélection.</string>

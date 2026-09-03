@@ -6,8 +6,10 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
+import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -49,6 +51,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import kotlin.math.exp
+import kotlin.math.sqrt
 
 /**
  * Una **bottomsheet**: una scheda appoggiata al bordo di sotto, larga quanto lo schermo, con
@@ -105,8 +109,25 @@ fun Sheet(
     foot: @Composable () -> Unit = {},
     content: @Composable () -> Unit
 ) {
+    /*
+     * ⚠️⚠️ **LA SCHEDA SI CHIUDE IN DUE TEMPI, dalla 1.44, e senza questo non ci sarebbe
+     * nessuna uscita da vedere** (istruzione dell'utente, 2026-09-03: *le bottomsheet devono
+     * sparire nello stesso modo in cui entrano, ma con animazione speculare*). Il congedo di un
+     * dialogo è immediato: chiamato `onDismiss`, la finestra non c'è più e qualunque animazione
+     * non ha nessuno da animare. Quindi `chiudi` **non** congeda: spegne [visibile], che avvia
+     * la discesa, e il congedo vero lo fa il `finishedListener` quando il movimento è a zero.
+     * ⚠️ **I tre modi di chiudere passano tutti da qui** (il tocco sopra la scheda, la
+     * crocetta, il gesto Indietro): uno che chiamasse `onDismiss` dritto salterebbe l'uscita, e
+     * si vedrebbe come una scheda che a volte scende e a volte sparisce.
+     * ⚠️ **Parte da `false` e si accende all'ingresso in scena**: è la stessa riga che faceva
+     * partire la salita, e adesso serve a due animazioni invece che a una.
+     */
+    var visibile by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { visibile = true }
+    val chiudi: () -> Unit = { visibile = false }
+
     Dialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = chiudi,
         /*
          * ⚠️⚠️ **`decorFitsSystemWindows = false` È QUELLO CHE PORTA LA SCHEDA SOTTO LA BARRA
          * DI SISTEMA** (richiesta dell'utente, 2026-09-03: *fa' in modo che la barra
@@ -126,23 +147,31 @@ fun Sheet(
         sheetWindow()
         WindowVeil(bare = SHEET_DIM)
 
-        var grown by remember { mutableStateOf(false) }
-        LaunchedEffect(Unit) { grown = true }
         /*
          * ⚠️⚠️ **DUE ANIMAZIONI E NON UNA, e sono due perché durano tempi diversi**: la
          * salita è una molla che frena ([ARRIVO_RIGIDITA]), la dissolvenza dura
          * [SHEET_FADE_MS] e basta. Una sola con due letture (l'opacità ricavata dalla
          * posizione) legherebbe la 'mini dissolvenza' alla curva della salita, cioè la
          * farebbe rallentare insieme a lei proprio in fondo, dov'è già finita.
+         * ⚠️⚠️ **E OGNUNA HA DUE VERSI, dalla 1.44**: all'andata la molla e la dissolvenza
+         * corta, al ritorno la curva che accelera ([fuga]) e la stessa dissolvenza **in
+         * coda** ([sfumaVia]). Il perché quelle due e non altre sta sulle costanti: sono la
+         * prima letta all'indietro e la seconda spostata dall'inizio alla fine, cioè
+         * l'animazione speculare che l'utente ha chiesto.
+         * ⚠️ **Il congedo vero sta nel `finishedListener` della SALITA e non della
+         * dissolvenza**: la posizione è quella che dura più a lungo, quindi è l'unica che
+         * finisce quando la scheda è davvero fuori. Legato all'altra, la finestra si
+         * chiuderebbe con la scheda ancora a metà strada, invisibile ma non arrivata.
          */
         val lift by animateFloatAsState(
-            targetValue = if (grown) 1f else 0f,
-            animationSpec = arrivo(),
-            label = "sheet-lift"
+            targetValue = if (visibile) 1f else 0f,
+            animationSpec = if (visibile) arrivo() else fuga(),
+            label = "sheet-lift",
+            finishedListener = { fine -> if (fine == 0f) onDismiss() }
         )
         val show by animateFloatAsState(
-            targetValue = if (grown) 1f else 0f,
-            animationSpec = tween(durationMillis = SHEET_FADE_MS),
+            targetValue = if (visibile) 1f else 0f,
+            animationSpec = if (visibile) tween(durationMillis = SHEET_FADE_MS) else sfumaVia(),
             label = "sheet-fade"
         )
 
@@ -169,7 +198,7 @@ fun Sheet(
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
-                    onClick = onDismiss
+                    onClick = chiudi
                 ),
             contentAlignment = Alignment.BottomCenter
         ) {
@@ -244,7 +273,7 @@ fun Sheet(
                             textAlign = TextAlign.Start,
                             modifier = Modifier.weight(1f)
                         )
-                        IconButton(onClick = onDismiss, modifier = Modifier.size(SHEET_SHUT)) {
+                        IconButton(onClick = chiudi, modifier = Modifier.size(SHEET_SHUT)) {
                             Icon(
                                 imageVector = Icons.Outlined.Close,
                                 // ⚠️ Descritta col nome che il tasto aveva quando era una
@@ -425,6 +454,74 @@ internal fun arrivo(): SpringSpec<Float> = spring(
  * lei proprio in fondo, dove ha già finito.
  */
 internal const val SHEET_FADE_MS = 110
+
+// ── L'uscita, che è l'entrata letta all'indietro ────────────────────────────
+/*
+ * ⚠️⚠️ **'SPECULARE' QUI È PRESO ALLA LETTERA, e per questo non c'è nessuna curva nuova da
+ * scegliere** (istruzione dell'utente, 2026-09-03: *le bottomsheet devono sparire nello stesso
+ * modo in cui entrano, ma con animazione speculare, accelerazione e scorrimento giù + breve
+ * dissolvenza*). La strada ovvia sarebbe stata l'`emphasized accelerate` di Material, cioè
+ * un'altra curva con altri quattro numeri, che non è la specularità: è un'altra animazione che
+ * accelera. Qui l'uscita è **la stessa molla percorsa dalla fine all'inizio**, quindi accelera
+ * per costruzione e i due movimenti sono l'uno l'immagine dell'altro.
+ * ⚠️ **Costa una formula chiusa e nessuna misura da tarare**: la molla critica ha una
+ * posizione scrivibile in una riga, e [MOLLA] la scrive.
+ */
+
+/**
+ * Quanto dura l'uscita: **il tempo in cui la molla dell'entrata si posa**.
+ *
+ * ⚠️ **332 non è un numero scelto ma misurato**: è l'istante in cui la molla di
+ * [ARRIVO_RIGIDITA] entra nel suo ultimo 1%, cioè quando l'entrata è finita. Prenderne uno
+ * diverso renderebbe le due animazioni due durate diverse, e la specularità si perderebbe nel
+ * punto in cui si nota di più, cioè aprendo e chiudendo di seguito.
+ */
+internal const val USCITA_MS = 332
+
+/**
+ * La curva dell'uscita: **[MOLLA] letta all'indietro**, quindi accelera.
+ *
+ * A che velocità va, misurato, per non doverlo ricavare da capo: a un decimo del tempo ha
+ * fatto lo **0,8%** della strada, a un quarto il **3,1%**, a metà il **14,8%**, e nell'ultimo
+ * quarto percorre la metà di tutto. È il rovescio esatto dell'entrata, che agli stessi istanti
+ * sta al **14,5%**, al **49,9%** e all'**85,2%**.
+ */
+internal val ACCELERA: Easing = Easing { f -> 1f - MOLLA(1f - f) }
+
+/** L'uscita per un numero da 0 a 1. Vedi [ACCELERA]. */
+internal fun fuga(): TweenSpec<Float> = tween(durationMillis = USCITA_MS, easing = ACCELERA)
+
+/**
+ * La dissolvenza dell'uscita: la stessa di [SHEET_FADE_MS], ma **in coda invece che in testa**.
+ *
+ * ⚠️ **È l'altra metà della specularità**: all'andata la dissolvenza sta nei primi 110 ms,
+ * quindi al ritorno sta negli ultimi. Senza il ritardo la scheda diventerebbe trasparente
+ * subito e scenderebbe da fantasma, che è proprio l'effetto che sull'entrata si è evitato.
+ */
+internal fun sfumaVia(): TweenSpec<Float> =
+    tween(durationMillis = SHEET_FADE_MS, delayMillis = USCITA_MS - SHEET_FADE_MS)
+
+/**
+ * La posizione della molla critica di [ARRIVO_RIGIDITA], normalizzata a 0..1 su [USCITA_MS].
+ *
+ * ⚠️ **La formula è quella di uno smorzamento critico**, `1 - (1 + wt)e^(-wt)`, con `w` la
+ * radice della rigidità: qui non c'è niente di scelto a occhio, e chi cambia
+ * [ARRIVO_RIGIDITA] deve cambiare [TAU] con lei o le due animazioni smettono di essere
+ * specchiate.
+ * ⚠️ **La divisione per [CODA] serve perché a `USCITA_MS` la molla è al 99% e non al 100%**:
+ * senza, l'uscita partirebbe da un gradino dell'1%, che su una scheda alta sono qualche pixel
+ * di salto al primo fotogramma.
+ */
+private val MOLLA: (Float) -> Float = { u ->
+    val x = TAU * u
+    ((1f - (1f + x) * exp(-x)) / CODA).coerceIn(0f, 1f)
+}
+
+/** `w * T`: la radice di [ARRIVO_RIGIDITA] per [USCITA_MS] in secondi. */
+private val TAU = sqrt(ARRIVO_RIGIDITA) * (USCITA_MS / 1000f)
+
+/** Quanto ha fatto la molla allo scadere di [USCITA_MS]: 0,99. Vedi [MOLLA]. */
+private val CODA = 1f - (1f + TAU) * exp(-TAU)
 
 /**
  * Il velo che resta dietro la scheda quando la funzione della `1.39` è spenta.

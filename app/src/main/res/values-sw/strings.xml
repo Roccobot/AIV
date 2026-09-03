@@ -362,9 +362,8 @@
     <string name="settings_editor_backup_desc">Kabla kihariri hakijaandika juu ya picha, huhifadhi nakala yake kwenye pipa la taka, ambapo unaweza kuirejesha; usipoihitaji, itafutwa wakati wa \'Mwaga pipa la taka\' unaofuata.</string>
     <string name="editor_tall">Wima</string>
     <string name="editor_wide">Mlalo</string>
-    <string name="pick_drop_ask">Uache uteuzi?</string>
-    <string name="pick_drop">Acha</string>
-    <string name="pick_keep">Weka</string>
+    <string name="pick_cleared">Uteuzi umefutwa</string>
+    <string name="pick_undo">Tendua</string>
     <string name="pick_list_done">Orodha ya faili imenakiliwa kwenye ubao wa kunakili</string>
     <string name="settings_pick_weight">Ukubwa wa faili zilizochaguliwa</string>
     <string name="settings_pick_weight_desc">Juu ya uteuzi, kando ya kihesabu, huonekana ukubwa wa jumla wa vipengele vyote vilivyochaguliwa. Hubadilika kila uteuzi unapobadilika.</string>

@@ -422,9 +422,8 @@
     <string name="settings_editor_backup_desc">قبل أن يستبدل المحرّر صورةً، يحفظ نسخةً منها في سلة المهملات حيث يمكنك استعادتها؛ وإن لم تحتَجها فستُحذَف عند \'إفراغ سلة المهملات\' التالي.</string>
     <string name="editor_tall">طولي</string>
     <string name="editor_wide">عرضي</string>
-    <string name="pick_drop_ask">هل تريد إلغاء التحديد؟</string>
-    <string name="pick_drop">إلغاء التحديد</string>
-    <string name="pick_keep">احتفاظ</string>
+    <string name="pick_cleared">تم إلغاء التحديد</string>
+    <string name="pick_undo">تراجع</string>
     <string name="pick_list_done">تم نسخ قائمة الملفات إلى الحافظة</string>
     <string name="settings_pick_weight">حجم الملفات المحددة</string>
     <string name="settings_pick_weight_desc">في أعلى التحديد، بجانب العدّاد، يظهر الحجم الإجمالي لكل العناصر المحددة. ويتغيّر مع كل تعديل على التحديد.</string>

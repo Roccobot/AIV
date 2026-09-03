@@ -362,9 +362,8 @@
     <string name="settings_editor_backup_desc">Voordat een editor een afbeelding overschrijft, bewaart hij er een kopie van in de prullenbak, waar u die kunt terughalen; hebt u die niet nodig, dan verdwijnt ze bij de volgende \'Prullenbak legen\'.</string>
     <string name="editor_tall">Staand</string>
     <string name="editor_wide">Liggend</string>
-    <string name="pick_drop_ask">Selectie loslaten?</string>
-    <string name="pick_drop">Loslaten</string>
-    <string name="pick_keep">Behouden</string>
+    <string name="pick_cleared">Selectie gewist</string>
+    <string name="pick_undo">Ongedaan maken</string>
     <string name="pick_list_done">Bestandenlijst naar het klembord gekopieerd</string>
     <string name="settings_pick_weight">Grootte van de geselecteerde bestanden</string>
     <string name="settings_pick_weight_desc">Boven aan de selectie verschijnt naast de teller de totale grootte van alle geselecteerde items. Die verandert bij elke wijziging van de selectie.</string>

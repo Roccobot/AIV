@@ -347,9 +347,8 @@
     <string name="settings_editor_backup_desc">在编辑器覆盖一张图像之前，会先把副本存入回收站，可以从那里找回；如果不需要，下次\'清空回收站\'时会被删除。</string>
     <string name="editor_tall">竖向</string>
     <string name="editor_wide">横向</string>
-    <string name="pick_drop_ask">要取消选择吗？</string>
-    <string name="pick_drop">取消选择</string>
-    <string name="pick_keep">保留</string>
+    <string name="pick_cleared">已取消选择</string>
+    <string name="pick_undo">撤销</string>
     <string name="pick_list_done">文件列表已复制到剪贴板</string>
     <string name="settings_pick_weight">所选文件的大小</string>
     <string name="settings_pick_weight_desc">在所选项目的顶部、计数器旁边，会显示全部所选项目的总大小。选择每次变动，它都会随之变化。</string>

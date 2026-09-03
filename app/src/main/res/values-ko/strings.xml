@@ -347,9 +347,8 @@
     <string name="settings_editor_backup_desc">편집기가 이미지를 덮어쓰기 전에 사본을 휴지통에 저장합니다. 거기에서 되돌릴 수 있고, 필요 없으면 다음 \'휴지통 비우기\'에서 삭제됩니다.</string>
     <string name="editor_tall">세로</string>
     <string name="editor_wide">가로</string>
-    <string name="pick_drop_ask">선택을 취소할까요?</string>
-    <string name="pick_drop">취소</string>
-    <string name="pick_keep">유지</string>
+    <string name="pick_cleared">선택을 해제했습니다</string>
+    <string name="pick_undo">실행 취소</string>
     <string name="pick_list_done">파일 목록을 클립보드에 복사했습니다</string>
     <string name="settings_pick_weight">선택한 파일의 크기</string>
     <string name="settings_pick_weight_desc">선택 항목 맨 위, 개수 옆에 선택한 모든 항목의 전체 크기가 나타납니다. 선택이 바뀔 때마다 함께 바뀝니다.</string>

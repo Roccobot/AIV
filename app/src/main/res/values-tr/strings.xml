@@ -362,9 +362,8 @@
     <string name="settings_editor_backup_desc">Bir düzenleyici bir görüntünün üzerine yazmadan önce, bir kopyasını çöp kutusuna kaydeder; oradan geri alabilirsiniz. Gerekmiyorsa bir sonraki \'Çöp kutusunu boşalt\' işleminde silinir.</string>
     <string name="editor_tall">Dikey</string>
     <string name="editor_wide">Yatay</string>
-    <string name="pick_drop_ask">Seçim bırakılsın mı?</string>
-    <string name="pick_drop">Bırak</string>
-    <string name="pick_keep">Koru</string>
+    <string name="pick_cleared">Seçim temizlendi</string>
+    <string name="pick_undo">Geri al</string>
     <string name="pick_list_done">Dosya listesi panoya kopyalandı</string>
     <string name="settings_pick_weight">Seçili dosyaların boyutu</string>
     <string name="settings_pick_weight_desc">Seçimin başında, sayacın yanında, seçili tüm ögelerin toplam boyutu görünür. Seçimdeki her değişiklikte değişir.</string>

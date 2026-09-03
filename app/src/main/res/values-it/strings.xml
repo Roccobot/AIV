@@ -437,9 +437,8 @@
     <string name="clip_pause">Metti in pausa</string>
     <string name="settings_images_only">Sfoglia solo le immagini</string>
     <string name="settings_images_only_desc">Nel visualizzatore, lo scorrimento verso destra/sinistra ignora i video e considera solo le immagini. Puoi comunque riprodurre un video con un tocco dalla lista griglia, lista o cartelle.</string>
-    <string name="pick_drop_ask">Vuoi scartare la selezione?</string>
-    <string name="pick_drop">Scarta</string>
-    <string name="pick_keep">Mantieni</string>
+    <string name="pick_cleared">Selezione azzerata</string>
+    <string name="pick_undo">Annulla</string>
     <string name="pick_list_done">Lista file copiata negli appunti</string>
     <string name="settings_pick_weight">Dimensioni dei file selezionati</string>
     <string name="settings_pick_weight_desc">In testa alla selezione, accanto al contatore, appare il peso totale di tutti gli elementi selezionati. Varia ad ogni modifica della selezione.</string>

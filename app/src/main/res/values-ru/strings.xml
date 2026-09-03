@@ -392,9 +392,8 @@
     <string name="settings_editor_backup_desc">Прежде чем редактор перезапишет изображение, он сохраняет его копию в корзине, откуда её можно вернуть; если она не нужна, она будет удалена при следующей очистке корзины.</string>
     <string name="editor_tall">Портрет</string>
     <string name="editor_wide">Пейзаж</string>
-    <string name="pick_drop_ask">Отменить выделение?</string>
-    <string name="pick_drop">Отменить</string>
-    <string name="pick_keep">Оставить</string>
+    <string name="pick_cleared">Выделение снято</string>
+    <string name="pick_undo">Отменить</string>
     <string name="pick_list_done">Список файлов скопирован в буфер обмена</string>
     <string name="settings_pick_weight">Размер выбранных файлов</string>
     <string name="settings_pick_weight_desc">В начале выделения, рядом со счётчиком, появляется общий размер всех выбранных элементов. Он меняется при каждом изменении выделения.</string>
