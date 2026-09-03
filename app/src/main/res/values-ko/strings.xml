@@ -272,7 +272,7 @@
         <item quantity="other">항목 %1$d개 표시</item>
     </plurals>
     <string name="bin_empty_hint">단축 동작: 플로팅 버튼을 길게 누르면 휴지통을 비웁니다.</string>
-    <string name="facts_title">파일 상세 정보</string>
+    <string name="facts_title">정보</string>
     <string name="settings_reset_hints">안내를 다시 보기</string>
     <string name="settings_reset_hints_desc">보통 첫 실행에서만 보이는 미니 튜토리얼, 안내, 도움말, 경고가 다시 한 번 보이게 됩니다.</string>
     <string name="settings_reset_hints_do">다시 보기</string>

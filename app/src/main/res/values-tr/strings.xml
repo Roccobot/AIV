@@ -287,7 +287,7 @@
         <item quantity="other">%1$d bilgi görünür</item>
     </plurals>
     <string name="bin_empty_hint">Kısayol: çöp kutusunu boşaltmak için kayan düğmeyi basılı tutun.</string>
-    <string name="facts_title">Ayrıntılı dosya bilgisi</string>
+    <string name="facts_title">Bilgiler</string>
     <string name="settings_reset_hints">İpuçlarını geri getir</string>
     <string name="settings_reset_hints_desc">Normalde yalnızca ilk açılışta görünen mini eğitimler, tanıtım, ipuçları ve uyarılar yeniden görünür olur (bir kez).</string>
     <string name="settings_reset_hints_do">Geri getir</string>

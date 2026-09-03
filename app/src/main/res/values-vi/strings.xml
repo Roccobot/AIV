@@ -272,7 +272,7 @@
         <item quantity="other">Hiện %1$d mục</item>
     </plurals>
     <string name="bin_empty_hint">Lối tắt: nhấn giữ nút nổi để dọn thùng rác.</string>
-    <string name="facts_title">Thông tin chi tiết của tệp</string>
+    <string name="facts_title">Thông tin</string>
     <string name="settings_reset_hints">Hiện lại các gợi ý</string>
     <string name="settings_reset_hints_desc">Các hướng dẫn ngắn, phần giới thiệu, mẹo và cảnh báo, thường chỉ hiện ở lần chạy đầu tiên, sẽ hiện lại (chỉ một lần).</string>
     <string name="settings_reset_hints_do">Hiện lại</string>

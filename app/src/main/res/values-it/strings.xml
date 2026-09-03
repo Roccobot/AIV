@@ -399,7 +399,7 @@
         <item quantity="many">%1$d campi visualizzati</item>
     </plurals>
     <string name="bin_empty_hint">Scorciatoia: tieni premuto il tasto flottante per svuotare il cestino.</string>
-    <string name="facts_title">Info dettagliate sul file</string>
+    <string name="facts_title">Informazioni</string>
     <string name="settings_reset_hints">Ripristina gli avvisi</string>
     <string name="settings_reset_hints_desc">I mini-tutorial, gli onboarding, i suggerimenti e gli avvisi, visualizzati di norma solo al primo avvio, tornano visibili (una sola volta).</string>
     <string name="settings_reset_hints_do">Ripristina</string>

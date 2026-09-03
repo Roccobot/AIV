@@ -510,7 +510,7 @@
     <!-- The dialog's own title, centred. Separate from pick_info, which is also the
          label under an icon in the action pad, where three words would wrap to three
          lines. -->
-    <string name="facts_title">Detailed file info</string>
+    <string name="facts_title">Information</string>
     <string name="settings_facts_desc">Which data you see when you open Info on a file, and in which order. Name, pixels and size are always there; a datum the file does not carry gets no row at all.</string>
     <plurals name="settings_facts_count">
         <item quantity="one">%1$d field shown</item>

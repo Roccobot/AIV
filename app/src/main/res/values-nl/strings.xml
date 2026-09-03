@@ -287,7 +287,7 @@
         <item quantity="other">%1$d gegevens zichtbaar</item>
     </plurals>
     <string name="bin_empty_hint">Sneltoets: houd de zwevende knop ingedrukt om de prullenbak te legen.</string>
-    <string name="facts_title">Uitgebreide bestandsinfo</string>
+    <string name="facts_title">Informatie</string>
     <string name="settings_reset_hints">Tips terughalen</string>
     <string name="settings_reset_hints_desc">De minihandleidingen, de introductie, de tips en de waarschuwingen, die normaal alleen bij de eerste start verschijnen, worden weer zichtbaar (eenmalig).</string>
     <string name="settings_reset_hints_do">Terughalen</string>

@@ -287,7 +287,7 @@
         <item quantity="other">Vipengele %1$d vinaonekana</item>
     </plurals>
     <string name="bin_empty_hint">Njia ya mkato: shikilia kitufe kinachoelea ili kumwaga tapishi.</string>
-    <string name="facts_title">Taarifa kamili za faili</string>
+    <string name="facts_title">Maelezo</string>
     <string name="settings_reset_hints">Rejesha vidokezo</string>
     <string name="settings_reset_hints_desc">Miongozo mifupi, utangulizi, vidokezo na maonyo, ambayo kwa kawaida huonekana tu wakati wa kuanza mara ya kwanza, yatarudi kuonekana (mara moja tu).</string>
     <string name="settings_reset_hints_do">Rejesha</string>

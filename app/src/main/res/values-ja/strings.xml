@@ -272,7 +272,7 @@
         <item quantity="other">%1$d 項目を表示</item>
     </plurals>
     <string name="bin_empty_hint">ショートカット: フローティングボタンを長押しするとゴミ箱を空にします。</string>
-    <string name="facts_title">ファイルの詳細情報</string>
+    <string name="facts_title">情報</string>
     <string name="settings_reset_hints">ヒントをもう一度表示</string>
     <string name="settings_reset_hints_desc">通常は初回起動時にだけ表示されるミニチュートリアル、案内、ヒント、注意書きが、もう一度だけ表示されるようになります。</string>
     <string name="settings_reset_hints_do">もう一度表示</string>

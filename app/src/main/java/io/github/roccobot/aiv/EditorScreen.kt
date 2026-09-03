@@ -543,8 +543,18 @@ private fun EditorSheet(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(topStart = SHEET_ROUND, topEnd = SHEET_ROUND),
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        tonalElevation = SHEET_RISE,
-        shadowElevation = SHEET_RISE
+        /*
+         * ⚠️⚠️ **NIENTE OMBRA DALLA 1.40, come le altre due schede appoggiate in basso**
+         * (richiesta dell'utente, 2026-09-03: *evita le ombreggiature in basso*). Su una
+         * superficie ancorata al bordo l'ombra si vede solo di sotto, dove va a finire
+         * sull'angolo stondato del vetro: il perché per esteso sta su `PickSheet`, dov'è
+         * misurato.
+         * ⚠️ **Questa scheda però si ferma ancora SOPRA la barra di sistema**, a differenza
+         * delle altre due: vive dentro la colonna che porta il rientro, e portarla al bordo
+         * vorrebbe dire rifare l'impaginazione di questa schermata. Chi ci mette mano lo
+         * faccia insieme, non a metà.
+         */
+        tonalElevation = SHEET_RISE
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),

@@ -302,7 +302,7 @@
         <item quantity="other">%1$d datos visibles</item>
     </plurals>
     <string name="bin_empty_hint">Atajo: mantén pulsado el botón flotante para vaciar la papelera.</string>
-    <string name="facts_title">Información detallada del archivo</string>
+    <string name="facts_title">Información</string>
     <string name="settings_reset_hints">Volver a ver los avisos</string>
     <string name="settings_reset_hints_desc">Los minitutoriales, la introducción, los consejos y los avisos, que normalmente solo se ven en el primer inicio, vuelven a ser visibles (una sola vez).</string>
     <string name="settings_reset_hints_do">Volver a ver</string>

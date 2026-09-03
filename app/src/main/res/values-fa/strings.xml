@@ -287,7 +287,7 @@
         <item quantity="other">%1$d مورد نمایش داده می‌شود</item>
     </plurals>
     <string name="bin_empty_hint">میان‌بر: دکمه شناور را نگه دارید تا سبد زباله خالی شود.</string>
-    <string name="facts_title">اطلاعات کامل پرونده</string>
+    <string name="facts_title">اطلاعات</string>
     <string name="settings_reset_hints">بازگرداندن راهنماها</string>
     <string name="settings_reset_hints_desc">آموزش‌های کوتاه، معرفی، نکته‌ها و هشدارها که معمولاً تنها در نخستین اجرا دیده می‌شوند، دوباره نمایان می‌شوند (تنها یک بار).</string>
     <string name="settings_reset_hints_do">بازگرداندن</string>

@@ -272,7 +272,7 @@
         <item quantity="other">แสดง %1$d รายการ</item>
     </plurals>
     <string name="bin_empty_hint">ทางลัด: กดปุ่มลอยค้างไว้เพื่อเทถังขยะ</string>
-    <string name="facts_title">ข้อมูลไฟล์แบบละเอียด</string>
+    <string name="facts_title">ข้อมูล</string>
     <string name="settings_reset_hints">แสดงคำแนะนำอีกครั้ง</string>
     <string name="settings_reset_hints_desc">บทแนะนำสั้น ๆ การแนะนำเริ่มต้น เคล็ดลับ และคำเตือน ซึ่งปกติแสดงเฉพาะเมื่อเปิดครั้งแรก จะกลับมาแสดงอีกครั้ง (เพียงครั้งเดียว)</string>
     <string name="settings_reset_hints_do">แสดงอีกครั้ง</string>

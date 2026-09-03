@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -127,21 +128,50 @@ fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (In
         modifier = Modifier.align(Alignment.BottomCenter)
     ) {
         Surface(
-            /*
-             * ⚠️⚠️ **L'ALTEZZA SI MISURA E NON SI STIMA, e serve alla griglia sotto**: senza
-             * il numero vero, l'ultima fila di fotografie resterebbe sotto il pannello e
-             * nessuno scorrimento la porterebbe fuori. Una costante scritta a mano
-             * sbaglierebbe il giorno che un'etichetta va a capo in una lingua lunga, che è
-             * esattamente il caso in cui il pannello cresce.
-             */
-            modifier = Modifier.onSizeChanged { onHeight(it.height) },
             shape = RoundedCornerShape(topStart = SHEET_CORNER, topEnd = SHEET_CORNER),
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
-            tonalElevation = SHEET_LIFT,
-            shadowElevation = SHEET_LIFT
+            /*
+             * ⚠️⚠️ **NIENTE OMBRA DALLA 1.40, e il difetto era misurabile** (richiesta
+             * dell'utente, 2026-09-03: *evita le ombreggiature in basso, altrimenti il
+             * risultato è brutto*). Un'ombra si dipinge tutto attorno alla superficie, ma
+             * questa è appoggiata al bordo dello schermo: sopra non si vede (la copre la
+             * scheda stessa), ai lati nemmeno, e resta la sola striscia **di sotto**, cioè
+             * quella che finisce sull'angolo stondato del vetro.
+             * ⚠️ **Misurata sullo screenshot dell'utente**: quattro gradini di grigio sotto la
+             * scheda, da `208,207,203` a `248,247,243`, prima della barra di sistema.
+             * ⚠️ **Il rilievo TONALE resta**: quello non è un'ombra ma il colore della
+             * superficie, ed è la cosa che stacca la scheda dalla griglia dietro.
+             */
+            tonalElevation = SHEET_LIFT
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    /*
+                     * ⚠️⚠️ **IL RIENTRO DI SISTEMA STA QUI, e la scheda arriva al bordo**
+                     * (stessa richiesta: *fa' in modo che la barra multi-attività in basso
+                     * assuma lo stesso colore dello sfondo*). Il fondo della scheda passa
+                     * **sotto** la barra, il contenuto no: le due file di icone restano dove
+                     * sono e a cambiare è la sola striscia in fondo, che prende il colore
+                     * della scheda invece di quello della pagina.
+                     * ⚠️⚠️ **PERCIÒ QUESTA SCHEDA VIVE NEL `Box` DI RADICE DELLA SCHERMATA, e
+                     * non dentro la colonna**: là il rientro di sistema è già stato applicato
+                     * e **consumato**, quindi questa riga non aggiungerebbe niente e la
+                     * scheda si fermerebbe sopra la barra come prima.
+                     */
+                    .navigationBarsPadding()
+                    /*
+                     * ⚠️⚠️ **L'ALTEZZA SI MISURA E NON SI STIMA, e serve alla griglia sotto**:
+                     * senza il numero vero, l'ultima fila di fotografie resterebbe sotto il
+                     * pannello e nessuno scorrimento la porterebbe fuori. Una costante scritta
+                     * a mano sbaglierebbe il giorno che un'etichetta va a capo in una lingua
+                     * lunga, che è esattamente il caso in cui il pannello cresce.
+                     * ⚠️⚠️ **SI MISURA DOPO IL RIENTRO DI SISTEMA, cioè il solo contenuto**, e
+                     * l'ordine di queste due righe è la ragione: la griglia vive in uno spazio
+                     * che il rientro lo ha già tolto, quindi un'altezza che lo comprendesse
+                     * lascerebbe sotto l'ultima fila un buco alto quanto la barra.
+                     */
+                    .onSizeChanged { onHeight(it.height) },
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(

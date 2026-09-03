@@ -23,8 +23,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -166,7 +168,40 @@ fun FileJobDialogs(
             onClose()
         }
 
-        is FileJob.Facts -> FactsDialog(uris = job.uris, fields = fields, onDismiss = onClose)
+        /*
+         * ⚠️⚠️ **DALLA 1.40 QUESTO RAMO PUÒ DIVENTARE UNA RINOMINA, e lo stato che lo decide
+         * vive QUI** (richiesta dell'utente, 2026-09-03: *pressione lunga sulla pillola del
+         * nome -> rinomina del file singolo*). La scheda delle informazioni non apre finestre
+         * da sé: chiede, e a cambiare finestra è l'imbuto, che è il posto in cui le finestre
+         * dei lavori sui file stanno tutte.
+         * ⚠️ **`remember(job)` e non `remember`**: legato al lavoro, così una scheda chiusa e
+         * riaperta su un altro file non nasce già in rinomina.
+         * ⚠️ **La rinomina è quella di sempre**, con gli stessi indirizzi e lo stesso
+         * `onRun`: non è una seconda strada per la stessa operazione, è la stessa raggiunta
+         * da un gesto in più.
+         */
+        is FileJob.Facts -> {
+            var renaming by remember(job) { mutableStateOf(false) }
+            if (renaming) {
+                RenameDialog(
+                    uris = job.uris,
+                    onDismiss = onClose,
+                    onRename = { template, start, extension ->
+                        onClose()
+                        onRun(FileKind.RENAME) {
+                            FileTree.rename(context, job.uris, template, start, extension)
+                        }
+                    }
+                )
+            } else {
+                FactsDialog(
+                    uris = job.uris,
+                    fields = fields,
+                    onDismiss = onClose,
+                    onRename = { renaming = true }
+                )
+            }
+        }
     }
 }
 
@@ -361,7 +396,12 @@ private fun DeleteDialog(
  * scheda che tarda mezzo secondo senza dire niente si legge come un tocco andato a vuoto.
  */
 @Composable
-private fun FactsDialog(uris: List<Uri>, fields: List<FactField>, onDismiss: () -> Unit) {
+private fun FactsDialog(
+    uris: List<Uri>,
+    fields: List<FactField>,
+    onDismiss: () -> Unit,
+    onRename: () -> Unit
+) {
     val context = LocalContext.current
     val facts by produceState<Facts?>(null, uris) { value = factsOf(context, uris) }
     if (facts == null && uris.size == 1) return
@@ -369,7 +409,10 @@ private fun FactsDialog(uris: List<Uri>, fields: List<FactField>, onDismiss: () 
     Sheet(onDismiss = onDismiss, title = stringResource(R.string.facts_title), foot = {
         // ⚠️ La pastiglia c'è solo con UN file: con una selezione non c'è un nome da mettere
         // in fondo, e un piede vuoto lascerebbe una striscia di niente sopra il bordo.
-        facts?.one?.name?.let { NamePill(name = it) }
+        // ⚠️ **Ed è anche quello che rende sicura la rinomina del tocco lungo**: `one` non è
+        // nullo quando i file sono uno, quindi 'rinomina del file singolo' non è una
+        // condizione da controllare a parte, è la stessa che fa comparire la pastiglia.
+        facts?.one?.name?.let { NamePill(name = it, onRename = onRename) }
     }) {
         val f = facts
         when {
@@ -491,13 +534,22 @@ private fun FileFacts(facts: Facts, one: OneFile, fields: List<FactField>) {
  * (nome.estensione) negli appunti*), e la distinzione è tutta la funzione: a schermo il nome
  * può essere accorciato dall'ellissi, e copiare quello vorrebbe dire incollare `IMG_202... .HEIC`
  * in mezzo a un messaggio. Negli appunti va [name], la stringa di partenza.
- * ⚠️⚠️ **E DALLA 1.25 VALE ANCHE IL TOCCO BREVE, con lo stesso effetto e la stessa
- * vibrazione** (riscontro dell'utente: *quando vedo una pillola con il nome, mi viene più
- * naturale fare un normale tap anziché un tocco lungo*). ⚠️ **Non è una scorciatoia in più
- * per la stessa cosa: è la CORREZIONE di un gesto indovinato male.** Una pastiglia sembra un
- * tasto, quindi il gesto che chiede è il tocco; il tocco lungo lo scopre chi lo sa già.
- * Tenerli diversi vorrebbe dire una pastiglia che al tocco non fa niente, che è esattamente
- * quello che l'utente ha provato.
+ * ⚠️⚠️ **E DALLA 1.25 VALE ANCHE IL TOCCO BREVE** (riscontro dell'utente: *quando vedo una
+ * pillola con il nome, mi viene più naturale fare un normale tap anziché un tocco lungo*).
+ * ⚠️ **Non era una scorciatoia in più per la stessa cosa: era la CORREZIONE di un gesto
+ * indovinato male.** Una pastiglia sembra un tasto, quindi il gesto che chiede è il tocco.
+ * ⚠️⚠️ **DALLA 1.40 I DUE GESTI FANNO DUE COSE, e il tocco breve è quello che resta com'era**
+ * (richiesta dell'utente, 2026-09-03: *pressione lunga sulla pillola del nome -> rinomina del
+ * file singolo*): tocco breve **copia**, tocco lungo **rinomina**. La `1.25` li aveva
+ * pareggiati perché la pastiglia al tocco non faceva niente, e quel difetto resta risolto: il
+ * gesto ovvio ha ancora la sua risposta, e il gesto nascosto ha smesso di essere un doppione.
+ * ⚠️ **La vibrazione è la stessa per tutti e due**, perché in tutti e due i casi è il solo
+ * segno immediato che il gesto è passato: il messaggio degli appunti e la finestra di rinomina
+ * arrivano un istante dopo.
+ * ⚠️ **La rinomina la apre chi chiama e non questa pastiglia** ([onRename]): è un lavoro sui
+ * file, e passa dallo stesso imbuto delle altre operazioni (vedi `FileJobDialogs`). Una
+ * pastiglia che si apre da sé una finestra di rinomina diventerebbe il posto in cui cercare
+ * quella finestra, che non è dove sta.
  * ⚠️ **[detectTapGestures] e non [androidx.compose.foundation.combinedClickable]**: adesso
  * che i due gesti fanno la stessa cosa quello basterebbe, ma porterebbe con sé l'onda del
  * tocco su una superficie che è il **titolo** del dialogo, e un titolo che si illumina si
@@ -508,27 +560,43 @@ private fun FileFacts(facts: Facts, one: OneFile, fields: List<FactField>) {
  * un istante dopo.
  */
 @Composable
-private fun NamePill(name: String, modifier: Modifier = Modifier) {
+private fun NamePill(name: String, onRename: () -> Unit, modifier: Modifier = Modifier) {
     val style = MaterialTheme.typography.titleSmall
     val context = LocalContext.current
     val haptics = LocalHapticFeedback.current
     val said = stringResource(R.string.toast_name_copied)
-    // ⚠️ Una funzione sola per i due gesti, e non due copie: 'stesso effetto' è la richiesta,
-    // e due corpi uguali divergerebbero al primo ritocco.
     val copia = {
         haptics.performHapticFeedback(HOLD_BUZZ)
         ImageActions.copyName(context, name)
         Toast.makeText(context, said, Toast.LENGTH_SHORT).show()
     }
+    val rinomina = {
+        haptics.performHapticFeedback(HOLD_BUZZ)
+        onRename()
+    }
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .pointerInput(name) {
-                detectTapGestures(onTap = { copia() }, onLongPress = { copia() })
+                detectTapGestures(onTap = { copia() }, onLongPress = { rinomina() })
             },
         shape = RoundedCornerShape(NAME_CORNER),
         color = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        /*
+         * ⚠️⚠️ **SUL TEMA CHIARO IL TESTO PRENDE IL COLORE DELLO SFONDO DELLA SCHEDA, dalla
+         * 1.40** (richiesta dell'utente, 2026-09-03: *testo sulla pillola del nome: in tema
+         * chiaro dev'essere del colore dello sfondo*), cioè il nome è **ritagliato** nella
+         * pastiglia invece di esserci scritto sopra.
+         * ⚠️⚠️ **IL PREZZO È MISURATO E VA DETTO: il contrasto scende da 5,19 a 2,23.** Sotto
+         * il 4,5 che si chiede a un testo di questa misura, e sotto anche il 3 dei testi
+         * grandi. Non è un ripiego mio: è la resa chiesta, e il numero serve a saperlo. Chi
+         * volesse tutte e due le cose deve **scurire l'accento**: con `#2C7667` (la stessa
+         * tinta al 65% di luminosità) lo stesso testo torna a 4,78.
+         * ⚠️ **Solo sul chiaro**: sullo scuro il bianco resta, e con lui il suo 5,69. La
+         * richiesta nomina un tema solo, e applicarla anche all'altro sarebbe un'aggiunta mia.
+         */
+        contentColor = if (LocalAivLight.current) MaterialTheme.colorScheme.surfaceContainerHigh
+        else MaterialTheme.colorScheme.onPrimaryContainer
     ) {
         // ⚠️ `BoxWithConstraints` e non una misura in dp: la larghezza utile dipende dal
         // dialogo, che dipende dallo schermo, e una misura scritta a mano sarebbe giusta su
@@ -616,7 +684,17 @@ private fun factValue(field: FactField, facts: Facts, one: OneFile): String? = w
     // 'image' su ogni fotografia, quindi è una parola che non distingue niente.
     // ⚠️ **Maiuscolo INVARIANTE e non della lingua del telefono**: un tipo MIME è ASCII e
     // non è una parola, e la regola turca della `i` cambierebbe `image/tiff` in `TİFF`.
-    FactField.KIND -> one.mime?.substringAfterLast('/')?.uppercase()
+    /*
+     * ⚠️⚠️ **E DALLA 1.40 CADE ANCHE IL SUFFISSO DOPO IL `+`** (domanda dell'utente,
+     * 2026-09-03: *'SVG+XML' -> '+XML' è necessario?*). No: quello non è il formato, è la
+     * **sintassi** in cui il formato è scritto (RFC 6839), e la riga qui dice di che tipo di
+     * immagine si tratta. `image/svg+xml` diventa `SVG`, come `image/jpeg` è `JPEG`.
+     * ⚠️ **Fra i tipi che l'app dichiara è l'unico che ne ha uno** (misurato sul manifesto e
+     * sui sorgenti: apng, avif, bmp, gif, jpeg, png, svg+xml, tiff, webp), quindi oggi il
+     * taglio riguarda un formato solo. Vale lo stesso per tutti, perché un `+json` o un
+     * `+zip` di domani avrebbero lo stesso difetto.
+     */
+    FactField.KIND -> one.mime?.substringAfterLast('/')?.substringBefore('+')?.uppercase()
 
     FactField.PIXELS -> pixelsText(one)
     FactField.SIZE -> formatBytes(facts.bytes)

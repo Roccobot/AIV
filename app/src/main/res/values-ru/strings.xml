@@ -317,7 +317,7 @@
         <item quantity="other">%1$d поля показано</item>
     </plurals>
     <string name="bin_empty_hint">Быстрое действие: нажмите и удерживайте плавающую кнопку, чтобы очистить корзину.</string>
-    <string name="facts_title">Подробные сведения о файле</string>
+    <string name="facts_title">Информация</string>
     <string name="settings_reset_hints">Вернуть подсказки</string>
     <string name="settings_reset_hints_desc">Мини-руководства, вводные подсказки, советы и предупреждения, которые обычно видны только при первом запуске, снова станут видимыми (один раз).</string>
     <string name="settings_reset_hints_do">Вернуть</string>

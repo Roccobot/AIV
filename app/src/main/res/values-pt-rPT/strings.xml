@@ -55,7 +55,6 @@
     <string name="pick_delete">Eliminar</string>
     <string name="facts_name">Nome do ficheiro</string>
     <string name="facts_kind">Tipo de ficheiro</string>
-    <string name="facts_title">Informações detalhadas do ficheiro</string>
     <string name="rename_hint">Cada sequência de cardinais torna-se o número, e quantos escrever, tantos dígitos ele terá: ## dá 01, ### dá 001. A extensão nunca é tocada, e os ficheiros são numerados por ordem alfabética.</string>
     <string name="delete_ask">Confirmar a eliminação?</string>
 

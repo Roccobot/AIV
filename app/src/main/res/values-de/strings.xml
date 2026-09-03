@@ -287,7 +287,7 @@
         <item quantity="other">%1$d Angaben sichtbar</item>
     </plurals>
     <string name="bin_empty_hint">Kurzbefehl: Halte die schwebende Schaltfläche gedrückt, um den Papierkorb zu leeren.</string>
-    <string name="facts_title">Ausführliche Dateiinfos</string>
+    <string name="facts_title">Informationen</string>
     <string name="settings_reset_hints">Hinweise zurückholen</string>
     <string name="settings_reset_hints_desc">Die Mini-Anleitungen, die Einführung, die Tipps und die Hinweise, die sonst nur beim ersten Start erscheinen, werden wieder sichtbar (einmalig).</string>
     <string name="settings_reset_hints_do">Zurückholen</string>

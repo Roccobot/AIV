@@ -287,7 +287,7 @@
         <item quantity="other">%1$d సమాచారాలు చూపబడుతున్నాయి</item>
     </plurals>
     <string name="bin_empty_hint">షార్ట్‌కట్: చెత్తబుట్ట ఖాళీ చేయడానికి ఫ్లోటింగ్ బటన్‌ను నొక్కి పట్టుకోండి.</string>
-    <string name="facts_title">ఫైల్ వివరమైన సమాచారం</string>
+    <string name="facts_title">సమాచారం</string>
     <string name="settings_reset_hints">సూచనలు తిరిగి చూపు</string>
     <string name="settings_reset_hints_desc">సాధారణంగా మొదటిసారి మాత్రమే కనిపించే చిన్న పాఠాలు, పరిచయం, సూచనలు, హెచ్చరికలు మళ్లీ కనిపిస్తాయి (ఒకే ఒకసారి).</string>
     <string name="settings_reset_hints_do">తిరిగి చూపు</string>
