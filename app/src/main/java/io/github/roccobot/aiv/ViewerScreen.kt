@@ -115,6 +115,7 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -413,7 +414,10 @@ fun ViewerScreen(
      * sta ancora caricando, e non si vede: i fotogrammi li disegna la tela, che non c'è
      * ancora.
      */
-    val animation = rememberAnimation(source)
+    // ⚠️ **Il secondo argomento serve alle immagini di RETE, dalla 1.45**: là i byte da
+    // animare arrivano dalla cache del download, quindi il primo tentativo può precederla.
+    // Il perché per esteso sta in testa a [rememberAnimation].
+    val animation = rememberAnimation(source, state is ViewerState.Ready)
 
     /*
      * ⚠️⚠️ **IL FOTOGRAMMA SI PRENDE QUANDO SI TOCCA LA VOCE, non quando si preme 'Esporta'
@@ -3137,20 +3141,89 @@ private fun DetailsPanel(
 @Composable
 private fun NameLine(name: String) {
     val style = MaterialTheme.typography.labelMedium
-    BoxWithConstraints(modifier = Modifier.fillMaxWidth().padding(bottom = NAME_GAP)) {
-        val measurer = rememberTextMeasurer()
-        val room = with(LocalDensity.current) { maxWidth.roundToPx() }
-        val shown = remember(name, room, style, measurer) {
-            fitName(name, room, 1, style, measurer)
+    /*
+     * ⚠️⚠️ **IL MARCHIO DELL'APP STA IN CODA A QUESTA RIGA, dalla 1.45, e si paga con un
+     * pezzo di nome** (richiesta dell'utente, 2026-09-03: *sulla stessa riga del nome nella
+     * barra delle info, ancorato a destra, un glifo nudo dell'app deve restare in ultima
+     * posizione. È a scapito di un pezzo di nome, ma ne vale la pena per motivi di
+     * identità*). Il baratto è dichiarato da lui, quindi non è un difetto da compensare: il
+     * nome si accorcia e il glifo non si sposta mai.
+     * ⚠️ **La `Row` è la cosa che fa il baratto**: il nome prende quello che avanza
+     * (`weight`), il glifo la sua misura naturale. Sovrapposti in un `Box` il glifo starebbe
+     * sopra le ultime lettere, che è un'altra cosa da 'a scapito di un pezzo di nome'.
+     */
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(bottom = NAME_GAP),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        BoxWithConstraints(modifier = Modifier.weight(1f, fill = false)) {
+            val measurer = rememberTextMeasurer()
+            val room = with(LocalDensity.current) { maxWidth.roundToPx() }
+            val shown = remember(name, room, style, measurer) {
+                fitName(name, room, 1, style, measurer)
+            }
+            Text(
+                text = shown,
+                style = style,
+                maxLines = 1,
+                color = LocalContentColor.current.copy(alpha = NAME_FADE)
+            )
         }
-        Text(
-            text = shown,
-            style = style,
-            maxLines = 1,
-            color = LocalContentColor.current.copy(alpha = NAME_FADE)
+        Spacer(Modifier.width(MARK_GAP))
+        /*
+         * ⚠️⚠️ **L'ALTEZZA SI RICAVA DAL CORPO DELLA RIGA, e la larghezza segue**: il glifo è
+         * 70 x 60 (vedi `ic_aiv_mark.xml`), quindi darne una sola misura lo schiaccerebbe.
+         * ⚠️ **Relativa e non in dp**, come il segno dell'immagine ridotta qui sopra: parte
+         * dal corpo del testo, quindi segue chi ha ingrandito i caratteri di sistema.
+         * ⚠️ **[MARK_TALL] è una SCELTA e non una misura**, e va detto: 0,85 del corpo lo
+         * porta un po' sopra l'altezza delle maiuscole del nome, che per un marchio è il
+         * verso giusto (deve farsi vedere); a 0,71, cioè l'altezza esatta di una maiuscola,
+         * spariva. Il carattere vero in sessione non c'è, quindi il rapporto fra il suo
+         * inchiostro e le maiuscole di Roboto non è verificato: se sul telefono risulta
+         * grosso o piccolo, il numero da muovere è uno solo.
+         */
+        val tall = with(LocalDensity.current) { (style.fontSize.toPx() * MARK_TALL).toDp() }
+        Icon(
+            painter = painterResource(R.drawable.ic_aiv_mark),
+            /*
+             * ⚠️ **Nessuna descrizione, ed è la scelta giusta**: questo non dice niente
+             * dell'immagine che si sta guardando, dice di che app è la schermata. Un lettore
+             * di schermo che annunciasse 'AIV' dopo ogni nome di file leggerebbe la stessa
+             * parola a ogni fotografia.
+             */
+            contentDescription = null,
+            /*
+             * ⚠️⚠️ **L'ACCENTO DEL TEMA E LA TRASPARENZA DEL NOME, come le ha chieste**
+             * (*colore di accento corrente, stessa trasparenza del testo del nome cui si
+             * allinea*). ⚠️ Il contrasto è basso per costruzione: l'accento su fondo chiaro
+             * misura 2,43 (vedi `Theme.kt`) e questo lo porta a poco più di uno. **Non è un
+             * difetto da correggere**: qui non c'è niente da leggere, c'è una firma, e la
+             * richiesta dice esattamente quanto deve farsi notare.
+             */
+            tint = MaterialTheme.colorScheme.primary.copy(alpha = NAME_FADE),
+            modifier = Modifier.height(tall)
         )
     }
 }
+
+/**
+ * Quanto è alto il marchio dell'app in coda al nome, in frazione del corpo della riga.
+ *
+ * ⚠️ **È una scelta e non una misura**, e il perché sta accanto all'uso: l'altezza di una
+ * maiuscola in un carattere normale è circa 0,71 del corpo, e a quella misura il glifo
+ * sparisce accanto al nome; 0,85 lo porta appena sopra, che per una firma è il verso giusto.
+ * ⚠️ **Il numero scartato resta scritto** perché è quello che verrebbe naturale a chi vuole
+ * 'allinearlo alle maiuscole', ed è la ragione per cui questa nota esiste.
+ */
+private const val MARK_TALL = 0.85f
+
+/**
+ * L'aria fra la fine del nome e il marchio.
+ *
+ * ⚠️ Serve perché il nome accorciato finisce con i tre punti dell'ellissi, e attaccati al
+ * glifo si leggerebbero come parte di lui.
+ */
+private val MARK_GAP = 6.dp
 
 /**
  * Quanto il nome del file è meno acceso dei dati sotto di lui, e quanto se ne stacca.

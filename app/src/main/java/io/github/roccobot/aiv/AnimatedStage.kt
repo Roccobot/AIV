@@ -266,12 +266,29 @@ class Animation(private val source: Animated) {
  * ⚠️ **La chiave giusta è il solo indirizzo**: l'effetto scade quando si cambia fotografia o
  * si esce, e in quei due momenti la variabile porta davvero il lettore da chiudere.
  */
+/*
+ * ⚠️⚠️ **[loaded] È NATO NELLA 1.45 PER LE IMMAGINI DI RETE, e senza di lui la GIF remota
+ * restava ferma per una corsa persa** (segnalazione dell'utente, 2026-09-03). I byte di un
+ * indirizzo remoto si leggono dalla cache (vedi `Animations.bytesOf`), e questa apertura parte
+ * **insieme** al download: il primo tentativo trova la cache vuota, torna `null`, e con la
+ * sola chiave `source` non ci sarebbe nessun secondo tentativo. Passando anche 'l'immagine è
+ * pronta', l'effetto riparte una volta e allora i byte ci sono.
+ * ⚠️ **È un BOOLEANO e non lo stato del visualizzatore**, e la differenza è il costo: quello
+ * cambia a ogni pizzicata di zoom e a ogni punto percentuale del download, cioè farebbe
+ * rileggere il file decine di volte; un booleano cambia **una volta sola** per immagine.
+ * ⚠️⚠️ **E IL SECONDO GIRO NON PUÒ SOSTITUIRE UN LETTORE VIVO**: la riga che se ne accorge è
+ * `if (animation != null) return`. Senza, l'effetto rifatto assegnerebbe un lettore nuovo sopra
+ * quello in uso, e il vecchio resterebbe aperto (memoria) mentre il disegno potrebbe pescare
+ * fra i due. È la stessa trappola della `1.13` descritta qui sotto, presa dall'altro verso:
+ * là si chiudeva un lettore appena creato, qui si rischiava di perderne uno in uso.
+ */
 @Composable
-fun rememberAnimation(source: Uri?): Animation? {
+fun rememberAnimation(source: Uri?, loaded: Boolean = true): Animation? {
     val context = LocalContext.current
     var animation by remember(source) { mutableStateOf<Animation?>(null) }
 
-    LaunchedEffect(source) {
+    LaunchedEffect(source, loaded) {
+        if (animation != null) return@LaunchedEffect
         animation = source
             ?.let { withContext(Dispatchers.IO) { Animations.open(context, it) } }
             ?.let { Animation(it) }

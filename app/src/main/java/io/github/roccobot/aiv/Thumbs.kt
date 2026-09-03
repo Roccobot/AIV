@@ -271,6 +271,27 @@ private class SystemThumbnailFetcher(
          */
         if (seeThrough(options.context, uri)) return@withContext null
 
+        /*
+         * ⚠️⚠️ **IL BMP NON SI CHIEDE AL SISTEMA, DALLA 1.45, PERCHÉ LO RESTITUIVA A METÀ**
+         * (segnalazione dell'utente, 2026-09-03, su `blackbuck.bmp`: *l'unica con l'anteprima
+         * venuta male, c'è solo la metà inferiore*).
+         * ⚠️⚠️ **E LA METÀ INFERIORE È LA FIRMA DEL GUASTO, non un dettaglio**: in un BMP le
+         * righe stanno nel file **dal basso verso l'alto**, quindi chi ne decodifica solo la
+         * prima parte ottiene esattamente la metà di sotto dell'immagine. Non è un file rotto:
+         * misurato, quel BMP è 512x512 a 24 bit, non compresso, e porta tutte le 512 righe
+         * (786.486 byte, 54 di intestazione più 786.432 di pixel, che è il conto esatto). Chi
+         * si ferma a metà è il generatore di miniature del telefono.
+         * ⚠️ **La cura è tirarsi indietro e non correggere**: `null` manda la richiesta alla
+         * decodifica normale, che legge il file intero. Alla misura di [PX] un BMP da 512 non
+         * viene nemmeno campionato, quindi non c'è nessuna riduzione in cui perdere righe.
+         * ⚠️ **Non contraddice la scelta della `1.37`** (*il BMP è un formato morto e sepolto,
+         * potremmo anche ignorarlo*), che riguardava l'**alfa**: là il BMP è uscito
+         * dall'elenco di chi può essere trasparente, e questa è un'altra domanda. La regola
+         * nuova è sua e più recente: *dato che il supporto è gratis, cerchiamo di far sì che
+         * anche l'anteprima sia creata correttamente*.
+         */
+        if (isBmp(options.context, uri)) return@withContext null
+
         // ⚠️⚠️ L'ANNULLAMENTO È VERO, ed è metà della fluidità: scorrendo in fretta Coil
         // annulla le richieste dei riquadri usciti dallo schermo, e senza questo aggancio
         // il sistema continuerebbe a generare miniature che nessuno guarderà più,
@@ -637,6 +658,26 @@ private fun fourcc(testa: ByteArray, cerca: String): Boolean? {
         pos += 12 + length
     }
     return null
+}
+
+/**
+ * Se questo file è un BMP, cioè quello che il sistema non sa ridurre. Vedi la nota in
+ * [SystemThumbnailFetcher].
+ *
+ * ⚠️ **Il tipo prima e il nome dopo, come [seeThrough]**, e per la stessa ragione: su un
+ * `content://` del MediaStore il percorso è un numero e l'unica via è chiedere il tipo al
+ * provider; su un `file://` il tipo non lo dichiara nessuno e l'estensione c'è sempre.
+ * ⚠️ **Non guarda i byte, e non serve**: la domanda non è 'che formato sono questi byte' ma
+ * 'a chi chiedo la miniatura'. Sbagliare nel verso del sì costa una decodifica in casa, che è
+ * quello che si vuole comunque; un file chiamato `.bmp` che non lo è la decodifica normale lo
+ * apre uguale.
+ */
+private fun isBmp(context: Context, uri: AndroidUri): Boolean {
+    if (uri.scheme?.lowercase() == "content") {
+        val mime = runCatching { context.contentResolver.getType(uri) }.getOrNull()?.lowercase()
+        if (mime != null) return mime == "image/bmp"
+    }
+    return uri.lastPathSegment?.lowercase()?.endsWith(".bmp") == true
 }
 
 /** Quanto si legge in testa a un file per sapere se dichiara l'alfa. Vedi [declaresAlpha]. */

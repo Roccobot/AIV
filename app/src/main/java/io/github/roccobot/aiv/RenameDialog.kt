@@ -427,16 +427,20 @@ private fun PreviewRow(row: Pairing) {
          * l'altra è il risultato.
          * ⚠️⚠️ **E IL BORDO NON È DECORAZIONE: è la 'pillola INTORNO al nome' che lui ha
          * nominato**, e l'unica cosa che la fa esistere quando due superfici vicine si
-         * somigliano comunque. Il filo di `outlineVariant` stacca di 1,65 sullo scuro e 1,38
-         * sul chiaro. Le due pastiglie diventano così una **contornata** e una **piena**, che
-         * è l'abbinamento normale fra un punto di partenza e un risultato.
+         * somigliano comunque. Le due pastiglie diventano così una **contornata** e una
+         * **piena**, che è l'abbinamento normale fra un punto di partenza e un risultato.
+         * ⚠️⚠️ **IL COLORE DEL FILO NON È PIÙ `outlineVariant`, DALLA 1.45, perché sul tema
+         * SCURO non si vedeva** (domanda dell'utente, 2026-09-03: *sbaglio o ha un filetto di
+         * contorno solo nel tema chiaro?*). Non sbagliava, e il perché il rapporto di
+         * contrasto dicesse il contrario sta su [hairline], insieme alla misura e alla via
+         * scartata: qui basta sapere che il colore lo decide il tema e non questo dialogo.
          */
         NamePill(
             text = nameWithExt(row.before),
             back = MaterialTheme.colorScheme.surfaceContainerLowest,
             front = MaterialTheme.colorScheme.onSurfaceVariant,
             weight = FontWeight.Normal,
-            border = BorderStroke(PILL_EDGE, MaterialTheme.colorScheme.outlineVariant),
+            border = BorderStroke(PILL_EDGE, hairline()),
             modifier = Modifier.fillMaxWidth()
         )
         /*

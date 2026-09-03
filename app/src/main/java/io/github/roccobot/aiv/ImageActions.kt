@@ -110,17 +110,37 @@ object ImageActions {
      * newline stuck to it, and refusing that would look like the clipboard was
      * empty.
      */
-    fun urlInClipboard(context: Context): Uri? {
+    fun urlInClipboard(context: Context): Uri? = clipInClipboard(context)?.address
+
+    /**
+     * L'indirizzo negli appunti **e quando ci è finito**.
+     *
+     * ⚠️⚠️ **L'ISTANTE SERVE A DISTINGUERE 'COPIATO ADESSO' DA 'STA LÀ DA TRE GIORNI', dalla
+     * 1.45** (segnalazione dell'utente, 2026-09-03: *se l'URL è negli appunti, non si apre
+     * all'avvio*). Chi apre l'app da sé guarda un solo indirizzo per volta e non lo riapre
+     * (vedi `clipboardDone`), ma ricopiare lo stesso link è una richiesta esplicita, e col
+     * solo confronto delle stringhe era indistinguibile da un link vecchio.
+     * ⚠️ **Lo dice il sistema**: `ClipDescription.getTimestamp` è l'ora in cui quel contenuto
+     * è stato messo negli appunti. Un'ora nostra direbbe quando lo abbiamo letto, che non
+     * risponde alla domanda.
+     * ⚠️ **Zero se il sistema non lo sa**, e allora resta il confronto dell'indirizzo: è il
+     * comportamento della `0.94`, cioè si perde la novità e non si sbaglia.
+     */
+    fun clipInClipboard(context: Context): Clip? {
         val clipboard = context.getSystemService(ClipboardManager::class.java)
         val clip = clipboard.primaryClip ?: return null
+        val at = clip.description?.timestamp ?: 0L
         for (i in 0 until clip.itemCount) {
             val item = clip.getItemAt(i)
-            item.uri?.let { return it }
+            item.uri?.let { return Clip(it, at) }
             val text = item.coerceToText(context)?.toString() ?: continue
-            WEB_ADDRESS.find(text)?.let { return it.value.toUri() }
+            WEB_ADDRESS.find(text)?.let { return Clip(it.value.toUri(), at) }
         }
         return null
     }
+
+    /** Quello che gli appunti portano: l'indirizzo e l'istante in cui ci è stato messo. */
+    class Clip(val address: Uri, val at: Long)
 
     private val WEB_ADDRESS = Regex("""https?://[^\s"'<>\\]+""", RegexOption.IGNORE_CASE)
 

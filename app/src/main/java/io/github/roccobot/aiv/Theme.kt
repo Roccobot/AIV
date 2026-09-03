@@ -199,6 +199,37 @@ fun accentInk(): Color =
     if (MaterialTheme.colorScheme.background.isLight()) LINK_LIGHT else LINK_DARK
 
 /**
+ * Il filo di una superficie **contornata**: quella che esiste per il suo bordo e non per il
+ * suo riempimento.
+ *
+ * ⚠️⚠️ **NASCE PERCHÉ `outlineVariant` SI VEDEVA SOLO SUL TEMA CHIARO, e il numero da solo
+ * diceva il contrario** (domanda dell'utente, 2026-09-03, sulla pastiglia del nome nella
+ * rinomina: *sbaglio o ha un filetto di contorno solo nel tema chiaro?*). Non sbagliava, e la
+ * misura che sembrava smentirlo è la trappola da tenere: `outlineVariant` contro l'interno
+ * della pastiglia stacca **1,86 sullo scuro** e **1,41 sul chiaro**, cioè sullo scuro di più.
+ * ⚠️⚠️ **A DECIDERE NON È QUEL RAPPORTO, È QUANTO LAVORO FA GIÀ IL RIEMPIMENTO**: sul chiaro
+ * l'interno della pastiglia sta a 1,13 dalla superficie del dialogo, cioè non si vede, e il
+ * filo è la sola cosa che disegna la forma; sullo scuro l'interno sta a 1,39, cioè legge già
+ * come un incavo, e un filo a 1,33 dalla superficie non aggiunge niente all'occhio. Provato
+ * **guardandolo**, reso a tre volte la densità, e non contando: la pastiglia scura col filo e
+ * quella senza sono indistinguibili.
+ * ⚠️ **La via scartata era `outline` in tutti e due i temi**, che è una tinta sola invece di
+ * due: sullo scuro va benissimo (4,27 dalla superficie) ma sul chiaro salta a 3,55, cioè
+ * diventa una cornice, e sul chiaro il filo l'utente lo aveva già approvato com'era. Questi
+ * due sono il **punto medio** fra `outlineVariant` e `outline`, calcolato e non scelto a
+ * occhio: portano il chiaro da 1,25 a **2,01** e lo scuro da 1,33 a **2,47**, cioè un filo
+ * che si vede in tutti e due i temi e in nessuno dei due pesa.
+ * ⚠️ **Si sceglie guardando il fondo del tema in vigore**, come [accentInk] e per la stessa
+ * ragione: la domanda è 'su che cosa sto disegnando'.
+ */
+@Composable
+fun hairline(): Color =
+    if (MaterialTheme.colorScheme.background.isLight()) HAIRLINE_LIGHT else HAIRLINE_DARK
+
+private val HAIRLINE_LIGHT = Color(0xFFAAADA9)
+private val HAIRLINE_DARK = Color(0xFF636C69)
+
+/**
  * Se questo colore è chiaro, cioè se sopra ci si scrive in scuro.
  *
  * ⚠️ **Non è più privato dalla 1.38**: la stessa domanda se la fa il velo delle finestre

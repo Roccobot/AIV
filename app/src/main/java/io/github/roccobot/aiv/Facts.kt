@@ -160,13 +160,13 @@ suspend fun factsOf(context: Context, uris: List<Uri>): Facts = withContext(Disp
 
     val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
     runCatching {
-        context.contentResolver.openInputStream(uri)?.use {
+        streamOf(context, uri)?.use {
             BitmapFactory.decodeStream(it, null, bounds)
         }
     }
     val exif = runCatching {
         if (file != null) ExifInterface(file)
-        else context.contentResolver.openInputStream(uri)?.use { ExifInterface(it) }
+        else streamOf(context, uri)?.use { ExifInterface(it) }
     }.getOrNull()
 
     // ⚠️ Le misure si girano come l'EXIF dice, o una foto verticale scattata col telefono
@@ -196,7 +196,7 @@ suspend fun factsOf(context: Context, uris: List<Uri>): Facts = withContext(Disp
      */
     val fallback = if (bounds.outWidth <= 0 || bounds.outHeight <= 0) {
         runCatching {
-            context.contentResolver.openInputStream(uri)?.use { stream ->
+            streamOf(context, uri)?.use { stream ->
                 val head = ByteArray(Avif.HEAD)
                 val got = stream.readFully(head, Avif.HEAD)
                 val head2 = head.copyOf(got)
@@ -209,7 +209,7 @@ suspend fun factsOf(context: Context, uris: List<Uri>): Facts = withContext(Disp
                      * 128 kilobyte. ⚠️ Il costo è quello di un file di testo di pochi
                      * kilobyte, non quello di una decodifica: non si disegna niente.
                      */
-                    Svg.looksLike(head2) -> context.contentResolver.openInputStream(uri)
+                    Svg.looksLike(head2) -> streamOf(context, uri)
                         ?.use { Svg.dimensions(it) }
                     else -> null
                 }
@@ -234,7 +234,7 @@ suspend fun factsOf(context: Context, uris: List<Uri>): Facts = withContext(Disp
             modified = file?.lastModified()?.takeIf { it > 0L } ?: modifiedFromStore(context, uri),
             folder = file?.parent,
             encoding = runCatching {
-                context.contentResolver.openInputStream(uri)?.use { encodingOf(it) }
+                streamOf(context, uri)?.use { encodingOf(it) }
             }.getOrNull(),
             /*
              * ⚠️⚠️ **TRE APERTURE E NON UNA, ed è una scelta e non una svista**: ogni lettore
@@ -246,9 +246,9 @@ suspend fun factsOf(context: Context, uris: List<Uri>): Facts = withContext(Disp
              * sta nei blocchi dei fotogrammi, non nell'intestazione.
              */
             colours = runCatching {
-                val read = context.contentResolver.openInputStream(uri)?.use { coloursOf(it) }
+                val read = streamOf(context, uri)?.use { coloursOf(it) }
                 if (read != null && read.model == Colours.Model.INDEXED && !read.transparent &&
-                    context.contentResolver.openInputStream(uri)
+                    streamOf(context, uri)
                         ?.use { gifTransparencyOf(it) } == true
                 ) {
                     Colours(read.model, read.bitsPerChannel, read.palette, true)
@@ -257,7 +257,7 @@ suspend fun factsOf(context: Context, uris: List<Uri>): Facts = withContext(Disp
                 }
             }.getOrNull(),
             motion = runCatching {
-                context.contentResolver.openInputStream(uri)?.use { motionOf(it) }
+                streamOf(context, uri)?.use { motionOf(it) }
             }.getOrNull(),
             focalMm = exif?.getAttributeDouble(ExifInterface.TAG_FOCAL_LENGTH, 0.0)
                 ?.takeIf { it > 0.0 },
@@ -308,9 +308,41 @@ private fun exifMoment(exif: ExifInterface?): Long? {
 /** Come l'EXIF scrive un istante, dalla sua specifica. */
 private const val EXIF_PATTERN = "yyyy:MM:dd HH:mm:ss"
 
+/**
+ * Il flusso dei byte del file che sta a [uri], da qualunque parte arrivi.
+ *
+ * ⚠️⚠️ **NASCE PERCHÉ SU UN'IMMAGINE DI RETE QUESTA SCHEDA NON SAPEVA NIENTE, dalla 1.45**
+ * (segnalazione dell'utente, 2026-09-03, sull'immagine di Pexels: *si apre perfettamente ma
+ * poi mi dà info estremamente scarne e probabilmente errate (JPG, 0 byte)*). Il difetto era
+ * uno solo ripetuto **otto volte**: ogni lettura di questo file passava dal
+ * `ContentResolver`, che su uno `https` solleva un errore, e ogni `runCatching` intorno lo
+ * ingoiava. Risultato: nessuna misura, nessuna codifica, nessun EXIF, e i due campi che non
+ * passavano da qui (peso e tipo) presi da fonti cieche.
+ * ⚠️ **I byte remoti non si riscaricano**: li ha messi in cache `ImageSource.loadRemote`
+ * mentre apriva l'immagine. Se non ci sono ancora, si torna `null` e la scheda dice 'non c'è',
+ * che è la sua risposta normale a un dato che manca.
+ * ⚠️ **Non si riavvolge, e va bene così**: chi legge qui apre e chiude, e le note su 'tre
+ * aperture e non una' spiegano perché. Un `ByteArrayInputStream` per volta costa una copia del
+ * riferimento, non dei byte.
+ */
+private fun streamOf(context: Context, uri: Uri): java.io.InputStream? =
+    when (uri.scheme?.lowercase()) {
+        "http", "https" -> RemoteCache.read(context, uri)?.inputStream()
+        else -> context.contentResolver.openInputStream(uri)
+    }
+
 private fun sizeOf(context: Context, uri: Uri): Long {
     if (uri.scheme?.lowercase() == "file") {
         return uri.path?.let { runCatching { File(it).length() }.getOrNull() } ?: 0L
+    }
+    /*
+     * ⚠️⚠️ **UN INDIRIZZO DI RETE NON HA UNA RIGA NEL `ContentResolver`, ED È IL '0 byte' CHE
+     * L'UTENTE HA VISTO**: la query qui sotto falliva e il ripiego era zero, cioè un peso
+     * dichiarato e falso invece di un peso mancante. Il numero vero è quello dei byte
+     * scaricati, che la cache ha già.
+     */
+    if (uri.scheme?.lowercase() in setOf("http", "https")) {
+        return RemoteCache.read(context, uri)?.size?.toLong() ?: 0L
     }
     return runCatching {
         context.contentResolver.query(uri, arrayOf(OpenableColumns.SIZE), null, null, null)
@@ -343,9 +375,69 @@ private fun nameOf(context: Context, uri: Uri): String? {
  */
 private fun mimeOf(context: Context, uri: Uri): String? {
     runCatching { context.contentResolver.getType(uri) }.getOrNull()?.let { return it }
+    /*
+     * ⚠️⚠️ **SU UN INDIRIZZO DI RETE SI GUARDANO I BYTE PRIMA DEL NOME, dalla 1.45, E IL CASO
+     * CHE L'HA FATTO NASCERE È ISTRUTTIVO** (segnalazione dell'utente, 2026-09-03:
+     * *apparentemente un JPG, si apre perfettamente ma AIV mi dice che è un AVIF*). AIV
+     * diceva **la verità**: quell'indirizzo finisce in `.jpeg`, ma Pexels sceglie il formato
+     * in base all'header `Accept`, e AIV lo chiede da browser (`image/avif` in testa), quindi
+     * riceve un AVIF per davvero. Misurato: senza `Accept` quel percorso serve `image/jpeg`
+     * e 1.834.818 byte, con l'`Accept` di AIV serve `image/avif` e 1.000.893 byte.
+     * ⚠️ **Quindi il difetto non era il tipo dichiarato nella barra ma quello scritto QUI**:
+     * là il tipo arriva dalla risposta HTTP, qui arrivava dall'estensione, e i due si
+     * contraddicevano nella stessa schermata. La causa vera non è un doppio `.jpeg` nel
+     * percorso, come sembrava: è la negoziazione del contenuto.
+     * ⚠️ **Il ripiego resta l'estensione**, per i file locali senza provider (`file://`) e per
+     * quello che nessuna firma riconosce.
+     */
+    if (uri.scheme?.lowercase() in setOf("http", "https")) {
+        val head = runCatching {
+            streamOf(context, uri)?.use { stream ->
+                val buffer = ByteArray(Svg.SNIFF)
+                val got = stream.readFully(buffer, Svg.SNIFF)
+                buffer.copyOf(got)
+            }
+        }.getOrNull()
+        if (head != null) sniffMime(head)?.let { return it }
+    }
     val extension = uri.lastPathSegment?.substringAfterLast('.', "")?.lowercase()
     if (extension.isNullOrEmpty()) return null
     return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+}
+
+/**
+ * Il tipo che i primi byte di un file dichiarano, e `null` se non lo dicono.
+ *
+ * ⚠️⚠️ **NON REIMPLEMENTA I DUE RICONOSCITORI CHE ESISTONO GIÀ**: AVIF e SVG hanno il loro,
+ * in `Avif` e in `Svg`, e sono più che una firma (il primo legge i marchi del contenitore
+ * ISO-BMFF, il secondo tollera una dichiarazione XML lunga in testa). Riscriverli qui vorrebbe
+ * dire due risposte possibili alla stessa domanda. Qui si aggiungono solo le firme che nessuno
+ * possiede, e sono quattro righe di magia in chiaro.
+ * ⚠️ **L'ordine conta per una coppia sola**: `Avif.looksLike` va provato **prima** del ripiego
+ * sull'estensione ma è indifferente rispetto alle firme qui sotto, perché un contenitore
+ * ISO-BMFF comincia con la lunghezza di un box e non può collidere con `BM`, `GIF8`, `RIFF`
+ * né coi due byte di un JPEG.
+ * ⚠️ **Il TIFF c'è benché l'app non lo sappia aprire**: questa funzione risponde 'che cosa
+ * sono questi byte', non 'so aprirli', e un file che si dichiara per quello che è dà un
+ * messaggio d'errore migliore di un file senza nome di formato.
+ */
+private fun sniffMime(head: ByteArray): String? {
+    fun ascii(at: Int, text: String): Boolean =
+        head.size >= at + text.length &&
+            String(head, at, text.length, Charsets.US_ASCII) == text
+    fun byteAt(at: Int): Int = if (head.size > at) head[at].toInt() and 0xFF else -1
+    return when {
+        Avif.looksLike(head) -> "image/avif"
+        byteAt(0) == 0xFF && byteAt(1) == 0xD8 && byteAt(2) == 0xFF -> "image/jpeg"
+        byteAt(0) == 0x89 && ascii(1, "PNG") -> "image/png"
+        ascii(0, "GIF8") -> "image/gif"
+        ascii(0, "RIFF") && ascii(8, "WEBP") -> "image/webp"
+        ascii(0, "BM") -> "image/bmp"
+        ascii(0, "II") && byteAt(2) == 0x2A && byteAt(3) == 0x00 -> "image/tiff"
+        ascii(0, "MM") && byteAt(2) == 0x00 && byteAt(3) == 0x2A -> "image/tiff"
+        Svg.looksLike(head) -> Svg.MIME
+        else -> null
+    }
 }
 
 /**

@@ -151,11 +151,8 @@ object Animations {
      * visualizzatore prende la strada normale invece di accendere comandi che non servono.
      */
     fun open(context: Context, uri: Uri): Animated? = runCatching {
-        val bytes = context.contentResolver.openInputStream(uri)?.use { source ->
-            val out = source.readBytes()
-            if (out.size > MAX_BYTES) return null
-            out
-        } ?: return null
+        val bytes = bytesOf(context, uri) ?: return null
+        if (bytes.size > MAX_BYTES) return null
         val animated = when (kindOf(bytes.copyOf(minOf(SNIFF, bytes.size)))) {
             Kind.GIF -> AnimatedGif.open(bytes)
             Kind.WEBP -> AnimatedWebp.open(bytes)
@@ -167,6 +164,31 @@ object Animations {
         }
         animated
     }.getOrNull()
+
+    /**
+     * I byte del file che sta a [uri], da qualunque parte arrivi.
+     *
+     * ⚠️⚠️ **NASCE PERCHÉ UN INDIRIZZO DI RETE NON PASSA DAL `ContentResolver`, E LA GIF
+     * REMOTA NON SI ANIMAVA** (segnalazione dell'utente, 2026-09-03, sulla Terra che gira di
+     * Wikimedia: *se incollo manualmente l'indirizzo si apre, ma non è animata*). Fino alla
+     * `1.44` qui c'era un `openInputStream` solo: su uno `https` quello **solleva** un errore,
+     * il `runCatching` di [open] lo ingoiava, e il visualizzatore prendeva la strada
+     * dell'immagine ferma. Nessun errore a schermo, nessun log: l'animazione semplicemente
+     * non c'era. È il modo peggiore di sbagliare.
+     * ⚠️ **I byte remoti ci sono già e non si riscaricano**: li ha messi in cache
+     * `ImageSource.loadRemote` mentre apriva l'immagine, quindi qui basta rileggerli. Un
+     * secondo download per animare la stessa fotografia sarebbe la rete pagata due volte.
+     * ⚠️⚠️ **E PUÒ ANCORA ANDARE A VUOTO UNA VOLTA, per una corsa**: questa lettura parte
+     * insieme all'apertura dell'immagine, quindi il primo tentativo può arrivare prima che il
+     * download sia finito. A ritentare pensa [rememberAnimation], che riprova quando
+     * l'immagine è pronta: senza quel secondo giro, la cache mancata di un istante
+     * spegnerebbe l'animazione per sempre.
+     */
+    private fun bytesOf(context: Context, uri: Uri): ByteArray? =
+        when (uri.scheme?.lowercase()) {
+            "http", "https" -> RemoteCache.read(context, uri)
+            else -> context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+        }
 
     /**
      * Oltre questo peso non si anima.
