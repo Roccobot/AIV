@@ -138,11 +138,10 @@ grande un dialogo esattamente al centro fa allungare la mano.
       trasparente: i dialoghi tornano al velo che Android dà loro (`0,6`), i menu a
       non averne. L'unica eccezione è la scheda in fondo, che se lo chiede da sé perché la sua
       finestra non ne ha uno di serie: `SHEET_DIM` in `Sheet.kt`, col perché misurato.
-      - ⚠️ **Quanti sono non si scrive, e fino alla 1.43 qui c'era il numero**: 'i tredici
-        dialoghi' era vero il giorno in cui è stato scritto, e la `1.44` ne ha tolto uno (la
-        conferma di buttare via la selezione) facendolo diventare falso senza che nessuno
-        toccasse questa riga. Un conto di cose che nascono e muoiono a ogni versione mente
-        nel frattempo, e i dialoghi si contano col codice davanti.
+      - ⚠️ **Fino alla `1.43` qui c'era il numero**, 'i tredici dialoghi', e la `1.44` lo ha
+        reso falso togliendone uno (la conferma di buttare via la selezione) senza che
+        nessuno toccasse questa riga. Il criterio che lo vieta è universale e sta in
+        `rules/Roccobot.md` § '🪶 Come si mantiene un file di regole'.
   - ⚠️ **Chi apre un `Popup` o un `Dialog` scritto in casa chiama `WindowVeil()` a mano**,
     perché là il modificatore non passa: lo fanno `MenuShell`, il menu del tastino della
     schermata iniziale e `Sheet`.
