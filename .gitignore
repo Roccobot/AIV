@@ -12,3 +12,5 @@ captures/
 *.keystore
 *.jks
 .kotlin/
+# Il bytecode che Python scrive accanto agli script di `tools/` quando uno importa l'altro.
+__pycache__/

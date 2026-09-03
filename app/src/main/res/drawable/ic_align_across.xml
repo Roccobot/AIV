@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Centra in orizzontale', nell'editor. La gemella verticale è `ic_align_down`.
+
+     DISEGNATO DALL'UTENTE il 2026-09-01 (voce `ed-sheet` del collaudo: *usa le mie icone che
+     ti ho già passato*), e sostituisce `Icons.Outlined.AlignHorizontalCenter`, che ha
+     giudicato non abbastanza chiara.
+
+     LA TELA È 800 PERCHÉ IL FILE È ARRIVATO COSÌ, e non si riscala: portare i numeri in una
+     griglia da 24 vorrebbe dire mille arrotondamenti e un disegno che non si può più
+     confrontare con quello di partenza. A cambiare è la sola dichiarazione della misura,
+     che resta 24dp: sono `android:width` e `android:height` a dire quanto è grande, e il
+     viewport a dire in quante unità è disegnato.
+
+     MISURATO PRIMA DI ENTRARE: l'inchiostro sta in 568x466 unità su 800 ed è centrato in
+     (400, 400) esatte, quindi non serve nessuna correzione. Il glifo dell'esportazione,
+     misurato lo stesso giorno, non lo era e andava ricentrato con un gruppo: se n'è andato
+     con il suo tasto nella 1.21, e la misura resta nel messaggio di quel commit.
+
+     È PIÙ PICCOLO DELLA FAMIGLIA, e l'utente lo ha confermato così: 17,04 unità riportate su
+     24 sul lato lungo, dove gli altri glifi stanno fra 18 e 20, cioè fra il 6% e il 15% in
+     meno. Chi lo trovasse piccolo NON lo corregga: la scelta è sua, del 2026-09-03.
+
+     Le regole di trasporto stanno in `CLAUDE.md`, § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="800"
+    android:viewportHeight="800">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M173.37,578.33c4.39,7.6,10.7,13.91,18.3,18.3c11.6,6.7,27.18,6.7,58.33,6.7h124.9c.06,0,.1,.05,.1,.1v76.56c0,2.21,1.79,4,4,4h41.99c2.21,0,4,-1.79,4,-4v-76.56c0,-.06,.05,-.1,.1,-.1h124.9c31.15,0,46.73,0,58.33,-6.7c7.6,-4.39,13.91,-10.7,18.3,-18.3c6.7,-11.6,6.7,-27.18,6.7,-58.33s0,-46.73,-6.7,-58.33c-4.39,-7.6,-10.7,-13.91,-18.3,-18.3c-11.6,-6.7,-27.18,-6.7,-58.33,-6.7h-124.9c-.06,0,-.1,-.05,-.1,-.1v-73.13c0,-.06,.05,-.1,.1,-.1h58.23c31.15,0,46.73,0,58.33,-6.7c7.6,-4.39,13.91,-10.7,18.3,-18.3c6.7,-11.6,6.7,-27.18,6.7,-58.33s0,-46.73,-6.7,-58.33c-4.39,-7.6,-10.7,-13.91,-18.3,-18.3c-11.6,-6.7,-27.18,-6.7,-58.33,-6.7h-58.23c-.06,0,-.1,-.05,-.1,-.1v-76.56c0,-2.21,-1.79,-4,-4,-4h-42c-2.21,0,-4,1.79,-4,4v76.56c0,.06,-.05,.1,-.1,.1h-58.23c-31.15,0,-46.73,0,-58.33,6.7c-7.6,4.39,-13.91,10.7,-18.3,18.3c-6.7,11.6,-6.7,27.18,-6.7,58.33s0,46.73,6.7,58.33c4.39,7.6,10.7,13.91,18.3,18.3c11.6,6.7,27.18,6.7,58.33,6.7h58.23c.06,0,.1,.05,.1,.1v73.13c0,.06,-.05,.1,-.1,.1h-124.9c-31.15,0,-46.73,0,-58.33,6.7c-7.6,4.39,-13.91,10.7,-18.3,18.3c-6.7,11.6,-6.7,27.18,-6.7,58.33s0,46.73,6.7,58.33Z" />
+</vector>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Copia immagine': due fogli sovrapposti, quello davanti con montagne e sole.
+
+     DISEGNATO DALL'UTENTE, arrivato il 2026-09-02 in griglia 24 (versione 1 di due). Il SOLE
+     è la ragione per cui questo glifo esiste invece di `Icons.Outlined.PhotoLibrary`: nessuna
+     icona-immagine di Material ha il disco del sole (verificato sui sorgenti di `image`,
+     `photo`, `photo_library` e `collections`, che portano la stessa spezzata a due cime e
+     nessun disco), e la richiesta lo nominava.
+
+     LA TELA È 25 E NON 24 PERCHÉ IL DISEGNO NE ESCE: il foglio dietro arriva a -1 su un
+     `viewBox="0 0 24 24"`, ed è il prezzo dell'allineamento chiesto. Il conto è misurato in
+     Chromium con `getBBox`: il quadrato-base sta in x 3..21, y 3..21, cioè esattamente dove
+     ce l'hanno `ic_image_edit` e `ic_image_convert`, e per starci il foglio dietro deve
+     sporgere. Il disegno di prima aveva il quadrato in 6..22 e grande 16 invece di 18, ed è
+     il difetto che l'utente ha visto: *'Copia' ha il quadrato-base più piccolo e non sembra
+     allineato alle altre due*. La versione 2 che ha mandato è centrata (inchiostro 1..23) e
+     quindi ha il quadrato in 5..23, che non si allinea: la scelta della 1 è sua.
+
+     E LA MISURA CRESCE CON LA TELA, di proposito: `android:width` va a 25dp insieme al
+     viewport, così un'unità resta un dp e il disegno ha la scala esatta degli altri glifi.
+     A 24dp, `Icon` schiaccerebbe 25 unità in 24 e il quadrato-base diventerebbe 17,28
+     invece di 18, cioè si perderebbe proprio la cosa per cui questa tela è più grande.
+     Chi lo disegna deve dargli uno slot da 24, o l'icona sposta il testo della sua fila di
+     1dp: come, sta in `MenuRow` di `Menus.kt`.
+
+     IL GRUPPO CHE TRASPONE DI 1 È L'ORIGINE DEL viewBox, che un vettore Android non ha:
+     dichiara `viewportWidth` e `viewportHeight` e nient'altro, quindi l'origine è sempre
+     (0,0) e un tracciato con coordinate negative viene ritagliato. Un SVG risolverebbe la
+     cosa con `viewBox="-1 -1 25 25"`; qui la via è questo gruppo.
+     E IL GRUPPO NON SI APPIATTISCE NELLE COORDINATE, per due ragioni misurate. La prima è
+     che così la `pathData` resta identica a quella del file di partenza e si confronta con
+     lui carattere per carattere, che è il solo modo di verificare un trasporto; la seconda è
+     che appiattire non è nemmeno gratis: provato su `ic_aiv_mark`, i valori sommati in
+     decimale esatto rendono 9 pixel diversi su 230.400 con scarto 8, perché il
+     disegnatore somma in virgola mobile a 32 bit e il risultato non cade sullo stesso
+     numero. Un gruppo di sola traslazione è un elemento pieno di `VectorDrawable`, non un
+     ripiego: il criterio completo sta in `CLAUDE.md`, § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="25dp"
+    android:height="25dp"
+    android:viewportWidth="25"
+    android:viewportHeight="25">
+    <group
+        android:translateX="1"
+        android:translateY="1">
+        <path
+            android:fillColor="#FF000000"
+            android:fillType="nonZero"
+            android:pathData="M19,3H5c-1.1,0,-2,.9,-2,2v14c0,1.1,.9,2,2,2h14c1.1,0,2,-.9,2,-2V5c0,-1.1,-.9,-2,-2,-2ZM19,19H5V5h14v14ZM10.97,13.75c.76,0,1.38,-.62,1.38,-1.38s-.62,-1.38,-1.38,-1.38s-1.38,.62,-1.38,1.38s.62,1.38,1.38,1.38ZM15,.6c0,-.89,-.72,-1.6,-1.6,-1.6H1C-.1,-1,-1,-.1,-1,1v12.4c0,.88,.72,1.6,1.6,1.6c.22,0,.4,-.18,.4,-.4V1h13.6c.22,0,.4,-.18,.4,-.4ZM13.84,13.28l-2.73,3.41l-1.86,-2.49l-2.75,3.66h11l-3.66,-4.59Z" />
+    </group>
+</vector>

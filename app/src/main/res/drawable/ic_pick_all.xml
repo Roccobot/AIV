@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Seleziona tutto': un foglio dietro a un riquadro con due spunte.
+
+     DISEGNATO DALL'UTENTE, dalla 1.01. DUE SPUNTE E NON UNA: una sola vuol dire 'questo è
+     scelto', due vogliono dire 'tutti'. Il glifo di Material che stava qui prima
+     (`SelectAll`) era invece un rettangolo tratteggiato, cioè il gesto del riquadro di
+     selezione col mouse, che su un telefono non esiste.
+
+     I PRIMI DUE SOTTOTRACCIATI SONO IL SEGNO DI FAMIGLIA e sono identici carattere per
+     carattere in `ic_pick_none` e `ic_pick_invert`: il foglio dietro e il riquadro davanti.
+     Non si estraggono in un file condiviso e non si tenta di riusarli: un vettore Android non
+     ha `<use>`, quindi la sola via sarebbe copiarli, cioè quello che già succede, con in più
+     un posto da tenere allineato. A cambiare fra i tre è solo la forma dentro il riquadro.
+
+     Le regole di trasporto stanno in `CLAUDE.md`, § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M17.6,20H5.41c-.78,0,-1.41,-.63,-1.41,-1.41V6.4c0,-.22,-.18,-.4,-.4,-.4c-.88,0,-1.6,.72,-1.6,1.6v12.4c0,1.1,.9,2,2,2h12.4c.88,0,1.6,-.72,1.6,-1.6h0c0,-.22,-.18,-.4,-.4,-.4ZM20,2h-12c-1.1,0,-2,.9,-2,2v12c0,1.1,.9,2,2,2h12c1.1,0,2,-.9,2,-2V4c0,-1.1,-.9,-2,-2,-2ZM18.23,9.64l-5,5c-.15,.15,-.39,.15,-.54,0l-2.92,-2.92c-.15,-.15,-.15,-.4,0,-.55l.28,-.28c.15,-.15,.4,-.15,.55,0l2.29,2.29s.1,.04,.14,0l4.38,-4.38c.15,-.15,.39,-.15,.55,0l.28,.28c.15,.15,.15,.4,0,.55ZM18.23,6.18l-5,5c-.15,.15,-.39,.15,-.54,0l-2.92,-2.92c-.15,-.15,-.15,-.4,0,-.55l.28,-.28c.15,-.15,.4,-.15,.55,0l2.29,2.29s.1,.04,.14,0l4.38,-4.38c.15,-.15,.39,-.15,.55,0l.28,.28c.15,.15,.15,.39,0,.55Z" />
+</vector>

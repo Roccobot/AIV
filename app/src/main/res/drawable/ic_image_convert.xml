@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Esporta/Converti': due frecce opposte dentro un riquadro.
+
+     DISEGNATO DALL'UTENTE, dalla 1.29, e sostituisce `Icons.Outlined.SwapHoriz`: quelle
+     erano due frecce nude, cioè 'scambia', che è quello che fa un convertitore ma non dice
+     su che cosa. Col riquadro dice su un'immagine, e sta in fila con `ic_image_edit` e
+     `ic_photo_pair`, che il riquadro ce l'hanno.
+
+     IL RIEMPIMENTO NON-ZERO NON È UN VALORE DI COMODO: i due sottotracciati sono il riquadro
+     e le frecce, e girano in versi opposti, quindi è la regola di avvolgimento a bucare il
+     riquadro dove passano le frecce. Con la regola pari-dispari il disegno verrebbe uguale
+     solo perché le forme non si sovrappongono in altri punti, e uguale per caso non è
+     uguale. Le regole di trasporto stanno in `CLAUDE.md`, § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M19,3H5c-1.1,0,-2,.9,-2,2v14c0,1.1,.9,2,2,2h14c1.1,0,2,-.9,2,-2V5c0,-1.1,-.9,-2,-2,-2ZM5,19v-3.66l2.68,2.69v-2.58h6.04v-1.72h-6.04v-2.58l-2.68,2.69V5h14v3.66l-2.68,-2.69v2.58h-6.04v1.72h6.04v2.58l2.68,-2.69v8.83H5Z" />
+</vector>
