@@ -151,7 +151,7 @@ object Svg {
      * SVG', non 'disegnalo', e un `.svgz` di dieci megabyte scompattato per intero per
      * guardarne il primo tag sarebbe memoria buttata a ogni riquadro della griglia.
      * ⚠️ **Il troncamento non fa male**: `GZIPInputStream` legge a blocchi e chiudere prima
-     * della fine è legittimo. ⚠️ E un archivio rotto torna `null` invece di sollevare, come
+     * della fine è legittimo. ⚠️ E un archivio rotto torna `null` e non un errore, come
      * ogni altro riconoscimento di questo file.
      */
     private fun unzip(head: ByteArray): ByteArray? = try {

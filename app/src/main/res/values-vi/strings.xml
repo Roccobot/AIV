@@ -74,6 +74,9 @@
     <string name="settings_auto">Tự động</string>
     <string name="settings_light">Sáng</string>
     <string name="settings_dark">Tối</string>
+
+    <string name="settings_veil">Làm mờ phía sau bảng</string>
+    <string name="settings_veil_desc">Làm mờ và tối màn hình phía sau hộp thoại, trình đơn và bảng. Ứng dụng có thể chậm đi rõ rệt, vì vậy tùy chọn này đang tắt.</string>
     <string name="settings_folder_columns">Số cột trong lưới thư mục</string>
     <string name="settings_folder_columns_desc">Càng nhiều cột thì càng nhiều thư mục vừa màn hình và mỗi ảnh bìa càng nhỏ. Ở bốn cột, tên bên dưới thường bị cắt.</string>
     <string name="settings_folder_count">Bộ đếm mục dưới các thư mục ở chế độ lưới</string>

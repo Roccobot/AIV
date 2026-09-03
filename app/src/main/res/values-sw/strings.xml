@@ -74,6 +74,9 @@
     <string name="settings_auto">Otomatiki</string>
     <string name="settings_light">Nyepesi</string>
     <string name="settings_dark">Nyeusi</string>
+
+    <string name="settings_veil">Ukungu nyuma ya paneli</string>
+    <string name="settings_veil_desc">Hutia ukungu na kutia giza skrini iliyo nyuma ya vidirisha, menyu na paneli. Programu inaweza kuonekana polepole zaidi, ndiyo maana imezimwa.</string>
     <string name="settings_folder_columns">Safu kwenye gridi ya folda</string>
     <string name="settings_folder_columns_desc">Safu nyingi zaidi huingiza folda nyingi zaidi kwenye skrini na kufanya kila jalada kuwa dogo. Kwa nne, jina lililo chini mara nyingi hukatwa.</string>
     <string name="settings_folder_count">Kihesabu cha vipengele chini ya folda katika mwonekano wa gridi</string>

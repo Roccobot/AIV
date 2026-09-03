@@ -107,7 +107,7 @@ object Tree {
      * (`.thumbnails`, `.trashed`). Non c'è un interruttore per mostrarli, e se servirà si
      * aggiungerà: metterlo adesso vorrebbe dire un'impostazione in ventotto lingue per un
      * caso che nessuno ha chiesto.
-     * ⚠️ **Una cartella che non si può leggere torna VUOTA e non solleva**: succede davvero
+     * ⚠️ **Una cartella che non si può leggere torna VUOTA e non va in errore**: succede davvero
      * (`/storage/emulated/0/Android/data` è chiusa anche col permesso pesante), e chi entra
      * deve vedere 'niente qui dentro' invece di un errore.
      */
@@ -203,7 +203,7 @@ object Tree {
      * L'indirizzo `content://` di un file qualunque, e `null` se il MediaStore non lo conosce.
      *
      * ⚠️⚠️ **SERVE A CONSEGNARE UN FILE A UN ALTRO PROGRAMMA senza allargare il nostro
-     * FileProvider**: un `file://` non è leggibile da fuori (da Android 7 il sistema solleva),
+     * FileProvider**: un `file://` non è leggibile da fuori (da Android 7 il sistema lo rifiuta),
      * e la via comoda sarebbe esporre tutta la memoria attraverso il nostro provider. Il
      * MediaStore indicizza anche i documenti e gli archivi, quindi per la stragrande
      * maggioranza dei file un indirizzo concedibile **esiste già** ed è suo.

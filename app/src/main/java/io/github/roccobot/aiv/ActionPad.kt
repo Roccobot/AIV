@@ -1,5 +1,6 @@
 package io.github.roccobot.aiv
 
+import android.view.WindowManager
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
@@ -21,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,12 +32,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
 
 /**
  * Le operazioni sui file, come riquadro di icone a tre colonne.
@@ -461,26 +465,104 @@ fun TapHoldFab(
      * si è dentro di lei, e un'etichetta fissa ne annuncerebbe una mentre succede l'altra.
      */
     holdLabel: String,
+    /**
+     * Il tastino si stacca in una **finestra sua**, per restare sopra il velo del suo menu.
+     *
+     * ⚠️⚠️ **RICHIESTA DELL'UTENTE, 1.39** (2026-09-03: *quando la sfocatura si applica dove
+     * c'è un FAB, questo deve rimanere SOPRA l'area sfocata e velata*). Col velo di finestra
+     * (vedi `WindowVeil`) non si può ritagliare un buco: quel velo sta **dietro** la finestra
+     * che lo chiede, e tutto quello che è più in basso ci finisce sotto, tastino compreso. La
+     * sola via per tenerlo fuori è metterlo in una finestra **più in alto** di quella che vela.
+     * ⚠️ **Vale solo per il menu che il tastino stesso apre**, e chi lo accende è il suo
+     * `open`. Un dialogo di Material è una finestra di **altro tipo**, sempre sopra le finestre
+     * dei menu, quindi con un dialogo aperto il tastino resta velato: ed è giusto, perché un
+     * modale deve restare modale.
+     * ⚠️⚠️ **IL MENU VA COMPOSTO PRIMA DEL TASTINO**, o questo non serve a niente: fra
+     * finestre dello stesso tipo l'ordine è quello in cui sono state aggiunte, e la
+     * composizione decide quell'ordine. I due posti che lo usano hanno il menu scritto sopra.
+     * ⚠️⚠️ **DA STACCATO IL TASTINO È SOLO DA GUARDARE**, e la sua finestra lascia passare le
+     * dita: il perché sta su [untouchable], ed è quello che tiene in piedi la chiusura del menu
+     * al tocco, che è del giro della `1.06`.
+     * ⚠️ **Non è verificato su un telefono** (qui non ce n'è uno): se non bastasse, il tastino
+     * resterebbe velato come adesso, che è il comportamento di prima e non un guasto nuovo.
+     */
+    lifted: Boolean = false,
     onTap: () -> Unit,
     onHold: () -> Unit
 ) {
-    Surface(
-        modifier = Modifier.size(FAB_SIZE),
-        shape = RoundedCornerShape(FAB_CORNER),
-        color = container,
-        contentColor = ink,
-        shadowElevation = lift
-    ) {
-        Box(
-            modifier = Modifier.combinedClickable(
-                role = Role.Button,
-                onLongClickLabel = holdLabel,
-                onLongClick = withHaptics(onHold),
-                onClick = onTap
-            ),
-            contentAlignment = Alignment.Center
+    val tasto = @Composable {
+        Surface(
+            modifier = Modifier.size(FAB_SIZE),
+            shape = RoundedCornerShape(FAB_CORNER),
+            color = container,
+            contentColor = ink,
+            shadowElevation = lift
         ) {
-            Icon(imageVector = icon, contentDescription = label)
+            Box(
+                modifier = Modifier.combinedClickable(
+                    role = Role.Button,
+                    onLongClickLabel = holdLabel,
+                    onLongClick = withHaptics(onHold),
+                    onClick = onTap
+                ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(imageVector = icon, contentDescription = label)
+            }
         }
+    }
+
+    if (!lifted) {
+        tasto()
+        return
+    }
+    /*
+     * ⚠️ **Il posto resta occupato da una scatola vuota della stessa misura**, e non è un
+     * dettaglio: una finestra non occupa spazio nel genitore, quindi senza questa scatola il
+     * riquadro si stringerebbe e il menu, che si ancora a lui, salterebbe altrove proprio
+     * mentre si apre.
+     * ⚠️ **`Alignment.TopStart` mette la finestra sull'angolo dell'ancora**, cioè esattamente
+     * dove il tastino sarebbe stato: il tastino non si muove, cambia solo la finestra che lo
+     * disegna.
+     */
+    Box(modifier = Modifier.size(FAB_SIZE)) {
+        Popup(alignment = Alignment.TopStart) {
+            untouchable()
+            tasto()
+        }
+    }
+}
+
+/**
+ * Rende la finestra che ospita questa vista **trasparente al tocco**: le dita ci passano
+ * attraverso e arrivano a quello che sta sotto.
+ *
+ * ⚠️⚠️ **SENZA QUESTA RIGA IL TASTINO STACCATO ROMPEREBBE LA CHIUSURA DEL MENU, dalla 1.06**
+ * (*tutti i menu di tutti i FAB devono andarsene se si tocca un punto qualsiasi fuori dal
+ * popup, incluso il FAB stesso*). Quel tocco oggi lo raccoglie il velo trasparente della
+ * schermata, che sta nella finestra dell'app: un tastino in una finestra **più alta** se lo
+ * prenderebbe per primo e il menu resterebbe aperto, con l'aggravante che il suo `onTap` lo
+ * riaprirebbe subito dopo. È il lampeggio che la `1.06` aveva chiuso.
+ * ⚠️ **Quindi il tastino staccato è solo da guardare**, ed è giusto così: mentre il suo menu
+ * è aperto l'unica cosa che il suo tocco deve fare è chiudere quel menu, e a chiuderlo pensa
+ * chi lo faceva già.
+ * ⚠️ **Si passa dai `LayoutParams` della radice**, come il velo dei popup: un `Popup` non ha
+ * un `Window` suo, e la sua finestra sono i parametri della vista che Compose ha aggiunto al
+ * gestore. La nota per esteso sta in `Veil.kt`.
+ * ⚠️ **Niente da rimettere a posto all'uscita**: la finestra muore col popup, e questa esiste
+ * solo finché il tastino sta per conto suo.
+ */
+@Composable
+private fun untouchable() {
+    val view = LocalView.current
+    DisposableEffect(view) {
+        val root = view.rootView
+        val params = root.layoutParams as? WindowManager.LayoutParams
+        val manager = view.context.getSystemService(WindowManager::class.java)
+        if (params != null && manager != null) {
+            params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+            runCatching { manager.updateViewLayout(root, params) }
+        }
+        onDispose { }
     }
 }

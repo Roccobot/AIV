@@ -74,6 +74,9 @@
     <string name="settings_auto">స్వయంచాలకం</string>
     <string name="settings_light">వెలుతురు</string>
     <string name="settings_dark">చీకటి</string>
+
+    <string name="settings_veil">ప్యానెల్‌ల వెనుక అస్పష్టత</string>
+    <string name="settings_veil_desc">డైలాగ్‌లు, మెనూలు, ప్యానెల్‌ల వెనుక ఉన్న తెరను అస్పష్టంగా, ముదురుగా చేస్తుంది. యాప్ స్పష్టంగా నెమ్మదిగా అనిపించవచ్చు, అందుకే ఇది ఆఫ్‌లో ఉంది.</string>
     <string name="settings_folder_columns">సంచయ గడిలో నిలువు వరుసలు</string>
     <string name="settings_folder_columns_desc">నిలువు వరుసలు ఎక్కువైతే తెరపై ఎక్కువ సంచయాలు ఇమిడతాయి, ప్రతి ముఖచిత్రం చిన్నదవుతుంది. నాలుగు వద్ద కింది పేరు తరచుగా కత్తిరించబడుతుంది.</string>
     <string name="settings_folder_count">గ్రిడ్ వీక్షణలో సంచయాల కింద అంశాల లెక్క</string>

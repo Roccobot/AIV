@@ -74,6 +74,9 @@
     <string name="settings_auto">தானாக</string>
     <string name="settings_light">வெளிச்சம்</string>
     <string name="settings_dark">இருள்</string>
+
+    <string name="settings_veil">பலகங்களுக்குப் பின் மங்கல்</string>
+    <string name="settings_veil_desc">உரையாடல்கள், பட்டிகள், பலகங்களுக்குப் பின்னால் உள்ள திரையை மங்கலாக்கி இருட்டாக்கும். செயலி வெளிப்படையாக மெதுவாகத் தோன்றலாம், அதனால் இது அணைக்கப்பட்டுள்ளது.</string>
     <string name="settings_folder_columns">கோப்புறைக் கட்டத்தின் நிரல்கள்</string>
     <string name="settings_folder_columns_desc">நிரல்கள் அதிகமானால் திரையில் அதிகக் கோப்புறைகள் அடங்கும், ஒவ்வொரு அட்டையும் சிறியதாகும். நான்கில் கீழே உள்ள பெயர் பெரும்பாலும் வெட்டப்படும்.</string>
     <string name="settings_folder_count">கட்டக் காட்சியில் கோப்புறைகளுக்குக் கீழே பொருள் எண்ணிக்கை</string>

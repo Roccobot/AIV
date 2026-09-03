@@ -1091,37 +1091,17 @@ fun GridScreen(
                 modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp)
             ) {
                 Box {
-                    TapHoldFab(
-                        /*
-                         * ⚠️⚠️ **UN PALLINO E NON L'HAMBURGER, dalla 1.37, e il disegno è una
-                         * richiesta dell'utente** (riscontro `fab-colori`: *adesso che vedo il
-                         * cestino con i nuovi colori non mi piace più: metti un pallino singolo
-                         * al centro*). Le tre righe di `Icons.Default.Menu` dicono 'apri il
-                         * cassetto', che è un'altra cosa da 'apri le azioni del cestino', e coi
-                         * colori dell'icona dell'app pesavano.
-                         * ⚠️ **È di Material e non disegnato in casa**: `FiberManualRecord` è
-                         * esattamente un disco pieno centrato (raggio 8 su griglia 24, cioè
-                         * 16dp di diametro), e la nota in testa a `Glyphs.kt` dice di non
-                         * ridisegnare quello che Material ha già.
-                         * ⚠️ **Se il pallino va cambiato di misura la via è un'altra icona, non
-                         * una scala**: `Icons.Filled.Circle` è lo stesso disco a raggio 10.
-                         */
-                        icon = Icons.Filled.FiberManualRecord,
-                        label = stringResource(R.string.pick_actions),
-                        // ⚠️ I colori dell'icona dell'app, dalla `1.36`, come il tastino della
-                        // schermata iniziale: il perché per esteso sta là, e i due tastini sono
-                        // lo stesso oggetto in due schermate.
-                        container = colorResource(R.color.launcher_background),
-                        ink = colorResource(R.color.launcher_foreground),
-                        lift = FAB_LIFT,
-                        holdLabel = stringResource(shortcutLabel),
-                        // ⚠️ **Apre e basta, dalla 1.06**: a menu aperto il tocco non
-                        // arriva più qui, perché lo mangia il velo trasparente (vedi
-                        // `menuOpen` in fondo alla schermata). Un'alternanza qui
-                        // riaprirebbe il menu che quel velo ha appena chiuso.
-                        onTap = { menuOpen = true },
-                        onHold = { shortcut(); hintDone() }
-                    )
+                    /*
+                     * ⚠️⚠️ **IL MENU È SCRITTO PRIMA DEL TASTINO, e quest'ordine è la
+                     * funzione** (1.39): il tastino si stacca in una finestra sua per restare
+                     * sopra il velo (vedi `lifted` in [TapHoldFab]), e fra finestre dello
+                     * stesso tipo comanda l'ordine in cui sono state aggiunte, che è quello
+                     * della composizione. Scritto dopo, il menu coprirebbe il tastino invece
+                     * del contrario.
+                     * ⚠️ **Il menu non si sposta di un pixel**: [MenuAbove] legge il bordo di
+                     * sopra di questo riquadro, che è lo stesso qualunque sia l'ordine dei
+                     * figli.
+                     */
                     PickMenu(open = menuOpen, onDismiss = { menuOpen = false }) {
                         /*
                          * ⚠️⚠️ **L'ORDINE NON È CASUALE**: prima quella che rimette a
@@ -1166,6 +1146,41 @@ fun GridScreen(
                             )
                         }
                     }
+                    TapHoldFab(
+                        /*
+                         * ⚠️⚠️ **UN PALLINO E NON L'HAMBURGER, dalla 1.37, e il disegno è una
+                         * richiesta dell'utente** (riscontro `fab-colori`: *adesso che vedo il
+                         * cestino con i nuovi colori non mi piace più: metti un pallino singolo
+                         * al centro*). Le tre righe di `Icons.Default.Menu` dicono 'apri il
+                         * cassetto', che è un'altra cosa da 'apri le azioni del cestino', e coi
+                         * colori dell'icona dell'app pesavano.
+                         * ⚠️ **È di Material e non disegnato in casa**: `FiberManualRecord` è
+                         * esattamente un disco pieno centrato (raggio 8 su griglia 24, cioè
+                         * 16dp di diametro), e la nota in testa a `Glyphs.kt` dice di non
+                         * ridisegnare quello che Material ha già.
+                         * ⚠️ **Se il pallino va cambiato di misura la via è un'altra icona, non
+                         * una scala**: `Icons.Filled.Circle` è lo stesso disco a raggio 10.
+                         */
+                        icon = Icons.Filled.FiberManualRecord,
+                        label = stringResource(R.string.pick_actions),
+                        // ⚠️ I colori dell'icona dell'app, dalla `1.36`, come il tastino della
+                        // schermata iniziale: il perché per esteso sta là, e i due tastini sono
+                        // lo stesso oggetto in due schermate.
+                        container = colorResource(R.color.launcher_background),
+                        ink = colorResource(R.color.launcher_foreground),
+                        lift = FAB_LIFT,
+                        holdLabel = stringResource(shortcutLabel),
+                        lifted = menuOpen,
+                        // ⚠️ **Apre e basta, dalla 1.06**: a menu aperto il tocco non
+                        // arriva più qui, perché lo mangia il velo trasparente (vedi
+                        // `menuOpen` in fondo alla schermata). Un'alternanza qui
+                        // riaprirebbe il menu che quel velo ha appena chiuso.
+                        // ⚠️ **E dalla 1.39 quel velo lo raggiunge ancora**, benché il
+                        // tastino stia in una finestra più alta: quella finestra è
+                        // trasparente al tocco apposta (vedi `untouchable` in `ActionPad`).
+                        onTap = { menuOpen = true },
+                        onHold = { shortcut(); hintDone() }
+                    )
                 }
             }
 

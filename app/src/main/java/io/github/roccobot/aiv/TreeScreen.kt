@@ -527,7 +527,7 @@ private fun SpotGlyph(spot: Tree.Spot) {
  * Consegna al sistema un file che non è né una fotografia né un filmato.
  *
  * ⚠️⚠️ **PASSA DAL MEDIASTORE E NON DAL NOSTRO PROVIDER, ed è una scelta di sicurezza.** Un
- * altro programma non può leggere un nostro `file://` (da Android 7 il sistema solleva), e la
+ * altro programma non può leggere un nostro `file://` (da Android 7 il sistema lo rifiuta), e la
  * via comoda sarebbe allargare il FileProvider a tutta la memoria. Non si fa: quel provider
  * serve **una cartella sola**, quella delle condivisioni, apposta (vedi
  * `ImageActions.shareMany`), e allargarlo per la comodità di aprire un PDF vorrebbe dire

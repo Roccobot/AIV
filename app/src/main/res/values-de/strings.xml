@@ -74,6 +74,9 @@
     <string name="settings_auto">Automatisch</string>
     <string name="settings_light">Hell</string>
     <string name="settings_dark">Dunkel</string>
+
+    <string name="settings_veil">Unschärfe hinter Bedienfeldern</string>
+    <string name="settings_veil_desc">Zeichnet den Bildschirm hinter Dialogen, Menüs und Bedienfeldern unscharf und abgedunkelt. Die App kann sich dadurch spürbar langsamer anfühlen, deshalb ist die Option aus.</string>
     <string name="settings_folder_columns">Spalten im Ordnerraster</string>
     <string name="settings_folder_columns_desc">Mehr Spalten bringen mehr Ordner auf den Bildschirm und machen jedes Titelbild kleiner. Bei vier wird der Name darunter meist abgeschnitten.</string>
     <string name="settings_folder_count">Zähler der Elemente unter den Ordnern in der Rasteransicht</string>

@@ -74,6 +74,9 @@
     <string name="settings_auto">자동</string>
     <string name="settings_light">밝게</string>
     <string name="settings_dark">어둡게</string>
+
+    <string name="settings_veil">패널 뒤 흐림 효과</string>
+    <string name="settings_veil_desc">대화상자, 메뉴, 패널 뒤의 화면을 흐리게 하고 어둡게 합니다. 앱이 눈에 띄게 느려질 수 있어 기본적으로 꺼져 있습니다.</string>
     <string name="settings_folder_columns">폴더 격자의 열 수</string>
     <string name="settings_folder_columns_desc">열이 많을수록 화면에 폴더가 더 많이 들어가고 표지는 작아집니다. 네 열에서는 아래의 이름이 대개 잘립니다.</string>
     <string name="settings_folder_count">격자 보기에서 폴더 아래 항목 개수 표시</string>

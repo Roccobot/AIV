@@ -391,6 +391,22 @@ private fun ColumnScope.RootPage(
         onSelect = { onChange(settings.copy(bgTheme = it)) }
     )
 
+    /*
+     * ⚠️⚠️ **ULTIMA DEL GRUPPO E NON SUBITO DOPO IL TEMA**, che pure le somiglia: le due
+     * righe sopra sono una coppia (che cosa c'è dietro la fotografia, e di che tinta), e
+     * infilarsi in mezzo a loro le spezzerebbe. Questa parla di quello che c'è dietro le
+     * **finestre**, che è un'altra domanda.
+     * ⚠️ **La spiegazione dichiara il costo**, che è la ragione per cui l'interruttore esiste:
+     * chi lo accende deve sapere che cosa sta comprando, o leggerà la lentezza come un
+     * difetto dell'app.
+     */
+    SwitchRow(
+        label = stringResource(R.string.settings_veil),
+        detail = stringResource(R.string.settings_veil_desc),
+        checked = settings.veil,
+        onChange = { onChange(settings.copy(veil = it)) }
+    )
+
     Group(stringResource(R.string.settings_group_viewer))
 
     /*

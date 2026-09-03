@@ -174,6 +174,9 @@
     <string name="settings_light">Light</string>
     <string name="settings_dark">Dark</string>
 
+    <string name="settings_veil">Blur behind panels</string>
+    <string name="settings_veil_desc">Blurs and dims the screen behind dialogs, menus and panels. It can make the app feel visibly slower, which is why it is off.</string>
+
     <string name="settings_folder_columns">Columns in the folder grid</string>
     <string name="settings_folder_columns_desc">More columns fit more folders on screen and shrink each cover. At four the name under it is usually cut short.</string>
     <string name="settings_folder_count">Item counter under folders in grid view</string>

@@ -74,6 +74,9 @@
     <string name="settings_auto">自動</string>
     <string name="settings_light">明るい</string>
     <string name="settings_dark">暗い</string>
+
+    <string name="settings_veil">パネルの背景をぼかす</string>
+    <string name="settings_veil_desc">ダイアログ、メニュー、パネルの背景をぼかして暗くします。動作が目に見えて遅くなることがあるため、初期状態ではオフです。</string>
     <string name="settings_folder_columns">フォルダ一覧の列数</string>
     <string name="settings_folder_columns_desc">列を増やすと画面に入るフォルダは増え、表紙は小さくなります。4列では下の名前はたいてい切れます。</string>
     <string name="settings_folder_count">グリッド表示でフォルダーの下に項目数を表示</string>

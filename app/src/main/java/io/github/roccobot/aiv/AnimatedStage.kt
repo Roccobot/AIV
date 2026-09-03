@@ -200,7 +200,7 @@ class Animation(private val source: Animated) {
      *
      * ⚠️⚠️ **UN ERRORE QUI DENTRO CHIUDE L'APP, e non è teorico: è successo nella `1.13`**
      * (segnalazione dell'utente: *manda in crash 10 volte su 10*). Questo ciclo gira dentro
-     * una coroutine di composizione, e quello che vi si solleva non lo prende nessuno.
+     * una coroutine di composizione, e l'errore che ci nasce dentro non lo prende nessuno.
      * ⚠️ **Fermare l'animazione è la risposta giusta**: sotto c'è sempre l'immagine ferma
      * disegnata dal visualizzatore, quindi il peggio che si vede è una GIF che non si muove,
      * e non un'app che se ne va. ⚠️ La causa vera della `1.13` è corretta a monte, in
@@ -261,7 +261,7 @@ class Animation(private val source: Animated) {
  * ⚠️⚠️ **E si è visto solo sulle GIF per un'asimmetria fra i due lettori**, che è la parte
  * che rendeva il sintomo incomprensibile: [AnimatedWebp.close] butta la tela e la rifà alla
  * prima richiesta, mentre [AnimatedGif.close] passa da `GifDecoder.clear()`, che azzera
- * l'intestazione, e da lì `frameCount`, `delayOf` e `advance` sollevano un errore di
+ * l'intestazione, e da lì `frameCount`, `delayOf` e `advance` danno un errore di
  * riferimento nullo. La stessa identica chiusura sbagliata: una la sopporta, l'altra no.
  * ⚠️ **La chiave giusta è il solo indirizzo**: l'effetto scade quando si cambia fotografia o
  * si esce, e in quei due momenti la variabile porta davvero il lettore da chiudere.

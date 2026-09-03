@@ -219,7 +219,7 @@ object Folder {
             )?.use { c ->
                 // ⚠️ Le colonne si risolvono UNA VOLTA e non a ogni riga, e non è solo
                 // questione di velocità: dentro il ciclo un `getString` su una colonna
-                // che il provider non serve solleverebbe a metà elenco, e quello che si
+                // che il provider non serve darebbe errore a metà elenco, e quello che si
                 // è raccolto fin lì tornerebbe come se fosse tutto. Un elenco troncato
                 // in silenzio è peggio di un elenco vuoto.
                 val bucketAt = c.column(MediaStore.Images.Media.BUCKET_ID)
@@ -548,7 +548,7 @@ object Folder {
 
     /**
      * ⚠️ `getColumnIndex` risponde -1 su una colonna che il provider non serve, e
-     * `getString(-1)` **solleva**: chiedere una proiezione non garantisce di
+     * `getString(-1)` **dà errore**: chiedere una proiezione non garantisce di
      * riceverla, quindi ogni lettura passa di qui.
      */
     private fun Cursor.column(name: String): Int? = getColumnIndex(name).takeIf { it >= 0 }

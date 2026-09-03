@@ -31,7 +31,7 @@ import java.nio.ByteBuffer
  * perché è nativa. Le due varianti `x86` (1,1 e 1,8 MB) sono escluse nel
  * `build.gradle.kts`: servirebbero ai soli emulatori, e qui l'APK si scarica da un sito,
  * dove nessuno spacchetta per architettura. ⚠️ **Per questo [ready] esiste**: su un
- * dispositivo x86 la libreria non c'è, `System.loadLibrary` solleva, e senza quel
+ * dispositivo x86 la libreria non c'è, `System.loadLibrary` va in errore, e senza quel
  * controllo la classe resterebbe rotta per sempre invece di sfilarsi.
  *
  * ⚠️⚠️ **LA SCALA LA FA LIBAVIF, e questo è il fatto che rende la cosa possibile**: se il

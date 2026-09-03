@@ -264,10 +264,10 @@ object SvgClean {
      * `pulitore`, 2026-09-02: *risponde sempre 'Questo file non è un SVG leggibile'*).
      * `DocumentBuilderFactoryImpl` di Android accetta **due soli** nomi di opzione,
      * `http://xml.org/sax/features/namespaces` e `.../validation`, e su qualunque altro
-     * **solleva** `ParserConfigurationException`: letto nel sorgente AOSP di `libcore`
+     * **dà** `ParserConfigurationException`: sta scritto nel sorgente AOSP di `libcore`
      * (`luni/src/main/java/org/apache/harmony/xml/parsers/DocumentBuilderFactoryImpl.java`,
      * il `throw` nel ramo `else` di `setFeature`), non ricordato. Quindi la prima riga del
-     * vecchio blocco sollevava, `parse` non tornava mai, e il `runCatching` di [clean]
+     * vecchio blocco andava in errore, `parse` non tornava mai, e il `runCatching` di [clean]
      * traduceva tutto in 'non è un SVG'.
      * ⚠️⚠️ **E NESSUNA PROVA SU MACCHINA LO AVREBBE PRESO**: sul JVM il parser è Xerces, che
      * quelle opzioni le ha tutte, quindi lo stesso codice passa. Il difetto vive **solo** dove

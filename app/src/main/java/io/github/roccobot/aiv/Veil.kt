@@ -6,6 +6,7 @@ import android.view.Window
 import android.view.WindowManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -60,17 +61,39 @@ import androidx.compose.ui.window.DialogWindowProvider
  *   sarebbe una riga da ricordare tredici volte. Un nodo di modificatore invece si aggancia
  *   **dove il modificatore atterra**, cioè sul contenuto del dialogo, quindi legge la finestra
  *   giusta. Ci arriva da [Modifier.lowered], che quei tredici dialoghi hanno già.
+ *
+ * ⚠️⚠️ **DALLA 1.39 È SPENTO DI FABBRICA, DIETRO UN'IMPOSTAZIONE** (richiesta dell'utente,
+ * 2026-09-03: *mettilo dietro un'opzione disattivata di default. Penserò se tenere o meno la
+ * feature: rende tutto visibilmente più lento*). Lo dice [LocalAivVeil], e spento vuol dire
+ * che qui non si tocca **niente**: ogni finestra resta com'era prima della 1.38.
  */
 @Composable
-fun WindowVeil() {
+fun WindowVeil(bare: Float = 0f) {
     val view = LocalView.current
+    val on = LocalAivVeil.current
     val dark = !LocalAivLight.current
     val radius = with(LocalDensity.current) { BLUR.roundToPx() }
-    DisposableEffect(view, dark, radius) {
-        val disfa = veilWindow(view, dark, radius)
+    DisposableEffect(view, on, bare, dark, radius) {
+        val disfa = when {
+            on -> veilWindow(view, dark, radius)
+            bare > 0f -> paint(view, dim = bare, radius = null)
+            else -> ({ })
+        }
         onDispose { disfa() }
     }
 }
+
+/**
+ * L'interruttore della funzione: se velo e sfocatura sono accesi.
+ *
+ * ⚠️ **Un `CompositionLocal` e non un parametro**: chi chiede il velo sono tredici dialoghi,
+ * quattro menu e due schede, e nessuno di loro riceve le impostazioni. Il valore lo mette in
+ * scena l'attività, che le ha già lette per il tema.
+ * ⚠️ **Il nodo lo legge quando si attacca**, cioè quando la finestra si apre: cambiare
+ * l'interruttore mentre un dialogo è aperto non lo cambia sotto gli occhi, e non è un caso che
+ * esista (l'impostazione vive in una schermata, non in un dialogo).
+ */
+val LocalAivVeil = staticCompositionLocalOf { false }
 
 /**
  * Lo stesso velo, ma agganciato **dove il modificatore atterra**. Vedi la nota in testa.
@@ -96,6 +119,7 @@ private class VeilNode : Modifier.Node(), CompositionLocalConsumerModifierNode {
     private var disfa: (() -> Unit)? = null
 
     override fun onAttach() {
+        if (!currentValueOf(LocalAivVeil)) return
         val view = currentValueOf(LocalView)
         val dark = !currentValueOf(LocalAivLight)
         val radius = with(currentValueOf(LocalDensity)) { BLUR.roundToPx() }
@@ -109,11 +133,11 @@ private class VeilNode : Modifier.Node(), CompositionLocalConsumerModifierNode {
 }
 
 /**
- * Mette velo e sfocatura sulla finestra di [view], e ritorna come si disfa.
+ * Quanto velo e quanta sfocatura vuole questa finestra, e poi li mette.
  *
- * ⚠️ **Ritorna l'annullamento invece di lasciarlo indovinare a chi chiama**: quello che va
- * rimesso a posto dipende da quello che è stato acceso (la sfocatura può non esserci), e due
- * copie di quella condizione, una all'andata e una al ritorno, divergono al primo ritocco.
+ * ⚠️ **Il calcolo sta qui e la stesura in [paint]**, perché il velo semplice della `1.39` (la
+ * scheda quando la funzione è spenta) vuole la seconda metà senza la prima: la sfocatura non
+ * la chiede e la quantità gliela dice chi chiama.
  */
 private fun veilWindow(view: View, dark: Boolean, radius: Int): () -> Unit {
     val manager = view.context.getSystemService(WindowManager::class.java)
@@ -126,6 +150,19 @@ private fun veilWindow(view: View, dark: Boolean, radius: Int): () -> Unit {
     val blurred = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
         manager?.isCrossWindowBlurEnabled == true
     val dim = (if (dark) DIM_DARK else DIM_LIGHT) + (if (blurred) 0f else DIM_MORE)
+    return paint(view, dim = dim, radius = if (blurred) radius else null)
+}
+
+/**
+ * Stende [dim] di velo, e [radius] di sfocatura se non è nullo, sulla finestra di [view]; poi
+ * ritorna come si disfa.
+ *
+ * ⚠️ **Ritorna l'annullamento invece di lasciarlo ricostruire a chi chiama**: quello che va
+ * rimesso a posto dipende da quello che è stato acceso (la sfocatura può non esserci), e due
+ * copie di quella condizione, una all'andata e una al ritorno, divergono al primo ritocco.
+ */
+private fun paint(view: View, dim: Float, radius: Int?): () -> Unit {
+    val manager = view.context.getSystemService(WindowManager::class.java)
 
     val window = view.dialogWindow()
     if (window != null) {
@@ -133,13 +170,13 @@ private fun veilWindow(view: View, dark: Boolean, radius: Int): () -> Unit {
         // li riapplica, e `setDimAmount` accende già il flag che serve.
         val prima = window.attributes.dimAmount
         window.setDimAmount(dim)
-        if (blurred) {
+        if (radius != null) {
             window.addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
             window.attributes = window.attributes.apply { blurBehindRadius = radius }
         }
         return {
             window.setDimAmount(prima)
-            if (blurred) window.clearFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
+            if (radius != null) window.clearFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
         }
     }
 
@@ -157,7 +194,7 @@ private fun veilWindow(view: View, dark: Boolean, radius: Int): () -> Unit {
     val dimPrima = params.dimAmount
     params.flags = params.flags or WindowManager.LayoutParams.FLAG_DIM_BEHIND
     params.dimAmount = dim
-    if (blurred) {
+    if (radius != null) {
         params.flags = params.flags or WindowManager.LayoutParams.FLAG_BLUR_BEHIND
         params.blurBehindRadius = radius
     }
@@ -165,9 +202,9 @@ private fun veilWindow(view: View, dark: Boolean, radius: Int): () -> Unit {
     return {
         params.flags = flagsPrima
         params.dimAmount = dimPrima
-        if (blurred) params.blurBehindRadius = 0
+        if (radius != null) params.blurBehindRadius = 0
         // ⚠️ La vista può essere già stata staccata quando questo scatta, e allora il gestore
-        // solleva: non c'è niente da rimettere a posto su una finestra che non c'è più.
+        // va in errore: non c'è niente da rimettere a posto su una finestra che non c'è più.
         runCatching { manager.updateViewLayout(root, params) }
     }
 }

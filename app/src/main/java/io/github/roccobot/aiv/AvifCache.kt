@@ -59,7 +59,7 @@ object AvifCache {
      * guarda in una griglia, e un PNG dello stesso riquadro pesa qualche volta tanto. La
      * qualità è quella che si vede in una miniatura, non quella che si conserva.
      * ⚠️ **Se scrivere non riesce, non succede niente**: la miniatura c'è comunque, e la
-     * prossima volta si rifà. Una cache che solleva sarebbe peggio di una cache che manca.
+     * prossima volta si rifà. Una cache che va in errore sarebbe peggio di una cache che manca.
      */
     fun write(context: Context, uri: Uri, box: Int, bitmap: Bitmap) {
         val file = fileFor(context, uri, box) ?: return

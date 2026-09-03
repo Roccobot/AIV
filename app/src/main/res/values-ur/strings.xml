@@ -74,6 +74,9 @@
     <string name="settings_auto">خودکار</string>
     <string name="settings_light">روشن</string>
     <string name="settings_dark">گہرا</string>
+
+    <string name="settings_veil">پینلز کے پیچھے دھندلاہٹ</string>
+    <string name="settings_veil_desc">ڈائیلاگ، مینو اور پینلز کے پیچھے کی اسکرین کو دھندلا اور مدھم کرتا ہے۔ اس سے ایپ نمایاں طور پر سست محسوس ہو سکتی ہے، اسی لیے یہ بند ہے۔</string>
     <string name="settings_folder_columns">فولڈر گرڈ کے کالم</string>
     <string name="settings_folder_columns_desc">زیادہ کالم اسکرین پر زیادہ فولڈر سماتے ہیں اور ہر سرورق چھوٹا کر دیتے ہیں۔ چار پر نیچے کا نام عموماً کٹ جاتا ہے۔</string>
     <string name="settings_folder_count">گرڈ منظر میں فولڈروں کے نیچے اشیا کا شمار کنندہ</string>
