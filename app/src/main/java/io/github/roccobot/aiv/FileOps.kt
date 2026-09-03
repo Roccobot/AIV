@@ -370,21 +370,24 @@ private fun DeleteDialog(
  * dell'utente, giro della 1.37: *info dettagliate come bottomsheet (ma che non deve entrare
  * scorrendo da sotto). Appare con animazione semplice e veloce, senza scorrere dal basso, e
  * la pillola con il nome è in fondo, verso il bordo inferiore, ancorata: il resto rimane
- * sotto allo scorrimento*). Le tre cose che chiede sono tre e vanno lette separate: **dove**
- * sta (appoggiata in basso, larga quanto lo schermo), **come** arriva (senza scivolare), e
- * **che cosa è fermo** dentro di lei (la pastiglia del nome).
+ * sotto allo scorrimento*). Le tre cose che chiedeva vanno lette separate: **dove** sta
+ * (appoggiata in basso, larga quanto lo schermo), **come** arriva, e **che cosa è fermo**
+ * dentro di lei (la pastiglia del nome).
  *
- * ⚠️⚠️ **'SENZA SCORRERE DAL BASSO' È UNA RICHIESTA VECCHIA CHE QUI SI CHIUDE DAVVERO**: la
- * `1.25` ci aveva già provato (*deve apparire in modo elegante, ma più semplice, senza
- * slide-in*) e la nota di allora concludeva che l'animazione la decide il sistema e che da
- * dentro non si spegne, *si toglierebbe solo rifacendo questo riquadro come un pannello*.
- * Quella nota era giusta a metà: la finestra è del sistema, ma la sua animazione **si spegne**
- * (`setWindowAnimations(0)`), e con lei spenta l'unico movimento resta quello che scriviamo
- * noi. Diventando bottomsheet, per giunta, l'animazione di serie sarebbe stata proprio una
- * salita dal basso, cioè la cosa vietata.
- * ⚠️ **Il movimento nostro è quello dei menu**, e non un terzo: dissolvenza più una crescita
- * da 0,96 in 170ms (vedi `MenuShell`, dove quei numeri li ha scelti lui su un mockup). 'Semplice
- * e veloce' è già stato definito una volta in questa app.
+ * ⚠️⚠️ **E DELLE TRE, IL 'COME ARRIVA' È STATO RIBALTATO DALLA 1.43** (istruzione
+ * dell'utente, 2026-09-03: *ho visto che una bottomsheet che non appare dal basso è troppo
+ * strana. Facciamo che arriva dal basso con un'animazione fluida ed entra decelerando, ma al
+ * tempo stesso c'è una mini dissolvenza*). Quindi **sale**, e le altre due cose restano come
+ * le aveva chieste.
+ * ⚠️⚠️ **LA STORIA VALE LA PENA DI SAPERLA, perché è il caso in cui una richiesta ripetuta
+ * era da non eseguire**: 'senza slide-in' era stato chiesto **due volte**, nella `1.25` e nel
+ * giro della `1.37`, quindi la `1.38` lo ha fatto per davvero (con l'animazione della
+ * finestra spenta, che la `1.25` aveva concluso impossibile). Poi lui l'ha visto in mano e ha
+ * cambiato idea: una scheda appoggiata al bordo di sotto che compare senza venire da lì
+ * **contraddice il posto in cui sta**. Non era un difetto di esecuzione, ed è la ragione per
+ * cui la nota resta: chi rilegge solo le due richieste di allora rifà il divieto.
+ * ⚠️ **Il movimento è scritto in `Sheet.kt`**, con i suoi tempi e la sua curva, e quelli non
+ * sono più i numeri dei menu: là il perché.
  *
  * ⚠️ **I dati si leggono quando si apre e non prima**: contare il peso di trecento file vuol
  * dire trecento interrogazioni, e farle a ogni tocco su una miniatura sarebbe pagarle per una

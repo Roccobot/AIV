@@ -3,6 +3,11 @@ package io.github.roccobot.aiv
 import android.view.WindowManager
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.VisibilityThreshold
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.combinedClickable
@@ -38,6 +43,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 
@@ -126,7 +132,36 @@ fun ActionPad(
 fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (Int) -> Unit = {}) {
     AnimatedVisibility(
         visible = visible,
-        enter = slideInVertically(initialOffsetY = { it }),
+        /*
+         * ⚠️⚠️ **L'ENTRATA HA I NUMERI DELL'ALTRA SCHEDA, dalla 1.43, e la dissolvenza è
+         * nuova** (istruzione dell'utente, 2026-09-03, sulla scheda delle informazioni:
+         * *arriva dal basso con un'animazione fluida ed entra decelerando, ma al tempo stesso
+         * c'è una mini dissolvenza*). Lui parlava di quella, che dal basso non arrivava
+         * affatto: qui la salita c'era già.
+         * ⚠️⚠️ **QUINDI PERCHÉ TOCCARE ANCHE QUESTA: perché quello che c'era NON era una
+         * scelta.** Era la molla di fabbrica di `AnimatedVisibility`, cioè un valore che
+         * nessuno aveva deciso, e da adesso 'arrivare dal basso' in questa app ha una
+         * definizione. Allineare un valore di fabbrica a una decisione non ribalta niente;
+         * lasciarle diverse avrebbe fatto due movimenti per lo stesso gesto, in due schermate
+         * che si aprono a un tocco di distanza.
+         * ⚠️ **L'USCITA resta la molla di fabbrica**, e non è una dimenticanza: l'utente ha
+         * descritto come una scheda **entra**, e questa è la sola delle due che se ne va con
+         * un'animazione. Cambiarla sarebbe un movimento che non ha chiesto.
+         */
+        enter = slideInVertically(
+            /*
+             * ⚠️ **È la molla di fabbrica scritta a mano**, e la ragione di scriverla è che
+             * adesso il suo numero vive in un posto solo ([ARRIVO_RIGIDITA] in `Sheet.kt`):
+             * lasciata implicita, un ritocco là non arriverebbe qui e le due schede
+             * tornerebbero a muoversi in due modi.
+             */
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioNoBouncy,
+                stiffness = ARRIVO_RIGIDITA,
+                visibilityThreshold = IntOffset.VisibilityThreshold
+            ),
+            initialOffsetY = { it }
+        ) + fadeIn(animationSpec = tween(durationMillis = SHEET_FADE_MS)),
         exit = slideOutVertically(targetOffsetY = { it }),
         modifier = Modifier.align(Alignment.BottomCenter)
     ) {
