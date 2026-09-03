@@ -13,7 +13,7 @@
     <string name="bar_reduced">diperkecil</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Lupakan ini</string>
-    <string name="url_not_image">URL tidak mengarah ke sebuah gambar</string>
+    <string name="url_not_image">Alamat ini tidak menuju gambar mana pun, dan halamannya juga tidak memuat gambar</string>
     <string name="menu_copy_image">Salin gambar</string>
     <string name="menu_share">Bagikan</string>
     <string name="menu_save">Simpan</string>
@@ -30,9 +30,10 @@
     <string name="convert_elsewhere">Format lain</string>
     <string name="convert_elsewhere_desc">Android hanya bisa menulis format di atas. Untuk selebihnya ada layanan berikut, yang terbuka di peramban: gambar dipilih di sana, dari memori ponsel.</string>
     <string name="convert_clean">Bersihkan</string>
-    <string name="convert_clean_why">Menghapus metadata, komentar, skrip, dan sisa-sisa editor, yang pada berkas nyata hampir seluruh bobotnya. Jalur tidak ditulis ulang, dan bentuk, garis, gambar, serta teks tidak disentuh.</string>
+    <string name="convert_clean_why">Menghapus header, metadata, komentar, skrip, C2PA, dan sisa-sisa editor, yaitu data paling berat (sampai 99% isi berkas) dan jarang dibutuhkan.</string>
+    <string name="convert_clean_keeps">Isi gambar tidak diubah (jalur, bentuk, garis, gambar, teks...): ilustrasinya tetap utuh 100%.</string>
     <string name="convert_clean_c2pa">⚠️ PERHATIAN: asal-usul C2PA juga hilang, yaitu bagian yang menyebut siapa yang membuat berkas. Simpan salinan jika kamu membutuhkannya.</string>
-    <string name="clean_now">Bersihkan di sini</string>
+    <string name="clean_now">Bersihkan</string>
     <string name="clean_done">Dibersihkan: dari %1$s menjadi %2$s.</string>
     <string name="clean_nothing">Tidak ada yang perlu dihapus: berkas sudah bersih.</string>
     <string name="clean_failed">Berkas tidak dapat dibersihkan.</string>

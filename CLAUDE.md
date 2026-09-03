@@ -6,19 +6,18 @@
 > ciò che di questo repository non si ricava altrove.
 
 ⚠️ **Nasce il 2026-09-01, dopo 111 versioni**, e la ragione è precisa: fino a quel giorno
-gli **indirizzi dei due documenti vivi** del progetto (il collaudo e il changelog) stavano
-solo nel brief di consegna, che è **stato volatile** e non un archivio. Un artefatto vive
-fuori dal repository per definizione, quindi se il suo indirizzo non è scritto in un file
-committato, alla sessione dopo quel documento è perso.
+l'**indirizzo del documento vivo** del progetto stava solo nel brief di consegna, che è
+**stato volatile** e non un archivio. Un artefatto vive fuori dal repository per definizione,
+quindi se il suo indirizzo non è scritto in un file committato, alla sessione dopo quel
+documento è perso.
 
-## 🔗 I due documenti vivi del progetto
+## 🔗 Il documento vivo del progetto
 
 | documento | a che cosa serve | indirizzo |
 |---|---|---|
 | **Feedback AIV** | le voci da provare della versione appena uscita, con i tre esiti e i commenti dell'utente. **Chiede.** | <https://claude.ai/code/artifact/a026a5d9-3bd0-4732-a8ea-69033d04fb48> |
-| **Changelog AIV** | che cosa è cambiato a ogni versione pubblicata, in breve. **Racconta.** | <https://claude.ai/code/artifact/2dc50535-30a7-4a5c-88f5-0319c6107a5a> |
 
-⚠️ **Il primo ha QUATTRO nomi equivalenti** (istruzione dell'utente, 2026-09-01: *d'ora in
+⚠️ **Ha QUATTRO nomi equivalenti** (istruzione dell'utente, 2026-09-01: *d'ora in
 avanti si chiamerà 'Feedback AIV', 'Documento di lavoro', 'Foglio condiviso' o simili*):
 **Feedback AIV** è il nome scritto in testa al documento, e **documento di lavoro**, **foglio
 condiviso** e **collaudo** sono sinonimi che l'utente alterna. Nessuno dei quattro va
@@ -27,10 +26,14 @@ terminologia morta: la regola universale si chiama ancora `Roccobot.md` § '🔁
 collaudo: rilascio, documento, riscontro', e cambiare quel titolo romperebbe i rimandi senza
 guadagnare niente. Il documento ha un nome nuovo, il giro no.
 
-⚠️ **Tengono lo STESSO indirizzo a ogni ripubblicazione**: l'utente li ha fra i preferiti, e
+⚠️ **Tiene lo STESSO indirizzo a ogni ripubblicazione**: l'utente lo ha fra i preferiti, e
 un collegamento nuovo a ogni giro vuol dire un documento da ritrovare ogni volta.
-⚠️ **Non si fondono**, per quanto si somiglino: la ragione sta in `rules/Roccobot.md`,
-§ '🧾 Il changelog, il terzo pezzo di ogni rilascio'.
+
+⚠️⚠️ **ERANO DUE FINO AL 2026-09-03, e il secondo era il Changelog AIV** (decisione
+dell'utente: *cancella l'artefatto changelog, ho visto che non mi serve e non l'ho mai
+usato*). Chi ne trova ancora l'indirizzo in un messaggio vecchio, o la pagina in galleria,
+sappia che non si aggiorna più: il perché per esteso, e la domanda che l'aveva fatto nascere e
+che resta valida, stanno in `rules/Roccobot.md`, § '🧾 Il changelog, provato e ritirato'.
 
 ## 🎨 Il design system, che vive fuori dal repository
 
@@ -68,6 +71,18 @@ lavoro, non un capitolato.
 lavoro è fermo: vivono in un **documento** di Claude Design (`.dc.html`), che sta fuori dai
 progetti di design system e quindi non si raggiunge con lo strumento. Serve che l'utente lo
 mandi in chat o lo semini nello spazio di lavoro.
+
+⚠️⚠️ **E NEL REPOSITORY NON SE NE TIENE UNA COPIA: la cartella `dev/` è stata svuotata il
+2026-09-03** (istruzione dell'utente: *cancella anche tutto quello che c'è dentro AIV/dev, non
+credo che serva più*). Là dentro stavano i file che lui aveva mandato per la `1.32` e le
+versioni dopo: gli otto glifi, i tre disegni dell'icona col vector XML del foreground, le due
+versioni di 'Copia immagine', quella di 'Inverti selezione', e il brief di implementazione.
+- **Perché non è una perdita**: quei disegni sono **entrati** nell'app (l'icona) o sono
+  **usciti su sua istruzione** (i glifi, nella `1.35`), quindi la cartella teneva sorgenti già
+  lavorate. Quelli che servono ancora vivono in Claude Design, e la storia git ha tutto.
+- ⚠️ **Chi la ricreasse rifarebbe due fonti di verità**: un disegno che l'utente sta ancora
+  provando sta nel design system, non qui, e uno approvato sta in `res/`. Un file mandato in
+  chat si lavora e non si archivia.
 
 ## 🗣️ Come si chiamano le cose
 
@@ -140,10 +155,10 @@ grande un dialogo esattamente al centro fa allungare la mano.
 
 ## 🚀 Che cosa produce un rilascio
 
-**Tre cose, e vanno insieme**: il numero di **versione**, le voci nuove nel **collaudo**, e le
-righe nuove nel **changelog**. La regola completa (che cosa entra in ognuno, come si
-ripubblica un giro in cinque passi, la struttura standard del documento di collaudo) vive in
-`rules/Roccobot.md`, § '🔁 Il giro del collaudo: rilascio, documento, riscontro'.
+**Due cose, e vanno insieme**: il numero di **versione** e le voci nuove nel **collaudo**. La
+regola completa (che cosa entra in ognuno, come si ripubblica un giro in cinque passi, la
+struttura standard del documento di collaudo) vive in `rules/Roccobot.md`, § '🔁 Il giro del
+collaudo: rilascio, documento, riscontro'.
 
 - **Versione in SlimVer** (`x.xx`), come gli altri progetti. La fonte unica è
   `versionName` in `app/build.gradle.kts`, e il workflow di rilascio ne ricava il tag: il tag

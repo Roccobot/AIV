@@ -5,7 +5,6 @@ import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -114,10 +113,14 @@ fun ActionPad(
  * ⚠️ **Il tastino della selezione se n'è andato con lei** (stessa istruzione: *il FAB di
  * selezione non serve più*), e la ragione l'ha trovata l'utente: se il menu si apre da sé,
  * un tastino che lo apre non ha più niente da fare.
- * ⚠️ **La maniglia non trascina**: è un segno, non un comando. Il pannello si chiude col
- * tasto Indietro, come chiesto, e si riapre da sé quando la selezione riparte. Farla
- * trascinabile vorrebbe dire un gesto in più che compete con lo scorrimento della griglia
- * sotto, e nessuno l'ha chiesto.
+ * ⚠️⚠️ **LA MANIGLIA NON C'È PIÙ, dalla 1.42, e la regola che l'ha tolta è generale**
+ * (riscontro `niente-ombre`: *togli anche il tratto-manopola, a meno che non sia interattivo,
+ * lo si può trascinare*). Questa non si trascinava: era un segno che diceva 'qui c'è un
+ * pannello', cioè una promessa di gesto che il pannello non manteneva. ⚠️ **La ragione per cui
+ * non si trascinava resta valida** e va saputa da chi pensasse di renderla vera invece di
+ * togliere il segno: un trascinamento qui competerebbe con lo scorrimento della griglia sotto,
+ * che con questa scheda aperta deve restare tutto disponibile. Il pannello si chiude col tasto
+ * Indietro e si riapre da sé quando la selezione riparte.
  */
 @Composable
 fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (Int) -> Unit = {}) {
@@ -174,13 +177,6 @@ fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (In
                     .onSizeChanged { onHeight(it.height) },
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Box(
-                    modifier = Modifier
-                        .padding(vertical = PAD_GAP)
-                        .size(width = GRIP_WIDE, height = GRIP_TALL)
-                        .clip(RoundedCornerShape(GRIP_TALL))
-                        .background(MaterialTheme.colorScheme.outlineVariant)
-                )
                 ActionPad(actions = actions, columns = SHEET_COLUMNS, stretch = true)
             }
         }
@@ -385,14 +381,11 @@ private val SHEET_CORNER = 28.dp
 /**
  * Quanto il pannello si stacca da quello che ha sotto.
  *
- * ⚠️ Serve **doppio**, di tono e di ombra: il tono lo distingue dal fondo nel tema chiaro,
- * dove un'ombra sola sparisce, e l'ombra nel tema scuro, dove i toni si somigliano tutti.
+ * ⚠️ **È il rilievo TONALE e basta, dalla 1.40**: l'ombra è uscita su richiesta dell'utente, e
+ * il perché sta sulla `Surface` di [PickSheet]. Restava il dubbio che sul tema scuro il tono da
+ * solo non bastasse (là i toni si somigliano tutti): il riscontro dice che basta.
  */
 private val SHEET_LIFT = 6.dp
-
-/** La maniglia: larga abbastanza da leggersi come un segno, bassa abbastanza da non pesare. */
-private val GRIP_WIDE = 32.dp
-private val GRIP_TALL = 4.dp
 
 /**
  * Lo smusso del tastino quadrato, uguale in tutte le schermate.

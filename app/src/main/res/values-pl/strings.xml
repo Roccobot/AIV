@@ -13,7 +13,7 @@
     <string name="bar_reduced">zmniejszona</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Zapomnij te adresy</string>
-    <string name="url_not_image">Adres nie wskazuje na obraz</string>
+    <string name="url_not_image">Adres nie prowadzi do żadnego obrazu, a strona nie zawiera żadnego</string>
     <string name="menu_copy_image">Kopiuj obraz</string>
     <string name="menu_share">Udostępnij</string>
     <string name="menu_save">Zapisz</string>
@@ -30,9 +30,10 @@
     <string name="convert_elsewhere">Inne formaty</string>
     <string name="convert_elsewhere_desc">Android potrafi zapisać tylko formaty powyżej. Dla pozostałych są te serwisy, które otwierają się w przeglądarce: obraz wybiera się tam, z pamięci telefonu.</string>
     <string name="convert_clean">Wyczyść</string>
-    <string name="convert_clean_why">Usuwa metadane, komentarze, skrypty i pozostałości edytorów, które w prawdziwych plikach stanowią niemal całą wagę. Nie przepisuje ścieżek i nie rusza kształtów, linii, rysunków ani tekstu.</string>
+    <string name="convert_clean_why">Usuwa nagłówki, metadane, komentarze, skrypty, C2PA i pozostałości edytorów, czyli najcięższe dane (do 99% pliku), które rzadko są potrzebne.</string>
+    <string name="convert_clean_keeps">Nie zmienia treści obrazu (ścieżek, kształtów, linii, rysunków, tekstu...): ilustracja pozostaje w 100% nietknięta.</string>
     <string name="convert_clean_c2pa">⚠️ UWAGA: znika też pochodzenie C2PA, czyli część mówiąca, kto zrobił plik. Zachowaj kopię, jeśli jest potrzebna.</string>
-    <string name="clean_now">Wyczyść tutaj</string>
+    <string name="clean_now">Wyczyść</string>
     <string name="clean_done">Wyczyszczono: z %1$s do %2$s.</string>
     <string name="clean_nothing">Nie było czego usuwać: plik był już czysty.</string>
     <string name="clean_failed">Nie udało się wyczyścić pliku.</string>

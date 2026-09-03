@@ -33,7 +33,7 @@
     <!-- ── Asking for an address ── -->
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Forget these</string>
-    <string name="url_not_image">The URL does not point to an image</string>
+    <string name="url_not_image">The address leads to no image, and the page has none in it</string>
 
     <!-- ── The menu that a long press opens on the picture ── -->
     <!-- "Copy image" and not "To the clipboard", REVERSED on 2026-08-31: the older
@@ -59,9 +59,10 @@
     <string name="convert_elsewhere">Other formats</string>
     <string name="convert_elsewhere_desc">Android can only write the formats above. For the others there are these services, which open in the browser: pick the image there, from the phone\'s storage.</string>
     <string name="convert_clean">Clean up</string>
-    <string name="convert_clean_why">Strips metadata, comments, scripts and editor leftovers, which in real files are almost all of the weight. It does not rewrite the paths, and it does not touch shapes, lines, drawings or text.</string>
+    <string name="convert_clean_why">Removes headers, metadata, comments, scripts, C2PA and editor leftovers, which are the heaviest data (up to 99% of the file) and are rarely needed.</string>
+    <string name="convert_clean_keeps">It does not change the image content (paths, shapes, lines, drawings, text...): the artwork stays 100% intact.</string>
     <string name="convert_clean_c2pa">⚠️ WARNING: the C2PA provenance goes too, the part that says who made the file. Keep a copy if you need it.</string>
-    <string name="clean_now">Clean here</string>
+    <string name="clean_now">Clean up</string>
     <string name="clean_done">Cleaned up: from %1$s to %2$s.</string>
     <string name="clean_nothing">There was nothing to strip: the file was already clean.</string>
     <string name="clean_failed">The file could not be cleaned up.</string>

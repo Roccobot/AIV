@@ -13,7 +13,7 @@
     <string name="bar_reduced">đã giảm</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Quên những địa chỉ này</string>
-    <string name="url_not_image">Địa chỉ không trỏ tới một ảnh</string>
+    <string name="url_not_image">Địa chỉ không dẫn tới hình ảnh nào, và trang cũng không có hình nào</string>
     <string name="menu_copy_image">Sao chép hình ảnh</string>
     <string name="menu_share">Chia sẻ</string>
     <string name="menu_save">Lưu</string>
@@ -30,9 +30,10 @@
     <string name="convert_elsewhere">Định dạng khác</string>
     <string name="convert_elsewhere_desc">Android chỉ ghi được các định dạng ở trên. Với những định dạng còn lại thì có các dịch vụ sau, chúng mở trong trình duyệt: hãy chọn ảnh ở đó, từ bộ nhớ điện thoại.</string>
     <string name="convert_clean">Làm sạch</string>
-    <string name="convert_clean_why">Loại bỏ siêu dữ liệu, chú thích, tập lệnh và phần dư của các trình soạn thảo, những thứ chiếm gần như toàn bộ dung lượng trong các tệp thực. Nó không viết lại các đường nét, và không chạm vào hình, đường kẻ, hình vẽ hay chữ.</string>
+    <string name="convert_clean_why">Loại bỏ phần đầu tệp, siêu dữ liệu, chú thích, tập lệnh, C2PA và phần sót lại của các trình biên tập, tức là dữ liệu nặng nhất (tới 99% tệp) và ít khi cần đến.</string>
+    <string name="convert_clean_keeps">Không thay đổi nội dung hình ảnh (đường nét, hình khối, đường kẻ, hình vẽ, văn bản...): hình vẽ vẫn nguyên vẹn 100%.</string>
     <string name="convert_clean_c2pa">⚠️ CHÚ Ý: nguồn gốc C2PA cũng mất, tức là phần cho biết ai đã tạo tệp. Hãy giữ một bản sao nếu bạn cần.</string>
-    <string name="clean_now">Dọn ở đây</string>
+    <string name="clean_now">Làm sạch</string>
     <string name="clean_done">Đã dọn: từ %1$s xuống %2$s.</string>
     <string name="clean_nothing">Không có gì để loại bỏ: tệp đã sạch.</string>
     <string name="clean_failed">Không thể dọn tệp.</string>

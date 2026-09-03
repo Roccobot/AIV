@@ -138,6 +138,8 @@ fun FolderScreen(
     recents: List<RecentImage>,
     onPick: (Folder.Bucket) -> Unit,
     onOpen: (Uri) -> Unit,
+    /** Vedi l'omonimo di [Hub]: le immagini di una pagina, dal dialogo dell'indirizzo. */
+    onOpenPage: (Folder.Series) -> Unit,
     onView: (FolderView) -> Unit,
     onForget: () -> Unit,
     onSettings: () -> Unit,
@@ -471,6 +473,7 @@ fun FolderScreen(
                 granted = granted,
                 recents = recents,
                 onOpen = onOpen,
+                onOpenPage = onOpenPage,
                 onView = onView,
                 onForget = onForget,
                 onSettings = onSettings,
@@ -714,6 +717,14 @@ private fun Hub(
     granted: Boolean,
     recents: List<RecentImage>,
     onOpen: (Uri) -> Unit,
+    /**
+     * Apre le immagini di una pagina, quando l'indirizzo digitato è una pagina e non
+     * un'immagine: il sesto gradino dello sfogliatore Web.
+     *
+     * ⚠️ **Arriva fin qui come parametro invece di essere il modello**: questa schermata
+     * non conosce il modello, come nessun'altra, e il dialogo che ne ha bisogno è suo.
+     */
+    onOpenPage: (Folder.Series) -> Unit,
     onView: (FolderView) -> Unit,
     onForget: () -> Unit,
     onSettings: () -> Unit,
@@ -894,6 +905,7 @@ private fun Hub(
         AddressDialog(
             recents = recents,
             onOpen = onOpen,
+            onOpenPage = onOpenPage,
             onForget = onForget,
             onDismiss = { asking = false }
         )

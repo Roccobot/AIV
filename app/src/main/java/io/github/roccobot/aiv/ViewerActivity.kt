@@ -622,6 +622,31 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
+     * Apre le immagini di una **pagina** come serie, dalla prima.
+     *
+     * ⚠️⚠️ **È IL SESTO GRADINO DELLO SFOGLIATORE WEB, e la sua porta è il dialogo 'Apri un
+     * indirizzo'** (istruzione dell'utente, 2026-09-03: *inizia a lavorarci*). Il perché
+     * quella porta e non una condivisione nuova sta su `WebSeries.Rule.PAGE_LINKS`.
+     * ⚠️ **Non passa da [open], e la differenza è una riga sola**: là la serie si cerca con
+     * la cascata (`webWindow`), qui si ha già in mano ed è intera. Chiamare `open` e poi
+     * sovrascrivere `listed` vorrebbe dire una richiesta di rete per niente, e una finestra
+     * di tre indirizzi che compare per un istante al posto della serie vera.
+     * ⚠️ **Il criterio si segna PRIMA di [startLoad]**: da lui dipende che la strisciata
+     * non rifaccia la finestra a ogni passo (vedi [showAt]), e segnarlo dopo lascerebbe il
+     * primo passo a rifarla.
+     */
+    fun openPage(page: Folder.Series) {
+        val first = page.at(page.index) ?: return
+        upgraded = false
+        webRule = WebSeries.Rule.PAGE_LINKS
+        source = first
+        viewerBack = HOME
+        screen = Screen.Viewer
+        listed = Folder.Lookup.Found(page)
+        startLoad(first, remember = true)
+    }
+
+    /**
      * Il criterio che ha funzionato per l'indirizzo remoto aperto, quando ce n'è uno.
      *
      * ⚠️ Vive nel modello e non dentro [WebSeries] perché è **stato di questa apertura**:
@@ -1619,11 +1644,11 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
          * Una serie remota è larga tre e non ha fine nota: appena il dito la attraversa, la
          * vicina di là va ancora indovinata e verificata. La riga sopra intanto ha già
          * spostato l'indice, quindi la strisciata risponde subito e la rete arriva dopo.
-         * ⚠️ **Tranne quando la serie viene dall'indice della cartella**, che è intera e
-         * ordinata come quella di una cartella vera: rifarla vorrebbe dire riscaricare la
-         * stessa pagina a ogni fotografia.
+         * ⚠️ **Tranne quando la serie è già INTERA** (`WebSeries.WHOLE`: l'indice della
+         * cartella e le immagini di una pagina), che è ordinata come quella di una cartella
+         * vera: rifarla vorrebbe dire riscaricare la stessa pagina a ogni fotografia.
          */
-        if (WebSeries.isWeb(uri) && webRule != WebSeries.Rule.FOLDER_INDEX) {
+        if (WebSeries.isWeb(uri) && webRule !in WebSeries.WHOLE) {
             viewModelScope.launch { listed = webWindow(uri) }
         }
     }
@@ -1851,6 +1876,7 @@ private fun AivApp(model: ViewerViewModel) {
                 recents = model.recents,
                 onPick = { model.folderPicked(it, screen.forStart) },
                 onOpen = { model.open(it) },
+                onOpenPage = { model.openPage(it) },
                 onView = { model.updateSettings(settings.copy(folderView = it)) },
                 onForget = { model.forgetRecents() },
                 onSettings = { model.openSettings() },

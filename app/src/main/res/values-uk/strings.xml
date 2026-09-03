@@ -13,7 +13,7 @@
     <string name="bar_reduced">зменшено</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Забути ці</string>
-    <string name="url_not_image">Адреса не веде до зображення</string>
+    <string name="url_not_image">Адреса не веде до жодного зображення, і на сторінці їх немає</string>
     <string name="menu_copy_image">Копіювати зображення</string>
     <string name="menu_share">Поділитися</string>
     <string name="menu_save">Зберегти</string>
@@ -30,9 +30,10 @@
     <string name="convert_elsewhere">Інші формати</string>
     <string name="convert_elsewhere_desc">Android уміє записувати лише формати вище. Для решти є ці служби, вони відкриваються у браузері: зображення вибирається там, з пам\'яті телефона.</string>
     <string name="convert_clean">Очистити</string>
-    <string name="convert_clean_why">Прибирає метадані, коментарі, скрипти та залишки редакторів, які в справжніх файлах становлять майже всю вагу. Контури не перезаписуються, а форми, лінії, малюнки й текст залишаються недоторканими.</string>
+    <string name="convert_clean_why">Прибирає заголовки, метадані, коментарі, скрипти, C2PA і залишки редакторів, тобто найважчі дані (до 99% файлу), які потрібні рідко.</string>
+    <string name="convert_clean_keeps">Вміст зображення не змінюється (контури, форми, лінії, малюнки, текст...): ілюстрація залишається недоторканою на 100%.</string>
     <string name="convert_clean_c2pa">⚠️ УВАГА: зникає й походження C2PA, тобто частина, яка каже, хто зробив файл. Збережіть копію, якщо вона потрібна.</string>
-    <string name="clean_now">Очистити тут</string>
+    <string name="clean_now">Очистити</string>
     <string name="clean_done">Очищено: з %1$s до %2$s.</string>
     <string name="clean_nothing">Прибирати було нічого: файл уже був чистий.</string>
     <string name="clean_failed">Не вдалося очистити файл.</string>

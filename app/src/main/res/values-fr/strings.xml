@@ -13,7 +13,7 @@
     <string name="bar_reduced">réduite</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Oublier ces adresses</string>
-    <string name="url_not_image">L\'adresse ne pointe pas vers une image</string>
+    <string name="url_not_image">L\'adresse ne mène à aucune image, et la page n\'en contient aucune</string>
     <string name="menu_copy_image">Copier l\'image</string>
     <string name="menu_share">Partager</string>
     <string name="menu_save">Enregistrer</string>
@@ -30,9 +30,10 @@
     <string name="convert_elsewhere">Autres formats</string>
     <string name="convert_elsewhere_desc">Android ne sait écrire que les formats ci-dessus. Pour les autres, il y a ces services, qui s\'ouvrent dans le navigateur : l\'image se choisit là-bas, depuis la mémoire du téléphone.</string>
     <string name="convert_clean">Nettoyer</string>
-    <string name="convert_clean_why">Retire les métadonnées, les commentaires, les scripts et les restes des éditeurs, qui dans les vrais fichiers représentent presque tout le poids. Les tracés ne sont pas réécrits, et les formes, les lignes, les dessins et le texte ne sont pas touchés.</string>
+    <string name="convert_clean_why">Retire les en-têtes, les métadonnées, les commentaires, les scripts, le C2PA et les restes des éditeurs, c\'est-à-dire les données les plus lourdes (jusqu\'à 99% du fichier), qui servent rarement.</string>
+    <string name="convert_clean_keeps">Le contenu de l\'image n\'est pas modifié (tracés, formes, lignes, dessins, textes...) : l\'illustration reste intacte à 100%.</string>
     <string name="convert_clean_c2pa">⚠️ ATTENTION : la provenance C2PA part aussi, c\'est-à-dire la partie qui dit qui a fait le fichier. Gardez une copie si vous en avez besoin.</string>
-    <string name="clean_now">Nettoyer ici</string>
+    <string name="clean_now">Nettoyer</string>
     <string name="clean_done">Nettoyé : de %1$s à %2$s.</string>
     <string name="clean_nothing">Il n\'y avait rien à retirer : le fichier était déjà propre.</string>
     <string name="clean_failed">Le fichier n\'a pas pu être nettoyé.</string>

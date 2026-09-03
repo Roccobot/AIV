@@ -13,7 +13,7 @@
     <string name="bar_reduced">ย่อขนาด</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">ลืมที่อยู่เหล่านี้</string>
-    <string name="url_not_image">ที่อยู่นี้ไม่ได้ชี้ไปที่ภาพ</string>
+    <string name="url_not_image">ที่อยู่นี้ไม่ได้นำไปสู่รูปภาพใด และในหน้านั้นก็ไม่มีรูปภาพ</string>
     <string name="menu_copy_image">คัดลอกรูปภาพ</string>
     <string name="menu_share">แบ่งปัน</string>
     <string name="menu_save">บันทึก</string>
@@ -30,9 +30,10 @@
     <string name="convert_elsewhere">รูปแบบอื่น</string>
     <string name="convert_elsewhere_desc">แอนดรอยด์เขียนได้เฉพาะรูปแบบข้างบนเท่านั้น สำหรับรูปแบบอื่นมีบริการเหล่านี้ ซึ่งเปิดในเบราว์เซอร์ แล้วเลือกภาพจากหน่วยความจำของโทรศัพท์ที่นั่น</string>
     <string name="convert_clean">ล้างข้อมูล</string>
-    <string name="convert_clean_why">ลบข้อมูลกำกับ ความคิดเห็น สคริปต์ และเศษที่โปรแกรมแก้ไขทิ้งไว้ ซึ่งในไฟล์จริงคือน้ำหนักเกือบทั้งหมด ไม่เขียนเส้นทางใหม่ และไม่แตะรูปทรง เส้น ภาพวาด หรือข้อความ</string>
+    <string name="convert_clean_why">ลบส่วนหัว ข้อมูลกำกับ ความคิดเห็น สคริปต์ C2PA และเศษที่โปรแกรมแก้ไขทิ้งไว้ ซึ่งเป็นข้อมูลที่หนักที่สุด (ถึง 99% ของไฟล์) และนานๆ ครั้งจึงจะได้ใช้</string>
+    <string name="convert_clean_keeps">ไม่เปลี่ยนเนื้อหาของภาพ (เส้นทาง รูปทรง เส้น ภาพวาด ข้อความ...): ภาพประกอบยังคงสมบูรณ์ 100%</string>
     <string name="convert_clean_c2pa">⚠️ คำเตือน: ที่มาแบบ C2PA ก็หายไปด้วย นั่นคือส่วนที่บอกว่าใครสร้างไฟล์ ถ้าจำเป็นให้เก็บสำเนาไว้</string>
-    <string name="clean_now">ทำความสะอาดที่นี่</string>
+    <string name="clean_now">ล้างข้อมูล</string>
     <string name="clean_done">ทำความสะอาดแล้ว: จาก %1$s เป็น %2$s</string>
     <string name="clean_nothing">ไม่มีอะไรให้ลบ: ไฟล์สะอาดอยู่แล้ว</string>
     <string name="clean_failed">ทำความสะอาดไฟล์ไม่ได้</string>

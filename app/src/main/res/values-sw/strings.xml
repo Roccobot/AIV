@@ -13,7 +13,7 @@
     <string name="bar_reduced">imepunguzwa</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Sahau hizi</string>
-    <string name="url_not_image">Anwani hii haielekezi kwenye picha</string>
+    <string name="url_not_image">Anwani hii haifikii picha yoyote, na ukurasa hauna picha</string>
     <string name="menu_copy_image">Nakili picha</string>
     <string name="menu_share">Shiriki</string>
     <string name="menu_save">Hifadhi</string>
@@ -30,9 +30,10 @@
     <string name="convert_elsewhere">Miundo mingine</string>
     <string name="convert_elsewhere_desc">Android inaweza kuandika miundo iliyo hapo juu pekee. Kwa mingine kuna huduma hizi, zinazofunguka katika kivinjari: picha huchaguliwa huko, kutoka kwenye hifadhi ya simu.</string>
     <string name="convert_clean">Safisha</string>
-    <string name="convert_clean_why">Huondoa metadata, maoni, skripti na masalia ya vihariri, ambayo katika faili za kweli ni karibu uzito wote. Haiandiki upya njia, na haigusi maumbo, mistari, michoro au maandishi.</string>
+    <string name="convert_clean_why">Huondoa vichwa, metadata, maoni, skripti, C2PA na masalia ya vihariri, ambayo ni data nzito zaidi (hadi 99% ya faili) na hayahitajiki mara nyingi.</string>
+    <string name="convert_clean_keeps">Haibadilishi yaliyomo kwenye picha (njia, maumbo, mistari, michoro, maandishi...): mchoro unasalia salama kwa 100%.</string>
     <string name="convert_clean_c2pa">⚠️ TAHADHARI: chimbuko la C2PA pia linaondoka, sehemu inayosema ni nani aliyetengeneza faili. Weka nakala kama unaihitaji.</string>
-    <string name="clean_now">Safisha hapa</string>
+    <string name="clean_now">Safisha</string>
     <string name="clean_done">Imesafishwa: kutoka %1$s hadi %2$s.</string>
     <string name="clean_nothing">Hakukuwa na kitu cha kuondoa: faili ilikuwa safi tayari.</string>
     <string name="clean_failed">Faili haikuweza kusafishwa.</string>

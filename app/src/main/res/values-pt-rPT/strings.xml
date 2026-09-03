@@ -107,4 +107,7 @@
     <string name="anim_next">Fotograma seguinte</string>
     <string name="convert_this_frame">Está a exportar o fotograma %1$d, o que está no ecrã.</string>
     <string name="toast_name_copied">Nome do ficheiro copiado</string>
+    <!-- arquivo -> ficheiro, come nel resto di questo file. Le altre due
+         stringhe del pulitore non nominano il file e restano quelle di values-pt. -->
+    <string name="convert_clean_why">Remove cabeçalhos, metadados, comentários, scripts, C2PA e restos dos editores, que são os dados mais pesados (até 99% do ficheiro) e raramente servem.</string>
 </resources>

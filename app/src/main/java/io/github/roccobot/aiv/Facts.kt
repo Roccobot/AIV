@@ -349,6 +349,32 @@ private fun mimeOf(context: Context, uri: Uri): String? {
 }
 
 /**
+ * Il nome del formato ricavato da un tipo MIME: `image/svg+xml` diventa `SVG`.
+ *
+ * ⚠️⚠️ **ESISTE PERCHÉ LA STESSA REGOLA VIVEVA IN UN POSTO SOLO SU DUE, e il posto sbagliato**
+ * (riscontro `info-svg` della `1.41`: *vedo ancora la vecchia dicitura con XML*). Nella `1.40`
+ * il taglio del suffisso era entrato nel **pannello** delle informazioni, e la **barra delle
+ * info** del visualizzatore ha continuato a scrivere `SVG+XML` per due versioni, perché
+ * calcolava il formato per conto suo. Adesso il calcolo è qui e i due posti lo chiamano: è la
+ * stessa cura di [InfoSideRow], e per la stessa ragione.
+ *
+ * ⚠️ **Il suffisso dopo il `+` non è il formato, è la SINTASSI in cui è scritto** (RFC 6839):
+ * chi legge quella riga vuole sapere che immagine ha davanti, e `+xml` risponde a un'altra
+ * domanda. ⚠️ **Fra i tipi che l'app dichiara è l'unico che ne ha uno** (misurato sul manifesto
+ * e sui sorgenti: apng, avif, bmp, gif, jpeg, png, svg+xml, tiff, webp), quindi oggi il taglio
+ * riguarda un formato solo; vale lo stesso per tutti, perché un `+json` o un `+zip` di domani
+ * avrebbero lo stesso difetto.
+ *
+ * ⚠️ **Maiuscolo INVARIANTE e non della lingua del telefono**: un tipo MIME è ASCII e non è una
+ * parola, e la regola turca della `i` cambierebbe `image/tiff` in `TİFF`.
+ */
+fun kindOf(mime: String?): String? = mime
+    ?.substringAfterLast('/')
+    ?.substringBefore('+')
+    ?.takeIf { it.isNotBlank() }
+    ?.uppercase(Locale.ROOT)
+
+/**
  * La data di scatto secondo il MediaStore, quando l'EXIF non ce l'ha.
  *
  * ⚠️ Serve davvero e non è un doppione: le immagini scaricate spesso perdono l'EXIF, e il

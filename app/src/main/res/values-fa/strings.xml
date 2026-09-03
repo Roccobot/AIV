@@ -13,7 +13,7 @@
     <string name="bar_reduced">کاهش یافته</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">فراموش کردن اینها</string>
-    <string name="url_not_image">نشانی به یک تصویر اشاره نمی‌کند</string>
+    <string name="url_not_image">نشانی به هیچ تصویری نمی‌رسد، و صفحه هم هیچ تصویری ندارد</string>
     <string name="menu_copy_image">کپی تصویر</string>
     <string name="menu_share">هم‌رسانی</string>
     <string name="menu_save">ذخیره</string>
@@ -30,9 +30,10 @@
     <string name="convert_elsewhere">قالب‌های دیگر</string>
     <string name="convert_elsewhere_desc">اندروید فقط قالب‌های بالا را می‌نویسد. برای بقیه این سرویس‌ها هستند که در مرورگر باز می‌شوند: تصویر را همان‌جا، از حافظهٔ گوشی انتخاب کنید.</string>
     <string name="convert_clean">پاک‌سازی</string>
-    <string name="convert_clean_why">فرا‌داده‌ها، توضیحات، اسکریپت‌ها و باقی‌مانده‌های ویرایشگرها را برمی‌دارد، که در پرونده‌های واقعی تقریباً تمام حجم هستند. مسیرها را بازنویسی نمی‌کند و به شکل‌ها، خط‌ها، نقاشی‌ها و متن دست نمی‌زند.</string>
+    <string name="convert_clean_why">سرآمدها، فراداده‌ها، توضیح‌ها، اسکریپت‌ها، C2PA و ته‌مانده‌های ویرایشگرها را برمی‌دارد؛ سنگین‌ترین داده‌ها (تا 99% حجم پرونده) که کم پیش می‌آید به آن‌ها نیاز باشد.</string>
+    <string name="convert_clean_keeps">محتوای تصویر را تغییر نمی‌دهد (مسیرها، شکل‌ها، خط‌ها، نقاشی‌ها، متن‌ها...): تصویرسازی 100% دست‌نخورده می‌ماند.</string>
     <string name="convert_clean_c2pa">⚠️ هشدار: خاستگاه C2PA هم می‌رود، یعنی بخشی که می‌گوید پرونده را چه کسی ساخته است. اگر لازم داری یک رونوشت نگه دار.</string>
-    <string name="clean_now">همین‌جا پاک‌سازی کن</string>
+    <string name="clean_now">پاک‌سازی</string>
     <string name="clean_done">پاک‌سازی شد: از %1$s به %2$s.</string>
     <string name="clean_nothing">چیزی برای برداشتن نبود: پرونده از قبل پاک بود.</string>
     <string name="clean_failed">پرونده پاک‌سازی نشد.</string>

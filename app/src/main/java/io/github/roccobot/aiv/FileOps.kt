@@ -682,19 +682,13 @@ private fun factValue(field: FactField, facts: Facts, one: OneFile): String? = w
 
     // ⚠️ Si mostra la CODA del tipo MIME (`image/jpeg` -> `JPEG`): la prima metà è
     // 'image' su ogni fotografia, quindi è una parola che non distingue niente.
-    // ⚠️ **Maiuscolo INVARIANTE e non della lingua del telefono**: un tipo MIME è ASCII e
-    // non è una parola, e la regola turca della `i` cambierebbe `image/tiff` in `TİFF`.
     /*
-     * ⚠️⚠️ **E DALLA 1.40 CADE ANCHE IL SUFFISSO DOPO IL `+`** (domanda dell'utente,
-     * 2026-09-03: *'SVG+XML' -> '+XML' è necessario?*). No: quello non è il formato, è la
-     * **sintassi** in cui il formato è scritto (RFC 6839), e la riga qui dice di che tipo di
-     * immagine si tratta. `image/svg+xml` diventa `SVG`, come `image/jpeg` è `JPEG`.
-     * ⚠️ **Fra i tipi che l'app dichiara è l'unico che ne ha uno** (misurato sul manifesto e
-     * sui sorgenti: apng, avif, bmp, gif, jpeg, png, svg+xml, tiff, webp), quindi oggi il
-     * taglio riguarda un formato solo. Vale lo stesso per tutti, perché un `+json` o un
-     * `+zip` di domani avrebbero lo stesso difetto.
+     * ⚠️ **Il nome del formato lo calcola [kindOf] e non questa riga**, dalla `1.42`: la
+     * stessa regola serviva anche alla barra delle info, che per due versioni ha continuato a
+     * scrivere `SVG+XML` perché se lo ricavava da sé. Il perché del taglio, e la misura sui
+     * tipi che l'app dichiara, stanno là.
      */
-    FactField.KIND -> one.mime?.substringAfterLast('/')?.substringBefore('+')?.uppercase()
+    FactField.KIND -> kindOf(one.mime)
 
     FactField.PIXELS -> pixelsText(one)
     FactField.SIZE -> formatBytes(facts.bytes)
