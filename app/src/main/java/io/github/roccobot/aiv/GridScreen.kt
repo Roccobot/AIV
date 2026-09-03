@@ -917,7 +917,7 @@ fun GridScreen(
              * allora non si dice nulla.
              * ⚠️⚠️ **IL FILTRO SI GUARDA PRIMA DELLA CARTELLA, dalla 1.09** (riscontro
              * dell'utente): con 'solo foto' acceso in una cartella di soli filmati, dire 'La
-             * cartella è vuota' è **falso**, perché là dentro c'è roba. La frase deve dire
+             * cartella è vuota' è **falso**, perché là dentro ci sono dei file. La frase deve dire
              * che cosa manca, non lamentare un vuoto che non c'è.
              * ⚠️ **La ricerca vince sul filtro**: se si sta cercando, quello che si vuole
              * sapere è se il nome combacia, e il filtro è una condizione in più che l'utente
@@ -1255,7 +1255,7 @@ fun GridScreen(
          * sistema è già applicato e **consumato**, quindi la scheda si fermava sopra la barra
          * e là sotto restava la pagina, di un altro colore. Qui arriva al bordo dello schermo
          * e il rientro se lo mette da sé, sul contenuto (vedi [PickSheet]).
-         * ⚠️ **Misurato sullo screenshot, non stimato**: la striscia della barra era
+         * ⚠️ **Misurato sullo screenshot**: la striscia della barra era
          * `252,251,247` contro i `242,241,237` della scheda.
          * ⚠️ **Sta PRIMA del velo del menu e di quello dell'onboarding**, come stava prima:
          * l'ordine dei figli di un `Box` è l'ordine di sovrapposizione, e i due veli devono

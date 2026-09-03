@@ -190,8 +190,8 @@ object Tree {
         val here = real(dir)
         if (roots.any { real(it.file) == here }) return null
         val up = dir.parentFile ?: return null
-        // Oltre le radici non si sale: la cartella di sopra esiste sul disco ma non è
-        // roba dell'utente, ed è quasi sempre illeggibile.
+        // Oltre le radici non si sale: la cartella di sopra esiste sul disco ma non
+        // appartiene all'utente, ed è quasi sempre illeggibile.
         val reachable = roots.any { real(it.file).let { root -> here.startsWith("$root/") } }
         return if (reachable) up else null
     }

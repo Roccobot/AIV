@@ -307,7 +307,7 @@ object Bin {
      * è stata verificata. La stessa ragione per cui il tokenizzatore di CLIP non sa niente
      * di file.
      * ⚠️ **Le righe che descrivono file spariti si saltano**: l'archivio può parlare di
-     * roba che non c'è più (cancellata a mano, o un'eliminazione a metà), e non deve far
+     * file che non ci sono più (cancellati a mano, o un'eliminazione a metà), e non deve far
      * comparire buchi nella griglia.
      */
     fun ordered(names: List<String>, records: List<Record>): List<String> {

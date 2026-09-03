@@ -158,7 +158,7 @@ object Folder {
      * ⚠️ La copertina è la foto più recente e **non** quella con cui la cartella si
      * apre: col verso cronologico acceso l'apertura parte dall'altro capo (vedi
      * `atSequenceStart`). Sono due cose diverse apposta, perché la copertina risponde a
-     * 'che roba c'è qui dentro' e l'apertura a 'da dove comincio a sfogliare'.
+     * 'che cosa c'è qui dentro' e l'apertura a 'da dove comincio a sfogliare'.
      */
     /**
      * Una cartella di immagini.

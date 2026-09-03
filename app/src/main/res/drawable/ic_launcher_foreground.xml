@@ -13,7 +13,7 @@
      del tutto: il brief che accompagna il disegno dice l'opposto (*il controcampo
      della A è trasparente, così il background traspare: non riempirlo*), quindi il
      file contraddice sé stesso.
-     - MISURATO, non dedotto: rese le tre versioni in Chromium a 432px (4 unità per
+     - MISURATO: rese le tre versioni in Chromium a 432px (4 unità per
        pixel) sopra il fondo `#43B59E`, il controcampo vale **6.094 pixel** nel
        master SVG, **6.102** in questo tracciato e **114** nel file fornito, cioè
        chiuso al 98%.

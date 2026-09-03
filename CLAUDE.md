@@ -185,10 +185,11 @@ La chiave di firma e le sue parole d'ordine stanno **solo** fra i secret GitHub 
 repository (`AIV_KEYSTORE_FILE`, `AIV_KEYSTORE_PASSWORD`, `AIV_KEY_ALIAS`, `AIV_KEY_PASSWORD`),
 e il job le scrive su disco per la durata di una sola esecuzione.
 
-- ⚠️ **Senza quelle variabili il build di release NON fallisce: esce NON firmato.** È voluto,
+- ⚠️ **Senza quelle variabili il build di release NON fallisce: l'APK risulta NON
+  firmato.** È voluto,
   perché così chi non ha la chiave può comunque compilare e controllare il minificatore. Il
   rovescio è che un APK non firmato si riconosce solo guardando, e per questo il workflow ha
-  un passo che **chiede all'APK se è firmato** invece di crederlo.
+  un passo che **chiede all'APK se è firmato**.
 
 ## 🧰 Gli strumenti che questo repo si porta dietro
 

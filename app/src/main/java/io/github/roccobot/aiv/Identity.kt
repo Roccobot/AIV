@@ -152,7 +152,7 @@ private const val HOME = "https://roccobot.me"
  * differenza costava tutto l'ingrandimento.** `Modifier.size` **negozia** col genitore:
  * `SizeNode.measure` chiama `constrain(vincoli in ingresso, misura chiesta)` quando
  * `enforceIncoming` è vero, e per `size` è vero (per `requiredSize` no), verificato nel
- * bytecode di `foundation-layout` e non a memoria. Il `Box` qui sotto passa ai figli i
+ * bytecode di `foundation-layout`. Il `Box` qui sotto passa ai figli i
  * propri vincoli col solo minimo azzerato, quindi il massimo resta la misura della
  * piastrella: l'immagine chiedeva 187.2dp, ne otteneva 96, e l'anteprima mostrava la
  * **tela intera** invece dei 72dp centrali, cioè un glifo 1.95 volte più piccolo di

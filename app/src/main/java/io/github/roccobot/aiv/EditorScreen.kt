@@ -425,7 +425,7 @@ private fun applied(base: Bitmap, done: Done, turns: Int, crop: ImageEdit.Crop):
  * Lo stesso rettangolo dopo [turns] quarti di giro **in senso orario**, in frazioni.
  *
  * ⚠️ Girando di un quarto in senso orario il punto `(x, y)` va in `(1 - y, x)`, quindi il lato
- * sinistro nuovo viene dal fondo vecchio. Chi la ritocca la riderivi da lì e non a occhio: il
+ * sinistro nuovo viene dal fondo vecchio. Chi la ritocca la riderivi da lì: il
  * segno sbagliato dà un ritaglio speculare, che su una fotografia simmetrica non si vede.
  */
 private fun turnedRect(crop: ImageEdit.Crop, turns: Int): ImageEdit.Crop {

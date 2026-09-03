@@ -1600,7 +1600,7 @@ private suspend fun sharpen(
  * dallo sfoglio**: 'non succede niente' è identico fra una funzione rotta, una funzione
  * che ha deciso di non fare niente e un formato che non si sa rileggere. La riga dei
  * dettagli lo stampa, come stampa l'esito della ricerca della cartella, ed è così che la
- * `0.49` ha potuto nominare il difetto invece di indovinarlo.
+ * `0.49` ha potuto nominare il difetto.
  */
 private sealed interface Sharpening {
     data class Done(val tile: SharpTile) : Sharpening
@@ -2196,7 +2196,7 @@ private fun ImageCanvas(
                         // ⚠️ `settling` si legge QUI dentro e non dentro `swipeAllowed`:
                         // là sarebbe un valore fissato dalla composizione, e fra il
                         // momento in cui la pagina parte e quello in cui la composizione
-                        // se ne accorge ci sta un dito che scende.
+                        // se ne accorge c'è un dito che scende.
                         swipeEnabled = { swipeAllowed && !settling },
                         // ⚠️ La soglia è una FRAZIONE della larghezza e non un
                         // numero di dp: su uno schermo stretto un valore fisso
@@ -2303,7 +2303,7 @@ private fun ImageCanvas(
  * perfettamente orizzontale pareggiano, e per ogni altro angolo il modulo arriva
  * prima: a 10 gradi il transform scatta a 24px dove l'orizzontale ne vuole 24,37. Un
  * pollice non disegna mai una riga perfetta, quindi la strisciata perdeva sempre.
- * Verificato sul sorgente vero di Compose e non a memoria: `detectTransformGestures`
+ * Verificato sul sorgente vero di Compose: `detectTransformGestures`
  * consuma ogni variazione appena passata la soglia, e
  * `awaitPointerSlopOrCancellation` risponde `return null` a una variazione consumata,
  * cioè annulla la trascinata.
@@ -2667,7 +2667,7 @@ private fun ImageMenu(
             /*
              * ⚠️ **Lo schema dell'indirizzo decide DUE voci**, e per questo si legge una
              * volta sola qui invece che dentro ognuna: dice se quello che si sta guardando
-             * è un file di questo telefono (`content://` o `file://`) o roba del web.
+             * è un file di questo telefono (`content://` o `file://`) o un indirizzo del web.
              */
             val scheme = source?.scheme?.lowercase()
             /*
@@ -3242,7 +3242,7 @@ private val MARK_GAP = 6.dp
  * ⚠️ **Sceso tre volte in tre versioni**, e la scala è quella: 0.74 nella `1.23`, **0.65**
  * nella `1.25` e **0.52** nella `1.26` (riscontro dell'utente, 2026-09-02: *forse il nome mi
  * piacerà di più con ancora meno opacità, diminuisci di un altro 20%*). Il numero è quello
- * di prima meno un quinto, cioè la richiesta presa alla lettera e non a occhio.
+ * di prima meno un quinto, cioè la richiesta presa alla lettera.
  * ⚠️ **Sotto di qui c'è un limite vero**: 0.38 è il velo che Material mette sui comandi
  * spenti, e un testo che lo raggiunge smette di dire 'sono secondario' e dice 'sono
  * disattivato'. Da qui a là restano due gradini come questo.
