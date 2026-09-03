@@ -1295,6 +1295,54 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    /**
+     * Le cartelle di immagini del telefono, e `null` finché la prima lettura non è finita.
+     *
+     * ⚠️⚠️ **VIVE QUI E NON NELLA SCHERMATA, dalla `1.46`, per la stessa ragione di
+     * [treePath]**: dalla casa si esce ogni volta che si apre un'immagine, e un ricordo dentro
+     * il composabile muore con lui. Prima l'elenco era un `remember` della schermata, quindi
+     * ogni ritorno dal visualizzatore rifaceva la query sul MediaStore e rimetteva la rotella
+     * al posto delle copertine, per riottenere l'elenco di un attimo prima.
+     * ⚠️ **Non filtrato**: le cartelle nascoste le toglie la schermata, perché sono una
+     * preferenza e non un fatto del disco. Così nasconderne una si vede all'istante, senza
+     * chiedere niente al MediaStore.
+     */
+    var buckets: List<Folder.Bucket>? by mutableStateOf(null)
+        private set
+
+    /**
+     * Per quale stato delle cose l'elenco qui sopra è stato letto: permesso e [outsideStamp].
+     *
+     * ⚠️⚠️ **È QUESTO A RENDERE LA LETTURA RARA, non il fatto che il valore viva nel
+     * modello**: la schermata rinasce a ogni ritorno, quindi il suo effetto di avvio riparte
+     * comunque, e senza un confronto rifarebbe la query esattamente come prima.
+     * ⚠️ **Porta anche il permesso dell'ultima volta**, e serve a [outsideChange]: quando una
+     * notizia arriva mentre la casa è in scena, nessuno gliela può chiedere.
+     */
+    private var bucketsFor: Pair<Boolean, Int>? = null
+
+    private var bucketsJob: Job? = null
+
+    /**
+     * Rilegge le cartelle, ma solo se è cambiato qualcosa che le riguarda.
+     *
+     * ⚠️ **Le chiavi sono due e sono tutte quelle che contano**: il permesso, senza il quale
+     * non c'è niente da leggere, e [outsideStamp], cioè la notizia del MediaStore che l'app
+     * ascolta già. Le cartelle nascoste **non** sono fra le chiavi, perché non cambiano quello
+     * che c'è sul disco.
+     */
+    fun readBuckets(granted: Boolean) {
+        val key = granted to outsideStamp
+        if (bucketsFor == key) return
+        bucketsFor = key
+        val context = getApplication<Application>()
+        // ⚠️ La lettura precedente si annulla: due notizie ravvicinate darebbero due query in
+        // volo, e l'ultima a rispondere non è detto sia l'ultima partita.
+        bucketsJob?.cancel()
+        bucketsJob = viewModelScope.launch {
+            buckets = if (granted) Folder.buckets(context) else emptyList()
+        }
+    }
 
     /**
      * Dove sta la navigazione della vista 'Cartelle di sistema', e `null` vuol dire in cima.
@@ -1540,6 +1588,12 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 // ⚠️ Mentre si guarda una fotografia si segna e basta, per la stessa ragione
                 // di [afterFileAdded]: la griglia non è in scena, e la si paga al ritorno.
                 screen == Screen.Viewer || screen is Screen.Editor -> gridStale = true
+                // ⚠️ La casa non guarda le righe ma le CARTELLE, e un file arrivato da fuori
+                // può averne fatta nascere una: qui la rilettura serve. Si rifà col permesso
+                // dell'ultima volta, perché a saperlo è la schermata e in questo istante non
+                // le si può chiedere niente; se non ha ancora letto, non c'è niente da
+                // rifare e ci penserà lei entrando.
+                screen is Screen.Folders -> bucketsFor?.let { readBuckets(it.first) }
                 else -> Unit
             }
         }
@@ -1915,7 +1969,8 @@ private fun AivApp(model: ViewerViewModel) {
                 onTreePath = { model.treeTo(it) },
                 onTreeOpen = { items, at -> model.openFromTree(items, at) },
                 onBack = if (screen.forStart) ({ model.leaveStartFolderChoice() }) else null,
-                stamp = model.outsideStamp
+                buckets = model.buckets,
+                onRead = { model.readBuckets(it) }
             )
         }
 

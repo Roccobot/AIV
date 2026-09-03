@@ -187,20 +187,27 @@ fun FolderScreen(
     onTreeOpen: (List<Uri>, Int) -> Unit,
     onBack: (() -> Unit)?,
     /**
-     * Quante volte il disco è cambiato da fuori. Vedi `ViewerViewModel.outsideStamp`.
+     * Le cartelle del telefono, non filtrate, e `null` finché la prima lettura non è finita.
+     * Vedi `ViewerViewModel.buckets`.
      *
-     * ⚠️⚠️ **È UNA CHIAVE E NON UN DATO: non si legge, si usa per far ripartire la
-     * lettura.** Questa schermata l'elenco se lo legge da sé, quindi il modello non può
-     * ricaricarglielo: l'unico modo di dirle 'sul disco è cambiato qualcosa' è cambiarle una
-     * chiave sotto il naso. Il valore di serie tiene in piedi le anteprime.
+     * ⚠️⚠️ **ARRIVA DA FUORI DALLA `1.46`, e prima se la leggeva questa schermata**: da qui si
+     * esce a ogni immagine aperta, quindi un elenco ricordato qui dentro moriva col
+     * composabile e ogni ritorno pagava una query sul MediaStore, con la rotella al posto
+     * delle copertine, per riottenere l'elenco di un attimo prima.
      */
-    stamp: Int = 0,
+    buckets: List<Folder.Bucket>?,
+    /**
+     * Chiede al modello di rileggere, dicendogli se il permesso c'è.
+     *
+     * ⚠️ **Il permesso lo sa questa schermata e non il modello**: è lei a rinfrescarlo al
+     * ritorno dalla pagina di sistema, e nessuno gliene manda notizia.
+     */
+    onRead: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var granted by remember { mutableStateOf(Folder.granted(context)) }
-    var folders by remember { mutableStateOf<List<Folder.Bucket>?>(null) }
 
     /**
      * La cartella che si sta per nascondere, e `null` quando non se ne sta nascondendo
@@ -240,16 +247,17 @@ fun FolderScreen(
         ActivityResultContracts.StartActivityForResult()
     ) { granted = Folder.granted(context) }
 
+    // Il permesso può essere appena arrivato: il modello decide da sé se c'è davvero
+    // qualcosa da rileggere.
+    LaunchedEffect(granted) { onRead(granted) }
+
     // ⚠️ Il filtro sta QUI e non dentro `Folder.buckets`, che resta un elenco puro: le
     // impostazioni sono una faccenda della schermata, e una funzione che legge il
     // MediaStore non deve sapere che cosa l'utente ha deciso di non guardare.
-    // ⚠️ La chiave comprende `hidden`, o nascondere una cartella non si vedrebbe finché
-    // non si esce e si rientra. E comprende `stamp`, o una cartella arrivata da fuori
-    // (una foto ricevuta, una cartella nuova) resterebbe invisibile per la stessa ragione.
-    LaunchedEffect(granted, hidden, stamp) {
-        folders = if (granted) Folder.buckets(context).filterNot { it.isHidden(hidden) }
-        else emptyList()
-    }
+    // ⚠️ Ed è un filtro e non una chiave di rilettura, dalla 1.46: nascondere una cartella
+    // cambia quello che si guarda, non quello che c'è sul disco, quindi si vede al
+    // fotogramma dopo senza costare una query.
+    val folders = buckets?.filterNot { it.isHidden(hidden) }
 
     // La veste 'casa' e quella 'scegli la cartella d'avvio' si distinguono da qui in giù:
     // la prima porta il frontespizio e il tastino, la seconda la freccia Indietro.
