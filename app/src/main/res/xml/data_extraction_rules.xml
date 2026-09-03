@@ -1,9 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Che cosa il sistema salva e ripristina, da Android 12 in su.
+
+     ⚠️⚠️ FINO ALLA 1.46 QUESTE REGOLE SELEZIONAVANO UN INSIEME VUOTO, e il difetto era
+     invisibile: `sharedpref` e il dominio delle `SharedPreferences`, e questa app non ne usa
+     nemmeno una. Tutto il suo stato (ogni impostazione e l'elenco delle immagini recenti) vive
+     in un DataStore Preferences dichiarato in `Settings.kt`, che su disco sta in
+     `<files>/datastore/aiv-settings.preferences_pb`, cioe nel dominio `file`. Quindi il backup
+     era acceso, il sistema lo eseguiva, e non ci metteva niente: cambiando telefono si
+     perdeva tutto senza un avviso.
+     ⚠️ Accertato leggendo il codice: nessuna occorrenza di `getSharedPreferences` nei sorgenti,
+     e un solo `preferencesDataStore` (`Settings.kt`, `aiv-settings`).
+
+     ⚠️ `sharedpref` RESTA accanto a `file`, e non e un residuo: non costa niente e copre il
+     giorno in cui qualcuno aggiungesse delle `SharedPreferences` senza ripassare da qui.
+
+     ⚠️ SI SALVANO LE SOLE PREFERENZE, e non e una dimenticanza: le immagini sono del telefono
+     e non dell'app, e un backup che se le portasse dietro sarebbe una sorpresa che nessuno ha
+     chiesto. Il DataStore contiene anche l'elenco delle recenti, che sono INDIRIZZI e non
+     file, quindi pesano nulla e si riaprono se il file esiste ancora.
+
+     ⚠️ VA PROVATO SU UN TELEFONO, e la prova non e leggere questo file: si fa un backup, si
+     disinstalla, si reinstalla, e si guarda se le impostazioni sono tornate. Finche quella
+     prova non c'e, questa correzione e ragionata e non verificata. -->
 <data-extraction-rules>
     <cloud-backup>
+        <include domain="file" path="datastore" />
         <include domain="sharedpref" path="." />
     </cloud-backup>
     <device-transfer>
+        <include domain="file" path="datastore" />
         <include domain="sharedpref" path="." />
     </device-transfer>
 </data-extraction-rules>

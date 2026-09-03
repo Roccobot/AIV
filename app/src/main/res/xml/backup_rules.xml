@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Preferences only: the images belong to the phone, not to the app, and a
-     backup carrying them along would be a surprise nobody asked for. -->
+<!-- Che cosa il sistema salva e ripristina, su Android 11 e piu vecchi.
+
+     ⚠️⚠️ FINO ALLA 1.46 QUESTA REGOLA SELEZIONAVA UN INSIEME VUOTO: diceva `sharedpref`, e
+     questa app non usa nemmeno una `SharedPreferences`. Il perche per esteso, con la prova,
+     sta nel file gemello `data_extraction_rules.xml`, che copre Android 12 in su: i due si
+     leggono insieme e la stessa correzione vale per entrambi.
+
+     ⚠️ I DUE FILE SONO SEPARATI PERCHE LO CHIEDE ANDROID e non per scelta: da Android 12
+     conta `dataExtractionRules`, prima contava `fullBackupContent`, e il manifest dichiara
+     entrambi. Chi cambia uno dei due cambi anche l'altro, o il difetto torna su meta dei
+     telefoni.
+
+     Preferenze e recenti soltanto: le immagini sono del telefono e non dell'app, e un backup
+     che se le portasse dietro sarebbe una sorpresa che nessuno ha chiesto. -->
 <full-backup-content>
+    <include domain="file" path="datastore" />
     <include domain="sharedpref" path="." />
 </full-backup-content>
