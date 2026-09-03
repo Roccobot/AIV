@@ -38,6 +38,42 @@ object ImageActions {
     /** Everything handed to another app goes through here and nowhere else. */
     private fun shareDir(context: Context) = File(context.cacheDir, "share").apply { mkdirs() }
 
+    /**
+     * Quanto puo restare in giro nella cartella delle consegne, fra una consegna e l'altra.
+     *
+     * ⚠️⚠️ **FINO ALLA 1.46 NON C'ERA NESSUN TETTO, e quella cartella cresceva per sempre**:
+     * ogni consegna ci scrive una copia INTERA dell'immagine, e niente la ripuliva. Consegnare
+     * cinquanta immagini lasciava cinquanta file interi sul telefono, che nessuna schermata
+     * dell'app mostra. Le altre due riserve su disco il loro limite ce l'avevano gia, quindi
+     * qui la coppia prendere e rilasciare era fatta a meta.
+     * ⚠️ **Il tetto governa quello che AVANZA, non la consegna in corso**: si pota all'inizio,
+     * quindi un lotto piu grande del tetto passa comunque intero e viene potato alla consegna
+     * dopo. Con un tetto applicato in coda, invece, la consegna si mangerebbe i propri file.
+     */
+    private const val MAX_SHARE_BYTES = 64L * 1024 * 1024
+
+    /**
+     * Le copie piu vecchie escono finche la cartella delle consegne rientra nel tetto.
+     *
+     * ⚠️⚠️ **SI POTA PRIMA DI SCRIVERE, ed e il contrario di quello che fa la riserva remota**
+     * (là si sfoltisce dopo, e il perche sta su `RemoteCache`). Qui non si puo fare altrimenti:
+     * il permesso di lettura che l'altra app riceve vive quanto la consegna, quindi cancellare
+     * subito dopo vorrebbe dire toglierle il file da sotto le mani mentre lo sta leggendo. Alla
+     * consegna dopo, invece, quel permesso e finito e la copia e spazzatura.
+     * ⚠️ **Sta in `cacheDir`**, quindi in ogni caso Android puo svuotarla quando lo spazio
+     * finisce: questa potatura serve a non arrivarci.
+     */
+    private fun trimShare(context: Context) {
+        val files = shareDir(context).listFiles()?.filter { it.isFile } ?: return
+        var total = files.sumOf { it.length() }
+        if (total <= MAX_SHARE_BYTES) return
+        for (file in files.sortedBy { it.lastModified() }) {
+            if (total <= MAX_SHARE_BYTES) return
+            val size = file.length()
+            if (file.delete()) total -= size
+        }
+    }
+
     // ── Clipboard ───────────────────────────────────────────────────────────
 
     /**
@@ -235,6 +271,15 @@ object ImageActions {
      */
     suspend fun copyOriginalTo(context: Context, uri: Uri, out: OutputStream): Boolean =
         withContext(Dispatchers.IO) {
+            /*
+             * ⚠️⚠️ **LA CONNESSIONE SI TIENE IN UNA VARIABILE E SI CHIUDE NEL BLOCCO FINALE, e
+             * fino alla 1.46 questo era il solo punto dell'app che non lo faceva**: chiudeva il
+             * flusso e basta. L'effetto e piccolo, perche chiudere il flusso rende il
+             * collegamento al serbatoio dei riusi, ma un errore che arrivi PRIMA di quella
+             * chiusura lascia la connessione aperta fino al raccoglitore. Adesso la coppia e
+             * intera, come negli altri punti che aprono la rete.
+             */
+            var connection: HttpURLConnection? = null
             try {
                 val input = when (uri.scheme?.lowercase()) {
                     "http", "https" -> (URL(uri.toString()).openConnection() as HttpURLConnection).apply {
@@ -242,6 +287,7 @@ object ImageActions {
                         readTimeout = 60_000
                         instanceFollowRedirects = true
                         setRequestProperty("User-Agent", "Mozilla/5.0 (Android) AIV")
+                        connection = this
                     }.inputStream
                     else -> context.contentResolver.openInputStream(uri)
                 } ?: return@withContext false
@@ -249,6 +295,8 @@ object ImageActions {
                 true
             } catch (e: Exception) {
                 false
+            } finally {
+                connection?.disconnect()
             }
         }
 
@@ -272,6 +320,7 @@ object ImageActions {
     /** Hands the original to whatever the person picks from the chooser. */
     suspend fun share(context: Context, image: LoadedImage, uri: Uri?): Boolean {
         if (uri == null) return false
+        trimShare(context)
         val file = File(shareDir(context), fileName(image, uri))
         val ok = file.outputStream().use { copyOriginalTo(context, uri, it) }
         if (!ok) return false
@@ -308,6 +357,9 @@ object ImageActions {
      * quarantanove. Se non ne resta nessuna, torna `false` e chi chiama lo dice.
      */
     suspend fun shareMany(context: Context, uris: List<Uri>): Boolean {
+        // ⚠️ La potatura sta QUI e non dentro il giro: là cancellerebbe le copie appena
+        // scritte da questo stesso lotto. Vedi [trimShare].
+        trimShare(context)
         // ⚠️ **Il tipo si ricava dalla selezione dalla `0.83`**, da quando una cartella può
         // contenere anche filmati: dichiarare `image/*` su un video farebbe comparire nel
         // dialogo gli editor di fotografie, cioè programmi che quel file non aprono. Il
