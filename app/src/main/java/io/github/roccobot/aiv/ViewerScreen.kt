@@ -56,7 +56,6 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.FitScreen
 import androidx.compose.material.icons.outlined.Info
@@ -2729,7 +2728,9 @@ private fun ImageMenu(
             if (scheme != "content" && scheme != "file") {
                 MenuRow(
                     text = stringResource(R.string.menu_save),
-                    icon = Icons.Outlined.Download,
+                    // ⚠️ Era `Icons.Outlined.Download` fino alla 1.46: il perché del cambio
+                    // sta su [Glyphs.Download].
+                    icon = Glyphs.Download,
                     onTap = { onDismiss(); ops.save(image) }
                 )
             }
