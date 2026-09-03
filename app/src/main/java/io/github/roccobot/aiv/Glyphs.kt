@@ -171,19 +171,40 @@ object Glyphs {
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_folder_pair_dashed)
 
     /**
-     * Un foglio dietro a un riquadro con **due spunte**: 'Seleziona tutto'.
+     * Un foglio dietro, e davanti un riquadro **tagliato da una spunta**: 'Seleziona tutto'.
      *
-     * ⚠️ Due spunte e non una: una sola vuol dire 'questo è scelto', due vogliono dire
-     * 'tutti'. Il glifo di Material che stava qui prima (`SelectAll`) era un rettangolo
-     * tratteggiato, cioè il gesto del riquadro di selezione col mouse, che su un telefono
-     * non esiste.
+     * ⚠️⚠️ **UNA SPUNTA GRANDE AL POSTO DI DUE PICCOLE, dalla 1.46**, e qui era scritto il
+     * contrario: la nota diceva che *due spunte e non una: una sola vuol dire 'questo è
+     * scelto', due vogliono dire 'tutti'*. L'argomento era buono e l'utente ha deciso
+     * altrimenti mandando il disegno nuovo, che è quello che decide. ⚠️ La spunta non è
+     * dipinta dentro il riquadro: è il **taglio** che lo divide in due pezzi, quindi è spazio
+     * non dipinto. Il resto sta in testa a `res/drawable/ic_pick_all.xml`.
+     * ⚠️ Prima della `1.01` qui c'era `Icons.Outlined.SelectAll` di Material, un rettangolo
+     * tratteggiato, cioè il gesto del riquadro di selezione col mouse, che su un telefono non
+     * esiste.
      */
     val PickAll: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_pick_all)
 
-    /** Un foglio dietro a un riquadro con una **croce**: 'Annulla selezione'. */
+    /**
+     * Un foglio dietro a un riquadro con una **croce**: 'Svuota selezione'.
+     *
+     * ⚠️ Ridisegnato dall'utente nella `1.46`: la croce è più grande e arriva quasi al bordo
+     * del riquadro. Il segno di famiglia, cioè il foglio e il riquadro, non è cambiato.
+     */
     val PickNone: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_pick_none)
+
+    /**
+     * Un riquadro con una freccia che scende: 'Scarica'.
+     *
+     * ⚠️ **Disegnato dall'utente nella `1.46`**, e sostituisce `Icons.Outlined.Download` di
+     * Material: quella era una freccia nuda sopra una lineetta, cioè diceva 'scarica' e non
+     * 'scarica QUESTO', e nel menu del visualizzatore stava fra voci che portano tutte il
+     * riquadro come segno di famiglia. Adesso lo porta anche lei.
+     */
+    val Download: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_download)
 
     /**
      * Un foglio dietro a un riquadro con **mezzo quadrato pieno**: 'Inverti selezione'.

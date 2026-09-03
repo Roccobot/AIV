@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Scarica': un riquadro con una freccia che scende.
+
+     DISEGNATO DALL'UTENTE, dalla 1.46. Sostituisce `Icons.Outlined.Download` di Material,
+     che era una freccia nuda sopra una lineetta: diceva 'scarica' e non 'scarica QUESTO', e
+     nel menu del visualizzatore stava in mezzo a voci che portano tutte il riquadro come
+     segno di famiglia (`ic_image_edit`, `ic_image_convert`). Adesso lo porta anche lei.
+
+     CADE SULLA SAGOMA QUADRATA DI MATERIAL, misurato rendendola: l'inchiostro sta in 18x18
+     con 3 unita di margine per lato, che e esattamente la chiave di Material per una forma
+     quadrata. Non e stato ritoccato niente per ottenerlo.
+
+     IL VERSO DI AVVOLGIMENTO NON CONTA, misurato: nonZero e evenOdd rendono identici, zero
+     pixel di scarto su una tela da 240. La regola e dichiarata comunque, perche una regola
+     dichiarata dice quello che il disegno vuole mentre una omessa dice solo com'e andata, e
+     la coincidenza cade il giorno che qualcuno aggiunge un sottotracciato.
+
+     Le regole di trasporto stanno in `CLAUDE.md`, § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M19,3H5c-1.1,0,-2,.9,-2,2v14c0,1.1,.9,2,2,2h14c1.1,0,2,-.9,2,-2V5c0,-1.1,-.9,-2,-2,-2ZM19,19h-5.32c.12,-.08,.23,-.17,.33,-.27l3.37,-3.36h-4.04V7h-2.69v8.36h-4.04l3.37,3.36c.1,.1,.22,.19,.33,.27h-5.32V5h14v14Z" />
+</vector>

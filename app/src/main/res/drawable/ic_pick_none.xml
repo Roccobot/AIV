@@ -1,9 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 'Annulla selezione': un foglio dietro a un riquadro con una croce.
+<!-- 'Svuota selezione': un foglio dietro a un riquadro con una croce.
 
-     DISEGNATO DALL'UTENTE, dalla 1.01. I primi due sottotracciati sono il segno di famiglia,
-     identici a quelli di `ic_pick_all` e `ic_pick_invert`, e il perché di quella ripetizione
-     sta là. Le regole di trasporto stanno in `CLAUDE.md`, § 'Come entra un disegno'. -->
+     DISEGNATO DALL'UTENTE, e RIDISEGNATO da lui nella 1.46: la croce e piu grande e arriva
+     quasi al bordo del riquadro, dove prima stava raccolta al centro. Contro il disegno di
+     prima cambia l'8,2% della tela, misurato rendendo i due.
+
+     IL FOGLIO DIETRO E IL RIQUADRO DAVANTI sono identici carattere per carattere a quelli
+     del disegno precedente e a quelli degli altri due file di famiglia: qui cambia SOLO la
+     forma dentro il riquadro, che e come deve essere. Il perche quel segno si ripete invece
+     di stare in un file condiviso sta in `ic_pick_all`.
+
+     L'ORDINE DEI SOTTOTRACCIATI E QUELLO DELL'EXPORT (riquadro, croce, foglio) e non quello
+     del file precedente, dove il foglio veniva per primo: il perche sta in `ic_pick_all`.
+
+     MISURE, prese rendendola: inchiostro in 20x20 con 2 unita di margine, cioe l'area viva
+     di Material e la stessa misura del disegno che sostituisce. Il verso di avvolgimento non
+     conta (zero pixel di scarto fra nonZero e evenOdd), e la regola e dichiarata comunque.
+
+     Le regole di trasporto stanno in `CLAUDE.md`, § 'Come entra un disegno'. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
@@ -12,5 +26,5 @@
     <path
         android:fillColor="#FF000000"
         android:fillType="nonZero"
-        android:pathData="M17.6,20H5.41c-.78,0,-1.41,-.63,-1.41,-1.41V6.4c0,-.22,-.18,-.4,-.4,-.4c-.88,0,-1.6,.72,-1.6,1.6v12.4c0,1.1,.9,2,2,2h12.4c.88,0,1.6,-.72,1.6,-1.6h0c0,-.22,-.18,-.4,-.4,-.4ZM20,2h-12c-1.1,0,-2,.9,-2,2v12c0,1.1,.9,2,2,2h12c1.1,0,2,-.9,2,-2V4c0,-1.1,-.9,-2,-2,-2ZM18.2,13.38c.16,.16,.16,.41,0,.57l-.25,.25c-.16,.16,-.41,.16,-.57,0l-3.38,-3.38l-3.38,3.38c-.16,.16,-.41,.16,-.57,0l-.25,-.25c-.16,-.16,-.16,-.41,0,-.57l3.38,-3.38l-3.38,-3.38c-.16,-.16,-.16,-.41,0,-.57l.25,-.25c.16,-.16,.41,-.16,.57,0l3.38,3.38l3.38,-3.38c.16,-.16,.41,-.16,.57,0l.25,.25c.16,.16,.16,.41,0,.57l-3.38,3.38l3.38,3.38Z" />
+        android:pathData="M20,2h-12c-1.1,0,-2,.9,-2,2v12c0,1.1,.9,2,2,2h12c1.1,0,2,-.9,2,-2V4c0,-1.1,-.9,-2,-2,-2ZM20.24,14.63c.15,.15,.15,.4,0,.56l-1.05,1.05c-.15,.15,-.4,.15,-.56,0l-4.63,-4.63l-4.63,4.63c-.15,.15,-.4,.15,-.56,0l-1.05,-1.05c-.15,-.15,-.15,-.4,0,-.56l4.63,-4.63l-4.63,-4.63c-.15,-.15,-.15,-.4,0,-.56l1.05,-1.05c.15,-.15,.4,-.15,.56,0l4.63,4.63l4.63,-4.63c.15,-.15,.4,-.15,.56,0l1.05,1.05c.15,.15,.15,.4,0,.56l-4.63,4.63l4.63,4.63ZM17.6,20H5.41c-.78,0,-1.41,-.63,-1.41,-1.41V6.4c0,-.22,-.18,-.4,-.4,-.4c-.88,0,-1.6,.72,-1.6,1.6v12.4c0,1.1,.9,2,2,2h12.4c.88,0,1.6,-.72,1.6,-1.6h0c0,-.22,-.18,-.4,-.4,-.4Z" />
 </vector>
