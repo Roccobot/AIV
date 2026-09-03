@@ -36,7 +36,7 @@ import androidx.compose.ui.window.DialogWindowProvider
  *
  * ⚠️⚠️ **IL VELO È QUELLO DELLA FINESTRA, ED È NERO: la sua TINTA non si sceglie.** Android
  * offre `FLAG_DIM_BEHIND` con una sola quantità e nessun colore, e per avere un velo bianco
- * bisognerebbe possedere la finestra di ognuno dei tredici dialoghi e dipingerla a mano, cioè
+ * bisognerebbe possedere la finestra di ogni dialogo dell'app e dipingerla a mano, cioè
  * proprio i 'sistemi ad-hoc per il disegno di finestre e pannelli' che l'utente ha appena
  * chiesto di smettere (riscontro `striscia-sotto`).
  * ⚠️ **Ma il 'chiaro/scuro a seconda del tema' si ottiene lo stesso, e non per compromesso**:
@@ -58,9 +58,9 @@ import androidx.compose.ui.window.DialogWindowProvider
  *   (i menu) o di un `Dialog` scritto da noi (le bottomsheet).
  * - [Modifier.veiled] è per i **dialoghi di Material**, dove non c'è un posto 'dentro' in cui
  *   scrivere una riga: le loro fessure (`title`, `text`) sono lambda, e infilarci un effetto
- *   sarebbe una riga da ricordare tredici volte. Un nodo di modificatore invece si aggancia
+ *   sarebbe una riga da ricordare in ognuno. Un nodo di modificatore invece si aggancia
  *   **dove il modificatore atterra**, cioè sul contenuto del dialogo, quindi legge la finestra
- *   giusta. Ci arriva da [Modifier.lowered], che quei tredici dialoghi hanno già.
+ *   giusta. Ci arriva da [Modifier.lowered], che quei dialoghi hanno già.
  *
  * ⚠️⚠️ **DALLA 1.39 È SPENTO DI FABBRICA, DIETRO UN'IMPOSTAZIONE** (richiesta dell'utente,
  * 2026-09-03: *mettilo dietro un'opzione disattivata di default. Penserò se tenere o meno la
@@ -86,9 +86,11 @@ fun WindowVeil(bare: Float = 0f) {
 /**
  * L'interruttore della funzione: se velo e sfocatura sono accesi.
  *
- * ⚠️ **Un `CompositionLocal` e non un parametro**: chi chiede il velo sono tredici dialoghi,
- * quattro menu e due schede, e nessuno di loro riceve le impostazioni. Il valore lo mette in
- * scena l'attività, che le ha già lette per il tema.
+ * ⚠️ **Un `CompositionLocal` e non un parametro**: chi chiede il velo sono i dialoghi, i menu
+ * e le due schede, e nessuno di loro riceve le impostazioni. Il valore lo mette in scena
+ * l'attività, che le ha già lette per il tema. ⚠️ **Quanti sono non si scrive**: qui c'era
+ * 'tredici dialoghi', e la `1.44` ne ha tolto uno rendendolo falso. Il criterio sta in
+ * `rules/Roccobot.md` § '🪶 Come si mantiene un file di regole'.
  * ⚠️ **Il nodo lo legge quando si attacca**, cioè quando la finestra si apre: cambiare
  * l'interruttore mentre un dialogo è aperto non lo cambia sotto gli occhi, e non è un caso che
  * esista (l'impostazione vive in una schermata, non in un dialogo).

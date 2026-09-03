@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Il marchio dell'app NUDO: la A di AIV col disco solare, senza la piastrella e senza
+     la cornice dell'icona adattiva. È quello che firma una riga di testo.
+
+     ⚠️⚠️ NON È UN DISEGNO NUOVO: i due tracciati sono, byte per byte, quelli di
+     `ic_launcher_foreground.xml`, che è il disegno dell'utente già approvato e già
+     misurato contro il master (vedi la nota in testa a quel file). Qui cambia soltanto
+     lo SPAZIO in cui vivono.
+
+     ⚠️⚠️ PERCHÉ NON SI RIUSA DIRETTAMENTE QUEL FILE, che sarebbe la via ovvia: quello è
+     il primo piano di un'icona ADATTIVA, quindi porta due cose che qui sono veleno. La
+     tela è 108 ma di un'icona adattiva si vedono i 72 centrali, e il gruppo scala il
+     glifo a 0,65 per rientrarci: risultato, l'inchiostro occupa il 39 su 108 in
+     altezza, cioè il 36% della scatola. Messo in una riga di testo, per avere un glifo
+     alto 12 punti servirebbe una scatola da 33, con una ventina di punti di aria ai
+     lati: in mezzo a un nome di file si leggerebbe come uno spazio, non come un
+     marchio.
+
+     ⚠️ LA TELA È L'INCHIOSTRO, MISURATO E NON DEDOTTO: reso il disegno in Chromium e
+     letti i limiti veri dei due tracciati insieme, l'inchiostro sta in x 19..89 e
+     y 19..79, cioè esattamente 70 x 60 unità. Il gruppo trasla di -19 e -19, che è
+     quello che porta quell'area a coincidere col riquadro. ⚠️ Calcolarli a mano
+     sbaglierebbe: le punte tonde della A sono ARCHI, quindi sporgono oltre i vertici
+     del tracciato (l'apice arriva a 25 e non a 27,18, il fianco destro a 89 e non a
+     88,13).
+
+     ⚠️ È PIÙ LARGO CHE ALTO, 70 su 60, e chi lo usa deve saperlo: si dà l'altezza e la
+     larghezza segue, o il glifo si schiaccia.
+
+     ⚠️ IL COLORE È NERO PIENO e non quello dell'icona, per la stessa ragione scritta in
+     testa a `ic_tian.xml`: questo disegno si usa come `Icon`, che ne tiene la sola alfa
+     e mette la propria tinta. Un colore scritto qui sarebbe un colore che nessuno vede e
+     che il giorno dopo qualcuno crede attivo. Il colore vero lo decide chi lo disegna:
+     nella barra delle info è l'accento del tema. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="70dp"
+    android:height="60dp"
+    android:viewportWidth="70"
+    android:viewportHeight="60">
+    <group
+        android:translateX="-19"
+        android:translateY="-19">
+        <!-- Il disco solare, fuori dalla A, in alto a sinistra. -->
+        <path
+            android:fillColor="#FF000000"
+            android:pathData="M30,19a10,10 0 1,0 0,20a10,10 0 1,0 0,-20z" />
+        <!-- La A: contorno e controcampo in un tracciato solo, `evenOdd`, col tratto del
+             master già incorporato. Vedi la nota in testa a `ic_launcher_foreground.xml`. -->
+        <path
+            android:fillColor="#FF000000"
+            android:fillType="evenOdd"
+            android:pathData="M58.1311,27.1833
+L88.1311,71.1833
+A5,5 0 0 1 84,79
+L24,79
+A5,5 0 0 1 19.8689,71.1833
+L49.8689,27.1833
+A5,5 0 0 1 58.1311,27.1833
+Z
+M56.0424,49.5583
+L68.0424,66.5583
+A2.5,2.5 0 0 1 66,70.5
+L42,70.5
+A2.5,2.5 0 0 1 39.9576,66.5583
+L51.9576,49.5583
+A2.5,2.5 0 0 1 56.0424,49.5583
+Z" />
+    </group>
+</vector>

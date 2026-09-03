@@ -1,8 +1,21 @@
 package io.github.roccobot.aiv
 
+import android.os.Build
+import android.view.WindowManager
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 
 /**
  * Che cosa vuol dire 'centrato' in AIV, dalla 1.29.
@@ -49,13 +62,56 @@ fun Modifier.lowered(): Modifier {
      * **scritta**, cioè fuori dal dialogo, e leggerebbe la finestra dell'attività: nessun velo
      * visibile e nessun errore. Un nodo si aggancia dove il modificatore **atterra**, che è
      * dentro il dialogo. Vedi [Modifier.veiled].
+     * ⚠️⚠️ **E DALLA 1.45 ANCHE LO SPOSTAMENTO È UN NODO, per la stessa ragione rovesciata**:
+     * gli serve la finestra, e solo un nodo sa qual è. Vedi [LowerNode].
      */
-    return veiled().layout { measurable, constraints ->
+    return veiled() then LowerElement
+}
+
+private object LowerElement : ModifierNodeElement<LowerNode>() {
+    override fun create() = LowerNode()
+    override fun update(node: LowerNode) = Unit
+    override fun hashCode() = "lowered".hashCode()
+    override fun equals(other: Any?) = other === this
+    override fun InspectorInfo.inspectableProperties() {
+        name = "lowered"
+    }
+}
+
+/**
+ * Lo spostamento in basso, misurato sulla **finestra vera**.
+ *
+ * ⚠️⚠️ **FINO ALLA 1.44 IL 15% SI CALCOLAVA SU `constraints.maxHeight`, ED È LA CAUSA DEL
+ * SALTO** (segnalazione dell'utente, 2026-09-03, sul tocco di 'Rinomina' dal menu a pressione
+ * lunga: *appare per una frazione di secondo più in alto, poi si sistema in basso con un
+ * lampo/jitter*). Quel vincolo **non è** l'altezza della finestra: è lo spazio che il
+ * genitore concede a quella passata di misurazione, e la finestra di un dialogo viene
+ * misurata più di una volta (`DialogLayout.internalOnMeasure` ricalcola il tetto, e con la
+ * modalità `UNSPECIFIED` lo passa perfino come infinito). Cambiando fra una passata e l'altra,
+ * cambia lo spostamento: un fotogramma nel posto sbagliato, e quello è il lampo.
+ * ⚠️⚠️ **E SPIEGA L'ALTRA METÀ DELLA SEGNALAZIONE** (*ho l'impressione che il menu e le
+ * finestre che apre abbiano criteri di posizionamento diversi*): era vero alla lettera. I menu
+ * passano da [MenuCenter], che è un `PopupPositionProvider` e riceve `windowSize`, cioè la
+ * finestra, **prima** che si disegni il primo fotogramma; i dialoghi passavano da un
+ * modificatore di layout, che vede solo il vincolo della passata in corso. Due meccanismi che
+ * misuravano due cose diverse, e uno dei due poteva sbagliare il primo fotogramma. Adesso
+ * misurano la stessa cosa.
+ * ⚠️ **Il vincolo non si legge più affatto**, nemmeno per la stretta: la stretta ha bisogno di
+ * quanta aria c'è sotto, e quell'aria è (finestra - contenuto), non (vincolo - contenuto). Con
+ * la finestra, il conto è lo stesso a ogni passata.
+ */
+private class LowerNode : Modifier.Node(), LayoutModifierNode, CompositionLocalConsumerModifierNode {
+
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints
+    ): MeasureResult {
         val placed = measurable.measure(constraints)
-        val free = (constraints.maxHeight - placed.height).coerceAtLeast(0)
+        val window = windowHeight()
+        val free = (window - placed.height).coerceAtLeast(0)
         val air = LOWER_AIR.roundToPx()
         val room = (free / 2 - air).coerceAtLeast(0)
-        val wanted = (constraints.maxHeight * LOWER_BY).toInt()
+        val wanted = (window * LOWER_BY).toInt()
         val shift = minOf(wanted, room)
         /*
          * ⚠️⚠️ **LO SPOSTAMENTO STA DENTRO L'ALTEZZA RIPORTATA, e fino alla 1.33 NON c'era: è
@@ -75,7 +131,38 @@ fun Modifier.lowered(): Modifier {
          * meno [LOWER_AIR], quindi su un dialogo alto quanto la finestra vale zero e la scatola
          * non si gonfia affatto.
          */
-        layout(placed.width, placed.height + shift * 2) { placed.place(0, shift * 2) }
+        return layout(placed.width, placed.height + shift * 2) { placed.place(0, shift * 2) }
+    }
+
+    /**
+     * L'altezza della finestra **dentro le barre di sistema**, in pixel.
+     *
+     * ⚠️⚠️ **SI TOLGONO LE BARRE, e non è pignoleria**: il contenuto di un dialogo è misurato
+     * dentro i rientri di sistema, quindi un'altezza che le comprendesse farebbe credere che
+     * sotto ci sia un centinaio di pixel d'aria in più di quelli veri, e su un dialogo alto la
+     * stretta lo lascerebbe scendere sotto la barra di navigazione. È esattamente il difetto
+     * che la `1.33` ha tolto, e non va rimesso da un'altra porta.
+     * ⚠️ **`currentWindowMetrics` da Android 11 e `displayMetrics` sotto**, non uno solo dei
+     * due: il primo dà la **finestra**, quindi è giusto anche a schermo diviso e sui
+     * pieghevoli; il secondo dà il **display**, che è la sola cosa disponibile su Android 9 e
+     * 10 (il `minSdk` è 28) e coincide con la finestra quando l'app è sola a schermo.
+     * ⚠️ **Zero vuol dire 'non lo so ancora'**, e allora non si sposta niente: succede se
+     * questo nodo misura prima che la vista sia agganciata, e uno spostamento calcolato su zero
+     * sarebbe zero comunque.
+     */
+    private fun windowHeight(): Int {
+        val view = currentValueOf(LocalView)
+        val whole = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            view.context.getSystemService(WindowManager::class.java)
+                ?.currentWindowMetrics?.bounds?.height() ?: 0
+        } else {
+            @Suppress("DEPRECATION")
+            view.context.resources.displayMetrics.heightPixels
+        }
+        if (whole <= 0) return 0
+        val bars = ViewCompat.getRootWindowInsets(view)
+            ?.getInsets(WindowInsetsCompat.Type.systemBars())
+        return (whole - (bars?.top ?: 0) - (bars?.bottom ?: 0)).coerceAtLeast(0)
     }
 }
 

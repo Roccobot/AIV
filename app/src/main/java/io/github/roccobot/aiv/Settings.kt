@@ -338,6 +338,22 @@ data class Settings(
      */
     val clipboardDone: String = "",
     /**
+     * Quando gli appunti portavano l'indirizzo che l'app ha aperto da sé.
+     *
+     * ⚠️⚠️ **NASCE PERCHÉ RICOPIARE LO STESSO INDIRIZZO NON RIAPRIVA NIENTE, dalla 1.45**
+     * (segnalazione dell'utente, 2026-09-03, sulla GIF di Wikimedia: *se l'URL è negli
+     * appunti, non si apre all'avvio*). La memoria della `0.94` teneva il solo indirizzo, e la
+     * sua nota diceva la cosa giusta a metà: *copiando un indirizzo nuovo la funzione deve
+     * tornare a rispondere*. Ma copiare **di nuovo** lo stesso indirizzo è una richiesta
+     * altrettanto chiara, e con il solo confronto delle stringhe era indistinguibile da 'quel
+     * link sta negli appunti da tre giorni'.
+     * ⚠️ **Il tempo lo dà il sistema e non lo misuriamo noi**: `ClipDescription.getTimestamp`
+     * dice quando quel contenuto è stato messo negli appunti (da Android 8, e il `minSdk` è
+     * 28). Un tempo nostro direbbe solo quando lo abbiamo letto, che è un'altra cosa.
+     * ⚠️ Zero vuol dire 'nessuno ancora', come la stringa vuota accanto.
+     */
+    val clipboardWhen: Long = 0L,
+    /**
      * La cartella da aprire all'avvio, e `null` quando non se n'è scelta nessuna.
      *
      * ⚠️ **Due campi per una cosa sola, e il secondo non è ridondante**: l'id è quello
@@ -500,6 +516,7 @@ object SettingsStore {
     private val FOLDER_VIEW = stringPreferencesKey("folder-view")
     private val CLIPBOARD_START = booleanPreferencesKey("clipboard-start")
     private val CLIPBOARD_DONE = stringPreferencesKey("clipboard-done")
+    private val CLIPBOARD_WHEN = longPreferencesKey("clipboard-when")
     private val HAND = stringPreferencesKey("hand")
     private val LIST_PATH = booleanPreferencesKey("list-path")
     private val PICK_WEIGHT = booleanPreferencesKey("pick-weight")
@@ -547,6 +564,7 @@ object SettingsStore {
             folderView = FolderView.entries.byToken(p[FOLDER_VIEW], FolderView.GRID),
             clipboardStart = p[CLIPBOARD_START] ?: false,
             clipboardDone = p[CLIPBOARD_DONE] ?: "",
+            clipboardWhen = p[CLIPBOARD_WHEN] ?: 0L,
             hand = Hand.entries.byToken(p[HAND], Hand.RIGHT),
             listPath = p[LIST_PATH] ?: false,
             pickWeight = p[PICK_WEIGHT] ?: true,
@@ -587,8 +605,14 @@ object SettingsStore {
      * ricordare una stringa, con in mezzo la possibilità di sovrascrivere con una copia
      * vecchia quello che la schermata delle impostazioni ha cambiato nel frattempo.
      */
-    suspend fun clipboardOpened(context: Context, address: String) {
-        context.aivStore.edit { p -> p[CLIPBOARD_DONE] = address }
+    suspend fun clipboardOpened(context: Context, address: String, at: Long) {
+        context.aivStore.edit { p ->
+            p[CLIPBOARD_DONE] = address
+            // ⚠️ Le due chiavi si scrivono INSIEME, e non è pignoleria: separate, un arresto
+            // fra le due lascerebbe un indirizzo con l'istante di un altro, cioè una memoria
+            // che dice di aver aperto una cosa che non ha aperto. `edit` è una transazione.
+            p[CLIPBOARD_WHEN] = at
+        }
     }
 
     suspend fun save(context: Context, settings: Settings) {
@@ -625,6 +649,7 @@ object SettingsStore {
             // (che scrive l'oggetto INTERO) cancellerebbe l'indirizzo già aperto, e gli
             // appunti tornerebbero a riaprirsi al primo avvio dopo un giro nelle opzioni.
             p[CLIPBOARD_DONE] = settings.clipboardDone
+            p[CLIPBOARD_WHEN] = settings.clipboardWhen
             p[UI_THEME] = settings.uiTheme.token
             p[FOLDER_COLUMNS_KEY] = settings.folderColumns
             p[FOLDER_COUNT] = settings.folderCount

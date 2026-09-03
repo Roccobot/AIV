@@ -455,7 +455,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         }
         clipboardTried = true
         val context = getApplication<Application>()
-        val uri = ImageActions.urlInClipboard(context) ?: return
+        val clip = ImageActions.clipInClipboard(context) ?: return
+        val uri = clip.address
         if (!ImageActions.looksLikeImage(uri)) return
         /*
          * ⚠️⚠️ **LO STESSO INDIRIZZO SI APRE UNA VOLTA SOLA** (richiesta dell'utente,
@@ -464,13 +465,24 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
          * l'impostazione si troverebbe l'app che non ascolta più il tocco sull'icona.
          * ⚠️ Si confronta l'INDIRIZZO e non un 'già fatto' generico: copiando un indirizzo
          * nuovo la funzione deve tornare a rispondere, che è la ragione per cui esiste.
+         * ⚠️⚠️ **MA DALLA 1.45 ANCHE RICOPIARE LO STESSO INDIRIZZO RIAPRE, e prima no**
+         * (segnalazione dell'utente, 2026-09-03: *se l'URL è negli appunti, non si apre
+         * all'avvio*). La nota della `0.94` diceva la cosa giusta a metà: un indirizzo
+         * **nuovo** tornava a rispondere, ma lo stesso indirizzo copiato di nuovo è una
+         * richiesta altrettanto esplicita, e restava indistinguibile da un link fermo là da
+         * tre giorni. Adesso si guarda **anche l'istante** in cui gli appunti sono stati
+         * scritti: più recente di quello che avevamo segnato, è una copia nuova.
+         * ⚠️ **Le due prove sono in OR e non in AND**: basta che una delle due dica 'è
+         * un'altra richiesta'. In AND, un indirizzo nuovo copiato da un sistema che non dà
+         * l'istante (zero) non aprirebbe più niente.
          */
         val address = uri.toString()
-        if (address == fresh.clipboardDone) return
+        val again = clip.at > 0L && clip.at > fresh.clipboardWhen
+        if (address == fresh.clipboardDone && !again) return
         // ⚠️ La scrittura è a parte e non blocca: quello che decide è il valore appena
         // confrontato, e l'apertura qui sotto deve restare **sincrona** per non perdere la
         // corsa con la cartella d'avvio.
-        viewModelScope.launch { SettingsStore.clipboardOpened(context, address) }
+        viewModelScope.launch { SettingsStore.clipboardOpened(context, address, clip.at) }
         // ⚠️⚠️ **SPEGNE LA CARTELLA D'AVVIO, e senza questa riga l'ordine deciderebbe il
         // vincitore**: le impostazioni arrivano da una coroutine e il fuoco da un evento
         // di sistema, quindi quale dei due sia primo non è stabilito. Se il fuoco arriva
