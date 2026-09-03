@@ -157,8 +157,8 @@
 
     <string name="settings_top">In alto</string>
     <string name="settings_bottom">In basso</string>
-    <string name="settings_off">Disattivata</string>
     <string name="settings_info_visible">Barra delle info</string>
+    <string name="settings_info_position">Posizione</string>
     <string name="settings_zoom_menu">Zoom nel menu del visualizzatore</string>
     <string name="settings_zoom_menu_desc">Rimette \'Adatta alla vista\' e \'100%\' nel menu a pressione lunga. È spento perché il doppio tocco sull\'immagine lo fa già.</string>
     <string name="hint_zoom_tap">Zoom rapido: doppio tocco sull\'immagine per adattare alla vista, altro doppio tocco per passare ai pixel reali. Ripeti ancora per passare ciclicamente da adattata a 100%.</string>

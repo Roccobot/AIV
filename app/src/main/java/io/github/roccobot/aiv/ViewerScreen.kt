@@ -38,7 +38,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -63,6 +62,7 @@ import androidx.compose.material.icons.outlined.FitScreen
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.PhotoSizeSelectActual
 import androidx.compose.material.icons.outlined.Subtitles
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.FilledTonalButton
@@ -71,7 +71,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Slider
@@ -121,7 +120,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
@@ -812,16 +810,31 @@ private class MenuOps(
 /**
  * Il riquadrino della barra delle info, aperto dal tocco lungo su 'Info'.
  *
- * ⚠️⚠️ **LE STESSE DUE SCELTE DELLE IMPOSTAZIONI, e le stesse parole**: le stringhe sono
- * quelle di là (`settings_info_visible`, `settings_top`, `settings_bottom`), quindi le due
- * schermate non possono chiamare la stessa cosa in due modi. È il difetto che la 1.20 aveva
- * appena tolto, e riscriverlo qui a mano lo avrebbe rimesso in scena dalla porta di dietro.
+ * ⚠️⚠️ **INTERRUTTORE SULLA RIGA DEL TITOLO PIÙ DUE GETTONI, dalla 1.38** (riscontro
+ * `chip-colonna`, 2026-09-02: *stessa cosa anche nel pannellino a pressione lunga su 'Info',
+ * ma in quel caso l'interruttore va in linea con il titolo stesso, e sempre allineato a
+ * destra*). Fino alla 1.37 qui c'erano **tre** gettoni impilati, e non era una forma scelta
+ * per questo posto: era la richiesta delle impostazioni finita qui per uno scambio mio, che
+ * lui ha poi identificato (*quando l'ho chiesto per il pannello l'hai fatta nelle
+ * impostazioni, e viceversa*). Il perché per esteso, e la ragione per cui la riga dei gettoni
+ * adesso è una sola in tutta l'app, stanno in testa a `InfoBar.kt`.
+ * ⚠️⚠️ **QUINDI QUI IL TITOLO NON È PIÙ SOLO UN TITOLO: è la riga dell'interruttore.**
+ * 'Barra delle info' nomina la cosa che quell'interruttore accende, esattamente come nelle
+ * impostazioni, e non serve una seconda etichetta.
+ * ⚠️ **Le stesse stringhe delle impostazioni** (`settings_info_visible`,
+ * `settings_info_position`, `settings_top`, `settings_bottom`): due schermate che chiamano la
+ * stessa cosa in due modi erano il difetto che la 1.20 aveva tolto, e riscriverle qui a mano
+ * lo rimetterebbe in scena dalla porta di dietro.
  * ⚠️ **Si applica subito e si salva subito**, senza un tasto di conferma: era la richiesta
  * (*da qui si fa al volo, e si memorizza*), e un riquadro da due comandi con un 'Applica'
  * sarebbe un tocco in più per niente. 'Chiudi' chiude e basta.
- * ⚠️ **Le pastiglie restano toccabili con la barra spenta**, e non è una svista: chi la
- * riaccende trova la posizione che voleva invece di doverla ridire. Spegnerle vorrebbe dire
- * un comando che si accende e si spegne mentre lo si guarda.
+ *
+ * ⚠️⚠️ **`AlertDialog` E NON PIÙ UN GUSCIO NOSTRO, dalla 1.38**: la 1.37 aveva scritto
+ * `SubPanel` apposta per potersi disegnare la striscia d'accento in fondo alla propria
+ * superficie, e con la striscia uscita di scena quel guscio non aveva più niente da fare
+ * (riscontro `striscia-sotto`: *torna anche a disattivare i sistemi ad-hoc per il disegno di
+ * finestre e pannelli, salvo dove serve per altri motivi*). Meno codice nostro fra Material e
+ * quello che si vede.
  */
 @Composable
 private fun InfoBarPopup(
@@ -829,100 +842,39 @@ private fun InfoBarPopup(
     onChange: (Boolean, InfoPosition) -> Unit,
     onDismiss: () -> Unit
 ) {
-    /*
-     * ⚠️⚠️ **[SubPanel] E NON `AlertDialog`, dalla 1.37, e serve alla STRISCIA**: l'utente l'ha
-     * chiesta anche sui sotto-menu e ha nominato proprio questo (riscontro `striscia-sette`:
-     * *va aggiunta sui sotto-menu, es. pressione lunga su Info*). Un `AlertDialog` non lascia
-     * disegnare in fondo alla propria superficie, quindi la striscia si poteva mettere solo
-     * sopra i tasti, che è un altro posto. Il guscio riscrive i numeri di Material, e il perché
-     * sta su [SubPanel].
-     */
-    SubPanel(
-        title = stringResource(R.string.settings_info_visible),
-        onDismiss = onDismiss,
-        buttons = {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        modifier = Modifier.lowered(),
+        title = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.settings_info_visible),
+                    modifier = Modifier.weight(1f)
+                )
+                Switch(
+                    checked = settings.infoVisible,
+                    // ⚠️ Il lato NON si tocca spegnendo: si passa quello che c'è già, così
+                    // riaccendendo la barra si ritrova dov'era. È la stessa promessa che fa
+                    // la riga delle impostazioni.
+                    onCheckedChange = { onChange(it, settings.infoPosition) }
+                )
+            }
+        },
+        text = {
+            InfoSideRow(
+                selected = settings.infoPosition,
+                enabled = settings.infoVisible,
+                onSelect = { onChange(true, it) }
+            )
+        },
+        confirmButton = {
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.pick_close)) }
         }
-    ) {
-        /*
-         * ⚠️⚠️ **TRE GETTONI E NON UN INTERRUTTORE PIÙ DUE, dalla 1.29** (richiesta
-         * dell'utente, 2026-09-02: *per coerenza, applica lo stesso trattamento grafico a
-         * tre gettoni anche per l'azione a pressione lunga su Info*). Sono esattamente le
-         * tre scelte che la `1.27` ha messo nelle impostazioni: Disattivata, In alto, In
-         * basso.
-         * ⚠️ **La coerenza qui vale doppio**, perché questa scorciatoia e quella riga delle
-         * impostazioni comandano **la stessa cosa**: due vesti diverse per un comando solo
-         * fanno dubitare che siano due comandi.
-         * ⚠️ Sotto restano due valori (acceso e lato), come nelle impostazioni: spegnendo la
-         * barra e riaccendendola si ritrova il lato scelto. Vedi `InfoChoice` là.
-         *
-         * ⚠️⚠️ **IMPILATI, TUTTI DELLA STESSA LARGHEZZA E CENTRATI, dalla 1.37, ed è la
-         * TERZA disposizione di questi tre gettoni**: `Row` fino alla 1.33 (spezzava 'In
-         * basso' dentro il gettone, *In / bass / o*), `FlowRow` fino alla 1.36, e adesso
-         * la colonna. La ragione del cambio è un riscontro dell'utente con schermata
-         * (voce `chip-impilati`, 2026-09-02: *non va bene nemmeno in italiano*): `FlowRow`
-         * mandava a capo **dove capitava**, quindi in italiano si vedevano due gettoni
-         * sopra e uno sotto, di tre larghezze diverse, che si legge come un difetto e non
-         * come una scelta.
-         * ⚠️⚠️ **E LA RIGA OMOLOGA DELLE IMPOSTAZIONI ERA GIÀ COSÌ dalla 1.36**: là il
-         * lavoro è stato fatto (`Choices`, parametro `stacked`) e qui no, quindi lo stesso
-         * comando aveva due disposizioni. È il difetto che questo pannellino si porta
-         * dietro da tre versioni, sempre nella stessa forma: **si copia la disposizione
-         * dell'altro posto**, non se ne inventa una terza.
-         * ⚠️ **Due colonne annidate**, come là: quella di fuori occupa la larghezza del
-         * dialogo e centra, quella di dentro prende la larghezza intrinseca massima, cioè
-         * quella del gettone più largo nella lingua in vigore, e la impone a tutti.
-         */
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Column(
-                modifier = Modifier.width(IntrinsicSize.Max),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                val acceso = settings.infoVisible
-                BarPick.entries.forEach { scelta ->
-                    FilterChip(
-                        selected = scelta.matches(acceso, settings.infoPosition),
-                        onClick = { scelta.apply(settings, onChange) },
-                        label = { Text(stringResource(scelta.label)) },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            }
-        }
-    }
-}
-
-/**
- * Le tre scelte della barra delle info nel pannellino del tocco lungo su 'Info'.
- *
- * ⚠️ **Non è `InfoChoice` di `SettingsScreen.kt`, e non si fondono**: quella lavora su un
- * `Settings` intero e ne restituisce uno nuovo, perché là si scrive tutto insieme; questa
- * chiama `onChange(acceso, lato)`, che è la firma di questo pannellino. Fondendole servirebbe
- * una firma comune a due schermate che non hanno lo stesso modo di salvare, e la parte
- * condivisa sarebbero tre righe.
- */
-private enum class BarPick(val label: Int) {
-    // ⚠️ **L'ordine è quello che si vede, e dalla 1.37 è quello di `InfoChoice`**: 'In alto',
-    // 'In basso', 'Disattivata'. Là era già cambiato nella 1.36 su richiesta dell'utente e qui
-    // no, quindi lo stesso comando elencava le sue tre scelte in due ordini diversi.
-    TOP(R.string.settings_top),
-    BOTTOM(R.string.settings_bottom),
-    OFF(R.string.settings_off);
-
-    fun matches(on: Boolean, where: InfoPosition): Boolean = when (this) {
-        OFF -> !on
-        TOP -> on && where == InfoPosition.TOP
-        BOTTOM -> on && where == InfoPosition.BOTTOM
-    }
-
-    fun apply(settings: Settings, onChange: (Boolean, InfoPosition) -> Unit) = when (this) {
-        OFF -> onChange(false, settings.infoPosition)
-        TOP -> onChange(true, InfoPosition.TOP)
-        BOTTOM -> onChange(true, InfoPosition.BOTTOM)
-    }
+    )
 }
 
 /**
@@ -3182,12 +3134,11 @@ private fun DetailsPanel(
 @Composable
 private fun NameLine(name: String) {
     val style = MaterialTheme.typography.labelMedium
-    val grassetto = SpanStyle(fontWeight = FontWeight.Bold)
     BoxWithConstraints(modifier = Modifier.fillMaxWidth().padding(bottom = NAME_GAP)) {
         val measurer = rememberTextMeasurer()
         val room = with(LocalDensity.current) { maxWidth.roundToPx() }
-        val shown = remember(name, room, style, grassetto, measurer) {
-            fitName(name, room, 1, style, grassetto, measurer)
+        val shown = remember(name, room, style, measurer) {
+            fitName(name, room, 1, style, measurer)
         }
         Text(
             text = shown,

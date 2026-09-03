@@ -455,49 +455,57 @@ private fun ColumnScope.RootPage(
     )
 
     /*
-     * ⚠️⚠️ **UNA RIGA SOLA CON TRE GETTONI, e nella 1.26 questa è la TERZA forma in tre
-     * versioni**: vale la pena saperlo per non riproporre le prime due. La `1.20` aveva un
-     * interruttore più una riga 'Posizione' sotto; la `1.25` ha reso quella riga subordinata
-     * (titolo leggero, rientrata, gettoni a destra); la `1.26` le fonde, ed è ancora una
-     * richiesta dell'utente (2026-09-02: *'Posizione' adesso è l'unica riga che parte con un
-     * rientro. Semplifichiamo: tutto in un unico posto. Tre chip: Disattivata, In alto, In
-     * basso*).
-     * ⚠️ **Il difetto che toglie non era la subordinazione ma la SOLITUDINE del rientro**:
-     * una riga rientrata in una pagina dove nessun'altra lo è si legge come un errore di
-     * impaginazione prima che come una gerarchia. Un rientro dice qualcosa solo dove ce ne
-     * sono altri.
-     * ⚠️⚠️ **'Disattivata' NON è un terzo valore nei dati, ed è voluto**: sotto restano
-     * `infoVisible` e `infoPosition`, così spegnendo la barra e riaccendendola si ritrova il
-     * lato che si era scelto. Un enum a tre valori l'avrebbe dimenticato, e questa riga è
-     * proprio quella che si tocca per provare l'una e l'altra posizione.
+     * ⚠️⚠️ **INTERRUTTORE PIÙ RIGA SUBORDINATA, dalla 1.38, ED È UN RITORNO ALLA FORMA DELLA
+     * 1.25** (riscontro `chip-colonna`, 2026-09-02: *torna indietro nelle impostazioni -> due
+     * righe: 'Barra delle info' in linea con l'interruttore off/on; 'Posizione'
+     * gerarchicamente subordinata alla riga precedente, in linea e allineati a destra, i chip
+     * 'In alto' 'In basso' in questo ordine*).
+     * ⚠️⚠️ **LA 1.26 AVEVA FUSO LE DUE RIGHE IN TRE GETTONI, E LA RICHIESTA ERA DELL'ALTRO
+     * POSTO: È UN MIO SCAMBIO, e lui lo ha detto per esteso** (*quando l'ho chiesto per il
+     * pannello l'hai fatta nelle impostazioni, e viceversa; di conseguenza ti ho sempre dato il
+     * feedback sbagliato*). I tre gettoni impilati che questa riga si porta dietro da tre
+     * versioni sono nati da quello scambio, e ogni riscontro che li ha limati stava limando la
+     * cosa sbagliata. Non è quindi la 'quinta forma in cinque versioni': è la 1.25 rimessa dove
+     * era, con l'aggiunta che segue.
+     * ⚠️ **La forma corretta di 'gerarchicamente subordinata' è quella già scritta**: si veda
+     * [InfoSideRow], che è la riga della 1.25 tornata in scena, e che adesso vive in un file
+     * suo perché la vogliono **identica** in due posti.
      */
-    Choices(
+    SwitchRow(
         label = stringResource(R.string.settings_info_visible),
         detail = null,
-        options = InfoChoice.entries,
-        selected = InfoChoice.of(settings),
-        nameOf = {
-            stringResource(
-                when (it) {
-                    InfoChoice.OFF -> R.string.settings_off
-                    InfoChoice.TOP -> R.string.settings_top
-                    InfoChoice.BOTTOM -> R.string.settings_bottom
-                }
-            )
-        },
-        /*
-         * ⚠️⚠️ **IMPILATE DALLA 1.36, ed è la QUARTA forma di questa riga in quattro
-         * versioni** (riscontro dell'utente, 2026-09-02: *voglio che vada bene in tutte le
-         * lingue. Facciamo tre gettoni impilati e centrati, tutti della stessa larghezza*).
-         * In riga stavano bene in italiano e andavano a capo altrove: il perché per esteso
-         * sta sul parametro di [Choices].
-         * ⚠️ **L'ordine è il suo**: 'In alto', 'In basso', 'Disattivata', cioè le due
-         * posizioni prima e lo spegnimento in fondo. È anche l'ordine dell'enum, perché una
-         * lista e la sua vista che divergono sono un difetto in attesa.
-         */
-        stacked = true,
-        onSelect = { onChange(it.applyTo(settings)) }
+        checked = settings.infoVisible,
+        onChange = { onChange(settings.copy(infoVisible = it)) }
     )
+
+    /*
+     * ⚠️⚠️ **I DUE GETTONI SI TOCCANO SOLO A BARRA ACCESA, dalla 1.38** (stessa richiesta: *in
+     * entrambi i casi, i due chip della posizione sono selezionabili solo quando l'interruttore
+     * principale è ON*), e questa è la parte NUOVA rispetto alla 1.25, dove restavano sempre
+     * attivi.
+     * ⚠️⚠️ **MA IL VALORE SOTTO NON SI PERDE, ed è la ragione per cui `infoPosition` resta un
+     * campo suo**: spenta la barra, il lato scelto rimane scritto e si ritrova riaccendendola.
+     * Spegnere i gettoni è una cosa che riguarda quello che si può toccare, non quello che si
+     * ricorda.
+     * ⚠️ **Chi cerca 'In alto' con la ricerca li trova comunque**, spenti: nasconderli
+     * direbbe che quell'impostazione non esiste, mentre esiste e ha un interruttore sopra.
+     */
+    if (shown(
+            stringResource(R.string.settings_info_position),
+            null,
+            infoSideName(InfoPosition.TOP),
+            infoSideName(InfoPosition.BOTTOM)
+        )
+    ) {
+        InfoSideRow(
+            selected = settings.infoPosition,
+            enabled = settings.infoVisible,
+            onSelect = { onChange(settings.copy(infoPosition = it)) },
+            // ⚠️ Il rientro è di QUESTA pagina e non della riga: nel pannellino del tocco
+            // lungo non c'è nessuna colonna di impostazioni rispetto a cui rientrare.
+            modifier = Modifier.padding(start = SUB_INDENT, top = 4.dp)
+        )
+    }
 
     /*
      * ⚠️ **Accanto alla barra delle info e non fra le voci dell'editor**: sono le due sole
@@ -987,34 +995,6 @@ private fun ZoomAndFit(settings: Settings, onChange: (Settings) -> Unit) {
     )
 }
 
-/**
- * Le tre scelte della barra delle info come le vede chi guarda le impostazioni.
- *
- * ⚠️⚠️ **È una vista e non un dato**: sotto restano `infoVisible` e `infoPosition`, e la
- * ragione sta nella riga che la usa. Vive qui e non in `Settings.kt` perché non è un valore
- * salvato: è il modo in cui questa pagina presenta due valori che restano due.
- */
-private enum class InfoChoice(override val token: String) : Choice {
-    // ⚠️ **L'ordine è quello che si vede**, dalla `1.36`: le pastiglie seguono `entries`, e
-    // l'utente le ha chieste 'In alto', 'In basso', 'Disattivata'. Fino alla `1.35`
-    // 'Disattivata' era la prima, com'era stata chiesta allora.
-    TOP("top"), BOTTOM("bottom"), OFF("off");
-
-    fun applyTo(settings: Settings): Settings = when (this) {
-        OFF -> settings.copy(infoVisible = false)
-        TOP -> settings.copy(infoVisible = true, infoPosition = InfoPosition.TOP)
-        BOTTOM -> settings.copy(infoVisible = true, infoPosition = InfoPosition.BOTTOM)
-    }
-
-    companion object {
-        fun of(settings: Settings): InfoChoice = when {
-            !settings.infoVisible -> OFF
-            settings.infoPosition == InfoPosition.TOP -> TOP
-            else -> BOTTOM
-        }
-    }
-}
-
 @Composable
 private fun HiddenFolders(settings: Settings, onChange: (Settings) -> Unit) {
     Detail(stringResource(R.string.settings_hidden_desc))
@@ -1267,3 +1247,14 @@ private fun SwitchRow(
         Switch(checked = checked, onCheckedChange = onChange)
     }
 }
+
+/**
+ * Di quanto rientra la riga subordinata della posizione della barra.
+ *
+ * ⚠️ **Un rientro e non un filetto o un riquadro**: sono tre modi di dire 'questa dipende da
+ * quella', e il rientro è il solo che non aggiunge un segno grafico a una pagina che l'utente
+ * ha già chiesto di alleggerire.
+ * ⚠️ **Sta qui e non accanto a [InfoSideRow]**: è un numero di impaginazione di questa pagina,
+ * e la riga vive anche in un pannellino dove non c'è niente rispetto a cui rientrare.
+ */
+private val SUB_INDENT = 16.dp

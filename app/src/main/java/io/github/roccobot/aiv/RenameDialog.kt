@@ -1,6 +1,7 @@
 package io.github.roccobot.aiv
 
 import android.net.Uri
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -37,7 +38,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -413,11 +413,30 @@ private fun PreviewRow(row: Pairing) {
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
+        /*
+         * ⚠️⚠️ **LA PASTIGLIA DI ADESSO ERA INVISIBILE SUL TEMA SCURO, E IL CONTRASTO ERA
+         * 1,00, cioè lo STESSO COLORE** (riscontro `ext-grassetto`, 2026-09-02: *nel tema scuro
+         * manca la pillola intorno al nome corrente*). Non era un'impressione: `surfaceVariant`
+         * vale `#2A312F` e la superficie del dialogo (`surfaceContainerHigh`) vale `#283130`,
+         * cioè due punti di rosso di differenza. Sul tema chiaro il rapporto era 1,03, il
+         * minimo che si intravede, ed è la ragione per cui il difetto si vedeva da una parte
+         * sola.
+         * ⚠️ **Adesso è INCAVATA e non rilevata**: `surfaceContainerLowest` è il gradino più
+         * lontano dalla superficie del dialogo in tutti e due i temi (1,39 sullo scuro, 1,13
+         * sul chiaro, misurati), ed è anche il ruolo giusto: questa è la casella di partenza,
+         * l'altra è il risultato.
+         * ⚠️⚠️ **E IL BORDO NON È DECORAZIONE: è la 'pillola INTORNO al nome' che lui ha
+         * nominato**, e l'unica cosa che la fa esistere quando due superfici vicine si
+         * somigliano comunque. Il filo di `outlineVariant` stacca di 1,65 sullo scuro e 1,38
+         * sul chiaro. Le due pastiglie diventano così una **contornata** e una **piena**, che
+         * è l'abbinamento normale fra un punto di partenza e un risultato.
+         */
         NamePill(
-            text = nameWithExt(row.before, GRASSETTO),
-            back = MaterialTheme.colorScheme.surfaceVariant,
+            text = nameWithExt(row.before),
+            back = MaterialTheme.colorScheme.surfaceContainerLowest,
             front = MaterialTheme.colorScheme.onSurfaceVariant,
             weight = FontWeight.Normal,
+            border = BorderStroke(PILL_EDGE, MaterialTheme.colorScheme.outlineVariant),
             modifier = Modifier.fillMaxWidth()
         )
         /*
@@ -438,7 +457,7 @@ private fun PreviewRow(row: Pairing) {
             modifier = Modifier.align(Alignment.CenterHorizontally).size(ARROW_SIZE)
         )
         NamePill(
-            text = nameWithExt(row.after, GRASSETTO),
+            text = nameWithExt(row.after),
             back = MaterialTheme.colorScheme.secondaryContainer,
             front = MaterialTheme.colorScheme.onSecondaryContainer,
             weight = FontWeight.Medium,
@@ -458,14 +477,12 @@ private fun PreviewRow(row: Pairing) {
 private val ARROW_SIZE = 20.dp
 
 /**
- * Il peso dell'estensione nelle due pastiglie dell'anteprima.
+ * Il filo intorno alla pastiglia di partenza.
  *
- * ⚠️ **`Bold` e non `SemiBold`**: le due pastiglie hanno già pesi diversi fra loro (`Normal`
- * quella di adesso, `Medium` quella di dopo), quindi un grassetto intermedio si distinguerebbe
- * in una e non nell'altra. È lo stesso peso che [fitName] dà all'estensione dovunque un nome
- * si accorci, e la coerenza fra i due posti è il punto della richiesta.
+ * ⚠️ **1dp, cioè il minimo che si vede**: qui il bordo non deve pesare come una cornice, deve
+ * solo dire dove finisce la pastiglia. Il perché del bordo sta in [PreviewRow].
  */
-private val GRASSETTO = SpanStyle(fontWeight = FontWeight.Bold)
+private val PILL_EDGE = 1.dp
 
 @Composable
 private fun NamePill(
@@ -473,9 +490,16 @@ private fun NamePill(
     back: Color,
     front: Color,
     weight: FontWeight,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** Il filo intorno, che ha la sola pastiglia di partenza. Vedi la nota in [PreviewRow]. */
+    border: BorderStroke? = null
 ) {
-    Surface(color = back, shape = MaterialTheme.shapes.small, modifier = modifier) {
+    Surface(
+        color = back,
+        shape = MaterialTheme.shapes.small,
+        border = border,
+        modifier = modifier
+    ) {
         Text(
             text = text,
             style = MaterialTheme.typography.bodySmall,

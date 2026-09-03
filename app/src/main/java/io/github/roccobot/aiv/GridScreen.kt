@@ -105,8 +105,6 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -1777,7 +1775,6 @@ private fun GridName(uri: Uri, room: Int) {
         if (value == null) value = Names.of(context, uri)
     }
     val style = MaterialTheme.typography.labelSmall
-    val grassetto = remember { SpanStyle(fontWeight = FontWeight.Bold) }
     val measurer = rememberTextMeasurer()
     // ⚠️⚠️ **IL MARGINE SI TOGLIE DALLA MISURA, e senza questo il nome sforerebbe**: il
     // numero che arriva è la larghezza della **cella**, e il testo ne ha due dp in meno per
@@ -1787,8 +1784,8 @@ private fun GridName(uri: Uri, room: Int) {
     // vicine si toccherebbero quasi.
     val bordo = with(LocalDensity.current) { NAME_PAD.roundToPx() }
     val utile = room - bordo * 2
-    val shown = remember(name, utile, style, grassetto, measurer) {
-        name?.let { fitName(it, utile, NAME_LINES, style, grassetto, measurer) }
+    val shown = remember(name, utile, style, measurer) {
+        name?.let { fitName(it, utile, NAME_LINES, style, measurer) }
     } ?: return
     Text(
         text = shown,

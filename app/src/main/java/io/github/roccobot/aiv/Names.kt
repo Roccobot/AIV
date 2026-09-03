@@ -7,6 +7,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Constraints
 import kotlinx.coroutines.Dispatchers
@@ -46,12 +47,11 @@ fun fitName(
     room: Int,
     lines: Int,
     style: TextStyle,
-    grassetto: SpanStyle,
     measurer: TextMeasurer
 ): AnnotatedString {
     fun comporre(testa: String, coda: String) = buildAnnotatedString {
         append(testa)
-        if (coda.isNotEmpty()) withStyle(grassetto) { append(coda) }
+        if (coda.isNotEmpty()) withStyle(EXT_BOLD) { append(coda) }
     }
 
     fun sta(testo: AnnotatedString) = room <= 0 || !measurer.measure(
@@ -102,14 +102,35 @@ fun fitName(
  * ⚠️ **Grassetto e giuntore sono due cose indipendenti**: il peso non impedisce al layout di
  * andare a capo, e il giuntore non si vede. Servono insieme e per due ragioni diverse.
  */
-fun nameWithExt(name: String, grassetto: SpanStyle): AnnotatedString {
+fun nameWithExt(name: String): AnnotatedString {
     val punto = name.lastIndexOf('.')
     if (punto <= 0) return AnnotatedString(name)
     return buildAnnotatedString {
         append(name.substring(0, punto))
-        withStyle(grassetto) { append(glue(name.substring(punto))) }
+        withStyle(EXT_BOLD) { append(glue(name.substring(punto))) }
     }
 }
+
+/**
+ * Il peso dell'estensione, **uno per tutta l'app**.
+ *
+ * ⚠️⚠️ **ERA SCRITTO IN QUATTRO POSTI E ADESSO IN UNO, e la ragione non è l'eleganza**: le due
+ * funzioni qui sopra ricevevano il peso come parametro, e i quattro che chiamavano passavano
+ * quattro `SpanStyle(FontWeight.Bold)` identici (griglia, barra del visualizzatore, pastiglia
+ * di 'Info', anteprima della rinomina). Quattro copie della stessa scelta divergono al primo
+ * ritocco, ed è successo alla **prima** occasione utile: alzarne una sola avrebbe fatto due
+ * estensioni di peso diverso nella stessa app.
+ *
+ * ⚠️⚠️ **`Black` E NON `Bold`, DALLA 1.38** (riscontro `ext-grassetto`, 2026-09-02: *si può
+ * aumentare ulteriormente il peso del grassetto sia nel nome corrente che nell'anteprima?*).
+ * ⚠️ **E NON `ExtraBold`, che è il gradino intermedio, per una ragione di FONT e non di
+ * gusto**: prima di Android 12 il Roboto di sistema sono file separati (Thin 100, Light 300,
+ * Regular 400, Medium 500, Bold 700, Black 900) e **l'800 non ha una faccia sua**. La regola di
+ * abbinamento, per un peso sopra il 500, cerca prima verso l'alto: quindi l'800 diventerebbe
+ * comunque 900 su quei telefoni e 800 vero su quelli nuovi, cioè un aumento che dipende dalla
+ * versione di Android. Il 900 è lo stesso dappertutto.
+ */
+val EXT_BOLD = SpanStyle(fontWeight = FontWeight.Black)
 
 /** L'estensione con un giuntore fra ogni carattere, così il layout non la spezza. */
 private fun glue(ext: String): String = ext.toCharArray().joinToString(WORD_JOINER)

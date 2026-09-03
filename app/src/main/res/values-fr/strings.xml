@@ -95,8 +95,8 @@
     <string name="settings_scale_desc">Définit ce que signifie le zoom en pixels réels. L\'écran de tout appareil moderne dessine chaque pixel logique par un carré de deux ou trois pixels réels. Le premier choix ignore les pixels logiques et fait correspondre chaque point à un pixel réel ; le second montre chaque objet à la taille qu\'il aurait sur une page Web.</string>
     <string name="settings_top">En haut</string>
     <string name="settings_bottom">En bas</string>
-    <string name="settings_off">Désactivée</string>
     <string name="settings_info_visible">Barre d\'informations</string>
+    <string name="settings_info_position">Position</string>
     <string name="settings_zoom_menu">Zoom dans le menu de la visionneuse</string>
     <string name="settings_zoom_menu_desc">Remet \'Ajuster à la vue\' et \'100%\' dans le menu de l\'appui long. Désactivé parce qu\'un double appui sur l\'image le fait déjà.</string>
     <string name="hint_zoom_tap">Zoom rapide: double tapez sur l\'image pour l\'ajuster à la vue, double tapez encore pour les pixels réels. Continuez pour alterner entre ajusté et 100%.</string>

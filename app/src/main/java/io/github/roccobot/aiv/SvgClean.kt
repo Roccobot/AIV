@@ -9,8 +9,10 @@ import kotlinx.coroutines.withContext
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
+import org.xml.sax.InputSource
 import java.io.ByteArrayInputStream
 import java.io.File
+import java.io.StringReader
 import java.io.StringWriter
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
@@ -238,14 +240,56 @@ object SvgClean {
     private fun parse(testo: String): Document {
         val factory = DocumentBuilderFactory.newInstance().apply {
             isNamespaceAware = true
-            setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
-            setFeature("http://xml.org/sax/features/external-general-entities", false)
-            setFeature("http://xml.org/sax/features/external-parameter-entities", false)
-            setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
             isExpandEntityReferences = false
+            for (nome in DISARMO) optional { setFeature(nome, false) }
+            optional { setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true) }
         }
-        return factory.newDocumentBuilder()
-            .parse(ByteArrayInputStream(testo.toByteArray()))
+        return factory.newDocumentBuilder().apply {
+            /*
+             * ⚠️⚠️ **QUESTA È LA GARANZIA VERA, e le opzioni qui sopra sono un di più**: chi
+             * risolve un'entità esterna è il risolutore, e un risolutore che risponde 'vuoto'
+             * a tutti non può aprire né un file del telefono né una connessione. Non dipende
+             * da nessuna opzione, quindi vale su qualunque parser, anche su uno che le rifiuta
+             * tutte come quello di Android.
+             */
+            setEntityResolver { _, _ -> InputSource(StringReader("")) }
+        }.parse(ByteArrayInputStream(testo.toByteArray()))
+    }
+
+    /**
+     * Le tre opzioni di irrobustimento che si **provano**, perché non tutti i parser le hanno.
+     *
+     * ⚠️⚠️ **SU ANDROID NESSUNA DI LORO ESISTE, E PRIMA ERANO OBBLIGATORIE: È IL DIFETTO CHE
+     * FACEVA RISPONDERE 'QUESTO FILE NON È UN SVG LEGGIBILE' A OGNI FILE** (riscontro
+     * `pulitore`, 2026-09-02: *risponde sempre 'Questo file non è un SVG leggibile'*).
+     * `DocumentBuilderFactoryImpl` di Android accetta **due soli** nomi di opzione,
+     * `http://xml.org/sax/features/namespaces` e `.../validation`, e su qualunque altro
+     * **solleva** `ParserConfigurationException`: letto nel sorgente AOSP di `libcore`
+     * (`luni/src/main/java/org/apache/harmony/xml/parsers/DocumentBuilderFactoryImpl.java`,
+     * il `throw` nel ramo `else` di `setFeature`), non ricordato. Quindi la prima riga del
+     * vecchio blocco sollevava, `parse` non tornava mai, e il `runCatching` di [clean]
+     * traduceva tutto in 'non è un SVG'.
+     * ⚠️⚠️ **E NESSUNA PROVA SU MACCHINA LO AVREBBE PRESO**: sul JVM il parser è Xerces, che
+     * quelle opzioni le ha tutte, quindi lo stesso codice passa. Il difetto vive **solo** dove
+     * gira l'app, ed è la ragione per cui adesso la sicurezza non poggia più su di loro ma sul
+     * risolutore di entità, che è portabile.
+     * ⚠️ **Si provano lo stesso e non si cancellano**: dove esistono (un domani, o in una prova
+     * sul JVM) chiudono la porta un passo prima del risolutore, e non costano niente.
+     */
+    private val DISARMO = listOf(
+        "http://xml.org/sax/features/external-general-entities",
+        "http://xml.org/sax/features/external-parameter-entities",
+        "http://apache.org/xml/features/nonvalidating/load-external-dtd"
+    )
+
+    /**
+     * Esegue [blocco] e **ingoia** il rifiuto di un parser che non conosce quell'opzione.
+     *
+     * ⚠️ **Ingoia solo questo**, e non un errore qualsiasi: un'opzione che manca è una
+     * differenza fra parser, non un guasto, e la sicurezza non dipende da lei (vedi [DISARMO]).
+     */
+    private inline fun optional(blocco: () -> Unit) {
+        runCatching(blocco)
     }
 
     /**
@@ -260,7 +304,9 @@ object SvgClean {
     private fun serialize(doc: Document): String {
         val writer = StringWriter()
         TransformerFactory.newInstance().apply {
-            setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
+            // ⚠️ `optional` per la stessa ragione del parser: un'opzione che una piattaforma
+            // non conosce non deve far fallire la scrittura. Vedi [DISARMO].
+            optional { setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true) }
         }.newTransformer().apply {
             setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes")
             setOutputProperty(OutputKeys.INDENT, "no")

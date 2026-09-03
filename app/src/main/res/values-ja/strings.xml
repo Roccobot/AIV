@@ -95,8 +95,8 @@
     <string name="settings_scale_desc">実ピクセル等倍の拡大が何を意味するかを決めます。現代の端末の画面は、論理ピクセル1個を実ピクセル2〜3個の正方形で描きます。最初の選択は論理ピクセルを無視し、画像の1点を実ピクセル1個に対応させます。2番目は、ウェブページで表示されるのと同じ大きさで表示します。</string>
     <string name="settings_top">上</string>
     <string name="settings_bottom">下</string>
-    <string name="settings_off">オフ</string>
     <string name="settings_info_visible">情報バー</string>
+    <string name="settings_info_position">位置</string>
     <string name="settings_zoom_menu">ビューアーのメニューに拡大表示</string>
     <string name="settings_zoom_menu_desc">\'画面に合わせる\' と \'100%\' を長押しメニューに戻します。画像をダブルタップすれば同じことができるので、既定ではオフです。</string>
     <string name="hint_zoom_tap">クイックズーム: 画像をダブルタップすると画面に合わせ、もう一度ダブルタップすると実寸のピクセルになります。続けてタップすると、合わせた表示と100%を交互に切り替えます。</string>

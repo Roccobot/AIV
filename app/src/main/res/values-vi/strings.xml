@@ -95,8 +95,8 @@
     <string name="settings_scale_desc">Xác định việc thu phóng theo điểm ảnh thật có nghĩa là gì. Màn hình của mọi thiết bị hiện đại vẽ mỗi điểm ảnh lô-gic bằng một ô vuông gồm hai hoặc ba điểm ảnh thật. Lựa chọn thứ nhất bỏ qua điểm ảnh lô-gic và đặt mỗi điểm vào đúng một điểm ảnh thật; lựa chọn thứ hai hiển thị mọi đối tượng với kích thước nó sẽ có trên một trang web.</string>
     <string name="settings_top">Ở trên</string>
     <string name="settings_bottom">Ở dưới</string>
-    <string name="settings_off">Tắt</string>
     <string name="settings_info_visible">Thanh thông tin</string>
+    <string name="settings_info_position">Vị trí</string>
     <string name="settings_zoom_menu">Thu phóng trong menu của trình xem</string>
     <string name="settings_zoom_menu_desc">Đưa \'Vừa khung hình\' và \'100%\' trở lại menu nhấn giữ. Đang tắt vì chạm hai lần vào ảnh cũng làm điều đó.</string>
     <string name="hint_zoom_tap">Thu phóng nhanh: chạm hai lần vào ảnh để vừa khung nhìn, chạm hai lần nữa để xem điểm ảnh thật. Chạm tiếp để chuyển qua lại giữa vừa khung và 100%.</string>

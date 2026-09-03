@@ -95,8 +95,8 @@
     <string name="settings_scale_desc">決定依實際像素縮放代表什麼。任何現代裝置的螢幕都會把一個邏輯像素畫成兩三個實際像素組成的方塊。第一項忽略邏輯像素，把每一點對應到一個實際像素；第二項則以物件在網頁上應有的大小顯示。</string>
     <string name="settings_top">在上方</string>
     <string name="settings_bottom">在下方</string>
-    <string name="settings_off">關閉</string>
     <string name="settings_info_visible">資訊列</string>
+    <string name="settings_info_position">位置</string>
     <string name="settings_zoom_menu">檢視器選單中的縮放</string>
     <string name="settings_zoom_menu_desc">把 \'符合檢視\' 和 \'100%\' 放回長按選單。預設關閉，因為在圖片上點兩下就能做到。</string>
     <string name="hint_zoom_tap">快速縮放: 雙擊圖片可符合視窗, 再雙擊一次顯示實際像素. 繼續雙擊可在符合與 100% 之間循環.</string>

@@ -95,8 +95,8 @@
     <string name="settings_scale_desc">Bepaalt wat zoomen op echte pixels betekent. Het scherm van elk modern apparaat tekent elke logische pixel als een vierkant van twee of drie echte pixels. De eerste keuze negeert de logische pixels en zet elk punt op één echte pixel; de tweede toont elk object op de grootte die het op een webpagina zou hebben.</string>
     <string name="settings_top">Bovenaan</string>
     <string name="settings_bottom">Onderaan</string>
-    <string name="settings_off">Uit</string>
     <string name="settings_info_visible">Infobalk</string>
+    <string name="settings_info_position">Positie</string>
     <string name="settings_zoom_menu">Zoom in het menu van de viewer</string>
     <string name="settings_zoom_menu_desc">Zet \'Passend maken\' en \'100%\' terug in het menu van de lange druk. Uit, omdat dubbeltikken op de foto dit al doet.</string>
     <string name="hint_zoom_tap">Snel zoomen: dubbeltik op de afbeelding om hem passend te maken, nog een keer voor echte pixels. Blijf tikken om te wisselen tussen passend en 100%.</string>
