@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Annulla selezione': un foglio dietro a un riquadro con una croce.
+
+     DISEGNATO DALL'UTENTE, dalla 1.01. I primi due sottotracciati sono il segno di famiglia,
+     identici a quelli di `ic_pick_all` e `ic_pick_invert`, e il perché di quella ripetizione
+     sta là. Le regole di trasporto stanno in `CLAUDE.md`, § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M17.6,20H5.41c-.78,0,-1.41,-.63,-1.41,-1.41V6.4c0,-.22,-.18,-.4,-.4,-.4c-.88,0,-1.6,.72,-1.6,1.6v12.4c0,1.1,.9,2,2,2h12.4c.88,0,1.6,-.72,1.6,-1.6h0c0,-.22,-.18,-.4,-.4,-.4ZM20,2h-12c-1.1,0,-2,.9,-2,2v12c0,1.1,.9,2,2,2h12c1.1,0,2,-.9,2,-2V4c0,-1.1,-.9,-2,-2,-2ZM18.2,13.38c.16,.16,.16,.41,0,.57l-.25,.25c-.16,.16,-.41,.16,-.57,0l-3.38,-3.38l-3.38,3.38c-.16,.16,-.41,.16,-.57,0l-.25,-.25c-.16,-.16,-.16,-.41,0,-.57l3.38,-3.38l-3.38,-3.38c-.16,-.16,-.16,-.41,0,-.57l.25,-.25c.16,-.16,.41,-.16,.57,0l3.38,3.38l3.38,-3.38c.16,-.16,.41,-.16,.57,0l.25,.25c.16,.16,.16,.41,0,.57l-3.38,3.38l3.38,3.38Z" />
+</vector>

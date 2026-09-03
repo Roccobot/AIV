@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Modifica': una matita dentro un riquadro.
+
+     DISEGNATO DALL'UTENTE, dalla 1.29, e sostituisce `Icons.Outlined.Edit`: la matita nuda
+     di Material diceva 'modifica' e non 'modifica un'immagine', e nel menu stava accanto a
+     due voci che il riquadro ce l'hanno. Il riquadro è il segno di famiglia, come le due
+     cartelle sovrapposte lo sono di 'Copia' e 'Sposta'.
+
+     IL FILE DI PARTENZA HA TRE `<path>` E QUI CE N'È UNO, e le due differenze sono di specie
+     diversa. Il terzo è il rettangolo trasparente con cui Illustrator dichiara la tela
+     (`fill="none"`): qui la tela la dichiarano `viewportWidth` e `viewportHeight`, e
+     portarlo dentro aggiungerebbe un tracciato nero a tutta l'icona, perché il riempimento
+     lo dichiara questo file e non quello. Gli altri due, il riquadro e la matita, sono
+     CONCATENATI in un tracciato solo: la matita sta nel foro del riquadro e le due forme non
+     si toccano, quindi la cucitura non esiste e unirle costa zero pixel su 57.600 (misurato
+     in Chromium, due tracciati contro uno, scarto massimo 0).
+
+     PERCHÉ L'UNIONE NON SI FA SEMPRE, e va saputo prima di ripeterla su un'altra icona: dove
+     due forme si toccano, il bordo condiviso passa da essere coperto due volte a essere un
+     bordo interno solo, e si sfrangia. Su `ic_aiv_mark` costa 86 pixel e su
+     `ic_launcher_foreground` 52, ed è la ragione per cui quei due restano a due tracciati.
+     Il criterio, con la misura da rifare a ogni icona nuova, sta in `CLAUDE.md`,
+     § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M19,5v14H5V5h14M19,3H5c-1.1,0,-2,.9,-2,2v14c0,1.1,.9,2,2,2h14c1.1,0,2,-.9,2,-2V5c0,-1.1,-.9,-2,-2,-2ZM15.08,6.99c-.14,0,-.28,.06,-.39,.16l-1.02,1.02l2.09,2.09l1.26,-1.26c.08,-.08,.08,-.22,0,-.3l-1.54,-1.54c-.11,-.11,-.25,-.16,-.4,-.16ZM13.08,8.76l-6.16,6.16v2.09h2.09l6.16,-6.16l-2.09,-2.09Z" />
+</vector>

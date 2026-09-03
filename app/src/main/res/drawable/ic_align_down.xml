@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Centra in verticale', nell'editor: è `ic_align_across` girato di un quarto.
+
+     DISEGNATO DALL'UTENTE il 2026-09-01. Tutto quello che vale per la gemella vale per
+     questo, e sta scritto una volta sola su `ic_align_across`: la tela da 800, la misura da
+     24dp, l'inchiostro centrato, e la sua dimensione più piccola della famiglia, che lui ha
+     confermato e che non si corregge.
+
+     Le regole di trasporto stanno in `CLAUDE.md`, § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="800"
+    android:viewportHeight="800">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M221.67,173.37c-7.6,4.39,-13.91,10.7,-18.3,18.3c-6.7,11.6,-6.7,27.18,-6.7,58.33v124.9c0,.06,-.05,.1,-.1,.1h-76.56c-2.21,0,-4,1.79,-4,4v41.99c0,2.21,1.79,4,4,4h76.56c.06,0,.1,.05,.1,.1v124.9c0,31.15,0,46.73,6.7,58.33c4.39,7.6,10.7,13.91,18.3,18.3c11.6,6.7,27.18,6.7,58.33,6.7s46.73,0,58.33,-6.7c7.6,-4.39,13.91,-10.7,18.3,-18.3c6.7,-11.6,6.7,-27.18,6.7,-58.33v-124.9c0,-.06,.05,-.1,.1,-.1h73.13c.06,0,.1,.05,.1,.1v58.23c0,31.15,0,46.73,6.7,58.33c4.39,7.6,10.7,13.91,18.3,18.3c11.6,6.7,27.18,6.7,58.33,6.7s46.73,0,58.33,-6.7c7.6,-4.39,13.91,-10.7,18.3,-18.3c6.7,-11.6,6.7,-27.18,6.7,-58.33v-58.23c0,-.06,.05,-.1,.1,-.1h76.56c2.21,0,4,-1.79,4,-4v-42c0,-2.21,-1.79,-4,-4,-4h-76.56c-.06,0,-.1,-.05,-.1,-.1v-58.23c0,-31.15,0,-46.73,-6.7,-58.33c-4.39,-7.6,-10.7,-13.91,-18.3,-18.3c-11.6,-6.7,-27.18,-6.7,-58.33,-6.7s-46.73,0,-58.33,6.7c-7.6,4.39,-13.91,10.7,-18.3,18.3c-6.7,11.6,-6.7,27.18,-6.7,58.33v58.23c0,.06,-.05,.1,-.1,.1h-73.13c-.06,0,-.1,-.05,-.1,-.1v-124.9c0,-31.15,0,-46.73,-6.7,-58.33c-4.39,-7.6,-10.7,-13.91,-18.3,-18.3c-11.6,-6.7,-27.18,-6.7,-58.33,-6.7s-46.73,0,-58.33,6.7Z" />
+</vector>

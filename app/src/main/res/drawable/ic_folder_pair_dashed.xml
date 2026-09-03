@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Sposta': due cartelle sovrapposte, con quella dietro tratteggiata.
+
+     DISEGNATO DALL'UTENTE, dalla 0.81. Il tratteggio sta sulla cartella DI DIETRO e non su
+     quella davanti, e il verso conta: spostare vuol dire che l'originale non resta dov'era,
+     quindi la cartella che si svuota è quella da cui si parte, cioè quella in fondo.
+
+     I TRATTINI SONO PEZZI DI TRACCIATO, e non un tratteggio: un vettore di Android non
+     conosce `stroke-dasharray`, quindi non esiste altro modo. Qui non si vede perché l'icona
+     è piena e i trattini sono già cinque dei suoi sette sottotracciati. Fino alla 0.80, che
+     li disegnava di tratto, li calcolava una funzione apposta, trattino per trattino.
+
+     LA REGOLA DI RIEMPIMENTO È QUELLA DELL'INTERA FAMIGLIA, e il perché sta su
+     `ic_folder_pair`. Le regole di trasporto stanno in `CLAUDE.md`,
+     § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M3,11.91H1v4.42h2v-4.42ZM2.6,6h0c-.88,0,-1.6,.72,-1.6,1.6v2.82h2v-4.02c0,-.22,-.18,-.4,-.4,-.4ZM3,17.82H1v1.18c0,1.1,.9,2,2,2h3.18v-2h-3.18v-1.18ZM14.58,21h3.82c.88,0,1.6,-.72,1.6,-1.6h0c0,-.22,-.18,-.4,-.4,-.4h-5.02v2ZM7.67,21h5.42v-2h-5.42v2ZM21,4h-7l-2,-2h-5c-1.1,0,-1.99,.9,-1.99,2v11c-.01,1.1,.89,2,1.99,2h14c1.1,0,2,-.9,2,-2V6c0,-1.1,-.9,-2,-2,-2ZM21,15H7V4h4.17l2,2h7.83v9Z" />
+</vector>

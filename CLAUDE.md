@@ -97,6 +97,98 @@ versioni di 'Copia immagine', quella di 'Inverti selezione', e il brief di imple
   provando sta nel design system, non qui, e uno approvato sta in `res/`. Un file mandato in
   chat si lavora e non si archivia.
 
+## 🖌️ Come entra un disegno
+
+⚠️⚠️ **UN DISEGNO VIVE IN `res/drawable/ic_<nome>.xml`, UNO PER GLIFO, e `Glyphs.kt` è il
+catalogo**: là stanno i nomi con cui il codice chiama un'icona e che cosa vuol dire ognuna,
+qui sta la geometria. Fino alla `1.45` i tracciati erano costanti di stringa in Kotlin, e lo
+spostamento della `1.46` ha una ragione misurata: così **il verificatore e l'app leggono lo
+stesso file**. Prima il verificatore doveva ricostruire il tracciato dalle stringhe, e quella
+ricostruzione **ha sbagliato**, dando due glifi alti 0,75 unità su 24 perché trattava ogni
+riga come un sottotracciato mentre là le righe spezzano un numero a metà.
+- ⚠️ **L'eccezione è il disegno CALCOLATO**, e ce n'è uno: `TextCursor` nasce da quattro
+  costanti con una relazione dichiarata, e in XML quella relazione diventerebbe due numeri
+  qualunque. Chi ne aggiunge un altro così lo tenga in Kotlin: un tracciato composto da
+  chiamate tipizzate non può essere malformato, quindi non ha niente da guadagnare dal
+  trasloco.
+- ⚠️⚠️ **E NON SI CREDA DI AVERE UNA VALIDAZIONE AL BUILD, perché non c'è**: `aapt2` **non**
+  guarda dentro `android:pathData`. Provato con un tracciato che contiene la parola `ciao`:
+  compila con esito 0. La rete è `tools/icon-check.py`, e va lanciato.
+
+⚠️⚠️ **CHE COSA DEVE FARE L'UTENTE PRIMA DI MANDARE UN FILE, e la risposta è: quasi niente**
+(sua domanda, 2026-09-03: *solo alcune le ho esportate come unico tracciato unito ed espanso,
+senza maschere né livelli. Serve farlo, oppure una volta che le inglobi nei file di risorse
+assumono già la configurazione ideale e pulita?*). Il trasporto **scarta da sé** tutto quello
+che in un file di risorse non serve, perché copia il solo tracciato: metadati, `<defs>`,
+identificatori, fogli di stile, e il rettangolo trasparente con cui Illustrator dichiara la
+tela. Quindi si esporta come viene comodo.
+- ⚠️ **Quello che invece va ESPANSO PRIMA, perché il formato non lo conosce**: maschere,
+  filtri, modalità di fusione, `<use>` e simboli, testo non convertito in tracciato, campiture
+  a motivo, `stroke-dasharray`, e l'allineamento del tratto interno o esterno. Non esistono
+  come elementi di un vettore Android: un file che li porta non si può trasportare, e il
+  verificatore lo **blocca** invece di lasciarlo passare a metà.
+- ⚠️ **Un tratto di spessore COSTANTE non va espanso**, ed è l'unica cosa che si tende a
+  espandere per niente: `android:strokeWidth` esiste, e un tratto vero resta un tratto (lo fa
+  `TextCursor`). Va espanso il tratto a spessore variabile, quello con un pennello, e quello
+  tratteggiato.
+- ⚠️ **La conversione la fa la sessione, non lui** (sua istruzione, 2026-09-03: *lascio fare a
+  te la conversione. Ma non basta: tratta TUTTE le prossime icone che ti invio in modo che
+  entrino ottimizzate*). Quindi un file che arriva si lavora e non si archivia, e nel
+  repository non se ne tiene una copia: il perché sta in § '🎨 Il design system, che vive
+  fuori dal repository'.
+
+⚠️ **LIVELLO UNICO E FORMA UNICA: che cosa vuol dire qui**, perché lui lo fa già in
+esportazione (*se poi vuoi uniformare a 'Livello unico e forma unica', giusto per avere
+uniformità di trattamento, aggiungi anche quello*) e nel formato di arrivo si traduce in due
+cose distinte, con due esiti diversi.
+- **Forma unica, cioè un `<path>` solo: si fa dove la cucitura costa zero, e si misura.**
+  Due forme che si toccano, disegnate come tracciati separati, hanno il bordo condiviso
+  coperto due volte e viene pieno; unite, quel bordo diventa un bordo interno solo e si
+  sfrangia. Il verificatore lo misura per ogni icona nella colonna `cuc`: zero vuol dire che
+  si possono unire, e allora si uniscono.
+- ⚠️⚠️ **LIVELLO UNICO NON VUOL DIRE VIA I GRUPPI, e questa è una correzione del 2026-09-03**:
+  un gruppo di **sola traslazione** è il modo canonico di dichiarare che il disegno ha
+  un'origine, che un vettore Android non sa scrivere (dichiara `viewportWidth` e
+  `viewportHeight` e nient'altro, quindi l'origine è sempre 0,0, e un tracciato con coordinate
+  negative viene ritagliato). Resta, e non si appiattisce nelle coordinate, per due misure:
+  appiattire cambia **9 pixel su 230.400** con scarto 8 (provato su `ic_aiv_mark`: i valori
+  sommati in decimale esatto non cadono sullo stesso numero in virgola mobile a 32 bit), e la
+  `pathData` smette di essere confrontabile carattere per carattere col file di partenza, che
+  è il solo modo di verificare un trasporto.
+  - **Quello che invece è un livello di troppo**: un gruppo che non trasforma niente, e più di
+    un gruppo. Un gruppo che **scala o ruota** stacca i numeri del tracciato dal disegno, e va
+    bene solo se esprime una convenzione: l'unico caso in casa è il rientro del 65%
+    dell'icona adattiva, in `ic_launcher_foreground.xml`.
+- ⚠️ **Chi legge una nota vecchia sappia che dicevo il contrario**: fino a metà del 2026-09-03
+  la regola scritta era 'livello unico sempre, costa 7 pixel'. Quel numero veniva da un
+  appiattimento fatto in virgola mobile, cioè misurava il mio errore di calcolo e non la
+  differenza fra le due forme.
+
+⚠️ **I NUMERI INCOLLATI SI SEPARANO**, e questo è il ritocco che vale sempre: `-.05.1` sono
+**due** numeri, perché un punto che segue un numero che ha già il punto ne apre uno nuovo. È
+SVG legale, Android lo legge, e un parser che segue la grammatica alla lettera lo rifiuta.
+Separarli non cambia un solo valore (misurato: zero pixel di scarto su tutti i glifi) e costa
+poche centinaia di byte in tutto, che è il prezzo per cui qualunque strumento riesce a leggere
+quei tracciati.
+- ⚠️ **E il numero di byte non è un criterio** (sua istruzione, 2026-09-03: *non mi interessa
+  recuperare 100 byte. Voglio che il lavoro sia fatto formalmente bene, massima compatibilità
+  e correttezza del codice per avere descrizioni di forme future-proof*). Quindi un separatore
+  si mette anche dove il minimo basterebbe, e un comando implicito si scrive per esteso: si
+  ottimizza per chi legge il tracciato, non per la sua lunghezza.
+
+⚠️ **`android:fillType` SI DICHIARA SEMPRE**, anche quando il disegno verrebbe uguale con
+l'altra regola. La regola dichiarata dice quello che il disegno vuole; quella scelta perché
+tanto viene uguale dice solo com'è andata, e la coincidenza cade il giorno che qualcuno
+aggiunge un sottotracciato o un editor li riordina. Il verificatore segnala il caso pericoloso
+(il disegno **dipende** dal verso e la regola **non** è dichiarata) e tace sugli altri.
+
+⚠️ **La griglia di Material è 24 con 2 di margine per lato, ma una tela diversa non è un
+difetto**: i due glifi dell'allineamento sono arrivati in 800x800 e la tela resta la loro,
+perché riscalarne i numeri a mano vorrebbe dire mille arrotondamenti e un disegno che non si
+può più confrontare col file di partenza. A dichiarare quanto è grande l'icona sono
+`android:width` e `android:height`; il viewport dice in quante unità è disegnata. ⚠️ Il
+verificatore **riporta** il rapporto fra le due e non lo giudica.
+
 ## 🗣️ Come si chiamano le cose
 
 ⚠️⚠️ **'IMMAGINE' E NON 'FOTOGRAFIA', e non è una sfumatura di stile** (correzione
@@ -211,6 +303,23 @@ e il job le scrive su disco per la durata di una sola esecuzione.
   dire **28 lingue, 0 problemi**: un numero più basso vuol dire che una cartella non è stata
   vista. Le **varianti regionali** (`values-b+es+419` e `values-pt-rPT`) portano solo le
   differenze, e il verificatore lo sa.
+- **`tools/icon-check.py`**, da lanciare dalla radice: legge ogni `res/drawable/*.xml` e
+  misura quello che di un'icona si può misurare. Il criterio che applica vive in
+  § '🖌️ Come entra un disegno'; qui basta sapere quali sono le due specie di controlli,
+  perché non hanno lo stesso peso.
+  - **La grammatica e i vincoli girano sempre** (sola libreria standard) e **bloccano**: un
+    elemento o un attributo che Android non conosce, un tracciato che un parser stretto
+    rifiuta, una tela non dichiarata.
+  - ⚠️⚠️ **IL TOKENIZZATORE DEI TRACCIATI È SCRITTO A MANO DI PROPOSITO**, e non è
+    ostinazione: il parser di Android è indulgente, quindi appoggiarsi a una libreria
+    misurerebbe l'indulgenza di quella libreria invece della grammatica. Un tracciato che
+    passa da lì lo legge qualunque parser conforme, che è la definizione operativa di 'a prova
+    di futuro'.
+  - **Le misure di resa vogliono Chromium** e **avvisano** invece di bloccare: dove sta
+    l'inchiostro, il margine dalla tela, la sagoma di Material più vicina, se il disegno
+    dipende dal verso di avvolgimento, e quanto costerebbe unire i tracciati. ⚠️ Se Chromium
+    non c'è **lo dichiara** invece di tacere, che è la differenza fra un controllo saltato e un
+    controllo passato.
 - ⚠️ **`refcheck.py` NON vive qui** ma in `roccobot.github.io/.memo/scripts/`: in una sessione
   che non monta quel repo i controlli sui caratteri e sui rimandi non girano, e prima di un
   commit va detto invece di darli per fatti.

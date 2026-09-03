@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Inverti selezione': un foglio dietro a un riquadro, con dentro mezzo quadrato pieno.
+
+     DISEGNATO DALL'UTENTE, e dalla 1.37 il terzo sottotracciato è UN TRIANGOLO e non due
+     frecce che girano: quelle dicevano 'ricomincia', il mezzo quadrato pieno dice 'l'altra
+     metà'. Prima della 1.01 qui c'era `SwapHoriz` di Material, cioè due frecce affiancate,
+     che dicono 'scambia due cose' e non 'ribalta la scelta': era la sola delle dieci su cui
+     avevo dichiarato un dubbio all'utente.
+
+     IL TRIANGOLO GIRA AL CONTRARIO DEL RIQUADRO, ed è per questo che con `nonZero` buca la
+     metà in alto a sinistra invece di riempirla. Misurato: area con segno -496 il riquadro,
+     +144 il triangolo. È lo stesso meccanismo con cui le due frecce di prima stavano in
+     negativo.
+     E CON `evenOdd` IL DISEGNO VERREBBE IDENTICO, che è la ragione per cui non ci si passa:
+     misurato dal verificatore, zero pixel di scarto fra le due regole. Verrebbe uguale
+     perché le forme non si sovrappongono in altri punti, cioè per una coincidenza del
+     disegno e non per una sua proprietà, e il giorno che qualcuno aggiunge un sottotracciato
+     la coincidenza cade. La regola dichiarata dice quello che il disegno vuole; quella
+     scelta perché tanto viene uguale dice solo com'è andata.
+
+     I primi due sottotracciati sono il segno di famiglia, identici a quelli di `ic_pick_all`
+     e `ic_pick_none`. Le regole di trasporto stanno in `CLAUDE.md`,
+     § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M17.6,20H5.41c-.78,0,-1.41,-.63,-1.41,-1.41V6.4c0,-.22,-.18,-.4,-.4,-.4c-.88,0,-1.6,.72,-1.6,1.6v12.4c0,1.1,.9,2,2,2h12.4c.88,0,1.6,-.72,1.6,-1.6h0c0,-.22,-.18,-.4,-.4,-.4ZM20,2h-12c-1.1,0,-2,.9,-2,2v12c0,1.1,.9,2,2,2h12c1.1,0,2,-.9,2,-2V4c0,-1.1,-.9,-2,-2,-2ZM8,16V4h12l-12,12Z" />
+</vector>
