@@ -10,6 +10,8 @@ import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -196,7 +198,15 @@ private val DarkScheme: ColorScheme = darkColorScheme(
 fun accentInk(): Color =
     if (MaterialTheme.colorScheme.background.isLight()) LINK_LIGHT else LINK_DARK
 
-private fun Color.isLight(): Boolean = (0.2126f * red + 0.7152f * green + 0.0722f * blue) > 0.5f
+/**
+ * Se questo colore è chiaro, cioè se sopra ci si scrive in scuro.
+ *
+ * ⚠️ **Non è più privato dalla 1.38**: la stessa domanda se la fa il velo delle finestre
+ * (`WindowVeil`), che deve sapere di che tema è vestita l'app **in quel momento** e non che
+ * cosa dice il sistema. Due luminanze scritte in due file divergerebbero al primo ritocco
+ * della formula.
+ */
+fun Color.isLight(): Boolean = (0.2126f * red + 0.7152f * green + 0.0722f * blue) > 0.5f
 
 /**
  * Se l'app va vestita di scuro, secondo la scelta dell'utente.
@@ -224,30 +234,49 @@ fun UiTheme.isDark(): Boolean = when (this) {
  * prima di `setContentView`, cioè fuori da Compose: dichiarato invece di nascosto.
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+/**
+ * Se l'app in questo momento è vestita di **chiaro**.
+ *
+ * ⚠️⚠️ **SERVE AL VELO DELLE FINESTRE, e non si poteva ricavare da `MaterialTheme`**: il velo
+ * si applica da un **nodo di modificatore** (vedi `Modifier.veiled`), e un nodo legge solo i
+ * `CompositionLocal` pubblici, mentre la tavolozza di Material vive dietro uno interno alla
+ * libreria. Questo è nostro, quindi si legge da dove serve.
+ * ⚠️ **Dice il tema IN VIGORE e non quello di sistema**: chi ha forzato il chiaro con l'app
+ * di sistema in scuro deve avere il velo del chiaro. Per questo lo fornisce [AivTheme], che è
+ * il posto in cui quella scelta è già stata fatta.
+ * ⚠️ **Arriva anche dentro i dialoghi**: un `Dialog` eredita i `CompositionLocal` da dove è
+ * scritto, non dalla finestra in cui finisce.
+ */
+val LocalAivLight = staticCompositionLocalOf { true }
+
 @Composable
 fun AivTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
     val scheme = if (darkTheme) DarkScheme else LightScheme
-    MaterialExpressiveTheme(
-        colorScheme = scheme,
-        motionScheme = MotionScheme.expressive()
-    ) {
-        // ⚠️⚠️ QUESTA `Surface` NON È DECORAZIONE, ED È LA SOLA COSA CHE DÀ UN
-        // COLORE AL TESTO. Il tema porta la tavolozza ma NON tocca
-        // `LocalContentColor`: quello lo imposta `Surface`, e senza di lei resta
-        // al suo default, che è il NERO FISSO. Quindi ogni `Text` e ogni `Icon`
-        // senza colore dichiarato usciva nero: in tema chiaro non si vede, in
-        // tema scuro il testo spariva nel fondo. Segnalato dall'utente sul nome
-        // dell'app nella schermata iniziale, ma il difetto era di tutta l'app, e
-        // per questo il rimedio sta QUI e non su quella riga: rimediare al punto
-        // dove si è visto avrebbe lasciato gli altri, uno per volta.
-        // ⚠️ Sotto al visualizzatore non si vede, e va bene così: quello dipinge
-        // già il proprio fondo a tutta schermata, quindi questa gli sta dietro
-        // senza cambiargli niente.
-        Surface(modifier = Modifier.fillMaxSize(), color = scheme.background) {
-            content()
+    // ⚠️ Il tema in vigore, dichiarato per chi non può leggere la tavolozza di Material. Il
+    // perché sta su [LocalAivLight].
+    CompositionLocalProvider(LocalAivLight provides !darkTheme) {
+        MaterialExpressiveTheme(
+            colorScheme = scheme,
+            motionScheme = MotionScheme.expressive()
+        ) {
+            // ⚠️⚠️ QUESTA `Surface` NON È DECORAZIONE, ED È LA SOLA COSA CHE DÀ UN
+            // COLORE AL TESTO. Il tema porta la tavolozza ma NON tocca
+            // `LocalContentColor`: quello lo imposta `Surface`, e senza di lei resta
+            // al suo default, che è il NERO FISSO. Quindi ogni `Text` e ogni `Icon`
+            // senza colore dichiarato usciva nero: in tema chiaro non si vede, in
+            // tema scuro il testo spariva nel fondo. Segnalato dall'utente sul nome
+            // dell'app nella schermata iniziale, ma il difetto era di tutta l'app, e
+            // per questo il rimedio sta QUI e non su quella riga: rimediare al punto
+            // dove si è visto avrebbe lasciato gli altri, uno per volta.
+            // ⚠️ Sotto al visualizzatore non si vede, e va bene così: quello dipinge
+            // già il proprio fondo a tutta schermata, quindi questa gli sta dietro
+            // senza cambiargli niente.
+            Surface(modifier = Modifier.fillMaxSize(), color = scheme.background) {
+                content()
+            }
         }
     }
 }

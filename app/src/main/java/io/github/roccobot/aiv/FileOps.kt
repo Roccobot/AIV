@@ -331,96 +331,69 @@ private fun DeleteDialog(
 /**
  * Che cosa si è scelto: i numeri di una selezione, o i dati di un file solo.
  *
- * ⚠️ **I dati si leggono quando il dialogo si apre e non prima**: contare il peso di
- * trecento file vuol dire trecento interrogazioni, e farle a ogni tocco su una miniatura
- * sarebbe pagarle per una domanda che quasi nessuno fa.
- * ⚠️ **Finché non sono pronti si dice che si sta contando**, invece di mostrare uno zero
- * che poi cambia: uno zero che si corregge da solo si legge come un errore.
+ * ⚠️⚠️ **È UNA BOTTOMSHEET DALLA 1.38, e prima era un dialogo centrato** (richiesta
+ * dell'utente, giro della 1.37: *info dettagliate come bottomsheet (ma che non deve entrare
+ * scorrendo da sotto). Appare con animazione semplice e veloce, senza scorrere dal basso, e
+ * la pillola con il nome è in fondo, verso il bordo inferiore, ancorata: il resto rimane
+ * sotto allo scorrimento*). Le tre cose che chiede sono tre e vanno lette separate: **dove**
+ * sta (appoggiata in basso, larga quanto lo schermo), **come** arriva (senza scivolare), e
+ * **che cosa è fermo** dentro di lei (la pastiglia del nome).
+ *
+ * ⚠️⚠️ **'SENZA SCORRERE DAL BASSO' È UNA RICHIESTA VECCHIA CHE QUI SI CHIUDE DAVVERO**: la
+ * `1.25` ci aveva già provato (*deve apparire in modo elegante, ma più semplice, senza
+ * slide-in*) e la nota di allora concludeva che l'animazione la decide il sistema e che da
+ * dentro non si spegne, *si toglierebbe solo rifacendo questo riquadro come un pannello*.
+ * Quella nota era giusta a metà: la finestra è del sistema, ma la sua animazione **si spegne**
+ * (`setWindowAnimations(0)`), e con lei spenta l'unico movimento resta quello che scriviamo
+ * noi. Diventando bottomsheet, per giunta, l'animazione di serie sarebbe stata proprio una
+ * salita dal basso, cioè la cosa vietata.
+ * ⚠️ **Il movimento nostro è quello dei menu**, e non un terzo: dissolvenza più una crescita
+ * da 0,96 in 170ms (vedi `MenuShell`, dove quei numeri li ha scelti lui su un mockup). 'Semplice
+ * e veloce' è già stato definito una volta in questa app.
+ *
+ * ⚠️ **I dati si leggono quando si apre e non prima**: contare il peso di trecento file vuol
+ * dire trecento interrogazioni, e farle a ogni tocco su una miniatura sarebbe pagarle per una
+ * domanda che quasi nessuno fa.
+ * ⚠️⚠️ **SU UN FILE SOLO NON SI APRE FINCHÉ NON HA I DATI, dalla 1.25**: si apriva **due
+ * volte**, prima con la sola riga 'Sto contando...' e poi coi dati, e su un riquadro centrato
+ * quella crescita si vedeva come uno scivolamento. Con un file è una interrogazione sola, cioè
+ * decine di millisecondi. ⚠️ **Su molti file resta com'era**, perché là l'attesa è vera e una
+ * scheda che tarda mezzo secondo senza dire niente si legge come un tocco andato a vuoto.
  */
 @Composable
 private fun FactsDialog(uris: List<Uri>, fields: List<FactField>, onDismiss: () -> Unit) {
     val context = LocalContext.current
     val facts by produceState<Facts?>(null, uris) { value = factsOf(context, uris) }
-
-    /*
-     * ⚠️⚠️ **SU UN FILE SOLO IL DIALOGO NON SI APRE FINCHÉ NON HA I DATI, dalla 1.25**
-     * (riscontro dell'utente, 2026-09-02: *deve apparire in modo elegante, ma più semplice,
-     * senza slide-in*). Il difetto era che si apriva **due volte**: prima con la sola riga
-     * 'Sto contando...', poi, arrivati i dati, gli comparivano dentro la pastiglia del nome e
-     * dieci righe di elenco. Un dialogo è centrato, quindi crescere vuol dire che tutto il
-     * contenuto scivola in su e in giù: quello è lo scorrimento che si vedeva, e non c'è
-     * nessuna animazione da spegnere, perché nessuno l'aveva scritta.
-     * ⚠️ **Solo su un file, e su molti resta com'era**: là l'attesa è vera (si chiede il peso
-     * di ognuno) e un dialogo che tarda mezzo secondo senza dire niente si legge come un tocco
-     * andato a vuoto. Con un file solo è una interrogazione sola, cioè decine di millisecondi:
-     * l'attesa non si vede, e quello che si vede è il dialogo già completo.
-     * ⚠️ **Se lo scorrimento si vedesse ancora, allora è del SISTEMA e non nostro**: un dialogo
-     * di Compose è una finestra vera, e l'animazione di entrata la decide il telefono quando la
-     * apre. Da dentro non si spegne; si toglierebbe solo rifacendo questo riquadro come un
-     * pannello dentro la schermata, che è un lavoro a sé e non si fa senza chiederlo.
-     */
     if (facts == null && uris.size == 1) return
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        modifier = Modifier.lowered(),
-        /*
-         * ⚠️⚠️ **TITOLO CENTRATO SU UNA RIGA E PASTIGLIA SULLA SUA, dalla `0.73`**, come dal
-         * mockup dell'utente, ed è la correzione di un difetto che lui stesso ha chiamato
-         * suo: *è stato un mio errore chiederti titolo e nome del file sulla stessa riga,
-         * non mi ero reso conto di quanto fosse facile che si sforasse lo spazio*. Sulla
-         * stessa riga i due si dividevano la larghezza, quindi un nome un po' lungo faceva
-         * a gomitate col titolo; su due righe la pastiglia ha tutta la larghezza del dialogo.
-         * ⚠️ **Il titolo è una stringa SUA** (`facts_title`, 'Info dettagliate sul file') e
-         * non più `pick_info`: quella è anche l'etichetta sotto un'icona nel riquadro delle
-         * azioni, dove tre parole andrebbero a capo tre volte.
-         * ⚠️ **Non serve più nessun accorgimento per le lingue da destra a sinistra**: un
-         * testo centrato è centrato in tutte, e la riga di prima si specchiava perché era
-         * una `Row`. La `Column` non ha un verso da specchiare.
-         * ⚠️ Compare **quando i dati arrivano**: prima di allora non si sa ancora il nome, e
-         * mettere un segnaposto vorrebbe dire far cambiare la testata due volte.
-         */
-        title = {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.facts_title),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                facts?.one?.name?.let { name -> NamePill(name = name) }
-            }
-        },
-        text = {
-            val f = facts
-            when {
-                f == null -> Text(
-                    text = stringResource(R.string.pick_counting),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                /*
-                 * ⚠️ **Il PESO davanti e il conto dietro, dalla 0.63** (richiesta
-                 * dell'utente: *'X MB in Y file'*). Era 'X file, Y MB totali' della `0.59`:
-                 * la revisione mette avanti il numero che si va a cercare, perché quante
-                 * foto si sono scelte lo dice già la barra sopra.
-                 * ⚠️ Resta un **plurale** e non una stringa fissa: con un file solo la
-                 * forma cambia in diverse lingue, e l'italiano non è quella che lo mostra.
-                 */
-                f.one == null -> Text(
-                    text = pluralStringResource(
-                        R.plurals.pick_facts, f.count, f.count, formatBytes(f.bytes)
-                    ),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                else -> FileFacts(facts = f, one = f.one, fields = fields)
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.pick_close)) }
+    Sheet(onDismiss = onDismiss, title = stringResource(R.string.facts_title), foot = {
+        // ⚠️ La pastiglia c'è solo con UN file: con una selezione non c'è un nome da mettere
+        // in fondo, e un piede vuoto lascerebbe una striscia di niente sopra il bordo.
+        facts?.one?.name?.let { NamePill(name = it) }
+    }) {
+        val f = facts
+        when {
+            f == null -> Text(
+                text = stringResource(R.string.pick_counting),
+                style = MaterialTheme.typography.bodyMedium
+            )
+            /*
+             * ⚠️ **Il PESO davanti e il conto dietro, dalla 0.63** (richiesta dell'utente:
+             * *'X MB in Y file'*). Era 'X file, Y MB totali' della `0.59`: la revisione mette
+             * avanti il numero che si va a cercare, perché quante immagini si sono scelte lo
+             * dice già la barra sopra.
+             * ⚠️ Resta un **plurale** e non una stringa fissa: con un file solo la forma cambia
+             * in diverse lingue, e l'italiano non è quella che lo mostra.
+             */
+            f.one == null -> Text(
+                text = pluralStringResource(
+                    R.plurals.pick_facts, f.count, f.count, formatBytes(f.bytes)
+                ),
+                style = MaterialTheme.typography.bodyMedium
+            )
+            else -> FileFacts(facts = f, one = f.one, fields = fields)
         }
-    )
+    }
 }
 
 /**

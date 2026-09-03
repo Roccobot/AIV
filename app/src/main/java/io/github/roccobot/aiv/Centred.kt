@@ -32,32 +32,51 @@ import androidx.compose.ui.unit.dp
  * aggiunge, e il valore non è mai scritto due volte. La regola sta anche in `CLAUDE.md`,
  * perché un modificatore da ricordare senza una regola scritta prima o poi si dimentica.
  */
-fun Modifier.lowered(): Modifier = layout { measurable, constraints ->
-    val placed = measurable.measure(constraints)
-    val free = (constraints.maxHeight - placed.height).coerceAtLeast(0)
-    val air = LOWER_AIR.roundToPx()
-    val room = (free / 2 - air).coerceAtLeast(0)
-    val wanted = (constraints.maxHeight * LOWER_BY).toInt()
-    val shift = minOf(wanted, room)
+fun Modifier.lowered(): Modifier {
     /*
-     * ⚠️⚠️ **LO SPOSTAMENTO STA DENTRO L'ALTEZZA RIPORTATA, e fino alla 1.33 NON c'era: è
-     * il difetto che TAGLIAVA I DIALOGHI ALTI.** La nota di prima diceva l'opposto (misura
-     * vera e movimento nel solo `place`, *così il genitore continua a centrare*), e la
-     * ragione sembrava buona: un genitore che centra la scatola gonfia annulla metà del
-     * movimento. Il guaio è che un figlio posato **fuori** dalla scatola dichiarata viene
-     * **ritagliato**, e la finestra di un dialogo si dimensiona proprio su quella scatola:
-     * il pannello scendeva del 15% e perdeva gli ultimi pixel, cioè la fila dei tasti.
-     * Segnalato dall'utente con tre schermate (2026-09-02, voce `centro-15`): il dialogo
-     * 'Info' senza la sua riga di comandi, e la rinomina tagliata a metà dei tasti.
-     * ⚠️ **Il RADDOPPIO è quel conto, non una compensazione a occhio**: la finestra si
-     * dimensiona sull'altezza dichiarata e la centra, quindi una scatola più alta di
-     * `2*shift` sposta il contenuto vero di `shift`, che è la misura voluta. Chi togliesse
-     * il `2` dimezzerebbe il movimento senza accorgersene, perché il difetto non si vede.
-     * ⚠️ **E la stretta resta la stessa di prima**: `shift` non supera l'aria che c'è sotto
-     * meno [LOWER_AIR], quindi su un dialogo alto quanto la finestra vale zero e la scatola
-     * non si gonfia affatto.
+     * ⚠️⚠️ **QUESTO MODIFICATORE FA UNA SECONDA COSA DALLA 1.38, E STA QUI PER UNA RAGIONE
+     * PRECISA**: ogni superficie che si apre sopra la schermata vuole anche il **velo e la
+     * sfocatura** dietro (richiesta dell'utente: *dietro qualsiasi pannello, popup, modale,
+     * menu*), e l'elenco di quelle superfici è **esattamente** l'elenco di chi chiama questa
+     * riga: la nota qui sopra lo dice già da tre versioni, parola per parola.
+     * ⚠️ **L'alternativa era un secondo modificatore da ricordare**, e sarebbe stata la
+     * trappola che questa stessa nota descrive: 'un modificatore da ricordare senza una regola
+     * scritta prima o poi si dimentica'. Averne due raddoppierebbe il modo di dimenticarsene,
+     * e la seconda dimenticanza non si vedrebbe nemmeno, perché un velo che manca non taglia
+     * niente.
+     * ⚠️⚠️ **E DEV'ESSERE UN NODO, NON UN `@Composable`: la prima versione velava la finestra
+     * SBAGLIATA.** Un `@Composable` chiamato da qui verrebbe eseguito dove la riga è
+     * **scritta**, cioè fuori dal dialogo, e leggerebbe la finestra dell'attività: nessun velo
+     * visibile e nessun errore. Un nodo si aggancia dove il modificatore **atterra**, che è
+     * dentro il dialogo. Vedi [Modifier.veiled].
      */
-    layout(placed.width, placed.height + shift * 2) { placed.place(0, shift * 2) }
+    return veiled().layout { measurable, constraints ->
+        val placed = measurable.measure(constraints)
+        val free = (constraints.maxHeight - placed.height).coerceAtLeast(0)
+        val air = LOWER_AIR.roundToPx()
+        val room = (free / 2 - air).coerceAtLeast(0)
+        val wanted = (constraints.maxHeight * LOWER_BY).toInt()
+        val shift = minOf(wanted, room)
+        /*
+         * ⚠️⚠️ **LO SPOSTAMENTO STA DENTRO L'ALTEZZA RIPORTATA, e fino alla 1.33 NON c'era: è
+         * il difetto che TAGLIAVA I DIALOGHI ALTI.** La nota di prima diceva l'opposto (misura
+         * vera e movimento nel solo `place`, *così il genitore continua a centrare*), e la
+         * ragione sembrava buona: un genitore che centra la scatola gonfia annulla metà del
+         * movimento. Il guaio è che un figlio posato **fuori** dalla scatola dichiarata viene
+         * **ritagliato**, e la finestra di un dialogo si dimensiona proprio su quella scatola:
+         * il pannello scendeva del 15% e perdeva gli ultimi pixel, cioè la fila dei tasti.
+         * Segnalato dall'utente con tre schermate (2026-09-02, voce `centro-15`): il dialogo
+         * 'Info' senza la sua riga di comandi, e la rinomina tagliata a metà dei tasti.
+         * ⚠️ **Il RADDOPPIO è quel conto, non una compensazione a occhio**: la finestra si
+         * dimensiona sull'altezza dichiarata e la centra, quindi una scatola più alta di
+         * `2*shift` sposta il contenuto vero di `shift`, che è la misura voluta. Chi togliesse
+         * il `2` dimezzerebbe il movimento senza accorgersene, perché il difetto non si vede.
+         * ⚠️ **E la stretta resta la stessa di prima**: `shift` non supera l'aria che c'è sotto
+         * meno [LOWER_AIR], quindi su un dialogo alto quanto la finestra vale zero e la scatola
+         * non si gonfia affatto.
+         */
+        layout(placed.width, placed.height + shift * 2) { placed.place(0, shift * 2) }
+    }
 }
 
 /**

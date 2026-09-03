@@ -107,11 +107,27 @@ grande un dialogo esattamente al centro fa allungare la mano.
   propria finestra e nessuna sua proprietà sposta quel centro. Quello che si può avere è **un**
   modificatore, e ce l'ha: chi apre un dialogo nuovo lo aggiunge, e il valore non è mai scritto
   due volte.
+  - ⚠️⚠️ **DALLA 1.38 QUELLA RIGA FA ANCHE UN'ALTRA COSA: mette il VELO e la SFOCATURA dietro
+    la finestra** (richiesta dell'utente, 2026-09-02: *sfocatura leggera + velo chiaro/scuro a
+    seconda del tema: dietro qualsiasi pannello, popup, modale, menu*). Non è un accorpamento
+    di comodo: l'elenco delle superfici che vogliono il velo è **lo stesso** elenco di chi
+    chiama `lowered()`, e un secondo modificatore da ricordare avrebbe raddoppiato il modo di
+    dimenticarsene, con l'aggravante che un velo mancante non si vede (un centro mancante sì).
+    Il perché per esteso, e le due vie con cui si applica, stanno in testa a `Veil.kt`.
+  - ⚠️ **Chi apre un `Popup` o un `Dialog` scritto in casa chiama `WindowVeil()` a mano**,
+    perché là il modificatore non passa: lo fanno `MenuShell`, il menu del tastino della
+    schermata iniziale e `Sheet`.
 - ⚠️ **I menu non usano quel modificatore ma lo stesso numero**: là il posto lo decide un
   `PopupPositionProvider` (`MenuCenter` in `Menus.kt`), che riceve pixel e nessun `Density`. Il
   15% è la costante `LOWER_BY`, condivisa.
 - ⚠️ **Un dialogo a tutto schermo NON si sposta**, e non è una dimenticanza: `DestinationDialog`
   riempie la finestra, quindi non c'è nessun centro da spostare.
+- ⚠️⚠️ **E DALLA 1.38 UNA COSA CHE ERA CENTRATA NON LO È PIÙ: le 'Info dettagliate sul file'**,
+  diventate una **bottomsheet** appoggiata al bordo di sotto (richiesta dell'utente, giro della
+  1.37). Una scheda ancorata a un bordo non ha un centro da abbassare, quindi non porta
+  `Modifier.lowered()`: il velo, che dalla stessa versione viaggia con quel modificatore, se lo
+  chiede da sé. Chi legge l'elenco qui sopra sappia che 'la scheda delle informazioni sul file'
+  non ne fa più parte.
 
 ## 🚀 Che cosa produce un rilascio
 

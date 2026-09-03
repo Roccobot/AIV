@@ -790,6 +790,10 @@ private fun Hub(
             onDismissRequest = { open = false },
             shape = RoundedCornerShape(MENU_ROUND)
         ) {
+            // ⚠️ Il velo va chiesto anche qui, e non arriva da solo: questo è l'unico menu
+            // dell'app che non passa da `MenuShell` (vedi la nota qui sopra sul perché resta
+            // un `DropdownMenu`), quindi è l'unico che se lo deve aggiungere.
+            WindowVeil()
             // ⚠️⚠️ **LA VOCE NOMINA LA VISTA CHE SI OTTIENE, non quella in cui si è**, ed
             // è la cosa da non rovesciare quando si riscrive l'etichetta: una riga di menu
             // è una richiesta, non un indicatore di stato, quindi in griglia si legge

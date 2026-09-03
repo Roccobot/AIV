@@ -131,6 +131,12 @@ fun MenuShell(
             dismissOnClickOutside = dismissOnOutside
         )
     ) {
+        /*
+         * ⚠️⚠️ **DENTRO IL `Popup` E NON FUORI, ed è tutta la differenza**: il velo si applica
+         * alla finestra che **ospita** chi lo chiede, e qui fuori la finestra sarebbe quella
+         * della schermata, cioè si velerebbe da sé. Vedi [WindowVeil].
+         */
+        WindowVeil()
         Surface(
             /*
              * ⚠️⚠️ **CRESCE DA 0,96 E NON DA ZERO, in 170ms** (scelta dell'utente sul
