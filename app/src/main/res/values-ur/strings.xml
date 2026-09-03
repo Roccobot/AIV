@@ -95,8 +95,8 @@
     <string name="settings_scale_desc">طے کرتا ہے کہ اصل پکسل تک زوم کرنے کا کیا مطلب ہے۔ کسی بھی جدید آلے کی سکرین ہر منطقی پکسل کو دو یا تین اصل پکسلوں کے مربع سے بناتی ہے۔ پہلا انتخاب منطقی پکسلوں کو نظرانداز کرتا ہے اور ہر نقطے کو ایک اصل پکسل پر رکھتا ہے؛ دوسرا ہر شے کو اُس ناپ میں دکھاتا ہے جو ویب صفحے پر ہوتی۔</string>
     <string name="settings_top">اوپر</string>
     <string name="settings_bottom">نیچے</string>
-    <string name="settings_off">بند</string>
     <string name="settings_info_visible">معلوماتی پٹی</string>
+    <string name="settings_info_position">مقام</string>
     <string name="settings_zoom_menu">ویور مینو میں زوم</string>
     <string name="settings_zoom_menu_desc">\'اسکرین میں سمائیں\' اور \'100%\' کو دیر تک دبانے والے مینو میں واپس لاتا ہے۔ بند ہے، کیونکہ تصویر پر دو بار ٹیپ کرنے سے یہی ہوتا ہے۔</string>
     <string name="hint_zoom_tap">فوری زوم: تصویر پر دو بار ٹیپ کریں تاکہ وہ نظارے میں سما جائے، دوبارہ دو بار ٹیپ کریں تو اصل پکسل نظر آئیں گے۔ ٹیپ کرتے رہیں تاکہ سمائی ہوئی اور 100% کے درمیان بدلتا رہے۔</string>

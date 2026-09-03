@@ -95,8 +95,8 @@
     <string name="settings_scale_desc">تعیین می‌کند بزرگ‌نمایی در پیکسل‌های واقعی به چه معناست. صفحهٔ هر دستگاه امروزی هر پیکسل منطقی را با مربعی از دو یا سه پیکسل واقعی می‌کشد. گزینهٔ نخست پیکسل‌های منطقی را نادیده می‌گیرد و هر نقطه را به یک پیکسل واقعی نگاشت می‌کند؛ گزینهٔ دوم هر شیء را به اندازه‌ای نشان می‌دهد که در یک صفحهٔ وب می‌داشت.</string>
     <string name="settings_top">در بالا</string>
     <string name="settings_bottom">در پایین</string>
-    <string name="settings_off">خاموش</string>
     <string name="settings_info_visible">نوار اطلاعات</string>
+    <string name="settings_info_position">موقعیت</string>
     <string name="settings_zoom_menu">بزرگ‌نمایی در منوی نمایشگر</string>
     <string name="settings_zoom_menu_desc">\'جا شدن در صفحه\' و \'100%\' را به منوی فشار طولانی برمی‌گرداند. خاموش است چون دو ضربه روی تصویر همین کار را می‌کند.</string>
     <string name="hint_zoom_tap">بزرگ‌نمایی سریع: دو بار روی تصویر بزنید تا با نما جور شود، دو بار دیگر برای پیکسل‌های واقعی. باز هم بزنید تا بین جورشده و 100% جابه‌جا شوید.</string>

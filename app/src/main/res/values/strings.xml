@@ -203,8 +203,8 @@
 
     <string name="settings_top">At the top</string>
     <string name="settings_bottom">At the bottom</string>
-    <string name="settings_off">Off</string>
     <string name="settings_info_visible">Info bar</string>
+    <string name="settings_info_position">Position</string>
     <!-- Setting that puts 'Fit to view' and '100%' back into the long-press menu. Off by
          default: the double tap does the same thing. -->
     <string name="settings_zoom_menu">Zoom in the viewer menu</string>

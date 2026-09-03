@@ -34,11 +34,9 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
@@ -531,7 +529,6 @@ private fun FileFacts(facts: Facts, one: OneFile, fields: List<FactField>) {
 @Composable
 private fun NamePill(name: String, modifier: Modifier = Modifier) {
     val style = MaterialTheme.typography.titleSmall
-    val grassetto = SpanStyle(fontWeight = FontWeight.Bold)
     val context = LocalContext.current
     val haptics = LocalHapticFeedback.current
     val said = stringResource(R.string.toast_name_copied)
@@ -560,8 +557,8 @@ private fun NamePill(name: String, modifier: Modifier = Modifier) {
         ) {
             val measurer = rememberTextMeasurer()
             val room = with(LocalDensity.current) { maxWidth.roundToPx() }
-            val shown = remember(name, room, style, grassetto, measurer) {
-                fitName(name, room, NAME_LINES, style, grassetto, measurer)
+            val shown = remember(name, room, style, measurer) {
+                fitName(name, room, NAME_LINES, style, measurer)
             }
             Text(
                 text = shown,

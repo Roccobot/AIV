@@ -777,7 +777,9 @@ private fun Hub(
          * aveva unificato il raggio di 'tutti i menu', ma quelli che passano da `MenuShell`:
          * questo è un `DropdownMenu` di Material, perché si posiziona da sé contro il tastino
          * in un angolo, e l'unificazione non lo aveva toccato. Adesso porta anche lui
-         * [MENU_ROUND] e la [MenuStripe].
+         * [MENU_ROUND].
+         * ⚠️ **Nella 1.36 aveva preso anche la STRISCIA d'accento, e nella 1.38 è uscita di
+         * scena insieme a tutte le altre**: il perché sta nella nota di [MenuShell].
          * ⚠️ **Resta un `DropdownMenu` e non diventa un `MenuShell`**: quella superficie vuole
          * un posizionatore, e i due che esistono mettono il menu al centro della finestra o
          * sopra il tastino centrato. Qui il menu deve nascere **dal** tastino, che è nell'angolo
@@ -870,15 +872,6 @@ private fun Hub(
                 text = { Text(stringResource(R.string.hub_settings)) },
                 onClick = { open = false; onSettings() }
             )
-
-            // ⚠️ In fondo al contenuto e non fuori dal menu: dentro, i due angoli in basso la
-            // tagliano con sé. Il perché sta su [MenuStripe].
-            // ⚠️⚠️ **`giu` PERCHÉ QUESTO MENU È UN `DropdownMenu` DI MATERIAL**, che mette 8dp
-            // sotto la propria colonna: senza quella compensazione la striscia si ferma a 8dp
-            // più su che in tutti gli altri menu, ed è il difetto che l'utente ha visto nella
-            // 1.36 (*troppo staccata dal margine inferiore*). Il numero e la sua misura stanno
-            // su `MENU_DROPDOWN_PAD`.
-            MenuStripe(giu = MENU_DROPDOWN_PAD)
         }
     }
 

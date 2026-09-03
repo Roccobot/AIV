@@ -95,8 +95,8 @@
     <string name="settings_scale_desc">প্রকৃত পিক্সেলে জুম করার অর্থ কী তা ঠিক করে। যেকোনো আধুনিক যন্ত্রের পর্দা প্রতিটি যৌক্তিক পিক্সেলকে দুই বা তিনটি প্রকৃত পিক্সেলের বর্গ দিয়ে আঁকে। প্রথম পছন্দটি যৌক্তিক পিক্সেল উপেক্ষা করে প্রতিটি বিন্দুকে একটি প্রকৃত পিক্সেলে বসায়; দ্বিতীয়টি প্রতিটি বস্তুকে ওয়েব পৃষ্ঠায় যে মাপ পেত সেই মাপে দেখায়।</string>
     <string name="settings_top">উপরে</string>
     <string name="settings_bottom">নিচে</string>
-    <string name="settings_off">বন্ধ</string>
     <string name="settings_info_visible">তথ্য বার</string>
+    <string name="settings_info_position">অবস্থান</string>
     <string name="settings_zoom_menu">ভিউয়ার মেনুতে জুম</string>
     <string name="settings_zoom_menu_desc">\'পর্দায় মেলান\' এবং \'100%\' দীর্ঘক্ষণ চেপে খোলা মেনুতে ফিরিয়ে আনে। বন্ধ আছে, কারণ ছবিতে ডবল ট্যাপ করলেই এটা হয়।</string>
     <string name="hint_zoom_tap">দ্রুত জুম: ছবিতে দুবার ট্যাপ করলে সেটি ভিউয়ে মানানসই হবে, আবার দুবার ট্যাপ করলে আসল পিক্সেল দেখাবে. ট্যাপ করতে থাকলে মানানসই আর 100% এর মধ্যে বদলাতে থাকবে.</string>

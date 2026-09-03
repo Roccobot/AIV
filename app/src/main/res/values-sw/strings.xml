@@ -95,8 +95,8 @@
     <string name="settings_scale_desc">Huamua maana ya kukuza hadi pikseli halisi. Skrini ya kifaa chochote cha kisasa huchora kila pikseli ya kimantiki kwa mraba wa pikseli halisi mbili au tatu. Chaguo la kwanza hupuuza pikseli za kimantiki na kuweka kila nukta kwenye pikseli halisi moja; la pili huonyesha kila kitu kwa ukubwa ambao kingekuwa nao kwenye ukurasa wa wavuti.</string>
     <string name="settings_top">Juu</string>
     <string name="settings_bottom">Chini</string>
-    <string name="settings_off">Imezimwa</string>
     <string name="settings_info_visible">Upau wa maelezo</string>
+    <string name="settings_info_position">Mahali</string>
     <string name="settings_zoom_menu">Ukuzaji katika menyu ya kitazamaji</string>
     <string name="settings_zoom_menu_desc">Hurudisha \'Iingie kwenye skrini\' na \'100%\' kwenye menyu ya kubonyeza kwa muda mrefu. Imezimwa kwa sababu kugusa picha mara mbili hufanya hivyo.</string>
     <string name="hint_zoom_tap">Kukuza haraka: gusa mara mbili picha ili itoshee skrini, gusa mara mbili tena kwa pikseli halisi. Endelea kugusa ili kubadilisha kati ya iliyotosheshwa na 100%.</string>
