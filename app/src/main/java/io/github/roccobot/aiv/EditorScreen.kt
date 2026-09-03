@@ -22,9 +22,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -212,9 +216,29 @@ fun EditorScreen(
     /** Tutto quello che si è fatto finora, composto in una rotazione e un rettangolo soli. */
     val total = after(steps.lastOrNull()?.done ?: Done.NOTHING, turns, crop)
 
-    Column(modifier = modifier.fillMaxSize().safeDrawingPadding()) {
+    /*
+     * ⚠️⚠️ **IL RIENTRO DI SISTEMA NON STA PIÙ QUI, dalla 1.42, ed è quello che porta la scheda
+     * al bordo di sotto** (riscontro `sotto-barra`: *fallo dappertutto, incluso l'editor*).
+     * Applicato alla colonna intera, il rientro toglieva spazio anche alla scheda in fondo, che
+     * quindi si fermava sopra la barra di sistema: là sotto restava la pagina, di un colore
+     * diverso dal pannello. Adesso ogni pezzo prende i lati che lo riguardano, e la scheda
+     * arriva al vetro col suo colore.
+     * ⚠️ **Sono tre pezzi e non due**: la testata vuole il rientro in alto, il palco solo quelli
+     * ai fianchi, la scheda quello in fondo, e i fianchi li vogliono tutti e tre (in orizzontale
+     * il ritaglio del display è di lato).
+     * ⚠️⚠️ **`safeDrawing` E NON `systemBars`**, come prima: comprende anche il ritaglio del
+     * display e la tastiera, e questa schermata dichiara `shortEdges`.
+     */
+    Column(modifier = modifier.fillMaxSize()) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(
+                        WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+                    )
+                )
+                .padding(horizontal = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
@@ -257,6 +281,7 @@ fun EditorScreen(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
                 .padding(horizontal = STAGE_SIDE, vertical = STAGE_PAD),
             contentAlignment = Alignment.Center
         ) {
@@ -549,27 +574,27 @@ private fun EditorSheet(
          * superficie ancorata al bordo l'ombra si vede solo di sotto, dove va a finire
          * sull'angolo stondato del vetro: il perché per esteso sta su `PickSheet`, dov'è
          * misurato.
-         * ⚠️ **Questa scheda però si ferma ancora SOPRA la barra di sistema**, a differenza
-         * delle altre due: vive dentro la colonna che porta il rientro, e portarla al bordo
-         * vorrebbe dire rifare l'impaginazione di questa schermata. Chi ci mette mano lo
-         * faccia insieme, non a metà.
+         * ⚠️ **E dalla 1.42 arriva sotto la barra di sistema come le altre due**: il rientro
+         * non è più sulla colonna della schermata ma sui suoi tre pezzi, e il perché sta là.
          */
         tonalElevation = SHEET_RISE
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            /*
+             * ⚠️⚠️ **IL RIENTRO DI SISTEMA STA QUI, e la scheda arriva al bordo**: il fondo
+             * della scheda passa **sotto** la barra, il contenuto no, quindi le file di tasti
+             * restano dove sono e a cambiare è la sola striscia in fondo, che prende il colore
+             * della scheda invece di quello della pagina. È la stessa cura di `PickSheet`.
+             */
+            modifier = Modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(
+                        WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
+                    )
+                ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // ⚠️ La maniglia è un segno e non un comando, come nella bottomsheet della
-            // selezione: dice 'questo è un pannello', e non si trascina.
-            Box(
-                modifier = Modifier
-                    .padding(vertical = 8.dp)
-                    .size(width = SHEET_GRIP_WIDE, height = SHEET_GRIP_TALL)
-                    .clip(RoundedCornerShape(SHEET_GRIP_TALL))
-                    .background(MaterialTheme.colorScheme.outlineVariant)
-            )
-
             /*
              * ⚠️ Le proporzioni sono CINQUE e non otto, perché le stesse quattro forme lette
              * nell'altro verso sono le altre quattro: '2:3' e '3:2' non sono due scelte, sono
@@ -795,8 +820,6 @@ private const val SHEET_KEYS = 4
  * selezione, perché è la stessa cosa in un'altra schermata. */
 private val SHEET_ROUND = 28.dp
 private val SHEET_RISE = 6.dp
-private val SHEET_GRIP_WIDE = 32.dp
-private val SHEET_GRIP_TALL = 4.dp
 
 /** Come sta la selezione: in piedi o coricata. Vedi i due tasti in [EditorScreen]. */
 private enum class Lay(@StringRes val label: Int) {

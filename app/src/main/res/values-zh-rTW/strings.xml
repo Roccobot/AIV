@@ -13,7 +13,7 @@
     <string name="bar_reduced">已縮小</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">忘記這些</string>
-    <string name="url_not_image">這個網址並不指向圖片</string>
+    <string name="url_not_image">這個位址不指向任何影像，頁面裡也沒有影像</string>
     <string name="menu_copy_image">複製圖片</string>
     <string name="menu_share">分享</string>
     <string name="menu_save">儲存</string>
@@ -30,9 +30,10 @@
     <string name="convert_elsewhere">其他格式</string>
     <string name="convert_elsewhere_desc">Android 只能寫入上面這些格式。其餘格式可以用這些服務，它們會在瀏覽器中開啟：圖片請在那裡從手機儲存空間選取。</string>
     <string name="convert_clean">清理</string>
-    <string name="convert_clean_why">去掉中介資料、註解、指令碼和編輯器殘留，在真實檔案裡它們幾乎就是全部體積。它不會重寫路徑，也不碰形狀、線條、圖形和文字。</string>
+    <string name="convert_clean_why">去掉檔頭、後設資料、註解、指令碼、C2PA 和編輯器殘留，它們是最占體積的資料（最多可達檔案的 99%），也很少用得上。</string>
+    <string name="convert_clean_keeps">不改動影像內容（路徑、形狀、線條、繪圖、文字等），插圖 100% 保持原樣。</string>
     <string name="convert_clean_c2pa">⚠️ 注意：C2PA 來源資訊也會一起消失，也就是說明檔案由誰製作的那部分。如果需要，請留一份副本。</string>
-    <string name="clean_now">在這裡清理</string>
+    <string name="clean_now">清理</string>
     <string name="clean_done">已清理：從 %1$s 到 %2$s。</string>
     <string name="clean_nothing">沒有可去掉的東西：檔案本來就是乾淨的。</string>
     <string name="clean_failed">無法清理這個檔案。</string>

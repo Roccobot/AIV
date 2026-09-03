@@ -13,7 +13,7 @@
     <string name="bar_reduced">reduziert</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Diese vergessen</string>
-    <string name="url_not_image">Die Adresse verweist nicht auf ein Bild</string>
+    <string name="url_not_image">Die Adresse führt zu keinem Bild, und die Seite enthält keins</string>
     <string name="menu_copy_image">Bild kopieren</string>
     <string name="menu_share">Teilen</string>
     <string name="menu_save">Speichern</string>
@@ -30,9 +30,10 @@
     <string name="convert_elsewhere">Andere Formate</string>
     <string name="convert_elsewhere_desc">Android kann nur die Formate oben schreiben. Für die übrigen gibt es diese Dienste, die im Browser öffnen: Das Bild wird dort aus dem Speicher des Telefons ausgewählt.</string>
     <string name="convert_clean">Aufräumen</string>
-    <string name="convert_clean_why">Entfernt Metadaten, Kommentare, Skripte und Editor-Reste, die in echten Dateien fast das gesamte Gewicht ausmachen. Die Pfade werden nicht neu geschrieben, und Formen, Linien, Zeichnungen und Text bleiben unberührt.</string>
+    <string name="convert_clean_why">Entfernt Kopfdaten, Metadaten, Kommentare, Skripte, C2PA und Editor-Reste, also die schwersten Daten (bis zu 99% der Datei), die man selten braucht.</string>
+    <string name="convert_clean_keeps">Der Bildinhalt wird nicht verändert (Pfade, Formen, Linien, Zeichnungen, Text...): die Illustration bleibt 100% unversehrt.</string>
     <string name="convert_clean_c2pa">⚠️ ACHTUNG: Auch die C2PA-Herkunft verschwindet, also der Teil, der sagt, wer die Datei erstellt hat. Behalte eine Kopie, wenn du sie brauchst.</string>
-    <string name="clean_now">Hier aufräumen</string>
+    <string name="clean_now">Aufräumen</string>
     <string name="clean_done">Aufgeräumt: von %1$s auf %2$s.</string>
     <string name="clean_nothing">Es gab nichts zu entfernen: die Datei war schon sauber.</string>
     <string name="clean_failed">Die Datei konnte nicht aufgeräumt werden.</string>

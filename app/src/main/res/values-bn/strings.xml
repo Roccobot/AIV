@@ -13,7 +13,7 @@
     <string name="bar_reduced">হ্রাসকৃত</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">এগুলো ভুলে যান</string>
-    <string name="url_not_image">ঠিকানাটি কোনো ছবির দিকে নির্দেশ করে না</string>
+    <string name="url_not_image">ঠিকানাটি কোনো ছবিতে নিয়ে যায় না, আর পাতাটিতেও কোনো ছবি নেই</string>
     <string name="menu_copy_image">ছবি কপি করুন</string>
     <string name="menu_share">শেয়ার করুন</string>
     <string name="menu_save">সংরক্ষণ করুন</string>
@@ -30,9 +30,10 @@
     <string name="convert_elsewhere">অন্যান্য বিন্যাস</string>
     <string name="convert_elsewhere_desc">অ্যান্ড্রয়েড কেবল উপরের বিন্যাসগুলিই লিখতে পারে। বাকিগুলির জন্য এই পরিষেবাগুলি আছে, যেগুলি ব্রাউজারে খোলে: ছবিটি সেখানেই, ফোনের মেমরি থেকে বেছে নিন।</string>
     <string name="convert_clean">পরিষ্কার</string>
-    <string name="convert_clean_why">মেটাডেটা, মন্তব্য, স্ক্রিপ্ট আর সম্পাদকের অবশেষ সরিয়ে দেয়, যা আসল ফাইলে প্রায় পুরো ওজন। এটি পথ আবার লেখে না, এবং আকৃতি, রেখা, আঁকা বা লেখা স্পর্শ করে না।</string>
+    <string name="convert_clean_why">হেডার, মেটাডেটা, মন্তব্য, স্ক্রিপ্ট, C2PA এবং সম্পাদকের অবশিষ্টাংশ সরিয়ে দেয়, যেগুলো সবচেয়ে ভারী তথ্য (ফাইলের 99% পর্যন্ত) এবং খুব কমই দরকার হয়।</string>
+    <string name="convert_clean_keeps">ছবির বিষয়বস্তু বদলায় না (পাথ, আকৃতি, রেখা, অঙ্কন, লেখা...): অলংকরণ 100% অক্ষত থাকে।</string>
     <string name="convert_clean_c2pa">⚠️ সতর্কতা: C2PA উৎসও চলে যায়, অর্থাৎ যে অংশটি বলে ফাইলটি কে বানিয়েছে। দরকার হলে একটি অনুলিপি রাখুন।</string>
-    <string name="clean_now">এখানেই পরিষ্কার করুন</string>
+    <string name="clean_now">পরিষ্কার করুন</string>
     <string name="clean_done">পরিষ্কার হয়েছে: %1$s থেকে %2$s।</string>
     <string name="clean_nothing">সরানোর কিছু ছিল না: ফাইলটি আগেই পরিষ্কার ছিল।</string>
     <string name="clean_failed">ফাইলটি পরিষ্কার করা যায়নি।</string>

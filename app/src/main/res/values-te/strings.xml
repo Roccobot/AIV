@@ -13,7 +13,7 @@
     <string name="bar_reduced">తగ్గించబడింది</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">ఇవి మరచిపోండి</string>
-    <string name="url_not_image">చిరునామా ఒక చిత్రాన్ని చూపడం లేదు</string>
+    <string name="url_not_image">ఈ చిరునామా ఏ చిత్రానికీ దారి తీయదు, పేజీలోనూ చిత్రం లేదు</string>
     <string name="menu_copy_image">చిత్రాన్ని కాపీ చేయి</string>
     <string name="menu_share">పంచుకోండి</string>
     <string name="menu_save">భద్రపరచండి</string>
@@ -30,9 +30,10 @@
     <string name="convert_elsewhere">ఇతర ఫార్మాట్లు</string>
     <string name="convert_elsewhere_desc">పైన ఉన్న ఫార్మాట్లను మాత్రమే Android రాయగలదు. మిగతా వాటికి ఈ సేవలు ఉన్నాయి, అవి బ్రౌజర్‌లో తెరుచుకుంటాయి: చిత్రాన్ని అక్కడే, ఫోన్ మెమరీ నుండి ఎంచుకోండి.</string>
     <string name="convert_clean">శుభ్రం చేయి</string>
-    <string name="convert_clean_why">మెటాడేటా, వ్యాఖ్యలు, స్క్రిప్ట్‌లు, ఎడిటర్ అవశేషాలను తీసేస్తుంది; నిజమైన ఫైళ్లలో అవే దాదాపు మొత్తం బరువు. ఇది మార్గాలను తిరిగి రాయదు, ఆకారాలు, గీతలు, బొమ్మలు, పాఠ్యాన్ని తాకదు.</string>
+    <string name="convert_clean_why">శీర్షికలు, మెటాడేటా, వ్యాఖ్యలు, స్క్రిప్ట్‌లు, C2PA మరియు ఎడిటర్ అవశేషాలను తొలగిస్తుంది; ఇవి అత్యంత భారమైన డేటా (ఫైల్‌లో 99% వరకు) మరియు అరుదుగా అవసరమవుతాయి.</string>
+    <string name="convert_clean_keeps">చిత్రంలోని విషయం మారదు (మార్గాలు, ఆకారాలు, గీతలు, గీసినవి, వచనం...): చిత్రం 100% చెక్కుచెదరకుండా ఉంటుంది.</string>
     <string name="convert_clean_c2pa">⚠️ హెచ్చరిక: ఫైల్‌ను ఎవరు తయారు చేశారో చెప్పే C2PA మూలం కూడా పోతుంది. అవసరమైతే ఒక కాపీ ఉంచుకో.</string>
-    <string name="clean_now">ఇక్కడే శుభ్రం చేయి</string>
+    <string name="clean_now">శుభ్రం చేయి</string>
     <string name="clean_done">శుభ్రం చేసింది: %1$s నుంచి %2$s కి.</string>
     <string name="clean_nothing">తీసేయడానికి ఏమీ లేదు: ఫైల్ ఇప్పటికే శుభ్రంగా ఉంది.</string>
     <string name="clean_failed">ఫైల్‌ను శుభ్రం చేయలేకపోయాం.</string>

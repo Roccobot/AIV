@@ -1,7 +1,11 @@
 package io.github.roccobot.aiv
 
+import android.graphics.Color
+import android.os.Build
 import android.view.Gravity
 import android.view.ViewGroup
+import android.view.Window
+import android.view.WindowManager
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
@@ -258,8 +262,42 @@ private fun sheetWindow() {
             // ⚠️ Lo sfondo della finestra deve essere trasparente, o dietro la scheda si
             // vedrebbe il rettangolo di serie del dialogo al posto del velo.
             setBackgroundDrawableResource(android.R.color.transparent)
+            edgeToEdge()
         }
         onDispose { }
+    }
+}
+
+/**
+ * Le tre cose che servono a una finestra di dialogo per **dipingere da sé** sotto le barre di
+ * sistema, cioè quello che `enableEdgeToEdge()` fa all'attività e a nessun'altra finestra.
+ *
+ * ⚠️⚠️ **ESISTE PERCHÉ LA 1.40 NON HA FUNZIONATO, e la causa è la riga sopra a questa**
+ * (riscontro `sotto-barra` della `1.41`: *fallo dappertutto, ma anche dove l'avevi già fatto,
+ * perché non ha funzionato*). Misurato sul sorgente di `compose-ui` 1.12.0, non ragionato:
+ * `DialogLayout.internalOnMeasure` aggiunge `FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS` **solo** se
+ * `window.attributes.height == WRAP_CONTENT`, e questa scheda l'altezza della finestra la mette
+ * a `MATCH_PARENT` da sé (le serve per avere lo spazio sopra che raccoglie il tocco che chiude).
+ * Quindi `decorFitsSystemWindows = false` stendeva sì la finestra fino al bordo, ma senza quel
+ * flag il sistema continuava a dipingersi la sua barra opaca sopra: il fondo della scheda
+ * arrivava là sotto e non si vedeva.
+ * ⚠️⚠️ **E DA ANDROID 10 NON BASTA IL FLAG: c'è un velo che il sistema aggiunge da sé**
+ * (`isNavigationBarContrastEnforced`, vero di fabbrica), che su una barra trasparente in
+ * navigazione a gesti dipinge una patina traslucida. `enableEdgeToEdge()` lo spegne
+ * sull'attività, e su una finestra nuova torna acceso: senza questa riga la striscia in fondo
+ * sarebbe **quasi** del colore della scheda, che è il modo peggiore di sbagliare, perché
+ * sembra un difetto di tinta e non un velo.
+ * ⚠️ **I due colori si dichiarano benché siano già nel tema**: `Theme.AIV` li ha trasparenti,
+ * ma il dialogo vive su una finestra sua, e un tema che un domani non li portasse più li
+ * rimetterebbe opachi qui senza che nessuno colleghi le due cose.
+ */
+@Suppress("DEPRECATION")
+private fun Window.edgeToEdge() {
+    addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+    statusBarColor = Color.TRANSPARENT
+    navigationBarColor = Color.TRANSPARENT
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        isNavigationBarContrastEnforced = false
     }
 }
 
@@ -310,14 +348,18 @@ private const val SHEET_IN = 170
 /**
  * Il velo che resta dietro la scheda quando la funzione della `1.39` è spenta.
  *
- * ⚠️⚠️ **SENZA QUESTO NUMERO LA SCHEDA GALLEGGEREBBE SU UNA SCHERMATA INTATTA, e non è una
- * prudenza**: è misurato nelle risorse di `compose-ui` 1.12.0, dove la finestra di un dialogo
- * con `usePlatformDefaultWidth = false` prende lo stile `DialogWindowTheme`, che **non**
- * dichiara `backgroundDimEnabled`; quella con la larghezza di serie prende
- * `FloatingDialogWindowTheme`, che lo dichiara. Cioè i tredici dialoghi di Material il loro
- * velo ce l'hanno da Android, e questa scheda no.
  * ⚠️ **0,6 è quello di Android**, il valore di `backgroundDimAmount` del tema da cui discende
  * `Theme.AIV`: così a funzione spenta la scheda è velata come ogni altro dialogo dell'app,
- * invece di essere velata a modo suo.
+ * invece di essere velata a modo suo. ⚠️ Si **imposta** e non si somma (`setDimAmount`), quindi
+ * scritto due volte resta 0,6.
+ *
+ * ⚠️⚠️ **NASCE PERCHÉ NELLA 1.39 LA SCHEDA NON AVEVA VELO, e dalla 1.40 CE L'HA: si scrive lo
+ * stesso, e la ragione è che quel velo non ce l'ha per una scelta nostra.** Misurato nelle
+ * risorse di `compose-ui` 1.12.0: la finestra di un dialogo prende `DialogWindowTheme`, che
+ * **non** dichiara `backgroundDimEnabled`, oppure `FloatingDialogWindowTheme`, che lo dichiara,
+ * e quale dei due lo decide `decorFitsSystemWindows`. Questa scheda ha cambiato ramo nella
+ * `1.40` per un'altra richiesta (arrivare sotto la barra di sistema), cioè si è ritrovata un
+ * velo di sistema come effetto collaterale. Chi togliesse questa riga fidandosi di quello si
+ * consegnerebbe alla prossima richiesta che sposta quel parametro.
  */
 private const val SHEET_DIM = 0.6f

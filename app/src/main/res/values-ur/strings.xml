@@ -13,7 +13,7 @@
     <string name="bar_reduced">کم کیا گیا</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">یہ پتے بھول جائیں</string>
-    <string name="url_not_image">پتہ کسی تصویر کی طرف اشارہ نہیں کرتا</string>
+    <string name="url_not_image">یہ پتہ کسی تصویر تک نہیں پہنچتا، اور صفحے میں بھی کوئی تصویر نہیں</string>
     <string name="menu_copy_image">تصویر کاپی کریں</string>
     <string name="menu_share">شیئر کریں</string>
     <string name="menu_save">محفوظ کریں</string>
@@ -30,9 +30,10 @@
     <string name="convert_elsewhere">دوسرے فارمیٹ</string>
     <string name="convert_elsewhere_desc">اینڈرائیڈ صرف اوپر والے فارمیٹ لکھ سکتا ہے۔ باقی کے لیے یہ خدمات ہیں، جو براؤزر میں کھلتی ہیں: تصویر وہیں، فون کی یادداشت سے منتخب کریں۔</string>
     <string name="convert_clean">صفائی</string>
-    <string name="convert_clean_why">میٹا ڈیٹا، تبصرے، اسکرپٹ اور ایڈیٹروں کی باقیات ہٹا دیتا ہے، جو اصلی فائلوں میں تقریباً سارا وزن ہوتی ہیں۔ یہ راستے دوبارہ نہیں لکھتا، اور شکلوں، لکیروں، تصویروں یا متن کو نہیں چھوتا۔</string>
+    <string name="convert_clean_why">سرخیاں، میٹا ڈیٹا، تبصرے، اسکرپٹ، C2PA اور ایڈیٹرز کی باقیات ہٹا دیتا ہے، جو سب سے بھاری ڈیٹا ہے (فائل کے 99% تک) اور کم ہی درکار ہوتا ہے۔</string>
+    <string name="convert_clean_keeps">تصویر کا مواد تبدیل نہیں ہوتا (راستے، شکلیں، لکیریں، خاکے، متن...): خاکہ 100% برقرار رہتا ہے۔</string>
     <string name="convert_clean_c2pa">⚠️ انتباہ: C2PA کا منبع بھی چلا جاتا ہے، یعنی وہ حصہ جو بتاتا ہے کہ فائل کس نے بنائی۔ ضرورت ہو تو ایک نقل رکھ لیں۔</string>
-    <string name="clean_now">یہیں صاف کریں</string>
+    <string name="clean_now">صاف کریں</string>
     <string name="clean_done">صاف ہو گیا: %1$s سے %2$s تک۔</string>
     <string name="clean_nothing">ہٹانے کے لیے کچھ نہیں تھا: فائل پہلے ہی صاف تھی۔</string>
     <string name="clean_failed">فائل صاف نہیں کی جا سکی۔</string>

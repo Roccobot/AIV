@@ -13,7 +13,7 @@
     <string name="bar_reduced">已缩小</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">忘记这些</string>
-    <string name="url_not_image">该地址并不指向图片</string>
+    <string name="url_not_image">这个地址不指向任何图像，页面里也没有图像</string>
     <string name="menu_copy_image">复制图片</string>
     <string name="menu_share">分享</string>
     <string name="menu_save">保存</string>
@@ -30,9 +30,10 @@
     <string name="convert_elsewhere">其他格式</string>
     <string name="convert_elsewhere_desc">安卓只能写入上面这些格式。其余格式可以用这些服务，它们在浏览器中打开：图片在那里从手机存储中选择。</string>
     <string name="convert_clean">清理</string>
-    <string name="convert_clean_why">去掉元数据、注释、脚本和编辑器残留，在真实文件里它们几乎就是全部体积。它不会重写路径，也不碰形状、线条、图形和文字。</string>
+    <string name="convert_clean_why">去掉文件头、元数据、注释、脚本、C2PA 和编辑器残留，它们是最占体积的数据（最多可达文件的 99%），也很少用得上。</string>
+    <string name="convert_clean_keeps">不改动图像内容（路径、形状、线条、绘图、文字等），插图 100% 保持原样。</string>
     <string name="convert_clean_c2pa">⚠️ 注意：C2PA 来源信息也会一起消失，也就是说明文件由谁制作的那部分。如果需要，请留一份副本。</string>
-    <string name="clean_now">在这里清理</string>
+    <string name="clean_now">清理</string>
     <string name="clean_done">已清理：从 %1$s 到 %2$s。</string>
     <string name="clean_nothing">没有可去掉的东西：文件本来就是干净的。</string>
     <string name="clean_failed">无法清理这个文件。</string>

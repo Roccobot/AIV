@@ -68,8 +68,47 @@ object WebSeries {
          * ⚠️ Viene per ultimo perché è il primo che **costa una pagina scaricata** invece
          * di una domanda secca: ci si arriva solo quando i gratuiti hanno fallito.
          */
-        FOLDER_INDEX
+        FOLDER_INDEX,
+
+        /**
+         * Le immagini della **pagina** che si è aperta: il sesto gradino della cascata.
+         *
+         * ⚠️⚠️ **NON STA NELLA CASCATA, e non è una dimenticanza**: gli altri cinque
+         * partono dall'indirizzo di **un'immagine** e cercano la vicina, questo parte
+         * dall'indirizzo di una **pagina**, che è un altro ingresso e non un altro
+         * tentativo. Per questo [around] lo salta ([GUESSED] è la lista che percorre) e ci
+         * si arriva solo da [fromPage]. Stava scritto così anche nella proposta approvata
+         * il 2026-08-31: *prima va cambiato il modo di condividere verso l'app, è una
+         * decisione a sé, non un gradino di questa scala*.
+         * ⚠️⚠️ **LA PORTA D'INGRESSO NON È NUOVA, ed è la ragione per cui questo gradino si
+         * è potuto fare adesso** (istruzione dell'utente, 2026-09-03: *inizia a
+         * lavorarci*): il dialogo 'Apri un indirizzo' esiste dalla `0.41`, e un indirizzo
+         * che non porta a un'immagine là dentro era un vicolo cieco (*L'URL non punta a
+         * un'immagine*, con l'esempio `esempio.it/pagina` scritto nel commento). Adesso
+         * quel vicolo prova la pagina. ⚠️ **Niente filtro nuovo nel manifesto e nessun
+         * bersaglio di condivisione in più**: la strada che l'avrebbe voluto è quella che
+         * l'utente ha rifiutato (voce `brave-link`, *dovrebbe accettare qualunque testo
+         * condiviso* -> **no**), e con lei AIV comparirebbe nel pannello di ogni frase
+         * condivisa.
+         * ⚠️ Come [FOLDER_INDEX] dà la serie **intera**, quindi non si rifà a ogni passo.
+         */
+        PAGE_LINKS
     }
+
+    /**
+     * I criteri che [around] percorre: tutti tranne quelli che partono da una pagina.
+     *
+     * ⚠️ Si ricava per **esclusione** e non elencando i cinque: così un criterio nuovo
+     * entra nella cascata da sé, che è il caso normale, e chi ne aggiunge uno che parte da
+     * altro deve nominarlo qui, cioè accorgersene.
+     */
+    private val GUESSED = Rule.entries - Rule.PAGE_LINKS
+
+    /**
+     * I criteri che danno la serie **intera**, e per cui non si rifà la finestra a ogni
+     * passo: rifarla vorrebbe dire riscaricare la stessa pagina a ogni fotografia.
+     */
+    val WHOLE = setOf(Rule.FOLDER_INDEX, Rule.PAGE_LINKS)
 
     /** La finestra costruita attorno a un indirizzo, col criterio che l'ha prodotta. */
     data class Window(val lookup: Folder.Lookup, val rule: Rule?)
@@ -112,7 +151,7 @@ object WebSeries {
      * senza toccare la rete: è la ragione per cui la cascata può essere lunga.
      */
     suspend fun around(uri: Uri, locked: Rule? = null): Window = withContext(Dispatchers.IO) {
-        val rules = if (locked != null) listOf(locked) else Rule.entries
+        val rules = if (locked != null) listOf(locked) else GUESSED
         for (rule in rules) {
             // ⚠️ L'indice non produce una vicina: produce la serie intera, quindi salta
             // tutto il giro dei candidati e delle due verifiche.
@@ -150,10 +189,48 @@ object WebSeries {
         Rule.PATH_NUMBER -> onFolderPath(uri, delta)
         Rule.QUERY_NUMBER -> onQuery(uri, delta)
         Rule.NAME_LETTER -> onFileName(uri) { stem -> lettered(stem, delta) }
-        // ⚠️ L'indice non ha un vicino da calcolare: la sua serie nasce intera in
-        // [fromIndex], e questo ramo esiste perché il `when` sia completo invece di
-        // avere un ramo `else` che un domani inghiottirebbe un criterio nuovo.
-        Rule.FOLDER_INDEX -> null
+        // ⚠️ I due che danno la serie intera ([WHOLE]) non hanno un vicino da calcolare:
+        // la loro serie nasce in [fromIndex] e in [fromPage]. Questi due rami esistono
+        // perché il `when` sia completo invece di avere un `else` che un domani
+        // inghiottirebbe un criterio nuovo.
+        Rule.FOLDER_INDEX, Rule.PAGE_LINKS -> null
+    }
+
+    // ── La pagina che conteneva l'immagine ──────────────────────────────────
+
+    /**
+     * Le immagini di una **pagina**, nell'ordine in cui vi compaiono.
+     *
+     * ⚠️⚠️ **L'ORDINE È QUELLO DEL DOCUMENTO e non quello naturale dei nomi**, al contrario
+     * di [fromIndex], e la differenza è il senso del gradino: l'indice di una cartella è un
+     * elenco che il server genera, quindi l'ordine vero è quello dei numeri nei nomi; una
+     * pagina invece è **impaginata da qualcuno**, e quell'ordine è l'informazione che si
+     * sta andando a prendere. Riordinare per nome butterebbe via la sola cosa che una
+     * pagina sa e una cartella no.
+     * ⚠️ **Si guardano `src` e `href` insieme**: le miniature stanno negli `img` e le
+     * versioni grandi nei collegamenti che le avvolgono, e prendere solo gli uni darebbe
+     * una galleria di francobolli. La `distinct` tiene la **prima** apparizione, cioè
+     * l'ordine in cui la pagina le presenta.
+     * ⚠️⚠️ **NIENTE LETTORE DI HTML, come in [fromIndex]**: qui non si interpreta una
+     * pagina, si raccolgono due attributi. Un lettore vero sarebbe una libreria in più
+     * nell'APK per fare le stesse due espressioni.
+     * ⚠️ **Serve almeno una immagine, non due**: una pagina con una sola immagine grande è
+     * il caso di quasi tutti i siti di scansioni, e aprirla è già quello che si voleva. È
+     * il contrario di [fromIndex], che ne vuole due perché là una sola vorrebbe dire
+     * 'l'elenco non è il suo'.
+     * ⚠️ **Il tetto di lettura è quello di [fetch]**, mezzo megabyte: se le immagini non
+     * sono nella prima parte del documento, quella non è una galleria.
+     */
+    suspend fun fromPage(uri: Uri): Folder.Series? = withContext(Dispatchers.IO) {
+        val page = fetch(uri) ?: return@withContext null
+        val base = uri.toString()
+        val items = SOURCES.findAll(page)
+            .mapNotNull { resolved(base, it.groupValues[1].trim()) }
+            .filter { ImageActions.looksLikeImage(Uri.parse(it)) }
+            .distinct()
+            .map(Uri::parse)
+            .toList()
+        if (items.isEmpty()) null else Folder.Series(items, 0)
     }
 
     /**
@@ -462,6 +539,23 @@ object WebSeries {
     private val DIGITS = Regex("""\d+""")
     private val HINGES = setOf('_', '-')
     private val LINKS = Regex("""href\s*=\s*["']([^"']+)["']""", RegexOption.IGNORE_CASE)
+
+    /**
+     * `src` e `href` insieme, per [fromPage].
+     *
+     * ⚠️ **Una espressione sola e non due passate**: l'ordine del documento è quello che
+     * questo gradino va a prendere, e due ricerche separate darebbero prima tutti gli
+     * `href` e poi tutti gli `src`, cioè un ordine inventato da noi. ⚠️ **`src` prima di
+     * `href` nell'alternativa** non cambia l'ordine dei risultati (`findAll` scorre il
+     * testo), e serve solo a leggersi come 'l'immagine, o il collegamento che la avvolge'.
+     * ⚠️ Prende anche `data-src` e simili per via del `[\w-]*`: i siti che caricano le
+     * immagini a scorrimento mettono l'indirizzo vero là, e senza quel pezzo una galleria
+     * moderna risponderebbe 'nessuna immagine'.
+     */
+    private val SOURCES = Regex(
+        """(?:[\w-]*src|href)\s*=\s*["']([^"']+)["']""",
+        RegexOption.IGNORE_CASE
+    )
 
     /** I nomi che in una coda significano 'quale della serie', in ordine di quanto sono chiari. */
     private val SEQUENCE_KEYS = setOf("id", "page", "p", "n", "num", "index", "offset", "start")

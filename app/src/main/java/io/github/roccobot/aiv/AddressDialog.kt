@@ -56,6 +56,13 @@ import kotlinx.coroutines.launch
 fun AddressDialog(
     recents: List<RecentImage>,
     onOpen: (Uri) -> Unit,
+    /**
+     * Le immagini di una **pagina**, quando l'indirizzo non porta a un'immagine.
+     *
+     * ⚠️ Vedi `WebSeries.Rule.PAGE_LINKS`: è il sesto gradino dello sfogliatore Web, e
+     * questo dialogo è la sua porta d'ingresso perché ce n'era già una.
+     */
+    onOpenPage: (Folder.Series) -> Unit,
     onForget: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -81,6 +88,18 @@ fun AddressDialog(
      * ⚠️ Su un indirizzo che finisce in `.jpg` la verifica **non tocca la rete**
      * (`leadsToImage` risponde dall'estensione), quindi il caso comune non aspetta
      * niente.
+     *
+     * ⚠️⚠️ **E DALLA 1.42 UN INDIRIZZO CHE NON È UN'IMMAGINE NON È PIÙ UN VICOLO CIECO: si
+     * prova la PAGINA** (istruzione dell'utente, 2026-09-03, sul sesto gradino dello
+     * sfogliatore Web: *inizia a lavorarci*). Se là dentro ci sono immagini, si aprono come
+     * serie, nell'ordine in cui la pagina le presenta. È esattamente il caso che il commento
+     * qui sopra portava come esempio di errore, `esempio.it/pagina`.
+     * ⚠️ **La pagina si prova SOLO dopo il no dell'immagine**, e l'ordine è la cosa che
+     * tiene basso il costo: chi incolla l'indirizzo di una fotografia non paga niente in
+     * più, perché quel ramo non ci arriva.
+     * ⚠️ **L'errore adesso dice due cose invece di una** ([R.string.url_not_image]): a
+     * questo punto si è provato l'indirizzo **e** la pagina, e un messaggio che nominasse
+     * solo la prima racconterebbe metà di quello che è stato fatto.
      */
     fun go(uri: Uri?) {
         if (uri == null) return
@@ -90,6 +109,12 @@ fun AddressDialog(
             if (ImageActions.leadsToImage(uri)) {
                 onDismiss()
                 onOpen(uri)
+                return@launch
+            }
+            val page = WebSeries.fromPage(uri)
+            if (page != null) {
+                onDismiss()
+                onOpenPage(page)
             } else {
                 problem = R.string.url_not_image
                 busy = false

@@ -13,7 +13,7 @@
     <string name="bar_reduced">مصغّرة</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">نسيان هذه العناوين</string>
-    <string name="url_not_image">العنوان لا يشير إلى صورة</string>
+    <string name="url_not_image">لا يؤدي العنوان إلى صورة، والصفحة لا تحتوي على أي صورة</string>
     <string name="menu_copy_image">نسخ الصورة</string>
     <string name="menu_share">مشاركة</string>
     <string name="menu_save">حفظ</string>
@@ -30,9 +30,10 @@
     <string name="convert_elsewhere">صيغ أخرى</string>
     <string name="convert_elsewhere_desc">لا يستطيع أندرويد كتابة سوى الصيغ أعلاه. أما البقية فتوفرها هذه الخدمات، وهي تُفتح في المتصفح: اختر الصورة هناك من ذاكرة الهاتف.</string>
     <string name="convert_clean">تنظيف</string>
-    <string name="convert_clean_why">يزيل البيانات الوصفية والتعليقات والنصوص البرمجية وبقايا المحرِّرات، وهي في الملفات الحقيقية كل الوزن تقريبًا. لا يعيد كتابة المسارات، ولا يمس الأشكال ولا الخطوط ولا الرسوم ولا النصوص.</string>
+    <string name="convert_clean_why">يزيل الترويسات والبيانات الوصفية والتعليقات والنصوص البرمجية وبيانات C2PA وبقايا المحرِّرات، وهي أثقل البيانات (حتى 99% من الملف) ويندر أن تكون مطلوبة.</string>
+    <string name="convert_clean_keeps">لا يغيّر محتوى الصورة (المسارات والأشكال والخطوط والرسوم والنصوص...): يبقى الرسم سليمًا 100%.</string>
     <string name="convert_clean_c2pa">⚠️ تنبيه: يذهب أيضًا أصل C2PA، أي الجزء الذي يقول من صنع الملف. احتفظ بنسخة إن كنت بحاجة إليها.</string>
-    <string name="clean_now">نظِّف هنا</string>
+    <string name="clean_now">نظِّف</string>
     <string name="clean_done">تم التنظيف: من %1$s إلى %2$s.</string>
     <string name="clean_nothing">لم يكن هناك ما يُزال: الملف كان نظيفًا بالفعل.</string>
     <string name="clean_failed">لم يتم تنظيف الملف.</string>

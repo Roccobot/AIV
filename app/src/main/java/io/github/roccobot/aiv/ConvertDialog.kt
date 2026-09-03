@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import kotlinx.coroutines.launch
@@ -204,18 +205,16 @@ fun ConvertDialog(
                  * ⚠️⚠️ **'PULISCI' COMPARE SOLO SU UN SVG, ed è una richiesta dell'utente**
                  * (2026-09-02: *se sto visualizzando un SVG, voglio che il menu
                  * 'Esporta/Converti' includa anche un 'Pulisci' prima di 'Altri formati'*). Su
-                 * una fotografia non avrebbe senso: CleanSVG toglie i metadati da un
-                 * **documento vettoriale**, e su un JPEG non c'è niente da ripulire con lui.
+                 * un'immagine a punti non avrebbe senso: qui si toglie il contorno di un
+                 * **documento vettoriale**, e in un JPEG non c'è niente di simile.
                  * ⚠️ **Prima di 'Altri formati' e dopo l'esportazione**, come chiesto: quello
                  * che si fa più spesso resta in cima, e questa è una via di mezzo fra il
                  * convertire (sopra) e il mandare fuori (sotto).
-                 * ⚠️⚠️ **PORTA FUORI E NON MANDA IL FILE, e la differenza va detta**: CleanSVG
-                 * è una pagina web che lavora **nel browser**, e per riceverne un file
-                 * vorrebbe un intento di condivisione che una pagina non può dichiarare.
-                 * Quindi qui si apre l'indirizzo, e il file lo si sceglie là. È lo stesso
-                 * contratto dei tre servizi qui sotto.
-                 * ⚠️ **Il testo è suo, parola per parola**, numeri compresi (*fino al 99%*):
-                 * quella è la misura che ha fatto lui sul suo strumento, non una mia stima.
+                 * ⚠️ **I tre testi sono suoi, parola per parola**, numeri compresi (*fino al
+                 * 99%*, *intatta al 100%*): il primo è la misura che ha fatto lui sul suo
+                 * strumento, e il secondo la promessa che vuole leggere prima di premere. Sono
+                 * stati ridettati nel giro della `1.41`, quando la pulizia è diventata una sola
+                 * (riscontro `pulitore-web-via`), e il testo di prima parlava ancora di due.
                  */
                 if (isVector(image)) {
                     HorizontalDivider(modifier = Modifier.padding(top = 12.dp))
@@ -225,6 +224,7 @@ fun ConvertDialog(
                         modifier = Modifier.padding(top = 10.dp)
                     )
                     Note(stringResource(R.string.convert_clean_why))
+                    Note(stringResource(R.string.convert_clean_keeps), strong = true)
                     Note(stringResource(R.string.convert_clean_c2pa))
                     /*
                      * ⚠️ **L'esito sta SOPRA i tasti e resta scritto**, invece di essere un
@@ -338,12 +338,29 @@ private fun Heading(text: String) {
     )
 }
 
+/**
+ * @param strong se la riga va in grassetto e col colore pieno del testo.
+ *
+ * ⚠️⚠️ **SERVE A UNA RIGA SOLA, e il perché è la forma in cui l'utente l'ha dettata**
+ * (riscontro `pulitore-web-via` della `1.41`): là dentro due frasi erano fra asterischi, cioè
+ * marcate come le cose che contano (*non modifica il contenuto dell'immagine*, *l'illustrazione
+ * rimane intatta al 100%*). Sono la promessa del pulitore, ed è quello che uno vuole leggere
+ * prima di premere.
+ * ⚠️⚠️ **IL GRASSETTO STA SULLA RIGA INTERA E NON SULLE SOLE FRASI MARCATE, e lo scostamento è
+ * dichiarato**: per accenderlo a metà frase servirebbe della marcatura **dentro** la stringa, e
+ * `stringResource` la butta via (le sue etichette diventano spans e la stringa arriva nuda),
+ * quindi bisognerebbe scriverla schermata e ricomporla a mano, in 28 lingue. Cioè un sistema
+ * ad-hoc per due parole. Le due frasi marcate sono già **tutta** quella riga tranne l'elenco
+ * fra parentesi, e quell'elenco è la cosa che le due frasi promettono: in grassetto non stona.
+ */
 @Composable
-private fun Note(text: String) {
+private fun Note(text: String, strong: Boolean = false) {
     Text(
         text = text,
         style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
+        fontWeight = if (strong) FontWeight.SemiBold else null,
+        color = if (strong) MaterialTheme.colorScheme.onSurface
+        else MaterialTheme.colorScheme.onSurfaceVariant
     )
 }
 

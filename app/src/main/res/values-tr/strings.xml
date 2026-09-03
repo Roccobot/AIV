@@ -13,7 +13,7 @@
     <string name="bar_reduced">küçültülmüş</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Bunları unut</string>
-    <string name="url_not_image">Adres bir görseli göstermiyor</string>
+    <string name="url_not_image">Adres hiçbir görüntüye götürmüyor, sayfada da görüntü yok</string>
     <string name="menu_copy_image">Görüntüyü kopyala</string>
     <string name="menu_share">Paylaş</string>
     <string name="menu_save">Kaydet</string>
@@ -30,9 +30,10 @@
     <string name="convert_elsewhere">Diğer biçimler</string>
     <string name="convert_elsewhere_desc">Android yalnızca yukarıdaki biçimleri yazabilir. Diğerleri için tarayıcıda açılan şu hizmetler var: görüntü orada, telefonun belleğinden seçilir.</string>
     <string name="convert_clean">Temizle</string>
-    <string name="convert_clean_why">Gerçek dosyalarda ağırlığın neredeyse tamamını oluşturan üst verileri, yorumları, betikleri ve düzenleyici artıklarını kaldırır. Yolları yeniden yazmaz; şekillere, çizgilere, çizimlere ve metne dokunmaz.</string>
+    <string name="convert_clean_why">Başlıkları, üst verileri, yorumları, betikleri, C2PA\'yı ve düzenleyici artıklarını kaldırır; bunlar en ağır verilerdir (dosyanın 99%\'una kadar) ve nadiren gerekir.</string>
+    <string name="convert_clean_keeps">Görüntünün içeriğini değiştirmez (yollar, şekiller, çizgiler, çizimler, metin...): çizim 100% olduğu gibi kalır.</string>
     <string name="convert_clean_c2pa">⚠️ DİKKAT: dosyayı kimin yaptığını söyleyen C2PA kaynak bilgisi de gider. Gerekiyorsa bir kopyasını sakla.</string>
-    <string name="clean_now">Burada temizle</string>
+    <string name="clean_now">Temizle</string>
     <string name="clean_done">Temizlendi: %1$s boyutundan %2$s boyutuna.</string>
     <string name="clean_nothing">Kaldıracak bir şey yoktu: dosya zaten temizdi.</string>
     <string name="clean_failed">Dosya temizlenemedi.</string>

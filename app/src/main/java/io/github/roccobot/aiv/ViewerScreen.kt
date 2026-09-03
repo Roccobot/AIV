@@ -2998,7 +2998,10 @@ private fun DetailsPanel(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val formato = image.mimeType?.substringAfter('/')?.uppercase() ?: "?"
+            // ⚠️ Il nome del formato lo calcola [kindOf], dalla `1.42`: qui stava la stessa
+            // regola scritta a mano, e sugli SVG diceva ancora `SVG+XML` due versioni dopo
+            // che il pannello delle informazioni aveva smesso.
+            val formato = kindOf(image.mimeType) ?: "?"
             val resto = buildString {
                     append("  ")
                     append(image.pixelWidth).append(" x ").append(image.pixelHeight)

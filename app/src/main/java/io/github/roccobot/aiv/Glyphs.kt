@@ -44,13 +44,15 @@ import androidx.compose.ui.unit.dp
  * `1.35` sono **tornati questi**, su sua istruzione: *per il momento ripristina le icone
  * precedenti*.
  * ⚠️ **NON era un errore di lettura del brief**, ed è la parte che conta: quei glifi stavano
- * nella sezione 2 di `dev/BRIEF.md` e la richiesta li nominava (*drawable e glifi in
+ * nella sezione 2 del brief dei disegni e la richiesta li nominava (*drawable e glifi in
  * `Glyphs.kt`*). L'utente ha spiegato dopo che quel brief era un copiaincolla e che quella
  * parte non l'aveva vista: *volevo cambiare solo l'icona principale e la pagina di download
  * per il momento*. Quindi il lavoro era corretto e la **priorità** è cambiata.
- * ⚠️⚠️ **I DISEGNI NUOVI NON SONO PERSI, e stanno in due posti**: i file dell'utente in
- * `dev/glifi/` (otto SVG su griglia 24), e il codice che li portava qui nella storia git,
- * commit della `1.33`. ⚠️ **L'ICONA NUOVA DELL'APP RESTA**: quella era l'altra metà del
+ * ⚠️⚠️ **I DISEGNI NUOVI NON SONO PERSI, e stanno in due posti**: gli otto SVG dell'utente
+ * (griglia 24) in Claude Design, progetto `Roccobot Design`, cartella `assets/icons/`, e il
+ * codice che li portava qui nella **storia git**, commit della `1.33`. ⚠️ **Nel repository
+ * non ci sono più**: vivevano in una cartella `dev/`, svuotata il 2026-09-03 su istruzione
+ * dell'utente. ⚠️ **L'ICONA NUOVA DELL'APP RESTA**: quella era l'altra metà del
  * lavoro e non è mai stata in discussione (vedi `res/drawable/ic_launcher_foreground.xml`).
  * ⚠️ **Chi li rimettesse rifaccia il trasporto dalla storia git**, non a mano: la conversione
  * di `<rect rx>`, `<circle>` e `stroke-dasharray` in tracciati è misurata (da 0 a 25 pixel di
@@ -358,8 +360,9 @@ object Glyphs {
      * il difetto che l'utente ha visto: *'Copia' ha il quadrato-base più piccolo e non
      * sembra allineato alle altre due*. Non era una svista di trasporto, era il disegno.
      * ⚠️ **Delle due versioni che ha mandato è la 1**, e la scelta è sua: la 2 è centrata
-     * (inchiostro 1..23) e quindi ha il quadrato in 5..23, che non si allinea. I due file
-     * stanno in `dev/copia/`.
+     * (inchiostro 1..23) e quindi ha il quadrato in 5..23, che non si allinea. ⚠️ **I due
+     * file non sono più nel repository**: stavano in una cartella `dev/`, svuotata il
+     * 2026-09-03 su istruzione dell'utente, e si ripescano dalla storia git.
      */
     private const val COPY_IMAGE =
         "M19,3H5c-1.1,0-2,.9-2,2v14c0,1.1.9,2,2,2h14c1.1,0,2-.9,2-2V5c0-1.1-.9-2-2-2Z" +

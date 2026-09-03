@@ -13,7 +13,7 @@
     <string name="bar_reduced">குறைக்கப்பட்டது</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">இவற்றை மறந்துவிடு</string>
-    <string name="url_not_image">முகவரி ஒரு படத்தைச் சுட்டவில்லை</string>
+    <string name="url_not_image">இந்த முகவரி எந்தப் படத்திற்கும் இட்டுச் செல்லவில்லை, பக்கத்திலும் படம் இல்லை</string>
     <string name="menu_copy_image">படத்தை நகலெடு</string>
     <string name="menu_share">பகிர்</string>
     <string name="menu_save">சேமி</string>
@@ -30,9 +30,10 @@
     <string name="convert_elsewhere">பிற வடிவங்கள்</string>
     <string name="convert_elsewhere_desc">மேலே உள்ள வடிவங்களை மட்டுமே Android எழுத முடியும். மற்றவற்றுக்கு இந்தச் சேவைகள் உள்ளன, அவை உலாவியில் திறக்கும்: படத்தை அங்கேயே, தொலைபேசி நினைவகத்திலிருந்து தேர்ந்தெடுக்கவும்.</string>
     <string name="convert_clean">சுத்தம் செய்</string>
-    <string name="convert_clean_why">மேனிலைத் தரவு, குறிப்புகள், நிரல்கள், தொகுப்பாளர்களின் எச்சங்கள் ஆகியவற்றை நீக்குகிறது; உண்மையான கோப்புகளில் அவையே கிட்டத்தட்ட முழு அளவு. இது பாதைகளை மீண்டும் எழுதுவதில்லை, வடிவங்கள், கோடுகள், வரைபடங்கள், உரை ஆகியவற்றைத் தொடுவதில்லை.</string>
+    <string name="convert_clean_why">தலைப்புத் தரவு, மேனிலைத் தரவு, குறிப்புகள், ஸ்க்ரிப்ட்கள், C2PA மற்றும் திருத்திகளின் எச்சங்களை நீக்குகிறது; இவை மிகக் கனமான தரவு (கோப்பின் 99% வரை) மற்றும் அரிதாகவே தேவைப்படும்.</string>
+    <string name="convert_clean_keeps">படத்தின் உள்ளடக்கம் மாறாது (பாதைகள், வடிவங்கள், கோடுகள், வரைபடங்கள், உரை...): ஓவியம் 100% அப்படியே இருக்கும்.</string>
     <string name="convert_clean_c2pa">⚠️ எச்சரிக்கை: கோப்பை யார் உருவாக்கியது என்று சொல்லும் C2PA மூலத் தகவலும் போய்விடும். தேவைப்பட்டால் ஒரு நகலை வைத்துக்கொள்.</string>
-    <string name="clean_now">இங்கே சுத்தம் செய்</string>
+    <string name="clean_now">சுத்தம் செய்</string>
     <string name="clean_done">சுத்தம் ஆனது: %1$s இல் இருந்து %2$s ஆக.</string>
     <string name="clean_nothing">நீக்க எதுவும் இல்லை: கோப்பு ஏற்கெனவே சுத்தமாக இருந்தது.</string>
     <string name="clean_failed">கோப்பைச் சுத்தம் செய்ய முடியவில்லை.</string>

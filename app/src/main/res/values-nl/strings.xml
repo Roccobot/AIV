@@ -13,7 +13,7 @@
     <string name="bar_reduced">verkleind</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Deze vergeten</string>
-    <string name="url_not_image">De URL wijst niet naar een afbeelding</string>
+    <string name="url_not_image">Het adres leidt niet naar een afbeelding, en de pagina bevat er geen</string>
     <string name="menu_copy_image">Afbeelding kopiëren</string>
     <string name="menu_share">Delen</string>
     <string name="menu_save">Opslaan</string>
@@ -30,9 +30,10 @@
     <string name="convert_elsewhere">Andere formaten</string>
     <string name="convert_elsewhere_desc">Android kan alleen de formaten hierboven schrijven. Voor de rest zijn er deze diensten, die in de browser openen: de afbeelding kies je daar, uit het geheugen van de telefoon.</string>
     <string name="convert_clean">Opschonen</string>
-    <string name="convert_clean_why">Verwijdert metadata, commentaar, scripts en resten van editors, die in echte bestanden bijna al het gewicht zijn. De paden worden niet herschreven, en vormen, lijnen, tekeningen en tekst blijven onaangeroerd.</string>
+    <string name="convert_clean_why">Verwijdert headers, metadata, opmerkingen, scripts, C2PA en resten van editors: de zwaarste gegevens (tot 99% van het bestand), die je zelden nodig hebt.</string>
+    <string name="convert_clean_keeps">De inhoud van de afbeelding verandert niet (paden, vormen, lijnen, tekeningen, tekst...): de illustratie blijft 100% intact.</string>
     <string name="convert_clean_c2pa">⚠️ LET OP: ook de C2PA-herkomst gaat weg, het deel dat zegt wie het bestand heeft gemaakt. Houd een kopie als je die nodig hebt.</string>
-    <string name="clean_now">Hier opschonen</string>
+    <string name="clean_now">Opschonen</string>
     <string name="clean_done">Opgeschoond: van %1$s naar %2$s.</string>
     <string name="clean_nothing">Er was niets te verwijderen: het bestand was al schoon.</string>
     <string name="clean_failed">Het bestand kon niet worden opgeschoond.</string>

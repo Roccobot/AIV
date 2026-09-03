@@ -13,7 +13,7 @@
     <string name="bar_reduced">घटाई गई</string>
     <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">इन्हें भूल जाएँ</string>
-    <string name="url_not_image">यह पता किसी चित्र पर नहीं ले जाता</string>
+    <string name="url_not_image">पता किसी छवि तक नहीं ले जाता, और पृष्ठ में भी कोई छवि नहीं है</string>
     <string name="menu_copy_image">छवि कॉपी करें</string>
     <string name="menu_share">साझा करें</string>
     <string name="menu_save">सहेजें</string>
@@ -30,9 +30,10 @@
     <string name="convert_elsewhere">अन्य प्रारूप</string>
     <string name="convert_elsewhere_desc">एंड्रॉइड केवल ऊपर दिए प्रारूप ही लिख सकता है। बाकी के लिए ये सेवाएँ हैं, जो ब्राउज़र में खुलती हैं: छवि वहीं, फ़ोन की मेमोरी से चुनें।</string>
     <string name="convert_clean">साफ़ करें</string>
-    <string name="convert_clean_why">मेटाडेटा, टिप्पणियाँ, स्क्रिप्ट और संपादकों के अवशेष हटाता है, जो असली फ़ाइलों में लगभग पूरा वज़न होते हैं। यह पथ फिर से नहीं लिखता, और आकृतियों, रेखाओं, चित्रों या पाठ को नहीं छूता।</string>
+    <string name="convert_clean_why">हेडर, मेटाडेटा, टिप्पणियाँ, स्क्रिप्ट, C2PA और एडिटर के अवशेष हटाता है, जो सबसे भारी डेटा हैं (फ़ाइल का 99% तक) और कभी-कभार ही काम आते हैं।</string>
+    <string name="convert_clean_keeps">छवि की सामग्री नहीं बदलती (पथ, आकार, रेखाएँ, चित्र, पाठ...): चित्रांकन 100% अक्षुण्ण रहता है।</string>
     <string name="convert_clean_c2pa">⚠️ चेतावनी: C2PA उद्गम भी चला जाता है, यानी वह हिस्सा जो बताता है कि फ़ाइल किसने बनाई। ज़रूरत हो तो एक प्रति रख लें।</string>
-    <string name="clean_now">यहीं साफ़ करें</string>
+    <string name="clean_now">साफ़ करें</string>
     <string name="clean_done">साफ़ किया: %1$s से %2$s तक।</string>
     <string name="clean_nothing">हटाने के लिए कुछ नहीं था: फ़ाइल पहले से साफ़ थी।</string>
     <string name="clean_failed">फ़ाइल साफ़ नहीं की जा सकी।</string>
