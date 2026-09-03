@@ -411,15 +411,23 @@ private fun FactsDialog(uris: List<Uri>, fields: List<FactField>, onDismiss: () 
  * titolo. ⚠️ Prende `primaryContainer` e non `primary` benché in questa tavolozza valgano
  * lo stesso: è il ruolo giusto per una superficie colorata, e se un giorno i due si
  * separassero questa resterebbe corretta.
- * ⚠️ **Il blocco scorre**: dieci righe più un percorso lungo passano l'altezza di un
- * dialogo su uno schermo basso, e senza scorrimento le ultime righe sarebbero irraggiungibili.
+ * ⚠️⚠️ **QUESTO BLOCCO NON SCORRE PIÙ DA SÉ, dalla 1.39, E LO SCORRIMENTO SUO MANDAVA L'APP
+ * IN CRASH** (riscontro dell'utente, 2026-09-03: *se provo ad aprire la nuova bottomsheet
+ * delle info, l'app va sistematicamente in crash*). Fino alla 1.38 questo era il contenuto di
+ * un `AlertDialog` e lo scorrimento se lo doveva mettere da sé; con la bottomsheet lo
+ * scorrimento è della scheda, e i due si sono trovati **annidati**.
+ * ⚠️⚠️ **Due scorrimenti verticali uno dentro l'altro non sono un difetto estetico: sono
+ * un'eccezione**, e non ci vuole nemmeno un caso limite. Quello di fuori misura il contenuto
+ * con altezza **infinita**, e `ScrollNode.measure` chiama `checkScrollableContainerConstraints`,
+ * che su un'altezza infinita **dà errore** con un messaggio che nomina proprio questo caso
+ * (*nesting layouts like LazyColumn and Column(Modifier.verticalScroll())*). Letto nel
+ * bytecode di `compose-foundation` 1.12.0, non ricordato.
+ * ⚠️ **Quindi lo scorrimento sta in UN posto solo**, la scheda che contiene questo blocco
+ * (vedi [Sheet]): chi rimettesse un `verticalScroll` qui rimetterebbe il crash.
  */
 @Composable
 private fun FileFacts(facts: Facts, one: OneFile, fields: List<FactField>) {
-    Column(
-        modifier = Modifier.verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         for (field in fields) {
             // ⚠️ Il nome NON è più una riga di questo elenco: dalla `0.69` sta nella testata
             // del dialogo, accanto alla parola 'Info'. Vedi [NamePill] e [FactsDialog].

@@ -132,6 +132,9 @@
     <string name="settings_light">Chiara</string>
     <string name="settings_dark">Scura</string>
 
+    <string name="settings_veil">Sfocatura dietro i pannelli</string>
+    <string name="settings_veil_desc">Sfoca e scurisce la schermata dietro a dialoghi, menu e pannelli. Può rendere l\'app visibilmente più lenta, ed è la ragione per cui è spenta.</string>
+
     <string name="settings_folder_columns">Colonne della griglia delle cartelle</string>
     <string name="settings_folder_columns_desc">Più colonne fanno stare più cartelle sullo schermo e rimpiccioliscono le copertine. A quattro, il nome sotto di solito non ci sta per intero.</string>
     <string name="settings_folder_count">Contatore degli elementi sotto le cartelle in vista griglia</string>

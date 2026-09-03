@@ -74,6 +74,9 @@
     <string name="settings_auto">স্বয়ংক্রিয়</string>
     <string name="settings_light">হালকা</string>
     <string name="settings_dark">গাঢ়</string>
+
+    <string name="settings_veil">প্যানেলের পিছনে ঝাপসা</string>
+    <string name="settings_veil_desc">ডায়ালগ, মেনু ও প্যানেলের পিছনের পর্দা ঝাপসা ও অন্ধকার করে। এতে অ্যাপ লক্ষণীয়ভাবে ধীর মনে হতে পারে, তাই এটি বন্ধ রাখা আছে।</string>
     <string name="settings_folder_columns">ফোল্ডার গ্রিডের কলাম</string>
     <string name="settings_folder_columns_desc">বেশি কলামে পর্দায় বেশি ফোল্ডার আঁটে আর প্রতিটি প্রচ্ছদ ছোট হয়। চারটিতে নিচের নাম সাধারণত কাটা পড়ে।</string>
     <string name="settings_folder_count">গ্রিড দৃশ্যে ফোল্ডারের নিচে জিনিসের গণনা</string>

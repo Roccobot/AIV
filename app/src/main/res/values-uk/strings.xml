@@ -74,6 +74,9 @@
     <string name="settings_auto">Автоматично</string>
     <string name="settings_light">Світлий</string>
     <string name="settings_dark">Темний</string>
+
+    <string name="settings_veil">Розмиття за панелями</string>
+    <string name="settings_veil_desc">Розмиває й затемнює екран за діалогами, меню та панелями. Застосунок може помітно сповільнитися, тому параметр вимкнено.</string>
     <string name="settings_folder_columns">Стовпці в сітці тек</string>
     <string name="settings_folder_columns_desc">Що більше стовпців, то більше тек вміщується на екрані і то менша кожна обкладинка. За чотирьох ім\'я під нею зазвичай обрізається.</string>
     <string name="settings_folder_count">Лічильник елементів під теками в режимі сітки</string>

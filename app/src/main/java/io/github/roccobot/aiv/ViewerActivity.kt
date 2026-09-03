@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -1727,7 +1728,16 @@ class ViewerActivity : ComponentActivity() {
         // arrivate vale il sistema, che è anche il valore di fabbrica della scelta.
         setContent {
             val chosen = model.settings?.uiTheme ?: UiTheme.SYSTEM
-            AivTheme(darkTheme = chosen.isDark()) { AivApp(model) }
+            AivTheme(darkTheme = chosen.isDark()) {
+                // ⚠️ Anche l'interruttore di velo e sfocatura si mette in scena QUI, accanto
+                // al tema e per la stessa ragione: lo chiedono finestre che le impostazioni
+                // non le ricevono. Il perché per esteso sta su [LocalAivVeil].
+                CompositionLocalProvider(
+                    LocalAivVeil provides (model.settings?.veil ?: false)
+                ) {
+                    AivApp(model)
+                }
+            }
         }
     }
 

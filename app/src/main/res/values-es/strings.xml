@@ -74,6 +74,9 @@
     <string name="settings_auto">Automático</string>
     <string name="settings_light">Claro</string>
     <string name="settings_dark">Oscuro</string>
+
+    <string name="settings_veil">Desenfoque detrás de los paneles</string>
+    <string name="settings_veil_desc">Desenfoca y oscurece la pantalla detrás de los diálogos, los menús y los paneles. Puede hacer que la aplicación parezca notablemente más lenta, y por eso está desactivado.</string>
     <string name="settings_folder_columns">Columnas en la cuadrícula de carpetas</string>
     <string name="settings_folder_columns_desc">Más columnas caben más carpetas en la pantalla y encogen cada portada. Con cuatro, el nombre de debajo suele quedar cortado.</string>
     <string name="settings_folder_count">Contador de elementos bajo las carpetas en vista de cuadrícula</string>

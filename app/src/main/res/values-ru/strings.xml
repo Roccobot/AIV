@@ -74,6 +74,9 @@
     <string name="settings_auto">Автоматически</string>
     <string name="settings_light">Светлый</string>
     <string name="settings_dark">Тёмный</string>
+
+    <string name="settings_veil">Размытие за панелями</string>
+    <string name="settings_veil_desc">Размывает и затемняет экран за диалогами, меню и панелями. Приложение может заметно замедлиться, поэтому параметр выключен.</string>
     <string name="settings_folder_columns">Столбцы в сетке папок</string>
     <string name="settings_folder_columns_desc">Чем больше столбцов, тем больше папок помещается на экране и тем меньше каждая обложка. При четырёх имя под ней обычно обрезается.</string>
     <string name="settings_folder_count">Счётчик элементов под папками в режиме сетки</string>

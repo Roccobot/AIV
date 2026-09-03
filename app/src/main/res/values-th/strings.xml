@@ -74,6 +74,9 @@
     <string name="settings_auto">อัตโนมัติ</string>
     <string name="settings_light">สว่าง</string>
     <string name="settings_dark">มืด</string>
+
+    <string name="settings_veil">เบลอด้านหลังแผง</string>
+    <string name="settings_veil_desc">เบลอและหรี่หน้าจอด้านหลังกล่องโต้ตอบ เมนู และแผงต่าง ๆ อาจทำให้แอปช้าลงอย่างเห็นได้ชัด จึงปิดไว้</string>
     <string name="settings_folder_columns">จำนวนคอลัมน์ในตารางโฟลเดอร์</string>
     <string name="settings_folder_columns_desc">คอลัมน์ยิ่งมาก โฟลเดอร์ยิ่งลงหน้าจอได้มากและปกแต่ละอันยิ่งเล็ก ที่สี่คอลัมน์ ชื่อด้านล่างมักถูกตัด</string>
     <string name="settings_folder_count">ตัวนับรายการใต้โฟลเดอร์ในมุมมองตาราง</string>

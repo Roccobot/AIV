@@ -114,6 +114,15 @@ grande un dialogo esattamente al centro fa allungare la mano.
     chiama `lowered()`, e un secondo modificatore da ricordare avrebbe raddoppiato il modo di
     dimenticarsene, con l'aggravante che un velo mancante non si vede (un centro mancante sì).
     Il perché per esteso, e le due vie con cui si applica, stanno in testa a `Veil.kt`.
+    - ⚠️⚠️ **MA DALLA 1.39 QUEL VELO È SPENTO DI FABBRICA, dietro un'impostazione** (richiesta
+      dell'utente, 2026-09-03: *mettilo dietro un'opzione disattivata di default. Penserò se
+      tenere o meno la feature: rende tutto visibilmente più lento*). Quindi la riga
+      `lowered()` si scrive **sempre**, e quello che fa dipende dall'interruttore: il centro
+      abbassato è incondizionato, il velo no.
+    - ⚠️ **Spento vuol dire non toccare niente**, che è un'altra cosa dal dipingere un velo
+      trasparente: i tredici dialoghi tornano al velo che Android dà loro (`0,6`), i menu a
+      non averne. L'unica eccezione è la scheda in fondo, che se lo chiede da sé perché la sua
+      finestra non ne ha uno di serie: `SHEET_DIM` in `Sheet.kt`, col perché misurato.
   - ⚠️ **Chi apre un `Popup` o un `Dialog` scritto in casa chiama `WindowVeil()` a mano**,
     perché là il modificatore non passa: lo fanno `MenuShell`, il menu del tastino della
     schermata iniziale e `Sheet`.

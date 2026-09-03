@@ -57,7 +57,7 @@ sealed interface LoadResult {
  * - ⚠️ **L'SVG è un ripiego a sua volta ma per una ragione opposta (1.31)**: là il sistema
  *   dichiara il formato e poi si rifiuta, qui non lo dichiara affatto, perché `ImageDecoder`
  *   conosce i formati **a pixel** e un vettore non è uno di quelli. Vedi [Svg]. La strada è
- *   la stessa perché il sintomo è lo stesso, cioè `decodeBitmap` che solleva, e i due
+ *   la stessa perché il sintomo è lo stesso, cioè `decodeBitmap` che va in errore, e i due
  *   tentativi si distinguono **dai byte** e non dall'estensione.
  * - Remote images are downloaded into memory first. A stream cannot be rewound,
  *   and ImageDecoder needs to read the header, decide the sample size and then

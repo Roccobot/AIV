@@ -74,6 +74,9 @@
     <string name="settings_auto">自動</string>
     <string name="settings_light">淺色</string>
     <string name="settings_dark">深色</string>
+
+    <string name="settings_veil">面板背後模糊</string>
+    <string name="settings_veil_desc">將對話框、選單和面板背後的畫面變得模糊並壓暗。這會讓應用程式明顯變慢，因此預設關閉。</string>
     <string name="settings_folder_columns">資料夾格狀檢視的欄數</string>
     <string name="settings_folder_columns_desc">欄數越多,螢幕上放得下的資料夾越多,每張封面也越小。到四欄時,下面的名稱通常會被截斷。</string>
     <string name="settings_folder_count">格狀檢視中資料夾下方的項目計數</string>

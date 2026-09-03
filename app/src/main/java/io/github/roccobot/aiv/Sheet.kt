@@ -63,6 +63,12 @@ import androidx.compose.ui.window.DialogProperties
  * ⚠️ **Il corpo prende il posto che avanza e non di più** (`weight(1f, fill = false)`): con
  * poche righe la scheda è bassa, con molte cresce fino allo schermo e da lì scorre. Una
  * altezza fissa sarebbe giusta su un telefono solo.
+ * ⚠️⚠️ **LO SCORRIMENTO È DI QUESTA SCHEDA, E IL CONTENUTO NON DEVE AVERNE UN ALTRO: due
+ * annidati fanno CRASHARE l'app** (riscontro dell'utente, 2026-09-03, sulla 1.38: *va
+ * sistematicamente in crash*). Quello di fuori misura il contenuto con altezza **infinita**, e
+ * `ScrollNode.measure` chiama `checkScrollableContainerConstraints`, che su un'altezza infinita
+ * va in errore. Il caso vero era `FileFacts`, che si portava dietro il proprio scorrimento da quando
+ * viveva in un `AlertDialog`: la nota per esteso sta là.
  *
  * ⚠️⚠️ **SI CHIUDE TOCCANDO FUORI, e quel tocco lo raccogliamo NOI**: con
  * `usePlatformDefaultWidth = false` la finestra copre lo schermo, quindi per il sistema non
@@ -83,7 +89,7 @@ fun Sheet(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         sheetWindow()
-        WindowVeil()
+        WindowVeil(bare = SHEET_DIM)
 
         var grown by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) { grown = true }
@@ -241,3 +247,18 @@ private val SHEET_SHUT = 48.dp
  */
 private const val SHEET_SMALL = 0.96f
 private const val SHEET_IN = 170
+
+/**
+ * Il velo che resta dietro la scheda quando la funzione della `1.39` è spenta.
+ *
+ * ⚠️⚠️ **SENZA QUESTO NUMERO LA SCHEDA GALLEGGEREBBE SU UNA SCHERMATA INTATTA, e non è una
+ * prudenza**: è misurato nelle risorse di `compose-ui` 1.12.0, dove la finestra di un dialogo
+ * con `usePlatformDefaultWidth = false` prende lo stile `DialogWindowTheme`, che **non**
+ * dichiara `backgroundDimEnabled`; quella con la larghezza di serie prende
+ * `FloatingDialogWindowTheme`, che lo dichiara. Cioè i tredici dialoghi di Material il loro
+ * velo ce l'hanno da Android, e questa scheda no.
+ * ⚠️ **0,6 è quello di Android**, il valore di `backgroundDimAmount` del tema da cui discende
+ * `Theme.AIV`: così a funzione spenta la scheda è velata come ogni altro dialogo dell'app,
+ * invece di essere velata a modo suo.
+ */
+private const val SHEET_DIM = 0.6f

@@ -194,6 +194,21 @@ data class Settings(
     val infoPosition: InfoPosition = InfoPosition.TOP,
     val infoVisible: Boolean = true,
     /**
+     * Se dietro dialoghi, menu e pannelli ci sono sfocatura e velo.
+     *
+     * ⚠️⚠️ **SPENTA DI FABBRICA PERCHÉ COSTA, e a dirlo è stato l'utente** (2026-09-03:
+     * *mettilo dietro un'opzione disattivata di default. Penserò se tenere o meno la feature:
+     * rende tutto visibilmente più lento*). La funzione è nata accesa nella `1.38` ed è durata
+     * una versione: la sfocatura fra finestre fa ridisegnare al compositore quello che sta
+     * sotto, e su un telefono che non la regge si sente.
+     * ⚠️ **L'impostazione resta invece di essere una rimozione**, che sarebbe stata la strada
+     * più corta: lui ha detto che ci deve pensare, quindi la funzione va tenuta provabile.
+     * ⚠️ **Spenta NON vuol dire schermate diverse dalla `1.37`**: i dialoghi tornano al velo
+     * che Android dà loro, i menu a non averne, e la sola scheda in fondo se lo chiede da sé
+     * (vedi `SHEET_DIM` in `Sheet.kt`), perché la sua finestra non ne ha uno di serie.
+     */
+    val veil: Boolean = false,
+    /**
      * Se il menu a pressione lunga porta anche 'Adatta alla vista' e '100%'.
      *
      * ⚠️⚠️ **SPENTA DI FABBRICA, ed è una RIMOZIONE travestita da impostazione** (richiesta
@@ -476,6 +491,7 @@ object SettingsStore {
     private val SCALE_MODE = stringPreferencesKey("scale-mode")
     private val INFO_POSITION = stringPreferencesKey("info-position")
     private val INFO_VISIBLE = booleanPreferencesKey("info-visible")
+    private val VEIL = booleanPreferencesKey("veil")
     private val ZOOM_IN_MENU = booleanPreferencesKey("zoom-in-menu")
     private val REVERSE_SEQUENCE = booleanPreferencesKey("sequence-reversed")
     private val START_FOLDER = longPreferencesKey("start-folder")
@@ -522,6 +538,7 @@ object SettingsStore {
             scaleMode = ScaleMode.entries.byToken(p[SCALE_MODE], ScaleMode.PHYSICAL),
             infoPosition = InfoPosition.entries.byToken(p[INFO_POSITION], InfoPosition.TOP),
             infoVisible = p[INFO_VISIBLE] ?: true,
+            veil = p[VEIL] ?: false,
             zoomInMenu = p[ZOOM_IN_MENU] ?: false,
             reverseSequence = p[REVERSE_SEQUENCE] ?: false,
             startFolder = p[START_FOLDER],
@@ -583,6 +600,7 @@ object SettingsStore {
             p[SCALE_MODE] = settings.scaleMode.token
             p[INFO_POSITION] = settings.infoPosition.token
             p[INFO_VISIBLE] = settings.infoVisible
+            p[VEIL] = settings.veil
             p[ZOOM_IN_MENU] = settings.zoomInMenu
             p[REVERSE_SEQUENCE] = settings.reverseSequence
             // ⚠️ Una cartella tolta si CANCELLA invece di essere scritta a zero: zero è

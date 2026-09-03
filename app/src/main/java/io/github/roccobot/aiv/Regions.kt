@@ -114,7 +114,7 @@ class RegionSource private constructor(
             )
             else -> Rect(area)
         }
-        // ⚠️ L'ultima rete: un rettangolo fuori dai bordi farebbe sollevare
+        // ⚠️ L'ultima rete: un rettangolo fuori dai bordi manderebbe in errore
         // `decodeRegion`, e qui invece non si disegna nessun tassello. Meglio la
         // fotografia com'era che un errore.
         if (raw.left < 0 || raw.top < 0 || raw.right > rawWidth || raw.bottom > rawHeight) return null

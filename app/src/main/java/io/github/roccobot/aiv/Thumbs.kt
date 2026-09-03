@@ -287,7 +287,7 @@ private class SystemThumbnailFetcher(
                     // caricatore.
                     "content" -> options.context.contentResolver.loadThumbnail(uri, wanted, signal)
                     // ⚠️⚠️ **Qui invece le due funzioni sono DIVERSE**, e sbagliarle non dà
-                    // una miniatura brutta: `createImageThumbnail` su un filmato solleva, e
+                    // una miniatura brutta: `createImageThumbnail` su un filmato va in errore, e
                     // la richiesta finirebbe nella decodifica normale, che di un `mp4` non
                     // sa che farsene. Il ramo `file://` è quello delle cartelle che il
                     // MediaStore non conosce, dove non c'è nessuna tabella a dire il tipo:
