@@ -290,12 +290,32 @@ object Bin {
      * quando sono arrivati, e metterli in mezzo sarebbe inventare una data.
      * ⚠️ Indirizzi `file://`: là dentro il MediaStore non vede niente. Vedi la nota in
      * testa a questo oggetto.
+     *
+     * ⚠️⚠️ **QUI L'ARCHIVIO SI POTA, e fino alla 1.46 non lo faceva nessuno.** Le vie d'uscita
+     * dal cestino sono quattro e tre cancellano la propria riga ([restore], [drop], [empty]);
+     * la quarta, l'eliminazione definitiva di una selezione, passa da `FileTree.delete` e non
+     * sa niente di questo archivio, quindi lasciava dietro una riga per ogni file. Nel cestino
+     * quella e la via **normale**, e l'archivio cresceva per sempre.
+     * ⚠️ **Si pota QUI e non nel punto che cancella**, ed e una scelta: un rimedio nel
+     * chiamante va ricordato, e il giorno che nasce una quinta uscita torna il difetto. Qui il
+     * conto torna da se, perche questa funzione ha gia in mano l'elenco dei file che
+     * **esistono**: una riga che non trova il suo file non descrive piu niente, e chi apre il
+     * cestino e esattamente il momento in cui accorgersene.
+     * ⚠️ **E chiude anche quello che si e accumulato fin qui**, che un rimedio nel chiamante non
+     * avrebbe fatto. Stessa scelta e stessa forma della purga di `History.batches`: si riscrive
+     * il file **solo** se la potatura ha tolto qualcosa, o si scriverebbe a ogni apertura.
      */
     suspend fun list(context: Context): List<Uri> = withContext(Dispatchers.IO) {
         val files = runCatching { dir(context).listFiles() }.getOrNull().orEmpty()
             .filter { it.isFile }
             .associateBy { it.name }
-        ordered(files.keys.toList(), read(context)).mapNotNull { files[it]?.toUri() }
+        val records = lock.withLock {
+            val all = read(context)
+            val kept = all.filter { it.name in files }
+            if (kept.size != all.size) write(context, kept)
+            kept
+        }
+        ordered(files.keys.toList(), records).mapNotNull { files[it]?.toUri() }
     }
 
     /**
