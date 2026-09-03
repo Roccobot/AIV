@@ -387,7 +387,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     fun handleIntent(intent: Intent?) {
         val uri = intent.imageUri()
         if (uri == null) {
-            // Partita dalla propria icona: si va dove sta la roba, cioè alle cartelle.
+            // Partita dalla propria icona: si va dove stanno le immagini, cioè alle cartelle.
             screen = HOME
             atStart = true
             fromIcon = true
@@ -544,7 +544,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * A quale apertura appartiene il progresso che arriva.
      *
      * ⚠️ Il download vive in un ciclo bloccante, quindi fra l'annullamento e l'ultimo
-     * pezzo già in volo ci sta una frazione di secondo: senza questo numero, la
+     * pezzo già in volo passa una frazione di secondo: senza questo numero, la
      * percentuale dell'immagine abbandonata comparirebbe per un istante sopra quella
      * appena aperta. Un contatore risolve quello che un `Job` non può, perché chi
      * riferisce il progresso non è dentro una coroutine.

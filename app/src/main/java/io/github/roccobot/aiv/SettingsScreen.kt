@@ -661,7 +661,7 @@ private fun ColumnScope.RootPage(
      * nasconde con un tocco lungo, cioè da un'altra schermata e senza lasciare
      * traccia, quindi se non ci fosse un posto in cui rivedere che cosa si è nascosto
      * l'unico modo di riavere una cartella sarebbe indovinare che esiste
-     * quest'impostazione. Una funzione che toglie roba deve dire dove l'ha messa.
+     * quest'impostazione. Una funzione che toglie qualcosa deve dire dove l'ha messa.
      * ⚠️ Compare **solo quando c'è qualcosa**, e la sotto-pagina non ha cambiato la
      * scelta: una riga sempre presente e quasi sempre vuota è rumore in una schermata
      * che si scorre. La pagina invece la stringa vuota la sa dire, perché ci si può

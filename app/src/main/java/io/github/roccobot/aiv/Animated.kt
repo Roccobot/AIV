@@ -171,7 +171,7 @@ object Animations {
      * ⚠️⚠️ **NASCE PERCHÉ UN INDIRIZZO DI RETE NON PASSA DAL `ContentResolver`, E LA GIF
      * REMOTA NON SI ANIMAVA** (segnalazione dell'utente, 2026-09-03, sulla Terra che gira di
      * Wikimedia: *se incollo manualmente l'indirizzo si apre, ma non è animata*). Fino alla
-     * `1.44` qui c'era un `openInputStream` solo: su uno `https` quello **solleva** un errore,
+     * `1.44` qui c'era un `openInputStream` solo: su uno `https` quello **va in errore**,
      * il `runCatching` di [open] lo ingoiava, e il visualizzatore prendeva la strada
      * dell'immagine ferma. Nessun errore a schermo, nessun log: l'animazione semplicemente
      * non c'era. È il modo peggiore di sbagliare.

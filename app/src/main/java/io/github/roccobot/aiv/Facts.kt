@@ -315,8 +315,8 @@ private const val EXIF_PATTERN = "yyyy:MM:dd HH:mm:ss"
  * (segnalazione dell'utente, 2026-09-03, sull'immagine di Pexels: *si apre perfettamente ma
  * poi mi dà info estremamente scarne e probabilmente errate (JPG, 0 byte)*). Il difetto era
  * uno solo ripetuto **otto volte**: ogni lettura di questo file passava dal
- * `ContentResolver`, che su uno `https` solleva un errore, e ogni `runCatching` intorno lo
- * ingoiava. Risultato: nessuna misura, nessuna codifica, nessun EXIF, e i due campi che non
+ * `ContentResolver`, che su uno `https` va in errore, e ogni `runCatching` intorno lo
+ * nascondeva. Risultato: nessuna misura, nessuna codifica, nessun EXIF, e i due campi che non
  * passavano da qui (peso e tipo) presi da fonti cieche.
  * ⚠️ **I byte remoti non si riscaricano**: li ha messi in cache `ImageSource.loadRemote`
  * mentre apriva l'immagine. Se non ci sono ancora, si torna `null` e la scheda dice 'non c'è',

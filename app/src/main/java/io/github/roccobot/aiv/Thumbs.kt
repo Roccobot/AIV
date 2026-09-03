@@ -619,7 +619,7 @@ private fun declaresAlpha(context: Context, uri: AndroidUri): Boolean {
              * ⚠️ Il senza-perdita dichiara l'alfa **nel proprio flusso di bit**, e il bit si
              * legge: dopo la firma `0x2F` a 20 vengono 14 bit di larghezza, 14 di altezza e
              * poi `alpha_is_used`, cioè il bit 28 dei quattro byte a partire da 21, letti
-             * little-endian. ⚠️ Misurato su file veri e non dedotto dalla specifica: un
+             * little-endian. ⚠️ Misurato su file veri, non solo letto nella specifica: un
              * lossless RGBA dà 1 e due lossless RGB dànno 0.
              */
             "VP8L" -> if (testa.size >= 25) {

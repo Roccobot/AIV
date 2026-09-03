@@ -126,7 +126,7 @@ private val LINK_DARK = Color(0xFF4FD9BE)
 /**
  * ⚠️⚠️ **IL TASTINO NON PRENDE `primary`, PRENDE `primaryContainer`**, e saperlo è la
  * differenza fra una tavolozza applicata e una tavolozza scritta. Verificato sul bytecode
- * di material3 1.5.0-alpha26 e non a memoria: `FloatingActionButtonDefaults.containerColor`
+ * di material3 1.5.0-alpha26: `FloatingActionButtonDefaults.containerColor`
  * risolve il token `PrimaryContainer`. Lasciando quel ruolo al suo valore di serie, il
  * tastino sarebbe rimasto **viola** in mezzo a tutto il resto.
  * ⚠️ Qui `primaryContainer` vale **quanto** `primary`, e non è una svista: la richiesta

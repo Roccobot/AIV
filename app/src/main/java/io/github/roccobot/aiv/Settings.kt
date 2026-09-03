@@ -126,7 +126,7 @@ enum class InfoPosition(override val token: String) : Choice { TOP("top"), BOTTO
  * lo aveva **sostituito** con le copertine, che si riconoscono a colpo d'occhio ma
  * mostrano quattro cartelle per schermata; l'elenco ne mostra una decina e i nomi per
  * intero, che su un telefono con trenta cartelle è l'unico modo di trovarne una per nome.
- * Sono due domande diverse ('quale roba' e 'quale nome'), quindi due viste e non una
+ * Sono due domande diverse ('quale cartella' e 'quale nome'), quindi due viste e non una
  * migliore dell'altra.
  * ⚠️ **La copertina resta in tutti e due**: la riga dell'elenco porta la stessa miniatura
  * piccola, perché l'icona di cartella uguale per tutte era proprio il difetto della `0.29`.

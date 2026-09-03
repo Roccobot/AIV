@@ -11,7 +11,7 @@ import java.nio.ByteBuffer
  *
  * ⚠️⚠️ **`ImageDecoder` DICHIARA AVIF DA API 31 MA SI APPOGGIA AL DECODIFICATORE AV1 DEL
  * TELEFONO, e quello non regge i file veri.** Misurato sul file dell'utente (24.793.385
- * byte, esportato da Lightroom) leggendone l'intestazione, non dedotto: marchio `MA1A`
+ * byte, esportato da Lightroom) leggendone l'intestazione: marchio `MA1A`
  * cioè **profilo AVIF avanzato**, `seq_profile` **1** (AV1 High, croma **4:4:4**),
  * `seq_level_idx` **16** cioè **livello 6.0**, e **6016x4016**, cioè 24,2 megapixel.
  * Ognuna delle tre è fuori da quello che un decodificatore AV1 di telefono garantisce: la
@@ -26,7 +26,7 @@ import java.nio.ByteBuffer
  * la libreria ufficiale di AOMedia, cioè **libavif con dav1d**, che decodifica in software
  * e quindi non dipende da che cosa sa fare il telefono.
  *
- * **Che cosa costa, misurato sull'AAR e non stimato**: la libreria nativa pesa 868.592
+ * **Che cosa costa, misurato sull'AAR**: la libreria nativa pesa 868.592
  * byte per `arm64-v8a` e 655.780 per `armeabi-v7a`, e nell'APK sta **non compressa**
  * perché è nativa. Le due varianti `x86` (1,1 e 1,8 MB) sono escluse nel
  * `build.gradle.kts`: servirebbero ai soli emulatori, e qui l'APK si scarica da un sito,

@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap
  * cambiare il visualizzatore, la ricerca, il cestino e la selezione, tutti insieme.
  */
 /**
- * Che genere di roba si vuole vedere adesso: il filtro **volatile** della griglia.
+ * Che genere di file si vuole vedere adesso: il filtro **volatile** della griglia.
  *
  * ⚠️⚠️ **NON È UN'IMPOSTAZIONE E NON SI RICORDA** (richiesta dell'utente, 2026-08-31: *è un
  * filtro volatile, fatto per portare il focus su un solo tipo di oggetto multimediale al

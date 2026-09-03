@@ -89,7 +89,7 @@ object Editors {
          * ⚠️⚠️ **IL FILTRO CHE RENDE L'ELENCO USABILE: si toglie chi accetta anche il TESTO.**
          * Domandare chi riceve un'immagine risponde con la messaggistica, la posta, il cloud,
          * il Bluetooth: quaranta voci di cui tre sono foto-app. Un'app che tratta fotografie
-         * accetta immagini e **non** testo semplice; una che serve a mandare roba in giro
+         * accetta immagini e **non** testo semplice; una che serve a mandare contenuti in giro
          * accetta tutti e due. Sottraendo il secondo elenco dal primo resta quasi solo quello
          * che interessa.
          * ⚠️ **È un'euristica e si dichiara**: può lasciare fuori un editor che accetta anche

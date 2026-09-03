@@ -42,7 +42,7 @@ class AnimatedGif private constructor(
      * Se [close] è già passato di qui.
      *
      * ⚠️⚠️ **ESISTE PERCHÉ UN DECODIFICATORE CHIUSO NON DICE DI ESSERLO, LO DIMOSTRA
-     * SOLLEVANDO UN ERRORE**: `GifDecoder.clear()` azzera l'intestazione, e da lì
+     * ANDANDO IN ERRORE**: `GifDecoder.clear()` azzera l'intestazione, e da lì
      * `frameCount`, `getDelay` e `advance` cadono su un riferimento nullo. Con un lettore in
      * mano a un ciclo di riproduzione, quell'errore arriva dentro una coroutine e chiude
      * l'app. È successo nella `1.13`, per una chiusura sbagliata in [rememberAnimation] che

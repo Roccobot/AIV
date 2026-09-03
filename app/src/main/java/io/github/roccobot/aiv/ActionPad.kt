@@ -211,7 +211,7 @@ fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (In
                      */
                     .navigationBarsPadding()
                     /*
-                     * ⚠️⚠️ **L'ALTEZZA SI MISURA E NON SI STIMA, e serve alla griglia sotto**:
+                     * ⚠️⚠️ **L'ALTEZZA SI MISURA, e serve alla griglia sotto**:
                      * senza il numero vero, l'ultima fila di fotografie resterebbe sotto il
                      * pannello e nessuno scorrimento la porterebbe fuori. Una costante scritta
                      * a mano sbaglierebbe il giorno che un'etichetta va a capo in una lingua
