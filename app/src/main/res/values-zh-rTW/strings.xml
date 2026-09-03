@@ -272,7 +272,7 @@
         <item quantity="other">顯示 %1$d 項</item>
     </plurals>
     <string name="bin_empty_hint">快捷操作：長按浮動按鈕即可清空回收筒。</string>
-    <string name="facts_title">檔案詳細資訊</string>
+    <string name="facts_title">資訊</string>
     <string name="settings_reset_hints">重新顯示提示</string>
     <string name="settings_reset_hints_desc">通常只在首次啟動時出現的小教學、導覽、提示與警告會再次顯示（僅一次）。</string>
     <string name="settings_reset_hints_do">重新顯示</string>

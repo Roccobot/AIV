@@ -287,7 +287,7 @@
         <item quantity="other">%1$d தகவல்கள் காட்டப்படுகின்றன</item>
     </plurals>
     <string name="bin_empty_hint">குறுக்குவழி: குப்பைத் தொட்டியைக் காலி செய்ய மிதக்கும் பொத்தானை அழுத்திப் பிடிக்கவும்.</string>
-    <string name="facts_title">கோப்பின் விரிவான தகவல்</string>
+    <string name="facts_title">தகவல்</string>
     <string name="settings_reset_hints">குறிப்புகளை மீண்டும் காட்டு</string>
     <string name="settings_reset_hints_desc">வழக்கமாக முதல் தொடக்கத்தில் மட்டும் தோன்றும் சிறு வழிகாட்டிகள், அறிமுகம், குறிப்புகள், எச்சரிக்கைகள் மீண்டும் தோன்றும் (ஒரே ஒரு முறை).</string>
     <string name="settings_reset_hints_do">மீண்டும் காட்டு</string>

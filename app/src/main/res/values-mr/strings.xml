@@ -287,7 +287,7 @@
         <item quantity="other">%1$d माहिती दिसतात</item>
     </plurals>
     <string name="bin_empty_hint">शॉर्टकट: कचरापेटी रिकामी करण्यासाठी फ्लोटिंग बटण दाबून धरा.</string>
-    <string name="facts_title">फाइलची सविस्तर माहिती</string>
+    <string name="facts_title">माहिती</string>
     <string name="settings_reset_hints">सूचना परत आणा</string>
     <string name="settings_reset_hints_desc">छोटी मार्गदर्शने, ओळख, सूचना आणि इशारे, जे सहसा पहिल्यांदा सुरू करतानाच दिसतात, पुन्हा दिसू लागतात (एकदाच).</string>
     <string name="settings_reset_hints_do">परत आणा</string>

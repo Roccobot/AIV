@@ -1184,24 +1184,38 @@ fun GridScreen(
                 }
             }
 
-            /*
-             * ⚠️⚠️ **A SINISTRA SI ROVESCIANO LE FILE, NON L'ELENCO**: girando la lista
-             * intera, 'Copia' finirebbe nella seconda fila e 'Lista' nella prima, cioè
-             * cambierebbe il raggruppamento invece della mano. Rovesciando ogni fila per
-             * conto suo, le stesse cinque restano insieme e cambia solo da che parte
-             * cominciano.
-             */
-            PickSheet(
-                visible = picking,
-                actions = if (leftHand) {
-                    pickActions.chunked(SHEET_COLUMNS).flatMap { it.reversed() }
-                } else {
-                    pickActions
-                },
-                onHeight = { sheetTall = it }
-            )
         }
     }
+
+        /*
+         * ⚠️⚠️ **A SINISTRA SI ROVESCIANO LE FILE, NON L'ELENCO**: girando la lista
+         * intera, 'Copia' finirebbe nella seconda fila e 'Lista' nella prima, cioè
+         * cambierebbe il raggruppamento invece della mano. Rovesciando ogni fila per
+         * conto suo, le stesse cinque restano insieme e cambia solo da che parte
+         * cominciano.
+         */
+        /*
+         * ⚠️⚠️ **STA NEL `Box` DI RADICE DALLA 1.40, e prima viveva dentro la colonna**
+         * (richiesta dell'utente, 2026-09-03: *fa' in modo che la barra multi-attività in
+         * basso assuma lo stesso colore dello sfondo*). Dentro la colonna il rientro di
+         * sistema è già applicato e **consumato**, quindi la scheda si fermava sopra la barra
+         * e là sotto restava la pagina, di un altro colore. Qui arriva al bordo dello schermo
+         * e il rientro se lo mette da sé, sul contenuto (vedi [PickSheet]).
+         * ⚠️ **Misurato sullo screenshot, non stimato**: la striscia della barra era
+         * `252,251,247` contro i `242,241,237` della scheda.
+         * ⚠️ **Sta PRIMA del velo del menu e di quello dell'onboarding**, come stava prima:
+         * l'ordine dei figli di un `Box` è l'ordine di sovrapposizione, e i due veli devono
+         * restare sopra di lei.
+         */
+        PickSheet(
+            visible = picking,
+            actions = if (leftHand) {
+                pickActions.chunked(SHEET_COLUMNS).flatMap { it.reversed() }
+            } else {
+                pickActions
+            },
+            onHeight = { sheetTall = it }
+        )
 
         /*
          * ⚠️⚠️ **IL VELO CHE CHIUDE IL MENU DEL TASTINO, dalla 1.06** (riscontro dell'utente

@@ -287,7 +287,7 @@
         <item quantity="other">%1$d تفصیلات دکھائی جا رہی ہیں</item>
     </plurals>
     <string name="bin_empty_hint">شارٹ کٹ: ردی کی ٹوکری خالی کرنے کے لیے فلوٹنگ بٹن دبائے رکھیں۔</string>
-    <string name="facts_title">فائل کی تفصیلی معلومات</string>
+    <string name="facts_title">معلومات</string>
     <string name="settings_reset_hints">اشارے واپس لائیں</string>
     <string name="settings_reset_hints_desc">چھوٹے سبق، تعارف، مشورے اور تنبیہات، جو عام طور پر صرف پہلی بار چلانے پر دکھائی دیتے ہیں، دوبارہ ظاہر ہو جاتے ہیں (صرف ایک بار)۔</string>
     <string name="settings_reset_hints_do">واپس لائیں</string>

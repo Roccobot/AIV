@@ -287,7 +287,7 @@
         <item quantity="other">%1$d जानकारियाँ दिख रही हैं</item>
     </plurals>
     <string name="bin_empty_hint">शॉर्टकट: कूड़ेदान खाली करने के लिए फ़्लोटिंग बटन दबाए रखें।</string>
-    <string name="facts_title">फ़ाइल की विस्तृत जानकारी</string>
+    <string name="facts_title">जानकारी</string>
     <string name="settings_reset_hints">संकेत फिर दिखाएँ</string>
     <string name="settings_reset_hints_desc">छोटे मार्गदर्शक, परिचय, सुझाव और चेतावनियाँ, जो आम तौर पर केवल पहली बार चलाने पर दिखते हैं, फिर से दिखने लगते हैं (केवल एक बार)।</string>
     <string name="settings_reset_hints_do">फिर दिखाएँ</string>

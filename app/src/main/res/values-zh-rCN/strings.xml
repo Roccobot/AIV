@@ -272,7 +272,7 @@
         <item quantity="other">显示 %1$d 项</item>
     </plurals>
     <string name="bin_empty_hint">快捷操作：长按悬浮按钮可清空回收站。</string>
-    <string name="facts_title">文件详细信息</string>
+    <string name="facts_title">信息</string>
     <string name="settings_reset_hints">重新显示提示</string>
     <string name="settings_reset_hints_desc">通常只在首次启动时出现的小教程、引导、提示和提醒会再次显示（仅一次）。</string>
     <string name="settings_reset_hints_do">重新显示</string>

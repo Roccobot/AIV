@@ -10,11 +10,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -86,7 +87,21 @@ fun Sheet(
 ) {
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        /*
+         * ⚠️⚠️ **`decorFitsSystemWindows = false` È QUELLO CHE PORTA LA SCHEDA SOTTO LA BARRA
+         * DI SISTEMA** (richiesta dell'utente, 2026-09-03: *fa' in modo che la barra
+         * multi-attività in basso assuma lo stesso colore dello sfondo, altrimenti l'effetto è
+         * tremendo, se sommato alla stondatura fisica del display*). Di serie la finestra di un
+         * dialogo si ferma **sopra** quella barra, quindi là sotto si vedeva la pagina, di un
+         * colore diverso dalla scheda, e le due strisce si leggevano come due pannelli.
+         * ⚠️ **Il contenuto non si muove di un pixel**: il rientro che la finestra applicava da
+         * sé adesso lo applica la colonna qui dentro ([navigationBarsPadding]), quindi a
+         * cambiare è il solo **fondo**, che arriva fino al bordo. Vedi la nota là.
+         */
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false
+        )
     ) {
         sheetWindow()
         WindowVeil(bare = SHEET_DIM)
@@ -102,6 +117,18 @@ fun Sheet(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                /*
+                 * ⚠️⚠️ **IL RIENTRO IN ALTO STA QUI, ed è la contropartita di
+                 * `decorFitsSystemWindows = false`**: senza la finestra a fitto sistema, una
+                 * scheda con molte righe crescerebbe fino al bordo di sopra e il titolo
+                 * finirebbe sotto l'orologio. Applicato al riquadro che la contiene, diventa
+                 * un **tetto** invece di uno spazio: una scheda corta non si muove di niente,
+                 * e una lunga si ferma sotto la barra di stato.
+                 * ⚠️ **Solo in alto**: in fondo il riquadro deve arrivare al bordo, o la
+                 * scheda tornerebbe a fermarsi sopra la barra di sistema, che è il difetto
+                 * che questa versione toglie.
+                 */
+                .statusBarsPadding()
                 /*
                  * ⚠️ **Niente increspatura e nessuna descrizione**: questo non è un tasto, è
                  * lo spazio vuoto sopra la scheda, e un cerchio d'inchiostro che si apre dove
@@ -137,22 +164,41 @@ fun Sheet(
                 shape = RoundedCornerShape(topStart = SHEET_ROUND, topEnd = SHEET_ROUND),
                 color = MaterialTheme.colorScheme.surfaceContainerHigh
             ) {
-                Column(modifier = Modifier.padding(SHEET_PAD)) {
+                Column(
+                    /*
+                     * ⚠️ **Il rientro di sistema sta QUI e non sulla scheda**: il fondo della
+                     * scheda deve arrivare al bordo dello schermo (vedi la nota sul dialogo),
+                     * il contenuto no, o l'ultima riga finirebbe sotto la barra. Applicandolo
+                     * al contenuto, quello che si vede resta dov'era e cambia il solo colore
+                     * della striscia in fondo.
+                     */
+                    modifier = Modifier
+                        .navigationBarsPadding()
+                        .padding(
+                            start = SHEET_PAD,
+                            end = SHEET_PAD,
+                            top = SHEET_PAD_TOP,
+                            bottom = SHEET_PAD
+                        )
+                ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         /*
-                         * ⚠️⚠️ **IL TITOLO RESTA CENTRATO, ed è una decisione della 0.73 presa
-                         * su un suo mockup**: allora era centrato perché la pastiglia del nome
-                         * stava sulla riga sotto, e adesso che la pastiglia è scesa in fondo
-                         * quella ragione non c'è più, ma la scelta sì. Lo spazio a sinistra è
-                         * largo come la crocetta a destra, quindi il centro è il centro vero
-                         * della scheda e non quello dello spazio che avanza.
+                         * ⚠️⚠️ **IL TITOLO È ALLINEATO A SINISTRA DALLA 1.40, e prima era
+                         * centrato** (richiesta dell'utente, 2026-09-03: *'Info dettagliate sul
+                         * file' -> 'Informazioni' (allineato a sinistra)*). Il centro era una
+                         * decisione della `0.73` presa su un suo mockup, quando la pastiglia
+                         * del nome stava sulla riga sotto e faceva da contrappeso; scesa la
+                         * pastiglia in fondo, quella ragione era caduta e restava la sola
+                         * abitudine.
+                         * ⚠️ **Con lui se n'è andato lo spazio speculare alla crocetta**, che
+                         * serviva solo a fare del centro il centro vero della scheda: un titolo
+                         * a sinistra comincia dal rientro, come ogni altro testo qui dentro.
                          */
-                        Spacer(Modifier.size(SHEET_SHUT))
                         Text(
                             text = title,
                             style = MaterialTheme.typography.headlineSmall,
                             color = MaterialTheme.colorScheme.onSurface,
-                            textAlign = TextAlign.Center,
+                            textAlign = TextAlign.Start,
                             modifier = Modifier.weight(1f)
                         )
                         IconButton(onClick = onDismiss, modifier = Modifier.size(SHEET_SHUT)) {
@@ -229,6 +275,19 @@ private val SHEET_ROUND = 28.dp
 /** Il rientro attorno al contenuto, e l'aria fra una riga e l'altra. */
 private val SHEET_PAD = 24.dp
 private val SHEET_GAP = 12.dp
+
+/**
+ * Il rientro in ALTO, che è la metà degli altri.
+ *
+ * ⚠️ **12 e non 24, dalla 1.40** (richiesta dell'utente, 2026-09-03: *leggermente meno spazio
+ * in alto (oltre la posizione verticale della × di chiusura)*). Il numero da guardare non è
+ * questo ma quello che si vede: la crocetta vive in un bersaglio da [SHEET_SHUT], quindi sopra
+ * il suo disegno c'erano 24 di rientro più 12 di bersaglio, cioè **36**; adesso 24. Chi
+ * ritoccasse questo valore ragionando sul solo rientro sbaglierebbe di dodici punti.
+ * ⚠️ **Solo in alto**: ai lati e in fondo il rientro è quello di prima, e una scheda che si
+ * stringe da tutte le parti sarebbe un'altra richiesta.
+ */
+private val SHEET_PAD_TOP = 12.dp
 
 /**
  * Il lato della crocetta, che è anche lo spazio speculare a sinistra del titolo.

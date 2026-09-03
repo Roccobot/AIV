@@ -287,7 +287,7 @@
         <item quantity="other">%1$dটি তথ্য দেখানো হচ্ছে</item>
     </plurals>
     <string name="bin_empty_hint">শর্টকাট: আবর্জনা খালি করতে ভাসমান বোতামটি চেপে ধরে রাখুন।</string>
-    <string name="facts_title">ফাইলের বিস্তারিত তথ্য</string>
+    <string name="facts_title">তথ্য</string>
     <string name="settings_reset_hints">সংকেত ফিরিয়ে আনুন</string>
     <string name="settings_reset_hints_desc">ছোট নির্দেশিকা, পরিচিতি, পরামর্শ ও সতর্কবার্তা, যেগুলি সাধারণত কেবল প্রথমবার চালু করলে দেখা যায়, আবার দেখা যাবে (একবারই)।</string>
     <string name="settings_reset_hints_do">ফিরিয়ে আনুন</string>

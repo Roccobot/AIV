@@ -317,7 +317,7 @@
         <item quantity="other">%1$d widocznego pola</item>
     </plurals>
     <string name="bin_empty_hint">Skrót: przytrzymaj pływający przycisk, aby opróżnić kosz.</string>
-    <string name="facts_title">Szczegółowe informacje o pliku</string>
+    <string name="facts_title">Informacje</string>
     <string name="settings_reset_hints">Przywróć wskazówki</string>
     <string name="settings_reset_hints_desc">Minisamouczki, wprowadzenie, podpowiedzi i ostrzeżenia, zwykle pokazywane tylko przy pierwszym uruchomieniu, znów staną się widoczne (jednorazowo).</string>
     <string name="settings_reset_hints_do">Przywróć</string>
