@@ -101,7 +101,7 @@
     <string name="settings_info_visible">Bilah info</string>
     <string name="settings_info_position">Posisi</string>
     <string name="settings_zoom_menu">Zoom di menu penampil</string>
-    <string name="settings_zoom_menu_desc">Mengembalikan \'Sesuaikan ke layar\' dan \'100%\' ke menu tekan lama. Mati karena ketuk ganda pada gambar sudah melakukannya.</string>
+    <string name="settings_zoom_menu_desc">Menambahkan \'Sesuaikan ke layar\' dan \'100%\' ke menu konteks penampil.</string>
     <string name="hint_zoom_tap">Zoom cepat: ketuk dua kali gambar agar pas di layar, ketuk dua kali lagi untuk piksel asli. Terus ketuk untuk berganti antara pas dan 100%.</string>
     <string name="hint_ext_warn">⚠️ Mengubah ekstensi berkas tidak sama dengan mengubah format: untuk itu ada \'Ekspor dan konversi\'.\n\n⚠️ Kalau gambar atau video diberi ekstensi yang bukan milik berkas media, item itu akan hilang dari tampilan kisi dan daftar.</string>
     <string name="settings_anim_counter">Penghitung bingkai</string>

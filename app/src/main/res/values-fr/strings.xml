@@ -101,7 +101,7 @@
     <string name="settings_info_visible">Barre d\'informations</string>
     <string name="settings_info_position">Position</string>
     <string name="settings_zoom_menu">Zoom dans le menu de la visionneuse</string>
-    <string name="settings_zoom_menu_desc">Remet \'Ajuster à la vue\' et \'100%\' dans le menu de l\'appui long. Désactivé parce qu\'un double appui sur l\'image le fait déjà.</string>
+    <string name="settings_zoom_menu_desc">Ajoute \'Ajuster à la vue\' et \'100%\' au menu contextuel de la visionneuse.</string>
     <string name="hint_zoom_tap">Zoom rapide: double tapez sur l\'image pour l\'ajuster à la vue, double tapez encore pour les pixels réels. Continuez pour alterner entre ajusté et 100%.</string>
     <string name="hint_ext_warn">⚠️ Changer l\'extension d\'un fichier n\'équivaut pas à passer d\'un format à un autre : pour cela il y a \'Exporter et convertir\'.\n\n⚠️ Si tu donnes à une image ou à une vidéo une extension qui n\'appartient pas à un fichier multimédia, l\'élément disparaîtra des vues grille et liste.</string>
     <string name="settings_anim_counter">Compteur d\'images</string>

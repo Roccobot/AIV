@@ -101,7 +101,7 @@
     <string name="settings_info_visible">Pasek informacji</string>
     <string name="settings_info_position">Pozycja</string>
     <string name="settings_zoom_menu">Powiększenie w menu przeglądarki</string>
-    <string name="settings_zoom_menu_desc">Przywraca \'Dopasuj do ekranu\' i \'100%\' do menu długiego naciśnięcia. Wyłączone, bo dwukrotne stuknięcie w zdjęcie robi to samo.</string>
+    <string name="settings_zoom_menu_desc">Dodaje \'Dopasuj do ekranu\' i \'100%\' do menu kontekstowego przeglądarki.</string>
     <string name="hint_zoom_tap">Szybkie powiększenie: dwukrotnie dotknij obrazu, aby dopasować go do widoku, jeszcze raz, aby zobaczyć rzeczywiste piksele. Dotykaj dalej, aby przełączać dopasowany i 100%.</string>
     <string name="hint_ext_warn">⚠️ Zmiana rozszerzenia pliku to nie to samo co konwersja między formatami: do tego służy \'Eksportuj i konwertuj\'.\n\n⚠️ Jeśli nadasz obrazowi lub filmowi rozszerzenie, które nie należy do pliku multimedialnego, element zniknie z widoku siatki i listy.</string>
     <string name="settings_anim_counter">Licznik klatek</string>

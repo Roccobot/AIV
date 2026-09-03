@@ -116,6 +116,7 @@ fun TreeList(
 
     /** La riga su cui è aperto il riquadro delle azioni, e `null` quando non è aperto. */
     var acting by remember { mutableStateOf<Tree.Spot?>(null) }
+    val menu = rememberMenuState()
     var job by remember { mutableStateOf<FileJob?>(null) }
 
     /**
@@ -198,16 +199,23 @@ fun TreeList(
                     modifier = Modifier.padding(horizontal = 24.dp).padding(bottom = BELOW_FAB)
                 )
             }
-            else -> Spots(spots!!, hidden, onPath, onOpen) { acting = it }
+            else -> Spots(spots!!, hidden, onPath, onOpen) { acting = it; menu.open() }
         }
     }
 
+    /*
+     * ⚠️⚠️ **`acting` NON SI AZZERA ALLA CHIUSURA, dalla `1.46`, e non è una perdita**: chi
+     * chiude un menu deve lasciarlo in scena per la durata dell'uscita, quindi la presenza la
+     * decide `menu.inScene` e questo campo resta a dire **su che cosa** era aperto. Azzerandolo
+     * si tornerebbe al menu che sparisce di colpo, che è il difetto che l'uscita rimuove.
+     * ⚠️ Il costo è nullo: a menu chiuso la superficie non compone niente.
+     */
     acting?.let { spot ->
         SpotActions(
             spot = spot,
             binOn = binOn,
-            onDismiss = { acting = null },
-            onJob = { job = it; acting = null }
+            menu = menu,
+            onJob = { job = it; menu.close() }
         )
     }
     FileJobDialogs(job = job, fields = factFields, onClose = { job = null }, onRun = perform)
@@ -424,17 +432,14 @@ private fun SpotRow(
 private fun SpotActions(
     spot: Tree.Spot,
     binOn: Boolean,
-    onDismiss: () -> Unit,
+    /** Lo stato del menu, che vive nella schermata: vedi la nota accanto ad `acting`. */
+    menu: MenuState,
     onJob: (FileJob) -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val one = remember(spot.path) { listOf(Uri.fromFile(spot.file)) }
-    MenuShell(
-        position = MenuCenter,
-        dismissOnOutside = true,
-        onDismiss = onDismiss
-    ) {
+    MenuShell(state = menu, position = MenuInWindow) {
         ActionPad(
             actions = listOf(
                 PadAction(
@@ -457,7 +462,7 @@ private fun SpotActions(
                     onJob(FileJob.Rename(one))
                 },
                 PadAction(Icons.Default.Share, R.string.menu_share) {
-                    onDismiss()
+                    menu.close()
                     scope.launch { ImageActions.shareMany(context, one) }
                 },
                 PadAction(Icons.Outlined.Info, R.string.pick_info) {

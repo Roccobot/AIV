@@ -101,7 +101,7 @@
     <string name="settings_info_visible">Infobalk</string>
     <string name="settings_info_position">Positie</string>
     <string name="settings_zoom_menu">Zoom in het menu van de viewer</string>
-    <string name="settings_zoom_menu_desc">Zet \'Passend maken\' en \'100%\' terug in het menu van de lange druk. Uit, omdat dubbeltikken op de foto dit al doet.</string>
+    <string name="settings_zoom_menu_desc">Voegt \'Passend maken\' en \'100%\' toe aan het contextmenu van de viewer.</string>
     <string name="hint_zoom_tap">Snel zoomen: dubbeltik op de afbeelding om hem passend te maken, nog een keer voor echte pixels. Blijf tikken om te wisselen tussen passend en 100%.</string>
     <string name="hint_ext_warn">⚠️ Een extensie wijzigen is niet hetzelfde als omzetten naar een ander formaat: daarvoor is er \'Exporteren en omzetten\'.\n\n⚠️ Als je een afbeelding of video een extensie geeft die niet bij een mediabestand hoort, verdwijnt het item uit de raster- en lijstweergave.</string>
     <string name="settings_anim_counter">Frameteller</string>

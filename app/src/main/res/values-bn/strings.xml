@@ -101,7 +101,7 @@
     <string name="settings_info_visible">তথ্য বার</string>
     <string name="settings_info_position">অবস্থান</string>
     <string name="settings_zoom_menu">ভিউয়ার মেনুতে জুম</string>
-    <string name="settings_zoom_menu_desc">\'পর্দায় মেলান\' এবং \'100%\' দীর্ঘক্ষণ চেপে খোলা মেনুতে ফিরিয়ে আনে। বন্ধ আছে, কারণ ছবিতে ডবল ট্যাপ করলেই এটা হয়।</string>
+    <string name="settings_zoom_menu_desc">\'পর্দায় মেলান\' এবং \'100%\' দর্শকের প্রাসঙ্গিক মেনুতে যোগ করে।</string>
     <string name="hint_zoom_tap">দ্রুত জুম: ছবিতে দুবার ট্যাপ করলে সেটি ভিউয়ে মানানসই হবে, আবার দুবার ট্যাপ করলে আসল পিক্সেল দেখাবে. ট্যাপ করতে থাকলে মানানসই আর 100% এর মধ্যে বদলাতে থাকবে.</string>
     <string name="hint_ext_warn">⚠️ ফাইলের এক্সটেনশন বদলানো এক ফরম্যাট থেকে অন্যটিতে রূপান্তরের সমান নয়: তার জন্য \'রপ্তানি ও রূপান্তর\' আছে।\n\n⚠️ কোনো ছবি বা ভিডিওকে মিডিয়া ফাইলের নয় এমন এক্সটেনশন দিলে সেটি গ্রিড ও তালিকা দৃশ্য থেকে হারিয়ে যাবে।</string>
     <string name="settings_anim_counter">ফ্রেম কাউন্টার</string>

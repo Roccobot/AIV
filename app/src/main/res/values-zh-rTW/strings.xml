@@ -101,7 +101,7 @@
     <string name="settings_info_visible">資訊列</string>
     <string name="settings_info_position">位置</string>
     <string name="settings_zoom_menu">檢視器選單中的縮放</string>
-    <string name="settings_zoom_menu_desc">把 \'符合檢視\' 和 \'100%\' 放回長按選單。預設關閉，因為在圖片上點兩下就能做到。</string>
+    <string name="settings_zoom_menu_desc">把 \'符合檢視\' 和 \'100%\' 加入檢視器的內容選單。</string>
     <string name="hint_zoom_tap">快速縮放: 雙擊圖片可符合視窗, 再雙擊一次顯示實際像素. 繼續雙擊可在符合與 100% 之間循環.</string>
     <string name="hint_ext_warn">⚠️ 修改副檔名和在格式之間轉換不是同一件事：轉換請用 \'匯出並轉換\'。\n\n⚠️ 若給圖片或影片一個並非媒體檔案的副檔名，該項目會從格狀檢視與清單檢視中消失。</string>
     <string name="settings_anim_counter">影格計數器</string>

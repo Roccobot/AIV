@@ -101,7 +101,7 @@
     <string name="settings_info_visible">信息栏</string>
     <string name="settings_info_position">位置</string>
     <string name="settings_zoom_menu">查看器菜单中的缩放</string>
-    <string name="settings_zoom_menu_desc">把 \'适应视图\' 和 \'100%\' 放回长按菜单。默认关闭，因为双击图片就能做到。</string>
+    <string name="settings_zoom_menu_desc">把 \'适应视图\' 和 \'100%\' 添加到查看器的上下文菜单。</string>
     <string name="hint_zoom_tap">快速缩放: 双击图片可适应视图, 再双击一次显示实际像素. 继续双击可在适应和 100% 之间循环.</string>
     <string name="hint_ext_warn">⚠️ 修改扩展名和在格式之间转换不是一回事：转换请用 \'导出并转换\'。\n\n⚠️ 如果给图片或视频一个并非媒体文件的扩展名，该项会从网格视图和列表视图中消失。</string>
     <string name="settings_anim_counter">帧计数器</string>

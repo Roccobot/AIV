@@ -217,7 +217,7 @@
     <!-- Setting that puts 'Fit to view' and '100%' back into the long-press menu. Off by
          default: the double tap does the same thing. -->
     <string name="settings_zoom_menu">Zoom in the viewer menu</string>
-    <string name="settings_zoom_menu_desc">Puts \'Fit to view\' and \'100%\' back into the long-press menu. They are off because a double tap on the picture already does it.</string>
+    <string name="settings_zoom_menu_desc">Adds \'Fit to view\' and \'100%\' to the viewer\'s context menu.</string>
     <!-- The one-off veil shown over the first picture after installing. -->
     <string name="hint_zoom_tap">Quick zoom: double tap the image to fit it to the view, double tap again for actual pixels. Keep tapping to go round between fitted and 100%.</string>
     <string name="hint_ext_warn">⚠️ Changing a file extension is not the same as switching between formats: for that there is \'Export and convert\'.\n\n⚠️ If you give an image or a video an extension that does not belong to a media file, the item will vanish from the grid and list views.</string>

@@ -1271,9 +1271,13 @@ private fun ZoomAndFit(settings: Settings, onChange: (Settings) -> Unit) {
      * **zoom**, e questa è la pagina dello zoom: chi cerca un'impostazione la cerca per
      * argomento, non per dove compare.
      * ⚠️ **Spenta di fabbrica**: 'Adatta alla vista' e '100%' fanno quello che il doppio
-     * tocco fa già, e stavano in mezzo a comandi che agiscono sul file. La descrizione nomina
-     * il doppio tocco, perché una riga che dice solo 'rimetti due voci' non direbbe da che
-     * cosa si viene.
+     * tocco fa già, e stavano in mezzo a comandi che agiscono sul file.
+     * ⚠️⚠️ **LA DESCRIZIONE NON NOMINA PIÙ IL DOPPIO TOCCO, dalla `1.46`** (istruzione
+     * dell'utente, 2026-09-03), e la nota di prima diceva che quel rimando serviva *perché una
+     * riga che dice solo 'rimetti due voci' non direbbe da che cosa si viene*. Adesso la riga
+     * dice che cosa **fa** e basta, cioè aggiungere due voci al menu contestuale: il perché
+     * sia spenta è una faccenda di chi scrive il codice e non di chi legge un'impostazione, e
+     * vive qui.
      */
     SwitchRow(
         label = stringResource(R.string.settings_zoom_menu),

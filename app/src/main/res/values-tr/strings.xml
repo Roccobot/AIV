@@ -101,7 +101,7 @@
     <string name="settings_info_visible">Bilgi çubuğu</string>
     <string name="settings_info_position">Konum</string>
     <string name="settings_zoom_menu">Görüntüleyici menüsünde yakınlaştırma</string>
-    <string name="settings_zoom_menu_desc">\'Görünüme sığdır\' ve \'100%\' ögelerini uzun basma menüsüne geri koyar. Resme çift dokunmak zaten bunu yaptığı için kapalı.</string>
+    <string name="settings_zoom_menu_desc">\'Görünüme sığdır\' ve \'100%\' ögelerini görüntüleyicinin bağlam menüsüne ekler.</string>
     <string name="hint_zoom_tap">Hızlı yakınlaştırma: görüntüye iki kez dokunun, görünüme sığar; bir kez daha dokunun, gerçek pikselleri gösterir. Dokunmaya devam ederek sığdırılmış ile 100% arasında geçiş yapın.</string>
     <string name="hint_ext_warn">⚠️ Bir dosyanın uzantısını değiştirmek, biçimler arasında dönüştürmekle aynı şey değildir: onun için \'Dışa aktar ve dönüştür\' var.\n\n⚠️ Bir görüntüye veya videoya ortam dosyasına ait olmayan bir uzantı verirsen, öğe ızgara ve liste görünümlerinden kaybolur.</string>
     <string name="settings_anim_counter">Kare sayacı</string>

@@ -40,8 +40,6 @@ import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -749,7 +747,7 @@ private fun Hub(
     onSize: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var open by remember { mutableStateOf(false) }
+    val menu = rememberMenuState()
     var asking by remember { mutableStateOf(false) }
 
     val picker = rememberLauncherForActivityResult(
@@ -768,34 +766,32 @@ private fun Hub(
          * l'ordine dei figli.
          */
         /*
-         * ⚠️⚠️ **LO STONDAMENTO È QUELLO DI TUTTI I MENU, dalla 1.36, e fino alla 1.35 QUESTO
-         * ERA RIMASTO FUORI** (segnalazione dell'utente, 2026-09-02, con la schermata: *il menu
-         * del FAB nella schermata home ha ancora la vecchia stondatura piccola*). La `1.28`
-         * aveva unificato il raggio di 'tutti i menu', ma quelli che passano da `MenuShell`:
-         * questo è un `DropdownMenu` di Material, perché si posiziona da sé contro il tastino
-         * in un angolo, e l'unificazione non lo aveva toccato. Adesso porta anche lui
-         * [MENU_ROUND].
-         * ⚠️ **Nella 1.36 aveva preso anche la STRISCIA d'accento, e nella 1.38 è uscita di
-         * scena insieme a tutte le altre**: il perché sta nella nota di [MenuShell].
-         * ⚠️ **Resta un `DropdownMenu` e non diventa un `MenuShell`**: quella superficie vuole
-         * un posizionatore, e i due che esistono mettono il menu al centro della finestra o
-         * sopra il tastino centrato. Qui il menu deve nascere **dal** tastino, che è nell'angolo
-         * in basso a destra, e il posizionamento di Material fa già esattamente quello.
+         * ⚠️⚠️ **PASSA DALLA SUPERFICIE UNICA DALLA `1.46`, e questo menu è il caso che ha
+         * dimostrato che serviva.** Era l'ultimo `DropdownMenu` di Material, e la ragione
+         * scritta qui era tecnica e non pigrizia: quella superficie voleva un posizionatore, e
+         * i due che c'erano mettevano il menu al centro della finestra o sopra un tastino
+         * centrato, mentre questo deve nascere **dall'angolo** in basso a destra. Adesso il
+         * posizionatore è uno e sa fare anche quello, quindi la ragione è caduta.
+         * ⚠️⚠️ **IL PREZZO STORICO DI ESSERE STATO FUORI**: la `1.28` aveva unificato il raggio
+         * di 'tutti i menu' e aveva dimenticato questo, perché era il solo a non passare dalla
+         * superficie condivisa; il difetto è uscito otto versioni dopo, nella `1.36`, e l'ha
+         * visto l'utente (*il menu del FAB nella schermata home ha ancora la vecchia stondatura
+         * piccola*). Uniformare non è un gusto: è il modo di non ripagare quel prezzo.
+         * ⚠️ **Il velo non si chiede più a mano**, perché lo porta la superficie. Fino alla
+         * `1.46` questa riga lo chiedeva e diceva di essere 'l'unico' menu fuori dalla
+         * superficie, che era **falso**: l'altro era il filtro nella testata della griglia, e
+         * per una versione è stato l'unico menu dell'app senza velo.
+         * ⚠️ **Le voci cambiano di aspetto in tre modi, tutti voluti**: crescono dal centro del
+         * riquadro e non dall'angolo del tastino, la scala è 0,96 al posto dello 0,8 di
+         * Material, e la durata è quella scelta dall'utente sul mockup.
+         * ⚠️ **Restano senza icone**, e non è una dimenticanza: due voci vogliono un disegno
+         * che in Material non c'è, e i disegni li manda l'utente. Il perché per esteso sta sul
+         * parametro `icon` di [MenuRow].
          */
-        DropdownMenu(
-            expanded = open,
-            onDismissRequest = { open = false },
-            shape = RoundedCornerShape(MENU_ROUND)
+        MenuShell(
+            state = menu,
+            position = rememberMenuSpot(MenuSide.AT_ANCHOR, MenuSide.AFTER_ANCHOR)
         ) {
-            // ⚠️ Il velo va chiesto anche qui, e non arriva da solo: questo è uno dei DUE
-            // menu dell'app che non passano da `MenuShell` (vedi la nota qui sopra sul perché
-            // resta un `DropdownMenu`), quindi se lo deve aggiungere.
-            // ⚠️⚠️ **FINO ALLA 1.46 QUESTA RIGA DICEVA 'L'UNICO', ED ERA FALSO**: l'altro è il
-            // filtro nella testata della griglia, e per una versione è stato l'unico menu
-            // dell'app **senza** velo. La frase falsa è ciò che lo ha nascosto, perché chi
-            // cercava i chiamanti di `WindowVeil` ne trovava due e la nota gli diceva che
-            // erano tutti. Non si vedeva perché il velo è spento di fabbrica dalla `1.39`.
-            WindowVeil()
             // ⚠️⚠️ **LA VOCE NOMINA LA VISTA CHE SI OTTIENE, non quella in cui si è**, ed
             // è la cosa da non rovesciare quando si riscrive l'etichetta: una riga di menu
             // è una richiesta, non un indicatore di stato, quindi in griglia si legge
@@ -814,9 +810,10 @@ private fun Hub(
             // che l'utente ha dato alla vista, non una descrizione, e piegarlo allo schema
             // vorrebbe dire ribattezzare una cosa che ha già un nome.
             FolderView.entries.filter { it != view }.forEach { other ->
-                DropdownMenuItem(
-                    text = { Text(stringResource(other.label())) },
-                    onClick = { open = false; onView(other) }
+                MenuRow(
+                    text = stringResource(other.label()),
+                    icon = null,
+                    onTap = { menu.close(); onView(other) }
                 )
             }
 
@@ -825,13 +822,15 @@ private fun Hub(
             // ⚠️ Sta in cima al gruppo delle azioni, prima delle tre vie che aprono
             // qualcosa: cercare è la domanda che si fa più spesso quando non si sa già
             // dove andare, ed è il caso in cui una persona apre questo menu.
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.hub_search)) },
-                onClick = { open = false; onSearch() }
+            MenuRow(
+                text = stringResource(R.string.hub_search),
+                icon = null,
+                onTap = { menu.close(); onSearch() }
             )
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.hub_url)) },
-                onClick = { open = false; asking = true }
+            MenuRow(
+                text = stringResource(R.string.hub_url),
+                icon = null,
+                onTap = { menu.close(); asking = true }
             )
             /*
              * ⚠️⚠️ **COMPARE SE E SOLO SE IL PERMESSO MANCA, dalla 0.74** (decisione
@@ -849,10 +848,11 @@ private fun Hub(
              * `fromSettings` in chi chiama), quindi il menu si ricompone.
              */
             if (!granted) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.hub_pick)) },
-                    onClick = {
-                        open = false
+                MenuRow(
+                    text = stringResource(R.string.hub_pick),
+                    icon = null,
+                    onTap = {
+                        menu.close()
                         picker.launch(
                             PickVisualMediaRequest(
                                 ActivityResultContracts.PickVisualMedia.ImageOnly
@@ -867,16 +867,18 @@ private fun Hub(
             // Senza questa voce sarebbero irraggiungibili, cioè cancellate.
             // ⚠️ Sta in fondo al gruppo di quelle che aprono qualcosa: è un posto dove si
             // va, come una cartella, ma è il meno frequentato dei quattro.
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.bin_title)) },
-                onClick = { open = false; onBin() }
+            MenuRow(
+                text = stringResource(R.string.bin_title),
+                icon = null,
+                onTap = { menu.close(); onBin() }
             )
 
             HorizontalDivider()
 
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.hub_settings)) },
-                onClick = { open = false; onSettings() }
+            MenuRow(
+                text = stringResource(R.string.hub_settings),
+                icon = null,
+                onTap = { menu.close(); onSettings() }
             )
         }
         /*
@@ -909,8 +911,8 @@ private fun Hub(
             ink = colorResource(R.color.launcher_foreground),
             lift = FAB_LIFT,
             holdLabel = stringResource(R.string.columns_title),
-            lifted = open,
-            onTap = { open = true },
+            lifted = menu.inScene,
+            onTap = { menu.open() },
             onHold = onSize
         )
     }

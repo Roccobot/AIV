@@ -101,7 +101,7 @@
     <string name="settings_info_visible">정보 표시줄</string>
     <string name="settings_info_position">위치</string>
     <string name="settings_zoom_menu">뷰어 메뉴의 확대</string>
-    <string name="settings_zoom_menu_desc">\'화면에 맞추기\'와 \'100%\'를 길게 누르기 메뉴에 되돌립니다. 사진을 두 번 누르면 같은 일이 일어나므로 기본은 꺼짐입니다.</string>
+    <string name="settings_zoom_menu_desc">\'화면에 맞추기\'와 \'100%\'를 뷰어의 컨텍스트 메뉴에 추가합니다.</string>
     <string name="hint_zoom_tap">빠른 확대: 이미지를 두 번 누르면 화면에 맞추고, 다시 두 번 누르면 실제 픽셀로 봅니다. 계속 누르면 맞춤과 100%를 오갑니다.</string>
     <string name="hint_ext_warn">⚠️ 확장자를 바꾸는 것은 형식을 변환하는 것과 다릅니다. 변환에는 \'내보내기 및 변환\'이 있습니다.\n\n⚠️ 이미지나 동영상에 미디어 파일이 아닌 확장자를 주면 그 항목은 격자 보기와 목록 보기에서 사라집니다.</string>
     <string name="settings_anim_counter">프레임 카운터</string>

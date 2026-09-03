@@ -163,7 +163,7 @@
     <string name="settings_info_visible">Barra delle info</string>
     <string name="settings_info_position">Posizione</string>
     <string name="settings_zoom_menu">Zoom nel menu del visualizzatore</string>
-    <string name="settings_zoom_menu_desc">Rimette \'Adatta alla vista\' e \'100%\' nel menu a pressione lunga. È spento perché il doppio tocco sull\'immagine lo fa già.</string>
+    <string name="settings_zoom_menu_desc">Aggiunge \'Adatta alla vista\' e \'100%\' al menu contestuale del visualizzatore.</string>
     <string name="hint_zoom_tap">Zoom rapido: doppio tocco sull\'immagine per adattare alla vista, altro doppio tocco per passare ai pixel reali. Ripeti ancora per passare ciclicamente da adattata a 100%.</string>
     <string name="hint_ext_warn">⚠️ Modificare l\'estensione di un file non equivale a passare da un formato all\'altro: per quello c\'è \'Esporta/Converti\'.\n\n⚠️ Se cambi l\'estensione di un\'immagine o video assegnandone una nuova non associata a un file multimediale, l\'elemento sparirà dalle viste griglia e lista.</string>
     <string name="settings_anim_counter">Contatore dei fotogrammi</string>

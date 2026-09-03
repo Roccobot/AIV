@@ -101,7 +101,7 @@
     <string name="settings_info_visible">نوار اطلاعات</string>
     <string name="settings_info_position">موقعیت</string>
     <string name="settings_zoom_menu">بزرگ‌نمایی در منوی نمایشگر</string>
-    <string name="settings_zoom_menu_desc">\'جا شدن در صفحه\' و \'100%\' را به منوی فشار طولانی برمی‌گرداند. خاموش است چون دو ضربه روی تصویر همین کار را می‌کند.</string>
+    <string name="settings_zoom_menu_desc">\'جا شدن در صفحه\' و \'100%\' را به منوی زمینهٔ نمایشگر می‌افزاید.</string>
     <string name="hint_zoom_tap">بزرگ‌نمایی سریع: دو بار روی تصویر بزنید تا با نما جور شود، دو بار دیگر برای پیکسل‌های واقعی. باز هم بزنید تا بین جورشده و 100% جابه‌جا شوید.</string>
     <string name="hint_ext_warn">⚠️ عوض کردن پسوند یک فایل مثل تبدیل از یک قالب به قالب دیگر نیست: برای آن \'برون‌بری و تبدیل\' هست.\n\n⚠️ اگر به یک تصویر یا ویدیو پسوندی بدهید که به فایل چندرسانه‌ای مربوط نباشد، آن مورد از نمای شبکه‌ای و فهرستی ناپدید می‌شود.</string>
     <string name="settings_anim_counter">شمارنده فریم</string>

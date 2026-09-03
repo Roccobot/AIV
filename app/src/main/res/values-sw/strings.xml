@@ -101,7 +101,7 @@
     <string name="settings_info_visible">Upau wa maelezo</string>
     <string name="settings_info_position">Mahali</string>
     <string name="settings_zoom_menu">Ukuzaji katika menyu ya kitazamaji</string>
-    <string name="settings_zoom_menu_desc">Hurudisha \'Iingie kwenye skrini\' na \'100%\' kwenye menyu ya kubonyeza kwa muda mrefu. Imezimwa kwa sababu kugusa picha mara mbili hufanya hivyo.</string>
+    <string name="settings_zoom_menu_desc">Huongeza \'Iingie kwenye skrini\' na \'100%\' kwenye menyu ya muktadha ya kitazamaji.</string>
     <string name="hint_zoom_tap">Kukuza haraka: gusa mara mbili picha ili itoshee skrini, gusa mara mbili tena kwa pikseli halisi. Endelea kugusa ili kubadilisha kati ya iliyotosheshwa na 100%.</string>
     <string name="hint_ext_warn">⚠️ Kubadilisha kiambishi cha faili si sawa na kubadilisha muundo: kwa hilo kuna \'Hamisha na kubadilisha\'.\n\n⚠️ Ukimpa picha au video kiambishi ambacho si cha faili ya media, kipengee kitatoweka katika mwonekano wa gridi na wa orodha.</string>
     <string name="settings_anim_counter">Kihesabu fremu</string>

@@ -101,7 +101,7 @@
     <string name="settings_info_visible">شريط المعلومات</string>
     <string name="settings_info_position">الموضع</string>
     <string name="settings_zoom_menu">التكبير في قائمة العارض</string>
-    <string name="settings_zoom_menu_desc">يعيد \'ملاءمة الشاشة\' و\'100%\' إلى قائمة الضغط المطول. مطفأة لأن النقر المزدوج على الصورة يفعل ذلك.</string>
+    <string name="settings_zoom_menu_desc">يضيف \'ملاءمة الشاشة\' و\'100%\' إلى قائمة العارض السياقية.</string>
     <string name="hint_zoom_tap">تكبير سريع: انقر نقرًا مزدوجًا على الصورة لملاءمتها للعرض، وانقر مزدوجًا مرة أخرى للبكسلات الحقيقية. تابع النقر للتبديل بين الملاءمة و100%.</string>
     <string name="hint_ext_warn">⚠️ تغيير امتداد ملف ليس مثل التحويل من صيغة إلى أخرى: لذلك هناك \'تصدير وتحويل\'.\n\n⚠️ إذا أعطيت صورة أو مقطعًا امتدادًا لا يخص ملفات الوسائط، فسيختفي العنصر من عرض الشبكة وعرض القائمة.</string>
     <string name="settings_anim_counter">عدّاد الإطارات</string>

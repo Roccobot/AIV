@@ -101,7 +101,7 @@
     <string name="settings_info_visible">情報バー</string>
     <string name="settings_info_position">位置</string>
     <string name="settings_zoom_menu">ビューアーのメニューに拡大表示</string>
-    <string name="settings_zoom_menu_desc">\'画面に合わせる\' と \'100%\' を長押しメニューに戻します。画像をダブルタップすれば同じことができるので、既定ではオフです。</string>
+    <string name="settings_zoom_menu_desc">\'画面に合わせる\' と \'100%\' をビューアーのコンテキストメニューに追加します。</string>
     <string name="hint_zoom_tap">クイックズーム: 画像をダブルタップすると画面に合わせ、もう一度ダブルタップすると実寸のピクセルになります。続けてタップすると、合わせた表示と100%を交互に切り替えます。</string>
     <string name="hint_ext_warn">⚠️ 拡張子を変えることは形式を変換することとは違います。変換には \'書き出して変換\' があります。\n\n⚠️ 画像や動画にメディアファイル以外の拡張子を付けると、その項目はグリッド表示とリスト表示から消えます。</string>
     <string name="settings_anim_counter">フレームカウンター</string>

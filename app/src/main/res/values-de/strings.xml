@@ -101,7 +101,7 @@
     <string name="settings_info_visible">Infoleiste</string>
     <string name="settings_info_position">Position</string>
     <string name="settings_zoom_menu">Zoom im Menü des Betrachters</string>
-    <string name="settings_zoom_menu_desc">Stellt \'An die Ansicht anpassen\' und \'100%\' wieder in das Menü der langen Berührung. Aus, weil ein Doppeltippen auf das Bild das schon macht.</string>
+    <string name="settings_zoom_menu_desc">Fügt \'An die Ansicht anpassen\' und \'100%\' dem Kontextmenü des Betrachters hinzu.</string>
     <string name="hint_zoom_tap">Schnellzoom: Doppeltippen passt das Bild an die Ansicht an, noch einmal zeigt echte Pixel. Weiter tippen wechselt zwischen angepasst und 100%.</string>
     <string name="hint_ext_warn">⚠️ Eine Dateiendung zu ändern ist nicht dasselbe wie zwischen Formaten umzuwandeln: dafür gibt es \'Exportieren und umwandeln\'.\n\n⚠️ Wenn du einem Bild oder Video eine Endung gibst, die zu keiner Mediendatei gehört, verschwindet der Eintrag aus der Raster- und der Listenansicht.</string>
     <string name="settings_anim_counter">Bildzähler</string>

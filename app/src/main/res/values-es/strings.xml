@@ -101,7 +101,7 @@
     <string name="settings_info_visible">Barra de información</string>
     <string name="settings_info_position">Posición</string>
     <string name="settings_zoom_menu">Zoom en el menú del visor</string>
-    <string name="settings_zoom_menu_desc">Devuelve \'Ajustar a la vista\' y \'100%\' al menú de pulsación larga. Está apagado porque un toque doble en la imagen ya lo hace.</string>
+    <string name="settings_zoom_menu_desc">Añade \'Ajustar a la vista\' y \'100%\' al menú contextual del visor.</string>
     <string name="hint_zoom_tap">Zoom rápido: toca dos veces la imagen para ajustarla a la vista, otras dos para ver los píxeles reales. Sigue tocando para alternar entre ajustada y 100%.</string>
     <string name="hint_ext_warn">⚠️ Cambiar la extensión de un archivo no es lo mismo que pasar de un formato a otro: para eso está \'Exportar y convertir\'.\n\n⚠️ Si le das a una imagen o a un vídeo una extensión que no sea de un archivo multimedia, el elemento desaparecerá de las vistas de cuadrícula y de lista.</string>
     <string name="settings_anim_counter">Contador de fotogramas</string>
