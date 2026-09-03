@@ -347,9 +347,8 @@
     <string name="settings_editor_backup_desc">Sebelum sebuah penyunting menimpa gambar, salinannya disimpan di tempat sampah, tempat Anda dapat memulihkannya; bila tidak diperlukan, salinan itu akan terhapus pada \'Kosongkan tempat sampah\' berikutnya.</string>
     <string name="editor_tall">Tegak</string>
     <string name="editor_wide">Mendatar</string>
-    <string name="pick_drop_ask">Batalkan pilihan?</string>
-    <string name="pick_drop">Batalkan</string>
-    <string name="pick_keep">Simpan</string>
+    <string name="pick_cleared">Pilihan dihapus</string>
+    <string name="pick_undo">Urungkan</string>
     <string name="pick_list_done">Daftar berkas disalin ke papan klip</string>
     <string name="settings_pick_weight">Ukuran berkas yang dipilih</string>
     <string name="settings_pick_weight_desc">Di bagian atas pilihan, di samping penghitung, muncul ukuran total semua item yang dipilih. Angkanya berubah setiap kali pilihan berubah.</string>

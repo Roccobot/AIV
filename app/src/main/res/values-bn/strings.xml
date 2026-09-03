@@ -362,9 +362,8 @@
     <string name="settings_editor_backup_desc">কোনো সম্পাদক ছবির উপর লেখার আগে তার একটি অনুলিপি আবর্জনায় রেখে দেয়, সেখান থেকে ফিরিয়ে আনা যায়; দরকার না হলে পরের বার \'আবর্জনা খালি করুন\'-এ মুছে যাবে।</string>
     <string name="editor_tall">লম্বালম্বি</string>
     <string name="editor_wide">আড়াআড়ি</string>
-    <string name="pick_drop_ask">নির্বাচন বাতিল করবেন?</string>
-    <string name="pick_drop">বাতিল করুন</string>
-    <string name="pick_keep">রাখুন</string>
+    <string name="pick_cleared">নির্বাচন বাতিল করা হয়েছে</string>
+    <string name="pick_undo">পূর্বাবস্থা</string>
     <string name="pick_list_done">ফাইলের তালিকা ক্লিপবোর্ডে অনুলিপি হয়েছে</string>
     <string name="settings_pick_weight">নির্বাচিত ফাইলগুলির আকার</string>
     <string name="settings_pick_weight_desc">নির্বাচনের উপরে, গণনার পাশে, সব নির্বাচিত জিনিসের মোট আকার দেখা যায়। নির্বাচন বদলালেই তা বদলায়।</string>

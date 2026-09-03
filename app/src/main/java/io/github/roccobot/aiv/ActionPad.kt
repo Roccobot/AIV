@@ -8,6 +8,7 @@ import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.combinedClickable
@@ -144,9 +145,12 @@ fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (In
          * definizione. Allineare un valore di fabbrica a una decisione non ribalta niente;
          * lasciarle diverse avrebbe fatto due movimenti per lo stesso gesto, in due schermate
          * che si aprono a un tocco di distanza.
-         * ⚠️ **L'USCITA resta la molla di fabbrica**, e non è una dimenticanza: l'utente ha
-         * descritto come una scheda **entra**, e questa è la sola delle due che se ne va con
-         * un'animazione. Cambiarla sarebbe un movimento che non ha chiesto.
+         * ⚠️⚠️ **E DALLA 1.44 ANCHE L'USCITA È SUA** (istruzione dell'utente: *le bottomsheet
+         * devono sparire nello stesso modo in cui entrano, ma con animazione speculare*):
+         * scende con [ACCELERA], che è la molla dell'entrata letta all'indietro, e la
+         * dissolvenza sta **in coda** invece che in testa. Nella `1.43` questa uscita era
+         * ancora la molla di fabbrica, e la nota di allora diceva che l'utente aveva descritto
+         * come una scheda **entra**: era vero quel giorno.
          */
         enter = slideInVertically(
             /*
@@ -162,7 +166,15 @@ fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (In
             ),
             initialOffsetY = { it }
         ) + fadeIn(animationSpec = tween(durationMillis = SHEET_FADE_MS)),
-        exit = slideOutVertically(targetOffsetY = { it }),
+        exit = slideOutVertically(
+            animationSpec = tween(durationMillis = USCITA_MS, easing = ACCELERA),
+            targetOffsetY = { it }
+        ) + fadeOut(
+            animationSpec = tween(
+                durationMillis = SHEET_FADE_MS,
+                delayMillis = USCITA_MS - SHEET_FADE_MS
+            )
+        ),
         modifier = Modifier.align(Alignment.BottomCenter)
     ) {
         Surface(

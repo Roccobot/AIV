@@ -362,9 +362,8 @@
     <string name="settings_editor_backup_desc">پیش از آنکه ویرایشگر روی تصویری بنویسد، نسخه‌ای از آن را در سطل زباله نگه می‌دارد تا بتوانید بازش گردانید؛ اگر لازمش نداشتید، در \'خالی کردن سطل زباله\' بعدی حذف می‌شود.</string>
     <string name="editor_tall">عمودی</string>
     <string name="editor_wide">افقی</string>
-    <string name="pick_drop_ask">انتخاب لغو شود؟</string>
-    <string name="pick_drop">لغو انتخاب</string>
-    <string name="pick_keep">نگه داشتن</string>
+    <string name="pick_cleared">انتخاب پاک شد</string>
+    <string name="pick_undo">واگرد</string>
     <string name="pick_list_done">فهرست فایل‌ها در بریده‌دان کپی شد</string>
     <string name="settings_pick_weight">اندازهٔ فایل‌های انتخاب‌شده</string>
     <string name="settings_pick_weight_desc">در بالای انتخاب، کنار شمارنده، اندازهٔ کل همهٔ موارد انتخاب‌شده نمایان می‌شود و با هر تغییر در انتخاب تغییر می‌کند.</string>

@@ -377,9 +377,8 @@
     <string name="settings_editor_backup_desc">Antes que um editor sobrescreva uma imagem, ele guarda uma cópia na lixeira, onde você poderá recuperá-la; se não precisar dela, será excluída no próximo \'Esvaziar lixeira\'.</string>
     <string name="editor_tall">Retrato</string>
     <string name="editor_wide">Paisagem</string>
-    <string name="pick_drop_ask">Descartar a seleção?</string>
-    <string name="pick_drop">Descartar</string>
-    <string name="pick_keep">Manter</string>
+    <string name="pick_cleared">Seleção apagada</string>
+    <string name="pick_undo">Desfazer</string>
     <string name="pick_list_done">Lista de arquivos copiada para a área de transferência</string>
     <string name="settings_pick_weight">Tamanho dos arquivos selecionados</string>
     <string name="settings_pick_weight_desc">No topo da seleção, ao lado do contador, aparece o tamanho total de todos os itens selecionados. Muda a cada alteração da seleção.</string>

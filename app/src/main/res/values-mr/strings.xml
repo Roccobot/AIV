@@ -362,9 +362,8 @@
     <string name="settings_editor_backup_desc">संपादकाने प्रतिमेवर लिहिण्याआधी तिची एक प्रत कचरापेटीत ठेवली जाते, तिथून ती परत मिळवता येते; गरज नसेल तर पुढच्या \'कचरापेटी रिकामी करा\' वेळी ती हटेल.</string>
     <string name="editor_tall">उभे</string>
     <string name="editor_wide">आडवे</string>
-    <string name="pick_drop_ask">निवड सोडायची?</string>
-    <string name="pick_drop">सोडा</string>
-    <string name="pick_keep">ठेवा</string>
+    <string name="pick_cleared">निवड काढून टाकली</string>
+    <string name="pick_undo">पूर्ववत</string>
     <string name="pick_list_done">फाइल यादी क्लिपबोर्डवर कॉपी झाली</string>
     <string name="settings_pick_weight">निवडलेल्या फायलींचा आकार</string>
     <string name="settings_pick_weight_desc">निवडीच्या वर, मोजणीशेजारी, निवडलेल्या सर्व घटकांचा एकूण आकार दिसतो. निवड बदलली की तोही बदलतो.</string>

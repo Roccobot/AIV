@@ -362,9 +362,8 @@
     <string name="settings_editor_backup_desc">Bevor ein Editor ein Bild überschreibt, legt er eine Kopie in den Papierkorb, wo sie wiederherstellbar bleibt; wird sie nicht gebraucht, verschwindet sie beim nächsten \'Papierkorb leeren\'.</string>
     <string name="editor_tall">Hochformat</string>
     <string name="editor_wide">Querformat</string>
-    <string name="pick_drop_ask">Auswahl verwerfen?</string>
-    <string name="pick_drop">Verwerfen</string>
-    <string name="pick_keep">Behalten</string>
+    <string name="pick_cleared">Auswahl aufgehoben</string>
+    <string name="pick_undo">Rückgängig</string>
     <string name="pick_list_done">Dateiliste in die Zwischenablage kopiert</string>
     <string name="settings_pick_weight">Größe der ausgewählten Dateien</string>
     <string name="settings_pick_weight_desc">Oben in der Auswahl erscheint neben dem Zähler die Gesamtgröße aller ausgewählten Elemente. Sie ändert sich mit jeder Änderung der Auswahl.</string>

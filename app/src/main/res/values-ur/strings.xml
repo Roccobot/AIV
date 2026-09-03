@@ -362,9 +362,8 @@
     <string name="settings_editor_backup_desc">کسی ایڈیٹر کے تصویر پر لکھنے سے پہلے، اُس کی ایک نقل ردی کی ٹوکری میں محفوظ ہو جاتی ہے، جہاں سے آپ اسے واپس لے سکتے ہیں؛ ضرورت نہ ہو تو اگلی بار \'ردی کی ٹوکری خالی کریں\' پر حذف ہو جائے گی۔</string>
     <string name="editor_tall">عمودی</string>
     <string name="editor_wide">افقی</string>
-    <string name="pick_drop_ask">انتخاب منسوخ کریں؟</string>
-    <string name="pick_drop">منسوخ کریں</string>
-    <string name="pick_keep">رکھیں</string>
+    <string name="pick_cleared">انتخاب صاف کر دیا گیا</string>
+    <string name="pick_undo">کالعدم</string>
     <string name="pick_list_done">فائلوں کی فہرست کلپ بورڈ پر نقل ہو گئی</string>
     <string name="settings_pick_weight">منتخب فائلوں کا حجم</string>
     <string name="settings_pick_weight_desc">انتخاب کے اوپر، شمار کنندہ کے ساتھ، تمام منتخب اشیا کا کل حجم ظاہر ہوتا ہے۔ انتخاب میں ہر تبدیلی کے ساتھ بدلتا ہے۔</string>

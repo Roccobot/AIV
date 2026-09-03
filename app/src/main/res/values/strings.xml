@@ -521,9 +521,13 @@
     <string name="settings_facts_up">Move up</string>
     <string name="settings_facts_down">Move down</string>
 
-    <string name="pick_drop_ask">Discard the selection?</string>
-    <string name="pick_drop">Discard</string>
-    <string name="pick_keep">Keep</string>
+    <!-- The notice at the bottom of the grid when the system Back gesture clears a
+         selection: the sentence on the left, and on the right the button that puts
+         the selection back. pick_undo says the same word as editor_undo and is a key
+         of its own because that one is a label under an icon in the editor's action
+         pad, where a long language shortens it. -->
+    <string name="pick_cleared">Selection cleared</string>
+    <string name="pick_undo">Undo</string>
     <string name="pick_list_done">File list copied to the clipboard</string>
     <string name="settings_pick_weight">Size of the selected files</string>
     <string name="settings_pick_weight_desc">At the top of the selection, next to the counter, the total size of every selected item appears. It changes with every change to the selection.</string>

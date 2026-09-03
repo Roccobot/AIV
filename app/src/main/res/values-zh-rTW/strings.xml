@@ -347,9 +347,8 @@
     <string name="settings_editor_backup_desc">在編輯器覆寫一張影像之前，會先把副本存入回收筒，可以從那裡取回；若不需要，下次\'清空回收筒\'時會被刪除。</string>
     <string name="editor_tall">直式</string>
     <string name="editor_wide">橫式</string>
-    <string name="pick_drop_ask">要取消選取嗎？</string>
-    <string name="pick_drop">取消選取</string>
-    <string name="pick_keep">保留</string>
+    <string name="pick_cleared">已取消選取</string>
+    <string name="pick_undo">復原</string>
     <string name="pick_list_done">檔案清單已複製到剪貼簿</string>
     <string name="settings_pick_weight">所選檔案的大小</string>
     <string name="settings_pick_weight_desc">在所選項目的最上方、計數器旁邊，會顯示所有所選項目的總大小。選取內容每次變動，它都會跟著變。</string>
