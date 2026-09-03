@@ -30,7 +30,7 @@
     <string name="convert_elsewhere">其他格式</string>
     <string name="convert_elsewhere_desc">Android 只能寫入上面這些格式。其餘格式可以用這些服務，它們會在瀏覽器中開啟：圖片請在那裡從手機儲存空間選取。</string>
     <string name="convert_clean">清理</string>
-    <string name="convert_clean_why">去掉中介資料、註解、指令碼和編輯器殘留，在真實檔案裡它們幾乎就是全部體積。它不會重寫路徑，也不碰形狀、線條、圖形和文字。要完整重寫，還有在瀏覽器裡開啟的 CleanSVG。</string>
+    <string name="convert_clean_why">去掉中介資料、註解、指令碼和編輯器殘留，在真實檔案裡它們幾乎就是全部體積。它不會重寫路徑，也不碰形狀、線條、圖形和文字。</string>
     <string name="convert_clean_c2pa">⚠️ 注意：C2PA 來源資訊也會一起消失，也就是說明檔案由誰製作的那部分。如果需要，請留一份副本。</string>
     <string name="clean_now">在這裡清理</string>
     <string name="clean_done">已清理：從 %1$s 到 %2$s。</string>

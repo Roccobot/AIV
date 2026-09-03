@@ -59,7 +59,7 @@
     <string name="convert_elsewhere">Other formats</string>
     <string name="convert_elsewhere_desc">Android can only write the formats above. For the others there are these services, which open in the browser: pick the image there, from the phone\'s storage.</string>
     <string name="convert_clean">Clean up</string>
-    <string name="convert_clean_why">Strips metadata, comments, scripts and editor leftovers, which in real files are almost all of the weight. It does not rewrite the paths, and it does not touch shapes, lines, drawings or text. For a full rewrite there is CleanSVG, which opens in the browser.</string>
+    <string name="convert_clean_why">Strips metadata, comments, scripts and editor leftovers, which in real files are almost all of the weight. It does not rewrite the paths, and it does not touch shapes, lines, drawings or text.</string>
     <string name="convert_clean_c2pa">⚠️ WARNING: the C2PA provenance goes too, the part that says who made the file. Keep a copy if you need it.</string>
     <string name="clean_now">Clean here</string>
     <string name="clean_done">Cleaned up: from %1$s to %2$s.</string>
@@ -164,7 +164,7 @@
     <string name="settings_bg_desc">The checkerboard is the only background that makes transparency visible, which on a viewer is information rather than decoration.</string>
 
     <string name="settings_ui_theme">Theme</string>
-    <string name="settings_ui_theme_desc">Whether the interface is light or dark. It does not govern the background behind the image, below: the chequerboard reveals transparency, it does not follow the theme.</string>
+    <string name="settings_ui_theme_desc">Whether the interface is light or dark. It does not govern the background behind the image, below: the checkerboard reveals transparency, it does not follow the theme.</string>
     <string name="settings_system">System</string>
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_dark">Dark</string>

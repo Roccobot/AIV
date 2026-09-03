@@ -30,7 +30,7 @@
     <string name="convert_elsewhere">Diğer biçimler</string>
     <string name="convert_elsewhere_desc">Android yalnızca yukarıdaki biçimleri yazabilir. Diğerleri için tarayıcıda açılan şu hizmetler var: görüntü orada, telefonun belleğinden seçilir.</string>
     <string name="convert_clean">Temizle</string>
-    <string name="convert_clean_why">Gerçek dosyalarda ağırlığın neredeyse tamamını oluşturan üst verileri, yorumları, betikleri ve düzenleyici artıklarını kaldırır. Yolları yeniden yazmaz; şekillere, çizgilere, çizimlere ve metne dokunmaz. Tam yeniden yazma için tarayıcıda açılan CleanSVG var.</string>
+    <string name="convert_clean_why">Gerçek dosyalarda ağırlığın neredeyse tamamını oluşturan üst verileri, yorumları, betikleri ve düzenleyici artıklarını kaldırır. Yolları yeniden yazmaz; şekillere, çizgilere, çizimlere ve metne dokunmaz.</string>
     <string name="convert_clean_c2pa">⚠️ DİKKAT: dosyayı kimin yaptığını söyleyen C2PA kaynak bilgisi de gider. Gerekiyorsa bir kopyasını sakla.</string>
     <string name="clean_now">Burada temizle</string>
     <string name="clean_done">Temizlendi: %1$s boyutundan %2$s boyutuna.</string>

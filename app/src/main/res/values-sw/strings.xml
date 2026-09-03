@@ -30,7 +30,7 @@
     <string name="convert_elsewhere">Miundo mingine</string>
     <string name="convert_elsewhere_desc">Android inaweza kuandika miundo iliyo hapo juu pekee. Kwa mingine kuna huduma hizi, zinazofunguka katika kivinjari: picha huchaguliwa huko, kutoka kwenye hifadhi ya simu.</string>
     <string name="convert_clean">Safisha</string>
-    <string name="convert_clean_why">Huondoa metadata, maoni, skripti na masalia ya vihariri, ambayo katika faili za kweli ni karibu uzito wote. Haiandiki upya njia, na haigusi maumbo, mistari, michoro au maandishi. Kwa uandikaji upya kamili kuna CleanSVG, inayofunguka katika kivinjari.</string>
+    <string name="convert_clean_why">Huondoa metadata, maoni, skripti na masalia ya vihariri, ambayo katika faili za kweli ni karibu uzito wote. Haiandiki upya njia, na haigusi maumbo, mistari, michoro au maandishi.</string>
     <string name="convert_clean_c2pa">⚠️ TAHADHARI: chimbuko la C2PA pia linaondoka, sehemu inayosema ni nani aliyetengeneza faili. Weka nakala kama unaihitaji.</string>
     <string name="clean_now">Safisha hapa</string>
     <string name="clean_done">Imesafishwa: kutoka %1$s hadi %2$s.</string>

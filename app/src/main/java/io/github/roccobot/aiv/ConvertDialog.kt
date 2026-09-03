@@ -252,14 +252,20 @@ fun ConvertDialog(
                         horizontalArrangement = Arrangement.End
                     ) {
                         /*
-                         * ⚠️⚠️ **DUE TASTI E NON UNO, e la differenza è dichiarata nel testo
-                         * sopra**: 'Pulisci qui' lavora **in casa e senza rete** e non riscrive
-                         * i tracciati; 'Apri' porta a CleanSVG, che con SVGO li riscrive. Sono
-                         * due lavori diversi sullo stesso file, non due vie per lo stesso.
+                         * ⚠️⚠️ **UN TASTO SOLO DALLA 1.41, e il secondo l'ha tolto l'utente**
+                         * (risposta alla domanda `dom-pulitore-web`, 2026-09-03: *lo scoglio
+                         * del selettore file è insormontabile: elimina il pulitore Web*).
+                         * 'Apri' portava a CleanSVG, che con SVGO riscrive anche i tracciati,
+                         * cioè faceva **di più**: quello che l'ha condannato non è il
+                         * risultato ma la strada, perché il selettore di file di Android non
+                         * mostra le anteprime e là dentro non si sa che cosa si sta caricando.
+                         * ⚠️⚠️ **NON ERANO DUE VIE PER LA STESSA COSA**, e chi volesse
+                         * rimetterlo lo sappia: la pulizia di casa non tocca i tracciati.
+                         * Quello che si perde è quella riscrittura, e l'utente ha deciso che
+                         * non vale il viaggio.
                          * ⚠️ **Si spegne senza un file su cui lavorare**: la pulizia riscrive
                          * un file del telefono, quindi su un SVG arrivato dal web non c'è
-                         * niente da riscrivere. CleanSVG invece resta acceso: là il file lo
-                         * sceglie l'utente.
+                         * niente da riscrivere.
                          */
                         TextButton(
                             enabled = source != null && !pulendo,
@@ -274,9 +280,6 @@ fun ConvertDialog(
                                 }
                             }
                         ) { Text(stringResource(R.string.clean_now)) }
-                        TextButton(onClick = { open(context, CLEANSVG) }) {
-                            Text(stringResource(R.string.convert_open))
-                        }
                     }
                 }
 
@@ -361,9 +364,6 @@ private fun open(context: android.content.Context, url: String) {
 /** Qualità minima e massima del cursore, in centesimi. */
 private const val QUALITY_MIN = 10f
 private const val QUALITY_MAX = 100f
-
-/** La paginetta dell'utente che ripulisce un SVG, dallo stesso sito che serve l'APK. */
-private const val CLEANSVG = "https://roccobot.github.io/CleanSVG/"
 
 /**
  * Se quello che si sta guardando è un documento **vettoriale**.

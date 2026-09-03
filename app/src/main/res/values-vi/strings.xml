@@ -30,7 +30,7 @@
     <string name="convert_elsewhere">Định dạng khác</string>
     <string name="convert_elsewhere_desc">Android chỉ ghi được các định dạng ở trên. Với những định dạng còn lại thì có các dịch vụ sau, chúng mở trong trình duyệt: hãy chọn ảnh ở đó, từ bộ nhớ điện thoại.</string>
     <string name="convert_clean">Làm sạch</string>
-    <string name="convert_clean_why">Loại bỏ siêu dữ liệu, chú thích, tập lệnh và phần dư của các trình soạn thảo, những thứ chiếm gần như toàn bộ dung lượng trong các tệp thực. Nó không viết lại các đường nét, và không chạm vào hình, đường kẻ, hình vẽ hay chữ. Để viết lại đầy đủ thì có CleanSVG, mở trong trình duyệt.</string>
+    <string name="convert_clean_why">Loại bỏ siêu dữ liệu, chú thích, tập lệnh và phần dư của các trình soạn thảo, những thứ chiếm gần như toàn bộ dung lượng trong các tệp thực. Nó không viết lại các đường nét, và không chạm vào hình, đường kẻ, hình vẽ hay chữ.</string>
     <string name="convert_clean_c2pa">⚠️ CHÚ Ý: nguồn gốc C2PA cũng mất, tức là phần cho biết ai đã tạo tệp. Hãy giữ một bản sao nếu bạn cần.</string>
     <string name="clean_now">Dọn ở đây</string>
     <string name="clean_done">Đã dọn: từ %1$s xuống %2$s.</string>
