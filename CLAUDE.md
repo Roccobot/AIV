@@ -29,6 +29,19 @@ guadagnare niente. Il documento ha un nome nuovo, il giro no.
 ⚠️ **Tiene lo STESSO indirizzo a ogni ripubblicazione**: l'utente lo ha fra i preferiti, e
 un collegamento nuovo a ogni giro vuol dire un documento da ritrovare ogni volta.
 
+⚠️⚠️ **UNA COMPILAZIONE A METÀ NON SI PRENDE IN CARICO, E IL DOCUMENTO NON SI RIPUBBLICA
+MENTRE LUI LO COMPILA** (istruzione del 2026-09-03). Il giro si consegna con **'Invia'** o con
+una riga in chat, e si prende **intero**: spezzarlo in più versioni è una decisione mia, che
+viene dopo la consegna. Nel frattempo le voci nuove e le correzioni si tengono in una
+**bozza**, perché una pubblicazione ricarica ogni vista aperta e arriva sotto le mani di chi
+sta scrivendo. ⚠️ La pagina che si ripubblica **da sé sul suo input** è un'altra cosa e resta:
+è quella che gli garantisce di non perdere il riscontro. La regola per esteso, con il perché
+di ogni pezzo, vive in `rules/Roccobot.md` § '⏸️ Il giro si prende INTERO, e solo quando lo
+dice lui'.
+- ⚠️ **Sta qui e non solo là perché questo file sopravvive alla compattazione**, come la
+  regola di registro nel `CLAUDE.md` di root: un file di regole entra in scena quando lo si
+  legge, e da un riassunto sparisce.
+
 ⚠️⚠️ **ERANO DUE FINO AL 2026-09-03, e il secondo era il Changelog AIV** (decisione
 dell'utente: *cancella l'artefatto changelog, ho visto che non mi serve e non l'ho mai
 usato*). Chi ne trova ancora l'indirizzo in un messaggio vecchio, o la pagina in galleria,
