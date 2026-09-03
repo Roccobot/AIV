@@ -601,9 +601,13 @@ object SettingsStore {
      * Segna che questo indirizzo degli appunti è stato aperto, e non si riaprirà più.
      *
      * ⚠️ Scrive la **sola** chiave invece di passare da [save]: quella riscrive l'oggetto
-     * intero, e chiamarla da qui vorrebbe dire riscrivere ventiquattro preferenze per
-     * ricordare una stringa, con in mezzo la possibilità di sovrascrivere con una copia
-     * vecchia quello che la schermata delle impostazioni ha cambiato nel frattempo.
+     * intero, e chiamarla da qui vorrebbe dire riscrivere **ogni** preferenza per ricordare
+     * una stringa, con in mezzo la possibilità di sovrascrivere con una copia vecchia quello
+     * che la schermata delle impostazioni ha cambiato nel frattempo.
+     * ⚠️ Fino alla `1.46` qui c'era il conto, 'ventiquattro preferenze', e le assegnazioni di
+     * [save] erano già trentacinque: il numero non aggiungeva niente all'argomento, che è
+     * 'tutte invece di una', e intanto mentiva. Il criterio sta in `rules/Roccobot.md`
+     * § '🔢 I conti si contano, non si scrivono'.
      */
     suspend fun clipboardOpened(context: Context, address: String, at: Long) {
         context.aivStore.edit { p ->

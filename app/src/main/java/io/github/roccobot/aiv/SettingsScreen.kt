@@ -64,32 +64,52 @@ import java.text.Normalizer
 import kotlin.math.roundToInt
 
 /**
- * Le tre pagine delle impostazioni: la radice e le due che le pendono sotto.
+ * Le pagine delle impostazioni: la radice e quelle che le pendono sotto.
  *
- * ⚠️⚠️ **QUATTRO GRUPPI E DUE SOTTO-PAGINE**, richiesta dell'utente (*le impostazioni sono
- * ancora da riordinare e mettere in sotto-pagine*). Prima era una colonna sola di dodici
- * voci separate da dieci filetti, che si scorreva per due schermate e mezzo senza sapere
- * dove si era: un filetto dice 'qui cambia argomento' ma non dice **quale**, e dieci
- * filetti di fila non dicono più niente. Un titolo di gruppo fa entrambe le cose, quindi i
- * filetti sono spariti tutti tranne quello sopra il piede.
+ * ⚠️⚠️ **GRUPPI CON UN TITOLO, E SOTTO-PAGINE**, richiesta dell'utente (*le impostazioni sono
+ * ancora da riordinare e mettere in sotto-pagine*). Prima era una colonna sola di dodici voci
+ * separate da dieci filetti, che si scorreva per due schermate e mezzo senza sapere dove si
+ * era: un filetto dice 'qui cambia argomento' ma non dice **quale**, e dieci filetti di fila
+ * non dicono più niente. Un titolo di gruppo fa entrambe le cose, quindi i filetti sono
+ * spariti tutti tranne quello sopra il piede.
+ * ⚠️⚠️ **QUANTI SIANO NON STA SCRITTO, ED È UNA REGOLA** (istruzione dell'utente, 2026-09-03:
+ * *è davvero necessario un testo che tenga il conto delle quantità di elementi UI? Non si
+ * riuscirà mai a tenerla aggiornata*). Qui c'era scritto 'quattro gruppi e due sotto-pagine',
+ * più 'le tre pagine' e 'cinque delle voci': **tre conti su tre erano diventati falsi**, e si
+ * ricavano tutti con un comando o leggendo [Page]. Il criterio universale sta in
+ * `rules/Roccobot.md` § '🔢 I conti si contano, non si scrivono'.
+ * - ⚠️ **Il 'dodici voci' qui sopra RESTA, e non è un'eccezione di comodo**: è al passato e
+ *   dichiarato tale, cioè descrive com'era prima di questo riordino, e un tempo passato non
+ *   invecchia. Quello che invecchia è il conto di com'è **adesso**.
  *
- * ⚠️ **Sotto-pagina sono le due voci che sono ELENCHI**, e non le altre: le cartelle
- * nascoste e i dati di Info crescono col numero di righe, hanno comandi propri riga per
- * riga, ed erano da sole più di metà dell'altezza della schermata. Tutto il resto è una
- * riga a testa e in una sotto-pagina costerebbe un tocco senza guadagnare niente.
+ * ⚠️ **SOTTO-PAGINA SI DIVENTA IN DUE MODI, e non uno.** Perché la voce è un **elenco** che
+ * cresce (le cartelle nascoste e i dati di Info hanno comandi propri riga per riga, ed erano
+ * da sole più di metà dell'altezza della schermata), oppure perché le voci sono **delicate** e
+ * il tocco in più è una protezione ('Adattamento e zoom', nata così su richiesta dell'utente:
+ * *sono impostazioni delicate*). Una riga a testa che non è né un elenco né delicata, in una
+ * sotto-pagina costerebbe un tocco senza guadagnare niente.
+ * - ⚠️ **Il secondo modo qui non era scritto**, e la nota diceva che sotto-pagina sono le voci
+ *   che sono elenchi: era vero quando erano due, ed è diventato falso quando ne è nata una
+ *   terza che non è un elenco.
  *
- * ⚠️⚠️ **OGNI RIGA CHE APRE UNA PAGINA DICE CHE COSA C'È DENTRO** ('3 cartelle', '7 dati'),
- * e non è decorazione: nascondere un elenco dietro un tocco fa perdere l'unica cosa che
- * l'elenco aperto diceva da sé, cioè quanto è lungo. Senza il riepilogo bisogna entrare
- * per sapere se c'è qualcosa, che è esattamente il costo che le sotto-pagine dovevano
- * togliere.
+ * ⚠️⚠️ **OGNI RIGA CHE APRE UNA PAGINA DICE QUANTO È LUNGO QUELLO CHE C'È DENTRO**, e non è
+ * decorazione: nascondere un elenco dietro un tocco fa perdere l'unica cosa che l'elenco
+ * aperto diceva da sé, cioè la sua lunghezza. Senza il riepilogo bisogna entrare per sapere
+ * se c'è qualcosa, che è esattamente il costo che le sotto-pagine dovevano togliere.
+ * - ⚠️ **Il riepilogo va CALCOLATO e non scritto a mano**, per la stessa ragione dei conti nei
+ *   commenti: quello delle cartelle e quello di Info contano le righe (`R.plurals`), mentre
+ *   quello di 'Adattamento e zoom' è una stringa fissa che nomina tre voci e la pagina ne
+ *   porta quattro dalla `1.26`.
  *
- * ⚠️ Cinque delle voci portano una spiegazione e le altre no, che è una scelta e non una
- * dimenticanza: una spiegazione sotto un'impostazione il cui nome dice già tutto è rumore,
- * e dopo tre nessuno legge la quarta. Quelle che ce l'hanno sono quelle in cui il nome non
- * può portare il senso: a che cosa SERVE la scacchiera, che cosa fa 'ingrandisci' quando è
- * spento, che cosa significa 100%, di che cosa è il rovescio l'ordine inverso, e che cosa
- * si apre esattamente all'avvio.
+ * ⚠️⚠️ **LA SPIEGAZIONE SOTTO UNA VOCE HA UN CRITERIO, E IL CODICE SE NE È ALLONTANATO.** Il
+ * criterio, che regge: una spiegazione sotto un'impostazione il cui nome dice già tutto è
+ * rumore, e dopo tre nessuno legge la quarta; quindi ce l'ha la voce in cui il nome non può
+ * portare il senso (a che cosa SERVE la scacchiera, che cosa fa 'ingrandisci' quando è spento,
+ * che cosa significa 100%, di che cosa è il rovescio l'ordine inverso, che cosa si apre
+ * esattamente all'avvio). ⚠️ **Ma oggi la spiegazione ce l'hanno quasi tutte**, quindi il
+ * criterio è scritto e non applicato, e la potatura è una decisione dell'utente perché cambia
+ * quello che legge: sta fra le voci aperte del brief. Fino alla `1.46` qui c'era scritto che le
+ * voci con la spiegazione sono cinque, ed è quel numero fermo ad aver nascosto lo scostamento.
  */
 @Composable
 fun SettingsScreen(
