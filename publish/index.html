@@ -110,8 +110,14 @@
     --glyph:var(--brand-glyph);
     /* ⚠️ L'ombra della schermata è un token perché sul fondo scuro un'ombra NERA
        non si vede: là al suo posto (accanto, per la verità) c'è un alone del
-       colore dell'accento, che è il 'bagliore' chiesto dall'utente. */
-    --ombra-schermata:0 12px 30px rgba(0,0,0,0.20);
+       colore dell'accento, che è il 'bagliore' chiesto dall'utente.
+       ⚠️⚠️ **ALLEGGERITE TUTTE E TRE DEL 25% NELLA 1.46** (richiesta dell'utente,
+       2026-09-03: *vedo un'ombra (chiaro) e/o un bagliore (scuro) troppo opachi,
+       alleggerisci un pelo*). Erano `0,20` sul chiaro, `0,55` e `0,12` sullo scuro.
+       ⚠️ **La stessa frazione su tutte e tre e non tre numeri scelti a occhio**: sono
+       la stessa cosa vista su due temi, quindi un ritocco che cambi il rapporto fra
+       loro cambierebbe il disegno invece di alleggerirlo. */
+    --ombra-schermata:0 12px 30px rgba(0,0,0,0.15);
   }
   [data-theme="dark"]{
     color-scheme:dark;
@@ -126,7 +132,7 @@
     --outline:var(--dark-outline);
     --outline-variant:var(--dark-outline-variant);
     --glyph:var(--brand-glyph-dark);
-    --ombra-schermata:0 12px 34px rgba(0,0,0,0.55), 0 0 26px rgba(79,217,190,0.12);
+    --ombra-schermata:0 12px 34px rgba(0,0,0,0.41), 0 0 26px rgba(79,217,190,0.09);
   }
 
   *{box-sizing:border-box}
@@ -175,10 +181,30 @@
   }
 
   .fatti{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px 40px; padding:56px 0 0; max-width:840px}
-  .fatto{display:flex; gap:14px; align-items:flex-start}
-  .fatto svg{flex:none; color:var(--accent)}
+  /* ⚠️⚠️ **IL GLIFO È CENTRATO SULLA PRIMA RIGA DEL TITOLO, e prima era appoggiato al
+     bordo di sopra della riga** (segnalazione dell'utente, 2026-09-03: *le icone dei 6
+     paragrafetti-highlights... secondo me sono troppo in basso*). Aveva ragione, ed è
+     aritmetica: con `align-items:flex-start` il glifo e la prima riga partono dallo stesso
+     punto, e il glifo è più alto della riga, quindi il suo centro cade più in basso di
+     mezza differenza. Misurato prima di toccare niente: lo scarto fra i due centri era
+     **+3,00px identico su tutte e sei**.
+     ⚠️ **Il numero è DERIVATO e non scelto**, ed è la ragione per cui corpo e interlinea
+     del titolo sono dichiarati qui come proprietà: chi cambia una delle tre misure non
+     deve ricalcolare niente a mano, perché il `calc` lo fa. Un valore scritto a mano si
+     scollerebbe al primo ritocco del corpo del testo.
+     ⚠️ **E NON è una compensazione** (le coppie di margini di segno opposto che le regole
+     vietano): è un margine solo, su un lato solo, che dichiara dove sta il glifo. */
+  .fatto{
+    display:flex; gap:14px; align-items:flex-start;
+    --glifo:24px; --titolo-corpo:15px; --titolo-interlinea:1.2;
+  }
+  .fatto svg{
+    flex:none; color:var(--accent);
+    width:var(--glifo); height:var(--glifo);
+    margin-top:calc((var(--titolo-corpo) * var(--titolo-interlinea) - var(--glifo)) / 2);
+  }
   .fatto .testi{display:flex; flex-direction:column; gap:3px}
-  .fatto .titolo{font-size:15px; font-weight:500}
+  .fatto .titolo{font-size:var(--titolo-corpo); line-height:var(--titolo-interlinea); font-weight:500}
   .fatto .corpo{font-size:14px; line-height:1.5; color:var(--text-muted)}
 
   footer{max-width:960px; width:100%; margin:56px auto 0; padding:0 24px 32px}
@@ -325,15 +351,23 @@
          l'immagine giusta già in fase di analisi del documento, prima che lo script
          giri. Se partisse da un valore neutro, quel visitatore vedrebbe la
          schermata sbagliata per un istante, o due immagini scaricate invece di una.
-         ⚠️ SONO IN ITALIANO ANCHE SULLA PAGINA INGLESE, per ora, ed è come le ha
-         mandate lui (*per ora solo in italiano*). Quando arrivano le inglesi il
-         nome del file diventa lingua + tema, e la scelta passa da `disegna()`.
+         ⚠️⚠️ **NON PORTANO PIÙ IL PREFISSO `ita-`, dalla 1.46, e non è un vezzo**: si
+         chiamavano `ita-chiara` e `ita-scura` perché erano schermate in italiano, e
+         una sola delle due lingue le poteva usare. Quelle nuove sono **prive di
+         testo**, quindi servono a tutte e due, e il prefisso mentiva. Chi lo
+         rimettesse dovrebbe rimettere anche il ramo che scegliva per lingua, che non
+         è mai esistito.
+         ⚠️ **Ed è una scelta dichiarata dell'utente, non un ripiego** (2026-09-03):
+         *non ho intenzione di produrre 4 screenshot ogni volta che si può mettere in
+         vetrina una funzionalità nuova. In questo modo sono uno per il tema chiaro e
+         uno per lo scuro, entrambi language-agnostic perché privi di testo*. Sono
+         mockup e non catture fedeli, e va bene così per la stessa ragione.
          ⚠️ Vivono in `publish/schermate/` e il passo 13 di `release.yml` copia la
          cartella accanto alla pagina: chi ne aggiunge una deve guardare anche là. -->
     <div class="schermata-blocco">
       <picture>
-        <source id="schermata-scura" srcset="schermate/ita-scura.webp" media="(prefers-color-scheme: dark)">
-        <img id="schermata" src="schermate/ita-chiara.webp" width="560" height="1132" alt="">
+        <source id="schermata-scura" srcset="schermate/scura.webp" media="(prefers-color-scheme: dark)">
+        <img id="schermata" src="schermate/chiara.webp" width="1200" height="2426" alt="">
       </picture>
     </div>
   </div>
@@ -464,7 +498,10 @@
       android: 'Android 9 o successivo',
       sorgente: 'codice sorgente',
       installa: 'L\'apk è firmato ma non arriva dal Play Store, quindi la prima volta Android chiede il permesso: apri il file scaricato e consenti al browser o al gestore file di installare app sconosciute.',
-      schermataAlt: 'La griglia delle immagini con una selezione in corso: un elemento scelto, e in basso il pannello con le dieci azioni.',
+      /* ⚠️ NIENTE CONTI qui: diceva 'il pannello con le dieci azioni', e un numero in un
+         testo alternativo invecchia al primo mockup nuovo, che disegna l'utente e non io.
+         Vedi `Roccobot.md` § 'I conti si contano, non si scrivono'. */
+      schermataAlt: 'La griglia delle immagini di AIV con una selezione in corso: un elemento scelto col segno di spunta, il peso della selezione in testata, e in basso il pannello delle azioni.',
       fatti: [
         ['La trasparenza si vede', 'Tratta la trasparenza come merita, con la scacchiera adattiva da 12dp per visualizzare il canale alfa.'],
         ['Video, GIF e WebP animate', 'Apri i video con il player nativo e prendi il controllo delle immagini animate, con avanzamento e salvataggio dei fotogrammi.'],
@@ -491,13 +528,13 @@
       android: 'Android 9 or later',
       sorgente: 'source',
       installa: 'This apk is signed but it does not come from the Play Store, so Android asks for permission the first time: open the downloaded file, and allow your browser or file manager to install unknown apps when prompted.',
-      schermataAlt: 'The picture grid with a selection under way: one item picked, and the panel with the ten actions at the bottom.',
+      schermataAlt: 'The AIV picture grid with a selection under way: one item picked with a check mark, the selection weight in the header, and the actions panel at the bottom.',
       fatti: [
         ['Transparency you can see', 'Treats transparency as it deserves, with the adaptive 12dp checkerboard that shows the alpha channel.'],
         ['Video, animated GIF and WebP', 'Open videos with the native player and take control of animated images, with frame stepping and frame saving.'],
         ['Details panel', 'Size, weight, format, bits per channel, EXIF when there is one. One row per fact, no interpretation.'],
         ['Every format that matters', 'JPG, PNG, AVIF, GIF, WebP, HEIC, SVG: large and small, vector and animated. We leave none behind.'],
-        ['A real bin', 'For doing things properly, and for doing them with a light heart.'],
+        ['A real bin', 'For doing things properly, and with a light heart.'],
         ['Native and snappy', 'Kotlin and Compose, a few MB, no WebView.']
       ],
       altra: 'Italiano',
