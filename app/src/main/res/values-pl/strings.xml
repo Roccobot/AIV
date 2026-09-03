@@ -92,7 +92,6 @@
     <string name="settings_fit_grow_desc">Wyłączone, obraz mniejszy od ekranu jest pokazywany w prawdziwym rozmiarze. Włączone, rośnie aż wypełni ekran.</string>
     <string name="settings_zoom_max">Największe powiększenie</string>
     <string name="settings_zoom_page">Dopasowanie i powiększenie</string>
-    <string name="settings_zoom_page_summary">Powiększanie, maksymalne powiększenie, renderowanie pikseli</string>
     <string name="settings_scale_mode">Renderowanie pikseli</string>
     <string name="settings_scale_physical">Jeden piksel pliku na piksel ekranu</string>
     <string name="settings_scale_logical">Jeden piksel pliku na piksel układu</string>
@@ -299,6 +298,9 @@
     <string name="settings_facts_down">Przenieś w dół</string>
     <string name="settings_group_look">Wygląd</string>
     <string name="settings_group_viewer">Podgląd</string>
+    <string name="settings_group_clips">Filmy i przesuwanie</string>
+    <string name="settings_group_input">Sterowanie i zaznaczanie</string>
+    <string name="settings_group_files">Edycja i kosz</string>
     <string name="settings_group_browse">Foldery</string>
     <string name="settings_group_start">Uruchamianie</string>
     <string name="settings_group_advanced">Funkcje zaawansowane</string>
@@ -351,7 +353,8 @@
     <string name="tree_unopenable">Żadna aplikacja w tym telefonie tego nie otworzy</string>
     <string name="clip_pause">Wstrzymaj</string>
     <string name="settings_images_only">Przeglądaj tylko zdjęcia</string>
-    <string name="settings_images_only_desc">W przeglądarce przesunięcie w prawo i w lewo pomija filmy i uwzględnia tylko obrazy. Film nadal można odtworzyć jednym dotknięciem z siatki, listy lub folderów.</string>
+    <string name="settings_images_only_desc">W przeglądarce przesunięcie pomija filmy i przegląda tylko obrazy. Dotknięcie i tak otwiera film.</string>
+    <string name="settings_clip_autoplay">Odtwarzaj filmy od razu</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Edytuj</string>

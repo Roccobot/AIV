@@ -92,7 +92,6 @@
     <string name="settings_fit_grow_desc">关闭时,比屏幕小的图片按真实尺寸显示。打开时,它会放大到填满视图。</string>
     <string name="settings_zoom_max">最大缩放</string>
     <string name="settings_zoom_page">适配与缩放</string>
-    <string name="settings_zoom_page_summary">放大、最大缩放、像素渲染</string>
     <string name="settings_scale_mode" formatted="false">像素渲染</string>
     <string name="settings_scale_physical">文件的一个像素对应屏幕的一个像素</string>
     <string name="settings_scale_logical">文件的一个像素对应布局的一个像素</string>
@@ -260,6 +259,9 @@
     <string name="settings_facts_down">下移</string>
     <string name="settings_group_look">外观</string>
     <string name="settings_group_viewer">查看器</string>
+    <string name="settings_group_clips">视频与滑动</string>
+    <string name="settings_group_input">操作与选择</string>
+    <string name="settings_group_files">编辑与回收站</string>
     <string name="settings_group_browse">文件夹</string>
     <string name="settings_group_start">启动</string>
     <string name="settings_group_advanced">高级功能</string>
@@ -306,7 +308,8 @@
     <string name="tree_unopenable">这台手机上没有能打开它的应用</string>
     <string name="clip_pause">暂停</string>
     <string name="settings_images_only">只翻阅图片</string>
-    <string name="settings_images_only_desc">在查看器中左右滑动会跳过视频，只考虑图像。仍然可以在网格、列表或文件夹中轻触播放视频。</string>
+    <string name="settings_images_only_desc">在查看器中滑动会跳过视频，只翻阅图像。轻触仍然会打开视频。</string>
+    <string name="settings_clip_autoplay">直接播放视频</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">编辑</string>

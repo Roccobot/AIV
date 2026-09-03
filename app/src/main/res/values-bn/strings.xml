@@ -92,7 +92,6 @@
     <string name="settings_fit_grow_desc">বন্ধ থাকলে পর্দার চেয়ে ছোট ছবি তার আসল আকারে দেখানো হয়। চালু থাকলে পর্দা ভরে যাওয়া পর্যন্ত বড় হয়।</string>
     <string name="settings_zoom_max">সর্বোচ্চ জুম</string>
     <string name="settings_zoom_page">মানানসই করা ও জুম</string>
-    <string name="settings_zoom_page_summary">বড় করা, সর্বোচ্চ জুম, পিক্সেল রেন্ডারিং</string>
     <string name="settings_scale_mode">পিক্সেল রেন্ডারিং</string>
     <string name="settings_scale_physical">পর্দার প্রতি পিক্সেলে ফাইলের এক পিক্সেল</string>
     <string name="settings_scale_logical">বিন্যাসের প্রতি পিক্সেলে ফাইলের এক পিক্সেল</string>
@@ -273,6 +272,9 @@
     <string name="settings_facts_down">নিচে সরান</string>
     <string name="settings_group_look">উপস্থিতি</string>
     <string name="settings_group_viewer">প্রদর্শক</string>
+    <string name="settings_group_clips">ভিডিও ও সরানো</string>
+    <string name="settings_group_input">নিয়ন্ত্রণ ও নির্বাচন</string>
+    <string name="settings_group_files">সম্পাদনা ও আবর্জনা</string>
     <string name="settings_group_browse">ফোল্ডার</string>
     <string name="settings_group_start">সূচনা</string>
     <string name="settings_group_advanced">উন্নত সুবিধা</string>
@@ -321,7 +323,8 @@
     <string name="tree_unopenable">এই ফোনের কোনও অ্যাপ এটি খুলতে পারে না</string>
     <string name="clip_pause">থামান</string>
     <string name="settings_images_only">শুধু ছবি দেখুন</string>
-    <string name="settings_images_only_desc">দর্শকে ডানে-বাঁয়ে সরালে ভিডিও বাদ পড়ে, কেবল ছবি গোনা হয়। গ্রিড, তালিকা বা ফোল্ডার থেকে এক ছোঁয়ায় ভিডিও তবুও চলে।</string>
+    <string name="settings_images_only_desc">দর্শকে সরালে ভিডিও বাদ পড়ে, কেবল ছবি দেখা যায়। এক ছোঁয়ায় ভিডিও তবুও খোলে।</string>
+    <string name="settings_clip_autoplay">ভিডিও সঙ্গে সঙ্গে চালান</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">সম্পাদনা</string>

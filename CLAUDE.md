@@ -271,6 +271,142 @@ grande un dialogo esattamente al centro fa allungare la mano.
   chiede da sé. Chi legge l'elenco qui sopra sappia che 'la scheda delle informazioni sul file'
   non ne fa più parte.
 
+## ⚙️ Dove va un'impostazione, e chi la deve trovare
+
+⚠️⚠️ **UNA VOCE STA CON QUELLE CHE RISPONDONO ALLA SUA STESSA DOMANDA, e la domanda è quella
+di chi apre il pannello, non quella del codice.** La si scrive in una riga, nella forma 'come
+faccio a...', e le voci che la condividono sono una **famiglia**. Non fanno famiglia le voci
+che il codice legge nello stesso ramo, né quelle che agiscono sulla stessa schermata: quello è
+il posto in cui l'effetto si **vede**, e non è il posto in cui la voce si **cerca**. Il
+precedente è una correzione dell'utente ed è costata una versione (*l'opzione relativa allo
+zoom va messa nella sotto-pagina 'Adattamento e zoom' delle impostazioni. Quando aggiungi
+un'impostazione nuova, attenzione a metterla nel posto giusto*): quella voce agisce sul menu
+del visualizzatore ed è finita nella pagina dello zoom, perché di zoom parla.
+- **La prova che una famiglia è una**: se per elencarne le voci serve una `e` fra due domande
+  diverse, sono due famiglie e si contano separate.
+- ⚠️ **Una collocazione che ha bisogno di giustificarsi è una famiglia che non esiste ancora.**
+  Il pannello ne ha portati tre per versioni, ognuno con la sua scusa scritta accanto: il
+  cestino messo fra le cartelle *per mancanza di uno migliore*, lo sfoglio delle sole immagini
+  messo accanto a lui, e l'interruttore della barra delle info lontano dall'elenco dei dati che
+  governa. Quando si scrive una scusa, la voce ha trovato il posto sbagliato.
+
+⚠️⚠️ **FAMIGLIA E SEZIONE SONO DUE COSE, E LA SOGLIA SI CONTA SULLA FAMIGLIA.** La **famiglia**
+sono le voci di una domanda sola; la **sezione** è il titolo di gruppo nella pagina piatta, e
+raccoglie le famiglie vicine per dire, mentre si scorre, di che cosa si sta parlando.
+Confonderle è l'errore che manda dietro un tocco il tema dell'app: 'Aspetto' porta il tema, la
+coppia dello sfondo e il velo, cioè tre famiglie, e nessuna arriva alla soglia.
+- **La soglia è dell'utente** (*fino a 2-3 opzioni correlate basta una sotto-sezione della
+  pagina principale; più di 2-3 si va con la sotto-pagina*) e si applica alla lettera. Il
+  trasloco si fa **nello stesso giro** in cui entra la voce che fa scattare la soglia, e nello
+  stesso giro si copre la ricerca: una famiglia che scende dietro un tocco senza copertura esce
+  dalla ricerca, e quello peggiora l'app.
+- ⚠️ **Un titolo di sezione può nominare due famiglie vicine**, come Video e scorrimento, e non
+  viola la prova della `e`: quella prova dice quando due **voci** non rispondono alla stessa
+  domanda, e una sezione a nessuna domanda risponde, dice dove si è.
+
+⚠️⚠️ **SOTTO-PAGINA SI DIVENTA IN TRE MODI, E OGNUNO SI DICHIARA QUANDO LA PAGINA NASCE.** Due
+erano già scritti in testa a `SettingsScreen.kt` e restano; il terzo è la soglia.
+- Perché la voce è un **elenco** che cresce e porta comandi propri riga per riga.
+- Perché le voci sono **delicate** e il tocco in più è una protezione (*sono impostazioni
+  delicate*: da lì è nata 'Adattamento e zoom').
+- Perché la **famiglia** ha superato la soglia.
+
+⚠️⚠️ **E L'ELENCO DI CHE COSA È DELICATO È CHIUSO, DUE CASI E NON PIÙ**: sbagliare la voce può
+costare un file, o toglie la rete che lo protegge; oppure la voce cambia il **metro** con cui
+un'immagine viene misurata, quindi rende ogni immagine diversa da come ci si aspetta senza
+rompere niente. Un elenco aperto si allarga da sé: qualunque voce, con abbastanza argomenti, si
+guadagna il tocco in più, e la pagina piatta si svuota una riga per volta.
+- ⚠️ **Il rovescio resta vero, ed è la clausola che vale più di tutte**: una riga sola che non è
+  né un elenco né delicata, in una sotto-pagina costerebbe un tocco senza guadagnare niente.
+- ⚠️ **La profondità è UNO**: una sotto-pagina non ne apre un'altra, perché la navigazione è un
+  valore solo senza pila e Indietro riporta alla radice. Una famiglia che ne conterrebbe
+  un'altra tiene nella pagina piatta la riga che apre la seconda.
+
+⚠️ **UNA VOCE SOLA NON PRENDE UN TITOLO**, e va nella sezione della famiglia la cui domanda le
+sta più vicina, mai sopra un titolo, perché sopra un titolo si legge come la prima riga di
+quello che segue. L'unica eccezione è dell'utente ed è dichiarata nel codice (*nelle
+impostazioni creiamo una nuova sezione **Funzionalità avanzate** al cui interno c'è una
+voce...*), dove il titolo è **metà dell'avviso** su una funzione che può fare danni. Fuori da
+quel caso un titolo con una riga sotto è una parola in più che non aiuta a trovarla.
+
+⚠️ **UNA VOCE FRA DUE FAMIGLIE VA DOVE SI CERCA, NON DOVE SI VEDE**, e se dopo questa prova la
+scelta resta in bilico va nella famiglia più **piccola**: una famiglia grande non si accorge di
+una voce in più, una di due sì, e nella famiglia piccola la voce si trova scorrendo. In quel
+caso soltanto, la riga riceve fra i testi che la ricerca confronta il nome della sezione in cui
+l'effetto si vede, e la ragione della scelta si scrive accanto alla riga: il ballottaggio si
+paga una volta, la ricerca lo annulla sempre, e quei titoli esistono già. ⚠️ **Non si mette una
+voce in due famiglie per farla trovare**: a farla trovare ci pensa la ricerca.
+
+⚠️⚠️ **LA RICERCA DEVE TROVARE OGNI VOCE, DOVUNQUE VIVA, E LA COPERTURA SI SCRIVE NELLO STESSO
+GIRO DELLA SOTTO-PAGINA.** Il fatto da cui parte tutto è misurato: `LocalQuery` è fornito nel
+solo ramo della radice, le sotto-pagine non lo ricevono, e là con la ricerca vuota `shown`
+risponde di sì a tutto. Quindi una voce spostata dietro un tocco **esce** dalla ricerca, e la
+ricerca è una richiesta dell'utente.
+- **Pagina fatta di RIGHE**: mentre una ricerca è in corso la radice compone il **corpo** della
+  pagina al posto della riga che la apre (`PageOfRows`). Le righe si filtrano già da sé; un
+  blocco scritto a mano (un cursore, una casella, un tasto) si avvolge in `Searchable`, o resta
+  in scena mentendo.
+- **Pagina che è un ELENCO con comandi per riga**: il corpo **non** si appiattisce, perché le
+  frecce lavorano sull'ordine intero e sposterebbero un campo in una posizione che non si vede.
+  La riga che apre la pagina riceve invece le parole delle righe interne come testi in più
+  (`extra` di `PageRow`): i nomi dei campi esistono già in tutte le lingue, e un nome di
+  cartella è un dato.
+- ⚠️ **La terza via non si accetta, cioè fidarsi del riepilogo**: un riepilogo scritto a mano
+  invecchia al primo trasloco, e il precedente è misurato (quello di 'Adattamento e zoom'
+  nominava tre argomenti mentre la pagina ne portava quattro dalla `1.26`).
+- **Il collaudo di una voce nuova è di due tocchi**: si cerca una parola del titolo e una della
+  spiegazione, e la voce deve comparire da sé. Se compare la riga che apre la pagina invece
+  della voce, il rimedio non è scrivere quella parola nel riepilogo, è coprire la voce.
+
+⚠️⚠️ **UNA VOCE PUÒ VIVERE IN DUE POSTI: IL PANNELLO È LA CASA, IL DIALOGO 'OPZIONI DI
+VISUALIZZAZIONE' È LA SCORCIATOIA.** Quattro clausole, e nessuna è negoziabile.
+1. **Una preferenza, una chiave, un valore di fabbrica.** Le due superfici scrivono la stessa
+   cosa e passano dallo stesso salvataggio, com'è già per le colonne (*che resta globale per
+   tutte le cartelle*). Un valore 'della sessione' sarebbe una terza cosa da capire.
+2. **La casa ha titolo e spiegazione, la scorciatoia no.** Nel dialogo la voce compare nuda e
+   solo per la vista scelta, perché il titolino dice già di che cosa si parla e un dialogo con
+   tutte le voci sarebbe un secondo pannello.
+3. **Chi tocca la voce tocca due posti**: la riga è scritta due volte con due componenti, e un
+   cambiamento di forma va fatto in entrambi o divergono.
+4. ⚠️ **Una preferenza che vive SOLO nella scorciatoia è ammessa, e si dichiara nel KDoc del
+   campo**, come `folderView` (*Non compare nella schermata delle impostazioni, e non è una
+   dimenticanza*): una vista si sceglie guardandola. Senza quella riga scritta, l'assenza dal
+   pannello non è una scelta ma un difetto, ed è quello che è stata fino alla `1.46` per le
+   opzioni delle altre due viste.
+
+⚠️ **LA RIGA DI UN INTERRUTTORE È UN BERSAGLIO SOLO, IN TUTTE E DUE LE SUPERFICI**: `toggleable`
+con `role = Role.Switch` sulla riga, e dentro l'interruttore niente. Non basta un `clickable`
+sulla riga: lasciando vivo anche l'interruttore i bersagli diventano due e un lettore di schermo
+annuncia due voci per una scelta sola, che era il difetto del dialogo mentre il pannello non
+aveva bersaglio affatto. Il tocco lo mette il **componente** e non il chiamante, così una voce
+nuova ce l'ha per costruzione.
+
+⚠️ **LE CHIAVI NON SI TOCCANO QUANDO UNA VOCE SI SPOSTA**: il posto nell'interfaccia e la chiave
+nell'archivio sono due cose indipendenti, e chi aggiorna non deve perdere le sue scelte. Una
+chiave nuova si scrive quando la **domanda** cambia verso, e allora la voce non è spostata ma
+nuova (il precedente è `sequence-reversed`). ⚠️ E una voce nuova tocca **cinque punti**, che
+vanno fatti tutti e cinque perché nessuno li controlla al build: il campo col suo KDoc, la
+chiave, la lettura nel flusso, la scrittura in salvataggio, la riga nella schermata. Il KDoc
+dice **perché** quello è il valore di fabbrica, e il valore di fabbrica non si sceglie per far
+vedere la funzione.
+
+⚠️ **IL CONTO DELLE STRINGHE SI SCRIVE NELLA PROPOSTA, PRIMA DI COMINCIARE.** Un testo nuovo si
+scrive a mano in tutte le cartelle di lingua, e un plurale costa molto più di una stringa.
+Quindi: si riusa una stringa che dice **esattamente** quella cosa e non una che le somiglia (la
+descrizione parlata di una miniatura non diventa il titolo di una sezione, o un ritocco di
+accessibilità rinomina una sezione in silenzio); un titolo che la prima riga della famiglia già
+dice non si scrive; e il riepilogo di una pagina si **compone** dalle stesse stringhe che la
+pagina usa dentro, così non può invecchiare. ⚠️ **Ogni testo nuovo di questo pannello si valida
+prima del rilascio**, qualunque sia la sua lunghezza: finché non è validato la modifica non è
+pronta, e questo non è in conflitto col go-live, che riguarda il pubblicare una modifica già
+pronta.
+
+⚠️ **QUELLO CHE NON DECIDE**: il gruppo in cui la voce stava prima, la comodità del codice, la
+lunghezza della pagina piatta, e il fatto che una sezione risulti sbilanciata. Se una famiglia
+viene di quattro voci e un'altra di una, sta bene: le domande non si fanno tutte con la stessa
+frequenza. ⚠️ **E i conti non si scrivono**, qui come nei commenti del pannello: quante sono le
+sezioni, le famiglie e le voci si contano nel codice.
+
 ## 🚀 Che cosa produce un rilascio
 
 **Due cose, e vanno insieme**: il numero di **versione** e le voci nuove nel **collaudo**. La

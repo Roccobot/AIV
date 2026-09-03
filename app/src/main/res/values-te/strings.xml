@@ -92,7 +92,6 @@
     <string name="settings_fit_grow_desc">ఆపి ఉంచితే తెర కంటే చిన్న చిత్రం దాని నిజమైన పరిమాణంలో కనబడుతుంది. వేసి ఉంచితే తెర నిండేవరకు పెరుగుతుంది.</string>
     <string name="settings_zoom_max">గరిష్ఠ పెంపు</string>
     <string name="settings_zoom_page">సర్దుబాటు మరియు జూమ్</string>
-    <string name="settings_zoom_page_summary">పెద్దదిగా చేయడం, గరిష్ఠ జూమ్, పిక్సెల్ రెండరింగ్</string>
     <string name="settings_scale_mode">పిక్సెల్ రెండరింగ్</string>
     <string name="settings_scale_physical">తెర ఒక పిక్సెల్‌కు ఫైలు ఒక పిక్సెల్</string>
     <string name="settings_scale_logical">అమరిక ఒక పిక్సెల్‌కు ఫైలు ఒక పిక్సెల్</string>
@@ -273,6 +272,9 @@
     <string name="settings_facts_down">కిందికి జరుపు</string>
     <string name="settings_group_look">రూపం</string>
     <string name="settings_group_viewer">వీక్షకం</string>
+    <string name="settings_group_clips">వీడియోలు, జరపడం</string>
+    <string name="settings_group_input">నియంత్రణలు, ఎంపిక</string>
+    <string name="settings_group_files">సవరణ, చెత్తబుట్ట</string>
     <string name="settings_group_browse">ఫోల్డర్‌లు</string>
     <string name="settings_group_start">ప్రారంభం</string>
     <string name="settings_group_advanced">అధునాతన సౌకర్యాలు</string>
@@ -321,7 +323,8 @@
     <string name="tree_unopenable">దీన్ని తెరవగల యాప్ ఈ ఫోన్‌లో లేదు</string>
     <string name="clip_pause">పాజ్ చేయి</string>
     <string name="settings_images_only">చిత్రాలను మాత్రమే తిప్పు</string>
-    <string name="settings_images_only_desc">వీక్షకిలో కుడి-ఎడమ జరపడం వీడియోలను దాటవేసి చిత్రాలను మాత్రమే పరిగణిస్తుంది. గ్రిడ్, జాబితా లేదా సంచయాల నుంచి ఒక్క తాకిడితో వీడియో ఇంకా ఆడుతుంది.</string>
+    <string name="settings_images_only_desc">వీక్షకిలో జరపడం వీడియోలను దాటవేసి చిత్రాలను మాత్రమే తిరగేస్తుంది. ఒక్క తాకిడితో వీడియో అయినా తెరుచుకుంటుంది.</string>
+    <string name="settings_clip_autoplay">వీడియోలను నేరుగా ఆడించు</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">సవరించు</string>

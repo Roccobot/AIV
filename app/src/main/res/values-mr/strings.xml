@@ -92,7 +92,6 @@
     <string name="settings_fit_grow_desc">बंद असल्यास पडद्यापेक्षा लहान प्रतिमा तिच्या खऱ्या आकारात दिसते. चालू असल्यास पडदा भरेपर्यंत वाढते.</string>
     <string name="settings_zoom_max">सर्वाधिक मोठेपणा</string>
     <string name="settings_zoom_page">जुळवणी आणि झूम</string>
-    <string name="settings_zoom_page_summary">मोठे करणे, कमाल झूम, पिक्सेल रेंडरिंग</string>
     <string name="settings_scale_mode">पिक्सेल रेंडरिंग</string>
     <string name="settings_scale_physical">पडद्याच्या एका पिक्सेलला संचिकेचा एक पिक्सेल</string>
     <string name="settings_scale_logical">मांडणीच्या एका पिक्सेलला संचिकेचा एक पिक्सेल</string>
@@ -273,6 +272,9 @@
     <string name="settings_facts_down">खाली सरकवा</string>
     <string name="settings_group_look">स्वरूप</string>
     <string name="settings_group_viewer">प्रदर्शक</string>
+    <string name="settings_group_clips">व्हिडिओ आणि सरकवणे</string>
+    <string name="settings_group_input">नियंत्रणे आणि निवड</string>
+    <string name="settings_group_files">संपादन आणि कचरापेटी</string>
     <string name="settings_group_browse">फोल्डर</string>
     <string name="settings_group_start">सुरुवात</string>
     <string name="settings_group_advanced">प्रगत सुविधा</string>
@@ -321,7 +323,8 @@
     <string name="tree_unopenable">या फोनवरील कोणतेही ॲप हे उघडू शकत नाही</string>
     <string name="clip_pause">थांबवा</string>
     <string name="settings_images_only">फक्त चित्रे पाहा</string>
-    <string name="settings_images_only_desc">दर्शकात उजवीकडे-डावीकडे सरकवल्यावर व्हिडिओ वगळले जातात आणि फक्त प्रतिमा मोजल्या जातात. जाळी, यादी किंवा फोल्डरमधून एका स्पर्शाने व्हिडिओ तरीही चालतो.</string>
+    <string name="settings_images_only_desc">दर्शकात सरकवल्यावर व्हिडिओ वगळले जातात आणि फक्त प्रतिमा पलटतात. एका स्पर्शाने व्हिडिओ तरीही उघडतो.</string>
+    <string name="settings_clip_autoplay">व्हिडिओ थेट चालवा</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">संपादन</string>

@@ -92,7 +92,6 @@
     <string name="settings_fit_grow_desc">عند الإيقاف تظهر الصورة الأصغر من الشاشة بحجمها الحقيقي. وعند التفعيل تكبر حتى تملأ الشاشة.</string>
     <string name="settings_zoom_max">أقصى تكبير</string>
     <string name="settings_zoom_page">الملاءمة والتكبير</string>
-    <string name="settings_zoom_page_summary">التكبير، أقصى تكبير، عرض البكسلات</string>
     <string name="settings_scale_mode" formatted="false">عرض البكسلات</string>
     <string name="settings_scale_physical">بكسل واحد من الملف لكل بكسل من الشاشة</string>
     <string name="settings_scale_logical">بكسل واحد من الملف لكل بكسل من التخطيط</string>
@@ -325,6 +324,9 @@
     <string name="settings_facts_down">تحريك لأسفل</string>
     <string name="settings_group_look">المظهر</string>
     <string name="settings_group_viewer">العارض</string>
+    <string name="settings_group_clips">الفيديو والسحب</string>
+    <string name="settings_group_input">التحكم والتحديد</string>
+    <string name="settings_group_files">التحرير وسلة المهملات</string>
     <string name="settings_group_browse">المجلدات</string>
     <string name="settings_group_start">بدء التشغيل</string>
     <string name="settings_group_advanced">ميزات متقدمة</string>
@@ -381,7 +383,8 @@
     <string name="tree_unopenable">لا يوجد تطبيق على هذا الهاتف يستطيع فتحه</string>
     <string name="clip_pause">إيقاف مؤقت</string>
     <string name="settings_images_only">تصفح الصور فقط</string>
-    <string name="settings_images_only_desc">في العارض، يتخطّى السحب يمينًا ويسارًا مقاطع الفيديو ويأخذ الصور وحدها بالحسبان. ويظل بإمكانك تشغيل مقطع فيديو بلمسة من الشبكة أو القائمة أو المجلدات.</string>
+    <string name="settings_images_only_desc">في العارض، يتخطّى السحب مقاطع الفيديو ويتصفّح الصور وحدها. واللمسة تفتح مقطع الفيديو على أي حال.</string>
+    <string name="settings_clip_autoplay">تشغيل الفيديو مباشرةً</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">تحرير</string>

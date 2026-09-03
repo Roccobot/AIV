@@ -281,6 +281,14 @@ fun ViewerScreen(
     onSettings: () -> Unit,
     onRetry: () -> Unit,
     /**
+     * Il filmato in scena è partito da sé: la provenienza si consuma.
+     *
+     * ⚠️ **Sale al modello e non si tiene qui** perché `ViewerState` ha il setter privato, e
+     * serve alla rotazione, che rifà la composizione e non il modello. Vedi
+     * `ViewerViewModel.clipStarted`.
+     */
+    onClipStarted: () -> Unit,
+    /**
      * La fotografia che si sta guardando non è più raggiungibile a quell'indirizzo: è stata
      * spostata, rinominata o eliminata.
      *
@@ -648,7 +656,11 @@ fun ViewerScreen(
                 // La strisciata porta avanti e indietro solo se c'è una serie: fuori da una
                 // cartella un filmato è un vicolo cieco, come una fotografia sola.
                 stepping = folder?.seriesOrNull != null,
-                onStep = onStep
+                onStep = onStep,
+                // ⚠️ La regola non è qui: `Arrival.plays` incrocia la provenienza con
+                // l'impostazione in un punto solo, e questo è il posto che la interroga.
+                autoStart = state.from.plays(settings.clipAutoplay),
+                onStarted = onClipStarted
             )
         }
 
@@ -906,10 +918,13 @@ private class InfoBar {
 /**
  * Un FILMATO nel visualizzatore: il suo fotogramma, la durata e il tasto che lo apre.
  *
- * ⚠️⚠️ **PEZZO 1 DEI TRE, e qui non si riproduce niente**: si mostra quello che il sistema
- * ha già (la miniatura, cioè un fotogramma) e si consegna il file al lettore del telefono.
- * La riproduzione in casa è il pezzo 2, e prenderà **questo** posto: la sostituzione
- * riguarda il centro di questa funzione, non l'impalcatura attorno.
+ * ⚠️⚠️ **QUI SI RIPRODUCE, e questo è il posto in cui la riproduzione si accende o si
+ * spegne**: il lettore lo costruisce e lo rilascia questa funzione, la superficie video la
+ * disegna lei, e la decisione se partire arriva da fuori come `autoStart`. ⚠️ **Fino alla
+ * `1.45` qui c'era scritto il contrario** (*pezzo 1 dei tre, e qui non si riproduce niente...
+ * la riproduzione in casa è il pezzo 2 e prenderà questo posto*): quella sostituzione era
+ * avvenuta nella `0.86`, e la nota rimasta nascondeva proprio il punto che si cerca quando si
+ * cerca dove parte un filmato.
  * ⚠️⚠️ **LA STRISCIATA C'È, ed è la ragione per cui questa funzione non è solo un'immagine
  * e un tasto**: sfogliando una cartella mista si arriva su un filmato, e senza il gesto ci
  * si troverebbe **bloccati**, costretti a tornare alla griglia per riprendere da dopo. È il
@@ -924,7 +939,15 @@ private class InfoBar {
  */
 @Composable
 @androidx.annotation.OptIn(UnstableApi::class)
-private fun ClipStage(uri: Uri, stepping: Boolean, onStep: (Int) -> Unit) {
+private fun ClipStage(
+    uri: Uri,
+    stepping: Boolean,
+    onStep: (Int) -> Unit,
+    /** Se questo filmato deve partire da sé. Vedi `Arrival.plays`. */
+    autoStart: Boolean,
+    /** Da chiamare appena è partito, così una rotazione non lo rifà ricominciare. */
+    onStarted: () -> Unit
+) {
     val context = LocalContext.current
     val model = remember(uri, context) { Thumbs.request(context, uri) }
     val poster = rememberAsyncImagePainter(model = model)
@@ -948,15 +971,34 @@ private fun ClipStage(uri: Uri, stepping: Boolean, onStep: (Int) -> Unit) {
     }
 
     /*
-     * ⚠️⚠️ **NON PARTE DA SÉ, ed è una scelta**: su questo stesso posto si arriva in due
-     * modi, toccando un filmato (dove partire sarebbe giusto) e **strisciando** da una
-     * fotografia (dove un audio che esplode è una sorpresa sgradevole). Fra i due, il caso
-     * da non rovinare è il secondo, perché è quello in cui la persona non ha chiesto niente.
-     * Chi tocca paga un tocco in più, e il tasto è grande in mezzo allo schermo.
+     * ⚠️⚠️ **PARTE SOLO SE QUALCUNO L'HA CHIESTO, e fino alla `1.45` non partiva mai**: su
+     * questo stesso posto si arriva in due modi, toccando un filmato e **strisciando** da
+     * un'immagine, e il secondo è il caso da non rovinare, perché è quello in cui la persona
+     * non ha chiesto niente e un audio che esplode è una sorpresa sgradevole. La `1.46` non
+     * ha buttato quell'argomento: lo ha reso la ragione per cui i due percorsi si
+     * distinguono, e per cui l'interruttore è spento di fabbrica.
+     * ⚠️⚠️ **IL RAMO CHE METTE IN PAUSA È UN'AZIONE, NON UN `else` DI CORTESIA**, e senza di
+     * lui la funzione sarebbe rotta proprio nel caso che la richiesta nomina: il lettore è
+     * **uno solo** per tutta la schermata, e `playWhenReady` è una proprietà del lettore e non
+     * del filmato. In una cartella di soli filmati, dopo che il primo è partito, il ramo del
+     * `when` resta `Clip` e questo effetto rifà `setMediaItem` e `prepare` sullo stesso
+     * lettore: uno che ha ancora la bandierina accesa riparte da sé, cioè ogni strisciata
+     * farebbe partire l'audio. In una cartella mista il difetto si nasconde, perché passando
+     * da un'immagine il lettore viene rilasciato.
+     * ⚠️ **Il tasto grande torna visibile da sé** dopo la pausa, e non serve nessun'altra
+     * riga: `playing` passa a falso e l'effetto di `ClipKeys` rimette il tasto in scena.
+     * ⚠️ **La provenienza si consuma appena il filmato è partito** (`onStarted`), o una
+     * rotazione lo rifarebbe ricominciare dall'inizio.
      */
     LaunchedEffect(uri, player) {
         player.setMediaItem(MediaItem.fromUri(uri))
         player.prepare()
+        if (autoStart) {
+            player.play()
+            onStarted()
+        } else {
+            player.pause()
+        }
     }
 
     /*

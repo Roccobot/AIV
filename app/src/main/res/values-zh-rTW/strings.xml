@@ -92,7 +92,6 @@
     <string name="settings_fit_grow_desc">關閉時,比螢幕小的圖片以實際大小顯示。開啟時,它會放大到填滿檢視。</string>
     <string name="settings_zoom_max">最大縮放</string>
     <string name="settings_zoom_page">調整與縮放</string>
-    <string name="settings_zoom_page_summary">放大、最大縮放、像素算繪</string>
     <string name="settings_scale_mode" formatted="false">像素算繪</string>
     <string name="settings_scale_physical">檔案的一個像素對應螢幕的一個像素</string>
     <string name="settings_scale_logical">檔案的一個像素對應版面的一個像素</string>
@@ -260,6 +259,9 @@
     <string name="settings_facts_down">下移</string>
     <string name="settings_group_look">外觀</string>
     <string name="settings_group_viewer">檢視器</string>
+    <string name="settings_group_clips">影片與滑動</string>
+    <string name="settings_group_input">操作與選擇</string>
+    <string name="settings_group_files">編輯與回收筒</string>
     <string name="settings_group_browse">資料夾</string>
     <string name="settings_group_start">啟動</string>
     <string name="settings_group_advanced">進階功能</string>
@@ -306,7 +308,8 @@
     <string name="tree_unopenable">這支手機上沒有能開啟它的應用程式</string>
     <string name="clip_pause">暫停</string>
     <string name="settings_images_only">只翻閱圖片</string>
-    <string name="settings_images_only_desc">在檢視器中左右滑動會略過影片，只考慮影像。仍可在格狀、清單或資料夾中輕觸播放影片。</string>
+    <string name="settings_images_only_desc">在檢視器中滑動會略過影片，只翻閱影像。輕觸仍會開啟影片。</string>
+    <string name="settings_clip_autoplay">直接播放影片</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">編輯</string>

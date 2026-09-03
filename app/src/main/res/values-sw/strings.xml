@@ -92,7 +92,6 @@
     <string name="settings_fit_grow_desc">Ikizimwa, picha ndogo kuliko skrini huonyeshwa kwa ukubwa wake halisi. Ikiwashwa, hukua hadi ijaze skrini.</string>
     <string name="settings_zoom_max">Ukuzaji wa juu</string>
     <string name="settings_zoom_page">Ulinganishaji na ukuzaji</string>
-    <string name="settings_zoom_page_summary">Ukuzaji wa picha ndogo, ukuzaji wa juu, uchoraji wa pikseli</string>
     <string name="settings_scale_mode" formatted="false">Uchoraji wa pikseli</string>
     <string name="settings_scale_physical">Pikseli moja ya faili kwa pikseli moja ya skrini</string>
     <string name="settings_scale_logical">Pikseli moja ya faili kwa pikseli moja ya mpangilio</string>
@@ -273,6 +272,9 @@
     <string name="settings_facts_down">Sogeza chini</string>
     <string name="settings_group_look">Mwonekano</string>
     <string name="settings_group_viewer">Kitazamaji</string>
+    <string name="settings_group_clips">Video na kutelezesha</string>
+    <string name="settings_group_input">Vidhibiti na uteuzi</string>
+    <string name="settings_group_files">Kuhariri na tapishi</string>
     <string name="settings_group_browse">Folda</string>
     <string name="settings_group_start">Kuanza</string>
     <string name="settings_group_advanced">Vipengele vya juu</string>
@@ -321,7 +323,8 @@
     <string name="tree_unopenable">Hakuna programu kwenye simu hii inayoweza kuifungua</string>
     <string name="clip_pause">Sitisha</string>
     <string name="settings_images_only">Pitia picha pekee</string>
-    <string name="settings_images_only_desc">Katika kitazamaji, kutelezesha kulia na kushoto huruka video na kuhesabu picha pekee. Bado unaweza kucheza video kwa mguso mmoja kutoka kwenye gridi, orodha au folda.</string>
+    <string name="settings_images_only_desc">Katika kitazamaji, kutelezesha huruka video na kupitia picha pekee. Mguso mmoja hufungua video hata hivyo.</string>
+    <string name="settings_clip_autoplay">Cheza video mara moja</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Hariri</string>

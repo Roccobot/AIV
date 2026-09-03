@@ -92,7 +92,6 @@
     <string name="settings_fit_grow_desc">オフなら画面より小さい画像は実寸で表示します。オンなら画面いっぱいまで拡大します。</string>
     <string name="settings_zoom_max">最大倍率</string>
     <string name="settings_zoom_page">表示サイズとズーム</string>
-    <string name="settings_zoom_page_summary">拡大、最大ズーム、ピクセルの描画</string>
     <string name="settings_scale_mode" formatted="false">ピクセルの描画</string>
     <string name="settings_scale_physical">ファイルの1ピクセルを画面の1ピクセルに</string>
     <string name="settings_scale_logical">ファイルの1ピクセルをレイアウトの1ピクセルに</string>
@@ -260,6 +259,9 @@
     <string name="settings_facts_down">下へ</string>
     <string name="settings_group_look">外観</string>
     <string name="settings_group_viewer">ビューア</string>
+    <string name="settings_group_clips">動画とスワイプ</string>
+    <string name="settings_group_input">操作と選択</string>
+    <string name="settings_group_files">編集とゴミ箱</string>
     <string name="settings_group_browse">フォルダー</string>
     <string name="settings_group_start">起動</string>
     <string name="settings_group_advanced">詳細機能</string>
@@ -306,7 +308,8 @@
     <string name="tree_unopenable">この端末には開けるアプリがありません</string>
     <string name="clip_pause">一時停止</string>
     <string name="settings_images_only">写真だけをめくる</string>
-    <string name="settings_images_only_desc">ビューアーで左右にスワイプすると動画を飛ばし、画像だけを対象にします。グリッド・リスト・フォルダーから軽くたたけば動画も再生できます。</string>
+    <string name="settings_images_only_desc">ビューアーでスワイプすると動画を飛ばし、画像だけをめくります。軽くたたけば動画は開きます。</string>
+    <string name="settings_clip_autoplay">動画をすぐに再生する</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">編集</string>

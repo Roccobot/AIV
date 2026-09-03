@@ -92,7 +92,6 @@
     <string name="settings_fit_grow_desc">بند ہو تو اسکرین سے چھوٹی تصویر اپنے اصل حجم میں دکھائی جاتی ہے۔ کھلا ہو تو بڑھ کر اسکرین بھر دیتی ہے۔</string>
     <string name="settings_zoom_max">زیادہ سے زیادہ زوم</string>
     <string name="settings_zoom_page">موافقت اور زوم</string>
-    <string name="settings_zoom_page_summary">بڑا کرنا، زیادہ سے زیادہ زوم، پکسل کی رینڈرنگ</string>
     <string name="settings_scale_mode">پکسل کی رینڈرنگ</string>
     <string name="settings_scale_physical">فائل کا ایک پکسل فی اسکرین پکسل</string>
     <string name="settings_scale_logical">فائل کا ایک پکسل فی خاکہ پکسل</string>
@@ -273,6 +272,9 @@
     <string name="settings_facts_down">نیچے لے جائیں</string>
     <string name="settings_group_look">ظاہری شکل</string>
     <string name="settings_group_viewer">ناظر</string>
+    <string name="settings_group_clips">ویڈیو اور سرکانا</string>
+    <string name="settings_group_input">کنٹرول اور انتخاب</string>
+    <string name="settings_group_files">ترمیم اور ردی کی ٹوکری</string>
     <string name="settings_group_browse">فولڈرز</string>
     <string name="settings_group_start">آغاز</string>
     <string name="settings_group_advanced">اعلیٰ خصوصیات</string>
@@ -321,7 +323,8 @@
     <string name="tree_unopenable">اس فون میں کوئی ایپ اسے نہیں کھول سکتی</string>
     <string name="clip_pause">وقفہ</string>
     <string name="settings_images_only">صرف تصاویر دیکھیں</string>
-    <string name="settings_images_only_desc">ناظر میں دائیں بائیں سرکانا ویڈیو چھوڑ دیتا ہے اور صرف تصویروں کو گنتا ہے۔ گرڈ، فہرست یا فولڈروں سے ایک لمس پر ویڈیو پھر بھی چل جاتی ہے۔</string>
+    <string name="settings_images_only_desc">ناظر میں سرکانا ویڈیو چھوڑ دیتا ہے اور صرف تصویریں دکھاتا ہے۔ ایک لمس پر ویڈیو پھر بھی کھل جاتی ہے۔</string>
+    <string name="settings_clip_autoplay">ویڈیو براہِ راست چلائیں</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">ترمیم</string>

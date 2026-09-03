@@ -92,7 +92,6 @@
     <string name="settings_fit_grow_desc">Выключено: изображение меньше экрана показывается в натуральную величину. Включено: оно растёт, пока не заполнит экран.</string>
     <string name="settings_zoom_max">Наибольшее увеличение</string>
     <string name="settings_zoom_page">Подгонка и масштаб</string>
-    <string name="settings_zoom_page_summary">Увеличение, максимальный масштаб, отрисовка пикселей</string>
     <string name="settings_scale_mode" formatted="false">Отрисовка пикселей</string>
     <string name="settings_scale_physical">Один пиксель файла на один пиксель экрана</string>
     <string name="settings_scale_logical">Один пиксель файла на один пиксель разметки</string>
@@ -299,6 +298,9 @@
     <string name="settings_facts_down">Ниже</string>
     <string name="settings_group_look">Внешний вид</string>
     <string name="settings_group_viewer">Просмотр</string>
+    <string name="settings_group_clips">Видео и смахивание</string>
+    <string name="settings_group_input">Управление и выбор</string>
+    <string name="settings_group_files">Правка и корзина</string>
     <string name="settings_group_browse">Папки</string>
     <string name="settings_group_start">Запуск</string>
     <string name="settings_group_advanced">Расширенные функции</string>
@@ -351,7 +353,8 @@
     <string name="tree_unopenable">Ни одно приложение на этом телефоне не может это открыть</string>
     <string name="clip_pause">Пауза</string>
     <string name="settings_images_only">Листать только фотографии</string>
-    <string name="settings_images_only_desc">В просмотре смахивание вправо и влево пропускает видео и учитывает только изображения. Видео по-прежнему можно воспроизвести касанием из сетки, списка или папок.</string>
+    <string name="settings_images_only_desc">В просмотре смахивание пропускает видео и листает только изображения. Касание всё равно открывает видео.</string>
+    <string name="settings_clip_autoplay">Сразу воспроизводить видео</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Изменить</string>

@@ -30,6 +30,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -79,6 +80,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.TextStyle
@@ -90,7 +92,6 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import coil3.compose.AsyncImage
 import kotlin.math.ceil
-import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
 /**
@@ -1068,6 +1069,12 @@ private fun OptionLabel(@StringRes text: Int) {
 /**
  * Una voce con l'interruttore, dentro il dialogo delle opzioni.
  *
+ * ⚠️⚠️ **UN BERSAGLIO SOLO, dalla `1.46`, e prima erano DUE**: la riga portava un `clickable` e
+ * l'interruttore teneva vivo il suo `onCheckedChange`, quindi per una scelta sola un lettore
+ * di schermo annunciava due voci. Adesso il tocco è un `toggleable` con `role = Role.Switch`
+ * sulla riga e dentro l'interruttore non c'è niente, che è la forma con cui la pagina delle
+ * impostazioni disegna la stessa riga: le due superfici scrivono la stessa voce due volte, e
+ * quello che si può tenere uguale va tenuto uguale.
  * ⚠️ Il tocco sta su **tutta la riga** e non sul solo interruttore: un bersaglio da 32dp in
  * un dialogo si manca, e la riga intera è la convenzione di ogni schermata di impostazioni.
  * ⚠️⚠️ **L'ETICHETTA PRENDE IL PESO, e senza questo gli interruttori si disallineano**
@@ -1081,7 +1088,7 @@ private fun OptionSwitch(@StringRes text: Int, checked: Boolean, onChange: (Bool
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onChange(!checked) },
+            .toggleable(value = checked, role = Role.Switch, onValueChange = onChange),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(OPTION_GAP)
     ) {
@@ -1090,14 +1097,8 @@ private fun OptionSwitch(@StringRes text: Int, checked: Boolean, onChange: (Bool
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.weight(1f)
         )
-        Switch(checked = checked, onCheckedChange = onChange)
+        Switch(checked = checked, onCheckedChange = null)
     }
-}
-
-private fun TextSize.label(): Int = when (this) {
-    TextSize.SMALL -> R.string.text_small
-    TextSize.NORMAL -> R.string.text_normal
-    TextSize.LARGE -> R.string.text_large
 }
 
 /**

@@ -92,7 +92,6 @@
     <string name="settings_fit_grow_desc">அணைத்திருந்தால் திரையை விடச் சிறிய படம் அதன் உண்மையான அளவில் காட்டப்படும். இயக்கியிருந்தால் திரையை நிரப்பும் வரை வளரும்.</string>
     <string name="settings_zoom_max">அதிகபட்ச பெரிதாக்கம்</string>
     <string name="settings_zoom_page">பொருத்தமும் பெரிதாக்கமும்</string>
-    <string name="settings_zoom_page_summary">விரிவாக்கம், அதிகபட்சப் பெரிதாக்கம், பிக்சல் வரைவு</string>
     <string name="settings_scale_mode">பிக்சல் வரைவு</string>
     <string name="settings_scale_physical">திரையின் ஒரு படத்துணுக்குக்கு கோப்பின் ஒரு படத்துணுக்கு</string>
     <string name="settings_scale_logical">அமைப்பின் ஒரு படத்துணுக்குக்கு கோப்பின் ஒரு படத்துணுக்கு</string>
@@ -273,6 +272,9 @@
     <string name="settings_facts_down">கீழே நகர்த்து</string>
     <string name="settings_group_look">தோற்றம்</string>
     <string name="settings_group_viewer">காட்சியாளர்</string>
+    <string name="settings_group_clips">காணொளிகளும் தள்ளுதலும்</string>
+    <string name="settings_group_input">கட்டுப்பாடுகளும் தேர்வும்</string>
+    <string name="settings_group_files">திருத்தமும் குப்பைத் தொட்டியும்</string>
     <string name="settings_group_browse">கோப்புறைகள்</string>
     <string name="settings_group_start">தொடக்கம்</string>
     <string name="settings_group_advanced">மேம்பட்ட வசதிகள்</string>
@@ -321,7 +323,8 @@
     <string name="tree_unopenable">இதைத் திறக்கக்கூடிய பயன்பாடு இந்தத் தொலைபேசியில் இல்லை</string>
     <string name="clip_pause">இடைநிறுத்து</string>
     <string name="settings_images_only">படங்களை மட்டும் புரட்டு</string>
-    <string name="settings_images_only_desc">காட்டியில் வலம்-இடம் தள்ளுவது காணொளிகளைத் தவிர்த்து படங்களை மட்டுமே கணக்கில் கொள்ளும். கட்டம், பட்டியல் அல்லது கோப்புறைகளிலிருந்து ஒரு தொடுதலில் காணொளியை இன்னும் இயக்கலாம்.</string>
+    <string name="settings_images_only_desc">காட்டியில் தள்ளுவது காணொளிகளைத் தவிர்த்து படங்களை மட்டும் புரட்டும். ஒரு தொடுதலில் காணொளி இருப்பினும் திறக்கும்.</string>
+    <string name="settings_clip_autoplay">காணொளிகளை உடனே இயக்கு</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">திருத்து</string>
