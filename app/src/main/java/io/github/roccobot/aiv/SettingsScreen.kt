@@ -517,9 +517,17 @@ private fun ColumnScope.RootPage(
             selected = settings.infoPosition,
             enabled = settings.infoVisible,
             onSelect = { onChange(settings.copy(infoPosition = it)) },
-            // ⚠️ Il rientro è di QUESTA pagina e non della riga: nel pannellino del tocco
-            // lungo non c'è nessuna colonna di impostazioni rispetto a cui rientrare.
-            modifier = Modifier.padding(start = SUB_INDENT, top = 4.dp)
+            /*
+             * ⚠️⚠️ **NIENTE RIENTRO A SINISTRA, dalla 1.41, e la 1.38 lo aveva rimesso**
+             * (riscontro `barra-impostazioni`, 2026-09-03: *di nuovo 'Posizione' con rientro
+             * -> deve stare allineato a sinistra e basta, senza spazi/indentazioni
+             * iniziali*). 'Gerarchicamente subordinata' lo dicono il corpo leggero del
+             * titolo e il fatto che i gettoni si spengono con l'interruttore sopra: uno
+             * scalino a sinistra è una terza cosa, e non l'ha chiesta.
+             * ⚠️ **Resta il solo distacco in alto**, che non è un rientro ma l'aria fra due
+             * righe.
+             */
+            modifier = Modifier.padding(top = 4.dp)
         )
     }
 
@@ -1264,13 +1272,3 @@ private fun SwitchRow(
     }
 }
 
-/**
- * Di quanto rientra la riga subordinata della posizione della barra.
- *
- * ⚠️ **Un rientro e non un filetto o un riquadro**: sono tre modi di dire 'questa dipende da
- * quella', e il rientro è il solo che non aggiunge un segno grafico a una pagina che l'utente
- * ha già chiesto di alleggerire.
- * ⚠️ **Sta qui e non accanto a [InfoSideRow]**: è un numero di impaginazione di questa pagina,
- * e la riga vive anche in un pannellino dove non c'è niente rispetto a cui rientrare.
- */
-private val SUB_INDENT = 16.dp
