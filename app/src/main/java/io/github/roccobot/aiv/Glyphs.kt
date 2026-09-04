@@ -295,6 +295,20 @@ object Glyphs {
     val Bin: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_bin)
 
+    /**
+     * Il cassone con dentro la freccia che torna indietro: 'Cronologia del cestino'.
+     *
+     * ⚠️⚠️ **DISEGNO DELL'UTENTE, dalla `1.55`, e prende il posto di `Icons.Default.Recycling`**
+     * (giro della `1.54`: *pensavo che l'icona 'Cronologia del cestino' fosse un miglioramento,
+     * ma non mi piaceva. L'ho ridisegnata*). Le tre frecce del riciclo dicevano il giro, che era
+     * il punto della scelta della `1.51`, ma non dicevano il cestino: questa dice tutte e due.
+     * ⚠️ **Qui non c'è nessun glifo di Material da cui questo sarebbe una copia**, e la regola
+     * chiede di dirlo: il catalogo ha il bidone e ha l'orologio con la freccia, non la loro
+     * unione. Il perché per esteso sta in testa a `ic_bin_history.xml`.
+     */
+    val BinHistory: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_bin_history)
+
     /** Quattro riquadri cavi: 'Visualizzazione griglia'. Ammorbidisce `Icons.Default.GridView`. */
     val ViewGrid: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_view_grid)

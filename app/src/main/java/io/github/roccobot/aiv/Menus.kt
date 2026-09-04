@@ -257,7 +257,7 @@ fun MenuShell(
                  * di un'icona a filo di bordo si mescolerebbe; qui invece il contorno si
                  * sovrappone a tutto, che è quello che un bordo deve fare.
                  */
-                .edged(RoundedCornerShape(MENU_ROUND)),
+                .edged(MENU_ROUND),
             shape = RoundedCornerShape(MENU_ROUND),
             color = MaterialTheme.colorScheme.surfaceContainer
         ) {

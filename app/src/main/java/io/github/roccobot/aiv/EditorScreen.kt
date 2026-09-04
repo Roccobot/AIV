@@ -624,9 +624,20 @@ private fun EditorSheet(
          * finisce dove comincia la scheda, e a coprire i due spicchi basta che la scheda
          * porti il proprio fondo con sé.
          */
+        /*
+         * ⚠️⚠️ **E DALLA `1.55` PORTA IL BORDO D'ACCENTO, su tre lati** (decisione dell'utente,
+         * giro della `1.54`: *voglio la riga anche lì: in realtà dappertutto ... per coerenza
+         * deve avere il tratto intorno come tutti gli altri elementi simili*). Come la scheda
+         * della selezione, questa non ha il velo e non lo avrà: il palco dietro deve restare
+         * visibile e toccabile. Il bordo non dipende da quello.
+         * ⚠️ **Va DOPO il fondo del palco e prima della forma**: il bordo lo disegna un nodo che
+         * riceve la misura della superficie, e il fondo qui sotto è il rettangolo non ritagliato
+         * che copre i due spicchi degli angoli. Invertirli metterebbe la riga sotto il fondo.
+         */
         modifier = Modifier
             .fillMaxWidth()
-            .background(stageBack()),
+            .background(stageBack())
+            .edgedTop(SHEET_ROUND),
         shape = RoundedCornerShape(topStart = SHEET_ROUND, topEnd = SHEET_ROUND),
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
         /*

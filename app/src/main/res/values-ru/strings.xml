@@ -267,7 +267,7 @@
     <string name="bin_empty_ask">Действительно очистить корзину?</string>
     <string name="bin_empty_desc">Содержимое нельзя будет восстановить.</string>
     <string name="bin_restore_all_ask">Действительно восстановить все файлы?</string>
-    <string name="bin_restore_all_desc">Каждый файл вернётся в свою исходную папку: чтобы узнать, куда был перемещён каждый файл, откройте историю корзины.</string>
+    <string name="bin_restore_all_desc">Каждый элемент вернётся в свою исходную папку: чтобы узнать, куда он был перемещён, откройте историю корзины.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d элемент в корзине</item>
         <item quantity="few">%1$d элемента в корзине</item>
@@ -309,7 +309,7 @@
     <string name="settings_ext_edit_desc">Панель переименования позволяет менять расширения файлов. Если вы не уверены, не включайте это: изображения могут стать нечитаемыми.</string>
     <string name="settings_thumbs">Удалить сохранённые эскизы</string>
     <string name="settings_thumbs_empty">Сохранённых эскизов нет</string>
-    <string name="settings_thumbs_warn">Нажмите кнопку, чтобы очистить кэш эскизов. Предпросмотры изображений и видео будут удалены и создадутся заново автоматически при открытии каждой папки (если больших изображений много, создание новых эскизов может занять минуту или больше).</string>
+    <string name="settings_thumbs_warn">Нажмите кнопку, чтобы очистить кэш эскизов. Предпросмотры изображений и видео будут удалены и создадутся заново автоматически при открытии каждой папки (в папках с большим числом крупных изображений это может занять минуту или больше).</string>
     <string name="settings_thumbs_do">Очистить кэш\nэскизов</string>
     <string name="settings_thumbs_done">Кэш эскизов очищен</string>
     <string name="settings_hidden_none">Скрытых папок нет</string>
@@ -403,7 +403,7 @@
     <string name="settings_editor_backup_desc">Прежде чем редактор перезапишет изображение, он сохраняет его копию в корзине, откуда её можно вернуть; если она не нужна, она будет удалена при следующей очистке корзины.</string>
     <string name="editor_tall">Портрет</string>
     <string name="editor_wide">Пейзаж</string>
-    <string name="pick_cleared">Выделение снято</string>
+    <string name="pick_cleared">Файлы не выбраны.</string>
     <string name="pick_undo">Отменить</string>
     <string name="pick_list_done">Список файлов скопирован в буфер обмена</string>
     <string name="settings_pick_weight">Размер выбранных файлов</string>

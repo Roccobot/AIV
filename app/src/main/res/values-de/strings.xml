@@ -249,7 +249,7 @@
     <string name="bin_empty_ask">Papierkorb wirklich leeren?</string>
     <string name="bin_empty_desc">Der Inhalt lässt sich nicht wiederherstellen.</string>
     <string name="bin_restore_all_ask">Wirklich alle Dateien wiederherstellen?</string>
-    <string name="bin_restore_all_desc">Jede Datei kehrt in ihren ursprünglichen Ordner zurück: im Verlauf des Papierkorbs steht, wohin jede Datei verschoben wurde.</string>
+    <string name="bin_restore_all_desc">Jedes Element kehrt in seinen ursprünglichen Ordner zurück: im Verlauf des Papierkorbs steht, wohin es verschoben wurde.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d in den Papierkorb verschoben</item>
         <item quantity="other">%1$d in den Papierkorb verschoben</item>
@@ -283,7 +283,7 @@
     <string name="settings_ext_edit_desc">Im Umbenennen-Fenster lassen sich Dateiendungen ändern. Wenn du nicht weißt, was du tust, lass das aus: Bilder können dadurch unlesbar werden.</string>
     <string name="settings_thumbs">Gespeicherte Miniaturbilder löschen</string>
     <string name="settings_thumbs_empty">Keine gespeicherten Miniaturbilder</string>
-    <string name="settings_thumbs_warn">Tippe auf die Schaltfläche, um den Cache der Miniaturbilder zu leeren. Die Vorschauen von Bildern und Videos werden gelöscht und beim Öffnen jedes Ordners automatisch neu erstellt (bei vielen großen Bildern kann das Erstellen der neuen Miniaturbilder eine Minute oder länger dauern).</string>
+    <string name="settings_thumbs_warn">Tippe auf die Schaltfläche, um den Cache der Miniaturbilder zu leeren. Die Vorschauen von Bildern und Videos werden gelöscht und beim Öffnen jedes Ordners automatisch neu erstellt (in Ordnern mit vielen großen Bildern kann das eine Minute oder länger dauern).</string>
     <string name="settings_thumbs_do">Cache der\nMiniaturbilder leeren</string>
     <string name="settings_thumbs_done">Cache der Miniaturbilder geleert</string>
     <string name="settings_hidden_none">Keine versteckten Ordner</string>
@@ -373,7 +373,7 @@
     <string name="settings_editor_backup_desc">Bevor ein Editor ein Bild überschreibt, legt er eine Kopie in den Papierkorb, wo sie wiederherstellbar bleibt; wird sie nicht gebraucht, verschwindet sie beim nächsten \'Papierkorb leeren\'.</string>
     <string name="editor_tall">Hochformat</string>
     <string name="editor_wide">Querformat</string>
-    <string name="pick_cleared">Auswahl aufgehoben</string>
+    <string name="pick_cleared">Keine Datei ausgewählt.</string>
     <string name="pick_undo">Rückgängig</string>
     <string name="pick_list_done">Dateiliste in die Zwischenablage kopiert</string>
     <string name="settings_pick_weight">Größe der ausgewählten Dateien</string>

@@ -2,7 +2,6 @@ package io.github.roccobot.aiv
 
 import android.os.Build
 import android.view.WindowManager
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
@@ -85,7 +84,7 @@ fun Modifier.lowered(): Modifier {
  * qui va scritta perché un nodo non legge il tema di Material. Chi un giorno desse ai dialoghi
  * una forma propria deve cambiarla anche qui, o il bordo taglia gli angoli in un altro punto.
  */
-private val DIALOG_EDGE = Modifier.edged(RoundedCornerShape(28.dp))
+private val DIALOG_EDGE = Modifier.edged(28.dp)
 
 private object LowerElement : ModifierNodeElement<LowerNode>() {
     override fun create() = LowerNode()

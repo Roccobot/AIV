@@ -249,7 +249,7 @@
     <string name="bin_empty_ask">Kweli umwage tapishi?</string>
     <string name="bin_empty_desc">Yaliyomo hayatarudishwa tena.</string>
     <string name="bin_restore_all_ask">Kweli urejeshe faili zote?</string>
-    <string name="bin_restore_all_desc">Kila faili itarudi kwenye folda yake ya asili: ili kujua kila faili ilihamishwa wapi, angalia historia ya tapishi.</string>
+    <string name="bin_restore_all_desc">Kila kipengele kitarudi kwenye folda yake ya asili: ili kujua kilihamishwa wapi, angalia historia ya tapishi.</string>
     <plurals name="trash_done">
         <item quantity="one">kipengele %1$d kimeenda tapishini</item>
         <item quantity="other">vipengele %1$d vimeenda tapishini</item>
@@ -283,7 +283,7 @@
     <string name="settings_ext_edit_desc">Kidirisha cha kubadilisha jina huruhusu kubadilisha viambishi vya faili. Kama hujui unafanya nini, usiwashe hii: inaweza kufanya picha zisisomeke.</string>
     <string name="settings_thumbs">Futa vijipicha vilivyohifadhiwa</string>
     <string name="settings_thumbs_empty">Hakuna vijipicha vilivyohifadhiwa</string>
-    <string name="settings_thumbs_warn">Gusa kitufe ili kufuta akiba ya vijipicha. Onyesho la kukagua la picha na video litafutwa na litaundwa upya kiotomatiki unapofungua kila folda (ikiwa kuna picha kubwa nyingi, kuunda vijipicha vipya kunaweza kuchukua dakika moja au zaidi).</string>
+    <string name="settings_thumbs_warn">Gusa kitufe ili kufuta akiba ya vijipicha. Onyesho la kukagua la picha na video litafutwa na litaundwa upya kiotomatiki unapofungua kila folda (katika folda zenye picha kubwa nyingi hii inaweza kuchukua dakika moja au zaidi).</string>
     <string name="settings_thumbs_do">Futa akiba\nya vijipicha</string>
     <string name="settings_thumbs_done">Akiba ya vijipicha imefutwa</string>
     <string name="settings_hidden_none">Hakuna folda zilizofichwa</string>
@@ -373,7 +373,7 @@
     <string name="settings_editor_backup_desc">Kabla kihariri hakijaandika juu ya picha, huhifadhi nakala yake kwenye pipa la taka, ambapo unaweza kuirejesha; usipoihitaji, itafutwa wakati wa \'Mwaga pipa la taka\' unaofuata.</string>
     <string name="editor_tall">Wima</string>
     <string name="editor_wide">Mlalo</string>
-    <string name="pick_cleared">Uteuzi umefutwa</string>
+    <string name="pick_cleared">Hakuna faili iliyochaguliwa.</string>
     <string name="pick_undo">Tendua</string>
     <string name="pick_list_done">Orodha ya faili imenakiliwa kwenye ubao wa kunakili</string>
     <string name="settings_pick_weight">Ukubwa wa faili zilizochaguliwa</string>

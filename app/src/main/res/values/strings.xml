@@ -170,7 +170,7 @@
     <string name="settings_ext_edit_desc">The rename panel can change file extensions. If you do not know what you are doing, do not turn this on: it can make images unreadable.</string>
     <string name="settings_thumbs">Delete stored thumbnails</string>
     <string name="settings_thumbs_empty">No stored thumbnails</string>
-    <string name="settings_thumbs_warn">Tap the button to clear the thumbnail cache. Image and video previews will be deleted and regenerated automatically when you open each folder (with many large images, creating the new thumbnails may take a minute or more).</string>
+    <string name="settings_thumbs_warn">Tap the button to clear the thumbnail cache. Image and video previews will be deleted and regenerated automatically when you open each folder (this may take a minute or more in folders with many large images).</string>
     <string name="settings_thumbs_do">Clear thumbnail\ncache</string>
     <string name="settings_thumbs_done">Thumbnail cache cleared</string>
 
@@ -495,7 +495,7 @@
     <string name="bin_empty_ask">Really empty the bin?</string>
     <string name="bin_empty_desc">You will not be able to get its contents back.</string>
     <string name="bin_restore_all_ask">Really restore all the files?</string>
-    <string name="bin_restore_all_desc">Every file will go back to its own folder of origin: to see where each file was moved, check the bin history.</string>
+    <string name="bin_restore_all_desc">Every item will go back to its own folder of origin: to see where it was moved, check the bin history.</string>
     <string name="bin_empty_hint">Shortcut: press and hold the floating button to empty the bin.</string>
     <string name="bin_restore_all">Restore everything</string>
     <string name="bin_history">History</string>
@@ -543,7 +543,7 @@
          the selection back. pick_undo says the same word as editor_undo and is a key
          of its own because that one is a label under an icon in the editor's action
          pad, where a long language shortens it. -->
-    <string name="pick_cleared">Selection cleared</string>
+    <string name="pick_cleared">No files selected.</string>
     <string name="pick_undo">Undo</string>
     <string name="pick_list_done">File list copied to the clipboard</string>
     <string name="settings_pick_weight">Size of the selected files</string>

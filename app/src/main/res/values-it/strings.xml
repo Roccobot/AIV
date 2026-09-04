@@ -350,7 +350,7 @@
     <string name="bin_empty_ask">Vuoi davvero svuotare il cestino?</string>
     <string name="bin_empty_desc">Non potrai più recuperare il contenuto.</string>
     <string name="bin_restore_all_ask">Vuoi davvero ripristinare tutti i file?</string>
-    <string name="bin_restore_all_desc">Ogni file sarà riportato nella propria cartella di origine: per sapere dov\'è stato spostato ogni file, controlla la cronologia del cestino.</string>
+    <string name="bin_restore_all_desc">Ogni elemento sarà riportato nella propria cartella di origine: per sapere dov\'è stato spostato, controlla la cronologia del cestino.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d spostato nel cestino</item>
         <item quantity="other">%1$d spostati nel cestino</item>
@@ -395,7 +395,7 @@
     <string name="settings_ext_edit_desc">Il pannello di rinomina consente di modificare le estensioni dei file. Se non sai cosa stai facendo, non attivare questa opzione: può rendere le immagini illeggibili.</string>
     <string name="settings_thumbs">Elimina le miniature memorizzate</string>
     <string name="settings_thumbs_empty">Nessuna miniatura memorizzata</string>
-    <string name="settings_thumbs_warn">Tocca il pulsante per svuotare la cache delle miniature. Le anteprime delle immagini e dei video saranno eliminate e saranno rigenerate in automatico all\'accesso ad ogni cartella (se ci sono molte immagini grandi, la creazione delle nuove miniature potrebbe richiedere un minuto o più).</string>
+    <string name="settings_thumbs_warn">Tocca il pulsante per svuotare la cache delle miniature. Le anteprime delle immagini e dei video saranno eliminate e saranno rigenerate in automatico all\'accesso ad ogni cartella (potrebbe richiedere un minuto o più nelle cartelle con molte immagini grandi).</string>
     <string name="settings_thumbs_do">Svuota cache\ndelle miniature</string>
     <string name="settings_thumbs_done">Cache delle miniature svuotata</string>
     <string name="settings_hidden_none">Nessuna cartella nascosta</string>
@@ -448,7 +448,7 @@
     <string name="settings_images_only">Sfoglia solo le immagini</string>
     <string name="settings_images_only_desc">Nel visualizzatore lo scorrimento salta i video e sfoglia solo le immagini. Puoi comunque aprire i video con un tocco dalla vista normale.</string>
     <string name="settings_clip_autoplay">Riproduci i video direttamente</string>
-    <string name="pick_cleared">Selezione azzerata</string>
+    <string name="pick_cleared">Nessun file selezionato.</string>
     <string name="pick_undo">Annulla</string>
     <string name="pick_list_done">Lista file copiata negli appunti</string>
     <string name="settings_pick_weight">Dimensioni dei file selezionati</string>

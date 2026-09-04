@@ -240,7 +240,7 @@
     <string name="bin_empty_ask">确定清空回收站？</string>
     <string name="bin_empty_desc">里面的内容将无法找回。</string>
     <string name="bin_restore_all_ask">确定要恢复所有文件吗？</string>
-    <string name="bin_restore_all_desc">每个文件都会回到各自的原文件夹：想知道每个文件被移到哪里，请查看回收站历史。</string>
+    <string name="bin_restore_all_desc">每个项目都会回到各自的原文件夹：想知道被移到哪里，请查看回收站历史。</string>
     <plurals name="trash_done">
         <item quantity="other">已把 %1$d 项移入回收站</item>
     </plurals>
@@ -270,7 +270,7 @@
     <string name="settings_ext_edit_desc">重命名面板可以修改文件的扩展名。如果不清楚自己在做什么，请不要打开：图片可能会变得无法读取。</string>
     <string name="settings_thumbs">删除已存储的缩略图</string>
     <string name="settings_thumbs_empty">没有已存储的缩略图</string>
-    <string name="settings_thumbs_warn">点按按钮清空缩略图缓存。图片和视频的预览将被删除，并在打开每个文件夹时自动重新生成（如果大图很多，生成新的缩略图可能需要一分钟或更长时间）。</string>
+    <string name="settings_thumbs_warn">点按按钮清空缩略图缓存。图片和视频的预览将被删除，并在打开每个文件夹时自动重新生成（在大图很多的文件夹中，这可能需要一分钟或更长时间）。</string>
     <string name="settings_thumbs_do">清空缩略图\n缓存</string>
     <string name="settings_thumbs_done">已清空缩略图缓存</string>
     <string name="settings_hidden_none">没有隐藏的文件夹</string>
@@ -358,7 +358,7 @@
     <string name="settings_editor_backup_desc">在编辑器覆盖一张图像之前，会先把副本存入回收站，可以从那里找回；如果不需要，下次\'清空回收站\'时会被删除。</string>
     <string name="editor_tall">竖向</string>
     <string name="editor_wide">横向</string>
-    <string name="pick_cleared">已取消选择</string>
+    <string name="pick_cleared">未选择任何文件。</string>
     <string name="pick_undo">撤销</string>
     <string name="pick_list_done">文件列表已复制到剪贴板</string>
     <string name="settings_pick_weight">所选文件的大小</string>

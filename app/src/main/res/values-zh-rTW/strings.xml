@@ -240,7 +240,7 @@
     <string name="bin_empty_ask">確定清空回收筒？</string>
     <string name="bin_empty_desc">裡面的內容將無法救回。</string>
     <string name="bin_restore_all_ask">確定要還原所有檔案嗎？</string>
-    <string name="bin_restore_all_desc">每個檔案都會回到各自的原資料夾：想知道每個檔案被移到哪裡，請查看回收筒歷程。</string>
+    <string name="bin_restore_all_desc">每個項目都會回到各自的原資料夾：想知道被移到哪裡，請查看回收筒歷程。</string>
     <plurals name="trash_done">
         <item quantity="other">已把 %1$d 項移入回收筒</item>
     </plurals>
@@ -270,7 +270,7 @@
     <string name="settings_ext_edit_desc">重新命名面板可以修改檔案的副檔名。若不清楚自己在做什麼，請不要開啟：圖片可能會變得無法讀取。</string>
     <string name="settings_thumbs">刪除已儲存的縮圖</string>
     <string name="settings_thumbs_empty">沒有已儲存的縮圖</string>
-    <string name="settings_thumbs_warn">輕觸按鈕以清除縮圖快取。圖片與影片的預覽會被刪除，並在開啟每個資料夾時自動重新產生（如果大圖很多，產生新縮圖可能需要一分鐘或更久）。</string>
+    <string name="settings_thumbs_warn">輕觸按鈕以清除縮圖快取。圖片與影片的預覽會被刪除，並在開啟每個資料夾時自動重新產生（在大圖很多的資料夾中，這可能需要一分鐘或更久）。</string>
     <string name="settings_thumbs_do">清除縮圖\n快取</string>
     <string name="settings_thumbs_done">已清除縮圖快取</string>
     <string name="settings_hidden_none">沒有隱藏的資料夾</string>
@@ -358,7 +358,7 @@
     <string name="settings_editor_backup_desc">在編輯器覆寫一張影像之前，會先把副本存入回收筒，可以從那裡取回；若不需要，下次\'清空回收筒\'時會被刪除。</string>
     <string name="editor_tall">直式</string>
     <string name="editor_wide">橫式</string>
-    <string name="pick_cleared">已取消選取</string>
+    <string name="pick_cleared">未選擇任何檔案。</string>
     <string name="pick_undo">復原</string>
     <string name="pick_list_done">檔案清單已複製到剪貼簿</string>
     <string name="settings_pick_weight">所選檔案的大小</string>

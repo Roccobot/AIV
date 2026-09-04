@@ -249,7 +249,7 @@
     <string name="bin_empty_ask">Çöp kutusu gerçekten boşaltılsın mı?</string>
     <string name="bin_empty_desc">İçindekiler bir daha geri alınamaz.</string>
     <string name="bin_restore_all_ask">Tüm dosyalar gerçekten geri yüklensin mi?</string>
-    <string name="bin_restore_all_desc">Her dosya kendi özgün klasörüne dönecek: hangi dosyanın nereye taşındığını görmek için çöp kutusu geçmişine bakın.</string>
+    <string name="bin_restore_all_desc">Her öğe kendi özgün klasörüne dönecek: nereye taşındığını görmek için çöp kutusu geçmişine bakın.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d öge çöp kutusuna taşındı</item>
         <item quantity="other">%1$d öge çöp kutusuna taşındı</item>
@@ -283,7 +283,7 @@
     <string name="settings_ext_edit_desc">Yeniden adlandırma paneli dosya uzantılarını değiştirmeye izin verir. Ne yaptığını bilmiyorsan bunu açma: görüntüleri okunamaz hâle getirebilir.</string>
     <string name="settings_thumbs">Kaydedilen küçük resimleri sil</string>
     <string name="settings_thumbs_empty">Kaydedilmiş küçük resim yok</string>
-    <string name="settings_thumbs_warn">Küçük resim önbelleğini boşaltmak için düğmeye dokun. Görüntülerin ve videoların ön izlemeleri silinecek ve her klasörü açtığında otomatik olarak yeniden oluşturulacak (çok sayıda büyük görüntü varsa yeni küçük resimlerin oluşturulması bir dakika veya daha uzun sürebilir).</string>
+    <string name="settings_thumbs_warn">Küçük resim önbelleğini boşaltmak için düğmeye dokun. Görüntülerin ve videoların ön izlemeleri silinecek ve her klasörü açtığında otomatik olarak yeniden oluşturulacak (çok sayıda büyük görüntü içeren klasörlerde bu bir dakika veya daha uzun sürebilir).</string>
     <string name="settings_thumbs_do">Küçük resim\nönbelleğini boşalt</string>
     <string name="settings_thumbs_done">Küçük resim önbelleği boşaltıldı</string>
     <string name="settings_hidden_none">Gizli klasör yok</string>
@@ -373,7 +373,7 @@
     <string name="settings_editor_backup_desc">Bir düzenleyici bir görüntünün üzerine yazmadan önce, bir kopyasını çöp kutusuna kaydeder; oradan geri alabilirsiniz. Gerekmiyorsa bir sonraki \'Çöp kutusunu boşalt\' işleminde silinir.</string>
     <string name="editor_tall">Dikey</string>
     <string name="editor_wide">Yatay</string>
-    <string name="pick_cleared">Seçim temizlendi</string>
+    <string name="pick_cleared">Hiçbir dosya seçilmedi.</string>
     <string name="pick_undo">Geri al</string>
     <string name="pick_list_done">Dosya listesi panoya kopyalandı</string>
     <string name="settings_pick_weight">Seçili dosyaların boyutu</string>

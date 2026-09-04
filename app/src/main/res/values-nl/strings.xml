@@ -249,7 +249,7 @@
     <string name="bin_empty_ask">Prullenbak echt legen?</string>
     <string name="bin_empty_desc">De inhoud kun je niet meer terughalen.</string>
     <string name="bin_restore_all_ask">Alle bestanden echt herstellen?</string>
-    <string name="bin_restore_all_desc">Elk bestand gaat terug naar zijn eigen oorspronkelijke map: in de geschiedenis van de prullenbak staat waarheen elk bestand is verplaatst.</string>
+    <string name="bin_restore_all_desc">Elk item gaat terug naar zijn eigen oorspronkelijke map: in de geschiedenis van de prullenbak staat waarheen het is verplaatst.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d naar de prullenbak</item>
         <item quantity="other">%1$d naar de prullenbak</item>
@@ -283,7 +283,7 @@
     <string name="settings_ext_edit_desc">In het venster voor naamswijziging kun je bestandsextensies aanpassen. Als je niet weet wat je doet, laat dit dan uit: het kan afbeeldingen onleesbaar maken.</string>
     <string name="settings_thumbs">Opgeslagen miniaturen verwijderen</string>
     <string name="settings_thumbs_empty">Geen opgeslagen miniaturen</string>
-    <string name="settings_thumbs_warn">Tik op de knop om de cache van de miniaturen te wissen. De voorbeelden van afbeeldingen en video\'s worden verwijderd en automatisch opnieuw gemaakt wanneer je elke map opent (bij veel grote afbeeldingen kan het maken van de nieuwe miniaturen een minuut of langer duren).</string>
+    <string name="settings_thumbs_warn">Tik op de knop om de cache van de miniaturen te wissen. De voorbeelden van afbeeldingen en video\'s worden verwijderd en automatisch opnieuw gemaakt wanneer je elke map opent (in mappen met veel grote afbeeldingen kan dit een minuut of langer duren).</string>
     <string name="settings_thumbs_do">Cache van de\nminiaturen wissen</string>
     <string name="settings_thumbs_done">Cache van de miniaturen gewist</string>
     <string name="settings_hidden_none">Geen verborgen mappen</string>
@@ -373,7 +373,7 @@
     <string name="settings_editor_backup_desc">Voordat een editor een afbeelding overschrijft, bewaart hij er een kopie van in de prullenbak, waar u die kunt terughalen; hebt u die niet nodig, dan verdwijnt ze bij de volgende \'Prullenbak legen\'.</string>
     <string name="editor_tall">Staand</string>
     <string name="editor_wide">Liggend</string>
-    <string name="pick_cleared">Selectie gewist</string>
+    <string name="pick_cleared">Geen bestand geselecteerd.</string>
     <string name="pick_undo">Ongedaan maken</string>
     <string name="pick_list_done">Bestandenlijst naar het klembord gekopieerd</string>
     <string name="settings_pick_weight">Grootte van de geselecteerde bestanden</string>

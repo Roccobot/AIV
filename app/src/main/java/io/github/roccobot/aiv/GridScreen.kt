@@ -50,9 +50,8 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.DeleteForever
-import androidx.compose.material.icons.filled.FiberManualRecord
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Recycling
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material.icons.outlined.Image
@@ -1212,18 +1211,15 @@ fun GridScreen(
                         MenuRow(
                             text = stringResource(R.string.bin_history),
                             /*
-                             * ⚠️⚠️ **IL SIMBOLO DEL RICICLO E NON UN OROLOGIO, dalla `1.51`, ed
-                             * è una scelta dell'utente fra due che gli sono state proposte.**
-                             * `Icons.Default.History` diceva 'il tempo', che in questo menu è
-                             * la cosa meno interessante: la Cronologia del cestino elenca
-                             * quello che è **passato di qui**, cioè eliminato, ripristinato e
-                             * ripulito, e le tre frecce che si rincorrono sono quel giro.
-                             * ⚠️ **Resta un glifo di Material** perché il file che ha mandato
-                             * rende a zero pixel di scarto da quello che Compose già porta
-                             * (misurato): copiarlo in `res/` duplicherebbe un disegno
-                             * mantenuto da altri, che è quello che `Glyphs.kt` vieta.
+                             * ⚠️⚠️ **UN DISEGNO SUO, dalla `1.55`, e la sua terza scelta su
+                             * questa riga.** Nella `1.51` aveva preso il simbolo del riciclo
+                             * fra due proposte, perché `Icons.Default.History` diceva 'il
+                             * tempo' mentre qui conta quello che è **passato di qui**; poi lo
+                             * ha guardato in mano e lo ha ridisegnato (*pensavo che fosse un
+                             * miglioramento, ma non mi piaceva*). Il suo mette insieme le due
+                             * cose: il cassone e la freccia che torna indietro.
                              */
-                            icon = Icons.Default.Recycling,
+                            icon = Glyphs.BinHistory,
                             onTap = { menu.close(); onHistory() }
                         )
                         MenuRow(
@@ -1256,21 +1252,6 @@ fun GridScreen(
                         )
                     }
                     TapHoldFab(
-                        /*
-                         * ⚠️⚠️ **UN PALLINO E NON L'HAMBURGER, dalla 1.37, e il disegno è una
-                         * richiesta dell'utente** (riscontro `fab-colori`: *adesso che vedo il
-                         * cestino con i nuovi colori non mi piace più: metti un pallino singolo
-                         * al centro*). Le tre righe di `Icons.Default.Menu` dicono 'apri il
-                         * cassetto', che è un'altra cosa da 'apri le azioni del cestino', e coi
-                         * colori dell'icona dell'app pesavano.
-                         * ⚠️ **È di Material e non disegnato in casa**: `FiberManualRecord` è
-                         * esattamente un disco pieno centrato (raggio 8 su griglia 24, cioè
-                         * 16dp di diametro), e la nota in testa a `Glyphs.kt` dice di non
-                         * ridisegnare quello che Material ha già.
-                         * ⚠️ **Se il pallino va cambiato di misura la via è un'altra icona, non
-                         * una scala**: `Icons.Filled.Circle` è lo stesso disco a raggio 10.
-                         */
-                        icon = Icons.Filled.FiberManualRecord,
                         label = stringResource(R.string.pick_actions),
                         // ⚠️ I colori dell'icona dell'app, dalla `1.36`, come il tastino della
                         // schermata iniziale: il perché per esteso sta là, e i due tastini sono
@@ -1288,7 +1269,18 @@ fun GridScreen(
                         // tastino stia in una finestra più alta: quella finestra è
                         // trasparente al tocco apposta (vedi `untouchable` in `ActionPad`).
                         onTap = { menu.open() },
-                        onHold = { shortcut(); hintDone() }
+                        onHold = { shortcut(); hintDone() },
+                        /*
+                         * ⚠️⚠️ **I TRE PUNTINI ARRIVANO DALLA SCHERMATA INIZIALE, dalla `1.55`**
+                         * (richiesta dell'utente, giro della `1.54`: *i tre puntini, renderizzati
+                         * in modo identico, vanno a finire sul FAB del cestino, dove c'era
+                         * un'icona ancora più generica*). Là hanno lasciato il posto al marchio
+                         * dell'app, e qui prendono il posto del disco singolo della `1.37`.
+                         * ⚠️ **'Renderizzati in modo identico' è alla lettera**: stesso glifo di
+                         * Material e stessa misura, senza scale né ritocchi, o sarebbero due
+                         * disegni che si somigliano invece dello stesso disegno.
+                         */
+                        glyph = { Icon(imageVector = Icons.Default.MoreHoriz, contentDescription = it) }
                     )
                 }
             }
@@ -1421,10 +1413,6 @@ fun GridScreen(
                 onDone = hintDone
             ) {
                 TapHoldFab(
-                    // ⚠️ Lo STESSO glifo del tastino vero, che dalla 1.37 è un pallino: questo
-                    // è la sua copia illuminata sopra il velo, e un velo che evidenzia un
-                    // disegno diverso da quello che sta sotto indica il tasto sbagliato.
-                    icon = Icons.Filled.FiberManualRecord,
                     label = stringResource(R.string.pick_actions),
                     container = HINT_MARK,
                     ink = HINT_INK,
@@ -1433,7 +1421,11 @@ fun GridScreen(
                     lift = 0.dp,
                     holdLabel = stringResource(shortcutLabel),
                     onTap = { hintDone(); menu.open() },
-                    onHold = { shortcut(); hintDone() }
+                    onHold = { shortcut(); hintDone() },
+                    // ⚠️ Lo STESSO glifo del tastino vero, che dalla `1.55` sono i tre puntini:
+                    // questo è la sua copia illuminata sopra il velo, e un velo che evidenzia un
+                    // disegno diverso da quello che sta sotto indica il tasto sbagliato.
+                    glyph = { Icon(imageVector = Icons.Default.MoreHoriz, contentDescription = it) }
                 )
             }
         }

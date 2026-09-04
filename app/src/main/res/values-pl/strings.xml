@@ -267,7 +267,7 @@
     <string name="bin_empty_ask">Na pewno opróżnić kosz?</string>
     <string name="bin_empty_desc">Zawartości nie da się już odzyskać.</string>
     <string name="bin_restore_all_ask">Na pewno przywrócić wszystkie pliki?</string>
-    <string name="bin_restore_all_desc">Każdy plik wróci do swojego folderu pochodzenia: aby sprawdzić, gdzie został przeniesiony każdy plik, zajrzyj do historii kosza.</string>
+    <string name="bin_restore_all_desc">Każdy element wróci do swojego folderu pochodzenia: aby sprawdzić, gdzie został przeniesiony, zajrzyj do historii kosza.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d do kosza</item>
         <item quantity="few">%1$d do kosza</item>
@@ -309,7 +309,7 @@
     <string name="settings_ext_edit_desc">Panel zmiany nazwy pozwala zmieniać rozszerzenia plików. Jeśli nie wiesz, co robisz, nie włączaj tej opcji: może sprawić, że obrazy staną się nieczytelne.</string>
     <string name="settings_thumbs">Usuń zapisane miniatury</string>
     <string name="settings_thumbs_empty">Brak zapisanych miniatur</string>
-    <string name="settings_thumbs_warn">Dotknij przycisku, aby opróżnić pamięć podręczną miniatur. Podglądy obrazów i filmów zostaną usunięte i utworzone ponownie automatycznie przy otwarciu każdego folderu (przy wielu dużych obrazach tworzenie nowych miniatur może potrwać minutę lub dłużej).</string>
+    <string name="settings_thumbs_warn">Dotknij przycisku, aby opróżnić pamięć podręczną miniatur. Podglądy obrazów i filmów zostaną usunięte i utworzone ponownie automatycznie przy otwarciu każdego folderu (w folderach z wieloma dużymi obrazami może to potrwać minutę lub dłużej).</string>
     <string name="settings_thumbs_do">Opróżnij pamięć\npodręczną miniatur</string>
     <string name="settings_thumbs_done">Pamięć podręczna miniatur opróżniona</string>
     <string name="settings_hidden_none">Brak ukrytych folderów</string>
@@ -403,7 +403,7 @@
     <string name="settings_editor_backup_desc">Zanim edytor nadpisze obraz, zapisuje jego kopię w koszu, skąd będzie można ją odzyskać; jeśli nie będzie potrzebna, zniknie przy następnym \'Opróżnij kosz\'.</string>
     <string name="editor_tall">Pionowo</string>
     <string name="editor_wide">Poziomo</string>
-    <string name="pick_cleared">Wyczyszczono zaznaczenie</string>
+    <string name="pick_cleared">Nie wybrano żadnego pliku.</string>
     <string name="pick_undo">Cofnij</string>
     <string name="pick_list_done">Lista plików skopiowana do schowka</string>
     <string name="settings_pick_weight">Rozmiar wybranych plików</string>
