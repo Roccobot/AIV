@@ -92,7 +92,6 @@
     <string name="settings_fit_grow_desc">Khi tắt, ảnh nhỏ hơn màn hình được hiển thị ở kích thước thật. Khi bật, ảnh lớn lên cho đầy khung hình.</string>
     <string name="settings_zoom_max">Mức phóng xa nhất</string>
     <string name="settings_zoom_page">Vừa khung và thu phóng</string>
-    <string name="settings_zoom_page_summary">Phóng to, thu phóng tối đa, kết xuất điểm ảnh</string>
     <string name="settings_scale_mode">Kết xuất điểm ảnh</string>
     <string name="settings_scale_physical">Một điểm ảnh của tệp trên một điểm ảnh màn hình</string>
     <string name="settings_scale_logical">Một điểm ảnh của tệp trên một điểm ảnh bố cục</string>
@@ -102,7 +101,7 @@
     <string name="settings_info_visible">Thanh thông tin</string>
     <string name="settings_info_position">Vị trí</string>
     <string name="settings_zoom_menu">Thu phóng trong menu của trình xem</string>
-    <string name="settings_zoom_menu_desc">Đưa \'Vừa khung hình\' và \'100%\' trở lại menu nhấn giữ. Đang tắt vì chạm hai lần vào ảnh cũng làm điều đó.</string>
+    <string name="settings_zoom_menu_desc">Thêm \'Vừa khung hình\' và \'100%\' vào menu ngữ cảnh của trình xem.</string>
     <string name="hint_zoom_tap">Thu phóng nhanh: chạm hai lần vào ảnh để vừa khung nhìn, chạm hai lần nữa để xem điểm ảnh thật. Chạm tiếp để chuyển qua lại giữa vừa khung và 100%.</string>
     <string name="hint_ext_warn">⚠️ Đổi phần mở rộng của tệp không giống với chuyển từ định dạng này sang định dạng khác: việc đó có \'Xuất và chuyển đổi\'.\n\n⚠️ Nếu bạn đặt cho ảnh hoặc video một phần mở rộng không thuộc tệp đa phương tiện, mục đó sẽ biến mất khỏi dạng lưới và dạng danh sách.</string>
     <string name="settings_anim_counter">Bộ đếm khung hình</string>
@@ -260,6 +259,9 @@
     <string name="settings_facts_down">Chuyển xuống</string>
     <string name="settings_group_look">Giao diện</string>
     <string name="settings_group_viewer">Trình xem</string>
+    <string name="settings_group_clips">Video và vuốt</string>
+    <string name="settings_group_input">Điều khiển và chọn</string>
+    <string name="settings_group_files">Chỉnh sửa và thùng rác</string>
     <string name="settings_group_browse">Thư mục</string>
     <string name="settings_group_start">Khởi động</string>
     <string name="settings_group_advanced">Tính năng nâng cao</string>
@@ -306,7 +308,8 @@
     <string name="tree_unopenable">Không có ứng dụng nào trên điện thoại này mở được tệp này</string>
     <string name="clip_pause">Tạm dừng</string>
     <string name="settings_images_only">Chỉ lướt qua ảnh</string>
-    <string name="settings_images_only_desc">Trong trình xem, việc vuốt sang phải và trái bỏ qua video và chỉ tính ảnh. Bạn vẫn có thể phát một video bằng một lần chạm từ lưới, danh sách hoặc thư mục.</string>
+    <string name="settings_images_only_desc">Trong trình xem, việc vuốt bỏ qua video và chỉ lướt qua ảnh. Một lần chạm vẫn mở video.</string>
+    <string name="settings_clip_autoplay">Phát video ngay</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Sửa</string>

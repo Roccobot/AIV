@@ -92,7 +92,6 @@
     <string name="settings_fit_grow_desc">Aus wird ein Bild, das kleiner als der Bildschirm ist, in seiner echten Größe gezeigt. An wächst es, bis es die Ansicht füllt.</string>
     <string name="settings_zoom_max">Größter Zoom</string>
     <string name="settings_zoom_page">Anpassung und Zoom</string>
-    <string name="settings_zoom_page_summary">Vergrößerung, maximaler Zoom, Pixel-Darstellung</string>
     <string name="settings_scale_mode" formatted="false">Pixel-Darstellung</string>
     <string name="settings_scale_physical">Ein Pixel der Datei pro Bildschirmpixel</string>
     <string name="settings_scale_logical">Ein Pixel der Datei pro Layoutpixel</string>
@@ -102,7 +101,7 @@
     <string name="settings_info_visible">Infoleiste</string>
     <string name="settings_info_position">Position</string>
     <string name="settings_zoom_menu">Zoom im Menü des Betrachters</string>
-    <string name="settings_zoom_menu_desc">Stellt \'An die Ansicht anpassen\' und \'100%\' wieder in das Menü der langen Berührung. Aus, weil ein Doppeltippen auf das Bild das schon macht.</string>
+    <string name="settings_zoom_menu_desc">Fügt \'An die Ansicht anpassen\' und \'100%\' dem Kontextmenü des Betrachters hinzu.</string>
     <string name="hint_zoom_tap">Schnellzoom: Doppeltippen passt das Bild an die Ansicht an, noch einmal zeigt echte Pixel. Weiter tippen wechselt zwischen angepasst und 100%.</string>
     <string name="hint_ext_warn">⚠️ Eine Dateiendung zu ändern ist nicht dasselbe wie zwischen Formaten umzuwandeln: dafür gibt es \'Exportieren und umwandeln\'.\n\n⚠️ Wenn du einem Bild oder Video eine Endung gibst, die zu keiner Mediendatei gehört, verschwindet der Eintrag aus der Raster- und der Listenansicht.</string>
     <string name="settings_anim_counter">Bildzähler</string>
@@ -273,6 +272,9 @@
     <string name="settings_facts_down">Nach unten</string>
     <string name="settings_group_look">Aussehen</string>
     <string name="settings_group_viewer">Betrachter</string>
+    <string name="settings_group_clips">Videos und Wischen</string>
+    <string name="settings_group_input">Bedienung und Auswahl</string>
+    <string name="settings_group_files">Bearbeiten und Papierkorb</string>
     <string name="settings_group_browse">Ordner</string>
     <string name="settings_group_start">Start</string>
     <string name="settings_group_advanced">Erweiterte Funktionen</string>
@@ -321,7 +323,8 @@
     <string name="tree_unopenable">Keine App auf diesem Telefon kann es öffnen</string>
     <string name="clip_pause">Pause</string>
     <string name="settings_images_only">Nur Bilder durchblättern</string>
-    <string name="settings_images_only_desc">Im Betrachter überspringt das Wischen nach rechts und links die Videos und berücksichtigt nur Bilder. Ein Video lässt sich weiterhin mit einer Berührung aus Raster, Liste oder Ordnern abspielen.</string>
+    <string name="settings_images_only_desc">Im Betrachter überspringt das Wischen die Videos und blättert nur Bilder durch. Eine Berührung öffnet ein Video trotzdem.</string>
+    <string name="settings_clip_autoplay">Videos sofort abspielen</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Bearbeiten</string>

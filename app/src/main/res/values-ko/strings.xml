@@ -92,7 +92,6 @@
     <string name="settings_fit_grow_desc">끄면 화면보다 작은 이미지는 실제 크기로 보입니다. 켜면 화면을 채울 때까지 커집니다.</string>
     <string name="settings_zoom_max">최대 확대</string>
     <string name="settings_zoom_page">맞춤과 확대</string>
-    <string name="settings_zoom_page_summary">확대, 최대 확대, 픽셀 렌더링</string>
     <string name="settings_scale_mode" formatted="false">픽셀 렌더링</string>
     <string name="settings_scale_physical">파일의 1픽셀을 화면의 1픽셀로</string>
     <string name="settings_scale_logical">파일의 1픽셀을 레이아웃의 1픽셀로</string>
@@ -102,7 +101,7 @@
     <string name="settings_info_visible">정보 표시줄</string>
     <string name="settings_info_position">위치</string>
     <string name="settings_zoom_menu">뷰어 메뉴의 확대</string>
-    <string name="settings_zoom_menu_desc">\'화면에 맞추기\'와 \'100%\'를 길게 누르기 메뉴에 되돌립니다. 사진을 두 번 누르면 같은 일이 일어나므로 기본은 꺼짐입니다.</string>
+    <string name="settings_zoom_menu_desc">\'화면에 맞추기\'와 \'100%\'를 뷰어의 컨텍스트 메뉴에 추가합니다.</string>
     <string name="hint_zoom_tap">빠른 확대: 이미지를 두 번 누르면 화면에 맞추고, 다시 두 번 누르면 실제 픽셀로 봅니다. 계속 누르면 맞춤과 100%를 오갑니다.</string>
     <string name="hint_ext_warn">⚠️ 확장자를 바꾸는 것은 형식을 변환하는 것과 다릅니다. 변환에는 \'내보내기 및 변환\'이 있습니다.\n\n⚠️ 이미지나 동영상에 미디어 파일이 아닌 확장자를 주면 그 항목은 격자 보기와 목록 보기에서 사라집니다.</string>
     <string name="settings_anim_counter">프레임 카운터</string>
@@ -260,6 +259,9 @@
     <string name="settings_facts_down">아래로</string>
     <string name="settings_group_look">모양</string>
     <string name="settings_group_viewer">보기</string>
+    <string name="settings_group_clips">동영상과 넘기기</string>
+    <string name="settings_group_input">조작과 선택</string>
+    <string name="settings_group_files">편집과 휴지통</string>
     <string name="settings_group_browse">폴더</string>
     <string name="settings_group_start">시작</string>
     <string name="settings_group_advanced">고급 기능</string>
@@ -306,7 +308,8 @@
     <string name="tree_unopenable">이 휴대전화에는 열 수 있는 앱이 없습니다</string>
     <string name="clip_pause">일시정지</string>
     <string name="settings_images_only">사진만 넘기기</string>
-    <string name="settings_images_only_desc">뷰어에서 좌우로 밀면 동영상을 건너뛰고 이미지만 다룹니다. 격자, 목록, 폴더에서 한 번 누르면 동영상은 그대로 재생됩니다.</string>
+    <string name="settings_images_only_desc">뷰어에서 밀면 동영상을 건너뛰고 이미지만 넘깁니다. 한 번 누르면 동영상은 그대로 열립니다.</string>
+    <string name="settings_clip_autoplay">동영상 바로 재생</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">편집</string>

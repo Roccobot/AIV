@@ -91,7 +91,7 @@ private object LowerElement : ModifierNodeElement<LowerNode>() {
  * cambia lo spostamento: un fotogramma nel posto sbagliato, e quello è il lampo.
  * ⚠️⚠️ **E SPIEGA L'ALTRA METÀ DELLA SEGNALAZIONE** (*ho l'impressione che il menu e le
  * finestre che apre abbiano criteri di posizionamento diversi*): era vero alla lettera. I menu
- * passano da [MenuCenter], che è un `PopupPositionProvider` e riceve `windowSize`, cioè la
+ * passano da `MenuSpot`, che è un `PopupPositionProvider` e riceve `windowSize`, cioè la
  * finestra, **prima** che si disegni il primo fotogramma; i dialoghi passavano da un
  * modificatore di layout, che vede solo il vincolo della passata in corso. Due meccanismi che
  * misuravano due cose diverse, e uno dei due poteva sbagliare il primo fotogramma. Adesso

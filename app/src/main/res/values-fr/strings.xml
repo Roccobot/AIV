@@ -92,7 +92,6 @@
     <string name="settings_fit_grow_desc">Désactivé, une image plus petite que l\'écran s\'affiche à sa taille réelle. Activé, elle grandit pour remplir la vue.</string>
     <string name="settings_zoom_max">Zoom maximal</string>
     <string name="settings_zoom_page">Ajustement et zoom</string>
-    <string name="settings_zoom_page_summary">Agrandissement, zoom maximal, rendu des pixels</string>
     <string name="settings_scale_mode" formatted="false">Rendu des pixels</string>
     <string name="settings_scale_physical">Un pixel du fichier par pixel d\'écran</string>
     <string name="settings_scale_logical">Un pixel du fichier par pixel de mise en page</string>
@@ -102,7 +101,7 @@
     <string name="settings_info_visible">Barre d\'informations</string>
     <string name="settings_info_position">Position</string>
     <string name="settings_zoom_menu">Zoom dans le menu de la visionneuse</string>
-    <string name="settings_zoom_menu_desc">Remet \'Ajuster à la vue\' et \'100%\' dans le menu de l\'appui long. Désactivé parce qu\'un double appui sur l\'image le fait déjà.</string>
+    <string name="settings_zoom_menu_desc">Ajoute \'Ajuster à la vue\' et \'100%\' au menu contextuel de la visionneuse.</string>
     <string name="hint_zoom_tap">Zoom rapide: double tapez sur l\'image pour l\'ajuster à la vue, double tapez encore pour les pixels réels. Continuez pour alterner entre ajusté et 100%.</string>
     <string name="hint_ext_warn">⚠️ Changer l\'extension d\'un fichier n\'équivaut pas à passer d\'un format à un autre : pour cela il y a \'Exporter et convertir\'.\n\n⚠️ Si tu donnes à une image ou à une vidéo une extension qui n\'appartient pas à un fichier multimédia, l\'élément disparaîtra des vues grille et liste.</string>
     <string name="settings_anim_counter">Compteur d\'images</string>
@@ -286,6 +285,9 @@
     <string name="settings_facts_down">Descendre</string>
     <string name="settings_group_look">Apparence</string>
     <string name="settings_group_viewer">Visionneuse</string>
+    <string name="settings_group_clips">Vidéos et balayage</string>
+    <string name="settings_group_input">Commandes et sélection</string>
+    <string name="settings_group_files">Modification et corbeille</string>
     <string name="settings_group_browse">Dossiers</string>
     <string name="settings_group_start">Démarrage</string>
     <string name="settings_group_advanced">Fonctions avancées</string>
@@ -336,7 +338,8 @@
     <string name="tree_unopenable">Aucune application de ce téléphone ne sait l\'ouvrir</string>
     <string name="clip_pause">Mettre en pause</string>
     <string name="settings_images_only">Ne feuilleter que les images</string>
-    <string name="settings_images_only_desc">Dans la visionneuse, le balayage vers la droite et la gauche ignore les vidéos et ne considère que les images. Vous pouvez toujours lire une vidéo d\'une touche depuis la grille, la liste ou les dossiers.</string>
+    <string name="settings_images_only_desc">Dans la visionneuse, le balayage ignore les vidéos et ne feuillette que les images. Une touche ouvre tout de même une vidéo.</string>
+    <string name="settings_clip_autoplay">Lire les vidéos directement</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Modifier</string>

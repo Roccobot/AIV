@@ -94,7 +94,8 @@
          resto deste ficheiro. As outras duas cadeias dos videos sao iguais. -->
     <string name="tree_unopenable">Nenhuma aplicação deste telemóvel sabe abrir isso</string>
     <!-- grade -> grelha, como no resto deste ficheiro. -->
-    <string name="settings_images_only_desc">No visualizador, deslizar salta os vídeos e mostra só imagens. Tocar num vídeo na grelha continua a reproduzir: isto é sobre o gesto, não sobre o toque.</string>
+    <string name="settings_group_files">Edição e reciclagem</string>
+    <string name="settings_images_only_desc">No visualizador, deslizar salta os vídeos e folheia só as imagens. Um toque abre um vídeo de qualquer modo.</string>
     <string name="pick_list_done">Lista de ficheiros copiada para a área de transferência</string>
     <string name="settings_pick_weight_desc">No topo da seleção, ao lado da contagem, lê-se quanto pesam no total os itens escolhidos. O peso é perguntado ao sistema sempre que a seleção para: desligado, essa pergunta não é feita.</string>
     <string name="editor_pick_send">Por partilha</string>

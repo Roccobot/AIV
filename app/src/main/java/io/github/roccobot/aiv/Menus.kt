@@ -1,13 +1,15 @@
 package io.github.roccobot.aiv
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,14 +17,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
-import androidx.compose.material3.Text
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -31,8 +34,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -43,37 +51,40 @@ import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 
 /**
- * La superficie condivisa dei menu: un riquadro che cresce, dove dice il posizionatore.
+ * La superficie di **ogni** menu dell'app: un riquadro che cresce, dove dice il posizionatore.
+ *
+ * ⚠️⚠️ **UNA SOLA, DALLA `1.46`, E PRIMA ERANO DUE MECCANISMI PER CINQUE MENU** (richiesta
+ * dell'utente, 2026-09-03: *non è per il gusto dell'uniformità: è per avere un sistema
+ * affidabile. Se volessi reintrodurre un elemento decorativo come la vecchia linea color
+ * accento, basterebbe un unico ragionamento per tutti gli elementi*). Tre menu passavano di
+ * qui e due erano `DropdownMenu` di Material, e ogni cosa che riguarda 'tutti i menu' andava
+ * scritta due volte.
+ * - **La prima prova che costa** è la `1.28`, che ha unificato lo stondamento di 'tutti i
+ *   menu' e ha dimenticato quello della schermata iniziale, perché era il solo a non passare
+ *   di qui. Il difetto è uscito otto versioni dopo, e lo ha visto l'utente prima di noi.
+ * - **La seconda** è la striscia d'accento, abbandonata nella `1.38` non per lo spessore ma
+ *   perché *ne esistono almeno 3 versioni diverse*: di una cosa sola esistevano tre rese
+ *   perché di posti in cui disegnarla ce n'erano tre.
+ * - **La terza è della `1.46` stessa**: il filtro della testata della griglia era l'unica
+ *   superficie senza velo, e a nasconderlo era una frase che dava un altro menu per l'unico
+ *   fuori da qui. Finché le superfici sono cinque, la difesa è un elenco che qualcuno deve
+ *   tenere vero; adesso la difesa è che l'alternativa non esiste più nel progetto.
  *
  * ⚠️⚠️ **`Popup` E NON `DropdownMenu`, ed è quello che permette di scegliere il posto**: un
  * `DropdownMenu` si posiziona **contro il proprio genitore** e non accetta un posizionatore,
- * quindi con lui non si potevano scrivere né 'al centro dello schermo' (il visualizzatore,
- * dalla `0.69`) né 'sopra il tastino e al centro' (la selezione, dalla `0.75`).
- * ⚠️ **Le voci sono composabili a parte**: sono le stesse di sempre, quindi si usano dentro
- * questa superficie e la resa Material (altezze, margini, corpi, icone ai lati) non si perde.
- * Quello che si scrive a mano è **solo** la superficie e dove sta.
- * ⚠️⚠️ **MA NON SONO SCRITTE TUTTE ALLO STESSO MODO, e la nota che c'era qui diceva il
- * contrario.** Fino alla `1.46` questo blocco dichiarava che *dalla 1.28 le voci non sono più
- * `DropdownMenuItem` ma [MenuRow]*: vale per il **solo** menu del visualizzatore, che è quello
- * che la `1.28` ha rifatto perché una sua voce ha due gesti e un `DropdownMenuItem` non ne
- * porta due. Censito il 2026-09-03, dentro questa stessa superficie convivono tre modi:
- * - **[MenuRow]** nel visualizzatore (`ViewerScreen.kt`);
- * - **`DropdownMenuItem`** nel menu del tastino del cestino (`GridScreen.kt`), che ha due voci
- *   che si spengono e una in colore d'errore, cose che [MenuRow] oggi non sa fare;
- * - un **riquadro di tasti** (`ActionPad`) nel tocco lungo su una cartella
- *   (`TreeScreen.kt`), e quello **non** è un difetto: è una disposizione diversa perché lì si
- *   scelgono operazioni su un oggetto, ed è la forma che l'utente ha approvato.
+ * quindi con lui non si potevano scrivere né 'al centro della finestra' né 'sopra il tastino'.
+ * ⚠️ **Il conto delle finestre non cambia**, e chi cercasse qui un guadagno di prestazioni non
+ * lo trova: un `DropdownMenu` di Material **è** un `Popup`.
  *
- * ⚠️ **Quindi quello da uniformare è UNO: il cestino**, e il prezzo è dare a [MenuRow] uno
- * spento e un colore d'errore. Chi lo fa guardi che il suo rientro di sinistra è di tre punti
- * più largo del margine di Material, e quel margine esiste per il glifo che sporge nel menu
- * del visualizzatore: portarlo nel cestino allinea i due menu fra loro, che è lo scopo, ma
- * sposta le voci del cestino di tre punti da dove stanno oggi.
+ * ⚠️ **IL CONTENUTO RESTA LIBERO, ed è la superficie a essere una e non la disposizione**:
+ * dentro ci vanno voci ([MenuRow]), un riquadro di tasti (`ActionPad`) o una fila di tasti,
+ * come nel filtro della testata. Quelli sono contenuto di un menu, non un secondo modo di fare
+ * un menu.
  *
- * ⚠️⚠️ **STA IN UN FILE A SÉ dalla 0.75, quando i menu sono diventati due**: il secondo
- * avrebbe copiato la superficie, l'ombra e i tre numeri dell'animazione, e un'animazione
- * scritta in due posti diverge al primo ritocco. Quei numeri li ha scelti l'utente su un
- * mockup, quindi valgono per i menu, non per uno.
+ * ⚠️⚠️ **STA IN UN FILE A SÉ dalla 0.75, da quando i menu non sono più uno**: il secondo
+ * avrebbe copiato la superficie, l'ombra e i numeri dell'animazione, e un'animazione scritta
+ * in due posti diverge al primo ritocco. Quei numeri li ha scelti l'utente su un mockup,
+ * quindi valgono per i menu, non per uno.
  * ⚠️⚠️ **DALLA 1.28 IL RAGGIO NON È PIÙ UN PARAMETRO, ed è la correzione di un difetto vero**
  * (richiesta dell'utente, 2026-09-02: *va uniformato TUTTO*). Fino alla `1.27` ogni menu
  * portava il suo numero, e i numeri erano **tre**: 8 nel visualizzatore, 8 nel navigatore, 16
@@ -83,71 +94,69 @@ import androidx.compose.ui.window.PopupProperties
  * solo, e non si può più far divergere passandogli un numero.
  *
  * ⚠️⚠️ **LA STRISCIA D'ACCENTO NON C'È PIÙ, DALLA 1.38, ED È L'UTENTE A RINUNCIARCI**
- * (riscontro `striscia-sotto`, 2026-09-02: *ne esistono almeno 3 versioni diverse (come resa
- * finale). Togli il bordino dappertutto: rinuncio e cercherò un altro sistema per veicolare
- * l'identità*). Era nata nella `1.29` da un suo mockup e ha attraversato cinque versioni:
- * pastiglia da 5dp, forma rifatta sul mockup a 6, spessore a 7, poi anche sui sotto-menu e a
- * una distanza sola dal fondo. Ogni giro ne aggiustava una e ne lasciava un'altra diversa,
- * ed è quello il difetto che ha deciso: non lo spessore, ma il fatto che di una cosa sola ne
- * esistessero tre rese.
+ * (riscontro `striscia-sotto`, 2026-09-02: *Togli il bordino dappertutto: rinuncio e cercherò
+ * un altro sistema per veicolare l'identità*). Era nata nella `1.29` da un suo mockup e ha
+ * attraversato cinque versioni: pastiglia da 5dp, forma rifatta sul mockup a 6, spessore a 7,
+ * poi anche sui sotto-menu e a una distanza sola dal fondo.
  * ⚠️⚠️ **E CON LEI ESCE `SubPanel`, il guscio che le serviva** (stessa richiesta: *torna anche
  * a disattivare i sistemi ad-hoc per il disegno di finestre e pannelli, salvo dove serve per
  * altri motivi*). Quel guscio esisteva perché un `AlertDialog` non lascia disegnare in fondo
  * alla propria superficie: senza striscia da disegnare, il pannellino del tocco lungo su
  * 'Info' è tornato a essere un `AlertDialog` di Material.
  * ⚠️ **Questa superficie invece RESTA, e non è un sistema ad-hoc dello stesso genere**: nasce
- * nella `0.75` per **posizionare** un menu dove Material non sa metterlo (al centro della
- * finestra, sopra un tastino), che è un lavoro che nessun componente di libreria fa. Chi
- * ripassasse a togliere 'i gusci nostri' si fermi qui.
+ * nella `0.75` per **posizionare** un menu dove Material non sa metterlo, che è un lavoro che
+ * nessun componente di libreria fa. Chi ripassasse a togliere 'i gusci nostri' si fermi qui.
  */
 @Composable
 fun MenuShell(
-    /** Dove va il menu: [MenuCenter] o [MenuAbove]. */
+    state: MenuState,
+    /** Dove va il menu: [MenuInWindow] oppure un [rememberMenuSpot]. */
     position: PopupPositionProvider,
-    /**
-     * Se un tocco **fuori** dal menu lo chiude.
-     *
-     * ⚠️⚠️ **NON È UN GUSTO: è quello che distingue un menu di passaggio da un pannello.**
-     * Nel visualizzatore il menu è di passaggio e si chiude toccando altrove; nella selezione
-     * invece è il tastino ad **alternarlo**, e le due cose insieme non stanno. Da Android 12
-     * una finestra non è più modale al tocco, quindi il tocco sul tastino arriva **a tutti e
-     * due**: il `Popup` lo vede come 'fuori' e si chiude, il tastino alterna e lo riapre, e
-     * l'utente vede un lampeggio invece di una chiusura. Spenta la chiusura di fuori, il
-     * tastino è l'unico a decidere e non c'è nessuna corsa da arbitrare a colpi di
-     * millisecondi.
-     * ⚠️ **Il gesto indietro chiude sempre**, ed è la via d'uscita che resta in tutti e due i
-     * casi.
-     */
-    dismissOnOutside: Boolean,
-    onDismiss: () -> Unit,
     content: @Composable () -> Unit
 ) {
+    LaunchedEffect(state.wanted) {
+        state.show.animateTo(
+            targetValue = if (state.wanted) 1f else 0f,
+            animationSpec = tween(
+                durationMillis = MENU_IN,
+                easing = if (state.wanted) MENU_EASE else MENU_OUT
+            )
+        )
+    }
+
     /*
-     * ⚠️ L'animazione parte al primo giro di composizione, e serve una bandierina perché
-     * `animateFloatAsState` anima un CAMBIAMENTO: partendo già a 1 non ci sarebbe niente da
-     * animare, e il menu comparirebbe di scatto.
+     * ⚠️⚠️ **IL CANCELLO SERVE ALL'ORDINE FRA LE FINESTRE**: a menu chiuso non deve esistere
+     * nessun `Popup`, o il tastino che si stacca sopra la propria finestra non sarebbe più
+     * l'ultima aggiunta e finirebbe sotto. Un popup sempre presente e trasparente in più si
+     * mangerebbe i tocchi.
      */
-    var grown by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { grown = true }
-    val show by animateFloatAsState(
-        targetValue = if (grown) 1f else 0f,
-        animationSpec = tween(durationMillis = MENU_IN, easing = MENU_EASE),
-        label = "menu"
-    )
+    if (!state.inScene) return
 
     Popup(
         popupPositionProvider = position,
-        onDismissRequest = onDismiss,
+        onDismissRequest = state::close,
         properties = PopupProperties(
             focusable = true,
             dismissOnBackPress = true,
-            dismissOnClickOutside = dismissOnOutside
+            /*
+             * ⚠️⚠️ **SEMPRE ACCESO, dalla `1.46`, e prima era un parametro con un valore
+             * solo.** Nasceva nella `0.75` per il menu della selezione, dove il tastino
+             * **alternava** il menu e la chiusura di fuori faceva lampeggiare; la `1.06` ha
+             * tolto quell'alternanza, e da allora tutti e tre i chiamanti passavano `true`
+             * mentre il KDoc descriveva per esteso un comportamento che non esisteva più. Un
+             * parametro con un valore solo è un invito a farlo ridiventare due.
+             */
+            dismissOnClickOutside = true
         )
     ) {
         /*
          * ⚠️⚠️ **DENTRO IL `Popup` E NON FUORI, ed è tutta la differenza**: il velo si applica
          * alla finestra che **ospita** chi lo chiede, e qui fuori la finestra sarebbe quella
          * della schermata, cioè si velerebbe da sé. Vedi [WindowVeil].
+         * ⚠️ **Non sfuma con l'uscita**, ed è un limite dichiarato: il velo accende una
+         * bandierina sui parametri della finestra, e animarla vorrebbe dire riscrivere quei
+         * parametri a ogni fotogramma. Per la durata dell'uscita resta pieno e poi cade in un
+         * colpo. A funzione spenta, che è il valore di fabbrica, non si vede niente.
          */
         WindowVeil()
         Surface(
@@ -157,13 +166,11 @@ fun MenuShell(
              * si gonfia da un angolo dello schermo tira l'occhio dove il dito era già, e
              * l'utente ha chiesto una cosa sobria. Da 0,96 il movimento si sente e non si
              * guarda.
-             * ⚠️ L'origine è quella di serie, il **centro** del riquadro: tutti e due i menu
-             * stanno al centro di qualcosa, e con un'origine ancorata al dito la scala
-             * sembrava venire dal posto sbagliato.
+             * ⚠️ L'origine è quella di serie, il **centro** del riquadro.
              */
             modifier = Modifier.graphicsLayer {
-                alpha = show
-                val k = MENU_SMALL + (1f - MENU_SMALL) * show
+                alpha = state.show.value
+                val k = MENU_SMALL + (1f - MENU_SMALL) * state.show.value
                 scaleX = k
                 scaleY = k
             },
@@ -171,105 +178,60 @@ fun MenuShell(
             color = MaterialTheme.colorScheme.surfaceContainer,
             shadowElevation = MENU_LIFT
         ) {
-            /*
-             * ⚠️⚠️ **LA LARGHEZZA INTRINSECA NON È UN DETTAGLIO: senza, una voce sola si
-             * allarga a TUTTA la finestra.** Un `DropdownMenuItem` chiede `fillMaxWidth`, e
-             * il suo `sizeIn(maxWidth = 280dp)` non lo trattiene, perché rispetta i vincoli
-             * che riceve e dentro un `Popup` quei vincoli sono la finestra. `DropdownMenu` di
-             * Material mette qui la stessa riga (verificato nel bytecode di `MenuKt`, dove
-             * `DropdownMenuContent` chiama `width(IntrinsicSize.Max)`): prendere le sue voci
-             * senza il suo posizionamento vuol dire prendere anche questo.
-             * ⚠️ **Con un contenuto che porta la sua larghezza non cambia niente**, ed è il
-             * caso del visualizzatore: la larghezza intrinseca di una misura fissa è quella
-             * misura.
-             */
-            Column(modifier = Modifier.width(IntrinsicSize.Max)) {
-                content()
-            }
+            Column(
+                /*
+                 * ⚠️⚠️ **LE TRE RIGHE NELL'ORDINE DI `DropdownMenuContent`, letto in `MenuKt`,
+                 * e l'ordine conta**: il margine sta **fuori** dallo scorrimento, quindi non
+                 * scorre via; la larghezza intrinseca sta in mezzo, ed è Material stesso a
+                 * dimostrare che convive con un contenuto che scorre.
+                 * ⚠️⚠️ **LO SCORRIMENTO NON È UN LUSSO**: in orizzontale, su una finestra alta
+                 * 360dp, fra i margini di Material restano 264dp, mentre il menu del
+                 * visualizzatore è alto circa 474dp. Fino alla `1.46` quel menu sforava e la
+                 * sua ultima voce non si poteva raggiungere; i due `DropdownMenu` dell'app lo
+                 * scorrimento ce l'avevano, perché glielo dava Material.
+                 * ⚠️⚠️ **LA LARGHEZZA INTRINSECA NON È UN DETTAGLIO: senza, una voce sola si
+                 * allarga a TUTTA la finestra.** Un `DropdownMenuItem` chiede `fillMaxWidth`, e
+                 * il suo tetto di larghezza non lo trattiene, perché rispetta i vincoli che
+                 * riceve e dentro un `Popup` quei vincoli sono la finestra.
+                 * ⚠️ **Con un contenuto che porta la sua larghezza non cambia niente**, ed è il
+                 * caso del visualizzatore: la larghezza intrinseca di una misura fissa è quella
+                 * misura.
+                 */
+                modifier = Modifier
+                    .padding(vertical = MENU_PAD)
+                    .width(IntrinsicSize.Max)
+                    .verticalScroll(rememberScrollState())
+                    /*
+                     * ⚠️⚠️ **MENTRE ESCE, IL MENU NON SI TOCCA PIÙ**: un tocco su una voce che
+                     * sta sbiadendo ne eseguirebbe l'azione, e chi ha appena chiuso il menu non
+                     * si aspetta di aver premuto qualcosa. Si consuma nella passata iniziale,
+                     * dentro la composizione, senza toccare i flag della finestra: quelli li
+                     * usa il velo, e riscriverli lo spegnerebbe.
+                     */
+                    .then(if (state.wanted) Modifier else Modifier.deaf())
+            ) { content() }
         }
     }
 }
 
 /**
- * Il menu al centro della finestra: quello del visualizzatore.
+ * Non lascia passare nessun tocco, consumandolo prima che arrivi ai figli.
  *
- * ⚠️ **Fa quello che faceva `Alignment.Center` di `Popup`, ma sulla FINESTRA e non
- * sull'ancora**: l'allineamento di serie centra il menu sui limiti del **genitore**, che là
- * era lo schermo intero e quindi coincideva. Scritta sulla finestra, la coincidenza non serve
- * più e i due menu possono condividere [MenuShell].
+ * ⚠️ Nella passata **iniziale**, cioè prima che i figli lo vedano: nella passata `Main` il nodo
+ * più interno riceve per primo, quindi una voce lo consumerebbe lei.
  */
-object MenuCenter : PopupPositionProvider {
-    override fun calculatePosition(
-        anchorBounds: IntRect,
-        windowSize: IntSize,
-        layoutDirection: LayoutDirection,
-        popupContentSize: IntSize
-    ): IntOffset {
-        /*
-         * ⚠️⚠️ **NON È PIÙ AL CENTRO ESATTO, dalla 1.28** (richiesta dell'utente, 2026-09-02:
-         * *è meglio se appare un po' spostato verso il basso, perché si raggiunge meglio con
-         * il pollice*), e si misura sull'**altezza della finestra**: sul residuo fra menu e
-         * schermo sarebbe una frazione di una frazione, cioè un movimento che a menu lungo
-         * sparisce proprio dove il pollice fatica di più.
-         * ⚠️⚠️ **DALLA 1.29 IL NUMERO È QUELLO DI TUTTA L'APP, [LOWER_BY]**: qui era 17%,
-         * cioè la metà di un intervallo indicato a occhio, e poi l'utente ha definito che
-         * 'centrato' in AIV vuol dire **centrato più il 15% in basso**, per ogni elemento che
-         * si apre in mezzo. Due numeri per la stessa idea sono la stessa trappola degli
-         * angoli dei menu, e fra 15 e 17 non c'è niente da vedere.
-         * ⚠️ **La stretta esiste perché lo spostamento può portare fuori**: un menu alto
-         * quasi quanto lo schermo, spinto giù, uscirebbe dal bordo inferiore. Il limite lo
-         * riporta dentro con [MENU_AIR] di aria, e a quel punto il menu è comunque in basso,
-         * che è quello che serviva.
-         */
-        val free = windowSize.height - popupContentSize.height
-        val centre = free / 2
-        val floor = free - (windowSize.height * MENU_AIR).toInt()
-        val wanted = centre + (windowSize.height * LOWER_BY).toInt()
-        return IntOffset(
-            x = (windowSize.width - popupContentSize.width) / 2,
-            y = if (floor <= centre) centre else wanted.coerceAtMost(floor)
-        )
+private fun Modifier.deaf(): Modifier = pointerInput(Unit) {
+    awaitPointerEventScope {
+        while (true) {
+            awaitPointerEvent(PointerEventPass.Initial).changes.forEach { it.consume() }
+        }
     }
 }
 
-/**
- * Quanta aria resta comunque sotto il menu, in frazione dell'altezza della finestra.
- *
- * ⚠️ **Una frazione e non pixel**, perché qui la densità non c'è: `calculatePosition` riceve
- * misure in pixel e nessun `Density`, quindi un numero fisso sarebbe otto volte più grande su
- * un telefono di dieci anni fa che su uno di adesso. ⚠️ **Ed è la ragione per cui questo
- * numero non è [LOWER_AIR]**, che invece è in dp perché là il `Density` c'è: sono la stessa
- * idea misurata in due unità, e unirle vorrebbe dire toglierne una a chi non può usarla.
- */
-private const val MENU_AIR = 0.02f
+/** L'aria sopra e sotto il contenuto di OGNI menu. */
+private val MENU_PAD = 8.dp
 
-/**
- * Il menu **sopra l'ancora** e centrato nella finestra: quello della selezione.
- *
- * ⚠️⚠️ **LA POSIZIONE SI RICAVA DALL'ANCORA, e non da una somma di margini.** Il
- * posizionatore riceve i limiti del tastino in coordinate di finestra, quindi basta il suo
- * bordo alto. La strada alternativa era sommare rientro di sistema, margini della schermata,
- * margine del tastino e sua altezza: quattro numeri da tenere d'accordo con tre file
- * diversi, e sbagliati il giorno che uno cambia. Così invece si corregge da sé.
- * ⚠️ **Il tastino resta scoperto**, ed è il requisito che decide la posizione: il menu si
- * chiude **col tastino**, quindi un menu che lo coprisse renderebbe impossibile la cosa per
- * cui esiste.
- *
- * @param gap quanti pixel stacca il menu dal bordo alto dell'ancora.
- */
-class MenuAbove(private val gap: Int) : PopupPositionProvider {
-    override fun calculatePosition(
-        anchorBounds: IntRect,
-        windowSize: IntSize,
-        layoutDirection: LayoutDirection,
-        popupContentSize: IntSize
-    ): IntOffset = IntOffset(
-        x = (windowSize.width - popupContentSize.width) / 2,
-        y = anchorBounds.top - popupContentSize.height - gap
-    )
-}
-
-/** L'ombra: sopra una fotografia è l'unica cosa che stacca il menu da lei. */
+/** L'ombra: sopra un'immagine è l'unica cosa che stacca il menu da lei. */
 private val MENU_LIFT = 6.dp
 
 /**
@@ -284,6 +246,219 @@ private const val MENU_IN = 170
 
 /** L'accelerazione di Material per una cosa che entra: parte decisa e si posa piano. */
 private val MENU_EASE = CubicBezierEasing(0.2f, 0f, 0f, 1f)
+
+/**
+ * L'uscita è l'entrata letta all'indietro: accelera per costruzione.
+ *
+ * ⚠️ **Stessa durata dell'entrata**, e non più corta: Material fa più corta l'uscita, ma in
+ * questa app 'speculare' ha già una definizione, quella con cui esce una bottomsheet, e due
+ * durate diverse la contraddirebbero. La misura scartata è quella, e sta scritta perché non la
+ * si riproponga come una novità.
+ */
+private val MENU_OUT: Easing = Easing { f -> 1f - MENU_EASE.transform(1f - f) }
+
+/**
+ * Su un asse, da dove nasce il menu.
+ *
+ * ⚠️ **'Comincia' e 'finisce' seguono il verso di scrittura**: in arabo, persiano e urdu
+ * cominciano a **destra**, e il manifesto dichiara `supportsRtl`. Senza lo scambio il menu
+ * nascerebbe dall'angolo sbagliato in tre delle lingue dell'app, e in italiano non si
+ * vedrebbe.
+ */
+enum class MenuSide {
+    /** Comincia dove comincia l'ancora, cioè allineato al suo bordo iniziale. */
+    AT_ANCHOR,
+
+    /** Dopo l'ancora, cioè sotto di lei o dal suo lato finale. */
+    AFTER_ANCHOR,
+
+    /** Prima dell'ancora, cioè sopra di lei o dal suo lato iniziale. */
+    BEFORE_ANCHOR,
+
+    /** In mezzo alla finestra, senza guardare l'ancora. */
+    IN_WINDOW,
+
+    /** In mezzo alla finestra e il 15% più in basso, che in AIV vuol dire 'centrato'. */
+    LOWERED_IN_WINDOW
+}
+
+/**
+ * Il posizionatore di **ogni** menu: una politica per asse e una sola regola di bordo.
+ *
+ * ⚠️⚠️ **LA COLLISIONE COL BORDO SI SCRIVE UNA VOLTA, ed è la sola cosa che il posizionatore
+ * di Material faceva e i due di casa no.** Fino alla `1.46` i menu di casa avevano
+ * `MenuCenter` e `MenuAbove`, che centravano e basta: un menu più alto dello schermo usciva
+ * dal bordo e non lo si poteva raggiungere. Questa regola è quella di
+ * `DropdownMenuPositionProvider` trascritta dal bytecode di `material3` in uso, coi suoi
+ * candidati, i suoi margini e il suo ripiego, non una inventata che le somiglia.
+ * ⚠️ **La prova è un confronto**: la regola vecchia e questa sono state calcolate su cinque
+ * densità per sei finestre nei due versi di scrittura, sulle misure vere dei menu dell'app, e
+ * danno la stessa posizione dappertutto tranne dove quella vecchia lasciava sforare.
+ *
+ * @param across la politica sull'asse orizzontale.
+ * @param along la politica sull'asse verticale.
+ * @param gap quanti pixel stacca il menu dall'ancora, sull'asse in cui è ancorato.
+ * @param edge il margine dal bordo di finestra, in pixel.
+ * @param air lo stesso margine in frazione della finestra: qui il `Density` non c'è, e un
+ *   numero fisso sarebbe otto volte più grande su un telefono vecchio.
+ */
+class MenuSpot(
+    private val across: MenuSide,
+    private val along: MenuSide,
+    private val gap: Int = 0,
+    private val edge: Int = 0,
+    private val air: Float = 0f
+) : PopupPositionProvider {
+    override fun calculatePosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        layoutDirection: LayoutDirection,
+        popupContentSize: IntSize
+    ): IntOffset = IntOffset(
+        x = place(
+            spots(
+                across, anchorBounds.left, anchorBounds.right,
+                windowSize.width, popupContentSize.width, gap, layoutDirection
+            ),
+            size = popupContentSize.width,
+            space = windowSize.width,
+            // ⚠️ Zero, ed è quello che passa `DropdownMenu`: in orizzontale un menu si appoggia
+            // al bordo, e un margine lo staccherebbe da dove Material lo mette.
+            margin = 0
+        ),
+        y = place(
+            spots(
+                along, anchorBounds.top, anchorBounds.bottom,
+                windowSize.height, popupContentSize.height, gap, LayoutDirection.Ltr
+            ),
+            size = popupContentSize.height,
+            space = windowSize.height,
+            margin = edge + (windowSize.height * air).toInt()
+        )
+    )
+}
+
+/**
+ * I posti in cui il menu può stare su un asse, dal preferito all'ultima risorsa.
+ *
+ * ⚠️ L'ordine di [MenuSide.AT_ANCHOR] e [MenuSide.AFTER_ANCHOR] è quello che Material usa per
+ * un menu che si apre sotto la sua ancora, letto nel bytecode: cambiarlo sposta i due menu che
+ * fino alla `1.46` Material posizionava da sé.
+ */
+private fun spots(
+    side: MenuSide,
+    from: Int,
+    to: Int,
+    space: Int,
+    size: Int,
+    gap: Int,
+    dir: LayoutDirection
+): IntArray = when (side) {
+    MenuSide.AT_ANCHOR -> intArrayOf(
+        if (dir == LayoutDirection.Ltr) from else to - size,
+        if (dir == LayoutDirection.Ltr) to - size else from,
+        // Ultima risorsa: il bordo di finestra più vicino all'ancora.
+        if ((from + to) / 2 < space / 2) 0 else space - size
+    )
+    MenuSide.AFTER_ANCHOR -> intArrayOf(to + gap, from - size - gap, from - size / 2)
+    MenuSide.BEFORE_ANCHOR -> intArrayOf(from - size - gap, to + gap, from - size / 2)
+    MenuSide.IN_WINDOW -> intArrayOf((space - size) / 2)
+    // Il centro più il 15%: 'centrato' in AIV vuol dire questo, e il numero è [LOWER_BY].
+    MenuSide.LOWERED_IN_WINDOW -> intArrayOf((space - size) / 2 + (space * LOWER_BY).toInt())
+}
+
+/**
+ * Il posto sull'asse: il primo candidato che ci sta, e se nessuno ci sta l'ultimo riportato
+ * dentro.
+ */
+private fun place(candidates: IntArray, size: Int, space: Int, margin: Int): Int {
+    for (i in candidates.indices) {
+        val at = candidates[i]
+        if (at >= margin && at + size <= space - margin) return at
+        if (i == candidates.lastIndex) {
+            // ⚠️ Un menu più grande dello spazio fra i margini non ha nessun posto in cui
+            // starci: si centra e sfora dai due lati uguali, invece di appoggiarsi a uno solo
+            // e uscire tutto dall'altro. È il ripiego di Material, e serve al menu del
+            // visualizzatore in orizzontale, dove oggi esce dal bordo alto.
+            return if (size >= space - 2 * margin) (space - size) / 2
+            else at.coerceIn(margin, space - margin - size)
+        }
+    }
+    return 0
+}
+
+/**
+ * Il menu al centro della finestra: il visualizzatore e il tocco lungo su una cartella.
+ *
+ * ⚠️ Il margine è una frazione e non pixel, per la ragione scritta su [MenuSpot].
+ */
+val MenuInWindow = MenuSpot(MenuSide.IN_WINDOW, MenuSide.LOWERED_IN_WINDOW, air = MENU_AIR)
+
+/**
+ * Un menu ancorato a un angolo: i due tastini e il filtro della testata.
+ *
+ * ⚠️ Ricordato, perché costruirne uno nuovo a ogni ricomposizione farebbe rimisurare la
+ * finestra al `Popup` senza che niente sia cambiato.
+ */
+@Composable
+fun rememberMenuSpot(across: MenuSide, along: MenuSide, gap: Dp = 0.dp): MenuSpot {
+    val density = LocalDensity.current
+    return remember(density, across, along, gap) {
+        with(density) { MenuSpot(across, along, gap.roundToPx(), MENU_KEEP_OUT.roundToPx()) }
+    }
+}
+
+/**
+ * Quanta aria resta comunque sotto un menu centrato, in frazione dell'altezza della finestra.
+ *
+ * ⚠️ **Una frazione e non pixel**, perché qui la densità non c'è: `calculatePosition` riceve
+ * misure in pixel e nessun `Density`, quindi un numero fisso sarebbe otto volte più grande su
+ * un telefono di dieci anni fa che su uno di adesso. ⚠️ **Ed è la ragione per cui questo
+ * numero non è `LOWER_AIR`**, che invece è in dp perché là il `Density` c'è: sono la stessa
+ * idea misurata in due unità, e unirle vorrebbe dire toglierne una a chi non può usarla.
+ */
+private const val MENU_AIR = 0.02f
+
+/** Il margine dal bordo di finestra di un menu ancorato: quello di Material, letto in `MenuKt`. */
+private val MENU_KEEP_OUT = 48.dp
+
+/**
+ * Lo stato di un menu: se deve stare in scena, e se ci sta ancora perché si sta chiudendo.
+ *
+ * ⚠️⚠️ **NON È UN BOOLEANO DEL CHIAMANTE, E QUESTO È TUTTO IL PUNTO**: finché la presenza del
+ * menu era un `if` di chi lo apre, l'**uscita non poteva esistere**, perché al primo fotogramma
+ * dell'animazione la finestra era già stata tolta dalla composizione. Qui la presenza la decide
+ * [inScene], che resta vero per tutta la discesa. È la stessa forma dei due tempi con cui si
+ * chiude una bottomsheet, e la stessa idea con cui Material tiene in vita il proprio popup.
+ * ⚠️ **E il tipo è quello che trova i chiamanti dimenticati**: una voce che chiudesse il menu
+ * assegnando `false` a una variabile sua adesso non compila, mentre prima saltava l'uscita e il
+ * difetto si vedeva solo provando quella voce.
+ */
+class MenuState internal constructor() {
+    var wanted by mutableStateOf(false)
+        private set
+
+    internal val show = Animatable(0f)
+
+    /** Se il menu deve stare in scena adesso, chiusura in corso compresa. */
+    val inScene: Boolean get() = wanted || show.isRunning || show.value > 0f
+
+    fun open() {
+        wanted = true
+    }
+
+    fun close() {
+        wanted = false
+    }
+}
+
+/**
+ * @param keys quello che, cambiando, deve far nascere uno stato nuovo (e quindi un menu
+ *   chiuso): nel visualizzatore è l'immagine in scena.
+ */
+@Composable
+fun rememberMenuState(vararg keys: Any?): MenuState = remember(*keys) { MenuState() }
+
 
 /**
  * Una voce di menu a tutta larghezza: icona, testo, e un tocco lungo se serve.
@@ -322,25 +497,67 @@ private val MENU_EASE = CubicBezierEasing(0.2f, 0f, 0f, 1f)
 @Composable
 fun MenuRow(
     text: String,
-    icon: ImageVector,
+    /**
+     * Il glifo davanti al testo, e `null` per un menu che non ne ha.
+     *
+     * ⚠️⚠️ **PUÒ ESSERE NULLO, dalla `1.46`, E LA REGOLA È PER MENU E NON PER VOCE**: dentro un
+     * menu le voci si allineano fra loro, quindi o l'hanno tutte o nessuna. Con icone su alcune
+     * e non su altre i testi cominciano in due posti diversi, ed è esattamente il
+     * disallineamento che la `1.28` ha corretto.
+     * ⚠️ **Il menu del tastino della schermata iniziale è quello che le passa nulle**, perché
+     * di icone non ne ha: due delle sue voci ('Apri un indirizzo' e 'Cestino') vogliono un
+     * disegno che in Material non c'è e che non si inventa qui, dato che i disegni li manda
+     * l'utente. Il giorno che arrivano, quelle righe le prendono senza toccare altro.
+     */
+    icon: ImageVector?,
     onTap: () -> Unit,
     holdLabel: String? = null,
-    onHold: (() -> Unit)? = null
+    onHold: (() -> Unit)? = null,
+    /** Se la voce si può toccare adesso. Spenta resta in scena, in grigio. */
+    enabled: Boolean = true,
+    /**
+     * Se la voce fa una cosa da cui non si torna indietro, e va scritta in colore d'errore.
+     *
+     * ⚠️ **Da spenta non cambia niente**, ed è voluto: il colore dello spento è un'altra
+     * chiave della tavolozza, quindi una voce pericolosa e inattiva resta il grigio di sempre
+     * invece di essere un rosso smorto che si legge come un errore in corso.
+     */
+    danger: Boolean = false
 ) {
-    val colors = MenuDefaults.itemColors()
+    /*
+     * ⚠️⚠️ **I COLORI SI CHIEDONO A MATERIAL, E LO SPENTO PURE**: `disabledTextColor` e
+     * `disabledLeadingIconColor` esistono, e ricopiarne l'opacità a mano è esattamente
+     * l'errore che il riquadro delle azioni ha fatto scrivendosi il proprio 0,38, che è lo
+     * stesso numero della libreria copiato in casa.
+     */
+    val colors = MenuDefaults.itemColors(
+        textColor = if (danger) MaterialTheme.colorScheme.error else Color.Unspecified,
+        leadingIconColor = if (danger) MaterialTheme.colorScheme.error else Color.Unspecified
+    )
     val gestures = if (onHold != null) {
         Modifier.combinedClickable(
+            enabled = enabled,
             onLongClickLabel = holdLabel,
             onLongClick = withHaptics(onHold),
             onClick = onTap
         )
     } else {
-        Modifier.clickable(onClick = onTap)
+        Modifier.clickable(enabled = enabled, onClick = onTap)
     }
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .sizeIn(minHeight = MENU_ITEM_HEIGHT)
+            /*
+             * ⚠️ **Le due larghezze sono di Material, lette in `MenuKt`**, e servono da quando
+             * anche le voci del cestino passano di qui: senza il tetto, una voce si allarga
+             * fino alla finestra nelle lingue che scrivono lungo, e fino alla `1.45` a
+             * trattenerla era Material perché quelle voci erano sue.
+             */
+            .sizeIn(
+                minWidth = MENU_ITEM_MIN,
+                maxWidth = MENU_ITEM_MAX,
+                minHeight = MENU_ITEM_HEIGHT
+            )
             .then(gestures)
             /*
              * ⚠️⚠️ **IL RIENTRO DI SINISTRA È PIÙ LARGO DI QUELLO DI DESTRA, dalla 1.38, e la
@@ -356,7 +573,12 @@ fun MenuRow(
              * posto la sola 'Copia immagine' avrebbe rotto l'allineamento che la 1.28 aveva
              * appena costruito.
              */
-            .padding(start = MENU_ITEM_LEFT, end = MENU_ITEM_SIDE),
+            // ⚠️ Senza icona il rientro in più non serve: quei tre punti esistono per il
+            // glifo che sporge, e senza glifo sposterebbero il testo per niente.
+            .padding(
+                start = if (icon != null) MENU_ITEM_LEFT else MENU_ITEM_SIDE,
+                end = MENU_ITEM_SIDE
+            ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MENU_ITEM_GAP)
     ) {
@@ -376,24 +598,35 @@ fun MenuRow(
          * dove esce quel glifo. Per i glifi da 24, che sono tutti gli altri, questo `Box` non
          * cambia niente: 24 in uno slot da 24 sta fermo qualunque allineamento si dia.
          */
-        Box(modifier = Modifier.size(MENU_ITEM_ICON), contentAlignment = Alignment.BottomEnd) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = colors.leadingIconColor,
-                modifier = Modifier.requiredSize(icon.defaultWidth, icon.defaultHeight)
-            )
+        if (icon != null) {
+            Box(
+                modifier = Modifier.size(MENU_ITEM_ICON),
+                contentAlignment = Alignment.BottomEnd
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = if (enabled) {
+                        colors.leadingIconColor
+                    } else {
+                        colors.disabledLeadingIconColor
+                    },
+                    modifier = Modifier.requiredSize(icon.defaultWidth, icon.defaultHeight)
+                )
+            }
         }
         Text(
             text = text,
             style = MaterialTheme.typography.labelLarge,
-            color = colors.textColor
+            color = if (enabled) colors.textColor else colors.disabledTextColor
         )
     }
 }
 
-/** Le tre misure di una voce di menu, lette in `MenuKt`. Vedi [MenuRow]. */
+/** Le misure di una voce di menu, lette in `MenuKt`. Vedi [MenuRow]. */
 private val MENU_ITEM_HEIGHT = 48.dp
+private val MENU_ITEM_MIN = 112.dp
+private val MENU_ITEM_MAX = 280.dp
 private val MENU_ITEM_SIDE = 12.dp
 private val MENU_ITEM_GAP = 8.dp
 

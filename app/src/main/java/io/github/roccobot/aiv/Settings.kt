@@ -1,6 +1,7 @@
 package io.github.roccobot.aiv
 
 import android.content.Context
+import androidx.annotation.StringRes
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -114,6 +115,20 @@ enum class Hand(override val token: String) : Choice { LEFT("left"), RIGHT("righ
  */
 enum class TextSize(override val token: String) : Choice {
     SMALL("small"), NORMAL("normal"), LARGE("large")
+}
+
+/**
+ * Come si chiama una delle tre misure.
+ *
+ * ⚠️ **Sta accanto all'enum e non nella schermata che la mostra, dalla `1.46`**: adesso i tre
+ * nomi servono a due superfici (la scorciatoia del dialogo e la pagina delle impostazioni), e
+ * un `when` privato in una delle due avrebbe costretto l'altra a riscriverlo.
+ */
+@StringRes
+fun TextSize.label(): Int = when (this) {
+    TextSize.SMALL -> R.string.text_small
+    TextSize.NORMAL -> R.string.text_normal
+    TextSize.LARGE -> R.string.text_large
 }
 
 /** Where the one line of details sits. Asked for by the user. */
@@ -419,6 +434,20 @@ data class Settings(
      */
     val imagesOnly: Boolean = false,
     /**
+     * Se un filmato raggiunto **con un tocco** parte da sé, dalla `1.46`.
+     *
+     * ⚠️⚠️ **È IL ROVESCIO ESATTO DI [imagesOnly], E LE DUE NON SI SOVRAPPONGONO**: quella
+     * spegne il **gesto**, questa accende il **tocco** (richiesta dell'utente, 2026-09-03: *al
+     * tocco sulla miniatura di un video parte subito la riproduzione. Quando si sfoglia,
+     * invece, i video sono sempre in modalità con 'Play' in sovrimpressione*). Sfogliando non
+     * parte niente **nemmeno con questa accesa**, e non è una dimenticanza: è la seconda metà
+     * della richiesta, e la regola vive in un punto solo, `Arrival.plays`.
+     * ⚠️ **Spenta di fabbrica**: un audio che comincia da sé è una sorpresa, e chiede il fuoco
+     * audio mettendo in pausa la musica di un'altra app. Chi la vuole paga un tocco; chi non la
+     * conosce non si trova l'app che parla.
+     */
+    val clipAutoplay: Boolean = false,
+    /**
      * Se sotto ogni miniatura della griglia delle foto si legge il nome del file.
      *
      * ⚠️ **Spenta di fabbrica** (richiesta dell'utente): una galleria mostra fotografie, e un
@@ -531,6 +560,7 @@ object SettingsStore {
     private val FOLDER_COLUMNS_KEY = intPreferencesKey("folder-columns")
     private val BIN_ON = booleanPreferencesKey("bin-on")
     private val IMAGES_ONLY = booleanPreferencesKey("images-only")
+    private val CLIP_AUTOPLAY = booleanPreferencesKey("clip-autoplay")
     private val GRID_NAMES = booleanPreferencesKey("grid-names")
     private val EXT_EDIT = booleanPreferencesKey("ext-edit")
     private val FOLDER_COUNT = booleanPreferencesKey("folder-count")
@@ -583,6 +613,7 @@ object SettingsStore {
             folderCount = p[FOLDER_COUNT] ?: true,
             binOn = p[BIN_ON] ?: true,
             imagesOnly = p[IMAGES_ONLY] ?: false,
+            clipAutoplay = p[CLIP_AUTOPLAY] ?: false,
             gridNames = p[GRID_NAMES] ?: false,
             extEdit = p[EXT_EDIT] ?: false,
             hiddenFolders = p[HIDDEN_FOLDERS] ?: emptySet(),
@@ -659,6 +690,7 @@ object SettingsStore {
             p[FOLDER_COUNT] = settings.folderCount
             p[BIN_ON] = settings.binOn
             p[IMAGES_ONLY] = settings.imagesOnly
+            p[CLIP_AUTOPLAY] = settings.clipAutoplay
             p[GRID_NAMES] = settings.gridNames
             p[EXT_EDIT] = settings.extEdit
             p[HIDDEN_FOLDERS] = settings.hiddenFolders

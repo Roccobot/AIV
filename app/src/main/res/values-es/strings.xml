@@ -92,7 +92,6 @@
     <string name="settings_fit_grow_desc">Desactivado, una imagen más pequeña que la pantalla se muestra a su tamaño real. Activado, crece hasta llenar la vista.</string>
     <string name="settings_zoom_max">Zoom máximo</string>
     <string name="settings_zoom_page">Ajuste y zoom</string>
-    <string name="settings_zoom_page_summary">Ampliación, zoom máximo, representación de los píxeles</string>
     <string name="settings_scale_mode" formatted="false">Representación de los píxeles</string>
     <string name="settings_scale_physical">Un píxel del archivo por píxel de pantalla</string>
     <string name="settings_scale_logical">Un píxel del archivo por píxel de diseño</string>
@@ -102,7 +101,7 @@
     <string name="settings_info_visible">Barra de información</string>
     <string name="settings_info_position">Posición</string>
     <string name="settings_zoom_menu">Zoom en el menú del visor</string>
-    <string name="settings_zoom_menu_desc">Devuelve \'Ajustar a la vista\' y \'100%\' al menú de pulsación larga. Está apagado porque un toque doble en la imagen ya lo hace.</string>
+    <string name="settings_zoom_menu_desc">Añade \'Ajustar a la vista\' y \'100%\' al menú contextual del visor.</string>
     <string name="hint_zoom_tap">Zoom rápido: toca dos veces la imagen para ajustarla a la vista, otras dos para ver los píxeles reales. Sigue tocando para alternar entre ajustada y 100%.</string>
     <string name="hint_ext_warn">⚠️ Cambiar la extensión de un archivo no es lo mismo que pasar de un formato a otro: para eso está \'Exportar y convertir\'.\n\n⚠️ Si le das a una imagen o a un vídeo una extensión que no sea de un archivo multimedia, el elemento desaparecerá de las vistas de cuadrícula y de lista.</string>
     <string name="settings_anim_counter">Contador de fotogramas</string>
@@ -286,6 +285,9 @@
     <string name="settings_facts_down">Bajar</string>
     <string name="settings_group_look">Apariencia</string>
     <string name="settings_group_viewer">Visor</string>
+    <string name="settings_group_clips">Vídeos y deslizamiento</string>
+    <string name="settings_group_input">Controles y selección</string>
+    <string name="settings_group_files">Edición y papelera</string>
     <string name="settings_group_browse">Carpetas</string>
     <string name="settings_group_start">Inicio</string>
     <string name="settings_group_advanced">Funciones avanzadas</string>
@@ -336,7 +338,8 @@
     <string name="tree_unopenable">Ninguna aplicación de este teléfono sabe abrirlo</string>
     <string name="clip_pause">Pausar</string>
     <string name="settings_images_only">Pasar solo las imágenes</string>
-    <string name="settings_images_only_desc">En el visor, el deslizamiento a derecha e izquierda ignora los vídeos y solo tiene en cuenta las imágenes. Aun así puedes reproducir un vídeo con un toque desde la cuadrícula, la lista o las carpetas.</string>
+    <string name="settings_images_only_desc">En el visor, el deslizamiento salta los vídeos y solo pasa las imágenes. Un toque abre un vídeo de todos modos.</string>
+    <string name="settings_clip_autoplay">Reproducir los vídeos directamente</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Editar</string>

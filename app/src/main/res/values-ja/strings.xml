@@ -92,7 +92,6 @@
     <string name="settings_fit_grow_desc">オフなら画面より小さい画像は実寸で表示します。オンなら画面いっぱいまで拡大します。</string>
     <string name="settings_zoom_max">最大倍率</string>
     <string name="settings_zoom_page">表示サイズとズーム</string>
-    <string name="settings_zoom_page_summary">拡大、最大ズーム、ピクセルの描画</string>
     <string name="settings_scale_mode" formatted="false">ピクセルの描画</string>
     <string name="settings_scale_physical">ファイルの1ピクセルを画面の1ピクセルに</string>
     <string name="settings_scale_logical">ファイルの1ピクセルをレイアウトの1ピクセルに</string>
@@ -102,7 +101,7 @@
     <string name="settings_info_visible">情報バー</string>
     <string name="settings_info_position">位置</string>
     <string name="settings_zoom_menu">ビューアーのメニューに拡大表示</string>
-    <string name="settings_zoom_menu_desc">\'画面に合わせる\' と \'100%\' を長押しメニューに戻します。画像をダブルタップすれば同じことができるので、既定ではオフです。</string>
+    <string name="settings_zoom_menu_desc">\'画面に合わせる\' と \'100%\' をビューアーのコンテキストメニューに追加します。</string>
     <string name="hint_zoom_tap">クイックズーム: 画像をダブルタップすると画面に合わせ、もう一度ダブルタップすると実寸のピクセルになります。続けてタップすると、合わせた表示と100%を交互に切り替えます。</string>
     <string name="hint_ext_warn">⚠️ 拡張子を変えることは形式を変換することとは違います。変換には \'書き出して変換\' があります。\n\n⚠️ 画像や動画にメディアファイル以外の拡張子を付けると、その項目はグリッド表示とリスト表示から消えます。</string>
     <string name="settings_anim_counter">フレームカウンター</string>
@@ -260,6 +259,9 @@
     <string name="settings_facts_down">下へ</string>
     <string name="settings_group_look">外観</string>
     <string name="settings_group_viewer">ビューア</string>
+    <string name="settings_group_clips">動画とスワイプ</string>
+    <string name="settings_group_input">操作と選択</string>
+    <string name="settings_group_files">編集とゴミ箱</string>
     <string name="settings_group_browse">フォルダー</string>
     <string name="settings_group_start">起動</string>
     <string name="settings_group_advanced">詳細機能</string>
@@ -306,7 +308,8 @@
     <string name="tree_unopenable">この端末には開けるアプリがありません</string>
     <string name="clip_pause">一時停止</string>
     <string name="settings_images_only">写真だけをめくる</string>
-    <string name="settings_images_only_desc">ビューアーで左右にスワイプすると動画を飛ばし、画像だけを対象にします。グリッド・リスト・フォルダーから軽くたたけば動画も再生できます。</string>
+    <string name="settings_images_only_desc">ビューアーでスワイプすると動画を飛ばし、画像だけをめくります。軽くたたけば動画は開きます。</string>
+    <string name="settings_clip_autoplay">動画をすぐに再生する</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">編集</string>

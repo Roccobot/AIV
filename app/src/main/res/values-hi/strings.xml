@@ -92,7 +92,6 @@
     <string name="settings_fit_grow_desc">बंद हो तो स्क्रीन से छोटा चित्र अपने असली आकार में दिखता है। चालू हो तो वह स्क्रीन भरने तक बढ़ता है।</string>
     <string name="settings_zoom_max">अधिकतम ज़ूम</string>
     <string name="settings_zoom_page">समायोजन और ज़ूम</string>
-    <string name="settings_zoom_page_summary">बड़ा करना, अधिकतम ज़ूम, पिक्सेल रेंडरिंग</string>
     <string name="settings_scale_mode" formatted="false">पिक्सेल रेंडरिंग</string>
     <string name="settings_scale_physical">फ़ाइल का एक पिक्सेल, स्क्रीन का एक पिक्सेल</string>
     <string name="settings_scale_logical">फ़ाइल का एक पिक्सेल, लेआउट का एक पिक्सेल</string>
@@ -102,7 +101,7 @@
     <string name="settings_info_visible">जानकारी पट्टी</string>
     <string name="settings_info_position">स्थान</string>
     <string name="settings_zoom_menu">व्यूअर मेन्यू में ज़ूम</string>
-    <string name="settings_zoom_menu_desc">\'स्क्रीन में समाएँ\' और \'100%\' को देर तक दबाने वाले मेन्यू में वापस लाता है। बंद है, क्योंकि चित्र पर दो बार टैप करने से यही होता है।</string>
+    <string name="settings_zoom_menu_desc">\'स्क्रीन में समाएँ\' और \'100%\' को दर्शक के संदर्भ मेन्यू में जोड़ता है।</string>
     <string name="hint_zoom_tap">तेज़ ज़ूम: छवि पर दो बार टैप करें ताकि वह दृश्य में समा जाए, फिर दो बार टैप करने पर असली पिक्सेल दिखेंगे. टैप करते रहें और समाई हुई तथा 100% के बीच बदलते रहें.</string>
     <string name="hint_ext_warn">⚠️ फ़ाइल का एक्सटेंशन बदलना एक फ़ॉर्मैट से दूसरे में बदलने जैसा नहीं है: उसके लिए \'निर्यात करें और बदलें\' है।\n\n⚠️ अगर किसी तस्वीर या वीडियो को मीडिया फ़ाइल से बाहर का एक्सटेंशन दे दें, तो वह ग्रिड और सूची दृश्य से गायब हो जाएगी।</string>
     <string name="settings_anim_counter">फ़्रेम काउंटर</string>
@@ -273,6 +272,9 @@
     <string name="settings_facts_down">नीचे ले जाएँ</string>
     <string name="settings_group_look">रूप</string>
     <string name="settings_group_viewer">प्रदर्शक</string>
+    <string name="settings_group_clips">वीडियो और सरकाना</string>
+    <string name="settings_group_input">नियंत्रण और चयन</string>
+    <string name="settings_group_files">संपादन और कूड़ेदान</string>
     <string name="settings_group_browse">फ़ोल्डर</string>
     <string name="settings_group_start">शुरुआत</string>
     <string name="settings_group_advanced">उन्नत सुविधाएँ</string>
@@ -321,7 +323,8 @@
     <string name="tree_unopenable">इस फ़ोन में कोई ऐप इसे नहीं खोल सकता</string>
     <string name="clip_pause">रोकें</string>
     <string name="settings_images_only">सिर्फ़ तस्वीरें देखें</string>
-    <string name="settings_images_only_desc">दर्शक में दाएँ-बाएँ सरकाने पर वीडियो छूट जाते हैं और केवल छवियाँ गिनी जाती हैं। ग्रिड, सूची या फ़ोल्डर से एक स्पर्श पर वीडियो फिर भी चलता है।</string>
+    <string name="settings_images_only_desc">दर्शक में सरकाने पर वीडियो छूट जाते हैं और केवल छवियाँ पलटती हैं। एक स्पर्श पर वीडियो फिर भी खुलता है।</string>
+    <string name="settings_clip_autoplay">वीडियो सीधे चलाएँ</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">संपादित करें</string>

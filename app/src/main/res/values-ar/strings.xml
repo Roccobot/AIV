@@ -92,7 +92,6 @@
     <string name="settings_fit_grow_desc">عند الإيقاف تظهر الصورة الأصغر من الشاشة بحجمها الحقيقي. وعند التفعيل تكبر حتى تملأ الشاشة.</string>
     <string name="settings_zoom_max">أقصى تكبير</string>
     <string name="settings_zoom_page">الملاءمة والتكبير</string>
-    <string name="settings_zoom_page_summary">التكبير، أقصى تكبير، عرض البكسلات</string>
     <string name="settings_scale_mode" formatted="false">عرض البكسلات</string>
     <string name="settings_scale_physical">بكسل واحد من الملف لكل بكسل من الشاشة</string>
     <string name="settings_scale_logical">بكسل واحد من الملف لكل بكسل من التخطيط</string>
@@ -102,7 +101,7 @@
     <string name="settings_info_visible">شريط المعلومات</string>
     <string name="settings_info_position">الموضع</string>
     <string name="settings_zoom_menu">التكبير في قائمة العارض</string>
-    <string name="settings_zoom_menu_desc">يعيد \'ملاءمة الشاشة\' و\'100%\' إلى قائمة الضغط المطول. مطفأة لأن النقر المزدوج على الصورة يفعل ذلك.</string>
+    <string name="settings_zoom_menu_desc">يضيف \'ملاءمة الشاشة\' و\'100%\' إلى قائمة العارض السياقية.</string>
     <string name="hint_zoom_tap">تكبير سريع: انقر نقرًا مزدوجًا على الصورة لملاءمتها للعرض، وانقر مزدوجًا مرة أخرى للبكسلات الحقيقية. تابع النقر للتبديل بين الملاءمة و100%.</string>
     <string name="hint_ext_warn">⚠️ تغيير امتداد ملف ليس مثل التحويل من صيغة إلى أخرى: لذلك هناك \'تصدير وتحويل\'.\n\n⚠️ إذا أعطيت صورة أو مقطعًا امتدادًا لا يخص ملفات الوسائط، فسيختفي العنصر من عرض الشبكة وعرض القائمة.</string>
     <string name="settings_anim_counter">عدّاد الإطارات</string>
@@ -325,6 +324,9 @@
     <string name="settings_facts_down">تحريك لأسفل</string>
     <string name="settings_group_look">المظهر</string>
     <string name="settings_group_viewer">العارض</string>
+    <string name="settings_group_clips">الفيديو والسحب</string>
+    <string name="settings_group_input">التحكم والتحديد</string>
+    <string name="settings_group_files">التحرير وسلة المهملات</string>
     <string name="settings_group_browse">المجلدات</string>
     <string name="settings_group_start">بدء التشغيل</string>
     <string name="settings_group_advanced">ميزات متقدمة</string>
@@ -381,7 +383,8 @@
     <string name="tree_unopenable">لا يوجد تطبيق على هذا الهاتف يستطيع فتحه</string>
     <string name="clip_pause">إيقاف مؤقت</string>
     <string name="settings_images_only">تصفح الصور فقط</string>
-    <string name="settings_images_only_desc">في العارض، يتخطّى السحب يمينًا ويسارًا مقاطع الفيديو ويأخذ الصور وحدها بالحسبان. ويظل بإمكانك تشغيل مقطع فيديو بلمسة من الشبكة أو القائمة أو المجلدات.</string>
+    <string name="settings_images_only_desc">في العارض، يتخطّى السحب مقاطع الفيديو ويتصفّح الصور وحدها. واللمسة تفتح مقطع الفيديو على أي حال.</string>
+    <string name="settings_clip_autoplay">تشغيل الفيديو مباشرةً</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">تحرير</string>

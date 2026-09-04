@@ -92,7 +92,6 @@
     <string name="settings_fit_grow_desc">เมื่อปิด ภาพที่เล็กกว่าหน้าจอจะแสดงตามขนาดจริง เมื่อเปิด จะโตขึ้นจนเต็มหน้าจอ</string>
     <string name="settings_zoom_max">ขยายได้มากที่สุด</string>
     <string name="settings_zoom_page">การปรับพอดีและการซูม</string>
-    <string name="settings_zoom_page_summary">การขยาย การซูมสูงสุด การเรนเดอร์พิกเซล</string>
     <string name="settings_scale_mode">การเรนเดอร์พิกเซล</string>
     <string name="settings_scale_physical">หนึ่งพิกเซลของไฟล์ต่อหนึ่งพิกเซลหน้าจอ</string>
     <string name="settings_scale_logical">หนึ่งพิกเซลของไฟล์ต่อหนึ่งพิกเซลของเลย์เอาต์</string>
@@ -102,7 +101,7 @@
     <string name="settings_info_visible">แถบข้อมูล</string>
     <string name="settings_info_position">ตำแหน่ง</string>
     <string name="settings_zoom_menu">การซูมในเมนูของโปรแกรมดู</string>
-    <string name="settings_zoom_menu_desc">นำ \'พอดีหน้าจอ\' และ \'100%\' กลับเข้าเมนูกดค้าง ปิดอยู่เพราะแตะสองครั้งบนภาพก็ทำแบบเดียวกัน</string>
+    <string name="settings_zoom_menu_desc">เพิ่ม \'พอดีหน้าจอ\' และ \'100%\' ในเมนูบริบทของโปรแกรมดูภาพ</string>
     <string name="hint_zoom_tap">ซูมเร็ว: แตะสองครั้งที่รูปเพื่อให้พอดีกับหน้าจอ แตะสองครั้งอีกทีเพื่อดูพิกเซลจริง แตะต่อไปเพื่อสลับระหว่างพอดีและ 100%</string>
     <string name="hint_ext_warn">⚠️ การเปลี่ยนนามสกุลไฟล์ไม่เหมือนการแปลงจากรูปแบบหนึ่งไปอีกรูปแบบ สำหรับสิ่งนั้นมี \'ส่งออกและแปลง\' อยู่แล้ว\n\n⚠️ ถ้าตั้งนามสกุลที่ไม่ใช่ของไฟล์สื่อให้รูปหรือวิดีโอ รายการนั้นจะหายไปจากมุมมองตารางและรายการ</string>
     <string name="settings_anim_counter">ตัวนับเฟรม</string>
@@ -260,6 +259,9 @@
     <string name="settings_facts_down">เลื่อนลง</string>
     <string name="settings_group_look">รูปลักษณ์</string>
     <string name="settings_group_viewer">ตัวแสดงภาพ</string>
+    <string name="settings_group_clips">วิดีโอและการปัด</string>
+    <string name="settings_group_input">การควบคุมและการเลือก</string>
+    <string name="settings_group_files">การแก้ไขและถังขยะ</string>
     <string name="settings_group_browse">โฟลเดอร์</string>
     <string name="settings_group_start">การเริ่มต้น</string>
     <string name="settings_group_advanced">ฟีเจอร์ขั้นสูง</string>
@@ -306,7 +308,8 @@
     <string name="tree_unopenable">ไม่มีแอปในโทรศัพท์นี้ที่เปิดไฟล์นี้ได้</string>
     <string name="clip_pause">หยุดชั่วคราว</string>
     <string name="settings_images_only">เปิดดูเฉพาะรูปภาพ</string>
-    <string name="settings_images_only_desc">ในโปรแกรมดูภาพ การปัดไปทางขวาและซ้ายจะข้ามวิดีโอและนับเฉพาะภาพ คุณยังเล่นวิดีโอได้ด้วยการแตะจากมุมมองตาราง รายการ หรือโฟลเดอร์</string>
+    <string name="settings_images_only_desc">ในโปรแกรมดูภาพ การปัดจะข้ามวิดีโอและเปิดดูเฉพาะภาพ การแตะยังเปิดวิดีโอได้เช่นเดิม</string>
+    <string name="settings_clip_autoplay">เล่นวิดีโอทันที</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">แก้ไข</string>

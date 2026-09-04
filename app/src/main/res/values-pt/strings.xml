@@ -92,7 +92,6 @@
     <string name="settings_fit_grow_desc">Desligado, uma imagem menor que a tela aparece no tamanho real. Ligado, ela cresce até preencher a vista.</string>
     <string name="settings_zoom_max">Zoom máximo</string>
     <string name="settings_zoom_page">Ajuste e zoom</string>
-    <string name="settings_zoom_page_summary">Ampliação, zoom máximo, renderização dos pixels</string>
     <string name="settings_scale_mode" formatted="false">Renderização dos pixels</string>
     <string name="settings_scale_physical">Um pixel do arquivo por pixel da tela</string>
     <string name="settings_scale_logical">Um pixel do arquivo por pixel de layout</string>
@@ -102,7 +101,7 @@
     <string name="settings_info_visible">Barra de informações</string>
     <string name="settings_info_position">Posição</string>
     <string name="settings_zoom_menu">Zoom no menu do visualizador</string>
-    <string name="settings_zoom_menu_desc">Devolve \'Ajustar à vista\' e \'100%\' ao menu de toque longo. Está desligado porque um toque duplo na imagem já faz isso.</string>
+    <string name="settings_zoom_menu_desc">Adiciona \'Ajustar à vista\' e \'100%\' ao menu de contexto do visualizador.</string>
     <string name="hint_zoom_tap">Zoom rápido: toque duas vezes na imagem para ajustá-la à vista, mais duas para os pixels reais. Continue tocando para alternar entre ajustada e 100%.</string>
     <string name="hint_ext_warn">⚠️ Alterar a extensão de um arquivo não é o mesmo que passar de um formato para outro: para isso existe \'Exportar e converter\'.\n\n⚠️ Se você der a uma imagem ou a um vídeo uma extensão que não pertence a um arquivo de mídia, o item desaparecerá das visualizações em grade e em lista.</string>
     <string name="settings_anim_counter">Contador de quadros</string>
@@ -286,6 +285,9 @@
     <string name="settings_facts_down">Descer</string>
     <string name="settings_group_look">Aparência</string>
     <string name="settings_group_viewer">Visualizador</string>
+    <string name="settings_group_clips">Vídeos e deslize</string>
+    <string name="settings_group_input">Controles e seleção</string>
+    <string name="settings_group_files">Edição e lixeira</string>
     <string name="settings_group_browse">Pastas</string>
     <string name="settings_group_start">Início</string>
     <string name="settings_group_advanced">Recursos avançados</string>
@@ -336,7 +338,8 @@
     <string name="tree_unopenable">Nenhum app deste celular sabe abrir isso</string>
     <string name="clip_pause">Pausar</string>
     <string name="settings_images_only">Folhear só as imagens</string>
-    <string name="settings_images_only_desc">No visualizador, o deslize para a direita e para a esquerda ignora os vídeos e considera apenas as imagens. Você ainda pode reproduzir um vídeo com um toque na grade, na lista ou nas pastas.</string>
+    <string name="settings_images_only_desc">No visualizador, o deslize salta os vídeos e folheia apenas as imagens. Um toque abre um vídeo de todo modo.</string>
+    <string name="settings_clip_autoplay">Reproduzir os vídeos de imediato</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Editar</string>

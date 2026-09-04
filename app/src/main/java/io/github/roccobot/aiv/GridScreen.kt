@@ -62,13 +62,10 @@ import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDefaults
 import androidx.compose.material3.Text
@@ -259,7 +256,7 @@ fun GridScreen(
      * cartella è il modo naturale di dire 'lascia stare'.
      */
     var chosen by remember(items) { mutableStateOf<Set<Uri>>(emptySet()) }
-    var menuOpen by remember { mutableStateOf(false) }
+    val menu = rememberMenuState()
 
     /*
      * ⚠️⚠️ **IL PANNELLO NON HA PIÙ UN INTERRUTTORE PROPRIO, dalla 1.06** (riscontro
@@ -1152,11 +1149,11 @@ fun GridScreen(
                      * stesso tipo comanda l'ordine in cui sono state aggiunte, che è quello
                      * della composizione. Scritto dopo, il menu coprirebbe il tastino invece
                      * del contrario.
-                     * ⚠️ **Il menu non si sposta di un pixel**: [MenuAbove] legge il bordo di
-                     * sopra di questo riquadro, che è lo stesso qualunque sia l'ordine dei
-                     * figli.
+                     * ⚠️ **Il menu non si sposta di un pixel**: il posizionatore legge il
+                     * bordo di sopra di questo riquadro, che è lo stesso qualunque sia
+                     * l'ordine dei figli.
                      */
-                    PickMenu(open = menuOpen, onDismiss = { menuOpen = false }) {
+                    PickMenu(menu = menu) {
                         /*
                          * ⚠️⚠️ **L'ORDINE NON È CASUALE**: prima quella che rimette a
                          * posto, poi quella che racconta, ultima quella che cancella per
@@ -1168,37 +1165,42 @@ fun GridScreen(
                          * direbbero '0 fatti', mentre la cronologia ha senso proprio
                          * quando il cestino è vuoto perché si è ripristinato tutto.
                          */
-                        Column(modifier = Modifier.padding(vertical = PICK_EDGE)) {
-                            DropdownMenuItem(
-                                enabled = filled,
-                                text = { Text(stringResource(R.string.bin_restore_all)) },
-                                leadingIcon = {
-                                    Icon(Icons.Default.SettingsBackupRestore, null)
-                                },
-                                // ⚠️ Nessuna conferma, come per il ripristino di una
-                                // foto sola: rimette le cose come stavano, ed è
-                                // reversibile (si rielimina). Vedi [FileJob.Restore].
-                                onClick = {
-                                    menuOpen = false
-                                    job = FileJob.Restore(items.orEmpty())
-                                }
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.bin_history)) },
-                                leadingIcon = { Icon(Icons.Default.History, null) },
-                                onClick = { menuOpen = false; onHistory() }
-                            )
-                            DropdownMenuItem(
-                                enabled = filled,
-                                text = { Text(stringResource(R.string.bin_empty)) },
-                                leadingIcon = { Icon(Icons.Default.DeleteForever, null) },
-                                colors = MenuDefaults.itemColors(
-                                    textColor = MaterialTheme.colorScheme.error,
-                                    leadingIconColor = MaterialTheme.colorScheme.error
-                                ),
-                                onClick = { menuOpen = false; emptying = true }
-                            )
-                        }
+                        /*
+                         * ⚠️⚠️ **TRE `MenuRow` E NON PIÙ TRE `DropdownMenuItem`, dalla
+                         * `1.46`**: erano l'ultima fila di voci scritta con un componente
+                         * diverso da quello degli altri menu, e il prezzo del cambio è
+                         * dichiarato: il rientro di sinistra passa da 12 a 15dp, cioè le tre
+                         * voci si spostano di tre punti a destra. Quei tre punti esistono per
+                         * il glifo che sporge nel menu del visualizzatore, e portarli qui è
+                         * esattamente allineare i due menu fra loro.
+                         * ⚠️ **Il margine sopra e sotto lo mette la superficie**, quindi
+                         * `PICK_EDGE` non c'è più: era il terzo posto in cui viveva lo stesso
+                         * otto.
+                         */
+                        MenuRow(
+                            text = stringResource(R.string.bin_restore_all),
+                            icon = Icons.Default.SettingsBackupRestore,
+                            enabled = filled,
+                            // ⚠️ Nessuna conferma, come per il ripristino di una foto sola:
+                            // rimette le cose come stavano, ed è reversibile (si rielimina).
+                            // Vedi [FileJob.Restore].
+                            onTap = {
+                                menu.close()
+                                job = FileJob.Restore(items.orEmpty())
+                            }
+                        )
+                        MenuRow(
+                            text = stringResource(R.string.bin_history),
+                            icon = Icons.Default.History,
+                            onTap = { menu.close(); onHistory() }
+                        )
+                        MenuRow(
+                            text = stringResource(R.string.bin_empty),
+                            icon = Icons.Default.DeleteForever,
+                            enabled = filled,
+                            danger = true,
+                            onTap = { menu.close(); emptying = true }
+                        )
                     }
                     TapHoldFab(
                         /*
@@ -1224,7 +1226,7 @@ fun GridScreen(
                         ink = colorResource(R.color.launcher_foreground),
                         lift = FAB_LIFT,
                         holdLabel = stringResource(shortcutLabel),
-                        lifted = menuOpen,
+                        lifted = menu.inScene,
                         // ⚠️ **Apre e basta, dalla 1.06**: a menu aperto il tocco non
                         // arriva più qui, perché lo mangia il velo trasparente (vedi
                         // `menuOpen` in fondo alla schermata). Un'alternanza qui
@@ -1232,7 +1234,7 @@ fun GridScreen(
                         // ⚠️ **E dalla 1.39 quel velo lo raggiunge ancora**, benché il
                         // tastino stia in una finestra più alta: quella finestra è
                         // trasparente al tocco apposta (vedi `untouchable` in `ActionPad`).
-                        onTap = { menuOpen = true },
+                        onTap = { menu.open() },
                         onHold = { shortcut(); hintDone() }
                     )
                 }
@@ -1316,11 +1318,11 @@ fun GridScreen(
          * e non dentro la `Column`: là comincerebbe sotto la barra del titolo, e un tocco sul
          * titolo tornerebbe a essere il caso non coperto.
          */
-        if (menuOpen) {
+        if (menu.inScene) {
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .pointerInput(Unit) { detectTapGestures { menuOpen = false } }
+                    .pointerInput(Unit) { detectTapGestures { menu.close() } }
             )
         }
 
@@ -1377,7 +1379,7 @@ fun GridScreen(
                     // un'ombra su fondo scuro è solo sporco.
                     lift = 0.dp,
                     holdLabel = stringResource(shortcutLabel),
-                    onTap = { hintDone(); menuOpen = true },
+                    onTap = { hintDone(); menu.open() },
                     onHold = { shortcut(); hintDone() }
                 )
             }
@@ -1647,7 +1649,7 @@ private fun Thumbnail(
  * della scelta sta in alto a destra, il nastro dell'ultima vista in basso a sinistra, e i tre
  * segni non si toccano mai nemmeno sulla piastrella che li porta tutti.
  * ⚠️ **Bianco su nero e non i colori del tema**, come il velo degli avvisi: questa targhetta
- * sta sopra una fotografia qualunque, non sopra una superficie del tema, quindi il contrasto
+ * sta sopra un'immagine qualunque, non sopra una superficie del tema, quindi il contrasto
  * se lo deve portare da sé.
  * ⚠️ **La durata si chiede una volta per indirizzo** e la prima risposta è quella già in
  * memoria: senza, ogni miniatura che rientra in vista rifarebbe la domanda al MediaStore, e
@@ -1732,11 +1734,11 @@ private fun ClipBadge(uri: Uri, modifier: Modifier = Modifier) {
  */
 @Composable
 private fun FilterKey(filter: MediaKind, onFilter: (MediaKind) -> Unit) {
-    var open by remember { mutableStateOf(false) }
+    val menu = rememberMenuState()
     val res = LocalResources.current
     Box {
         IconButton(
-            onClick = { open = true },
+            onClick = { menu.open() },
             modifier = Modifier.semantics { stateDescription = res.getString(filter.label()) }
         ) {
             FilterMark(lit = filter != MediaKind.ALL) {
@@ -1746,31 +1748,29 @@ private fun FilterKey(filter: MediaKind, onFilter: (MediaKind) -> Unit) {
                 )
             }
         }
-        DropdownMenu(
-            expanded = open,
-            onDismissRequest = { open = false },
-            shape = RoundedCornerShape(MENU_ROUND)
+        /*
+         * ⚠️⚠️ **PASSA DALLA SUPERFICIE UNICA DALLA `1.46`, e prima era un `DropdownMenu`**:
+         * con lui questa era l'unica superficie dell'app senza velo, perché il velo se lo
+         * deve chiedere e qui nessuno lo chiedeva. La `1.46` aveva prima aggiunto la riga a
+         * mano; adesso il velo arriva perché la superficie è la stessa di tutti, e non c'è
+         * più nessun elenco di chiamanti da tenere vero.
+         * ⚠️ **Il difetto era nascosto da una frase falsa**, ed è la parte che vale: un
+         * commento dava un altro menu per 'l'unico menu dell'app che non passa da
+         * `MenuShell`', quindi chi cercava i chiamanti si fermava e li credeva tutti. Non si
+         * vedeva perché il velo è spento di fabbrica dalla `1.39`.
+         * ⚠️ **Il contenuto resta una fila di tre tasti**, e non diventa un elenco di voci:
+         * una disposizione diversa non è un secondo modo di fare un menu.
+         */
+        MenuShell(
+            state = menu,
+            position = rememberMenuSpot(MenuSide.AT_ANCHOR, MenuSide.AFTER_ANCHOR)
         ) {
-            /*
-             * ⚠️⚠️ **IL VELO SE LO DEVE CHIEDERE, e per una versione NON lo ha fatto**: il
-             * modificatore che lo porta viaggia con `lowered()`, che qui non passa, e
-             * `MenuShell` lo chiama per i menu che ci passano dentro. Questo e quello del
-             * tastino della home sono i due `DropdownMenu` dell'app, quindi sono gli unici
-             * due che se lo aggiungono a mano.
-             * ⚠️ **Il difetto era nascosto da una frase falsa**, ed è la parte che vale: il
-             * commento sul menu della home diceva che quello era 'l'unico menu dell'app che
-             * non passa da `MenuShell`', quindi chi cercava i chiamanti di `WindowVeil` si
-             * fermava a due e li trovava tutti. Erano due su **tre** superfici che lo
-             * vogliono a mano. Non si vedeva perché il velo è spento di fabbrica dalla
-             * `1.39`: accendendolo, questo era il solo menu senza.
-             */
-            WindowVeil()
             Row(modifier = Modifier.padding(horizontal = FILTER_PAD)) {
                 // ⚠️ Pellicola, fotografia e croce, in quest'ordine: è quello chiesto, e non
                 // l'ordine dell'enum, che comincia da 'tutto'. La croce sta in fondo perché
                 // è l'unica che non sceglie niente.
                 for (kind in listOf(MediaKind.VIDEOS, MediaKind.IMAGES, MediaKind.ALL)) {
-                    IconButton(onClick = { open = false; onFilter(kind) }) {
+                    IconButton(onClick = { menu.close(); onFilter(kind) }) {
                         FilterMark(lit = kind != MediaKind.ALL && kind == filter) {
                             Icon(
                                 imageVector = kind.inMenu(),
@@ -2132,23 +2132,23 @@ private fun UndoNotice(
  * basso, con angoli un po' più stondati*). Un `DropdownMenu` si posiziona **accanto al suo
  * genitore** e non accetta un posizionatore: attaccato a un tastino in basso a destra,
  * usciva da quell'angolo, che è il posto peggiore per un riquadro su un telefono tenuto in
- * una mano. La superficie e il posto stanno in [MenuShell] e [MenuAbove], condivisi col menu
- * del visualizzatore, che è un `Popup` per la stessa ragione dalla `0.69`.
+ * una mano. La superficie e il posizionatore stanno in [MenuShell] e `MenuSpot`, condivisi
+ * dalla `1.46` con **ogni** menu dell'app.
  * ⚠️⚠️ **DALLA 1.06 SI CHIUDE TOCCANDO FUORI**, che fino alla `1.05` era spento apposta
  * perché il tastino lo **alternava** e le due cose si pestavano (il perché sta in
- * [MenuShell], sul parametro). Adesso il tastino si limita ad aprire, e a chiudere ci pensa
+ * [MenuShell], dove fino alla `1.46` era un parametro). Adesso il tastino si limita ad
+ * aprire, e a chiudere ci pensa
  * il velo trasparente della schermata: nessuno dei due può più riaprire quello che l'altro
  * ha appena chiuso. Questo resta acceso per il caso che il velo non copre, cioè un tocco
  * fuori dalla finestra dell'app.
  */
 @Composable
-private fun PickMenu(open: Boolean, onDismiss: () -> Unit, content: @Composable () -> Unit) {
-    if (!open) return
-    val gap = with(LocalDensity.current) { PICK_GAP.roundToPx() }
+private fun PickMenu(menu: MenuState, content: @Composable () -> Unit) {
     MenuShell(
-        position = remember(gap) { MenuAbove(gap) },
-        dismissOnOutside = true,
-        onDismiss = onDismiss,
+        // Al centro in orizzontale e sopra il tastino: il posizionatore legge il bordo alto
+        // dell'ancora, quindi non c'è nessuna somma di margini da tenere d'accordo.
+        state = menu,
+        position = rememberMenuSpot(MenuSide.IN_WINDOW, MenuSide.BEFORE_ANCHOR, PICK_GAP),
         content = content
     )
 }
@@ -2178,15 +2178,6 @@ private val FILTER_MARK = 36.dp
  */
 private val FILTER_PAD = 4.dp
 private val PICK_GAP = 12.dp
-
-/**
- * Il margine sopra e sotto una voce sola.
- *
- * ⚠️ Serve **solo** al cestino: il riquadro delle sei azioni porta i suoi, una voce di menu
- * no, e un `DropdownMenu` di Material glielo metteva lui. Senza, il testo toccherebbe
- * l'angolo stondato.
- */
-private val PICK_EDGE = 8.dp
 
 /**
  * Da quanto piccolo entra il tastino, e a quanto piccolo torna uscendo.

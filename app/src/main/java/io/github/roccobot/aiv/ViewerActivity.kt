@@ -72,9 +72,67 @@ sealed interface ViewerState {
      * disegna lo stato deve poter chiedere la miniatura e la durata senza incrociare due
      * campi che potrebbero raccontare due momenti diversi.
      */
-    data class Clip(val uri: Uri) : ViewerState
+    data class Clip(val uri: Uri, val from: Arrival) : ViewerState
 
     data class Error(@param:StringRes val messageRes: Int, val detail: String?) : ViewerState
+}
+
+/**
+ * Come si è arrivati su quello che si sta guardando.
+ *
+ * ⚠️⚠️ **VIVE NELLO STATO PERCHÉ È L'UNICA COSA CHE SOPRAVVIVE AL VIAGGIO**: fra il dito e la
+ * superficie del lettore ci sono più funzioni che ricevono un indirizzo e nient'altro
+ * (`showAt`, `startLoad`, `ClipStage`). Chiedere in fondo alla catena 'sono arrivato con un
+ * tocco' non si può: là quell'informazione non c'è mai stata, e leggere l'impostazione da là
+ * risponderebbe a un'altra domanda, cioè 'è acceso l'interruttore' invece di 'me l'hanno
+ * chiesto'.
+ * ⚠️ **Tre valori e non un booleano**: non sono 'sì, no e forse', sono tre provenienze con
+ * tre risposte, e la terza è una porta che esiste anche se oggi un filmato non ci passa.
+ * ⚠️⚠️ **È UN FATTO E NON UNA DECISIONE**: dice come si è arrivati, non che cosa fare. La
+ * regola sta in un posto solo, [plays], così chi disegna lo stato non la rifà a modo suo.
+ */
+enum class Arrival {
+    /**
+     * Qualcuno ha toccato **questa** cosa: una miniatura della griglia, dei risultati o del
+     * cestino, oppure una riga delle cartelle di sistema.
+     */
+    TAPPED,
+
+    /**
+     * È venuto su da sé: la strisciata, e la rilettura della cartella dopo uno spostamento,
+     * una rinomina o un'eliminazione.
+     *
+     * ⚠️ I due casi stanno insieme perché la domanda è la stessa: nessuno ha chiesto
+     * **questo** file, quindi niente parte da sé.
+     */
+    LEAFED,
+
+    /**
+     * Un indirizzo consegnato all'app da fuori: un collegamento, una condivisione, gli
+     * appunti, il selettore di sistema, l'indirizzo digitato.
+     *
+     * ⚠️⚠️ **OGGI UN FILMATO NON ARRIVA MAI DA QUI, ed è misurato**: il manifesto dichiara il
+     * solo tipo `image` col jolly, il selettore chiede `PickVisualMedia.ImageOnly` e gli
+     * appunti passano da `ImageActions.looksLikeImage`, che ammette i soli `http(s)`. Il
+     * valore esiste perché la porta esiste, e perché il giorno che si aprisse ai video la
+     * risposta va **decisa** invece di ereditata da uno degli altri due valori.
+     */
+    HANDED;
+
+    /**
+     * Se arrivando così un filmato parte da sé, con `Settings.clipAutoplay` a quel valore.
+     *
+     * ⚠️⚠️ **LA REGOLA STA QUI E IN NESSUN ALTRO POSTO** (richiesta dell'utente, 2026-09-03:
+     * *al tocco sulla miniatura di un video parte subito la riproduzione. Quando si sfoglia,
+     * invece, i video sono sempre in modalità con 'Play' in sovrimpressione*).
+     * ⚠️ **[LEAFED] non parte nemmeno con l'interruttore acceso**, e non è una dimenticanza:
+     * è la seconda metà della richiesta. Là la persona non ha chiesto niente, e un audio che
+     * esplode a metà di una strisciata è una sorpresa sgradevole.
+     * ⚠️ **[HANDED] resta silenzioso finché non lo si decide**: oggi non è raggiungibile da un
+     * filmato, quindi non c'è nessun comportamento da conservare, e ereditare la risposta di
+     * un altro valore vorrebbe dire prendere una decisione senza accorgersene.
+     */
+    fun plays(autoplay: Boolean): Boolean = autoplay && this == TAPPED
 }
 
 /** Quale schermata è davanti. */
@@ -220,6 +278,24 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
 
     var state: ViewerState by mutableStateOf(ViewerState.Loading())
         private set
+
+    /**
+     * Il filmato in scena è partito: da qui in poi la provenienza non chiede più niente.
+     *
+     * ⚠️⚠️ **SERVE ALLA ROTAZIONE, e senza di lei un filmato ripartirebbe dall'inizio a ogni
+     * giro del telefono**: la composizione si rifà, il modello no, quindi l'effetto che
+     * prepara il lettore leggerebbe di nuovo [Arrival.TAPPED] e rifarebbe partire da capo
+     * quello che era già in corso. Consumato il fatto, la seconda lettura non trova più
+     * niente da fare.
+     * ⚠️ **Sta nel modello e non nella schermata perché [state] ha il setter privato**, ed è
+     * giusto che l'abbia: chi disegna non riscrive lo stato, lo riferisce.
+     */
+    fun clipStarted() {
+        val here = state
+        if (here is ViewerState.Clip && here.from != Arrival.LEAFED) {
+            state = here.copy(from = Arrival.LEAFED)
+        }
+    }
 
     var screen: Screen by mutableStateOf(HOME)
         private set
@@ -558,7 +634,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * il caricamento, e i tre posti che aprono lo condividono invece di ripeterlo. Una
      * seconda copia divergerebbe sull'annullamento, che è la cosa che si dimentica.
      */
-    private fun startLoad(uri: Uri, remember: Boolean = false) {
+    private fun startLoad(uri: Uri, from: Arrival, remember: Boolean = false) {
         val context = getApplication<Application>()
         loadJob?.cancel()
         val token = ++loadToken
@@ -568,7 +644,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         // la sua percentuale in volo non deve comparire sopra il filmato.
         if (Videos.isVideo(uri)) {
             loadJob = null
-            state = ViewerState.Clip(uri)
+            state = ViewerState.Clip(uri, from)
             return
         }
         state = ViewerState.Loading()
@@ -604,7 +680,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      */
     fun retry() {
         val uri = source ?: return
-        startLoad(uri)
+        // ⚠️ La provenienza si CONSERVA e non si reinventa: riprovare non è un modo nuovo di
+        // arrivare, e un ripiego a caso deciderebbe qui una cosa che si decide altrove.
+        startLoad(uri, (state as? ViewerState.Clip)?.from ?: Arrival.HANDED)
     }
 
     fun open(uri: Uri, backToApp: Boolean = true) {
@@ -622,7 +700,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         viewerBack = if (backToApp) HOME else null
         screen = Screen.Viewer
         listed = null
-        startLoad(target, remember = true)
+        startLoad(target, Arrival.HANDED, remember = true)
         // ⚠️ The folder is looked for in its OWN coroutine, and not inside the one
         // above: it is a database query that the picture does not wait for, and
         // hanging it off the load would delay what the person is looking at in
@@ -655,7 +733,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         viewerBack = HOME
         screen = Screen.Viewer
         listed = Folder.Lookup.Found(page)
-        startLoad(first, remember = true)
+        startLoad(first, Arrival.HANDED, remember = true)
     }
 
     /**
@@ -1295,6 +1373,54 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    /**
+     * Le cartelle di immagini del telefono, e `null` finché la prima lettura non è finita.
+     *
+     * ⚠️⚠️ **VIVE QUI E NON NELLA SCHERMATA, dalla `1.46`, per la stessa ragione di
+     * [treePath]**: dalla casa si esce ogni volta che si apre un'immagine, e un ricordo dentro
+     * il composabile muore con lui. Prima l'elenco era un `remember` della schermata, quindi
+     * ogni ritorno dal visualizzatore rifaceva la query sul MediaStore e rimetteva la rotella
+     * al posto delle copertine, per riottenere l'elenco di un attimo prima.
+     * ⚠️ **Non filtrato**: le cartelle nascoste le toglie la schermata, perché sono una
+     * preferenza e non un fatto del disco. Così nasconderne una si vede all'istante, senza
+     * chiedere niente al MediaStore.
+     */
+    var buckets: List<Folder.Bucket>? by mutableStateOf(null)
+        private set
+
+    /**
+     * Per quale stato delle cose l'elenco qui sopra è stato letto: permesso e [outsideStamp].
+     *
+     * ⚠️⚠️ **È QUESTO A RENDERE LA LETTURA RARA, non il fatto che il valore viva nel
+     * modello**: la schermata rinasce a ogni ritorno, quindi il suo effetto di avvio riparte
+     * comunque, e senza un confronto rifarebbe la query esattamente come prima.
+     * ⚠️ **Porta anche il permesso dell'ultima volta**, e serve a [outsideChange]: quando una
+     * notizia arriva mentre la casa è in scena, nessuno gliela può chiedere.
+     */
+    private var bucketsFor: Pair<Boolean, Int>? = null
+
+    private var bucketsJob: Job? = null
+
+    /**
+     * Rilegge le cartelle, ma solo se è cambiato qualcosa che le riguarda.
+     *
+     * ⚠️ **Le chiavi sono due e sono tutte quelle che contano**: il permesso, senza il quale
+     * non c'è niente da leggere, e [outsideStamp], cioè la notizia del MediaStore che l'app
+     * ascolta già. Le cartelle nascoste **non** sono fra le chiavi, perché non cambiano quello
+     * che c'è sul disco.
+     */
+    fun readBuckets(granted: Boolean) {
+        val key = granted to outsideStamp
+        if (bucketsFor == key) return
+        bucketsFor = key
+        val context = getApplication<Application>()
+        // ⚠️ La lettura precedente si annulla: due notizie ravvicinate darebbero due query in
+        // volo, e l'ultima a rispondere non è detto sia l'ultima partita.
+        bucketsJob?.cancel()
+        bucketsJob = viewModelScope.launch {
+            buckets = if (granted) Folder.buckets(context) else emptyList()
+        }
+    }
 
     /**
      * Dove sta la navigazione della vista 'Cartelle di sistema', e `null` vuol dire in cima.
@@ -1358,7 +1484,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         if (whole.at(index) == null) return
         viewerBack = HOME
         screen = Screen.Viewer
-        showAt(whole, index)
+        showAt(whole, index, Arrival.TAPPED)
     }
 
     /**
@@ -1384,7 +1510,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         // all'indietro, ed è il motivo per cui l'anello non compariva.
         gridVisited = true
         screen = Screen.Viewer
-        showAt(current, index)
+        showAt(current, index, Arrival.TAPPED)
     }
 
     /** Fuori dalla griglia: si torna all'elenco delle cartelle, da dove ci si è arrivati. */
@@ -1540,6 +1666,12 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 // ⚠️ Mentre si guarda una fotografia si segna e basta, per la stessa ragione
                 // di [afterFileAdded]: la griglia non è in scena, e la si paga al ritorno.
                 screen == Screen.Viewer || screen is Screen.Editor -> gridStale = true
+                // ⚠️ La casa non guarda le righe ma le CARTELLE, e un file arrivato da fuori
+                // può averne fatta nascere una: qui la rilettura serve. Si rifà col permesso
+                // dell'ultima volta, perché a saperlo è la schermata e in questo istante non
+                // le si può chiedere niente; se non ha ancora letto, non c'è niente da
+                // rifare e ci penserà lei entrando.
+                screen is Screen.Folders -> bucketsFor?.let { readBuckets(it.first) }
                 else -> Unit
             }
         }
@@ -1591,7 +1723,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             }
             // ⚠️ `listed` lo riscrive [showAt], nell'ordine grezzo: scriverlo anche qui
             // vorrebbe dire scriverlo due volte con due significati diversi.
-            showAt(reading, place.coerceIn(0, reading.items.lastIndex))
+            showAt(reading, place.coerceIn(0, reading.items.lastIndex), Arrival.LEAFED)
         }
     }
 
@@ -1617,9 +1749,13 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * d'accordo con la prima; ma una serie filtrata avrebbe cambiato anche il **contatore**
      * e la griglia, che dei video li mostrano. Così cambia solo di quanto avanza il dito,
      * che è esattamente ciò che l'impostazione dice.
-     * ⚠️ **Il tocco sulla griglia NON passa di qui** ([openFromGrid] chiama [showAt] con una
-     * posizione), ed è la richiesta alla lettera: *toccando un video dalla griglia parte la
-     * riproduzione*. Questa spegne il gesto, non il tocco.
+     * ⚠️⚠️ **IL TOCCO SULLA GRIGLIA NON PASSA DI QUI** ([openFromGrid] chiama [showAt] con una
+     * posizione), e questa impostazione spegne il **gesto** e non il tocco. ⚠️ **Fino alla
+     * `1.45` qui c'era scritto che toccando un video dalla griglia parte la riproduzione, e
+     * non era vero**: in tutta l'app non esisteva nessun `play`, quindi quella riga dava per
+     * fatta una cosa mai scritta. Adesso la risposta esiste e sta in un altro posto: chi tocca
+     * arriva con [Arrival.TAPPED], e se il filmato parta lo decide `Settings.clipAutoplay`,
+     * spenta di fabbrica.
      * ⚠️⚠️ **IL CONTO STA SULLA SERIE, dalla 1.06** (`Folder.Series.stepping`), e non più
      * qui dentro: là lo vede anche la schermata, che delle vicine da disegnare ha bisogno
      * dello stesso identico salto. Il perché e il difetto che l'ha fatto spostare stanno
@@ -1627,7 +1763,11 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      */
     fun step(delta: Int) {
         val current = series ?: return
-        showAt(current, current.index + current.stepping(delta, settings?.imagesOnly == true))
+        showAt(
+            current,
+            current.index + current.stepping(delta, settings?.imagesOnly == true),
+            Arrival.LEAFED
+        )
     }
 
     /**
@@ -1640,7 +1780,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * ⚠️ Fuori dalla serie non fa **niente**, e da qui viene il fatto che la sequenza
      * non gira su sé stessa: all'ultima foto la strisciata in avanti resta senza esito.
      */
-    private fun showAt(current: Folder.Series, index: Int) {
+    private fun showAt(current: Folder.Series, index: Int, from: Arrival) {
         val uri = current.at(index) ?: return
         source = uri
         // ⚠️ La vicina di un indirizzo riscritto è già in sicuro: il motivo dell'errore,
@@ -1650,7 +1790,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         // rigira per riscriverlo, e la stessa funzione basta perché girare una serie
         // è la sua stessa inversa.
         listed = Folder.Lookup.Found(current.copy(index = index)).oriented()
-        startLoad(uri)
+        startLoad(uri, from)
         /*
          * ⚠️⚠️ **LA FINESTRA DEL WEB SI RIFÀ A OGNI PASSO, e quella di una cartella mai.**
          * Una serie remota è larga tre e non ha fine nota: appena il dito la attraversa, la
@@ -1915,7 +2055,8 @@ private fun AivApp(model: ViewerViewModel) {
                 onTreePath = { model.treeTo(it) },
                 onTreeOpen = { items, at -> model.openFromTree(items, at) },
                 onBack = if (screen.forStart) ({ model.leaveStartFolderChoice() }) else null,
-                stamp = model.outsideStamp
+                buckets = model.buckets,
+                onRead = { model.readBuckets(it) }
             )
         }
 
@@ -2036,6 +2177,7 @@ private fun AivApp(model: ViewerViewModel) {
                 onStep = { model.step(it) },
                 onSettings = { model.openSettings() },
                 onRetry = { model.retry() },
+                onClipStarted = { model.clipStarted() },
                 onFileChanged = { model.afterFileChanged() },
                 onFileAdded = { model.afterFileAdded() },
                 onEdit = { model.edit(it) },

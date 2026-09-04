@@ -63,7 +63,6 @@ import androidx.compose.material.icons.outlined.PhotoSizeSelectActual
 import androidx.compose.material.icons.outlined.Subtitles
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -280,6 +279,14 @@ fun ViewerScreen(
     onStep: (Int) -> Unit,
     onSettings: () -> Unit,
     onRetry: () -> Unit,
+    /**
+     * Il filmato in scena è partito da sé: la provenienza si consuma.
+     *
+     * ⚠️ **Sale al modello e non si tiene qui** perché `ViewerState` ha il setter privato, e
+     * serve alla rotazione, che rifà la composizione e non il modello. Vedi
+     * `ViewerViewModel.clipStarted`.
+     */
+    onClipStarted: () -> Unit,
     /**
      * La fotografia che si sta guardando non è più raggiungibile a quell'indirizzo: è stata
      * spostata, rinominata o eliminata.
@@ -648,7 +655,11 @@ fun ViewerScreen(
                 // La strisciata porta avanti e indietro solo se c'è una serie: fuori da una
                 // cartella un filmato è un vicolo cieco, come una fotografia sola.
                 stepping = folder?.seriesOrNull != null,
-                onStep = onStep
+                onStep = onStep,
+                // ⚠️ La regola non è qui: `Arrival.plays` incrocia la provenienza con
+                // l'impostazione in un punto solo, e questo è il posto che la interroga.
+                autoStart = state.from.plays(settings.clipAutoplay),
+                onStarted = onClipStarted
             )
         }
 
@@ -906,10 +917,13 @@ private class InfoBar {
 /**
  * Un FILMATO nel visualizzatore: il suo fotogramma, la durata e il tasto che lo apre.
  *
- * ⚠️⚠️ **PEZZO 1 DEI TRE, e qui non si riproduce niente**: si mostra quello che il sistema
- * ha già (la miniatura, cioè un fotogramma) e si consegna il file al lettore del telefono.
- * La riproduzione in casa è il pezzo 2, e prenderà **questo** posto: la sostituzione
- * riguarda il centro di questa funzione, non l'impalcatura attorno.
+ * ⚠️⚠️ **QUI SI RIPRODUCE, e questo è il posto in cui la riproduzione si accende o si
+ * spegne**: il lettore lo costruisce e lo rilascia questa funzione, la superficie video la
+ * disegna lei, e la decisione se partire arriva da fuori come `autoStart`. ⚠️ **Fino alla
+ * `1.45` qui c'era scritto il contrario** (*pezzo 1 dei tre, e qui non si riproduce niente...
+ * la riproduzione in casa è il pezzo 2 e prenderà questo posto*): quella sostituzione era
+ * avvenuta nella `0.86`, e la nota rimasta nascondeva proprio il punto che si cerca quando si
+ * cerca dove parte un filmato.
  * ⚠️⚠️ **LA STRISCIATA C'È, ed è la ragione per cui questa funzione non è solo un'immagine
  * e un tasto**: sfogliando una cartella mista si arriva su un filmato, e senza il gesto ci
  * si troverebbe **bloccati**, costretti a tornare alla griglia per riprendere da dopo. È il
@@ -924,7 +938,15 @@ private class InfoBar {
  */
 @Composable
 @androidx.annotation.OptIn(UnstableApi::class)
-private fun ClipStage(uri: Uri, stepping: Boolean, onStep: (Int) -> Unit) {
+private fun ClipStage(
+    uri: Uri,
+    stepping: Boolean,
+    onStep: (Int) -> Unit,
+    /** Se questo filmato deve partire da sé. Vedi `Arrival.plays`. */
+    autoStart: Boolean,
+    /** Da chiamare appena è partito, così una rotazione non lo rifà ricominciare. */
+    onStarted: () -> Unit
+) {
     val context = LocalContext.current
     val model = remember(uri, context) { Thumbs.request(context, uri) }
     val poster = rememberAsyncImagePainter(model = model)
@@ -948,15 +970,34 @@ private fun ClipStage(uri: Uri, stepping: Boolean, onStep: (Int) -> Unit) {
     }
 
     /*
-     * ⚠️⚠️ **NON PARTE DA SÉ, ed è una scelta**: su questo stesso posto si arriva in due
-     * modi, toccando un filmato (dove partire sarebbe giusto) e **strisciando** da una
-     * fotografia (dove un audio che esplode è una sorpresa sgradevole). Fra i due, il caso
-     * da non rovinare è il secondo, perché è quello in cui la persona non ha chiesto niente.
-     * Chi tocca paga un tocco in più, e il tasto è grande in mezzo allo schermo.
+     * ⚠️⚠️ **PARTE SOLO SE QUALCUNO L'HA CHIESTO, e fino alla `1.45` non partiva mai**: su
+     * questo stesso posto si arriva in due modi, toccando un filmato e **strisciando** da
+     * un'immagine, e il secondo è il caso da non rovinare, perché è quello in cui la persona
+     * non ha chiesto niente e un audio che esplode è una sorpresa sgradevole. La `1.46` non
+     * ha buttato quell'argomento: lo ha reso la ragione per cui i due percorsi si
+     * distinguono, e per cui l'interruttore è spento di fabbrica.
+     * ⚠️⚠️ **IL RAMO CHE METTE IN PAUSA È UN'AZIONE, NON UN `else` DI CORTESIA**, e senza di
+     * lui la funzione sarebbe rotta proprio nel caso che la richiesta nomina: il lettore è
+     * **uno solo** per tutta la schermata, e `playWhenReady` è una proprietà del lettore e non
+     * del filmato. In una cartella di soli filmati, dopo che il primo è partito, il ramo del
+     * `when` resta `Clip` e questo effetto rifà `setMediaItem` e `prepare` sullo stesso
+     * lettore: uno che ha ancora la bandierina accesa riparte da sé, cioè ogni strisciata
+     * farebbe partire l'audio. In una cartella mista il difetto si nasconde, perché passando
+     * da un'immagine il lettore viene rilasciato.
+     * ⚠️ **Il tasto grande torna visibile da sé** dopo la pausa, e non serve nessun'altra
+     * riga: `playing` passa a falso e l'effetto di `ClipKeys` rimette il tasto in scena.
+     * ⚠️ **La provenienza si consuma appena il filmato è partito** (`onStarted`), o una
+     * rotazione lo rifarebbe ricominciare dall'inizio.
      */
     LaunchedEffect(uri, player) {
         player.setMediaItem(MediaItem.fromUri(uri))
         player.prepare()
+        if (autoStart) {
+            player.play()
+            onStarted()
+        } else {
+            player.pause()
+        }
     }
 
     /*
@@ -1278,7 +1319,7 @@ private val CLIP_KEY = 72.dp
 /** Il triangolo dentro il tasto. */
 private val CLIP_GLYPH = 40.dp
 
-/** Il nero del tasto: lo stesso mestiere della targhetta in griglia, sopra una fotografia. */
+/** Il nero del tasto: lo stesso mestiere della targhetta in griglia, sopra un'immagine. */
 private val CLIP_INK = Color(0x99000000)
 
 /** Quanto i comandi si staccano dal bordo. */
@@ -1816,7 +1857,7 @@ private fun ImageCanvas(
         LaunchedEffect(oneToOne) {
             snapshotFlow { scale }.collect { info.percent = it / oneToOne }
         }
-        var menuOpen by remember(image) { mutableStateOf(false) }
+        val menu = rememberMenuState(image)
         val scope = rememberCoroutineScope()
         val context = LocalContext.current
 
@@ -2235,7 +2276,7 @@ private fun ImageCanvas(
                         onLongPress = {
                             haptics.performHapticFeedback(HOLD_BUZZ)
                             onHold()
-                            menuOpen = true
+                            menu.open()
                         },
                         /*
                          * ⚠️⚠️ **UN TOCCO IN MEZZO ALLO SCHERMO METTE IN PAUSA, dalla 1.18**
@@ -2268,11 +2309,11 @@ private fun ImageCanvas(
          * sapere dove era il dito**: è la ragione per cui la posizione del tocco non si
          * conserva più.
          */
-        if (menuOpen) {
+        if (menu.inScene) {
             ImageMenu(
                 image = image,
                 source = source,
-                onDismiss = { menuOpen = false },
+                menu = menu,
                 onZoom = { animateTo(it) },
                 oneToOne = oneToOne,
                 restScale = restScale,
@@ -2595,7 +2636,8 @@ private suspend fun PointerInputScope.detectViewerGestures(
 private fun ImageMenu(
     image: LoadedImage,
     source: Uri?,
-    onDismiss: () -> Unit,
+    /** Lo stato del menu: da qui si chiude, e da qui la superficie sa quando uscire. */
+    menu: MenuState,
     onZoom: (Float) -> Unit,
     oneToOne: Float,
     restScale: Float,
@@ -2619,15 +2661,13 @@ private fun ImageMenu(
      * ⚠️⚠️ **LA SUPERFICIE È CONDIVISA COL MENU DELLA SELEZIONE dalla 0.75**: il
      * riquadro, l'ombra e l'animazione che lo fa crescere vivono in [MenuShell], e qui
      * restano le sole cose di questo menu, cioè dove sta, quanto è stondato e le sue voci.
-     * ⚠️ **Si chiude anche toccando fuori**, e a differenza di quello della selezione può:
-     * qui nessun tastino lo alterna, quindi non c'è nessun tocco da contendersi.
+     * ⚠️ **Il margine sopra e sotto le voci lo mette la superficie**, dalla `1.46`: era
+     * `MENU_EDGE`, otto punti scritti qui, mentre il menu della selezione ne aveva altri otto
+     * scritti là e i due `DropdownMenu` li avevano da Material. Tre posti per lo stesso
+     * numero.
      */
-    MenuShell(
-        position = MenuCenter,
-        dismissOnOutside = true,
-        onDismiss = onDismiss
-    ) {
-        Column(modifier = Modifier.width(MENU_WIDTH).padding(vertical = MENU_EDGE)) {
+    MenuShell(state = menu, position = MenuInWindow) {
+        Column(modifier = Modifier.width(MENU_WIDTH)) {
             /*
              * ⚠️⚠️ **OGNI VOCE HA LA SUA ICONA, dalla 0.69** (scelta dell'utente sul
              * mockup), e la conseguenza che vale più dell'aspetto: **l'allineamento dei
@@ -2654,7 +2694,7 @@ private fun ImageMenu(
                 text = stringResource(R.string.menu_copy_image),
                 icon = Glyphs.PhotoPair,
                 onTap = {
-                    onDismiss()
+                    menu.close()
                     Toast.makeText(
                         context,
                         if (ImageActions.copyImage(context, image)) R.string.toast_image_copied
@@ -2700,9 +2740,9 @@ private fun ImageMenu(
                 MenuRow(
                     text = stringResource(R.string.menu_edit),
                     icon = Glyphs.ImageEdit,
-                    onTap = { onDismiss(); ops.edit() },
+                    onTap = { menu.close(); ops.edit() },
                     holdLabel = stringResource(R.string.menu_edit_hold),
-                    onHold = { onDismiss(); ops.editWith() }
+                    onHold = { menu.close(); ops.editWith() }
                 )
             }
             /*
@@ -2713,7 +2753,7 @@ private fun ImageMenu(
             MenuRow(
                 text = stringResource(R.string.menu_convert),
                 icon = Glyphs.ImageConvert,
-                onTap = { onDismiss(); ops.convert() }
+                onTap = { menu.close(); ops.convert() }
             )
 
             /*
@@ -2731,7 +2771,7 @@ private fun ImageMenu(
                     // ⚠️ Era `Icons.Outlined.Download` fino alla 1.46: il perché del cambio
                     // sta su [Glyphs.Download].
                     icon = Glyphs.Download,
-                    onTap = { onDismiss(); ops.save(image) }
+                    onTap = { menu.close(); ops.save(image) }
                 )
             }
 
@@ -2753,12 +2793,12 @@ private fun ImageMenu(
                 MenuRow(
                     text = stringResource(R.string.fit_label),
                     icon = Icons.Outlined.FitScreen,
-                    onTap = { onDismiss(); onZoom(restScale) }
+                    onTap = { menu.close(); onZoom(restScale) }
                 )
                 MenuRow(
                     text = "100%",
                     icon = Icons.Outlined.PhotoSizeSelectActual,
-                    onTap = { onDismiss(); onZoom(oneToOne) }
+                    onTap = { menu.close(); onZoom(oneToOne) }
                 )
             }
 
@@ -2798,21 +2838,21 @@ private fun ImageMenu(
                             label = R.string.menu_copy_here,
                             onHold = if (inBin) null else {
                                 {
-                                    onDismiss()
+                                    menu.close()
                                     ops.job(FileJob.Duplicate(one))
                                 }
                             },
                             holdLabel = if (inBin) null else R.string.pick_duplicate
                         ) {
-                            onDismiss()
+                            menu.close()
                             ops.job(FileJob.Transfer(one, move = false))
                         },
                         PadAction(Glyphs.FolderPairDashed, R.string.pick_move) {
-                            onDismiss()
+                            menu.close()
                             ops.job(FileJob.Transfer(one, move = true))
                         },
                         PadAction(Icons.Default.Delete, R.string.pick_delete, danger = true) {
-                            onDismiss()
+                            menu.close()
                             // ⚠️ Definitiva nel cestino **o** col cestino spento, ed è la
                             // stessa condizione della griglia: con lei viaggia la conferma.
                             ops.job(FileJob.Delete(one, forGood = inBin || !binOn))
@@ -2822,17 +2862,17 @@ private fun ImageMenu(
                         // ballano.
                         if (inBin) {
                             PadAction(Icons.Default.SettingsBackupRestore, R.string.bin_restore) {
-                                onDismiss()
+                                menu.close()
                                 ops.job(FileJob.Restore(one))
                             }
                         } else {
                             PadAction(Glyphs.TextCursor, R.string.pick_rename) {
-                                onDismiss()
+                                menu.close()
                                 ops.job(FileJob.Rename(one))
                             }
                         },
                         PadAction(Icons.Default.Share, R.string.menu_share) {
-                            onDismiss()
+                            menu.close()
                             ops.share(image)
                         },
                         /*
@@ -2853,10 +2893,10 @@ private fun ImageMenu(
                         PadAction(
                             icon = Icons.Outlined.Info,
                             label = R.string.pick_info,
-                            onHold = { onDismiss(); ops.bar() },
+                            onHold = { menu.close(); ops.bar() },
                             holdLabel = R.string.settings_info_visible
                         ) {
-                            onDismiss()
+                            menu.close()
                             ops.job(FileJob.Facts(one))
                         }
                     )
@@ -2879,14 +2919,6 @@ private fun ImageMenu(
 /** Quanto è larga la tendina del tocco lungo: la misura del riquadro delle sei icone. */
 private val MENU_WIDTH = 252.dp
 
-/**
- * L'aria sopra e sotto le voci della tendina.
- *
- * ⚠️ **Il raggio non sta più qui, dalla 1.28**: era 8 mentre il menu della selezione era 16 e
- * quello del navigatore 8, cioè tre numeri per la stessa cosa, e l'utente li ha visti diversi
- * prima di noi. Adesso è uno solo, in `Menus.kt`, e non passa più come parametro.
- */
-private val MENU_EDGE = 8.dp
 
 /**
  * Il segno dell'immagine ridotta, al posto della parola.
@@ -3232,7 +3264,7 @@ private val MARK_GAP = 6.dp
  * ⚠️ **0.65 dalla 1.25, e prima era 0.74**, cioè il gradino che Material chiama 'emphasis
  * media'. La richiesta era di abbassare *ancora leggermente*, e questo è un passo solo: sotto
  * si va verso il valore che Material riserva ai comandi **disattivati** (0.38), e un nome che
- * sembra spento sopra una fotografia chiara non si legge più.
+ * sembra spento sopra un'immagine chiara non si legge più.
  * ⚠️ **Lo stacco è di tre punti e non di due**: la richiesta diceva 'altri 2/3 pixel
  * apparenti', e fra i due estremi si prende quello che si vede, perché due punti su uno
  * schermo a tre volte sono sei pixel fisici, cioè al limite del percepibile.

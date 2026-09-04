@@ -6,7 +6,11 @@
         and the system takes the right one. A text table inside the code, like
         the userscript has, would be a second way of doing what the platform
         already does by itself.
-        WARNING: whoever adds a string adds it to BOTH files.
+        WARNING: whoever adds a string adds it to EVERY values-* folder, not just
+        two. This line used to say 'both files', a leftover from when the app was
+        bilingual: following it sent twenty-five languages back to English, and
+        nobody noticed because a missing string falls back silently. What checks it
+        is tools/i18n-check.py, which must be run from the repository root.
 
         FULL STOPS follow the ROLE of the string, not the ear, which is the rule
         the userscript arrived at and the only version of it that can be checked
@@ -149,11 +153,13 @@
     <string name="settings_search_clear">Clear the search</string>
     <string name="settings_search_none">No results</string>
 
-    <!-- The four groups the settings are gathered into. -->
+    <!-- The sections the settings are gathered into, in the order they appear. -->
     <string name="settings_group_look">Appearance</string>
     <string name="settings_group_viewer">Viewer</string>
+    <string name="settings_group_clips">Videos and swiping</string>
+    <string name="settings_group_input">Controls and selection</string>
+    <string name="settings_group_files">Editing and bin</string>
     <string name="settings_group_browse">Folders</string>
-
     <string name="settings_group_start">Startup</string>
     <string name="settings_group_advanced">Advanced features</string>
     <string name="settings_ext_edit">Edit extensions from \'Rename\'</string>
@@ -198,7 +204,6 @@
 
     <string name="settings_zoom_max">Furthest zoom</string>
     <string name="settings_zoom_page">Fit and zoom</string>
-    <string name="settings_zoom_page_summary">Enlargement, maximum zoom, pixel rendering</string>
 
     <string name="settings_scale_mode" formatted="false">Pixel rendering</string>
     <string name="settings_scale_physical">One pixel of the file per screen pixel</string>
@@ -212,7 +217,7 @@
     <!-- Setting that puts 'Fit to view' and '100%' back into the long-press menu. Off by
          default: the double tap does the same thing. -->
     <string name="settings_zoom_menu">Zoom in the viewer menu</string>
-    <string name="settings_zoom_menu_desc">Puts \'Fit to view\' and \'100%\' back into the long-press menu. They are off because a double tap on the picture already does it.</string>
+    <string name="settings_zoom_menu_desc">Adds \'Fit to view\' and \'100%\' to the viewer\'s context menu.</string>
     <!-- The one-off veil shown over the first picture after installing. -->
     <string name="hint_zoom_tap">Quick zoom: double tap the image to fit it to the view, double tap again for actual pixels. Keep tapping to go round between fitted and 100%.</string>
     <string name="hint_ext_warn">⚠️ Changing a file extension is not the same as switching between formats: for that there is \'Export and convert\'.\n\n⚠️ If you give an image or a video an extension that does not belong to a media file, the item will vanish from the grid and list views.</string>
@@ -230,7 +235,8 @@
          is 'I leaf through videos too', so the branch that tells a picture from a film
          is always needed. Tapping a video still opens it: this is about the GESTURE. -->
     <string name="settings_images_only">Leaf through pictures only</string>
-    <string name="settings_images_only_desc">In the viewer, swiping right and left ignores videos and considers images only. You can still play a video with a tap from the grid, list or folders view.</string>
+    <string name="settings_images_only_desc">In the viewer, swiping skips videos and browses images only. A tap still opens a video.</string>
+    <string name="settings_clip_autoplay">Play videos straight away</string>
 
     <!-- Off by default, and the second sentence is the reason why: the system notice
          is the cost of the feature, so it belongs next to the switch rather than as a

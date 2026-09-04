@@ -92,7 +92,6 @@
     <string name="settings_fit_grow_desc">Вимкнено: зображення, менше за екран, показується в справжньому розмірі. Увімкнено: воно росте, доки не заповнить екран.</string>
     <string name="settings_zoom_max">Найбільше збільшення</string>
     <string name="settings_zoom_page">Припасування та масштаб</string>
-    <string name="settings_zoom_page_summary">Збільшення, найбільший масштаб, відтворення пікселів</string>
     <string name="settings_scale_mode" formatted="false">Відтворення пікселів</string>
     <string name="settings_scale_physical">Один піксель файлу на один піксель екрана</string>
     <string name="settings_scale_logical">Один піксель файлу на один піксель розмітки</string>
@@ -102,7 +101,7 @@
     <string name="settings_info_visible">Панель відомостей</string>
     <string name="settings_info_position">Розташування</string>
     <string name="settings_zoom_menu">Масштаб у меню перегляду</string>
-    <string name="settings_zoom_menu_desc">Повертає \'Вписати в екран\' і \'100%\' до меню довгого натискання. Вимкнено, бо подвійний дотик до знімка робить те саме.</string>
+    <string name="settings_zoom_menu_desc">Додає \'Вписати в екран\' і \'100%\' до контекстного меню переглядача.</string>
     <string name="hint_zoom_tap">Швидке масштабування: подвійний дотик підганяє зображення під екран, ще один показує справжні пікселі. Торкайтеся далі, щоб перемикати між підігнаним і 100%.</string>
     <string name="hint_ext_warn">⚠️ Зміна розширення файла не те саме, що перетворення з одного формату в інший: для цього є \'Експортувати й перетворити\'.\n\n⚠️ Якщо надати зображенню чи відео розширення, яке не належить медіафайлу, елемент зникне з вигляду сіткою та списком.</string>
     <string name="settings_anim_counter">Лічильник кадрів</string>
@@ -299,6 +298,9 @@
     <string name="settings_facts_down">Нижче</string>
     <string name="settings_group_look">Вигляд</string>
     <string name="settings_group_viewer">Перегляд</string>
+    <string name="settings_group_clips">Відео та проведення</string>
+    <string name="settings_group_input">Керування та вибір</string>
+    <string name="settings_group_files">Редагування та кошик</string>
     <string name="settings_group_browse">Теки</string>
     <string name="settings_group_start">Запуск</string>
     <string name="settings_group_advanced">Розширені функції</string>
@@ -351,7 +353,8 @@
     <string name="tree_unopenable">Жодна програма на цьому телефоні не може це відкрити</string>
     <string name="clip_pause">Пауза</string>
     <string name="settings_images_only">Гортати лише фотографії</string>
-    <string name="settings_images_only_desc">У переглядачі проведення праворуч і ліворуч пропускає відео й враховує лише зображення. Відео все одно можна відтворити дотиком із сітки, списку або тек.</string>
+    <string name="settings_images_only_desc">У переглядачі проведення пропускає відео й гортає лише зображення. Дотик усе одно відкриває відео.</string>
+    <string name="settings_clip_autoplay">Відразу відтворювати відео</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Змінити</string>
