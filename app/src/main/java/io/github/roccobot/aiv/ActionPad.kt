@@ -19,11 +19,22 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.RotateLeft
+import androidx.compose.material.icons.filled.RotateRight
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.RestartAlt
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
+import androidx.compose.material.icons.automirrored.outlined.Undo
+import androidx.compose.material.icons.automirrored.outlined.Redo
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +43,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -88,12 +100,30 @@ fun ActionPad(
      * tastino, la larghezza fissa resta quella giusta: là è il riquadro a doversi
      * adattare al contenuto, non il contrario.
      */
-    stretch: Boolean = false
+    stretch: Boolean = false,
+    /**
+     * Se sotto ogni icona si legge la parola.
+     *
+     * ⚠️ **Arriva da [LocalPadLook] e non da un parametro obbligatorio**, per la stessa ragione
+     * del velo: questi riquadri vivono dentro finestre che le impostazioni non ricevono, e la
+     * catena per portarci un booleano attraversa cinque schermate. Chi ha una ragione per
+     * ignorare l'interruttore lo passa a mano.
+     */
+    labels: Boolean = LocalPadLook.current.labels
 ) {
     Column(
         modifier = modifier.padding(horizontal = PAD_EDGE, vertical = PAD_GAP),
         verticalArrangement = Arrangement.spacedBy(PAD_GAP)
     ) {
+        /*
+         * ⚠️⚠️ **SENZA LE PAROLE LA CELLA SI STRINGE, e senza questa riga il riquadro
+         * compatto non sarebbe compatto**: [PAD_CELL] è larga quanto serve a una PAROLA, non a
+         * un glifo, e con le sole icone lascerebbe due terzi di aria fra l'una e l'altra. Il
+         * perché di quei 76dp sta sulla costante.
+         * ⚠️ **Riguarda solo i riquadri a larghezza fissa**: dove le celle si dividono la
+         * larghezza (`stretch`) non c'è niente da stringere, e a stringersi è la scheda.
+         */
+        val cella = if (labels) PAD_CELL else PAD_CELL_BARE
         // ⚠️ Le righe si ricavano a gruppi invece di essere scritte a mano: con sei azioni
         // fanno le due righe di tre del menu, con dieci le due da cinque della
         // bottomsheet, e con cinque l'ultima riga ne tiene due invece di lasciare un buco
@@ -105,7 +135,11 @@ fun ActionPad(
                 horizontalArrangement = Arrangement.spacedBy(PAD_GAP)
             ) {
                 for (action in row) {
-                    PadButton(action, if (stretch) Modifier.weight(1f) else Modifier.width(PAD_CELL))
+                    PadButton(
+                        action = action,
+                        modifier = if (stretch) Modifier.weight(1f) else Modifier.width(cella),
+                        labels = labels
+                    )
                 }
             }
         }
@@ -195,6 +229,9 @@ fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (In
              * una superficie di questa app'. La seconda cosa vale anche per chi non copre niente.
              * ⚠️ **Tre lati come l'altra scheda**: è appoggiata al bordo di sotto, e una riga
              * sull'ultima fila di pixel si legge come un taglio.
+             * ⚠️⚠️ **E DALLA `1.56` LA RIGA CORRE DI FUORI** (sua prova, giro della `1.55`:
+             * *le bottomsheet non stanno bene con la riga intorno*): resta la cima con i due
+             * archi, e i fianchi finiscono fuori dallo schermo. Il perché sta su `edgedTop`.
              */
             modifier = Modifier.edgedTop(SHEET_CORNER),
             shape = RoundedCornerShape(topStart = SHEET_CORNER, topEnd = SHEET_CORNER),
@@ -250,6 +287,134 @@ fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (In
 }
 
 /**
+ * I tasti che possono comparire in un riquadro, con il gettone con cui si salvano.
+ *
+ * ⚠️⚠️ **UN SOLO ELENCO PER QUATTRO RIQUADRI, e non quattro elenchi**: le sei azioni sui file,
+ * le quattro della selezione, e le due file dell'editor vivono qui insieme perché il gettone
+ * deve essere unico nell'archivio. Quale riquadro porta quali tasti lo dice il **suo ordine di
+ * fabbrica** in `Settings`, non questo elenco.
+ *
+ * ⚠️ **[RENAME] è una sola voce e nel cestino diventa 'Ripristina'**: cambia icona, etichetta e
+ * azione, ma è lo stesso posto nel riquadro, e un secondo gettone lo spezzerebbe in due righe
+ * da riordinare per una cosa sola.
+ */
+enum class PadKey(override val token: String) : Choice {
+    // Le sei azioni sui file: il riquadro del visualizzatore e dell'albero, e le prime della
+    // scheda della selezione.
+    COPY("copy"),
+    MOVE("move"),
+    SHARE("share"),
+    RENAME("rename"),
+    DELETE("delete"),
+    INFO("info"),
+
+    // Le quattro che vivono nella sola scheda della selezione.
+    LIST("list"),
+    ALL("all"),
+    NONE("none"),
+    INVERT("invert"),
+
+    // La prima fila dell'editor: girare e centrare.
+    TURN_LEFT("turn-left"),
+    TURN_RIGHT("turn-right"),
+    CENTRE_ACROSS("centre-across"),
+    CENTRE_DOWN("centre-down"),
+
+    // La seconda fila dell'editor: la cronologia e la conferma.
+    ORIGINAL("original"),
+    UNDO("undo"),
+    REDO("redo"),
+    APPLY("apply")
+}
+
+/**
+ * Come si chiama un tasto, quando lo si deve nominare fuori dal suo riquadro.
+ *
+ * ⚠️⚠️ **STA QUI E NON IN UN `when` DELLA SCHERMATA DELLE IMPOSTAZIONI**, per la stessa ragione
+ * di `FactField`: serve in **due** posti (la pagina che riordina e i testi che la ricerca
+ * confronta), e un `when` da diciotto rami scritto due volte è il posto in cui le due copie
+ * prima o poi diranno due parole diverse per la stessa cosa.
+ * ⚠️ **Sono le stringhe che i tasti già portano**, quindi la pagina che riordina non costa
+ * nessuna traduzione nuova.
+ * ⚠️ **'Rinomina' e non 'Ripristina'**: nel cestino quel tasto cambia nome, ma qui si riordina
+ * un posto e non un contesto, e il nome che si legge è quello che si vede quasi sempre.
+ */
+@StringRes
+fun PadKey.label(): Int = when (this) {
+    PadKey.COPY -> R.string.menu_copy_here
+    PadKey.MOVE -> R.string.pick_move
+    PadKey.SHARE -> R.string.menu_share
+    PadKey.RENAME -> R.string.pick_rename
+    PadKey.DELETE -> R.string.pick_delete
+    PadKey.INFO -> R.string.pick_info
+    PadKey.LIST -> R.string.pick_list
+    PadKey.ALL -> R.string.pick_all_short
+    PadKey.NONE -> R.string.pick_none
+    PadKey.INVERT -> R.string.pick_invert
+    PadKey.TURN_LEFT -> R.string.editor_left
+    PadKey.TURN_RIGHT -> R.string.editor_right
+    PadKey.CENTRE_ACROSS -> R.string.editor_center_across
+    PadKey.CENTRE_DOWN -> R.string.editor_center_down
+    PadKey.ORIGINAL -> R.string.editor_original
+    PadKey.UNDO -> R.string.editor_undo
+    PadKey.REDO -> R.string.editor_redo
+    PadKey.APPLY -> R.string.editor_apply
+}
+
+/**
+ * Il disegno di un tasto, per la riga che lo fa riordinare.
+ *
+ * ⚠️ **È composabile perché quattro di questi glifi vivono in `res/`**, e una risorsa si legge
+ * solo da dentro una composizione.
+ * ⚠️ **Le due frecce di rotazione sono quelle DISEGNATE DALL'UTENTE**, come nell'editor: un
+ * glifo di sistema qui e il suo là farebbe sembrare due tasti diversi.
+ */
+@Composable
+fun PadKey.glyph(): ImageVector = when (this) {
+    PadKey.COPY -> Glyphs.FolderPair
+    PadKey.MOVE -> Glyphs.FolderPairDashed
+    PadKey.SHARE -> Icons.Default.Share
+    PadKey.RENAME -> Glyphs.TextCursor
+    PadKey.DELETE -> Glyphs.PickDelete
+    PadKey.INFO -> Icons.Outlined.Info
+    PadKey.LIST -> Icons.AutoMirrored.Outlined.FormatListBulleted
+    PadKey.ALL -> Glyphs.PickAll
+    PadKey.NONE -> Glyphs.PickNone
+    PadKey.INVERT -> Glyphs.PickInvert
+    // ⚠️ Le due frecce di sistema, come nell'editor: là sono dichiarate deprecate e usate
+    // lo stesso, perché le sostitute girano dalla parte sbagliata (vedi la nota là).
+    @Suppress("DEPRECATION") PadKey.TURN_LEFT -> Icons.Default.RotateLeft
+    @Suppress("DEPRECATION") PadKey.TURN_RIGHT -> Icons.Default.RotateRight
+    PadKey.CENTRE_ACROSS -> Glyphs.AlignAcross
+    PadKey.CENTRE_DOWN -> Glyphs.AlignDown
+    PadKey.ORIGINAL -> Icons.Outlined.RestartAlt
+    PadKey.UNDO -> Icons.AutoMirrored.Outlined.Undo
+    PadKey.REDO -> Icons.AutoMirrored.Outlined.Redo
+    PadKey.APPLY -> Icons.Outlined.Check
+}
+
+/**
+ * Rimette una lista di azioni nell'ordine che l'utente ha scelto.
+ *
+ * ⚠️⚠️ **UN TASTO CHE L'ORDINE NON NOMINA NON SPARISCE: finisce in coda.** Qui è una rete e non
+ * la garanzia vera, che sta a monte: l'ordine arriva da [padOrderOf], che ai gettoni salvati
+ * aggiunge **tutti** quelli mancanti al posto che hanno di fabbrica. Quindi una versione futura
+ * che aggiunge un'azione la vede comparire dove l'ha messa, e non in fondo. Se qualcosa arriva
+ * qui senza posto, è un riquadro che porta un tasto non suo, cioè un difetto: la coda lo rende
+ * visibile invece di farlo sparire.
+ * ⚠️ **L'ordinamento è STABILE**, quindi fra due tasti senza posto resta quello di partenza.
+ * ⚠️ **Si ordina la lista VERA e non i gettoni**: chi chiama costruisce le sue azioni con le
+ * loro chiusure, e qui si spostano soltanto.
+ */
+fun List<PadAction>.inOrder(order: List<PadKey>): List<PadAction> {
+    if (order.isEmpty()) return this
+    val posto = order.withIndex().associate { (i, k) -> k to i }
+    // ⚠️ `sortedBy` è STABILE, ed è quello che tiene fermi i tasti che l'ordine non nomina:
+    // fra due sconosciuti resta l'ordine di partenza.
+    return sortedBy { posto[it.key] ?: Int.MAX_VALUE }
+}
+
+/**
  * Un'azione del riquadro: l'icona, la parola, e se è quella da cui non si torna.
  *
  * ⚠️ [danger] non è 'importante': è **irreversibile**. Vale per l'eliminazione, e per
@@ -259,6 +424,18 @@ fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (In
  * Una scorciatoia su ogni tasto sarebbe sei gesti nascosti da imparare, e nessuno li scopre.
  */
 class PadAction(
+    /**
+     * Chi è questo tasto, per l'archivio.
+     *
+     * ⚠️⚠️ **NASCE PERCHÉ L'ORDINE SI SALVA, dalla `1.56`**: prima un'azione era solo
+     * un'icona e uno `@StringRes`, cioè non aveva identità, e un ordine salvato ha bisogno di
+     * sapere **quale** tasto sta in quale posto. La prova che non bastava guardare l'icona: nel
+     * cestino 'Rinomina' diventa 'Ripristina' cambiando disegno, etichetta e azione, e resta lo
+     * stesso posto nel riquadro.
+     * ⚠️ **Il gettone non è il nome della costante**, come per ogni [Choice]: rinominare una
+     * costante non deve azzerare l'ordine salvato su un telefono.
+     */
+    val key: PadKey,
     val icon: ImageVector,
     @StringRes val label: Int,
     val danger: Boolean = false,
@@ -287,15 +464,27 @@ class PadAction(
 /**
  * Un tasto del riquadro.
  *
- * ⚠️ **L'icona non porta descrizione e il testo sì**: `clickable` fonde le semantiche dei
- * figli, quindi TalkBack legge una voce sola. Descrivendo anche l'icona la leggerebbe due
- * volte, che è il difetto già evitato nelle copertine delle cartelle.
+ * ⚠️ **Con la parola in scena, l'icona non porta descrizione e il testo sì**: `clickable`
+ * fonde le semantiche dei figli, quindi TalkBack legge una voce sola. Descrivendo anche
+ * l'icona la leggerebbe due volte, che è il difetto già evitato nelle copertine delle
+ * cartelle.
+ * ⚠️⚠️ **SENZA LA PAROLA, LA DESCRIZIONE PASSA ALL'ICONA, e non è un dettaglio di
+ * cortesia**: il nome parlato del tasto **è** quel testo, quindi togliendolo senza spostare
+ * la descrizione il tasto resterebbe muto, cioè inservibile con un lettore di schermo. Non
+ * costa nessuna stringa nuova: è la stessa [PadAction.label].
  * ⚠️ **Il tocco sta sull'intera colonna**, non sull'icona: un bersaglio di 24dp si manca,
- * e qui i tasti sono sei e vicini. La cella è larga [PAD_CELL] e alta quanto icona più
- * parola, che è l'area minima toccabile di Material.
+ * e qui i tasti sono sei e vicini.
+ * ⚠️⚠️ **E L'ALTEZZA MINIMA SI DICHIARA, perché senza la parola la colonna non ci arriva
+ * più**: con l'etichetta la cella è alta icona più parola, cioè oltre i 48dp che Material
+ * chiede a un bersaglio; senza, sarebbero icona più due respiri, quaranta. [PAD_TAP] tiene
+ * il pavimento, e il riquadro compatto lo è di disegno e non di area toccabile.
  */
 @Composable
-private fun PadButton(action: PadAction, modifier: Modifier = Modifier) {
+private fun PadButton(
+    action: PadAction,
+    modifier: Modifier = Modifier,
+    labels: Boolean = LocalPadLook.current.labels
+) {
     val haptics = LocalHapticFeedback.current
     val hold = remember(action.onHold, haptics) {
         action.onHold?.let { premuto ->
@@ -325,16 +514,18 @@ private fun PadButton(action: PadAction, modifier: Modifier = Modifier) {
                 onLongClick = hold,
                 onClick = action.onClick
             )
+            .heightIn(min = PAD_TAP)
             .padding(vertical = PAD_GAP),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(PAD_LABEL_GAP)
+        verticalArrangement = Arrangement.spacedBy(PAD_LABEL_GAP, Alignment.CenterVertically)
     ) {
         Icon(
             imageVector = action.icon,
-            contentDescription = null,
+            contentDescription = if (labels) null else stringResource(action.label),
             tint = tint,
             modifier = Modifier.size(PAD_ICON)
         )
+        if (!labels) return@Column
         Text(
             text = stringResource(action.label),
             style = MaterialTheme.typography.labelSmall,
@@ -428,6 +619,52 @@ private val PAD_EDGE = 4.dp
 
 /** Lo smusso dell'alone del tocco su una cella. */
 private val PAD_CORNER = 10.dp
+
+/**
+ * La larghezza di una cella quando le parole sono spente.
+ *
+ * ⚠️ **Nasce dal bersaglio e non dal glifo**: [PAD_TAP] è il pavimento in altezza, e una cella
+ * più stretta di così sarebbe un tasto alto e sottile, cioè difficile da centrare col pollice.
+ * Un glifo da 24 in una cella da 48 lascia dodici punti d'aria per lato, che è il rapporto con
+ * cui Material disegna un `IconButton`.
+ */
+private val PAD_CELL_BARE = 48.dp
+
+/**
+ * L'altezza minima di una cella, con o senza parola.
+ *
+ * ⚠️⚠️ **48dp È IL BERSAGLIO MINIMO DI MATERIAL, e senza questa riga il riquadro compatto ci
+ * andava sotto**: con la parola la colonna misura da sé oltre i cinquanta (respiro, glifo,
+ * distacco, riga di testo, respiro); togliendola resterebbero quaranta, cioè un tasto che si
+ * manca. La compattezza chiesta è di **disegno**, non di area toccabile.
+ */
+private val PAD_TAP = 48.dp
+
+/**
+ * Come si presentano i riquadri di questa app: le parole e i quattro ordini.
+ *
+ * ⚠️⚠️ **STA IN UN `CompositionLocal` PER LA STESSA RAGIONE DEL VELO** (vedi `LocalAivVeil`):
+ * queste cose le chiedono superfici che vivono in **finestre**, e le finestre le impostazioni
+ * non le ricevono. La catena per portarci quattro liste e un booleano attraversa il
+ * visualizzatore, la griglia con i suoi tre richiami, la scheda della selezione, l'albero e
+ * l'editor: cinque schermate per un dato che non cambia mai durante un gesto.
+ * ⚠️ **Il valore di fabbrica è quello che l'app aveva prima**, quindi una finestra che
+ * nascesse fuori dall'albero della composizione si comporta come sempre invece di sparire.
+ */
+class PadLook(
+    val labels: Boolean = true,
+    /** Il riquadro delle sei azioni: visualizzatore e albero. */
+    val menu: List<PadKey> = MENU_KEYS,
+    /** La scheda della selezione, dieci azioni. */
+    val pick: List<PadKey> = PICK_KEYS,
+    /** La prima fila dell'editor: girare e centrare. */
+    val turn: List<PadKey> = TURN_KEYS,
+    /** La seconda fila dell'editor: la cronologia e la conferma. */
+    val step: List<PadKey> = STEP_KEYS
+)
+
+/** Quello che i riquadri leggono, messo in scena accanto al tema. */
+val LocalPadLook = compositionLocalOf { PadLook() }
 
 /**
  * Quante colonne ha la bottomsheet della selezione: **cinque**, come chieste.

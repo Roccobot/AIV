@@ -110,4 +110,6 @@
     <!-- arquivo -> ficheiro, come nel resto di questo file. Le altre due
          stringhe del pulitore non nominano il file e restano quelle di values-pt. -->
     <string name="convert_clean_why">Remove cabeçalhos, metadados, comentários, scripts, C2PA e restos dos editores, que são os dados mais pesados (até 99% do ficheiro) e raramente servem.</string>
+    <string name="settings_buttons_desc">Arraste a pega à direita de uma linha para mover um botão. Cada ordem vale em todos os sítios onde esse painel aparece.</string>
+    <string name="settings_buttons_menu">Menu de um ficheiro</string>
 </resources>

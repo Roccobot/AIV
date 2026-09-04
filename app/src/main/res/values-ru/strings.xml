@@ -418,4 +418,11 @@
         <item quantity="many">%1$d цветов</item>
         <item quantity="other">%1$d цвета</item>
     </plurals>
+    <string name="settings_buttons">Порядок кнопок</string>
+    <string name="settings_buttons_desc">Перетащите ручку справа от строки, чтобы переместить кнопку. Каждый порядок действует везде, где появляется эта панель.</string>
+    <string name="settings_buttons_menu">Меню файла</string>
+    <string name="settings_buttons_turn">Редактор: поворот и центрирование</string>
+    <string name="settings_buttons_steps">Редактор: отмена и применение</string>
+    <string name="settings_labels">Подписи под значками</string>
+    <string name="settings_labels_desc">Без подписей панели значков становятся компактнее. Меню-списки не меняются.</string>
 </resources>

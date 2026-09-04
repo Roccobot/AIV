@@ -268,23 +268,19 @@ object Glyphs {
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_pick_delete)
 
     /**
-     * Il cestino con la freccia che sale: 'Ripristina', su un file solo.
+     * Il cestino con la freccia che sale: 'Ripristina', **e anche 'Ripristina tutto'**.
      *
      * ⚠️ **Sostituisce `Icons.Default.SettingsBackupRestore`**, che era un orologio con la
      * freccia circolare, cioè 'torna indietro nel tempo': nel cestino la domanda è 'tira fuori
      * questo file', e il cassone la dice mentre l'orologio no.
+     * ⚠️⚠️ **UNO SOLO PER LE DUE VOCI, dalla `1.56`, e prima erano due** (istruzione
+     * dell'utente, giro della `1.55`: *sostituisci l'icona di 'Ripristina tutto' con quella
+     * usata per il ripristino di un file singolo*). Il disegno di prima aveva il cassone aperto
+     * in fondo per dire 'tutti', e quella distinzione a 24dp era un dettaglio che nessuno
+     * leggeva: a dire 'tutti' ci pensa la parola, che nel menu sta accanto all'icona.
      */
     val BinRestore: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_bin_restore)
-
-    /**
-     * Il cestino che si svuota, aperto in fondo: 'Ripristina tutto'.
-     *
-     * ⚠️ **Si distingue da [BinRestore] per il cassone**, che là è chiuso e qui è aperto: è il
-     * modo di dire 'tutti' senza un secondo segno, che a 24dp non si leggerebbe.
-     */
-    val BinRestoreAll: ImageVector
-        @Composable get() = ImageVector.vectorResource(R.drawable.ic_bin_restore_all)
 
     /**
      * Il cassone di contorno, vuoto: la voce 'Cestino' del menu della schermata iniziale.

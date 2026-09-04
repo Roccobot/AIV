@@ -386,4 +386,11 @@
         <item quantity="one">%1$d रंग</item>
         <item quantity="other">%1$d रंग</item>
     </plurals>
+    <string name="settings_buttons">बटणांचा क्रम</string>
+    <string name="settings_buttons_desc">एखादे बटण हलवण्यासाठी ओळीच्या उजवीकडील हँडल ओढा. प्रत्येक क्रम ते पटल जिथे जिथे दिसते तिथे लागू होतो.</string>
+    <string name="settings_buttons_menu">फाइलचा मेनू</string>
+    <string name="settings_buttons_turn">संपादक: फिरवणे आणि मध्यभागी आणणे</string>
+    <string name="settings_buttons_steps">संपादक: पूर्ववत आणि लागू करणे</string>
+    <string name="settings_labels">चिन्हांखालील लेबले</string>
+    <string name="settings_labels_desc">लेबले बंद असल्यास चिन्हांची पटले अधिक सुटसुटीत होतात. यादी मेनू बदलत नाहीत.</string>
 </resources>

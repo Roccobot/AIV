@@ -402,4 +402,11 @@
         <item quantity="many">%1$d colores</item>
         <item quantity="other">%1$d colores</item>
     </plurals>
+    <string name="settings_buttons">Orden de los botones</string>
+    <string name="settings_buttons_desc">Arrastra el control de la derecha de una fila para mover un botón. Cada orden se aplica en todos los lugares donde aparece ese panel.</string>
+    <string name="settings_buttons_menu">Menú de un archivo</string>
+    <string name="settings_buttons_turn">Editor: girar y centrar</string>
+    <string name="settings_buttons_steps">Editor: deshacer y aplicar</string>
+    <string name="settings_labels">Etiquetas bajo los iconos</string>
+    <string name="settings_labels_desc">Sin etiquetas, los paneles de iconos se vuelven más compactos. Los menús de lista no cambian.</string>
 </resources>

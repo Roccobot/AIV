@@ -386,4 +386,11 @@
         <item quantity="one">%1$d Farbe</item>
         <item quantity="other">%1$d Farben</item>
     </plurals>
+    <string name="settings_buttons">Reihenfolge der Schaltflächen</string>
+    <string name="settings_buttons_desc">Ziehe den Griff rechts in einer Zeile, um eine Schaltfläche zu verschieben. Jede Reihenfolge gilt überall dort, wo dieses Feld erscheint.</string>
+    <string name="settings_buttons_menu">Menü zu einer Datei</string>
+    <string name="settings_buttons_turn">Editor: Drehen und Zentrieren</string>
+    <string name="settings_buttons_steps">Editor: Rückgängig und Anwenden</string>
+    <string name="settings_labels">Beschriftungen unter den Symbolen</string>
+    <string name="settings_labels_desc">Ohne Beschriftungen werden die Symbolfelder kompakter. Listenmenüs bleiben unverändert.</string>
 </resources>

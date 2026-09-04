@@ -239,6 +239,12 @@ fun Sheet(
                      * colore di accento*). Il quarto lato è appoggiato al bordo dello schermo e
                      * non si disegna: il perché, e che cosa il bordo sostituisce, stanno in
                      * testa a `Edge.kt`.
+                     * ⚠️⚠️ **E DALLA `1.56` LA RIGA CORRE DI FUORI, non intorno** (sua prova,
+                     * giro della `1.55`): i fianchi finiscono oltre il bordo dello schermo e di
+                     * lei si vedono la cima e i due archi. ⚠️ **Quindi disegna sopra la propria
+                     * scatola**, e nessuno dei modificatori qui sopra deve ritagliare: il
+                     * `graphicsLayer` non lo fa (`clip` è spento di fabbrica), e il velo che sta
+                     * dietro non è un genitore che taglia.
                      */
                     .edgedTop(SHEET_ROUND),
                 shape = RoundedCornerShape(topStart = SHEET_ROUND, topEnd = SHEET_ROUND),

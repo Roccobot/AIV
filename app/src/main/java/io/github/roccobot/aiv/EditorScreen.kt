@@ -126,14 +126,6 @@ fun EditorScreen(
      */
     onSave: (turns: Int, crop: ImageEdit.Crop) -> Unit,
     onBack: () -> Unit,
-    /**
-     * Se i comandi vanno disposti per la mano **sinistra**.
-     *
-     * ⚠️ Non cambia che cosa fanno, cambia **dove stanno**: vedi [EditorSheet], dove le due
-     * file sono scritte per esteso nei due versi. È la stessa impostazione che rovescia le
-     * file della bottomsheet della selezione.
-     */
-    leftHand: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -355,7 +347,6 @@ fun EditorScreen(
             lay = lay,
             busy = busy,
             ready = shown != null,
-            leftHand = leftHand,
             pending = pending,
             applied = steps.isNotEmpty(),
             undone = undone.isNotEmpty(),
@@ -587,7 +578,6 @@ private fun EditorSheet(
     /** Se l'anteprima è arrivata: prima non c'è niente su cui agire. */
     ready: Boolean,
     /** Se le due file di tasti vanno nell'ordine della mano sinistra. */
-    leftHand: Boolean,
     /** Se c'è un ritocco non ancora confermato. */
     pending: Boolean,
     /** Se c'è almeno un 'Applica' alle spalle. */
@@ -633,6 +623,10 @@ private fun EditorSheet(
          * ⚠️ **Va DOPO il fondo del palco e prima della forma**: il bordo lo disegna un nodo che
          * riceve la misura della superficie, e il fondo qui sotto è il rettangolo non ritagliato
          * che copre i due spicchi degli angoli. Invertirli metterebbe la riga sotto il fondo.
+         * ⚠️⚠️ **E DALLA `1.56` LA RIGA CORRE DI FUORI** (sua prova, giro della `1.55`): si
+         * vedono la cima e i due archi, i fianchi finiscono oltre il bordo dello schermo. ⚠️ Il
+         * fondo del palco qui sopra **non** la copre, ed è l'ordine a garantirlo: quel
+         * rettangolo è grande quanto la scheda, mentre la riga sta un filo più su.
          */
         modifier = Modifier
             .fillMaxWidth()
@@ -761,31 +755,31 @@ private fun EditorSheet(
             @Suppress("DEPRECATION") val ccw = Icons.Default.RotateLeft
             @Suppress("DEPRECATION") val cw = Icons.Default.RotateRight
 
-            val turnLeft = PadAction(ccw, R.string.editor_left, enabled = live) { onTurn(3) }
-            val turnRight = PadAction(cw, R.string.editor_right, enabled = live) { onTurn(1) }
+            val turnLeft = PadAction(PadKey.TURN_LEFT, ccw, R.string.editor_left, enabled = live) { onTurn(3) }
+            val turnRight = PadAction(PadKey.TURN_RIGHT, cw, R.string.editor_right, enabled = live) { onTurn(1) }
             /*
               * ⚠️ **Le due icone sono DISEGNATE DALL'UTENTE** (2026-09-01, voce `ed-sheet`
               * del collaudo: *usa le mie icone che ti ho già passato*): quelle di Material
               * non gli dicevano abbastanza. Vedi [Glyphs.AlignAcross].
               */
             val acrossKey = PadAction(
-                Glyphs.AlignAcross, R.string.editor_center_across,
+                PadKey.CENTRE_ACROSS, Glyphs.AlignAcross, R.string.editor_center_across,
                 enabled = live
             ) { onCentreAcross() }
             val downKey = PadAction(
-                Glyphs.AlignDown, R.string.editor_center_down,
+                PadKey.CENTRE_DOWN, Glyphs.AlignDown, R.string.editor_center_down,
                 enabled = live
             ) { onCentreDown() }
 
             val applyKey = PadAction(
-                Icons.Outlined.Check, R.string.editor_apply, enabled = live && pending
+                PadKey.APPLY, Icons.Outlined.Check, R.string.editor_apply, enabled = live && pending
             ) { onApply() }
             val undoKey = PadAction(
-                Icons.AutoMirrored.Outlined.Undo, R.string.editor_undo,
+                PadKey.UNDO, Icons.AutoMirrored.Outlined.Undo, R.string.editor_undo,
                 enabled = live && (pending || applied)
             ) { onUndo() }
             val redoKey = PadAction(
-                Icons.AutoMirrored.Outlined.Redo, R.string.editor_redo,
+                PadKey.REDO, Icons.AutoMirrored.Outlined.Redo, R.string.editor_redo,
                 // ⚠️⚠️ **SPENTO FINCHÉ C'È UN RITOCCO IN SOSPESO, e non è pignoleria**: il
                 // rettangolo in corso è in frazioni dell'immagine di **adesso**, e rimettere
                 // un passo sotto di lui gli farebbe selezionare un'altra cosa senza che
@@ -793,28 +787,29 @@ private fun EditorSheet(
                 enabled = live && undone && !pending
             ) { onRedo() }
             val originalKey = PadAction(
-                Icons.Outlined.RestartAlt, R.string.editor_original,
+                PadKey.ORIGINAL, Icons.Outlined.RestartAlt, R.string.editor_original,
                 enabled = live && (pending || applied || undone)
             ) { onOriginal() }
 
             /*
-             * ⚠️⚠️ **LE DUE FILE SONO SCRITTE PER ESTESO NEI DUE VERSI, e NON si ricavano
-             * rovesciando una lista** (ordine dettato dall'utente, 2026-09-01). Rovesciarla
-             * darebbe l'ordine sbagliato in due punti su otto, ed è il genere di errore che
-             * si vede solo provando: 'Ruota a sinistra' e 'Ruota a destra' restano in
-             * quest'ordine anche per la mano sinistra, perché il loro verso è quello delle
-             * frecce e non quello della lettura, e lo stesso vale per 'Annulla' e
-             * 'Ripristina', che sono le due direzioni della stessa cronologia. A scambiarsi
-             * sono i **gruppi**, e le due coppie interne di centratura e di conferma.
-             * ⚠️ **Il criterio, che è quello che regge la scelta**: il tasto che si usa di
-             * più finisce sotto il pollice, cioè al bordo della mano che tiene il telefono.
+             * ⚠️⚠️ **LE DUE FILE NON SI SPECCHIANO PIÙ, dalla `1.56`, e l'ordine lo sceglie
+             * lui trascinando** (decisione dell'utente, giro della `1.54`: *toglili dalla
+             * specchiatura e rendili riordinabili*). Fino alla `1.55` erano scritte per esteso
+             * nei due versi, perché rovesciare una lista dava l'ordine sbagliato in due punti
+             * su otto: 'Ruota a sinistra' e 'Ruota a destra' hanno il verso delle frecce e non
+             * quello della lettura, e lo stesso vale per 'Annulla' e 'Ripristina'.
+             * ⚠️ **Quel difetto non torna, e la ragione è che adesso non c'è nessun
+             * rovesciamento**: un ordine salvato è una lista, e chi tiene la sinistra la mette
+             * come vuole invece di riceverne una specchiata da un'altra impostazione.
+             * ⚠️ **Restano DUE file e non una**: il filetto in mezzo dice che girare e centrare
+             * è un mestiere e la cronologia un altro, quindi un tasto non passa di fila. Sono
+             * due ordini salvati, non uno da otto.
              */
             ActionPad(
                 columns = SHEET_KEYS,
                 stretch = true,
-                actions =
-                    if (leftHand) listOf(turnLeft, turnRight, acrossKey, downKey)
-                    else listOf(downKey, acrossKey, turnLeft, turnRight)
+                actions = listOf(downKey, acrossKey, turnLeft, turnRight)
+                    .inOrder(LocalPadLook.current.turn)
             )
 
             HorizontalDivider(modifier = Modifier.padding(horizontal = STAGE_SIDE))
@@ -822,9 +817,8 @@ private fun EditorSheet(
             ActionPad(
                 columns = SHEET_KEYS,
                 stretch = true,
-                actions =
-                    if (leftHand) listOf(applyKey, undoKey, redoKey, originalKey)
-                    else listOf(originalKey, undoKey, redoKey, applyKey)
+                actions = listOf(originalKey, undoKey, redoKey, applyKey)
+                    .inOrder(LocalPadLook.current.step)
             )
         }
     }

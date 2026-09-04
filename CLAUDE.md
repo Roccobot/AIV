@@ -302,10 +302,23 @@ grande un dialogo esattamente al centro fa allungare la mano.
         elementi simili*). La scheda della selezione e il pannello dei comandi dell'editor
         adesso hanno il bordo e restano **senza** velo: il velo dice 'mi apro sopra qualcosa',
         il bordo dice 'sono una superficie di questa app'.
-      - ⚠️ **Lo spessore è cambiato nello stesso giro**, da 2dp a 3dp, e con lui è stato
-        corretto il raggio degli angoli: due riquadri stondati concentrici hanno raggi diversi,
-        e tenere quello del pannello staccava l'arco dal bordo. Era il difetto che lui ha visto
-        (*sembra che la linea di accento non abbia il raggio di stondatura corretto*).
+      - ⚠️ **Lo spessore è 2dp, dopo un giro a 3**: la `1.55` lo aveva alzato su sua richiesta e
+        la `1.56` lo ha riportato giù, sempre su sua richiesta (*torna a 2dp (preferisco)*).
+      - ⚠️⚠️ **E IL RAGGIO DEGLI ANGOLI È COSTATO DUE GIRI, con due cause diverse.** La prima è
+        geometrica: due riquadri stondati concentrici hanno raggi diversi, e tenere quello del
+        pannello staccava l'arco dal bordo (*sembra che la linea di accento non abbia il raggio
+        di stondatura corretto*). La seconda, che restava dopo la correzione, è
+        l'**antialiasing sommato due volte**: il pannello sfuma il suo ultimo pixel e il tratto
+        sfuma il proprio, e sull'arco quel poco che resta scoperto si mette in fila (*si
+        intravedono dei pixel di sfondo chiaro/scuro oltre la curva verde*). Il rimedio è mezzo
+        pixel di sconfinamento in fuori, ed è misurato in testa alla costante che lo porta.
+      - ⚠️⚠️ **SULLE SCHEDE IN FONDO LA RIGA VA DI FUORI, dalla `1.56`** (sua prova: *le
+        bottomsheet non stanno bene con la riga intorno. Vorrei fare una prova con la linea di
+        2dp color accento che appare verso l'esterno, in modo da stare solo sul lato sopra e
+        sulla curva per poi sparire fuori dallo schermo*). Non è una variante grafica: i fianchi
+        di una scheda in fondo stanno sui bordi dello schermo, quindi una linea che corre fuori
+        da quei fianchi è già fuori dal vetro, e a interrompere il tratto ci pensa il bordo
+        invece di un numero scritto a mano.
     - ⚠️⚠️ **E IL VELO NON È PIÙ UN ATTRIBUTO DELLE FINESTRE, dalla 1.54: LO DIPINGE L'APP**
       (`AppVeil`, messo in scena da `AivTheme`). Il fatto che ha costretto al cambio, dopo tre
       bocciature della stessa voce: **due finestre non cambiano il proprio velo nello stesso

@@ -462,4 +462,11 @@
         <item quantity="other">%1$d colori</item>
         <item quantity="many">%1$d colori</item>
     </plurals>
+    <string name="settings_buttons">Ordine dei pulsanti</string>
+    <string name="settings_buttons_desc">Trascina la manopola a destra di una riga per spostare un pulsante. Ogni ordine vale in tutti i posti in cui quel riquadro compare.</string>
+    <string name="settings_buttons_menu">Menu su un file</string>
+    <string name="settings_buttons_turn">Editor: ruota e centra</string>
+    <string name="settings_buttons_steps">Editor: annulla e applica</string>
+    <string name="settings_labels">Etichette sotto le icone</string>
+    <string name="settings_labels_desc">Spente, i riquadri di icone diventano più compatti. I menu a elenco non cambiano.</string>
 </resources>

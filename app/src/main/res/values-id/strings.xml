@@ -370,4 +370,11 @@
     <plurals name="facts_colour_count">
         <item quantity="other">%1$d warna</item>
     </plurals>
+    <string name="settings_buttons">Urutan tombol</string>
+    <string name="settings_buttons_desc">Seret gagang di kanan baris untuk memindahkan tombol. Setiap urutan berlaku di semua tempat panel itu muncul.</string>
+    <string name="settings_buttons_menu">Menu pada berkas</string>
+    <string name="settings_buttons_turn">Editor: putar dan tengahkan</string>
+    <string name="settings_buttons_steps">Editor: urungkan dan terapkan</string>
+    <string name="settings_labels">Label di bawah ikon</string>
+    <string name="settings_labels_desc">Tanpa label, panel ikon menjadi lebih ringkas. Menu daftar tidak berubah.</string>
 </resources>

@@ -370,4 +370,11 @@
     <plurals name="facts_colour_count">
         <item quantity="other">%1$d 色</item>
     </plurals>
+    <string name="settings_buttons">ボタンの並び順</string>
+    <string name="settings_buttons_desc">行の右端にあるハンドルをドラッグしてボタンを動かします。並び順は、そのパネルが出るすべての場所に適用されます。</string>
+    <string name="settings_buttons_menu">ファイルのメニュー</string>
+    <string name="settings_buttons_turn">エディター: 回転・中央ぞろえ</string>
+    <string name="settings_buttons_steps">エディター: 元に戻す・適用</string>
+    <string name="settings_labels">アイコンの下のラベル</string>
+    <string name="settings_labels_desc">ラベルを消すと、アイコンのパネルがよりコンパクトになります。一覧形式のメニューは変わりません。</string>
 </resources>
