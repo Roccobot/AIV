@@ -61,16 +61,16 @@
     <string name="settings_search">Szukaj w ustawieniach</string>
     <string name="settings_search_clear">Wyczyść wyszukiwanie</string>
     <string name="settings_search_none">Brak wyników</string>
-    <string name="settings_background">Za obrazem</string>
+    <string name="settings_background">Tło przeglądarki</string>
     <string name="settings_bg_checker">Szachownica</string>
     <string name="settings_bg_solid">Jednolity kolor</string>
-    <string name="settings_bg_desc">Szachownica to idealny sposób, by zobaczyć przezroczyste piksele, a w poważnej przeglądarce jest to informacja, a nie ozdoba.</string>
-    <string name="settings_ui_theme">Motyw</string>
-    <string name="settings_ui_theme_desc">Czy interfejs jest jasny czy ciemny. Nie dotyczy tła za obrazem, poniżej: szachownica ujawnia przezroczystość, nie podąża za motywem.</string>
+    <string name="settings_bg_desc">Szachownica to idealny sposób, by zobaczyć przezroczyste piksele, a w poważnej przeglądarce jest to informacja, a nie estetyczna ozdoba.</string>
+    <string name="settings_ui_theme">Motyw aplikacji</string>
+    <string name="settings_ui_theme_desc">Nie mylić z kolorem tła przeglądarki.</string>
     <string name="settings_system">Jak system</string>
     <string name="settings_theme_light">Jasny</string>
     <string name="settings_theme_dark">Ciemny</string>
-    <string name="settings_bg_theme">Odcień tła</string>
+    <string name="settings_bg_theme">Motyw tła</string>
     <string name="settings_auto">Automatycznie</string>
     <string name="settings_light">Jasne</string>
     <string name="settings_dark">Ciemne</string>
@@ -80,7 +80,7 @@
     <string name="settings_folder_columns">Kolumny w siatce folderów</string>
     <string name="settings_folder_columns_desc">Więcej kolumn mieści na ekranie więcej folderów i zmniejsza każdą okładkę. Przy czterech nazwa pod nią zwykle się urywa.</string>
     <string name="settings_folder_count">Licznik elementów pod folderami w widoku siatki</string>
-    <string name="settings_hand">Strona przycisku</string>
+    <string name="settings_hand">Strona przycisków pływających (\'FAB\')</string>
     <string name="settings_hand_desc">W którym dolnym rogu stoi przycisk pływający, wraz z panelem, który otwiera, i miejscem, jakie zostawia mu siatka.</string>
     <string name="settings_right">Prawa</string>
     <string name="settings_left">Lewa</string>
@@ -419,14 +419,14 @@
         <item quantity="other">%1$d koloru</item>
     </plurals>
     <string name="settings_buttons">Kolejność przycisków</string>
-    <string name="settings_buttons_desc">Przyciski paneli ikon stoją tam, gdzie chcesz. Każda kolejność obowiązuje wszędzie tam, gdzie pojawia się ten panel.</string>
     <string name="settings_buttons_menu">Menu pliku</string>
     <string name="settings_buttons_turn">Edytor: obracanie i wyśrodkowanie</string>
     <string name="settings_buttons_steps">Edytor: cofanie i stosowanie</string>
     <string name="settings_labels">Etykiety pod ikonami</string>
-    <string name="settings_labels_desc">Bez etykiet panele ikon stają się bardziej zwarte. Menu listy pozostają bez zmian.</string>
-    <string name="settings_buttons_how">Przytrzymaj przycisk i przeciągnij go, aby zmienić jego miejsce w panelu.</string>
-    <string name="settings_buttons_bin">W koszu menu pliku zachowuje tę samą kolejność: \'Przywróć\' zajmuje miejsce \'Zmień nazwę\'.</string>
+    <string name="settings_labels_desc">Po wyłączeniu panele ikon stają się bardziej zwarte. Menu listy pozostają bez zmian.</string>
+    <string name="settings_buttons_how">Przytrzymaj przycisk i przeciągnij go, aby zmienić jego miejsce wewnątrz jego panelu.</string>
+    <string name="settings_buttons_reset">Przywróć domyślne</string>
+    <string name="settings_buttons_bin">W koszu \'Przywróć\' zajmuje miejsce \'Zmień nazwę\'.</string>
     <string name="settings_buttons_before">Przesuń wcześniej</string>
     <string name="settings_buttons_after">Przesuń później</string>
 </resources>

@@ -1639,17 +1639,22 @@ private val GRADIENT_REACH = FAB_REACH * GRADIENT_TIMES
 /**
  * Quanto è alta la coda che chiude in pieno l'ultima striscia di schermo.
  *
- * ⚠️⚠️ **20dp DALLA `1.57`, E GLI 8 CHE AVEVA CHIESTO NON ERANO UN DIFETTO: ERANO
- * INVISIBILI** (riscontro dell'utente, giro della `1.56`: *non vedo la sovrapposizione piccola
- * in fondo*). La coda c'era e faceva quello che deve: misurata sul profilo composto, a 8dp dal
- * bordo la copertura vale 0,60 e sul bordo vale 1,00, cioè il pieno arriva davvero. Solo che
- * quaranta punti di copertura distribuiti su otto dp, su un fondo già coperto per sei decimi,
- * sono un filo che l'occhio non separa dalla fascia sopra.
- * ⚠️ **Il numero è l'unica cosa cambiata**: la curva, il colore e il modo di sommarsi sono
- * quelli che ha dettato lui. A 20dp la stessa coda si legge come una chiusura voluta, e resta
- * un settimo della fascia grande.
+ * ⚠️⚠️ **GLI 8 CHE AVEVA CHIESTO NON ERANO UN DIFETTO: ERANO INVISIBILI** (riscontro
+ * dell'utente, giro della `1.56`: *non vedo la sovrapposizione piccola in fondo*). La coda
+ * c'era e faceva quello che deve: misurata sul profilo composto, a 8dp dal bordo la copertura
+ * vale 0,60 e sul bordo vale 1,00, cioè il pieno arriva davvero. Solo che quaranta punti di
+ * copertura distribuiti su otto dp, su un fondo già coperto per sei decimi, sono un filo che
+ * l'occhio non separa dalla fascia sopra.
+ * ⚠️⚠️ **E NEMMENO VENTI BASTAVANO: il numero è suo, ed è 35** (riscontro del giro della
+ * `1.57`: *era semplicemente troppo sottile: falla di 35 dp*). La `1.57` aveva alzato la coda
+ * da 8 a 20 e lui l'ha bocciata di nuovo, il che dice una cosa che il profilo da solo non
+ * diceva: quello che si vede non è il **pieno** sul bordo, che a 8dp c'era già, ma la
+ * **lunghezza del tratto** in cui la copertura cresce. Sotto una certa lunghezza una
+ * dissolvenza non si legge come tale, per quanto sia giusta la curva.
+ * ⚠️ **Il numero è l'unica cosa cambiata, per la seconda volta**: la curva, il colore e il modo
+ * di sommarsi sono quelli che ha dettato lui.
  */
-private val FOOT_REACH = 20.dp
+private val FOOT_REACH = 35.dp
 
 /**
  * In quanti gradini si disegna la coda.

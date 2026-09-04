@@ -61,16 +61,16 @@
     <string name="settings_search">設定を検索</string>
     <string name="settings_search_clear">検索を消去</string>
     <string name="settings_search_none">該当なし</string>
-    <string name="settings_background">画像の背景</string>
+    <string name="settings_background">ビューアーの背景</string>
     <string name="settings_bg_checker">市松模様</string>
     <string name="settings_bg_solid">単色</string>
-    <string name="settings_bg_desc">市松模様は透明なピクセルを見るのに最適で、本格的なビューアーではそれは飾りではなく情報です。</string>
-    <string name="settings_ui_theme">テーマ</string>
-    <string name="settings_ui_theme_desc">インターフェイスを明るくするか暗くするか。下にある画像の背景は含みません。市松模様は透明部分を示すもので、テーマには従いません。</string>
+    <string name="settings_bg_desc">市松模様は透明なピクセルを見るのに最適で、本格的なビューアーではそれは美的な飾りではなく情報です。</string>
+    <string name="settings_ui_theme">アプリのテーマ</string>
+    <string name="settings_ui_theme_desc">ビューアーの背景色とは別のものです。</string>
     <string name="settings_system">システム</string>
     <string name="settings_theme_light">明るい</string>
     <string name="settings_theme_dark">暗い</string>
-    <string name="settings_bg_theme">背景の色調</string>
+    <string name="settings_bg_theme">背景のテーマ</string>
     <string name="settings_auto">自動</string>
     <string name="settings_light">明るい</string>
     <string name="settings_dark">暗い</string>
@@ -80,7 +80,7 @@
     <string name="settings_folder_columns">フォルダ一覧の列数</string>
     <string name="settings_folder_columns_desc">列を増やすと画面に入るフォルダは増え、表紙は小さくなります。4列では下の名前はたいてい切れます。</string>
     <string name="settings_folder_count">グリッド表示でフォルダーの下に項目数を表示</string>
-    <string name="settings_hand">ボタンの位置</string>
+    <string name="settings_hand">フローティングボタン（\'FAB\'）の位置</string>
     <string name="settings_hand_desc">浮かぶボタンがどちらの下隅に置かれるか。開くパネルと、グリッドが空けておく余白も一緒に動きます。</string>
     <string name="settings_right">右</string>
     <string name="settings_left">左</string>
@@ -371,14 +371,14 @@
         <item quantity="other">%1$d 色</item>
     </plurals>
     <string name="settings_buttons">ボタンの並び順</string>
-    <string name="settings_buttons_desc">アイコンパネルのボタンは好きな場所に置けます。並び順は、そのパネルが出るすべての場所に適用されます。</string>
     <string name="settings_buttons_menu">ファイルのメニュー</string>
     <string name="settings_buttons_turn">エディター: 回転・中央ぞろえ</string>
     <string name="settings_buttons_steps">エディター: 元に戻す・適用</string>
     <string name="settings_labels">アイコンの下のラベル</string>
-    <string name="settings_labels_desc">ラベルを消すと、アイコンのパネルがよりコンパクトになります。一覧形式のメニューは変わりません。</string>
-    <string name="settings_buttons_how">ボタンを長押しし、そのままドラッグしてパネル内の位置を変えます。</string>
-    <string name="settings_buttons_bin">ごみ箱ではファイルのメニューも同じ並び順です。「名前を変更」の位置に「元に戻す」が入ります。</string>
+    <string name="settings_labels_desc">オフにすると、アイコンのパネルがよりコンパクトになります。一覧形式のメニューは変わりません。</string>
+    <string name="settings_buttons_how">ボタンを長押しし、そのままドラッグして、そのパネル内での位置を変えます。</string>
+    <string name="settings_buttons_reset">リセット</string>
+    <string name="settings_buttons_bin">ごみ箱では「名前を変更」の位置に「元に戻す」が入ります。</string>
     <string name="settings_buttons_before">前へ移動</string>
     <string name="settings_buttons_after">後ろへ移動</string>
 </resources>

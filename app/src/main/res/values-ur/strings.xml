@@ -61,16 +61,16 @@
     <string name="settings_search">ترتیبات میں تلاش کریں</string>
     <string name="settings_search_clear">تلاش صاف کریں</string>
     <string name="settings_search_none">کوئی نتیجہ نہیں</string>
-    <string name="settings_background">تصویر کے پیچھے</string>
+    <string name="settings_background">ناظر کا پس منظر</string>
     <string name="settings_bg_checker">شطرنجی خانے</string>
     <string name="settings_bg_solid">ایک رنگ</string>
-    <string name="settings_bg_desc">شطرنجی خانے شفاف پکسل دیکھنے کا بہترین طریقہ ہیں، اور ایک سنجیدہ ناظر میں یہ زیبائش نہیں بلکہ معلومات ہے۔</string>
-    <string name="settings_ui_theme">خاکہ</string>
-    <string name="settings_ui_theme_desc">انٹرفیس روشن ہے یا تاریک۔ اس کا تعلق نیچے دیے گئے تصویر کے پس منظر سے نہیں: شطرنجی خانے شفافیت ظاہر کرتے ہیں، تھیم کی پیروی نہیں کرتے۔</string>
+    <string name="settings_bg_desc">شطرنجی خانے شفاف پکسل دیکھنے کا بہترین طریقہ ہیں، اور ایک سنجیدہ ناظر میں یہ جمالیاتی زیبائش نہیں بلکہ معلومات ہے۔</string>
+    <string name="settings_ui_theme">ایپ کا خاکہ</string>
+    <string name="settings_ui_theme_desc">اسے ناظر کے پس منظر کے رنگ کے ساتھ نہ ملائیں۔</string>
     <string name="settings_system">نظام کے مطابق</string>
     <string name="settings_theme_light">روشن</string>
     <string name="settings_theme_dark">گہرا</string>
-    <string name="settings_bg_theme">پس منظر کی رنگت</string>
+    <string name="settings_bg_theme">پس منظر کا خاکہ</string>
     <string name="settings_auto">خودکار</string>
     <string name="settings_light">روشن</string>
     <string name="settings_dark">گہرا</string>
@@ -80,7 +80,7 @@
     <string name="settings_folder_columns">فولڈر گرڈ کے کالم</string>
     <string name="settings_folder_columns_desc">زیادہ کالم اسکرین پر زیادہ فولڈر سماتے ہیں اور ہر سرورق چھوٹا کر دیتے ہیں۔ چار پر نیچے کا نام عموماً کٹ جاتا ہے۔</string>
     <string name="settings_folder_count">گرڈ منظر میں فولڈروں کے نیچے اشیا کا شمار کنندہ</string>
-    <string name="settings_hand">بٹن کی سمت</string>
+    <string name="settings_hand">تیرتے بٹنوں کی سمت (\'FAB\')</string>
     <string name="settings_hand_desc">تیرتا بٹن نیچے کے کس کونے میں رہتا ہے، اس پینل کے ساتھ جو وہ کھولتا ہے اور اس جگہ کے ساتھ جو گرڈ اسے چھوڑتی ہے۔</string>
     <string name="settings_right">دائیں</string>
     <string name="settings_left">بائیں</string>
@@ -387,14 +387,14 @@
         <item quantity="other">%1$d رنگ</item>
     </plurals>
     <string name="settings_buttons">بٹنوں کی ترتیب</string>
-    <string name="settings_buttons_desc">آئیکن پینلوں کے بٹن جہاں چاہیں رکھے جا سکتے ہیں۔ ہر ترتیب ہر اس جگہ لاگو ہوتی ہے جہاں وہ پینل ظاہر ہوتا ہے۔</string>
     <string name="settings_buttons_menu">فائل کا مینو</string>
     <string name="settings_buttons_turn">مدیر: گھمانا اور درمیان میں لانا</string>
     <string name="settings_buttons_steps">مدیر: کالعدم کرنا اور لاگو کرنا</string>
     <string name="settings_labels">آئیکنوں کے نیچے لیبل</string>
-    <string name="settings_labels_desc">لیبل بند ہوں تو آئیکن پینل زیادہ مختصر ہو جاتے ہیں۔ فہرست والے مینو نہیں بدلتے۔</string>
-    <string name="settings_buttons_how">کسی بٹن کو دبائے رکھیں اور اسے گھسیٹ کر پینل میں اس کی جگہ بدلیں۔</string>
-    <string name="settings_buttons_bin">ردی میں فائل کا مینو یہی ترتیب رکھتا ہے: \'نام بدلیں\' کی جگہ \'بحال کریں\' آتا ہے۔</string>
+    <string name="settings_labels_desc">بند کرنے پر آئیکن پینل زیادہ مختصر ہو جاتے ہیں۔ فہرست والے مینو نہیں بدلتے۔</string>
+    <string name="settings_buttons_how">کسی بٹن کو دبائے رکھیں اور اسے گھسیٹ کر اس کے اپنے پینل میں اس کی جگہ بدلیں۔</string>
+    <string name="settings_buttons_reset">ری سیٹ</string>
+    <string name="settings_buttons_bin">ردی میں \'نام بدلیں\' کی جگہ \'بحال کریں\' آتا ہے۔</string>
     <string name="settings_buttons_before">آگے منتقل کریں</string>
     <string name="settings_buttons_after">پیچھے منتقل کریں</string>
 </resources>

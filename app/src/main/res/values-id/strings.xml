@@ -61,16 +61,16 @@
     <string name="settings_search">Cari di pengaturan</string>
     <string name="settings_search_clear">Hapus pencarian</string>
     <string name="settings_search_none">Tidak ada hasil</string>
-    <string name="settings_background">Di belakang gambar</string>
+    <string name="settings_background">Latar penampil</string>
     <string name="settings_bg_checker">Papan kotak</string>
     <string name="settings_bg_solid">Satu warna</string>
-    <string name="settings_bg_desc">Papan catur adalah cara ideal untuk melihat piksel transparan, dan pada penampil yang serius itu informasi, bukan hiasan.</string>
-    <string name="settings_ui_theme">Tema</string>
-    <string name="settings_ui_theme_desc">Antarmuka terang atau gelap. Tidak mencakup latar di belakang gambar, di bawah: pola papan catur menampakkan transparansi, bukan mengikuti tema.</string>
+    <string name="settings_bg_desc">Papan catur adalah cara ideal untuk melihat piksel transparan, dan pada penampil yang serius itu informasi, bukan hiasan estetis.</string>
+    <string name="settings_ui_theme">Tema aplikasi</string>
+    <string name="settings_ui_theme_desc">Jangan dikelirukan dengan warna latar penampil.</string>
     <string name="settings_system">Ikuti sistem</string>
     <string name="settings_theme_light">Terang</string>
     <string name="settings_theme_dark">Gelap</string>
-    <string name="settings_bg_theme">Rona latar</string>
+    <string name="settings_bg_theme">Tema latar</string>
     <string name="settings_auto">Otomatis</string>
     <string name="settings_light">Terang</string>
     <string name="settings_dark">Gelap</string>
@@ -80,7 +80,7 @@
     <string name="settings_folder_columns">Kolom pada kisi folder</string>
     <string name="settings_folder_columns_desc">Semakin banyak kolom, semakin banyak folder yang masuk ke layar dan semakin kecil setiap sampul. Pada empat kolom, nama di bawahnya biasanya terpotong.</string>
     <string name="settings_folder_count">Penghitung item di bawah folder pada tampilan kisi</string>
-    <string name="settings_hand">Sisi tombol</string>
+    <string name="settings_hand">Sisi tombol mengambang (\'FAB\')</string>
     <string name="settings_hand_desc">Di sudut bawah mana tombol mengambang berada, beserta panel yang dibukanya dan ruang yang disisakan kisi untuknya.</string>
     <string name="settings_right">Kanan</string>
     <string name="settings_left">Kiri</string>
@@ -371,14 +371,14 @@
         <item quantity="other">%1$d warna</item>
     </plurals>
     <string name="settings_buttons">Urutan tombol</string>
-    <string name="settings_buttons_desc">Tombol panel ikon diletakkan sesuka Anda. Setiap urutan berlaku di semua tempat panel itu muncul.</string>
     <string name="settings_buttons_menu">Menu pada berkas</string>
     <string name="settings_buttons_turn">Editor: putar dan tengahkan</string>
     <string name="settings_buttons_steps">Editor: urungkan dan terapkan</string>
     <string name="settings_labels">Label di bawah ikon</string>
-    <string name="settings_labels_desc">Tanpa label, panel ikon menjadi lebih ringkas. Menu daftar tidak berubah.</string>
-    <string name="settings_buttons_how">Tekan dan tahan sebuah tombol, lalu seret untuk mengubah tempatnya di panel.</string>
-    <string name="settings_buttons_bin">Di tempat sampah menu pada berkas tetap dengan urutan yang sama: \'Pulihkan\' menggantikan tempat \'Ganti nama\'.</string>
+    <string name="settings_labels_desc">Jika dimatikan, panel ikon menjadi lebih ringkas. Menu daftar tidak berubah.</string>
+    <string name="settings_buttons_how">Tekan dan tahan sebuah tombol, lalu seret untuk mengubah tempatnya di dalam panelnya.</string>
+    <string name="settings_buttons_reset">Setel ulang</string>
+    <string name="settings_buttons_bin">Di tempat sampah, \'Pulihkan\' menggantikan \'Ganti nama\'.</string>
     <string name="settings_buttons_before">Pindah ke depan</string>
     <string name="settings_buttons_after">Pindah ke belakang</string>
 </resources>

@@ -55,8 +55,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
@@ -65,6 +67,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.offset
 import java.text.Normalizer
 import kotlin.math.roundToInt
 import kotlinx.coroutines.Dispatchers
@@ -266,7 +269,6 @@ fun SettingsScreen(
             onBack = { pageAt = Page.ROOT.ordinal },
             modifier = modifier
         ) {
-            Detail(stringResource(R.string.settings_buttons_desc))
             ButtonOrders(settings = settings, onChange = onChange)
         }
 
@@ -801,7 +803,7 @@ private fun ColumnScope.RootPage(
      */
     PageRow(
         label = stringResource(R.string.settings_buttons),
-        summary = stringResource(R.string.settings_buttons_desc),
+        summary = null,
         onOpen = { onOpen(Page.BUTTONS) },
         extra = (MENU_KEYS + PICK_KEYS + TURN_KEYS + STEP_KEYS).distinct()
             .map { stringResource(it.label()) }
@@ -1167,7 +1169,7 @@ private fun Shell(
             .fillMaxSize()
             .safeDrawingPadding()
             .then(if (scrolls) Modifier.verticalScroll(scroll) else Modifier)
-            .padding(horizontal = 20.dp, vertical = 12.dp),
+            .padding(horizontal = PAGE_SIDE, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1189,17 +1191,22 @@ private fun Shell(
                  * unica del `versionName` è `app/build.gradle.kts`, e il tag del rilascio la
                  * conferma invece di ripeterla. Una stringa scritta a mano qui sarebbe il
                  * secondo posto in cui scriverla, e il primo a mentire.
-                 * ⚠️ **La `v` minuscola non si traduce**, ed è voluto: è la forma che ha chiesto
-                 * lui (*come `v1.54`*), la stessa che si legge sulla paginetta di download, e in
-                 * ventotto lingue una parola tradotta accanto a un numero sarebbe una riga da
-                 * mantenere per non dire niente di più.
+                 * ⚠️⚠️ **IL NOME DELL'APP AL POSTO DELLA `v`, dalla `1.59`** (sua richiesta, giro
+                 * della `1.58`: *invece della forma 'v1.58' scrivi in formato 'AIV 1.58'*). Erano
+                 * la stessa cosa a due lettere di distanza soltanto in apparenza: `v` dice che
+                 * quello che segue è una versione, che il numero già dice da sé, mentre `AIV`
+                 * dice **di che cosa** è la versione, e in un pannello che non nomina l'app da
+                 * nessun'altra parte quello è l'unico posto in cui compare.
+                 * ⚠️ **Non si traduce e non è una stringa**, come la `v` di prima: è il nome
+                 * proprio dell'app, uguale in tutte e ventotto le lingue, e una stringa
+                 * sarebbe ventotto righe da mantenere per ripetere tre lettere.
                  * ⚠️ **Discreto vuol dire questi tre pezzi insieme**: il corpo più piccolo che
                  * il tema abbia, il monospazio, e l'inchiostro tenue. Il monospazio serve a una
                  * cosa precisa: le cifre hanno tutte la stessa larghezza, quindi il numero non
                  * cambia ingombro passando dalla `1.9` alla `1.10`.
                  */
                 Text(
-                    text = "v" + BuildConfig.VERSION_NAME,
+                    text = "AIV " + BuildConfig.VERSION_NAME,
                     style = MaterialTheme.typography.labelSmall,
                     fontFamily = FontFamily.Monospace,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = VERSION_FADE),
@@ -1267,7 +1274,20 @@ private fun Detail(text: String) {
 @Composable
 private fun PageRow(
     label: String,
-    summary: String,
+    /**
+     * La riga di spiegazione sotto il titolo, e `null` per una riga che non ne ha.
+     *
+     * ⚠️⚠️ **PUÒ MANCARE DALLA `1.59`, e la prima a farne a meno è 'Ordine dei pulsanti'**
+     * (riscontro dell'utente, giro della `1.58`: *toglila del tutto*). Quella pagina si
+     * spiega da sé appena si apre, con due righe in cima e i riquadri veri sotto: il
+     * riepilogo qui ripeteva la prima di quelle due, e ripetuto fuori occupava tre righe
+     * nella pagina piatta.
+     * ⚠️ **Togliere il riepilogo NON toglie la riga dalla ricerca**: la copertura di questa
+     * pagina è [extra], che porta i nomi dei tasti di dentro. Una riga muta e senza `extra`
+     * si troverebbe col solo titolo, che è la ragione per cui questo parametro resta
+     * l'eccezione e non il difetto.
+     */
+    summary: String?,
     onOpen: () -> Unit,
     /**
      * Le parole delle righe che vivono **dentro** la pagina, per la ricerca.
@@ -1278,11 +1298,17 @@ private fun PageRow(
      */
     extra: List<String> = emptyList()
 ) {
-    if (!shown(label, summary, *extra.toTypedArray())) return
+    if (!shown(label, summary ?: "", *extra.toTypedArray())) return
     Row(
         // ⚠️ `clickable` PRIMA di `padding`: così il tocco prende anche il margine, e la
         // riga arriva ai 48dp di bersaglio senza scriverli.
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onOpen).padding(vertical = 12.dp),
+        // ⚠️ E [Modifier.bordo] prima ancora, dalla `1.59`: l'alone arriva ai fianchi dello
+        // schermo invece di fermarsi al rientro della pagina.
+        modifier = Modifier
+            .fillMaxWidth()
+            .bordo()
+            .clickable(onClick = onOpen)
+            .padding(horizontal = PAGE_SIDE, vertical = ROW_HIGH),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -1291,11 +1317,13 @@ private fun PageRow(
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
             Text(text = label, style = MaterialTheme.typography.titleSmall)
-            Text(
-                text = summary,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            summary?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
@@ -1405,6 +1433,51 @@ private const val VERSION_FADE = 0.55f
  * minimo diventasse 56, la freccia scenderebbe a 16 di rientro e questa riga direbbe il falso.
  */
 private val VERSION_END = 12.dp
+
+/**
+ * Il rientro laterale di una pagina delle impostazioni.
+ *
+ * ⚠️ **Vive qui e non più dentro la colonna che lo applica**: dalla `1.59` lo rimettono dentro
+ * anche le righe che si toccano, dopo essersi allargate fino ai fianchi dello schermo con
+ * [Modifier.bordo]. Due numeri diversi darebbero un testo che si sposta quando la riga diventa
+ * toccabile.
+ */
+private val PAGE_SIDE = 20.dp
+
+/**
+ * Quanta aria sopra e sotto il testo di una riga che si tocca.
+ *
+ * ⚠️ **Sopra E sotto, dalla `1.59`**: la riga dell'interruttore aveva solo il sopra, quindi il
+ * suo alone finiva sull'ultima riga di testo. Un alone che tocca il testo si legge come un
+ * ritaglio sbagliato, non come un bersaglio.
+ */
+private val ROW_HIGH = 12.dp
+
+/**
+ * Allarga chi lo porta fino ai fianchi dello schermo, oltre il rientro della pagina.
+ *
+ * ⚠️⚠️ **NASCE DA UN SUO RISCONTRO, giro della `1.58`, con una schermata** (*adesso che il
+ * tocco per attivare un interruttore è su tutta la riga, l'area di 'hover' dovrebbe essere un
+ * po' più grande e lasciare spazio intorno al testo, o ancora meglio prendere tutta la riga
+ * fino ai bordi*). La riga era già toccabile per intero dalla `1.46`, ma l'alone si fermava
+ * dove finisce il testo, quindi il bersaglio si vedeva più piccolo di quello che era.
+ * ⚠️⚠️ **PERCHÉ NON BASTAVA TOGLIERE IL RIENTRO ALLA COLONNA**: quel rientro lo usano anche i
+ * titoli di sezione, i separatori e i blocchi scritti a mano (un cursore, una casella, un
+ * paragrafo), che non si toccano e devono restare dove sono. Togliendolo là avrebbero dovuto
+ * rimetterselo tutti, e il primo che se ne dimenticasse si sposterebbe di venti punti.
+ * ⚠️ **In Compose un rientro negativo non esiste**, quindi il lavoro lo fa un nodo di layout:
+ * misura il figlio con la larghezza allargata di due rientri, dichiara al genitore la propria
+ * misura di prima, e posa il figlio spostato di un rientro a sinistra. Il genitore non si
+ * accorge di niente e l'alone esce dai suoi fianchi.
+ * ⚠️ **'Fino ai bordi' vuol dire fino ai bordi UTILI**: la colonna della pagina porta già
+ * `safeDrawingPadding`, quindi l'alone si ferma dove comincia un intaglio o una barra di
+ * sistema, che è dove deve fermarsi.
+ */
+private fun Modifier.bordo() = layout { misurabile, vincoli ->
+    val extra = PAGE_SIDE.roundToPx() * 2
+    val posato = misurabile.measure(vincoli.offset(horizontal = extra))
+    layout(posato.width - extra, posato.height) { posato.place(-PAGE_SIDE.roundToPx(), 0) }
+}
 
 /**
  * Che cosa sta fra due voci nel riepilogo di una sotto-pagina.
@@ -1740,24 +1813,28 @@ private fun ButtonOrders(settings: Settings, onChange: (Settings) -> Unit) {
     PadOrder(
         title = stringResource(R.string.settings_buttons_menu),
         order = settings.menuOrder,
+        difetto = MENU_KEYS,
         columns = MENU_COLUMNS,
         onOrder = { onChange(settings.copy(menuOrder = it)) }
     )
     PadOrder(
         title = stringResource(R.string.pick_actions),
         order = settings.pickOrder,
+        difetto = PICK_KEYS,
         columns = SHEET_COLUMNS,
         onOrder = { onChange(settings.copy(pickOrder = it)) }
     )
     PadOrder(
         title = stringResource(R.string.settings_buttons_turn),
         order = settings.turnOrder,
+        difetto = TURN_KEYS,
         columns = EDITOR_COLUMNS,
         onOrder = { onChange(settings.copy(turnOrder = it)) }
     )
     PadOrder(
         title = stringResource(R.string.settings_buttons_steps),
         order = settings.stepOrder,
+        difetto = STEP_KEYS,
         columns = EDITOR_COLUMNS,
         onOrder = { onChange(settings.copy(stepOrder = it)) }
     )
@@ -1784,10 +1861,51 @@ private const val EDITOR_COLUMNS = 4
 private fun PadOrder(
     title: String,
     order: List<PadKey>,
+    /**
+     * L'ordine di fabbrica di questo riquadro, quello a cui 'Ripristina' riporta.
+     *
+     * ⚠️ **Arriva da chi chiama e non si ricava qui**: le quattro liste di fabbrica vivono in
+     * `Settings.kt` accanto ai campi che le usano come valore iniziale, e una copia qui sarebbe
+     * il secondo posto in cui sono scritte, cioè il primo a divergere.
+     */
+    difetto: List<PadKey>,
     columns: Int,
     onOrder: (List<PadKey>) -> Unit
 ) {
-    Group(title)
+    /*
+     * ⚠️⚠️ **UN 'RIPRISTINA' PER OGNI RIQUADRO, dalla `1.59`** (richiesta dell'utente, giro
+     * della `1.58`: *per ogni pannello, in linea con il suo nome, deve esserci un 'Ripristina'
+     * non troppo visibile, allineato a destra e con un font un poco più piccolo. L'effetto di
+     * ciascuno è riportare la configurazione del relativo pannello alla disposizione
+     * predefinita*).
+     * ⚠️⚠️ **UNO PER RIQUADRO E NON UNO SOLO IN CIMA**, ed è quello che ha chiesto: chi ha
+     * rovinato l'ordine di un riquadro vuole rimettere a posto quello, e un comando unico
+     * cancellerebbe anche i tre che andavano bene. È anche la ragione per cui sta sulla riga
+     * del titolo: da lì si legge di chi è.
+     * ⚠️ **Sparisce mentre si cerca**, come il titolo che accompagna: senza il titolo accanto
+     * non si saprebbe che cosa ripristina, e un comando che agisce su qualcosa che non si vede
+     * è il modo più corto per fare un danno.
+     * ⚠️ **Non chiede conferma**: l'ordine di fabbrica non è un dato, è quello che c'era prima
+     * di toccare, e rifare la propria disposizione costa quattro trascinamenti.
+     */
+    if (LocalQuery.current.isBlank()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Group(title)
+            Text(
+                text = stringResource(R.string.settings_buttons_reset),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .clickable(enabled = order != difetto) { onOrder(difetto) }
+                    .padding(start = 12.dp, top = 24.dp, bottom = 4.dp)
+                    .alpha(if (order == difetto) RESET_OFF else 1f)
+            )
+        }
+    }
     PadArrange(
         order = order,
         columns = columns,
@@ -1795,6 +1913,15 @@ private fun PadOrder(
         modifier = Modifier.padding(bottom = ARRANGE_GAP)
     )
 }
+
+/**
+ * Quanto è sbiadito 'Ripristina' quando non c'è niente da ripristinare.
+ *
+ * ⚠️ **Sbiadito e non sparito**: un comando che compare e scompare si cerca proprio nel momento
+ * in cui non c'è, e la sua assenza si legge come un guasto. È la stessa ragione del tasto Salva
+ * del documento di feedback.
+ */
+private const val RESET_OFF = 0.38f
 
 /** L'aria fra un riquadro e il titolo del successivo. */
 private val ARRANGE_GAP = 12.dp
@@ -1881,8 +2008,9 @@ private fun SwitchRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .bordo()
             .toggleable(value = checked, role = Role.Switch, onValueChange = onChange)
-            .padding(top = 12.dp),
+            .padding(horizontal = PAGE_SIDE, vertical = ROW_HIGH),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {

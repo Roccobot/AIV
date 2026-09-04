@@ -61,16 +61,16 @@
     <string name="settings_search">ค้นหาในการตั้งค่า</string>
     <string name="settings_search_clear">ล้างการค้นหา</string>
     <string name="settings_search_none">ไม่พบผลลัพธ์</string>
-    <string name="settings_background">ด้านหลังภาพ</string>
+    <string name="settings_background">พื้นหลังของโปรแกรมดูภาพ</string>
     <string name="settings_bg_checker">ลายตาหมากรุก</string>
     <string name="settings_bg_solid">สีเดียว</string>
-    <string name="settings_bg_desc">ลายตารางหมากรุกเป็นวิธีที่ดีที่สุดในการเห็นพิกเซลโปร่งใส และในโปรแกรมดูภาพที่จริงจังนั่นคือข้อมูล ไม่ใช่การตกแต่ง</string>
-    <string name="settings_ui_theme">ธีม</string>
-    <string name="settings_ui_theme_desc">อินเทอร์เฟซสว่างหรือมืด ไม่รวมถึงพื้นหลังด้านหลังภาพที่อยู่ด้านล่าง ลายหมากรุกเผยให้เห็นความโปร่งใส ไม่ได้ตามธีม</string>
+    <string name="settings_bg_desc">ลายตารางหมากรุกเป็นวิธีที่ดีที่สุดในการเห็นพิกเซลโปร่งใส และในโปรแกรมดูภาพที่จริงจังนั่นคือข้อมูล ไม่ใช่การตกแต่งเพื่อความสวยงาม</string>
+    <string name="settings_ui_theme">ธีมของแอป</string>
+    <string name="settings_ui_theme_desc">อย่าสับสนกับสีพื้นหลังของโปรแกรมดูภาพ</string>
     <string name="settings_system">ตามระบบ</string>
     <string name="settings_theme_light">สว่าง</string>
     <string name="settings_theme_dark">มืด</string>
-    <string name="settings_bg_theme">โทนของพื้นหลัง</string>
+    <string name="settings_bg_theme">ธีมของพื้นหลัง</string>
     <string name="settings_auto">อัตโนมัติ</string>
     <string name="settings_light">สว่าง</string>
     <string name="settings_dark">มืด</string>
@@ -80,7 +80,7 @@
     <string name="settings_folder_columns">จำนวนคอลัมน์ในตารางโฟลเดอร์</string>
     <string name="settings_folder_columns_desc">คอลัมน์ยิ่งมาก โฟลเดอร์ยิ่งลงหน้าจอได้มากและปกแต่ละอันยิ่งเล็ก ที่สี่คอลัมน์ ชื่อด้านล่างมักถูกตัด</string>
     <string name="settings_folder_count">ตัวนับรายการใต้โฟลเดอร์ในมุมมองตาราง</string>
-    <string name="settings_hand">ด้านของปุ่ม</string>
+    <string name="settings_hand">ด้านของปุ่มลอย (\'FAB\')</string>
     <string name="settings_hand_desc">ปุ่มลอยอยู่ที่มุมล่างด้านใด พร้อมกับแผงที่มันเปิดและพื้นที่ที่ตารางเว้นไว้ให้</string>
     <string name="settings_right">ขวา</string>
     <string name="settings_left">ซ้าย</string>
@@ -371,14 +371,14 @@
         <item quantity="other">%1$d สี</item>
     </plurals>
     <string name="settings_buttons">ลำดับของปุ่ม</string>
-    <string name="settings_buttons_desc">ปุ่มของแผงไอคอนวางไว้ตรงไหนก็ได้ ลำดับแต่ละชุดมีผลในทุกที่ที่แผงนั้นปรากฏ</string>
     <string name="settings_buttons_menu">เมนูของไฟล์</string>
     <string name="settings_buttons_turn">ตัวแก้ไข: หมุนและจัดกึ่งกลาง</string>
     <string name="settings_buttons_steps">ตัวแก้ไข: เลิกทำและใช้</string>
     <string name="settings_labels">ป้ายกำกับใต้ไอคอน</string>
-    <string name="settings_labels_desc">เมื่อปิดป้ายกำกับ แผงไอคอนจะกระชับขึ้น เมนูแบบรายการไม่เปลี่ยนแปลง</string>
-    <string name="settings_buttons_how">แตะปุ่มค้างไว้แล้วลากเพื่อเปลี่ยนตำแหน่งของมันในแผง</string>
-    <string name="settings_buttons_bin">ในถังขยะ เมนูของไฟล์ยังคงลำดับเดิม: \'กู้คืน\' อยู่ในตำแหน่งของ \'เปลี่ยนชื่อ\'</string>
+    <string name="settings_labels_desc">หากปิดไว้ แผงไอคอนจะกระชับขึ้น เมนูแบบรายการไม่เปลี่ยนแปลง</string>
+    <string name="settings_buttons_how">แตะปุ่มค้างไว้แล้วลากเพื่อเปลี่ยนตำแหน่งของมันภายในแผงของมัน</string>
+    <string name="settings_buttons_reset">รีเซ็ต</string>
+    <string name="settings_buttons_bin">ในถังขยะ \'กู้คืน\' อยู่ในตำแหน่งของ \'เปลี่ยนชื่อ\'</string>
     <string name="settings_buttons_before">ย้ายไปก่อนหน้า</string>
     <string name="settings_buttons_after">ย้ายไปถัดไป</string>
 </resources>

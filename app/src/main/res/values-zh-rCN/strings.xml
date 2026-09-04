@@ -61,16 +61,16 @@
     <string name="settings_search">搜索设置</string>
     <string name="settings_search_clear">清除搜索</string>
     <string name="settings_search_none">没有结果</string>
-    <string name="settings_background">图片背后</string>
+    <string name="settings_background">查看器背景</string>
     <string name="settings_bg_checker">棋盘格</string>
     <string name="settings_bg_solid">纯色</string>
-    <string name="settings_bg_desc">棋盘格是查看透明像素的理想方式，在一款正经的查看器里这是信息，而不是装饰。</string>
-    <string name="settings_ui_theme">主题</string>
-    <string name="settings_ui_theme_desc">界面是浅色还是深色。这与下方图像背后的背景无关：棋盘格用于显示透明区域，不随主题变化。</string>
+    <string name="settings_bg_desc">棋盘格是查看透明像素的理想方式，在一款正经的查看器里这是信息，而不是美观的装饰。</string>
+    <string name="settings_ui_theme">应用主题</string>
+    <string name="settings_ui_theme_desc">请勿与查看器的背景色混淆。</string>
     <string name="settings_system">跟随系统</string>
     <string name="settings_theme_light">浅色</string>
     <string name="settings_theme_dark">深色</string>
-    <string name="settings_bg_theme">背景色调</string>
+    <string name="settings_bg_theme">背景主题</string>
     <string name="settings_auto">自动</string>
     <string name="settings_light">浅色</string>
     <string name="settings_dark">深色</string>
@@ -80,7 +80,7 @@
     <string name="settings_folder_columns">文件夹网格的列数</string>
     <string name="settings_folder_columns_desc">列数越多,屏幕上装下的文件夹越多,每张封面也越小。到四列时,下面的名字通常会被截断。</string>
     <string name="settings_folder_count">网格视图中文件夹下方的项目计数</string>
-    <string name="settings_hand">按钮所在的一侧</string>
+    <string name="settings_hand">悬浮按钮（\'FAB\'）所在的一侧</string>
     <string name="settings_hand_desc">悬浮按钮位于哪个下角，它打开的面板和网格为它留出的空间也跟着走。</string>
     <string name="settings_right">右侧</string>
     <string name="settings_left">左侧</string>
@@ -371,14 +371,14 @@
         <item quantity="other">%1$d 种颜色</item>
     </plurals>
     <string name="settings_buttons">按钮顺序</string>
-    <string name="settings_buttons_desc">图标面板的按钮可以随意摆放。每种顺序在该面板出现的所有位置都生效。</string>
     <string name="settings_buttons_menu">文件菜单</string>
     <string name="settings_buttons_turn">编辑器：旋转与居中</string>
     <string name="settings_buttons_steps">编辑器：撤销与应用</string>
     <string name="settings_labels">图标下方的标签</string>
-    <string name="settings_labels_desc">关闭标签后，图标面板会更紧凑。列表菜单不变。</string>
-    <string name="settings_buttons_how">长按一个按钮，然后拖动它来改变它在面板中的位置。</string>
-    <string name="settings_buttons_bin">在回收站里，文件菜单保持同样的顺序：\'还原\' 出现在 \'重命名\' 的位置。</string>
+    <string name="settings_labels_desc">若关闭，图标面板会更紧凑。列表菜单不变。</string>
+    <string name="settings_buttons_how">长按一个按钮，然后拖动它来改变它在所属面板中的位置。</string>
+    <string name="settings_buttons_reset">重置</string>
+    <string name="settings_buttons_bin">在回收站里，\'还原\' 出现在 \'重命名\' 的位置。</string>
     <string name="settings_buttons_before">前移</string>
     <string name="settings_buttons_after">后移</string>
 </resources>

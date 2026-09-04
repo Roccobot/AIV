@@ -61,16 +61,16 @@
     <string name="settings_search">Пошук у налаштуваннях</string>
     <string name="settings_search_clear">Очистити пошук</string>
     <string name="settings_search_none">Нічого не знайдено</string>
-    <string name="settings_background">За зображенням</string>
+    <string name="settings_background">Тло переглядача</string>
     <string name="settings_bg_checker">Шахівниця</string>
     <string name="settings_bg_solid">Однотонний</string>
-    <string name="settings_bg_desc">Шахівниця ідеально показує прозорі пікселі, а в серйозному переглядачі це відомості, а не оздоба.</string>
-    <string name="settings_ui_theme">Тема</string>
-    <string name="settings_ui_theme_desc">Світлий інтерфейс чи темний. Це не стосується тла за зображенням, нижче: шахівниця показує прозорість і не слідує темі.</string>
+    <string name="settings_bg_desc">Шахівниця ідеально показує прозорі пікселі, а в серйозному переглядачі це відомості, а не естетична оздоба.</string>
+    <string name="settings_ui_theme">Тема застосунку</string>
+    <string name="settings_ui_theme_desc">Не плутати з кольором тла переглядача.</string>
     <string name="settings_system">Як у системі</string>
     <string name="settings_theme_light">Світла</string>
     <string name="settings_theme_dark">Темна</string>
-    <string name="settings_bg_theme">Відтінок тла</string>
+    <string name="settings_bg_theme">Тема тла</string>
     <string name="settings_auto">Автоматично</string>
     <string name="settings_light">Світлий</string>
     <string name="settings_dark">Темний</string>
@@ -80,7 +80,7 @@
     <string name="settings_folder_columns">Стовпці в сітці тек</string>
     <string name="settings_folder_columns_desc">Що більше стовпців, то більше тек вміщується на екрані і то менша кожна обкладинка. За чотирьох ім\'я під нею зазвичай обрізається.</string>
     <string name="settings_folder_count">Лічильник елементів під теками в режимі сітки</string>
-    <string name="settings_hand">Сторона кнопки</string>
+    <string name="settings_hand">Сторона плавучих кнопок (\'FAB\')</string>
     <string name="settings_hand_desc">У якому нижньому куті стоїть плавальна кнопка, разом із панеллю, яку вона відкриває, і місцем, яке їй лишає сітка.</string>
     <string name="settings_right">Праворуч</string>
     <string name="settings_left">Ліворуч</string>
@@ -419,14 +419,14 @@
         <item quantity="other">%1$d кольору</item>
     </plurals>
     <string name="settings_buttons">Порядок кнопок</string>
-    <string name="settings_buttons_desc">Кнопки панелей значків стоять там, де ви захочете. Кожен порядок діє всюди, де з\'являється ця панель.</string>
     <string name="settings_buttons_menu">Меню файлу</string>
     <string name="settings_buttons_turn">Редактор: поворот і центрування</string>
     <string name="settings_buttons_steps">Редактор: скасування та застосування</string>
     <string name="settings_labels">Підписи під значками</string>
-    <string name="settings_labels_desc">Без підписів панелі значків стають компактнішими. Меню-списки не змінюються.</string>
-    <string name="settings_buttons_how">Натисніть і утримуйте кнопку, потім перетягніть її на нове місце в панелі.</string>
-    <string name="settings_buttons_bin">У кошику меню файлу зберігає той самий порядок: \'Повернути\' стоїть на місці \'Перейменувати\'.</string>
+    <string name="settings_labels_desc">Якщо вимкнути, панелі значків стають компактнішими. Меню-списки не змінюються.</string>
+    <string name="settings_buttons_how">Натисніть і утримуйте кнопку, потім перетягніть її на нове місце в межах її панелі.</string>
+    <string name="settings_buttons_reset">Скинути</string>
+    <string name="settings_buttons_bin">У кошику \'Повернути\' стоїть на місці \'Перейменувати\'.</string>
     <string name="settings_buttons_before">Пересунути раніше</string>
     <string name="settings_buttons_after">Пересунути пізніше</string>
 </resources>
