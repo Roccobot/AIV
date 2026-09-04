@@ -154,31 +154,31 @@ fun MenuShell(
          * ⚠️⚠️ **DENTRO IL `Popup` E NON FUORI, ed è tutta la differenza**: il velo si applica
          * alla finestra che **ospita** chi lo chiede, e qui fuori la finestra sarebbe quella
          * della schermata, cioè si velerebbe da sé. Vedi [WindowVeil].
-         * ⚠️ **Non sfuma**, ed è un limite dichiarato: il velo accende una bandierina sui
-         * parametri della finestra, e animarla vorrebbe dire riscrivere quei parametri a ogni
-         * fotogramma. Cade in un colpo. A funzione spenta, che è il valore di fabbrica, non si
-         * vede niente.
          *
-         * ⚠️⚠️ **CADE ALL'INIZIO DELL'USCITA E NON ALLA FINE, DALLA 1.48, e il `wanted` qui è
-         * tutta la correzione** (riscontro dell'utente, giro della `1.46`: *il passaggio da
-         * sfocato ad a-fuoco è lentissimo*, e nel campo libero *passaggio da una finestra
-         * all'altra (es. menu contestuale -> Rinomina): MOLTO lampeggiante*). Prima il velo
-         * viveva quanto il popup, e il popup resta in scena per tutti i 170 millesimi
-         * dell'uscita (vedi [MenuState.inScene]): quindi quando una voce del menu apriva un
-         * dialogo, per quel tempo **due finestre chiedevano la sfocatura insieme**, e il
-         * sistema rifaceva due volte lo sfondo sfocato a ogni fotogramma proprio mentre ne
-         * stava disegnando uno nuovo.
-         * ⚠️ **Il guadagno è doppio**: sparisce la sovrapposizione, e lo sfondo torna a fuoco
-         * 170 millesimi prima, che è esattamente la cosa che lui ha chiamata lenta. Il menu
-         * intanto continua a sfumare sopra uno sfondo già nitido, e va bene: quello che se ne
-         * va è il fondo, non la superficie.
-         * ⚠️ **L'incognita che resta è una sola**: se la sovrapposizione fosse **tutta** la
-         * lentezza, o se il costo vero fosse la sfocatura in sé, che il sistema rifà a ogni
-         * fotogramma anche quando lo sfondo è fermo. Nel secondo caso la cura è un'altra, e
-         * grossa: dipingerla sulla vista dell'app con un `RenderEffect`, che si disegna una
-         * volta e resta in cache. La voce di collaudo chiede quale dei due.
+         * ⚠️⚠️ **SEGUE IL PANNELLO, DALLA 1.50, e la riga qui sotto è tutta la correzione**
+         * (riscontro dell'utente, giro della `1.48`: *una specie di cornice sfumata si
+         * materializza dove c'era/ci sarà il margine del pannello effettivo*, e nella voce
+         * accanto *la sfocatura non dovrebbe sparire all'inizio della transizione: dovrebbe
+         * avere essa stessa una transizione*). Le due segnalazioni sono **la stessa cosa**: la
+         * sfocatura è un attributo della **finestra**, quindi copriva il rettangolo pieno del
+         * popup fin dal primo fotogramma mentre il pannello dentro era ancora rimpicciolito e
+         * trasparente, e quel rettangolo coi bordi sfumati è la cornice che vedeva. Adesso il
+         * velo riceve [MenuState.show], cioè lo stesso numero che muove l'opacità e la scala:
+         * cresce col pannello e cala con lui, e a zero si spegne del tutto.
+         * ⚠️ **Il costo è dichiarato**: un `updateViewLayout` per fotogramma per la durata
+         * dell'animazione, che è il prezzo della cosa chiesta. La via che lo eviterebbe (la
+         * sfocatura dipinta sulla vista dell'app con un `RenderEffect`) è un rifacimento a sé.
+         *
+         * ⚠️⚠️ **DUE VERSIONI PRIMA FACEVA IL CONTRARIO, E SAPERLO EVITA DI TORNARCI**: la
+         * `1.48` lo faceva cadere all'**inizio** dell'uscita (`if (state.wanted)`), per togliere
+         * la sovrapposizione di due finestre che chiedevano la sfocatura insieme. Quella
+         * diagnosi era giusta a metà: la sovrapposizione c'era, ma toglierla di netto ha lasciato
+         * un buco di uno o due fotogrammi fra il velo del menu che spariva e quello del dialogo
+         * che arrivava, ed è il *flash* che lui ha segnalato dopo. Con la sfocatura che cala
+         * invece di sparire, le due si sovrappongono per un momento **degradando**, che è la cosa
+         * che un occhio legge come una transizione invece che come un lampo.
          */
-        if (state.wanted) WindowVeil()
+        WindowVeil { state.show.value }
         Surface(
             /*
              * ⚠️⚠️ **CRESCE DA 0,96 E NON DA ZERO, in 170ms** (scelta dell'utente sul

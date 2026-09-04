@@ -2114,6 +2114,7 @@ private fun AivApp(model: ViewerViewModel) {
                 onChanged = { model.reloadGrid() },
                 query = model.query,
                 onQuery = { model.search(it) },
+                onSearch = { model.openSearch() },
                 factFields = settings.factRows,
                 binOn = settings.binOn,
                 leftHand = settings.hand == Hand.LEFT,

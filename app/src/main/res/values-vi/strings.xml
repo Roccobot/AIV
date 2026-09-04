@@ -346,7 +346,7 @@
     <string name="view_list">Danh sách</string>
     <string name="view_tree">Thư mục</string>
     <string name="edit_no_backup">Không tạo được bản sao an toàn, nên chưa ghi đè gì cả</string>
-    <string name="edit_backup_same">Không tạo bản sao lưu của ảnh, vì tệp đã lưu giống hệt bản gốc.</string>
+    <string name="edit_backup_same">Tệp không thay đổi: không tạo bản sao an toàn cho việc sửa.</string>
     <string name="settings_editor_backup">Bản sao an toàn trước khi ghi đè</string>
     <string name="settings_editor_backup_desc">Trước khi một trình sửa ghi đè lên một ảnh, nó lưu một bản sao vào thùng rác, nơi bạn có thể lấy lại; nếu không cần, bản sao sẽ bị xoá ở lần \'Dọn thùng rác\' kế tiếp.</string>
     <string name="editor_tall">Dọc</string>

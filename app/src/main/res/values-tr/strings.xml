@@ -361,7 +361,7 @@
     <string name="view_list">Liste</string>
     <string name="view_tree">Klasörler</string>
     <string name="edit_no_backup">Yedek kopya alınamadı, bu yüzden hiçbir şeyin üzerine yazılmadı</string>
-    <string name="edit_backup_same">Kaydedilen dosya özgün dosyayla aynı olduğu için görüntünün yedek kopyası oluşturulmadı.</string>
+    <string name="edit_backup_same">Dosya değişmedi: düzenleme için yedek kopya oluşturulmadı.</string>
     <string name="settings_editor_backup">Üzerine yazmadan önce yedek kopya</string>
     <string name="settings_editor_backup_desc">Bir düzenleyici bir görüntünün üzerine yazmadan önce, bir kopyasını çöp kutusuna kaydeder; oradan geri alabilirsiniz. Gerekmiyorsa bir sonraki \'Çöp kutusunu boşalt\' işleminde silinir.</string>
     <string name="editor_tall">Dikey</string>

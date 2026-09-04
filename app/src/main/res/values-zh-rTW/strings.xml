@@ -346,7 +346,7 @@
     <string name="view_list">清單</string>
     <string name="view_tree">資料夾</string>
     <string name="edit_no_backup">安全副本沒能建立，所以什麼都沒有覆寫</string>
-    <string name="edit_backup_same">未建立影像的備份副本，因為儲存的檔案與原檔完全相同。</string>
+    <string name="edit_backup_same">檔案沒有變化：沒有為這次修改留安全副本。</string>
     <string name="settings_editor_backup">覆寫前先留一份安全副本</string>
     <string name="settings_editor_backup_desc">在編輯器覆寫一張影像之前，會先把副本存入回收筒，可以從那裡取回；若不需要，下次\'清空回收筒\'時會被刪除。</string>
     <string name="editor_tall">直式</string>

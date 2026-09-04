@@ -391,7 +391,7 @@
     <string name="view_list">Lista</string>
     <string name="view_tree">Foldery</string>
     <string name="edit_no_backup">Kopia zapasowa się nie udała, więc nic nie zostało nadpisane</string>
-    <string name="edit_backup_same">Nie utworzono kopii zapasowej obrazu, ponieważ zapisany plik był identyczny z oryginałem.</string>
+    <string name="edit_backup_same">Plik się nie zmienił: kopia zapasowa dla edycji nie została utworzona.</string>
     <string name="settings_editor_backup">Kopia zapasowa przed nadpisaniem</string>
     <string name="settings_editor_backup_desc">Zanim edytor nadpisze obraz, zapisuje jego kopię w koszu, skąd będzie można ją odzyskać; jeśli nie będzie potrzebna, zniknie przy następnym \'Opróżnij kosz\'.</string>
     <string name="editor_tall">Pionowo</string>

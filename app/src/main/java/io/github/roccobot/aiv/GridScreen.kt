@@ -16,6 +16,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.scrollBy
@@ -72,6 +73,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -95,19 +97,20 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalResources
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
@@ -185,6 +188,13 @@ fun GridScreen(
     /** Che cosa il filtro volatile lascia vedere. Vedi `ViewerViewModel.gridFilter`. */
     filter: MediaKind = MediaKind.ALL,
     onFilter: (MediaKind) -> Unit = {},
+    /**
+     * Apre la ricerca dei file per nome: il tocco lungo sul filtro.
+     *
+     * ⚠️ **È la stessa che apre la voce 'Cerca' della schermata iniziale**, quindi cerca in
+     * tutta la galleria: chi la chiama passa lo stesso `openSearch` di là.
+     */
+    onSearch: () -> Unit = {},
     /**
      * Se le funzioni principali del pannello stanno a sinistra. Vedi `Settings.hand`.
      *
@@ -866,7 +876,7 @@ fun GridScreen(
             when {
                 picking && pickWeight -> PickWeight(chosen)
                 picking -> Unit
-                else -> FilterKey(filter, onFilter)
+                else -> FilterKey(filter, onFilter, onSearch)
             }
 
             /*
@@ -1701,6 +1711,15 @@ private fun ClipBadge(uri: Uri, modifier: Modifier = Modifier) {
  * 11sp due righe stanno sotto una miniatura da 108dp senza rubarle spazio.
  */
 /**
+ * La superficie di un tasto a icona di Material, cioè il cerchio dell'increspatura.
+ *
+ * ⚠️ **Quaranta e non quarantotto**: 48 è il bersaglio del dito, che ci arriva da
+ * `minimumInteractiveComponentSize`. Vedi la nota dentro [FilterKey], che è il solo posto in
+ * cui questo tasto è scritto a mano invece di essere un `IconButton`.
+ */
+private val FILTER_KEY = 40.dp
+
+/**
  * Il tasto del filtro volatile, in testata a destra quando non si sta scegliendo.
  *
  * ⚠️⚠️ **STA DOVE STAVA 'SELEZIONA TUTTO'** (richiesta dell'utente, 2026-08-31), cioè in un
@@ -1733,13 +1752,41 @@ private fun ClipBadge(uri: Uri, modifier: Modifier = Modifier) {
  * nella descrizione direbbe a chi legge con TalkBack che il tasto serve a mostrare i video.
  */
 @Composable
-private fun FilterKey(filter: MediaKind, onFilter: (MediaKind) -> Unit) {
+private fun FilterKey(filter: MediaKind, onFilter: (MediaKind) -> Unit, onSearch: () -> Unit) {
     val menu = rememberMenuState()
     val res = LocalResources.current
     Box {
-        IconButton(
-            onClick = { menu.open() },
-            modifier = Modifier.semantics { stateDescription = res.getString(filter.label()) }
+        /*
+         * ⚠️⚠️ **NON È UN `IconButton`, ED È L'UNICA RAGIONE PER CUI È SCRITTO A MANO**: quello
+         * di Material non espone il tocco lungo, e da qui ne parte uno (vedi sotto). Le due
+         * misure sono le sue, prese dal suo sorgente: **40dp** di superficie, cioè il cerchio
+         * dell'increspatura, e il bersaglio portato a 48 da `minimumInteractiveComponentSize`.
+         * Scriverne una sola farebbe di questo l'unico tasto della testata con
+         * un'increspatura di un'altra misura.
+         *
+         * ⚠️⚠️ **IL TOCCO LUNGO APRE LA RICERCA PER NOME, dalla 1.50** (richiesta dell'utente,
+         * 2026-09-04: *voglio che un tocco lungo sull'icona del filtro (in alto a destra) apra
+         * la ricerca dei file per nome (come FAB della home -> Cerca)*). È la **stessa**
+         * ricerca, non una sua parente: chiama quello che chiama la voce 'Cerca' del menu
+         * della schermata iniziale, quindi cerca in tutta la galleria e non nella sola
+         * cartella aperta.
+         * ⚠️ **L'etichetta del gesto è quella della voce del menu** e non una stringa nuova:
+         * nomina la stessa azione, e un secondo testo per la stessa cosa sarebbe due testi da
+         * tenere d'accordo in ventotto lingue.
+         */
+        Box(
+            modifier = Modifier
+                .minimumInteractiveComponentSize()
+                .size(FILTER_KEY)
+                .clip(CircleShape)
+                .combinedClickable(
+                    onClick = { menu.open() },
+                    onLongClick = withHaptics(onSearch),
+                    onLongClickLabel = stringResource(R.string.hub_search),
+                    role = Role.Button
+                )
+                .semantics { stateDescription = res.getString(filter.label()) },
+            contentAlignment = Alignment.Center
         ) {
             FilterMark(lit = filter != MediaKind.ALL) {
                 Icon(

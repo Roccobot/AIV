@@ -82,7 +82,7 @@
     <string name="edit_failed">Non si è riusciti a salvare</string>
     <string name="edit_app_gone">Quell\'editor non c\'è più. Scegline un altro.</string>
     <string name="edit_no_backup">La copia di sicurezza non è riuscita, quindi non si è sovrascritto niente</string>
-    <string name="edit_backup_same">Non è stata creata una copia di backup dell\'immagine perché il file salvato era identico all\'originale.</string>
+    <string name="edit_backup_same">Il file non è cambiato: la copia di sicurezza per la modifica non è stata creata.</string>
     <string name="editor_pick_none">Nessun\'altra app di questo telefono si offre di modificare le immagini.</string>
     <string name="editor_pick_send">Per condivisione</string>
     <string name="editor_pick_send_desc">Ricevono una copia e la salvano dove decidono loro. L\'originale resta com\'è.</string>

@@ -361,7 +361,7 @@
     <string name="view_list">فہرست</string>
     <string name="view_tree">فولڈرز</string>
     <string name="edit_no_backup">حفاظتی نقل نہ بن سکی، سو کسی چیز پر نہیں لکھا گیا</string>
-    <string name="edit_backup_same">تصویر کی کوئی بیک اپ نقل نہیں بنائی گئی، کیونکہ محفوظ کی گئی فائل اصل جیسی ہی تھی۔</string>
+    <string name="edit_backup_same">فائل تبدیل نہیں ہوئی: ترمیم کے لیے حفاظتی نقل نہیں بنائی گئی۔</string>
     <string name="settings_editor_backup">اوپر لکھنے سے پہلے حفاظتی نقل</string>
     <string name="settings_editor_backup_desc">کسی ایڈیٹر کے تصویر پر لکھنے سے پہلے، اُس کی ایک نقل ردی کی ٹوکری میں محفوظ ہو جاتی ہے، جہاں سے آپ اسے واپس لے سکتے ہیں؛ ضرورت نہ ہو تو اگلی بار \'ردی کی ٹوکری خالی کریں\' پر حذف ہو جائے گی۔</string>
     <string name="editor_tall">عمودی</string>

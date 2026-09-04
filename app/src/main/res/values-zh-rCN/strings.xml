@@ -346,7 +346,7 @@
     <string name="view_list">列表</string>
     <string name="view_tree">文件夹</string>
     <string name="edit_no_backup">安全副本没能建立，所以什么都没有覆盖</string>
-    <string name="edit_backup_same">未创建图像的备份副本，因为保存的文件与原文件完全相同。</string>
+    <string name="edit_backup_same">文件没有变化：没有为这次修改留安全副本。</string>
     <string name="settings_editor_backup">覆盖前先留一份安全副本</string>
     <string name="settings_editor_backup_desc">在编辑器覆盖一张图像之前，会先把副本存入回收站，可以从那里找回；如果不需要，下次\'清空回收站\'时会被删除。</string>
     <string name="editor_tall">竖向</string>

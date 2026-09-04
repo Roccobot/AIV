@@ -346,7 +346,7 @@
     <string name="view_list">リスト</string>
     <string name="view_tree">フォルダ</string>
     <string name="edit_no_backup">安全のための控えが作れなかったので、何も上書きしていません</string>
-    <string name="edit_backup_same">保存されたファイルが元と同じだったため、画像のバックアップは作成されませんでした。</string>
+    <string name="edit_backup_same">ファイルは変わっていません。編集用の控えは取っていません。</string>
     <string name="settings_editor_backup">上書きの前に控えを取る</string>
     <string name="settings_editor_backup_desc">エディターが画像を上書きする前に、そのコピーをごみ箱に保存します。そこから復元でき、不要なら次回の「ごみ箱を空にする」で削除されます。</string>
     <string name="editor_tall">縦</string>

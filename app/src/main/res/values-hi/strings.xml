@@ -361,7 +361,7 @@
     <string name="view_list">सूची</string>
     <string name="view_tree">फ़ोल्डर</string>
     <string name="edit_no_backup">सुरक्षा प्रति नहीं बनी, इसलिए कुछ भी ऊपर नहीं लिखा गया</string>
-    <string name="edit_backup_same">छवि की कोई बैकअप प्रति नहीं बनाई गई, क्योंकि सहेजी गई फ़ाइल मूल जैसी ही थी।</string>
+    <string name="edit_backup_same">फ़ाइल नहीं बदली: संपादन के लिए सुरक्षा प्रति नहीं बनाई गई।</string>
     <string name="settings_editor_backup">ऊपर लिखने से पहले सुरक्षा प्रति</string>
     <string name="settings_editor_backup_desc">किसी संपादक द्वारा छवि पर लिखे जाने से पहले, उसकी एक प्रति रद्दी में रख दी जाती है, जहाँ से आप उसे वापस ले सकते हैं; ज़रूरत न हो तो अगली बार \'रद्दी खाली करें\' पर वह हट जाएगी।</string>
     <string name="editor_tall">खड़ा</string>

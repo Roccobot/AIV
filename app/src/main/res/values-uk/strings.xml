@@ -391,7 +391,7 @@
     <string name="view_list">Список</string>
     <string name="view_tree">Папки</string>
     <string name="edit_no_backup">Резервну копію не вдалося зробити, тож нічого не перезаписано</string>
-    <string name="edit_backup_same">Резервну копію зображення не створено: збережений файл ідентичний вихідному.</string>
+    <string name="edit_backup_same">Файл не змінився: резервну копію для редагування не створено.</string>
     <string name="settings_editor_backup">Резервна копія перед перезаписом</string>
     <string name="settings_editor_backup_desc">Перш ніж редактор перезапише зображення, він зберігає його копію в кошику, звідки її можна повернути; якщо вона не потрібна, її буде вилучено під час наступного очищення кошика.</string>
     <string name="editor_tall">Портрет</string>

@@ -361,7 +361,7 @@
     <string name="view_list">జాబితా</string>
     <string name="view_tree">ఫోల్డర్లు</string>
     <string name="edit_no_backup">భద్రతా నకలు కాలేదు, కాబట్టి దేనిపైనా రాయలేదు</string>
-    <string name="edit_backup_same">సేవ్ చేసిన ఫైల్ అసలుదానితో సరిగ్గా ఒకేలా ఉన్నందున, చిత్రం బ్యాకప్ నకలు సృష్టించబడలేదు.</string>
+    <string name="edit_backup_same">ఫైలు మారలేదు: సవరణ కోసం భద్రతా నకలు సృష్టించలేదు.</string>
     <string name="settings_editor_backup">పైన రాసే ముందు భద్రతా నకలు</string>
     <string name="settings_editor_backup_desc">సంపాదకి ఒక చిత్రంపై రాయకముందు, దాని నకలును చెత్తబుట్టలో భద్రపరుస్తుంది; అక్కడి నుంచి తిరిగి తెచ్చుకోవచ్చు. అవసరం లేకపోతే తర్వాతి \'చెత్తబుట్ట ఖాళీ చేయి\'లో తొలగిపోతుంది.</string>
     <string name="editor_tall">నిలువు</string>
