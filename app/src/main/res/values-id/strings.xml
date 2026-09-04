@@ -314,6 +314,7 @@
     <string name="menu_edit">Edit</string>
     <string name="menu_edit_hold">Pilih aplikasi</string>
     <string name="editor_internal">Editor bawaan</string>
+    <string name="editor_title">Editor</string>
     <string name="editor_pick">Pakai apa untuk mengedit?</string>
     <string name="editor_left">Putar ke kiri</string>
     <string name="editor_right">Putar ke kanan</string>

@@ -329,6 +329,7 @@
     <string name="menu_edit">திருத்து</string>
     <string name="menu_edit_hold">செயலியைத் தேர்ந்தெடு</string>
     <string name="editor_internal">உள்ளமைந்த திருத்தி</string>
+    <string name="editor_title">திருத்தி</string>
     <string name="editor_pick">எதைக் கொண்டு திருத்துகிறீர்கள்?</string>
     <string name="editor_left">இடப்புறம் சுழற்று</string>
     <string name="editor_right">வலப்புறம் சுழற்று</string>

@@ -329,6 +329,7 @@
     <string name="menu_edit">ترمیم</string>
     <string name="menu_edit_hold">ایپ منتخب کریں</string>
     <string name="editor_internal">اندرونی مدیر</string>
+    <string name="editor_title">مدیر</string>
     <string name="editor_pick">کس سے ترمیم کرتے ہیں؟</string>
     <string name="editor_left">بائیں گھمائیں</string>
     <string name="editor_right">دائیں گھمائیں</string>

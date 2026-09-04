@@ -314,6 +314,7 @@
     <string name="menu_edit">编辑</string>
     <string name="menu_edit_hold">选择应用</string>
     <string name="editor_internal">内置编辑器</string>
+    <string name="editor_title">编辑器</string>
     <string name="editor_pick">用什么编辑？</string>
     <string name="editor_left">向左旋转</string>
     <string name="editor_right">向右旋转</string>

@@ -314,6 +314,7 @@
     <string name="menu_edit">Sửa</string>
     <string name="menu_edit_hold">Chọn ứng dụng</string>
     <string name="editor_internal">Trình sửa có sẵn</string>
+    <string name="editor_title">Trình sửa</string>
     <string name="editor_pick">Sửa bằng gì?</string>
     <string name="editor_left">Xoay trái</string>
     <string name="editor_right">Xoay phải</string>

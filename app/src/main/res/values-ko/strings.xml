@@ -314,6 +314,7 @@
     <string name="menu_edit">편집</string>
     <string name="menu_edit_hold">앱 선택</string>
     <string name="editor_internal">내장 편집기</string>
+    <string name="editor_title">편집기</string>
     <string name="editor_pick">무엇으로 편집할까요?</string>
     <string name="editor_left">왼쪽으로 돌리기</string>
     <string name="editor_right">오른쪽으로 돌리기</string>

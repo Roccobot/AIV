@@ -329,6 +329,7 @@
     <string name="menu_edit">ویرایش</string>
     <string name="menu_edit_hold">انتخاب برنامه</string>
     <string name="editor_internal">ویرایشگر داخلی</string>
+    <string name="editor_title">ویرایشگر</string>
     <string name="editor_pick">با چه چیزی ویرایش می‌کنی؟</string>
     <string name="editor_left">چرخش به چپ</string>
     <string name="editor_right">چرخش به راست</string>

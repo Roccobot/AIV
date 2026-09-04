@@ -329,6 +329,7 @@
     <string name="menu_edit">సవరించు</string>
     <string name="menu_edit_hold">యాప్‌ను ఎంచుకోండి</string>
     <string name="editor_internal">లోపలి సవరణి</string>
+    <string name="editor_title">సవరణి</string>
     <string name="editor_pick">దేనితో సవరిస్తారు?</string>
     <string name="editor_left">ఎడమవైపు తిప్పు</string>
     <string name="editor_right">కుడివైపు తిప్పు</string>

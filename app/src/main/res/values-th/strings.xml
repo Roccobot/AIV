@@ -314,6 +314,7 @@
     <string name="menu_edit">แก้ไข</string>
     <string name="menu_edit_hold">เลือกแอป</string>
     <string name="editor_internal">ตัวแก้ไขในตัว</string>
+    <string name="editor_title">ตัวแก้ไข</string>
     <string name="editor_pick">แก้ไขด้วยอะไร</string>
     <string name="editor_left">หมุนซ้าย</string>
     <string name="editor_right">หมุนขวา</string>

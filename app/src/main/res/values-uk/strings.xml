@@ -359,6 +359,7 @@
     <string name="menu_edit">Змінити</string>
     <string name="menu_edit_hold">Вибрати застосунок</string>
     <string name="editor_internal">Вбудований редактор</string>
+    <string name="editor_title">Редактор</string>
     <string name="editor_pick">Чим редагувати?</string>
     <string name="editor_left">Повернути ліворуч</string>
     <string name="editor_right">Повернути праворуч</string>

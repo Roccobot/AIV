@@ -58,6 +58,7 @@
     <string name="menu_edit">Modifica</string>
     <string name="menu_edit_hold">Scegli l\'app</string>
     <string name="editor_internal">Editor interno</string>
+    <string name="editor_title">Editor</string>
     <string name="editor_pick">Con che cosa modifichi?</string>
     <string name="editor_left">Ruota\na sinistra</string>
     <string name="editor_right">Ruota\na destra</string>
