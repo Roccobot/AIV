@@ -11,7 +11,6 @@
     <string name="error_retry">تلاش دوباره</string>
     <string name="fit_label">جا شدن در صفحه</string>
     <string name="bar_reduced">کاهش یافته</string>
-    <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">فراموش کردن اینها</string>
     <string name="url_not_image">نشانی به هیچ تصویری نمی‌رسد، و صفحه هم هیچ تصویری ندارد</string>
     <string name="menu_copy_image">کپی تصویر</string>
@@ -77,7 +76,7 @@
     <string name="settings_dark">تیره</string>
 
     <string name="settings_veil">محو پشت پنل‌ها</string>
-    <string name="settings_veil_desc">صفحه پشت گفت‌وگوها، منوها و پنل‌ها را محو و تیره می‌کند. ممکن است برنامه را به‌طور محسوس کندتر کند، به همین دلیل خاموش است.</string>
+    <string name="settings_veil_desc">صفحه پشت گفت‌وگوها، منوها و پنل‌ها را محو و تیره می‌کند. ممکن است برنامه را روی دستگاه‌های قدیمی کندتر کند.</string>
     <string name="settings_folder_columns">ستون‌های شبکه پوشه‌ها</string>
     <string name="settings_folder_columns_desc">ستون بیشتر پوشه‌های بیشتری را در صفحه جا می‌دهد و هر جلد را کوچک‌تر می‌کند. با چهار ستون، نام زیر آن بیشتر وقت‌ها بریده می‌شود.</string>
     <string name="settings_folder_count">شمارندهٔ موارد زیر پوشه‌ها در نمای شبکه‌ای</string>
@@ -272,9 +271,9 @@
     <string name="settings_facts_down">بردن به پایین</string>
     <string name="settings_group_look">ظاهر</string>
     <string name="settings_group_viewer">نمایشگر</string>
-    <string name="settings_group_clips">ویدیو و کشیدن</string>
-    <string name="settings_group_input">کنترل‌ها و انتخاب</string>
-    <string name="settings_group_files">ویرایش و سبد زباله</string>
+    <string name="settings_group_clips">پیمایش</string>
+    <string name="settings_group_input">کنترل‌ها و نشانگرها</string>
+    <string name="settings_group_files">ویرایش و پشتیبان‌گیری</string>
     <string name="settings_group_browse">پوشه‌ها</string>
     <string name="settings_group_start">راه‌اندازی</string>
     <string name="settings_group_advanced">قابلیت‌های پیشرفته</string>
@@ -323,7 +322,7 @@
     <string name="tree_unopenable">هیچ برنامه‌ای در این گوشی نمی‌تواند آن را باز کند</string>
     <string name="clip_pause">توقف</string>
     <string name="settings_images_only">فقط تصویرها را ورق بزن</string>
-    <string name="settings_images_only_desc">در نمایشگر، کشیدن ویدیوها را رد می‌کند و تنها تصویرها را ورق می‌زند. یک لمس در هر حال ویدیو را باز می‌کند.</string>
+    <string name="settings_images_only_desc">در نمایشگر، کشیدن ویدیوها را رد می‌کند و تنها تصویرها را ورق می‌زند. می‌توان ویدیو را با یک لمس از نمای عادی باز کرد.</string>
     <string name="settings_clip_autoplay">پخش مستقیم ویدیوها</string>
 
     <!-- Modificare una fotografia (1.03) -->
@@ -361,6 +360,7 @@
     <string name="view_list">فهرست</string>
     <string name="view_tree">پوشه‌ها</string>
     <string name="edit_no_backup">نسخهٔ ایمنی ساخته نشد، پس چیزی بازنویسی نشد</string>
+    <string name="edit_backup_same">نسخهٔ پشتیبانی از تصویر ساخته نشد، چون پروندهٔ ذخیره‌شده با اصل یکسان بود.</string>
     <string name="settings_editor_backup">نسخهٔ ایمنی پیش از بازنویسی</string>
     <string name="settings_editor_backup_desc">پیش از آنکه ویرایشگر روی تصویری بنویسد، نسخه‌ای از آن را در سطل زباله نگه می‌دارد تا بتوانید بازش گردانید؛ اگر لازمش نداشتید، در \'خالی کردن سطل زباله\' بعدی حذف می‌شود.</string>
     <string name="editor_tall">عمودی</string>

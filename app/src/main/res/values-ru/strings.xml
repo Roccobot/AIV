@@ -11,7 +11,6 @@
     <string name="error_retry">Повторить</string>
     <string name="fit_label">Вписать в экран</string>
     <string name="bar_reduced">уменьшено</string>
-    <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Забыть эти</string>
     <string name="url_not_image">Адрес не ведёт ни к одному изображению, и на странице их тоже нет</string>
     <string name="menu_copy_image">Копировать изображение</string>
@@ -77,7 +76,7 @@
     <string name="settings_dark">Тёмный</string>
 
     <string name="settings_veil">Размытие за панелями</string>
-    <string name="settings_veil_desc">Размывает и затемняет экран за диалогами, меню и панелями. Приложение может заметно замедлиться, поэтому параметр выключен.</string>
+    <string name="settings_veil_desc">Размывает и затемняет экран за диалогами, меню и панелями. На старых устройствах приложение может работать медленнее.</string>
     <string name="settings_folder_columns">Столбцы в сетке папок</string>
     <string name="settings_folder_columns_desc">Чем больше столбцов, тем больше папок помещается на экране и тем меньше каждая обложка. При четырёх имя под ней обычно обрезается.</string>
     <string name="settings_folder_count">Счётчик элементов под папками в режиме сетки</string>
@@ -298,9 +297,9 @@
     <string name="settings_facts_down">Ниже</string>
     <string name="settings_group_look">Внешний вид</string>
     <string name="settings_group_viewer">Просмотр</string>
-    <string name="settings_group_clips">Видео и смахивание</string>
-    <string name="settings_group_input">Управление и выбор</string>
-    <string name="settings_group_files">Правка и корзина</string>
+    <string name="settings_group_clips">Навигация</string>
+    <string name="settings_group_input">Управление и индикаторы</string>
+    <string name="settings_group_files">Правка и резервная копия</string>
     <string name="settings_group_browse">Папки</string>
     <string name="settings_group_start">Запуск</string>
     <string name="settings_group_advanced">Расширенные функции</string>
@@ -353,7 +352,7 @@
     <string name="tree_unopenable">Ни одно приложение на этом телефоне не может это открыть</string>
     <string name="clip_pause">Пауза</string>
     <string name="settings_images_only">Листать только фотографии</string>
-    <string name="settings_images_only_desc">В просмотре смахивание пропускает видео и листает только изображения. Касание всё равно открывает видео.</string>
+    <string name="settings_images_only_desc">В просмотре смахивание пропускает видео и листает только изображения. Видео всё равно открывается касанием из обычного вида.</string>
     <string name="settings_clip_autoplay">Сразу воспроизводить видео</string>
 
     <!-- Modificare una fotografia (1.03) -->
@@ -391,6 +390,7 @@
     <string name="view_list">Список</string>
     <string name="view_tree">Папки</string>
     <string name="edit_no_backup">Резервная копия не получилась, поэтому ничего не перезаписано</string>
+    <string name="edit_backup_same">Резервная копия изображения не создана: сохранённый файл совпадает с исходным.</string>
     <string name="settings_editor_backup">Резервная копия перед перезаписью</string>
     <string name="settings_editor_backup_desc">Прежде чем редактор перезапишет изображение, он сохраняет его копию в корзине, откуда её можно вернуть; если она не нужна, она будет удалена при следующей очистке корзины.</string>
     <string name="editor_tall">Портрет</string>

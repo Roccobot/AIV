@@ -35,7 +35,9 @@
     <string name="bar_reduced">reduced</string>
 
     <!-- ── Asking for an address ── -->
-    <string name="url_hint">https://example.com/picture.jpg</string>
+    <!-- Un indirizzo di esempio, non testo: vale in ogni lingua, e tradurlo
+         vorrebbe dire ventotto posti in cui cambiare un dominio. -->
+    <string name="url_hint" translatable="false">https://example.page/img.png</string>
     <string name="url_forget">Forget these</string>
     <string name="url_not_image">The address leads to no image, and the page has none in it</string>
 
@@ -116,6 +118,7 @@
     <!-- Shown instead of saving: the safety copy could not be made, so the original was left
          alone. Whoever turned that switch on asked not to be able to lose it. -->
     <string name="edit_no_backup">The safety copy failed, so nothing was written over</string>
+    <string name="edit_backup_same">No backup copy of the image was created, because the saved file was identical to the original.</string>
     <!-- Only when no installed app answers the edit request, so the list holds one entry. -->
     <string name="editor_pick_none">No other app on this phone offers to edit pictures.</string>
     <string name="editor_pick_send">By sharing</string>
@@ -156,9 +159,9 @@
     <!-- The sections the settings are gathered into, in the order they appear. -->
     <string name="settings_group_look">Appearance</string>
     <string name="settings_group_viewer">Viewer</string>
-    <string name="settings_group_clips">Videos and swiping</string>
-    <string name="settings_group_input">Controls and selection</string>
-    <string name="settings_group_files">Editing and bin</string>
+    <string name="settings_group_clips">Navigation</string>
+    <string name="settings_group_input">Controls and indicators</string>
+    <string name="settings_group_files">Editing and backup</string>
     <string name="settings_group_browse">Folders</string>
     <string name="settings_group_start">Startup</string>
     <string name="settings_group_advanced">Advanced features</string>
@@ -182,7 +185,7 @@
     <string name="settings_dark">Dark</string>
 
     <string name="settings_veil">Blur behind panels</string>
-    <string name="settings_veil_desc">Blurs and dims the screen behind dialogs, menus and panels. It can make the app feel visibly slower, which is why it is off.</string>
+    <string name="settings_veil_desc">Blurs and dims the screen behind dialogs, menus and panels. It can make the app slower on older devices.</string>
 
     <string name="settings_folder_columns">Columns in the folder grid</string>
     <string name="settings_folder_columns_desc">More columns fit more folders on screen and shrink each cover. At four the name under it is usually cut short.</string>
@@ -235,7 +238,7 @@
          is 'I leaf through videos too', so the branch that tells a picture from a film
          is always needed. Tapping a video still opens it: this is about the GESTURE. -->
     <string name="settings_images_only">Leaf through pictures only</string>
-    <string name="settings_images_only_desc">In the viewer, swiping skips videos and browses images only. A tap still opens a video.</string>
+    <string name="settings_images_only_desc">In the viewer, swiping skips videos and browses images only. You can still open a video with a tap from the normal view.</string>
     <string name="settings_clip_autoplay">Play videos straight away</string>
 
     <!-- Off by default, and the second sentence is the reason why: the system notice

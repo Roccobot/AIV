@@ -11,7 +11,6 @@
     <string name="error_retry">ลองอีกครั้ง</string>
     <string name="fit_label">พอดีหน้าจอ</string>
     <string name="bar_reduced">ย่อขนาด</string>
-    <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">ลืมที่อยู่เหล่านี้</string>
     <string name="url_not_image">ที่อยู่นี้ไม่ได้นำไปสู่รูปภาพใด และในหน้านั้นก็ไม่มีรูปภาพ</string>
     <string name="menu_copy_image">คัดลอกรูปภาพ</string>
@@ -77,7 +76,7 @@
     <string name="settings_dark">มืด</string>
 
     <string name="settings_veil">เบลอด้านหลังแผง</string>
-    <string name="settings_veil_desc">เบลอและหรี่หน้าจอด้านหลังกล่องโต้ตอบ เมนู และแผงต่าง ๆ อาจทำให้แอปช้าลงอย่างเห็นได้ชัด จึงปิดไว้</string>
+    <string name="settings_veil_desc">เบลอและหรี่หน้าจอด้านหลังกล่องโต้ตอบ เมนู และแผงต่าง ๆ บนอุปกรณ์รุ่นเก่า แอปอาจช้าลง</string>
     <string name="settings_folder_columns">จำนวนคอลัมน์ในตารางโฟลเดอร์</string>
     <string name="settings_folder_columns_desc">คอลัมน์ยิ่งมาก โฟลเดอร์ยิ่งลงหน้าจอได้มากและปกแต่ละอันยิ่งเล็ก ที่สี่คอลัมน์ ชื่อด้านล่างมักถูกตัด</string>
     <string name="settings_folder_count">ตัวนับรายการใต้โฟลเดอร์ในมุมมองตาราง</string>
@@ -259,9 +258,9 @@
     <string name="settings_facts_down">เลื่อนลง</string>
     <string name="settings_group_look">รูปลักษณ์</string>
     <string name="settings_group_viewer">ตัวแสดงภาพ</string>
-    <string name="settings_group_clips">วิดีโอและการปัด</string>
-    <string name="settings_group_input">การควบคุมและการเลือก</string>
-    <string name="settings_group_files">การแก้ไขและถังขยะ</string>
+    <string name="settings_group_clips">การนำทาง</string>
+    <string name="settings_group_input">การควบคุมและตัวบ่งชี้</string>
+    <string name="settings_group_files">การแก้ไขและสำเนาสำรอง</string>
     <string name="settings_group_browse">โฟลเดอร์</string>
     <string name="settings_group_start">การเริ่มต้น</string>
     <string name="settings_group_advanced">ฟีเจอร์ขั้นสูง</string>
@@ -308,7 +307,7 @@
     <string name="tree_unopenable">ไม่มีแอปในโทรศัพท์นี้ที่เปิดไฟล์นี้ได้</string>
     <string name="clip_pause">หยุดชั่วคราว</string>
     <string name="settings_images_only">เปิดดูเฉพาะรูปภาพ</string>
-    <string name="settings_images_only_desc">ในโปรแกรมดูภาพ การปัดจะข้ามวิดีโอและเปิดดูเฉพาะภาพ การแตะยังเปิดวิดีโอได้เช่นเดิม</string>
+    <string name="settings_images_only_desc">ในโปรแกรมดูภาพ การปัดจะข้ามวิดีโอและเปิดดูเฉพาะภาพ ยังเปิดวิดีโอได้ด้วยการแตะจากมุมมองปกติ</string>
     <string name="settings_clip_autoplay">เล่นวิดีโอทันที</string>
 
     <!-- Modificare una fotografia (1.03) -->
@@ -346,6 +345,7 @@
     <string name="view_list">รายการ</string>
     <string name="view_tree">โฟลเดอร์</string>
     <string name="edit_no_backup">สำเนาสำรองไม่สำเร็จ จึงไม่ได้เขียนทับอะไรเลย</string>
+    <string name="edit_backup_same">ไม่ได้สร้างสำเนาสำรองของภาพ เพราะไฟล์ที่บันทึกเหมือนกับต้นฉบับทุกประการ</string>
     <string name="settings_editor_backup">สำเนาสำรองก่อนเขียนทับ</string>
     <string name="settings_editor_backup_desc">ก่อนที่โปรแกรมแก้ไขจะเขียนทับภาพ ระบบจะเก็บสำเนาไว้ในถังขยะ ซึ่งคุณกู้คืนได้ หากไม่ต้องการ สำเนานั้นจะถูกลบเมื่อ \'ล้างถังขยะ\' ครั้งต่อไป</string>
     <string name="editor_tall">แนวตั้ง</string>

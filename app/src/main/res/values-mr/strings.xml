@@ -11,7 +11,6 @@
     <string name="error_retry">पुन्हा प्रयत्न करा</string>
     <string name="fit_label">पडद्यात बसवा</string>
     <string name="bar_reduced">कमी केलेली</string>
-    <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">हे पत्ते विसरा</string>
     <string name="url_not_image">हा पत्ता कोणत्याही प्रतिमेकडे जात नाही, आणि पानातही प्रतिमा नाही</string>
     <string name="menu_copy_image">प्रतिमा कॉपी करा</string>
@@ -77,7 +76,7 @@
     <string name="settings_dark">गडद</string>
 
     <string name="settings_veil">पॅनेलमागे अस्पष्टता</string>
-    <string name="settings_veil_desc">संवाद, मेनू आणि पॅनेलमागील स्क्रीन अस्पष्ट आणि गडद करते. यामुळे ॲप स्पष्टपणे संथ वाटू शकते, म्हणून हे बंद आहे.</string>
+    <string name="settings_veil_desc">संवाद, मेनू आणि पॅनेलमागील स्क्रीन अस्पष्ट आणि गडद करते. जुन्या उपकरणांवर ॲप संथ होऊ शकते.</string>
     <string name="settings_folder_columns">संचिकासंच जाळीतील स्तंभ</string>
     <string name="settings_folder_columns_desc">जास्त स्तंभांत पडद्यावर जास्त संचिकासंच बसतात आणि प्रत्येक मुखपृष्ठ लहान होते. चार असताना खालचे नाव बहुधा कापले जाते.</string>
     <string name="settings_folder_count">जाळी दृश्यात फोल्डरखाली घटकांची मोजणी</string>
@@ -272,9 +271,9 @@
     <string name="settings_facts_down">खाली सरकवा</string>
     <string name="settings_group_look">स्वरूप</string>
     <string name="settings_group_viewer">प्रदर्शक</string>
-    <string name="settings_group_clips">व्हिडिओ आणि सरकवणे</string>
-    <string name="settings_group_input">नियंत्रणे आणि निवड</string>
-    <string name="settings_group_files">संपादन आणि कचरापेटी</string>
+    <string name="settings_group_clips">नेव्हिगेशन</string>
+    <string name="settings_group_input">नियंत्रणे आणि निर्देशक</string>
+    <string name="settings_group_files">संपादन आणि बॅकअप</string>
     <string name="settings_group_browse">फोल्डर</string>
     <string name="settings_group_start">सुरुवात</string>
     <string name="settings_group_advanced">प्रगत सुविधा</string>
@@ -323,7 +322,7 @@
     <string name="tree_unopenable">या फोनवरील कोणतेही ॲप हे उघडू शकत नाही</string>
     <string name="clip_pause">थांबवा</string>
     <string name="settings_images_only">फक्त चित्रे पाहा</string>
-    <string name="settings_images_only_desc">दर्शकात सरकवल्यावर व्हिडिओ वगळले जातात आणि फक्त प्रतिमा पलटतात. एका स्पर्शाने व्हिडिओ तरीही उघडतो.</string>
+    <string name="settings_images_only_desc">दर्शकात सरकवल्यावर व्हिडिओ वगळले जातात आणि फक्त प्रतिमा पलटतात. सामान्य दृश्यातून एका स्पर्शाने व्हिडिओ उघडता येतो.</string>
     <string name="settings_clip_autoplay">व्हिडिओ थेट चालवा</string>
 
     <!-- Modificare una fotografia (1.03) -->
@@ -361,6 +360,7 @@
     <string name="view_list">यादी</string>
     <string name="view_tree">फोल्डर</string>
     <string name="edit_no_backup">सुरक्षा प्रत झाली नाही, म्हणून काहीही वर लिहिले गेले नाही</string>
+    <string name="edit_backup_same">प्रतिमेची बॅकअप प्रत तयार केली नाही, कारण जतन केलेली फाइल मूळ फाइलसारखीच होती.</string>
     <string name="settings_editor_backup">वर लिहिण्यापूर्वी सुरक्षा प्रत</string>
     <string name="settings_editor_backup_desc">संपादकाने प्रतिमेवर लिहिण्याआधी तिची एक प्रत कचरापेटीत ठेवली जाते, तिथून ती परत मिळवता येते; गरज नसेल तर पुढच्या \'कचरापेटी रिकामी करा\' वेळी ती हटेल.</string>
     <string name="editor_tall">उभे</string>

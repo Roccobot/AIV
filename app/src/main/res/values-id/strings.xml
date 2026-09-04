@@ -11,7 +11,6 @@
     <string name="error_retry">Coba lagi</string>
     <string name="fit_label">Sesuaikan ke layar</string>
     <string name="bar_reduced">diperkecil</string>
-    <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Lupakan ini</string>
     <string name="url_not_image">Alamat ini tidak menuju gambar mana pun, dan halamannya juga tidak memuat gambar</string>
     <string name="menu_copy_image">Salin gambar</string>
@@ -77,7 +76,7 @@
     <string name="settings_dark">Gelap</string>
 
     <string name="settings_veil">Buram di belakang panel</string>
-    <string name="settings_veil_desc">Membuat layar di belakang dialog, menu, dan panel menjadi buram dan gelap. Aplikasi bisa terasa jauh lebih lambat, karena itu opsi ini nonaktif.</string>
+    <string name="settings_veil_desc">Membuat layar di belakang dialog, menu, dan panel menjadi buram dan gelap. Pada perangkat lama, aplikasi bisa menjadi lebih lambat.</string>
     <string name="settings_folder_columns">Kolom pada kisi folder</string>
     <string name="settings_folder_columns_desc">Semakin banyak kolom, semakin banyak folder yang masuk ke layar dan semakin kecil setiap sampul. Pada empat kolom, nama di bawahnya biasanya terpotong.</string>
     <string name="settings_folder_count">Penghitung item di bawah folder pada tampilan kisi</string>
@@ -259,9 +258,9 @@
     <string name="settings_facts_down">Turunkan</string>
     <string name="settings_group_look">Tampilan</string>
     <string name="settings_group_viewer">Penampil</string>
-    <string name="settings_group_clips">Video dan gesekan</string>
-    <string name="settings_group_input">Kendali dan pemilihan</string>
-    <string name="settings_group_files">Penyuntingan dan tempat sampah</string>
+    <string name="settings_group_clips">Navigasi</string>
+    <string name="settings_group_input">Kendali dan indikator</string>
+    <string name="settings_group_files">Penyuntingan dan cadangan</string>
     <string name="settings_group_browse">Folder</string>
     <string name="settings_group_start">Permulaan</string>
     <string name="settings_group_advanced">Fitur lanjutan</string>
@@ -308,7 +307,7 @@
     <string name="tree_unopenable">Tidak ada aplikasi di ponsel ini yang bisa membukanya</string>
     <string name="clip_pause">Jeda</string>
     <string name="settings_images_only">Telusuri gambar saja</string>
-    <string name="settings_images_only_desc">Di penampil, gesekan melewati video dan hanya menelusuri gambar. Satu ketukan tetap membuka video.</string>
+    <string name="settings_images_only_desc">Di penampil, gesekan melewati video dan hanya menelusuri gambar. Video tetap bisa dibuka dengan satu ketukan dari tampilan biasa.</string>
     <string name="settings_clip_autoplay">Putar video secara langsung</string>
 
     <!-- Modificare una fotografia (1.03) -->
@@ -346,6 +345,7 @@
     <string name="view_list">Daftar</string>
     <string name="view_tree">Folder</string>
     <string name="edit_no_backup">Salinan pengaman gagal, jadi tidak ada yang ditimpa</string>
+    <string name="edit_backup_same">Tidak ada salinan cadangan gambar yang dibuat, karena berkas yang disimpan sama persis dengan aslinya.</string>
     <string name="settings_editor_backup">Salinan pengaman sebelum menimpa</string>
     <string name="settings_editor_backup_desc">Sebelum sebuah penyunting menimpa gambar, salinannya disimpan di tempat sampah, tempat Anda dapat memulihkannya; bila tidak diperlukan, salinan itu akan terhapus pada \'Kosongkan tempat sampah\' berikutnya.</string>
     <string name="editor_tall">Tegak</string>

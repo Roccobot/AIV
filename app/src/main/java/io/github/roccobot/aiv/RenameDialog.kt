@@ -548,7 +548,24 @@ private fun NamePill(
              * ha chiesto questa forma. L'anteprima mostra al massimo cinque abbinamenti: non
              * può crescere senza limite.
              */
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+            /*
+             * ⚠️⚠️ **8 SOPRA E SOTTO DALLA 1.48, ED ERANO 4** (riscontro dell'utente, giro
+             * della 1.47: *dai un po' più di spazio sopra e sotto ai due riquadri di rinomina
+             * prima/dopo, perché i caratteri minuscoli con i discendenti (q, g, ecc.) sono
+             * veramente a filo*). Non era una svista di misura: un riempimento **simmetrico**
+             * intorno a un testo si **vede** asimmetrico, perché l'ascendente di un carattere
+             * porta con sé dell'aria sopra le maiuscole che il discendente non porta sotto la
+             * coda della `g`. Con 4 da tutte e due le parti, sopra si sommavano il
+             * riempimento e quell'aria, sotto c'era il solo riempimento.
+             * ⚠️ **Quanta sia quell'aria dipende dal carattere di sistema**, quindi non si
+             * scrive un numero qui: la cura è dare al lato stretto abbastanza spazio da non
+             * dipendere da quel margine, non pareggiare i due lati con una misura presa da un
+             * carattere che sul telefono di qualcun altro è un altro.
+             * ⚠️ **E il riempimento resta uguale sui quattro lati**: la pastiglia di una riga
+             * viene così alta quanto un contenitore piccolo di Material, che è un posto in cui
+             * atterrare invece di un numero scelto a occhio.
+             */
+            modifier = Modifier.padding(8.dp)
         )
     }
 }

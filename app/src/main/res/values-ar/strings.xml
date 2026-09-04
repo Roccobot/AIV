@@ -11,7 +11,6 @@
     <string name="error_retry">إعادة المحاولة</string>
     <string name="fit_label">ملاءمة الشاشة</string>
     <string name="bar_reduced">مصغّرة</string>
-    <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">نسيان هذه العناوين</string>
     <string name="url_not_image">لا يؤدي العنوان إلى صورة، والصفحة لا تحتوي على أي صورة</string>
     <string name="menu_copy_image">نسخ الصورة</string>
@@ -77,7 +76,7 @@
     <string name="settings_dark">داكن</string>
 
     <string name="settings_veil">التمويه خلف اللوحات</string>
-    <string name="settings_veil_desc">يطبّق تمويهًا وتعتيمًا على الشاشة خلف مربعات الحوار والقوائم واللوحات. قد يجعل التطبيق يبدو أبطأ بوضوح، ولهذا فهو معطّل.</string>
+    <string name="settings_veil_desc">يطبّق تمويهًا وتعتيمًا على الشاشة خلف مربعات الحوار والقوائم واللوحات. قد يجعل التطبيق أبطأ على الأجهزة القديمة.</string>
     <string name="settings_folder_columns">أعمدة شبكة المجلدات</string>
     <string name="settings_folder_columns_desc">كلما زادت الأعمدة زاد عدد المجلدات على الشاشة وصغر كل غلاف. عند أربعة أعمدة يُقتطع الاسم أسفله غالبًا.</string>
     <string name="settings_folder_count">عدّاد العناصر تحت المجلدات في عرض الشبكة</string>
@@ -324,9 +323,9 @@
     <string name="settings_facts_down">تحريك لأسفل</string>
     <string name="settings_group_look">المظهر</string>
     <string name="settings_group_viewer">العارض</string>
-    <string name="settings_group_clips">الفيديو والسحب</string>
-    <string name="settings_group_input">التحكم والتحديد</string>
-    <string name="settings_group_files">التحرير وسلة المهملات</string>
+    <string name="settings_group_clips">التنقّل</string>
+    <string name="settings_group_input">التحكم والمؤشرات</string>
+    <string name="settings_group_files">التحرير والنسخ الاحتياطي</string>
     <string name="settings_group_browse">المجلدات</string>
     <string name="settings_group_start">بدء التشغيل</string>
     <string name="settings_group_advanced">ميزات متقدمة</string>
@@ -383,7 +382,7 @@
     <string name="tree_unopenable">لا يوجد تطبيق على هذا الهاتف يستطيع فتحه</string>
     <string name="clip_pause">إيقاف مؤقت</string>
     <string name="settings_images_only">تصفح الصور فقط</string>
-    <string name="settings_images_only_desc">في العارض، يتخطّى السحب مقاطع الفيديو ويتصفّح الصور وحدها. واللمسة تفتح مقطع الفيديو على أي حال.</string>
+    <string name="settings_images_only_desc">في العارض، يتخطّى السحب مقاطع الفيديو ويتصفّح الصور وحدها. ويمكن فتح مقطع الفيديو بلمسة من العرض العادي.</string>
     <string name="settings_clip_autoplay">تشغيل الفيديو مباشرةً</string>
 
     <!-- Modificare una fotografia (1.03) -->
@@ -421,6 +420,7 @@
     <string name="view_list">قائمة</string>
     <string name="view_tree">مجلدات</string>
     <string name="edit_no_backup">تعذّرت نسخة الأمان، فلم تجرِ الكتابة فوق شيء</string>
+    <string name="edit_backup_same">لم يتم إنشاء نسخة احتياطية من الصورة لأن الملف المحفوظ كان مطابقًا للأصل.</string>
     <string name="settings_editor_backup">نسخة أمان قبل الكتابة فوق الملف</string>
     <string name="settings_editor_backup_desc">قبل أن يستبدل المحرّر صورةً، يحفظ نسخةً منها في سلة المهملات حيث يمكنك استعادتها؛ وإن لم تحتَجها فستُحذَف عند \'إفراغ سلة المهملات\' التالي.</string>
     <string name="editor_tall">طولي</string>

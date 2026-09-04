@@ -596,9 +596,14 @@ private fun ColumnScope.RootPage(
      * quella frase era **falsa** da quando esiste il gruppo del visualizzatore qui sopra.
      * Nessun referto l'aveva vista, e una collocazione che ha bisogno di giustificarsi è una
      * famiglia che non esiste ancora.
-     * ⚠️ **Il titolo nomina due famiglie**, i video e il verso dello scorrimento, e non viola
-     * la prova della `e`: quella prova dice quando due **voci** non rispondono alla stessa
-     * domanda, mentre una sezione a nessuna domanda risponde, dice dove si è.
+     * ⚠️⚠️ **IL TITOLO È UNA PAROLA SOLA DALLA 1.48, E PRIMA NE NOMINAVA DUE** ('Video e
+     * scorrimento', riscritto dall'utente nel giro della `1.46`). Il titolo vecchio elencava
+     * quello che c'è dentro; questo dice **che cosa si viene a fare qui**, cioè decidere come
+     * ci si muove fra un'immagine e l'altra, ed è la domanda che tiene insieme tutte e tre le
+     * voci: che cosa si salta, che cosa parte da sé, e da che parte si va.
+     * ⚠️ **Un titolo che elenca non è vietato**, e in questa schermata ce ne sono ancora: la
+     * regola dice che una sezione a nessuna domanda risponde, dice dove si è, quindi un titolo
+     * vale l'altro finché lo dice bene.
      */
     Group(stringResource(R.string.settings_group_clips))
 
@@ -642,6 +647,10 @@ private fun ColumnScope.RootPage(
      * gruppo si fa, e quella scusa non serve più.
      * ⚠️ **La mano NON sta sotto 'Aspetto'**: non è come l'app è vestita, e sotto quel titolo
      * nessuno la cerca.
+     * ⚠️ **Il titolo dice 'indicatori' e non più 'selezione' dalla 1.48** (riscritto
+     * dall'utente nel giro della `1.46`): due delle tre voci accendono qualcosa che si
+     * **guarda** (il percorso in testa alla lista, la testata della selezione), e 'selezione'
+     * ne nominava una sola delle due.
      */
     Group(stringResource(R.string.settings_group_input))
 
@@ -695,6 +704,11 @@ private fun ColumnScope.RootPage(
      * sul cestino allontanerebbe la risposta a 'come recupero un file cancellato'.
      * ⚠️ **L'ordine interno segue il percorso di un file**: con che cosa si modifica, se ne
      * resta una copia, e se cancellare si può disfare.
+     * ⚠️⚠️ **IL TITOLO NON NOMINA PIÙ IL CESTINO DALLA 1.48** ('Modifica e cestino', riscritto
+     * dall'utente nel giro della `1.46`), e la voce del cestino è **rimasta qui**: chi la cerca
+     * la trova con la ricerca, che confronta il titolo della voce e non quello della sezione.
+     * La parola nuova, 'backup', nomina la copia di sicurezza, che prima nel titolo non
+     * compariva pur essendo la voce in mezzo.
      */
     Group(stringResource(R.string.settings_group_files))
 

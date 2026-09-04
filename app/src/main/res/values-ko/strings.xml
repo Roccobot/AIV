@@ -11,7 +11,6 @@
     <string name="error_retry">다시 시도</string>
     <string name="fit_label">화면에 맞추기</string>
     <string name="bar_reduced">축소됨</string>
-    <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">기록 지우기</string>
     <string name="url_not_image">이 주소는 이미지로 이어지지 않고, 페이지에도 이미지가 없습니다</string>
     <string name="menu_copy_image">이미지 복사</string>
@@ -77,7 +76,7 @@
     <string name="settings_dark">어둡게</string>
 
     <string name="settings_veil">패널 뒤 흐림 효과</string>
-    <string name="settings_veil_desc">대화상자, 메뉴, 패널 뒤의 화면을 흐리게 하고 어둡게 합니다. 앱이 눈에 띄게 느려질 수 있어 기본적으로 꺼져 있습니다.</string>
+    <string name="settings_veil_desc">대화상자, 메뉴, 패널 뒤의 화면을 흐리게 하고 어둡게 합니다. 오래된 기기에서는 앱이 느려질 수 있습니다.</string>
     <string name="settings_folder_columns">폴더 격자의 열 수</string>
     <string name="settings_folder_columns_desc">열이 많을수록 화면에 폴더가 더 많이 들어가고 표지는 작아집니다. 네 열에서는 아래의 이름이 대개 잘립니다.</string>
     <string name="settings_folder_count">격자 보기에서 폴더 아래 항목 개수 표시</string>
@@ -259,9 +258,9 @@
     <string name="settings_facts_down">아래로</string>
     <string name="settings_group_look">모양</string>
     <string name="settings_group_viewer">보기</string>
-    <string name="settings_group_clips">동영상과 넘기기</string>
-    <string name="settings_group_input">조작과 선택</string>
-    <string name="settings_group_files">편집과 휴지통</string>
+    <string name="settings_group_clips">탐색</string>
+    <string name="settings_group_input">조작과 표시</string>
+    <string name="settings_group_files">편집과 백업</string>
     <string name="settings_group_browse">폴더</string>
     <string name="settings_group_start">시작</string>
     <string name="settings_group_advanced">고급 기능</string>
@@ -308,7 +307,7 @@
     <string name="tree_unopenable">이 휴대전화에는 열 수 있는 앱이 없습니다</string>
     <string name="clip_pause">일시정지</string>
     <string name="settings_images_only">사진만 넘기기</string>
-    <string name="settings_images_only_desc">뷰어에서 밀면 동영상을 건너뛰고 이미지만 넘깁니다. 한 번 누르면 동영상은 그대로 열립니다.</string>
+    <string name="settings_images_only_desc">뷰어에서 밀면 동영상을 건너뛰고 이미지만 넘깁니다. 동영상은 일반 화면에서 한 번 누르면 열립니다.</string>
     <string name="settings_clip_autoplay">동영상 바로 재생</string>
 
     <!-- Modificare una fotografia (1.03) -->
@@ -346,6 +345,7 @@
     <string name="view_list">목록</string>
     <string name="view_tree">폴더</string>
     <string name="edit_no_backup">안전 사본을 만들지 못해서 아무것도 덮어쓰지 않았습니다</string>
+    <string name="edit_backup_same">저장된 파일이 원본과 같아서 이미지의 백업 사본을 만들지 않았습니다.</string>
     <string name="settings_editor_backup">덮어쓰기 전에 안전 사본</string>
     <string name="settings_editor_backup_desc">편집기가 이미지를 덮어쓰기 전에 사본을 휴지통에 저장합니다. 거기에서 되돌릴 수 있고, 필요 없으면 다음 \'휴지통 비우기\'에서 삭제됩니다.</string>
     <string name="editor_tall">세로</string>

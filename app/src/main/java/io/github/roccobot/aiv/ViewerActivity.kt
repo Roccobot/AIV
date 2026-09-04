@@ -1177,6 +1177,14 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * riscrive gli stessi identici byte, e non la cambia affatto qualche editor che la
      * conserva apposta. Sbaglierebbe in tutte e due le direzioni, e quella grave è buttare
      * la copia di un file che invece è stato riscritto.
+     * ⚠️⚠️ **E DALLA 1.48 LA COPIA BUTTATA SI DICE** (istruzione dell'utente, ripetuta nel
+     * giro della `1.47`: *farlo sapere all'utente con una notifica toast*). Cancellarla in
+     * silenzio era giusto e insieme indistinguibile da una promessa non mantenuta: chi ha
+     * acceso l'interruttore va a cercare la copia nel cestino, non la trova, e non ha modo di
+     * sapere se manca perché non serviva o perché la protezione non ha funzionato.
+     * ⚠️ **L'avviso esce SOLO qui**, ed è l'unico posto in cui il caso esiste: l'editor di
+     * casa rifiuta un salvataggio che non cambia niente (`edit_nothing`), e la pulizia di un
+     * SVG si ferma prima di fare la copia quando non c'è niente da togliere.
      */
     private fun backFromOutside() {
         val uri = editedOutside ?: return
@@ -1189,7 +1197,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 val same = withContext(Dispatchers.IO) {
                     FileTree.fileOf(context, uri)?.let { sameBytes(kept, it) } == true
                 }
-                if (same) Bin.drop(context, kept)
+                if (same) {
+                    Bin.drop(context, kept)
+                    notice = R.string.edit_backup_same
+                }
             }
         }
         Thumbs.forget(context, uri)

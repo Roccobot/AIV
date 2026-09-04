@@ -11,7 +11,6 @@
     <string name="error_retry">Спробувати ще раз</string>
     <string name="fit_label">Вписати в екран</string>
     <string name="bar_reduced">зменшено</string>
-    <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Забути ці</string>
     <string name="url_not_image">Адреса не веде до жодного зображення, і на сторінці їх немає</string>
     <string name="menu_copy_image">Копіювати зображення</string>
@@ -77,7 +76,7 @@
     <string name="settings_dark">Темний</string>
 
     <string name="settings_veil">Розмиття за панелями</string>
-    <string name="settings_veil_desc">Розмиває й затемнює екран за діалогами, меню та панелями. Застосунок може помітно сповільнитися, тому параметр вимкнено.</string>
+    <string name="settings_veil_desc">Розмиває й затемнює екран за діалогами, меню та панелями. На старих пристроях застосунок може працювати повільніше.</string>
     <string name="settings_folder_columns">Стовпці в сітці тек</string>
     <string name="settings_folder_columns_desc">Що більше стовпців, то більше тек вміщується на екрані і то менша кожна обкладинка. За чотирьох ім\'я під нею зазвичай обрізається.</string>
     <string name="settings_folder_count">Лічильник елементів під теками в режимі сітки</string>
@@ -298,9 +297,9 @@
     <string name="settings_facts_down">Нижче</string>
     <string name="settings_group_look">Вигляд</string>
     <string name="settings_group_viewer">Перегляд</string>
-    <string name="settings_group_clips">Відео та проведення</string>
-    <string name="settings_group_input">Керування та вибір</string>
-    <string name="settings_group_files">Редагування та кошик</string>
+    <string name="settings_group_clips">Навігація</string>
+    <string name="settings_group_input">Керування та індикатори</string>
+    <string name="settings_group_files">Редагування та резервна копія</string>
     <string name="settings_group_browse">Теки</string>
     <string name="settings_group_start">Запуск</string>
     <string name="settings_group_advanced">Розширені функції</string>
@@ -353,7 +352,7 @@
     <string name="tree_unopenable">Жодна програма на цьому телефоні не може це відкрити</string>
     <string name="clip_pause">Пауза</string>
     <string name="settings_images_only">Гортати лише фотографії</string>
-    <string name="settings_images_only_desc">У переглядачі проведення пропускає відео й гортає лише зображення. Дотик усе одно відкриває відео.</string>
+    <string name="settings_images_only_desc">У переглядачі проведення пропускає відео й гортає лише зображення. Відео все одно можна відкрити дотиком зі звичайного вигляду.</string>
     <string name="settings_clip_autoplay">Відразу відтворювати відео</string>
 
     <!-- Modificare una fotografia (1.03) -->
@@ -391,6 +390,7 @@
     <string name="view_list">Список</string>
     <string name="view_tree">Папки</string>
     <string name="edit_no_backup">Резервну копію не вдалося зробити, тож нічого не перезаписано</string>
+    <string name="edit_backup_same">Резервну копію зображення не створено: збережений файл ідентичний вихідному.</string>
     <string name="settings_editor_backup">Резервна копія перед перезаписом</string>
     <string name="settings_editor_backup_desc">Перш ніж редактор перезапише зображення, він зберігає його копію в кошику, звідки її можна повернути; якщо вона не потрібна, її буде вилучено під час наступного очищення кошика.</string>
     <string name="editor_tall">Портрет</string>

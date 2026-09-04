@@ -11,7 +11,6 @@
     <string name="error_retry">重试</string>
     <string name="fit_label">适应视图</string>
     <string name="bar_reduced">已缩小</string>
-    <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">忘记这些</string>
     <string name="url_not_image">这个地址不指向任何图像，页面里也没有图像</string>
     <string name="menu_copy_image">复制图片</string>
@@ -77,7 +76,7 @@
     <string name="settings_dark">深色</string>
 
     <string name="settings_veil">面板背后模糊</string>
-    <string name="settings_veil_desc">将对话框、菜单和面板背后的屏幕变得模糊并压暗。这会让应用明显变慢，因此默认关闭。</string>
+    <string name="settings_veil_desc">将对话框、菜单和面板背后的屏幕变得模糊并压暗。在旧设备上，应用可能会变慢。</string>
     <string name="settings_folder_columns">文件夹网格的列数</string>
     <string name="settings_folder_columns_desc">列数越多,屏幕上装下的文件夹越多,每张封面也越小。到四列时,下面的名字通常会被截断。</string>
     <string name="settings_folder_count">网格视图中文件夹下方的项目计数</string>
@@ -259,9 +258,9 @@
     <string name="settings_facts_down">下移</string>
     <string name="settings_group_look">外观</string>
     <string name="settings_group_viewer">查看器</string>
-    <string name="settings_group_clips">视频与滑动</string>
-    <string name="settings_group_input">操作与选择</string>
-    <string name="settings_group_files">编辑与回收站</string>
+    <string name="settings_group_clips">导航</string>
+    <string name="settings_group_input">操作与指示</string>
+    <string name="settings_group_files">编辑与备份</string>
     <string name="settings_group_browse">文件夹</string>
     <string name="settings_group_start">启动</string>
     <string name="settings_group_advanced">高级功能</string>
@@ -308,7 +307,7 @@
     <string name="tree_unopenable">这台手机上没有能打开它的应用</string>
     <string name="clip_pause">暂停</string>
     <string name="settings_images_only">只翻阅图片</string>
-    <string name="settings_images_only_desc">在查看器中滑动会跳过视频，只翻阅图像。轻触仍然会打开视频。</string>
+    <string name="settings_images_only_desc">在查看器中滑动会跳过视频，只翻阅图像。在普通视图中轻触仍然可以打开视频。</string>
     <string name="settings_clip_autoplay">直接播放视频</string>
 
     <!-- Modificare una fotografia (1.03) -->
@@ -346,6 +345,7 @@
     <string name="view_list">列表</string>
     <string name="view_tree">文件夹</string>
     <string name="edit_no_backup">安全副本没能建立，所以什么都没有覆盖</string>
+    <string name="edit_backup_same">未创建图像的备份副本，因为保存的文件与原文件完全相同。</string>
     <string name="settings_editor_backup">覆盖前先留一份安全副本</string>
     <string name="settings_editor_backup_desc">在编辑器覆盖一张图像之前，会先把副本存入回收站，可以从那里找回；如果不需要，下次\'清空回收站\'时会被删除。</string>
     <string name="editor_tall">竖向</string>

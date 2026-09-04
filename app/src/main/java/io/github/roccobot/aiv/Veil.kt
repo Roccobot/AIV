@@ -178,7 +178,18 @@ private fun paint(view: View, dim: Float, radius: Int?): () -> Unit {
         }
         return {
             window.setDimAmount(prima)
-            if (radius != null) window.clearFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
+            if (radius != null) {
+                window.clearFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
+                /*
+                 * ⚠️ **Anche il raggio torna a zero, e prima restava scritto**: con la
+                 * bandierina spenta non si vede niente, quindi non era un difetto visibile, ma
+                 * lasciava sulla finestra un numero che dice 'sfoca di trentatré pixel' mentre
+                 * nessuno sfoca. Il giorno che qualcosa riaccende quella bandierina, la
+                 * sfocatura riparte da sola con un valore che nessuno ha chiesto in quel
+                 * momento. Costa una riga e toglie uno stato che mente.
+                 */
+                window.attributes = window.attributes.apply { blurBehindRadius = 0 }
+            }
         }
     }
 

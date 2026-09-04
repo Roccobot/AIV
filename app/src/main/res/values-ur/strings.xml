@@ -11,7 +11,6 @@
     <string name="error_retry">دوبارہ کوشش کریں</string>
     <string name="fit_label">اسکرین میں سمائیں</string>
     <string name="bar_reduced">کم کیا گیا</string>
-    <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">یہ پتے بھول جائیں</string>
     <string name="url_not_image">یہ پتہ کسی تصویر تک نہیں پہنچتا، اور صفحے میں بھی کوئی تصویر نہیں</string>
     <string name="menu_copy_image">تصویر کاپی کریں</string>
@@ -77,7 +76,7 @@
     <string name="settings_dark">گہرا</string>
 
     <string name="settings_veil">پینلز کے پیچھے دھندلاہٹ</string>
-    <string name="settings_veil_desc">ڈائیلاگ، مینو اور پینلز کے پیچھے کی اسکرین کو دھندلا اور مدھم کرتا ہے۔ اس سے ایپ نمایاں طور پر سست محسوس ہو سکتی ہے، اسی لیے یہ بند ہے۔</string>
+    <string name="settings_veil_desc">ڈائیلاگ، مینو اور پینلز کے پیچھے کی اسکرین کو دھندلا اور مدھم کرتا ہے۔ پرانے آلات پر ایپ سست ہو سکتی ہے۔</string>
     <string name="settings_folder_columns">فولڈر گرڈ کے کالم</string>
     <string name="settings_folder_columns_desc">زیادہ کالم اسکرین پر زیادہ فولڈر سماتے ہیں اور ہر سرورق چھوٹا کر دیتے ہیں۔ چار پر نیچے کا نام عموماً کٹ جاتا ہے۔</string>
     <string name="settings_folder_count">گرڈ منظر میں فولڈروں کے نیچے اشیا کا شمار کنندہ</string>
@@ -272,9 +271,9 @@
     <string name="settings_facts_down">نیچے لے جائیں</string>
     <string name="settings_group_look">ظاہری شکل</string>
     <string name="settings_group_viewer">ناظر</string>
-    <string name="settings_group_clips">ویڈیو اور سرکانا</string>
-    <string name="settings_group_input">کنٹرول اور انتخاب</string>
-    <string name="settings_group_files">ترمیم اور ردی کی ٹوکری</string>
+    <string name="settings_group_clips">نیویگیشن</string>
+    <string name="settings_group_input">کنٹرول اور اشارے</string>
+    <string name="settings_group_files">ترمیم اور بیک اپ</string>
     <string name="settings_group_browse">فولڈرز</string>
     <string name="settings_group_start">آغاز</string>
     <string name="settings_group_advanced">اعلیٰ خصوصیات</string>
@@ -323,7 +322,7 @@
     <string name="tree_unopenable">اس فون میں کوئی ایپ اسے نہیں کھول سکتی</string>
     <string name="clip_pause">وقفہ</string>
     <string name="settings_images_only">صرف تصاویر دیکھیں</string>
-    <string name="settings_images_only_desc">ناظر میں سرکانا ویڈیو چھوڑ دیتا ہے اور صرف تصویریں دکھاتا ہے۔ ایک لمس پر ویڈیو پھر بھی کھل جاتی ہے۔</string>
+    <string name="settings_images_only_desc">ناظر میں سرکانا ویڈیو چھوڑ دیتا ہے اور صرف تصویریں دکھاتا ہے۔ ویڈیو کو عام منظر سے ایک لمس کے ساتھ کھولا جا سکتا ہے۔</string>
     <string name="settings_clip_autoplay">ویڈیو براہِ راست چلائیں</string>
 
     <!-- Modificare una fotografia (1.03) -->
@@ -361,6 +360,7 @@
     <string name="view_list">فہرست</string>
     <string name="view_tree">فولڈرز</string>
     <string name="edit_no_backup">حفاظتی نقل نہ بن سکی، سو کسی چیز پر نہیں لکھا گیا</string>
+    <string name="edit_backup_same">تصویر کی کوئی بیک اپ نقل نہیں بنائی گئی، کیونکہ محفوظ کی گئی فائل اصل جیسی ہی تھی۔</string>
     <string name="settings_editor_backup">اوپر لکھنے سے پہلے حفاظتی نقل</string>
     <string name="settings_editor_backup_desc">کسی ایڈیٹر کے تصویر پر لکھنے سے پہلے، اُس کی ایک نقل ردی کی ٹوکری میں محفوظ ہو جاتی ہے، جہاں سے آپ اسے واپس لے سکتے ہیں؛ ضرورت نہ ہو تو اگلی بار \'ردی کی ٹوکری خالی کریں\' پر حذف ہو جائے گی۔</string>
     <string name="editor_tall">عمودی</string>

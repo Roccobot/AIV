@@ -11,7 +11,6 @@
     <string name="error_retry">Réessayer</string>
     <string name="fit_label">Ajuster à la vue</string>
     <string name="bar_reduced">réduite</string>
-    <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Oublier ces adresses</string>
     <string name="url_not_image">L\'adresse ne mène à aucune image, et la page n\'en contient aucune</string>
     <string name="menu_copy_image">Copier l\'image</string>
@@ -77,7 +76,7 @@
     <string name="settings_dark">Sombre</string>
 
     <string name="settings_veil">Flou derrière les panneaux</string>
-    <string name="settings_veil_desc">Floute et assombrit l\'écran derrière les boîtes de dialogue, les menus et les panneaux. L\'application peut sembler nettement plus lente, c\'est pourquoi l\'option est désactivée.</string>
+    <string name="settings_veil_desc">Floute et assombrit l\'écran derrière les boîtes de dialogue, les menus et les panneaux. Sur les appareils anciens, l\'application peut en devenir plus lente.</string>
     <string name="settings_folder_columns">Colonnes dans la grille des dossiers</string>
     <string name="settings_folder_columns_desc">Plus de colonnes font tenir plus de dossiers à l\'écran et rétrécissent chaque vignette. À quatre, le nom en dessous est souvent tronqué.</string>
     <string name="settings_folder_count">Compteur des éléments sous les dossiers en vue grille</string>
@@ -285,9 +284,9 @@
     <string name="settings_facts_down">Descendre</string>
     <string name="settings_group_look">Apparence</string>
     <string name="settings_group_viewer">Visionneuse</string>
-    <string name="settings_group_clips">Vidéos et balayage</string>
-    <string name="settings_group_input">Commandes et sélection</string>
-    <string name="settings_group_files">Modification et corbeille</string>
+    <string name="settings_group_clips">Navigation</string>
+    <string name="settings_group_input">Commandes et indicateurs</string>
+    <string name="settings_group_files">Modification et sauvegarde</string>
     <string name="settings_group_browse">Dossiers</string>
     <string name="settings_group_start">Démarrage</string>
     <string name="settings_group_advanced">Fonctions avancées</string>
@@ -338,7 +337,7 @@
     <string name="tree_unopenable">Aucune application de ce téléphone ne sait l\'ouvrir</string>
     <string name="clip_pause">Mettre en pause</string>
     <string name="settings_images_only">Ne feuilleter que les images</string>
-    <string name="settings_images_only_desc">Dans la visionneuse, le balayage ignore les vidéos et ne feuillette que les images. Une touche ouvre tout de même une vidéo.</string>
+    <string name="settings_images_only_desc">Dans la visionneuse, le balayage ignore les vidéos et ne feuillette que les images. Une vidéo s\'ouvre toujours d\'une touche depuis la vue normale.</string>
     <string name="settings_clip_autoplay">Lire les vidéos directement</string>
 
     <!-- Modificare una fotografia (1.03) -->
@@ -376,6 +375,7 @@
     <string name="view_list">Liste</string>
     <string name="view_tree">Dossiers</string>
     <string name="edit_no_backup">La copie de sûreté a échoué, donc rien n\'a été écrasé</string>
+    <string name="edit_backup_same">Aucune sauvegarde de l\'image n\'a été créée, car le fichier enregistré était identique à l\'original.</string>
     <string name="settings_editor_backup">Copie de sûreté avant d\'écraser</string>
     <string name="settings_editor_backup_desc">Avant qu\'un éditeur n\'écrase une image, il en enregistre une copie dans la corbeille, où vous pourrez la récupérer ; si elle ne vous sert pas, elle sera supprimée au prochain \'Vider la corbeille\'.</string>
     <string name="editor_tall">Portrait</string>

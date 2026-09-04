@@ -11,7 +11,6 @@
     <string name="error_retry">Thử lại</string>
     <string name="fit_label">Vừa khung hình</string>
     <string name="bar_reduced">đã giảm</string>
-    <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Quên những địa chỉ này</string>
     <string name="url_not_image">Địa chỉ không dẫn tới hình ảnh nào, và trang cũng không có hình nào</string>
     <string name="menu_copy_image">Sao chép hình ảnh</string>
@@ -77,7 +76,7 @@
     <string name="settings_dark">Tối</string>
 
     <string name="settings_veil">Làm mờ phía sau bảng</string>
-    <string name="settings_veil_desc">Làm mờ và tối màn hình phía sau hộp thoại, trình đơn và bảng. Ứng dụng có thể chậm đi rõ rệt, vì vậy tùy chọn này đang tắt.</string>
+    <string name="settings_veil_desc">Làm mờ và tối màn hình phía sau hộp thoại, trình đơn và bảng. Trên thiết bị cũ, ứng dụng có thể chậm hơn.</string>
     <string name="settings_folder_columns">Số cột trong lưới thư mục</string>
     <string name="settings_folder_columns_desc">Càng nhiều cột thì càng nhiều thư mục vừa màn hình và mỗi ảnh bìa càng nhỏ. Ở bốn cột, tên bên dưới thường bị cắt.</string>
     <string name="settings_folder_count">Bộ đếm mục dưới các thư mục ở chế độ lưới</string>
@@ -259,9 +258,9 @@
     <string name="settings_facts_down">Chuyển xuống</string>
     <string name="settings_group_look">Giao diện</string>
     <string name="settings_group_viewer">Trình xem</string>
-    <string name="settings_group_clips">Video và vuốt</string>
-    <string name="settings_group_input">Điều khiển và chọn</string>
-    <string name="settings_group_files">Chỉnh sửa và thùng rác</string>
+    <string name="settings_group_clips">Điều hướng</string>
+    <string name="settings_group_input">Điều khiển và chỉ báo</string>
+    <string name="settings_group_files">Chỉnh sửa và sao lưu</string>
     <string name="settings_group_browse">Thư mục</string>
     <string name="settings_group_start">Khởi động</string>
     <string name="settings_group_advanced">Tính năng nâng cao</string>
@@ -308,7 +307,7 @@
     <string name="tree_unopenable">Không có ứng dụng nào trên điện thoại này mở được tệp này</string>
     <string name="clip_pause">Tạm dừng</string>
     <string name="settings_images_only">Chỉ lướt qua ảnh</string>
-    <string name="settings_images_only_desc">Trong trình xem, việc vuốt bỏ qua video và chỉ lướt qua ảnh. Một lần chạm vẫn mở video.</string>
+    <string name="settings_images_only_desc">Trong trình xem, việc vuốt bỏ qua video và chỉ lướt qua ảnh. Vẫn có thể mở video bằng một lần chạm từ chế độ xem thường.</string>
     <string name="settings_clip_autoplay">Phát video ngay</string>
 
     <!-- Modificare una fotografia (1.03) -->
@@ -346,6 +345,7 @@
     <string name="view_list">Danh sách</string>
     <string name="view_tree">Thư mục</string>
     <string name="edit_no_backup">Không tạo được bản sao an toàn, nên chưa ghi đè gì cả</string>
+    <string name="edit_backup_same">Không tạo bản sao lưu của ảnh, vì tệp đã lưu giống hệt bản gốc.</string>
     <string name="settings_editor_backup">Bản sao an toàn trước khi ghi đè</string>
     <string name="settings_editor_backup_desc">Trước khi một trình sửa ghi đè lên một ảnh, nó lưu một bản sao vào thùng rác, nơi bạn có thể lấy lại; nếu không cần, bản sao sẽ bị xoá ở lần \'Dọn thùng rác\' kế tiếp.</string>
     <string name="editor_tall">Dọc</string>

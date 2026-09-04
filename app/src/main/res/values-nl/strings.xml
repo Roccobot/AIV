@@ -11,7 +11,6 @@
     <string name="error_retry">Opnieuw proberen</string>
     <string name="fit_label">Passend maken</string>
     <string name="bar_reduced">verkleind</string>
-    <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Deze vergeten</string>
     <string name="url_not_image">Het adres leidt niet naar een afbeelding, en de pagina bevat er geen</string>
     <string name="menu_copy_image">Afbeelding kopiëren</string>
@@ -77,7 +76,7 @@
     <string name="settings_dark">Donker</string>
 
     <string name="settings_veil">Vervaging achter panelen</string>
-    <string name="settings_veil_desc">Maakt het scherm achter dialoogvensters, menu\'s en panelen wazig en donkerder. De app kan daardoor merkbaar trager aanvoelen, daarom staat dit uit.</string>
+    <string name="settings_veil_desc">Maakt het scherm achter dialoogvensters, menu\'s en panelen wazig en donkerder. Op oudere toestellen kan de app hierdoor trager worden.</string>
     <string name="settings_folder_columns">Kolommen in het mappenraster</string>
     <string name="settings_folder_columns_desc">Meer kolommen laten meer mappen op het scherm passen en maken elke omslag kleiner. Bij vier wordt de naam eronder meestal afgekapt.</string>
     <string name="settings_folder_count">Teller van de items onder de mappen in rasterweergave</string>
@@ -272,9 +271,9 @@
     <string name="settings_facts_down">Naar beneden</string>
     <string name="settings_group_look">Vormgeving</string>
     <string name="settings_group_viewer">Viewer</string>
-    <string name="settings_group_clips">Video\'s en vegen</string>
-    <string name="settings_group_input">Bediening en selectie</string>
-    <string name="settings_group_files">Bewerken en prullenbak</string>
+    <string name="settings_group_clips">Navigatie</string>
+    <string name="settings_group_input">Bediening en indicatoren</string>
+    <string name="settings_group_files">Bewerken en back-up</string>
     <string name="settings_group_browse">Mappen</string>
     <string name="settings_group_start">Opstarten</string>
     <string name="settings_group_advanced">Geavanceerde functies</string>
@@ -323,7 +322,7 @@
     <string name="tree_unopenable">Geen app op deze telefoon kan het openen</string>
     <string name="clip_pause">Pauzeren</string>
     <string name="settings_images_only">Alleen door foto\'s bladeren</string>
-    <string name="settings_images_only_desc">In de viewer slaat het vegen de video\'s over en bladert het alleen door afbeeldingen. Eén tik opent een video alsnog.</string>
+    <string name="settings_images_only_desc">In de viewer slaat het vegen de video\'s over en bladert het alleen door afbeeldingen. Vanuit de normale weergave opent een video nog steeds met één tik.</string>
     <string name="settings_clip_autoplay">Video\'s direct afspelen</string>
 
     <!-- Modificare una fotografia (1.03) -->
@@ -361,6 +360,7 @@
     <string name="view_list">Lijst</string>
     <string name="view_tree">Mappen</string>
     <string name="edit_no_backup">De veiligheidskopie is mislukt, dus er is niets overschreven</string>
+    <string name="edit_backup_same">Er is geen back-up van de afbeelding gemaakt, omdat het opgeslagen bestand identiek was aan het origineel.</string>
     <string name="settings_editor_backup">Veiligheidskopie voor het overschrijven</string>
     <string name="settings_editor_backup_desc">Voordat een editor een afbeelding overschrijft, bewaart hij er een kopie van in de prullenbak, waar u die kunt terughalen; hebt u die niet nodig, dan verdwijnt ze bij de volgende \'Prullenbak legen\'.</string>
     <string name="editor_tall">Staand</string>

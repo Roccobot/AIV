@@ -11,7 +11,6 @@
     <string name="error_retry">Yeniden dene</string>
     <string name="fit_label">Görünüme sığdır</string>
     <string name="bar_reduced">küçültülmüş</string>
-    <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Bunları unut</string>
     <string name="url_not_image">Adres hiçbir görüntüye götürmüyor, sayfada da görüntü yok</string>
     <string name="menu_copy_image">Görüntüyü kopyala</string>
@@ -77,7 +76,7 @@
     <string name="settings_dark">Koyu</string>
 
     <string name="settings_veil">Panellerin arkasında bulanıklık</string>
-    <string name="settings_veil_desc">İletişim kutularının, menülerin ve panellerin arkasındaki ekranı bulanıklaştırır ve karartır. Uygulamayı gözle görülür şekilde yavaşlatabilir, bu yüzden kapalıdır.</string>
+    <string name="settings_veil_desc">İletişim kutularının, menülerin ve panellerin arkasındaki ekranı bulanıklaştırır ve karartır. Eski cihazlarda uygulama yavaşlayabilir.</string>
     <string name="settings_folder_columns">Klasör ızgarasındaki sütunlar</string>
     <string name="settings_folder_columns_desc">Sütun arttıkça ekrana daha çok klasör sığar ve her kapak küçülür. Dörtte alttaki ad çoğunlukla kesilir.</string>
     <string name="settings_folder_count">Izgara görünümünde klasörlerin altındaki öge sayacı</string>
@@ -272,9 +271,9 @@
     <string name="settings_facts_down">Aşağı taşı</string>
     <string name="settings_group_look">Görünüm</string>
     <string name="settings_group_viewer">Görüntüleyici</string>
-    <string name="settings_group_clips">Videolar ve kaydırma</string>
-    <string name="settings_group_input">Denetimler ve seçim</string>
-    <string name="settings_group_files">Düzenleme ve çöp kutusu</string>
+    <string name="settings_group_clips">Gezinme</string>
+    <string name="settings_group_input">Denetimler ve göstergeler</string>
+    <string name="settings_group_files">Düzenleme ve yedek</string>
     <string name="settings_group_browse">Klasörler</string>
     <string name="settings_group_start">Başlangıç</string>
     <string name="settings_group_advanced">Gelişmiş özellikler</string>
@@ -323,7 +322,7 @@
     <string name="tree_unopenable">Bu telefonda bunu açabilecek bir uygulama yok</string>
     <string name="clip_pause">Duraklat</string>
     <string name="settings_images_only">Yalnızca resimleri gezin</string>
-    <string name="settings_images_only_desc">Görüntüleyicide kaydırma videoları atlar ve yalnızca görüntüleri gezinir. Bir dokunuş videoyu yine de açar.</string>
+    <string name="settings_images_only_desc">Görüntüleyicide kaydırma videoları atlar ve yalnızca görüntüleri gezinir. Video, normal görünümden bir dokunuşla yine açılır.</string>
     <string name="settings_clip_autoplay">Videoları hemen oynat</string>
 
     <!-- Modificare una fotografia (1.03) -->
@@ -361,6 +360,7 @@
     <string name="view_list">Liste</string>
     <string name="view_tree">Klasörler</string>
     <string name="edit_no_backup">Yedek kopya alınamadı, bu yüzden hiçbir şeyin üzerine yazılmadı</string>
+    <string name="edit_backup_same">Kaydedilen dosya özgün dosyayla aynı olduğu için görüntünün yedek kopyası oluşturulmadı.</string>
     <string name="settings_editor_backup">Üzerine yazmadan önce yedek kopya</string>
     <string name="settings_editor_backup_desc">Bir düzenleyici bir görüntünün üzerine yazmadan önce, bir kopyasını çöp kutusuna kaydeder; oradan geri alabilirsiniz. Gerekmiyorsa bir sonraki \'Çöp kutusunu boşalt\' işleminde silinir.</string>
     <string name="editor_tall">Dikey</string>

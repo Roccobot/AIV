@@ -11,7 +11,6 @@
     <string name="error_retry">Erneut versuchen</string>
     <string name="fit_label">An die Ansicht anpassen</string>
     <string name="bar_reduced">reduziert</string>
-    <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Diese vergessen</string>
     <string name="url_not_image">Die Adresse führt zu keinem Bild, und die Seite enthält keins</string>
     <string name="menu_copy_image">Bild kopieren</string>
@@ -77,7 +76,7 @@
     <string name="settings_dark">Dunkel</string>
 
     <string name="settings_veil">Unschärfe hinter Bedienfeldern</string>
-    <string name="settings_veil_desc">Zeichnet den Bildschirm hinter Dialogen, Menüs und Bedienfeldern unscharf und abgedunkelt. Die App kann sich dadurch spürbar langsamer anfühlen, deshalb ist die Option aus.</string>
+    <string name="settings_veil_desc">Zeichnet den Bildschirm hinter Dialogen, Menüs und Bedienfeldern unscharf und abgedunkelt. Auf älteren Geräten kann die App dadurch langsamer werden.</string>
     <string name="settings_folder_columns">Spalten im Ordnerraster</string>
     <string name="settings_folder_columns_desc">Mehr Spalten bringen mehr Ordner auf den Bildschirm und machen jedes Titelbild kleiner. Bei vier wird der Name darunter meist abgeschnitten.</string>
     <string name="settings_folder_count">Zähler der Elemente unter den Ordnern in der Rasteransicht</string>
@@ -272,9 +271,9 @@
     <string name="settings_facts_down">Nach unten</string>
     <string name="settings_group_look">Aussehen</string>
     <string name="settings_group_viewer">Betrachter</string>
-    <string name="settings_group_clips">Videos und Wischen</string>
-    <string name="settings_group_input">Bedienung und Auswahl</string>
-    <string name="settings_group_files">Bearbeiten und Papierkorb</string>
+    <string name="settings_group_clips">Navigation</string>
+    <string name="settings_group_input">Bedienung und Anzeigen</string>
+    <string name="settings_group_files">Bearbeiten und Sicherung</string>
     <string name="settings_group_browse">Ordner</string>
     <string name="settings_group_start">Start</string>
     <string name="settings_group_advanced">Erweiterte Funktionen</string>
@@ -323,7 +322,7 @@
     <string name="tree_unopenable">Keine App auf diesem Telefon kann es öffnen</string>
     <string name="clip_pause">Pause</string>
     <string name="settings_images_only">Nur Bilder durchblättern</string>
-    <string name="settings_images_only_desc">Im Betrachter überspringt das Wischen die Videos und blättert nur Bilder durch. Eine Berührung öffnet ein Video trotzdem.</string>
+    <string name="settings_images_only_desc">Im Betrachter überspringt das Wischen die Videos und blättert nur Bilder durch. Aus der normalen Ansicht lässt sich ein Video weiterhin mit einer Berührung öffnen.</string>
     <string name="settings_clip_autoplay">Videos sofort abspielen</string>
 
     <!-- Modificare una fotografia (1.03) -->
@@ -361,6 +360,7 @@
     <string name="view_list">Liste</string>
     <string name="view_tree">Ordner</string>
     <string name="edit_no_backup">Die Sicherheitskopie ist fehlgeschlagen, es wurde nichts überschrieben</string>
+    <string name="edit_backup_same">Es wurde keine Sicherungskopie des Bildes angelegt, weil die gespeicherte Datei mit dem Original identisch war.</string>
     <string name="settings_editor_backup">Sicherheitskopie vor dem Überschreiben</string>
     <string name="settings_editor_backup_desc">Bevor ein Editor ein Bild überschreibt, legt er eine Kopie in den Papierkorb, wo sie wiederherstellbar bleibt; wird sie nicht gebraucht, verschwindet sie beim nächsten \'Papierkorb leeren\'.</string>
     <string name="editor_tall">Hochformat</string>

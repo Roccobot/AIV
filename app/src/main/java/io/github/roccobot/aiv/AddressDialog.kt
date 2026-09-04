@@ -148,10 +148,18 @@ fun AddressDialog(
                      * che un indirizzo diretto finisce con l'estensione di un'immagine, e
                      * l'ellissi in fondo mangerebbe proprio quella coda. È la stessa ragione
                      * scritta su `nameWithExt`.
-                     * ⚠️ **Un esempio più corto non sarebbe il rimedio**: la larghezza che
+                     * ⚠️ **Un esempio più corto non sarebbe il rimedio**, e la `1.48` non
+                     * toglie questo tetto pur avendo accorciato l'esempio: la larghezza che
                      * serve dipende dallo schermo e dal corpo del testo scelto nel telefono,
-                     * quindi una stringa più corta sposta la soglia invece di toglierla, e va
-                     * riscritta in ogni cartella di lingua che la porta.
+                     * quindi una stringa più corta sposta la soglia invece di toglierla.
+                     * ⚠️⚠️ **E DALLA 1.48 L'ESEMPIO È UNO SOLO PER TUTTE LE LINGUE**
+                     * (istruzione dell'utente, giro della `1.47`: *metti come testo di esempio
+                     * `https://example.page/img.png`. Non occorre che sia multilingua*). Un
+                     * indirizzo non è testo: `example.page` e `img.png` si leggono uguali in
+                     * ventotto lingue, e tenerne ventotto copie voleva dire ventotto posti in
+                     * cui cambiare un dominio. La stringa si dichiara `translatable="false"`,
+                     * e il verificatore delle lingue da lì in poi controlla il **rovescio**,
+                     * cioè che nessuna cartella se ne tenga una copia rimasta indietro.
                      */
                     placeholder = {
                         Text(
