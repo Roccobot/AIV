@@ -94,7 +94,7 @@ class RegionSource private constructor(
      * ⚠️ Le formule sono l'inversa di quello che l'orientamento EXIF **dice di fare** al
      * file per guardarlo: per il 6 il file va girato di 90 in senso orario, quindi il
      * pixel grezzo `(rx, ry)` si vede in `(Hr - 1 - ry, rx)`, e questa è l'inversa di
-     * quella. Chi le ritocca le riderivi da lì invece che a occhio.
+     * quella. Chi le ritocca le riderivi da lì.
      */
     private fun toRaw(area: Rect): Rect? {
         val rawWidth = decoder.width
