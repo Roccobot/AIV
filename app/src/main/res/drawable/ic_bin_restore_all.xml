@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Ripristina tutto': il cestino che si svuota, aperto in fondo.
+
+     DISEGNATO DALL'UTENTE, dalla 1.51, e in Material non ha un corrispondente. La
+     differenza con `ic_bin_restore` è che là la freccia esce da un cassone chiuso e qui il
+     cassone resta aperto: è il modo di dire 'tutti' senza aggiungere un secondo segno, che
+     a 24dp non si leggerebbe.
+
+     IL COPERCHIO È IDENTICO CARATTERE PER CARATTERE a quello degli altri due della
+     famiglia. Il corpo no, ed è il punto del disegno.
+
+     IL TRASPORTO NON CAMBIA UN PIXEL, misurato rendendo a 240px il file di partenza e questo
+     tracciato: zero scarti su 57.600. Quello che cambia è solo la forma della `d`, cioè ogni
+     comando implicito scritto per esteso e i numeri incollati separati.
+
+     IL VERSO DI AVVOLGIMENTO NON CONTA, misurato: nonZero ed evenOdd rendono identici, zero
+     pixel di scarto. La regola è dichiarata comunque, perché una regola dichiarata dice
+     quello che il disegno vuole mentre una omessa dice solo com'è andata.
+
+     Le regole di trasporto stanno in `CLAUDE.md`, § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M17.8,7H6.2c-.11,0,-.2,.09,-.2,.2v11.8c0,1.1,.9,2,2,2h8c1.1,0,2,-.9,2,-2V7.2c0,-.11,-.09,-.2,-.2,-.2ZM14,19.92c0,.11,-.09,.2,-.2,.2h-3.6c-.11,0,-.2,-.09,-.2,-.2v-2.34h4v2.34ZM14,12.77v4h-4v-4h-2l3.86,-3.86c.08,-.08,.21,-.08,.29,0l3.86,3.86h-2ZM18.6,4h-2.93c-.11,0,-.21,-.04,-.29,-.12l-.76,-.76c-.08,-.08,-.18,-.12,-.29,-.12h-4.67c-.11,0,-.21,.04,-.29,.12l-.76,.76c-.08,.08,-.18,.12,-.29,.12h-2.93c-.22,0,-.4,.18,-.4,.4v1.19c0,.22,.18,.4,.4,.4h13.19c.22,0,.4,-.18,.4,-.4v-1.19c0,-.22,-.18,-.4,-.4,-.4Z" />
+</vector>

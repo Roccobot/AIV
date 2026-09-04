@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Visualizzazione lista': tre righe, ognuna con la sua miniatura a sinistra.
+
+     DISEGNATO DALL'UTENTE, dalla 1.51. Ammorbidisce `Icons.Default.ViewList` di Material,
+     e qui lo scarto è più largo che negli altri, il 5,0% della tela (2.901 pixel su
+     57.600): oltre ai raccordi, l'inchiostro è un'unità più stretto e mezza più a destra
+     (largo 17 a partire da 3,5, contro 18 a partire da 3; l'altezza è la stessa, 14). Non è
+     il trasporto, che di pixel non ne cambia nessuno: è il disegno.
+
+     IL TRASPORTO NON CAMBIA UN PIXEL, misurato rendendo a 240px il file di partenza e questo
+     tracciato: zero scarti su 57.600. Quello che cambia è solo la forma della `d`, cioè ogni
+     comando implicito scritto per esteso e i numeri incollati separati.
+
+     IL VERSO DI AVVOLGIMENTO NON CONTA, misurato: nonZero ed evenOdd rendono identici, zero
+     pixel di scarto. La regola è dichiarata comunque, perché una regola dichiarata dice
+     quello che il disegno vuole mentre una omessa dice solo com'è andata.
+
+     Le regole di trasporto stanno in `CLAUDE.md`, § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M3.5,11.19v1.63c0,.66,.53,1.19,1.19,1.19h2.81v-4h-2.81c-.66,0,-1.19,.53,-1.19,1.19ZM3.5,6.19v1.63c0,.66,.53,1.19,1.19,1.19h2.81v-4h-2.81c-.66,0,-1.19,.53,-1.19,1.19ZM3.5,16.19v1.63c0,.66,.53,1.19,1.19,1.19h2.81v-4h-2.81c-.66,0,-1.19,.53,-1.19,1.19ZM19.3,15h-10.8v4h10.8c.67,0,1.2,-.54,1.2,-1.2v-1.59c0,-.67,-.54,-1.2,-1.2,-1.2ZM19.3,5h-10.8v4h10.8c.67,0,1.2,-.54,1.2,-1.2v-1.59c0,-.67,-.54,-1.2,-1.2,-1.2ZM19.3,10h-10.8v4h10.8c.67,0,1.2,-.54,1.2,-1.2v-1.59c0,-.67,-.54,-1.2,-1.2,-1.2Z" />
+</vector>

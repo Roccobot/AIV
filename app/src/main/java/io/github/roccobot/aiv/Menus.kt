@@ -546,10 +546,15 @@ fun MenuRow(
      * menu le voci si allineano fra loro, quindi o l'hanno tutte o nessuna. Con icone su alcune
      * e non su altre i testi cominciano in due posti diversi, ed è esattamente il
      * disallineamento che la `1.28` ha corretto.
-     * ⚠️ **Il menu del tastino della schermata iniziale è quello che le passa nulle**, perché
-     * di icone non ne ha: due delle sue voci ('Apri un indirizzo' e 'Cestino') vogliono un
-     * disegno che in Material non c'è e che non si inventa qui, dato che i disegni li manda
-     * l'utente. Il giorno che arrivano, quelle righe le prendono senza toccare altro.
+     * ⚠️⚠️ **DALLA `1.51` NESSUN MENU LE PASSA NULLE, e il parametro resta comunque**: fino a
+     * lì era il menu del tastino della schermata iniziale a non averne, perché due delle sue
+     * voci ('Apri un indirizzo' e 'Cestino') volevano un disegno che in Material non c'è e che
+     * qui non si inventa, dato che i disegni li manda l'utente. Sono arrivati, e quel menu le
+     * ha prese senza che si toccasse altro, che era esattamente quello che questa riga
+     * prometteva.
+     * ⚠️ **Il nullo non si toglie**, perché la regola che lo giustifica non è cambiata: se un
+     * domani nasce un menu le cui voci un disegno non ce l'hanno, deve poterlo dire per il
+     * menu intero invece di mettere un glifo qualunque su una riga.
      */
     icon: ImageVector?,
     onTap: () -> Unit,

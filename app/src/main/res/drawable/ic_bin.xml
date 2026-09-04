@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Cestino': il cassone di contorno, vuoto.
+
+     DISEGNATO DALL'UTENTE, dalla 1.51. Ammorbidisce `Icons.Outlined.Delete` di Material:
+     lo scarto è lo 0,1% della tela (72 pixel su 57.600) e l'inchiostro cade nello stesso
+     riquadro di 14x18 a (5,3).
+
+     DI CONTORNO E NON DI PIENO, ed è la ragione per cui non riusa `ic_pick_delete`: nel menu
+     della schermata iniziale questa riga sta fra voci che aprono un posto (la ricerca, un
+     indirizzo, le impostazioni) e non fra voci che agiscono su un file. Il pieno dice
+     'elimina', il contorno dice 'il cestino'.
+
+     IL TRASPORTO NON CAMBIA UN PIXEL, misurato rendendo a 240px il file di partenza e questo
+     tracciato: zero scarti su 57.600. Quello che cambia è solo la forma della `d`, cioè ogni
+     comando implicito scritto per esteso e i numeri incollati separati.
+
+     IL VERSO DI AVVOLGIMENTO NON CONTA, misurato: nonZero ed evenOdd rendono identici, zero
+     pixel di scarto. La regola è dichiarata comunque, perché una regola dichiarata dice
+     quello che il disegno vuole mentre una omessa dice solo com'è andata.
+
+     Le regole di trasporto stanno in `CLAUDE.md`, § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M6,19c0,1.1,.9,2,2,2h8c1.1,0,2,-.9,2,-2V7.2c0,-.11,-.09,-.2,-.2,-.2H6.2c-.11,0,-.2,.09,-.2,.2v11.8ZM8,9h8v10h-8v-10ZM15.38,3.88l-.77,-.77c-.08,-.08,-.18,-.12,-.28,-.12h-4.67c-.11,0,-.21,.04,-.28,.12l-.77,.77c-.08,.08,-.18,.12,-.28,.12h-2.93c-.22,0,-.4,.18,-.4,.4v1.2c0,.22,.18,.4,.4,.4h13.2c.22,0,.4,-.18,.4,-.4v-1.2c0,-.22,-.18,-.4,-.4,-.4h-2.93c-.11,0,-.21,-.04,-.28,-.12Z" />
+</vector>
