@@ -510,9 +510,108 @@ data class Settings(
      * non la buona volontà di chi scrive l'interfaccia.
      */
     val factOff: Set<FactField> = emptySet(),
+    /**
+     * L'ordine dei sei tasti nel riquadro del tocco lungo: visualizzatore e albero.
+     *
+     * ⚠️ **Di fabbrica è quello che ha dettato lui per la `1.54`**, e i due posti in cui vive
+     * quel riquadro lo condividono: chi impara dove sta 'Sposta' lo sa in tutti e due.
+     * ⚠️⚠️ **NEL CESTINO NON SI SCAMBIA PIÙ NIENTE, dalla `1.56`**: fino alla `1.55` là 'Sposta'
+     * e 'Copia' si invertivano, per una richiesta della `1.54`. Con un ordine scelto dall'utente
+     * quello scambio diventerebbe una **seconda trasformazione sopra la sua scelta**, cioè
+     * l'app che disobbedisce proprio a chi ha appena riordinato. Una funzione che si può
+     * configurare non può anche correggere la configurazione.
+     */
+    val menuOrder: List<PadKey> = MENU_KEYS,
+    /**
+     * L'ordine dei dieci tasti della scheda della selezione.
+     *
+     * ⚠️ **È un ordine a sé e non lo stesso di [menuOrder]**: le due superfici portano insiemi
+     * diversi in ordini diversi, tutti e due dettati da lui. Il perché per esteso sta accanto
+     * alle chiavi, in `Store`.
+     */
+    val pickOrder: List<PadKey> = PICK_KEYS,
+    /** L'ordine della prima fila dell'editor: girare e centrare. */
+    val turnOrder: List<PadKey> = TURN_KEYS,
+    /** L'ordine della seconda fila dell'editor: la cronologia e la conferma. */
+    val stepOrder: List<PadKey> = STEP_KEYS,
+    /**
+     * Se sotto le icone dei riquadri a griglia si legge la parola.
+     *
+     * ⚠️ **Accesa di fabbrica, perché è come l'app è sempre stata**: l'interruttore nasce per
+     * chi vuole i comandi più compatti (richiesta dell'utente, 2026-09-04), non per cambiare
+     * l'aspetto a chi non lo chiede. Il valore di fabbrica non si sceglie per far vedere la
+     * funzione.
+     * ⚠️ **Vale per i riquadri a GRIGLIA e non per i menu a lista**: quelli hanno l'icona
+     * accanto al testo, e togliere il testo lascerebbe una riga con un glifo e un vuoto.
+     */
+    val padLabels: Boolean = true,
 ) {
     /** I campi da mostrare, nell'ordine scelto e senza quelli spenti. */
     val factRows: List<FactField> get() = factOrder.filterNot { it in factOff }
+}
+
+/**
+ * Gli ordini di fabbrica dei quattro riquadri, che sono anche l'elenco di chi ci vive.
+ *
+ * ⚠️⚠️ **QUESTE LISTE FANNO DUE MESTIERI, e conviene saperlo prima di toccarle**: dicono in che
+ * ordine stanno i tasti **e** quali tasti quel riquadro conosce. [padOrderOf] usa il secondo per
+ * riempire i buchi di un archivio vecchio, quindi togliere una voce da qui non è un ritocco
+ * all'ordine: è dire che quel tasto non esiste più in quel riquadro.
+ * ⚠️ **L'ordine è quello dettato dall'utente per la `1.54`**, riga per riga, e non uno mio.
+ */
+val MENU_KEYS = listOf(
+    PadKey.COPY, PadKey.MOVE, PadKey.SHARE,
+    PadKey.RENAME, PadKey.DELETE, PadKey.INFO
+)
+
+/** I dieci della scheda della selezione, nell'ordine dettato per la `1.54`. */
+val PICK_KEYS = listOf(
+    PadKey.RENAME, PadKey.INFO, PadKey.MOVE, PadKey.COPY, PadKey.SHARE,
+    PadKey.DELETE, PadKey.LIST, PadKey.ALL, PadKey.NONE, PadKey.INVERT
+)
+
+/**
+ * I quattro della prima fila dell'editor.
+ *
+ * ⚠️ **L'ordine di fabbrica è quello della mano DESTRA**, che è il valore di fabbrica
+ * dell'impostazione che fino alla `1.55` specchiava le due file. Chi teneva la sinistra
+ * ritrova la sua fila rovesciata **una volta sola**, alla prima apertura dopo l'aggiornamento,
+ * e da lì la mette come vuole trascinando.
+ */
+val TURN_KEYS = listOf(
+    PadKey.CENTRE_DOWN, PadKey.CENTRE_ACROSS, PadKey.TURN_LEFT, PadKey.TURN_RIGHT
+)
+
+/** I quattro della seconda fila dell'editor, sempre nell'ordine della mano destra. */
+val STEP_KEYS = listOf(
+    PadKey.ORIGINAL, PadKey.UNDO, PadKey.REDO, PadKey.APPLY
+)
+
+/**
+ * Rilegge un ordine salvato, tollerando tutto quello che un archivio può avere di storto.
+ *
+ * ⚠️⚠️ **QUELLO CHE MANCA SI AGGIUNGE AL POSTO CHE HA DI FABBRICA, e non in fondo**: è la
+ * garanzia che una versione futura possa aggiungere un tasto a un riquadro senza che sparisca
+ * dai telefoni di chi ha già riordinato. In fondo sarebbe la soluzione facile, e metterebbe
+ * l'azione nuova nel posto in cui nessuno guarda.
+ * ⚠️ **Un gettone che non appartiene a questo riquadro si scarta**: l'archivio è un file di
+ * testo, e una chiave sbagliata non deve far comparire 'Inverti' dentro il menu di una foto.
+ * ⚠️ **I doppioni si contano una volta sola**, come in `factOrderOf`.
+ */
+fun padOrderOf(tokens: List<String>, base: List<PadKey>): List<PadKey> {
+    val known = tokens.mapNotNull { t -> base.firstOrNull { it.token == t } }.distinct()
+    if (known.size == base.size) return known
+    val fuori = known.toMutableList()
+    // ⚠️ Si scorre la lista di FABBRICA e si infila ogni mancante subito dopo l'ultimo dei
+    // suoi predecessori che è già in scena: così un tasto nuovo compare accanto a quelli con
+    // cui è stato disegnato. Mancanti consecutivi restano nel loro ordine, perché ognuno
+    // diventa il predecessore del successivo appena entra.
+    for (k in base) {
+        if (k in fuori) continue
+        val prima = base.subList(0, base.indexOf(k)).lastOrNull { it in fuori }
+        fuori.add(if (prima == null) 0 else fuori.indexOf(prima) + 1, k)
+    }
+    return fuori
 }
 
 /**
@@ -572,6 +671,23 @@ object SettingsStore {
     private val FACT_ORDER = stringPreferencesKey("fact-order")
     private val FACT_OFF = stringSetPreferencesKey("fact-off")
 
+    /*
+     * ⚠️⚠️ **QUATTRO CHIAVI PER QUATTRO RIQUADRI, e non una sola** (dalla `1.56`). La ragione
+     * non è di comodo: i due riquadri delle azioni sui file portano insiemi diversi di tasti
+     * **in ordini diversi**, e tutti e due dettati dall'utente. Il menu del tocco lungo va
+     * copia-sposta-condividi e poi rinomina-elimina-info; la scheda della selezione va
+     * rinomina-info-sposta-copia-condividi e poi le sue quattro. Nessuno dei due è il
+     * sottoinsieme ordinato dell'altro, quindi una chiave sola ne cambierebbe uno.
+     * ⚠️ **Le due file dell'editor sono due chiavi perché sono due gruppi**: il filetto in
+     * mezzo dice che girare e centrare è un mestiere, e la cronologia un altro. Un tasto non
+     * passa da una fila all'altra.
+     */
+    private val MENU_ORDER = stringPreferencesKey("menu-order")
+    private val PICK_ORDER = stringPreferencesKey("pick-order")
+    private val TURN_ORDER = stringPreferencesKey("turn-order")
+    private val STEP_ORDER = stringPreferencesKey("step-order")
+    private val PAD_LABELS = booleanPreferencesKey("pad-labels")
+
     /** Bounds of the only numeric setting, so a stored value out of range cannot reach the viewer. */
     const val ZOOM_MAX_MIN = 2f
     const val ZOOM_MAX_MAX = 200f
@@ -618,6 +734,11 @@ object SettingsStore {
             extEdit = p[EXT_EDIT] ?: false,
             hiddenFolders = p[HIDDEN_FOLDERS] ?: emptySet(),
             factOrder = factOrderOf((p[FACT_ORDER] ?: "").split(',')),
+            menuOrder = padOrderOf((p[MENU_ORDER] ?: "").split(','), MENU_KEYS),
+            pickOrder = padOrderOf((p[PICK_ORDER] ?: "").split(','), PICK_KEYS),
+            turnOrder = padOrderOf((p[TURN_ORDER] ?: "").split(','), TURN_KEYS),
+            stepOrder = padOrderOf((p[STEP_ORDER] ?: "").split(','), STEP_KEYS),
+            padLabels = p[PAD_LABELS] ?: true,
             // ⚠️ I campi sempre visibili si tolgono **in lettura**: un archivio che li
             // dichiarasse spenti (una versione futura, un file modificato a mano) non deve
             // poter far sparire il nome del file.
@@ -695,6 +816,11 @@ object SettingsStore {
             p[EXT_EDIT] = settings.extEdit
             p[HIDDEN_FOLDERS] = settings.hiddenFolders
             p[FACT_ORDER] = settings.factOrder.joinToString(",") { it.token }
+            p[MENU_ORDER] = settings.menuOrder.joinToString(",") { it.token }
+            p[PICK_ORDER] = settings.pickOrder.joinToString(",") { it.token }
+            p[TURN_ORDER] = settings.turnOrder.joinToString(",") { it.token }
+            p[STEP_ORDER] = settings.stepOrder.joinToString(",") { it.token }
+            p[PAD_LABELS] = settings.padLabels
             p[FACT_OFF] = settings.factOff.filterNot { it.always }.map { it.token }.toSet()
         }
     }

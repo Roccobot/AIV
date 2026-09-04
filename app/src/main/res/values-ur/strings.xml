@@ -386,4 +386,11 @@
         <item quantity="one">%1$d رنگ</item>
         <item quantity="other">%1$d رنگ</item>
     </plurals>
+    <string name="settings_buttons">بٹنوں کی ترتیب</string>
+    <string name="settings_buttons_desc">کسی بٹن کو منتقل کرنے کے لیے قطار کے کنارے موجود ہینڈل کو گھسیٹیں۔ ہر ترتیب ہر اس جگہ لاگو ہوتی ہے جہاں وہ پینل ظاہر ہوتا ہے۔</string>
+    <string name="settings_buttons_menu">فائل کا مینو</string>
+    <string name="settings_buttons_turn">مدیر: گھمانا اور درمیان میں لانا</string>
+    <string name="settings_buttons_steps">مدیر: کالعدم کرنا اور لاگو کرنا</string>
+    <string name="settings_labels">آئیکنوں کے نیچے لیبل</string>
+    <string name="settings_labels_desc">لیبل بند ہوں تو آئیکن پینل زیادہ مختصر ہو جاتے ہیں۔ فہرست والے مینو نہیں بدلتے۔</string>
 </resources>

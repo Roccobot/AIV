@@ -370,4 +370,11 @@
     <plurals name="facts_colour_count">
         <item quantity="other">%1$d 种颜色</item>
     </plurals>
+    <string name="settings_buttons">按钮顺序</string>
+    <string name="settings_buttons_desc">拖动行右侧的手柄即可移动按钮。每种顺序在该面板出现的所有位置都生效。</string>
+    <string name="settings_buttons_menu">文件菜单</string>
+    <string name="settings_buttons_turn">编辑器：旋转与居中</string>
+    <string name="settings_buttons_steps">编辑器：撤销与应用</string>
+    <string name="settings_labels">图标下方的标签</string>
+    <string name="settings_labels_desc">关闭标签后，图标面板会更紧凑。列表菜单不变。</string>
 </resources>

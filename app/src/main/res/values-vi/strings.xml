@@ -370,4 +370,11 @@
     <plurals name="facts_colour_count">
         <item quantity="other">%1$d màu</item>
     </plurals>
+    <string name="settings_buttons">Thứ tự các nút</string>
+    <string name="settings_buttons_desc">Kéo tay cầm ở bên phải một hàng để di chuyển một nút. Mỗi thứ tự được áp dụng ở mọi nơi bảng đó xuất hiện.</string>
+    <string name="settings_buttons_menu">Menu của một tệp</string>
+    <string name="settings_buttons_turn">Trình sửa: xoay và căn giữa</string>
+    <string name="settings_buttons_steps">Trình sửa: hoàn tác và áp dụng</string>
+    <string name="settings_labels">Nhãn dưới biểu tượng</string>
+    <string name="settings_labels_desc">Khi tắt nhãn, các bảng biểu tượng trở nên gọn hơn. Menu dạng danh sách không thay đổi.</string>
 </resources>

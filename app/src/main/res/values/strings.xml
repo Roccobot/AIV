@@ -556,4 +556,11 @@
         <item quantity="one">%1$d colour</item>
         <item quantity="other">%1$d colours</item>
     </plurals>
+    <string name="settings_buttons">Button order</string>
+    <string name="settings_buttons_desc">Drag the handle at the right of a row to move a button. Each order applies everywhere that panel appears.</string>
+    <string name="settings_buttons_menu">Menu on a file</string>
+    <string name="settings_buttons_turn">Editor: rotate and centre</string>
+    <string name="settings_buttons_steps">Editor: undo and apply</string>
+    <string name="settings_labels">Labels under icons</string>
+    <string name="settings_labels_desc">With labels off the icon panels get more compact. List menus are unchanged.</string>
 </resources>

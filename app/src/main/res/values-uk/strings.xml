@@ -418,4 +418,11 @@
         <item quantity="many">%1$d кольорів</item>
         <item quantity="other">%1$d кольору</item>
     </plurals>
+    <string name="settings_buttons">Порядок кнопок</string>
+    <string name="settings_buttons_desc">Перетягніть ручку праворуч у рядку, щоб перемістити кнопку. Кожен порядок діє всюди, де з\'являється ця панель.</string>
+    <string name="settings_buttons_menu">Меню файлу</string>
+    <string name="settings_buttons_turn">Редактор: поворот і центрування</string>
+    <string name="settings_buttons_steps">Редактор: скасування та застосування</string>
+    <string name="settings_labels">Підписи під значками</string>
+    <string name="settings_labels_desc">Без підписів панелі значків стають компактнішими. Меню-списки не змінюються.</string>
 </resources>

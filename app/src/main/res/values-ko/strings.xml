@@ -370,4 +370,11 @@
     <plurals name="facts_colour_count">
         <item quantity="other">%1$d색</item>
     </plurals>
+    <string name="settings_buttons">버튼 순서</string>
+    <string name="settings_buttons_desc">행 오른쪽의 손잡이를 끌어서 버튼을 옮깁니다. 각 순서는 해당 패널이 나타나는 모든 곳에 적용됩니다.</string>
+    <string name="settings_buttons_menu">파일 메뉴</string>
+    <string name="settings_buttons_turn">편집기: 회전과 가운데 맞춤</string>
+    <string name="settings_buttons_steps">편집기: 실행 취소와 적용</string>
+    <string name="settings_labels">아이콘 아래 레이블</string>
+    <string name="settings_labels_desc">레이블을 끄면 아이콘 패널이 더 조밀해집니다. 목록 메뉴는 바뀌지 않습니다.</string>
 </resources>

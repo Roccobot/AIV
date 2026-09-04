@@ -370,4 +370,11 @@
     <plurals name="facts_colour_count">
         <item quantity="other">%1$d 種顏色</item>
     </plurals>
+    <string name="settings_buttons">按鈕順序</string>
+    <string name="settings_buttons_desc">拖曳列右側的握把即可移動按鈕。每種順序在該面板出現的所有位置都適用。</string>
+    <string name="settings_buttons_menu">檔案選單</string>
+    <string name="settings_buttons_turn">編輯器：旋轉與置中</string>
+    <string name="settings_buttons_steps">編輯器：復原與套用</string>
+    <string name="settings_labels">圖示下方的標籤</string>
+    <string name="settings_labels_desc">關閉標籤後，圖示面板會更精簡。清單選單不變。</string>
 </resources>

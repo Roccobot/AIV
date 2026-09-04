@@ -370,4 +370,11 @@
     <plurals name="facts_colour_count">
         <item quantity="other">%1$d สี</item>
     </plurals>
+    <string name="settings_buttons">ลำดับของปุ่ม</string>
+    <string name="settings_buttons_desc">ลากที่จับทางขวาของแถวเพื่อย้ายปุ่ม ลำดับแต่ละชุดมีผลในทุกที่ที่แผงนั้นปรากฏ</string>
+    <string name="settings_buttons_menu">เมนูของไฟล์</string>
+    <string name="settings_buttons_turn">ตัวแก้ไข: หมุนและจัดกึ่งกลาง</string>
+    <string name="settings_buttons_steps">ตัวแก้ไข: เลิกทำและใช้</string>
+    <string name="settings_labels">ป้ายกำกับใต้ไอคอน</string>
+    <string name="settings_labels_desc">เมื่อปิดป้ายกำกับ แผงไอคอนจะกระชับขึ้น เมนูแบบรายการไม่เปลี่ยนแปลง</string>
 </resources>

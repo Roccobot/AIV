@@ -19,6 +19,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.core.net.toUri
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
@@ -1920,8 +1928,16 @@ class ViewerActivity : ComponentActivity() {
                 // ⚠️ Anche l'interruttore di velo e sfocatura si mette in scena QUI, accanto
                 // al tema e per la stessa ragione: lo chiedono finestre che le impostazioni
                 // non le ricevono. Il perché per esteso sta su [LocalAivVeil].
+                // ⚠️ E accanto a lui i riquadri: le parole sotto le icone e i quattro
+                // ordini dei tasti. Stessa ragione del velo, scritta su [LocalPadLook]: li
+                // chiedono finestre che le impostazioni non ricevono. Finché le impostazioni
+                // non sono arrivate vale quello che l'app ha sempre fatto.
+                val look = model.settings?.let {
+                    PadLook(it.padLabels, it.menuOrder, it.pickOrder, it.turnOrder, it.stepOrder)
+                } ?: PadLook()
                 CompositionLocalProvider(
-                    LocalAivVeil provides (model.settings?.veil ?: false)
+                    LocalAivVeil provides (model.settings?.veil ?: false),
+                    LocalPadLook provides look
                 ) {
                     AivApp(model)
                 }
@@ -1993,7 +2009,65 @@ private fun AivApp(model: ViewerViewModel) {
             model.noticeShown()
         }
     }
-    when (val screen = model.screen) {
+    /*
+     * ⚠️⚠️ **OGNI CAMBIO DI SCHERMATA È UNA DISSOLVENZA, dalla `1.56`** (riscontro dell'utente,
+     * giro della `1.55`: *la transizione da FAB -> menu -> Impostazioni è molto brusca, quasi
+     * glitchata, soprattutto con la sfocatura attiva*). Fino a qui le schermate si
+     * **sostituivano** in un fotogramma: non c'era nessuna transizione da nessuna parte, e
+     * quello che cambiava era solo quanto le due schermate si somigliassero. Fra il cestino e la
+     * cronologia, che hanno la stessa testata, il taglio non si notava; fra la schermata
+     * iniziale, che ha il tastino e la fascia sfumata in fondo, e le impostazioni, che non hanno
+     * nessuno dei due, si notava tutto.
+     * ⚠️⚠️ **E LA DISSOLVENZA FA UNA SECONDA COSA, che è metà della correzione: tiene in vita
+     * la schermata che se ne va, quindi il MENU FA IN TEMPO A CHIUDERSI.** Una voce di menu
+     * chiama `menu.close()` e subito dopo la navigazione; finora la schermata spariva nello
+     * stesso fotogramma, si portava via il `Popup` e l'uscita del menu non veniva disegnata
+     * affatto. Con la sfocatura accesa spariva anche quella di colpo, ed è la ragione per cui
+     * lui la vede peggio proprio là.
+     * ⚠️ **Il visualizzatore resta fuori, e si dichiara**: entrando o uscendo da lui cambiano le
+     * barre di sistema e lo schermo passa a immersivo, quindi una dissolvenza mostrerebbe per
+     * due decimi di secondo la griglia e l'immagine insieme mentre le barre si muovono. È anche
+     * il passaggio più frequente dell'app, quello che si fa a ogni fotografia aperta.
+     */
+    AnimatedContent(
+        targetState = model.screen,
+        transitionSpec = {
+            if (initialState is Screen.Viewer || targetState is Screen.Viewer) {
+                EnterTransition.None togetherWith ExitTransition.None
+            } else {
+                fadeIn(tween(SCHERMO_MS)) togetherWith fadeOut(tween(SCHERMO_MS))
+            } using SizeTransform(clip = false)
+        },
+        label = "schermata"
+    ) { schermo ->
+        Stage(schermo, model, settings)
+    }
+}
+
+/**
+ * Quanto dura la dissolvenza fra due schermate.
+ *
+ * ⚠️ **Più lunga dell'uscita di un menu**, che sono 120ms (`MENU_IN` in `Menus.kt`): la
+ * schermata di partenza deve restare in vita finché il menu da cui si è usciti ha finito di
+ * chiudersi, o si torna al taglio di prima. Il margine è poco, ed è voluto: una transizione
+ * di schermata che si sente è peggio di un taglio.
+ */
+private const val SCHERMO_MS = 180
+
+/**
+ * Quello che sta in scena adesso.
+ *
+ * ⚠️⚠️ **STA IN UNA FUNZIONE SUA perché durante la dissolvenza ne vivono DUE**, una per
+ * schermata, e il `when` deve leggere quella che gli passa la transizione invece di
+ * `model.screen`, che è già quella nuova per tutti e due. Scritto dentro [AivApp] il ramo in
+ * uscita disegnerebbe la schermata in arrivo, cioè la dissolvenza non si vedrebbe.
+ * ⚠️ **I due rami leggono lo stesso modello**, e va bene: per due decimi di secondo la
+ * schermata che se ne va si ricompone sui dati nuovi, che è quello che farebbe comunque se
+ * restasse.
+ */
+@Composable
+private fun Stage(screen: Screen, model: ViewerViewModel, settings: Settings) {
+    when (screen) {
         Screen.Settings -> {
             BackHandler { model.leaveSettings() }
             SettingsScreen(
@@ -2192,8 +2266,7 @@ private fun AivApp(model: ViewerViewModel) {
                 uri = screen.uri,
                 busy = model.editorBusy,
                 onSave = { turns, crop -> model.editSave(turns, crop) },
-                onBack = { model.leaveEditor() },
-                leftHand = settings.hand == Hand.LEFT
+                onBack = { model.leaveEditor() }
             )
         }
 

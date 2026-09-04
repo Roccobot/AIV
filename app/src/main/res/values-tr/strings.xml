@@ -386,4 +386,11 @@
         <item quantity="one">%1$d renk</item>
         <item quantity="other">%1$d renk</item>
     </plurals>
+    <string name="settings_buttons">Düğme sırası</string>
+    <string name="settings_buttons_desc">Bir düğmeyi taşımak için satırın sağındaki tutamacı sürükleyin. Her sıra, o panelin göründüğü her yerde geçerlidir.</string>
+    <string name="settings_buttons_menu">Dosya menüsü</string>
+    <string name="settings_buttons_turn">Düzenleyici: çevirme ve ortalama</string>
+    <string name="settings_buttons_steps">Düzenleyici: geri alma ve uygulama</string>
+    <string name="settings_labels">Simgelerin altındaki etiketler</string>
+    <string name="settings_labels_desc">Etiketler kapalıyken simge panelleri daha derli toplu olur. Liste menüleri değişmez.</string>
 </resources>

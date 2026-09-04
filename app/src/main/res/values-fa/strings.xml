@@ -386,4 +386,11 @@
         <item quantity="one">%1$d رنگ</item>
         <item quantity="other">%1$d رنگ</item>
     </plurals>
+    <string name="settings_buttons">ترتیب دکمه‌ها</string>
+    <string name="settings_buttons_desc">برای جابه‌جایی یک دکمه، دستگیره انتهای ردیف را بکشید. هر ترتیب در هر جایی که آن پنل ظاهر می‌شود اعمال می‌شود.</string>
+    <string name="settings_buttons_menu">منوی یک پرونده</string>
+    <string name="settings_buttons_turn">ویرایشگر: چرخش و وسط‌چین</string>
+    <string name="settings_buttons_steps">ویرایشگر: واگرد و اعمال</string>
+    <string name="settings_labels">برچسب‌ها زیر نمادها</string>
+    <string name="settings_labels_desc">با خاموش‌بودن برچسب‌ها، پنل‌های نماد فشرده‌تر می‌شوند. منوهای فهرستی تغییری نمی‌کنند.</string>
 </resources>

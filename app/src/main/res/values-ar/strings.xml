@@ -450,4 +450,11 @@
         <item quantity="many">%1$d لونًا</item>
         <item quantity="other">%1$d لون</item>
     </plurals>
+    <string name="settings_buttons">ترتيب الأزرار</string>
+    <string name="settings_buttons_desc">اسحب المقبض الموجود في طرف الصف لنقل زر. ينطبق كل ترتيب في كل مكان تظهر فيه تلك اللوحة.</string>
+    <string name="settings_buttons_menu">قائمة الملف</string>
+    <string name="settings_buttons_turn">المحرر: تدوير وتوسيط</string>
+    <string name="settings_buttons_steps">المحرر: تراجع وتطبيق</string>
+    <string name="settings_labels">التسميات أسفل الأيقونات</string>
+    <string name="settings_labels_desc">عند إيقاف التسميات تصبح لوحات الأيقونات أكثر إحكامًا. ولا تتغير قوائم السرد.</string>
 </resources>

@@ -261,6 +261,15 @@ fun SettingsScreen(
             FactFields(settings = settings, onChange = onChange)
         }
 
+        Page.BUTTONS -> Shell(
+            title = stringResource(R.string.settings_buttons),
+            onBack = { pageAt = Page.ROOT.ordinal },
+            modifier = modifier
+        ) {
+            Detail(stringResource(R.string.settings_buttons_desc))
+            ButtonOrders(settings = settings, onChange = onChange)
+        }
+
         Page.HIDDEN -> Shell(
             title = stringResource(R.string.settings_hidden),
             onBack = { pageAt = Page.ROOT.ordinal },
@@ -336,7 +345,7 @@ fun SettingsScreen(
  * questo valore e nient'altro, senza una pila, e Indietro riporta alla radice. Una famiglia
  * che ne conterrebbe un'altra tiene nella pagina piatta la riga che apre la seconda.
  */
-private enum class Page { ROOT, FACTS, HIDDEN, ZOOM, VIEWS, THUMBS }
+private enum class Page { ROOT, FACTS, HIDDEN, ZOOM, VIEWS, THUMBS, BUTTONS }
 
 /**
  * Che cosa si sta cercando nelle impostazioni, e stringa vuota quando non si cerca.
@@ -761,6 +770,38 @@ private fun ColumnScope.RootPage(
         onSelect = { onChange(settings.copy(hand = it)) }
     )
 
+    /*
+     * ⚠️⚠️ **LE DUE VOCI NUOVE DELLA `1.56` STANNO CON LA MANO, e la famiglia resta di tre.**
+     * La domanda che le tiene insieme è una sola, e si scrive come la scrive chi apre il
+     * pannello: *come si presentano i comandi che uso*. Da che parte stanno, come si leggono,
+     * in che ordine sono. Le altre due voci di questa sezione rispondono a un'altra domanda
+     * (che cosa si vede scritto), e per questo il titolo ne nomina due.
+     * ⚠️ **Tre voci, quindi la soglia della sotto-pagina non scatta**: la famiglia resta qui,
+     * e la sotto-pagina che si apre più giù è un'altra cosa (un elenco con comandi per riga,
+     * che è il primo dei quattro modi di diventarlo).
+     */
+    SwitchRow(
+        label = stringResource(R.string.settings_labels),
+        detail = stringResource(R.string.settings_labels_desc),
+        checked = settings.padLabels,
+        onChange = { onChange(settings.copy(padLabels = it)) }
+    )
+
+    /*
+     * ⚠️⚠️ **LA RICERCA TROVA I TASTI DA QUI, e non da dentro la pagina**: quella è un ELENCO
+     * con un comando per riga, quindi non si appiattisce (le manopole lavorano sull'ordine
+     * intero, e in un elenco filtrato manderebbero un tasto in una posizione che non si vede).
+     * La copertura è l'altra via prevista dalla regola: i nomi dei tasti arrivano qui come
+     * testi in più, e sono stringhe che esistono già in tutte le lingue.
+     */
+    PageRow(
+        label = stringResource(R.string.settings_buttons),
+        summary = stringResource(R.string.settings_buttons_desc),
+        onOpen = { onOpen(Page.BUTTONS) },
+        extra = (MENU_KEYS + PICK_KEYS + TURN_KEYS + STEP_KEYS).distinct()
+            .map { stringResource(it.label()) }
+    )
+
     SwitchRow(
         label = stringResource(R.string.settings_list_path),
         // ⚠️ Anche qui la spiegazione arriva dopo l'etichetta, e per la stessa ragione: il
@@ -1155,7 +1196,8 @@ private fun Shell(
                     text = "v" + BuildConfig.VERSION_NAME,
                     style = MaterialTheme.typography.labelSmall,
                     fontFamily = FontFamily.Monospace,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = VERSION_FADE)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = VERSION_FADE),
+                    modifier = Modifier.padding(end = VERSION_END)
                 )
             }
         }
@@ -1334,6 +1376,19 @@ private val THUMBS_GAP = 28.dp
  * attenuato delle spiegazioni, non da quello del titolo, quindi il velo è il secondo di due.
  */
 private const val VERSION_FADE = 0.55f
+
+/**
+ * Quanto rientra il numero di versione dal bordo destro della colonna.
+ *
+ * ⚠️⚠️ **PERCHÉ 12 E NON ZERO** (riscontro dell'utente, giro della `1.55`: *lo spazio fra il
+ * numero di versione e il bordo destro dello schermo deve essere uguale a quello della freccia
+ * dal bordo sinistro*). La colonna ha già i suoi 20dp per lato, ma a sinistra la freccia non
+ * comincia lì: sta dentro un `IconButton` da 48dp con un glifo da 24, quindi il suo inchiostro
+ * parte 12dp più in dentro. Il numero, che di scatola non ne ha, quei 12dp deve mettercili.
+ * ⚠️ **È il conto di due misure di Material e non un numero a occhio**: se un domani il tocco
+ * minimo diventasse 56, la freccia scenderebbe a 16 di rientro e questa riga direbbe il falso.
+ */
+private val VERSION_END = 12.dp
 
 /**
  * Che cosa sta fra due voci nel riepilogo di una sotto-pagina.
@@ -1593,9 +1648,21 @@ private fun HiddenFolders(settings: Settings, onChange: (Settings) -> Unit) {
 @Composable
 private fun FactFields(settings: Settings, onChange: (Settings) -> Unit) {
     val order = settings.factOrder
-    order.forEachIndexed { at, field ->
+    /*
+     * ⚠️⚠️ **UNA RIGA IN TESTA NON SI MUOVE, ed è il nome del file**: la richiesta dell'utente
+     * dice *nome del file con estensione, sempre in testa*, e `factOrderOf` lo rimette lì
+     * comunque. Dichiararlo anche qui serve a un'altra cosa: la sua riga non prende la manopola,
+     * quindi non si può nemmeno provare a spostarlo.
+     */
+    Reorderable(
+        items = order,
+        fixed = 1,
+        onMove = { da, a -> onChange(settings.copy(factOrder = order.moved(da, a))) }
+    ) { field, _ ->
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            // ⚠️ Il rientro a destra è il posto della manopola, che [Reorderable] disegna
+            // sopra la riga: senza, un'etichetta lunga le finirebbe sotto.
+            modifier = Modifier.fillMaxWidth().padding(end = HANDLE_ROOM),
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (field.always) {
@@ -1619,26 +1686,76 @@ private fun FactFields(settings: Settings, onChange: (Settings) -> Unit) {
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.weight(1f)
             )
-            // ⚠️ Il nome sta in testa e non si muove: la posizione 1 è la prima che può
-            // salire, e la sua salita si ferma a 1, non a 0.
-            IconButton(
-                onClick = { onChange(settings.copy(factOrder = order.moved(at, at - 1))) },
-                enabled = at > 1
-            ) {
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowUp,
-                    contentDescription = stringResource(R.string.settings_facts_up)
-                )
-            }
-            IconButton(
-                onClick = { onChange(settings.copy(factOrder = order.moved(at, at + 1))) },
-                enabled = at in 1 until order.lastIndex
-            ) {
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = stringResource(R.string.settings_facts_down)
-                )
-            }
+        }
+    }
+}
+
+/** Quanto spazio lascia una riga alla manopola del trascinamento. */
+private val HANDLE_ROOM = 44.dp
+
+/**
+ * I quattro elenchi di tasti, uno per riquadro.
+ *
+ * ⚠️⚠️ **QUATTRO E NON UNO, e la ragione non è di comodo**: i due riquadri delle azioni sui
+ * file portano insiemi diversi in ordini diversi, tutti e due dettati dall'utente, e nessuno
+ * dei due è il sottoinsieme ordinato dell'altro. Le due file dell'editor sono due perché il
+ * filetto in mezzo dice che sono due mestieri. Il perché per esteso sta accanto alle chiavi,
+ * in `Settings.Store`.
+ * ⚠️ **Ogni elenco è un gruppo con un titolo**, e non quattro pagine: la profondità è uno, e
+ * una pagina che ne aprisse altre quattro costerebbe un tocco per ognuna.
+ * ⚠️ **Nessuna riga è ferma**: qui non c'è nessun tasto in posizione obbligata, al contrario
+ * dei campi delle info, dove il nome del file sta in testa per richiesta.
+ */
+@Composable
+private fun ButtonOrders(settings: Settings, onChange: (Settings) -> Unit) {
+    PadOrder(
+        title = stringResource(R.string.settings_buttons_menu),
+        order = settings.menuOrder,
+        onOrder = { onChange(settings.copy(menuOrder = it)) }
+    )
+    PadOrder(
+        title = stringResource(R.string.pick_actions),
+        order = settings.pickOrder,
+        onOrder = { onChange(settings.copy(pickOrder = it)) }
+    )
+    PadOrder(
+        title = stringResource(R.string.settings_buttons_turn),
+        order = settings.turnOrder,
+        onOrder = { onChange(settings.copy(turnOrder = it)) }
+    )
+    PadOrder(
+        title = stringResource(R.string.settings_buttons_steps),
+        order = settings.stepOrder,
+        onOrder = { onChange(settings.copy(stepOrder = it)) }
+    )
+}
+
+/** Un elenco di tasti col suo titolo: icona, nome, e la manopola per trascinarlo. */
+@Composable
+private fun PadOrder(title: String, order: List<PadKey>, onOrder: (List<PadKey>) -> Unit) {
+    Group(title)
+    Reorderable(
+        items = order,
+        onMove = { da, a -> onOrder(order.moved(da, a)) }
+    ) { chiave, _ ->
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(end = HANDLE_ROOM),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = chiave.glyph(),
+                // ⚠️ Nessuna descrizione: la riga porta già il nome scritto accanto, e un
+                // lettore di schermo che leggesse tutti e due direbbe la stessa parola due
+                // volte.
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 14.dp).size(20.dp)
+            )
+            Text(
+                text = stringResource(chiave.label()),
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f)
+            )
         }
     }
 }
@@ -1649,7 +1766,7 @@ private fun FactFields(settings: Settings, onChange: (Settings) -> Unit) {
  * ⚠️ Si toglie e si rimette invece di scambiare i due: lo scambio funziona solo fra vicini,
  * e il giorno che servisse un trascinamento vero questa funzione va già bene.
  */
-private fun List<FactField>.moved(from: Int, to: Int): List<FactField> {
+private fun <T> List<T>.moved(from: Int, to: Int): List<T> {
     if (from !in indices || to !in indices || from == to) return this
     val out = toMutableList()
     out.add(to, out.removeAt(from))

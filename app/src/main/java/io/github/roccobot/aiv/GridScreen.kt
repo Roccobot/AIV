@@ -581,18 +581,18 @@ fun GridScreen(
         // rinomina (richiesta dell'utente), e il posto nel pannello è lo stesso, così le
         // dieci icone non ballano.
         if (bin) {
-            PadAction(Glyphs.BinRestore, R.string.bin_restore) {
+            PadAction(PadKey.RENAME, Glyphs.BinRestore, R.string.bin_restore) {
                 job = FileJob.Restore(chosen.toList())
             }
         } else {
-            PadAction(Glyphs.TextCursor, R.string.pick_rename) {
+            PadAction(PadKey.RENAME, Glyphs.TextCursor, R.string.pick_rename) {
                 job = FileJob.Rename(chosen.toList())
             }
         },
-        PadAction(Icons.Outlined.Info, R.string.pick_info) {
+        PadAction(PadKey.INFO, Icons.Outlined.Info, R.string.pick_info) {
             job = FileJob.Facts(chosen.toList())
         },
-        PadAction(Glyphs.FolderPairDashed, R.string.pick_move) {
+        PadAction(PadKey.MOVE, Glyphs.FolderPairDashed, R.string.pick_move) {
             job = FileJob.Transfer(chosen.toList(), move = true)
         },
         // ⚠️⚠️ **IL TOCCO LUNGO SU 'COPIA' DUPLICA DOVE SEI, dalla 0.79** (richiesta
@@ -601,6 +601,7 @@ fun GridScreen(
         // quindi non si potrebbe ripristinare, e sarebbe un file che il cestino non sa da
         // dove viene.
         PadAction(
+            key = PadKey.COPY,
             icon = Glyphs.FolderPair,
             label = R.string.menu_copy_here,
             onHold = if (bin) null else {
@@ -612,7 +613,7 @@ fun GridScreen(
         ) {
             job = FileJob.Transfer(chosen.toList(), move = false)
         },
-        PadAction(Icons.Default.Share, R.string.menu_share) {
+        PadAction(PadKey.SHARE, Icons.Default.Share, R.string.menu_share) {
             // ⚠️ La lista si prende ADESSO: la condivisione gira in una coroutine, e
             // leggere `chosen` da dentro leggerebbe una selezione che nel frattempo può
             // essere cambiata.
@@ -626,6 +627,7 @@ fun GridScreen(
          * non aggiunge niente e non si mette.
          */
         PadAction(
+            key = PadKey.DELETE,
             icon = Glyphs.PickDelete,
             label = R.string.pick_delete,
             danger = true,
@@ -654,7 +656,7 @@ fun GridScreen(
          * numero in più su un avviso che dura due secondi è una cosa da leggere invece che
          * da vedere.
          */
-        PadAction(Icons.AutoMirrored.Outlined.FormatListBulleted, R.string.pick_list) {
+        PadAction(PadKey.LIST, Icons.AutoMirrored.Outlined.FormatListBulleted, R.string.pick_list) {
             val list = chosen.toList()
             scope.launch {
                 // ⚠️ Il percorso si chiede per UNA sola, non per tutte: gli elementi scelti
@@ -672,6 +674,7 @@ fun GridScreen(
         // ⚠️ Il tocco lungo su 'Tutti' fa il contrario, come chiesto: le due stanno
         // accanto, e chi sbaglia mira ha la correzione sotto lo stesso dito.
         PadAction(
+            key = PadKey.ALL,
             icon = Glyphs.PickAll,
             label = R.string.pick_all_short,
             onHold = { chosen = emptySet() },
@@ -679,16 +682,20 @@ fun GridScreen(
         ) {
             takeAll()
         },
-        PadAction(Glyphs.PickNone, R.string.pick_none) {
+        PadAction(PadKey.NONE, Glyphs.PickNone, R.string.pick_none) {
             chosen = emptySet()
         }
     ,
         // ⚠️ L'inversione lavora sull'elenco che si ha DAVANTI, non su tutta la cartella:
         // con una ricerca in corso o un filtro acceso, `items` è già quello filtrato, ed è
         // l'unica lettura che non sorprende.
-        PadAction(Glyphs.PickInvert, R.string.pick_invert) {
+        PadAction(PadKey.INVERT, Glyphs.PickInvert, R.string.pick_invert) {
             chosen = items.orEmpty().toSet() - chosen
         })
+        // ⚠️ L'ordine è quello scelto dall'utente, e di fabbrica quello dettato per la
+        // `1.54`: vedi `PICK_KEYS`. È un ordine SUO e non quello del menu del tocco lungo,
+        // perché i due riquadri portano insiemi diversi in ordini diversi.
+        .inOrder(LocalPadLook.current.pick)
 
     // Le due misure dello scorrimento ai bordi, in pixel: servono dentro un effetto, che
     // non ha una densità sotto mano.
@@ -1224,7 +1231,9 @@ fun GridScreen(
                         )
                         MenuRow(
                             text = stringResource(R.string.bin_restore_all),
-                            icon = Glyphs.BinRestoreAll,
+                            // ⚠️ **Lo stesso glifo del ripristino singolo, dalla `1.56`**, per
+                            // sua istruzione: il perché sta su [Glyphs.BinRestore].
+                            icon = Glyphs.BinRestore,
                             enabled = filled,
                             /*
                              * ⚠️⚠️ **ADESSO CHIEDE, dalla 1.53, e la nota di prima diceva il

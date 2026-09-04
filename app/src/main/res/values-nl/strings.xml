@@ -386,4 +386,11 @@
         <item quantity="one">%1$d kleur</item>
         <item quantity="other">%1$d kleuren</item>
     </plurals>
+    <string name="settings_buttons">Volgorde van de knoppen</string>
+    <string name="settings_buttons_desc">Sleep de greep rechts in een rij om een knop te verplaatsen. Elke volgorde geldt overal waar dat paneel verschijnt.</string>
+    <string name="settings_buttons_menu">Menu op een bestand</string>
+    <string name="settings_buttons_turn">Editor: draaien en centreren</string>
+    <string name="settings_buttons_steps">Editor: ongedaan maken en toepassen</string>
+    <string name="settings_labels">Labels onder de pictogrammen</string>
+    <string name="settings_labels_desc">Zonder labels worden de pictogrampanelen compacter. Lijstmenu\'s veranderen niet.</string>
 </resources>

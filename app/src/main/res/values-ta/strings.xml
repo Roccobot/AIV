@@ -386,4 +386,11 @@
         <item quantity="one">%1$d வண்ணம்</item>
         <item quantity="other">%1$d வண்ணங்கள்</item>
     </plurals>
+    <string name="settings_buttons">பொத்தான்களின் வரிசை</string>
+    <string name="settings_buttons_desc">ஒரு பொத்தானை நகர்த்த வரிசையின் வலப்புறம் உள்ள கைப்பிடியை இழுக்கவும். ஒவ்வொரு வரிசையும் அந்தப் பலகம் தோன்றும் எல்லா இடங்களிலும் பொருந்தும்.</string>
+    <string name="settings_buttons_menu">கோப்பின் பட்டி</string>
+    <string name="settings_buttons_turn">திருத்தி: சுழற்றலும் நடுவில் வைத்தலும்</string>
+    <string name="settings_buttons_steps">திருத்தி: செயல்தவிர்த்தலும் பயன்படுத்தலும்</string>
+    <string name="settings_labels">சின்னங்களுக்குக் கீழே பெயர்கள்</string>
+    <string name="settings_labels_desc">பெயர்கள் அணைந்திருந்தால் சின்னப் பலகங்கள் இன்னும் நெருக்கமாகும். பட்டியல் பட்டிகள் மாறாது.</string>
 </resources>

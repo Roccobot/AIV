@@ -386,4 +386,11 @@
         <item quantity="one">%1$d রঙ</item>
         <item quantity="other">%1$d রঙ</item>
     </plurals>
+    <string name="settings_buttons">বোতামের ক্রম</string>
+    <string name="settings_buttons_desc">কোনও বোতাম সরাতে সারির ডান দিকের হাতলটি টেনে নিন। প্রতিটি ক্রম সেই প্যানেল যেখানেই দেখা যায় সেখানেই প্রযোজ্য।</string>
+    <string name="settings_buttons_menu">ফাইলের মেনু</string>
+    <string name="settings_buttons_turn">সম্পাদক: ঘোরানো ও কেন্দ্রে আনা</string>
+    <string name="settings_buttons_steps">সম্পাদক: পূর্বাবস্থা ও প্রয়োগ</string>
+    <string name="settings_labels">আইকনের নিচে লেবেল</string>
+    <string name="settings_labels_desc">লেবেল বন্ধ থাকলে আইকনের প্যানেল আরও ছোট হয়। তালিকা মেনু বদলায় না।</string>
 </resources>

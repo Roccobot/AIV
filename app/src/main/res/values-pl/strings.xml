@@ -418,4 +418,11 @@
         <item quantity="many">%1$d kolorów</item>
         <item quantity="other">%1$d koloru</item>
     </plurals>
+    <string name="settings_buttons">Kolejność przycisków</string>
+    <string name="settings_buttons_desc">Przeciągnij uchwyt po prawej stronie wiersza, aby przenieść przycisk. Każda kolejność obowiązuje wszędzie tam, gdzie pojawia się ten panel.</string>
+    <string name="settings_buttons_menu">Menu pliku</string>
+    <string name="settings_buttons_turn">Edytor: obracanie i wyśrodkowanie</string>
+    <string name="settings_buttons_steps">Edytor: cofanie i stosowanie</string>
+    <string name="settings_labels">Etykiety pod ikonami</string>
+    <string name="settings_labels_desc">Bez etykiet panele ikon stają się bardziej zwarte. Menu listy pozostają bez zmian.</string>
 </resources>

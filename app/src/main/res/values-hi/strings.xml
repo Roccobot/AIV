@@ -386,4 +386,11 @@
         <item quantity="one">%1$d रंग</item>
         <item quantity="other">%1$d रंग</item>
     </plurals>
+    <string name="settings_buttons">बटन का क्रम</string>
+    <string name="settings_buttons_desc">किसी बटन को खिसकाने के लिए पंक्ति के दाईं ओर बने हैंडल को खींचें। हर क्रम उन सभी जगहों पर लागू होता है जहाँ वह पैनल दिखता है।</string>
+    <string name="settings_buttons_menu">फ़ाइल का मेन्यू</string>
+    <string name="settings_buttons_turn">संपादक: घुमाना और बीच में लाना</string>
+    <string name="settings_buttons_steps">संपादक: पूर्ववत और लागू करना</string>
+    <string name="settings_labels">आइकनों के नीचे लेबल</string>
+    <string name="settings_labels_desc">लेबल बंद होने पर आइकन पैनल अधिक संक्षिप्त हो जाते हैं। सूची वाले मेन्यू नहीं बदलते।</string>
 </resources>

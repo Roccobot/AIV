@@ -402,4 +402,11 @@
         <item quantity="many">%1$d cores</item>
         <item quantity="other">%1$d cores</item>
     </plurals>
+    <string name="settings_buttons">Ordem dos botões</string>
+    <string name="settings_buttons_desc">Arraste a alça à direita de uma linha para mover um botão. Cada ordem vale em todos os lugares onde esse painel aparece.</string>
+    <string name="settings_buttons_menu">Menu de um arquivo</string>
+    <string name="settings_buttons_turn">Editor: girar e centralizar</string>
+    <string name="settings_buttons_steps">Editor: desfazer e aplicar</string>
+    <string name="settings_labels">Rótulos sob os ícones</string>
+    <string name="settings_labels_desc">Sem rótulos, os painéis de ícones ficam mais compactos. Os menus em lista não mudam.</string>
 </resources>

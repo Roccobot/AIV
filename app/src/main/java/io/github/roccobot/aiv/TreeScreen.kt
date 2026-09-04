@@ -442,6 +442,7 @@ private fun SpotActions(
         ActionPad(
             actions = listOf(
                 PadAction(
+                    key = PadKey.COPY,
                     icon = Glyphs.FolderPair,
                     label = R.string.menu_copy_here,
                     // ⚠️ Il tocco lungo duplica dove sei, come in griglia dalla `0.79`:
@@ -449,25 +450,27 @@ private fun SpotActions(
                     onHold = { onJob(FileJob.Duplicate(one)) },
                     holdLabel = R.string.pick_duplicate
                 ) { onJob(FileJob.Transfer(one, move = false)) },
-                PadAction(Glyphs.FolderPairDashed, R.string.pick_move) {
+                PadAction(PadKey.MOVE, Glyphs.FolderPairDashed, R.string.pick_move) {
                     onJob(FileJob.Transfer(one, move = true))
                 },
-                PadAction(Icons.Default.Share, R.string.menu_share) {
+                PadAction(PadKey.SHARE, Icons.Default.Share, R.string.menu_share) {
                     menu.close()
                     scope.launch { ImageActions.shareMany(context, one) }
                 },
-                PadAction(Glyphs.TextCursor, R.string.pick_rename) {
+                PadAction(PadKey.RENAME, Glyphs.TextCursor, R.string.pick_rename) {
                     onJob(FileJob.Rename(one))
                 },
-                PadAction(Glyphs.PickDelete, R.string.pick_delete, danger = true) {
+                PadAction(PadKey.DELETE, Glyphs.PickDelete, R.string.pick_delete, danger = true) {
                     // ⚠️ Col cestino spento si cancella per sempre, e `forGood` porta con sé
                     // la conferma: vedi [FileJob.Delete].
                     onJob(FileJob.Delete(one, forGood = !binOn))
                 },
-                PadAction(Icons.Outlined.Info, R.string.pick_info) {
+                PadAction(PadKey.INFO, Icons.Outlined.Info, R.string.pick_info) {
                     onJob(FileJob.Facts(one))
                 }
-            )
+                // ⚠️ Lo stesso ordine del riquadro del visualizzatore, e non uno suo: sono lo
+                // stesso riquadro in due schermate, e dalla `1.56` lo dice una lista sola.
+            ).inOrder(LocalPadLook.current.menu)
         )
     }
 }

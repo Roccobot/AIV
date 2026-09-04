@@ -479,6 +479,34 @@ fun FolderScreen(
                     .height(GRADIENT_REACH)
                     .background(Brush.verticalGradient(colorStops = ramp))
             )
+            /*
+             * ⚠️⚠️ **IL SECONDO STRATO, dalla `1.56`, ED È UNO STRATO E NON UNA FERMATA IN PIÙ**
+             * (richiesta dell'utente, giro della `1.55`: *in più vorrei un ulteriore livello
+             * sopra la sfumatura attuale, stesso colore, 100% di opacità sul bordo inferiore e
+             * 0% a 7/8 dp dal bordo inferiore*). Serve a chiudere l'ultima striscia di schermo,
+             * che la fascia grande lascia adesso a sei decimi: là sotto passa il bordo stondato
+             * del vetro e la barra di sistema, e un'immagine che si intravede proprio lì si
+             * legge come un difetto di disegno.
+             * ⚠️⚠️ **PERCHÉ NON BASTAVA ALLUNGARE LA CURVA DELL'ALTRA**: quella arriva al suo
+             * massimo e ci **resta** per l'ultimo terzo, quindi per finire in pieno sul bordo
+             * dovrebbe risalire, cioè avere due massimi. Due strati invece si sommano da soli:
+             * sotto sei decimi fermi, sopra questa coda, e il pieno cade dove serve.
+             * ⚠️ **Sta fra la fascia e il tastino**: dopo, o coprirebbe l'una; prima, e sarebbe
+             * l'altra a coprire lei.
+             */
+            val piede = remember(ground) {
+                Array(FOOT_STOPS + 1) { step ->
+                    val at = step / FOOT_STOPS.toFloat()
+                    at to ground.copy(alpha = smoothstep(at))
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(FOOT_REACH)
+                    .background(Brush.verticalGradient(colorStops = piede))
+            )
             Hub(
                 view = view,
                 granted = granted,
@@ -1558,32 +1586,34 @@ private const val NARROW_COLUMNS = 4
 /**
  * Quante volte il tastino è alta la fascia dipinta.
  *
- * ⚠️⚠️ **DIPINGERE PIÙ IN ALTO NON COSTA ALTEZZA ALLA GRIGLIA, ed è tutto il senso di
- * questa costante**: lo spazio **riservato** resta [BELOW_FAB]; questa dice soltanto fin
- * dove arriva il colore. Tenerle separate è la ragione per cui la sfumatura si può alzare
- * senza che la schermata perda una riga di cartelle.
- * ⚠️⚠️ **TRE DALLA `1.55`, ED È IL SECONDO CAMBIO IN DUE VERSIONI: la 1.54 l'aveva portata a
- * quattro per fare posto a una coda che adesso non serve più.** Il giro della `1.54` ha chiarito
- * l'equivoco (*non avevo capito l'ordine degli elementi*) e la richiesta è diventata un'altra:
- * *il colore non parte più da 100%, bensì da 70%, e lo 0% sarà un po' più in basso*. Con lo zero
- * in cima non c'è più nessuno scalino da nascondere, quindi la salita torna a essere una sola e
- * la fascia si accorcia: tre volte il tastino invece di quattro, che è il 'più in basso'.
+ * ⚠️⚠️ **DUE E MEZZO DALLA `1.56`, ED È IL TERZO CAMBIO IN TRE VERSIONI**: quattro nella `1.54`
+ * per fare posto a una coda in cima, tre nella `1.55` quando quella coda è sparita, e adesso due
+ * e mezzo perché lui ha chiesto ancora la stessa cosa (*il punto di 0% si abbassa ancora
+ * leggermente*). Ogni giro ha guardato la fascia in mano e l'ha voluta un po' più corta: qui non
+ * c'è un numero giusto da calcolare, c'è il suo occhio.
+ * ⚠️⚠️ **DIPINGERE PIÙ IN ALTO NON COSTA ALTEZZA ALLA GRIGLIA, ed è tutto il senso di questa
+ * costante**: lo spazio **riservato** resta [BELOW_FAB]; questa dice soltanto fin dove arriva il
+ * colore. Tenerle separate è la ragione per cui la fascia si alza e si abbassa senza che la
+ * schermata guadagni o perda una riga di cartelle.
  * ⚠️ **La misura vecchia, che resta vera**: sullo schermo dell'utente la griglia ha 533dp e le
  * sue righe sono alte 184, quindi la terza comincia a 141dp dal fondo.
  */
-private const val GRADIENT_TIMES = 3f
+private const val GRADIENT_TIMES = 2.5f
 
 /**
  * L'opacità massima della sfumatura, quella che tiene dal tastino in giù.
  *
  * ⚠️⚠️ **ERA IL PIENO FINO ALLA `1.54`, E ADESSO NON LO È PIÙ** (richiesta dell'utente, giro
- * della `1.54`: *il colore non parte più da 100%, bensì da 70%*). ⚠️ **Il prezzo è dichiarato**:
- * la promessa vecchia era che sotto il tastino non passasse mai un'immagine, e con sette decimi
- * di colore un'immagine molto contrastata si intravede. È una scelta sua, non una svista, ed è
- * in linea con la concessione che aveva già fatto sulla stessa fascia (*può andare anche il 20%:
- * si intuisce comunque bene che è una cosa che va scomparendo*).
+ * della `1.54`: *il colore non parte più da 100%, bensì da 70%*, e poi giro della `1.55`:
+ * *l'opacità massima sul bordo inferiore scende al 60%*). ⚠️ **Il prezzo è dichiarato**: la
+ * promessa vecchia era che sotto il tastino non passasse mai un'immagine, e con sei decimi di
+ * colore un'immagine molto contrastata si intravede. È una scelta sua, non una svista, ed è in
+ * linea con la concessione che aveva già fatto sulla stessa fascia (*può andare anche il 20%: si
+ * intuisce comunque bene che è una cosa che va scomparendo*).
+ * ⚠️ **Ma non vale più fino al bordo dello schermo**, dalla `1.56`: là sotto arriva il secondo
+ * strato ([FOOT_REACH]), che riporta al pieno l'ultima striscia.
  */
-private const val GRADIENT_PEAK = 0.70f
+private const val GRADIENT_PEAK = 0.60f
 
 /**
  * In quanti gradini si disegna la curva della sfumatura.
@@ -1595,6 +1625,23 @@ private const val GRADIENT_STOPS = 20
 
 /** Quanto è alta la fascia dipinta sopra il tastino. */
 private val GRADIENT_REACH = FAB_REACH * GRADIENT_TIMES
+
+/**
+ * Quanto è alta la coda che chiude in pieno l'ultima striscia di schermo.
+ *
+ * ⚠️ **8dp è l'estremo alto di quello che ha chiesto** (*0% a 7/8 dp dal bordo inferiore*): fra
+ * i due si prende il più lungo, perché su una dissolvenza il rischio è che si veda dove
+ * comincia, e mezzo dp in più lo allontana senza cambiare quello che si vede in fondo.
+ */
+private val FOOT_REACH = 8.dp
+
+/**
+ * In quanti gradini si disegna la coda.
+ *
+ * ⚠️ **Dodici su otto dp**: meno di un dp per gradino, cioè sotto il pixel su qualunque schermo
+ * moderno. La fascia grande ne vuole venti perché è venti volte più lunga.
+ */
+private const val FOOT_STOPS = 12
 
 /**
  * A che punto della sua altezza la sfumatura sopra il tastino ha inghiottito tutto.

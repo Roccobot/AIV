@@ -386,4 +386,11 @@
         <item quantity="one">rangi %1$d</item>
         <item quantity="other">rangi %1$d</item>
     </plurals>
+    <string name="settings_buttons">Mpangilio wa vitufe</string>
+    <string name="settings_buttons_desc">Buruta kishikizo kilicho upande wa kulia wa safu ili kuhamisha kitufe. Kila mpangilio hutumika kila mahali kidirisha hicho kinapoonekana.</string>
+    <string name="settings_buttons_menu">Menyu ya faili</string>
+    <string name="settings_buttons_turn">Kihariri: kuzungusha na kuweka katikati</string>
+    <string name="settings_buttons_steps">Kihariri: kutendua na kutumia</string>
+    <string name="settings_labels">Lebo chini ya aikoni</string>
+    <string name="settings_labels_desc">Lebo zikiwa zimezimwa, vidirisha vya aikoni hubana zaidi. Menyu za orodha hazibadiliki.</string>
 </resources>

@@ -2846,21 +2846,22 @@ private fun ImageMenu(
             source?.let { uri ->
                 val one = listOf(uri)
                 /*
-                 * ⚠️⚠️ **I SEI TASTI HANNO UN NOME PERCHÉ NEL CESTINO I PRIMI DUE SI
-                 * SCAMBIANO, dalla 1.54** (ordine dettato dall'utente): fuori è 'Copia' e poi
-                 * 'Sposta', là dentro è 'Sposta' e poi 'Copia'. Con la lista scritta di
-                 * seguito quello scambio vorrebbe dire due liste con dentro gli stessi sei
-                 * blocchi, cioè sei coppie da tenere allineate a mano.
-                 * ⚠️ **È l'unico posto in cui il riquadro cambia ordine fra due contesti**, e
-                 * va saputo perché contraddice la nota qui sotto sulle icone che non ballano:
-                 * quella regola vale ancora per gli altri quattro tasti, e questa è una deroga
-                 * chiesta, non una svista.
+                 * ⚠️⚠️ **I SEI TASTI HANNO UN NOME PERCHÉ DUE DI LORO CAMBIANO NEL CESTINO**:
+                 * 'Rinomina' diventa 'Ripristina', e 'Copia' perde il tocco lungo che
+                 * duplica. Con la lista scritta di seguito quei due `if` vorrebbero dire due
+                 * liste con dentro gli stessi sei blocchi.
+                 * ⚠️⚠️ **LO SCAMBIO FRA 'COPIA' E 'SPOSTA' NON C'È PIÙ, dalla `1.56`.** Nella
+                 * `1.54` l'utente aveva chiesto che nel cestino i primi due si invertissero;
+                 * adesso l'ordine lo sceglie lui trascinando, e uno scambio automatico sopra
+                 * la sua scelta sarebbe l'app che disobbedisce a chi ha appena riordinato. Una
+                 * funzione che si può configurare non può anche correggere la configurazione.
                  */
                 val copia =
                         // ⚠️ Il tocco lungo duplica dove sei, come nella griglia: il
                         // riquadro è condiviso, e una scorciatoia che c'è in un posto e non
                         // nell'altro si impara e poi non funziona.
                         PadAction(
+                            key = PadKey.COPY,
                             icon = Glyphs.FolderPair,
                             label = R.string.menu_copy_here,
                             onHold = if (inBin) null else {
@@ -2875,12 +2876,12 @@ private fun ImageMenu(
                             ops.job(FileJob.Transfer(one, move = false))
                         }
                 val sposta =
-                        PadAction(Glyphs.FolderPairDashed, R.string.pick_move) {
+                        PadAction(PadKey.MOVE, Glyphs.FolderPairDashed, R.string.pick_move) {
                             menu.close()
                             ops.job(FileJob.Transfer(one, move = true))
                         }
                 val elimina =
-                        PadAction(Glyphs.PickDelete, R.string.pick_delete, danger = true) {
+                        PadAction(PadKey.DELETE, Glyphs.PickDelete, R.string.pick_delete, danger = true) {
                             menu.close()
                             // ⚠️ Definitiva nel cestino **o** col cestino spento, ed è la
                             // stessa condizione della griglia: con lei viaggia la conferma.
@@ -2890,18 +2891,18 @@ private fun ImageMenu(
                 // si ripristina, fuori si rinomina. Queste due icone non ballano.
                 val rinomina =
                         if (inBin) {
-                            PadAction(Glyphs.BinRestore, R.string.bin_restore) {
+                            PadAction(PadKey.RENAME, Glyphs.BinRestore, R.string.bin_restore) {
                                 menu.close()
                                 ops.job(FileJob.Restore(one))
                             }
                         } else {
-                            PadAction(Glyphs.TextCursor, R.string.pick_rename) {
+                            PadAction(PadKey.RENAME, Glyphs.TextCursor, R.string.pick_rename) {
                                 menu.close()
                                 ops.job(FileJob.Rename(one))
                             }
                         }
                 val condividi =
-                        PadAction(Icons.Default.Share, R.string.menu_share) {
+                        PadAction(PadKey.SHARE, Icons.Default.Share, R.string.menu_share) {
                             menu.close()
                             ops.share(image)
                         }
@@ -2922,6 +2923,7 @@ private fun ImageMenu(
                  */
                 val info =
                         PadAction(
+                            key = PadKey.INFO,
                             icon = Icons.Outlined.Info,
                             label = R.string.pick_info,
                             onHold = { menu.close(); ops.bar() },
@@ -2930,10 +2932,11 @@ private fun ImageMenu(
                             menu.close()
                             ops.job(FileJob.Facts(one))
                         }
+                // ⚠️ L'ordine è quello che l'utente ha scelto nelle impostazioni, e di
+                // fabbrica è quello che ha dettato per la `1.54`: vedi `MENU_KEYS`.
                 ActionPad(
-                    actions =
-                        if (inBin) listOf(sposta, copia, condividi, rinomina, elimina, info)
-                        else listOf(copia, sposta, condividi, rinomina, elimina, info)
+                    actions = listOf(copia, sposta, condividi, rinomina, elimina, info)
+                        .inOrder(LocalPadLook.current.menu)
                 )
             }
             // ⚠️⚠️ **QUI SOTTO C'ERANO LE IMPOSTAZIONI, e sono uscite nella 0.44**

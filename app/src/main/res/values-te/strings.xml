@@ -386,4 +386,11 @@
         <item quantity="one">%1$d రంగు</item>
         <item quantity="other">%1$d రంగులు</item>
     </plurals>
+    <string name="settings_buttons">బటన్ల క్రమం</string>
+    <string name="settings_buttons_desc">ఒక బటన్‌ను తరలించడానికి వరుస కుడివైపు ఉన్న హ్యాండిల్‌ను లాగండి. ప్రతి క్రమం ఆ ప్యానెల్ కనిపించే అన్ని చోట్లా వర్తిస్తుంది.</string>
+    <string name="settings_buttons_menu">ఫైల్ మెనూ</string>
+    <string name="settings_buttons_turn">సవరణి: తిప్పడం, మధ్యలో ఉంచడం</string>
+    <string name="settings_buttons_steps">సవరణి: చర్యరద్దు, వర్తింపజేయడం</string>
+    <string name="settings_labels">చిహ్నాల కింద లేబుళ్లు</string>
+    <string name="settings_labels_desc">లేబుళ్లు ఆపివేస్తే చిహ్నాల ప్యానెళ్లు మరింత కుదించుకుంటాయి. జాబితా మెనూలు మారవు.</string>
 </resources>
