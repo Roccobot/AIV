@@ -807,6 +807,23 @@ private val MENU_ITEM_LEFT = MENU_ITEM_SIDE + 3.dp
 private val MENU_ITEM_ICON = 24.dp
 
 /**
+ * Dove cade il **centro** dell'icona di una voce, misurato dal fianco del pannello.
+ *
+ * ⚠️⚠️ **ESISTE PERCHÉ IL RIQUADRO A ICONE CI SI DEVE ALLINEARE, dalla `1.59`** (richiesta
+ * dell'utente, giro della `1.58`, con una schermata e una riga verticale tracciata sopra:
+ * *sarebbe bello se le icone delle voci in lista si allineassero perfettamente in verticale
+ * con la prima colonna di icone nella griglia*). Prima i due rientri erano indipendenti e si
+ * incontravano **per caso**: misurato sulla sua schermata, la lista cadeva a 31dp e la prima
+ * colonna a 31,33dp, cioè due pixel.
+ * ⚠️⚠️ **E DUE PIXEL ERANO LA FORTUNA, NON LA REGOLA**: il rientro della lista è un numero
+ * fisso, quello della prima colonna era una **frazione della larghezza del pannello**, e quella
+ * larghezza la fa la voce di testo più lunga. Nelle lingue con parole lunghe lo stesso conto
+ * dava sette o otto dp di scarto. Adesso il riquadro parte da qui e lo scarto è zero per
+ * costruzione, in tutte e ventotto.
+ */
+val MENU_ICON_MID = MENU_ITEM_LEFT + MENU_ITEM_ICON / 2
+
+/**
  * Lo stondamento di **ogni** menu.
  *
  * ⚠️⚠️ **UNO SOLO PER TUTTI, dalla 1.28**: prima erano tre numeri in tre file (8 nel

@@ -61,16 +61,16 @@
     <string name="settings_search">Einstellungen durchsuchen</string>
     <string name="settings_search_clear">Suche löschen</string>
     <string name="settings_search_none">Keine Treffer</string>
-    <string name="settings_background">Hinter dem Bild</string>
+    <string name="settings_background">Hintergrund des Betrachters</string>
     <string name="settings_bg_checker">Schachbrett</string>
     <string name="settings_bg_solid">Einfarbig</string>
-    <string name="settings_bg_desc">Das Schachbrett ist der ideale Weg, transparente Pixel zu sehen, und das ist in einem ernsthaften Betrachter eine Information und keine Spielerei.</string>
-    <string name="settings_ui_theme">Design</string>
-    <string name="settings_ui_theme_desc">Ob die Oberfläche hell oder dunkel ist. Der Hintergrund hinter dem Bild, weiter unten, gehört nicht dazu: das Schachbrettmuster zeigt Transparenz, es folgt nicht dem Thema.</string>
+    <string name="settings_bg_desc">Das Schachbrett ist der ideale Weg, transparente Pixel zu sehen, und das ist in einem ernsthaften Betrachter eine Information und keine ästhetische Spielerei.</string>
+    <string name="settings_ui_theme">App-Design</string>
+    <string name="settings_ui_theme_desc">Nicht zu verwechseln mit der Hintergrundfarbe des Betrachters.</string>
     <string name="settings_system">System</string>
     <string name="settings_theme_light">Hell</string>
     <string name="settings_theme_dark">Dunkel</string>
-    <string name="settings_bg_theme">Farbton des Hintergrunds</string>
+    <string name="settings_bg_theme">Design des Hintergrunds</string>
     <string name="settings_auto">Automatisch</string>
     <string name="settings_light">Hell</string>
     <string name="settings_dark">Dunkel</string>
@@ -80,7 +80,7 @@
     <string name="settings_folder_columns">Spalten im Ordnerraster</string>
     <string name="settings_folder_columns_desc">Mehr Spalten bringen mehr Ordner auf den Bildschirm und machen jedes Titelbild kleiner. Bei vier wird der Name darunter meist abgeschnitten.</string>
     <string name="settings_folder_count">Zähler der Elemente unter den Ordnern in der Rasteransicht</string>
-    <string name="settings_hand">Seite der Schaltfläche</string>
+    <string name="settings_hand">Seite der schwebenden Schaltflächen (\'FAB\')</string>
     <string name="settings_hand_desc">In welcher unteren Ecke die schwebende Schaltfläche sitzt, mit dem Feld, das sie öffnet, und dem Platz, den das Raster ihr lässt.</string>
     <string name="settings_right">Rechts</string>
     <string name="settings_left">Links</string>
@@ -387,14 +387,14 @@
         <item quantity="other">%1$d Farben</item>
     </plurals>
     <string name="settings_buttons">Reihenfolge der Schaltflächen</string>
-    <string name="settings_buttons_desc">Die Schaltflächen der Symbolfelder stehen dort, wo du sie hinstellst. Jede Reihenfolge gilt überall dort, wo dieses Feld erscheint.</string>
     <string name="settings_buttons_menu">Menü zu einer Datei</string>
     <string name="settings_buttons_turn">Editor: Drehen und Zentrieren</string>
     <string name="settings_buttons_steps">Editor: Rückgängig und Anwenden</string>
     <string name="settings_labels">Beschriftungen unter den Symbolen</string>
-    <string name="settings_labels_desc">Ohne Beschriftungen werden die Symbolfelder kompakter. Listenmenüs bleiben unverändert.</string>
-    <string name="settings_buttons_how">Halte eine Schaltfläche gedrückt und ziehe sie an ihren neuen Platz im Feld.</string>
-    <string name="settings_buttons_bin">Im Papierkorb behält das Menü zu einer Datei dieselbe Reihenfolge: \'Wiederherstellen\' steht an der Stelle von \'Umbenennen\'.</string>
+    <string name="settings_labels_desc">Wenn ausgeschaltet, werden die Symbolfelder kompakter. Listenmenüs bleiben unverändert.</string>
+    <string name="settings_buttons_how">Halte eine Schaltfläche gedrückt und ziehe sie an ihren neuen Platz innerhalb ihres Feldes.</string>
+    <string name="settings_buttons_reset">Zurücksetzen</string>
+    <string name="settings_buttons_bin">Im Papierkorb steht \'Wiederherstellen\' an der Stelle von \'Umbenennen\'.</string>
     <string name="settings_buttons_before">Nach vorn</string>
     <string name="settings_buttons_after">Nach hinten</string>
 </resources>

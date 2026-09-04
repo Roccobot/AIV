@@ -61,16 +61,16 @@
     <string name="settings_search">Pesquisar nas configurações</string>
     <string name="settings_search_clear">Limpar a pesquisa</string>
     <string name="settings_search_none">Nenhum resultado</string>
-    <string name="settings_background">Atrás da imagem</string>
+    <string name="settings_background">Fundo do visualizador</string>
     <string name="settings_bg_checker">Xadrez</string>
     <string name="settings_bg_solid">Cor lisa</string>
-    <string name="settings_bg_desc">O xadrez é a forma ideal de ver os pixels transparentes, o que num visualizador sério é informação e não enfeite.</string>
-    <string name="settings_ui_theme">Tema</string>
-    <string name="settings_ui_theme_desc">Se a interface é clara ou escura. Não diz respeito ao fundo atrás da imagem, abaixo: o xadrez revela a transparência, não acompanha o tema.</string>
+    <string name="settings_bg_desc">O xadrez é a forma ideal de ver os pixels transparentes, algo que num visualizador sério é informação e não um enfeite estético.</string>
+    <string name="settings_ui_theme">Tema do aplicativo</string>
+    <string name="settings_ui_theme_desc">Não confundir com a cor de fundo do visualizador.</string>
     <string name="settings_system">Sistema</string>
     <string name="settings_theme_light">Claro</string>
     <string name="settings_theme_dark">Escuro</string>
-    <string name="settings_bg_theme">Tom do fundo</string>
+    <string name="settings_bg_theme">Tema do fundo</string>
     <string name="settings_auto">Automático</string>
     <string name="settings_light">Claro</string>
     <string name="settings_dark">Escuro</string>
@@ -80,7 +80,7 @@
     <string name="settings_folder_columns">Colunas na grade de pastas</string>
     <string name="settings_folder_columns_desc">Mais colunas cabem mais pastas na tela e encolhem cada capa. Com quatro, o nome embaixo costuma ficar cortado.</string>
     <string name="settings_folder_count">Contador de itens sob as pastas na visualização em grade</string>
-    <string name="settings_hand">Lado do botão</string>
+    <string name="settings_hand">Lado dos botões flutuantes (\'FAB\')</string>
     <string name="settings_hand_desc">Em qual canto inferior fica o botão flutuante, com o painel que ele abre e o espaço que a grade lhe deixa.</string>
     <string name="settings_right">Direita</string>
     <string name="settings_left">Esquerda</string>
@@ -403,14 +403,14 @@
         <item quantity="other">%1$d cores</item>
     </plurals>
     <string name="settings_buttons">Ordem dos botões</string>
-    <string name="settings_buttons_desc">Os botões dos painéis de ícones ficam onde você quiser. Cada ordem vale em todos os lugares onde esse painel aparece.</string>
     <string name="settings_buttons_menu">Menu de um arquivo</string>
     <string name="settings_buttons_turn">Editor: girar e centralizar</string>
     <string name="settings_buttons_steps">Editor: desfazer e aplicar</string>
     <string name="settings_labels">Rótulos sob os ícones</string>
-    <string name="settings_labels_desc">Sem rótulos, os painéis de ícones ficam mais compactos. Os menus em lista não mudam.</string>
-    <string name="settings_buttons_how">Mantenha um botão pressionado e arraste-o para mudar seu lugar no painel.</string>
-    <string name="settings_buttons_bin">Na lixeira o menu de um arquivo mantém esta mesma ordem: \'Restaurar\' fica no lugar de \'Renomear\'.</string>
+    <string name="settings_labels_desc">Se desativados, os painéis de ícones ficam mais compactos. Os menus em lista não mudam.</string>
+    <string name="settings_buttons_how">Mantenha um botão pressionado e arraste-o para mudar seu lugar dentro do seu painel.</string>
+    <string name="settings_buttons_reset">Redefinir</string>
+    <string name="settings_buttons_bin">Na lixeira, \'Restaurar\' fica no lugar de \'Renomear\'.</string>
     <string name="settings_buttons_before">Mover para antes</string>
     <string name="settings_buttons_after">Mover para depois</string>
 </resources>

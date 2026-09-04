@@ -29,7 +29,7 @@
 
     <string name="settings_title">Definições</string>
     <string name="settings_search">Procurar nas definições</string>
-    <string name="settings_ui_theme_desc">Se a interface é clara ou escura. Não diz respeito ao fundo atrás da imagem, abaixo: o xadrez revela a transparência, não acompanha o tema.</string>
+
     <string name="settings_folder_columns">Colunas na grelha de pastas</string>
     <string name="settings_folder_columns_desc">Mais colunas cabem mais pastas no ecrã e encolhem cada capa. Com quatro, o nome abaixo costuma ficar cortado.</string>
     <string name="settings_fit_grow_desc">Desligado, uma imagem menor que o ecrã aparece no tamanho real. Ligado, cresce até preencher a vista.</string>
@@ -112,13 +112,16 @@
     <!-- arquivo -> ficheiro, come nel resto di questo file. Le altre due
          stringhe del pulitore non nominano il file e restano quelle di values-pt. -->
     <string name="convert_clean_why">Remove cabeçalhos, metadados, comentários, scripts, C2PA e restos dos editores, que são os dados mais pesados (até 99% do ficheiro) e raramente servem.</string>
-    <string name="settings_buttons_desc">Os botões dos painéis de ícones ficam onde quiser. Cada ordem vale em todos os sítios onde esse painel aparece.</string>
     <string name="settings_buttons_menu">Menu de um ficheiro</string>
     <!-- pressionado -> premido, lixeira -> reciclagem, arquivo -> ficheiro: as tres
          palavras que ja mudam no resto deste ficheiro. As duas cadeias das setas
          ('Mover para antes' e 'Mover para depois') leem-se iguais dos dois lados. -->
-    <string name="settings_buttons_how">Mantenha um botão premido e arraste-o para mudar o seu lugar no painel.</string>
-    <string name="settings_buttons_bin">Na reciclagem o menu de um ficheiro mantém esta mesma ordem: \'Restaurar\' fica no lugar de \'Renomear\'.</string>
+    <string name="settings_buttons_how">Mantenha um botão premido e arraste-o para mudar o seu lugar dentro do seu painel.</string>
+    <string name="settings_buttons_bin">Na reciclagem, \'Restaurar\' fica no lugar de \'Renomear\'.</string>
     <!-- grade -> grelha, como no resto deste ficheiro. -->
     <string name="settings_hand_desc">Em qual canto inferior fica o botão flutuante, com o painel que ele abre e o espaço que a grelha lhe deixa.</string>
+    <!-- aplicacao/aplicativo, e Repor/Redefinir: due parole che cambiano fra le due
+         varianti come quelle elencate in testa a questo file. -->
+    <string name="settings_ui_theme">Tema da aplicação</string>
+    <string name="settings_buttons_reset">Repor</string>
 </resources>

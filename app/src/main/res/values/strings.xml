@@ -174,18 +174,18 @@
     <string name="settings_thumbs_do">Clear thumbnail\ncache</string>
     <string name="settings_thumbs_done">Thumbnail cache cleared</string>
 
-    <string name="settings_background">Behind the picture</string>
+    <string name="settings_background">Viewer background</string>
     <string name="settings_bg_checker">Checkerboard</string>
     <string name="settings_bg_solid">Flat colour</string>
-    <string name="settings_bg_desc">The checkerboard is the ideal way to see transparent pixels, which on a serious viewer is information rather than decoration.</string>
+    <string name="settings_bg_desc">The checkerboard is the ideal way to see transparent pixels, something that on a serious viewer is information, not aesthetic decoration.</string>
 
-    <string name="settings_ui_theme">Theme</string>
-    <string name="settings_ui_theme_desc">Whether the interface is light or dark. It does not govern the background behind the image, below: the checkerboard reveals transparency, it does not follow the theme.</string>
+    <string name="settings_ui_theme">App theme</string>
+    <string name="settings_ui_theme_desc">Not to be confused with the viewer\'s background colour.</string>
     <string name="settings_system">System</string>
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_dark">Dark</string>
 
-    <string name="settings_bg_theme">Background tint</string>
+    <string name="settings_bg_theme">Background theme</string>
     <string name="settings_auto">Automatic</string>
     <string name="settings_light">Light</string>
     <string name="settings_dark">Dark</string>
@@ -196,7 +196,7 @@
     <string name="settings_folder_columns">Columns in the folder grid</string>
     <string name="settings_folder_columns_desc">More columns fit more folders on screen and shrink each cover. At four the name under it is usually cut short.</string>
     <string name="settings_folder_count">Item counter under folders in grid view</string>
-    <string name="settings_hand">Side of the button</string>
+    <string name="settings_hand">Side of the floating buttons (\'FAB\')</string>
     <string name="settings_hand_desc">Which bottom corner the floating button sits in, with the panel it opens and the room the grid leaves it.</string>
     <string name="settings_right">Right</string>
     <string name="settings_left">Left</string>
@@ -264,7 +264,6 @@
     <string name="settings_reset_hints_desc">The mini-tutorials, the onboarding, the tips and the warnings, normally shown only at first launch, become visible again (once).</string>
     <string name="settings_reset_hints_do">Bring back</string>
     <string name="settings_reset_hints_done">The tips will show again</string>
-
 
     <string name="folders_title">Folders</string>
     <string name="folders_permission">Listing the folders needs access to all files. It is the same permission that lets you leaf through a folder, and it is granted from a system page.</string>
@@ -557,14 +556,14 @@
         <item quantity="other">%1$d colours</item>
     </plurals>
     <string name="settings_buttons">Button order</string>
-    <string name="settings_buttons_desc">The buttons of the icon panels go wherever you want them. Each order applies everywhere that panel appears.</string>
     <string name="settings_buttons_menu">Menu on a file</string>
     <string name="settings_buttons_turn">Editor: rotate and centre</string>
     <string name="settings_buttons_steps">Editor: undo and apply</string>
     <string name="settings_labels">Labels under icons</string>
-    <string name="settings_labels_desc">With labels off the icon panels get more compact. List menus are unchanged.</string>
-    <string name="settings_buttons_how">Press and hold a button, then drag it to change its place in the panel.</string>
-    <string name="settings_buttons_bin">In the bin the menu on a file keeps this same order: \'Restore\' takes the place of \'Rename\'.</string>
+    <string name="settings_labels_desc">If turned off, the icon panels get more compact. List menus are unchanged.</string>
+    <string name="settings_buttons_how">Press and hold a button, then drag it to change its place within its panel.</string>
+    <string name="settings_buttons_reset">Reset</string>
+    <string name="settings_buttons_bin">In the bin, \'Restore\' takes the place of \'Rename\'.</string>
     <string name="settings_buttons_before">Move earlier</string>
     <string name="settings_buttons_after">Move later</string>
 </resources>

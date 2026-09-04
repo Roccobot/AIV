@@ -61,16 +61,16 @@
     <string name="settings_search">جستجو در تنظیمات</string>
     <string name="settings_search_clear">پاک کردن جستجو</string>
     <string name="settings_search_none">بدون نتیجه</string>
-    <string name="settings_background">پشت تصویر</string>
+    <string name="settings_background">پس‌زمینهٔ نمایشگر</string>
     <string name="settings_bg_checker">شطرنجی</string>
     <string name="settings_bg_solid">یک رنگ</string>
-    <string name="settings_bg_desc">شطرنجی بهترین راه دیدن پیکسل‌های شفاف است، و در یک نمایشگر جدی این یک اطلاع است نه یک تزیین.</string>
-    <string name="settings_ui_theme">پوسته</string>
-    <string name="settings_ui_theme_desc">روشن یا تیره بودن رابط کاربری. به پس‌زمینهٔ پشت تصویر، پایین‌تر، مربوط نیست: صفحهٔ شطرنجی شفافیت را نشان می‌دهد و از پوسته پیروی نمی‌کند.</string>
+    <string name="settings_bg_desc">شطرنجی بهترین راه دیدن پیکسل‌های شفاف است، و در یک نمایشگر جدی این یک اطلاع است نه یک تزیین زیبایی‌شناختی.</string>
+    <string name="settings_ui_theme">پوستهٔ برنامه</string>
+    <string name="settings_ui_theme_desc">با رنگ پس‌زمینهٔ نمایشگر اشتباه نشود.</string>
     <string name="settings_system">مانند سیستم</string>
     <string name="settings_theme_light">روشن</string>
     <string name="settings_theme_dark">تیره</string>
-    <string name="settings_bg_theme">ته‌رنگ پس‌زمینه</string>
+    <string name="settings_bg_theme">پوستهٔ پس‌زمینه</string>
     <string name="settings_auto">خودکار</string>
     <string name="settings_light">روشن</string>
     <string name="settings_dark">تیره</string>
@@ -80,7 +80,7 @@
     <string name="settings_folder_columns">ستون‌های شبکه پوشه‌ها</string>
     <string name="settings_folder_columns_desc">ستون بیشتر پوشه‌های بیشتری را در صفحه جا می‌دهد و هر جلد را کوچک‌تر می‌کند. با چهار ستون، نام زیر آن بیشتر وقت‌ها بریده می‌شود.</string>
     <string name="settings_folder_count">شمارندهٔ موارد زیر پوشه‌ها در نمای شبکه‌ای</string>
-    <string name="settings_hand">سمت دکمه</string>
+    <string name="settings_hand">سمت دکمه‌های شناور (\'FAB\')</string>
     <string name="settings_hand_desc">دکمه شناور در کدام گوشه پایین می‌نشیند، همراه با پنلی که باز می‌کند و فضایی که شبکه برایش می‌گذارد.</string>
     <string name="settings_right">راست</string>
     <string name="settings_left">چپ</string>
@@ -387,14 +387,14 @@
         <item quantity="other">%1$d رنگ</item>
     </plurals>
     <string name="settings_buttons">ترتیب دکمه‌ها</string>
-    <string name="settings_buttons_desc">دکمه‌های پنل‌های نماد هرجا که بخواهید می‌نشینند. هر ترتیب در هر جایی که آن پنل ظاهر می‌شود اعمال می‌شود.</string>
     <string name="settings_buttons_menu">منوی یک پرونده</string>
     <string name="settings_buttons_turn">ویرایشگر: چرخش و وسط‌چین</string>
     <string name="settings_buttons_steps">ویرایشگر: واگرد و اعمال</string>
     <string name="settings_labels">برچسب‌ها زیر نمادها</string>
-    <string name="settings_labels_desc">با خاموش‌بودن برچسب‌ها، پنل‌های نماد فشرده‌تر می‌شوند. منوهای فهرستی تغییری نمی‌کنند.</string>
-    <string name="settings_buttons_how">یک دکمه را نگه دارید و آن را بکشید تا جایش در پنل عوض شود.</string>
-    <string name="settings_buttons_bin">در زباله‌دان منوی یک پرونده همین ترتیب را نگه می‌دارد: \'بازگرداندن\' جای \'تغییر نام\' را می‌گیرد.</string>
+    <string name="settings_labels_desc">اگر خاموش باشند، پنل‌های نماد فشرده‌تر می‌شوند. منوهای فهرستی تغییری نمی‌کنند.</string>
+    <string name="settings_buttons_how">یک دکمه را نگه دارید و آن را بکشید تا جایش درون پنل خودش عوض شود.</string>
+    <string name="settings_buttons_reset">بازنشانی</string>
+    <string name="settings_buttons_bin">در زباله‌دان \'بازگرداندن\' جای \'تغییر نام\' را می‌گیرد.</string>
     <string name="settings_buttons_before">جابه‌جایی به جلو</string>
     <string name="settings_buttons_after">جابه‌جایی به عقب</string>
 </resources>

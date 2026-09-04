@@ -61,16 +61,16 @@
     <string name="settings_search">అమరికలలో వెతకండి</string>
     <string name="settings_search_clear">శోధనను తొలగించు</string>
     <string name="settings_search_none">ఫలితాలు లేవు</string>
-    <string name="settings_background">చిత్రం వెనుక</string>
+    <string name="settings_background">వీక్షకం నేపథ్యం</string>
     <string name="settings_bg_checker">చదరంగపు గళ్ళు</string>
     <string name="settings_bg_solid">ఒకే రంగు</string>
-    <string name="settings_bg_desc">పారదర్శక పిక్సెళ్లను చూడటానికి చదరంగపు గళ్లే సరైన మార్గం, గంభీరమైన వీక్షకంలో అది అలంకారం కాదు, సమాచారం.</string>
-    <string name="settings_ui_theme">వైఖరి</string>
-    <string name="settings_ui_theme_desc">ఇంటర్‌ఫేస్ లేతదా ముదురుదా. కింద ఉన్న చిత్రం వెనుక నేపథ్యానికి ఇది వర్తించదు: చదరంగపు గళ్లు పారదర్శకతను చూపుతాయి, థీమ్‌ను అనుసరించవు.</string>
+    <string name="settings_bg_desc">పారదర్శక పిక్సెళ్లను చూడటానికి చదరంగపు గళ్లే సరైన మార్గం, గంభీరమైన వీక్షకంలో అది సౌందర్య అలంకారం కాదు, సమాచారం.</string>
+    <string name="settings_ui_theme">యాప్ వైఖరి</string>
+    <string name="settings_ui_theme_desc">వీక్షకం నేపథ్య రంగుతో కలిపి చూడవద్దు.</string>
     <string name="settings_system">వ్యవస్థ ప్రకారం</string>
     <string name="settings_theme_light">వెలుతురు</string>
     <string name="settings_theme_dark">చీకటి</string>
-    <string name="settings_bg_theme">నేపథ్యపు ఛాయ</string>
+    <string name="settings_bg_theme">నేపథ్య వైఖరి</string>
     <string name="settings_auto">స్వయంచాలకం</string>
     <string name="settings_light">వెలుతురు</string>
     <string name="settings_dark">చీకటి</string>
@@ -80,7 +80,7 @@
     <string name="settings_folder_columns">సంచయ గడిలో నిలువు వరుసలు</string>
     <string name="settings_folder_columns_desc">నిలువు వరుసలు ఎక్కువైతే తెరపై ఎక్కువ సంచయాలు ఇమిడతాయి, ప్రతి ముఖచిత్రం చిన్నదవుతుంది. నాలుగు వద్ద కింది పేరు తరచుగా కత్తిరించబడుతుంది.</string>
     <string name="settings_folder_count">గ్రిడ్ వీక్షణలో సంచయాల కింద అంశాల లెక్క</string>
-    <string name="settings_hand">బటన్ ఉండే వైపు</string>
+    <string name="settings_hand">తేలియాడే బటన్ల వైపు (\'FAB\')</string>
     <string name="settings_hand_desc">తేలియాడే బటన్ కింద ఏ మూలలో ఉంటుంది, అది తెరిచే ప్యానెల్‌తో పాటు గ్రిడ్ దానికి వదిలే స్థలంతో సహా.</string>
     <string name="settings_right">కుడి</string>
     <string name="settings_left">ఎడమ</string>
@@ -387,14 +387,14 @@
         <item quantity="other">%1$d రంగులు</item>
     </plurals>
     <string name="settings_buttons">బటన్ల క్రమం</string>
-    <string name="settings_buttons_desc">చిహ్నాల ప్యానెళ్ల బటన్లను మీరు కోరుకున్న చోట పెట్టుకోవచ్చు. ప్రతి క్రమం ఆ ప్యానెల్ కనిపించే అన్ని చోట్లా వర్తిస్తుంది.</string>
     <string name="settings_buttons_menu">ఫైల్ మెనూ</string>
     <string name="settings_buttons_turn">సవరణి: తిప్పడం, మధ్యలో ఉంచడం</string>
     <string name="settings_buttons_steps">సవరణి: చర్యరద్దు, వర్తింపజేయడం</string>
     <string name="settings_labels">చిహ్నాల కింద లేబుళ్లు</string>
-    <string name="settings_labels_desc">లేబుళ్లు ఆపివేస్తే చిహ్నాల ప్యానెళ్లు మరింత కుదించుకుంటాయి. జాబితా మెనూలు మారవు.</string>
-    <string name="settings_buttons_how">ఒక బటన్‌ను నొక్కి పట్టి లాగి, ప్యానెల్‌లో దాని స్థానాన్ని మార్చండి.</string>
-    <string name="settings_buttons_bin">చెత్తబుట్టలో ఫైల్ మెనూ ఇదే క్రమాన్ని ఉంచుతుంది: \'పేరు మార్చు\' స్థానంలో \'తిరిగి తెచ్చు\' వస్తుంది.</string>
+    <string name="settings_labels_desc">ఆపివేస్తే చిహ్నాల ప్యానెళ్లు మరింత కుదించుకుంటాయి. జాబితా మెనూలు మారవు.</string>
+    <string name="settings_buttons_how">ఒక బటన్‌ను నొక్కి పట్టి లాగి, దాని సొంత ప్యానెల్‌లో దాని స్థానాన్ని మార్చండి.</string>
+    <string name="settings_buttons_reset">రీసెట్</string>
+    <string name="settings_buttons_bin">చెత్తబుట్టలో \'పేరు మార్చు\' స్థానంలో \'తిరిగి తెచ్చు\' వస్తుంది.</string>
     <string name="settings_buttons_before">ముందుకు జరుపు</string>
     <string name="settings_buttons_after">వెనక్కి జరుపు</string>
 </resources>

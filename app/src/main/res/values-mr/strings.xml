@@ -61,16 +61,16 @@
     <string name="settings_search">सेटिंग्जमध्ये शोधा</string>
     <string name="settings_search_clear">शोध साफ करा</string>
     <string name="settings_search_none">कोणताही परिणाम नाही</string>
-    <string name="settings_background">प्रतिमेच्या मागे</string>
+    <string name="settings_background">दर्शकाची पार्श्वभूमी</string>
     <string name="settings_bg_checker">बुद्धिबळाचे चौकोन</string>
     <string name="settings_bg_solid">एकच रंग</string>
-    <string name="settings_bg_desc">पारदर्शक पिक्सेल पाहण्याचा उत्तम मार्ग म्हणजे बुद्धिबळाचा पट, आणि गंभीर दर्शकात ती सजावट नसून माहिती आहे.</string>
-    <string name="settings_ui_theme">रूप</string>
-    <string name="settings_ui_theme_desc">इंटरफेस उजळ आहे की गडद. खालील प्रतिमेमागील पार्श्वभूमी यात येत नाही: बुद्धिबळाचा पट पारदर्शकता दाखवतो, थीमचे अनुसरण करत नाही.</string>
+    <string name="settings_bg_desc">पारदर्शक पिक्सेल पाहण्याचा उत्तम मार्ग म्हणजे बुद्धिबळाचा पट, आणि गंभीर दर्शकात ती सौंदर्यात्मक सजावट नसून माहिती आहे.</string>
+    <string name="settings_ui_theme">अ‍ॅपचे रूप</string>
+    <string name="settings_ui_theme_desc">दर्शकाच्या पार्श्वभूमीच्या रंगाशी गल्लत करू नका.</string>
     <string name="settings_system">प्रणालीप्रमाणे</string>
     <string name="settings_theme_light">उजळ</string>
     <string name="settings_theme_dark">गडद</string>
-    <string name="settings_bg_theme">पार्श्वभूमीची छटा</string>
+    <string name="settings_bg_theme">पार्श्वभूमीचे रूप</string>
     <string name="settings_auto">स्वयंचलित</string>
     <string name="settings_light">उजळ</string>
     <string name="settings_dark">गडद</string>
@@ -80,7 +80,7 @@
     <string name="settings_folder_columns">संचिकासंच जाळीतील स्तंभ</string>
     <string name="settings_folder_columns_desc">जास्त स्तंभांत पडद्यावर जास्त संचिकासंच बसतात आणि प्रत्येक मुखपृष्ठ लहान होते. चार असताना खालचे नाव बहुधा कापले जाते.</string>
     <string name="settings_folder_count">जाळी दृश्यात फोल्डरखाली घटकांची मोजणी</string>
-    <string name="settings_hand">बटणाची बाजू</string>
+    <string name="settings_hand">तरंगत्या बटणांची बाजू (\'FAB\')</string>
     <string name="settings_hand_desc">तरंगते बटण खालच्या कोणत्या कोपऱ्यात राहते, ते उघडणारे पटल आणि जाळी त्याला सोडणारी जागा यांच्यासह.</string>
     <string name="settings_right">उजवीकडे</string>
     <string name="settings_left">डावीकडे</string>
@@ -387,14 +387,14 @@
         <item quantity="other">%1$d रंग</item>
     </plurals>
     <string name="settings_buttons">बटणांचा क्रम</string>
-    <string name="settings_buttons_desc">चिन्ह पटलांची बटणे हवी तिथे ठेवता येतात. प्रत्येक क्रम ते पटल जिथे जिथे दिसते तिथे लागू होतो.</string>
     <string name="settings_buttons_menu">फाइलचा मेनू</string>
     <string name="settings_buttons_turn">संपादक: फिरवणे आणि मध्यभागी आणणे</string>
     <string name="settings_buttons_steps">संपादक: पूर्ववत आणि लागू करणे</string>
     <string name="settings_labels">चिन्हांखालील लेबले</string>
-    <string name="settings_labels_desc">लेबले बंद असल्यास चिन्हांची पटले अधिक सुटसुटीत होतात. यादी मेनू बदलत नाहीत.</string>
-    <string name="settings_buttons_how">एखादे बटण दाबून धरा आणि ओढून पटलातील त्याची जागा बदला.</string>
-    <string name="settings_buttons_bin">कचऱ्यात फाइलचा मेनू हाच क्रम ठेवतो: \'नाव बदला\'च्या जागी \'पुन्हा आणा\' येते.</string>
+    <string name="settings_labels_desc">बंद केल्यास चिन्हांची पटले अधिक सुटसुटीत होतात. यादी मेनू बदलत नाहीत.</string>
+    <string name="settings_buttons_how">एखादे बटण दाबून धरा आणि ओढून त्याच्या स्वतःच्या पटलातील जागा बदला.</string>
+    <string name="settings_buttons_reset">रीसेट</string>
+    <string name="settings_buttons_bin">कचऱ्यात \'नाव बदला\'च्या जागी \'पुन्हा आणा\' येते.</string>
     <string name="settings_buttons_before">आधी हलवा</string>
     <string name="settings_buttons_after">नंतर हलवा</string>
 </resources>

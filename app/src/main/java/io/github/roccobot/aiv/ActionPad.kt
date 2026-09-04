@@ -7,6 +7,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -53,6 +54,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -131,8 +134,23 @@ fun ActionPad(
      */
     labels: Boolean = LocalPadLook.current.labels
 ) {
+    /*
+     * ⚠️⚠️ **IL FIANCO SINISTRO NON È PIÙ [PAD_EDGE], dalla `1.59`: È DERIVATO DALLA COLONNA
+     * DELLE ICONE DELLA LISTA** ([MENU_ICON_MID]), perché sopra questo riquadro, nei menu, ci
+     * sono voci in lista e le loro icone devono cadere sulla stessa verticale della prima
+     * colonna (richiesta dell'utente con una schermata e una riga tracciata sopra). Il conto è
+     * quello e non un numero a occhio: il centro della cella dista mezza cella dal suo bordo,
+     * quindi il bordo va messo mezza cella prima del punto in cui il centro deve cadere.
+     * ⚠️ **Col riquadro a etichette il conto darebbe un rientro NEGATIVO** (la cella è 76 e il
+     * punto è a 31, quindi servirebbero -7), cioè la cella dovrebbe cominciare fuori dal
+     * pannello: là il pavimento riporta a [PAD_EDGE] e le due colonne restano quelle di prima.
+     * Non è una rinuncia mascherata: con le parole sotto il riquadro è una griglia di
+     * piastrelle, e una piastrella non ha nessun motivo di allinearsi all'icona di una riga.
+     */
+    val cella = if (labels) PAD_CELL else PAD_CELL_BARE
+    val avvio = (MENU_ICON_MID - cella / 2).coerceAtLeast(PAD_EDGE)
     Column(
-        modifier = modifier.padding(horizontal = PAD_EDGE, vertical = PAD_GAP),
+        modifier = modifier.padding(start = avvio, end = PAD_EDGE, top = PAD_GAP, bottom = PAD_GAP),
         verticalArrangement = Arrangement.spacedBy(PAD_GAP)
     ) {
         /*
@@ -143,18 +161,27 @@ fun ActionPad(
          * ⚠️ **Riguarda solo i riquadri a larghezza fissa**: dove le celle si dividono la
          * larghezza (`stretch`) non c'è niente da stringere, e a stringersi è la scheda.
          */
-        val cella = if (labels) PAD_CELL else PAD_CELL_BARE
         /*
-         * ⚠️⚠️ **SENZA ETICHETTE LE CELLE SI DIVIDONO LA LARGHEZZA, dalla `1.57`** (riscontro
-         * dell'utente, giro della `1.56`, con schermata: *lì vanno ridistribuite sullo spazio
-         * disponibile, o va ristretto il popup*). Il difetto era di misura, non di disegno: la
-         * larghezza del menu la fanno le righe di testo sopra il riquadro, e con le sole icone
-         * le celle scendevano a 48dp e restavano ammucchiate a sinistra con mezzo pannello di
-         * aria a destra.
+         * ⚠️⚠️ **SENZA ETICHETTE LE CELLE SI DISTRIBUISCONO SULLA LARGHEZZA, dalla `1.57`**
+         * (riscontro dell'utente, giro della `1.56`, con schermata: *lì vanno ridistribuite
+         * sullo spazio disponibile, o va ristretto il popup*). Il difetto era di misura, non di
+         * disegno: la larghezza del menu la fanno le righe di testo sopra il riquadro, e con le
+         * sole icone le celle scendevano a 48dp e restavano ammucchiate a sinistra con mezzo
+         * pannello di aria a destra.
          * ⚠️ **Distribuire è la metà che costa zero**; stringere il menu è l'altra metà, e
          * quella costa: la larghezza è l'intrinseca delle voci di testo, quindi tagliarla manda
          * a capo 'Copia immagine' nelle lingue lunghe. Il riquadro compatto si ottiene lo
          * stesso, e il menu resta leggibile in tutte e ventotto.
+         * ⚠️⚠️ **A DISTRIBUIRE È LO SPAZIO FRA LE CELLE E NON LA CELLA, dalla `1.59`, e il
+         * cambio serve all'allineamento**: con celle a peso uguale il centro della prima è una
+         * **frazione** della larghezza del pannello, quindi si sposta con la lingua e non può
+         * stare su una verticale fissa. Con celle di misura fissa e il vuoto in mezzo che
+         * cresce, il centro della prima dipende solo dal fianco, che è quello che [avvio]
+         * fissa.
+         * ⚠️ **Le colonne restano allineate fra le righe** perché i vuoti sono tutti uguali, e
+         * lo restano anche nell'ultima riga corta, dove i posti mancanti li tengono degli
+         * spaziatori larghi come una cella: `SpaceBetween` distribuisce fra **tutti** i figli,
+         * e figli tutti della stessa larghezza cadono sulle stesse colonne.
          */
         val disteso = stretch || !labels
         // ⚠️ Il minimo resta la misura naturale del riquadro: dentro una colonna a larghezza
@@ -169,24 +196,24 @@ fun ActionPad(
         for (row in actions.chunked(columns)) {
             Row(
                 modifier = if (disteso) Modifier.fillMaxWidth().widthIn(min = minimo) else Modifier,
-                horizontalArrangement = Arrangement.spacedBy(PAD_GAP)
+                horizontalArrangement =
+                    if (disteso) Arrangement.SpaceBetween else Arrangement.spacedBy(PAD_GAP)
             ) {
                 for (action in row) {
-                    PadButton(
-                        action = action,
-                        modifier = if (disteso) Modifier.weight(1f) else Modifier.width(cella),
-                        labels = labels
-                    )
+                    PadButton(action = action, modifier = Modifier.width(cella), labels = labels)
                 }
                 /*
-                 * ⚠️⚠️ **L'ULTIMA RIGA CORTA SI RIEMPIE DI VUOTO, o le sue celle si allargano
-                 * e le colonne non si allineano più con la riga sopra.** Succede dove le voci
-                 * non sono un multiplo delle colonne, cioè nel cestino, che ne ha cinque su
-                 * tre. Prima non si vedeva perché senza `weight` le celle avevano una misura
-                 * fissa.
+                 * ⚠️⚠️ **L'ULTIMA RIGA CORTA SI RIEMPIE DI POSTI VUOTI, o le sue celle si
+                 * spargono sulla larghezza e le colonne non si allineano più con la riga
+                 * sopra.** Succede dove le voci non sono un multiplo delle colonne, cioè nel
+                 * cestino, che ne ha cinque su tre.
+                 * ⚠️ **Larghi come una cella e non elastici**: `SpaceBetween` mette lo stesso
+                 * vuoto fra tutti i figli, quindi figli tutti uguali cadono sulle colonne di
+                 * sopra. Uno spaziatore elastico se le prenderebbe tutto lo spazio avanzato e
+                 * spingerebbe le celle vere ai due estremi.
                  */
                 if (disteso) {
-                    repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }
+                    repeat(columns - row.size) { Spacer(Modifier.width(cella)) }
                 }
             }
         }
@@ -843,8 +870,40 @@ private val PAD_GAP = 8.dp
 /** Quanto stacca la parola dalla sua icona: poco, perché sono la stessa cosa. */
 private val PAD_LABEL_GAP = 2.dp
 
-/** Il margine laterale del riquadro dentro il menu che lo contiene. */
+/**
+ * Il margine laterale del riquadro dentro il menu che lo contiene.
+ *
+ * ⚠️ **Dalla `1.59` è il PAVIMENTO del fianco sinistro e non più il fianco**: quello lo decide
+ * la colonna delle icone della lista, e questo numero interviene solo dove quel conto darebbe
+ * un rientro negativo. A destra resta il margine di sempre.
+ */
 private val PAD_EDGE = 4.dp
+
+/**
+ * Quanto si rimpicciolisce il tastino mentre il suo menu è aperto.
+ *
+ * ⚠️ **Sei centesimi e non di più**: la richiesta era *molto sobrio*, e su un tastino da
+ * [FAB_SIZE] questo vale 2,4dp, cioè poco più di un pixel per lato su uno schermo denso. Basta
+ * a leggersi come una pressione, e non abbastanza a sembrare un movimento.
+ */
+private const val PREMUTO_GIU = 0.06f
+
+/**
+ * Quanto si sposta la tinta del tastino verso il suo inchiostro mentre il menu è aperto.
+ *
+ * ⚠️ **È la frazione degli strati di stato di Material**, che per una superficie premuta sta
+ * fra un decimo e un ottavo. Preso da lì, il tastino premuto si comporta come ogni altra
+ * superficie dell'app in tutti e due i temi.
+ */
+private const val PREMUTO_TINTA = 0.12f
+
+/**
+ * In quanto tempo il tastino si preme e si rilascia.
+ *
+ * ⚠️ **La stessa del menu che apre**, e deve esserlo: sono la stessa azione vista da due parti,
+ * e due durate diverse darebbero un tastino che finisce di premersi mentre il menu è già lì.
+ */
+private const val PREMUTO_MS = 120
 
 /** Lo smusso dell'alone del tocco su una cella. */
 private val PAD_CORNER = 10.dp
@@ -1085,11 +1144,36 @@ fun TapHoldFab(
      */
     glyph: @Composable (descrizione: String?) -> Unit
 ) {
+    /*
+     * ⚠️⚠️ **IL TASTINO SEMBRA PREMUTO FINCHÉ IL SUO MENU È IN SCENA, dalla `1.59`** (richiesta
+     * dell'utente, giro della `1.58`: *quando lo tocchi, mentre appare il menu lui si
+     * rimpicciolisce leggermente e si schiarisce/scurisce un poco. All'opposto, quando il
+     * pannello si chiude, torna al suo colore e dimensione originali. In questo modo sembra più
+     * un tasto premuto*).
+     * ⚠️⚠️ **NON È L'INCRESPATURA DEL TOCCO, ed è la differenza che lo rende utile**: quella
+     * dura il tempo del dito e dice 'ti ho sentito'; questa dura quanto il menu e dice 'sono io
+     * che l'ho aperto'. Con un menu che si apre lontano dal dito, senza questa il tastino resta
+     * un tasto qualunque mentre la sua conseguenza è sullo schermo.
+     * ⚠️ **La tinta si sposta verso l'INCHIOSTRO del tastino e non verso il bianco o il nero**:
+     * così schiarisce nel tema chiaro e nel tema scuro senza sapere in quale si trova, perché
+     * l'inchiostro è per definizione il colore che si stacca dal fondo del tastino. È anche il
+     * modo in cui Material fa i suoi strati di stato, quindi non è un'invenzione locale.
+     * ⚠️ **Vale sui DUE disegni**, il sosia e quello nella finestra: sono lo stesso tastino
+     * visto in due momenti, e uno solo dei due animato darebbe uno scatto nello scambio.
+     */
+    val premuto by animateFloatAsState(
+        targetValue = if (lifted) 1f else 0f,
+        animationSpec = tween(PREMUTO_MS),
+        label = "premuto"
+    )
+    val scala = 1f - PREMUTO_GIU * premuto
+    val tinta = lerp(container, ink, PREMUTO_TINTA * premuto)
+    val schiaccia = Modifier.graphicsLayer { scaleX = scala; scaleY = scala }
     val tasto = @Composable { alza: Dp ->
         Surface(
-            modifier = Modifier.size(FAB_SIZE),
+            modifier = Modifier.size(FAB_SIZE).then(schiaccia),
             shape = RoundedCornerShape(FAB_CORNER),
-            color = container,
+            color = tinta,
             contentColor = ink,
             shadowElevation = alza
         ) {
@@ -1143,8 +1227,9 @@ fun TapHoldFab(
         Box(
             modifier = Modifier
                 .size(FAB_SIZE)
+                .then(schiaccia)
                 .shadow(lift, RoundedCornerShape(FAB_CORNER))
-                .background(container, RoundedCornerShape(FAB_CORNER)),
+                .background(tinta, RoundedCornerShape(FAB_CORNER)),
             contentAlignment = Alignment.Center
         ) {
             /*

@@ -32,11 +32,16 @@ import kotlinx.coroutines.launch
  * dire passare oltre l'uno, cioè un lampo. La `tween` non può farlo per costruzione.
  *
  * ⚠️ **Le due costanti della molla sono quelle che Compose ha già con un nome**
- * (`DampingRatioMediumBouncy` e `StiffnessMedium`) e non due numeri scelti a mano: misurate,
- * danno un rimbalzo di **1,7 centesimi** oltre la misura piena (meno di un punto densità su
- * un tastino da [FAB_SIZE]) e un assestamento in **234 ms**. La variante scartata partiva dal
- * 60% con `StiffnessMediumLow` e ci metteva **602 ms**, con un rimbalzo di due punti e mezzo:
- * la stessa forma, vista al rallentatore.
+ * (`DampingRatioMediumBouncy` e `StiffnessMedium`) e non due numeri scelti a mano: misurate
+ * con [ENTRA_DA], danno un rimbalzo di **4 centesimi** oltre la misura piena (1,63dp su un
+ * tastino da [FAB_SIZE]), un colmo a **94 ms** e un assestamento in **292 ms**. La variante
+ * scartata partiva dal 60% con `StiffnessMediumLow` e ci metteva **602 ms**: la stessa forma,
+ * vista al rallentatore.
+ * ⚠️⚠️ **IL RIMBALZO NON È UN NUMERO A SÉ: è il punto di partenza per una frazione fissa.** La
+ * molla supera sempre il bersaglio del 16,3% dello scarto che deve colmare, quindi partire da
+ * più in basso allunga il rimbalzo nella stessa proporzione. Dalla `1.58` alla `1.59`
+ * [ENTRA_DA] è sceso di dieci punti e il rimbalzo è passato da 0,98 a 1,63dp senza che nessuno
+ * lo chiedesse: chi tocca quella costante sappia che ne muove due.
  *
  * ⚠️ **Si rigioca a ogni ritorno sulla home**, che è quello che è stato chiesto, e non c'è
  * niente da scrivere perché lo fa la composizione: dalla `1.56` il cambio di schermata passa
@@ -69,10 +74,14 @@ fun Modifier.entering(): Modifier {
 /**
  * Da quanto parte la misura del tastino.
  *
- * ⚠️ **Sotto questo valore l'entrata smette di essere discreta**: la variante scartata partiva
- * dal 60% e si vedeva arrivare, che è l'opposto di quello che è stato chiesto.
+ * ⚠️ **75 dalla `1.59`, ed è un numero suo** (riscontro del giro della `1.58`: *parti dal 75%
+ * di dimensione senza cambiare durata*). Prima era 85, che con l'app in mano gli è sembrato
+ * poco: la molla c'era ma il tratto che percorreva era corto.
+ * ⚠️ **'Senza cambiare durata' vuol dire non toccare la molla**, ed è quello che si è fatto:
+ * lo scarto da colmare è più grande, quindi l'assestamento si allunga da sé da 234 a 292 ms.
+ * Tenerlo a 234 avrebbe voluto dire irrigidire la molla, cioè un'altra animazione.
  */
-private const val ENTRA_DA = 0.85f
+private const val ENTRA_DA = 0.75f
 
 /**
  * Da quanta opacità parte.
@@ -86,8 +95,11 @@ private const val ENTRA_ALFA = 0.65f
 /**
  * Quanto dura la dissolvenza.
  *
+ * ⚠️ **180 dalla `1.59`, ed è un numero suo** (riscontro del giro della `1.58`: *fa' durare 180
+ * ms la dissolvenza da 65% a 100% di opacità*). Prima era 140.
  * ⚠️ **Più corta dell'assestamento della molla, e deve esserlo**: il rimbalzo si vede solo se
  * il tastino è già pieno quando arriva, o si legge come uno sfarfallio invece che come un
- * movimento.
+ * movimento. Con 180 contro 292 quel margine c'è ancora, e chi alzasse ancora questo numero
+ * guardi prima [ENTRA_DA], perché è lui a dire quanto dura la molla.
  */
-private const val ENTRA_ALFA_MS = 140
+private const val ENTRA_ALFA_MS = 180
