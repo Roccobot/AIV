@@ -266,7 +266,7 @@
     <string name="bin_empty">Очистить корзину</string>
     <string name="bin_empty_ask">Действительно очистить корзину?</string>
     <string name="bin_empty_desc">Содержимое нельзя будет восстановить.</string>
-    <string name="bin_restore_all_ask">Действительно вернуть всё содержимое корзины?</string>
+    <string name="bin_restore_all_ask">Действительно восстановить все файлы?</string>
     <string name="bin_restore_all_desc">Каждый файл вернётся в свою исходную папку: чтобы узнать, куда был перемещён каждый файл, откройте историю корзины.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d элемент в корзине</item>

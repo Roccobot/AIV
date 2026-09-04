@@ -248,7 +248,7 @@
     <string name="bin_empty">Papierkorb leeren</string>
     <string name="bin_empty_ask">Papierkorb wirklich leeren?</string>
     <string name="bin_empty_desc">Der Inhalt lässt sich nicht wiederherstellen.</string>
-    <string name="bin_restore_all_ask">Wirklich den gesamten Inhalt des Papierkorbs wiederherstellen?</string>
+    <string name="bin_restore_all_ask">Wirklich alle Dateien wiederherstellen?</string>
     <string name="bin_restore_all_desc">Jede Datei kehrt in ihren ursprünglichen Ordner zurück: im Verlauf des Papierkorbs steht, wohin jede Datei verschoben wurde.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d in den Papierkorb verschoben</item>

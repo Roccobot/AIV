@@ -290,6 +290,22 @@ grande un dialogo esattamente al centro fa allungare la mano.
     chiama `lowered()`, e un secondo modificatore da ricordare avrebbe raddoppiato il modo di
     dimenticarsene, con l'aggravante che un velo mancante non si vede (un centro mancante sì).
     Il perché per esteso, e le due vie con cui si applica, stanno in testa a `Veil.kt`.
+    - ⚠️⚠️ **E DALLA 1.54 UNA TERZA: il BORDO D'ACCENTO di 2dp, al posto dell'ombra**
+      (richiesta dell'utente, 2026-09-04: *via le ombre e vai con il bordino da 2px del colore
+      di accento*, e *potrebbe essere l'elemento distintivo che cercavo*). Vale la stessa
+      ragione delle altre due, cioè che l'elenco è lo stesso; il bordo però **non dipende
+      dall'interruttore** della sfocatura, perché non è una funzione che si accende ma il modo
+      in cui l'app è fatta. Come si disegna, e che cosa c'entra col 'quadrato sfocato' che lui
+      vedeva intorno ai menu, stanno in testa a `Edge.kt`.
+    - ⚠️⚠️ **E IL VELO NON È PIÙ UN ATTRIBUTO DELLE FINESTRE, dalla 1.54: LO DIPINGE L'APP**
+      (`AppVeil`, messo in scena da `AivTheme`). Il fatto che ha costretto al cambio, dopo tre
+      bocciature della stessa voce: **due finestre non cambiano il proprio velo nello stesso
+      fotogramma**, quindi durante il passaggio da un menu a un dialogo esisteva sempre un
+      fotogramma con due veli (più scuro) o con nessuno (più chiaro), e nessun ordine di
+      chiamate lo poteva togliere. Il velo dipinto è uno, attraversa la transizione e vale il
+      **massimo** delle richieste in scena. ⚠️ La **sfocatura** resta di finestra: quella non si
+      può dipingere senza rifare i menu, che oggi sono finestre (il perché in fondo a
+      `Veil.kt`).
     - ⚠️⚠️ **MA DALLA 1.39 QUEL VELO È SPENTO DI FABBRICA, dietro un'impostazione** (richiesta
       dell'utente, 2026-09-03: *mettilo dietro un'opzione disattivata di default. Penserò se
       tenere o meno la feature: rende tutto visibilmente più lento*). Quindi la riga

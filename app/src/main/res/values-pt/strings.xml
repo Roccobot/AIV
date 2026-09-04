@@ -257,7 +257,7 @@
     <string name="bin_empty">Esvaziar a lixeira</string>
     <string name="bin_empty_ask">Esvaziar mesmo a lixeira?</string>
     <string name="bin_empty_desc">Não será possível recuperar o conteúdo.</string>
-    <string name="bin_restore_all_ask">Restaurar mesmo todo o conteúdo da lixeira?</string>
+    <string name="bin_restore_all_ask">Restaurar mesmo todos os arquivos?</string>
     <string name="bin_restore_all_desc">Cada arquivo voltará à sua pasta de origem: para saber para onde cada arquivo foi movido, consulte o histórico da lixeira.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d movido para a lixeira</item>

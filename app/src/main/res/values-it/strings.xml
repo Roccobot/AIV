@@ -349,7 +349,7 @@
     <string name="bin_empty">Svuota il cestino</string>
     <string name="bin_empty_ask">Vuoi davvero svuotare il cestino?</string>
     <string name="bin_empty_desc">Non potrai più recuperare il contenuto.</string>
-    <string name="bin_restore_all_ask">Vuoi davvero ripristinare tutto il contenuto del cestino?</string>
+    <string name="bin_restore_all_ask">Vuoi davvero ripristinare tutti i file?</string>
     <string name="bin_restore_all_desc">Ogni file sarà riportato nella propria cartella di origine: per sapere dov\'è stato spostato ogni file, controlla la cronologia del cestino.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d spostato nel cestino</item>

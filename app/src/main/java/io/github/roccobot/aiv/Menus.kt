@@ -35,7 +35,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -192,15 +191,14 @@ fun MenuShell(
          * ⚠️⚠️ **DALLA 1.53 QUESTA RIGA NON È PIÙ LA CURA DELLA CORNICE, ed è importante non
          * crederlo**: la cornice aveva una causa geometrica (la finestra più grande del disegno)
          * e adesso quella causa non c'è più, perché la finestra si stringe col pannello (vedi
-         * [Growing]). Il dosaggio resta, e serve a un'altra cosa: al **passaggio di consegne**
-         * col velo che arriva sopra, cioè quello di un dialogo aperto da una voce di questo
-         * menu. Chi lo togliesse credendolo superato riporterebbe il lampo della `1.48`.
-         * ⚠️⚠️ **E IL LAMPO CHE RESTAVA ERA UNA SOMMA, non un buco**: due finestre che chiedono
-         * il velo insieme scuriscono più di una sola (0,45 e 0,45 fanno 0,70, non 0,45), quindi
-         * la sovrapposizione della `1.50` faceva un **buio** in mezzo alla transizione al posto
-         * del buco della `1.48`. Il rimedio non sta qui: dalla `1.53` il velo che arriva spegne
-         * quelli sotto nello stesso istante in cui si accende, e in scena ce n'è sempre uno
-         * solo. Sta scritto per esteso su `Veils`, in `Veil.kt`.
+         * [Growing]). Il dosaggio resta, e serve a due altre cose: la **sfocatura**, che cresce e
+         * cala col pannello invece di comparire tutta insieme, e il velo dipinto, che segue lo
+         * stesso numero.
+         * ⚠️⚠️ **E IL LAMPO NON SI CURA PIÙ QUI, dalla `1.54`**: era una **somma** fra due
+         * finestre velate (0,45 e 0,45 fanno 0,70), e nessun ordine di chiamate lo poteva
+         * togliere, perché due finestre non si aggiornano nello stesso fotogramma. Adesso il velo
+         * lo dipinge l'app, uno solo, e vale il massimo delle richieste in scena: il perché per
+         * esteso sta su `VeilStage`, in `Veil.kt`.
          */
         WindowVeil { state.show.value }
         Surface(
@@ -223,26 +221,15 @@ fun MenuShell(
              * e solo il nodo di fuori dichiara meno, quindi nessun testo va a capo in modo
              * diverso mentre il menu entra.
              *
-             * ⚠️⚠️ **`ModulateAlpha` NON È UN'OTTIMIZZAZIONE: SENZA DI LUI GLI ANGOLI SI
-             * ROMPONO MENTRE IL MENU ENTRA ED ESCE** (riscontro dell'utente, giro della `1.46`,
-             * su due menu diversi: *c'è un glitch tremendo sugli angoli del pannello in
-             * apertura/chiusura*). Il meccanismo, e va capito o la riga sembra superflua: con
-             * la strategia di serie un'alfa minore di 1 fa disegnare tutto il sottoalbero in un
-             * **buffer fuori schermo**, e quel buffer è grande quanto il nodo. L'ombra di
-             * questa superficie invece **esce** dal nodo, perché un'ombra sta intorno a quello
-             * che la getta: finisce contro il bordo del buffer e viene tagliata di netto. Il
-             * taglio si vede **agli angoli**, che è dove il riquadro stondato si allontana di
-             * più dal suo rettangolo e l'ombra è più larga. E si vede **solo durante
-             * l'animazione**, perché è l'unico momento in cui l'alfa non vale 1.
-             * ⚠️ **Quello che si paga in cambio, dichiarato**: `ModulateAlpha` applica l'alfa a
-             * ogni istruzione di disegno invece che al risultato, quindi un contenuto che si
-             * sovrappone a se stesso si mescola in modo un po' diverso. Qui il contenuto è
-             * testo opaco sopra un fondo opaco, per 170 millesimi di secondo: la differenza non
-             * si vede, il taglio dell'ombra sì.
-             * ⚠️ **L'incognita che resta è una sola**: se il taglio dell'ombra fosse l'unica
-             * causa del difetto che si vede, o se sotto ce ne fosse una seconda. Il
-             * meccanismo qui sopra si legge nel codice; che spieghi **tutto** quello che lui
-             * vede lo dice solo la prova.
+             * ⚠️⚠️ **`ModulateAlpha` SERVIVA ALL'OMBRA, E DALLA `1.54` L'OMBRA NON C'È PIÙ**
+             * (riscontro dell'utente, giro della `1.46`: *c'è un glitch tremendo sugli angoli
+             * del pannello in apertura/chiusura*). Il meccanismo di allora, che vale la pena
+             * conoscere perché torna ogni volta che qualcosa esce da un nodo: con la strategia
+             * di serie un'alfa minore di 1 fa disegnare il sottoalbero in un **buffer fuori
+             * schermo** grande quanto il nodo, e l'ombra, che sta **intorno** a quello che la
+             * getta, finiva contro il bordo del buffer e veniva tagliata di netto proprio agli
+             * angoli. Adesso da questo nodo non esce più niente: il bordo è dentro, e la riga è
+             * uscita con la sua ragione.
              */
             modifier = Modifier
                 .layout { measurable, constraints ->
@@ -259,11 +246,20 @@ fun MenuShell(
                     val k = grown(state)
                     scaleX = k
                     scaleY = k
-                    compositingStrategy = CompositingStrategy.ModulateAlpha
-                },
+                }
+                /*
+                 * ⚠️⚠️ **IL BORDO D'ACCENTO AL POSTO DELL'OMBRA, dalla `1.54`** (richiesta
+                 * dell'utente, 2026-09-04: *via le ombre e vai con il bordino da 2px del colore
+                 * di accento*). Il perché per esteso, e che cosa c'entra col 'quadrato sfocato'
+                 * che vedeva intorno ai menu, stanno in testa a `Edge.kt`.
+                 * ⚠️ **Sta sul modificatore e non è un parametro della `Surface`**: il suo
+                 * `border` disegnerebbe il filo **sotto** il contenuto, e con lo stesso colore
+                 * di un'icona a filo di bordo si mescolerebbe; qui invece il contorno si
+                 * sovrappone a tutto, che è quello che un bordo deve fare.
+                 */
+                .edged(RoundedCornerShape(MENU_ROUND)),
             shape = RoundedCornerShape(MENU_ROUND),
-            color = MaterialTheme.colorScheme.surfaceContainer,
-            shadowElevation = MENU_LIFT
+            color = MaterialTheme.colorScheme.surfaceContainer
         ) {
             Column(
                 /*
@@ -317,9 +313,6 @@ private fun Modifier.deaf(): Modifier = pointerInput(Unit) {
 
 /** L'aria sopra e sotto il contenuto di OGNI menu. */
 private val MENU_PAD = 8.dp
-
-/** L'ombra: sopra un'immagine è l'unica cosa che stacca il menu da lei. */
-private val MENU_LIFT = 6.dp
 
 /**
  * Da quanto piccolo cresce il menu, e in quanti millisecondi.

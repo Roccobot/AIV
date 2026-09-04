@@ -2245,14 +2245,27 @@ private fun UndoNotice(
 }
 
 /**
- * Il menu delle operazioni: **al centro in basso**, sopra il tastino.
+ * Il menu del cestino: **sul lato del tastino**, sopra di lui.
  *
- * ⚠️⚠️ **NON È PIÙ UN `DropdownMenu`, dalla 0.75** (richiesta dell'utente: *al centro in
- * basso, con angoli un po' più stondati*). Un `DropdownMenu` si posiziona **accanto al suo
+ * ⚠️⚠️ **STAVA AL CENTRO FINO ALLA `1.53`, E ADESSO STA DOVE STA QUELLO DELLA SCHERMATA
+ * INIZIALE** (riscontro dell'utente, giro della `1.53`, voce `sfocatura-segue`: *i due pannelli
+ * che si aprono alla pressione sul FAB hanno due funzionamenti diversi e non capisco perché. Il
+ * pannello della schermata home a questo punto è eccellente, e mi va bene che stia sul lato del
+ * FAB. Ma perché quella del cestino non fa altrettanto?*). Adesso i due chiedono lo **stesso**
+ * posizionatore, con gli stessi due lati e senza distacco, quindi non possono più comportarsi
+ * in due modi.
+ * ⚠️⚠️ **E TOGLIE LA RAGIONE PER CUI IL DIFETTO DELLA SFOCATURA SI VEDEVA PROPRIO LÌ**: un
+ * pannello centrato ha lo sfondo dai **due** lati, sopra le miniature, mentre appoggiato al
+ * bordo ne ha uno solo. Non è la cura di quel difetto, ma è la ragione per cui il cestino era
+ * il posto in cui si notava di più.
+ * ⚠️ **Il centro veniva dalla `0.75`** (richiesta di allora: *al centro in basso, con angoli un
+ * po' più stondati*), quando questo menu serviva alla **selezione** e non al cestino: la
+ * selezione da tempo ha la sua scheda in fondo, e quella richiesta è stata sostituita da questa.
+ *
+ * ⚠️⚠️ **NON È UN `DropdownMenu`, dalla 0.75**. Un `DropdownMenu` si posiziona **accanto al suo
  * genitore** e non accetta un posizionatore: attaccato a un tastino in basso a destra,
- * usciva da quell'angolo, che è il posto peggiore per un riquadro su un telefono tenuto in
- * una mano. La superficie e il posizionatore stanno in [MenuShell] e `MenuSpot`, condivisi
- * dalla `1.46` con **ogni** menu dell'app.
+ * usciva da quell'angolo. La superficie e il posizionatore stanno in [MenuShell] e `MenuSpot`,
+ * condivisi dalla `1.46` con **ogni** menu dell'app.
  * ⚠️⚠️ **DALLA 1.06 SI CHIUDE TOCCANDO FUORI**, che fino alla `1.05` era spento apposta
  * perché il tastino lo **alternava** e le due cose si pestavano (il perché sta in
  * [MenuShell], dove fino alla `1.46` era un parametro). Adesso il tastino si limita ad
@@ -2264,10 +2277,11 @@ private fun UndoNotice(
 @Composable
 private fun PickMenu(menu: MenuState, content: @Composable () -> Unit) {
     MenuShell(
-        // Al centro in orizzontale e sopra il tastino: il posizionatore legge il bordo alto
-        // dell'ancora, quindi non c'è nessuna somma di margini da tenere d'accordo.
+        // ⚠️ La stessa coppia della schermata iniziale, e non una che le somiglia: allineato al
+        // tastino in orizzontale, e sopra di lui perché sotto non ci sta. Scriverla uguale è
+        // quello che rende impossibile che i due menu si comportino in modo diverso.
         state = menu,
-        position = rememberMenuSpot(MenuSide.IN_WINDOW, MenuSide.BEFORE_ANCHOR, PICK_GAP),
+        position = rememberMenuSpot(MenuSide.AT_ANCHOR, MenuSide.AFTER_ANCHOR),
         content = content
     )
 }
@@ -2296,7 +2310,6 @@ private val FILTER_MARK = 36.dp
  * rientro: i tre tasti finirebbero appiccicati al bordo stondato.
  */
 private val FILTER_PAD = 4.dp
-private val PICK_GAP = 12.dp
 
 /**
  * Da quanto piccolo entra il tastino, e a quanto piccolo torna uscendo.

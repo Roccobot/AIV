@@ -248,7 +248,7 @@
     <string name="bin_empty">ردی کی ٹوکری خالی کریں</string>
     <string name="bin_empty_ask">کیا واقعی ردی کی ٹوکری خالی کریں؟</string>
     <string name="bin_empty_desc">اس کا مواد دوبارہ حاصل نہیں کیا جا سکے گا۔</string>
-    <string name="bin_restore_all_ask">کیا واقعی ردی کی ٹوکری کا سارا مواد بحال کریں؟</string>
+    <string name="bin_restore_all_ask">کیا واقعی تمام فائلیں بحال کی جائیں؟</string>
     <string name="bin_restore_all_desc">ہر فائل اپنے اصل فولڈر میں واپس جائے گی: کون سی فائل کہاں منتقل ہوئی، یہ جاننے کے لیے ردی کی ٹوکری کی ہسٹری دیکھیں۔</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d ردی کی ٹوکری میں گئی</item>

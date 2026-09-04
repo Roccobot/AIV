@@ -2,6 +2,7 @@ package io.github.roccobot.aiv
 
 import android.os.Build
 import android.view.WindowManager
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
@@ -64,9 +65,27 @@ fun Modifier.lowered(): Modifier {
      * dentro il dialogo. Vedi [Modifier.veiled].
      * ⚠️⚠️ **E DALLA 1.45 ANCHE LO SPOSTAMENTO È UN NODO, per la stessa ragione rovesciata**:
      * gli serve la finestra, e solo un nodo sa qual è. Vedi [LowerNode].
+     * ⚠️⚠️ **E DALLA 1.54 FA UNA TERZA COSA: il BORDO D'ACCENTO** (richiesta dell'utente,
+     * 2026-09-04: *via le ombre e vai con il bordino da 2px del colore di accento*). La ragione
+     * per cui sta qui è la stessa delle altre due, e vale la pena rileggerla: l'elenco delle
+     * superfici che vogliono il bordo è **esattamente** quello di chi chiama questa riga, cioè
+     * i dialoghi di Material. Un quarto modificatore da ricordare sarebbe il modo di
+     * dimenticarsene su quello nuovo.
+     * ⚠️ **Il bordo sta DENTRO lo spostamento e non fuori**: `LowerElement` gonfia l'altezza per
+     * far scendere il pannello, quindi un bordo scritto prima di lui girerebbe intorno alla
+     * scatola gonfiata, cioè sull'aria. Scritto dopo, riceve la misura della superficie vera.
      */
-    return veiled() then LowerElement
+    return veiled() then LowerElement then DIALOG_EDGE
 }
+
+/**
+ * Il bordo dei dialoghi, con la forma che Material dà loro.
+ *
+ * ⚠️ **28dp è `shapes.extraLarge`**, cioè la forma di `AlertDialog` quando nessuno la cambia, e
+ * qui va scritta perché un nodo non legge il tema di Material. Chi un giorno desse ai dialoghi
+ * una forma propria deve cambiarla anche qui, o il bordo taglia gli angoli in un altro punto.
+ */
+private val DIALOG_EDGE = Modifier.edged(RoundedCornerShape(28.dp))
 
 private object LowerElement : ModifierNodeElement<LowerNode>() {
     override fun create() = LowerNode()

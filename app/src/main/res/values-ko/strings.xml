@@ -239,7 +239,7 @@
     <string name="bin_empty">휴지통 비우기</string>
     <string name="bin_empty_ask">정말 휴지통을 비울까요?</string>
     <string name="bin_empty_desc">안에 있는 것은 되돌릴 수 없습니다.</string>
-    <string name="bin_restore_all_ask">휴지통의 내용을 모두 되돌릴까요?</string>
+    <string name="bin_restore_all_ask">모든 파일을 복원할까요?</string>
     <string name="bin_restore_all_desc">각 파일은 원래 폴더로 돌아갑니다. 어떤 파일이 어디로 옮겨졌는지는 휴지통 기록에서 확인하세요.</string>
     <plurals name="trash_done">
         <item quantity="other">%1$d개를 휴지통으로 옮겼습니다</item>

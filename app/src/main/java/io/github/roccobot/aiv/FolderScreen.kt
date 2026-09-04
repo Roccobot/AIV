@@ -458,9 +458,9 @@ fun FolderScreen(
              * una dissolvenza: il difetto sta nei due spigoli, dove la salita comincia e
              * dove finisce. `smoothstep` li toglie tutti e due, perché parte con pendenza
              * zero e ci arriva con pendenza zero.
-             * ⚠️ **Si calcola invece di essere scritta**: le fermate a mano sarebbero
-             * dodici numeri da riscrivere ogni volta che si cambia l'altezza della fascia,
-             * e nessuno lo farebbe. Così [GRADIENT_TIMES] è l'unica manopola.
+             * ⚠️ **Si calcola invece di essere scritta**: le fermate a mano sarebbero venti
+             * numeri da riscrivere ogni volta che si cambia l'altezza della fascia, e nessuno
+             * lo farebbe. Così [GRADIENT_TIMES] e [GRADIENT_FLOOR] sono le sole manopole.
              * ⚠️ Il colore è `background` e non `surface`: è quello che la `Surface` del
              * tema mette dietro a tutta l'app (vedi `AivTheme`), quindi la sfumatura arriva
              * **esattamente** al fondo su cui sta.
@@ -468,8 +468,7 @@ fun FolderScreen(
             val ramp = remember(ground) {
                 Array(GRADIENT_STOPS + 1) { step ->
                     val at = step / GRADIENT_STOPS.toFloat()
-                    val t = (at / SWALLOW).coerceAtMost(1f)
-                    at to ground.copy(alpha = t * t * (3f - 2f * t))
+                    at to ground.copy(alpha = swallow(at))
                 }
             }
             Box(
@@ -1560,22 +1559,34 @@ private const val NARROW_COLUMNS = 4
  * questa costante**: lo spazio **riservato** resta [BELOW_FAB]; questa dice soltanto fin
  * dove arriva il colore. Tenerle separate è la ragione per cui la sfumatura si può alzare
  * senza che la schermata perda una riga di cartelle.
- * ⚠️⚠️ **DUE E NON TRE, ed è una misura e non un gusto**: sullo schermo dell'utente la
- * griglia ha 533dp e le sue righe sono alte 184, quindi la terza comincia a 392, cioè
- * 141dp sopra il fondo. Con 2 la fascia è alta 144 e la dissolvenza comincia **esattamente
- * lì**, sulla riga che fa capolino; con 3 sarebbe 216 e arriverebbe a velare il conto
- * sotto la SECONDA riga, che è una riga vera. Chi la alza ancora tolga prima quel conto.
+ * ⚠️⚠️ **QUATTRO DALLA `1.54`, ED ERANO DUE: la fascia si è allungata per fare posto alla
+ * CODA** (richiesta dell'utente, 2026-09-04: *la sfumatura del fondo che copre la parte bassa
+ * arrivasse a 30% di opacità anziché 0%*). Il tratto che inghiotte è rimasto lungo uguale, cioè
+ * due volte il tastino: quello che si è aggiunto sopra è la salita da niente a [GRADIENT_FLOOR],
+ * che esiste per non lasciare uno **scalino** in cima, dove il colore passerebbe da zero a un
+ * terzo in una riga di pixel.
+ * ⚠️ **La misura vecchia, che resta vera per il tratto basso**: sullo schermo dell'utente la
+ * griglia ha 533dp e le sue righe sono alte 184, quindi la terza comincia a 141dp dal fondo, ed
+ * è lì che il colore comincia a mangiare davvero.
  */
-private const val GRADIENT_TIMES = 2f
+private const val GRADIENT_TIMES = 4f
+
+/**
+ * L'opacità a cui la sfumatura **arriva** in cima, invece di sparire.
+ *
+ * ⚠️ **È una prova chiesta dall'utente e va guardata sul telefono**: *passa a 30% e vediamo che
+ * effetto fa*. Se non convince, si torna a zero cambiando questo numero e la fascia si accorcia
+ * da sé, perché la coda esiste solo per lui.
+ */
+private const val GRADIENT_FLOOR = 0.30f
 
 /**
  * In quanti gradini si disegna la curva della sfumatura.
  *
- * ⚠️ Dodici, cioè abbastanza perché la curva non si veda a scalini e pochi perché la lista
- * resti una cosa che si legge. Sotto i sei, su una fascia alta come questa, i gradini si
- * distinguono a occhio nudo sui fondi chiari.
+ * ⚠️ **Venti dalla `1.54`, ed erano dodici**: la fascia è raddoppiata, quindi con dodici ogni
+ * gradino sarebbe alto quasi venti dp, e su un fondo chiaro si distinguono a occhio nudo.
  */
-private const val GRADIENT_STOPS = 12
+private const val GRADIENT_STOPS = 20
 
 /** Quanto è alta la fascia dipinta sopra il tastino. */
 private val GRADIENT_REACH = FAB_REACH * GRADIENT_TIMES
@@ -1599,6 +1610,31 @@ private val GRADIENT_REACH = FAB_REACH * GRADIENT_TIMES
  * permesso invece di irripidire la curva.
  */
 private const val SWALLOW = 1f / GRADIENT_TIMES
+
+/**
+ * Quanto colore c'è a una data altezza della fascia, con `0` in cima e `1` sul fondo.
+ *
+ * ⚠️⚠️ **DUE SALITE E NON UNA, dalla `1.54`**: la prima porta da niente a [GRADIENT_FLOOR] ed è
+ * la coda che evita lo scalino; la seconda porta da lì al colore pieno, e finisce dove comincia
+ * il tastino. Sono due `smoothstep` in fila, quindi nei tre punti in cui si incontrano la
+ * pendenza è zero e non si vede nessuna piega.
+ * ⚠️ **I due tratti si ricavano da [SWALLOW]** e non sono scritti a mano: il pieno comincia a
+ * un [SWALLOW] dal fondo, e la salita vera è lunga [SWALLOW] come prima. Quello che avanza sopra
+ * è la coda, quindi cambiando [GRADIENT_TIMES] i tre tratti si ridistribuiscono da soli.
+ */
+private fun swallow(at: Float): Float {
+    val pieno = 1f - SWALLOW
+    val coda = pieno - SWALLOW
+    if (at >= pieno) return 1f
+    if (at <= coda) return GRADIENT_FLOOR * smoothstep(at / coda)
+    return GRADIENT_FLOOR + (1f - GRADIENT_FLOOR) * smoothstep((at - coda) / (pieno - coda))
+}
+
+/** La curva che parte e arriva con pendenza zero, cioè quella che non fa spigoli. */
+private fun smoothstep(t: Float): Float {
+    val x = t.coerceIn(0f, 1f)
+    return x * x * (3f - 2f * x)
+}
 
 /** L'icona del frontespizio: più grande di quella delle impostazioni, perché qui accoglie. */
 private val HEADER_ICON = 96.dp

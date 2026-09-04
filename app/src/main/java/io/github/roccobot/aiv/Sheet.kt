@@ -232,7 +232,15 @@ fun Sheet(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
                         onClick = { }
-                    ),
+                    )
+                    /*
+                     * ⚠️⚠️ **IL BORDO D'ACCENTO SU TRE LATI, dalla `1.54`** (richiesta
+                     * dell'utente, 2026-09-04: *via le ombre e vai con il bordino da 2px del
+                     * colore di accento*). Il quarto lato è appoggiato al bordo dello schermo e
+                     * non si disegna: il perché, e che cosa il bordo sostituisce, stanno in
+                     * testa a `Edge.kt`.
+                     */
+                    .edgedTop(SHEET_ROUND),
                 shape = RoundedCornerShape(topStart = SHEET_ROUND, topEnd = SHEET_ROUND),
                 color = MaterialTheme.colorScheme.surfaceContainerHigh
             ) {
