@@ -26,6 +26,13 @@ resta solo il suo indirizzo, che è la cosa che questo file esiste per non far p
 - ⚠️ **Si chiamava con una metafora ferroviaria fino a quel giorno**, e il nome è cambiato su
   istruzione dell'utente (*lascia stare le metafore*). Chi ne trova il nome vecchio in un
   messaggio o in un commit sappia che è lo stesso documento, allo stesso indirizzo.
+- ⚠️⚠️ **E A MORIRE NON È SOLO IL NOME DEL DOCUMENTO: È TUTTA LA METAFORA.** Il piano è fatto
+  di **tappe**, e una tappa è il gruppo di lavori che escono in una versione: non si dice
+  'vagone', non si dice 'treno', né in chat né in un commit né in un artefatto. ⚠️ **Sta
+  scritto perché la prima formulazione non bastava**: diceva che era cambiato il *nome del
+  documento*, quindi la parola per il gruppo di lavori sembrava salva, ed è rientrata in una
+  frase il 2026-09-04 (*> vagone / piano d'azione\**). Un divieto che nomina un solo caso si
+  legge come il permesso per tutti gli altri.
 
 ⚠️⚠️ **IL NOME UFFICIALE È 'DOCUMENTO DI FEEDBACK', e si usa quello** (precisazione
 dell'utente, 2026-09-04: *per me il nome esatto è 'Documento di feedback'. Se lo chiami così
