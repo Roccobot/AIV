@@ -333,6 +333,11 @@
     <string name="settings_group_advanced">ميزات متقدمة</string>
     <string name="settings_ext_edit">تغيير الامتدادات من \'إعادة تسمية\'</string>
     <string name="settings_ext_edit_desc">تتيح لوحة إعادة التسمية تغيير امتدادات الملفات. إن لم تكن متأكدًا فلا تُشغّل هذا الخيار: قد يجعل الصور غير قابلة للقراءة.</string>
+    <string name="settings_thumbs">حذف المصغّرات المحفوظة</string>
+    <string name="settings_thumbs_empty">لا توجد مصغّرات محفوظة</string>
+    <string name="settings_thumbs_warn">اضغط على الزر لإفراغ ذاكرة المصغّرات. ستُحذف معاينات الصور ومقاطع الفيديو وسيُعاد إنشاؤها تلقائيًا عند فتح كل مجلد (إن كانت الصور الكبيرة كثيرة، فقد يستغرق إنشاء المصغّرات الجديدة دقيقة أو أكثر).</string>
+    <string name="settings_thumbs_do">إفراغ ذاكرة\nالمصغّرات</string>
+    <string name="settings_thumbs_done">تم إفراغ ذاكرة المصغّرات</string>
     <string name="settings_hidden_none">لا توجد مجلدات مخفية</string>
     <plurals name="settings_hidden_count">
         <item quantity="zero">لا مجلدات</item>

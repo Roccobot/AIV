@@ -294,6 +294,11 @@
     <string name="settings_group_advanced">Fonctions avancées</string>
     <string name="settings_ext_edit">Modifier les extensions depuis \'Renommer\'</string>
     <string name="settings_ext_edit_desc">Le panneau de renommage permet de changer l\'extension des fichiers. Si tu ne sais pas ce que tu fais, laisse cette option désactivée : elle peut rendre les images illisibles.</string>
+    <string name="settings_thumbs">Supprimer les miniatures enregistrées</string>
+    <string name="settings_thumbs_empty">Aucune miniature enregistrée</string>
+    <string name="settings_thumbs_warn">Touchez le bouton pour vider le cache des miniatures. Les aperçus des images et des vidéos seront supprimés et régénérés automatiquement à l\'ouverture de chaque dossier (avec beaucoup de grandes images, la création des nouvelles miniatures peut prendre une minute ou plus).</string>
+    <string name="settings_thumbs_do">Vider le cache\ndes miniatures</string>
+    <string name="settings_thumbs_done">Cache des miniatures vidé</string>
     <string name="settings_hidden_none">Aucun dossier caché</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d dossier</item>

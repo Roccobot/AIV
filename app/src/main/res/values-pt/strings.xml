@@ -294,6 +294,11 @@
     <string name="settings_group_advanced">Recursos avançados</string>
     <string name="settings_ext_edit">Alterar extensões em \'Renomear\'</string>
     <string name="settings_ext_edit_desc">O painel de renomeação permite alterar a extensão dos arquivos. Se você não sabe o que está fazendo, não ative esta opção: pode tornar as imagens ilegíveis.</string>
+    <string name="settings_thumbs">Excluir as miniaturas armazenadas</string>
+    <string name="settings_thumbs_empty">Nenhuma miniatura armazenada</string>
+    <string name="settings_thumbs_warn">Toque no botão para limpar o cache de miniaturas. As pré-visualizações das imagens e dos vídeos serão excluídas e regeneradas automaticamente ao abrir cada pasta (com muitas imagens grandes, criar as novas miniaturas pode levar um minuto ou mais).</string>
+    <string name="settings_thumbs_do">Limpar o cache\nde miniaturas</string>
+    <string name="settings_thumbs_done">Cache de miniaturas limpo</string>
     <string name="settings_hidden_none">Nenhuma pasta oculta</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d pasta</item>

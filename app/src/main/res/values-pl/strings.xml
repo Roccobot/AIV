@@ -307,6 +307,11 @@
     <string name="settings_group_advanced">Funkcje zaawansowane</string>
     <string name="settings_ext_edit">Zmiana rozszerzeń w \'Zmień nazwę\'</string>
     <string name="settings_ext_edit_desc">Panel zmiany nazwy pozwala zmieniać rozszerzenia plików. Jeśli nie wiesz, co robisz, nie włączaj tej opcji: może sprawić, że obrazy staną się nieczytelne.</string>
+    <string name="settings_thumbs">Usuń zapisane miniatury</string>
+    <string name="settings_thumbs_empty">Brak zapisanych miniatur</string>
+    <string name="settings_thumbs_warn">Dotknij przycisku, aby opróżnić pamięć podręczną miniatur. Podglądy obrazów i filmów zostaną usunięte i utworzone ponownie automatycznie przy otwarciu każdego folderu (przy wielu dużych obrazach tworzenie nowych miniatur może potrwać minutę lub dłużej).</string>
+    <string name="settings_thumbs_do">Opróżnij pamięć\npodręczną miniatur</string>
+    <string name="settings_thumbs_done">Pamięć podręczna miniatur opróżniona</string>
     <string name="settings_hidden_none">Brak ukrytych folderów</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d folder</item>

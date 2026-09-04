@@ -281,6 +281,11 @@
     <string name="settings_group_advanced">Erweiterte Funktionen</string>
     <string name="settings_ext_edit">Dateiendungen über \'Umbenennen\' ändern</string>
     <string name="settings_ext_edit_desc">Im Umbenennen-Fenster lassen sich Dateiendungen ändern. Wenn du nicht weißt, was du tust, lass das aus: Bilder können dadurch unlesbar werden.</string>
+    <string name="settings_thumbs">Gespeicherte Miniaturbilder löschen</string>
+    <string name="settings_thumbs_empty">Keine gespeicherten Miniaturbilder</string>
+    <string name="settings_thumbs_warn">Tippe auf die Schaltfläche, um den Cache der Miniaturbilder zu leeren. Die Vorschauen von Bildern und Videos werden gelöscht und beim Öffnen jedes Ordners automatisch neu erstellt (bei vielen großen Bildern kann das Erstellen der neuen Miniaturbilder eine Minute oder länger dauern).</string>
+    <string name="settings_thumbs_do">Cache der\nMiniaturbilder leeren</string>
+    <string name="settings_thumbs_done">Cache der Miniaturbilder geleert</string>
     <string name="settings_hidden_none">Keine versteckten Ordner</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d Ordner</item>

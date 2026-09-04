@@ -281,6 +281,11 @@
     <string name="settings_group_advanced">అధునాతన సౌకర్యాలు</string>
     <string name="settings_ext_edit">\'పేరు మార్చు\' నుంచి పొడిగింపులు మార్చు</string>
     <string name="settings_ext_edit_desc">పేరు మార్చే పలక ఫైళ్ల పొడిగింపును మార్చనిస్తుంది. మీరు ఏం చేస్తున్నారో ఖచ్చితంగా తెలియకపోతే దీన్ని ఆన్ చేయవద్దు: చిత్రాలు చదవలేనివిగా మారవచ్చు.</string>
+    <string name="settings_thumbs">నిల్వ చేసిన చిన్నబొమ్మలను తొలగించు</string>
+    <string name="settings_thumbs_empty">నిల్వ చేసిన చిన్నబొమ్మలు లేవు</string>
+    <string name="settings_thumbs_warn">చిన్నబొమ్మల కాష్‌ను ఖాళీ చేయడానికి బటన్‌ను నొక్కండి. చిత్రాలు మరియు వీడియోల ప్రివ్యూలు తొలగించబడతాయి, ప్రతి ఫోల్డర్‌ను తెరిచినప్పుడు అవి స్వయంచాలకంగా తిరిగి సృష్టించబడతాయి (పెద్ద చిత్రాలు చాలా ఉంటే, కొత్త చిన్నబొమ్మల సృష్టికి ఒక నిమిషం లేదా ఎక్కువ సమయం పట్టవచ్చు).</string>
+    <string name="settings_thumbs_do">చిన్నబొమ్మల కాష్‌ను\nఖాళీ చేయి</string>
+    <string name="settings_thumbs_done">చిన్నబొమ్మల కాష్ ఖాళీ చేయబడింది</string>
     <string name="settings_hidden_none">దాచిన ఫోల్డర్‌లు లేవు</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d ఫోల్డర్</item>

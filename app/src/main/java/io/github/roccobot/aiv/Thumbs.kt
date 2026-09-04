@@ -199,6 +199,24 @@ object Thumbs {
         val key = keys.remove(uri.toString()) ?: return
         SingletonImageLoader.get(context).memoryCache?.remove(key)
     }
+
+    /**
+     * Butta **tutto** quello che Coil tiene in memoria, e le chiavi che lo indirizzavano.
+     *
+     * ⚠️⚠️ **SVUOTA LA CACHE INTERA E NON LE SOLE MINIATURE, ed è voluto**: la chiave di
+     * un'immagine grande e quella di una miniatura vivono nello stesso archivio e non si
+     * distinguono da fuori. Lasciare le prime vorrebbe dire un pulsante che promette di
+     * liberare memoria e ne libera una parte, e quello che resta si ricarica dal file in un
+     * istante, perché la fotografia a schermo è già decodificata in quella pagina.
+     * ⚠️ **Le chiavi si buttano con lei**: sono indirizzi di immagini che non ci sono più, e tenerle
+     * farebbe rispondere [cached] con `null` per ognuna, cioè un giro a vuoto per ogni
+     * miniatura già vista.
+     */
+    @Synchronized
+    fun forgetAll(context: Context) {
+        keys.clear()
+        SingletonImageLoader.get(context).memoryCache?.clear()
+    }
 }
 
 /**

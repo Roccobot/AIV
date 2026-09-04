@@ -268,6 +268,11 @@
     <string name="settings_group_advanced">Fitur lanjutan</string>
     <string name="settings_ext_edit">Ubah ekstensi dari \'Ganti nama\'</string>
     <string name="settings_ext_edit_desc">Panel ganti nama bisa mengubah ekstensi berkas. Kalau tidak yakin, jangan nyalakan ini: gambar bisa jadi tidak terbaca.</string>
+    <string name="settings_thumbs">Hapus miniatur yang tersimpan</string>
+    <string name="settings_thumbs_empty">Tidak ada miniatur tersimpan</string>
+    <string name="settings_thumbs_warn">Ketuk tombol untuk mengosongkan cache miniatur. Pratinjau gambar dan video akan dihapus dan dibuat ulang secara otomatis saat kamu membuka setiap folder (jika ada banyak gambar besar, pembuatan miniatur baru dapat memerlukan satu menit atau lebih).</string>
+    <string name="settings_thumbs_do">Kosongkan cache\nminiatur</string>
+    <string name="settings_thumbs_done">Cache miniatur dikosongkan</string>
     <string name="settings_hidden_none">Tidak ada folder tersembunyi</string>
     <plurals name="settings_hidden_count">
         <item quantity="other">%1$d folder</item>

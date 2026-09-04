@@ -268,6 +268,11 @@
     <string name="settings_group_advanced">Tính năng nâng cao</string>
     <string name="settings_ext_edit">Đổi phần mở rộng trong \'Đổi tên\'</string>
     <string name="settings_ext_edit_desc">Bảng đổi tên cho phép đổi phần mở rộng của tệp. Nếu không rõ mình đang làm gì thì đừng bật: ảnh có thể trở nên không đọc được.</string>
+    <string name="settings_thumbs">Xóa ảnh thu nhỏ đã lưu</string>
+    <string name="settings_thumbs_empty">Không có ảnh thu nhỏ nào được lưu</string>
+    <string name="settings_thumbs_warn">Nhấn vào nút để xóa bộ đệm ảnh thu nhỏ. Bản xem trước của hình ảnh và video sẽ bị xóa và được tạo lại tự động khi bạn mở từng thư mục (nếu có nhiều hình ảnh lớn, việc tạo ảnh thu nhỏ mới có thể mất một phút hoặc hơn).</string>
+    <string name="settings_thumbs_do">Xóa bộ đệm\nảnh thu nhỏ</string>
+    <string name="settings_thumbs_done">Đã xóa bộ đệm ảnh thu nhỏ</string>
     <string name="settings_hidden_none">Không có thư mục bị ẩn</string>
     <plurals name="settings_hidden_count">
         <item quantity="other">%1$d thư mục</item>

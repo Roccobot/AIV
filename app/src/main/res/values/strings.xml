@@ -168,6 +168,11 @@
     <string name="settings_group_advanced">Advanced features</string>
     <string name="settings_ext_edit">Edit extensions from \'Rename\'</string>
     <string name="settings_ext_edit_desc">The rename panel can change file extensions. If you do not know what you are doing, do not turn this on: it can make images unreadable.</string>
+    <string name="settings_thumbs">Delete stored thumbnails</string>
+    <string name="settings_thumbs_empty">No stored thumbnails</string>
+    <string name="settings_thumbs_warn">Tap the button to clear the thumbnail cache. Image and video previews will be deleted and regenerated automatically when you open each folder (with many large images, creating the new thumbnails may take a minute or more).</string>
+    <string name="settings_thumbs_do">Clear thumbnail\ncache</string>
+    <string name="settings_thumbs_done">Thumbnail cache cleared</string>
 
     <string name="settings_background">Behind the picture</string>
     <string name="settings_bg_checker">Checkerboard</string>

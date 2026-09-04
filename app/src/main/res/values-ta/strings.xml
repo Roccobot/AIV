@@ -281,6 +281,11 @@
     <string name="settings_group_advanced">மேம்பட்ட வசதிகள்</string>
     <string name="settings_ext_edit">\'பெயர் மாற்று\' இல் நீட்டிப்புகளை மாற்று</string>
     <string name="settings_ext_edit_desc">பெயர் மாற்றும் பலகம் கோப்பு நீட்டிப்புகளை மாற்ற அனுமதிக்கிறது. என்ன செய்கிறீர்கள் என்று உறுதியாகத் தெரியாவிட்டால் இதை இயக்க வேண்டாம்: படங்கள் படிக்க முடியாதவையாகிவிடலாம்.</string>
+    <string name="settings_thumbs">சேமித்த சிறுபடங்களை நீக்கு</string>
+    <string name="settings_thumbs_empty">சேமித்த சிறுபடங்கள் இல்லை</string>
+    <string name="settings_thumbs_warn">சிறுபடங்களின் தேக்ககத்தை காலி செய்ய பொத்தானைத் தட்டுங்கள். படங்கள் மற்றும் காணொலிகளின் முன்னோட்டங்கள் நீக்கப்பட்டு, ஒவ்வொரு கோப்புறையைத் திறக்கும்போது தானாகவே மீண்டும் உருவாக்கப்படும் (பெரிய படங்கள் அதிகமாக இருந்தால், புதிய சிறுபடங்களை உருவாக்க ஒரு நிமிடம் அல்லது அதற்கு மேல் ஆகலாம்).</string>
+    <string name="settings_thumbs_do">சிறுபடங்களின்\nதேக்ககத்தை காலி செய்</string>
+    <string name="settings_thumbs_done">சிறுபடங்களின் தேக்ககம் காலி செய்யப்பட்டது</string>
     <string name="settings_hidden_none">மறைக்கப்பட்ட கோப்புறைகள் இல்லை</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d கோப்புறை</item>
