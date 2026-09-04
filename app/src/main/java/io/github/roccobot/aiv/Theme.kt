@@ -2,6 +2,7 @@ package io.github.roccobot.aiv
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialExpressiveTheme
@@ -15,6 +16,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 
 /**
  * Material 3 Expressive, and how it got here: in material3 1.4.0, the stable
@@ -228,6 +230,38 @@ fun hairline(): Color =
 
 private val HAIRLINE_LIGHT = Color(0xFFAAADA9)
 private val HAIRLINE_DARK = Color(0xFF636C69)
+
+/**
+ * La stondatura di un riquadro dentro una finestra: un campo da riempire o una pastiglia.
+ *
+ * ⚠️⚠️ **STA QUI PERCHÉ PRIMA NON STAVA DA NESSUNA PARTE, ed è la ragione per cui i riquadri
+ * di una stessa finestra divergevano** (riscontro della `1.45` sulla rinomina: *le stondature
+ * devono essere tutte uguali*). Le pastiglie la prendevano da `shapes.small`, cioè 8, e i
+ * campi da Material, che per un campo contornato usa `shapes.extraSmall`, cioè 4: nessuno dei
+ * due numeri era scritto nel file che li disegnava, quindi non c'era un posto in cui
+ * accorgersi che erano due.
+ * ⚠️ **Vince la misura delle pastiglie e non quella dei campi**: è la direzione che indica il
+ * riscontro (*il primo riquadro, solo contorno, è troppo poco arrotondato*), ed è la
+ * stondatura che le pastiglie hanno già, quindi cambia solo ciò che è stato segnalato.
+ * ⚠️ **Non è una regola generale dell'app** ma la forma dei riquadri delle finestre, ed è
+ * quello che il riscontro chiedeva: *non regola generale, ma almeno in questo contesto*.
+ */
+val BOX_SHAPE = RoundedCornerShape(8.dp)
+
+/**
+ * Lo spessore del filo di un riquadro.
+ *
+ * ⚠️ **È quello che Material disegna intorno a un campo a riposo**, quindi i riquadri scritti
+ * in casa e i campi portano la stessa linea senza che nessuno debba pareggiarli.
+ * ⚠️⚠️ **UN CAMPO COL FUOCO DENTRO SALE A 2, E QUESTO NUMERO NON LO GOVERNA**: quel valore
+ * vive in `OutlinedTextFieldDefaults.FocusedBorderThickness` e nessuna firma di
+ * `OutlinedTextField` lo espone al chiamante. Per pareggiare anche quello bisognerebbe
+ * smettere di usare quel componente e ricostruirlo con `BasicTextField` più la sua
+ * `DecorationBox`, che gli spessori li prende come parametri: una trentina di righe per
+ * campo. È dichiarato invece che nascosto, perché è l'unico caso in cui i quattro riquadri
+ * non portano la stessa linea.
+ */
+val BOX_EDGE = 1.dp
 
 /**
  * Se questo colore è chiaro, cioè se sopra ci si scrive in scuro.

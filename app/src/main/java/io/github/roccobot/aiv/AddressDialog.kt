@@ -29,6 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import kotlinx.coroutines.launch
@@ -135,8 +136,35 @@ fun AddressDialog(
                     value = typed,
                     onValueChange = { typed = it },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text(stringResource(R.string.url_hint)) },
+                    /*
+                     * ⚠️⚠️ **IL TETTO DI UNA RIGA STA SUL SEGNAPOSTO, e senza di lui il
+                     * dominio si stacca dal suo TLD** (riscontro dell'utente sul giro della
+                     * `1.46`: *ha un url di esempio che va a capo con il TLD*). `singleLine`
+                     * vincola il testo che si digita e non questo `Text`, che senza tetto di
+                     * righe va a capo appena è più largo dello spazio: in un indirizzo il
+                     * layout rompe dopo un punto o una barra, ed è così che il dominio si è
+                     * trovato su una riga e il suo TLD su quella dopo.
+                     * ⚠️ **L'ellissi sta in MEZZO e non in fondo**: l'esempio serve a dire
+                     * che un indirizzo diretto finisce con l'estensione di un'immagine, e
+                     * l'ellissi in fondo mangerebbe proprio quella coda. È la stessa ragione
+                     * scritta su `nameWithExt`.
+                     * ⚠️ **Un esempio più corto non sarebbe il rimedio**: la larghezza che
+                     * serve dipende dallo schermo e dal corpo del testo scelto nel telefono,
+                     * quindi una stringa più corta sposta la soglia invece di toglierla, e va
+                     * riscritta in ogni cartella di lingua che la porta.
+                     */
+                    placeholder = {
+                        Text(
+                            text = stringResource(R.string.url_hint),
+                            maxLines = 1,
+                            overflow = TextOverflow.MiddleEllipsis
+                        )
+                    },
                     singleLine = true,
+                    // ⚠️ La stessa stondatura dei riquadri della rinomina, e per la stessa
+                    // ragione: il riscontro le ha messe insieme (*oltre alla stondatura
+                    // sbagliata, vedi 'Rinomina'*). Il numero vive in un posto solo.
+                    shape = BOX_SHAPE,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Uri,
                         imeAction = ImeAction.Go

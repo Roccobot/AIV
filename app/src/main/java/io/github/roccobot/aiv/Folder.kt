@@ -625,6 +625,14 @@ object Folder {
      * che qui non c'è, era proprio quello che sapeva distinguere. Sono le stesse
      * dei filtri del manifest, che è dove vive l'idea che l'app ha di 'immagine'.
      *
+     * ⚠️⚠️ **E DALLA `1.47` QUELLA FRASE È VERA, mentre prima non lo era**: `bmp` stava qui e
+     * non nei due filtri, quindi l'app mostrava un BMP in una cartella e poi non si offriva
+     * di aprirne il collegamento. Era il difetto dell'SVG della `1.31` rovesciato: là un
+     * formato dichiarato e non disegnato, qui uno aperto e non dichiarato. ⚠️ Le due frasi
+     * che dicevano 'sono le stesse' non erano una svista da correggere leggendo: nessuno
+     * confronta due elenchi che vivono in due file di linguaggi diversi, ed è la ragione per
+     * cui la discordanza è durata.
+     *
      * ⚠️⚠️ **`svg` C'È DALLA 1.31, e la sua assenza era un difetto vero e non una scelta**:
      * i filtri del manifest lo dichiaravano già (`pathPattern` e `pathSuffix`, dalla `0.16`),
      * quindi l'app si offriva di aprire un formato che poi non compariva nemmeno in una

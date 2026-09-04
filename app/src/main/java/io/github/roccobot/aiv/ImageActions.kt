@@ -250,9 +250,15 @@ object ImageActions {
      * i tre non si possono unire senza pensarci: questo decide se **proporre da soli** un
      * indirizzo che nessuno ha chiesto di aprire, quindi sbaglia nel verso giusto se è più
      * corto.
-     * ⚠️ **Dalla `1.32` i tre elenchi combaciano di nuovo su `tif`**, che era la sola
-     * discordanza rimasta: qui non c'era mai stato, e nella `1.32` è uscito anche dagli altri
-     * due perché l'app non lo sa aprire. Il perché sta su [Folder] e nel manifest.
+     * ⚠️ **Dalla `1.32` i tre elenchi combaciano su `tif`**: qui non c'era mai stato, e nella
+     * `1.32` è uscito anche dagli altri due perché l'app non lo sa aprire. Il perché sta su
+     * [Folder] e nel manifest.
+     * ⚠️⚠️ **MA QUESTA RIGA DICHIARAVA QUELLA DISCORDANZA L'ULTIMA, ED ERA FALSO**: ne
+     * restavano due, `bmp` e `jpe`. La prima è chiusa dalla `1.47`, che ha messo il BMP anche
+     * nei filtri del manifest; la seconda resta, ed è **voluta**, perché `.jpe` è una grafia
+     * che nessuno scrive in un indirizzo e questo elenco sbaglia nel verso giusto quando è
+     * più corto. ⚠️ Un conto scritto a mano in un commento invecchia al primo elenco toccato:
+     * qui la lezione è costata due discordanze passate inosservate per quindici versioni.
      * ⚠️ **`.svgz` arriva con la `1.34`**, su richiesta dell'utente, e nei tre elenchi
      * insieme: il decodificatore lo leggeva già (vedi [Folder]), quindi qui non c'era niente
      * da aspettare.

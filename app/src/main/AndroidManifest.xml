@@ -169,6 +169,20 @@
                 dichiararli voleva dire offrirsi per un formato che poi dà errore. Era lo
                 stesso difetto che l'SVG aveva al contrario, cioè dichiarato e non disegnato,
                 scoperto insieme a lui.
+                ⚠️⚠️ **`.bmp` È ENTRATO QUI E NEL FILTRO 3 NELLA `1.47`, ed è il rovescio
+                esatto del caso del TIFF**: il BMP l'app lo apre davvero, con lo stesso
+                `ImageDecoder` degli altri formati e senza nessun ripiego, e i due elenchi dei
+                sorgenti lo portavano già (`Folder.EXTENSIONS`, che dice che cosa si vede in
+                una cartella letta dal disco, e `ImageActions.IMAGE_SUFFIXES`, che decide se
+                un indirizzo si dichiara un'immagine senza chiedere alla rete). Mancava
+                soltanto qui, quindi su un collegamento `.bmp` AIV restava fuori da 'Apri con'
+                per un formato che poi apre come gli altri.
+                ⚠️ **La ragione è dell'utente** (2026-09-04): *un'app che mostra un file ma non
+                si offre di aprirlo è la sola delle tre che non si può spiegare a chi la usa*.
+                ⚠️ **E NON È IL CASO DELL'SVG**, che prima della `1.31` era dichiarato qui e
+                non si sapeva disegnare, cioè la forma del TIFF: il BMP non ha un precedente
+                di questa forma nel repository, ed è più onesto dirlo che appoggiarlo a
+                un'analogia rovesciata.
                 ⚠️ **Quello che NON si può togliere è l'`image/*` del filtro 1**: un intent
                 filter non sa escludere un tipo, quindi un TIFF condiviso da un'altra app
                 arriva ancora qui e finisce con 'formato non supportato'. Restringere quel
@@ -201,6 +215,8 @@
                 <data android:pathPattern=".*\\.HEIC" />
                 <data android:pathPattern=".*\\.heif" />
                 <data android:pathPattern=".*\\.HEIF" />
+                <data android:pathPattern=".*\\.bmp" />
+                <data android:pathPattern=".*\\.BMP" />
                 <data android:pathPattern=".*\\.svg" />
                 <data android:pathPattern=".*\\.SVG" />
                 <data android:pathPattern=".*\\.svgz" />
@@ -268,6 +284,8 @@
                 <data android:pathSuffix=".HEIC" />
                 <data android:pathSuffix=".heif" />
                 <data android:pathSuffix=".HEIF" />
+                <data android:pathSuffix=".bmp" />
+                <data android:pathSuffix=".BMP" />
                 <data android:pathSuffix=".svg" />
                 <data android:pathSuffix=".SVG" />
                 <data android:pathSuffix=".svgz" />
