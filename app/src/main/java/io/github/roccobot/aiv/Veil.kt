@@ -6,6 +6,11 @@ import android.view.Window
 import android.view.WindowManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
@@ -16,6 +21,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogWindowProvider
+import kotlin.math.roundToInt
 
 /**
  * Il **velo** e la **sfocatura** dietro tutto quello che si apre sopra la schermata.
@@ -68,19 +74,29 @@ import androidx.compose.ui.window.DialogWindowProvider
  * che qui non si tocca **niente**: ogni finestra resta com'era prima della 1.38.
  */
 @Composable
-fun WindowVeil(bare: Float = 0f) {
+fun WindowVeil(bare: Float = 0f, quanto: () -> Float = { PIENO }) {
     val view = LocalView.current
     val on = LocalAivVeil.current
     val dark = !LocalAivLight.current
     val radius = with(LocalDensity.current) { BLUR.roundToPx() }
-    DisposableEffect(view, on, bare, dark, radius) {
-        val disfa = when {
-            on -> veilWindow(view, dark, radius)
-            bare > 0f -> paint(view, dim = bare, radius = null)
-            else -> ({ })
-        }
-        onDispose { disfa() }
+    val misura by rememberUpdatedState(quanto)
+    val velo = remember(view, on, bare, dark, radius) { veilFor(view, on, bare, dark, radius) }
+    /*
+     * ⚠️⚠️ **IL VELO SI DOSA A OGNI FOTOGRAMMA, dalla 1.50, e prima cadeva in un colpo**
+     * (riscontro dell'utente, 2026-09-04: *la sfocatura non dovrebbe sparire all'inizio della
+     * transizione: dovrebbe avere essa stessa una transizione... si dovrebbe ridurre dal valore
+     * di sfocatura in corso a 0, per poi essere disattivata del tutto*). `snapshotFlow` legge il
+     * valore dell'animazione di chi chiama e lo passa qui a ogni cambiamento: chi non ne ha uno
+     * passa [PIENO] e si comporta come prima.
+     * ⚠️ **E il costo è dichiarato**: su un menu vuol dire un `updateViewLayout` per fotogramma
+     * per la durata dell'animazione. È il prezzo della cosa chiesta, e la via che lo eviterebbe
+     * (dipingere la sfocatura sulla vista dell'app con un `RenderEffect`) è un rifacimento a
+     * sé, di cui si parla nella nota in fondo a questo file.
+     */
+    LaunchedEffect(velo) {
+        snapshotFlow { misura().coerceIn(0f, PIENO) }.collect { velo?.at(it) }
     }
+    DisposableEffect(velo) { onDispose { velo?.off() } }
 }
 
 /**
@@ -118,68 +134,144 @@ private object VeilElement : ModifierNodeElement<VeilNode>() {
 }
 
 private class VeilNode : Modifier.Node(), CompositionLocalConsumerModifierNode {
-    private var disfa: (() -> Unit)? = null
+    private var velo: Veil? = null
 
+    /*
+     * ⚠️ **Qui il velo è pieno e basta, e non è una dimenticanza della 1.50**: questo nodo
+     * serve ai dialoghi di Material, che compaiono di colpo e non hanno nessun avanzamento da
+     * seguire. Chi ne ha uno passa da [WindowVeil] col suo, e la classe è la stessa.
+     */
     override fun onAttach() {
         if (!currentValueOf(LocalAivVeil)) return
         val view = currentValueOf(LocalView)
         val dark = !currentValueOf(LocalAivLight)
         val radius = with(currentValueOf(LocalDensity)) { BLUR.roundToPx() }
-        disfa = veilWindow(view, dark, radius)
+        velo = veilFor(view, on = true, bare = 0f, dark = dark, radius = radius)
+            ?.also { it.at(PIENO) }
     }
 
     override fun onDetach() {
-        disfa?.invoke()
-        disfa = null
+        velo?.off()
+        velo = null
     }
 }
 
 /**
- * Quanto velo e quanta sfocatura vuole questa finestra, e poi li mette.
+ * Quanto velo e quanta sfocatura vuole questa finestra, e chi glieli stende.
  *
- * ⚠️ **Il calcolo sta qui e la stesura in [paint]**, perché il velo semplice della `1.39` (la
+ * ⚠️ **Il calcolo sta qui e la stesura in [Veil]**, perché il velo semplice della `1.39` (la
  * scheda quando la funzione è spenta) vuole la seconda metà senza la prima: la sfocatura non
  * la chiede e la quantità gliela dice chi chiama.
  */
-private fun veilWindow(view: View, dark: Boolean, radius: Int): () -> Unit {
-    val manager = view.context.getSystemService(WindowManager::class.java)
-    /*
-     * ⚠️⚠️ **LA SFOCATURA SI CHIEDE AL SISTEMA, NON SI DÀ PER SCONTATA**: da Android 12 il
-     * telefono può dire di no in qualunque momento (risparmio energetico acceso, hardware che
-     * non la fa), e `isCrossWindowBlurEnabled` è la domanda giusta. Chi la desse per fatta si
-     * ritroverebbe con un velo troppo leggero proprio dove la sfocatura manca.
-     */
-    val blurred = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-        manager?.isCrossWindowBlurEnabled == true
-    val dim = (if (dark) DIM_DARK else DIM_LIGHT) + (if (blurred) 0f else DIM_MORE)
-    return paint(view, dim = dim, radius = if (blurred) radius else null)
-}
+private fun veilFor(view: View, on: Boolean, bare: Float, dark: Boolean, radius: Int): Veil? =
+    when {
+        on -> {
+            val manager = view.context.getSystemService(WindowManager::class.java)
+            /*
+             * ⚠️⚠️ **LA SFOCATURA SI CHIEDE AL SISTEMA, NON SI DÀ PER SCONTATA**: da Android 12
+             * il telefono può dire di no in qualunque momento (risparmio energetico acceso,
+             * hardware che non la fa), e `isCrossWindowBlurEnabled` è la domanda giusta. Chi la
+             * desse per fatta si ritroverebbe con un velo troppo leggero proprio dove la
+             * sfocatura manca.
+             */
+            val blurred = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                manager?.isCrossWindowBlurEnabled == true
+            Veil(
+                view = view,
+                dim = (if (dark) DIM_DARK else DIM_LIGHT) + (if (blurred) 0f else DIM_MORE),
+                radius = if (blurred) radius else null
+            )
+        }
+        bare > 0f -> Veil(view, dim = bare, radius = null)
+        else -> null
+    }
 
 /**
- * Stende [dim] di velo, e [radius] di sfocatura se non è nullo, sulla finestra di [view]; poi
- * ritorna come si disfa.
+ * Il velo steso sulla finestra di [view]: si **dosa** con [at] e si toglie con [off].
  *
- * ⚠️ **Ritorna l'annullamento invece di lasciarlo ricostruire a chi chiama**: quello che va
- * rimesso a posto dipende da quello che è stato acceso (la sfocatura può non esserci), e due
- * copie di quella condizione, una all'andata e una al ritorno, divergono al primo ritocco.
+ * ⚠️⚠️ **DOSABILE E NON ACCESO-SPENTO, dalla 1.50**: [dim] e [radius] sono il **pieno**, e
+ * quello che finisce sulla finestra è la loro frazione. È la cosa che permette alla sfocatura
+ * di crescere e calare insieme al pannello invece di comparire tutta insieme.
+ * ⚠️⚠️ **E IL DIFETTO CHE TOGLIE È QUELLO CHE SI VEDEVA DI PIÙ** (riscontro dell'utente,
+ * 2026-09-04: *una specie di cornice sfumata si materializza dove c'era/ci sarà il margine del
+ * pannello effettivo*). La sfocatura è un attributo della **finestra**, quindi al primo
+ * fotogramma copriva il rettangolo pieno del popup mentre il pannello dentro era ancora
+ * rimpicciolito e trasparente: quel rettangolo, coi bordi sfumati dal raggio, **era** la
+ * cornice. Con la sfocatura che cresce da zero non c'è nessun fotogramma in cui la finestra
+ * sfoca più di quanto il pannello sia in scena.
+ *
+ * ⚠️ **Si aggancia alla prima chiamata e non alla costruzione**: i `LayoutParams` della radice
+ * di un `Popup` possono non essere ancora quelli del gestore mentre la composizione è in corso,
+ * e leggerli troppo presto darebbe un velo che non si applica, in silenzio.
  */
-private fun paint(view: View, dim: Float, radius: Int?): () -> Unit {
-    val manager = view.context.getSystemService(WindowManager::class.java)
+private class Veil(private val view: View, private val dim: Float, private val radius: Int?) {
+    private var window: Window? = null
+    private var manager: WindowManager? = null
+    private var params: WindowManager.LayoutParams? = null
+    private var dimPrima = 0f
+    private var flagsPrima = 0
+    private var acceso = false
 
-    val window = view.dialogWindow()
-    if (window != null) {
-        // ⚠️ Su un dialogo si passa dalla finestra e non dai suoi parametri a mano: è lei che
-        // li riapplica, e `setDimAmount` accende già il flag che serve.
-        val prima = window.attributes.dimAmount
-        window.setDimAmount(dim)
-        if (radius != null) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
-            window.attributes = window.attributes.apply { blurBehindRadius = radius }
+    /** Aggancia la finestra e ricorda com'era. Falso se qui non c'è niente da velare. */
+    private fun grab(): Boolean {
+        if (acceso) return true
+        manager = view.context.getSystemService(WindowManager::class.java)
+        window = view.dialogWindow()
+        val w = window
+        if (w != null) {
+            dimPrima = w.attributes.dimAmount
+        } else {
+            /*
+             * ⚠️⚠️ **UN `Popup` È UNA FINESTRA ANCHE LUI, ma non ha un `Window`**: Compose lo
+             * aggiunge al `WindowManager` come vista, quindi i suoi parametri sono i
+             * `LayoutParams` della **radice** di questo albero, e per farli valere si ripassa
+             * dal gestore con `updateViewLayout`. È la sola via per dare un velo a un menu, che
+             * di suo non ne ha nessuno.
+             */
+            val p = view.rootView.layoutParams as? WindowManager.LayoutParams ?: return false
+            if (manager == null) return false
+            params = p
+            flagsPrima = p.flags
+            dimPrima = p.dimAmount
         }
-        return {
-            window.setDimAmount(prima)
+        acceso = true
+        return true
+    }
+
+    fun at(q: Float) {
+        if (!grab()) return
+        val velo = dim * q
+        val raggio = radius?.let { (it * q).roundToInt() } ?: 0
+        val w = window
+        if (w != null) {
+            // ⚠️ Su un dialogo si passa dalla finestra e non dai suoi parametri a mano: è lei
+            // che li riapplica, e `setDimAmount` accende già il flag che serve.
+            w.setDimAmount(velo)
             if (radius != null) {
-                window.clearFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
+                w.addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
+                w.attributes = w.attributes.apply { blurBehindRadius = raggio }
+            }
+            return
+        }
+        val p = params ?: return
+        val m = manager ?: return
+        p.flags = p.flags or WindowManager.LayoutParams.FLAG_DIM_BEHIND
+        p.dimAmount = velo
+        if (radius != null) {
+            p.flags = p.flags or WindowManager.LayoutParams.FLAG_BLUR_BEHIND
+            p.blurBehindRadius = raggio
+        }
+        runCatching { m.updateViewLayout(view.rootView, p) }
+    }
+
+    fun off() {
+        if (!acceso) return
+        acceso = false
+        val w = window
+        if (w != null) {
+            w.setDimAmount(dimPrima)
+            if (radius != null) {
+                w.clearFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND)
                 /*
                  * ⚠️ **Anche il raggio torna a zero, e prima restava scritto**: con la
                  * bandierina spenta non si vede niente, quindi non era un difetto visibile, ma
@@ -188,37 +280,18 @@ private fun paint(view: View, dim: Float, radius: Int?): () -> Unit {
                  * sfocatura riparte da sola con un valore che nessuno ha chiesto in quel
                  * momento. Costa una riga e toglie uno stato che mente.
                  */
-                window.attributes = window.attributes.apply { blurBehindRadius = 0 }
+                w.attributes = w.attributes.apply { blurBehindRadius = 0 }
             }
+            return
         }
-    }
-
-    /*
-     * ⚠️⚠️ **UN `Popup` È UNA FINESTRA ANCHE LUI, ma non ha un `Window`**: Compose lo aggiunge
-     * al `WindowManager` come vista, quindi i suoi parametri sono i `LayoutParams` della
-     * **radice** di questo albero, e per farli valere si ripassa dal gestore con
-     * `updateViewLayout`. È la sola via per dare un velo a un menu, che di suo non ne ha
-     * nessuno.
-     */
-    val root = view.rootView
-    val params = root.layoutParams as? WindowManager.LayoutParams ?: return { }
-    if (manager == null) return { }
-    val flagsPrima = params.flags
-    val dimPrima = params.dimAmount
-    params.flags = params.flags or WindowManager.LayoutParams.FLAG_DIM_BEHIND
-    params.dimAmount = dim
-    if (radius != null) {
-        params.flags = params.flags or WindowManager.LayoutParams.FLAG_BLUR_BEHIND
-        params.blurBehindRadius = radius
-    }
-    runCatching { manager.updateViewLayout(root, params) }
-    return {
-        params.flags = flagsPrima
-        params.dimAmount = dimPrima
-        if (radius != null) params.blurBehindRadius = 0
+        val p = params ?: return
+        val m = manager ?: return
+        p.flags = flagsPrima
+        p.dimAmount = dimPrima
+        if (radius != null) p.blurBehindRadius = 0
         // ⚠️ La vista può essere già stata staccata quando questo scatta, e allora il gestore
         // va in errore: non c'è niente da rimettere a posto su una finestra che non c'è più.
-        runCatching { manager.updateViewLayout(root, params) }
+        runCatching { m.updateViewLayout(view.rootView, p) }
     }
 }
 
@@ -271,3 +344,12 @@ private const val DIM_DARK = 0.45f
  * il velo classico di un dialogo Material.
  */
 private const val DIM_MORE = 0.12f
+
+/**
+ * Il velo al massimo: quello che chiede chi non ha un'animazione da seguire.
+ *
+ * ⚠️ **Ha un nome perché è un valore di dosaggio e non un numero qualunque**: i dialoghi di
+ * Material compaiono di colpo, quindi il loro velo non ha niente da inseguire e vale sempre
+ * questo. Chi invece ha un'animazione passa il suo avanzamento e il velo lo segue.
+ */
+private const val PIENO = 1f

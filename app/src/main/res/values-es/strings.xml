@@ -376,7 +376,7 @@
     <string name="view_list">Lista</string>
     <string name="view_tree">Carpetas</string>
     <string name="edit_no_backup">La copia de seguridad ha fallado, así que no se ha sobrescrito nada</string>
-    <string name="edit_backup_same">No se ha creado ninguna copia de seguridad de la imagen, porque el archivo guardado era idéntico al original.</string>
+    <string name="edit_backup_same">El archivo no ha cambiado: no se ha creado la copia de seguridad de la edición.</string>
     <string name="settings_editor_backup">Copia de seguridad antes de sobrescribir</string>
     <string name="settings_editor_backup_desc">Antes de que un editor sobrescriba una imagen, guarda una copia en la papelera, donde podrás recuperarla; si no la necesitas, se eliminará en el siguiente \'Vaciar papelera\'.</string>
     <string name="editor_tall">Vertical</string>

@@ -361,7 +361,7 @@
     <string name="view_list">यादी</string>
     <string name="view_tree">फोल्डर</string>
     <string name="edit_no_backup">सुरक्षा प्रत झाली नाही, म्हणून काहीही वर लिहिले गेले नाही</string>
-    <string name="edit_backup_same">प्रतिमेची बॅकअप प्रत तयार केली नाही, कारण जतन केलेली फाइल मूळ फाइलसारखीच होती.</string>
+    <string name="edit_backup_same">फाइल बदलली नाही: संपादनासाठी सुरक्षा प्रत तयार केली नाही.</string>
     <string name="settings_editor_backup">वर लिहिण्यापूर्वी सुरक्षा प्रत</string>
     <string name="settings_editor_backup_desc">संपादकाने प्रतिमेवर लिहिण्याआधी तिची एक प्रत कचरापेटीत ठेवली जाते, तिथून ती परत मिळवता येते; गरज नसेल तर पुढच्या \'कचरापेटी रिकामी करा\' वेळी ती हटेल.</string>
     <string name="editor_tall">उभे</string>

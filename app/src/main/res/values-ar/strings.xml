@@ -421,7 +421,7 @@
     <string name="view_list">قائمة</string>
     <string name="view_tree">مجلدات</string>
     <string name="edit_no_backup">تعذّرت نسخة الأمان، فلم تجرِ الكتابة فوق شيء</string>
-    <string name="edit_backup_same">لم يتم إنشاء نسخة احتياطية من الصورة لأن الملف المحفوظ كان مطابقًا للأصل.</string>
+    <string name="edit_backup_same">لم يتغير الملف: لم يتم إنشاء نسخة أمان للتعديل.</string>
     <string name="settings_editor_backup">نسخة أمان قبل الكتابة فوق الملف</string>
     <string name="settings_editor_backup_desc">قبل أن يستبدل المحرّر صورةً، يحفظ نسخةً منها في سلة المهملات حيث يمكنك استعادتها؛ وإن لم تحتَجها فستُحذَف عند \'إفراغ سلة المهملات\' التالي.</string>
     <string name="editor_tall">طولي</string>

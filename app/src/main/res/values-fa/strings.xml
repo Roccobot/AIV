@@ -361,7 +361,7 @@
     <string name="view_list">فهرست</string>
     <string name="view_tree">پوشه‌ها</string>
     <string name="edit_no_backup">نسخهٔ ایمنی ساخته نشد، پس چیزی بازنویسی نشد</string>
-    <string name="edit_backup_same">نسخهٔ پشتیبانی از تصویر ساخته نشد، چون پروندهٔ ذخیره‌شده با اصل یکسان بود.</string>
+    <string name="edit_backup_same">فایل تغییر نکرد: برای ویرایش نسخهٔ ایمنی ساخته نشد.</string>
     <string name="settings_editor_backup">نسخهٔ ایمنی پیش از بازنویسی</string>
     <string name="settings_editor_backup_desc">پیش از آنکه ویرایشگر روی تصویری بنویسد، نسخه‌ای از آن را در سطل زباله نگه می‌دارد تا بتوانید بازش گردانید؛ اگر لازمش نداشتید، در \'خالی کردن سطل زباله\' بعدی حذف می‌شود.</string>
     <string name="editor_tall">عمودی</string>

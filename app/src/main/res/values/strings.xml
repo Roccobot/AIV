@@ -37,7 +37,7 @@
     <!-- ── Asking for an address ── -->
     <!-- Un indirizzo di esempio, non testo: vale in ogni lingua, e tradurlo
          vorrebbe dire ventotto posti in cui cambiare un dominio. -->
-    <string name="url_hint" translatable="false">https://example.page/img.png</string>
+    <string name="url_hint" translatable="false">https://example.site/pics</string>
     <string name="url_forget">Forget these</string>
     <string name="url_not_image">The address leads to no image, and the page has none in it</string>
 
@@ -119,7 +119,7 @@
     <!-- Shown instead of saving: the safety copy could not be made, so the original was left
          alone. Whoever turned that switch on asked not to be able to lose it. -->
     <string name="edit_no_backup">The safety copy failed, so nothing was written over</string>
-    <string name="edit_backup_same">No backup copy of the image was created, because the saved file was identical to the original.</string>
+    <string name="edit_backup_same">The file did not change: no safety copy was made for the edit.</string>
     <!-- Only when no installed app answers the edit request, so the list holds one entry. -->
     <string name="editor_pick_none">No other app on this phone offers to edit pictures.</string>
     <string name="editor_pick_send">By sharing</string>

@@ -346,7 +346,7 @@
     <string name="view_list">Daftar</string>
     <string name="view_tree">Folder</string>
     <string name="edit_no_backup">Salinan pengaman gagal, jadi tidak ada yang ditimpa</string>
-    <string name="edit_backup_same">Tidak ada salinan cadangan gambar yang dibuat, karena berkas yang disimpan sama persis dengan aslinya.</string>
+    <string name="edit_backup_same">Berkas tidak berubah: salinan pengaman untuk penyuntingan tidak dibuat.</string>
     <string name="settings_editor_backup">Salinan pengaman sebelum menimpa</string>
     <string name="settings_editor_backup_desc">Sebelum sebuah penyunting menimpa gambar, salinannya disimpan di tempat sampah, tempat Anda dapat memulihkannya; bila tidak diperlukan, salinan itu akan terhapus pada \'Kosongkan tempat sampah\' berikutnya.</string>
     <string name="editor_tall">Tegak</string>

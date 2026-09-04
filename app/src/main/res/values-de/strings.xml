@@ -361,7 +361,7 @@
     <string name="view_list">Liste</string>
     <string name="view_tree">Ordner</string>
     <string name="edit_no_backup">Die Sicherheitskopie ist fehlgeschlagen, es wurde nichts überschrieben</string>
-    <string name="edit_backup_same">Es wurde keine Sicherungskopie des Bildes angelegt, weil die gespeicherte Datei mit dem Original identisch war.</string>
+    <string name="edit_backup_same">Die Datei hat sich nicht geändert: Für die Bearbeitung wurde keine Sicherheitskopie angelegt.</string>
     <string name="settings_editor_backup">Sicherheitskopie vor dem Überschreiben</string>
     <string name="settings_editor_backup_desc">Bevor ein Editor ein Bild überschreibt, legt er eine Kopie in den Papierkorb, wo sie wiederherstellbar bleibt; wird sie nicht gebraucht, verschwindet sie beim nächsten \'Papierkorb leeren\'.</string>
     <string name="editor_tall">Hochformat</string>

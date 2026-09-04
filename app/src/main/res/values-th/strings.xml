@@ -346,7 +346,7 @@
     <string name="view_list">รายการ</string>
     <string name="view_tree">โฟลเดอร์</string>
     <string name="edit_no_backup">สำเนาสำรองไม่สำเร็จ จึงไม่ได้เขียนทับอะไรเลย</string>
-    <string name="edit_backup_same">ไม่ได้สร้างสำเนาสำรองของภาพ เพราะไฟล์ที่บันทึกเหมือนกับต้นฉบับทุกประการ</string>
+    <string name="edit_backup_same">ไฟล์ไม่เปลี่ยน: ไม่ได้สร้างสำเนาสำรองสำหรับการแก้ไข</string>
     <string name="settings_editor_backup">สำเนาสำรองก่อนเขียนทับ</string>
     <string name="settings_editor_backup_desc">ก่อนที่โปรแกรมแก้ไขจะเขียนทับภาพ ระบบจะเก็บสำเนาไว้ในถังขยะ ซึ่งคุณกู้คืนได้ หากไม่ต้องการ สำเนานั้นจะถูกลบเมื่อ \'ล้างถังขยะ\' ครั้งต่อไป</string>
     <string name="editor_tall">แนวตั้ง</string>

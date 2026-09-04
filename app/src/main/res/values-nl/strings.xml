@@ -361,7 +361,7 @@
     <string name="view_list">Lijst</string>
     <string name="view_tree">Mappen</string>
     <string name="edit_no_backup">De veiligheidskopie is mislukt, dus er is niets overschreven</string>
-    <string name="edit_backup_same">Er is geen back-up van de afbeelding gemaakt, omdat het opgeslagen bestand identiek was aan het origineel.</string>
+    <string name="edit_backup_same">Het bestand is niet veranderd: er is geen veiligheidskopie voor de bewerking gemaakt.</string>
     <string name="settings_editor_backup">Veiligheidskopie voor het overschrijven</string>
     <string name="settings_editor_backup_desc">Voordat een editor een afbeelding overschrijft, bewaart hij er een kopie van in de prullenbak, waar u die kunt terughalen; hebt u die niet nodig, dan verdwijnt ze bij de volgende \'Prullenbak legen\'.</string>
     <string name="editor_tall">Staand</string>

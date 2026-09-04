@@ -361,7 +361,7 @@
     <string name="view_list">তালিকা</string>
     <string name="view_tree">ফোল্ডার</string>
     <string name="edit_no_backup">নিরাপত্তা অনুলিপি হয়নি, তাই কিছুই উপরে লেখা হয়নি</string>
-    <string name="edit_backup_same">ছবির কোনো ব্যাকআপ অনুলিপি তৈরি হয়নি, কারণ সংরক্ষিত ফাইলটি মূলটির সঙ্গে অভিন্ন ছিল।</string>
+    <string name="edit_backup_same">ফাইলটি বদলায়নি: সম্পাদনার জন্য কোনও নিরাপত্তা অনুলিপি তৈরি হয়নি।</string>
     <string name="settings_editor_backup">উপরে লেখার আগে নিরাপত্তা অনুলিপি</string>
     <string name="settings_editor_backup_desc">কোনো সম্পাদক ছবির উপর লেখার আগে তার একটি অনুলিপি আবর্জনায় রেখে দেয়, সেখান থেকে ফিরিয়ে আনা যায়; দরকার না হলে পরের বার \'আবর্জনা খালি করুন\'-এ মুছে যাবে।</string>
     <string name="editor_tall">লম্বালম্বি</string>

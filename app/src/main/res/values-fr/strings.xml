@@ -376,7 +376,7 @@
     <string name="view_list">Liste</string>
     <string name="view_tree">Dossiers</string>
     <string name="edit_no_backup">La copie de sûreté a échoué, donc rien n\'a été écrasé</string>
-    <string name="edit_backup_same">Aucune sauvegarde de l\'image n\'a été créée, car le fichier enregistré était identique à l\'original.</string>
+    <string name="edit_backup_same">Le fichier n\'a pas changé : aucune copie de sûreté n\'a été créée pour la modification.</string>
     <string name="settings_editor_backup">Copie de sûreté avant d\'écraser</string>
     <string name="settings_editor_backup_desc">Avant qu\'un éditeur n\'écrase une image, il en enregistre une copie dans la corbeille, où vous pourrez la récupérer ; si elle ne vous sert pas, elle sera supprimée au prochain \'Vider la corbeille\'.</string>
     <string name="editor_tall">Portrait</string>

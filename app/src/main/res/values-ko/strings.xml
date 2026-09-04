@@ -346,7 +346,7 @@
     <string name="view_list">목록</string>
     <string name="view_tree">폴더</string>
     <string name="edit_no_backup">안전 사본을 만들지 못해서 아무것도 덮어쓰지 않았습니다</string>
-    <string name="edit_backup_same">저장된 파일이 원본과 같아서 이미지의 백업 사본을 만들지 않았습니다.</string>
+    <string name="edit_backup_same">파일이 바뀌지 않았습니다: 편집용 안전 사본을 만들지 않았습니다.</string>
     <string name="settings_editor_backup">덮어쓰기 전에 안전 사본</string>
     <string name="settings_editor_backup_desc">편집기가 이미지를 덮어쓰기 전에 사본을 휴지통에 저장합니다. 거기에서 되돌릴 수 있고, 필요 없으면 다음 \'휴지통 비우기\'에서 삭제됩니다.</string>
     <string name="editor_tall">세로</string>

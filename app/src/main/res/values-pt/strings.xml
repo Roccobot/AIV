@@ -376,7 +376,7 @@
     <string name="view_list">Lista</string>
     <string name="view_tree">Pastas</string>
     <string name="edit_no_backup">A cópia de segurança falhou, então nada foi sobrescrito</string>
-    <string name="edit_backup_same">Não foi criada uma cópia de segurança da imagem, porque o ficheiro guardado era idêntico ao original.</string>
+    <string name="edit_backup_same">O ficheiro não mudou: não foi criada a cópia de segurança da edição.</string>
     <string name="settings_editor_backup">Cópia de segurança antes de sobrescrever</string>
     <string name="settings_editor_backup_desc">Antes que um editor sobrescreva uma imagem, ele guarda uma cópia na lixeira, onde você poderá recuperá-la; se não precisar dela, será excluída no próximo \'Esvaziar lixeira\'.</string>
     <string name="editor_tall">Retrato</string>

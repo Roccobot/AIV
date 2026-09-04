@@ -361,7 +361,7 @@
     <string name="view_list">பட்டியல்</string>
     <string name="view_tree">கோப்புறைகள்</string>
     <string name="edit_no_backup">பாதுகாப்பு நகல் எடுக்க முடியவில்லை, எனவே எதன் மேலும் எழுதப்படவில்லை</string>
-    <string name="edit_backup_same">சேமிக்கப்பட்ட கோப்பு மூலத்துடன் ஒரே மாதிரி இருந்ததால், படத்தின் காப்புநகல் உருவாக்கப்படவில்லை.</string>
+    <string name="edit_backup_same">கோப்பு மாறவில்லை: திருத்தத்திற்கான பாதுகாப்பு நகல் உருவாக்கப்படவில்லை.</string>
     <string name="settings_editor_backup">மேலெழுதும் முன் பாதுகாப்பு நகல்</string>
     <string name="settings_editor_backup_desc">எடிட்டர் ஒரு படத்தின் மேல் எழுதுவதற்கு முன், அதன் நகலை மறுசுழற்சிக் கூடையில் சேமிக்கிறது; அங்கிருந்து மீட்கலாம். தேவையில்லை என்றால் அடுத்த \'கூடையைக் காலி செய்\' போது நீக்கப்படும்.</string>
     <string name="editor_tall">நெடுக்கு</string>

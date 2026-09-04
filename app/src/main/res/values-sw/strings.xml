@@ -361,7 +361,7 @@
     <string name="view_list">Orodha</string>
     <string name="view_tree">Folda</string>
     <string name="edit_no_backup">Nakala ya usalama haikufanikiwa, hivyo hakuna kilichoandikwa juu</string>
-    <string name="edit_backup_same">Hakuna nakala rudufu ya picha iliyoundwa, kwa sababu faili iliyohifadhiwa ilikuwa sawa kabisa na ya awali.</string>
+    <string name="edit_backup_same">Faili haijabadilika: nakala ya usalama ya kuhariri haikutengenezwa.</string>
     <string name="settings_editor_backup">Nakala ya usalama kabla ya kuandika juu</string>
     <string name="settings_editor_backup_desc">Kabla kihariri hakijaandika juu ya picha, huhifadhi nakala yake kwenye pipa la taka, ambapo unaweza kuirejesha; usipoihitaji, itafutwa wakati wa \'Mwaga pipa la taka\' unaofuata.</string>
     <string name="editor_tall">Wima</string>
