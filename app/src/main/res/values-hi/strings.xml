@@ -248,7 +248,7 @@
     <string name="bin_empty">कूड़ेदान खाली करें</string>
     <string name="bin_empty_ask">क्या सच में कूड़ेदान खाली करें?</string>
     <string name="bin_empty_desc">इसकी सामग्री वापस नहीं मिल पाएगी।</string>
-    <string name="bin_restore_all_ask">कूड़ेदान का सारा सामान वाकई वापस लाएँ?</string>
+    <string name="bin_restore_all_ask">क्या वाकई सभी फ़ाइलें पुनर्स्थापित करें?</string>
     <string name="bin_restore_all_desc">हर फ़ाइल अपने मूल फ़ोल्डर में वापस जाएगी: कौन फ़ाइल कहाँ ले जाई गई, यह जानने के लिए कूड़ेदान का इतिहास देखें।</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d कूड़ेदान में गया</item>

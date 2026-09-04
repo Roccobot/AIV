@@ -1,6 +1,7 @@
 package io.github.roccobot.aiv
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
@@ -357,6 +358,16 @@ fun UiTheme.isDark(): Boolean = when (this) {
  */
 val LocalAivLight = staticCompositionLocalOf { true }
 
+/**
+ * L'accento del tema in vigore, per chi lo deve leggere **da un nodo**.
+ *
+ * ⚠️ **Esiste per la stessa ragione di [LocalAivLight], e insieme a lui**: il bordo d'accento
+ * (`Modifier.edged`) si disegna da un nodo di modificatore, dove la tavolozza di Material non
+ * si raggiunge. Qui non c'è nessun colore nuovo: sono le due costanti che la tavolozza già usa
+ * per `primary`, quindi il bordo e il tastino non possono divergere.
+ */
+fun aivAccent(light: Boolean): Color = if (light) ACCENT_LIGHT else ACCENT_DARK
+
 @Composable
 fun AivTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -383,7 +394,23 @@ fun AivTheme(
             // già il proprio fondo a tutta schermata, quindi questa gli sta dietro
             // senza cambiargli niente.
             Surface(modifier = Modifier.fillMaxSize(), color = scheme.background) {
-                content()
+                /*
+                 * ⚠️⚠️ **IL VELO DELLE SUPERFICI CHE SI APRONO SI DIPINGE QUI, DALLA `1.54`, ED
+                 * È UNO SOLO PER TUTTA L'APP** (riscontro dell'utente bocciato tre volte, voce
+                 * `flash-menu-dialogo`). Il perché sta su `VeilStage`: finché il velo era un
+                 * attributo delle finestre, passando da un menu a un dialogo si vedeva un lampo,
+                 * perché due finestre non cambiano il loro velo nello stesso fotogramma. Dipinto
+                 * qui, il velo non nasce e non muore durante la transizione: cambia solo la sua
+                 * opacità.
+                 * ⚠️ **Sta DENTRO la `Surface` e dopo il contenuto**: dentro per prendere il
+                 * colore del testo come tutto il resto, dopo perché in un `Box` l'ultimo figlio
+                 * sta sopra. Quello che deve restare sopra di lui è la superficie che si è
+                 * aperta, e quella vive in un'altra finestra.
+                 */
+                Box(modifier = Modifier.fillMaxSize()) {
+                    content()
+                    AppVeil(modifier = Modifier.matchParentSize())
+                }
             }
         }
     }

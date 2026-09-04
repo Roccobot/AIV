@@ -248,7 +248,7 @@
     <string name="bin_empty">Prullenbak legen</string>
     <string name="bin_empty_ask">Prullenbak echt legen?</string>
     <string name="bin_empty_desc">De inhoud kun je niet meer terughalen.</string>
-    <string name="bin_restore_all_ask">Echt de hele inhoud van de prullenbak terugzetten?</string>
+    <string name="bin_restore_all_ask">Alle bestanden echt herstellen?</string>
     <string name="bin_restore_all_desc">Elk bestand gaat terug naar zijn eigen oorspronkelijke map: in de geschiedenis van de prullenbak staat waarheen elk bestand is verplaatst.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d naar de prullenbak</item>

@@ -284,7 +284,7 @@
     <string name="bin_empty">إفراغ سلة المهملات</string>
     <string name="bin_empty_ask">هل تريد فعلا إفراغ سلة المهملات؟</string>
     <string name="bin_empty_desc">لن تتمكن من استعادة محتواها.</string>
-    <string name="bin_restore_all_ask">هل تريد بالفعل استعادة كل محتوى سلة المهملات؟</string>
+    <string name="bin_restore_all_ask">هل تريد فعلاً استعادة كل الملفات؟</string>
     <string name="bin_restore_all_desc">سيعود كل ملف إلى مجلده الأصلي: لمعرفة أين نُقل كل ملف، راجع سجل سلة المهملات.</string>
     <plurals name="trash_done">
         <item quantity="zero">لم يُنقل شيء إلى السلة</item>

@@ -257,7 +257,7 @@
     <string name="bin_empty">Vaciar la papelera</string>
     <string name="bin_empty_ask">¿Vaciar de verdad la papelera?</string>
     <string name="bin_empty_desc">No podrás recuperar su contenido.</string>
-    <string name="bin_restore_all_ask">¿Restaurar de verdad todo el contenido de la papelera?</string>
+    <string name="bin_restore_all_ask">¿Restaurar realmente todos los archivos?</string>
     <string name="bin_restore_all_desc">Cada archivo volverá a su carpeta de origen: para saber a dónde se movió cada archivo, consulta el historial de la papelera.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d movido a la papelera</item>

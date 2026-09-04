@@ -239,7 +239,7 @@
     <string name="bin_empty">Dọn thùng rác</string>
     <string name="bin_empty_ask">Thực sự dọn thùng rác?</string>
     <string name="bin_empty_desc">Sẽ không thể lấy lại nội dung bên trong.</string>
-    <string name="bin_restore_all_ask">Thực sự phục hồi toàn bộ nội dung thùng rác?</string>
+    <string name="bin_restore_all_ask">Thực sự khôi phục tất cả tệp?</string>
     <string name="bin_restore_all_desc">Mỗi tệp sẽ trở về thư mục gốc của nó: để biết từng tệp đã được chuyển đến đâu, hãy xem lịch sử thùng rác.</string>
     <plurals name="trash_done">
         <item quantity="other">%1$d đã chuyển vào thùng rác</item>

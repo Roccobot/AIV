@@ -494,7 +494,7 @@
     <string name="bin_empty">Empty the bin</string>
     <string name="bin_empty_ask">Really empty the bin?</string>
     <string name="bin_empty_desc">You will not be able to get its contents back.</string>
-    <string name="bin_restore_all_ask">Really restore everything in the bin?</string>
+    <string name="bin_restore_all_ask">Really restore all the files?</string>
     <string name="bin_restore_all_desc">Every file will go back to its own folder of origin: to see where each file was moved, check the bin history.</string>
     <string name="bin_empty_hint">Shortcut: press and hold the floating button to empty the bin.</string>
     <string name="bin_restore_all">Restore everything</string>

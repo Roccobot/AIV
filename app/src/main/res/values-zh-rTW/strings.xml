@@ -239,7 +239,7 @@
     <string name="bin_empty">清空回收筒</string>
     <string name="bin_empty_ask">確定清空回收筒？</string>
     <string name="bin_empty_desc">裡面的內容將無法救回。</string>
-    <string name="bin_restore_all_ask">確定還原回收筒中的全部內容？</string>
+    <string name="bin_restore_all_ask">確定要還原所有檔案嗎？</string>
     <string name="bin_restore_all_desc">每個檔案都會回到各自的原資料夾：想知道每個檔案被移到哪裡，請查看回收筒歷程。</string>
     <plurals name="trash_done">
         <item quantity="other">已把 %1$d 項移入回收筒</item>

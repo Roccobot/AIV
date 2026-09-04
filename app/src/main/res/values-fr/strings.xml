@@ -257,7 +257,7 @@
     <string name="bin_empty">Vider la corbeille</string>
     <string name="bin_empty_ask">Vider vraiment la corbeille ?</string>
     <string name="bin_empty_desc">Vous ne pourrez plus récupérer son contenu.</string>
-    <string name="bin_restore_all_ask">Vraiment restaurer tout le contenu de la corbeille ?</string>
+    <string name="bin_restore_all_ask">Vraiment restaurer tous les fichiers ?</string>
     <string name="bin_restore_all_desc">Chaque fichier retournera dans son dossier d\'origine : pour savoir où chaque fichier a été déplacé, consultez l\'historique de la corbeille.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d déplacé dans la corbeille</item>

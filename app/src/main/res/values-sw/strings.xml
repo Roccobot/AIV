@@ -248,7 +248,7 @@
     <string name="bin_empty">Mwaga tapishi</string>
     <string name="bin_empty_ask">Kweli umwage tapishi?</string>
     <string name="bin_empty_desc">Yaliyomo hayatarudishwa tena.</string>
-    <string name="bin_restore_all_ask">Kweli rudisha yote yaliyo katika tapishi?</string>
+    <string name="bin_restore_all_ask">Kweli urejeshe faili zote?</string>
     <string name="bin_restore_all_desc">Kila faili itarudi kwenye folda yake ya asili: ili kujua kila faili ilihamishwa wapi, angalia historia ya tapishi.</string>
     <plurals name="trash_done">
         <item quantity="one">kipengele %1$d kimeenda tapishini</item>

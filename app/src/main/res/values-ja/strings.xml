@@ -239,7 +239,7 @@
     <string name="bin_empty">ゴミ箱を空にする</string>
     <string name="bin_empty_ask">本当にゴミ箱を空にしますか?</string>
     <string name="bin_empty_desc">中身は元に戻せません。</string>
-    <string name="bin_restore_all_ask">ゴミ箱の中身をすべて元に戻しますか?</string>
+    <string name="bin_restore_all_ask">すべてのファイルを復元しますか？</string>
     <string name="bin_restore_all_desc">各ファイルは元のフォルダーに戻ります。どのファイルがどこへ移動したかは、ゴミ箱の履歴で確認できます。</string>
     <plurals name="trash_done">
         <item quantity="other">%1$d 件をゴミ箱に移動しました</item>
