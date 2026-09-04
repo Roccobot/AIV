@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Visualizzazione griglia': quattro riquadri cavi.
+
+     DISEGNATO DALL'UTENTE, dalla 1.51. Ammorbidisce `Icons.Default.GridView` di Material:
+     lo scarto è il 2,1% della tela (1.184 pixel su 57.600), tutto sui raccordi degli
+     angoli, e l'inchiostro cade nello stesso riquadro di 18x18 a (3,3), cioè sulla chiave
+     quadrata di Material esatta.
+
+     LA REGOLA DICHIARATA È QUELLA DEL FILE DI PARTENZA, dove l'esportazione scrive `evenodd`
+     perché ogni riquadro è cavo. Qui non cambierebbe niente, ma è la regola che il disegno
+     vuole.
+
+     IL TRASPORTO NON CAMBIA UN PIXEL, misurato rendendo a 240px il file di partenza e questo
+     tracciato: zero scarti su 57.600. Quello che cambia è solo la forma della `d`, cioè ogni
+     comando implicito scritto per esteso e i numeri incollati separati.
+
+     IL VERSO DI AVVOLGIMENTO NON CONTA, misurato: nonZero ed evenOdd rendono identici, zero
+     pixel di scarto. La regola è dichiarata comunque, perché una regola dichiarata dice
+     quello che il disegno vuole mentre una omessa dice solo com'è andata.
+
+     Le regole di trasporto stanno in `CLAUDE.md`, § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="evenOdd"
+        android:pathData="M19.8,13h-5.59c-.67,0,-1.2,.54,-1.2,1.2v5.59c0,.67,.54,1.2,1.2,1.2h5.59c.67,0,1.2,-.54,1.2,-1.2v-5.59c0,-.67,-.54,-1.2,-1.2,-1.2ZM19,18.6c0,.22,-.18,.4,-.4,.4h-3.19c-.22,0,-.4,-.18,-.4,-.4v-3.19c0,-.22,.18,-.4,.4,-.4h3.19c.22,0,.4,.18,.4,.4v3.19ZM9.8,13h-5.59c-.67,0,-1.2,.54,-1.2,1.2v5.59c0,.67,.54,1.2,1.2,1.2h5.59c.67,0,1.2,-.54,1.2,-1.2v-5.59c0,-.67,-.54,-1.2,-1.2,-1.2ZM9,18.6c0,.22,-.18,.4,-.4,.4h-3.19c-.22,0,-.4,-.18,-.4,-.4v-3.19c0,-.22,.18,-.4,.4,-.4h3.19c.22,0,.4,.18,.4,.4v3.19ZM19.8,3h-5.59c-.67,0,-1.2,.54,-1.2,1.2v5.59c0,.67,.54,1.2,1.2,1.2h5.59c.67,0,1.2,-.54,1.2,-1.2v-5.59c0,-.67,-.54,-1.2,-1.2,-1.2ZM19,8.6c0,.22,-.18,.4,-.4,.4h-3.19c-.22,0,-.4,-.18,-.4,-.4v-3.19c0,-.22,.18,-.4,.4,-.4h3.19c.22,0,.4,.18,.4,.4v3.19ZM9.8,3h-5.59c-.67,0,-1.2,.54,-1.2,1.2v5.59c0,.67,.54,1.2,1.2,1.2h5.59c.67,0,1.2,-.54,1.2,-1.2v-5.59c0,-.67,-.54,-1.2,-1.2,-1.2ZM9,8.6c0,.22,-.18,.4,-.4,.4h-3.19c-.22,0,-.4,-.18,-.4,-.4v-3.19c0,-.22,.18,-.4,.4,-.4h3.19c.22,0,.4,.18,.4,.4v3.19Z" />
+</vector>

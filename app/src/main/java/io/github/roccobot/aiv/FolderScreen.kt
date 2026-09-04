@@ -35,7 +35,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material3.AlertDialog
@@ -696,6 +700,21 @@ private fun FolderView.label(): Int = when (this) {
 }
 
 /**
+ * Il glifo di una vista nel menu, dalla `1.51`.
+ *
+ * ⚠️ **Le prime due le ha disegnate l'utente e la terza no**: 'Cartelle di sistema' è una
+ * cartella, e la cartella di Material è già quella che l'app usa dappertutto (nella riga di
+ * una cartella, nel selettore di destinazione, nell'albero). Disegnarne una quarta versione
+ * qui vorrebbe dire che la stessa cosa ha due facce a seconda di dove la si guarda.
+ */
+private val FolderView.glyph: ImageVector
+    @Composable get() = when (this) {
+        FolderView.GRID -> Glyphs.ViewGrid
+        FolderView.LIST -> Glyphs.ViewList
+        FolderView.TREE -> Icons.Default.Folder
+    }
+
+/**
  * Il nome corto della vista, per le pastiglie del dialogo delle opzioni.
  *
  * ⚠️⚠️ **DUE NOMI PER LA STESSA COSA, ed è voluto** (richiesta dell'utente, 2026-08-31): nel
@@ -784,9 +803,14 @@ private fun Hub(
          * ⚠️ **Le voci cambiano di aspetto in tre modi, tutti voluti**: crescono dal centro del
          * riquadro e non dall'angolo del tastino, la scala è 0,96 al posto dello 0,8 di
          * Material, e la durata è quella scelta dall'utente sul mockup.
-         * ⚠️ **Restano senza icone**, e non è una dimenticanza: due voci vogliono un disegno
-         * che in Material non c'è, e i disegni li manda l'utente. Il perché per esteso sta sul
-         * parametro `icon` di [MenuRow].
+         * ⚠️⚠️ **LE ICONE LE HA DALLA `1.51`, e fino a lì era l'unico menu dell'app senza**:
+         * due voci volevano un disegno che in Material non c'è, e con icone su alcune righe e
+         * non su altre i testi comincerebbero in due posti diversi (il perché per esteso sta
+         * sul parametro `icon` di [MenuRow]). Quei due disegni sono arrivati insieme agli
+         * altri, quindi la clausola è caduta da sé.
+         * ⚠️ **Metà vengono da Material e metà da un file**, e non è un'incoerenza: quelle di
+         * Material rendono a zero pixel di scarto dal glifo che l'utente ha approvato, quindi
+         * copiarle in `res/` sarebbe la duplicazione che la nota in testa a `Glyphs.kt` vieta.
          */
         MenuShell(
             state = menu,
@@ -812,7 +836,7 @@ private fun Hub(
             FolderView.entries.filter { it != view }.forEach { other ->
                 MenuRow(
                     text = stringResource(other.label()),
-                    icon = null,
+                    icon = other.glyph,
                     onTap = { menu.close(); onView(other) }
                 )
             }
@@ -824,12 +848,12 @@ private fun Hub(
             // dove andare, ed è il caso in cui una persona apre questo menu.
             MenuRow(
                 text = stringResource(R.string.hub_search),
-                icon = null,
+                icon = Icons.Default.Search,
                 onTap = { menu.close(); onSearch() }
             )
             MenuRow(
                 text = stringResource(R.string.hub_url),
-                icon = null,
+                icon = Icons.Default.Public,
                 onTap = { menu.close(); asking = true }
             )
             /*
@@ -850,7 +874,7 @@ private fun Hub(
             if (!granted) {
                 MenuRow(
                     text = stringResource(R.string.hub_pick),
-                    icon = null,
+                    icon = Icons.Default.Image,
                     onTap = {
                         menu.close()
                         picker.launch(
@@ -869,7 +893,7 @@ private fun Hub(
             // va, come una cartella, ma è il meno frequentato dei quattro.
             MenuRow(
                 text = stringResource(R.string.bin_title),
-                icon = null,
+                icon = Glyphs.Bin,
                 onTap = { menu.close(); onBin() }
             )
 
@@ -877,7 +901,7 @@ private fun Hub(
 
             MenuRow(
                 text = stringResource(R.string.hub_settings),
-                icon = null,
+                icon = Icons.Default.Settings,
                 onTap = { menu.close(); onSettings() }
             )
         }

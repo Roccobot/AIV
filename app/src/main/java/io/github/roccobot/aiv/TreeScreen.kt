@@ -25,7 +25,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SdStorage
@@ -453,7 +452,7 @@ private fun SpotActions(
                 PadAction(Glyphs.FolderPairDashed, R.string.pick_move) {
                     onJob(FileJob.Transfer(one, move = true))
                 },
-                PadAction(Icons.Default.Delete, R.string.pick_delete, danger = true) {
+                PadAction(Glyphs.PickDelete, R.string.pick_delete, danger = true) {
                     // ⚠️ Col cestino spento si cancella per sempre, e `forGood` porta con sé
                     // la conferma: vedi [FileJob.Delete].
                     onJob(FileJob.Delete(one, forGood = !binOn))

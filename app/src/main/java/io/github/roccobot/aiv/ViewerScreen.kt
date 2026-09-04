@@ -50,11 +50,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.VolumeUp
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.FitScreen
@@ -2870,7 +2868,7 @@ private fun ImageMenu(
                             menu.close()
                             ops.job(FileJob.Transfer(one, move = true))
                         },
-                        PadAction(Icons.Default.Delete, R.string.pick_delete, danger = true) {
+                        PadAction(Glyphs.PickDelete, R.string.pick_delete, danger = true) {
                             menu.close()
                             // ⚠️ Definitiva nel cestino **o** col cestino spento, ed è la
                             // stessa condizione della griglia: con lei viaggia la conferma.
@@ -2880,7 +2878,7 @@ private fun ImageMenu(
                         // nel cestino si ripristina, fuori si rinomina. Le sei icone non
                         // ballano.
                         if (inBin) {
-                            PadAction(Icons.Default.SettingsBackupRestore, R.string.bin_restore) {
+                            PadAction(Glyphs.BinRestore, R.string.bin_restore) {
                                 menu.close()
                                 ops.job(FileJob.Restore(one))
                             }

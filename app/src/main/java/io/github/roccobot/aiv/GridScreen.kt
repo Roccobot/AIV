@@ -49,12 +49,10 @@ import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.FiberManualRecord
-import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.SettingsBackupRestore
+import androidx.compose.material.icons.filled.Recycling
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material.icons.outlined.Image
@@ -571,7 +569,7 @@ fun GridScreen(
         // rinomina (richiesta dell'utente), e il posto nel pannello è lo stesso, così le
         // dieci icone non ballano.
         if (bin) {
-            PadAction(Icons.Default.SettingsBackupRestore, R.string.bin_restore) {
+            PadAction(Glyphs.BinRestore, R.string.bin_restore) {
                 job = FileJob.Restore(chosen.toList())
             }
         } else {
@@ -645,7 +643,7 @@ fun GridScreen(
          * non aggiunge niente e non si mette.
          */
         PadAction(
-            icon = Icons.Default.Delete,
+            icon = Glyphs.PickDelete,
             label = R.string.pick_delete,
             danger = true,
             onHold = if (bin || !binOn) null else {
@@ -1189,7 +1187,7 @@ fun GridScreen(
                          */
                         MenuRow(
                             text = stringResource(R.string.bin_restore_all),
-                            icon = Icons.Default.SettingsBackupRestore,
+                            icon = Glyphs.BinRestoreAll,
                             enabled = filled,
                             // ⚠️ Nessuna conferma, come per il ripristino di una foto sola:
                             // rimette le cose come stavano, ed è reversibile (si rielimina).
@@ -1201,7 +1199,19 @@ fun GridScreen(
                         )
                         MenuRow(
                             text = stringResource(R.string.bin_history),
-                            icon = Icons.Default.History,
+                            /*
+                             * ⚠️⚠️ **IL SIMBOLO DEL RICICLO E NON UN OROLOGIO, dalla `1.51`, ed
+                             * è una scelta dell'utente fra due che gli sono state proposte.**
+                             * `Icons.Default.History` diceva 'il tempo', che in questo menu è
+                             * la cosa meno interessante: la Cronologia del cestino elenca
+                             * quello che è **passato di qui**, cioè eliminato, ripristinato e
+                             * ripulito, e le tre frecce che si rincorrono sono quel giro.
+                             * ⚠️ **Resta un glifo di Material** perché il file che ha mandato
+                             * rende a zero pixel di scarto da quello che Compose già porta
+                             * (misurato): copiarlo in `res/` duplicherebbe un disegno
+                             * mantenuto da altri, che è quello che `Glyphs.kt` vieta.
+                             */
+                            icon = Icons.Default.Recycling,
                             onTap = { menu.close(); onHistory() }
                         )
                         MenuRow(

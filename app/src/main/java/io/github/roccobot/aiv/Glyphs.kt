@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
  * prima. La rete è il verificatore, e va lanciato.
  *
  * ⚠️ **Il cursore di testo è il solo disegno che resta scritto qui**, e non è una
- * dimenticanza: gli altri dieci sono **trasportati** da un file dell'utente, questo è
+ * dimenticanza: tutti gli altri sono **trasportati** da un file dell'utente, questo è
  * **calcolato** da quattro costanti con una relazione dichiarata ([PULL] è il doppio di
  * [NOTCH], e chi lo ignora ottiene metà rientranza credendola giusta). In XML quelle
  * diventerebbero i numeri `4.8` e `1.6`, cioè la relazione sparirebbe e la trappola con lei.
@@ -52,7 +52,9 @@ import androidx.compose.ui.unit.dp
  * vettore con un `ColorFilter.tint`, quindi la tinta che si vede è quella passata a `Icon` e
  * quella dei file non si vede mai. È la stessa convenzione delle icone di Material.
  * ⚠️ Chi volesse aggiungere qui un glifo che Material ha già sta duplicando un disegno
- * mantenuto da altri, e prima o poi i due divergeranno.
+ * mantenuto da altri, e prima o poi i due divergeranno. ⚠️ **L'eccezione, dalla `1.51`, è il
+ * glifo che l'utente ha ammorbidito**, dove la divergenza è voluta e misurata: il blocco che
+ * la dichiara sta più sotto, sopra [PickDelete].
  *
  * ⚠️⚠️ **QUESTO CATALOGO È ANDATO AVANTI E TORNATO INDIETRO, e la storia va saputa per non
  * rifare il giro.** Nella `1.33` gli otto glifi trasportati sono stati **sostituiti** con una
@@ -234,6 +236,78 @@ object Glyphs {
     /** Vedi [AlignAcross]: è la stessa icona girata di un quarto. */
     val AlignDown: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_align_down)
+
+    /*
+     * ⚠️⚠️ **I SEI DELLA `1.51` SONO UN CASO NUOVO: AMMORBIDISCONO UN GLIFO CHE MATERIAL HA**,
+     * mentre i dieci di prima disegnavano una cosa che Material non aveva. Sembra la
+     * duplicazione che la nota in testa a questo file vieta, e non lo è, perché la ragione del
+     * divieto è che i due divergano: qui **divergono apposta**, e la divergenza è il disegno.
+     * Lo scarto contro il glifo di sistema è misurato in testa a ogni file, e va dallo 0,1% al
+     * 5% della tela.
+     * ⚠️⚠️ **E SEI CHE ARRIVAVANO NELLO STESSO INVIO NON SONO ENTRATI**, ed è la parte da non
+     * rifare: `search`, `image`, `public`, `settings`, `folder` e `recycling` rendono a **zero
+     * pixel di scarto** dal glifo che Compose già porta (misurato a 240px ricostruendo il
+     * tracciato dal bytecode di `material-icons`), quindi là il divieto vale in pieno e le
+     * voci chiamano `Icons` invece di un file.
+     * ⚠️ **Con un'eccezione dichiarata, `settings`**: il file dell'utente e quello di Compose
+     * differiscono del 5,6% della tela, ma è **la stessa ruota al 96%** (l'inchiostro va da
+     * 19,20 a 20,00 unità, stesso centro), cioè due esportazioni successive dello stesso
+     * disegno di Google. Nessuno dei due è una scelta di nessuno, e congelarne uno qui
+     * costerebbe un file per una differenza che a 24dp non si vede.
+     */
+
+    /**
+     * Il cestino pieno: 'Elimina', l'icona rossa del pannello della selezione.
+     *
+     * ⚠️ **Ammorbidisce `Icons.Default.Delete`** e non cambia nient'altro: gli spigoli vivi
+     * diventano raccordi, per lo 0,2% della tela. L'inchiostro cade nello stesso riquadro.
+     * ⚠️ **Non è [Bin]**, che è il cassone vuoto di contorno: quello dice il posto, questo
+     * l'azione, e il pieno contro il contorno è ciò che li distingue a colpo d'occhio.
+     */
+    val PickDelete: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_pick_delete)
+
+    /**
+     * Il cestino con la freccia che sale: 'Ripristina', su un file solo.
+     *
+     * ⚠️ **Sostituisce `Icons.Default.SettingsBackupRestore`**, che era un orologio con la
+     * freccia circolare, cioè 'torna indietro nel tempo': nel cestino la domanda è 'tira fuori
+     * questo file', e il cassone la dice mentre l'orologio no.
+     */
+    val BinRestore: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_bin_restore)
+
+    /**
+     * Il cestino che si svuota, aperto in fondo: 'Ripristina tutto'.
+     *
+     * ⚠️ **Si distingue da [BinRestore] per il cassone**, che là è chiuso e qui è aperto: è il
+     * modo di dire 'tutti' senza un secondo segno, che a 24dp non si leggerebbe.
+     */
+    val BinRestoreAll: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_bin_restore_all)
+
+    /**
+     * Il cassone di contorno, vuoto: la voce 'Cestino' del menu della schermata iniziale.
+     *
+     * ⚠️ **Ammorbidisce `Icons.Outlined.Delete`**, per lo 0,1% della tela. Perché sia di
+     * contorno e non di pieno sta su [PickDelete].
+     */
+    val Bin: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_bin)
+
+    /** Quattro riquadri cavi: 'Visualizzazione griglia'. Ammorbidisce `Icons.Default.GridView`. */
+    val ViewGrid: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_view_grid)
+
+    /**
+     * Tre righe con la miniatura a sinistra: 'Visualizzazione lista'.
+     *
+     * ⚠️ **È quello che si scosta di più dal suo glifo di sistema**, il 5% della tela contro
+     * `Icons.Default.ViewList`: oltre ai raccordi, l'inchiostro è un'unità più stretto. Non è
+     * un difetto del trasporto, che di pixel non ne cambia nessuno.
+     */
+    val ViewList: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_view_list)
 
     /** La griglia di Material: ogni icona del sistema è disegnata dentro un 24x24. */
     private const val GRID = 24f

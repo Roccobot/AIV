@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Elimina': il cestino pieno, col coperchio e le sue due maniglie.
+
+     DISEGNATO DALL'UTENTE, dalla 1.51. Ammorbidisce `Icons.Default.Delete` di Material, e
+     non cambia nient'altro: gli spigoli vivi del coperchio e del corpo diventano raccordi.
+     Lo scarto contro il glifo di Material è lo 0,2% della tela (92 pixel su 57.600,
+     misurato rendendo i due) e l'inchiostro cade nello stesso riquadro, 14x18 a (5,3).
+
+     È L'ICONA ROSSA DEL PANNELLO DELLA SELEZIONE, nelle tre schermate che quel pannello lo
+     aprono: la griglia, il visualizzatore e l'albero delle cartelle di sistema. Il cestino
+     VUOTO è un'altra cosa e sta in `ic_bin`: quello dice il posto, questo l'azione.
+
+     IL TRASPORTO NON CAMBIA UN PIXEL, misurato rendendo a 240px il file di partenza e questo
+     tracciato: zero scarti su 57.600. Quello che cambia è solo la forma della `d`, cioè ogni
+     comando implicito scritto per esteso e i numeri incollati separati.
+
+     IL VERSO DI AVVOLGIMENTO NON CONTA, misurato: nonZero ed evenOdd rendono identici, zero
+     pixel di scarto. La regola è dichiarata comunque, perché una regola dichiarata dice
+     quello che il disegno vuole mentre una omessa dice solo com'è andata.
+
+     Le regole di trasporto stanno in `CLAUDE.md`, § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M16,21c1.1,0,2,-.9,2,-2V7.2c0,-.11,-.09,-.2,-.2,-.2H6.2c-.11,0,-.2,.09,-.2,.2v11.8c0,1.1,.9,2,2,2h8ZM18.6,4h-2.93c-.11,0,-.21,-.04,-.29,-.12l-.76,-.76c-.08,-.08,-.18,-.12,-.29,-.12h-4.67c-.11,0,-.21,.04,-.29,.12l-.76,.76c-.08,.08,-.18,.12,-.29,.12h-2.93c-.22,0,-.4,.18,-.4,.4v1.19c0,.22,.18,.4,.4,.4h13.19c.22,0,.4,-.18,.4,-.4v-1.19c0,-.22,-.18,-.4,-.4,-.4Z" />
+</vector>
