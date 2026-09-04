@@ -370,12 +370,24 @@ coppia dello sfondo e il velo, cioè tre famiglie, e nessuna arriva alla soglia.
     stringa pubblicata invecchia il giorno che quella stringa cambia: quello nuovo è di nuovo
     vero oggi, e il criterio non dipende da nessuno dei due.
 
-⚠️⚠️ **SOTTO-PAGINA SI DIVENTA IN TRE MODI, E OGNUNO SI DICHIARA QUANDO LA PAGINA NASCE.** Due
-erano già scritti in testa a `SettingsScreen.kt` e restano; il terzo è la soglia.
+⚠️⚠️ **SOTTO-PAGINA SI DIVENTA IN QUATTRO MODI, E OGNUNO SI DICHIARA QUANDO LA PAGINA NASCE.**
+Due erano già scritti in testa a `SettingsScreen.kt` e restano; il terzo è la soglia; il quarto
+nasce con la `1.54`.
 - Perché la voce è un **elenco** che cresce e porta comandi propri riga per riga.
 - Perché le voci sono **delicate** e il tocco in più è una protezione (*sono impostazioni
   delicate*: da lì è nata 'Adattamento e zoom').
 - Perché la **famiglia** ha superato la soglia.
+- ⚠️ Perché è un **comando che ha bisogno di un paragrafo**, e non è un'impostazione affatto:
+  da lì nasce 'Elimina le miniature memorizzate', chiesta così dall'utente (*un > che ti porta
+  ad una sotto-schermata dove c'è un avviso al centro ... Sotto, un pulsante*). ⚠️ **Non è il
+  secondo modo travestito**, ed è la distinzione che tiene chiuso l'elenco di che cosa è
+  delicato: lui stesso ha detto che *non è un'operazione con risvolti potenzialmente dannosi*,
+  quindi il tocco in più non protegge niente. Quello che il tocco compra è lo **spazio**: un
+  avviso di quattro righe dentro la pagina piatta darebbe una riga alta il doppio delle altre
+  per un comando che si dà una volta l'anno.
+  - **Il paletto che lo tiene stretto**: il paragrafo dev'essere **necessario**, cioè spiegare
+    che cosa succede dopo che si è toccato. Una spiegazione che il titolo già dà non lo rende
+    necessario, e allora la voce resta nella pagina piatta come tutte le altre.
 
 ⚠️⚠️ **E L'ELENCO DI CHE COSA È DELICATO È CHIUSO, DUE CASI E NON PIÙ**: sbagliare la voce può
 costare un file, o toglie la rete che lo protegge; oppure la voce cambia il **metro** con cui
