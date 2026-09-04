@@ -16,6 +16,16 @@ documento è perso.
 | documento | a che cosa serve | indirizzo |
 |---|---|---|
 | **Feedback AIV** | le voci da provare della versione appena uscita, con i tre esiti e i commenti dell'utente. **Chiede.** | <https://claude.ai/code/artifact/a026a5d9-3bd0-4732-a8ea-69033d04fb48> |
+| **Piano d'azione AIV** | le versioni in cantiere in sequenza, una tappa per giro di collaudo. **Non chiede**: è la vista d'insieme. | <https://claude.ai/code/artifact/ed40ee4b-ce9b-4588-b1c9-5e5b7e773cd3> |
+
+⚠️⚠️ **IL PIANO D'AZIONE È UNO STRUMENTO RICORRENTE dal 2026-09-04, e non un artefatto di
+passaggio** (decisione dell'utente: *lo ufficializziamo come strumento di lavoro ricorrente,
+insieme al brief*). La regola universale, con la divisione dei compiti fra lui e il brief, sta
+in `rules/Roccobot.md` § '🗺️ Il piano e il brief: due strumenti, due domande'; qui
+resta solo il suo indirizzo, che è la cosa che questo file esiste per non far perdere.
+- ⚠️ **Si chiamava con una metafora ferroviaria fino a quel giorno**, e il nome è cambiato su
+  istruzione dell'utente (*lascia stare le metafore*). Chi ne trova il nome vecchio in un
+  messaggio o in un commit sappia che è lo stesso documento, allo stesso indirizzo.
 
 ⚠️ **Ha QUATTRO nomi equivalenti** (istruzione dell'utente, 2026-09-01: *d'ora in
 avanti si chiamerà 'Feedback AIV', 'Documento di lavoro', 'Foglio condiviso' o simili*):
