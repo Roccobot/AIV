@@ -68,6 +68,10 @@ import kotlin.math.roundToInt
  *   **dove il modificatore atterra**, cioè sul contenuto del dialogo, quindi legge la finestra
  *   giusta. Ci arriva da [Modifier.lowered], che quei dialoghi hanno già.
  *
+ * ⚠️⚠️ **E NE VALE UNO PER VOLTA, dalla 1.53**: due finestre velate insieme si compongono e
+ * scuriscono più di una sola, quindi il velo che arriva spegne quelli sotto e glieli restituisce
+ * quando se ne va. Il perché per esteso, coi numeri e con le due vie scartate, sta su `Veils`.
+ *
  * ⚠️⚠️ **DALLA 1.39 È SPENTO DI FABBRICA, DIETRO UN'IMPOSTAZIONE** (richiesta dell'utente,
  * 2026-09-03: *mettilo dietro un'opzione disattivata di default. Penserò se tenere o meno la
  * feature: rende tutto visibilmente più lento*). Lo dice [LocalAivVeil], e spento vuol dire
@@ -140,6 +144,13 @@ private class VeilNode : Modifier.Node(), CompositionLocalConsumerModifierNode {
      * ⚠️ **Qui il velo è pieno e basta, e non è una dimenticanza della 1.50**: questo nodo
      * serve ai dialoghi di Material, che compaiono di colpo e non hanno nessun avanzamento da
      * seguire. Chi ne ha uno passa da [WindowVeil] col suo, e la classe è la stessa.
+     * ⚠️⚠️ **E DEVE ESSERE SINCRONO, cioè qui e non in una coroutine**: questo metodo gira
+     * mentre il dialogo si compone, **prima** che la sua finestra disegni il primo fotogramma,
+     * quindi il velo di sistema (0,6 del tema) non si vede mai. Rimandarlo di un giro, anche
+     * uno solo, lo farebbe vedere: si è provato a farlo salire con un'animazione e la prova è
+     * finita qui, perché su un dialogo aperto **senza** un menu sotto quella salita partiva da
+     * sotto il velo di sistema, cioè schiariva lo sfondo prima di scurirlo. Il passaggio di
+     * consegne col menu si risolve altrove, in `Veils`.
      */
     override fun onAttach() {
         if (!currentValueOf(LocalAivVeil)) return
@@ -187,6 +198,63 @@ private fun veilFor(view: View, on: Boolean, bare: Float, dark: Boolean, radius:
     }
 
 /**
+ * Chi ha il velo **adesso**: uno solo per volta, e il passaggio avviene in un fotogramma.
+ *
+ * ⚠️⚠️ **NASCE PER TOGLIERE IL LAMPO, dalla 1.53, e il meccanismo va capito o sembra una
+ * complicazione** (riscontro dell'utente, giro della `1.51`, voce `flash-menu-dialogo`: *c'è
+ * ancora*). Il fatto da cui parte tutto: due finestre che chiedono il velo insieme **si
+ * compongono**, perché ognuna scurisce tutto quello che sta dietro di lei, compresa l'altra. Un
+ * velo da 0,45 sotto un altro da 0,45 non fa 0,45: fa `1-(1-0,45)²`, cioè 0,70. Quando una voce
+ * di menu apre un dialogo, il menu resta in scena il tempo della sua uscita, e in quel tratto lo
+ * sfondo diventava più buio di quanto sia prima e dopo. Quel buio che va e viene è il lampo, e
+ * non era la sfocatura a farlo.
+ *
+ * ⚠️⚠️ **E IL RIMEDIO NON È UNA DISSOLVENZA INCROCIATA, che è la cosa che si prova per prima**:
+ * far salire il velo del dialogo mentre quello del menu scende terrebbe la somma quasi ferma
+ * (0,45 -> 0,40 -> 0,45 invece di 0,45 -> 0,70 -> 0,45), ma romperebbe il caso più comune, cioè
+ * un dialogo aperto **senza** nessun menu sotto: la finestra di un dialogo porta già il velo di
+ * sistema del tema, quindi una salita da zero lo **schiarirebbe** per il tempo della salita
+ * prima di scurirlo. Un lampo al posto di un altro.
+ *
+ * ⚠️⚠️ **QUINDI IL VELO CHE ARRIVA SPEGNE QUELLI SOTTO, e lo fa nello stesso istante in cui si
+ * accende**: la sostituzione avviene dentro la stessa chiamata, quindi non esiste nessun
+ * fotogramma con due veli e nessuno con zero. È la differenza con la `1.48`, che aveva provato a
+ * spegnere il velo del menu **prima** che il dialogo esistesse e aveva lasciato un buco di uno o
+ * due fotogrammi.
+ * ⚠️ **La sfocatura non si perde spegnendo quello sotto**: chi sta in cima sfoca tutto quello che
+ * ha dietro, cioè l'app **e** la finestra del menu che sta uscendo. Quello che si vede attraverso
+ * resta sfocato per tutta la transizione.
+ * ⚠️ **E il dosaggio di chi sta sotto non si perde**: se il velo di cima se ne va prima, quello
+ * sotto ritorna col valore che aveva ([Veil.restore]), che per un menu è il punto in cui la sua
+ * animazione è arrivata.
+ *
+ * ⚠️ **Una pila e non un contatore**, perché serve sapere **chi** era sotto per farlo tornare; e
+ * gira tutta sul thread principale, dove vivono la composizione e le animazioni, quindi non ha
+ * niente da sincronizzare.
+ * ⚠️ **A funzione spenta non fa niente**: senza l'impostazione i menu e i dialoghi non creano
+ * nessun velo (lo dice `veilFor`), quindi in pila c'è al più la scheda in fondo e non c'è niente
+ * da spegnere.
+ */
+private object Veils {
+    private val pila = mutableListOf<Veil>()
+
+    fun push(velo: Veil) {
+        if (pila.lastOrNull() === velo) return
+        pila.remove(velo)
+        pila.lastOrNull()?.mute()
+        pila += velo
+    }
+
+    fun drop(velo: Veil) {
+        val cima = pila.lastOrNull() === velo
+        pila.remove(velo)
+        if (cima) pila.lastOrNull()?.restore()
+    }
+
+    fun top(velo: Veil) = pila.lastOrNull() === velo
+}
+
+/**
  * Il velo steso sulla finestra di [view]: si **dosa** con [at] e si toglie con [off].
  *
  * ⚠️⚠️ **DOSABILE E NON ACCESO-SPENTO, dalla 1.50**: [dim] e [radius] sono il **pieno**, e
@@ -211,6 +279,7 @@ private class Veil(private val view: View, private val dim: Float, private val r
     private var dimPrima = 0f
     private var flagsPrima = 0
     private var acceso = false
+    private var dose = 0f
 
     /** Aggancia la finestra e ricorda com'era. Falso se qui non c'è niente da velare. */
     private fun grab(): Boolean {
@@ -235,11 +304,26 @@ private class Veil(private val view: View, private val dim: Float, private val r
             dimPrima = p.dimAmount
         }
         acceso = true
+        Veils.push(this)
         return true
     }
 
+    /**
+     * Il dosaggio chiesto: si stende solo se questo velo è quello in cima. Vedi [Veils].
+     */
     fun at(q: Float) {
         if (!grab()) return
+        dose = q
+        if (Veils.top(this)) stendi(q)
+    }
+
+    /** Si fa da parte perché un altro velo è arrivato sopra. */
+    fun mute() = stendi(0f)
+
+    /** Torna al dosaggio che aveva quando si è fatto da parte. */
+    fun restore() = stendi(dose)
+
+    private fun stendi(q: Float) {
         val velo = dim * q
         val raggio = radius?.let { (it * q).roundToInt() } ?: 0
         val w = window
@@ -267,6 +351,8 @@ private class Veil(private val view: View, private val dim: Float, private val r
     fun off() {
         if (!acceso) return
         acceso = false
+        dose = 0f
+        Veils.drop(this)
         val w = window
         if (w != null) {
             w.setDimAmount(dimPrima)
@@ -353,3 +439,31 @@ private const val DIM_MORE = 0.12f
  * questo. Chi invece ha un'animazione passa il suo avanzamento e il velo lo segue.
  */
 private const val PIENO = 1f
+
+/*
+ * ── Il limite che resta, e il rifacimento che lo toglierebbe ──────────────────
+ *
+ * ⚠️⚠️ **UNA SFOCATURA DI FINESTRA NON PUÒ SEGUIRE UN RIQUADRO STONDATO, e questo è il solo
+ * pezzo di `sfocatura-segue` che la `1.53` non chiude.** Il rettangolo della finestra adesso è
+ * grande quanto il pannello disegnato (vedi `Growing` in `Menus.kt`), quindi lungo i quattro
+ * lati non resta niente. Agli **angoli** sì: il pannello è stondato di `MENU_ROUND` e la
+ * finestra è quadrata, quindi in ognuno dei quattro angoli sporge un triangolino di sfondo
+ * sfocato largo al massimo `r * (1 - 1 / radice(2))`, cioè meno di sei dp. Non c'è modo di
+ * arrotondare la regione sfocata: `WindowManager.LayoutParams` dichiara un raggio di sfocatura e
+ * non una forma.
+ *
+ * ⚠️ **Che sia visibile o no lo dice l'occhio dell'utente e non questo commento**: è un difetto
+ * costante, che c'è da quando la sfocatura esiste (`1.38`) e non si muove con l'animazione,
+ * quindi è un'altra cosa dalla cornice che compariva e spariva. Chi lo cerca guardi un angolo del
+ * pannello sopra una miniatura molto contrastata.
+ *
+ * ⚠️⚠️ **LA VIA CHE LO TOGLIEREBBE È UN RIFACIMENTO A SÉ, e va detto per che cosa costa tanto**:
+ * dipingere la sfocatura **dentro** il pannello, con un `RenderEffect` ritagliato sulla sua
+ * forma, invece di chiederla alla finestra. Toglie gli angoli, toglie i due
+ * `updateViewLayout` per fotogramma, e in cambio vuole che l'app si disegni in un
+ * `GraphicsLayer` da cui campionare quello che sta sotto: un menu è una **finestra** a sé, e
+ * dalla sua finestra i pixel dell'app non si leggono. Quindi il prezzo vero non è l'effetto, è
+ * che i menu smetterebbero di essere finestre, e con loro se ne andrebbero l'ordine sopra il
+ * tastino, la chiusura col tasto Indietro e quella toccando fuori, che oggi arrivano gratis con
+ * `Popup`.
+ */

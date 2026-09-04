@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -50,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
+import kotlin.math.roundToInt
 
 /**
  * La superficie di **ogni** menu dell'app: un riquadro che cresce, dove dice il posizionatore.
@@ -134,7 +136,16 @@ fun MenuShell(
     if (!state.inScene) return
 
     Popup(
-        popupPositionProvider = position,
+        /*
+         * ⚠️⚠️ **LA FINESTRA SEGUE IL PANNELLO CHE CRESCE, dalla 1.53, e questa riga è metà
+         * della correzione** (riscontro dell'utente, giro della `1.51`, voce
+         * `sfocatura-segue`: *si vede ancora, specialmente nel cestino*). Vedi [Growing] per il
+         * meccanismo: senza di lei la finestra resta grande quanto il pannello **a riposo**
+         * mentre il disegno dentro è al 96%, e la sfocatura, che è un attributo della finestra,
+         * copre quella fascia di 2% per lato. È la cornice che lui vede, e la `1.50` l'aveva
+         * solo attenuata dosando la sfocatura.
+         */
+        popupPositionProvider = remember(position, state) { Growing(position) { grown(state) } },
         onDismissRequest = state::close,
         properties = PopupProperties(
             focusable = true,
@@ -177,6 +188,19 @@ fun MenuShell(
          * che arrivava, ed è il *flash* che lui ha segnalato dopo. Con la sfocatura che cala
          * invece di sparire, le due si sovrappongono per un momento **degradando**, che è la cosa
          * che un occhio legge come una transizione invece che come un lampo.
+         *
+         * ⚠️⚠️ **DALLA 1.53 QUESTA RIGA NON È PIÙ LA CURA DELLA CORNICE, ed è importante non
+         * crederlo**: la cornice aveva una causa geometrica (la finestra più grande del disegno)
+         * e adesso quella causa non c'è più, perché la finestra si stringe col pannello (vedi
+         * [Growing]). Il dosaggio resta, e serve a un'altra cosa: al **passaggio di consegne**
+         * col velo che arriva sopra, cioè quello di un dialogo aperto da una voce di questo
+         * menu. Chi lo togliesse credendolo superato riporterebbe il lampo della `1.48`.
+         * ⚠️⚠️ **E IL LAMPO CHE RESTAVA ERA UNA SOMMA, non un buco**: due finestre che chiedono
+         * il velo insieme scuriscono più di una sola (0,45 e 0,45 fanno 0,70, non 0,45), quindi
+         * la sovrapposizione della `1.50` faceva un **buio** in mezzo alla transizione al posto
+         * del buco della `1.48`. Il rimedio non sta qui: dalla `1.53` il velo che arriva spegne
+         * quelli sotto nello stesso istante in cui si accende, e in scena ce n'è sempre uno
+         * solo. Sta scritto per esteso su `Veils`, in `Veil.kt`.
          */
         WindowVeil { state.show.value }
         Surface(
@@ -186,7 +210,18 @@ fun MenuShell(
              * si gonfia da un angolo dello schermo tira l'occhio dove il dito era già, e
              * l'utente ha chiesto una cosa sobria. Da 0,96 il movimento si sente e non si
              * guarda.
-             * ⚠️ L'origine è quella di serie, il **centro** del riquadro.
+             * ⚠️ L'origine è quella di serie, il **centro** del riquadro, e resta il centro
+             * anche dopo la correzione della `1.53`: è la ragione per cui il riquadro si mette
+             * **in mezzo** alla misura che dichiara (vedi la riga `place` qui sotto). Farlo
+             * crescere dall'angolo sarebbe la cosa che l'utente ha scartato.
+             *
+             * ⚠️⚠️ **E LA MISURA DICHIARATA È QUELLA SCALATA, dalla 1.53**: il `layout` qui
+             * sotto misura il pannello intero e ne riporta il 96%, così la **finestra** del
+             * `Popup` è grande quanto il pannello **disegnato** invece che quanto sarà. È
+             * l'altra metà della correzione di `sfocatura-segue`, e il perché per esteso sta su
+             * [Growing]. ⚠️ **Il contenuto non si stringe**: viene misurato coi vincoli interi
+             * e solo il nodo di fuori dichiara meno, quindi nessun testo va a capo in modo
+             * diverso mentre il menu entra.
              *
              * ⚠️⚠️ **`ModulateAlpha` NON È UN'OTTIMIZZAZIONE: SENZA DI LUI GLI ANGOLI SI
              * ROMPONO MENTRE IL MENU ENTRA ED ESCE** (riscontro dell'utente, giro della `1.46`,
@@ -209,13 +244,23 @@ fun MenuShell(
              * meccanismo qui sopra si legge nel codice; che spieghi **tutto** quello che lui
              * vede lo dice solo la prova.
              */
-            modifier = Modifier.graphicsLayer {
-                alpha = state.show.value
-                val k = MENU_SMALL + (1f - MENU_SMALL) * state.show.value
-                scaleX = k
-                scaleY = k
-                compositingStrategy = CompositingStrategy.ModulateAlpha
-            },
+            modifier = Modifier
+                .layout { measurable, constraints ->
+                    val pannello = measurable.measure(constraints)
+                    val k = grown(state)
+                    val w = (pannello.width * k).roundToInt()
+                    val h = (pannello.height * k).roundToInt()
+                    layout(w, h) {
+                        pannello.place((w - pannello.width) / 2, (h - pannello.height) / 2)
+                    }
+                }
+                .graphicsLayer {
+                    alpha = state.show.value
+                    val k = grown(state)
+                    scaleX = k
+                    scaleY = k
+                    compositingStrategy = CompositingStrategy.ModulateAlpha
+                },
             shape = RoundedCornerShape(MENU_ROUND),
             color = MaterialTheme.colorScheme.surfaceContainer,
             shadowElevation = MENU_LIFT
@@ -298,6 +343,62 @@ private val MENU_EASE = CubicBezierEasing(0.2f, 0f, 0f, 1f)
  * si riproponga come una novità.
  */
 private val MENU_OUT: Easing = Easing { f -> 1f - MENU_EASE.transform(1f - f) }
+
+/** Quanto è grande **adesso** il pannello, in frazione della sua misura a riposo. */
+private fun grown(state: MenuState): Float =
+    MENU_SMALL + (1f - MENU_SMALL) * state.show.value
+
+/**
+ * Il posizionatore che mette la finestra **rimpicciolita** dove starebbe quella intera.
+ *
+ * ⚠️⚠️ **NASCE PER TOGLIERE LA CORNICE SFUMATA, e il meccanismo va capito o sembra un giro
+ * inutile** (riscontro dell'utente, giro della `1.51`, voce `sfocatura-segue`). La sfocatura è
+ * un attributo della **finestra**: copre il rettangolo della finestra e nient'altro, e non sa
+ * niente di quello che il pannello dentro sta disegnando. Finché la finestra era grande quanto
+ * il pannello **a riposo**, mentre il disegno era al 96% restava una fascia sfocata larga il 2%
+ * per lato, con un bordo netto di fuori: quella fascia **è** la cornice. La `1.50` l'aveva
+ * attenuata dosando la sfocatura insieme al pannello, che era la cura del sintomo. Adesso la
+ * finestra si stringe col disegno, e la fascia non esiste in nessun fotogramma.
+ *
+ * ⚠️⚠️ **E LA POLITICA DEL POSTO LAVORA SULLA MISURA INTERA, non su quella del fotogramma**:
+ * altrimenti un candidato che non sta a riposo potrebbe starci al 96%, e il menu salterebbe da
+ * un posto all'altro mentre entra. Quindi si chiede a [MenuSpot] dove andrebbe il pannello
+ * intero, e la finestra rimpicciolita si centra **dentro** quel rettangolo: il pannello cresce
+ * dal proprio centro, che è la cosa che l'utente ha scelto sul mockup, e finisce esattamente
+ * dove finiva prima.
+ *
+ * ⚠️ **La misura intera si ricava dividendo, e l'errore è di un pixel**: `popupContentSize`
+ * arriva già scalata, e il fattore non scende sotto [MENU_SMALL]. A riposo la divisione è per
+ * uno, quindi la posizione finale è quella di prima **alla lettera**.
+ *
+ * ⚠️ **Il costo è dichiarato, ed è il secondo della stessa specie**: la finestra si rimisura e si
+ * riposiziona a ogni fotogramma dell'animazione, come già si ridosa la sfocatura. È la stessa
+ * spesa e la stessa durata, 170 millesimi di secondo, e la via che le eviterebbe entrambe
+ * (dipingere la sfocatura sulla vista dell'app con un `RenderEffect`) è il rifacimento di cui
+ * parla la nota in fondo a `Veil.kt`.
+ */
+private class Growing(
+    private val dove: PopupPositionProvider,
+    private val quanto: () -> Float
+) : PopupPositionProvider {
+    override fun calculatePosition(
+        anchorBounds: IntRect,
+        windowSize: IntSize,
+        layoutDirection: LayoutDirection,
+        popupContentSize: IntSize
+    ): IntOffset {
+        val k = quanto().coerceIn(MENU_SMALL, 1f)
+        val intero = IntSize(
+            (popupContentSize.width / k).roundToInt(),
+            (popupContentSize.height / k).roundToInt()
+        )
+        val at = dove.calculatePosition(anchorBounds, windowSize, layoutDirection, intero)
+        return IntOffset(
+            x = at.x + (intero.width - popupContentSize.width) / 2,
+            y = at.y + (intero.height - popupContentSize.height) / 2
+        )
+    }
+}
 
 /**
  * Su un asse, da dove nasce il menu.

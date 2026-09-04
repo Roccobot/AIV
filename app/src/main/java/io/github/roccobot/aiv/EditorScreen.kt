@@ -60,13 +60,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -606,7 +607,26 @@ private fun EditorSheet(
 ) {
     val live = ready && !busy
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        /*
+         * ⚠️⚠️ **IL GRIGIO DEL PALCO PASSA SOTTO QUESTA SCHEDA, dalla 1.53** (riscontro
+         * dell'utente, giro della `1.51`: *il colore va bene, ma il grigio non va 'sotto' gli
+         * angoli arrotondati della parte superiore della bottomsheet*). Gli angoli in cima
+         * sono stondati, quindi nei due spicchi che scavano si vede quello che sta **dietro**
+         * la scheda: senza questa riga era il fondo della pagina, cioè un terzo colore che
+         * compariva in due gnocchetti proprio sul bordo fra le due superfici.
+         * ⚠️ **Il fondo sta nel modificatore del CHIAMANTE e non in `color`, e l'ordine è
+         * tutto**: `Surface` accoda al modificatore ricevuto il proprio `background(color,
+         * shape)` e il proprio `clip(shape)`, quindi quello che si dipinge qui resta un
+         * rettangolo **non ritagliato**, e la scheda gli si stampa sopra tenendo i suoi
+         * angoli. Passarlo come `color` lo ritaglierebbe insieme a lei, cioè non cambierebbe
+         * niente.
+         * ⚠️ **Non serve nessun rientro negativo e nessun riquadro in più**: il palco
+         * finisce dove comincia la scheda, e a coprire i due spicchi basta che la scheda
+         * porti il proprio fondo con sé.
+         */
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(stageBack()),
         shape = RoundedCornerShape(topStart = SHEET_ROUND, topEnd = SHEET_ROUND),
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
         /*
@@ -1256,40 +1276,44 @@ private fun DrawScope.bracket(
     haloInk: Color
 ) {
     /*
-     * ⚠️ **L'alone si disegna PRIMA e con la stessa geometria gonfiata**, non con un tratto
-     * sul contorno: i due bracci si sovrappongono all'angolo, e un tratto lascerebbe la
-     * cucitura in vista là dentro. Gonfiati e poi ricoperti dai bracci veri, i due aloni
-     * formano un contorno continuo intorno a tutta la L, filo interno compreso.
+     * ⚠️⚠️ **UN TRACCIATO SOLO E NON DUE RETTANGOLI, dalla 1.53, e il difetto era proprio
+     * quello** (riscontro dell'utente, giro della `1.51`: *adesso le maniglie sono due tratti
+     * colorati separati, brutto, devi disegnare delle manopole angolari a forma di L
+     * simmetrica*, col mockup allegato). Fino alla `1.52` la L era fatta di due
+     * `drawRoundRect`, ognuno coi capi **tondi** per tutta la sua lunghezza: al giunto si
+     * incontravano due semicerchi, quindi l'angolo si leggeva come la fine di un tratto e
+     * l'inizio di un altro invece che come una piega. Non era un difetto di misura, e nessun
+     * numero lo avrebbe corretto: era la forma sbagliata.
+     * ⚠️ **La piega la fa `StrokeJoin.Round` e i capi liberi `StrokeCap.Round`**, che è
+     * esattamente la distinzione che serviva: il tondo va **ai due capi** della L, e
+     * all'angolo va una piega tonda, che è un'altra cosa. Con due rettangoli quella
+     * distinzione non si può nemmeno esprimere.
+     * ⚠️ **Il tracciato corre a MEZZO SPESSORE fuori dal riquadro**, così l'inchiostro sta
+     * tutto fuori e il bordo interno della L tocca esattamente l'angolo dell'immagine: è la
+     * richiesta della `1.49` (*renderizzale ESTERNAMENTE al riquadro*) e regge invariata.
+     * ⚠️ **L'alone è lo STESSO tracciato più grosso, disegnato prima**: così contorna la L
+     * intera di uno spessore uniforme, capi e piega compresi, e non ha nessuna cucitura da
+     * nascondere. Prima erano due aloni gonfiati che si sovrapponevano.
      */
-    fun braccia(cresci: Float, colore: Color) {
-        val s = thick + 2f * cresci
-        val a = arm + 2f * cresci
-        val round = CornerRadius(s / 2f, s / 2f)
-        // Il braccio lungo il bordo orizzontale, appoggiato appena fuori: si allunga anche
-        // verso l'esterno di [thick], così l'angolo della L si chiude.
-        drawRoundRect(
-            color = colore,
-            topLeft = Offset(
-                x = if (dx > 0) at.x - thick - cresci else at.x - arm - cresci,
-                y = if (dy > 0) at.y - thick - cresci else at.y - cresci
-            ),
-            size = Size(a + thick, s),
-            cornerRadius = round
-        )
-        // Il braccio lungo il bordo verticale: l'angolo lo ha già chiuso l'altro.
-        drawRoundRect(
-            color = colore,
-            topLeft = Offset(
-                x = if (dx > 0) at.x - thick - cresci else at.x - cresci,
-                y = if (dy > 0) at.y - cresci else at.y - arm - cresci
-            ),
-            size = Size(s, a),
-            cornerRadius = round
-        )
+    val c = Offset(at.x - dx * thick / 2f, at.y - dy * thick / 2f)
+    val elle = Path().apply {
+        moveTo(c.x + dx * arm, c.y)
+        lineTo(c.x, c.y)
+        lineTo(c.x, c.y + dy * arm)
     }
 
-    braccia(halo, haloInk)
-    braccia(0f, ink)
+    fun traccia(spessore: Float, colore: Color) = drawPath(
+        path = elle,
+        color = colore,
+        style = Stroke(
+            width = spessore,
+            cap = StrokeCap.Round,
+            join = StrokeJoin.Round
+        )
+    )
+
+    traccia(thick + 2f * halo, haloInk)
+    traccia(thick, ink)
 }
 
 private fun grabbed(at: Offset, r: Rect, grip: Float): Grab {

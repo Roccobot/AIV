@@ -248,6 +248,8 @@
     <string name="bin_empty">చెత్తబుట్ట ఖాళీ చేయి</string>
     <string name="bin_empty_ask">నిజంగా చెత్తబుట్ట ఖాళీ చేయాలా?</string>
     <string name="bin_empty_desc">అందులోని వాటిని తిరిగి పొందలేరు.</string>
+    <string name="bin_restore_all_ask">చెత్తబుట్టలోని అన్నింటినీ నిజంగా తిరిగి తెచ్చాలా?</string>
+    <string name="bin_restore_all_desc">ప్రతి ఫైలు తన సొంత మూల ఫోల్డర్‌కు తిరిగి వెళ్తుంది: ఏ ఫైలు ఎక్కడికి తరలించబడిందో తెలుసుకోవడానికి చెత్తబుట్ట చరిత్రను చూడండి.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d చెత్తబుట్టకు వెళ్ళింది</item>
         <item quantity="other">%1$d చెత్తబుట్టకు వెళ్ళాయి</item>

@@ -239,6 +239,8 @@
     <string name="bin_empty">Kosongkan tempat sampah</string>
     <string name="bin_empty_ask">Benar-benar kosongkan tempat sampah?</string>
     <string name="bin_empty_desc">Isinya tidak bisa dikembalikan lagi.</string>
+    <string name="bin_restore_all_ask">Benar-benar pulihkan semua isi tempat sampah?</string>
+    <string name="bin_restore_all_desc">Setiap berkas akan kembali ke folder asalnya: untuk mengetahui ke mana setiap berkas dipindahkan, lihat riwayat tempat sampah.</string>
     <plurals name="trash_done">
         <item quantity="other">%1$d dipindahkan ke tempat sampah</item>
     </plurals>

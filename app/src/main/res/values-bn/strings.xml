@@ -248,6 +248,8 @@
     <string name="bin_empty">আবর্জনা খালি করুন</string>
     <string name="bin_empty_ask">সত্যিই আবর্জনা খালি করবেন?</string>
     <string name="bin_empty_desc">এর ভিতরের জিনিস আর ফিরে পাওয়া যাবে না।</string>
+    <string name="bin_restore_all_ask">আবর্জনার সব কিছু সত্যিই ফিরিয়ে আনবেন?</string>
+    <string name="bin_restore_all_desc">প্রতিটি ফাইল তার নিজের মূল ফোল্ডারে ফিরে যাবে: কোন ফাইল কোথায় সরানো হয়েছে জানতে আবর্জনার ইতিহাস দেখুন।</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d আবর্জনায় গেছে</item>
         <item quantity="other">%1$d আবর্জনায় গেছে</item>

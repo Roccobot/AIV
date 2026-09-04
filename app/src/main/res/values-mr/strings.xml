@@ -248,6 +248,8 @@
     <string name="bin_empty">कचरापेटी रिकामी करा</string>
     <string name="bin_empty_ask">खरोखर कचरापेटी रिकामी करायची?</string>
     <string name="bin_empty_desc">त्यातील मजकूर परत मिळणार नाही.</string>
+    <string name="bin_restore_all_ask">कचरापेटीतील सर्व काही खरोखर पुन्हा आणायचे?</string>
+    <string name="bin_restore_all_desc">प्रत्येक फाइल आपल्या मूळ फोल्डरमध्ये परत जाईल: कोणती फाइल कुठे हलवली गेली हे पाहण्यासाठी कचरापेटीचा इतिहास पहा.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d कचरापेटीत गेली</item>
         <item quantity="other">%1$d कचरापेटीत गेल्या</item>

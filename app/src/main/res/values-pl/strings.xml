@@ -266,6 +266,8 @@
     <string name="bin_empty">Opróżnij kosz</string>
     <string name="bin_empty_ask">Na pewno opróżnić kosz?</string>
     <string name="bin_empty_desc">Zawartości nie da się już odzyskać.</string>
+    <string name="bin_restore_all_ask">Naprawdę przywrócić całą zawartość kosza?</string>
+    <string name="bin_restore_all_desc">Każdy plik wróci do swojego folderu pochodzenia: aby sprawdzić, gdzie został przeniesiony każdy plik, zajrzyj do historii kosza.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d do kosza</item>
         <item quantity="few">%1$d do kosza</item>

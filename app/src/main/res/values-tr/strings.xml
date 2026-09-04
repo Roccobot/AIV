@@ -248,6 +248,8 @@
     <string name="bin_empty">Çöp kutusunu boşalt</string>
     <string name="bin_empty_ask">Çöp kutusu gerçekten boşaltılsın mı?</string>
     <string name="bin_empty_desc">İçindekiler bir daha geri alınamaz.</string>
+    <string name="bin_restore_all_ask">Çöp kutusundaki her şey gerçekten geri alınsın mı?</string>
+    <string name="bin_restore_all_desc">Her dosya kendi özgün klasörüne dönecek: hangi dosyanın nereye taşındığını görmek için çöp kutusu geçmişine bakın.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d öge çöp kutusuna taşındı</item>
         <item quantity="other">%1$d öge çöp kutusuna taşındı</item>

@@ -266,6 +266,8 @@
     <string name="bin_empty">Очистити кошик</string>
     <string name="bin_empty_ask">Справді очистити кошик?</string>
     <string name="bin_empty_desc">Вміст не вдасться відновити.</string>
+    <string name="bin_restore_all_ask">Справді повернути весь вміст кошика?</string>
+    <string name="bin_restore_all_desc">Кожен файл повернеться до своєї початкової теки: щоб дізнатися, куди було переміщено кожен файл, відкрийте історію кошика.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d елемент у кошику</item>
         <item quantity="few">%1$d елементи в кошику</item>
