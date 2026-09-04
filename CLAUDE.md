@@ -204,6 +204,22 @@ verificatore **riporta** il rapporto fra le due e non lo giudica.
 
 ## 🗣️ Come si chiamano le cose
 
+⚠️⚠️ **'VELO' NON SI USA PARLANDO CON LUI: si dice 'Sfocatura dietro i pannelli', cioè il nome
+della voce nelle impostazioni** (riscontro del 2026-09-04, giro della `1.46`: *io continuo a
+non capire 'sto cazzo di 'velo', e continuo a non capire quando me ne parli. Nelle impostazioni
+ho 'Sfocatura dietro i pannelli': parliamo di quello?*). Sì, è quello, ed è la stessa cosa: la
+riga `lowered()` accende insieme il centro abbassato, la sfocatura e la patina scura dietro la
+finestra. Ma 'velo' è il nome che ha il **pezzo di codice**, non quello che ha la cosa per chi
+la usa, e per tre versioni gli ho chiesto di provare una funzione chiamandola con una parola
+che non compariva da nessuna parte nel telefono.
+- ⚠️ **Il criterio è più largo del caso**: quando una funzione ha una voce nelle impostazioni,
+  in una voce di collaudo si chiama **con l'etichetta di quella voce**, alla lettera. Il nome
+  interno resta nel codice, dove serve a chi legge il codice.
+- ⚠️⚠️ **E QUANDO LA PROVA NON È OVVIA, SI SCRIVE IL PASSO PASSO** (sua richiesta nella stessa
+  riga: *altrimenti devi dirmi passo-passo cosa devo fare per testare*). Una funzione spenta di
+  fabbrica non si prova toccandola: prima si accende, e dirlo è parte della voce. 'Che cosa
+  provare' non è un rimando, è una procedura.
+
 ⚠️⚠️ **'IMMAGINE' E NON 'FOTOGRAFIA', e non è una sfumatura di stile** (correzione
 dell'utente, 2026-09-02, su una mia frase nel documento di collaudo: *'Fotografia' usato in
 modo improprio*). Questa app apre GIF, WebP animate, PNG con trasparenza, tavole, scansioni,
