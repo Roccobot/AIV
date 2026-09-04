@@ -209,6 +209,26 @@ può più confrontare col file di partenza. A dichiarare quanto è grande l'icon
 `android:width` e `android:height`; il viewport dice in quante unità è disegnata. ⚠️ Il
 verificatore **riporta** il rapporto fra le due e non lo giudica.
 
+⚠️⚠️ **UN FILE CHE ARRIVA NON DIVENTA PER FORZA UN DISEGNO: PRIMA SI MISURA CONTRO QUELLO CHE
+COMPOSE GIÀ PORTA, e a zero pixel di scarto vince Material.** Nasce il 2026-09-04, quando ne
+sono arrivati dodici e sei erano il glifo di sistema scaricato dal catalogo: metterli in `res/`
+sarebbe stato tenere due copie dello stesso disegno, che è quello che `Glyphs.kt` vieta in
+testa, e la prima a cambiare sarebbe stata quella che nessuno guarda.
+- **Come si misura, perché a occhio non si vede**: si ricostruisce il tracciato di
+  `Icons.Filled.<nome>` dal **bytecode** di `material-icons` (le chiamate a `PathBuilder` in
+  ordine, che è la sola fonte che non richieda di fidarsi di una memoria), si rende accanto al
+  file dell'utente a 240px e si contano i pixel diversi. ⚠️ **Il confronto fra le due `d` non
+  serve**: lo stesso disegno viene scritto assoluto da una parte e relativo dall'altra, quindi cambiano
+  quasi tutti i numeri mentre non cambia un pixel. Su `public` i numeri diversi erano 36 su 95
+  e lo scarto reso era **zero**.
+- ⚠️ **Zero vuol dire zero**, e non 'poco': un file **ammorbidito** dall'utente parte dallo 0,1%
+  della tela in su, quindi la soglia non è un giudizio.
+- ⚠️ **Il caso in mezzo esiste e si dichiara**: `settings` differiva del 5,6% ma era **la stessa
+  ruota al 96%**, cioè due esportazioni successive dello stesso disegno di Google. Là non
+  decide nessuno dei due, quindi resta Material e la misura si scrive nel commento. Chi trova
+  uno scarto sopra zero guardi **prima** se è una scala o una traslazione uniforme, che si vede
+  dall'inchiostro: stesso centro e lati in proporzione.
+
 ## 🗣️ Come si chiamano le cose
 
 ⚠️⚠️ **'VELO' NON SI USA PARLANDO CON LUI: si dice 'Sfocatura dietro i pannelli', cioè il nome
