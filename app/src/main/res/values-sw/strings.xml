@@ -329,6 +329,7 @@
     <string name="menu_edit">Hariri</string>
     <string name="menu_edit_hold">Chagua programu</string>
     <string name="editor_internal">Kihariri cha ndani</string>
+    <string name="editor_title">Kihariri</string>
     <string name="editor_pick">Unahariri kwa kitu gani?</string>
     <string name="editor_left">Zungusha kushoto</string>
     <string name="editor_right">Zungusha kulia</string>

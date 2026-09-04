@@ -329,6 +329,7 @@
     <string name="menu_edit">Bewerken</string>
     <string name="menu_edit_hold">App kiezen</string>
     <string name="editor_internal">Ingebouwde editor</string>
+    <string name="editor_title">Editor</string>
     <string name="editor_pick">Waarmee bewerk je?</string>
     <string name="editor_left">Naar links draaien</string>
     <string name="editor_right">Naar rechts draaien</string>

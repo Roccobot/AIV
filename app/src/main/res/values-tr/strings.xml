@@ -329,6 +329,7 @@
     <string name="menu_edit">Düzenle</string>
     <string name="menu_edit_hold">Uygulamayı seç</string>
     <string name="editor_internal">Yerleşik düzenleyici</string>
+    <string name="editor_title">Düzenleyici</string>
     <string name="editor_pick">Neyle düzenliyorsun?</string>
     <string name="editor_left">Sola çevir</string>
     <string name="editor_right">Sağa çevir</string>

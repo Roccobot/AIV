@@ -329,6 +329,7 @@
     <string name="menu_edit">সম্পাদনা</string>
     <string name="menu_edit_hold">অ্যাপ বাছুন</string>
     <string name="editor_internal">অন্তর্নির্মিত সম্পাদক</string>
+    <string name="editor_title">সম্পাদক</string>
     <string name="editor_pick">কী দিয়ে সম্পাদনা করেন?</string>
     <string name="editor_left">বাঁয়ে ঘোরান</string>
     <string name="editor_right">ডানে ঘোরান</string>

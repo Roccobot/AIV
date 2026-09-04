@@ -238,15 +238,45 @@ fun EditorScreen(
                         WindowInsetsSides.Horizontal + WindowInsetsSides.Top
                     )
                 )
-                .padding(horizontal = 4.dp),
+                /*
+                 * ⚠️⚠️ **I DUE LATI NON HANNO LO STESSO RIENTRO, e non è una svista: uno porta
+                 * un'icona e l'altro una parola** (riscontro dell'utente, 2026-09-04: *'Salva'
+                 * è troppo a destra, dovrebbe allinearsi alla linea immaginaria cui si allinea
+                 * tutto il resto su quel lato*). Quella linea è [STAGE_SIDE], cioè dove
+                 * cominciano il palco e le file di chip, e il testo di 'Salva' ci arriva
+                 * togliendo dal rientro i 12dp che il tasto si porta dentro
+                 * (`TextButtonHorizontalPadding`, letto sul bytecode di material3
+                 * 1.5.0-alpha26).
+                 * ⚠️ **A sinistra resta 4dp**, quindi la freccia cade a 16dp dal bordo: è
+                 * l'allineamento **ottico** che Material dà a un'icona di navigazione, e un
+                 * glifo tondeggiante appoggiato sulla linea del testo si legge come rientrato.
+                 * Chi volesse i due lati uguali cambi questo `start`, non l'altro.
+                 */
+                .padding(start = 4.dp, end = STAGE_SIDE - TEXT_BUTTON_PAD),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.settings_back))
             }
+            /*
+             * ⚠️⚠️ **QUESTA SCHERMATA SI CHIAMA 'EDITOR' E NON 'MODIFICA', dalla 1.49**
+             * (istruzione dell'utente, 2026-09-04: *'Modifica' è la funzione, che mette a
+             * disposizione anche altre app: una volta scelto l'editor interno, è quello il suo
+             * nome*). Perciò la stringa è **sua** e non `menu_edit`: quella resta la voce del
+             * menu del visualizzatore, cioè il comando che apre l'editor **scelto**, che può
+             * essere un'app di fuori. Due nomi per due cose, e nessuno dei due copre l'altro.
+             * ⚠️ **Le traduzioni non sono inventate**: sono il sostantivo che ogni lingua già
+             * usa in [R.string.editor_internal] ('Editor interno'), senza il qualificatore.
+             * ⚠️ **Il corpo è `headlineSmall`, come TUTTE le altre schermate**, dalla stessa
+             * versione: era `titleMedium`, cioè l'unico titolo dell'app scritto più piccolo,
+             * e nessuna nota diceva perché. La ragione per cui poteva essere voluto era che
+             * questa testata porta anche un comando, e la misura l'ha smentita: a scala
+             * normale del carattere il titolo grande ci sta in tutte e ventisette le lingue,
+             * col caso peggiore (telugu su 320dp) che avanza ancora 45dp.
+             */
             Text(
-                text = stringResource(R.string.menu_edit),
-                style = MaterialTheme.typography.titleMedium,
+                text = stringResource(R.string.editor_title),
+                style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.weight(1f)
             )
             /*
@@ -281,6 +311,15 @@ fun EditorScreen(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
+                /*
+                 * ⚠️⚠️ **IL GRIGIO STA QUI, PRIMA DEI DUE RIENTRI, e l'ordine è la cosa che
+                 * conta**: dipinge la fascia **intera** fra la testata e la scheda, mentre
+                 * l'immagine resta dentro il rientro di sistema e i suoi margini. Messo dopo,
+                 * il grigio si fermerebbe dove finisce l'immagine e resterebbe una cornice del
+                 * colore della pagina, cioè si vedrebbero tre fondi invece di uno.
+                 * Il perché di questo colore, e le misure, stanno su [stageBack].
+                 */
+                .background(stageBack())
                 .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
                 .padding(horizontal = STAGE_SIDE, vertical = STAGE_PAD),
             contentAlignment = Alignment.Center
@@ -300,6 +339,8 @@ fun EditorScreen(
                     least = with(density) { LEAST_SIDE.toPx() },
                     arm = with(density) { HANDLE_ARM.toPx() },
                     thick = with(density) { HANDLE_THICK.toPx() },
+                    halo = with(density) { GRIP_HALO.toPx() },
+                    lensEdge = with(density) { LENS_EDGE.toPx() },
                     loupe = with(density) { LOUPE_SIDE.toPx() },
                     edge = with(density) { LOUPE_EDGE.toPx() },
                     onCrop = { crop = it },
@@ -592,7 +633,20 @@ private fun EditorSheet(
                     WindowInsets.safeDrawing.only(
                         WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
                     )
-                ),
+                )
+                /*
+                 * ⚠️⚠️ **IL RESPIRO IN CIMA, dalla 1.49, e prima era ZERO** (riscontro
+                 * dell'utente, 2026-09-04: *la bottomsheet dei comandi dell'editor continua a
+                 * non avere abbastanza spazio: arriva a pelo delle chip delle proporzioni*).
+                 * La prima fila è di chip alti 32dp senza rientro proprio, quindi appoggiava
+                 * direttamente sul bordo della scheda, dentro la curva dei suoi angoli da
+                 * [SHEET_ROUND].
+                 * ⚠️ **Perché [SHEET_TOP] e non i 12dp della scheda delle informazioni**: là
+                 * il respiro lo dà anche il bersaglio da 48dp della crocetta di chiusura, che
+                 * qui non c'è. Misurato: a 16dp dal bordo la curva dell'angolo è già rientrata
+                 * di 5dp, cioè meno del rientro laterale della fila, e i chip la scansano.
+                 */
+                .padding(top = SHEET_TOP),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             /*
@@ -821,6 +875,19 @@ private const val SHEET_KEYS = 4
 private val SHEET_ROUND = 28.dp
 private val SHEET_RISE = 6.dp
 
+/** Il respiro fra il bordo di sopra della scheda e la prima fila di chip. Vedi la sua nota. */
+private val SHEET_TOP = 16.dp
+
+/**
+ * Il rientro che un `TextButton` di Material si porta dentro, per lato.
+ *
+ * ⚠️ **Letto sul bytecode di material3 1.5.0-alpha26** (`ButtonDefaults`,
+ * `TextButtonHorizontalPadding`): serve a far cadere il testo di 'Salva'
+ * sulla linea del resto della schermata, e un numero sbagliato lo sposterebbe in silenzio.
+ * Vedi la nota sulla testata, in [EditorScreen].
+ */
+private val TEXT_BUTTON_PAD = 12.dp
+
 /** Come sta la selezione: in piedi o coricata. Vedi i due tasti in [EditorScreen]. */
 private enum class Lay(@StringRes val label: Int) {
     TALL(R.string.editor_tall),
@@ -937,6 +1004,10 @@ private fun CropStage(
     least: Float,
     arm: Float,
     thick: Float,
+    /** Il filo che contorna le maniglie, e che è quello che le fa vedere. Vedi [bracket]. */
+    halo: Float,
+    /** Il bordo del ritaglio dentro la lente, che è la mira. Vedi [lens]. */
+    lensEdge: Float,
     /** Il diametro della lente e quanto sta lontana dai bordi. Vedi [lens]. */
     loupe: Float,
     edge: Float,
@@ -1010,14 +1081,14 @@ private fun CropStage(
              * lungo di metà rettangolo, e le due squadrette opposte si toccherebbero.
              */
             val reach = min(arm, min(r.width, r.height) / 2.5f)
-            bracket(Offset(r.left, r.top), 1, 1, reach, thick, line)
-            bracket(Offset(r.right, r.top), -1, 1, reach, thick, line)
-            bracket(Offset(r.left, r.bottom), 1, -1, reach, thick, line)
-            bracket(Offset(r.right, r.bottom), -1, -1, reach, thick, line)
+            bracket(Offset(r.left, r.top), 1, 1, reach, thick, CROP_GRIP, halo, line)
+            bracket(Offset(r.right, r.top), -1, 1, reach, thick, CROP_GRIP, halo, line)
+            bracket(Offset(r.left, r.bottom), 1, -1, reach, thick, CROP_GRIP, halo, line)
+            bracket(Offset(r.right, r.bottom), -1, -1, reach, thick, CROP_GRIP, halo, line)
 
             // ── La lente ──
             eyeOf(held, r)?.let { eye ->
-                lens(eye, picture, frame, r, loupe, edge, thick, line)
+                lens(eye, picture, frame, r, loupe, edge, thick, lensEdge, line)
             }
         }
     }
@@ -1097,6 +1168,7 @@ private fun DrawScope.lens(
     side: Float,
     edge: Float,
     thick: Float,
+    lensEdge: Float,
     line: Color
 ) {
     val radius = side / 2f
@@ -1122,11 +1194,26 @@ private fun DrawScope.lens(
                 dstSize = IntSize(frame.width.roundToInt(), frame.height.roundToInt()),
                 filterQuality = FilterQuality.None
             )
+            /*
+             * ⚠️⚠️ **LA MIRA DENTRO LA LENTE SI MISURA IN PUNTI E NON IN PIXEL, dalla 1.49**
+             * (riscontro dell'utente, 2026-09-04: *il crocino di riferimento nel tondo
+             * ingrandito funziona benissimo, ma è troppo sottile, credo sia un singolo pixel:
+             * falla spessa 2px*). Prima era [EDGE_PX], cioè due pixel **fisici**: su uno
+             * schermo a tre volte la densità sono due terzi di punto, ed è la ragione per cui
+             * si vedeva come un capello. Adesso è [LENS_EDGE], che vale due punti su
+             * qualunque telefono.
+             * ⚠️ **Il bordo del ritaglio fuori dalla lente NON cambia**, e resta [EDGE_PX]:
+             * là il filo copre l'immagine che si sta guardando e deve coprirne il meno
+             * possibile, mentre qui galleggia su un ingrandimento dove lo spazio c'è.
+             * ⚠️ **La divisione per [LOUPE_ZOOM] resta**, e non è di troppo: questo disegno
+             * sta dentro la trasformazione che ingrandisce, quindi uno spessore scritto per
+             * intero verrebbe reso quattro volte più grosso di quello chiesto.
+             */
             drawRect(
                 color = line.copy(alpha = 0.9f),
                 topLeft = r.topLeft,
                 size = r.size,
-                style = Stroke(width = EDGE_PX / LOUPE_ZOOM)
+                style = Stroke(width = lensEdge / LOUPE_ZOOM)
             )
         }
     }
@@ -1137,10 +1224,25 @@ private fun DrawScope.lens(
 private enum class Grab { NONE, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, INSIDE }
 
 /**
- * Una squadretta d'angolo: due bracci arrotondati appoggiati DENTRO al rettangolo.
+ * Una squadretta d'angolo: due bracci arrotondati appoggiati FUORI dal rettangolo.
  *
- * ⚠️ **Dentro e non a cavallo del bordo**: a cavallo coprirebbe un pezzo di fotografia fuori
- * dal ritaglio, e quello che si sta guardando mentre si tira è proprio il bordo.
+ * ⚠️⚠️ **FUORI E NON DENTRO, dalla 1.49, e il difetto che si toglie era totale** (riscontro
+ * dell'utente, 2026-09-04: *le maniglie di trascinamento spesso non si vedono, renderizzale
+ * ESTERNAMENTE al riquadro*). Dentro, la squadretta appoggia sull'immagine **non** velata:
+ * su una schermata bianca il bianco su bianco misura **1,00**, cioè spariva del tutto. Fuori
+ * appoggia sul velo, dove la stessa immagine bianca scende a `#737373` e il contrasto sale a
+ * 4,74. ⚠️ **La nota di prima diceva il contrario e aveva il suo perché**, che qui va
+ * archiviato: 'dentro' serviva a non coprire un pezzo di immagine fuori dal ritaglio, ma
+ * quel pezzo è già coperto dal velo, mentre il bordo che si sta guardando restava senza
+ * maniglia visibile. Coprire due punti di velo costa meno che perdere la presa.
+ *
+ * ⚠️⚠️ **DUE COLORI E NON UNO: [ink] è l'accento, [halo] è il filo che lo salva.** Nessuna
+ * variante di accento del tema, da sola, basta su un fondo qualunque: misurato sul velo di
+ * un'immagine bianca, l'accento `#43B59E` sta a **1,88** e il mint chiaro `#4FD9BE` a
+ * **2,71**, cioè sotto il 3:1 che si chiede a una grafica. Col filo bianco intorno il peggio
+ * dei casi diventa **2,85** sul grigio chiaro del palco e **4,74** sul velo bianco, perché a
+ * separare è sempre uno dei due: dove sparisce l'accento si vede il filo, e viceversa.
+ *
  * [dx] e [dy] valgono `1` se da quell'angolo si va verso destra o verso il basso, `-1` se no.
  */
 private fun DrawScope.bracket(
@@ -1149,21 +1251,45 @@ private fun DrawScope.bracket(
     dy: Int,
     arm: Float,
     thick: Float,
-    color: Color
+    ink: Color,
+    halo: Float,
+    haloInk: Color
 ) {
-    val round = CornerRadius(thick / 2f, thick / 2f)
-    drawRoundRect(
-        color = color,
-        topLeft = Offset(if (dx > 0) at.x else at.x - arm, if (dy > 0) at.y else at.y - thick),
-        size = Size(arm, thick),
-        cornerRadius = round
-    )
-    drawRoundRect(
-        color = color,
-        topLeft = Offset(if (dx > 0) at.x else at.x - thick, if (dy > 0) at.y else at.y - arm),
-        size = Size(thick, arm),
-        cornerRadius = round
-    )
+    /*
+     * ⚠️ **L'alone si disegna PRIMA e con la stessa geometria gonfiata**, non con un tratto
+     * sul contorno: i due bracci si sovrappongono all'angolo, e un tratto lascerebbe la
+     * cucitura in vista là dentro. Gonfiati e poi ricoperti dai bracci veri, i due aloni
+     * formano un contorno continuo intorno a tutta la L, filo interno compreso.
+     */
+    fun braccia(cresci: Float, colore: Color) {
+        val s = thick + 2f * cresci
+        val a = arm + 2f * cresci
+        val round = CornerRadius(s / 2f, s / 2f)
+        // Il braccio lungo il bordo orizzontale, appoggiato appena fuori: si allunga anche
+        // verso l'esterno di [thick], così l'angolo della L si chiude.
+        drawRoundRect(
+            color = colore,
+            topLeft = Offset(
+                x = if (dx > 0) at.x - thick - cresci else at.x - arm - cresci,
+                y = if (dy > 0) at.y - thick - cresci else at.y - cresci
+            ),
+            size = Size(a + thick, s),
+            cornerRadius = round
+        )
+        // Il braccio lungo il bordo verticale: l'angolo lo ha già chiuso l'altro.
+        drawRoundRect(
+            color = colore,
+            topLeft = Offset(
+                x = if (dx > 0) at.x - thick - cresci else at.x - cresci,
+                y = if (dy > 0) at.y - cresci else at.y - arm - cresci
+            ),
+            size = Size(s, a),
+            cornerRadius = round
+        )
+    }
+
+    braccia(halo, haloInk)
+    braccia(0f, ink)
 }
 
 private fun grabbed(at: Offset, r: Rect, grip: Float): Grab {
@@ -1334,6 +1460,23 @@ private val LOUPE_EDGE = 8.dp
 /** Il braccio della squadretta d'angolo, e il suo spessore. */
 private val HANDLE_ARM = 24.dp
 private val HANDLE_THICK = 4.dp
+
+/**
+ * Il filo che contorna una maniglia.
+ *
+ * ⚠️ **Un punto e non due**: è quello che serve a separare l'accento dal fondo, e su un
+ * braccio da 4 punti un filo da 2 per lato ne farebbe una maniglia da 8 che è quasi tutta
+ * contorno. Il perché il filo esista, con le misure, sta su [bracket].
+ */
+private val GRIP_HALO = 1.dp
+
+/**
+ * Il bordo del ritaglio **dentro la lente**, che è la mira su cui si tira.
+ *
+ * ⚠️ **Due punti, chiesti dall'utente**, e in punti e non in pixel: il perché sta dentro
+ * [lens], accanto al disegno.
+ */
+private val LENS_EDGE = 2.dp
 
 /**
  * Quanto lontano dall'angolo il dito lo prende ancora.

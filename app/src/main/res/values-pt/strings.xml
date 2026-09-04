@@ -344,6 +344,7 @@
     <string name="menu_edit">Editar</string>
     <string name="menu_edit_hold">Escolher o app</string>
     <string name="editor_internal">Editor interno</string>
+    <string name="editor_title">Editor</string>
     <string name="editor_pick">Com o que você edita?</string>
     <string name="editor_left">Girar para a esquerda</string>
     <string name="editor_right">Girar para a direita</string>

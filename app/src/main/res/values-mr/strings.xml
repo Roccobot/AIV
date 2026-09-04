@@ -329,6 +329,7 @@
     <string name="menu_edit">संपादन</string>
     <string name="menu_edit_hold">ॲप निवडा</string>
     <string name="editor_internal">अंगभूत संपादक</string>
+    <string name="editor_title">संपादक</string>
     <string name="editor_pick">कशाने संपादन करता?</string>
     <string name="editor_left">डावीकडे फिरवा</string>
     <string name="editor_right">उजवीकडे फिरवा</string>

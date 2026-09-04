@@ -389,6 +389,7 @@
     <string name="menu_edit">تحرير</string>
     <string name="menu_edit_hold">اختيار التطبيق</string>
     <string name="editor_internal">المحرر المدمج</string>
+    <string name="editor_title">المحرر</string>
     <string name="editor_pick">بأي تطبيق تحرّر؟</string>
     <string name="editor_left">تدوير لليسار</string>
     <string name="editor_right">تدوير لليمين</string>

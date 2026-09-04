@@ -87,6 +87,7 @@
     <string name="menu_edit">Edit</string>
     <string name="menu_edit_hold">Choose the app</string>
     <string name="editor_internal">Built in editor</string>
+    <string name="editor_title">Editor</string>
     <string name="editor_pick">What do you edit with?</string>
     <string name="editor_left">Rotate\nleft</string>
     <string name="editor_right">Rotate\nright</string>

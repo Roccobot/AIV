@@ -359,6 +359,7 @@
     <string name="menu_edit">Edytuj</string>
     <string name="menu_edit_hold">Wybierz aplikację</string>
     <string name="editor_internal">Wbudowany edytor</string>
+    <string name="editor_title">Edytor</string>
     <string name="editor_pick">Czym edytujesz?</string>
     <string name="editor_left">Obróć w lewo</string>
     <string name="editor_right">Obróć w prawo</string>

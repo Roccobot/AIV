@@ -232,6 +232,49 @@ private val HAIRLINE_LIGHT = Color(0xFFAAADA9)
 private val HAIRLINE_DARK = Color(0xFF636C69)
 
 /**
+ * Il fondo del palco dell'editor: il grigio su cui galleggia l'immagine da ritagliare.
+ *
+ * ⚠️⚠️ **NON È IL FONDO DELLA PAGINA, e la ragione è di lavoro e non di gusto** (istruzione
+ * dell'utente, 2026-09-04: *il bianco non va bene comunque, perché se si ha a che fare con
+ * numerosi screenshot (che hanno molto bianco) non si capisce a colpo d'occhio dove
+ * finiscono*). Il palco è la sola superficie dell'app su cui appoggia un'immagine di cui non
+ * si sa niente: un fondo quasi bianco confina con una schermata bianca senza che si veda il
+ * confine, cioè non si sa più dove finisce il file e dove comincia l'app.
+ * ⚠️ **I due numeri sono suoi**, un grigio al 40% sul chiaro e al 70% sullo scuro, letti come
+ * quantità di nero. **Misure**: sul chiaro `#999999` stacca **2,53** dalla scheda dei comandi
+ * e **2,85** dal bianco puro, dove il quasi-bianco di prima stava a **1,09** e **1,03**, cioè
+ * non staccava affatto.
+ * ⚠️⚠️ **SULLO SCURO IL GUADAGNO CONTRO LA SCHEDA È PICCOLO, e va detto invece di lasciarlo
+ * scoprire**: `#4D4D4D` stacca **1,58** dalla scheda contro l'**1,31** di prima, perché la
+ * scheda scura è anche lei un grigio. Contro un'immagine bianca invece stacca **8,45**, che è
+ * il problema che questo colore deve risolvere. Chi volesse più stacco dalla scheda sullo
+ * scuro deve **schiarire** questo grigio, non scurirlo.
+ * ⚠️ **È un grigio NEUTRO e non tinto come gli altri neutri dell'app**: dietro un'immagine una
+ * tinta si somma ai suoi colori e li fa leggere sbagliati. È la stessa ragione per cui il
+ * fondo sotto la lente è nero pieno.
+ */
+@Composable
+fun stageBack(): Color =
+    if (MaterialTheme.colorScheme.background.isLight()) STAGE_BACK_LIGHT else STAGE_BACK_DARK
+
+private val STAGE_BACK_LIGHT = Color(0xFF999999)
+private val STAGE_BACK_DARK = Color(0xFF4D4D4D)
+
+/**
+ * Il colore delle maniglie del ritaglio nell'editor: l'accento dell'app.
+ *
+ * ⚠️⚠️ **UGUALE NEI DUE TEMI, e non è una dimenticanza**: a differenza di [accentInk] e di
+ * [hairline], qui la domanda 'su che cosa sto disegnando' ha una risposta che **non dipende
+ * dal tema**, perché sotto le maniglie non c'è il fondo dell'app ma l'immagine velata, cioè
+ * un colore qualunque scurito del 55%. Un accento scuro per il tema scuro sparirebbe proprio
+ * là ([ACCENT_DARK] misura 1,20 sul velo di un'immagine bianca).
+ * ⚠️ **Da solo non basta, e la misura lo dice**: 1,88 su quel velo, cioè sotto il 3:1. È la
+ * ragione per cui la maniglia porta anche un filo bianco intorno, e il perché per esteso sta
+ * su `bracket` in `EditorScreen.kt`, dove il disegno vive.
+ */
+val CROP_GRIP = ACCENT_LIGHT
+
+/**
  * La stondatura di un riquadro dentro una finestra: un campo da riempire o una pastiglia.
  *
  * ⚠️⚠️ **STA QUI PERCHÉ PRIMA NON STAVA DA NESSUNA PARTE, ed è la ragione per cui i riquadri

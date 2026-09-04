@@ -314,6 +314,7 @@
     <string name="menu_edit">編集</string>
     <string name="menu_edit_hold">アプリを選ぶ</string>
     <string name="editor_internal">内蔵エディター</string>
+    <string name="editor_title">エディター</string>
     <string name="editor_pick">何で編集しますか</string>
     <string name="editor_left">左に回す</string>
     <string name="editor_right">右に回す</string>
