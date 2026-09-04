@@ -942,33 +942,43 @@ private fun Hub(
          * resa non cambia: [TapHoldFab] è la stessa `Surface` da 40dp, quadrata con gli
          * angoli appena smussati come chiesto, perché il tondo pieno griderebbe 'azione
          * principale' e qui l'azione principale sono le cartelle.
+         *
+         * ⚠️⚠️ **LA SCATOLA INTORNO PORTA L'ENTRATA, dalla `1.58`**, ed è l'unico posto
+         * dell'app che la chiama: [Modifier.entering] tiene i numeri e il perché. ⚠️ Sta su
+         * una scatola qui e non dentro [TapHoldFab] perché quel composabile serve **due**
+         * tastini, e l'entrata è stata chiesta per questo: quello della selezione compare
+         * quando si sceglie un'immagine, cioè in risposta a un dito, e là un'animazione
+         * d'ingresso arriverebbe in ritardo su un gesto invece di accompagnare l'apertura di
+         * una schermata.
          */
-        TapHoldFab(
-            label = stringResource(R.string.hub_open),
-            /*
-             * ⚠️⚠️ **I COLORI SONO QUELLI DELL'ICONA DELL'APP, dalla 1.36** (richiesta
-             * dell'utente, 2026-09-02: *il FAB deve rispecchiare nei colori (sfondo e glifo) la
-             * combinazione dell'icona nuova nei due temi*). Prima erano `primaryContainer` e il
-             * suo inchiostro, cioè la coppia che Material ricava dalla tavolozza: vicina, ma
-             * un'altra cosa.
-             * ⚠️⚠️ **SI PRENDONO DALLE RISORSE DELL'ICONA e non si riscrivono qui**, ed è la
-             * parte che conta: `launcher_background` e `launcher_foreground` hanno già la loro
-             * versione in `values-night`, quindi il tastino segue il tema **per costruzione** e
-             * il giorno che l'utente cambia la coppia dell'icona cambia anche il tastino. Due
-             * numeri copiati qui si scollerebbero al primo ritocco dell'icona.
-             * ⚠️ **Il contrasto è quello dell'icona e non è stato rimisurato**: 2,42 nella
-             * coppia chiara e 3,25 nella scura, con la ragione scritta in `colors.xml`. Sono
-             * colori scelti da lui, e questo tastino porta un glifo, non del testo.
-             */
-            container = colorResource(R.color.launcher_background),
-            ink = colorResource(R.color.launcher_foreground),
-            lift = FAB_LIFT,
-            holdLabel = stringResource(R.string.columns_title),
-            lifted = menu.inScene,
-            onTap = { menu.open() },
-            onHold = onSize,
-            glyph = { Marchio(it) }
-        )
+        Box(modifier = Modifier.entering()) {
+            TapHoldFab(
+                label = stringResource(R.string.hub_open),
+                /*
+                 * ⚠️⚠️ **I COLORI SONO QUELLI DELL'ICONA DELL'APP, dalla 1.36** (richiesta
+                 * dell'utente, 2026-09-02: *il FAB deve rispecchiare nei colori (sfondo e glifo) la
+                 * combinazione dell'icona nuova nei due temi*). Prima erano `primaryContainer` e il
+                 * suo inchiostro, cioè la coppia che Material ricava dalla tavolozza: vicina, ma
+                 * un'altra cosa.
+                 * ⚠️⚠️ **SI PRENDONO DALLE RISORSE DELL'ICONA e non si riscrivono qui**, ed è la
+                 * parte che conta: `launcher_background` e `launcher_foreground` hanno già la loro
+                 * versione in `values-night`, quindi il tastino segue il tema **per costruzione** e
+                 * il giorno che l'utente cambia la coppia dell'icona cambia anche il tastino. Due
+                 * numeri copiati qui si scollerebbero al primo ritocco dell'icona.
+                 * ⚠️ **Il contrasto è quello dell'icona e non è stato rimisurato**: 2,42 nella
+                 * coppia chiara e 3,25 nella scura, con la ragione scritta in `colors.xml`. Sono
+                 * colori scelti da lui, e questo tastino porta un glifo, non del testo.
+                 */
+                container = colorResource(R.color.launcher_background),
+                ink = colorResource(R.color.launcher_foreground),
+                lift = FAB_LIFT,
+                holdLabel = stringResource(R.string.columns_title),
+                lifted = menu.inScene,
+                onTap = { menu.open() },
+                onHold = onSize,
+                glyph = { Marchio(it) }
+            )
+        }
     }
 
     if (asking) {
