@@ -15,7 +15,7 @@ documento è perso.
 
 | documento | a che cosa serve | indirizzo |
 |---|---|---|
-| **Feedback AIV** | le voci da provare della versione appena uscita, con i tre esiti e i commenti dell'utente. **Chiede.** | <https://claude.ai/code/artifact/a026a5d9-3bd0-4732-a8ea-69033d04fb48> |
+| **Documento di feedback** | le voci da provare della versione appena uscita, con i tre esiti e i commenti dell'utente. **Chiede.** | <https://claude.ai/code/artifact/a026a5d9-3bd0-4732-a8ea-69033d04fb48> |
 | **Piano d'azione AIV** | le versioni in cantiere in sequenza, una tappa per giro di collaudo. **Non chiede**: è la vista d'insieme. | <https://claude.ai/code/artifact/ed40ee4b-ce9b-4588-b1c9-5e5b7e773cd3> |
 
 ⚠️⚠️ **IL PIANO D'AZIONE È UNO STRUMENTO RICORRENTE dal 2026-09-04, e non un artefatto di
@@ -27,14 +27,17 @@ resta solo il suo indirizzo, che è la cosa che questo file esiste per non far p
   istruzione dell'utente (*lascia stare le metafore*). Chi ne trova il nome vecchio in un
   messaggio o in un commit sappia che è lo stesso documento, allo stesso indirizzo.
 
-⚠️ **Ha QUATTRO nomi equivalenti** (istruzione dell'utente, 2026-09-01: *d'ora in
-avanti si chiamerà 'Feedback AIV', 'Documento di lavoro', 'Foglio condiviso' o simili*):
-**Feedback AIV** è il nome scritto in testa al documento, e **documento di lavoro**, **foglio
-condiviso** e **collaudo** sono sinonimi che l'utente alterna. Nessuno dei quattro va
-corretto. ⚠️ **'Collaudo' resta il nome della PROCEDURA**, ed è la ragione per cui non è
-terminologia morta: la regola universale si chiama ancora `Roccobot.md` § '🔁 Il giro del
-collaudo: rilascio, documento, riscontro', e cambiare quel titolo romperebbe i rimandi senza
-guadagnare niente. Il documento ha un nome nuovo, il giro no.
+⚠️⚠️ **IL NOME UFFICIALE È 'DOCUMENTO DI FEEDBACK', e si usa quello** (precisazione
+dell'utente, 2026-09-04: *per me il nome esatto è 'Documento di feedback'. Se lo chiami così
+capisco lo stesso (sono sinonimi), ma preferisco la dicitura ufficiale*). **Feedback AIV** è il
+titolo scritto in testa al documento; **documento di lavoro**, **foglio condiviso** e **foglio
+di collaudo** sono sinonimi che lui alterna e che non vanno corretti a lui. ⚠️ **Quello che
+cambia è come lo chiamiamo NOI**: la dicitura ufficiale in un testo scritto da me, un commit o
+un artefatto è una sola.
+- ⚠️ **'Collaudo' resta il nome della PROCEDURA**, ed è la ragione per cui non è terminologia
+  morta: la regola universale si chiama ancora `Roccobot.md` § '🔁 Il giro del collaudo:
+  rilascio, documento, riscontro', e cambiare quel titolo romperebbe i rimandi senza guadagnare
+  niente. Il documento ha un nome, il giro ne ha un altro.
 
 ⚠️ **Tiene lo STESSO indirizzo a ogni ripubblicazione**: l'utente lo ha fra i preferiti, e
 un collegamento nuovo a ogni giro vuol dire un documento da ritrovare ogni volta.
