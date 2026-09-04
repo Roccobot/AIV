@@ -64,7 +64,7 @@
     <string name="settings_background">خلف الصورة</string>
     <string name="settings_bg_checker">رقعة الشطرنج</string>
     <string name="settings_bg_solid">لون واحد</string>
-    <string name="settings_bg_desc">رقعة الشطرنج هي الخلفية الوحيدة التي تُظهر الشفافية، وفي عارض الصور الشفافية معلومة لا زينة.</string>
+    <string name="settings_bg_desc">رقعة الشطرنج هي الطريقة المثلى لرؤية البكسلات الشفافة، وهذا في عارض جاد معلومة لا زخرفة.</string>
     <string name="settings_ui_theme">المظهر</string>
     <string name="settings_ui_theme_desc">ما إذا كانت الواجهة فاتحة أم داكنة. لا يشمل ذلك الخلفية خلف الصورة، أدناه: رقعة الشطرنج تكشف الشفافية ولا تتبع السمة.</string>
     <string name="settings_system">حسب النظام</string>
@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">أعمدة شبكة المجلدات</string>
     <string name="settings_folder_columns_desc">كلما زادت الأعمدة زاد عدد المجلدات على الشاشة وصغر كل غلاف. عند أربعة أعمدة يُقتطع الاسم أسفله غالبًا.</string>
     <string name="settings_folder_count">عدّاد العناصر تحت المجلدات في عرض الشبكة</string>
-    <string name="settings_hand">موضع الوظائف الرئيسية</string>
-    <string name="settings_hand_desc">حسب اليد التي تستخدمها أكثر للتعامل مع الجهاز.</string>
+    <string name="settings_hand">جهة الزر</string>
+    <string name="settings_hand_desc">في أي زاوية سفلية يقف الزر العائم، ومعه اللوحة التي يفتحها والمساحة التي تتركها له الشبكة.</string>
     <string name="settings_right">يمين</string>
     <string name="settings_left">يسار</string>
     <string name="settings_list_path">قائمة الملفات: انسخ مسار المجلد</string>
@@ -451,10 +451,14 @@
         <item quantity="other">%1$d لون</item>
     </plurals>
     <string name="settings_buttons">ترتيب الأزرار</string>
-    <string name="settings_buttons_desc">اسحب المقبض الموجود في طرف الصف لنقل زر. ينطبق كل ترتيب في كل مكان تظهر فيه تلك اللوحة.</string>
+    <string name="settings_buttons_desc">أزرار لوحات الأيقونات تقف حيث تريد. ينطبق كل ترتيب في كل مكان تظهر فيه تلك اللوحة.</string>
     <string name="settings_buttons_menu">قائمة الملف</string>
     <string name="settings_buttons_turn">المحرر: تدوير وتوسيط</string>
     <string name="settings_buttons_steps">المحرر: تراجع وتطبيق</string>
     <string name="settings_labels">التسميات أسفل الأيقونات</string>
     <string name="settings_labels_desc">عند إيقاف التسميات تصبح لوحات الأيقونات أكثر إحكامًا. ولا تتغير قوائم السرد.</string>
+    <string name="settings_buttons_how">اضغط مطولا على زر ثم اسحبه لتغيير موضعه في اللوحة.</string>
+    <string name="settings_buttons_bin">في سلة المهملات تحتفظ قائمة الملف بالترتيب نفسه: \'استعادة\' تحل محل \'إعادة تسمية\'.</string>
+    <string name="settings_buttons_before">نقل إلى الأمام</string>
+    <string name="settings_buttons_after">نقل إلى الخلف</string>
 </resources>

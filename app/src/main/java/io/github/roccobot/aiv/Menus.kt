@@ -776,7 +776,12 @@ fun MenuRow(
 private val MENU_ITEM_HEIGHT = 48.dp
 private val MENU_ITEM_MIN = 112.dp
 private val MENU_ITEM_MAX = 280.dp
-private val MENU_ITEM_SIDE = 12.dp
+/**
+ * ⚠️ **16 e non 12, dalla `1.57`** (riscontro dell'utente, giro della `1.56`: *allarga un po'
+ * il pannello popup, perché la parola 'Cestino' è molto vicina al bordo*). Il rientro vale per
+ * i due fianchi, quindi il menu si allarga di otto in tutto e nessuna parola arriva a filo.
+ */
+private val MENU_ITEM_SIDE = 16.dp
 private val MENU_ITEM_GAP = 8.dp
 
 /**

@@ -64,7 +64,7 @@
     <string name="settings_background">Di belakang gambar</string>
     <string name="settings_bg_checker">Papan kotak</string>
     <string name="settings_bg_solid">Satu warna</string>
-    <string name="settings_bg_desc">Papan kotak adalah satu-satunya latar yang menampakkan transparansi, dan pada penampil gambar transparansi adalah informasi, bukan hiasan.</string>
+    <string name="settings_bg_desc">Papan catur adalah cara ideal untuk melihat piksel transparan, dan pada penampil yang serius itu informasi, bukan hiasan.</string>
     <string name="settings_ui_theme">Tema</string>
     <string name="settings_ui_theme_desc">Antarmuka terang atau gelap. Tidak mencakup latar di belakang gambar, di bawah: pola papan catur menampakkan transparansi, bukan mengikuti tema.</string>
     <string name="settings_system">Ikuti sistem</string>
@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">Kolom pada kisi folder</string>
     <string name="settings_folder_columns_desc">Semakin banyak kolom, semakin banyak folder yang masuk ke layar dan semakin kecil setiap sampul. Pada empat kolom, nama di bawahnya biasanya terpotong.</string>
     <string name="settings_folder_count">Penghitung item di bawah folder pada tampilan kisi</string>
-    <string name="settings_hand">Posisi fungsi utama</string>
-    <string name="settings_hand_desc">Sesuai tangan yang paling sering Anda pakai untuk mengoperasikan ponsel.</string>
+    <string name="settings_hand">Sisi tombol</string>
+    <string name="settings_hand_desc">Di sudut bawah mana tombol mengambang berada, beserta panel yang dibukanya dan ruang yang disisakan kisi untuknya.</string>
     <string name="settings_right">Kanan</string>
     <string name="settings_left">Kiri</string>
     <string name="settings_list_path">Daftar berkas: salin juga jalur foldernya</string>
@@ -371,10 +371,14 @@
         <item quantity="other">%1$d warna</item>
     </plurals>
     <string name="settings_buttons">Urutan tombol</string>
-    <string name="settings_buttons_desc">Seret gagang di kanan baris untuk memindahkan tombol. Setiap urutan berlaku di semua tempat panel itu muncul.</string>
+    <string name="settings_buttons_desc">Tombol panel ikon diletakkan sesuka Anda. Setiap urutan berlaku di semua tempat panel itu muncul.</string>
     <string name="settings_buttons_menu">Menu pada berkas</string>
     <string name="settings_buttons_turn">Editor: putar dan tengahkan</string>
     <string name="settings_buttons_steps">Editor: urungkan dan terapkan</string>
     <string name="settings_labels">Label di bawah ikon</string>
     <string name="settings_labels_desc">Tanpa label, panel ikon menjadi lebih ringkas. Menu daftar tidak berubah.</string>
+    <string name="settings_buttons_how">Tekan dan tahan sebuah tombol, lalu seret untuk mengubah tempatnya di panel.</string>
+    <string name="settings_buttons_bin">Di tempat sampah menu pada berkas tetap dengan urutan yang sama: \'Pulihkan\' menggantikan tempat \'Ganti nama\'.</string>
+    <string name="settings_buttons_before">Pindah ke depan</string>
+    <string name="settings_buttons_after">Pindah ke belakang</string>
 </resources>

@@ -64,7 +64,7 @@
     <string name="settings_background">За изображением</string>
     <string name="settings_bg_checker">Шахматка</string>
     <string name="settings_bg_solid">Однотонный</string>
-    <string name="settings_bg_desc">Шахматка - единственный фон, который делает прозрачность видимой, а в просмотрщике прозрачность это сведения, а не украшение.</string>
+    <string name="settings_bg_desc">Шахматное поле идеально показывает прозрачные пиксели, а в серьёзной смотрелке это сведения, а не украшение.</string>
     <string name="settings_ui_theme">Тема</string>
     <string name="settings_ui_theme_desc">Светлый интерфейс или тёмный. Это не касается фона за изображением, ниже: шахматная сетка показывает прозрачность и не следует теме.</string>
     <string name="settings_system">Как в системе</string>
@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">Столбцы в сетке папок</string>
     <string name="settings_folder_columns_desc">Чем больше столбцов, тем больше папок помещается на экране и тем меньше каждая обложка. При четырёх имя под ней обычно обрезается.</string>
     <string name="settings_folder_count">Счётчик элементов под папками в режиме сетки</string>
-    <string name="settings_hand">Расположение основных функций</string>
-    <string name="settings_hand_desc">По руке, которой вы чаще пользуетесь для управления устройством.</string>
+    <string name="settings_hand">Сторона кнопки</string>
+    <string name="settings_hand_desc">В каком нижнем углу стоит плавающая кнопка, вместе с панелью, которую она открывает, и местом, которое ей оставляет сетка.</string>
     <string name="settings_right">Справа</string>
     <string name="settings_left">Слева</string>
     <string name="settings_list_path">Список файлов: копировать путь папки</string>
@@ -419,10 +419,14 @@
         <item quantity="other">%1$d цвета</item>
     </plurals>
     <string name="settings_buttons">Порядок кнопок</string>
-    <string name="settings_buttons_desc">Перетащите ручку справа от строки, чтобы переместить кнопку. Каждый порядок действует везде, где появляется эта панель.</string>
+    <string name="settings_buttons_desc">Кнопки панелей значков стоят там, где вы захотите. Каждый порядок действует везде, где появляется эта панель.</string>
     <string name="settings_buttons_menu">Меню файла</string>
     <string name="settings_buttons_turn">Редактор: поворот и центрирование</string>
     <string name="settings_buttons_steps">Редактор: отмена и применение</string>
     <string name="settings_labels">Подписи под значками</string>
     <string name="settings_labels_desc">Без подписей панели значков становятся компактнее. Меню-списки не меняются.</string>
+    <string name="settings_buttons_how">Нажмите и удерживайте кнопку, затем перетащите её на новое место в панели.</string>
+    <string name="settings_buttons_bin">В корзине меню файла сохраняет тот же порядок: \'Вернуть\' занимает место \'Переименовать\'.</string>
+    <string name="settings_buttons_before">Сдвинуть раньше</string>
+    <string name="settings_buttons_after">Сдвинуть позже</string>
 </resources>

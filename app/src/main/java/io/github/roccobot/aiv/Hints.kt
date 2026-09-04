@@ -79,9 +79,16 @@ fun BoxScope.HintVeil(
                 onClick = onDone
             )
     ) {
+        /*
+         * ⚠️ **Anche l'onboarding segue il lato del tastino**, dalla `1.57`: quello che spiega
+         * è il tastino, e una freccia che punta dalla parte sbagliata spiegherebbe il vuoto.
+         */
+        val destra = LocalPadLook.current.hand == Hand.RIGHT
         Column(
-            modifier = Modifier.align(Alignment.BottomEnd).then(inset),
-            horizontalAlignment = Alignment.End,
+            modifier = Modifier
+                .align(if (destra) Alignment.BottomEnd else Alignment.BottomStart)
+                .then(inset),
+            horizontalAlignment = if (destra) Alignment.End else Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(HINT_GAP)
         ) {
             Text(

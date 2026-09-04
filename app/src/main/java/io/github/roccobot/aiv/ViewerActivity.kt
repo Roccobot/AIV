@@ -1933,7 +1933,7 @@ class ViewerActivity : ComponentActivity() {
                 // chiedono finestre che le impostazioni non ricevono. Finché le impostazioni
                 // non sono arrivate vale quello che l'app ha sempre fatto.
                 val look = model.settings?.let {
-                    PadLook(it.padLabels, it.menuOrder, it.pickOrder, it.turnOrder, it.stepOrder)
+                    PadLook(it.padLabels, it.menuOrder, it.pickOrder, it.turnOrder, it.stepOrder, it.hand)
                 } ?: PadLook()
                 CompositionLocalProvider(
                     LocalAivVeil provides (model.settings?.veil ?: false),
@@ -2164,7 +2164,6 @@ private fun Stage(screen: Screen, model: ViewerViewModel, settings: Settings) {
                 onChanged = { model.reloadGrid() },
                 factFields = settings.factRows,
                 binOn = settings.binOn,
-                leftHand = settings.hand == Hand.LEFT,
                 listPath = settings.listPath,
                 pickWeight = settings.pickWeight,
                 filter = model.gridFilter,
@@ -2204,7 +2203,6 @@ private fun Stage(screen: Screen, model: ViewerViewModel, settings: Settings) {
                 onSearch = { model.openSearch() },
                 factFields = settings.factRows,
                 binOn = settings.binOn,
-                leftHand = settings.hand == Hand.LEFT,
                 listPath = settings.listPath,
                 pickWeight = settings.pickWeight,
                 filter = model.gridFilter,
@@ -2230,7 +2228,6 @@ private fun Stage(screen: Screen, model: ViewerViewModel, settings: Settings) {
                 onChanged = { model.reloadGrid() },
                 factFields = settings.factRows,
                 binOn = settings.binOn,
-                leftHand = settings.hand == Hand.LEFT,
                 listPath = settings.listPath,
                 pickWeight = settings.pickWeight,
                 filter = model.gridFilter,

@@ -64,7 +64,7 @@
     <string name="settings_background">Achter de afbeelding</string>
     <string name="settings_bg_checker">Schaakbordpatroon</string>
     <string name="settings_bg_solid">Effen kleur</string>
-    <string name="settings_bg_desc">Het schaakbordpatroon is de enige achtergrond die transparantie zichtbaar maakt, en in een viewer is transparantie informatie en geen versiering.</string>
+    <string name="settings_bg_desc">Het schaakbord is de ideale manier om transparante pixels te zien, en dat is in een serieuze viewer informatie en geen opsmuk.</string>
     <string name="settings_ui_theme">Thema</string>
     <string name="settings_ui_theme_desc">Of de interface licht of donker is. Het gaat niet over de achtergrond achter de afbeelding, hieronder: het dambordpatroon toont transparantie, het volgt het thema niet.</string>
     <string name="settings_system">Systeem</string>
@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">Kolommen in het mappenraster</string>
     <string name="settings_folder_columns_desc">Meer kolommen laten meer mappen op het scherm passen en maken elke omslag kleiner. Bij vier wordt de naam eronder meestal afgekapt.</string>
     <string name="settings_folder_count">Teller van de items onder de mappen in rasterweergave</string>
-    <string name="settings_hand">Positie van de hoofdfuncties</string>
-    <string name="settings_hand_desc">Op basis van de hand waarmee je het toestel meestal bedient.</string>
+    <string name="settings_hand">Kant van de knop</string>
+    <string name="settings_hand_desc">In welke onderhoek de zwevende knop staat, met het paneel dat hij opent en de ruimte die het raster hem laat.</string>
     <string name="settings_right">Rechts</string>
     <string name="settings_left">Links</string>
     <string name="settings_list_path">Bestandslijst: pad van de map kopiëren</string>
@@ -387,10 +387,14 @@
         <item quantity="other">%1$d kleuren</item>
     </plurals>
     <string name="settings_buttons">Volgorde van de knoppen</string>
-    <string name="settings_buttons_desc">Sleep de greep rechts in een rij om een knop te verplaatsen. Elke volgorde geldt overal waar dat paneel verschijnt.</string>
+    <string name="settings_buttons_desc">De knoppen van de pictogrampanelen staan waar jij ze zet. Elke volgorde geldt overal waar dat paneel verschijnt.</string>
     <string name="settings_buttons_menu">Menu op een bestand</string>
     <string name="settings_buttons_turn">Editor: draaien en centreren</string>
     <string name="settings_buttons_steps">Editor: ongedaan maken en toepassen</string>
     <string name="settings_labels">Labels onder de pictogrammen</string>
     <string name="settings_labels_desc">Zonder labels worden de pictogrampanelen compacter. Lijstmenu\'s veranderen niet.</string>
+    <string name="settings_buttons_how">Houd een knop ingedrukt en sleep hem naar zijn plaats in het paneel.</string>
+    <string name="settings_buttons_bin">In de prullenbak houdt het menu op een bestand dezelfde volgorde: \'Terugzetten\' staat op de plaats van \'Naam wijzigen\'.</string>
+    <string name="settings_buttons_before">Naar voren</string>
+    <string name="settings_buttons_after">Naar achteren</string>
 </resources>

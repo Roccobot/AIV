@@ -64,7 +64,7 @@
     <string name="settings_background">پشت تصویر</string>
     <string name="settings_bg_checker">شطرنجی</string>
     <string name="settings_bg_solid">یک رنگ</string>
-    <string name="settings_bg_desc">شطرنجی تنها پس‌زمینه‌ای است که شفافیت را نشان می‌دهد، و در یک نمایشگر تصویر شفافیت اطلاعات است نه تزئین.</string>
+    <string name="settings_bg_desc">شطرنجی بهترین راه دیدن پیکسل‌های شفاف است، و در یک نمایشگر جدی این یک اطلاع است نه یک تزیین.</string>
     <string name="settings_ui_theme">پوسته</string>
     <string name="settings_ui_theme_desc">روشن یا تیره بودن رابط کاربری. به پس‌زمینهٔ پشت تصویر، پایین‌تر، مربوط نیست: صفحهٔ شطرنجی شفافیت را نشان می‌دهد و از پوسته پیروی نمی‌کند.</string>
     <string name="settings_system">مانند سیستم</string>
@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">ستون‌های شبکه پوشه‌ها</string>
     <string name="settings_folder_columns_desc">ستون بیشتر پوشه‌های بیشتری را در صفحه جا می‌دهد و هر جلد را کوچک‌تر می‌کند. با چهار ستون، نام زیر آن بیشتر وقت‌ها بریده می‌شود.</string>
     <string name="settings_folder_count">شمارندهٔ موارد زیر پوشه‌ها در نمای شبکه‌ای</string>
-    <string name="settings_hand">جای کارکردهای اصلی</string>
-    <string name="settings_hand_desc">بر اساس دستی که بیشتر با آن با دستگاه کار می‌کنید.</string>
+    <string name="settings_hand">سمت دکمه</string>
+    <string name="settings_hand_desc">دکمه شناور در کدام گوشه پایین می‌نشیند، همراه با پنلی که باز می‌کند و فضایی که شبکه برایش می‌گذارد.</string>
     <string name="settings_right">راست</string>
     <string name="settings_left">چپ</string>
     <string name="settings_list_path">فهرست پرونده‌ها: نشانی پوشه هم رونوشت شود</string>
@@ -387,10 +387,14 @@
         <item quantity="other">%1$d رنگ</item>
     </plurals>
     <string name="settings_buttons">ترتیب دکمه‌ها</string>
-    <string name="settings_buttons_desc">برای جابه‌جایی یک دکمه، دستگیره انتهای ردیف را بکشید. هر ترتیب در هر جایی که آن پنل ظاهر می‌شود اعمال می‌شود.</string>
+    <string name="settings_buttons_desc">دکمه‌های پنل‌های نماد هرجا که بخواهید می‌نشینند. هر ترتیب در هر جایی که آن پنل ظاهر می‌شود اعمال می‌شود.</string>
     <string name="settings_buttons_menu">منوی یک پرونده</string>
     <string name="settings_buttons_turn">ویرایشگر: چرخش و وسط‌چین</string>
     <string name="settings_buttons_steps">ویرایشگر: واگرد و اعمال</string>
     <string name="settings_labels">برچسب‌ها زیر نمادها</string>
     <string name="settings_labels_desc">با خاموش‌بودن برچسب‌ها، پنل‌های نماد فشرده‌تر می‌شوند. منوهای فهرستی تغییری نمی‌کنند.</string>
+    <string name="settings_buttons_how">یک دکمه را نگه دارید و آن را بکشید تا جایش در پنل عوض شود.</string>
+    <string name="settings_buttons_bin">در زباله‌دان منوی یک پرونده همین ترتیب را نگه می‌دارد: \'بازگرداندن\' جای \'تغییر نام\' را می‌گیرد.</string>
+    <string name="settings_buttons_before">جابه‌جایی به جلو</string>
+    <string name="settings_buttons_after">جابه‌جایی به عقب</string>
 </resources>

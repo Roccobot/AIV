@@ -204,13 +204,11 @@ fun GridScreen(
      */
     onSearch: () -> Unit,
     /**
-     * Se le funzioni principali del pannello stanno a sinistra. Vedi `Settings.hand`.
      *
      * ⚠️ Arriva come booleano e non come [Hand]: qui serve una sola domanda ('si rovescia
      * o no'), e passare l'enum vorrebbe dire che questa schermata conosce un tipo delle
      * impostazioni per leggerne un caso.
      */
-    leftHand: Boolean = false,
     /** Se 'Copia lista' mette anche il percorso in testa. Vedi `Settings.listPath`. */
     listPath: Boolean = false,
     /** Se in testa alla selezione si legge il peso. Vedi `Settings.pickWeight`. */
@@ -1166,7 +1164,8 @@ fun GridScreen(
              */
             FabPop(
                 visible = bin && !picking && cleared == null,
-                modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp)
+                // ⚠️ Il lato è quello scelto nelle impostazioni: vedi `PadLook.hand`.
+                modifier = Modifier.align(fabSide()).padding(8.dp)
             ) {
                 Box {
                     /*
@@ -1319,11 +1318,16 @@ fun GridScreen(
          */
         PickSheet(
             visible = picking,
-            actions = if (leftHand) {
-                pickActions.chunked(SHEET_COLUMNS).flatMap { it.reversed() }
-            } else {
-                pickActions
-            },
+            /*
+             * ⚠️⚠️ **LA SPECCHIATURA È USCITA DEL TUTTO NELLA `1.57`** (decisione dell'utente,
+             * giro della `1.55`: *la specchiatura se ne va del tutto, l'altra funzionalità la
+             * sostituirà*). Rovesciava le due file per la mano sinistra, e adesso quel
+             * mestiere lo fanno meglio due cose insieme: l'**ordine** che si trascina, che
+             * mette ogni tasto dove uno lo vuole, e il **lato del tastino**, che sposta tutto
+             * il resto. La chiave che diceva la mano adesso dice il lato, quindi chi aveva
+             * scelto la sinistra non perde niente.
+             */
+            actions = pickActions,
             onHeight = { sheetTall = it }
         )
 

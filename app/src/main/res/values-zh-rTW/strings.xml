@@ -64,7 +64,7 @@
     <string name="settings_background">圖片背後</string>
     <string name="settings_bg_checker">棋盤格</string>
     <string name="settings_bg_solid">純色</string>
-    <string name="settings_bg_desc">棋盤格是唯一能讓透明可見的背景,而在看圖程式裡,透明是資訊而不是裝飾。</string>
+    <string name="settings_bg_desc">棋盤格是檢視透明像素的理想方式，在一款正經的檢視器裡這是資訊，而不是裝飾。</string>
     <string name="settings_ui_theme">主題</string>
     <string name="settings_ui_theme_desc">介面是淺色還是深色。這與下方影像背後的背景無關：棋盤格用於顯示透明區域，不隨主題變化。</string>
     <string name="settings_system">跟隨系統</string>
@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">資料夾格狀檢視的欄數</string>
     <string name="settings_folder_columns_desc">欄數越多,螢幕上放得下的資料夾越多,每張封面也越小。到四欄時,下面的名稱通常會被截斷。</string>
     <string name="settings_folder_count">格狀檢視中資料夾下方的項目計數</string>
-    <string name="settings_hand">主要功能的位置</string>
-    <string name="settings_hand_desc">依你操作手機時主要使用的那隻手。</string>
+    <string name="settings_hand">按鈕所在的一側</string>
+    <string name="settings_hand_desc">浮動按鈕位於哪個下角，它開啟的面板和格線為它留出的空間也跟著走。</string>
     <string name="settings_right">右側</string>
     <string name="settings_left">左側</string>
     <string name="settings_list_path">檔案清單：一併複製資料夾路徑</string>
@@ -371,10 +371,14 @@
         <item quantity="other">%1$d 種顏色</item>
     </plurals>
     <string name="settings_buttons">按鈕順序</string>
-    <string name="settings_buttons_desc">拖曳列右側的握把即可移動按鈕。每種順序在該面板出現的所有位置都適用。</string>
+    <string name="settings_buttons_desc">圖示面板的按鈕可以隨意擺放。每種順序在該面板出現的所有位置都適用。</string>
     <string name="settings_buttons_menu">檔案選單</string>
     <string name="settings_buttons_turn">編輯器：旋轉與置中</string>
     <string name="settings_buttons_steps">編輯器：復原與套用</string>
     <string name="settings_labels">圖示下方的標籤</string>
     <string name="settings_labels_desc">關閉標籤後，圖示面板會更精簡。清單選單不變。</string>
+    <string name="settings_buttons_how">長按一個按鈕，然後拖曳它來改變它在面板中的位置。</string>
+    <string name="settings_buttons_bin">在回收筒裡，檔案選單維持同樣的順序：\'還原\' 出現在 \'重新命名\' 的位置。</string>
+    <string name="settings_buttons_before">前移</string>
+    <string name="settings_buttons_after">後移</string>
 </resources>

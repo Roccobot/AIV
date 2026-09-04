@@ -64,7 +64,7 @@
     <string name="settings_background">ছবির পিছনে</string>
     <string name="settings_bg_checker">দাবার ছক</string>
     <string name="settings_bg_solid">একটি রং</string>
-    <string name="settings_bg_desc">দাবার ছকই একমাত্র পটভূমি যা স্বচ্ছতা দেখায়, আর ছবি দেখার অ্যাপে স্বচ্ছতা তথ্য, সাজসজ্জা নয়।</string>
+    <string name="settings_bg_desc">স্বচ্ছ পিক্সেল দেখার সবচেয়ে ভালো উপায় দাবার ছক, আর একটি গুরুত্বপূর্ণ দর্শকে সেটি সাজসজ্জা নয়, তথ্য।</string>
     <string name="settings_ui_theme">থিম</string>
     <string name="settings_ui_theme_desc">ইন্টারফেস হালকা না গাঢ়। নিচের ছবির পটভূমি এর আওতায় নেই: দাবার ছক স্বচ্ছতা দেখায়, থিম অনুসরণ করে না।</string>
     <string name="settings_system">সিস্টেম অনুযায়ী</string>
@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">ফোল্ডার গ্রিডের কলাম</string>
     <string name="settings_folder_columns_desc">বেশি কলামে পর্দায় বেশি ফোল্ডার আঁটে আর প্রতিটি প্রচ্ছদ ছোট হয়। চারটিতে নিচের নাম সাধারণত কাটা পড়ে।</string>
     <string name="settings_folder_count">গ্রিড দৃশ্যে ফোল্ডারের নিচে জিনিসের গণনা</string>
-    <string name="settings_hand">প্রধান কাজের অবস্থান</string>
-    <string name="settings_hand_desc">আপনি যে হাত দিয়ে বেশি যন্ত্রটি চালান সেই অনুযায়ী।</string>
+    <string name="settings_hand">বোতামের দিক</string>
+    <string name="settings_hand_desc">ভাসমান বোতামটি নিচের কোন কোণে থাকে, সেই সঙ্গে সে যে প্যানেল খোলে এবং গ্রিড তাকে যে জায়গা ছাড়ে।</string>
     <string name="settings_right">ডানে</string>
     <string name="settings_left">বামে</string>
     <string name="settings_list_path">ফাইল তালিকা: ফোল্ডারের পথও কপি করুন</string>
@@ -387,10 +387,14 @@
         <item quantity="other">%1$d রঙ</item>
     </plurals>
     <string name="settings_buttons">বোতামের ক্রম</string>
-    <string name="settings_buttons_desc">কোনও বোতাম সরাতে সারির ডান দিকের হাতলটি টেনে নিন। প্রতিটি ক্রম সেই প্যানেল যেখানেই দেখা যায় সেখানেই প্রযোজ্য।</string>
+    <string name="settings_buttons_desc">আইকন প্যানেলের বোতাম যেখানে চান সেখানে বসে। প্রতিটি ক্রম সেই প্যানেল যেখানেই দেখা যায় সেখানেই প্রযোজ্য।</string>
     <string name="settings_buttons_menu">ফাইলের মেনু</string>
     <string name="settings_buttons_turn">সম্পাদক: ঘোরানো ও কেন্দ্রে আনা</string>
     <string name="settings_buttons_steps">সম্পাদক: পূর্বাবস্থা ও প্রয়োগ</string>
     <string name="settings_labels">আইকনের নিচে লেবেল</string>
     <string name="settings_labels_desc">লেবেল বন্ধ থাকলে আইকনের প্যানেল আরও ছোট হয়। তালিকা মেনু বদলায় না।</string>
+    <string name="settings_buttons_how">একটি বোতাম চেপে ধরে টেনে নিয়ে প্যানেলে তার জায়গা বদলান।</string>
+    <string name="settings_buttons_bin">আবর্জনায় ফাইলের মেনু একই ক্রম রাখে: \'নাম বদলান\'-এর জায়গায় \'ফিরিয়ে আনুন\' আসে।</string>
+    <string name="settings_buttons_before">আগে সরান</string>
+    <string name="settings_buttons_after">পরে সরান</string>
 </resources>

@@ -64,7 +64,7 @@
     <string name="settings_background">Görselin arkası</string>
     <string name="settings_bg_checker">Dama tahtası</string>
     <string name="settings_bg_solid">Düz renk</string>
-    <string name="settings_bg_desc">Saydamlığı görünür kılan tek arka plan dama tahtasıdır ve bir görüntüleyicide saydamlık süs değil bilgidir.</string>
+    <string name="settings_bg_desc">Dama deseni saydam pikselleri görmenin ideal yoludur ve ciddi bir görüntüleyicide bu süs değil bilgidir.</string>
     <string name="settings_ui_theme">Tema</string>
     <string name="settings_ui_theme_desc">Arayüzün açık mı koyu mu olduğu. Aşağıdaki, görselin arkasındaki zemini kapsamaz: dama deseni saydamlığı gösterir, temayı izlemez.</string>
     <string name="settings_system">Sistem</string>
@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">Klasör ızgarasındaki sütunlar</string>
     <string name="settings_folder_columns_desc">Sütun arttıkça ekrana daha çok klasör sığar ve her kapak küçülür. Dörtte alttaki ad çoğunlukla kesilir.</string>
     <string name="settings_folder_count">Izgara görünümünde klasörlerin altındaki öge sayacı</string>
-    <string name="settings_hand">Ana işlevlerin konumu</string>
-    <string name="settings_hand_desc">Cihazı çoğunlukla hangi elinizle kullandığınıza göre.</string>
+    <string name="settings_hand">Düğmenin yanı</string>
+    <string name="settings_hand_desc">Yüzen düğmenin hangi alt köşede durduğu, açtığı panel ve ızgaranın ona bıraktığı boşlukla birlikte.</string>
     <string name="settings_right">Sağ</string>
     <string name="settings_left">Sol</string>
     <string name="settings_list_path">Dosya listesi: klasör yolunu da kopyala</string>
@@ -387,10 +387,14 @@
         <item quantity="other">%1$d renk</item>
     </plurals>
     <string name="settings_buttons">Düğme sırası</string>
-    <string name="settings_buttons_desc">Bir düğmeyi taşımak için satırın sağındaki tutamacı sürükleyin. Her sıra, o panelin göründüğü her yerde geçerlidir.</string>
+    <string name="settings_buttons_desc">Simge panellerinin düğmeleri istediğiniz yere gider. Her sıra, o panelin göründüğü her yerde geçerlidir.</string>
     <string name="settings_buttons_menu">Dosya menüsü</string>
     <string name="settings_buttons_turn">Düzenleyici: çevirme ve ortalama</string>
     <string name="settings_buttons_steps">Düzenleyici: geri alma ve uygulama</string>
     <string name="settings_labels">Simgelerin altındaki etiketler</string>
     <string name="settings_labels_desc">Etiketler kapalıyken simge panelleri daha derli toplu olur. Liste menüleri değişmez.</string>
+    <string name="settings_buttons_how">Bir düğmeyi basılı tutun ve paneldeki yerini değiştirmek için sürükleyin.</string>
+    <string name="settings_buttons_bin">Çöp kutusunda bir dosyanın menüsü aynı sırayı korur: \'Geri al\', \'Yeniden adlandır\'ın yerini alır.</string>
+    <string name="settings_buttons_before">Öne al</string>
+    <string name="settings_buttons_after">Arkaya al</string>
 </resources>

@@ -7,11 +7,13 @@
         not complain about the missing keys: a region variant inherits from its
         language.
 
-        WHY it is not a full copy: values-pt holds 177 entries and 43 of them change
-        here, so a full copy would mean two sources of truth for the 134 that read the
-        same, and every new string would have to be written twice. This way a new
-        string covers both variants by itself, and whoever finds a European wording
-        adds it here.
+        WHY it is not a full copy: the overrides are a small minority of values-pt
+        (about one entry in six, measured 62 of 345 in the 1.57), so a full copy would
+        mean two sources of truth for the large majority that read the same, and every
+        new string would have to be written twice. This way a new string covers both
+        variants by itself, and whoever finds a European wording adds it here. The
+        figures carry their version because they move at every release; what holds the
+        argument up is the ratio, and that one does not move.
 
         WHAT differs, and it is vocabulary rather than opinion: ficheiro/arquivo,
         ecrã/tela, Reciclagem/Lixeira, eliminar/excluir, telemóvel/celular,
@@ -110,6 +112,13 @@
     <!-- arquivo -> ficheiro, come nel resto di questo file. Le altre due
          stringhe del pulitore non nominano il file e restano quelle di values-pt. -->
     <string name="convert_clean_why">Remove cabeçalhos, metadados, comentários, scripts, C2PA e restos dos editores, que são os dados mais pesados (até 99% do ficheiro) e raramente servem.</string>
-    <string name="settings_buttons_desc">Arraste a pega à direita de uma linha para mover um botão. Cada ordem vale em todos os sítios onde esse painel aparece.</string>
+    <string name="settings_buttons_desc">Os botões dos painéis de ícones ficam onde quiser. Cada ordem vale em todos os sítios onde esse painel aparece.</string>
     <string name="settings_buttons_menu">Menu de um ficheiro</string>
+    <!-- pressionado -> premido, lixeira -> reciclagem, arquivo -> ficheiro: as tres
+         palavras que ja mudam no resto deste ficheiro. As duas cadeias das setas
+         ('Mover para antes' e 'Mover para depois') leem-se iguais dos dois lados. -->
+    <string name="settings_buttons_how">Mantenha um botão premido e arraste-o para mudar o seu lugar no painel.</string>
+    <string name="settings_buttons_bin">Na reciclagem o menu de um ficheiro mantém esta mesma ordem: \'Restaurar\' fica no lugar de \'Renomear\'.</string>
+    <!-- grade -> grelha, como no resto deste ficheiro. -->
+    <string name="settings_hand_desc">Em qual canto inferior fica o botão flutuante, com o painel que ele abre e o espaço que a grelha lhe deixa.</string>
 </resources>
