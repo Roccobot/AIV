@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -114,7 +114,14 @@ fun <T> Reorderable(
                 row(item, at)
                 if (fermo) return@Box
                 Icon(
-                    imageVector = Icons.Default.DragHandle,
+                    /*
+                     * ⚠️⚠️ **SEI PUNTI E NON TRE RIGHE, dalla `1.57`** (riscontro dell'utente,
+                     * giro della `1.56`: *usa una maniglia come questa*, con in allegato la
+                     * griglia di sei punti). Le tre righe sono il segno della bottomsheet che
+                     * si tira giù; i sei punti sono il segno di una cosa che si sposta, ed è
+                     * quello che questa riga fa.
+                     */
+                    imageVector = Icons.Default.DragIndicator,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
@@ -175,3 +182,19 @@ private val HANDLE: Dp = 40.dp
 
 /** Quanto si spengono le manopole delle righe ferme mentre una viaggia. */
 private const val GHOST = 0.3f
+
+/**
+ * La stessa lista con un elemento spostato.
+ *
+ * ⚠️ Si toglie e si rimette invece di scambiare i due: lo scambio funziona solo fra vicini,
+ * e un trascinamento vero attraversa più di una posizione per volta.
+ * ⚠️ **Sta qui e non in una delle due schermate** perché la usano tutti e due i riordini,
+ * l'elenco dei campi e la replica a griglia dei tasti: due copie divergerebbero il giorno
+ * che una delle due impara a spostare più di un elemento.
+ */
+internal fun <T> List<T>.moved(from: Int, to: Int): List<T> {
+    if (from !in indices || to !in indices || from == to) return this
+    val out = toMutableList()
+    out.add(to, out.removeAt(from))
+    return out
+}

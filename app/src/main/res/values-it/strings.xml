@@ -121,7 +121,7 @@
     <string name="settings_background">Dietro all\'immagine</string>
     <string name="settings_bg_checker">Scacchiera</string>
     <string name="settings_bg_solid">Tinta piatta</string>
-    <string name="settings_bg_desc">La scacchiera è l\'unico fondo che rende visibile la trasparenza, che su un visualizzatore è un\'informazione e non un vezzo.</string>
+    <string name="settings_bg_desc">La scacchiera è ideale per visualizzare i pixel trasparenti, il che in un visualizzatore serio è un\'informazione, non un vezzo.</string>
 
     <string name="settings_ui_theme">Tema</string>
     <string name="settings_ui_theme_desc">Se l\'interfaccia è chiara o scura. Non riguarda lo sfondo dietro l\'immagine, qui sotto: la scacchiera rivela la trasparenza, non accompagna il tema.</string>
@@ -140,8 +140,8 @@
     <string name="settings_folder_columns">Colonne della griglia delle cartelle</string>
     <string name="settings_folder_columns_desc">Più colonne fanno stare più cartelle sullo schermo e rimpiccioliscono le copertine. A quattro, il nome sotto di solito non ci sta per intero.</string>
     <string name="settings_folder_count">Contatore degli elementi sotto le cartelle in vista griglia</string>
-    <string name="settings_hand">Posizione delle funzioni principali</string>
-    <string name="settings_hand_desc">In base alla mano che usi di più per interagire col dispositivo.</string>
+    <string name="settings_hand">Lato del tastino</string>
+    <string name="settings_hand_desc">In quale angolo in basso sta il tastino, con il pannello che apre e l\'aria che la griglia gli lascia.</string>
     <string name="settings_right">Destra</string>
     <string name="settings_left">Sinistra</string>
     <string name="settings_list_path">Lista file: copia il percorso della cartella contenitore</string>
@@ -463,10 +463,14 @@
         <item quantity="many">%1$d colori</item>
     </plurals>
     <string name="settings_buttons">Ordine dei pulsanti</string>
-    <string name="settings_buttons_desc">Trascina la manopola a destra di una riga per spostare un pulsante. Ogni ordine vale in tutti i posti in cui quel riquadro compare.</string>
+    <string name="settings_buttons_desc">I tasti dei riquadri a icone si dispongono come vuoi. Ogni ordine vale in tutti i posti in cui quel riquadro compare.</string>
     <string name="settings_buttons_menu">Menu su un file</string>
     <string name="settings_buttons_turn">Editor: ruota e centra</string>
     <string name="settings_buttons_steps">Editor: annulla e applica</string>
     <string name="settings_labels">Etichette sotto le icone</string>
     <string name="settings_labels_desc">Spente, i riquadri di icone diventano più compatti. I menu a elenco non cambiano.</string>
+    <string name="settings_buttons_how">Tieni premuto un tasto e trascinalo per cambiare la sua posizione nel pannello.</string>
+    <string name="settings_buttons_bin">Nel cestino il menu su un file tiene questo stesso ordine: al posto di \'Rinomina\' compare \'Ripristina\'.</string>
+    <string name="settings_buttons_before">Sposta prima</string>
+    <string name="settings_buttons_after">Sposta dopo</string>
 </resources>

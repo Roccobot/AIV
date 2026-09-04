@@ -64,7 +64,7 @@
     <string name="settings_background">Derrière l\'image</string>
     <string name="settings_bg_checker">Damier</string>
     <string name="settings_bg_solid">Couleur unie</string>
-    <string name="settings_bg_desc">Le damier est le seul fond qui rend la transparence visible, ce qui dans une visionneuse est une information et non une décoration.</string>
+    <string name="settings_bg_desc">Le damier est la façon idéale de voir les pixels transparents, ce qui dans une visionneuse sérieuse est une information et non une coquetterie.</string>
     <string name="settings_ui_theme">Thème</string>
     <string name="settings_ui_theme_desc">Si l\'interface est claire ou sombre. Cela ne concerne pas le fond derrière l\'image, plus bas : le damier révèle la transparence, il ne suit pas le thème.</string>
     <string name="settings_system">Système</string>
@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">Colonnes dans la grille des dossiers</string>
     <string name="settings_folder_columns_desc">Plus de colonnes font tenir plus de dossiers à l\'écran et rétrécissent chaque vignette. À quatre, le nom en dessous est souvent tronqué.</string>
     <string name="settings_folder_count">Compteur des éléments sous les dossiers en vue grille</string>
-    <string name="settings_hand">Position des fonctions principales</string>
-    <string name="settings_hand_desc">Selon la main avec laquelle vous utilisez le plus l\'appareil.</string>
+    <string name="settings_hand">Côté du bouton</string>
+    <string name="settings_hand_desc">Dans quel coin bas se place le bouton flottant, avec le panneau qu\'il ouvre et la place que la grille lui laisse.</string>
     <string name="settings_right">Droite</string>
     <string name="settings_left">Gauche</string>
     <string name="settings_list_path">Liste de fichiers : copier le chemin du dossier parent</string>
@@ -403,10 +403,14 @@
         <item quantity="other">%1$d couleurs</item>
     </plurals>
     <string name="settings_buttons">Ordre des boutons</string>
-    <string name="settings_buttons_desc">Faites glisser la poignée à droite d\'une ligne pour déplacer un bouton. Chaque ordre s\'applique partout où ce panneau apparaît.</string>
+    <string name="settings_buttons_desc">Les boutons des panneaux d\'icônes se placent où vous voulez. Chaque ordre s\'applique partout où ce panneau apparaît.</string>
     <string name="settings_buttons_menu">Menu sur un fichier</string>
     <string name="settings_buttons_turn">Éditeur : tourner et centrer</string>
     <string name="settings_buttons_steps">Éditeur : annuler et appliquer</string>
     <string name="settings_labels">Libellés sous les icônes</string>
     <string name="settings_labels_desc">Sans libellés, les panneaux d\'icônes deviennent plus compacts. Les menus en liste ne changent pas.</string>
+    <string name="settings_buttons_how">Appuyez longuement sur un bouton et faites-le glisser pour changer sa place dans le panneau.</string>
+    <string name="settings_buttons_bin">Dans la corbeille, le menu sur un fichier garde ce même ordre : \'Restaurer\' prend la place de \'Renommer\'.</string>
+    <string name="settings_buttons_before">Déplacer avant</string>
+    <string name="settings_buttons_after">Déplacer après</string>
 </resources>

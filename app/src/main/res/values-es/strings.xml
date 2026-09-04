@@ -64,7 +64,7 @@
     <string name="settings_background">Detrás de la imagen</string>
     <string name="settings_bg_checker">Damero</string>
     <string name="settings_bg_solid">Color liso</string>
-    <string name="settings_bg_desc">El damero es el único fondo que hace visible la transparencia, y en un visor eso es información y no adorno.</string>
+    <string name="settings_bg_desc">El damero es la forma ideal de ver los píxeles transparentes, lo que en un visor serio es información y no un adorno.</string>
     <string name="settings_ui_theme">Tema</string>
     <string name="settings_ui_theme_desc">Si la interfaz es clara u oscura. No afecta al fondo detrás de la imagen, más abajo: el damero revela la transparencia, no acompaña al tema.</string>
     <string name="settings_system">Sistema</string>
@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">Columnas en la cuadrícula de carpetas</string>
     <string name="settings_folder_columns_desc">Más columnas caben más carpetas en la pantalla y encogen cada portada. Con cuatro, el nombre de debajo suele quedar cortado.</string>
     <string name="settings_folder_count">Contador de elementos bajo las carpetas en vista de cuadrícula</string>
-    <string name="settings_hand">Posición de las funciones principales</string>
-    <string name="settings_hand_desc">Según la mano que más usas para manejar el dispositivo.</string>
+    <string name="settings_hand">Lado del botón</string>
+    <string name="settings_hand_desc">En qué esquina inferior se coloca el botón flotante, con el panel que abre y el aire que la cuadrícula le deja.</string>
     <string name="settings_right">Derecha</string>
     <string name="settings_left">Izquierda</string>
     <string name="settings_list_path">Lista de archivos: copiar la ruta de la carpeta contenedora</string>
@@ -403,10 +403,14 @@
         <item quantity="other">%1$d colores</item>
     </plurals>
     <string name="settings_buttons">Orden de los botones</string>
-    <string name="settings_buttons_desc">Arrastra el control de la derecha de una fila para mover un botón. Cada orden se aplica en todos los lugares donde aparece ese panel.</string>
+    <string name="settings_buttons_desc">Los botones de los paneles de iconos se colocan donde quieras. Cada orden se aplica en todos los lugares donde aparece ese panel.</string>
     <string name="settings_buttons_menu">Menú de un archivo</string>
     <string name="settings_buttons_turn">Editor: girar y centrar</string>
     <string name="settings_buttons_steps">Editor: deshacer y aplicar</string>
     <string name="settings_labels">Etiquetas bajo los iconos</string>
     <string name="settings_labels_desc">Sin etiquetas, los paneles de iconos se vuelven más compactos. Los menús de lista no cambian.</string>
+    <string name="settings_buttons_how">Mantén pulsado un botón y arrástralo para cambiar su lugar en el panel.</string>
+    <string name="settings_buttons_bin">En la papelera el menú de un archivo mantiene este mismo orden: \'Restaurar\' ocupa el lugar de \'Renombrar\'.</string>
+    <string name="settings_buttons_before">Mover antes</string>
+    <string name="settings_buttons_after">Mover después</string>
 </resources>

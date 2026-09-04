@@ -521,7 +521,7 @@ fun FolderScreen(
                 onSize = { sizing = true },
                 // ⚠️ Costante e non numero: [FAB_REACH] dice quanto è alta la fascia
                 // dipinta, e [BELOW_FAB] quanto spazio si lascia sotto l'ultima cartella.
-                modifier = Modifier.align(Alignment.BottomEnd).padding(HUB_PAD)
+                modifier = Modifier.align(fabSide()).padding(HUB_PAD)
             )
         }
 
@@ -1629,11 +1629,17 @@ private val GRADIENT_REACH = FAB_REACH * GRADIENT_TIMES
 /**
  * Quanto è alta la coda che chiude in pieno l'ultima striscia di schermo.
  *
- * ⚠️ **8dp è l'estremo alto di quello che ha chiesto** (*0% a 7/8 dp dal bordo inferiore*): fra
- * i due si prende il più lungo, perché su una dissolvenza il rischio è che si veda dove
- * comincia, e mezzo dp in più lo allontana senza cambiare quello che si vede in fondo.
+ * ⚠️⚠️ **20dp DALLA `1.57`, E GLI 8 CHE AVEVA CHIESTO NON ERANO UN DIFETTO: ERANO
+ * INVISIBILI** (riscontro dell'utente, giro della `1.56`: *non vedo la sovrapposizione piccola
+ * in fondo*). La coda c'era e faceva quello che deve: misurata sul profilo composto, a 8dp dal
+ * bordo la copertura vale 0,60 e sul bordo vale 1,00, cioè il pieno arriva davvero. Solo che
+ * quaranta punti di copertura distribuiti su otto dp, su un fondo già coperto per sei decimi,
+ * sono un filo che l'occhio non separa dalla fascia sopra.
+ * ⚠️ **Il numero è l'unica cosa cambiata**: la curva, il colore e il modo di sommarsi sono
+ * quelli che ha dettato lui. A 20dp la stessa coda si legge come una chiusura voluta, e resta
+ * un settimo della fascia grande.
  */
-private val FOOT_REACH = 8.dp
+private val FOOT_REACH = 20.dp
 
 /**
  * In quanti gradini si disegna la coda.

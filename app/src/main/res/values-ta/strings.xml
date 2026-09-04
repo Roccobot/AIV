@@ -64,7 +64,7 @@
     <string name="settings_background">படத்தின் பின்னால்</string>
     <string name="settings_bg_checker">சதுரங்கக் கட்டம்</string>
     <string name="settings_bg_solid">ஒரே நிறம்</string>
-    <string name="settings_bg_desc">ஒளிபுகுதலைக் காட்டும் ஒரே பின்னணி சதுரங்கக் கட்டம்தான், படம் பார்க்கும் செயலியில் ஒளிபுகுதல் அலங்காரம் அல்ல, தகவல்.</string>
+    <string name="settings_bg_desc">ஒளிபுகும் பிக்சல்களைப் பார்க்க சதுரங்கக் கட்டம் சிறந்த வழி, தீவிரமான காட்டியில் அது அலங்காரம் அல்ல, தகவல்.</string>
     <string name="settings_ui_theme">தோற்றம்</string>
     <string name="settings_ui_theme_desc">இடைமுகம் ஒளிர்வானதா இருண்டதா. கீழே உள்ள படத்தின் பின்னணிக்கு இது பொருந்தாது: சதுரங்கக் கட்டம் ஒளிஊடுருவலைக் காட்டுகிறது, தோற்றத்தைப் பின்பற்றுவதில்லை.</string>
     <string name="settings_system">அமைப்பின்படி</string>
@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">கோப்புறைக் கட்டத்தின் நிரல்கள்</string>
     <string name="settings_folder_columns_desc">நிரல்கள் அதிகமானால் திரையில் அதிகக் கோப்புறைகள் அடங்கும், ஒவ்வொரு அட்டையும் சிறியதாகும். நான்கில் கீழே உள்ள பெயர் பெரும்பாலும் வெட்டப்படும்.</string>
     <string name="settings_folder_count">கட்டக் காட்சியில் கோப்புறைகளுக்குக் கீழே பொருள் எண்ணிக்கை</string>
-    <string name="settings_hand">முதன்மைச் செயல்களின் இடம்</string>
-    <string name="settings_hand_desc">சாதனத்தை நீங்கள் அதிகம் பயன்படுத்தும் கையின்படி.</string>
+    <string name="settings_hand">பொத்தானின் பக்கம்</string>
+    <string name="settings_hand_desc">மிதக்கும் பொத்தான் கீழ் எந்த மூலையில் இருக்கும், அது திறக்கும் பலகத்துடனும் கட்டம் அதற்கு விடும் இடத்துடனும்.</string>
     <string name="settings_right">வலது</string>
     <string name="settings_left">இடது</string>
     <string name="settings_list_path">கோப்புப் பட்டியல்: கோப்புறைப் பாதையையும் நகலெடு</string>
@@ -387,10 +387,14 @@
         <item quantity="other">%1$d வண்ணங்கள்</item>
     </plurals>
     <string name="settings_buttons">பொத்தான்களின் வரிசை</string>
-    <string name="settings_buttons_desc">ஒரு பொத்தானை நகர்த்த வரிசையின் வலப்புறம் உள்ள கைப்பிடியை இழுக்கவும். ஒவ்வொரு வரிசையும் அந்தப் பலகம் தோன்றும் எல்லா இடங்களிலும் பொருந்தும்.</string>
+    <string name="settings_buttons_desc">சின்னப் பலகங்களின் பொத்தான்களை விரும்பிய இடத்தில் வைக்கலாம். ஒவ்வொரு வரிசையும் அந்தப் பலகம் தோன்றும் எல்லா இடங்களிலும் பொருந்தும்.</string>
     <string name="settings_buttons_menu">கோப்பின் பட்டி</string>
     <string name="settings_buttons_turn">திருத்தி: சுழற்றலும் நடுவில் வைத்தலும்</string>
     <string name="settings_buttons_steps">திருத்தி: செயல்தவிர்த்தலும் பயன்படுத்தலும்</string>
     <string name="settings_labels">சின்னங்களுக்குக் கீழே பெயர்கள்</string>
     <string name="settings_labels_desc">பெயர்கள் அணைந்திருந்தால் சின்னப் பலகங்கள் இன்னும் நெருக்கமாகும். பட்டியல் பட்டிகள் மாறாது.</string>
+    <string name="settings_buttons_how">ஒரு பொத்தானை அழுத்திப் பிடித்து இழுத்து, பலகத்தில் அதன் இடத்தை மாற்றவும்.</string>
+    <string name="settings_buttons_bin">குப்பையில் கோப்பின் பட்டி இதே வரிசையை வைத்திருக்கும்: \'பெயர் மாற்று\' இடத்தில் \'மீட்டெடு\' வரும்.</string>
+    <string name="settings_buttons_before">முன்னால் நகர்த்து</string>
+    <string name="settings_buttons_after">பின்னால் நகர்த்து</string>
 </resources>

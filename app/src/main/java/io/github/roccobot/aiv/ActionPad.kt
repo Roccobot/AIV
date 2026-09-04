@@ -22,7 +22,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -63,6 +65,24 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.zIndex
+import kotlin.math.roundToInt
 
 /**
  * Le operazioni sui file, come riquadro di icone a tre colonne.
@@ -124,6 +144,23 @@ fun ActionPad(
          * larghezza (`stretch`) non c'è niente da stringere, e a stringersi è la scheda.
          */
         val cella = if (labels) PAD_CELL else PAD_CELL_BARE
+        /*
+         * ⚠️⚠️ **SENZA ETICHETTE LE CELLE SI DIVIDONO LA LARGHEZZA, dalla `1.57`** (riscontro
+         * dell'utente, giro della `1.56`, con schermata: *lì vanno ridistribuite sullo spazio
+         * disponibile, o va ristretto il popup*). Il difetto era di misura, non di disegno: la
+         * larghezza del menu la fanno le righe di testo sopra il riquadro, e con le sole icone
+         * le celle scendevano a 48dp e restavano ammucchiate a sinistra con mezzo pannello di
+         * aria a destra.
+         * ⚠️ **Distribuire è la metà che costa zero**; stringere il menu è l'altra metà, e
+         * quella costa: la larghezza è l'intrinseca delle voci di testo, quindi tagliarla manda
+         * a capo 'Copia immagine' nelle lingue lunghe. Il riquadro compatto si ottiene lo
+         * stesso, e il menu resta leggibile in tutte e ventotto.
+         */
+        val disteso = stretch || !labels
+        // ⚠️ Il minimo resta la misura naturale del riquadro: dentro una colonna a larghezza
+        // intrinseca un figlio che chiede tutta la larghezza non ne dichiara nessuna, e senza
+        // questo pavimento un menu di sole icone si accartoccerebbe.
+        val minimo = cella * columns + PAD_GAP * (columns - 1)
         // ⚠️ Le righe si ricavano a gruppi invece di essere scritte a mano: con sei azioni
         // fanno le due righe di tre del menu, con dieci le due da cinque della
         // bottomsheet, e con cinque l'ultima riga ne tiene due invece di lasciare un buco
@@ -131,15 +168,192 @@ fun ActionPad(
         // 'ripristina' e le voci possono non essere sei.
         for (row in actions.chunked(columns)) {
             Row(
-                modifier = if (stretch) Modifier.fillMaxWidth() else Modifier,
+                modifier = if (disteso) Modifier.fillMaxWidth().widthIn(min = minimo) else Modifier,
                 horizontalArrangement = Arrangement.spacedBy(PAD_GAP)
             ) {
                 for (action in row) {
                     PadButton(
                         action = action,
-                        modifier = if (stretch) Modifier.weight(1f) else Modifier.width(cella),
+                        modifier = if (disteso) Modifier.weight(1f) else Modifier.width(cella),
                         labels = labels
                     )
+                }
+                /*
+                 * ⚠️⚠️ **L'ULTIMA RIGA CORTA SI RIEMPIE DI VUOTO, o le sue celle si allargano
+                 * e le colonne non si allineano più con la riga sopra.** Succede dove le voci
+                 * non sono un multiplo delle colonne, cioè nel cestino, che ne ha cinque su
+                 * tre. Prima non si vedeva perché senza `weight` le celle avevano una misura
+                 * fissa.
+                 */
+                if (disteso) {
+                    repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Lo stesso riquadro, ma per **cambiare l'ordine invece di eseguire**: la replica che vive
+ * nelle impostazioni.
+ *
+ * ⚠️⚠️ **NASCE DA UNA BOCCIATURA, E LA RAGIONE VALE PIÙ DELLA CORREZIONE** (riscontro
+ * dell'utente, giro della `1.56`: *i tasti sono disposti in orizzontale nella vera UI, non mi
+ * piace dover ragionare con un trascinamento verticale ... voglio agire su un oggetto che
+ * somiglia al vero menu*). La `1.56` metteva un **elenco** di righe, e un elenco chiede di
+ * tradurre a mente 'terzo dall'alto' in 'seconda colonna della prima riga'. La cosa che si
+ * riordina è un riquadro a griglia, quindi lo strumento per riordinarlo è quel riquadro.
+ *
+ * ⚠️⚠️ **LE CELLE SONO TUTTE UGUALI, ED È QUELLO CHE RENDE IL CONTO ESATTO**: sapendo il passo
+ * di una colonna e di una riga, il posto d'arrivo è la posizione del dito divisa per il passo
+ * e arrotondata. Con celle di misure diverse servirebbe misurarle una per una a ogni pixel di
+ * trascinamento.
+ * ⚠️ **La larghezza si stringe se non ci sta**: dieci tasti in cinque colonne da 76dp fanno
+ * 412dp, che su un telefono non entrano. È la stessa cosa che fa il riquadro vero nella scheda
+ * della selezione (`stretch`), quindi la replica somiglia al modello anche in questo.
+ *
+ * ⚠️⚠️ **IL RIFLUSSO È LA COSA CHE SI GUARDA MENTRE SI TRASCINA** (sua richiesta: *se sposto un
+ * pulsante in posizione 2 i successivi devono scorrere in avanti, e uno andrà a capo*). Non è
+ * uno scambio fra due caselle: la lista si ricompone a ogni pixel con il tasto preso tolto e
+ * rimesso al posto d'arrivo, quindi quello che si vede **è già** il risultato, andata a capo
+ * compresa.
+ *
+ * ⚠️ **Niente maniglia** (sua indicazione: *non credo che serva*): il gesto è il tocco lungo,
+ * che è già quello con cui si apre il riquadro vero, e ogni tasto porta il fondo tondo che
+ * dice 'questo si prende'. La riga di istruzioni sopra il riquadro lo scrive comunque, perché
+ * un gesto senza segno visibile non lo prova nessuno.
+ *
+ * @param columns quante colonne ha il riquadro **vero**, non quante ne stanno qui: la replica
+ *   deve rompere le righe dove le rompe il modello.
+ */
+@Composable
+fun PadArrange(
+    order: List<PadKey>,
+    columns: Int,
+    onOrder: (List<PadKey>) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val haptics = LocalHapticFeedback.current
+    val prima = stringResource(R.string.settings_buttons_before)
+    val dopo = stringResource(R.string.settings_buttons_after)
+    val righe = (order.size + columns - 1) / columns
+    BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
+        val larga = ((maxWidth - PAD_GAP * (columns - 1)) / columns).coerceAtMost(PAD_CELL)
+        val passoX = with(LocalDensity.current) { (larga + PAD_GAP).toPx() }
+        val passoY = with(LocalDensity.current) { (ARRANGE_HIGH + PAD_GAP).toPx() }
+
+        var preso by remember { mutableStateOf<PadKey?>(null) }
+        var scarto by remember { mutableStateOf(Offset.Zero) }
+
+        /** Dove sta la cella numero [i], in pixel dal vertice del riquadro. */
+        fun posto(i: Int) = Offset((i % columns) * passoX, (i / columns) * passoY)
+
+        /*
+         * ⚠️⚠️ **SI LEGGE DALLO STATO VIVO, e questa funzione esiste per quello**: la chiamano
+         * sia la composizione (per disegnare il riflusso) sia la fine del trascinamento, che
+         * vive dentro un `pointerInput` ricordato. Un indice calcolato una volta e chiuso
+         * dentro quel blocco resterebbe quello del primo fotogramma, ed è il difetto che il
+         * riordino a elenco ha già avuto una volta.
+         */
+        fun bersaglio(da: Int): Int {
+            if (da < 0) return -1
+            val p = posto(da) + scarto
+            val col = (p.x / passoX).roundToInt().coerceIn(0, columns - 1)
+            val rig = (p.y / passoY).roundToInt().coerceIn(0, righe - 1)
+            return (rig * columns + col).coerceIn(0, order.lastIndex)
+        }
+
+        val da = order.indexOf(preso)
+        val a = bersaglio(da)
+        val visto = if (da < 0 || a < 0) order else order.moved(da, a)
+
+        Box(modifier = Modifier.height(ARRANGE_HIGH * righe + PAD_GAP * (righe - 1))) {
+            for (chiave in order) {
+                val suo = chiave == preso
+                val meta = if (suo) posto(da) + scarto else posto(visto.indexOf(chiave))
+                /*
+                 * ⚠️ **Un `Animatable` e non un `animate*AsState`**: quello insegue sempre, e
+                 * al rilascio il tasto salterebbe dal dito alla casella. Qui mentre il dito è
+                 * giù si fa `snapTo`, e appena si stacca l'animazione parte **da dove il dito
+                 * l'ha lasciato**, che è la differenza fra un riordino fluido e uno a scatti.
+                 */
+                val moto = remember(chiave) { Animatable(posto(order.indexOf(chiave)), Offset.VectorConverter) }
+                LaunchedEffect(meta, suo) {
+                    if (suo) moto.snapTo(meta)
+                    else moto.animateTo(meta, spring(stiffness = Spring.StiffnessMediumLow))
+                }
+                val tinta = MaterialTheme.colorScheme.primary
+                Box(
+                    modifier = Modifier
+                        .offset { IntOffset(moto.value.x.roundToInt(), moto.value.y.roundToInt()) }
+                        // ⚠️ Il tasto preso sta sopra gli altri, o passerebbe sotto il vicino
+                        // proprio nel momento in cui lo scavalca.
+                        .zIndex(if (suo) 1f else 0f)
+                        .size(width = larga, height = ARRANGE_HIGH)
+                        .clip(RoundedCornerShape(PAD_CORNER))
+                        .background(tinta.copy(alpha = if (suo) ARRANGE_HELD else ARRANGE_BED))
+                        .pointerInput(chiave, order, columns, passoX, passoY) {
+                            detectDragGesturesAfterLongPress(
+                                onDragStart = {
+                                    preso = chiave
+                                    scarto = Offset.Zero
+                                    haptics.performHapticFeedback(HOLD_BUZZ)
+                                },
+                                onDrag = { evento, delta ->
+                                    evento.consume()
+                                    scarto += delta
+                                },
+                                onDragEnd = {
+                                    val partenza = order.indexOf(chiave)
+                                    val fine = bersaglio(partenza)
+                                    if (fine >= 0 && fine != partenza) {
+                                        onOrder(order.moved(partenza, fine))
+                                    }
+                                    preso = null
+                                    scarto = Offset.Zero
+                                },
+                                onDragCancel = {
+                                    preso = null
+                                    scarto = Offset.Zero
+                                }
+                            )
+                        }
+                        .semantics {
+                            // ⚠️ Il trascinamento con un lettore di schermo non si fa: queste
+                            // due azioni sono l'unica via al riordino per chi non vede, ed è
+                            // la stessa rete che ha l'elenco dei campi delle info.
+                            customActions = listOf(
+                                CustomAccessibilityAction(prima) {
+                                    val i = order.indexOf(chiave)
+                                    onOrder(order.moved(i, i - 1)); true
+                                },
+                                CustomAccessibilityAction(dopo) {
+                                    val i = order.indexOf(chiave)
+                                    onOrder(order.moved(i, i + 1)); true
+                                }
+                            )
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(PAD_LABEL_GAP, Alignment.CenterVertically)
+                    ) {
+                        Icon(
+                            imageVector = chiave.glyph(),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(PAD_ICON)
+                        )
+                        Text(
+                            text = stringResource(chiave.label()),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            textAlign = TextAlign.Center,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
             }
         }
@@ -594,6 +808,21 @@ val HOLD_BUZZ = HapticFeedbackType.TextHandleMove
 /** Quante colonne ha il riquadro: tre, come l'utente le ha chieste. */
 private const val PAD_COLUMNS = 3
 
+/**
+ * Quanto è alta una cella della replica che si riordina.
+ *
+ * ⚠️ **Fissa, e non quella del riquadro vero**: là l'altezza la fa il contenuto, quindi una
+ * parola che va a capo allunga la sua riga. Qui il passo di riga deve essere un numero, o il
+ * conto del posto d'arrivo non torna. 72dp tengono un glifo da 24 e due righe di parola.
+ */
+private val ARRANGE_HIGH = 72.dp
+
+/** Quanto si vede il fondo tondo sotto un tasto fermo. */
+private const val ARRANGE_BED = 0.10f
+
+/** Quanto si vede quando il tasto è in mano: la stessa cosa, più evidente. */
+private const val ARRANGE_HELD = 0.24f
+
 /** Quanto resta di un tasto spento: il valore di Material per un comando inattivo. */
 private const val OFF_INK = 0.38f
 
@@ -660,11 +889,39 @@ class PadLook(
     /** La prima fila dell'editor: girare e centrare. */
     val turn: List<PadKey> = TURN_KEYS,
     /** La seconda fila dell'editor: la cronologia e la conferma. */
-    val step: List<PadKey> = STEP_KEYS
+    val step: List<PadKey> = STEP_KEYS,
+    /**
+     * Da che parte dello schermo sta il tastino.
+     *
+     * ⚠️⚠️ **VIAGGIA QUI E NON PER PARAMETRO, ed è la stessa ragione delle altre cinque**: i
+     * tastini vivono in tre schermate e in un velo di onboarding, e la catena per portarci un
+     * valore dalle impostazioni le attraversa tutte. ⚠️ **E sta con l'aspetto dei riquadri
+     * invece che per conto suo** perché il tastino apre il riquadro: chi sposta l'uno sposta
+     * anche dove si apre l'altro.
+     */
+    val hand: Hand = Hand.RIGHT
 )
 
 /** Quello che i riquadri leggono, messo in scena accanto al tema. */
 val LocalPadLook = compositionLocalOf { PadLook() }
+
+/**
+ * Da che angolo in basso sta il tastino, secondo l'impostazione.
+ *
+ * ⚠️⚠️ **NASCE NELLA `1.57` E PRENDE IL POSTO DELLA SPECCHIATURA** (tappa del piano d'azione,
+ * e decisione dell'utente: *la specchiatura se ne va del tutto*). Prima l'impostazione diceva
+ * quale **mano** si usa e rovesciava le file di un riquadro; adesso dice da che parte sta il
+ * tastino, e con lui si sposta tutto quello che gli gira intorno.
+ * ⚠️ **La chiave sull'archivio non cambia**, quindi chi aveva scelto la sinistra ritrova la
+ * sinistra: la domanda ha cambiato forma ma non verso, ed è il caso in cui una chiave si
+ * tiene invece di scriverne una nuova.
+ * ⚠️ **`End` e `Start` e non 'destra' e 'sinistra' vere**: in arabo, persiano e urdu tutta
+ * l'interfaccia si specchia, e un tastino inchiodato a destra sarebbe l'unico pezzo a non
+ * seguirla. Nelle venticinque lingue che si leggono da sinistra le due cose coincidono.
+ */
+@Composable
+fun fabSide(): Alignment =
+    if (LocalPadLook.current.hand == Hand.RIGHT) Alignment.BottomEnd else Alignment.BottomStart
 
 /**
  * Quante colonne ha la bottomsheet della selezione: **cinque**, come chieste.

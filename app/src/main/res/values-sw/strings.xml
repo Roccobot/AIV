@@ -64,7 +64,7 @@
     <string name="settings_background">Nyuma ya picha</string>
     <string name="settings_bg_checker">Chesi</string>
     <string name="settings_bg_solid">Rangi moja</string>
-    <string name="settings_bg_desc">Chesi ndiyo mandharinyuma pekee inayoonyesha uwazi, na kwenye kionyeshi cha picha uwazi ni habari, si urembo.</string>
+    <string name="settings_bg_desc">Ubao wa chesi ndiyo njia bora ya kuona pikseli zinazopitisha mwanga, na kwenye kitazamaji cha kweli hiyo ni taarifa, si pambo.</string>
     <string name="settings_ui_theme">Mandhari</string>
     <string name="settings_ui_theme_desc">Kiolesura ni chepesi au cheusi. Halihusu mandharinyuma ya picha, hapa chini: ubao wa chesi hudhihirisha uwazi, haufuati mandhari.</string>
     <string name="settings_system">Kama mfumo</string>
@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">Safu kwenye gridi ya folda</string>
     <string name="settings_folder_columns_desc">Safu nyingi zaidi huingiza folda nyingi zaidi kwenye skrini na kufanya kila jalada kuwa dogo. Kwa nne, jina lililo chini mara nyingi hukatwa.</string>
     <string name="settings_folder_count">Kihesabu cha vipengele chini ya folda katika mwonekano wa gridi</string>
-    <string name="settings_hand">Nafasi ya vitendo vikuu</string>
-    <string name="settings_hand_desc">Kulingana na mkono unaoutumia zaidi kuendesha kifaa.</string>
+    <string name="settings_hand">Upande wa kitufe</string>
+    <string name="settings_hand_desc">Kitufe kinachoelea kiko kwenye pembe gani ya chini, pamoja na kidirisha kinachofungua na nafasi ambayo gridi inakiachia.</string>
     <string name="settings_right">Kulia</string>
     <string name="settings_left">Kushoto</string>
     <string name="settings_list_path">Orodha ya faili: nakili njia ya folda</string>
@@ -387,10 +387,14 @@
         <item quantity="other">rangi %1$d</item>
     </plurals>
     <string name="settings_buttons">Mpangilio wa vitufe</string>
-    <string name="settings_buttons_desc">Buruta kishikizo kilicho upande wa kulia wa safu ili kuhamisha kitufe. Kila mpangilio hutumika kila mahali kidirisha hicho kinapoonekana.</string>
+    <string name="settings_buttons_desc">Vitufe vya vidirisha vya aikoni hukaa unapotaka. Kila mpangilio hutumika kila mahali kidirisha hicho kinapoonekana.</string>
     <string name="settings_buttons_menu">Menyu ya faili</string>
     <string name="settings_buttons_turn">Kihariri: kuzungusha na kuweka katikati</string>
     <string name="settings_buttons_steps">Kihariri: kutendua na kutumia</string>
     <string name="settings_labels">Lebo chini ya aikoni</string>
     <string name="settings_labels_desc">Lebo zikiwa zimezimwa, vidirisha vya aikoni hubana zaidi. Menyu za orodha hazibadiliki.</string>
+    <string name="settings_buttons_how">Shikilia kitufe kisha ukiburute ili kubadilisha nafasi yake kwenye kidirisha.</string>
+    <string name="settings_buttons_bin">Kwenye pipa menyu ya faili hushika mpangilio uleule: \'Rudisha\' huchukua nafasi ya \'Badilisha jina\'.</string>
+    <string name="settings_buttons_before">Sogeza mbele</string>
+    <string name="settings_buttons_after">Sogeza nyuma</string>
 </resources>

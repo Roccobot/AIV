@@ -752,10 +752,15 @@ private fun ColumnScope.RootPage(
 
     Choices(
         label = stringResource(R.string.settings_hand),
-        // ⚠️ La spiegazione c'è dalla 1.17, ed è una richiesta: 'Posizione delle funzioni
-        // principali' dice DOVE finiscono, non in base a che cosa si sceglie, e chi legge
-        // 'Destra' o 'Sinistra' senza quella riga deve indovinare se parlano della mano o
-        // del lato dello schermo.
+        /*
+         * ⚠️⚠️ **DALLA `1.57` QUESTA VOCE DICE UN'ALTRA COSA, e la chiave è la stessa** (tappa
+         * del piano d'azione): diceva quale **mano** si usa e rovesciava le file di un
+         * riquadro, adesso dice da che parte sta il **tastino**. La specchiatura se n'è andata
+         * del tutto, e quel mestiere lo fanno l'ordine che si trascina e questo lato.
+         * ⚠️ **La chiave resta `hand`**: la domanda ha cambiato forma ma non verso, quindi chi
+         * aveva scelto la sinistra ritrova la sinistra. Una chiave nuova gli avrebbe rimesso
+         * il valore di fabbrica senza dirglielo.
+         */
         detail = stringResource(R.string.settings_hand_desc),
         options = Hand.entries,
         selected = settings.hand,
@@ -1175,7 +1180,8 @@ private fun Shell(
             Text(
                 text = title,
                 style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.weight(1f)
+                // ⚠️ La linea di base entra nel conto della riga: vedi il numero qui sotto.
+                modifier = Modifier.weight(1f).alignByBaseline()
             )
             if (version) {
                 /*
@@ -1197,7 +1203,17 @@ private fun Shell(
                     style = MaterialTheme.typography.labelSmall,
                     fontFamily = FontFamily.Monospace,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = VERSION_FADE),
-                    modifier = Modifier.padding(end = VERSION_END)
+                    /*
+                     * ⚠️⚠️ **APPOGGIATO SULLA LINEA DI BASE DEL TITOLO, dalla `1.57`**
+                     * (riscontro dell'utente, giro della `1.56`). Centrato in verticale, come
+                     * era, un corpo piccolo accanto a uno grande galleggia a metà della sua
+                     * riga: l'occhio confronta le linee su cui i due poggiano, non i loro
+                     * centri. ⚠️ **Vale sui due testi e non su uno**: la riga allinea per linea
+                     * di base solo i figli che lo chiedono, e uno solo non ha con chi
+                     * allinearsi. La freccia resta centrata, perché un glifo non ha linea di
+                     * base.
+                     */
+                    modifier = Modifier.alignByBaseline().padding(end = VERSION_END)
                 )
             }
         }
@@ -1708,70 +1724,80 @@ private val HANDLE_ROOM = 44.dp
  */
 @Composable
 private fun ButtonOrders(settings: Settings, onChange: (Settings) -> Unit) {
+    /*
+     * ⚠️⚠️ **LA RIGA DELLE ISTRUZIONI È SUA, ALLA LETTERA** (riscontro del giro della `1.56`),
+     * e non è un ornamento: il gesto è un tocco lungo, cioè l'unico che non si scopre
+     * toccando. Senza questa riga il riquadro sembra una figura e non uno strumento.
+     */
+    Detail(stringResource(R.string.settings_buttons_how))
+    /*
+     * ⚠️⚠️ **E QUESTA DICE UNA COSA CHE DAL RIQUADRO NON SI VEDE** (sua richiesta: *è
+     * importante spiegarlo, e far capire che l'ordine del menu contestuale sarà identico per
+     * cartelle normali e cestino*). Nel cestino il riquadro porta 'Ripristina' nel posto che
+     * altrove tiene 'Rinomina': è lo stesso ordine, con una voce che cambia mestiere.
+     */
+    Detail(stringResource(R.string.settings_buttons_bin))
     PadOrder(
         title = stringResource(R.string.settings_buttons_menu),
         order = settings.menuOrder,
+        columns = MENU_COLUMNS,
         onOrder = { onChange(settings.copy(menuOrder = it)) }
     )
     PadOrder(
         title = stringResource(R.string.pick_actions),
         order = settings.pickOrder,
+        columns = SHEET_COLUMNS,
         onOrder = { onChange(settings.copy(pickOrder = it)) }
     )
     PadOrder(
         title = stringResource(R.string.settings_buttons_turn),
         order = settings.turnOrder,
+        columns = EDITOR_COLUMNS,
         onOrder = { onChange(settings.copy(turnOrder = it)) }
     )
     PadOrder(
         title = stringResource(R.string.settings_buttons_steps),
         order = settings.stepOrder,
+        columns = EDITOR_COLUMNS,
         onOrder = { onChange(settings.copy(stepOrder = it)) }
     )
 }
 
-/** Un elenco di tasti col suo titolo: icona, nome, e la manopola per trascinarlo. */
-@Composable
-private fun PadOrder(title: String, order: List<PadKey>, onOrder: (List<PadKey>) -> Unit) {
-    Group(title)
-    Reorderable(
-        items = order,
-        onMove = { da, a -> onOrder(order.moved(da, a)) }
-    ) { chiave, _ ->
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(end = HANDLE_ROOM),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = chiave.glyph(),
-                // ⚠️ Nessuna descrizione: la riga porta già il nome scritto accanto, e un
-                // lettore di schermo che leggesse tutti e due direbbe la stessa parola due
-                // volte.
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 14.dp).size(20.dp)
-            )
-            Text(
-                text = stringResource(chiave.label()),
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f)
-            )
-        }
-    }
-}
+/**
+ * Quante colonne ha il menu su un file, e quante le due file dell'editor.
+ *
+ * ⚠️ **Sono le colonne del riquadro VERO, e la replica le deve rompere dove le rompe lui**:
+ * un riquadro riordinato su tre colonne e mostrato su due direbbe una bugia sul risultato.
+ * ⚠️ Quello della selezione riusa `SHEET_COLUMNS`, che è già pubblica perché la scheda la
+ * condivide con chi la disegna: un terzo numero uguale sarebbe il posto in cui divergere.
+ */
+private const val MENU_COLUMNS = 3
+private const val EDITOR_COLUMNS = 4
 
 /**
- * La stessa lista con un elemento spostato.
+ * Un riquadro da riordinare, col suo titolo.
  *
- * ⚠️ Si toglie e si rimette invece di scambiare i due: lo scambio funziona solo fra vicini,
- * e il giorno che servisse un trascinamento vero questa funzione va già bene.
+ * ⚠️ **Era un elenco di righe fino alla `1.56`**, ed è stato bocciato: il perché, e che cosa
+ * la replica deve somigliare, stanno in testa a [PadArrange].
  */
-private fun <T> List<T>.moved(from: Int, to: Int): List<T> {
-    if (from !in indices || to !in indices || from == to) return this
-    val out = toMutableList()
-    out.add(to, out.removeAt(from))
-    return out
+@Composable
+private fun PadOrder(
+    title: String,
+    order: List<PadKey>,
+    columns: Int,
+    onOrder: (List<PadKey>) -> Unit
+) {
+    Group(title)
+    PadArrange(
+        order = order,
+        columns = columns,
+        onOrder = onOrder,
+        modifier = Modifier.padding(bottom = ARRANGE_GAP)
+    )
 }
+
+/** L'aria fra un riquadro e il titolo del successivo. */
+private val ARRANGE_GAP = 12.dp
 
 /**
  * Un numero di colonne, vestito da [Choice] per entrare nella fila di pastiglie.

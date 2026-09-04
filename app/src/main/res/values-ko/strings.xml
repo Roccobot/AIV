@@ -64,7 +64,7 @@
     <string name="settings_background">이미지 뒤</string>
     <string name="settings_bg_checker">체크무늬</string>
     <string name="settings_bg_solid">단색</string>
-    <string name="settings_bg_desc">체크무늬는 투명을 보이게 하는 유일한 배경이고, 이미지 뷰어에서 투명은 장식이 아니라 정보입니다.</string>
+    <string name="settings_bg_desc">체커보드는 투명한 픽셀을 보기에 가장 좋은 방법이며, 제대로 된 뷰어에서 그것은 장식이 아니라 정보입니다.</string>
     <string name="settings_ui_theme">테마</string>
     <string name="settings_ui_theme_desc">인터페이스를 밝게 할지 어둡게 할지. 아래의 이미지 뒤 배경은 해당되지 않습니다. 체크무늬는 투명도를 드러낼 뿐 테마를 따르지 않습니다.</string>
     <string name="settings_system">시스템</string>
@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">폴더 격자의 열 수</string>
     <string name="settings_folder_columns_desc">열이 많을수록 화면에 폴더가 더 많이 들어가고 표지는 작아집니다. 네 열에서는 아래의 이름이 대개 잘립니다.</string>
     <string name="settings_folder_count">격자 보기에서 폴더 아래 항목 개수 표시</string>
-    <string name="settings_hand">주요 기능의 위치</string>
-    <string name="settings_hand_desc">기기를 주로 조작하는 손에 맞춥니다.</string>
+    <string name="settings_hand">버튼의 위치</string>
+    <string name="settings_hand_desc">떠 있는 버튼이 어느 아래쪽 모서리에 놓이는지. 버튼이 여는 패널과 격자가 남겨 두는 여백도 함께 움직입니다.</string>
     <string name="settings_right">오른쪽</string>
     <string name="settings_left">왼쪽</string>
     <string name="settings_list_path">파일 목록: 폴더 경로도 복사</string>
@@ -371,10 +371,14 @@
         <item quantity="other">%1$d색</item>
     </plurals>
     <string name="settings_buttons">버튼 순서</string>
-    <string name="settings_buttons_desc">행 오른쪽의 손잡이를 끌어서 버튼을 옮깁니다. 각 순서는 해당 패널이 나타나는 모든 곳에 적용됩니다.</string>
+    <string name="settings_buttons_desc">아이콘 패널의 버튼은 원하는 자리에 놓을 수 있습니다. 각 순서는 해당 패널이 나타나는 모든 곳에 적용됩니다.</string>
     <string name="settings_buttons_menu">파일 메뉴</string>
     <string name="settings_buttons_turn">편집기: 회전과 가운데 맞춤</string>
     <string name="settings_buttons_steps">편집기: 실행 취소와 적용</string>
     <string name="settings_labels">아이콘 아래 레이블</string>
     <string name="settings_labels_desc">레이블을 끄면 아이콘 패널이 더 조밀해집니다. 목록 메뉴는 바뀌지 않습니다.</string>
+    <string name="settings_buttons_how">버튼을 길게 누른 다음 끌어서 패널 안의 자리를 바꿉니다.</string>
+    <string name="settings_buttons_bin">휴지통에서도 파일 메뉴는 같은 순서를 유지합니다. \'이름 바꾸기\' 자리에 \'되돌리기\'가 들어갑니다.</string>
+    <string name="settings_buttons_before">앞으로 옮기기</string>
+    <string name="settings_buttons_after">뒤로 옮기기</string>
 </resources>
