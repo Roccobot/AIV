@@ -54,6 +54,25 @@ object Knobs {
         window.attributes = fresh
     }
 
+    /**
+     * Ridà la finestra alla luminosità di sistema.
+     *
+     * ⚠️⚠️ **NON È [setBrightness] CON UN VALORE ALTO**, ed è la ragione per cui esiste una
+     * seconda funzione: quella stringe il valore fra [FLOOR] e 1, quindi non può scrivere
+     * `BRIGHTNESS_OVERRIDE_NONE`, che è il solo valore che **toglie** l'imposizione invece di
+     * sostituirla. Scrivere 1 lascerebbe lo schermo al massimo, che è un'altra cosa da 'come
+     * prima'.
+     * ⚠️ **Il volume non ha una funzione gemella, e non è una dimenticanza**: [setVolume]
+     * scrive il volume vero del telefono e non una proprietà della finestra, quindi
+     * rimetterlo a posto vorrebbe dire disfare una scelta fatta sul dispositivo.
+     */
+    fun clearBrightness(activity: Activity?) {
+        val window = activity?.window ?: return
+        val fresh: WindowManager.LayoutParams = window.attributes
+        fresh.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+        window.attributes = fresh
+    }
+
     /** Il volume della musica, da 0 a 1. */
     fun volume(context: Context): Float {
         val audio = context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager ?: return 0f

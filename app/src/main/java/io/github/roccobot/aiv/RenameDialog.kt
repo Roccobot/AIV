@@ -115,13 +115,33 @@ fun RenameDialog(
 
     val listed = names
     LaunchedEffect(listed) {
-        if (proposed || listed.isNullOrEmpty()) return@LaunchedEffect
+        if (proposed || listed == null) return@LaunchedEffect
+        // ⚠️ Si segna proposto anche con l'elenco VUOTO, e la riga sotto dipende da questo:
+        // è quella che apre la finestra, e senza di lei un tocco su 'Rinomina' non aprirebbe
+        // più niente nel caso in cui i nomi non si riescono a leggere.
         proposed = true
+        if (listed.isEmpty()) return@LaunchedEffect
         // ⚠️ Il nome **senza estensione**, perché l'estensione la rimette `renderName`: con
         // lei dentro il template il file diventerebbe `foto.jpg.jpg`.
         template = if (singolo) listed.first().substringBeforeLast('.', listed.first())
         else suggestTemplate(listed.first(), listed.size, start.toIntOrNull() ?: 1)
     }
+
+    /*
+     * ⚠️⚠️ **NON SI APRE FINCHÉ NON HA I NOMI E IL TEMPLATE, ed è il rimedio che la `1.25` ha
+     * già scelto per la scheda delle informazioni** (vedi `FileOps`): `FileTree.namesOf` passa
+     * da `Dispatchers.IO` senza condizioni, quindi al primo fotogramma i nomi non ci sono
+     * **per costruzione**, e questa finestra si disegnava vuota e poi cresceva di tutto il
+     * blocco dell'anteprima. È il salto che l'utente vede ancora dopo la `1.45`.
+     * ⚠️⚠️ **LA GUARDIA È `proposed` E NON `listed != null`, e la differenza è la rotazione**:
+     * `proposed` sopravvive alla ricreazione dell'attività e `names` no, perché viene da un
+     * `produceState` che riparte da capo. Guardando i nomi, girare il telefono con la finestra
+     * aperta la farebbe sparire e tornare.
+     * ⚠️ **Il prezzo è un'attesa fra il tocco e la finestra**, ed è dichiarato: con un file
+     * solo è un salto di thread, con una selezione grande è una lettura per file. Il baratto è
+     * lo stesso che la `1.25` ha già accettato.
+     */
+    if (!proposed) return
 
     val first = start.toIntOrNull()
     val clean = template.trim()
@@ -186,6 +206,7 @@ fun RenameDialog(
                     keyboardOptions = KeyboardOptions(
                         imeAction = if (singolo) ImeAction.Done else ImeAction.Next
                     ),
+                    shape = BOX_SHAPE,
                     modifier = Modifier.fillMaxWidth()
                 )
                 // ⚠️ Il primo numero e la spiegazione dei cancelletti escono di scena con un
@@ -205,6 +226,7 @@ fun RenameDialog(
                             keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Done
                         ),
+                        shape = BOX_SHAPE,
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(Modifier.height(8.dp))
@@ -307,6 +329,7 @@ private fun ExtensionDialog(initial: String, onDismiss: () -> Unit, onPick: (Str
                     label = { Text(stringResource(R.string.rename_ext_label)) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    shape = BOX_SHAPE,
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(Modifier.height(8.dp))
@@ -427,8 +450,16 @@ private fun PreviewRow(row: Pairing) {
          * l'altra è il risultato.
          * ⚠️⚠️ **E IL BORDO NON È DECORAZIONE: è la 'pillola INTORNO al nome' che lui ha
          * nominato**, e l'unica cosa che la fa esistere quando due superfici vicine si
-         * somigliano comunque. Le due pastiglie diventano così una **contornata** e una
-         * **piena**, che è l'abbinamento normale fra un punto di partenza e un risultato.
+         * somigliano comunque.
+         * ⚠️⚠️ **E DALLA `1.47` CE L'HANNO TUTTE E DUE** (riscontro della `1.45`: *contorno: o
+         * mai, o sempre; non regola generale, ma almeno in questo contesto*). Prima erano una
+         * contornata e una piena, e quella coppia era raccontata qui come l'abbinamento
+         * normale fra un punto di partenza e un risultato: in realtà nessuno l'aveva scelta,
+         * la pastiglia dell'anteprima era nuda perché il filo aveva `null` come valore di
+         * serie. A dire quale è la partenza e quale il risultato basta il riempimento, che è
+         * già diverso, e il filo torna a dire soltanto dove finisce un riquadro.
+         * ⚠️ **Quello dell'anteprima prende `primary`**, cioè il token da cui 'Annulla' e
+         * 'Rinomina' prendono il colore del loro testo, perché era la richiesta alla lettera.
          * ⚠️⚠️ **IL COLORE DEL FILO NON È PIÙ `outlineVariant`, DALLA 1.45, perché sul tema
          * SCURO non si vedeva** (domanda dell'utente, 2026-09-03: *sbaglio o ha un filetto di
          * contorno solo nel tema chiaro?*). Non sbagliava, e il perché il rapporto di
@@ -440,7 +471,7 @@ private fun PreviewRow(row: Pairing) {
             back = MaterialTheme.colorScheme.surfaceContainerLowest,
             front = MaterialTheme.colorScheme.onSurfaceVariant,
             weight = FontWeight.Normal,
-            border = BorderStroke(PILL_EDGE, hairline()),
+            border = BorderStroke(BOX_EDGE, hairline()),
             modifier = Modifier.fillMaxWidth()
         )
         /*
@@ -465,6 +496,7 @@ private fun PreviewRow(row: Pairing) {
             back = MaterialTheme.colorScheme.secondaryContainer,
             front = MaterialTheme.colorScheme.onSecondaryContainer,
             weight = FontWeight.Medium,
+            border = BorderStroke(BOX_EDGE, MaterialTheme.colorScheme.primary),
             modifier = Modifier.fillMaxWidth()
         )
     }
@@ -480,27 +512,27 @@ private fun PreviewRow(row: Pairing) {
  */
 private val ARROW_SIZE = 20.dp
 
-/**
- * Il filo intorno alla pastiglia di partenza.
- *
- * ⚠️ **1dp, cioè il minimo che si vede**: qui il bordo non deve pesare come una cornice, deve
- * solo dire dove finisce la pastiglia. Il perché del bordo sta in [PreviewRow].
- */
-private val PILL_EDGE = 1.dp
-
 @Composable
 private fun NamePill(
     text: AnnotatedString,
     back: Color,
     front: Color,
     weight: FontWeight,
-    modifier: Modifier = Modifier,
-    /** Il filo intorno, che ha la sola pastiglia di partenza. Vedi la nota in [PreviewRow]. */
-    border: BorderStroke? = null
+    /**
+     * Il filo intorno.
+     *
+     * ⚠️⚠️ **NON HA UN VALORE DI SERIE, ed è quello il difetto che la `1.47` toglie**: con
+     * `null` come valore di serie la pastiglia dell'anteprima è rimasta senza filo per due
+     * versioni, non perché qualcuno l'avesse deciso ma perché nessuno aveva scritto niente.
+     * Senza valore di serie, 'o tutte o nessuna' non è più una regola da ricordare: è una
+     * cosa che il compilatore chiede.
+     */
+    border: BorderStroke,
+    modifier: Modifier = Modifier
 ) {
     Surface(
         color = back,
-        shape = MaterialTheme.shapes.small,
+        shape = BOX_SHAPE,
         border = border,
         modifier = modifier
     ) {

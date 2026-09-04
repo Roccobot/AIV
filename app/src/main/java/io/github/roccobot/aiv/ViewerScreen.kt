@@ -1026,6 +1026,25 @@ private fun ClipStage(
     val progress = rememberProgressStateWithTickInterval(player, TICK_MS, scope)
 
     val activity = remember(context) { Knobs.activityOf(context) }
+    /*
+     * ⚠️⚠️ **LA LUMINOSITÀ TORNA COM'ERA QUANDO IL FILMATO ESCE DI SCENA** (risposta
+     * dell'utente alla bonifica della `1.46`: *torna come prima quando esci dal filmato*), e
+     * il ripristino sta qui e non nei punti che portano via. Un rimedio scritto in chi se ne
+     * va va ricordato, e il giorno che nasce un'altra uscita il difetto torna; qui il conto
+     * torna da sé, perché uscire dal filmato **è** la fine di questa composizione, qualunque
+     * gesto l'abbia causata. È la stessa scelta della potatura in `Bin.list`, e per la stessa
+     * ragione: chi aggiunge una via d'uscita passa di qui senza doverlo sapere.
+     * ⚠️ **Fra due filmati adiacenti non scatta**, ed è voluto: per un video `startLoad` va da
+     * `Clip` a `Clip` senza passare da `Loading`, quindi questa funzione resta in scena e chi
+     * ha abbassato lo schermo per guardare al buio non se lo vede risalire a ogni strisciata.
+     * ⚠️ **Ma passando da un'immagine sì**: là il ramo è un altro e la composizione si smonta.
+     * La promessa è 'alla fine del filmato', non 'finché non cambi cartella'.
+     * ⚠️ **E l'app in secondo piano non è un'uscita**: la composizione resta, quindi al
+     * ritorno la luminosità scelta è ancora quella, com'è in ogni lettore video.
+     */
+    DisposableEffect(activity) {
+        onDispose { Knobs.clearBrightness(activity) }
+    }
     var knob by remember { mutableStateOf<Knob?>(null) }
     // ⚠️ La chiave è il valore: ogni movimento del dito rifà l'attesa, quindi l'indicatore
     // sparisce un attimo dopo l'ULTIMO ritocco e non a metà del gesto.
@@ -3180,16 +3199,25 @@ private fun NameLine(name: String) {
      * barra delle info, ancorato a destra, un glifo nudo dell'app deve restare in ultima
      * posizione. È a scapito di un pezzo di nome, ma ne vale la pena per motivi di
      * identità*). Il baratto è dichiarato da lui, quindi non è un difetto da compensare: il
-     * nome si accorcia e il glifo non si sposta mai.
+     * nome si accorcia e il glifo resta all'estremo destro.
      * ⚠️ **La `Row` è la cosa che fa il baratto**: il nome prende quello che avanza
      * (`weight`), il glifo la sua misura naturale. Sovrapposti in un `Box` il glifo starebbe
      * sopra le ultime lettere, che è un'altra cosa da 'a scapito di un pezzo di nome'.
+     * ⚠️⚠️ **E IL NOME RIEMPIE QUELLO CHE AVANZA ANCHE QUANDO È CORTO** (riscontro della
+     * `1.45`: *il glifo deve stare SEMPRE ancorato a destra, anche quando il nome è corto*).
+     * Con `fill = false` la scatola del nome si stringeva sul testo e il glifo la seguiva,
+     * quindi su un nome breve la firma si fermava in mezzo alla riga, e la frase qui sopra
+     * era falsa proprio nel caso che descriveva.
+     * ⚠️ **Riempire non tocca né il testo né l'accorciamento**: nella scatola il testo resta
+     * allineato all'inizio, e a un figlio con peso la `Row` passa la stessa larghezza
+     * **massima** nei due casi (`fill` cambia solo la minima), quindi [fitName] riceve lo
+     * spazio di prima.
      */
     Row(
         modifier = Modifier.fillMaxWidth().padding(bottom = NAME_GAP),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        BoxWithConstraints(modifier = Modifier.weight(1f, fill = false)) {
+        BoxWithConstraints(modifier = Modifier.weight(1f)) {
             val measurer = rememberTextMeasurer()
             val room = with(LocalDensity.current) { maxWidth.roundToPx() }
             val shown = remember(name, room, style, measurer) {
@@ -3226,15 +3254,17 @@ private fun NameLine(name: String) {
              */
             contentDescription = null,
             /*
-             * ⚠️⚠️ **L'ACCENTO DEL TEMA E LA TRASPARENZA DEL NOME, come le ha chieste**
-             * (*colore di accento corrente, stessa trasparenza del testo del nome cui si
-             * allinea*). ⚠️ Il contrasto è basso per costruzione: l'accento su fondo chiaro
-             * misura 2,43 (vedi `Theme.kt`) e questo lo porta a poco più di uno. **Non è un
-             * difetto da correggere**: qui non c'è niente da leggere, c'è una firma, e la
-             * richiesta dice esattamente quanto deve farsi notare.
+             * ⚠️⚠️ **L'ACCENTO PIENO, SENZA TRASPARENZA** (riscontro della `1.45`: *niente
+             * trasparenza: colore pieno dell'accento corrente*). Nella `1.45` portava la
+             * stessa alfa del nome, che era quello che aveva chiesto allora, e il risultato
+             * era una firma più spenta del testo che firma.
+             * ⚠️ Il contrasto resta quello dell'accento, 2,43 sul fondo chiaro (misurato in
+             * `Theme.kt`): sotto la soglia delle grafiche non testuali, e accettato dove quel
+             * colore è nato. Qui non c'è niente da leggere, c'è una firma.
              */
-            tint = MaterialTheme.colorScheme.primary.copy(alpha = NAME_FADE),
-            modifier = Modifier.height(tall)
+            tint = MaterialTheme.colorScheme.primary,
+            // Perché lo scostamento è un `offset` e non un margine: vedi [MARK_NUDGE].
+            modifier = Modifier.height(tall).offset(x = MARK_NUDGE, y = -MARK_NUDGE)
         )
     }
 }
@@ -3244,11 +3274,16 @@ private fun NameLine(name: String) {
  *
  * ⚠️ **È una scelta e non una misura**, e il perché sta accanto all'uso: l'altezza di una
  * maiuscola in un carattere normale è circa 0,71 del corpo, e a quella misura il glifo
- * sparisce accanto al nome; 0,85 lo porta appena sopra, che per una firma è il verso giusto.
+ * sparisce accanto al nome; 0,85 lo portava appena sopra, che per una firma è il verso
+ * giusto.
+ * ⚠️⚠️ **POI L'UTENTE LO HA VISTO SUL TELEFONO E LO HA VOLUTO PIÙ GRANDE** (riscontro della
+ * `1.45`: *dev'essere un buon 15% più grande*), quindi qui resta scritto il prodotto e non il
+ * suo risultato: si legge da dove si parte e di quanto si è cresciuti, e il conto lo fa il
+ * compilatore invece della nota.
  * ⚠️ **Il numero scartato resta scritto** perché è quello che verrebbe naturale a chi vuole
  * 'allinearlo alle maiuscole', ed è la ragione per cui questa nota esiste.
  */
-private const val MARK_TALL = 0.85f
+private const val MARK_TALL = 0.85f * 1.15f
 
 /**
  * L'aria fra la fine del nome e il marchio.
@@ -3257,6 +3292,23 @@ private const val MARK_TALL = 0.85f
  * glifo si leggerebbero come parte di lui.
  */
 private val MARK_GAP = 6.dp
+
+/**
+ * Di quanto il marchio esce verso il margine e verso l'alto, per il suo equilibrio ottico.
+ *
+ * ⚠️⚠️ **È UN `offset` E NON UN MARGINE, perché non deve consumare spazio** (riscontro della
+ * `1.45`: *prendersi qualche dp in più a destra e in alto, ma senza muovere il resto*). Un
+ * margine è spazio, quindi spingere il glifo con lui vorrebbe dire spostare il nome e alzare
+ * la riga, e per rimetterli a posto servirebbe un secondo margine di segno opposto: la coppia
+ * di segno opposto che in casa è vietata. Un `offset` riferisce la misura di prima e sposta
+ * soltanto dove il glifo viene posato, quindi non c'è niente da rimettere a posto.
+ * ⚠️ **Lo spazio per uscire c'è già**: il glifo è più basso della riga di testo, quindi
+ * salendo resta dentro di lei, e a destra ha il margine del pannello prima del bordo dello
+ * schermo.
+ * ⚠️ **`offset` e non `absoluteOffset`**: dove si scrive da destra il glifo sta dall'altra
+ * parte della riga e deve uscire verso quel margine, non verso il nome.
+ */
+private val MARK_NUDGE = 2.dp
 
 /**
  * Quanto il nome del file è meno acceso dei dati sotto di lui, e quanto se ne stacca.

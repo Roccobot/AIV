@@ -94,8 +94,16 @@ private object LowerElement : ModifierNodeElement<LowerNode>() {
  * passano da `MenuSpot`, che è un `PopupPositionProvider` e riceve `windowSize`, cioè la
  * finestra, **prima** che si disegni il primo fotogramma; i dialoghi passavano da un
  * modificatore di layout, che vede solo il vincolo della passata in corso. Due meccanismi che
- * misuravano due cose diverse, e uno dei due poteva sbagliare il primo fotogramma. Adesso
- * misurano la stessa cosa.
+ * misuravano due cose diverse, e uno dei due poteva sbagliare il primo fotogramma.
+ * ⚠️⚠️ **MA 'ADESSO MISURANO LA STESSA COSA' NON ERA VERO, e questa riga lo diceva dalla
+ * `1.45`**: quello che la `1.45` ha tolto è il **vincolo**, non la differenza. I menu contano
+ * su `windowSize`, cioè la finestra che il `Popup` riceve, e limitano la **posizione finale**;
+ * qui si conta su `currentWindowMetrics` meno i rientri di **questa** finestra, e si limita lo
+ * **spostamento**. Sono due formule su due grandezze diverse, quindi su una superficie alta
+ * possono dare due posti diversi, e la differenza è statica: si misura con uno screenshot solo,
+ * aprendo un menu e la finestra che apre. ⚠️ **Non è stata unificata nella `1.47`**, perché
+ * cambiare la formula muove ogni finestra centrata dell'app, comprese quelle che l'utente ha
+ * già approvato: prima si guarda se lo scarto si vede.
  * ⚠️ **Il vincolo non si legge più affatto**, nemmeno per la stretta: la stretta ha bisogno di
  * quanta aria c'è sotto, e quell'aria è (finestra - contenuto), non (vincolo - contenuto). Con
  * la finestra, il conto è lo stesso a ogni passata.
