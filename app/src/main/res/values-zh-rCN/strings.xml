@@ -239,6 +239,8 @@
     <string name="bin_empty">清空回收站</string>
     <string name="bin_empty_ask">确定清空回收站？</string>
     <string name="bin_empty_desc">里面的内容将无法找回。</string>
+    <string name="bin_restore_all_ask">确定还原回收站中的全部内容？</string>
+    <string name="bin_restore_all_desc">每个文件都会回到各自的原文件夹：想知道每个文件被移到哪里，请查看回收站历史。</string>
     <plurals name="trash_done">
         <item quantity="other">已把 %1$d 项移入回收站</item>
     </plurals>

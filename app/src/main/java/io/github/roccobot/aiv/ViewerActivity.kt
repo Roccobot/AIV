@@ -2094,6 +2094,19 @@ private fun AivApp(model: ViewerViewModel) {
                 listPath = settings.listPath,
                 pickWeight = settings.pickWeight,
                 filter = model.gridFilter,
+                /*
+                 * ⚠️⚠️ **VA PASSATO A TUTTI E TRE I RAMI, e nella `1.50` era arrivato al solo
+                 * ramo della ricerca**, cioè al posto in cui il gesto non serve a niente:
+                 * il tasto del filtro c'è in tutte e tre le schermate, e il tocco lungo lo
+                 * si fa in una cartella. Il difetto era invisibile alla lettura, perché il
+                 * parametro ha un valore di riserva vuoto (vedi `onSearch` in `GridScreen`):
+                 * il gesto vibrava e chiamava una funzione che non fa niente, che è
+                 * esattamente il riscontro (*c'è una vibrazione, ma non appare niente*).
+                 * ⚠️ **E vale anche nel cestino, di proposito**: due controlli identici
+                 * devono comportarsi allo stesso modo, che è la regola che lui ha dettato
+                 * nello stesso giro parlando dei pannelli.
+                 */
+                onSearch = { model.openSearch() },
                 onFilter = { model.sift(it) },
                 gridNames = settings.gridNames,
                 onBusy = { model.gridBusy = it }
@@ -2147,6 +2160,19 @@ private fun AivApp(model: ViewerViewModel) {
                 listPath = settings.listPath,
                 pickWeight = settings.pickWeight,
                 filter = model.gridFilter,
+                /*
+                 * ⚠️⚠️ **VA PASSATO A TUTTI E TRE I RAMI, e nella `1.50` era arrivato al solo
+                 * ramo della ricerca**, cioè al posto in cui il gesto non serve a niente:
+                 * il tasto del filtro c'è in tutte e tre le schermate, e il tocco lungo lo
+                 * si fa in una cartella. Il difetto era invisibile alla lettura, perché il
+                 * parametro ha un valore di riserva vuoto (vedi `onSearch` in `GridScreen`):
+                 * il gesto vibrava e chiamava una funzione che non fa niente, che è
+                 * esattamente il riscontro (*c'è una vibrazione, ma non appare niente*).
+                 * ⚠️ **E vale anche nel cestino, di proposito**: due controlli identici
+                 * devono comportarsi allo stesso modo, che è la regola che lui ha dettato
+                 * nello stesso giro parlando dei pannelli.
+                 */
+                onSearch = { model.openSearch() },
                 onFilter = { model.sift(it) },
                 gridNames = settings.gridNames,
                 bin = true,

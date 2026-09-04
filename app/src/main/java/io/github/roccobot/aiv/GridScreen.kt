@@ -191,8 +191,19 @@ fun GridScreen(
      *
      * ⚠️ **È la stessa che apre la voce 'Cerca' della schermata iniziale**, quindi cerca in
      * tutta la galleria: chi la chiama passa lo stesso `openSearch` di là.
+     *
+     * ⚠️⚠️ **SENZA VALORE DI RISERVA, dalla 1.53, e la ragione è un difetto vero**: nella
+     * `1.50` questo parametro era arrivato al solo ramo della ricerca, e i due rami che
+     * contano (la cartella e il cestino) prendevano il `{}` di riserva. Il gesto vibrava e
+     * chiamava una funzione che non fa niente, cioè si presentava come una funzione rotta
+     * senza che niente lo segnalasse: né il compilatore, né una lettura del codice, dove un
+     * parametro assente si legge come una scelta.
+     * ⚠️ **Adesso quel difetto non si può più scrivere**: chi aggiunge una schermata che usa
+     * questa griglia deve dire dove porta il tocco lungo, o non compila. È il rimedio giusto
+     * per un difetto che si vedeva solo provando l'app, che è la cosa che qui non si può
+     * fare.
      */
-    onSearch: () -> Unit = {},
+    onSearch: () -> Unit,
     /**
      * Se le funzioni principali del pannello stanno a sinistra. Vedi `Settings.hand`.
      *
@@ -336,6 +347,8 @@ fun GridScreen(
 
     /** Se si sta chiedendo di svuotare il cestino. Vale solo quando [bin] è vero. */
     var emptying by remember { mutableStateOf(false) }
+    /** Se la conferma di 'Ripristina tutto' è in scena. Vedi la nota su quella voce. */
+    var restoringAll by remember { mutableStateOf(false) }
     val picking = chosen.isNotEmpty()
 
     // ⚠️ In un effetto e non a filo della composizione: avvisare il modello è un cambiamento
@@ -1185,18 +1198,17 @@ fun GridScreen(
                          * `PICK_EDGE` non c'è più: era il terzo posto in cui viveva lo stesso
                          * otto.
                          */
-                        MenuRow(
-                            text = stringResource(R.string.bin_restore_all),
-                            icon = Glyphs.BinRestoreAll,
-                            enabled = filled,
-                            // ⚠️ Nessuna conferma, come per il ripristino di una foto sola:
-                            // rimette le cose come stavano, ed è reversibile (si rielimina).
-                            // Vedi [FileJob.Restore].
-                            onTap = {
-                                menu.close()
-                                job = FileJob.Restore(items.orEmpty())
-                            }
-                        )
+                        /*
+                         * ⚠️⚠️ **LA CRONOLOGIA STA IN CIMA, dalla 1.53, per sua richiesta**
+                         * (riscontro del giro della `1.51`, voce `icone-cestino`: *cambia
+                         * l'ordine delle voci portando 'Cronologia' in cima*). Le altre due
+                         * agiscono su tutto il contenuto, questa lo racconta: chi apre questo
+                         * menu senza sapere che cosa c'è dentro incontra prima la voce che
+                         * glielo dice, e le due che muovono i file dopo.
+                         * ⚠️ **È anche la sola sempre toccabile**: le altre due si spengono a
+                         * cestino vuoto, quindi in cima ci sarebbero due righe grigie e la sola
+                         * viva in fondo.
+                         */
                         MenuRow(
                             text = stringResource(R.string.bin_history),
                             /*
@@ -1213,6 +1225,27 @@ fun GridScreen(
                              */
                             icon = Icons.Default.Recycling,
                             onTap = { menu.close(); onHistory() }
+                        )
+                        MenuRow(
+                            text = stringResource(R.string.bin_restore_all),
+                            icon = Glyphs.BinRestoreAll,
+                            enabled = filled,
+                            /*
+                             * ⚠️⚠️ **ADESSO CHIEDE, dalla 1.53, e la nota di prima diceva il
+                             * contrario** (richiesta dell'utente, giro della `1.51`:
+                             * *'Ripristina tutto' deve funzionare previa conferma*). Quella
+                             * nota diceva che il ripristino non chiede perché è reversibile,
+                             * e l'argomento resta vero per **una** immagine: rimette una cosa
+                             * dov'era, e la si rielimina con un tocco. Su **tutto** il cestino
+                             * no, e la differenza non è la reversibilità ma il **sapere dove
+                             * vanno**: i file tornano ognuno nella sua cartella d'origine, che
+                             * possono essere molte e non tutte in mente, quindi disfare a mano
+                             * vorrebbe dire ritrovarli uno per uno.
+                             * ⚠️ **Per questo il testo della conferma nomina la Cronologia**,
+                             * che è il posto in cui quelle destinazioni sono scritte: le parole
+                             * sono sue.
+                             */
+                            onTap = { menu.close(); restoringAll = true }
                         )
                         MenuRow(
                             text = stringResource(R.string.bin_empty),
@@ -1423,6 +1456,35 @@ fun GridScreen(
      * schermata: il perché sta su [cleared]. ⚠️ Chi la rimettesse avrebbe due cure per lo
      * stesso sbaglio, una che chiede prima e una che disfa dopo.
      */
+
+    /*
+     * ⚠️⚠️ **LA CONFERMA DI 'RIPRISTINA TUTTO', dalla 1.53, e NON è pericolosa**: il tasto
+     * che conferma non porta il colore dell'errore come quello di 'Svuota il cestino', perché
+     * qui non si perde niente. La conferma non serve a fermare un danno, serve a dire **dove
+     * finiscono** i file, che è la sola cosa che chi tocca quella voce non può sapere: il
+     * perché per esteso sta sulla voce del menu.
+     */
+    if (restoringAll) {
+        AlertDialog(
+            onDismissRequest = { restoringAll = false },
+            modifier = Modifier.lowered(),
+            title = { Text(stringResource(R.string.bin_restore_all_ask)) },
+            text = { Text(stringResource(R.string.bin_restore_all_desc)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        restoringAll = false
+                        job = FileJob.Restore(items.orEmpty())
+                    }
+                ) { Text(stringResource(R.string.bin_restore_all)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { restoringAll = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
 
     if (emptying) {
         AlertDialog(

@@ -239,6 +239,8 @@
     <string name="bin_empty">เทถังขยะ</string>
     <string name="bin_empty_ask">เทถังขยะจริงหรือ?</string>
     <string name="bin_empty_desc">จะกู้คืนสิ่งที่อยู่ข้างในไม่ได้อีก</string>
+    <string name="bin_restore_all_ask">กู้คืนทุกอย่างในถังขยะจริงหรือไม่</string>
+    <string name="bin_restore_all_desc">ไฟล์แต่ละไฟล์จะกลับไปยังโฟลเดอร์ต้นทางของตัวเอง หากต้องการทราบว่าไฟล์ใดถูกย้ายไปที่ใด ให้ดูประวัติของถังขยะ</string>
     <plurals name="trash_done">
         <item quantity="other">%1$d ย้ายไปที่ถังขยะ</item>
     </plurals>
