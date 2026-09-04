@@ -89,16 +89,18 @@ import kotlinx.coroutines.withContext
  *   dichiarato tale, cioè descrive com'era prima di questo riordino, e un tempo passato non
  *   invecchia. Quello che invecchia è il conto di com'è **adesso**.
  *
- * ⚠️⚠️ **SOTTO-PAGINA SI DIVENTA IN TRE MODI, e la regola completa vive in `AIV/CLAUDE.md`**,
+ * ⚠️⚠️ **SOTTO-PAGINA SI DIVENTA IN QUATTRO MODI, e la regola completa vive in `AIV/CLAUDE.md`**,
  * § '⚙️ Dove va un'impostazione, e chi la deve trovare': perché la voce è un **elenco** che
  * cresce e porta comandi propri riga per riga (le cartelle nascoste e i dati di Info erano da
  * sole più di metà dell'altezza della schermata); perché le voci sono **delicate** e il tocco
  * in più è una protezione ('Adattamento e zoom', nata così su richiesta dell'utente: *sono
- * impostazioni delicate*); oppure perché la **famiglia** ha superato la soglia dell'utente
+ * impostazioni delicate*); perché la **famiglia** ha superato la soglia dell'utente
  * (*fino a 2-3 opzioni correlate basta una sotto-sezione; più di 2-3 si va con la
- * sotto-pagina*), che è il modo con cui nasce 'Opzioni di visualizzazione'.
+ * sotto-pagina*), che è il modo con cui nasce 'Opzioni di visualizzazione'; oppure perché è un
+ * **comando che ha bisogno di un paragrafo**, che è il quarto e nasce con 'Elimina le
+ * miniature memorizzate'.
  * - ⚠️ **Una riga sola che non è né un elenco né delicata, in una sotto-pagina costerebbe un
- *   tocco senza guadagnare niente**, ed è la clausola che vale più delle altre tre.
+ *   tocco senza guadagnare niente**, ed è la clausola che vale più delle altre.
  * - ⚠️ **La soglia si conta sulla FAMIGLIA e non sulla sezione**: 'Aspetto' porta il tema, la
  *   coppia dello sfondo e il velo, cioè tre famiglie, e nessuna arriva alla soglia. Contandola
  *   sulla sezione, il tema dell'app finirebbe dietro un tocco.
