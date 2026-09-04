@@ -14,7 +14,19 @@ l'app nella propria lingua:
   crash solo su quei telefoni;
 - CATEGORIE DI PLURALE: dipendono dalla lingua, non dal numero di forme che ha l'inglese.
   Il russo ne vuole quattro, l'arabo sei, il giapponese una;
-- CARATTERI VIETATI dal repo: trattini lunghi, apici curvi, ellissi.
+- CARATTERI VIETATI dal repo: trattini lunghi, apici curvi, ellissi;
+- APOSTROFI NUDI, che in un file di risorse Android non sono ammessi: vanno scritti `\\'`
+  (oppure la stringa intera va fra doppi apici). ⚠️⚠️ **Questo controllo nasce dalla `1.53`,
+  e nasce da un difetto che è arrivato fino alla release**: due stringhe nuove con un
+  apostrofo non protetto (una italiana e una francese) hanno fatto fallire
+  `mergeReleaseResources` con un messaggio che non nomina l'apostrofo (`Can not extract
+  resource from ParsedResource`), quindi il difetto era invisibile sia a questo controllo
+  sia a chi leggeva l'errore. ⚠️ **E non lo prende il build di debug del Kotlin**: le
+  risorse si compilano in un compito a sé, che una sessione senza emulatore non lancia.
+
+⚠️ **L'inglese si controlla anche lui, e prima delle altre**: è il metro dei confronti,
+quindi un suo difetto di carattere non verrebbe segnalato da nessuna parte. Non entra nel
+conto delle lingue, che resta quello delle cartelle tradotte.
 
 ⚠️⚠️ **LE VARIANTI REGIONALI PORTANO SOLO LE DIFFERENZE, e qui non si pretendono le
 chiavi**: `values-pt-rPT` e `values-b+es+419` (dalla 0.80) scrivono le sole stringhe che
@@ -86,6 +98,40 @@ def holders(text):
     return sorted(re.findall(r'%\d+\$[sd]', text or ''))
 
 
+def nudi(text):
+    """Quanti apostrofi di questo testo non sono protetti da una barra rovescia.
+
+    ⚠️ **Una stringa fra doppi apici non ne ha bisogno**, ed è l'altra via che Android
+    ammette: là dentro l'apostrofo vale per sé. In casa non se ne usa nessuna, ma
+    segnalarne una sarebbe un falso allarme, e un falso allarme in un controllo che blocca
+    si impara a ignorare.
+    """
+    text = text or ''
+    if len(text) > 1 and text.startswith('"') and text.endswith('"'):
+        return 0
+    return len(re.findall(r"(?<!\\)'", text))
+
+
+def testi(strings, plurals):
+    """Ogni testo di un file, col nome con cui va riportato."""
+    return list(strings.items()) + [
+        (name + '/' + cat, t) for name, forms in plurals.items() for cat, t in forms.items()
+    ]
+
+
+def caratteri(strings, plurals):
+    """I difetti di CARATTERE di un file, che non dipendono dal confronto con l'inglese."""
+    said = []
+    for name, text in testi(strings, plurals):
+        for ch, why in BANNED.items():
+            if ch in text:
+                said.append('%s in %s' % (why, name))
+        quanti = nudi(text)
+        if quanti:
+            said.append('%d apostrofo(i) non protetto(i) in %s: aapt2 vuole \\\'' % (quanti, name))
+    return said
+
+
 def base_lang(lang):
     """La lingua senza paese di una variante regionale: `pt-rPT` -> `pt`, `b+es+419` -> `es`.
 
@@ -127,6 +173,15 @@ def main():
                    if d.startswith('values-') and
                    os.path.isfile(os.path.join(RES, d, 'strings.xml')))
     problems = 0
+
+    # ⚠️ Vedi la nota in testa: l'inglese è il metro dei confronti, quindi i suoi difetti di
+    # carattere non li segnalerebbe nessuno. Non entra nel conto delle lingue.
+    detti = caratteri(base_s, base_p)
+    problems += len(detti)
+    print('%-20s %s' % ('en (sorgente)', 'a posto' if not detti else '%d PROBLEMI' % len(detti)))
+    for line in detti[:10]:
+        print('         -', line)
+
     for lang in langs:
         here_s, here_p, _ = read(os.path.join(RES, 'values-%s' % lang, 'strings.xml'))
         said = []
@@ -168,12 +223,7 @@ def main():
                 elif not set(holders(here_p[name][cat])) <= set(holders(base)):
                     said.append('segnaposto sconosciuti in %s/%s: %s'
                                 % (name, cat, holders(here_p[name][cat])))
-        for name, text in list(here_s.items()) + [
-            (n + '/' + c, t) for n, f in here_p.items() for c, t in f.items()
-        ]:
-            for ch, why in BANNED.items():
-                if ch in text:
-                    said.append('%s in %s' % (why, name))
+        said += caratteri(here_s, here_p)
 
         extra = set(here_s) - set(base_s) | set(here_p) - set(base_p)
         if extra:
