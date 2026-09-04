@@ -249,7 +249,7 @@
     <string name="bin_empty_ask">সত্যিই আবর্জনা খালি করবেন?</string>
     <string name="bin_empty_desc">এর ভিতরের জিনিস আর ফিরে পাওয়া যাবে না।</string>
     <string name="bin_restore_all_ask">সত্যিই সব ফাইল পুনরুদ্ধার করবেন?</string>
-    <string name="bin_restore_all_desc">প্রতিটি ফাইল তার নিজের মূল ফোল্ডারে ফিরে যাবে: কোন ফাইল কোথায় সরানো হয়েছে জানতে আবর্জনার ইতিহাস দেখুন।</string>
+    <string name="bin_restore_all_desc">প্রতিটি আইটেম তার নিজের মূল ফোল্ডারে ফিরে যাবে: কোথায় সরানো হয়েছিল জানতে আবর্জনার ইতিহাস দেখুন।</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d আবর্জনায় গেছে</item>
         <item quantity="other">%1$d আবর্জনায় গেছে</item>
@@ -283,7 +283,7 @@
     <string name="settings_ext_edit_desc">নাম বদলানোর প্যানেল ফাইলের এক্সটেনশন বদলাতে দেয়। কী করছেন নিশ্চিত না হলে এটি চালু করবেন না: ছবি অপাঠ্য হয়ে যেতে পারে।</string>
     <string name="settings_thumbs">সংরক্ষিত থাম্বনেইল মুছুন</string>
     <string name="settings_thumbs_empty">কোনো সংরক্ষিত থাম্বনেইল নেই</string>
-    <string name="settings_thumbs_warn">থাম্বনেইল ক্যাশ খালি করতে বোতামে চাপ দিন। ছবি ও ভিডিওর প্রিভিউ মুছে যাবে এবং প্রতিটি ফোল্ডার খোলার সময় স্বয়ংক্রিয়ভাবে আবার তৈরি হবে (বড় ছবি অনেক থাকলে নতুন থাম্বনেইল তৈরি হতে এক মিনিট বা তার বেশি সময় লাগতে পারে)।</string>
+    <string name="settings_thumbs_warn">থাম্বনেইল ক্যাশ খালি করতে বোতামে চাপ দিন। ছবি ও ভিডিওর প্রিভিউ মুছে যাবে এবং প্রতিটি ফোল্ডার খোলার সময় স্বয়ংক্রিয়ভাবে আবার তৈরি হবে (অনেক বড় ছবি আছে এমন ফোল্ডারে এতে এক মিনিট বা তার বেশি সময় লাগতে পারে)।</string>
     <string name="settings_thumbs_do">থাম্বনেইল ক্যাশ\nখালি করুন</string>
     <string name="settings_thumbs_done">থাম্বনেইল ক্যাশ খালি হয়েছে</string>
     <string name="settings_hidden_none">কোনো লুকানো ফোল্ডার নেই</string>
@@ -373,7 +373,7 @@
     <string name="settings_editor_backup_desc">কোনো সম্পাদক ছবির উপর লেখার আগে তার একটি অনুলিপি আবর্জনায় রেখে দেয়, সেখান থেকে ফিরিয়ে আনা যায়; দরকার না হলে পরের বার \'আবর্জনা খালি করুন\'-এ মুছে যাবে।</string>
     <string name="editor_tall">লম্বালম্বি</string>
     <string name="editor_wide">আড়াআড়ি</string>
-    <string name="pick_cleared">নির্বাচন বাতিল করা হয়েছে</string>
+    <string name="pick_cleared">কোনো ফাইল নির্বাচিত নেই।</string>
     <string name="pick_undo">পূর্বাবস্থা</string>
     <string name="pick_list_done">ফাইলের তালিকা ক্লিপবোর্ডে অনুলিপি হয়েছে</string>
     <string name="settings_pick_weight">নির্বাচিত ফাইলগুলির আকার</string>

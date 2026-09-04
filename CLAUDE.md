@@ -290,13 +290,22 @@ grande un dialogo esattamente al centro fa allungare la mano.
     chiama `lowered()`, e un secondo modificatore da ricordare avrebbe raddoppiato il modo di
     dimenticarsene, con l'aggravante che un velo mancante non si vede (un centro mancante sì).
     Il perché per esteso, e le due vie con cui si applica, stanno in testa a `Veil.kt`.
-    - ⚠️⚠️ **E DALLA 1.54 UNA TERZA: il BORDO D'ACCENTO di 2dp, al posto dell'ombra**
+    - ⚠️⚠️ **E DALLA 1.54 UNA TERZA: il BORDO D'ACCENTO, al posto dell'ombra**
       (richiesta dell'utente, 2026-09-04: *via le ombre e vai con il bordino da 2px del colore
-      di accento*, e *potrebbe essere l'elemento distintivo che cercavo*). Vale la stessa
-      ragione delle altre due, cioè che l'elenco è lo stesso; il bordo però **non dipende
-      dall'interruttore** della sfocatura, perché non è una funzione che si accende ma il modo
-      in cui l'app è fatta. Come si disegna, e che cosa c'entra col 'quadrato sfocato' che lui
-      vedeva intorno ai menu, stanno in testa a `Edge.kt`.
+      di accento*, e *potrebbe essere l'elemento distintivo che cercavo*). Il bordo **non
+      dipende dall'interruttore** della sfocatura, perché non è una funzione che si accende ma
+      il modo in cui l'app è fatta. Come si disegna, e che cosa c'entra col 'quadrato sfocato'
+      che lui vedeva intorno ai menu, stanno in testa a `Edge.kt`.
+      - ⚠️⚠️ **MA IL SUO ELENCO NON È PIÙ QUELLO DEL VELO, dalla `1.55`**, ed è una decisione
+        sua contro il criterio che aveva escluso due superfici (*voglio la riga anche lì: in
+        realtà dappertutto ... per coerenza deve avere il tratto intorno come tutti gli altri
+        elementi simili*). La scheda della selezione e il pannello dei comandi dell'editor
+        adesso hanno il bordo e restano **senza** velo: il velo dice 'mi apro sopra qualcosa',
+        il bordo dice 'sono una superficie di questa app'.
+      - ⚠️ **Lo spessore è cambiato nello stesso giro**, da 2dp a 3dp, e con lui è stato
+        corretto il raggio degli angoli: due riquadri stondati concentrici hanno raggi diversi,
+        e tenere quello del pannello staccava l'arco dal bordo. Era il difetto che lui ha visto
+        (*sembra che la linea di accento non abbia il raggio di stondatura corretto*).
     - ⚠️⚠️ **E IL VELO NON È PIÙ UN ATTRIBUTO DELLE FINESTRE, dalla 1.54: LO DIPINGE L'APP**
       (`AppVeil`, messo in scena da `AivTheme`). Il fatto che ha costretto al cambio, dopo tre
       bocciature della stessa voce: **due finestre non cambiano il proprio velo nello stesso

@@ -240,7 +240,7 @@
     <string name="bin_empty_ask">เทถังขยะจริงหรือ?</string>
     <string name="bin_empty_desc">จะกู้คืนสิ่งที่อยู่ข้างในไม่ได้อีก</string>
     <string name="bin_restore_all_ask">กู้คืนไฟล์ทั้งหมดจริงหรือไม่</string>
-    <string name="bin_restore_all_desc">ไฟล์แต่ละไฟล์จะกลับไปยังโฟลเดอร์ต้นทางของตัวเอง หากต้องการทราบว่าไฟล์ใดถูกย้ายไปที่ใด ให้ดูประวัติของถังขยะ</string>
+    <string name="bin_restore_all_desc">แต่ละรายการจะกลับไปยังโฟลเดอร์ต้นทางของตัวเอง หากต้องการทราบว่าถูกย้ายไปที่ใด ให้ดูประวัติของถังขยะ</string>
     <plurals name="trash_done">
         <item quantity="other">%1$d ย้ายไปที่ถังขยะ</item>
     </plurals>
@@ -270,7 +270,7 @@
     <string name="settings_ext_edit_desc">แผงเปลี่ยนชื่อสามารถเปลี่ยนนามสกุลของไฟล์ได้ ถ้าไม่แน่ใจว่ากำลังทำอะไร อย่าเปิดตัวเลือกนี้ เพราะอาจทำให้รูปอ่านไม่ได้</string>
     <string name="settings_thumbs">ลบภาพย่อที่เก็บไว้</string>
     <string name="settings_thumbs_empty">ไม่มีภาพย่อที่เก็บไว้</string>
-    <string name="settings_thumbs_warn">แตะปุ่มเพื่อล้างแคชภาพย่อ ภาพตัวอย่างของรูปภาพและวิดีโอจะถูกลบและจะถูกสร้างขึ้นใหม่อัตโนมัติเมื่อเปิดแต่ละโฟลเดอร์ (หากมีรูปภาพขนาดใหญ่จำนวนมาก การสร้างภาพย่อใหม่อาจใช้เวลาหนึ่งนาทีหรือมากกว่า)</string>
+    <string name="settings_thumbs_warn">แตะปุ่มเพื่อล้างแคชภาพย่อ ภาพตัวอย่างของรูปภาพและวิดีโอจะถูกลบและจะถูกสร้างขึ้นใหม่อัตโนมัติเมื่อเปิดแต่ละโฟลเดอร์ (ในโฟลเดอร์ที่มีรูปภาพขนาดใหญ่จำนวนมาก อาจใช้เวลาหนึ่งนาทีหรือมากกว่า)</string>
     <string name="settings_thumbs_do">ล้างแคช\nภาพย่อ</string>
     <string name="settings_thumbs_done">ล้างแคชภาพย่อแล้ว</string>
     <string name="settings_hidden_none">ไม่มีโฟลเดอร์ที่ซ่อนไว้</string>
@@ -358,7 +358,7 @@
     <string name="settings_editor_backup_desc">ก่อนที่โปรแกรมแก้ไขจะเขียนทับภาพ ระบบจะเก็บสำเนาไว้ในถังขยะ ซึ่งคุณกู้คืนได้ หากไม่ต้องการ สำเนานั้นจะถูกลบเมื่อ \'ล้างถังขยะ\' ครั้งต่อไป</string>
     <string name="editor_tall">แนวตั้ง</string>
     <string name="editor_wide">แนวนอน</string>
-    <string name="pick_cleared">ล้างการเลือกแล้ว</string>
+    <string name="pick_cleared">ไม่ได้เลือกไฟล์ใด</string>
     <string name="pick_undo">เลิกทำ</string>
     <string name="pick_list_done">คัดลอกรายการไฟล์ไปยังคลิปบอร์ดแล้ว</string>
     <string name="settings_pick_weight">ขนาดของไฟล์ที่เลือก</string>

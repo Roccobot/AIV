@@ -62,6 +62,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import java.text.Normalizer
@@ -206,7 +207,8 @@ fun SettingsScreen(
             title = stringResource(R.string.settings_title),
             onBack = onBack,
             modifier = modifier,
-            scroll = rootScroll
+            scroll = rootScroll,
+            version = true
         ) {
             SearchField(query = query, onQuery = { query = it })
             /*
@@ -1103,6 +1105,15 @@ private fun Shell(
      * mezzo, e da lì in poi lo scorrimento se lo fa quel figlio.
      */
     scrolls: Boolean = true,
+    /**
+     * Se in fondo alla riga del titolo compare il numero di versione.
+     *
+     * ⚠️⚠️ **SOLO NELLA PAGINA PRINCIPALE, e per richiesta** (utente, 2026-09-04: *nelle
+     * impostazioni, in linea con il titolo 'Impostazioni' ma a destra, vorrei che apparisse il
+     * numero della versione dell'app*). Su ogni sotto-pagina sarebbe la stessa riga ripetuta
+     * cinque volte, e il numero smetterebbe di essere una firma per diventare un ornamento.
+     */
+    version: Boolean = false,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column(
@@ -1125,6 +1136,28 @@ private fun Shell(
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.weight(1f)
             )
+            if (version) {
+                /*
+                 * ⚠️⚠️ **IL NUMERO ARRIVA DA `BuildConfig` E NON DA UNA STRINGA**: la fonte
+                 * unica del `versionName` è `app/build.gradle.kts`, e il tag del rilascio la
+                 * conferma invece di ripeterla. Una stringa scritta a mano qui sarebbe il
+                 * secondo posto in cui scriverla, e il primo a mentire.
+                 * ⚠️ **La `v` minuscola non si traduce**, ed è voluto: è la forma che ha chiesto
+                 * lui (*come `v1.54`*), la stessa che si legge sulla paginetta di download, e in
+                 * ventotto lingue una parola tradotta accanto a un numero sarebbe una riga da
+                 * mantenere per non dire niente di più.
+                 * ⚠️ **Discreto vuol dire questi tre pezzi insieme**: il corpo più piccolo che
+                 * il tema abbia, il monospazio, e l'inchiostro tenue. Il monospazio serve a una
+                 * cosa precisa: le cifre hanno tutte la stessa larghezza, quindi il numero non
+                 * cambia ingombro passando dalla `1.9` alla `1.10`.
+                 */
+                Text(
+                    text = "v" + BuildConfig.VERSION_NAME,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontFamily = FontFamily.Monospace,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = VERSION_FADE)
+                )
+            }
         }
         Spacer(Modifier.height(8.dp))
         content()
@@ -1292,6 +1325,15 @@ private fun ThumbsCard(head: String?, onClear: () -> Unit, modifier: Modifier = 
 
 /** L'aria fra l'avviso e il pulsante che lo esegue: abbastanza perché non si tocchino. */
 private val THUMBS_GAP = 28.dp
+
+/**
+ * Quanto è tenue il numero di versione accanto al titolo.
+ *
+ * ⚠️ **'Un po' in trasparenza' è una sua parola, e questo è il numero che le dà un valore**: la
+ * riga deve leggersi da chi la cerca e sparire per chi non la cerca. Parte dall'inchiostro già
+ * attenuato delle spiegazioni, non da quello del titolo, quindi il velo è il secondo di due.
+ */
+private const val VERSION_FADE = 0.55f
 
 /**
  * Che cosa sta fra due voci nel riepilogo di una sotto-pagina.

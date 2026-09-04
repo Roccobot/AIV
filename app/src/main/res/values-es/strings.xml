@@ -258,7 +258,7 @@
     <string name="bin_empty_ask">¿Vaciar de verdad la papelera?</string>
     <string name="bin_empty_desc">No podrás recuperar su contenido.</string>
     <string name="bin_restore_all_ask">¿Restaurar realmente todos los archivos?</string>
-    <string name="bin_restore_all_desc">Cada archivo volverá a su carpeta de origen: para saber a dónde se movió cada archivo, consulta el historial de la papelera.</string>
+    <string name="bin_restore_all_desc">Cada elemento volverá a su carpeta de origen: para saber a dónde se movió, consulta el historial de la papelera.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d movido a la papelera</item>
         <item quantity="other">%1$d movidos a la papelera</item>
@@ -296,7 +296,7 @@
     <string name="settings_ext_edit_desc">El panel de renombrado permite cambiar la extensión de los archivos. Si no sabes lo que haces, no actives esta opción: puede dejar las imágenes ilegibles.</string>
     <string name="settings_thumbs">Eliminar las miniaturas almacenadas</string>
     <string name="settings_thumbs_empty">No hay miniaturas almacenadas</string>
-    <string name="settings_thumbs_warn">Toca el botón para vaciar la caché de miniaturas. Las vistas previas de las imágenes y de los vídeos se eliminarán y se regenerarán automáticamente al abrir cada carpeta (si hay muchas imágenes grandes, crear las nuevas miniaturas puede tardar un minuto o más).</string>
+    <string name="settings_thumbs_warn">Toca el botón para vaciar la caché de miniaturas. Las vistas previas de las imágenes y de los vídeos se eliminarán y se regenerarán automáticamente al abrir cada carpeta (esto puede tardar un minuto o más en las carpetas con muchas imágenes grandes).</string>
     <string name="settings_thumbs_do">Vaciar la caché\nde miniaturas</string>
     <string name="settings_thumbs_done">Caché de miniaturas vaciada</string>
     <string name="settings_hidden_none">Ninguna carpeta oculta</string>
@@ -388,7 +388,7 @@
     <string name="settings_editor_backup_desc">Antes de que un editor sobrescriba una imagen, guarda una copia en la papelera, donde podrás recuperarla; si no la necesitas, se eliminará en el siguiente \'Vaciar papelera\'.</string>
     <string name="editor_tall">Vertical</string>
     <string name="editor_wide">Horizontal</string>
-    <string name="pick_cleared">Selección borrada</string>
+    <string name="pick_cleared">Ningún archivo seleccionado.</string>
     <string name="pick_undo">Deshacer</string>
     <string name="pick_list_done">Lista de archivos copiada al portapapeles</string>
     <string name="settings_pick_weight">Tamaño de los archivos seleccionados</string>

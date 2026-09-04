@@ -249,7 +249,7 @@
     <string name="bin_empty_ask">واقعا سبد زباله خالی شود؟</string>
     <string name="bin_empty_desc">دیگر نمی‌توانید محتوای آن را بازگردانید.</string>
     <string name="bin_restore_all_ask">واقعاً همهٔ فایل‌ها بازیابی شوند؟</string>
-    <string name="bin_restore_all_desc">هر پرونده به پوشه اصلی خود برمی‌گردد: برای دیدن اینکه هر پرونده به کجا منتقل شده، تاریخچه سبد زباله را ببینید.</string>
+    <string name="bin_restore_all_desc">هر مورد به پوشه اصلی خود برمی‌گردد: برای دیدن اینکه به کجا منتقل شده، تاریخچه سبد زباله را ببینید.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d به سبد زباله رفت</item>
         <item quantity="other">%1$d به سبد زباله رفت</item>
@@ -283,7 +283,7 @@
     <string name="settings_ext_edit_desc">پنجرهٔ تغییر نام اجازه می‌دهد پسوند فایل‌ها را عوض کنید. اگر مطمئن نیستید این گزینه را روشن نکنید: می‌تواند تصویرها را ناخوانا کند.</string>
     <string name="settings_thumbs">حذف بندانگشتی‌های ذخیره‌شده</string>
     <string name="settings_thumbs_empty">بندانگشتی ذخیره‌شده‌ای نیست</string>
-    <string name="settings_thumbs_warn">برای خالی کردن حافظهٔ بندانگشتی‌ها روی دکمه ضربه بزنید. پیش‌نمایش تصویرها و ویدیوها حذف می‌شود و هنگام باز کردن هر پوشه به‌طور خودکار دوباره ساخته می‌شود (اگر تصویرهای بزرگ زیاد باشند، ساختن بندانگشتی‌های جدید ممکن است یک دقیقه یا بیشتر طول بکشد).</string>
+    <string name="settings_thumbs_warn">برای خالی کردن حافظهٔ بندانگشتی‌ها روی دکمه ضربه بزنید. پیش‌نمایش تصویرها و ویدیوها حذف می‌شود و هنگام باز کردن هر پوشه به‌طور خودکار دوباره ساخته می‌شود (این کار در پوشه‌هایی با تصویرهای بزرگ زیاد ممکن است یک دقیقه یا بیشتر طول بکشد).</string>
     <string name="settings_thumbs_do">خالی کردن حافظهٔ\nبندانگشتی‌ها</string>
     <string name="settings_thumbs_done">حافظهٔ بندانگشتی‌ها خالی شد</string>
     <string name="settings_hidden_none">هیچ پوشه پنهانی نیست</string>
@@ -373,7 +373,7 @@
     <string name="settings_editor_backup_desc">پیش از آنکه ویرایشگر روی تصویری بنویسد، نسخه‌ای از آن را در سطل زباله نگه می‌دارد تا بتوانید بازش گردانید؛ اگر لازمش نداشتید، در \'خالی کردن سطل زباله\' بعدی حذف می‌شود.</string>
     <string name="editor_tall">عمودی</string>
     <string name="editor_wide">افقی</string>
-    <string name="pick_cleared">انتخاب پاک شد</string>
+    <string name="pick_cleared">هیچ پرونده‌ای انتخاب نشده است.</string>
     <string name="pick_undo">واگرد</string>
     <string name="pick_list_done">فهرست فایل‌ها در بریده‌دان کپی شد</string>
     <string name="settings_pick_weight">اندازهٔ فایل‌های انتخاب‌شده</string>

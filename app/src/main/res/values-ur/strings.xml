@@ -249,7 +249,7 @@
     <string name="bin_empty_ask">کیا واقعی ردی کی ٹوکری خالی کریں؟</string>
     <string name="bin_empty_desc">اس کا مواد دوبارہ حاصل نہیں کیا جا سکے گا۔</string>
     <string name="bin_restore_all_ask">کیا واقعی تمام فائلیں بحال کی جائیں؟</string>
-    <string name="bin_restore_all_desc">ہر فائل اپنے اصل فولڈر میں واپس جائے گی: کون سی فائل کہاں منتقل ہوئی، یہ جاننے کے لیے ردی کی ٹوکری کی ہسٹری دیکھیں۔</string>
+    <string name="bin_restore_all_desc">ہر آئٹم اپنے اصل فولڈر میں واپس جائے گا: یہ کہاں منتقل ہوا تھا، یہ جاننے کے لیے ردی کی ٹوکری کی ہسٹری دیکھیں۔</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d ردی کی ٹوکری میں گئی</item>
         <item quantity="other">%1$d ردی کی ٹوکری میں گئیں</item>
@@ -283,7 +283,7 @@
     <string name="settings_ext_edit_desc">نام بدلنے کا پینل فائلوں کی ایکسٹینشن بدلنے دیتا ہے۔ اگر آپ کو یقین نہیں تو اسے آن نہ کریں: تصویریں ناقابلِ مطالعہ ہو سکتی ہیں۔</string>
     <string name="settings_thumbs">محفوظ تھمب نیلز حذف کریں</string>
     <string name="settings_thumbs_empty">کوئی محفوظ تھمب نیل نہیں</string>
-    <string name="settings_thumbs_warn">تھمب نیل کیش خالی کرنے کے لیے بٹن پر ٹیپ کریں۔ تصاویر اور ویڈیوز کے پیش مناظر حذف ہو جائیں گے اور ہر فولڈر کھولنے پر خود بخود دوبارہ بن جائیں گے (اگر بڑی تصاویر بہت ہوں تو نئے تھمب نیلز بننے میں ایک منٹ یا اس سے زیادہ لگ سکتا ہے)۔</string>
+    <string name="settings_thumbs_warn">تھمب نیل کیش خالی کرنے کے لیے بٹن پر ٹیپ کریں۔ تصاویر اور ویڈیوز کے پیش مناظر حذف ہو جائیں گے اور ہر فولڈر کھولنے پر خود بخود دوبارہ بن جائیں گے (بہت سی بڑی تصاویر والے فولڈرز میں اس میں ایک منٹ یا اس سے زیادہ لگ سکتا ہے)۔</string>
     <string name="settings_thumbs_do">تھمب نیل کیش\nخالی کریں</string>
     <string name="settings_thumbs_done">تھمب نیل کیش خالی ہو گیا</string>
     <string name="settings_hidden_none">کوئی پوشیدہ فولڈر نہیں</string>
@@ -373,7 +373,7 @@
     <string name="settings_editor_backup_desc">کسی ایڈیٹر کے تصویر پر لکھنے سے پہلے، اُس کی ایک نقل ردی کی ٹوکری میں محفوظ ہو جاتی ہے، جہاں سے آپ اسے واپس لے سکتے ہیں؛ ضرورت نہ ہو تو اگلی بار \'ردی کی ٹوکری خالی کریں\' پر حذف ہو جائے گی۔</string>
     <string name="editor_tall">عمودی</string>
     <string name="editor_wide">افقی</string>
-    <string name="pick_cleared">انتخاب صاف کر دیا گیا</string>
+    <string name="pick_cleared">کوئی فائل منتخب نہیں۔</string>
     <string name="pick_undo">کالعدم</string>
     <string name="pick_list_done">فائلوں کی فہرست کلپ بورڈ پر نقل ہو گئی</string>
     <string name="settings_pick_weight">منتخب فائلوں کا حجم</string>

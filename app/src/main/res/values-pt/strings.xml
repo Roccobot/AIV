@@ -258,7 +258,7 @@
     <string name="bin_empty_ask">Esvaziar mesmo a lixeira?</string>
     <string name="bin_empty_desc">Não será possível recuperar o conteúdo.</string>
     <string name="bin_restore_all_ask">Restaurar mesmo todos os arquivos?</string>
-    <string name="bin_restore_all_desc">Cada arquivo voltará à sua pasta de origem: para saber para onde cada arquivo foi movido, consulte o histórico da lixeira.</string>
+    <string name="bin_restore_all_desc">Cada item voltará à sua pasta de origem: para saber para onde foi movido, consulte o histórico da lixeira.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d movido para a lixeira</item>
         <item quantity="other">%1$d movidos para a lixeira</item>
@@ -296,7 +296,7 @@
     <string name="settings_ext_edit_desc">O painel de renomeação permite alterar a extensão dos arquivos. Se você não sabe o que está fazendo, não ative esta opção: pode tornar as imagens ilegíveis.</string>
     <string name="settings_thumbs">Excluir as miniaturas armazenadas</string>
     <string name="settings_thumbs_empty">Nenhuma miniatura armazenada</string>
-    <string name="settings_thumbs_warn">Toque no botão para limpar o cache de miniaturas. As pré-visualizações das imagens e dos vídeos serão excluídas e regeneradas automaticamente ao abrir cada pasta (com muitas imagens grandes, criar as novas miniaturas pode levar um minuto ou mais).</string>
+    <string name="settings_thumbs_warn">Toque no botão para limpar o cache de miniaturas. As pré-visualizações das imagens e dos vídeos serão excluídas e regeneradas automaticamente ao abrir cada pasta (isso pode levar um minuto ou mais nas pastas com muitas imagens grandes).</string>
     <string name="settings_thumbs_do">Limpar o cache\nde miniaturas</string>
     <string name="settings_thumbs_done">Cache de miniaturas limpo</string>
     <string name="settings_hidden_none">Nenhuma pasta oculta</string>
@@ -388,7 +388,7 @@
     <string name="settings_editor_backup_desc">Antes que um editor sobrescreva uma imagem, ele guarda uma cópia na lixeira, onde você poderá recuperá-la; se não precisar dela, será excluída no próximo \'Esvaziar lixeira\'.</string>
     <string name="editor_tall">Retrato</string>
     <string name="editor_wide">Paisagem</string>
-    <string name="pick_cleared">Seleção apagada</string>
+    <string name="pick_cleared">Nenhum arquivo selecionado.</string>
     <string name="pick_undo">Desfazer</string>
     <string name="pick_list_done">Lista de arquivos copiada para a área de transferência</string>
     <string name="settings_pick_weight">Tamanho dos arquivos selecionados</string>

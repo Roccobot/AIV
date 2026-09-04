@@ -285,7 +285,7 @@
     <string name="bin_empty_ask">هل تريد فعلا إفراغ سلة المهملات؟</string>
     <string name="bin_empty_desc">لن تتمكن من استعادة محتواها.</string>
     <string name="bin_restore_all_ask">هل تريد فعلاً استعادة كل الملفات؟</string>
-    <string name="bin_restore_all_desc">سيعود كل ملف إلى مجلده الأصلي: لمعرفة أين نُقل كل ملف، راجع سجل سلة المهملات.</string>
+    <string name="bin_restore_all_desc">سيعود كل عنصر إلى مجلده الأصلي: لمعرفة أين نُقل، راجع سجل سلة المهملات.</string>
     <plurals name="trash_done">
         <item quantity="zero">لم يُنقل شيء إلى السلة</item>
         <item quantity="one">نُقل عنصر واحد إلى السلة</item>
@@ -335,7 +335,7 @@
     <string name="settings_ext_edit_desc">تتيح لوحة إعادة التسمية تغيير امتدادات الملفات. إن لم تكن متأكدًا فلا تُشغّل هذا الخيار: قد يجعل الصور غير قابلة للقراءة.</string>
     <string name="settings_thumbs">حذف المصغّرات المحفوظة</string>
     <string name="settings_thumbs_empty">لا توجد مصغّرات محفوظة</string>
-    <string name="settings_thumbs_warn">اضغط على الزر لإفراغ ذاكرة المصغّرات. ستُحذف معاينات الصور ومقاطع الفيديو وسيُعاد إنشاؤها تلقائيًا عند فتح كل مجلد (إن كانت الصور الكبيرة كثيرة، فقد يستغرق إنشاء المصغّرات الجديدة دقيقة أو أكثر).</string>
+    <string name="settings_thumbs_warn">اضغط على الزر لإفراغ ذاكرة المصغّرات. ستُحذف معاينات الصور ومقاطع الفيديو وسيُعاد إنشاؤها تلقائيًا عند فتح كل مجلد (قد يستغرق ذلك دقيقة أو أكثر في المجلدات التي تحتوي على صور كبيرة كثيرة).</string>
     <string name="settings_thumbs_do">إفراغ ذاكرة\nالمصغّرات</string>
     <string name="settings_thumbs_done">تم إفراغ ذاكرة المصغّرات</string>
     <string name="settings_hidden_none">لا توجد مجلدات مخفية</string>
@@ -433,7 +433,7 @@
     <string name="settings_editor_backup_desc">قبل أن يستبدل المحرّر صورةً، يحفظ نسخةً منها في سلة المهملات حيث يمكنك استعادتها؛ وإن لم تحتَجها فستُحذَف عند \'إفراغ سلة المهملات\' التالي.</string>
     <string name="editor_tall">طولي</string>
     <string name="editor_wide">عرضي</string>
-    <string name="pick_cleared">تم إلغاء التحديد</string>
+    <string name="pick_cleared">لم يتم تحديد أي ملف.</string>
     <string name="pick_undo">تراجع</string>
     <string name="pick_list_done">تم نسخ قائمة الملفات إلى الحافظة</string>
     <string name="settings_pick_weight">حجم الملفات المحددة</string>

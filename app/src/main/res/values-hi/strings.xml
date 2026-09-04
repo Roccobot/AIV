@@ -249,7 +249,7 @@
     <string name="bin_empty_ask">क्या सच में कूड़ेदान खाली करें?</string>
     <string name="bin_empty_desc">इसकी सामग्री वापस नहीं मिल पाएगी।</string>
     <string name="bin_restore_all_ask">क्या वाकई सभी फ़ाइलें पुनर्स्थापित करें?</string>
-    <string name="bin_restore_all_desc">हर फ़ाइल अपने मूल फ़ोल्डर में वापस जाएगी: कौन फ़ाइल कहाँ ले जाई गई, यह जानने के लिए कूड़ेदान का इतिहास देखें।</string>
+    <string name="bin_restore_all_desc">हर आइटम अपने मूल फ़ोल्डर में वापस जाएगा: वह कहाँ ले जाया गया था, यह जानने के लिए कूड़ेदान का इतिहास देखें।</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d कूड़ेदान में गया</item>
         <item quantity="other">%1$d कूड़ेदान में गए</item>
@@ -283,7 +283,7 @@
     <string name="settings_ext_edit_desc">नाम बदलने का पैनल फ़ाइलों का एक्सटेंशन बदलने देता है। अगर आपको पक्का पता न हो तो इसे चालू न करें: तस्वीरें पढ़ी न जा सकने वाली हो सकती हैं।</string>
     <string name="settings_thumbs">सहेजे गए थंबनेल हटाएं</string>
     <string name="settings_thumbs_empty">कोई सहेजा गया थंबनेल नहीं</string>
-    <string name="settings_thumbs_warn">थंबनेल कैश खाली करने के लिए बटन दबाएं। छवियों और वीडियो के प्रीव्यू हट जाएंगे और हर फ़ोल्डर खोलने पर अपने आप फिर बन जाएंगे (बड़ी छवियां बहुत हों, तो नए थंबनेल बनने में एक मिनट या उससे ज़्यादा लग सकता है)।</string>
+    <string name="settings_thumbs_warn">थंबनेल कैश खाली करने के लिए बटन दबाएं। छवियों और वीडियो के प्रीव्यू हट जाएंगे और हर फ़ोल्डर खोलने पर अपने आप फिर बन जाएंगे (बहुत सी बड़ी छवियों वाले फ़ोल्डर में इसमें एक मिनट या उससे ज़्यादा लग सकता है)।</string>
     <string name="settings_thumbs_do">थंबनेल कैश\nखाली करें</string>
     <string name="settings_thumbs_done">थंबनेल कैश खाली हो गया</string>
     <string name="settings_hidden_none">कोई छिपा फ़ोल्डर नहीं</string>
@@ -373,7 +373,7 @@
     <string name="settings_editor_backup_desc">किसी संपादक द्वारा छवि पर लिखे जाने से पहले, उसकी एक प्रति रद्दी में रख दी जाती है, जहाँ से आप उसे वापस ले सकते हैं; ज़रूरत न हो तो अगली बार \'रद्दी खाली करें\' पर वह हट जाएगी।</string>
     <string name="editor_tall">खड़ा</string>
     <string name="editor_wide">आड़ा</string>
-    <string name="pick_cleared">चयन हटाया गया</string>
+    <string name="pick_cleared">कोई फ़ाइल चयनित नहीं।</string>
     <string name="pick_undo">पूर्ववत</string>
     <string name="pick_list_done">फ़ाइल सूची क्लिपबोर्ड पर कॉपी हो गई</string>
     <string name="settings_pick_weight">चुनी गई फ़ाइलों का आकार</string>

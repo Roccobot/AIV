@@ -249,7 +249,7 @@
     <string name="bin_empty_ask">खरोखर कचरापेटी रिकामी करायची?</string>
     <string name="bin_empty_desc">त्यातील मजकूर परत मिळणार नाही.</string>
     <string name="bin_restore_all_ask">खरोखर सर्व फायली पूर्ववत करायच्या?</string>
-    <string name="bin_restore_all_desc">प्रत्येक फाइल आपल्या मूळ फोल्डरमध्ये परत जाईल: कोणती फाइल कुठे हलवली गेली हे पाहण्यासाठी कचरापेटीचा इतिहास पहा.</string>
+    <string name="bin_restore_all_desc">प्रत्येक घटक आपल्या मूळ फोल्डरमध्ये परत जाईल: तो कुठे हलवला गेला हे पाहण्यासाठी कचरापेटीचा इतिहास पहा.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d कचरापेटीत गेली</item>
         <item quantity="other">%1$d कचरापेटीत गेल्या</item>
@@ -283,7 +283,7 @@
     <string name="settings_ext_edit_desc">नाव बदलण्याचा पॅनेल फाइलचे एक्स्टेंशन बदलू देतो. काय करत आहात याची खात्री नसेल तर हे चालू करू नका: चित्रे न वाचता येण्यासारखी होऊ शकतात.</string>
     <string name="settings_thumbs">साठवलेल्या लघुप्रतिमा हटवा</string>
     <string name="settings_thumbs_empty">साठवलेली लघुप्रतिमा नाही</string>
-    <string name="settings_thumbs_warn">लघुप्रतिमांची कॅशे रिकामी करण्यासाठी बटण दाबा. प्रतिमा आणि व्हिडिओंची पूर्वदृश्ये हटतील आणि प्रत्येक फोल्डर उघडल्यावर स्वयंचलितपणे पुन्हा तयार होतील (मोठ्या प्रतिमा पुष्कळ असल्यास नवीन लघुप्रतिमा तयार होण्यास एक मिनिट किंवा अधिक वेळ लागू शकतो).</string>
+    <string name="settings_thumbs_warn">लघुप्रतिमांची कॅशे रिकामी करण्यासाठी बटण दाबा. प्रतिमा आणि व्हिडिओंची पूर्वदृश्ये हटतील आणि प्रत्येक फोल्डर उघडल्यावर स्वयंचलितपणे पुन्हा तयार होतील (पुष्कळ मोठ्या प्रतिमा असलेल्या फोल्डरमध्ये यास एक मिनिट किंवा अधिक वेळ लागू शकतो).</string>
     <string name="settings_thumbs_do">लघुप्रतिमांची कॅशे\nरिकामी करा</string>
     <string name="settings_thumbs_done">लघुप्रतिमांची कॅशे रिकामी झाली</string>
     <string name="settings_hidden_none">कोणतेही लपवलेले फोल्डर नाही</string>
@@ -373,7 +373,7 @@
     <string name="settings_editor_backup_desc">संपादकाने प्रतिमेवर लिहिण्याआधी तिची एक प्रत कचरापेटीत ठेवली जाते, तिथून ती परत मिळवता येते; गरज नसेल तर पुढच्या \'कचरापेटी रिकामी करा\' वेळी ती हटेल.</string>
     <string name="editor_tall">उभे</string>
     <string name="editor_wide">आडवे</string>
-    <string name="pick_cleared">निवड काढून टाकली</string>
+    <string name="pick_cleared">कोणतीही फाइल निवडलेली नाही.</string>
     <string name="pick_undo">पूर्ववत</string>
     <string name="pick_list_done">फाइल यादी क्लिपबोर्डवर कॉपी झाली</string>
     <string name="settings_pick_weight">निवडलेल्या फायलींचा आकार</string>

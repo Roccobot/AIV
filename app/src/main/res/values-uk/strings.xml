@@ -267,7 +267,7 @@
     <string name="bin_empty_ask">Справді очистити кошик?</string>
     <string name="bin_empty_desc">Вміст не вдасться відновити.</string>
     <string name="bin_restore_all_ask">Справді відновити всі файли?</string>
-    <string name="bin_restore_all_desc">Кожен файл повернеться до своєї початкової теки: щоб дізнатися, куди було переміщено кожен файл, відкрийте історію кошика.</string>
+    <string name="bin_restore_all_desc">Кожен елемент повернеться до своєї початкової теки: щоб дізнатися, куди його було переміщено, відкрийте історію кошика.</string>
     <plurals name="trash_done">
         <item quantity="one">%1$d елемент у кошику</item>
         <item quantity="few">%1$d елементи в кошику</item>
@@ -309,7 +309,7 @@
     <string name="settings_ext_edit_desc">Панель перейменування дозволяє змінювати розширення файлів. Якщо ви не впевнені, не вмикайте це: зображення можуть стати нечитабельними.</string>
     <string name="settings_thumbs">Видалити збережені ескізи</string>
     <string name="settings_thumbs_empty">Збережених ескізів немає</string>
-    <string name="settings_thumbs_warn">Натисніть кнопку, щоб очистити кеш ескізів. Попередні перегляди зображень і відео буде видалено, і вони створяться знову автоматично під час відкривання кожної теки (якщо великих зображень багато, створення нових ескізів може тривати хвилину або більше).</string>
+    <string name="settings_thumbs_warn">Натисніть кнопку, щоб очистити кеш ескізів. Попередні перегляди зображень і відео буде видалено, і вони створяться знову автоматично під час відкривання кожної теки (у теках із великою кількістю великих зображень це може тривати хвилину або більше).</string>
     <string name="settings_thumbs_do">Очистити кеш\nескізів</string>
     <string name="settings_thumbs_done">Кеш ескізів очищено</string>
     <string name="settings_hidden_none">Немає прихованих тек</string>
@@ -403,7 +403,7 @@
     <string name="settings_editor_backup_desc">Перш ніж редактор перезапише зображення, він зберігає його копію в кошику, звідки її можна повернути; якщо вона не потрібна, її буде вилучено під час наступного очищення кошика.</string>
     <string name="editor_tall">Портрет</string>
     <string name="editor_wide">Пейзаж</string>
-    <string name="pick_cleared">Вибір скасовано</string>
+    <string name="pick_cleared">Жодного файлу не вибрано.</string>
     <string name="pick_undo">Скасувати</string>
     <string name="pick_list_done">Список файлів скопійовано в буфер обміну</string>
     <string name="settings_pick_weight">Розмір вибраних файлів</string>

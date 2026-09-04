@@ -1,15 +1,14 @@
 package io.github.roccobot.aiv
 
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.inset
-import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -41,15 +40,34 @@ import androidx.compose.ui.unit.dp
  * smesso di essere più grande del disegno, e da allora quel taglio cade sul bordo del pannello:
  * più preciso e più visibile insieme.
  *
+ * ⚠️⚠️ **IL RAGGIO SI RIDUCE DEL RIENTRO, E NELLA `1.54` NON LO FACEVA** (riscontro dell'utente,
+ * giro della `1.54`: *sembra che la linea di accento non abbia il raggio di stondatura
+ * corretto*). Due rettangoli stondati **concentrici** hanno raggi diversi: quello interno vale
+ * quello esterno **meno** la distanza fra i due. Disegnando il tratto a un rientro di mezzo
+ * spessore ma tenendo il raggio del pannello, l'arco resta più largo del dovuto e nei quattro
+ * angoli si stacca dal bordo, mentre sui lati dritti combacia. Ecco perché il difetto si vedeva
+ * **solo** negli angoli, che è la cosa che lui ha descritto.
+ * - ⚠️ **Per questo il bordo prende un RAGGIO e non una `Shape`**: da una forma qualunque il
+ *   raggio non si può ricavare, quindi non si può nemmeno correggere. Con una `Dp` il conto è
+ *   una sottrazione, e le superfici che lo chiamano hanno tutte gli angoli tondi uguali.
+ *
  * ⚠️ **Il bordo NON dipende dall'interruttore della sfocatura**: quella è una funzione che si
  * accende, questo è il modo in cui l'app è fatta. Chi ha il velo spento vede comunque il bordo.
  *
- * ⚠️ **Dove va lo dice l'elenco che esiste già**, cioè quello del velo (`Veil.kt`): i menu, i
- * dialoghi e la scheda in fondo. Le due superfici esenti dal velo (la fila della selezione e
- * quella del ritaglio) restano esenti anche qui, per la stessa ragione: non si aprono sopra
- * niente, stanno **dentro** la schermata e si continua a toccare quello che hanno sotto.
+ * ⚠️⚠️ **VA SU TUTTE LE SUPERFICI DI QUESTA SPECIE, E DALLA `1.55` L'ELENCO NON È PIÙ QUELLO
+ * DEL VELO** (decisione dell'utente, giro della `1.54`: *voglio la riga anche lì: in realtà
+ * dappertutto. Capisco che quella fa eccezione perché non è in sovrapposizione e non ha
+ * sfocatura o velo ... Ma per coerenza deve avere il tratto intorno come tutti gli altri
+ * elementi simili*). Nella `1.54` i due elenchi coincidevano, e le due superfici esenti dal velo
+ * (la scheda della selezione e quella dell'editor) erano rimaste senza bordo.
+ * - **La differenza fra i due elenchi, che è la ragione per cui adesso divergono**: il velo dice
+ *   *mi apro sopra qualcosa*, quindi non lo vuole chi resta dentro la schermata e lascia toccare
+ *   quello che ha sotto; il bordo dice *sono una superficie di questa app*, e quello vale anche
+ *   per chi non copre niente.
+ * - **Quindi il bordo ce l'hanno**: i menu, i dialoghi, la scheda delle informazioni, la scheda
+ *   della selezione e il pannello dei comandi dell'editor. Le ultime due restano senza velo.
  */
-fun Modifier.edged(shape: Shape): Modifier = this then EdgeElement(shape, round = null)
+fun Modifier.edged(round: Dp): Modifier = this then EdgeElement(round, tre = false)
 
 /**
  * Lo stesso bordo per una superficie **appoggiata al bordo di sotto**: fa il giro su tre lati.
@@ -59,17 +77,17 @@ fun Modifier.edged(shape: Shape): Modifier = this then EdgeElement(shape, round 
  * è fuori e l'altra metà si legge come un taglio. Un bordo che si chiude fuori campo non
  * chiude niente.
  */
-fun Modifier.edgedTop(round: Dp): Modifier = this then EdgeElement(shape = null, round = round)
+fun Modifier.edgedTop(round: Dp): Modifier = this then EdgeElement(round, tre = true)
 
 private data class EdgeElement(
-    private val shape: Shape?,
-    private val round: Dp?
+    private val round: Dp,
+    private val tre: Boolean
 ) : ModifierNodeElement<EdgeNode>() {
-    override fun create() = EdgeNode(shape, round)
+    override fun create() = EdgeNode(round, tre)
 
     override fun update(node: EdgeNode) {
-        node.shape = shape
         node.round = round
+        node.tre = tre
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -78,8 +96,8 @@ private data class EdgeElement(
 }
 
 private class EdgeNode(
-    var shape: Shape?,
-    var round: Dp?
+    var round: Dp,
+    var tre: Boolean
 ) : Modifier.Node(), DrawModifierNode, CompositionLocalConsumerModifierNode {
 
     /*
@@ -95,26 +113,28 @@ private class EdgeNode(
         drawContent()
         val spesso = EDGE.toPx()
         val colore = aivAccent(currentValueOf(LocalAivLight))
-        val tondo = round
-        if (tondo != null) {
-            drawPath(
-                path = treLati(size, tondo.toPx(), spesso / 2f),
-                color = colore,
-                style = Stroke(spesso)
-            )
-            return
-        }
-        val forma = shape ?: return
         /*
          * ⚠️ **Il tratto si disegna DENTRO, con un rientro di mezzo spessore**: uno `Stroke`
          * sta a cavallo della linea, quindi senza rientro metà del bordo finirebbe fuori dalla
          * superficie, cioè tagliata dalla finestra su un menu e sovrapposta al velo su un
          * dialogo. Rientrando, il contorno resta tutto sul pannello.
+         * ⚠️⚠️ **E IL RAGGIO SEGUE IL RIENTRO**: la linea corre a mezzo spessore dentro il
+         * bordo, quindi il suo raggio è quello del pannello meno mezzo spessore. È la
+         * correzione del giro della `1.54`, e senza di lei l'arco si stacca negli angoli.
          */
-        inset(spesso / 2f) {
-            drawOutline(
-                outline = forma.createOutline(size, layoutDirection, this),
+        val dentro = round.toPx() - spesso / 2f
+        if (tre) {
+            drawPath(
+                path = treLati(size, dentro, spesso / 2f),
                 color = colore,
+                style = Stroke(spesso)
+            )
+            return
+        }
+        inset(spesso / 2f) {
+            drawRoundRect(
+                color = colore,
+                cornerRadius = CornerRadius(dentro.coerceAtLeast(0f)),
                 style = Stroke(spesso)
             )
         }
@@ -126,13 +146,15 @@ private class EdgeNode(
  *
  * ⚠️ **Parte e finisce sul bordo di sotto**, che non viene disegnato: un `Path` aperto lascia
  * due estremità nette, ed è quello che serve a una superficie che continua fuori dallo schermo.
+ * ⚠️ Il [round] che arriva qui è già quello **della linea**, cioè ridotto del rientro: la
+ * correzione degli angoli vale per la scheda in fondo come per i pannelli.
  */
 private fun treLati(size: Size, round: Float, inset: Float): Path {
     val left = inset
     val right = size.width - inset
     val top = inset
     val bottom = size.height
-    val r = round.coerceAtMost(minOf(size.width / 2f - inset, size.height - inset))
+    val r = round.coerceIn(0f, minOf(size.width / 2f - inset, size.height - inset))
     return Path().apply {
         moveTo(left, bottom)
         lineTo(left, top + r)
@@ -146,8 +168,10 @@ private fun treLati(size: Size, round: Float, inset: Float): Path {
 /**
  * Quanto è spesso il bordo.
  *
- * ⚠️ **2dp e non 2 pixel**: l'utente ha detto *2-3px* guardando un mockup, dove un pixel della
- * pagina è un dp del telefono. Presi come pixel veri sarebbero due terzi di dp su uno schermo a
- * tripla densità, cioè un filo che sparisce; presi come dp sono la riga che ha visto.
+ * ⚠️ **3dp e non 3 pixel** (riscontro dell'utente, giro della `1.54`: *correggi, e portalo a
+ * 3px*). Lui ha detto *2-3px* guardando un mockup, dove un pixel della pagina è un dp del
+ * telefono; poi ha visto i 2dp sul telefono e ha chiesto il gradino successivo **in quella
+ * stessa unità**. Presi come pixel veri sarebbero un dp su uno schermo a tripla densità, cioè
+ * più sottili di quello che ha bocciato.
  */
-private val EDGE = 2.dp
+private val EDGE = 3.dp

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- La CRONOLOGIA DEL CESTINO: il bidone con dentro la freccia che torna indietro.
+
+     ⚠️⚠️ È UN DISEGNO DELL'UTENTE, arrivato nel giro della `1.54` (*pensavo che l'icona
+     'Cronologia del cestino' fosse un miglioramento, ma non mi piaceva. L'ho ridisegnata*).
+     Prende il posto di `Icons.Default.Recycling`, che era la sua scelta della `1.51` fra due
+     proposte: le tre frecce del riciclo dicevano il giro ma non dicevano il cestino.
+
+     ⚠️ QUI NON C'È NIENTE DA MISURARE CONTRO MATERIAL, e va detto perché la regola lo
+     chiede: il catalogo ha il bidone (`Delete`) e ha l'orologio con la freccia (`Restore`),
+     ma non la loro unione, che è esattamente quello che questo disegno è. Non esiste il
+     glifo di sistema da cui questo sarebbe una copia.
+
+     ⚠️ UN TRACCIATO SOLO, e la cucitura è misurata: il coperchio non tocca il corpo del
+     bidone, quindi unirli non ha nessun bordo condiviso da sfrangiare. Reso a 480 pixel, la
+     versione a due tracciati e questa a uno solo danno ZERO pixel di scarto.
+
+     ⚠️ I NUMERI SONO QUELLI DEL SUO FILE, non uno è stato toccato: sono soltanto stati
+     SEPARATI, perché nel file di partenza erano incollati (`-.11,0-.2.09-.2.2` sono cinque
+     numeri e non due). Reso il tracciato prima e dopo: zero pixel di scarto su 230.400.
+
+     ⚠️ LA REGOLA DI RIEMPIMENTO È DICHIARATA ANCHE SE IL DISEGNO NON DIPENDE DA LEI, ed è
+     misurato: il verificatore rende il tracciato con le due regole e conta zero pixel di
+     scarto, perché la freccia e le lancette restano vuote in tutti e due i modi. Si dichiara
+     lo stesso, perché una regola scritta dice quello che il disegno vuole, mentre una lasciata
+     al valore di fabbrica dice solo com'è andata: la coincidenza cade il giorno che qualcuno
+     aggiunge un sottotracciato.
+
+     ⚠️ IL COLORE È NERO PIENO e non quello del tema: si usa come `Icon`, che ne tiene la
+     sola alfa e mette la propria tinta. Il file di partenza portava `#1f1f1f`, che è il grigio
+     con cui Illustrator esporta: sarebbe un colore che nessuno vede e che il giorno dopo
+     qualcuno crede attivo. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M17.8,7H6.2c-.11,0,-.2,.09,-.2,.2v11.8c0,1.1,.9,2,2,2h8c1.1,0,2,-.9,2,-2V7.2c0,-.11,-.09,-.2,-.2,-.2ZM16.22,15.71c-.23,.57,-.57,1.07,-1,1.51,-.43,.43,-.94,.77,-1.51,1,-.55,.22,-1.12,.33,-1.71,.33s-1.17,-.11,-1.71,-.33c-.57,-.23,-1.07,-.57,-1.51,-1,-.22,-.22,-.22,-.57,0,-.79s.57,-.22,.79,0c.65,.65,1.52,1.01,2.44,1.01s1.79,-.36,2.44,-1.01,1.01,-1.52,1.01,-2.44,-.36,-1.79,-1.01,-2.44,-1.52,-1.01,-2.44,-1.01,-1.79,.36,-2.44,1.01c-.54,.54,-.88,1.23,-.98,1.97,.22,-.14,.51,-.12,.69,.07,.22,.22,.22,.57,0,.79l-.89,.89,-.32,.32s-.11,.04,-.15,0l-.32,-.32s0,0,0,0l-.89,-.89c-.22,-.22,-.22,-.57,0,-.79,.2,-.2,.53,-.22,.75,-.04,.04,-.44,.15,-.87,.31,-1.28,.23,-.57,.57,-1.07,1,-1.51s.94,-.77,1.51,-1c.55,-.22,1.12,-.33,1.71,-.33s1.17,.11,1.71,.33c.57,.23,1.07,.57,1.51,1,.43,.43,.77,.94,1,1.51,.22,.55,.33,1.12,.33,1.71s-.11,1.17,-.33,1.71ZM12.01,13.89h1.67c.3,0,.55,.24,.56,.54,0,.31,-.26,.57,-.57,.57h-2.61c-.09,0,-.16,-.07,-.16,-.16v-2.61c0,-.31,.26,-.57,.57,-.57,.3,0,.54,.25,.54,.56v1.67s0,0,0,0ZM18.6,4h-2.93c-.11,0,-.21,-.04,-.29,-.12l-.76,-.76c-.08,-.08,-.18,-.12,-.29,-.12h-4.67c-.11,0,-.21,.04,-.29,.12l-.76,.76c-.08,.08,-.18,.12,-.29,.12h-2.93c-.22,0,-.4,.18,-.4,.4v1.19c0,.22,.18,.4,.4,.4h13.19c.22,0,.4,-.18,.4,-.4v-1.19c0,-.22,-.18,-.4,-.4,-.4Z" />
+</vector>

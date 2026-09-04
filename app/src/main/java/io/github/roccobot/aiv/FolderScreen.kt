@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
@@ -36,7 +37,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -81,6 +81,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -460,7 +461,7 @@ fun FolderScreen(
              * zero e ci arriva con pendenza zero.
              * ⚠️ **Si calcola invece di essere scritta**: le fermate a mano sarebbero venti
              * numeri da riscrivere ogni volta che si cambia l'altezza della fascia, e nessuno
-             * lo farebbe. Così [GRADIENT_TIMES] e [GRADIENT_FLOOR] sono le sole manopole.
+             * lo farebbe. Così [GRADIENT_TIMES] e [GRADIENT_PEAK] sono le sole manopole.
              * ⚠️ Il colore è `background` e non `surface`: è quello che la `Surface` del
              * tema mette dietro a tutta l'app (vedi `AivTheme`), quindi la sfumatura arriva
              * **esattamente** al fondo su cui sta.
@@ -532,7 +533,6 @@ fun FolderScreen(
                 onDone = hintDone
             ) {
                 TapHoldFab(
-                    icon = Icons.Default.MoreHoriz,
                     label = stringResource(R.string.hub_open),
                     container = HINT_MARK,
                     ink = HINT_INK,
@@ -540,7 +540,10 @@ fun FolderScreen(
                     lift = 0.dp,
                     holdLabel = stringResource(R.string.columns_title),
                     onTap = hintDone,
-                    onHold = { hintDone(); sizing = true }
+                    onHold = { hintDone(); sizing = true },
+                    // ⚠️ Lo stesso glifo del tastino vero, e non uno che gli somiglia: questo è
+                    // il suo ritratto sull'onboarding, e deve essere la stessa cosa.
+                    glyph = { Marchio(it) }
                 )
             }
         }
@@ -913,7 +916,6 @@ private fun Hub(
          * principale' e qui l'azione principale sono le cartelle.
          */
         TapHoldFab(
-            icon = Icons.Default.MoreHoriz,
             label = stringResource(R.string.hub_open),
             /*
              * ⚠️⚠️ **I COLORI SONO QUELLI DELL'ICONA DELL'APP, dalla 1.36** (richiesta
@@ -936,7 +938,8 @@ private fun Hub(
             holdLabel = stringResource(R.string.columns_title),
             lifted = menu.inScene,
             onTap = { menu.open() },
-            onHold = onSize
+            onHold = onSize,
+            glyph = { Marchio(it) }
         )
     }
 
@@ -1559,32 +1562,34 @@ private const val NARROW_COLUMNS = 4
  * questa costante**: lo spazio **riservato** resta [BELOW_FAB]; questa dice soltanto fin
  * dove arriva il colore. Tenerle separate è la ragione per cui la sfumatura si può alzare
  * senza che la schermata perda una riga di cartelle.
- * ⚠️⚠️ **QUATTRO DALLA `1.54`, ED ERANO DUE: la fascia si è allungata per fare posto alla
- * CODA** (richiesta dell'utente, 2026-09-04: *la sfumatura del fondo che copre la parte bassa
- * arrivasse a 30% di opacità anziché 0%*). Il tratto che inghiotte è rimasto lungo uguale, cioè
- * due volte il tastino: quello che si è aggiunto sopra è la salita da niente a [GRADIENT_FLOOR],
- * che esiste per non lasciare uno **scalino** in cima, dove il colore passerebbe da zero a un
- * terzo in una riga di pixel.
- * ⚠️ **La misura vecchia, che resta vera per il tratto basso**: sullo schermo dell'utente la
- * griglia ha 533dp e le sue righe sono alte 184, quindi la terza comincia a 141dp dal fondo, ed
- * è lì che il colore comincia a mangiare davvero.
+ * ⚠️⚠️ **TRE DALLA `1.55`, ED È IL SECONDO CAMBIO IN DUE VERSIONI: la 1.54 l'aveva portata a
+ * quattro per fare posto a una coda che adesso non serve più.** Il giro della `1.54` ha chiarito
+ * l'equivoco (*non avevo capito l'ordine degli elementi*) e la richiesta è diventata un'altra:
+ * *il colore non parte più da 100%, bensì da 70%, e lo 0% sarà un po' più in basso*. Con lo zero
+ * in cima non c'è più nessuno scalino da nascondere, quindi la salita torna a essere una sola e
+ * la fascia si accorcia: tre volte il tastino invece di quattro, che è il 'più in basso'.
+ * ⚠️ **La misura vecchia, che resta vera**: sullo schermo dell'utente la griglia ha 533dp e le
+ * sue righe sono alte 184, quindi la terza comincia a 141dp dal fondo.
  */
-private const val GRADIENT_TIMES = 4f
+private const val GRADIENT_TIMES = 3f
 
 /**
- * L'opacità a cui la sfumatura **arriva** in cima, invece di sparire.
+ * L'opacità massima della sfumatura, quella che tiene dal tastino in giù.
  *
- * ⚠️ **È una prova chiesta dall'utente e va guardata sul telefono**: *passa a 30% e vediamo che
- * effetto fa*. Se non convince, si torna a zero cambiando questo numero e la fascia si accorcia
- * da sé, perché la coda esiste solo per lui.
+ * ⚠️⚠️ **ERA IL PIENO FINO ALLA `1.54`, E ADESSO NON LO È PIÙ** (richiesta dell'utente, giro
+ * della `1.54`: *il colore non parte più da 100%, bensì da 70%*). ⚠️ **Il prezzo è dichiarato**:
+ * la promessa vecchia era che sotto il tastino non passasse mai un'immagine, e con sette decimi
+ * di colore un'immagine molto contrastata si intravede. È una scelta sua, non una svista, ed è
+ * in linea con la concessione che aveva già fatto sulla stessa fascia (*può andare anche il 20%:
+ * si intuisce comunque bene che è una cosa che va scomparendo*).
  */
-private const val GRADIENT_FLOOR = 0.30f
+private const val GRADIENT_PEAK = 0.70f
 
 /**
  * In quanti gradini si disegna la curva della sfumatura.
  *
- * ⚠️ **Venti dalla `1.54`, ed erano dodici**: la fascia è raddoppiata, quindi con dodici ogni
- * gradino sarebbe alto quasi venti dp, e su un fondo chiaro si distinguono a occhio nudo.
+ * ⚠️ **Venti dalla `1.54`**: con dodici, su una fascia lunga come questa, ogni gradino sarebbe
+ * alto una quindicina di dp e su un fondo chiaro si distinguerebbero a occhio nudo.
  */
 private const val GRADIENT_STOPS = 20
 
@@ -1594,40 +1599,32 @@ private val GRADIENT_REACH = FAB_REACH * GRADIENT_TIMES
 /**
  * A che punto della sua altezza la sfumatura sopra il tastino ha inghiottito tutto.
  *
- * ⚠️⚠️ **NON È PIÙ UN NUMERO SCELTO A OCCHIO (era 0,55): si RICAVA**, ed è così che la
- * promessa 'il tastino cade sempre su un fondo neutro' diventa vera per costruzione invece
- * che per fortuna. Il bordo superiore del tastino sta a [FAB_REACH] dal fondo, cioè a
- * questa frazione della fascia dipinta: da lì in giù il colore è pieno, quindi sotto il
- * tastino non passa mai una fotografia. Cambiando [GRADIENT_TIMES] il conto si rifà da sé.
- * ⚠️ Il rovescio da conoscere: alzando ancora la fascia, la parte piena resta la stessa e
+ * ⚠️⚠️ **NON È UN NUMERO SCELTO A OCCHIO (era 0,55): si RICAVA.** Il bordo superiore del
+ * tastino sta a [FAB_REACH] dal fondo, cioè a questa frazione della fascia dipinta: da lì in
+ * giù il colore non cresce più, quindi il tastino sta tutto su un fondo di un colore solo.
+ * Cambiando [GRADIENT_TIMES] il conto si rifà da sé.
+ * ⚠️ Il rovescio da conoscere: alzando la fascia, il tratto a colore fermo resta lo stesso e
  * cresce solo la dissolvenza sopra, che è esattamente ciò che 'più graduale' vuol dire.
- * ⚠️⚠️ **L'utente ha concesso di NON arrivare al pieno** (*può andare anche il 20%: si
- * intuisce comunque bene che è una cosa che va scomparendo*), e la concessione **non è
- * stata usata**: con la fascia a tre volte il tastino la rampa ha spazio per arrivare al
- * pieno restando dolce, e il pieno serve a tenere la promessa dell'altra richiesta, cioè
- * che sotto il tastino non passi mai una fotografia. Sta scritto perché è una scelta e non
- * una dimenticanza: chi un giorno volesse una fascia più corta sa che può spendere quel
- * permesso invece di irripidire la curva.
+ * ⚠️ **Quel colore fermo non è più il pieno dalla `1.55`**: quanto vale lo dice
+ * [GRADIENT_PEAK], e la promessa che ne cade è scritta là.
  */
 private const val SWALLOW = 1f / GRADIENT_TIMES
 
 /**
  * Quanto colore c'è a una data altezza della fascia, con `0` in cima e `1` sul fondo.
  *
- * ⚠️⚠️ **DUE SALITE E NON UNA, dalla `1.54`**: la prima porta da niente a [GRADIENT_FLOOR] ed è
- * la coda che evita lo scalino; la seconda porta da lì al colore pieno, e finisce dove comincia
- * il tastino. Sono due `smoothstep` in fila, quindi nei tre punti in cui si incontrano la
- * pendenza è zero e non si vede nessuna piega.
- * ⚠️ **I due tratti si ricavano da [SWALLOW]** e non sono scritti a mano: il pieno comincia a
- * un [SWALLOW] dal fondo, e la salita vera è lunga [SWALLOW] come prima. Quello che avanza sopra
- * è la coda, quindi cambiando [GRADIENT_TIMES] i tre tratti si ridistribuiscono da soli.
+ * ⚠️⚠️ **UNA SALITA SOLA, DI NUOVO, DALLA `1.55`**: la `1.54` ne aveva due perché la sfumatura
+ * doveva **arrivare** a un terzo invece di sparire, e senza una coda in cima quel terzo sarebbe
+ * comparso di colpo in una riga di pixel. Adesso in cima si arriva a zero, quindi lo scalino non
+ * esiste e la seconda salita non ha più niente da nascondere.
+ * ⚠️ **Il tratto si ricava da [SWALLOW]** e non è scritto a mano: si sale da niente a
+ * [GRADIENT_PEAK] fino al bordo del tastino, e da lì in giù il colore sta fermo. Cambiando
+ * [GRADIENT_TIMES] i due tratti si ridistribuiscono da soli.
  */
 private fun swallow(at: Float): Float {
-    val pieno = 1f - SWALLOW
-    val coda = pieno - SWALLOW
-    if (at >= pieno) return 1f
-    if (at <= coda) return GRADIENT_FLOOR * smoothstep(at / coda)
-    return GRADIENT_FLOOR + (1f - GRADIENT_FLOOR) * smoothstep((at - coda) / (pieno - coda))
+    val fermo = 1f - SWALLOW
+    if (at >= fermo) return GRADIENT_PEAK
+    return GRADIENT_PEAK * smoothstep(at / fermo)
 }
 
 /** La curva che parte e arriva con pendenza zero, cioè quella che non fa spigoli. */
@@ -1635,6 +1632,53 @@ private fun smoothstep(t: Float): Float {
     val x = t.coerceIn(0f, 1f)
     return x * x * (3f - 2f * x)
 }
+
+/**
+ * Il **marchio dell'app** sul tastino, al posto dei tre puntini.
+ *
+ * ⚠️⚠️ **RICHIESTA DELL'UTENTE, giro della `1.54`** (*sostituisci i tre pallini del FAB
+ * principale con il glifo dell'app ... Il glifo è da centrare OTTICAMENTE*). I tre puntini non
+ * sono spariti: sono scesi sul tastino del cestino, dove c'era un disco ancora più generico.
+ *
+ * ⚠️⚠️ **CENTRATO OTTICAMENTE VUOL DIRE CHE IL SUO BARICENTRO STA AL CENTRO, e i due numeri
+ * sono MISURATI e non scelti**: reso il disegno in Chromium a 700 x 600 e pesato l'inchiostro
+ * pixel per pixel, il baricentro cade al 5,0% della larghezza a **sinistra** del centro del
+ * riquadro e al 9,4% dell'altezza **sotto** di lui. Lo spostamento è quello, cambiato di segno.
+ * - **Perché cade lì, e conviene saperlo**: la A è un triangolo, quindi ha la massa in basso, e
+ *   il disco solare sta in alto a **sinistra**. Sono due cose che tirano da parti diverse, e a
+ *   occhio non si indovinano.
+ * - ⚠️ **La misura si rifà se il disegno cambia**: `ic_aiv_mark.xml` è l'inchiostro nudo (la
+ *   tela è esattamente il riquadro dei due tracciati), quindi basta rendere quel file e pesarlo.
+ *
+ * ⚠️ **Si dà la larghezza e l'altezza segue**, come nella barra delle info: il glifo è 70 x 60,
+ * e una misura sola lo schiaccerebbe.
+ */
+@Composable
+private fun Marchio(descrizione: String?) {
+    Icon(
+        painter = painterResource(R.drawable.ic_aiv_mark),
+        contentDescription = descrizione,
+        modifier = Modifier
+            .offset(x = MARK_WIDE * MARK_DX, y = MARK_HIGH * MARK_DY)
+            .size(width = MARK_WIDE, height = MARK_HIGH)
+    )
+}
+
+/**
+ * Quanto è largo il marchio sul tastino.
+ *
+ * ⚠️ **24dp è la scatola che avevano i tre puntini**, cioè la misura standard di un glifo di
+ * Material: il tastino è 40dp, quindi restano otto punti d'aria per lato. Chi lo volesse più
+ * discreto muove questo numero e basta: l'altezza e lo spostamento lo seguono.
+ */
+private val MARK_WIDE = 24.dp
+
+/** L'altezza che segue dalla forma del disegno, 70 x 60. */
+private val MARK_HIGH = MARK_WIDE * 60f / 70f
+
+/** Lo spostamento ottico, in frazione del glifo: vedi la misura in testa a [Marchio]. */
+private const val MARK_DX = 0.050f
+private const val MARK_DY = -0.094f
 
 /** L'icona del frontespizio: più grande di quella delle impostazioni, perché qui accoglie. */
 private val HEADER_ICON = 96.dp

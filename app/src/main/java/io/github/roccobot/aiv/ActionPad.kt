@@ -25,10 +25,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -180,6 +182,21 @@ fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (In
         modifier = Modifier.align(Alignment.BottomCenter)
     ) {
         Surface(
+            /*
+             * ⚠️⚠️ **IL BORDO D'ACCENTO CE L'HA ANCHE LEI, dalla `1.55`, ed è una decisione
+             * dell'utente contro il criterio che l'aveva esclusa** (giro della `1.54`: *sì,
+             * voglio la riga anche lì: in realtà dappertutto. Capisco che quella fa eccezione
+             * perché non è in sovrapposizione e non ha sfocatura o velo ... Ma per coerenza deve
+             * avere il tratto intorno come tutti gli altri elementi simili*). L'esenzione dal
+             * **velo** resta, e la ragione è sua: quella scheda non copre la griglia, perché con
+             * lei aperta si deve poter continuare a scegliere.
+             * ⚠️ **Quindi il bordo e il velo non hanno più lo stesso elenco**, e chi legge
+             * `Edge.kt` lo sappia: il velo dice 'mi apro sopra qualcosa', il bordo dice 'sono
+             * una superficie di questa app'. La seconda cosa vale anche per chi non copre niente.
+             * ⚠️ **Tre lati come l'altra scheda**: è appoggiata al bordo di sotto, e una riga
+             * sull'ultima fila di pixel si legge come un taglio.
+             */
+            modifier = Modifier.edgedTop(SHEET_CORNER),
             shape = RoundedCornerShape(topStart = SHEET_CORNER, topEnd = SHEET_CORNER),
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
             /*
@@ -522,7 +539,6 @@ val BELOW_FAB = FAB_REACH + 20.dp
  */
 @Composable
 fun TapHoldFab(
-    icon: ImageVector,
     /** Che cos'è il tastino, per il lettore di schermo: la sua azione breve. */
     label: String,
     container: Color,
@@ -561,7 +577,19 @@ fun TapHoldFab(
      */
     lifted: Boolean = false,
     onTap: () -> Unit,
-    onHold: () -> Unit
+    onHold: () -> Unit,
+    /**
+     * Che cosa si vede sul tastino, con la descrizione da dare al lettore di schermo.
+     *
+     * ⚠️⚠️ **È UNA FESSURA E NON UN `ImageVector`, dalla `1.55`**: il tastino della schermata
+     * iniziale porta il **marchio dell'app**, che è un disegno più largo che alto e va messo in
+     * scena con una misura sua e uno spostamento suo (vedi `Marchio` in `FolderScreen.kt`). Un
+     * `ImageVector` obbligava a una scatola quadrata da 24dp, che quel disegno schiaccia.
+     * ⚠️ **La descrizione arriva da qui perché i due tastini disegnati sono due**: quello vero
+     * parla al lettore di schermo, il sosia che tiene il posto no, o si sentirebbero due voci per
+     * un tasto solo. Chi riempie la fessura passa la stringa all'`Icon` e basta.
+     */
+    glyph: @Composable (descrizione: String?) -> Unit
 ) {
     val tasto = @Composable { alza: Dp ->
         Surface(
@@ -580,7 +608,7 @@ fun TapHoldFab(
                 ),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(imageVector = icon, contentDescription = label)
+                glyph(label)
             }
         }
     }
@@ -625,7 +653,13 @@ fun TapHoldFab(
                 .background(container, RoundedCornerShape(FAB_CORNER)),
             contentAlignment = Alignment.Center
         ) {
-            Icon(imageVector = icon, contentDescription = null, tint = ink)
+            /*
+             * ⚠️ **La tinta si dà col `CompositionLocal` e non a mano**: qui non c'è la
+             * `Surface` che nel tastino vero porta `contentColor`, e la fessura disegna un
+             * `Icon` che quel colore lo legge da lì. Passarlo come parametro vorrebbe dire
+             * chiedere a chi riempie la fessura di saperlo, e i due disegni divergerebbero.
+             */
+            CompositionLocalProvider(LocalContentColor provides ink) { glyph(null) }
         }
         Popup(alignment = Alignment.TopStart) {
             untouchable()

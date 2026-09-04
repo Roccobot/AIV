@@ -240,7 +240,7 @@
     <string name="bin_empty_ask">Benar-benar kosongkan tempat sampah?</string>
     <string name="bin_empty_desc">Isinya tidak bisa dikembalikan lagi.</string>
     <string name="bin_restore_all_ask">Yakin ingin memulihkan semua berkas?</string>
-    <string name="bin_restore_all_desc">Setiap berkas akan kembali ke folder asalnya: untuk mengetahui ke mana setiap berkas dipindahkan, lihat riwayat tempat sampah.</string>
+    <string name="bin_restore_all_desc">Setiap item akan kembali ke folder asalnya: untuk mengetahui ke mana ia dipindahkan, lihat riwayat tempat sampah.</string>
     <plurals name="trash_done">
         <item quantity="other">%1$d dipindahkan ke tempat sampah</item>
     </plurals>
@@ -270,7 +270,7 @@
     <string name="settings_ext_edit_desc">Panel ganti nama bisa mengubah ekstensi berkas. Kalau tidak yakin, jangan nyalakan ini: gambar bisa jadi tidak terbaca.</string>
     <string name="settings_thumbs">Hapus miniatur yang tersimpan</string>
     <string name="settings_thumbs_empty">Tidak ada miniatur tersimpan</string>
-    <string name="settings_thumbs_warn">Ketuk tombol untuk mengosongkan cache miniatur. Pratinjau gambar dan video akan dihapus dan dibuat ulang secara otomatis saat kamu membuka setiap folder (jika ada banyak gambar besar, pembuatan miniatur baru dapat memerlukan satu menit atau lebih).</string>
+    <string name="settings_thumbs_warn">Ketuk tombol untuk mengosongkan cache miniatur. Pratinjau gambar dan video akan dihapus dan dibuat ulang secara otomatis saat kamu membuka setiap folder (ini dapat memerlukan satu menit atau lebih di folder dengan banyak gambar besar).</string>
     <string name="settings_thumbs_do">Kosongkan cache\nminiatur</string>
     <string name="settings_thumbs_done">Cache miniatur dikosongkan</string>
     <string name="settings_hidden_none">Tidak ada folder tersembunyi</string>
@@ -358,7 +358,7 @@
     <string name="settings_editor_backup_desc">Sebelum sebuah penyunting menimpa gambar, salinannya disimpan di tempat sampah, tempat Anda dapat memulihkannya; bila tidak diperlukan, salinan itu akan terhapus pada \'Kosongkan tempat sampah\' berikutnya.</string>
     <string name="editor_tall">Tegak</string>
     <string name="editor_wide">Mendatar</string>
-    <string name="pick_cleared">Pilihan dihapus</string>
+    <string name="pick_cleared">Tidak ada berkas yang dipilih.</string>
     <string name="pick_undo">Urungkan</string>
     <string name="pick_list_done">Daftar berkas disalin ke papan klip</string>
     <string name="settings_pick_weight">Ukuran berkas yang dipilih</string>
