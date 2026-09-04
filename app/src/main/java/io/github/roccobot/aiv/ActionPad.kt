@@ -11,6 +11,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -553,20 +555,21 @@ fun TapHoldFab(
      * ⚠️⚠️ **DA STACCATO IL TASTINO È SOLO DA GUARDARE**, e la sua finestra lascia passare le
      * dita: il perché sta su [untouchable], ed è quello che tiene in piedi la chiusura del menu
      * al tocco, che è del giro della `1.06`.
-     * ⚠️ **Non è verificato su un telefono** (qui non ce n'è uno): se non bastasse, il tastino
-     * resterebbe velato come adesso, che è il comportamento di prima e non un guasto nuovo.
+     * ⚠️ **L'incognita è se una finestra basti a stare sopra il velo**, e il caso peggiore è
+     * dichiarato: se non bastasse, il tastino resterebbe velato come prima della `1.39`, che è
+     * il comportamento di allora e non un guasto nuovo.
      */
     lifted: Boolean = false,
     onTap: () -> Unit,
     onHold: () -> Unit
 ) {
-    val tasto = @Composable {
+    val tasto = @Composable { alza: Dp ->
         Surface(
             modifier = Modifier.size(FAB_SIZE),
             shape = RoundedCornerShape(FAB_CORNER),
             color = container,
             contentColor = ink,
-            shadowElevation = lift
+            shadowElevation = alza
         ) {
             Box(
                 modifier = Modifier.combinedClickable(
@@ -583,22 +586,50 @@ fun TapHoldFab(
     }
 
     if (!lifted) {
-        tasto()
+        tasto(lift)
         return
     }
     /*
-     * ⚠️ **Il posto resta occupato da una scatola vuota della stessa misura**, e non è un
-     * dettaglio: una finestra non occupa spazio nel genitore, quindi senza questa scatola il
-     * riquadro si stringerebbe e il menu, che si ancora a lui, salterebbe altrove proprio
-     * mentre si apre.
+     * ⚠️ **Il posto resta occupato da una scatola della stessa misura**, e non è un dettaglio:
+     * una finestra non occupa spazio nel genitore, quindi senza questa scatola il riquadro si
+     * stringerebbe e il menu, che si ancora a lui, salterebbe altrove proprio mentre si apre.
      * ⚠️ **`Alignment.TopStart` mette la finestra sull'angolo dell'ancora**, cioè esattamente
      * dove il tastino sarebbe stato: il tastino non si muove, cambia solo la finestra che lo
      * disegna.
+     *
+     * ⚠️⚠️ **DENTRO LA SCATOLA C'È UN SOSIA, E SENZA DI LUI IL TASTINO LAMPEGGIA** (riscontro
+     * dell'utente, giro della `1.46`: *il tastino FAB fa un flash*). La causa è nello scambio
+     * stesso: passare da 'disegnato qui' a 'disegnato in una finestra sua' vuol dire togliere
+     * un nodo e chiedere al gestore delle finestre di aggiungerne una, e le due cose non
+     * capitano nello stesso fotogramma. Per quel fotogramma il tastino **non c'è da nessuna
+     * parte**, e la stessa cosa succede alla chiusura, al contrario. Il sosia riempie il buco:
+     * sta sempre lì, e il tastino vero gli si posa sopra quando la sua finestra è pronta.
+     * ⚠️⚠️ **L'OMBRA CE L'HA IL SOSIA E NON QUELLO SOPRA**, o sarebbero due ombre sovrapposte
+     * per tutto il tempo in cui il menu è aperto: quella sotto vive nella finestra della
+     * schermata e quella sopra nella sua, quindi si sommerebbero invece di coincidere. Con
+     * l'ombra a chi sta sotto, la sagoma disegnata resta una sola in ogni istante, e col velo
+     * acceso l'ombra cade sul velo, che è dove deve cadere.
+     * ⚠️⚠️ **IL SOSIA NON È UNA `Surface`, e non è pigrizia**: una `Surface` di Material si
+     * mangia i tocchi (ha un `pointerInput` suo anche senza `onClick`), e qui sotto i tocchi
+     * devono **passare**, perché è il velo trasparente della schermata a raccoglierli e a
+     * chiudere il menu. È la chiusura al tocco del giro della `1.06`, la stessa che [untouchable]
+     * protegge dall'altra parte.
+     * ⚠️ **E non parla al lettore di schermo**: il tastino vero è quello di sopra, e un sosia
+     * che si annunciasse darebbe due voci per un tasto solo.
      */
     Box(modifier = Modifier.size(FAB_SIZE)) {
+        Box(
+            modifier = Modifier
+                .size(FAB_SIZE)
+                .shadow(lift, RoundedCornerShape(FAB_CORNER))
+                .background(container, RoundedCornerShape(FAB_CORNER)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(imageVector = icon, contentDescription = null, tint = ink)
+        }
         Popup(alignment = Alignment.TopStart) {
             untouchable()
-            tasto()
+            tasto(0.dp)
         }
     }
 }

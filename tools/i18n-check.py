@@ -102,23 +102,33 @@ def base_lang(lang):
 
 
 def read(path):
-    strings, plurals = {}, {}
+    """Le stringhe, i plurali, e i nomi che si dichiarano NON traducibili.
+
+    ⚠️⚠️ **`translatable="false"` NON è una scorciatoia per saltare un lavoro**: dice che
+    quel valore non è testo, quindi tradurlo sarebbe un difetto. Il caso in casa è l'URL di
+    esempio del campo dell'indirizzo, che vale in ogni lingua ed è ventotto posti in cui
+    cambiare un dominio (istruzione dell'utente, 2026-09-04: *non occorre che sia
+    multilingua*).
+    """
+    strings, plurals, fissi = {}, {}, set()
     for el in ET.parse(path).getroot():
         if el.tag == 'string':
             strings[el.get('name')] = el.text or ''
+            if el.get('translatable') == 'false':
+                fissi.add(el.get('name'))
         elif el.tag == 'plurals':
             plurals[el.get('name')] = {i.get('quantity'): (i.text or '') for i in el}
-    return strings, plurals
+    return strings, plurals, fissi
 
 
 def main():
-    base_s, base_p = read(SRC)
+    base_s, base_p, base_fissi = read(SRC)
     langs = sorted(d[len('values-'):] for d in os.listdir(RES)
                    if d.startswith('values-') and
                    os.path.isfile(os.path.join(RES, d, 'strings.xml')))
     problems = 0
     for lang in langs:
-        here_s, here_p = read(os.path.join(RES, 'values-%s' % lang, 'strings.xml'))
+        here_s, here_p, _ = read(os.path.join(RES, 'values-%s' % lang, 'strings.xml'))
         said = []
 
         # ⚠️ Vedi la nota in testa: una variante regionale porta solo le differenze, quindi
@@ -129,7 +139,14 @@ def main():
         cats = madre if parziale else lang
 
         for name, text in base_s.items():
-            if name not in here_s:
+            # ⚠️ Una stringa non traducibile si controlla al ROVESCIO: qui non deve esserci,
+            # e se c'è è una copia rimasta indietro, cioè il difetto che la dichiarazione
+            # serve a evitare. Segnalarla è l'unico modo di accorgersene, perché una copia
+            # vecchia non fa comparire l'inglese: fa comparire un valore sbagliato.
+            if name in base_fissi:
+                if name in here_s:
+                    said.append('la stringa %s non e\' traducibile e qui c\'e\' ancora' % name)
+            elif name not in here_s:
                 if not parziale:
                     said.append('manca la stringa %s' % name)
             elif holders(here_s[name]) != holders(text):

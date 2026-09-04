@@ -11,7 +11,6 @@
     <string name="error_retry">もう一度試す</string>
     <string name="fit_label">画面に合わせる</string>
     <string name="bar_reduced">縮小</string>
-    <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">履歴を消す</string>
     <string name="url_not_image">この住所は画像に行き着かず、ページにも画像がありません</string>
     <string name="menu_copy_image">画像をコピー</string>
@@ -77,7 +76,7 @@
     <string name="settings_dark">暗い</string>
 
     <string name="settings_veil">パネルの背景をぼかす</string>
-    <string name="settings_veil_desc">ダイアログ、メニュー、パネルの背景をぼかして暗くします。動作が目に見えて遅くなることがあるため、初期状態ではオフです。</string>
+    <string name="settings_veil_desc">ダイアログ、メニュー、パネルの背景をぼかして暗くします。古い端末では動作が遅くなることがあります。</string>
     <string name="settings_folder_columns">フォルダ一覧の列数</string>
     <string name="settings_folder_columns_desc">列を増やすと画面に入るフォルダは増え、表紙は小さくなります。4列では下の名前はたいてい切れます。</string>
     <string name="settings_folder_count">グリッド表示でフォルダーの下に項目数を表示</string>
@@ -259,9 +258,9 @@
     <string name="settings_facts_down">下へ</string>
     <string name="settings_group_look">外観</string>
     <string name="settings_group_viewer">ビューア</string>
-    <string name="settings_group_clips">動画とスワイプ</string>
-    <string name="settings_group_input">操作と選択</string>
-    <string name="settings_group_files">編集とゴミ箱</string>
+    <string name="settings_group_clips">ナビゲーション</string>
+    <string name="settings_group_input">操作と表示</string>
+    <string name="settings_group_files">編集とバックアップ</string>
     <string name="settings_group_browse">フォルダー</string>
     <string name="settings_group_start">起動</string>
     <string name="settings_group_advanced">詳細機能</string>
@@ -308,7 +307,7 @@
     <string name="tree_unopenable">この端末には開けるアプリがありません</string>
     <string name="clip_pause">一時停止</string>
     <string name="settings_images_only">写真だけをめくる</string>
-    <string name="settings_images_only_desc">ビューアーでスワイプすると動画を飛ばし、画像だけをめくります。軽くたたけば動画は開きます。</string>
+    <string name="settings_images_only_desc">ビューアーでスワイプすると動画を飛ばし、画像だけをめくります。動画は通常の表示から軽くたたけば開けます。</string>
     <string name="settings_clip_autoplay">動画をすぐに再生する</string>
 
     <!-- Modificare una fotografia (1.03) -->
@@ -346,6 +345,7 @@
     <string name="view_list">リスト</string>
     <string name="view_tree">フォルダ</string>
     <string name="edit_no_backup">安全のための控えが作れなかったので、何も上書きしていません</string>
+    <string name="edit_backup_same">保存されたファイルが元と同じだったため、画像のバックアップは作成されませんでした。</string>
     <string name="settings_editor_backup">上書きの前に控えを取る</string>
     <string name="settings_editor_backup_desc">エディターが画像を上書きする前に、そのコピーをごみ箱に保存します。そこから復元でき、不要なら次回の「ごみ箱を空にする」で削除されます。</string>
     <string name="editor_tall">縦</string>

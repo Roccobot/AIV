@@ -11,7 +11,6 @@
     <string name="error_retry">আবার চেষ্টা করুন</string>
     <string name="fit_label">পর্দায় মেলান</string>
     <string name="bar_reduced">হ্রাসকৃত</string>
-    <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">এগুলো ভুলে যান</string>
     <string name="url_not_image">ঠিকানাটি কোনো ছবিতে নিয়ে যায় না, আর পাতাটিতেও কোনো ছবি নেই</string>
     <string name="menu_copy_image">ছবি কপি করুন</string>
@@ -77,7 +76,7 @@
     <string name="settings_dark">গাঢ়</string>
 
     <string name="settings_veil">প্যানেলের পিছনে ঝাপসা</string>
-    <string name="settings_veil_desc">ডায়ালগ, মেনু ও প্যানেলের পিছনের পর্দা ঝাপসা ও অন্ধকার করে। এতে অ্যাপ লক্ষণীয়ভাবে ধীর মনে হতে পারে, তাই এটি বন্ধ রাখা আছে।</string>
+    <string name="settings_veil_desc">ডায়ালগ, মেনু ও প্যানেলের পিছনের পর্দা ঝাপসা ও অন্ধকার করে। পুরোনো যন্ত্রে অ্যাপ ধীর হয়ে যেতে পারে।</string>
     <string name="settings_folder_columns">ফোল্ডার গ্রিডের কলাম</string>
     <string name="settings_folder_columns_desc">বেশি কলামে পর্দায় বেশি ফোল্ডার আঁটে আর প্রতিটি প্রচ্ছদ ছোট হয়। চারটিতে নিচের নাম সাধারণত কাটা পড়ে।</string>
     <string name="settings_folder_count">গ্রিড দৃশ্যে ফোল্ডারের নিচে জিনিসের গণনা</string>
@@ -272,9 +271,9 @@
     <string name="settings_facts_down">নিচে সরান</string>
     <string name="settings_group_look">উপস্থিতি</string>
     <string name="settings_group_viewer">প্রদর্শক</string>
-    <string name="settings_group_clips">ভিডিও ও সরানো</string>
-    <string name="settings_group_input">নিয়ন্ত্রণ ও নির্বাচন</string>
-    <string name="settings_group_files">সম্পাদনা ও আবর্জনা</string>
+    <string name="settings_group_clips">নেভিগেশন</string>
+    <string name="settings_group_input">নিয়ন্ত্রণ ও নির্দেশক</string>
+    <string name="settings_group_files">সম্পাদনা ও ব্যাকআপ</string>
     <string name="settings_group_browse">ফোল্ডার</string>
     <string name="settings_group_start">সূচনা</string>
     <string name="settings_group_advanced">উন্নত সুবিধা</string>
@@ -323,7 +322,7 @@
     <string name="tree_unopenable">এই ফোনের কোনও অ্যাপ এটি খুলতে পারে না</string>
     <string name="clip_pause">থামান</string>
     <string name="settings_images_only">শুধু ছবি দেখুন</string>
-    <string name="settings_images_only_desc">দর্শকে সরালে ভিডিও বাদ পড়ে, কেবল ছবি দেখা যায়। এক ছোঁয়ায় ভিডিও তবুও খোলে।</string>
+    <string name="settings_images_only_desc">দর্শকে সরালে ভিডিও বাদ পড়ে, কেবল ছবি দেখা যায়। সাধারণ দৃশ্য থেকে এক ছোঁয়ায় ভিডিও খোলা যায়।</string>
     <string name="settings_clip_autoplay">ভিডিও সঙ্গে সঙ্গে চালান</string>
 
     <!-- Modificare una fotografia (1.03) -->
@@ -361,6 +360,7 @@
     <string name="view_list">তালিকা</string>
     <string name="view_tree">ফোল্ডার</string>
     <string name="edit_no_backup">নিরাপত্তা অনুলিপি হয়নি, তাই কিছুই উপরে লেখা হয়নি</string>
+    <string name="edit_backup_same">ছবির কোনো ব্যাকআপ অনুলিপি তৈরি হয়নি, কারণ সংরক্ষিত ফাইলটি মূলটির সঙ্গে অভিন্ন ছিল।</string>
     <string name="settings_editor_backup">উপরে লেখার আগে নিরাপত্তা অনুলিপি</string>
     <string name="settings_editor_backup_desc">কোনো সম্পাদক ছবির উপর লেখার আগে তার একটি অনুলিপি আবর্জনায় রেখে দেয়, সেখান থেকে ফিরিয়ে আনা যায়; দরকার না হলে পরের বার \'আবর্জনা খালি করুন\'-এ মুছে যাবে।</string>
     <string name="editor_tall">লম্বালম্বি</string>

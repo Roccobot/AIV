@@ -11,7 +11,6 @@
     <string name="error_retry">மீண்டும் முயற்சிக்கவும்</string>
     <string name="fit_label">திரைக்கு பொருத்து</string>
     <string name="bar_reduced">குறைக்கப்பட்டது</string>
-    <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">இவற்றை மறந்துவிடு</string>
     <string name="url_not_image">இந்த முகவரி எந்தப் படத்திற்கும் இட்டுச் செல்லவில்லை, பக்கத்திலும் படம் இல்லை</string>
     <string name="menu_copy_image">படத்தை நகலெடு</string>
@@ -77,7 +76,7 @@
     <string name="settings_dark">இருள்</string>
 
     <string name="settings_veil">பலகங்களுக்குப் பின் மங்கல்</string>
-    <string name="settings_veil_desc">உரையாடல்கள், பட்டிகள், பலகங்களுக்குப் பின்னால் உள்ள திரையை மங்கலாக்கி இருட்டாக்கும். செயலி வெளிப்படையாக மெதுவாகத் தோன்றலாம், அதனால் இது அணைக்கப்பட்டுள்ளது.</string>
+    <string name="settings_veil_desc">உரையாடல்கள், பட்டிகள், பலகங்களுக்குப் பின்னால் உள்ள திரையை மங்கலாக்கி இருட்டாக்கும். பழைய சாதனங்களில் செயலி மெதுவாகலாம்.</string>
     <string name="settings_folder_columns">கோப்புறைக் கட்டத்தின் நிரல்கள்</string>
     <string name="settings_folder_columns_desc">நிரல்கள் அதிகமானால் திரையில் அதிகக் கோப்புறைகள் அடங்கும், ஒவ்வொரு அட்டையும் சிறியதாகும். நான்கில் கீழே உள்ள பெயர் பெரும்பாலும் வெட்டப்படும்.</string>
     <string name="settings_folder_count">கட்டக் காட்சியில் கோப்புறைகளுக்குக் கீழே பொருள் எண்ணிக்கை</string>
@@ -272,9 +271,9 @@
     <string name="settings_facts_down">கீழே நகர்த்து</string>
     <string name="settings_group_look">தோற்றம்</string>
     <string name="settings_group_viewer">காட்சியாளர்</string>
-    <string name="settings_group_clips">காணொளிகளும் தள்ளுதலும்</string>
-    <string name="settings_group_input">கட்டுப்பாடுகளும் தேர்வும்</string>
-    <string name="settings_group_files">திருத்தமும் குப்பைத் தொட்டியும்</string>
+    <string name="settings_group_clips">வழிசெலுத்தல்</string>
+    <string name="settings_group_input">கட்டுப்பாடுகளும் காட்டிகளும்</string>
+    <string name="settings_group_files">திருத்தமும் காப்புநகலும்</string>
     <string name="settings_group_browse">கோப்புறைகள்</string>
     <string name="settings_group_start">தொடக்கம்</string>
     <string name="settings_group_advanced">மேம்பட்ட வசதிகள்</string>
@@ -323,7 +322,7 @@
     <string name="tree_unopenable">இதைத் திறக்கக்கூடிய பயன்பாடு இந்தத் தொலைபேசியில் இல்லை</string>
     <string name="clip_pause">இடைநிறுத்து</string>
     <string name="settings_images_only">படங்களை மட்டும் புரட்டு</string>
-    <string name="settings_images_only_desc">காட்டியில் தள்ளுவது காணொளிகளைத் தவிர்த்து படங்களை மட்டும் புரட்டும். ஒரு தொடுதலில் காணொளி இருப்பினும் திறக்கும்.</string>
+    <string name="settings_images_only_desc">காட்டியில் தள்ளுவது காணொளிகளைத் தவிர்த்து படங்களை மட்டும் புரட்டும். வழக்கமான காட்சியிலிருந்து ஒரு தொடுதலில் காணொளியைத் திறக்கலாம்.</string>
     <string name="settings_clip_autoplay">காணொளிகளை உடனே இயக்கு</string>
 
     <!-- Modificare una fotografia (1.03) -->
@@ -361,6 +360,7 @@
     <string name="view_list">பட்டியல்</string>
     <string name="view_tree">கோப்புறைகள்</string>
     <string name="edit_no_backup">பாதுகாப்பு நகல் எடுக்க முடியவில்லை, எனவே எதன் மேலும் எழுதப்படவில்லை</string>
+    <string name="edit_backup_same">சேமிக்கப்பட்ட கோப்பு மூலத்துடன் ஒரே மாதிரி இருந்ததால், படத்தின் காப்புநகல் உருவாக்கப்படவில்லை.</string>
     <string name="settings_editor_backup">மேலெழுதும் முன் பாதுகாப்பு நகல்</string>
     <string name="settings_editor_backup_desc">எடிட்டர் ஒரு படத்தின் மேல் எழுதுவதற்கு முன், அதன் நகலை மறுசுழற்சிக் கூடையில் சேமிக்கிறது; அங்கிருந்து மீட்கலாம். தேவையில்லை என்றால் அடுத்த \'கூடையைக் காலி செய்\' போது நீக்கப்படும்.</string>
     <string name="editor_tall">நெடுக்கு</string>

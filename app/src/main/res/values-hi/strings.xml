@@ -11,7 +11,6 @@
     <string name="error_retry">फिर कोशिश करें</string>
     <string name="fit_label">स्क्रीन में समाएँ</string>
     <string name="bar_reduced">घटाई गई</string>
-    <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">इन्हें भूल जाएँ</string>
     <string name="url_not_image">पता किसी छवि तक नहीं ले जाता, और पृष्ठ में भी कोई छवि नहीं है</string>
     <string name="menu_copy_image">छवि कॉपी करें</string>
@@ -77,7 +76,7 @@
     <string name="settings_dark">गहरा</string>
 
     <string name="settings_veil">पैनल के पीछे धुंधलापन</string>
-    <string name="settings_veil_desc">डायलॉग, मेन्यू और पैनल के पीछे की स्क्रीन को धुंधला और गहरा करता है। इससे ऐप साफ़ तौर पर धीमा लग सकता है, इसीलिए यह बंद है।</string>
+    <string name="settings_veil_desc">डायलॉग, मेन्यू और पैनल के पीछे की स्क्रीन को धुंधला और गहरा करता है। पुराने उपकरणों पर ऐप धीमा हो सकता है।</string>
     <string name="settings_folder_columns">फ़ोल्डर ग्रिड के स्तंभ</string>
     <string name="settings_folder_columns_desc">जितने अधिक स्तंभ, उतने अधिक फ़ोल्डर स्क्रीन पर आते हैं और हर आवरण उतना ही छोटा होता है। चार पर नीचे का नाम अक्सर कट जाता है।</string>
     <string name="settings_folder_count">ग्रिड दृश्य में फ़ोल्डरों के नीचे वस्तुओं की गिनती</string>
@@ -272,9 +271,9 @@
     <string name="settings_facts_down">नीचे ले जाएँ</string>
     <string name="settings_group_look">रूप</string>
     <string name="settings_group_viewer">प्रदर्शक</string>
-    <string name="settings_group_clips">वीडियो और सरकाना</string>
-    <string name="settings_group_input">नियंत्रण और चयन</string>
-    <string name="settings_group_files">संपादन और कूड़ेदान</string>
+    <string name="settings_group_clips">नेविगेशन</string>
+    <string name="settings_group_input">नियंत्रण और संकेतक</string>
+    <string name="settings_group_files">संपादन और बैकअप</string>
     <string name="settings_group_browse">फ़ोल्डर</string>
     <string name="settings_group_start">शुरुआत</string>
     <string name="settings_group_advanced">उन्नत सुविधाएँ</string>
@@ -323,7 +322,7 @@
     <string name="tree_unopenable">इस फ़ोन में कोई ऐप इसे नहीं खोल सकता</string>
     <string name="clip_pause">रोकें</string>
     <string name="settings_images_only">सिर्फ़ तस्वीरें देखें</string>
-    <string name="settings_images_only_desc">दर्शक में सरकाने पर वीडियो छूट जाते हैं और केवल छवियाँ पलटती हैं। एक स्पर्श पर वीडियो फिर भी खुलता है।</string>
+    <string name="settings_images_only_desc">दर्शक में सरकाने पर वीडियो छूट जाते हैं और केवल छवियाँ पलटती हैं। सामान्य दृश्य से एक स्पर्श पर वीडियो खोला जा सकता है।</string>
     <string name="settings_clip_autoplay">वीडियो सीधे चलाएँ</string>
 
     <!-- Modificare una fotografia (1.03) -->
@@ -361,6 +360,7 @@
     <string name="view_list">सूची</string>
     <string name="view_tree">फ़ोल्डर</string>
     <string name="edit_no_backup">सुरक्षा प्रति नहीं बनी, इसलिए कुछ भी ऊपर नहीं लिखा गया</string>
+    <string name="edit_backup_same">छवि की कोई बैकअप प्रति नहीं बनाई गई, क्योंकि सहेजी गई फ़ाइल मूल जैसी ही थी।</string>
     <string name="settings_editor_backup">ऊपर लिखने से पहले सुरक्षा प्रति</string>
     <string name="settings_editor_backup_desc">किसी संपादक द्वारा छवि पर लिखे जाने से पहले, उसकी एक प्रति रद्दी में रख दी जाती है, जहाँ से आप उसे वापस ले सकते हैं; ज़रूरत न हो तो अगली बार \'रद्दी खाली करें\' पर वह हट जाएगी।</string>
     <string name="editor_tall">खड़ा</string>

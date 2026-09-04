@@ -11,7 +11,6 @@
     <string name="error_retry">Tentar de novo</string>
     <string name="fit_label">Ajustar à vista</string>
     <string name="bar_reduced">reduzida</string>
-    <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Esquecer estes</string>
     <string name="url_not_image">O endereço não leva a nenhuma imagem, e a página não tem nenhuma</string>
     <string name="menu_copy_image">Copiar a imagem</string>
@@ -77,7 +76,7 @@
     <string name="settings_dark">Escuro</string>
 
     <string name="settings_veil">Desfoque atrás dos painéis</string>
-    <string name="settings_veil_desc">Desfoca e escurece o ecrã atrás de caixas de diálogo, menus e painéis. Pode deixar a aplicação visivelmente mais lenta, e por isso está desligado.</string>
+    <string name="settings_veil_desc">Desfoca e escurece o ecrã atrás de caixas de diálogo, menus e painéis. Em dispositivos antigos, a aplicação pode ficar mais lenta.</string>
     <string name="settings_folder_columns">Colunas na grade de pastas</string>
     <string name="settings_folder_columns_desc">Mais colunas cabem mais pastas na tela e encolhem cada capa. Com quatro, o nome embaixo costuma ficar cortado.</string>
     <string name="settings_folder_count">Contador de itens sob as pastas na visualização em grade</string>
@@ -285,9 +284,9 @@
     <string name="settings_facts_down">Descer</string>
     <string name="settings_group_look">Aparência</string>
     <string name="settings_group_viewer">Visualizador</string>
-    <string name="settings_group_clips">Vídeos e deslize</string>
-    <string name="settings_group_input">Controles e seleção</string>
-    <string name="settings_group_files">Edição e lixeira</string>
+    <string name="settings_group_clips">Navegação</string>
+    <string name="settings_group_input">Controles e indicadores</string>
+    <string name="settings_group_files">Edição e cópia de segurança</string>
     <string name="settings_group_browse">Pastas</string>
     <string name="settings_group_start">Início</string>
     <string name="settings_group_advanced">Recursos avançados</string>
@@ -338,7 +337,7 @@
     <string name="tree_unopenable">Nenhum app deste celular sabe abrir isso</string>
     <string name="clip_pause">Pausar</string>
     <string name="settings_images_only">Folhear só as imagens</string>
-    <string name="settings_images_only_desc">No visualizador, o deslize salta os vídeos e folheia apenas as imagens. Um toque abre um vídeo de todo modo.</string>
+    <string name="settings_images_only_desc">No visualizador, o deslize salta os vídeos e folheia apenas as imagens. Um vídeo pode ser aberto com um toque a partir da visualização normal.</string>
     <string name="settings_clip_autoplay">Reproduzir os vídeos de imediato</string>
 
     <!-- Modificare una fotografia (1.03) -->
@@ -376,6 +375,7 @@
     <string name="view_list">Lista</string>
     <string name="view_tree">Pastas</string>
     <string name="edit_no_backup">A cópia de segurança falhou, então nada foi sobrescrito</string>
+    <string name="edit_backup_same">Não foi criada uma cópia de segurança da imagem, porque o ficheiro guardado era idêntico ao original.</string>
     <string name="settings_editor_backup">Cópia de segurança antes de sobrescrever</string>
     <string name="settings_editor_backup_desc">Antes que um editor sobrescreva uma imagem, ele guarda uma cópia na lixeira, onde você poderá recuperá-la; se não precisar dela, será excluída no próximo \'Esvaziar lixeira\'.</string>
     <string name="editor_tall">Retrato</string>

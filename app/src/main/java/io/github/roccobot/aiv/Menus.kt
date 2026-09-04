@@ -35,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -153,12 +154,31 @@ fun MenuShell(
          * ⚠️⚠️ **DENTRO IL `Popup` E NON FUORI, ed è tutta la differenza**: il velo si applica
          * alla finestra che **ospita** chi lo chiede, e qui fuori la finestra sarebbe quella
          * della schermata, cioè si velerebbe da sé. Vedi [WindowVeil].
-         * ⚠️ **Non sfuma con l'uscita**, ed è un limite dichiarato: il velo accende una
-         * bandierina sui parametri della finestra, e animarla vorrebbe dire riscrivere quei
-         * parametri a ogni fotogramma. Per la durata dell'uscita resta pieno e poi cade in un
-         * colpo. A funzione spenta, che è il valore di fabbrica, non si vede niente.
+         * ⚠️ **Non sfuma**, ed è un limite dichiarato: il velo accende una bandierina sui
+         * parametri della finestra, e animarla vorrebbe dire riscrivere quei parametri a ogni
+         * fotogramma. Cade in un colpo. A funzione spenta, che è il valore di fabbrica, non si
+         * vede niente.
+         *
+         * ⚠️⚠️ **CADE ALL'INIZIO DELL'USCITA E NON ALLA FINE, DALLA 1.48, e il `wanted` qui è
+         * tutta la correzione** (riscontro dell'utente, giro della `1.46`: *il passaggio da
+         * sfocato ad a-fuoco è lentissimo*, e nel campo libero *passaggio da una finestra
+         * all'altra (es. menu contestuale -> Rinomina): MOLTO lampeggiante*). Prima il velo
+         * viveva quanto il popup, e il popup resta in scena per tutti i 170 millesimi
+         * dell'uscita (vedi [MenuState.inScene]): quindi quando una voce del menu apriva un
+         * dialogo, per quel tempo **due finestre chiedevano la sfocatura insieme**, e il
+         * sistema rifaceva due volte lo sfondo sfocato a ogni fotogramma proprio mentre ne
+         * stava disegnando uno nuovo.
+         * ⚠️ **Il guadagno è doppio**: sparisce la sovrapposizione, e lo sfondo torna a fuoco
+         * 170 millesimi prima, che è esattamente la cosa che lui ha chiamata lenta. Il menu
+         * intanto continua a sfumare sopra uno sfondo già nitido, e va bene: quello che se ne
+         * va è il fondo, non la superficie.
+         * ⚠️ **L'incognita che resta è una sola**: se la sovrapposizione fosse **tutta** la
+         * lentezza, o se il costo vero fosse la sfocatura in sé, che il sistema rifà a ogni
+         * fotogramma anche quando lo sfondo è fermo. Nel secondo caso la cura è un'altra, e
+         * grossa: dipingerla sulla vista dell'app con un `RenderEffect`, che si disegna una
+         * volta e resta in cache. La voce di collaudo chiede quale dei due.
          */
-        WindowVeil()
+        if (state.wanted) WindowVeil()
         Surface(
             /*
              * ⚠️⚠️ **CRESCE DA 0,96 E NON DA ZERO, in 170ms** (scelta dell'utente sul
@@ -167,12 +187,34 @@ fun MenuShell(
              * l'utente ha chiesto una cosa sobria. Da 0,96 il movimento si sente e non si
              * guarda.
              * ⚠️ L'origine è quella di serie, il **centro** del riquadro.
+             *
+             * ⚠️⚠️ **`ModulateAlpha` NON È UN'OTTIMIZZAZIONE: SENZA DI LUI GLI ANGOLI SI
+             * ROMPONO MENTRE IL MENU ENTRA ED ESCE** (riscontro dell'utente, giro della `1.46`,
+             * su due menu diversi: *c'è un glitch tremendo sugli angoli del pannello in
+             * apertura/chiusura*). Il meccanismo, e va capito o la riga sembra superflua: con
+             * la strategia di serie un'alfa minore di 1 fa disegnare tutto il sottoalbero in un
+             * **buffer fuori schermo**, e quel buffer è grande quanto il nodo. L'ombra di
+             * questa superficie invece **esce** dal nodo, perché un'ombra sta intorno a quello
+             * che la getta: finisce contro il bordo del buffer e viene tagliata di netto. Il
+             * taglio si vede **agli angoli**, che è dove il riquadro stondato si allontana di
+             * più dal suo rettangolo e l'ombra è più larga. E si vede **solo durante
+             * l'animazione**, perché è l'unico momento in cui l'alfa non vale 1.
+             * ⚠️ **Quello che si paga in cambio, dichiarato**: `ModulateAlpha` applica l'alfa a
+             * ogni istruzione di disegno invece che al risultato, quindi un contenuto che si
+             * sovrappone a se stesso si mescola in modo un po' diverso. Qui il contenuto è
+             * testo opaco sopra un fondo opaco, per 170 millesimi di secondo: la differenza non
+             * si vede, il taglio dell'ombra sì.
+             * ⚠️ **L'incognita che resta è una sola**: se il taglio dell'ombra fosse l'unica
+             * causa del difetto che si vede, o se sotto ce ne fosse una seconda. Il
+             * meccanismo qui sopra si legge nel codice; che spieghi **tutto** quello che lui
+             * vede lo dice solo la prova.
              */
             modifier = Modifier.graphicsLayer {
                 alpha = state.show.value
                 val k = MENU_SMALL + (1f - MENU_SMALL) * state.show.value
                 scaleX = k
                 scaleY = k
+                compositingStrategy = CompositingStrategy.ModulateAlpha
             },
             shape = RoundedCornerShape(MENU_ROUND),
             color = MaterialTheme.colorScheme.surfaceContainer,

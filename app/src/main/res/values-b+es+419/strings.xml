@@ -30,7 +30,6 @@
          otras dos cadenas de los videos son iguales a las de Espana. -->
     <string name="grid_item_clip">Video</string>
     <!-- video sin tilde, como arriba: eso es lo unico que cambia en las tres cadenas. -->
-    <string name="settings_group_clips">Videos y deslizamiento</string>
-    <string name="settings_images_only_desc">En el visor, el deslizamiento salta los videos y solo pasa las imágenes. Un toque abre un video de todos modos.</string>
+    <string name="settings_images_only_desc">En el visor, el deslizamiento salta los videos y solo pasa las imágenes. Se puede abrir un video con un toque desde la vista normal.</string>
     <string name="settings_clip_autoplay">Reproducir los videos directamente</string>
 </resources>

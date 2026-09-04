@@ -11,7 +11,6 @@
     <string name="error_retry">Spróbuj ponownie</string>
     <string name="fit_label">Dopasuj do ekranu</string>
     <string name="bar_reduced">zmniejszona</string>
-    <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">Zapomnij te adresy</string>
     <string name="url_not_image">Adres nie prowadzi do żadnego obrazu, a strona nie zawiera żadnego</string>
     <string name="menu_copy_image">Kopiuj obraz</string>
@@ -77,7 +76,7 @@
     <string name="settings_dark">Ciemne</string>
 
     <string name="settings_veil">Rozmycie za panelami</string>
-    <string name="settings_veil_desc">Rozmywa i przyciemnia ekran za oknami dialogowymi, menu i panelami. Aplikacja może działać zauważalnie wolniej, dlatego opcja jest wyłączona.</string>
+    <string name="settings_veil_desc">Rozmywa i przyciemnia ekran za oknami dialogowymi, menu i panelami. Na starszych urządzeniach aplikacja może działać wolniej.</string>
     <string name="settings_folder_columns">Kolumny w siatce folderów</string>
     <string name="settings_folder_columns_desc">Więcej kolumn mieści na ekranie więcej folderów i zmniejsza każdą okładkę. Przy czterech nazwa pod nią zwykle się urywa.</string>
     <string name="settings_folder_count">Licznik elementów pod folderami w widoku siatki</string>
@@ -298,9 +297,9 @@
     <string name="settings_facts_down">Przenieś w dół</string>
     <string name="settings_group_look">Wygląd</string>
     <string name="settings_group_viewer">Podgląd</string>
-    <string name="settings_group_clips">Filmy i przesuwanie</string>
-    <string name="settings_group_input">Sterowanie i zaznaczanie</string>
-    <string name="settings_group_files">Edycja i kosz</string>
+    <string name="settings_group_clips">Nawigacja</string>
+    <string name="settings_group_input">Sterowanie i wskaźniki</string>
+    <string name="settings_group_files">Edycja i kopia zapasowa</string>
     <string name="settings_group_browse">Foldery</string>
     <string name="settings_group_start">Uruchamianie</string>
     <string name="settings_group_advanced">Funkcje zaawansowane</string>
@@ -353,7 +352,7 @@
     <string name="tree_unopenable">Żadna aplikacja w tym telefonie tego nie otworzy</string>
     <string name="clip_pause">Wstrzymaj</string>
     <string name="settings_images_only">Przeglądaj tylko zdjęcia</string>
-    <string name="settings_images_only_desc">W przeglądarce przesunięcie pomija filmy i przegląda tylko obrazy. Dotknięcie i tak otwiera film.</string>
+    <string name="settings_images_only_desc">W przeglądarce przesunięcie pomija filmy i przegląda tylko obrazy. Film nadal otwiera się dotknięciem w widoku zwykłym.</string>
     <string name="settings_clip_autoplay">Odtwarzaj filmy od razu</string>
 
     <!-- Modificare una fotografia (1.03) -->
@@ -391,6 +390,7 @@
     <string name="view_list">Lista</string>
     <string name="view_tree">Foldery</string>
     <string name="edit_no_backup">Kopia zapasowa się nie udała, więc nic nie zostało nadpisane</string>
+    <string name="edit_backup_same">Nie utworzono kopii zapasowej obrazu, ponieważ zapisany plik był identyczny z oryginałem.</string>
     <string name="settings_editor_backup">Kopia zapasowa przed nadpisaniem</string>
     <string name="settings_editor_backup_desc">Zanim edytor nadpisze obraz, zapisuje jego kopię w koszu, skąd będzie można ją odzyskać; jeśli nie będzie potrzebna, zniknie przy następnym \'Opróżnij kosz\'.</string>
     <string name="editor_tall">Pionowo</string>

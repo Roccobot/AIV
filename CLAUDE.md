@@ -335,9 +335,13 @@ coppia dello sfondo e il velo, cioè tre famiglie, e nessuna arriva alla soglia.
   trasloco si fa **nello stesso giro** in cui entra la voce che fa scattare la soglia, e nello
   stesso giro si copre la ricerca: una famiglia che scende dietro un tocco senza copertura esce
   dalla ricerca, e quello peggiora l'app.
-- ⚠️ **Un titolo di sezione può nominare due famiglie vicine**, come Video e scorrimento, e non
+- ⚠️ **Un titolo di sezione può nominare due famiglie vicine**, come Modifica e backup, e non
   viola la prova della `e`: quella prova dice quando due **voci** non rispondono alla stessa
   domanda, e una sezione a nessuna domanda risponde, dice dove si è.
+  - ⚠️ **L'esempio era 'Video e scorrimento' fino al 2026-09-04**, e la `1.48` lo ha fatto
+    sparire riscrivendolo in 'Navigazione' su istruzione dell'utente. Un esempio preso da una
+    stringa pubblicata invecchia il giorno che quella stringa cambia: quello nuovo è di nuovo
+    vero oggi, e il criterio non dipende da nessuno dei due.
 
 ⚠️⚠️ **SOTTO-PAGINA SI DIVENTA IN TRE MODI, E OGNUNO SI DICHIARA QUANDO LA PAGINA NASCE.** Due
 erano già scritti in testa a `SettingsScreen.kt` e restano; il terzo è la soglia.

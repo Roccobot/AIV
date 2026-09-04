@@ -19,7 +19,6 @@
     <string name="bar_reduced">ridotta</string>
 
     <!-- ── Chiedere un indirizzo ── -->
-    <string name="url_hint">https://esempio.it/immagine.jpg</string>
     <string name="url_forget">Dimenticale</string>
     <string name="url_not_image">L\'indirizzo non porta a un\'immagine, e la pagina non ne contiene nessuna</string>
 
@@ -82,6 +81,7 @@
     <string name="edit_failed">Non si è riusciti a salvare</string>
     <string name="edit_app_gone">Quell\'editor non c\'è più. Scegline un altro.</string>
     <string name="edit_no_backup">La copia di sicurezza non è riuscita, quindi non si è sovrascritto niente</string>
+    <string name="edit_backup_same">Non è stata creata una copia di backup dell\'immagine perché il file salvato era identico all\'originale.</string>
     <string name="editor_pick_none">Nessun\'altra app di questo telefono si offre di modificare le immagini.</string>
     <string name="editor_pick_send">Per condivisione</string>
     <string name="editor_pick_send_desc">Ricevono una copia e la salvano dove decidono loro. L\'originale resta com\'è.</string>
@@ -134,7 +134,7 @@
     <string name="settings_dark">Scura</string>
 
     <string name="settings_veil">Sfocatura dietro i pannelli</string>
-    <string name="settings_veil_desc">Sfoca e scurisce la schermata dietro a dialoghi, menu e pannelli. Può rendere l\'app visibilmente più lenta, ed è la ragione per cui è spenta.</string>
+    <string name="settings_veil_desc">Sfoca e scurisce la schermata dietro a dialoghi, menu e pannelli. Può rendere l\'app più lenta su dispositivi datati.</string>
 
     <string name="settings_folder_columns">Colonne della griglia delle cartelle</string>
     <string name="settings_folder_columns_desc">Più colonne fanno stare più cartelle sullo schermo e rimpiccioliscono le copertine. A quattro, il nome sotto di solito non ci sta per intero.</string>
@@ -382,9 +382,9 @@
 
     <string name="settings_group_look">Aspetto</string>
     <string name="settings_group_viewer">Visualizzatore</string>
-    <string name="settings_group_clips">Video e scorrimento</string>
-    <string name="settings_group_input">Comandi e selezione</string>
-    <string name="settings_group_files">Modifica e cestino</string>
+    <string name="settings_group_clips">Navigazione</string>
+    <string name="settings_group_input">Comandi e indicatori</string>
+    <string name="settings_group_files">Modifica e backup</string>
     <string name="settings_group_browse">Cartelle</string>
     <string name="settings_group_start">Avvio</string>
     <string name="settings_group_advanced">Funzionalità avanzate</string>
@@ -438,8 +438,8 @@
     <string name="tree_unopenable">Nessuna app di questo telefono sa aprirlo</string>
     <string name="clip_pause">Metti in pausa</string>
     <string name="settings_images_only">Sfoglia solo le immagini</string>
-    <string name="settings_images_only_desc">Nel visualizzatore lo scorrimento salta i video e sfoglia solo le immagini. Un tocco apre comunque un video.</string>
-    <string name="settings_clip_autoplay">Riproduci direttamente i video</string>
+    <string name="settings_images_only_desc">Nel visualizzatore lo scorrimento salta i video e sfoglia solo le immagini. Puoi comunque aprire i video con un tocco dalla vista normale.</string>
+    <string name="settings_clip_autoplay">Riproduci i video direttamente</string>
     <string name="pick_cleared">Selezione azzerata</string>
     <string name="pick_undo">Annulla</string>
     <string name="pick_list_done">Lista file copiata negli appunti</string>

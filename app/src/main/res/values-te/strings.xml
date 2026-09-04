@@ -11,7 +11,6 @@
     <string name="error_retry">మళ్ళీ ప్రయత్నించండి</string>
     <string name="fit_label">తెరకు సరిపోయేలా</string>
     <string name="bar_reduced">తగ్గించబడింది</string>
-    <string name="url_hint">https://example.com/picture.jpg</string>
     <string name="url_forget">ఇవి మరచిపోండి</string>
     <string name="url_not_image">ఈ చిరునామా ఏ చిత్రానికీ దారి తీయదు, పేజీలోనూ చిత్రం లేదు</string>
     <string name="menu_copy_image">చిత్రాన్ని కాపీ చేయి</string>
@@ -77,7 +76,7 @@
     <string name="settings_dark">చీకటి</string>
 
     <string name="settings_veil">ప్యానెల్‌ల వెనుక అస్పష్టత</string>
-    <string name="settings_veil_desc">డైలాగ్‌లు, మెనూలు, ప్యానెల్‌ల వెనుక ఉన్న తెరను అస్పష్టంగా, ముదురుగా చేస్తుంది. యాప్ స్పష్టంగా నెమ్మదిగా అనిపించవచ్చు, అందుకే ఇది ఆఫ్‌లో ఉంది.</string>
+    <string name="settings_veil_desc">డైలాగ్‌లు, మెనూలు, ప్యానెల్‌ల వెనుక ఉన్న తెరను అస్పష్టంగా, ముదురుగా చేస్తుంది. పాత పరికరాల్లో యాప్ నెమ్మదించవచ్చు.</string>
     <string name="settings_folder_columns">సంచయ గడిలో నిలువు వరుసలు</string>
     <string name="settings_folder_columns_desc">నిలువు వరుసలు ఎక్కువైతే తెరపై ఎక్కువ సంచయాలు ఇమిడతాయి, ప్రతి ముఖచిత్రం చిన్నదవుతుంది. నాలుగు వద్ద కింది పేరు తరచుగా కత్తిరించబడుతుంది.</string>
     <string name="settings_folder_count">గ్రిడ్ వీక్షణలో సంచయాల కింద అంశాల లెక్క</string>
@@ -272,9 +271,9 @@
     <string name="settings_facts_down">కిందికి జరుపు</string>
     <string name="settings_group_look">రూపం</string>
     <string name="settings_group_viewer">వీక్షకం</string>
-    <string name="settings_group_clips">వీడియోలు, జరపడం</string>
-    <string name="settings_group_input">నియంత్రణలు, ఎంపిక</string>
-    <string name="settings_group_files">సవరణ, చెత్తబుట్ట</string>
+    <string name="settings_group_clips">నావిగేషన్</string>
+    <string name="settings_group_input">నియంత్రణలు, సూచికలు</string>
+    <string name="settings_group_files">సవరణ, బ్యాకప్</string>
     <string name="settings_group_browse">ఫోల్డర్‌లు</string>
     <string name="settings_group_start">ప్రారంభం</string>
     <string name="settings_group_advanced">అధునాతన సౌకర్యాలు</string>
@@ -323,7 +322,7 @@
     <string name="tree_unopenable">దీన్ని తెరవగల యాప్ ఈ ఫోన్‌లో లేదు</string>
     <string name="clip_pause">పాజ్ చేయి</string>
     <string name="settings_images_only">చిత్రాలను మాత్రమే తిప్పు</string>
-    <string name="settings_images_only_desc">వీక్షకిలో జరపడం వీడియోలను దాటవేసి చిత్రాలను మాత్రమే తిరగేస్తుంది. ఒక్క తాకిడితో వీడియో అయినా తెరుచుకుంటుంది.</string>
+    <string name="settings_images_only_desc">వీక్షకిలో జరపడం వీడియోలను దాటవేసి చిత్రాలను మాత్రమే తిరగేస్తుంది. సాధారణ వీక్షణ నుండి ఒక్క తాకిడితో వీడియోను తెరవవచ్చు.</string>
     <string name="settings_clip_autoplay">వీడియోలను నేరుగా ఆడించు</string>
 
     <!-- Modificare una fotografia (1.03) -->
@@ -361,6 +360,7 @@
     <string name="view_list">జాబితా</string>
     <string name="view_tree">ఫోల్డర్లు</string>
     <string name="edit_no_backup">భద్రతా నకలు కాలేదు, కాబట్టి దేనిపైనా రాయలేదు</string>
+    <string name="edit_backup_same">సేవ్ చేసిన ఫైల్ అసలుదానితో సరిగ్గా ఒకేలా ఉన్నందున, చిత్రం బ్యాకప్ నకలు సృష్టించబడలేదు.</string>
     <string name="settings_editor_backup">పైన రాసే ముందు భద్రతా నకలు</string>
     <string name="settings_editor_backup_desc">సంపాదకి ఒక చిత్రంపై రాయకముందు, దాని నకలును చెత్తబుట్టలో భద్రపరుస్తుంది; అక్కడి నుంచి తిరిగి తెచ్చుకోవచ్చు. అవసరం లేకపోతే తర్వాతి \'చెత్తబుట్ట ఖాళీ చేయి\'లో తొలగిపోతుంది.</string>
     <string name="editor_tall">నిలువు</string>
