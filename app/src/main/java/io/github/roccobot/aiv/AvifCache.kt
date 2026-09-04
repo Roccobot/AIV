@@ -71,6 +71,34 @@ object AvifCache {
     }
 
     /**
+     * Quanto occupano le miniature tenute qui, in byte, e zero quando non ce n'è nessuna.
+     *
+     * ⚠️⚠️ **È LA MISURA CHE LE IMPOSTAZIONI MOSTRANO, ed è quella su DISCO e non in
+     * memoria**: 'memorizzate' vuol dire ciò che resta fra un'apertura e l'altra dell'app, e
+     * la cache in memoria di Coil non resta. Sommarle in un numero solo direbbe anche il
+     * falso, perché là dentro non ci sono solo miniature: c'è l'immagine grande che si sta
+     * guardando, che nessuno chiamerebbe una miniatura.
+     * ⚠️ **Si legge sul thread di chi chiama**, e va bene qui: [KEEP] è il tetto dei file, e
+     * un `length()` per file è una `stat`. Chi la chiamasse su una cartella senza tetto
+     * dovrebbe portarla su un thread di I/O.
+     */
+    fun bytes(context: Context): Long =
+        dirOf(context).listFiles()?.sumOf { it.length() } ?: 0L
+
+    /**
+     * Butta tutte le miniature tenute qui.
+     *
+     * ⚠️ **Non tocca la cache in MEMORIA**, che è di Coil e si svuota con `Thumbs.forgetAll`:
+     * senza quella chiamata la griglia continuerebbe a mostrare quello che ha già in mano, e
+     * lo svuotamento si vedrebbe solo dopo aver chiuso l'app.
+     * ⚠️ **Non tocca nemmeno le miniature del SISTEMA**, che sono un'altra cache e non sono
+     * nostre: quelle le rifà il MediaStore. Qui si butta la sola copia che teniamo noi.
+     */
+    fun clear(context: Context) {
+        dirOf(context).listFiles()?.forEach { it.delete() }
+    }
+
+    /**
      * Dove sta la miniatura di [uri] alla misura [box], e `null` se non si può sapere.
      *
      * ⚠️ **La chiave è un hash e non il nome del file**: un nome di file può contenere
@@ -80,8 +108,11 @@ object AvifCache {
     private fun fileFor(context: Context, uri: Uri, box: Int): File? {
         val when1 = stamp(context, uri) ?: return null
         val key = "$uri|$when1|$box".hashCode().toString(HEX)
-        return File(File(context.cacheDir, DIR), "$key.webp")
+        return File(dirOf(context), "$key.webp")
     }
+
+    /** La cartella in cui vivono le miniature, che esista o no. */
+    private fun dirOf(context: Context) = File(context.cacheDir, DIR)
 
     /** Quando il file è stato scritto l'ultima volta, e `null` se non si sa. */
     private fun stamp(context: Context, uri: Uri): Long? {

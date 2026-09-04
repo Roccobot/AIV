@@ -294,6 +294,11 @@
     <string name="settings_group_advanced">Funciones avanzadas</string>
     <string name="settings_ext_edit">Cambiar extensiones desde \'Renombrar\'</string>
     <string name="settings_ext_edit_desc">El panel de renombrado permite cambiar la extensión de los archivos. Si no sabes lo que haces, no actives esta opción: puede dejar las imágenes ilegibles.</string>
+    <string name="settings_thumbs">Eliminar las miniaturas almacenadas</string>
+    <string name="settings_thumbs_empty">No hay miniaturas almacenadas</string>
+    <string name="settings_thumbs_warn">Toca el botón para vaciar la caché de miniaturas. Las vistas previas de las imágenes y de los vídeos se eliminarán y se regenerarán automáticamente al abrir cada carpeta (si hay muchas imágenes grandes, crear las nuevas miniaturas puede tardar un minuto o más).</string>
+    <string name="settings_thumbs_do">Vaciar la caché\nde miniaturas</string>
+    <string name="settings_thumbs_done">Caché de miniaturas vaciada</string>
     <string name="settings_hidden_none">Ninguna carpeta oculta</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d carpeta</item>

@@ -281,6 +281,11 @@
     <string name="settings_group_advanced">قابلیت‌های پیشرفته</string>
     <string name="settings_ext_edit">تغییر پسوندها از \'تغییر نام\'</string>
     <string name="settings_ext_edit_desc">پنجرهٔ تغییر نام اجازه می‌دهد پسوند فایل‌ها را عوض کنید. اگر مطمئن نیستید این گزینه را روشن نکنید: می‌تواند تصویرها را ناخوانا کند.</string>
+    <string name="settings_thumbs">حذف بندانگشتی‌های ذخیره‌شده</string>
+    <string name="settings_thumbs_empty">بندانگشتی ذخیره‌شده‌ای نیست</string>
+    <string name="settings_thumbs_warn">برای خالی کردن حافظهٔ بندانگشتی‌ها روی دکمه ضربه بزنید. پیش‌نمایش تصویرها و ویدیوها حذف می‌شود و هنگام باز کردن هر پوشه به‌طور خودکار دوباره ساخته می‌شود (اگر تصویرهای بزرگ زیاد باشند، ساختن بندانگشتی‌های جدید ممکن است یک دقیقه یا بیشتر طول بکشد).</string>
+    <string name="settings_thumbs_do">خالی کردن حافظهٔ\nبندانگشتی‌ها</string>
+    <string name="settings_thumbs_done">حافظهٔ بندانگشتی‌ها خالی شد</string>
     <string name="settings_hidden_none">هیچ پوشه پنهانی نیست</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d پوشه</item>

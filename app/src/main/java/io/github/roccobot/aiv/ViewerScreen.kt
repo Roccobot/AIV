@@ -2845,8 +2845,18 @@ private fun ImageMenu(
              */
             source?.let { uri ->
                 val one = listOf(uri)
-                ActionPad(
-                    actions = listOf(
+                /*
+                 * ⚠️⚠️ **I SEI TASTI HANNO UN NOME PERCHÉ NEL CESTINO I PRIMI DUE SI
+                 * SCAMBIANO, dalla 1.54** (ordine dettato dall'utente): fuori è 'Copia' e poi
+                 * 'Sposta', là dentro è 'Sposta' e poi 'Copia'. Con la lista scritta di
+                 * seguito quello scambio vorrebbe dire due liste con dentro gli stessi sei
+                 * blocchi, cioè sei coppie da tenere allineate a mano.
+                 * ⚠️ **È l'unico posto in cui il riquadro cambia ordine fra due contesti**, e
+                 * va saputo perché contraddice la nota qui sotto sulle icone che non ballano:
+                 * quella regola vale ancora per gli altri quattro tasti, e questa è una deroga
+                 * chiesta, non una svista.
+                 */
+                val copia =
                         // ⚠️ Il tocco lungo duplica dove sei, come nella griglia: il
                         // riquadro è condiviso, e una scorciatoia che c'è in un posto e non
                         // nell'altro si impara e poi non funziona.
@@ -2863,20 +2873,22 @@ private fun ImageMenu(
                         ) {
                             menu.close()
                             ops.job(FileJob.Transfer(one, move = false))
-                        },
+                        }
+                val sposta =
                         PadAction(Glyphs.FolderPairDashed, R.string.pick_move) {
                             menu.close()
                             ops.job(FileJob.Transfer(one, move = true))
-                        },
+                        }
+                val elimina =
                         PadAction(Glyphs.PickDelete, R.string.pick_delete, danger = true) {
                             menu.close()
                             // ⚠️ Definitiva nel cestino **o** col cestino spento, ed è la
                             // stessa condizione della griglia: con lei viaggia la conferma.
                             ops.job(FileJob.Delete(one, forGood = inBin || !binOn))
-                        },
-                        // ⚠️ Stesso posto nel riquadro per due azioni che si escludono:
-                        // nel cestino si ripristina, fuori si rinomina. Le sei icone non
-                        // ballano.
+                        }
+                // ⚠️ Stesso posto nel riquadro per due azioni che si escludono: nel cestino
+                // si ripristina, fuori si rinomina. Queste due icone non ballano.
+                val rinomina =
                         if (inBin) {
                             PadAction(Glyphs.BinRestore, R.string.bin_restore) {
                                 menu.close()
@@ -2887,26 +2899,28 @@ private fun ImageMenu(
                                 menu.close()
                                 ops.job(FileJob.Rename(one))
                             }
-                        },
+                        }
+                val condividi =
                         PadAction(Icons.Default.Share, R.string.menu_share) {
                             menu.close()
                             ops.share(image)
-                        },
-                        /*
-                         * ⚠️⚠️ **IL TOCCO LUNGO SU 'Info' GOVERNA LA BARRA DELLE INFO, dalla
-                         * 1.21** (richiesta dell'utente, 2026-09-01, che la chiama *un trick
-                         * / easter egg*): il tocco breve apre le informazioni sul file, il
-                         * tocco lungo apre un riquadrino con acceso/spento e sopra/sotto,
-                         * che si applicano subito e **restano memorizzati**.
-                         * ⚠️ **Non è la voce che la 1.20 aveva tolto da questo menu**, ed è
-                         * la differenza che rende le due cose compatibili: quella era una
-                         * riga sempre in scena, che si leggeva come un comando sull'immagine
-                         * e non lo era. Questa è una scorciatoia nascosta dietro un gesto, e
-                         * non occupa nessuno spazio: chi non la conosce vede il menu di
-                         * prima.
-                         * ⚠️ **L'idioma è quello di casa**: 'Modifica' qui sopra e 'Copia'
-                         * nel riquadro della selezione fanno esattamente così dal 2026-08-31.
-                         */
+                        }
+                /*
+                 * ⚠️⚠️ **IL TOCCO LUNGO SU 'Info' GOVERNA LA BARRA DELLE INFO, dalla
+                 * 1.21** (richiesta dell'utente, 2026-09-01, che la chiama *un trick
+                 * / easter egg*): il tocco breve apre le informazioni sul file, il
+                 * tocco lungo apre un riquadrino con acceso/spento e sopra/sotto,
+                 * che si applicano subito e **restano memorizzati**.
+                 * ⚠️ **Non è la voce che la 1.20 aveva tolto da questo menu**, ed è
+                 * la differenza che rende le due cose compatibili: quella era una
+                 * riga sempre in scena, che si leggeva come un comando sull'immagine
+                 * e non lo era. Questa è una scorciatoia nascosta dietro un gesto, e
+                 * non occupa nessuno spazio: chi non la conosce vede il menu di
+                 * prima.
+                 * ⚠️ **L'idioma è quello di casa**: 'Modifica' qui sopra e 'Copia'
+                 * nel riquadro della selezione fanno esattamente così dal 2026-08-31.
+                 */
+                val info =
                         PadAction(
                             icon = Icons.Outlined.Info,
                             label = R.string.pick_info,
@@ -2916,7 +2930,10 @@ private fun ImageMenu(
                             menu.close()
                             ops.job(FileJob.Facts(one))
                         }
-                    )
+                ActionPad(
+                    actions =
+                        if (inBin) listOf(sposta, copia, condividi, rinomina, elimina, info)
+                        else listOf(copia, sposta, condividi, rinomina, elimina, info)
                 )
             }
             // ⚠️⚠️ **QUI SOTTO C'ERANO LE IMPOSTAZIONI, e sono uscite nella 0.44**

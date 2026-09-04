@@ -593,13 +593,6 @@ fun GridScreen(
         PadAction(Icons.Outlined.Info, R.string.pick_info) {
             job = FileJob.Facts(chosen.toList())
         },
-        PadAction(Icons.Default.Share, R.string.menu_share) {
-            // ⚠️ La lista si prende ADESSO: la condivisione gira in una coroutine, e
-            // leggere `chosen` da dentro leggerebbe una selezione che nel frattempo può
-            // essere cambiata.
-            val list = chosen.toList()
-            scope.launch { ImageActions.shareMany(context, list) }
-        },
         PadAction(Glyphs.FolderPairDashed, R.string.pick_move) {
             job = FileJob.Transfer(chosen.toList(), move = true)
         },
@@ -619,6 +612,34 @@ fun GridScreen(
             holdLabel = if (bin) null else R.string.pick_duplicate
         ) {
             job = FileJob.Transfer(chosen.toList(), move = false)
+        },
+        PadAction(Icons.Default.Share, R.string.menu_share) {
+            // ⚠️ La lista si prende ADESSO: la condivisione gira in una coroutine, e
+            // leggere `chosen` da dentro leggerebbe una selezione che nel frattempo può
+            // essere cambiata.
+            val list = chosen.toList()
+            scope.launch { ImageActions.shareMany(context, list) }
+        },
+        /*
+         * ⚠️⚠️ **IL TOCCO LUNGO SALTA IL CESTINO** (richiesta dell'utente, 2026-08-31), ed
+         * è la sola scorciatoia irreversibile dell'app: per questo la conferma resta. Con
+         * il cestino spento il tocco breve fa già la stessa cosa, quindi là la scorciatoia
+         * non aggiunge niente e non si mette.
+         */
+        PadAction(
+            icon = Glyphs.PickDelete,
+            label = R.string.pick_delete,
+            danger = true,
+            onHold = if (bin || !binOn) null else {
+                {
+                    job = FileJob.Delete(chosen.toList(), forGood = true)
+                }
+            },
+            holdLabel = if (bin || !binOn) null else R.string.pick_forever
+        ) {
+            // ⚠️ Definitiva nel cestino **o** col cestino spento: con `forGood` viaggia la
+            // conferma.
+            job = FileJob.Delete(chosen.toList(), forGood = bin || !binOn)
         },
         /*
          * ⚠️⚠️ **'Lista' LO DICE, dalla 1.06, e la nota di prima diceva il contrario**
@@ -649,33 +670,6 @@ fun GridScreen(
                 ).show()
             }
         },
-        /*
-         * ⚠️⚠️ **IL TOCCO LUNGO SALTA IL CESTINO** (richiesta dell'utente, 2026-08-31), ed
-         * è la sola scorciatoia irreversibile dell'app: per questo la conferma resta. Con
-         * il cestino spento il tocco breve fa già la stessa cosa, quindi là la scorciatoia
-         * non aggiunge niente e non si mette.
-         */
-        PadAction(
-            icon = Glyphs.PickDelete,
-            label = R.string.pick_delete,
-            danger = true,
-            onHold = if (bin || !binOn) null else {
-                {
-                    job = FileJob.Delete(chosen.toList(), forGood = true)
-                }
-            },
-            holdLabel = if (bin || !binOn) null else R.string.pick_forever
-        ) {
-            // ⚠️ Definitiva nel cestino **o** col cestino spento: con `forGood` viaggia la
-            // conferma.
-            job = FileJob.Delete(chosen.toList(), forGood = bin || !binOn)
-        },
-        // ⚠️ L'inversione lavora sull'elenco che si ha DAVANTI, non su tutta la cartella:
-        // con una ricerca in corso o un filtro acceso, `items` è già quello filtrato, ed è
-        // l'unica lettura che non sorprende.
-        PadAction(Glyphs.PickInvert, R.string.pick_invert) {
-            chosen = items.orEmpty().toSet() - chosen
-        },
         // ⚠️ Il tocco lungo su 'Tutti' fa il contrario, come chiesto: le due stanno
         // accanto, e chi sbaglia mira ha la correzione sotto lo stesso dito.
         PadAction(
@@ -689,7 +683,13 @@ fun GridScreen(
         PadAction(Glyphs.PickNone, R.string.pick_none) {
             chosen = emptySet()
         }
-    )
+    ,
+        // ⚠️ L'inversione lavora sull'elenco che si ha DAVANTI, non su tutta la cartella:
+        // con una ricerca in corso o un filtro acceso, `items` è già quello filtrato, ed è
+        // l'unica lettura che non sorprende.
+        PadAction(Glyphs.PickInvert, R.string.pick_invert) {
+            chosen = items.orEmpty().toSet() - chosen
+        })
 
     // Le due misure dello scorrimento ai bordi, in pixel: servono dentro un effetto, che
     // non ha una densità sotto mano.

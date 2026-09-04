@@ -307,6 +307,11 @@
     <string name="settings_group_advanced">Расширенные функции</string>
     <string name="settings_ext_edit">Менять расширения в \'Переименовать\'</string>
     <string name="settings_ext_edit_desc">Панель переименования позволяет менять расширения файлов. Если вы не уверены, не включайте это: изображения могут стать нечитаемыми.</string>
+    <string name="settings_thumbs">Удалить сохранённые эскизы</string>
+    <string name="settings_thumbs_empty">Сохранённых эскизов нет</string>
+    <string name="settings_thumbs_warn">Нажмите кнопку, чтобы очистить кэш эскизов. Предпросмотры изображений и видео будут удалены и создадутся заново автоматически при открытии каждой папки (если больших изображений много, создание новых эскизов может занять минуту или больше).</string>
+    <string name="settings_thumbs_do">Очистить кэш\nэскизов</string>
+    <string name="settings_thumbs_done">Кэш эскизов очищен</string>
     <string name="settings_hidden_none">Скрытых папок нет</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d папка</item>

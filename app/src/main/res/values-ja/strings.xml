@@ -268,6 +268,11 @@
     <string name="settings_group_advanced">詳細機能</string>
     <string name="settings_ext_edit">\'名前を変更\' から拡張子を変える</string>
     <string name="settings_ext_edit_desc">名前変更のパネルではファイルの拡張子を変えられます。よく分からない場合はオンにしないでください。画像が読めなくなることがあります。</string>
+    <string name="settings_thumbs">保存されたサムネイルを削除</string>
+    <string name="settings_thumbs_empty">保存されたサムネイルはありません</string>
+    <string name="settings_thumbs_warn">ボタンをタップしてサムネイルのキャッシュを消去します。画像と動画のプレビューは削除され、各フォルダーを開いたときに自動で再生成されます（大きな画像が多い場合、新しいサムネイルの作成に1分以上かかることがあります）。</string>
+    <string name="settings_thumbs_do">サムネイルの\nキャッシュを消去</string>
+    <string name="settings_thumbs_done">サムネイルのキャッシュを消去しました</string>
     <string name="settings_hidden_none">非表示のフォルダーはありません</string>
     <plurals name="settings_hidden_count">
         <item quantity="other">%1$d 件のフォルダー</item>

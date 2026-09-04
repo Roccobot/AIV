@@ -281,6 +281,11 @@
     <string name="settings_group_advanced">اعلیٰ خصوصیات</string>
     <string name="settings_ext_edit">\'نام بدلیں\' سے ایکسٹینشن بدلیں</string>
     <string name="settings_ext_edit_desc">نام بدلنے کا پینل فائلوں کی ایکسٹینشن بدلنے دیتا ہے۔ اگر آپ کو یقین نہیں تو اسے آن نہ کریں: تصویریں ناقابلِ مطالعہ ہو سکتی ہیں۔</string>
+    <string name="settings_thumbs">محفوظ تھمب نیلز حذف کریں</string>
+    <string name="settings_thumbs_empty">کوئی محفوظ تھمب نیل نہیں</string>
+    <string name="settings_thumbs_warn">تھمب نیل کیش خالی کرنے کے لیے بٹن پر ٹیپ کریں۔ تصاویر اور ویڈیوز کے پیش مناظر حذف ہو جائیں گے اور ہر فولڈر کھولنے پر خود بخود دوبارہ بن جائیں گے (اگر بڑی تصاویر بہت ہوں تو نئے تھمب نیلز بننے میں ایک منٹ یا اس سے زیادہ لگ سکتا ہے)۔</string>
+    <string name="settings_thumbs_do">تھمب نیل کیش\nخالی کریں</string>
+    <string name="settings_thumbs_done">تھمب نیل کیش خالی ہو گیا</string>
     <string name="settings_hidden_none">کوئی پوشیدہ فولڈر نہیں</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d فولڈر</item>

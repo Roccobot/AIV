@@ -307,6 +307,11 @@
     <string name="settings_group_advanced">Розширені функції</string>
     <string name="settings_ext_edit">Змінювати розширення у \'Перейменувати\'</string>
     <string name="settings_ext_edit_desc">Панель перейменування дозволяє змінювати розширення файлів. Якщо ви не впевнені, не вмикайте це: зображення можуть стати нечитабельними.</string>
+    <string name="settings_thumbs">Видалити збережені ескізи</string>
+    <string name="settings_thumbs_empty">Збережених ескізів немає</string>
+    <string name="settings_thumbs_warn">Натисніть кнопку, щоб очистити кеш ескізів. Попередні перегляди зображень і відео буде видалено, і вони створяться знову автоматично під час відкривання кожної теки (якщо великих зображень багато, створення нових ескізів може тривати хвилину або більше).</string>
+    <string name="settings_thumbs_do">Очистити кеш\nескізів</string>
+    <string name="settings_thumbs_done">Кеш ескізів очищено</string>
     <string name="settings_hidden_none">Немає прихованих тек</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d тека</item>

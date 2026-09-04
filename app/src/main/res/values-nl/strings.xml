@@ -281,6 +281,11 @@
     <string name="settings_group_advanced">Geavanceerde functies</string>
     <string name="settings_ext_edit">Extensies wijzigen via \'Naam wijzigen\'</string>
     <string name="settings_ext_edit_desc">In het venster voor naamswijziging kun je bestandsextensies aanpassen. Als je niet weet wat je doet, laat dit dan uit: het kan afbeeldingen onleesbaar maken.</string>
+    <string name="settings_thumbs">Opgeslagen miniaturen verwijderen</string>
+    <string name="settings_thumbs_empty">Geen opgeslagen miniaturen</string>
+    <string name="settings_thumbs_warn">Tik op de knop om de cache van de miniaturen te wissen. De voorbeelden van afbeeldingen en video\'s worden verwijderd en automatisch opnieuw gemaakt wanneer je elke map opent (bij veel grote afbeeldingen kan het maken van de nieuwe miniaturen een minuut of langer duren).</string>
+    <string name="settings_thumbs_do">Cache van de\nminiaturen wissen</string>
+    <string name="settings_thumbs_done">Cache van de miniaturen gewist</string>
     <string name="settings_hidden_none">Geen verborgen mappen</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d map</item>

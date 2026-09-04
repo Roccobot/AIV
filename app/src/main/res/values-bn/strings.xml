@@ -281,6 +281,11 @@
     <string name="settings_group_advanced">উন্নত সুবিধা</string>
     <string name="settings_ext_edit">\'নাম বদলান\' থেকে এক্সটেনশন বদলান</string>
     <string name="settings_ext_edit_desc">নাম বদলানোর প্যানেল ফাইলের এক্সটেনশন বদলাতে দেয়। কী করছেন নিশ্চিত না হলে এটি চালু করবেন না: ছবি অপাঠ্য হয়ে যেতে পারে।</string>
+    <string name="settings_thumbs">সংরক্ষিত থাম্বনেইল মুছুন</string>
+    <string name="settings_thumbs_empty">কোনো সংরক্ষিত থাম্বনেইল নেই</string>
+    <string name="settings_thumbs_warn">থাম্বনেইল ক্যাশ খালি করতে বোতামে চাপ দিন। ছবি ও ভিডিওর প্রিভিউ মুছে যাবে এবং প্রতিটি ফোল্ডার খোলার সময় স্বয়ংক্রিয়ভাবে আবার তৈরি হবে (বড় ছবি অনেক থাকলে নতুন থাম্বনেইল তৈরি হতে এক মিনিট বা তার বেশি সময় লাগতে পারে)।</string>
+    <string name="settings_thumbs_do">থাম্বনেইল ক্যাশ\nখালি করুন</string>
+    <string name="settings_thumbs_done">থাম্বনেইল ক্যাশ খালি হয়েছে</string>
     <string name="settings_hidden_none">কোনো লুকানো ফোল্ডার নেই</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$dটি ফোল্ডার</item>

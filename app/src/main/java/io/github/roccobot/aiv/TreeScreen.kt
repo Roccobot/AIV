@@ -452,17 +452,17 @@ private fun SpotActions(
                 PadAction(Glyphs.FolderPairDashed, R.string.pick_move) {
                     onJob(FileJob.Transfer(one, move = true))
                 },
-                PadAction(Glyphs.PickDelete, R.string.pick_delete, danger = true) {
-                    // ⚠️ Col cestino spento si cancella per sempre, e `forGood` porta con sé
-                    // la conferma: vedi [FileJob.Delete].
-                    onJob(FileJob.Delete(one, forGood = !binOn))
+                PadAction(Icons.Default.Share, R.string.menu_share) {
+                    menu.close()
+                    scope.launch { ImageActions.shareMany(context, one) }
                 },
                 PadAction(Glyphs.TextCursor, R.string.pick_rename) {
                     onJob(FileJob.Rename(one))
                 },
-                PadAction(Icons.Default.Share, R.string.menu_share) {
-                    menu.close()
-                    scope.launch { ImageActions.shareMany(context, one) }
+                PadAction(Glyphs.PickDelete, R.string.pick_delete, danger = true) {
+                    // ⚠️ Col cestino spento si cancella per sempre, e `forGood` porta con sé
+                    // la conferma: vedi [FileJob.Delete].
+                    onJob(FileJob.Delete(one, forGood = !binOn))
                 },
                 PadAction(Icons.Outlined.Info, R.string.pick_info) {
                     onJob(FileJob.Facts(one))

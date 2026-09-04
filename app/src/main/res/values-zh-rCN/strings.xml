@@ -268,6 +268,11 @@
     <string name="settings_group_advanced">高级功能</string>
     <string name="settings_ext_edit">在 \'重命名\' 中修改扩展名</string>
     <string name="settings_ext_edit_desc">重命名面板可以修改文件的扩展名。如果不清楚自己在做什么，请不要打开：图片可能会变得无法读取。</string>
+    <string name="settings_thumbs">删除已存储的缩略图</string>
+    <string name="settings_thumbs_empty">没有已存储的缩略图</string>
+    <string name="settings_thumbs_warn">点按按钮清空缩略图缓存。图片和视频的预览将被删除，并在打开每个文件夹时自动重新生成（如果大图很多，生成新的缩略图可能需要一分钟或更长时间）。</string>
+    <string name="settings_thumbs_do">清空缩略图\n缓存</string>
+    <string name="settings_thumbs_done">已清空缩略图缓存</string>
     <string name="settings_hidden_none">没有隐藏的文件夹</string>
     <plurals name="settings_hidden_count">
         <item quantity="other">%1$d 个文件夹</item>

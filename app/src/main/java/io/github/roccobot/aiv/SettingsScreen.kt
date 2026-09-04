@@ -1,10 +1,12 @@
 package io.github.roccobot.aiv
 
+import android.text.format.Formatter
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.FlowRow
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
@@ -28,6 +31,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -47,6 +51,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -57,9 +62,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import java.text.Normalizer
 import kotlin.math.roundToInt
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Le pagine delle impostazioni: la radice e quelle che le pendono sotto.
@@ -163,6 +172,33 @@ fun SettingsScreen(
     // costringerebbe a rientrare per rivederlo intero. I due non sono mai accesi insieme.
     BackHandler(enabled = page == Page.ROOT && query.isNotBlank()) { query = "" }
 
+    /*
+     * ⚠️⚠️ **LA CACHE DELLE MINIATURE SI MISURA E SI SVUOTA QUI, SENZA PASSARE DAL MODELLO**,
+     * e non è una scorciatoia: il modello tiene lo **stato dell'app**, cioè quello che altre
+     * schermate osservano, e una cartella di file temporanei non è stato di nessuno. Il
+     * contesto basta a leggerla e a svuotarla, e mettere un campo nel modello vorrebbe dire
+     * tenerlo d'accordo con un disco che si svuota anche da solo (Android può farlo quando lo
+     * spazio finisce).
+     * ⚠️ **La misura è sincrona, lo svuotamento no**: leggere è un `stat` per file sotto un
+     * tetto di poche centinaia, e il valore serve **prima** del primo fotogramma o la riga
+     * mostrerebbe un riepilogo falso per un istante; cancellare invece sono altrettante
+     * scritture, e quelle vanno su un thread di I/O.
+     * ⚠️ [emptied] non è un contatore di cortesia: è la sola cosa che dice a [remember] di
+     * rifare la misura dopo uno svuotamento, e senza di lui la riga continuerebbe a dire i
+     * megabyte di prima finché non si esce dalle impostazioni.
+     */
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var emptied by remember { mutableIntStateOf(0) }
+    val thumbBytes = remember(emptied) { AvifCache.bytes(context) }
+    val clearThumbs: () -> Unit = {
+        scope.launch {
+            withContext(Dispatchers.IO) { AvifCache.clear(context) }
+            Thumbs.forgetAll(context)
+            emptied++
+        }
+    }
+
     when (page) {
         Page.ROOT -> Shell(
             title = stringResource(R.string.settings_title),
@@ -193,6 +229,8 @@ fun SettingsScreen(
                         onStartFolder = onStartFolder,
                         onResetHints = onResetHints,
                         onChooseEditor = onChooseEditor,
+                        thumbBytes = thumbBytes,
+                        onClearThumbs = clearThumbs,
                         onOpen = { pageAt = it.ordinal }
                     )
                 }
@@ -242,6 +280,48 @@ fun SettingsScreen(
         ) {
             ViewOptionsPage(settings = settings, onChange = onChange)
         }
+
+        /*
+         * ⚠️⚠️ **UNA SOTTO-PAGINA PER UN'AZIONE SOLA, ed è un quarto modo di diventarlo**
+         * (richiesta dell'utente, 2026-09-04: *un 'Elimina le miniature memorizzate' con un >
+         * che ti porta ad una sotto-schermata dove c'è un avviso al centro ... Sotto, un
+         * pulsante*). I tre modi scritti in `AIV/CLAUDE.md` sono l'elenco che cresce, la voce
+         * delicata e la famiglia oltre la soglia, e questa non è nessuno dei tre: non è
+         * delicata (*non è un'operazione con risvolti potenzialmente dannosi*, parole sue) e
+         * non è una famiglia. È un **comando che ha bisogno di un paragrafo**, e un paragrafo
+         * di quattro righe in una riga della pagina piatta la farebbe alta il doppio delle
+         * altre per una cosa che si fa una volta l'anno.
+         * ⚠️ **Non porta `lowered()`**, e non è una dimenticanza: il 15% più in basso è la
+         * definizione di 'centrato' per quello che **si apre in mezzo** allo schermo, cioè
+         * dialoghi, pannelli e menu, che hanno una finestra propria e un centro da spostare.
+         * Questa è una schermata intera, e il suo contenuto sta già sotto la testata.
+         */
+        Page.THUMBS -> Shell(
+            title = stringResource(R.string.settings_thumbs),
+            onBack = { pageAt = Page.ROOT.ordinal },
+            modifier = modifier,
+            scrolls = false
+        ) {
+            /*
+             * ⚠️⚠️ **`BoxWithConstraints` E NON UNA COLONNA CHE SCORRE**, perché le due cose
+             * che servono qui si escludono a vicenda: dentro un `verticalScroll` l'altezza di
+             * un figlio è quella del suo contenuto, quindi non c'è nessuno spazio avanzato da
+             * distribuire e 'al centro' non vuol dire più niente. Sapendo quanto spazio c'è,
+             * la colonna si fa alta **almeno** così e centra; e quando il contenuto è più alto
+             * (schermo piccolo di traverso, corpo del testo ingrandito) scorre invece di
+             * essere tagliato.
+             */
+            BoxWithConstraints(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                val room = maxHeight
+                ThumbsCard(
+                    head = null,
+                    onClear = clearThumbs,
+                    modifier = Modifier
+                        .verticalScroll(rememberScrollState())
+                        .heightIn(min = room)
+                )
+            }
+        }
     }
 }
 
@@ -252,7 +332,7 @@ fun SettingsScreen(
  * questo valore e nient'altro, senza una pila, e Indietro riporta alla radice. Una famiglia
  * che ne conterrebbe un'altra tiene nella pagina piatta la riga che apre la seconda.
  */
-private enum class Page { ROOT, FACTS, HIDDEN, ZOOM, VIEWS }
+private enum class Page { ROOT, FACTS, HIDDEN, ZOOM, VIEWS, THUMBS }
 
 /**
  * Che cosa si sta cercando nelle impostazioni, e stringa vuota quando non si cerca.
@@ -393,6 +473,9 @@ private fun ColumnScope.RootPage(
     onStartFolder: () -> Unit,
     onResetHints: () -> Unit,
     onChooseEditor: () -> Unit,
+    /** Quanto occupano le miniature tenute su disco: è il riepilogo della riga che le svuota. */
+    thumbBytes: Long,
+    onClearThumbs: () -> Unit,
     onOpen: (Page) -> Unit
 ) {
     Group(stringResource(R.string.settings_group_look))
@@ -910,6 +993,34 @@ private fun ColumnScope.RootPage(
     )
 
     /*
+     * ⚠️⚠️ **IL RIEPILOGO È LA MISURA, e per una volta 'quanto c'è dentro' non sono righe ma
+     * megabyte**: la pagina che si apre non è un elenco, quindi la sua lunghezza non dice
+     * niente, mentre la cosa che il comando riguarda una misura ce l'ha. Ed è calcolata, come
+     * vuole la regola: una frase fissa qui direbbe due volte quello che il titolo già dice.
+     * ⚠️ **La misura la formatta il SISTEMA** (`Formatter`), che la scrive con l'unità e il
+     * separatore decimale della lingua in corso: una stringa nostra sarebbe una traduzione in
+     * ventotto lingue per dire quello che Android dice già.
+     * ⚠️ Il caso zero ha la sua frase perché '0 B' si legge come un difetto, non come 'non c'è
+     * niente da buttare'.
+     */
+    val thumbsLabel = stringResource(R.string.settings_thumbs)
+    val thumbsWarn = stringResource(R.string.settings_thumbs_warn)
+    val thumbsSummary =
+        if (thumbBytes <= 0L) stringResource(R.string.settings_thumbs_empty)
+        else Formatter.formatShortFileSize(LocalContext.current, thumbBytes)
+    PageOfRows(
+        label = thumbsLabel,
+        summary = thumbsSummary,
+        onOpen = { onOpen(Page.THUMBS) }
+    ) {
+        // ⚠️ `Searchable` perché il corpo è scritto a mano: le righe di serie si filtrano da
+        // sé, un paragrafo con un tasto no, e resterebbe in scena a ogni ricerca.
+        Searchable(thumbsLabel, thumbsWarn) {
+            ThumbsCard(head = thumbsLabel, onClear = onClearThumbs)
+        }
+    }
+
+    /*
      * ⚠️⚠️ **STA FUORI DAI QUATTRO GRUPPI, in fondo, e non è una dimenticanza**: non è
      * un'impostazione, è un'**azione** sulla memoria dell'app, e non risponde a nessuna
      * delle quattro domande che i gruppi fanno. Metterla dentro uno di loro direbbe che è
@@ -981,13 +1092,22 @@ private fun Shell(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     scroll: ScrollState = rememberScrollState(),
+    /**
+     * Se la colonna scorre tutta intera.
+     *
+     * ⚠️ Spento vuol dire che **il contenuto si prende l'altezza**, ed è l'unico modo di avere
+     * un figlio con `weight`: in una colonna che scorre lo spazio avanzato non esiste, perché
+     * l'altezza è la somma dei figli. Lo spegne la pagina che ha una cosa sola da mettere in
+     * mezzo, e da lì in poi lo scorrimento se lo fa quel figlio.
+     */
+    scrolls: Boolean = true,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
             .safeDrawingPadding()
-            .verticalScroll(scroll)
+            .then(if (scrolls) Modifier.verticalScroll(scroll) else Modifier)
             .padding(horizontal = 20.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -1119,6 +1239,57 @@ private fun PageOfRows(
     if (LocalQuery.current.isBlank()) PageRow(label = label, summary = summary, onOpen = onOpen)
     else body()
 }
+
+/**
+ * L'avviso sulle miniature memorizzate e il pulsante che le butta.
+ *
+ * ⚠️⚠️ **UN COMPONENTE SOLO PER I DUE POSTI IN CUI COMPARE**: la sotto-pagina e, mentre si
+ * cerca, la pagina piatta che la appiattisce ([PageOfRows]). Scriverlo due volte vorrebbe dire
+ * un avviso che si aggiorna in un posto e non nell'altro, che è il difetto che la copertura
+ * della ricerca doveva togliere.
+ * ⚠️ [head] è il titolo, e c'è **solo** nella pagina piatta: nella sotto-pagina lo dice già la
+ * testata, e ripeterlo direbbe la stessa cosa due volte a mezzo centimetro di distanza.
+ * ⚠️ **Il testo dell'avviso è dell'utente**, con una parola cambiata: dove lui aveva scritto
+ * 'foto grandi' qui c'è 'immagini grandi', perché questa app apre anche tavole, scansioni e
+ * schermate, e la regola di non chiamarle fotografie è sua (`AIV/CLAUDE.md`, § '🗣️ Come si
+ * chiamano le cose').
+ * ⚠️ **Il tasto avvisa con un `Toast`**: quello che è successo si vede in un'altra schermata,
+ * e un comando che non dà segno di aver fatto qualcosa si preme due volte. È la stessa scelta,
+ * e la stessa ragione, di 'Ripristina gli avvisi'.
+ */
+@Composable
+private fun ThumbsCard(head: String?, onClear: () -> Unit, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val done = stringResource(R.string.settings_thumbs_done)
+    Column(
+        modifier = modifier.fillMaxWidth().padding(vertical = 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        // ⚠️ `CenterVertically` dentro `spacedBy` è quello che mette il blocco in mezzo allo
+        // spazio avanzato: senza spazio avanzato non fa niente, che è esattamente quello che
+        // serve nella pagina piatta.
+        verticalArrangement = Arrangement.spacedBy(THUMBS_GAP, Alignment.CenterVertically)
+    ) {
+        if (head != null) Text(text = head, style = MaterialTheme.typography.titleSmall)
+        Text(
+            text = stringResource(R.string.settings_thumbs_warn),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+        Button(onClick = {
+            onClear()
+            Toast.makeText(context, done, Toast.LENGTH_SHORT).show()
+        }) {
+            Text(
+                text = stringResource(R.string.settings_thumbs_do),
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+/** L'aria fra l'avviso e il pulsante che lo esegue: abbastanza perché non si tocchino. */
+private val THUMBS_GAP = 28.dp
 
 /**
  * Che cosa sta fra due voci nel riepilogo di una sotto-pagina.

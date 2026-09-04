@@ -393,6 +393,11 @@
     <string name="settings_group_advanced">Funzionalità avanzate</string>
     <string name="settings_ext_edit">Modifica le estensioni con \'Rinomina\'</string>
     <string name="settings_ext_edit_desc">Il pannello di rinomina consente di modificare le estensioni dei file. Se non sai cosa stai facendo, non attivare questa opzione: può rendere le immagini illeggibili.</string>
+    <string name="settings_thumbs">Elimina le miniature memorizzate</string>
+    <string name="settings_thumbs_empty">Nessuna miniatura memorizzata</string>
+    <string name="settings_thumbs_warn">Tocca il pulsante per svuotare la cache delle miniature. Le anteprime delle immagini e dei video saranno eliminate e saranno rigenerate in automatico all\'accesso ad ogni cartella (se ci sono molte immagini grandi, la creazione delle nuove miniature potrebbe richiedere un minuto o più).</string>
+    <string name="settings_thumbs_do">Svuota cache\ndelle miniature</string>
+    <string name="settings_thumbs_done">Cache delle miniature svuotata</string>
     <string name="settings_hidden_none">Nessuna cartella nascosta</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d cartella</item>

@@ -322,14 +322,22 @@ private val MENU_PAD = 8.dp
 private val MENU_LIFT = 6.dp
 
 /**
- * Da quanto piccolo cresce il menu, e in quanti millisecondi (scelta dell'utente).
+ * Da quanto piccolo cresce il menu, e in quanti millisecondi.
  *
- * ⚠️ 0,96 e 170ms: prima era 0,72 in 220ms **dal punto premuto**. Il salto che si sentiva era
- * la scala più della durata, ed è la ragione per cui è la scala il numero che è cambiato di
- * più.
+ * ⚠️ La scala è **scelta dell'utente**: 0,96, dove prima era 0,72 in 220ms **dal punto
+ * premuto**. Il salto che si sentiva era la scala più della durata, ed è la ragione per cui è
+ * la scala il numero che è cambiato di più.
+ * ⚠️⚠️ **LA DURATA È SCESA DA 170 A 120 NELLA `1.54`, e nasce come una PROVA** (richiesta
+ * dell'utente, 2026-09-04: *proviamo a impostare animazioni più veloci*). 120ms è la durata
+ * con cui Material fa entrare un menu, quindi non è un numero inventato per l'occasione: è
+ * il minimo sotto il quale un movimento smette di leggersi come un movimento.
+ * ⚠️ **La ragione che l'ha chiesta non regge, e va detto invece di lasciarlo credere**: la
+ * velocità serviva a non far vedere l'angolo sfocato che sporge dal pannello, ma quel difetto
+ * è **fermo** finché il menu è aperto, quindi nessuna durata lo nasconde. La nota in fondo a
+ * `Veil.kt` dice che cosa lo toglierebbe davvero.
  */
 private const val MENU_SMALL = 0.96f
-private const val MENU_IN = 170
+private const val MENU_IN = 120
 
 /** L'accelerazione di Material per una cosa che entra: parte decisa e si posa piano. */
 private val MENU_EASE = CubicBezierEasing(0.2f, 0f, 0f, 1f)

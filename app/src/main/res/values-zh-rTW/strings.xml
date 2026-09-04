@@ -268,6 +268,11 @@
     <string name="settings_group_advanced">進階功能</string>
     <string name="settings_ext_edit">在 \'重新命名\' 中修改副檔名</string>
     <string name="settings_ext_edit_desc">重新命名面板可以修改檔案的副檔名。若不清楚自己在做什麼，請不要開啟：圖片可能會變得無法讀取。</string>
+    <string name="settings_thumbs">刪除已儲存的縮圖</string>
+    <string name="settings_thumbs_empty">沒有已儲存的縮圖</string>
+    <string name="settings_thumbs_warn">輕觸按鈕以清除縮圖快取。圖片與影片的預覽會被刪除，並在開啟每個資料夾時自動重新產生（如果大圖很多，產生新縮圖可能需要一分鐘或更久）。</string>
+    <string name="settings_thumbs_do">清除縮圖\n快取</string>
+    <string name="settings_thumbs_done">已清除縮圖快取</string>
     <string name="settings_hidden_none">沒有隱藏的資料夾</string>
     <plurals name="settings_hidden_count">
         <item quantity="other">%1$d 個資料夾</item>

@@ -281,6 +281,11 @@
     <string name="settings_group_advanced">प्रगत सुविधा</string>
     <string name="settings_ext_edit">\'नाव बदला\' मधून एक्स्टेंशन बदला</string>
     <string name="settings_ext_edit_desc">नाव बदलण्याचा पॅनेल फाइलचे एक्स्टेंशन बदलू देतो. काय करत आहात याची खात्री नसेल तर हे चालू करू नका: चित्रे न वाचता येण्यासारखी होऊ शकतात.</string>
+    <string name="settings_thumbs">साठवलेल्या लघुप्रतिमा हटवा</string>
+    <string name="settings_thumbs_empty">साठवलेली लघुप्रतिमा नाही</string>
+    <string name="settings_thumbs_warn">लघुप्रतिमांची कॅशे रिकामी करण्यासाठी बटण दाबा. प्रतिमा आणि व्हिडिओंची पूर्वदृश्ये हटतील आणि प्रत्येक फोल्डर उघडल्यावर स्वयंचलितपणे पुन्हा तयार होतील (मोठ्या प्रतिमा पुष्कळ असल्यास नवीन लघुप्रतिमा तयार होण्यास एक मिनिट किंवा अधिक वेळ लागू शकतो).</string>
+    <string name="settings_thumbs_do">लघुप्रतिमांची कॅशे\nरिकामी करा</string>
+    <string name="settings_thumbs_done">लघुप्रतिमांची कॅशे रिकामी झाली</string>
     <string name="settings_hidden_none">कोणतेही लपवलेले फोल्डर नाही</string>
     <plurals name="settings_hidden_count">
         <item quantity="one">%1$d फोल्डर</item>
