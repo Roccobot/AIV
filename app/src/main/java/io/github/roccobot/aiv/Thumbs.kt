@@ -1,6 +1,7 @@
 package io.github.roccobot.aiv
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.media.ThumbnailUtils
 import android.os.Build
 import android.os.CancellationSignal
@@ -52,11 +53,16 @@ import java.io.File
  *   (`MediaMetadataRetriever.getThumbnailImageAtIndex`), poi la miniatura **EXIF**
  *   (`getThumbnailBytes`), e solo se non ce n'è nessuna decodifica il file intero.
  *
- * ⚠️ **Il compromesso di qualità sta tutto lì, ed è quello che l'utente ha accettato**
- * (*anche a costo di qualche compromesso di qualità*): una miniatura EXIF è spesso
- * 160x120, quindi su un riquadro da 324 px si vede morbida. Sul percorso normale della
- * galleria (`content://`) il provider serve misure sue, più grandi, e la cosa non si
- * nota; il ripiego `file://` esiste solo per le cartelle che il MediaStore non conosce.
+ * ⚠️⚠️ **IL COMPROMESSO DI QUALITÀ È CADUTO NELLA 1.52, e stava tutto lì**: una miniatura
+ * EXIF è spesso 160x120, e su un riquadro da 512 si vede per quello che è, cioè tre volte
+ * ingrandita (segnalazione dell'utente, 2026-09-04: *di qualità bassissima, come un JPG
+ * estremamente compresso*). Era stato accettato in partenza (*anche a costo di qualche
+ * compromesso di qualità*), e l'esito ha smentito la previsione: adesso una miniatura sotto
+ * la metà del possibile si rifiuta e la richiesta passa alla decodifica normale. Il metro e
+ * il perché della soglia stanno su `tooSmall`, in fondo a questo file.
+ * ⚠️ **Il prezzo è dichiarato**: su una cartella di fotografie di fotocamera la prima
+ * passata decodifica invece di leggere la miniatura incorporata, quindi il primo scorrimento
+ * può farsi sentire. È lo stesso baratto già preso per i PNG con alfa.
  *
  * ⚠️⚠️ **NEL VISUALIZZATORE SINGOLO NON SI USA NIENTE DI TUTTO QUESTO**: là comanda la
  * qualità, e la decodifica resta quella di `ImageSource`, a piena risoluzione e con il
@@ -334,6 +340,27 @@ private class SystemThumbnailFetcher(
                 null
             } ?: return@withContext null
 
+            /*
+             * ⚠️⚠️ **UNA MINIATURA TROPPO PICCOLA SI RIFIUTA, dalla 1.52** (segnalazione
+             * dell'utente, 2026-09-04: *la sua anteprima è di qualità bassissima, come un JPG
+             * estremamente compresso*). Fino a qui si prendeva quello che il sistema dava
+             * senza confrontarlo con la misura chiesta, e la nota in testa a questo file lo
+             * dichiarava come compromesso accettato: *una miniatura EXIF è spesso 160x120,
+             * quindi su un riquadro da 324 px si vede morbida*. Il compromesso cade perché è
+             * il suo esito a essere rifiutato, e l'esito è tre volte l'ingrandimento.
+             * ⚠️⚠️ **LA CAUSA È L'ORDINE DI `createImageThumbnail`**, che prova prima la
+             * miniatura **incorporata** nell'EXIF: in un JPEG di fotocamera quella c'è quasi
+             * sempre, quindi il ramo veloce vince proprio dove l'immagine è grande e la
+             * differenza si vede di più.
+             * ⚠️ **Rifiutare vuol dire `null`, cioè passare la mano**: la richiesta prosegue
+             * nella decodifica normale di Coil, campionata alla misura chiesta. È la stessa
+             * uscita già usata per i PNG con alfa e per il BMP, e non c'è nessun ripiego
+             * scritto a mano da mantenere.
+             */
+            if (!Videos.isVideo(uri) && tooSmall(options.context, uri, bitmap, wanted)) {
+                return@withContext null
+            }
+
             ImageFetchResult(
                 image = bitmap.asImage(),
                 // Dichiarata campionata perché lo è: non è la fotografia, è una sua
@@ -346,6 +373,36 @@ private class SystemThumbnailFetcher(
         }
     }
 
+}
+
+/**
+ * Se la miniatura che il sistema ha dato è troppo piccola per il riquadro che la chiede.
+ *
+ * ⚠️⚠️ **IL CONFRONTO È CONTRO IL POSSIBILE E NON CONTRO IL VOLUTO, ed è la sola forma che
+ * non sbaglia sui file piccoli**: di un'icona da 96 pixel nessuno può fare una miniatura da
+ * 512, quindi misurarla contro i 512 chiesti la rifiuterebbe sempre e la decodifica normale
+ * ne ricaverebbe la stessa immagine, pagando due letture per lo stesso risultato. Il metro è
+ * il minimo fra quello che si chiede e quello che il file ha.
+ * ⚠️ **Il lato del file si legge dall'INTESTAZIONE e si ricorda**: [Pixels.longSideOf] lo
+ * tiene, quindi in una griglia che scorre il costo lo paga il primo riquadro e non gli altri.
+ * Non sapere la misura del file torna `false`, cioè si tiene quello che c'è: senza il metro
+ * non si può dire che sia sbagliato.
+ * ⚠️⚠️ **LA SOGLIA È LA METÀ, e non è un numero arbitrario**: sotto la metà l'ingrandimento
+ * è di due volte o più, che è il punto in cui una riduzione smette di sembrare morbida e
+ * comincia a sembrare un altro file. Sopra passano le misure che i provider servono davvero
+ * (384 e 512 di lato), sotto casca la classe che fa il danno, cioè la miniatura EXIF da 160.
+ * ⚠️ **Si scrive come un prodotto e non come una frazione**: `x * 2 < y` non ha né divisioni
+ * né virgola mobile, quindi non ha un caso in cui arrotonda dalla parte sbagliata.
+ */
+private suspend fun tooSmall(
+    context: Context,
+    uri: AndroidUri,
+    bitmap: Bitmap,
+    wanted: Size
+): Boolean {
+    val file = Pixels.longSideOf(context, uri) ?: return false
+    val possibile = minOf(maxOf(wanted.width, wanted.height), file)
+    return maxOf(bitmap.width, bitmap.height) * 2 < possibile
 }
 
 /**
