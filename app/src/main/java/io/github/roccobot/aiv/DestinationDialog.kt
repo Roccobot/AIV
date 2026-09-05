@@ -249,7 +249,7 @@ private fun NewFolderDialog(onDismiss: () -> Unit, onCreate: (String) -> Unit) {
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        modifier = Modifier.lowered(),
+        modifier = Modifier.lowered(null),
         title = { Text(stringResource(R.string.dest_new)) },
         text = {
             OutlinedTextField(

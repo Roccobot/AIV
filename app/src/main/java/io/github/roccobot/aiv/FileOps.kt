@@ -370,7 +370,7 @@ private fun DeleteDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        modifier = Modifier.lowered(),
+        modifier = Modifier.lowered(onDismiss),
         title = { Text(stringResource(R.string.delete_ask)) },
         text = {
             Text(pluralStringResource(R.plurals.delete_desc, count, count))

@@ -424,6 +424,16 @@ fun AivTheme(
                 Box(modifier = Modifier.fillMaxSize()) {
                     content()
                     AppVeil(modifier = Modifier.matchParentSize())
+                    /*
+                     * ⚠️⚠️ **DOPO IL VELO, quindi sopra a tutto**: mentre un menu è aperto,
+                     * questo impedisce al tocco di arrivare **anche** all'app, che da Android 12
+                     * è quello che succede (la finestra di un popup non è modale al tocco). Il
+                     * perché per esteso, col fatto misurato sul bytecode, sta in testa a
+                     * [MenuGuard]. ⚠️ **Non dipinge niente e a menu chiuso non consuma niente**:
+                     * a differenza del velo, che è una funzione dietro un interruttore, questa è
+                     * una correzione e vale sempre.
+                     */
+                    MenuGuard(modifier = Modifier.matchParentSize())
                 }
             }
         }

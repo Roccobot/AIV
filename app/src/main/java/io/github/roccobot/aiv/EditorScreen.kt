@@ -1609,7 +1609,7 @@ fun EditorPicker(
     val (edit, send) = remember(others) { others.partition { !it.shared } }
     AlertDialog(
         onDismissRequest = onDismiss,
-        modifier = Modifier.lowered(),
+        modifier = Modifier.lowered(onDismiss),
         title = { Text(stringResource(R.string.editor_pick)) },
         text = {
             Column(

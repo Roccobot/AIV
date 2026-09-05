@@ -28,9 +28,11 @@ import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -151,6 +153,27 @@ fun MenuShell(
      * ed è il caso in cui il menu spariva lasciando addosso all'app il proprio scuro.
      */
     AppPatina { state.show.value }
+
+    /*
+     * ⚠️⚠️ **SI DICHIARA IN SCENA, E QUESTO TOGLIE IL TOCCO CHE ARRIVAVA ANCHE SOTTO** (difetto
+     * trovato dal censimento della UI del 2026-09-05, e confermato dal bytecode di Compose:
+     * `createFlags` di `AndroidPopup_androidKt` parte da `FLAG_WATCH_OUTSIDE_TOUCH` e non mette
+     * mai `FLAG_NOT_TOUCH_MODAL`, quindi da Android 12 un tocco fuori dal menu arriva **a tutte
+     * e due** le finestre: il popup lo legge come 'fuori' e si chiude, l'app lo legge come un
+     * tocco suo e apre la riga o la cartella che stava sotto il dito).
+     * ⚠️⚠️ **A ripararlo è UN velo solo, in `AivTheme`, e non uno per schermata**: fino alla
+     * `1.69` esisteva in un posto solo su cinque chiamanti (`GridScreen`, il menu del FAB del
+     * cestino), e le altre quattro schermate non ce l'avevano. Ripeterlo quattro volte avrebbe
+     * lasciato in piedi il quinto modo di dimenticarsene; dichiararsi qui lo dà a ogni menu che
+     * nascerà, perché [MenuShell] è la sola via per aprirne uno dalla `1.46`. Vedi [MenuGuard].
+     * ⚠️ **Sta PRIMA del cancello qui sotto**, quindi vale anche mentre il pannello se ne va:
+     * l'uscita dura [MENU_OUT_MS], e un tocco in quel tratto arriverebbe sotto come gli altri.
+     */
+    val inScena = state.visible
+    DisposableEffect(state, inScena) {
+        if (inScena) MenuScene.enter(state)
+        onDispose { MenuScene.leave(state) }
+    }
 
     /*
      * ⚠️⚠️ **IL CANCELLO SERVE ALL'ORDINE FRA LE FINESTRE**: a menu chiuso non deve esistere
@@ -975,3 +998,78 @@ val MENU_ICON_MID = MENU_ITEM_LEFT + MENU_ITEM_ICON / 2
  * il perché sta nella nota di [MenuShell]. Lo stondamento resta, ed è indipendente da lei.
  */
 val MENU_ROUND = 20.dp
+
+/**
+ * Chi è in scena adesso fra i menu, e serve a una cosa sola: **far sapere all'app che deve
+ * stare zitta**.
+ *
+ * ⚠️⚠️ **NON SI PUÒ RIUSARE `VeilStage` PER QUESTO, ed è la ragione per cui questo oggetto
+ * esiste**: quella mappa è vuota quando 'Sfocatura dietro i pannelli' è spenta, cioè nel caso
+ * di fabbrica, e legare a lei il tocco che non deve passare renderebbe la correzione una
+ * funzione facoltativa. Qui dentro un menu entra sempre, acceso o spento che sia
+ * l'interruttore.
+ * ⚠️ **Una mappa di richiedenti e non un numero**, per la stessa ragione scritta su
+ * `VeilStage`: due menu possono sovrapporsi per il tratto di un'uscita, e con un contatore
+ * solo il primo che se ne va spegnerebbe anche il secondo.
+ */
+internal object MenuScene {
+    private val aperti = mutableStateMapOf<Any, Unit>()
+
+    /** Se c'è almeno un menu in scena. Si legge **nel giro dei tocchi**, non in composizione. */
+    val open: Boolean get() = aperti.isNotEmpty()
+
+    fun enter(chi: Any) {
+        aperti[chi] = Unit
+    }
+
+    fun leave(chi: Any) {
+        aperti.remove(chi)
+    }
+
+    /** La rete contro il menu fantasma, gemella di `VeilStage.clear`. */
+    fun clear() {
+        aperti.clear()
+    }
+}
+
+/**
+ * Il velo che, mentre un menu è aperto, **impedisce al tocco di arrivare anche all'app**.
+ *
+ * ⚠️⚠️ **IL DIFETTO CHE TOGLIE È MISURATO SUL BYTECODE DI COMPOSE**: `createFlags` di
+ * `AndroidPopup_androidKt` parte da `FLAG_WATCH_OUTSIDE_TOUCH` e non mette mai
+ * `FLAG_NOT_TOUCH_MODAL`, quindi da Android 12 la finestra di un popup **non è modale al
+ * tocco**: un dito fuori dal pannello arriva a tutte e due le finestre. Il popup lo legge come
+ * 'fuori' e si chiude, e l'app lo legge come un tocco suo: nella vista ad albero apriva la riga
+ * sotto il dito, nella testata della griglia la miniatura, nella schermata iniziale la cartella.
+ * ⚠️⚠️ **UNO SOLO E NON UNO PER SCHERMATA, ED È IL PUNTO DI QUESTA FORMA.** Fino alla `1.69` il
+ * rimedio era un `Box` con `detectTapGestures` scritto **dentro una schermata**, e viveva in
+ * una schermata su cinque: gli altri quattro chiamanti di [MenuShell] non l'avevano, e in una
+ * di quelle lo stato del menu non era nemmeno raggiungibile da fuori. Ripeterlo quattro volte
+ * avrebbe risolto quattro casi e lasciato in piedi il modo di sbagliare il quinto; qui sta
+ * sopra tutto quello che l'app disegna, quindi vale per ogni menu che esiste e per ogni menu
+ * che nascerà.
+ * ⚠️ **Consuma nella passata `Initial`**, cioè prima di chiunque altro: quello che deve
+ * rispondere a quel tocco è il popup, e il popup vive in un'altra finestra, dove questo nodo
+ * non arriva.
+ * ⚠️ **Non consuma niente a menu chiuso**, e per saperlo legge [MenuScene] **dentro il giro dei
+ * tocchi**: letto in composizione, il valore farebbe ricomporre la radice dell'app a ogni
+ * apertura e a ogni chiusura di un menu.
+ * ⚠️ **I DIALOGHI non hanno bisogno di lui**: la finestra di un `Dialog` è modale al tocco, e
+ * quello che si tocca fuori non arriva mai all'app. Il loro caso gemello è un'altra cosa e vive
+ * in `Centred.kt`, sull'aria dichiarata sopra il pannello.
+ */
+@Composable
+fun MenuGuard(modifier: Modifier = Modifier) {
+    DisposableEffect(Unit) { onDispose { MenuScene.clear() } }
+    Box(
+        modifier = modifier
+            .pointerInput(Unit) {
+                awaitPointerEventScope {
+                    while (true) {
+                        val evento = awaitPointerEvent(PointerEventPass.Initial)
+                        if (MenuScene.open) evento.changes.forEach { it.consume() }
+                    }
+                }
+            }
+    )
+}

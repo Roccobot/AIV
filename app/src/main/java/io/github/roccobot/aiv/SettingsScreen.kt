@@ -1930,7 +1930,7 @@ private fun PadOrder(
     if (chiedendo) {
         AlertDialog(
             onDismissRequest = { chiedendo = false },
-            modifier = Modifier.lowered(),
+            modifier = Modifier.lowered { chiedendo = false },
             title = { Text(stringResource(R.string.settings_buttons_reset_ask)) },
             confirmButton = {
                 TextButton(

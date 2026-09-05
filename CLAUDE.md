@@ -308,12 +308,18 @@ grande un dialogo esattamente al centro fa allungare la mano.
 - ⚠️ **Il 15% si misura sull'altezza della FINESTRA**, non sullo spazio libero: sullo spazio
   libero sarebbe una frazione di una frazione, quindi su un dialogo alto il movimento
   sparirebbe proprio dove il pollice fatica di più.
-- **Come si applica**: `Modifier.lowered()`, che vive in `Centred.kt` insieme al numero. ⚠️ La
+- **Come si applica**: `Modifier.lowered(onOutside)`, che vive in `Centred.kt` insieme al
+  numero. ⚠️ La
   riga si scrive a **ogni** chiamata e non c'è modo di evitarlo: in Compose non esiste un
   aggancio globale per i dialoghi, perché `AlertDialog` centra la sua superficie dentro la
   propria finestra e nessuna sua proprietà sposta quel centro. Quello che si può avere è **un**
   modificatore, e ce l'ha: chi apre un dialogo nuovo lo aggiunge, e il valore non è mai scritto
   due volte.
+  - ⚠️⚠️ **DALLA `1.70` QUEL PARAMETRO DICE SE LA FINESTRA È UNA MODALE VERA, E NON HA UN
+    VALORE DI SERIE DI PROPOSITO**: chi apre una finestra nuova deve **dichiararlo**, e non può
+    farlo per omissione. Passando la sua chiusura, un tocco sull'aria sopra il pannello vale
+    come il tocco fuori; passando `null`, quell'aria non risponde, che è il comportamento di
+    una modale.
   - ⚠️⚠️ **DALLA 1.38 QUELLA RIGA FA ANCHE UN'ALTRA COSA: mette il VELO e la SFOCATURA dietro
     la finestra** (richiesta dell'utente, 2026-09-02: *sfocatura leggera + velo chiaro/scuro a
     seconda del tema: dietro qualsiasi pannello, popup, modale, menu*). Non è un accorpamento
@@ -458,6 +464,39 @@ grande un dialogo esattamente al centro fa allungare la mano.
   `Modifier.lowered()`: il velo, che dalla stessa versione viaggia con quel modificatore, se lo
   chiede da sé. Chi legge l'elenco qui sopra sappia che 'la scheda delle informazioni sul file'
   non ne fa più parte.
+
+## 👆 Che cosa fa il tocco FUORI da una finestra
+
+⚠️⚠️ **MODALE VERA SOLO SE LA FINESTRA ESISTE PER RACCOGLIERE UN INPUT SCRITTO. Tutto il resto
+si chiude toccando fuori** (criterio dell'utente, riscontro del giro della `1.69`: *l'importante
+è che ci sia coerenza e che solo le finestre che devono ASSOLUTAMENTE fornire un input siano
+modali vere*). Applicato alla lettera, taglia l'elenco in modo netto: hanno un campo di testo
+**Rinomina**, **Estensione**, **Indirizzo** e **Nuova cartella**, e sono le sole a non
+rispondere al tocco fuori.
+- ⚠️ **Le conferme di eliminazione NON sono modali**, e non è una svista: là il tocco fuori vale
+  `Annulla`, cioè l'esito sicuro, quindi non c'è niente da proteggere. Una modale protegge il
+  lavoro che si perderebbe, non la scelta che si eviterebbe.
+- **Come si dichiara**: il parametro di `Modifier.lowered`, che non ha un valore di serie.
+
+⚠️⚠️ **E L'ASIMMETRIA CHE HA FATTO NASCERE LA REGOLA ERA UN DIFETTO, non due comportamenti**
+(sua segnalazione, con schermata: *hanno un comportamento da modale se si tocca lo schermo SOPRA
+e da finestra 'secondaria' se si tocca SOTTO*). La causa sta nel modo in cui si ottiene il 15%:
+`LowerNode` non sposta il pannello, **gonfia la scatola** dichiarata e ce lo posa in fondo,
+quindi sopra resta una fascia trasparente alta fino al 30% della finestra che **appartiene al
+dialogo**. Toccarla è toccare dentro, e `dismissOnClickOutside` non scatta; sotto si è fuori, e
+scatta. Il perché per esteso vive su `airTop`, in `Centred.kt`.
+
+⚠️⚠️ **I MENU SONO UN CASO GEMELLO MA DIVERSO, E IL LORO DIFETTO È CHE IL TOCCO ARRIVA ANCHE
+SOTTO** (trovato dal censimento della UI del 2026-09-05, e misurato sul bytecode di Compose:
+`createFlags` di `AndroidPopup_androidKt` parte da `FLAG_WATCH_OUTSIDE_TOUCH` e non mette mai
+`FLAG_NOT_TOUCH_MODAL`). Da Android 12 la finestra di un popup **non è modale al tocco**: un
+dito fuori dal pannello arriva a tutte e due le finestre, quindi il menu si chiude **e** l'app
+apre la riga, la miniatura o la cartella che stava sotto il dito.
+- **A ripararlo dalla `1.70` è `MenuGuard`, uno solo, in `AivTheme`.** Fino alla `1.69` il velo
+  che consuma quel tocco viveva **dentro una schermata** e ne copriva una su cinque.
+- ⚠️ **Non si aggancia a `VeilStage`**, che è la mappa del velo: quella è vuota quando
+  'Sfocatura dietro i pannelli' è spenta, cioè di fabbrica, e legare a lei una correzione la
+  renderebbe una funzione facoltativa.
 
 ## ⚙️ Dove va un'impostazione, e chi la deve trovare
 
