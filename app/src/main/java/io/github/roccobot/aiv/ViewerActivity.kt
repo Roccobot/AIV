@@ -22,7 +22,6 @@ import androidx.core.net.toUri
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -2056,11 +2055,33 @@ private fun AivApp(model: ViewerViewModel) {
         AnimatedContent(
             targetState = model.screen,
             transitionSpec = {
+                /*
+                * ⚠️⚠️ **`null` E NON UNA `SizeTransform`, DALLA `1.72`, E IL PERCHÉ SI VEDE
+                * SUL FAB** (riscontro dell'utente, 2026-09-05: *se torno in home da una
+                * cartella arriva di nuovo da in basso a destra ... l'ingrandimento
+                * dev'essere dal centro del FAB, quindi ingrandimento sì, movimento no*).
+                * Una `SizeTransform` **anima la dimensione del contenitore** durante il
+                * cambio di schermata, e finché quella misura cresce ogni elemento
+                * ancorato a un angolo **segue il bordo che si muove**: il tastino della
+                * schermata iniziale sta in basso a destra, quindi percorre una diagonale.
+                * - ⚠️ **L'entrata a molla del tastino NON c'entra e resta**: quella scala
+                *   dal centro del proprio riquadro (`Entrata.kt`), che è esattamente
+                *   quello che lui vuole. Chi cercasse il movimento là dentro non lo
+                *   troverebbe, ed è la ragione per cui questa nota sta qui.
+                * - ⚠️ **Il rimedio è una RIMOZIONE**: senza `SizeTransform` il contenitore
+                *   prende subito la misura della schermata che entra, quindi non c'è
+                *   nessun bordo in movimento a cui un angolo possa aggrapparsi. È la
+                *   stessa forma che la `AnimatedContent` del visualizzatore usa già
+                *   (`ViewerScreen.kt`, `using null`).
+                * - ⚠️ **Il `clip = false` se ne va con lei e non serviva ad altro**:
+                *   riguardava il ritaglio **durante** quell'animazione di misura, che
+                *   adesso non esiste.
+                */
                 if (initialState is Screen.Viewer || targetState is Screen.Viewer) {
                     EnterTransition.None togetherWith ExitTransition.None
                 } else {
                     fadeIn(tween(SCHERMO_MS)) togetherWith fadeOut(tween(SCHERMO_MS))
-                } using SizeTransform(clip = false)
+                } using null
             },
             label = "schermata"
         ) { schermo ->
