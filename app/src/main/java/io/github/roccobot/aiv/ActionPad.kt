@@ -7,7 +7,6 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -44,10 +43,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.BlurredEdgeTreatment
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
@@ -81,6 +77,11 @@ import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.zIndex
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 /**
@@ -876,88 +877,65 @@ private val PAD_LABEL_GAP = 2.dp
 private val PAD_EDGE = 4.dp
 
 /**
- * Quanto si stringe il FAB, e di quanto si sfoca, mentre il suo menu è aperto.
+ * Il rimbalzo del FAB al tocco: di quanto si stringe, e in quanto tempo scende e risale.
  *
- * ⚠️⚠️ **LA MISURA NON È PIÙ UNA FRAZIONE, DALLA `1.62`** (riscontro del giro della `1.60`: *da
- * premuto dev'essere più piccolo e sfocato di 1/2DP. Il glifo non si rimpicciolisce ma si sfoca
- * insieme al resto*). Fino alla `1.61` era una **scala** di sei centesimi, cioè 2,4dp su un FAB
- * da [FAB_SIZE], con l'aggravante che una scala tira dentro il glifo.
- * ⚠️⚠️ **MA MEZZO PUNTO NON SI VEDEVA, ed è il riscontro del giro della `1.63`** (*non vedo
- * nulla, rimpicciolisci di più*): su un lato di [FAB_SIZE] mezzo punto è l'1,25%, cioè sotto
- * quello che un occhio distingue su una forma che non ha un bordo con cui confrontarsi. Da lì i
- * 2dp della `1.62`, il 5% del lato.
- * ⚠️⚠️ **E NEMMENO DUE SI VEDEVANO: 4dp DALLA `1.67`, IL 10% DEL LATO** (riscontro del giro della
- * `1.66`: *io continuo a non vedere nulla*). ⚠️ **Prima di raddoppiare è stato controllato che
- * l'effetto ARRIVI**, perché 'non vedo nulla' descrive anche un difetto: il segnale è cablato
- * (`pressed = menu.wanted` nei due chiamanti) e si applica ai **due** disegni, il sosia e quello
- * nella finestra. Quindi quello che mancava era la quantità: 4dp sono 2dp di bordo che rientra per
- * lato, il doppio di prima, su una piastrella che si guarda mentre il menu si apre altrove.
- * ⚠️ **La sfocatura resta di mezzo punto**: lui ha chiesto di rimpicciolire, non di sfocare di
- * più, e quella si vede perché ammorbidisce un bordo netto.
- * ⚠️⚠️ **E DA UNA SCALA A UNA MISURA CAMBIA CHE COSA SI STRINGE, che è il cuore della
- * richiesta**: la piastrella si ridisegna mezzo punto più piccola, mentre il glifo dentro tiene
- * la sua misura perché ce l'ha propria. Con una scala sul nodo intero non c'era modo di
- * escluderlo, ed è la ragione tecnica per cui il numero ha cambiato unità.
- * ⚠️ **La sfocatura invece li prende tutti e due**, come ha chiesto: sta sul nodo che contiene
- * la piastrella e il glifo, non sui due separatamente.
- * ⚠️ **Il FAB non si sposta di un pixel**: la scatola che lo tiene resta di [FAB_SIZE] e la
- * piastrella si stringe verso il proprio centro. Senza quella scatola, un lato più corto
- * sposterebbe il FAB di un quarto di punto verso l'angolo a cui è allineato.
+ * ⚠️⚠️ **DALLA `1.68` IL FAB NON HA PIÙ NÉ OMBRA NÉ SFOCATURA NÉ UNA TINTA CHE SI SPOSTA, ED È
+ * UNA SUA ISTRUZIONE** (riscontro del giro della `1.67`: *elimina tutte le animazioni e gli
+ * effetti applicati finora al FAB, che comunque non stavano funzionando bene*, e sulla voce
+ * dell'ombra *togli del tutto l'ombra*). Tre versioni di fila avevano provato a farsi vedere
+ * **aumentando una quantità**: mezzo punto di rientro, poi due, poi quattro, e ogni volta il
+ * riscontro è stato lo stesso, *non vedo nulla*.
+ * ⚠️⚠️ **PERCHÉ NON SI VEDEVA, ed è la cosa da non rifare**: quattro punti su un lato di
+ * [FAB_SIZE] sono il 10% della misura, ma una piastrella isolata non ha accanto niente con cui
+ * confrontarsi, e senza un riferimento l'occhio non legge una dimensione. Quello che mancava non
+ * era la quantità: era il **confronto**. Un movimento, un simbolo diverso e un colore diverso si
+ * vedono da soli, perché ognuno confronta il tasto con se stesso di un attimo prima.
+ * ⚠️ **Il 30% e i due tempi sono suoi, alla lettera**: *rimpicciolisce del 30% in 30 ms, torna
+ * alla dimensione iniziale in 60 ms, tutto con ease-in/ease-out*.
+ * ⚠️ **È una SCALA e non una misura in punti**, al contrario di quello che faceva la `1.62`: là
+ * il glifo doveva restare fermo mentre la piastrella si stringeva, e per escluderlo serviva una
+ * misura sul solo fondo; qui rimbalza il **tasto intero**, glifo compreso, quindi la scala è la
+ * cosa giusta e costa un livello grafico invece di una rimisurazione.
  */
-private val PREMUTO_GIU = 4.dp
-private val PREMUTO_SFOCA = 0.5.dp
+private const val RIMBALZO = 0.30f
+private const val RIMBALZO_GIU_MS = 30
+private const val RIMBALZO_SU_MS = 60
 
 /**
- * L'ombra del FAB: quanta ne ha adesso, e di che tinta.
+ * In quanto tempo il glifo dell'app diventa una ×, e in quanto il fondo cambia accento.
  *
- * ⚠️⚠️ **L'OPACITÀ È DIMEZZATA, DALLA `1.65`** (riscontro del giro della `1.63`: *ancora più
- * lentamente e l'opacità finale (quella a pulsante fermo) dev'essere dimezzata*).
- * ⚠️⚠️ **E DIMEZZATA UN'ALTRA VOLTA DALLA `1.67`, A UN QUARTO** (riscontro del giro della `1.66`:
- * *dimezza ancora l'opacità. Se risulterebbe intorno al 10%, eliminala del tutto e si semplifica
- * ulteriormente*). ⚠️ **La scala su cui vale quel 10% è QUESTO numero**, cioè quanto resta
- * dell'ombra di serie: era intera fino alla `1.64`, metà con la `1.65`, un quarto adesso. Un
- * quarto non è 'intorno al 10%', quindi l'ombra resta; ⚠️ **il dimezzamento dopo questo sì**, ed è
- * un ottavo: se la vuole via, il ritocco è togliere questa funzione e le sue due righe.
- * ⚠️ **Non si ottiene dimezzando l'elevazione**, ed è la ragione per cui questa funzione esiste: quel numero
- * governa **quanto è grande e sfumata** l'ombra, non quanto è scura, e dimezzandolo il FAB
- * sembrerebbe più basso invece che più leggero. Quello che si dimezza è l'alfa dei due colori con
- * cui Android la dipinge, che moltiplicano le sue opacità di serie.
- * ⚠️⚠️ **E SI LEGGE NEL DISEGNO, non in composizione**: [GraphicsLayerScope] valuta questo blocco
- * nella fase di disegno, quindi la salita dell'ombra costa un ridisegno per fotogramma invece di
- * una ricomposizione del tastino. È la riga che permette di allungare [ENTRA_OMBRA_MS] senza
- * pagarla, e il prezzo che la `1.62` aveva dovuto dichiarare adesso non c'è più.
- * ⚠️ **`clip` resta spento**: la forma serve a dare il contorno all'ombra, mentre a ritagliare il
- * contenuto ci pensano già la `Surface` del tastino vero e lo sfondo stondato del sosia.
+ * ⚠️ **I 90 ms del simbolo sono la somma dei due tempi del rimbalzo**, ed è la sua richiesta:
+ * *contemporaneamente, con zoom-in/zoom-out e crossfade, negli stessi 90 ms*. Così il simbolo
+ * finisce di cambiare nell'istante in cui il tasto torna alla sua misura, e i due movimenti si
+ * leggono come uno.
+ * ⚠️ **Il colore è più corto, e anche questo è suo**: *in meno di 90 ms: un crossfade pressoché
+ * istantaneo*. Un colore che sfuma piano si legge come un'animazione a sé; uno che salta si
+ * legge come lo stato nuovo del tasto, che è quello che deve dire.
+ * ⚠️ **Non si scrive come frazione di [MORPH_MS]**: sono due numeri che lui ha dato separati, e
+ * legarli vorrebbe dire che cambiando l'uno cambia l'altro senza che nessuno l'abbia chiesto.
  */
-private fun Modifier.ombraFab(quanta: () -> Dp): Modifier = graphicsLayer {
-    shadowElevation = quanta().toPx()
-    shape = RoundedCornerShape(FAB_CORNER)
-    clip = false
-    ambientShadowColor = OMBRA_TINTA
-    spotShadowColor = OMBRA_TINTA
-}
-
-private val OMBRA_TINTA = Color.Black.copy(alpha = 0.25f)
+private const val MORPH_MS = RIMBALZO_GIU_MS + RIMBALZO_SU_MS
+private const val TINTA_MS = 55
 
 /**
- * Quanto si sposta la tinta del tastino verso il suo inchiostro mentre il menu è aperto.
+ * Il lato della × che prende il posto del glifo, e quanto zoom fanno i due simboli.
  *
- * ⚠️ **È la frazione degli strati di stato di Material**, che per una superficie premuta sta
- * fra un decimo e un ottavo. Preso da lì, il tastino premuto si comporta come ogni altra
- * superficie dell'app in tutti e due i temi.
+ * ⚠️ **Più piccola del glifo dell'app**, come ha chiesto (*il simbolo × centrato e piccolo*):
+ * [PAD_ICON] è la misura di un glifo di comando, e questa sta un gradino sotto.
+ * ⚠️⚠️ **È `Icons.Filled.Close` E NON UN DISEGNO NUOVO**: la regola di casa dice che un file che
+ * arriva si misura contro quello che Compose già porta e a zero scarto vince Material
+ * (`CLAUDE.md`, § '🖌️ Come entra un disegno'). Qui non è arrivato nessun file: lui ha chiesto
+ * *il simbolo ×*, che è esattamente quel glifo, e disegnarlo a mano vorrebbe dire tenere in
+ * `res/` una seconda copia di una croce.
+ * ⚠️ **Lo zoom è una FRAZIONE e non una misura**: il glifo dell'app non è quadrato (nella
+ * schermata iniziale è il marchio, più largo che alto), quindi una misura in punti lo
+ * schiaccerebbe su un asse.
+ * ⚠️ **Chi entra parte piccolo e chi esce finisce piccolo**, cioè lo stesso numero letto nei due
+ * versi: a metà strada i due simboli hanno la stessa misura, e la dissolvenza non ha nessun
+ * salto di scala da nascondere.
  */
-private const val PREMUTO_TINTA = 0.12f
-
-/**
- * In quanto tempo il tastino si preme e si rilascia.
- *
- * ⚠️ **100 dalla `1.60`, ed è un numero suo** (riscontro del giro della `1.59`: *può anche
- * durare 20 ms in meno*).
- * ⚠️ **La curva è quella di serie di `tween`, cioè `FastOutSlowIn`**, che è già l'accelerazione
- * iniziale e la decelerazione finale che ha chiesto: qui non c'è nessuna molla, e non ce n'era
- * una nemmeno prima. Il secondo tempo che vedeva veniva da un'altra parte, e sta su [pressed].
- */
-private const val PREMUTO_MS = 100
+private val CHIUDI_LATO = 20.dp
+private const val GLIFO_ZOOM = 0.35f
 
 /** Lo smusso dell'alone del tocco su una cella. */
 private val PAD_CORNER = 10.dp
@@ -1078,13 +1056,6 @@ val FAB_CORNER = 12.dp
  */
 val FAB_SIZE = 40.dp
 
-/**
- * L'ombra di serie di un tastino galleggiante in Material 3.
- *
- * ⚠️ Una sola per tutte e due le schermate dalla `0.78`: i tastini sono due e l'ombra di un
- * tastino non è una scelta di schermata.
- */
-val FAB_LIFT = 6.dp
 
 /**
  * Il margine del tastino quadrato dalle due sponde della schermata delle cartelle.
@@ -1151,64 +1122,48 @@ fun TapHoldFab(
     container: Color,
     ink: Color,
     /**
-     * Quanta ombra ha il tastino adesso.
-     *
-     * ⚠️⚠️ **UNA LAMBDA E NON UN `Dp`, DALLA `1.65`, e la ragione è un costo misurato**: l'ombra
-     * dell'entrata sale per [ENTRA_OMBRA_MS], e finché quel valore si leggeva come parametro il
-     * tastino si **ricomponeva a ogni fotogramma** per tutta la durata. Passata a lambda, la
-     * lettura avviene dentro [ombraFab], cioè nella fase di **disegno**: l'animazione costa un
-     * ridisegno e non una ricomposizione, e allungarla non costa niente in più. È lo stesso
-     * motivo per cui il velo si dosa a tempo di disegno (vedi `AppVeil` in `Veil.kt`).
-     */
-    lift: () -> Dp,
-    /**
      * Che cosa fa il tocco lungo, per il lettore di schermo.
      *
-     * ⚠️ **Si DICHIARA, o resta una scorciatoia che esiste solo per chi vede il velo**:
-     * l'etichetta la legge il lettore di schermo fra le azioni disponibili sul tastino.
-     * ⚠️ Arriva da fuori perché il gesto fa cose diverse a seconda della schermata e di dove
-     * si è dentro di lei, e un'etichetta fissa ne annuncerebbe una mentre succede l'altra.
+     * ⚠️ **Si DICHIARA, o resta una scorciatoia che esiste solo per chi vede**: l'etichetta la
+     * legge il lettore di schermo fra le azioni disponibili sul tastino.
+     * ⚠️ Arriva da fuori perché il gesto fa cose diverse a seconda della schermata e di dove si
+     * è dentro di lei, e un'etichetta fissa ne annuncerebbe una mentre succede l'altra.
      */
     holdLabel: String,
     /**
-     * Il tastino si stacca in una **finestra sua**, per restare sopra il velo del suo menu.
+     * Il tastino si stacca in una **finestra sua**, per restare sopra la sfocatura del suo menu.
      *
-     * ⚠️⚠️ **RICHIESTA DELL'UTENTE, 1.39** (2026-09-03: *quando la sfocatura si applica dove
-     * c'è un FAB, questo deve rimanere SOPRA l'area sfocata e velata*). Col velo di finestra
-     * (vedi `WindowVeil`) non si può ritagliare un buco: quel velo sta **dietro** la finestra
-     * che lo chiede, e tutto quello che è più in basso ci finisce sotto, tastino compreso. La
-     * sola via per tenerlo fuori è metterlo in una finestra **più in alto** di quella che vela.
-     * ⚠️ **Vale solo per il menu che il tastino stesso apre**, e chi lo accende è il suo
-     * `open`. Un dialogo di Material è una finestra di **altro tipo**, sempre sopra le finestre
-     * dei menu, quindi con un dialogo aperto il tastino resta velato: ed è giusto, perché un
-     * modale deve restare modale.
-     * ⚠️⚠️ **IL MENU VA COMPOSTO PRIMA DEL TASTINO**, o questo non serve a niente: fra
-     * finestre dello stesso tipo l'ordine è quello in cui sono state aggiunte, e la
-     * composizione decide quell'ordine. I due posti che lo usano hanno il menu scritto sopra.
+     * ⚠️⚠️ **RICHIESTA DELL'UTENTE, 1.39** (2026-09-03: *quando la sfocatura si applica dove c'è
+     * un FAB, questo deve rimanere SOPRA l'area sfocata e velata*). Col velo di finestra (vedi
+     * `WindowVeil`) non si può ritagliare un buco: quel velo sta **dietro** la finestra che lo
+     * chiede, e tutto quello che è più in basso ci finisce sotto, tastino compreso. La sola via
+     * per tenerlo fuori è metterlo in una finestra **più in alto** di quella che vela.
+     * ⚠️ **Vale solo per il menu che il tastino stesso apre**, e chi lo accende è il suo `open`.
+     * Un dialogo di Material è una finestra di **altro tipo**, sempre sopra le finestre dei menu,
+     * quindi con un dialogo aperto il tastino resta velato: ed è giusto, perché un modale deve
+     * restare modale.
+     * ⚠️⚠️ **IL MENU VA COMPOSTO PRIMA DEL TASTINO**, o questo non serve a niente: fra finestre
+     * dello stesso tipo l'ordine è quello in cui sono state aggiunte, e la composizione decide
+     * quell'ordine. I due posti che lo usano hanno il menu scritto sopra.
      * ⚠️⚠️ **DA STACCATO IL TASTINO È SOLO DA GUARDARE**, e la sua finestra lascia passare le
      * dita: il perché sta su [untouchable], ed è quello che tiene in piedi la chiusura del menu
      * al tocco, che è del giro della `1.06`.
-     * ⚠️ **L'incognita è se una finestra basti a stare sopra il velo**, e il caso peggiore è
-     * dichiarato: se non bastasse, il tastino resterebbe velato come prima della `1.39`, che è
-     * il comportamento di allora e non un guasto nuovo.
      */
     lifted: Boolean = false,
     /**
-     * Se il tastino deve **sembrare premuto**.
+     * Se il tastino deve mostrarsi **premuto**, cioè col rimbalzo fatto, la × al posto del glifo
+     * e l'accento dell'altro tema.
      *
      * ⚠️⚠️ **È UN SEGNALE A SÉ E NON [lifted], DALLA `1.60`, PERCHÉ I DUE NON FINISCONO
      * INSIEME** (riscontro del giro della `1.59`: *niente rimbalzo, solo un movimento unico*).
      * [lifted] dice se il tastino vive nella sua finestra, quindi resta vero per tutta la
-     * **discesa** del menu (`MenuState.visible`); e legandoci la pressione, il ritorno del
-     * tastino cominciava solo dopo che il menu era sparito del tutto. Erano due movimenti con
-     * una pausa in mezzo, ed è quello che si legge come un secondo tempo.
-     * ⚠️ **Quindi questo parametro NON si lega a `visible`**, e la ragione vale ancora: il tastino
-     * deve restare staccato per tutta l'uscita, o rientrerebbe nella finestra dell'app sotto un
-     * velo che se ne sta ancora andando, ma la sua **pressione** deve mollare subito.
-     * ⚠️ **Chi apre un menu passa `wanted`**, che è il verso opposto: cade nell'istante in cui
-     * si chiede la chiusura, quindi il tastino risale **insieme** al menu che se ne va.
-     * ⚠️ **Il valore di serie è [lifted]** perché per chi non ha un menu i due coincidono, e
-     * un tastino senza menu non ha nessun secondo tempo da evitare.
+     * **discesa** del menu (`MenuState.visible`); e legandoci lo stato premuto, il ritorno del
+     * tastino cominciava solo dopo che il menu era sparito del tutto. Erano due movimenti con una
+     * pausa in mezzo, ed è quello che si legge come un secondo tempo.
+     * ⚠️ **Chi apre un menu passa `wanted`**, che è il verso opposto: cade nell'istante in cui si
+     * chiede la chiusura, quindi il tastino torna al suo colore **insieme** al menu che se ne va.
+     * ⚠️ **Il valore di serie è [lifted]** perché per chi non ha un menu i due coincidono, e un
+     * tastino senza menu non ha nessun secondo tempo da evitare.
      */
     pressed: Boolean = lifted,
     onTap: () -> Unit,
@@ -1220,76 +1175,127 @@ fun TapHoldFab(
      * iniziale porta il **marchio dell'app**, che è un disegno più largo che alto e va messo in
      * scena con una misura sua e uno spostamento suo (vedi `Marchio` in `FolderScreen.kt`). Un
      * `ImageVector` obbligava a una scatola quadrata da 24dp, che quel disegno schiaccia.
-     * ⚠️ **La descrizione arriva da qui perché i due tastini disegnati sono due**: quello vero
-     * parla al lettore di schermo, il sosia che tiene il posto no, o si sentirebbero due voci per
-     * un tasto solo. Chi riempie la fessura passa la stringa all'`Icon` e basta.
      */
     glyph: @Composable (descrizione: String?) -> Unit
 ) {
     /*
-     * ⚠️⚠️ **IL TASTINO SEMBRA PREMUTO FINCHÉ IL SUO MENU È IN SCENA, dalla `1.59`** (richiesta
-     * dell'utente, giro della `1.58`: *quando lo tocchi, mentre appare il menu lui si
-     * rimpicciolisce leggermente e si schiarisce/scurisce un poco. All'opposto, quando il
-     * pannello si chiude, torna al suo colore e dimensione originali. In questo modo sembra più
-     * un tasto premuto*).
-     * ⚠️⚠️ **NON È L'INCRESPATURA DEL TOCCO, ed è la differenza che lo rende utile**: quella
-     * dura il tempo del dito e dice 'ti ho sentito'; questa dura quanto il menu e dice 'sono io
-     * che l'ho aperto'. Con un menu che si apre lontano dal dito, senza questa il tastino resta
-     * un tasto qualunque mentre la sua conseguenza è sullo schermo.
-     * ⚠️ **La tinta si sposta verso l'INCHIOSTRO del tastino e non verso il bianco o il nero**:
-     * così schiarisce nel tema chiaro e nel tema scuro senza sapere in quale si trova, perché
-     * l'inchiostro è per definizione il colore che si stacca dal fondo del tastino. È anche il
-     * modo in cui Material fa i suoi strati di stato, quindi non è un'invenzione locale.
-     * ⚠️ **Vale sui DUE disegni**, il sosia e quello nella finestra: sono lo stesso tastino
-     * visto in due momenti, e uno solo dei due animato darebbe uno scatto nello scambio.
-     * ⚠️⚠️ **E SEGUE [pressed], NON [lifted], DALLA `1.60`**: il perché, che è il difetto che
-     * lui ha visto, sta sul parametro.
+     * ⚠️⚠️ **IL TASTINO CAMBIA TRE COSE AL TOCCO, DALLA `1.68`, E NESSUNA DELLE TRE È UNA
+     * QUANTITÀ** (istruzione dell'utente, giro della `1.67`): rimbalza, il suo glifo diventa una
+     * ×, e il fondo prende l'accento dell'**altro** tema. Il perché di questo cambio di strada,
+     * dopo tre versioni che alzavano un numero senza mai farsi vedere, sta su [RIMBALZO].
+     * ⚠️ **La × dice che cosa fa adesso il tasto**, e sono sue parole: *indicando che la sua
+     * nuova funzione è chiudere il menu*. Quindi non è una decorazione: è l'unica cosa sul
+     * tastino che comunichi un'azione diversa da quella di prima.
+     * ⚠️⚠️ **DUE ANIMAZIONI SI LEGGONO NEL DISEGNO E UNA IN COMPOSIZIONE, ed è una scelta
+     * misurata**: il rimbalzo e la dissolvenza dei simboli stanno dentro `graphicsLayer`, cioè
+     * costano un ridisegno per fotogramma; il colore invece arriva a `Surface`, che lo vuole in
+     * composizione. Costa [TINTA_MS] di ricomposizioni, cioè tre o quattro fotogrammi, ed è il
+     * prezzo per avere l'increspatura del tocco e il `contentColor` che Material dà da sé.
+     * ⚠️ **Il primo giro non anima**: `LaunchedEffect` parte anche alla prima composizione, e
+     * senza questa guardia il FAB rimbalzerebbe ogni volta che la sua schermata entra in scena.
      */
-    val premuto by animateFloatAsState(
-        targetValue = if (pressed) 1f else 0f,
-        animationSpec = tween(PREMUTO_MS),
-        label = "premuto"
-    )
-    val lato = FAB_SIZE - PREMUTO_GIU * premuto
-    val tinta = lerp(container, ink, PREMUTO_TINTA * premuto)
+    val morph = remember { Animatable(if (pressed) 1f else 0f) }
+    val tinta = remember { Animatable(if (pressed) 1f else 0f) }
+    val rimbalzo = remember { Animatable(1f) }
+    var primo by remember { mutableStateOf(true) }
+    LaunchedEffect(pressed) {
+        val a = if (pressed) 1f else 0f
+        if (primo) {
+            primo = false
+            morph.snapTo(a)
+            tinta.snapTo(a)
+            return@LaunchedEffect
+        }
+        launch { morph.animateTo(a, tween(MORPH_MS, easing = FastOutSlowInEasing)) }
+        launch { tinta.animateTo(a, tween(TINTA_MS, easing = FastOutSlowInEasing)) }
+        rimbalzo.animateTo(1f - RIMBALZO, tween(RIMBALZO_GIU_MS, easing = FastOutSlowInEasing))
+        rimbalzo.animateTo(1f, tween(RIMBALZO_SU_MS, easing = FastOutSlowInEasing))
+    }
     /*
-     * ⚠️⚠️ **`Unbounded` E NON IL RITAGLIO DI SERIE, o la pressione mangerebbe l'ombra**: un
-     * `blur` crea un livello a sé, e col trattamento di serie quel livello viene **tagliato** sul
-     * proprio rettangolo, cioè esattamente dove l'ombra della `Surface` esce. Senza questa
-     * parola, il FAB perderebbe la sua ombra nell'istante in cui il menu si apre.
-     * ⚠️ **A raggio zero non costa niente**: Compose non applica nessun effetto per un raggio
-     * nullo, quindi a menu chiuso questa riga non crea alcun livello.
-     * ⚠️ **Sotto Android 12 non fa niente e non è un difetto**: la sfocatura di mezzo punto è
-     * una rifinitura, e quello che resta è la piastrella che si stringe.
+     * ⚠️⚠️ **L'ACCENTO DELL'ALTRO TEMA, e non un colore nuovo**: [aivAccent] e [aivOnAccent]
+     * dànno le stesse due coppie che la tavolozza usa per `primaryContainer`, quindi il tastino
+     * premuto è ancora un tastino di questa app, non una macchia di un colore inventato.
+     * ⚠️ **Anche l'inchiostro cambia**, e senza di lui il contrasto cadrebbe: sull'accento scuro
+     * (`#00727B`) l'inchiostro del tema chiaro (`#00382F`) misura 2,05, cioè illeggibile. Le due
+     * coppie sono quelle di Material e stanno insieme per costruzione.
      */
-    val sfoca = Modifier.blur(PREMUTO_SFOCA * premuto, BlurredEdgeTreatment.Unbounded)
-    val tasto = @Composable { alza: () -> Dp ->
-        // ⚠️ La scatola tiene il posto: vedi [PREMUTO_GIU] per il perché il FAB non si sposta.
-        Box(modifier = Modifier.size(FAB_SIZE), contentAlignment = Alignment.Center) {
-            Surface(
-                modifier = Modifier.size(lato).then(sfoca).ombraFab(alza),
-                shape = RoundedCornerShape(FAB_CORNER),
-                color = tinta,
-                contentColor = ink,
-                shadowElevation = 0.dp
-            ) {
-                Box(
-                    modifier = Modifier.combinedClickable(
-                        role = Role.Button,
-                        onLongClickLabel = holdLabel,
-                        onLongClick = withHaptics(onHold),
-                        onClick = onTap
-                    ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    glyph(label)
+    val light = LocalAivLight.current
+    val fondo = lerp(container, aivAccent(!light), tinta.value)
+    val segno = lerp(ink, aivOnAccent(!light), tinta.value)
+    /*
+     * ⚠️ **I due simboli stanno uno sopra l'altro in una scatola sola**, e la scatola si misura
+     * sul più grande: così il tasto non si rimisura mentre la dissolvenza va, e il glifo che sta
+     * uscendo non trascina il posto di quello che entra.
+     */
+    val simboli = @Composable { descrizione: String? ->
+        Box(contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier.graphicsLayer {
+                    val m = morph.value
+                    alpha = 1f - m
+                    val s = 1f - GLIFO_ZOOM * m
+                    scaleX = s
+                    scaleY = s
                 }
+            ) { glyph(descrizione) }
+            Box(
+                modifier = Modifier.graphicsLayer {
+                    val m = morph.value
+                    alpha = m
+                    val s = 1f - GLIFO_ZOOM * (1f - m)
+                    scaleX = s
+                    scaleY = s
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Close,
+                    // ⚠️ Muta: a parlare è il glifo dell'app, e due descrizioni sullo stesso
+                    // tasto dànno due voci per un tasto solo.
+                    contentDescription = null,
+                    modifier = Modifier.size(CHIUDI_LATO)
+                )
+            }
+        }
+    }
+    /*
+     * ⚠️ **Il rimbalzo sta sul nodo che contiene tutto**, fondo e simboli: è il tasto che
+     * rimbalza, e scalare il solo fondo lascerebbe il glifo fermo in mezzo a una piastrella che
+     * si muove.
+     */
+    val tasto = @Composable { muto: Boolean ->
+        Surface(
+            modifier = Modifier
+                .size(FAB_SIZE)
+                .graphicsLayer {
+                    val k = rimbalzo.value
+                    scaleX = k
+                    scaleY = k
+                }
+                // ⚠️ Da staccato il tastino non prende i tocchi ([untouchable]), quindi non è
+                // più un comando: annunciarlo darebbe un tasto che il lettore di schermo trova e
+                // che non fa niente.
+                .then(if (muto) Modifier.clearAndSetSemantics { } else Modifier),
+            shape = RoundedCornerShape(FAB_CORNER),
+            color = fondo,
+            contentColor = segno,
+            shadowElevation = 0.dp
+        ) {
+            Box(
+                modifier = Modifier.combinedClickable(
+                    role = Role.Button,
+                    onLongClickLabel = holdLabel,
+                    onLongClick = withHaptics(onHold),
+                    onClick = onTap
+                ),
+                contentAlignment = Alignment.Center
+            ) {
+                simboli(label)
             }
         }
     }
 
     if (!lifted) {
-        tasto(lift)
+        tasto(false)
         return
     }
     /*
@@ -1300,54 +1306,64 @@ fun TapHoldFab(
      * dove il tastino sarebbe stato: il tastino non si muove, cambia solo la finestra che lo
      * disegna.
      *
-     * ⚠️⚠️ **DENTRO LA SCATOLA C'È UN SOSIA, E SENZA DI LUI IL TASTINO LAMPEGGIA** (riscontro
-     * dell'utente, giro della `1.46`: *il tastino FAB fa un flash*). La causa è nello scambio
-     * stesso: passare da 'disegnato qui' a 'disegnato in una finestra sua' vuol dire togliere
-     * un nodo e chiedere al gestore delle finestre di aggiungerne una, e le due cose non
-     * capitano nello stesso fotogramma. Per quel fotogramma il tastino **non c'è da nessuna
-     * parte**, e la stessa cosa succede alla chiusura, al contrario. Il sosia riempie il buco:
-     * sta sempre lì, e il tastino vero gli si posa sopra quando la sua finestra è pronta.
-     * ⚠️⚠️ **L'OMBRA CE L'HA IL SOSIA E NON QUELLO SOPRA**, o sarebbero due ombre sovrapposte
-     * per tutto il tempo in cui il menu è aperto: quella sotto vive nella finestra della
-     * schermata e quella sopra nella sua, quindi si sommerebbero invece di coincidere. Con
-     * l'ombra a chi sta sotto, la sagoma disegnata resta una sola in ogni istante, e col velo
-     * acceso l'ombra cade sul velo, che è dove deve cadere.
-     * ⚠️⚠️ **IL SOSIA NON È UNA `Surface`, e non è pigrizia**: una `Surface` di Material si
-     * mangia i tocchi (ha un `pointerInput` suo anche senza `onClick`), e qui sotto i tocchi
-     * devono **passare**, perché è il velo trasparente della schermata a raccoglierli e a
-     * chiudere il menu. È la chiusura al tocco del giro della `1.06`, la stessa che [untouchable]
-     * protegge dall'altra parte.
-     * ⚠️ **E non parla al lettore di schermo**: il tastino vero è quello di sopra, e un sosia
-     * che si annunciasse darebbe due voci per un tasto solo.
-     */
-    /*
+     * ⚠️⚠️ **IL SOSIA C'È SOLO FINCHÉ LA FINESTRA NON DISEGNA, DALLA `1.68`, ED È UNA SUA
+     * ISTRUZIONE** (giro della `1.67`: *a menu aperto, deve esistere SOLO il FAB ricolorato SOPRA
+     * la sfocatura (se presente); nel livello della sfocatura non dev'esserci nessun FAB*). Prima
+     * il sosia restava per tutto il tempo, e con la sfocatura accesa si vedeva un FAB sfocato
+     * dietro quello nitido: due tastini invece di uno.
+     * ⚠️⚠️ **MA NON SI PUÒ TOGLIERE DEL TUTTO, o torna il lampo della `1.46`** (*il tastino FAB
+     * fa un flash*): passare da 'disegnato qui' a 'disegnato in una finestra sua' vuol dire
+     * togliere un nodo e chiedere al gestore delle finestre di aggiungerne una, e le due cose non
+     * capitano nello stesso fotogramma. Per quel fotogramma il tastino non ci sarebbe da nessuna
+     * parte. Quindi il sosia riempie **solo** quel buco, e se ne va appena la finestra ha
+     * disegnato.
+     * ⚠️ **`withFrameNanos` e non un semplice effetto**: un `DisposableEffect` dentro il `Popup`
+     * si esegue quando la sua composizione finisce, che è prima che quella finestra abbia
+     * disegnato; aspettare un fotogramma è la cosa più corta che garantisca che ci sia qualcosa
+     * da vedere sopra.
+     * ⚠️ **IL SOSIA NON È UNA `Surface`, e non è pigrizia**: una `Surface` di Material si mangia i
+     * tocchi (ha un `pointerInput` suo anche senza `onClick`), e qui sotto i tocchi devono
+     * **passare**, perché è il velo trasparente della schermata a raccoglierli e a chiudere il
+     * menu. È la chiusura al tocco del giro della `1.06`, la stessa che [untouchable] protegge
+     * dall'altra parte.
+     *
      * ⚠️⚠️ **IL SOSIA SI CENTRA CON `align` E NON COL `contentAlignment` DELLA SCATOLA, dalla
-     * `1.62`**: un `Popup` emette un nodo di misura zero e ricava da **dove quel nodo atterra**
-     * il rettangolo a cui ancorarsi. Un `contentAlignment` centrato sposterebbe anche quel nodo,
-     * e la finestra del FAB vero nascerebbe mezza scatola più in là. Costa una riga in più e
-     * tiene le due cose indipendenti.
+     * `1.62`**: un `Popup` emette un nodo di misura zero e ricava da **dove quel nodo atterra** il
+     * rettangolo a cui ancorarsi. Un `contentAlignment` centrato sposterebbe anche quel nodo, e la
+     * finestra del FAB vero nascerebbe mezza scatola più in là.
      */
+    var suo by remember { mutableStateOf(false) }
     Box(modifier = Modifier.size(FAB_SIZE)) {
-        Box(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .size(lato)
-                .then(sfoca)
-                .ombraFab(lift)
-                .background(tinta, RoundedCornerShape(FAB_CORNER)),
-            contentAlignment = Alignment.Center
-        ) {
-            /*
-             * ⚠️ **La tinta si dà col `CompositionLocal` e non a mano**: qui non c'è la
-             * `Surface` che nel tastino vero porta `contentColor`, e la fessura disegna un
-             * `Icon` che quel colore lo legge da lì. Passarlo come parametro vorrebbe dire
-             * chiedere a chi riempie la fessura di saperlo, e i due disegni divergerebbero.
-             */
-            CompositionLocalProvider(LocalContentColor provides ink) { glyph(null) }
+        if (!suo) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(FAB_SIZE)
+                    .graphicsLayer {
+                        val k = rimbalzo.value
+                        scaleX = k
+                        scaleY = k
+                    }
+                    .background(fondo, RoundedCornerShape(FAB_CORNER)),
+                contentAlignment = Alignment.Center
+            ) {
+                /*
+                 * ⚠️ **La tinta si dà col `CompositionLocal` e non a mano**: qui non c'è la
+                 * `Surface` che nel tastino vero porta `contentColor`, e la fessura disegna un
+                 * `Icon` che quel colore lo legge da lì. Passarlo come parametro vorrebbe dire
+                 * chiedere a chi riempie la fessura di saperlo, e i due disegni divergerebbero.
+                 */
+                CompositionLocalProvider(LocalContentColor provides segno) { simboli(null) }
+            }
         }
         Popup(alignment = Alignment.TopStart) {
             untouchable()
-            tasto { 0.dp }
+            LaunchedEffect(Unit) {
+                withFrameNanos { }
+                suo = true
+            }
+            DisposableEffect(Unit) { onDispose { suo = false } }
+            tasto(true)
         }
     }
 }

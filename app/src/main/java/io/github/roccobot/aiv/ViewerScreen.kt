@@ -574,11 +574,45 @@ fun ViewerScreen(
         BgTheme.DARK -> false
         BgTheme.AUTO -> MaterialTheme.colorScheme.background.luminanceIsLight()
     }
+    /*
+     * ⚠️ **Il tema dell'APP si legge qui e non nel disegno**, e sono due cose diverse da
+     * [lightGreys]: quello dice di che colore è la scacchiera (lo scegle un'impostazione sua),
+     * questo dice quanto velo è pieno in questo tema, che è il metro con cui [veilProgress]
+     * normalizza. ⚠️ E si legge in composizione perché un `CompositionLocal` là dentro non
+     * esiste: `drawBehind` non è una lambda composabile.
+     */
+    val appChiara = LocalAivLight.current
 
     Box(
         modifier = modifier
             .fillMaxSize()
-            .drawBehind { drawBackground(size, checkerPx, lightGreys, settings.bgType) }
+            .drawBehind {
+                drawBackground(size, checkerPx, lightGreys, settings.bgType)
+                /*
+                 * ⚠️⚠️ **LA SCACCHIERA SI SPIANA MENTRE LA SFOCATURA ARRIVA, DALLA `1.68`**
+                 * (riscontro del giro della `1.67`: *si può fare in modo che nello stesso
+                 * intervallo che serve per far apparire la sfocatura questa sia ricoperta da un
+                 * livello grigio (chiaro o scuro a seconda del tema)?*). Una scacchiera sfocata
+                 * diventa una griglia di macchie che si muovono, ed è l'effetto ottico che lui
+                 * descrive: il motivo esiste per **mostrare la trasparenza**, e sotto una
+                 * superficie aperta non c'è nessuna trasparenza da leggere.
+                 * ⚠️⚠️ **IL GRIGIO NON È NUOVO: è quello di `BgType.SOLID`**, cioè la tinta piatta
+                 * che l'app già offre come alternativa alla scacchiera, chiara sul tema chiaro e
+                 * scura su quello scuro. Un grigio inventato qui sarebbe un secondo colore da
+                 * tenere allineato al primo.
+                 * ⚠️ **Segue l'avanzamento del velo e non la sua opacità** ([veilProgress]): a
+                 * velo pieno la scacchiera è coperta del tutto, e la copertura arriva e se ne va
+                 * nello stesso intervallo della sfocatura, che è quello che ha chiesto.
+                 * ⚠️ **Costa un ridisegno e non una ricomposizione**: questa lambda si valuta nel
+                 * disegno, quindi la lettura di [veilProgress] invalida solo il disegno.
+                 * ⚠️ **A funzione spenta non fa niente**: senza l'impostazione della sfocatura
+                 * nessuno chiede il velo, la dose è zero, e questa riga esce subito.
+                 */
+                val coperto = veilProgress(appChiara)
+                if (coperto > 0f) {
+                    drawRect(color = piatto(lightGreys), alpha = coperto, size = size)
+                }
+            }
     ) {
         when (state) {
             is ViewerState.Loading -> {
@@ -3382,9 +3416,19 @@ private const val PANEL_VEIL = 0.86f
  * the other. AIV had drifted to #2A2A2A for the dark pair, which is the kind of
  * difference nobody notices and nobody can justify later.
  */
+/**
+ * La tinta piatta del fondo, cioè quella di `BgType.SOLID`.
+ *
+ * ⚠️ **Esiste perché la usano in due**: il fondo pieno, e la copertura che spiana la scacchiera
+ * quando arriva la sfocatura (vedi il `drawBehind` del palco). Scritta due volte, la prima delle
+ * due a cambiare avrebbe reso l'altra un colore diverso senza che nessuno se ne accorgesse.
+ */
+private fun piatto(light: Boolean): Color =
+    if (light) Color(0xFFEEEEEE) else Color(0xFF222222)
+
 private fun DrawScope.drawBackground(size: Size, square: Float, light: Boolean, type: BgType) {
     val a = if (light) Color(0xFFDDDDDD) else Color(0xFF333333)
-    val b = if (light) Color(0xFFEEEEEE) else Color(0xFF222222)
+    val b = piatto(light)
     if (type == BgType.SOLID) {
         // `b` in both themes, and that is the point: it is #EEE in the light pair
         // and #222 in the dark one, which is exactly 'the light of one and the dark

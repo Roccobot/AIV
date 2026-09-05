@@ -1283,7 +1283,6 @@ fun GridScreen(
                         // lo stesso oggetto in due schermate.
                         container = colorResource(R.color.launcher_background),
                         ink = colorResource(R.color.launcher_foreground),
-                        lift = { FAB_LIFT },
                         holdLabel = stringResource(shortcutLabel),
                         // ⚠️ **`visible` e non `wanted`**: il FAB deve restare staccato per tutta
                         // l'uscita, o rientrerebbe nella finestra dell'app sotto il velo che se ne
@@ -1461,7 +1460,6 @@ fun GridScreen(
                     ink = HINT_INK,
                     // ⚠️ Nessuna ombra: sopra un velo non c'è niente da cui staccarsi, e
                     // un'ombra su fondo scuro è solo sporco.
-                    lift = { 0.dp },
                     holdLabel = stringResource(shortcutLabel),
                     onTap = { hintDone(); menu.open() },
                     onHold = { shortcut(); hintDone() },

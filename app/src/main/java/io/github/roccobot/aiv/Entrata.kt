@@ -2,7 +2,6 @@ package io.github.roccobot.aiv
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -13,7 +12,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.unit.Dp
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
@@ -61,31 +59,21 @@ import kotlinx.coroutines.launch
 @Stable
 class Entrata internal constructor(
     private val misura: Animatable<Float, AnimationVector1D>,
-    private val velo: Animatable<Float, AnimationVector1D>,
-    private val alza: Animatable<Float, AnimationVector1D>
+    private val velo: Animatable<Float, AnimationVector1D>
 ) {
     internal val scala: Float get() = misura.value
     internal val opacita: Float get() = velo.value
 
-    /**
-     * L'ombra del tastino in questo istante, che arriva a [piena] quando il movimento finisce.
-     *
-     * ⚠️ **Va chiamata DENTRO una lambda che si valuta nel disegno**, come fa `ombraFab` in
-     * `ActionPad.kt`: là la lettura di `alza` invalida il disegno e non la composizione, e la
-     * salita dell'ombra costa un ridisegno per fotogramma invece di ricomporre il tastino.
-     * Chiamarla in composizione compila lo stesso e ricomincia a costare: è il motivo per cui il
-     * FAB riceve questa misura come lambda e non come `Dp`.
+    /*
+     * ⚠️⚠️ **L'OMBRA CHE SALIVA QUI NON C'È PIÙ, DALLA `1.68`** (istruzione dell'utente, giro
+     * della `1.67`: *togli del tutto l'ombra*). Era una salita lenta e ritardata, allungata due
+     * volte su sua richiesta, e con lei se ne vanno il terzo `Animatable` di questa classe, la
+     * funzione con cui il FAB la leggeva nel disegno, e le sue due costanti. Chi cerca quel
+     * meccanismo in una nota vecchia sappia che il tastino adesso non ha nessuna ombra da
+     * alzare: quello che gli resta dell'entrata è la misura che si posa e l'opacità che sale.
      */
-    fun lift(piena: Dp): Dp = piena * alza.value
-
     internal suspend fun posa() = coroutineScope {
         launch { velo.animateTo(1f, tween(ENTRA_ALFA_MS, easing = LinearOutSlowInEasing)) }
-        launch {
-            alza.animateTo(
-                1f,
-                tween(ENTRA_OMBRA_MS, delayMillis = ENTRA_OMBRA_ATTESA, easing = LinearEasing)
-            )
-        }
         misura.animateTo(
             1f,
             spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = ENTRA_MOLLA)
@@ -97,7 +85,7 @@ class Entrata internal constructor(
 @Composable
 fun rememberEntrata(): Entrata {
     val entrata = remember {
-        Entrata(Animatable(ENTRA_DA), Animatable(ENTRA_ALFA), Animatable(0f))
+        Entrata(Animatable(ENTRA_DA), Animatable(ENTRA_ALFA))
     }
     LaunchedEffect(Unit) { entrata.posa() }
     return entrata
@@ -163,35 +151,3 @@ private const val ENTRA_ALFA = 0.65f
  */
 private const val ENTRA_ALFA_MS = 180
 
-/**
- * Quanto ci mette l'ombra a comparire, e quanto aspetta prima di cominciare.
- *
- * ⚠️⚠️ **RICHIESTA DELL'UTENTE, giro della `1.59`** (*l'ombra arriva alla fine, con un fade in
- * molto graduale*): il tastino entra **piatto** e si stacca dal fondo mentre si posa, che è il
- * verso giusto di una cosa che sta arrivando.
- *
- * ⚠️⚠️ **E DALLA `1.62` L'OMBRA VIVE FUORI DALL'ENTRATA, PER SUA ISTRUZIONE** (riscontro del
- * giro della `1.60`: *l'ombra deve arrivare molto più tardi e in modo ESTREMAMENTE graduale,
- * anche se la sua animazione finisce più tardi di tutto il resto*). Le due parole che decidono
- * sono **molto più tardi** e **anche se**: la seconda scioglie il vincolo che questo numero
- * aveva, cioè finire con la molla, e senza quel vincolo il ritardo si può dare per davvero.
- * - **L'attesa** tiene l'ombra a zero mentre la misura si posa: comincia quando la molla ha
- *   praticamente finito, quindi il rimbalzo si vede su un tastino ancora piatto.
- * - **La durata** parte da 247 e si è allungata due volte su sua richiesta, l'ultima nel giro
- *   della `1.63` (*ancora più lentamente*): adesso è più di sei volte quella di partenza, cioè
- *   0,063% al millisecondo contro 0,405%.
- * ⚠️ **La rampa resta lineare**, ed è quello che 'estremamente graduale' chiede: una curva
- * accelerata terrebbe l'ombra invisibile per due terzi del tempo e poi la farebbe **apparire**,
- * che è il difetto opposto. Una velocità costante e bassa non ha nessun istante in cui compare.
- * ⚠️⚠️ **E DALLA `1.65` ALLUNGARLA NON COSTA PIÙ NIENTE, dove prima era un prezzo dichiarato**:
- * finché [lift] si leggeva in composizione, il tastino si ricomponeva a ogni fotogramma per
- * tutta la salita. Adesso il valore arriva come lambda e si legge nella fase di **disegno**
- * (vedi `ombraFab` in `ActionPad.kt`), quindi quello che cresce con la durata è un ridisegno.
- * ⚠️ **Nello stesso giro l'ombra è diventata metà opaca**, e le due cose sono indipendenti: qui
- * si dice quando arriva, là quanto è scura.
- * ⚠️ **L'attesa NON è più legata all'assestamento della molla**, e la nota che lo prescriveva è
- * caduta con lei: 250 è un numero tondo scelto perché cade dopo i 247 misurati, e se un domani
- * la molla si allunga, l'ombra parte un filo prima della fine invece di dover essere rimisurata.
- */
-private const val ENTRA_OMBRA_ATTESA = 250
-private const val ENTRA_OMBRA_MS = 1600
