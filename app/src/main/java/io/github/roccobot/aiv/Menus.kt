@@ -121,7 +121,7 @@ fun MenuShell(
         state.show.animateTo(
             targetValue = if (state.wanted) 1f else 0f,
             animationSpec = tween(
-                durationMillis = MENU_IN,
+                durationMillis = if (state.wanted) MENU_IN else MENU_OUT_MS,
                 easing = if (state.wanted) MENU_EASE else MENU_OUT
             )
         )
@@ -243,13 +243,16 @@ fun MenuShell(
          * lo dipinge l'app, uno solo, e vale il massimo delle richieste in scena: il perché per
          * esteso sta su `VeilStage`, in `Veil.kt`.
          *
-         * ⚠️⚠️ **QUI RESTA LA SOLA SFOCATURA, E IL NUMERO È QUELLO DEL PANNELLO.** La `1.61` gli
-         * aveva dato [MenuState.patina], cioè la coda lunga, e l'utente l'ha bocciata: ridurre un
-         * raggio è mettere a fuoco, e la gradualità lo rendeva leggibile come tale. Il livello
-         * scuro, che è quello che può dissolvere davvero, lo chiede [AppPatina] più su. Il fatto
-         * per esteso sta in fondo a `Veil.kt`.
+         * ⚠️⚠️ **QUI RESTA LA SOLA SFOCATURA, e il livello scuro lo chiede [AppPatina] più su**:
+         * i due erano un numero solo dalla `1.50` e la `1.64` li ha separati, perché uno è un
+         * attributo di finestra e l'altro un rettangolo che l'app dipinge.
+         * ⚠️⚠️ **MA IL NUMERO È DI NUOVO LA CODA, DALLA `1.65`, e la `1.64` aveva sbagliato
+         * bersaglio**: legarla al pannello le toglieva la decelerazione che l'utente aveva
+         * chiesto. Quello che andava cambiato era la **durata dell'uscita del pannello**, e il
+         * perché sta su [MENU_OUT_MS]: adesso le due finiscono insieme, quindi il raggio non
+         * scende mai in uno schermo vuoto.
          */
-        WindowVeil { state.show.value }
+        WindowVeil { state.patina.value }
         Surface(
             /*
              * ⚠️⚠️ **CRESCE DA 0,96 E NON DA ZERO, in 170ms** (scelta dell'utente sul
@@ -387,12 +390,31 @@ private val MENU_EASE = CubicBezierEasing(0.2f, 0f, 0f, 1f)
 /**
  * L'uscita è l'entrata letta all'indietro: accelera per costruzione.
  *
- * ⚠️ **Stessa durata dell'entrata**, e non più corta: Material fa più corta l'uscita, ma in
- * questa app 'speculare' ha già una definizione, quella con cui esce una bottomsheet, e due
- * durate diverse la contraddirebbero. La misura scartata è quella, e sta scritta perché non la
- * si riproponga come una novità.
+ * ⚠️ **La misura scartata resta scritta perché non la si riproponga come una novità**: Material
+ * fa l'uscita **più corta** dell'entrata, e qui non si fa.
  */
 private val MENU_OUT: Easing = Easing { f -> 1f - MENU_EASE.transform(1f - f) }
+
+/**
+ * Quanto dura l'uscita di un menu: quanto la coda della sfocatura, e non quanto l'entrata.
+ *
+ * ⚠️⚠️ **NASCE DAL CONFRONTO CHE HA FATTO L'UTENTE, ED È LA MISURA CHE SPIEGA TUTTO IL GIRO**
+ * (riscontro della `1.63`: il difetto era *solo* sotto il menu del FAB, mentre *aprendo e
+ * chiudendo le info dettagliate sul file l'arrivo e la sparizione della sfumatura sono
+ * PERFETTE*). Là la sfocatura cala con **questa stessa curva** e per **questo stesso tempo**:
+ * quindi non erano né la curva né la durata a essere sbagliate.
+ * ⚠️⚠️ **ERA CHE IL PANNELLO SE NE ANDAVA PRIMA DI LEI.** La scheda in fondo resta opaca per
+ * due terzi della sua uscita e svanisce alla fine, quindi la sfocatura cala **mentre c'è ancora
+ * qualcosa che se ne va**, e l'occhio attribuisce il cambiamento a quella cosa. Il pannello di un
+ * menu spariva in [MENU_IN], e per il resto della coda il raggio scendeva **da solo** in uno
+ * schermo vuoto: senza una causa in scena, quel movimento è una messa a fuoco, ed è la parola
+ * che l'utente ha usato.
+ * ⚠️ **Quindi il numero da cambiare era la durata dell'USCITA**, non quella della sfocatura: con
+ * [MENU_OUT], che accelera, il pannello resta quasi pieno per la maggior parte del tratto e
+ * svanisce in fondo, che è il profilo della scheda. ⚠️ **E l'entrata non si tocca**: quella deve
+ * restare immediata, ed è la richiesta con cui la `1.54` ha portato [MENU_IN] a 120.
+ */
+private const val MENU_OUT_MS = VEIL_FADE_MS
 
 /** Quanto è grande **adesso** il pannello, in frazione della sua misura a riposo. */
 private fun grown(state: MenuState): Float =

@@ -878,11 +878,16 @@ private val PAD_EDGE = 4.dp
 /**
  * Quanto si stringe il FAB, e di quanto si sfoca, mentre il suo menu è aperto.
  *
- * ⚠️⚠️ **MEZZO PUNTO PER TUTTI E DUE, DALLA `1.62`, E LA MISURA NON È PIÙ UNA FRAZIONE**
- * (riscontro del giro della `1.60`: *da premuto dev'essere più piccolo e sfocato di 1/2DP. Il
- * glifo non si rimpicciolisce ma si sfoca insieme al resto*). Fino alla `1.61` era una **scala**
- * di sei centesimi, cioè 2,4dp su un FAB da [FAB_SIZE]: quasi cinque volte tanto, e con
- * l'aggravante che una scala tira dentro il glifo.
+ * ⚠️⚠️ **LA MISURA NON È PIÙ UNA FRAZIONE, DALLA `1.62`** (riscontro del giro della `1.60`: *da
+ * premuto dev'essere più piccolo e sfocato di 1/2DP. Il glifo non si rimpicciolisce ma si sfoca
+ * insieme al resto*). Fino alla `1.61` era una **scala** di sei centesimi, cioè 2,4dp su un FAB
+ * da [FAB_SIZE], con l'aggravante che una scala tira dentro il glifo.
+ * ⚠️⚠️ **MA MEZZO PUNTO NON SI VEDEVA, ed è il riscontro del giro della `1.63`** (*non vedo
+ * nulla, rimpicciolisci di più*): su un lato di [FAB_SIZE] mezzo punto è l'1,25%, cioè sotto
+ * quello che un occhio distingue su una forma che non ha un bordo con cui confrontarsi. Adesso
+ * sono 2dp, il 5% del lato: metà della scala vecchia, che era la quantità giusta, senza il
+ * difetto che la faceva bocciare. ⚠️ **La sfocatura resta di mezzo punto**: lui ha chiesto di
+ * rimpicciolire, non di sfocare di più, e quella si vede perché ammorbidisce un bordo netto.
  * ⚠️⚠️ **E DA UNA SCALA A UNA MISURA CAMBIA CHE COSA SI STRINGE, che è il cuore della
  * richiesta**: la piastrella si ridisegna mezzo punto più piccola, mentre il glifo dentro tiene
  * la sua misura perché ce l'ha propria. Con una scala sul nodo intero non c'era modo di
@@ -893,8 +898,34 @@ private val PAD_EDGE = 4.dp
  * piastrella si stringe verso il proprio centro. Senza quella scatola, un lato più corto
  * sposterebbe il FAB di un quarto di punto verso l'angolo a cui è allineato.
  */
-private val PREMUTO_GIU = 0.5.dp
+private val PREMUTO_GIU = 2.dp
 private val PREMUTO_SFOCA = 0.5.dp
+
+/**
+ * L'ombra del FAB: quanta ne ha adesso, e di che tinta.
+ *
+ * ⚠️⚠️ **L'OPACITÀ È DIMEZZATA, DALLA `1.65`** (riscontro del giro della `1.63`: *ancora più
+ * lentamente e l'opacità finale (quella a pulsante fermo) dev'essere dimezzata*). ⚠️ **Non si
+ * ottiene dimezzando l'elevazione**, ed è la ragione per cui questa funzione esiste: quel numero
+ * governa **quanto è grande e sfumata** l'ombra, non quanto è scura, e dimezzandolo il FAB
+ * sembrerebbe più basso invece che più leggero. Quello che si dimezza è l'alfa dei due colori con
+ * cui Android la dipinge, che moltiplicano le sue opacità di serie.
+ * ⚠️⚠️ **E SI LEGGE NEL DISEGNO, non in composizione**: [GraphicsLayerScope] valuta questo blocco
+ * nella fase di disegno, quindi la salita dell'ombra costa un ridisegno per fotogramma invece di
+ * una ricomposizione del tastino. È la riga che permette di allungare [ENTRA_OMBRA_MS] senza
+ * pagarla, e il prezzo che la `1.62` aveva dovuto dichiarare adesso non c'è più.
+ * ⚠️ **`clip` resta spento**: la forma serve a dare il contorno all'ombra, mentre a ritagliare il
+ * contenuto ci pensano già la `Surface` del tastino vero e lo sfondo stondato del sosia.
+ */
+private fun Modifier.ombraFab(quanta: () -> Dp): Modifier = graphicsLayer {
+    shadowElevation = quanta().toPx()
+    shape = RoundedCornerShape(FAB_CORNER)
+    clip = false
+    ambientShadowColor = OMBRA_TINTA
+    spotShadowColor = OMBRA_TINTA
+}
+
+private val OMBRA_TINTA = Color.Black.copy(alpha = 0.5f)
 
 /**
  * Quanto si sposta la tinta del tastino verso il suo inchiostro mentre il menu è aperto.
@@ -1107,7 +1138,17 @@ fun TapHoldFab(
     label: String,
     container: Color,
     ink: Color,
-    lift: Dp,
+    /**
+     * Quanta ombra ha il tastino adesso.
+     *
+     * ⚠️⚠️ **UNA LAMBDA E NON UN `Dp`, DALLA `1.65`, e la ragione è un costo misurato**: l'ombra
+     * dell'entrata sale per [ENTRA_OMBRA_MS], e finché quel valore si leggeva come parametro il
+     * tastino si **ricomponeva a ogni fotogramma** per tutta la durata. Passata a lambda, la
+     * lettura avviene dentro [ombraFab], cioè nella fase di **disegno**: l'animazione costa un
+     * ridisegno e non una ricomposizione, e allungarla non costa niente in più. È lo stesso
+     * motivo per cui il velo si dosa a tempo di disegno (vedi `AppVeil` in `Veil.kt`).
+     */
+    lift: () -> Dp,
     /**
      * Che cosa fa il tocco lungo, per il lettore di schermo.
      *
@@ -1211,15 +1252,15 @@ fun TapHoldFab(
      * una rifinitura, e quello che resta è la piastrella che si stringe.
      */
     val sfoca = Modifier.blur(PREMUTO_SFOCA * premuto, BlurredEdgeTreatment.Unbounded)
-    val tasto = @Composable { alza: Dp ->
+    val tasto = @Composable { alza: () -> Dp ->
         // ⚠️ La scatola tiene il posto: vedi [PREMUTO_GIU] per il perché il FAB non si sposta.
         Box(modifier = Modifier.size(FAB_SIZE), contentAlignment = Alignment.Center) {
             Surface(
-                modifier = Modifier.size(lato).then(sfoca),
+                modifier = Modifier.size(lato).then(sfoca).ombraFab(alza),
                 shape = RoundedCornerShape(FAB_CORNER),
                 color = tinta,
                 contentColor = ink,
-                shadowElevation = alza
+                shadowElevation = 0.dp
             ) {
                 Box(
                     modifier = Modifier.combinedClickable(
@@ -1281,7 +1322,7 @@ fun TapHoldFab(
                 .align(Alignment.Center)
                 .size(lato)
                 .then(sfoca)
-                .shadow(lift, RoundedCornerShape(FAB_CORNER))
+                .ombraFab(lift)
                 .background(tinta, RoundedCornerShape(FAB_CORNER)),
             contentAlignment = Alignment.Center
         ) {
@@ -1295,7 +1336,7 @@ fun TapHoldFab(
         }
         Popup(alignment = Alignment.TopStart) {
             untouchable()
-            tasto(0.dp)
+            tasto { 0.dp }
         }
     }
 }
