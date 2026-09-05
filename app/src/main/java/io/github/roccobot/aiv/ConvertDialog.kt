@@ -143,6 +143,7 @@ fun ConvertDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = Modifier.lowered(onDismiss),
+        properties = loweredWindow(onDismiss),
         title = { Text(stringResource(R.string.menu_convert)) },
         text = {
             Column(

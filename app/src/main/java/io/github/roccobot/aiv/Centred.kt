@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
@@ -81,11 +82,130 @@ fun Modifier.lowered(onOutside: (() -> Unit)?): Modifier {
      * ⚠️⚠️ **E DALLA 1.70 FA UNA QUARTA COSA: RENDE IL TOCCO SULL'ARIA UGUALE AL TOCCO FUORI**
      * (riscontro del giro della 1.69: *alcune finestre hanno un comportamento da modale se si
      * tocca lo schermo SOPRA e da finestra secondaria se si tocca SOTTO*). Quell'asimmetria
-     * non era una scelta: era il prezzo del gonfiaggio qui sopra, e il perché sta su [airTop].
+     * non era una scelta: era il prezzo del gonfiaggio qui sopra, e il perché sta su [Air].
      * Il parametro non ha un valore di serie **di proposito**: chi apre una finestra nuova
      * deve dire se è una modale vera, e non può farlo per omissione.
      */
-    return veiled() then LowerElement(onOutside) then DIALOG_EDGE
+    val aria = Air()
+    return veiled() then OutsideElement(onOutside, aria) then LowerElement(aria) then DIALOG_EDGE
+}
+
+/**
+ * Le proprietà della finestra che vanno **insieme** a [Modifier.lowered], con lo **stesso**
+ * argomento.
+ *
+ * ⚠️⚠️ **PERCHÉ SERVONO IN DUE POSTI: IL MODIFICATORE GOVERNA L'ARIA DENTRO LA FINESTRA, QUESTE
+ * GOVERNANO QUELLO CHE STA FUORI.** Sono due meccanismi diversi e nessuno dei due può fare il
+ * lavoro dell'altro: la fascia trasparente sopra il pannello **appartiene** alla finestra, e a
+ * chiuderla è un nodo di Compose; lo schermo sotto il pannello è fuori dalla finestra, e a
+ * chiuderla è `dismissOnClickOutside`, che il gestore delle finestre legge prima che l'app veda
+ * qualcosa.
+ * ⚠️⚠️ **DALLA `1.70` ALLA `1.72` LE QUATTRO MODALI NON ERANO MODALI** (riscontro dell'utente,
+ * giro della `1.70`, voce `modali-quattro` non approvata): `lowered(null)` **dichiarava**
+ * l'intenzione e non la applicava, perché `AlertDialog` senza `properties` prende quelle di
+ * serie, dove `dismissOnClickOutside` è acceso. Quindi Rinomina, Estensione, Indirizzo e Nuova
+ * cartella si chiudevano toccando **sotto** il pannello, e un nome scritto a metà si perdeva.
+ * ⚠️ **Si scrive lo stesso argomento delle due chiamate**, e la regola sta in `CLAUDE.md`: un
+ * dialogo nuovo che scrive `lowered(null)` e dimentica questa riga torna a non essere modale, e
+ * non dà nessun errore.
+ */
+fun loweredWindow(onOutside: (() -> Unit)?) =
+    DialogProperties(dismissOnClickOutside = onOutside != null)
+
+/**
+ * Dov'è l'aria, cioè quello che [LowerNode] **misura** e [OutsideNode] **legge**.
+ *
+ * ⚠️⚠️ **I DUE NODI SONO DUE PERCHÉ UNO SOLO NON RICEVEREBBE MAI UN TOCCO, e il fatto è
+ * misurato sul banco di prova** (2026-09-05, la prima cosa che il banco ha trovato). Un
+ * `Modifier.Node` che implementa **sia** `LayoutModifierNode` **sia** `PointerInputModifierNode`
+ * non riceve nessun evento: nella stessa catena, un nodo che implementa il solo
+ * `PointerInputModifierNode` prende il tocco e quello che implementa tutti e due non lo prende,
+ * a parità di tutto il resto. La ragione è la hit-test, che per i tocchi scorre i nodi fino al
+ * primo nodo di **layout** e si ferma là: un nodo che è anche di layout **è** quel confine, e
+ * resta fuori dalla propria passata.
+ * ⚠️⚠️ **QUINDI DALLA `1.70` ALLA `1.72` IL TOCCO SULL'ARIA NON HA MAI FATTO NIENTE**, e non
+ * dava nessun errore: il codice era giusto, compilava, e la funzione non c'era. È lo stesso
+ * genere di difetto del blocco della `1.70`, e per lo stesso motivo nessun controllo sul testo
+ * del programma poteva vederlo.
+ * ⚠️ **L'ordine dei due nel `then` non è indifferente**: chi ascolta i tocchi va **prima** del
+ * nodo di misura, perché così il suo riquadro è la scatola gonfiata, cioè quella che comprende
+ * l'aria. Scritto dopo, riceverebbe il riquadro del pannello e l'aria gli starebbe fuori.
+ * ⚠️ **E l'oggetto è UNO SOLO condiviso**: nasce a ogni chiamata di [Modifier.lowered], ma i due
+ * `update` non lo riassegnano mai, quindi i nodi tengono per sempre quello della prima
+ * composizione, che è lo stesso per tutti e due.
+ */
+private class Air {
+    /** L'aria dichiarata **sopra** il pannello, in pixel. */
+    var top = 0
+
+    /** La quota da cui comincia l'aria **sotto**, in pixel. */
+    var from = Int.MAX_VALUE
+}
+
+/**
+ * Il tocco sull'aria vale come il tocco fuori.
+ *
+ * ⚠️ **Servono tutti e due gli estremi, la pressione e il rilascio**: un dito che parte dal
+ * pannello e finisce sull'aria sta trascinando, non toccando fuori, e chiudere là sarebbe
+ * peggio dell'asimmetria che questo nodo toglie.
+ */
+private class OutsideNode(
+    var onOutside: (() -> Unit)?,
+    private val aria: Air
+) : Modifier.Node(), PointerInputModifierNode {
+
+    private var pressedOutside = false
+
+    /**
+     * ⚠️ **Si consuma il rilascio**, o il tocco arriverebbe anche a quello che sta sotto: è lo
+     * stesso motivo per cui il velo che chiude i menu consuma quello che prende.
+     * ⚠️ **`Main` e non `Initial`**: sull'aria non c'è nient'altro che possa volere quel tocco,
+     * quindi non serve rubarlo prima; prenderlo nella passata normale lascia intatto il
+     * comportamento di tutto quello che sta dentro il pannello.
+     */
+    override fun onPointerEvent(pointerEvent: PointerEvent, pass: PointerEventPass, bounds: IntSize) {
+        if (pass != PointerEventPass.Main) return
+        val close = onOutside ?: return
+        val change = pointerEvent.changes.firstOrNull() ?: return
+        val y = change.position.y
+        val outside = y < aria.top || y >= aria.from
+        when (pointerEvent.type) {
+            PointerEventType.Press -> pressedOutside = outside
+            PointerEventType.Release -> {
+                if (pressedOutside && outside) {
+                    change.consume()
+                    close()
+                }
+                pressedOutside = false
+            }
+            else -> Unit
+        }
+    }
+
+    override fun onCancelPointerInput() {
+        pressedOutside = false
+    }
+}
+
+private class OutsideElement(
+    val onOutside: (() -> Unit)?,
+    val aria: Air
+) : ModifierNodeElement<OutsideNode>() {
+    override fun create() = OutsideNode(onOutside, aria)
+
+    /** ⚠️ [Air] non si riassegna: il perché sta sulla sua dichiarazione. */
+    override fun update(node: OutsideNode) {
+        node.onOutside = onOutside
+    }
+
+    override fun equals(other: Any?) = other is OutsideElement && other.onOutside == onOutside
+
+    override fun hashCode() = onOutside?.hashCode() ?: 0
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "loweredOutside"
+        properties["modale"] = onOutside == null
+    }
 }
 
 /**
@@ -97,15 +217,22 @@ fun Modifier.lowered(onOutside: (() -> Unit)?): Modifier {
  */
 private val DIALOG_EDGE = Modifier.edged(28.dp)
 
-private data class LowerElement(val onOutside: (() -> Unit)?) : ModifierNodeElement<LowerNode>() {
-    override fun create() = LowerNode(onOutside)
-    override fun update(node: LowerNode) {
-        node.onOutside = onOutside
-    }
+private class LowerElement(val aria: Air) : ModifierNodeElement<LowerNode>() {
+    override fun create() = LowerNode(aria)
+
+    /**
+     * ⚠️ **Non c'è niente da aggiornare, e [Air] in particolare non si riassegna**: la misura
+     * dipende dalla finestra e dalla tastiera, che si leggono quando si misura, e l'oggetto
+     * condiviso dev'essere quello della prima composizione. Il perché sta su [Air].
+     */
+    override fun update(node: LowerNode) = Unit
+
+    override fun equals(other: Any?) = other is LowerElement
+
+    override fun hashCode() = "lowered".hashCode()
 
     override fun InspectorInfo.inspectableProperties() {
         name = "lowered"
-        properties["modale"] = onOutside == null
     }
 }
 
@@ -140,12 +267,13 @@ private data class LowerElement(val onOutside: (() -> Unit)?) : ModifierNodeElem
  * la finestra, il conto è lo stesso a ogni passata.
  */
 private class LowerNode(
-    var onOutside: (() -> Unit)?
-) : Modifier.Node(), LayoutModifierNode, PointerInputModifierNode, CompositionLocalConsumerModifierNode {
+    private val aria: Air
+) : Modifier.Node(), LayoutModifierNode, CompositionLocalConsumerModifierNode {
 
     /**
      * L'aria dichiarata **sopra** il pannello, in pixel, e la quota da cui comincia quella
-     * **sotto**.
+     * **sotto**. Vivono in [Air] perché a leggerle è un **altro** nodo, [OutsideNode]: il perché
+     * sta là.
      *
      * ⚠️⚠️ **QUESTA ARIA È LA CAUSA DELL'ASIMMETRIA CHE L'UTENTE HA SEGNALATO NELLA `1.69`**, e
      * il meccanismo va scritto o si rifà: per far scendere il pannello, [measure] non lo sposta,
@@ -156,55 +284,10 @@ private class LowerNode(
      * dalla scatola, e la chiusura scatta. Da qui 'modale se tocchi sopra, secondaria se tocchi
      * sotto', su ogni finestra centrata dell'app.
      * ⚠️ **A tastiera aperta i due lati si scambiano**: là la scatola è gonfia **sotto** e il
-     * contenuto sta in cima, quindi l'aria è quella che comincia a [airFrom].
+     * contenuto sta in cima, quindi l'aria è quella che comincia a `Air.from`.
      * ⚠️ **Zero e [Int.MAX_VALUE] vogliono dire 'nessuna aria da quel lato'**, ed è il caso
      * normale di una finestra alta, dove la stretta ha già ridotto lo spostamento a zero.
      */
-    private var airTop = 0
-    private var airFrom = Int.MAX_VALUE
-
-    /**
-     * Se la pressione in corso è cominciata sull'aria.
-     *
-     * ⚠️ **Servono tutti e due gli estremi, la pressione e il rilascio**: un dito che parte dal
-     * pannello e finisce sull'aria sta trascinando, non toccando fuori, e chiudere là sarebbe
-     * peggio dell'asimmetria che questa riga toglie.
-     */
-    private var pressedOutside = false
-
-    /**
-     * Il tocco sull'aria vale come il tocco fuori.
-     *
-     * ⚠️ **Si consuma il rilascio**, o il tocco arriverebbe anche a quello che sta sotto: è lo
-     * stesso motivo per cui il velo che chiude i menu usa `detectTapGestures` invece di un
-     * `clickable`.
-     * ⚠️ **`Main` e non `Initial`**: sull'aria non c'è nient'altro che possa volere quel tocco,
-     * quindi non serve rubarlo prima; prenderlo nella passata normale lascia intatto il
-     * comportamento di tutto quello che sta dentro il pannello.
-     */
-    override fun onPointerEvent(pointerEvent: PointerEvent, pass: PointerEventPass, bounds: IntSize) {
-        if (pass != PointerEventPass.Main) return
-        val close = onOutside ?: return
-        val change = pointerEvent.changes.firstOrNull() ?: return
-        val y = change.position.y
-        val outside = y < airTop || y >= airFrom
-        when (pointerEvent.type) {
-            PointerEventType.Press -> pressedOutside = outside
-            PointerEventType.Release -> {
-                if (pressedOutside && outside) {
-                    change.consume()
-                    close()
-                }
-                pressedOutside = false
-            }
-            else -> Unit
-        }
-    }
-
-    override fun onCancelPointerInput() {
-        pressedOutside = false
-    }
-
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
@@ -252,8 +335,8 @@ private class LowerNode(
          * chiude, questo nodo rimisura e il pannello torna al suo 15% in basso.
          */
         if (room > 0 && typing()) {
-            airTop = 0
-            airFrom = placed.height
+            aria.top = 0
+            aria.from = placed.height
             return layout(placed.width, placed.height + room * 2) { placed.place(0, 0) }
         }
         /*
@@ -274,8 +357,8 @@ private class LowerNode(
          * meno [LOWER_AIR], quindi su un dialogo alto quanto la finestra vale zero e la scatola
          * non si gonfia affatto.
          */
-        airTop = shift * 2
-        airFrom = Int.MAX_VALUE
+        aria.top = shift * 2
+        aria.from = Int.MAX_VALUE
         return layout(placed.width, placed.height + shift * 2) { placed.place(0, shift * 2) }
     }
 

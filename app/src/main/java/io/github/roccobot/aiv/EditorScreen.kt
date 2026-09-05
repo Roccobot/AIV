@@ -1610,6 +1610,7 @@ fun EditorPicker(
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = Modifier.lowered(onDismiss),
+        properties = loweredWindow(onDismiss),
         title = { Text(stringResource(R.string.editor_pick)) },
         text = {
             Column(
