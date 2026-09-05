@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.graphics.Matrix
 import android.graphics.drawable.Drawable
+import android.content.pm.ActivityInfo
 import android.net.Uri
 import androidx.annotation.StringRes
 import androidx.activity.compose.BackHandler
@@ -44,6 +45,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -123,6 +125,32 @@ fun EditorScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    /*
+     * ⚠️⚠️ **LA ROTAZIONE È INIBITA FINCHÉ SI STA QUI, DALLA `1.69`, ED È UNA SUA DECISIONE**
+     * (giro della `1.67`, domanda `d-rotazione`: *l'unica scelta possibile è inibire la
+     * rotazione finché si è nell'editor: usare editor di immagini in orizzontale è
+     * impensabile, la UX è terribile*). L'alternativa era conservare ritaglio e passi
+     * attraverso la rotazione, e lui l'ha scartata: il problema non era perdere il lavoro, era
+     * ritrovarsi in una schermata inusabile.
+     * ⚠️⚠️ **VERTICALE E NON 'BLOCCATO COM'È', e la differenza conta**: `SCREEN_ORIENTATION_LOCKED`
+     * congela l'orientamento **corrente**, quindi chi entra nell'editor da orizzontale ci
+     * resterebbe, che è esattamente il caso che lui chiama impensabile. Il verticale è la sola
+     * lettura che soddisfi la ragione che ha dato, non solo il meccanismo che ha nominato.
+     * ⚠️ **Si rimette a posto uscendo**, e il valore da rimettere si legge invece di essere
+     * indovinato: l'attività potrebbe averne uno suo, e scrivere `UNSPECIFIED` alla cieca
+     * cambierebbe il comportamento di tutto il resto dell'app.
+     * ⚠️ **L'attività si trova risalendo i contesti** ([Knobs.activityOf]): il contesto di una
+     * composizione è quasi sempre un `ContextWrapper`, e un cast diretto risponderebbe nullo
+     * proprio dove l'attività c'è.
+     */
+    val activity = remember(context) { Knobs.activityOf(context) }
+    DisposableEffect(activity) {
+        val prima = activity?.requestedOrientation
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        onDispose {
+            if (activity != null && prima != null) activity.requestedOrientation = prima
+        }
+    }
     var origin by remember(uri) { mutableStateOf<Bitmap?>(null) }
 
     /**
