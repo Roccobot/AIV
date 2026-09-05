@@ -244,7 +244,7 @@
     <string name="bin_restore_all_ask">Thực sự khôi phục tất cả tệp?</string>
     <string name="bin_restore_all_desc">Mỗi mục sẽ trở về thư mục gốc của nó: để biết nó đã được chuyển đến đâu, hãy xem lịch sử thùng rác.</string>
     <plurals name="trash_done">
-        <item quantity="other">%1$d đã chuyển vào thùng rác</item>
+        <item quantity="other">Đã chuyển %1$d tệp vào thùng rác</item>
     </plurals>
     <plurals name="restore_done">
         <item quantity="other">%1$d đã phục hồi</item>
@@ -380,7 +380,7 @@
     <string name="settings_labels_desc">Nếu tắt, các bảng biểu tượng trở nên gọn hơn. Menu dạng danh sách không thay đổi.</string>
     <string name="settings_buttons_how">Nhấn giữ một nút rồi kéo để đổi vị trí của nó trong bảng của chính nó.</string>
     <string name="settings_buttons_reset">Đặt lại</string>
-    <string name="settings_buttons_reset_ask">Thực sự quay lại thứ tự mặc định?</string>
+    <string name="settings_buttons_reset_ask">Bạn muốn đưa các nút về cách sắp đặt mặc định?</string>
     <string name="settings_buttons_bin">Trong thùng rác, \'Phục hồi\' thay chỗ của \'Đổi tên\'.</string>
     <string name="settings_buttons_before">Chuyển lên trước</string>
     <string name="settings_buttons_after">Chuyển xuống sau</string>

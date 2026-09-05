@@ -262,9 +262,9 @@
     <string name="bin_restore_all_ask">Restaurar mesmo todos os arquivos?</string>
     <string name="bin_restore_all_desc">Cada item voltará à sua pasta de origem: para saber para onde foi movido, consulte o histórico da lixeira.</string>
     <plurals name="trash_done">
-        <item quantity="one">%1$d movido para a lixeira</item>
-        <item quantity="other">%1$d movidos para a lixeira</item>
-        <item quantity="many">%1$d movidos para a lixeira</item>
+        <item quantity="one">%1$d arquivo movido para a lixeira</item>
+        <item quantity="other">%1$d arquivos movidos para a lixeira</item>
+        <item quantity="many">%1$d arquivos movidos para a lixeira</item>
     </plurals>
     <plurals name="restore_done">
         <item quantity="one">%1$d restaurado</item>
@@ -412,7 +412,7 @@
     <string name="settings_labels_desc">Se desativados, os painéis de ícones ficam mais compactos. Os menus em lista não mudam.</string>
     <string name="settings_buttons_how">Mantenha um botão pressionado e arraste-o para mudar seu lugar dentro do seu painel.</string>
     <string name="settings_buttons_reset">Redefinir</string>
-    <string name="settings_buttons_reset_ask">Voltar mesmo para a disposição padrão?</string>
+    <string name="settings_buttons_reset_ask">Quer voltar com os botões para a disposição padrão?</string>
     <string name="settings_buttons_bin">Na lixeira, \'Restaurar\' fica no lugar de \'Renomear\'.</string>
     <string name="settings_buttons_before">Mover para antes</string>
     <string name="settings_buttons_after">Mover para depois</string>

@@ -353,9 +353,9 @@
     <string name="bin_restore_all_ask">Vuoi davvero ripristinare tutti i file?</string>
     <string name="bin_restore_all_desc">Ogni elemento sarà riportato nella propria cartella di origine: per sapere dov\'è stato spostato, controlla la cronologia del cestino.</string>
     <plurals name="trash_done">
-        <item quantity="one">%1$d spostato nel cestino</item>
-        <item quantity="other">%1$d spostati nel cestino</item>
-        <item quantity="many">%1$d spostati nel cestino</item>
+        <item quantity="one">%1$d file spostato nel cestino</item>
+        <item quantity="other">%1$d file spostati nel cestino</item>
+        <item quantity="many">%1$d file spostati nel cestino</item>
     </plurals>
     <plurals name="restore_done">
         <item quantity="one">%1$d ripristinato</item>
@@ -471,7 +471,7 @@
     <string name="settings_labels_desc">Se disattivate, i riquadri di icone diventano più compatti. I menu a elenco non cambiano.</string>
     <string name="settings_buttons_how">Tieni premuto un tasto e trascinalo per cambiare la sua posizione all\'interno del suo pannello.</string>
     <string name="settings_buttons_reset">Ripristina</string>
-    <string name="settings_buttons_reset_ask">Vuoi davvero tornare alla configurazione predefinita?</string>
+    <string name="settings_buttons_reset_ask">Vuoi riportare i pulsanti alla disposizione predefinita?</string>
     <string name="settings_buttons_bin">Nel cestino, al posto di \'Rinomina\' troverai \'Ripristina\'.</string>
     <string name="settings_buttons_before">Sposta prima</string>
     <string name="settings_buttons_after">Sposta dopo</string>

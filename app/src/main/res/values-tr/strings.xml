@@ -253,8 +253,8 @@
     <string name="bin_restore_all_ask">Tüm dosyalar gerçekten geri yüklensin mi?</string>
     <string name="bin_restore_all_desc">Her öğe kendi özgün klasörüne dönecek: nereye taşındığını görmek için çöp kutusu geçmişine bakın.</string>
     <plurals name="trash_done">
-        <item quantity="one">%1$d öge çöp kutusuna taşındı</item>
-        <item quantity="other">%1$d öge çöp kutusuna taşındı</item>
+        <item quantity="one">%1$d dosya çöp kutusuna taşındı</item>
+        <item quantity="other">%1$d dosya çöp kutusuna taşındı</item>
     </plurals>
     <plurals name="restore_done">
         <item quantity="one">%1$d öge geri alındı</item>
@@ -396,7 +396,7 @@
     <string name="settings_labels_desc">Kapatılırsa simge panelleri daha derli toplu olur. Liste menüleri değişmez.</string>
     <string name="settings_buttons_how">Bir düğmeyi basılı tutun ve kendi paneli içindeki yerini değiştirmek için sürükleyin.</string>
     <string name="settings_buttons_reset">Sıfırla</string>
-    <string name="settings_buttons_reset_ask">Gerçekten varsayılan düzene dönülsün mü?</string>
+    <string name="settings_buttons_reset_ask">Düğmeleri varsayılan düzene geri almak ister misin?</string>
     <string name="settings_buttons_bin">Çöp kutusunda \'Geri al\', \'Yeniden adlandır\'ın yerini alır.</string>
     <string name="settings_buttons_before">Öne al</string>
     <string name="settings_buttons_after">Arkaya al</string>

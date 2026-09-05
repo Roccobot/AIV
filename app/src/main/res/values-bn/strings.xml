@@ -253,8 +253,8 @@
     <string name="bin_restore_all_ask">সত্যিই সব ফাইল পুনরুদ্ধার করবেন?</string>
     <string name="bin_restore_all_desc">প্রতিটি আইটেম তার নিজের মূল ফোল্ডারে ফিরে যাবে: কোথায় সরানো হয়েছিল জানতে আবর্জনার ইতিহাস দেখুন।</string>
     <plurals name="trash_done">
-        <item quantity="one">%1$d আবর্জনায় গেছে</item>
-        <item quantity="other">%1$d আবর্জনায় গেছে</item>
+        <item quantity="one">%1$d ফাইল আবর্জনায় গেছে</item>
+        <item quantity="other">%1$d ফাইল আবর্জনায় গেছে</item>
     </plurals>
     <plurals name="restore_done">
         <item quantity="one">%1$d ফিরিয়ে আনা হয়েছে</item>
@@ -396,7 +396,7 @@
     <string name="settings_labels_desc">বন্ধ করলে আইকনের প্যানেল আরও ছোট হয়। তালিকা মেনু বদলায় না।</string>
     <string name="settings_buttons_how">একটি বোতাম চেপে ধরে টেনে নিয়ে তার নিজের প্যানেলে তার জায়গা বদলান।</string>
     <string name="settings_buttons_reset">রিসেট</string>
-    <string name="settings_buttons_reset_ask">সত্যিই ডিফল্ট বিন্যাসে ফিরে যেতে চান?</string>
+    <string name="settings_buttons_reset_ask">বোতামগুলি ডিফল্ট বিন্যাসে ফিরিয়ে নিতে চান?</string>
     <string name="settings_buttons_bin">আবর্জনায় \'নাম বদলান\'-এর জায়গায় \'ফিরিয়ে আনুন\' আসে।</string>
     <string name="settings_buttons_before">আগে সরান</string>
     <string name="settings_buttons_after">পরে সরান</string>

@@ -244,7 +244,7 @@
     <string name="bin_restore_all_ask">確定要還原所有檔案嗎？</string>
     <string name="bin_restore_all_desc">每個項目都會回到各自的原資料夾：想知道被移到哪裡，請查看回收筒歷程。</string>
     <plurals name="trash_done">
-        <item quantity="other">已把 %1$d 項移入回收筒</item>
+        <item quantity="other">已把 %1$d 個檔案移入回收筒</item>
     </plurals>
     <plurals name="restore_done">
         <item quantity="other">已還原 %1$d 項</item>
@@ -380,7 +380,7 @@
     <string name="settings_labels_desc">若關閉，圖示面板會更精簡。清單選單不變。</string>
     <string name="settings_buttons_how">長按一個按鈕，然後拖曳它來改變它在所屬面板中的位置。</string>
     <string name="settings_buttons_reset">重設</string>
-    <string name="settings_buttons_reset_ask">確定要恢復預設排列嗎？</string>
+    <string name="settings_buttons_reset_ask">要把按鈕恢復成預設排列嗎？</string>
     <string name="settings_buttons_bin">在回收筒裡，\'還原\' 出現在 \'重新命名\' 的位置。</string>
     <string name="settings_buttons_before">前移</string>
     <string name="settings_buttons_after">後移</string>

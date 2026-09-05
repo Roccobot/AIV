@@ -79,7 +79,12 @@ class Entrata internal constructor(
 
     internal suspend fun posa() = coroutineScope {
         launch { velo.animateTo(1f, tween(ENTRA_ALFA_MS, easing = LinearOutSlowInEasing)) }
-        launch { alza.animateTo(1f, tween(ENTRA_OMBRA_MS, easing = LinearEasing)) }
+        launch {
+            alza.animateTo(
+                1f,
+                tween(ENTRA_OMBRA_MS, delayMillis = ENTRA_OMBRA_ATTESA, easing = LinearEasing)
+            )
+        }
         misura.animateTo(
             1f,
             spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = ENTRA_MOLLA)
@@ -158,17 +163,30 @@ private const val ENTRA_ALFA = 0.65f
 private const val ENTRA_ALFA_MS = 180
 
 /**
- * Quanto ci mette l'ombra a comparire.
+ * Quanto ci mette l'ombra a comparire, e quanto aspetta prima di cominciare.
  *
  * ⚠️⚠️ **RICHIESTA DELL'UTENTE, giro della `1.59`** (*l'ombra arriva alla fine, con un fade in
  * molto graduale*): il tastino entra **piatto** e si stacca dal fondo mentre si posa, che è il
  * verso giusto di una cosa che sta arrivando.
- * ⚠️ **Tanto quanto la molla, e la rampa è lineare**: 'arriva alla fine' dice dove deve
- * finire, 'molto graduale' dice che non deve avere un momento in cui compare. Una curva
- * accelerata la terrebbe invisibile per due terzi e poi la farebbe apparire, che è il
- * contrario.
- * ⚠️⚠️ **VA RIMISURATO SE SI TOCCA [ENTRA_MOLLA] O [ENTRA_DA]**: è l'assestamento di quella
- * molla, non un numero indipendente, e Compose non lo espone prima di far girare
- * l'animazione. Oggi vale 247 ms.
+ *
+ * ⚠️⚠️ **E DALLA `1.62` L'OMBRA VIVE FUORI DALL'ENTRATA, PER SUA ISTRUZIONE** (riscontro del
+ * giro della `1.60`: *l'ombra deve arrivare molto più tardi e in modo ESTREMAMENTE graduale,
+ * anche se la sua animazione finisce più tardi di tutto il resto*). Le due parole che decidono
+ * sono **molto più tardi** e **anche se**: la seconda scioglie il vincolo che questo numero
+ * aveva, cioè finire con la molla, e senza quel vincolo il ritardo si può dare per davvero.
+ * - **L'attesa** tiene l'ombra a zero mentre la misura si posa: comincia quando la molla ha
+ *   praticamente finito, quindi il rimbalzo si vede su un tastino ancora piatto.
+ * - **La durata** la fa salire in 800 ms invece di 247, cioè a **un terzo** della velocità di
+ *   prima: 0,125% al millisecondo contro 0,405%.
+ * ⚠️ **La rampa resta lineare**, ed è quello che 'estremamente graduale' chiede: una curva
+ * accelerata terrebbe l'ombra invisibile per due terzi del tempo e poi la farebbe **apparire**,
+ * che è il difetto opposto. Una velocità costante e bassa non ha nessun istante in cui compare.
+ * ⚠️ **Il prezzo è dichiarato, e cresce con la durata**: [lift] si legge in composizione, quindi
+ * il solo tastino si ricompone a ogni fotogramma finché l'ombra sale, adesso per un secondo
+ * intero invece di un quarto.
+ * ⚠️ **L'attesa NON è più legata all'assestamento della molla**, e la nota che lo prescriveva è
+ * caduta con lei: 250 è un numero tondo scelto perché cade dopo i 247 misurati, e se un domani
+ * la molla si allunga, l'ombra parte un filo prima della fine invece di dover essere rimisurata.
  */
-private const val ENTRA_OMBRA_MS = 247
+private const val ENTRA_OMBRA_ATTESA = 250
+private const val ENTRA_OMBRA_MS = 800

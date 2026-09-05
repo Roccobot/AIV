@@ -253,8 +253,8 @@
     <string name="bin_restore_all_ask">Wirklich alle Dateien wiederherstellen?</string>
     <string name="bin_restore_all_desc">Jedes Element kehrt in seinen ursprünglichen Ordner zurück: im Verlauf des Papierkorbs steht, wohin es verschoben wurde.</string>
     <plurals name="trash_done">
-        <item quantity="one">%1$d in den Papierkorb verschoben</item>
-        <item quantity="other">%1$d in den Papierkorb verschoben</item>
+        <item quantity="one">%1$d Datei in den Papierkorb verschoben</item>
+        <item quantity="other">%1$d Dateien in den Papierkorb verschoben</item>
     </plurals>
     <plurals name="restore_done">
         <item quantity="one">%1$d wiederhergestellt</item>
@@ -396,7 +396,7 @@
     <string name="settings_labels_desc">Wenn ausgeschaltet, werden die Symbolfelder kompakter. Listenmenüs bleiben unverändert.</string>
     <string name="settings_buttons_how">Halte eine Schaltfläche gedrückt und ziehe sie an ihren neuen Platz innerhalb ihres Feldes.</string>
     <string name="settings_buttons_reset">Zurücksetzen</string>
-    <string name="settings_buttons_reset_ask">Wirklich zur Standardanordnung zurückkehren?</string>
+    <string name="settings_buttons_reset_ask">Sollen die Schaltflächen zurück in die Standardanordnung?</string>
     <string name="settings_buttons_bin">Im Papierkorb steht \'Wiederherstellen\' an der Stelle von \'Umbenennen\'.</string>
     <string name="settings_buttons_before">Nach vorn</string>
     <string name="settings_buttons_after">Nach hinten</string>

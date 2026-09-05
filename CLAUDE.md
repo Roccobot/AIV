@@ -231,6 +231,16 @@ testa, e la prima a cambiare sarebbe stata quella che nessuno guarda.
 
 ## 🗣️ Come si chiamano le cose
 
+⚠️⚠️ **QUEL PULSANTE SI CHIAMA 'FAB', E 'TASTINO' NON SI USA PARLANDO CON LUI** (riscontro del
+giro della `1.60`: *e il pulsante si chiama FAB, lascia perdere 'tastino'*). Vale nelle voci del
+documento di feedback, in chat, negli artefatti e nei messaggi di commit.
+- ⚠️ **È lo stesso criterio della voce sul velo, applicato a un nome che LUI usa**: la sigla
+  compare nella spiegazione della voce 'Posizione dei tasti flottanti', quindi è la parola che
+  si trova nel telefono; 'tastino' era un vezzeggiativo mio, che non compariva da nessuna parte.
+- ⚠️ **Nel codice la parola vecchia c'è ancora in molti commenti**, e non si corregge con una
+  passata a parte: entra nella bonifica dei commenti che il piano tiene come tappa senza numero.
+  Quello che conta è che da qui in avanti non se ne scrivano di nuovi.
+
 ⚠️⚠️ **'VELO' NON SI USA PARLANDO CON LUI: si dice 'Sfocatura dietro i pannelli', cioè il nome
 della voce nelle impostazioni** (riscontro del 2026-09-04, giro della `1.46`: *io continuo a
 non capire 'sto cazzo di 'velo', e continuo a non capire quando me ne parli. Nelle impostazioni
@@ -281,6 +291,20 @@ grande un dialogo esattamente al centro fa allungare la mano.
     aveva già preso, e il pannello scendeva dentro di lei. **Non è servita una regola nuova**:
     bastava che la misura dicesse la verità, e adesso `windowHeight()` toglie anche la
     tastiera. Vale per ogni superficie centrata, non per la sola rinomina.
+  - ⚠️⚠️ **E DALLA `1.62` QUELLA MISURA NON BASTA PIÙ: A TASTIERA APERTA LA CENTRATURA HA UNA
+    DEROGA, ED È SUA** (riscontro del giro della `1.60`: *voglio che il pannello scorra MOLTO in
+    alto, con il campo testo praticamente in cima allo schermo, quando la tastiera è aperta. In
+    quella circostanza la centratura dell'app ha una deroga, che serve per rendere davvero
+    fruibile il pannello*). Non è la stretta portata all'estremo: la stretta **riduce** la
+    discesa fino a zero, qui il pannello **sale**, fino a fermarsi a `LOWER_AIR` dal bordo di
+    sopra dell'area che la tastiera lascia libera.
+    - ⚠️ **Vale per ogni superficie centrata**, come la misura da cui nasce, e finisce
+      nell'istante in cui la tastiera se ne va.
+    - ⚠️ **Con lei arriva un TETTO sull'altezza**, ed è un difetto a sé che la stretta non
+      poteva togliere (*in presenza di un nome molto lungo (ma valido) la finestra è tagliata
+      brutalmente*): ridurre lo spostamento non accorcia un pannello più alto della finestra.
+      Adesso una superficie centrata non può superare la finestra meno l'aria, e lo scorrimento
+      che ha già dentro entra in funzione.
 - ⚠️ **Il 15% si misura sull'altezza della FINESTRA**, non sullo spazio libero: sullo spazio
   libero sarebbe una frazione di una frazione, quindi su un dialogo alto il movimento
   sparirebbe proprio dove il pollice fatica di più.

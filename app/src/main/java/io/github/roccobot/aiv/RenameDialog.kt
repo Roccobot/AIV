@@ -37,7 +37,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -227,6 +228,25 @@ fun RenameDialog(
                         campo = TextFieldValue(template, TextRange(template.length))
                     }
                 }
+                /*
+                 * ⚠️⚠️ **IL FUOCO SI CHIEDE ALL'APERTURA, DALLA `1.62`, E LA `1.60` CI PROVAVA
+                 * DAL POSTO SBAGLIATO** (riscontro del giro della `1.60`: *il campo di testo non
+                 * scorre e il cursore non si posiziona automaticamente in fondo*). La `1.60`
+                 * metteva il cursore in fondo quando il **fuoco arrivava**, e quel momento è
+                 * esattamente quello in cui il tocco che lo porta sta anche decidendo dove
+                 * mettere il cursore: il gesto arriva dopo e vince, quindi il cursore finiva
+                 * dove cadeva il dito.
+                 * ⚠️⚠️ **E SENZA FUOCO UN CAMPO A RIGA SOLA NON SCORRE AFFATTO**: mostra la testa
+                 * del testo, qualunque sia la selezione. È la seconda metà del riscontro, e non
+                 * si poteva togliere spostando il cursore: si toglie dando il fuoco.
+                 * ⚠️ **Così il gesto torna a fare il suo mestiere**: chi apre trova la coda del
+                 * nome e il cursore in fondo, e chi tocca in mezzo al testo sposta il cursore
+                 * dove ha toccato, che è quello che un campo di testo deve fare.
+                 * ⚠️ **Una volta sola per apertura** (`LaunchedEffect(Unit)`), o a ogni
+                 * ricomposizione il fuoco tornerebbe qui strappandolo a chi lo avesse preso.
+                 */
+                val fuoco = remember { FocusRequester() }
+                LaunchedEffect(Unit) { fuoco.requestFocus() }
                 OutlinedTextField(
                     value = campo,
                     onValueChange = { scritto ->
@@ -243,15 +263,7 @@ fun RenameDialog(
                     shape = BOX_SHAPE,
                     modifier = Modifier
                         .fillMaxWidth()
-                        // ⚠️ **Solo quando il fuoco ARRIVA**, non a ogni ricomposizione:
-                        // `onFocusChanged` parla quando lo stato cambia, quindi questa riga
-                        // gira una volta per apertura di tastiera e non combatte con chi
-                        // scrive.
-                        .onFocusChanged { stato ->
-                            if (stato.isFocused) {
-                                campo = campo.copy(selection = TextRange(campo.text.length))
-                            }
-                        }
+                        .focusRequester(fuoco)
                 )
                 /*
                  * ⚠️⚠️ **I DUE COMANDI SUL NOME, dalla `1.60`** (richiesta dell'utente, giro
@@ -658,11 +670,9 @@ private fun NamePill(
      * nome difficile rimpicciolirebbe per sempre tutti quelli dopo.
      */
     var stretta by remember(text) { mutableStateOf(1f) }
-    val base = MaterialTheme.typography.bodySmall
-    val stile = if (stretta == 1f) base else base.copy(
-        fontSize = base.fontSize * stretta,
-        lineHeight = if (base.lineHeight.isSpecified) base.lineHeight * stretta else base.lineHeight
-    )
+    // ⚠️ La scalatura passa da `shrunk` di `Names.kt`, dalla 1.62: era scritta qui e ora
+    // vive dove vive anche il misuratore che la applica, o le due potrebbero divergere.
+    val stile = MaterialTheme.typography.bodySmall.shrunk(stretta)
     Surface(
         color = back,
         shape = BOX_SHAPE,
@@ -673,7 +683,7 @@ private fun NamePill(
             text = text,
             style = stile,
             onTextLayout = { steso ->
-                if (stretta > PILL_FLOOR && orphan(steso)) stretta -= PILL_STEP
+                if (stretta > NAME_FLOOR && orphan(steso)) stretta -= NAME_STEP
             },
             color = front,
             fontWeight = weight,
@@ -722,15 +732,3 @@ private fun orphan(steso: TextLayoutResult): Boolean {
     return steso.getLineEnd(ultima, visibleEnd = true) - steso.getLineStart(ultima) <= 1
 }
 
-/**
- * Di quanto si stringe il testo a ogni passata, e fin dove.
- *
- * ⚠️ **La soglia è l'80%, cioè 'entro una certa soglia' tradotto in un numero**: sotto, il
- * confronto fra le due pastiglie comincerebbe a costare più di quello che l'orfano toglieva,
- * perché quella di sopra e quella di sotto avrebbero due corpi diversi e non si leggerebbero
- * più come una coppia.
- * ⚠️ **Il gradino è del 5%**: più fine vorrebbe dire più passate di misura per un guadagno che
- * a occhio non si vede, più grosso farebbe saltare la misura giusta.
- */
-private const val PILL_STEP = 0.05f
-private const val PILL_FLOOR = 0.80f

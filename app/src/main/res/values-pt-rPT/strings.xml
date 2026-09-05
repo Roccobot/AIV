@@ -88,9 +88,9 @@
         <item quantity="other">Vai eliminar %1$d itens definitivamente: desaparecem do telemóvel para sempre.</item>
     </plurals>
     <plurals name="trash_done">
-        <item quantity="one">%1$d movido para a reciclagem</item>
-        <item quantity="many">%1$d movidos para a reciclagem</item>
-        <item quantity="other">%1$d movidos para a reciclagem</item>
+        <item quantity="one">%1$d ficheiro movido para a reciclagem</item>
+        <item quantity="many">%1$d ficheiros movidos para a reciclagem</item>
+        <item quantity="other">%1$d ficheiros movidos para a reciclagem</item>
     </plurals>
     <!-- app -> aplicacao, celular -> telemovel: as duas palavras que ja mudam no
          resto deste ficheiro. As outras duas cadeias dos videos sao iguais. -->
@@ -127,5 +127,5 @@
     <string name="settings_ui_theme">Tema da aplicação</string>
     <string name="settings_buttons_reset">Repor</string>
     <!-- padrao -> predefinida: a palavra europeia para o valor de fabrica. -->
-    <string name="settings_buttons_reset_ask">Voltar mesmo à disposição predefinida?</string>
+    <string name="settings_buttons_reset_ask">Quer voltar com os botões para a disposição predefinida?</string>
 </resources>

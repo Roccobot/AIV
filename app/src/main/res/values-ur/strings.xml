@@ -253,8 +253,8 @@
     <string name="bin_restore_all_ask">کیا واقعی تمام فائلیں بحال کی جائیں؟</string>
     <string name="bin_restore_all_desc">ہر آئٹم اپنے اصل فولڈر میں واپس جائے گا: یہ کہاں منتقل ہوا تھا، یہ جاننے کے لیے ردی کی ٹوکری کی ہسٹری دیکھیں۔</string>
     <plurals name="trash_done">
-        <item quantity="one">%1$d ردی کی ٹوکری میں گئی</item>
-        <item quantity="other">%1$d ردی کی ٹوکری میں گئیں</item>
+        <item quantity="one">%1$d فائل ردی کی ٹوکری میں گئی</item>
+        <item quantity="other">%1$d فائلیں ردی کی ٹوکری میں گئیں</item>
     </plurals>
     <plurals name="restore_done">
         <item quantity="one">%1$d بحال ہوئی</item>
@@ -396,7 +396,7 @@
     <string name="settings_labels_desc">بند کرنے پر آئیکن پینل زیادہ مختصر ہو جاتے ہیں۔ فہرست والے مینو نہیں بدلتے۔</string>
     <string name="settings_buttons_how">کسی بٹن کو دبائے رکھیں اور اسے گھسیٹ کر اس کے اپنے پینل میں اس کی جگہ بدلیں۔</string>
     <string name="settings_buttons_reset">ری سیٹ</string>
-    <string name="settings_buttons_reset_ask">کیا واقعی طے شدہ ترتیب پر واپس جانا ہے؟</string>
+    <string name="settings_buttons_reset_ask">بٹنوں کو طے شدہ ترتیب پر واپس لانا ہے؟</string>
     <string name="settings_buttons_bin">ردی میں \'نام بدلیں\' کی جگہ \'بحال کریں\' آتا ہے۔</string>
     <string name="settings_buttons_before">آگے منتقل کریں</string>
     <string name="settings_buttons_after">پیچھے منتقل کریں</string>

@@ -253,8 +253,8 @@
     <string name="bin_restore_all_ask">खरोखर सर्व फायली पूर्ववत करायच्या?</string>
     <string name="bin_restore_all_desc">प्रत्येक घटक आपल्या मूळ फोल्डरमध्ये परत जाईल: तो कुठे हलवला गेला हे पाहण्यासाठी कचरापेटीचा इतिहास पहा.</string>
     <plurals name="trash_done">
-        <item quantity="one">%1$d कचरापेटीत गेली</item>
-        <item quantity="other">%1$d कचरापेटीत गेल्या</item>
+        <item quantity="one">%1$d फाइल कचरापेटीत गेली</item>
+        <item quantity="other">%1$d फाइली कचरापेटीत गेल्या</item>
     </plurals>
     <plurals name="restore_done">
         <item quantity="one">%1$d परत आली</item>
@@ -396,7 +396,7 @@
     <string name="settings_labels_desc">बंद केल्यास चिन्हांची पटले अधिक सुटसुटीत होतात. यादी मेनू बदलत नाहीत.</string>
     <string name="settings_buttons_how">एखादे बटण दाबून धरा आणि ओढून त्याच्या स्वतःच्या पटलातील जागा बदला.</string>
     <string name="settings_buttons_reset">रीसेट</string>
-    <string name="settings_buttons_reset_ask">खरोखर मूळ मांडणीवर परत जायचे?</string>
+    <string name="settings_buttons_reset_ask">बटणे मूळ मांडणीत परत आणायची आहेत का?</string>
     <string name="settings_buttons_bin">कचऱ्यात \'नाव बदला\'च्या जागी \'पुन्हा आणा\' येते.</string>
     <string name="settings_buttons_before">आधी हलवा</string>
     <string name="settings_buttons_after">नंतर हलवा</string>

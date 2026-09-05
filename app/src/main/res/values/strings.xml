@@ -507,8 +507,8 @@
     <string name="history_none">Nothing has been restored in the last %1$d days.</string>
     <string name="history_note">The history keeps the last %1$d days, then empties itself.</string>
     <plurals name="trash_done">
-        <item quantity="one">%1$d moved to the bin</item>
-        <item quantity="other">%1$d moved to the bin</item>
+        <item quantity="one">%1$d file moved to the bin</item>
+        <item quantity="other">%1$d files moved to the bin</item>
     </plurals>
     <plurals name="restore_done">
         <item quantity="one">%1$d restored</item>
@@ -565,7 +565,7 @@
     <string name="settings_labels_desc">If turned off, the icon panels get more compact. List menus are unchanged.</string>
     <string name="settings_buttons_how">Press and hold a button, then drag it to change its place within its panel.</string>
     <string name="settings_buttons_reset">Reset</string>
-    <string name="settings_buttons_reset_ask">Really go back to the default arrangement?</string>
+    <string name="settings_buttons_reset_ask">Do you want the buttons back in their default arrangement?</string>
     <string name="settings_buttons_bin">In the bin, \'Restore\' takes the place of \'Rename\'.</string>
     <string name="settings_buttons_before">Move earlier</string>
     <string name="settings_buttons_after">Move later</string>

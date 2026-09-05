@@ -244,7 +244,7 @@
     <string name="bin_restore_all_ask">Yakin ingin memulihkan semua berkas?</string>
     <string name="bin_restore_all_desc">Setiap item akan kembali ke folder asalnya: untuk mengetahui ke mana ia dipindahkan, lihat riwayat tempat sampah.</string>
     <plurals name="trash_done">
-        <item quantity="other">%1$d dipindahkan ke tempat sampah</item>
+        <item quantity="other">%1$d berkas dipindahkan ke tempat sampah</item>
     </plurals>
     <plurals name="restore_done">
         <item quantity="other">%1$d dipulihkan</item>
@@ -380,7 +380,7 @@
     <string name="settings_labels_desc">Jika dimatikan, panel ikon menjadi lebih ringkas. Menu daftar tidak berubah.</string>
     <string name="settings_buttons_how">Tekan dan tahan sebuah tombol, lalu seret untuk mengubah tempatnya di dalam panelnya.</string>
     <string name="settings_buttons_reset">Setel ulang</string>
-    <string name="settings_buttons_reset_ask">Benar-benar kembali ke susunan bawaan?</string>
+    <string name="settings_buttons_reset_ask">Kembalikan tombol ke susunan bawaan?</string>
     <string name="settings_buttons_bin">Di tempat sampah, \'Pulihkan\' menggantikan \'Ganti nama\'.</string>
     <string name="settings_buttons_before">Pindah ke depan</string>
     <string name="settings_buttons_after">Pindah ke belakang</string>

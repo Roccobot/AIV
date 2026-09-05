@@ -3248,8 +3248,9 @@ private fun NameLine(name: String) {
                 fitName(name, room, 1, style, measurer)
             }
             Text(
-                text = shown,
-                style = style,
+                text = shown.text,
+                // ⚠️ Il corpo misurato e non quello pieno: vedi `fitName`.
+                style = style.shrunk(shown.scale),
                 maxLines = 1,
                 color = LocalContentColor.current.copy(alpha = NAME_FADE)
             )

@@ -271,10 +271,10 @@
     <string name="bin_restore_all_ask">Действительно восстановить все файлы?</string>
     <string name="bin_restore_all_desc">Каждый элемент вернётся в свою исходную папку: чтобы узнать, куда он был перемещён, откройте историю корзины.</string>
     <plurals name="trash_done">
-        <item quantity="one">%1$d элемент в корзине</item>
-        <item quantity="few">%1$d элемента в корзине</item>
-        <item quantity="many">%1$d элементов в корзине</item>
-        <item quantity="other">%1$d элементов в корзине</item>
+        <item quantity="one">%1$d файл в корзине</item>
+        <item quantity="few">%1$d файла в корзине</item>
+        <item quantity="many">%1$d файлов в корзине</item>
+        <item quantity="other">%1$d файлов в корзине</item>
     </plurals>
     <plurals name="restore_done">
         <item quantity="one">возвращён %1$d элемент</item>
@@ -428,7 +428,7 @@
     <string name="settings_labels_desc">Если выключить, панели значков становятся компактнее. Меню-списки не меняются.</string>
     <string name="settings_buttons_how">Нажмите и удерживайте кнопку, затем перетащите её на новое место внутри её панели.</string>
     <string name="settings_buttons_reset">Сбросить</string>
-    <string name="settings_buttons_reset_ask">Действительно вернуться к порядку по умолчанию?</string>
+    <string name="settings_buttons_reset_ask">Вернуть кнопки к расположению по умолчанию?</string>
     <string name="settings_buttons_bin">В корзине \'Вернуть\' занимает место \'Переименовать\'.</string>
     <string name="settings_buttons_before">Сдвинуть раньше</string>
     <string name="settings_buttons_after">Сдвинуть позже</string>
