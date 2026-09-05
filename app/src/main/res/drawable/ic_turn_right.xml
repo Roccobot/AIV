@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Ruota a destra': il cerchio tratteggiato con la freccia che gira in senso orario.
+
+     DISEGNATO DALL'UTENTE, arrivato il 2026-09-04. Sostituisce `Icons.Filled.RotateRight`, da
+     cui differisce per **98 pixel su 57.600** (lo 0,17% della tela).
+
+     NON si specchia, ed è la ragione per cui in Kotlin si usava la variante deprecata:
+     un'ora resta un'ora anche in arabo, e le versioni `AutoMirrored` di quelle frecce girano
+     dalla parte sbagliata. Il disegno nostro non ha quel problema, perché non lo fa da sé.
+
+     Le regole di trasporto stanno in `CLAUDE.md`, § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M15.41,5.41L11.34,1.34c-.13,-.13,-.34,-.04,-.34,.14v2.59c-3.94,.49,-7,3.85,-7,7.93s3.05,7.44,7,7.93v-2.02c-2.84,-.48,-5,-2.94,-5,-5.91s2.16,-5.43,5,-5.91v3.43c0,.18,.21,.27,.34,.14l4.07,-3.98c.08,-.08,.08,-.21,0,-.28ZM19.93,11c-.15,-1.24,-.61,-2.45,-1.35,-3.51c-.14,-.2,-.43,-.22,-.6,-.05l-.87,.87c-.13,.13,-.14,.33,-.05,.49c.44,.68,.72,1.44,.84,2.21h2.02ZM13,17.9v2.02c1.39,-.17,2.74,-.71,3.9,-1.61l-1.44,-1.44c-.75,.54,-1.59,.89,-2.46,1.03ZM16.89,15.48l1.42,1.41c.9,-1.16,1.45,-2.5,1.62,-3.89h-2.02c-.14,.87,-.48,1.72,-1.02,2.48Z" />
+</vector>

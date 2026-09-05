@@ -34,12 +34,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.Redo
-import androidx.compose.material.icons.automirrored.outlined.Undo
-import androidx.compose.material.icons.filled.RotateLeft
-import androidx.compose.material.icons.filled.RotateRight
-import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material.icons.outlined.RestartAlt
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -752,8 +746,12 @@ private fun EditorSheet(
              * in urdu, cioè in tre delle ventotto lingue dell'app. ⚠️ L'annullamento qui sotto
              * invece È `AutoMirrored`, e va bene: là 'indietro' segue davvero la lettura.
              */
-            @Suppress("DEPRECATION") val ccw = Icons.Default.RotateLeft
-            @Suppress("DEPRECATION") val cw = Icons.Default.RotateRight
+            // ⚠️ **Dalla 1.63 sono le sue**, e la clausola di deprecazione è caduta con
+            // loro: un disegno nostro non si specchia da sé, quindi non c'è nessuna variante
+            // AutoMirrored da scartare. Il verso resta quello fisico, che è il punto della
+            // nota qui sopra.
+            val ccw = Glyphs.TurnLeft
+            val cw = Glyphs.TurnRight
 
             val turnLeft = PadAction(PadKey.TURN_LEFT, ccw, R.string.editor_left, enabled = live) { onTurn(3) }
             val turnRight = PadAction(PadKey.TURN_RIGHT, cw, R.string.editor_right, enabled = live) { onTurn(1) }
@@ -772,14 +770,14 @@ private fun EditorSheet(
             ) { onCentreDown() }
 
             val applyKey = PadAction(
-                PadKey.APPLY, Icons.Outlined.Check, R.string.editor_apply, enabled = live && pending
+                PadKey.APPLY, Glyphs.EditApply, R.string.editor_apply, enabled = live && pending
             ) { onApply() }
             val undoKey = PadAction(
-                PadKey.UNDO, Icons.AutoMirrored.Outlined.Undo, R.string.editor_undo,
+                PadKey.UNDO, Glyphs.EditUndo, R.string.editor_undo,
                 enabled = live && (pending || applied)
             ) { onUndo() }
             val redoKey = PadAction(
-                PadKey.REDO, Icons.AutoMirrored.Outlined.Redo, R.string.editor_redo,
+                PadKey.REDO, Glyphs.EditRedo, R.string.editor_redo,
                 // ⚠️⚠️ **SPENTO FINCHÉ C'È UN RITOCCO IN SOSPESO, e non è pignoleria**: il
                 // rettangolo in corso è in frazioni dell'immagine di **adesso**, e rimettere
                 // un passo sotto di lui gli farebbe selezionare un'altra cosa senza che
@@ -787,7 +785,7 @@ private fun EditorSheet(
                 enabled = live && undone && !pending
             ) { onRedo() }
             val originalKey = PadAction(
-                PadKey.ORIGINAL, Icons.Outlined.RestartAlt, R.string.editor_original,
+                PadKey.ORIGINAL, Glyphs.EditReset, R.string.editor_original,
                 enabled = live && (pending || applied || undone)
             ) { onOriginal() }
 

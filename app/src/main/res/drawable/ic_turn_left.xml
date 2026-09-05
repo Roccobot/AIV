@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Ruota a sinistra': il cerchio tratteggiato con la freccia che gira in senso antiorario.
+
+     DISEGNATO DALL'UTENTE, arrivato il 2026-09-04. Sostituisce `Icons.Filled.RotateLeft`, da
+     cui differisce per **91 pixel su 57.600** (lo 0,16% della tela). NON si specchia, per la
+     ragione scritta su `ic_turn_right`.
+
+     Le regole di trasporto stanno in `CLAUDE.md`, § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M6.89,8.3l-.85,-.86c-.17,-.17,-.47,-.16,-.61,.05c-.74,1.07,-1.2,2.27,-1.35,3.51h2.02c.12,-.77,.41,-1.52,.84,-2.2c.1,-.16,.08,-.36,-.05,-.49ZM6.09,13h-2.02c.17,1.39,.72,2.73,1.62,3.89l1.41,-1.42c-.52,-.75,-.87,-1.59,-1.01,-2.47ZM7.1,18.32c1.16,.9,2.51,1.44,3.9,1.61v-2.03c-.87,-.15,-1.71,-.49,-2.46,-1.03l-1.44,1.45ZM13,4.07V1.48c0,-.18,-.22,-.27,-.34,-.14l-4.07,4.07c-.08,.08,-.08,.21,0,.28l4.07,3.98c.13,.12,.34,.03,.34,-.14v-3.44c2.84,.48,5,2.94,5,5.91s-2.16,5.43,-5,5.91v2.02c3.95,-.49,7,-3.85,7,-7.93s-3.05,-7.44,-7,-7.93Z" />
+</vector>

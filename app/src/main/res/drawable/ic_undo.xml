@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Annulla' dell'editor: la freccia che torna indietro sopra la sua curva.
+
+     DISEGNATO DALL'UTENTE, arrivato il 2026-09-04. Sostituisce
+     `Icons.AutoMirrored.Outlined.Undo`, da cui differisce per **71 pixel su 57.600** (lo
+     0,12% della tela, misurato a 240px): la punta della freccia e la coda della curva sono
+     ammorbidite, dove quella di Material ha spigoli netti. Il criterio che decide sta in
+     `CLAUDE.md`, § 'Come entra un disegno': sopra zero il file dell'utente entra.
+
+     SI SPECCHIA IN RTL (`autoMirrored`), come faceva il glifo che sostituisce: una freccia
+     che dice 'indietro' punta dalla parte da cui si comincia a leggere, e in arabo, persiano
+     e urdu quella parte è l'altra. Senza questo attributo il disegno nostro non si
+     specchierebbe, perché un vettore non lo fa da sé.
+
+     Le regole di trasporto stanno in `CLAUDE.md`, § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:autoMirrored="true">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M12.5,8c-2.65,0,-5.05,.99,-6.9,2.6l-3.26,-3.26c-.13,-.13,-.34,-.04,-.34,.14v8.32c0,.11,.09,.2,.2,.2h8.32c.18,0,.27,-.21,.14,-.34l-3.28,-3.28c1.39,-1.16,3.16,-1.88,5.12,-1.88c3.41,0,6.32,2.14,7.47,5.14c.08,.2,.29,.31,.49,.24l1.61,-.53c.22,-.07,.34,-.31,.26,-.52c-1.5,-3.99,-5.33,-6.83,-9.83,-6.83Z" />
+</vector>
