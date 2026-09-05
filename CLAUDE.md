@@ -335,6 +335,31 @@ grande un dialogo esattamente al centro fa allungare la mano.
       **massimo** delle richieste in scena. ⚠️ La **sfocatura** resta di finestra: quella non si
       può dipingere senza rifare i menu, che oggi sono finestre (il perché in fondo a
       `Veil.kt`).
+      - ⚠️⚠️ **E DALLA 1.61 LA PATINA HA UNA DISCESA PROPRIA, staccata dal pannello che esce**
+        (istruzione dell'utente, giro della 1.60: *a prescindere da tutto il resto, incluse le
+        altre animazioni (anche contemporanee), il passaggio da sfocatura massima a nessuna
+        sfocatura dev'essere graduale e decelerare sul finale*). ⚠️ **Il difetto era la CURVA e
+        non la durata**, ed è la parte da non dimenticare: dalla 1.50 la sfocatura seguiva
+        l'avanzamento del pannello, e l'uscita di un menu è l'entrata **letta all'indietro**,
+        cioè una curva che **accelera**. Quindi gli ultimi 4 pixel di raggio, che sono quelli in
+        cui l'occhio legge il passaggio da sfocato a nitido, duravano **11 ms** (meno di un
+        fotogramma) e adesso durano **115**.
+        - ⚠️ **In ENTRATA non cambia niente**: la patina cresce col pannello come prima, perché
+          il conto della 1.50 (nessun fotogramma in cui la finestra sfoca più di quanto il
+          pannello sia in scena) regge solo se il numero è lo stesso.
+        - ⚠️⚠️ **E LA FINESTRA SOPRAVVIVE AL PROPRIO PANNELLO**, perché la sfocatura è un suo
+          attributo e se ne andrebbe con lei. Da lì nascono due cose da sapere prima di toccare i
+          menu: il tastino resta **staccato** per tutta la coda, o tornerebbe nella finestra
+          dell'app sotto un velo che c'è ancora; e quella finestra diventa **passante** ai tocchi
+          e senza focus, o si mangerebbe un tocco a menu già sparito.
+        - ⚠️ **Perciò `inScene` e `visible` sono due cose**: il primo dice che la finestra deve
+          esistere, il secondo che il pannello si vede. Chi disegna o raccoglie tocchi **in una
+          schermata** vuole il secondo, e sbagliarli non dà nessun errore.
+        - ⚠️ **La scheda in fondo non è costata niente**: la sua uscita dura già più della coda,
+          quindi la finestra è ancora viva quando l'ultimo pixel di sfocatura se ne va. Restano
+          fuori i **dialoghi di Material**, che non hanno un'uscita da animare: là la finestra
+          sparisce nell'istante in cui il dialogo si chiude, e nessuna curva può allungare quello
+          che non esiste.
     - ⚠️⚠️ **MA DALLA 1.39 QUEL VELO È SPENTO DI FABBRICA, dietro un'impostazione** (richiesta
       dell'utente, 2026-09-03: *mettilo dietro un'opzione disattivata di default. Penserò se
       tenere o meno la feature: rende tutto visibilmente più lento*). Quindi la riga

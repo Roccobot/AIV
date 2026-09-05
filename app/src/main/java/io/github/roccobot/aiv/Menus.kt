@@ -28,6 +28,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -127,6 +128,27 @@ fun MenuShell(
     }
 
     /*
+     * ⚠️⚠️ **LA PATINA HA LA SUA ANIMAZIONE, DALLA `1.61`, E IN USCITA NON SEGUE PIÙ IL
+     * PANNELLO** (istruzione dell'utente, giro della `1.60`: *a prescindere da tutto il resto,
+     * incluse le altre animazioni (anche contemporanee), il passaggio da sfocatura massima a
+     * nessuna sfocatura dev'essere graduale e decelerare sul finale*). Il perché per esteso, e
+     * la ragione per cui il difetto era la **curva** e non la durata, stanno in fondo a
+     * `Veil.kt`.
+     * ⚠️ **In ENTRATA è la stessa animazione di prima**, alla lettera: stessa durata e stessa
+     * curva del pannello, quindi la patina cresce con lui e il conto della `1.50` (nessun
+     * fotogramma in cui la finestra sfoca più di quanto il pannello sia in scena) non si tocca.
+     * ⚠️ **E riaprendo a metà coda non c'è nessun salto**: `animateTo` riparte dal valore
+     * corrente, quindi una patina scesa a mezza strada risale da lì.
+     */
+    LaunchedEffect(state.wanted) {
+        if (state.wanted) {
+            state.patina.animateTo(1f, tween(durationMillis = MENU_IN, easing = MENU_EASE))
+        } else {
+            state.patina.animateTo(0f, tween(durationMillis = VEIL_FADE_MS, easing = VEIL_FADE))
+        }
+    }
+
+    /*
      * ⚠️⚠️ **IL CANCELLO SERVE ALL'ORDINE FRA LE FINESTRE**: a menu chiuso non deve esistere
      * nessun `Popup`, o il tastino che si stacca sopra la propria finestra non sarebbe più
      * l'ultima aggiunta e finirebbe sotto. Un popup sempre presente e trasparente in più si
@@ -147,7 +169,15 @@ fun MenuShell(
         popupPositionProvider = remember(position, state) { Growing(position) { grown(state) } },
         onDismissRequest = state::close,
         properties = PopupProperties(
-            focusable = true,
+            /*
+             * ⚠️⚠️ **IL FOCUS SE NE VA APPENA SI CHIEDE LA CHIUSURA, dalla `1.61`, e prima
+             * restava fino all'ultimo fotogramma**: da quella versione la finestra sopravvive al
+             * pannello per tutta la coda della patina (vedi in fondo a `Veil.kt`), e una finestra
+             * che tiene il focus per quel tratto si mangerebbe il gesto Indietro di chi il menu
+             * l'ha già chiuso. ⚠️ **I tocchi li toglie un'altra riga**, il flag di `stendi`: il
+             * focus e la toccabilità sono due cose, e questa ne copre una sola.
+             */
+            focusable = state.wanted,
             dismissOnBackPress = true,
             /*
              * ⚠️⚠️ **SEMPRE ACCESO, dalla `1.46`, e prima era un parametro con un valore
@@ -199,8 +229,18 @@ fun MenuShell(
          * togliere, perché due finestre non si aggiornano nello stesso fotogramma. Adesso il velo
          * lo dipinge l'app, uno solo, e vale il massimo delle richieste in scena: il perché per
          * esteso sta su `VeilStage`, in `Veil.kt`.
+         *
+         * ⚠️⚠️ **E DALLA `1.61` IL NUMERO NON È PIÙ QUELLO DEL PANNELLO: è [MenuState.patina]**,
+         * che in entrata vale esattamente quanto lui e in uscita si scioglie con la sua curva.
+         * La ragione, e il perché il difetto era la curva e non la durata, stanno in fondo a
+         * `Veil.kt`.
+         * ⚠️ **La finestra è passante mentre la coda scende**: il pannello non c'è più, quindi il
+         * suo rettangolo deve lasciar passare i tocchi invece di raccoglierli. Lo fa il flag di
+         * `stendi`, e questa riga è il solo posto che sa quando quel momento comincia.
          */
-        WindowVeil { state.show.value }
+        WindowVeil(passante = { !state.wanted && !state.show.isRunning && state.show.value <= 0f }) {
+            state.patina.value
+        }
         Surface(
             /*
              * ⚠️⚠️ **CRESCE DA 0,96 E NON DA ZERO, in 170ms** (scelta dell'utente sul
@@ -584,8 +624,50 @@ class MenuState internal constructor() {
 
     internal val show = Animatable(0f)
 
-    /** Se il menu deve stare in scena adesso, chiusura in corso compresa. */
-    val inScene: Boolean get() = wanted || show.isRunning || show.value > 0f
+    /**
+     * Quanta patina (velo e sfocatura) vuole la finestra di questo menu.
+     *
+     * ⚠️ **Un numero a sé e non [show], dalla `1.61`**: in entrata vale quanto lui, in uscita si
+     * scioglie con la propria curva. Il perché sta in fondo a `Veil.kt`.
+     */
+    internal val patina = Animatable(0f)
+
+    /**
+     * Se il menu deve stare in scena adesso, chiusura in corso compresa.
+     *
+     * ⚠️⚠️ **E DALLA `1.61` CI STA ANCHE MENTRE LA SOLA PATINA SI SCIOGLIE, cioè quando il
+     * pannello è già sparito**: la sfocatura è un attributo della **finestra**, quindi una
+     * finestra che se ne va se la porta via, e la coda che l'utente ha chiesto verrebbe tagliata
+     * di netto proprio dove deve decelerare. ⚠️ **Quella finestra non ruba niente**: perde il
+     * focus quando `wanted` si spegne, e diventa passante ai tocchi (vedi `MenuShell` e
+     * `stendi` in `Veil.kt`).
+     */
+    val inScene: Boolean get() = vivo
+
+    /**
+     * Se il **pannello** si vede adesso, chiusura in corso compresa.
+     *
+     * ⚠️⚠️ **È QUELLO CHE [inScene] VOLEVA DIRE FINO ALLA `1.61`, e la coda ha separato i due
+     * significati**: da quella versione la finestra sopravvive al pannello per il tempo in cui la
+     * patina si scioglie, quindi 'la finestra esiste' e 'il menu si vede' hanno smesso di essere
+     * la stessa cosa. Chi disegna o raccoglie tocchi **in una schermata** vuole questo; chi
+     * decide se la finestra deve esistere vuole [inScene].
+     * ⚠️ **Sbagliarli non dà nessun errore e si vede solo provando**: col nome sbagliato, il
+     * riquadro che chiude il menu toccando la schermata resterebbe in scena per tutta la coda,
+     * cioè mangerebbe un tocco su tutto lo schermo dopo che il menu è già sparito.
+     */
+    val visible: Boolean get() = visto
+
+    /*
+     * ⚠️⚠️ **DERIVATI E NON CALCOLATI A OGNI LETTURA, ed è un guadagno che viene con la coda**:
+     * queste condizioni leggono il **valore** delle animazioni, quindi lette in composizione
+     * invalidavano chi le legge a ogni fotogramma, per tutta la durata dell'animazione. Quello
+     * che conta è il loro esito, che cambia due volte in tutto, e `derivedStateOf` invalida solo
+     * quando cambia lui. Col tratto della patina, che dura più del doppio dell'uscita del
+     * pannello, senza queste due righe il costo raddoppiava.
+     */
+    private val visto by derivedStateOf { wanted || show.isRunning || show.value > 0f }
+    private val vivo by derivedStateOf { visto || patina.isRunning || patina.value > 0f }
 
     fun open() {
         wanted = true

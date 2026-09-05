@@ -11,6 +11,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
@@ -145,7 +146,24 @@ fun Sheet(
         )
     ) {
         sheetWindow()
-        WindowVeil(bare = SHEET_DIM)
+
+        /*
+         * ⚠️⚠️ **LA PATINA SI SCIOGLIE, DALLA `1.61`, e prima saltava a zero con la finestra**
+         * (istruzione dell'utente, giro della `1.60`: *il passaggio da sfocatura massima a
+         * nessuna sfocatura dev'essere graduale e decelerare sul finale*). Qui non costa
+         * **niente** in più: l'uscita della scheda dura già [USCITA_MS], che è più della coda,
+         * quindi la finestra è ancora viva quando l'ultimo pixel di sfocatura se ne va. Sui menu
+         * invece la finestra va tenuta in scena apposta (vedi `MenuState.inScene`).
+         * ⚠️ **All'andata resta piena da subito** ([snap]), cioè esattamente come prima: la
+         * richiesta riguarda il passaggio da sfocato a nitido, e dosare anche l'entrata sarebbe
+         * un secondo cambiamento nello stesso giro.
+         */
+        val patina by animateFloatAsState(
+            targetValue = if (visibile) 1f else 0f,
+            animationSpec = if (visibile) snap() else tween(VEIL_FADE_MS, easing = VEIL_FADE),
+            label = "sheet-veil"
+        )
+        WindowVeil(bare = SHEET_DIM) { patina }
 
         /*
          * ⚠️⚠️ **DUE ANIMAZIONI E NON UNA, e sono due perché durano tempi diversi**: la
