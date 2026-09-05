@@ -107,6 +107,7 @@ fun nameWithExt(name: String): AnnotatedString {
     if (punto <= 0) return AnnotatedString(name)
     return buildAnnotatedString {
         append(name.substring(0, punto))
+        append(BREAK_HERE)
         withStyle(EXT_BOLD) { append(glue(name.substring(punto))) }
     }
 }
@@ -134,6 +135,30 @@ val EXT_BOLD = SpanStyle(fontWeight = FontWeight.Black)
 
 /** L'estensione con un giuntore fra ogni carattere, così il layout non la spezza. */
 private fun glue(ext: String): String = ext.toCharArray().joinToString(WORD_JOINER)
+
+/**
+ * `U+200B ZERO WIDTH SPACE`: invisibile, e **concede** al layout di andare a capo dove sta.
+ *
+ * ⚠️⚠️ **IL GIUNTORE DA SOLO NON BASTAVA, ED È IL DIFETTO DELLA `1.59`** (riscontro del giro:
+ * *nelle due pillole prima/dopo, si spezza ancora l'estensione. Con il nome
+ * 'io.sono.flemd_3977405121263291276.mp4', il finale è '.mp' a capo '4'*). Il giuntore vieta di
+ * spezzare **dentro** l'estensione, e il divieto vale finché il layout ha un altro posto in cui
+ * andare a capo. Un nome come quello non ne ha nemmeno uno: per la grammatica delle
+ * interruzioni di riga un punto fra due lettere, o fra una cifra e una lettera, **non** apre un
+ * punto d'appiglio, quindi tutto il nome è una parola sola. Una parola più larga della riga il
+ * layout la deve rompere per forza, e quando è costretto rompe dove capita, giuntori compresi:
+ * non è indulgenza, è l'unico modo di posarla.
+ * ⚠️ **Il rimedio è dare un appiglio invece di toglierne**: con questo carattere prima del
+ * punto, il layout ha un posto legale in cui andare a capo, e allora l'estensione scende
+ * **intera** sulla riga dopo. È la terza delle tre vie che lui ha indicato (*a capo con TUTTA
+ * l'estensione*), ed è quella che garantisce di non spezzarla mai.
+ * ⚠️ **Scritto per codepoint e non incollato**, come [WORD_JOINER] e per la stessa ragione:
+ * incollato, questo file conterrebbe un carattere che a schermo non si vede e che nessuno
+ * saprebbe di aver toccato.
+ * ⚠️ **Solo per la resa, mai in un nome vero**: chi lo mette dentro un dato scrive un nome di
+ * file che porta un carattere invisibile.
+ */
+private const val BREAK_HERE = "\u200B"
 
 /**
  * Il taglio: i tre punti e **uno spazio**.

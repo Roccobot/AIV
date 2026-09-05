@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">Столбцы в сетке папок</string>
     <string name="settings_folder_columns_desc">Чем больше столбцов, тем больше папок помещается на экране и тем меньше каждая обложка. При четырёх имя под ней обычно обрезается.</string>
     <string name="settings_folder_count">Счётчик элементов под папками в режиме сетки</string>
-    <string name="settings_hand">Сторона плавающих кнопок (\'FAB\')</string>
-    <string name="settings_hand_desc">В каком нижнем углу стоит плавающая кнопка, вместе с панелью, которую она открывает, и местом, которое ей оставляет сетка.</string>
+    <string name="settings_hand">Положение плавающих кнопок</string>
+    <string name="settings_hand_desc">Сторона экрана, на которой поверх него лежат кнопки меню (\'FAB\').</string>
     <string name="settings_right">Справа</string>
     <string name="settings_left">Слева</string>
     <string name="settings_list_path">Список файлов: копировать путь папки</string>
@@ -247,6 +247,8 @@
         <item quantity="other">с %1$d не вышло</item>
     </plurals>
     <string name="rename_template">Имя</string>
+    <string name="rename_select_all">Выбрать всё</string>
+    <string name="rename_clear">Очистить</string>
     <string name="rename_start">Первый номер</string>
     <string name="rename_hint">Каждая цепочка решёток превращается в номер, и сколько их напишете, столько будет цифр: ## даёт 01, ### даёт 001. Расширение не трогается, а файлы нумеруются по алфавиту.</string>
     <string name="rename_preview">Предпросмотр</string>
@@ -426,6 +428,7 @@
     <string name="settings_labels_desc">Если выключить, панели значков становятся компактнее. Меню-списки не меняются.</string>
     <string name="settings_buttons_how">Нажмите и удерживайте кнопку, затем перетащите её на новое место внутри её панели.</string>
     <string name="settings_buttons_reset">Сбросить</string>
+    <string name="settings_buttons_reset_ask">Действительно вернуться к порядку по умолчанию?</string>
     <string name="settings_buttons_bin">В корзине \'Вернуть\' занимает место \'Переименовать\'.</string>
     <string name="settings_buttons_before">Сдвинуть раньше</string>
     <string name="settings_buttons_after">Сдвинуть позже</string>

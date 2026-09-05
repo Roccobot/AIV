@@ -366,7 +366,13 @@ fun ViewerScreen(
     val perform: (FileKind, suspend () -> FileTree.Outcome) -> Unit = { kind, work ->
         scope.launch {
             val out = work()
-            Toast.makeText(context, outcomeText(res, out, kind.done), Toast.LENGTH_LONG).show()
+            // ⚠️ **Il cestino tace, e chi decide è [FileKind.speaks]**: la sua notifica
+            // dice la stessa cosa e in più offre di disfare, e due messaggi in fondo
+            // allo schermo si coprirebbero a vicenda.
+            if (kind.speaks(out)) {
+                Toast.makeText(context, outcomeText(res, out, kind.done), Toast.LENGTH_LONG)
+                    .show()
+            }
             if (kind.gone && out.done > 0) onFileChanged()
         }
     }

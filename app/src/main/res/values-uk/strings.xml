@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">Стовпці в сітці тек</string>
     <string name="settings_folder_columns_desc">Що більше стовпців, то більше тек вміщується на екрані і то менша кожна обкладинка. За чотирьох ім\'я під нею зазвичай обрізається.</string>
     <string name="settings_folder_count">Лічильник елементів під теками в режимі сітки</string>
-    <string name="settings_hand">Сторона плавучих кнопок (\'FAB\')</string>
-    <string name="settings_hand_desc">У якому нижньому куті стоїть плавальна кнопка, разом із панеллю, яку вона відкриває, і місцем, яке їй лишає сітка.</string>
+    <string name="settings_hand">Положення плавучих кнопок</string>
+    <string name="settings_hand_desc">Сторона екрана, на якій поверх нього лежать кнопки меню (\'FAB\').</string>
     <string name="settings_right">Праворуч</string>
     <string name="settings_left">Ліворуч</string>
     <string name="settings_list_path">Список файлів: копіювати шлях теки</string>
@@ -247,6 +247,8 @@
         <item quantity="other">з %1$d не вийшло</item>
     </plurals>
     <string name="rename_template">Ім\'я</string>
+    <string name="rename_select_all">Вибрати все</string>
+    <string name="rename_clear">Очистити</string>
     <string name="rename_start">Перший номер</string>
     <string name="rename_hint">Кожен ланцюжок ґраток стає номером, і скільки їх напишете, стільки буде цифр: ## дає 01, ### дає 001. Розширення не чіпається, а файли нумеруються за абеткою.</string>
     <string name="rename_preview">Перегляд</string>
@@ -426,6 +428,7 @@
     <string name="settings_labels_desc">Якщо вимкнути, панелі значків стають компактнішими. Меню-списки не змінюються.</string>
     <string name="settings_buttons_how">Натисніть і утримуйте кнопку, потім перетягніть її на нове місце в межах її панелі.</string>
     <string name="settings_buttons_reset">Скинути</string>
+    <string name="settings_buttons_reset_ask">Справді повернутися до типового порядку?</string>
     <string name="settings_buttons_bin">У кошику \'Повернути\' стоїть на місці \'Перейменувати\'.</string>
     <string name="settings_buttons_before">Пересунути раніше</string>
     <string name="settings_buttons_after">Пересунути пізніше</string>

@@ -274,6 +274,13 @@ grande un dialogo esattamente al centro fa allungare la mano.
 - ⚠️ **La stretta è parte della definizione**, non una prudenza aggiunta: *le cose
   particolarmente alte si prendono lo spazio che serve*. Lo spostamento si riduce da sé fino a
   sparire quando sotto non c'è più aria.
+  - ⚠️⚠️ **E UNA TASTIERA APERTA RENDE ALTO QUALUNQUE DIALOGO, dalla `1.60`** (riscontro del
+    giro della `1.59`: *la finestra di rinomina dev'essere 'pronta' a scorrere più in alto
+    quando appaiono tastiere alte*). Fino alla `1.59` il 15% si contava sull'altezza intera
+    anche a tastiera aperta, quindi l'aria che la stretta misurava era aria che la tastiera
+    aveva già preso, e il pannello scendeva dentro di lei. **Non è servita una regola nuova**:
+    bastava che la misura dicesse la verità, e adesso `windowHeight()` toglie anche la
+    tastiera. Vale per ogni superficie centrata, non per la sola rinomina.
 - ⚠️ **Il 15% si misura sull'altezza della FINESTRA**, non sullo spazio libero: sullo spazio
   libero sarebbe una frazione di una frazione, quindi su un dialogo alto il movimento
   sparirebbe proprio dove il pollice fatica di più.

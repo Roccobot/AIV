@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">資料夾格狀檢視的欄數</string>
     <string name="settings_folder_columns_desc">欄數越多,螢幕上放得下的資料夾越多,每張封面也越小。到四欄時,下面的名稱通常會被截斷。</string>
     <string name="settings_folder_count">格狀檢視中資料夾下方的項目計數</string>
-    <string name="settings_hand">浮動按鈕（\'FAB\'）所在的一側</string>
-    <string name="settings_hand_desc">浮動按鈕位於哪個下角，它開啟的面板和格線為它留出的空間也跟著走。</string>
+    <string name="settings_hand">浮動按鈕的位置</string>
+    <string name="settings_hand_desc">選單按鈕疊放在螢幕上的那一側（\'FAB\'）。</string>
     <string name="settings_right">右側</string>
     <string name="settings_left">左側</string>
     <string name="settings_list_path">檔案清單：一併複製資料夾路徑</string>
@@ -223,6 +223,8 @@
         <item quantity="other">%1$d 項沒有成功</item>
     </plurals>
     <string name="rename_template">名稱</string>
+    <string name="rename_select_all">全選</string>
+    <string name="rename_clear">清空</string>
     <string name="rename_start">起始編號</string>
     <string name="rename_hint">每一串井字號都會變成編號,你寫幾個就有幾位數:## 得到 01,### 得到 001。副檔名不會被更動,檔案依字母順序編號。</string>
     <string name="rename_preview">預覽</string>
@@ -378,6 +380,7 @@
     <string name="settings_labels_desc">若關閉，圖示面板會更精簡。清單選單不變。</string>
     <string name="settings_buttons_how">長按一個按鈕，然後拖曳它來改變它在所屬面板中的位置。</string>
     <string name="settings_buttons_reset">重設</string>
+    <string name="settings_buttons_reset_ask">確定要恢復預設排列嗎？</string>
     <string name="settings_buttons_bin">在回收筒裡，\'還原\' 出現在 \'重新命名\' 的位置。</string>
     <string name="settings_buttons_before">前移</string>
     <string name="settings_buttons_after">後移</string>

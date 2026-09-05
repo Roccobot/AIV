@@ -769,7 +769,13 @@ fun GridScreen(
         chosen = emptySet()
         scope.launch {
             val out = work()
-            Toast.makeText(context, outcomeText(res, out, kind.done), Toast.LENGTH_LONG).show()
+            // ⚠️ **Il cestino tace, e chi decide è [FileKind.speaks]**: la sua notifica
+            // dice la stessa cosa e in più offre di disfare, e due messaggi in fondo
+            // allo schermo si coprirebbero a vicenda.
+            if (kind.speaks(out)) {
+                Toast.makeText(context, outcomeText(res, out, kind.done), Toast.LENGTH_LONG)
+                    .show()
+            }
             worked = true
             onChanged()
         }
@@ -1269,6 +1275,9 @@ fun GridScreen(
                         lift = FAB_LIFT,
                         holdLabel = stringResource(shortcutLabel),
                         lifted = menu.inScene,
+                        // ⚠️ **`wanted` e non `inScene`**: il perché sta sul parametro
+                        // `pressed` di [TapHoldFab], ed è il riscontro del giro della `1.59`.
+                        pressed = menu.wanted,
                         // ⚠️ **Apre e basta, dalla 1.06**: a menu aperto il tocco non
                         // arriva più qui, perché lo mangia il velo trasparente (vedi
                         // `menuOpen` in fondo alla schermata). Un'alternanza qui
@@ -1348,6 +1357,8 @@ fun GridScreen(
          */
         UndoNotice(
             visible = cleared != null,
+            text = stringResource(R.string.pick_cleared),
+            action = stringResource(R.string.pick_undo),
             modifier = Modifier.align(Alignment.BottomCenter),
             // ⚠️ `orEmpty()` e non `!!`: fra il tocco e questa riga il conto dei tre secondi
             // può essere scaduto, e con la notifica già in uscita il tasto non deve far
@@ -2172,84 +2183,6 @@ private fun FabPop(
 }
 
 /**
- * La notifica che dice che la selezione è stata azzerata, e offre di rimetterla.
- *
- * ⚠️⚠️ **È UNO `Snackbar` DI MATERIAL E NON UNA SUPERFICIE DISEGNATA IN CASA**: la frase a
- * sinistra e l'azione a destra sulla stessa riga sono esattamente la sua forma, e con lui
- * arrivano il colore rovesciato, lo stondamento, i rientri e i due stili di testo, che
- * rifatti a mano sarebbero sei valori da indovinare (la nota in testa a `Glyphs.kt` dice di
- * non ridisegnare quello che Material ha già).
- * ⚠️⚠️ **SENZA `SnackbarHost` E SENZA `SnackbarHostState`, e non è una scorciatoia**: quella
- * coppia serve a chi ha una **coda** di messaggi da mostrare a turno, e vuole un
- * `Scaffold`, che questa schermata non ha; qui il messaggio è uno solo, e la sua durata la
- * decide già l'effetto su `cleared`, che è anche il posto in cui 'o finché non si cambia
- * cartella' si può scrivere. Con la coda, la durata sarebbe di Material e quella condizione
- * non ci starebbe dentro.
- * ⚠️ **Il colore del tasto si scrive a mano**: dentro `Snackbar` un `TextButton` prende il
- * suo `primary` di fabbrica, che è pensato per il fondo della pagina e non per quello
- * rovesciato di una notifica. [SnackbarDefaults.actionContentColor] è il colore che
- * Material ha scelto per **quel** fondo.
- * ⚠️⚠️ **ARRIVA E SE NE VA COME LE DUE SCHEDE, con gli stessi numeri** ([ARRIVO_RIGIDITA],
- * [SHEET_FADE_MS], [USCITA_MS], [ACCELERA] in `Sheet.kt`): dalla 1.43 'arrivare dal basso'
- * in questa app ha una definizione, e una notifica che comparisse di scatto accanto a due
- * schede che scorrono direbbe di essere un'altra famiglia di cose. ⚠️ **Non è la molla di
- * fabbrica**: quella non l'aveva scelta nessuno, ed è la ragione per cui in `ActionPad` è
- * stata sostituita anche dove funzionava.
- * ⚠️ **Sta in una funzione a sé per la stessa ragione di [FabPop]**: chiamata sul posto,
- * `AnimatedVisibility` finisce sull'overload di `ColumnScope` e il compilatore la rifiuta.
- */
-@Composable
-private fun UndoNotice(
-    visible: Boolean,
-    onUndo: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    AnimatedVisibility(
-        visible = visible,
-        modifier = modifier,
-        enter = slideInVertically(
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioNoBouncy,
-                stiffness = ARRIVO_RIGIDITA,
-                visibilityThreshold = IntOffset.VisibilityThreshold
-            ),
-            initialOffsetY = { it }
-        ) + fadeIn(animationSpec = tween(durationMillis = SHEET_FADE_MS)),
-        exit = slideOutVertically(
-            animationSpec = tween(durationMillis = USCITA_MS, easing = ACCELERA),
-            targetOffsetY = { it }
-        ) + fadeOut(
-            animationSpec = tween(
-                durationMillis = SHEET_FADE_MS,
-                delayMillis = USCITA_MS - SHEET_FADE_MS
-            )
-        )
-    ) {
-        Snackbar(
-            modifier = Modifier
-                // ⚠️ **Il rientro di sistema se lo mette da sé**, come le due schede: questa
-                // vive nel `Box` di radice della schermata, che arriva al bordo dello
-                // schermo, quindi senza questa riga starebbe sotto la barra di navigazione.
-                // ⚠️ **E qui la scheda si comporta al contrario**: là il fondo passa sotto
-                // la barra apposta (per prenderne il colore) e il rientro sta sul contenuto;
-                // una notifica non è appoggiata a niente e va spostata intera.
-                .navigationBarsPadding()
-                .padding(NOTICE_EDGE),
-            action = {
-                TextButton(
-                    onClick = onUndo,
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = SnackbarDefaults.actionContentColor
-                    )
-                ) { Text(stringResource(R.string.pick_undo)) }
-            }
-        ) {
-            Text(stringResource(R.string.pick_cleared))
-        }
-    }
-}
-
-/**
  * Il menu del cestino: **sul lato del tastino**, sopra di lui.
  *
  * ⚠️⚠️ **STAVA AL CENTRO FINO ALLA `1.53`, E ADESSO STA DOVE STA QUELLO DELLA SCHERMATA
@@ -2330,23 +2263,4 @@ private const val FAB_IN = 90
 
 /** L'uscita, in millisecondi: secca, e più breve dell'entrata. */
 private const val FAB_OUT = 110
-
-/**
- * Quanto resta in scena la notifica dell'azzeramento.
- *
- * ⚠️ **Tre secondi, come li ha chiesti** (*deve apparire per 3 secondi*), e non è il valore
- * di Material: `SnackbarDuration.Short` sono 4 secondi e `Long` 10. Con la coda di Material
- * non si potrebbe nemmeno scegliere, ed è una delle ragioni per cui qui non c'è (vedi
- * [UndoNotice]).
- */
-private const val UNDO_MS = 3000L
-
-/**
- * Il respiro fra la notifica e i tre bordi che la circondano.
- *
- * ⚠️ **12dp, che è quello che `SnackbarHost` di Material mette da sé**: qui l'ospite non
- * c'è, quindi il margine che avrebbe messo lui va scritto. Senza, la notifica toccherebbe
- * i lati dello schermo e la barra di sistema.
- */
-private val NOTICE_EDGE = 12.dp
 

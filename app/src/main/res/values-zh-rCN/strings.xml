@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">文件夹网格的列数</string>
     <string name="settings_folder_columns_desc">列数越多,屏幕上装下的文件夹越多,每张封面也越小。到四列时,下面的名字通常会被截断。</string>
     <string name="settings_folder_count">网格视图中文件夹下方的项目计数</string>
-    <string name="settings_hand">悬浮按钮（\'FAB\'）所在的一侧</string>
-    <string name="settings_hand_desc">悬浮按钮位于哪个下角，它打开的面板和网格为它留出的空间也跟着走。</string>
+    <string name="settings_hand">悬浮按钮的位置</string>
+    <string name="settings_hand_desc">菜单按钮叠放在屏幕上的那一侧（\'FAB\'）。</string>
     <string name="settings_right">右侧</string>
     <string name="settings_left">左侧</string>
     <string name="settings_list_path">文件列表：一并复制文件夹路径</string>
@@ -223,6 +223,8 @@
         <item quantity="other">%1$d 项没有成功</item>
     </plurals>
     <string name="rename_template">名称</string>
+    <string name="rename_select_all">全选</string>
+    <string name="rename_clear">清空</string>
     <string name="rename_start">起始编号</string>
     <string name="rename_hint">每一串井号都会变成编号,你写几个就有几位数:## 得到 01,### 得到 001。扩展名不会被改动,文件按字母顺序编号。</string>
     <string name="rename_preview">预览</string>
@@ -378,6 +380,7 @@
     <string name="settings_labels_desc">若关闭，图标面板会更紧凑。列表菜单不变。</string>
     <string name="settings_buttons_how">长按一个按钮，然后拖动它来改变它在所属面板中的位置。</string>
     <string name="settings_buttons_reset">重置</string>
+    <string name="settings_buttons_reset_ask">确定要恢复默认排列吗？</string>
     <string name="settings_buttons_bin">在回收站里，\'还原\' 出现在 \'重命名\' 的位置。</string>
     <string name="settings_buttons_before">前移</string>
     <string name="settings_buttons_after">后移</string>

@@ -196,8 +196,8 @@
     <string name="settings_folder_columns">Columns in the folder grid</string>
     <string name="settings_folder_columns_desc">More columns fit more folders on screen and shrink each cover. At four the name under it is usually cut short.</string>
     <string name="settings_folder_count">Item counter under folders in grid view</string>
-    <string name="settings_hand">Side of the floating buttons (\'FAB\')</string>
-    <string name="settings_hand_desc">Which bottom corner the floating button sits in, with the panel it opens and the room the grid leaves it.</string>
+    <string name="settings_hand">Position of the floating buttons</string>
+    <string name="settings_hand_desc">The side of the screen that holds the menu buttons overlaid on it (\'FAB\').</string>
     <string name="settings_right">Right</string>
     <string name="settings_left">Left</string>
     <string name="settings_list_path">File list: copy the containing folder path</string>
@@ -470,6 +470,8 @@
 
     <!-- ── Renaming in bulk ── -->
     <string name="rename_template">Name</string>
+    <string name="rename_select_all">Select all</string>
+    <string name="rename_clear">Clear</string>
     <string name="rename_start">First number</string>
     <string name="rename_hint">Every run of hashes becomes the number, and how many you write is how many digits: ## gives 01, ### gives 001. The extension is never touched, and the files are numbered in alphabetical order.</string>
     <string name="rename_preview">Preview</string>
@@ -563,6 +565,7 @@
     <string name="settings_labels_desc">If turned off, the icon panels get more compact. List menus are unchanged.</string>
     <string name="settings_buttons_how">Press and hold a button, then drag it to change its place within its panel.</string>
     <string name="settings_buttons_reset">Reset</string>
+    <string name="settings_buttons_reset_ask">Really go back to the default arrangement?</string>
     <string name="settings_buttons_bin">In the bin, \'Restore\' takes the place of \'Rename\'.</string>
     <string name="settings_buttons_before">Move earlier</string>
     <string name="settings_buttons_after">Move later</string>

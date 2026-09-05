@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">Spalten im Ordnerraster</string>
     <string name="settings_folder_columns_desc">Mehr Spalten bringen mehr Ordner auf den Bildschirm und machen jedes Titelbild kleiner. Bei vier wird der Name darunter meist abgeschnitten.</string>
     <string name="settings_folder_count">Zähler der Elemente unter den Ordnern in der Rasteransicht</string>
-    <string name="settings_hand">Seite der schwebenden Schaltflächen (\'FAB\')</string>
-    <string name="settings_hand_desc">In welcher unteren Ecke die schwebende Schaltfläche sitzt, mit dem Feld, das sie öffnet, und dem Platz, den das Raster ihr lässt.</string>
+    <string name="settings_hand">Position der schwebenden Schaltflächen</string>
+    <string name="settings_hand_desc">Die Bildschirmseite, auf der die Menü-Schaltflächen über dem Inhalt liegen (\'FAB\').</string>
     <string name="settings_right">Rechts</string>
     <string name="settings_left">Links</string>
     <string name="settings_list_path">Dateiliste: Pfad des übergeordneten Ordners kopieren</string>
@@ -231,6 +231,8 @@
         <item quantity="other">%1$d haben nicht geklappt</item>
     </plurals>
     <string name="rename_template">Name</string>
+    <string name="rename_select_all">Alles auswählen</string>
+    <string name="rename_clear">Leeren</string>
     <string name="rename_start">Erste Nummer</string>
     <string name="rename_hint">Jede Folge von Rauten wird zur Zahl, und wie viele du schreibst, so viele Stellen hat sie: ## gibt 01, ### gibt 001. Die Endung wird nie angetastet, und die Dateien werden alphabetisch nummeriert.</string>
     <string name="rename_preview">Vorschau</string>
@@ -394,6 +396,7 @@
     <string name="settings_labels_desc">Wenn ausgeschaltet, werden die Symbolfelder kompakter. Listenmenüs bleiben unverändert.</string>
     <string name="settings_buttons_how">Halte eine Schaltfläche gedrückt und ziehe sie an ihren neuen Platz innerhalb ihres Feldes.</string>
     <string name="settings_buttons_reset">Zurücksetzen</string>
+    <string name="settings_buttons_reset_ask">Wirklich zur Standardanordnung zurückkehren?</string>
     <string name="settings_buttons_bin">Im Papierkorb steht \'Wiederherstellen\' an der Stelle von \'Umbenennen\'.</string>
     <string name="settings_buttons_before">Nach vorn</string>
     <string name="settings_buttons_after">Nach hinten</string>

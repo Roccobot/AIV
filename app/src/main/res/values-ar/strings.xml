@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">أعمدة شبكة المجلدات</string>
     <string name="settings_folder_columns_desc">كلما زادت الأعمدة زاد عدد المجلدات على الشاشة وصغر كل غلاف. عند أربعة أعمدة يُقتطع الاسم أسفله غالبًا.</string>
     <string name="settings_folder_count">عدّاد العناصر تحت المجلدات في عرض الشبكة</string>
-    <string name="settings_hand">جهة الأزرار العائمة (\'FAB\')</string>
-    <string name="settings_hand_desc">في أي زاوية سفلية يقف الزر العائم، ومعه اللوحة التي يفتحها والمساحة التي تتركها له الشبكة.</string>
+    <string name="settings_hand">موضع الأزرار العائمة</string>
+    <string name="settings_hand_desc">جهة الشاشة التي تحمل أزرار القوائم الموضوعة فوقها (\'FAB\').</string>
     <string name="settings_right">يمين</string>
     <string name="settings_left">يسار</string>
     <string name="settings_list_path">قائمة الملفات: انسخ مسار المجلد</string>
@@ -263,6 +263,8 @@
         <item quantity="other">%1$d لم تنجح</item>
     </plurals>
     <string name="rename_template">الاسم</string>
+    <string name="rename_select_all">تحديد الكل</string>
+    <string name="rename_clear">مسح</string>
     <string name="rename_start">الرقم الأول</string>
     <string name="rename_hint">كل سلسلة من علامات المربع تصير الرقم، وبعدد ما تكتب منها تكون الخانات: ## تعطي 01، و### تعطي 001. الامتداد لا يُمس أبدًا، وتُرقّم الملفات بالترتيب الأبجدي.</string>
     <string name="rename_preview">معاينة</string>
@@ -458,6 +460,7 @@
     <string name="settings_labels_desc">عند إيقافها تصبح لوحات الأيقونات أكثر إحكامًا. ولا تتغير قوائم السرد.</string>
     <string name="settings_buttons_how">اضغط مطولا على زر ثم اسحبه لتغيير موضعه داخل لوحته.</string>
     <string name="settings_buttons_reset">إعادة تعيين</string>
+    <string name="settings_buttons_reset_ask">هل تريد فعلاً العودة إلى الترتيب الافتراضي؟</string>
     <string name="settings_buttons_bin">في سلة المهملات تحل \'استعادة\' محل \'إعادة تسمية\'.</string>
     <string name="settings_buttons_before">نقل إلى الأمام</string>
     <string name="settings_buttons_after">نقل إلى الخلف</string>

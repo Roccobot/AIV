@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">సంచయ గడిలో నిలువు వరుసలు</string>
     <string name="settings_folder_columns_desc">నిలువు వరుసలు ఎక్కువైతే తెరపై ఎక్కువ సంచయాలు ఇమిడతాయి, ప్రతి ముఖచిత్రం చిన్నదవుతుంది. నాలుగు వద్ద కింది పేరు తరచుగా కత్తిరించబడుతుంది.</string>
     <string name="settings_folder_count">గ్రిడ్ వీక్షణలో సంచయాల కింద అంశాల లెక్క</string>
-    <string name="settings_hand">తేలియాడే బటన్ల వైపు (\'FAB\')</string>
-    <string name="settings_hand_desc">తేలియాడే బటన్ కింద ఏ మూలలో ఉంటుంది, అది తెరిచే ప్యానెల్‌తో పాటు గ్రిడ్ దానికి వదిలే స్థలంతో సహా.</string>
+    <string name="settings_hand">తేలియాడే బటన్ల స్థానం</string>
+    <string name="settings_hand_desc">మెను బటన్లు తెరపై పైన ఉంచబడే వైపు (\'FAB\').</string>
     <string name="settings_right">కుడి</string>
     <string name="settings_left">ఎడమ</string>
     <string name="settings_list_path">దస్త్ర జాబితా: సంచయ మార్గాన్ని కూడా కాపీ చెయ్యి</string>
@@ -231,6 +231,8 @@
         <item quantity="other">%1$d జరగలేదు</item>
     </plurals>
     <string name="rename_template">పేరు</string>
+    <string name="rename_select_all">అన్నీ ఎంచుకో</string>
+    <string name="rename_clear">ఖాళీ చేయి</string>
     <string name="rename_start">మొదటి సంఖ్య</string>
     <string name="rename_hint">గడి గుర్తుల ప్రతి వరుస సంఖ్యగా మారుతుంది, ఎన్ని రాస్తే అన్ని అంకెలు: ## ఇస్తుంది 01, ### ఇస్తుంది 001. పొడిగింపును ఎప్పుడూ ముట్టుకోరు, ఫైళ్ళకు అక్షర క్రమంలో సంఖ్యలు వస్తాయి.</string>
     <string name="rename_preview">మునుజూపు</string>
@@ -394,6 +396,7 @@
     <string name="settings_labels_desc">ఆపివేస్తే చిహ్నాల ప్యానెళ్లు మరింత కుదించుకుంటాయి. జాబితా మెనూలు మారవు.</string>
     <string name="settings_buttons_how">ఒక బటన్‌ను నొక్కి పట్టి లాగి, దాని సొంత ప్యానెల్‌లో దాని స్థానాన్ని మార్చండి.</string>
     <string name="settings_buttons_reset">రీసెట్</string>
+    <string name="settings_buttons_reset_ask">నిజంగా అప్రమేయ అమరికకు తిరిగి వెళ్లాలా?</string>
     <string name="settings_buttons_bin">చెత్తబుట్టలో \'పేరు మార్చు\' స్థానంలో \'తిరిగి తెచ్చు\' వస్తుంది.</string>
     <string name="settings_buttons_before">ముందుకు జరుపు</string>
     <string name="settings_buttons_after">వెనక్కి జరుపు</string>

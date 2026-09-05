@@ -2,6 +2,7 @@ package io.github.roccobot.aiv
 
 import android.net.Uri
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -29,19 +30,27 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isSpecified
+import androidx.compose.ui.unit.times
 import kotlinx.coroutines.launch
 
 /**
@@ -196,9 +205,34 @@ fun RenameDialog(
         },
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                /*
+                 * ⚠️⚠️ **IL CAMPO PASSA DA UN `TextFieldValue` DALLA `1.60`, e serve solo a
+                 * portare la POSIZIONE DEL CURSORE** (riscontro del giro della `1.59`: *al tocco
+                 * sul campo di testo, il cursore deve posizionarsi in fondo: un eventuale nome
+                 * lungo deve essere già visualizzato nella sua ultima parte e il cursore deve
+                 * lampeggiare alla fine*). Con la versione a `String` la posizione del cursore
+                 * non esiste come dato: la tiene il campo per conto suo, e nessuno da fuori la
+                 * può mettere in fondo.
+                 * ⚠️ **La verità resta [template]**, e questo lo rispecchia: è quello che
+                 * l'anteprima e il tasto leggono, ed è quello che sopravvive alla rotazione
+                 * (`rememberSaveable`). Il valore col cursore no, ed è giusto: dopo una
+                 * rotazione l'effetto qui sotto lo rifà con la coda in vista.
+                 * ⚠️ **Una casella lunga si porta il cursore dietro**: un campo a riga sola
+                 * scorre fin dove sta il cursore, quindi mettendolo in fondo la coda del nome è
+                 * quella che si vede. È la seconda metà della richiesta, e viene da sé.
+                 */
+                var campo by remember { mutableStateOf(TextFieldValue()) }
+                LaunchedEffect(template) {
+                    if (campo.text != template) {
+                        campo = TextFieldValue(template, TextRange(template.length))
+                    }
+                }
                 OutlinedTextField(
-                    value = template,
-                    onValueChange = { template = it },
+                    value = campo,
+                    onValueChange = { scritto ->
+                        campo = scritto
+                        template = scritto.text
+                    },
                     label = { Text(stringResource(R.string.rename_template)) },
                     singleLine = true,
                     // ⚠️ Con un file solo il tasto della tastiera dice 'fine' e non 'avanti':
@@ -207,8 +241,53 @@ fun RenameDialog(
                         imeAction = if (singolo) ImeAction.Done else ImeAction.Next
                     ),
                     shape = BOX_SHAPE,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        // ⚠️ **Solo quando il fuoco ARRIVA**, non a ogni ricomposizione:
+                        // `onFocusChanged` parla quando lo stato cambia, quindi questa riga
+                        // gira una volta per apertura di tastiera e non combatte con chi
+                        // scrive.
+                        .onFocusChanged { stato ->
+                            if (stato.isFocused) {
+                                campo = campo.copy(selection = TextRange(campo.text.length))
+                            }
+                        }
                 )
+                /*
+                 * ⚠️⚠️ **I DUE COMANDI SUL NOME, dalla `1.60`** (richiesta dell'utente, giro
+                 * della `1.59`: *sarebbero utili due tasti 'Seleziona tutto' e 'Svuota' che
+                 * agiscono sul campo nome, ma non so come inserirli. Dovrebbero essere molto
+                 * sobri e poco invadenti*).
+                 * ⚠️⚠️ **LA FORMA È QUELLA CHE HA GIÀ APPROVATO**, cioè il 'Ripristina' dei
+                 * riquadri del riordino: a destra, in un corpo più piccolo, e sbiadito quando
+                 * non c'è niente da fare. Inventarne una seconda per la stessa specie di comando
+                 * vorrebbe dire due modi di dire 'questo è secondario'.
+                 * ⚠️ **Sbiaditi e non spariti**, per la stessa ragione scritta là: un comando
+                 * che compare e scompare si cerca proprio nel momento in cui non c'è.
+                 * ⚠️ **Non toccano il fuoco**: chi li usa ha la tastiera aperta, e una selezione
+                 * o uno svuotamento che la chiudessero costringerebbero a un tocco in più per
+                 * riaprirla.
+                 */
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Quiet(
+                        text = stringResource(R.string.rename_select_all),
+                        enabled = campo.text.isNotEmpty(),
+                        onTap = {
+                            campo = campo.copy(selection = TextRange(0, campo.text.length))
+                        }
+                    )
+                    Quiet(
+                        text = stringResource(R.string.rename_clear),
+                        enabled = campo.text.isNotEmpty(),
+                        onTap = {
+                            campo = TextFieldValue()
+                            template = ""
+                        }
+                    )
+                }
                 // ⚠️ Il primo numero e la spiegazione dei cancelletti escono di scena con un
                 // file solo: là non c'è niente da numerare, e una casella che non decide
                 // niente si legge come una cosa da riempire.
@@ -512,6 +591,35 @@ private fun PreviewRow(row: Pairing) {
  */
 private val ARROW_SIZE = 20.dp
 
+/**
+ * Un comando secondario: piccolo, a destra, e sbiadito quando non serve.
+ *
+ * ⚠️ **È la stessa forma del 'Ripristina' dei riquadri del riordino**, e sta in una funzione
+ * perché qui ne servono due: la ragione per cui quella forma è questa sta là, e ripeterla in
+ * due punti di questo file sarebbe il primo posto in cui divergere.
+ */
+@Composable
+private fun Quiet(text: String, enabled: Boolean, onTap: () -> Unit) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier
+            .clickable(enabled = enabled, onClick = onTap)
+            .padding(horizontal = 8.dp, vertical = 6.dp)
+            .alpha(if (enabled) 1f else QUIET_OFF)
+    )
+}
+
+/**
+ * Quanto è sbiadito un comando che in quel momento non ha niente da fare.
+ *
+ * ⚠️ **Lo stesso numero del `RESET_OFF` delle impostazioni**, che è il valore con cui Material
+ * segna un comando spento: due numeri diversi per la stessa idea sarebbero due gradi di
+ * 'spento' nella stessa app.
+ */
+private const val QUIET_OFF = 0.38f
+
 @Composable
 private fun NamePill(
     text: AnnotatedString,
@@ -530,6 +638,31 @@ private fun NamePill(
     border: BorderStroke,
     modifier: Modifier = Modifier
 ) {
+    /*
+     * ⚠️⚠️ **IL TESTO SI STRINGE PER NON LASCIARE UN CARATTERE DA SOLO, dalla `1.60`**
+     * (riscontro del giro della `1.59`: *se si rischia di andare a capo con un solo carattere,
+     * per me va bene anche riscrivere il testo con un carattere leggermente più piccolo per
+     * farcelo stare, entro una certa soglia*). È la **prima** delle tre vie che ha indicato;
+     * la terza (andare a capo con tutta l'estensione) è quella che regge sotto, e vive su
+     * `BREAK_HERE` in `Names.kt`.
+     * ⚠️⚠️ **LA SECONDA VIA, L'ELLISSI, NON SI FA, e va detto invece di lasciarlo intendere**:
+     * qui i tre punti li metterebbe `TextOverflow` alla **fine**, cioè mangerebbero proprio
+     * l'estensione, che è la parte che lui ha chiesto di salvare sempre. In un'anteprima di
+     * rinomina, un nome accorciato non si può nemmeno confrontare con l'altro.
+     * ⚠️ **La misura arriva da `onTextLayout` e non da un conto sui caratteri**: quanti ne
+     * stanno su una riga dipende da quali sono, e un tetto scritto a mano sarebbe sbagliato in
+     * ogni lingua e a ogni larghezza.
+     * ⚠️ **Converge per costruzione**: si scende di un gradino per volta e mai sotto
+     * [PILL_FLOOR], quindi il giro è finito anche quando stringere non toglie l'orfano.
+     * ⚠️ **La chiave è il testo**: cambiando nome si riparte dalla misura piena, o il primo
+     * nome difficile rimpicciolirebbe per sempre tutti quelli dopo.
+     */
+    var stretta by remember(text) { mutableStateOf(1f) }
+    val base = MaterialTheme.typography.bodySmall
+    val stile = if (stretta == 1f) base else base.copy(
+        fontSize = base.fontSize * stretta,
+        lineHeight = if (base.lineHeight.isSpecified) base.lineHeight * stretta else base.lineHeight
+    )
     Surface(
         color = back,
         shape = BOX_SHAPE,
@@ -538,7 +671,10 @@ private fun NamePill(
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.bodySmall,
+            style = stile,
+            onTextLayout = { steso ->
+                if (stretta > PILL_FLOOR && orphan(steso)) stretta -= PILL_STEP
+            },
             color = front,
             fontWeight = weight,
             /*
@@ -569,3 +705,32 @@ private fun NamePill(
         )
     }
 }
+
+/**
+ * Se l'ultima riga porta un carattere solo, cioè un orfano.
+ *
+ * ⚠️ **Il conto è in unità di codice e non in caratteri visibili**, e va bene: l'estensione
+ * porta i giuntori invisibili di `Names.kt`, quindi la sua riga conta sempre più di uno e non
+ * si può scambiare per un orfano. Chi cerca il numero vero di lettere qui non lo troverebbe, e
+ * qui non serve.
+ * ⚠️ **Una riga sola non ha orfani**: se il nome sta tutto su una riga non c'è niente da
+ * stringere, e senza questa guardia un nome cortissimo si stringerebbe fino al fondo.
+ */
+private fun orphan(steso: TextLayoutResult): Boolean {
+    val ultima = steso.lineCount - 1
+    if (ultima <= 0) return false
+    return steso.getLineEnd(ultima, visibleEnd = true) - steso.getLineStart(ultima) <= 1
+}
+
+/**
+ * Di quanto si stringe il testo a ogni passata, e fin dove.
+ *
+ * ⚠️ **La soglia è l'80%, cioè 'entro una certa soglia' tradotto in un numero**: sotto, il
+ * confronto fra le due pastiglie comincerebbe a costare più di quello che l'orfano toglieva,
+ * perché quella di sopra e quella di sotto avrebbero due corpi diversi e non si leggerebbero
+ * più come una coppia.
+ * ⚠️ **Il gradino è del 5%**: più fine vorrebbe dire più passate di misura per un guadagno che
+ * a occhio non si vede, più grosso farebbe saltare la misura giusta.
+ */
+private const val PILL_STEP = 0.05f
+private const val PILL_FLOOR = 0.80f

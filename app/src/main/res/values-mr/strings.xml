@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">संचिकासंच जाळीतील स्तंभ</string>
     <string name="settings_folder_columns_desc">जास्त स्तंभांत पडद्यावर जास्त संचिकासंच बसतात आणि प्रत्येक मुखपृष्ठ लहान होते. चार असताना खालचे नाव बहुधा कापले जाते.</string>
     <string name="settings_folder_count">जाळी दृश्यात फोल्डरखाली घटकांची मोजणी</string>
-    <string name="settings_hand">तरंगत्या बटणांची बाजू (\'FAB\')</string>
-    <string name="settings_hand_desc">तरंगते बटण खालच्या कोणत्या कोपऱ्यात राहते, ते उघडणारे पटल आणि जाळी त्याला सोडणारी जागा यांच्यासह.</string>
+    <string name="settings_hand">तरंगत्या बटणांची स्थिती</string>
+    <string name="settings_hand_desc">पडद्याची ती बाजू जिथे त्याच्यावर ठेवलेली मेन्यू बटणे राहतात (\'FAB\').</string>
     <string name="settings_right">उजवीकडे</string>
     <string name="settings_left">डावीकडे</string>
     <string name="settings_list_path">संचिका यादी: संचिकासंचाचा मार्गही प्रत करा</string>
@@ -231,6 +231,8 @@
         <item quantity="other">%1$d झाल्या नाहीत</item>
     </plurals>
     <string name="rename_template">नाव</string>
+    <string name="rename_select_all">सर्व निवडा</string>
+    <string name="rename_clear">रिकामे करा</string>
     <string name="rename_start">पहिला क्रमांक</string>
     <string name="rename_hint">चौकटीच्या खुणांची प्रत्येक मालिका क्रमांक होते, आणि जितक्या लिहाल तितके अंक: ## देते 01, ### देते 001. विस्ताराला कधीही हात लावला जात नाही, आणि संचिकांना अकारविल्हे क्रमांक मिळतात.</string>
     <string name="rename_preview">पूर्वदृश्य</string>
@@ -394,6 +396,7 @@
     <string name="settings_labels_desc">बंद केल्यास चिन्हांची पटले अधिक सुटसुटीत होतात. यादी मेनू बदलत नाहीत.</string>
     <string name="settings_buttons_how">एखादे बटण दाबून धरा आणि ओढून त्याच्या स्वतःच्या पटलातील जागा बदला.</string>
     <string name="settings_buttons_reset">रीसेट</string>
+    <string name="settings_buttons_reset_ask">खरोखर मूळ मांडणीवर परत जायचे?</string>
     <string name="settings_buttons_bin">कचऱ्यात \'नाव बदला\'च्या जागी \'पुन्हा आणा\' येते.</string>
     <string name="settings_buttons_before">आधी हलवा</string>
     <string name="settings_buttons_after">नंतर हलवा</string>

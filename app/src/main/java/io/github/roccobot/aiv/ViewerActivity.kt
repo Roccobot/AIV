@@ -36,10 +36,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -1998,9 +2000,9 @@ private fun AivApp(model: ViewerViewModel) {
             onDismiss = { model.editorSkip() }
         )
     }
+    val context = LocalContext.current
     val said = model.notice
     if (said != null) {
-        val context = LocalContext.current
         // ⚠️ L'avviso si azzera subito dopo averlo mostrato: senza, la chiave resterebbe la
         // stessa e la frase tornerebbe identica al primo ridisegno, ma soprattutto non si
         // potrebbe più mostrare **due volte** la stessa (due copie salvate di fila).
@@ -2009,6 +2011,28 @@ private fun AivApp(model: ViewerViewModel) {
             model.noticeShown()
         }
     }
+    /*
+     * ⚠️⚠️ **L'OFFERTA DI DISFARE UN'ELIMINAZIONE STA QUI, SOPRA LA TRANSIZIONE FRA SCHERMATE**
+     * (richiesta dell'utente, giro della `1.59`: *resta disponibile anche se si cambia
+     * cartella*). È la stessa ragione del selettore e dell'avviso qui sopra, scritta un'altra
+     * volta perché qui la clausola è **esplicita**: dentro un ramo del `when` la notifica se ne
+     * andrebbe proprio nell'istante in cui deve restare. Che cosa la tiene in vita, e perché lo
+     * stato non è un parametro, sta in testa a [Undo].
+     * ⚠️ **Il conto alla rovescia riparte a ogni offerta nuova**: la chiave dell'effetto è
+     * l'elenco, e due eliminazioni di fila non ne producono mai uno uguale, perché i nomi nel
+     * cestino sono unici (`FileTree.freeName`).
+     * ⚠️ **Il tasto si prende l'elenco PRIMA di azzerarlo**: fra il tocco e il lavoro passa un
+     * fotogramma, e leggere l'offerta dentro l'ambito la troverebbe già vuota.
+     */
+    val disfare = Undo.offerta
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(disfare) {
+        if (disfare.isNotEmpty()) {
+            delay(UNDO_MS)
+            Undo.clear()
+        }
+    }
+    Box(modifier = Modifier.fillMaxSize()) {
     /*
      * ⚠️⚠️ **OGNI CAMBIO DI SCHERMATA È UNA DISSOLVENZA, dalla `1.56`** (riscontro dell'utente,
      * giro della `1.55`: *la transizione da FAB -> menu -> Impostazioni è molto brusca, quasi
@@ -2029,18 +2053,41 @@ private fun AivApp(model: ViewerViewModel) {
      * due decimi di secondo la griglia e l'immagine insieme mentre le barre si muovono. È anche
      * il passaggio più frequente dell'app, quello che si fa a ogni fotografia aperta.
      */
-    AnimatedContent(
-        targetState = model.screen,
-        transitionSpec = {
-            if (initialState is Screen.Viewer || targetState is Screen.Viewer) {
-                EnterTransition.None togetherWith ExitTransition.None
-            } else {
-                fadeIn(tween(SCHERMO_MS)) togetherWith fadeOut(tween(SCHERMO_MS))
-            } using SizeTransform(clip = false)
-        },
-        label = "schermata"
-    ) { schermo ->
-        Stage(schermo, model, settings)
+        AnimatedContent(
+            targetState = model.screen,
+            transitionSpec = {
+                if (initialState is Screen.Viewer || targetState is Screen.Viewer) {
+                    EnterTransition.None togetherWith ExitTransition.None
+                } else {
+                    fadeIn(tween(SCHERMO_MS)) togetherWith fadeOut(tween(SCHERMO_MS))
+                } using SizeTransform(clip = false)
+            },
+            label = "schermata"
+        ) { schermo ->
+            Stage(schermo, model, settings)
+        }
+        UndoNotice(
+            visible = disfare.isNotEmpty(),
+            /*
+             * ⚠️ **La frase è quella che l'avviso di sistema diceva prima**, non una nuova: dice
+             * esattamente questo, esiste già in ventotto lingue, e riscriverne una che le
+             * somiglia sarebbe due modi di dire la stessa cosa. Chi ha smesso di dirla è
+             * `FileKind.speaks`, e il perché sta là.
+             * ⚠️ **Il conto è quello dei file ARRIVATI nel cestino**: `Bin.Sent.landed` porta i
+             * soli passati, quindi qui non si sottrae niente.
+             */
+            text = pluralStringResource(R.plurals.trash_done, disfare.size, disfare.size),
+            action = stringResource(R.string.pick_undo),
+            modifier = Modifier.align(Alignment.BottomCenter),
+            onUndo = {
+                val quali = disfare
+                Undo.clear()
+                scope.launch {
+                    Bin.restore(context, quali)
+                    model.reloadGrid()
+                }
+            }
+        )
     }
 }
 
