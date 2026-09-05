@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">Colonnes dans la grille des dossiers</string>
     <string name="settings_folder_columns_desc">Plus de colonnes font tenir plus de dossiers à l\'écran et rétrécissent chaque vignette. À quatre, le nom en dessous est souvent tronqué.</string>
     <string name="settings_folder_count">Compteur des éléments sous les dossiers en vue grille</string>
-    <string name="settings_hand">Côté des boutons flottants (\'FAB\')</string>
-    <string name="settings_hand_desc">Dans quel coin bas se place le bouton flottant, avec le panneau qu\'il ouvre et la place que la grille lui laisse.</string>
+    <string name="settings_hand">Position des boutons flottants</string>
+    <string name="settings_hand_desc">Le côté de l\'écran qui accueille les boutons de menu superposés à celui-ci (\'FAB\').</string>
     <string name="settings_right">Droite</string>
     <string name="settings_left">Gauche</string>
     <string name="settings_list_path">Liste de fichiers : copier le chemin du dossier parent</string>
@@ -239,6 +239,8 @@
         <item quantity="many">%1$d n\'ont pas abouti</item>
     </plurals>
     <string name="rename_template">Nom</string>
+    <string name="rename_select_all">Tout sélectionner</string>
+    <string name="rename_clear">Vider</string>
     <string name="rename_start">Premier numéro</string>
     <string name="rename_hint">Chaque suite de dièses devient le numéro, et le nombre que vous écrivez donne le nombre de chiffres : ## donne 01, ### donne 001. L\'extension n\'est jamais touchée, et les fichiers sont numérotés par ordre alphabétique.</string>
     <string name="rename_preview">Aperçu</string>
@@ -410,6 +412,7 @@
     <string name="settings_labels_desc">Si elles sont désactivées, les panneaux d\'icônes deviennent plus compacts. Les menus en liste ne changent pas.</string>
     <string name="settings_buttons_how">Appuyez longuement sur un bouton et faites-le glisser pour changer sa place au sein de son panneau.</string>
     <string name="settings_buttons_reset">Réinitialiser</string>
+    <string name="settings_buttons_reset_ask">Vraiment revenir à la disposition par défaut ?</string>
     <string name="settings_buttons_bin">Dans la corbeille, \'Restaurer\' prend la place de \'Renommer\'.</string>
     <string name="settings_buttons_before">Déplacer avant</string>
     <string name="settings_buttons_after">Déplacer après</string>

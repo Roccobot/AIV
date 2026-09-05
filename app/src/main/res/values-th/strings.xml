@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">จำนวนคอลัมน์ในตารางโฟลเดอร์</string>
     <string name="settings_folder_columns_desc">คอลัมน์ยิ่งมาก โฟลเดอร์ยิ่งลงหน้าจอได้มากและปกแต่ละอันยิ่งเล็ก ที่สี่คอลัมน์ ชื่อด้านล่างมักถูกตัด</string>
     <string name="settings_folder_count">ตัวนับรายการใต้โฟลเดอร์ในมุมมองตาราง</string>
-    <string name="settings_hand">ด้านของปุ่มลอย (\'FAB\')</string>
-    <string name="settings_hand_desc">ปุ่มลอยอยู่ที่มุมล่างด้านใด พร้อมกับแผงที่มันเปิดและพื้นที่ที่ตารางเว้นไว้ให้</string>
+    <string name="settings_hand">ตำแหน่งของปุ่มลอย</string>
+    <string name="settings_hand_desc">ด้านของหน้าจอที่มีปุ่มเมนูวางซ้อนอยู่ (\'FAB\')</string>
     <string name="settings_right">ขวา</string>
     <string name="settings_left">ซ้าย</string>
     <string name="settings_list_path">รายชื่อไฟล์: คัดลอกเส้นทางโฟลเดอร์ด้วย</string>
@@ -223,6 +223,8 @@
         <item quantity="other">%1$d ไม่สำเร็จ</item>
     </plurals>
     <string name="rename_template">ชื่อ</string>
+    <string name="rename_select_all">เลือกทั้งหมด</string>
+    <string name="rename_clear">ล้าง</string>
     <string name="rename_start">เลขเริ่มต้น</string>
     <string name="rename_hint">เครื่องหมายสี่เหลี่ยมทุกชุดจะกลายเป็นเลข และเขียนกี่ตัวก็ได้กี่หลัก: ## ให้ 01 และ ### ให้ 001 ส่วนขยายไม่ถูกแตะต้องเลย และไฟล์จะได้เลขตามลำดับตัวอักษร</string>
     <string name="rename_preview">ตัวอย่าง</string>
@@ -378,6 +380,7 @@
     <string name="settings_labels_desc">หากปิดไว้ แผงไอคอนจะกระชับขึ้น เมนูแบบรายการไม่เปลี่ยนแปลง</string>
     <string name="settings_buttons_how">แตะปุ่มค้างไว้แล้วลากเพื่อเปลี่ยนตำแหน่งของมันภายในแผงของมัน</string>
     <string name="settings_buttons_reset">รีเซ็ต</string>
+    <string name="settings_buttons_reset_ask">กลับไปใช้การจัดเรียงเริ่มต้นจริงหรือ</string>
     <string name="settings_buttons_bin">ในถังขยะ \'กู้คืน\' อยู่ในตำแหน่งของ \'เปลี่ยนชื่อ\'</string>
     <string name="settings_buttons_before">ย้ายไปก่อนหน้า</string>
     <string name="settings_buttons_after">ย้ายไปถัดไป</string>

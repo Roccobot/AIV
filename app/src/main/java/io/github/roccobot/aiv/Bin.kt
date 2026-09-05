@@ -99,12 +99,13 @@ object Bin {
      * ⚠️ **Si dice al MediaStore che le origini non ci sono più**, o la galleria (e la
      * griglia di questa app) continuerebbe a mostrare miniature di file spostati.
      */
-    suspend fun send(context: Context, uris: List<Uri>): FileTree.Outcome =
+    suspend fun send(context: Context, uris: List<Uri>): Sent =
         withContext(Dispatchers.IO + NonCancellable) {
             lock.withLock {
                 val bin = ready(context)
                 val records = read(context).toMutableList()
                 val touched = ArrayList<String>(uris.size)
+                val landed = ArrayList<Uri>(uris.size)
                 var done = 0
                 var failed = 0
                 val now = System.currentTimeMillis()
@@ -118,6 +119,7 @@ object Bin {
                     if (FileTree.carry(from, to)) {
                         done++
                         touched += from.absolutePath
+                        landed += to.toUri()
                         records += Record(to.name, now, from.absolutePath)
                     } else {
                         failed++
@@ -125,9 +127,22 @@ object Bin {
                 }
                 write(context, records)
                 FileTree.scan(context, touched)
-                FileTree.Outcome(done, failed)
+                Sent(FileTree.Outcome(done, failed), landed)
             }
         }
+
+    /**
+     * Che cosa ha fatto un'eliminazione: com'è andata, e **dove sono finiti** i file.
+     *
+     * ⚠️⚠️ **I DUE PEZZI VANNO INSIEME PERCHÉ IL SECONDO SI PUÒ SAPERE SOLO QUI, DALLA `1.60`**:
+     * l'offerta di disfare (vedi [Undo]) deve chiamare [restore] su **quei** file, e i nomi nel
+     * cestino non sono quelli d'origine, perché [FileTree.freeName] li cambia quando due file
+     * si chiamano uguale. Ricavarli da fuori vorrebbe dire rileggere il cestino e indovinare
+     * quali sono gli ultimi arrivati, che è vero finché non lo è più.
+     * ⚠️ **[landed] porta i soli file passati davvero**: quelli falliti non ci sono, quindi il
+     * suo conto è già [FileTree.Outcome.done] e chi lo usa non deve rifare la sottrazione.
+     */
+    data class Sent(val outcome: FileTree.Outcome, val landed: List<Uri>)
 
     /**
      * Mette nel cestino una **copia** di [from], lasciando l'originale dov'è.

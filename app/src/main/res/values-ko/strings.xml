@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">폴더 격자의 열 수</string>
     <string name="settings_folder_columns_desc">열이 많을수록 화면에 폴더가 더 많이 들어가고 표지는 작아집니다. 네 열에서는 아래의 이름이 대개 잘립니다.</string>
     <string name="settings_folder_count">격자 보기에서 폴더 아래 항목 개수 표시</string>
-    <string name="settings_hand">플로팅 버튼(\'FAB\')의 위치</string>
-    <string name="settings_hand_desc">떠 있는 버튼이 어느 아래쪽 모서리에 놓이는지. 버튼이 여는 패널과 격자가 남겨 두는 여백도 함께 움직입니다.</string>
+    <string name="settings_hand">플로팅 버튼의 위치</string>
+    <string name="settings_hand_desc">메뉴 버튼이 화면 위에 겹쳐 놓이는 쪽입니다(\'FAB\').</string>
     <string name="settings_right">오른쪽</string>
     <string name="settings_left">왼쪽</string>
     <string name="settings_list_path">파일 목록: 폴더 경로도 복사</string>
@@ -223,6 +223,8 @@
         <item quantity="other">%1$d개는 실패했습니다</item>
     </plurals>
     <string name="rename_template">이름</string>
+    <string name="rename_select_all">전체 선택</string>
+    <string name="rename_clear">지우기</string>
     <string name="rename_start">첫 번호</string>
     <string name="rename_hint">이어진 # 는 번호가 되고, 쓴 개수만큼 자릿수가 됩니다. ## 는 01, ### 는 001 입니다. 확장자는 건드리지 않으며, 파일은 알파벳 순서로 번호가 붙습니다.</string>
     <string name="rename_preview">미리보기</string>
@@ -378,6 +380,7 @@
     <string name="settings_labels_desc">끄면 아이콘 패널이 더 조밀해집니다. 목록 메뉴는 바뀌지 않습니다.</string>
     <string name="settings_buttons_how">버튼을 길게 누른 다음 끌어서 그 패널 안에서의 자리를 바꿉니다.</string>
     <string name="settings_buttons_reset">초기화</string>
+    <string name="settings_buttons_reset_ask">정말 기본 배치로 되돌릴까요?</string>
     <string name="settings_buttons_bin">휴지통에서는 \'이름 바꾸기\' 자리에 \'되돌리기\'가 들어갑니다.</string>
     <string name="settings_buttons_before">앞으로 옮기기</string>
     <string name="settings_buttons_after">뒤로 옮기기</string>

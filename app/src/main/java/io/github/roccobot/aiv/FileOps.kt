@@ -136,10 +136,21 @@ fun FileJobDialogs(
                     }
                 )
             } else {
-                // ⚠️ Parte da sé, come il ripristino: non c'è niente da chiedere. L'effetto è
-                // legato al lavoro e non alla composizione, e il perché sta là.
+                /*
+                 * ⚠️ Parte da sé, come il ripristino: non c'è niente da chiedere. L'effetto è
+                 * legato al lavoro e non alla composizione, e il perché sta là.
+                 * ⚠️⚠️ **E APRE L'OFFERTA DI DISFARE, dalla `1.60`** (richiesta dell'utente,
+                 * giro della `1.59`): sta **qui dentro** e non in chi chiama perché questo è
+                 * l'unico punto dell'app in cui un file finisce nel cestino per eliminazione,
+                 * mentre le schermate che passano di qua sono tre. Il perché lo stato viva
+                 * fuori da loro sta in testa a [Undo].
+                 */
                 LaunchedEffect(job) {
-                    onRun(FileKind.TRASH) { Bin.send(context, job.uris) }
+                    onRun(FileKind.TRASH) {
+                        val sent = Bin.send(context, job.uris)
+                        Undo.offer(sent.landed)
+                        sent.outcome
+                    }
                     onClose()
                 }
             }
@@ -294,6 +305,21 @@ enum class FileKind(@PluralsRes val done: Int, val gone: Boolean) {
     /** Il ritorno alla cartella d'origine, da dentro il cestino. */
     RESTORE(R.plurals.restore_done, gone = true)
 }
+
+/**
+ * Se l'esito di un'operazione va detto con un avviso di sistema.
+ *
+ * ⚠️⚠️ **IL CESTINO NON PARLA PIÙ, DALLA `1.60`, e non è una perdita**: quello che è successo
+ * lo dice la notifica con 'Annulla' (vedi [Undo]), che porta la stessa frase e in più il modo
+ * di tornare indietro. Due messaggi insieme sarebbero **sovrapposti**, perché un avviso di
+ * sistema compare in fondo allo schermo esattamente dove sta la notifica.
+ * ⚠️ **Ma se qualcosa è fallito parla lo stesso**: la notifica dice quante sono passate, non
+ * quante no, e un'eliminazione a metà è la cosa che va detta per intero.
+ * ⚠️ **È una regola sola e sta qui**, non tre condizioni uguali nelle tre schermate che
+ * eseguono: quelle divergerebbero al primo ritocco, ed è il difetto che questo file esiste per
+ * non avere.
+ */
+fun FileKind.speaks(out: FileTree.Outcome): Boolean = this != FileKind.TRASH || out.failed > 0
 
 /**
  * Che cosa dire quando un'operazione finisce: quante sono passate e, solo se ce ne sono,

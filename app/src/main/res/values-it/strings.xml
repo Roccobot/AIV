@@ -140,8 +140,8 @@
     <string name="settings_folder_columns">Colonne della griglia delle cartelle</string>
     <string name="settings_folder_columns_desc">Più colonne fanno stare più cartelle sullo schermo e rimpiccioliscono le copertine. A quattro, il nome sotto di solito non ci sta per intero.</string>
     <string name="settings_folder_count">Contatore degli elementi sotto le cartelle in vista griglia</string>
-    <string name="settings_hand">Lato dei tasti flottanti (\'FAB\')</string>
-    <string name="settings_hand_desc">In quale angolo in basso sta il tastino, con il pannello che apre e l\'aria che la griglia gli lascia.</string>
+    <string name="settings_hand">Posizione dei tasti flottanti</string>
+    <string name="settings_hand_desc">Il lato dello schermo che ospita i tasti-menu in sovrapposizione fissa (\'FAB\').</string>
     <string name="settings_right">Destra</string>
     <string name="settings_left">Sinistra</string>
     <string name="settings_list_path">Lista file: copia il percorso della cartella contenitore</string>
@@ -327,6 +327,8 @@
 
     <!-- ── Rinominare in blocco ── -->
     <string name="rename_template">Nome</string>
+    <string name="rename_select_all">Seleziona tutto</string>
+    <string name="rename_clear">Svuota</string>
     <string name="rename_start">Primo numero</string>
     <string name="rename_hint">Ogni gruppo di cancelletti diventa il numero, e quanti ne scrivi sono le cifre: ## dà 01, ### dà 001. L\'estensione non si tocca mai, e i file si numerano in ordine alfabetico.</string>
     <string name="rename_preview">Anteprima</string>
@@ -469,6 +471,7 @@
     <string name="settings_labels_desc">Se disattivate, i riquadri di icone diventano più compatti. I menu a elenco non cambiano.</string>
     <string name="settings_buttons_how">Tieni premuto un tasto e trascinalo per cambiare la sua posizione all\'interno del suo pannello.</string>
     <string name="settings_buttons_reset">Ripristina</string>
+    <string name="settings_buttons_reset_ask">Vuoi davvero tornare alla configurazione predefinita?</string>
     <string name="settings_buttons_bin">Nel cestino, al posto di \'Rinomina\' troverai \'Ripristina\'.</string>
     <string name="settings_buttons_before">Sposta prima</string>
     <string name="settings_buttons_after">Sposta dopo</string>

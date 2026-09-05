@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">Colunas na grade de pastas</string>
     <string name="settings_folder_columns_desc">Mais colunas cabem mais pastas na tela e encolhem cada capa. Com quatro, o nome embaixo costuma ficar cortado.</string>
     <string name="settings_folder_count">Contador de itens sob as pastas na visualização em grade</string>
-    <string name="settings_hand">Lado dos botões flutuantes (\'FAB\')</string>
-    <string name="settings_hand_desc">Em qual canto inferior fica o botão flutuante, com o painel que ele abre e o espaço que a grade lhe deixa.</string>
+    <string name="settings_hand">Posição dos botões flutuantes</string>
+    <string name="settings_hand_desc">O lado da tela que abriga os botões de menu sobrepostos a ela (\'FAB\').</string>
     <string name="settings_right">Direita</string>
     <string name="settings_left">Esquerda</string>
     <string name="settings_list_path">Lista de arquivos: copiar o caminho da pasta</string>
@@ -239,6 +239,8 @@
         <item quantity="many">%1$d não deram certo</item>
     </plurals>
     <string name="rename_template">Nome</string>
+    <string name="rename_select_all">Selecionar tudo</string>
+    <string name="rename_clear">Limpar</string>
     <string name="rename_start">Primeiro número</string>
     <string name="rename_hint">Cada sequência de cerquilhas vira o número, e quantas você escrever, tantos dígitos ele terá: ## dá 01, ### dá 001. A extensão nunca é tocada, e os arquivos são numerados em ordem alfabética.</string>
     <string name="rename_preview">Prévia</string>
@@ -410,6 +412,7 @@
     <string name="settings_labels_desc">Se desativados, os painéis de ícones ficam mais compactos. Os menus em lista não mudam.</string>
     <string name="settings_buttons_how">Mantenha um botão pressionado e arraste-o para mudar seu lugar dentro do seu painel.</string>
     <string name="settings_buttons_reset">Redefinir</string>
+    <string name="settings_buttons_reset_ask">Voltar mesmo para a disposição padrão?</string>
     <string name="settings_buttons_bin">Na lixeira, \'Restaurar\' fica no lugar de \'Renomear\'.</string>
     <string name="settings_buttons_before">Mover para antes</string>
     <string name="settings_buttons_after">Mover para depois</string>

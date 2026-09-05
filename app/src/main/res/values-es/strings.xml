@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">Columnas en la cuadrícula de carpetas</string>
     <string name="settings_folder_columns_desc">Más columnas caben más carpetas en la pantalla y encogen cada portada. Con cuatro, el nombre de debajo suele quedar cortado.</string>
     <string name="settings_folder_count">Contador de elementos bajo las carpetas en vista de cuadrícula</string>
-    <string name="settings_hand">Lado de los botones flotantes (\'FAB\')</string>
-    <string name="settings_hand_desc">En qué esquina inferior se coloca el botón flotante, con el panel que abre y el aire que la cuadrícula le deja.</string>
+    <string name="settings_hand">Posición de los botones flotantes</string>
+    <string name="settings_hand_desc">El lado de la pantalla que aloja los botones de menú superpuestos a ella (\'FAB\').</string>
     <string name="settings_right">Derecha</string>
     <string name="settings_left">Izquierda</string>
     <string name="settings_list_path">Lista de archivos: copiar la ruta de la carpeta contenedora</string>
@@ -239,6 +239,8 @@
         <item quantity="many">%1$d no han salido bien</item>
     </plurals>
     <string name="rename_template">Nombre</string>
+    <string name="rename_select_all">Seleccionar todo</string>
+    <string name="rename_clear">Vaciar</string>
     <string name="rename_start">Primer número</string>
     <string name="rename_hint">Cada serie de almohadillas se convierte en el número, y cuantas escribas, tantas cifras tendrá: ## da 01, ### da 001. La extensión no se toca nunca, y los archivos se numeran por orden alfabético.</string>
     <string name="rename_preview">Vista previa</string>
@@ -410,6 +412,7 @@
     <string name="settings_labels_desc">Si se desactivan, los paneles de iconos se vuelven más compactos. Los menús de lista no cambian.</string>
     <string name="settings_buttons_how">Mantén pulsado un botón y arrástralo para cambiar su lugar dentro de su panel.</string>
     <string name="settings_buttons_reset">Restablecer</string>
+    <string name="settings_buttons_reset_ask">¿Volver de verdad a la disposición predeterminada?</string>
     <string name="settings_buttons_bin">En la papelera, \'Restaurar\' ocupa el lugar de \'Renombrar\'.</string>
     <string name="settings_buttons_before">Mover antes</string>
     <string name="settings_buttons_after">Mover después</string>

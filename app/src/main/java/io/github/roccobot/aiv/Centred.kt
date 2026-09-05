@@ -172,6 +172,19 @@ private class LowerNode : Modifier.Node(), LayoutModifierNode, CompositionLocalC
      * due: il primo dà la **finestra**, quindi è giusto anche a schermo diviso e sui
      * pieghevoli; il secondo dà il **display**, che è la sola cosa disponibile su Android 9 e
      * 10 (il `minSdk` è 28) e coincide con la finestra quando l'app è sola a schermo.
+     * ⚠️⚠️ **E DALLA `1.60` SI TOGLIE ANCHE LA TASTIERA** (riscontro dell'utente, giro della
+     * `1.59`: *la finestra di rinomina dev'essere 'pronta' a scorrere più in alto quando
+     * appaiono tastiere alte*). Fino alla `1.59` il 15% si calcolava sull'altezza intera anche
+     * a tastiera aperta, e l'aria che la stretta contava era aria che la tastiera aveva già
+     * preso: il pannello scendeva **dentro** di lei. ⚠️ **Non serviva una regola nuova**: la
+     * definizione di 'centrato' dice già che *le cose particolarmente alte si prendono lo
+     * spazio che serve*, e una tastiera alta rende alto qualunque dialogo. Bastava che la
+     * misura dicesse la verità.
+     * ⚠️ **Vale per ogni superficie centrata dell'app e non per la sola rinomina**, ed è il
+     * motivo per cui la correzione sta qui: è l'unico posto in cui quella misura si prende.
+     * ⚠️ **Lo spostamento può solo ridursi**, mai diventare negativo, quindi nel caso in cui il
+     * sistema alzasse già la finestra da sé il peggio che capita è un dialogo centrato senza il
+     * 15%, che a tastiera aperta è il posto giusto.
      * ⚠️ **Zero vuol dire 'non lo so ancora'**, e allora non si sposta niente: succede se
      * questo nodo misura prima che la vista sia agganciata, e uno spostamento calcolato su zero
      * sarebbe zero comunque.
@@ -186,8 +199,13 @@ private class LowerNode : Modifier.Node(), LayoutModifierNode, CompositionLocalC
             view.context.resources.displayMetrics.heightPixels
         }
         if (whole <= 0) return 0
-        val bars = ViewCompat.getRootWindowInsets(view)
-            ?.getInsets(WindowInsetsCompat.Type.systemBars())
+        // ⚠️ `or` e non due letture: `getInsets` di un insieme di tipi restituisce il **massimo**
+        // per ogni lato, quindi a tastiera chiusa il conto è identico a quello di prima e a
+        // tastiera aperta il lato di sotto diventa quello della tastiera, che è più alto della
+        // barra di navigazione che copre.
+        val bars = ViewCompat.getRootWindowInsets(view)?.getInsets(
+            WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime()
+        )
         return (whole - (bars?.top ?: 0) - (bars?.bottom ?: 0)).coerceAtLeast(0)
     }
 }

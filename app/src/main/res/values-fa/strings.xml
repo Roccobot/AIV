@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">ستون‌های شبکه پوشه‌ها</string>
     <string name="settings_folder_columns_desc">ستون بیشتر پوشه‌های بیشتری را در صفحه جا می‌دهد و هر جلد را کوچک‌تر می‌کند. با چهار ستون، نام زیر آن بیشتر وقت‌ها بریده می‌شود.</string>
     <string name="settings_folder_count">شمارندهٔ موارد زیر پوشه‌ها در نمای شبکه‌ای</string>
-    <string name="settings_hand">سمت دکمه‌های شناور (\'FAB\')</string>
-    <string name="settings_hand_desc">دکمه شناور در کدام گوشه پایین می‌نشیند، همراه با پنلی که باز می‌کند و فضایی که شبکه برایش می‌گذارد.</string>
+    <string name="settings_hand">موقعیت دکمه‌های شناور</string>
+    <string name="settings_hand_desc">سمتی از صفحه که دکمه‌های منو روی آن قرار می‌گیرند (\'FAB\').</string>
     <string name="settings_right">راست</string>
     <string name="settings_left">چپ</string>
     <string name="settings_list_path">فهرست پرونده‌ها: نشانی پوشه هم رونوشت شود</string>
@@ -231,6 +231,8 @@
         <item quantity="other">%1$d انجام نشد</item>
     </plurals>
     <string name="rename_template">نام</string>
+    <string name="rename_select_all">انتخاب همه</string>
+    <string name="rename_clear">پاک کردن</string>
     <string name="rename_start">شماره نخست</string>
     <string name="rename_hint">هر رشته از نشانه‌های مربع به شماره تبدیل می‌شود، و هر چند بنویسید همان‌قدر رقم می‌شود: ## می‌دهد 01 و ### می‌دهد 001. پسوند هرگز دست نمی‌خورد، و فایل‌ها به ترتیب الفبا شماره می‌گیرند.</string>
     <string name="rename_preview">پیش‌نمایش</string>
@@ -394,6 +396,7 @@
     <string name="settings_labels_desc">اگر خاموش باشند، پنل‌های نماد فشرده‌تر می‌شوند. منوهای فهرستی تغییری نمی‌کنند.</string>
     <string name="settings_buttons_how">یک دکمه را نگه دارید و آن را بکشید تا جایش درون پنل خودش عوض شود.</string>
     <string name="settings_buttons_reset">بازنشانی</string>
+    <string name="settings_buttons_reset_ask">واقعاً به چیدمان پیش‌فرض برگردیم؟</string>
     <string name="settings_buttons_bin">در زباله‌دان \'بازگرداندن\' جای \'تغییر نام\' را می‌گیرد.</string>
     <string name="settings_buttons_before">جابه‌جایی به جلو</string>
     <string name="settings_buttons_after">جابه‌جایی به عقب</string>

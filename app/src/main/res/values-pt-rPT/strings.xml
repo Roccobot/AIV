@@ -118,10 +118,14 @@
          ('Mover para antes' e 'Mover para depois') leem-se iguais dos dois lados. -->
     <string name="settings_buttons_how">Mantenha um botão premido e arraste-o para mudar o seu lugar dentro do seu painel.</string>
     <string name="settings_buttons_bin">Na reciclagem, \'Restaurar\' fica no lugar de \'Renomear\'.</string>
-    <!-- grade -> grelha, como no resto deste ficheiro. -->
-    <string name="settings_hand_desc">Em qual canto inferior fica o botão flutuante, com o painel que ele abre e o espaço que a grelha lhe deixa.</string>
+    <!-- tela -> ecra, e abrigar -> alojar: duas das palavras que ja mudam no resto deste
+         ficheiro. A frase foi reescrita na 1.60 e ja nao fala de grelhas, por isso o
+         comentario antigo, que era sobre grade -> grelha, deixou de dizer a verdade. -->
+    <string name="settings_hand_desc">O lado do ecrã que aloja os botões de menu sobrepostos a ele (\'FAB\').</string>
     <!-- aplicacao/aplicativo, e Repor/Redefinir: due parole che cambiano fra le due
          varianti come quelle elencate in testa a questo file. -->
     <string name="settings_ui_theme">Tema da aplicação</string>
     <string name="settings_buttons_reset">Repor</string>
+    <!-- padrao -> predefinida: a palavra europeia para o valor de fabrica. -->
+    <string name="settings_buttons_reset_ask">Voltar mesmo à disposição predefinida?</string>
 </resources>

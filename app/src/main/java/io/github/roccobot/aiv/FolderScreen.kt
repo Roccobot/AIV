@@ -493,11 +493,13 @@ fun FolderScreen(
              * sotto sei decimi fermi, sopra questa coda, e il pieno cade dove serve.
              * ⚠️ **Sta fra la fascia e il tastino**: dopo, o coprirebbe l'una; prima, e sarebbe
              * l'altra a coprire lei.
+             * ⚠️⚠️ **E DALLA `1.60` IL SUO PIENO DURA, invece di esistere in un punto solo**:
+             * quanto, e perché, lo dice [FOOT_SOLID].
              */
             val piede = remember(ground) {
                 Array(FOOT_STOPS + 1) { step ->
                     val at = step / FOOT_STOPS.toFloat()
-                    at to ground.copy(alpha = smoothstep(at))
+                    at to ground.copy(alpha = foot(at))
                 }
             }
             Box(
@@ -937,21 +939,25 @@ private fun Hub(
         }
         /*
          * ⚠️⚠️ **NON È PIÙ `SmallFloatingActionButton`, dalla 0.78**, e la ragione è la
-         * stessa del tastino della selezione: quel composabile prende un `onClick` solo, e un
+         * stessa dell'altro tastino: quel composabile prende un `onClick` solo, e un
          * `combinedClickable` messo sul suo modificatore non vedrebbe mai il tocco lungo. La
          * resa non cambia: [TapHoldFab] è la stessa `Surface` da 40dp, quadrata con gli
          * angoli appena smussati come chiesto, perché il tondo pieno griderebbe 'azione
          * principale' e qui l'azione principale sono le cartelle.
          *
          * ⚠️⚠️ **LA SCATOLA INTORNO PORTA L'ENTRATA, dalla `1.58`**, ed è l'unico posto
-         * dell'app che la chiama: [Modifier.entering] tiene i numeri e il perché. ⚠️ Sta su
-         * una scatola qui e non dentro [TapHoldFab] perché quel composabile serve **due**
-         * tastini, e l'entrata è stata chiesta per questo: quello della selezione compare
-         * quando si sceglie un'immagine, cioè in risposta a un dito, e là un'animazione
-         * d'ingresso arriverebbe in ritardo su un gesto invece di accompagnare l'apertura di
-         * una schermata.
+         * dell'app che la chiama: [Entrata] tiene i numeri e il perché. ⚠️ Sta su una scatola
+         * qui e non dentro [TapHoldFab] perché quel composabile serve **due** tastini, e
+         * l'entrata è stata chiesta per questo: l'altro vive nel **cestino** (in `GridScreen`,
+         * dove compare solo là e mai durante una selezione), e quella schermata si apre da un
+         * menu, cioè in risposta a un dito.
+         * ⚠️ **Fino alla `1.59` questa nota lo chiamava 'il tastino della selezione', e non
+         * esiste**: lo ha corretto lui (*non c'è più un FAB della selezione da un bel po'*), e
+         * la stessa frase falsa era finita in una voce di collaudo, che gli chiedeva di provare
+         * una cosa che nell'app non c'è.
          */
-        Box(modifier = Modifier.entering()) {
+        val entrata = rememberEntrata()
+        Box(modifier = Modifier.entering(entrata)) {
             TapHoldFab(
                 label = stringResource(R.string.hub_open),
                 /*
@@ -971,9 +977,10 @@ private fun Hub(
                  */
                 container = colorResource(R.color.launcher_background),
                 ink = colorResource(R.color.launcher_foreground),
-                lift = FAB_LIFT,
+                lift = entrata.lift(FAB_LIFT),
                 holdLabel = stringResource(R.string.columns_title),
                 lifted = menu.inScene,
+                pressed = menu.wanted,
                 onTap = { menu.open() },
                 onHold = onSize,
                 glyph = { Marchio(it) }
@@ -1651,18 +1658,41 @@ private val GRADIENT_REACH = FAB_REACH * GRADIENT_TIMES
  * diceva: quello che si vede non è il **pieno** sul bordo, che a 8dp c'era già, ma la
  * **lunghezza del tratto** in cui la copertura cresce. Sotto una certa lunghezza una
  * dissolvenza non si legge come tale, per quanto sia giusta la curva.
- * ⚠️ **Il numero è l'unica cosa cambiata, per la seconda volta**: la curva, il colore e il modo
- * di sommarsi sono quelli che ha dettato lui.
+ * ⚠️⚠️ **E DALLA `1.60` SONO 40, MA IL NUMERO CHE CONTA È L'ALTRO** (riscontro del giro della
+ * `1.59`: *40 dp di altezza, il pieno (opacità 100%) inizia 10 dp più in alto del bordo*).
+ * Cinque dp in più sull'altezza non spostano niente; quello che cambia la forma è
+ * [FOOT_SOLID], perché fino alla `1.59` il pieno esisteva **in un punto solo**, il bordo
+ * dello schermo, e un massimo raggiunto in una riga di pixel non si vede come un massimo.
+ * ⚠️ **La curva, il colore e il modo di sommarsi restano quelli che ha dettato lui**: quello
+ * che si aggiunge è un pianoro in fondo, non una curva nuova.
  */
-private val FOOT_REACH = 35.dp
+private val FOOT_REACH = 40.dp
+
+/**
+ * Quanto dura il pieno in fondo alla coda, misurato dal bordo dello schermo in su.
+ *
+ * ⚠️⚠️ **È LA STESSA FORMA DELLA FASCIA GRANDE, e non un'invenzione**: anche [swallow] sale
+ * fino al bordo del tastino e poi tiene il suo massimo, e la ragione è la stessa in tutti e due
+ * i posti. Una dissolvenza che tocca il massimo e subito finisce non ha un massimo da leggere:
+ * si vede la salita, e quello che sta in cima lo si deduce.
+ * ⚠️ **Dieci su quaranta vuol dire che la salita ne ha trenta**, cioè cinque meno della coda
+ * intera della `1.59`: la parte che si legge come dissolvenza si accorcia, e in cambio compare
+ * la striscia piena che prima non c'era.
+ */
+private val FOOT_SOLID = 10.dp
 
 /**
  * In quanti gradini si disegna la coda.
  *
- * ⚠️ **Dodici su otto dp**: meno di un dp per gradino, cioè sotto il pixel su qualunque schermo
- * moderno. La fascia grande ne vuole venti perché è venti volte più lunga.
+ * ⚠️⚠️ **VENTI DALLA `1.60`, ED ERANO DODICI PER UNA CODA CINQUE VOLTE PIÙ CORTA**: quel numero
+ * era nato con gli 8dp della `1.56` e non l'ha più toccato nessuno mentre la coda cresceva, il
+ * che è il difetto tipico di una costante che dipende da un'altra senza dirlo. Su 40dp, dodici
+ * gradini sono più di tre dp l'uno.
+ * ⚠️ **I gradini non sono bande, sono i vertici di una spezzata**: Compose interpola fra due
+ * fermate, quindi quello che si vedrebbe non è banding ma gli spigoli con cui la spezzata
+ * approssima la curva. È la stessa ragione per cui la fascia grande ne vuole venti.
  */
-private const val FOOT_STOPS = 12
+private const val FOOT_STOPS = 20
 
 /**
  * A che punto della sua altezza la sfumatura sopra il tastino ha inghiottito tutto.
@@ -1693,6 +1723,22 @@ private fun swallow(at: Float): Float {
     val fermo = 1f - SWALLOW
     if (at >= fermo) return GRADIENT_PEAK
     return GRADIENT_PEAK * smoothstep(at / fermo)
+}
+
+/**
+ * Quanto colore c'è a una data altezza della coda, con `0` in cima e `1` sul bordo di sotto.
+ *
+ * ⚠️⚠️ **DALLA `1.60` HA UN PIANORO, ed è la stessa forma di [swallow]**: si sale da niente al
+ * pieno sui primi tratti, e negli ultimi [FOOT_SOLID] il colore sta fermo al massimo. Fino alla
+ * `1.59` era la sola [smoothstep], quindi il pieno cadeva **esattamente** sul bordo dello
+ * schermo, cioè in una riga di pixel, ed è quello che lui non vedeva.
+ * ⚠️ **Il tratto in salita si ricava dalle due misure** e non è scritto a mano: cambiando
+ * [FOOT_REACH] o [FOOT_SOLID] il pianoro si ridistribuisce da sé, come là.
+ */
+private fun foot(at: Float): Float {
+    val sale = 1f - FOOT_SOLID / FOOT_REACH
+    if (at >= sale) return 1f
+    return smoothstep(at / sale)
 }
 
 /** La curva che parte e arriva con pendenza zero, cioè quella che non fa spigoli. */

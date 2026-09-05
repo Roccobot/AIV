@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilterChip
@@ -1885,9 +1886,14 @@ private fun PadOrder(
      * ⚠️ **Sparisce mentre si cerca**, come il titolo che accompagna: senza il titolo accanto
      * non si saprebbe che cosa ripristina, e un comando che agisce su qualcosa che non si vede
      * è il modo più corto per fare un danno.
-     * ⚠️ **Non chiede conferma**: l'ordine di fabbrica non è un dato, è quello che c'era prima
-     * di toccare, e rifare la propria disposizione costa quattro trascinamenti.
+     * ⚠️⚠️ **E CHIEDE CONFERMA, DALLA `1.60`** (riscontro del giro della `1.59`: *aggiungi una
+     * conferma al tocco*). ⚠️ **La `1.59` sosteneva il contrario**, e l'argomento era che
+     * l'ordine di fabbrica non è un dato e che rifare la propria disposizione costa quattro
+     * trascinamenti: vero, ma quattro trascinamenti sono comunque un lavoro che si è fatto, e
+     * qui non c'è nessun modo di disfare. Chi legge quella nota in un commit vecchio sappia che
+     * la decisione è sua.
      */
+    var chiedendo by remember { mutableStateOf(false) }
     if (LocalQuery.current.isBlank()) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -1900,7 +1906,7 @@ private fun PadOrder(
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
-                    .clickable(enabled = order != difetto) { onOrder(difetto) }
+                    .clickable(enabled = order != difetto) { chiedendo = true }
                     .padding(start = 12.dp, top = 24.dp, bottom = 4.dp)
                     .alpha(if (order == difetto) RESET_OFF else 1f)
             )
@@ -1912,6 +1918,35 @@ private fun PadOrder(
         onOrder = onOrder,
         modifier = Modifier.padding(bottom = ARRANGE_GAP)
     )
+    /*
+     * ⚠️ **Fuori dal ramo della ricerca**, che invece nasconde la riga del titolo: là dentro,
+     * una ricerca cominciata a dialogo aperto lo toglierebbe di scena a metà.
+     * ⚠️ **Il tasto di conferma riusa la parola del comando** e non ne chiede una nuova: è lo
+     * stesso comando visto un tocco dopo, e una seconda parola per la stessa cosa sarebbe una
+     * stringa in ventotto lingue per non dire niente di più.
+     * ⚠️ **Niente paragrafo sotto la domanda**: quello che c'è da sapere è già tutto nella
+     * domanda, e un corpo che ripete il titolo è la forma con cui un dialogo si fa saltare.
+     */
+    if (chiedendo) {
+        AlertDialog(
+            onDismissRequest = { chiedendo = false },
+            modifier = Modifier.lowered(),
+            title = { Text(stringResource(R.string.settings_buttons_reset_ask)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        chiedendo = false
+                        onOrder(difetto)
+                    }
+                ) { Text(stringResource(R.string.settings_buttons_reset)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { chiedendo = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
 }
 
 /**

@@ -900,10 +900,13 @@ private const val PREMUTO_TINTA = 0.12f
 /**
  * In quanto tempo il tastino si preme e si rilascia.
  *
- * ⚠️ **La stessa del menu che apre**, e deve esserlo: sono la stessa azione vista da due parti,
- * e due durate diverse darebbero un tastino che finisce di premersi mentre il menu è già lì.
+ * ⚠️ **100 dalla `1.60`, ed è un numero suo** (riscontro del giro della `1.59`: *può anche
+ * durare 20 ms in meno*).
+ * ⚠️ **La curva è quella di serie di `tween`, cioè `FastOutSlowIn`**, che è già l'accelerazione
+ * iniziale e la decelerazione finale che ha chiesto: qui non c'è nessuna molla, e non ce n'era
+ * una nemmeno prima. Il secondo tempo che vedeva veniva da un'altra parte, e sta su [pressed].
  */
-private const val PREMUTO_MS = 120
+private const val PREMUTO_MS = 100
 
 /** Lo smusso dell'alone del tocco su una cella. */
 private val PAD_CORNER = 10.dp
@@ -1129,6 +1132,21 @@ fun TapHoldFab(
      * il comportamento di allora e non un guasto nuovo.
      */
     lifted: Boolean = false,
+    /**
+     * Se il tastino deve **sembrare premuto**.
+     *
+     * ⚠️⚠️ **È UN SEGNALE A SÉ E NON [lifted], DALLA `1.60`, PERCHÉ I DUE NON FINISCONO
+     * INSIEME** (riscontro del giro della `1.59`: *niente rimbalzo, solo un movimento unico*).
+     * [lifted] dice se il tastino vive nella sua finestra, quindi resta vero per tutta la
+     * **discesa** del menu (`MenuState.inScene`); e legandoci la pressione, il ritorno del
+     * tastino cominciava solo dopo che il menu era sparito del tutto. Erano due movimenti con
+     * una pausa in mezzo, ed è quello che si legge come un secondo tempo.
+     * ⚠️ **Chi apre un menu passa `wanted`**, che è il verso opposto: cade nell'istante in cui
+     * si chiede la chiusura, quindi il tastino risale **insieme** al menu che se ne va.
+     * ⚠️ **Il valore di serie è [lifted]** perché per chi non ha un menu i due coincidono, e
+     * un tastino senza menu non ha nessun secondo tempo da evitare.
+     */
+    pressed: Boolean = lifted,
     onTap: () -> Unit,
     onHold: () -> Unit,
     /**
@@ -1160,9 +1178,11 @@ fun TapHoldFab(
      * modo in cui Material fa i suoi strati di stato, quindi non è un'invenzione locale.
      * ⚠️ **Vale sui DUE disegni**, il sosia e quello nella finestra: sono lo stesso tastino
      * visto in due momenti, e uno solo dei due animato darebbe uno scatto nello scambio.
+     * ⚠️⚠️ **E SEGUE [pressed], NON [lifted], DALLA `1.60`**: il perché, che è il difetto che
+     * lui ha visto, sta sul parametro.
      */
     val premuto by animateFloatAsState(
-        targetValue = if (lifted) 1f else 0f,
+        targetValue = if (pressed) 1f else 0f,
         animationSpec = tween(PREMUTO_MS),
         label = "premuto"
     )

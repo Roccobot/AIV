@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">फ़ोल्डर ग्रिड के स्तंभ</string>
     <string name="settings_folder_columns_desc">जितने अधिक स्तंभ, उतने अधिक फ़ोल्डर स्क्रीन पर आते हैं और हर आवरण उतना ही छोटा होता है। चार पर नीचे का नाम अक्सर कट जाता है।</string>
     <string name="settings_folder_count">ग्रिड दृश्य में फ़ोल्डरों के नीचे वस्तुओं की गिनती</string>
-    <string name="settings_hand">फ़्लोटिंग बटन की दिशा (\'FAB\')</string>
-    <string name="settings_hand_desc">तैरता बटन नीचे किस कोने में रहता है, उस पैनल के साथ जो वह खोलता है और उस जगह के साथ जो ग्रिड उसके लिए छोड़ती है।</string>
+    <string name="settings_hand">फ़्लोटिंग बटन की स्थिति</string>
+    <string name="settings_hand_desc">स्क्रीन का वह हिस्सा जहाँ उसके ऊपर रखे मेन्यू बटन रहते हैं (\'FAB\')।</string>
     <string name="settings_right">दाएँ</string>
     <string name="settings_left">बाएँ</string>
     <string name="settings_list_path">फ़ाइल सूची: फ़ोल्डर का पथ भी कॉपी करें</string>
@@ -231,6 +231,8 @@
         <item quantity="other">%1$d नहीं हो सके</item>
     </plurals>
     <string name="rename_template">नाम</string>
+    <string name="rename_select_all">सभी चुनें</string>
+    <string name="rename_clear">खाली करें</string>
     <string name="rename_start">पहला अंक</string>
     <string name="rename_hint">हैश की हर कड़ी संख्या बन जाती है, और आप जितने लिखेंगे उतने अंक होंगे: ## से 01, ### से 001। एक्सटेंशन कभी नहीं बदलता, और फ़ाइलों को वर्णक्रम में संख्या मिलती है।</string>
     <string name="rename_preview">झलक</string>
@@ -394,6 +396,7 @@
     <string name="settings_labels_desc">बंद करने पर आइकन पैनल अधिक संक्षिप्त हो जाते हैं। सूची वाले मेन्यू नहीं बदलते।</string>
     <string name="settings_buttons_how">किसी बटन को दबाकर रखें और उसे खींचकर उसके अपने पैनल में उसकी जगह बदलें।</string>
     <string name="settings_buttons_reset">रीसेट</string>
+    <string name="settings_buttons_reset_ask">क्या वाकई डिफ़ॉल्ट क्रम पर लौटना है?</string>
     <string name="settings_buttons_bin">रद्दी में \'नाम बदलें\' की जगह \'वापस लाएँ\' आता है।</string>
     <string name="settings_buttons_before">पहले खिसकाएँ</string>
     <string name="settings_buttons_after">बाद में खिसकाएँ</string>

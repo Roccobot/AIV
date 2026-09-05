@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">ফোল্ডার গ্রিডের কলাম</string>
     <string name="settings_folder_columns_desc">বেশি কলামে পর্দায় বেশি ফোল্ডার আঁটে আর প্রতিটি প্রচ্ছদ ছোট হয়। চারটিতে নিচের নাম সাধারণত কাটা পড়ে।</string>
     <string name="settings_folder_count">গ্রিড দৃশ্যে ফোল্ডারের নিচে জিনিসের গণনা</string>
-    <string name="settings_hand">ভাসমান বোতামের দিক (\'FAB\')</string>
-    <string name="settings_hand_desc">ভাসমান বোতামটি নিচের কোন কোণে থাকে, সেই সঙ্গে সে যে প্যানেল খোলে এবং গ্রিড তাকে যে জায়গা ছাড়ে।</string>
+    <string name="settings_hand">ভাসমান বোতামের অবস্থান</string>
+    <string name="settings_hand_desc">পর্দার যে দিকে মেনু বোতামগুলি তার উপরে বসানো থাকে (\'FAB\')।</string>
     <string name="settings_right">ডানে</string>
     <string name="settings_left">বামে</string>
     <string name="settings_list_path">ফাইল তালিকা: ফোল্ডারের পথও কপি করুন</string>
@@ -231,6 +231,8 @@
         <item quantity="other">%1$d হয়নি</item>
     </plurals>
     <string name="rename_template">নাম</string>
+    <string name="rename_select_all">সব নির্বাচন করুন</string>
+    <string name="rename_clear">মুছুন</string>
     <string name="rename_start">প্রথম সংখ্যা</string>
     <string name="rename_hint">হ্যাশের প্রতিটি সারি সংখ্যা হয়ে যায়, আর যতগুলো লিখবেন ততগুলো অঙ্ক হবে: ## দেয় 01, ### দেয় 001। এক্সটেনশনে কখনো হাত পড়ে না, আর ফাইলগুলো বর্ণানুক্রমে নম্বর পায়।</string>
     <string name="rename_preview">পূর্বরূপ</string>
@@ -394,6 +396,7 @@
     <string name="settings_labels_desc">বন্ধ করলে আইকনের প্যানেল আরও ছোট হয়। তালিকা মেনু বদলায় না।</string>
     <string name="settings_buttons_how">একটি বোতাম চেপে ধরে টেনে নিয়ে তার নিজের প্যানেলে তার জায়গা বদলান।</string>
     <string name="settings_buttons_reset">রিসেট</string>
+    <string name="settings_buttons_reset_ask">সত্যিই ডিফল্ট বিন্যাসে ফিরে যেতে চান?</string>
     <string name="settings_buttons_bin">আবর্জনায় \'নাম বদলান\'-এর জায়গায় \'ফিরিয়ে আনুন\' আসে।</string>
     <string name="settings_buttons_before">আগে সরান</string>
     <string name="settings_buttons_after">পরে সরান</string>

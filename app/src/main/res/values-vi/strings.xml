@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">Số cột trong lưới thư mục</string>
     <string name="settings_folder_columns_desc">Càng nhiều cột thì càng nhiều thư mục vừa màn hình và mỗi ảnh bìa càng nhỏ. Ở bốn cột, tên bên dưới thường bị cắt.</string>
     <string name="settings_folder_count">Bộ đếm mục dưới các thư mục ở chế độ lưới</string>
-    <string name="settings_hand">Phía của các nút nổi (\'FAB\')</string>
-    <string name="settings_hand_desc">Nút nổi nằm ở góc dưới nào, cùng với bảng mà nó mở ra và khoảng trống mà lưới chừa cho nó.</string>
+    <string name="settings_hand">Vị trí của các nút nổi</string>
+    <string name="settings_hand_desc">Phía của màn hình chứa các nút menu nằm đè lên nó (\'FAB\').</string>
     <string name="settings_right">Phải</string>
     <string name="settings_left">Trái</string>
     <string name="settings_list_path">Danh sách tệp: chép cả đường dẫn thư mục</string>
@@ -223,6 +223,8 @@
         <item quantity="other">%1$d không thành công</item>
     </plurals>
     <string name="rename_template">Tên</string>
+    <string name="rename_select_all">Chọn tất cả</string>
+    <string name="rename_clear">Xóa</string>
     <string name="rename_start">Số đầu tiên</string>
     <string name="rename_hint">Mỗi dãy dấu thăng trở thành con số, và bạn viết bao nhiêu dấu thì có bấy nhiêu chữ số: ## cho 01, ### cho 001. Phần mở rộng không bao giờ bị đụng tới, và các tệp được đánh số theo thứ tự bảng chữ cái.</string>
     <string name="rename_preview">Xem trước</string>
@@ -378,6 +380,7 @@
     <string name="settings_labels_desc">Nếu tắt, các bảng biểu tượng trở nên gọn hơn. Menu dạng danh sách không thay đổi.</string>
     <string name="settings_buttons_how">Nhấn giữ một nút rồi kéo để đổi vị trí của nó trong bảng của chính nó.</string>
     <string name="settings_buttons_reset">Đặt lại</string>
+    <string name="settings_buttons_reset_ask">Thực sự quay lại thứ tự mặc định?</string>
     <string name="settings_buttons_bin">Trong thùng rác, \'Phục hồi\' thay chỗ của \'Đổi tên\'.</string>
     <string name="settings_buttons_before">Chuyển lên trước</string>
     <string name="settings_buttons_after">Chuyển xuống sau</string>

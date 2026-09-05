@@ -80,8 +80,8 @@
     <string name="settings_folder_columns">Klasör ızgarasındaki sütunlar</string>
     <string name="settings_folder_columns_desc">Sütun arttıkça ekrana daha çok klasör sığar ve her kapak küçülür. Dörtte alttaki ad çoğunlukla kesilir.</string>
     <string name="settings_folder_count">Izgara görünümünde klasörlerin altındaki öge sayacı</string>
-    <string name="settings_hand">Kayan düğmelerin yanı (\'FAB\')</string>
-    <string name="settings_hand_desc">Yüzen düğmenin hangi alt köşede durduğu, açtığı panel ve ızgaranın ona bıraktığı boşlukla birlikte.</string>
+    <string name="settings_hand">Kayan düğmelerin konumu</string>
+    <string name="settings_hand_desc">Menü düğmelerinin ekranın üzerine yerleştiği taraf (\'FAB\').</string>
     <string name="settings_right">Sağ</string>
     <string name="settings_left">Sol</string>
     <string name="settings_list_path">Dosya listesi: klasör yolunu da kopyala</string>
@@ -231,6 +231,8 @@
         <item quantity="other">%1$d tanesi olmadı</item>
     </plurals>
     <string name="rename_template">Ad</string>
+    <string name="rename_select_all">Tümünü seç</string>
+    <string name="rename_clear">Temizle</string>
     <string name="rename_start">İlk numara</string>
     <string name="rename_hint">Peş peşe gelen her diyez numaraya dönüşür ve kaç tane yazarsan o kadar basamak olur: ## 01 verir, ### 001 verir. Uzantıya hiç dokunulmaz ve dosyalar alfabetik sırayla numaralanır.</string>
     <string name="rename_preview">Önizleme</string>
@@ -394,6 +396,7 @@
     <string name="settings_labels_desc">Kapatılırsa simge panelleri daha derli toplu olur. Liste menüleri değişmez.</string>
     <string name="settings_buttons_how">Bir düğmeyi basılı tutun ve kendi paneli içindeki yerini değiştirmek için sürükleyin.</string>
     <string name="settings_buttons_reset">Sıfırla</string>
+    <string name="settings_buttons_reset_ask">Gerçekten varsayılan düzene dönülsün mü?</string>
     <string name="settings_buttons_bin">Çöp kutusunda \'Geri al\', \'Yeniden adlandır\'ın yerini alır.</string>
     <string name="settings_buttons_before">Öne al</string>
     <string name="settings_buttons_after">Arkaya al</string>
