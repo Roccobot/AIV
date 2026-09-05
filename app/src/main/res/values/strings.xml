@@ -193,8 +193,8 @@
     <string name="settings_veil">Blur behind panels</string>
     <string name="settings_veil_desc">Blurs and dims the screen behind dialogs, menus and panels. It can make the app slower on older devices.</string>
 
-    <string name="settings_folder_columns">Columns in the folder grid</string>
-    <string name="settings_folder_columns_desc">More columns fit more folders on screen and shrink each cover. At four the name under it is usually cut short.</string>
+    <string name="settings_folder_columns">Columns in the grids</string>
+    <string name="settings_folder_columns_desc">How many columns the folder grid and the picture grid show. More columns fit more on screen and shrink each tile. At four the folder name under it is usually cut short.</string>
     <string name="settings_folder_count">Item counter under folders in grid view</string>
     <string name="settings_hand">Position of the floating buttons</string>
     <string name="settings_hand_desc">The side of the screen that holds the menu buttons overlaid on it (\'FAB\').</string>

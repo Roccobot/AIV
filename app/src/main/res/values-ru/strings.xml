@@ -77,8 +77,8 @@
 
     <string name="settings_veil">Размытие за панелями</string>
     <string name="settings_veil_desc">Размывает и затемняет экран за диалогами, меню и панелями. На старых устройствах приложение может работать медленнее.</string>
-    <string name="settings_folder_columns">Столбцы в сетке папок</string>
-    <string name="settings_folder_columns_desc">Чем больше столбцов, тем больше папок помещается на экране и тем меньше каждая обложка. При четырёх имя под ней обычно обрезается.</string>
+    <string name="settings_folder_columns">Столбцы в сетках</string>
+    <string name="settings_folder_columns_desc">Сколько столбцов показывают сетка папок и сетка изображений. Больше столбцов помещает больше на экране и уменьшает каждую плитку. При четырёх имя папки обычно обрезается.</string>
     <string name="settings_folder_count">Счётчик элементов под папками в режиме сетки</string>
     <string name="settings_hand">Положение плавающих кнопок</string>
     <string name="settings_hand_desc">Сторона экрана, на которой поверх него лежат кнопки меню (\'FAB\').</string>

@@ -77,8 +77,8 @@
 
     <string name="settings_veil">Rozmycie za panelami</string>
     <string name="settings_veil_desc">Rozmywa i przyciemnia ekran za oknami dialogowymi, menu i panelami. Na starszych urządzeniach aplikacja może działać wolniej.</string>
-    <string name="settings_folder_columns">Kolumny w siatce folderów</string>
-    <string name="settings_folder_columns_desc">Więcej kolumn mieści na ekranie więcej folderów i zmniejsza każdą okładkę. Przy czterech nazwa pod nią zwykle się urywa.</string>
+    <string name="settings_folder_columns">Kolumny w siatkach</string>
+    <string name="settings_folder_columns_desc">Ile kolumn pokazują siatka folderów i siatka obrazów. Więcej kolumn mieści więcej na ekranie i zmniejsza każdy kafelek. Przy czterech nazwa folderu zwykle zostaje ucięta.</string>
     <string name="settings_folder_count">Licznik elementów pod folderami w widoku siatki</string>
     <string name="settings_hand">Położenie przycisków pływających</string>
     <string name="settings_hand_desc">Strona ekranu, na której leżą nałożone na niego przyciski menu (\'FAB\').</string>

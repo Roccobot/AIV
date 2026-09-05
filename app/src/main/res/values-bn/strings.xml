@@ -77,8 +77,8 @@
 
     <string name="settings_veil">প্যানেলের পিছনে ঝাপসা</string>
     <string name="settings_veil_desc">ডায়ালগ, মেনু ও প্যানেলের পিছনের পর্দা ঝাপসা ও অন্ধকার করে। পুরোনো যন্ত্রে অ্যাপ ধীর হয়ে যেতে পারে।</string>
-    <string name="settings_folder_columns">ফোল্ডার গ্রিডের কলাম</string>
-    <string name="settings_folder_columns_desc">বেশি কলামে পর্দায় বেশি ফোল্ডার আঁটে আর প্রতিটি প্রচ্ছদ ছোট হয়। চারটিতে নিচের নাম সাধারণত কাটা পড়ে।</string>
+    <string name="settings_folder_columns">গ্রিডের কলাম</string>
+    <string name="settings_folder_columns_desc">ফোল্ডার গ্রিড ও ছবির গ্রিড কতগুলি কলাম দেখাবে। বেশি কলামে পর্দায় বেশি জিনিস আঁটে এবং প্রতিটি ঘর ছোট হয়। চারটিতে ফোল্ডারের নাম সাধারণত কেটে যায়।</string>
     <string name="settings_folder_count">গ্রিড দৃশ্যে ফোল্ডারের নিচে জিনিসের গণনা</string>
     <string name="settings_hand">ভাসমান বোতামের অবস্থান</string>
     <string name="settings_hand_desc">পর্দার যে দিকে মেনু বোতামগুলি তার উপরে বসানো থাকে (\'FAB\')।</string>

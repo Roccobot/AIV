@@ -77,8 +77,8 @@
 
     <string name="settings_veil">Desfoque atrás dos painéis</string>
     <string name="settings_veil_desc">Desfoca e escurece o ecrã atrás de caixas de diálogo, menus e painéis. Em dispositivos antigos, a aplicação pode ficar mais lenta.</string>
-    <string name="settings_folder_columns">Colunas na grade de pastas</string>
-    <string name="settings_folder_columns_desc">Mais colunas cabem mais pastas na tela e encolhem cada capa. Com quatro, o nome embaixo costuma ficar cortado.</string>
+    <string name="settings_folder_columns">Colunas nas grades</string>
+    <string name="settings_folder_columns_desc">Quantas colunas a grade de pastas e a de imagens mostram. Mais colunas cabem mais coisas na tela e encolhem cada bloco. Em quatro, o nome da pasta costuma ficar cortado.</string>
     <string name="settings_folder_count">Contador de itens sob as pastas na visualização em grade</string>
     <string name="settings_hand">Posição dos botões flutuantes</string>
     <string name="settings_hand_desc">O lado da tela que abriga os botões de menu sobrepostos a ela (\'FAB\').</string>

@@ -77,8 +77,8 @@
 
     <string name="settings_veil">پینلز کے پیچھے دھندلاہٹ</string>
     <string name="settings_veil_desc">ڈائیلاگ، مینو اور پینلز کے پیچھے کی اسکرین کو دھندلا اور مدھم کرتا ہے۔ پرانے آلات پر ایپ سست ہو سکتی ہے۔</string>
-    <string name="settings_folder_columns">فولڈر گرڈ کے کالم</string>
-    <string name="settings_folder_columns_desc">زیادہ کالم اسکرین پر زیادہ فولڈر سماتے ہیں اور ہر سرورق چھوٹا کر دیتے ہیں۔ چار پر نیچے کا نام عموماً کٹ جاتا ہے۔</string>
+    <string name="settings_folder_columns">گرڈز کے کالم</string>
+    <string name="settings_folder_columns_desc">فولڈر گرڈ اور تصویری گرڈ کتنے کالم دکھائیں۔ زیادہ کالم سکرین پر زیادہ چیزیں سماتے ہیں اور ہر خانہ چھوٹا کر دیتے ہیں۔ چار پر فولڈر کا نام عموما کٹ جاتا ہے۔</string>
     <string name="settings_folder_count">گرڈ منظر میں فولڈروں کے نیچے اشیا کا شمار کنندہ</string>
     <string name="settings_hand">تیرتے بٹنوں کی جگہ</string>
     <string name="settings_hand_desc">اسکرین کا وہ رخ جہاں اس کے اوپر رکھے مینو بٹن رہتے ہیں (\'FAB\')۔</string>

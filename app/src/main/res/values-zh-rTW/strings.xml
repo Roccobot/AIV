@@ -77,8 +77,8 @@
 
     <string name="settings_veil">面板背後模糊</string>
     <string name="settings_veil_desc">將對話框、選單和面板背後的畫面變得模糊並壓暗。在舊裝置上，應用程式可能會變慢。</string>
-    <string name="settings_folder_columns">資料夾格狀檢視的欄數</string>
-    <string name="settings_folder_columns_desc">欄數越多,螢幕上放得下的資料夾越多,每張封面也越小。到四欄時,下面的名稱通常會被截斷。</string>
+    <string name="settings_folder_columns">格狀檢視的欄數</string>
+    <string name="settings_folder_columns_desc">資料夾格狀檢視與圖片格狀檢視顯示幾欄。欄數越多，畫面上放得越多，每個方塊越小。四欄時資料夾名稱通常會被截斷。</string>
     <string name="settings_folder_count">格狀檢視中資料夾下方的項目計數</string>
     <string name="settings_hand">浮動按鈕的位置</string>
     <string name="settings_hand_desc">選單按鈕疊放在螢幕上的那一側（\'FAB\'）。</string>

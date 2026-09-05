@@ -77,8 +77,8 @@
 
     <string name="settings_veil">Làm mờ phía sau bảng</string>
     <string name="settings_veil_desc">Làm mờ và tối màn hình phía sau hộp thoại, trình đơn và bảng. Trên thiết bị cũ, ứng dụng có thể chậm hơn.</string>
-    <string name="settings_folder_columns">Số cột trong lưới thư mục</string>
-    <string name="settings_folder_columns_desc">Càng nhiều cột thì càng nhiều thư mục vừa màn hình và mỗi ảnh bìa càng nhỏ. Ở bốn cột, tên bên dưới thường bị cắt.</string>
+    <string name="settings_folder_columns">Số cột trong lưới</string>
+    <string name="settings_folder_columns_desc">Lưới thư mục và lưới ảnh hiển thị bao nhiêu cột. Nhiều cột hơn chứa được nhiều hơn trên màn hình và thu nhỏ từng ô. Ở bốn cột, tên thư mục thường bị cắt ngắn.</string>
     <string name="settings_folder_count">Bộ đếm mục dưới các thư mục ở chế độ lưới</string>
     <string name="settings_hand">Vị trí của các nút nổi</string>
     <string name="settings_hand_desc">Phía của màn hình chứa các nút menu nằm đè lên nó (\'FAB\').</string>

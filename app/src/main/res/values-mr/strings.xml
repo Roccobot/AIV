@@ -77,8 +77,8 @@
 
     <string name="settings_veil">पॅनेलमागे अस्पष्टता</string>
     <string name="settings_veil_desc">संवाद, मेनू आणि पॅनेलमागील स्क्रीन अस्पष्ट आणि गडद करते. जुन्या उपकरणांवर ॲप संथ होऊ शकते.</string>
-    <string name="settings_folder_columns">संचिकासंच जाळीतील स्तंभ</string>
-    <string name="settings_folder_columns_desc">जास्त स्तंभांत पडद्यावर जास्त संचिकासंच बसतात आणि प्रत्येक मुखपृष्ठ लहान होते. चार असताना खालचे नाव बहुधा कापले जाते.</string>
+    <string name="settings_folder_columns">जाळ्यांतील स्तंभ</string>
+    <string name="settings_folder_columns_desc">संचिकासंच जाळी आणि प्रतिमा जाळी किती स्तंभ दाखवतील. अधिक स्तंभांत पडद्यावर अधिक गोष्टी मावतात आणि प्रत्येक खण लहान होतो. चारवर संचिकासंचाचे नाव बहुधा तुटते.</string>
     <string name="settings_folder_count">जाळी दृश्यात फोल्डरखाली घटकांची मोजणी</string>
     <string name="settings_hand">तरंगत्या बटणांची स्थिती</string>
     <string name="settings_hand_desc">पडद्याची ती बाजू जिथे त्याच्यावर ठेवलेली मेन्यू बटणे राहतात (\'FAB\').</string>
