@@ -1051,9 +1051,28 @@ internal object MenuScene {
  * ⚠️ **Consuma nella passata `Initial`**, cioè prima di chiunque altro: quello che deve
  * rispondere a quel tocco è il popup, e il popup vive in un'altra finestra, dove questo nodo
  * non arriva.
- * ⚠️ **Non consuma niente a menu chiuso**, e per saperlo legge [MenuScene] **dentro il giro dei
- * tocchi**: letto in composizione, il valore farebbe ricomporre la radice dell'app a ogni
- * apertura e a ogni chiusura di un menu.
+ *
+ * ⚠️⚠️ **A MENU CHIUSO NON ESISTE, E NON BASTAVA CHE NON CONSUMASSE: la `1.70` ha bloccato
+ * l'intera app**, che si avviava e non rispondeva a nulla (riscontro dell'utente, 2026-09-05:
+ * *l'app si avvia e appare la griglia delle cartelle, ma nulla risponde ai comandi*). ⚠️ **La
+ * causa non è il consumo: è la HIT-TEST**, che in Compose sceglie **a chi mandare** l'evento
+ * prima che un solo `awaitPointerEvent` giri. Fra fratelli sovrapposti quel giro va dall'ultimo
+ * disegnato al primo e **si ferma sul primo ramo che colpisce**: un `Box` con `pointerInput`
+ * grande quanto lo schermo e disegnato dopo `content()` è quel ramo, quindi la griglia sotto
+ * non veniva nemmeno interpellata. Non consumare vuol dire 'lascio decidere anche agli altri
+ * che hanno ricevuto l'evento', non 'lo lascio passare a chi sta sotto': quelli sotto l'evento
+ * non lo ricevono affatto.
+ * - ⚠️⚠️ **Il fatto era già scritto tre volte in questo file**, sul cancello di [MenuShell]
+ *   (*un popup sempre presente e trasparente in più si mangerebbe i tocchi*): la stessa
+ *   trappola, presa da un `Popup` invece che da un `Box`. Una nota che descrive il difetto non
+ *   impedisce di rifarlo con un altro strumento.
+ * - **Il rimedio è l'ASSENZA, non una condizione più furba**: finché nessun menu è in scena il
+ *   nodo non è nell'albero, quindi non c'è niente che possa intercettare un tocco. Una guardia
+ *   dentro il giro dei tocchi lascerebbe in piedi il nodo, cioè la causa.
+ * - ⚠️ **Il prezzo è una ricomposizione della radice** a ogni apertura e a ogni chiusura di un
+ *   menu, che è quello che la `1.70` voleva evitare leggendo [MenuScene] dentro il giro dei
+ *   tocchi. Costa un `Box` vuoto: si paga.
+ *
  * ⚠️ **I DIALOGHI non hanno bisogno di lui**: la finestra di un `Dialog` è modale al tocco, e
  * quello che si tocca fuori non arriva mai all'app. Il loro caso gemello è un'altra cosa e vive
  * in `Centred.kt`, sull'aria dichiarata sopra il pannello.
@@ -1061,13 +1080,13 @@ internal object MenuScene {
 @Composable
 fun MenuGuard(modifier: Modifier = Modifier) {
     DisposableEffect(Unit) { onDispose { MenuScene.clear() } }
+    if (!MenuScene.open) return
     Box(
         modifier = modifier
             .pointerInput(Unit) {
                 awaitPointerEventScope {
                     while (true) {
-                        val evento = awaitPointerEvent(PointerEventPass.Initial)
-                        if (MenuScene.open) evento.changes.forEach { it.consume() }
+                        awaitPointerEvent(PointerEventPass.Initial).changes.forEach { it.consume() }
                     }
                 }
             }

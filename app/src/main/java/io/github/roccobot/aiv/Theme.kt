@@ -429,9 +429,13 @@ fun AivTheme(
                      * questo impedisce al tocco di arrivare **anche** all'app, che da Android 12
                      * è quello che succede (la finestra di un popup non è modale al tocco). Il
                      * perché per esteso, col fatto misurato sul bytecode, sta in testa a
-                     * [MenuGuard]. ⚠️ **Non dipinge niente e a menu chiuso non consuma niente**:
-                     * a differenza del velo, che è una funzione dietro un interruttore, questa è
-                     * una correzione e vale sempre.
+                     * [MenuGuard]. ⚠️ Non dipinge niente, e a differenza del velo, che è una
+                     * funzione dietro un interruttore, questa è una correzione e vale sempre.
+                     * ⚠️⚠️ **A MENU CHIUSO NON È NELL'ALBERO**, e questa riga non è una
+                     * rifinitura: nella `1.70` il nodo c'era sempre e **bloccava l'intera app**,
+                     * perché la hit-test si ferma sul primo ramo che colpisce e la griglia sotto
+                     * non veniva più interpellata. Il perché, e perché non consumare non
+                     * bastava, stanno in testa a [MenuGuard].
                      */
                     MenuGuard(modifier = Modifier.matchParentSize())
                 }
