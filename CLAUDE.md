@@ -498,6 +498,34 @@ apre la riga, la miniatura o la cartella che stava sotto il dito.
   'Sfocatura dietro i pannelli' è spenta, cioè di fabbrica, e legare a lei una correzione la
   renderebbe una funzione facoltativa.
 
+⚠️⚠️ **UN VELO CHE COPRE TUTTO ESISTE SOLO QUANDO SERVE, E LA `1.70` HA BLOCCATO L'INTERA APP
+PER AVERLO IGNORATO**: si avviava, mostrava la griglia delle cartelle e non rispondeva a nessun
+tocco (riscontro dell'utente, 2026-09-05). Il `MenuGuard` era in scena sempre e si limitava a
+non **consumare** a menu chiuso.
+
+- ⚠️⚠️ **La causa non è il consumo: è la HIT-TEST**, che sceglie **a chi mandare** l'evento
+  prima che una riga del gestore giri. Fra fratelli sovrapposti quel giro va dall'ultimo
+  disegnato al primo e **si ferma sul primo ramo che colpisce**, quindi un nodo con
+  `pointerInput` grande quanto lo schermo e disegnato dopo il contenuto se li prende tutti.
+  **Non consumare** vuol dire 'lascio decidere anche agli altri che hanno ricevuto l'evento',
+  **non** 'lo lascio passare a chi sta sotto': quelli sotto non lo ricevono affatto.
+- **La forma giusta era già in casa, in `ViewerScreen.kt`**, e il suo commento la enuncia: il
+  riquadro che richiama i comandi vive dentro un `if (!visible)`, *così quando ci sono non ruba
+  il tocco al tasto*. Il rimedio della `1.71` è quello schema applicato al `MenuGuard`.
+- ⚠️ **Il rimedio è l'ASSENZA, non una condizione più furba**: finché nessun menu è in scena il
+  nodo non è nell'albero, quindi non esiste niente che possa intercettare. Una guardia dentro
+  il giro dei tocchi lascia in piedi il nodo, cioè la causa. Il prezzo è una ricomposizione
+  della radice a ogni apertura e chiusura di un menu, e costa un `Box` vuoto.
+- ⚠️⚠️ **E IL FATTO ERA GIÀ SCRITTO IN `Menus.kt`**, sul cancello di `MenuShell` (*un popup
+  sempre presente e trasparente in più si mangerebbe i tocchi*): la stessa trappola, presa con
+  un `Box` invece che con un `Popup`. Una nota che descrive un difetto non impedisce di rifarlo
+  con un altro strumento, e questa è la ragione per cui la regola sta qui invece che in un
+  commento accanto a un solo chiamante.
+- ⚠️ **Non c'è modo di provarlo senza un dispositivo**, e questo difetto è arrivato in
+  produzione per quello: `compileDebugKotlin` non vede niente, e il progetto non ha un banco di
+  prova strumentale. Chi tocca un nodo che copre lo schermo lo sappia, e guardi **prima** se il
+  nodo esiste anche quando non serve.
+
 ## ⚙️ Dove va un'impostazione, e chi la deve trovare
 
 ⚠️⚠️ **UNA VOCE STA CON QUELLE CHE RISPONDONO ALLA SUA STESSA DOMANDA, e la domanda è quella
