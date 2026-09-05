@@ -979,9 +979,11 @@ private fun Hub(
                 ink = colorResource(R.color.launcher_foreground),
                 lift = { entrata.lift(FAB_LIFT) },
                 holdLabel = stringResource(R.string.columns_title),
-                // ⚠️ **`veiling` e non `visible`**: il FAB deve restare staccato finché c'è patina
-                // addosso all'app, che dura più del pannello.
-                lifted = menu.veiling,
+                // ⚠️ **`visible` e non `wanted`**: il FAB deve restare staccato per tutta
+                // l'uscita, o rientrerebbe nella finestra dell'app sotto il velo che se ne sta
+                // andando. ⚠️ Dalla `1.67` `visible` copre anche quello: era `veiling` finché la
+                // patina durava più del pannello.
+                lifted = menu.visible,
                 pressed = menu.wanted,
                 onTap = { menu.open() },
                 onHold = onSize,

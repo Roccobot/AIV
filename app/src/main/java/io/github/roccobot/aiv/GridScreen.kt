@@ -1285,10 +1285,12 @@ fun GridScreen(
                         ink = colorResource(R.color.launcher_foreground),
                         lift = { FAB_LIFT },
                         holdLabel = stringResource(shortcutLabel),
-                        // ⚠️ **`veiling` e non `visible`**: il FAB deve restare staccato finché
-                        // c'è patina addosso all'app, che dura più del pannello.
-                        lifted = menu.veiling,
-                        // ⚠️ **`wanted` e non `veiling`**: il perché sta sul parametro
+                        // ⚠️ **`visible` e non `wanted`**: il FAB deve restare staccato per tutta
+                        // l'uscita, o rientrerebbe nella finestra dell'app sotto il velo che se ne
+                        // sta andando. ⚠️ Dalla `1.67` `visible` copre anche quello: era `veiling`
+                        // finché la patina durava più del pannello.
+                        lifted = menu.visible,
+                        // ⚠️ **`wanted` e non `visible`**: il perché sta sul parametro
                         // `pressed` di [TapHoldFab], ed è il riscontro del giro della `1.59`.
                         pressed = menu.wanted,
                         // ⚠️ **Apre e basta, dalla 1.06**: a menu aperto il tocco non
@@ -1399,9 +1401,10 @@ fun GridScreen(
          * ⚠️ **Copre lo schermo INTERO**, testata compresa, ed è la ragione per cui vive qui
          * e non dentro la `Column`: là comincerebbe sotto la barra del titolo, e un tocco sul
          * titolo tornerebbe a essere il caso non coperto.
-         * ⚠️⚠️ **`visible` E NON `veiling`**: questo riquadro consuma il tocco su **tutto** lo
-         * schermo, e la patina resta in scena più a lungo del pannello. Con `veiling` si
-         * prenderebbe anche i tocchi di chi, a menu già sparito, tocca qualunque cosa.
+         * ⚠️ **Vive quanto il pannello e non un istante di più**: consuma il tocco su **tutto** lo
+         * schermo, quindi finché sta in scena nessun altro comando dell'app risponde. Fino alla
+         * `1.66` c'era da distinguerlo dal tratto in cui restava solo la patina (`veiling`), e
+         * dalla `1.67` i due tratti sono lo stesso.
          */
         if (menu.visible) {
             Box(

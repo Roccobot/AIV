@@ -211,7 +211,7 @@ fun TreeList(
     /*
      * ⚠️⚠️ **`acting` NON SI AZZERA ALLA CHIUSURA, dalla `1.46`, e non è una perdita**: chi
      * chiude un menu deve lasciarlo in scena per la durata dell'uscita, quindi la presenza la
-     * decide `menu.inScene` e questo campo resta a dire **su che cosa** era aperto. Azzerandolo
+     * decide `menu.visible` e questo campo resta a dire **su che cosa** era aperto. Azzerandolo
      * si tornerebbe al menu che sparisce di colpo, che è il difetto che l'uscita rimuove.
      * ⚠️ Il costo è nullo: a menu chiuso la superficie non compone niente.
      */

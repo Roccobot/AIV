@@ -370,23 +370,39 @@ grande un dialogo esattamente al centro fa allungare la mano.
           l'occhio attribuisce il cambiamento a lei. Il pannello di un menu spariva in 120 ms e
           per il resto della coda il raggio scendeva **da solo** in uno schermo vuoto: senza una
           causa in scena, quel movimento è una **messa a fuoco**, che è la parola che ha usato.
-        - ⚠️⚠️ **QUINDI DALLA 1.65 IL NUMERO CHE CAMBIA È LA DURATA DELL'USCITA DEL MENU**, che
-          adesso vale quanto la coda invece che quanto l'entrata. L'entrata resta 120 ms, perché
-          aprire deve essere immediato. ⚠️ **La 1.64 aveva sbagliato bersaglio**: legare la
-          sfocatura al pannello le toglieva la decelerazione, cioè proprio la cosa chiesta nella
-          1.60.
+        - ⚠️⚠️ **LA 1.65 CI ARRIVAVA ALLUNGANDO L'USCITA DEL MENU, E DALLA 1.67 NON SI FA PIÙ
+          COSÌ**: quei 280 ms cadevano addosso alla composizione di una schermata nuova ogni volta
+          che una voce navigava (riscontro del giro della 1.66: *toccando 'Impostazioni' o
+          'Cestino' ... rimane bloccato a schermo a mezza opacità*), e allora *semplifica al massimo
+          e fai sparire il menu in modo fluido e senza glitch, con una dissolvenza veloce*. Adesso
+          l'uscita è una dissolvenza sola di 75 ms, in cui pannello, sfocatura e livello scuro se ne
+          vanno insieme: **la regola resta soddisfatta**, perché niente cala da solo.
+          - ⚠️ **La coda resta dove non costa niente, cioè sulla scheda in fondo**, che è la
+            superficie di cui lui ha detto che l'arrivo e la sparizione sono perfette. Chi la
+            riportasse sui menu rifarebbe il difetto della 1.66, ⚠️ **che non si vede aprendo e
+            chiudendo un menu sul posto**: si vede toccando una voce che porta altrove.
+          - ⚠️ **In uscita il pannello non si rimpicciolisce più**, e non è una rifinitura: quel
+            numero faceva rimisurare tutto il contenuto del menu e riposizionare la **finestra** a
+            ogni fotogramma, cioè spendeva i fotogrammi che servivano alla schermata di arrivo.
+          - ⚠️ **L'entrata resta 120 ms** e non è mai cambiata: aprire deve essere immediato.
+          - ⚠️ **La 1.64 aveva sbagliato bersaglio**: legare la sfocatura al pannello le toglieva
+            la decelerazione, cioè proprio la cosa chiesta nella 1.60.
         - ⚠️ **La misura della 1.61 era corretta e non serve più** (la percezione della sfocatura
           approssimata con la radice del raggio): diceva quanto sarebbe durato quel tratto, e una
           misura dice quanto si vede, non che cosa si capisce.
-        - ⚠️ **Restano separati i due numeri**, come li ha divisi la 1.64: il livello scuro è un
-          rettangolo che l'app dipinge e la sfocatura è un attributo di finestra, quindi uno può
-          sopravvivere all'altro e chiederli insieme era la ragione di metà dei difetti.
+        - ⚠️ **Restano separati i due MECCANISMI**, come li ha divisi la 1.64: il livello scuro è un
+          rettangolo che l'app dipinge e la sfocatura è un attributo di finestra, e confonderli era
+          la ragione di metà dei difetti. ⚠️ **Il numero che li muove invece è di nuovo uno**, dalla
+          1.67: erano due per dare al livello scuro una coda più lunga dell'uscita, e quella coda
+          sui menu non c'è più.
         - ⚠️⚠️ **E COSÌ LA FINESTRA NON SOPRAVVIVE PIÙ AL PROPRIO PANNELLO**, che nella 1.61 era
           il prezzo da pagare perché la sfocatura è un attributo di finestra. Con lei se ne vanno
           tre contropartite: il flag di passante ai tocchi, il focus che cadeva a metà uscita, e
-          il doppio senso di `inScene`. ⚠️ Quello che resta più lungo del pannello è la
-          **patina**, quindi il FAB resta staccato finché c'è lei: lo dice `veiling`, e
-          `visible` dice invece che il pannello si vede. Sbagliarli non dà nessun errore.
+          il doppio senso di `inScene`. ⚠️⚠️ **E DALLA 1.67 NON CI SONO PIÙ NEMMENO DUE STATI**:
+          finché la patina durava più del pannello servivano `veiling` ('l'app è velata') e
+          `visible` ('il pannello si vede'), e sbagliarli non dava nessun errore; adesso i due
+          tratti coincidono e il nome è **uno**, `visible`. Chi trova `veiling` in una nota vecchia
+          sappia che i suoi chiamanti leggono quello.
         - ⚠️⚠️ **IL FOCUS CHE CAMBIAVA A METÀ COSTAVA UNO SFARFALLIO, ed è misurato sul bytecode
           di Compose**: `PopupLayout.updatePopupProperties` **assegna** `params.flags` invece di
           aggiungerli, e quel valore lo compone dalle sole `PopupProperties`. Quindi nel
