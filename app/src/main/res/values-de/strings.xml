@@ -77,8 +77,8 @@
 
     <string name="settings_veil">Unschärfe hinter Bedienfeldern</string>
     <string name="settings_veil_desc">Zeichnet den Bildschirm hinter Dialogen, Menüs und Bedienfeldern unscharf und abgedunkelt. Auf älteren Geräten kann die App dadurch langsamer werden.</string>
-    <string name="settings_folder_columns">Spalten im Ordnerraster</string>
-    <string name="settings_folder_columns_desc">Mehr Spalten bringen mehr Ordner auf den Bildschirm und machen jedes Titelbild kleiner. Bei vier wird der Name darunter meist abgeschnitten.</string>
+    <string name="settings_folder_columns">Spalten in den Rastern</string>
+    <string name="settings_folder_columns_desc">Wie viele Spalten das Ordnerraster und das Bildraster zeigen. Mehr Spalten zeigen mehr auf einmal und verkleinern jede Kachel. Bei vier wird der Ordnername meist abgeschnitten.</string>
     <string name="settings_folder_count">Zähler der Elemente unter den Ordnern in der Rasteransicht</string>
     <string name="settings_hand">Position der schwebenden Schaltflächen</string>
     <string name="settings_hand_desc">Die Bildschirmseite, auf der die Menü-Schaltflächen über dem Inhalt liegen (\'FAB\').</string>

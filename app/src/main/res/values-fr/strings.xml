@@ -77,8 +77,8 @@
 
     <string name="settings_veil">Flou derrière les panneaux</string>
     <string name="settings_veil_desc">Floute et assombrit l\'écran derrière les boîtes de dialogue, les menus et les panneaux. Sur les appareils anciens, l\'application peut en devenir plus lente.</string>
-    <string name="settings_folder_columns">Colonnes dans la grille des dossiers</string>
-    <string name="settings_folder_columns_desc">Plus de colonnes font tenir plus de dossiers à l\'écran et rétrécissent chaque vignette. À quatre, le nom en dessous est souvent tronqué.</string>
+    <string name="settings_folder_columns">Colonnes dans les grilles</string>
+    <string name="settings_folder_columns_desc">Combien de colonnes affichent la grille des dossiers et celle des images. Plus de colonnes font tenir plus de choses à l\'écran et rétrécissent chaque case. À quatre, le nom du dossier est souvent tronqué.</string>
     <string name="settings_folder_count">Compteur des éléments sous les dossiers en vue grille</string>
     <string name="settings_hand">Position des boutons flottants</string>
     <string name="settings_hand_desc">Le côté de l\'écran qui accueille les boutons de menu superposés à celui-ci (\'FAB\').</string>

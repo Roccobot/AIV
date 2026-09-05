@@ -77,8 +77,8 @@
 
     <string name="settings_veil">Розмиття за панелями</string>
     <string name="settings_veil_desc">Розмиває й затемнює екран за діалогами, меню та панелями. На старих пристроях застосунок може працювати повільніше.</string>
-    <string name="settings_folder_columns">Стовпці в сітці тек</string>
-    <string name="settings_folder_columns_desc">Що більше стовпців, то більше тек вміщується на екрані і то менша кожна обкладинка. За чотирьох ім\'я під нею зазвичай обрізається.</string>
+    <string name="settings_folder_columns">Стовпці в сітках</string>
+    <string name="settings_folder_columns_desc">Скільки стовпців показують сітка тек і сітка зображень. Більше стовпців вміщує більше на екрані та зменшує кожну плитку. При чотирьох назву теки зазвичай обрізає.</string>
     <string name="settings_folder_count">Лічильник елементів під теками в режимі сітки</string>
     <string name="settings_hand">Положення плавучих кнопок</string>
     <string name="settings_hand_desc">Сторона екрана, на якій поверх нього лежать кнопки меню (\'FAB\').</string>

@@ -77,8 +77,8 @@
 
     <string name="settings_veil">Desenfoque detrás de los paneles</string>
     <string name="settings_veil_desc">Desenfoca y oscurece la pantalla detrás de los diálogos, los menús y los paneles. En dispositivos antiguos, la aplicación puede ir más lenta.</string>
-    <string name="settings_folder_columns">Columnas en la cuadrícula de carpetas</string>
-    <string name="settings_folder_columns_desc">Más columnas caben más carpetas en la pantalla y encogen cada portada. Con cuatro, el nombre de debajo suele quedar cortado.</string>
+    <string name="settings_folder_columns">Columnas en las cuadrículas</string>
+    <string name="settings_folder_columns_desc">Cuántas columnas muestran la cuadrícula de carpetas y la de imágenes. Más columnas caben más cosas en pantalla y encogen cada celda. Con cuatro, el nombre de la carpeta suele quedar cortado.</string>
     <string name="settings_folder_count">Contador de elementos bajo las carpetas en vista de cuadrícula</string>
     <string name="settings_hand">Posición de los botones flotantes</string>
     <string name="settings_hand_desc">El lado de la pantalla que aloja los botones de menú superpuestos a ella (\'FAB\').</string>

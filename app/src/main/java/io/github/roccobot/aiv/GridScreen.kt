@@ -102,6 +102,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -114,6 +116,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
+import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -164,6 +167,17 @@ fun GridScreen(
      */
     query: String? = null,
     onQuery: (String) -> Unit = {},
+    /**
+     * Quante colonne di miniature, sul lato corto dello schermo: `Settings.folderColumns`.
+     *
+     * ⚠️⚠️ **LA STESSA VOCE CHE GOVERNA LA SCHERMATA INIZIALE, DALLA `1.66`, ED È SUA
+     * RICHIESTA** (*perché è solo per la home? Lo voglio anche nelle cartelle: dev'essere
+     * un'impostazione globale*). Fino alla `1.65` qui le colonne le decideva una misura fissa e
+     * là il suo numero, quindi la voce diceva 'griglia delle cartelle' e mentiva a metà.
+     * ⚠️ **La chiave e il valore di fabbrica non si toccano**: la voce è spostata di dominio, non
+     * sostituita, e chi aggiorna non deve perdere la scelta che aveva fatto.
+     */
+    columns: Int = FOLDER_COLUMNS.first(),
     /**
      * I campi delle informazioni sul file, nell'ordine scelto: `Settings.factRows`.
      *
@@ -1060,10 +1074,7 @@ fun GridScreen(
             }
 
             LazyVerticalGrid(
-                    // ⚠️ `Adaptive` e non un numero fisso di colonne: la stessa misura
-                    // minima dà tre colonne su un telefono e sei su un tablet o in
-                    // orizzontale, senza un ramo per ogni forma di schermo.
-                    columns = GridCells.Adaptive(minSize = THUMB),
+                    columns = GridCells.Fixed(spread(columns, LocalWindowInfo.current)),
                     state = state,
                     horizontalArrangement = Arrangement.spacedBy(GAP),
                     verticalArrangement = Arrangement.spacedBy(GAP),
@@ -2053,6 +2064,28 @@ private const val WEIGH_WAIT = 300L
  * ne terrebbe quattro, e su un telefono la faccia in una foto di gruppo non si
  * riconosce più.
  */
+/**
+ * Quante colonne stanno davvero in scena: [scelte] sul lato corto, di più se lo schermo è largo.
+ *
+ * ⚠️⚠️ **SOSTITUISCE `GridCells.Adaptive` DALLA `1.66`, E NE CONSERVA IL PREGIO.** Quella dava
+ * tre colonne su un telefono e sei ruotandolo, senza un ramo per ogni forma di schermo, ma
+ * decideva **lei** quanto sono grandi le miniature, e dalla `1.66` quel numero è una scelta
+ * dell'utente. Qui la scelta dice quante colonne stanno sul **lato corto**, e ruotando o su uno
+ * schermo più largo ne entrano altrettante della stessa misura: il rapporto fra i due lati fa il
+ * conto, quindi non c'è nessuna larghezza di riferimento scritta a mano da rifare il giorno che
+ * esce un telefono di un'altra forma.
+ * ⚠️ **Non scende mai sotto la scelta**: in verticale il rapporto vale 1 e il conto la restituisce
+ * intera, e su una finestra più stretta dell'alta il tetto la protegge lo stesso.
+ * ⚠️ **Con una finestra ancora da misurare vale la scelta**: al primo fotogramma la misura può
+ * essere zero, e una divisione per zero darebbe una griglia a una colonna che poi salta.
+ */
+private fun spread(scelte: Int, finestra: WindowInfo): Int {
+    val misura = finestra.containerSize
+    val corto = minOf(misura.width, misura.height)
+    if (corto <= 0) return scelte
+    return (scelte.toFloat() * misura.width / corto).roundToInt().coerceAtLeast(scelte)
+}
+
 private val THUMB = 108.dp
 
 /** Il distacco fra le miniature: c'è, ma non deve leggersi come una cornice. */

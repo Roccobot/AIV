@@ -77,8 +77,8 @@
 
     <string name="settings_veil">محو پشت پنل‌ها</string>
     <string name="settings_veil_desc">صفحه پشت گفت‌وگوها، منوها و پنل‌ها را محو و تیره می‌کند. ممکن است برنامه را روی دستگاه‌های قدیمی کندتر کند.</string>
-    <string name="settings_folder_columns">ستون‌های شبکه پوشه‌ها</string>
-    <string name="settings_folder_columns_desc">ستون بیشتر پوشه‌های بیشتری را در صفحه جا می‌دهد و هر جلد را کوچک‌تر می‌کند. با چهار ستون، نام زیر آن بیشتر وقت‌ها بریده می‌شود.</string>
+    <string name="settings_folder_columns">ستون‌های شبکه‌ها</string>
+    <string name="settings_folder_columns_desc">شبکه پوشه‌ها و شبکه تصویرها چند ستون نشان دهند. ستون‌های بیشتر چیزهای بیشتری را در صفحه جا می‌دهند و هر کاشی را کوچک‌تر می‌کنند. با چهار ستون نام پوشه معمولا بریده می‌شود.</string>
     <string name="settings_folder_count">شمارندهٔ موارد زیر پوشه‌ها در نمای شبکه‌ای</string>
     <string name="settings_hand">موقعیت دکمه‌های شناور</string>
     <string name="settings_hand_desc">سمتی از صفحه که دکمه‌های منو روی آن قرار می‌گیرند (\'FAB\').</string>

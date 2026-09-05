@@ -77,8 +77,8 @@
 
     <string name="settings_veil">Vervaging achter panelen</string>
     <string name="settings_veil_desc">Maakt het scherm achter dialoogvensters, menu\'s en panelen wazig en donkerder. Op oudere toestellen kan de app hierdoor trager worden.</string>
-    <string name="settings_folder_columns">Kolommen in het mappenraster</string>
-    <string name="settings_folder_columns_desc">Meer kolommen laten meer mappen op het scherm passen en maken elke omslag kleiner. Bij vier wordt de naam eronder meestal afgekapt.</string>
+    <string name="settings_folder_columns">Kolommen in de rasters</string>
+    <string name="settings_folder_columns_desc">Hoeveel kolommen het mappenraster en het afbeeldingsraster tonen. Meer kolommen passen meer op het scherm en maken elke tegel kleiner. Bij vier wordt de mapnaam meestal afgekapt.</string>
     <string name="settings_folder_count">Teller van de items onder de mappen in rasterweergave</string>
     <string name="settings_hand">Positie van de zwevende knoppen</string>
     <string name="settings_hand_desc">De schermzijde waar de menuknoppen bovenop liggen (\'FAB\').</string>

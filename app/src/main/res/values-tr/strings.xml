@@ -77,8 +77,8 @@
 
     <string name="settings_veil">Panellerin arkasında bulanıklık</string>
     <string name="settings_veil_desc">İletişim kutularının, menülerin ve panellerin arkasındaki ekranı bulanıklaştırır ve karartır. Eski cihazlarda uygulama yavaşlayabilir.</string>
-    <string name="settings_folder_columns">Klasör ızgarasındaki sütunlar</string>
-    <string name="settings_folder_columns_desc">Sütun arttıkça ekrana daha çok klasör sığar ve her kapak küçülür. Dörtte alttaki ad çoğunlukla kesilir.</string>
+    <string name="settings_folder_columns">Izgaralardaki sütunlar</string>
+    <string name="settings_folder_columns_desc">Klasör ızgarasının ve resim ızgarasının kaç sütun gösterdiği. Daha çok sütun ekrana daha çok sığdırır ve her karoyu küçültür. Dörtte klasör adı genellikle kısaltılır.</string>
     <string name="settings_folder_count">Izgara görünümünde klasörlerin altındaki öge sayacı</string>
     <string name="settings_hand">Kayan düğmelerin konumu</string>
     <string name="settings_hand_desc">Menü düğmelerinin ekranın üzerine yerleştiği taraf (\'FAB\').</string>

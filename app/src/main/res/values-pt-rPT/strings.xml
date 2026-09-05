@@ -30,8 +30,8 @@
     <string name="settings_title">Definições</string>
     <string name="settings_search">Procurar nas definições</string>
 
-    <string name="settings_folder_columns">Colunas na grelha de pastas</string>
-    <string name="settings_folder_columns_desc">Mais colunas cabem mais pastas no ecrã e encolhem cada capa. Com quatro, o nome abaixo costuma ficar cortado.</string>
+    <string name="settings_folder_columns">Colunas nas grelhas</string>
+    <string name="settings_folder_columns_desc">Quantas colunas a grelha de pastas e a de imagens mostram. Mais colunas cabem mais coisas no ecrã e encolhem cada bloco. Em quatro, o nome da pasta costuma ficar cortado.</string>
     <string name="settings_fit_grow_desc">Desligado, uma imagem menor que o ecrã aparece no tamanho real. Ligado, cresce até preencher a vista.</string>
     <string name="settings_scale_physical">Um pixel do ficheiro por pixel do ecrã</string>
     <string name="settings_scale_logical">Um pixel do ficheiro por pixel de layout</string>

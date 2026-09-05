@@ -77,8 +77,8 @@
 
     <string name="settings_veil">पैनल के पीछे धुंधलापन</string>
     <string name="settings_veil_desc">डायलॉग, मेन्यू और पैनल के पीछे की स्क्रीन को धुंधला और गहरा करता है। पुराने उपकरणों पर ऐप धीमा हो सकता है।</string>
-    <string name="settings_folder_columns">फ़ोल्डर ग्रिड के स्तंभ</string>
-    <string name="settings_folder_columns_desc">जितने अधिक स्तंभ, उतने अधिक फ़ोल्डर स्क्रीन पर आते हैं और हर आवरण उतना ही छोटा होता है। चार पर नीचे का नाम अक्सर कट जाता है।</string>
+    <string name="settings_folder_columns">ग्रिड के स्तंभ</string>
+    <string name="settings_folder_columns_desc">फ़ोल्डर ग्रिड और चित्र ग्रिड कितने स्तंभ दिखाएँ। अधिक स्तंभों में स्क्रीन पर अधिक चीज़ें आती हैं और हर खाना छोटा होता है। चार पर फ़ोल्डर का नाम प्रायः कट जाता है।</string>
     <string name="settings_folder_count">ग्रिड दृश्य में फ़ोल्डरों के नीचे वस्तुओं की गिनती</string>
     <string name="settings_hand">फ़्लोटिंग बटन की स्थिति</string>
     <string name="settings_hand_desc">स्क्रीन का वह हिस्सा जहाँ उसके ऊपर रखे मेन्यू बटन रहते हैं (\'FAB\')।</string>

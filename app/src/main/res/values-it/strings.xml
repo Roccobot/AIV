@@ -137,8 +137,8 @@
     <string name="settings_veil">Sfocatura dietro i pannelli</string>
     <string name="settings_veil_desc">Sfoca e scurisce la schermata dietro a dialoghi, menu e pannelli. Può rendere l\'app più lenta su dispositivi datati.</string>
 
-    <string name="settings_folder_columns">Colonne della griglia delle cartelle</string>
-    <string name="settings_folder_columns_desc">Più colonne fanno stare più cartelle sullo schermo e rimpiccioliscono le copertine. A quattro, il nome sotto di solito non ci sta per intero.</string>
+    <string name="settings_folder_columns">Colonne delle griglie</string>
+    <string name="settings_folder_columns_desc">Quante colonne mostrano la griglia delle cartelle e quella delle immagini. Più colonne fanno stare più cose sullo schermo e rimpiccioliscono ogni riquadro. A quattro il nome della cartella viene quasi sempre troncato.</string>
     <string name="settings_folder_count">Contatore degli elementi sotto le cartelle in vista griglia</string>
     <string name="settings_hand">Posizione dei tasti flottanti</string>
     <string name="settings_hand_desc">Il lato dello schermo che ospita i tasti-menu in sovrapposizione fissa (\'FAB\').</string>
