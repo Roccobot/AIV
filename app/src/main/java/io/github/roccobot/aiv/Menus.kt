@@ -525,7 +525,32 @@ class MenuSpot(
     private val along: MenuSide,
     private val gap: Int = 0,
     private val edge: Int = 0,
-    private val air: Float = 0f
+    private val air: Float = 0f,
+    /**
+     * Entro quanti pixel dal bordo di finestra il pannello ci si appoggia del tutto.
+     *
+     * ⚠️⚠️ **NASCE DA UN DIFETTO CHE SI VEDE SOLO CON LA SFOCATURA ACCESA, dalla `1.68`**
+     * (riscontro del giro della `1.67`, con schermata: *a prescindere dal numero di colonne
+     * della griglia, il bordo destro della colonna di destra è sempre vicinissimo al bordo
+     * destro del menu del FAB ... la vicinanza tra i due bordi genera un effetto 'linea
+     * sfocata' assai fastidioso*). Il menu si ancora al FAB, e il FAB ha il suo margine dal
+     * bordo ([HUB_PAD]): fra il fianco del pannello e il vetro resta una feritoia larga
+     * esattamente quel margine, e là dentro si vede la griglia sfocata come una riga
+     * verticale.
+     * ⚠️ **Il rimedio è il suo, alla lettera**: *allargare il menu del FAB e/o avvicinarlo al
+     * bordo di quel tanto che basta per coprire il margine della colonna*. Appoggiarlo al
+     * bordo copre la feritoia e non cambia niente di quello che c'è dentro il pannello.
+     * ⚠️⚠️ **SI SCRIVE COME UNA SOGLIA E NON COME UNO SPOSTAMENTO, e la differenza è tutta**:
+     * uno spostamento fisso muoverebbe **ogni** menu, compresi quelli che stanno in mezzo allo
+     * schermo; una soglia interviene solo dove un fianco è già a meno di [HUB_PAD] dal vetro,
+     * cioè solo dove la feritoia esiste. Un menu centrato non la incontra mai.
+     * ⚠️ **Vale sui due lati e nei due versi di scrittura**, perché guarda la distanza dai due
+     * bordi e non un lato scelto: il difetto è speculare, e lo dice lui (*specularmente il
+     * bordo sinistro della colonna di sinistra se il FAB è a sinistra*).
+     * ⚠️ **Solo in ORIZZONTALE**: in verticale un menu si stacca dalla sua ancora di [gap] e
+     * dal bordo di [edge], e appoggiarlo al vetro lo farebbe finire sotto la barra di sistema.
+     */
+    private val flush: Int = 0
 ) : PopupPositionProvider {
     override fun calculatePosition(
         anchorBounds: IntRect,
@@ -543,7 +568,7 @@ class MenuSpot(
             // ⚠️ Zero, ed è quello che passa `DropdownMenu`: in orizzontale un menu si appoggia
             // al bordo, e un margine lo staccherebbe da dove Material lo mette.
             margin = 0
-        ),
+        ).let { appoggia(it, popupContentSize.width, windowSize.width, flush) },
         y = place(
             spots(
                 along, anchorBounds.top, anchorBounds.bottom,
@@ -586,6 +611,19 @@ private fun spots(
 }
 
 /**
+ * Appoggia il pannello al bordo di finestra quando gli manca meno di [entro] per arrivarci.
+ *
+ * ⚠️ **Il perché sta su `MenuSpot.flush`**: qui c'è solo il conto, che è una soglia sui due lati.
+ * ⚠️ **A [entro] zero non fa niente**, e non per caso: `1..0` è un intervallo vuoto, quindi i
+ * menu che non passano quel numero non cambiano di un pixel.
+ */
+private fun appoggia(at: Int, size: Int, space: Int, entro: Int): Int = when {
+    at in 1..entro -> 0
+    space - (at + size) in 1..entro -> space - size
+    else -> at
+}
+
+/**
  * Il posto sull'asse: il primo candidato che ci sta, e se nessuno ci sta l'ultimo riportato
  * dentro.
  */
@@ -622,7 +660,14 @@ val MenuInWindow = MenuSpot(MenuSide.IN_WINDOW, MenuSide.LOWERED_IN_WINDOW, air 
 fun rememberMenuSpot(across: MenuSide, along: MenuSide, gap: Dp = 0.dp): MenuSpot {
     val density = LocalDensity.current
     return remember(density, across, along, gap) {
-        with(density) { MenuSpot(across, along, gap.roundToPx(), MENU_KEEP_OUT.roundToPx()) }
+        with(density) {
+            MenuSpot(
+                across, along, gap.roundToPx(), MENU_KEEP_OUT.roundToPx(),
+                // ⚠️ La soglia è il margine del FAB, perché la feritoia da coprire è la sua:
+                // vedi `MenuSpot.flush`.
+                flush = HUB_PAD.roundToPx()
+            )
+        }
     }
 }
 

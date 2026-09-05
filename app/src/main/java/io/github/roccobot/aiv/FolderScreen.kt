@@ -567,7 +567,6 @@ fun FolderScreen(
                     container = HINT_MARK,
                     ink = HINT_INK,
                     // ⚠️ Nessuna ombra: sopra un velo non c'è niente da cui staccarsi.
-                    lift = { 0.dp },
                     holdLabel = stringResource(R.string.columns_title),
                     onTap = hintDone,
                     onHold = { hintDone(); sizing = true },
@@ -977,7 +976,6 @@ private fun Hub(
                  */
                 container = colorResource(R.color.launcher_background),
                 ink = colorResource(R.color.launcher_foreground),
-                lift = { entrata.lift(FAB_LIFT) },
                 holdLabel = stringResource(R.string.columns_title),
                 // ⚠️ **`visible` e non `wanted`**: il FAB deve restare staccato per tutta
                 // l'uscita, o rientrerebbe nella finestra dell'app sotto il velo che se ne sta

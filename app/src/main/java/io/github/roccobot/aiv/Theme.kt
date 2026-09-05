@@ -368,6 +368,20 @@ val LocalAivLight = staticCompositionLocalOf { true }
  */
 fun aivAccent(light: Boolean): Color = if (light) ACCENT_LIGHT else ACCENT_DARK
 
+/**
+ * L'inchiostro che sta **sopra** l'accento, per il tema chiesto.
+ *
+ * ⚠️⚠️ **VA INSIEME A [aivAccent] E NON SI PUÒ SCEGLIERE A PARTE**: dalla `1.68` il FAB premuto
+ * prende l'accento dell'altro tema, e con quello deve prendere anche il suo inchiostro. Le due
+ * coppie sono quelle della tavolozza (`primaryContainer` e `onPrimaryContainer`), quindi qui non
+ * nasce nessun colore nuovo.
+ * ⚠️ **Il perché è una misura**: l'inchiostro del tema chiaro (`#00382F`) sull'accento scuro
+ * (`#00727B`) dà un contrasto di 2,05, cioè illeggibile. Chi prendesse l'accento dell'altro tema
+ * tenendo l'inchiostro di questo si troverebbe un glifo che sparisce, e non darebbe nessun
+ * errore.
+ */
+fun aivOnAccent(light: Boolean): Color = if (light) ON_ACCENT_LIGHT else Color.White
+
 @Composable
 fun AivTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),

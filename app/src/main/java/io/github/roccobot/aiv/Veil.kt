@@ -566,6 +566,24 @@ private const val DIM_LIGHT = 0.20f
 private const val DIM_DARK = 0.45f
 
 /**
+ * Quanto è avanzato il velo, da 0 a 1, indipendentemente da quanto scuro sia.
+ *
+ * ⚠️⚠️ **SERVE A CHI DEVE CAMBIARE DISEGNO INSIEME ALLA SFOCATURA, e il primo caso è la
+ * scacchiera della trasparenza** (riscontro del giro della `1.67`: *la scacchiera di trasparenza
+ * è uno dei punti forti di AIV, tuttavia va pochissimo d'accordo con la sfocatura, e fa un
+ * effetto ottico tremendo*). Il velo dice quanto **buio** c'è; questo dice a che punto è la
+ * transizione, che è la cosa da seguire per coprire qualcosa 'nello stesso intervallo'.
+ * ⚠️ **Si divide per la dose piena del tema in vigore** ([DIM_LIGHT] contro [DIM_DARK]): senza,
+ * lo stesso avanzamento darebbe due numeri diversi nei due temi.
+ * ⚠️ **Il taglio in alto non è prudenza**: senza sfocatura il velo si fa più fitto di [DIM_MORE],
+ * quindi la dose supera quella piena e il rapporto passerebbe 1.
+ * ⚠️ **Si legge nella fase di DISEGNO**, come [AppVeil]: leggerlo in composizione fa ricomporre
+ * chi lo guarda a ogni fotogramma della transizione.
+ */
+internal fun veilProgress(light: Boolean): Float =
+    (VeilStage.dose / (if (light) DIM_LIGHT else DIM_DARK)).coerceIn(0f, 1f)
+
+/**
  * Quanto si aggiunge al velo quando la sfocatura non c'è.
  *
  * ⚠️ Vedi la nota in testa: la separazione la devono fare in due, e se uno dei due manca
