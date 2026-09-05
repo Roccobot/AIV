@@ -10,18 +10,31 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 
@@ -97,10 +110,20 @@ object Undo {
  * decide chi lo mostra, che è anche il posto in cui 'o finché non si cambia cartella' si può
  * scrivere. Con la coda, la durata sarebbe di Material e quella condizione non ci starebbe
  * dentro.
- * ⚠️ **Il colore del tasto si scrive a mano**: dentro `Snackbar` un `TextButton` prende il
- * suo `primary` di fabbrica, che è pensato per il fondo della pagina e non per quello
- * rovesciato di una notifica. [SnackbarDefaults.actionContentColor] è il colore che
- * Material ha scelto per **quel** fondo.
+ * ⚠️⚠️ **DALLA `1.69` IL FONDO NON È PIÙ ROVESCIATO, ED È UNA SUA SCELTA FRA CINQUE
+ * DISEGNI** (giro della `1.67`, domanda `d-avviso`: ha scelto `tempo`). Una notifica di
+ * Material è chiara sul tema scuro e scura sul chiaro, cioè l'unica superficie dell'app che
+ * inverte i colori, e in mezzo a pannelli e schede che non lo fanno si legge come un pezzo di
+ * un'altra applicazione. Adesso prende la superficie dell'app, il suo inchiostro, il **bordo
+ * d'accento** che portano tutte le altre ([Modifier.edged], dalla `1.54`) e lo stesso raggio
+ * dei pannelli.
+ * ⚠️⚠️ **E UNA RIGA CHE SI CONSUMA IN FONDO, che è la ragione del nome che quel disegno ha nel
+ * documento**: dice quanto tempo resta per disfare, che è l'unica cosa che questa notifica non
+ * sapeva comunicare. Prima il conto scorreva e basta, e chi non lo conosceva scopriva la
+ * scadenza vedendola sparire.
+ * ⚠️ **Il colore del tasto resta scritto a mano**, ma adesso è [accentInk]: su un fondo che non
+ * è più rovesciato il colore che Material sceglie per il fondo rovesciato sarebbe sbagliato, e
+ * questo è l'accento nella versione che si può **leggere**, che è il caso di una parola.
  * ⚠️⚠️ **ARRIVA E SE NE VA COME LE DUE SCHEDE, con gli stessi numeri** ([ARRIVO_RIGIDITA],
  * [SHEET_FADE_MS], [USCITA_MS], [ACCELERA] in `Sheet.kt`): dalla 1.43 'arrivare dal basso'
  * in questa app ha una definizione, e una notifica che comparisse di scatto accanto a due
@@ -118,6 +141,24 @@ fun UndoNotice(
     onUndo: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    /*
+     * ⚠️⚠️ **LA RIGA SI CONSUMA IN [UNDO_MS], CHE È LA VITA VERA DELLA NOTIFICA**: i due
+     * chiamanti aspettano esattamente quel tempo prima di toglierla, quindi la riga arriva a
+     * zero nell'istante in cui la notifica se ne va. ⚠️ Chi un domani desse a una notifica una
+     * vita diversa deve passare qui la sua durata, o la riga direbbe una scadenza che non è
+     * quella: una barra ferma a zero sopra un tasto che funziona ancora è peggio di nessuna
+     * barra.
+     * ⚠️ **Riparte da capo a ogni comparsa** e non alla prima soltanto: due eliminazioni di
+     * fila sono due notifiche, e la seconda deve avere il suo tempo intero.
+     * ⚠️ **Si legge nel DISEGNO**: `scaleX` sta dentro `graphicsLayer`, quindi tre secondi di
+     * animazione costano un ridisegno per fotogramma e nessuna ricomposizione.
+     */
+    val resta = remember { Animatable(1f) }
+    LaunchedEffect(visible) {
+        if (!visible) return@LaunchedEffect
+        resta.snapTo(1f)
+        resta.animateTo(0f, tween(UNDO_MS.toInt(), easing = LinearEasing))
+    }
     AnimatedVisibility(
         visible = visible,
         modifier = modifier,
@@ -139,26 +180,61 @@ fun UndoNotice(
             )
         )
     ) {
-        Snackbar(
+        Box(
+            // ⚠️ **Il rientro di sistema se lo mette da sé**, come le due schede: questa vive
+            // nel `Box` di radice di chi la mostra, che arriva al bordo dello schermo, quindi
+            // senza questa riga starebbe sotto la barra di navigazione.
+            // ⚠️ **E qui la scheda si comporta al contrario**: là il fondo passa sotto la
+            // barra apposta (per prenderne il colore) e il rientro sta sul contenuto; una
+            // notifica non è appoggiata a niente e va spostata intera.
+            // ⚠️ **La scatola è nuova nella `1.69` e serve alla riga**: la riga deve stare
+            // sopra la notifica e prenderne la misura senza cambiarla, che è quello che
+            // `matchParentSize` fa e un figlio dello `Snackbar` non farebbe.
             modifier = Modifier
-                // ⚠️ **Il rientro di sistema se lo mette da sé**, come le due schede: questa
-                // vive nel `Box` di radice di chi la mostra, che arriva al bordo dello
-                // schermo, quindi senza questa riga starebbe sotto la barra di navigazione.
-                // ⚠️ **E qui la scheda si comporta al contrario**: là il fondo passa sotto
-                // la barra apposta (per prenderne il colore) e il rientro sta sul contenuto;
-                // una notifica non è appoggiata a niente e va spostata intera.
                 .navigationBarsPadding()
-                .padding(NOTICE_EDGE),
-            action = {
-                TextButton(
-                    onClick = onUndo,
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = SnackbarDefaults.actionContentColor
-                    )
-                ) { Text(action) }
-            }
+                .padding(NOTICE_EDGE)
         ) {
-            Text(text)
+            Snackbar(
+                modifier = Modifier.edged(NOTICE_ROUND),
+                shape = RoundedCornerShape(NOTICE_ROUND),
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                action = {
+                    TextButton(
+                        onClick = onUndo,
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = accentInk()
+                        )
+                    ) { Text(action) }
+                }
+            ) {
+                Text(text)
+            }
+            /*
+             * ⚠️ **Il ritaglio sta sulla scatola della riga e non su quella di fuori**: il
+             * bordo d'accento sconfina di mezzo pixel oltre la superficie (vedi `Edge.kt`), e
+             * un ritaglio sul genitore glielo taglierebbe proprio sugli archi, che è il
+             * difetto che la `1.56` aveva chiuso.
+             * ⚠️ **L'origine della scala è il fianco iniziale**, non il centro: una riga che
+             * si consuma parte piena e si ritira verso il punto da cui è partita.
+             */
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clip(RoundedCornerShape(NOTICE_ROUND))
+            ) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .fillMaxWidth()
+                        .height(CLESSIDRA)
+                        .graphicsLayer {
+                            transformOrigin = TransformOrigin(0f, 0.5f)
+                            scaleX = resta.value
+                        }
+                        .background(aivAccent(LocalAivLight.current))
+                )
+            }
         }
     }
 }
@@ -181,3 +257,15 @@ const val UNDO_MS = 3000L
  * i lati dello schermo e la barra di sistema.
  */
 private val NOTICE_EDGE = 12.dp
+
+/**
+ * Lo stondamento della notifica e lo spessore della riga che si consuma.
+ *
+ * ⚠️ **Il raggio è quello dei pannelli e non un numero suo**: dalla `1.69` questa notifica è
+ * una superficie dell'app come le altre, e un raggio diverso la rimetterebbe fuori famiglia
+ * proprio mentre la si porta dentro.
+ * ⚠️ **Tre punti per la riga**, che è la misura del disegno che ha scelto: più sottile non si
+ * vede su un fondo che ha già un bordo da due, più spessa diventa una seconda cornice.
+ */
+private val NOTICE_ROUND = 14.dp
+private val CLESSIDRA = 3.dp
