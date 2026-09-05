@@ -309,9 +309,9 @@ private fun dimFor(view: View, dark: Boolean): Float =
  * cambio di **nitidezza** e non di luminosità, che è la cosa che l'occhio non legge come un
  * lampo. Spegnere quella di sotto per evitarlo riporterebbe il buco della `1.48`, sull'altro
  * attributo.
- * ⚠️ **Dalla `1.61` quel momento dura più a lungo**, perché la finestra di sotto sopravvive al
- * proprio pannello per il tempo della coda: il sovrappiù però è quasi tutto nel primo tratto,
- * visto che a metà coda la sfocatura del menu è già scesa a pochi pixel di raggio.
+ * ⚠️ **E quel momento è corto quanto l'uscita di un menu**: la `1.61` lo aveva allungato tenendo in
+ * vita la finestra di sotto per il tempo della coda, la `1.64` gliel'ha tolta, e dalla `1.67`
+ * quell'uscita è una dissolvenza di `MENU_OUT_MS`.
  *
  * ⚠️ **A funzione spenta non c'è niente in questa mappa**: senza l'impostazione i menu e i
  * dialoghi non creano nessun velo (lo dice [veilFor]), e la scheda in fondo chiede il suo velo
@@ -584,35 +584,38 @@ private const val DIM_MORE = 0.12f
 private const val PIENO = 1f
 
 /*
- * ── La coda: che cosa si scioglie, e che cosa invece non può ──────────────────
+ * ── La coda: dove si scioglie, dove non serve, e che cosa non può ────────────
  *
  * ⚠️⚠️ **RIDURRE UN RAGGIO DI SFOCATURA È METTERE A FUOCO, E QUESTO È IL FATTO CHE GOVERNA TUTTA
  * LA SEZIONE** (riscontro dell'utente sulla `1.61`: *anziché un livello sovrapposto che se ne va
  * sembra una messa a fuoco che si muove*). Un obiettivo che mette a fuoco fa esattamente questo:
- * porta un raggio di sfocatura a zero mentre i dettagli emergono. Quindi **più la discesa del
- * raggio è graduale, più l'occhio la legge come una messa a fuoco**, che è il contrario di quello
- * che era stato chiesto.
+ * porta un raggio di sfocatura a zero mentre i dettagli emergono.
  *
- * ⚠️⚠️ **LA `1.61` HA APPLICATO LA GRADUALITÀ ALLA COSA SBAGLIATA, e la richiesta era giusta**
- * (giro della `1.60`: *il passaggio da sfocatura massima a nessuna sfocatura dev'essere graduale
- * e decelerare sul finale*). Portare quel tratto da 11 ms a 115 non ha reso morbida una
- * sparizione: ha reso **leggibile** un gesto che prima passava sotto la soglia di un fotogramma.
- * La misura di allora (la percezione della sfocatura approssimata con la radice del raggio) era
- * corretta e diceva quanto quel tratto sarebbe durato; quello che non poteva dire è che
- * l'occhio, avutone il tempo, gli avrebbe dato un **significato**.
+ * ⚠️⚠️ **MA NON È LA GRADUALITÀ A ESSERE SBAGLIATA: È IL RAGGIO CHE CALA CON LO SCHERMO VUOTO.**
+ * Lo dice un confronto suo (giro della `1.63`): sulle info dettagliate del file *l'arrivo e la
+ * sparizione della sfumatura sono PERFETTE*, e là la sfocatura scende con la **stessa** curva e
+ * per lo **stesso** tempo del difetto. Una scheda in fondo resta opaca per due terzi della propria
+ * uscita, quindi l'occhio attribuisce il cambiamento a lei; il pannello di un menu se ne andava
+ * **prima**, e il resto della discesa era un raggio che si muoveva da solo. **Una sfocatura che
+ * cala vuole qualcosa in scena che se ne stia andando.**
  *
- * ⚠️⚠️ **QUINDI DALLA `1.64` A SCIOGLIERSI È IL LIVELLO, E LA SFOCATURA SE NE VA COL PANNELLO.**
- * I due numeri erano uno solo dalla `1.50` e adesso sono due:
- * - la **patina** ([AppPatina]) è un rettangolo con un'opacità, quindi può dissolvere davvero, e
- *   prende la coda lunga con la sua curva che decelera;
- * - la **sfocatura** ([WindowVeil]) torna a seguire l'avanzamento del pannello, con la curva
- *   d'uscita dei menu che accelera: gli ultimi pixel se ne vanno in meno di un fotogramma, che è
- *   la sola durata a cui una messa a fuoco non ha il tempo di essere letta come tale.
+ * ⚠️⚠️ **DALLA `1.67` I MENU NON HANNO PIÙ NESSUNA CODA, E LA REGOLA QUI SOPRA È SODDISFATTA IN
+ * UN ALTRO MODO** (riscontro del giro della `1.66`: *semplifica al massimo e fai sparire il menu in
+ * modo fluido e senza glitch, con una dissolvenza veloce*). La `1.65` aveva allungato l'uscita del
+ * pannello fino a coprire la coda, e quei 280 ms cadevano addosso alla composizione di una
+ * schermata nuova ogni volta che una voce navigava: il pannello restava a mezza opacità sopra la
+ * schermata di arrivo. Adesso l'uscita di un menu è una dissolvenza sola di `MENU_OUT_MS`, in cui
+ * pannello, sfocatura e patina se ne vanno insieme: niente cala da solo, quindi non c'è niente da
+ * leggere come una messa a fuoco.
+ * ⚠️⚠️ **LA CODA RESTA DOVE NON COSTA NIENTE, cioè sulla scheda in fondo** ([VEIL_FADE_MS]): là
+ * l'uscita dura più della coda per costruzione, ed è la superficie che l'utente ha chiamato
+ * perfetta. ⚠️ **Chi la riportasse sui menu** rifarebbe il difetto della `1.66`, che non si vede
+ * aprendo e chiudendo un menu sul posto: si vede toccando una voce che porta altrove.
  *
- * ⚠️⚠️ **E COSÌ LA FINESTRA NON DEVE PIÙ SOPRAVVIVERE AL PROPRIO PANNELLO**, che nella `1.61` era
- * il prezzo da pagare perché la sfocatura è un attributo di finestra. Con lei se ne vanno tre
- * cose che erano tutte contropartite di quella scelta: il `FLAG_NOT_TOUCHABLE` di `stendi`, il
- * focus che cadeva a metà uscita, e il doppio senso di `MenuState.inScene`.
+ * ⚠️⚠️ **E DALLA `1.64` LA FINESTRA NON SOPRAVVIVE AL PROPRIO PANNELLO**, che nella `1.61` era il
+ * prezzo da pagare perché la sfocatura è un attributo di finestra. Con lei se ne vanno tre cose
+ * che erano tutte contropartite di quella scelta: il `FLAG_NOT_TOUCHABLE` di `stendi`, il focus
+ * che cadeva a metà uscita, e il doppio senso di quello che oggi si chiama `MenuState.visible`.
  * ⚠️⚠️ **LA SECONDA COSTAVA UNO SFARFALLIO, ed è misurata sul bytecode di Compose**: cambiare
  * `focusable` a metà animazione fa girare `PopupLayout.updatePopupProperties`, che **assegna**
  * `params.flags` invece di aggiungerli (`flagsWithSecureFlagInherited` compone il valore dalle
@@ -629,12 +632,14 @@ private const val PIENO = 1f
 /**
  * Quanto ci mette la patina a sciogliersi, quando la superficie se ne è andata.
  *
- * ⚠️ **Più del doppio dell'uscita di un menu (120 ms), e non è una durata scelta a caso**: sotto
- * il doppio la discesa resta legata a quella del pannello, che è la cosa da cui l'utente l'ha
- * staccata. ⚠️ **E dalla `1.64` non ha più il tetto che aveva**: quando questo numero governava la
- * sfocatura non poteva superare `USCITA_MS`, perché oltre la vita della finestra il tratto
- * finale veniva tagliato. Adesso governa un rettangolo che l'app dipinge da sé, e quello non
- * dipende dalla vita di nessuna finestra.
+ * ⚠️⚠️ **DALLA `1.67` LO USA LA SOLA SCHEDA IN FONDO, e non è un residuo**: là questa coda non
+ * costa niente, perché l'uscita della scheda dura già più di lei (`USCITA_MS` in `Sheet.kt`), e
+ * quella è la superficie di cui l'utente ha detto che *l'arrivo e la sparizione della sfumatura
+ * sono PERFETTE*. Sui menu invece la coda è uscita di scena col resto: il perché sta nel blocco
+ * qui sopra.
+ * ⚠️ **Ed è la ragione per cui il numero non ha più bisogno di essere il doppio di qualcosa**: era
+ * nato più del doppio dell'uscita di un menu, per staccarsi dal pannello. Adesso vive accanto a
+ * un'uscita che è più lunga di lui, e a dire quando finisce è lui.
  */
 internal const val VEIL_FADE_MS = 280
 

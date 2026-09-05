@@ -3,6 +3,7 @@ package io.github.roccobot.aiv
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -117,6 +118,21 @@ fun MenuShell(
     position: PopupPositionProvider,
     content: @Composable () -> Unit
 ) {
+    /*
+     * ⚠️⚠️ **UN AVANZAMENTO SOLO PER PANNELLO, SFOCATURA E PATINA, DALLA `1.67`, E PRIMA ERANO
+     * DUE** (riscontro del giro della `1.66`: *il menu se ne va troppo piano, la transizione
+     * s'inceppa e rimane bloccato a schermo a mezza opacità per un tempo che lo rende visibile,
+     * poi l'animazione finisce a scatti ... Semplifica al massimo e fai sparire il menu in modo
+     * fluido e senza glitch, con una dissolvenza veloce*). La `1.61` aveva staccato la patina dal
+     * pannello per darle una coda lunga, e la `1.65` aveva allungato l'uscita del pannello per
+     * accompagnarla: con un'uscita di [MENU_OUT_MS] non c'è più nessuna coda da accompagnare,
+     * quindi i due numeri tornano a essere uno.
+     * ⚠️ **La regola della `1.65` NON è caduta, ed è quella che tiene in piedi questa forma**: una
+     * sfocatura che cala vuole qualcosa in scena che se ne stia andando, e qui il pannello se ne va
+     * **con** lei e per lo stesso tempo. Il fatto per esteso sta in fondo a `Veil.kt`.
+     * ⚠️ **E riaprendo a metà uscita non c'è nessun salto**: `animateTo` riparte dal valore
+     * corrente, quindi un pannello sbiadito a mezza strada risale da lì.
+     */
     LaunchedEffect(state.wanted) {
         state.show.animateTo(
             targetValue = if (state.wanted) 1f else 0f,
@@ -128,36 +144,13 @@ fun MenuShell(
     }
 
     /*
-     * ⚠️⚠️ **LA PATINA HA LA SUA ANIMAZIONE, DALLA `1.61`, E IN USCITA NON SEGUE PIÙ IL
-     * PANNELLO** (istruzione dell'utente, giro della `1.60`: *a prescindere da tutto il resto,
-     * incluse le altre animazioni (anche contemporanee), il passaggio da sfocatura massima a
-     * nessuna sfocatura dev'essere graduale e decelerare sul finale*).
-     * ⚠️⚠️ **MA DALLA `1.64` QUESTO NUMERO GOVERNA IL SOLO LIVELLO SCURO, e non più la
-     * sfocatura**: quella torna a seguire il pannello, perché ridurre un raggio è mettere a
-     * fuoco e la gradualità la rendeva leggibile come tale. Il fatto per esteso sta in fondo a
-     * `Veil.kt`, ed è il riscontro con cui l'utente ha bocciato la `1.61`.
-     * ⚠️ **In ENTRATA è la stessa animazione di prima**, alla lettera: stessa durata e stessa
-     * curva del pannello, quindi la patina cresce con lui e il conto della `1.50` (nessun
-     * fotogramma in cui la finestra sfoca più di quanto il pannello sia in scena) non si tocca.
-     * ⚠️ **E riaprendo a metà coda non c'è nessun salto**: `animateTo` riparte dal valore
-     * corrente, quindi una patina scesa a mezza strada risale da lì.
+     * ⚠️⚠️ **QUI FUORI E NON DENTRO IL `Popup`**: la patina la dipinge l'app, e chiesta da qui la
+     * richiesta non dipende dalla vita della finestra. ⚠️ **Dalla `1.67` non le serve più per
+     * sopravviverle**, perché l'uscita è una dissolvenza sola: resta fuori perché così a spegnerla
+     * è la composizione della **schermata**, che è quella che se ne va quando si naviga altrove,
+     * ed è il caso in cui il menu spariva lasciando addosso all'app il proprio scuro.
      */
-    LaunchedEffect(state.wanted) {
-        if (state.wanted) {
-            state.patina.animateTo(1f, tween(durationMillis = MENU_IN, easing = MENU_EASE))
-        } else {
-            state.patina.animateTo(0f, tween(durationMillis = VEIL_FADE_MS, easing = VEIL_FADE))
-        }
-    }
-
-    /*
-     * ⚠️⚠️ **QUI FUORI E NON DENTRO IL `Popup`, ED È QUELLO CHE PERMETTE ALLA CODA DI ESISTERE**:
-     * la patina la dipinge l'app, quindi chiederla da fuori la stacca dalla vita della finestra.
-     * Nella `1.61` la chiedeva il contenuto del popup, e per non tagliare la coda bisognava tenere
-     * viva la finestra: da lì venivano il focus che cadeva a metà uscita, il flag di passante e lo
-     * sfarfallio che l'utente ha visto. Vedi la nota in fondo a `Veil.kt`.
-     */
-    AppPatina { state.patina.value }
+    AppPatina { state.show.value }
 
     /*
      * ⚠️⚠️ **IL CANCELLO SERVE ALL'ORDINE FRA LE FINESTRE**: a menu chiuso non deve esistere
@@ -244,15 +237,13 @@ fun MenuShell(
          * esteso sta su `VeilStage`, in `Veil.kt`.
          *
          * ⚠️⚠️ **QUI RESTA LA SOLA SFOCATURA, e il livello scuro lo chiede [AppPatina] più su**:
-         * i due erano un numero solo dalla `1.50` e la `1.64` li ha separati, perché uno è un
-         * attributo di finestra e l'altro un rettangolo che l'app dipinge.
-         * ⚠️⚠️ **MA IL NUMERO È DI NUOVO LA CODA, DALLA `1.65`, e la `1.64` aveva sbagliato
-         * bersaglio**: legarla al pannello le toglieva la decelerazione che l'utente aveva
-         * chiesto. Quello che andava cambiato era la **durata dell'uscita del pannello**, e il
-         * perché sta su [MENU_OUT_MS]: adesso le due finiscono insieme, quindi il raggio non
-         * scende mai in uno schermo vuoto.
+         * sono due meccanismi diversi (un attributo di finestra e un rettangolo che l'app
+         * dipinge), e la `1.64` li ha separati per questo.
+         * ⚠️⚠️ **MA IL NUMERO CHE LI MUOVE È DI NUOVO UNO, DALLA `1.67`**, ed è l'avanzamento del
+         * pannello: separati erano per dare alla patina una coda più lunga dell'uscita, e con
+         * [MENU_OUT_MS] la coda non c'è più. Il perché sta là e in fondo a `Veil.kt`.
          */
-        WindowVeil { state.patina.value }
+        WindowVeil { state.show.value }
         Surface(
             /*
              * ⚠️⚠️ **CRESCE DA 0,96 E NON DA ZERO, in 170ms** (scelta dell'utente sul
@@ -388,37 +379,49 @@ private const val MENU_IN = 120
 private val MENU_EASE = CubicBezierEasing(0.2f, 0f, 0f, 1f)
 
 /**
- * L'uscita è l'entrata letta all'indietro: accelera per costruzione.
+ * L'uscita di un menu: una dissolvenza corta, e senza nessuna curva.
  *
- * ⚠️ **La misura scartata resta scritta perché non la si riproponga come una novità**: Material
- * fa l'uscita **più corta** dell'entrata, e qui non si fa.
+ * ⚠️⚠️ **75 MILLESIMI, DALLA `1.67`, E IL NUMERO È DI MATERIAL** (`OutTransitionDuration`, che è
+ * la durata con cui la libreria fa sparire i propri menu). ⚠️ **Ed è la misura che qui era stata
+ * SCARTATA due volte**: Material fa l'uscita più corta dell'entrata, e fino alla `1.66` non si
+ * faceva, prima perché l'uscita era l'entrata letta all'indietro e poi perché doveva accompagnare
+ * la coda della patina. Adesso è una richiesta esplicita dell'utente (riscontro del giro della
+ * `1.66`: *semplifica al massimo e fai sparire il menu in modo fluido e senza glitch, con una
+ * dissolvenza veloce*), e con lei cade tutto quello che la coda si portava dietro.
+ * ⚠️⚠️ **IL DIFETTO CHE TOGLIE NON ERA UNA CURVA SBAGLIATA, ERA IL TEMPO PASSATO IN SCENA**
+ * (*toccando 'Impostazioni' o 'Cestino', che portano ad un'altra schermata, il menu se ne va
+ * troppo piano, la transizione s'inceppa e rimane bloccato a schermo a mezza opacità per un tempo
+ * che lo rende visibile, poi l'animazione finisce a scatti*). Quelle voci navigano, quindi
+ * mentre il menu usciva l'app componeva una schermata nuova **e** ne animava la transizione: il
+ * pannello di un menu che non c'è più galleggiava a mezza opacità sopra la schermata di arrivo, e
+ * i fotogrammi che la composizione si prendeva erano quelli della sua dissolvenza. A 75 ms il
+ * pannello è già andato quando la schermata nuova arriva.
+ * ⚠️ **La curva è LINEARE perché a questa durata una curva è una decorazione che nessuno vede**:
+ * quattro fotogrammi. E una curva che parte piano è esattamente ciò che, sotto carico, si legge
+ * come un pannello che si inceppa.
+ * ⚠️ **L'entrata non si tocca**: quella deve restare immediata, ed è la richiesta con cui la
+ * `1.54` ha portato [MENU_IN] a 120.
  */
-private val MENU_OUT: Easing = Easing { f -> 1f - MENU_EASE.transform(1f - f) }
+private const val MENU_OUT_MS = 75
+private val MENU_OUT: Easing = LinearEasing
 
 /**
- * Quanto dura l'uscita di un menu: quanto la coda della sfocatura, e non quanto l'entrata.
+ * Quanto è grande **adesso** il pannello, in frazione della sua misura a riposo.
  *
- * ⚠️⚠️ **NASCE DAL CONFRONTO CHE HA FATTO L'UTENTE, ED È LA MISURA CHE SPIEGA TUTTO IL GIRO**
- * (riscontro della `1.63`: il difetto era *solo* sotto il menu del FAB, mentre *aprendo e
- * chiudendo le info dettagliate sul file l'arrivo e la sparizione della sfumatura sono
- * PERFETTE*). Là la sfocatura cala con **questa stessa curva** e per **questo stesso tempo**:
- * quindi non erano né la curva né la durata a essere sbagliate.
- * ⚠️⚠️ **ERA CHE IL PANNELLO SE NE ANDAVA PRIMA DI LEI.** La scheda in fondo resta opaca per
- * due terzi della sua uscita e svanisce alla fine, quindi la sfocatura cala **mentre c'è ancora
- * qualcosa che se ne va**, e l'occhio attribuisce il cambiamento a quella cosa. Il pannello di un
- * menu spariva in [MENU_IN], e per il resto della coda il raggio scendeva **da solo** in uno
- * schermo vuoto: senza una causa in scena, quel movimento è una messa a fuoco, ed è la parola
- * che l'utente ha usato.
- * ⚠️ **Quindi il numero da cambiare era la durata dell'USCITA**, non quella della sfocatura: con
- * [MENU_OUT], che accelera, il pannello resta quasi pieno per la maggior parte del tratto e
- * svanisce in fondo, che è il profilo della scheda. ⚠️ **E l'entrata non si tocca**: quella deve
- * restare immediata, ed è la richiesta con cui la `1.54` ha portato [MENU_IN] a 120.
+ * ⚠️⚠️ **IN USCITA VALE UNO, DALLA `1.67`, ED È L'ALTRA METÀ DELLA SEMPLIFICAZIONE CHIESTA.**
+ * Questo numero non muove soltanto una scala: lo leggono il `layout` del pannello, che al suo
+ * cambiare **rimisura tutto il contenuto del menu**, e [Growing], che rimisura e riposiziona la
+ * **finestra**. Quindi ogni fotogramma dell'uscita costava una misura completa più due giri dal
+ * gestore delle finestre, e li costava proprio mentre una voce che naviga fa comporre una
+ * schermata nuova. Fermo a uno, dell'uscita resta la sola opacità, che si legge nella fase di
+ * **disegno**: nessuna misura, nessun giro di finestra.
+ * ⚠️ **Il pannello si chiude alla sua misura piena e non c'è nessun salto**: una chiusura chiesta
+ * a menu aperto trova questo numero già a uno. ⚠️ **L'unico caso che salta è chiudere mentre il
+ * menu sta ancora ENTRANDO**, e sono i quattro centesimi di [MENU_SMALL] in un fotogramma solo:
+ * sta scritto invece di essere nascosto, perché l'alternativa è il difetto qui sopra.
  */
-private const val MENU_OUT_MS = VEIL_FADE_MS
-
-/** Quanto è grande **adesso** il pannello, in frazione della sua misura a riposo. */
 private fun grown(state: MenuState): Float =
-    MENU_SMALL + (1f - MENU_SMALL) * state.show.value
+    if (!state.wanted) 1f else MENU_SMALL + (1f - MENU_SMALL) * state.show.value
 
 /**
  * Il posizionatore che mette la finestra **rimpicciolita** dove starebbe quella intera.
@@ -656,46 +659,26 @@ class MenuState internal constructor() {
     internal val show = Animatable(0f)
 
     /**
-     * Quanto **livello scuro** vuole in scena questo menu.
+     * Se il **pannello** si vede adesso, chiusura in corso compresa. Con lui vive la finestra, e
+     * con lui vivono la sfocatura e il livello scuro.
      *
-     * ⚠️ **Un numero a sé e non [show], dalla `1.61`**: in entrata vale quanto lui, in uscita si
-     * scioglie con la propria curva. ⚠️ **E dalla `1.64` la sfocatura non lo segue più**: quella
-     * torna a [show], perché ridurre un raggio è mettere a fuoco. Il perché sta in fondo a
-     * `Veil.kt`.
-     */
-    internal val patina = Animatable(0f)
-
-    /**
-     * Se il **pannello** si vede adesso, chiusura in corso compresa. Con lui vive la finestra.
-     *
-     * ⚠️ **Fino alla `1.63` questi erano due**, perché la finestra doveva sopravvivere al proprio
-     * pannello per non tagliare la coda della sfocatura. Dalla `1.64` la coda è tutta nel livello
-     * dipinto, che non sta in nessuna finestra, quindi 'il pannello si vede' e 'la finestra
-     * esiste' sono tornati a essere la stessa cosa e il nome è uno solo.
+     * ⚠️⚠️ **ERANO DUE FINO ALLA `1.66`, E DALLA `1.67` TORNANO A ESSERE UNO.** Il secondo si
+     * chiamava `veiling` e diceva che l'app era ancora velata a pannello già sparito, cioè
+     * esisteva solo perché la patina aveva una coda più lunga dell'uscita (`1.61`). Con l'uscita
+     * di [MENU_OUT_MS] quella coda non c'è più, quindi 'il pannello si vede', 'la finestra esiste'
+     * e 'l'app è velata' sono di nuovo la stessa cosa. ⚠️ **Chi trova `veiling` in una nota
+     * vecchia sappia che i suoi due chiamanti** (il FAB, che deve restare staccato sopra il velo,
+     * e il cancello del menu del visualizzatore) **adesso leggono questo**.
      */
     val visible: Boolean get() = visto
 
-    /**
-     * Se questo menu sta ancora chiedendo il livello scuro, pannello già sparito compreso.
-     *
-     * ⚠️⚠️ **NON DICE CHE LA FINESTRA ESISTE, E SBAGLIARLO NON DÀ NESSUN ERRORE**: serve a chi
-     * deve sapere se l'app in questo momento è **velata**, che è un tratto più lungo di quello in
-     * cui il pannello si vede. I due chiamanti sono il FAB, che resta staccato sopra la propria
-     * finestra o si ritroverebbe sotto un velo che c'è ancora, e il cancello che compone il menu
-     * del visualizzatore, dentro cui vive l'animazione della coda.
-     */
-    val veiling: Boolean get() = vivo
-
     /*
-     * ⚠️⚠️ **DERIVATI E NON CALCOLATI A OGNI LETTURA, ed è un guadagno che viene con la coda**:
-     * queste condizioni leggono il **valore** delle animazioni, quindi lette in composizione
-     * invalidavano chi le legge a ogni fotogramma, per tutta la durata dell'animazione. Quello
-     * che conta è il loro esito, che cambia due volte in tutto, e `derivedStateOf` invalida solo
-     * quando cambia lui. Col tratto della patina, che dura più del doppio dell'uscita del
-     * pannello, senza queste due righe il costo raddoppiava.
+     * ⚠️⚠️ **DERIVATO E NON CALCOLATO A OGNI LETTURA**: questa condizione legge il **valore**
+     * dell'animazione, quindi letta in composizione invalidava chi la legge a ogni fotogramma, per
+     * tutta la durata. Quello che conta è il suo esito, che cambia due volte in tutto, e
+     * `derivedStateOf` invalida solo quando cambia lui.
      */
     private val visto by derivedStateOf { wanted || show.isRunning || show.value > 0f }
-    private val vivo by derivedStateOf { visto || patina.isRunning || patina.value > 0f }
 
     fun open() {
         wanted = true

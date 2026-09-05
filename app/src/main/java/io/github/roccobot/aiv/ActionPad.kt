@@ -884,10 +884,16 @@ private val PAD_EDGE = 4.dp
  * da [FAB_SIZE], con l'aggravante che una scala tira dentro il glifo.
  * ⚠️⚠️ **MA MEZZO PUNTO NON SI VEDEVA, ed è il riscontro del giro della `1.63`** (*non vedo
  * nulla, rimpicciolisci di più*): su un lato di [FAB_SIZE] mezzo punto è l'1,25%, cioè sotto
- * quello che un occhio distingue su una forma che non ha un bordo con cui confrontarsi. Adesso
- * sono 2dp, il 5% del lato: metà della scala vecchia, che era la quantità giusta, senza il
- * difetto che la faceva bocciare. ⚠️ **La sfocatura resta di mezzo punto**: lui ha chiesto di
- * rimpicciolire, non di sfocare di più, e quella si vede perché ammorbidisce un bordo netto.
+ * quello che un occhio distingue su una forma che non ha un bordo con cui confrontarsi. Da lì i
+ * 2dp della `1.62`, il 5% del lato.
+ * ⚠️⚠️ **E NEMMENO DUE SI VEDEVANO: 4dp DALLA `1.67`, IL 10% DEL LATO** (riscontro del giro della
+ * `1.66`: *io continuo a non vedere nulla*). ⚠️ **Prima di raddoppiare è stato controllato che
+ * l'effetto ARRIVI**, perché 'non vedo nulla' descrive anche un difetto: il segnale è cablato
+ * (`pressed = menu.wanted` nei due chiamanti) e si applica ai **due** disegni, il sosia e quello
+ * nella finestra. Quindi quello che mancava era la quantità: 4dp sono 2dp di bordo che rientra per
+ * lato, il doppio di prima, su una piastrella che si guarda mentre il menu si apre altrove.
+ * ⚠️ **La sfocatura resta di mezzo punto**: lui ha chiesto di rimpicciolire, non di sfocare di
+ * più, e quella si vede perché ammorbidisce un bordo netto.
  * ⚠️⚠️ **E DA UNA SCALA A UNA MISURA CAMBIA CHE COSA SI STRINGE, che è il cuore della
  * richiesta**: la piastrella si ridisegna mezzo punto più piccola, mentre il glifo dentro tiene
  * la sua misura perché ce l'ha propria. Con una scala sul nodo intero non c'era modo di
@@ -898,15 +904,21 @@ private val PAD_EDGE = 4.dp
  * piastrella si stringe verso il proprio centro. Senza quella scatola, un lato più corto
  * sposterebbe il FAB di un quarto di punto verso l'angolo a cui è allineato.
  */
-private val PREMUTO_GIU = 2.dp
+private val PREMUTO_GIU = 4.dp
 private val PREMUTO_SFOCA = 0.5.dp
 
 /**
  * L'ombra del FAB: quanta ne ha adesso, e di che tinta.
  *
  * ⚠️⚠️ **L'OPACITÀ È DIMEZZATA, DALLA `1.65`** (riscontro del giro della `1.63`: *ancora più
- * lentamente e l'opacità finale (quella a pulsante fermo) dev'essere dimezzata*). ⚠️ **Non si
- * ottiene dimezzando l'elevazione**, ed è la ragione per cui questa funzione esiste: quel numero
+ * lentamente e l'opacità finale (quella a pulsante fermo) dev'essere dimezzata*).
+ * ⚠️⚠️ **E DIMEZZATA UN'ALTRA VOLTA DALLA `1.67`, A UN QUARTO** (riscontro del giro della `1.66`:
+ * *dimezza ancora l'opacità. Se risulterebbe intorno al 10%, eliminala del tutto e si semplifica
+ * ulteriormente*). ⚠️ **La scala su cui vale quel 10% è QUESTO numero**, cioè quanto resta
+ * dell'ombra di serie: era intera fino alla `1.64`, metà con la `1.65`, un quarto adesso. Un
+ * quarto non è 'intorno al 10%', quindi l'ombra resta; ⚠️ **il dimezzamento dopo questo sì**, ed è
+ * un ottavo: se la vuole via, il ritocco è togliere questa funzione e le sue due righe.
+ * ⚠️ **Non si ottiene dimezzando l'elevazione**, ed è la ragione per cui questa funzione esiste: quel numero
  * governa **quanto è grande e sfumata** l'ombra, non quanto è scura, e dimezzandolo il FAB
  * sembrerebbe più basso invece che più leggero. Quello che si dimezza è l'alfa dei due colori con
  * cui Android la dipinge, che moltiplicano le sue opacità di serie.
@@ -925,7 +937,7 @@ private fun Modifier.ombraFab(quanta: () -> Dp): Modifier = graphicsLayer {
     spotShadowColor = OMBRA_TINTA
 }
 
-private val OMBRA_TINTA = Color.Black.copy(alpha = 0.5f)
+private val OMBRA_TINTA = Color.Black.copy(alpha = 0.25f)
 
 /**
  * Quanto si sposta la tinta del tastino verso il suo inchiostro mentre il menu è aperto.
@@ -1187,13 +1199,12 @@ fun TapHoldFab(
      * ⚠️⚠️ **È UN SEGNALE A SÉ E NON [lifted], DALLA `1.60`, PERCHÉ I DUE NON FINISCONO
      * INSIEME** (riscontro del giro della `1.59`: *niente rimbalzo, solo un movimento unico*).
      * [lifted] dice se il tastino vive nella sua finestra, quindi resta vero per tutta la
-     * **discesa** del menu (`MenuState.inScene`); e legandoci la pressione, il ritorno del
+     * **discesa** del menu (`MenuState.visible`); e legandoci la pressione, il ritorno del
      * tastino cominciava solo dopo che il menu era sparito del tutto. Erano due movimenti con
      * una pausa in mezzo, ed è quello che si legge come un secondo tempo.
-     * ⚠️⚠️ **E DALLA `1.61` QUELLA DISCESA DURA ANCORA DI PIÙ, di proposito**: `inScene` resta
-     * vero anche mentre la sola patina si scioglie, cioè a pannello già sparito. Il tastino deve
-     * restare staccato per tutto quel tratto, o tornerebbe nella finestra dell'app **sotto** un
-     * velo che c'è ancora: è la ragione per cui questo parametro non è passato a `visible`.
+     * ⚠️ **Quindi questo parametro NON si lega a `visible`**, e la ragione vale ancora: il tastino
+     * deve restare staccato per tutta l'uscita, o rientrerebbe nella finestra dell'app sotto un
+     * velo che se ne sta ancora andando, ma la sua **pressione** deve mollare subito.
      * ⚠️ **Chi apre un menu passa `wanted`**, che è il verso opposto: cade nell'istante in cui
      * si chiede la chiusura, quindi il tastino risale **insieme** al menu che se ne va.
      * ⚠️ **Il valore di serie è [lifted]** perché per chi non ha un menu i due coincidono, e
