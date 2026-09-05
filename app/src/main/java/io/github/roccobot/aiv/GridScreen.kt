@@ -1386,8 +1386,12 @@ fun GridScreen(
          * ⚠️ **Copre lo schermo INTERO**, testata compresa, ed è la ragione per cui vive qui
          * e non dentro la `Column`: là comincerebbe sotto la barra del titolo, e un tocco sul
          * titolo tornerebbe a essere il caso non coperto.
+         * ⚠️⚠️ **`visible` E NON `inScene`, DALLA `1.61`**: da quella versione la finestra del
+         * menu sopravvive al pannello per il tempo in cui la patina si scioglie, e questo
+         * riquadro consuma il tocco su **tutto** lo schermo. Con `inScene` si prenderebbe anche
+         * i tocchi di chi, a menu già sparito, tocca qualunque cosa.
          */
-        if (menu.inScene) {
+        if (menu.visible) {
             Box(
                 modifier = Modifier
                     .matchParentSize()

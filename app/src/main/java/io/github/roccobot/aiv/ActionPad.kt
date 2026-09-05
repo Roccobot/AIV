@@ -1141,6 +1141,10 @@ fun TapHoldFab(
      * **discesa** del menu (`MenuState.inScene`); e legandoci la pressione, il ritorno del
      * tastino cominciava solo dopo che il menu era sparito del tutto. Erano due movimenti con
      * una pausa in mezzo, ed è quello che si legge come un secondo tempo.
+     * ⚠️⚠️ **E DALLA `1.61` QUELLA DISCESA DURA ANCORA DI PIÙ, di proposito**: `inScene` resta
+     * vero anche mentre la sola patina si scioglie, cioè a pannello già sparito. Il tastino deve
+     * restare staccato per tutto quel tratto, o tornerebbe nella finestra dell'app **sotto** un
+     * velo che c'è ancora: è la ragione per cui questo parametro non è passato a `visible`.
      * ⚠️ **Chi apre un menu passa `wanted`**, che è il verso opposto: cade nell'istante in cui
      * si chiede la chiusura, quindi il tastino risale **insieme** al menu che se ne va.
      * ⚠️ **Il valore di serie è [lifted]** perché per chi non ha un menu i due coincidono, e
