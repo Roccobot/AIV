@@ -180,7 +180,7 @@ private fun gifMotion(head: ByteArray, valid: Int, input: InputStream): Motion? 
         at += table
     }
     // ⚠️ Quello che resta di `head` si consuma prima del flusso: la tavolozza globale di una
-    // GIF a 256 colori sono 768 byte, quindi puo' finire oltre il buffer letto.
+    // GIF a 256 colori sono 768 byte, quindi può finire oltre il buffer letto.
     val rest = Rest(head, valid, at, input)
     var frames = 0
     var delay = 0
