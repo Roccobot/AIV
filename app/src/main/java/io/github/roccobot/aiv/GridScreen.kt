@@ -1274,8 +1274,10 @@ fun GridScreen(
                         ink = colorResource(R.color.launcher_foreground),
                         lift = FAB_LIFT,
                         holdLabel = stringResource(shortcutLabel),
-                        lifted = menu.inScene,
-                        // ⚠️ **`wanted` e non `inScene`**: il perché sta sul parametro
+                        // ⚠️ **`veiling` e non `visible`**: il FAB deve restare staccato finché
+                        // c'è patina addosso all'app, che dura più del pannello.
+                        lifted = menu.veiling,
+                        // ⚠️ **`wanted` e non `veiling`**: il perché sta sul parametro
                         // `pressed` di [TapHoldFab], ed è il riscontro del giro della `1.59`.
                         pressed = menu.wanted,
                         // ⚠️ **Apre e basta, dalla 1.06**: a menu aperto il tocco non
@@ -1386,10 +1388,9 @@ fun GridScreen(
          * ⚠️ **Copre lo schermo INTERO**, testata compresa, ed è la ragione per cui vive qui
          * e non dentro la `Column`: là comincerebbe sotto la barra del titolo, e un tocco sul
          * titolo tornerebbe a essere il caso non coperto.
-         * ⚠️⚠️ **`visible` E NON `inScene`, DALLA `1.61`**: da quella versione la finestra del
-         * menu sopravvive al pannello per il tempo in cui la patina si scioglie, e questo
-         * riquadro consuma il tocco su **tutto** lo schermo. Con `inScene` si prenderebbe anche
-         * i tocchi di chi, a menu già sparito, tocca qualunque cosa.
+         * ⚠️⚠️ **`visible` E NON `veiling`**: questo riquadro consuma il tocco su **tutto** lo
+         * schermo, e la patina resta in scena più a lungo del pannello. Con `veiling` si
+         * prenderebbe anche i tocchi di chi, a menu già sparito, tocca qualunque cosa.
          */
         if (menu.visible) {
             Box(

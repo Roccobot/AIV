@@ -2332,7 +2332,9 @@ private fun ImageCanvas(
          * sapere dove era il dito**: è la ragione per cui la posizione del tocco non si
          * conserva più.
          */
-        if (menu.inScene) {
+        // ⚠️ **`veiling` e non `visible`**: qui dentro vive l'animazione della coda della patina,
+        // quindi il cancello deve restare aperto finché quella scende. Vedi `MenuShell`.
+        if (menu.veiling) {
             ImageMenu(
                 image = image,
                 source = source,
