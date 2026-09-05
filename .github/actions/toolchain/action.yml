@@ -9,11 +9,24 @@ description: JDK, the preview platform, Gradle, and the cache of the platform th
 runs:
   using: composite
   steps:
-    - name: Set up JDK 17
+    # ⚠️⚠️ **JDK 21 AND NOT 17, AND THE BENCH IS WHAT FORCES IT.** Robolectric
+    # declares a minimum Java version per Android platform, and the one this
+    # project pins needs 21: read from the bytecode of `DefaultSdkProvider`,
+    # where API 34 and 35 carry 17 and API 36 carries 21. On 17 the whole class
+    # dies before a single test body runs, with
+    # `UnsupportedOperationException at DefaultSdkProvider.java:170`, which reads
+    # like a broken toolchain and is a version check.
+    # ⚠️ It changes nothing about the artefact: `compileOptions` and `jvmTarget`
+    # stay on 17, so the bytecode that ships is the same. This is the JVM that
+    # RUNS Gradle, not the one the app targets.
+    # ⚠️ And it is the version a session already builds and tests with, so the
+    # runner now matches the machine the code is written on: a build that only
+    # fails in one of the two is the worst kind to chase.
+    - name: Set up JDK 21
       uses: actions/setup-java@v5
       with:
         distribution: temurin
-        java-version: '17'
+        java-version: '21'
 
     # compileSdk 37 lives on the SDK PREVIEW channel and its package is called
     # `platforms;android-37.1`: `android-37` does not exist at all, and asking

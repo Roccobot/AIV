@@ -830,6 +830,12 @@ e il job le scrive su disco per la durata di una sola esecuzione.
   - ⚠️ **Su quale Android gira si dichiara** in `app/src/test/resources/robolectric.properties`,
     invece di lasciare il valore di serie, che è il `targetSdk`: quel numero cambia quando cambia
     la politica di Google Play, e con lui cambierebbe in silenzio la piattaforma delle prove.
+    - ⚠️⚠️ **E QUEL NUMERO DECIDE LA VERSIONE DI JAVA CHE SERVE**: Robolectric ne dichiara una
+      minima per piattaforma, e la 36 vuole **Java 21** (letto nel bytecode di
+      `DefaultSdkProvider`: le API 34 e 35 portano 17, la 36 porta 21). Su Java 17 non parte
+      nemmeno una prova, e l'errore si legge come una catena di strumenti rotta invece che come
+      un controllo di versione. Il CI monta 21 per questo, e chi tocca uno dei due numeri
+      guarda l'altro.
   - ⚠️ **Le prove montano `AivTheme` e non un albero finto**, ed è la ragione per cui valgono: il
     velo dell'app e il cancello dei menu vivono là dentro, quindi un nodo che rubasse i tocchi
     entra in scena da sé, senza che una prova debba ricordarsi di chiamarlo.
