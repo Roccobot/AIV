@@ -305,6 +305,44 @@ object Glyphs {
     val BinHistory: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_bin_history)
 
+    /*
+     * ── I sei comandi dell'editor ────────────────────────────────────────────
+     *
+     * ⚠️⚠️ **DISEGNATI DALL'UTENTE E ARRIVATI IL 2026-09-04**, entrati con la `1.63`. Sono la
+     * stessa famiglia di forme dei glifi di sistema che sostituiscono, con gli angoli e le
+     * punte raccordati: quello che cambia non è il segno, è la sua morbidezza.
+     * ⚠️⚠️ **OGNUNO È STATO MISURATO CONTRO IL SUO, come chiede la regola**: lo scarto va dallo
+     * **0,11%** della tela (`ic_redo`) al **2,52%** (`ic_apply`), quindi nessuno cade sullo zero
+     * che avrebbe fatto vincere Material. I numeri per esteso stanno in testa a ogni file.
+     * ⚠️ **`Undo` e `Redo` si specchiano in RTL e le due rotazioni no**, come i glifi che
+     * sostituiscono: una freccia che dice 'indietro' segue il verso di lettura, un'ora no. Sta
+     * scritto nei file, perché un vettore non si specchia da sé.
+     */
+
+    /** La freccia che torna indietro: 'Annulla'. Vedi `ic_undo.xml`. */
+    val EditUndo: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_undo)
+
+    /** La freccia che torna avanti: 'Ripristina'. Vedi `ic_redo.xml`. */
+    val EditRedo: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_redo)
+
+    /** Il cerchio aperto con la freccia che rientra: 'Azzera'. Vedi `ic_reset.xml`. */
+    val EditReset: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_reset)
+
+    /** Il segno di spunta: 'Applica'. Vedi `ic_apply.xml`. */
+    val EditApply: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_apply)
+
+    /** Il cerchio con la freccia oraria: 'Ruota a destra'. Vedi `ic_turn_right.xml`. */
+    val TurnRight: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_turn_right)
+
+    /** Il cerchio con la freccia antioraria: 'Ruota a sinistra'. Vedi `ic_turn_left.xml`. */
+    val TurnLeft: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_turn_left)
+
     /** Quattro riquadri cavi: 'Visualizzazione griglia'. Ammorbidisce `Icons.Default.GridView`. */
     val ViewGrid: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_view_grid)

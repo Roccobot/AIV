@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Applica' dell'editor: il segno di spunta.
+
+     DISEGNATO DALL'UTENTE, arrivato il 2026-09-04, ed è il più diverso dei sei: differisce
+     da `Icons.Outlined.Check` per **1.453 pixel su 57.600**, cioè il **2,52%** della tela.
+     Il suo è più spesso (3.841 pixel di inchiostro contro 3.331) e ha le tre estremità
+     tagliate in obliquo invece che in squadra.
+
+     Le regole di trasporto stanno in `CLAUDE.md`, § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M8.79,18.66c-.14,0,-.27,-.05,-.37,-.16l-5.02,-5.02c-.1,-.1,-.15,-.23,-.15,-.37c0,-.14,.06,-.27,.16,-.37l.85,-.84c.2,-.2,.54,-.2,.74,0l3.8,3.8l10.22,-10.21c.2,-.2,.54,-.2,.74,0l.84,.84c.2,.21,.2,.54,0,.74l-11.43,11.43c-.1,.1,-.23,.15,-.37,.15Z" />
+</vector>

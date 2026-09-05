@@ -29,15 +29,9 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.RotateLeft
-import androidx.compose.material.icons.filled.RotateRight
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.RestartAlt
-import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
-import androidx.compose.material.icons.automirrored.outlined.Undo
-import androidx.compose.material.icons.automirrored.outlined.Redo
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -624,16 +618,16 @@ fun PadKey.glyph(): ImageVector = when (this) {
     PadKey.ALL -> Glyphs.PickAll
     PadKey.NONE -> Glyphs.PickNone
     PadKey.INVERT -> Glyphs.PickInvert
-    // ⚠️ Le due frecce di sistema, come nell'editor: là sono dichiarate deprecate e usate
-    // lo stesso, perché le sostitute girano dalla parte sbagliata (vedi la nota là).
-    @Suppress("DEPRECATION") PadKey.TURN_LEFT -> Icons.Default.RotateLeft
-    @Suppress("DEPRECATION") PadKey.TURN_RIGHT -> Icons.Default.RotateRight
+    // ⚠️ Le due frecce sue, come nell'editor, dalla 1.63: il verso di un giro è fisico e
+    // non segue la lettura, quindi non si specchiano (vedi la nota là).
+    PadKey.TURN_LEFT -> Glyphs.TurnLeft
+    PadKey.TURN_RIGHT -> Glyphs.TurnRight
     PadKey.CENTRE_ACROSS -> Glyphs.AlignAcross
     PadKey.CENTRE_DOWN -> Glyphs.AlignDown
-    PadKey.ORIGINAL -> Icons.Outlined.RestartAlt
-    PadKey.UNDO -> Icons.AutoMirrored.Outlined.Undo
-    PadKey.REDO -> Icons.AutoMirrored.Outlined.Redo
-    PadKey.APPLY -> Icons.Outlined.Check
+    PadKey.ORIGINAL -> Glyphs.EditReset
+    PadKey.UNDO -> Glyphs.EditUndo
+    PadKey.REDO -> Glyphs.EditRedo
+    PadKey.APPLY -> Glyphs.EditApply
 }
 
 /**
