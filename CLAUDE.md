@@ -476,7 +476,34 @@ rispondere al tocco fuori.
 - ⚠️ **Le conferme di eliminazione NON sono modali**, e non è una svista: là il tocco fuori vale
   `Annulla`, cioè l'esito sicuro, quindi non c'è niente da proteggere. Una modale protegge il
   lavoro che si perderebbe, non la scelta che si eviterebbe.
-- **Come si dichiara**: il parametro di `Modifier.lowered`, che non ha un valore di serie.
+- **Come si dichiara**: il parametro di `Modifier.lowered`, che non ha un valore di serie, **e
+  `properties = loweredWindow(...)` con lo stesso argomento**.
+
+⚠️⚠️ **QUELLE DUE RIGHE VANNO INSIEME, E DALLA `1.70` ALLA `1.72` LA SECONDA NON C'ERA: LE
+QUATTRO MODALI NON ERANO MODALI** (riscontro dell'utente, giro della `1.70`, voce
+`modali-quattro` non approvata). Il modificatore governa l'**aria dentro** la finestra, le
+proprietà governano lo **schermo fuori**, e nessuno dei due può fare il lavoro dell'altro: la
+fascia trasparente sopra il pannello appartiene alla finestra e la chiude un nodo di Compose,
+mentre sotto il pannello si è fuori dalla finestra e a decidere è `dismissOnClickOutside`, che
+il gestore delle finestre legge prima che l'app veda qualcosa. `lowered(null)` **dichiarava**
+l'intenzione senza applicarla, quindi Rinomina, Estensione, Indirizzo e Nuova cartella si
+chiudevano toccando sotto, e un nome scritto a metà si perdeva.
+- ⚠️ **Un dialogo nuovo che dimentica la seconda riga torna a non essere modale e non dà nessun
+  errore**: è la stessa forma di trappola del velo mancante, e per questo la regola sta scritta
+  qui e non solo nel KDoc.
+
+⚠️⚠️ **E IL TOCCO SULL'ARIA NON HA FATTO NIENTE PER TRE VERSIONI, PER UNA RAGIONE CHE VALE
+SEMPRE: UN NODO CHE È SIA DI LAYOUT SIA DI TOCCO NON RICEVE NESSUN EVENTO** (misurato dal banco
+di prova il 2026-09-05, ed è la prima cosa che il banco ha trovato). Nella stessa catena di
+modificatori, un nodo che implementa il solo `PointerInputModifierNode` prende il tocco e uno
+che implementa **anche** `LayoutModifierNode` non lo prende, a parità di tutto il resto: la
+hit-test dei tocchi scorre i nodi fino al primo nodo di layout e si ferma là, quindi un nodo che
+è anche quel confine resta fuori dalla propria passata.
+- **Quindi chi misura e chi ascolta sono due nodi**, e chi ascolta va **prima**, perché così il
+  suo riquadro è la scatola gonfiata, cioè quella che comprende l'aria.
+- ⚠️ **Nessun controllo sul testo del programma poteva vederlo**: il codice era giusto,
+  compilava, e la funzione non c'era. È lo stesso genere di difetto del blocco della `1.70`, ed
+  è la ragione per cui il banco di prova esiste.
 
 ⚠️⚠️ **E L'ASIMMETRIA CHE HA FATTO NASCERE LA REGOLA ERA UN DIFETTO, non due comportamenti**
 (sua segnalazione, con schermata: *hanno un comportamento da modale se si tocca lo schermo SOPRA
@@ -736,6 +763,24 @@ e il job le scrive su disco per la durata di una sola esecuzione.
     dipende dal verso di avvolgimento, e quanto costerebbe unire i tracciati. ⚠️ Se Chromium
     non c'è **lo dichiara** invece di tacere, che è la differenza fra un controllo saltato e un
     controllo passato.
+- ⚠️⚠️ **IL BANCO DI PROVA, dalla `1.73`: `./gradlew :app:testDebugUnitTest`**, e apre l'app
+  **finta** su una macchina senza telefono e senza emulatore, la tocca e verifica che risponda.
+  Le prove vivono in `app/src/test/`, e le librerie (Robolectric più `ui-test-junit4`) sono di
+  sola prova: nell'APK non entra niente.
+  - **Perché esiste**: il blocco totale della `1.70`, dove il codice era valido,
+    `compileDebugKotlin` è passato senza una parola, e l'app si avviava senza rispondere a
+    niente. Nessun controllo di questo repository poteva vederlo, perché tutti guardano il
+    **testo** del programma e quello era giusto.
+  - ⚠️⚠️ **CHE COSA NON PRENDE, e va detto invece di lasciarlo credere**: quello che dipende
+    dalla resa vera (sfocature, ombre, animazioni come si percepiscono) e quello che dipende
+    dall'apparecchio (permessi, provider di file, memoria grafica). Prende i difetti di
+    **struttura**, non quelli di **aspetto**. Un banco verde non vuol dire che l'app è a posto.
+  - ⚠️ **Su quale Android gira si dichiara** in `app/src/test/resources/robolectric.properties`,
+    invece di lasciare il valore di serie, che è il `targetSdk`: quel numero cambia quando cambia
+    la politica di Google Play, e con lui cambierebbe in silenzio la piattaforma delle prove.
+  - ⚠️ **Le prove montano `AivTheme` e non un albero finto**, ed è la ragione per cui valgono: il
+    velo dell'app e il cancello dei menu vivono là dentro, quindi un nodo che rubasse i tocchi
+    entra in scena da sé, senza che una prova debba ricordarsi di chiamarlo.
 - ⚠️ **`refcheck.py` NON vive qui** ma in `roccobot.github.io/.memo/scripts/`: in una sessione
   che non monta quel repo i controlli sui caratteri e sui rimandi non girano, e prima di un
   commit va detto invece di darli per fatti.

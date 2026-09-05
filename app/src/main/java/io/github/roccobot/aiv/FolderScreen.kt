@@ -1044,6 +1044,7 @@ private fun ViewOptions(
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = Modifier.lowered(onDismiss),
+        properties = loweredWindow(onDismiss),
         title = { Text(stringResource(R.string.view_options)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(OPTION_GAP)) {

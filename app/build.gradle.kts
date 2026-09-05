@@ -52,11 +52,11 @@ android {
         // the update as a downgrade. It is not tied to versionName and nothing
         // checks it, so nothing will remind you: 0.11 went out carrying 1, so
         // from here on every published version needs its own number.
-        versionCode = 162
+        versionCode = 163
         // Single source of the version, in SlimVer. The release workflow reads
         // it from here and refuses to run when the tag disagrees, so the tag
         // confirms this number instead of being a second one.
-        versionName = "1.72"
+        versionName = "1.73"
     }
 
     // The signing material comes from the environment and never from the
@@ -146,6 +146,19 @@ android {
         }
     }
 
+    /*
+     * ⚠️⚠️ **`isIncludeAndroidResources` È LA RIGA SENZA LA QUALE IL BANCO NON PARTE**, e
+     * non dà un errore che si capisce: senza di lei le prove sulla JVM non vedono le
+     * risorse dell'app, quindi `AivTheme` non trova i suoi colori e i suoi testi e il
+     * montaggio va in errore su una risorsa mancante invece che sul difetto cercato.
+     * ⚠️ `isReturnDefaultValues` riguarda un'altra cosa: i metodi del `android.jar` finto
+     * che, senza Robolectric, sollevano `RuntimeException("Stub!")`. Qui Robolectric c'è,
+     * quindi la riga non serve e non si scrive.
+     */
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
+
     buildFeatures {
         compose = true
         // BuildConfig carries VERSION_NAME, which the settings header shows: the version
@@ -227,4 +240,30 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
 
     debugImplementation(libs.androidx.ui.tooling)
+
+    /*
+     * ⚠️⚠️ **IL BANCO DI PROVA (1.73): apre l'app finta su una macchina senza telefono,
+     * la tocca e verifica che risponda.** Nasce dal blocco totale della 1.70, dove il
+     * codice era valido e faceva la cosa sbagliata: `compileDebugKotlin` non vede la
+     * gerarchia dei tocchi, e nessuna sessione ha un telefono.
+     * - **Robolectric** finge di essere Android sulla JVM: niente emulatore, niente
+     *   `connectedAndroidTest`, quindi le prove girano dove gira il build.
+     * - **`ui-test-junit4`** dà `onNodeWithText`, `performClick` e le asserzioni.
+     * - ⚠️ **`ui-test-manifest` va in `debugImplementation` e non in `testImplementation`**:
+     *   porta l'`Activity` vuota su cui `createComposeRule` monta il contenuto, e quella
+     *   deve stare nel **manifest** della variante, non fra le classi di prova. In
+     *   `testImplementation` non darebbe nessun errore di compilazione: fallirebbe a
+     *   tempo di esecuzione con un'attività non dichiarata.
+     * ⚠️ **Che cosa il banco NON prende**, e va detto invece di lasciarlo credere: quello
+     * che dipende dalla resa vera (sfocature, ombre, animazioni percepite) e quello che
+     * dipende dal dispositivo (permessi, provider di file, memoria grafica). Prende i
+     * difetti di **struttura**, non quelli di **aspetto**.
+     */
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.test.junit)
+    testImplementation(platform(libs.androidx.compose.bom))
+    testImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }

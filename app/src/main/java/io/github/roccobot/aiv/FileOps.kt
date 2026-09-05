@@ -371,6 +371,7 @@ private fun DeleteDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = Modifier.lowered(onDismiss),
+        properties = loweredWindow(onDismiss),
         title = { Text(stringResource(R.string.delete_ask)) },
         text = {
             Text(pluralStringResource(R.plurals.delete_desc, count, count))
