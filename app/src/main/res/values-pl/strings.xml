@@ -271,10 +271,10 @@
     <string name="bin_restore_all_ask">Na pewno przywrócić wszystkie pliki?</string>
     <string name="bin_restore_all_desc">Każdy element wróci do swojego folderu pochodzenia: aby sprawdzić, gdzie został przeniesiony, zajrzyj do historii kosza.</string>
     <plurals name="trash_done">
-        <item quantity="one">%1$d do kosza</item>
-        <item quantity="few">%1$d do kosza</item>
-        <item quantity="many">%1$d do kosza</item>
-        <item quantity="other">%1$d do kosza</item>
+        <item quantity="one">%1$d plik do kosza</item>
+        <item quantity="few">%1$d pliki do kosza</item>
+        <item quantity="many">%1$d plików do kosza</item>
+        <item quantity="other">%1$d pliku do kosza</item>
     </plurals>
     <plurals name="restore_done">
         <item quantity="one">przywrócono %1$d</item>
@@ -428,7 +428,7 @@
     <string name="settings_labels_desc">Po wyłączeniu panele ikon stają się bardziej zwarte. Menu listy pozostają bez zmian.</string>
     <string name="settings_buttons_how">Przytrzymaj przycisk i przeciągnij go, aby zmienić jego miejsce wewnątrz jego panelu.</string>
     <string name="settings_buttons_reset">Przywróć domyślne</string>
-    <string name="settings_buttons_reset_ask">Na pewno wrócić do domyślnego układu?</string>
+    <string name="settings_buttons_reset_ask">Przywrócić przyciski do domyślnego układu?</string>
     <string name="settings_buttons_bin">W koszu \'Przywróć\' zajmuje miejsce \'Zmień nazwę\'.</string>
     <string name="settings_buttons_before">Przesuń wcześniej</string>
     <string name="settings_buttons_after">Przesuń później</string>

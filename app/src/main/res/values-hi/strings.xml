@@ -253,8 +253,8 @@
     <string name="bin_restore_all_ask">क्या वाकई सभी फ़ाइलें पुनर्स्थापित करें?</string>
     <string name="bin_restore_all_desc">हर आइटम अपने मूल फ़ोल्डर में वापस जाएगा: वह कहाँ ले जाया गया था, यह जानने के लिए कूड़ेदान का इतिहास देखें।</string>
     <plurals name="trash_done">
-        <item quantity="one">%1$d कूड़ेदान में गया</item>
-        <item quantity="other">%1$d कूड़ेदान में गए</item>
+        <item quantity="one">%1$d फ़ाइल कूड़ेदान में गई</item>
+        <item quantity="other">%1$d फ़ाइलें कूड़ेदान में गईं</item>
     </plurals>
     <plurals name="restore_done">
         <item quantity="one">%1$d वापस आया</item>
@@ -396,7 +396,7 @@
     <string name="settings_labels_desc">बंद करने पर आइकन पैनल अधिक संक्षिप्त हो जाते हैं। सूची वाले मेन्यू नहीं बदलते।</string>
     <string name="settings_buttons_how">किसी बटन को दबाकर रखें और उसे खींचकर उसके अपने पैनल में उसकी जगह बदलें।</string>
     <string name="settings_buttons_reset">रीसेट</string>
-    <string name="settings_buttons_reset_ask">क्या वाकई डिफ़ॉल्ट क्रम पर लौटना है?</string>
+    <string name="settings_buttons_reset_ask">बटनों को डिफ़ॉल्ट क्रम में लौटाना चाहते हैं?</string>
     <string name="settings_buttons_bin">रद्दी में \'नाम बदलें\' की जगह \'वापस लाएँ\' आता है।</string>
     <string name="settings_buttons_before">पहले खिसकाएँ</string>
     <string name="settings_buttons_after">बाद में खिसकाएँ</string>

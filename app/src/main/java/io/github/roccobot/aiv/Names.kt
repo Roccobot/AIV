@@ -10,6 +10,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.isSpecified
+import androidx.compose.ui.unit.times
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
@@ -48,15 +50,15 @@ fun fitName(
     lines: Int,
     style: TextStyle,
     measurer: TextMeasurer
-): AnnotatedString {
+): Fitted {
     fun comporre(testa: String, coda: String) = buildAnnotatedString {
         append(testa)
         if (coda.isNotEmpty()) withStyle(EXT_BOLD) { append(coda) }
     }
 
-    fun sta(testo: AnnotatedString) = room <= 0 || !measurer.measure(
+    fun sta(testo: AnnotatedString, stretta: Float) = room <= 0 || !measurer.measure(
         text = testo,
-        style = style,
+        style = style.shrunk(stretta),
         maxLines = lines,
         constraints = Constraints(maxWidth = room)
     ).hasVisualOverflow
@@ -67,17 +69,77 @@ fun fitName(
     val coda = if (punto > 0) glue(name.substring(punto)) else ""
     val corpo = if (punto > 0) name.substring(0, punto) else name
 
+    /*
+     * ⚠️⚠️ **SI PROVA PRIMA A STRINGERE IL CORPO, E SOLO POI SI ACCORCIA, DALLA `1.62`**
+     * (riscontro del giro della `1.60`: *queste soluzioni in ordine di priorità, incluso il
+     * nuovo metodo che prevede di ridurre il testo, devono valere in generale per tutti i casi
+     * analoghi in cui non vanno spezzate le righe. La riduzione è utile specialmente nei
+     * casi-limite, quando un solo carattere rischia di essere tagliato fuori*). Fino alla `1.61`
+     * il rimpicciolimento viveva nella sola anteprima della rinomina, dove era nato, e qui si
+     * accorciava e basta: un nome che sforava di due lettere perdeva un pezzo di sé anche quando
+     * un corpo del 5% più stretto lo avrebbe fatto stare intero.
+     * ⚠️ **Un nome intero un filo più piccolo vale più di un nome accorciato**, ed è l'ordine di
+     * priorità che ha dettato: qui si scende di [NAME_STEP] per volta e mai sotto [NAME_FLOOR].
+     * ⚠️⚠️ **E SE NEMMENO IL MINIMO BASTA, SI ACCORCIA AL CORPO PIENO**: la stretta serve ai
+     * **casi-limite**, come dice il riscontro, e su un nome lunghissimo il taglio arriva
+     * comunque; portarselo dietro costerebbe leggibilità senza salvare niente.
+     * ⚠️ **Costa al più cinque misure in più**, e solo per i nomi che sforano: quello che sta
+     * alla misura piena esce alla prima, come prima.
+     */
     val intero = comporre(corpo, coda)
-    if (sta(intero)) return intero
+    var stretta = 1f
+    while (true) {
+        if (sta(intero, stretta)) return Fitted(intero, stretta)
+        if (stretta - NAME_STEP < NAME_FLOOR) break
+        stretta -= NAME_STEP
+    }
 
     var basso = 0
     var alto = corpo.length
     while (basso < alto) {
         val mezzo = (basso + alto + 1) / 2
-        if (sta(comporre(corpo.take(mezzo) + CUT, coda))) basso = mezzo else alto = mezzo - 1
+        if (sta(comporre(corpo.take(mezzo) + CUT, coda), 1f)) basso = mezzo else alto = mezzo - 1
     }
-    return comporre(corpo.take(basso) + CUT, coda)
+    return Fitted(comporre(corpo.take(basso) + CUT, coda), 1f)
 }
+
+/**
+ * Il nome impaginato e **di quanto è stato stretto** per starci.
+ *
+ * ⚠️ **Due valori e non uno, perché chi lo disegna deve sapere il corpo**: il testo da solo non
+ * porta con sé la misura a cui è stato misurato, e scriverlo al corpo pieno rimetterebbe il
+ * difetto che la stretta ha appena tolto.
+ */
+data class Fitted(val text: AnnotatedString, val scale: Float)
+
+/**
+ * Lo stesso stile, col corpo e l'interlinea stretti di [k].
+ *
+ * ⚠️ **Sta qui e non in due posti**: lo usano il misuratore di [fitName] e chi disegna il
+ * risultato, e due copie di questo conto vorrebbero dire misurare a un corpo e scrivere a un
+ * altro, cioè un testo che sfora dopo essere stato dichiarato dentro.
+ * ⚠️ **Le due misure si guardano prima di moltiplicarle**: un corpo o un'interlinea non
+ * dichiarati valgono `Unspecified`, che non è un numero e non si scala.
+ */
+internal fun TextStyle.shrunk(k: Float): TextStyle {
+    if (k >= 1f) return this
+    return copy(
+        fontSize = if (fontSize.isSpecified) fontSize * k else fontSize,
+        lineHeight = if (lineHeight.isSpecified) lineHeight * k else lineHeight
+    )
+}
+
+/**
+ * Di quanto si stringe il corpo a ogni passata, e fin dove.
+ *
+ * ⚠️ **L'80% è 'entro una certa soglia' tradotto in un numero**, ed è quello che l'anteprima
+ * della rinomina usa dalla `1.60`: sotto, due nomi vicini smettono di leggersi come una coppia
+ * perché hanno due corpi diversi.
+ * ⚠️ **Il gradino è del 5%**: più fine vorrebbe dire più misure per un guadagno che a occhio non
+ * si vede, più grosso salterebbe la misura giusta.
+ */
+internal const val NAME_STEP = 0.05f
+internal const val NAME_FLOOR = 0.80f
 
 /**
  * Il nome col punto e l'estensione **in grassetto** e **mai spezzati** andando a capo.

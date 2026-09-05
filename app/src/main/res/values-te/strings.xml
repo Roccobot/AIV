@@ -253,8 +253,8 @@
     <string name="bin_restore_all_ask">నిజంగా అన్ని ఫైళ్లను పునరుద్ధరించాలా?</string>
     <string name="bin_restore_all_desc">ప్రతి అంశం తన సొంత మూల ఫోల్డర్‌కు తిరిగి వెళ్తుంది: అది ఎక్కడికి తరలించబడిందో తెలుసుకోవడానికి చెత్తబుట్ట చరిత్రను చూడండి.</string>
     <plurals name="trash_done">
-        <item quantity="one">%1$d చెత్తబుట్టకు వెళ్ళింది</item>
-        <item quantity="other">%1$d చెత్తబుట్టకు వెళ్ళాయి</item>
+        <item quantity="one">%1$d ఫైల్ చెత్తబుట్టకు వెళ్ళింది</item>
+        <item quantity="other">%1$d ఫైళ్లు చెత్తబుట్టకు వెళ్ళాయి</item>
     </plurals>
     <plurals name="restore_done">
         <item quantity="one">%1$d తిరిగి వచ్చింది</item>
@@ -396,7 +396,7 @@
     <string name="settings_labels_desc">ఆపివేస్తే చిహ్నాల ప్యానెళ్లు మరింత కుదించుకుంటాయి. జాబితా మెనూలు మారవు.</string>
     <string name="settings_buttons_how">ఒక బటన్‌ను నొక్కి పట్టి లాగి, దాని సొంత ప్యానెల్‌లో దాని స్థానాన్ని మార్చండి.</string>
     <string name="settings_buttons_reset">రీసెట్</string>
-    <string name="settings_buttons_reset_ask">నిజంగా అప్రమేయ అమరికకు తిరిగి వెళ్లాలా?</string>
+    <string name="settings_buttons_reset_ask">బటన్లను డిఫాల్ట్ అమరికకు తిరిగి తీసుకురావాలా?</string>
     <string name="settings_buttons_bin">చెత్తబుట్టలో \'పేరు మార్చు\' స్థానంలో \'తిరిగి తెచ్చు\' వస్తుంది.</string>
     <string name="settings_buttons_before">ముందుకు జరుపు</string>
     <string name="settings_buttons_after">వెనక్కి జరుపు</string>

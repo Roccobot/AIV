@@ -132,13 +132,51 @@ private class LowerNode : Modifier.Node(), LayoutModifierNode, CompositionLocalC
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
-        val placed = measurable.measure(constraints)
         val window = windowHeight()
-        val free = (window - placed.height).coerceAtLeast(0)
         val air = LOWER_AIR.roundToPx()
+        /*
+         * ⚠️⚠️ **IL TETTO NASCE NELLA `1.62`, E TOGLIE UN TAGLIO CHE NESSUNA STRETTA POTEVA
+         * TOGLIERE** (riscontro del giro della `1.60`, con schermata: *in presenza di un nome
+         * molto lungo (ma valido) la finestra è tagliata brutalmente*). La stretta qui sotto
+         * riduce lo **spostamento** fino a zero, ma un dialogo più alto della finestra resta più
+         * alto della finestra anche fermo al centro: quello che mancava non era un movimento in
+         * meno, era un limite.
+         * ⚠️ **Con il tetto il contenuto scorre invece di sparire**: `AlertDialogContent` dà al
+         * proprio testo un peso che non riempie, quindi appena la superficie ha un massimo il
+         * testo si stringe e lo scorrimento che ha già dentro entra in funzione.
+         * ⚠️ **Si lascia [LOWER_AIR] per lato**, la stessa aria della stretta: un pannello che
+         * arriva a filo dei bordi si legge come tagliato anche quando è intero.
+         * ⚠️ **Zero vuol dire 'non lo so ancora'** (vedi [windowHeight]), e allora non si limita
+         * niente: meglio la misura di prima che un tetto costruito su una finestra inventata.
+         */
+        val roof = window - air * 2
+        val placed = measurable.measure(
+            if (roof > 0) constraints.copy(maxHeight = minOf(constraints.maxHeight, roof))
+            else constraints
+        )
+        val free = (window - placed.height).coerceAtLeast(0)
         val room = (free / 2 - air).coerceAtLeast(0)
         val wanted = (window * LOWER_BY).toInt()
         val shift = minOf(wanted, room)
+        /*
+         * ⚠️⚠️ **A TASTIERA APERTA LA CENTRATURA HA UNA DEROGA, ED È SUA** (riscontro del giro
+         * della `1.60`: *voglio che il pannello scorra MOLTO in alto, con il campo testo
+         * praticamente in cima allo schermo, quando la tastiera è aperta. In quella circostanza
+         * la centratura dell'app ha una deroga, che serve per rendere davvero fruibile il
+         * pannello*). Non è la stretta portata all'estremo: la stretta **riduce** la discesa, qui
+         * si va nel verso opposto e si **sale**.
+         * ⚠️⚠️ **E SALIRE SI SCRIVE COL CONTENUTO IN CIMA ALLA SCATOLA GONFIA**, che è il rovescio
+         * esatto della riga qui sotto: la finestra centra la scatola dichiarata, quindi una
+         * scatola più alta di `2*su` col contenuto posato a **zero** lo porta `su` più in alto.
+         * Chi cercasse un `offset` negativo troverebbe il ritaglio che la `1.33` ha già pagato.
+         * ⚠️ **Si sale di [room], cioè il massimo che si può**: il pannello si ferma a
+         * [LOWER_AIR] dal bordo di sopra dell'area che la tastiera lascia libera.
+         * ⚠️ **La deroga vale finché la tastiera è in scena e non un istante di più**: quando si
+         * chiude, questo nodo rimisura e il pannello torna al suo 15% in basso.
+         */
+        if (room > 0 && typing()) {
+            return layout(placed.width, placed.height + room * 2) { placed.place(0, 0) }
+        }
         /*
          * ⚠️⚠️ **LO SPOSTAMENTO STA DENTRO L'ALTEZZA RIPORTATA, e fino alla 1.33 NON c'era: è
          * il difetto che TAGLIAVA I DIALOGHI ALTI.** La nota di prima diceva l'opposto (misura
@@ -189,6 +227,17 @@ private class LowerNode : Modifier.Node(), LayoutModifierNode, CompositionLocalC
      * questo nodo misura prima che la vista sia agganciata, e uno spostamento calcolato su zero
      * sarebbe zero comunque.
      */
+    /**
+     * Se la tastiera è in scena adesso.
+     *
+     * ⚠️ **Si chiede se è VISIBILE e non quanto è alta**: una tastiera che si sta chiudendo ha
+     * ancora un'altezza mentre scende, e la deroga deve finire quando finisce lei, non quando
+     * l'ultimo pixel è sparito.
+     */
+    private fun typing(): Boolean =
+        ViewCompat.getRootWindowInsets(currentValueOf(LocalView))
+            ?.isVisible(WindowInsetsCompat.Type.ime()) == true
+
     private fun windowHeight(): Int {
         val view = currentValueOf(LocalView)
         val whole = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

@@ -244,7 +244,7 @@
     <string name="bin_restore_all_ask">กู้คืนไฟล์ทั้งหมดจริงหรือไม่</string>
     <string name="bin_restore_all_desc">แต่ละรายการจะกลับไปยังโฟลเดอร์ต้นทางของตัวเอง หากต้องการทราบว่าถูกย้ายไปที่ใด ให้ดูประวัติของถังขยะ</string>
     <plurals name="trash_done">
-        <item quantity="other">%1$d ย้ายไปที่ถังขยะ</item>
+        <item quantity="other">ย้ายไฟล์ %1$d รายการไปที่ถังขยะ</item>
     </plurals>
     <plurals name="restore_done">
         <item quantity="other">กู้คืนแล้ว %1$d</item>
@@ -380,7 +380,7 @@
     <string name="settings_labels_desc">หากปิดไว้ แผงไอคอนจะกระชับขึ้น เมนูแบบรายการไม่เปลี่ยนแปลง</string>
     <string name="settings_buttons_how">แตะปุ่มค้างไว้แล้วลากเพื่อเปลี่ยนตำแหน่งของมันภายในแผงของมัน</string>
     <string name="settings_buttons_reset">รีเซ็ต</string>
-    <string name="settings_buttons_reset_ask">กลับไปใช้การจัดเรียงเริ่มต้นจริงหรือ</string>
+    <string name="settings_buttons_reset_ask">ต้องการให้ปุ่มกลับไปเป็นการจัดเรียงเริ่มต้นไหม</string>
     <string name="settings_buttons_bin">ในถังขยะ \'กู้คืน\' อยู่ในตำแหน่งของ \'เปลี่ยนชื่อ\'</string>
     <string name="settings_buttons_before">ย้ายไปก่อนหน้า</string>
     <string name="settings_buttons_after">ย้ายไปถัดไป</string>

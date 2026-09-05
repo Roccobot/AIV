@@ -253,8 +253,8 @@
     <string name="bin_restore_all_ask">Alle bestanden echt herstellen?</string>
     <string name="bin_restore_all_desc">Elk item gaat terug naar zijn eigen oorspronkelijke map: in de geschiedenis van de prullenbak staat waarheen het is verplaatst.</string>
     <plurals name="trash_done">
-        <item quantity="one">%1$d naar de prullenbak</item>
-        <item quantity="other">%1$d naar de prullenbak</item>
+        <item quantity="one">%1$d bestand naar de prullenbak</item>
+        <item quantity="other">%1$d bestanden naar de prullenbak</item>
     </plurals>
     <plurals name="restore_done">
         <item quantity="one">%1$d teruggezet</item>
@@ -396,7 +396,7 @@
     <string name="settings_labels_desc">Als ze uitstaan, worden de pictogrampanelen compacter. Lijstmenu\'s veranderen niet.</string>
     <string name="settings_buttons_how">Houd een knop ingedrukt en sleep hem naar zijn plaats binnen zijn eigen paneel.</string>
     <string name="settings_buttons_reset">Herstellen</string>
-    <string name="settings_buttons_reset_ask">Echt terug naar de standaardvolgorde?</string>
+    <string name="settings_buttons_reset_ask">Wil je de knoppen terug in de standaardindeling?</string>
     <string name="settings_buttons_bin">In de prullenbak staat \'Terugzetten\' op de plaats van \'Naam wijzigen\'.</string>
     <string name="settings_buttons_before">Naar voren</string>
     <string name="settings_buttons_after">Naar achteren</string>

@@ -50,6 +50,8 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.onSizeChanged
@@ -880,13 +882,25 @@ private val PAD_LABEL_GAP = 2.dp
 private val PAD_EDGE = 4.dp
 
 /**
- * Quanto si rimpicciolisce il tastino mentre il suo menu è aperto.
+ * Quanto si stringe il FAB, e di quanto si sfoca, mentre il suo menu è aperto.
  *
- * ⚠️ **Sei centesimi e non di più**: la richiesta era *molto sobrio*, e su un tastino da
- * [FAB_SIZE] questo vale 2,4dp, cioè poco più di un pixel per lato su uno schermo denso. Basta
- * a leggersi come una pressione, e non abbastanza a sembrare un movimento.
+ * ⚠️⚠️ **MEZZO PUNTO PER TUTTI E DUE, DALLA `1.62`, E LA MISURA NON È PIÙ UNA FRAZIONE**
+ * (riscontro del giro della `1.60`: *da premuto dev'essere più piccolo e sfocato di 1/2DP. Il
+ * glifo non si rimpicciolisce ma si sfoca insieme al resto*). Fino alla `1.61` era una **scala**
+ * di sei centesimi, cioè 2,4dp su un FAB da [FAB_SIZE]: quasi cinque volte tanto, e con
+ * l'aggravante che una scala tira dentro il glifo.
+ * ⚠️⚠️ **E DA UNA SCALA A UNA MISURA CAMBIA CHE COSA SI STRINGE, che è il cuore della
+ * richiesta**: la piastrella si ridisegna mezzo punto più piccola, mentre il glifo dentro tiene
+ * la sua misura perché ce l'ha propria. Con una scala sul nodo intero non c'era modo di
+ * escluderlo, ed è la ragione tecnica per cui il numero ha cambiato unità.
+ * ⚠️ **La sfocatura invece li prende tutti e due**, come ha chiesto: sta sul nodo che contiene
+ * la piastrella e il glifo, non sui due separatamente.
+ * ⚠️ **Il FAB non si sposta di un pixel**: la scatola che lo tiene resta di [FAB_SIZE] e la
+ * piastrella si stringe verso il proprio centro. Senza quella scatola, un lato più corto
+ * sposterebbe il FAB di un quarto di punto verso l'angolo a cui è allineato.
  */
-private const val PREMUTO_GIU = 0.06f
+private val PREMUTO_GIU = 0.5.dp
+private val PREMUTO_SFOCA = 0.5.dp
 
 /**
  * Quanto si sposta la tinta del tastino verso il suo inchiostro mentre il menu è aperto.
@@ -1190,27 +1204,40 @@ fun TapHoldFab(
         animationSpec = tween(PREMUTO_MS),
         label = "premuto"
     )
-    val scala = 1f - PREMUTO_GIU * premuto
+    val lato = FAB_SIZE - PREMUTO_GIU * premuto
     val tinta = lerp(container, ink, PREMUTO_TINTA * premuto)
-    val schiaccia = Modifier.graphicsLayer { scaleX = scala; scaleY = scala }
+    /*
+     * ⚠️⚠️ **`Unbounded` E NON IL RITAGLIO DI SERIE, o la pressione mangerebbe l'ombra**: un
+     * `blur` crea un livello a sé, e col trattamento di serie quel livello viene **tagliato** sul
+     * proprio rettangolo, cioè esattamente dove l'ombra della `Surface` esce. Senza questa
+     * parola, il FAB perderebbe la sua ombra nell'istante in cui il menu si apre.
+     * ⚠️ **A raggio zero non costa niente**: Compose non applica nessun effetto per un raggio
+     * nullo, quindi a menu chiuso questa riga non crea alcun livello.
+     * ⚠️ **Sotto Android 12 non fa niente e non è un difetto**: la sfocatura di mezzo punto è
+     * una rifinitura, e quello che resta è la piastrella che si stringe.
+     */
+    val sfoca = Modifier.blur(PREMUTO_SFOCA * premuto, BlurredEdgeTreatment.Unbounded)
     val tasto = @Composable { alza: Dp ->
-        Surface(
-            modifier = Modifier.size(FAB_SIZE).then(schiaccia),
-            shape = RoundedCornerShape(FAB_CORNER),
-            color = tinta,
-            contentColor = ink,
-            shadowElevation = alza
-        ) {
-            Box(
-                modifier = Modifier.combinedClickable(
-                    role = Role.Button,
-                    onLongClickLabel = holdLabel,
-                    onLongClick = withHaptics(onHold),
-                    onClick = onTap
-                ),
-                contentAlignment = Alignment.Center
+        // ⚠️ La scatola tiene il posto: vedi [PREMUTO_GIU] per il perché il FAB non si sposta.
+        Box(modifier = Modifier.size(FAB_SIZE), contentAlignment = Alignment.Center) {
+            Surface(
+                modifier = Modifier.size(lato).then(sfoca),
+                shape = RoundedCornerShape(FAB_CORNER),
+                color = tinta,
+                contentColor = ink,
+                shadowElevation = alza
             ) {
-                glyph(label)
+                Box(
+                    modifier = Modifier.combinedClickable(
+                        role = Role.Button,
+                        onLongClickLabel = holdLabel,
+                        onLongClick = withHaptics(onHold),
+                        onClick = onTap
+                    ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    glyph(label)
+                }
             }
         }
     }
@@ -1247,11 +1274,19 @@ fun TapHoldFab(
      * ⚠️ **E non parla al lettore di schermo**: il tastino vero è quello di sopra, e un sosia
      * che si annunciasse darebbe due voci per un tasto solo.
      */
+    /*
+     * ⚠️⚠️ **IL SOSIA SI CENTRA CON `align` E NON COL `contentAlignment` DELLA SCATOLA, dalla
+     * `1.62`**: un `Popup` emette un nodo di misura zero e ricava da **dove quel nodo atterra**
+     * il rettangolo a cui ancorarsi. Un `contentAlignment` centrato sposterebbe anche quel nodo,
+     * e la finestra del FAB vero nascerebbe mezza scatola più in là. Costa una riga in più e
+     * tiene le due cose indipendenti.
+     */
     Box(modifier = Modifier.size(FAB_SIZE)) {
         Box(
             modifier = Modifier
-                .size(FAB_SIZE)
-                .then(schiaccia)
+                .align(Alignment.Center)
+                .size(lato)
+                .then(sfoca)
                 .shadow(lift, RoundedCornerShape(FAB_CORNER))
                 .background(tinta, RoundedCornerShape(FAB_CORNER)),
             contentAlignment = Alignment.Center

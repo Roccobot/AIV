@@ -262,9 +262,9 @@
     <string name="bin_restore_all_ask">¿Restaurar realmente todos los archivos?</string>
     <string name="bin_restore_all_desc">Cada elemento volverá a su carpeta de origen: para saber a dónde se movió, consulta el historial de la papelera.</string>
     <plurals name="trash_done">
-        <item quantity="one">%1$d movido a la papelera</item>
-        <item quantity="other">%1$d movidos a la papelera</item>
-        <item quantity="many">%1$d movidos a la papelera</item>
+        <item quantity="one">%1$d archivo movido a la papelera</item>
+        <item quantity="other">%1$d archivos movidos a la papelera</item>
+        <item quantity="many">%1$d archivos movidos a la papelera</item>
     </plurals>
     <plurals name="restore_done">
         <item quantity="one">%1$d restaurado</item>
@@ -412,7 +412,7 @@
     <string name="settings_labels_desc">Si se desactivan, los paneles de iconos se vuelven más compactos. Los menús de lista no cambian.</string>
     <string name="settings_buttons_how">Mantén pulsado un botón y arrástralo para cambiar su lugar dentro de su panel.</string>
     <string name="settings_buttons_reset">Restablecer</string>
-    <string name="settings_buttons_reset_ask">¿Volver de verdad a la disposición predeterminada?</string>
+    <string name="settings_buttons_reset_ask">¿Quieres devolver los botones a su disposición predeterminada?</string>
     <string name="settings_buttons_bin">En la papelera, \'Restaurar\' ocupa el lugar de \'Renombrar\'.</string>
     <string name="settings_buttons_before">Mover antes</string>
     <string name="settings_buttons_after">Mover después</string>

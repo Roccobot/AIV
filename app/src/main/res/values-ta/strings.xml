@@ -253,8 +253,8 @@
     <string name="bin_restore_all_ask">அனைத்து கோப்புகளையும் மீட்டெடுக்கவா?</string>
     <string name="bin_restore_all_desc">ஒவ்வொரு உருப்படியும் அதன் சொந்த மூல கோப்புறைக்குத் திரும்பும்: அது எங்கு நகர்த்தப்பட்டது என்பதை அறிய குப்பைத் தொட்டியின் வரலாற்றைப் பாருங்கள்.</string>
     <plurals name="trash_done">
-        <item quantity="one">%1$d குப்பைத் தொட்டிக்குப் போனது</item>
-        <item quantity="other">%1$d குப்பைத் தொட்டிக்குப் போனவை</item>
+        <item quantity="one">%1$d கோப்பு குப்பைத் தொட்டிக்குப் போனது</item>
+        <item quantity="other">%1$d கோப்புகள் குப்பைத் தொட்டிக்குப் போனவை</item>
     </plurals>
     <plurals name="restore_done">
         <item quantity="one">%1$d மீட்டெடுக்கப்பட்டது</item>
@@ -396,7 +396,7 @@
     <string name="settings_labels_desc">அணைத்தால் சின்னப் பலகங்கள் இன்னும் நெருக்கமாகும். பட்டியல் பட்டிகள் மாறாது.</string>
     <string name="settings_buttons_how">ஒரு பொத்தானை அழுத்திப் பிடித்து இழுத்து, அதன் சொந்தப் பலகத்தில் அதன் இடத்தை மாற்றவும்.</string>
     <string name="settings_buttons_reset">மீட்டமை</string>
-    <string name="settings_buttons_reset_ask">உண்மையிலேயே இயல்பு வரிசைக்குத் திரும்பவா?</string>
+    <string name="settings_buttons_reset_ask">பொத்தான்களை இயல்பு அமைப்புக்குத் திரும்பக் கொண்டுவரவா?</string>
     <string name="settings_buttons_bin">குப்பையில் \'பெயர் மாற்று\' இடத்தில் \'மீட்டெடு\' வரும்.</string>
     <string name="settings_buttons_before">முன்னால் நகர்த்து</string>
     <string name="settings_buttons_after">பின்னால் நகர்த்து</string>

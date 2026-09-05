@@ -1675,11 +1675,16 @@ private val FOOT_REACH = 40.dp
  * fino al bordo del tastino e poi tiene il suo massimo, e la ragione è la stessa in tutti e due
  * i posti. Una dissolvenza che tocca il massimo e subito finisce non ha un massimo da leggere:
  * si vede la salita, e quello che sta in cima lo si deduce.
- * ⚠️ **Dieci su quaranta vuol dire che la salita ne ha trenta**, cioè cinque meno della coda
- * intera della `1.59`: la parte che si legge come dissolvenza si accorcia, e in cambio compare
- * la striscia piena che prima non c'era.
+ * ⚠️⚠️ **VENTIDUE DALLA `1.62`, ED È IL SUO SECONDO NUMERO SU QUESTO PIANORO** (riscontro del
+ * giro della `1.60`: *ci siamo quasi: sposta il 100% della sfumatura piccola più in alto di
+ * altri 12 dp*). Dieci era il primo, e la correzione dice una cosa sulla proporzione: adesso il
+ * pieno occupa **più della metà** della coda e la salita ne ha diciotto, quindi quello che si
+ * legge non è più una dissolvenza con un pianoro in fondo ma una striscia piena con un
+ * raccordo sopra.
+ * ⚠️ **Chi trovasse scritto 'dieci su quaranta' altrove sappia che è superato**, e il numero da
+ * guardare è questo: la salita si ricava per differenza, non si scrive due volte.
  */
-private val FOOT_SOLID = 10.dp
+private val FOOT_SOLID = 22.dp
 
 /**
  * In quanti gradini si disegna la coda.

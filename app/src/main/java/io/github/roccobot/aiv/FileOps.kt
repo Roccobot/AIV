@@ -639,8 +639,9 @@ private fun NamePill(name: String, onRename: () -> Unit, modifier: Modifier = Mo
                 fitName(name, room, NAME_LINES, style, measurer)
             }
             Text(
-                text = shown,
-                style = style,
+                text = shown.text,
+                // ⚠️ Il corpo misurato e non quello pieno: vedi `fitName`.
+                style = style.shrunk(shown.scale),
                 maxLines = NAME_LINES,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()

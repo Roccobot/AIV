@@ -244,7 +244,7 @@
     <string name="bin_restore_all_ask">确定要恢复所有文件吗？</string>
     <string name="bin_restore_all_desc">每个项目都会回到各自的原文件夹：想知道被移到哪里，请查看回收站历史。</string>
     <plurals name="trash_done">
-        <item quantity="other">已把 %1$d 项移入回收站</item>
+        <item quantity="other">已把 %1$d 个文件移入回收站</item>
     </plurals>
     <plurals name="restore_done">
         <item quantity="other">已还原 %1$d 项</item>
@@ -380,7 +380,7 @@
     <string name="settings_labels_desc">若关闭，图标面板会更紧凑。列表菜单不变。</string>
     <string name="settings_buttons_how">长按一个按钮，然后拖动它来改变它在所属面板中的位置。</string>
     <string name="settings_buttons_reset">重置</string>
-    <string name="settings_buttons_reset_ask">确定要恢复默认排列吗？</string>
+    <string name="settings_buttons_reset_ask">要把按钮恢复成默认排列吗？</string>
     <string name="settings_buttons_bin">在回收站里，\'还原\' 出现在 \'重命名\' 的位置。</string>
     <string name="settings_buttons_before">前移</string>
     <string name="settings_buttons_after">后移</string>

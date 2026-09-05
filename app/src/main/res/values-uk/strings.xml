@@ -271,10 +271,10 @@
     <string name="bin_restore_all_ask">Справді відновити всі файли?</string>
     <string name="bin_restore_all_desc">Кожен елемент повернеться до своєї початкової теки: щоб дізнатися, куди його було переміщено, відкрийте історію кошика.</string>
     <plurals name="trash_done">
-        <item quantity="one">%1$d елемент у кошику</item>
-        <item quantity="few">%1$d елементи в кошику</item>
-        <item quantity="many">%1$d елементів у кошику</item>
-        <item quantity="other">%1$d елементів у кошику</item>
+        <item quantity="one">%1$d файл у кошику</item>
+        <item quantity="few">%1$d файли в кошику</item>
+        <item quantity="many">%1$d файлів у кошику</item>
+        <item quantity="other">%1$d файлів у кошику</item>
     </plurals>
     <plurals name="restore_done">
         <item quantity="one">повернуто %1$d елемент</item>
@@ -428,7 +428,7 @@
     <string name="settings_labels_desc">Якщо вимкнути, панелі значків стають компактнішими. Меню-списки не змінюються.</string>
     <string name="settings_buttons_how">Натисніть і утримуйте кнопку, потім перетягніть її на нове місце в межах її панелі.</string>
     <string name="settings_buttons_reset">Скинути</string>
-    <string name="settings_buttons_reset_ask">Справді повернутися до типового порядку?</string>
+    <string name="settings_buttons_reset_ask">Повернути кнопки до типового розташування?</string>
     <string name="settings_buttons_bin">У кошику \'Повернути\' стоїть на місці \'Перейменувати\'.</string>
     <string name="settings_buttons_before">Пересунути раніше</string>
     <string name="settings_buttons_after">Пересунути пізніше</string>

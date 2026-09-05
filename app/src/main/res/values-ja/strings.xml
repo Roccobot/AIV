@@ -244,7 +244,7 @@
     <string name="bin_restore_all_ask">すべてのファイルを復元しますか？</string>
     <string name="bin_restore_all_desc">各項目は元のフォルダーに戻ります。どこへ移動したかは、ゴミ箱の履歴で確認できます。</string>
     <plurals name="trash_done">
-        <item quantity="other">%1$d 件をゴミ箱に移動しました</item>
+        <item quantity="other">%1$d 件のファイルをゴミ箱に移動しました</item>
     </plurals>
     <plurals name="restore_done">
         <item quantity="other">%1$d 件を元に戻しました</item>
@@ -380,7 +380,7 @@
     <string name="settings_labels_desc">オフにすると、アイコンのパネルがよりコンパクトになります。一覧形式のメニューは変わりません。</string>
     <string name="settings_buttons_how">ボタンを長押しし、そのままドラッグして、そのパネル内での位置を変えます。</string>
     <string name="settings_buttons_reset">リセット</string>
-    <string name="settings_buttons_reset_ask">本当に既定の並びに戻しますか？</string>
+    <string name="settings_buttons_reset_ask">ボタンを既定の並びに戻しますか？</string>
     <string name="settings_buttons_bin">ごみ箱では「名前を変更」の位置に「元に戻す」が入ります。</string>
     <string name="settings_buttons_before">前へ移動</string>
     <string name="settings_buttons_after">後ろへ移動</string>

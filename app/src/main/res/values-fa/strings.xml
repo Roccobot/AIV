@@ -253,8 +253,8 @@
     <string name="bin_restore_all_ask">واقعاً همهٔ فایل‌ها بازیابی شوند؟</string>
     <string name="bin_restore_all_desc">هر مورد به پوشه اصلی خود برمی‌گردد: برای دیدن اینکه به کجا منتقل شده، تاریخچه سبد زباله را ببینید.</string>
     <plurals name="trash_done">
-        <item quantity="one">%1$d به سبد زباله رفت</item>
-        <item quantity="other">%1$d به سبد زباله رفت</item>
+        <item quantity="one">%1$d فایل به سبد زباله رفت</item>
+        <item quantity="other">%1$d فایل به سبد زباله رفت</item>
     </plurals>
     <plurals name="restore_done">
         <item quantity="one">%1$d بازگردانده شد</item>
@@ -396,7 +396,7 @@
     <string name="settings_labels_desc">اگر خاموش باشند، پنل‌های نماد فشرده‌تر می‌شوند. منوهای فهرستی تغییری نمی‌کنند.</string>
     <string name="settings_buttons_how">یک دکمه را نگه دارید و آن را بکشید تا جایش درون پنل خودش عوض شود.</string>
     <string name="settings_buttons_reset">بازنشانی</string>
-    <string name="settings_buttons_reset_ask">واقعاً به چیدمان پیش‌فرض برگردیم؟</string>
+    <string name="settings_buttons_reset_ask">دکمه‌ها به چیدمان پیش‌فرض برگردند؟</string>
     <string name="settings_buttons_bin">در زباله‌دان \'بازگرداندن\' جای \'تغییر نام\' را می‌گیرد.</string>
     <string name="settings_buttons_before">جابه‌جایی به جلو</string>
     <string name="settings_buttons_after">جابه‌جایی به عقب</string>
