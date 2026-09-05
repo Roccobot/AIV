@@ -90,7 +90,6 @@ import kotlin.math.roundToInt
 @Composable
 fun WindowVeil(
     bare: Float = 0f,
-    passante: () -> Boolean = { false },
     quanto: () -> Float = { PIENO }
 ) {
     val view = LocalView.current
@@ -98,7 +97,6 @@ fun WindowVeil(
     val dark = !LocalAivLight.current
     val radius = with(LocalDensity.current) { BLUR.roundToPx() }
     val misura by rememberUpdatedState(quanto)
-    val sorda by rememberUpdatedState(passante)
     val velo = remember(view, on, bare, dark, radius) { veilFor(view, on, bare, dark, radius) }
     /*
      * ⚠️⚠️ **IL VELO SI DOSA A OGNI FOTOGRAMMA, dalla 1.50, e prima cadeva in un colpo**
@@ -119,20 +117,40 @@ fun WindowVeil(
      * dichiarato di non fare.
      */
     LaunchedEffect(velo) {
-        snapshotFlow { Dose(if (on) misura().coerceIn(0f, PIENO) else PIENO, sorda()) }
-            .collect { velo?.at(it.quanto, it.passante) }
+        snapshotFlow { misura().coerceIn(0f, PIENO) }.collect { velo?.at(it) }
     }
     DisposableEffect(velo) { onDispose { velo?.off() } }
 }
 
 /**
- * Quanta patina vuole la finestra adesso, e se in questo momento è **passante**.
+ * Il **livello sovrapposto**: quanta patina scura chiede alla scena chi lo scrive.
  *
- * ⚠️ **Una coppia e non due flussi**: i due numeri cambiano nello stesso fotogramma e finiscono
- * nella stessa scrittura sui parametri della finestra; separati, un fotogramma su due
- * scriverebbe due volte.
+ * ⚠️⚠️ **STA FUORI DALLA FINESTRA CHE LO CHIEDE, DALLA `1.64`, ED È TUTTA LA DIFFERENZA CON
+ * [WindowVeil]**: quella parla alla finestra che la ospita, quindi muore con lei; questo parla a
+ * [VeilStage], che vive nella finestra dell'**attività** e non se ne va quando un menu si chiude.
+ * È la riga che permette alla patina di sciogliersi **dopo** che il pannello è sparito, senza
+ * tenere in vita nessuna finestra per farlo. Vedi la nota in fondo a questo file.
+ *
+ * ⚠️ **Il chiamante deve scriverlo fuori dal proprio `Popup` o `Dialog`**, o torna a morire con
+ * la finestra e la coda si taglia. In `MenuShell` sta prima del cancello che apre il `Popup`.
  */
-private data class Dose(val quanto: Float, val passante: Boolean)
+@Composable
+fun AppPatina(quanto: () -> Float) {
+    val view = LocalView.current
+    val on = LocalAivVeil.current
+    val dark = !LocalAivLight.current
+    val misura by rememberUpdatedState(quanto)
+    val chiave = remember { Any() }
+    val dim = if (on) dimFor(view, dark) else 0f
+    LaunchedEffect(chiave, dim) {
+        // ⚠️ **A funzione spenta si toglie invece di non mettere**: l'interruttore può spegnersi
+        // mentre questo è in scena, e senza questa riga la richiesta di prima resterebbe nella
+        // mappa, cioè uno schermo velato con la funzione disattivata.
+        if (dim <= 0f) return@LaunchedEffect VeilStage.off(chiave)
+        snapshotFlow { misura().coerceIn(0f, PIENO) }.collect { VeilStage.at(chiave, dim * it) }
+    }
+    DisposableEffect(chiave) { onDispose { VeilStage.off(chiave) } }
+}
 
 /**
  * L'interruttore della funzione: se velo e sfocatura sono accesi.
@@ -192,11 +210,16 @@ private class VeilNode : Modifier.Node(), CompositionLocalConsumerModifierNode {
         val radius = with(currentValueOf(LocalDensity)) { BLUR.roundToPx() }
         velo = veilFor(view, on = true, bare = 0f, dark = dark, radius = radius)
             ?.also { it.at(PIENO) }
+        // ⚠️ **La patina se la chiede da sé, dalla `1.64`**: prima gliela chiedeva [Veil], che dalla
+        // stessa versione parla alla sola finestra. Qui resta piena e basta, perché un dialogo di
+        // Material compare di colpo e non ha nessun avanzamento da seguire.
+        VeilStage.at(this, dimFor(view, dark))
     }
 
     override fun onDetach() {
         velo?.off()
         velo = null
+        VeilStage.off(this)
     }
 }
 
@@ -209,24 +232,12 @@ private class VeilNode : Modifier.Node(), CompositionLocalConsumerModifierNode {
  */
 private fun veilFor(view: View, on: Boolean, bare: Float, dark: Boolean, radius: Int): Veil? =
     when {
-        on -> {
-            val manager = view.context.getSystemService(WindowManager::class.java)
-            /*
-             * ⚠️⚠️ **LA SFOCATURA SI CHIEDE AL SISTEMA, NON SI DÀ PER SCONTATA**: da Android 12
-             * il telefono può dire di no in qualunque momento (risparmio energetico acceso,
-             * hardware che non la fa), e `isCrossWindowBlurEnabled` è la domanda giusta. Chi la
-             * desse per fatta si ritroverebbe con un velo troppo leggero proprio dove la
-             * sfocatura manca.
-             */
-            val blurred = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-                manager?.isCrossWindowBlurEnabled == true
-            Veil(
-                view = view,
-                dim = (if (dark) DIM_DARK else DIM_LIGHT) + (if (blurred) 0f else DIM_MORE),
-                radius = if (blurred) radius else null,
-                dipinto = true
-            )
-        }
+        on -> Veil(
+            view = view,
+            dim = dimFor(view, dark),
+            radius = if (blurs(view)) radius else null,
+            dipinto = true
+        )
         /*
          * ⚠️ **IL SOLO CASO CHE RESTA UN VELO DI FINESTRA, ed è quello a funzione spenta**: la
          * scheda in fondo se lo chiede da sé perché la sua finestra non ne ha uno di serie
@@ -238,6 +249,29 @@ private fun veilFor(view: View, on: Boolean, bare: Float, dark: Boolean, radius:
         bare > 0f -> Veil(view, dim = bare, radius = null, dipinto = false)
         else -> null
     }
+
+/**
+ * Se questo telefono, adesso, la sfocatura la fa.
+ *
+ * ⚠️⚠️ **SI CHIEDE AL SISTEMA E NON SI DÀ PER SCONTATA**: da Android 12 il telefono può dire di
+ * no in qualunque momento (risparmio energetico acceso, hardware che non la fa), e
+ * `isCrossWindowBlurEnabled` è la domanda giusta. Chi la desse per fatta si ritroverebbe con un
+ * velo troppo leggero proprio dove la sfocatura manca.
+ */
+private fun blurs(view: View): Boolean =
+    Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+        view.context.getSystemService(WindowManager::class.java)?.isCrossWindowBlurEnabled == true
+
+/**
+ * Quanto scurisce la patina piena, con questo tema e su questo telefono.
+ *
+ * ⚠️ **È una funzione a sé dalla `1.64`**, perché adesso la chiedono in due: [Veil], che ne ricava
+ * quanto azzerare del velo di serie di una finestra, e [AppPatina], che è quella che la dipinge.
+ * Scritta due volte, un giorno una delle due darebbe uno sfondo più chiaro dell'altro senza che
+ * nessuno se ne accorgesse: un velo che non torna non dà nessun errore.
+ */
+private fun dimFor(view: View, dark: Boolean): Float =
+    (if (dark) DIM_DARK else DIM_LIGHT) + (if (blurs(view)) 0f else DIM_MORE)
 
 /**
  * Il velo **dipinto dall'app**: quanto ne vuole chi, fra le superfici in scena, ne chiede di più.
@@ -387,9 +421,6 @@ private class Veil(
     private var flagsPrima = 0
     private var acceso = false
 
-    /** Se l'ultima stesura ha lasciato la finestra passante. Vedi [stendi]. */
-    private var passa = false
-
     /** Aggancia la finestra e ricorda com'era. Falso se qui non c'è niente da velare. */
     private fun grab(): Boolean {
         if (acceso) return true
@@ -416,14 +447,19 @@ private class Veil(
         return true
     }
 
-    /** Il dosaggio chiesto: al velo dipinto, e alla finestra quello che tocca a lei. */
-    fun at(q: Float, passante: Boolean = false) {
+    /**
+     * Il dosaggio chiesto alla finestra.
+     *
+     * ⚠️ **Dalla `1.64` qui non passa più la patina**: quella la chiede [AppPatina] a [VeilStage],
+     * da fuori dalla finestra, ed è la riga che le permette di sciogliersi dopo che la finestra
+     * se ne è andata.
+     */
+    fun at(q: Float) {
         if (!grab()) return
-        if (dipinto) VeilStage.at(this, dim * q)
-        stendi(q, passante)
+        stendi(q)
     }
 
-    private fun stendi(q: Float, passante: Boolean) {
+    private fun stendi(q: Float) {
         // ⚠️ A velo dipinto la finestra non ne vuole: quello che le si chiede è la sfocatura, e
         // il suo velo di serie va a zero (vedi [dipinto]).
         val velo = if (dipinto) 0f else dim * q
@@ -444,33 +480,15 @@ private class Veil(
          * questa riga è un guadagno vero**: prima, per ogni fotogramma dell'animazione, passava
          * un `updateViewLayout` che aggiornava un velo da zero. Sui telefoni che la sfocatura non
          * la fanno (o col risparmio energetico acceso) quel giro era tutto sprecato.
-         * ⚠️ **Il passaggio da passante a non passante scavalca la scorciatoia**, perché quello
-         * non è un dosaggio ma un cambio di stato della finestra: saltarlo lascerebbe un menu
-         * intoccabile su un telefono senza sfocatura.
          */
-        if (dipinto && radius == null && passante == passa) return
+        if (dipinto && radius == null) return
         val p = params ?: return
         val m = manager ?: return
-        passa = passante
         p.flags = p.flags or WindowManager.LayoutParams.FLAG_DIM_BEHIND
         p.dimAmount = velo
         if (radius != null) {
             p.flags = p.flags or WindowManager.LayoutParams.FLAG_BLUR_BEHIND
             p.blurBehindRadius = raggio
-        }
-        /*
-         * ⚠️⚠️ **LA FINESTRA CHE STA SOLO FINENDO DI SCIOGLIERSI NON PRENDE PIÙ I TOCCHI**, ed è
-         * la contropartita della coda della `1.61`: il pannello è già sparito, ma la finestra
-         * resta viva perché la sfocatura è un suo attributo e con lei morirebbe. Senza questo
-         * flag, per tutta la coda un tocco nel rettangolo dove stava il menu verrebbe raccolto da
-         * una finestra invisibile invece di arrivare alla schermata.
-         * ⚠️ **Si toglie e non solo si mette**: riaprendo il menu, `passante` torna falso e la
-         * finestra deve tornare toccabile nello stesso fotogramma in cui il pannello ricompare.
-         */
-        p.flags = if (passante) {
-            p.flags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-        } else {
-            p.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE.inv()
         }
         runCatching { m.updateViewLayout(view.rootView, p) }
     }
@@ -478,8 +496,6 @@ private class Veil(
     fun off() {
         if (!acceso) return
         acceso = false
-        passa = false
-        VeilStage.off(this)
         val w = window
         if (w != null) {
             w.setDimAmount(dimPrima)
@@ -568,32 +584,46 @@ private const val DIM_MORE = 0.12f
 private const val PIENO = 1f
 
 /*
- * ── La coda: come la patina si scioglie ──────────────────────────────────────
+ * ── La coda: che cosa si scioglie, e che cosa invece non può ──────────────────
  *
- * ⚠️⚠️ **DALLA `1.61` LA PATINA NON SEGUE PIÙ IL PANNELLO MENTRE ESCE, E HA UNA DISCESA
- * PROPRIA** (istruzione dell'utente, giro della `1.60`: *a prescindere da tutto il resto,
- * incluse le altre animazioni (anche contemporanee), il passaggio da sfocatura massima a
- * nessuna sfocatura dev'essere graduale e decelerare sul finale: è ancora troppo brusca*).
+ * ⚠️⚠️ **RIDURRE UN RAGGIO DI SFOCATURA È METTERE A FUOCO, E QUESTO È IL FATTO CHE GOVERNA TUTTA
+ * LA SEZIONE** (riscontro dell'utente sulla `1.61`: *anziché un livello sovrapposto che se ne va
+ * sembra una messa a fuoco che si muove*). Un obiettivo che mette a fuoco fa esattamente questo:
+ * porta un raggio di sfocatura a zero mentre i dettagli emergono. Quindi **più la discesa del
+ * raggio è graduale, più l'occhio la legge come una messa a fuoco**, che è il contrario di quello
+ * che era stato chiesto.
  *
- * ⚠️⚠️ **IL DIFETTO ERA LA CURVA, NON LA DURATA, e saperlo evita di allungare e basta**: dalla
- * `1.50` la sfocatura seguiva l'avanzamento del pannello, e l'uscita di un menu è l'entrata
- * **letta all'indietro** (`MENU_OUT` in `Menus.kt`), cioè una curva che **accelera**. Quindi gli
- * ultimi pixel di sfocatura, che sono esattamente quelli in cui l'occhio legge il passaggio da
- * sfocato a nitido, se ne andavano nel tratto più veloce di tutta l'animazione. Seguire il
- * pannello era giusto in **entrata**, dove serviva a togliere la cornice sfumata, ed era la cosa
- * sbagliata in uscita.
+ * ⚠️⚠️ **LA `1.61` HA APPLICATO LA GRADUALITÀ ALLA COSA SBAGLIATA, e la richiesta era giusta**
+ * (giro della `1.60`: *il passaggio da sfocatura massima a nessuna sfocatura dev'essere graduale
+ * e decelerare sul finale*). Portare quel tratto da 11 ms a 115 non ha reso morbida una
+ * sparizione: ha reso **leggibile** un gesto che prima passava sotto la soglia di un fotogramma.
+ * La misura di allora (la percezione della sfocatura approssimata con la radice del raggio) era
+ * corretta e diceva quanto quel tratto sarebbe durato; quello che non poteva dire è che
+ * l'occhio, avutone il tempo, gli avrebbe dato un **significato**.
  *
- * ⚠️ **La cosa che l'entrata NON cambia**: in entrata la patina continua a crescere insieme al
- * pannello, con la sua stessa durata e la sua stessa curva. Il conto della `1.50` (nessun
- * fotogramma in cui la finestra sfoca più di quanto il pannello sia in scena) regge solo se il
- * numero è lo stesso, e questa coda riguarda il solo verso dell'uscita.
+ * ⚠️⚠️ **QUINDI DALLA `1.64` A SCIOGLIERSI È IL LIVELLO, E LA SFOCATURA SE NE VA COL PANNELLO.**
+ * I due numeri erano uno solo dalla `1.50` e adesso sono due:
+ * - la **patina** ([AppPatina]) è un rettangolo con un'opacità, quindi può dissolvere davvero, e
+ *   prende la coda lunga con la sua curva che decelera;
+ * - la **sfocatura** ([WindowVeil]) torna a seguire l'avanzamento del pannello, con la curva
+ *   d'uscita dei menu che accelera: gli ultimi pixel se ne vanno in meno di un fotogramma, che è
+ *   la sola durata a cui una messa a fuoco non ha il tempo di essere letta come tale.
  *
- * ⚠️⚠️ **E LA FINESTRA DEVE RESTARE VIVA FINCHÉ LA CODA NON È FINITA**: la sfocatura è un
- * attributo della finestra, quindi una finestra che sparisce si porta via la sfocatura
- * qualunque animazione le si sia data. Per i menu lo fa `MenuState.inScene`, che adesso guarda
- * anche la patina; per la scheda in fondo non serve niente, perché la sua uscita dura già più
- * della coda. ⚠️ **Il prezzo si paga con [FLAG_NOT_TOUCHABLE]** (vedi `stendi`), o il rettangolo
- * di una finestra invisibile mangerebbe i tocchi.
+ * ⚠️⚠️ **E COSÌ LA FINESTRA NON DEVE PIÙ SOPRAVVIVERE AL PROPRIO PANNELLO**, che nella `1.61` era
+ * il prezzo da pagare perché la sfocatura è un attributo di finestra. Con lei se ne vanno tre
+ * cose che erano tutte contropartite di quella scelta: il `FLAG_NOT_TOUCHABLE` di `stendi`, il
+ * focus che cadeva a metà uscita, e il doppio senso di `MenuState.inScene`.
+ * ⚠️⚠️ **LA SECONDA COSTAVA UNO SFARFALLIO, ed è misurata sul bytecode di Compose**: cambiare
+ * `focusable` a metà animazione fa girare `PopupLayout.updatePopupProperties`, che **assegna**
+ * `params.flags` invece di aggiungerli (`flagsWithSecureFlagInherited` compone il valore dalle
+ * sole `PopupProperties`). Quindi in quel fotogramma la finestra perdeva `FLAG_BLUR_BEHIND`,
+ * `FLAG_DIM_BEHIND` e `FLAG_NOT_TOUCHABLE` in un colpo, e il fotogramma dopo `stendi` glieli
+ * rimetteva: un fotogramma nitido in mezzo alla sfocatura. ⚠️ **Chi un domani rimettesse un
+ * `PopupProperties` che cambia durante un'animazione se lo riprende**, e non darà nessun errore.
+ *
+ * ⚠️ **L'entrata non è mai stata toccata da nessuna di queste versioni**: patina e sfocatura
+ * crescono col pannello, con la sua durata e la sua curva, e il conto della `1.50` (nessun
+ * fotogramma in cui la finestra sfoca più di quanto il pannello sia in scena) regge solo così.
  */
 
 /**
@@ -601,26 +631,24 @@ private const val PIENO = 1f
  *
  * ⚠️ **Più del doppio dell'uscita di un menu (120 ms), e non è una durata scelta a caso**: sotto
  * il doppio la discesa resta legata a quella del pannello, che è la cosa da cui l'utente l'ha
- * staccata. ⚠️ **Il tetto invece è la scheda in fondo**, la cui uscita dura `USCITA_MS`: oltre
- * quella, la coda finirebbe fuori dalla vita della finestra e l'ultimo tratto verrebbe tagliato
- * proprio dove deve decelerare.
+ * staccata. ⚠️ **E dalla `1.64` non ha più il tetto che aveva**: quando questo numero governava la
+ * sfocatura non poteva superare `USCITA_MS`, perché oltre la vita della finestra il tratto
+ * finale veniva tagliato. Adesso governa un rettangolo che l'app dipinge da sé, e quello non
+ * dipende dalla vita di nessuna finestra.
  */
 internal const val VEIL_FADE_MS = 280
 
 /**
  * La curva con cui si scioglie: arriva con pendenza **nulla**, cioè decelerando.
  *
- * ⚠️⚠️ **SCELTA SU UNA MISURA CHE TIENE CONTO DELL'OCCHIO**: la
- * quantità di sfocatura che si **percepisce** cresce meno del raggio (fra 33 e 25 pixel non si
- * vede quasi differenza, fra 4 e 0 c'è tutto il passaggio da sfocato a nitido), quindi una curva
- * che scende in modo uniforme sul **numero** all'occhio precipita in fondo. Provate tre curve
- * sulla percezione approssimata con la radice del raggio, lo scarto da una discesa uniforme
- * viene **6,1%** per questa, 12,4% per `FastOutSlowIn` e 15,4% per la curva d'entrata dei menu.
- * ⚠️ **E il finale è comunque il tratto più lento**: `(0.25, 1)` come secondo punto dà pendenza
- * nulla all'arrivo, e negli ultimi 30 ms il raggio scende di **7,2 pixel al secondo** contro i
- * **668** di quando la sfocatura seguiva l'uscita del pannello.
- * ⚠️ **Il numero che dice tutto**: gli ultimi 4 pixel di raggio, cioè quelli in cui il passaggio
- * si vede, duravano **11 ms** (meno di un fotogramma) e adesso durano **115 ms**.
+ * ⚠️ **`(0.25, 1)` come secondo punto è quello che dà la pendenza nulla all'arrivo**, cioè il
+ * finale lento che l'utente ha chiesto. Su un'opacità la curva dice quello che sembra dire,
+ * perché il velo si percepisce quasi come lo si scrive.
+ * ⚠️⚠️ **E QUESTO È IL PUNTO IN CUI, FINO ALLA `1.63`, LA CURVA GOVERNAVA UN RAGGIO**: là serviva
+ * una misura apposta (la percezione approssimata con la radice del raggio) perché fra 33 e 25
+ * pixel non si vede quasi differenza mentre fra 4 e 0 c'è tutto il passaggio da sfocato a nitido.
+ * Quella misura resta vera e non serve più: il raggio non si anima più in uscita, per la ragione
+ * scritta nel blocco qui sopra.
  */
 internal val VEIL_FADE: Easing = CubicBezierEasing(0.25f, 0.1f, 0.25f, 1f)
 

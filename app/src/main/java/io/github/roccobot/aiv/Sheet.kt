@@ -151,11 +151,9 @@ fun Sheet(
          * ⚠️⚠️ **LA PATINA SI SCIOGLIE, DALLA `1.61`, e prima saltava a zero con la finestra**
          * (istruzione dell'utente, giro della `1.60`: *il passaggio da sfocatura massima a
          * nessuna sfocatura dev'essere graduale e decelerare sul finale*). Qui non costa
-         * **niente** in più: l'uscita della scheda dura già [USCITA_MS], che è più della coda,
-         * quindi la finestra è ancora viva quando l'ultimo pixel di sfocatura se ne va. Sui menu
-         * invece la finestra va tenuta in scena apposta (vedi `MenuState.inScene`).
+         * **niente** in più: l'uscita della scheda dura già [USCITA_MS], che è più della coda.
          * ⚠️ **All'andata resta piena da subito** ([snap]), cioè esattamente come prima: la
-         * richiesta riguarda il passaggio da sfocato a nitido, e dosare anche l'entrata sarebbe
+         * richiesta riguarda il passaggio da velato a sgombro, e dosare anche l'entrata sarebbe
          * un secondo cambiamento nello stesso giro.
          */
         val patina by animateFloatAsState(
@@ -163,7 +161,25 @@ fun Sheet(
             animationSpec = if (visibile) snap() else tween(VEIL_FADE_MS, easing = VEIL_FADE),
             label = "sheet-veil"
         )
-        WindowVeil(bare = SHEET_DIM) { patina }
+
+        /*
+         * ⚠️⚠️ **LA SFOCATURA HA IL SUO NUMERO, DALLA `1.64`, E SE NE VA COL PANNELLO**: fino alla
+         * `1.63` seguiva anche lei la coda qui sopra, cioè scendeva da trentatré pixel a zero in
+         * [VEIL_FADE_MS] decelerando, ed è la cosa che l'utente ha bocciato sui menu (*anziché un
+         * livello sovrapposto che se ne va sembra una messa a fuoco che si muove*). Ridurre un
+         * raggio è mettere a fuoco: il fatto per esteso sta in fondo a `Veil.kt`. Adesso segue la
+         * dissolvenza della scheda, che è la più corta delle sue animazioni d'uscita.
+         * ⚠️ **A funzione spenta conta la sola [patina]**, che dosa il velo semplice della finestra
+         * ([SHEET_DIM]): quello è un livello con la sua opacità, quindi la coda là è giusta e resta.
+         */
+        val sfoca by animateFloatAsState(
+            targetValue = if (visibile) 1f else 0f,
+            animationSpec = if (visibile) snap() else tween(SHEET_FADE_MS),
+            label = "sheet-blur"
+        )
+        val acceso = LocalAivVeil.current
+        AppPatina { patina }
+        WindowVeil(bare = SHEET_DIM) { if (acceso) sfoca else patina }
 
         /*
          * ⚠️⚠️ **DUE ANIMAZIONI E NON UNA, e sono due perché durano tempi diversi**: la
