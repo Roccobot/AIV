@@ -705,6 +705,46 @@ viene di quattro voci e un'altra di una, sta bene: le domande non si fanno tutte
 frequenza. ⚠️ **E i conti non si scrivono**, qui come nei commenti del pannello: quante sono le
 sezioni, le famiglie e le voci si contano nel codice.
 
+## 🧪 Quando si scrive una prova, e quando no
+
+⚠️⚠️ **UN DIFETTO CHE È ARRIVATO A LUI TORNA INDIETRO CON LA PROVA CHE LO AVREBBE FERMATO, NELLA
+STESSA VERSIONE DELLA CORREZIONE** (istruzione dell'utente, 2026-09-05: *aggiungi tutti i
+meccanismi e la documentazione che servono affinché le prossime versioni usino lo strumento
+correttamente, con criterio e in modo proattivo*). Non è una buona abitudine: è la sola cosa che
+trasforma un giro di collaudo speso in un presidio che non si spende più. Una voce non approvata
+che si corregge senza prova è una voce che può tornare non approvata.
+- **Il paletto che lo tiene stretto**: vale per i difetti che il banco **può** vedere, cioè
+  quelli di struttura. Per gli altri la correzione va da sola, e va detto nella voce.
+- ⚠️ **Nella stessa versione, non 'più avanti'**: una prova rimandata è una prova che non si
+  scrive, perché il giro dopo porta altre cose e quel difetto non fa più male a nessuno.
+
+⚠️⚠️ **E UNA MODIFICA CHE TOCCA LA GERARCHIA DEI TOCCHI PORTA LA SUA PROVA ANCHE SENZA UN
+DIFETTO ALLE SPALLE**, che è la metà proattiva della regola. Sono tre i casi, e si riconoscono
+da soli: un nodo che **copre** lo schermo o una schermata intera; un modificatore che **misura**
+e ci posa dentro qualcosa (la scatola gonfiata di `lowered` è l'esempio in casa); una superficie
+che si **apre sopra** un'altra e deve decidere che cosa fa il tocco fuori. In tutti e tre il
+codice può essere valido e non fare niente, e quello non lo vede nessun compilatore.
+
+⚠️ **Quando NON si scrive una prova**: per quello che dipende dalla resa vera o
+dall'apparecchio, perché il banco non lo vede e una prova che finge di vederlo è peggio del
+niente; e per riscrivere in una prova quello che il codice già dice, che non verifica un
+comportamento ma ricopia un'implementazione, e cade al primo ritocco senza che nulla sia rotto.
+
+⚠️⚠️ **UNA PROVA ROSSA NON SI AGGIRA MAI**: non si salta, non si spegne, non si mette in
+quarantena, e non si rilascia con la scusa che 'quella riga non c'entra'. Se la prova è
+sbagliata si corregge **la prova**, e la ragione si scrive accanto: una prova cambiata senza una
+ragione scritta è una prova che qualcuno ha piegato per far passare un build.
+
+⚠️ **Il banco NON sostituisce il giro con lui**, e prometterlo sarebbe la bugia peggiore: gli
+toglie dalle mani la classe di difetti che una macchina sa vedere, e gli lascia tutto il resto,
+che è la maggior parte. Un banco verde vuol dire che la struttura regge, non che la versione è
+buona.
+
+⚠️ **Si lancia PRIMA di aprire la PR**, e non si conta sul CI per scoprire un rosso: il difetto
+si corregge dove lo si è scritto, e una corsa rossa su `main` è una corsa che qualcuno deve
+guardare. Le due corse automatiche (§ '🧰 Gli strumenti che questo repo si porta dietro') sono
+la rete.
+
 ## 🚀 Che cosa produce un rilascio
 
 **Due cose, e vanno insieme**: il numero di **versione** e le voci nuove nel **collaudo**. La
@@ -722,7 +762,19 @@ collaudo: rilascio, documento, riscontro'.
 - **Come si pubblica**: il workflow `release.yml` ha due vie, e la seconda esiste apposta per
   una sessione. Un `workflow_dispatch` con l'ingresso `publish` acceso taglia il tag dal
   `versionName`, costruisce l'APK firmato, crea la release, e **copia APK e paginetta sotto
-  `roccobot.github.io/AIV/`**. Senza `publish` costruisce e si ferma, che è il banco di prova.
+  `roccobot.github.io/AIV/`**. Senza `publish` costruisce e si ferma, che è la **corsa a vuoto**.
+  - ⚠️ **Quella corsa NON si chiama 'il banco di prova', e fino alla `1.73` qui era scritto
+    così**: dalla `1.73` quel nome è di un'altra cosa, cioè le prove che aprono l'app finta
+    (§ '🧰 Gli strumenti che questo repo si porta dietro'). Due cose con lo stesso nome, in un
+    repository che ne parla in ogni giro, sono due cose che prima o poi qualcuno scambia.
+- ⚠️⚠️ **E PRIMA DI TUTTO QUESTO C'È UN CANCELLO, dal 2026-09-05**: `release.yml` lancia il banco
+  di prova e il controllo delle traduzioni **prima** della chiave di firma e del build, quindi
+  una prova rossa o una lingua incompleta fermano il rilascio invece di produrre un APK da
+  ritirare. Il perché per esteso, e i due posti in cui il banco gira, stanno in § '🧰 Gli
+  strumenti che questo repo si porta dietro'.
+  - ⚠️ **I controlli a costo zero restano davanti al cancello**: un tag che non coincide col
+    `versionName`, o un `publish` da un branch che non è quello principale, falliscono in un
+    secondo, e non ha senso spendere due minuti di prove per scoprirlo dopo.
 - **Verifica di pubblicazione avvenuta**: un `curl` su <https://roccobot.github.io/AIV/> e il
   nome del file servito (`AIV-1.20.apk` e simili). Il merge su `master` del sito non basta:
   serve che il deploy Pages vada a buon fine.
@@ -778,9 +830,28 @@ e il job le scrive su disco per la durata di una sola esecuzione.
   - ⚠️ **Su quale Android gira si dichiara** in `app/src/test/resources/robolectric.properties`,
     invece di lasciare il valore di serie, che è il `targetSdk`: quel numero cambia quando cambia
     la politica di Google Play, e con lui cambierebbe in silenzio la piattaforma delle prove.
+    - ⚠️⚠️ **E QUEL NUMERO DECIDE LA VERSIONE DI JAVA CHE SERVE**: Robolectric ne dichiara una
+      minima per piattaforma, e la 36 vuole **Java 21** (letto nel bytecode di
+      `DefaultSdkProvider`: le API 34 e 35 portano 17, la 36 porta 21). Su Java 17 non parte
+      nemmeno una prova, e l'errore si legge come una catena di strumenti rotta invece che come
+      un controllo di versione. Il CI monta 21 per questo, e chi tocca uno dei due numeri
+      guarda l'altro.
   - ⚠️ **Le prove montano `AivTheme` e non un albero finto**, ed è la ragione per cui valgono: il
     velo dell'app e il cancello dei menu vivono là dentro, quindi un nodo che rubasse i tocchi
     entra in scena da sé, senza che una prova debba ricordarsi di chiamarlo.
+  - ⚠️⚠️ **DAL 2026-09-05 GIRA DA SÉ, E IN DUE POSTI**: è un passo di `check.yml` a ogni push su
+    `main` e a ogni PR, ed è il **cancello** di `release.yml`, dove una prova rossa ferma il
+    rilascio prima ancora che si tocchino la chiave di firma e il build. I due non sono un
+    doppione: il cancello rifiuta di pubblicare una versione rotta, il controllo dice che è
+    rotta **prima** che qualcuno provi a pubblicarla.
+    - **Lanciarlo a mano resta il modo di lavorare**, e il modo giusto: si lancia **prima** di
+      aprire la PR, perché il difetto lo si corregge dove lo si è scritto. Le due corse in CI
+      sono la rete, non il controllo.
+  - ⚠️ **La piattaforma finta pesa 213 MB e si scarica al primo giro**: in CI la tiene una cache
+    con la chiave sui due file che decidono quale piattaforma sia (il catalogo delle versioni e
+    `robolectric.properties`), perché `setup-gradle` non copre `~/.m2`. Su una macchina di
+    sessione il contenitore è effimero, quindi il primo giro paga il download (misurato: 1
+    minuto e 49 contro i 14-26 secondi delle corse successive).
 - ⚠️ **`refcheck.py` NON vive qui** ma in `roccobot.github.io/.memo/scripts/`: in una sessione
   che non monta quel repo i controlli sui caratteri e sui rimandi non girano, e prima di un
   commit va detto invece di darli per fatti.
