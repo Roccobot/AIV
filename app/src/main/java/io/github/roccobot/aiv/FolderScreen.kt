@@ -567,7 +567,7 @@ fun FolderScreen(
                     container = HINT_MARK,
                     ink = HINT_INK,
                     // ⚠️ Nessuna ombra: sopra un velo non c'è niente da cui staccarsi.
-                    lift = 0.dp,
+                    lift = { 0.dp },
                     holdLabel = stringResource(R.string.columns_title),
                     onTap = hintDone,
                     onHold = { hintDone(); sizing = true },
@@ -977,7 +977,7 @@ private fun Hub(
                  */
                 container = colorResource(R.color.launcher_background),
                 ink = colorResource(R.color.launcher_foreground),
-                lift = entrata.lift(FAB_LIFT),
+                lift = { entrata.lift(FAB_LIFT) },
                 holdLabel = stringResource(R.string.columns_title),
                 // ⚠️ **`veiling` e non `visible`**: il FAB deve restare staccato finché c'è patina
                 // addosso all'app, che dura più del pannello.

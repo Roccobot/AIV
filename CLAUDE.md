@@ -359,24 +359,28 @@ grande un dialogo esattamente al centro fa allungare la mano.
       **massimo** delle richieste in scena. ⚠️ La **sfocatura** resta di finestra: quella non si
       può dipingere senza rifare i menu, che oggi sono finestre (il perché in fondo a
       `Veil.kt`).
-      - ⚠️⚠️ **RIDURRE UN RAGGIO DI SFOCATURA È METTERE A FUOCO, E QUESTO GOVERNA TUTTO IL
-        RESTO** (riscontro del giro della 1.63, che boccia la 1.61: *anziché un livello
-        sovrapposto che se ne va sembra una messa a fuoco che si muove*). Un obiettivo che mette
-        a fuoco fa esattamente questo: porta un raggio a zero mentre i dettagli emergono. Quindi
-        **più la discesa del raggio è graduale, più l'occhio le dà quel significato**.
-        - ⚠️⚠️ **LA 1.61 AVEVA APPLICATO LA GRADUALITÀ ALLA COSA SBAGLIATA, e la richiesta era
-          giusta** (giro della 1.60: *il passaggio da sfocatura massima a nessuna sfocatura
-          dev'essere graduale e decelerare sul finale*). Portare quel tratto da 11 ms a 115 non
-          ha reso morbida una sparizione: ha reso **leggibile** un gesto che prima passava sotto
-          la soglia di un fotogramma. ⚠️ **La misura di allora era corretta** (la percezione
-          della sfocatura approssimata con la radice del raggio) e diceva quanto sarebbe durato
-          quel tratto; quello che non poteva dire è che l'occhio, avutone il tempo, gli avrebbe
-          dato un **senso**. Una misura dice quanto si vede, non che cosa si capisce.
-        - ⚠️⚠️ **QUINDI DALLA 1.64 A SCIOGLIERSI È IL LIVELLO SCURO, E LA SFOCATURA SE NE VA COL
-          PANNELLO.** I due numeri erano uno solo dalla 1.50 e adesso sono due: la patina è un
-          rettangolo con un'opacità, quindi può dissolvere davvero e prende la coda lunga; il
-          raggio torna a seguire il pannello con la curva d'uscita che accelera, e i suoi ultimi
-          pixel se ne vanno in meno di un fotogramma.
+      - ⚠️⚠️ **UNA SFOCATURA CHE CALA VUOLE QUALCOSA IN SCENA CHE SE NE STIA ANDANDO, E QUESTO
+        GOVERNA TUTTO IL RESTO.** Il fatto viene da un confronto che ha fatto l'utente (giro
+        della 1.63): il difetto era **solo** sotto il menu del FAB, mentre *aprendo e chiudendo
+        le info dettagliate sul file l'arrivo e la sparizione della sfumatura sono PERFETTE*. Là
+        la sfocatura cala con la **stessa curva** e per lo **stesso tempo**: quindi non erano né
+        la curva né la durata.
+        - ⚠️⚠️ **LA DIFFERENZA È CHE LA SCHEDA RESTA IN SCENA MENTRE LA SFOCATURA CALA.** Una
+          scheda in fondo è opaca per due terzi della sua uscita e svanisce alla fine, quindi
+          l'occhio attribuisce il cambiamento a lei. Il pannello di un menu spariva in 120 ms e
+          per il resto della coda il raggio scendeva **da solo** in uno schermo vuoto: senza una
+          causa in scena, quel movimento è una **messa a fuoco**, che è la parola che ha usato.
+        - ⚠️⚠️ **QUINDI DALLA 1.65 IL NUMERO CHE CAMBIA È LA DURATA DELL'USCITA DEL MENU**, che
+          adesso vale quanto la coda invece che quanto l'entrata. L'entrata resta 120 ms, perché
+          aprire deve essere immediato. ⚠️ **La 1.64 aveva sbagliato bersaglio**: legare la
+          sfocatura al pannello le toglieva la decelerazione, cioè proprio la cosa chiesta nella
+          1.60.
+        - ⚠️ **La misura della 1.61 era corretta e non serve più** (la percezione della sfocatura
+          approssimata con la radice del raggio): diceva quanto sarebbe durato quel tratto, e una
+          misura dice quanto si vede, non che cosa si capisce.
+        - ⚠️ **Restano separati i due numeri**, come li ha divisi la 1.64: il livello scuro è un
+          rettangolo che l'app dipinge e la sfocatura è un attributo di finestra, quindi uno può
+          sopravvivere all'altro e chiederli insieme era la ragione di metà dei difetti.
         - ⚠️⚠️ **E COSÌ LA FINESTRA NON SOPRAVVIVE PIÙ AL PROPRIO PANNELLO**, che nella 1.61 era
           il prezzo da pagare perché la sfocatura è un attributo di finestra. Con lei se ne vanno
           tre contropartite: il flag di passante ai tocchi, il focus che cadeva a metà uscita, e

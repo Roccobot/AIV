@@ -70,10 +70,11 @@ class Entrata internal constructor(
     /**
      * L'ombra del tastino in questo istante, che arriva a [piena] quando il movimento finisce.
      *
-     * ⚠️ **Si legge in composizione e non a tempo di disegno**, al contrario delle altre due:
-     * `shadowElevation` è un parametro di `Surface`, quindi il valore va saputo mentre si
-     * compone. Il prezzo è una ricomposizione per fotogramma del solo tastino, per il quarto di
-     * secondo dell'entrata.
+     * ⚠️ **Va chiamata DENTRO una lambda che si valuta nel disegno**, come fa `ombraFab` in
+     * `ActionPad.kt`: là la lettura di `alza` invalida il disegno e non la composizione, e la
+     * salita dell'ombra costa un ridisegno per fotogramma invece di ricomporre il tastino.
+     * Chiamarla in composizione compila lo stesso e ricomincia a costare: è il motivo per cui il
+     * FAB riceve questa misura come lambda e non come `Dp`.
      */
     fun lift(piena: Dp): Dp = piena * alza.value
 
@@ -176,17 +177,21 @@ private const val ENTRA_ALFA_MS = 180
  * aveva, cioè finire con la molla, e senza quel vincolo il ritardo si può dare per davvero.
  * - **L'attesa** tiene l'ombra a zero mentre la misura si posa: comincia quando la molla ha
  *   praticamente finito, quindi il rimbalzo si vede su un tastino ancora piatto.
- * - **La durata** la fa salire in 800 ms invece di 247, cioè a **un terzo** della velocità di
- *   prima: 0,125% al millisecondo contro 0,405%.
+ * - **La durata** parte da 247 e si è allungata due volte su sua richiesta, l'ultima nel giro
+ *   della `1.63` (*ancora più lentamente*): adesso è più di sei volte quella di partenza, cioè
+ *   0,063% al millisecondo contro 0,405%.
  * ⚠️ **La rampa resta lineare**, ed è quello che 'estremamente graduale' chiede: una curva
  * accelerata terrebbe l'ombra invisibile per due terzi del tempo e poi la farebbe **apparire**,
  * che è il difetto opposto. Una velocità costante e bassa non ha nessun istante in cui compare.
- * ⚠️ **Il prezzo è dichiarato, e cresce con la durata**: [lift] si legge in composizione, quindi
- * il solo tastino si ricompone a ogni fotogramma finché l'ombra sale, adesso per un secondo
- * intero invece di un quarto.
+ * ⚠️⚠️ **E DALLA `1.65` ALLUNGARLA NON COSTA PIÙ NIENTE, dove prima era un prezzo dichiarato**:
+ * finché [lift] si leggeva in composizione, il tastino si ricomponeva a ogni fotogramma per
+ * tutta la salita. Adesso il valore arriva come lambda e si legge nella fase di **disegno**
+ * (vedi `ombraFab` in `ActionPad.kt`), quindi quello che cresce con la durata è un ridisegno.
+ * ⚠️ **Nello stesso giro l'ombra è diventata metà opaca**, e le due cose sono indipendenti: qui
+ * si dice quando arriva, là quanto è scura.
  * ⚠️ **L'attesa NON è più legata all'assestamento della molla**, e la nota che lo prescriveva è
  * caduta con lei: 250 è un numero tondo scelto perché cade dopo i 247 misurati, e se un domani
  * la molla si allunga, l'ombra parte un filo prima della fine invece di dover essere rimisurata.
  */
 private const val ENTRA_OMBRA_ATTESA = 250
-private const val ENTRA_OMBRA_MS = 800
+private const val ENTRA_OMBRA_MS = 1600
