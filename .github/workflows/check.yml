@@ -1,0 +1,55 @@
+name: Check
+
+# ⚠️⚠️ NOT A DUPLICATE OF THE GATE IN `release.yml`, and the difference is WHEN
+# it speaks: the gate refuses to publish a broken version, this one says it is
+# broken BEFORE anyone tries to publish. Without it the first news of a red bench
+# arrives at the moment somebody wanted to release, which is the worst one.
+#
+# ⚠️ It runs on `main` AND on pull requests, and the two cover different things.
+# In this repository a PR is merged straight away (squash), so the run on the PR
+# may not be finished when the merge happens: the one that really counts is the
+# run on `main`, which looks at the code as it ended up. The PR one is there for
+# the times a PR stays open, and it costs nothing to keep.
+#
+# ⚠️ `cancel-in-progress` is on: two pushes close together have no reason to run
+# the same check twice, and what matters is always the latest state.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the sources
+        uses: actions/checkout@v5
+
+      - name: Set up the Android toolchain
+        uses: ./.github/actions/toolchain
+
+      - name: Run the bench
+        run: ./gradlew --no-daemon :app:testDebugUnitTest
+
+      - name: Check the translations
+        run: python3 tools/i18n-check.py
+
+      # ⚠️ Same reason as in `release.yml`: without the report a failure gives a
+      # name and nothing else.
+      - name: Keep the bench report when it fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-report
+          path: app/build/reports/tests/testDebugUnitTest/
+          if-no-files-found: ignore

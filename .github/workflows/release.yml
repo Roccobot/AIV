@@ -17,9 +17,13 @@ name: Release
 # below). A tag derived from that same file cannot disagree at all.
 #
 # `workflow_dispatch` WITHOUT publish stays what it was, and it is not
-# redundant: it is the test bench. The first real tag is a terrible place to
+# redundant: it is the DRY RUN. The first real tag is a terrible place to
 # discover that the toolchain step is wrong, and a run without `publish` builds
 # the APK and stops, touching no other repository.
+# ⚠️ It used to be called 'the test bench' here, and since 1.73 that name belongs
+# to something else: the tests that open the fake app, which this workflow now
+# runs as a gate further down. Two things with one name, in a repository that
+# talks about both every release, is two things somebody eventually swaps.
 on:
   push:
     tags:
@@ -49,34 +53,10 @@ jobs:
       - name: Check out the sources
         uses: actions/checkout@v5
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      # compileSdk 37 lives on the SDK PREVIEW channel and its package is called
-      # `platforms;android-37.1`: `android-37` does not exist at all, and asking
-      # for it fails with a message that reads like a download problem instead of
-      # a wrong name. Channel 3 is the preview one. Build tools are left to AGP,
-      # which downloads the version it wants once the licences are accepted.
-      - name: Install the preview platform
-        run: |
-          set -euo pipefail
-          sdk="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
-          if [ -z "$sdk" ]; then echo "No Android SDK on this runner" >&2; exit 1; fi
-          # `pipefail` is off for this one line on purpose: sdkmanager closes
-          # its stdin as soon as the last licence is accepted, `yes` dies of
-          # SIGPIPE, and with pipefail on that kills the step even though the
-          # licences went through. Without pipefail the pipeline reports
-          # sdkmanager's own status, which is the one that matters.
-          set +o pipefail
-          yes | "$sdk/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null
-          set -o pipefail
-          "$sdk/cmdline-tools/latest/bin/sdkmanager" --channel=3 "platforms;android-37.1"
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+      # The four toolchain steps live in a composite action because `check.yml`
+      # needs exactly the same ones: see `.github/actions/toolchain`.
+      - name: Set up the Android toolchain
+        uses: ./.github/actions/toolchain
 
       # The version is NOT taken from the tag. It lives in app/build.gradle.kts,
       # which stays its single source; a tag that arrives from outside is
@@ -120,6 +100,37 @@ jobs:
           echo "version=${version}" >> "$GITHUB_OUTPUT"
           echo "tag=${tag}" >> "$GITHUB_OUTPUT"
           echo "Building version ${version}, tag ${tag}"
+
+      # ⚠️⚠️ THE GATE: A RED BENCH MEANS NO RELEASE AT ALL. Before this
+      # step existed the bench only ran when somebody remembered to run it, which
+      # is the same as not having it: the defect it is meant to catch is exactly
+      # the kind nobody suspects, so nobody goes looking for it. The 1.70 blocked
+      # the whole app and the 1.70 to 1.72 shipped a feature that did nothing,
+      # both with a green build.
+      # ⚠️ It sits BEFORE the keystore and the build on purpose: those two take
+      # minutes and touch secrets, and there is no reason to spend either on a
+      # version that is not going to go out.
+      # ⚠️ The cheap guards stay ahead of it: a tag that disagrees with
+      # versionName, or a publish from the wrong branch, fails in a second.
+      - name: Run the bench
+        run: ./gradlew --no-daemon :app:testDebugUnitTest
+
+      # ⚠️ The translations are a release check too, and the repo has said so for
+      # versions: `28 lingue, 0 problemi`, and a lower number means a folder was
+      # not seen. It was a step somebody had to remember, like the bench.
+      - name: Check the translations
+        run: python3 tools/i18n-check.py
+
+      # ⚠️ Without this, a failure gives a name and nothing else: the report says
+      # WHICH assertion fell and with what message, which is the only thing that
+      # tells a red bench from a broken toolchain.
+      - name: Keep the bench report when it fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-report
+          path: app/build/reports/tests/testDebugUnitTest/
+          if-no-files-found: ignore
 
       # An absent keystore is a warning and not a failure: a dispatch run is
       # allowed to prove that the build works before any secret exists. The
