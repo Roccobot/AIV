@@ -164,7 +164,7 @@ fun RenameDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        modifier = Modifier.lowered(),
+        modifier = Modifier.lowered(null),
         /*
          * ⚠️⚠️ **'Estensione' STA SULLA RIGA DEL TITOLO, dalla 1.34, e nella 1.30 stava
          * nella fila dei tasti**: era una mia lettura sbagliata della richiesta, e l'utente
@@ -407,7 +407,7 @@ private fun ExtensionDialog(initial: String, onDismiss: () -> Unit, onPick: (Str
     val clean = typed.trim().trimStart('.')
     AlertDialog(
         onDismissRequest = onDismiss,
-        modifier = Modifier.lowered(),
+        modifier = Modifier.lowered(null),
         title = { Text(stringResource(R.string.rename_ext)) },
         text = {
             Column {

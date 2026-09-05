@@ -3,16 +3,21 @@ package io.github.roccobot.aiv
 import android.os.Build
 import android.view.WindowManager
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerEvent
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -45,7 +50,7 @@ import androidx.core.view.WindowInsetsCompat
  * aggiunge, e il valore non è mai scritto due volte. La regola sta anche in `CLAUDE.md`,
  * perché un modificatore da ricordare senza una regola scritta prima o poi si dimentica.
  */
-fun Modifier.lowered(): Modifier {
+fun Modifier.lowered(onOutside: (() -> Unit)?): Modifier {
     /*
      * ⚠️⚠️ **QUESTO MODIFICATORE FA UNA SECONDA COSA DALLA 1.38, E STA QUI PER UNA RAGIONE
      * PRECISA**: ogni superficie che si apre sopra la schermata vuole anche il **velo e la
@@ -73,8 +78,14 @@ fun Modifier.lowered(): Modifier {
      * ⚠️ **Il bordo sta DENTRO lo spostamento e non fuori**: `LowerElement` gonfia l'altezza per
      * far scendere il pannello, quindi un bordo scritto prima di lui girerebbe intorno alla
      * scatola gonfiata, cioè sull'aria. Scritto dopo, riceve la misura della superficie vera.
+     * ⚠️⚠️ **E DALLA 1.70 FA UNA QUARTA COSA: RENDE IL TOCCO SULL'ARIA UGUALE AL TOCCO FUORI**
+     * (riscontro del giro della 1.69: *alcune finestre hanno un comportamento da modale se si
+     * tocca lo schermo SOPRA e da finestra secondaria se si tocca SOTTO*). Quell'asimmetria
+     * non era una scelta: era il prezzo del gonfiaggio qui sopra, e il perché sta su [airTop].
+     * Il parametro non ha un valore di serie **di proposito**: chi apre una finestra nuova
+     * deve dire se è una modale vera, e non può farlo per omissione.
      */
-    return veiled() then LowerElement then DIALOG_EDGE
+    return veiled() then LowerElement(onOutside) then DIALOG_EDGE
 }
 
 /**
@@ -86,13 +97,15 @@ fun Modifier.lowered(): Modifier {
  */
 private val DIALOG_EDGE = Modifier.edged(28.dp)
 
-private object LowerElement : ModifierNodeElement<LowerNode>() {
-    override fun create() = LowerNode()
-    override fun update(node: LowerNode) = Unit
-    override fun hashCode() = "lowered".hashCode()
-    override fun equals(other: Any?) = other === this
+private data class LowerElement(val onOutside: (() -> Unit)?) : ModifierNodeElement<LowerNode>() {
+    override fun create() = LowerNode(onOutside)
+    override fun update(node: LowerNode) {
+        node.onOutside = onOutside
+    }
+
     override fun InspectorInfo.inspectableProperties() {
         name = "lowered"
+        properties["modale"] = onOutside == null
     }
 }
 
@@ -126,7 +139,71 @@ private object LowerElement : ModifierNodeElement<LowerNode>() {
  * quanta aria c'è sotto, e quell'aria è (finestra - contenuto), non (vincolo - contenuto). Con
  * la finestra, il conto è lo stesso a ogni passata.
  */
-private class LowerNode : Modifier.Node(), LayoutModifierNode, CompositionLocalConsumerModifierNode {
+private class LowerNode(
+    var onOutside: (() -> Unit)?
+) : Modifier.Node(), LayoutModifierNode, PointerInputModifierNode, CompositionLocalConsumerModifierNode {
+
+    /**
+     * L'aria dichiarata **sopra** il pannello, in pixel, e la quota da cui comincia quella
+     * **sotto**.
+     *
+     * ⚠️⚠️ **QUESTA ARIA È LA CAUSA DELL'ASIMMETRIA CHE L'UTENTE HA SEGNALATO NELLA `1.69`**, e
+     * il meccanismo va scritto o si rifà: per far scendere il pannello, [measure] non lo sposta,
+     * **gonfia la scatola** di `2*shift` e ce lo posa in fondo. La finestra del dialogo si
+     * dimensiona su quella scatola, quindi sopra il pannello resta una fascia trasparente alta
+     * fino al 30% della finestra che **appartiene al dialogo**: un tocco là dentro è un tocco
+     * *dentro* la finestra, e `dismissOnClickOutside` non scatta. Sotto il pannello si è fuori
+     * dalla scatola, e la chiusura scatta. Da qui 'modale se tocchi sopra, secondaria se tocchi
+     * sotto', su ogni finestra centrata dell'app.
+     * ⚠️ **A tastiera aperta i due lati si scambiano**: là la scatola è gonfia **sotto** e il
+     * contenuto sta in cima, quindi l'aria è quella che comincia a [airFrom].
+     * ⚠️ **Zero e [Int.MAX_VALUE] vogliono dire 'nessuna aria da quel lato'**, ed è il caso
+     * normale di una finestra alta, dove la stretta ha già ridotto lo spostamento a zero.
+     */
+    private var airTop = 0
+    private var airFrom = Int.MAX_VALUE
+
+    /**
+     * Se la pressione in corso è cominciata sull'aria.
+     *
+     * ⚠️ **Servono tutti e due gli estremi, la pressione e il rilascio**: un dito che parte dal
+     * pannello e finisce sull'aria sta trascinando, non toccando fuori, e chiudere là sarebbe
+     * peggio dell'asimmetria che questa riga toglie.
+     */
+    private var pressedOutside = false
+
+    /**
+     * Il tocco sull'aria vale come il tocco fuori.
+     *
+     * ⚠️ **Si consuma il rilascio**, o il tocco arriverebbe anche a quello che sta sotto: è lo
+     * stesso motivo per cui il velo che chiude i menu usa `detectTapGestures` invece di un
+     * `clickable`.
+     * ⚠️ **`Main` e non `Initial`**: sull'aria non c'è nient'altro che possa volere quel tocco,
+     * quindi non serve rubarlo prima; prenderlo nella passata normale lascia intatto il
+     * comportamento di tutto quello che sta dentro il pannello.
+     */
+    override fun onPointerEvent(pointerEvent: PointerEvent, pass: PointerEventPass, bounds: IntSize) {
+        if (pass != PointerEventPass.Main) return
+        val close = onOutside ?: return
+        val change = pointerEvent.changes.firstOrNull() ?: return
+        val y = change.position.y
+        val outside = y < airTop || y >= airFrom
+        when (pointerEvent.type) {
+            PointerEventType.Press -> pressedOutside = outside
+            PointerEventType.Release -> {
+                if (pressedOutside && outside) {
+                    change.consume()
+                    close()
+                }
+                pressedOutside = false
+            }
+            else -> Unit
+        }
+    }
+
+    override fun onCancelPointerInput() {
+        pressedOutside = false
+    }
 
     override fun MeasureScope.measure(
         measurable: Measurable,
@@ -175,6 +252,8 @@ private class LowerNode : Modifier.Node(), LayoutModifierNode, CompositionLocalC
          * chiude, questo nodo rimisura e il pannello torna al suo 15% in basso.
          */
         if (room > 0 && typing()) {
+            airTop = 0
+            airFrom = placed.height
             return layout(placed.width, placed.height + room * 2) { placed.place(0, 0) }
         }
         /*
@@ -195,6 +274,8 @@ private class LowerNode : Modifier.Node(), LayoutModifierNode, CompositionLocalC
          * meno [LOWER_AIR], quindi su un dialogo alto quanto la finestra vale zero e la scatola
          * non si gonfia affatto.
          */
+        airTop = shift * 2
+        airFrom = Int.MAX_VALUE
         return layout(placed.width, placed.height + shift * 2) { placed.place(0, shift * 2) }
     }
 

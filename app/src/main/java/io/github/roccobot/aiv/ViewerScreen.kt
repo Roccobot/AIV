@@ -896,7 +896,7 @@ private fun InfoBarPopup(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        modifier = Modifier.lowered(),
+        modifier = Modifier.lowered(onDismiss),
         title = {
             Row(
                 modifier = Modifier.fillMaxWidth(),

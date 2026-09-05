@@ -18,7 +18,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -1384,34 +1383,20 @@ fun GridScreen(
         )
 
         /*
-         * ⚠️⚠️ **IL VELO CHE CHIUDE IL MENU DEL TASTINO, dalla 1.06** (riscontro dell'utente
-         * sul collaudo: *tutti i menu di tutti i FAB devono andarsene se si tocca un punto
-         * qualsiasi fuori dal popup, incluso il FAB stesso*).
-         * ⚠️⚠️ **IL SOLO `dismissOnClickOutside` NON BASTA, ed è la ragione per cui fino alla
-         * `1.05` era spento**: da Android 12 la finestra di un popup non è modale al tocco,
-         * quindi un tocco sul tastino arriva **a tutti e due**. Il popup lo legge come 'fuori'
-         * e si chiude, il tastino lo legge come il suo tocco e riapre: si vede un lampeggio
-         * invece di una chiusura. Prima si toglieva la chiusura di fuori, cioè si rinunciava
-         * a metà della funzione; adesso si toglie il **secondo** dei due destinatari.
-         * ⚠️ **Trasparente e senza `clickable`**: `detectTapGestures` consuma la pressione, e
-         * quello che sta sotto (tastino compreso) non la vede mai. Un `clickable` avrebbe
-         * anche l'increspatura e una voce per il lettore di schermo, che qui sarebbero un
-         * tasto finto in mezzo allo schermo.
-         * ⚠️ **Copre lo schermo INTERO**, testata compresa, ed è la ragione per cui vive qui
-         * e non dentro la `Column`: là comincerebbe sotto la barra del titolo, e un tocco sul
-         * titolo tornerebbe a essere il caso non coperto.
-         * ⚠️ **Vive quanto il pannello e non un istante di più**: consuma il tocco su **tutto** lo
-         * schermo, quindi finché sta in scena nessun altro comando dell'app risponde. Fino alla
-         * `1.66` c'era da distinguerlo dal tratto in cui restava solo la patina (`veiling`), e
-         * dalla `1.67` i due tratti sono lo stesso.
+         * ⚠️⚠️ **IL VELO CHE CHIUDEVA IL MENU DEL TASTINO STAVA QUI FINO ALLA `1.69`, E ADESSO
+         * VIVE IN `AivTheme`** (vedi `MenuGuard` in `Menus.kt`). Il fatto che lo aveva fatto
+         * nascere nella `1.06` non è cambiato ed è questo: da Android 12 la finestra di un popup
+         * **non è modale al tocco**, quindi un dito fuori dal pannello arriva a tutte e due le
+         * finestre, e il solo `dismissOnClickOutside` non basta.
+         * ⚠️⚠️ **A spostarlo è stato il censimento della UI del 2026-09-05**: questo velo esisteva
+         * in **una** schermata su cinque, e le altre quattro avevano il difetto intero (nella
+         * vista ad albero il tocco che chiudeva il menu apriva la riga sotto il dito). Ripeterlo
+         * qui altre quattro volte avrebbe lasciato in piedi il quinto modo di dimenticarsene: uno
+         * solo, sopra tutto quello che l'app disegna, vale per ogni menu che nascerà.
+         * ⚠️ **Non è una perdita di comportamento**: quello copriva lo schermo intero e consumava
+         * il tocco, e il velo nuovo fa la stessa cosa una passata prima, quindi questo non
+         * arriverebbe mai a vederlo.
          */
-        if (menu.visible) {
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .pointerInput(Unit) { detectTapGestures { menu.close() } }
-            )
-        }
 
         /*
          * ⚠️⚠️ **IL MINI ONBOARDING DEL TOCCO LUNGO**, che dalla `0.78` è un velo condiviso:
@@ -1500,7 +1485,7 @@ fun GridScreen(
     if (restoringAll) {
         AlertDialog(
             onDismissRequest = { restoringAll = false },
-            modifier = Modifier.lowered(),
+            modifier = Modifier.lowered { restoringAll = false },
             title = { Text(stringResource(R.string.bin_restore_all_ask)) },
             text = { Text(stringResource(R.string.bin_restore_all_desc)) },
             confirmButton = {
@@ -1522,7 +1507,7 @@ fun GridScreen(
     if (emptying) {
         AlertDialog(
             onDismissRequest = { emptying = false },
-            modifier = Modifier.lowered(),
+            modifier = Modifier.lowered { emptying = false },
             title = { Text(stringResource(R.string.bin_empty_ask)) },
             text = { Text(stringResource(R.string.bin_empty_desc)) },
             confirmButton = {
