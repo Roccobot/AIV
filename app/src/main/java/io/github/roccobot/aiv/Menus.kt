@@ -134,10 +134,23 @@ fun MenuShell(
      * **con** lei e per lo stesso tempo. Il fatto per esteso sta in fondo a `Veil.kt`.
      * ⚠️ **E riaprendo a metà uscita non c'è nessun salto**: `animateTo` riparte dal valore
      * corrente, quindi un pannello sbiadito a mezza strada risale da lì.
+     *
+     * ⚠️⚠️ **LA PRIMA COMPOSIZIONE NON ANIMA, DALLA `1.76`, E SENZA QUESTA RIGA OGNI SCHERMATA
+     * CHE ARRIVA APRIVA UN MENU VUOTO PER SEI FOTOGRAMMI.** Un `LaunchedEffect` parte anche alla
+     * prima composizione, e là `wanted` è falso e il valore è già zero: `animateTo` non muoveva
+     * un pixel, ma teneva l'animazione **in corsa** per [MENU_OUT_MS]. Da lì [MenuState.visible]
+     * diceva 'menu in scena', quindi nascevano una finestra di popup vuota, il cancello dei
+     * tocchi di [MenuGuard] e il distacco del FAB nella sua finestra.
+     * ⚠️ **È la stessa guardia che `TapHoldFab` ha da sempre**, con la sua stessa ragione scritta
+     * accanto: chi anima dentro un `LaunchedEffect` senza chiave deve chiedersi che cosa fa al
+     * primo giro. ⚠️ **Il confronto è un'uguaglianza esatta e regge**: `animateTo` chiude
+     * assegnando il valore d'arrivo, quindi a corsa finita i due numeri sono lo stesso.
      */
     LaunchedEffect(state.wanted) {
+        val meta = if (state.wanted) 1f else 0f
+        if (state.show.value == meta) return@LaunchedEffect
         state.show.animateTo(
-            targetValue = if (state.wanted) 1f else 0f,
+            targetValue = meta,
             animationSpec = tween(
                 durationMillis = if (state.wanted) MENU_IN else MENU_OUT_MS,
                 easing = if (state.wanted) MENU_EASE else MENU_OUT
@@ -745,8 +758,19 @@ class MenuState internal constructor() {
      * dell'animazione, quindi letta in composizione invalidava chi la legge a ogni fotogramma, per
      * tutta la durata. Quello che conta è il suo esito, che cambia due volte in tutto, e
      * `derivedStateOf` invalida solo quando cambia lui.
+     *
+     * ⚠️⚠️ **C'ERA UN TERZO TERMINE, `show.isRunning`, E DALLA `1.76` NON C'È PIÙ: DICEVA SÌ
+     * QUANDO NON C'ERA NIENTE IN SCENA.** Non aggiungeva niente ai due che restano, perché
+     * aprendo è vero [wanted] e chiudendo il valore è sopra zero fino alla fine; l'unico caso in
+     * cui parlava da solo era quello sbagliato, cioè un'animazione che corre **mentre il valore
+     * è zero**. E quel caso esisteva a ogni prima composizione: vedi la guardia in [MenuShell].
+     * ⚠️ **Il difetto che ne veniva è misurato sul banco** (`CambioSchermataTest`): per sei
+     * fotogrammi dopo l'arrivo di una schermata questo stato diceva 'menu in scena', quindi il
+     * FAB si staccava in una finestra sua e il cancello dei tocchi entrava in scena. Il perché
+     * si vedesse proprio tornando da una cartella sta in `AIV/CLAUDE.md`, § '🎬 Le animazioni
+     * dentro una schermata che arriva'.
      */
-    private val visto by derivedStateOf { wanted || show.isRunning || show.value > 0f }
+    private val visto by derivedStateOf { wanted || show.value > 0f }
 
     fun open() {
         wanted = true

@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.test.core.app.ApplicationProvider
@@ -46,6 +47,15 @@ import org.robolectric.annotation.Config
  * guardava un'altra cosa. È la stessa ragione per cui la transizione vive in una funzione
  * dell'app ([cambioSchermata]) invece di essere riscritta qui.
  *
+ * ⚠️⚠️ **E ALLA `1.76` HA TROVATO IL DIFETTO CHE LA PRIMA STESURA SI ERA SCUSATA DI SALTARE.**
+ * Là dentro i fotogrammi senza FAB erano dichiarati normali (*durante la transizione la schermata
+ * si ricompone e per qualcuno non espone niente all'albero semantico*) e si saltavano: erano
+ * **sei**, cioè un decimo di secondo in cui il FAB non stava nella finestra dell'app perché si era
+ * staccato in una sua, e sono la voce `fab-via` del giro della `1.75` (*al ritorno da una cartella
+ * il FAB traballa/flasha*). La causa sta su [MenuState.visible]. ⚠️ **Una scusa scritta accanto a
+ * un'asserzione saltata è il modo in cui una prova mente in verde**, e questa lo ha fatto per una
+ * versione.
+ *
  * ⚠️ **Che cosa questa prova NON vede**: come il cambio di schermata si **percepisce**, che
  * dipende dalla resa vera. Vede dove sta il FAB e quanto è grande, che sono misure di struttura.
  */
@@ -63,10 +73,10 @@ class CambioSchermataTest {
      * concentrico, la misura da sola lascia passare una traslazione. Il difetto segnalato era una
      * **diagonale lunga quanto lo schermo**, ma la voce che l'ha chiuso chiede che il FAB arrivi
      * con la schermata e basta, quindi il presidio è che non faccia niente.
-     * ⚠️ **I fotogrammi in cui il FAB non c'è si saltano**: durante la transizione la schermata si
-     * ricompone e per qualcuno non espone niente all'albero semantico. L'ultima asserzione copre
-     * il caso in cui non comparisse mai, che è il modo in cui questa prova potrebbe mentire in
-     * verde.
+     * ⚠️⚠️ **E DALLA `1.76` IL FAB DEVE ANCHE ESSERCI A OGNI FOTOGRAMMA**: fino a lì i fotogrammi
+     * in cui non compariva si saltavano con una scusa scritta accanto, ed erano il difetto. Il
+     * primo fotogramma è quello in cui la schermata entra e il FAB non è ancora nell'albero, e
+     * quello resta fuori dal conto: da lì in poi ogni fotogramma lo vuole.
      */
     @Test
     fun `il FAB sta fermo durante il cambio di schermata`() {
@@ -79,7 +89,11 @@ class CambioSchermataTest {
         var primo: Rect? = null
         repeat(FOTOGRAMMI) {
             banco.mainClock.advanceTimeByFrame()
-            val riquadro = misura() ?: return@repeat
+            val trovato = misura()
+            if (trovato == null && primo == null) return@repeat
+            val riquadro = requireNotNull(trovato) {
+                "Il FAB è sparito dopo essere comparso: si è staccato in una finestra sua"
+            }
             val atteso = primo ?: riquadro.also { primo = it }
             assertEquals(
                 "Il FAB si è spostato in orizzontale",
@@ -108,6 +122,39 @@ class CambioSchermataTest {
             "A transizione finita il FAB non c'è: la schermata iniziale non è arrivata",
             misura() != null
         )
+    }
+
+    /**
+     * **Una schermata che arriva non apre nessuna finestra**: la sola in scena è quella dell'app.
+     *
+     * ⚠️⚠️ **È L'ALTRA METÀ DELLO STESSO DIFETTO, e questa non si vedeva affatto.** Finché
+     * [MenuState.visible] rispondeva sì per sei fotogrammi dopo ogni arrivo, di finestre ne
+     * nascevano **due**: il pannello vuoto del menu e quella in cui il FAB si stacca. La prima si
+     * porta dietro [MenuGuard], che consuma **ogni** tocco nella passata `Initial`, quindi per un
+     * decimo di secondo dopo ogni cambio di schermata l'app non rispondeva: è in piccolo il
+     * blocco totale della `1.70`.
+     * ⚠️ **Si contano le finestre e non lo stato del menu**, e la ragione è che l'altra misura
+     * **non morde**: `MenuScene` è una mappa di stato letta fuori dalla composizione, e dal filo
+     * della prova a orologio fermo risponde 'nessuno' anche quando un menu è in scena. Una prova
+     * che non vede quello che cerca è peggio del niente, e questa forma invece l'ha visto (tre
+     * radici invece di una).
+     */
+    @Test
+    fun `nessuna finestra in piu mentre la schermata arriva`() {
+        var schermo by mutableStateOf<Screen>(PARTENZA)
+        banco.setContent { Scena(schermo) }
+        banco.waitForIdle()
+        banco.mainClock.autoAdvance = false
+        schermo = ARRIVO
+
+        repeat(FOTOGRAMMI) { quale ->
+            banco.mainClock.advanceTimeByFrame()
+            assertEquals(
+                "Fotogramma $quale: è nata una finestra che nessuno ha aperto",
+                1,
+                banco.onAllNodes(isRoot()).fetchSemanticsNodes().size
+            )
+        }
     }
 
     /** Il riquadro reso del FAB, o `null` nei fotogrammi in cui la schermata si ricompone. */

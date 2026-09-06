@@ -576,6 +576,27 @@ dietro un velo che parte da zero, e l'occhio ne prende soltanto la coda.
   compensa accorciando l'attesa, perché quello è il momento in cui la schermata ha davvero
   finito di arrivare.
 
+⚠️⚠️ **E IL FAB CHE 'TRABALLA/FLASHA' TORNANDO DA UNA CARTELLA NON ERA UN'ANIMAZIONE: SI
+STACCAVA IN UNA FINESTRA SUA PER SEI FOTOGRAMMI** (riscontro del giro della `1.75`, voce
+`fab-via`, misurato dal banco). La causa è a monte del cambio di schermata e non c'entra con le
+opacità: `MenuShell` animava alla **prima composizione** (un `LaunchedEffect` parte anche là, e
+`animateTo` verso un valore già raggiunto non muove niente ma tiene l'animazione in corsa per
+75 ms), quindi `MenuState.visible` rispondeva 'menu in scena' e il FAB si spostava nella finestra
+che gli serve sopra la sfocatura. Una finestra non è toccata dalla dissolvenza della schermata:
+per quei sei fotogrammi il FAB si vedeva **pieno** mentre tutto il resto sfumava, e poi rientrava.
+- ⚠️⚠️ **IL SECONDO DANNO NON SI VEDEVA AFFATTO**: con quel menu fantasma in scena entrava anche
+  `MenuGuard`, che consuma **ogni** tocco nella passata `Initial`. Cioè per un decimo di secondo
+  dopo **ogni** cambio di schermata l'app non rispondeva, che è in piccolo il blocco totale della
+  `1.70`.
+- ⚠️ **La correzione è in due punti**, e non sono due cure per lo stesso sbaglio: la guardia in
+  `MenuShell` toglie l'animazione che non ha niente da animare, e `MenuState.visible` perde il
+  termine `show.isRunning`, che non diceva niente che il valore non dicesse già e che era la via
+  per cui quell'animazione diventava una risposta sbagliata.
+- ⚠️⚠️ **E LA PROVA SI ERA SCUSATA DI NON VEDERLO**: `CambioSchermataTest` saltava i fotogrammi
+  senza FAB con una nota che li dava per normali. Erano il difetto. La regola che ne esce sta in
+  § '🧪 Quando si scrive una prova, e quando no': una scusa scritta accanto a un'asserzione
+  saltata è il modo in cui una prova mente in verde.
+
 ⚠️⚠️ **IL MECCANISMO CHE SERVIVA AD ASPETTARE NON C'È PIÙ, DALLA `1.75`, E LA REGOLA RESTA.**
 `LocalArrivo` e `ConArrivo` erano nati nella `1.74` per il solo chiamante che ne avesse bisogno,
 l'entrata del FAB, e con lei se ne sono andati (riscontro dell'utente, giro della `1.74`:
@@ -590,6 +611,52 @@ posto ad avere la transizione in mano.
   l'attesa e non aveva più niente da guardare, `CambioSchermataTest` misura che durante il cambio
   di schermata il FAB **non si muove e non cambia misura**, cioè la forma esatta del difetto che
   gli era arrivato due volte.
+
+## 🖼️ Il frontespizio, e le due schermate che lo portano
+
+⚠️⚠️ **DALLA `1.76` IL FRONTESPIZIO NON È PIÙ DELLA SOLA SCHERMATA INIZIALE, e quello che
+condividono vive in `Front.kt`**: la frazione di schermo, il meccanismo della fascia che si
+chiude, lo scorrimento che la chiude prima che l'elenco si muova, e le due sfumature in fondo.
+La richiesta è del giro della `1.67` (*l'icona va posizionata esattamente come quella oggi
+presente sulla schermata home, ma semitrasparente (~50%), e sotto, al posto del nome dell'app, il
+titolo della cartella scritto un po' più piccolo per lasciare spazio anche a nomi lunghi. Poi, più
+in basso, con un posizionamento analogo alla home, inizia la griglia delle immagini*).
+- ⚠️ **Il trasloco non è di comodo**: quei numeri li ha dettati lui giro per giro, e sono **una**
+  decisione per l'app. Copiarli nella seconda schermata avrebbe fatto due tavolozze che divergono
+  al primo ritocco, che è la trappola scritta in `rules/Roccobot.md` § '🪶 Come si mantiene un
+  file di regole'.
+
+⚠️⚠️ **LA TRASLAZIONE DEL TITOLO NON È UN'ANIMAZIONE IN PIÙ: È LA PARALLASSE DELLA FASCIA.** Lui
+l'ha chiesta così (*il nome in alto deve traslare con un'animazione fluida nella testata e apparire
+come già appare adesso in posizione finale*), e la fascia quel movimento lo fa da sempre: misura il
+contenuto all'altezza piena e lo posa **centrato in quel che resta**, quindi chiudendosi lo alza
+verso la testata. Le due copie del nome (quella grande nella fascia e quella della testata) si
+scambiano con due opacità **complementari**, cioè senza un punto della corsa in cui il nome si
+legga meno che agli estremi.
+- ⚠️ **Il nome finisce due volte nell'albero semantico**, e nessuna delle due copie si può
+  togliere: l'una si dissolve nell'altra, e un titolo che comparisse a metà corsa sarebbe un
+  salto. Chi volesse chiudere quel buco lo faccia con `alpha` **semantico**.
+- ⚠️ **In posizione finale è quella di sempre, per costruzione**: la copia della testata non è
+  stata toccata, ha solo un'opacità.
+
+⚠️⚠️ **QUANDO IL FRONTESPIZIO DI UNA CARTELLA STA CHIUSO: TRE RISPOSTE SUE, confermate in chiaro
+il 2026-09-06.** Mentre la griglia **carica** sta aperto; durante una **selezione** sta chiuso;
+tornando dal **visualizzatore** resta com'era, cioè chiuso se la griglia non è in cima.
+- **La terza si ottiene da una regola sola e non da un ricordo**: con la griglia scorsa il
+  frontespizio non può stare aperto. Con le dita è già vero per costruzione (lo scorrimento si
+  spende prima là), e quello che sfuggiva è il salto **programmato** all'immagine da cui si è
+  tornati, che non passa dallo scorrimento annidato.
+- ⚠️ **Finita la selezione non si riapre**, e non è una dimenticanza: la griglia è rimasta dov'era,
+  e riaprirlo la farebbe scendere sotto il dito.
+
+⚠️⚠️ **NÉ NEL CESTINO NÉ NELLA RICERCA, e nessuno dei due è una dimenticanza**: nel cestino il FAB
+c'è sempre, quindi la sfumatura che lo tiene su un fondo neutro non potrebbe andarsene scorrendo,
+che è metà di quello che ha chiesto; nella ricerca la testata porta un campo di testo e non un
+titolo, cioè non c'è niente che possa traslare là dentro.
+
+⚠️ **Le due sfumature se ne vanno scorrendo QUI e restano sempre nella schermata iniziale**, ed è
+la stessa ragione al rovescio: là il FAB c'è sempre. La richiesta era *le due sfumature in basso
+devono progressivamente sparire e lasciare campo libero alla griglia piena su tutto lo schermo*.
 
 ## 🗑️ Lo svuotamento automatico del cestino, e le tre decisioni che lo governano
 

@@ -6,6 +6,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VisibilityThreshold
+import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -22,16 +23,19 @@ import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -76,6 +80,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -94,7 +99,9 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -104,6 +111,7 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -111,6 +119,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -824,13 +833,94 @@ fun GridScreen(
      * ⚠️ **Il `Box` non ha margini propri**, ed è quello che gli permette di arrivare fino
      * al bordo dello schermo: i margini restano sulla `Column`, cioè sul contenuto. Chi ne
      * spostasse uno sul `Box` rimetterebbe il difetto.
+     * ⚠️⚠️ **DALLA `1.76` MISURA, e serve al frontespizio**: quella fascia si prende
+     * [HEADER_SHARE] dell'altezza, quindi qualcuno deve saperla. ⚠️ **I rientri di sistema si
+     * sottraggono a mano** e non si spostano qui col resto: la frazione dev'essere quella
+     * dell'area utile, come nella schermata iniziale, ma il velo dell'onboarding ha bisogno che
+     * questo riquadro arrivi al vetro.
      */
-    Box(modifier = modifier.fillMaxSize()) {
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+
+    /*
+     * ⚠️⚠️ **IL FRONTESPIZIO DI UNA CARTELLA, dalla `1.76`, ed è una richiesta sua del giro
+     * della `1.67`**: *l'icona va posizionata esattamente come quella oggi presente sulla
+     * schermata home, ma semitrasparente (~50%), e sotto, al posto del nome dell'app, il titolo
+     * della cartella scritto un po' più piccolo per lasciare spazio anche a nomi lunghi. Poi,
+     * più in basso, con un posizionamento analogo alla home, inizia la griglia delle immagini*.
+     * Il meccanismo, la fascia e la sfumatura vivono in `Front.kt`, condivisi con la schermata
+     * iniziale: quello che sta qui è dove comincia e quando è chiuso.
+     * ⚠️⚠️ **NÉ NEL CESTINO NÉ NELLA RICERCA, e nessuno dei due è una dimenticanza.** Nel
+     * cestino il FAB c'è sempre, quindi la sfumatura che lo tiene su un fondo neutro non
+     * potrebbe andarsene scorrendo, che è metà di quello che ha chiesto; e nella ricerca la
+     * testata non porta un titolo ma un campo di testo, cioè non c'è niente che possa traslare
+     * là dentro.
+     */
+    val density = LocalDensity.current
+    val bordi = WindowInsets.safeDrawing
+    val front = !bin && query == null
+    val headerMax = if (front) {
+        (maxHeight - with(density) { (bordi.getTop(this) + bordi.getBottom(this)).toDp() }) *
+            HEADER_SHARE
+    } else {
+        0.dp
+    }
+    val headerPx = with(density) { headerMax.toPx() }
+
+    /**
+     * Quanti pixel di frontespizio sono già stati chiusi, da 0 a tutto.
+     *
+     * ⚠️ La chiave è la misura, come nella schermata iniziale: ruotando il telefono l'altezza
+     * cambia, e un valore di chiusura vecchio non vorrebbe più dire niente.
+     */
+    var shut by remember(headerPx) { mutableFloatStateOf(0f) }
+    val aperto = remember(headerPx) { { frontOpen(headerPx, shut) } }
+    val paging = remember(headerPx) {
+        frontScroll(quanto = headerPx, chiuso = { shut }, chiudi = { shut = it })
+    }
+
+    /*
+     * ⚠️⚠️ **DURANTE UNA SELEZIONE IL FRONTESPIZIO STA CHIUSO, ed è una sua specifica** (le tre
+     * risposte del 2026-09-06, confermate in chiaro: mentre la griglia carica sta aperto, durante
+     * una selezione chiuso, tornando dal visualizzatore resta com'era). Là la testata diventa la
+     * barra della selezione e i comandi arrivano dal fondo: un terzo di schermo occupato dal nome
+     * della cartella sarebbe spazio tolto proprio alle immagini che si stanno scegliendo.
+     * ⚠️ **Si chiude con un'animazione e non con un salto**: qui non c'è nessun dito che porti
+     * il movimento, e una fascia che sparisce in un fotogramma si legge come un difetto.
+     * ⚠️ **Finita la selezione NON si riapre**, e non è una dimenticanza: la griglia è rimasta
+     * dov'era, e riaprirlo la farebbe scendere sotto il dito. Si riapre come sempre, tirando
+     * giù in cima.
+     */
+    LaunchedEffect(picking, headerPx) {
+        if (!picking || shut >= headerPx) return@LaunchedEffect
+        animate(
+            initialValue = shut,
+            targetValue = headerPx,
+            animationSpec = tween(FRONT_SHUT_MS)
+        ) { valore, _ -> shut = valore }
+    }
+
+    /*
+     * ⚠️⚠️ **CON LA GRIGLIA SCORSA IL FRONTESPIZIO NON PUÒ STARE APERTO, e questo copre il
+     * ritorno dal visualizzatore** (sua specifica: *resta come era, chiuso se la griglia non è in
+     * cima*). Con le dita la cosa è già vera per costruzione, perché [frontScroll] spende il
+     * trascinamento qui prima che l'elenco si muova; quello che sfugge è lo scorrimento
+     * **programmato**, cioè il salto all'immagine da cui si è tornati, che non passa dallo
+     * scorrimento annidato. Senza questa riga si tornava con la fascia aperta sopra una griglia
+     * già a metà.
+     * ⚠️ **Snap e non animazione**: si è nell'istante in cui la schermata arriva, quindi non c'è
+     * niente da raccontare e un'animazione sarebbe un movimento che nessuno ha chiesto.
+     */
+    LaunchedEffect(headerPx) {
+        snapshotFlow {
+            state.firstVisibleItemIndex > 0 || state.firstVisibleItemScrollOffset > 0
+        }.collect { scorsa -> if (scorsa) shut = headerPx }
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .safeDrawingPadding()
+            .nestedScroll(paging)
             .padding(horizontal = 8.dp, vertical = 12.dp)
     ) {
         // ⚠️⚠️ **LA BARRA DELLA SELEZIONE PRENDE IL POSTO DEL TITOLO invece di aggiungersi
@@ -885,12 +975,29 @@ fun GridScreen(
                         modifier = Modifier.fillMaxWidth().focusRequester(focus)
                     )
                 } else {
+                    /*
+                     * ⚠️⚠️ **IL TITOLO SI DISSOLVE COL FRONTESPIZIO, dalla `1.76`**: mentre la
+                     * fascia è aperta il nome della cartella si legge là dentro, grande e al
+                     * centro, e chiudendola sale verso qui e lascia il posto a questo, che è
+                     * *come già appare adesso in posizione finale* (parole sue). ⚠️ **La
+                     * traslazione non è scritta da nessuna parte**: la fa la parallasse della
+                     * fascia, che alza il proprio contenuto mentre lo spazio si stringe (vedi
+                     * [FrontBand]). Aggiungerne una seconda vorrebbe dire due movimenti sullo
+                     * stesso oggetto.
+                     * ⚠️ **Le due opacità sono complementari e non due curve**: sommano uno a
+                     * ogni istante, quindi non esiste un punto della corsa in cui il nome della
+                     * cartella si legga meno che agli estremi.
+                     * ⚠️ **In selezione e senza frontespizio l'opacità è piena**, perché lì
+                     * `aperto` vale zero: il conto della selezione e il titolo del cestino non
+                     * hanno niente da cui arrivare.
+                     */
                     Text(
                         text = if (picking) pluralStringResource(
                             R.plurals.pick_count, chosen.size, chosen.size
                         ) else title,
                         style = MaterialTheme.typography.headlineSmall,
-                        maxLines = 1
+                        maxLines = 1,
+                        modifier = Modifier.graphicsLayer { alpha = 1f - aperto() }
                     )
                     if (!picking) items?.let {
                         Text(
@@ -929,6 +1036,55 @@ fun GridScreen(
              */
         }
         Spacer(Modifier.height(8.dp))
+
+        /*
+         * ⚠️⚠️ **LA FASCIA DEL FRONTESPIZIO, dalla `1.76`**: l'icona della cartella a mezza
+         * tinta e sotto il nome, *con un posizionamento analogo alla home*. Il meccanismo di
+         * misura, il ritaglio e la parallasse stanno in [FrontBand]; qui c'è solo quello che si
+         * vede dentro.
+         * ⚠️ **L'icona si stringe se la fascia è bassa**, con lo stesso conto della schermata
+         * iniziale: in orizzontale non resta niente, e senza questa stretta la tela verrebbe
+         * tagliata sopra e sotto invece di stare dentro.
+         * ⚠️ **L'icona non parla** (`contentDescription` nullo): a dire dove si è c'è il nome
+         * della cartella, e un lettore di schermo che annuncia 'cartella' prima di leggerlo
+         * darebbe due voci per una cosa sola.
+         * ⚠️⚠️ **IL NOME È SCRITTO DUE VOLTE NELL'ALBERO SEMANTICO, e va saputo**: qui e in
+         * testata. Nessuna delle due copie si può togliere, perché l'una si dissolve nell'altra
+         * e un titolo che compare a metà corsa sarebbe un salto; a non farne due voci ci pensa
+         * l'opacità, perché un nodo trasparente resta comunque leggibile da TalkBack. ⚠️ Chi
+         * volesse chiudere anche quel buco lo faccia con `alpha` **semantico**, non togliendo
+         * uno dei due testi.
+         */
+        if (front) {
+            FrontBand(fullPx = headerPx, shut = { shut }) { quanto ->
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_folder_aiv),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(minOf(HEADER_ICON, headerMax * 0.5f))
+                            .graphicsLayer { alpha = FRONT_INK * quanto() * quanto() }
+                    )
+                    Spacer(Modifier.height(FRONT_GAP))
+                    /*
+                     * ⚠️ **Più piccolo di quello della testata, ed è la sua richiesta**
+                     * (*scritto un po' più piccolo per lasciare spazio anche a nomi lunghi*):
+                     * `titleSmall` sta sotto al `titleMedium` con cui la schermata iniziale
+                     * scrive il nome dell'app, che è lo slot che questo prende.
+                     */
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleSmall,
+                        textAlign = TextAlign.Center,
+                        maxLines = FRONT_TITLE_LINES,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .padding(horizontal = 24.dp)
+                            .graphicsLayer { alpha = quanto() }
+                    )
+                }
+            }
+        }
 
         /*
          * ⚠️⚠️ **IL RIQUADRO AVVOLGE TUTTI E TRE I CASI, dalla 1.06, e non il solo elenco
@@ -1338,6 +1494,24 @@ fun GridScreen(
          * l'ordine dei figli di un `Box` è l'ordine di sovrapposizione, e i due veli devono
          * restare sopra di lei.
          */
+        /*
+         * ⚠️⚠️ **LE DUE SFUMATURE IN FONDO, dalla `1.76`, E QUI SE NE VANNO SCORRENDO**
+         * (richiesta sua, giro della `1.67`: *esattamente insieme, sincronizzato con
+         * l'animazione del titolo, le due sfumature in basso devono progressivamente sparire e
+         * lasciare campo libero alla griglia piena su tutto lo schermo; anche in questo caso:
+         * l'opposto se si torna in cima*). Nella schermata iniziale restano sempre, perché là il
+         * FAB c'è sempre e vuole un fondo neutro sotto di sé; qui il FAB non c'è, quindi appena
+         * il frontespizio è chiuso non hanno più niente da fare.
+         * ⚠️ **La stessa curva, gli stessi numeri**: vivono in [GroundFade], che la schermata
+         * iniziale legge dalla stessa riga. 'Sincronizzato' è alla lettera, perché è lo stesso
+         * `aperto` che muove il titolo.
+         * ⚠️⚠️ **STA PRIMA DELLA SCHEDA, DELLA NOTIFICA E DEI VELI**: in un `Box` l'ultimo
+         * figlio sta sopra, e nessuno dei tre va sbiadito da lei.
+         */
+        if (front) {
+            GroundFade(modifier = Modifier.align(Alignment.BottomCenter)) { aperto() }
+        }
+
         PickSheet(
             visible = picking,
             /*
