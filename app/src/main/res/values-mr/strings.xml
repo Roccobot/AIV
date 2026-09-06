@@ -16,6 +16,9 @@
     <string name="menu_copy_image">प्रतिमा कॉपी करा</string>
     <string name="menu_share">सहभागी करा</string>
     <string name="menu_save">जतन करा</string>
+    <string name="menu_save_hold">नव्या नावाने जतन करा</string>
+    <string name="save_name_title">फाइलचे नाव</string>
+    <string name="save_name_date">दिनांक</string>
     <string name="menu_convert">निर्यात आणि रूपांतर</string>
     <string name="convert_format">स्वरूप</string>
     <string name="convert_jpeg">JPEG</string>
@@ -381,6 +384,8 @@
     <string name="edit_backup_same">फाइल बदलली नाही: संपादनासाठी सुरक्षा प्रत तयार केली नाही.</string>
     <string name="settings_editor_backup">वर लिहिण्यापूर्वी सुरक्षा प्रत</string>
     <string name="settings_editor_backup_desc">संपादकाने प्रतिमेवर लिहिण्याआधी तिची एक प्रत कचरापेटीत ठेवली जाते, तिथून ती परत मिळवता येते; गरज नसेल तर पुढच्या \'कचरापेटी रिकामी करा\' वेळी ती हटेल.</string>
+    <string name="settings_save_rename">जतन करताना नाव बदलू द्या</string>
+    <string name="settings_save_rename_desc">प्रतिमा नेहमी Downloads मध्ये जातात. हे चालू असल्यास \'जतन करा\' आधी नाव विचारते; बंद असल्यास \'जतन करा\' दाबून धरा म्हणजे फक्त त्या वेळी विचारेल.</string>
     <string name="editor_tall">उभे</string>
     <string name="editor_wide">आडवे</string>
     <string name="pick_cleared">कोणतीही फाइल निवडलेली नाही.</string>

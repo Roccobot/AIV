@@ -519,6 +519,23 @@ data class Settings(
      */
     val gpuThumbs: Boolean = false,
     /**
+     * Se salvare un'immagine chiede prima il nome.
+     *
+     * ⚠️⚠️ **SPENTA DI FABBRICA, ED È LA SUA SPECIFICA** (*Impostazione 'Consenti rinomina al
+     * salvataggio', spenta di fabbrica*). Il valore di fabbrica non è scelto per far vedere la
+     * funzione: salvare è un gesto che si fa di fretta, e chi non ha chiesto di rinominare non
+     * deve trovarsi una finestra in mezzo. Chi la vuole la accende, e chi la vuole **una volta
+     * sola** tiene premuto 'Scarica'.
+     * ⚠️ **Non decide DOVE si salva, che non è più una scelta di nessuno**: dalla `1.77` la
+     * cartella è sempre Download (`ImageActions.saveToDownloads`). Questo interruttore parla del
+     * solo nome.
+     * ⚠️ **Vive in 'Modifica e backup' e non in una sezione sua**: la domanda a cui risponde è
+     * *che cosa scrive l'app su disco, e con che nome*, che è la stessa dell'editor che
+     * sovrascrive e della copia di sicurezza che lo protegge. Una voce sola non prende un
+     * titolo.
+     */
+    val saveRename: Boolean = false,
+    /**
      * Dopo quanto un file eliminato se ne va dal cestino da solo.
      *
      * ⚠️⚠️ **LE TRE DECISIONI CHE LA GOVERNANO SONO SUE, e si citano con la loro chiave perché
@@ -724,6 +741,7 @@ object SettingsStore {
     private val GRID_NAMES = booleanPreferencesKey("grid-names")
     private val EXT_EDIT = booleanPreferencesKey("ext-edit")
     private val GPU_THUMBS = booleanPreferencesKey("gpu-thumbs")
+    private val SAVE_RENAME = booleanPreferencesKey("save-rename")
     private val BIN_KEEP = stringPreferencesKey("bin-keep")
     private val FOLDER_COUNT = booleanPreferencesKey("folder-count")
     private val HIDDEN_FOLDERS = stringSetPreferencesKey("hidden-folders")
@@ -796,6 +814,7 @@ object SettingsStore {
             gridNames = p[GRID_NAMES] ?: false,
             extEdit = p[EXT_EDIT] ?: false,
             gpuThumbs = p[GPU_THUMBS] ?: false,
+            saveRename = p[SAVE_RENAME] ?: false,
             binKeep = BinKeep.entries.byToken(p[BIN_KEEP], BinKeep.NEVER),
             hiddenFolders = p[HIDDEN_FOLDERS] ?: emptySet(),
             factOrder = factOrderOf((p[FACT_ORDER] ?: "").split(',')),
@@ -880,6 +899,7 @@ object SettingsStore {
             p[GRID_NAMES] = settings.gridNames
             p[EXT_EDIT] = settings.extEdit
             p[GPU_THUMBS] = settings.gpuThumbs
+            p[SAVE_RENAME] = settings.saveRename
             p[BIN_KEEP] = settings.binKeep.token
             p[HIDDEN_FOLDERS] = settings.hiddenFolders
             p[FACT_ORDER] = settings.factOrder.joinToString(",") { it.token }

@@ -16,6 +16,9 @@
     <string name="menu_copy_image">Afbeelding kopiëren</string>
     <string name="menu_share">Delen</string>
     <string name="menu_save">Opslaan</string>
+    <string name="menu_save_hold">Met een nieuwe naam opslaan</string>
+    <string name="save_name_title">Bestandsnaam</string>
+    <string name="save_name_date">Datum</string>
     <string name="menu_convert">Exporteren en omzetten</string>
     <string name="convert_format">Formaat</string>
     <string name="convert_jpeg">JPEG</string>
@@ -381,6 +384,8 @@
     <string name="edit_backup_same">Het bestand is niet veranderd: er is geen veiligheidskopie voor de bewerking gemaakt.</string>
     <string name="settings_editor_backup">Veiligheidskopie voor het overschrijven</string>
     <string name="settings_editor_backup_desc">Voordat een editor een afbeelding overschrijft, bewaart hij er een kopie van in de prullenbak, waar u die kunt terughalen; hebt u die niet nodig, dan verdwijnt ze bij de volgende \'Prullenbak legen\'.</string>
+    <string name="settings_save_rename">Hernoemen bij het opslaan toestaan</string>
+    <string name="settings_save_rename_desc">Afbeeldingen gaan altijd naar Downloads. Staat dit aan, dan vraagt \'Opslaan\' eerst om de naam; staat het uit, houd \'Opslaan\' ingedrukt om er alleen die ene keer om gevraagd te worden.</string>
     <string name="editor_tall">Staand</string>
     <string name="editor_wide">Liggend</string>
     <string name="pick_cleared">Geen bestand geselecteerd.</string>

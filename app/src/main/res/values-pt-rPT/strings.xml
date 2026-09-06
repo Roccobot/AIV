@@ -24,6 +24,7 @@
         every verb conjugated again.
     -->
     <string name="menu_save">Guardar</string>
+    <string name="menu_save_hold">Guardar com outro nome</string>
     <string name="toast_save_failed">Não foi possível guardar</string>
     <string name="folder_why">Para folhear o resto da pasta, o AIV precisa de acesso a todos os ficheiros. Ative o interruptor na página que acabou de abrir.</string>
 
@@ -105,6 +106,8 @@
     <string name="editor_pick_send_desc">Recebem uma cópia e guardam-na onde quiserem. O original fica como está.</string>
     <string name="menu_edit_hold">Escolher a aplicação</string>
     <string name="settings_editor_backup_desc">A versão anterior de cada imagem substituída é mantida na reciclagem.</string>
+    <string name="settings_save_rename">Permitir mudar o nome ao guardar</string>
+    <string name="settings_save_rename_desc">As imagens vão sempre para Transferências. Com isto ligado, \'Guardar\' pergunta primeiro o nome; desligado, mantenha \'Guardar\' premido para que pergunte só dessa vez.</string>
     <string name="anim_play">Reproduzir</string>
     <string name="anim_pause">Pausar</string>
     <string name="anim_prev">Fotograma anterior</string>
@@ -132,4 +135,5 @@
     <string name="settings_buttons_reset_ask">Quer voltar com os botões para a disposição predefinida?</string>
     <!-- aplicativo -> aplicacao, aparelhos -> dispositivos, isso -> isto. -->
     <string name="settings_gpu_thumbs_desc">As miniaturas ficam fora da memória da aplicação, que assim fica livre para as imagens grandes. Em alguns dispositivos isto pode causar problemas, por isso vem desativado.</string>
+    <string name="save_name_title">Nome do ficheiro</string>
 </resources>

@@ -625,6 +625,18 @@ in basso, con un posizionamento analogo alla home, inizia la griglia delle immag
   decisione per l'app. Copiarli nella seconda schermata avrebbe fatto due tavolozze che divergono
   al primo ritocco, che è la trappola scritta in `rules/Roccobot.md` § '🪶 Come si mantiene un
   file di regole'.
+- ⚠️⚠️ **DUE NUMERI SONO CAMBIATI CON LA `1.77`, E LI HA DETTATI COL TELEFONO IN MANO**
+  (riscontro del giro della `1.76`, voce `front-cartella` approvata: *Eccellente! Aggiustamenti
+  molto secondari: il testo del titolo dev'essere un po' più grande, e l'icona può essere meno
+  visibile (proviamo con opacità 30%)*). Il titolo sale di un gradino (`titleSmall` diventa
+  `titleMedium`) e `FRONT_INK` scende da 0,5 a 0,3.
+  - ⚠️ **La sua ragione di prima non cade con il corpo più piccolo**, e conviene saperlo per non
+    rimetterlo: *un po' più piccolo per lasciare spazio anche a nomi lunghi* si ottiene
+    dall'**andata a capo** (`FRONT_TITLE_LINES`), che non è cambiata. Il corpo ridotto era un
+    secondo modo di dire la stessa cosa, e di quei due ne serviva uno.
+  - ⚠️ **Resta comunque più piccolo di quello della testata**, che è `headlineSmall`: se la
+    fascia scrivesse il nome alla misura in cui lo troverà in cima, la traslazione non avrebbe
+    niente da raccontare.
 
 ⚠️⚠️ **LA TRASLAZIONE DEL TITOLO NON È UN'ANIMAZIONE IN PIÙ: È LA PARALLASSE DELLA FASCIA.** Lui
 l'ha chiesta così (*il nome in alto deve traslare con un'animazione fluida nella testata e apparire
@@ -657,6 +669,52 @@ titolo, cioè non c'è niente che possa traslare là dentro.
 ⚠️ **Le due sfumature se ne vanno scorrendo QUI e restano sempre nella schermata iniziale**, ed è
 la stessa ragione al rovescio: là il FAB c'è sempre. La richiesta era *le due sfumature in basso
 devono progressivamente sparire e lasciare campo libero alla griglia piena su tutto lo schermo*.
+
+## 💾 Il salvataggio va sempre in Download, e il nome si chiede solo se lo chiedi
+
+⚠️⚠️ **DALLA `1.77` 'SCARICA' NON APRE PIÙ IL SELETTORE DI SISTEMA: scrive in Download e basta**
+(istruzione dell'utente: *niente scelta della cartella, sempre Downloads, che è l'unica che
+funziona senza autorizzazioni, anche in vista di Play*). Fino alla `1.76` quel gesto passava da
+`ACTION_CREATE_DOCUMENT`, che chiedeva dove e con che nome: due schermate per salvare
+un'immagine.
+
+- ⚠️⚠️ **SU ANDROID 9 IL SELETTORE RESTA, E NON È UNA DIMENTICANZA**: `MediaStore.Downloads`
+  nasce con l'API 29, e sotto quella la stessa cartella vuole `WRITE_EXTERNAL_STORAGE`, cioè un
+  permesso che questa app non chiede e che a Play andrebbe motivato. Là il gesto torna al
+  selettore, col nome già scritto dentro. Chi legge `ImageActions.downloadsWritable` sappia che
+  serve a scegliere la strada **prima** di provare: un `false` di `saveToDownloads` vuol dire
+  guasto e nient'altro.
+- ⚠️ **`IS_PENDING` è la metà che si dimentica**: senza, un download interrotto lascia in
+  galleria un'immagine tagliata. La riga si scrive in sospeso e si chiude alla fine, e se la
+  copia fallisce si cancella.
+- ⚠️ **I nomi doppi non si risolvono a mano**: li numera il `MediaStore`, che è l'unico a poterlo
+  fare senza una finestra fra l'elenco della cartella e la scrittura.
+
+⚠️⚠️ **IL NOME SI CHIEDE IN DUE CASI, E SONO SUOI**: l'impostazione **'Consenti rinomina al
+salvataggio'** accesa, oppure un **tocco lungo** su 'Scarica', che vale per quella volta sola.
+L'impostazione è **spenta di fabbrica**, e il valore di fabbrica non è scelto per far vedere la
+funzione: salvare è un gesto che si fa di fretta.
+- **La finestra chiede il SOLO nome**, e il suffisso si vede accanto al campo senza potersi
+  toccare: senza quello giusto la galleria non sa che cosa tiene in mano. Chi vuole cambiare
+  formato ha 'Esporta/Converti', che è un'altra cosa e lo dice.
+- **Il chip della data ha due gesti**: il tocco breve infila `YYYYMMDD` dove sta il cursore, il
+  lungo rifà il nome da capo con la sola data. Sono le due cose che si vogliono davvero fare con
+  una data in un nome, e nessuna delle due si ottiene dall'altra senza cancellare a mano.
+- ⚠️ **È una modale vera**, quindi porta tutte e due le righe (`Modifier.lowered(null)` e
+  `properties = loweredWindow(null)`): esiste per raccogliere un input scritto, che è il criterio
+  di § '👆 Che cosa fa il tocco FUORI da una finestra'.
+- ⚠️ **L'interruttore vive in 'Modifica e backup'**, che è la sezione della domanda *che cosa
+  scrive l'app su disco, e con che nome*, e non ne apre una sua: una voce sola non prende un
+  titolo.
+
+⚠️⚠️ **E LA PROVA PROATTIVA HA PAGATO ALLA PRIMA CORSA, che è il fatto da tenere**: la prima
+stesura della finestra teneva il testo in un `rememberSaveable` **senza** `TextFieldValue.Saver`.
+Compilava, e in un'activity vera sarebbe andata in errore nell'istante in cui si apriva
+(`IllegalArgumentException: cannot be saved using the current SaveableStateRegistry`), cioè un
+difetto da segnalazione dell'utente. Il banco l'ha preso prima che uscisse.
+- **Perché nessun altro controllo poteva vederlo**: il codice era valido e il tipo giusto; a
+  mancare era un argomento che ha un valore di serie, e quel valore di serie lancia invece di
+  avvisare. È la stessa forma del blocco della `1.70`, in piccolo.
 
 ## 🗑️ Lo svuotamento automatico del cestino, e le tre decisioni che lo governano
 

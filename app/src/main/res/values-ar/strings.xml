@@ -16,6 +16,9 @@
     <string name="menu_copy_image">نسخ الصورة</string>
     <string name="menu_share">مشاركة</string>
     <string name="menu_save">حفظ</string>
+    <string name="menu_save_hold">الحفظ باسم جديد</string>
+    <string name="save_name_title">اسم الملف</string>
+    <string name="save_name_date">التاريخ</string>
     <string name="menu_convert">تصدير وتحويل</string>
     <string name="convert_format">الصيغة</string>
     <string name="convert_jpeg">JPEG</string>
@@ -441,6 +444,8 @@
     <string name="edit_backup_same">لم يتغير الملف: لم يتم إنشاء نسخة أمان للتعديل.</string>
     <string name="settings_editor_backup">نسخة أمان قبل الكتابة فوق الملف</string>
     <string name="settings_editor_backup_desc">قبل أن يستبدل المحرّر صورةً، يحفظ نسخةً منها في سلة المهملات حيث يمكنك استعادتها؛ وإن لم تحتَجها فستُحذَف عند \'إفراغ سلة المهملات\' التالي.</string>
+    <string name="settings_save_rename">السماح بإعادة التسمية عند الحفظ</string>
+    <string name="settings_save_rename_desc">تُحفظ الصور دائمًا في مجلد التنزيلات. عند تفعيل هذا الخيار يسأل \'حفظ\' عن الاسم أولًا؛ وعند إيقافه اضغط مطولًا على \'حفظ\' ليسألك تلك المرة فقط.</string>
     <string name="editor_tall">طولي</string>
     <string name="editor_wide">عرضي</string>
     <string name="pick_cleared">لم يتم تحديد أي ملف.</string>

@@ -16,6 +16,9 @@
     <string name="menu_copy_image">复制图片</string>
     <string name="menu_share">分享</string>
     <string name="menu_save">保存</string>
+    <string name="menu_save_hold">以新名称保存</string>
+    <string name="save_name_title">文件名</string>
+    <string name="save_name_date">日期</string>
     <string name="menu_convert">导出并转换</string>
     <string name="convert_format">格式</string>
     <string name="convert_jpeg">JPEG</string>
@@ -366,6 +369,8 @@
     <string name="edit_backup_same">文件没有变化：没有为这次修改留安全副本。</string>
     <string name="settings_editor_backup">覆盖前先留一份安全副本</string>
     <string name="settings_editor_backup_desc">在编辑器覆盖一张图像之前，会先把副本存入回收站，可以从那里找回；如果不需要，下次\'清空回收站\'时会被删除。</string>
+    <string name="settings_save_rename">保存时允许改名</string>
+    <string name="settings_save_rename_desc">图片总是保存到 Downloads 文件夹。打开时，\'保存\' 会先询问名称；关闭时，长按 \'保存\' 只在那一次询问。</string>
     <string name="editor_tall">竖向</string>
     <string name="editor_wide">横向</string>
     <string name="pick_cleared">未选择任何文件。</string>

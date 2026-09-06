@@ -16,6 +16,9 @@
     <string name="menu_copy_image">ছবি কপি করুন</string>
     <string name="menu_share">শেয়ার করুন</string>
     <string name="menu_save">সংরক্ষণ করুন</string>
+    <string name="menu_save_hold">নতুন নামে সংরক্ষণ</string>
+    <string name="save_name_title">ফাইলের নাম</string>
+    <string name="save_name_date">তারিখ</string>
     <string name="menu_convert">রপ্তানি ও রূপান্তর</string>
     <string name="convert_format">বিন্যাস</string>
     <string name="convert_jpeg">JPEG</string>
@@ -381,6 +384,8 @@
     <string name="edit_backup_same">ফাইলটি বদলায়নি: সম্পাদনার জন্য কোনও নিরাপত্তা অনুলিপি তৈরি হয়নি।</string>
     <string name="settings_editor_backup">উপরে লেখার আগে নিরাপত্তা অনুলিপি</string>
     <string name="settings_editor_backup_desc">কোনো সম্পাদক ছবির উপর লেখার আগে তার একটি অনুলিপি আবর্জনায় রেখে দেয়, সেখান থেকে ফিরিয়ে আনা যায়; দরকার না হলে পরের বার \'আবর্জনা খালি করুন\'-এ মুছে যাবে।</string>
+    <string name="settings_save_rename">সংরক্ষণের সময় নাম বদলানোর অনুমতি</string>
+    <string name="settings_save_rename_desc">ছবি সবসময় Downloads ফোল্ডারে যায়। এটি চালু থাকলে \'সংরক্ষণ করুন\' আগে নাম জিজ্ঞাসা করে; বন্ধ থাকলে \'সংরক্ষণ করুন\' চেপে ধরলে শুধু সেইবারই জিজ্ঞাসা করবে।</string>
     <string name="editor_tall">লম্বালম্বি</string>
     <string name="editor_wide">আড়াআড়ি</string>
     <string name="pick_cleared">কোনো ফাইল নির্বাচিত নেই।</string>

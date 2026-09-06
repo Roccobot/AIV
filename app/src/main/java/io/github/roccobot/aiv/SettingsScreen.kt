@@ -908,6 +908,25 @@ private fun ColumnScope.RootPage(
         onChange = { onChange(settings.copy(editorBackup = it)) }
     )
 
+    /*
+     * ⚠️⚠️ **UNA VOCE SOLA, QUINDI NIENTE TITOLO, E STA QUI PER LA DOMANDA CHE FA**: *che cosa
+     * scrive l'app su disco, e con che nome*. È la stessa domanda della scelta dell'editor (che
+     * riscrive un file) e della copia di sicurezza (che lo protegge), e non è quella del
+     * cestino, che parla di quello che si cancella. Per questo sta fra le due famiglie e non
+     * sopra un titolo.
+     * ⚠️ **La ricerca la trova dal nome del comando**: la spiegazione nomina 'Scarica', cioè la
+     * voce del menu su cui l'interruttore agisce, e `shown` confronta anche la spiegazione. Non
+     * serve nessun testo in più.
+     * ⚠️ **Dove si salva non è più una scelta e non ha un'opzione**: dalla `1.77` è sempre
+     * Download, e il perché sta su `ImageActions.saveToDownloads`.
+     */
+    SwitchRow(
+        label = stringResource(R.string.settings_save_rename),
+        detail = stringResource(R.string.settings_save_rename_desc),
+        checked = settings.saveRename,
+        onChange = { onChange(settings.copy(saveRename = it)) }
+    )
+
     // ⚠️ Ultima della sezione, e non è un ordine casuale: le due sopra parlano di una
     // modifica, questa di una cancellazione, e il cestino è la rete che le raccoglie tutte
     // e due.

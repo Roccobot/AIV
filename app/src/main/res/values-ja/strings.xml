@@ -16,6 +16,9 @@
     <string name="menu_copy_image">画像をコピー</string>
     <string name="menu_share">共有</string>
     <string name="menu_save">保存</string>
+    <string name="menu_save_hold">名前を変えて保存</string>
+    <string name="save_name_title">ファイル名</string>
+    <string name="save_name_date">日付</string>
     <string name="menu_convert">書き出して変換</string>
     <string name="convert_format">形式</string>
     <string name="convert_jpeg">JPEG</string>
@@ -366,6 +369,8 @@
     <string name="edit_backup_same">ファイルは変わっていません。編集用の控えは取っていません。</string>
     <string name="settings_editor_backup">上書きの前に控えを取る</string>
     <string name="settings_editor_backup_desc">エディターが画像を上書きする前に、そのコピーをごみ箱に保存します。そこから復元でき、不要なら次回の「ごみ箱を空にする」で削除されます。</string>
+    <string name="settings_save_rename">保存時に名前を変更できるようにする</string>
+    <string name="settings_save_rename_desc">画像はつねに Downloads フォルダーに入ります。これをオンにすると \'保存\' が先に名前をたずねます。オフのときは \'保存\' を長押しすると、その一回だけたずねます。</string>
     <string name="editor_tall">縦</string>
     <string name="editor_wide">横</string>
     <string name="pick_cleared">ファイルは選択されていません。</string>

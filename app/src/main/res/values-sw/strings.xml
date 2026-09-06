@@ -16,6 +16,9 @@
     <string name="menu_copy_image">Nakili picha</string>
     <string name="menu_share">Shiriki</string>
     <string name="menu_save">Hifadhi</string>
+    <string name="menu_save_hold">Hifadhi kwa jina jipya</string>
+    <string name="save_name_title">Jina la faili</string>
+    <string name="save_name_date">Tarehe</string>
     <string name="menu_convert">Hamisha na kubadilisha</string>
     <string name="convert_format">Muundo</string>
     <string name="convert_jpeg">JPEG</string>
@@ -381,6 +384,8 @@
     <string name="edit_backup_same">Faili haijabadilika: nakala ya usalama ya kuhariri haikutengenezwa.</string>
     <string name="settings_editor_backup">Nakala ya usalama kabla ya kuandika juu</string>
     <string name="settings_editor_backup_desc">Kabla kihariri hakijaandika juu ya picha, huhifadhi nakala yake kwenye pipa la taka, ambapo unaweza kuirejesha; usipoihitaji, itafutwa wakati wa \'Mwaga pipa la taka\' unaofuata.</string>
+    <string name="settings_save_rename">Ruhusu kubadilisha jina wakati wa kuhifadhi</string>
+    <string name="settings_save_rename_desc">Picha huenda daima kwenye folda ya Downloads. Ikiwa hii imewashwa, \'Hifadhi\' huuliza jina kwanza; ikiwa imezimwa, shikilia \'Hifadhi\' ili uulizwe mara hiyo tu.</string>
     <string name="editor_tall">Wima</string>
     <string name="editor_wide">Mlalo</string>
     <string name="pick_cleared">Hakuna faili iliyochaguliwa.</string>

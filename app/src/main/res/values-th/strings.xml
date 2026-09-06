@@ -16,6 +16,9 @@
     <string name="menu_copy_image">คัดลอกรูปภาพ</string>
     <string name="menu_share">แบ่งปัน</string>
     <string name="menu_save">บันทึก</string>
+    <string name="menu_save_hold">บันทึกด้วยชื่อใหม่</string>
+    <string name="save_name_title">ชื่อไฟล์</string>
+    <string name="save_name_date">วันที่</string>
     <string name="menu_convert">ส่งออกและแปลง</string>
     <string name="convert_format">รูปแบบ</string>
     <string name="convert_jpeg">JPEG</string>
@@ -366,6 +369,8 @@
     <string name="edit_backup_same">ไฟล์ไม่เปลี่ยน: ไม่ได้สร้างสำเนาสำรองสำหรับการแก้ไข</string>
     <string name="settings_editor_backup">สำเนาสำรองก่อนเขียนทับ</string>
     <string name="settings_editor_backup_desc">ก่อนที่โปรแกรมแก้ไขจะเขียนทับภาพ ระบบจะเก็บสำเนาไว้ในถังขยะ ซึ่งคุณกู้คืนได้ หากไม่ต้องการ สำเนานั้นจะถูกลบเมื่อ \'ล้างถังขยะ\' ครั้งต่อไป</string>
+    <string name="settings_save_rename">อนุญาตให้เปลี่ยนชื่อตอนบันทึก</string>
+    <string name="settings_save_rename_desc">รูปภาพจะไปที่โฟลเดอร์ Downloads เสมอ เมื่อเปิดตัวเลือกนี้ \'บันทึก\' จะถามชื่อก่อน เมื่อปิด ให้กด \'บันทึก\' ค้างไว้เพื่อให้ถามเฉพาะครั้งนั้น</string>
     <string name="editor_tall">แนวตั้ง</string>
     <string name="editor_wide">แนวนอน</string>
     <string name="pick_cleared">ไม่ได้เลือกไฟล์ใด</string>

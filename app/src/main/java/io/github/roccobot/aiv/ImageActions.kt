@@ -2,10 +2,14 @@ package io.github.roccobot.aiv
 
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
@@ -320,6 +324,135 @@ object ImageActions {
         val suffix = image.mimeType?.substringAfter('/')?.lowercase()?.let { if (it == "jpeg") "jpg" else it }
         return if (suffix.isNullOrBlank()) cleaned else "$cleaned.$suffix"
     }
+
+    /**
+     * Il nome spezzato in due: quello che si può cambiare, e il suffisso che non si tocca.
+     *
+     * ⚠️⚠️ **SERVE PERCHÉ LA FINESTRA DEL NOME CHIEDE IL SOLO NOME** (specifica dell'utente
+     * per la `1.77`: *una finestra col solo nome, ispirata a 'Rinomina', precompilata col nome
+     * senza estensione*). Chi la apre non deve poter cancellare il suffisso: senza di lui la
+     * galleria non sa che cosa tiene in mano, ed è la stessa ragione per cui [fileName] lo
+     * aggiunge quando manca.
+     * ⚠️⚠️ **IL TAGLIO È ESATTAMENTE QUELLO DI [fileName], e devono restare uguali**: da due a
+     * cinque caratteri alfanumerici dopo l'ultimo punto. Se questa funzione fosse più stretta,
+     * un nome che [fileName] considera già completo verrebbe qui letto come senza suffisso, e
+     * salvando se ne prenderebbe un secondo in coda.
+     * ⚠️ **Quindi anche una coda di sole cifre conta come suffisso** (`foto.2026` si spezza in
+     * `foto` e `.2026`): non è una bella lettura, ma è la stessa che fa il resto dell'app, e due
+     * letture diverse dello stesso nome sarebbero peggio.
+     * ⚠️ **Quello che è ricomposto è identico all'intero**, sempre: la coppia non perde né
+     * aggiunge un carattere, ed è la sola proprietà su cui si può contare quando si rimette
+     * insieme un nome battuto a mano.
+     */
+    fun splitName(full: String): Pair<String, String> {
+        val dot = full.lastIndexOf('.')
+        if (dot <= 0) return full to ""
+        val tail = full.substring(dot + 1)
+        if (!Regex("""^[a-z0-9]{2,5}$""", RegexOption.IGNORE_CASE).matches(tail)) return full to ""
+        return full.substring(0, dot) to full.substring(dot)
+    }
+
+    /**
+     * Se in questo telefono si può scrivere in Download senza chiedere un permesso.
+     *
+     * ⚠️⚠️ **SI CHIEDE PRIMA, E NON SI DEDUCE DA UN `false` DI [saveToDownloads]**: quella
+     * funzione dice `no` sia per un guasto sia perché la via non esiste, e chi deve decidere se
+     * tornare al selettore di sistema non può distinguere i due casi da un booleano. Con questa
+     * la decisione si prende prima di provare, e il `false` dell'altra vuol dire una cosa sola.
+     */
+    val downloadsWritable: Boolean
+        get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+
+    /**
+     * Scrive l'originale in **Download**, e dice se ce l'ha fatta.
+     *
+     * ⚠️⚠️ **SEMPRE DOWNLOAD, E NIENTE SELETTORE, dalla `1.77`** (istruzione dell'utente:
+     * *niente scelta della cartella, sempre Downloads*). Fino alla `1.76` questo gesto passava
+     * dal selettore di sistema (`ACTION_CREATE_DOCUMENT`), che lasciava scegliere il posto e
+     * costava due schermate a ogni salvataggio. La cartella pubblica dei download è l'unica in
+     * cui si può scrivere **senza chiedere un permesso**, e questo conta anche in vista di Play,
+     * dove `MANAGE_EXTERNAL_STORAGE` va motivato.
+     *
+     * ⚠️⚠️ **DA ANDROID 10 IN SU, E SU 9 NON C'È NIENTE DA FARE QUI**: `MediaStore.Downloads`
+     * nasce con l'API 29, e su 28 la stessa cartella si raggiunge solo con
+     * `WRITE_EXTERNAL_STORAGE`, cioè con un permesso in più che questa app non chiede. Là questa
+     * funzione dice **no** e il chiamante torna al selettore di sistema: è una via in meno, non
+     * una funzione mancante, ed è dichiarata invece di essere scoperta.
+     *
+     * ⚠️ **`IS_PENDING` è la metà che si dimentica**: un file scritto senza di lui compare in
+     * galleria mentre lo si sta ancora copiando, quindi un download interrotto lascia in vista
+     * un'immagine tagliata. Con la riga in sospeso, il resto del telefono la vede solo alla
+     * fine.
+     * ⚠️ **I nomi doppi li risolve il MediaStore**, che aggiunge `(1)` da sé: farlo qui vorrebbe
+     * dire elencare la cartella per indovinare un nome libero, e fra l'elenco e la scrittura
+     * qualcun altro può aver creato quel file.
+     *
+     * @param name il nome **senza** suffisso, come lo scrive la finestra. Nullo vuol dire
+     *   'quello che aveva', ed è il caso del salvataggio diretto.
+     */
+    suspend fun saveToDownloads(
+        context: Context,
+        image: LoadedImage,
+        uri: Uri?,
+        name: String? = null
+    ): Boolean = withContext(Dispatchers.IO) {
+        if (uri == null) return@withContext false
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return@withContext false
+        val whole = fileName(image, uri)
+        val (_, suffix) = splitName(whole)
+        val chosen = name?.trim()?.takeIf { it.isNotBlank() }
+        val display = if (chosen == null) whole else safeName(chosen) + suffix
+        val fields = ContentValues().apply {
+            put(MediaStore.Downloads.DISPLAY_NAME, display)
+            image.mimeType?.let { put(MediaStore.Downloads.MIME_TYPE, it) }
+            put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+            put(MediaStore.Downloads.IS_PENDING, 1)
+        }
+        val resolver = context.contentResolver
+        val row = try {
+            resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, fields)
+        } catch (e: Exception) {
+            null
+        } ?: return@withContext false
+        val written = try {
+            resolver.openOutputStream(row)?.use { out -> copyOriginalTo(context, uri, out) } ?: false
+        } catch (e: Exception) {
+            false
+        }
+        if (!written) {
+            /*
+             * ⚠️ **La riga a metà si cancella**: senza, in Download resterebbe un file vuoto e
+             * in sospeso, che la galleria non mostra e che nessuno sa di avere.
+             */
+            try {
+                resolver.delete(row, null, null)
+            } catch (e: Exception) {
+                // Niente da fare di più: la riga resta in sospeso e non si vede.
+            }
+            return@withContext false
+        }
+        try {
+            resolver.update(
+                row,
+                ContentValues().apply { put(MediaStore.Downloads.IS_PENDING, 0) },
+                null,
+                null
+            )
+        } catch (e: Exception) {
+            return@withContext false
+        }
+        true
+    }
+
+    /**
+     * Toglie da un nome scritto a mano i caratteri che un file non può portare.
+     *
+     * ⚠️ **Gli stessi di [fileName]**, e per la stessa ragione: `MediaStore` rifiuta o riscrive
+     * un `DISPLAY_NAME` che contiene una barra, e un nome riscritto da lui non è quello che la
+     * persona ha appena battuto.
+     */
+    private fun safeName(raw: String): String =
+        raw.replace(Regex("""[\\/:*?"<>|]"""), "_").trim().ifBlank { "image" }
 
     // ── Sharing ─────────────────────────────────────────────────────────────
 

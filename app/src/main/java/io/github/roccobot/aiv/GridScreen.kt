@@ -1067,14 +1067,25 @@ fun GridScreen(
                     )
                     Spacer(Modifier.height(FRONT_GAP))
                     /*
-                     * ⚠️ **Più piccolo di quello della testata, ed è la sua richiesta**
-                     * (*scritto un po' più piccolo per lasciare spazio anche a nomi lunghi*):
-                     * `titleSmall` sta sotto al `titleMedium` con cui la schermata iniziale
-                     * scrive il nome dell'app, che è lo slot che questo prende.
+                     * ⚠️⚠️ **UN GRADINO SU DALLA `1.77`, ED È IL SUO SECONDO NUMERO**: la
+                     * `1.76` scriveva questo titolo in `titleSmall`, un gradino sotto il
+                     * `titleMedium` con cui la schermata iniziale scrive il nome dell'app,
+                     * perché la sua specifica diceva *un po' più piccolo per lasciare spazio
+                     * anche a nomi lunghi*. Col telefono in mano l'ha voluto più grande
+                     * (riscontro del giro della `1.76`: *il testo del titolo dev'essere un po'
+                     * più grande*).
+                     * ⚠️ **La sua ragione di allora non cade, perché non era il corpo a
+                     * portarla**: lo spazio per un nome lungo lo fa [FRONT_TITLE_LINES], cioè
+                     * l'andata a capo, e quella non è cambiata. Il corpo più piccolo era un
+                     * secondo modo di dire la stessa cosa, e questo giro dice che di quei due
+                     * ne serviva uno.
+                     * ⚠️ **E resta più piccolo di quello della testata**, che è `headlineSmall`:
+                     * la fascia non scrive il titolo alla misura in cui lo troverà in cima, o la
+                     * traslazione non avrebbe niente da raccontare.
                      */
                     Text(
                         text = title,
-                        style = MaterialTheme.typography.titleSmall,
+                        style = MaterialTheme.typography.titleMedium,
                         textAlign = TextAlign.Center,
                         maxLines = FRONT_TITLE_LINES,
                         overflow = TextOverflow.Ellipsis,
