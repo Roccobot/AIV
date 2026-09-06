@@ -23,13 +23,13 @@ import org.robolectric.annotation.Config
 
 /**
  * Il banco di prova dell'**entrata del FAB**: monta la schermata iniziale vera, la fa arrivare
- * con la transizione vera, e guarda dove sta il tastino a ogni fotogramma.
+ * con la transizione vera, e guarda dove sta il FAB a ogni fotogramma.
  *
  * ⚠️⚠️ **NASCE DA UN DIFETTO ARRIVATO ALL'UTENTE DUE VOLTE** (giri della `1.71` e della `1.72`:
  * *se torno in home da una cartella arriva di nuovo da in basso a destra ... l'ingrandimento
  * dev'essere dal centro del FAB, quindi ingrandimento sì, movimento no*), e la prima cosa che ha
  * misurato è che la correzione della `1.72` **non correggeva niente**: con e senza la
- * `SizeTransform` che quella versione aveva tolto, il centro del tastino sta nello stesso punto
+ * `SizeTransform` che quella versione aveva tolto, il centro del FAB sta nello stesso punto
  * a ogni fotogramma, cifra per cifra. Il perché sta sul KDoc di [cambioSchermata].
  *
  * ⚠️⚠️ **MONTA LA SCHERMATA VERA E NON UNA MINIATURA, E LA DIFFERENZA È TUTTA**: una miniatura
@@ -39,7 +39,7 @@ import org.robolectric.annotation.Config
  * funzione invece di essere riscritta qui.
  *
  * ⚠️ **Che cosa questa prova NON vede**: come l'entrata si **percepisce**, che dipende dalla resa
- * vera. Vede dove sta il tastino e quanto è grande, che sono misure di struttura. Un'entrata
+ * vera. Vede dove sta il FAB e quanto è grande, che sono misure di struttura. Un'entrata
  * giusta al pixel e sbagliata all'occhio passa di qui senza che nessuno se ne accorga.
  */
 @RunWith(AndroidJUnit4::class)
@@ -50,13 +50,13 @@ class EntrataTest {
     val banco = createComposeRule()
 
     /**
-     * **Il tastino cresce sul posto: il suo centro non si muove di un pixel.**
+     * **Il FAB cresce sul posto: il suo centro non si muove di un pixel.**
      *
      * ⚠️ **Le due asserzioni servono insieme**: senza la seconda, un'entrata che non facesse
-     * niente passerebbe la prima a mani basse, perché un tastino fermo non si sposta.
+     * niente passerebbe la prima a mani basse, perché un FAB fermo non si sposta.
      * ⚠️ **Il centro si misura sul riquadro RESO**, quindi la scala della molla lo lascia dov'è
      * per costruzione e un movimento vero lo sposta: è la sola misura che distingue le due cose.
-     * ⚠️ **I fotogrammi in cui il tastino non c'è si saltano**: durante la transizione la
+     * ⚠️ **I fotogrammi in cui il FAB non c'è si saltano**: durante la transizione la
      * schermata si ricompone e per qualche fotogramma non espone niente all'albero semantico.
      * Saltarli non toglie nulla, perché quello che si guarda è il posto, non la presenza.
      */
@@ -110,7 +110,7 @@ class EntrataTest {
 /**
  * La schermata iniziale con gli argomenti minimi, cioè senza cartelle e senza permesso.
  *
- * ⚠️ **Quello che si guarda è il tastino, che c'è in ogni caso**: dipende dalla vista scelta e
+ * ⚠️ **Quello che si guarda è il FAB, che c'è in ogni caso**: dipende dalla vista scelta e
  * non dai dati, quindi una casa vuota è la scena più piccola che lo contiene. Le cartelle vere
  * porterebbero le copertine, cioè il caricamento delle miniature, che su una macchina senza
  * telefono non porta niente in più e può soltanto fallire.
