@@ -2104,7 +2104,7 @@ private const val SCHERMO_MS = 180
  * 2026-09-05: *se torno in home da una cartella arriva di nuovo da in basso a destra ...
  * l'ingrandimento dev'essere dal centro del FAB, quindi ingrandimento sì, movimento no*), e la
  * `1.74` ha **misurato** quella correzione sul banco di prova: con e senza `SizeTransform` il
- * centro del tastino sta nello stesso punto a **ogni fotogramma**, cifra per cifra, nella
+ * centro del FAB sta nello stesso punto a **ogni fotogramma**, cifra per cifra, nella
  * schermata vera. Quindi quel rimedio era un **niente**, e la voce di collaudo che ne
  * annunciava l'effetto ha detto all'utente una cosa falsa.
  * - ⚠️⚠️ **PERCHÉ UNA `SizeTransform` QUI NON FA NIENTE**: anima la misura del **contenitore**,
@@ -2117,7 +2117,7 @@ private const val SCHERMO_MS = 180
  *   entra, invece di dichiarare un'animazione che non ha niente da animare. Con lei se ne va il
  *   `clip = false`, che riguardava soltanto il ritaglio durante quella misura.
  * - ⚠️⚠️ **E QUINDI IL MOVIMENTO CHE LUI VEDE NASCE ALTROVE**: il banco esclude il posto del
- *   tastino, che non si sposta di un pixel in nessuna delle due configurazioni. Quello che il
+ *   FAB, che non si sposta di un pixel in nessuna delle due configurazioni. Quello che il
  *   banco **non** vede, e che resta da guardare, è la resa vera: quanto la dissolvenza della
  *   schermata copre l'entrata (i conti stanno in `Entrata.kt`) e che cosa la schermata che se ne
  *   va tiene nello stesso angolo mentre svanisce.

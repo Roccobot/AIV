@@ -722,7 +722,7 @@ che si corregge senza prova è una voce che può tornare non approvata.
 USCITA**, quando quella correzione era **ragionata e non misurata**. Il precedente è la `1.72`:
 aveva tolto una `SizeTransform` dal cambio di schermata per correggere il FAB che *arriva da in
 basso a destra*, il ragionamento era pulito, ed era un **niente**. La `1.74` lo ha misurato: con
-e senza quella riga, il centro del tastino sta nello stesso punto a ogni fotogramma, cifra per
+e senza quella riga, il centro del FAB sta nello stesso punto a ogni fotogramma, cifra per
 cifra, nella schermata vera. Nel frattempo la voce di collaudo aveva annunciato all'utente una
 causa che non era la sua.
 - **Come si riconosce una correzione da rimisurare**: è uscita senza che nessuno abbia visto il
