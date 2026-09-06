@@ -21,6 +21,7 @@ import androidx.annotation.StringRes
 import androidx.core.net.toUri
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -37,6 +38,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -2059,7 +2061,7 @@ private fun AivApp(model: ViewerViewModel) {
             transitionSpec = { cambioSchermata() },
             label = "schermata"
         ) { schermo ->
-            Stage(schermo, model, settings)
+            ConArrivo { Stage(schermo, model, settings) }
         }
         UndoNotice(
             visible = disfare.isNotEmpty(),
@@ -2127,6 +2129,32 @@ private const val SCHERMO_MS = 180
  * accanto, e da quel momento avrebbe continuato a passare qualunque cosa fosse successa qui.
  * Una prova che non guarda il codice vero è una prova che mente in verde.
  */
+/**
+ * Dice a chi sta dentro se la schermata **sta ancora arrivando**, e lo mette in [LocalArrivo].
+ *
+ * ⚠️⚠️ **QUESTO È L'UNICO POSTO CHE PUÒ SAPERLO**: la transizione ce l'ha in mano soltanto chi
+ * sta dentro la lambda della [AnimatedContent] dei cambi di schermata. Serve all'entrata del FAB,
+ * che dalla `1.74` aspetta la fine della dissolvenza invece di giocarsi sotto di lei: il perché,
+ * con la misura, sta su [rememberEntrata].
+ *
+ * ⚠️ **`transition` è quella del FIGLIO** (`EnterExitState`), non quella delle schermate:
+ * `currentState` raggiunge `targetState` quando l'entrata di **questo** contenuto è finita, che è
+ * il momento cercato. Con `EnterTransition.None` i due stati coincidono dal primo fotogramma,
+ * quindi entrando e uscendo dal visualizzatore non si aspetta niente.
+ *
+ * ⚠️⚠️ **STA IN UNA FUNZIONE SUA PERCHÉ IL BANCO DI PROVA DEVE MONTARE QUESTA E NON UNA COPIA**:
+ * una prova che riscrivesse questa riga accanto a sé misurerebbe la propria riga, e continuerebbe
+ * a passare il giorno che qui cambia qualcosa. È la stessa ragione di [cambioSchermata], e la
+ * regola universale sta in `Roccobot.md` § '🧪 Test e verifiche'.
+ */
+@Composable
+internal fun AnimatedVisibilityScope.ConArrivo(contenuto: @Composable () -> Unit) {
+    val arrivo = remember(this) {
+        derivedStateOf { transition.currentState != transition.targetState }
+    }
+    CompositionLocalProvider(LocalArrivo provides arrivo, content = contenuto)
+}
+
 internal fun AnimatedContentTransitionScope<Screen>.cambioSchermata(): ContentTransform =
     if (initialState is Screen.Viewer || targetState is Screen.Viewer) {
         EnterTransition.None togetherWith ExitTransition.None

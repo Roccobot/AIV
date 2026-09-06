@@ -553,6 +553,30 @@ non **consumare** a menu chiuso.
   prova strumentale. Chi tocca un nodo che copre lo schermo lo sappia, e guardi **prima** se il
   nodo esiste anche quando non serve.
 
+## 🎬 Un'animazione dentro una schermata che sta arrivando
+
+⚠️⚠️ **LE OPACITÀ SI MOLTIPLICANO, QUINDI UN'ANIMAZIONE GIOCATA SOTTO LA DISSOLVENZA DI UNA
+SCHERMATA NON SI VEDE.** Il cambio di schermata è una dissolvenza di 180 ms su tutto il
+contenuto (`ViewerActivity`, `cambioSchermata`): quello che un elemento fa in quel tratto lo fa
+dietro un velo che parte da zero, e l'occhio ne prende soltanto la coda.
+
+- **Misurato sull'entrata del FAB** (giro della `1.73`, voce `fab-centro` non approvata):
+  all'avvio, dove nessuna schermata sfuma, il FAB parte visibile al 65% e si vede tutta la
+  crescita dal 75%; tornando da una cartella, a metà opacità (67 ms) la misura era **già al 90%**,
+  quindi restavano l'ultimo decimo e il rimbalzo. Lo stesso codice dava **due animazioni
+  diverse**, e quella che si vedeva più spesso era la peggiore.
+- **La regola**: un'animazione che deve *farsi vedere* aspetta che la schermata sia arrivata. Il
+  meccanismo è `LocalArrivo`, che dice se la dissolvenza è in corso, e lo fornisce `ConArrivo`
+  dentro la `AnimatedContent` dei cambi di schermata, perché è l'unico posto che ha la
+  transizione in mano.
+- ⚠️ **Non vale per tutto**: quello che deve *arrivare insieme alla schermata* (uno sfondo, una
+  fascia sfumata, il contenuto) sta giusto dov'è. La distinzione è fra un elemento che si limita
+  a esserci e uno che racconta qualcosa mentre entra.
+- ⚠️ **Fra la fine della dissolvenza e il primo fotogramma dell'animazione passano quattro
+  fotogrammi**, ed è della transizione e non dell'attesa: un `Transition` porta `currentState` su
+  `targetState` un paio di fotogrammi dopo l'ultimo valore animato. Non si compensa accorciando
+  l'attesa, perché quello è il momento in cui la schermata ha davvero finito di arrivare.
+
 ## ⚙️ Dove va un'impostazione, e chi la deve trovare
 
 ⚠️⚠️ **UNA VOCE STA CON QUELLE CHE RISPONDONO ALLA SUA STESSA DOMANDA, e la domanda è quella
