@@ -73,7 +73,9 @@ fun Identity(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AppIcon(iconSize)
-        Spacer(Modifier.height(10.dp))
+        // ⚠️ Il numero vive in `Front.kt` dalla `1.76`, dove lo legge anche il frontespizio di
+        // una cartella: le due fasce devono somigliarsi, e 'analogo alla home' sono parole sue.
+        Spacer(Modifier.height(FRONT_GAP))
         Text(
             text = "Astonishing Image Viewer",
             style = MaterialTheme.typography.titleMedium,

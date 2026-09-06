@@ -317,26 +317,14 @@ fun FolderScreen(
          * l'elenco è già in cima e ha avanzato del movimento, che è esattamente la
          * condizione in cui il frontespizio deve tornare.
          */
+        /**
+         * ⚠️⚠️ **IL FRONTESPIZIO SI CHIUDE PRIMA CHE L'ELENCO SCORRA, ed è per questo che
+         * funziona anche con DUE cartelle**: il fatto per esteso, con la lettura del sorgente
+         * di Compose che lo regge, sta su [frontScroll], in `Front.kt`. Dalla `1.76` quella
+         * funzione la legge anche la griglia di una cartella.
+         */
         val paging = remember(headerPx) {
-            object : NestedScrollConnection {
-                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                    if (available.y >= 0f) return Offset.Zero
-                    val take = (-available.y).coerceAtMost(headerPx - shut)
-                    shut += take
-                    return Offset(0f, -take)
-                }
-
-                override fun onPostScroll(
-                    consumed: Offset,
-                    available: Offset,
-                    source: NestedScrollSource
-                ): Offset {
-                    if (available.y <= 0f) return Offset.Zero
-                    val give = available.y.coerceAtMost(shut)
-                    shut -= give
-                    return Offset(0f, give)
-                }
-            }
+            frontScroll(quanto = headerPx, chiuso = { shut }, chiudi = { shut = it })
         }
 
         Column(
@@ -450,65 +438,20 @@ fun FolderScreen(
              * mette dietro a tutta l'app (vedi `AivTheme`), quindi la sfumatura arriva
              * **esattamente** al fondo su cui sta.
              */
-            val ground = MaterialTheme.colorScheme.background
             /*
-             * ⚠️⚠️ **UNA CURVA E NON QUATTRO FERMATE, dalla 0.92** (richiesta dell'utente,
-             * due volte: *più alta e graduale, in modo che il FAB ricada sempre in un'area
-             * neutra*, e poi *ancora più sfumata e graduale*). Due fermate sole dànno una
-             * rampa **dritta**, e l'occhio la legge come un bordo sfocato invece che come
-             * una dissolvenza: il difetto sta nei due spigoli, dove la salita comincia e
-             * dove finisce. `smoothstep` li toglie tutti e due, perché parte con pendenza
-             * zero e ci arriva con pendenza zero.
-             * ⚠️ **Si calcola invece di essere scritta**: le fermate a mano sarebbero venti
-             * numeri da riscrivere ogni volta che si cambia l'altezza della fascia, e nessuno
-             * lo farebbe. Così [GRADIENT_TIMES] e [GRADIENT_PEAK] sono le sole manopole.
-             * ⚠️ Il colore è `background` e non `surface`: è quello che la `Surface` del
-             * tema mette dietro a tutta l'app (vedi `AivTheme`), quindi la sfumatura arriva
-             * **esattamente** al fondo su cui sta.
+             * ⚠️⚠️ **LE DUE SFUMATURE VIVONO IN `Front.kt` DALLA `1.76`**, insieme al
+             * frontespizio e per la stessa ragione: dalla `1.76` le schermate che le portano sono
+             * due, e i numeri che lui ha dettato giro per giro (l'altezza, la curva, il picco, la
+             * coda e il suo pianoro) sono **una** decisione per l'app. Copiarli nella griglia di
+             * una cartella avrebbe fatto due tavolozze che divergono al primo ritocco.
+             * ⚠️⚠️ **QUI SI VEDONO SEMPRE, e non è una dimenticanza**: in questa schermata il
+             * tastino c'è sempre, quindi la fascia che lo tiene su un fondo neutro non ha ragione
+             * di andarsene. Nella griglia di una cartella se ne va scorrendo, ed è una richiesta
+             * sua: là il FAB non c'è.
+             * ⚠️⚠️ **STA PRIMA DEL TASTINO E NON DOPO**: in un `Box` l'ultimo figlio sta sopra,
+             * quindi scritta dopo dipingerebbe **sul** tastino invece che sotto.
              */
-            val ramp = remember(ground) {
-                Array(GRADIENT_STOPS + 1) { step ->
-                    val at = step / GRADIENT_STOPS.toFloat()
-                    at to ground.copy(alpha = swallow(at))
-                }
-            }
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .height(GRADIENT_REACH)
-                    .background(Brush.verticalGradient(colorStops = ramp))
-            )
-            /*
-             * ⚠️⚠️ **IL SECONDO STRATO, dalla `1.56`, ED È UNO STRATO E NON UNA FERMATA IN PIÙ**
-             * (richiesta dell'utente, giro della `1.55`: *in più vorrei un ulteriore livello
-             * sopra la sfumatura attuale, stesso colore, 100% di opacità sul bordo inferiore e
-             * 0% a 7/8 dp dal bordo inferiore*). Serve a chiudere l'ultima striscia di schermo,
-             * che la fascia grande lascia adesso a sei decimi: là sotto passa il bordo stondato
-             * del vetro e la barra di sistema, e un'immagine che si intravede proprio lì si
-             * legge come un difetto di disegno.
-             * ⚠️⚠️ **PERCHÉ NON BASTAVA ALLUNGARE LA CURVA DELL'ALTRA**: quella arriva al suo
-             * massimo e ci **resta** per l'ultimo terzo, quindi per finire in pieno sul bordo
-             * dovrebbe risalire, cioè avere due massimi. Due strati invece si sommano da soli:
-             * sotto sei decimi fermi, sopra questa coda, e il pieno cade dove serve.
-             * ⚠️ **Sta fra la fascia e il tastino**: dopo, o coprirebbe l'una; prima, e sarebbe
-             * l'altra a coprire lei.
-             * ⚠️⚠️ **E DALLA `1.60` IL SUO PIENO DURA, invece di esistere in un punto solo**:
-             * quanto, e perché, lo dice [FOOT_SOLID].
-             */
-            val piede = remember(ground) {
-                Array(FOOT_STOPS + 1) { step ->
-                    val at = step / FOOT_STOPS.toFloat()
-                    at to ground.copy(alpha = foot(at))
-                }
-            }
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .height(FOOT_REACH)
-                    .background(Brush.verticalGradient(colorStops = piede))
-            )
+            GroundFade(modifier = Modifier.align(Alignment.BottomCenter))
             Hub(
                 view = view,
                 granted = granted,
@@ -679,26 +622,10 @@ private fun folderNameStyle(columns: Int): TextStyle =
  */
 @Composable
 private fun Header(fullPx: Float, icon: Dp, shut: () -> Float) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clipToBounds()
-            .layout { measurable, constraints ->
-                val full = fullPx.roundToInt().coerceAtLeast(0)
-                val left = (fullPx - shut()).roundToInt().coerceIn(0, full)
-                val placeable = measurable.measure(
-                    constraints.copy(minHeight = full, maxHeight = full)
-                )
-                layout(placeable.width, left) { placeable.place(0, -(full - left) / 2) }
-            },
-        contentAlignment = Alignment.Center
-    ) {
+    FrontBand(fullPx = fullPx, shut = shut) { aperto ->
         Identity(
             iconSize = icon,
-            modifier = Modifier.graphicsLayer {
-                val open = if (fullPx > 0f) (1f - shut() / fullPx).coerceIn(0f, 1f) else 0f
-                alpha = open * open
-            }
+            modifier = Modifier.graphicsLayer { alpha = aperto() * aperto() }
         )
     }
 }
@@ -1548,28 +1475,6 @@ private val OPTION_GAP = 8.dp
 private val SIZE_NAME = 72.dp
 
 /**
- * Quanta parte dello schermo tiene il frontespizio da aperto: **un terzo scarso**.
- *
- * ⚠️⚠️ **NON È UNA PROPORZIONE ESTETICA ma una misura di portata del pollice**: l'utente
- * usa l'intestazione come scusa per tenere le cartelle in basso, in stile OneUI (sue
- * parole, 2026-08-31), quindi ritoccarla verso il basso rimette le cartelle fuori tiro e
- * verso l'alto toglie righe che si vorrebbero vedere.
- * ⚠️⚠️ **VALE PER TUTTE E DUE LE VISTE, dalla `0.93`**: fra la `0.60` e la `0.92` la
- * griglia faceva eccezione e si riservava un numero esatto di righe, e l'utente ha chiesto
- * di tornare alla frazione fissa perché quel calcolo dava alla griglia più di quanto lui
- * volesse. Un numero solo per la stessa regola: prima, cambiarla voleva dire ricordarsi
- * che esisteva anche altrove.
- * ⚠️ **34 e non 40, ed è una misura**: con il 40% l'area della griglia scende a 484dp
- * sullo schermo dell'utente, e la fascia sfumata (216dp) arriverebbe a coprire il conto
- * sotto la SECONDA riga di cartelle, cioè velerebbe una riga vera invece di quella che
- * fa capolino. Con il 34% la griglia sale a 533dp e la sfumatura comincia esattamente
- * dove comincia la terza riga. L'utente ha autorizzato il cambio proprio per questo
- * (*se pensi che sia troppo sacrificata possiamo passare a 66% alla griglia e 34%
- * all'intestazione*).
- */
-private const val HEADER_SHARE = 0.34f
-
-/**
  * Quanto è larga l'icona accanto al conto delle immagini.
  *
  * ⚠️ **15dp e non 16**: accanto a un corpo di 12sp (`bodySmall`) una da 16 pesa più del
@@ -1601,158 +1506,6 @@ private const val NAME_LINES = 2
  * cinque la risposta giusta sarebbe la stessa, e non una riga in più da ricordare.
  */
 private const val NARROW_COLUMNS = 4
-
-/**
- * Quante volte il tastino è alta la fascia dipinta.
- *
- * ⚠️⚠️ **DUE E MEZZO DALLA `1.56`, ED È IL TERZO CAMBIO IN TRE VERSIONI**: quattro nella `1.54`
- * per fare posto a una coda in cima, tre nella `1.55` quando quella coda è sparita, e adesso due
- * e mezzo perché lui ha chiesto ancora la stessa cosa (*il punto di 0% si abbassa ancora
- * leggermente*). Ogni giro ha guardato la fascia in mano e l'ha voluta un po' più corta: qui non
- * c'è un numero giusto da calcolare, c'è il suo occhio.
- * ⚠️⚠️ **DIPINGERE PIÙ IN ALTO NON COSTA ALTEZZA ALLA GRIGLIA, ed è tutto il senso di questa
- * costante**: lo spazio **riservato** resta [BELOW_FAB]; questa dice soltanto fin dove arriva il
- * colore. Tenerle separate è la ragione per cui la fascia si alza e si abbassa senza che la
- * schermata guadagni o perda una riga di cartelle.
- * ⚠️ **La misura vecchia, che resta vera**: sullo schermo dell'utente la griglia ha 533dp e le
- * sue righe sono alte 184, quindi la terza comincia a 141dp dal fondo.
- */
-private const val GRADIENT_TIMES = 2.5f
-
-/**
- * L'opacità massima della sfumatura, quella che tiene dal tastino in giù.
- *
- * ⚠️⚠️ **ERA IL PIENO FINO ALLA `1.54`, E ADESSO NON LO È PIÙ** (richiesta dell'utente, giro
- * della `1.54`: *il colore non parte più da 100%, bensì da 70%*, e poi giro della `1.55`:
- * *l'opacità massima sul bordo inferiore scende al 60%*). ⚠️ **Il prezzo è dichiarato**: la
- * promessa vecchia era che sotto il tastino non passasse mai un'immagine, e con sei decimi di
- * colore un'immagine molto contrastata si intravede. È una scelta sua, non una svista, ed è in
- * linea con la concessione che aveva già fatto sulla stessa fascia (*può andare anche il 20%: si
- * intuisce comunque bene che è una cosa che va scomparendo*).
- * ⚠️ **Ma non vale più fino al bordo dello schermo**, dalla `1.56`: là sotto arriva il secondo
- * strato ([FOOT_REACH]), che riporta al pieno l'ultima striscia.
- */
-private const val GRADIENT_PEAK = 0.60f
-
-/**
- * In quanti gradini si disegna la curva della sfumatura.
- *
- * ⚠️ **Venti dalla `1.54`**: con dodici, su una fascia lunga come questa, ogni gradino sarebbe
- * alto una quindicina di dp e su un fondo chiaro si distinguerebbero a occhio nudo.
- */
-private const val GRADIENT_STOPS = 20
-
-/** Quanto è alta la fascia dipinta sopra il tastino. */
-private val GRADIENT_REACH = FAB_REACH * GRADIENT_TIMES
-
-/**
- * Quanto è alta la coda che chiude in pieno l'ultima striscia di schermo.
- *
- * ⚠️⚠️ **GLI 8 CHE AVEVA CHIESTO NON ERANO UN DIFETTO: ERANO INVISIBILI** (riscontro
- * dell'utente, giro della `1.56`: *non vedo la sovrapposizione piccola in fondo*). La coda
- * c'era e faceva quello che deve: misurata sul profilo composto, a 8dp dal bordo la copertura
- * vale 0,60 e sul bordo vale 1,00, cioè il pieno arriva davvero. Solo che quaranta punti di
- * copertura distribuiti su otto dp, su un fondo già coperto per sei decimi, sono un filo che
- * l'occhio non separa dalla fascia sopra.
- * ⚠️⚠️ **E NEMMENO VENTI BASTAVANO: il numero è suo, ed è 35** (riscontro del giro della
- * `1.57`: *era semplicemente troppo sottile: falla di 35 dp*). La `1.57` aveva alzato la coda
- * da 8 a 20 e lui l'ha bocciata di nuovo, il che dice una cosa che il profilo da solo non
- * diceva: quello che si vede non è il **pieno** sul bordo, che a 8dp c'era già, ma la
- * **lunghezza del tratto** in cui la copertura cresce. Sotto una certa lunghezza una
- * dissolvenza non si legge come tale, per quanto sia giusta la curva.
- * ⚠️⚠️ **E DALLA `1.60` SONO 40, MA IL NUMERO CHE CONTA È L'ALTRO** (riscontro del giro della
- * `1.59`: *40 dp di altezza, il pieno (opacità 100%) inizia 10 dp più in alto del bordo*).
- * Cinque dp in più sull'altezza non spostano niente; quello che cambia la forma è
- * [FOOT_SOLID], perché fino alla `1.59` il pieno esisteva **in un punto solo**, il bordo
- * dello schermo, e un massimo raggiunto in una riga di pixel non si vede come un massimo.
- * ⚠️ **La curva, il colore e il modo di sommarsi restano quelli che ha dettato lui**: quello
- * che si aggiunge è un pianoro in fondo, non una curva nuova.
- */
-private val FOOT_REACH = 40.dp
-
-/**
- * Quanto dura il pieno in fondo alla coda, misurato dal bordo dello schermo in su.
- *
- * ⚠️⚠️ **È LA STESSA FORMA DELLA FASCIA GRANDE, e non un'invenzione**: anche [swallow] sale
- * fino al bordo del tastino e poi tiene il suo massimo, e la ragione è la stessa in tutti e due
- * i posti. Una dissolvenza che tocca il massimo e subito finisce non ha un massimo da leggere:
- * si vede la salita, e quello che sta in cima lo si deduce.
- * ⚠️⚠️ **VENTIDUE DALLA `1.62`, ED È IL SUO SECONDO NUMERO SU QUESTO PIANORO** (riscontro del
- * giro della `1.60`: *ci siamo quasi: sposta il 100% della sfumatura piccola più in alto di
- * altri 12 dp*). Dieci era il primo, e la correzione dice una cosa sulla proporzione: adesso il
- * pieno occupa **più della metà** della coda e la salita ne ha diciotto, quindi quello che si
- * legge non è più una dissolvenza con un pianoro in fondo ma una striscia piena con un
- * raccordo sopra.
- * ⚠️ **Chi trovasse scritto 'dieci su quaranta' altrove sappia che è superato**, e il numero da
- * guardare è questo: la salita si ricava per differenza, non si scrive due volte.
- */
-private val FOOT_SOLID = 22.dp
-
-/**
- * In quanti gradini si disegna la coda.
- *
- * ⚠️⚠️ **VENTI DALLA `1.60`, ED ERANO DODICI PER UNA CODA CINQUE VOLTE PIÙ CORTA**: quel numero
- * era nato con gli 8dp della `1.56` e non l'ha più toccato nessuno mentre la coda cresceva, il
- * che è il difetto tipico di una costante che dipende da un'altra senza dirlo. Su 40dp, dodici
- * gradini sono più di tre dp l'uno.
- * ⚠️ **I gradini non sono bande, sono i vertici di una spezzata**: Compose interpola fra due
- * fermate, quindi quello che si vedrebbe non è banding ma gli spigoli con cui la spezzata
- * approssima la curva. È la stessa ragione per cui la fascia grande ne vuole venti.
- */
-private const val FOOT_STOPS = 20
-
-/**
- * A che punto della sua altezza la sfumatura sopra il tastino ha inghiottito tutto.
- *
- * ⚠️⚠️ **NON È UN NUMERO SCELTO A OCCHIO (era 0,55): si RICAVA.** Il bordo superiore del
- * tastino sta a [FAB_REACH] dal fondo, cioè a questa frazione della fascia dipinta: da lì in
- * giù il colore non cresce più, quindi il tastino sta tutto su un fondo di un colore solo.
- * Cambiando [GRADIENT_TIMES] il conto si rifà da sé.
- * ⚠️ Il rovescio da conoscere: alzando la fascia, il tratto a colore fermo resta lo stesso e
- * cresce solo la dissolvenza sopra, che è esattamente ciò che 'più graduale' vuol dire.
- * ⚠️ **Quel colore fermo non è più il pieno dalla `1.55`**: quanto vale lo dice
- * [GRADIENT_PEAK], e la promessa che ne cade è scritta là.
- */
-private const val SWALLOW = 1f / GRADIENT_TIMES
-
-/**
- * Quanto colore c'è a una data altezza della fascia, con `0` in cima e `1` sul fondo.
- *
- * ⚠️⚠️ **UNA SALITA SOLA, DI NUOVO, DALLA `1.55`**: la `1.54` ne aveva due perché la sfumatura
- * doveva **arrivare** a un terzo invece di sparire, e senza una coda in cima quel terzo sarebbe
- * comparso di colpo in una riga di pixel. Adesso in cima si arriva a zero, quindi lo scalino non
- * esiste e la seconda salita non ha più niente da nascondere.
- * ⚠️ **Il tratto si ricava da [SWALLOW]** e non è scritto a mano: si sale da niente a
- * [GRADIENT_PEAK] fino al bordo del tastino, e da lì in giù il colore sta fermo. Cambiando
- * [GRADIENT_TIMES] i due tratti si ridistribuiscono da soli.
- */
-private fun swallow(at: Float): Float {
-    val fermo = 1f - SWALLOW
-    if (at >= fermo) return GRADIENT_PEAK
-    return GRADIENT_PEAK * smoothstep(at / fermo)
-}
-
-/**
- * Quanto colore c'è a una data altezza della coda, con `0` in cima e `1` sul bordo di sotto.
- *
- * ⚠️⚠️ **DALLA `1.60` HA UN PIANORO, ed è la stessa forma di [swallow]**: si sale da niente al
- * pieno sui primi tratti, e negli ultimi [FOOT_SOLID] il colore sta fermo al massimo. Fino alla
- * `1.59` era la sola [smoothstep], quindi il pieno cadeva **esattamente** sul bordo dello
- * schermo, cioè in una riga di pixel, ed è quello che lui non vedeva.
- * ⚠️ **Il tratto in salita si ricava dalle due misure** e non è scritto a mano: cambiando
- * [FOOT_REACH] o [FOOT_SOLID] il pianoro si ridistribuisce da sé, come là.
- */
-private fun foot(at: Float): Float {
-    val sale = 1f - FOOT_SOLID / FOOT_REACH
-    if (at >= sale) return 1f
-    return smoothstep(at / sale)
-}
-
-/** La curva che parte e arriva con pendenza zero, cioè quella che non fa spigoli. */
-private fun smoothstep(t: Float): Float {
-    val x = t.coerceIn(0f, 1f)
-    return x * x * (3f - 2f * x)
-}
 
 /**
  * Il **marchio dell'app** sul tastino, al posto dei tre puntini.
@@ -1800,9 +1553,6 @@ private val MARK_HIGH = MARK_WIDE * 60f / 70f
 /** Lo spostamento ottico, in frazione del glifo: vedi la misura in testa a [Marchio]. */
 private const val MARK_DX = 0.050f
 private const val MARK_DY = -0.094f
-
-/** L'icona del frontespizio: più grande di quella delle impostazioni, perché qui accoglie. */
-private val HEADER_ICON = 96.dp
 
 /** Tutte le piastrelle sono la stessa cosa, e dirlo permette a Compose di riusarle. */
 private const val FOLDER_KIND = "folder"
