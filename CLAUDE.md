@@ -553,7 +553,7 @@ non **consumare** a menu chiuso.
   prova strumentale. Chi tocca un nodo che copre lo schermo lo sappia, e guardi **prima** se il
   nodo esiste anche quando non serve.
 
-## 🎬 Un'animazione dentro una schermata che sta arrivando
+## 🎬 Le animazioni dentro una schermata che arriva
 
 ⚠️⚠️ **LE OPACITÀ SI MOLTIPLICANO, QUINDI UN'ANIMAZIONE GIOCATA SOTTO LA DISSOLVENZA DI UNA
 SCHERMATA NON SI VEDE.** Il cambio di schermata è una dissolvenza di 180 ms su tutto il
