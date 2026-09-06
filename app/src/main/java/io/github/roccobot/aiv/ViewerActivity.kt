@@ -20,6 +20,8 @@ import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.core.net.toUri
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
@@ -2054,35 +2056,7 @@ private fun AivApp(model: ViewerViewModel) {
      */
         AnimatedContent(
             targetState = model.screen,
-            transitionSpec = {
-                /*
-                * ⚠️⚠️ **`null` E NON UNA `SizeTransform`, DALLA `1.72`, E IL PERCHÉ SI VEDE
-                * SUL FAB** (riscontro dell'utente, 2026-09-05: *se torno in home da una
-                * cartella arriva di nuovo da in basso a destra ... l'ingrandimento
-                * dev'essere dal centro del FAB, quindi ingrandimento sì, movimento no*).
-                * Una `SizeTransform` **anima la dimensione del contenitore** durante il
-                * cambio di schermata, e finché quella misura cresce ogni elemento
-                * ancorato a un angolo **segue il bordo che si muove**: il tastino della
-                * schermata iniziale sta in basso a destra, quindi percorre una diagonale.
-                * - ⚠️ **L'entrata a molla del tastino NON c'entra e resta**: quella scala
-                *   dal centro del proprio riquadro (`Entrata.kt`), che è esattamente
-                *   quello che lui vuole. Chi cercasse il movimento là dentro non lo
-                *   troverebbe, ed è la ragione per cui questa nota sta qui.
-                * - ⚠️ **Il rimedio è una RIMOZIONE**: senza `SizeTransform` il contenitore
-                *   prende subito la misura della schermata che entra, quindi non c'è
-                *   nessun bordo in movimento a cui un angolo possa aggrapparsi. È la
-                *   stessa forma che la `AnimatedContent` del visualizzatore usa già
-                *   (`ViewerScreen.kt`, `using null`).
-                * - ⚠️ **Il `clip = false` se ne va con lei e non serviva ad altro**:
-                *   riguardava il ritaglio **durante** quell'animazione di misura, che
-                *   adesso non esiste.
-                */
-                if (initialState is Screen.Viewer || targetState is Screen.Viewer) {
-                    EnterTransition.None togetherWith ExitTransition.None
-                } else {
-                    fadeIn(tween(SCHERMO_MS)) togetherWith fadeOut(tween(SCHERMO_MS))
-                } using null
-            },
+            transitionSpec = { cambioSchermata() },
             label = "schermata"
         ) { schermo ->
             Stage(schermo, model, settings)
@@ -2121,6 +2095,44 @@ private fun AivApp(model: ViewerViewModel) {
  * di schermata che si sente è peggio di un taglio.
  */
 private const val SCHERMO_MS = 180
+
+/**
+ * La dissolvenza con cui una schermata prende il posto di un'altra.
+ *
+ * ⚠️⚠️ **`null` E NON UNA `SizeTransform`, MA NON PER LA RAGIONE CHE QUI ERA SCRITTA FINO ALLA
+ * `1.73`.** La `1.72` l'aveva tolta per correggere un difetto del FAB (riscontro dell'utente,
+ * 2026-09-05: *se torno in home da una cartella arriva di nuovo da in basso a destra ...
+ * l'ingrandimento dev'essere dal centro del FAB, quindi ingrandimento sì, movimento no*), e la
+ * `1.74` ha **misurato** quella correzione sul banco di prova: con e senza `SizeTransform` il
+ * centro del tastino sta nello stesso punto a **ogni fotogramma**, cifra per cifra, nella
+ * schermata vera. Quindi quel rimedio era un **niente**, e la voce di collaudo che ne
+ * annunciava l'effetto ha detto all'utente una cosa falsa.
+ * - ⚠️⚠️ **PERCHÉ UNA `SizeTransform` QUI NON FA NIENTE**: anima la misura del **contenitore**,
+ *   e le due schermate riempiono tutte e due la finestra, quindi quella misura non cambia e
+ *   l'animazione parte e arriva sullo stesso numero. Il ragionamento della `1.72` (un angolo
+ *   segue il bordo che si muove) è giusto in generale e non si applica qui, perché nessun bordo
+ *   si muove.
+ * - ⚠️ **`null` resta lo stesso**, ed è la forma che la `AnimatedContent` del visualizzatore usa
+ *   già (`ViewerScreen.kt`): dice che il contenitore prende subito la misura della schermata che
+ *   entra, invece di dichiarare un'animazione che non ha niente da animare. Con lei se ne va il
+ *   `clip = false`, che riguardava soltanto il ritaglio durante quella misura.
+ * - ⚠️⚠️ **E QUINDI IL MOVIMENTO CHE LUI VEDE NASCE ALTROVE**: il banco esclude il posto del
+ *   tastino, che non si sposta di un pixel in nessuna delle due configurazioni. Quello che il
+ *   banco **non** vede, e che resta da guardare, è la resa vera: quanto la dissolvenza della
+ *   schermata copre l'entrata (i conti stanno in `Entrata.kt`) e che cosa la schermata che se ne
+ *   va tiene nello stesso angolo mentre svanisce.
+ *
+ * ⚠️⚠️ **STA IN UNA FUNZIONE SUA, DALLA `1.74`, PERCHÉ IL BANCO DI PROVA DEVE MISURARE QUESTA
+ * E NON UNA COPIA**: scritta dentro la `AnimatedContent`, una prova poteva soltanto riscriverla
+ * accanto, e da quel momento avrebbe continuato a passare qualunque cosa fosse successa qui.
+ * Una prova che non guarda il codice vero è una prova che mente in verde.
+ */
+internal fun AnimatedContentTransitionScope<Screen>.cambioSchermata(): ContentTransform =
+    if (initialState is Screen.Viewer || targetState is Screen.Viewer) {
+        EnterTransition.None togetherWith ExitTransition.None
+    } else {
+        fadeIn(tween(SCHERMO_MS)) togetherWith fadeOut(tween(SCHERMO_MS))
+    } using null
 
 /**
  * Quello che sta in scena adesso.

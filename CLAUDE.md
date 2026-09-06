@@ -718,6 +718,21 @@ che si corregge senza prova è una voce che può tornare non approvata.
 - ⚠️ **Nella stessa versione, non 'più avanti'**: una prova rimandata è una prova che non si
   scrive, perché il giro dopo porta altre cose e quel difetto non fa più male a nessuno.
 
+⚠️⚠️ **E LA PRIMA COSA CHE UNA PROVA NUOVA DEVE FARE È MISURARE LA CORREZIONE CHE È GIÀ
+USCITA**, quando quella correzione era **ragionata e non misurata**. Il precedente è la `1.72`:
+aveva tolto una `SizeTransform` dal cambio di schermata per correggere il FAB che *arriva da in
+basso a destra*, il ragionamento era pulito, ed era un **niente**. La `1.74` lo ha misurato: con
+e senza quella riga, il centro del tastino sta nello stesso punto a ogni fotogramma, cifra per
+cifra, nella schermata vera. Nel frattempo la voce di collaudo aveva annunciato all'utente una
+causa che non era la sua.
+- **Come si riconosce una correzione da rimisurare**: è uscita senza che nessuno abbia visto il
+  difetto sparire, e il suo posto nel documento di feedback dice 'adesso dovrebbe'. Sono quelle
+  che il banco deve prendere per prime, perché sono già state pagate una volta.
+- ⚠️ **E quando la misura smentisce, si dice**: la nota nel codice si riscrive con la causa
+  vera o con la dichiarazione che la causa non si conosce, e la voce nuova lo dice all'utente.
+  Una nota che tiene in piedi una causa falsa manda la sessione dopo a cercare dove ha già
+  guardato qualcuno.
+
 ⚠️⚠️ **E UNA MODIFICA CHE TOCCA LA GERARCHIA DEI TOCCHI PORTA LA SUA PROVA ANCHE SENZA UN
 DIFETTO ALLE SPALLE**, che è la metà proattiva della regola. Sono tre i casi, e si riconoscono
 da soli: un nodo che **copre** lo schermo o una schermata intera; un modificatore che **misura**
@@ -839,6 +854,16 @@ e il job le scrive su disco per la durata di una sola esecuzione.
   - ⚠️ **Le prove montano `AivTheme` e non un albero finto**, ed è la ragione per cui valgono: il
     velo dell'app e il cancello dei menu vivono là dentro, quindi un nodo che rubasse i tocchi
     entra in scena da sé, senza che una prova debba ricordarsi di chiamarlo.
+  - ⚠️⚠️ **E DALLA `1.74` MONTA LE SCHERMATE VERE, non solo il tema**: `EntrataTest` apre
+    `FolderScreen` con gli argomenti minimi dentro la transizione vera, e da lì misura. A
+    tenerlo fuori era una cosa sola, `Environment.isExternalStorageManager()`, che Robolectric
+    non copre e che muore con un `ArrayIndexOutOfBoundsException` dentro il metodo di sistema,
+    cioè con un errore che si legge come un difetto dell'app. La copre `OmbraArchivio`, uno
+    shadow di venti righe.
+    - ⚠️⚠️ **NON È UN DETTAGLIO DI COMODO: È LA DIFFERENZA FRA MISURARE E NON MISURARE.** La
+      prima stesura di quella prova montava una **miniatura** scritta accanto, e passava anche
+      rimettendo il difetto che doveva prendere. Il criterio universale sta in `Roccobot.md`
+      § '🧪 Test e verifiche'.
   - ⚠️⚠️ **DAL 2026-09-05 GIRA DA SÉ, E IN DUE POSTI**: è un passo di `check.yml` a ogni push su
     `main` e a ogni PR, ed è il **cancello** di `release.yml`, dove una prova rossa ferma il
     rilascio prima ancora che si tocchino la chiave di firma e il build. I due non sono un
