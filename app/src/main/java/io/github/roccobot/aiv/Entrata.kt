@@ -8,8 +8,12 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import kotlinx.coroutines.coroutineScope
@@ -81,13 +85,68 @@ class Entrata internal constructor(
     }
 }
 
-/** Lo stato dell'entrata, che parte da sé appena entra in composizione. */
+/**
+ * Se la schermata che ospita questo composabile **sta ancora arrivando**, cioè se la dissolvenza
+ * del cambio di schermata è in corso.
+ *
+ * ⚠️⚠️ **LA FORNISCE CHI FA IL CAMBIO DI SCHERMATA** (`ViewerActivity`, dentro la
+ * `AnimatedContent`), perché è l'unico posto che ha la transizione in mano. Il valore di serie è
+ * **falso**, che è la verità per chiunque non stia dentro un cambio di schermata: l'avvio
+ * dell'app, un'anteprima, una prova.
+ *
+ * ⚠️ **È uno stato e non un numero di millisecondi**, e la differenza conta: una durata scritta
+ * qui sarebbe la seconda copia di `SCHERMO_MS`, e si scollerebbe il giorno che quella cambia.
+ * Così invece l'attesa finisce **quando la dissolvenza finisce davvero**, qualunque cosa lei
+ * faccia, compreso non animare affatto (entrando o uscendo dal visualizzatore la transizione è
+ * `None`, e allora questo stato è falso dal primo fotogramma).
+ */
+val LocalArrivo: ProvidableCompositionLocal<State<Boolean>> =
+    staticCompositionLocalOf { mutableStateOf(false) }
+
+/**
+ * Lo stato dell'entrata, che parte appena la schermata ha finito di arrivare.
+ *
+ * ⚠️⚠️ **ASPETTA LA DISSOLVENZA, DALLA `1.74`, E IL PERCHÉ È MISURATO** (riscontro dell'utente,
+ * giro della `1.73`: *è l'animazione con cui appare all'avvio o all'uscita da una cartella che è
+ * sbagliata*, e poi la sua scelta fra tre: *entrata dopo la dissolvenza*). Fino alla `1.73`
+ * l'entrata partiva insieme al cambio di schermata, quindi la sua opacità si **moltiplicava**
+ * per quella della schermata in arrivo, e lo stesso codice dava due animazioni diverse:
+ * - **all'avvio**, dove non c'è nessuna dissolvenza, il FAB parte visibile al 65% e si vede
+ *   tutta la crescita dal 75%;
+ * - **tornando da una cartella**, a metà opacità (67 ms) la misura era **già al 90%**, quindi di
+ *   tutta la crescita restavano l'ultimo decimo e il rimbalzo: un'apparizione seguita da
+ *   un'oscillazione, che è un'altra cosa da uno zoom-in.
+ *
+ * ⚠️ **Aspettando, i due casi tornano a essere la stessa animazione**: durante la dissolvenza il
+ * FAB sta fermo alla sua misura di partenza e arriva con la schermata, e l'entrata si gioca
+ * intera dopo, a opacità piena.
+ *
+ * ⚠️⚠️ **FRA LA FINE DELLA DISSOLVENZA E IL PRIMO FOTOGRAMMA DELLA MOLLA PASSANO 4 FOTOGRAMMI,
+ * ED È DELLA TRANSIZIONE E NON DI QUESTA ATTESA** (misurato sul banco, sulla schermata vera: la
+ * dissolvenza dura 180 ms e la misura comincia a muoversi a 256). Un `Transition` porta
+ * `currentState` su `targetState` un paio di fotogrammi dopo l'ultimo valore animato, e uno
+ * ancora ne serve perché la molla produca un numero diverso dal suo inizio.
+ * - ⚠️ **Provata anche la via a tempo** (`delay` della durata della dissolvenza): comincia 32 ms
+ *   prima, cioè due fotogrammi, e in cambio vuole quel numero scritto in un secondo posto e non
+ *   sa distinguere una transizione che anima da una che non anima. Con l'attesa così com'è,
+ *   `EnterTransition.None` non fa aspettare niente, perché lo stato è già arrivato.
+ * - ⚠️ **Non si compensa con un'attesa più corta**: quei fotogrammi non sono un errore da
+ *   sottrarre, sono il momento in cui la schermata ha davvero finito di arrivare.
+ */
 @Composable
 fun rememberEntrata(): Entrata {
+    val arrivo = LocalArrivo.current
     val entrata = remember {
         Entrata(Animatable(ENTRA_DA), Animatable(ENTRA_ALFA))
     }
-    LaunchedEffect(Unit) { entrata.posa() }
+    /*
+     * ⚠️ **La chiave dell'effetto è lo stato, non `Unit`**: così l'entrata parte nella stessa
+     * ricomposizione in cui la schermata dichiara di essere arrivata, senza un giro in più per
+     * osservarlo. E se un domani quello stato tornasse indietro, l'entrata ricomincerebbe, che è
+     * il comportamento giusto e non un effetto collaterale da evitare.
+     */
+    val arrivata = !arrivo.value
+    LaunchedEffect(arrivata) { if (arrivata) entrata.posa() }
     return entrata
 }
 
