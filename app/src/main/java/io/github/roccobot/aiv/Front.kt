@@ -425,15 +425,18 @@ fun frontScroll(
 val FRONT_GAP: Dp = 10.dp
 
 /**
- * Quanto si vede l'icona nel frontespizio di una cartella: **la metà**.
+ * Quanto si vede l'icona nel frontespizio di una cartella: **tre decimi**.
  *
- * ⚠️ **Il numero è suo** (*ma semitrasparente (~50%)*), e la ragione si vede: là dentro l'icona
- * non è il marchio dell'app che si presenta, è un fondale dietro il nome della cartella, che è
- * l'unica cosa da leggere.
+ * ⚠️ **Il numero è suo, e questo è il secondo**: la `1.76` era uscita col ~50% della sua
+ * specifica (*ma semitrasparente (~50%)*), e col telefono in mano l'ha voluta meno visibile
+ * (riscontro del giro della `1.76`: *l'icona può essere meno visibile (proviamo con opacità
+ * 30%)*). La ragione della prima vale ancora più adesso: là dentro l'icona non è il marchio
+ * dell'app che si presenta, è un fondale dietro il nome della cartella, che è l'unica cosa da
+ * leggere.
  * ⚠️ **Si moltiplica per l'apertura della fascia**, non la sostituisce: chiudendosi il
  * frontespizio sbiadisce come nella schermata iniziale, e questo dice soltanto da dove parte.
  */
-const val FRONT_INK = 0.5f
+const val FRONT_INK = 0.3f
 
 /**
  * Quante righe può prendere il nome della cartella nel frontespizio: **due**.

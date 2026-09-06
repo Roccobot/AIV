@@ -16,6 +16,9 @@
     <string name="menu_copy_image">Копировать изображение</string>
     <string name="menu_share">Поделиться</string>
     <string name="menu_save">Сохранить</string>
+    <string name="menu_save_hold">Сохранить с новым именем</string>
+    <string name="save_name_title">Имя файла</string>
+    <string name="save_name_date">Дата</string>
     <string name="menu_convert">Экспортировать и преобразовать</string>
     <string name="convert_format">Формат</string>
     <string name="convert_jpeg">JPEG</string>
@@ -411,6 +414,8 @@
     <string name="edit_backup_same">Файл не изменился: резервная копия для правки не создана.</string>
     <string name="settings_editor_backup">Резервная копия перед перезаписью</string>
     <string name="settings_editor_backup_desc">Прежде чем редактор перезапишет изображение, он сохраняет его копию в корзине, откуда её можно вернуть; если она не нужна, она будет удалена при следующей очистке корзины.</string>
+    <string name="settings_save_rename">Разрешить переименование при сохранении</string>
+    <string name="settings_save_rename_desc">Изображения всегда попадают в папку Downloads. Если включено, \'Сохранить\' сначала спросит имя; если выключено, удерживайте \'Сохранить\', чтобы имя спросили только в этот раз.</string>
     <string name="editor_tall">Портрет</string>
     <string name="editor_wide">Пейзаж</string>
     <string name="pick_cleared">Файлы не выбраны.</string>

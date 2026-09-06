@@ -32,4 +32,5 @@
     <!-- video sin tilde, como arriba: eso es lo unico que cambia en las tres cadenas. -->
     <string name="settings_images_only_desc">En el visor, el deslizamiento salta los videos y solo pasa las imágenes. Se puede abrir un video con un toque desde la vista normal.</string>
     <string name="settings_clip_autoplay">Reproducir los videos directamente</string>
+    <string name="settings_save_rename_desc">Las imágenes van siempre a Descargas. Con esto activado, \'Guardar\' pregunta antes el nombre; desactivado, mantén presionado \'Guardar\' para que te lo pregunte solo esa vez.</string>
 </resources>

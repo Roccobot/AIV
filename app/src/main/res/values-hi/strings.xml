@@ -16,6 +16,9 @@
     <string name="menu_copy_image">छवि कॉपी करें</string>
     <string name="menu_share">साझा करें</string>
     <string name="menu_save">सहेजें</string>
+    <string name="menu_save_hold">नए नाम से सहेजें</string>
+    <string name="save_name_title">फ़ाइल का नाम</string>
+    <string name="save_name_date">दिनांक</string>
     <string name="menu_convert">निर्यात करें और बदलें</string>
     <string name="convert_format">प्रारूप</string>
     <string name="convert_jpeg">JPEG</string>
@@ -381,6 +384,8 @@
     <string name="edit_backup_same">फ़ाइल नहीं बदली: संपादन के लिए सुरक्षा प्रति नहीं बनाई गई।</string>
     <string name="settings_editor_backup">ऊपर लिखने से पहले सुरक्षा प्रति</string>
     <string name="settings_editor_backup_desc">किसी संपादक द्वारा छवि पर लिखे जाने से पहले, उसकी एक प्रति रद्दी में रख दी जाती है, जहाँ से आप उसे वापस ले सकते हैं; ज़रूरत न हो तो अगली बार \'रद्दी खाली करें\' पर वह हट जाएगी।</string>
+    <string name="settings_save_rename">सहेजते समय नाम बदलने दें</string>
+    <string name="settings_save_rename_desc">छवियाँ हमेशा Downloads में जाती हैं। यह चालू हो तो \'सहेजें\' पहले नाम पूछता है; बंद हो तो \'सहेजें\' को दबाकर रखें और उसी बार नाम पूछा जाएगा।</string>
     <string name="editor_tall">खड़ा</string>
     <string name="editor_wide">आड़ा</string>
     <string name="pick_cleared">कोई फ़ाइल चयनित नहीं।</string>

@@ -16,6 +16,9 @@
     <string name="menu_copy_image">Kopiuj obraz</string>
     <string name="menu_share">Udostępnij</string>
     <string name="menu_save">Zapisz</string>
+    <string name="menu_save_hold">Zapisz pod nową nazwą</string>
+    <string name="save_name_title">Nazwa pliku</string>
+    <string name="save_name_date">Data</string>
     <string name="menu_convert">Eksportuj i konwertuj</string>
     <string name="convert_format">Format</string>
     <string name="convert_jpeg">JPEG</string>
@@ -411,6 +414,8 @@
     <string name="edit_backup_same">Plik się nie zmienił: kopia zapasowa dla edycji nie została utworzona.</string>
     <string name="settings_editor_backup">Kopia zapasowa przed nadpisaniem</string>
     <string name="settings_editor_backup_desc">Zanim edytor nadpisze obraz, zapisuje jego kopię w koszu, skąd będzie można ją odzyskać; jeśli nie będzie potrzebna, zniknie przy następnym \'Opróżnij kosz\'.</string>
+    <string name="settings_save_rename">Pozwól zmienić nazwę przy zapisie</string>
+    <string name="settings_save_rename_desc">Obrazy zawsze trafiają do folderu Downloads. Gdy to jest włączone, \'Zapisz\' najpierw pyta o nazwę; gdy wyłączone, przytrzymaj \'Zapisz\', aby zapytało tylko ten raz.</string>
     <string name="editor_tall">Pionowo</string>
     <string name="editor_wide">Poziomo</string>
     <string name="pick_cleared">Nie wybrano żadnego pliku.</string>

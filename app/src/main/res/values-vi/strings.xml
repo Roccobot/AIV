@@ -16,6 +16,9 @@
     <string name="menu_copy_image">Sao chép hình ảnh</string>
     <string name="menu_share">Chia sẻ</string>
     <string name="menu_save">Lưu</string>
+    <string name="menu_save_hold">Lưu với tên khác</string>
+    <string name="save_name_title">Tên tệp</string>
+    <string name="save_name_date">Ngày</string>
     <string name="menu_convert">Xuất và chuyển đổi</string>
     <string name="convert_format">Định dạng</string>
     <string name="convert_jpeg">JPEG</string>
@@ -366,6 +369,8 @@
     <string name="edit_backup_same">Tệp không thay đổi: không tạo bản sao an toàn cho việc sửa.</string>
     <string name="settings_editor_backup">Bản sao an toàn trước khi ghi đè</string>
     <string name="settings_editor_backup_desc">Trước khi một trình sửa ghi đè lên một ảnh, nó lưu một bản sao vào thùng rác, nơi bạn có thể lấy lại; nếu không cần, bản sao sẽ bị xoá ở lần \'Dọn thùng rác\' kế tiếp.</string>
+    <string name="settings_save_rename">Cho phép đổi tên khi lưu</string>
+    <string name="settings_save_rename_desc">Ảnh luôn được lưu vào thư mục Downloads. Khi bật, \'Lưu\' sẽ hỏi tên trước; khi tắt, hãy nhấn giữ \'Lưu\' để được hỏi riêng lần đó.</string>
     <string name="editor_tall">Dọc</string>
     <string name="editor_wide">Ngang</string>
     <string name="pick_cleared">Chưa chọn tệp nào.</string>

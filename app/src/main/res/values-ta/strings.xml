@@ -16,6 +16,9 @@
     <string name="menu_copy_image">படத்தை நகலெடு</string>
     <string name="menu_share">பகிர்</string>
     <string name="menu_save">சேமி</string>
+    <string name="menu_save_hold">புதிய பெயரில் சேமி</string>
+    <string name="save_name_title">கோப்பின் பெயர்</string>
+    <string name="save_name_date">தேதி</string>
     <string name="menu_convert">ஏற்றுமதி செய்து மாற்று</string>
     <string name="convert_format">வடிவம்</string>
     <string name="convert_jpeg">JPEG</string>
@@ -381,6 +384,8 @@
     <string name="edit_backup_same">கோப்பு மாறவில்லை: திருத்தத்திற்கான பாதுகாப்பு நகல் உருவாக்கப்படவில்லை.</string>
     <string name="settings_editor_backup">மேலெழுதும் முன் பாதுகாப்பு நகல்</string>
     <string name="settings_editor_backup_desc">எடிட்டர் ஒரு படத்தின் மேல் எழுதுவதற்கு முன், அதன் நகலை மறுசுழற்சிக் கூடையில் சேமிக்கிறது; அங்கிருந்து மீட்கலாம். தேவையில்லை என்றால் அடுத்த \'கூடையைக் காலி செய்\' போது நீக்கப்படும்.</string>
+    <string name="settings_save_rename">சேமிக்கும்போது பெயர் மாற்ற அனுமதி</string>
+    <string name="settings_save_rename_desc">படங்கள் எப்போதும் Downloads கோப்புறைக்கே செல்லும். இது இயக்கத்தில் இருந்தால் \'சேமி\' முதலில் பெயரைக் கேட்கும்; அணைத்திருந்தால் \'சேமி\' என்பதை நீண்ட நேரம் அழுத்தினால் அந்த ஒரு முறை மட்டும் கேட்கும்.</string>
     <string name="editor_tall">நெடுக்கு</string>
     <string name="editor_wide">குறுக்கு</string>
     <string name="pick_cleared">எந்தக் கோப்பும் தேர்ந்தெடுக்கப்படவில்லை.</string>

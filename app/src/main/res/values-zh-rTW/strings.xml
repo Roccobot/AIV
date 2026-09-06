@@ -16,6 +16,9 @@
     <string name="menu_copy_image">複製圖片</string>
     <string name="menu_share">分享</string>
     <string name="menu_save">儲存</string>
+    <string name="menu_save_hold">以新名稱儲存</string>
+    <string name="save_name_title">檔案名稱</string>
+    <string name="save_name_date">日期</string>
     <string name="menu_convert">匯出並轉換</string>
     <string name="convert_format">格式</string>
     <string name="convert_jpeg">JPEG</string>
@@ -366,6 +369,8 @@
     <string name="edit_backup_same">檔案沒有變化：沒有為這次修改留安全副本。</string>
     <string name="settings_editor_backup">覆寫前先留一份安全副本</string>
     <string name="settings_editor_backup_desc">在編輯器覆寫一張影像之前，會先把副本存入回收筒，可以從那裡取回；若不需要，下次\'清空回收筒\'時會被刪除。</string>
+    <string name="settings_save_rename">儲存時允許更改名稱</string>
+    <string name="settings_save_rename_desc">圖片一律存到 Downloads 資料夾。開啟時，\'儲存\' 會先詢問名稱；關閉時，長按 \'儲存\' 只在該次詢問。</string>
     <string name="editor_tall">直式</string>
     <string name="editor_wide">橫式</string>
     <string name="pick_cleared">未選擇任何檔案。</string>

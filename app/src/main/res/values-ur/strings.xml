@@ -16,6 +16,9 @@
     <string name="menu_copy_image">تصویر کاپی کریں</string>
     <string name="menu_share">شیئر کریں</string>
     <string name="menu_save">محفوظ کریں</string>
+    <string name="menu_save_hold">نئے نام سے محفوظ کریں</string>
+    <string name="save_name_title">فائل کا نام</string>
+    <string name="save_name_date">تاریخ</string>
     <string name="menu_convert">برآمد اور تبدیل</string>
     <string name="convert_format">فارمیٹ</string>
     <string name="convert_jpeg">JPEG</string>
@@ -381,6 +384,8 @@
     <string name="edit_backup_same">فائل تبدیل نہیں ہوئی: ترمیم کے لیے حفاظتی نقل نہیں بنائی گئی۔</string>
     <string name="settings_editor_backup">اوپر لکھنے سے پہلے حفاظتی نقل</string>
     <string name="settings_editor_backup_desc">کسی ایڈیٹر کے تصویر پر لکھنے سے پہلے، اُس کی ایک نقل ردی کی ٹوکری میں محفوظ ہو جاتی ہے، جہاں سے آپ اسے واپس لے سکتے ہیں؛ ضرورت نہ ہو تو اگلی بار \'ردی کی ٹوکری خالی کریں\' پر حذف ہو جائے گی۔</string>
+    <string name="settings_save_rename">محفوظ کرتے وقت نام بدلنے کی اجازت</string>
+    <string name="settings_save_rename_desc">تصاویر ہمیشہ Downloads فولڈر میں جاتی ہیں۔ یہ آن ہو تو \'محفوظ کریں\' پہلے نام پوچھتا ہے؛ آف ہو تو \'محفوظ کریں\' کو دبائے رکھیں تاکہ صرف اُسی بار پوچھا جائے۔</string>
     <string name="editor_tall">عمودی</string>
     <string name="editor_wide">افقی</string>
     <string name="pick_cleared">کوئی فائل منتخب نہیں۔</string>

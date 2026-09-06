@@ -16,6 +16,9 @@
     <string name="menu_copy_image">Copier l\'image</string>
     <string name="menu_share">Partager</string>
     <string name="menu_save">Enregistrer</string>
+    <string name="menu_save_hold">Enregistrer sous un autre nom</string>
+    <string name="save_name_title">Nom du fichier</string>
+    <string name="save_name_date">Date</string>
     <string name="menu_convert">Exporter et convertir</string>
     <string name="convert_format">Format</string>
     <string name="convert_jpeg">JPEG</string>
@@ -396,6 +399,8 @@
     <string name="edit_backup_same">Le fichier n\'a pas changé : aucune copie de sûreté n\'a été créée pour la modification.</string>
     <string name="settings_editor_backup">Copie de sûreté avant d\'écraser</string>
     <string name="settings_editor_backup_desc">Avant qu\'un éditeur n\'écrase une image, il en enregistre une copie dans la corbeille, où vous pourrez la récupérer ; si elle ne vous sert pas, elle sera supprimée au prochain \'Vider la corbeille\'.</string>
+    <string name="settings_save_rename">Permettre de renommer à l\'enregistrement</string>
+    <string name="settings_save_rename_desc">Les images vont toujours dans Téléchargements. Si c\'est activé, \'Enregistrer\' demande d\'abord le nom ; sinon, maintiens \'Enregistrer\' pour qu\'il te le demande cette fois-là seulement.</string>
     <string name="editor_tall">Portrait</string>
     <string name="editor_wide">Paysage</string>
     <string name="pick_cleared">Aucun fichier sélectionné.</string>

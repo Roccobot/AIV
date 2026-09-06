@@ -492,8 +492,8 @@ fun ViewerScreen(
      * sessanta volte al secondo.
      */
     val saveMime = shown?.mimeType ?: "image/*"
-    val saveAs = remember(saveMime) { ActivityResultContracts.CreateDocument(saveMime) }
-    val saver = rememberLauncherForActivityResult(saveAs) { target ->
+    val saveContract = remember(saveMime) { ActivityResultContracts.CreateDocument(saveMime) }
+    val saver = rememberLauncherForActivityResult(saveContract) { target ->
         val from = source
         if (target != null && from != null) {
             scope.launch {
@@ -506,7 +506,51 @@ fun ViewerScreen(
         }
     }
 
-    val ops = remember(source, saver, onEdit, onEditWith) {
+    /*
+     * ⚠️⚠️ **DALLA `1.77` SI SCRIVE DIRETTAMENTE IN DOWNLOAD, e il selettore di sistema è
+     * rimasto per il solo Android 9** (istruzione dell'utente: *niente scelta della cartella,
+     * sempre Downloads*). Il perché della cartella, e perché su 28 non si può, stanno su
+     * [ImageActions.saveToDownloads]; qui c'è la sola scelta fra le due strade.
+     * ⚠️ **Il ripiego passa il nome al selettore invece di ignorarlo**: chi ha battuto un nome
+     * nella finestra lo ritrova già scritto, che è il minimo che si possa fare quando la via
+     * diretta non c'è.
+     */
+    val scarica: (LoadedImage, String?) -> Unit = remember(source, saver, scope, context) {
+        { picture, name ->
+            val from = source
+            if (from != null) {
+                if (ImageActions.downloadsWritable) {
+                    scope.launch {
+                        val ok = ImageActions.saveToDownloads(context, picture, from, name)
+                        val said = if (ok) R.string.toast_saved else R.string.toast_save_failed
+                        Toast.makeText(context, said, Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    val whole = ImageActions.fileName(picture, from)
+                    val suffix = ImageActions.splitName(whole).second
+                    saver.launch(if (name == null) whole else name + suffix)
+                }
+            }
+        }
+    }
+
+    /*
+     * L'immagine di cui si sta battendo il nome: nullo vuol dire che la finestra è chiusa.
+     */
+    var naming by remember { mutableStateOf<LoadedImage?>(null) }
+
+    naming?.let { picture ->
+        SaveNameDialog(
+            full = ImageActions.fileName(picture, source),
+            onDismiss = { naming = null },
+            onSave = { name ->
+                naming = null
+                scarica(picture, name)
+            }
+        )
+    }
+
+    val ops = remember(source, saver, onEdit, onEditWith, settings.saveRename) {
         MenuOps(
             job = { job = it },
             share = { picture ->
@@ -517,7 +561,17 @@ fun ViewerScreen(
                     }
                 }
             },
-            save = { picture -> saver.launch(ImageActions.fileName(picture, source)) },
+            /*
+             * ⚠️⚠️ **`settings.saveRename` STA FRA LE CHIAVI DEL `remember` QUI SOPRA, E NON È
+             * UN DETTAGLIO**: questo blocco cattura i valori del momento in cui gira, quindi
+             * senza quella chiave un interruttore appena spostato non arriverebbe qui fino al
+             * prossimo cambio di sorgente. È la stessa trappola dichiarata sull'animazione,
+             * poche righe più sotto.
+             */
+            save = { picture ->
+                if (settings.saveRename) naming = picture else scarica(picture, null)
+            },
+            saveAs = { picture -> naming = picture },
             // ⚠️ Senza indirizzo non si fa niente e non si dice niente: la voce che chiama
             // questa funzione compare **solo** con un file del telefono davanti, quindi qui
             // il caso non capita, e un avviso sarebbe codice che nessuno può far girare.
@@ -824,6 +878,15 @@ private class MenuOps(
     val job: (FileJob) -> Unit,
     val share: (LoadedImage) -> Unit,
     val save: (LoadedImage) -> Unit,
+    /**
+     * Tocco lungo su 'Scarica': chiede il nome adesso, per questa volta sola.
+     *
+     * ⚠️ **È una seconda funzione e non un parametro di [save]**, per la stessa ragione della
+     * coppia `edit`/`editWith`: il menu riferisce **quale gesto** è arrivato, e chi ha le
+     * impostazioni in mano decide che cosa vuol dire. Con l'impostazione accesa le due strade
+     * arrivano nello stesso posto, e il menu non deve saperlo.
+     */
+    val saveAs: (LoadedImage) -> Unit,
     /**
      * 'Modifica': apre l'editor scelto, o chiede quale usare la prima volta.
      *
@@ -2832,7 +2895,16 @@ private fun ImageMenu(
                     // ⚠️ Era `Icons.Outlined.Download` fino alla 1.46: il perché del cambio
                     // sta su [Glyphs.Download].
                     icon = Glyphs.Download,
-                    onTap = { menu.close(); ops.save(image) }
+                    onTap = { menu.close(); ops.save(image) },
+                    /*
+                     * ⚠️⚠️ **IL TOCCO LUNGO CHIEDE IL NOME PER QUESTA VOLTA SOLA, ed è la sua
+                     * specifica** (*a impostazione spenta, un tocco lungo su 'Salva' entra
+                     * nella modalità nome per quella volta sola*). È la stessa coppia di
+                     * 'Modifica': il tocco breve fa la cosa di serie, il lungo quella che
+                     * un'impostazione renderebbe di serie.
+                     */
+                    holdLabel = stringResource(R.string.menu_save_hold),
+                    onHold = { menu.close(); ops.saveAs(image) }
                 )
             }
 

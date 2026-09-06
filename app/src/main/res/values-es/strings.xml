@@ -16,6 +16,9 @@
     <string name="menu_copy_image">Copiar la imagen</string>
     <string name="menu_share">Compartir</string>
     <string name="menu_save">Guardar</string>
+    <string name="menu_save_hold">Guardar con otro nombre</string>
+    <string name="save_name_title">Nombre del archivo</string>
+    <string name="save_name_date">Fecha</string>
     <string name="menu_convert">Exportar y convertir</string>
     <string name="convert_format">Formato</string>
     <string name="convert_jpeg">JPEG</string>
@@ -396,6 +399,8 @@
     <string name="edit_backup_same">El archivo no ha cambiado: no se ha creado la copia de seguridad de la edición.</string>
     <string name="settings_editor_backup">Copia de seguridad antes de sobrescribir</string>
     <string name="settings_editor_backup_desc">Antes de que un editor sobrescriba una imagen, guarda una copia en la papelera, donde podrás recuperarla; si no la necesitas, se eliminará en el siguiente \'Vaciar papelera\'.</string>
+    <string name="settings_save_rename">Permitir cambiar el nombre al guardar</string>
+    <string name="settings_save_rename_desc">Las imágenes van siempre a Descargas. Con esto activado, \'Guardar\' pregunta antes el nombre; desactivado, mantén pulsado \'Guardar\' para que te lo pregunte solo esa vez.</string>
     <string name="editor_tall">Vertical</string>
     <string name="editor_wide">Horizontal</string>
     <string name="pick_cleared">Ningún archivo seleccionado.</string>

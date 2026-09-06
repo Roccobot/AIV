@@ -16,6 +16,9 @@
     <string name="menu_copy_image">Görüntüyü kopyala</string>
     <string name="menu_share">Paylaş</string>
     <string name="menu_save">Kaydet</string>
+    <string name="menu_save_hold">Yeni adla kaydet</string>
+    <string name="save_name_title">Dosya adı</string>
+    <string name="save_name_date">Tarih</string>
     <string name="menu_convert">Dışa aktar ve dönüştür</string>
     <string name="convert_format">Biçim</string>
     <string name="convert_jpeg">JPEG</string>
@@ -381,6 +384,8 @@
     <string name="edit_backup_same">Dosya değişmedi: düzenleme için yedek kopya oluşturulmadı.</string>
     <string name="settings_editor_backup">Üzerine yazmadan önce yedek kopya</string>
     <string name="settings_editor_backup_desc">Bir düzenleyici bir görüntünün üzerine yazmadan önce, bir kopyasını çöp kutusuna kaydeder; oradan geri alabilirsiniz. Gerekmiyorsa bir sonraki \'Çöp kutusunu boşalt\' işleminde silinir.</string>
+    <string name="settings_save_rename">Kaydederken yeniden adlandırmaya izin ver</string>
+    <string name="settings_save_rename_desc">Görseller her zaman Downloads klasörüne gider. Bu açıkken \'Kaydet\' önce adı sorar; kapalıyken yalnızca o seferlik sorulması için \'Kaydet\' düğmesini basılı tut.</string>
     <string name="editor_tall">Dikey</string>
     <string name="editor_wide">Yatay</string>
     <string name="pick_cleared">Hiçbir dosya seçilmedi.</string>

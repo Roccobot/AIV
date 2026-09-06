@@ -26,6 +26,9 @@
     <string name="menu_copy_image">Copia immagine</string>
     <string name="menu_share">Condividi</string>
     <string name="menu_save">Scarica</string>
+    <string name="menu_save_hold">Scarica con un nome nuovo</string>
+    <string name="save_name_title">Nome del file</string>
+    <string name="save_name_date">Data</string>
     <string name="menu_convert">Esporta/Converti</string>
     <string name="convert_format">Formato</string>
     <string name="convert_jpeg">JPEG</string>
@@ -92,6 +95,8 @@
     <string name="settings_editor_pick">Scegli</string>
     <string name="settings_editor_backup">Copia di sicurezza prima di sovrascrivere</string>
     <string name="settings_editor_backup_desc">Prima di sovrascrivere un\'immagine, l\'editor ne salva una copia nel cestino, dove potrai recuperarla; se non ti serve, sarà eliminata al successivo \'Svuota cestino\'.</string>
+    <string name="settings_save_rename">Consenti rinomina al salvataggio</string>
+    <string name="settings_save_rename_desc">Le immagini vanno sempre in Download. Con questa accesa, \'Scarica\' chiede prima il nome; da spenta, tieni premuto \'Scarica\' per farselo chiedere quella volta sola.</string>
 
     <string name="toast_image_copied">Immagine copiata</string>
     <string name="toast_name_copied">Nome del file copiato</string>

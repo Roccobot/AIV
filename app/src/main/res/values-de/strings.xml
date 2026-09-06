@@ -16,6 +16,9 @@
     <string name="menu_copy_image">Bild kopieren</string>
     <string name="menu_share">Teilen</string>
     <string name="menu_save">Speichern</string>
+    <string name="menu_save_hold">Mit neuem Namen speichern</string>
+    <string name="save_name_title">Dateiname</string>
+    <string name="save_name_date">Datum</string>
     <string name="menu_convert">Exportieren und umwandeln</string>
     <string name="convert_format">Format</string>
     <string name="convert_jpeg">JPEG</string>
@@ -381,6 +384,8 @@
     <string name="edit_backup_same">Die Datei hat sich nicht geändert: Für die Bearbeitung wurde keine Sicherheitskopie angelegt.</string>
     <string name="settings_editor_backup">Sicherheitskopie vor dem Überschreiben</string>
     <string name="settings_editor_backup_desc">Bevor ein Editor ein Bild überschreibt, legt er eine Kopie in den Papierkorb, wo sie wiederherstellbar bleibt; wird sie nicht gebraucht, verschwindet sie beim nächsten \'Papierkorb leeren\'.</string>
+    <string name="settings_save_rename">Beim Speichern umbenennen lassen</string>
+    <string name="settings_save_rename_desc">Bilder landen immer im Ordner Downloads. Ist dies an, fragt \'Speichern\' zuerst nach dem Namen; ist es aus, halte \'Speichern\' gedrückt, um nur dieses eine Mal gefragt zu werden.</string>
     <string name="editor_tall">Hochformat</string>
     <string name="editor_wide">Querformat</string>
     <string name="pick_cleared">Keine Datei ausgewählt.</string>

@@ -52,6 +52,9 @@
     <string name="menu_copy_image">Copy image</string>
     <string name="menu_share">Share</string>
     <string name="menu_save">Save</string>
+    <string name="menu_save_hold">Save with a new name</string>
+    <string name="save_name_title">File name</string>
+    <string name="save_name_date">Date</string>
     <string name="menu_convert">Export and convert</string>
     <string name="convert_format">Format</string>
     <string name="convert_jpeg">JPEG</string>
@@ -130,6 +133,8 @@
     <string name="settings_editor_pick">Choose</string>
     <string name="settings_editor_backup">Safety copy before writing over</string>
     <string name="settings_editor_backup_desc">Before an editor writes over an image, it saves a copy in the bin, where you can recover it; if you do not need it, it will be deleted at the next \'Empty bin\'.</string>
+    <string name="settings_save_rename">Allow renaming when saving</string>
+    <string name="settings_save_rename_desc">Pictures always go to Downloads. With this on, \'Save\' asks for the name first; with it off, hold \'Save\' to be asked just that once.</string>
 
     <string name="toast_image_copied">Image copied</string>
     <!-- Said after a long press on the file name in the file info dialog: the whole
