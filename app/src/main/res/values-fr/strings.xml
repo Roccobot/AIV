@@ -296,6 +296,8 @@
     <string name="settings_group_advanced">Fonctions avancées</string>
     <string name="settings_ext_edit">Modifier les extensions depuis \'Renommer\'</string>
     <string name="settings_ext_edit_desc">Le panneau de renommage permet de changer l\'extension des fichiers. Si tu ne sais pas ce que tu fais, laisse cette option désactivée : elle peut rendre les images illisibles.</string>
+    <string name="settings_gpu_thumbs">Garder les miniatures en mémoire graphique</string>
+    <string name="settings_gpu_thumbs_desc">Les miniatures sont conservées hors de la mémoire de l\'application, qui reste ainsi libre pour les grandes images. Sur certains appareils cela peut poser problème, c\'est pourquoi l\'option est désactivée par défaut.</string>
     <string name="settings_thumbs">Supprimer les miniatures enregistrées</string>
     <string name="settings_thumbs_empty">Aucune miniature enregistrée</string>
     <string name="settings_thumbs_warn">Touchez le bouton pour vider le cache des miniatures. Les aperçus des images et des vidéos seront supprimés et régénérés automatiquement à l\'ouverture de chaque dossier (cela peut prendre une minute ou plus dans les dossiers contenant beaucoup de grandes images).</string>
@@ -335,6 +337,12 @@
     <string name="columns_hint">Raccourci : appuyez longuement sur le bouton flottant pour les options d\'affichage.</string>
     <string name="settings_bin">Activer la corbeille</string>
     <string name="settings_bin_desc">La suppression d\'un fichier ne demande rien, mais l\'action est réversible avec un \'Restaurer\' depuis la corbeille (bouton flottant →\u00A0\'Corbeille\'). Vous pouvez désactiver complètement la corbeille si vous préférez une suppression instantanée: dans ce cas, une confirmation apparaît avant chaque suppression.\n⚠️ ATTENTION : si vous désinstallez l\'application, le contenu de la corbeille est perdu et devient irrécupérable.</string>
+    <string name="settings_bin_sweep">Vider la corbeille automatiquement</string>
+    <string name="settings_bin_sweep_desc">Chaque fichier supprimé quitte la corbeille dès qu\'il atteint la durée que vous choisissez. Les copies de sauvegarde de l\'éditeur n\'expirent jamais, et le nettoyage ne se fait que pendant que l\'application est ouverte.</string>
+    <string name="bin_sweep_never">Jamais</string>
+    <string name="bin_sweep_week">Une semaine</string>
+    <string name="bin_sweep_month">Un mois</string>
+    <string name="bin_sweep_quarter">Trois mois</string>
     <string name="pick_duplicate">Dupliquer</string>
     <string name="settings_grid_names">Nom du fichier dans la grille</string>
     <string name="settings_grid_names_desc">Affiche le nom du fichier aussi en vue grille, sous la miniature. Deux lignes au maximum.</string>

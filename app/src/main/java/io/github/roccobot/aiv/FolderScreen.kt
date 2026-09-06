@@ -944,50 +944,49 @@ private fun Hub(
          * angoli appena smussati come chiesto, perché il tondo pieno griderebbe 'azione
          * principale' e qui l'azione principale sono le cartelle.
          *
-         * ⚠️⚠️ **LA SCATOLA INTORNO PORTA L'ENTRATA, dalla `1.58`**, ed è l'unico posto
-         * dell'app che la chiama: [Entrata] tiene i numeri e il perché. ⚠️ Sta su una scatola
-         * qui e non dentro [TapHoldFab] perché quel composabile serve **due** tastini, e
-         * l'entrata è stata chiesta per questo: l'altro vive nel **cestino** (in `GridScreen`,
-         * dove compare solo là e mai durante una selezione), e quella schermata si apre da un
-         * menu, cioè in risposta a un dito.
-         * ⚠️ **Fino alla `1.59` questa nota lo chiamava 'il tastino della selezione', e non
-         * esiste**: lo ha corretto lui (*non c'è più un FAB della selezione da un bel po'*), e
-         * la stessa frase falsa era finita in una voce di collaudo, che gli chiedeva di provare
-         * una cosa che nell'app non c'è.
+         * ⚠️⚠️ **L'ENTRATA A MOLLA NON C'È PIÙ, DALLA `1.75`** (riscontro dell'utente, giro
+         * della `1.74`: *animazione all'ingresso (avvio e ritorno in home): se ne va. Preferisco
+         * semplificare*). Era nata nella `1.58` da una sua richiesta, ed è costata sei versioni
+         * di ritocchi al punto di partenza, alla durata, all'ombra, e infine all'attesa della
+         * dissolvenza della `1.74`, che era la diagnosi giusta e non è bastata a farla piacere.
+         * ⚠️⚠️ **CON LEI SE NE VA `Entrata.kt` INTERO, e con quel file `LocalArrivo` e
+         * `ConArrivo`**: l'unico dell'app a chiedersi se una schermata stesse ancora arrivando
+         * era questo tastino, quindi il meccanismo non ha un secondo chiamante da servire. Chi lo
+         * cercasse per un'altra animazione lo ritrova nella storia git, con le sue misure.
+         * ⚠️ **La pressione resta, ed è un'altra cosa**: vive in [TapHoldFab], la governa il dito
+         * e lui l'ha approvata nello stesso riscontro (*animazione alla pressione del FAB: va
+         * bene e rimane*).
          */
-        val entrata = rememberEntrata()
-        Box(modifier = Modifier.entering(entrata)) {
-            TapHoldFab(
-                label = stringResource(R.string.hub_open),
-                /*
-                 * ⚠️⚠️ **I COLORI SONO QUELLI DELL'ICONA DELL'APP, dalla 1.36** (richiesta
-                 * dell'utente, 2026-09-02: *il FAB deve rispecchiare nei colori (sfondo e glifo) la
-                 * combinazione dell'icona nuova nei due temi*). Prima erano `primaryContainer` e il
-                 * suo inchiostro, cioè la coppia che Material ricava dalla tavolozza: vicina, ma
-                 * un'altra cosa.
-                 * ⚠️⚠️ **SI PRENDONO DALLE RISORSE DELL'ICONA e non si riscrivono qui**, ed è la
-                 * parte che conta: `launcher_background` e `launcher_foreground` hanno già la loro
-                 * versione in `values-night`, quindi il tastino segue il tema **per costruzione** e
-                 * il giorno che l'utente cambia la coppia dell'icona cambia anche il tastino. Due
-                 * numeri copiati qui si scollerebbero al primo ritocco dell'icona.
-                 * ⚠️ **Il contrasto è quello dell'icona e non è stato rimisurato**: 2,42 nella
-                 * coppia chiara e 3,25 nella scura, con la ragione scritta in `colors.xml`. Sono
-                 * colori scelti da lui, e questo tastino porta un glifo, non del testo.
-                 */
-                container = colorResource(R.color.launcher_background),
-                ink = colorResource(R.color.launcher_foreground),
-                holdLabel = stringResource(R.string.columns_title),
-                // ⚠️ **`visible` e non `wanted`**: il FAB deve restare staccato per tutta
-                // l'uscita, o rientrerebbe nella finestra dell'app sotto il velo che se ne sta
-                // andando. ⚠️ Dalla `1.67` `visible` copre anche quello: era `veiling` finché la
-                // patina durava più del pannello.
-                lifted = menu.visible,
-                pressed = menu.wanted,
-                onTap = { menu.open() },
-                onHold = onSize,
-                glyph = { Marchio(it) }
-            )
-        }
+        TapHoldFab(
+            label = stringResource(R.string.hub_open),
+            /*
+             * ⚠️⚠️ **I COLORI SONO QUELLI DELL'ICONA DELL'APP, dalla 1.36** (richiesta
+             * dell'utente, 2026-09-02: *il FAB deve rispecchiare nei colori (sfondo e glifo) la
+             * combinazione dell'icona nuova nei due temi*). Prima erano `primaryContainer` e il
+             * suo inchiostro, cioè la coppia che Material ricava dalla tavolozza: vicina, ma
+             * un'altra cosa.
+             * ⚠️⚠️ **SI PRENDONO DALLE RISORSE DELL'ICONA e non si riscrivono qui**, ed è la
+             * parte che conta: `launcher_background` e `launcher_foreground` hanno già la loro
+             * versione in `values-night`, quindi il tastino segue il tema **per costruzione** e
+             * il giorno che l'utente cambia la coppia dell'icona cambia anche il tastino. Due
+             * numeri copiati qui si scollerebbero al primo ritocco dell'icona.
+             * ⚠️ **Il contrasto è quello dell'icona e non è stato rimisurato**: 2,42 nella
+             * coppia chiara e 3,25 nella scura, con la ragione scritta in `colors.xml`. Sono
+             * colori scelti da lui, e questo tastino porta un glifo, non del testo.
+             */
+            container = colorResource(R.color.launcher_background),
+            ink = colorResource(R.color.launcher_foreground),
+            holdLabel = stringResource(R.string.columns_title),
+            // ⚠️ **`visible` e non `wanted`**: il FAB deve restare staccato per tutta
+            // l'uscita, o rientrerebbe nella finestra dell'app sotto il velo che se ne sta
+            // andando. ⚠️ Dalla `1.67` `visible` copre anche quello: era `veiling` finché la
+            // patina durava più del pannello.
+            lifted = menu.visible,
+            pressed = menu.wanted,
+            onTap = { menu.open() },
+            onHold = onSize,
+            glyph = { Marchio(it) }
+        )
     }
 
     if (asking) {

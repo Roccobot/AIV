@@ -309,6 +309,8 @@
     <string name="settings_group_advanced">Funkcje zaawansowane</string>
     <string name="settings_ext_edit">Zmiana rozszerzeń w \'Zmień nazwę\'</string>
     <string name="settings_ext_edit_desc">Panel zmiany nazwy pozwala zmieniać rozszerzenia plików. Jeśli nie wiesz, co robisz, nie włączaj tej opcji: może sprawić, że obrazy staną się nieczytelne.</string>
+    <string name="settings_gpu_thumbs">Trzymaj miniatury w pamięci graficznej</string>
+    <string name="settings_gpu_thumbs_desc">Miniatury są przechowywane poza pamięcią samej aplikacji, która dzięki temu zostaje wolna dla dużych obrazów. Na niektórych urządzeniach może to sprawiać problemy, dlatego domyślnie jest wyłączone.</string>
     <string name="settings_thumbs">Usuń zapisane miniatury</string>
     <string name="settings_thumbs_empty">Brak zapisanych miniatur</string>
     <string name="settings_thumbs_warn">Dotknij przycisku, aby opróżnić pamięć podręczną miniatur. Podglądy obrazów i filmów zostaną usunięte i utworzone ponownie automatycznie przy otwarciu każdego folderu (w folderach z wieloma dużymi obrazami może to potrwać minutę lub dłużej).</string>
@@ -350,6 +352,12 @@
     <string name="columns_hint">Skrót: przytrzymaj przycisk pływający, aby otworzyć opcje widoku.</string>
     <string name="settings_bin">Włącz kosz</string>
     <string name="settings_bin_desc">Usunięcie pliku o nic nie pyta, ale działanie można odwrócić przez \'Przywróć\' z kosza (pływający przycisk →\u00A0\'Kosz\'). Możesz całkowicie wyłączyć kosz, jeśli wolisz natychmiastowe usuwanie: wtedy przed każdym usunięciem pojawi się potwierdzenie.\n⚠️ UWAGA: po odinstalowaniu aplikacji zawartość kosza zostaje utracona i nie da się jej odzyskać.</string>
+    <string name="settings_bin_sweep">Automatyczne opróżnianie kosza</string>
+    <string name="settings_bin_sweep_desc">Każdy usunięty plik znika z kosza, gdy osiągnie wybrany wiek. Kopie zapasowe edytora nigdy nie wygasają, a porządkowanie działa tylko wtedy, gdy aplikacja jest otwarta.</string>
+    <string name="bin_sweep_never">Nigdy</string>
+    <string name="bin_sweep_week">Tydzień</string>
+    <string name="bin_sweep_month">Miesiąc</string>
+    <string name="bin_sweep_quarter">Trzy miesiące</string>
     <string name="pick_duplicate">Duplikuj</string>
     <string name="settings_grid_names">Nazwa pliku w siatce zdjęć</string>
     <string name="settings_grid_names_desc">Pokazuje nazwę pliku również w widoku siatki, pod miniaturą. Najwyżej dwa wiersze.</string>

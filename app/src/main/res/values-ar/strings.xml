@@ -335,6 +335,8 @@
     <string name="settings_group_advanced">ميزات متقدمة</string>
     <string name="settings_ext_edit">تغيير الامتدادات من \'إعادة تسمية\'</string>
     <string name="settings_ext_edit_desc">تتيح لوحة إعادة التسمية تغيير امتدادات الملفات. إن لم تكن متأكدًا فلا تُشغّل هذا الخيار: قد يجعل الصور غير قابلة للقراءة.</string>
+    <string name="settings_gpu_thumbs">الاحتفاظ بالصور المصغرة في ذاكرة الرسوميات</string>
+    <string name="settings_gpu_thumbs_desc">تُحفظ الصور المصغرة خارج ذاكرة التطبيق، فتبقى متاحة للصور الكبيرة. قد يسبب ذلك مشكلات على بعض الأجهزة، ولهذا فهو معطل افتراضيًا.</string>
     <string name="settings_thumbs">حذف المصغّرات المحفوظة</string>
     <string name="settings_thumbs_empty">لا توجد مصغّرات محفوظة</string>
     <string name="settings_thumbs_warn">اضغط على الزر لإفراغ ذاكرة المصغّرات. ستُحذف معاينات الصور ومقاطع الفيديو وسيُعاد إنشاؤها تلقائيًا عند فتح كل مجلد (قد يستغرق ذلك دقيقة أو أكثر في المجلدات التي تحتوي على صور كبيرة كثيرة).</string>
@@ -380,6 +382,12 @@
     <string name="columns_hint">اختصار: اضغط مطولا على الزر العائم لفتح خيارات العرض.</string>
     <string name="settings_bin">تشغيل سلة المهملات</string>
     <string name="settings_bin_desc">حذف ملف لا يطلب أي تأكيد، لكن الإجراء قابل للتراجع عبر \'استعادة\' من سلة المهملات (الزر العائم →\u00A0\'سلة المهملات\'). يمكنك إيقاف سلة المهملات تماما إذا كنت تفضل الحذف الفوري: في تلك الحالة سيظهر تأكيد قبل كل عملية حذف.\n⚠️ تنبيه: إذا أزلت التطبيق، يضيع محتوى سلة المهملات ولا يمكن استرجاعه.</string>
+    <string name="settings_bin_sweep">إفراغ سلة المحذوفات تلقائيًا</string>
+    <string name="settings_bin_sweep_desc">يخرج كل ملف محذوف من السلة عند بلوغه المدة التي تختارها. النسخ الاحتياطية للمحرر لا تنتهي صلاحيتها أبدًا، والتنظيف يجري فقط أثناء فتح التطبيق.</string>
+    <string name="bin_sweep_never">أبدًا</string>
+    <string name="bin_sweep_week">أسبوع واحد</string>
+    <string name="bin_sweep_month">شهر واحد</string>
+    <string name="bin_sweep_quarter">ثلاثة أشهر</string>
     <string name="pick_duplicate">تكرار</string>
     <string name="settings_grid_names">اسم الملف في الشبكة</string>
     <string name="settings_grid_names_desc">يعرض اسم الملف في عرض الشبكة أيضًا، تحت المصغّرة. سطران على الأكثر.</string>

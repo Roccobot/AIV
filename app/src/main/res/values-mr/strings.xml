@@ -283,6 +283,8 @@
     <string name="settings_group_advanced">प्रगत सुविधा</string>
     <string name="settings_ext_edit">\'नाव बदला\' मधून एक्स्टेंशन बदला</string>
     <string name="settings_ext_edit_desc">नाव बदलण्याचा पॅनेल फाइलचे एक्स्टेंशन बदलू देतो. काय करत आहात याची खात्री नसेल तर हे चालू करू नका: चित्रे न वाचता येण्यासारखी होऊ शकतात.</string>
+    <string name="settings_gpu_thumbs">थंबनेल ग्राफिक्स मेमरीत ठेवा</string>
+    <string name="settings_gpu_thumbs_desc">थंबनेल अ‍ॅपच्या स्वतःच्या मेमरीबाहेर ठेवले जातात, त्यामुळे मोठ्या प्रतिमांसाठी जागा उरते. काही उपकरणांवर यामुळे अडचण येऊ शकते, म्हणून हे सुरुवातीपासून बंद असते.</string>
     <string name="settings_thumbs">साठवलेल्या लघुप्रतिमा हटवा</string>
     <string name="settings_thumbs_empty">साठवलेली लघुप्रतिमा नाही</string>
     <string name="settings_thumbs_warn">लघुप्रतिमांची कॅशे रिकामी करण्यासाठी बटण दाबा. प्रतिमा आणि व्हिडिओंची पूर्वदृश्ये हटतील आणि प्रत्येक फोल्डर उघडल्यावर स्वयंचलितपणे पुन्हा तयार होतील (पुष्कळ मोठ्या प्रतिमा असलेल्या फोल्डरमध्ये यास एक मिनिट किंवा अधिक वेळ लागू शकतो).</string>
@@ -320,6 +322,12 @@
     <string name="columns_hint">शॉर्टकट: दर्शन पर्यायांसाठी तरंगते बटण दाबून धरा.</string>
     <string name="settings_bin">कचरापेटी सुरू करा</string>
     <string name="settings_bin_desc">फाइल पुसताना काहीही विचारले जात नाही, पण कचरापेटीतून \'पुन्हा आणा\' ने ही कृती उलटवता येते (फ्लोटिंग बटण →\u00A0\'कचरापेटी\'). तुम्हाला तात्काळ पुसणे आवडत असेल तर कचरापेटी पूर्ण बंद करू शकता: तेव्हा प्रत्येक वेळी पुसण्यापूर्वी खात्री विचारली जाईल.\n⚠️ इशारा: ॲप काढून टाकल्यास कचरापेटीतील सामग्री हरवते आणि परत मिळत नाही.</string>
+    <string name="settings_bin_sweep">कचरापेटी आपोआप रिकामी करा</string>
+    <string name="settings_bin_sweep_desc">काढून टाकलेली प्रत्येक फाईल तुम्ही निवडलेला काळ पूर्ण होताच कचरापेटीतून निघून जाते. संपादकाच्या सुरक्षित प्रती कधीच संपत नाहीत, आणि साफसफाई फक्त अ‍ॅप उघडे असतानाच होते.</string>
+    <string name="bin_sweep_never">कधीच नाही</string>
+    <string name="bin_sweep_week">एक आठवडा</string>
+    <string name="bin_sweep_month">एक महिना</string>
+    <string name="bin_sweep_quarter">तीन महिने</string>
     <string name="pick_duplicate">प्रत बनवा</string>
     <string name="settings_grid_names">ग्रिडमध्ये फाइलचे नाव</string>
     <string name="settings_grid_names_desc">जाळी दृश्यातही लघुप्रतिमेखाली फायलीचे नाव दाखवते. जास्तीत जास्त दोन ओळी.</string>

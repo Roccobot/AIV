@@ -270,6 +270,8 @@
     <string name="settings_group_advanced">進階功能</string>
     <string name="settings_ext_edit">在 \'重新命名\' 中修改副檔名</string>
     <string name="settings_ext_edit_desc">重新命名面板可以修改檔案的副檔名。若不清楚自己在做什麼，請不要開啟：圖片可能會變得無法讀取。</string>
+    <string name="settings_gpu_thumbs">把縮圖放在圖形記憶體裡</string>
+    <string name="settings_gpu_thumbs_desc">縮圖不再占用應用程式自身的記憶體，大圖因此有更多餘裕。在部分裝置上可能出問題，所以預設關閉。</string>
     <string name="settings_thumbs">刪除已儲存的縮圖</string>
     <string name="settings_thumbs_empty">沒有已儲存的縮圖</string>
     <string name="settings_thumbs_warn">輕觸按鈕以清除縮圖快取。圖片與影片的預覽會被刪除，並在開啟每個資料夾時自動重新產生（在大圖很多的資料夾中，這可能需要一分鐘或更久）。</string>
@@ -305,6 +307,12 @@
     <string name="columns_hint">快捷方式：長按浮動按鈕開啟顯示選項。</string>
     <string name="settings_bin">啟用回收筒</string>
     <string name="settings_bin_desc">刪除檔案不會有任何提示，但可以在回收筒裡用 \'還原\' 復原（浮動按鈕 →\u00A0\'回收筒\'）。如果你偏好立即刪除，可以完全關閉回收筒：那樣每次刪除前都會出現確認。\n⚠️ 注意：解除安裝應用程式後，回收筒裡的內容會遺失且無法復原。</string>
+    <string name="settings_bin_sweep">自動清空回收筒</string>
+    <string name="settings_bin_sweep_desc">每個刪除的檔案到了你選的期限就會離開回收筒。編輯器的備份永不過期，清理只在應用程式開啟時進行。</string>
+    <string name="bin_sweep_never">從不</string>
+    <string name="bin_sweep_week">一週</string>
+    <string name="bin_sweep_month">一個月</string>
+    <string name="bin_sweep_quarter">三個月</string>
     <string name="pick_duplicate">建立副本</string>
     <string name="settings_grid_names">格線中顯示檔名</string>
     <string name="settings_grid_names_desc">在格狀檢視中也於縮圖下方顯示檔名。最多兩行。</string>

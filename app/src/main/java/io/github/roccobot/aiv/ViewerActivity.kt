@@ -21,7 +21,6 @@ import androidx.annotation.StringRes
 import androidx.core.net.toUri
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -35,6 +34,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -1990,6 +1990,33 @@ private fun AivApp(model: ViewerViewModel) {
         return
     }
     /*
+     * ⚠️⚠️ **QUI L'IMPOSTAZIONE ESCE DALL'INTERFACCIA E ARRIVA A COIL**: un `Fetcher` non vede
+     * le preferenze, quindi qualcuno deve portargliele, e questo è l'unico posto dell'app in
+     * cui le preferenze ci sono e il caricatore è già dichiarato. Il perché di una variabile
+     * globale invece di un parametro sta su [Thumbs.inGpu].
+     * ⚠️ **`SideEffect` e non una riga nuda**: scrivere fuori dalla composizione durante la
+     * composizione è esattamente ciò per cui quel blocco esiste, e senza di lui la scrittura
+     * si rifarebbe a ogni ricomposizione della radice, cioè molte volte per niente.
+     */
+    SideEffect { Thumbs.inGpu = settings.gpuThumbs }
+    /*
+     * ⚠️⚠️ **LO SVUOTAMENTO AUTOMATICO DEL CESTINO GIRA QUI, E SOLO QUI, PERCHÉ È QUELLO CHE
+     * HA CHIESTO LUI** (giro della 1.67, `d-cestino-chiusa`: **`aperta`**, ribadito il
+     * 2026-09-06: *nulla deve avvenire al di fuori dell'app aperta in primo piano*). Quindi
+     * niente operazione programmata di sistema e nessuna libreria in più: la pulizia è un
+     * effetto dell'app che è in scena.
+     * ⚠️ **La chiave è la durata scelta**, quindi passa una volta all'avvio e un'altra ogni
+     * volta che lui la cambia, che è esattamente quando serve: cambiarla da 'Mai' a 'Un mese'
+     * deve avere un effetto visibile subito, o sembra che non abbia fatto niente.
+     * ⚠️ **Con 'Mai' non tocca il disco**: [Bin.sweep] esce prima di leggere l'archivio, quindi
+     * questo effetto costa niente nel caso di fabbrica.
+     * ⚠️ **Il conto dei file tolti non si mostra**: una pulizia che si annuncia da sola
+     * sarebbe un avviso a ogni avvio per un lavoro che l'utente ha già deciso una volta, e i
+     * file spariti sono esattamente quelli che aveva accettato di perdere.
+     */
+    val perPulizia = LocalContext.current
+    LaunchedEffect(settings.binKeep) { Bin.sweep(perPulizia, settings.binKeep.days) }
+    /*
      * ⚠️⚠️ **IL SELETTORE E L'AVVISO STANNO PRIMA DEL `when`, e non dentro un ramo**: la
      * scelta dell'editor si chiede da due schermate diverse (il menu del tocco lungo e le
      * impostazioni), e l'esito di un salvataggio arriva quando l'editor si è **già** chiuso.
@@ -2061,7 +2088,7 @@ private fun AivApp(model: ViewerViewModel) {
             transitionSpec = { cambioSchermata() },
             label = "schermata"
         ) { schermo ->
-            ConArrivo { Stage(schermo, model, settings) }
+            Stage(schermo, model, settings)
         }
         UndoNotice(
             visible = disfare.isNotEmpty(),
@@ -2118,43 +2145,16 @@ private const val SCHERMO_MS = 180
  *   già (`ViewerScreen.kt`): dice che il contenitore prende subito la misura della schermata che
  *   entra, invece di dichiarare un'animazione che non ha niente da animare. Con lei se ne va il
  *   `clip = false`, che riguardava soltanto il ritaglio durante quella misura.
- * - ⚠️⚠️ **E QUINDI IL MOVIMENTO CHE LUI VEDE NASCE ALTROVE**: il banco esclude il posto del
- *   FAB, che non si sposta di un pixel in nessuna delle due configurazioni. Quello che il
- *   banco **non** vede, e che resta da guardare, è la resa vera: quanto la dissolvenza della
- *   schermata copre l'entrata (i conti stanno in `Entrata.kt`) e che cosa la schermata che se ne
- *   va tiene nello stesso angolo mentre svanisce.
+ * - ⚠️⚠️ **E IL MOVIMENTO CHE LUI VEDEVA NASCEVA DALL'ENTRATA DEL FAB, che dalla `1.75` non
+ *   esiste più**: la `1.74` gliela aveva fatta aspettare, lui ha guardato il risultato e ha
+ *   deciso di toglierla (*se ne va. Preferisco semplificare*). Quindi non c'è più niente da
+ *   cercare da questa parte, e questa nota resta perché la `SizeTransform` non torni.
  *
  * ⚠️⚠️ **STA IN UNA FUNZIONE SUA, DALLA `1.74`, PERCHÉ IL BANCO DI PROVA DEVE MISURARE QUESTA
  * E NON UNA COPIA**: scritta dentro la `AnimatedContent`, una prova poteva soltanto riscriverla
  * accanto, e da quel momento avrebbe continuato a passare qualunque cosa fosse successa qui.
  * Una prova che non guarda il codice vero è una prova che mente in verde.
  */
-/**
- * Dice a chi sta dentro se la schermata **sta ancora arrivando**, e lo mette in [LocalArrivo].
- *
- * ⚠️⚠️ **QUESTO È L'UNICO POSTO CHE PUÒ SAPERLO**: la transizione ce l'ha in mano soltanto chi
- * sta dentro la lambda della [AnimatedContent] dei cambi di schermata. Serve all'entrata del FAB,
- * che dalla `1.74` aspetta la fine della dissolvenza invece di giocarsi sotto di lei: il perché,
- * con la misura, sta su [rememberEntrata].
- *
- * ⚠️ **`transition` è quella del FIGLIO** (`EnterExitState`), non quella delle schermate:
- * `currentState` raggiunge `targetState` quando l'entrata di **questo** contenuto è finita, che è
- * il momento cercato. Con `EnterTransition.None` i due stati coincidono dal primo fotogramma,
- * quindi entrando e uscendo dal visualizzatore non si aspetta niente.
- *
- * ⚠️⚠️ **STA IN UNA FUNZIONE SUA PERCHÉ IL BANCO DI PROVA DEVE MONTARE QUESTA E NON UNA COPIA**:
- * una prova che riscrivesse questa riga accanto a sé misurerebbe la propria riga, e continuerebbe
- * a passare il giorno che qui cambia qualcosa. È la stessa ragione di [cambioSchermata], e la
- * regola universale sta in `Roccobot.md` § '🧪 Test e verifiche'.
- */
-@Composable
-internal fun AnimatedVisibilityScope.ConArrivo(contenuto: @Composable () -> Unit) {
-    val arrivo = remember(this) {
-        derivedStateOf { transition.currentState != transition.targetState }
-    }
-    CompositionLocalProvider(LocalArrivo provides arrivo, content = contenuto)
-}
-
 internal fun AnimatedContentTransitionScope<Screen>.cambioSchermata(): ContentTransform =
     if (initialState is Screen.Viewer || targetState is Screen.Viewer) {
         EnterTransition.None togetherWith ExitTransition.None

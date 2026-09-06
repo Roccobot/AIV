@@ -270,6 +270,8 @@
     <string name="settings_group_advanced">Fitur lanjutan</string>
     <string name="settings_ext_edit">Ubah ekstensi dari \'Ganti nama\'</string>
     <string name="settings_ext_edit_desc">Panel ganti nama bisa mengubah ekstensi berkas. Kalau tidak yakin, jangan nyalakan ini: gambar bisa jadi tidak terbaca.</string>
+    <string name="settings_gpu_thumbs">Simpan gambar mini di memori grafis</string>
+    <string name="settings_gpu_thumbs_desc">Gambar mini disimpan di luar memori aplikasi, sehingga memori tetap lega untuk gambar besar. Pada sebagian perangkat hal ini bisa menimbulkan masalah, karena itu setelan ini mati secara bawaan.</string>
     <string name="settings_thumbs">Hapus miniatur yang tersimpan</string>
     <string name="settings_thumbs_empty">Tidak ada miniatur tersimpan</string>
     <string name="settings_thumbs_warn">Ketuk tombol untuk mengosongkan cache miniatur. Pratinjau gambar dan video akan dihapus dan dibuat ulang secara otomatis saat kamu membuka setiap folder (ini dapat memerlukan satu menit atau lebih di folder dengan banyak gambar besar).</string>
@@ -305,6 +307,12 @@
     <string name="columns_hint">Pintasan: tekan lama tombol mengambang untuk opsi tampilan.</string>
     <string name="settings_bin">Aktifkan tempat sampah</string>
     <string name="settings_bin_desc">Menghapus berkas tidak menanyakan apa pun, tetapi tindakan ini bisa dibatalkan dengan \'Pulihkan\' dari tempat sampah (tombol mengambang →\u00A0\'Tempat sampah\'). Kamu bisa mematikan tempat sampah sepenuhnya jika lebih suka penghapusan langsung: dalam hal itu, konfirmasi akan muncul sebelum setiap penghapusan.\n⚠️ PERHATIAN: jika aplikasi dicopot, isi tempat sampah hilang dan tidak dapat dipulihkan.</string>
+    <string name="settings_bin_sweep">Kosongkan sampah otomatis</string>
+    <string name="settings_bin_sweep_desc">Setiap berkas yang dihapus keluar dari sampah begitu mencapai usia yang kamu pilih. Cadangan editor tidak pernah kedaluwarsa, dan pembersihan hanya berjalan selama aplikasi terbuka.</string>
+    <string name="bin_sweep_never">Tidak pernah</string>
+    <string name="bin_sweep_week">Satu minggu</string>
+    <string name="bin_sweep_month">Satu bulan</string>
+    <string name="bin_sweep_quarter">Tiga bulan</string>
     <string name="pick_duplicate">Duplikat</string>
     <string name="settings_grid_names">Nama berkas di kisi foto</string>
     <string name="settings_grid_names_desc">Menampilkan nama berkas juga pada tampilan kisi, di bawah miniatur. Paling banyak dua baris.</string>

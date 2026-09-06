@@ -565,17 +565,59 @@ dietro un velo che parte da zero, e l'occhio ne prende soltanto la coda.
   crescita dal 75%; tornando da una cartella, a metà opacità (67 ms) la misura era **già al 90%**,
   quindi restavano l'ultimo decimo e il rimbalzo. Lo stesso codice dava **due animazioni
   diverse**, e quella che si vedeva più spesso era la peggiore.
-- **La regola**: un'animazione che deve *farsi vedere* aspetta che la schermata sia arrivata. Il
-  meccanismo è `LocalArrivo`, che dice se la dissolvenza è in corso, e lo fornisce `ConArrivo`
-  dentro la `AnimatedContent` dei cambi di schermata, perché è l'unico posto che ha la
-  transizione in mano.
+- **La regola**: un'animazione che deve *farsi vedere* aspetta che la schermata sia arrivata,
+  perché giocata sotto la dissolvenza si vede solo per la coda.
 - ⚠️ **Non vale per tutto**: quello che deve *arrivare insieme alla schermata* (uno sfondo, una
   fascia sfumata, il contenuto) sta giusto dov'è. La distinzione è fra un elemento che si limita
   a esserci e uno che racconta qualcosa mentre entra.
-- ⚠️ **Fra la fine della dissolvenza e il primo fotogramma dell'animazione passano quattro
-  fotogrammi**, ed è della transizione e non dell'attesa: un `Transition` porta `currentState` su
-  `targetState` un paio di fotogrammi dopo l'ultimo valore animato. Non si compensa accorciando
-  l'attesa, perché quello è il momento in cui la schermata ha davvero finito di arrivare.
+- ⚠️ **Fra la fine della dissolvenza e il primo fotogramma di un'animazione che aspetta passano
+  quattro fotogrammi**, ed è della transizione e non dell'attesa: un `Transition` porta
+  `currentState` su `targetState` un paio di fotogrammi dopo l'ultimo valore animato. Non si
+  compensa accorciando l'attesa, perché quello è il momento in cui la schermata ha davvero
+  finito di arrivare.
+
+⚠️⚠️ **IL MECCANISMO CHE SERVIVA AD ASPETTARE NON C'È PIÙ, DALLA `1.75`, E LA REGOLA RESTA.**
+`LocalArrivo` e `ConArrivo` erano nati nella `1.74` per il solo chiamante che ne avesse bisogno,
+l'entrata del FAB, e con lei se ne sono andati (riscontro dell'utente, giro della `1.74`:
+*animazione all'ingresso (avvio e ritorno in home): se ne va. Preferisco semplificare*). Chi
+dovesse far aspettare un'animazione li ritrova nella storia git, misure comprese: erano un
+`CompositionLocal` acceso da dentro la `AnimatedContent` dei cambi di schermata, che è l'unico
+posto ad avere la transizione in mano.
+- ⚠️ **Il fatto che regge la regola non dipendeva da loro**: le opacità si moltiplicano comunque,
+  e la misura dei due casi (all'avvio tutta la crescita, tornando da una cartella l'ultimo
+  decimo) resta vera per qualunque animazione che qualcuno rimetta là sotto.
+- ⚠️ **La prova del banco è cambiata di bersaglio insieme al codice**: `EntrataTest` misurava
+  l'attesa e non aveva più niente da guardare, `CambioSchermataTest` misura che durante il cambio
+  di schermata il FAB **non si muove e non cambia misura**, cioè la forma esatta del difetto che
+  gli era arrivato due volte.
+
+## 🗑️ Lo svuotamento automatico del cestino, e le tre decisioni che lo governano
+
+⚠️⚠️ **LE TRE RISPOSTE SONO SUE, SI CITANO CON LA LORO CHIAVE, E UNA ERA STATA REGISTRATA AL
+CONTRARIO** (giro della 1.67; l'archivio del giro sta in `Roccobot/tools`, `.memo/files/`):
+- `d-cestino-quando`: **`file`**. Ogni file conta la **propria** età e se ne va quando l'ha
+  compiuta, come fanno i cestini di sistema. Non si svuota tutto a intervalli.
+- `d-cestino-chiusa`: **`aperta`**. La pulizia gira **solo mentre l'app è in primo piano**, e la
+  sua formulazione del 2026-09-06 non lascia margine: *nulla deve avvenire al di fuori dell'app
+  aperta in primo piano*. Quindi **nessuna operazione programmata di sistema e nessuna libreria
+  in più**.
+- `d-cestino-editor`: **`fuori`**. Le copie di sicurezza dell'editor **non scadono mai**: si
+  tolgono solo svuotando il cestino a mano. Una rete che sparisce da sé non è una rete.
+
+⚠️⚠️ **LA SECONDA ERA SCRITTA ROVESCIATA NEL BRIEF PER DUE GIORNI, e l'ha dovuto trovare lui**
+(*nell'apposito artefatto ti avevo già risposto la stessa cosa e tu hai memorizzato il
+contrario*). Da quell'inversione erano nati un `WorkManager` da aggiungere, una ragione per
+rimandare la tappa, e un blocco del brief che spiegava per bene una cosa falsa. La regola che ne
+esce è universale e sta in `Roccobot.md` § '🔑 Una risposta si travasa con la sua chiave, e si
+rilegge dalla fonte': quando una scelta a caselle diventa una frase, la chiave si scrive accanto
+e l'archivio del giro si riapre prima di scriverla.
+
+⚠️ **Come si distingue una copia di sicurezza da un'eliminazione**: dalla `1.75` l'archivio del
+cestino ha una **quarta colonna** facoltativa (`del` o `bak`), e il perché di ogni pezzo, compreso
+perché non basta guardare se l'originale esiste ancora, sta su `Bin.Record` e su `Bin.expiring`.
+- ⚠️ **La colonna è facoltativa per sempre**: un archivio scritto prima della `1.75` deve
+  continuare a leggersi, o aggiornando l'app ogni file già nel cestino perde la provenienza, cioè
+  non si può più ripristinare.
 
 ## ⚙️ Dove va un'impostazione, e chi la deve trovare
 

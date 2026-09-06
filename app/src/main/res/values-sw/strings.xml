@@ -283,6 +283,8 @@
     <string name="settings_group_advanced">Vipengele vya juu</string>
     <string name="settings_ext_edit">Badilisha viambishi kwa \'Badilisha jina\'</string>
     <string name="settings_ext_edit_desc">Kidirisha cha kubadilisha jina huruhusu kubadilisha viambishi vya faili. Kama hujui unafanya nini, usiwashe hii: inaweza kufanya picha zisisomeke.</string>
+    <string name="settings_gpu_thumbs">Weka vijipicha kwenye kumbukumbu ya michoro</string>
+    <string name="settings_gpu_thumbs_desc">Vijipicha huhifadhiwa nje ya kumbukumbu ya programu, hivyo nafasi hubaki kwa picha kubwa. Katika baadhi ya vifaa hili linaweza kuleta matatizo, ndiyo maana limezimwa kwa chaguomsingi.</string>
     <string name="settings_thumbs">Futa vijipicha vilivyohifadhiwa</string>
     <string name="settings_thumbs_empty">Hakuna vijipicha vilivyohifadhiwa</string>
     <string name="settings_thumbs_warn">Gusa kitufe ili kufuta akiba ya vijipicha. Onyesho la kukagua la picha na video litafutwa na litaundwa upya kiotomatiki unapofungua kila folda (katika folda zenye picha kubwa nyingi hii inaweza kuchukua dakika moja au zaidi).</string>
@@ -320,6 +322,12 @@
     <string name="columns_hint">Njia ya mkato: shikilia kitufe kinachoelea ili kufungua chaguo za mwonekano.</string>
     <string name="settings_bin">Washa tapishi</string>
     <string name="settings_bin_desc">Kufuta faili hakuulizi kitu, lakini kitendo kinaweza kubatilishwa kwa \'Rudisha\' kutoka tapishi (kitufe kinachoelea →\u00A0\'Tapishi\'). Unaweza kuzima tapishi kabisa ukipendelea kufuta papo hapo: hapo utaonyeshwa uthibitisho kabla ya kila kufuta.\n⚠️ TAHADHARI: ukiondoa programu, yaliyomo kwenye tapishi hupotea na hayawezi kurudishwa.</string>
+    <string name="settings_bin_sweep">Ondoa takataka kiotomatiki</string>
+    <string name="settings_bin_sweep_desc">Kila faili iliyofutwa hutoka kwenye takataka inapofikia muda uliochagua. Nakala za akiba za kihariri haziishi muda wake kamwe, na usafi hufanyika tu wakati programu imefunguliwa.</string>
+    <string name="bin_sweep_never">Kamwe</string>
+    <string name="bin_sweep_week">Wiki moja</string>
+    <string name="bin_sweep_month">Mwezi mmoja</string>
+    <string name="bin_sweep_quarter">Miezi mitatu</string>
     <string name="pick_duplicate">Nakili hapa</string>
     <string name="settings_grid_names">Jina la faili kwenye gridi</string>
     <string name="settings_grid_names_desc">Huonyesha jina la faili pia katika mwonekano wa gridi, chini ya kijipicha. Mistari miwili kwa juu zaidi.</string>

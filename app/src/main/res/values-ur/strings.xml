@@ -283,6 +283,8 @@
     <string name="settings_group_advanced">اعلیٰ خصوصیات</string>
     <string name="settings_ext_edit">\'نام بدلیں\' سے ایکسٹینشن بدلیں</string>
     <string name="settings_ext_edit_desc">نام بدلنے کا پینل فائلوں کی ایکسٹینشن بدلنے دیتا ہے۔ اگر آپ کو یقین نہیں تو اسے آن نہ کریں: تصویریں ناقابلِ مطالعہ ہو سکتی ہیں۔</string>
+    <string name="settings_gpu_thumbs">تھمب نیلز کو گرافکس میموری میں رکھیں</string>
+    <string name="settings_gpu_thumbs_desc">تھمب نیلز ایپ کی اپنی میموری سے باہر رکھے جاتے ہیں، تاکہ بڑی تصویروں کے لیے جگہ بچے۔ کچھ آلات پر اس سے مسئلہ ہو سکتا ہے، اسی لیے یہ شروع سے بند ہے۔</string>
     <string name="settings_thumbs">محفوظ تھمب نیلز حذف کریں</string>
     <string name="settings_thumbs_empty">کوئی محفوظ تھمب نیل نہیں</string>
     <string name="settings_thumbs_warn">تھمب نیل کیش خالی کرنے کے لیے بٹن پر ٹیپ کریں۔ تصاویر اور ویڈیوز کے پیش مناظر حذف ہو جائیں گے اور ہر فولڈر کھولنے پر خود بخود دوبارہ بن جائیں گے (بہت سی بڑی تصاویر والے فولڈرز میں اس میں ایک منٹ یا اس سے زیادہ لگ سکتا ہے)۔</string>
@@ -320,6 +322,12 @@
     <string name="columns_hint">شارٹ کٹ: نمائش کے اختیارات کے لیے تیرتا بٹن دبائے رکھیں۔</string>
     <string name="settings_bin">ردی کی ٹوکری فعال کریں</string>
     <string name="settings_bin_desc">فائل مٹانا کچھ نہیں پوچھتا، لیکن یہ کام ردی کی ٹوکری سے \'بحال کریں\' کے ذریعے واپس ہو سکتا ہے (فلوٹنگ بٹن →\u00A0\'ردی کی ٹوکری\')۔ اگر آپ فوری مٹانا پسند کرتے ہیں تو ردی کی ٹوکری مکمل بند کر سکتے ہیں: اس صورت میں ہر مٹانے سے پہلے تصدیق آئے گی۔\n⚠️ انتباہ: اگر آپ ایپ ان انسٹال کریں تو ردی کی ٹوکری کا مواد ضائع ہو جاتا ہے اور واپس نہیں آتا۔</string>
+    <string name="settings_bin_sweep">ردی کی ٹوکری خود بخود خالی کریں</string>
+    <string name="settings_bin_sweep_desc">ہر حذف شدہ فائل آپ کے منتخب کردہ وقت پر پہنچتے ہی ٹوکری سے نکل جاتی ہے۔ ایڈیٹر کی حفاظتی نقلیں کبھی ختم نہیں ہوتیں، اور صفائی صرف اس وقت ہوتی ہے جب ایپ کھلی ہو۔</string>
+    <string name="bin_sweep_never">کبھی نہیں</string>
+    <string name="bin_sweep_week">ایک ہفتہ</string>
+    <string name="bin_sweep_month">ایک مہینہ</string>
+    <string name="bin_sweep_quarter">تین مہینے</string>
     <string name="pick_duplicate">نقل بنائیں</string>
     <string name="settings_grid_names">گرڈ میں فائل کا نام</string>
     <string name="settings_grid_names_desc">گرڈ منظر میں بھی تھمب نیل کے نیچے فائل کا نام دکھاتا ہے۔ زیادہ سے زیادہ دو سطریں۔</string>

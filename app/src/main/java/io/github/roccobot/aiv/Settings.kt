@@ -106,6 +106,23 @@ enum class ScaleMode(override val token: String) : Choice { PHYSICAL("physical")
 enum class Hand(override val token: String) : Choice { LEFT("left"), RIGHT("right") }
 
 /**
+ * Dopo quanto un file eliminato se ne va dal cestino da solo.
+ *
+ * ⚠️⚠️ **DURATE CON UN NOME E NON UN NUMERO DI GIORNI, ed è una scelta di traduzione**: '7
+ * giorni' vuole un plurale, e le categorie di plurale non coincidono fra le ventotto lingue
+ * (in arabo 7 e 14 ne chiedono due diverse). 'Una settimana' e 'Un mese' sono frasi fisse:
+ * si traducono una volta e non hanno un caso in cui sbagliano.
+ * ⚠️ **[NEVER] è il valore di fabbrica**, e vale zero giorni: lo svuotamento automatico è
+ * spento finché non lo si accende, perché cancella file per sempre.
+ */
+enum class BinKeep(override val token: String, val days: Int) : Choice {
+    NEVER("never", 0),
+    WEEK("week", 7),
+    MONTH("month", 30),
+    QUARTER("quarter", 90)
+}
+
+/**
  * Quanto è grande il testo nella vista a **elenco**.
  *
  * ⚠️ Vale per il solo elenco e non per tutta l'app: là ogni riga è nome più conto, e chi
@@ -475,6 +492,50 @@ data class Settings(
      */
     val extEdit: Boolean = false,
     /**
+     * Se le miniature vivono nella **memoria grafica** invece che in quella dell'app.
+     *
+     * ⚠️⚠️ **RICHIESTA DELL'UTENTE, e autorizzata in chiaro due volte** (giro della `1.67`:
+     * *PROCEDI*; giro della `1.74`: *aggiungi l'opzione come stabilito*). Il guadagno vero non
+     * è la velocità di disegno ma il **budget**: `ImageSource.pixelBudget` misura la memoria
+     * che resta all'app per decidere se campionare la fotografia grande, e ogni miniatura
+     * tenuta in caldo da Coil gliela toglie. In memoria grafica quelle non pesano più sul
+     * mucchio dell'app, quindi il visualizzatore ha più spazio proprio dove la qualità si
+     * vede.
+     * ⚠️⚠️ **SPENTA DI FABBRICA, E STA FRA LE 'FUNZIONALITÀ AVANZATE' PER UNA RAGIONE
+     * MISURABILE**: un bitmap in memoria grafica costa un **descrittore di file** al processo,
+     * e il tetto di Android è dell'ordine del migliaio. Una cache di miniature che cresce
+     * senza freno li esaurisce, e quando succede l'app non rallenta: va in errore. È
+     * esattamente il genere di funzione per cui quel gruppo è nato.
+     * ⚠️⚠️ **SPENTA VUOL DIRE SOFTWARE DAPPERTUTTO, e questo cambia una cosa rispetto alla
+     * `1.74`**: fino a lì la decodifica di ripiego di Coil poteva già dare bitmap in memoria
+     * grafica, perché è il suo valore di serie, mentre le miniature del sistema erano software.
+     * Erano due comportamenti diversi per due strade, e nessuno dei due era stato scelto.
+     * Adesso a decidere è questo interruttore, e da spento tutte e due le strade sono software.
+     * Un interruttore che governa metà di quello che il suo titolo dice è peggio di nessun
+     * interruttore.
+     * ⚠️ **Non tocca il visualizzatore**: là la decodifica è quella di `ImageSource`, che deve
+     * poter **rileggere** i pixel (esportazione, editor, copia negli appunti) e un bitmap in
+     * memoria grafica non si rilegge. Questo interruttore parla delle sole miniature.
+     */
+    val gpuThumbs: Boolean = false,
+    /**
+     * Dopo quanto un file eliminato se ne va dal cestino da solo.
+     *
+     * ⚠️⚠️ **LE TRE DECISIONI CHE LA GOVERNANO SONO SUE, e si citano con la loro chiave perché
+     * si possano riverificare** (giro della 1.67): `d-cestino-quando`: **`file`**, cioè ogni
+     * file conta la propria età e non si svuota tutto a intervalli; `d-cestino-chiusa`:
+     * **`aperta`**, cioè la pulizia gira **solo mentre l'app è in primo piano**;
+     * `d-cestino-editor`: **`fuori`**, cioè le copie di sicurezza dell'editor non scadono mai.
+     * ⚠️⚠️ **LA SECONDA ERA STATA REGISTRATA AL CONTRARIO nel brief, e l'ha dovuto segnalare
+     * lui** (2026-09-06: *nell'apposito artefatto ti avevo già risposto la stessa cosa e tu hai
+     * memorizzato il contrario*). Da quell'inversione era nata l'idea che servisse
+     * un'operazione programmata di sistema, e con lei una libreria in più: non serve niente.
+     * La regola che ne è uscita sta in `Roccobot.md` § '🔑 Una risposta si travasa con la sua
+     * chiave, e si rilegge dalla fonte'.
+     * ⚠️ **Spenta di fabbrica**, perché cancella file per sempre.
+     */
+    val binKeep: BinKeep = BinKeep.NEVER,
+    /**
      * I percorsi delle cartelle che non devono comparire fra quelle da sfogliare.
      *
      * ⚠️⚠️ **PERCORSI E NON IDENTIFICATIVI, ed è la scelta che regge la funzione**
@@ -662,6 +723,8 @@ object SettingsStore {
     private val CLIP_AUTOPLAY = booleanPreferencesKey("clip-autoplay")
     private val GRID_NAMES = booleanPreferencesKey("grid-names")
     private val EXT_EDIT = booleanPreferencesKey("ext-edit")
+    private val GPU_THUMBS = booleanPreferencesKey("gpu-thumbs")
+    private val BIN_KEEP = stringPreferencesKey("bin-keep")
     private val FOLDER_COUNT = booleanPreferencesKey("folder-count")
     private val HIDDEN_FOLDERS = stringSetPreferencesKey("hidden-folders")
 
@@ -732,6 +795,8 @@ object SettingsStore {
             clipAutoplay = p[CLIP_AUTOPLAY] ?: false,
             gridNames = p[GRID_NAMES] ?: false,
             extEdit = p[EXT_EDIT] ?: false,
+            gpuThumbs = p[GPU_THUMBS] ?: false,
+            binKeep = BinKeep.entries.byToken(p[BIN_KEEP], BinKeep.NEVER),
             hiddenFolders = p[HIDDEN_FOLDERS] ?: emptySet(),
             factOrder = factOrderOf((p[FACT_ORDER] ?: "").split(',')),
             menuOrder = padOrderOf((p[MENU_ORDER] ?: "").split(','), MENU_KEYS),
@@ -814,6 +879,8 @@ object SettingsStore {
             p[CLIP_AUTOPLAY] = settings.clipAutoplay
             p[GRID_NAMES] = settings.gridNames
             p[EXT_EDIT] = settings.extEdit
+            p[GPU_THUMBS] = settings.gpuThumbs
+            p[BIN_KEEP] = settings.binKeep.token
             p[HIDDEN_FOLDERS] = settings.hiddenFolders
             p[FACT_ORDER] = settings.factOrder.joinToString(",") { it.token }
             p[MENU_ORDER] = settings.menuOrder.joinToString(",") { it.token }

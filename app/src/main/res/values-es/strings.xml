@@ -296,6 +296,8 @@
     <string name="settings_group_advanced">Funciones avanzadas</string>
     <string name="settings_ext_edit">Cambiar extensiones desde \'Renombrar\'</string>
     <string name="settings_ext_edit_desc">El panel de renombrado permite cambiar la extensión de los archivos. Si no sabes lo que haces, no actives esta opción: puede dejar las imágenes ilegibles.</string>
+    <string name="settings_gpu_thumbs">Guardar las miniaturas en la memoria gráfica</string>
+    <string name="settings_gpu_thumbs_desc">Las miniaturas se mantienen fuera de la memoria de la aplicación, que así queda libre para las imágenes grandes. En algunos dispositivos puede causar problemas, por eso está desactivada de forma predeterminada.</string>
     <string name="settings_thumbs">Eliminar las miniaturas almacenadas</string>
     <string name="settings_thumbs_empty">No hay miniaturas almacenadas</string>
     <string name="settings_thumbs_warn">Toca el botón para vaciar la caché de miniaturas. Las vistas previas de las imágenes y de los vídeos se eliminarán y se regenerarán automáticamente al abrir cada carpeta (esto puede tardar un minuto o más en las carpetas con muchas imágenes grandes).</string>
@@ -335,6 +337,12 @@
     <string name="columns_hint">Atajo: mantén pulsado el botón flotante para las opciones de visualización.</string>
     <string name="settings_bin">Activar la papelera</string>
     <string name="settings_bin_desc">Eliminar un archivo no pregunta nada, pero la acción se puede deshacer con un \'Restaurar\' desde la papelera (botón flotante →\u00A0\'Papelera\'). Puedes desactivar la papelera por completo si prefieres una eliminación instantánea: en ese caso, aparecerá una confirmación antes de cada eliminación.\n⚠️ ATENCIÓN: si desinstalas la aplicación, el contenido de la papelera se pierde y no se puede recuperar.</string>
+    <string name="settings_bin_sweep">Vaciar la papelera automáticamente</string>
+    <string name="settings_bin_sweep_desc">Cada archivo eliminado sale de la papelera al cumplir el tiempo que elijas. Las copias de seguridad del editor no caducan nunca, y la limpieza solo se hace mientras la aplicación está abierta.</string>
+    <string name="bin_sweep_never">Nunca</string>
+    <string name="bin_sweep_week">Una semana</string>
+    <string name="bin_sweep_month">Un mes</string>
+    <string name="bin_sweep_quarter">Tres meses</string>
     <string name="pick_duplicate">Duplicar</string>
     <string name="settings_grid_names">Nombre del archivo en la cuadrícula</string>
     <string name="settings_grid_names_desc">Muestra el nombre del archivo también en vista de cuadrícula, bajo la miniatura. Dos líneas como máximo.</string>

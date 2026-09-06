@@ -270,6 +270,8 @@
     <string name="settings_group_advanced">ฟีเจอร์ขั้นสูง</string>
     <string name="settings_ext_edit">เปลี่ยนนามสกุลจาก \'เปลี่ยนชื่อ\'</string>
     <string name="settings_ext_edit_desc">แผงเปลี่ยนชื่อสามารถเปลี่ยนนามสกุลของไฟล์ได้ ถ้าไม่แน่ใจว่ากำลังทำอะไร อย่าเปิดตัวเลือกนี้ เพราะอาจทำให้รูปอ่านไม่ได้</string>
+    <string name="settings_gpu_thumbs">เก็บภาพย่อไว้ในหน่วยความจำกราฟิก</string>
+    <string name="settings_gpu_thumbs_desc">ภาพย่อจะถูกเก็บไว้นอกหน่วยความจำของแอป ทำให้เหลือที่ว่างสำหรับภาพขนาดใหญ่ บนอุปกรณ์บางรุ่นอาจทำให้เกิดปัญหา จึงปิดไว้ตั้งแต่แรก</string>
     <string name="settings_thumbs">ลบภาพย่อที่เก็บไว้</string>
     <string name="settings_thumbs_empty">ไม่มีภาพย่อที่เก็บไว้</string>
     <string name="settings_thumbs_warn">แตะปุ่มเพื่อล้างแคชภาพย่อ ภาพตัวอย่างของรูปภาพและวิดีโอจะถูกลบและจะถูกสร้างขึ้นใหม่อัตโนมัติเมื่อเปิดแต่ละโฟลเดอร์ (ในโฟลเดอร์ที่มีรูปภาพขนาดใหญ่จำนวนมาก อาจใช้เวลาหนึ่งนาทีหรือมากกว่า)</string>
@@ -305,6 +307,12 @@
     <string name="columns_hint">ทางลัด: กดค้างที่ปุ่มลอยเพื่อเปิดตัวเลือกการแสดงผล.</string>
     <string name="settings_bin">เปิดถังขยะ</string>
     <string name="settings_bin_desc">การลบไฟล์ไม่ถามอะไร แต่ย้อนกลับได้ด้วย \'กู้คืน\' จากถังขยะ (ปุ่มลอย →\u00A0\'ถังขยะ\') คุณสามารถปิดถังขยะทั้งหมดได้หากต้องการลบทันที ในกรณีนั้นจะมีการยืนยันก่อนการลบทุกครั้ง\n⚠️ คำเตือน: ถ้าถอนการติดตั้งแอป เนื้อหาในถังขยะจะสูญหายและกู้คืนไม่ได้</string>
+    <string name="settings_bin_sweep">ล้างถังขยะอัตโนมัติ</string>
+    <string name="settings_bin_sweep_desc">ไฟล์ที่ลบแล้วแต่ละไฟล์จะออกจากถังขยะเมื่อครบเวลาที่คุณเลือก ไฟล์สำรองของตัวแก้ไขจะไม่หมดอายุ และการล้างจะทำงานเฉพาะตอนที่เปิดแอปอยู่เท่านั้น</string>
+    <string name="bin_sweep_never">ไม่เลย</string>
+    <string name="bin_sweep_week">หนึ่งสัปดาห์</string>
+    <string name="bin_sweep_month">หนึ่งเดือน</string>
+    <string name="bin_sweep_quarter">สามเดือน</string>
     <string name="pick_duplicate">ทำสำเนา</string>
     <string name="settings_grid_names">ชื่อไฟล์ในตารางรูป</string>
     <string name="settings_grid_names_desc">แสดงชื่อไฟล์ในมุมมองตารางด้วย ใต้ภาพย่อ ไม่เกินสองบรรทัด</string>

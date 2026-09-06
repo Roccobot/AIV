@@ -283,6 +283,8 @@
     <string name="settings_group_advanced">Geavanceerde functies</string>
     <string name="settings_ext_edit">Extensies wijzigen via \'Naam wijzigen\'</string>
     <string name="settings_ext_edit_desc">In het venster voor naamswijziging kun je bestandsextensies aanpassen. Als je niet weet wat je doet, laat dit dan uit: het kan afbeeldingen onleesbaar maken.</string>
+    <string name="settings_gpu_thumbs">Miniaturen in het grafisch geheugen houden</string>
+    <string name="settings_gpu_thumbs_desc">Miniaturen worden buiten het geheugen van de app bewaard, dat zo vrij blijft voor grote afbeeldingen. Op sommige toestellen kan dit problemen geven, daarom staat het standaard uit.</string>
     <string name="settings_thumbs">Opgeslagen miniaturen verwijderen</string>
     <string name="settings_thumbs_empty">Geen opgeslagen miniaturen</string>
     <string name="settings_thumbs_warn">Tik op de knop om de cache van de miniaturen te wissen. De voorbeelden van afbeeldingen en video\'s worden verwijderd en automatisch opnieuw gemaakt wanneer je elke map opent (in mappen met veel grote afbeeldingen kan dit een minuut of langer duren).</string>
@@ -320,6 +322,12 @@
     <string name="columns_hint">Snelkoppeling: houd de zwevende knop ingedrukt voor de weergaveopties.</string>
     <string name="settings_bin">Prullenbak aanzetten</string>
     <string name="settings_bin_desc">Het verwijderen van een bestand vraagt niets, maar de actie is omkeerbaar met een \'Terugzetten\' uit de prullenbak (zwevende knop →\u00A0\'Prullenbak\'). Je kunt de prullenbak helemaal uitzetten als je liever direct verwijdert: dan verschijnt er voor elke verwijdering een bevestiging.\n⚠️ LET OP: als je de app verwijdert, gaat de inhoud van de prullenbak verloren en is die niet meer terug te halen.</string>
+    <string name="settings_bin_sweep">Prullenbak automatisch leegmaken</string>
+    <string name="settings_bin_sweep_desc">Elk verwijderd bestand verlaat de prullenbak zodra het de gekozen leeftijd bereikt. Back-ups van de editor verlopen nooit, en er wordt alleen opgeruimd terwijl de app open is.</string>
+    <string name="bin_sweep_never">Nooit</string>
+    <string name="bin_sweep_week">Eén week</string>
+    <string name="bin_sweep_month">Eén maand</string>
+    <string name="bin_sweep_quarter">Drie maanden</string>
     <string name="pick_duplicate">Dupliceren</string>
     <string name="settings_grid_names">Bestandsnaam in het raster</string>
     <string name="settings_grid_names_desc">Toont de bestandsnaam ook in rasterweergave, onder de miniatuur. Hoogstens twee regels.</string>

@@ -270,6 +270,8 @@
     <string name="settings_group_advanced">詳細機能</string>
     <string name="settings_ext_edit">\'名前を変更\' から拡張子を変える</string>
     <string name="settings_ext_edit_desc">名前変更のパネルではファイルの拡張子を変えられます。よく分からない場合はオンにしないでください。画像が読めなくなることがあります。</string>
+    <string name="settings_gpu_thumbs">サムネイルをグラフィックメモリーに置く</string>
+    <string name="settings_gpu_thumbs_desc">サムネイルをアプリ自身のメモリーの外に置き、大きな画像のための余裕を残します。一部の端末では問題が起きることがあるため、初期状態ではオフです。</string>
     <string name="settings_thumbs">保存されたサムネイルを削除</string>
     <string name="settings_thumbs_empty">保存されたサムネイルはありません</string>
     <string name="settings_thumbs_warn">ボタンをタップしてサムネイルのキャッシュを消去します。画像と動画のプレビューは削除され、各フォルダーを開いたときに自動で再生成されます（大きな画像が多いフォルダーでは1分以上かかることがあります）。</string>
@@ -305,6 +307,12 @@
     <string name="columns_hint">ショートカット: 表示オプションはフローティングボタンを長押し。</string>
     <string name="settings_bin">ゴミ箱を有効にする</string>
     <string name="settings_bin_desc">ファイルの削除では何も確認しませんが、ゴミ箱から \'元に戻す\' で取り消せます (フローティングボタン →\u00A0\'ゴミ箱\')。すぐに削除したい場合はゴミ箱を完全に無効にできます。その場合は削除のたびに確認が表示されます。\n⚠️ 注意: アプリをアンインストールすると、ゴミ箱の中身は失われ、元に戻せません。</string>
+    <string name="settings_bin_sweep">ごみ箱を自動で空にする</string>
+    <string name="settings_bin_sweep_desc">削除したファイルは、選んだ期間に達するとごみ箱から消えます。エディターのバックアップは期限切れになりません。整理はアプリを開いているあいだだけ行われます。</string>
+    <string name="bin_sweep_never">しない</string>
+    <string name="bin_sweep_week">1週間</string>
+    <string name="bin_sweep_month">1か月</string>
+    <string name="bin_sweep_quarter">3か月</string>
     <string name="pick_duplicate">複製</string>
     <string name="settings_grid_names">グリッドにファイル名</string>
     <string name="settings_grid_names_desc">グリッド表示でもサムネイルの下にファイル名を表示します。最大2行です。</string>

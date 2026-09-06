@@ -283,6 +283,8 @@
     <string name="settings_group_advanced">قابلیت‌های پیشرفته</string>
     <string name="settings_ext_edit">تغییر پسوندها از \'تغییر نام\'</string>
     <string name="settings_ext_edit_desc">پنجرهٔ تغییر نام اجازه می‌دهد پسوند فایل‌ها را عوض کنید. اگر مطمئن نیستید این گزینه را روشن نکنید: می‌تواند تصویرها را ناخوانا کند.</string>
+    <string name="settings_gpu_thumbs">نگه‌داشتن بندانگشتی‌ها در حافظه گرافیکی</string>
+    <string name="settings_gpu_thumbs_desc">بندانگشتی‌ها بیرون از حافظه خود برنامه نگه داشته می‌شوند تا برای تصویرهای بزرگ جا بماند. روی برخی دستگاه‌ها ممکن است مشکل ایجاد کند، به همین دلیل به‌صورت پیش‌فرض خاموش است.</string>
     <string name="settings_thumbs">حذف بندانگشتی‌های ذخیره‌شده</string>
     <string name="settings_thumbs_empty">بندانگشتی ذخیره‌شده‌ای نیست</string>
     <string name="settings_thumbs_warn">برای خالی کردن حافظهٔ بندانگشتی‌ها روی دکمه ضربه بزنید. پیش‌نمایش تصویرها و ویدیوها حذف می‌شود و هنگام باز کردن هر پوشه به‌طور خودکار دوباره ساخته می‌شود (این کار در پوشه‌هایی با تصویرهای بزرگ زیاد ممکن است یک دقیقه یا بیشتر طول بکشد).</string>
@@ -320,6 +322,12 @@
     <string name="columns_hint">میان‌بر: دکمه شناور را نگه دارید تا گزینه‌های نمایش باز شود.</string>
     <string name="settings_bin">فعال کردن سبد زباله</string>
     <string name="settings_bin_desc">حذف فایل چیزی نمی‌پرسد، اما این کار با \'بازگرداندن\' از سبد زباله قابل بازگشت است (دکمه شناور →\u00A0\'سبد زباله\'). اگر حذف فوری را ترجیح می‌دهید می‌توانید سبد زباله را کاملا خاموش کنید: در آن صورت پیش از هر حذف یک تایید نمایش داده می‌شود.\n⚠️ هشدار: اگر برنامه را حذف کنید، محتوای سبد زباله از دست می‌رود و قابل بازیابی نیست.</string>
+    <string name="settings_bin_sweep">خالی‌کردن خودکار سطل زباله</string>
+    <string name="settings_bin_sweep_desc">هر پرونده پاک‌شده وقتی به مدت انتخابی برسد از سطل بیرون می‌رود. نسخه‌های پشتیبان ویرایشگر هرگز منقضی نمی‌شوند و پاک‌سازی فقط هنگام باز بودن برنامه انجام می‌شود.</string>
+    <string name="bin_sweep_never">هرگز</string>
+    <string name="bin_sweep_week">یک هفته</string>
+    <string name="bin_sweep_month">یک ماه</string>
+    <string name="bin_sweep_quarter">سه ماه</string>
     <string name="pick_duplicate">تکثیر</string>
     <string name="settings_grid_names">نام فایل در شبکه</string>
     <string name="settings_grid_names_desc">نام فایل را در نمای شبکه‌ای هم، زیر بندانگشتی، نشان می‌دهد. حداکثر دو سطر.</string>

@@ -120,7 +120,7 @@ object Bin {
                         done++
                         touched += from.absolutePath
                         landed += to.toUri()
-                        records += Record(to.name, now, from.absolutePath)
+                        records += Record(to.name, now, from.absolutePath, KIND_SENT)
                     } else {
                         failed++
                     }
@@ -181,7 +181,12 @@ object Bin {
                     return@withLock null
                 }
                 val records = read(context).toMutableList()
-                records += Record(to.name, System.currentTimeMillis(), from.absolutePath)
+                records += Record(
+                    to.name,
+                    System.currentTimeMillis(),
+                    from.absolutePath,
+                    KIND_KEPT
+                )
                 write(context, records)
                 to
             }
@@ -354,8 +359,105 @@ object Bin {
         return known.toList() + names.filterNot { it in known }.sortedBy { it.lowercase() }
     }
 
-    /** Una riga d'archivio: come si chiama qui, quando è arrivata, da dove veniva. */
-    class Record(val name: String, val at: Long, val origin: String)
+    /**
+     * Una riga d'archivio: come si chiama qui, quando è arrivata, da dove veniva, e **perché**
+     * ci è finita.
+     *
+     * ⚠️⚠️ **LA QUARTA COLONNA NASCE CON LO SVUOTAMENTO AUTOMATICO, dalla `1.75`, E SERVE A
+     * DISTINGUERE UNA COPIA DI SICUREZZA DA UN'ELIMINAZIONE**: l'utente ha stabilito che le
+     * copie dell'editor **non scadono** (giro della 1.67, `d-cestino-editor`: `fuori`), e fino
+     * a qui le due cose erano indistinguibili, perché [send] e [keep] scrivevano la stessa
+     * riga.
+     * ⚠️ **Non basta guardare se il file d'origine esiste ancora**, che sarebbe la via senza
+     * formato nuovo: per una copia di sicurezza l'originale c'è, per un'eliminazione no, ma chi
+     * modifica una fotografia e **poi** la elimina si ritrova una copia di sicurezza il cui
+     * originale non esiste più, cioè esattamente il file che non deve scadere.
+     * ⚠️⚠️ **`null` VUOL DIRE 'RIGA DI PRIMA DELLA `1.75`', e non si legge come 'eliminazione'**:
+     * là il perché non è scritto, quindi si ricade sulla prova dell'originale, che sui file
+     * vecchi sbaglia solo nel verso di **tenere** qualcosa più a lungo. Vedi [expiring].
+     */
+    class Record(val name: String, val at: Long, val origin: String, val kind: String? = null)
+
+    /** Una riga scritta da [send]: il file è stato eliminato, e può scadere. */
+    const val KIND_SENT = "del"
+
+    /** Una riga scritta da [keep]: è una copia di sicurezza, e non scade mai. */
+    const val KIND_KEPT = "bak"
+
+    /**
+     * I nomi dei file che hanno passato il loro tempo e che lo svuotamento automatico può
+     * togliere.
+     *
+     * ⚠️⚠️ **FUNZIONE PURA, come [ordered] e [records], e per la stessa ragione**: prende righe
+     * e istanti e restituisce nomi, quindi si prova su una JVM senza Android intorno. Che
+     * l'originale esista ancora lo dice chi chiama, con [esiste], perché quella è l'unica parte
+     * che tocca il disco.
+     * ⚠️ **Una riga senza `kind` scade solo se il suo originale NON c'è più**: è il ripiego per
+     * le righe scritte prima della `1.75`, e sbaglia solo nel verso di tenere un file in più.
+     * ⚠️ **`giorni <= 0` non toglie niente**, ed è il valore di fabbrica: lo svuotamento
+     * automatico è spento, quindi questa funzione deve poter essere chiamata lo stesso senza
+     * fare danni.
+     */
+    fun expiring(
+        records: List<Record>,
+        giorni: Int,
+        adesso: Long,
+        esiste: (String) -> Boolean
+    ): List<String> {
+        if (giorni <= 0) return emptyList()
+        val limite = adesso - giorni.toLong() * DAY_MS
+        return records.filter { record ->
+            if (record.at > limite) return@filter false
+            when (record.kind) {
+                KIND_KEPT -> false
+                KIND_SENT -> true
+                else -> !esiste(record.origin)
+            }
+        }.map { it.name }
+    }
+
+    /**
+     * Toglie dal cestino i file che hanno passato il loro tempo, e torna quanti ne ha tolti.
+     *
+     * ⚠️⚠️ **GIRA SOLO MENTRE L'APP È APERTA, ED È UNA SUA DECISIONE PRESA DUE VOLTE** (giro
+     * della 1.67, `d-cestino-chiusa`: **`aperta`**; e ripetuta il 2026-09-06 perché il brief
+     * l'aveva registrata al contrario: *nulla deve avvenire al di fuori dell'app aperta in primo
+     * piano*). Quindi niente operazione programmata di sistema e nessuna libreria in più: chi
+     * chiama questa funzione è l'app, quando è in scena.
+     * ⚠️ **Il conto è per FILE e non per cestino** (`d-cestino-quando`: `file`): ognuno se ne va
+     * quando ha compiuto il suo tempo, come fanno i cestini di sistema, invece di svuotare tutto
+     * a intervalli.
+     * ⚠️ **Le copie di sicurezza dell'editor restano** (`d-cestino-editor`: `fuori`): una rete
+     * che sparisce da sé non è una rete, e si tolgono solo svuotando il cestino a mano.
+     * ⚠️ **La riga d'archivio se ne va col file**, come in [empty]: una riga orfana manderebbe
+     * il ripristino in errore.
+     */
+    suspend fun sweep(context: Context, giorni: Int): Int =
+        withContext(Dispatchers.IO + NonCancellable) {
+            if (giorni <= 0) return@withContext 0
+            lock.withLock {
+                val records = read(context)
+                val scaduti = expiring(
+                    records = records,
+                    giorni = giorni,
+                    adesso = System.currentTimeMillis(),
+                    esiste = { path -> runCatching { File(path).exists() }.getOrDefault(true) }
+                ).toSet()
+                if (scaduti.isEmpty()) return@withLock 0
+                val bin = dir(context)
+                var tolti = 0
+                val rimasti = records.toMutableList()
+                for (nome in scaduti) {
+                    val file = File(bin, nome)
+                    if (!file.isFile || runCatching { file.delete() }.getOrDefault(false)) {
+                        tolti++
+                        rimasti.removeAll { it.name == nome }
+                    }
+                }
+                if (tolti > 0) write(context, rimasti)
+                tolti
+            }
+        }
 
     /**
      * Le righe di un archivio, saltando quelle rovinate.
@@ -369,15 +471,27 @@ object Bin {
      */
     fun records(text: String): List<Record> = text.lineSequence().mapNotNull { line ->
         val parts = line.split('\t')
-        if (parts.size != 3) return@mapNotNull null
+        // ⚠️⚠️ **TRE O QUATTRO, e le tre sono le righe scritte prima della `1.75`**: rifiutarle
+        // vorrebbe dire che aggiornando l'app ogni file già nel cestino perde la sua provenienza,
+        // cioè non si può più ripristinare. La colonna nuova è quindi facoltativa per sempre, e
+        // che cosa vuol dire la sua assenza sta su [Record].
+        if (parts.size != 3 && parts.size != 4) return@mapNotNull null
         val at = parts[1].toLongOrNull() ?: return@mapNotNull null
         if (parts[0].isBlank() || parts[2].isBlank()) return@mapNotNull null
-        Record(parts[0], at, parts[2])
+        Record(parts[0], at, parts[2], parts.getOrNull(3)?.takeIf { it.isNotBlank() })
     }.toList()
 
-    /** L'archivio come testo. L'inversa di [records]. */
-    fun text(records: List<Record>): String =
-        records.joinToString("\n") { "${it.name}\t${it.at}\t${it.origin}" }
+    /**
+     * L'archivio come testo. L'inversa di [records].
+     *
+     * ⚠️ **Una riga senza `kind` si riscrive a tre colonne**, non a quattro con l'ultima vuota:
+     * così un archivio mai toccato dalla `1.75` resta identico a se stesso, e il formato vecchio
+     * e quello nuovo non diventano due modi di scrivere la stessa cosa.
+     */
+    fun text(records: List<Record>): String = records.joinToString("\n") { r ->
+        if (r.kind == null) "${r.name}\t${r.at}\t${r.origin}"
+        else "${r.name}\t${r.at}\t${r.origin}\t${r.kind}"
+    }
 
     private fun read(context: Context): List<Record> {
         val file = index(context)
@@ -398,6 +512,9 @@ object Bin {
 
     /** Se un testo contiene i separatori dell'archivio. Vedi [send]. */
     private fun String.hasSeparators(): Boolean = contains('\t') || contains('\n')
+
+    /** Quanto dura un giorno, per [expiring]. */
+    private const val DAY_MS = 24L * 60L * 60L * 1000L
 
     private const val FOLDER = "bin"
     private const val INDEX = "bin.tsv"
