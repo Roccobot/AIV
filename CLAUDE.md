@@ -2,11 +2,11 @@
 
 > **Cos'è questo file.** Le regole **specifiche** di `Roccobot/AIV`, l'app Android
 > 'Astonishing Image Viewer'. Tutto quello che vale per ogni progetto vive nelle regole
-> universali, `rules/Roccobot.md` di `Roccobot/tools`, e qui non si duplica: qui sta solo
+> universali, `rules/Roccobot.md` di `Roccobot/tools`, e qui non si duplica: qui c'è solo
 > ciò che di questo repository non si ricava altrove.
 
 ⚠️ **Nasce il 2026-09-01, dopo 111 versioni**, e la ragione è precisa: fino a quel giorno
-l'**indirizzo del documento vivo** del progetto stava solo nel brief di consegna, che è
+l'**indirizzo del documento vivo** del progetto era solo nel brief di consegna, che è
 **stato volatile** e non un archivio. Un artefatto vive fuori dal repository per definizione,
 quindi se il suo indirizzo non è scritto in un file committato, alla sessione dopo quel
 documento è perso.
@@ -20,7 +20,7 @@ documento è perso.
 
 ⚠️⚠️ **IL PIANO D'AZIONE È UNO STRUMENTO RICORRENTE dal 2026-09-04, e non un artefatto di
 passaggio** (decisione dell'utente: *lo ufficializziamo come strumento di lavoro ricorrente,
-insieme al brief*). La regola universale, con la divisione dei compiti fra lui e il brief, sta
+insieme al brief*). La regola universale, con la divisione dei compiti fra lui e il brief, vive
 in `rules/Roccobot.md` § '🗺️ Il piano e il brief: due strumenti, due domande'; qui
 resta solo il suo indirizzo, che è la cosa che questo file esiste per non far perdere.
 - ⚠️ **Si chiamava con una metafora ferroviaria fino a quel giorno**, e il nome è cambiato su
@@ -28,7 +28,7 @@ resta solo il suo indirizzo, che è la cosa che questo file esiste per non far p
   messaggio o in un commit sappia che è lo stesso documento, allo stesso indirizzo.
 - ⚠️⚠️ **E A MORIRE NON È SOLO IL NOME DEL DOCUMENTO: È TUTTA LA METAFORA.** Il piano è fatto
   di **tappe**, e una tappa è il gruppo di lavori che escono in una versione: non si dice
-  'vagone', non si dice 'treno', né in chat né in un commit né in un artefatto. ⚠️ **Sta
+  'vagone', non si dice 'treno', né in chat né in un commit né in un artefatto. ⚠️ **È
   scritto perché la prima formulazione non bastava**: diceva che era cambiato il *nome del
   documento*, quindi la parola per il gruppo di lavori sembrava salva, ed è rientrata in una
   frase il 2026-09-04 (*> vagone / piano d'azione\**). Un divieto che nomina un solo caso si
@@ -58,7 +58,7 @@ sta scrivendo. ⚠️ La pagina che si ripubblica **da sé sul suo input** è un
 è quella che gli garantisce di non perdere il riscontro. La regola per esteso, con il perché
 di ogni pezzo, vive in `rules/Roccobot.md` § '⏸️ Il giro si prende INTERO, e solo quando lo
 dice lui'.
-- ⚠️ **Sta qui e non solo là perché questo file sopravvive alla compattazione**, come la
+- ⚠️ **È qui e non solo là perché questo file sopravvive alla compattazione**, come la
   regola di registro nel `CLAUDE.md` di root: un file di regole entra in scena quando lo si
   legge, e da un riassunto sparisce.
 
@@ -66,12 +66,12 @@ dice lui'.
 dell'utente: *cancella l'artefatto changelog, ho visto che non mi serve e non l'ho mai
 usato*). Chi ne trova ancora l'indirizzo in un messaggio vecchio, o la pagina in galleria,
 sappia che non si aggiorna più: il perché per esteso, e la domanda che l'aveva fatto nascere e
-che resta valida, stanno in `rules/Roccobot.md`, § '🧾 Il changelog, provato e ritirato'.
+che resta valida, vivono in `rules/Roccobot.md`, § '🧾 Il changelog, provato e ritirato'.
 
 ## 🎨 Il design system, che vive fuori dal repository
 
-⚠️⚠️ **LE FONTI VISIVE DI AIV STANNO IN CLAUDE DESIGN, nel progetto `Roccobot Design`**, e non
-in questo repository. Come si aggancia e che cosa contiene sta in `rules/Roccobot.md`,
+⚠️⚠️ **LE FONTI VISIVE DI AIV VIVONO IN CLAUDE DESIGN, nel progetto `Roccobot Design`**, e non
+in questo repository. Come si aggancia e che cosa contiene vive in `rules/Roccobot.md`,
 § '🎨 Grafica' → '🎨 Claude Design, dove vive il design system'; qui restano i tre pezzi che
 riguardano AIV.
 
@@ -81,8 +81,8 @@ mi piace sperimentare, non vorrei ripetere lo stesso errore dell'ultima volta*).
 **prova** delle cose, quindi quello che ci si trova non è per forza approvato: è un banco di
 lavoro, non un capitolato.
 - ⚠️ **L'errore che la regola evita è già costato una versione**: nella `1.33` sono entrati
-  otto glifi nuovi perché stavano nel brief dei disegni, e nella `1.35` sono usciti tutti
-  (*volevo cambiare solo l'icona principale e la pagina di download*). Il perché sta in testa
+  otto glifi nuovi perché erano nel brief dei disegni, e nella `1.35` sono usciti tutti
+  (*volevo cambiare solo l'icona principale e la pagina di download*). Il perché è in testa
   a `Glyphs.kt`.
 - **Quindi il verso giusto è**: si legge Design quando serve **quello che lui ha chiesto**
   (un colore che ha nominato, una misura che ha nominato, un componente che ha nominato), e
@@ -98,30 +98,30 @@ lavoro, non un capitolato.
   stato fatto, perché è un lavoro nel design system e non nell'app.
 - **`assets/icons/`** porta i nove glifi, gli otto della famiglia nuova più `text-cursor`. ⚠️
   Nell'app **non** ci sono: sono entrati con la `1.33` e sono usciti con la `1.35`, e il perché
-  sta in testa a `Glyphs.kt`.
+  è in testa a `Glyphs.kt`.
 
 ⚠️⚠️ **MA LE FRASI DELLA PAGINETTA DI DOWNLOAD NON SONO LÀ**, ed è la ragione per cui quel
-lavoro è fermo: vivono in un **documento** di Claude Design (`.dc.html`), che sta fuori dai
+lavoro è fermo: vivono in un **documento** di Claude Design (`.dc.html`), che è fuori dai
 progetti di design system e quindi non si raggiunge con lo strumento. Serve che l'utente lo
 mandi in chat o lo semini nello spazio di lavoro.
 
 ⚠️⚠️ **E NEL REPOSITORY NON SE NE TIENE UNA COPIA: la cartella `dev/` è stata svuotata il
 2026-09-03** (istruzione dell'utente: *cancella anche tutto quello che c'è dentro AIV/dev, non
-credo che serva più*). Là dentro stavano i file che lui aveva mandato per la `1.32` e le
+credo che serva più*). Là dentro c'erano i file che lui aveva mandato per la `1.32` e le
 versioni dopo: gli otto glifi, i tre disegni dell'icona col vector XML del foreground, le due
 versioni di 'Copia immagine', quella di 'Inverti selezione', e il brief di implementazione.
 - **Perché non è una perdita**: quei disegni sono **entrati** nell'app (l'icona) o sono
   **usciti su sua istruzione** (i glifi, nella `1.35`), quindi la cartella teneva sorgenti già
   lavorate. Quelli che servono ancora vivono in Claude Design, e la storia git ha tutto.
 - ⚠️ **Chi la ricreasse rifarebbe due fonti di verità**: un disegno che l'utente sta ancora
-  provando sta nel design system, non qui, e uno approvato sta in `res/`. Un file mandato in
+  provando vive nel design system, non qui, e uno approvato vive in `res/`. Un file mandato in
   chat si lavora e non si archivia.
 
 ## 🖌️ Come entra un disegno
 
 ⚠️⚠️ **UN DISEGNO VIVE IN `res/drawable/ic_<nome>.xml`, UNO PER GLIFO, e `Glyphs.kt` è il
-catalogo**: là stanno i nomi con cui il codice chiama un'icona e che cosa vuol dire ognuna,
-qui sta la geometria. Fino alla `1.45` i tracciati erano costanti di stringa in Kotlin, e lo
+catalogo**: là ci sono i nomi con cui il codice chiama un'icona e che cosa vuol dire ognuna,
+qui c'è la geometria. Fino alla `1.45` i tracciati erano costanti di stringa in Kotlin, e lo
 spostamento della `1.46` ha una ragione misurata: così **il verificatore e l'app leggono lo
 stesso file**. Prima il verificatore doveva ricostruire il tracciato dalle stringhe, e quella
 ricostruzione **ha sbagliato**, dando due glifi alti 0,75 unità su 24 perché trattava ogni
@@ -154,7 +154,7 @@ tela. Quindi si esporta come viene comodo.
 - ⚠️ **La conversione la fa la sessione, non lui** (sua istruzione, 2026-09-03: *lascio fare a
   te la conversione. Ma non basta: tratta TUTTE le prossime icone che ti invio in modo che
   entrino ottimizzate*). Quindi un file che arriva si lavora e non si archivia, e nel
-  repository non se ne tiene una copia: il perché sta in § '🎨 Il design system, che vive
+  repository non se ne tiene una copia: il perché è in § '🎨 Il design system, che vive
   fuori dal repository'.
 
 ⚠️ **LIVELLO UNICO E FORMA UNICA: che cosa vuol dire qui**, perché lui lo fa già in
@@ -326,13 +326,13 @@ grande un dialogo esattamente al centro fa allungare la mano.
     di comodo: l'elenco delle superfici che vogliono il velo è **lo stesso** elenco di chi
     chiama `lowered()`, e un secondo modificatore da ricordare avrebbe raddoppiato il modo di
     dimenticarsene, con l'aggravante che un velo mancante non si vede (un centro mancante sì).
-    Il perché per esteso, e le due vie con cui si applica, stanno in testa a `Veil.kt`.
+    Il perché per esteso, e le due vie con cui si applica, sono in testa a `Veil.kt`.
     - ⚠️⚠️ **E DALLA 1.54 UNA TERZA: il BORDO D'ACCENTO, al posto dell'ombra**
       (richiesta dell'utente, 2026-09-04: *via le ombre e vai con il bordino da 2px del colore
       di accento*, e *potrebbe essere l'elemento distintivo che cercavo*). Il bordo **non
       dipende dall'interruttore** della sfocatura, perché non è una funzione che si accende ma
       il modo in cui l'app è fatta. Come si disegna, e che cosa c'entra col 'quadrato sfocato'
-      che lui vedeva intorno ai menu, stanno in testa a `Edge.kt`.
+      che lui vedeva intorno ai menu, sono in testa a `Edge.kt`.
       - ⚠️⚠️ **MA IL SUO ELENCO NON È PIÙ QUELLO DEL VELO, dalla `1.55`**, ed è una decisione
         sua contro il criterio che aveva escluso due superfici (*voglio la riga anche lì: in
         realtà dappertutto ... per coerenza deve avere il tratto intorno come tutti gli altri
@@ -353,7 +353,7 @@ grande un dialogo esattamente al centro fa allungare la mano.
         bottomsheet non stanno bene con la riga intorno. Vorrei fare una prova con la linea di
         2dp color accento che appare verso l'esterno, in modo da stare solo sul lato sopra e
         sulla curva per poi sparire fuori dallo schermo*). Non è una variante grafica: i fianchi
-        di una scheda in fondo stanno sui bordi dello schermo, quindi una linea che corre fuori
+        di una scheda in fondo sono sui bordi dello schermo, quindi una linea che corre fuori
         da quei fianchi è già fuori dal vetro, e a interrompere il tratto ci pensa il bordo
         invece di un numero scritto a mano.
     - ⚠️⚠️ **E IL VELO NON È PIÙ UN ATTRIBUTO DELLE FINESTRE, dalla 1.54: LO DIPINGE L'APP**
@@ -433,7 +433,7 @@ grande un dialogo esattamente al centro fa allungare la mano.
       finestra non ne ha uno di serie: `SHEET_DIM` in `Sheet.kt`, col perché misurato.
       - ⚠️ **Fino alla `1.43` qui c'era il numero**, 'i tredici dialoghi', e la `1.44` lo ha
         reso falso togliendone uno (la conferma di buttare via la selezione) senza che
-        nessuno toccasse questa riga. Il criterio che lo vieta è universale e sta in
+        nessuno toccasse questa riga. Il criterio che lo vieta è universale e vive in
         `rules/Roccobot.md` § '🪶 Come si mantiene un file di regole'.
   - ⚠️ **Chi apre un `Popup` o un `Dialog` scritto in casa chiama `WindowVeil()` a mano**,
     perché là il modificatore non passa: lo fanno `MenuShell` e `Sheet`.
@@ -489,7 +489,7 @@ il gestore delle finestre legge prima che l'app veda qualcosa. `lowered(null)` *
 l'intenzione senza applicarla, quindi Rinomina, Estensione, Indirizzo e Nuova cartella si
 chiudevano toccando sotto, e un nome scritto a metà si perdeva.
 - ⚠️ **Un dialogo nuovo che dimentica la seconda riga torna a non essere modale e non dà nessun
-  errore**: è la stessa forma di trappola del velo mancante, e per questo la regola sta scritta
+  errore**: è la stessa forma di trappola del velo mancante, e per questo la regola è scritta
   qui e non solo nel KDoc.
 
 ⚠️⚠️ **E IL TOCCO SULL'ARIA NON HA FATTO NIENTE PER TRE VERSIONI, PER UNA RAGIONE CHE VALE
@@ -507,7 +507,7 @@ hit-test dei tocchi scorre i nodi fino al primo nodo di layout e si ferma là, q
 
 ⚠️⚠️ **E L'ASIMMETRIA CHE HA FATTO NASCERE LA REGOLA ERA UN DIFETTO, non due comportamenti**
 (sua segnalazione, con schermata: *hanno un comportamento da modale se si tocca lo schermo SOPRA
-e da finestra 'secondaria' se si tocca SOTTO*). La causa sta nel modo in cui si ottiene il 15%:
+e da finestra 'secondaria' se si tocca SOTTO*). La causa è nel modo in cui si ottiene il 15%:
 `LowerNode` non sposta il pannello, **gonfia la scatola** dichiarata e ce lo posa in fondo,
 quindi sopra resta una fascia trasparente alta fino al 30% della finestra che **appartiene al
 dialogo**. Toccarla è toccare dentro, e `dismissOnClickOutside` non scatta; sotto si è fuori, e
@@ -518,7 +518,7 @@ SOTTO** (trovato dal censimento della UI del 2026-09-05, e misurato sul bytecode
 `createFlags` di `AndroidPopup_androidKt` parte da `FLAG_WATCH_OUTSIDE_TOUCH` e non mette mai
 `FLAG_NOT_TOUCH_MODAL`). Da Android 12 la finestra di un popup **non è modale al tocco**: un
 dito fuori dal pannello arriva a tutte e due le finestre, quindi il menu si chiude **e** l'app
-apre la riga, la miniatura o la cartella che stava sotto il dito.
+apre la riga, la miniatura o la cartella che era sotto il dito.
 - **A ripararlo dalla `1.70` è `MenuGuard`, uno solo, in `AivTheme`.** Fino alla `1.69` il velo
   che consuma quel tocco viveva **dentro una schermata** e ne copriva una su cinque.
 - ⚠️ **Non si aggancia a `VeilStage`**, che è la mappa del velo: quella è vuota quando
@@ -535,7 +535,7 @@ non **consumare** a menu chiuso.
   disegnato al primo e **si ferma sul primo ramo che colpisce**, quindi un nodo con
   `pointerInput` grande quanto lo schermo e disegnato dopo il contenuto se li prende tutti.
   **Non consumare** vuol dire 'lascio decidere anche agli altri che hanno ricevuto l'evento',
-  **non** 'lo lascio passare a chi sta sotto': quelli sotto non lo ricevono affatto.
+  **non** 'lo lascio passare a chi è sotto': quelli sotto non lo ricevono affatto.
 - **La forma giusta era già in casa, in `ViewerScreen.kt`**, e il suo commento la enuncia: il
   riquadro che richiama i comandi vive dentro un `if (!visible)`, *così quando ci sono non ruba
   il tocco al tasto*. Il rimedio della `1.71` è quello schema applicato al `MenuGuard`.
@@ -546,7 +546,7 @@ non **consumare** a menu chiuso.
 - ⚠️⚠️ **E IL FATTO ERA GIÀ SCRITTO IN `Menus.kt`**, sul cancello di `MenuShell` (*un popup
   sempre presente e trasparente in più si mangerebbe i tocchi*): la stessa trappola, presa con
   un `Box` invece che con un `Popup`. Una nota che descrive un difetto non impedisce di rifarlo
-  con un altro strumento, e questa è la ragione per cui la regola sta qui invece che in un
+  con un altro strumento, e questa è la ragione per cui la regola è qui invece che in un
   commento accanto a un solo chiamante.
 - ⚠️ **Non c'è modo di provarlo senza un dispositivo**, e questo difetto è arrivato in
   produzione per quello: `compileDebugKotlin` non vede niente, e il progetto non ha un banco di
@@ -568,7 +568,7 @@ dietro un velo che parte da zero, e l'occhio ne prende soltanto la coda.
 - **La regola**: un'animazione che deve *farsi vedere* aspetta che la schermata sia arrivata,
   perché giocata sotto la dissolvenza si vede solo per la coda.
 - ⚠️ **Non vale per tutto**: quello che deve *arrivare insieme alla schermata* (uno sfondo, una
-  fascia sfumata, il contenuto) sta giusto dov'è. La distinzione è fra un elemento che si limita
+  fascia sfumata, il contenuto) resta giusto dov'è. La distinzione è fra un elemento che si limita
   a esserci e uno che racconta qualcosa mentre entra.
 - ⚠️ **Fra la fine della dissolvenza e il primo fotogramma di un'animazione che aspetta passano
   quattro fotogrammi**, ed è della transizione e non dell'attesa: un `Transition` porta
@@ -593,7 +593,7 @@ per quei sei fotogrammi il FAB si vedeva **pieno** mentre tutto il resto sfumava
   termine `show.isRunning`, che non diceva niente che il valore non dicesse già e che era la via
   per cui quell'animazione diventava una risposta sbagliata.
 - ⚠️⚠️ **E LA PROVA SI ERA SCUSATA DI NON VEDERLO**: `CambioSchermataTest` saltava i fotogrammi
-  senza FAB con una nota che li dava per normali. Erano il difetto. La regola che ne esce sta in
+  senza FAB con una nota che li dava per normali. Erano il difetto. La regola che ne esce vive in
   § '🧪 Quando si scrive una prova, e quando no': una scusa scritta accanto a un'asserzione
   saltata è il modo in cui una prova mente in verde.
 
@@ -639,11 +639,11 @@ legga meno che agli estremi.
 - ⚠️ **In posizione finale è quella di sempre, per costruzione**: la copia della testata non è
   stata toccata, ha solo un'opacità.
 
-⚠️⚠️ **QUANDO IL FRONTESPIZIO DI UNA CARTELLA STA CHIUSO: TRE RISPOSTE SUE, confermate in chiaro
-il 2026-09-06.** Mentre la griglia **carica** sta aperto; durante una **selezione** sta chiuso;
+⚠️⚠️ **QUANDO IL FRONTESPIZIO DI UNA CARTELLA È CHIUSO: TRE RISPOSTE SUE, confermate in chiaro
+il 2026-09-06.** Mentre la griglia **carica** è aperto; durante una **selezione** è chiuso;
 tornando dal **visualizzatore** resta com'era, cioè chiuso se la griglia non è in cima.
 - **La terza si ottiene da una regola sola e non da un ricordo**: con la griglia scorsa il
-  frontespizio non può stare aperto. Con le dita è già vero per costruzione (lo scorrimento si
+  frontespizio non può essere aperto. Con le dita è già vero per costruzione (lo scorrimento si
   spende prima là), e quello che sfuggiva è il salto **programmato** all'immagine da cui si è
   tornati, che non passa dallo scorrimento annidato.
 - ⚠️ **Finita la selezione non si riapre**, e non è una dimenticanza: la griglia è rimasta dov'era,
@@ -661,7 +661,7 @@ devono progressivamente sparire e lasciare campo libero alla griglia piena su tu
 ## 🗑️ Lo svuotamento automatico del cestino, e le tre decisioni che lo governano
 
 ⚠️⚠️ **LE TRE RISPOSTE SONO SUE, SI CITANO CON LA LORO CHIAVE, E UNA ERA STATA REGISTRATA AL
-CONTRARIO** (giro della 1.67; l'archivio del giro sta in `Roccobot/tools`, `.memo/files/`):
+CONTRARIO** (giro della 1.67; l'archivio del giro è in `Roccobot/tools`, `.memo/files/`):
 - `d-cestino-quando`: **`file`**. Ogni file conta la **propria** età e se ne va quando l'ha
   compiuta, come fanno i cestini di sistema. Non si svuota tutto a intervalli.
 - `d-cestino-chiusa`: **`aperta`**. La pulizia gira **solo mentre l'app è in primo piano**, e la
@@ -675,20 +675,20 @@ CONTRARIO** (giro della 1.67; l'archivio del giro sta in `Roccobot/tools`, `.mem
 (*nell'apposito artefatto ti avevo già risposto la stessa cosa e tu hai memorizzato il
 contrario*). Da quell'inversione erano nati un `WorkManager` da aggiungere, una ragione per
 rimandare la tappa, e un blocco del brief che spiegava per bene una cosa falsa. La regola che ne
-esce è universale e sta in `Roccobot.md` § '🔑 Una risposta si travasa con la sua chiave, e si
+esce è universale e vive in `Roccobot.md` § '🔑 Una risposta si travasa con la sua chiave, e si
 rilegge dalla fonte': quando una scelta a caselle diventa una frase, la chiave si scrive accanto
 e l'archivio del giro si riapre prima di scriverla.
 
 ⚠️ **Come si distingue una copia di sicurezza da un'eliminazione**: dalla `1.75` l'archivio del
 cestino ha una **quarta colonna** facoltativa (`del` o `bak`), e il perché di ogni pezzo, compreso
-perché non basta guardare se l'originale esiste ancora, sta su `Bin.Record` e su `Bin.expiring`.
+perché non basta guardare se l'originale esiste ancora, è su `Bin.Record` e su `Bin.expiring`.
 - ⚠️ **La colonna è facoltativa per sempre**: un archivio scritto prima della `1.75` deve
   continuare a leggersi, o aggiornando l'app ogni file già nel cestino perde la provenienza, cioè
   non si può più ripristinare.
 
 ## ⚙️ Dove va un'impostazione, e chi la deve trovare
 
-⚠️⚠️ **UNA VOCE STA CON QUELLE CHE RISPONDONO ALLA SUA STESSA DOMANDA, e la domanda è quella
+⚠️⚠️ **UNA VOCE VA CON QUELLE CHE RISPONDONO ALLA SUA STESSA DOMANDA, e la domanda è quella
 di chi apre il pannello, non quella del codice.** La si scrive in una riga, nella forma 'come
 faccio a...', e le voci che la condividono sono una **famiglia**. Non fanno famiglia le voci
 che il codice legge nello stesso ramo, né quelle che agiscono sulla stessa schermata: quello è
@@ -754,7 +754,7 @@ guadagna il tocco in più, e la pagina piatta si svuota una riga per volta.
   un'altra tiene nella pagina piatta la riga che apre la seconda.
 
 ⚠️ **UNA VOCE SOLA NON PRENDE UN TITOLO**, e va nella sezione della famiglia la cui domanda le
-sta più vicina, mai sopra un titolo, perché sopra un titolo si legge come la prima riga di
+è più vicina, mai sopra un titolo, perché sopra un titolo si legge come la prima riga di
 quello che segue. L'unica eccezione è dell'utente ed è dichiarata nel codice (*nelle
 impostazioni creiamo una nuova sezione **Funzionalità avanzate** al cui interno c'è una
 voce...*), dove il titolo è **metà dell'avviso** su una funzione che può fare danni. Fuori da
@@ -832,7 +832,7 @@ prima del rilascio**, qualunque sia la sua lunghezza: finché non è validato la
 pronta, e questo non è in conflitto col go-live, che riguarda il pubblicare una modifica già
 pronta.
 
-⚠️ **QUELLO CHE NON DECIDE**: il gruppo in cui la voce stava prima, la comodità del codice, la
+⚠️ **QUELLO CHE NON DECIDE**: il gruppo in cui la voce era prima, la comodità del codice, la
 lunghezza della pagina piatta, e il fatto che una sezione risulti sbilanciata. Se una famiglia
 viene di quattro voci e un'altra di una, sta bene: le domande non si fanno tutte con la stessa
 frequenza. ⚠️ **E i conti non si scrivono**, qui come nei commenti del pannello: quante sono le
@@ -855,7 +855,7 @@ che si corregge senza prova è una voce che può tornare non approvata.
 USCITA**, quando quella correzione era **ragionata e non misurata**. Il precedente è la `1.72`:
 aveva tolto una `SizeTransform` dal cambio di schermata per correggere il FAB che *arriva da in
 basso a destra*, il ragionamento era pulito, ed era un **niente**. La `1.74` lo ha misurato: con
-e senza quella riga, il centro del FAB sta nello stesso punto a ogni fotogramma, cifra per
+e senza quella riga, il centro del FAB è nello stesso punto a ogni fotogramma, cifra per
 cifra, nella schermata vera. Nel frattempo la voce di collaudo aveva annunciato all'utente una
 causa che non era la sua.
 - **Come si riconosce una correzione da rimisurare**: è uscita senza che nessuno abbia visto il
@@ -918,7 +918,7 @@ collaudo: rilascio, documento, riscontro'.
 - ⚠️⚠️ **E PRIMA DI TUTTO QUESTO C'È UN CANCELLO, dal 2026-09-05**: `release.yml` lancia il banco
   di prova e il controllo delle traduzioni **prima** della chiave di firma e del build, quindi
   una prova rossa o una lingua incompleta fermano il rilascio invece di produrre un APK da
-  ritirare. Il perché per esteso, e i due posti in cui il banco gira, stanno in § '🧰 Gli
+  ritirare. Il perché per esteso, e i due posti in cui il banco gira, vivono in § '🧰 Gli
   strumenti che questo repo si porta dietro'.
   - ⚠️ **I controlli a costo zero restano davanti al cancello**: un tag che non coincide col
     `versionName`, o un `publish` da un branch che non è quello principale, falliscono in un
@@ -929,7 +929,7 @@ collaudo: rilascio, documento, riscontro'.
 
 ## 🔐 La firma, e dove NON vive
 
-La chiave di firma e le sue parole d'ordine stanno **solo** fra i secret GitHub di questo
+La chiave di firma e le sue parole d'ordine vivono **solo** fra i secret GitHub di questo
 repository (`AIV_KEYSTORE_FILE`, `AIV_KEYSTORE_PASSWORD`, `AIV_KEY_ALIAS`, `AIV_KEY_PASSWORD`),
 e il job le scrive su disco per la durata di una sola esecuzione.
 
@@ -958,7 +958,7 @@ e il job le scrive su disco per la durata di una sola esecuzione.
     misurerebbe l'indulgenza di quella libreria invece della grammatica. Un tracciato che
     passa da lì lo legge qualunque parser conforme, che è la definizione operativa di 'a prova
     di futuro'.
-  - **Le misure di resa vogliono Chromium** e **avvisano** invece di bloccare: dove sta
+  - **Le misure di resa vogliono Chromium** e **avvisano** invece di bloccare: dov'è
     l'inchiostro, il margine dalla tela, la sagoma di Material più vicina, se il disegno
     dipende dal verso di avvolgimento, e quanto costerebbe unire i tracciati. ⚠️ Se Chromium
     non c'è **lo dichiara** invece di tacere, che è la differenza fra un controllo saltato e un
@@ -995,7 +995,7 @@ e il job le scrive su disco per la durata di una sola esecuzione.
     shadow di venti righe.
     - ⚠️⚠️ **NON È UN DETTAGLIO DI COMODO: È LA DIFFERENZA FRA MISURARE E NON MISURARE.** La
       prima stesura di quella prova montava una **miniatura** scritta accanto, e passava anche
-      rimettendo il difetto che doveva prendere. Il criterio universale sta in `Roccobot.md`
+      rimettendo il difetto che doveva prendere. Il criterio universale vive in `Roccobot.md`
       § '🧪 Test e verifiche'.
   - ⚠️⚠️ **DAL 2026-09-05 GIRA DA SÉ, E IN DUE POSTI**: è un passo di `check.yml` a ogni push su
     `main` e a ogni PR, ed è il **cancello** di `release.yml`, dove una prova rossa ferma il
