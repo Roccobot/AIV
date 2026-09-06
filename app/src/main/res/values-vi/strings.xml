@@ -270,6 +270,8 @@
     <string name="settings_group_advanced">Tính năng nâng cao</string>
     <string name="settings_ext_edit">Đổi phần mở rộng trong \'Đổi tên\'</string>
     <string name="settings_ext_edit_desc">Bảng đổi tên cho phép đổi phần mở rộng của tệp. Nếu không rõ mình đang làm gì thì đừng bật: ảnh có thể trở nên không đọc được.</string>
+    <string name="settings_gpu_thumbs">Giữ ảnh thu nhỏ trong bộ nhớ đồ họa</string>
+    <string name="settings_gpu_thumbs_desc">Ảnh thu nhỏ được giữ bên ngoài bộ nhớ của ứng dụng, nhờ đó còn chỗ cho các ảnh lớn. Trên một số thiết bị điều này có thể gây trục trặc, vì vậy mặc định tắt.</string>
     <string name="settings_thumbs">Xóa ảnh thu nhỏ đã lưu</string>
     <string name="settings_thumbs_empty">Không có ảnh thu nhỏ nào được lưu</string>
     <string name="settings_thumbs_warn">Nhấn vào nút để xóa bộ đệm ảnh thu nhỏ. Bản xem trước của hình ảnh và video sẽ bị xóa và được tạo lại tự động khi bạn mở từng thư mục (trong các thư mục có nhiều hình ảnh lớn, việc này có thể mất một phút hoặc hơn).</string>
@@ -305,6 +307,12 @@
     <string name="columns_hint">Lối tắt: nhấn giữ nút nổi để mở tùy chọn hiển thị.</string>
     <string name="settings_bin">Bật thùng rác</string>
     <string name="settings_bin_desc">Xóa một tệp không hỏi gì, nhưng hành động có thể hoàn tác bằng \'Phục hồi\' từ thùng rác (nút nổi →\u00A0\'Thùng rác\'). Bạn có thể tắt hẳn thùng rác nếu thích xóa ngay: khi đó, một hộp xác nhận sẽ xuất hiện trước mỗi lần xóa.\n⚠️ CẢNH BÁO: nếu gỡ cài đặt ứng dụng, nội dung thùng rác sẽ mất và không thể khôi phục.</string>
+    <string name="settings_bin_sweep">Tự động dọn thùng rác</string>
+    <string name="settings_bin_sweep_desc">Mỗi tệp đã xóa sẽ rời thùng rác khi đủ khoảng thời gian bạn chọn. Bản sao lưu của trình chỉnh sửa không bao giờ hết hạn, và việc dọn dẹp chỉ chạy khi ứng dụng đang mở.</string>
+    <string name="bin_sweep_never">Không bao giờ</string>
+    <string name="bin_sweep_week">Một tuần</string>
+    <string name="bin_sweep_month">Một tháng</string>
+    <string name="bin_sweep_quarter">Ba tháng</string>
     <string name="pick_duplicate">Nhân bản</string>
     <string name="settings_grid_names">Tên tệp trong lưới ảnh</string>
     <string name="settings_grid_names_desc">Hiện tên tệp cả ở chế độ lưới, bên dưới ảnh thu nhỏ. Nhiều nhất hai dòng.</string>

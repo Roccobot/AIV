@@ -283,6 +283,8 @@
     <string name="settings_group_advanced">उन्नत सुविधाएँ</string>
     <string name="settings_ext_edit">\'नाम बदलें\' से एक्सटेंशन बदलें</string>
     <string name="settings_ext_edit_desc">नाम बदलने का पैनल फ़ाइलों का एक्सटेंशन बदलने देता है। अगर आपको पक्का पता न हो तो इसे चालू न करें: तस्वीरें पढ़ी न जा सकने वाली हो सकती हैं।</string>
+    <string name="settings_gpu_thumbs">थंबनेल ग्राफ़िक्स मेमोरी में रखें</string>
+    <string name="settings_gpu_thumbs_desc">थंबनेल ऐप की अपनी मेमोरी से बाहर रखे जाते हैं, जिससे बड़ी छवियों के लिए जगह बचती है। कुछ डिवाइस पर इससे दिक्कत हो सकती है, इसलिए यह शुरू से बंद रहता है।</string>
     <string name="settings_thumbs">सहेजे गए थंबनेल हटाएं</string>
     <string name="settings_thumbs_empty">कोई सहेजा गया थंबनेल नहीं</string>
     <string name="settings_thumbs_warn">थंबनेल कैश खाली करने के लिए बटन दबाएं। छवियों और वीडियो के प्रीव्यू हट जाएंगे और हर फ़ोल्डर खोलने पर अपने आप फिर बन जाएंगे (बहुत सी बड़ी छवियों वाले फ़ोल्डर में इसमें एक मिनट या उससे ज़्यादा लग सकता है)।</string>
@@ -320,6 +322,12 @@
     <string name="columns_hint">शॉर्टकट: दिखाने के विकल्पों के लिए तैरता बटन दबाए रखें।</string>
     <string name="settings_bin">कूड़ेदान चालू करें</string>
     <string name="settings_bin_desc">फ़ाइल मिटाने पर कुछ नहीं पूछा जाता, लेकिन कूड़ेदान से \'वापस लाएँ\' के ज़रिये यह काम पलटा जा सकता है (फ़्लोटिंग बटन →\u00A0\'कूड़ेदान\')। अगर आप तुरंत मिटाना पसंद करते हैं तो कूड़ेदान पूरी तरह बंद कर सकते हैं: उस स्थिति में हर बार मिटाने से पहले पुष्टि दिखेगी।\n⚠️ चेतावनी: ऐप अनइंस्टॉल करने पर कूड़ेदान की सामग्री खो जाती है और वापस नहीं मिलती।</string>
+    <string name="settings_bin_sweep">कचरा अपने आप खाली करें</string>
+    <string name="settings_bin_sweep_desc">हटाई गई हर फ़ाइल आपके चुने हुए समय पर पहुँचते ही कचरे से निकल जाती है। एडिटर के बैकअप कभी समाप्त नहीं होते, और सफ़ाई तभी होती है जब ऐप खुला हो।</string>
+    <string name="bin_sweep_never">कभी नहीं</string>
+    <string name="bin_sweep_week">एक हफ़्ता</string>
+    <string name="bin_sweep_month">एक महीना</string>
+    <string name="bin_sweep_quarter">तीन महीने</string>
     <string name="pick_duplicate">प्रतिलिपि बनाएँ</string>
     <string name="settings_grid_names">ग्रिड में फ़ाइल का नाम</string>
     <string name="settings_grid_names_desc">ग्रिड दृश्य में भी थंबनेल के नीचे फ़ाइल का नाम दिखाता है। अधिक से अधिक दो पंक्तियाँ।</string>

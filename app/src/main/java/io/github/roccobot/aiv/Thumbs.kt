@@ -23,6 +23,7 @@ import coil3.fetch.ImageFetchResult
 import coil3.fetch.SourceFetchResult
 import coil3.request.ImageRequest
 import coil3.request.Options
+import coil3.request.allowHardware
 import coil3.size.pxOrElse
 import coil3.toAndroidUri
 import kotlinx.coroutines.Dispatchers
@@ -130,13 +131,39 @@ object Thumbs {
     const val PX = 512
 
     /**
+     * Se le miniature devono vivere nella **memoria grafica**, cioè l'impostazione
+     * [Settings.gpuThumbs] portata dove un componente di Coil può leggerla.
+     *
+     * ⚠️⚠️ **UNA VARIABILE GLOBALE, E LA RAGIONE È CHE QUI NON ARRIVA NIENT'ALTRO**: un
+     * `Fetcher` di Coil nasce dentro il caricatore, non dentro una composizione, quindi non
+     * vede né lo stato dell'app né il flusso delle preferenze. L'alternativa era passare il
+     * valore a [request] e da lì a **sei** chiamanti sparsi in cinque schermate, cioè far
+     * viaggiare un'impostazione attraverso mezza interfaccia perché la legga un componente che
+     * sta in fondo.
+     * ⚠️ **La scrive un posto solo**, `AivApp` in `ViewerActivity`, che è dove le preferenze
+     * arrivano; qui si legge e basta. ⚠️ `@Volatile` perché chi legge è un thread di I/O di
+     * Coil e chi scrive è quello dell'interfaccia.
+     * ⚠️ **Cambiarla vale per le miniature NUOVE**, e va detto invece di prometterlo: quelle
+     * già in cache restano dove sono finché la cache non le ricicla, perché una miniatura in
+     * memoria si ritrova per chiave e non si riconverte.
+     */
+    @Volatile
+    var inGpu: Boolean = false
+
+    /**
      * La richiesta di una miniatura, **una sola definizione per i due posti che la
      * chiedono**: la griglia e l'anteprima del visualizzatore. Due costruzioni separate
      * divergerebbero sulla misura, cioè sulla chiave, cioè sull'unica cosa che fa la
      * differenza fra un colpo in cache e una rigenerazione.
+     *
+     * ⚠️⚠️ **`allowHardware` SI DICHIARA SEMPRE, anche da spento, e non è una ridondanza**: il
+     * valore di serie di Coil è **acceso**, quindi senza questa riga la decodifica di ripiego
+     * (i PNG con alfa, i BMP, le miniature rifiutate perché troppo piccole) darebbe bitmap in
+     * memoria grafica mentre quelle del sistema restano software. Sarebbero due comportamenti
+     * per due strade, e nessuno dei due scelto: la stessa impostazione, letta qui, li rende uno.
      */
     fun request(context: Context, uri: AndroidUri): ImageRequest =
-        ImageRequest.Builder(context).data(uri).size(PX).build()
+        ImageRequest.Builder(context).data(uri).size(PX).allowHardware(inGpu).build()
 
     /**
      * Le chiavi di cache delle miniature già viste, per indirizzo.
@@ -230,6 +257,29 @@ object Thumbs {
  * si vede da una classe del file, nemmeno accanto.
  */
 private const val FALLBACK_PX = 384
+
+/**
+ * Il bitmap portato in **memoria grafica**, se la richiesta lo chiede e se il telefono lo
+ * concede.
+ *
+ * ⚠️⚠️ **SERVE PERCHÉ `allowHardware` DA SOLO NON BASTA PER NOI**: quella bandierina la legge
+ * il decodificatore **di Coil**, e le miniature di questo file non passano di là: arrivano già
+ * decodificate da `loadThumbnail`, da libavif o dal disegnatore SVG, e sono software per
+ * costruzione. Senza questa conversione l'impostazione varrebbe per la sola strada di ripiego,
+ * cioè per la minoranza dei file.
+ * ⚠️ **`copy` può tornare `null`**, e non è un caso raro da ignorare: la memoria grafica ha un
+ * tetto, e quando è pieno il sistema si rifiuta invece di fare spazio. Allora si tiene il
+ * bitmap software, che è la cosa giusta: una miniatura in memoria normale è quello che l'app
+ * fa da sempre.
+ * ⚠️ **L'originale non si ricicla**: dopo la copia diventa spazzatura e il raccoglitore lo
+ * prende al primo giro, mentre un `recycle()` a mano aprirebbe la classe di errori in cui
+ * qualcuno disegna un bitmap già buttato. Il guadagno di memoria è lo stesso, spostato di un
+ * istante.
+ */
+private fun Bitmap.inGraphics(options: Options): Bitmap {
+    if (!options.allowHardware || config == Bitmap.Config.HARDWARE) return this
+    return runCatching { copy(Bitmap.Config.HARDWARE, false) }.getOrNull() ?: this
+}
 
 /**
  * Chiede al sistema la miniatura, e si toglie di mezzo quando non ce l'ha.
@@ -380,7 +430,7 @@ private class SystemThumbnailFetcher(
             }
 
             ImageFetchResult(
-                image = bitmap.asImage(),
+                image = bitmap.inGraphics(options).asImage(),
                 // Dichiarata campionata perché lo è: non è la fotografia, è una sua
                 // riduzione, e chi legge questo esito deve saperlo.
                 isSampled = true,
@@ -480,7 +530,7 @@ private class AvifThumbnailFetcher(
         // scoprire che la miniatura c'era già.
         AvifCache.read(options.context, uri, box)?.let { pronta ->
             return@withContext ImageFetchResult(
-                image = pronta.asImage(),
+                image = pronta.inGraphics(options).asImage(),
                 isSampled = true,
                 dataSource = DataSource.DISK
             )
@@ -504,7 +554,7 @@ private class AvifThumbnailFetcher(
         val bitmap = Avif.thumbnail(bytes, box) ?: return@withContext null
         AvifCache.write(options.context, uri, box, bitmap)
         ImageFetchResult(
-            image = bitmap.asImage(),
+            image = bitmap.inGraphics(options).asImage(),
             isSampled = true,
             dataSource = DataSource.DISK
         )
@@ -557,7 +607,7 @@ private class SvgThumbnailDecoder(
         // file grosso non passa mai per un array grande quanto lui.
         val drawn = Svg.render(source.source().inputStream(), box) ?: return@withContext null
         DecodeResult(
-            image = drawn.bitmap.asImage(),
+            image = drawn.bitmap.inGraphics(options).asImage(),
             // ⚠️ **`true` sempre, e NON il `sampled` del disegno**: quel campo dice se il
             // raster è più piccolo del documento, mentre a Coil serve sapere se questa è
             // l'immagine **intera**, e una miniatura non lo è mai. Dichiarandola intera,

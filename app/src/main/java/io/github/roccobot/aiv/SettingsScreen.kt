@@ -918,6 +918,39 @@ private fun ColumnScope.RootPage(
         onChange = { onChange(settings.copy(binOn = it)) }
     )
 
+    /*
+     * ⚠️⚠️ **SUBITO SOTTO 'ATTIVA IL CESTINO' E NON DIETRO UN TOCCO, e la scelta va motivata
+     * perché il piano diceva il contrario**: là era prevista una sotto-pagina, con la ragione
+     * che questa voce *cambia il metro con cui un file è protetto*, cioè uno dei due soli casi
+     * per cui una voce è delicata. Ma la soglia non si conta sulla voce, si conta sulla
+     * **famiglia**: alla domanda 'come faccio a non perdere un file per sbaglio' rispondono la
+     * copia di sicurezza dell'editor, il cestino e questa, cioè **tre** voci, e tre stanno
+     * dentro la soglia dell'utente per una sotto-sezione. Mandare una famiglia intera dietro un
+     * tocco per proteggerne una riga costerebbe due tocchi alle altre due.
+     * ⚠️ **La protezione resta e viene da altre due parti**: il valore di fabbrica è 'Mai',
+     * quindi non cancella niente finché non lo si accende, e sotto il titolo c'è il paragrafo
+     * che dice che cosa succede.
+     * ⚠️ **E la ricerca la trova**: [Choices] passa da `shown`, che confronta anche i nomi delle
+     * pastiglie, quindi 'Un mese' e 'Mai' portano qui come il titolo.
+     */
+    Choices(
+        label = stringResource(R.string.settings_bin_sweep),
+        detail = stringResource(R.string.settings_bin_sweep_desc),
+        options = BinKeep.entries,
+        selected = settings.binKeep,
+        nameOf = {
+            stringResource(
+                when (it) {
+                    BinKeep.NEVER -> R.string.bin_sweep_never
+                    BinKeep.WEEK -> R.string.bin_sweep_week
+                    BinKeep.MONTH -> R.string.bin_sweep_month
+                    BinKeep.QUARTER -> R.string.bin_sweep_quarter
+                }
+            )
+        },
+        onSelect = { onChange(settings.copy(binKeep = it)) }
+    )
+
     Group(stringResource(R.string.settings_group_browse))
 
     /*
@@ -1043,6 +1076,23 @@ private fun ColumnScope.RootPage(
         detail = stringResource(R.string.settings_ext_edit_desc),
         checked = settings.extEdit,
         onChange = { onChange(settings.copy(extEdit = it)) }
+    )
+
+    /*
+     * ⚠️⚠️ **STA QUI E NON FRA LE IMPOSTAZIONI DELLA GRIGLIA, e la domanda lo decide**: chi
+     * cerca questa voce non si chiede 'come vedo le cartelle', si chiede 'come faccio a
+     * rendere l'app più leggera'. È una funzione che tocca il modo in cui il telefono tiene la
+     * memoria, e come l'altra riga di questo gruppo può fare danni: il perché misurato sta su
+     * [Settings.gpuThumbs].
+     * ⚠️ **Il gruppo adesso ha due voci e non una**, e la nota qui sopra non è più da leggere
+     * come 'un gruppo per una riga sola': quella dichiarava perché il gruppo fosse nato con una
+     * voce, e la seconda gli dà la famiglia che allora non aveva.
+     */
+    SwitchRow(
+        label = stringResource(R.string.settings_gpu_thumbs),
+        detail = stringResource(R.string.settings_gpu_thumbs_desc),
+        checked = settings.gpuThumbs,
+        onChange = { onChange(settings.copy(gpuThumbs = it)) }
     )
 
     /*

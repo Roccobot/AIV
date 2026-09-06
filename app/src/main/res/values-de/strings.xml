@@ -283,6 +283,8 @@
     <string name="settings_group_advanced">Erweiterte Funktionen</string>
     <string name="settings_ext_edit">Dateiendungen über \'Umbenennen\' ändern</string>
     <string name="settings_ext_edit_desc">Im Umbenennen-Fenster lassen sich Dateiendungen ändern. Wenn du nicht weißt, was du tust, lass das aus: Bilder können dadurch unlesbar werden.</string>
+    <string name="settings_gpu_thumbs">Miniaturen im Grafikspeicher halten</string>
+    <string name="settings_gpu_thumbs_desc">Miniaturen werden außerhalb des App-Speichers gehalten, der so für große Bilder frei bleibt. Auf manchen Geräten kann das Probleme verursachen, deshalb ist die Option standardmäßig aus.</string>
     <string name="settings_thumbs">Gespeicherte Miniaturbilder löschen</string>
     <string name="settings_thumbs_empty">Keine gespeicherten Miniaturbilder</string>
     <string name="settings_thumbs_warn">Tippe auf die Schaltfläche, um den Cache der Miniaturbilder zu leeren. Die Vorschauen von Bildern und Videos werden gelöscht und beim Öffnen jedes Ordners automatisch neu erstellt (in Ordnern mit vielen großen Bildern kann das eine Minute oder länger dauern).</string>
@@ -320,6 +322,12 @@
     <string name="columns_hint">Kurzbefehl: Halte die schwebende Taste für die Anzeigeoptionen gedrückt.</string>
     <string name="settings_bin">Papierkorb einschalten</string>
     <string name="settings_bin_desc">Das Löschen einer Datei fragt nichts, aber die Aktion lässt sich mit einem \'Wiederherstellen\' aus dem Papierkorb umkehren (schwebende Schaltfläche →\u00A0\'Papierkorb\'). Du kannst den Papierkorb ganz ausschalten, wenn du sofortiges Löschen bevorzugst: dann erscheint vor jedem Löschen eine Bestätigung.\n⚠️ ACHTUNG: Wenn du die App deinstallierst, geht der Inhalt des Papierkorbs verloren und ist nicht wiederherstellbar.</string>
+    <string name="settings_bin_sweep">Papierkorb automatisch leeren</string>
+    <string name="settings_bin_sweep_desc">Jede gelöschte Datei verlässt den Papierkorb, sobald sie das gewählte Alter erreicht. Editor-Sicherungen laufen nie ab, und aufgeräumt wird nur, solange die App offen ist.</string>
+    <string name="bin_sweep_never">Nie</string>
+    <string name="bin_sweep_week">Eine Woche</string>
+    <string name="bin_sweep_month">Ein Monat</string>
+    <string name="bin_sweep_quarter">Drei Monate</string>
     <string name="pick_duplicate">Duplizieren</string>
     <string name="settings_grid_names">Dateiname im Bilderraster</string>
     <string name="settings_grid_names_desc">Zeigt den Dateinamen auch in der Rasteransicht, unter dem Miniaturbild. Höchstens zwei Zeilen.</string>

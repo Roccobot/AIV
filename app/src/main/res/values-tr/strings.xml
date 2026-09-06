@@ -283,6 +283,8 @@
     <string name="settings_group_advanced">Gelişmiş özellikler</string>
     <string name="settings_ext_edit">Uzantıları \'Yeniden adlandır\' ile değiştir</string>
     <string name="settings_ext_edit_desc">Yeniden adlandırma paneli dosya uzantılarını değiştirmeye izin verir. Ne yaptığını bilmiyorsan bunu açma: görüntüleri okunamaz hâle getirebilir.</string>
+    <string name="settings_gpu_thumbs">Küçük resimleri grafik belleğinde tut</string>
+    <string name="settings_gpu_thumbs_desc">Küçük resimler uygulamanın kendi belleğinin dışında tutulur, böylece büyük görüntülere yer kalır. Bazı cihazlarda sorun çıkarabilir, bu yüzden varsayılan olarak kapalıdır.</string>
     <string name="settings_thumbs">Kaydedilen küçük resimleri sil</string>
     <string name="settings_thumbs_empty">Kaydedilmiş küçük resim yok</string>
     <string name="settings_thumbs_warn">Küçük resim önbelleğini boşaltmak için düğmeye dokun. Görüntülerin ve videoların ön izlemeleri silinecek ve her klasörü açtığında otomatik olarak yeniden oluşturulacak (çok sayıda büyük görüntü içeren klasörlerde bu bir dakika veya daha uzun sürebilir).</string>
@@ -320,6 +322,12 @@
     <string name="columns_hint">Kısayol: görünüm seçenekleri için kayan düğmeyi basılı tutun.</string>
     <string name="settings_bin">Çöp kutusunu aç</string>
     <string name="settings_bin_desc">Bir dosyayı silmek hiçbir şey sormaz, ama işlem çöp kutusundan bir \'Geri al\' ile geri alınabilir (kayan düğme →\u00A0\'Çöp kutusu\'). Anında silmeyi tercih ediyorsan çöp kutusunu tamamen kapatabilirsin: o zaman her silme işleminden önce bir onay görünür.\n⚠️ DİKKAT: uygulamayı kaldırırsan çöp kutusundaki içerik kaybolur ve geri getirilemez.</string>
+    <string name="settings_bin_sweep">Çöp kutusunu kendiliğinden boşalt</string>
+    <string name="settings_bin_sweep_desc">Silinen her dosya seçtiğin süreyi doldurduğunda çöp kutusundan çıkar. Düzenleyicinin yedekleri hiç sona ermez ve temizlik yalnızca uygulama açıkken çalışır.</string>
+    <string name="bin_sweep_never">Asla</string>
+    <string name="bin_sweep_week">Bir hafta</string>
+    <string name="bin_sweep_month">Bir ay</string>
+    <string name="bin_sweep_quarter">Üç ay</string>
     <string name="pick_duplicate">Çoğalt</string>
     <string name="settings_grid_names">Izgarada dosya adı</string>
     <string name="settings_grid_names_desc">Dosya adını ızgara görünümünde de, küçük resmin altında gösterir. En çok iki satır.</string>

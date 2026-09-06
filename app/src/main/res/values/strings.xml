@@ -168,6 +168,8 @@
     <string name="settings_group_advanced">Advanced features</string>
     <string name="settings_ext_edit">Edit extensions from \'Rename\'</string>
     <string name="settings_ext_edit_desc">The rename panel can change file extensions. If you do not know what you are doing, do not turn this on: it can make images unreadable.</string>
+    <string name="settings_gpu_thumbs">Keep thumbnails in graphics memory</string>
+    <string name="settings_gpu_thumbs_desc">Thumbnails are kept outside the app\'s own memory, which stays free for large images. On some devices this can cause trouble, so it is off by default.</string>
     <string name="settings_thumbs">Delete stored thumbnails</string>
     <string name="settings_thumbs_empty">No stored thumbnails</string>
     <string name="settings_thumbs_warn">Tap the button to clear the thumbnail cache. Image and video previews will be deleted and regenerated automatically when you open each folder (this may take a minute or more in folders with many large images).</string>
@@ -240,6 +242,12 @@
          back. The Italian wording is the user's, dictated word for word. -->
     <string name="settings_bin">Turn the bin on</string>
     <string name="settings_bin_desc">Deleting a file asks nothing, but the action can be undone with a \'Restore\' from the bin (floating button →\u00A0\'Bin\'). You can turn the bin off altogether if you prefer instant deletion: in that case, a confirmation will appear before every deletion.\n⚠️ WARNING: if you uninstall the app, the contents of the bin are lost and cannot be recovered.</string>
+    <string name="settings_bin_sweep">Empty the bin automatically</string>
+    <string name="settings_bin_sweep_desc">Each deleted file leaves the bin once it reaches the age you choose. Editor backups never expire, and the clean-up only runs while the app is open.</string>
+    <string name="bin_sweep_never">Never</string>
+    <string name="bin_sweep_week">One week</string>
+    <string name="bin_sweep_month">One month</string>
+    <string name="bin_sweep_quarter">Three months</string>
     <!-- The one that decides the architecture: OFF by default means the normal case
          is 'I leaf through videos too', so the branch that tells a picture from a film
          is always needed. Tapping a video still opens it: this is about the GESTURE. -->

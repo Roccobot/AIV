@@ -270,6 +270,8 @@
     <string name="settings_group_advanced">高级功能</string>
     <string name="settings_ext_edit">在 \'重命名\' 中修改扩展名</string>
     <string name="settings_ext_edit_desc">重命名面板可以修改文件的扩展名。如果不清楚自己在做什么，请不要打开：图片可能会变得无法读取。</string>
+    <string name="settings_gpu_thumbs">把缩略图放在图形内存里</string>
+    <string name="settings_gpu_thumbs_desc">缩略图不再占用应用自身的内存，大图因此有更多余量。在部分设备上可能出问题，所以默认关闭。</string>
     <string name="settings_thumbs">删除已存储的缩略图</string>
     <string name="settings_thumbs_empty">没有已存储的缩略图</string>
     <string name="settings_thumbs_warn">点按按钮清空缩略图缓存。图片和视频的预览将被删除，并在打开每个文件夹时自动重新生成（在大图很多的文件夹中，这可能需要一分钟或更长时间）。</string>
@@ -305,6 +307,12 @@
     <string name="columns_hint">快捷方式：长按悬浮按钮打开显示选项。</string>
     <string name="settings_bin">启用回收站</string>
     <string name="settings_bin_desc">删除文件不会有任何提示，但可以在回收站里用 \'还原\' 撤销（悬浮按钮 →\u00A0\'回收站\'）。如果你更喜欢立即删除，可以完全关闭回收站：那样每次删除前都会出现确认。\n⚠️ 注意：卸载应用后，回收站里的内容会丢失且无法恢复。</string>
+    <string name="settings_bin_sweep">自动清空回收站</string>
+    <string name="settings_bin_sweep_desc">每个删除的文件到了你选的期限就会离开回收站。编辑器的备份永不过期，清理只在应用打开时进行。</string>
+    <string name="bin_sweep_never">从不</string>
+    <string name="bin_sweep_week">一周</string>
+    <string name="bin_sweep_month">一个月</string>
+    <string name="bin_sweep_quarter">三个月</string>
     <string name="pick_duplicate">创建副本</string>
     <string name="settings_grid_names">网格中显示文件名</string>
     <string name="settings_grid_names_desc">在网格视图中也在缩略图下方显示文件名。最多两行。</string>

@@ -394,6 +394,8 @@
     <string name="settings_group_advanced">Funzionalità avanzate</string>
     <string name="settings_ext_edit">Modifica le estensioni con \'Rinomina\'</string>
     <string name="settings_ext_edit_desc">Il pannello di rinomina consente di modificare le estensioni dei file. Se non sai cosa stai facendo, non attivare questa opzione: può rendere le immagini illeggibili.</string>
+    <string name="settings_gpu_thumbs">Salva le miniature nella memoria grafica</string>
+    <string name="settings_gpu_thumbs_desc">Le miniature vengono tenute fuori dalla memoria dell\'app, che resta libera per le immagini grandi. Su alcuni dispositivi può dare problemi, per questo è disattivata di fabbrica.</string>
     <string name="settings_thumbs">Elimina le miniature memorizzate</string>
     <string name="settings_thumbs_empty">Nessuna miniatura memorizzata</string>
     <string name="settings_thumbs_warn">Tocca il pulsante per svuotare la cache delle miniature. Le anteprime delle immagini e dei video saranno eliminate e saranno rigenerate in automatico all\'accesso ad ogni cartella (potrebbe richiedere un minuto o più nelle cartelle con molte immagini grandi).</string>
@@ -436,6 +438,12 @@
     <string name="columns_hint">Scorciatoia: tieni premuto il tasto flottante per le opzioni di visualizzazione.</string>
     <string name="settings_bin">Attiva il cestino</string>
     <string name="settings_bin_desc">L\'eliminazione di file non prevede alcun avviso, ma l\'azione è reversibile con un \'Ripristina\' dal cestino (tasto flottante →\u00A0\'Cestino\'). Puoi disattivare del tutto il cestino, se preferisci un\'eliminazione istantanea: in quel caso, apparirà una conferma prima di ogni eliminazione.\n⚠️ ATTENZIONE: se disinstalli l\'app, il contenuto del cestino va perso e diventa irrecuperabile.</string>
+    <string name="settings_bin_sweep">Svuotamento automatico</string>
+    <string name="settings_bin_sweep_desc">Ogni file eliminato se ne va dal cestino quando ha compiuto il tempo che scegli. Le copie di sicurezza dell\'editor non scadono mai, e la pulizia avviene solo mentre l\'app è aperta.</string>
+    <string name="bin_sweep_never">Mai</string>
+    <string name="bin_sweep_week">Una settimana</string>
+    <string name="bin_sweep_month">Un mese</string>
+    <string name="bin_sweep_quarter">Tre mesi</string>
     <string name="pick_duplicate">Duplica</string>
     <string name="settings_grid_names">Nome del file in vista griglia</string>
     <string name="settings_grid_names_desc">Mostra il nome del file anche in vista griglia, sotto la miniatura. Massimo due righe.</string>
