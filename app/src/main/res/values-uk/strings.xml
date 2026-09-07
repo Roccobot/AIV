@@ -316,8 +316,8 @@
     <string name="settings_group_browse">Теки</string>
     <string name="settings_group_start">Запуск</string>
     <string name="settings_group_advanced">Розширені функції</string>
-    <string name="settings_ext_edit">Змінювати розширення у \'Перейменувати\'</string>
-    <string name="settings_ext_edit_desc">Панель перейменування дозволяє змінювати розширення файлів. Якщо ви не впевнені, не вмикайте це: зображення можуть стати нечитабельними.</string>
+    <string name="settings_ext_edit">Дозволити змінювати розширення</string>
+    <string name="settings_ext_edit_desc">Додає кнопку \'Розширення\' до вікон, вибраних нижче. Зміна розширення нічого не перетворює: якщо ви не знаєте, що робите, залиште обидві вимкненими, бо зображення може стати нечитабельним.</string>
     <string name="settings_gpu_thumbs">Тримати мініатюри у графічній пам\'яті</string>
     <string name="settings_gpu_thumbs_desc">Створює кеш мініатюр у пам\'яті графічного чипа, залишаючи звичайну пам\'ять вільною. Галерея може стати швидшою, може не змінитися, а іноді, майже завжди на старих пристроях, сповільнитися. Якщо є проблеми зі швидкодією, увімкніть і подивіться, чи допомагає: заздалегідь не дізнатися, стільки в Android поєднань заліза та прошивки.</string>
     <string name="settings_thumbs">Видалити збережені ескізи</string>
@@ -421,10 +421,12 @@
     <string name="settings_editor_backup">Резервна копія перед перезаписом</string>
     <string name="settings_editor_backup_desc">Перш ніж редактор перезапише зображення, він зберігає його копію в кошику, звідки її можна повернути; якщо вона не потрібна, її буде вилучено під час наступного очищення кошика.</string>
     <string name="settings_save_rename">Дозволити перейменування під час збереження</string>
-    <string name="settings_save_rename_desc">Файли зберігаються під початковою назвою. Увімкніть, щоб задавати назву при кожному завантаженні. Навіть якщо вимкнено, утримуйте \'Зберегти\', щоб ввести назву один раз.</string>
+    <string name="settings_save_rename_desc">Типово файли зберігаються під початковою назвою. Увімкніть це, щоб задавати назву при кожному завантаженні. Навіть коли вимкнено, натисніть і утримуйте \'Зберегти\', щоб ввести нову назву лише цього разу: тоді доступне і \'Призначення\'.</string>
     <string name="settings_download_path">Вибирати теку завантаження</string>
-    <string name="settings_download_path_desc">Увімкнено: у вікні назви з\'являється значок \'Шлях\', що відкриває системний вибір теки. Вимкнено: усе йде в Завантаження.</string>
-    <string name="save_name_path">Шлях</string>
+    <string name="settings_rename_download">Перейменування та завантаження</string>
+    <string name="settings_download_path_desc">Додає кнопку \'Призначення\' до вікна збереження, щоб вибрати теку, куди піде файл. Діє, коли увімкнено перейменування під час збереження.</string>
+    <string name="save_name_path">Тека призначення: %1$s</string>
+    <string name="save_name_dest">Призначення</string>
     <string name="editor_tall">Портрет</string>
     <string name="editor_wide">Пейзаж</string>
     <string name="pick_cleared">Жодного файлу не вибрано.</string>

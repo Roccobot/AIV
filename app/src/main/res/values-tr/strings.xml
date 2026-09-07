@@ -288,8 +288,8 @@
     <string name="settings_group_browse">Klasörler</string>
     <string name="settings_group_start">Başlangıç</string>
     <string name="settings_group_advanced">Gelişmiş özellikler</string>
-    <string name="settings_ext_edit">Uzantıları \'Yeniden adlandır\' ile değiştir</string>
-    <string name="settings_ext_edit_desc">Yeniden adlandırma paneli dosya uzantılarını değiştirmeye izin verir. Ne yaptığını bilmiyorsan bunu açma: görüntüleri okunamaz hâle getirebilir.</string>
+    <string name="settings_ext_edit">Uzantının değiştirilmesine izin ver</string>
+    <string name="settings_ext_edit_desc">Aşağıda seçtiğiniz pencerelere \'Uzantı\' düğmesini ekler. Uzantıyı değiştirmek hiçbir şeyi dönüştürmez: ne yaptığınızı bilmiyorsanız ikisini de kapalı bırakın, çünkü bir görüntü okunamaz hale gelebilir.</string>
     <string name="settings_gpu_thumbs">Küçük resimleri grafik belleğinde tut</string>
     <string name="settings_gpu_thumbs_desc">Küçük resim önbelleğini grafik çipinin belleğinde tutar, böylece normal bellek serbest kalır. Galeriyi daha akıcı yapabilir, hiçbir şeyi değiştirmeyebilir ya da bazı durumlarda, neredeyse her zaman eski cihazlarda, yavaşlatabilir. Performans sorunu yaşıyorsan aç ve işe yarıyor mu bak: önceden bilinmez, Android\'de donanım ve yazılım birleşimi çok fazla.</string>
     <string name="settings_thumbs">Kaydedilen küçük resimleri sil</string>
@@ -389,10 +389,12 @@
     <string name="settings_editor_backup">Üzerine yazmadan önce yedek kopya</string>
     <string name="settings_editor_backup_desc">Bir düzenleyici bir görüntünün üzerine yazmadan önce, bir kopyasını çöp kutusuna kaydeder; oradan geri alabilirsiniz. Gerekmiyorsa bir sonraki \'Çöp kutusunu boşalt\' işleminde silinir.</string>
     <string name="settings_save_rename">Kaydederken yeniden adlandırmaya izin ver</string>
-    <string name="settings_save_rename_desc">Dosyalar özgün adıyla kaydedilir. Her indirmede ad girmek için bunu açın. Kapalıyken bile \'Kaydet\' düğmesini basılı tutarak o seferlik ad yazabilirsiniz.</string>
+    <string name="settings_save_rename_desc">Dosyalar varsayılan olarak özgün adlarıyla kaydedilir. Her indirmede bir ad belirlemek için bunu açın. Kapalıyken de \'Kaydet\' düğmesini basılı tutarak yalnızca o seferlik yeni bir ad yazabilirsiniz: bu durumda \'Hedef\' de kullanılabilir.</string>
     <string name="settings_download_path">İndirme yolunu seç</string>
-    <string name="settings_download_path_desc">Açıkken ad penceresinde \'Yol\' simgesi çıkar ve sistem seçicisini açar. Kapalıyken her şey İndirilenler klasörüne gider.</string>
-    <string name="save_name_path">Yol</string>
+    <string name="settings_rename_download">Yeniden adlandırma ve indirmeler</string>
+    <string name="settings_download_path_desc">Kaydetme penceresine \'Hedef\' düğmesini ekler, dosyanın gideceği klasörü seçmek için. Kaydederken yeniden adlandırma açıkken geçerlidir.</string>
+    <string name="save_name_path">Hedef klasör: %1$s</string>
+    <string name="save_name_dest">Hedef</string>
     <string name="editor_tall">Dikey</string>
     <string name="editor_wide">Yatay</string>
     <string name="pick_cleared">Hiçbir dosya seçilmedi.</string>

@@ -288,8 +288,8 @@
     <string name="settings_group_browse">फ़ोल्डर</string>
     <string name="settings_group_start">शुरुआत</string>
     <string name="settings_group_advanced">उन्नत सुविधाएँ</string>
-    <string name="settings_ext_edit">\'नाम बदलें\' से एक्सटेंशन बदलें</string>
-    <string name="settings_ext_edit_desc">नाम बदलने का पैनल फ़ाइलों का एक्सटेंशन बदलने देता है। अगर आपको पक्का पता न हो तो इसे चालू न करें: तस्वीरें पढ़ी न जा सकने वाली हो सकती हैं।</string>
+    <string name="settings_ext_edit">एक्सटेंशन बदलने दें</string>
+    <string name="settings_ext_edit_desc">नीचे चुनी गई विंडो में \'एक्सटेंशन\' बटन जोड़ता है. एक्सटेंशन बदलने से कुछ रूपांतरित नहीं होता: यदि आप नहीं जानते कि क्या कर रहे हैं तो दोनों बंद रखें, क्योंकि छवि अपठनीय हो सकती है.</string>
     <string name="settings_gpu_thumbs">थंबनेल ग्राफ़िक्स मेमोरी में रखें</string>
     <string name="settings_gpu_thumbs_desc">थंबनेल की कैश ग्राफ़िक्स चिप की मेमोरी में बनाता है, ताकि सामान्य मेमोरी खाली रहे। गैलरी तेज़ लग सकती है, कोई बदलाव न हो, या कुछ मामलों में सुस्त हो जाए, जो लगभग हमेशा पुराने डिवाइस होते हैं। प्रदर्शन की दिक्कत हो तो इसे चालू करके देखें: पहले से जानना मुमकिन नहीं, क्योंकि एंड्रॉइड में हार्डवेयर और सॉफ़्टवेयर के संयोजन बहुत हैं।</string>
     <string name="settings_thumbs">सहेजे गए थंबनेल हटाएं</string>
@@ -389,10 +389,12 @@
     <string name="settings_editor_backup">ऊपर लिखने से पहले सुरक्षा प्रति</string>
     <string name="settings_editor_backup_desc">किसी संपादक द्वारा छवि पर लिखे जाने से पहले, उसकी एक प्रति रद्दी में रख दी जाती है, जहाँ से आप उसे वापस ले सकते हैं; ज़रूरत न हो तो अगली बार \'रद्दी खाली करें\' पर वह हट जाएगी।</string>
     <string name="settings_save_rename">सहेजते समय नाम बदलने दें</string>
-    <string name="settings_save_rename_desc">फ़ाइलें मूल नाम से सहेजी जाती हैं। हर डाउनलोड में नाम तय करने के लिए इसे चालू करें। बंद होने पर भी \'सहेजें\' को देर तक दबाकर उस बार नाम लिख सकते हैं।</string>
+    <string name="settings_save_rename_desc">डिफ़ॉल्ट रूप से फ़ाइलें अपने मूल नाम से सहेजी जाती हैं. हर डाउनलोड पर नाम तय करने के लिए इसे चालू करें. बंद होने पर भी \'सहेजें\' को दबाकर रखें और उसी बार के लिए नया नाम लिखें: उस स्थिति में \'गंतव्य\' भी उपलब्ध रहता है.</string>
     <string name="settings_download_path">डाउनलोड पथ चुनें</string>
-    <string name="settings_download_path_desc">चालू होने पर नाम विंडो में \'पथ\' आइकन दिखता है, जो सिस्टम चयनकर्ता खोलता है। बंद होने पर सब कुछ Download में जाता है।</string>
-    <string name="save_name_path">पथ</string>
+    <string name="settings_rename_download">नाम बदलना और डाउनलोड</string>
+    <string name="settings_download_path_desc">सहेजने की विंडो में \'गंतव्य\' बटन जोड़ता है, ताकि फ़ाइल किस फ़ोल्डर में जाए यह चुना जा सके. यह तब लागू होता है जब सहेजते समय नाम बदलना चालू हो.</string>
+    <string name="save_name_path">गंतव्य फ़ोल्डर: %1$s</string>
+    <string name="save_name_dest">गंतव्य</string>
     <string name="editor_tall">खड़ा</string>
     <string name="editor_wide">आड़ा</string>
     <string name="pick_cleared">कोई फ़ाइल चयनित नहीं।</string>

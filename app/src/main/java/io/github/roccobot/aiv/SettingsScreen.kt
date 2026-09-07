@@ -302,6 +302,24 @@ fun SettingsScreen(
         }
 
         /*
+         * ⚠️⚠️ **NASCE NELLA `1.81` PERCHÉ LA FAMIGLIA HA SUPERATO LA SOGLIA, E LUI L'HA CHIESTA
+         * ALLA LETTERA** (riscontro del giro della `1.80`, campo libero punto A: *Crea una nuova
+         * sotto-pagina 'Rinomina e download' delle impostazioni (sezione 'Modifica e backup')*).
+         * Le tre voci rispondono alla stessa domanda, *che nome ha il file che salvo e dove
+         * finisce*, e tre sono oltre il *2-3* della sua soglia.
+         * ⚠️ **La copertura della ricerca si scrive nello stesso giro**, e qui viene da sé: la
+         * pagina è fatta di RIGHE, quindi la radice ne compone il corpo al posto della riga che
+         * la apre mentre una ricerca è in corso (vedi [PageOfRows]).
+         */
+        Page.SAVING -> Shell(
+            title = stringResource(R.string.settings_rename_download),
+            onBack = { pageAt = Page.ROOT.ordinal },
+            modifier = modifier
+        ) {
+            RenameAndDownload(settings = settings, onChange = onChange)
+        }
+
+        /*
          * ⚠️⚠️ **UNA SOTTO-PAGINA PER UN'AZIONE SOLA, ed è un quarto modo di diventarlo**
          * (richiesta dell'utente, 2026-09-04: *un 'Elimina le miniature memorizzate' con un >
          * che ti porta ad una sotto-schermata dove c'è un avviso al centro ... Sotto, un
@@ -352,7 +370,7 @@ fun SettingsScreen(
  * questo valore e nient'altro, senza una pila, e Indietro riporta alla radice. Una famiglia
  * che ne conterrebbe un'altra tiene nella pagina piatta la riga che apre la seconda.
  */
-private enum class Page { ROOT, FACTS, HIDDEN, ZOOM, VIEWS, THUMBS, BUTTONS }
+private enum class Page { ROOT, FACTS, HIDDEN, ZOOM, VIEWS, THUMBS, BUTTONS, SAVING }
 
 /**
  * Che cosa si sta cercando nelle impostazioni, e stringa vuota quando non si cerca.
@@ -913,35 +931,30 @@ private fun ColumnScope.RootPage(
     )
 
     /*
-     * ⚠️⚠️ **DUE VOCI, QUINDI ANCORA NIENTE TITOLO, E STANNO QUI PER LA DOMANDA CHE FANNO**:
-     * *che cosa scrive l'app su disco, e con che nome*. È la stessa domanda della scelta
-     * dell'editor (che riscrive un file) e della copia di sicurezza (che lo protegge), e non è
-     * quella del cestino, che parla di quello che si cancella. Per questo stanno fra le due
-     * famiglie e non sopra un titolo.
-     * ⚠️ **Due non arrivano alla soglia della sotto-pagina**, che è *più di 2-3 opzioni
-     * correlate*: la famiglia resta nella pagina piatta, quindi la ricerca la trova per
-     * costruzione e non c'è nessuna copertura da scrivere.
-     * ⚠️ **La ricerca le trova dal nome del comando**: le due spiegazioni nominano 'Scarica' e
-     * 'Percorso', cioè la voce del menu e il comando su cui agiscono, e `shown` confronta anche
-     * la spiegazione. Non serve nessun testo in più.
-     * ⚠️⚠️ **E DOVE SI SALVA È TORNATO UNA SCELTA, DALLA `1.80`** (campo libero del giro della
-     * `1.79`, punto C): fino alla `1.79` qui c'era scritto che non era più una scelta di
-     * nessuno, perché dalla `1.77` è sempre Download. Adesso lo è per chi la chiede, e resta
-     * Download per tutti gli altri: il valore di fabbrica è **spento**, e la ragione della
-     * `1.77` non è cambiata (vedi `Settings.downloadPath`).
+     * ⚠️⚠️ **TRE VOCI DIETRO UN TOCCO DALLA `1.81`, E LA SOTTO-PAGINA L'HA CHIESTA LUI ALLA
+     * LETTERA** (riscontro del giro della `1.80`, campo libero punto A: *Crea una nuova
+     * sotto-pagina 'Rinomina e download' delle impostazioni (sezione 'Modifica e backup')*).
+     * Fino alla `1.80` erano due righe in questa pagina, e la terza (l'estensione) viveva in
+     * 'Funzionalità avanzate': tre voci sono oltre il *2-3* della sua soglia, e la famiglia è
+     * una sola, cioè *che nome ha il file che salvo e dove finisce*.
+     * ⚠️ **La terza voce cambia sezione e non perde la sua chiave**: chi aveva acceso
+     * l'estensione in 'Rinomina' se la ritrova accesa, perché il posto nell'interfaccia e la
+     * chiave nell'archivio sono due cose indipendenti (vedi `Settings.extRename`).
+     * ⚠️ **Resta in 'Modifica e backup' e non apre una sezione sua**: la domanda è la stessa
+     * della scelta dell'editor (che riscrive un file) e della copia di sicurezza (che lo
+     * protegge), e non è quella del cestino, che parla di quello che si cancella.
+     * ⚠️ **Il riepilogo si compone dai titoli delle tre voci**, come quello dello zoom: scritto
+     * a mano invecchierebbe al primo trasloco, e il precedente è misurato.
      */
-    SwitchRow(
-        label = stringResource(R.string.settings_save_rename),
-        detail = stringResource(R.string.settings_save_rename_desc),
-        checked = settings.saveRename,
-        onChange = { onChange(settings.copy(saveRename = it)) }
-    )
-    SwitchRow(
-        label = stringResource(R.string.settings_download_path),
-        detail = stringResource(R.string.settings_download_path_desc),
-        checked = settings.downloadPath,
-        onChange = { onChange(settings.copy(downloadPath = it)) }
-    )
+    PageOfRows(
+        label = stringResource(R.string.settings_rename_download),
+        summary = listOf(
+            stringResource(R.string.settings_save_rename),
+            stringResource(R.string.settings_download_path),
+            stringResource(R.string.settings_ext_edit)
+        ).joinToString(SUMMARY_JOIN),
+        onOpen = { onOpen(Page.SAVING) }
+    ) { RenameAndDownload(settings = settings, onChange = onChange) }
 
     // ⚠️ Ultima della sezione, e non è un ordine casuale: le due sopra parlano di una
     // modifica, questa di una cancellazione, e il cestino è la rete che le raccoglie tutte
@@ -1100,18 +1113,13 @@ private fun ColumnScope.RootPage(
      * è metà dell'avviso. Un interruttore così in mezzo agli altri sarebbe uno dei tanti.
      * ⚠️ **In fondo alla pagina, dopo tutti i gruppi**: chi scorre fin qui sta cercando
      * qualcosa di insolito, ed è esattamente il pubblico di questa voce.
-     * ⚠️ **Il paragrafo è il `detail` della riga**, cioè lo stesso posto delle altre
-     * spiegazioni: l'utente l'ha chiesto *sotto* la voce, che è dove `SwitchRow` lo mette già.
-     * Il testo è **suo, parola per parola**.
+     * ⚠️⚠️ **LA VOCE PER CUI IL GRUPPO ERA NATO SE N'È ANDATA NELLA `1.81`, E IL GRUPPO RESTA**:
+     * l'estensione è scesa nella sotto-pagina 'Rinomina e download' su sua richiesta (campo
+     * libero del giro della `1.80`, punto A), e qui è rimasta la memoria grafica delle
+     * miniature, che è l'altra funzione che può fare danni. Il titolo continua a essere metà
+     * dell'avviso, quindi la ragione del gruppo non è decaduta col trasloco.
      */
     Group(stringResource(R.string.settings_group_advanced))
-
-    SwitchRow(
-        label = stringResource(R.string.settings_ext_edit),
-        detail = stringResource(R.string.settings_ext_edit_desc),
-        checked = settings.extEdit,
-        onChange = { onChange(settings.copy(extEdit = it)) }
-    )
 
     /*
      * ⚠️⚠️ **STA QUI E NON FRA LE IMPOSTAZIONI DELLA GRIGLIA, e la domanda lo decide**: chi
@@ -2174,3 +2182,101 @@ private fun SwitchRow(
     }
 }
 
+
+/**
+ * La sotto-pagina **'Rinomina e download'**: le tre voci che decidono con che nome un file si
+ * salva e dove finisce.
+ *
+ * ⚠️⚠️ **LA SEMANTICA DELLE TRE VOCI È SUA, DETTATA PAROLA PER PAROLA** (riscontro del giro
+ * della `1.80`, voce `tocco-lungo-due`), e sta scritta qui perché è l'unico posto in cui si
+ * vedono tutte e tre insieme:
+ * - **'Consenti la rinomina al salvataggio'** riguarda la sola 'Scarica' e mostra la finestra
+ *   del nome. *Non aggiunge nulla di per sé*: se è spenta, la si accende al volo con un tocco
+ *   lungo su 'Scarica', e *in quel caso 'Percorso' è sempre attiva*.
+ * - **'Scegli il percorso di download'** riguarda la sola 'Scarica' e *si applica se è attivo*
+ *   il primo: aggiunge il tasto che sceglie la cartella.
+ * - **'Consenti la modifica dell'estensione'** riguarda *sia 'Rinomina' che 'Scarica'*, e i due
+ *   chip dicono in quale delle due.
+ *
+ * ⚠️ **La subordinazione della seconda voce si LEGGE e non si impone**: l'interruttore resta
+ * toccabile anche con la rinomina spenta, e a non avere effetto è il comando dentro una finestra
+ * che in quel caso non si apre. Spegnere una riga che si può accendere darebbe una voce morta
+ * senza dire perché, e la ragione vera la dice la sua spiegazione.
+ */
+@Composable
+private fun RenameAndDownload(settings: Settings, onChange: (Settings) -> Unit) {
+    SwitchRow(
+        label = stringResource(R.string.settings_save_rename),
+        detail = stringResource(R.string.settings_save_rename_desc),
+        checked = settings.saveRename,
+        onChange = { onChange(settings.copy(saveRename = it)) }
+    )
+    SwitchRow(
+        label = stringResource(R.string.settings_download_path),
+        detail = stringResource(R.string.settings_download_path_desc),
+        checked = settings.downloadPath,
+        onChange = { onChange(settings.copy(downloadPath = it)) }
+    )
+    /*
+     * ⚠️⚠️ **I DUE CHIP SONO INDIPENDENTI, E NON UNA SCELTA FRA DUE**: lui li ha chiesti *spenti
+     * di fabbrica* e attivi *per ciascuna delle due funzionalità*, quindi le combinazioni sono
+     * quattro e non due. È la ragione per cui questa riga non passa da `Choices`, che dichiara
+     * una scelta sola e la annuncia così a un lettore di schermo.
+     * ⚠️ **I due nomi sono le stringhe dei due comandi veri**, `menu_save` e `pick_rename`:
+     * dicono esattamente 'Scarica' e 'Rinomina', cioè le due voci a cui i chip si riferiscono,
+     * e scriverne due copie vorrebbe dire due testi da tenere d'accordo in 28 lingue.
+     */
+    Toggles(
+        label = stringResource(R.string.settings_ext_edit),
+        detail = stringResource(R.string.settings_ext_edit_desc),
+        names = listOf(
+            stringResource(R.string.menu_save),
+            stringResource(R.string.pick_rename)
+        ),
+        on = listOf(settings.extDownload, settings.extRename),
+        onFlip = { at ->
+            onChange(
+                if (at == 0) settings.copy(extDownload = !settings.extDownload)
+                else settings.copy(extRename = !settings.extRename)
+            )
+        }
+    )
+}
+
+/**
+ * Una voce con più pastiglie **indipendenti**: ognuna si accende e si spegne da sé.
+ *
+ * ⚠️⚠️ **NON È [Choices] CON UN'ALTRA FACCIA**: là le pastiglie sono una scelta sola, e il
+ * componente lo dichiara; qui le combinazioni sono tutte quelle possibili. Riusare quello
+ * avrebbe fatto annunciare 'scelta sola' a un lettore di schermo, che è il difetto opposto di
+ * quello che il censimento della UI ha trovato sui chip della conversione.
+ * ⚠️ **Il ruolo di serie di `FilterChip` è quello giusto qui**: un tasto che porta il proprio
+ * stato di selezione, senza nessun gruppo che dichiari l'esclusività.
+ * ⚠️ **Anche i nomi delle pastiglie entrano nella ricerca**, per la stessa ragione scritta su
+ * [Choices]: sono le parole con cui si pensa a quell'impostazione.
+ */
+@Composable
+private fun Toggles(
+    label: String,
+    detail: String?,
+    names: List<String>,
+    on: List<Boolean>,
+    onFlip: (Int) -> Unit
+) {
+    if (!shown(label, detail, *names.toTypedArray())) return
+    Text(
+        text = label,
+        style = MaterialTheme.typography.titleSmall,
+        modifier = Modifier.padding(top = 12.dp)
+    )
+    detail?.let { Detail(it) }
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        names.forEachIndexed { at, name ->
+            FilterChip(
+                selected = on[at],
+                onClick = { onFlip(at) },
+                label = { Text(name) }
+            )
+        }
+    }
+}

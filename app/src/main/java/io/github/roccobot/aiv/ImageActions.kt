@@ -9,6 +9,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.webkit.MimeTypeMap
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -422,9 +423,7 @@ object ImageActions {
          * nome**: il nome può mentire già in partenza (il JPEG di Pexels dichiarato AVIF), e là
          * il tipo vero è quello che il caricamento ha misurato.
          */
-        val declared = if (tail.equals(had, ignoreCase = true)) image.mimeType else {
-            MimeTypeMap.getSingleton().getMimeTypeFromExtension(tail.removePrefix(".").lowercase())
-        }
+        val declared = declaredType(image, tail, had)
         val fields = ContentValues().apply {
             put(MediaStore.Downloads.DISPLAY_NAME, display)
             declared?.let { put(MediaStore.Downloads.MIME_TYPE, it) }
@@ -450,7 +449,8 @@ object ImageActions {
             try {
                 resolver.delete(row, null, null)
             } catch (e: Exception) {
-                // Niente da fare di più: la riga resta in sospeso e non si vede.
+                // Se anche la cancellazione fallisce non resta altro: la riga rimane in
+                // sospeso e la galleria non la mostra.
             }
             return@withContext false
         }
@@ -465,6 +465,88 @@ object ImageActions {
             return@withContext false
         }
         true
+    }
+
+    /**
+     * Il tipo da dichiarare a chi scrive il file, che **segue il nome** e non i byte.
+     *
+     * ⚠️⚠️ **STA IN UNA FUNZIONE PERCHÉ I CHIAMANTI SONO DUE**, dalla `1.81`: [saveToDownloads] e
+     * [saveToFolder]. Copiato, il giorno che questa regola cambia ne cambierebbe uno solo, e il
+     * difetto sarebbe un file che finisce con due estensioni in una sola delle due strade.
+     * ⚠️ **Se il suffisso non è cambiato resta [LoadedImage.mimeType], e non si ricava dal nome**:
+     * il nome può mentire già in partenza (il JPEG di Pexels dichiarato AVIF), e là il tipo vero è
+     * quello che il caricamento ha misurato.
+     * ⚠️ **Un'estensione che nessuno conosce lascia il tipo NULLO**, e va bene: là il tipo lo
+     * deduce il fornitore dal nome, che è la sola cosa che si sa.
+     */
+    private fun declaredType(image: LoadedImage, tail: String, had: String): String? =
+        if (tail.equals(had, ignoreCase = true)) image.mimeType else {
+            MimeTypeMap.getSingleton().getMimeTypeFromExtension(tail.removePrefix(".").lowercase())
+        }
+
+    /**
+     * Scrive l'originale nella **cartella che ha scelto lui**, e dice se ce l'ha fatta.
+     *
+     * ⚠️⚠️ **NASCE NELLA `1.81` PERCHÉ IL SELETTORE DI SISTEMA SALVAVA INVECE DI SCEGLIERE**
+     * (riscontro del giro della `1.80`, voce `scarica-percorso`: *Voglio solo SELEZIONARE la
+     * destinazione, non salvare. A quello pensa la finestra di dialogo di salvataggio quando
+     * tocchi 'Salva'*). Fino alla `1.80`'Percorso' apriva `ACTION_CREATE_DOCUMENT`, che è la
+     * finestra 'Salva file' del sistema: scriveva il file e chiudeva la partita, quindi il nome
+     * battuto nella finestra dell'app e il tocco su 'Salva' non servivano più a niente. Adesso
+     * quel comando apre `ACTION_OPEN_DOCUMENT_TREE`, che **restituisce una cartella**, e a
+     * scrivere ci pensa questa funzione quando lui tocca 'Salva'.
+     *
+     * ⚠️⚠️ **IL PERMESSO SULLA CARTELLA VA PRESO IN MODO PERSISTENTE, o alla riapertura dell'app
+     * la destinazione memorizzata non è più scrivibile**: lo fa il richiamo che riceve l'albero
+     * (`takePersistableUriPermission`), e senza quella riga qui si otterrebbe un `SecurityException`
+     * il giorno dopo. È la ragione per cui l'indirizzo memorizzato **non basta** da solo.
+     * ⚠️ **Un tipo sconosciuto diventa `application/octet-stream`**: `createDocument` vuole un
+     * tipo, e un flusso di byte è la dichiarazione onesta per un'estensione che nessuno conosce.
+     * ⚠️ **I nomi doppi li risolve il fornitore**, che aggiunge un contatore come fa il
+     * `MediaStore`: non c'è niente da contare a mano.
+     * ⚠️ **Il documento a metà si cancella**, per la stessa ragione della riga in sospeso di
+     * [saveToDownloads]: senza, nella cartella resterebbe un file vuoto.
+     */
+    suspend fun saveToFolder(
+        context: Context,
+        image: LoadedImage,
+        uri: Uri?,
+        tree: Uri,
+        name: String? = null,
+        suffix: String? = null
+    ): Boolean = withContext(Dispatchers.IO) {
+        if (uri == null) return@withContext false
+        val whole = fileName(image, uri)
+        val had = splitName(whole).second
+        val tail = suffix ?: had
+        val chosen = name?.trim()?.takeIf { it.isNotBlank() }
+        val display = if (chosen == null) whole else safeName(chosen) + tail
+        val declared = declaredType(image, tail, had) ?: "application/octet-stream"
+        val resolver = context.contentResolver
+        val target = try {
+            val parent = DocumentsContract.buildDocumentUriUsingTree(
+                tree,
+                DocumentsContract.getTreeDocumentId(tree)
+            )
+            DocumentsContract.createDocument(resolver, parent, declared, display)
+        } catch (e: Exception) {
+            null
+        } ?: return@withContext false
+        val written = try {
+            resolver.openOutputStream(target)?.use { out -> copyOriginalTo(context, uri, out) }
+                ?: false
+        } catch (e: Exception) {
+            false
+        }
+        if (!written) {
+            try {
+                DocumentsContract.deleteDocument(resolver, target)
+            } catch (e: Exception) {
+                // Se anche la cancellazione fallisce non resta altro: nella cartella rimane un
+                // file vuoto, che si vede e si cancella a mano.
+            }
+        }
+        written
     }
 
     /**

@@ -134,10 +134,12 @@
     <string name="settings_editor_backup">Safety copy before writing over</string>
     <string name="settings_editor_backup_desc">Before an editor writes over an image, it saves a copy in the bin, where you can recover it; if you do not need it, it will be deleted at the next \'Empty bin\'.</string>
     <string name="settings_save_rename">Allow renaming when saving</string>
-    <string name="settings_save_rename_desc">By default, files are saved under their original name. Turn this on to set a save name for every download. Even with it off, touch and hold \'Save\' to type a new name just that once.</string>
+    <string name="settings_save_rename_desc">By default, files are saved under their original name. Turn this on to set a save name for every download. Even with it off, touch and hold \'Save\' to type a new name just that once: in that case \'Destination\' is available too.</string>
     <string name="settings_download_path">Choose the download path</string>
-    <string name="settings_download_path_desc">With this on, a \'Path\' icon appears in the save window and opens the system picker, so you choose where the file goes. With it off, everything goes to Downloads.</string>
-    <string name="save_name_path">Path</string>
+    <string name="settings_rename_download">Renaming and downloads</string>
+    <string name="settings_download_path_desc">Adds a \'Destination\' button to the save window, to choose the folder the file goes to. It applies when renaming on save is on.</string>
+    <string name="save_name_path">Destination folder: %1$s</string>
+    <string name="save_name_dest">Destination</string>
 
     <string name="toast_image_copied">Image copied</string>
     <!-- Said after a long press on the file name in the file info dialog: the whole
@@ -174,8 +176,8 @@
     <string name="settings_group_browse">Folders</string>
     <string name="settings_group_start">Startup</string>
     <string name="settings_group_advanced">Advanced features</string>
-    <string name="settings_ext_edit">Edit extensions from \'Rename\'</string>
-    <string name="settings_ext_edit_desc">The rename panel can change file extensions. If you do not know what you are doing, do not turn this on: it can make images unreadable.</string>
+    <string name="settings_ext_edit">Allow editing the extension</string>
+    <string name="settings_ext_edit_desc">Adds an \'Extension\' button to the windows you pick below. Changing an extension converts nothing: if you do not know what you are doing, leave both off, because it can make an image unreadable.</string>
     <string name="settings_gpu_thumbs">Keep thumbnails in graphics memory</string>
     <string name="settings_gpu_thumbs_desc">Builds the thumbnail cache in the graphics chip\'s memory. It can make the gallery feel snappier, make no difference, or sometimes slow things down on older devices. Turn it on and see whether it helps: every device is its own case, given how many hardware and software combinations Android has.</string>
     <string name="settings_thumbs">Delete stored thumbnails</string>

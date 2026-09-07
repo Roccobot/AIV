@@ -6,6 +6,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,10 +18,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -41,7 +41,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -102,6 +101,7 @@ fun RenameDialog(
      * [extensionGate].
      */
     val gate = extensionGate(
+        where = ExtWhere.RENAME,
         // ⚠️ Qui la griglia di sicurezza non si scavalca mai: il tocco lungo che la scavalca
         // per una volta è quello su 'Scarica', e questa finestra si apre da una voce di menu.
         force = false,
@@ -173,14 +173,14 @@ fun RenameDialog(
          * ⚠️ **E così la fila dei tasti torna quella di Material**: 'Annulla' e 'Rinomina',
          * la conferma in fondo a destra. La nota che dichiarava l'ordine strano è decaduta
          * insieme al tasto che la rendeva necessaria.
-         * ⚠️⚠️ **DALLA `1.80` NON È PIÙ UNA PASTIGLIA COL TESTO DENTRO, È UN'ICONA** (riscontro
-         * del giro della `1.79`, campo libero punto B: *'Rinomina' -> Il testo 'Estensione'
-         * (testo nella pill) deve diventare un'icona*). Il pezzo che la disegna è [TitleAction],
-         * lo stesso che la finestra del salvataggio usa per i suoi due comandi: le due finestre
-         * portano gli stessi comandi, quindi la forma è una.
-         * ⚠️ **E la misura di larghezza che sceglieva l'etichetta corta è decaduta con lei**: un
-         * glifo occupa 48dp in qualunque lingua, quindi non c'è più niente che possa mandare a
-         * capo la riga del titolo. Quello che resta di quella nota è dove il comando sta.
+         * ⚠️⚠️ **È STATA UN'ICONA NELLA SOLA `1.80`, E DALLA `1.81` È DI NUOVO LA PASTIGLIA COL
+         * TESTO** (riscontro del giro della `1.80`, voce `rinomina-icona`: *Ho cambiato idea: in
+         * 'Rinomina', il tasto 'Estensione' deve tornare come prima (testuale, tasto stondato a
+         * destra, linea di base del titolo della finestra)*). Il pezzo che la disegna è
+         * [TitlePill], lo stesso della finestra del salvataggio: le due finestre portano gli
+         * stessi comandi, quindi la forma è una.
+         * ⚠️ **Il titolo tiene il peso**: con una pastiglia accanto, senza il peso un titolo
+         * lungo spingerebbe il comando oltre il bordo invece di andare a capo lui.
          */
         title = {
             Row(
@@ -193,9 +193,8 @@ fun RenameDialog(
                     modifier = Modifier.weight(1f)
                 )
                 if (gate.allowed) {
-                    TitleAction(
-                        icon = Icons.Filled.Sell,
-                        label = stringResource(R.string.rename_ext),
+                    TitlePill(
+                        text = stringResource(R.string.rename_ext),
                         onTap = gate.open
                     )
                 }
@@ -424,13 +423,28 @@ fun RenameDialog(
 internal class ExtensionGate(val allowed: Boolean, val open: () -> Unit)
 
 /**
+ * Quale delle due finestre sta chiedendo il comando 'Estensione'.
+ *
+ * ⚠️⚠️ **NASCE NELLA `1.81` PERCHÉ I CHIP SONO DUE** (riscontro del giro della `1.80`, campo
+ * libero punto A): fino alla `1.80` le due finestre leggevano lo stesso interruttore, quindi
+ * accendere l'estensione in 'Rinomina' la accendeva anche in 'Scarica'. Adesso ognuna legge il
+ * proprio chip, e a dire quale si legge è questo parametro.
+ * ⚠️ **Non ha un valore di serie**, come `force`: chi apre una finestra con questo comando
+ * dichiara di quale delle due si tratta, e non lo può fare per omissione.
+ */
+internal enum class ExtWhere { RENAME, DOWNLOAD }
+
+/**
  * Il comando 'Estensione' con tutto quello che gli serve: la griglia di sicurezza, l'avviso
  * della prima volta e il pannellino.
  *
  * ⚠️⚠️ **IL TASTO C'È SOLO SE L'IMPOSTAZIONE È ACCESA, dalla 1.36**, ed è la griglia di
- * sicurezza chiesta dall'utente: il perché per esteso sta su [Settings.extEdit], e in breve è
+ * sicurezza chiesta dall'utente: il perché per esteso sta su [Settings.extRename], e in breve è
  * che cambiare l'estensione non converte niente e può far sparire un'immagine dalle viste. Di
  * fabbrica è spenta.
+ * ⚠️⚠️ **E DALLA `1.81` GLI INTERRUTTORI SONO DUE, uno per finestra**: [Settings.extRename] e
+ * [Settings.extDownload], che nel pannello sono i due chip di una voce sola. A dire quale si
+ * legge è [where].
  *
  * ⚠️⚠️ **LE DUE LETTURE SI FANNO QUI E NON ARRIVANO DA FUORI, ed è una scelta contro la
  * convenzione dei dialoghi di questo file** (`FileJobDialogs` dichiara di non sapere niente
@@ -458,6 +472,7 @@ internal class ExtensionGate(val allowed: Boolean, val open: () -> Unit)
  * tocca il comando, cioè quando il dialogo che le apre è già in scena, quindi arrivano dopo di
  * lui nel gestore delle finestre qualunque sia il posto di questa chiamata.
  *
+ * @param where quale delle due finestre lo sta chiedendo, cioè quale dei due chip si legge.
  * @param force se il comando c'è **comunque**, cioè anche a impostazione spenta.
  *   ⚠️ **Non ha un valore di serie di proposito**: chi apre una finestra con questo comando
  *   dichiara se sta scavalcando la griglia di sicurezza, e non lo può fare per omissione. È lo
@@ -468,13 +483,19 @@ internal class ExtensionGate(val allowed: Boolean, val open: () -> Unit)
  */
 @Composable
 internal fun extensionGate(
+    where: ExtWhere,
     force: Boolean,
     initial: () -> String,
     onPick: (String) -> Unit
 ): ExtensionGate {
     val context = LocalContext.current
-    val allowed by produceState(false) {
-        SettingsStore.flow(context).collect { value = it.extEdit }
+    val allowed by produceState(false, where) {
+        SettingsStore.flow(context).collect {
+            value = when (where) {
+                ExtWhere.RENAME -> it.extRename
+                ExtWhere.DOWNLOAD -> it.extDownload
+            }
+        }
     }
     val warned by produceState(true) { Hint.EXT_WARN.flow(context).collect { value = it } }
     var warning by rememberSaveable { mutableStateOf(false) }
@@ -574,32 +595,42 @@ private fun ExtensionDialog(
 }
 
 /**
- * Un comando sulla riga del titolo di una finestra: un glifo e nient'altro.
+ * Un comando sulla riga del titolo di una finestra: una pastiglia col suo testo dentro.
  *
- * ⚠️⚠️ **NASCE NELLA `1.80` PER DUE FINESTRE, E LA SUA FORMA È SUA** (riscontro del giro della
- * `1.79`, voce `scarica-comandi`: *'Estensione' deve apparire sotto forma di icona a destra,
- * allineato alla linea di base del titolo*; e campo libero punto B, che chiede la stessa cosa
- * per 'Rinomina'). Sta in una funzione perché i chiamanti sono due: copiata, il giorno che il
- * glifo o la misura cambiano ne cambierebbe uno solo, che è la trappola già scritta su [Quiet].
+ * ⚠️⚠️ **ERA UN'ICONA NELLA `1.80` ED È TORNATA TESTUALE NELLA `1.81`, PERCHÉ HA CAMBIATO
+ * IDEA** (riscontro del giro della `1.80`, voce `rinomina-icona`: *Ho cambiato idea: in
+ * 'Rinomina', il tasto 'Estensione' deve tornare come prima (testuale, tasto stondato a destra,
+ * linea di base del titolo della finestra)*). Quello che torna è **esattamente** la forma della
+ * `1.34`, che lui aveva approvato: `FilledTonalButton`, raggio grande, riempimento stretto e
+ * testo in `labelLarge`.
+ * ⚠️ **Sta in una funzione perché i chiamanti sono tre**: 'Estensione' in 'Rinomina',
+ * 'Estensione' e 'Destinazione' in 'Scarica'. Copiata, il giorno che la misura cambia ne
+ * cambierebbe uno solo, che è la trappola già scritta su [Quiet].
  *
- * ⚠️⚠️ **LA MISURA È QUELLA DI SERIE, 48dp, E NON SI STRINGE**: è il bersaglio minimo di
- * Material, e un glifo da 24 dentro una scatola più piccola costa esattamente l'accessibilità
- * per cui un'icona senza etichetta ha bisogno di un bersaglio grande. La riga del titolo viene
- * alta come lei, ed è la stessa in tutte e due le finestre.
- * ⚠️ **'Allineato alla linea di base' si ottiene centrando**, e non è un ripiego: un glifo non
- * ha una linea di base, quindi non esiste niente a cui allinearlo. Il centro verticale è quello
- * che la pastiglia di 'Rinomina' aveva già dalla `1.34`, cioè la forma che lui ha approvato.
- *
- * @param label che cosa fa il comando: è quello che legge un lettore di schermo, e senza di lui
- *   il comando sarebbe muto. ⚠️ **Non è decorativo**, quindi non prende `null` come le icone che
- *   accompagnano un testo già scritto accanto.
+ * ⚠️⚠️ **IL RIEMPIMENTO VERTICALE È ZERO, ED È IL NUMERO CHE LA FA STARE NELLA RIGA**: un
+ * `FilledTonalButton` di serie è alto 40dp e il suo riempimento ne aggiunge, quindi in una riga
+ * di titolo darebbe una riga alta il doppio del testo. I 12dp orizzontali sono quelli della
+ * `1.34`.
+ * ⚠️ **'Allineato alla linea di base' si ottiene centrando**: la pastiglia è un riquadro, e il
+ * suo testo sta al centro. È quello che faceva la `1.34`, cioè la forma approvata.
+ * ⚠️⚠️ **E DUE PASTIGLIE NELLA STESSA RIGA CI STANNO PERCHÉ IL TITOLO CEDE**: nel chiamante il
+ * titolo porta `weight(1f)` e queste no, quindi le pastiglie misurano il testo che hanno dentro
+ * e il titolo si adatta andando a capo. Il verso opposto (peso alle pastiglie) le
+ * comprimerebbe, cioè taglierebbe la parola che lui vuole leggere.
  */
 @Composable
-internal fun TitleAction(icon: ImageVector, label: String, onTap: () -> Unit) {
-    IconButton(onClick = onTap) {
-        Icon(imageVector = icon, contentDescription = label)
+internal fun TitlePill(text: String, onTap: () -> Unit) {
+    FilledTonalButton(
+        onClick = onTap,
+        shape = MaterialTheme.shapes.large,
+        contentPadding = TITLE_PILL_PAD
+    ) {
+        Text(text = text, style = MaterialTheme.typography.labelLarge)
     }
 }
+
+/** Quanto stringe una pastiglia della riga del titolo, che sta in una fila già piena. */
+private val TITLE_PILL_PAD = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
 
 /**
  * Le righe dell'anteprima: i primi tre abbinamenti e **l'ultimo**.
