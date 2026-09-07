@@ -509,7 +509,6 @@ fun FolderScreen(
                     label = stringResource(R.string.hub_open),
                     container = HINT_MARK,
                     ink = HINT_INK,
-                    // ⚠️ Nessuna ombra: sopra un velo non c'è niente da cui staccarsi.
                     holdLabel = stringResource(R.string.columns_title),
                     onTap = hintDone,
                     onHold = { hintDone(); sizing = true },

@@ -138,7 +138,7 @@ fun MenuShell(
      * ⚠️⚠️ **LA PRIMA COMPOSIZIONE NON ANIMA, DALLA `1.76`, E SENZA QUESTA RIGA OGNI SCHERMATA
      * CHE ARRIVA APRIVA UN MENU VUOTO PER SEI FOTOGRAMMI.** Un `LaunchedEffect` parte anche alla
      * prima composizione, e là `wanted` è falso e il valore è già zero: `animateTo` non muoveva
-     * un pixel, ma teneva l'animazione **in corsa** per [MENU_OUT_MS]. Da lì [MenuState.visible]
+     * un pixel, ma teneva l'animazione **in corso** per [MENU_OUT_MS]. Da lì [MenuState.visible]
      * diceva 'menu in scena', quindi nascevano una finestra di popup vuota, il cancello dei
      * tocchi di [MenuGuard] e il distacco del FAB nella sua finestra.
      * ⚠️ **È la stessa guardia che `TapHoldFab` ha da sempre**, con la sua stessa ragione scritta
@@ -282,7 +282,7 @@ fun MenuShell(
         WindowVeil { state.show.value }
         Surface(
             /*
-             * ⚠️⚠️ **CRESCE DA 0,96 E NON DA ZERO, in 170ms** (scelta dell'utente sul
+             * ⚠️⚠️ **CRESCE DA 0,96 E NON DA ZERO, in [MENU_IN]** (scelta dell'utente sul
              * mockup). Prima sbucava **dal punto premuto** con una scala da 0,72: un menu che
              * si gonfia da un angolo dello schermo tira l'occhio dove il dito era già, e
              * l'utente ha chiesto una cosa sobria. Da 0,96 il movimento si sente e non si
@@ -484,7 +484,7 @@ private fun grown(state: MenuState): Float =
  *
  * ⚠️ **Il costo è dichiarato, ed è il secondo della stessa specie**: la finestra si rimisura e si
  * riposiziona a ogni fotogramma dell'animazione, come già si ridosa la sfocatura. È la stessa
- * spesa e la stessa durata, 170 millesimi di secondo, e la via che le eviterebbe entrambe
+ * spesa e la stessa durata, cioè [MENU_IN] in entrata, e la via che le eviterebbe entrambe
  * (dipingere la sfocatura sulla vista dell'app con un `RenderEffect`) è il rifacimento di cui
  * parla la nota in fondo a `Veil.kt`.
  */

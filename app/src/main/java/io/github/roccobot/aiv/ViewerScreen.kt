@@ -3446,17 +3446,6 @@ private val MARK_GAP = 6.dp
 private val MARK_NUDGE = 2.dp
 
 /**
- * Quanto il nome del file è meno acceso dei dati sotto di lui, e quanto se ne stacca.
- *
- * ⚠️ **0.65 dalla 1.25, e prima era 0.74**, cioè il gradino che Material chiama 'emphasis
- * media'. La richiesta era di abbassare *ancora leggermente*, e questo è un passo solo: sotto
- * si va verso il valore che Material riserva ai comandi **disattivati** (0.38), e un nome che
- * sembra spento sopra un'immagine chiara non si legge più.
- * ⚠️ **Lo stacco è di tre punti e non di due**: la richiesta diceva 'altri 2/3 pixel
- * apparenti', e fra i due estremi si prende quello che si vede, perché due punti su uno
- * schermo a tre volte sono sei pixel fisici, cioè al limite del percepibile.
- */
-/**
  * Quanto è spento il nome del file in testa alla barra.
  *
  * ⚠️ **Sceso tre volte in tre versioni**, e la scala è quella: 0.74 nella `1.23`, **0.65**
@@ -3468,6 +3457,18 @@ private val MARK_NUDGE = 2.dp
  * disattivato'. Da qui a là restano due gradini come questo.
  */
 private const val NAME_FADE = 0.52f
+
+/**
+ * Quanto il nome si stacca dai dati sotto di lui.
+ *
+ * ⚠️ **Tre punti e non due**: la richiesta diceva *distanzia il nome di altri 2/3 pixel
+ * apparenti*, e fra i due estremi si prende quello che si vede, perché due punti su uno schermo
+ * a tre volte sono sei pixel fisici, cioè al limite del percepibile.
+ * ⚠️⚠️ **FINO ALLA `1.78` QUESTA MISURA NON AVEVA UNA KDOC PROPRIA**: la sua ragione viveva in
+ * un blocco appaiato a quello di [NAME_FADE], cioè in un secondo KDoc di fila che non si
+ * attaccava a niente, e quel blocco dichiarava anche un'opacità di `0.65` che il valore vivo
+ * aveva superato due volte.
+ */
 private val NAME_GAP = 3.dp
 
 /**
@@ -3479,22 +3480,22 @@ private val NAME_GAP = 3.dp
 private const val PANEL_VEIL = 0.86f
 
 /**
- * The checkerboard is what makes transparency visible, and on a viewer that is
- * information rather than decoration. The flat colour is there for looking at a
- * photograph without a pattern under it, where the checkerboard says nothing
- * because there is nothing to see through.
- *
- * ⚠️ The four greys are the userscript's, not new ones: #DDD/#EEE light and
- * #333/#222 dark, and the flat colour takes the light of one pair and the dark of
- * the other. AIV had drifted to #2A2A2A for the dark pair, which is the kind of
- * difference nobody notices and nobody can justify later.
- */
-/**
  * La tinta piatta del fondo, cioè quella di `BgType.SOLID`.
  *
  * ⚠️ **Esiste perché la usano in due**: il fondo pieno, e la copertura che spiana la scacchiera
  * quando arriva la sfocatura (vedi il `drawBehind` del palco). Scritta due volte, la prima delle
  * due a cambiare avrebbe reso l'altra un colore diverso senza che nessuno se ne accorgesse.
+ * ⚠️ **I quattro grigi sono quelli dello userscript e non ne nascono di nuovi**: `#DDD`/`#EEE`
+ * sul chiaro e `#333`/`#222` sullo scuro, e la tinta piatta prende il chiaro di una coppia e lo
+ * scuro dell'altra. AIV era andata alla deriva su `#2A2A2A` per la coppia scura, che è la specie
+ * di differenza che nessuno nota e nessuno sa più giustificare.
+ * ⚠️ **La scacchiera invece è un'informazione e non un ornamento**: è quello che rende visibile
+ * la trasparenza. La tinta piatta serve a guardare un'immagine senza un motivo sotto, dove la
+ * scacchiera non direbbe niente perché non c'è niente da vedere attraverso.
+ * ⚠️⚠️ **FINO ALLA `1.78` QUESTE DUE COSE VIVEVANO IN UN KDOC ORFANO** appaiato a questo, cioè
+ * in un secondo blocco di fila che nessuno strumento attacca a una dichiarazione: la
+ * spiegazione della scacchiera era rimasta senza la sua e si leggeva come se documentasse la
+ * tinta piatta.
  */
 private fun piatto(light: Boolean): Color =
     if (light) Color(0xFFEEEEEE) else Color(0xFF222222)

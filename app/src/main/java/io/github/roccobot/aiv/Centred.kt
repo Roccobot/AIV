@@ -363,6 +363,17 @@ private class LowerNode(
     }
 
     /**
+     * Se la tastiera è in scena adesso.
+     *
+     * ⚠️ **Si chiede se è VISIBILE e non quanto è alta**: una tastiera che si sta chiudendo ha
+     * ancora un'altezza mentre scende, e la deroga deve finire quando finisce lei, non quando
+     * l'ultimo pixel è sparito.
+     */
+    private fun typing(): Boolean =
+        ViewCompat.getRootWindowInsets(currentValueOf(LocalView))
+            ?.isVisible(WindowInsetsCompat.Type.ime()) == true
+
+    /**
      * L'altezza della finestra **dentro le barre di sistema**, in pixel.
      *
      * ⚠️⚠️ **SI TOLGONO LE BARRE, e non è pignoleria**: il contenuto di un dialogo è misurato
@@ -391,17 +402,6 @@ private class LowerNode(
      * questo nodo misura prima che la vista sia agganciata, e uno spostamento calcolato su zero
      * sarebbe zero comunque.
      */
-    /**
-     * Se la tastiera è in scena adesso.
-     *
-     * ⚠️ **Si chiede se è VISIBILE e non quanto è alta**: una tastiera che si sta chiudendo ha
-     * ancora un'altezza mentre scende, e la deroga deve finire quando finisce lei, non quando
-     * l'ultimo pixel è sparito.
-     */
-    private fun typing(): Boolean =
-        ViewCompat.getRootWindowInsets(currentValueOf(LocalView))
-            ?.isVisible(WindowInsetsCompat.Type.ime()) == true
-
     private fun windowHeight(): Int {
         val view = currentValueOf(LocalView)
         val whole = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

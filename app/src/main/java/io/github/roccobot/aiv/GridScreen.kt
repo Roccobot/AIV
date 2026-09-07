@@ -224,11 +224,11 @@ fun GridScreen(
      * fare.
      */
     onSearch: () -> Unit,
-    /**
-     *
-     * ⚠️ Arriva come booleano e non come [Hand]: qui serve una sola domanda ('si rovescia
-     * o no'), e passare l'enum vorrebbe dire che questa schermata conosce un tipo delle
-     * impostazioni per leggerne un caso.
+    /*
+     * ⚠️ **QUI C'ERA UN KDOC ORFANO FINO ALLA `1.78`**, e documentava un parametro della **mano**
+     * che questa firma non porta più: la specchiatura delle file per la mano sinistra è uscita
+     * del tutto nella `1.57`. Cominciava con una riga vuota e stava appaiato al blocco del
+     * parametro successivo, quindi si leggeva come se parlasse di quello.
      */
     /** Se 'Copia lista' mette anche il percorso in testa. Vedi `Settings.listPath`. */
     listPath: Boolean = false,
@@ -462,7 +462,10 @@ fun GridScreen(
     val haptics = LocalHapticFeedback.current
 
     /**
-     * Se i due mini onboarding del tocco lungo sul tastino si sono già visti.
+     * Se il mini onboarding del tocco lungo sul FAB si è già visto.
+     *
+     * ⚠️ **Era 'i due' fino alla `1.78`, e ne resta uno**: quello della selezione è uscito con
+     * la sua chiave nella `0.94` (lo dichiara `Settings.kt`), e la nota non l'aveva seguito.
      *
      * ⚠️⚠️ **Il valore di partenza è `true`, cioè 'già visto', e al contrario di quanto
      * sembra è la scelta prudente**: il valore vero arriva dall'archivio un attimo DOPO la
@@ -523,19 +526,20 @@ fun GridScreen(
     val shortcutLabel = if (bin && !picking) R.string.bin_empty else R.string.pick_all
 
     /**
-     * ⚠️ Le bandierine locali esistono perché l'archivio risponde con un giro di ritardo:
+     * ⚠️ La bandierina locale esiste perché l'archivio risponde con un giro di ritardo:
      * scrivere in DataStore e aspettare che il flusso riemetta vuol dire un fotogramma o
      * due col velo ancora steso, e nel caso peggiore col menu che si apre **sotto** di
-     * lui. Queste lo tolgono sull'istante; la scrittura serve alle sessioni dopo.
+     * lui. Questa lo toglie sull'istante; la scrittura serve alle sessioni dopo.
      */
     var binOff by remember { mutableStateOf(false) }
 
     /**
-     * Quale dei due veli è steso adesso, o nessuno.
+     * Se il velo è steso adesso, e quale.
      *
-     * ⚠️ La selezione viene **prima** apposta: nel cestino con una selezione in corso il
-     * gesto utile è 'tutte', quindi è quello che va insegnato, e il velo del cestino ha già
-     * avuto la sua occasione all'apertura.
+     * ⚠️⚠️ **IL RAMO È UNO, E FINO ALLA `1.78` QUESTA NOTA SPIEGAVA UNA PRECEDENZA FRA DUE**:
+     * il velo della selezione è uscito nella `0.94` insieme alla sua chiave, quindi non c'è
+     * niente da ordinare. Resta un `when` invece di un `if` perché un velo nuovo si aggiunge
+     * come ramo, e allora la precedenza si scrive quando esiste.
      */
     val hint: Hint? = when {
         bin && !binSeen && !binOff -> Hint.BIN_EMPTY
@@ -762,10 +766,10 @@ fun GridScreen(
     /**
      * Quanto è larga una cella, in pixel, e zero finché la griglia non ha misurato.
      *
-     * ⚠️⚠️ **SI CHIEDE ALLA GRIGLIA, non si ricalcola**: le colonne le decide
-     * `GridCells.Adaptive` a partire da [THUMB], e rifare quel conto qui vorrebbe dire una
-     * seconda formula da tenere d'accordo con Compose, che sbaglierebbe in silenzio il
-     * giorno che l'arrotondamento cambia. Qui il numero è quello **misurato**.
+     * ⚠️⚠️ **SI CHIEDE ALLA GRIGLIA, non si ricalcola**: le colonne le conta [spread] e la
+     * larghezza di una cella la ricava Compose dividendo lo spazio, e rifare quel conto qui
+     * vorrebbe dire una seconda formula da tenere d'accordo con lui, che sbaglierebbe in
+     * silenzio il giorno che l'arrotondamento cambia. Qui il numero è quello **misurato**.
      * ⚠️ **`derivedStateOf` e non una lettura nuda**: `layoutInfo` cambia a ogni fotogramma
      * di scorrimento, la larghezza di una cella no, e senza il filtro ogni miniatura si
      * ricomporrebbe a ogni pixel scorso.
@@ -1547,12 +1551,16 @@ fun GridScreen(
                         // `pressed` di [TapHoldFab], ed è il riscontro del giro della `1.59`.
                         pressed = menu.wanted,
                         // ⚠️ **Apre e basta, dalla 1.06**: a menu aperto il tocco non
-                        // arriva più qui, perché lo mangia il velo trasparente (vedi
-                        // `menuOpen` in fondo alla schermata). Un'alternanza qui
-                        // riaprirebbe il menu che quel velo ha appena chiuso.
-                        // ⚠️ **E dalla 1.39 quel velo lo raggiunge ancora**, benché il
-                        // tastino stia in una finestra più alta: quella finestra è
-                        // trasparente al tocco apposta (vedi `untouchable` in `ActionPad`).
+                        // arriva più qui, perché lo consuma `MenuGuard` (in `Menus.kt`,
+                        // messo in scena da `AivTheme`). Un'alternanza qui riaprirebbe
+                        // il menu che quella guardia ha appena chiuso.
+                        // ⚠️⚠️ **IL RIMANDO ERA SBAGLIATO DUE VOLTE FINO ALLA `1.78`**:
+                        // nominava un `menuOpen` che non è mai esistito, e diceva 'in
+                        // fondo alla schermata', mentre dalla `1.70` quella guardia non
+                        // vive più qui dentro.
+                        // ⚠️ **E lo raggiunge ancora benché il FAB stia in una finestra
+                        // più alta**: quella finestra è trasparente al tocco apposta
+                        // (vedi `untouchable` in `ActionPad`).
                         onTap = { menu.open() },
                         onHold = { shortcut(); hintDone() },
                         /*
@@ -1678,12 +1686,12 @@ fun GridScreen(
          * ⚠️⚠️ **E dalla `0.73` è l'UNICA via a insegnare la scorciatoia**, perché il tastino
          * 'Tutte' in testata non c'è più (vedi la nota là dove stava): finché c'era, questo
          * velo era un aiuto e la barra la rete di sicurezza.
-         * ⚠️⚠️ **I VELI DI QUESTA SCHERMATA SONO DUE perché le scorciatoie sono due** (vedi
-         * `shortcut`), e ognuno ha il suo promemoria in archivio: quello della selezione
-         * compare alla prima selezione, quello del cestino alla prima apertura del cestino.
-         * Prima era uno solo, mostrato anche nel cestino, e prometteva di selezionare 'tutte
-         * le immagini della cartella' a chi in una cartella non era: il comportamento era
-         * giusto, la frase no.
+         * ⚠️⚠️ **IL VELO DI QUESTA SCHERMATA È UNO, quello del cestino**, e compare alla prima
+         * apertura del cestino.
+         * ⚠️⚠️ **FINO ALLA `1.78` QUESTA NOTA NE CONTAVA DUE, e il secondo non esiste dalla
+         * `0.94`**: era quello della selezione, uscito con la sua chiave (`Settings.kt` lo
+         * dichiara). Il difetto era della specie peggiore, perché una nota che conta descrive
+         * anche quello che non c'è: chi cercava il velo della selezione lo cercava nel codice.
          */
         if (hint != null) {
             HintVeil(
@@ -1716,8 +1724,6 @@ fun GridScreen(
                     label = stringResource(R.string.pick_actions),
                     container = HINT_MARK,
                     ink = HINT_INK,
-                    // ⚠️ Nessuna ombra: sopra un velo non c'è niente da cui staccarsi, e
-                    // un'ombra su fondo scuro è solo sporco.
                     holdLabel = stringResource(shortcutLabel),
                     onTap = { hintDone(); menu.open() },
                     onHold = { shortcut(); hintDone() },
@@ -2316,14 +2322,6 @@ private fun GridName(uri: Uri, room: Int) {
 private const val WEIGH_WAIT = 300L
 
 /**
- * Il lato minimo di una miniatura.
- *
- * ⚠️ È una misura, non un gusto: a 108dp uno schermo da 360dp di larghezza tiene
- * **tre** colonne con i distacchi, che è la densità delle gallerie di sistema; a 96
- * ne terrebbe quattro, e su un telefono la faccia in una foto di gruppo non si
- * riconosce più.
- */
-/**
  * Quante colonne stanno davvero in scena: [scelte] sul lato corto, di più se lo schermo è largo.
  *
  * ⚠️⚠️ **SOSTITUISCE `GridCells.Adaptive` DALLA `1.66`, E NE CONSERVA IL PREGIO.** Quella dava
@@ -2345,7 +2343,12 @@ private fun spread(scelte: Int, finestra: WindowInfo): Int {
     return (scelte.toFloat() * misura.width / corto).roundToInt().coerceAtLeast(scelte)
 }
 
-private val THUMB = 108.dp
+/*
+ * ⚠️ **`THUMB` NON C'È PIÙ, DALLA `1.78`, e con lei la sua KDoc**: era il lato minimo che
+ * `GridCells.Adaptive` riceveva, e dalla `1.66` le colonne le conta [spread] da una scelta
+ * dell'utente. La costante era rimasta senza lettori e la sua KDoc era finita orfana sopra
+ * quella di [spread], cioè documentava la funzione sbagliata.
+ */
 
 /** Il distacco fra le miniature: c'è, ma non deve leggersi come una cornice. */
 private val GAP = 3.dp
@@ -2441,15 +2444,23 @@ private val EDGE_SPEED = 14.dp
 private const val THUMB_KIND = "thumb"
 
 /**
- * La comparsa del tastino della selezione.
+ * La comparsa del FAB del cestino.
  *
- * ⚠️⚠️ **IL TASTINO ENTRA CON UN'ANIMAZIONE dalla 0.67** (richiesta dell'utente: *voglio
- * che quel FAB appaia con un'animazione*). Prima compariva di scatto, e su un tastino che
- * segnala un **cambio di modo** è l'occasione sprecata: il movimento è la cosa che dice
- * 'adesso sei in selezione', e senza di lui il tastino sembra essere sempre stato lì.
+ * ⚠️⚠️ **IL FAB ENTRA CON UN'ANIMAZIONE dalla 0.67** (richiesta dell'utente: *voglio che quel
+ * FAB appaia con un'animazione*). Prima compariva di scatto, e su un tasto che segnala un
+ * **cambio di modo** è l'occasione sprecata: il movimento è la cosa che dice 'adesso c'è
+ * qualcosa da fare', e senza di lui sembra essere sempre stato lì.
+ * ⚠️⚠️ **FINO ALLA `1.78` QUESTA NOTA PARLAVA DEL FAB DELLA SELEZIONE, che non esiste dalla
+ * `0.94`**: con una selezione in corso le operazioni stanno nella scheda in fondo, e il suo
+ * unico chiamante lo dichiara escludendo la selezione. La frase gemella nell'altro file l'ha
+ * già corretta l'utente in persona, e quella correzione racconta che la stessa frase falsa era
+ * finita anche in una voce di collaudo: questa era la seconda copia.
  * ⚠️ **Cresce dal proprio centro con una molla appena elastica, ma esce secco**: una cosa
  * che arriva può permettersi di farsi notare, una che se ne va no, e un rimbalzo in uscita
  * trattiene lo sguardo su un angolo che si sta svuotando.
+ * ⚠️ **Non serve al FAB della schermata iniziale, che è sempre in scena** e dalla `1.75` non ha
+ * più nessuna entrata da animare (riscontro suo, giro della `1.74`: *animazione all'ingresso: se
+ * ne va. Preferisco semplificare*). Quindi questo è l'unico meccanismo del genere in casa.
  * ⚠️⚠️ **Sta in una funzione a sé, e non è per eleganza**: chiamata sul posto,
  * `AnimatedVisibility` finisce sull'overload di `ColumnScope`, perché quel `Box` vive
  * dentro la `Column` della schermata, e il compilatore la rifiuta. Qui dentro di

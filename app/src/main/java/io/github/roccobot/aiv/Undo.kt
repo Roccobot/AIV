@@ -261,9 +261,13 @@ private val NOTICE_EDGE = 12.dp
 /**
  * Lo stondamento della notifica e lo spessore della riga che si consuma.
  *
- * ⚠️ **Il raggio è quello dei pannelli e non un numero suo**: dalla `1.69` questa notifica è
- * una superficie dell'app come le altre, e un raggio diverso la rimetterebbe fuori famiglia
- * proprio mentre la si porta dentro.
+ * ⚠️⚠️ **IL RAGGIO È SUO, E FINO ALLA `1.78` LA NOTA DICEVA CHE ERA 'QUELLO DEI PANNELLI'**:
+ * quel raggio non esiste, perché i raggi di casa sono 20dp per i menu e 28dp per schede e
+ * dialoghi, e nessuna superficie dell'app misura 14. Una nota che rimanda a una fonte condivisa
+ * inesistente manda chi ritocca il valore a cercarla, e nel frattempo il numero lo riceve anche
+ * il bordo d'accento.
+ * ⚠️ **Perché più piccolo di quelli**: una notifica è alta una riga e larga quanto lo schermo
+ * meno i margini, e su una striscia bassa un raggio da 28 diventa un fianco tutto curva.
  * ⚠️ **Tre punti per la riga**, che è la misura del disegno che ha scelto: più sottile non si
  * vede su un fondo che ha già un bordo da due, più spessa diventa una seconda cornice.
  */

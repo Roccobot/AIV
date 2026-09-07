@@ -1007,22 +1007,24 @@ enum class Hint(token: String) {
     /**
      * La scorciatoia delle colonne, dalla `0.78`: **solo nella schermata delle cartelle**.
      *
-     * ⚠️ È la terza, e le prime due stanno nella griglia delle foto: il velo che la insegna
-     * vive quindi in un'altra schermata, ed è la ragione per cui il `when` sulle frasi in
+     * ⚠️ **Nella griglia delle immagini non si insegna**, quindi il `when` sulle frasi in
      * `GridScreen` ha un ramo che non si vedrà mai.
+     * ⚠️ **Era 'la terza, e le prime due stanno nella griglia' fino alla `1.78`**: uno dei due
+     * veli della griglia era quello della selezione, uscito nella `0.94` insieme alla sua
+     * chiave (vedi il blocco qui sopra), e il conto non l'aveva seguito.
      */
     COLUMNS("columns-hint-seen"),
 
     /**
      * Il doppio tocco che cambia lo zoom, dalla `1.25`: **nel visualizzatore**, alla prima
-     * fotografia che si apre.
+     * immagine che si apre.
      *
      * ⚠️⚠️ **NASCE COME CONTROPARTITA DI UNA RIMOZIONE** (richiesta dell'utente, 2026-09-02):
      * 'Adatta alla vista' e '100%' escono dal menu a pressione lunga, e senza un avviso il
      * doppio tocco resterebbe un gesto che nessuno sa di avere. È il primo velo che non
      * insegna una **scorciatoia**: insegna l'unico modo rimasto.
-     * ⚠️ **È anche il primo che non evidenzia un tastino**, perché il gesto si fa sulla
-     * fotografia intera: da qui `HintCentre` invece di `HintVeil`.
+     * ⚠️ **È anche il primo che non evidenzia un FAB**, perché il gesto si fa sull'immagine
+     * intera: da qui `HintCentre` invece di `HintVeil`.
      */
     ZOOM_TAP("zoom-tap-hint-seen"),
 
@@ -1035,8 +1037,8 @@ enum class Hint(token: String) {
      * deve apparire un mini-onboarding in mezzo allo schermo*), e gli altri due sono
      * l'interruttore spento di fabbrica e il paragrafo che lo accompagna (vedi
      * [Settings.extEdit]).
-     * ⚠️⚠️ **È IL PRIMO VELO CHE NON INSEGNA UNA SCORCIATOIA: AVVISA.** Gli altri quattro
-     * dicono 'esiste anche questo', questo dice 'attento a che cosa comporta'. Da qui il testo
+     * ⚠️⚠️ **È IL PRIMO VELO CHE NON INSEGNA UNA SCORCIATOIA: AVVISA.** Gli altri dicono
+     * 'esiste anche questo', questo dice 'attento a che cosa comporta'. Da qui il testo
      * con due punti esclamativi invece di una frase sola, e il fatto che compaia **prima** che
      * il pannellino si apra: un avviso dopo il gesto non è un avviso.
      * ⚠️ **Non ha bisogno di un secondo interruttore**: chi ha acceso la funzione ha già letto
