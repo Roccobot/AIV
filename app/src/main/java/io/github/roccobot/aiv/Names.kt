@@ -10,20 +10,23 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.times
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.math.roundToInt
 
 /**
  * Il nome accorciato quanto basta a starci in [lines] righe, con l'estensione salva, in
  * grassetto e mai spezzata.
  *
  * ⚠️⚠️ **STA IN UN FILE A SÉ DALLA 0.82, quando i posti che accorciano un nome sono diventati
- * DUE**: la pastiglia di 'Info dettagliate sul file' (tre righe) e il nome sotto la miniatura
- * in griglia (due, richiesta dell'utente). Il numero di righe è quindi un parametro e non più
- * una costante: è la sola cosa che cambia fra i due.
+ * più di uno**: la pastiglia di 'Info dettagliate sul file' (tre righe), il nome sotto la
+ * miniatura in griglia (due, richiesta dell'utente) e la riga del nome nella barra del
+ * visualizzatore (una). Il numero di righe è quindi un parametro e non più una costante: è la
+ * sola cosa che cambia fra loro.
  *
  * ⚠️⚠️ **SI MISURA, non si conta**: un tetto di caratteri sarebbe sbagliato tre volte, perché
  * le lettere non hanno tutte la stessa larghezza (`WWW` occupa il triplo di `iii`), perché il
@@ -58,12 +61,30 @@ fun fitName(
 ): Fitted {
     fun comporre(testa: String, coda: String) = buildAnnotatedString {
         append(testa)
-        if (coda.isNotEmpty()) withStyle(EXT_BOLD) { append(coda) }
+        if (coda.isNotEmpty()) {
+            /*
+             * ⚠️⚠️ **L'APPIGLIO PRIMA DELL'ESTENSIONE MANCAVA QUI FINO ALLA `1.81`, e da lì
+             * veniva il difetto che l'utente ha visto due volte** (riscontro del giro della
+             * `1.80`, punto C: *accade ancora che le estensioni dei file siano spezzate*, col
+             * nome `whale-watercolor-illustration-png.png.webp` reso `...png.w` a capo `ebp`).
+             * Il giuntore dentro [glue] **vieta** di rompere dentro l'estensione, e quel
+             * divieto vale finché il layout ha un altro posto in cui andare a capo: un nome
+             * senza spazi che non ne ha nemmeno uno il layout lo rompe per forza, e quando è
+             * costretto rompe dove capita, giuntori compresi.
+             * ⚠️⚠️ **LA `1.59` LO AVEVA GIÀ CAPITO, E LO AVEVA MESSO NELL'ALTRA FUNZIONE**: la
+             * nota su [BREAK_HERE] descrive questo esatto rimedio da allora, ma [nameWithExt]
+             * è la via dei nomi che **non** si accorciano, cioè le pastiglie della rinomina.
+             * Dove il nome si accorcia (la pastiglia di 'Info' e il nome sotto la miniatura)
+             * l'appiglio non c'era, e il difetto è rimasto vivo esattamente là.
+             */
+            append(BREAK_HERE)
+            withStyle(EXT_BOLD) { append(coda) }
+        }
     }
 
-    fun sta(testo: AnnotatedString, stretta: Float) = room <= 0 || !measurer.measure(
+    fun sta(testo: AnnotatedString, stile: TextStyle) = room <= 0 || !measurer.measure(
         text = testo,
-        style = style.shrunk(stretta),
+        style = stile,
         maxLines = lines,
         constraints = Constraints(maxWidth = room)
     ).hasVisualOverflow
@@ -75,62 +96,109 @@ fun fitName(
     val corpo = if (punto > 0) name.substring(0, punto) else name
 
     /*
-     * ⚠️⚠️ **SI PROVA PRIMA A STRINGERE IL CORPO, E SOLO POI SI ACCORCIA, DALLA `1.62`**
-     * (riscontro del giro della `1.60`: *queste soluzioni in ordine di priorità, incluso il
-     * nuovo metodo che prevede di ridurre il testo, devono valere in generale per tutti i casi
-     * analoghi in cui non vanno spezzate le righe. La riduzione è utile specialmente nei
-     * casi-limite, quando un solo carattere rischia di essere tagliato fuori*). Fino alla `1.61`
-     * il rimpicciolimento viveva nella sola anteprima della rinomina, dove era nato, e qui si
-     * accorciava e basta: un nome che sforava di due lettere perdeva un pezzo di sé anche quando
-     * un corpo del 5% più stretto lo avrebbe fatto stare intero.
+     * ⚠️⚠️ **SI PROVA PRIMA A STRINGERE, E SOLO POI SI ACCORCIA, DALLA `1.62`** (riscontro del
+     * giro della `1.60`: *queste soluzioni in ordine di priorità, incluso il nuovo metodo che
+     * prevede di ridurre il testo, devono valere in generale per tutti i casi analoghi in cui
+     * non vanno spezzate le righe. La riduzione è utile specialmente nei casi-limite, quando un
+     * solo carattere rischia di essere tagliato fuori*). Fino alla `1.61` il rimpicciolimento
+     * viveva nella sola anteprima della rinomina, dove era nato, e qui si accorciava e basta: un
+     * nome che sforava di due lettere perdeva un pezzo di sé anche quando un corpo del 5% più
+     * stretto lo avrebbe fatto stare intero.
      * ⚠️ **Un nome intero un filo più piccolo vale più di un nome accorciato**, ed è l'ordine di
-     * priorità che ha dettato: qui si scende di [NAME_STEP] per volta e mai sotto [NAME_FLOOR].
-     * ⚠️⚠️ **E SE NEMMENO IL MINIMO BASTA, SI ACCORCIA AL CORPO PIENO**: la stretta serve ai
+     * priorità che ha dettato. Le strette da provare, e in che ordine, stanno su [strette].
+     * ⚠️⚠️ **E SE NEMMENO L'ULTIMA BASTA, SI ACCORCIA AL CORPO PIENO**: la stretta serve ai
      * **casi-limite**, come dice il riscontro, e su un nome lunghissimo il taglio arriva
      * comunque; portarselo dietro costerebbe leggibilità senza salvare niente.
-     * ⚠️ **Costa al più cinque misure in più**, e solo per i nomi che sforano: quello che sta
+     * ⚠️ **Costa una misura in più per gradino**, e solo per i nomi che sforano: quello che sta
      * alla misura piena esce alla prima, come prima.
      */
     val intero = comporre(corpo, coda)
-    var stretta = 1f
-    while (true) {
-        if (sta(intero, stretta)) return Fitted(intero, stretta)
-        if (stretta - NAME_STEP < NAME_FLOOR) break
-        stretta -= NAME_STEP
+    for (stile in strette(style)) {
+        if (sta(intero, stile)) return Fitted(intero, stile)
     }
 
     var basso = 0
     var alto = corpo.length
     while (basso < alto) {
         val mezzo = (basso + alto + 1) / 2
-        if (sta(comporre(corpo.take(mezzo) + CUT, coda), 1f)) basso = mezzo else alto = mezzo - 1
+        if (sta(comporre(corpo.take(mezzo) + CUT, coda), style)) basso = mezzo else alto = mezzo - 1
     }
-    return Fitted(comporre(corpo.take(basso) + CUT, coda), 1f)
+    return Fitted(comporre(corpo.take(basso) + CUT, coda), style)
 }
 
 /**
- * Il nome impaginato e **di quanto è stato stretto** per starci.
+ * Le strette da provare, dalla meno visibile alla più visibile.
  *
- * ⚠️ **Due valori e non uno, perché chi lo disegna deve sapere il corpo**: il testo da solo non
- * porta con sé la misura a cui è stato misurato, e scriverlo al corpo pieno rimetterebbe il
- * difetto che la stretta ha appena tolto.
+ * ⚠️⚠️ **LA SPAZIATURA VIENE PRIMA DEL CORPO, DALLA `1.81`, ED È UNA SUA APERTURA** (riscontro
+ * del giro della `1.80`, punto C: *puoi anche AUMENTARE la dimensione del testo, oppure
+ * aumentare/diminuire la spaziatura tra caratteri, se ciò aiuta ad andare a capo in modo
+ * migliore*). Stringere la spaziatura di [NAME_TIGHT] guadagna circa quanto un gradino di corpo
+ * e **si vede molto meno**: un corpo più piccolo si nota accanto a un altro testo della stessa
+ * specie (due nomi in due celle vicine della griglia), le lettere un filo più vicine no.
+ * ⚠️ **E una volta stretta resta stretta mentre il corpo scende**: rimettere la spaziatura larga
+ * a corpo ridotto vorrebbe dire tornare indietro sulla leva meno visibile per spendere quella
+ * che si nota, cioè il contrario dell'ordine di priorità che ha dettato.
+ *
+ * ⚠️ **È `internal` e non privata perché il banco di prova la misura**, ed è la stessa ragione di
+ * `climbFor` in `Centred.kt`: sulla piattaforma finta il misuratore di testo dà a **ogni**
+ * carattere un pixel di larghezza (misurato), quindi né il corpo né la spaziatura cambiano una
+ * riga, e una prova che passasse da [fitName] non eserciterebbe questo ordine affatto.
+ *
+ * ⚠️⚠️ **QUELLO CHE NON C'È È L'INGRANDIMENTO, e la ragione è misurabile invece che di gusto**:
+ * un corpo più **grande** non può creare un punto in cui andare a capo che a corpo minore non
+ * c'era, quindi non può evitare nessuna rottura; la sua condizione (*se ciò aiuta ad andare a
+ * capo in modo migliore*) non si verifica mai. Riempire meglio la pastiglia quando il nome sta
+ * comodo è un'altra cosa, e sarebbe un cambiamento di aspetto su tutti i nomi corti: se lo vuole
+ * si fa, ma è una sua decisione e non un effetto collaterale di questa.
  */
-data class Fitted(val text: AnnotatedString, val scale: Float)
+internal fun strette(style: TextStyle): Sequence<TextStyle> = sequence {
+    yield(style)
+    /*
+     * ⚠️⚠️ **I GRADINI SI CONTANO INTERI, E SOTTRARLI IN VIRGOLA MOBILE COSTAVA L'ULTIMO**
+     * (difetto trovato dal banco alla prima corsa, e vivo dalla `1.62`): partendo da 1 e
+     * togliendo [NAME_STEP] ogni volta, l'errore di arrotondamento fa scattare il confronto col
+     * minimo un gradino prima, quindi la corsa si fermava all'85% mentre l'80% era quello
+     * dichiarato. Con un contatore intero il valore si **ricostruisce** invece di accumularsi, e
+     * l'ultimo gradino è quello scritto.
+     */
+    val gradini = ((1f - NAME_FLOOR) / NAME_STEP).roundToInt()
+    for (passo in 0..gradini) {
+        yield(style.shrunk(1f - NAME_STEP * passo, tight = true))
+    }
+}
 
 /**
- * Lo stesso stile, col corpo e l'interlinea stretti di [k].
+ * Il nome impaginato e **lo stile a cui è stato misurato**.
  *
- * ⚠️ **Sta qui e non in due posti**: lo usano il misuratore di [fitName] e chi disegna il
- * risultato, e due copie di questo conto vorrebbero dire misurare a un corpo e scrivere a un
- * altro, cioè un testo che sfora dopo essere stato dichiarato dentro.
+ * ⚠️⚠️ **PORTA LO STILE E NON UN NUMERO, DALLA `1.81`, e non è un ritocco di comodo**: fino alla
+ * `1.80` qui c'era la sola scala, e chi disegnava doveva ricordarsi di riapplicarla
+ * (`style.shrunk(shown.scale)`) in ognuno dei due posti che accorciano un nome. Con due leve
+ * invece di una quel patto diventa 'ricordati di riapplicarne due', e una dimenticata dà un
+ * testo che sfora **dopo** essere stato dichiarato dentro. Portando lo stile, chi disegna non ha
+ * niente da ricomporre.
+ */
+data class Fitted(val text: AnnotatedString, val style: TextStyle)
+
+/**
+ * Lo stesso stile, col corpo e l'interlinea stretti di [k] e, se [tight], le lettere più vicine.
+ *
+ * ⚠️ **Sta qui e non in due posti**: lo usano il misuratore di [fitName] e la pastiglia
+ * dell'anteprima della rinomina, e due copie di questo conto vorrebbero dire misurare a un
+ * corpo e scrivere a un altro, cioè un testo che sfora dopo essere stato dichiarato dentro.
  * ⚠️ **Le due misure si guardano prima di moltiplicarle**: un corpo o un'interlinea non
  * dichiarati valgono `Unspecified`, che non è un numero e non si scala.
+ * ⚠️ **La spaziatura si SOSTITUISCE invece di essere sottratta**, ed è la sola via: quella di
+ * partenza è dichiarata in `sp` dagli stili di Material e questa è in `em`, cioè due unità che
+ * non si sommano. Quello che si perde è pochissimo (un decimo di `sp` su un corpo di quattordici,
+ * cioè meno di un centesimo di em), e in cambio la stretta vale lo stesso su ogni corpo.
  */
-internal fun TextStyle.shrunk(k: Float): TextStyle {
-    if (k >= 1f) return this
+internal fun TextStyle.shrunk(k: Float, tight: Boolean = false): TextStyle {
+    if (k >= 1f && !tight) return this
+    val stretto = k < 1f
     return copy(
-        fontSize = if (fontSize.isSpecified) fontSize * k else fontSize,
-        lineHeight = if (lineHeight.isSpecified) lineHeight * k else lineHeight
+        fontSize = if (stretto && fontSize.isSpecified) fontSize * k else fontSize,
+        lineHeight = if (stretto && lineHeight.isSpecified) lineHeight * k else lineHeight,
+        letterSpacing = if (tight) NAME_TIGHT else letterSpacing
     )
 }
 
@@ -145,6 +213,20 @@ internal fun TextStyle.shrunk(k: Float): TextStyle {
  */
 internal const val NAME_STEP = 0.05f
 internal const val NAME_FLOOR = 0.80f
+
+/**
+ * Di quanto si avvicinano le lettere quando la spaziatura è la leva in uso.
+ *
+ * ⚠️⚠️ **IN `em` E NON IN `sp`, PERCHÉ DEVE VALERE LO STESSO SU OGNI CORPO**: un valore in `sp`
+ * stringerebbe un testo piccolo molto più di uno grande, e questa stretta la chiedono la
+ * pastiglia di 'Info' (`titleSmall`) e il nome sotto la miniatura (`labelSmall`), che hanno due
+ * corpi diversi.
+ * ⚠️ **Il 2% dell'em guadagna circa quanto un gradino di corpo, ed è il conto per cui è quello**:
+ * la larghezza media di un carattere sta intorno a mezzo em, quindi togliere il 2% dell'em per
+ * carattere stringe la riga del 4% circa, che è dove sta il 5% del corpo. Il doppio comincerebbe
+ * a far toccare le lettere.
+ */
+internal val NAME_TIGHT = (-0.02).em
 
 /**
  * Il nome col punto e l'estensione **in grassetto** e **mai spezzati** andando a capo.
