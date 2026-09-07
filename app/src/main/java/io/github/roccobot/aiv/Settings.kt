@@ -83,6 +83,41 @@ enum class BgTheme(override val token: String) : Choice { AUTO("auto"), LIGHT("l
 enum class ScaleMode(override val token: String) : Choice { PHYSICAL("physical"), LOGICAL("logical") }
 
 /**
+ * Che cosa stacca dallo schermo una superficie che si apre sopra la schermata.
+ *
+ * ⚠️⚠️ **TRE RISPOSTE E MAI DUE INSIEME, ED È UNA SUA ISTRUZIONE** (2026-09-07: *facciamo che
+ * si può scegliere tra sfocatura e ombreggiatura (MAI insieme)*). Fino alla `1.80` la domanda
+ * aveva due risposte, perché era un interruttore: la sfocatura c'era o non c'era. L'ombra era
+ * uscita nella `1.54` insieme al bordo d'accento (*via le ombre e vai con il bordino da 2px del
+ * colore di accento*), e la sua domanda del giro della `1.80` la riapre: *continuo a non capire
+ * perché ottenere 'sta ombreggiatura è così complicato, è una cosa che letteralmente migliaia di
+ * app fanno di continuo*.
+ *
+ * ⚠️⚠️ **'MAI INSIEME' NON È SOLO UNA REGOLA DI GUSTO: È QUELLO CHE RENDE L'OMBRA POSSIBILE.**
+ * Le due vie vogliono due geometrie opposte sui menu, e per questo non potevano convivere
+ * nemmeno volendo: la sfocatura è un attributo della **finestra**, quindi vuole una finestra
+ * grande **quanto il pannello disegnato**, o sfoca una fascia di sfondo intorno a lui (era la
+ * cornice del giro della `1.51`); l'ombra invece **esce** dal pannello, quindi vuole una
+ * finestra **più grande** di lui, o viene tagliata di netto sul bordo, che è il 'quadrato
+ * sfocato' che lui ha bocciato due volte. Con una scelta sola in vigore, ognuna ha la finestra
+ * che le serve.
+ *
+ * ⚠️ **[NONE] non è il terzo comodo: è l'interruttore spento della `1.39`**, e resta perché la
+ * ragione per cui esisteva non è decaduta (*rende tutto visibilmente più lento*): chi ha un
+ * telefono che non regge nessuno dei due effetti li spegne. ⚠️ **E il BORDO d'accento non è in
+ * questo elenco**: quello non è una funzione che si accende ma il modo in cui l'app è fatta, e
+ * c'è in tutti e tre i casi (vedi `Edge.kt`).
+ */
+enum class PanelDepth(override val token: String) : Choice {
+    /** Lo sfondo sfocato più la patina scura: quello che l'app fa dalla `1.38`. */
+    BLUR("blur"),
+    /** L'ombra intorno alla superficie, e nient'altro dietro: quello che fa Material. */
+    SHADOW("shadow"),
+    /** Niente: le finestre restano come Android le dà. */
+    NONE("none")
+}
+
+/**
  * Da che parte stanno le funzioni usate più spesso, nel pannello della selezione.
  *
  * ⚠️⚠️ **NON È UN'IMPOSTAZIONE DI ESTETICA MA DI POLLICE** (richiesta dell'utente,
@@ -226,21 +261,22 @@ data class Settings(
     val infoPosition: InfoPosition = InfoPosition.TOP,
     val infoVisible: Boolean = true,
     /**
-     * Se dietro dialoghi, menu e pannelli ci sono sfocatura e velo.
+     * Che cosa c'è dietro dialoghi, menu e pannelli: la sfocatura, l'ombra oppure niente.
      *
-     * ⚠️⚠️ **ACCESA DI FABBRICA DALLA `1.80`, ED È LA SUA DECISIONE** (riscontro del giro della
-     * `1.79`, campo libero punto A: *imposta la sfocatura come accesa di fabbrica*). La funzione
-     * era nata accesa nella `1.38`, era stata spenta nella `1.39` perché *rende tutto
-     * visibilmente più lento*, e adesso torna al valore di allora: nel frattempo l'ha provata
-     * per quaranta versioni e il conto glielo ha fatto lui.
+     * ⚠️⚠️ **ERA UN INTERRUTTORE FINO ALLA `1.80` E DALLA `1.81` È UNA SCELTA A TRE**, su sua
+     * istruzione (*facciamo che si può scegliere tra sfocatura e ombreggiatura (MAI insieme)*).
+     * Il perché delle tre risposte, e perché due non possono convivere, sta su [PanelDepth].
+     * ⚠️⚠️ **LA SFOCATURA RESTA IL VALORE DI FABBRICA, ED È LA SUA DECISIONE DEL GIRO PRIMA**
+     * (riscontro della `1.79`, campo libero punto A: *imposta la sfocatura come accesa di
+     * fabbrica*). La funzione era nata accesa nella `1.38`, spenta nella `1.39` perché *rende
+     * tutto visibilmente più lento*, e riaccesa nella `1.80` dopo quaranta versioni di prova: il
+     * valore non cambia perché la domanda ha una risposta in più.
      * ⚠️⚠️ **IL VALORE DI FABBRICA STA IN DUE POSTI, e vanno insieme**: qui e nella lettura del
-     * flusso (`p[VEIL] ?: true`). Cambiarne uno solo lascerebbe l'app accesa al primo avvio e
-     * spenta dopo il primo salvataggio delle impostazioni, che è il genere di difetto che non dà
-     * nessun errore.
-     * ⚠️ **L'impostazione resta invece di sparire**: chi ha un telefono che non la regge la
-     * spegne, e la ragione per cui esisteva non è decaduta.
+     * flusso. Cambiarne uno solo lascerebbe l'app in un modo al primo avvio e in un altro dopo
+     * il primo salvataggio delle impostazioni, che è il genere di difetto che non dà nessun
+     * errore.
      */
-    val veil: Boolean = true,
+    val panelDepth: PanelDepth = PanelDepth.BLUR,
     /**
      * Se il menu a pressione lunga porta anche 'Adatta alla vista' e '100%'.
      *
@@ -755,6 +791,20 @@ object SettingsStore {
     private val SCALE_MODE = stringPreferencesKey("scale-mode")
     private val INFO_POSITION = stringPreferencesKey("info-position")
     private val INFO_VISIBLE = booleanPreferencesKey("info-visible")
+    private val PANEL_DEPTH = stringPreferencesKey("panel-depth")
+
+    /**
+     * L'interruttore della `1.39`, che dalla `1.81` si legge **una volta sola** e non si scrive
+     * più.
+     *
+     * ⚠️⚠️ **SERVE A NON FAR PERDERE LA SCELTA A CHI AGGIORNA, e non è prudenza**: chi aveva
+     * spento la sfocatura perché il suo telefono non la regge la ritroverebbe accesa, cioè
+     * l'app tornerebbe lenta senza che nessuno abbia toccato niente. Una chiave nuova che
+     * ignora la vecchia è un'impostazione azzerata in silenzio.
+     * ⚠️ **Non si riscrive**, o le due chiavi diventerebbero due fonti della stessa cosa e la
+     * prima a mentire sarebbe quella che nessuno legge: appena [PANEL_DEPTH] esiste, questa non
+     * si guarda più.
+     */
     private val VEIL = booleanPreferencesKey("veil")
     private val ZOOM_IN_MENU = booleanPreferencesKey("zoom-in-menu")
     private val REVERSE_SEQUENCE = booleanPreferencesKey("sequence-reversed")
@@ -828,7 +878,12 @@ object SettingsStore {
             scaleMode = ScaleMode.entries.byToken(p[SCALE_MODE], ScaleMode.PHYSICAL),
             infoPosition = InfoPosition.entries.byToken(p[INFO_POSITION], InfoPosition.TOP),
             infoVisible = p[INFO_VISIBLE] ?: true,
-            veil = p[VEIL] ?: true,
+            // ⚠️ Il ripiego sulla chiave vecchia gira solo finché quella nuova non è mai stata
+            // scritta, e il perché sta su [VEIL]: `false` era 'spento', tutto il resto era la
+            // sfocatura, che resta il valore di fabbrica.
+            panelDepth = p[PANEL_DEPTH]
+                ?.let { PanelDepth.entries.byToken(it, PanelDepth.BLUR) }
+                ?: if (p[VEIL] == false) PanelDepth.NONE else PanelDepth.BLUR,
             zoomInMenu = p[ZOOM_IN_MENU] ?: false,
             reverseSequence = p[REVERSE_SEQUENCE] ?: false,
             startFolder = p[START_FOLDER],
@@ -912,7 +967,7 @@ object SettingsStore {
             p[SCALE_MODE] = settings.scaleMode.token
             p[INFO_POSITION] = settings.infoPosition.token
             p[INFO_VISIBLE] = settings.infoVisible
-            p[VEIL] = settings.veil
+            p[PANEL_DEPTH] = settings.panelDepth.token
             p[ZOOM_IN_MENU] = settings.zoomInMenu
             p[REVERSE_SEQUENCE] = settings.reverseSequence
             // ⚠️ Una cartella tolta si CANCELLA invece di essere scritta a zero: zero è

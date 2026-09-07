@@ -78,8 +78,11 @@
     <string name="settings_light">Sáng</string>
     <string name="settings_dark">Tối</string>
 
-    <string name="settings_veil">Làm mờ phía sau bảng</string>
-    <string name="settings_veil_desc">Làm mờ và tối màn hình phía sau hộp thoại, trình đơn và bảng. Trên thiết bị cũ, ứng dụng có thể chậm hơn.</string>
+    <string name="settings_depth">Phía sau bảng</string>
+    <string name="settings_depth_desc">Điều tách một bảng đang mở khỏi màn hình. Làm mờ sẽ làm mờ và tối phần phía sau, còn bóng sẽ vẽ bóng quanh bảng. Làm mờ có thể khiến ứng dụng chậm hơn trên thiết bị cũ.</string>
+    <string name="settings_depth_blur">Làm mờ</string>
+    <string name="settings_depth_shadow">Bóng</string>
+    <string name="settings_depth_none">Không</string>
     <string name="settings_folder_columns">Số cột trong lưới</string>
     <string name="settings_folder_columns_desc">Lưới thư mục và lưới ảnh hiển thị bao nhiêu cột. Nhiều cột hơn chứa được nhiều hơn trên màn hình và thu nhỏ từng ô. Ở bốn cột, tên thư mục thường bị cắt ngắn.</string>
     <string name="settings_folder_count">Bộ đếm mục dưới các thư mục ở chế độ lưới</string>

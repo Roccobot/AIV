@@ -1,5 +1,6 @@
 package io.github.roccobot.aiv
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -9,11 +10,16 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.inset
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DrawModifierNode
+import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -214,6 +220,125 @@ private val EDGE = 2.dp
  *   difetto c'era.
  */
 private const val SCONFINA = 0.5f
+
+/**
+ * L'**ombra** intorno a una superficie che si apre sopra la schermata, quando è lei la scelta.
+ *
+ * ⚠️⚠️ **NASCE NELLA `1.81` E NON SOSTITUISCE IL BORDO: SOSTITUISCE LA SFOCATURA** (istruzione
+ * dell'utente, 2026-09-07: *facciamo che si può scegliere tra sfocatura e ombreggiatura (MAI
+ * insieme)*). Il bordo d'accento resta in tutti e tre i casi, perché non è una funzione che si
+ * accende: il perché sta in testa a questo file.
+ * ⚠️⚠️ **ED È IL RITORNO DI QUELLO CHE LA `1.54` AVEVA TOLTO**, quindi la ragione per cui era
+ * uscita va riletta prima di toccare questa riga: l'ombra di un pannello **esce** dal pannello, e
+ * la finestra di un `Popup` era grande quanto il pannello, quindi quel poco che usciva veniva
+ * tagliato di netto sul rettangolo della finestra. Un alone che finisce con uno spigolo è il
+ * 'quadrato sfocato' che lui ha bocciato due volte. ⚠️ **A togliere la causa è il margine che i
+ * menu si dànno quando questa scelta è in vigore** (`LIFT_ROOM` in `Menus.kt`): la finestra
+ * diventa più grande del pannello, e l'ombra ha dove cadere. Fuori dai menu il problema non
+ * esiste, perché la finestra di un dialogo e quella di una scheda in fondo sono già grandi
+ * quanto lo schermo.
+ *
+ * ⚠️⚠️ **È UN NODO E NON UN `@Composable`, per la stessa ragione del bordo**: questa riga la
+ * scrivono anche i dialoghi di Material, dove il modificatore è **scritto** fuori dalla finestra
+ * che poi lo ospita. Un nodo legge i suoi `CompositionLocal` dalla posizione in cui è
+ * **attaccato**.
+ * ⚠️⚠️ **E L'OMBRA LA CHIEDE AL LAYER DEL PIAZZAMENTO, non a un disegno fatto a mano**: quella
+ * di Android nasce dal contorno del `RenderNode`, quindi la mette il sistema con la forma
+ * dichiarata, come fa `Modifier.shadow`. Dipingerla a mano (un `Paint` con `setShadowLayer`)
+ * vorrebbe dire rifare in software una cosa che il compositore fa in hardware, e con un aspetto
+ * diverso da quello di ogni altra app.
+ * ⚠️ **Non ritaglia niente** (`clip` resta spento): a ritagliare il contenuto ci pensa la
+ * `Surface` con la sua forma, e un ritaglio qui taglierebbe il bordo d'accento delle schede in
+ * fondo, che corre di **fuori**.
+ */
+fun Modifier.lifted(round: Dp): Modifier = this then LiftElement(round, top = false)
+
+/**
+ * La stessa ombra per una superficie **appoggiata al bordo di sotto**: solo i due angoli in cima.
+ *
+ * ⚠️ **La forma dichiara i soli angoli di sopra**, come la `Surface` che la porta: con quattro
+ * angoli tondi l'ombra girerebbe anche sotto il bordo dello schermo, dove non c'è niente da
+ * staccare, e in cambio disegnerebbe due archi che il vetro taglia a metà.
+ */
+fun Modifier.liftedTop(round: Dp): Modifier = this then LiftElement(round, top = true)
+
+private data class LiftElement(
+    private val round: Dp,
+    private val top: Boolean
+) : ModifierNodeElement<LiftNode>() {
+    override fun create() = LiftNode(round, top)
+
+    override fun update(node: LiftNode) {
+        node.round = round
+        node.top = top
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "lifted"
+    }
+}
+
+private class LiftNode(
+    var round: Dp,
+    var top: Boolean
+) : Modifier.Node(), LayoutModifierNode, CompositionLocalConsumerModifierNode {
+
+    /*
+     * ⚠️ **Misura e piazza senza toccare niente**: quello che cambia è il **layer** con cui il
+     * figlio viene posato, che è il posto in cui si dichiara un'elevazione. Un nodo di disegno
+     * non potrebbe farlo, perché un'ombra sta fuori dal riquadro che quel nodo ha per disegnare.
+     */
+    override fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureResult {
+        val posato = measurable.measure(constraints)
+        val alza = currentValueOf(LocalAivDepth) == PanelDepth.SHADOW
+        return layout(posato.width, posato.height) {
+            if (!alza) return@layout posato.place(0, 0)
+            posato.placeWithLayer(0, 0) {
+                shadowElevation = PANEL_LIFT.toPx()
+                shape = if (top) {
+                    RoundedCornerShape(topStart = round, topEnd = round)
+                } else {
+                    RoundedCornerShape(round)
+                }
+                clip = false
+            }
+        }
+    }
+}
+
+/**
+ * Quanto si alza una superficie che si apre sopra la schermata.
+ *
+ * ⚠️⚠️ **UN NUMERO SOLO PER TUTTE, come lo stondamento e come il bordo**: 8dp. La scala di
+ * Material ne avrebbe uno per specie (un menu 3, un dialogo 6, una scheda in fondo 1), e quei
+ * numeri sono tarati per un'app che ha **anche** il velo di sistema dietro: qui l'ombra è la
+ * sola cosa che stacca la superficie da quello che copre, quindi con tre numeri diversi tre
+ * superfici della stessa app staccherebbero in tre modi. La `1.28` ha già fatto questa strada
+ * con i raggi dei menu, che erano diventati tre.
+ * ⚠️ **8 e non 12**: a dodici l'alone si allarga fino a leggersi come una macchia intorno al
+ * pannello, che è il difetto per cui l'ombra era uscita dall'app; a otto si vede il distacco e
+ * non si guarda l'ombra. ⚠️ **E il margine dei menu dipende da questo numero**: chi lo alza
+ * guardi `LIFT_ROOM`, o l'ombra torna a sbattere contro il bordo della finestra.
+ */
+private val PANEL_LIFT = 8.dp
+
+/**
+ * Quanta aria trasparente vuole intorno a sé una superficie che getta l'ombra.
+ *
+ * ⚠️⚠️ **SERVE A DUE TAGLI DIVERSI, E NE BASTA UNO A FAR SPARIRE L'OMBRA AGLI ANGOLI.** Il
+ * primo è la **finestra** di un menu, grande quanto il pannello disegnato: quello che esce dal
+ * suo rettangolo non lo disegna nessuno. Il secondo è il **buffer** in cui Compose disegna un
+ * sottoalbero con opacità minore di uno, grande quanto il nodo che porta quell'opacità: là
+ * l'ombra sbatte contro il bordo del buffer. Con l'aria dentro il nodo dell'opacità, i due tagli
+ * cadono su di lei invece che sull'ombra.
+ * ⚠️ **Il doppio dell'elevazione, e non un numero a sé**: un'ombra di Android si allarga più o
+ * meno quanto l'elevazione che la genera, e scende di circa la metà. Scritto come multiplo, chi
+ * alza [PANEL_LIFT] si porta dietro anche questo.
+ * ⚠️ **La paga solo chi ha scelto l'ombra**: con la sfocatura la finestra di un menu deve
+ * restare grande **quanto** il pannello (è la cornice del giro della `1.51`), quindi l'aria non
+ * si dà 'per sicurezza' a tutti e due i casi.
+ */
+internal val LIFT_ROOM = PANEL_LIFT * 2f
 
 /**
  * Il raggio di un **pannello**: i dialoghi e le tre schede appoggiate al bordo di sotto.

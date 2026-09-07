@@ -82,11 +82,16 @@ import kotlin.math.roundToInt
  * velo dipinto è **uno** e vale quanto la richiesta più forte fra quelle in scena, quindi
  * mentre un menu esce e un dialogo entra non cambia affatto. Vedi [VeilStage].
  *
- * ⚠️⚠️ **DALLA 1.39 È SPENTO DI FABBRICA, DIETRO UN'IMPOSTAZIONE** (richiesta dell'utente,
- * 2026-09-03: *mettilo dietro un'opzione disattivata di default. Penserò se tenere o meno la
- * feature: rende tutto visibilmente più lento*). Lo dice [LocalAivVeil], e spento vuol dire che
- * qui non si **aggiunge** niente: i dialoghi tornano al velo che Android dà loro e i menu a non
- * averne.
+ * ⚠️⚠️ **DALLA 1.39 STA DIETRO UN'IMPOSTAZIONE** (richiesta dell'utente, 2026-09-03: *mettilo
+ * dietro un'opzione disattivata di default. Penserò se tenere o meno la feature: rende tutto
+ * visibilmente più lento*), che dalla `1.80` nasce **accesa** e dalla `1.81` è una scelta a
+ * **tre**: la sfocatura, l'ombra oppure niente (*facciamo che si può scegliere tra sfocatura e
+ * ombreggiatura (MAI insieme)*). Lo dice [LocalAivDepth], e tutto questo file lavora nel solo
+ * caso [PanelDepth.BLUR]: negli altri due qui non si **aggiunge** niente, i dialoghi tornano al
+ * velo che Android dà loro e i menu a non averne.
+ * ⚠️ **L'ombra non vive qui ma in `Edge.kt`**, accanto al bordo d'accento: è il contorno di una
+ * superficie e vuole il suo stesso raggio, mentre questo file parla di che cosa succede alla
+ * **finestra** e allo schermo dietro di lei.
  * ⚠️ **L'unica eccezione è la scheda in fondo**, che un velo se lo chiede da sé perché la sua
  * finestra non ne ha uno di serie (il parametro [bare], e `SHEET_DIM` in `Sheet.kt`). Quindi
  * 'ogni finestra resta com'era prima della 1.38', che è come diceva questa nota fino alla
@@ -98,7 +103,7 @@ fun WindowVeil(
     quanto: () -> Float = { PIENO }
 ) {
     val view = LocalView.current
-    val on = LocalAivVeil.current
+    val on = LocalAivDepth.current == PanelDepth.BLUR
     val dark = !LocalAivLight.current
     val radius = with(LocalDensity.current) { BLUR.roundToPx() }
     val misura by rememberUpdatedState(quanto)
@@ -152,7 +157,7 @@ fun WindowVeil(
 @Composable
 fun AppPatina(quanto: () -> Float) {
     val view = LocalView.current
-    val on = LocalAivVeil.current
+    val on = LocalAivDepth.current == PanelDepth.BLUR
     val dark = !LocalAivLight.current
     val misura by rememberUpdatedState(quanto)
     val chiave = remember { Any() }
@@ -168,18 +173,26 @@ fun AppPatina(quanto: () -> Float) {
 }
 
 /**
- * L'interruttore della funzione: se velo e sfocatura sono accesi.
+ * Che cosa c'è dietro una superficie che si apre: la sfocatura, l'ombra oppure niente.
  *
- * ⚠️ **Un `CompositionLocal` e non un parametro**: chi chiede il velo sono i dialoghi, i menu
+ * ⚠️ **Un `CompositionLocal` e non un parametro**: chi lo chiede sono i dialoghi, i menu
  * e le due schede, e nessuno di loro riceve le impostazioni. Il valore lo mette in scena
  * l'attività, che le ha già lette per il tema. ⚠️ **Quanti sono non si scrive**: qui c'era
  * 'tredici dialoghi', e la `1.44` ne ha tolto uno rendendolo falso. Il criterio sta in
  * `rules/Roccobot.md` § '🪶 Come si mantiene un file di regole'.
- * ⚠️ **Il nodo lo legge quando si attacca**, cioè quando la finestra si apre: cambiare
- * l'interruttore mentre un dialogo è aperto non lo cambia sotto gli occhi, e non è un caso che
- * esista (l'impostazione vive in una schermata, non in un dialogo).
+ * ⚠️ **Il nodo lo legge quando si attacca**, cioè quando la finestra si apre: cambiare la scelta
+ * mentre un dialogo è aperto non lo cambia sotto gli occhi, e non è un caso che esista
+ * (l'impostazione vive in una schermata, non in un dialogo).
+ *
+ * ⚠️⚠️ **ERA UN BOOLEANO FINO ALLA `1.80`, E IL VALORE DI SERIE RESTA IL PIÙ PRUDENTE**: finché
+ * le impostazioni non sono arrivate vale [PanelDepth.NONE], cioè non si aggiunge niente a
+ * nessuna finestra. Il valore di **fabbrica** dell'impostazione è un'altra cosa e vive in
+ * `Settings`: qui si parla del primo fotogramma, dove la scelta non si conosce ancora.
+ * ⚠️ **Si legge fuori dalla finestra senza sbagliare, a differenza di [LocalView]**: questo
+ * valore viene dall'attività, quindi dentro e fuori da un dialogo è lo stesso. Chi ne ha
+ * bisogno in un nodo lo legge dal nodo per comodità, non per necessità.
  */
-val LocalAivVeil = staticCompositionLocalOf { false }
+val LocalAivDepth = staticCompositionLocalOf { PanelDepth.NONE }
 
 /**
  * Lo stesso velo, ma agganciato **dove il modificatore atterra**. Vedi la nota in testa.
@@ -219,7 +232,7 @@ private class VeilNode : Modifier.Node(), CompositionLocalConsumerModifierNode {
      * schiariva lo sfondo prima di scurirlo.
      */
     override fun onAttach() {
-        if (!currentValueOf(LocalAivVeil)) return
+        if (currentValueOf(LocalAivDepth) != PanelDepth.BLUR) return
         val view = currentValueOf(LocalView)
         val dark = !currentValueOf(LocalAivLight)
         val radius = with(currentValueOf(LocalDensity)) { BLUR.roundToPx() }

@@ -177,7 +177,8 @@ fun Sheet(
             animationSpec = if (visibile) snap() else tween(SHEET_FADE_MS),
             label = "sheet-blur"
         )
-        val acceso = LocalAivVeil.current
+        val acceso = LocalAivDepth.current == PanelDepth.BLUR
+        val alzata = LocalAivDepth.current == PanelDepth.SHADOW
         AppPatina { patina }
         WindowVeil(bare = SHEET_DIM) { if (acceso) sfoca else patina }
 
@@ -257,6 +258,21 @@ fun Sheet(
                         translationY = (1f - lift) * size.height
                     }
                     /*
+                     * ⚠️⚠️ **L'ARIA IN CIMA C'È SOLO CON L'OMBRA, E SENZA DI LEI L'OMBRA NON SI
+                     * VEDREBBE**: il `graphicsLayer` qui sopra porta un'opacità, quindi Compose
+                     * disegna tutto quello che sta sotto in un buffer grande **quanto questo
+                     * nodo**, e un'ombra che esce dalla scheda finirebbe contro il suo bordo. Il
+                     * perché per esteso, coi due tagli che questa aria evita, sta su [LIFT_ROOM].
+                     * ⚠️ **Solo in cima**: i fianchi di una scheda in fondo stanno sui bordi
+                     * dello schermo e il fondo è appoggiato al vetro, quindi là l'ombra non ha
+                     * niente da mostrare e l'aria stringerebbe la scheda.
+                     * ⚠️ **E sta FUORI dal `clickable` qui sotto**, quindi un tocco sull'aria
+                     * chiude la scheda come il resto dello spazio sopra di lei: dentro, sarebbe
+                     * una fascia di sedici dp che non risponde, che è l'asimmetria del giro della
+                     * `1.69`.
+                     */
+                    .padding(top = if (alzata) LIFT_ROOM else 0.dp)
+                    /*
                      * ⚠️ **Il tocco sulla scheda NON deve chiudere**, e senza questa riga lo
                      * farebbe: il velo di sopra è un genitore, e un tocco che nessuno consuma
                      * gli arriverebbe. Un `clickable` senza effetto è il modo di dire 'qui mi
@@ -280,6 +296,13 @@ fun Sheet(
                      * `graphicsLayer` non lo fa (`clip` è spento di fabbrica), e il velo che sta
                      * dietro non è un genitore che taglia.
                      */
+                    /*
+                     * ⚠️ **L'ombra sta PRIMA del bordo**, cioè avvolge anche il tratto d'accento:
+                     * il bordo è parte della superficie che si alza, non un disegno che le sta
+                     * accanto. Il perché dell'ombra, e perché è alternativa alla sfocatura,
+                     * stanno in testa a `Edge.kt`.
+                     */
+                    .liftedTop(PANEL_ROUND)
                     .edgedTop(PANEL_ROUND),
                 shape = RoundedCornerShape(topStart = PANEL_ROUND, topEnd = PANEL_ROUND),
                 color = MaterialTheme.colorScheme.surfaceContainerHigh

@@ -78,8 +78,11 @@
     <string name="settings_light">हल्का</string>
     <string name="settings_dark">गहरा</string>
 
-    <string name="settings_veil">पैनल के पीछे धुंधलापन</string>
-    <string name="settings_veil_desc">डायलॉग, मेन्यू और पैनल के पीछे की स्क्रीन को धुंधला और गहरा करता है। पुराने उपकरणों पर ऐप धीमा हो सकता है।</string>
+    <string name="settings_depth">पैनल के पीछे</string>
+    <string name="settings_depth_desc">खुले पैनल को स्क्रीन से क्या अलग करता है। ब्लर पीछे की चीज़ को धुंधला और गहरा करता है, छाया पैनल के चारों ओर छाया बनाती है। ब्लर पुराने डिवाइस पर ऐप को धीमा कर सकता है।</string>
+    <string name="settings_depth_blur">ब्लर</string>
+    <string name="settings_depth_shadow">छाया</string>
+    <string name="settings_depth_none">कुछ नहीं</string>
     <string name="settings_folder_columns">ग्रिड के स्तंभ</string>
     <string name="settings_folder_columns_desc">फ़ोल्डर ग्रिड और चित्र ग्रिड कितने स्तंभ दिखाएँ। अधिक स्तंभों में स्क्रीन पर अधिक चीज़ें आती हैं और हर खाना छोटा होता है। चार पर फ़ोल्डर का नाम प्रायः कट जाता है।</string>
     <string name="settings_folder_count">ग्रिड दृश्य में फ़ोल्डरों के नीचे वस्तुओं की गिनती</string>

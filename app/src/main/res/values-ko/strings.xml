@@ -78,8 +78,11 @@
     <string name="settings_light">밝게</string>
     <string name="settings_dark">어둡게</string>
 
-    <string name="settings_veil">패널 뒤 흐림 효과</string>
-    <string name="settings_veil_desc">대화상자, 메뉴, 패널 뒤의 화면을 흐리게 하고 어둡게 합니다. 오래된 기기에서는 앱이 느려질 수 있습니다.</string>
+    <string name="settings_depth">패널 뒤</string>
+    <string name="settings_depth_desc">열린 패널을 화면과 구분하는 방식입니다. 흐리게는 뒤쪽을 흐리고 어둡게 하고, 그림자는 패널 주위에 그림자를 그립니다. 흐리게는 구형 기기에서 앱이 느려질 수 있습니다.</string>
+    <string name="settings_depth_blur">흐리게</string>
+    <string name="settings_depth_shadow">그림자</string>
+    <string name="settings_depth_none">없음</string>
     <string name="settings_folder_columns">격자의 열 수</string>
     <string name="settings_folder_columns_desc">폴더 격자와 이미지 격자가 보여줄 열 수입니다. 열이 많을수록 화면에 더 많이 들어가고 각 칸은 작아집니다. 네 열에서는 폴더 이름이 대개 잘립니다.</string>
     <string name="settings_folder_count">격자 보기에서 폴더 아래 항목 개수 표시</string>

@@ -78,8 +78,11 @@
     <string name="settings_light">淺色</string>
     <string name="settings_dark">深色</string>
 
-    <string name="settings_veil">面板背後模糊</string>
-    <string name="settings_veil_desc">將對話框、選單和面板背後的畫面變得模糊並壓暗。在舊裝置上，應用程式可能會變慢。</string>
+    <string name="settings_depth">面板背後</string>
+    <string name="settings_depth_desc">開啟的面板與螢幕之間靠什麼區分。模糊會模糊並壓暗背後的內容，陰影會在面板周圍繪製陰影。模糊可能使應用程式在舊裝置上變慢。</string>
+    <string name="settings_depth_blur">模糊</string>
+    <string name="settings_depth_shadow">陰影</string>
+    <string name="settings_depth_none">無</string>
     <string name="settings_folder_columns">格狀檢視的欄數</string>
     <string name="settings_folder_columns_desc">資料夾格狀檢視與圖片格狀檢視顯示幾欄。欄數越多，畫面上放得越多，每個方塊越小。四欄時資料夾名稱通常會被截斷。</string>
     <string name="settings_folder_count">格狀檢視中資料夾下方的項目計數</string>

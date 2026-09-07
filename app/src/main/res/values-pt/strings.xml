@@ -78,8 +78,11 @@
     <string name="settings_light">Claro</string>
     <string name="settings_dark">Escuro</string>
 
-    <string name="settings_veil">Desfoque atrás dos painéis</string>
-    <string name="settings_veil_desc">Desfoca e escurece o ecrã atrás de caixas de diálogo, menus e painéis. Em dispositivos antigos, a aplicação pode ficar mais lenta.</string>
+    <string name="settings_depth">Atrás dos painéis</string>
+    <string name="settings_depth_desc">O que separa da tela um painel aberto. O desfoque desfoca e escurece o que está atrás, a sombra desenha uma sombra ao redor do painel. O desfoque pode deixar o app mais lento em dispositivos antigos.</string>
+    <string name="settings_depth_blur">Desfoque</string>
+    <string name="settings_depth_shadow">Sombra</string>
+    <string name="settings_depth_none">Nada</string>
     <string name="settings_folder_columns">Colunas nas grades</string>
     <string name="settings_folder_columns_desc">Quantas colunas a grade de pastas e a de imagens mostram. Mais colunas cabem mais coisas na tela e encolhem cada bloco. Em quatro, o nome da pasta costuma ficar cortado.</string>
     <string name="settings_folder_count">Contador de itens sob as pastas na visualização em grade</string>
