@@ -281,8 +281,17 @@ fun GridScreen(
      * caso sparisce dalla selezione da sé.
      * ⚠️ Vive nella SCHERMATA e non nel modello, perché se ne va con lei: uscire da una
      * cartella è il modo naturale di dire 'lascia stare'.
+     * ⚠️⚠️ **MA SOPRAVVIVE ALLA ROTAZIONE, DALLA `1.81`** (riscontro dell'utente: *ruotando la
+     * selezione della griglia si scioglie*). Girare il telefono non è uscire da una cartella:
+     * l'attività si ricrea e la composizione si rifà da zero, quindi un `remember` perdeva
+     * trenta spunte per un gesto che non dice niente sulla selezione.
+     * ⚠️ **Il salvatore passa da una LISTA e non salva l'insieme**: un `Set` il `Bundle` non lo
+     * scrive, un `Uri` sì perché è `Parcelable`. L'ordine che la lista impone non conta, perché
+     * a rientrare è un insieme.
      */
-    var chosen by remember(items) { mutableStateOf<Set<Uri>>(emptySet()) }
+    var chosen by rememberSaveable(items, stateSaver = UriSetSaver) {
+        mutableStateOf<Set<Uri>>(emptySet())
+    }
     val menu = rememberMenuState()
 
     /*
@@ -350,13 +359,17 @@ fun GridScreen(
      * quattro booleani indipendenti descrivono sedici combinazioni di cui quindici
      * impossibili. Qui i dialoghi si escludono per costruzione. ⚠️ Porta con sé le immagini
      * su cui lavorare, e il perché sta in [FileJob].
+     * ⚠️⚠️ **SOPRAVVIVE ALLA ROTAZIONE DALLA `1.81`, e prima no** (riscontro dell'utente:
+     * *ruotando si chiude la finestra aperta e con lei quello che stavi scrivendo*). Che cosa si
+     * salva e che cosa no, e perché i lavori che partono da sé non si ripristinano, sta su
+     * [FileJobSaver].
      */
-    var job by remember { mutableStateOf<FileJob?>(null) }
+    var job by rememberSaveable(stateSaver = FileJobSaver) { mutableStateOf<FileJob?>(null) }
 
     /** Se si sta chiedendo di svuotare il cestino. Vale solo quando [bin] è vero. */
-    var emptying by remember { mutableStateOf(false) }
+    var emptying by rememberSaveable { mutableStateOf(false) }
     /** Se la conferma di 'Ripristina tutto' è in scena. Vedi la nota su quella voce. */
-    var restoringAll by remember { mutableStateOf(false) }
+    var restoringAll by rememberSaveable { mutableStateOf(false) }
     val picking = chosen.isNotEmpty()
 
     // ⚠️ In un effetto e non a filo della composizione: avvisare il modello è un cambiamento

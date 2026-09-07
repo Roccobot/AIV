@@ -83,6 +83,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -350,8 +351,14 @@ fun ViewerScreen(
     val zoomSeen by produceState(true) { Hint.ZOOM_TAP.flow(context).collect { value = it } }
     val zoomHint = !zoomSeen
 
-    /** Il dialogo di un'operazione sui file, e `null` quando non ce n'è aperto nessuno. */
-    var job by remember { mutableStateOf<FileJob?>(null) }
+    /**
+     * Il dialogo di un'operazione sui file, e `null` quando non ce n'è aperto nessuno.
+     *
+     * ⚠️ Salvabile dalla `1.81`, come nelle altre due schermate che chiamano [FileJobDialogs]:
+     * ruotando, la finestra aperta si chiudeva e con lei quello che si stava scrivendo. Che cosa
+     * si salva e che cosa no sta su [FileJobSaver].
+     */
+    var job by rememberSaveable(stateSaver = FileJobSaver) { mutableStateOf<FileJob?>(null) }
 
     /**
      * Il giro di un'operazione: si parte, si dice com'è andata, e se la fotografia non c'è
@@ -597,6 +604,34 @@ fun ViewerScreen(
      */
     var naming by remember { mutableStateOf<Naming?>(null) }
 
+    /*
+     * ⚠️⚠️ **LA FINESTRA DEL NOME SI RIAPRE DOPO UNA ROTAZIONE, DALLA `1.81`** (riscontro
+     * dell'utente: *ruotando si chiude la finestra aperta e con lei quello che stavi scrivendo*),
+     * e a passare dal `Bundle` non è [Naming] ma **l'indirizzo** dell'immagine più il gesto.
+     * ⚠️ **Perché non lo stato intero**: [Naming] porta un `LoadedImage`, cioè una bitmap
+     * decodificata, che in un `Bundle` non entra e non deve entrare. Dopo la rotazione l'immagine
+     * la ricarica il modello, ed è a lei che si riattacca la finestra.
+     * ⚠️⚠️ **E SI RIAPRE SOLO SE L'IMMAGINE IN SCENA È QUELLA, che è la clausola che la rende
+     * sicura**: se il sistema ha riaperto l'app su un'altra fotografia, un nome scritto per la
+     * prima finirebbe addosso alla seconda. Il testo battuto è al sicuro per conto suo: lo tiene
+     * un `rememberSaveable` dentro la finestra (vedi `SaveName.kt`).
+     */
+    var riapriNome by rememberSaveable { mutableStateOf<String?>(null) }
+    var riapriHold by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(naming) {
+        naming?.let {
+            riapriNome = ImageActions.fileName(it.picture, source)
+            riapriHold = it.hold
+        }
+    }
+    LaunchedEffect(shown, riapriNome) {
+        val atteso = riapriNome ?: return@LaunchedEffect
+        if (naming != null) return@LaunchedEffect
+        val viva = shown ?: return@LaunchedEffect
+        if (ImageActions.fileName(viva, source) == atteso) naming = Naming(viva, riapriHold)
+        else riapriNome = null
+    }
+
     naming?.let { ask ->
         SaveNameDialog(
             full = ImageActions.fileName(ask.picture, source),
@@ -625,9 +660,18 @@ fun ViewerScreen(
             } else {
                 null
             },
-            onDismiss = { naming = null },
+            /*
+             * ⚠️ **Chiudendo si dimentica anche il segno del ritorno**: quello serve a riaprire
+             * la finestra dopo una rotazione, e lasciato scritto la farebbe riaprire dopo che
+             * l'utente l'ha chiusa.
+             */
+            onDismiss = {
+                naming = null
+                riapriNome = null
+            },
             onSave = { name, suffix ->
                 naming = null
+                riapriNome = null
                 scarica(ask.picture, name, suffix)
             }
         )
@@ -2048,8 +2092,23 @@ private fun ImageCanvas(
         // reason it is in the userscript: blowing up a 64px icon helps nobody.
         val restScale = if (settings.fitGrow) fitScale else min(fitScale, oneToOne)
 
-        var scale by remember(image, settings) { mutableFloatStateOf(restScale) }
-        var offset by remember(image, settings) { mutableStateOf(Offset.Zero) }
+        /*
+         * ⚠️⚠️ **LA CHIAVE È LA SCALA DI RIPOSO E NON LE IMPOSTAZIONI, DALLA `1.81`** (riscontro
+         * dell'utente: *lo zoom si azzera a ogni impostazione cambiata, anche una che con lo zoom
+         * non c'entra niente*). Con `settings` intero come chiave, **qualunque** preferenza
+         * toccata rifaceva questo ricordo: la posizione della barra delle info, il tema, l'ordine
+         * dei tasti. Nessuna di quelle dice niente su quanto è ingrandita l'immagine.
+         * ⚠️ **[restScale] è la chiave GIUSTA e non una più piccola per prudenza**: riassume le
+         * sole due impostazioni che contano ('Ingrandisci le immagini piccole' e il metro del
+         * 100%) più la misura della vista, cioè esattamente le cose il cui cambiamento rende la
+         * scala di prima un numero senza senso.
+         * ⚠️ **Ruotando si azzera lo stesso, e questa versione non lo cambia**: la vista cambia
+         * forma, quindi [restScale] cambia. Conservare l'ingrandimento attraverso una rotazione
+         * vuol dire salvare un **rapporto** e non una scala, ed è un lavoro a sé: qui si toglie il
+         * difetto che lui ha nominato.
+         */
+        var scale by remember(image, restScale) { mutableFloatStateOf(restScale) }
+        var offset by remember(image, restScale) { mutableStateOf(Offset.Zero) }
 
         // ⚠️ La riga torna a mostrarsi a ogni fotografia nuova, come faceva quando viveva
         // qui dentro: spegnerla è una decisione su **questa** immagine, non una
@@ -2059,7 +2118,10 @@ private fun ImageCanvas(
         // porterebbe l'esito di quella di prima sopra quella di adesso, per il tempo che
         // serve a riaprire il lettore. Un dato vecchio in una diagnostica è peggio di
         // nessun dato.
-        LaunchedEffect(image, settings) {
+        // ⚠️ La chiave è l'impostazione della barra e non l'oggetto intero, dalla `1.81`: con
+        // `settings` come chiave, l'esito dei tasselli si azzerava e la barra riappariva a ogni
+        // preferenza toccata, comprese quelle che non la riguardano.
+        LaunchedEffect(image, settings.infoVisible) {
             info.visible = settings.infoVisible
             info.tiles = null
         }
@@ -2088,7 +2150,10 @@ private fun ImageCanvas(
          * ⚠️ Si azzera col cambio di fotografia perché la chiave del `remember` è
          * `image`: quando la nuova arriva, la pagina è già al suo posto.
          */
-        var travel by remember(image, settings) { mutableFloatStateOf(0f) }
+        // ⚠️ La chiave è la sola immagine dalla `1.81`: nessuna impostazione dice niente su dove
+        // sta la pagina che si sta trascinando, e con `settings` in chiave un cambiamento
+        // qualunque azzerava il gesto in corso.
+        var travel by remember(image) { mutableFloatStateOf(0f) }
 
         /**
          * Se una pagina sta andando a destinazione.
@@ -2098,7 +2163,7 @@ private fun ImageCanvas(
          * due fotografie saltate con un gesto solo. Si legge **al momento in cui il dito
          * scende**, come le altre due condizioni della strisciata.
          */
-        var settling by remember(image, settings) { mutableStateOf(false) }
+        var settling by remember(image) { mutableStateOf(false) }
 
         val pageGap = with(density) { PAGE_GAP.toPx() }
         val series = folder?.seriesOrNull
