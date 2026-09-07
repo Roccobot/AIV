@@ -228,18 +228,19 @@ data class Settings(
     /**
      * Se dietro dialoghi, menu e pannelli ci sono sfocatura e velo.
      *
-     * ⚠️⚠️ **SPENTA DI FABBRICA PERCHÉ COSTA, e a dirlo è stato l'utente** (2026-09-03:
-     * *mettilo dietro un'opzione disattivata di default. Penserò se tenere o meno la feature:
-     * rende tutto visibilmente più lento*). La funzione è nata accesa nella `1.38` ed è durata
-     * una versione: la sfocatura fra finestre fa ridisegnare al compositore quello che sta
-     * sotto, e su un telefono che non la regge si sente.
-     * ⚠️ **L'impostazione resta invece di essere una rimozione**, che sarebbe stata la strada
-     * più corta: lui ha detto che ci deve pensare, quindi la funzione va tenuta provabile.
-     * ⚠️ **Spenta NON vuol dire schermate diverse dalla `1.37`**: i dialoghi tornano al velo
-     * che Android dà loro, i menu a non averne, e la sola scheda in fondo se lo chiede da sé
-     * (vedi `SHEET_DIM` in `Sheet.kt`), perché la sua finestra non ne ha uno di serie.
+     * ⚠️⚠️ **ACCESA DI FABBRICA DALLA `1.80`, ED È LA SUA DECISIONE** (riscontro del giro della
+     * `1.79`, campo libero punto A: *imposta la sfocatura come accesa di fabbrica*). La funzione
+     * era nata accesa nella `1.38`, era stata spenta nella `1.39` perché *rende tutto
+     * visibilmente più lento*, e adesso torna al valore di allora: nel frattempo l'ha provata
+     * per quaranta versioni e il conto glielo ha fatto lui.
+     * ⚠️⚠️ **IL VALORE DI FABBRICA STA IN DUE POSTI, e vanno insieme**: qui e nella lettura del
+     * flusso (`p[VEIL] ?: true`). Cambiarne uno solo lascerebbe l'app accesa al primo avvio e
+     * spenta dopo il primo salvataggio delle impostazioni, che è il genere di difetto che non dà
+     * nessun errore.
+     * ⚠️ **L'impostazione resta invece di sparire**: chi ha un telefono che non la regge la
+     * spegne, e la ragione per cui esisteva non è decaduta.
      */
-    val veil: Boolean = false,
+    val veil: Boolean = true,
     /**
      * Se il menu a pressione lunga porta anche 'Adatta alla vista' e '100%'.
      *
@@ -526,15 +527,31 @@ data class Settings(
      * funzione: salvare è un gesto che si fa di fretta, e chi non ha chiesto di rinominare non
      * deve trovarsi una finestra in mezzo. Chi la vuole la accende, e chi la vuole **una volta
      * sola** tiene premuto 'Scarica'.
-     * ⚠️ **Non decide DOVE si salva, che non è più una scelta di nessuno**: dalla `1.77` la
-     * cartella è sempre Download (`ImageActions.saveToDownloads`). Questo interruttore parla del
-     * solo nome.
+     * ⚠️ **Non decide DOVE si salva**: quello lo decide [downloadPath], che dalla `1.80` gli fa
+     * compagnia nella stessa finestra. Questo interruttore parla del solo nome.
      * ⚠️ **Vive in 'Modifica e backup' e non in una sezione sua**: la domanda a cui risponde è
      * *che cosa scrive l'app su disco, e con che nome*, che è la stessa dell'editor che
-     * sovrascrive e della copia di sicurezza che lo protegge. Una voce sola non prende un
-     * titolo.
+     * sovrascrive e della copia di sicurezza che lo protegge.
      */
     val saveRename: Boolean = false,
+    /**
+     * Se salvare un'immagine offre anche di **scegliere dove**.
+     *
+     * ⚠️⚠️ **NASCE NELLA `1.80` ED È LA SUA RICHIESTA ALLA LETTERA** (riscontro del giro della
+     * `1.79`, campo libero punto C: *va aggiunta un'opzione 'Scegli il percorso di download'.
+     * Se attiva (di fabbrica, NO), deve apparire l'icona 'Percorso', per scegliere dove
+     * scaricare il file*). Da accesa, nella finestra del nome compare il comando che apre il
+     * selettore di sistema; da spenta, tutto va in Download come dalla `1.77`.
+     * ⚠️⚠️ **SPENTA DI FABBRICA, E LO HA SCRITTO LUI FRA PARENTESI**: il valore di fabbrica non
+     * si sceglie per far vedere la funzione, e la ragione della `1.77` non è cambiata (*niente
+     * scelta della cartella, sempre Downloads, che è l'unica che funziona senza autorizzazioni,
+     * anche in vista di Play*). Questa è la deroga per chi la chiede, non il verso nuovo.
+     * ⚠️ **Sta accanto a [saveRename] perché risponde alla stessa domanda**, *che cosa scrive
+     * l'app su disco, e con che nome*: sono due voci della stessa famiglia, e la soglia della
+     * sotto-pagina si conta sulla famiglia (vedi `AIV/CLAUDE.md`, § '⚙️ Dove va
+     * un'impostazione, e chi la deve trovare').
+     */
+    val downloadPath: Boolean = false,
     /**
      * Dopo quanto un file eliminato se ne va dal cestino da solo.
      *
@@ -742,6 +759,7 @@ object SettingsStore {
     private val EXT_EDIT = booleanPreferencesKey("ext-edit")
     private val GPU_THUMBS = booleanPreferencesKey("gpu-thumbs")
     private val SAVE_RENAME = booleanPreferencesKey("save-rename")
+    private val DOWNLOAD_PATH = booleanPreferencesKey("download-path")
     private val BIN_KEEP = stringPreferencesKey("bin-keep")
     private val FOLDER_COUNT = booleanPreferencesKey("folder-count")
     private val HIDDEN_FOLDERS = stringSetPreferencesKey("hidden-folders")
@@ -782,7 +800,7 @@ object SettingsStore {
             scaleMode = ScaleMode.entries.byToken(p[SCALE_MODE], ScaleMode.PHYSICAL),
             infoPosition = InfoPosition.entries.byToken(p[INFO_POSITION], InfoPosition.TOP),
             infoVisible = p[INFO_VISIBLE] ?: true,
-            veil = p[VEIL] ?: false,
+            veil = p[VEIL] ?: true,
             zoomInMenu = p[ZOOM_IN_MENU] ?: false,
             reverseSequence = p[REVERSE_SEQUENCE] ?: false,
             startFolder = p[START_FOLDER],
@@ -815,6 +833,7 @@ object SettingsStore {
             extEdit = p[EXT_EDIT] ?: false,
             gpuThumbs = p[GPU_THUMBS] ?: false,
             saveRename = p[SAVE_RENAME] ?: false,
+            downloadPath = p[DOWNLOAD_PATH] ?: false,
             binKeep = BinKeep.entries.byToken(p[BIN_KEEP], BinKeep.NEVER),
             hiddenFolders = p[HIDDEN_FOLDERS] ?: emptySet(),
             factOrder = factOrderOf((p[FACT_ORDER] ?: "").split(',')),
@@ -900,6 +919,7 @@ object SettingsStore {
             p[EXT_EDIT] = settings.extEdit
             p[GPU_THUMBS] = settings.gpuThumbs
             p[SAVE_RENAME] = settings.saveRename
+            p[DOWNLOAD_PATH] = settings.downloadPath
             p[BIN_KEEP] = settings.binKeep.token
             p[HIDDEN_FOLDERS] = settings.hiddenFolders
             p[FACT_ORDER] = settings.factOrder.joinToString(",") { it.token }

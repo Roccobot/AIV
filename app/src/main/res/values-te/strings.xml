@@ -164,8 +164,8 @@
     <string name="pick_forever">పూర్తిగా తొలగించు</string>
     <string name="pick_counting">లెక్కిస్తోంది...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d అంశం</item>
-        <item quantity="other">%1$d అంశాలు</item>
+        <item quantity="one">%1$d అంశం ఎంపికైంది</item>
+        <item quantity="other">%1$d అంశాలు ఎంపికయ్యాయి</item>
     </plurals>
     <plurals name="items_count">
         <item quantity="one">%1$d అంశం</item>
@@ -389,7 +389,10 @@
     <string name="settings_editor_backup">పైన రాసే ముందు భద్రతా నకలు</string>
     <string name="settings_editor_backup_desc">సంపాదకి ఒక చిత్రంపై రాయకముందు, దాని నకలును చెత్తబుట్టలో భద్రపరుస్తుంది; అక్కడి నుంచి తిరిగి తెచ్చుకోవచ్చు. అవసరం లేకపోతే తర్వాతి \'చెత్తబుట్ట ఖాళీ చేయి\'లో తొలగిపోతుంది.</string>
     <string name="settings_save_rename">భద్రపరిచేటప్పుడు పేరు మార్చనివ్వండి</string>
-    <string name="settings_save_rename_desc">అప్రమేయంగా అన్ని ఫైళ్లు వాటి అసలు పేరుతోనే Downloads ఫోల్డర్‌కు వెళ్తాయి. ప్రతి డౌన్‌లోడ్‌కు భద్రపరిచే పేరును నిర్ణయించడానికి దీన్ని ఆన్ చేయండి. ఆఫ్‌లో ఉంచినా, అవసరమైనప్పుడు ఆ ఒక్కసారి మాత్రమే ఆన్ చేయడానికి \'భద్రపరచండి\' నొక్కి పట్టుకోండి.</string>
+    <string name="settings_save_rename_desc">ఫైళ్లు అసలు పేరుతో సేవ్ అవుతాయి. ప్రతి డౌన్‌లోడ్‌కు పేరు ఇవ్వడానికి దీన్ని ఆన్ చేయండి. ఆఫ్‌లో ఉన్నా, \'సేవ్\' నొక్కి పట్టుకుని ఆ ఒక్కసారికి పేరు రాయవచ్చు.</string>
+    <string name="settings_download_path">డౌన్‌లోడ్ మార్గాన్ని ఎంచుకో</string>
+    <string name="settings_download_path_desc">ఆన్ చేస్తే పేరు విండోలో \'మార్గం\' చిహ్నం కనిపించి, సిస్టమ్ ఎంపికదారుని తెరుస్తుంది. ఆఫ్‌లో అన్నీ Download లోకి వెళ్తాయి.</string>
+    <string name="save_name_path">మార్గం</string>
     <string name="editor_tall">నిలువు</string>
     <string name="editor_wide">అడ్డం</string>
     <string name="pick_cleared">ఏ ఫైలూ ఎంపిక కాలేదు.</string>

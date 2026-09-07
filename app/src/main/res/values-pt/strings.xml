@@ -164,9 +164,9 @@
     <string name="pick_forever">Excluir de vez</string>
     <string name="pick_counting">Contando...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d item</item>
-        <item quantity="other">%1$d itens</item>
-        <item quantity="many">%1$d itens</item>
+        <item quantity="one">%1$d item selecionado</item>
+        <item quantity="other">%1$d itens selecionados</item>
+        <item quantity="many">%1$d itens selecionados</item>
     </plurals>
     <plurals name="items_count">
         <item quantity="one">%1$d item</item>
@@ -405,7 +405,10 @@
     <string name="settings_editor_backup">Cópia de segurança antes de sobrescrever</string>
     <string name="settings_editor_backup_desc">Antes que um editor sobrescreva uma imagem, ele guarda uma cópia na lixeira, onde você poderá recuperá-la; se não precisar dela, será excluída no próximo \'Esvaziar lixeira\'.</string>
     <string name="settings_save_rename">Permitir renomear ao salvar</string>
-    <string name="settings_save_rename_desc">Por padrão, todos os arquivos são baixados em Downloads com o nome original. Ative esta função para definir um nome de salvamento em cada download. Mesmo que a deixe desativada, você pode tocar e manter pressionado \'Salvar\' para ativá-la na hora, só quando precisar.</string>
+    <string name="settings_save_rename_desc">Os ficheiros são guardados com o nome original. Ative para escolher o nome em cada descarga. Mesmo desativada, toque e mantenha \'Guardar\' para escrever um nome só dessa vez.</string>
+    <string name="settings_download_path">Escolher o caminho da descarga</string>
+    <string name="settings_download_path_desc">Ativado, na janela do nome aparece o ícone \'Caminho\', que abre o seletor do sistema para escolher o destino. Desativado, tudo vai para Descargas.</string>
+    <string name="save_name_path">Caminho</string>
     <string name="editor_tall">Retrato</string>
     <string name="editor_wide">Paisagem</string>
     <string name="pick_cleared">Nenhum arquivo selecionado.</string>

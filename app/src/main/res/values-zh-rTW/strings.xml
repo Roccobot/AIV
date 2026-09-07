@@ -164,7 +164,7 @@
     <string name="pick_forever">徹底刪除</string>
     <string name="pick_counting">正在統計...</string>
     <plurals name="pick_count">
-        <item quantity="other">%1$d 項</item>
+        <item quantity="other">已選擇 %1$d 項</item>
     </plurals>
     <plurals name="items_count">
         <item quantity="other">%1$d 項</item>
@@ -373,7 +373,10 @@
     <string name="settings_editor_backup">覆寫前先留一份安全副本</string>
     <string name="settings_editor_backup_desc">在編輯器覆寫一張影像之前，會先把副本存入回收筒，可以從那裡取回；若不需要，下次\'清空回收筒\'時會被刪除。</string>
     <string name="settings_save_rename">儲存時允許更改名稱</string>
-    <string name="settings_save_rename_desc">預設情況下，所有檔案都以原名下載到 Downloads 資料夾。開啟此功能後，每次下載都可以設定儲存名稱。即使保持關閉，也可以長按 \'儲存\'，只在需要時臨時開啟。</string>
+    <string name="settings_save_rename_desc">檔案以原名儲存。開啟後每次下載都可指定名稱。即使關閉，長按「儲存」也可臨時輸入名稱。</string>
+    <string name="settings_download_path">選擇下載路徑</string>
+    <string name="settings_download_path_desc">開啟後，名稱視窗會出現「路徑」圖示，開啟系統選擇器以選定位置。關閉時全部儲存到 Download。</string>
+    <string name="save_name_path">路徑</string>
     <string name="editor_tall">直式</string>
     <string name="editor_wide">橫式</string>
     <string name="pick_cleared">未選擇任何檔案。</string>

@@ -164,8 +164,8 @@
     <string name="pick_forever">حذف کامل</string>
     <string name="pick_counting">در حال شمارش...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d عنصر</item>
-        <item quantity="other">%1$d عنصر</item>
+        <item quantity="one">%1$d عنصر انتخاب شد</item>
+        <item quantity="other">%1$d عنصر انتخاب شد</item>
     </plurals>
     <plurals name="items_count">
         <item quantity="one">%1$d عنصر</item>
@@ -389,7 +389,10 @@
     <string name="settings_editor_backup">نسخهٔ ایمنی پیش از بازنویسی</string>
     <string name="settings_editor_backup_desc">پیش از آنکه ویرایشگر روی تصویری بنویسد، نسخه‌ای از آن را در سطل زباله نگه می‌دارد تا بتوانید بازش گردانید؛ اگر لازمش نداشتید، در \'خالی کردن سطل زباله\' بعدی حذف می‌شود.</string>
     <string name="settings_save_rename">اجازهٔ تغییر نام هنگام ذخیره</string>
-    <string name="settings_save_rename_desc">به‌طور پیش‌فرض همهٔ پرونده‌ها با نام اصلی خود در پوشهٔ Downloads ذخیره می‌شوند. این ویژگی را روشن کنید تا برای هر بارگیری نامی برای ذخیره تعیین کنید. حتی اگر آن را خاموش بگذارید، می‌توانید \'ذخیره\' را نگه دارید تا فقط در همان لحظه و در صورت نیاز روشن شود.</string>
+    <string name="settings_save_rename_desc">فایل‌ها با نام اصلی ذخیره می‌شوند. برای تعیین نام در هر بارگیری این را روشن کنید. حتی خاموش هم که باشد، \'ذخیره\' را نگه دارید تا همان یک بار نام بنویسید.</string>
+    <string name="settings_download_path">انتخاب مسیر بارگیری</string>
+    <string name="settings_download_path_desc">وقتی روشن است، در پنجره نام نماد \'مسیر\' ظاهر می‌شود و انتخابگر سیستم را باز می‌کند. خاموش که باشد، همه چیز به Download می‌رود.</string>
+    <string name="save_name_path">مسیر</string>
     <string name="editor_tall">عمودی</string>
     <string name="editor_wide">افقی</string>
     <string name="pick_cleared">هیچ پرونده‌ای انتخاب نشده است.</string>

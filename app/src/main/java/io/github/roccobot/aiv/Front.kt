@@ -461,26 +461,43 @@ const val FRONT_INK = 0.18f
 const val FRONT_ICON_SHARE = 0.5f
 
 /**
- * Sotto quanta apertura l'icona del frontespizio comincia a sbiadire: **l'ultimo terzo**.
+ * Da che apertura l'icona del frontespizio comincia a rimpicciolirsi, e con lei a sbiadire.
  *
- * ⚠️⚠️ **LA DISSOLVENZA È TARDIVA PERCHÉ IL MOVIMENTO CHIESTO VIENE PRIMA** (riscontro del giro
- * della `1.77`: *man mano che si scorre, deve prima rimpicciolirsi e adattarsi ad ogni
- * fotogramma allo spazio disponibile in verticale, poi sparire con una dissolvenza come fa
- * adesso*). Fino alla `1.77` l'opacità andava col **quadrato** dell'apertura, quindi a metà
- * corsa l'icona era già al 25% del suo inchiostro: qualunque rimpicciolimento sarebbe avvenuto
- * dietro una cosa che non si vedeva più. Adesso l'inchiostro resta pieno fino a qui, e i due
- * fatti si leggono in fila invece che uno sopra l'altro.
+ * ⚠️⚠️ **SI RICAVA DALLA MISURA E NON È PIÙ UN NUMERO SCRITTO A MANO, dalla `1.80`** (riscontro
+ * del giro della `1.79`, voce `front-selezione` approvata con una nota: *l'icona cartella deve
+ * iniziare la sua dissolvenza appena inizia a ridursi di dimensione, e arrivare alla dimensione
+ * minima e a opacità 0 contemporaneamente*). Le due cose devono cominciare e finire insieme, e
+ * un `0.35f` scritto accanto non lo garantisce: [frontIconMeasure] tiene il lato pieno finché lo
+ * spazio libero glielo permette, quindi il rimpicciolimento comincia esattamente quando
+ * `libero * FRONT_ICON_SHARE` scende sotto il lato massimo. Questo è quel punto, risolto per
+ * l'apertura.
+ * ⚠️ **La `1.78` e la `1.79` avevano un `0.35f`**, cioè una dissolvenza che partiva a un terzo di
+ * corsa mentre l'icona cominciava a stringersi molto prima (col telefono dell'utente, intorno a
+ * sei decimi): fra i due punti l'icona si rimpiccioliva a inchiostro pieno, e quello è quanto
+ * lui ha visto.
+ * ⚠️ **Il minimo è zero e ci arrivano insieme per costruzione**: a fascia chiusa `libero` è zero,
+ * quindi il lato è zero e questa frazione è zero.
+ *
+ * @param fullPx quanto è alta la fascia da aperta, in pixel.
+ * @param maxPx il lato massimo dell'icona, in pixel.
  */
-const val FRONT_ICON_FADE = 0.35f
+fun frontIconFade(fullPx: Float, maxPx: Float): Float =
+    if (fullPx <= 0f) 1f else (maxPx / (fullPx * FRONT_ICON_SHARE)).coerceIn(0f, 1f)
 
 /**
  * Quanto inchiostro ha l'icona del frontespizio con la fascia aperta di [aperto].
  *
- * ⚠️ **Sta accanto ai suoi numeri e non nel chiamante**: la curva e le due soglie sono una cosa
- * sola, e separarle vorrebbe dire cambiare una soglia senza cambiare la curva.
+ * ⚠️ **Sta accanto ai suoi numeri e non nel chiamante**: la curva e la soglia sono una cosa sola,
+ * e separarle vorrebbe dire cambiare una soglia senza cambiare la curva.
+ * ⚠️⚠️ **LA RAMPA È LINEARE E NON PIÙ UNA [smoothstep], dalla `1.80`**: quella parte con pendenza
+ * zero, quindi il primo tratto di dissolvenza non si vede, e la richiesta è che la dissolvenza
+ * **cominci** insieme al rimpicciolimento. Con la rampa dritta l'inchiostro segue la misura in
+ * proporzione, che è il modo di far leggere le due cose come un movimento solo.
+ *
+ * @param soglia il punto da cui l'icona si stringe, cioè [frontIconFade].
  */
-fun frontIconInk(aperto: Float): Float =
-    FRONT_INK * if (aperto >= FRONT_ICON_FADE) 1f else smoothstep(aperto / FRONT_ICON_FADE)
+fun frontIconInk(aperto: Float, soglia: Float): Float =
+    FRONT_INK * if (soglia <= 0f) 1f else (aperto / soglia).coerceIn(0f, 1f)
 
 /**
  * L'icona del frontespizio si misura sullo spazio che la fascia le lascia, a ogni fotogramma.

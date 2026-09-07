@@ -534,16 +534,42 @@ fun ViewerScreen(
 
     /*
      * L'immagine di cui si sta battendo il nome: nullo vuol dire che la finestra è chiusa.
+     *
+     * ⚠️⚠️ **DALLA `1.80` PORTA ANCHE COME LA FINESTRA È STATA APERTA**, perché il tocco lungo
+     * accende i due comandi della riga del titolo a impostazioni spente (campo libero del giro
+     * della `1.79`, punto D). Un secondo stato accanto a questo si potrebbe dimenticare di
+     * azzerare: qui i due valori nascono e muoiono insieme.
      */
-    var naming by remember { mutableStateOf<LoadedImage?>(null) }
+    var naming by remember { mutableStateOf<Naming?>(null) }
 
-    naming?.let { picture ->
+    naming?.let { ask ->
         SaveNameDialog(
-            full = ImageActions.fileName(picture, source),
+            full = ImageActions.fileName(ask.picture, source),
+            hold = ask.hold,
+            /*
+             * ⚠️⚠️ **'Percorso' C'È SE L'IMPOSTAZIONE È ACCESA O SE SI È TENUTO PREMUTO**, e la
+             * scelta si fa qui perché è questa schermata ad avere le impostazioni in mano: la
+             * finestra riceve un gesto o un `null`, e non deve sapere niente di
+             * `SettingsStore`. È la convenzione dei dialoghi di questo file.
+             * ⚠️⚠️ **E IL SELETTORE È QUELLO CHE C'ERA GIÀ**, cioè il ripiego di Android 9:
+             * quella strada non è stata scritta due volte, e il nome ci arriva già composto.
+             * ⚠️ **Il nome finale lo decide il selettore**: un fornitore di documenti può
+             * ritoccare il suffisso per far quadrare nome e tipo dichiarato, quindi
+             * un'estensione cambiata a mano qui dentro può tornare quella di prima. Il tipo
+             * viene da `shown?.mimeType`, come sopra.
+             */
+            onPath = if (ask.hold || settings.downloadPath) {
+                { name, suffix ->
+                    naming = null
+                    saver.launch(name + suffix)
+                }
+            } else {
+                null
+            },
             onDismiss = { naming = null },
             onSave = { name, suffix ->
                 naming = null
-                scarica(picture, name, suffix)
+                scarica(ask.picture, name, suffix)
             }
         )
     }
@@ -567,9 +593,10 @@ fun ViewerScreen(
              * poche righe più sotto.
              */
             save = { picture ->
-                if (settings.saveRename) naming = picture else scarica(picture, null, null)
+                if (settings.saveRename) naming = Naming(picture, hold = false)
+                else scarica(picture, null, null)
             },
-            saveAs = { picture -> naming = picture },
+            saveAs = { picture -> naming = Naming(picture, hold = true) },
             // ⚠️ Senza indirizzo non si fa niente e non si dice niente: la voce che chiama
             // questa funzione compare **solo** con un file del telefono davanti, quindi qui
             // il caso non capita, e un avviso sarebbe codice che nessuno può far girare.
@@ -858,6 +885,17 @@ fun ViewerScreen(
         onRun = perform
     )
 }
+
+/**
+ * La finestra del nome che si sta compilando: su quale immagine, e da quale gesto.
+ *
+ * ⚠️⚠️ **I DUE VALORI VIAGGIANO INSIEME DALLA `1.80`, E NON SONO DUE STATI**: il tocco lungo su
+ * 'Scarica' accende i comandi che le impostazioni terrebbero spenti (campo libero del giro della
+ * `1.79`, punto D), quindi la finestra deve sapere da dove viene. Tenuto in un secondo stato
+ * accanto al primo, quel booleano si sarebbe potuto dimenticare di azzerare alla chiusura, e la
+ * volta dopo la finestra si sarebbe aperta col permesso di quella prima.
+ */
+private class Naming(val picture: LoadedImage, val hold: Boolean)
 
 /**
  * Le richieste che il menu del tocco lungo **non esegue da sé**, e che passa a chi lo

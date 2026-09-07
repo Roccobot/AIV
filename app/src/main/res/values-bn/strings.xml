@@ -164,8 +164,8 @@
     <string name="pick_forever">একেবারে মুছুন</string>
     <string name="pick_counting">গোনা হচ্ছে...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$dটি আইটেম</item>
-        <item quantity="other">%1$dটি আইটেম</item>
+        <item quantity="one">%1$dটি আইটেম নির্বাচিত</item>
+        <item quantity="other">%1$dটি আইটেম নির্বাচিত</item>
     </plurals>
     <plurals name="items_count">
         <item quantity="one">%1$dটি আইটেম</item>
@@ -389,7 +389,10 @@
     <string name="settings_editor_backup">উপরে লেখার আগে নিরাপত্তা অনুলিপি</string>
     <string name="settings_editor_backup_desc">কোনো সম্পাদক ছবির উপর লেখার আগে তার একটি অনুলিপি আবর্জনায় রেখে দেয়, সেখান থেকে ফিরিয়ে আনা যায়; দরকার না হলে পরের বার \'আবর্জনা খালি করুন\'-এ মুছে যাবে।</string>
     <string name="settings_save_rename">সংরক্ষণের সময় নাম বদলানোর অনুমতি</string>
-    <string name="settings_save_rename_desc">ডিফল্টভাবে সব ফাইল তাদের আসল নামেই Downloads ফোল্ডারে যায়। প্রতিটি ডাউনলোডে সংরক্ষণের নাম ঠিক করতে এটি ৚ালু করুন। বন্ধ রেখে দিলেও, শুধু প্রয়োজনের সময় তখনই ৚ালু করতে \'সংরক্ষণ করুন\' চেপে ধরুন।</string>
+    <string name="settings_save_rename_desc">ফাইল মূল নামে সংরক্ষণ হয়। প্রতিবার ডাউনলোডে নাম দিতে এটি চালু করুন। বন্ধ থাকলেও \'সংরক্ষণ\' চেপে ধরে সেবারের জন্য নাম লেখা যায়।</string>
+    <string name="settings_download_path">ডাউনলোড পথ বাছুন</string>
+    <string name="settings_download_path_desc">চালু থাকলে নাম উইন্ডোয় \'পথ\' আইকন আসে, যা সিস্টেম নির্বাচক খোলে। বন্ধ থাকলে সবকিছু Download-এ যায়।</string>
+    <string name="save_name_path">পথ</string>
     <string name="editor_tall">লম্বালম্বি</string>
     <string name="editor_wide">আড়াআড়ি</string>
     <string name="pick_cleared">কোনো ফাইল নির্বাচিত নেই।</string>

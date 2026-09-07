@@ -164,8 +164,8 @@
     <string name="pick_forever">पूरी तरह मिटाएँ</string>
     <string name="pick_counting">गिना जा रहा है...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d आइटम</item>
-        <item quantity="other">%1$d आइटम</item>
+        <item quantity="one">%1$d आइटम चुना गया</item>
+        <item quantity="other">%1$d आइटम चुने गए</item>
     </plurals>
     <plurals name="items_count">
         <item quantity="one">%1$d आइटम</item>
@@ -389,7 +389,10 @@
     <string name="settings_editor_backup">ऊपर लिखने से पहले सुरक्षा प्रति</string>
     <string name="settings_editor_backup_desc">किसी संपादक द्वारा छवि पर लिखे जाने से पहले, उसकी एक प्रति रद्दी में रख दी जाती है, जहाँ से आप उसे वापस ले सकते हैं; ज़रूरत न हो तो अगली बार \'रद्दी खाली करें\' पर वह हट जाएगी।</string>
     <string name="settings_save_rename">सहेजते समय नाम बदलने दें</string>
-    <string name="settings_save_rename_desc">डिफ़ॉल्ट रूप से सभी फ़ाइलें अपने मूल नाम के साथ Downloads में जाती हैं। हर डाउनलोड पर सहेजने का नाम तय करने के लिए इसे चालू करें। बंद रहने पर भी, ज़रूरत के समय उसी बार चालू करने के लिए \'सहेजें\' को दबाकर रखें।</string>
+    <string name="settings_save_rename_desc">फ़ाइलें मूल नाम से सहेजी जाती हैं। हर डाउनलोड में नाम तय करने के लिए इसे चालू करें। बंद होने पर भी \'सहेजें\' को देर तक दबाकर उस बार नाम लिख सकते हैं।</string>
+    <string name="settings_download_path">डाउनलोड पथ चुनें</string>
+    <string name="settings_download_path_desc">चालू होने पर नाम विंडो में \'पथ\' आइकन दिखता है, जो सिस्टम चयनकर्ता खोलता है। बंद होने पर सब कुछ Download में जाता है।</string>
+    <string name="save_name_path">पथ</string>
     <string name="editor_tall">खड़ा</string>
     <string name="editor_wide">आड़ा</string>
     <string name="pick_cleared">कोई फ़ाइल चयनित नहीं।</string>

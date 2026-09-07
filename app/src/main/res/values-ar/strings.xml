@@ -164,12 +164,12 @@
     <string name="pick_forever">حذف نهائي</string>
     <string name="pick_counting">جارٍ العد...</string>
     <plurals name="pick_count">
-        <item quantity="zero">%1$d عنصر</item>
-        <item quantity="one">عنصر واحد</item>
-        <item quantity="two">عنصران</item>
-        <item quantity="few">%1$d عناصر</item>
-        <item quantity="many">%1$d عنصرا</item>
-        <item quantity="other">%1$d عنصر</item>
+        <item quantity="zero">تم تحديد %1$d عنصر</item>
+        <item quantity="one">تم تحديد عنصر واحد</item>
+        <item quantity="two">تم تحديد عنصرين</item>
+        <item quantity="few">تم تحديد %1$d عناصر</item>
+        <item quantity="many">تم تحديد %1$d عنصرا</item>
+        <item quantity="other">تم تحديد %1$d عنصر</item>
     </plurals>
     <plurals name="items_count">
         <item quantity="zero">%1$d عنصر</item>
@@ -453,7 +453,10 @@
     <string name="settings_editor_backup">نسخة أمان قبل الكتابة فوق الملف</string>
     <string name="settings_editor_backup_desc">قبل أن يستبدل المحرّر صورةً، يحفظ نسخةً منها في سلة المهملات حيث يمكنك استعادتها؛ وإن لم تحتَجها فستُحذَف عند \'إفراغ سلة المهملات\' التالي.</string>
     <string name="settings_save_rename">السماح بإعادة التسمية عند الحفظ</string>
-    <string name="settings_save_rename_desc">بشكل مبدئي، تُنزّل كل الملفات إلى مجلد التنزيلات باسمها الأصلي. فعّل هذه الميزة لتحديد اسم للحفط عند كل تنزيل. وحتى إن تركتها معطّلة، يمكنك الضغط مطولًا على \'حفط\' لتفعيلها في تلك اللحظة فقط عند الحاجة.</string>
+    <string name="settings_save_rename_desc">تُحفظ الملفات باسمها الأصلي. شغّل هذا لتحديد الاسم عند كل تنزيل. وحتى عند إيقافه، اضغط مطولا على \'حفظ\' لكتابة اسم لهذه المرة فقط.</string>
+    <string name="settings_download_path">اختيار مسار التنزيل</string>
+    <string name="settings_download_path_desc">عند تشغيله يظهر رمز \'المسار\' في نافذة الاسم ويفتح منتقي النظام لاختيار الموضع. وعند إيقافه يذهب كل شيء إلى Download.</string>
+    <string name="save_name_path">المسار</string>
     <string name="editor_tall">طولي</string>
     <string name="editor_wide">عرضي</string>
     <string name="pick_cleared">لم يتم تحديد أي ملف.</string>

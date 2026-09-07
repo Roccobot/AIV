@@ -427,6 +427,14 @@ grande un dialogo esattamente al centro fa allungare la mano.
       tenere o meno la feature: rende tutto visibilmente più lento*). Quindi la riga
       `lowered()` si scrive **sempre**, e quello che fa dipende dall'interruttore: il centro
       abbassato è incondizionato, il velo no.
+      - ⚠️⚠️ **E DALLA `1.80` QUELL'INTERRUTTORE NASCE ACCESO, perché ci ha pensato** (riscontro
+        del giro della `1.79`, campo libero punto A: *imposta la sfocatura come accesa di
+        fabbrica*). Il *penserò se tenere o meno* di allora è la risposta di adesso, dopo
+        quaranta versioni di prova. ⚠️ **L'impostazione resta**, e con lei tutto quello che è
+        scritto qui sopra: cambia il valore di partenza, non il meccanismo.
+        - ⚠️ **Il valore di fabbrica vive in DUE posti**, il campo di `Settings` e la lettura del
+          flusso: cambiarne uno solo dà un'app accesa al primo avvio e spenta dopo il primo
+          salvataggio, che è un difetto che non dà nessun errore.
     - ⚠️ **Spento vuol dire non toccare niente**, che è un'altra cosa dal dipingere un velo
       trasparente: i dialoghi tornano al velo che Android dà loro (`0,6`), i menu a
       non averne. L'unica eccezione è la scheda in fondo, che se lo chiede da sé perché la sua
@@ -691,6 +699,11 @@ complementari del nome.
 - ⚠️ **Il testo di `items_count` è copiato da `pick_count` lingua per lingua**, che diceva già
   esattamente 'N elementi': quello che cambia è la chiave, perché i due scopi sono diversi e un
   ritocco al conto della selezione cambierebbe l'altro in silenzio.
+  - ⚠️⚠️ **E QUEL RITOCCO È ARRIVATO AL GIRO DOPO, cioè la divergenza per cui le due chiavi
+    esistono**: dalla `1.80` `pick_count` dice *N elementi selezionati* (nota sulla voce
+    `front-selezione`: *quando elenchi solo il numero di elementi s'intende il totale. Invece se
+    c'è una selezione scrivi 'elementi selezionati'*), e `items_count` resta il totale. Chi legge
+    che le due dicono lo stesso testo sappia che era vero fino alla `1.79`.
 
 ⚠️ **L'icona si rimpicciolisce prima di sparire, dalla `1.78`** (*man mano che si scorre, deve
 prima rimpicciolirsi e adattarsi ad ogni fotogramma allo spazio disponibile in verticale, poi
@@ -698,6 +711,17 @@ sparire con una dissolvenza come fa adesso*), e la differenza fra le due vie è 
 scalarla con `graphicsLayer` rimpicciolirebbe il **disegno** lasciando il posto occupato, quindi
 il titolo sotto non salirebbe; misurandola, l'icona **cede** lo spazio. Il conto e la soglia
 della dissolvenza vivono in `Front.kt`.
+- ⚠️⚠️ **MA 'PRIMA' NON VOLEVA DIRE 'DOPO UN TRATTO A INCHIOSTRO PIENO', E DALLA `1.80` LE DUE
+  COSE VANNO INSIEME** (riscontro del giro della `1.79`, voce `front-icona` approvata con una
+  nota: *l'icona cartella deve iniziare la sua dissolvenza appena inizia a ridursi di dimensione,
+  e arrivare alla dimensione minima e a opacità 0 contemporaneamente*). La `1.78` e la `1.79`
+  avevano una soglia scritta a mano che non coincideva col punto in cui la misura comincia a
+  stringersi: fra i due punti l'icona rimpiccioliva senza sbiadire.
+- ⚠️ **La soglia si RICAVA dalla misura invece di essere un numero**: è l'apertura alla quale lo
+  spazio concesso all'icona vale esattamente il suo lato massimo, quindi le due cose cominciano
+  nello stesso istante per costruzione e non per coincidenza. E la rampa dell'inchiostro è
+  **lineare**: una curva che parte con pendenza zero non farebbe vedere l'inizio della
+  dissolvenza, che è esattamente quello che lui ha chiesto di vedere.
 
 ⚠️⚠️ **NÉ NEL CESTINO NÉ NELLA RICERCA, e nessuno dei due è una dimenticanza**: nel cestino il FAB
 c'è sempre, quindi la sfumatura che lo tiene su un fondo neutro non potrebbe andarsene scorrendo,
@@ -715,6 +739,21 @@ devono progressivamente sparire e lasciare campo libero alla griglia piena su tu
 funziona senza autorizzazioni, anche in vista di Play*). Fino alla `1.76` quel gesto passava da
 `ACTION_CREATE_DOCUMENT`, che chiedeva dove e con che nome: due schermate per salvare
 un'immagine.
+
+⚠️⚠️ **MA DALLA `1.80` IL SELETTORE SI PUÒ RICHIAMARE, DIETRO UNA SUA OPZIONE** (riscontro del
+giro della `1.79`, campo libero punto C: *va aggiunta un'opzione 'Scegli il percorso di
+download'. Se attiva (di fabbrica, NO), deve apparire l'icona 'Percorso', per scegliere dove
+scaricare il file*). Non rovescia il blocco qui sopra: la strada di serie resta Download, e
+questa è la deroga per chi la chiede.
+- **Spenta di fabbrica, e lo ha scritto lui fra parentesi**: il valore di fabbrica non si sceglie
+  per far vedere la funzione.
+- ⚠️ **Il comando è un'icona sulla riga del titolo della finestra del nome**, accanto a
+  'Estensione', e il selettore che apre è **quello che c'era già**, cioè il ripiego di Android 9.
+  Quella strada non è stata scritta due volte.
+- ⚠️ **Il nome finale lo decide il selettore**: un fornitore di documenti può ritoccare il
+  suffisso per far quadrare nome e tipo dichiarato, quindi un'estensione cambiata a mano nella
+  finestra può tornare quella di prima. È lo stesso genere di fatto del `MediaStore` che aggiunge
+  la propria estensione, scritto più sotto.
 
 - ⚠️⚠️ **SU ANDROID 9 IL SELETTORE RESTA, E NON È UNA DIMENTICANZA**: `MediaStore.Downloads`
   nasce con l'API 29, e sotto quella la stessa cartella vuole `WRITE_EXTERNAL_STORAGE`, cioè un
@@ -739,19 +778,38 @@ funzione: salvare è un gesto che si fa di fretta.
   il nome da capo con la sola data. Sono le due cose che si vogliono davvero fare con una data in
   un nome, e nessuna delle due si ottiene dall'altra senza cancellare a mano.
 
-⚠️⚠️ **I COMANDI SONO QUATTRO E SONO GLI STESSI DI 'Rinomina', DALLA `1.78`** (riscontro del giro
-della `1.77`, voce `scarica-download` non approvata): 'Estensione', 'Seleziona tutto', 'Svuota' e
-'Data', *tutti con lo stile solo-testo, senza tasto/pillola già usato in 'Rinomina'*. Quindi
-anche 'Data', che nella `1.77` era un gettone tonale, e il pezzo che li disegna è `Quiet`, lo
-stesso delle due finestre.
-- ⚠️⚠️ **E 'Rinomina' HA PRESO 'Data' NELLO STESSO GIRO**, che è la simmetria dall'altra parte
+⚠️⚠️ **I COMANDI SOTTO IL CAMPO SONO TRE, E SONO GLI STESSI DI 'Rinomina'**: 'Seleziona tutto',
+'Svuota' e 'Data', *tutti con lo stile solo-testo, senza tasto/pillola già usato in 'Rinomina'*
+(riscontro del giro della `1.77`, voce `scarica-download`). Quindi anche 'Data', che nella `1.77`
+era un gettone tonale, e il pezzo che li disegna è `Quiet`, lo stesso delle due finestre.
+- ⚠️⚠️ **ERANO QUATTRO FINO ALLA `1.79`, E 'Estensione' È SALITA SULLA RIGA DEL TITOLO**
+  (riscontro del giro della `1.79`, voce `scarica-comandi`: *mi ero espresso male ... 'Estensione'
+  deve apparire sotto forma di icona a destra, allineato alla linea di base del titolo*). Con lei
+  c'è **'Percorso'**, e l'ordine è il suo: *prima 'Percorso' e poi 'Estensione' ultima a destra*;
+  una sola in scena sta comunque a destra, perché è la **fila** che si allinea al bordo.
+  - ⚠️ **Il pezzo che le disegna è `TitleAction`, condiviso con 'Rinomina'**, dove nello stesso
+    giro la pastiglia col testo è diventata anche lei un'icona (campo libero, punto B). Le due
+    finestre portano gli stessi comandi, quindi la forma è **una**.
+  - ⚠️ **I due glifi sono PROVVISORI**: lui ha chiesto una proposta (*proponimi qualche icona per
+    'Estensione' e altre per 'percorso'*), e finché non sceglie ci sono due glifi di Material che
+    si leggono.
+  - ⚠️ **Col tocco lungo su 'Scarica' compaiono tutte e due a impostazioni spente** (campo
+    libero, punto D): quel gesto è già il 'per questa volta sola' che accende la rinomina.
+    ⚠️ **Quello che non scavalca è l'avviso** della prima volta, che è quello che protegge.
+- ⚠️⚠️ **E 'Rinomina' HA PRESO 'Data' NEL GIRO DELLA `1.78`**, che è la simmetria dall'altra parte
   (campo libero, punto (a): *voglio che 'Rinomina' abbia 'Data', che inserisce YYYYMMDD
   esattamente come implementato in 'Scarica'*). 'Esattamente come' regge solo se il gesto lo fa
   la stessa funzione, quindi il conto sul cursore è uno e vive in `SaveName.kt`.
-- ⚠️ **In una rinomina in blocco il tocco lungo lascia il template senza cancelletti**, cioè
-  'Rinomina' resta spento finché non se ne aggiunge uno. È il prezzo di 'esattamente come in
-  Scarica', dove il file è uno solo, ed è una domanda del giro della `1.78` invece di una
-  decisione mia.
+- ⚠️⚠️ **E IN UNA RINOMINA IN BLOCCO IL TOCCO LUNGO PORTA I CANCELLETTI, DALLA `1.80`**
+  (risposta a `d-data-blocco`: *con più file, scrivi AAAAMMDD più uno spazio seguito da un numero
+  di cancelletti adeguato alla dimensione del set. Ad esempio, se sono 100 file, aggiunge 3
+  cancelletti; con 50 file aggiungi 2 cancelletti. È la stessa logica di creazione del primo
+  template*). Fino alla `1.79` lasciava la sola data, cioè un nome uguale per tutti, e 'Rinomina'
+  restava **spento** finché non se ne aggiungeva uno a mano: era il prezzo di 'esattamente come
+  in Scarica', dove il file è uno solo, ed era una domanda aperta invece di una decisione mia.
+  - ⚠️ **'La stessa logica' è la stessa FUNZIONE**, `hashesFor`, quella da cui esce il template
+    proposto all'apertura: due conti che si somigliano darebbero due numeri diversi il giorno che
+    uno dei due cambia.
 - ⚠️⚠️ **'Estensione' PASSA DAL PEZZO CONDIVISO `extensionGate`, che si porta dietro le proprie
   finestre**: la griglia di sicurezza (l'impostazione, spenta di fabbrica), l'avviso della prima
   volta e il pannellino. Chi lo chiama ottiene un tasto che funziona, non due righe da ricordare

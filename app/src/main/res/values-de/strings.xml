@@ -164,8 +164,8 @@
     <string name="pick_forever">Endgültig löschen</string>
     <string name="pick_counting">Wird gezählt...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d Element</item>
-        <item quantity="other">%1$d Elemente</item>
+        <item quantity="one">%1$d Element ausgewählt</item>
+        <item quantity="other">%1$d Elemente ausgewählt</item>
     </plurals>
     <plurals name="items_count">
         <item quantity="one">%1$d Element</item>
@@ -389,7 +389,10 @@
     <string name="settings_editor_backup">Sicherheitskopie vor dem Überschreiben</string>
     <string name="settings_editor_backup_desc">Bevor ein Editor ein Bild überschreibt, legt er eine Kopie in den Papierkorb, wo sie wiederherstellbar bleibt; wird sie nicht gebraucht, verschwindet sie beim nächsten \'Papierkorb leeren\'.</string>
     <string name="settings_save_rename">Beim Speichern umbenennen lassen</string>
-    <string name="settings_save_rename_desc">Standardmäßig werden alle Dateien unter ihrem ursprünglichen Namen in den Ordner Downloads geladen. Schalte dies ein, um bei jedem Download einen Namen festzulegen. Auch wenn du es aus lässt, kannst du \'Speichern\' gedrückt halten, um es genau dann einzuschalten, wenn du es brauchst.</string>
+    <string name="settings_save_rename_desc">Dateien werden unter ihrem ursprünglichen Namen gespeichert. Aktiviere dies, um bei jedem Download einen Namen festzulegen. Auch wenn es aus ist: \'Speichern\' lange drücken, um einmalig einen Namen einzugeben.</string>
+    <string name="settings_download_path">Speicherort beim Download wählen</string>
+    <string name="settings_download_path_desc">Aktiviert erscheint im Namensfenster das Symbol \'Pfad\', das die Systemauswahl für den Speicherort öffnet. Aus geht alles nach Downloads.</string>
+    <string name="save_name_path">Pfad</string>
     <string name="editor_tall">Hochformat</string>
     <string name="editor_wide">Querformat</string>
     <string name="pick_cleared">Keine Datei ausgewählt.</string>

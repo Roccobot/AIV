@@ -164,7 +164,7 @@
     <string name="pick_forever">Hapus permanen</string>
     <string name="pick_counting">Menghitung...</string>
     <plurals name="pick_count">
-        <item quantity="other">%1$d item</item>
+        <item quantity="other">%1$d item dipilih</item>
     </plurals>
     <plurals name="items_count">
         <item quantity="other">%1$d item</item>
@@ -373,7 +373,10 @@
     <string name="settings_editor_backup">Salinan pengaman sebelum menimpa</string>
     <string name="settings_editor_backup_desc">Sebelum sebuah penyunting menimpa gambar, salinannya disimpan di tempat sampah, tempat Anda dapat memulihkannya; bila tidak diperlukan, salinan itu akan terhapus pada \'Kosongkan tempat sampah\' berikutnya.</string>
     <string name="settings_save_rename">Izinkan ganti nama saat menyimpan</string>
-    <string name="settings_save_rename_desc">Secara bawaan, semua berkas diunduh ke folder Downloads dengan nama aslinya. Aktifkan fitur ini untuk menentukan nama simpanan pada setiap unduhan. Meski kamu biarkan mati, kamu bisa menekan lama \'Simpan\' untuk mengaktifkannya sesaat, hanya saat diperlukan.</string>
+    <string name="settings_save_rename_desc">File disimpan dengan nama aslinya. Aktifkan untuk menentukan nama pada setiap unduhan. Meski mati, tekan lama \'Simpan\' untuk menulis nama sekali itu saja.</string>
+    <string name="settings_download_path">Pilih jalur unduhan</string>
+    <string name="settings_download_path_desc">Aktif: ikon \'Jalur\' muncul di jendela nama dan membuka pemilih sistem. Mati: semuanya masuk ke Unduhan.</string>
+    <string name="save_name_path">Jalur</string>
     <string name="editor_tall">Tegak</string>
     <string name="editor_wide">Mendatar</string>
     <string name="pick_cleared">Tidak ada berkas yang dipilih.</string>
