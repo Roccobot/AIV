@@ -42,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
@@ -280,6 +281,21 @@ fun MenuShell(
          * [MENU_OUT_MS] la coda non c'è più. Il perché sta là e in fondo a `Veil.kt`.
          */
         WindowVeil { state.show.value }
+        /*
+         * ⚠️⚠️ **CON L'OMBRA IL MENU SI DÀ UN'ARIA INTORNO, E SENZA DI LEI L'OMBRA NON ESISTE**
+         * (istruzione dell'utente, 2026-09-07: *facciamo che si può scegliere tra sfocatura e
+         * ombreggiatura (MAI insieme)*). La finestra di un `Popup` è grande quanto quello che ci
+         * si misura dentro, e un'ombra **esce** dal pannello: senza aria viene tagliata di netto
+         * sul rettangolo della finestra, e quel taglio è il 'quadrato sfocato' che lui ha bocciato
+         * due volte. Il conto dell'aria, e il secondo taglio che evita, stanno su [LIFT_ROOM].
+         * ⚠️⚠️ **E LA PAGA SOLO CHI HA SCELTO L'OMBRA, per una ragione geometrica e non di
+         * risparmio**: con la sfocatura la finestra deve restare grande **quanto** il pannello
+         * disegnato, o sfoca una fascia di sfondo intorno a lui, che è la cornice del giro della
+         * `1.51`. Le due vie vogliono due finestre opposte, ed è la ragione per cui 'mai insieme'
+         * non è soltanto una regola di gusto.
+         */
+        val alzato = LocalAivDepth.current == PanelDepth.SHADOW
+        val ariaPx = with(LocalDensity.current) { if (alzato) LIFT_ROOM.toPx() else 0f }
         Surface(
             /*
              * ⚠️⚠️ **CRESCE DA 0,96 E NON DA ZERO, in [MENU_IN]** (scelta dell'utente sul
@@ -311,6 +327,38 @@ fun MenuShell(
              * uscita con la sua ragione.
              */
             modifier = Modifier
+                /*
+                 * ⚠️⚠️ **IL TOCCO SULL'ARIA VALE COME IL TOCCO FUORI, e senza questa riga
+                 * sarebbe una fascia morta**: l'aria appartiene alla **finestra** del menu,
+                 * quindi `dismissOnClickOutside` non la vede, esattamente come l'aria dei
+                 * dialoghi (il precedente è il giro della `1.69`, e il perché vive su `airTop`
+                 * in `Centred.kt`). Senza, un dito appena fuori dal pannello non farebbe niente.
+                 * ⚠️⚠️ **STA PRIMA DEL `layout` DI PROPOSITO, ed è una trappola misurata**: nella
+                 * stessa catena la prova del tocco si ferma sul primo nodo di layout, quindi chi
+                 * ascolta va prima di lui; scritto qui, il suo riquadro è quello **dichiarato**
+                 * là sotto, che è l'unico a comprendere l'aria.
+                 * ⚠️ **Non consuma niente**: quello che si tocca è spazio vuoto, e il tocco è già
+                 * dentro la finestra del popup, quindi all'app non arriva comunque.
+                 * ⚠️ **A sfocatura o a niente il nodo NON esiste**, e non è un risparmio: un nodo
+                 * di tocco grande quanto il pannello che sta sempre in scena è la causa del
+                 * blocco totale della `1.70`, e il rimedio di allora è l'assenza (vedi
+                 * [MenuGuard]).
+                 */
+                .then(
+                    if (!alzato) Modifier else Modifier.pointerInput(state, ariaPx) {
+                        awaitPointerEventScope {
+                            while (true) {
+                                val evento = awaitPointerEvent(PointerEventPass.Initial)
+                                if (evento.type != PointerEventType.Press) continue
+                                val dove = evento.changes.firstOrNull()?.position ?: continue
+                                val aria = dove.x < ariaPx || dove.y < ariaPx ||
+                                    dove.x > size.width - ariaPx ||
+                                    dove.y > size.height - ariaPx
+                                if (aria) state.close()
+                            }
+                        }
+                    }
+                )
                 .layout { measurable, constraints ->
                     val pannello = measurable.measure(constraints)
                     val k = grown(state)
@@ -326,6 +374,21 @@ fun MenuShell(
                     scaleX = k
                     scaleY = k
                 }
+                /*
+                 * ⚠️⚠️ **L'ARIA DELL'OMBRA STA DENTRO L'OPACITÀ, e fuori non servirebbe a
+                 * niente**: un'opacità minore di uno fa disegnare tutto quello che sta sotto in
+                 * un buffer grande **quanto questo nodo**, quindi l'ombra andrebbe a sbattere
+                 * contro il bordo del buffer invece che contro quello della finestra. Il
+                 * meccanismo è lo stesso che nella `1.46` tagliava l'ombra proprio agli angoli
+                 * (vedi la nota di `ModulateAlpha` qui sotto), e l'aria lo neutralizza.
+                 */
+                .then(if (!alzato) Modifier else Modifier.padding(LIFT_ROOM))
+                /*
+                 * ⚠️ **L'ombra prima del bordo**: il tratto d'accento è parte della superficie
+                 * che si alza, quindi l'ombra avvolge tutti e due. Che cosa fa e perché è
+                 * alternativa alla sfocatura stanno in testa a `Edge.kt`.
+                 */
+                .lifted(MENU_ROUND)
                 /*
                  * ⚠️⚠️ **IL BORDO D'ACCENTO AL POSTO DELL'OMBRA, dalla `1.54`** (richiesta
                  * dell'utente, 2026-09-04: *via le ombre e vai con il bordino da 2px del colore

@@ -78,8 +78,11 @@
     <string name="settings_light">Claro</string>
     <string name="settings_dark">Oscuro</string>
 
-    <string name="settings_veil">Desenfoque detrás de los paneles</string>
-    <string name="settings_veil_desc">Desenfoca y oscurece la pantalla detrás de los diálogos, los menús y los paneles. En dispositivos antiguos, la aplicación puede ir más lenta.</string>
+    <string name="settings_depth">Detrás de los paneles</string>
+    <string name="settings_depth_desc">Qué separa de la pantalla un panel abierto. El desenfoque difumina y oscurece lo que hay detrás, la sombra dibuja una sombra alrededor del panel. El desenfoque puede ralentizar la aplicación en dispositivos antiguos.</string>
+    <string name="settings_depth_blur">Desenfoque</string>
+    <string name="settings_depth_shadow">Sombra</string>
+    <string name="settings_depth_none">Nada</string>
     <string name="settings_folder_columns">Columnas en las cuadrículas</string>
     <string name="settings_folder_columns_desc">Cuántas columnas muestran la cuadrícula de carpetas y la de imágenes. Más columnas caben más cosas en pantalla y encogen cada celda. Con cuatro, el nombre de la carpeta suele quedar cortado.</string>
     <string name="settings_folder_count">Contador de elementos bajo las carpetas en vista de cuadrícula</string>

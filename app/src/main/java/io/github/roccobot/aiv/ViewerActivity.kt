@@ -1930,9 +1930,9 @@ class ViewerActivity : ComponentActivity() {
         setContent {
             val chosen = model.settings?.uiTheme ?: UiTheme.SYSTEM
             AivTheme(darkTheme = chosen.isDark()) {
-                // ⚠️ Anche l'interruttore di velo e sfocatura si mette in scena QUI, accanto
-                // al tema e per la stessa ragione: lo chiedono finestre che le impostazioni
-                // non le ricevono. Il perché per esteso sta su [LocalAivVeil].
+                // ⚠️ Anche la scelta di che cosa c'è dietro un pannello si mette in scena QUI,
+                // accanto al tema e per la stessa ragione: la chiedono finestre che le
+                // impostazioni non le ricevono. Il perché per esteso sta su [LocalAivDepth].
                 // ⚠️ E accanto a lui i riquadri: le parole sotto le icone e i quattro
                 // ordini dei tasti. Stessa ragione del velo, scritta su [LocalPadLook]: li
                 // chiedono finestre che le impostazioni non ricevono. Finché le impostazioni
@@ -1941,7 +1941,7 @@ class ViewerActivity : ComponentActivity() {
                     PadLook(it.padLabels, it.menuOrder, it.pickOrder, it.turnOrder, it.stepOrder, it.hand)
                 } ?: PadLook()
                 CompositionLocalProvider(
-                    LocalAivVeil provides (model.settings?.veil ?: false),
+                    LocalAivDepth provides (model.settings?.panelDepth ?: PanelDepth.NONE),
                     LocalPadLook provides look
                 ) {
                     AivApp(model)

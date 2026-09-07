@@ -78,8 +78,11 @@
     <string name="settings_light">Jasne</string>
     <string name="settings_dark">Ciemne</string>
 
-    <string name="settings_veil">Rozmycie za panelami</string>
-    <string name="settings_veil_desc">Rozmywa i przyciemnia ekran za oknami dialogowymi, menu i panelami. Na starszych urządzeniach aplikacja może działać wolniej.</string>
+    <string name="settings_depth">Za panelami</string>
+    <string name="settings_depth_desc">Co oddziela otwarty panel od ekranu. Rozmycie rozmywa i przyciemnia to, co jest z tyłu, a cień rysuje cień wokół panelu. Rozmycie może spowolnić aplikację na starszych urządzeniach.</string>
+    <string name="settings_depth_blur">Rozmycie</string>
+    <string name="settings_depth_shadow">Cień</string>
+    <string name="settings_depth_none">Nic</string>
     <string name="settings_folder_columns">Kolumny w siatkach</string>
     <string name="settings_folder_columns_desc">Ile kolumn pokazują siatka folderów i siatka obrazów. Więcej kolumn mieści więcej na ekranie i zmniejsza każdy kafelek. Przy czterech nazwa folderu zwykle zostaje ucięta.</string>
     <string name="settings_folder_count">Licznik elementów pod folderami w widoku siatki</string>

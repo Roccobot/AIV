@@ -970,7 +970,7 @@ private val PAD_TAP = 48.dp
 /**
  * Come si presentano i riquadri di questa app: le parole e i quattro ordini.
  *
- * ⚠️⚠️ **STA IN UN `CompositionLocal` PER LA STESSA RAGIONE DEL VELO** (vedi `LocalAivVeil`):
+ * ⚠️⚠️ **STA IN UN `CompositionLocal` PER LA STESSA RAGIONE DEL VELO** (vedi `LocalAivDepth`):
  * queste cose le chiedono superfici che vivono in **finestre**, e le finestre le impostazioni
  * non le ricevono. La catena per portarci quattro liste e un booleano attraversa il
  * visualizzatore, la griglia con i suoi tre richiami, la scheda della selezione, l'albero e

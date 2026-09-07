@@ -579,15 +579,31 @@ private fun ColumnScope.RootPage(
      * righe sopra sono una coppia (che cosa c'è dietro la fotografia, e di che tinta), e
      * infilarsi in mezzo a loro le spezzerebbe. Questa parla di quello che c'è dietro le
      * **finestre**, che è un'altra domanda.
-     * ⚠️ **La spiegazione dichiara il costo**, che è la ragione per cui l'interruttore esiste:
-     * chi lo accende deve sapere che cosa sta comprando, o leggerà la lentezza come un
-     * difetto dell'app.
+     * ⚠️ **La spiegazione dichiara il costo**, che è la ragione per cui la voce esiste: chi
+     * sceglie deve sapere che cosa sta comprando, o leggerà la lentezza come un difetto
+     * dell'app.
+     * ⚠️⚠️ **ERA UN INTERRUTTORE FINO ALLA `1.80`, e dalla `1.81` sono tre gettoni** (istruzione
+     * dell'utente, 2026-09-07: *facciamo che si può scegliere tra sfocatura e ombreggiatura (MAI
+     * insieme)*). ⚠️ **Tre gettoni e non due interruttori, ed è la richiesta alla lettera**: con
+     * due, 'mai insieme' sarebbe una regola da far rispettare a mano, e ci sarebbe uno stato in
+     * cui sono accesi entrambi. Qui quello stato non esiste. Il perché tecnico, che è più forte
+     * del gusto, sta su [PanelDepth].
      */
-    SwitchRow(
-        label = stringResource(R.string.settings_veil),
-        detail = stringResource(R.string.settings_veil_desc),
-        checked = settings.veil,
-        onChange = { onChange(settings.copy(veil = it)) }
+    Choices(
+        label = stringResource(R.string.settings_depth),
+        detail = stringResource(R.string.settings_depth_desc),
+        options = PanelDepth.entries,
+        selected = settings.panelDepth,
+        nameOf = {
+            stringResource(
+                when (it) {
+                    PanelDepth.BLUR -> R.string.settings_depth_blur
+                    PanelDepth.SHADOW -> R.string.settings_depth_shadow
+                    PanelDepth.NONE -> R.string.settings_depth_none
+                }
+            )
+        },
+        onSelect = { onChange(settings.copy(panelDepth = it)) }
     )
 
     Group(stringResource(R.string.settings_group_viewer))

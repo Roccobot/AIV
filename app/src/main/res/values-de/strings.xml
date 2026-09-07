@@ -78,8 +78,11 @@
     <string name="settings_light">Hell</string>
     <string name="settings_dark">Dunkel</string>
 
-    <string name="settings_veil">Unschärfe hinter Bedienfeldern</string>
-    <string name="settings_veil_desc">Zeichnet den Bildschirm hinter Dialogen, Menüs und Bedienfeldern unscharf und abgedunkelt. Auf älteren Geräten kann die App dadurch langsamer werden.</string>
+    <string name="settings_depth">Hinter Panels</string>
+    <string name="settings_depth_desc">Was ein geöffnetes Panel vom Bildschirm abhebt. Weichzeichnen verwischt und verdunkelt den Hintergrund, Schatten zeichnet einen Schatten um das Panel. Weichzeichnen kann die App auf älteren Geräten verlangsamen.</string>
+    <string name="settings_depth_blur">Weichzeichnen</string>
+    <string name="settings_depth_shadow">Schatten</string>
+    <string name="settings_depth_none">Nichts</string>
     <string name="settings_folder_columns">Spalten in den Rastern</string>
     <string name="settings_folder_columns_desc">Wie viele Spalten das Ordnerraster und das Bildraster zeigen. Mehr Spalten zeigen mehr auf einmal und verkleinern jede Kachel. Bei vier wird der Ordnername meist abgeschnitten.</string>
     <string name="settings_folder_count">Zähler der Elemente unter den Ordnern in der Rasteransicht</string>

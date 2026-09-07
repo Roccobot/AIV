@@ -85,9 +85,19 @@ fun Modifier.lowered(onOutside: (() -> Unit)?): Modifier {
      * non era una scelta: era il prezzo del gonfiaggio qui sopra, e il perché sta su [Air].
      * Il parametro non ha un valore di serie **di proposito**: chi apre una finestra nuova
      * deve dire se è una modale vera, e non può farlo per omissione.
+     * ⚠️⚠️ **E DALLA 1.81 UNA QUINTA: l'OMBRA, quando è lei la scelta invece della sfocatura**
+     * (istruzione dell'utente, 2026-09-07: *facciamo che si può scegliere tra sfocatura e
+     * ombreggiatura (MAI insieme)*). Sta qui per la ragione delle altre, e questa volta la prova
+     * è ancora più netta: le due vie sono **alternative**, quindi l'elenco di chi vuole l'una è
+     * per definizione quello di chi vuole l'altra, che è l'elenco di chi scrive questa riga.
+     * ⚠️ **Sta DENTRO lo spostamento come il bordo**, e per lo stesso motivo: scritta prima di
+     * [LowerElement] l'ombra girerebbe intorno alla scatola gonfiata, cioè intorno all'aria.
+     * ⚠️ **E prima del bordo**, perché il bordo è parte della superficie che si alza: l'ombra
+     * avvolge tutto il pannello, tratto compreso.
      */
     val aria = Air()
-    return veiled() then OutsideElement(onOutside, aria) then LowerElement(aria) then DIALOG_EDGE
+    return veiled() then OutsideElement(onOutside, aria) then LowerElement(aria) then
+        DIALOG_LIFT then DIALOG_EDGE
 }
 
 /**
@@ -217,6 +227,16 @@ private class OutsideElement(
  * cambia quella, o il bordo taglia gli angoli in un altro punto.
  */
 private val DIALOG_EDGE = Modifier.edged(PANEL_ROUND)
+
+/**
+ * L'ombra dei dialoghi, con la stessa forma del bordo.
+ *
+ * ⚠️ **Lo stesso raggio di [DIALOG_EDGE] e per la stessa ragione**: un nodo non legge il tema di
+ * Material, quindi la forma di un `AlertDialog` si dichiara a mano. ⚠️ E qui il raggio deve
+ * combaciare con quello del bordo **senza** la correzione del rientro: l'ombra nasce dal
+ * contorno della superficie, non da una linea che le corre dentro.
+ */
+private val DIALOG_LIFT = Modifier.lifted(PANEL_ROUND)
 
 private class LowerElement(val aria: Air) : ModifierNodeElement<LowerNode>() {
     override fun create() = LowerNode(aria)
