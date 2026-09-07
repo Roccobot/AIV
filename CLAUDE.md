@@ -1002,6 +1002,63 @@ destinazione c'è già un file con quel nome.
 cancella file e ne sposta altri, quindi un suo difetto non si vede e non si può disfare a sua
 volta. È il caso proattivo di § '🧪 Quando si scrive una prova, e quando no'.
 
+## 📢 Il canale degli avvisi, e la superficie unica
+
+⚠️⚠️ **DALLA `1.84` L'APP HA UNA VOCE SOLA, ED È SUA RISPOSTA** (`casa` a `d-avvisi`, giro della
+`1.81`). La questione era aperta dal censimento della UI del 2026-09-05 e il fatto era questo:
+con il cestino acceso un'eliminazione taceva e parlava la notifica di casa, con il cestino spento
+la stessa azione produceva un **avviso di sistema**, e copia, spostamento e rinomina parlavano
+sempre con l'avviso di sistema. Cioè lo stesso genere di esito aveva **due voci**, e quale delle
+due si sentisse dipendeva da un'impostazione che con la notizia non c'entra.
+
+⚠️⚠️ **UN CANALE E NON DICIASSETTE RITOCCHI, e la ragione è la stessa per cui la tappa è
+esistita**: gli avvisi erano diciassette in sette file, e correggerne uno per volta avrebbe fatto
+una seconda incoerenza al posto della prima, perché la stessa chiamata compare identica in più
+schermate. Con `Notices` una schermata nuova non ha un secondo modo di parlare, e la superficie
+(`AppNotice`) la disegna **`AivApp`**, sopra la transizione fra schermate: una notizia deve poter
+sopravvivere alla schermata che l'ha prodotta.
+
+⚠️⚠️ **UNA RIGA PER VOLTA, E LA PIÙ NUOVA VINCE: la coda non c'è, ed è una scelta.** Una coda
+mostrerebbe a turno cose che si riferiscono a un momento già passato, e la seconda arriverebbe
+quando la schermata è già cambiata; quello che l'app ha da dire riguarda **l'ultima** cosa
+successa. ⚠️ **E con lei sparisce un difetto**: le due notifiche che si coprivano a vicenda
+(quella dell'azzeramento e l'offerta di disfare) adesso non possono più coesistere, quindi lo
+spegnimento incrociato scritto a mano in `GridScreen` non serve più.
+
+⚠️⚠️ **DUE COSE NON SI TOCCANO, E OGNUNA CHIUDE UNA CORSA.**
+- **L'identificatore della riga**: senza, due messaggi **uguali** di fila sono un messaggio solo
+  (il conto alla rovescia non riparte e il secondo scade quando scadeva il primo), e un congedo
+  cieco porterebbe via il messaggio arrivato nel frattempo. Per questo si toglie con
+  `dismiss(id)` e non con un `clear()`.
+- **`onGone`**: quello che deve morire con la riga (l'offerta di disfare, o lo stato di una
+  schermata) lo dichiara là. Con due attese parallele i due istanti sarebbero due sorgenti della
+  stessa verità, e il giorno che una cambia resterebbe in scena un tasto che non fa più niente.
+
+⚠️ **Il testo arriva GIÀ RISOLTO e non come identificatore di risorsa**: metà dei chiamanti
+compone una frase con un plurale o con un nome di file, e un canale che accettasse solo
+`@StringRes` costringerebbe a due strade. Chi chiama ha già il `Context`, perché serviva anche
+all'avviso di sistema.
+
+⚠️ **Le durate sono quelle dell'avviso di sistema**, 2 secondi e 3,5: sono le stesse frasi di
+prima, e cambiare superficie **e** tempo insieme avrebbe reso indistinguibili le due cause al
+primo 'mi sembra troppo veloce'.
+
+⚠️⚠️ **UN AVVISO DI SISTEMA RESTA, ED È UNO SOLO**: quello che spiega perché si sta per aprire la
+pagina delle impostazioni di Android (`folder_why`, in `ViewerActivity`). Là l'app va in
+**secondo piano** nello stesso istante, quindi una notifica di casa non si vedrebbe affatto: dire
+una cosa mentre si esce è il caso per cui l'avviso di sistema esiste. Chi ne aggiunge un altro
+dichiari la stessa cosa, o è un ritorno alle due voci.
+
+⚠️⚠️ **E IL BANCO HA UNA TRAPPOLA SUA, misurata scrivendo `AvvisiTest`**: [Notices] è un oggetto
+di **processo**, e una sua scrittura fatta **dopo** `setContent` non arriva alla composizione
+finché lo snapshot non viene propagato, cosa che col clock fermo non succede da sé. La spia messa
+nell'albero leggeva `null` mentre lo stato portava già il messaggio. Quindi in una prova la riga
+si mette **prima** di montare la scena, che è anche il caso vero: una notifica nasce da un gesto
+fatto in una schermata già in scena.
+- ⚠️ **E il clock va fermato** (`autoAdvance = false`): con l'avanzamento automatico
+  `waitForIdle` porta a termine le attese pendenti, cioè fa **scadere** la notifica prima che la
+  prova possa toccarla.
+
 ## ⚙️ Dove va un'impostazione, e chi la deve trovare
 
 ⚠️⚠️ **UNA VOCE VA CON QUELLE CHE RISPONDONO ALLA SUA STESSA DOMANDA, e la domanda è quella

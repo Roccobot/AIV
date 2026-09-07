@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.webkit.MimeTypeMap
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -136,8 +135,7 @@ fun TreeList(
             // dice la stessa cosa e in più offre di disfare, e due messaggi in fondo
             // allo schermo si coprirebbero a vicenda.
             if (kind.speaks(out)) {
-                Toast.makeText(context, outcomeText(res, out, kind.done), Toast.LENGTH_LONG)
-                    .show()
+                Notices.say(outcomeText(res, out, kind.done), NOTICE_LONG_MS)
             }
             tick++
         }
@@ -562,7 +560,7 @@ private fun SpotGlyph(spot: Tree.Spot) {
 private fun openWithSystem(context: Context, file: File) {
     val uri = Tree.contentUri(context, file)
     if (uri == null) {
-        Toast.makeText(context, R.string.tree_unopenable, Toast.LENGTH_SHORT).show()
+        Notices.say(context.getString(R.string.tree_unopenable))
         return
     }
     val kind = MimeTypeMap.getSingleton()
@@ -574,7 +572,7 @@ private fun openWithSystem(context: Context, file: File) {
     }
     val ok = runCatching { context.startActivity(intent); true }
         .getOrElse { if (it is ActivityNotFoundException) false else throw it }
-    if (!ok) Toast.makeText(context, R.string.tree_unopenable, Toast.LENGTH_SHORT).show()
+    if (!ok) Notices.say(context.getString(R.string.tree_unopenable))
 }
 
 /** Il lato del quadratino di sinistra: come la miniatura della lista, ma più piccolo. */

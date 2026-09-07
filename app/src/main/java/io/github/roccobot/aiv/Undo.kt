@@ -1,40 +1,17 @@
 package io.github.roccobot.aiv
 
 import android.net.Uri
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Snackbar
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.liveRegion
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
 
 /**
- * L'eliminazione che si può ancora disfare, e la notifica con cui si offre.
+ * Quello che si può ancora disfare, e per quanto tempo.
+ *
+ * ⚠️⚠️ **QUI NON C'È PIÙ NESSUNA NOTIFICA, DALLA `1.84`**: la superficie con cui l'app parla è
+ * una sola e vive in `Notice.kt`, insieme al canale che la alimenta. Questo oggetto dice
+ * **che cosa** si può disfare; a offrirlo è [AivApp], che compone la frase e la manda al canale.
+ * Chi cerca il disegno o la durata della riga lo trova là.
  *
  * ⚠️⚠️ **RICHIESTA DELL'UTENTE, giro della `1.59`** (*se elimino un file singolo o un gruppo di
  * file con il cestino attivo, non c'è conferma (corretto), ma voglio anche un 'Annulla' rapido
@@ -42,11 +19,11 @@ import androidx.compose.ui.unit.dp
  * disponibile anche se si cambia cartella*).
  *
  * ⚠️⚠️ **'ANCHE SE SI CAMBIA CARTELLA' È LA CLAUSOLA CHE DECIDE DOVE VIVE QUESTO STATO, ed è
- * l'opposto di quella dell'azzeramento della selezione**: quella notifica ha per chiave il
- * titolo della cartella **apposta**, perché deve sparire uscendo (*o finché non si cambia
- * cartella*, sue parole). Qui la richiesta è rovesciata, quindi lo stato non può stare nella
- * schermata: sta sopra di lei, e la notifica la disegna [AivApp] fuori dalla transizione fra
- * schermate.
+ * l'opposto di quella dell'azzeramento della selezione**: quella riga deve sparire uscendo dalla
+ * cartella (*o finché non si cambia cartella*, sue parole), e da quando il canale è unico lo
+ * ottiene togliendola quando la griglia lascia la scena. Qui la richiesta è rovesciata, quindi
+ * lo stato non può vivere in una schermata: vive sopra di loro, e a offrirlo è [AivApp], fuori
+ * dalla transizione fra schermate.
  * ⚠️⚠️ **ED È UN OGGETTO DI PROCESSO E NON UN PARAMETRO, e la ragione è il conto dei posti da
  * toccare**: l'eliminazione passa da un imbuto solo (`FileOps`), ma quell'imbuto lo chiamano
  * **tre** schermate, e nessuna delle tre ha una ragione propria per conoscere un'offerta che
@@ -126,199 +103,6 @@ object Undo {
     }
 }
 
-/**
- * La notifica che dice che cosa è appena successo e offre di disfarlo.
- *
- * ⚠️⚠️ **UNA SOLA PER DUE USI, DALLA `1.60`, ed è una richiesta sua che lo impone**: *in base
- * alla mia scelta aggiorna sia quello del cestino che quello dell'eliminazione*. Due copie
- * della stessa forma si aggiornano una sola volta, e la seconda resta indietro; qui il
- * disegno è uno e i due chiamanti passano soltanto le parole.
- *
- * ⚠️⚠️ **È UNO `Snackbar` DI MATERIAL E NON UNA SUPERFICIE DISEGNATA IN CASA**: la frase a
- * sinistra e l'azione a destra sulla stessa riga sono esattamente la sua forma, e con lui
- * arrivano il colore rovesciato, lo stondamento, i rientri e i due stili di testo, che
- * rifatti a mano sarebbero sei valori da indovinare (la nota in testa a `Glyphs.kt` dice di
- * non ridisegnare quello che Material ha già).
- * ⚠️⚠️ **SENZA `SnackbarHost` E SENZA `SnackbarHostState`, e non è una scorciatoia**: quella
- * coppia serve a chi ha una **coda** di messaggi da mostrare a turno, e vuole un
- * `Scaffold`, che queste schermate non hanno; qui il messaggio è uno solo, e la sua durata la
- * decide chi lo mostra, che è anche il posto in cui 'o finché non si cambia cartella' si può
- * scrivere. Con la coda, la durata sarebbe di Material e quella condizione non ci starebbe
- * dentro.
- * ⚠️⚠️ **DALLA `1.69` IL FONDO NON È PIÙ ROVESCIATO, ED È UNA SUA SCELTA FRA CINQUE
- * DISEGNI** (giro della `1.67`, domanda `d-avviso`: ha scelto `tempo`). Una notifica di
- * Material è chiara sul tema scuro e scura sul chiaro, cioè l'unica superficie dell'app che
- * inverte i colori, e in mezzo a pannelli e schede che non lo fanno si legge come un pezzo di
- * un'altra applicazione. Adesso prende la superficie dell'app, il suo inchiostro, il **bordo
- * d'accento** che portano tutte le altre ([Modifier.edged], dalla `1.54`) e lo stesso raggio
- * dei pannelli.
- * ⚠️⚠️ **E UNA RIGA CHE SI CONSUMA IN FONDO, che è la ragione del nome che quel disegno ha nel
- * documento**: dice quanto tempo resta per disfare, che è l'unica cosa che questa notifica non
- * sapeva comunicare. Prima il conto scorreva e basta, e chi non lo conosceva scopriva la
- * scadenza vedendola sparire.
- * ⚠️ **Il colore del tasto resta scritto a mano**, ma adesso è [accentInk]: su un fondo che non
- * è più rovesciato il colore che Material sceglie per il fondo rovesciato sarebbe sbagliato, e
- * questo è l'accento nella versione che si può **leggere**, che è il caso di una parola.
- * ⚠️⚠️ **ARRIVA E SE NE VA COME LE DUE SCHEDE, con gli stessi numeri** ([ARRIVO_RIGIDITA],
- * [SHEET_FADE_MS], [USCITA_MS], [ACCELERA] in `Sheet.kt`): dalla 1.43 'arrivare dal basso'
- * in questa app ha una definizione, e una notifica che comparisse di scatto accanto a due
- * schede che scorrono direbbe di essere un'altra famiglia di cose. ⚠️ **Non è la molla di
- * fabbrica**: quella non l'aveva scelta nessuno, ed è la ragione per cui in `ActionPad` è
- * stata sostituita anche dove funzionava.
- * ⚠️ **Vive in una funzione a sé per la stessa ragione di `FabPop`**: chiamata sul posto,
- * `AnimatedVisibility` finisce sull'overload di `ColumnScope` e il compilatore la rifiuta.
- *
- * ⚠️⚠️ **QUESTA NON È L'UNICA SUPERFICIE CON CUI L'APP DICE COM'È ANDATA, E LA DIFFERENZA È UNA
- * QUESTIONE APERTA CON L'UTENTE, NON UN DIFETTO DA CORREGGERE DA SÉ.** Il censimento della UI
- * del 2026-09-05 la solleva da **quattro** angoli diversi, e il fatto che portano è uno: con il
- * cestino acceso un'eliminazione tace e parla questa notifica, con il cestino spento la stessa
- * azione produce un **avviso di sistema**, e copia, spostamento e rinomina parlano sempre con
- * l'avviso di sistema. Cioè lo stesso genere di esito ha due voci, e quale delle due si sente
- * dipende da un'impostazione che con la notizia non c'entra.
- * ⚠️⚠️ **PERCHÉ NON SI CORREGGE QUI: è una decisione di linguaggio dell'app, e le decisioni di
- * linguaggio sono sue.** Portare ogni esito a questa notifica cambia il modo in cui l'app parla
- * in cinque schermate, quindi si propone e si aspetta; e correggerne una sola (per esempio la
- * griglia) creerebbe **una seconda incoerenza al posto della prima**, perché la stessa chiamata
- * compare identica in altre due schermate.
- * ⚠️ **Quello che si può dire misurato**: i due non convivono mai per costruzione
- * (`FileKind.speaks` li rende esclusivi), tranne in un caso che il KDoc di `speaks` dichiara,
- * cioè un'eliminazione **riuscita a metà**, dove il cestino parla per i file caduti e questa
- * notifica offre di disfare quelli arrivati. Là i due messaggi finiscono nello stesso punto
- * dello schermo.
- * ⚠️ **La sovrapposizione con l'ALTRA notifica di casa invece è chiusa dalla `1.81`**: quella è
- * un difetto e non una questione di linguaggio, e il rimedio è su `BackHandler` in
- * `GridScreen.kt`.
- */
-@Composable
-fun UndoNotice(
-    visible: Boolean,
-    text: String,
-    action: String,
-    onUndo: () -> Unit,
-    modifier: Modifier = Modifier,
-    /**
-     * Quanto vive questa notifica, e di serie [UNDO_MS].
-     *
-     * ⚠️⚠️ **NASCE NELLA `1.82` PERCHÉ LA TERZA NOTIFICA HA UNA DURATA SUA** (campo libero del
-     * giro della `1.81`, punto E: *una notifica in basso come quella dell'annullamento
-     * dell'eliminazione, con tanto di timer di 5 secondi*). Il parametro esisteva già come
-     * avvertenza nella nota qui sotto: la riga che si consuma deve durare quanto la notifica, o
-     * dice una scadenza che non è quella.
-     * ⚠️ **Lo passa chi la mostra, e deve essere lo stesso numero con cui la toglie**: qui si
-     * disegna soltanto, la vita la decide il chiamante.
-     */
-    millis: Long = UNDO_MS
-) {
-    /*
-     * ⚠️⚠️ **LA RIGA SI CONSUMA IN [UNDO_MS], CHE È LA VITA VERA DELLA NOTIFICA**: i due
-     * chiamanti aspettano esattamente quel tempo prima di toglierla, quindi la riga arriva a
-     * zero nell'istante in cui la notifica se ne va. ⚠️ Chi un domani desse a una notifica una
-     * vita diversa deve passare qui la sua durata, o la riga direbbe una scadenza che non è
-     * quella: una barra ferma a zero sopra un tasto che funziona ancora è peggio di nessuna
-     * barra.
-     * ⚠️ **Riparte da capo a ogni comparsa** e non alla prima soltanto: due eliminazioni di
-     * fila sono due notifiche, e la seconda deve avere il suo tempo intero.
-     * ⚠️ **Si legge nel DISEGNO**: `scaleX` sta dentro `graphicsLayer`, quindi tre secondi di
-     * animazione costano un ridisegno per fotogramma e nessuna ricomposizione.
-     */
-    val resta = remember { Animatable(1f) }
-    LaunchedEffect(visible) {
-        if (!visible) return@LaunchedEffect
-        resta.snapTo(1f)
-        resta.animateTo(0f, tween(millis.toInt(), easing = LinearEasing))
-    }
-    AnimatedVisibility(
-        visible = visible,
-        modifier = modifier,
-        enter = arrivaDalBasso(),
-        exit = vaGiu()
-    ) {
-        Box(
-            // ⚠️ **Il rientro di sistema se lo mette da sé**, come le due schede: questa vive
-            // nel `Box` di radice di chi la mostra, che arriva al bordo dello schermo, quindi
-            // senza questa riga starebbe sotto la barra di navigazione.
-            // ⚠️ **E qui la scheda si comporta al contrario**: là il fondo passa sotto la
-            // barra apposta (per prenderne il colore) e il rientro sta sul contenuto; una
-            // notifica non è appoggiata a niente e va spostata intera.
-            // ⚠️ **La scatola è nuova nella `1.69` e serve alla riga**: la riga deve stare
-            // sopra la notifica e prenderne la misura senza cambiarla, che è quello che
-            // `matchParentSize` fa e un figlio dello `Snackbar` non farebbe.
-            modifier = Modifier
-                .navigationBarsPadding()
-                .padding(NOTICE_EDGE)
-        ) {
-            Snackbar(
-                /*
-                 * ⚠️⚠️ **LA REGIONE VIVA È LA META DI `SnackbarHost` CHE ANDAVA RECUPERATA, e
-                 * fino alla `1.80` la notifica non veniva annunciata affatto** (censimento
-                 * della UI del 2026-09-05). La ragione scritta qui sopra per non usare
-                 * l'ospite riguarda la coda e la durata, e resta buona; ma nel bytecode di
-                 * `SnackbarHostKt` vivono anche `liveRegion` e l'azione di congedo, mentre
-                 * `SnackbarKt` non ne porta nessuna: rinunciando all'ospite si era rinunciato
-                 * anche a loro, senza accorgersene.
-                 * ⚠️ **`Polite` e non `Assertive`**: la notifica dice che una cosa è **già**
-                 * successa e offre di disfarla, quindi non deve interrompere quello che il
-                 * lettore di schermo sta leggendo. Con `Assertive` ogni eliminazione
-                 * tapperebbe la bocca alla schermata.
-                 */
-                modifier = Modifier
-                    .semantics { liveRegion = LiveRegionMode.Polite }
-                    .edged(NOTICE_ROUND),
-                shape = RoundedCornerShape(NOTICE_ROUND),
-                /*
-                 * ⚠️ **I due ruoli sono della stessa famiglia, dalla `1.81`**: fino alla `1.80`
-                 * il fondo era `surfaceVariant` e l'inchiostro `onSurface`, cioè quello di
-                 * un'altra superficie, e la nota in testa promette *la superficie dell'app e il
-                 * suo inchiostro*. Non si vedeva niente perché le due tinte si somigliano, che è
-                 * il caso in cui il criterio di casa vale di più: il ruolo giusto anche quando i
-                 * due valori sono vicini, come già scritto sulla pastiglia del nome.
-                 */
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                action = {
-                    TextButton(
-                        onClick = onUndo,
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = accentInk()
-                        )
-                    ) { Text(action) }
-                }
-            ) {
-                Text(text)
-            }
-            /*
-             * ⚠️ **Il ritaglio sta sulla scatola della riga e non su quella di fuori**: il
-             * bordo d'accento sconfina di mezzo pixel oltre la superficie (vedi `Edge.kt`), e
-             * un ritaglio sul genitore glielo taglierebbe proprio sugli archi, che è il
-             * difetto che la `1.56` aveva chiuso.
-             * ⚠️ **L'origine della scala è il fianco iniziale**, non il centro: una riga che
-             * si consuma parte piena e si ritira verso il punto da cui è partita.
-             */
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .clip(RoundedCornerShape(NOTICE_ROUND))
-            ) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .fillMaxWidth()
-                        .height(CLESSIDRA)
-                        .graphicsLayer {
-                            transformOrigin = TransformOrigin(0f, 0.5f)
-                            scaleX = resta.value
-                        }
-                        // ⚠️ **La tavolozza e non [aivAccent], dalla `1.81`**: quella funzione
-                        // serve a chi legge un colore da un nodo di modificatore, dove il tema
-                        // non si raggiunge, e qui siamo dentro un composabile che due righe più
-                        // su la tavolozza la legge già. Due strade per lo stesso valore nella
-                        // stessa funzione erano due modi di cambiarne uno solo.
-                        .background(MaterialTheme.colorScheme.primary)
-                )
-            }
-        }
-    }
-}
 
 /**
  * Quanto resta in scena una notifica che offre di disfare.
@@ -329,28 +113,3 @@ fun UndoNotice(
  * nemmeno scegliere, ed è una delle ragioni per cui qui non c'è (vedi [UndoNotice]).
  */
 const val UNDO_MS = 3000L
-
-/**
- * Il respiro fra la notifica e i tre bordi che la circondano.
- *
- * ⚠️ **12dp, che è quello che `SnackbarHost` di Material mette da sé**: qui l'ospite non
- * c'è, quindi il margine che avrebbe messo lui va scritto. Senza, la notifica toccherebbe
- * i lati dello schermo e la barra di sistema.
- */
-private val NOTICE_EDGE = 12.dp
-
-/**
- * Lo stondamento della notifica e lo spessore della riga che si consuma.
- *
- * ⚠️⚠️ **IL RAGGIO È SUO, E FINO ALLA `1.78` LA NOTA DICEVA CHE ERA 'QUELLO DEI PANNELLI'**:
- * quel raggio non esiste, perché i raggi di casa sono 20dp per i menu e 28dp per schede e
- * dialoghi, e nessuna superficie dell'app misura 14. Una nota che rimanda a una fonte condivisa
- * inesistente manda chi ritocca il valore a cercarla, e nel frattempo il numero lo riceve anche
- * il bordo d'accento.
- * ⚠️ **Perché più piccolo di quelli**: una notifica è alta una riga e larga quanto lo schermo
- * meno i margini, e su una striscia bassa un raggio da 28 diventa un fianco tutto curva.
- * ⚠️ **Tre punti per la riga**, che è la misura del disegno che ha scelto: più sottile non si
- * vede su un fondo che ha già un bordo da due, più spessa diventa una seconda cornice.
- */
-private val NOTICE_ROUND = 14.dp
-private val CLESSIDRA = 3.dp

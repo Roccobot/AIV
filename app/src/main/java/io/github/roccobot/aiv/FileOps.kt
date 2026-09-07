@@ -2,7 +2,6 @@ package io.github.roccobot.aiv
 
 import android.content.res.Resources
 import android.net.Uri
-import android.widget.Toast
 import androidx.annotation.PluralsRes
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -712,7 +711,7 @@ private fun NamePill(name: String, onRename: () -> Unit, modifier: Modifier = Mo
     val copia = {
         haptics.performHapticFeedback(HOLD_BUZZ)
         ImageActions.copyName(context, name)
-        Toast.makeText(context, said, Toast.LENGTH_SHORT).show()
+        Notices.say(said)
     }
     val rinomina = {
         haptics.performHapticFeedback(HOLD_BUZZ)

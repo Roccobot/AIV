@@ -1,7 +1,6 @@
 package io.github.roccobot.aiv
 
 import android.text.format.Formatter
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
@@ -1270,7 +1269,7 @@ private fun ColumnScope.RootPage(
                 // ⚠️ L'avviso serve perché l'effetto non si vede QUI: i veli tornano in
                 // un'altra schermata, e un tasto che non dà segno di aver fatto qualcosa si
                 // preme due volte.
-                Toast.makeText(context, done, Toast.LENGTH_SHORT).show()
+                Notices.say(done)
             }) { Text(stringResource(R.string.settings_reset_hints_do)) }
         }
     }
@@ -1584,7 +1583,7 @@ private fun PageOfRows(
  * 'foto grandi' qui c'è 'immagini grandi', perché questa app apre anche tavole, scansioni e
  * schermate, e la regola di non chiamarle fotografie è sua (`AIV/CLAUDE.md`, § '🗣️ Come si
  * chiamano le cose').
- * ⚠️ **Il tasto avvisa con un `Toast`**: quello che è successo si vede in un'altra schermata,
+ * ⚠️ **Il tasto avvisa con la notifica di casa**: quello che è successo si vede in un'altra schermata,
  * e un comando che non dà segno di aver fatto qualcosa si preme due volte. È la stessa scelta,
  * e la stessa ragione, di 'Ripristina gli avvisi'.
  */
@@ -1610,7 +1609,7 @@ private fun ThumbsCard(head: String?, onClear: () -> Unit, modifier: Modifier = 
         Button(
             onClick = {
                 onClear()
-                Toast.makeText(context, done, Toast.LENGTH_SHORT).show()
+                Notices.say(done)
             },
             contentPadding = THUMBS_PAD
         ) {
