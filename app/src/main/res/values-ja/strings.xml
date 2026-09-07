@@ -277,7 +277,7 @@
     <string name="settings_ext_edit">\'名前を変更\' から拡張子を変える</string>
     <string name="settings_ext_edit_desc">名前変更のパネルではファイルの拡張子を変えられます。よく分からない場合はオンにしないでください。画像が読めなくなることがあります。</string>
     <string name="settings_gpu_thumbs">サムネイルをグラフィックメモリーに置く</string>
-    <string name="settings_gpu_thumbs_desc">サムネイルをアプリ自身のメモリーの外に置き、大きな画像のための余裕を残します。一部の端末では問題が起きることがあるため、初期状態ではオフです。</string>
+    <string name="settings_gpu_thumbs_desc">サムネイルのキャッシュをグラフィックチップのメモリに作り、通常のメモリを空けておきます。ギャラリーの反応がよくなることも、何も変わらないことも、場合によっては遅くなることもあります。ほとんどは古い端末です。動作が重いときはオンにして試してください。Android 端末のハードウェアとソフトウェアの組み合わせは多く、事前には分かりません。</string>
     <string name="settings_thumbs">保存されたサムネイルを削除</string>
     <string name="settings_thumbs_empty">保存されたサムネイルはありません</string>
     <string name="settings_thumbs_warn">ボタンをタップしてサムネイルのキャッシュを消去します。画像と動画のプレビューは削除され、各フォルダーを開いたときに自動で再生成されます（大きな画像が多いフォルダーでは1分以上かかることがあります）。</string>
@@ -313,8 +313,8 @@
     <string name="columns_hint">ショートカット: 表示オプションはフローティングボタンを長押し。</string>
     <string name="settings_bin">ゴミ箱を有効にする</string>
     <string name="settings_bin_desc">ファイルの削除では何も確認しませんが、ゴミ箱から \'元に戻す\' で取り消せます (フローティングボタン →\u00A0\'ゴミ箱\')。すぐに削除したい場合はゴミ箱を完全に無効にできます。その場合は削除のたびに確認が表示されます。\n⚠️ 注意: アプリをアンインストールすると、ゴミ箱の中身は失われ、元に戻せません。</string>
-    <string name="settings_bin_sweep">ごみ箱を自動で空にする</string>
-    <string name="settings_bin_sweep_desc">削除したファイルは、選んだ期間に達するとごみ箱から消えます。エディターのバックアップは期限切れになりません。整理はアプリを開いているあいだだけ行われます。</string>
+    <string name="settings_bin_sweep">ごみ箱の自動整理</string>
+    <string name="settings_bin_sweep_desc">ごみ箱がオンのとき、中のファイルは選んだ期間に達したものから削除されます。全部を一度に消す操作ではなく、ファイルごとに期限が来た順に消えます。編集前に保存したバックアップは残ります。</string>
     <string name="bin_sweep_never">しない</string>
     <string name="bin_sweep_week">1週間</string>
     <string name="bin_sweep_month">1か月</string>
