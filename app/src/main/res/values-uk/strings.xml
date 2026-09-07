@@ -164,10 +164,10 @@
     <string name="pick_forever">Видалити назавжди</string>
     <string name="pick_counting">Триває підрахунок...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d елемент</item>
-        <item quantity="few">%1$d елементи</item>
-        <item quantity="many">%1$d елементів</item>
-        <item quantity="other">%1$d елемента</item>
+        <item quantity="one">Вибрано %1$d елемент</item>
+        <item quantity="few">Вибрано %1$d елементи</item>
+        <item quantity="many">Вибрано %1$d елементів</item>
+        <item quantity="other">Вибрано %1$d елемента</item>
     </plurals>
     <plurals name="items_count">
         <item quantity="one">%1$d елемент</item>
@@ -421,7 +421,10 @@
     <string name="settings_editor_backup">Резервна копія перед перезаписом</string>
     <string name="settings_editor_backup_desc">Перш ніж редактор перезапише зображення, він зберігає його копію в кошику, звідки її можна повернути; якщо вона не потрібна, її буде вилучено під час наступного очищення кошика.</string>
     <string name="settings_save_rename">Дозволити перейменування під час збереження</string>
-    <string name="settings_save_rename_desc">Типово всі файли завантажуються до теки Downloads під початковою назвою. Увімкніть цю функцію, щоб задавати назву під час кожного завантаження. Навіть якщо залишите її вимкненою, утримуйте \'Зберегти\', щоб увімкнути її лише тоді, коли це потрібно.</string>
+    <string name="settings_save_rename_desc">Файли зберігаються під початковою назвою. Увімкніть, щоб задавати назву при кожному завантаженні. Навіть якщо вимкнено, утримуйте \'Зберегти\', щоб ввести назву один раз.</string>
+    <string name="settings_download_path">Вибирати теку завантаження</string>
+    <string name="settings_download_path_desc">Увімкнено: у вікні назви з\'являється значок \'Шлях\', що відкриває системний вибір теки. Вимкнено: усе йде в Завантаження.</string>
+    <string name="save_name_path">Шлях</string>
     <string name="editor_tall">Портрет</string>
     <string name="editor_wide">Пейзаж</string>
     <string name="pick_cleared">Жодного файлу не вибрано.</string>

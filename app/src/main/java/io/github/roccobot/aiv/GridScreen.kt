@@ -1028,9 +1028,13 @@ fun GridScreen(
                      * **sole immagini** di una cartella, accanto a `folders_clips` che conta i
                      * video, e là *immagini* è la parola giusta. Cambiarla avrebbe corretto qui
                      * e mentito là, che è la trappola di ogni stringa riusata per somiglianza.
-                     * ⚠️ **`items_count` non riusa `pick_count`**, che oggi dice lo stesso testo:
-                     * quella è il conto di una selezione, e il giorno che diventasse *N
-                     * selezionati* il totale di una cartella cambierebbe in silenzio.
+                     * ⚠️⚠️ **E LA DIVERGENZA PER CUI LE DUE CHIAVI ESISTONO È ARRIVATA AL GIRO
+                     * DOPO**: dalla `1.80` `pick_count` dice *N elementi selezionati* (sua nota
+                     * sulla voce `front-selezione`: *quando elenchi solo il numero di elementi
+                     * s'intende il totale. Invece se c'è una selezione scrivi 'elementi
+                     * selezionati'*), mentre `items_count` resta il totale. Fino alla `1.79` le
+                     * due dicevano lo stesso testo, e riusarne una avrebbe cambiato l'altra in
+                     * silenzio: è esattamente quello che sarebbe successo qui.
                      * ⚠️ **In selezione il conto è quello dei selezionati** (*totali /
                      * selezionati*, parole sue), e il posto non cambia: il numero da guardare è
                      * sempre sotto il nome.
@@ -1105,11 +1109,17 @@ fun GridScreen(
                      * piena) e l'opacità andava col quadrato dell'apertura: il disegno usciva di
                      * scena sbiadendo e facendosi tagliare, senza mai stringersi.
                      * ⚠️ **Le due metà stanno in `Front.kt`**, [frontIconMeasure] per la misura
-                     * e [frontIconInk] per la dissolvenza tardiva, perché sono un movimento solo
-                     * in due fasi e i loro numeri vivono accanto agli altri della fascia.
+                     * e [frontIconInk] per la dissolvenza, perché sono un movimento solo in due
+                     * fasi e i loro numeri vivono accanto agli altri della fascia.
                      * ⚠️ **La misura vince sulla scala**, e la differenza è che il titolo sotto
                      * prende lo spazio che l'icona cede: il perché per esteso è sul
                      * modificatore.
+                     * ⚠️⚠️ **DALLA `1.80` LE DUE FASI COMINCIANO INSIEME** (riscontro del giro
+                     * della `1.79`: *deve iniziare la sua dissolvenza appena inizia a ridursi di
+                     * dimensione*): la soglia non è più un numero scritto a mano ma la risolve
+                     * [frontIconFade] dagli stessi ingressi della misura. ⚠️ **`toPx()` si può
+                     * chiamare qui** perché `GraphicsLayerScope` è una `Density`, e leggerla nel
+                     * disegno costa niente: la soglia è la stessa a ogni fotogramma.
                      */
                     Icon(
                         painter = painterResource(R.drawable.ic_folder_aiv),
@@ -1120,7 +1130,12 @@ fun GridScreen(
                                 shut = { shut },
                                 max = HEADER_ICON
                             )
-                            .graphicsLayer { alpha = frontIconInk(quanto()) }
+                            .graphicsLayer {
+                                alpha = frontIconInk(
+                                    aperto = quanto(),
+                                    soglia = frontIconFade(headerPx, HEADER_ICON.toPx())
+                                )
+                            }
                     )
                     Spacer(Modifier.height(FRONT_GAP))
                     /*

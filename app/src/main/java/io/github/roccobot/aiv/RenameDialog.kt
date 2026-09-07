@@ -6,7 +6,6 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,9 +17,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
-import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -41,6 +41,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -101,6 +102,9 @@ fun RenameDialog(
      * [extensionGate].
      */
     val gate = extensionGate(
+        // ⚠️ Qui la griglia di sicurezza non si scavalca mai: il tocco lungo che la scavalca
+        // per una volta è quello su 'Scarica', e questa finestra si apre da una voce di menu.
+        force = false,
         // ⚠️ Il valore di partenza è quello **corrente**: l'estensione già scelta se c'è,
         // altrimenti quella del primo file, che con una selezione omogenea è quella di
         // tutti. Senza il punto, come chiesto.
@@ -169,6 +173,14 @@ fun RenameDialog(
          * ⚠️ **E così la fila dei tasti torna quella di Material**: 'Annulla' e 'Rinomina',
          * la conferma in fondo a destra. La nota che dichiarava l'ordine strano è decaduta
          * insieme al tasto che la rendeva necessaria.
+         * ⚠️⚠️ **DALLA `1.80` NON È PIÙ UNA PASTIGLIA COL TESTO DENTRO, È UN'ICONA** (riscontro
+         * del giro della `1.79`, campo libero punto B: *'Rinomina' -> Il testo 'Estensione'
+         * (testo nella pill) deve diventare un'icona*). Il pezzo che la disegna è [TitleAction],
+         * lo stesso che la finestra del salvataggio usa per i suoi due comandi: le due finestre
+         * portano gli stessi comandi, quindi la forma è una.
+         * ⚠️ **E la misura di larghezza che sceglieva l'etichetta corta è decaduta con lei**: un
+         * glifo occupa 48dp in qualunque lingua, quindi non c'è più niente che possa mandare a
+         * capo la riga del titolo. Quello che resta di quella nota è dove il comando sta.
          */
         title = {
             Row(
@@ -176,18 +188,16 @@ fun RenameDialog(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(stringResource(R.string.pick_rename))
+                Text(
+                    text = stringResource(R.string.pick_rename),
+                    modifier = Modifier.weight(1f)
+                )
                 if (gate.allowed) {
-                    FilledTonalButton(
-                        onClick = gate.open,
-                        shape = MaterialTheme.shapes.large,
-                        contentPadding = EXT_PAD
-                    ) {
-                        Text(
-                            text = stringResource(R.string.rename_ext),
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                    }
+                    TitleAction(
+                        icon = Icons.Filled.Sell,
+                        label = stringResource(R.string.rename_ext),
+                        onTap = gate.open
+                    )
                 }
             }
         },
@@ -304,6 +314,30 @@ fun RenameDialog(
                             template = ""
                         }
                     )
+                    /*
+                     * ⚠️⚠️ **COL TOCCO LUNGO E PIÙ FILE LA DATA PORTA I CANCELLETTI, DALLA
+                     * `1.80`, E IL CONTO È IL SUO** (risposta alla domanda `d-data-blocco` del
+                     * giro della `1.79`: *con più file, scrivi AAAAMMDD più uno spazio seguito
+                     * da un numero di cancelletti adeguato alla dimensione del set. Ad esempio,
+                     * se sono 100 file, aggiunge 3 cancelletti; con 50 file aggiungi 2
+                     * cancelletti. È la stessa logica di creazione del primo template*).
+                     * ⚠️ **'La stessa logica' è la stessa FUNZIONE**, [hashesFor], che è quella
+                     * da cui esce il template proposto all'apertura: due conti che si somigliano
+                     * darebbero due numeri diversi il giorno che uno dei due cambia.
+                     * ⚠️⚠️ **E COSÌ 'Rinomina' NON RESTA PIÙ SPENTO**: fino alla `1.79` il tocco
+                     * lungo lasciava un template senza cancelletti, cioè un nome uguale per
+                     * tutti, e il tasto di conferma restava spento finché non se ne aggiungeva
+                     * uno a mano. Era il prezzo di 'esattamente come in Scarica', dove il file è
+                     * uno solo, e la sua risposta lo toglie.
+                     * ⚠️ **Con un file solo resta la sola data**: là non c'è niente da numerare,
+                     * ed è la stessa ragione per cui questa finestra con un file solo non chiede
+                     * il primo numero.
+                     * ⚠️⚠️ **IL CONTO È SU [uris] E NON SUI NOMI LETTI**, che è la differenza fra
+                     * dire il vero e dire due: se i nomi non si riescono a leggere, `listed` è
+                     * una lista vuota e da lì uscirebbero due cancelletti per qualunque
+                     * selezione, senza nessun errore. Quanti file sono lo si sa comunque, ed è
+                     * il numero che [hashesFor] chiede.
+                     */
                     Quiet(
                         text = stringResource(R.string.save_name_date),
                         enabled = true,
@@ -314,8 +348,12 @@ fun RenameDialog(
                         },
                         onHold = {
                             val oggi = today()
-                            campo = TextFieldValue(oggi, TextRange(oggi.length))
-                            template = oggi
+                            val nuovo = if (singolo) oggi else {
+                                val cifre = hashesFor(uris.size, first ?: 1)
+                                "$oggi ${"#".repeat(cifre)}"
+                            }
+                            campo = TextFieldValue(nuovo, TextRange(nuovo.length))
+                            template = nuovo
                         }
                     )
                 }
@@ -361,12 +399,9 @@ fun RenameDialog(
         },
         /*
          * ⚠️ **La fila dei tasti è quella di Material**, 'Annulla' e 'Rinomina', dalla `1.34`:
-         * il tasto dell'estensione sta sulla riga del titolo (vedi la nota là sopra), e la nota
-         * che dichiarava un ordine strano è decaduta insieme al tasto che la rendeva necessaria.
-         * ⚠️ **L'ETICHETTA DELL'ALTRO TASTO È LA CORTA, 'Estensione', e la ragione è una
-         * misura**: 'Cambia estensione' vuole circa 150dp, e accanto al titolo su un dialogo
-         * largo 280 la riga andrebbe a capo. L'utente aveva previsto il caso (*se non ci sta,
-         * solo 'Estensione'*).
+         * il comando dell'estensione sta sulla riga del titolo (vedi la nota là sopra), e la
+         * nota che dichiarava un ordine strano è decaduta insieme al tasto che la rendeva
+         * necessaria.
          */
         confirmButton = {
             TextButton(
@@ -407,6 +442,14 @@ internal class ExtensionGate(val allowed: Boolean, val open: () -> Unit)
  * ⚠️ **`false` come valore iniziale**: mentre la lettura è in corso il tasto non c'è, che è il
  * verso prudente. Al contrario comparirebbe per un istante anche a chi l'ha spento.
  *
+ * ⚠️⚠️ **DALLA `1.80` LA GRIGLIA SI PUÒ SCAVALCARE PER UNA VOLTA, ED È LA SUA RICHIESTA**
+ * (riscontro del giro della `1.79`, campo libero punto D: *la pressione lunga su 'Scarica'
+ * metterà a disposizione la finestra di download con entrambe le icone-tasto attive
+ * ('Percorso', 'Estensione')*). Il tocco lungo è già il gesto che accende la rinomina al volo,
+ * quindi accende anche questo comando: è lo stesso 'per questa volta sola'.
+ * ⚠️ **Quello che il tocco lungo NON scavalca è l'avviso**: la prima volta la finestrella con
+ * il rischio compare comunque, perché è quella che protegge, non l'interruttore.
+ *
  * ⚠️⚠️ **SI PORTA DIETRO LE PROPRIE FINESTRE, E QUELLO È IL PUNTO**: chi lo chiama ottiene un
  * tasto che funziona, non due righe da ricordare in fondo alla funzione. È lo stesso criterio
  * per cui `lowered()` porta il velo (`AIV/CLAUDE.md`, § '📍 Che cosa vuol dire 'centrato''): un
@@ -415,12 +458,20 @@ internal class ExtensionGate(val allowed: Boolean, val open: () -> Unit)
  * tocca il comando, cioè quando il dialogo che le apre è già in scena, quindi arrivano dopo di
  * lui nel gestore delle finestre qualunque sia il posto di questa chiamata.
  *
+ * @param force se il comando c'è **comunque**, cioè anche a impostazione spenta.
+ *   ⚠️ **Non ha un valore di serie di proposito**: chi apre una finestra con questo comando
+ *   dichiara se sta scavalcando la griglia di sicurezza, e non lo può fare per omissione. È lo
+ *   stesso criterio del parametro di `Modifier.lowered`.
  * @param initial l'estensione da cui parte il pannellino, **senza** il punto. È una funzione e
  *   non un valore perché si legge nell'istante in cui il pannellino si apre.
  * @param onPick riceve l'estensione scelta, senza punto; vuota vuol dire 'nessuna'.
  */
 @Composable
-internal fun extensionGate(initial: () -> String, onPick: (String) -> Unit): ExtensionGate {
+internal fun extensionGate(
+    force: Boolean,
+    initial: () -> String,
+    onPick: (String) -> Unit
+): ExtensionGate {
     val context = LocalContext.current
     val allowed by produceState(false) {
         SettingsStore.flow(context).collect { value = it.extEdit }
@@ -459,7 +510,7 @@ internal fun extensionGate(initial: () -> String, onPick: (String) -> Unit): Ext
      * che si sta per fare, e uno che comparisse sopra il campo già aperto arriverebbe dopo il
      * gesto. Chi lo chiude trova il pannellino, quindi il tocco non va perso.
      */
-    return ExtensionGate(allowed) { if (warned) asking = true else warning = true }
+    return ExtensionGate(force || allowed) { if (warned) asking = true else warning = true }
 }
 
 /**
@@ -522,8 +573,33 @@ private fun ExtensionDialog(
     )
 }
 
-/** Quanto stringe il tasto dell'estensione, che sta in una fila già piena. */
-private val EXT_PAD = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+/**
+ * Un comando sulla riga del titolo di una finestra: un glifo e nient'altro.
+ *
+ * ⚠️⚠️ **NASCE NELLA `1.80` PER DUE FINESTRE, E LA SUA FORMA È SUA** (riscontro del giro della
+ * `1.79`, voce `scarica-comandi`: *'Estensione' deve apparire sotto forma di icona a destra,
+ * allineato alla linea di base del titolo*; e campo libero punto B, che chiede la stessa cosa
+ * per 'Rinomina'). Sta in una funzione perché i chiamanti sono due: copiata, il giorno che il
+ * glifo o la misura cambiano ne cambierebbe uno solo, che è la trappola già scritta su [Quiet].
+ *
+ * ⚠️⚠️ **LA MISURA È QUELLA DI SERIE, 48dp, E NON SI STRINGE**: è il bersaglio minimo di
+ * Material, e un glifo da 24 dentro una scatola più piccola costa esattamente l'accessibilità
+ * per cui un'icona senza etichetta ha bisogno di un bersaglio grande. La riga del titolo viene
+ * alta come lei, ed è la stessa in tutte e due le finestre.
+ * ⚠️ **'Allineato alla linea di base' si ottiene centrando**, e non è un ripiego: un glifo non
+ * ha una linea di base, quindi non esiste niente a cui allinearlo. Il centro verticale è quello
+ * che la pastiglia di 'Rinomina' aveva già dalla `1.34`, cioè la forma che lui ha approvato.
+ *
+ * @param label che cosa fa il comando: è quello che legge un lettore di schermo, e senza di lui
+ *   il comando sarebbe muto. ⚠️ **Non è decorativo**, quindi non prende `null` come le icone che
+ *   accompagnano un testo già scritto accanto.
+ */
+@Composable
+internal fun TitleAction(icon: ImageVector, label: String, onTap: () -> Unit) {
+    IconButton(onClick = onTap) {
+        Icon(imageVector = icon, contentDescription = label)
+    }
+}
 
 /**
  * Le righe dell'anteprima: i primi tre abbinamenti e **l'ultimo**.

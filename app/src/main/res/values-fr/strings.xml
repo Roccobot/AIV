@@ -164,9 +164,9 @@
     <string name="pick_forever">Supprimer définitivement</string>
     <string name="pick_counting">Calcul en cours...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d élément</item>
-        <item quantity="other">%1$d éléments</item>
-        <item quantity="many">%1$d éléments</item>
+        <item quantity="one">%1$d élément sélectionné</item>
+        <item quantity="other">%1$d éléments sélectionnés</item>
+        <item quantity="many">%1$d éléments sélectionnés</item>
     </plurals>
     <plurals name="items_count">
         <item quantity="one">%1$d élément</item>
@@ -405,7 +405,10 @@
     <string name="settings_editor_backup">Copie de sûreté avant d\'écraser</string>
     <string name="settings_editor_backup_desc">Avant qu\'un éditeur n\'écrase une image, il en enregistre une copie dans la corbeille, où vous pourrez la récupérer ; si elle ne vous sert pas, elle sera supprimée au prochain \'Vider la corbeille\'.</string>
     <string name="settings_save_rename">Permettre de renommer à l\'enregistrement</string>
-    <string name="settings_save_rename_desc">Par défaut, tous les fichiers sont téléchargés dans Téléchargements sous leur nom d\'origine. Active cette fonction pour définir un nom d\'enregistrement à chaque téléchargement. Même si tu la laisses désactivée, tu peux maintenir \'Enregistrer\' pour l\'activer à la volée, seulement quand c\'est utile.</string>
+    <string name="settings_save_rename_desc">Les fichiers sont enregistrés sous leur nom d\'origine. Activez cette option pour choisir le nom à chaque téléchargement. Même désactivée, un appui long sur \'Enregistrer\' permet de saisir un nom cette fois-là.</string>
+    <string name="settings_download_path">Choisir le dossier de téléchargement</string>
+    <string name="settings_download_path_desc">Activée, l\'icône \'Chemin\' apparaît dans la fenêtre du nom et ouvre le sélecteur du système pour choisir la destination. Désactivée, tout va dans Téléchargements.</string>
+    <string name="save_name_path">Chemin</string>
     <string name="editor_tall">Portrait</string>
     <string name="editor_wide">Paysage</string>
     <string name="pick_cleared">Aucun fichier sélectionné.</string>

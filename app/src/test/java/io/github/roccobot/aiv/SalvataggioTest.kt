@@ -1,10 +1,12 @@
 package io.github.roccobot.aiv
 
 import android.content.Context
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
@@ -85,11 +87,7 @@ class SalvataggioTest {
      */
     @Test
     fun `la finestra parte dal nome senza suffisso`() {
-        banco.setContent {
-            AivTheme(darkTheme = false) {
-                SaveNameDialog(full = "foto.jpg", onDismiss = {}, onSave = { _, _ -> })
-            }
-        }
+        banco.setContent { AivTheme(darkTheme = false) { Finestra() } }
 
         banco.onNodeWithText("foto").assertExists()
         banco.onNodeWithText(".jpg").assertExists()
@@ -108,19 +106,57 @@ class SalvataggioTest {
      * fabbrica è spenta. La `1.78` ha spostato quel cancello in un pezzo condiviso: se un domani
      * il suo `allowed` diventasse un `true` scritto a mano, l'app non darebbe nessun errore e la
      * protezione sarebbe sparita in silenzio.
+     * ⚠️⚠️ **DALLA `1.80` L'ASSENZA SI CERCA FRA LE DESCRIZIONI E NON FRA I TESTI, e prima
+     * questa riga sarebbe passata misurando NIENTE**: 'Estensione' è diventata un'icona sulla
+     * riga del titolo (voce `scarica-comandi` del giro della `1.79`), quindi il suo nome non è
+     * più il testo di un nodo ma la descrizione parlata di uno. Cercarlo fra i testi darebbe
+     * 'non c'è' anche con l'icona in scena, che è il modo tipico in cui una prova mente in
+     * verde.
      */
     @Test
     fun `i comandi sul nome ci sono e l'estensione no`() {
-        banco.setContent {
-            AivTheme(darkTheme = false) {
-                SaveNameDialog(full = "foto.jpg", onDismiss = {}, onSave = { _, _ -> })
-            }
-        }
+        banco.setContent { AivTheme(darkTheme = false) { Finestra() } }
 
         banco.onNodeWithText(app.getString(R.string.rename_select_all)).assertExists()
         banco.onNodeWithText(app.getString(R.string.rename_clear)).assertExists()
         banco.onNodeWithText(app.getString(R.string.save_name_date)).assertExists()
-        banco.onNodeWithText(app.getString(R.string.rename_ext)).assertDoesNotExist()
+        banco.onNodeWithContentDescription(app.getString(R.string.rename_ext))
+            .assertDoesNotExist()
+        banco.onNodeWithContentDescription(app.getString(R.string.save_name_path))
+            .assertDoesNotExist()
+    }
+
+    /**
+     * **Col tocco lungo i due comandi della riga del titolo ci sono tutti e due, e 'Percorso'
+     * consegna il nome che si vede.**
+     *
+     * ⚠️⚠️ **È LA SUA RICHIESTA ALLA LETTERA** (campo libero del giro della `1.79`, punto D: *la
+     * pressione lunga su 'Scarica' metterà a disposizione la finestra di download con entrambe
+     * le icone-tasto attive ('Percorso', 'Estensione')*), e senza prova non ce l'avrebbe
+     * nessuno: quei due comandi compaiono per un `force` e per un parametro non nullo, cioè per
+     * due strade diverse che non danno nessun errore se una delle due non arriva.
+     * ⚠️⚠️ **E CHE 'Percorso' CONSEGNI LA COPPIA GIUSTA È LA METÀ CHE FA DANNO**: un comando che
+     * aprisse il selettore col nome intero, o col solo nome senza suffisso, salverebbe un file
+     * che si chiama in un altro modo. Qui si guarda quello che la finestra passa a chi salva,
+     * che è il confine fra le due metà dichiarato in testa a questa classe.
+     * ⚠️ **L'ordine non si prova qui**: 'prima Percorso e poi Estensione' è una posizione, e
+     * quello che il banco può dire è che i due nodi esistono. Il posto si vede.
+     */
+    @Test
+    fun `col tocco lungo i due comandi del titolo ci sono tutti e due`() {
+        var chiesto: Pair<String, String>? = null
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                Finestra(hold = true, onPath = { nome, coda -> chiesto = nome to coda })
+            }
+        }
+
+        val percorso = app.getString(R.string.save_name_path)
+        banco.onNodeWithContentDescription(percorso).assertExists()
+        banco.onNodeWithContentDescription(app.getString(R.string.rename_ext)).assertExists()
+
+        banco.onNodeWithContentDescription(percorso).performClick()
+        assertEquals("'Percorso' non ha consegnato il nome spezzato", "foto" to ".jpg", chiesto)
     }
 
     /**
@@ -136,11 +172,7 @@ class SalvataggioTest {
      */
     @Test
     fun `svuota lascia la finestra senza niente da salvare`() {
-        banco.setContent {
-            AivTheme(darkTheme = false) {
-                SaveNameDialog(full = "foto.jpg", onDismiss = {}, onSave = { _, _ -> })
-            }
-        }
+        banco.setContent { AivTheme(darkTheme = false) { Finestra() } }
 
         banco.onNodeWithText(app.getString(R.string.editor_save)).assertIsEnabled()
         banco.onNodeWithText(app.getString(R.string.rename_clear)).performClick()
@@ -171,11 +203,7 @@ class SalvataggioTest {
         var consegnato: String? = null
         banco.setContent {
             AivTheme(darkTheme = false) {
-                SaveNameDialog(
-                    full = "foto.jpg",
-                    onDismiss = {},
-                    onSave = { nome, _ -> consegnato = nome }
-                )
+                Finestra(onSave = { nome, _ -> consegnato = nome })
             }
         }
 
@@ -202,5 +230,28 @@ class SalvataggioTest {
         assertTrue("Il tocco lungo non ha rifatto il nome", soloData != null)
         assertEquals("Il tocco lungo non ha lasciato le sole otto cifre", 8, soloData!!.length)
         assertTrue("Quello che resta non è una data", soloData.all { it.isDigit() })
+    }
+
+    /**
+     * La finestra con gli argomenti minimi, così una firma nuova si aggiorna in un posto solo.
+     *
+     * ⚠️ **I due valori di serie sono il caso di fabbrica**: nessun tocco lungo e nessun
+     * 'Percorso', cioè quello che vede chi accende la sola rinomina al salvataggio. Le prove che
+     * guardano l'altro caso lo dicono passando gli argomenti, e così si legge nella prova quale
+     * dei due casi sta misurando.
+     */
+    @Composable
+    private fun Finestra(
+        hold: Boolean = false,
+        onPath: ((String, String) -> Unit)? = null,
+        onSave: (String, String) -> Unit = { _, _ -> }
+    ) {
+        SaveNameDialog(
+            full = "foto.jpg",
+            hold = hold,
+            onPath = onPath,
+            onDismiss = {},
+            onSave = onSave
+        )
     }
 }

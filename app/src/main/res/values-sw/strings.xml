@@ -164,8 +164,8 @@
     <string name="pick_forever">Futa kabisa</string>
     <string name="pick_counting">Inahesabu...</string>
     <plurals name="pick_count">
-        <item quantity="one">kipengee %1$d</item>
-        <item quantity="other">vipengee %1$d</item>
+        <item quantity="one">kipengee %1$d kimechaguliwa</item>
+        <item quantity="other">vipengee %1$d vimechaguliwa</item>
     </plurals>
     <plurals name="items_count">
         <item quantity="one">kipengee %1$d</item>
@@ -389,7 +389,10 @@
     <string name="settings_editor_backup">Nakala ya usalama kabla ya kuandika juu</string>
     <string name="settings_editor_backup_desc">Kabla kihariri hakijaandika juu ya picha, huhifadhi nakala yake kwenye pipa la taka, ambapo unaweza kuirejesha; usipoihitaji, itafutwa wakati wa \'Mwaga pipa la taka\' unaofuata.</string>
     <string name="settings_save_rename">Ruhusu kubadilisha jina wakati wa kuhifadhi</string>
-    <string name="settings_save_rename_desc">Kwa chaguo-msingi, faili zote hupakuliwa kwenye folda ya Downloads kwa jina lake la awali. Washa kipengele hiki ili kuamua jina la kuhifadhi kwa kila upakuaji. Hata ukiiacha imezimwa, unaweza kushikilia \'Hifadhi\' ili kuiwasha papo hapo, pale tu inapohitajika.</string>
+    <string name="settings_save_rename_desc">Faili huhifadhiwa kwa jina la awali. Washa ili kuweka jina kwa kila upakuaji. Hata ikiwa imezimwa, gusa na ushikilie \'Hifadhi\' kuandika jina mara hiyo tu.</string>
+    <string name="settings_download_path">Chagua njia ya upakuaji</string>
+    <string name="settings_download_path_desc">Ikiwashwa, aikoni ya \'Njia\' inaonekana katika kidirisha cha jina na kufungua kichagua cha mfumo. Ikizimwa, kila kitu kinaingia Download.</string>
+    <string name="save_name_path">Njia</string>
     <string name="editor_tall">Wima</string>
     <string name="editor_wide">Mlalo</string>
     <string name="pick_cleared">Hakuna faili iliyochaguliwa.</string>

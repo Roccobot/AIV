@@ -164,10 +164,10 @@
     <string name="pick_forever">Usuń na zawsze</string>
     <string name="pick_counting">Liczenie...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d element</item>
-        <item quantity="few">%1$d elementy</item>
-        <item quantity="many">%1$d elementów</item>
-        <item quantity="other">%1$d elementu</item>
+        <item quantity="one">Wybrano %1$d element</item>
+        <item quantity="few">Wybrano %1$d elementy</item>
+        <item quantity="many">Wybrano %1$d elementów</item>
+        <item quantity="other">Wybrano %1$d elementu</item>
     </plurals>
     <plurals name="items_count">
         <item quantity="one">%1$d element</item>
@@ -421,7 +421,10 @@
     <string name="settings_editor_backup">Kopia zapasowa przed nadpisaniem</string>
     <string name="settings_editor_backup_desc">Zanim edytor nadpisze obraz, zapisuje jego kopię w koszu, skąd będzie można ją odzyskać; jeśli nie będzie potrzebna, zniknie przy następnym \'Opróżnij kosz\'.</string>
     <string name="settings_save_rename">Pozwól zmienić nazwę przy zapisie</string>
-    <string name="settings_save_rename_desc">Domyślnie wszystkie pliki są pobierane do folderu Downloads pod pierwotną nazwą. Włącz tę funkcję, aby przy każdym pobraniu podawać nazwę zapisu. Nawet gdy zostawisz ją wyłączoną, możesz przytrzymać \'Zapisz\', aby włączyć ją tylko wtedy, gdy jest potrzebna.</string>
+    <string name="settings_save_rename_desc">Pliki są zapisywane pod pierwotną nazwą. Włącz, aby podawać nazwę przy każdym pobieraniu. Nawet gdy jest wyłączone, przytrzymaj \'Zapisz\', aby wpisać nazwę tylko raz.</string>
+    <string name="settings_download_path">Wybór ścieżki pobierania</string>
+    <string name="settings_download_path_desc">Włączone: w okienku nazwy pojawia się ikona \'Ścieżka\', która otwiera systemowy wybór miejsca. Wyłączone: wszystko idzie do Pobranych.</string>
+    <string name="save_name_path">Ścieżka</string>
     <string name="editor_tall">Pionowo</string>
     <string name="editor_wide">Poziomo</string>
     <string name="pick_cleared">Nie wybrano żadnego pliku.</string>

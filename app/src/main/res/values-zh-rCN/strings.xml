@@ -164,7 +164,7 @@
     <string name="pick_forever">彻底删除</string>
     <string name="pick_counting">正在统计...</string>
     <plurals name="pick_count">
-        <item quantity="other">%1$d 项</item>
+        <item quantity="other">已选择 %1$d 项</item>
     </plurals>
     <plurals name="items_count">
         <item quantity="other">%1$d 项</item>
@@ -373,7 +373,10 @@
     <string name="settings_editor_backup">覆盖前先留一份安全副本</string>
     <string name="settings_editor_backup_desc">在编辑器覆盖一张图像之前，会先把副本存入回收站，可以从那里找回；如果不需要，下次\'清空回收站\'时会被删除。</string>
     <string name="settings_save_rename">保存时允许改名</string>
-    <string name="settings_save_rename_desc">默认情况下，所有文件都以原名下载到 Downloads 文件夹。打开此功能后，每次下载都可以设定保存名称。即使保持关闭，也可以长按 \'保存\'，只在需要时临时打开。</string>
+    <string name="settings_save_rename_desc">文件按原名保存。开启后每次下载都可指定名称。即使关闭，长按「保存」也可临时输入名称。</string>
+    <string name="settings_download_path">选择下载路径</string>
+    <string name="settings_download_path_desc">开启后，名称窗口会出现「路径」图标，打开系统选择器以选定位置。关闭时全部保存到 Download。</string>
+    <string name="save_name_path">路径</string>
     <string name="editor_tall">竖向</string>
     <string name="editor_wide">横向</string>
     <string name="pick_cleared">未选择任何文件。</string>

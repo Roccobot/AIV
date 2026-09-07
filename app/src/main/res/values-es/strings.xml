@@ -164,9 +164,9 @@
     <string name="pick_forever">Eliminar del todo</string>
     <string name="pick_counting">Contando...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d elemento</item>
-        <item quantity="other">%1$d elementos</item>
-        <item quantity="many">%1$d elementos</item>
+        <item quantity="one">%1$d elemento seleccionado</item>
+        <item quantity="other">%1$d elementos seleccionados</item>
+        <item quantity="many">%1$d elementos seleccionados</item>
     </plurals>
     <plurals name="items_count">
         <item quantity="one">%1$d elemento</item>
@@ -405,7 +405,10 @@
     <string name="settings_editor_backup">Copia de seguridad antes de sobrescribir</string>
     <string name="settings_editor_backup_desc">Antes de que un editor sobrescriba una imagen, guarda una copia en la papelera, donde podrás recuperarla; si no la necesitas, se eliminará en el siguiente \'Vaciar papelera\'.</string>
     <string name="settings_save_rename">Permitir cambiar el nombre al guardar</string>
-    <string name="settings_save_rename_desc">De forma predeterminada, todos los archivos se descargan en Descargas con su nombre original. Activa esta función para definir un nombre de guardado en cada descarga. Aunque la dejes desactivada, puedes mantener pulsado \'Guardar\' para activarla al momento solo cuando haga falta.</string>
+    <string name="settings_save_rename_desc">Los archivos se guardan con su nombre original. Actívalo para elegir el nombre en cada descarga. Aun desactivado, mantén pulsado \'Guardar\' para escribir un nombre solo esa vez.</string>
+    <string name="settings_download_path">Elegir la ruta de descarga</string>
+    <string name="settings_download_path_desc">Activado, en la ventana del nombre aparece el icono \'Ruta\', que abre el selector del sistema para elegir el destino. Desactivado, todo va a Descargas.</string>
+    <string name="save_name_path">Ruta</string>
     <string name="editor_tall">Vertical</string>
     <string name="editor_wide">Horizontal</string>
     <string name="pick_cleared">Ningún archivo seleccionado.</string>

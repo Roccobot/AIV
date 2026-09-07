@@ -164,8 +164,8 @@
     <string name="pick_forever">Tamamen sil</string>
     <string name="pick_counting">Sayılıyor...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d öge</item>
-        <item quantity="other">%1$d öge</item>
+        <item quantity="one">%1$d öge seçildi</item>
+        <item quantity="other">%1$d öge seçildi</item>
     </plurals>
     <plurals name="items_count">
         <item quantity="one">%1$d öge</item>
@@ -389,7 +389,10 @@
     <string name="settings_editor_backup">Üzerine yazmadan önce yedek kopya</string>
     <string name="settings_editor_backup_desc">Bir düzenleyici bir görüntünün üzerine yazmadan önce, bir kopyasını çöp kutusuna kaydeder; oradan geri alabilirsiniz. Gerekmiyorsa bir sonraki \'Çöp kutusunu boşalt\' işleminde silinir.</string>
     <string name="settings_save_rename">Kaydederken yeniden adlandırmaya izin ver</string>
-    <string name="settings_save_rename_desc">Öntanımlı olarak tüm dosyalar özgün adıyla Downloads klasörüne indirilir. Her indirmede bir kayıt adı belirlemek için bunu aç. Kapalı bıraksan bile, yalnızca gerektiğinde anında açmak için \'Kaydet\' düğmesini basılı tutabilirsin.</string>
+    <string name="settings_save_rename_desc">Dosyalar özgün adıyla kaydedilir. Her indirmede ad girmek için bunu açın. Kapalıyken bile \'Kaydet\' düğmesini basılı tutarak o seferlik ad yazabilirsiniz.</string>
+    <string name="settings_download_path">İndirme yolunu seç</string>
+    <string name="settings_download_path_desc">Açıkken ad penceresinde \'Yol\' simgesi çıkar ve sistem seçicisini açar. Kapalıyken her şey İndirilenler klasörüne gider.</string>
+    <string name="save_name_path">Yol</string>
     <string name="editor_tall">Dikey</string>
     <string name="editor_wide">Yatay</string>
     <string name="pick_cleared">Hiçbir dosya seçilmedi.</string>

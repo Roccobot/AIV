@@ -134,7 +134,10 @@
     <string name="settings_editor_backup">Safety copy before writing over</string>
     <string name="settings_editor_backup_desc">Before an editor writes over an image, it saves a copy in the bin, where you can recover it; if you do not need it, it will be deleted at the next \'Empty bin\'.</string>
     <string name="settings_save_rename">Allow renaming when saving</string>
-    <string name="settings_save_rename_desc">By default, all files are downloaded to Downloads under their original name. Turn this on to set a save name for every download. Even if you leave it off, you can touch and hold \'Save\' to turn it on just when you need it.</string>
+    <string name="settings_save_rename_desc">By default, files are saved under their original name. Turn this on to set a save name for every download. Even with it off, touch and hold \'Save\' to type a new name just that once.</string>
+    <string name="settings_download_path">Choose the download path</string>
+    <string name="settings_download_path_desc">With this on, a \'Path\' icon appears in the save window and opens the system picker, so you choose where the file goes. With it off, everything goes to Downloads.</string>
+    <string name="save_name_path">Path</string>
 
     <string name="toast_image_copied">Image copied</string>
     <!-- Said after a long press on the file name in the file info dialog: the whole
@@ -174,7 +177,7 @@
     <string name="settings_ext_edit">Edit extensions from \'Rename\'</string>
     <string name="settings_ext_edit_desc">The rename panel can change file extensions. If you do not know what you are doing, do not turn this on: it can make images unreadable.</string>
     <string name="settings_gpu_thumbs">Keep thumbnails in graphics memory</string>
-    <string name="settings_gpu_thumbs_desc">Builds the thumbnail cache in the graphics chip\'s memory, leaving the standard memory free. It can make the gallery feel snappier, make no difference, or in some cases, almost always on older devices, slow it down. If you have performance problems, turn it on and see whether it helps: there is no telling beforehand, given how many hardware and software combinations Android devices have.</string>
+    <string name="settings_gpu_thumbs_desc">Builds the thumbnail cache in the graphics chip\'s memory. It can make the gallery feel snappier, make no difference, or sometimes slow things down on older devices. Turn it on and see whether it helps: every device is its own case, given how many hardware and software combinations Android has.</string>
     <string name="settings_thumbs">Delete stored thumbnails</string>
     <string name="settings_thumbs_empty">No stored thumbnails</string>
     <string name="settings_thumbs_warn">Tap the button to clear the thumbnail cache. Image and video previews will be deleted and regenerated automatically when you open each folder (this may take a minute or more in folders with many large images).</string>
@@ -394,8 +397,8 @@
     <string name="pick_forever">Delete for good</string>
     <string name="pick_counting">Counting...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d item</item>
-        <item quantity="other">%1$d items</item>
+        <item quantity="one">%1$d item selected</item>
+        <item quantity="other">%1$d items selected</item>
     </plurals>
     <!-- ⚠️⚠️ SAME TEXT AS pick_count ABOVE, AND ON PURPOSE: two keys, two jobs. This one
          counts what a folder holds, that one counts what is selected. Merging them would

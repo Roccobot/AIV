@@ -217,6 +217,78 @@ class FrontespizioTest {
     }
 
     /**
+     * **L'icona comincia a sbiadire nell'istante in cui comincia a stringersi, e arrivano a zero
+     * insieme.**
+     *
+     * ⚠️⚠️ **È LA SUA NOTA ALLA LETTERA** (giro della `1.79`, voce `front-icona`: *l'icona
+     * cartella deve iniziare la sua dissolvenza appena inizia a ridursi di dimensione, e
+     * arrivare alla dimensione minima e a opacità 0 contemporaneamente*), e la `1.78` la
+     * mancava con un `0.35f` scritto a mano: fra il punto in cui l'icona cominciava a stringersi
+     * e quello in cui cominciava a sbiadire c'era un tratto a inchiostro pieno.
+     * ⚠️⚠️ **LA SOGLIA SI VERIFICA PER INVERSIONE E NON RICOPIANDO LA FORMULA**: [frontIconFade]
+     * deve rispondere l'apertura alla quale lo spazio concesso all'icona è **esattamente** il suo
+     * lato massimo, cioè il punto in cui [Modifier.frontIconMeasure] passa da `max` a `libero *
+     * FRONT_ICON_SHARE`. Ricopiare il conto qui vorrebbe dire una prova che segue qualunque
+     * modifica invece di misurarla.
+     * ⚠️ **Il caso dell'icona che non ci sta mai è l'altro bordo**: con un lato massimo più grande
+     * di quanto la fascia possa concedere, la soglia è 1, cioè l'icona si stringe e sbiadisce dal
+     * primo pixel di scorrimento. Senza questa riga, una soglia che sfora sopra 1 passerebbe.
+     */
+    @Test
+    fun `l'icona sbiadisce mentre si stringe e arrivano a zero insieme`() {
+        val fascia = 900f
+        val lato = 120f
+        val soglia = frontIconFade(fascia, lato)
+
+        assertEquals(
+            "Alla soglia lo spazio concesso non è il lato massimo: la dissolvenza non parte" +
+                " dove parte il rimpicciolimento",
+            lato,
+            soglia * fascia * FRONT_ICON_SHARE,
+            MEZZO_PIXEL
+        )
+        assertEquals(
+            "Alla soglia l'inchiostro non è ancora pieno: la dissolvenza parte troppo presto",
+            FRONT_INK,
+            frontIconInk(soglia, soglia),
+            NIENTE
+        )
+        assertEquals(
+            "A fascia chiusa l'icona ha ancora inchiostro",
+            0f,
+            frontIconInk(0f, soglia),
+            NIENTE
+        )
+        assertTrue(
+            "Sopra la soglia l'inchiostro non è pieno",
+            frontIconInk(1f, soglia) == FRONT_INK
+        )
+
+        var prima = frontIconInk(0f, soglia)
+        for (passo in 1..100) {
+            val aperto = passo / 100f
+            val adesso = frontIconInk(aperto, soglia)
+            assertTrue(
+                "A $aperto di apertura l'inchiostro cala invece di crescere",
+                adesso >= prima
+            )
+            assertTrue(
+                "A $aperto di apertura l'icona si vede ancora ma è già trasparente",
+                adesso > 0f
+            )
+            prima = adesso
+        }
+
+        val stretta = frontIconFade(fascia, fascia)
+        assertEquals(
+            "Un'icona più grande dello spazio che la fascia concede non parte da 1",
+            1f,
+            stretta,
+            NIENTE
+        )
+    }
+
+    /**
      * I riquadri delle miniature che stanno nell'albero semantico, per posizione.
      *
      * ⚠️ **Si chiedono per NOME e una per una**: la descrizione parlata di una miniatura dice
@@ -308,6 +380,24 @@ private const val QUASI_TUTTO = 0.9f
  * schermo ci sono il margine della schermata e i rientri di sistema.
  */
 private const val DA = 0.7f
+
+/**
+ * Quanto scarto si perdona a una misura in pixel: **mezzo**.
+ *
+ * ⚠️ **Non zero**: la soglia si ricava da una divisione in virgola mobile e si rimoltiplica per
+ * tornare al lato, quindi l'uguaglianza esatta fallirebbe per l'ultimo bit. Mezzo pixel è meno
+ * di quello che uno schermo può mostrare, cioè una tolleranza che non nasconde niente.
+ */
+private const val MEZZO_PIXEL = 0.5f
+
+/**
+ * Quanto scarto si perdona a una frazione: **niente**.
+ *
+ * ⚠️ **Zero di proposito**: qui i due estremi sono valori scritti, non misure, e devono cadere
+ * esattamente sul loro numero. Una tolleranza qui vorrebbe dire una dissolvenza che parte 'quasi'
+ * dove deve, che è precisamente il difetto del giro della `1.79`.
+ */
+private const val NIENTE = 0f
 
 /**
  * Quanto dura il trascinamento simulato.

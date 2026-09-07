@@ -164,10 +164,10 @@
     <string name="pick_forever">Удалить навсегда</string>
     <string name="pick_counting">Идёт подсчёт...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d элемент</item>
-        <item quantity="few">%1$d элемента</item>
-        <item quantity="many">%1$d элементов</item>
-        <item quantity="other">%1$d элемента</item>
+        <item quantity="one">Выбран %1$d элемент</item>
+        <item quantity="few">Выбрано %1$d элемента</item>
+        <item quantity="many">Выбрано %1$d элементов</item>
+        <item quantity="other">Выбрано %1$d элемента</item>
     </plurals>
     <plurals name="items_count">
         <item quantity="one">%1$d элемент</item>
@@ -421,7 +421,10 @@
     <string name="settings_editor_backup">Резервная копия перед перезаписью</string>
     <string name="settings_editor_backup_desc">Прежде чем редактор перезапишет изображение, он сохраняет его копию в корзине, откуда её можно вернуть; если она не нужна, она будет удалена при следующей очистке корзины.</string>
     <string name="settings_save_rename">Разрешить переименование при сохранении</string>
-    <string name="settings_save_rename_desc">По умолчанию все файлы загружаются в папку Downloads под исходным именем. Включите эту функцию, чтобы задавать имя при каждой загрузке. Даже если оставите её выключенной, удерживайте \'Сохранить\', чтобы включить её на один раз, когда это нужно.</string>
+    <string name="settings_save_rename_desc">Файлы сохраняются под исходным именем. Включите, чтобы задавать имя при каждой загрузке. Даже если выключено, удерживайте \'Сохранить\', чтобы ввести имя один раз.</string>
+    <string name="settings_download_path">Выбирать папку загрузки</string>
+    <string name="settings_download_path_desc">Включено: в окне имени появляется значок \'Путь\', открывающий системный выбор папки. Выключено: всё идёт в Загрузки.</string>
+    <string name="save_name_path">Путь</string>
     <string name="editor_tall">Портрет</string>
     <string name="editor_wide">Пейзаж</string>
     <string name="pick_cleared">Файлы не выбраны.</string>

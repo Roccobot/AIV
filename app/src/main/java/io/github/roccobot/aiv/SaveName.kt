@@ -3,9 +3,13 @@ package io.github.roccobot.aiv
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FolderOpen
+import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -18,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -47,11 +52,20 @@ import java.time.format.DateTimeFormatter
  * esiste solo se l'impostazione è accesa. Chi vuole cambiare il **formato** ha
  * 'Esporta/Converti', che è un'altra cosa e lo dice il pannellino stesso.
  *
- * ⚠️⚠️ **I QUATTRO COMANDI SONO TUTTI NELLO STILE SOLO-TESTO, ED È LA SUA RICHIESTA ALLA
+ * ⚠️⚠️ **I COMANDI SOTTO IL CAMPO SONO TRE E SONO SOLO-TESTO, ED È LA SUA RICHIESTA ALLA
  * LETTERA**: *tutti con lo stile solo-testo, senza tasto/pillola già usato in 'Rinomina'*.
  * Quindi anche 'Data', che fino alla `1.77` era un gettone tonale, e il pezzo che li disegna è
  * [Quiet], lo stesso di 'Rinomina': copiarne la forma qui sarebbe il primo posto in cui
  * divergere.
+ * ⚠️⚠️ **MA 'Estensione' NON È PIÙ FRA LORO, DALLA `1.80`: È UN'ICONA SULLA RIGA DEL TITOLO**
+ * (riscontro del giro della `1.79`, voce `scarica-comandi`: *mi ero espresso male ... 'Estensione'
+ * deve apparire sotto forma di icona a destra, allineato alla linea di base del titolo*). Con lei
+ * c'è **'Percorso'**, l'altra icona, e l'ordine è il suo: *prima 'Percorso' e poi 'Estensione'
+ * ultima a destra*. Le due compaiono una per volta o insieme, e da sole stanno comunque a destra,
+ * perché è la fila che si allinea al bordo e non ogni icona per conto suo.
+ * ⚠️ **Il glifo dei due comandi è PROVVISORIO**: lui ha chiesto una proposta (*proponimi qualche
+ * icona per 'Estensione' e altre per 'percorso'*), quindi qui ci sono due glifi di Material che
+ * si leggono, e la scelta arriva col giro dopo. Chi li sostituisce cambia due righe.
  *
  * ⚠️⚠️ **È UNA MODALE VERA, E LE DUE RIGHE VANNO INSIEME** (`Modifier.lowered(null)` e
  * `properties = loweredWindow(null)`): esiste per raccogliere un input scritto, che è il solo
@@ -60,12 +74,22 @@ import java.time.format.DateTimeFormatter
  * finestra'.
  *
  * @param full il nome intero che il file avrebbe, suffisso compreso.
+ * @param hold se la finestra è stata aperta col **tocco lungo**, che vale per quella volta sola:
+ *   allora i due comandi della riga del titolo ci sono tutti e due, a impostazioni spente
+ *   (campo libero del giro della `1.79`, punto D). ⚠️ **Non ha un valore di serie**, perché è
+ *   una delle due vie con cui questa finestra si apre e chi la apre lo sa.
+ * @param onPath il gesto di 'Percorso': riceve nome e suffisso come sono in quel momento, e
+ *   apre il selettore di sistema. ⚠️ **`null` vuol dire che il comando non c'è**, cioè
+ *   l'impostazione è spenta e la finestra non è stata aperta col tocco lungo: la scelta la fa
+ *   chi chiama, perché è lui ad avere le impostazioni in mano.
  * @param onSave riceve il nome senza suffisso **e** il suffisso scelto, col punto: a rimetterli
  *   insieme ci pensa chi salva, perché è lui a sapere che cosa dichiarare al `MediaStore`.
  */
 @Composable
 fun SaveNameDialog(
     full: String,
+    hold: Boolean,
+    onPath: ((name: String, suffix: String) -> Unit)?,
     onDismiss: () -> Unit,
     onSave: (name: String, suffix: String) -> Unit
 ) {
@@ -97,6 +121,11 @@ fun SaveNameDialog(
      */
     var suffisso by rememberSaveable(full) { mutableStateOf(had) }
     val gate = extensionGate(
+        // ⚠️⚠️ **IL TOCCO LUNGO SCAVALCA LA GRIGLIA DI SICUREZZA, ED È LA SUA RICHIESTA**
+        // (campo libero del giro della `1.79`, punto D): quel gesto è già il 'per questa volta
+        // sola' che accende la rinomina, quindi accende anche questo comando. L'avviso della
+        // prima volta resta comunque, perché è quello che protegge.
+        force = hold,
         // ⚠️ Il pannellino lavora **senza** il punto, come in 'Rinomina', e il punto lo rimette
         // questa riga: è la stessa convenzione, quindi le due finestre si comportano uguale.
         initial = { suffisso.removePrefix(".") },
@@ -118,7 +147,46 @@ fun SaveNameDialog(
          * cui un difetto di testo passa: la lingua in cui si scrive è quella in cui non si
          * vede. Adesso il titolo dice **che cosa si chiede** e il tasto **che cosa fa**.
          */
-        title = { Text(stringResource(R.string.save_name_title)) },
+        /*
+         * ⚠️⚠️ **I DUE COMANDI STANNO SULLA RIGA DEL TITOLO, E L'ORDINE È IL SUO** (riscontro
+         * del giro della `1.79`, voce `scarica-comandi`: *le icone potrebbero essere presenti
+         * una per volta (in tal caso l'unica va allineata a destra) o insieme (in tal caso,
+         * prima 'Percorso' e poi 'Estensione' ultima a destra)*).
+         * ⚠️ **A destra ci va la FILA e non ogni icona per conto suo**, e così il caso 'una
+         * sola' viene da sé: `SpaceBetween` spinge la fila al bordo, quindi l'unica icona in
+         * scena è già allineata a destra senza che nessuno la sposti.
+         * ⚠️ **Il titolo prende il peso**: senza, un titolo lungo spingerebbe le icone oltre il
+         * bordo invece di andare a capo, che è la stessa ragione per cui nella griglia il peso
+         * sta fuori dalla colonna del conto.
+         */
+        title = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.save_name_title),
+                    modifier = Modifier.weight(1f)
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (onPath != null) {
+                        TitleAction(
+                            icon = Icons.Filled.FolderOpen,
+                            label = stringResource(R.string.save_name_path),
+                            onTap = { onPath(pulito, suffisso) }
+                        )
+                    }
+                    if (gate.allowed) {
+                        TitleAction(
+                            icon = Icons.Filled.Sell,
+                            label = stringResource(R.string.rename_ext),
+                            onTap = gate.open
+                        )
+                    }
+                }
+            }
+        },
         text = {
             Column {
                 OutlinedTextField(
@@ -147,13 +215,15 @@ fun SaveNameDialog(
                     )
                 )
                 /*
-                 * ⚠️⚠️ **LA FILA È LA STESSA DI 'Rinomina', E L'ORDINE ANCHE**: 'Estensione'
-                 * apre un'altra finestra e sta in testa perché è l'unico che non lavora sul
-                 * campo; poi i due che agiscono sulla selezione, poi quello che scrive. Le due
-                 * finestre portano gli stessi comandi, quindi chi impara una posizione la
-                 * ritrova nell'altra.
-                 * ⚠️ **`FlowRow` e non `Row`**: quattro comandi in una finestra larga 280dp non
-                 * ci stanno in ogni lingua, e in tedesco 'Alles auswählen' da solo è mezza riga.
+                 * ⚠️⚠️ **LA FILA È LA STESSA DI 'Rinomina', E L'ORDINE ANCHE**: prima i due che
+                 * agiscono sulla selezione, poi quello che scrive. Le due finestre portano gli
+                 * stessi comandi, quindi chi impara una posizione la ritrova nell'altra.
+                 * ⚠️⚠️ **E DALLA `1.80` SONO TRE E NON QUATTRO, perché 'Estensione' è salita
+                 * sulla riga del titolo** (vedi la nota là sopra): quella non lavorava sul campo
+                 * come le altre, apriva un'altra finestra, ed è la ragione per cui in questa
+                 * fila stava in testa invece che in coda.
+                 * ⚠️ **`FlowRow` e non `Row`**: tre comandi in una finestra larga 280dp non ci
+                 * stanno in ogni lingua, e in tedesco 'Alles auswählen' da solo è mezza riga.
                  * Andando a capo restano leggibili invece di stringersi.
                  * ⚠️ **`Arrangement.End` senza spaziatura**: l'aria fra i comandi la mette il
                  * riempimento di [Quiet], e sommarci una spaziatura li allontanerebbe di tre
@@ -168,13 +238,6 @@ fun SaveNameDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    if (gate.allowed) {
-                        Quiet(
-                            text = stringResource(R.string.rename_ext),
-                            enabled = true,
-                            onTap = gate.open
-                        )
-                    }
                     Quiet(
                         text = stringResource(R.string.rename_select_all),
                         enabled = typed.text.isNotEmpty(),

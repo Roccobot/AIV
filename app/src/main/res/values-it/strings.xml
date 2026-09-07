@@ -96,7 +96,10 @@
     <string name="settings_editor_backup">Copia di sicurezza prima di sovrascrivere</string>
     <string name="settings_editor_backup_desc">Prima di sovrascrivere un\'immagine, l\'editor ne salva una copia nel cestino, dove potrai recuperarla; se non ti serve, sarà eliminata al successivo \'Svuota cestino\'.</string>
     <string name="settings_save_rename">Consenti rinomina al salvataggio</string>
-    <string name="settings_save_rename_desc">Per impostazione predefinita, tutti i file sono scaricati in Download con il nome originario. Attiva questa funzionalità per definire un nome di salvataggio ad ogni download. Anche se la lasci disattivata, puoi toccare e tenere premuto \'Scarica\' per attivarla al volo solo quando serve.</string>
+    <string name="settings_save_rename_desc">Per impostazione predefinita, tutti i file sono scaricati con il nome originario. Attiva questa funzionalità per definire un nome di salvataggio ad ogni download. Anche se la lasci disattivata, puoi toccare e tenere premuto \'Scarica\' per inserire un nuovo nome al volo solo quando serve.</string>
+    <string name="settings_download_path">Scegli il percorso di download</string>
+    <string name="settings_download_path_desc">Con questa attiva, nella finestra del nome compare l\'icona \'Percorso\', che apre il selettore di sistema per scegliere dove scrivere il file. Da spenta, tutto va in Download.</string>
+    <string name="save_name_path">Percorso</string>
 
     <string name="toast_image_copied">Immagine copiata</string>
     <string name="toast_name_copied">Nome del file copiato</string>
@@ -241,9 +244,9 @@
     <string name="pick_forever">Elimina del tutto</string>
     <string name="pick_counting">Sto contando...</string>
     <plurals name="pick_count">
-        <item quantity="one">%1$d elemento</item>
-        <item quantity="other">%1$d elementi</item>
-        <item quantity="many">%1$d elementi</item>
+        <item quantity="one">%1$d elemento selezionato</item>
+        <item quantity="other">%1$d elementi selezionati</item>
+        <item quantity="many">%1$d elementi selezionati</item>
     </plurals>
     <plurals name="items_count">
         <item quantity="one">%1$d elemento</item>
@@ -405,7 +408,7 @@
     <string name="settings_ext_edit">Modifica le estensioni con \'Rinomina\'</string>
     <string name="settings_ext_edit_desc">Il pannello di rinomina consente di modificare le estensioni dei file. Se non sai cosa stai facendo, non attivare questa opzione: può rendere le immagini illeggibili.</string>
     <string name="settings_gpu_thumbs">Salva le miniature nella memoria grafica</string>
-    <string name="settings_gpu_thumbs_desc">Crea la cache delle miniature nella memoria del chip grafico, in modo da lasciare libera la memoria standard. Può migliorare la reattività della galleria, essere ininfluente, o in alcuni casi (quasi sempre su dispositivi datati) causare rallentamenti. Se hai problemi di prestazioni, prova ad attivarla e verifica se ci sono miglioramenti; non è possibile saperlo a priori a causa della quantità di combinazioni hardware/software dei dispositivi Android.</string>
+    <string name="settings_gpu_thumbs_desc">Memorizza le miniature nella memoria del chip grafico. Può migliorare la reattività della galleria, essere ininfluente, o talvolta causare rallentamenti su dispositivi datati. Prova ad attivarla e verifica se ci sono miglioramenti; ogni caso è a sé, vista la quantità di combinazioni hardware/software dei dispositivi Android.</string>
     <string name="settings_thumbs">Elimina le miniature memorizzate</string>
     <string name="settings_thumbs_empty">Nessuna miniatura memorizzata</string>
     <string name="settings_thumbs_warn">Tocca il pulsante per svuotare la cache delle miniature. Le anteprime delle immagini e dei video saranno eliminate e saranno rigenerate in automatico all\'accesso ad ogni cartella (potrebbe richiedere un minuto o più nelle cartelle con molte immagini grandi).</string>

@@ -913,22 +913,34 @@ private fun ColumnScope.RootPage(
     )
 
     /*
-     * ⚠️⚠️ **UNA VOCE SOLA, QUINDI NIENTE TITOLO, E STA QUI PER LA DOMANDA CHE FA**: *che cosa
-     * scrive l'app su disco, e con che nome*. È la stessa domanda della scelta dell'editor (che
-     * riscrive un file) e della copia di sicurezza (che lo protegge), e non è quella del
-     * cestino, che parla di quello che si cancella. Per questo sta fra le due famiglie e non
-     * sopra un titolo.
-     * ⚠️ **La ricerca la trova dal nome del comando**: la spiegazione nomina 'Scarica', cioè la
-     * voce del menu su cui l'interruttore agisce, e `shown` confronta anche la spiegazione. Non
-     * serve nessun testo in più.
-     * ⚠️ **Dove si salva non è più una scelta e non ha un'opzione**: dalla `1.77` è sempre
-     * Download, e il perché sta su `ImageActions.saveToDownloads`.
+     * ⚠️⚠️ **DUE VOCI, QUINDI ANCORA NIENTE TITOLO, E STANNO QUI PER LA DOMANDA CHE FANNO**:
+     * *che cosa scrive l'app su disco, e con che nome*. È la stessa domanda della scelta
+     * dell'editor (che riscrive un file) e della copia di sicurezza (che lo protegge), e non è
+     * quella del cestino, che parla di quello che si cancella. Per questo stanno fra le due
+     * famiglie e non sopra un titolo.
+     * ⚠️ **Due non arrivano alla soglia della sotto-pagina**, che è *più di 2-3 opzioni
+     * correlate*: la famiglia resta nella pagina piatta, quindi la ricerca la trova per
+     * costruzione e non c'è nessuna copertura da scrivere.
+     * ⚠️ **La ricerca le trova dal nome del comando**: le due spiegazioni nominano 'Scarica' e
+     * 'Percorso', cioè la voce del menu e il comando su cui agiscono, e `shown` confronta anche
+     * la spiegazione. Non serve nessun testo in più.
+     * ⚠️⚠️ **E DOVE SI SALVA È TORNATO UNA SCELTA, DALLA `1.80`** (campo libero del giro della
+     * `1.79`, punto C): fino alla `1.79` qui c'era scritto che non era più una scelta di
+     * nessuno, perché dalla `1.77` è sempre Download. Adesso lo è per chi la chiede, e resta
+     * Download per tutti gli altri: il valore di fabbrica è **spento**, e la ragione della
+     * `1.77` non è cambiata (vedi `Settings.downloadPath`).
      */
     SwitchRow(
         label = stringResource(R.string.settings_save_rename),
         detail = stringResource(R.string.settings_save_rename_desc),
         checked = settings.saveRename,
         onChange = { onChange(settings.copy(saveRename = it)) }
+    )
+    SwitchRow(
+        label = stringResource(R.string.settings_download_path),
+        detail = stringResource(R.string.settings_download_path_desc),
+        checked = settings.downloadPath,
+        onChange = { onChange(settings.copy(downloadPath = it)) }
     )
 
     // ⚠️ Ultima della sezione, e non è un ordine casuale: le due sopra parlano di una
@@ -1498,18 +1510,29 @@ private val THUMBS_GAP = 28.dp
  * riga**, e qui l'etichetta va a capo: con due righe l'aria di fianco resta tre volte quella di
  * sopra, quindi il testo si legge stipato fra i due bordi orizzontali invece che posato in mezzo.
  *
- * ⚠️⚠️ **E LA SCENTRATURA CHE VEDE È VERA, MA NON SI CORREGGE CON UN NUMERO**: il testo sta
- * **più in basso** del centro geometrico di circa 1sp, perché la spaziatura di riga di
- * `labelLarge` (20sp su un corpo di 14) si distribuisce in proporzione all'altezza sopra e sotto
- * la linea di base, quindi sopra la prima riga ne cade più che sotto l'ultima, e a quello si
- * somma l'aria che l'occhiello di un carattere porta sopra le maiuscole e che qui, senza
- * discendenti in 'delle miniature', sotto non c'è. ⚠️ **Quanta sia dipende dal carattere di
- * sistema**, quindi la cura è la stessa già scelta per le pastiglie della rinomina (vedi
- * `NamePill` in `RenameDialog.kt`): si dà al lato stretto abbastanza spazio da non dipendere da
- * quel margine, invece di pareggiare i due lati con una misura presa da un carattere che sul
- * telefono di qualcun altro è un altro.
+ * ⚠️⚠️ **E LA SCENTRATURA CHE VEDE È VERA**: il testo sta **più in basso** del centro
+ * geometrico, perché la spaziatura di riga di `labelLarge` (20sp su un corpo di 14) si
+ * distribuisce in proporzione all'altezza sopra e sotto la linea di base, quindi sopra la prima
+ * riga ne cade più che sotto l'ultima, e a quello si somma l'aria che l'occhiello di un
+ * carattere porta sopra le maiuscole e che qui, senza discendenti in 'delle miniature', sotto
+ * non c'è.
+ *
+ * ⚠️⚠️ **I DUE LATI NON SONO PIÙ UGUALI, DALLA `1.80`, E LA `1.78` DICEVA CHE NON SI DOVEVA
+ * FARE**: là c'era scritto che la cura era dare al lato stretto abbastanza spazio da non
+ * dipendere da quel margine, invece di pareggiare i due lati con un numero. Il giro l'ha
+ * smentito (riscontro della `1.79`, voce `thumbs-pulsante`, non approvata: *manca ancora qualche
+ * dp di spazio sotto*): l'aria simmetrica non toglie la scentratura, ne riduce solo il peso
+ * relativo, e lui la vedeva ancora.
+ * ⚠️⚠️ **E I 4dp NON SONO SCELTI A OCCHIO: sono la misura della sua schermata.** Sul suo
+ * ritaglio l'aria sopra il testo era **83 px** e quella sotto **72**, su un pulsante alto 263,
+ * cioè 11 px di scarto su quel telefono, che sono poco più di 3dp. Il numero è arrotondato in
+ * su, così quel che resta cade dal lato che l'occhio perdona.
+ * ⚠️ **Restano `start`/`end` e non `horizontal`**: `PaddingValues` non ha una forma che prenda i
+ * fianchi insieme e i due lati orizzontali separati, e sono `start`/`end` perché in una lingua
+ * che si scrive da destra i fianchi si scambiano.
  */
-private val THUMBS_PAD = PaddingValues(horizontal = 28.dp, vertical = 16.dp)
+private val THUMBS_PAD =
+    PaddingValues(start = 28.dp, top = 16.dp, end = 28.dp, bottom = 20.dp)
 
 /**
  * Quanto è tenue il numero di versione accanto al titolo.
