@@ -453,7 +453,7 @@ internal fun destinations(buckets: List<Folder.Bucket>, bin: String): List<Folde
  * trasformerebbe una cartella in due. Toglierlo è più utile di un messaggio d'errore.
  */
 @Composable
-private fun NewFolderDialog(onDismiss: () -> Unit, onCreate: (String) -> Unit) {
+internal fun NewFolderDialog(onDismiss: () -> Unit, onCreate: (String) -> Unit) {
     var text by remember { mutableStateOf("") }
     val clean = text.replace('/', ' ').trim()
 

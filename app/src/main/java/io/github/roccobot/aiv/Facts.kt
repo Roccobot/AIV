@@ -101,7 +101,14 @@ enum class FactField(
     val always: Boolean = false
 ) : Choice {
     NAME("name", R.string.facts_name, always = true),
-    KIND("kind", R.string.facts_kind),
+    /*
+     * ⚠️⚠️ **BLOCCATO DALLA `1.82`, SU SUA RICHIESTA** (riscontro del giro della `1.81`, voce
+     * `riordino-scorre`: *'Tipo di file' va bloccato come Nome, Pixel e Dimensione*). La ragione
+     * si legge dalla scheda: nome, tipo, pixel e peso sono le quattro righe che **qualunque**
+     * file porta, e una scheda che non dicesse di che cosa si tratta lascerebbe il nome a
+     * indovinarlo dal suffisso.
+     */
+    KIND("kind", R.string.facts_kind, always = true),
     PIXELS("pixels", R.string.facts_pixels, always = true),
     SIZE("size", R.string.facts_size, always = true),
     TAKEN("taken", R.string.facts_taken),
@@ -349,7 +356,14 @@ private fun streamOf(context: Context, uri: Uri): java.io.InputStream? =
         else -> context.contentResolver.openInputStream(uri)
     }
 
-private fun sizeOf(context: Context, uri: Uri): Long {
+/**
+ * Quanti byte pesa il file dietro un indirizzo, o `0` se non si sa.
+ *
+ * ⚠️ **Condivisa dalla `1.82`**: la usa anche il registro dei download del visualizzatore, dove
+ * i byte sono metà della firma di un file già scaricato (vedi [DownloadLog]). Due letture della
+ * stessa misura darebbero due numeri il giorno che una delle due impara un caso in più.
+ */
+internal fun sizeOf(context: Context, uri: Uri): Long {
     /*
      * ⚠️⚠️ **UNA MEMORIA PER INDIRIZZO, DALLA `1.81`, e prima ogni assestamento della selezione
      * pagava una query PER FILE** (censimento della UI del 2026-09-05). Il peso in testa alla

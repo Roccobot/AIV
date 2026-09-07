@@ -61,14 +61,14 @@ import java.time.format.DateTimeFormatter
  * c'è **'Destinazione'**, l'altro comando, e l'ordine è il suo: *prima 'Percorso' e poi
  * 'Estensione' ultima a destra*. Le due compaiono una per volta o insieme, e da sole stanno
  * comunque a destra, perché è la fila che si allinea al bordo e non ogni comando per conto suo.
- * ⚠️⚠️ **E DALLA `1.81` SONO DUE PASTIGLIE COL TESTO, NON DUE ICONE, PERCHÉ HA CAMBIATO IDEA**
- * (riscontro del giro della `1.80`, voce `rinomina-icona`: *se è attivo solo un tasto
- * ('Estensione' o 'Percorso'), appare come pulsante testuale come il precedente, con scritto
- * rispettivamente `Estensione` o `Destinazione`, allineato a destra. Se sono attivi entrambi,
- * mostrami come possiamo fare a mantenerli testuali*). La via per tenerli testuali è che il
- * **titolo ceda**: le pastiglie misurano il testo che hanno dentro e il titolo va a capo, quindi
- * non c'è nessuna parola tagliata e nessuna misura scritta a mano. Se un domani non bastasse,
- * il ripiego che lui ha già autorizzato sono le due icone.
+ * ⚠️⚠️ **UNO SOLO È UNA PASTIGLIA COL TESTO, DUE SONO DUE ICONE, DALLA `1.82`** (riscontro del
+ * giro della `1.81`, campo libero punto C: *chiaramente non possono coesistere due pulsanti
+ * testuali in 'Scarica' ... in quel caso si usano le icone, prima 'Destinazione' e poi
+ * 'Estensione', allineate a destra. Quando solo una delle due è attiva, si torna al pulsante
+ * testuale*). La `1.81` le teneva testuali facendo cedere il titolo, cioè mandandolo a capo due
+ * volte, e il ripiego delle icone era già autorizzato in quel giro.
+ * ⚠️ **La forma la decide il CONTO dei comandi in scena, non le due condizioni**: scritte due
+ * volte, il giorno che una cambia si otterrebbe una pastiglia accanto a un'icona.
  *
  * ⚠️⚠️ **È UNA MODALE VERA, E LE DUE RIGHE VANNO INSIEME** (`Modifier.lowered(null)` e
  * `properties = loweredWindow(null)`): esiste per raccogliere un input scritto, che è il solo
@@ -85,9 +85,11 @@ import java.time.format.DateTimeFormatter
  *   `null` per quella di serie. ⚠️ **Serve perché il percorso adesso si RICORDA**: senza una riga
  *   che lo dice, una cartella scelta un mese fa sarebbe una destinazione invisibile.
  * @param onPickFolder il gesto di 'Destinazione': apre il selettore di **cartella** e non salva
- *   niente. ⚠️ **`null` vuol dire che il comando non c'è**, cioè l'impostazione è spenta e la
+ *   niente. ⚠️ **`null` vuol dire che il comando non c'è**, cioè l'impostazione è spenta oppure la
  *   finestra non è stata aperta col tocco lungo: la scelta la fa chi chiama, perché è lui ad
  *   avere le impostazioni in mano.
+ * @param onUseDownloads scorda la cartella scelta e torna a Download. ⚠️ **`null` quando non c'è
+ *   niente da scordare**, cioè quando [folder] è già quella di serie.
  * @param onSave riceve il nome senza suffisso **e** il suffisso scelto, col punto: a rimetterli
  *   insieme ci pensa chi salva, perché è lui a sapere che cosa dichiarare al `MediaStore`.
  */
@@ -97,6 +99,7 @@ fun SaveNameDialog(
     hold: Boolean,
     folder: String?,
     onPickFolder: (() -> Unit)?,
+    onUseDownloads: (() -> Unit)?,
     onDismiss: () -> Unit,
     onSave: (name: String, suffix: String) -> Unit
 ) {
@@ -129,11 +132,16 @@ fun SaveNameDialog(
     var suffisso by rememberSaveable(full) { mutableStateOf(had) }
     val gate = extensionGate(
         where = ExtWhere.DOWNLOAD,
-        // ⚠️⚠️ **IL TOCCO LUNGO SCAVALCA LA GRIGLIA DI SICUREZZA, ED È LA SUA RICHIESTA**
-        // (campo libero del giro della `1.79`, punto D): quel gesto è già il 'per questa volta
-        // sola' che accende la rinomina, quindi accende anche questo comando. L'avviso della
-        // prima volta resta comunque, perché è quello che protegge.
-        force = hold,
+        /*
+         * ⚠️⚠️ **IL TOCCO LUNGO NON SCAVALCA PIÙ LA GRIGLIA DI SICUREZZA, DALLA `1.82`**
+         * (riscontro del giro della `1.81`, voce `save-comandi`: *'Estensione' deve seguire la
+         * propria opzione di visibilità nelle impostazioni*). Fino alla `1.81` era `hold`, cioè
+         * la specifica opposta del giro della `1.79`, punto D.
+         * ⚠️ **Le due condizioni restano diverse di proposito, ma al contrario di prima**:
+         * adesso 'Destinazione' dipende dal **gesto** e 'Estensione' dall'**opzione**, ed è la
+         * simmetria che lui ha scritto nelle due righe di quella voce.
+         */
+        force = false,
         // ⚠️ Il pannellino lavora **senza** il punto, come in 'Rinomina', e il punto lo rimette
         // questa riga: è la stessa convenzione, quindi le due finestre si comportano uguale.
         initial = { suffisso.removePrefix(".") },
@@ -168,6 +176,11 @@ fun SaveNameDialog(
          * sta fuori dalla colonna del conto.
          */
         title = {
+            val dest = stringResource(R.string.save_name_dest)
+            val ext = stringResource(R.string.rename_ext)
+            // ⚠️ I due comandi in scena si contano una volta: è quel numero, e non le due
+            // condizioni ripetute, a decidere la forma di tutti e due.
+            val insieme = onPickFolder != null && gate.allowed
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -182,16 +195,12 @@ fun SaveNameDialog(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     if (onPickFolder != null) {
-                        TitlePill(
-                            text = stringResource(R.string.save_name_dest),
-                            onTap = onPickFolder
-                        )
+                        if (insieme) TitleIcon(Glyphs.FolderDownload, dest, onPickFolder)
+                        else TitlePill(text = dest, onTap = onPickFolder)
                     }
                     if (gate.allowed) {
-                        TitlePill(
-                            text = stringResource(R.string.rename_ext),
-                            onTap = gate.open
-                        )
+                        if (insieme) TitleIcon(Glyphs.Extension, ext, gate.open)
+                        else TitlePill(text = ext, onTap = gate.open)
                     }
                 }
             }
@@ -280,12 +289,37 @@ fun SaveNameDialog(
                  * comparirebbe a dire 'Download', che è quello che l'app fa da sempre e che
                  * nessuno ha bisogno di leggere ogni volta.
                  */
+                /*
+                 * ⚠️⚠️ **E DALLA `1.82` PORTA LA VIA DEL RITORNO, PERCHÉ IL SELETTORE NON LA
+                 * DÀ** (riscontro del giro della `1.81`, voce `save-percorso`: *se cambio
+                 * cartella di download, non posso più tornare a storage/emulated/0/Download. Il
+                 * file picker mi dice che 'per tutelare la mia privacy' non posso scegliere
+                 * quella cartella*). Non è una comodità: senza questa riga una cartella scelta
+                 * una volta era **definitiva**, perché la sola via per cambiarla passava da un
+                 * selettore che quella cartella si rifiuta di mostrare.
+                 * ⚠️ **Il ritorno non passa dal selettore ed è la ragione per cui funziona**:
+                 * scordare l'albero scelto riporta alla strada di serie, che è
+                 * `MediaStore.Downloads` e non un percorso da scegliere.
+                 */
                 if (folder != null) {
-                    Text(
-                        text = stringResource(R.string.save_name_path, folder),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.save_name_path, folder),
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        if (onUseDownloads != null) {
+                            Quiet(
+                                text = stringResource(R.string.save_name_default),
+                                enabled = true,
+                                onTap = onUseDownloads
+                            )
+                        }
+                    }
                 }
             }
         },

@@ -2,6 +2,7 @@ package io.github.roccobot.aiv
 
 import android.net.Uri
 import androidx.compose.runtime.saveable.SaverScope
+import androidx.compose.ui.geometry.Offset
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -143,5 +144,101 @@ class RotazioneTest {
         val salvato = salva(emptySet<Uri>())
         val tornato = salvato?.let { UriSetSaver.restore(it) } ?: emptySet()
         assertTrue("Una selezione vuota è tornata piena: $tornato", tornato.isEmpty())
+    }
+
+    /**
+     * **Caso 6: l'ingrandimento attraversa la rotazione, e quello che passa è un RAPPORTO.**
+     *
+     * ⚠️⚠️ **È IL DIFETTO CHE È ARRIVATO A LUI DUE VOLTE** (voce `zoom-rotazione`, non approvata
+     * nel giro della `1.80` e in quello della `1.81`: *è come prima*), quindi torna qui con la
+     * prova, come prescrive `AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e quando no'.
+     * ⚠️ **I due riposi sono diversi di proposito**: ruotando la vista cambia forma, quindi la
+     * scala che mostrava l'immagine intera prima non la mostra intera dopo. Se la prova usasse lo
+     * stesso riposo, passerebbe anche conservando la scala, cioè col difetto rimesso.
+     */
+    @Test
+    fun `l ingrandimento attraversa la rotazione`() {
+        val ritratto = 0.5f
+        val paesaggio = 0.8f
+        val larghezza = 4000f
+        val altezza = 3000f
+
+        val tenuto = ZoomKeep(1f, 0f, 0f)
+        // Ingrandito il doppio del riposo, guardando un punto spostato di un decimo di immagine.
+        val scala = 2f * ritratto
+        val scostamento = Offset(-0.1f * larghezza * scala, 0.05f * altezza * scala)
+        tenuto.record(scala, scostamento, ritratto, larghezza, altezza)
+
+        val salvato = with(ZoomKeep.Saver) { with(ambito) { save(tenuto) } }
+        assertTrue("L'ingrandimento non è stato salvato", salvato != null)
+        val dopo = ZoomKeep.Saver.restore(salvato!!)!!
+
+        assertEquals("Il rapporto non è tornato", 2f, dopo.zoom, 0.0001f)
+        assertEquals(
+            "La scala non si è adattata al riposo nuovo",
+            2f * paesaggio,
+            dopo.scaleFor(paesaggio),
+            0.0001f
+        )
+        // Il difetto vero, detto al rovescio: con la scala conservata invece del rapporto, qui si
+        // leggerebbe il riposo nudo e l'immagine si riaprirebbe a schermo pieno.
+        assertTrue(
+            "Ruotando l'ingrandimento è tornato a riposo",
+            dopo.scaleFor(paesaggio) > paesaggio * 1.5f
+        )
+
+        val nuovaScala = dopo.scaleFor(paesaggio)
+        val nuovo = dopo.offsetFor(nuovaScala, larghezza, altezza)
+        assertEquals(
+            "Il punto inquadrato è scivolato in orizzontale",
+            0.1f,
+            -nuovo.x / (nuovaScala * larghezza),
+            0.0001f
+        )
+        assertEquals(
+            "Il punto inquadrato è scivolato in verticale",
+            -0.05f,
+            -nuovo.y / (nuovaScala * altezza),
+            0.0001f
+        )
+    }
+
+    /**
+     * **Caso 7: un'immagine a riposo resta a riposo.**
+     *
+     * L'altra metà del caso 6: il rapporto di partenza vale `1`, quindi dopo una rotazione la
+     * scala è esattamente il riposo nuovo e il centro è il centro. Senza questo, un ripristino che
+     * sbagliasse il segno o l'unità aprirebbe **ogni** immagine spostata.
+     */
+    @Test
+    fun `un immagine a riposo attraversa la rotazione senza muoversi`() {
+        val tenuto = ZoomKeep(1f, 0f, 0f)
+        tenuto.record(0.5f, Offset.Zero, 0.5f, 4000f, 3000f)
+        val dopo = ZoomKeep.Saver.restore(with(ZoomKeep.Saver) { with(ambito) { save(tenuto) } }!!)!!
+        assertEquals("Il riposo non è più riposo", 0.8f, dopo.scaleFor(0.8f), 0.0001f)
+        /*
+         * ⚠️ **Le due componenti si confrontano con una tolleranza e non l'oggetto intero**: un
+         * centro a zero moltiplicato per meno uno dà **meno zero**, e `Offset` confronta i bit,
+         * quindi `Offset(-0.0, 0.0)` non è uguale a `Offset.Zero` mentre è lo stesso punto. La
+         * prova era scritta sull'oggetto e diceva 'il centro si è spostato' mostrando due volte
+         * `Offset(0.0, 0.0)`, cioè accusava il codice di un difetto che non c'era.
+         */
+        val fermo = dopo.offsetFor(0.8f, 4000f, 3000f)
+        assertEquals("Il centro si è spostato in orizzontale", 0f, fermo.x, 0.0001f)
+        assertEquals("Il centro si è spostato in verticale", 0f, fermo.y, 0.0001f)
+    }
+
+    /**
+     * **Caso 8: una misura non ancora presa non scrive niente.**
+     *
+     * ⚠️ Nel fotogramma in cui la vista è misurata ma l'immagine no, il riposo vale zero: senza la
+     * guardia il rapporto diventerebbe `NaN`, e un `NaN` conservato non si corregge più da sé.
+     */
+    @Test
+    fun `una misura a zero non sporca l ingrandimento`() {
+        val tenuto = ZoomKeep(2f, 0.1f, 0.1f)
+        tenuto.record(0f, Offset.Zero, 0f, 0f, 0f)
+        assertEquals("Il rapporto è stato sporcato", 2f, tenuto.zoom, 0.0001f)
+        assertEquals("Il centro è stato sporcato", 0.1f, tenuto.centreX, 0.0001f)
     }
 }

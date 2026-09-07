@@ -284,7 +284,7 @@
     <string name="settings_group_start">起動</string>
     <string name="settings_group_advanced">詳細機能</string>
     <string name="settings_ext_edit">拡張子の変更を許可</string>
-    <string name="settings_ext_edit_desc">下で選んだウィンドウに \'拡張子\' ボタンを追加します。拡張子を変えても変換は行われません。よく分からない場合は両方オフのままにしてください。画像が読めなくなることがあります。</string>
+    <string name="settings_ext_edit_desc">ファイル名のウィンドウに \'拡張子\' ボタンを追加します。どのウィンドウに出すかは下で選びます。⚠️ 拡張子を変えても形式の変換にはなりません（それには \'書き出して変換\' があります）。慎重に使ってください。読めなくなり、ギャラリーアプリに出てこなくなるファイルがあります。</string>
     <string name="settings_gpu_thumbs">サムネイルをグラフィックメモリーに置く</string>
     <string name="settings_gpu_thumbs_desc">サムネイルのキャッシュをグラフィックチップのメモリに作り、通常のメモリを空けておきます。ギャラリーの反応がよくなることも、何も変わらないことも、場合によっては遅くなることもあります。ほとんどは古い端末です。動作が重いときはオンにして試してください。Android 端末のハードウェアとソフトウェアの組み合わせは多く、事前には分かりません。</string>
     <string name="settings_thumbs">保存されたサムネイルを削除</string>
@@ -382,12 +382,15 @@
     <string name="settings_editor_backup">上書きの前に控えを取る</string>
     <string name="settings_editor_backup_desc">エディターが画像を上書きする前に、そのコピーをごみ箱に保存します。そこから復元でき、不要なら次回の「ごみ箱を空にする」で削除されます。</string>
     <string name="settings_save_rename">保存時の名前変更を許可</string>
-    <string name="settings_save_rename_desc">既定では、ファイルは元の名前で保存されます。ダウンロードごとに名前を決めるにはこれをオンにします。オフのままでも、\'保存\' を長押しすればその一回だけ新しい名前を入力できます。その場合は \'保存先\' も使えます。</string>
+    <string name="settings_save_rename_desc">既定では、ファイルは元の名前で保存されます。ダウンロードごとに名前を決めるにはこれをオンにします。オフのままでも、\'保存\' を長押しすればその一回だけ新しい名前を入力できます。</string>
     <string name="settings_download_path">保存先を選ぶ</string>
     <string name="settings_rename_download">名前の変更とダウンロード</string>
-    <string name="settings_download_path_desc">保存ウィンドウに \'保存先\' ボタンを追加し、ファイルを入れるフォルダーを選べるようにします。保存時の名前変更がオンのときに働きます。</string>
+    <string name="settings_download_path_desc">ダウンロードのウィンドウに \'保存先\' ボタンを追加し、保存先のフォルダーを選べるようにします。</string>
     <string name="save_name_path">保存先フォルダー: %1$s</string>
     <string name="save_name_dest">保存先</string>
+    <string name="save_name_default">Download を使う</string>
+    <string name="save_seen_notice">この画像はすでにダウンロード済みです</string>
+    <string name="save_seen_again">もう一度ダウンロード</string>
     <string name="editor_tall">縦</string>
     <string name="editor_wide">横</string>
     <string name="pick_cleared">ファイルは選択されていません。</string>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Estensione': un cursore di testo seguito dalle lettere xyz.
+
+     DISEGNATA DALL'UTENTE, arrivata nello ZIP del giro della 1.81 come `extension.svg`, e
+     sostituisce il glifo provvisorio di Material che la 1.80 teneva sulla riga del titolo
+     della finestra del nome.
+
+     NON SI MISURA CONTRO `Icons.Filled.Extension`, e non è una scorciatoia: quello è un
+     pezzo di puzzle, cioè il glifo dei componenti aggiuntivi, e non ha niente in comune con
+     questo. Il confronto pixel serve a distinguere due esportazioni dello stesso disegno,
+     non due disegni che dicono cose diverse.
+
+     DICE LA COSA GIUSTA, ed è la ragione per cui vale più del puzzle: il cursore piantato
+     davanti a `xyz` è la parte finale di un nome che si sta scrivendo, cioè esattamente
+     quello che il comando cambia. Il cursore è lo stesso segno di `Glyphs.TextCursor`, che
+     firma 'Rinomina': le due finestre portano gli stessi comandi e adesso anche lo stesso
+     segno.
+
+     IL MARGINE È ZERO, e il verificatore lo segnala: il disegno è una parola, quindi tocca
+     i due fianchi della tela invece di rientrare dei 2 di Material. Restringerlo vorrebbe
+     dire rimpicciolire le lettere fino a non leggerle più a 24dp.
+
+     La normalizzazione non cambia un pixel: misurato, zero differenze su 57.600.
+
+     Le regole di trasporto vivono in `CLAUDE.md`, § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M5.95,17.31c-.59,-.31,-1.18,-.53,-1.77,-.64V7.33c.59,-.11,1.18,-.32,1.77,-.64c.45,-.24,.62,-.8,.38,-1.25c-.24,-.45,-.8,-.62,-1.25,-.38c-1.25,.67,-2.47,.67,-3.72,0c-.45,-.24,-1.01,-.07,-1.25,.38c-.24,.45,-.07,1.01,.38,1.25c.61,.33,1.23,.54,1.85,.65v9.32c-.62,.11,-1.23,.32,-1.85,.65c-.45,.24,-.62,.8,-.38,1.25c.17,.31,.48,.49,.81,.49c.15,0,.29,-.04,.43,-.11c1.25,-.67,2.47,-.67,3.72,0c.45,.24,1.01,.07,1.25,-.38c.24,-.45,.07,-1.01,-.38,-1.25ZM9.44,11.82l1.48,-1.69c.16,-.16,.25,-.38,.25,-.62c0,-.5,-.38,-.87,-.84,-.87c-.43,0,-.67,.18,-1,.68l-.94,1.41h-.09l-.93,-1.42c-.33,-.5,-.57,-.67,-1,-.67c-.46,0,-.84,.36,-.84,.86c0,.23,.1,.47,.25,.63l1.49,1.68l-1.48,1.71c-.15,.15,-.23,.39,-.23,.62c0,.5,.38,.86,.83,.86s.69,-.18,1.01,-.68l.92,-1.41h.09l.93,1.42c.32,.49,.58,.67,1.02,.67s.83,-.37,.83,-.87c0,-.26,-.1,-.47,-.32,-.69l-1.42,-1.63ZM23.21,13.51h-2.16v-.1l2.33,-2.91c.33,-.39,.48,-.71,.48,-1.06c0,-.48,-.36,-.79,-.95,-.79h-3.36c-.5,0,-.79,.28,-.79,.74s.29,.74,.79,.74h2.07v.09l-2.37,2.91c-.33,.38,-.49,.69,-.49,1.04c0,.48,.35,.81,.96,.81h3.48c.5,0,.79,-.29,.79,-.77c0,-.42,-.29,-.7,-.79,-.7ZM17.04,8.65c-.5,0,-.81,.28,-.95,.87l-1.04,3.97h-.08l-1.01,-3.97c-.13,-.59,-.45,-.87,-.97,-.87s-.93,.36,-.93,.87c0,.13,.02,.27,.08,.46l1.73,5.03c0,.07,-.04,.28,-.06,.33c-.11,.3,-.36,.49,-.67,.49c-.21,0,-.31,-.04,-.46,-.04c-.36,0,-.6,.24,-.6,.57c0,.19,.07,.36,.21,.5c.21,.21,.59,.32,1.07,.32c1.44,0,2.23,-.63,2.73,-2.1l1.75,-5.09c.06,-.19,.09,-.33,.09,-.46c0,-.5,-.38,-.86,-.89,-.86Z" />
+</vector>

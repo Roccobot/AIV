@@ -298,7 +298,7 @@
     <string name="settings_group_start">راه‌اندازی</string>
     <string name="settings_group_advanced">قابلیت‌های پیشرفته</string>
     <string name="settings_ext_edit">اجازه تغییر پسوند</string>
-    <string name="settings_ext_edit_desc">دکمه \'پسوند\' را به پنجره‌هایی که پایین انتخاب می‌کنید می‌افزاید. تغییر پسوند چیزی را تبدیل نمی‌کند: اگر نمی‌دانید چه می‌کنید هر دو را خاموش بگذارید، چون می‌تواند تصویر را ناخوانا کند.</string>
+    <string name="settings_ext_edit_desc">دکمهٔ \'پسوند\' را به پنجره‌های نام فایل می‌افزاید. پایین‌تر انتخاب کن در کدام‌ها دیده شود. ⚠️ تغییر پسوند تبدیل قالب نیست (برای آن \'برون‌بری و تبدیل\' هست) و باید با احتیاط به کار برود، چون برخی فایل‌ها ناخوانا می‌شوند و دیگر در برنامه‌های گالری دیده نمی‌شوند.</string>
     <string name="settings_gpu_thumbs">نگه‌داشتن بندانگشتی‌ها در حافظه گرافیکی</string>
     <string name="settings_gpu_thumbs_desc">نهانگاه ریزنقش‌ها را در حافظهٔ تراشهٔ گرافیکی می‌سازد تا حافظهٔ معمولی آزاد بماند. می‌تواند گالری را چابک‌تر کند، بی‌تأثیر باشد، یا در برخی موارد کند کند، که بیشتر دستگاه‌های قدیمی‌اند. اگر مشکل کارایی دارید روشنش کنید و ببینید بهتر می‌شود یا نه: از پیش نمی‌توان دانست، چون ترکیب‌های سخت‌افزار و نرم‌افزار اندروید بسیار زیادند.</string>
     <string name="settings_thumbs">حذف بندانگشتی‌های ذخیره‌شده</string>
@@ -398,12 +398,15 @@
     <string name="settings_editor_backup">نسخهٔ ایمنی پیش از بازنویسی</string>
     <string name="settings_editor_backup_desc">پیش از آنکه ویرایشگر روی تصویری بنویسد، نسخه‌ای از آن را در سطل زباله نگه می‌دارد تا بتوانید بازش گردانید؛ اگر لازمش نداشتید، در \'خالی کردن سطل زباله\' بعدی حذف می‌شود.</string>
     <string name="settings_save_rename">اجازه تغییر نام هنگام ذخیره</string>
-    <string name="settings_save_rename_desc">به‌طور پیش‌فرض پرونده‌ها با نام اصلی خود ذخیره می‌شوند. برای تعیین نام در هر بارگیری این را روشن کنید. حتی با خاموش بودن آن، \'ذخیره\' را نگه دارید تا فقط همان بار نامی تازه بنویسید: در آن حالت \'مقصد\' هم در دسترس است.</string>
+    <string name="settings_save_rename_desc">به‌طور پیش‌فرض پرونده‌ها با نام اصلی خود ذخیره می‌شوند. برای تعیین نام در هر بارگیری این را روشن کنید. حتی با خاموش بودن آن، \'ذخیره\' را نگه دارید تا فقط همان بار نامی تازه بنویسید.</string>
     <string name="settings_download_path">انتخاب مسیر بارگیری</string>
     <string name="settings_rename_download">تغییر نام و بارگیری‌ها</string>
-    <string name="settings_download_path_desc">دکمه \'مقصد\' را به پنجره ذخیره می‌افزاید تا پوشه‌ای که پرونده به آن می‌رود انتخاب شود. هنگامی اثر دارد که تغییر نام در ذخیره روشن باشد.</string>
+    <string name="settings_download_path_desc">دکمهٔ \'مقصد\' را به پنجرهٔ دانلود می‌افزاید تا پوشهٔ ذخیره را انتخاب کنی.</string>
     <string name="save_name_path">پوشه مقصد: %1$s</string>
     <string name="save_name_dest">مقصد</string>
+    <string name="save_name_default">استفاده از Download</string>
+    <string name="save_seen_notice">این تصویر را قبلاً دانلود کرده‌ای</string>
+    <string name="save_seen_again">دوباره دانلود کن</string>
     <string name="editor_tall">عمودی</string>
     <string name="editor_wide">افقی</string>
     <string name="pick_cleared">هیچ پرونده‌ای انتخاب نشده است.</string>

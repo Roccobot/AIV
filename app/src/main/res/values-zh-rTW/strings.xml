@@ -284,7 +284,7 @@
     <string name="settings_group_start">啟動</string>
     <string name="settings_group_advanced">進階功能</string>
     <string name="settings_ext_edit">允許修改副檔名</string>
-    <string name="settings_ext_edit_desc">在下方選擇的視窗中加入 \'副檔名\' 按鈕。修改副檔名不會轉換任何內容：若不清楚在做什麼，請把兩者都關閉，因為圖片可能變得無法讀取。</string>
+    <string name="settings_ext_edit_desc">在檔名視窗中加入 \'延伸檔名\' 按鈕。在下方選擇要出現在哪些視窗。⚠️ 修改副檔名不等於格式轉換（那是 \'匯出並轉換\' 的事），要謹慎使用，因為有些檔案會變得無法讀取，並從相簿應用程式中消失。</string>
     <string name="settings_gpu_thumbs">把縮圖放在圖形記憶體裡</string>
     <string name="settings_gpu_thumbs_desc">在圖形晶片的記憶體裡建縮圖快取，讓普通記憶體保持空閒。它可能讓圖庫更流暢，也可能毫無差別，某些情況下還會變慢，那幾乎都是較舊的裝置。如果遇到效能問題，就開啟看看有沒有改善：事先無法得知，因為 Android 裝置的硬體與軟體組合太多。</string>
     <string name="settings_thumbs">刪除已儲存的縮圖</string>
@@ -382,12 +382,15 @@
     <string name="settings_editor_backup">覆寫前先留一份安全副本</string>
     <string name="settings_editor_backup_desc">在編輯器覆寫一張影像之前，會先把副本存入回收筒，可以從那裡取回；若不需要，下次\'清空回收筒\'時會被刪除。</string>
     <string name="settings_save_rename">允許儲存時重新命名</string>
-    <string name="settings_save_rename_desc">預設情況下，檔案會以原本的名稱儲存。開啟後可為每次下載指定名稱。即使關閉，也可長按 \'儲存\' 僅那一次輸入新名稱：此時 \'目的地\' 也可使用。</string>
+    <string name="settings_save_rename_desc">預設情況下，檔案會以原本的名稱儲存。開啟後可為每次下載指定名稱。即使關閉，也可長按 \'儲存\' 僅那一次輸入新名稱。</string>
     <string name="settings_download_path">選擇下載路徑</string>
     <string name="settings_rename_download">重新命名與下載</string>
-    <string name="settings_download_path_desc">在儲存視窗中加入 \'目的地\' 按鈕，用來選擇檔案要放進哪個資料夾。在開啟儲存時重新命名後生效。</string>
+    <string name="settings_download_path_desc">在下載視窗中加入 \'目的地\' 按鈕，用來選擇儲存的資料夾。</string>
     <string name="save_name_path">目的地資料夾：%1$s</string>
     <string name="save_name_dest">目的地</string>
+    <string name="save_name_default">使用 Download</string>
+    <string name="save_seen_notice">這張圖片已經下載過了</string>
+    <string name="save_seen_again">再次下載</string>
     <string name="editor_tall">直式</string>
     <string name="editor_wide">橫式</string>
     <string name="pick_cleared">未選擇任何檔案。</string>

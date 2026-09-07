@@ -2358,6 +2358,16 @@ private fun Stage(screen: Screen, model: ViewerViewModel, settings: Settings) {
                 // della foto mostrata per ultima nel visualizzatore, che la strisciata
                 // tiene aggiornato. La bandierina dice solo se qualcosa è stato aperto.
                 highlight = if (model.gridVisited) model.series?.index else null,
+                /*
+                 * ⚠️⚠️ **I DUE RICHIAMI DEL TASTINO ARRIVANO SOLO QUI, DALLA `1.82`** (campo
+                 * libero del giro della `1.81`, punto B: *il FAB deve vedersi in tutte le
+                 * cartelle*): questa è la griglia di una cartella vera, cioè il posto da cui
+                 * lui vuole raggiungere il cestino e le impostazioni senza tornare indietro.
+                 * ⚠️ **La ricerca e il cestino non li ricevono**: la prima è un elenco di
+                 * risultati e non una cartella, il secondo porta già il suo menu.
+                 */
+                onBin = { model.openBin() },
+                onSettings = { model.openSettings() },
                 onOpen = { model.openFromGrid(it) },
                 onBack = { model.leaveGrid() },
                 onChanged = { model.reloadGrid() },

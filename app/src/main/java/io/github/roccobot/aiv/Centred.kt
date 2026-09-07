@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import kotlin.math.abs
 
 /**
  * Che cosa vuol dire 'centrato' in AIV, dalla 1.29.
@@ -320,6 +321,23 @@ private class LowerNode(
 ) : Modifier.Node(), LayoutModifierNode, CompositionLocalConsumerModifierNode {
 
     /**
+     * La salita applicata l'ultima volta, e `0` quando il pannello non è salito.
+     *
+     * ⚠️⚠️ **ESISTE PERCHÉ LA FINESTRA DI 'Rinomina' BALLAVA MENTRE SI SCRIVEVA** (riscontro del
+     * giro della `1.81`, campo libero punto A: *quando si digita scatta tutto in alto
+     * traballando ... e se cancello i caratteri con un gesto di HeliBoard l'intera finestra di
+     * rinomina balla a più non posso*). La salita si ricava dallo spazio che la tastiera lascia
+     * libero, e quello spazio **cambia mentre si scrive**: la barra dei suggerimenti che compare
+     * e sparisce, una tastiera che si allarga sul gesto di cancellazione, l'animazione dell'IME
+     * ancora in corso. Ogni misurazione dava una salita diversa di qualche punto, e il pannello
+     * la seguiva a scatti.
+     * ⚠️ **Il ricordo vive nel NODO e non nella composizione**: qui si misura, e uno stato di
+     * Compose letto durante la misura rifarebbe la misura. Il nodo invece dura quanto la finestra,
+     * che è esattamente la vita di questa decisione.
+     */
+    private var climbHeld = 0
+
+    /**
      * L'aria dichiarata **sopra** il pannello, in pixel, e la quota da cui comincia quella
      * **sotto**. Vivono in [Air] perché a leggerle è un **altro** nodo, [OutsideNode]: il perché
      * sta là.
@@ -414,12 +432,46 @@ private class LowerNode(
          * vincolo. ⚠️ **Un'altezza non vincolata non limita niente**, che è il verso prudente:
          * meglio la misura di prima che un tetto costruito su un infinito.
          */
-        val climb = climbFor(
-            room = room,
+        /*
+         * ⚠️⚠️ **L'ARIA DELLA SALITA È PIÙ LARGA DI QUELLA DELLA STRETTA, DALLA `1.82`**
+         * (riscontro del giro della `1.81`, voce `ext-notch`, approvata con una riserva: *è vero,
+         * ma finisce ancora molto in alto, mi sembra anche troppo*). La `1.81` aveva tolto il
+         * pannello dal notch, e con [LOWER_AIR] restava a un filo dal bordo di sopra: sopra la
+         * finestra si vedeva una striscia di sedici punti, che si legge come un pannello incollato
+         * in cima e non come uno salito quanto serve.
+         * ⚠️ **La deroga resta una deroga**: [KEYBOARD_AIR] è ancora molto meno di quello che il
+         * 15% in basso concederebbe, quindi *il campo di testo praticamente in cima allo schermo*
+         * della richiesta della `1.62` regge.
+         * ⚠️ **Non si tocca [air]**, che è l'aria del tetto e della stretta: allargare quella
+         * stringerebbe ogni pannello dell'app, che è un'altra cosa da questa.
+         */
+        val skyAir = KEYBOARD_AIR.roundToPx()
+        val voluta = climbFor(
+            room = (free / 2 - skyAir).coerceAtLeast(0),
             panel = placed.height,
             box = if (constraints.hasBoundedHeight) constraints.maxHeight else 0,
-            air = air
+            air = skyAir
         )
+        /*
+         * ⚠️⚠️ **LA SALITA SI TIENE FERMA FINCHÉ IL CAMBIAMENTO È PICCOLO** (vedi [climbHeld]):
+         * è il rimedio al pannello che ballava mentre si scriveva. La soglia è [CLIMB_JUMP], cioè
+         * più della barra dei suggerimenti di una tastiera e meno di una tastiera intera: un
+         * cambio di tastiera muove il pannello, una riga in più dentro la stessa no.
+         * ⚠️⚠️ **E IL TETTO SI RIAPPLICA DOPO, SEMPRE**: tenere una salita vecchia più grande di
+         * quella che la finestra concede adesso rimetterebbe il pannello sul notch, cioè il
+         * difetto della `1.80`. Il ricordo può solo **evitare** di risalire, mai far salire di più.
+         */
+        val climb = if (typing(insets)) {
+            val steady = if (climbHeld > 0 && abs(voluta - climbHeld) <= CLIMB_JUMP.roundToPx()) {
+                climbHeld
+            } else {
+                voluta
+            }
+            minOf(steady, voluta.coerceAtLeast(0)).also { climbHeld = it }
+        } else {
+            climbHeld = 0
+            voluta
+        }
         if (climb > 0 && typing(insets)) {
             aria.top = 0
             aria.from = placed.height
@@ -518,6 +570,29 @@ private class LowerNode(
  */
 const val LOWER_BY = 0.15f
 val LOWER_AIR = 16.dp
+
+/**
+ * L'aria sopra un pannello **salito** perché la tastiera è aperta.
+ *
+ * ⚠️ **Più larga di [LOWER_AIR] su sua richiesta** (giro della `1.81`, voce `ext-notch`): con
+ * sedici punti il pannello arrivava a filo del bordo di sopra, e la salita si leggeva come un
+ * pannello scappato in cima. 56dp è l'altezza di una barra di sistema, cioè la striscia che
+ * l'occhio riconosce come 'sopra la finestra c'è ancora schermo'.
+ */
+val KEYBOARD_AIR = 56.dp
+
+/**
+ * Di quanto deve cambiare la salita perché il pannello si muova davvero.
+ *
+ * ⚠️⚠️ **È IL RIMEDIO AL PANNELLO CHE BALLAVA MENTRE SI SCRIVEVA** (giro della `1.81`, campo
+ * libero punto A). 72dp è più della barra dei suggerimenti di una tastiera (che sta intorno ai
+ * 40) e molto meno di una tastiera intera (che passa i 250): un cambio di tastiera muove il
+ * pannello, una riga in più dentro la stessa no.
+ * ⚠️ **Una soglia e non un'animazione**: animare la salita vorrebbe dire animare una misura, cioè
+ * rifare il layout a ogni fotogramma di un movimento che nessuno ha chiesto. Qui il pannello non
+ * si muove affatto, che è quello che lui ha chiesto.
+ */
+private val CLIMB_JUMP = 72.dp
 
 /**
  * Di quanto può salire un pannello a tastiera aperta, senza uscire dalla propria finestra.

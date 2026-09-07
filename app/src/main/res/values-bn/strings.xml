@@ -298,7 +298,7 @@
     <string name="settings_group_start">সূচনা</string>
     <string name="settings_group_advanced">উন্নত সুবিধা</string>
     <string name="settings_ext_edit">এক্সটেনশন বদলানোর অনুমতি দাও</string>
-    <string name="settings_ext_edit_desc">নিচে বেছে নেওয়া উইন্ডোতে \'এক্সটেনশন\' বোতাম যোগ করে। এক্সটেনশন বদলালে কিছুই রূপান্তরিত হয় না: কী করছ না জানলে দুটোই বন্ধ রাখো, কারণ ছবিটি অপাঠ্য হয়ে যেতে পারে।</string>
+    <string name="settings_ext_edit_desc">ফাইলের নামের উইন্ডোতে \'এক্সটেনশন\' বোতাম যোগ করে। কোথায় দেখাবে তা নিচে বেছে নাও। ⚠️ এক্সটেনশন বদলানো ফরম্যাট রূপান্তর নয় (তার জন্য \'রপ্তানি ও রূপান্তর\' আছে) এবং সাবধানে ব্যবহার করা উচিত, কারণ কিছু ফাইল অপঠনযোগ্য হয়ে গ্যালারি অ্যাপে আর দেখা না-ও যেতে পারে।</string>
     <string name="settings_gpu_thumbs">থাম্বনেল গ্রাফিক্স মেমরিতে রাখুন</string>
     <string name="settings_gpu_thumbs_desc">থাম্বনেইলের ক্যাশ গ্রাফিকস চিপের মেমরিতে তৈরি করে, যাতে সাধারণ মেমরি ফাঁকা থাকে। গ্যালারি আরও ঝরঝরে লাগতে পারে, কিছুই না বদলাতে পারে, বা কিছু ক্ষেত্রে ধীর হয়ে যেতে পারে, যা প্রায় সবসময় পুরোনো ডিভাইস। কার্যক্ষমতার সমস্যা হলে চালু করে দেখুন: আগে থেকে জানার উপায় নেই, কারণ অ্যান্ড্রয়ডে হার্ডওয়্যার ও সফ্টওয়্যারের সংযোজন অনেক।</string>
     <string name="settings_thumbs">সংরক্ষিত থাম্বনেইল মুছুন</string>
@@ -398,12 +398,15 @@
     <string name="settings_editor_backup">উপরে লেখার আগে নিরাপত্তা অনুলিপি</string>
     <string name="settings_editor_backup_desc">কোনো সম্পাদক ছবির উপর লেখার আগে তার একটি অনুলিপি আবর্জনায় রেখে দেয়, সেখান থেকে ফিরিয়ে আনা যায়; দরকার না হলে পরের বার \'আবর্জনা খালি করুন\'-এ মুছে যাবে।</string>
     <string name="settings_save_rename">সংরক্ষণের সময় নাম পরিবর্তনের অনুমতি দাও</string>
-    <string name="settings_save_rename_desc">সাধারণভাবে ফাইল তার আসল নামেই সংরক্ষিত হয়। প্রতিটি ডাউনলোডে নাম ঠিক করতে এটি চালু করো। বন্ধ থাকলেও \'সংরক্ষণ\' চেপে ধরে রাখলে শুধু সেই বারের জন্য নতুন নাম লেখা যায়: তখন \'গন্তব্য\'-ও পাওয়া যায়।</string>
+    <string name="settings_save_rename_desc">সাধারণভাবে ফাইল তার আসল নামেই সংরক্ষিত হয়। প্রতিটি ডাউনলোডে নাম ঠিক করতে এটি চালু করো। বন্ধ থাকলেও \'সংরক্ষণ\' চেপে ধরে রাখলে শুধু সেই বারের জন্য নতুন নাম লেখা যায়।</string>
     <string name="settings_download_path">ডাউনলোড পথ বাছুন</string>
     <string name="settings_rename_download">নাম পরিবর্তন ও ডাউনলোড</string>
-    <string name="settings_download_path_desc">সংরক্ষণের উইন্ডোতে \'গন্তব্য\' বোতাম যোগ করে, যাতে ফাইলটি কোন ফোল্ডারে যাবে তা বেছে নেওয়া যায়। সংরক্ষণের সময় নাম পরিবর্তন চালু থাকলে কাজ করে।</string>
+    <string name="settings_download_path_desc">ডাউনলোড উইন্ডোতে \'গন্তব্য\' বোতাম যোগ করে, যাতে সংরক্ষণের ফোল্ডার বেছে নেওয়া যায়।</string>
     <string name="save_name_path">গন্তব্য ফোল্ডার: %1$s</string>
     <string name="save_name_dest">গন্তব্য</string>
+    <string name="save_name_default">Download ব্যবহার করো</string>
+    <string name="save_seen_notice">তুমি এই ছবিটি আগেই ডাউনলোড করেছ</string>
+    <string name="save_seen_again">আবার ডাউনলোড করো</string>
     <string name="editor_tall">লম্বালম্বি</string>
     <string name="editor_wide">আড়াআড়ি</string>
     <string name="pick_cleared">কোনো ফাইল নির্বাচিত নেই।</string>

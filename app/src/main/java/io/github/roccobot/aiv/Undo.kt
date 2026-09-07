@@ -155,7 +155,19 @@ fun UndoNotice(
     text: String,
     action: String,
     onUndo: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /**
+     * Quanto vive questa notifica, e di serie [UNDO_MS].
+     *
+     * ⚠️⚠️ **NASCE NELLA `1.82` PERCHÉ LA TERZA NOTIFICA HA UNA DURATA SUA** (campo libero del
+     * giro della `1.81`, punto E: *una notifica in basso come quella dell'annullamento
+     * dell'eliminazione, con tanto di timer di 5 secondi*). Il parametro esisteva già come
+     * avvertenza nella nota qui sotto: la riga che si consuma deve durare quanto la notifica, o
+     * dice una scadenza che non è quella.
+     * ⚠️ **Lo passa chi la mostra, e deve essere lo stesso numero con cui la toglie**: qui si
+     * disegna soltanto, la vita la decide il chiamante.
+     */
+    millis: Long = UNDO_MS
 ) {
     /*
      * ⚠️⚠️ **LA RIGA SI CONSUMA IN [UNDO_MS], CHE È LA VITA VERA DELLA NOTIFICA**: i due
@@ -173,7 +185,7 @@ fun UndoNotice(
     LaunchedEffect(visible) {
         if (!visible) return@LaunchedEffect
         resta.snapTo(1f)
-        resta.animateTo(0f, tween(UNDO_MS.toInt(), easing = LinearEasing))
+        resta.animateTo(0f, tween(millis.toInt(), easing = LinearEasing))
     }
     AnimatedVisibility(
         visible = visible,

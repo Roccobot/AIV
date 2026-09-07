@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Destinazione': una cartella a contorno con dentro una freccia che scende.
+
+     DISEGNATA DALL'UTENTE, arrivata nello ZIP del giro della 1.81 come `folderDownload.svg`,
+     e sostituisce il glifo provvisorio di Material che la 1.80 teneva sulla riga del titolo
+     della finestra del nome.
+
+     NON CADE SU `Icons.Filled.DriveFolderUpload`, ed è misurato: 1.468 pixel diversi su
+     57.600, cioè il 2,55% della tela. Quella differenza è tutta nella FRECCIA, che in
+     Material va in SU: la cartella esterna è quasi la stessa forma. Un glifo che dice
+     'carica' al posto di uno che dice 'scarica' non è una variante, e il verso della freccia
+     è l'unica cosa che il disegno deve dire.
+
+     STESSA CARTELLA DI `ic_folder_new` E DI `ic_folder_aiv`, stesso inchiostro al
+     centesimo (2.01, 4.00, 19.99, 16.00).
+
+     La normalizzazione non cambia un pixel: misurato, zero differenze su 57.600.
+
+     Le regole di trasporto vivono in `CLAUDE.md`, § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M20,6h-8l-2,-2h-6c-1.1,0,-1.99,.9,-1.99,2v12c-.01,1.1,.89,2,1.99,2h16c1.1,0,2,-.9,2,-2v-10c0,-1.1,-.9,-2,-2,-2ZM20,18H4v-10h16v10ZM11.87,17.03c.08,.08,.2,.08,.28,0l3.57,-3.59c.16,-.16,.16,-.41,0,-.56l-.85,-.85c-.16,-.16,-.41,-.16,-.57,0l-1.31,1.31v-3.76c0,-.22,-.18,-.4,-.4,-.4h-1.2c-.22,0,-.4,.18,-.4,.4v3.76l-1.31,-1.3c-.16,-.16,-.41,-.15,-.56,0l-.85,.85c-.16,.16,-.16,.41,0,.57l3.59,3.59Z" />
+</vector>

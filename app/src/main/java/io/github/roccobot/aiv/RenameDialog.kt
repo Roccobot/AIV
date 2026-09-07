@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -41,6 +42,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -640,6 +642,36 @@ internal fun TitlePill(text: String, onTap: () -> Unit) {
 
 /** Quanto stringe una pastiglia della riga del titolo, che sta in una fila già piena. */
 private val TITLE_PILL_PAD = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+
+/**
+ * Lo stesso comando di [TitlePill], ma come **icona**: la forma che serve quando nella riga del
+ * titolo ce ne sono due.
+ *
+ * ⚠️⚠️ **DUE PASTIGLIE COL TESTO NELLA STESSA RIGA NON CI STANNO, E LA VIA È SUA** (riscontro del
+ * giro della `1.81`, campo libero punto C: *Visto che chiaramente non possono coesistere due
+ * pulsanti testuali in 'Scarica' quando 'Destinazione' ed 'Estensione' sono entrambi attivi, la
+ * logica è quella che avevo detto: in quel caso si usano le icone ... Quando solo una delle due è
+ * attiva, si torna al pulsante testuale*). La `1.81` le teneva testuali facendo cedere il titolo,
+ * e il titolo andava a capo due volte.
+ * ⚠️ **Il glifo lo passa il chiamante**: i due disegni sono suoi ([Glyphs.FolderDownload] e
+ * [Glyphs.Extension]) e questo pezzo non deve sapere quale comando sta disegnando.
+ * ⚠️ **La descrizione parlata è la stessa parola della pastiglia**: un lettore di schermo deve
+ * leggere 'Destinazione' tanto quando è scritta quanto quando è un disegno, o le due forme dello
+ * stesso comando diventano due comandi.
+ *
+ * ⚠️ **Il bersaglio è 40dp e non i 48 di serie**: in una riga di titolo un `IconButton` intero
+ * alzerebbe la riga sopra il testo del titolo, che è esattamente il difetto che la pastiglia
+ * evitava col riempimento verticale a zero. Sotto i 40dp invece il tocco diventa difficile.
+ */
+@Composable
+internal fun TitleIcon(glyph: ImageVector, description: String, onTap: () -> Unit) {
+    IconButton(onClick = onTap, modifier = Modifier.size(TITLE_ICON_TAP)) {
+        Icon(imageVector = glyph, contentDescription = description)
+    }
+}
+
+/** Il bersaglio di un comando-icona della riga del titolo. */
+private val TITLE_ICON_TAP = 40.dp
 
 /**
  * Le righe dell'anteprima: i primi tre abbinamenti e **l'ultimo**.

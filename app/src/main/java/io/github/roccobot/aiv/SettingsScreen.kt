@@ -6,6 +6,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -1999,17 +2000,38 @@ private fun FactFields(
                         onValueChange = flip
                     )
                 ),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            /*
+             * ⚠️⚠️ **L'ARIA FRA IL SEGNO E IL NOME È UNA SOLA, DALLA `1.82`** (riscontro del
+             * giro della `1.81`, voce `riordino-scorre`: *i nomi vanno allineati e un po' più
+             * distanziati*): prima il nome partiva subito dopo la casella e molto più in là
+             * dopo il lucchetto, cioè le due specie di riga avevano due margini diversi.
+             */
+            horizontalArrangement = Arrangement.spacedBy(FACT_GAP)
         ) {
-            if (field.always) {
-                Icon(
-                    imageVector = Icons.Default.Lock,
-                    contentDescription = stringResource(R.string.settings_facts_always),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 14.dp).size(18.dp)
-                )
-            } else {
-                Checkbox(checked = acceso, onCheckedChange = null)
+            /*
+             * ⚠️⚠️ **IL LUCCHETTO STA NELLA SCATOLA DELLA CASELLA, E QUEL NUMERO NON SI SCEGLIE**
+             * (stessa voce: *i lucchetti vanno allineati alle checkbox*): una `Checkbox` non
+             * cliccabile misura il proprio disegno da 20dp più i 2dp di riempimento per lato,
+             * quindi il suo centro cade a 12dp dal bordo. Il lucchetto aveva un riempimento suo
+             * da 14dp e cadeva a 23, cioè quasi mezza casella più a destra.
+             * ⚠️ **La scatola è la stessa e il glifo resta più piccolo**: un lucchetto grande
+             * come una casella spunta peserebbe di più delle scelte vere, che sono le altre.
+             */
+            Box(
+                modifier = Modifier.size(FACT_MARK),
+                contentAlignment = Alignment.Center
+            ) {
+                if (field.always) {
+                    Icon(
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = stringResource(R.string.settings_facts_always),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp)
+                    )
+                } else {
+                    Checkbox(checked = acceso, onCheckedChange = null)
+                }
             }
             Text(
                 text = stringResource(field.label),
@@ -2028,6 +2050,18 @@ private fun FactFields(
  * avrebbe collegato al 40 dell'altro file.
  */
 private val HANDLE_ROOM = HANDLE + 4.dp
+
+/**
+ * La scatola del segno di una riga dei campi: la casella spunta o il lucchetto.
+ *
+ * ⚠️ **24dp è la misura di una `Checkbox` che non si tocca** (20 di disegno più 2 di riempimento
+ * per lato): scriverne una diversa disallineerebbe di nuovo le due specie di riga, che è il
+ * difetto che questa scatola esiste per chiudere.
+ */
+private val FACT_MARK = 24.dp
+
+/** L'aria fra il segno di una riga dei campi e il suo nome. */
+private val FACT_GAP = 14.dp
 
 /**
  * I quattro elenchi di tasti, uno per riquadro.
@@ -2328,11 +2362,25 @@ private fun RenameAndDownload(settings: Settings, onChange: (Settings) -> Unit) 
         checked = settings.saveRename,
         onChange = { onChange(settings.copy(saveRename = it)) }
     )
+    /*
+     * ⚠️⚠️ **SPEGNERLA SCORDA LA CARTELLA SCELTA, DALLA `1.82`, E NON È UN'AGGIUNTA GRATUITA**:
+     * senza, spegnendo la voce i file continuerebbero ad andare nella cartella scelta mesi prima
+     * mentre il comando che la mostra e la cambia non c'è più. È il vicolo cieco della voce
+     * `save-percorso` preso dall'altra parte: là non si tornava a Download perché il selettore
+     * non la offre, qui perché non ci sarebbe più niente da toccare.
+     * ⚠️ **Accenderla non ripesca niente**: la cartella si sceglie, e ripescare quella di prima
+     * vorrebbe dire una destinazione che ricompare senza che nessuno l'abbia chiesta.
+     */
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     SwitchRow(
         label = stringResource(R.string.settings_download_path),
         detail = stringResource(R.string.settings_download_path_desc),
         checked = settings.downloadPath,
-        onChange = { onChange(settings.copy(downloadPath = it)) }
+        onChange = {
+            if (!it) scope.launch { DownloadFolder.forget(context) }
+            onChange(settings.copy(downloadPath = it))
+        }
     )
     /*
      * ⚠️⚠️ **I DUE CHIP SONO INDIPENDENTI, E NON UNA SCELTA FRA DUE**: lui li ha chiesti *spenti
