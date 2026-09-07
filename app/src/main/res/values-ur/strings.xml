@@ -288,8 +288,8 @@
     <string name="settings_group_browse">فولڈرز</string>
     <string name="settings_group_start">آغاز</string>
     <string name="settings_group_advanced">اعلیٰ خصوصیات</string>
-    <string name="settings_ext_edit">\'نام بدلیں\' سے ایکسٹینشن بدلیں</string>
-    <string name="settings_ext_edit_desc">نام بدلنے کا پینل فائلوں کی ایکسٹینشن بدلنے دیتا ہے۔ اگر آپ کو یقین نہیں تو اسے آن نہ کریں: تصویریں ناقابلِ مطالعہ ہو سکتی ہیں۔</string>
+    <string name="settings_ext_edit">توسیع بدلنے کی اجازت</string>
+    <string name="settings_ext_edit_desc">نیچے منتخب کردہ ونڈوز میں \'توسیع\' کا بٹن شامل کرتا ہے۔ توسیع بدلنے سے کچھ تبدیل نہیں ہوتا: اگر معلوم نہ ہو کہ آپ کیا کر رہے ہیں تو دونوں بند رہنے دیں، کیونکہ تصویر ناقابل مطالعہ ہو سکتی ہے۔</string>
     <string name="settings_gpu_thumbs">تھمب نیلز کو گرافکس میموری میں رکھیں</string>
     <string name="settings_gpu_thumbs_desc">تھمب نیل کی کیش گرافکس چپ کی یادداشت میں بناتا ہے، تاکہ عام یادداشت خالی رہے۔ گیلری زیادہ تیز لگ سکتی ہے، کوئی فرق نہ پڑے، یا کچھ صورتوں میں سست ہو جائے، جو تقریباً ہمیشہ پرانے آلات ہوتے ہیں۔ کارکردگی کا مسئلہ ہو تو آن کر کے دیکھیں: پہلے سے جاننا ممکن نہیں، کیونکہ اینڈروئیڈ میں ہارڈ ویئر اور سافٹ ویئر کے مجموعے بہت ہیں۔</string>
     <string name="settings_thumbs">محفوظ تھمب نیلز حذف کریں</string>
@@ -389,10 +389,12 @@
     <string name="settings_editor_backup">اوپر لکھنے سے پہلے حفاظتی نقل</string>
     <string name="settings_editor_backup_desc">کسی ایڈیٹر کے تصویر پر لکھنے سے پہلے، اُس کی ایک نقل ردی کی ٹوکری میں محفوظ ہو جاتی ہے، جہاں سے آپ اسے واپس لے سکتے ہیں؛ ضرورت نہ ہو تو اگلی بار \'ردی کی ٹوکری خالی کریں\' پر حذف ہو جائے گی۔</string>
     <string name="settings_save_rename">محفوظ کرتے وقت نام بدلنے کی اجازت</string>
-    <string name="settings_save_rename_desc">فائلیں اصل نام سے محفوظ ہوتی ہیں۔ ہر ڈاؤن لوڈ پر نام دینے کے لیے اسے آن کریں۔ بند ہونے پر بھی \'محفوظ کریں\' دبا کر رکھیں اور اسی بار نام لکھیں۔</string>
+    <string name="settings_save_rename_desc">طے شدہ طور پر فائلیں اپنے اصل نام سے محفوظ ہوتی ہیں۔ ہر ڈاؤن لوڈ پر نام مقرر کرنے کے لیے یہ چالو کریں۔ بند ہونے پر بھی \'محفوظ کریں\' دبا کر رکھیں اور صرف اسی بار کے لیے نیا نام لکھیں: اس صورت میں \'منزل\' بھی دستیاب ہوتی ہے۔</string>
     <string name="settings_download_path">ڈاؤن لوڈ راستہ چنیں</string>
-    <string name="settings_download_path_desc">آن ہونے پر نام کی ونڈو میں \'راستہ\' آئیکن آتا ہے جو سسٹم چنندہ کھولتا ہے۔ بند ہو تو سب کچھ Download میں جاتا ہے۔</string>
-    <string name="save_name_path">راستہ</string>
+    <string name="settings_rename_download">نام کی تبدیلی اور ڈاؤن لوڈ</string>
+    <string name="settings_download_path_desc">محفوظ کرنے کی ونڈو میں \'منزل\' کا بٹن شامل کرتا ہے، تاکہ فائل کس فولڈر میں جائے یہ منتخب کیا جا سکے۔ یہ اس وقت لاگو ہوتا ہے جب محفوظ کرتے وقت نام بدلنا چالو ہو۔</string>
+    <string name="save_name_path">منزل فولڈر: %1$s</string>
+    <string name="save_name_dest">منزل</string>
     <string name="editor_tall">عمودی</string>
     <string name="editor_wide">افقی</string>
     <string name="pick_cleared">کوئی فائل منتخب نہیں۔</string>

@@ -95,11 +95,13 @@
     <string name="settings_editor_pick">Scegli</string>
     <string name="settings_editor_backup">Copia di sicurezza prima di sovrascrivere</string>
     <string name="settings_editor_backup_desc">Prima di sovrascrivere un\'immagine, l\'editor ne salva una copia nel cestino, dove potrai recuperarla; se non ti serve, sarà eliminata al successivo \'Svuota cestino\'.</string>
-    <string name="settings_save_rename">Consenti rinomina al salvataggio</string>
-    <string name="settings_save_rename_desc">Per impostazione predefinita, tutti i file sono scaricati con il nome originario. Attiva questa funzionalità per definire un nome di salvataggio ad ogni download. Anche se la lasci disattivata, puoi toccare e tenere premuto \'Scarica\' per inserire un nuovo nome al volo solo quando serve.</string>
+    <string name="settings_save_rename">Consenti la rinomina al salvataggio</string>
+    <string name="settings_save_rename_desc">Per impostazione predefinita, tutti i file sono scaricati con il nome originario. Attiva questa funzionalità per definire un nome di salvataggio ad ogni download. Anche se la lasci disattivata, puoi toccare e tenere premuto \'Scarica\' per inserire un nuovo nome al volo solo quando serve: in quel caso è disponibile anche \'Destinazione\'.</string>
     <string name="settings_download_path">Scegli il percorso di download</string>
-    <string name="settings_download_path_desc">Con questa attiva, nella finestra del nome compare l\'icona \'Percorso\', che apre il selettore di sistema per scegliere dove scrivere il file. Da spenta, tutto va in Download.</string>
-    <string name="save_name_path">Percorso</string>
+    <string name="settings_rename_download">Rinomina e download</string>
+    <string name="settings_download_path_desc">Mette a disposizione il pulsante \'Destinazione\' nella schermata di download, per scegliere la cartella di salvataggio. Si applica quando è attiva la rinomina al salvataggio.</string>
+    <string name="save_name_path">Cartella di destinazione: %1$s</string>
+    <string name="save_name_dest">Destinazione</string>
 
     <string name="toast_image_copied">Immagine copiata</string>
     <string name="toast_name_copied">Nome del file copiato</string>
@@ -405,8 +407,8 @@
     <string name="settings_group_browse">Cartelle</string>
     <string name="settings_group_start">Avvio</string>
     <string name="settings_group_advanced">Funzionalità avanzate</string>
-    <string name="settings_ext_edit">Modifica le estensioni con \'Rinomina\'</string>
-    <string name="settings_ext_edit_desc">Il pannello di rinomina consente di modificare le estensioni dei file. Se non sai cosa stai facendo, non attivare questa opzione: può rendere le immagini illeggibili.</string>
+    <string name="settings_ext_edit">Consenti la modifica dell\'estensione</string>
+    <string name="settings_ext_edit_desc">Aggiunge il pulsante \'Estensione\' alle finestre che scegli qui sotto. Cambiare l\'estensione non converte niente: se non sai cosa stai facendo lasciali spenti entrambi, perché può rendere un\'immagine illeggibile.</string>
     <string name="settings_gpu_thumbs">Salva le miniature nella memoria grafica</string>
     <string name="settings_gpu_thumbs_desc">Memorizza le miniature nella memoria del chip grafico. Può migliorare la reattività della galleria, essere ininfluente, o talvolta causare rallentamenti su dispositivi datati. Prova ad attivarla e verifica se ci sono miglioramenti; ogni caso è a sé, vista la quantità di combinazioni hardware/software dei dispositivi Android.</string>
     <string name="settings_thumbs">Elimina le miniature memorizzate</string>

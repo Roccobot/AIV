@@ -274,8 +274,8 @@
     <string name="settings_group_browse">Thư mục</string>
     <string name="settings_group_start">Khởi động</string>
     <string name="settings_group_advanced">Tính năng nâng cao</string>
-    <string name="settings_ext_edit">Đổi phần mở rộng trong \'Đổi tên\'</string>
-    <string name="settings_ext_edit_desc">Bảng đổi tên cho phép đổi phần mở rộng của tệp. Nếu không rõ mình đang làm gì thì đừng bật: ảnh có thể trở nên không đọc được.</string>
+    <string name="settings_ext_edit">Cho phép sửa phần mở rộng</string>
+    <string name="settings_ext_edit_desc">Thêm nút \'Phần mở rộng\' vào những cửa sổ bạn chọn bên dưới. Đổi phần mở rộng không chuyển đổi gì cả: nếu không biết mình đang làm gì, hãy để cả hai tắt, vì ảnh có thể không đọc được.</string>
     <string name="settings_gpu_thumbs">Giữ ảnh thu nhỏ trong bộ nhớ đồ họa</string>
     <string name="settings_gpu_thumbs_desc">Tạo bộ đệm ảnh thu nhỏ trong bộ nhớ của chip đồ họa, để trống bộ nhớ thông thường. Có thể khiến thư viện mượt hơn, có thể không thay đổi gì, hoặc trong một số trường hợp, hầu như luôn là máy cũ, làm chậm đi. Nếu gặp vấn đề hiệu năng, hãy bật và xem có khá hơn không: không thể biết trước, vì Android có quá nhiều tổ hợp phần cứng và phần mềm.</string>
     <string name="settings_thumbs">Xóa ảnh thu nhỏ đã lưu</string>
@@ -373,10 +373,12 @@
     <string name="settings_editor_backup">Bản sao an toàn trước khi ghi đè</string>
     <string name="settings_editor_backup_desc">Trước khi một trình sửa ghi đè lên một ảnh, nó lưu một bản sao vào thùng rác, nơi bạn có thể lấy lại; nếu không cần, bản sao sẽ bị xoá ở lần \'Dọn thùng rác\' kế tiếp.</string>
     <string name="settings_save_rename">Cho phép đổi tên khi lưu</string>
-    <string name="settings_save_rename_desc">Tệp được lưu theo tên gốc. Bật để đặt tên cho mỗi lần tải. Dù đang tắt, hãy nhấn giữ \'Lưu\' để nhập tên chỉ lần đó.</string>
+    <string name="settings_save_rename_desc">Theo mặc định, tệp được lưu với tên gốc. Bật tùy chọn này để đặt tên ở mỗi lần tải xuống. Dù đang tắt, hãy nhấn giữ \'Lưu\' để nhập tên mới chỉ lần đó: khi ấy \'Đích\' cũng khả dụng.</string>
     <string name="settings_download_path">Chọn đường dẫn tải về</string>
-    <string name="settings_download_path_desc">Khi bật, cửa sổ tên hiện biểu tượng \'Đường dẫn\' để mở bộ chọn của hệ thống. Khi tắt, mọi tệp vào Download.</string>
-    <string name="save_name_path">Đường dẫn</string>
+    <string name="settings_rename_download">Đổi tên và tải xuống</string>
+    <string name="settings_download_path_desc">Thêm nút \'Đích\' vào cửa sổ lưu, để chọn thư mục nơi tệp sẽ tới. Áp dụng khi bật đổi tên khi lưu.</string>
+    <string name="save_name_path">Thư mục đích: %1$s</string>
+    <string name="save_name_dest">Đích</string>
     <string name="editor_tall">Dọc</string>
     <string name="editor_wide">Ngang</string>
     <string name="pick_cleared">Chưa chọn tệp nào.</string>

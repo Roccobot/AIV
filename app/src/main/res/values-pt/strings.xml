@@ -302,8 +302,8 @@
     <string name="settings_group_browse">Pastas</string>
     <string name="settings_group_start">Início</string>
     <string name="settings_group_advanced">Recursos avançados</string>
-    <string name="settings_ext_edit">Alterar extensões em \'Renomear\'</string>
-    <string name="settings_ext_edit_desc">O painel de renomeação permite alterar a extensão dos arquivos. Se você não sabe o que está fazendo, não ative esta opção: pode tornar as imagens ilegíveis.</string>
+    <string name="settings_ext_edit">Permitir alterar a extensão</string>
+    <string name="settings_ext_edit_desc">Acrescenta o botão \'Extensão\' às janelas escolhidas abaixo. Alterar a extensão não converte nada: se não sabe o que está fazendo, deixe os dois desligados, porque uma imagem pode ficar ilegível.</string>
     <string name="settings_gpu_thumbs">Manter as miniaturas na memória gráfica</string>
     <string name="settings_gpu_thumbs_desc">Cria o cache das miniaturas na memória do chip gráfico, deixando livre a memória comum. Pode deixar a galeria mais rápida, não mudar nada ou, em alguns casos, quase sempre em aparelhos antigos, deixá-la lenta. Se tiver problemas de desempenho, ative e veja se melhora: não há como saber antes, com todas as combinações de hardware e software que o Android tem.</string>
     <string name="settings_thumbs">Excluir as miniaturas armazenadas</string>
@@ -405,10 +405,12 @@
     <string name="settings_editor_backup">Cópia de segurança antes de sobrescrever</string>
     <string name="settings_editor_backup_desc">Antes que um editor sobrescreva uma imagem, ele guarda uma cópia na lixeira, onde você poderá recuperá-la; se não precisar dela, será excluída no próximo \'Esvaziar lixeira\'.</string>
     <string name="settings_save_rename">Permitir renomear ao salvar</string>
-    <string name="settings_save_rename_desc">Os ficheiros são guardados com o nome original. Ative para escolher o nome em cada descarga. Mesmo desativada, toque e mantenha \'Guardar\' para escrever um nome só dessa vez.</string>
+    <string name="settings_save_rename_desc">Por padrão, os arquivos são salvos com o nome original. Ative isto para definir um nome em cada download. Mesmo desativado, toque e mantenha \'Salvar\' para digitar um novo nome só naquela vez: nesse caso \'Destino\' também fica disponível.</string>
     <string name="settings_download_path">Escolher o caminho da descarga</string>
-    <string name="settings_download_path_desc">Ativado, na janela do nome aparece o ícone \'Caminho\', que abre o seletor do sistema para escolher o destino. Desativado, tudo vai para Descargas.</string>
-    <string name="save_name_path">Caminho</string>
+    <string name="settings_rename_download">Renomear e downloads</string>
+    <string name="settings_download_path_desc">Acrescenta o botão \'Destino\' à janela de salvamento, para escolher a pasta onde o arquivo vai. Aplica-se quando renomear ao salvar está ativo.</string>
+    <string name="save_name_path">Pasta de destino: %1$s</string>
+    <string name="save_name_dest">Destino</string>
     <string name="editor_tall">Retrato</string>
     <string name="editor_wide">Paisagem</string>
     <string name="pick_cleared">Nenhum arquivo selecionado.</string>

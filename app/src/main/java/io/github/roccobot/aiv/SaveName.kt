@@ -7,9 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FolderOpen
-import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -30,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -57,15 +55,20 @@ import java.time.format.DateTimeFormatter
  * Quindi anche 'Data', che fino alla `1.77` era un gettone tonale, e il pezzo che li disegna è
  * [Quiet], lo stesso di 'Rinomina': copiarne la forma qui sarebbe il primo posto in cui
  * divergere.
- * ⚠️⚠️ **MA 'Estensione' NON È PIÙ FRA LORO, DALLA `1.80`: È UN'ICONA SULLA RIGA DEL TITOLO**
+ * ⚠️⚠️ **MA 'Estensione' NON È PIÙ FRA LORO, DALLA `1.80`: STA SULLA RIGA DEL TITOLO**
  * (riscontro del giro della `1.79`, voce `scarica-comandi`: *mi ero espresso male ... 'Estensione'
  * deve apparire sotto forma di icona a destra, allineato alla linea di base del titolo*). Con lei
- * c'è **'Percorso'**, l'altra icona, e l'ordine è il suo: *prima 'Percorso' e poi 'Estensione'
- * ultima a destra*. Le due compaiono una per volta o insieme, e da sole stanno comunque a destra,
- * perché è la fila che si allinea al bordo e non ogni icona per conto suo.
- * ⚠️ **Il glifo dei due comandi è PROVVISORIO**: lui ha chiesto una proposta (*proponimi qualche
- * icona per 'Estensione' e altre per 'percorso'*), quindi qui ci sono due glifi di Material che
- * si leggono, e la scelta arriva col giro dopo. Chi li sostituisce cambia due righe.
+ * c'è **'Destinazione'**, l'altro comando, e l'ordine è il suo: *prima 'Percorso' e poi
+ * 'Estensione' ultima a destra*. Le due compaiono una per volta o insieme, e da sole stanno
+ * comunque a destra, perché è la fila che si allinea al bordo e non ogni comando per conto suo.
+ * ⚠️⚠️ **E DALLA `1.81` SONO DUE PASTIGLIE COL TESTO, NON DUE ICONE, PERCHÉ HA CAMBIATO IDEA**
+ * (riscontro del giro della `1.80`, voce `rinomina-icona`: *se è attivo solo un tasto
+ * ('Estensione' o 'Percorso'), appare come pulsante testuale come il precedente, con scritto
+ * rispettivamente `Estensione` o `Destinazione`, allineato a destra. Se sono attivi entrambi,
+ * mostrami come possiamo fare a mantenerli testuali*). La via per tenerli testuali è che il
+ * **titolo ceda**: le pastiglie misurano il testo che hanno dentro e il titolo va a capo, quindi
+ * non c'è nessuna parola tagliata e nessuna misura scritta a mano. Se un domani non bastasse,
+ * il ripiego che lui ha già autorizzato sono le due icone.
  *
  * ⚠️⚠️ **È UNA MODALE VERA, E LE DUE RIGHE VANNO INSIEME** (`Modifier.lowered(null)` e
  * `properties = loweredWindow(null)`): esiste per raccogliere un input scritto, che è il solo
@@ -78,10 +81,13 @@ import java.time.format.DateTimeFormatter
  *   allora i due comandi della riga del titolo ci sono tutti e due, a impostazioni spente
  *   (campo libero del giro della `1.79`, punto D). ⚠️ **Non ha un valore di serie**, perché è
  *   una delle due vie con cui questa finestra si apre e chi la apre lo sa.
- * @param onPath il gesto di 'Percorso': riceve nome e suffisso come sono in quel momento, e
- *   apre il selettore di sistema. ⚠️ **`null` vuol dire che il comando non c'è**, cioè
- *   l'impostazione è spenta e la finestra non è stata aperta col tocco lungo: la scelta la fa
- *   chi chiama, perché è lui ad avere le impostazioni in mano.
+ * @param folder il nome della cartella in cui il file finirà, da mostrare sotto il campo, oppure
+ *   `null` per quella di serie. ⚠️ **Serve perché il percorso adesso si RICORDA**: senza una riga
+ *   che lo dice, una cartella scelta un mese fa sarebbe una destinazione invisibile.
+ * @param onPickFolder il gesto di 'Destinazione': apre il selettore di **cartella** e non salva
+ *   niente. ⚠️ **`null` vuol dire che il comando non c'è**, cioè l'impostazione è spenta e la
+ *   finestra non è stata aperta col tocco lungo: la scelta la fa chi chiama, perché è lui ad
+ *   avere le impostazioni in mano.
  * @param onSave riceve il nome senza suffisso **e** il suffisso scelto, col punto: a rimetterli
  *   insieme ci pensa chi salva, perché è lui a sapere che cosa dichiarare al `MediaStore`.
  */
@@ -89,7 +95,8 @@ import java.time.format.DateTimeFormatter
 fun SaveNameDialog(
     full: String,
     hold: Boolean,
-    onPath: ((name: String, suffix: String) -> Unit)?,
+    folder: String?,
+    onPickFolder: (() -> Unit)?,
     onDismiss: () -> Unit,
     onSave: (name: String, suffix: String) -> Unit
 ) {
@@ -121,6 +128,7 @@ fun SaveNameDialog(
      */
     var suffisso by rememberSaveable(full) { mutableStateOf(had) }
     val gate = extensionGate(
+        where = ExtWhere.DOWNLOAD,
         // ⚠️⚠️ **IL TOCCO LUNGO SCAVALCA LA GRIGLIA DI SICUREZZA, ED È LA SUA RICHIESTA**
         // (campo libero del giro della `1.79`, punto D): quel gesto è già il 'per questa volta
         // sola' che accende la rinomina, quindi accende anche questo comando. L'avviso della
@@ -169,18 +177,19 @@ fun SaveNameDialog(
                     text = stringResource(R.string.save_name_title),
                     modifier = Modifier.weight(1f)
                 )
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (onPath != null) {
-                        TitleAction(
-                            icon = Icons.Filled.FolderOpen,
-                            label = stringResource(R.string.save_name_path),
-                            onTap = { onPath(pulito, suffisso) }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (onPickFolder != null) {
+                        TitlePill(
+                            text = stringResource(R.string.save_name_dest),
+                            onTap = onPickFolder
                         )
                     }
                     if (gate.allowed) {
-                        TitleAction(
-                            icon = Icons.Filled.Sell,
-                            label = stringResource(R.string.rename_ext),
+                        TitlePill(
+                            text = stringResource(R.string.rename_ext),
                             onTap = gate.open
                         )
                     }
@@ -258,6 +267,24 @@ fun SaveNameDialog(
                             val oggi = today()
                             typed = TextFieldValue(oggi, TextRange(oggi.length))
                         }
+                    )
+                }
+                /*
+                 * ⚠️⚠️ **LA CARTELLA SI SCRIVE PERCHÉ ADESSO SI RICORDA, DALLA `1.81`**
+                 * (riscontro del giro della `1.80`, campo libero punto E: *Io voglio che sia
+                 * memorizzato il percorso in modo che il file sia salvato lì alla fine, ma solo
+                 * alla pressione di 'Salva'*). Una destinazione scelta una volta e poi
+                 * invisibile è peggio di nessuna destinazione: chi salva non sa dove sta
+                 * mandando il file.
+                 * ⚠️ **C'è solo quando è stata scelta**: con la cartella di serie la riga non
+                 * comparirebbe a dire 'Download', che è quello che l'app fa da sempre e che
+                 * nessuno ha bisogno di leggere ogni volta.
+                 */
+                if (folder != null) {
+                    Text(
+                        text = stringResource(R.string.save_name_path, folder),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }

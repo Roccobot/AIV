@@ -475,7 +475,7 @@ data class Settings(
      */
     val gridNames: Boolean = false,
     /**
-     * Se la finestra di rinomina porta il tasto che cambia l'**estensione**.
+     * Se la finestra di **rinomina** porta il tasto che cambia l'estensione.
      *
      * ⚠️⚠️ **SPENTA DI FABBRICA, ED È UNA GRIGLIA DI SICUREZZA CHIESTA DALL'UTENTE**
      * (2026-09-02: *per far sì che la funzionalità sia usata solo da chi sa cosa sta facendo,
@@ -490,8 +490,33 @@ data class Settings(
      * nelle impostazioni, e il velo che compare la **prima volta** che si apre quel
      * pannellino (vedi [Hint.EXT_WARN]). Il primo tiene fuori chi non la cerca, il terzo
      * avvisa chi la cerca senza sapere che cosa comporta.
+     *
+     * ⚠️⚠️ **DALLA `1.81` LA VOCE È UNA E I CHIP SONO DUE, e questo campo è il chip 'Rinomina'**
+     * (riscontro del giro della `1.80`, campo libero punto A: *`Modifica le estensioni con
+     * 'Rinomina'` -> diventa `Consenti la modifica dell'estensione` e deve avere due chip spenti
+     * di fabbrica: `Scarica` e `Rinomina` che attivano la modifica dell'estensione per ciascuna
+     * delle due funzionalità*). L'altro chip è [extDownload].
+     * ⚠️⚠️ **LA CHIAVE RESTA `ext-edit` DI PROPOSITO**, anche se il campo si è rinominato: era
+     * esattamente questa scelta, cioè 'estensione in Rinomina', quindi chi l'aveva accesa se la
+     * ritrova accesa dopo l'aggiornamento. Una chiave nuova si scrive quando la domanda cambia
+     * verso (`AIV/CLAUDE.md`, § '⚙️ Dove va un'impostazione, e chi la deve trovare'), e qui la
+     * domanda di questo campo è la stessa: si è solo aggiunta la sua gemella.
      */
-    val extEdit: Boolean = false,
+    val extRename: Boolean = false,
+    /**
+     * Se la finestra del **salvataggio** porta il tasto che cambia l'estensione.
+     *
+     * ⚠️⚠️ **NASCE NELLA `1.81` COME GEMELLA DI [extRename], ED È SUA** (stessa richiesta: due
+     * chip, uno per funzione). Fino alla `1.80` le due finestre leggevano lo stesso interruttore,
+     * quindi accendere l'estensione in 'Rinomina' la accendeva anche in 'Scarica' senza che
+     * nessuno l'avesse chiesto.
+     * ⚠️ **Spenta di fabbrica come la gemella**, e per la stessa ragione: il valore di fabbrica
+     * non si sceglie per far vedere la funzione, e qui protegge un file.
+     * ⚠️ **Il tocco lungo su 'Scarica' la scavalca**, come scavalca [saveRename]: è il 'per
+     * questa volta sola' che lui ha chiesto (campo libero del giro della `1.79`, punto D). Quello
+     * che non scavalca è l'avviso della prima volta.
+     */
+    val extDownload: Boolean = false,
     /**
      * Se le miniature vivono nella **memoria grafica** invece che in quella dell'app.
      *
@@ -756,7 +781,10 @@ object SettingsStore {
     private val IMAGES_ONLY = booleanPreferencesKey("images-only")
     private val CLIP_AUTOPLAY = booleanPreferencesKey("clip-autoplay")
     private val GRID_NAMES = booleanPreferencesKey("grid-names")
+    // ⚠️ La chiave resta quella della `1.36` mentre il campo si è rinominato in `extRename`:
+    // era già 'estensione in Rinomina', quindi chi l'aveva accesa se la ritrova accesa.
     private val EXT_EDIT = booleanPreferencesKey("ext-edit")
+    private val EXT_DOWNLOAD = booleanPreferencesKey("ext-download")
     private val GPU_THUMBS = booleanPreferencesKey("gpu-thumbs")
     private val SAVE_RENAME = booleanPreferencesKey("save-rename")
     private val DOWNLOAD_PATH = booleanPreferencesKey("download-path")
@@ -830,7 +858,8 @@ object SettingsStore {
             imagesOnly = p[IMAGES_ONLY] ?: false,
             clipAutoplay = p[CLIP_AUTOPLAY] ?: false,
             gridNames = p[GRID_NAMES] ?: false,
-            extEdit = p[EXT_EDIT] ?: false,
+            extRename = p[EXT_EDIT] ?: false,
+            extDownload = p[EXT_DOWNLOAD] ?: false,
             gpuThumbs = p[GPU_THUMBS] ?: false,
             saveRename = p[SAVE_RENAME] ?: false,
             downloadPath = p[DOWNLOAD_PATH] ?: false,
@@ -916,7 +945,8 @@ object SettingsStore {
             p[IMAGES_ONLY] = settings.imagesOnly
             p[CLIP_AUTOPLAY] = settings.clipAutoplay
             p[GRID_NAMES] = settings.gridNames
-            p[EXT_EDIT] = settings.extEdit
+            p[EXT_EDIT] = settings.extRename
+            p[EXT_DOWNLOAD] = settings.extDownload
             p[GPU_THUMBS] = settings.gpuThumbs
             p[SAVE_RENAME] = settings.saveRename
             p[DOWNLOAD_PATH] = settings.downloadPath
@@ -1129,5 +1159,54 @@ object Recents {
 
     suspend fun clear(context: Context) {
         context.aivStore.edit { p -> p.remove(ENTRIES) }
+    }
+}
+
+/**
+ * La **cartella di destinazione** del salvataggio, quella che lui ha scelto e che l'app ricorda.
+ *
+ * ⚠️⚠️ **NASCE NELLA `1.81` PERCHÉ IL PERCORSO SI DEVE RICORDARE** (riscontro del giro della
+ * `1.80`, campo libero punto E: *Io voglio che sia memorizzato il percorso in modo che il file sia
+ * salvato lì alla fine, ma solo alla pressione di 'Salva'*). Fino alla `1.80` il comando apriva la
+ * finestra 'Salva file' del sistema, che scriveva subito: non c'era niente da ricordare, e non
+ * c'era nemmeno una scelta.
+ *
+ * ⚠️⚠️ **NON STA IN [Settings] DI PROPOSITO, E NON È UNA SVISTA**: quella classe è la fotografia
+ * di quello che si tocca nel pannello, e ogni suo campo ha una riga in una schermata (vedi
+ * `AIV/CLAUDE.md`, § '⚙️ Dove va un'impostazione, e chi la deve trovare'). Questo è un **dato**
+ * che l'app si ricorda perché lui ha scelto una cartella, non una preferenza da spuntare: metterlo
+ * là dentro vorrebbe dire un campo che il pannello non mostra e che nessuna delle cinque regole
+ * saprebbe dove collocare. La stessa strada la fanno già i veli ([Hint]) e gli indirizzi recenti.
+ *
+ * ⚠️⚠️ **L'INDIRIZZO MEMORIZZATO NON BASTA: SERVE IL PERMESSO PERSISTENTE**, e a prenderlo è il
+ * richiamo che riceve l'albero dal selettore (`takePersistableUriPermission`). Senza, l'indirizzo
+ * si rilegge benissimo il giorno dopo e la scrittura va in `SecurityException`, cioè un difetto
+ * che non si vede provando l'app nello stesso minuto in cui si è scelta la cartella.
+ */
+object DownloadFolder {
+    private val TREE = stringPreferencesKey("download-tree")
+
+    /** L'albero scelto, o `null` se non ne è stato scelto nessuno: là si scrive in Download. */
+    fun flow(context: Context): Flow<String?> = context.aivStore.data.map { p -> p[TREE] }
+
+    suspend fun set(context: Context, tree: String?) {
+        context.aivStore.edit { p ->
+            if (tree.isNullOrBlank()) p.remove(TREE) else p[TREE] = tree
+        }
+    }
+
+    /**
+     * Il nome da mostrare per una cartella scelta.
+     *
+     * ⚠️ **Si ricava dall'identificatore del documento e non dall'indirizzo grezzo**: un albero
+     * arriva come `content://...tree/primary%3APictures%2FVacanze`, che davanti agli occhi non si
+     * legge. L'identificatore è `primary:Pictures/Vacanze`, e quello che serve è l'ultimo pezzo.
+     * ⚠️ **La radice di un volume non ha un pezzo dopo i due punti**, e allora si mostra il volume:
+     * meglio `primary` che una riga vuota, che si leggerebbe come un guasto.
+     */
+    fun label(tree: String): String {
+        val id = tree.substringAfterLast("/tree/", "").let { android.net.Uri.decode(it) }
+        val path = id.substringAfter(':', "").trim('/')
+        return path.substringAfterLast('/').ifBlank { id.substringBefore(':') }.ifBlank { id }
     }
 }

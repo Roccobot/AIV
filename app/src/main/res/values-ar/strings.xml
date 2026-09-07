@@ -344,8 +344,8 @@
     <string name="settings_group_browse">المجلدات</string>
     <string name="settings_group_start">بدء التشغيل</string>
     <string name="settings_group_advanced">ميزات متقدمة</string>
-    <string name="settings_ext_edit">تغيير الامتدادات من \'إعادة تسمية\'</string>
-    <string name="settings_ext_edit_desc">تتيح لوحة إعادة التسمية تغيير امتدادات الملفات. إن لم تكن متأكدًا فلا تُشغّل هذا الخيار: قد يجعل الصور غير قابلة للقراءة.</string>
+    <string name="settings_ext_edit">السماح بتعديل الامتداد</string>
+    <string name="settings_ext_edit_desc">يضيف زر \'الامتداد\' إلى النوافذ التي تختارها أدناه. تغيير الامتداد لا يحوّل شيئاً: إن لم تكن تعرف ما تفعله فاتركهما مطفأين، لأنه قد يجعل الصورة غير قابلة للقراءة.</string>
     <string name="settings_gpu_thumbs">الاحتفاظ بالصور المصغرة في ذاكرة الرسوميات</string>
     <string name="settings_gpu_thumbs_desc">يبني مخزن المصغرات في ذاكرة رقاقة الرسوم، فتبقى الذاكرة العادية فارغة. قد يجعل المعرض أسرع، وقد لا يغيّر شيئًا، وقد يُبطئه في بعض الحالات، وهي غالبًا الأجهزة القديمة. إن واجهت مشكلة في الأداء فشغّله وانظر إن تحسّن: لا يمكن معرفة ذلك مسبقًا، فتوليفات العتاد والبرمجيات في أندرويد كثيرة.</string>
     <string name="settings_thumbs">حذف المصغّرات المحفوظة</string>
@@ -453,10 +453,12 @@
     <string name="settings_editor_backup">نسخة أمان قبل الكتابة فوق الملف</string>
     <string name="settings_editor_backup_desc">قبل أن يستبدل المحرّر صورةً، يحفظ نسخةً منها في سلة المهملات حيث يمكنك استعادتها؛ وإن لم تحتَجها فستُحذَف عند \'إفراغ سلة المهملات\' التالي.</string>
     <string name="settings_save_rename">السماح بإعادة التسمية عند الحفظ</string>
-    <string name="settings_save_rename_desc">تُحفظ الملفات باسمها الأصلي. شغّل هذا لتحديد الاسم عند كل تنزيل. وحتى عند إيقافه، اضغط مطولا على \'حفظ\' لكتابة اسم لهذه المرة فقط.</string>
+    <string name="settings_save_rename_desc">بشكل افتراضي، تُحفظ الملفات بأسمائها الأصلية. شغّل هذا الخيار لتحديد اسم عند كل تنزيل. وحتى مع إيقافه، المس \'حفظ\' مع الاستمرار لكتابة اسم جديد لهذه المرة فقط: في تلك الحالة يتوفر أيضاً \'الوجهة\'.</string>
     <string name="settings_download_path">اختيار مسار التنزيل</string>
-    <string name="settings_download_path_desc">عند تشغيله يظهر رمز \'المسار\' في نافذة الاسم ويفتح منتقي النظام لاختيار الموضع. وعند إيقافه يذهب كل شيء إلى Download.</string>
-    <string name="save_name_path">المسار</string>
+    <string name="settings_rename_download">إعادة التسمية والتنزيلات</string>
+    <string name="settings_download_path_desc">يضيف زر \'الوجهة\' إلى نافذة الحفظ لاختيار المجلد الذي يذهب إليه الملف. يعمل عندما تكون إعادة التسمية عند الحفظ مشغّلة.</string>
+    <string name="save_name_path">مجلد الوجهة: %1$s</string>
+    <string name="save_name_dest">الوجهة</string>
     <string name="editor_tall">طولي</string>
     <string name="editor_wide">عرضي</string>
     <string name="pick_cleared">لم يتم تحديد أي ملف.</string>

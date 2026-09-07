@@ -106,12 +106,12 @@ class SalvataggioTest {
      * fabbrica è spenta. La `1.78` ha spostato quel cancello in un pezzo condiviso: se un domani
      * il suo `allowed` diventasse un `true` scritto a mano, l'app non darebbe nessun errore e la
      * protezione sarebbe sparita in silenzio.
-     * ⚠️⚠️ **DALLA `1.80` L'ASSENZA SI CERCA FRA LE DESCRIZIONI E NON FRA I TESTI, e prima
-     * questa riga sarebbe passata misurando NIENTE**: 'Estensione' è diventata un'icona sulla
-     * riga del titolo (voce `scarica-comandi` del giro della `1.79`), quindi il suo nome non è
-     * più il testo di un nodo ma la descrizione parlata di uno. Cercarlo fra i testi darebbe
-     * 'non c'è' anche con l'icona in scena, che è il modo tipico in cui una prova mente in
-     * verde.
+     * ⚠️⚠️ **DALLA `1.81` I DUE COMANDI SI CERCANO DI NUOVO FRA I TESTI, PERCHÉ SONO TORNATI
+     * PASTIGLIE** (voce `rinomina-icona` del giro della `1.80`: *Ho cambiato idea ... testuale,
+     * tasto stondato a destra*). Nella sola `1.80` erano icone e il loro nome viveva nella
+     * descrizione parlata: cercarlo nel posto sbagliato darebbe 'non c'è' anche col comando in
+     * scena, che è il modo tipico in cui una prova mente in verde. Chi cambia di nuovo quella
+     * forma guardi anche queste due righe.
      */
     @Test
     fun `i comandi sul nome ci sono e l'estensione no`() {
@@ -120,43 +120,74 @@ class SalvataggioTest {
         banco.onNodeWithText(app.getString(R.string.rename_select_all)).assertExists()
         banco.onNodeWithText(app.getString(R.string.rename_clear)).assertExists()
         banco.onNodeWithText(app.getString(R.string.save_name_date)).assertExists()
-        banco.onNodeWithContentDescription(app.getString(R.string.rename_ext))
-            .assertDoesNotExist()
-        banco.onNodeWithContentDescription(app.getString(R.string.save_name_path))
-            .assertDoesNotExist()
+        banco.onNodeWithText(app.getString(R.string.rename_ext)).assertDoesNotExist()
+        banco.onNodeWithText(app.getString(R.string.save_name_dest)).assertDoesNotExist()
     }
 
     /**
-     * **Col tocco lungo i due comandi della riga del titolo ci sono tutti e due, e 'Percorso'
-     * consegna il nome che si vede.**
+     * **Col tocco lungo i due comandi della riga del titolo ci sono tutti e due, e 'Destinazione'
+     * non chiude la finestra.**
      *
      * ⚠️⚠️ **È LA SUA RICHIESTA ALLA LETTERA** (campo libero del giro della `1.79`, punto D: *la
      * pressione lunga su 'Scarica' metterà a disposizione la finestra di download con entrambe
-     * le icone-tasto attive ('Percorso', 'Estensione')*), e senza prova non ce l'avrebbe
-     * nessuno: quei due comandi compaiono per un `force` e per un parametro non nullo, cioè per
-     * due strade diverse che non danno nessun errore se una delle due non arriva.
-     * ⚠️⚠️ **E CHE 'Percorso' CONSEGNI LA COPPIA GIUSTA È LA METÀ CHE FA DANNO**: un comando che
-     * aprisse il selettore col nome intero, o col solo nome senza suffisso, salverebbe un file
-     * che si chiama in un altro modo. Qui si guarda quello che la finestra passa a chi salva,
-     * che è il confine fra le due metà dichiarato in testa a questa classe.
+     * le icone-tasto attive*), e senza prova non ce l'avrebbe nessuno: quei due comandi compaiono
+     * per un `force` e per un parametro non nullo, cioè per due strade diverse che non danno
+     * nessun errore se una delle due non arriva.
+     * ⚠️⚠️ **E CHE LA FINESTRA RESTI APERTA È LA METÀ NUOVA DELLA `1.81`** (voce
+     * `scarica-percorso`: *Voglio solo SELEZIONARE la destinazione, non salvare*): fino alla
+     * `1.80` quel comando chiudeva la finestra e apriva la finestra 'Salva file' del sistema,
+     * cioè salvava. Adesso apre un selettore di cartella e quello che si era battuto deve essere
+     * ancora là al ritorno, quindi la prova guarda che il campo del nome sia ancora in scena.
      * ⚠️ **L'ordine non si prova qui**: 'prima Percorso e poi Estensione' è una posizione, e
      * quello che il banco può dire è che i due nodi esistono. Il posto si vede.
      */
     @Test
     fun `col tocco lungo i due comandi del titolo ci sono tutti e due`() {
-        var chiesto: Pair<String, String>? = null
+        var aperto = 0
         banco.setContent {
             AivTheme(darkTheme = false) {
-                Finestra(hold = true, onPath = { nome, coda -> chiesto = nome to coda })
+                Finestra(hold = true, onPickFolder = { aperto += 1 })
             }
         }
 
-        val percorso = app.getString(R.string.save_name_path)
-        banco.onNodeWithContentDescription(percorso).assertExists()
-        banco.onNodeWithContentDescription(app.getString(R.string.rename_ext)).assertExists()
+        val destinazione = app.getString(R.string.save_name_dest)
+        banco.onNodeWithText(destinazione).assertExists()
+        banco.onNodeWithText(app.getString(R.string.rename_ext)).assertExists()
 
-        banco.onNodeWithContentDescription(percorso).performClick()
-        assertEquals("'Percorso' non ha consegnato il nome spezzato", "foto" to ".jpg", chiesto)
+        banco.onNodeWithText(destinazione).performClick()
+        assertEquals("'Destinazione' non ha aperto il selettore di cartella", 1, aperto)
+        banco.onNodeWithText("foto").assertExists()
+    }
+
+    /**
+     * **La riga della cartella dice la cartella scelta.**
+     *
+     * ⚠️⚠️ **UNA DESTINAZIONE MEMORIZZATA E INVISIBILE È PEGGIO DI NESSUNA DESTINAZIONE**, e
+     * dalla `1.81` la cartella si ricorda (voce `scarica-percorso` e campo libero punto E del
+     * giro della `1.80`): senza questa riga, chi ha scelto una cartella un mese fa salva in un
+     * posto che non ricorda di aver scelto.
+     * ⚠️ **La faccia opposta è la prova dopo**, e sono due perché `setContent` si chiama una
+     * volta sola per prova: chiamarlo due volte va in errore con un messaggio che parla di
+     * `ComposeView`, cioè di un'altra cosa.
+     */
+    @Test
+    fun `la riga della cartella dice la cartella scelta`() {
+        banco.setContent { AivTheme(darkTheme = false) { Finestra(folder = "Vacanze") } }
+        banco.onNodeWithText(app.getString(R.string.save_name_path, "Vacanze")).assertExists()
+    }
+
+    /**
+     * **Senza una cartella scelta quella riga non c'è.**
+     *
+     * ⚠️ **Una riga che comparisse sempre direbbe 'Download' ogni volta** a chi non ha scelto
+     * niente, cioè al caso di fabbrica: è quello che l'app fa da sempre e che nessuno ha bisogno
+     * di rileggere a ogni salvataggio.
+     */
+    @Test
+    fun `senza cartella scelta la riga non c'e`() {
+        banco.setContent { AivTheme(darkTheme = false) { Finestra() } }
+        banco.onNodeWithText(app.getString(R.string.save_name_path, "Vacanze"))
+            .assertDoesNotExist()
     }
 
     /**
@@ -235,21 +266,23 @@ class SalvataggioTest {
     /**
      * La finestra con gli argomenti minimi, così una firma nuova si aggiorna in un posto solo.
      *
-     * ⚠️ **I due valori di serie sono il caso di fabbrica**: nessun tocco lungo e nessun
-     * 'Percorso', cioè quello che vede chi accende la sola rinomina al salvataggio. Le prove che
-     * guardano l'altro caso lo dicono passando gli argomenti, e così si legge nella prova quale
-     * dei due casi sta misurando.
+     * ⚠️ **I valori di serie sono il caso di fabbrica**: nessun tocco lungo, nessuna
+     * 'Destinazione' e nessuna cartella scelta, cioè quello che vede chi accende la sola rinomina
+     * al salvataggio. Le prove che guardano l'altro caso lo dicono passando gli argomenti, e così
+     * si legge nella prova quale dei due casi sta misurando.
      */
     @Composable
     private fun Finestra(
         hold: Boolean = false,
-        onPath: ((String, String) -> Unit)? = null,
+        folder: String? = null,
+        onPickFolder: (() -> Unit)? = null,
         onSave: (String, String) -> Unit = { _, _ -> }
     ) {
         SaveNameDialog(
             full = "foto.jpg",
             hold = hold,
-            onPath = onPath,
+            folder = folder,
+            onPickFolder = onPickFolder,
             onDismiss = {},
             onSave = onSave
         )

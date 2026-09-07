@@ -1,5 +1,6 @@
 package io.github.roccobot.aiv
 
+import android.content.Intent
 import android.graphics.Rect as PixelRect
 import android.net.Uri
 import android.widget.Toast
@@ -122,6 +123,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import coil3.SingletonImageLoader
 import coil3.compose.AsyncImagePainter
 import coil3.compose.asPainter
@@ -505,32 +507,85 @@ fun ViewerScreen(
     }
 
     /*
+     * ⚠️⚠️ **IL SELETTORE DI CARTELLA NASCE NELLA `1.81` E RESTITUISCE UNA CARTELLA, NON UN
+     * FILE** (riscontro del giro della `1.80`, voce `scarica-percorso`: *Voglio solo SELEZIONARE
+     * la destinazione, non salvare*). Fino alla `1.80`'Percorso' apriva il [saver] qui sopra,
+     * cioè la finestra 'Salva file' del sistema: quella **scriveva**, quindi il nome battuto
+     * nella finestra dell'app e il tocco su 'Salva' non servivano più a niente.
+     * ⚠️⚠️ **IL PERMESSO SI PRENDE SUBITO E IN MODO PERSISTENTE, o la cartella memorizzata non è
+     * più scrivibile alla riapertura dell'app**: l'indirizzo si rilegge benissimo il giorno dopo e
+     * la scrittura va in `SecurityException`, cioè un difetto che non si vede provando l'app nello
+     * stesso minuto in cui si è scelta la cartella.
+     * ⚠️ **Non chiude la finestra del nome**: al ritorno si è ancora là, con quello che si era
+     * battuto, e la riga della cartella dice dove il file andrà. È il verso che ha chiesto lui.
+     */
+    val folderPicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocumentTree()
+    ) { tree ->
+        if (tree != null) {
+            try {
+                context.contentResolver.takePersistableUriPermission(
+                    tree,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                )
+            } catch (e: SecurityException) {
+                // Senza il permesso persistente la cartella vale per questa sessione sola, e
+                // memorizzarla darebbe una destinazione che domani non si può scrivere.
+                return@rememberLauncherForActivityResult
+            }
+            scope.launch { DownloadFolder.set(context, tree.toString()) }
+        }
+    }
+
+    /*
+     * La cartella scelta, o `null` se non ne è stata scelta nessuna: là si scrive in Download,
+     * come dalla `1.77`.
+     */
+    val cartella by produceState<String?>(null) {
+        DownloadFolder.flow(context).collect { value = it }
+    }
+
+    /*
      * ⚠️⚠️ **DALLA `1.77` SI SCRIVE DIRETTAMENTE IN DOWNLOAD, e il selettore di sistema è
      * rimasto per il solo Android 9** (istruzione dell'utente: *niente scelta della cartella,
      * sempre Downloads*). Il perché della cartella, e perché su 28 non si può, stanno su
-     * [ImageActions.saveToDownloads]; qui c'è la sola scelta fra le due strade.
+     * [ImageActions.saveToDownloads]; qui c'è la sola scelta fra le tre strade.
+     * ⚠️⚠️ **E DALLA `1.81` LA PRIMA STRADA È LA CARTELLA CHE HA SCELTO LUI**, se ne ha scelta
+     * una: quella vince su Download, perché è una scelta esplicita contro un valore di serie.
      * ⚠️ **Il ripiego passa il nome al selettore invece di ignorarlo**: chi ha battuto un nome
      * nella finestra lo ritrova già scritto, che è il minimo che si possa fare quando la via
      * diretta non c'è.
      */
-    val scarica: (LoadedImage, String?, String?) -> Unit = remember(source, saver, scope, context) {
-        { picture, name, suffix ->
-            val from = source
-            if (from != null) {
-                if (ImageActions.downloadsWritable) {
-                    scope.launch {
-                        val ok = ImageActions.saveToDownloads(context, picture, from, name, suffix)
-                        val said = if (ok) R.string.toast_saved else R.string.toast_save_failed
-                        Toast.makeText(context, said, Toast.LENGTH_SHORT).show()
+    val scarica: (LoadedImage, String?, String?) -> Unit =
+        remember(source, saver, scope, context, cartella) {
+            { picture, name, suffix ->
+                val from = source
+                val chosen = cartella
+                if (from != null) {
+                    if (chosen != null) {
+                        scope.launch {
+                            val ok = ImageActions.saveToFolder(
+                                context, picture, from, chosen.toUri(), name, suffix
+                            )
+                            val said = if (ok) R.string.toast_saved else R.string.toast_save_failed
+                            Toast.makeText(context, said, Toast.LENGTH_SHORT).show()
+                        }
+                    } else if (ImageActions.downloadsWritable) {
+                        scope.launch {
+                            val ok =
+                                ImageActions.saveToDownloads(context, picture, from, name, suffix)
+                            val said = if (ok) R.string.toast_saved else R.string.toast_save_failed
+                            Toast.makeText(context, said, Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        val whole = ImageActions.fileName(picture, from)
+                        val coda = suffix ?: ImageActions.splitName(whole).second
+                        saver.launch(if (name == null) whole else name + coda)
                     }
-                } else {
-                    val whole = ImageActions.fileName(picture, from)
-                    val coda = suffix ?: ImageActions.splitName(whole).second
-                    saver.launch(if (name == null) whole else name + coda)
                 }
             }
         }
-    }
 
     /*
      * L'immagine di cui si sta battendo il nome: nullo vuol dire che la finestra è chiusa.
@@ -547,22 +602,26 @@ fun ViewerScreen(
             full = ImageActions.fileName(ask.picture, source),
             hold = ask.hold,
             /*
-             * ⚠️⚠️ **'Percorso' C'È SE L'IMPOSTAZIONE È ACCESA O SE SI È TENUTO PREMUTO**, e la
-             * scelta si fa qui perché è questa schermata ad avere le impostazioni in mano: la
+             * ⚠️ **La riga dice la cartella solo se ne è stata scelta una**: con quella di serie
+             * non comparirebbe a dire 'Download', che è quello che l'app fa da sempre.
+             */
+            folder = cartella?.let { DownloadFolder.label(it) },
+            /*
+             * ⚠️⚠️ **'Destinazione' C'È SE L'IMPOSTAZIONE È ACCESA O SE SI È TENUTO PREMUTO**, e
+             * la scelta si fa qui perché è questa schermata ad avere le impostazioni in mano: la
              * finestra riceve un gesto o un `null`, e non deve sapere niente di
              * `SettingsStore`. È la convenzione dei dialoghi di questo file.
-             * ⚠️⚠️ **E IL SELETTORE È QUELLO CHE C'ERA GIÀ**, cioè il ripiego di Android 9:
-             * quella strada non è stata scritta due volte, e il nome ci arriva già composto.
-             * ⚠️ **Il nome finale lo decide il selettore**: un fornitore di documenti può
-             * ritoccare il suffisso per far quadrare nome e tipo dichiarato, quindi
-             * un'estensione cambiata a mano qui dentro può tornare quella di prima. Il tipo
-             * viene da `shown?.mimeType`, come sopra.
+             * ⚠️⚠️ **COL TOCCO LUNGO C'È ANCHE A IMPOSTAZIONE SPENTA, ED È LA SUA SPECIFICA**
+             * (riscontro del giro della `1.80`, voce `tocco-lungo-due`: *'Scegli percorso'
+             * dev'essere presente anche con l'opzione su OFF*). L'altra metà della stessa frase
+             * dice il contrario per 'Estensione', che invece **segue le impostazioni**: quella la
+             * decide `extensionGate`, e le due condizioni sono diverse di proposito.
+             * ⚠️⚠️ **E DALLA `1.81` APRE UNA CARTELLA E NON SALVA NIENTE** (voce
+             * `scarica-percorso`): il gesto non chiude più la finestra, perché il salvataggio
+             * avviene su 'Salva' e non qui.
              */
-            onPath = if (ask.hold || settings.downloadPath) {
-                { name, suffix ->
-                    naming = null
-                    saver.launch(name + suffix)
-                }
+            onPickFolder = if (ask.hold || settings.downloadPath) {
+                { folderPicker.launch(null) }
             } else {
                 null
             },
