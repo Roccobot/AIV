@@ -169,6 +169,12 @@
         <item quantity="many">%1$d елементів</item>
         <item quantity="other">%1$d елемента</item>
     </plurals>
+    <plurals name="items_count">
+        <item quantity="one">%1$d елемент</item>
+        <item quantity="few">%1$d елементи</item>
+        <item quantity="many">%1$d елементів</item>
+        <item quantity="other">%1$d елемента</item>
+    </plurals>
     <plurals name="pick_facts">
         <item quantity="one">%2$s у %1$d файлі</item>
         <item quantity="few">%2$s у %1$d файлах</item>
@@ -415,7 +421,7 @@
     <string name="settings_editor_backup">Резервна копія перед перезаписом</string>
     <string name="settings_editor_backup_desc">Перш ніж редактор перезапише зображення, він зберігає його копію в кошику, звідки її можна повернути; якщо вона не потрібна, її буде вилучено під час наступного очищення кошика.</string>
     <string name="settings_save_rename">Дозволити перейменування під час збереження</string>
-    <string name="settings_save_rename_desc">Зображення завжди потрапляють до теки Downloads. Якщо це ввімкнено, \'Зберегти\' спершу запитує назву; якщо вимкнено, утримуйте \'Зберегти\', щоб назву запитали лише того разу.</string>
+    <string name="settings_save_rename_desc">Типово всі файли завантажуються до теки Downloads під початковою назвою. Увімкніть цю функцію, щоб задавати назву під час кожного завантаження. Навіть якщо залишите її вимкненою, утримуйте \'Зберегти\', щоб увімкнути її лише тоді, коли це потрібно.</string>
     <string name="editor_tall">Портрет</string>
     <string name="editor_wide">Пейзаж</string>
     <string name="pick_cleared">Жодного файлу не вибрано.</string>

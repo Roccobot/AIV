@@ -166,6 +166,9 @@
     <plurals name="pick_count">
         <item quantity="other">%1$d 件</item>
     </plurals>
+    <plurals name="items_count">
+        <item quantity="other">%1$d 件</item>
+    </plurals>
     <plurals name="pick_facts">
         <item quantity="other">%1$d 個のファイルで %2$s</item>
     </plurals>
@@ -370,7 +373,7 @@
     <string name="settings_editor_backup">上書きの前に控えを取る</string>
     <string name="settings_editor_backup_desc">エディターが画像を上書きする前に、そのコピーをごみ箱に保存します。そこから復元でき、不要なら次回の「ごみ箱を空にする」で削除されます。</string>
     <string name="settings_save_rename">保存時に名前を変更できるようにする</string>
-    <string name="settings_save_rename_desc">画像はつねに Downloads フォルダーに入ります。これをオンにすると \'保存\' が先に名前をたずねます。オフのときは \'保存\' を長押しすると、その一回だけたずねます。</string>
+    <string name="settings_save_rename_desc">既定では、すべてのファイルが元の名前のまま Downloads フォルダーに保存されます。この機能をオンにすると、ダウンロードごとに保存名を決められます。オフのままでも、\'保存\' を長押しすれば必要なときだけその場でオンにできます。</string>
     <string name="editor_tall">縦</string>
     <string name="editor_wide">横</string>
     <string name="pick_cleared">ファイルは選択されていません。</string>

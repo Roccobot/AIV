@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.webkit.MimeTypeMap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
@@ -389,22 +390,44 @@ object ImageActions {
      *
      * @param name il nome **senza** suffisso, come lo scrive la finestra. Nullo vuol dire
      *   'quello che aveva', ed è il caso del salvataggio diretto.
+     * @param suffix il suffisso scelto nella finestra, **col punto** e vuoto per 'nessuno'.
+     *   Nullo vuol dire 'quello che aveva'.
      */
     suspend fun saveToDownloads(
         context: Context,
         image: LoadedImage,
         uri: Uri?,
-        name: String? = null
+        name: String? = null,
+        suffix: String? = null
     ): Boolean = withContext(Dispatchers.IO) {
         if (uri == null) return@withContext false
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return@withContext false
         val whole = fileName(image, uri)
-        val (_, suffix) = splitName(whole)
+        val had = splitName(whole).second
+        val tail = suffix ?: had
         val chosen = name?.trim()?.takeIf { it.isNotBlank() }
-        val display = if (chosen == null) whole else safeName(chosen) + suffix
+        val display = if (chosen == null) whole else safeName(chosen) + tail
+        /*
+         * ⚠️⚠️ **SE IL SUFFISSO È CAMBIATO, IL TIPO DICHIARATO SEGUE IL NOME E NON I BYTE, O IL
+         * `MediaStore` RIMETTE IL SUO**: quando il tipo e l'estensione del `DISPLAY_NAME` non
+         * vanno d'accordo, il fornitore **aggiunge** l'estensione che corrisponde al tipo, quindi
+         * un `foto.png` dichiarato `image/jpeg` finisce in Download come `foto.png.jpg`. Cioè il
+         * comando 'Estensione' non avrebbe fatto niente, senza dare nessun errore.
+         * ⚠️ **Che il file menta è dichiarato e voluto**: cambiare l'estensione non converte
+         * niente, e il pannellino lo dice a chi lo apre (vedi `ExtensionDialog`). Chi vuole
+         * cambiare davvero formato ha 'Esporta/Converti'.
+         * ⚠️ **Un'estensione che nessuno conosce lascia il tipo NULLO**, e va bene: là il tipo lo
+         * deduce il fornitore dal nome, che è la sola cosa che si sa.
+         * ⚠️ **Se il suffisso non è cambiato resta [LoadedImage.mimeType], e non si ricava dal
+         * nome**: il nome può mentire già in partenza (il JPEG di Pexels dichiarato AVIF), e là
+         * il tipo vero è quello che il caricamento ha misurato.
+         */
+        val declared = if (tail.equals(had, ignoreCase = true)) image.mimeType else {
+            MimeTypeMap.getSingleton().getMimeTypeFromExtension(tail.removePrefix(".").lowercase())
+        }
         val fields = ContentValues().apply {
             put(MediaStore.Downloads.DISPLAY_NAME, display)
-            image.mimeType?.let { put(MediaStore.Downloads.MIME_TYPE, it) }
+            declared?.let { put(MediaStore.Downloads.MIME_TYPE, it) }
             put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
             put(MediaStore.Downloads.IS_PENDING, 1)
         }

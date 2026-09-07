@@ -171,6 +171,14 @@
         <item quantity="many">%1$d عنصرا</item>
         <item quantity="other">%1$d عنصر</item>
     </plurals>
+    <plurals name="items_count">
+        <item quantity="zero">%1$d عنصر</item>
+        <item quantity="one">عنصر واحد</item>
+        <item quantity="two">عنصران</item>
+        <item quantity="few">%1$d عناصر</item>
+        <item quantity="many">%1$d عنصرا</item>
+        <item quantity="other">%1$d عنصر</item>
+    </plurals>
     <plurals name="pick_facts">
         <item quantity="zero">%2$s في %1$d ملف</item>
         <item quantity="one">%2$s في ملف واحد</item>
@@ -445,7 +453,7 @@
     <string name="settings_editor_backup">نسخة أمان قبل الكتابة فوق الملف</string>
     <string name="settings_editor_backup_desc">قبل أن يستبدل المحرّر صورةً، يحفظ نسخةً منها في سلة المهملات حيث يمكنك استعادتها؛ وإن لم تحتَجها فستُحذَف عند \'إفراغ سلة المهملات\' التالي.</string>
     <string name="settings_save_rename">السماح بإعادة التسمية عند الحفظ</string>
-    <string name="settings_save_rename_desc">تُحفظ الصور دائمًا في مجلد التنزيلات. عند تفعيل هذا الخيار يسأل \'حفظ\' عن الاسم أولًا؛ وعند إيقافه اضغط مطولًا على \'حفظ\' ليسألك تلك المرة فقط.</string>
+    <string name="settings_save_rename_desc">بشكل مبدئي، تُنزّل كل الملفات إلى مجلد التنزيلات باسمها الأصلي. فعّل هذه الميزة لتحديد اسم للحفط عند كل تنزيل. وحتى إن تركتها معطّلة، يمكنك الضغط مطولًا على \'حفط\' لتفعيلها في تلك اللحظة فقط عند الحاجة.</string>
     <string name="editor_tall">طولي</string>
     <string name="editor_wide">عرضي</string>
     <string name="pick_cleared">لم يتم تحديد أي ملف.</string>

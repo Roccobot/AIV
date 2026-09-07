@@ -6,7 +6,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VisibilityThreshold
-import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -879,25 +878,25 @@ fun GridScreen(
     }
 
     /*
-     * ⚠️⚠️ **DURANTE UNA SELEZIONE IL FRONTESPIZIO STA CHIUSO, ed è una sua specifica** (le tre
-     * risposte del 2026-09-06, confermate in chiaro: mentre la griglia carica sta aperto, durante
-     * una selezione chiuso, tornando dal visualizzatore resta com'era). Là la testata diventa la
-     * barra della selezione e i comandi arrivano dal fondo: un terzo di schermo occupato dal nome
-     * della cartella sarebbe spazio tolto proprio alle immagini che si stanno scegliendo.
-     * ⚠️ **Si chiude con un'animazione e non con un salto**: qui non c'è nessun dito che porti
-     * il movimento, e una fascia che sparisce in un fotogramma si legge come un difetto.
-     * ⚠️ **Finita la selezione NON si riapre**, e non è una dimenticanza: la griglia è rimasta
-     * dov'era, e riaprirlo la farebbe scendere sotto il dito. Si riapre come sempre, tirando
-     * giù in cima.
+     * ⚠️⚠️ **LA SELEZIONE NON CHIUDE IL FRONTESPIZIO, E FINO ALLA `1.77` LO CHIUDEVA: È UN
+     * ROVESCIAMENTO SUO, con una ragione che nessuna delle due parti aveva previsto** (riscontro
+     * del giro della `1.77`, voce `front-misure` non approvata): *appena si tocca a lungo per
+     * iniziare a selezionare, lo spostamento delle miniature in alto fa già selezionare più
+     * elementi a causa dello spostamento repentino mentre si tiene premuto*. Cioè la chiusura
+     * automatica non era solo spazio guadagnato: era una griglia che scorreva **sotto un dito
+     * appoggiato**, e il gesto da/a della selezione prendeva tutte le miniature che le passavano
+     * sotto.
+     * ⚠️⚠️ **E LA RAGIONE PER CUI ESISTEVA È DECADUTA CON IL CONTATORE**: si chiudeva perché in
+     * selezione la testata diventava il conto dei selezionati, e con la fascia aperta quel conto
+     * non aveva posto. Dalla `1.78` il conto vive **sotto il titolo** (sua specifica, vedi la
+     * testata qui sotto), quindi c'è in tutti e due i posti e non serve più liberare la testata.
+     * Le sue parole: *visto che il contatore deve stare inizialmente sotto il titolo della
+     * cartella, il passaggio a tutto schermo deve avvenire durante la selezione esattamente come
+     * senza selezione. È obbligatorio*.
+     * ⚠️ **Quindi la fascia si chiude in un modo solo, scorrendo**, e la costante che dava la
+     * durata di quella chiusura animata (`FRONT_SHUT_MS`) è uscita da `Front.kt`: serviva a
+     * questo caso e a nessun altro, e una costante senza chiamanti è codice morto.
      */
-    LaunchedEffect(picking, headerPx) {
-        if (!picking || shut >= headerPx) return@LaunchedEffect
-        animate(
-            initialValue = shut,
-            targetValue = headerPx,
-            animationSpec = tween(FRONT_SHUT_MS)
-        ) { valore, _ -> shut = valore }
-    }
 
     /*
      * ⚠️⚠️ **CON LA GRIGLIA SCORSA IL FRONTESPIZIO NON PUÒ STARE APERTO, e questo copre il
@@ -914,6 +913,21 @@ fun GridScreen(
         snapshotFlow {
             state.firstVisibleItemIndex > 0 || state.firstVisibleItemScrollOffset > 0
         }.collect { scorsa -> if (scorsa) shut = headerPx }
+    }
+
+    /**
+     * Il conto che compare **sotto il nome**, in testata e nella fascia: i selezionati durante
+     * una selezione, gli elementi della cartella fuori da lei.
+     *
+     * ⚠️ **Si calcola una volta e si legge in due posti**, perché le due copie si dissolvono
+     * l'una nell'altra: scritto due volte, il giorno che una delle due cambia stringa il nome e
+     * il numero direbbero due cose diverse a metà corsa. Il perché di ogni pezzo è sulla riga
+     * della testata.
+     */
+    val conto = if (picking) {
+        pluralStringResource(R.plurals.pick_count, chosen.size, chosen.size)
+    } else {
+        items?.let { pluralStringResource(R.plurals.items_count, it.size, it.size) }
     }
 
     Column(
@@ -987,23 +1001,53 @@ fun GridScreen(
                      * ⚠️ **Le due opacità sono complementari e non due curve**: sommano uno a
                      * ogni istante, quindi non esiste un punto della corsa in cui il nome della
                      * cartella si legga meno che agli estremi.
-                     * ⚠️ **In selezione e senza frontespizio l'opacità è piena**, perché lì
-                     * `aperto` vale zero: il conto della selezione e il titolo del cestino non
-                     * hanno niente da cui arrivare.
+                     * ⚠️ **Senza frontespizio l'opacità è piena**, perché lì `aperto` vale zero:
+                     * il titolo del cestino e quello della ricerca non hanno niente da cui
+                     * arrivare.
+                     * ⚠️⚠️ **E IL TITOLO RESTA IL NOME DELLA CARTELLA ANCHE IN SELEZIONE, dalla
+                     * `1.78`**: fino alla `1.77` diventava il conto dei selezionati, ed era la
+                     * ragione per cui la fascia doveva chiudersi (vedi la nota là sopra). Col
+                     * conto spostato sotto, il titolo dice sempre **dove si è**, che è la sola
+                     * cosa che una testata deve dire.
                      */
                     Text(
-                        text = if (picking) pluralStringResource(
-                            R.plurals.pick_count, chosen.size, chosen.size
-                        ) else title,
+                        text = title,
                         style = MaterialTheme.typography.headlineSmall,
                         maxLines = 1,
                         modifier = Modifier.graphicsLayer { alpha = 1f - aperto() }
                     )
-                    if (!picking) items?.let {
+                    /*
+                     * ⚠️⚠️ **IL CONTO DEGLI ELEMENTI STA SOTTO IL TITOLO, ED È LA SUA SPECIFICA
+                     * ALLA LETTERA** (riscontro del giro della `1.77`): *il numero di elementi
+                     * (non immagini) totali / selezionati dev'essere indicato sotto il titolo,
+                     * centrato, con un carattere leggermente più piccolo e meno opaco*. Il corpo
+                     * più piccolo è `bodySmall` e il meno opaco è `onSurfaceVariant`, cioè i due
+                     * che questa riga aveva già: quello che cambia è **che cosa conta** e che
+                     * c'è anche in selezione.
+                     * ⚠️⚠️ **DICE 'ELEMENTI' E NON 'IMMAGINI', punto (b) del suo campo libero**:
+                     * *in alto sullo schermo, all'interno di una cartella c'è il contatore del
+                     * numero di 'immagini', ma non va più bene da quando ci sono anche i video*.
+                     * Qui si contava `items.size`, cioè tutto, con la stringa che dice
+                     * *immagini*: era falso da quando i video sono entrati nella griglia.
+                     * ⚠️⚠️ **E `folders_count` NON SI È RISCRITTA, perché ha un secondo
+                     * chiamante con un altro significato**: nella schermata iniziale conta le
+                     * **sole immagini** di una cartella, accanto a `folders_clips` che conta i
+                     * video, e là *immagini* è la parola giusta. Cambiarla avrebbe corretto qui
+                     * e mentito là, che è la trappola di ogni stringa riusata per somiglianza.
+                     * ⚠️ **`items_count` non riusa `pick_count`**, che oggi dice lo stesso testo:
+                     * quella è il conto di una selezione, e il giorno che diventasse *N
+                     * selezionati* il totale di una cartella cambierebbe in silenzio.
+                     * ⚠️ **In selezione il conto è quello dei selezionati** (*totali /
+                     * selezionati*, parole sue), e il posto non cambia: il numero da guardare è
+                     * sempre sotto il nome.
+                     */
+                    conto?.let {
                         Text(
-                            text = pluralStringResource(R.plurals.folders_count, it.size, it.size),
+                            text = it,
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            modifier = Modifier.graphicsLayer { alpha = 1f - aperto() }
                         )
                     }
                 }
@@ -1058,12 +1102,31 @@ fun GridScreen(
         if (front) {
             FrontBand(fullPx = headerPx, shut = { shut }) { quanto ->
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    /*
+                     * ⚠️⚠️ **L'ICONA SI RIMPICCIOLISCE PRIMA DI SPARIRE, dalla `1.78`, ED È LA
+                     * SUA SPECIFICA** (riscontro del giro della `1.77`): *man mano che si
+                     * scorre, deve prima rimpicciolirsi e adattarsi ad ogni fotogramma allo
+                     * spazio disponibile in verticale, poi sparire con una dissolvenza come fa
+                     * adesso*. Fino alla `1.77` la misura era **fissa** (metà della fascia
+                     * piena) e l'opacità andava col quadrato dell'apertura: il disegno usciva di
+                     * scena sbiadendo e facendosi tagliare, senza mai stringersi.
+                     * ⚠️ **Le due metà stanno in `Front.kt`**, [frontIconMeasure] per la misura
+                     * e [frontIconInk] per la dissolvenza tardiva, perché sono un movimento solo
+                     * in due fasi e i loro numeri vivono accanto agli altri della fascia.
+                     * ⚠️ **La misura vince sulla scala**, e la differenza è che il titolo sotto
+                     * prende lo spazio che l'icona cede: il perché per esteso è sul
+                     * modificatore.
+                     */
                     Icon(
                         painter = painterResource(R.drawable.ic_folder_aiv),
                         contentDescription = null,
                         modifier = Modifier
-                            .size(minOf(HEADER_ICON, headerMax * 0.5f))
-                            .graphicsLayer { alpha = FRONT_INK * quanto() * quanto() }
+                            .frontIconMeasure(
+                                fullPx = headerPx,
+                                shut = { shut },
+                                max = HEADER_ICON
+                            )
+                            .graphicsLayer { alpha = frontIconInk(quanto()) }
                     )
                     Spacer(Modifier.height(FRONT_GAP))
                     /*
@@ -1093,6 +1156,31 @@ fun GridScreen(
                             .padding(horizontal = 24.dp)
                             .graphicsLayer { alpha = quanto() }
                     )
+                    /*
+                     * ⚠️⚠️ **IL CONTO STA ANCHE QUI, e la traslazione in testata viene per
+                     * costruzione**: sua richiesta del giro della `1.77`, *sia il nome che il
+                     * numero di elementi totali/selezionati devono traslare e adattarsi alla
+                     * loro nuova posizione in testata con un'animazione fluida e moderna*. Il
+                     * movimento è la parallasse che [FrontBand] fa da sempre, quindi basta che
+                     * il numero viva **dentro** la fascia insieme al nome: aggiungerne uno
+                     * scritto a mano darebbe due movimenti sullo stesso oggetto.
+                     * ⚠️ **L'opacità è complementare a quella della testata**, come per il
+                     * nome: sommano uno a ogni istante, quindi non c'è un punto della corsa in
+                     * cui il numero si legga meno che agli estremi.
+                     * ⚠️ **La stringa è la stessa dei due posti**, calcolata una volta sola
+                     * sopra: il perché è sul suo KDoc.
+                     */
+                    conto?.let {
+                        Spacer(Modifier.height(FRONT_COUNT_GAP))
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                            maxLines = 1,
+                            modifier = Modifier.graphicsLayer { alpha = quanto() }
+                        )
+                    }
                 }
             }
         }

@@ -167,6 +167,10 @@
         <item quantity="one">%1$d உருப்படி</item>
         <item quantity="other">%1$d உருப்படிகள்</item>
     </plurals>
+    <plurals name="items_count">
+        <item quantity="one">%1$d உருப்படி</item>
+        <item quantity="other">%1$d உருப்படிகள்</item>
+    </plurals>
     <plurals name="pick_facts">
         <item quantity="one">%1$d கோப்பில் %2$s</item>
         <item quantity="other">%1$d கோப்புகளில் %2$s</item>
@@ -385,7 +389,7 @@
     <string name="settings_editor_backup">மேலெழுதும் முன் பாதுகாப்பு நகல்</string>
     <string name="settings_editor_backup_desc">எடிட்டர் ஒரு படத்தின் மேல் எழுதுவதற்கு முன், அதன் நகலை மறுசுழற்சிக் கூடையில் சேமிக்கிறது; அங்கிருந்து மீட்கலாம். தேவையில்லை என்றால் அடுத்த \'கூடையைக் காலி செய்\' போது நீக்கப்படும்.</string>
     <string name="settings_save_rename">சேமிக்கும்போது பெயர் மாற்ற அனுமதி</string>
-    <string name="settings_save_rename_desc">படங்கள் எப்போதும் Downloads கோப்புறைக்கே செல்லும். இது இயக்கத்தில் இருந்தால் \'சேமி\' முதலில் பெயரைக் கேட்கும்; அணைத்திருந்தால் \'சேமி\' என்பதை நீண்ட நேரம் அழுத்தினால் அந்த ஒரு முறை மட்டும் கேட்கும்.</string>
+    <string name="settings_save_rename_desc">இயல்பாக எல்லா கோப்புகளும் அவற்றின் அசல் பெயருடன் Downloads கோப்புறைக்கே செல்லும். ஒவ்வொரு பதிவிறக்கத்திலும் சேமிக்கும் பெயரை நீங்களே தீர்மானிக்க இதை இயக்கவும். அணைத்து வைத்திருந்தாலும், தேவைப்படும்போது அந்த ஒரு முறைக்கு மட்டும் இயக்க \'சேமி\' என்பதை நீண்ட நேரம் அழுத்தவும்.</string>
     <string name="editor_tall">நெடுக்கு</string>
     <string name="editor_wide">குறுக்கு</string>
     <string name="pick_cleared">எந்தக் கோப்பும் தேர்ந்தெடுக்கப்படவில்லை.</string>

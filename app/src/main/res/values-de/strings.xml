@@ -167,6 +167,10 @@
         <item quantity="one">%1$d Element</item>
         <item quantity="other">%1$d Elemente</item>
     </plurals>
+    <plurals name="items_count">
+        <item quantity="one">%1$d Element</item>
+        <item quantity="other">%1$d Elemente</item>
+    </plurals>
     <plurals name="pick_facts">
         <item quantity="one">%2$s in %1$d Datei</item>
         <item quantity="other">%2$s in %1$d Dateien</item>
@@ -385,7 +389,7 @@
     <string name="settings_editor_backup">Sicherheitskopie vor dem Überschreiben</string>
     <string name="settings_editor_backup_desc">Bevor ein Editor ein Bild überschreibt, legt er eine Kopie in den Papierkorb, wo sie wiederherstellbar bleibt; wird sie nicht gebraucht, verschwindet sie beim nächsten \'Papierkorb leeren\'.</string>
     <string name="settings_save_rename">Beim Speichern umbenennen lassen</string>
-    <string name="settings_save_rename_desc">Bilder landen immer im Ordner Downloads. Ist dies an, fragt \'Speichern\' zuerst nach dem Namen; ist es aus, halte \'Speichern\' gedrückt, um nur dieses eine Mal gefragt zu werden.</string>
+    <string name="settings_save_rename_desc">Standardmäßig werden alle Dateien unter ihrem ursprünglichen Namen in den Ordner Downloads geladen. Schalte dies ein, um bei jedem Download einen Namen festzulegen. Auch wenn du es aus lässt, kannst du \'Speichern\' gedrückt halten, um es genau dann einzuschalten, wenn du es brauchst.</string>
     <string name="editor_tall">Hochformat</string>
     <string name="editor_wide">Querformat</string>
     <string name="pick_cleared">Keine Datei ausgewählt.</string>

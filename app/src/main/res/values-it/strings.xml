@@ -96,7 +96,7 @@
     <string name="settings_editor_backup">Copia di sicurezza prima di sovrascrivere</string>
     <string name="settings_editor_backup_desc">Prima di sovrascrivere un\'immagine, l\'editor ne salva una copia nel cestino, dove potrai recuperarla; se non ti serve, sarà eliminata al successivo \'Svuota cestino\'.</string>
     <string name="settings_save_rename">Consenti rinomina al salvataggio</string>
-    <string name="settings_save_rename_desc">Le immagini vanno sempre in Download. Con questa accesa, \'Scarica\' chiede prima il nome; da spenta, tieni premuto \'Scarica\' per farselo chiedere quella volta sola.</string>
+    <string name="settings_save_rename_desc">Per impostazione predefinita, tutti i file sono scaricati in Download con il nome originario. Attiva questa funzionalità per definire un nome di salvataggio ad ogni download. Anche se la lasci disattivata, puoi toccare e tenere premuto \'Scarica\' per attivarla al volo solo quando serve.</string>
 
     <string name="toast_image_copied">Immagine copiata</string>
     <string name="toast_name_copied">Nome del file copiato</string>
@@ -241,6 +241,11 @@
     <string name="pick_forever">Elimina del tutto</string>
     <string name="pick_counting">Sto contando...</string>
     <plurals name="pick_count">
+        <item quantity="one">%1$d elemento</item>
+        <item quantity="other">%1$d elementi</item>
+        <item quantity="many">%1$d elementi</item>
+    </plurals>
+    <plurals name="items_count">
         <item quantity="one">%1$d elemento</item>
         <item quantity="other">%1$d elementi</item>
         <item quantity="many">%1$d elementi</item>

@@ -1,6 +1,8 @@
 package io.github.roccobot.aiv
 
 import android.content.Context
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithText
@@ -85,12 +87,65 @@ class SalvataggioTest {
     fun `la finestra parte dal nome senza suffisso`() {
         banco.setContent {
             AivTheme(darkTheme = false) {
-                SaveNameDialog(full = "foto.jpg", onDismiss = {}, onSave = {})
+                SaveNameDialog(full = "foto.jpg", onDismiss = {}, onSave = { _, _ -> })
             }
         }
 
         banco.onNodeWithText("foto").assertExists()
         banco.onNodeWithText(".jpg").assertExists()
+    }
+
+    /**
+     * **I comandi sul nome ci sono, e 'Estensione' NO finché l'impostazione è spenta.**
+     *
+     * ⚠️⚠️ **QUESTO DIFETTO È ARRIVATO A LUI, e la prova torna con la correzione, nella stessa
+     * versione** (`CLAUDE.md`, § '🧪 Quando si scrive una prova, e quando no'): la voce
+     * `scarica-download` del giro della `1.77` non è stata approvata perché la finestra portava
+     * la sola 'Data', mentre *esattamente come in 'Rinomina', devono esserci i tasti 'Seleziona
+     * tutto' e 'Svuota'*.
+     * ⚠️⚠️ **E L'ASSENZA DI 'Estensione' SI PROVA COME LA PRESENZA DEGLI ALTRI**: quel comando
+     * esiste solo se l'impostazione è accesa, che è la griglia di sicurezza chiesta da lui, e di
+     * fabbrica è spenta. La `1.78` ha spostato quel cancello in un pezzo condiviso: se un domani
+     * il suo `allowed` diventasse un `true` scritto a mano, l'app non darebbe nessun errore e la
+     * protezione sarebbe sparita in silenzio.
+     */
+    @Test
+    fun `i comandi sul nome ci sono e l'estensione no`() {
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                SaveNameDialog(full = "foto.jpg", onDismiss = {}, onSave = { _, _ -> })
+            }
+        }
+
+        banco.onNodeWithText(app.getString(R.string.rename_select_all)).assertExists()
+        banco.onNodeWithText(app.getString(R.string.rename_clear)).assertExists()
+        banco.onNodeWithText(app.getString(R.string.save_name_date)).assertExists()
+        banco.onNodeWithText(app.getString(R.string.rename_ext)).assertDoesNotExist()
+    }
+
+    /**
+     * **'Svuota' svuota davvero, e allora non c'è più niente da salvare.**
+     *
+     * ⚠️⚠️ **UN COMANDO PUÒ ESSERCI E NON FARE NIENTE, ed è la trappola che il banco esiste per
+     * prendere**: [Quiet] mette il tocco su un nodo di testo, e un `enabled` sbagliato o un
+     * gesto non collegato compilano senza una parola. Che il comando **compaia** lo prova la
+     * prova qui sopra; che **agisca** lo prova questa.
+     * ⚠️ **Si guarda il tasto di conferma e non il campo**: un campo vuoto si legge anche
+     * cercando l'assenza di un testo, ma quello che conta per chi usa l'app è che 'Salva' si
+     * spenga, cioè che la finestra non consegni un nome vuoto.
+     */
+    @Test
+    fun `svuota lascia la finestra senza niente da salvare`() {
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                SaveNameDialog(full = "foto.jpg", onDismiss = {}, onSave = { _, _ -> })
+            }
+        }
+
+        banco.onNodeWithText(app.getString(R.string.editor_save)).assertIsEnabled()
+        banco.onNodeWithText(app.getString(R.string.rename_clear)).performClick()
+        banco.onNodeWithText("foto").assertDoesNotExist()
+        banco.onNodeWithText(app.getString(R.string.editor_save)).assertIsNotEnabled()
     }
 
     /**
@@ -116,7 +171,11 @@ class SalvataggioTest {
         var consegnato: String? = null
         banco.setContent {
             AivTheme(darkTheme = false) {
-                SaveNameDialog(full = "foto.jpg", onDismiss = {}, onSave = { consegnato = it })
+                SaveNameDialog(
+                    full = "foto.jpg",
+                    onDismiss = {},
+                    onSave = { nome, _ -> consegnato = nome }
+                )
             }
         }
 

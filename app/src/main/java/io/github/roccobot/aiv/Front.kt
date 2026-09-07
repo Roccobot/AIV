@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
@@ -425,18 +426,91 @@ fun frontScroll(
 val FRONT_GAP: Dp = 10.dp
 
 /**
- * Quanto si vede l'icona nel frontespizio di una cartella: **tre decimi**.
+ * Quanto sta il conto degli elementi dal nome della cartella, nel frontespizio.
  *
- * ⚠️ **Il numero è suo, e questo è il secondo**: la `1.76` era uscita col ~50% della sua
- * specifica (*ma semitrasparente (~50%)*), e col telefono in mano l'ha voluta meno visibile
- * (riscontro del giro della `1.76`: *l'icona può essere meno visibile (proviamo con opacità
- * 30%)*). La ragione della prima vale ancora più adesso: là dentro l'icona non è il marchio
- * dell'app che si presenta, è un fondale dietro il nome della cartella, che è l'unica cosa da
- * leggere.
- * ⚠️ **Si moltiplica per l'apertura della fascia**, non la sostituisce: chiudendosi il
- * frontespizio sbiadisce come nella schermata iniziale, e questo dice soltanto da dove parte.
+ * ⚠️ **Più corto di [FRONT_GAP], e non è un numero a caso**: il nome e il numero sono **una**
+ * cosa da leggere insieme, mentre l'icona sopra è un fondale. Un'aria uguale a quella dell'icona
+ * li farebbe leggere come due righe indipendenti.
  */
-const val FRONT_INK = 0.3f
+val FRONT_COUNT_GAP: Dp = 2.dp
+
+/**
+ * Quanto si vede l'icona nel frontespizio di una cartella: **diciotto centesimi**.
+ *
+ * ⚠️ **Il numero è suo, e questo è il TERZO in tre versioni**: la `1.76` era uscita col ~50%
+ * della sua specifica (*ma semitrasparente (~50%)*), la `1.77` è scesa a 0,3 col telefono in
+ * mano (*l'icona può essere meno visibile (proviamo con opacità 30%)*), e la `1.78` a **0,18**
+ * (riscontro del giro della `1.77`: *l'icona della cartella (che dev'essere ancora meno opaca,
+ * facciamo 18%)*). La ragione della prima vale ancora più adesso: là dentro l'icona non è il
+ * marchio dell'app che si presenta, è un fondale dietro il nome della cartella, che è l'unica
+ * cosa da leggere.
+ * ⚠️⚠️ **E NON SI MOLTIPLICA PIÙ PER L'APERTURA, dalla `1.78`**: la dissolvenza è diventata
+ * tardiva e vive in [frontIconInk], perché adesso l'icona si **rimpicciolisce** prima di
+ * sparire (vedi [frontIconMeasure]) e sbiadire da subito avrebbe reso invisibile proprio il
+ * movimento che lui ha chiesto.
+ */
+const val FRONT_INK = 0.18f
+
+/**
+ * Quanta parte dello spazio verticale libero può prendere l'icona del frontespizio.
+ *
+ * ⚠️ **Era un `0.5f` scritto a mano nel chiamante**, e questo è il posto in cui viveva già lo
+ * stesso conto della schermata iniziale: appare qui perché dalla `1.78` lo legge anche
+ * [frontIconMeasure], e due copie dello stesso numero divergono al primo ritocco.
+ */
+const val FRONT_ICON_SHARE = 0.5f
+
+/**
+ * Sotto quanta apertura l'icona del frontespizio comincia a sbiadire: **l'ultimo terzo**.
+ *
+ * ⚠️⚠️ **LA DISSOLVENZA È TARDIVA PERCHÉ IL MOVIMENTO CHIESTO VIENE PRIMA** (riscontro del giro
+ * della `1.77`: *man mano che si scorre, deve prima rimpicciolirsi e adattarsi ad ogni
+ * fotogramma allo spazio disponibile in verticale, poi sparire con una dissolvenza come fa
+ * adesso*). Fino alla `1.77` l'opacità andava col **quadrato** dell'apertura, quindi a metà
+ * corsa l'icona era già al 25% del suo inchiostro: qualunque rimpicciolimento sarebbe avvenuto
+ * dietro una cosa che non si vedeva più. Adesso l'inchiostro resta pieno fino a qui, e i due
+ * fatti si leggono in fila invece che uno sopra l'altro.
+ */
+const val FRONT_ICON_FADE = 0.35f
+
+/**
+ * Quanto inchiostro ha l'icona del frontespizio con la fascia aperta di [aperto].
+ *
+ * ⚠️ **Sta accanto ai suoi numeri e non nel chiamante**: la curva e le due soglie sono una cosa
+ * sola, e separarle vorrebbe dire cambiare una soglia senza cambiare la curva.
+ */
+fun frontIconInk(aperto: Float): Float =
+    FRONT_INK * if (aperto >= FRONT_ICON_FADE) 1f else smoothstep(aperto / FRONT_ICON_FADE)
+
+/**
+ * L'icona del frontespizio si misura sullo spazio che la fascia le lascia, a ogni fotogramma.
+ *
+ * ⚠️⚠️ **È UNA MISURA E NON UNA SCALA, ed è la differenza fra le due parole della sua
+ * richiesta**: *rimpicciolirsi* e *adattarsi allo spazio disponibile in verticale*. Una
+ * `graphicsLayer` che scala rimpicciolisce il disegno e lascia il posto occupato, quindi il
+ * titolo sotto non sale di un pixel; misurando, l'icona **cede** lo spazio che libera, e il
+ * nome della cartella lo prende.
+ * ⚠️⚠️ **SI LEGGE IN FASE DI MISURA E NON IN COMPOSIZIONE**, che è lo stesso mestiere che fa
+ * [FrontBand] con la propria altezza: `shut()` letto in composizione farebbe ricomporre questa
+ * schermata sessanta volte al secondo, e sotto c'è una griglia. Il costo che resta è una
+ * **rimisura** della fascia per fotogramma, e c'era già: la fascia dichiara un'altezza diversa
+ * a ogni pixel di scorrimento.
+ * ⚠️ **Il quadrato è d'obbligo**: un'icona misurata più stretta che alta si deformerebbe, e
+ * `Constraints.fixed` con lo stesso lato è il modo di dirlo una volta.
+ *
+ * @param fullPx quanto è alta la fascia da aperta, in pixel.
+ * @param shut quanti pixel di fascia sono già chiusi.
+ * @param max il lato massimo, cioè quello che l'icona prende a fascia aperta.
+ */
+fun Modifier.frontIconMeasure(fullPx: Float, shut: () -> Float, max: Dp): Modifier =
+    layout { measurable, constraints ->
+        val libero = (fullPx - shut()).coerceIn(0f, fullPx)
+        val lato = minOf(max.toPx(), libero * FRONT_ICON_SHARE)
+            .roundToInt()
+            .coerceIn(0, constraints.maxWidth)
+        val placeable = measurable.measure(Constraints.fixed(lato, lato))
+        layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+    }
 
 /**
  * Quante righe può prendere il nome della cartella nel frontespizio: **due**.
@@ -447,14 +521,4 @@ const val FRONT_INK = 0.3f
  */
 const val FRONT_TITLE_LINES = 2
 
-/**
- * Quanto dura la chiusura del frontespizio quando non è un dito a chiuderlo.
- *
- * ⚠️ **Serve a un caso solo, la selezione che comincia** (sua specifica per la griglia di una
- * cartella: durante una selezione il frontespizio sta chiuso). Là non c'è nessun trascinamento
- * che porti il movimento, quindi senza un'animazione la fascia sparirebbe in un fotogramma.
- * ⚠️ **Lo stesso numero della dissolvenza fra due schermate** (`SCHERMO_MS`): cominciare una
- * selezione cambia la testata, i comandi e il senso di ogni tocco, cioè è un cambio di modo, e
- * due durate diverse nello stesso istante si leggono come un inceppamento.
- */
-const val FRONT_SHUT_MS = 180
+

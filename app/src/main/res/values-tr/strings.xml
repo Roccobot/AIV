@@ -167,6 +167,10 @@
         <item quantity="one">%1$d öge</item>
         <item quantity="other">%1$d öge</item>
     </plurals>
+    <plurals name="items_count">
+        <item quantity="one">%1$d öge</item>
+        <item quantity="other">%1$d öge</item>
+    </plurals>
     <plurals name="pick_facts">
         <item quantity="one">%1$d dosyada %2$s</item>
         <item quantity="other">%1$d dosyada %2$s</item>
@@ -385,7 +389,7 @@
     <string name="settings_editor_backup">Üzerine yazmadan önce yedek kopya</string>
     <string name="settings_editor_backup_desc">Bir düzenleyici bir görüntünün üzerine yazmadan önce, bir kopyasını çöp kutusuna kaydeder; oradan geri alabilirsiniz. Gerekmiyorsa bir sonraki \'Çöp kutusunu boşalt\' işleminde silinir.</string>
     <string name="settings_save_rename">Kaydederken yeniden adlandırmaya izin ver</string>
-    <string name="settings_save_rename_desc">Görseller her zaman Downloads klasörüne gider. Bu açıkken \'Kaydet\' önce adı sorar; kapalıyken yalnızca o seferlik sorulması için \'Kaydet\' düğmesini basılı tut.</string>
+    <string name="settings_save_rename_desc">Öntanımlı olarak tüm dosyalar özgün adıyla Downloads klasörüne indirilir. Her indirmede bir kayıt adı belirlemek için bunu aç. Kapalı bıraksan bile, yalnızca gerektiğinde anında açmak için \'Kaydet\' düğmesini basılı tutabilirsin.</string>
     <string name="editor_tall">Dikey</string>
     <string name="editor_wide">Yatay</string>
     <string name="pick_cleared">Hiçbir dosya seçilmedi.</string>

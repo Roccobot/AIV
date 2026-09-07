@@ -134,7 +134,7 @@
     <string name="settings_editor_backup">Safety copy before writing over</string>
     <string name="settings_editor_backup_desc">Before an editor writes over an image, it saves a copy in the bin, where you can recover it; if you do not need it, it will be deleted at the next \'Empty bin\'.</string>
     <string name="settings_save_rename">Allow renaming when saving</string>
-    <string name="settings_save_rename_desc">Pictures always go to Downloads. With this on, \'Save\' asks for the name first; with it off, hold \'Save\' to be asked just that once.</string>
+    <string name="settings_save_rename_desc">By default, all files are downloaded to Downloads under their original name. Turn this on to set a save name for every download. Even if you leave it off, you can touch and hold \'Save\' to turn it on just when you need it.</string>
 
     <string name="toast_image_copied">Image copied</string>
     <!-- Said after a long press on the file name in the file info dialog: the whole
@@ -394,6 +394,19 @@
     <string name="pick_forever">Delete for good</string>
     <string name="pick_counting">Counting...</string>
     <plurals name="pick_count">
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
+    </plurals>
+    <!-- ⚠️⚠️ SAME TEXT AS pick_count ABOVE, AND ON PURPOSE: two keys, two jobs. This one
+         counts what a folder holds, that one counts what is selected. Merging them would
+         mean that the day the selection count becomes 'N selected' a folder's total would
+         change with it, silently.
+         ⚠️ It says 'items' and not 'pictures' because the grid holds videos too: his
+         feedback on the 1.77 round, *in alto sullo schermo, all'interno di una cartella c'è
+         il contatore del numero di 'immagini', ma non va più bene da quando ci sono anche i
+         video*. The older folders_count still says 'pictures' and is still right: on the
+         home screen it counts only the pictures, next to folders_clips for the videos. -->
+    <plurals name="items_count">
         <item quantity="one">%1$d item</item>
         <item quantity="other">%1$d items</item>
     </plurals>

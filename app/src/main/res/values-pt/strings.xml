@@ -168,6 +168,11 @@
         <item quantity="other">%1$d itens</item>
         <item quantity="many">%1$d itens</item>
     </plurals>
+    <plurals name="items_count">
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d itens</item>
+        <item quantity="many">%1$d itens</item>
+    </plurals>
     <plurals name="pick_facts">
         <item quantity="one">%2$s em %1$d arquivo</item>
         <item quantity="other">%2$s em %1$d arquivos</item>
@@ -400,7 +405,7 @@
     <string name="settings_editor_backup">Cópia de segurança antes de sobrescrever</string>
     <string name="settings_editor_backup_desc">Antes que um editor sobrescreva uma imagem, ele guarda uma cópia na lixeira, onde você poderá recuperá-la; se não precisar dela, será excluída no próximo \'Esvaziar lixeira\'.</string>
     <string name="settings_save_rename">Permitir renomear ao salvar</string>
-    <string name="settings_save_rename_desc">As imagens vão sempre para Downloads. Com isto ligado, \'Salvar\' pergunta antes o nome; desligado, mantenha \'Salvar\' pressionado para que pergunte só daquela vez.</string>
+    <string name="settings_save_rename_desc">Por padrão, todos os arquivos são baixados em Downloads com o nome original. Ative esta função para definir um nome de salvamento em cada download. Mesmo que a deixe desativada, você pode tocar e manter pressionado \'Salvar\' para ativá-la na hora, só quando precisar.</string>
     <string name="editor_tall">Retrato</string>
     <string name="editor_wide">Paisagem</string>
     <string name="pick_cleared">Nenhum arquivo selecionado.</string>

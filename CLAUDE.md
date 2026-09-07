@@ -651,15 +651,53 @@ legga meno che agli estremi.
 - ⚠️ **In posizione finale è quella di sempre, per costruzione**: la copia della testata non è
   stata toccata, ha solo un'opacità.
 
-⚠️⚠️ **QUANDO IL FRONTESPIZIO DI UNA CARTELLA È CHIUSO: TRE RISPOSTE SUE, confermate in chiaro
-il 2026-09-06.** Mentre la griglia **carica** è aperto; durante una **selezione** è chiuso;
-tornando dal **visualizzatore** resta com'era, cioè chiuso se la griglia non è in cima.
-- **La terza si ottiene da una regola sola e non da un ricordo**: con la griglia scorsa il
+⚠️⚠️ **QUANDO IL FRONTESPIZIO DI UNA CARTELLA È CHIUSO: DUE RISPOSTE SUE, ED ERANO TRE.** Mentre
+la griglia **carica** è aperto; tornando dal **visualizzatore** resta com'era, cioè chiuso se la
+griglia non è in cima.
+- **La seconda si ottiene da una regola sola e non da un ricordo**: con la griglia scorsa il
   frontespizio non può essere aperto. Con le dita è già vero per costruzione (lo scorrimento si
   spende prima là), e quello che sfuggiva è il salto **programmato** all'immagine da cui si è
   tornati, che non passa dallo scorrimento annidato.
-- ⚠️ **Finita la selezione non si riapre**, e non è una dimenticanza: la griglia è rimasta dov'era,
-  e riaprirlo la farebbe scendere sotto il dito.
+
+⚠️⚠️ **E LA TERZA SI È ROVESCIATA CON LA `1.78`: DURANTE UNA SELEZIONE NON SI CHIUDE PIÙ**
+(riscontro del giro della `1.77`, voce `front-misure` non approvata). La ragione è sua e nessuna
+delle due parti l'aveva prevista: *appena si tocca a lungo per iniziare a selezionare, lo
+spostamento delle miniature in alto fa già selezionare più elementi a causa dello spostamento
+repentino mentre si tiene premuto*. Cioè la chiusura automatica non era spazio guadagnato: era
+una griglia che scorreva **sotto un dito appoggiato**, e il gesto da/a della selezione prendeva
+tutte le miniature che le passavano sotto.
+- ⚠️⚠️ **LA RAGIONE PER CUI ESISTEVA È DECADUTA CON IL CONTATORE, e questo è il pezzo che spiega
+  perché il rovesciamento non costa niente**: si chiudeva perché in selezione la testata
+  diventava il conto dei selezionati, e con la fascia aperta quel conto non aveva posto. Dalla
+  `1.78` il conto vive **sotto il titolo** in tutti e due i posti, quindi la testata non ha più
+  niente da liberare, e il titolo resta il nome della cartella anche in selezione.
+- ⚠️ **Quindi la fascia si chiude in un modo solo, scorrendo**, e la costante che dava la durata
+  della chiusura animata è uscita da `Front.kt`: serviva a quel caso e a nessun altro.
+- ⚠️ **La nota 'finita la selezione non si riapre' è decaduta con la chiusura**: non c'è più
+  niente da riaprire.
+
+⚠️⚠️ **IL CONTO DEGLI ELEMENTI STA SOTTO IL TITOLO, E DICE 'ELEMENTI' E NON 'IMMAGINI'** (sua
+specifica, giro della `1.77`: *il numero di elementi (non immagini) totali / selezionati
+dev'essere indicato sotto il titolo, centrato, con un carattere leggermente più piccolo e meno
+opaco*; e il punto (b) del campo libero: *non va più bene da quando ci sono anche i video*). Le
+due copie, quella della fascia e quella della testata, si scambiano con le stesse opacità
+complementari del nome.
+- ⚠️⚠️ **`folders_count` NON SI RISCRIVE, e chi lo facesse romperebbe l'altro chiamante**: quella
+  chiave ha **due** posti che la usano con due significati, e dice il vero in uno solo. La
+  griglia contava tutto (immagini e video) con una stringa che dice 'immagini', ed era il
+  difetto; la schermata iniziale conta `bucket.pictures`, cioè le sole immagini, accanto a
+  `folders_clips` che conta i video, e là 'immagini' è giusto. Perciò la griglia ha una chiave
+  **nuova**, `items_count`.
+- ⚠️ **Il testo di `items_count` è copiato da `pick_count` lingua per lingua**, che diceva già
+  esattamente 'N elementi': quello che cambia è la chiave, perché i due scopi sono diversi e un
+  ritocco al conto della selezione cambierebbe l'altro in silenzio.
+
+⚠️ **L'icona si rimpicciolisce prima di sparire, dalla `1.78`** (*man mano che si scorre, deve
+prima rimpicciolirsi e adattarsi ad ogni fotogramma allo spazio disponibile in verticale, poi
+sparire con una dissolvenza come fa adesso*), e la differenza fra le due vie è misurabile:
+scalarla con `graphicsLayer` rimpicciolirebbe il **disegno** lasciando il posto occupato, quindi
+il titolo sotto non salirebbe; misurandola, l'icona **cede** lo spazio. Il conto e la soglia
+della dissolvenza vivono in `Front.kt`.
 
 ⚠️⚠️ **NÉ NEL CESTINO NÉ NELLA RICERCA, e nessuno dei due è una dimenticanza**: nel cestino il FAB
 c'è sempre, quindi la sfumatura che lo tiene su un fondo neutro non potrebbe andarsene scorrendo,
@@ -694,12 +732,39 @@ un'immagine.
 salvataggio'** accesa, oppure un **tocco lungo** su 'Scarica', che vale per quella volta sola.
 L'impostazione è **spenta di fabbrica**, e il valore di fabbrica non è scelto per far vedere la
 funzione: salvare è un gesto che si fa di fretta.
-- **La finestra chiede il SOLO nome**, e il suffisso si vede accanto al campo senza potersi
-  toccare: senza quello giusto la galleria non sa che cosa tiene in mano. Chi vuole cambiare
+- **La finestra chiede il SOLO nome**, e il suffisso si vede accanto al campo senza entrare nel
+  campo: senza quello giusto la galleria non sa che cosa tiene in mano. Chi vuole cambiare
   formato ha 'Esporta/Converti', che è un'altra cosa e lo dice.
-- **Il chip della data ha due gesti**: il tocco breve infila `YYYYMMDD` dove sta il cursore, il
-  lungo rifà il nome da capo con la sola data. Sono le due cose che si vogliono davvero fare con
-  una data in un nome, e nessuna delle due si ottiene dall'altra senza cancellare a mano.
+- **I due gesti della data**: il tocco breve infila `YYYYMMDD` dove sta il cursore, il lungo rifà
+  il nome da capo con la sola data. Sono le due cose che si vogliono davvero fare con una data in
+  un nome, e nessuna delle due si ottiene dall'altra senza cancellare a mano.
+
+⚠️⚠️ **I COMANDI SONO QUATTRO E SONO GLI STESSI DI 'Rinomina', DALLA `1.78`** (riscontro del giro
+della `1.77`, voce `scarica-download` non approvata): 'Estensione', 'Seleziona tutto', 'Svuota' e
+'Data', *tutti con lo stile solo-testo, senza tasto/pillola già usato in 'Rinomina'*. Quindi
+anche 'Data', che nella `1.77` era un gettone tonale, e il pezzo che li disegna è `Quiet`, lo
+stesso delle due finestre.
+- ⚠️⚠️ **E 'Rinomina' HA PRESO 'Data' NELLO STESSO GIRO**, che è la simmetria dall'altra parte
+  (campo libero, punto (a): *voglio che 'Rinomina' abbia 'Data', che inserisce YYYYMMDD
+  esattamente come implementato in 'Scarica'*). 'Esattamente come' regge solo se il gesto lo fa
+  la stessa funzione, quindi il conto sul cursore è uno e vive in `SaveName.kt`.
+- ⚠️ **In una rinomina in blocco il tocco lungo lascia il template senza cancelletti**, cioè
+  'Rinomina' resta spento finché non se ne aggiunge uno. È il prezzo di 'esattamente come in
+  Scarica', dove il file è uno solo, ed è una domanda del giro della `1.78` invece di una
+  decisione mia.
+- ⚠️⚠️ **'Estensione' PASSA DAL PEZZO CONDIVISO `extensionGate`, che si porta dietro le proprie
+  finestre**: la griglia di sicurezza (l'impostazione, spenta di fabbrica), l'avviso della prima
+  volta e il pannellino. Chi lo chiama ottiene un tasto che funziona, non due righe da ricordare
+  in fondo alla funzione, ed è lo stesso criterio per cui `lowered()` porta il velo.
+- ⚠️⚠️ **E QUANDO IL SUFFISSO CAMBIA, IL TIPO DICHIARATO AL `MediaStore` SEGUE IL NOME E NON I
+  BYTE, O IL FORNITORE RIMETTE IL SUO**: se tipo ed estensione del `DISPLAY_NAME` non vanno
+  d'accordo, il `MediaStore` **aggiunge** l'estensione del tipo, quindi un `foto.png` dichiarato
+  `image/jpeg` finisce in Download come `foto.png.jpg`. Cioè il comando non avrebbe fatto niente,
+  senza dare nessun errore. Che il file menta è dichiarato e voluto: cambiare l'estensione non
+  converte niente, e il pannellino lo dice a chi lo apre.
+  - ⚠️ **Se il suffisso NON cambia resta il tipo misurato al caricamento**, e non si ricava dal
+    nome: un nome può mentire già in partenza (il JPEG di Pexels dichiarato AVIF), e là il vero è
+    quello che il caricamento ha letto.
 - ⚠️ **È una modale vera**, quindi porta tutte e due le righe (`Modifier.lowered(null)` e
   `properties = loweredWindow(null)`): esiste per raccogliere un input scritto, che è il criterio
   di § '👆 Che cosa fa il tocco FUORI da una finestra'.

@@ -167,6 +167,10 @@
         <item quantity="one">%1$dটি আইটেম</item>
         <item quantity="other">%1$dটি আইটেম</item>
     </plurals>
+    <plurals name="items_count">
+        <item quantity="one">%1$dটি আইটেম</item>
+        <item quantity="other">%1$dটি আইটেম</item>
+    </plurals>
     <plurals name="pick_facts">
         <item quantity="one">%1$d ফাইলে %2$s</item>
         <item quantity="other">%1$d ফাইলে %2$s</item>
@@ -385,7 +389,7 @@
     <string name="settings_editor_backup">উপরে লেখার আগে নিরাপত্তা অনুলিপি</string>
     <string name="settings_editor_backup_desc">কোনো সম্পাদক ছবির উপর লেখার আগে তার একটি অনুলিপি আবর্জনায় রেখে দেয়, সেখান থেকে ফিরিয়ে আনা যায়; দরকার না হলে পরের বার \'আবর্জনা খালি করুন\'-এ মুছে যাবে।</string>
     <string name="settings_save_rename">সংরক্ষণের সময় নাম বদলানোর অনুমতি</string>
-    <string name="settings_save_rename_desc">ছবি সবসময় Downloads ফোল্ডারে যায়। এটি চালু থাকলে \'সংরক্ষণ করুন\' আগে নাম জিজ্ঞাসা করে; বন্ধ থাকলে \'সংরক্ষণ করুন\' চেপে ধরলে শুধু সেইবারই জিজ্ঞাসা করবে।</string>
+    <string name="settings_save_rename_desc">ডিফল্টভাবে সব ফাইল তাদের আসল নামেই Downloads ফোল্ডারে যায়। প্রতিটি ডাউনলোডে সংরক্ষণের নাম ঠিক করতে এটি ৚ালু করুন। বন্ধ রেখে দিলেও, শুধু প্রয়োজনের সময় তখনই ৚ালু করতে \'সংরক্ষণ করুন\' চেপে ধরুন।</string>
     <string name="editor_tall">লম্বালম্বি</string>
     <string name="editor_wide">আড়াআড়ি</string>
     <string name="pick_cleared">কোনো ফাইল নির্বাচিত নেই।</string>

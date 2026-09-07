@@ -167,6 +167,10 @@
         <item quantity="one">%1$d عنصر</item>
         <item quantity="other">%1$d عنصر</item>
     </plurals>
+    <plurals name="items_count">
+        <item quantity="one">%1$d عنصر</item>
+        <item quantity="other">%1$d عنصر</item>
+    </plurals>
     <plurals name="pick_facts">
         <item quantity="one">%2$s در %1$d فایل</item>
         <item quantity="other">%2$s در %1$d فایل</item>
@@ -385,7 +389,7 @@
     <string name="settings_editor_backup">نسخهٔ ایمنی پیش از بازنویسی</string>
     <string name="settings_editor_backup_desc">پیش از آنکه ویرایشگر روی تصویری بنویسد، نسخه‌ای از آن را در سطل زباله نگه می‌دارد تا بتوانید بازش گردانید؛ اگر لازمش نداشتید، در \'خالی کردن سطل زباله\' بعدی حذف می‌شود.</string>
     <string name="settings_save_rename">اجازهٔ تغییر نام هنگام ذخیره</string>
-    <string name="settings_save_rename_desc">تصویرها همیشه در پوشهٔ Downloads ذخیره می‌شوند. با روشن بودن این گزینه، \'ذخیره\' اول نام را می‌پرسد؛ با خاموش بودن آن، \'ذخیره\' را نگه دارید تا فقط همان بار بپرسد.</string>
+    <string name="settings_save_rename_desc">به‌طور پیش‌فرض همهٔ پرونده‌ها با نام اصلی خود در پوشهٔ Downloads ذخیره می‌شوند. این ویژگی را روشن کنید تا برای هر بارگیری نامی برای ذخیره تعیین کنید. حتی اگر آن را خاموش بگذارید، می‌توانید \'ذخیره\' را نگه دارید تا فقط در همان لحظه و در صورت نیاز روشن شود.</string>
     <string name="editor_tall">عمودی</string>
     <string name="editor_wide">افقی</string>
     <string name="pick_cleared">هیچ پرونده‌ای انتخاب نشده است.</string>
