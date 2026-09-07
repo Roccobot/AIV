@@ -3454,8 +3454,8 @@ private fun NameLine(name: String) {
             }
             Text(
                 text = shown.text,
-                // ⚠️ Il corpo misurato e non quello pieno: vedi `fitName`.
-                style = style.shrunk(shown.scale),
+                // ⚠️ Lo stile a cui il nome è stato misurato e non quello pieno: vedi `fitName`.
+                style = shown.style,
                 maxLines = 1,
                 color = LocalContentColor.current.copy(alpha = NAME_FADE)
             )

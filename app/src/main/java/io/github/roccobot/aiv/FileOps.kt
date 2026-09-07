@@ -641,8 +641,10 @@ private fun NamePill(name: String, onRename: () -> Unit, modifier: Modifier = Mo
             }
             Text(
                 text = shown.text,
-                // ⚠️ Il corpo misurato e non quello pieno: vedi `fitName`.
-                style = style.shrunk(shown.scale),
+                // ⚠️ Lo stile a cui il nome è stato MISURATO e non quello pieno: `fitName` può
+                // stringere il corpo o la spaziatura per far stare il nome intero, e scriverlo
+                // alla misura piena rimetterebbe lo sforo che quella stretta ha appena tolto.
+                style = shown.style,
                 maxLines = NAME_LINES,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()

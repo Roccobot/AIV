@@ -2307,10 +2307,10 @@ private fun GridName(uri: Uri, room: Int) {
     } ?: return
     Text(
         text = shown.text,
-        // ⚠️ Il corpo è quello a cui il nome è stato MISURATO, dalla 1.62: `fitName` può
-        // stringerlo di un gradino per far stare il nome intero, e scriverlo alla misura
-        // piena rimetterebbe lo sforo che quella stretta ha appena tolto.
-        style = style.shrunk(shown.scale),
+        // ⚠️ Lo stile è quello a cui il nome è stato MISURATO, dalla 1.62: `fitName` può
+        // stringere il corpo o la spaziatura per far stare il nome intero, e scriverlo alla
+        // misura piena rimetterebbe lo sforo che quella stretta ha appena tolto.
+        style = shown.style,
         maxLines = NAME_LINES,
         textAlign = TextAlign.Center,
         modifier = Modifier.fillMaxWidth().padding(horizontal = NAME_PAD)
