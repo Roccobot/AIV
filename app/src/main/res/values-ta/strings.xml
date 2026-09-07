@@ -219,6 +219,9 @@
     <string name="dest_create">உருவாக்கு</string>
     <string name="dest_here">%1$s-இல் நகலெடு</string>
     <string name="dest_move_here">%1$s-இல் நகர்த்து</string>
+    <string name="dest_pick_copy">ஒரு கோப்புறைக்கு நகலெடு</string>
+    <string name="dest_pick_move">ஒரு கோப்புறைக்கு நகர்த்து</string>
+    <string name="dest_browse">எல்லா கோப்புறைகளையும் உலாவு...</string>
     <string name="menu_copy_here">நகலெடு</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d கோப்பு நகலெடுக்கப்பட்டது</item>

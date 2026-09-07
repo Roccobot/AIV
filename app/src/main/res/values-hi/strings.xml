@@ -219,6 +219,9 @@
     <string name="dest_create">बनाएँ</string>
     <string name="dest_here">%1$s में कॉपी करें</string>
     <string name="dest_move_here">%1$s में ले जाएँ</string>
+    <string name="dest_pick_copy">किसी फ़ोल्डर में कॉपी करें</string>
+    <string name="dest_pick_move">किसी फ़ोल्डर में ले जाएँ</string>
+    <string name="dest_browse">सभी फ़ोल्डर ब्राउज़ करें...</string>
     <string name="menu_copy_here">कॉपी करें</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d आइटम कॉपी हुआ</item>

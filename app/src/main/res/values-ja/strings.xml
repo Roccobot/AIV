@@ -215,6 +215,9 @@
     <string name="dest_create">作成</string>
     <string name="dest_here">%1$s にコピー</string>
     <string name="dest_move_here">%1$s に移動</string>
+    <string name="dest_pick_copy">フォルダーにコピー</string>
+    <string name="dest_pick_move">フォルダーに移動</string>
+    <string name="dest_browse">すべてのフォルダーを参照...</string>
     <string name="menu_copy_here">コピー</string>
     <plurals name="copy_done">
         <item quantity="other">%1$d 件コピーしました</item>

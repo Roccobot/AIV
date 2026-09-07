@@ -219,6 +219,9 @@
     <string name="dest_create">بنائیں</string>
     <string name="dest_here">%1$s میں نقل کریں</string>
     <string name="dest_move_here">%1$s میں منتقل کریں</string>
+    <string name="dest_pick_copy">کسی فولڈر میں کاپی کریں</string>
+    <string name="dest_pick_move">کسی فولڈر میں منتقل کریں</string>
+    <string name="dest_browse">تمام فولڈرز براؤز کریں...</string>
     <string name="menu_copy_here">نقل کریں</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d فائل نقل ہوئی</item>

@@ -219,6 +219,9 @@
     <string name="dest_create">Oluştur</string>
     <string name="dest_here">%1$s içine kopyala</string>
     <string name="dest_move_here">%1$s içine taşı</string>
+    <string name="dest_pick_copy">Bir klasöre kopyala</string>
+    <string name="dest_pick_move">Bir klasöre taşı</string>
+    <string name="dest_browse">Tüm klasörlere göz at...</string>
     <string name="menu_copy_here">Kopyala</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d öge kopyalandı</item>

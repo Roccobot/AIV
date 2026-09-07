@@ -219,6 +219,9 @@
     <string name="dest_create">సృష్టించు</string>
     <string name="dest_here">%1$sలోకి కాపీ చేయి</string>
     <string name="dest_move_here">%1$sలోకి తరలించు</string>
+    <string name="dest_pick_copy">ఒక ఫోల్డర్‌కు కాపీ చేయి</string>
+    <string name="dest_pick_move">ఒక ఫోల్డర్‌కు తరలించు</string>
+    <string name="dest_browse">అన్ని ఫోల్డర్‌లను బ్రౌజ్ చేయి...</string>
     <string name="menu_copy_here">కాపీ</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d ఫైలు కాపీ అయింది</item>

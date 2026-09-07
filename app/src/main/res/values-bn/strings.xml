@@ -219,6 +219,9 @@
     <string name="dest_create">তৈরি করুন</string>
     <string name="dest_here">%1$s-এ অনুলিপি করুন</string>
     <string name="dest_move_here">%1$s-এ সরান</string>
+    <string name="dest_pick_copy">একটি ফোল্ডারে কপি</string>
+    <string name="dest_pick_move">একটি ফোল্ডারে সরান</string>
+    <string name="dest_browse">সব ফোল্ডার ব্রাউজ করুন...</string>
     <string name="menu_copy_here">অনুলিপি</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d ফাইল অনুলিপি হয়েছে</item>

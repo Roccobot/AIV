@@ -589,7 +589,7 @@ private fun Folder.Bucket.isHidden(hidden: Set<String>): Boolean {
  * funzione resta la sola fonte del corpo del nome.
  */
 @Composable
-private fun folderNameStyle(columns: Int): TextStyle =
+internal fun folderNameStyle(columns: Int): TextStyle =
     if (columns >= NARROW_COLUMNS) MaterialTheme.typography.labelMedium
     else MaterialTheme.typography.titleSmall
 
@@ -1178,7 +1178,7 @@ private fun TextSize.detail() = when (this) {
 
 /** Le cartelle come copertine. */
 @Composable
-private fun Covers(
+internal fun Covers(
     folders: List<Folder.Bucket>,
     columns: Int,
     counted: Boolean,
@@ -1230,7 +1230,7 @@ private fun Covers(
  * vedere che cosa c'è dentro.
  */
 @Composable
-private fun Rows(
+internal fun Rows(
     folders: List<Folder.Bucket>,
     /** Se sotto il nome si legge il conto. Vedi `Settings.listCount`. */
     counted: Boolean,

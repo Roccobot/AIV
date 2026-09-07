@@ -215,6 +215,9 @@
     <string name="dest_create">만들기</string>
     <string name="dest_here">%1$s(으)로 복사</string>
     <string name="dest_move_here">%1$s(으)로 이동</string>
+    <string name="dest_pick_copy">폴더에 복사</string>
+    <string name="dest_pick_move">폴더로 이동</string>
+    <string name="dest_browse">모든 폴더 찾아보기...</string>
     <string name="menu_copy_here">복사</string>
     <plurals name="copy_done">
         <item quantity="other">%1$d개 복사했습니다</item>

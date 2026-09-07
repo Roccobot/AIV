@@ -235,6 +235,9 @@
     <string name="dest_create">إنشاء</string>
     <string name="dest_here">نسخ إلى %1$s</string>
     <string name="dest_move_here">نقل إلى %1$s</string>
+    <string name="dest_pick_copy">النسخ إلى مجلد</string>
+    <string name="dest_pick_move">النقل إلى مجلد</string>
+    <string name="dest_browse">استعراض كل المجلدات...</string>
     <string name="menu_copy_here">نسخ</string>
     <plurals name="copy_done">
         <item quantity="zero">لم يُنسخ أي عنصر</item>

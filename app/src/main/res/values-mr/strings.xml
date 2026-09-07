@@ -219,6 +219,9 @@
     <string name="dest_create">तयार करा</string>
     <string name="dest_here">%1$s मध्ये प्रत करा</string>
     <string name="dest_move_here">%1$s मध्ये हलवा</string>
+    <string name="dest_pick_copy">फोल्डरमध्ये कॉपी करा</string>
+    <string name="dest_pick_move">फोल्डरमध्ये हलवा</string>
+    <string name="dest_browse">सर्व फोल्डर ब्राउझ करा...</string>
     <string name="menu_copy_here">प्रत करा</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d संचिकेची प्रत झाली</item>
