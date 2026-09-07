@@ -351,7 +351,8 @@ fun FolderScreen(
                     }
                     Text(
                         text = stringResource(R.string.folders_title),
-                        style = MaterialTheme.typography.headlineSmall
+                        style = MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier.heading()
                     )
                 }
             }
@@ -977,12 +978,16 @@ private fun ViewOptions(
                  * l'ultima uscirebbe dal dialogo. Andando a capo da sé, la stessa riga vale
                  * per ogni larghezza e per ogni lingua, comprese quelle che scrivono lungo.
                  */
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(OPTION_GAP)) {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(OPTION_GAP),
+                    modifier = Modifier.oneOf()
+                ) {
                     FolderView.entries.forEach { one ->
                         FilterChip(
                             selected = one == view,
                             onClick = { onView(one) },
-                            label = { Text(stringResource(one.shortLabel())) }
+                            label = { Text(stringResource(one.shortLabel())) },
+                            modifier = Modifier.picked(one == view)
                         )
                     }
                 }
@@ -993,12 +998,16 @@ private fun ViewOptions(
                 when (view) {
                     FolderView.GRID -> {
                         OptionLabel(R.string.columns_title)
-                        Row(horizontalArrangement = Arrangement.spacedBy(OPTION_GAP)) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(OPTION_GAP),
+                            modifier = Modifier.oneOf()
+                        ) {
                             FOLDER_COLUMNS.forEach { n ->
                                 FilterChip(
                                     selected = n == columns,
                                     onClick = { onColumns(n) },
-                                    label = { Text(n.toString()) }
+                                    label = { Text(n.toString()) },
+                                    modifier = Modifier.picked(n == columns)
                                 )
                             }
                         }
@@ -1248,6 +1257,7 @@ internal fun Rows(
                 modifier = Modifier
                     .fillMaxWidth()
                     .combinedClickable(
+                        role = Role.Button,
                         onClick = { onPick(bucket) },
                         onLongClick = withHaptics { onHide(bucket) }
                     )
@@ -1335,7 +1345,11 @@ private fun FolderCard(
     Column(
         // ⚠️ Il tocco lungo nasconde, ed è lo stesso gesto in tutte e due le viste: chi
         // impara a nascondere dalle copertine non deve reimpararlo nell'elenco.
-        modifier = Modifier.combinedClickable(onClick = onClick, onLongClick = withHaptics(onLongClick)),
+        modifier = Modifier.combinedClickable(
+            role = Role.Button,
+            onClick = onClick,
+            onLongClick = withHaptics(onLongClick)
+        ),
         verticalArrangement = Arrangement.spacedBy(CARD_GAP)
     ) {
         Box(

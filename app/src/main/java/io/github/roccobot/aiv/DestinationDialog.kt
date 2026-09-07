@@ -174,7 +174,8 @@ fun DestinationDialog(
                             text = here?.name ?: stringResource(R.string.dest_storages),
                             style = MaterialTheme.typography.titleLarge,
                             maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.heading()
                         )
                         // ⚠️ Il percorso intero sotto il nome, e non al suo posto: due
                         // cartelle possono chiamarsi uguale, ma un percorso da settanta

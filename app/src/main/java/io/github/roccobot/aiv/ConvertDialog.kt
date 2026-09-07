@@ -160,12 +160,16 @@ fun ConvertDialog(
                     Note(stringResource(R.string.convert_this_frame, shownFrame))
                 }
                 Heading(stringResource(R.string.convert_format))
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.oneOf()
+                ) {
                     Convert.Target.entries.forEach { option ->
                         FilterChip(
                             selected = option == target,
                             onClick = { target = option },
-                            label = { Text(stringResource(option.label)) }
+                            label = { Text(stringResource(option.label)) },
+                            modifier = Modifier.picked(option == target)
                         )
                     }
                 }
@@ -185,12 +189,16 @@ fun ConvertDialog(
                 }
 
                 Heading(stringResource(R.string.convert_size))
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.oneOf()
+                ) {
                     Convert.Size.entries.forEach { option ->
                         FilterChip(
                             selected = option == size,
                             onClick = { size = option },
-                            label = { Text("${option.percent}%") }
+                            label = { Text("${option.percent}%") },
+                            modifier = Modifier.picked(option == size)
                         )
                     }
                 }

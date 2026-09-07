@@ -46,6 +46,7 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -432,8 +433,15 @@ fun MenuShell(
                      * si aspetta di aver premuto qualcosa. Si consuma nella passata iniziale,
                      * dentro la composizione, senza toccare i flag della finestra: quelli li
                      * usa il velo, e riscriverli lo spegnerebbe.
+                     * ⚠️⚠️ **E ANCHE AL LETTORE DI SCHERMO, dalla `1.81`**: `deaf()` consuma
+                     * eventi di **puntatore**, mentre l'azione di una voce vive nella semantica
+                     * e un comando di accessibilità la esegue senza passare dal dito. Il varco
+                     * durava i 75 ms dell'uscita, cioè quattro fotogrammi, e chiuderlo costa la
+                     * riga qui accanto: il caso gemello è già chiuso così sul FAB, in
+                     * `ActionPad.kt`.
                      */
                     .then(if (state.wanted) Modifier else Modifier.deaf())
+                    .then(if (state.wanted) Modifier else Modifier.clearAndSetSemantics { })
             ) { content() }
         }
     }

@@ -1293,7 +1293,7 @@ private fun Shell(
                 text = title,
                 style = MaterialTheme.typography.headlineSmall,
                 // ⚠️ La linea di base entra nel conto della riga: vedi il numero qui sotto.
-                modifier = Modifier.weight(1f).alignByBaseline()
+                modifier = Modifier.weight(1f).alignByBaseline().heading()
             )
             if (version) {
                 /*
@@ -1342,11 +1342,17 @@ private fun Shell(
 /**
  * Il titolo di un gruppo.
  *
- * ⚠️ `titleMedium` nel colore primario, in mezzo alle due misure che c'erano già: il titolo
+ * ⚠️ `titleMedium` nel colore dell'accento, in mezzo alle due misure che c'erano già: il titolo
  * della pagina è `headlineSmall` e il nome di un'impostazione `titleSmall`, quindi il
  * gruppo ha bisogno di stare fra i due per leggersi come un livello e non come una voce.
- * Il colore fa il resto del lavoro, e da solo non basterebbe: chi non distingue quel blu
+ * Il colore fa il resto del lavoro, e da solo non basterebbe: chi non distingue quella tinta
  * vede comunque un testo più grande.
+ * ⚠️⚠️ **IL COLORE È [accentInk] E NON `primary`, dalla `1.81`**: l'accento vero, come parole,
+ * non si legge (2,43 su questo fondo, contro i 4,5 che servono), e questo era uno dei quattro
+ * punti in cui l'app lo usava come inchiostro di un testo. Il corpo più grande risponde a
+ * un'altra domanda, cioè a chi non distingue le tinte, e non copre il contrasto.
+ * ⚠️ **Ed è un'intestazione**, cioè un punto in cui un lettore di schermo si ferma navigando
+ * per intestazioni: un titolo di gruppo è esattamente quello.
  */
 @Composable
 private fun Group(title: String) {
@@ -1357,8 +1363,8 @@ private fun Group(title: String) {
     Text(
         text = title,
         style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(top = 24.dp, bottom = 4.dp)
+        color = accentInk(),
+        modifier = Modifier.heading().padding(top = 24.dp, bottom = 4.dp)
     )
 }
 
@@ -1890,10 +1896,38 @@ private fun FactFields(settings: Settings, onChange: (Settings) -> Unit) {
         fixed = 1,
         onMove = { da, a -> onChange(settings.copy(factOrder = order.moved(da, a))) }
     ) { field, _ ->
+        val acceso = field !in settings.factOff
+        val flip = { on: Boolean ->
+            val off = if (on) settings.factOff - field else settings.factOff + field
+            onChange(settings.copy(factOff = off))
+        }
         Row(
             // ⚠️ Il rientro a destra è il posto della manopola, che [Reorderable] disegna
             // sopra la riga: senza, un'etichetta lunga le finirebbe sotto.
-            modifier = Modifier.fillMaxWidth().padding(end = HANDLE_ROOM),
+            /*
+             * ⚠️⚠️ **LA RIGA INTERA È IL COMANDO ANCHE QUI, dalla `1.81`, e prima era la sola
+             * CASELLA** (censimento della UI del 2026-09-05): era l'unica riga del pannello a
+             * non seguire la regola scritta due volte, nel KDoc di `SwitchRow` e in
+             * `AIV/CLAUDE.md` § '⚙️ Dove va un'impostazione, e chi la deve trovare'.
+             * ⚠️ **Il conflitto col trascinamento non regge come giustificazione**, ed era
+             * l'unica difesa possibile: la manopola è un fratello disegnato **dopo** la riga
+             * dentro lo stesso `Box`, quindi vince lei il collaudo del tocco, e la riga porta
+             * già il rientro a destra pari al suo spazio.
+             * ⚠️ **La casella perde il proprio gesto** (`onCheckedChange = null`): due
+             * bersagli per una scelta sola farebbero annunciare due voci a un lettore di
+             * schermo, che è il difetto che la regola di casa esiste per evitare.
+             */
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = HANDLE_ROOM)
+                .then(
+                    if (field.always) Modifier
+                    else Modifier.toggleable(
+                        value = acceso,
+                        role = Role.Checkbox,
+                        onValueChange = flip
+                    )
+                ),
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (field.always) {
@@ -1904,13 +1938,7 @@ private fun FactFields(settings: Settings, onChange: (Settings) -> Unit) {
                     modifier = Modifier.padding(horizontal = 14.dp).size(18.dp)
                 )
             } else {
-                Checkbox(
-                    checked = field !in settings.factOff,
-                    onCheckedChange = { on ->
-                        val off = if (on) settings.factOff - field else settings.factOff + field
-                        onChange(settings.copy(factOff = off))
-                    }
-                )
+                Checkbox(checked = acceso, onCheckedChange = null)
             }
             Text(
                 text = stringResource(field.label),
@@ -2045,9 +2073,12 @@ private fun PadOrder(
             Text(
                 text = stringResource(R.string.settings_buttons_reset),
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary,
+                color = accentInk(),
                 modifier = Modifier
-                    .clickable(enabled = order != difetto) { chiedendo = true }
+                    .clickable(enabled = order != difetto, role = Role.Button) {
+                        chiedendo = true
+                    }
+                    .tapRoom()
                     .padding(start = 12.dp, top = 24.dp, bottom = 4.dp)
                     .alpha(if (order == difetto) RESET_OFF else 1f)
             )
@@ -2149,12 +2180,13 @@ private fun <T : Choice> Choices(
         modifier = Modifier.padding(top = 12.dp)
     )
     detail?.let { Detail(it) }
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.oneOf()) {
         options.forEachIndexed { at, option ->
             FilterChip(
                 selected = option == selected,
                 onClick = { onSelect(option) },
-                label = { Text(names[at]) }
+                label = { Text(names[at]) },
+                modifier = Modifier.picked(option == selected)
             )
         }
     }
