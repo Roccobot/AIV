@@ -300,24 +300,38 @@ grande un dialogo esattamente al centro fa allungare la mano.
     sopra dell'area che la tastiera lascia libera.
     - ⚠️ **Vale per ogni superficie centrata**, come la misura da cui nasce, e finisce
       nell'istante in cui la tastiera se ne va.
-    - ⚠️⚠️ **L'ARIA SOPRA È 56dp E NON 16, DALLA `1.82`** (riscontro del giro della `1.81`, voce
-      `ext-notch`, approvata con una riserva: *è vero, ma finisce ancora molto in alto, mi sembra
-      anche troppo*). La `1.81` aveva tolto il pannello dal notch e lo lasciava a filo del bordo:
-      `KEYBOARD_AIR` è la striscia che fa leggere 'sopra la finestra c'è ancora schermo'.
-    - ⚠️⚠️ **E LA SALITA SI TIENE FERMA FINCHÉ IL CAMBIAMENTO È PICCOLO, DALLA `1.82`** (campo
-      libero del giro della `1.81`, punto A: *quando si digita scatta tutto in alto traballando
-      ... e se cancello i caratteri con un gesto di HeliBoard l'intera finestra di rinomina balla
-      a più non posso*). Lo spazio che la tastiera lascia libero **cambia mentre si scrive** (la
-      barra dei suggerimenti, un gesto che allarga la tastiera, l'animazione ancora in corso), e
-      la salita lo seguiva punto per punto. Adesso il pannello si sposta solo se il cambiamento
-      supera una soglia più grande di una barra dei suggerimenti e più piccola di una tastiera.
-      ⚠️ **Il tetto si riapplica sempre**: il ricordo può evitare di risalire, mai far salire di
-      più, o si torna sul notch.
     - ⚠️ **Con lei arriva un TETTO sull'altezza**, ed è un difetto a sé che la stretta non
       poteva togliere (*in presenza di un nome molto lungo (ma valido) la finestra è tagliata
       brutalmente*): ridurre lo spostamento non accorcia un pannello più alto della finestra.
       Adesso una superficie centrata non può superare la finestra meno l'aria, e lo scorrimento
       che ha già dentro entra in funzione.
+  - ⚠️⚠️ **MA DALLA `1.83` QUELLA DEROGA NON C'È PIÙ, E LE QUATTRO FINESTRE IN CUI SI SCRIVE NON
+    SONO CENTRATE AFFATTO: IL LORO BORDO DI SOPRA VALE `TEXT_AIR`, SEMPRE** (riscontro del giro
+    della `1.82`, voce `rinomina-ferma` non approvata: *secondo terzo carattere inserito o
+    cancellato la finestra si sposta da troppo in basso a molto in alto, e poi ogni 3/4 caratteri
+    c'è un flash della stessa finestra in posizione molto più ribassata*). La deroga faceva
+    **salire** il pannello all'arrivo della tastiera, e ricavava la salita dallo spazio libero
+    sopra di lei: un numero che **cambia mentre si scrive** (la barra dei suggerimenti, un gesto
+    che allarga la tastiera, l'animazione dell'IME ancora in corso). La `1.82` ci aveva messo
+    un'isteresi, cioè aveva reso il ballo più raro invece di togliergli la causa.
+    - ⚠️⚠️ **A TOGLIERE IL BALLO È CHE LA MISURA NON GUARDA PIÙ LA TASTIERA, e il conto è
+      algebrico**: vive su `pinned`, in `Centred.kt`. La finestra centra la scatola dichiarata,
+      quindi posando il pannello in cima a una scatola alta `pannello + 2*salita` con
+      `salita = (box - pannello) / 2 - aria`, il bordo di sopra vale **esattamente** `aria`
+      qualunque siano la finestra e il pannello. La tastiera può muovere la finestra quanto
+      vuole: a spostarsi è solo il bordo di sotto.
+    - ⚠️ **Quali finestre**: quelle che si dichiarano modali vere, cioè che passano `null` a
+      `lowered`, e per il criterio di § '👆 Che cosa fa il tocco FUORI da una finestra' sono le
+      sole con un campo di testo. Ogni altra superficie centrata resta al 15% in basso, con la
+      stretta e con il tetto.
+    - ⚠️ **Il tetto toglie di sotto e non di sopra**: un pannello più alto della finestra si
+      accorcia e il suo scorrimento entra in funzione, mentre il campo di testo in cima non si
+      muove di un pixel.
+    - ⚠️⚠️ **QUINDI `LOWER_AIR`, I 56dp DI `KEYBOARD_AIR` E LA SALITA A SOGLIA SONO NOTE
+      SUPERATE**: erano la deroga della `1.62` e i suoi due ritocchi della `1.82`, e con loro
+      sono usciti dal codice `climbFor` e la sua prova. Il numero di oggi è uno solo, `TEXT_AIR`,
+      e la prova che lo presidia è `AltoTest`: misura che il bordo di sopra non si muove al
+      variare della finestra, che è la forma esatta del difetto arrivato a lui.
 - ⚠️ **Il 15% si misura sull'altezza della FINESTRA**, non sullo spazio libero: sullo spazio
   libero sarebbe una frazione di una frazione, quindi su un dialogo alto il movimento
   sparirebbe proprio dove il pollice fatica di più.
@@ -752,6 +766,37 @@ titolo, cioè non c'è niente che possa traslare là dentro.
 ⚠️ **Le due sfumature se ne vanno scorrendo QUI e restano sempre nella schermata iniziale**, ed è
 la stessa ragione al rovescio: là il FAB c'è sempre. La richiesta era *le due sfumature in basso
 devono progressivamente sparire e lasciare campo libero alla griglia piena su tutto lo schermo*.
+- ⚠️⚠️ **MA QUELLA RAGIONE È DECADUTA CON LA `1.83`, e conviene saperlo per non ripeterla come
+  se reggesse ancora**: diceva che dove il FAB c'è sempre la sfumatura non può andarsene, perché
+  serve a tenerlo su un fondo neutro. Dalla `1.83` il FAB di una cartella **passa sopra** le due
+  sfumature, e in una cartella c'è sempre anche lui: quindi le due cose convivono. Per il
+  cestino e per la ricerca resta vero il resto (nessuno l'ha chiesto, e nella ricerca la testata
+  porta un campo di testo invece di un titolo che possa traslare), ma è una scelta non rivista,
+  non una conseguenza.
+
+⚠️⚠️ **DALLA `1.83` IL FRONTESPIZIO DI UNA CARTELLA È LA VARIANTE 10 DEL MOCKUP, E LA COMPONGONO
+QUATTRO INTERRUTTORI** (sua risposta a `d-frontespizio` e punto H del giro della `1.81`), che
+vivono in 'Aspetto' sotto 'Frontespizio delle cartelle': `frontWash` (la sfumatura dell'accento),
+`frontSerif` (il titolo col carattere graziato), `frontFacts` (le pastiglie del peso e dei video)
+e `frontPickAll` (la pastiglia 'Seleziona tutto').
+- ⚠️ **La sfumatura si accorcia per COSTRUZIONE e non con un secondo conto**: è dipinta dietro il
+  blocco che si stringe, quindi segue la fascia senza che nessuno la segua. Un'altezza calcolata
+  a parte avrebbe due sorgenti dello stesso numero, che divergono al primo ritocco.
+- ⚠️ **Col gradiente acceso l'icona passa in negativo**, e non è una variante estetica: sul fondo
+  d'accento l'inchiostro grigio della cartella non si distinguerebbe.
+- ⚠️⚠️ **I VALORI DI FABBRICA SONO TRE SU QUATTRO, E LA SCELTA È DICHIARATA PERCHÉ IL BRIEF
+  DICEVA DUE COSE**: il titolo della decisione era *variante 10 di fabbrica* e l'elenco dei chip
+  diceva *gli ultimi due accesi di fabbrica*. Senza la sfumatura la 10 non è la 10, quindi è
+  acceso anche `frontWash`; resta spento `frontSerif`, il solo dei quattro a cambiare **come è
+  scritto** il nome invece di aggiungere qualcosa. ⚠️ **La domanda `d-front-serif` gliela chiede
+  nel giro della `1.83`**: chi la trova risposta aggiorni il valore e questa riga.
+- ⚠️ **Le pastiglie dei dati costano UNA query**, `Folder.weigh`, una volta per cartella: il peso
+  non si ottiene sommando i file uno per uno, e il numero di video non si conta scorrendo
+  l'elenco già caricato. La pastiglia c'è solo se il suo dato esiste, quindi in una cartella
+  senza video la seconda non compare.
+- ⚠️ **I due tocchi lunghi sono suoi** (punto A del campo libero della `1.82`): sul peso entra in
+  selezione con tutto selezionato, sui video coi soli video. La pastiglia comando ha un vestito
+  diverso dalle due dei dati, perché fa una cosa invece di dirla.
 
 ## 💾 Il salvataggio va sempre in Download, e il nome si chiede solo se lo chiedi
 
@@ -828,6 +873,15 @@ era un gettone tonale, e il pezzo che li disegna è `Quiet`, lo stesso delle due
       riscritto la spiegazione di 'Scegli il percorso di download' in *aggiunge il pulsante
       'Destinazione' alla schermata di download*, e ha tagliato da quella della rinomina la coda
       che prometteva *in quel caso è disponibile anche 'Destinazione'*.
+  - ⚠️⚠️ **E DALLA `1.83` LA REGOLA TORNA A ESSERE UNA SOLA PER TUTTI E DUE** (riscontro del giro
+    della `1.82`, voce `save-quando` non approvata): col tocco **normale** ognuno dei due compare
+    se la **sua** opzione è accesa; col tocco **lungo** ci sono tutti e due, qualunque sia lo
+    stato delle opzioni. Quindi a impostazioni spente il gesto lungo li fa comparire lo stesso,
+    che è la cosa che la `1.82` aveva tolto a 'Destinazione'.
+    - ⚠️ **La lettura della `1.82` era dichiarata e gli è stata chiesta**, nella domanda
+      `d-dest-lettura` del documento di feedback: la sua frase si poteva leggere con una `e`, e
+      la risposta è che i due comandi sulla stessa riga non possono avere due regole diverse.
+      L'opzione governa il tocco normale, il gesto lungo vale per entrambi.
 
 ⚠️⚠️ **SI TORNA A DOWNLOAD DALLA FINESTRA, DALLA `1.82`, PERCHÉ IL SELETTORE NON SA RIPORTARCI**
 (voce `save-percorso`, non approvata: *se cambio cartella di download, non posso più tornare a
@@ -920,6 +974,33 @@ perché non basta guardare se l'originale esiste ancora, è su `Bin.Record` e su
 - ⚠️ **La colonna è facoltativa per sempre**: un archivio scritto prima della `1.75` deve
   continuare a leggersi, o aggiornando l'app ogni file già nel cestino perde la provenienza, cioè
   non si può più ripristinare.
+
+## ↩️ Disfare una copia o uno spostamento
+
+⚠️⚠️ **DALLA `1.83` ANCHE LA COPIA E LO SPOSTAMENTO OFFRONO 'Annulla', COME L'ELIMINAZIONE**
+(campo libero del giro della `1.82`, punto B: *aggiungi degli 'Annulla' temporizzati (avvisi in
+basso) anche per le operazioni di copia e spostamento*). La notifica è la stessa e dura gli
+stessi tre secondi; a cambiare è che cosa si disfa, e lo dice `Undo.Offer`, che ha due forme: un
+ritorno dal cestino, e un elenco di passi da rifare al contrario.
+
+⚠️⚠️ **UN'OPERAZIONE SI DISFA DAI PASSI CHE HA FATTO, NON DA QUELLI CHE DOVEVA FARE**: `FileTree`
+restituisce un `Undoable` per ogni file che ha davvero scritto, con dentro dove l'ha messo e, per
+uno spostamento, da dove veniva. Ricostruire l'inverso dalla richiesta (la cartella di partenza e
+quella di arrivo) sbaglierebbe al primo nome rinumerato, che è il caso normale quando a
+destinazione c'è già un file con quel nome.
+- ⚠️ **Un file già sparito NON conta come fallito**: fra l'operazione e il tocco su 'Annulla'
+  passano dei secondi, e in quei secondi un'altra app può aver cancellato la copia. Il risultato
+  voluto è che quel file non ci sia, e quello si è ottenuto: contarlo come errore direbbe che
+  qualcosa è andato storto mentre è andato tutto bene.
+- ⚠️ **Il ritorno non sovrascrive niente**: se a casa nel frattempo è arrivato un file con lo
+  stesso nome, quello resta dov'è e il ritorno prende un nome libero. L'alternativa sarebbe
+  cancellare qualcosa che nessuno ha chiesto di toccare, cioè fare danno con il comando che
+  serve a ripararlo.
+- ⚠️ **'Duplica' passa dalla stessa strada**, perché è una copia dentro la cartella di partenza.
+
+⚠️ **La prova è `DisfareTest`, ed è nata CON il lavoro e non dopo un difetto**: questa funzione
+cancella file e ne sposta altri, quindi un suo difetto non si vede e non si può disfare a sua
+volta. È il caso proattivo di § '🧪 Quando si scrive una prova, e quando no'.
 
 ## ⚙️ Dove va un'impostazione, e chi la deve trovare
 
