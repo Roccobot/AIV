@@ -26,6 +26,9 @@
     <string name="convert_webp">WebP</string>
     <string name="convert_webp_lossless">WebP bezstratny</string>
     <string name="convert_quality">Jakość</string>
+    <string name="convert_quality_at">Jakość\u0020\u0020\u0020%1$d%%</string>
+    <string name="convert_percent">%1$d%%</string>
+    <string name="convert_pixels">%1$d x %2$d</string>
     <string name="convert_size">Rozmiar</string>
     <string name="convert_no_alpha">JPEG nie zachowuje przezroczystości: te obszary staną się białe.</string>
     <string name="convert_this_frame">Eksportujesz klatkę %1$d, tę widoczną na ekranie.</string>

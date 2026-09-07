@@ -42,6 +42,9 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -298,8 +301,24 @@ fun rememberAnimation(source: Uri?, loaded: Boolean = true): Animation? {
     // ⚠️ Rilanciato anche al cambio di `playing`: è cosi che la ripresa riparte, e la pausa
     // lascia esaurire il ciclo invece di tenerlo in giro a controllare una bandierina.
     val current = animation
-    LaunchedEffect(current, current?.playing) {
-        current?.play()
+    /*
+     * ⚠️⚠️ **IL CICLO SI FERMA QUANDO L'APP VA IN FONDO, e fino alla `1.80` non si fermava**
+     * (censimento della UI del 2026-09-05): a schermo spento una GIF continuava a scandire i
+     * suoi fotogrammi, cioè a decodificare e a ricomporre per nessuno.
+     * ⚠️ **Perché non si fermava da sé**, che è il fatto da tenere: le animazioni di Compose si
+     * sospendono col clock dei fotogrammi, questa no, perché aspetta con `delay`, e il
+     * dispatcher della composizione consegna le riprese anche a finestra ferma (posta sul
+     * `Handler` oltre che sul `Choreographer`). E l'attività non muore andando in fondo, perché
+     * il manifesto non la dichiara `noHistory`: la composizione resta viva e il ciclo con lei.
+     * ⚠️ **`repeatOnLifecycle` e non un controllo dentro il ciclo**: quello che deve fermarsi è
+     * l'attesa, non un giro che continua a chiedersi se toccava a lui. Alla ripresa il ciclo
+     * riparte da capo, che è quello che già succede al cambio di [Animation.playing].
+     */
+    val owner = LocalLifecycleOwner.current
+    LaunchedEffect(current, current?.playing, owner) {
+        owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            current?.play()
+        }
     }
     return animation
 }
@@ -371,9 +390,18 @@ fun AnimatedBar(
              * ⚠️ **Le cifre tabulari restano**, e non sono un doppione: dentro una larghezza
              * fissa tengono ferme anche le cifre **in mezzo** al numero.
              */
+            /*
+             * ⚠️ **Ricordata, e fino alla `1.80` si rimisurava a ogni fotogramma** (censimento
+             * della UI del 2026-09-05): il corpo del contatore vive dentro la lambda di una
+             * `Row`, che è `inline` e quindi non forma un ambito di ricomposizione a sé, e
+             * quel corpo legge il fotogramma corrente. Il costo unitario era piccolo (il
+             * misuratore ha una cache), ma era lavoro fatto trenta volte al secondo per un
+             * numero che dipende solo dal carattere e dalla densità, cioè dalle due chiavi.
+             */
             val metro = rememberTextMeasurer()
-            val larghezza = with(LocalDensity.current) {
-                metro.measure(COUNTER_WIDEST, stile).size.width.toDp()
+            val density = LocalDensity.current
+            val larghezza = remember(metro, stile, density) {
+                with(density) { metro.measure(COUNTER_WIDEST, stile).size.width.toDp() }
             }
             Text(
                 text = "${animation.shown} / ${animation.frameCount}",

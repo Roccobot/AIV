@@ -26,6 +26,9 @@
     <string name="convert_webp">WebP</string>
     <string name="convert_webp_lossless">WebP بلا فقدان</string>
     <string name="convert_quality">الجودة</string>
+    <string name="convert_quality_at">الجودة\u0020\u0020\u0020%1$d%%</string>
+    <string name="convert_percent">%1$d%%</string>
+    <string name="convert_pixels">%1$d x %2$d</string>
     <string name="convert_size">الحجم</string>
     <string name="convert_no_alpha">صيغة JPEG لا تحفظ الشفافية: تتحول تلك المناطق إلى الأبيض.</string>
     <string name="convert_this_frame">يجري تصدير اللقطة %1$d، وهي المعروضة على الشاشة.</string>

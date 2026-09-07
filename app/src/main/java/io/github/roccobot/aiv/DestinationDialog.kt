@@ -15,7 +15,9 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CreateNewFolder
@@ -47,7 +49,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import java.io.File
 
 /**
@@ -151,9 +152,11 @@ fun DestinationDialog(
 
     Dialog(
         onDismissRequest = onDismiss,
-        // ⚠️ Senza questo un dialogo resta stretto in mezzo allo schermo, e qui dentro c'è
-        // un elenco da scorrere: la larghezza predefinita lo renderebbe una fessura.
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        // ⚠️⚠️ **LE DUE RIGHE VIVONO IN [fullWindow], DALLA `1.81`**: qui dentro c'è un elenco da
+        // scorrere (senza, il dialogo resta una fessura in mezzo allo schermo) **e** un
+        // `safeDrawingPadding()`, che fino alla `1.80` lavorava su rientri che il decoro aveva
+        // già consumato, cioè aggiungeva un margine due volte. Il perché per esteso è là.
+        properties = fullWindow()
     ) {
         BackHandler { if (!up()) onDismiss() }
 
@@ -341,7 +344,8 @@ private fun FolderShortcut(
 
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        // ⚠️ Le stesse della vista ad albero, e per le stesse due ragioni: vedi [fullWindow].
+        properties = fullWindow()
     ) {
         Surface(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
@@ -459,13 +463,22 @@ private fun NewFolderDialog(onDismiss: () -> Unit, onCreate: (String) -> Unit) {
         properties = loweredWindow(null),
         title = { Text(stringResource(R.string.dest_new)) },
         text = {
-            OutlinedTextField(
-                value = text,
-                onValueChange = { text = it },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                modifier = Modifier.fillMaxWidth()
-            )
+            // ⚠️ Lo scorrimento serve al tetto della `1.62`, come nei due dialoghi gemelli:
+            // il perché per esteso vive nel pannellino dell'estensione, in `RenameDialog.kt`.
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    // ⚠️ **La stondatura condivisa, dalla `1.81`**: era l'unico dei cinque
+                    // campi della superficie a portare quella di Material (`extraSmall`, cioè
+                    // 4) invece degli 8 di [BOX_SHAPE], e la costante è nata proprio perché i
+                    // riquadri di una stessa finestra divergevano.
+                    shape = BOX_SHAPE,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         },
         confirmButton = {
             TextButton(

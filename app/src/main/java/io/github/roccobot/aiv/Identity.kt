@@ -244,7 +244,7 @@ private fun Signature() {
                 )
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.ic_tian),
+                    imageVector = Glyphs.Tian,
                     contentDescription = null,
                     tint = ink
                 )

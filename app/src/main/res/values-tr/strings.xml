@@ -26,6 +26,9 @@
     <string name="convert_webp">WebP</string>
     <string name="convert_webp_lossless">WebP kayıpsız</string>
     <string name="convert_quality">Kalite</string>
+    <string name="convert_quality_at">Kalite\u0020\u0020\u0020%1$d%%</string>
+    <string name="convert_percent">%1$d%%</string>
+    <string name="convert_pixels">%1$d x %2$d</string>
     <string name="convert_size">Boyut</string>
     <string name="convert_no_alpha">JPEG saydamlığı korumaz: o bölümler beyaza döner.</string>
     <string name="convert_this_frame">%1$d. kare dışa aktarılıyor, ekrandaki kare.</string>

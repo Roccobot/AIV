@@ -5,7 +5,6 @@ import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,7 +46,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -963,16 +961,25 @@ fun MenuRow(
         textColor = if (danger) MaterialTheme.colorScheme.error else Color.Unspecified,
         leadingIconColor = if (danger) MaterialTheme.colorScheme.error else Color.Unspecified
     )
-    val gestures = if (onHold != null) {
-        Modifier.combinedClickable(
-            enabled = enabled,
-            onLongClickLabel = holdLabel,
-            onLongClick = withHaptics(onHold),
-            onClick = onTap
-        )
-    } else {
-        Modifier.clickable(enabled = enabled, onClick = onTap)
-    }
+    /*
+     * ⚠️⚠️ **UNA CATENA SOLA, DALLA `1.81`, E PRIMA ERANO DUE RAMI OPPOSTI** (censimento della
+     * UI del 2026-09-05): `combinedClickable` con un tocco lungo, `clickable` senza. L'unica
+     * differenza tecnica era [withHaptics], che vuole una funzione non nulla, e siccome è una
+     * funzione componibile chiamabile dentro un `let` inline non impediva niente.
+     * ⚠️ **`onLongClick` nullo non installa nessun gesto lungo**, quindi una voce senza tocco
+     * lungo si comporta come prima: quello che cambia è che il nodo che ascolta è **uno** in
+     * tutti e due i casi, che è la regola già scritta in testa a questa funzione e su
+     * [TapHoldFab] (*per avere due gesti su un comando, il nodo che ascolta dev'essere uno*).
+     * ⚠️ **La prova vive nel banco** (`MenuRowTest`), perché una modifica alla gerarchia dei
+     * tocchi può essere valida e non fare niente: là si tocca una voce e si verifica che
+     * arrivino il tocco breve e quello lungo, con e senza il secondo gesto.
+     */
+    val gestures = Modifier.combinedClickable(
+        enabled = enabled,
+        onLongClickLabel = holdLabel,
+        onLongClick = onHold?.let { withHaptics(it) },
+        onClick = onTap
+    )
     Row(
         modifier = Modifier
             .fillMaxWidth()

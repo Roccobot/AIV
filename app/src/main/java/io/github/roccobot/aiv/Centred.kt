@@ -123,6 +123,34 @@ fun loweredWindow(onOutside: (() -> Unit)?) =
     DialogProperties(dismissOnClickOutside = onOutside != null)
 
 /**
+ * Le proprietà di una finestra che copre lo schermo **intero**, barre di sistema comprese.
+ *
+ * ⚠️⚠️ **NASCE PERCHÉ I TRE `Dialog` SCRITTI IN CASA TRATTAVANO LE BARRE IN TRE MODI DIVERSI, E
+ * UNO SOLO DICEVA IL PERCHÉ** (censimento della UI del 2026-09-05). Le due righe vanno insieme e
+ * fanno due cose distinte, che è la ragione per cui una funzione sola le tiene:
+ * - `usePlatformDefaultWidth = false` toglie la larghezza di un dialogo di Material (il 90%
+ *   meno i margini): senza, un elenco da scorrere diventa una fessura e un velo si legge come
+ *   una scheda scura invece che come un velo.
+ * - `decorFitsSystemWindows = false` è quella che porta la finestra **sotto** le barre. Senza,
+ *   il decoro si adatta da sé e **consuma** i rientri, quindi un `safeDrawingPadding()` scritto
+ *   dentro lavora su quello che il decoro ha già tolto e aggiunge un margine due volte.
+ * ⚠️ **Chi la chiama tiene il contenuto nell'area sicura da sé**, con `safeDrawingPadding()`:
+ * questa dice che i rientri li gestisce il contenuto, non che non esistono. L'eccezione è un
+ * velo, che deve coprire tutto e non ha niente da rientrare.
+ * ⚠️ **È la stessa coppia che `Sheet` passa alla propria finestra**, dove il perché della
+ * seconda riga era scritto per esteso e valeva solo là.
+ *
+ * ⚠️⚠️ **E UNA FINESTRA COSÌ NON CHIAMA `WindowVeil()`: È L'ESENZIONE DICHIARATA ALLA REGOLA
+ * GENERALE** (*chi apre un `Popup` o un `Dialog` scritto in casa chiama `WindowVeil()` a mano*,
+ * `CLAUDE.md`). La ragione è che il velo dice 'mi apro **sopra** qualcosa', e qui non si vede
+ * più niente sotto: la superficie copre lo schermo intero ed è opaca, oppure **è** essa stessa
+ * un velo. Fino alla `1.80` l'assenza non era scritta da nessuna parte, cioè si leggeva come una
+ * dimenticanza invece che come una scelta, ed è la forma di difetto per cui la regola esiste.
+ */
+fun fullWindow() =
+    DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)
+
+/**
  * Dov'è l'aria, cioè quello che [LowerNode] **misura** e [OutsideNode] **legge**.
  *
  * ⚠️⚠️ **I DUE NODI SONO DUE PERCHÉ UNO SOLO NON RICEVEREBBE MAI UN TOCCO, e il fatto è
@@ -313,7 +341,17 @@ private class LowerNode(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
-        val window = windowHeight()
+        /*
+         * ⚠️⚠️ **UNA LETTURA SOLA DEI RIENTRI PER PASSATA, e fino alla `1.80` erano due**
+         * (censimento della UI del 2026-09-05): le due funzioni chiedevano due cose diverse
+         * allo stesso oggetto (i rientri sommati l'una, la visibilità della tastiera l'altra),
+         * e ognuna se lo andava a prendere da sé. Adesso lo prende chi misura e lo passa.
+         * ⚠️ **Va letto QUI e non alla costruzione del nodo**: la finestra e la tastiera
+         * cambiano fra una misurazione e l'altra, e un valore ricordato darebbe la stretta di
+         * ieri.
+         */
+        val insets = ViewCompat.getRootWindowInsets(currentValueOf(LocalView))
+        val window = windowHeight(insets)
         val air = LOWER_AIR.roundToPx()
         /*
          * ⚠️⚠️ **IL TETTO NASCE NELLA `1.62`, E TOGLIE UN TAGLIO CHE NESSUNA STRETTA POTEVA
@@ -382,7 +420,7 @@ private class LowerNode(
             box = if (constraints.hasBoundedHeight) constraints.maxHeight else 0,
             air = air
         )
-        if (climb > 0 && typing()) {
+        if (climb > 0 && typing(insets)) {
             aria.top = 0
             aria.from = placed.height
             return layout(placed.width, placed.height + climb * 2) { placed.place(0, 0) }
@@ -417,9 +455,8 @@ private class LowerNode(
      * ancora un'altezza mentre scende, e la deroga deve finire quando finisce lei, non quando
      * l'ultimo pixel è sparito.
      */
-    private fun typing(): Boolean =
-        ViewCompat.getRootWindowInsets(currentValueOf(LocalView))
-            ?.isVisible(WindowInsetsCompat.Type.ime()) == true
+    private fun typing(insets: WindowInsetsCompat?): Boolean =
+        insets?.isVisible(WindowInsetsCompat.Type.ime()) == true
 
     /**
      * L'altezza della finestra **dentro le barre di sistema**, in pixel.
@@ -450,7 +487,7 @@ private class LowerNode(
      * questo nodo misura prima che la vista sia agganciata, e uno spostamento calcolato su zero
      * sarebbe zero comunque.
      */
-    private fun windowHeight(): Int {
+    private fun windowHeight(insets: WindowInsetsCompat?): Int {
         val view = currentValueOf(LocalView)
         val whole = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             view.context.getSystemService(WindowManager::class.java)
@@ -464,7 +501,7 @@ private class LowerNode(
         // per ogni lato, quindi a tastiera chiusa il conto è identico a quello di prima e a
         // tastiera aperta il lato di sotto diventa quello della tastiera, che è più alto della
         // barra di navigazione che copre.
-        val bars = ViewCompat.getRootWindowInsets(view)?.getInsets(
+        val bars = insets?.getInsets(
             WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime()
         )
         return (whole - (bars?.top ?: 0) - (bars?.bottom ?: 0)).coerceAtLeast(0)

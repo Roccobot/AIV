@@ -471,7 +471,7 @@ private fun SpotActions(
                 PadAction(PadKey.RENAME, Glyphs.TextCursor, R.string.pick_rename) {
                     onJob(FileJob.Rename(one))
                 },
-                PadAction(PadKey.DELETE, Glyphs.PickDelete, R.string.pick_delete, danger = true) {
+                PadAction(PadKey.DELETE, Glyphs.PickDelete, R.string.pick_delete) {
                     // ⚠️ Col cestino spento si cancella per sempre, e `forGood` porta con sé
                     // la conferma: vedi [FileJob.Delete].
                     onJob(FileJob.Delete(one, forGood = !binOn))

@@ -37,7 +37,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -354,7 +354,13 @@ fun Sheet(
                         )
                         IconButton(onClick = chiudi, modifier = Modifier.size(SHEET_SHUT)) {
                             Icon(
-                                imageVector = Icons.Outlined.Close,
+                                /*
+                                 * ⚠️ **Piena e non di contorno, dalla `1.81`**: era l'unica
+                                 * croce di contorno dell'app, e la differenza fra le due
+                                 * grafie non distingueva niente (anche questa chiusura è
+                                 * un'azione, come le altre cinque).
+                                 */
+                                imageVector = Icons.Default.Close,
                                 // ⚠️ Descritta col nome che il tasto aveva quando era una
                                 // parola: chi la sente leggere sente 'Chiudi', come prima.
                                 contentDescription = stringResource(R.string.pick_close)

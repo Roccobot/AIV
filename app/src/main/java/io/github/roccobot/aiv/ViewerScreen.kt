@@ -111,7 +111,6 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -457,7 +456,7 @@ fun ViewerScreen(
      */
     var barOpen by remember { mutableStateOf(false) }
     if (barOpen) {
-        InfoBarPopup(
+        InfoBarDialog(
             settings = settings,
             onChange = onInfoBar,
             onDismiss = { barOpen = false }
@@ -748,6 +747,24 @@ fun ViewerScreen(
      * ⚠️ La scacchiera è anche il motivo per cui non basta un colore di fondo sul `Box`:
      * dipinta qui, resta identica in tutti e tre gli stati, che è l'unica definizione
      * utile di 'non lampeggia'.
+     *
+     * ⚠️⚠️ **SI RIDIPINGE INTERA A OGNI FOTOGRAMMA DI UN VELO CHE SALE O SCENDE, E RESTA COSÌ
+     * DI PROPOSITO** (censimento della UI del 2026-09-05: rilievo confermato, e il rimedio che
+     * propone **non funziona**). Il meccanismo è vero: la dose del velo è uno stato letto dentro
+     * la lambda di disegno della radice, quindi mentre un velo si muove questo disegno si rifà,
+     * e con lui il migliaio di rettangoli. Due misure dicono perché non si tocca:
+     * - **Si paga solo con 'Sfocatura dietro i pannelli' ACCESA**, e prima della `1.80` era
+     *   spenta di fabbrica: a interruttore spento nessuno scrive la mappa delle richieste,
+     *   quindi non c'è nessuna invalidazione da evitare.
+     * - **Separare i due disegni non basta**: la grana dell'invalidazione è il **nodo di
+     *   disegno**, e velo e scacchiera vivono nello stesso, quindi spostare la scacchiera in un
+     *   `drawBehind` accanto lascerebbe l'invalidazione dov'è. Toglierla di là dentro vorrebbe
+     *   dire un livello grafico a sé (un `graphicsLayer` da mille rettangoli tenuto in memoria
+     *   grafica), cioè scambiare fotogrammi con memoria su una schermata che apre immagini da
+     *   trenta megapixel.
+     * ⚠️ **Chi ci tornasse misuri prima il caso vero**: un velo dura poco più di un decimo di
+     * secondo, e quello che si guadagnerebbe sono pochi fotogrammi di un'animazione, non un
+     * costo che si paga sfogliando.
      */
     val density = LocalDensity.current
     val checkerPx = with(density) { CHECKER.toPx() }
@@ -1091,7 +1108,7 @@ private class MenuOps(
  * quello che si vede.
  */
 @Composable
-private fun InfoBarPopup(
+private fun InfoBarDialog(
     settings: Settings,
     onChange: (Boolean, InfoPosition) -> Unit,
     onDismiss: () -> Unit
@@ -2349,6 +2366,23 @@ private fun ImageCanvas(
             offset = clampOffset(corrected + pan, clamped)
         }
 
+        /*
+         * ⚠️⚠️ **LA SPECIFICA NON SI SCRIVE, ED È UNA SCELTA: qui vale quella di serie**
+         * (censimento della UI del 2026-09-05, che segnala questi punti come *le uniche
+         * animazioni senza specifica dichiarata*; il fatto è vero, il rimedio no). Il valore
+         * di serie di `animateTo` è la molla di Compose, cioè un movimento che si può
+         * interrompere e riprendere a metà: è esattamente quello che serve a uno zoom, dove un
+         * secondo doppio tocco arriva mentre il primo è ancora in corsa.
+         * ⚠️⚠️ **RISCRIVERLA A MANO SAREBBE UN PEGGIORAMENTO**, e la regola citata dal rilievo
+         * dice un'altra cosa: quella nasce in `ActionPad.kt` per **un** gesto che aveva due
+         * definizioni in due schermate vicine, cioè vieta di scrivere due volte lo stesso
+         * movimento, non di usare un valore di serie. Copiare qui i numeri della molla di
+         * fabbrica creerebbe la copia che quella regola vieta, e la prima a divergere sarebbe la
+         * nostra il giorno che la libreria li ritocca.
+         * ⚠️ **Quello che invece si dichiara è il movimento CHIESTO**: la strisciata ha [SNAP_MS]
+         * perché la sua durata l'ha dettata lui, e il volo dopo un trascinamento ha il proprio
+         * decadimento. Le animazioni senza numeri sono quelle di cui nessuno ha mai parlato.
+         */
         fun animateTo(target: Float) {
             stopGlide()
             scope.launch {
@@ -3157,7 +3191,7 @@ private fun ImageMenu(
                             ops.job(FileJob.Transfer(one, move = true))
                         }
                 val elimina =
-                        PadAction(PadKey.DELETE, Glyphs.PickDelete, R.string.pick_delete, danger = true) {
+                        PadAction(PadKey.DELETE, Glyphs.PickDelete, R.string.pick_delete) {
                             menu.close()
                             // ⚠️ Definitiva nel cestino **o** col cestino spento, ed è la
                             // stessa condizione della griglia: con lei viaggia la conferma.
@@ -3540,7 +3574,7 @@ private fun NameLine(name: String) {
          */
         val tall = with(LocalDensity.current) { (style.fontSize.toPx() * MARK_TALL).toDp() }
         Icon(
-            painter = painterResource(R.drawable.ic_aiv_mark),
+            imageVector = Glyphs.AivMark,
             /*
              * ⚠️ **Nessuna descrizione, ed è la scelta giusta**: questo non dice niente
              * dell'immagine che si sta guardando, dice di che app è la schermata. Un lettore

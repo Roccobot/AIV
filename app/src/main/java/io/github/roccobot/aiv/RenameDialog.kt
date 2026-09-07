@@ -560,7 +560,15 @@ private fun ExtensionDialog(
         properties = loweredWindow(null),
         title = { Text(stringResource(R.string.rename_ext)) },
         text = {
-            Column {
+            /*
+             * ⚠️⚠️ **LO SCORRIMENTO SERVE AL TETTO DELLA `1.62`, e fino alla `1.80` non c'era**
+             * (censimento della UI del 2026-09-05): il tetto dà a una superficie centrata un
+             * massimo pari alla finestra meno l'aria, e la nota che lo introduce dà per
+             * acquisito che il contenuto porti già uno scorrimento dentro di sé. Qui non
+             * c'era, quindi a tastiera aperta, dove il tetto scende ancora, la nota sotto il
+             * campo veniva tagliata **senza modo di raggiungerla**.
+             */
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 OutlinedTextField(
                     value = typed,
                     // ⚠️ Si filtra mentre si scrive invece di validare dopo: qui dentro va

@@ -357,6 +357,42 @@ object Glyphs {
     val ViewList: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_view_list)
 
+    /**
+     * La A di AIV senza la piastrella: il marchio che firma una superficie.
+     *
+     * ⚠️⚠️ **NON È QUADRATO, ed è il solo del catalogo**: la sua tela è il riquadro dei due
+     * tracciati, 70 x 60, quindi chi lo disegna gli dà **larghezza e altezza** e non un lato
+     * solo, o lo schiaccia su un asse. I due chiamanti lo fanno già (il marchio sul FAB della
+     * schermata iniziale e quello in coda al nome nella barra delle info).
+     * ⚠️ **Entra nel catalogo con la `1.81`**, e fino alla `1.80` i due chiamanti lo leggevano
+     * per identificatore di risorsa: cioè lo stesso disegno era chiamato in due modi, e chi
+     * cercava dove vive un'icona dell'app in questo file non lo trovava (censimento della UI
+     * del 2026-09-05).
+     */
+    val AivMark: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_aiv_mark)
+
+    /** La cartella col marchio dell'app: l'icona del frontespizio di una cartella. */
+    val FolderAiv: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_folder_aiv)
+
+    /**
+     * Il glifo che firma il piede della schermata delle informazioni.
+     *
+     * ⚠️ **Si disegna dentro una riga di testo** (`InlineTextContent`), quindi la misura gliela
+     * dà il `Placeholder` del chiamante e non questo file.
+     */
+    val Tian: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_tian)
+
+    /*
+     * ⚠️⚠️ **`ic_launcher_foreground.xml` NON ENTRA QUI, e non è una dimenticanza**: quello è
+     * l'icona dell'app, si disegna con `Image` sopra il proprio fondo colorato e **non è
+     * tinto**, cioè non è un'icona di comando. Questo catalogo espone disegni che `Icon`
+     * colora col colore del contenuto, e un `ImageVector` letto da qui inviterebbe a
+     * trattarlo come gli altri. Il suo chiamante è `Identity.kt`, che lo dichiara.
+     */
+
     /** La griglia di Material: ogni icona del sistema è disegnata dentro un 24x24. */
     private const val GRID = 24f
 

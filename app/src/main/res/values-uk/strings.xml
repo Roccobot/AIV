@@ -26,6 +26,9 @@
     <string name="convert_webp">WebP</string>
     <string name="convert_webp_lossless">WebP без втрат</string>
     <string name="convert_quality">Якість</string>
+    <string name="convert_quality_at">Якість\u0020\u0020\u0020%1$d%%</string>
+    <string name="convert_percent">%1$d%%</string>
+    <string name="convert_pixels">%1$d x %2$d</string>
     <string name="convert_size">Розмір</string>
     <string name="convert_no_alpha">JPEG не зберігає прозорість: ці ділянки стануть білими.</string>
     <string name="convert_this_frame">Експортується кадр %1$d, той, що на екрані.</string>

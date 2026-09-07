@@ -50,7 +50,7 @@ internal fun CasaVuota() {
         factFields = emptyList(),
         onTreePath = {},
         onTreeOpen = { _, _ -> },
-        onBack = null,
+        forStart = false,
         buckets = emptyList(),
         onRead = {}
     )

@@ -26,6 +26,9 @@
     <string name="convert_webp">WebP</string>
     <string name="convert_webp_lossless">WebP 可逆</string>
     <string name="convert_quality">画質</string>
+    <string name="convert_quality_at">画質\u0020\u0020\u0020%1$d%%</string>
+    <string name="convert_percent">%1$d%%</string>
+    <string name="convert_pixels">%1$d x %2$d</string>
     <string name="convert_size">サイズ</string>
     <string name="convert_no_alpha">JPEG は透明部分を保持できません。その部分は白くなります。</string>
     <string name="convert_this_frame">表示中のコマ %1$d を書き出します。</string>

@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -203,9 +205,22 @@ fun AddressDialog(
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    // ⚠️ Un tetto all'altezza, non al numero: se ne tengono otto, e otto
-                    // righe intere spingerebbero i tasti del dialogo fuori dai telefoni
-                    // bassi. Scorrendo ci sono tutte.
+                    /*
+                     * ⚠️ Un tetto all'altezza, non al numero: se ne tengono otto, e otto
+                     * righe intere spingerebbero i tasti del dialogo fuori dai telefoni
+                     * bassi. Scorrendo ci sono tutte.
+                     * ⚠️⚠️ **E IL TETTO FA UNA SECONDA COSA, CHE FINO ALLA `1.80` NON ERA
+                     * SCRITTA: TIENE IN PIEDI LO SCORRIMENTO ANNIDATO** (censimento della UI
+                     * del 2026-09-05). Questa colonna scorre **dentro** il corpo di un
+                     * `AlertDialog`, che scorre già: due scorrimenti annidati sullo stesso
+                     * asse misurano il contenuto interno con altezza **infinita**, e
+                     * `checkScrollableContainerConstraints` va in errore (è il crash della
+                     * `1.38`, scritto in testa a `Sheet.kt`). A salvarlo è l'ordine dei
+                     * modificatori: `heightIn` **precede** `verticalScroll`, quindi il vincolo
+                     * che arriva allo scorrimento interno è finito. ⚠️ **Chi togliesse il
+                     * tetto per una ragione di disegno rimetterebbe quel crash**, e non se ne
+                     * accorgerebbe leggendo il commento di prima, che parlava dei tasti.
+                     */
                     Column(
                         modifier = Modifier.heightIn(max = 180.dp).verticalScroll(rememberScrollState())
                     ) {
@@ -213,12 +228,30 @@ fun AddressDialog(
                             TextButton(
                                 onClick = { go(entry.address.toUri()) },
                                 enabled = !busy,
+                                /*
+                                 * ⚠️⚠️ **ALLINEATO A SINISTRA E COL COLORE DEL TESTO, DALLA
+                                 * `1.81`** (censimento della UI del 2026-09-05): un `TextButton`
+                                 * centra il proprio contenuto e lo tinge di accento, quindi
+                                 * questo elenco era centrato e colorato mentre gli altri due
+                                 * della stessa finestra sono righe di testo a sinistra. Un
+                                 * elenco di voci da toccare si legge nello stesso modo in tutta
+                                 * la superficie, e l'accento come inchiostro di parole è sotto
+                                 * la soglia di contrasto (vedi `accentInk` in `Theme.kt`).
+                                 * ⚠️ **Resta un pulsante**: il ruolo e il bersaglio non
+                                 * cambiano, cambia dove cade il testo dentro di lui.
+                                 */
+                                colors = ButtonDefaults.textButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.onSurface
+                                ),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(
                                     text = entry.name.ifBlank { entry.address },
                                     maxLines = 1,
-                                    style = MaterialTheme.typography.bodyMedium
+                                    overflow = TextOverflow.Ellipsis,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    textAlign = TextAlign.Start,
+                                    modifier = Modifier.fillMaxWidth()
                                 )
                             }
                         }
