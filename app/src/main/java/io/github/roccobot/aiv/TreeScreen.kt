@@ -40,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -116,7 +117,10 @@ fun TreeList(
     /** La riga su cui è aperto il riquadro delle azioni, e `null` quando non è aperto. */
     var acting by remember { mutableStateOf<Tree.Spot?>(null) }
     val menu = rememberMenuState()
-    var job by remember { mutableStateOf<FileJob?>(null) }
+    // ⚠️ Salvabile dalla `1.81`, come nelle altre due schermate che chiamano `FileJobDialogs`:
+    // ruotando, la finestra aperta si chiudeva e con lei quello che si stava scrivendo. Che cosa
+    // si salva e che cosa no sta su `FileJobSaver`.
+    var job by rememberSaveable(stateSaver = FileJobSaver) { mutableStateOf<FileJob?>(null) }
 
     /**
      * ⚠️ **Chiude il riquadro PRIMA di lanciare**, come nella griglia: il lavoro vive

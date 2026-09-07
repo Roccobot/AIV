@@ -27,6 +27,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -272,6 +274,78 @@ sealed interface FileJob {
     class Duplicate(override val uris: List<Uri>) : FileJob
     class Facts(override val uris: List<Uri>) : FileJob
 }
+
+/**
+ * Come un lavoro **sopravvive a una rotazione**, cioè al fatto che l'attività si ricrei.
+ *
+ * ⚠️⚠️ **NASCE NELLA `1.81` DA UN DIFETTO CHE LUI HA SEGNALATO**: *ruotando si chiude la
+ * finestra aperta e con lei quello che stavi scrivendo*. La causa è che questo stato viveva in
+ * un `remember` in ognuna delle tre schermate che chiamano [FileJobDialogs]: quel ricordo muore
+ * con la composizione, e una rotazione la rifà da zero. Con un salvatore lo stato passa dal
+ * `Bundle` del sistema e la finestra si riapre dov'era.
+ * ⚠️ **Gli indirizzi si salvano da sé**: un `Uri` è `Parcelable`, quindi il `Bundle` lo scrive
+ * senza che nessuno lo trasformi in stringa e lo ricomponga (che è il punto in cui si perde uno
+ * schema o un permesso).
+ *
+ * ⚠️⚠️ **I LAVORI CHE PARTONO DA SÉ NON SI RIPRISTINANO, E NON È UNA DIMENTICANZA: RIPRISTINARLI
+ * LI FAREBBE RIFARE.** Il ripristino, la duplicazione e l'eliminazione col cestino attivo non
+ * hanno una finestra da riaprire: partono da un `LaunchedEffect` sulla chiave del lavoro, quindi
+ * un lavoro rimesso in scena dopo la rotazione farebbe partire l'operazione **una seconda
+ * volta**, cioè un file duplicato due volte o due giri di cestino. Quelli si salvano come
+ * 'niente': l'operazione era già in corso quando il telefono ha girato, e chi la sta facendo è
+ * l'ambito del modello, che alla rotazione non muore.
+ * ⚠️ **Quindi qui si salvano le sole finestre**: la destinazione di 'Copia' e 'Sposta', la
+ * rinomina, la conferma di un'eliminazione definitiva e la scheda delle informazioni.
+ */
+internal val FileJobSaver: Saver<FileJob?, Any> = listSaver(
+    save = { job ->
+        when (job) {
+            null -> emptyList()
+            is FileJob.Transfer -> listOf(TRANSFER, job.move) + job.uris
+            is FileJob.Rename -> listOf(RENAME, false) + job.uris
+            is FileJob.Delete -> if (job.forGood) listOf(DELETE, true) + job.uris else emptyList()
+            is FileJob.Facts -> listOf(FACTS, false) + job.uris
+            is FileJob.Restore, is FileJob.Duplicate -> emptyList()
+        }
+    },
+    restore = { salvato ->
+        val quale = salvato.getOrNull(0) as? String
+        val flag = salvato.getOrNull(1) as? Boolean ?: false
+        val uris = salvato.drop(2).filterIsInstance<Uri>()
+        when (quale) {
+            TRANSFER -> FileJob.Transfer(uris, move = flag)
+            RENAME -> FileJob.Rename(uris)
+            DELETE -> FileJob.Delete(uris, forGood = true)
+            FACTS -> FileJob.Facts(uris)
+            else -> null
+        }
+    }
+)
+
+/**
+ * Come un insieme di indirizzi sopravvive a una rotazione.
+ *
+ * ⚠️ **Sta qui accanto a [FileJobSaver] e non nella griglia**, che è il suo unico chiamante di
+ * oggi: sono la stessa idea (uno stato di indirizzi che deve attraversare la ricreazione
+ * dell'attività), e la seconda schermata che ne avesse bisogno lo troverebbe scritto una volta.
+ * ⚠️ **Un `Set` il `Bundle` non lo scrive, una lista di `Uri` sì**, perché un `Uri` è
+ * `Parcelable`: quindi si passa da una lista e a rientrare è di nuovo un insieme. L'ordine che
+ * la lista impone non conta.
+ */
+internal val UriSetSaver: Saver<Set<Uri>, Any> = listSaver(
+    save = { it.toList() },
+    restore = { it.toSet() }
+)
+
+/*
+ * ⚠️ **Etichette scritte a mano e non `nomeDellaClasse`**: un nome di classe cambia con una
+ * rinomina del codice, e quello che qui si scrive finisce in un `Bundle` che il sistema può
+ * restituire dopo un aggiornamento dell'app. È lo stesso criterio dei token delle impostazioni.
+ */
+private const val TRANSFER = "transfer"
+private const val RENAME = "rename"
+private const val DELETE = "delete"
+private const val FACTS = "facts"
 
 /**
  * Le quattro operazioni che toccano i file, con quello che di ognuna serve sapere dopo.
