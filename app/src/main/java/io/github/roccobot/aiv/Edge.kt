@@ -65,7 +65,11 @@ import androidx.compose.ui.unit.dp
  *   quello che ha sotto; il bordo dice *sono una superficie di questa app*, e quello vale anche
  *   per chi non copre niente.
  * - **Quindi il bordo ce l'hanno**: i menu, i dialoghi, la scheda delle informazioni, la scheda
- *   della selezione e il pannello dei comandi dell'editor. Le ultime due restano senza velo.
+ *   della selezione, il pannello dei comandi dell'editor e la notifica di 'Annulla'. Le ultime
+ *   tre restano senza velo.
+ * - ⚠️ **La notifica mancava da questo elenco fino alla `1.78`**, benché il bordo lo prenda
+ *   dalla `1.69` e il suo KDoc lo rivendichi: l'elenco si controlla cercando i chiamanti dei
+ *   due modificatori qui sotto, che è la sola misura che non invecchia.
  */
 fun Modifier.edged(round: Dp): Modifier = this then EdgeElement(round, fuori = false)
 
@@ -210,3 +214,21 @@ private val EDGE = 2.dp
  *   difetto c'era.
  */
 private const val SCONFINA = 0.5f
+
+/**
+ * Il raggio di un **pannello**: i dialoghi e le tre schede appoggiate al bordo di sotto.
+ *
+ * ⚠️⚠️ **ERA SCRITTO IN QUATTRO POSTI FINO ALLA `1.78`, e il precedente dice come finisce**:
+ * `SHEET_CORNER` nella scheda della selezione, `SHEET_ROUND` in quella delle informazioni e in
+ * quella dell'editor, e un `28.dp` dentro il modificatore dei dialoghi. La `1.28` ha già fatto
+ * questa strada coi menu: fino alla `1.27` ogni menu portava il suo numero, ed erano diventati
+ * **tre** diversi (8, 8 e 16), nati come 'dipende dalla forma del contenuto', che è una ragione
+ * plausibile e sbagliata. Uno stondamento dice **che cosa è** quella superficie, non quanto è
+ * larga.
+ * ⚠️ **28 e non 20 come i menu**: 28 è `shapes.extraLarge`, cioè la forma che Material dà a un
+ * `AlertDialog`, e i menu stanno a 20 apposta per non confondersi con un pannello.
+ * ⚠️ **Vive qui perché il bordo d'accento ha bisogno dello stesso numero**: due riquadri
+ * stondati concentrici hanno raggi diversi, e il conto che li lega sta in questo file. Con il
+ * raggio scritto altrove, il tratto e il pannello potevano divergere senza che niente lo dicesse.
+ */
+val PANEL_ROUND = 28.dp

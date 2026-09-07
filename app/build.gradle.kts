@@ -235,7 +235,13 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
+    /*
+     * ⚠️ **QUI C'ERA `ui-tooling-preview` FINO ALLA `1.78`, ed era una dipendenza di RELEASE per
+     * una cosa che il progetto non usa**: serve all'annotazione `@Preview`, e in `app/src` non
+     * ce n'è nemmeno una. Ci restava lo strumento di anteprima di sola prova (`debugImplementation`
+     * qui sotto), che è la metà giusta. Chi scrive una `@Preview` la rimetta, ⚠️ **ma come
+     * `debugImplementation`**: un'anteprima non serve all'APK che si pubblica.
+     */
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
 

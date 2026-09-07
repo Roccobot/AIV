@@ -481,13 +481,13 @@ data class Settings(
      * la disattiviamo di default*). Cambiare l'estensione **non converte niente**: lascia
      * dentro un JPEG con l'etichetta di un PNG, e su un'estensione non multimediale il file
      * sparisce dalle viste a griglia e a lista, che è il modo peggiore di perdere una
-     * fotografia, perché sembra cancellata.
+     * immagine, perché sembra cancellata.
      * ⚠️ **Ma la funzione serve, e per questo non è stata tolta**: il caso vero è il suo
      * (*a volte mi capita di dover rinominare un .svg in .txt perché l'app Claude non è in
      * grado di allegare file .svg in chat*), cioè aggirare il filtro di un'altra app.
      * ⚠️ **Tre presidi e non uno**: questo interruttore, il paragrafo che sta sotto di lui
      * nelle impostazioni, e il velo che compare la **prima volta** che si apre quel
-     * pannellino (vedi `Hint.EXT_EDIT`). Il primo tiene fuori chi non la cerca, il terzo
+     * pannellino (vedi [Hint.EXT_WARN]). Il primo tiene fuori chi non la cerca, il terzo
      * avvisa chi la cerca senza sapere che cosa comporta.
      */
     val extEdit: Boolean = false,
@@ -984,7 +984,11 @@ object FolderAsk {
 }
 
 /**
- * I mini onboarding del tocco lungo sul tastino, e se si sono già visti.
+ * I mini onboarding dell'app, e se si sono già visti.
+ *
+ * ⚠️ **Non parlano tutti del tocco lungo sul FAB, e fino alla `1.78` questa riga diceva così**:
+ * due dei quattro nascono altrove, uno sull'immagine intera (il doppio tocco dello zoom) e uno
+ * dentro la finestra di rinomina (l'avviso sulle estensioni), come i loro KDoc dichiarano.
  *
  * ⚠️⚠️ **Stanno qui e NON in [Settings], e la differenza non è di comodo**: `Settings` è
  * quello che l'utente sceglie e ritrova nella schermata delle impostazioni, questi sono
@@ -1021,8 +1025,8 @@ enum class Hint(token: String) {
      *
      * ⚠️⚠️ **NASCE COME CONTROPARTITA DI UNA RIMOZIONE** (richiesta dell'utente, 2026-09-02):
      * 'Adatta alla vista' e '100%' escono dal menu a pressione lunga, e senza un avviso il
-     * doppio tocco resterebbe un gesto che nessuno sa di avere. È il primo velo che non
-     * insegna una **scorciatoia**: insegna l'unico modo rimasto.
+     * doppio tocco resterebbe un gesto che nessuno sa di avere. Non insegna una
+     * **scorciatoia**: insegna l'unico modo rimasto.
      * ⚠️ **È anche il primo che non evidenzia un FAB**, perché il gesto si fa sull'immagine
      * intera: da qui `HintCentre` invece di `HintVeil`.
      */
@@ -1037,8 +1041,8 @@ enum class Hint(token: String) {
      * deve apparire un mini-onboarding in mezzo allo schermo*), e gli altri due sono
      * l'interruttore spento di fabbrica e il paragrafo che lo accompagna (vedi
      * [Settings.extEdit]).
-     * ⚠️⚠️ **È IL PRIMO VELO CHE NON INSEGNA UNA SCORCIATOIA: AVVISA.** Gli altri dicono
-     * 'esiste anche questo', questo dice 'attento a che cosa comporta'. Da qui il testo
+     * ⚠️⚠️ **È IL SOLO VELO CHE AVVISA, e non insegna niente.** Gli altri dicono 'esiste anche
+     * questo' o 'si fa così', questo dice 'attento a che cosa comporta'. Da qui il testo
      * con due punti esclamativi invece di una frase sola, e il fatto che compaia **prima** che
      * il pannellino si apra: un avviso dopo il gesto non è un avviso.
      * ⚠️ **Non ha bisogno di un secondo interruttore**: chi ha acceso la funzione ha già letto

@@ -5,7 +5,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -70,7 +69,6 @@ import kotlinx.coroutines.launch
  * della rinomina vera: se l'anteprima ordinasse per conto suo, mostrerebbe un abbinamento
  * che poi non succede.
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RenameDialog(
     uris: List<Uri>,

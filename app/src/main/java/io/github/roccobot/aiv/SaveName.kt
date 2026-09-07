@@ -2,7 +2,6 @@ package io.github.roccobot.aiv
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
@@ -64,7 +63,6 @@ import java.time.format.DateTimeFormatter
  * @param onSave riceve il nome senza suffisso **e** il suffisso scelto, col punto: a rimetterli
  *   insieme ci pensa chi salva, perché è lui a sapere che cosa dichiarare al `MediaStore`.
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SaveNameDialog(
     full: String,

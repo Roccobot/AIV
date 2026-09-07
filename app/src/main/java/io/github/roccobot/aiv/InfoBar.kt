@@ -1,7 +1,6 @@
 package io.github.roccobot.aiv
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -73,7 +72,6 @@ fun infoSideName(side: InfoPosition): String = stringResource(
  *   valore sotto non si perde**: `infoPosition` resta scritto a barra spenta, così
  *   riaccendendola si ritrova il lato che si era scelto.
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun InfoSideRow(
     selected: InfoPosition,

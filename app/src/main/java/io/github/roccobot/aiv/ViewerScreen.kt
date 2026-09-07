@@ -50,7 +50,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.VolumeUp
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Share
@@ -58,7 +57,6 @@ import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.FitScreen
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.PhotoSizeSelectActual
-import androidx.compose.material.icons.outlined.Subtitles
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
@@ -3295,11 +3293,11 @@ private fun DetailsPanel(
  * ⚠️⚠️ **È [fitName], lo stesso di GRIGLIA E PASTIGLIA, e non un accorciamento nuovo**: qui
  * bastava un `TextOverflow.Ellipsis`, ma quello mette i tre punti alla **fine**, cioè mangia
  * l'estensione, che è la parte che dice che cosa si sta guardando ed è la sola che l'utente ha
- * chiesto di non perdere mai. Un'ellissi in mezzo Compose non ce l'ha: è misurata là dentro, e
- * questo posto è il terzo che la usa.
+ * chiesto di non perdere mai. `TextOverflow.MiddleEllipsis` esiste e non basta: il perché è
+ * misurato là dentro, e questo posto è il terzo che usa [fitName].
  * ⚠️ **Una riga sola** (`lines = 1`), che è la differenza con gli altri due: la pastiglia del
  * dialogo ne concede tre e la griglia due, perché là il nome è il contenuto; qui è la testatina
- * di una riga di dati, e una seconda riga la farebbe crescere sopra la fotografia.
+ * di una riga di dati, e una seconda riga la farebbe crescere sopra l'immagine.
  * ⚠️ **L'estensione in grassetto anche qui**, e non per decorazione: è l'accorgimento che
  * distingue i tre punti dell'ellissi dal punto dell'estensione, e cambiarlo in un posto solo
  * vorrebbe dire che lo stesso nome si legge in due modi in due schermate.

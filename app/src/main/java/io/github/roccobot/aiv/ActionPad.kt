@@ -471,8 +471,8 @@ fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (In
              * *le bottomsheet non stanno bene con la riga intorno*): resta la cima con i due
              * archi, e i fianchi finiscono fuori dallo schermo. Il perché sta su `edgedTop`.
              */
-            modifier = Modifier.edgedTop(SHEET_CORNER),
-            shape = RoundedCornerShape(topStart = SHEET_CORNER, topEnd = SHEET_CORNER),
+            modifier = Modifier.edgedTop(PANEL_ROUND),
+            shape = RoundedCornerShape(topStart = PANEL_ROUND, topEnd = PANEL_ROUND),
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
             /*
              * ⚠️⚠️ **NIENTE OMBRA DALLA 1.40, e il difetto era misurabile** (richiesta
@@ -1037,8 +1037,6 @@ fun fabSide(): Alignment =
  */
 internal const val SHEET_COLUMNS = 5
 
-/** Lo smusso dei due angoli alti del pannello, che è quello di una bottomsheet Material. */
-private val SHEET_CORNER = 28.dp
 
 /**
  * Lo smusso del tastino quadrato, uguale in tutte le schermate.
