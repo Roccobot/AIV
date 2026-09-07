@@ -167,6 +167,10 @@
         <item quantity="one">%1$d అంశం</item>
         <item quantity="other">%1$d అంశాలు</item>
     </plurals>
+    <plurals name="items_count">
+        <item quantity="one">%1$d అంశం</item>
+        <item quantity="other">%1$d అంశాలు</item>
+    </plurals>
     <plurals name="pick_facts">
         <item quantity="one">%1$d ఫైలులో %2$s</item>
         <item quantity="other">%1$d ఫైళ్ళలో %2$s</item>
@@ -385,7 +389,7 @@
     <string name="settings_editor_backup">పైన రాసే ముందు భద్రతా నకలు</string>
     <string name="settings_editor_backup_desc">సంపాదకి ఒక చిత్రంపై రాయకముందు, దాని నకలును చెత్తబుట్టలో భద్రపరుస్తుంది; అక్కడి నుంచి తిరిగి తెచ్చుకోవచ్చు. అవసరం లేకపోతే తర్వాతి \'చెత్తబుట్ట ఖాళీ చేయి\'లో తొలగిపోతుంది.</string>
     <string name="settings_save_rename">భద్రపరిచేటప్పుడు పేరు మార్చనివ్వండి</string>
-    <string name="settings_save_rename_desc">చిత్రాలు ఎప్పుడూ Downloads ఫోల్డర్‌కే వెళ్తాయి. ఇది ఆన్‌లో ఉంటే \'భద్రపరచండి\' ముందుగా పేరు అడుగుతుంది; ఆఫ్‌లో ఉంటే \'భద్రపరచండి\' నొక్కి పట్టుకుంటే ఆ ఒక్కసారి మాత్రమే అడుగుతుంది.</string>
+    <string name="settings_save_rename_desc">అప్రమేయంగా అన్ని ఫైళ్లు వాటి అసలు పేరుతోనే Downloads ఫోల్డర్‌కు వెళ్తాయి. ప్రతి డౌన్‌లోడ్‌కు భద్రపరిచే పేరును నిర్ణయించడానికి దీన్ని ఆన్ చేయండి. ఆఫ్‌లో ఉంచినా, అవసరమైనప్పుడు ఆ ఒక్కసారి మాత్రమే ఆన్ చేయడానికి \'భద్రపరచండి\' నొక్కి పట్టుకోండి.</string>
     <string name="editor_tall">నిలువు</string>
     <string name="editor_wide">అడ్డం</string>
     <string name="pick_cleared">ఏ ఫైలూ ఎంపిక కాలేదు.</string>

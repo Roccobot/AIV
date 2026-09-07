@@ -10,12 +10,15 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -136,6 +139,84 @@ class FrontespizioTest {
     }
 
     /**
+     * **Cominciare una selezione non chiude il frontespizio.**
+     *
+     * ⚠️⚠️ **QUESTO DIFETTO È ARRIVATO A LUI, e la prova torna con la correzione, nella stessa
+     * versione** (`CLAUDE.md`, § '🧪 Quando si scrive una prova, e quando no'). La `1.76`
+     * chiudeva la fascia appena la selezione cominciava, e la sua segnalazione dice il danno
+     * meglio di qualunque riformulazione: *appena si tocca a lungo per iniziare a selezionare, lo
+     * spostamento delle miniature in alto fa già selezionare più elementi a causa dello
+     * spostamento repentino mentre si tiene premuto*.
+     * ⚠️ **Si misura la prima miniatura e non la fascia**, per la stessa ragione dell'altra prova:
+     * quello che faceva danno era il movimento **delle miniature** sotto un dito appoggiato.
+     * ⚠️ **La prima asserzione non è un contorno**: senza di lei, un tocco lungo che non
+     * cominciasse nessuna selezione passerebbe la seconda a mani vuote, cioè la prova direbbe di
+     * sì senza aver provato niente.
+     */
+    @Test
+    fun `la selezione non chiude il frontespizio`() {
+        banco.setContent { Scena() }
+        banco.waitForIdle()
+
+        val prima = riquadro()
+        val bersaglio = requireNotNull(miniature()[1]) { "Nessuna miniatura da tenere premuta" }
+        banco.onRoot().performTouchInput { longClick(bersaglio.center) }
+        banco.waitForIdle()
+
+        val uno = app.resources.getQuantityString(R.plurals.pick_count, 1, 1)
+        assertTrue(
+            "Il tocco lungo non ha cominciato nessuna selezione: il conto '$uno' non c'è",
+            banco.onAllNodesWithText(uno).fetchSemanticsNodes().isNotEmpty()
+        )
+
+        assertEquals(
+            "La prima miniatura si è spostata cominciando la selezione: il frontespizio si chiude",
+            prima,
+            riquadro(),
+            FERMO
+        )
+    }
+
+    /**
+     * **Il conto sta sotto il titolo, in testata e nella fascia.**
+     *
+     * ⚠️⚠️ **È LA SUA SPECIFICA ALLA LETTERA**: *il numero di elementi (non immagini) totali /
+     * selezionati dev'essere indicato sotto il titolo*. Prima della `1.78` il conto viveva **al
+     * posto** del titolo in testata, e con la fascia aperta non aveva posto affatto.
+     * ⚠️⚠️ **LE DUE COPIE SI ACCOPPIANO PER POSIZIONE, e non si guarda la sola presenza**: il
+     * nome e il conto stanno due volte nell'albero (la fascia e la testata si dissolvono l'una
+     * nell'altra), quindi una prova che cercasse solo il testo passerebbe anche con il conto
+     * messo **sopra** il titolo, che è l'errore che questa prova esiste per prendere.
+     * ⚠️ **Dice 'elementi' e non 'immagini'**, che è l'altra metà della sua richiesta (*non va
+     * più bene da quando ci sono anche i video*): la stringa si chiede alle risorse, quindi la
+     * prova non ricopia il testo e vale in tutte le lingue.
+     */
+    @Test
+    fun `il conto sta sotto il titolo`() {
+        banco.setContent { Scena() }
+        banco.waitForIdle()
+
+        val quanti = app.resources.getQuantityString(R.plurals.items_count, FOTO.size, FOTO.size)
+        val titoli = banco.onAllNodesWithText(TITOLO).fetchSemanticsNodes()
+            .map { it.boundsInRoot }.sortedBy { it.top }
+        val conti = banco.onAllNodesWithText(quanti).fetchSemanticsNodes()
+            .map { it.boundsInRoot }.sortedBy { it.top }
+
+        assertTrue("Il nome della cartella non è in scena", titoli.isNotEmpty())
+        assertEquals(
+            "Il conto non compare tante volte quante il nome: una delle due copie non ce l'ha",
+            titoli.size,
+            conti.size
+        )
+        for (quale in titoli.indices) {
+            assertTrue(
+                "Il conto sta a ${conti[quale].top}px e il nome finisce a ${titoli[quale].bottom}px",
+                conti[quale].top >= titoli[quale].bottom
+            )
+        }
+    }
+
+    /**
      * I riquadri delle miniature che stanno nell'albero semantico, per posizione.
      *
      * ⚠️ **Si chiedono per NOME e una per una**: la descrizione parlata di una miniatura dice
@@ -159,12 +240,14 @@ class FrontespizioTest {
         "La prima miniatura non è nell'albero semantico: la griglia non si è composta"
     }.top
 
+    private val app: Context get() = ApplicationProvider.getApplicationContext()
+
     @Composable
     private fun Scena(onOpen: (Int) -> Unit = {}) {
         AivTheme(darkTheme = false) {
             Box(modifier = Modifier.fillMaxSize()) {
                 GridScreen(
-                    title = "Cartella di prova",
+                    title = TITOLO,
                     items = FOTO,
                     highlight = null,
                     onOpen = onOpen,
@@ -186,6 +269,18 @@ class FrontespizioTest {
  * scritto là, ma qui serve anche il tratto dopo.
  */
 private val FOTO = (1..40).map { Uri.parse("file:///finta/$it.jpg") }
+
+/** Il nome della cartella finta, che il frontespizio scrive e la testata ripete. */
+private const val TITOLO = "Cartella di prova"
+
+/**
+ * Quanto può muoversi una miniatura e continuare a dirsi ferma, in pixel.
+ *
+ * ⚠️ **Un pixel e non zero**: la posizione arriva da una misura in virgola mobile, e pretendere
+ * l'uguaglianza esatta farebbe fallire la prova per un arrotondamento. Quello che deve fallire è
+ * una fascia che si chiude, cioè un salto di un terzo di schermo.
+ */
+private const val FERMO = 1f
 
 /**
  * Quanto in basso deve cominciare la prima miniatura, in frazione di schermo.

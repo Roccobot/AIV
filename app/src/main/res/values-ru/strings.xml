@@ -169,6 +169,12 @@
         <item quantity="many">%1$d элементов</item>
         <item quantity="other">%1$d элемента</item>
     </plurals>
+    <plurals name="items_count">
+        <item quantity="one">%1$d элемент</item>
+        <item quantity="few">%1$d элемента</item>
+        <item quantity="many">%1$d элементов</item>
+        <item quantity="other">%1$d элемента</item>
+    </plurals>
     <plurals name="pick_facts">
         <item quantity="one">%2$s в %1$d файле</item>
         <item quantity="few">%2$s в %1$d файлах</item>
@@ -415,7 +421,7 @@
     <string name="settings_editor_backup">Резервная копия перед перезаписью</string>
     <string name="settings_editor_backup_desc">Прежде чем редактор перезапишет изображение, он сохраняет его копию в корзине, откуда её можно вернуть; если она не нужна, она будет удалена при следующей очистке корзины.</string>
     <string name="settings_save_rename">Разрешить переименование при сохранении</string>
-    <string name="settings_save_rename_desc">Изображения всегда попадают в папку Downloads. Если включено, \'Сохранить\' сначала спросит имя; если выключено, удерживайте \'Сохранить\', чтобы имя спросили только в этот раз.</string>
+    <string name="settings_save_rename_desc">По умолчанию все файлы загружаются в папку Downloads под исходным именем. Включите эту функцию, чтобы задавать имя при каждой загрузке. Даже если оставите её выключенной, удерживайте \'Сохранить\', чтобы включить её на один раз, когда это нужно.</string>
     <string name="editor_tall">Портрет</string>
     <string name="editor_wide">Пейзаж</string>
     <string name="pick_cleared">Файлы не выбраны.</string>

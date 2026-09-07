@@ -169,6 +169,12 @@
         <item quantity="many">%1$d elementów</item>
         <item quantity="other">%1$d elementu</item>
     </plurals>
+    <plurals name="items_count">
+        <item quantity="one">%1$d element</item>
+        <item quantity="few">%1$d elementy</item>
+        <item quantity="many">%1$d elementów</item>
+        <item quantity="other">%1$d elementu</item>
+    </plurals>
     <plurals name="pick_facts">
         <item quantity="one">%2$s w %1$d pliku</item>
         <item quantity="few">%2$s w %1$d plikach</item>
@@ -415,7 +421,7 @@
     <string name="settings_editor_backup">Kopia zapasowa przed nadpisaniem</string>
     <string name="settings_editor_backup_desc">Zanim edytor nadpisze obraz, zapisuje jego kopię w koszu, skąd będzie można ją odzyskać; jeśli nie będzie potrzebna, zniknie przy następnym \'Opróżnij kosz\'.</string>
     <string name="settings_save_rename">Pozwól zmienić nazwę przy zapisie</string>
-    <string name="settings_save_rename_desc">Obrazy zawsze trafiają do folderu Downloads. Gdy to jest włączone, \'Zapisz\' najpierw pyta o nazwę; gdy wyłączone, przytrzymaj \'Zapisz\', aby zapytało tylko ten raz.</string>
+    <string name="settings_save_rename_desc">Domyślnie wszystkie pliki są pobierane do folderu Downloads pod pierwotną nazwą. Włącz tę funkcję, aby przy każdym pobraniu podawać nazwę zapisu. Nawet gdy zostawisz ją wyłączoną, możesz przytrzymać \'Zapisz\', aby włączyć ją tylko wtedy, gdy jest potrzebna.</string>
     <string name="editor_tall">Pionowo</string>
     <string name="editor_wide">Poziomo</string>
     <string name="pick_cleared">Nie wybrano żadnego pliku.</string>

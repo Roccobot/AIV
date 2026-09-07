@@ -166,6 +166,9 @@
     <plurals name="pick_count">
         <item quantity="other">%1$d รายการ</item>
     </plurals>
+    <plurals name="items_count">
+        <item quantity="other">%1$d รายการ</item>
+    </plurals>
     <plurals name="pick_facts">
         <item quantity="other">%2$s ใน %1$d ไฟล์</item>
     </plurals>
@@ -370,7 +373,7 @@
     <string name="settings_editor_backup">สำเนาสำรองก่อนเขียนทับ</string>
     <string name="settings_editor_backup_desc">ก่อนที่โปรแกรมแก้ไขจะเขียนทับภาพ ระบบจะเก็บสำเนาไว้ในถังขยะ ซึ่งคุณกู้คืนได้ หากไม่ต้องการ สำเนานั้นจะถูกลบเมื่อ \'ล้างถังขยะ\' ครั้งต่อไป</string>
     <string name="settings_save_rename">อนุญาตให้เปลี่ยนชื่อตอนบันทึก</string>
-    <string name="settings_save_rename_desc">รูปภาพจะไปที่โฟลเดอร์ Downloads เสมอ เมื่อเปิดตัวเลือกนี้ \'บันทึก\' จะถามชื่อก่อน เมื่อปิด ให้กด \'บันทึก\' ค้างไว้เพื่อให้ถามเฉพาะครั้งนั้น</string>
+    <string name="settings_save_rename_desc">โดยค่าเริ่มต้น ไฟล์ทั้งหมดจะถูกดาวน์โหลดไปที่โฟลเดอร์ Downloads ด้วยชื่อเดิม เปิดคุนสมบัตินี้เพื่อกำหนดชื่อที่ใช้บันทึกทุกครั้งที่ดาวน์โหลด แม้จะปิดไว้ ก็ยังกด \'บันทึก\' ค้างไว้เพื่อเปิดใช้เพียงครั้งที่ต้องการได้</string>
     <string name="editor_tall">แนวตั้ง</string>
     <string name="editor_wide">แนวนอน</string>
     <string name="pick_cleared">ไม่ได้เลือกไฟล์ใด</string>

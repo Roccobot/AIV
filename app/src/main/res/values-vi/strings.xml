@@ -166,6 +166,9 @@
     <plurals name="pick_count">
         <item quantity="other">%1$d mục</item>
     </plurals>
+    <plurals name="items_count">
+        <item quantity="other">%1$d mục</item>
+    </plurals>
     <plurals name="pick_facts">
         <item quantity="other">%2$s trong %1$d tệp</item>
     </plurals>
@@ -370,7 +373,7 @@
     <string name="settings_editor_backup">Bản sao an toàn trước khi ghi đè</string>
     <string name="settings_editor_backup_desc">Trước khi một trình sửa ghi đè lên một ảnh, nó lưu một bản sao vào thùng rác, nơi bạn có thể lấy lại; nếu không cần, bản sao sẽ bị xoá ở lần \'Dọn thùng rác\' kế tiếp.</string>
     <string name="settings_save_rename">Cho phép đổi tên khi lưu</string>
-    <string name="settings_save_rename_desc">Ảnh luôn được lưu vào thư mục Downloads. Khi bật, \'Lưu\' sẽ hỏi tên trước; khi tắt, hãy nhấn giữ \'Lưu\' để được hỏi riêng lần đó.</string>
+    <string name="settings_save_rename_desc">Theo mặc định, mọi tệp đều được tải về thư mục Downloads với tên gốc. Hãy bật tính năng này để đặt tên lưu cho từng lần tải về. Dù bạn để tắt, vẫn có thể nhấn giữ \'Lưu\' để bật ngay lúc đó, chỉ khi cần.</string>
     <string name="editor_tall">Dọc</string>
     <string name="editor_wide">Ngang</string>
     <string name="pick_cleared">Chưa chọn tệp nào.</string>

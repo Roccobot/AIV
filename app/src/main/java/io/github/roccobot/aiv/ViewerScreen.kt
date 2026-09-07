@@ -476,7 +476,7 @@ fun ViewerScreen(
     }
 
     /*
-     * Il selettore di sistema con cui si scarica la fotografia: così salvare non chiede
+     * Il selettore di sistema con cui si scarica l'immagine: così salvare non chiede
      * nessun permesso e il posto lo scegli tu. Su Android 9, che questa app ancora
      * sostiene, scrivere nella galleria dal MediaStore avrebbe voluto
      * `WRITE_EXTERNAL_STORAGE`.
@@ -515,20 +515,20 @@ fun ViewerScreen(
      * nella finestra lo ritrova già scritto, che è il minimo che si possa fare quando la via
      * diretta non c'è.
      */
-    val scarica: (LoadedImage, String?) -> Unit = remember(source, saver, scope, context) {
-        { picture, name ->
+    val scarica: (LoadedImage, String?, String?) -> Unit = remember(source, saver, scope, context) {
+        { picture, name, suffix ->
             val from = source
             if (from != null) {
                 if (ImageActions.downloadsWritable) {
                     scope.launch {
-                        val ok = ImageActions.saveToDownloads(context, picture, from, name)
+                        val ok = ImageActions.saveToDownloads(context, picture, from, name, suffix)
                         val said = if (ok) R.string.toast_saved else R.string.toast_save_failed
                         Toast.makeText(context, said, Toast.LENGTH_SHORT).show()
                     }
                 } else {
                     val whole = ImageActions.fileName(picture, from)
-                    val suffix = ImageActions.splitName(whole).second
-                    saver.launch(if (name == null) whole else name + suffix)
+                    val coda = suffix ?: ImageActions.splitName(whole).second
+                    saver.launch(if (name == null) whole else name + coda)
                 }
             }
         }
@@ -543,9 +543,9 @@ fun ViewerScreen(
         SaveNameDialog(
             full = ImageActions.fileName(picture, source),
             onDismiss = { naming = null },
-            onSave = { name ->
+            onSave = { name, suffix ->
                 naming = null
-                scarica(picture, name)
+                scarica(picture, name, suffix)
             }
         )
     }
@@ -569,7 +569,7 @@ fun ViewerScreen(
              * poche righe più sotto.
              */
             save = { picture ->
-                if (settings.saveRename) naming = picture else scarica(picture, null)
+                if (settings.saveRename) naming = picture else scarica(picture, null, null)
             },
             saveAs = { picture -> naming = picture },
             // ⚠️ Senza indirizzo non si fa niente e non si dice niente: la voce che chiama

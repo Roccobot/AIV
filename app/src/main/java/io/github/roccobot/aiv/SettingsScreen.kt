@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -1467,10 +1468,13 @@ private fun ThumbsCard(head: String?, onClear: () -> Unit, modifier: Modifier = 
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
-        Button(onClick = {
-            onClear()
-            Toast.makeText(context, done, Toast.LENGTH_SHORT).show()
-        }) {
+        Button(
+            onClick = {
+                onClear()
+                Toast.makeText(context, done, Toast.LENGTH_SHORT).show()
+            },
+            contentPadding = THUMBS_PAD
+        ) {
             Text(
                 text = stringResource(R.string.settings_thumbs_do),
                 textAlign = TextAlign.Center
@@ -1481,6 +1485,28 @@ private fun ThumbsCard(head: String?, onClear: () -> Unit, modifier: Modifier = 
 
 /** L'aria fra l'avviso e il pulsante che lo esegue: abbastanza perché non si tocchino. */
 private val THUMBS_GAP = 28.dp
+
+/**
+ * Quanto è larga l'aria dentro il pulsante che svuota le miniature.
+ *
+ * ⚠️⚠️ **PIÙ GRANDE DEL VALORE DI MATERIAL, DALLA `1.78`, ED È UNA SUA RICHIESTA**: *centra
+ * meglio 'Svuota cache delle miniature' sul pulsante e ingrandisci un po' il pulsante*. Il
+ * valore di serie (24dp di fianco, 8dp sopra e sotto) è calcolato per un'**etichetta di una
+ * riga**, e qui l'etichetta va a capo: con due righe l'aria di fianco resta tre volte quella di
+ * sopra, quindi il testo si legge stipato fra i due bordi orizzontali invece che posato in mezzo.
+ *
+ * ⚠️⚠️ **E LA SCENTRATURA CHE VEDE È VERA, MA NON SI CORREGGE CON UN NUMERO**: il testo sta
+ * **più in basso** del centro geometrico di circa 1sp, perché la spaziatura di riga di
+ * `labelLarge` (20sp su un corpo di 14) si distribuisce in proporzione all'altezza sopra e sotto
+ * la linea di base, quindi sopra la prima riga ne cade più che sotto l'ultima, e a quello si
+ * somma l'aria che l'occhiello di un carattere porta sopra le maiuscole e che qui, senza
+ * discendenti in 'delle miniature', sotto non c'è. ⚠️ **Quanta sia dipende dal carattere di
+ * sistema**, quindi la cura è la stessa già scelta per le pastiglie della rinomina (vedi
+ * `NamePill` in `RenameDialog.kt`): si dà al lato stretto abbastanza spazio da non dipendere da
+ * quel margine, invece di pareggiare i due lati con una misura presa da un carattere che sul
+ * telefono di qualcun altro è un altro.
+ */
+private val THUMBS_PAD = PaddingValues(horizontal = 28.dp, vertical = 16.dp)
 
 /**
  * Quanto è tenue il numero di versione accanto al titolo.

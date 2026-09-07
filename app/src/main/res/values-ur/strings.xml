@@ -167,6 +167,10 @@
         <item quantity="one">%1$d عنصر</item>
         <item quantity="other">%1$d عناصر</item>
     </plurals>
+    <plurals name="items_count">
+        <item quantity="one">%1$d عنصر</item>
+        <item quantity="other">%1$d عناصر</item>
+    </plurals>
     <plurals name="pick_facts">
         <item quantity="one">%1$d فائل میں %2$s</item>
         <item quantity="other">%1$d فائلوں میں %2$s</item>
@@ -385,7 +389,7 @@
     <string name="settings_editor_backup">اوپر لکھنے سے پہلے حفاظتی نقل</string>
     <string name="settings_editor_backup_desc">کسی ایڈیٹر کے تصویر پر لکھنے سے پہلے، اُس کی ایک نقل ردی کی ٹوکری میں محفوظ ہو جاتی ہے، جہاں سے آپ اسے واپس لے سکتے ہیں؛ ضرورت نہ ہو تو اگلی بار \'ردی کی ٹوکری خالی کریں\' پر حذف ہو جائے گی۔</string>
     <string name="settings_save_rename">محفوظ کرتے وقت نام بدلنے کی اجازت</string>
-    <string name="settings_save_rename_desc">تصاویر ہمیشہ Downloads فولڈر میں جاتی ہیں۔ یہ آن ہو تو \'محفوظ کریں\' پہلے نام پوچھتا ہے؛ آف ہو تو \'محفوظ کریں\' کو دبائے رکھیں تاکہ صرف اُسی بار پوچھا جائے۔</string>
+    <string name="settings_save_rename_desc">طے شدہ طور پر تمام فائلیں اپنے اصل نام کے ساتھ Downloads فولڈر میں جاتی ہیں۔ ہر ڈاؤن لوڈ پر محفوز کرنے کا نام طے کرنے کے لیے اسے آن کریں۔ آف رہنے پر بھی، ضرورت کے وقت صرف اُسی بار آن کرنے کے لیے \'محفوز کریں\' کو دبائے رکھیں۔</string>
     <string name="editor_tall">عمودی</string>
     <string name="editor_wide">افقی</string>
     <string name="pick_cleared">کوئی فائل منتخب نہیں۔</string>

@@ -167,6 +167,10 @@
         <item quantity="one">%1$d घटक</item>
         <item quantity="other">%1$d घटक</item>
     </plurals>
+    <plurals name="items_count">
+        <item quantity="one">%1$d घटक</item>
+        <item quantity="other">%1$d घटक</item>
+    </plurals>
     <plurals name="pick_facts">
         <item quantity="one">%1$d संचिकेत %2$s</item>
         <item quantity="other">%1$d संचिकांत %2$s</item>
@@ -385,7 +389,7 @@
     <string name="settings_editor_backup">वर लिहिण्यापूर्वी सुरक्षा प्रत</string>
     <string name="settings_editor_backup_desc">संपादकाने प्रतिमेवर लिहिण्याआधी तिची एक प्रत कचरापेटीत ठेवली जाते, तिथून ती परत मिळवता येते; गरज नसेल तर पुढच्या \'कचरापेटी रिकामी करा\' वेळी ती हटेल.</string>
     <string name="settings_save_rename">जतन करताना नाव बदलू द्या</string>
-    <string name="settings_save_rename_desc">प्रतिमा नेहमी Downloads मध्ये जातात. हे चालू असल्यास \'जतन करा\' आधी नाव विचारते; बंद असल्यास \'जतन करा\' दाबून धरा म्हणजे फक्त त्या वेळी विचारेल.</string>
+    <string name="settings_save_rename_desc">पूर्वनियोजितपणे सर्व फायली त्यांच्या मूळ नावानेज Downloads मध्ये जातात. प्रत्येक डाउनलोडसाठी जतन करण्याचे नाव ठरवण्यासाठी हे चालू करा. बंद ठेवले असले तरी, गरज असेल तेव्हा त्या वेळेपुरते चालू करण्यासाठी \'जतन करा\' दाबून धरा.</string>
     <string name="editor_tall">उभे</string>
     <string name="editor_wide">आडवे</string>
     <string name="pick_cleared">कोणतीही फाइल निवडलेली नाही.</string>

@@ -166,6 +166,9 @@
     <plurals name="pick_count">
         <item quantity="other">%1$d 项</item>
     </plurals>
+    <plurals name="items_count">
+        <item quantity="other">%1$d 项</item>
+    </plurals>
     <plurals name="pick_facts">
         <item quantity="other">%1$d 个文件,共 %2$s</item>
     </plurals>
@@ -370,7 +373,7 @@
     <string name="settings_editor_backup">覆盖前先留一份安全副本</string>
     <string name="settings_editor_backup_desc">在编辑器覆盖一张图像之前，会先把副本存入回收站，可以从那里找回；如果不需要，下次\'清空回收站\'时会被删除。</string>
     <string name="settings_save_rename">保存时允许改名</string>
-    <string name="settings_save_rename_desc">图片总是保存到 Downloads 文件夹。打开时，\'保存\' 会先询问名称；关闭时，长按 \'保存\' 只在那一次询问。</string>
+    <string name="settings_save_rename_desc">默认情况下，所有文件都以原名下载到 Downloads 文件夹。打开此功能后，每次下载都可以设定保存名称。即使保持关闭，也可以长按 \'保存\'，只在需要时临时打开。</string>
     <string name="editor_tall">竖向</string>
     <string name="editor_wide">横向</string>
     <string name="pick_cleared">未选择任何文件。</string>

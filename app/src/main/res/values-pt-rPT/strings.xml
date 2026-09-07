@@ -107,7 +107,7 @@
     <string name="menu_edit_hold">Escolher a aplicação</string>
     <string name="settings_editor_backup_desc">A versão anterior de cada imagem substituída é mantida na reciclagem.</string>
     <string name="settings_save_rename">Permitir mudar o nome ao guardar</string>
-    <string name="settings_save_rename_desc">As imagens vão sempre para Transferências. Com isto ligado, \'Guardar\' pergunta primeiro o nome; desligado, mantenha \'Guardar\' premido para que pergunte só dessa vez.</string>
+    <string name="settings_save_rename_desc">Por predefinição, todos os ficheiros são transferidos para Transferências com o nome original. Ative esta funcionalidade para definir um nome ao guardar em cada transferência. Mesmo que a deixe desativada, pode tocar e manter premido \'Guardar\' para a ativar na hora, só quando for preciso.</string>
     <string name="anim_play">Reproduzir</string>
     <string name="anim_pause">Pausar</string>
     <string name="anim_prev">Fotograma anterior</string>

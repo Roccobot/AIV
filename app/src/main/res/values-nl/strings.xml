@@ -167,6 +167,10 @@
         <item quantity="one">%1$d item</item>
         <item quantity="other">%1$d items</item>
     </plurals>
+    <plurals name="items_count">
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
+    </plurals>
     <plurals name="pick_facts">
         <item quantity="one">%2$s in %1$d bestand</item>
         <item quantity="other">%2$s in %1$d bestanden</item>
@@ -385,7 +389,7 @@
     <string name="settings_editor_backup">Veiligheidskopie voor het overschrijven</string>
     <string name="settings_editor_backup_desc">Voordat een editor een afbeelding overschrijft, bewaart hij er een kopie van in de prullenbak, waar u die kunt terughalen; hebt u die niet nodig, dan verdwijnt ze bij de volgende \'Prullenbak legen\'.</string>
     <string name="settings_save_rename">Hernoemen bij het opslaan toestaan</string>
-    <string name="settings_save_rename_desc">Afbeeldingen gaan altijd naar Downloads. Staat dit aan, dan vraagt \'Opslaan\' eerst om de naam; staat het uit, houd \'Opslaan\' ingedrukt om er alleen die ene keer om gevraagd te worden.</string>
+    <string name="settings_save_rename_desc">Standaard worden alle bestanden onder hun oorspronkelijke naam naar Downloads gehaald. Zet dit aan om bij elke download een naam op te geven. Ook als je het uit laat, kun je \'Opslaan\' ingedrukt houden om het alleen op dat moment aan te zetten.</string>
     <string name="editor_tall">Staand</string>
     <string name="editor_wide">Liggend</string>
     <string name="pick_cleared">Geen bestand geselecteerd.</string>

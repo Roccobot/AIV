@@ -2,9 +2,11 @@ package io.github.roccobot.aiv
 
 import android.net.Uri
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -68,6 +70,7 @@ import kotlinx.coroutines.launch
  * della rinomina vera: se l'anteprima ordinasse per conto suo, mostrerebbe un abbinamento
  * che poi non succede.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RenameDialog(
     uris: List<Uri>,
@@ -91,30 +94,21 @@ fun RenameDialog(
      * una selezione mista, dove mettere l'estensione del primo a tutti sarebbe un danno.
      */
     var extension by rememberSaveable { mutableStateOf<String?>(null) }
-    var asking by rememberSaveable { mutableStateOf(false) }
 
     /*
-     * ⚠️⚠️ **IL TASTO C'È SOLO SE L'IMPOSTAZIONE È ACCESA, dalla 1.36**, ed è la griglia di
-     * sicurezza chiesta dall'utente: il perché per esteso sta su [Settings.extEdit], e in
-     * breve è che cambiare l'estensione non converte niente e può far sparire un'immagine
-     * dalle viste. Di fabbrica è spenta.
-     * ⚠️⚠️ **LE DUE LETTURE SI FANNO QUI E NON ARRIVANO DA FUORI, ed è una scelta contro la
-     * convenzione di questo file** (`FileJobDialogs` dichiara di non sapere niente delle
-     * impostazioni e si fa passare i campi delle info). La ragione è il numero di posti: le
-     * tre schermate che aprono questi dialoghi sono griglia, albero e visualizzatore, e solo
-     * l'ultima ha le impostazioni in mano; le altre due dovrebbero farsi passare un booleano
-     * dai **loro** chiamanti, cioè quattro firme in più per un valore che si legge in una
-     * riga. La stessa strada la fanno già i veli (`Hint.flow`), che nascono in schermate che
-     * non hanno lo stato dell'app.
-     * ⚠️ **`false` come valore iniziale**: mentre la lettura è in corso il tasto non c'è, che
-     * è il verso prudente. Al contrario comparirebbe per un istante anche a chi l'ha spento.
+     * ⚠️⚠️ **IL CANCELLO DELL'ESTENSIONE È UNO, E DALLA `1.78` LO CONDIVIDE CON LA FINESTRA DEL
+     * SALVATAGGIO**: là serve *lo stesso pulsante 'Estensione' (con identico funzionamento)*
+     * (riscontro del giro della `1.77`, voce `scarica-download`), e 'identico' regge solo se il
+     * pezzo è lo stesso. Che cosa fa, e perché si porta dietro le proprie finestre, sta su
+     * [extensionGate].
      */
-    val extAllowed by produceState(false) {
-        SettingsStore.flow(context).collect { value = it.extEdit }
-    }
-    val warned by produceState(true) { Hint.EXT_WARN.flow(context).collect { value = it } }
-    var warning by rememberSaveable { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
+    val gate = extensionGate(
+        // ⚠️ Il valore di partenza è quello **corrente**: l'estensione già scelta se c'è,
+        // altrimenti quella del primo file, che con una selezione omogenea è quella di
+        // tutti. Senza il punto, come chiesto.
+        initial = { extension ?: names?.firstOrNull()?.substringAfterLast('.', "").orEmpty() },
+        onPick = { extension = it }
+    )
 
     // ⚠️⚠️ **UN FILE SOLO NON È UNA RINOMINA IN BLOCCO, e dalla 1.25 non ne ha più l'aria**
     // (riscontro dell'utente, 2026-09-02: *`Rinomina` sul file singolo deve partire dal nome
@@ -185,15 +179,9 @@ fun RenameDialog(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(stringResource(R.string.pick_rename))
-                if (extAllowed) {
+                if (gate.allowed) {
                     FilledTonalButton(
-                        /*
-                         * ⚠️ **Il velo PRIMA del pannellino e non insieme**: l'avviso dice che
-                         * cosa comporta la cosa che si sta per fare, e uno che comparisse
-                         * sopra il campo già aperto arriverebbe dopo il gesto. Chi lo chiude
-                         * trova il pannellino, quindi il tocco non va perso.
-                         */
-                        onClick = { if (warned) asking = true else warning = true },
+                        onClick = gate.open,
                         shape = MaterialTheme.shapes.large,
                         contentPadding = EXT_PAD
                     ) {
@@ -281,7 +269,25 @@ fun RenameDialog(
                  * o uno svuotamento che la chiudessero costringerebbero a un tocco in più per
                  * riaprirla.
                  */
-                Row(
+                /*
+                 * ⚠️⚠️ **'Data' È ARRIVATA CON LA `1.78`, E LA SUA RAGIONE È LA SIMMETRIA**
+                 * (campo libero del giro della `1.77`: *così come voglio che in 'Scarica' ci
+                 * siano 'Seleziona tutto' e 'Svuota', voglio che 'Rinomina' abbia 'Data', che
+                 * inserisce YYYYMMDD esattamente come implementato in 'Scarica'*). I due gesti
+                 * sono gli stessi di là, e li fanno le stesse due funzioni: il tocco breve
+                 * infila la data dove sta il cursore, il lungo rifà il nome da capo.
+                 * ⚠️ **Anche il verso della fila è quello di 'Scarica'**, e non è un caso: le
+                 * due finestre portano gli stessi comandi, quindi chi impara una posizione la
+                 * ritrova nell'altra.
+                 * ⚠️⚠️ **QUI I COMANDI TOCCANO DUE COSE, E DIMENTICARE LA SECONDA NON DÀ
+                 * ERRORE**: la verità è [template], e [campo] la rispecchia solo per portare la
+                 * posizione del cursore. Un comando che scrivesse il solo [campo] cambierebbe
+                 * quello che si legge senza cambiare quello che l'anteprima e il tasto leggono.
+                 * ⚠️ **`Arrangement.End` senza spaziatura**: l'aria fra i comandi la mette il
+                 * riempimento di [Quiet], e sommarci una spaziatura li allontanerebbe di tre
+                 * volte tanto, mandando a capo una fila che ci sta.
+                 */
+                FlowRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
@@ -298,6 +304,20 @@ fun RenameDialog(
                         onTap = {
                             campo = TextFieldValue()
                             template = ""
+                        }
+                    )
+                    Quiet(
+                        text = stringResource(R.string.save_name_date),
+                        enabled = true,
+                        onTap = {
+                            val next = withDate(campo)
+                            campo = next
+                            template = next.text
+                        },
+                        onHold = {
+                            val oggi = today()
+                            campo = TextFieldValue(oggi, TextRange(oggi.length))
+                            template = oggi
                         }
                     )
                 }
@@ -360,11 +380,62 @@ fun RenameDialog(
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
         }
     )
+}
+
+/**
+ * Che cosa un chiamante deve sapere del comando 'Estensione'.
+ *
+ * @property allowed se il comando esiste, cioè se l'impostazione è accesa.
+ * @property open il gesto: apre l'avviso la prima volta, il pannellino dopo.
+ */
+internal class ExtensionGate(val allowed: Boolean, val open: () -> Unit)
+
+/**
+ * Il comando 'Estensione' con tutto quello che gli serve: la griglia di sicurezza, l'avviso
+ * della prima volta e il pannellino.
+ *
+ * ⚠️⚠️ **IL TASTO C'È SOLO SE L'IMPOSTAZIONE È ACCESA, dalla 1.36**, ed è la griglia di
+ * sicurezza chiesta dall'utente: il perché per esteso sta su [Settings.extEdit], e in breve è
+ * che cambiare l'estensione non converte niente e può far sparire un'immagine dalle viste. Di
+ * fabbrica è spenta.
+ *
+ * ⚠️⚠️ **LE DUE LETTURE SI FANNO QUI E NON ARRIVANO DA FUORI, ed è una scelta contro la
+ * convenzione dei dialoghi di questo file** (`FileJobDialogs` dichiara di non sapere niente
+ * delle impostazioni e si fa passare i campi delle info). La ragione è il numero di posti: le
+ * tre schermate che aprono la rinomina sono griglia, albero e visualizzatore, e solo l'ultima
+ * ha le impostazioni in mano; le altre due dovrebbero farsi passare un booleano dai **loro**
+ * chiamanti, cioè quattro firme in più per un valore che si legge in una riga. La stessa strada
+ * la fanno già i veli (`Hint.flow`), che nascono in schermate che non hanno lo stato dell'app.
+ * ⚠️ **`false` come valore iniziale**: mentre la lettura è in corso il tasto non c'è, che è il
+ * verso prudente. Al contrario comparirebbe per un istante anche a chi l'ha spento.
+ *
+ * ⚠️⚠️ **SI PORTA DIETRO LE PROPRIE FINESTRE, E QUELLO È IL PUNTO**: chi lo chiama ottiene un
+ * tasto che funziona, non due righe da ricordare in fondo alla funzione. È lo stesso criterio
+ * per cui `lowered()` porta il velo (`AIV/CLAUDE.md`, § '📍 Che cosa vuol dire 'centrato''): un
+ * avviso o un pannellino dimenticati non danno nessun errore, danno un tasto che non fa niente.
+ * ⚠️ **L'ordine nella composizione non decide chi sta sopra**: le due finestre nascono quando si
+ * tocca il comando, cioè quando il dialogo che le apre è già in scena, quindi arrivano dopo di
+ * lui nel gestore delle finestre qualunque sia il posto di questa chiamata.
+ *
+ * @param initial l'estensione da cui parte il pannellino, **senza** il punto. È una funzione e
+ *   non un valore perché si legge nell'istante in cui il pannellino si apre.
+ * @param onPick riceve l'estensione scelta, senza punto; vuota vuol dire 'nessuna'.
+ */
+@Composable
+internal fun extensionGate(initial: () -> String, onPick: (String) -> Unit): ExtensionGate {
+    val context = LocalContext.current
+    val allowed by produceState(false) {
+        SettingsStore.flow(context).collect { value = it.extEdit }
+    }
+    val warned by produceState(true) { Hint.EXT_WARN.flow(context).collect { value = it } }
+    var warning by rememberSaveable { mutableStateOf(false) }
+    var asking by rememberSaveable { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     /*
-     * ⚠️⚠️ **È UN VELO IN UNA FINESTRA SUA, e la ragione sta su [HintNotice]**: qui dentro
-     * siamo già in un dialogo, e un velo steso sul contenuto coprirebbe la finestrella invece
-     * dello schermo. L'utente ha chiesto un avviso *in mezzo allo schermo*.
+     * ⚠️⚠️ **È UN VELO IN UNA FINESTRA SUA, e la ragione sta su [HintNotice]**: chi chiama è già
+     * dentro un dialogo, e un velo steso sul contenuto coprirebbe la finestrella invece dello
+     * schermo. L'utente ha chiesto un avviso *in mezzo allo schermo*.
      * ⚠️ **Si archivia alla chiusura e si apre il pannellino nello stesso gesto**: l'avviso si
      * legge una volta sola, e chi ha toccato 'Estensione' voleva aprirlo.
      */
@@ -378,17 +449,19 @@ fun RenameDialog(
             }
         )
     }
-
     if (asking) {
         ExtensionDialog(
-            // ⚠️ Il valore di partenza è quello **corrente**: l'estensione già scelta se c'è,
-            // altrimenti quella del primo file, che con una selezione omogenea è quella di
-            // tutti. Senza il punto, come chiesto.
-            initial = extension ?: listed?.firstOrNull()?.substringAfterLast('.', "").orEmpty(),
+            initial = initial(),
             onDismiss = { asking = false },
-            onPick = { extension = it; asking = false }
+            onPick = { asking = false; onPick(it) }
         )
     }
+    /*
+     * ⚠️ **Il velo PRIMA del pannellino e non insieme**: l'avviso dice che cosa comporta la cosa
+     * che si sta per fare, e uno che comparisse sopra il campo già aperto arriverebbe dopo il
+     * gesto. Chi lo chiude trova il pannellino, quindi il tocco non va perso.
+     */
+    return ExtensionGate(allowed) { if (warned) asking = true else warning = true }
 }
 
 /**
@@ -403,7 +476,11 @@ fun RenameDialog(
  * `foto..jpg`.
  */
 @Composable
-private fun ExtensionDialog(initial: String, onDismiss: () -> Unit, onPick: (String) -> Unit) {
+private fun ExtensionDialog(
+    initial: String,
+    onDismiss: () -> Unit,
+    onPick: (String) -> Unit
+) {
     var typed by rememberSaveable { mutableStateOf(initial) }
     val clean = typed.trim().trimStart('.')
     AlertDialog(
@@ -611,15 +688,38 @@ private val ARROW_SIZE = 20.dp
  * ⚠️ **È la stessa forma del 'Ripristina' dei riquadri del riordino**, e sta in una funzione
  * perché qui ne servono due: la ragione per cui quella forma è questa sta là, e ripeterla in
  * due punti di questo file sarebbe il primo posto in cui divergere.
+ *
+ * ⚠️⚠️ **DALLA `1.78` NON È PIÙ PRIVATO, ED È UNA SUA RICHIESTA**: *tutti con lo stile
+ * solo-testo, senza tasto/pillola già usato in 'Rinomina'* (riscontro del giro della `1.77`,
+ * voce `scarica-download`). La finestra del nome del salvataggio prende gli stessi comandi di
+ * questa, quindi la forma deve essere **una**: copiata là, il giorno che il colore o il corpo
+ * cambiano ne cambierebbe uno solo.
+ *
+ * @param onHold il tocco lungo, o `null` per un comando che non ne ha.
+ *   ⚠️ **Il valore di serie è `null` di proposito, e qui è ammesso**: dei quattro comandi che
+ *   oggi passano da qui uno solo ha un secondo gesto ('Data'). ⚠️ **Non è il caso del filo di
+ *   `NamePill`**, dove un valore di serie ha lasciato una pastiglia senza bordo per due
+ *   versioni: là l'assenza non si vedeva, qui un tocco lungo che non c'è non promette niente
+ *   a nessuno, perché nessuno lo cerca se il comando non lo dichiara.
  */
 @Composable
-private fun Quiet(text: String, enabled: Boolean, onTap: () -> Unit) {
+internal fun Quiet(
+    text: String,
+    enabled: Boolean,
+    onTap: () -> Unit,
+    onHold: (() -> Unit)? = null
+) {
     Text(
         text = text,
         style = MaterialTheme.typography.labelMedium,
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier
-            .clickable(enabled = enabled, onClick = onTap)
+            /*
+             * ⚠️ **Un bersaglio solo anche coi due gesti**: `combinedClickable` è un nodo, non
+             * due, quindi un lettore di schermo annuncia un comando. È la stessa regola delle
+             * righe con interruttore del pannello delle impostazioni.
+             */
+            .combinedClickable(enabled = enabled, onClick = onTap, onLongClick = onHold)
             .padding(horizontal = 8.dp, vertical = 6.dp)
             .alpha(if (enabled) 1f else QUIET_OFF)
     )
