@@ -43,6 +43,7 @@
         <!-- Il disco solare, fuori dalla A, in alto a sinistra. -->
         <path
             android:fillColor="#FF000000"
+            android:fillType="nonZero"
             android:pathData="M30,19a10,10 0 1,0 0,20a10,10 0 1,0 0,-20z" />
         <!-- La A: contorno e controcampo in un tracciato solo, `evenOdd`, col tratto del
              master già incorporato. Vedi la nota in testa a `ic_launcher_foreground.xml`. -->

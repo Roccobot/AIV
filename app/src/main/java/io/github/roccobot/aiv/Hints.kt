@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 
 /**
  * Il velo del mini onboarding: oscura la schermata, dice la frase e mette in evidenza una
@@ -98,7 +97,16 @@ fun BoxScope.HintVeil(
                 text = text,
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.White,
-                textAlign = TextAlign.End,
+                /*
+                 * ⚠️⚠️ **ANCHE LA FRASE SEGUE LA MANO, DALLA `1.81`, e fino alla `1.80` era
+                 * ferma a destra** (censimento della UI del 2026-09-05). La colonna si
+                 * specchiava (l'allineamento nel riquadro e quello dei figli), il paragrafo no,
+                 * e la differenza si vede: la frase va a capo davvero, perché a settanta
+                 * caratteri di `titleMedium` la sua larghezza intrinseca supera [HINT_WIDTH],
+                 * quindi la scatola misura quei 260dp pieni e le righe si appoggiavano al
+                 * fianco **destro** mentre la colonna viveva sul fianco sinistro.
+                 */
+                textAlign = if (destra) TextAlign.End else TextAlign.Start,
                 modifier = Modifier.widthIn(max = HINT_WIDTH)
             )
             fab()
@@ -184,7 +192,16 @@ private fun CentredHint(text: String, onDone: () -> Unit, modifier: Modifier) {
 fun HintNotice(text: String, onDone: () -> Unit) {
     Dialog(
         onDismissRequest = onDone,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        /*
+         * ⚠️⚠️ **[fullWindow] E NON LA SOLA LARGHEZZA, DALLA `1.81`**: fino alla `1.80` il decoro
+         * si adattava alle barre di sistema, quindi il velo si fermava **prima** di loro e
+         * lasciava due bande col fondo della schermata sotto. Un velo che copre tutto lo schermo
+         * è la richiesta dell'utente per questo onboarding, e con la barra di sistema scoperta
+         * non era vera fino in fondo.
+         * ⚠️ **Qui non serve nessun `safeDrawingPadding()`**, che è l'eccezione dichiarata su
+         * [fullWindow]: il testo è al centro e un velo non ha niente da rientrare.
+         */
+        properties = fullWindow()
     ) {
         // ⚠️ Qui `fillMaxSize`, perché la finestra è sua e la deve riempire tutta.
         CentredHint(text = text, onDone = onDone, modifier = Modifier.fillMaxSize())

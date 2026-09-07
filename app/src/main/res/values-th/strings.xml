@@ -26,6 +26,9 @@
     <string name="convert_webp">WebP</string>
     <string name="convert_webp_lossless">WebP ไม่สูญเสีย</string>
     <string name="convert_quality">คุณภาพ</string>
+    <string name="convert_quality_at">คุณภาพ\u0020\u0020\u0020%1$d%%</string>
+    <string name="convert_percent">%1$d%%</string>
+    <string name="convert_pixels">%1$d x %2$d</string>
     <string name="convert_size">ขนาด</string>
     <string name="convert_no_alpha">JPEG ไม่เก็บความโปร่งใส ส่วนเหล่านั้นจะกลายเป็นสีขาว</string>
     <string name="convert_this_frame">กำลังส่งออกเฟรมที่ %1$d ซึ่งเป็นเฟรมที่แสดงอยู่</string>

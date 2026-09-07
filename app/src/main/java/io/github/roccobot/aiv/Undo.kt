@@ -125,8 +125,29 @@ object Undo {
  * schede che scorrono direbbe di essere un'altra famiglia di cose. ⚠️ **Non è la molla di
  * fabbrica**: quella non l'aveva scelta nessuno, ed è la ragione per cui in `ActionPad` è
  * stata sostituita anche dove funzionava.
- * ⚠️ **Sta in una funzione a sé per la stessa ragione di `FabPop`**: chiamata sul posto,
+ * ⚠️ **Vive in una funzione a sé per la stessa ragione di `FabPop`**: chiamata sul posto,
  * `AnimatedVisibility` finisce sull'overload di `ColumnScope` e il compilatore la rifiuta.
+ *
+ * ⚠️⚠️ **QUESTA NON È L'UNICA SUPERFICIE CON CUI L'APP DICE COM'È ANDATA, E LA DIFFERENZA È UNA
+ * QUESTIONE APERTA CON L'UTENTE, NON UN DIFETTO DA CORREGGERE DA SÉ.** Il censimento della UI
+ * del 2026-09-05 la solleva da **quattro** angoli diversi, e il fatto che portano è uno: con il
+ * cestino acceso un'eliminazione tace e parla questa notifica, con il cestino spento la stessa
+ * azione produce un **avviso di sistema**, e copia, spostamento e rinomina parlano sempre con
+ * l'avviso di sistema. Cioè lo stesso genere di esito ha due voci, e quale delle due si sente
+ * dipende da un'impostazione che con la notizia non c'entra.
+ * ⚠️⚠️ **PERCHÉ NON SI CORREGGE QUI: è una decisione di linguaggio dell'app, e le decisioni di
+ * linguaggio sono sue.** Portare ogni esito a questa notifica cambia il modo in cui l'app parla
+ * in cinque schermate, quindi si propone e si aspetta; e correggerne una sola (per esempio la
+ * griglia) creerebbe **una seconda incoerenza al posto della prima**, perché la stessa chiamata
+ * compare identica in altre due schermate.
+ * ⚠️ **Quello che si può dire misurato**: i due non convivono mai per costruzione
+ * (`FileKind.speaks` li rende esclusivi), tranne in un caso che il KDoc di `speaks` dichiara,
+ * cioè un'eliminazione **riuscita a metà**, dove il cestino parla per i file caduti e questa
+ * notifica offre di disfare quelli arrivati. Là i due messaggi finiscono nello stesso punto
+ * dello schermo.
+ * ⚠️ **La sovrapposizione con l'ALTRA notifica di casa invece è chiusa dalla `1.81`**: quella è
+ * un difetto e non una questione di linguaggio, e il rimedio è su `BackHandler` in
+ * `GridScreen.kt`.
  */
 @Composable
 fun UndoNotice(
@@ -192,8 +213,16 @@ fun UndoNotice(
                     .semantics { liveRegion = LiveRegionMode.Polite }
                     .edged(NOTICE_ROUND),
                 shape = RoundedCornerShape(NOTICE_ROUND),
+                /*
+                 * ⚠️ **I due ruoli sono della stessa famiglia, dalla `1.81`**: fino alla `1.80`
+                 * il fondo era `surfaceVariant` e l'inchiostro `onSurface`, cioè quello di
+                 * un'altra superficie, e la nota in testa promette *la superficie dell'app e il
+                 * suo inchiostro*. Non si vedeva niente perché le due tinte si somigliano, che è
+                 * il caso in cui il criterio di casa vale di più: il ruolo giusto anche quando i
+                 * due valori sono vicini, come già scritto sulla pastiglia del nome.
+                 */
                 containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                contentColor = MaterialTheme.colorScheme.onSurface,
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 action = {
                     TextButton(
                         onClick = onUndo,
@@ -227,7 +256,12 @@ fun UndoNotice(
                             transformOrigin = TransformOrigin(0f, 0.5f)
                             scaleX = resta.value
                         }
-                        .background(aivAccent(LocalAivLight.current))
+                        // ⚠️ **La tavolozza e non [aivAccent], dalla `1.81`**: quella funzione
+                        // serve a chi legge un colore da un nodo di modificatore, dove il tema
+                        // non si raggiunge, e qui siamo dentro un composabile che due righe più
+                        // su la tavolozza la legge già. Due strade per lo stesso valore nella
+                        // stessa funzione erano due modi di cambiarne uno solo.
+                        .background(MaterialTheme.colorScheme.primary)
                 )
             }
         }

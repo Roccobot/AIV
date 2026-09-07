@@ -48,6 +48,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,6 +62,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -260,13 +262,23 @@ fun SettingsScreen(
             }
         }
 
-        Page.FACTS -> Shell(
-            title = stringResource(R.string.settings_facts),
-            onBack = { pageAt = Page.ROOT.ordinal },
-            modifier = modifier
-        ) {
-            Detail(stringResource(R.string.settings_facts_desc))
-            FactFields(settings = settings, onChange = onChange)
+        Page.FACTS -> {
+            /*
+             * ⚠️⚠️ **LO SCORRIMENTO DELLA PAGINA ARRIVA FIN DENTRO IL RIORDINO, dalla `1.81`**:
+             * l'elenco è più alto della finestra, e senza questo il trascinamento arrivava al
+             * bordo dello schermo e là si fermava (il perché per esteso è su [Reorderable]).
+             * Il guscio nasce **qui** perché lo devono avere in mano tutti e due.
+             */
+            val scroll = rememberScrollState()
+            Shell(
+                title = stringResource(R.string.settings_facts),
+                onBack = { pageAt = Page.ROOT.ordinal },
+                modifier = modifier,
+                scroll = scroll
+            ) {
+                Detail(stringResource(R.string.settings_facts_desc))
+                FactFields(settings = settings, onChange = onChange, scroll = scroll)
+            }
         }
 
         Page.BUTTONS -> Shell(
@@ -516,6 +528,11 @@ private fun ColumnScope.RootPage(
     onClearThumbs: () -> Unit,
     onOpen: (Page) -> Unit
 ) {
+    // ⚠️ Serve alle due righe che portano i nomi delle voci interne fra i testi della ricerca:
+    // quelle liste si ricordano, e una lettura di risorsa dentro un `remember` vuole
+    // l'oggetto delle risorse invece di `stringResource`, che è componibile.
+    val res = LocalResources.current
+
     Group(stringResource(R.string.settings_group_look))
 
     // ⚠️ Il tema dell'APP sta per primo e prima di quello dello sfondo, che gli somiglia
@@ -723,7 +740,16 @@ private fun ColumnScope.RootPage(
          * trova la riga che porta dove quella voce vive. Costa zero stringhe, perché quei nomi
          * esistono già in tutte le lingue.
          */
-        extra = settings.factOrder.map { stringResource(it.label) }
+        /*
+         * ⚠️ **Ricordati, e fino alla `1.80` si rifacevano a ogni ricomposizione della
+         * radice** (censimento della UI del 2026-09-05): quella lista di nomi si ricostruiva a
+         * ogni tocco su una voce del pannello, insieme alla conversione in array che `PageRow`
+         * fa dentro. ⚠️ **La chiave è l'oggetto delle risorse e non il `Context`**: quello che
+         * cambia quando cambia la lingua è il primo, e con lui i nomi si rileggono da soli.
+         */
+        extra = remember(res, settings.factOrder) {
+            settings.factOrder.map { res.getString(it.label) }
+        }
     )
 
     /*
@@ -844,8 +870,13 @@ private fun ColumnScope.RootPage(
         label = stringResource(R.string.settings_buttons),
         summary = null,
         onOpen = { onOpen(Page.BUTTONS) },
-        extra = (MENU_KEYS + PICK_KEYS + TURN_KEYS + STEP_KEYS).distinct()
-            .map { stringResource(it.label()) }
+        // ⚠️ Ricordati come i nomi dei campi delle info, e per la stessa ragione: le quattro
+        // liste fanno ventiquattro elementi e diciotto distinti, e si rifacevano tutte a ogni
+        // tocco su una voce del pannello.
+        extra = remember(res) {
+            (MENU_KEYS + PICK_KEYS + TURN_KEYS + STEP_KEYS).distinct()
+                .map { res.getString(it.label()) }
+        }
     )
 
     SwitchRow(
@@ -1778,14 +1809,28 @@ private fun ZoomAndFit(settings: Settings, onChange: (Settings) -> Unit) {
     // che la riga già mostra, quindi non costa una stringa.
     val zoomMaxLabel = stringResource(R.string.settings_zoom_max)
     Searchable(zoomMaxLabel) {
+        /*
+         * ⚠️⚠️ **IL CURSORE SCRIVE QUANDO IL DITO SI ALZA, E FINO ALLA `1.80` SCRIVEVA A OGNI
+         * FOTOGRAMMA** (censimento della UI del 2026-09-05): una strisciata sull'intera corsa
+         * ordinava quasi duecento riscritture complete delle preferenze, cioè duecento giri di
+         * `DataStore` per un valore che interessa solo alla fine del gesto.
+         * ⚠️ **Il valore mostrato viene dallo stato locale**, o il numero accanto al titolo
+         * resterebbe fermo mentre il dito si muove: quello che si scrive tardi è la
+         * **preferenza**, non quello che si vede.
+         * ⚠️ **Lo stato locale riparte quando la preferenza cambia da fuori** (la chiave è
+         * `settings.zoomMax`), così un ripristino dei valori di fabbrica riporta il cursore
+         * dove deve stare invece di lasciarlo dov'era.
+         */
+        var quanto by remember(settings.zoomMax) { mutableFloatStateOf(settings.zoomMax) }
         Text(
-            text = zoomMaxLabel + "   " + settings.zoomMax.roundToInt() + "x",
+            text = zoomMaxLabel + "   " + quanto.roundToInt() + "x",
             style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.padding(top = 12.dp)
         )
         Slider(
-            value = settings.zoomMax,
-            onValueChange = { onChange(settings.copy(zoomMax = it.roundToInt().toFloat())) },
+            value = quanto,
+            onValueChange = { quanto = it.roundToInt().toFloat() },
+            onValueChangeFinished = { onChange(settings.copy(zoomMax = quanto)) },
             valueRange = SettingsStore.ZOOM_MAX_MIN..SettingsStore.ZOOM_MAX_MAX,
             modifier = Modifier.fillMaxWidth()
         )
@@ -1903,7 +1948,12 @@ private fun HiddenFolders(settings: Settings, onChange: (Settings) -> Unit) {
  * la nota sulle frecce spente ai due estremi e i due glifi importati e mai usati.
  */
 @Composable
-private fun FactFields(settings: Settings, onChange: (Settings) -> Unit) {
+private fun FactFields(
+    settings: Settings,
+    onChange: (Settings) -> Unit,
+    /** Il guscio che scorre, per il trascinamento che arriva al bordo. Vedi [Reorderable]. */
+    scroll: ScrollState
+) {
     val order = settings.factOrder
     /*
      * ⚠️⚠️ **UNA RIGA IN TESTA NON SI MUOVE, ed è il nome del file**: la richiesta dell'utente
@@ -1914,6 +1964,7 @@ private fun FactFields(settings: Settings, onChange: (Settings) -> Unit) {
     Reorderable(
         items = order,
         fixed = 1,
+        scroll = scroll,
         onMove = { da, a -> onChange(settings.copy(factOrder = order.moved(da, a))) }
     ) { field, _ ->
         val acceso = field !in settings.factOff

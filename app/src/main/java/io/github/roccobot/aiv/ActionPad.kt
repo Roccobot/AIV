@@ -51,7 +51,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
@@ -138,9 +137,17 @@ fun ActionPad(
      * pannello: là il pavimento riporta a [PAD_EDGE] e le due colonne restano quelle di prima.
      * Non è una rinuncia mascherata: con le parole sotto il riquadro è una griglia di
      * piastrelle, e una piastrella non ha nessun motivo di allinearsi all'icona di una riga.
+     * ⚠️⚠️ **E VALE SOLO NEI MENU, DALLA `1.81`: nelle due schede il fianco torna [PAD_EDGE]**
+     * (censimento della UI del 2026-09-05). Il conto esiste per allinearsi alle icone delle
+     * **righe in lista sopra il riquadro**, e quelle ci sono nei due menu; nella scheda della
+     * selezione e nelle due file dell'editor sopra non c'è nessuna lista, quindi con le parole
+     * spente il riquadro veniva 7dp da sinistra e 4 da destra, cioè un'asimmetria visibile che
+     * non allineava niente. ⚠️ **La distinzione è [stretch] e non [labels]**: in un menu con le
+     * parole spente l'allineamento serve ancora, ed è là che è stato chiesto.
      */
     val cella = if (labels) PAD_CELL else PAD_CELL_BARE
-    val avvio = (MENU_ICON_MID - cella / 2).coerceAtLeast(PAD_EDGE)
+    val avvio =
+        if (stretch) PAD_EDGE else (MENU_ICON_MID - cella / 2).coerceAtLeast(PAD_EDGE)
     Column(
         modifier = modifier.padding(start = avvio, end = PAD_EDGE, top = PAD_GAP, bottom = PAD_GAP),
         verticalArrangement = Arrangement.spacedBy(PAD_GAP)
@@ -242,6 +249,19 @@ fun ActionPad(
  * dice 'questo si prende'. La riga di istruzioni sopra il riquadro lo scrive comunque, perché
  * un gesto senza segno visibile non lo prova nessuno.
  *
+ * ⚠️⚠️ **LE PAROLE QUI CI SONO SEMPRE, ANCHE A 'Etichette sotto le icone' SPENTA, ED È UNA
+ * SCELTA CHE FINO ALLA `1.80` NON ERA SCRITTA** (censimento della UI del 2026-09-05, dove il
+ * rilievo chiede l'argomento). Le tre ragioni, in ordine di peso:
+ * - **Qui un tasto lo si NOMINA per spostarlo**, e la parola è la sola cosa che dice quale si
+ *   sta prendendo. È anche lo stesso testo che alimenta le azioni parlate di questa pagina e i
+ *   testi con cui la ricerca delle impostazioni la trova.
+ * - **La cella ha un'altezza fissa** ([ARRANGE_HIGH]), che serve al conto del passo: senza le
+ *   parole resterebbe un glifo in mezzo all'aria, cioè una cella che somiglia **meno** al
+ *   riquadro vero, non più.
+ * - **La somiglianza che ha chiesto riguarda la DISPOSIZIONE**: griglia orizzontale, riflusso
+ *   sotto il dito, andata a capo dove va a capo il modello (*voglio agire su un oggetto che
+ *   somiglia al vero menu*, giro della `1.56`). Di quella non si perde niente.
+ *
  * @param columns quante colonne ha il riquadro **vero**, non quante ne stanno qui: la replica
  *   deve rompere le righe dove le rompe il modello.
  */
@@ -302,6 +322,19 @@ fun PadArrange(
                     else moto.animateTo(meta, spring(stiffness = Spring.StiffnessMediumLow))
                 }
                 val tinta = MaterialTheme.colorScheme.primary
+                /*
+                 * ⚠️⚠️ **IL TASTO IRREVERSIBILE PORTA IL COLORE DELL'ERRORE ANCHE QUI, DALLA
+                 * `1.81`** (censimento della UI del 2026-09-05): nel riquadro vero quel colore
+                 * è l'unica cosa che distingue 'elimina' dalla vicina 'sposta' (vedi la nota in
+                 * testa a [ActionPad]), e una replica che lo perde smette di somigliare al
+                 * modello proprio sulla voce in cui somigliare conta.
+                 * ⚠️ **Il rosso si legge, ed è misurato e non supposto**: il fondo della cella
+                 * è l'accento al 10% ([ARRANGE_BED]) sopra la superficie del pannello, non una
+                 * tinta piena, quindi non c'era nessun conflitto da evitare.
+                 */
+                val inchiostro =
+                    if (chiave.danger()) MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.onSurface
                 Box(
                     modifier = Modifier
                         .offset { IntOffset(moto.value.x.roundToInt(), moto.value.y.roundToInt()) }
@@ -361,13 +394,13 @@ fun PadArrange(
                         Icon(
                             imageVector = chiave.glyph(),
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface,
+                            tint = inchiostro,
                             modifier = Modifier.size(PAD_ICON)
                         )
                         Text(
                             text = stringResource(chiave.label()),
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurface,
+                            color = inchiostro,
                             textAlign = TextAlign.Center,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis
@@ -562,6 +595,18 @@ enum class PadKey(override val token: String) : Choice {
  * ⚠️ **'Rinomina' e non 'Ripristina'**: nel cestino quel tasto cambia nome, ma qui si riordina
  * un posto e non un contesto, e il nome che si legge è quello che si vede quasi sempre.
  */
+/**
+ * Se il tasto è quello **irreversibile**, cioè quello che porta il colore dell'errore.
+ *
+ * ⚠️⚠️ **VIVE QUI PER LO STESSO MOTIVO DI [label] E [glyph]: serve in due posti**, il riquadro
+ * vero (dove diventa il valore di serie di `PadAction.danger`) e la **replica** che si riordina,
+ * che di `PadAction` non ne ha nessuna e lavora sulle sole chiavi. Fino alla `1.80` là il tasto
+ * che elimina era identico agli altri, e la replica esiste per somigliare al modello.
+ * ⚠️ **Irreversibile e non 'importante'**: vale per l'eliminazione, e per niente che si possa
+ * disfare con l'operazione contraria. Chi aggiunge una voce da cui non si torna la nomina qui.
+ */
+fun PadKey.danger(): Boolean = this == PadKey.DELETE
+
 @StringRes
 fun PadKey.label(): Int = when (this) {
     PadKey.COPY -> R.string.menu_copy_here
@@ -661,7 +706,19 @@ class PadAction(
     val key: PadKey,
     val icon: ImageVector,
     @StringRes val label: Int,
-    val danger: Boolean = false,
+    /**
+     * Se è quella da cui non si torna.
+     *
+     * ⚠️⚠️ **SI RICAVA DALLA CHIAVE, DALLA `1.81`, E PRIMA ERA UN `false` CHE OGNI CHIAMANTE
+     * DOVEVA SMENTIRE** (censimento della UI del 2026-09-05). I quattro riquadri passavano
+     * `danger = true` sulla stessa voce, quindi il vincolo era scritto quattro volte e chi
+     * apriva un riquadro nuovo poteva dimenticarlo senza che niente lo segnalasse: il tasto
+     * irreversibile sarebbe uscito identico ai vicini. Adesso il colore arriva per
+     * costruzione, com'è per il velo di `lowered()`.
+     * ⚠️ **Resta un parametro e non diventa una lettura**: un chiamante che avesse una ragione
+     * per spegnerlo lo passa, e la ragione la scrive accanto.
+     */
+    val danger: Boolean = key.danger(),
     /**
      * Se il tasto si può premere adesso.
      *
@@ -920,7 +977,7 @@ private const val TINTA_MS = 55
  *
  * ⚠️ **Più piccola del glifo dell'app**, come ha chiesto (*il simbolo × centrato e piccolo*):
  * [PAD_ICON] è la misura di un glifo di comando, e questa sta un gradino sotto.
- * ⚠️⚠️ **È `Icons.Filled.Close` E NON UN DISEGNO NUOVO**: la regola di casa dice che un file che
+ * ⚠️⚠️ **È `Icons.Default.Close` E NON UN DISEGNO NUOVO**: la regola di casa dice che un file che
  * arriva si misura contro quello che Compose già porta e a zero scarto vince Material
  * (`CLAUDE.md`, § '🖌️ Come entra un disegno'). Qui non è arrivato nessun file: lui ha chiesto
  * *il simbolo ×*, che è esattamente quel glifo, e disegnarlo a mano vorrebbe dire tenere in
@@ -1242,7 +1299,7 @@ fun TapHoldFab(
                 }
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Close,
+                    imageVector = Icons.Default.Close,
                     // ⚠️ Muta: a parlare è il glifo dell'app, e due descrizioni sullo stesso
                     // tasto dànno due voci per un tasto solo.
                     contentDescription = null,

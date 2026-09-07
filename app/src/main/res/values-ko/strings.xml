@@ -26,6 +26,9 @@
     <string name="convert_webp">WebP</string>
     <string name="convert_webp_lossless">WebP 무손실</string>
     <string name="convert_quality">품질</string>
+    <string name="convert_quality_at">품질\u0020\u0020\u0020%1$d%%</string>
+    <string name="convert_percent">%1$d%%</string>
+    <string name="convert_pixels">%1$d x %2$d</string>
     <string name="convert_size">크기</string>
     <string name="convert_no_alpha">JPEG는 투명도를 유지하지 못합니다. 투명한 부분은 희게 변합니다.</string>
     <string name="convert_this_frame">화면에 보이는 %1$d번째 프레임을 내보냅니다.</string>

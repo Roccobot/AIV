@@ -26,6 +26,9 @@
     <string name="convert_webp">WebP</string>
     <string name="convert_webp_lossless">WebP tanpa kehilangan</string>
     <string name="convert_quality">Kualitas</string>
+    <string name="convert_quality_at">Kualitas\u0020\u0020\u0020%1$d%%</string>
+    <string name="convert_percent">%1$d%%</string>
+    <string name="convert_pixels">%1$d x %2$d</string>
     <string name="convert_size">Ukuran</string>
     <string name="convert_no_alpha">JPEG tidak menyimpan transparansi: bagian itu menjadi putih.</string>
     <string name="convert_this_frame">Mengekspor bingkai %1$d, yang tampil di layar.</string>

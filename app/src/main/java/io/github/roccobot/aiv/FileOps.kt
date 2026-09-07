@@ -448,7 +448,14 @@ private fun DeleteDialog(
         properties = loweredWindow(onDismiss),
         title = { Text(stringResource(R.string.delete_ask)) },
         text = {
-            Text(pluralStringResource(R.plurals.delete_desc, count, count))
+            // ⚠️ Lo scorrimento serve al tetto della `1.62`, come nei due dialoghi gemelli (il
+            // perché per esteso vive nel pannellino dell'estensione, in `RenameDialog.kt`).
+            // ⚠️ **Qui è un `Column` con dentro un `Text` e non un `Text` che scorre**: quel
+            // testo è un plurale che in qualche lingua viene lungo, e lo scorrimento vuole un
+            // contenitore che possa essere più alto del suo riquadro.
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Text(pluralStringResource(R.plurals.delete_desc, count, count))
+            }
         },
         confirmButton = {
             TextButton(

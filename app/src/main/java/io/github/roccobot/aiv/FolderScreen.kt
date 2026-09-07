@@ -72,9 +72,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.pluralStringResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -180,7 +180,25 @@ fun FolderScreen(
     onTreePath: (String?) -> Unit,
     /** Una fotografia toccata nella vista delle cartelle di sistema: la serie e la posizione. */
     onTreeOpen: (List<Uri>, Int) -> Unit,
-    onBack: (() -> Unit)?,
+    /**
+     * Se questa è la veste **'scegli la cartella d'avvio'** invece della casa.
+     *
+     * ⚠️⚠️ **È IL DATO TIPIZZATO, E FINO ALLA `1.80` LA VESTE SI DEDUCEVA DA UN `onBack` NULLO**
+     * (censimento della UI del 2026-09-05). Il valore esisteva già nel chiamante,
+     * `Screen.Folders.forStart`, quindi la deduzione traduceva un dato in una convenzione e
+     * chiedeva a chi legge di sapere che 'senza Indietro' vuol dire 'sono la casa'.
+     * ⚠️ **La deduzione teneva in piedi anche uno smart cast**, e va saputo per non rifarla: con
+     * `home` ricavato dal confronto con `null`, Kotlin sapeva che dentro il ramo `onBack` non era
+     * nullo. Adesso quel parametro non è più annullabile, quindi non c'è niente da dedurre.
+     */
+    forStart: Boolean,
+    /**
+     * Torna indietro dalla scelta della cartella d'avvio.
+     *
+     * ⚠️ **Vale solo con [forStart] acceso**: nella casa non c'è nessun posto da cui tornare, e
+     * là questa non viene chiamata mai.
+     */
+    onBack: () -> Unit = {},
     /**
      * Le cartelle del telefono, non filtrate, e `null` finché la prima lettura non è finita.
      * Vedi `ViewerViewModel.buckets`.
@@ -256,7 +274,7 @@ fun FolderScreen(
 
     // La veste 'casa' e quella 'scegli la cartella d'avvio' si distinguono da qui in giù:
     // la prima porta il frontespizio e il tastino, la seconda la freccia Indietro.
-    val home = onBack == null
+    val home = !forStart
 
     BoxWithConstraints(modifier = modifier.fillMaxSize().safeDrawingPadding()) {
         val density = LocalDensity.current
@@ -1196,7 +1214,12 @@ internal fun Covers(
         // scelta vale solo sugli schermi abbastanza larghi. La misura minima resta
         // scritta in `FOLDER_CELL`, che dice a quante colonne una copertina smette di
         // servire.
-        columns = GridCells.Fixed(columns),
+        // ⚠️⚠️ **IL NUMERO SCELTO VALE SUL LATO CORTO, DALLA `1.81`, come nella griglia delle
+        // immagini**: [spread] ne aggiunge altrettante quando la finestra è larga, invece di
+        // allargare le copertine. Fino alla `1.80` questo conto lo faceva la sola griglia
+        // delle immagini, quindi la stessa voce dava due comportamenti nelle due viste
+        // gemelle: il perché per esteso è sulla funzione.
+        columns = GridCells.Fixed(spread(columns, LocalWindowInfo.current)),
         horizontalArrangement = Arrangement.spacedBy(FOLDER_GAP),
         verticalArrangement = Arrangement.spacedBy(FOLDER_GAP),
         // ⚠️ Lo spazio in fondo tiene l'ultima cartella fuori da sotto il tastino, che
@@ -1533,7 +1556,7 @@ private const val NARROW_COLUMNS = 4
 @Composable
 private fun Marchio(descrizione: String?) {
     Icon(
-        painter = painterResource(R.drawable.ic_aiv_mark),
+        imageVector = Glyphs.AivMark,
         contentDescription = descrizione,
         modifier = Modifier
             .offset(x = MARK_WIDE * MARK_DX, y = MARK_HIGH * MARK_DY)

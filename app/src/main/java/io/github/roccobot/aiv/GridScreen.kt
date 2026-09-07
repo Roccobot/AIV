@@ -102,7 +102,6 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -175,26 +174,38 @@ fun GridScreen(
      * là il suo numero, quindi la voce diceva 'griglia delle cartelle' e mentiva a metà.
      * ⚠️ **La chiave e il valore di fabbrica non si toccano**: la voce è spostata di dominio, non
      * sostituita, e chi aggiorna non deve perdere la scelta che aveva fatto.
+     * ⚠️⚠️ **IL VALORE DI RISERVA SI RICAVA DAL VALORE DI FABBRICA, dalla `1.81`**: fino alla
+     * `1.80` era `FOLDER_COLUMNS.first()`, che dava lo stesso numero **per caso** (censimento
+     * della UI del 2026-09-05). Il giorno che l'elenco delle scelte cominciasse da 1, la
+     * griglia montata senza questo parametro ne mostrerebbe una sola, e nessuno avrebbe
+     * toccato il valore di fabbrica. Vale per i cinque parametri che ne hanno uno: la riserva
+     * dice quello che l'impostazione dice, o non è una riserva.
      */
-    columns: Int = FOLDER_COLUMNS.first(),
+    columns: Int = Settings().folderColumns,
     /**
      * I campi delle informazioni sul file, nell'ordine scelto: `Settings.factRows`.
      *
      * ⚠️ **Arriva un elenco e non le impostazioni intere**: questa schermata non ne usa
      * nient'altro, e passarle tutte vorrebbe dire ricomporre la griglia a ogni ritocco di
      * una voce che qui non c'entra niente.
-     * ⚠️ Il valore di serie tiene in piedi le anteprime e i richiami che non lo passano.
+     * ⚠️⚠️ **IL VALORE DI SERIE TIENE IN PIEDI IL BANCO DI PROVA, e fino alla `1.80` qui era
+     * scritto 'le anteprime'**, che nel progetto non esistono (censimento della UI del
+     * 2026-09-05): nessuna `@Preview` e un solo insieme di sorgenti. La ragione vera è nata
+     * dopo, con la `1.74`, e vale: `FrontespizioTest` monta questa schermata **vera** con i
+     * soli argomenti che la prova misura, e chiedergli anche i nove che non c'entrano niente
+     * vorrebbe dire scrivere in una prova dei dati che non guarda nessuno.
+     * ⚠️ **Ed è il valore di fabbrica dell'impostazione**, non un valore comodo.
      */
-    factFields: List<FactField> = FactField.entries,
+    factFields: List<FactField> = Settings().factRows,
     /**
      * Se il cestino è acceso. Vedi `Settings.binOn`.
      *
      * ⚠️ **Decide due cose insieme**: se 'elimina' sposta nel cestino o cancella, e se prima
      * compaia una conferma. Il perché siano la stessa cosa sta in [FileJob.Delete].
-     * ⚠️ Il valore di serie tiene in piedi le anteprime e i richiami che non lo passano, ed è
-     * quello di fabbrica dell'impostazione.
+     * ⚠️ Il valore di serie è quello di fabbrica dell'impostazione, letto da lei: chi lo
+     * tiene in piedi è il banco di prova, e il perché è su [factFields].
      */
-    binOn: Boolean = true,
+    binOn: Boolean = Settings().binOn,
     /** Che cosa il filtro volatile lascia vedere. Vedi `ViewerViewModel.gridFilter`. */
     filter: MediaKind = MediaKind.ALL,
     onFilter: (MediaKind) -> Unit = {},
@@ -223,16 +234,16 @@ fun GridScreen(
      * parametro successivo, quindi si leggeva come se parlasse di quello.
      */
     /** Se 'Copia lista' mette anche il percorso in testa. Vedi `Settings.listPath`. */
-    listPath: Boolean = false,
+    listPath: Boolean = Settings().listPath,
     /** Se in testa alla selezione si legge il peso. Vedi `Settings.pickWeight`. */
-    pickWeight: Boolean = true,
+    pickWeight: Boolean = Settings().pickWeight,
     /**
      * Se sotto ogni miniatura si legge il nome del file. Vedi `Settings.gridNames`.
      *
-     * ⚠️ Il valore di serie è quello di fabbrica dell'impostazione, cioè **spento**: le
-     * anteprime e i richiami che non lo passano mostrano la griglia com'è di solito.
+     * ⚠️ Il valore di serie è quello di fabbrica dell'impostazione, cioè **spento**: la griglia
+     * montata dal banco di prova è quella di sempre (vedi [factFields]).
      */
-    gridNames: Boolean = false,
+    gridNames: Boolean = Settings().gridNames,
     /**
      * Se questa griglia è il **cestino**.
      *
@@ -259,8 +270,8 @@ fun GridScreen(
      * `remember(items)`, poco più sotto). Senza questo avviso, trenta foto spuntate
      * sparirebbero perché qualcuno ha mandato una fotografia da un altro dispositivo. Il
      * perché la rilettura non si limiti ad aspettare sta su `ViewerViewModel.gridBusy`.
-     * ⚠️ Il valore di serie non fa niente: le anteprime e i richiami che non lo passano non
-     * hanno un modello dietro da avvisare.
+     * ⚠️ Il valore di serie non fa niente, e per una funzione va bene: chi monta questa
+     * schermata nel banco di prova non ha un modello dietro da avvisare.
      */
     onBusy: (Boolean) -> Unit = {}
 ) {
@@ -423,6 +434,19 @@ fun GridScreen(
     BackHandler(enabled = picking) {
         cleared = chosen
         chosen = emptySet()
+        /*
+         * ⚠️⚠️ **E L'ALTRA NOTIFICA IN FONDO SI SPEGNE, DALLA `1.81`: le due si sovrapponevano
+         * ESATTAMENTE** (censimento della UI del 2026-09-05). Le due superfici hanno lo stesso
+         * allineamento in fondo allo schermo, quindi non si affiancano: si coprono. Lo
+         * spegnimento incrociato esisteva già ma andava in un verso solo (una selezione nuova
+         * spegne questa, vedi l'effetto su `picking`), e la sequenza che passava fra le maglie
+         * è stretta ma non impedita da niente: eliminare col cestino attivo, aprire una
+         * selezione nuova, toccare Indietro entro i tre secondi dell'offerta.
+         * ⚠️ **Si spegne l'offerta e non questa**: l'azzeramento è la conseguenza del gesto che
+         * la persona ha appena fatto, quindi è la notizia di adesso; l'offerta di disfare sta
+         * scadendo da sé, e chi voleva usarla l'avrebbe già toccata.
+         */
+        Undo.clear()
     }
 
     /**
@@ -603,6 +627,20 @@ fun GridScreen(
      * nota su `sheetOpen`), quindi chiuderlo vorrebbe dire scioglierla: il dialogo di
      * un'operazione gli si disegna sopra, e alla fine dell'operazione la selezione si svuota
      * da sé (`perform`) portandosi via il pannello.
+     *
+     * ⚠️⚠️ **QUESTA LISTA NON È RICORDATA, ED È UNA SCELTA MISURATA E NON UNA DIMENTICANZA**
+     * (censimento della UI del 2026-09-05, dove il rilievo è confermato e il rimedio proposto è
+     * un `remember`). Le dieci chiusure catturano quattro parametri (`bin`, `binOn`,
+     * `listPath`, `items`) più il contesto, le risorse e l'ambito, quindi un `remember` vorrebbe
+     * **sette chiavi** da tenere allineate a mano: chi aggiungesse un'azione che cattura un
+     * parametro nuovo senza aggiungere la sua chiave otterrebbe una lambda che legge un valore
+     * **congelato**, e quel difetto non dà nessun errore né al build né a schermo. Il costo che
+     * si evita è dieci allocazioni per ricomposizione **della schermata**, non per fotogramma:
+     * `chosen` ha l'uguaglianza strutturale di serie, quindi un fotogramma di trascinamento che
+     * ricalcola lo stesso insieme non ricompone niente.
+     * ⚠️ **Quello che si legge vivo si legge vivo comunque**: `chosen` e `job` sono stati, e una
+     * lambda ricordata li leggerebbe al momento della chiamata. Il rischio è tutto sui
+     * parametri, che stati non sono.
      */
     val pickActions = listOf(
         // ⚠️ Nel cestino al posto della rinomina c'è il ripristino: un file là dentro non si
@@ -658,7 +696,6 @@ fun GridScreen(
             key = PadKey.DELETE,
             icon = Glyphs.PickDelete,
             label = R.string.pick_delete,
-            danger = true,
             onHold = if (bin || !binOn) null else {
                 {
                     job = FileJob.Delete(chosen.toList(), forGood = true)
@@ -1023,6 +1060,17 @@ fun GridScreen(
                         text = title,
                         style = MaterialTheme.typography.headlineSmall,
                         maxLines = 1,
+                        /*
+                         * ⚠️⚠️ **L'ELLISSI IN CODA, DALLA `1.81`: fino alla `1.80` un nome
+                         * lungo si tagliava a metà glifo** (censimento della UI del
+                         * 2026-09-05). ⚠️ **Non è il caso dei nomi di FILE**, dove l'ellissi
+                         * in coda è vietata perché mangerebbe l'estensione e si usa quella in
+                         * mezzo (`Names.kt`, `RenameDialog.kt`, `FileOps.kt`): questo è il
+                         * nome di una raccolta del `MediaStore`, che estensione non ha.
+                         * ⚠️ **E la copia nella fascia la portava già**, quindi le due copie
+                         * dello stesso nome si troncavano in due modi diversi.
+                         */
+                        overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.heading().graphicsLayer { alpha = 1f - aperto() }
                     )
                     /*
@@ -1137,7 +1185,7 @@ fun GridScreen(
                      * disegno costa niente: la soglia è la stessa a ogni fotogramma.
                      */
                     Icon(
-                        painter = painterResource(R.drawable.ic_folder_aiv),
+                        imageVector = Glyphs.FolderAiv,
                         contentDescription = null,
                         modifier = Modifier
                             .frontIconMeasure(
@@ -1930,7 +1978,36 @@ private fun Thumbnail(
      * anche quando i nomi sotto sono di due righe e di una: quello che varia è l'altezza
      * della cella, e la griglia dà a tutta la riga l'altezza della più alta.
      */
-    Column(verticalArrangement = Arrangement.spacedBy(NAME_GAP)) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(NAME_GAP),
+        /*
+         * ⚠️⚠️ **IL TOCCO VIVE SULLA COLONNA E NON SUL RIQUADRO, DALLA `1.81`: così il nome
+         * FA PARTE della piastrella** (censimento della UI del 2026-09-05). Fino alla `1.80`
+         * il `clickable` viveva sull'immagine, cioè dentro il quadrato, e il nome sotto era
+         * un fratello del quadrato: toccarlo non apriva niente, e le due viste gemelle
+         * rispondevano in modo diverso allo stesso gesto, perché la griglia delle **cartelle**
+         * fa il contrario e lo dichiara.
+         * ⚠️⚠️ **E COSÌ IL LETTORE DI SCHERMO LEGGE UN NODO SOLO**: `clickable` unisce le
+         * semantiche dei discendenti, quindi la posizione nella cartella e il nome del file
+         * arrivano insieme invece di essere due voci da attraversare.
+         * ⚠️ **Il tocco LUNGO resta dov'è**, cioè sulla griglia: quel gesto continua col
+         * trascinamento e attraversa più piastrelle, quindi non può vivere dentro una (la
+         * nota per esteso è più sotto, sull'immagine).
+         */
+        modifier = Modifier
+            .clickable(onClick = onClick, role = Role.Button)
+            /*
+             * ⚠️⚠️ **LA SCELTA SI DICHIARA, e fino alla `1.80` non lo faceva** (censimento
+             * della UI del 2026-09-05): la descrizione porta la posizione nella cartella, la
+             * spunta è dichiarata decorativa, e in selezione il tocco breve alterna la scelta,
+             * quindi la piastrella si comportava da interruttore senza dirlo. Chi legge con
+             * TalkBack non aveva **nessun** modo di sapere quali immagini aveva scelto.
+             * ⚠️ **`selected` e non una stringa di stato**: il nome dello stato lo dice il
+             * lettore di schermo nella lingua del telefono, mentre una `stateDescription`
+             * sarebbe stata una stringa nuova in ventotto lingue per dire la stessa cosa.
+             */
+            .semantics { selected = chosen }
+    ) {
     Box(modifier = Modifier.aspectRatio(1f)) {
         AsyncImage(
             // ⚠️ La richiesta viene da `Thumbs` e non è costruita qui: la misura è parte
@@ -1959,25 +2036,14 @@ private fun Thumbnail(
                 // Il fondo si vede finché la miniatura non è pronta: senza, la griglia
                 // lampeggerebbe del colore della pagina.
                 .background(MaterialTheme.colorScheme.surfaceVariant)
-                // ⚠️⚠️ **IL TOCCO LUNGO NON STA PIÙ QUI, ed è la lezione già pagata dalla
+                // ⚠️⚠️ **NESSUNO DEI DUE TOCCHI VIVE QUI, ed è la lezione già pagata dalla
                 // `0.22`**: dalla `0.53` il tocco lungo apre una selezione **da/a** che
                 // continua col trascinamento, e un gesto che comincia su una piastrella e
-                // finisce su un'altra non può vivere dentro la piastrella. Sta sulla
-                // griglia, che è l'unica che le vede tutte. ⚠️ Chi volesse aggiungere un
-                // gesto lo aggiunga **dentro** quello, non accanto.
-                .clickable(onClick = onClick, role = Role.Button)
-                /*
-                 * ⚠️⚠️ **LA SCELTA SI DICHIARA, e fino alla `1.80` non lo faceva**
-                 * (censimento della UI del 2026-09-05): la descrizione porta la posizione
-                 * nella cartella, la spunta è dichiarata decorativa, e in selezione il tocco
-                 * breve alterna la scelta, quindi la piastrella si comportava da interruttore
-                 * senza dirlo. Chi legge con TalkBack non aveva **nessun** modo di sapere
-                 * quali fotografie aveva scelto.
-                 * ⚠️ **`selected` e non una stringa di stato**: il nome dello stato lo dice il
-                 * lettore di schermo nella lingua del telefono, mentre una `stateDescription`
-                 * sarebbe stata una stringa nuova in ventotto lingue per dire la stessa cosa.
-                 */
-                .semantics { selected = chosen }
+                // finisce su un'altra non può vivere dentro la piastrella, quindi vive sulla
+                // griglia, che è l'unica che le vede tutte; il tocco breve dalla `1.81` sta
+                // sulla **colonna**, così comprende anche il nome (vedi la nota là sopra).
+                // ⚠️ Chi volesse aggiungere un gesto lo aggiunga **dentro** uno dei due, non
+                // accanto.
         )
         /*
          * ⚠️⚠️ **IL VELO DELLA SCELTA VA PRIMA DEL NASTRO, e l'ordine è una decisione**:
@@ -2331,7 +2397,8 @@ private fun PickWeight(chosen: Set<Uri>) {
     val weight by produceState<Long?>(null, chosen, context) {
         value = null
         delay(WEIGH_WAIT)
-        value = factsOf(context, chosen.toList()).bytes
+        // ⚠️ **La sola somma e non tutti i dati, dalla `1.81`**: il perché è su [weightOf].
+        value = weightOf(context, chosen.toList())
     }
     Text(
         text = weight?.let { formatBytes(it) }.orEmpty(),
@@ -2396,8 +2463,16 @@ private const val WEIGH_WAIT = 300L
  * intera, e su una finestra più stretta dell'alta il tetto la protegge lo stesso.
  * ⚠️ **Con una finestra ancora da misurare vale la scelta**: al primo fotogramma la misura può
  * essere zero, e una divisione per zero darebbe una griglia a una colonna che poi salta.
+ *
+ * ⚠️⚠️ **NON È PIÙ PRIVATA DALLA `1.81`, PERCHÉ LA VOCE È UNA E DEVE VALERE IN TUTTE E DUE LE
+ * GRIGLIE** (censimento della UI del 2026-09-05). `Settings.folderColumns` governa la griglia
+ * delle immagini **e** quella delle copertine dalla `1.66`, ma questo conto lo faceva solo la
+ * prima: ruotando il telefono le miniature restavano della loro misura e le copertine si
+ * allargavano fino a diventare enormi, cioè la stessa scelta dava due comportamenti. È la
+ * regola che l'utente ha dettato sul tocco lungo del filtro: *due controlli identici devono
+ * comportarsi allo stesso modo*.
  */
-private fun spread(scelte: Int, finestra: WindowInfo): Int {
+internal fun spread(scelte: Int, finestra: WindowInfo): Int {
     val misura = finestra.containerSize
     val corto = minOf(misura.width, misura.height)
     if (corto <= 0) return scelte
@@ -2495,10 +2570,15 @@ private val CORNER = 4.dp
  * ⚠️ Larga quanto **mezza piastrella**: più stretta e la si manca, più larga e si comincia
  * a scorrere mentre si sta ancora scegliendo in mezzo allo schermo.
  */
-private val EDGE_BAND = 56.dp
+/*
+ * ⚠️ **Non sono più private dalla `1.81`**: le legge anche il riordino a trascinamento
+ * (`Reorder.kt`), che ha lo stesso problema e lo risolve con lo stesso schema. Due numeri
+ * scritti due volte per la stessa banda darebbero due velocità diverse al primo ritocco.
+ */
+internal val EDGE_BAND = 56.dp
 
 /** Quanti pixel al fotogramma, al massimo, cioè col dito sul bordo estremo. */
-private val EDGE_SPEED = 14.dp
+internal val EDGE_SPEED = 14.dp
 
 
 /** Tutti i riquadri sono la stessa cosa, e dirlo permette a Compose di riusarli. */

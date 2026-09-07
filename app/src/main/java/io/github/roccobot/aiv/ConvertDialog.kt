@@ -177,9 +177,21 @@ fun ConvertDialog(
                 // ⚠️ Il cursore compare solo dove serve: sul senza perdita la qualità non ha
                 // nessun effetto, e lasciarlo in scena spento sarebbe un comando che mente.
                 if (target.lossy) {
-                    Heading(
-                        stringResource(R.string.convert_quality) + "   " + quality + "%"
-                    )
+                    /*
+                     * ⚠️⚠️ **IL TITOLO E LA PERCENTUALE ARRIVANO DALLE RISORSE, e fino alla
+                     * `1.80` si componevano in Kotlin** (censimento della UI del 2026-09-05):
+                     * erano gli unici testi dell'app fuori dalla rete di `i18n-check.py`,
+                     * quindi il segno di percentuale, la sua posizione e la spaziatura
+                     * restavano gli stessi in ventotto lingue, comprese quelle che scrivono le
+                     * cifre in un altro modo.
+                     * ⚠️ **I tre spazi vivono nella stringa** (come `\u0020`, o l'XML li
+                     * collassa in uno): erano un riempimento tipografico scritto nel codice, e
+                     * una lingua che volesse i due punti adesso può metterli.
+                     * ⚠️ **Con `%1$d` le cifre le formatta `getString` sulla locale in
+                     * vigore**, che è il guadagno vero: in arabo o in bengalese arrivano nella
+                     * numerazione di quella lingua.
+                     */
+                    Heading(stringResource(R.string.convert_quality_at, quality))
                     Slider(
                         value = quality.toFloat(),
                         onValueChange = { quality = it.roundToInt() },
@@ -197,13 +209,17 @@ fun ConvertDialog(
                         FilterChip(
                             selected = option == size,
                             onClick = { size = option },
-                            label = { Text("${option.percent}%") },
+                            label = { Text(stringResource(R.string.convert_percent, option.percent)) },
                             modifier = Modifier.picked(option == size)
                         )
                     }
                 }
                 Note(
-                    "${size.applyTo(image.pixelWidth)} x ${size.applyTo(image.pixelHeight)}"
+                    stringResource(
+                        R.string.convert_pixels,
+                        size.applyTo(image.pixelWidth),
+                        size.applyTo(image.pixelHeight)
+                    )
                 )
 
                 if (!target.keepsAlpha) {

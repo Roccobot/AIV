@@ -1,6 +1,8 @@
 package io.github.roccobot.aiv
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
@@ -11,18 +13,23 @@ import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.customActions
@@ -47,10 +54,30 @@ import kotlin.math.roundToInt
  * Chi mettesse qui dentro una riga di due righe di testo romperebbe il conto, e per questo
  * l'altezza è imposta da qui e non lasciata al contenuto.
  *
- * ⚠️ **Niente `LazyColumn`**: questi elenchi si vedono tutti insieme e non scorrono da soli, e
- * una lista pigra riciclerebbe proprio le righe che si stanno spostando.
+ * ⚠️ **Niente `LazyColumn`**: le righe restano tutte composte, perché una lista pigra
+ * riciclerebbe proprio quelle che si stanno spostando.
+ *
+ * ⚠️⚠️ **IL DITO SUL BORDO FA SCORRERE LA PAGINA, DALLA `1.81`, E FINO ALLA `1.80` QUESTA KDOC
+ * ASSUMEVA CHE NON SERVISSE** (censimento della UI del 2026-09-05). Diceva che *questi elenchi
+ * si vedono tutti insieme*, e per l'unico chiamante che il componente ha era falso: tredici
+ * righe da [ROW] fanno più di settecento dp di solo elenco, su una finestra che di posto ne
+ * lascia intorno ai seicento. Quindi l'ultima riga non si poteva raggiungere trascinando: il
+ * gesto **consuma** gli eventi, quindi finché il dito è giù il guscio che scorre non si muove
+ * da sé.
+ * ⚠️ **Lo schema è quello della selezione da/a della griglia**, che lo stesso problema lo aveva
+ * già risolto: la spinta si aggiorna a ogni **fotogramma** e non a ogni evento del dito (con la
+ * pagina che scorre sotto un dito fermo non arriva nessun evento), e cresce avvicinandosi al
+ * bordo invece di essere un interruttore.
+ * ⚠️⚠️ **E LO SCARTO CRESCE DI QUANTO LA PAGINA È SCORSA**: il dito resta fermo **sullo
+ * schermo**, quindi sotto di lui passa contenuto nuovo, e senza quella somma la riga presa
+ * scapperebbe via da sotto il dito nel verso opposto.
+ * ⚠️ **Questo pezzo il banco di prova non lo vede**, e va detto: vuole un gesto continuo e un
+ * viewport vero, cioè le due cose che su una macchina senza telefono non ci sono.
  *
  * @param fixed quante righe in testa **non** si spostano e non si possono scavalcare.
+ * @param scroll il guscio che scorre, quando il chiamante ne ha uno. ⚠️ Senza, il
+ *   trascinamento resta quello di prima e non scorre niente: è un valore di serie che **spegne**
+ *   una funzione, non uno che la finge.
  */
 @Composable
 fun <T> Reorderable(
@@ -58,10 +85,18 @@ fun <T> Reorderable(
     onMove: (from: Int, to: Int) -> Unit,
     modifier: Modifier = Modifier,
     fixed: Int = 0,
+    scroll: ScrollState? = null,
     row: @Composable (item: T, index: Int) -> Unit
 ) {
     val haptics = LocalHapticFeedback.current
     val altaPx = with(LocalDensity.current) { ROW.toPx() }
+    val edgePx = with(LocalDensity.current) { EDGE_BAND.toPx() }
+    val speedPx = with(LocalDensity.current) { EDGE_SPEED.toPx() }
+    // ⚠️ L'altezza della FINESTRA e non quella del riquadro: la banda che fa scorrere è quella
+    // vicina al bordo dello schermo, cioè dove il dito non ha più strada.
+    val alta = LocalWindowInfo.current.containerSize.height.toFloat()
+    // Dove comincia questo riquadro dentro la finestra: serve a sapere dov'è il dito.
+    var testa by remember { mutableFloatStateOf(0f) }
     /*
      * ⚠️ **Le due etichette si leggono QUI e non dentro `semantics`**: quel blocco non è un
      * ambito composabile, quindi una risorsa letta là dentro non si compila. Sono le stringhe
@@ -76,7 +111,27 @@ fun <T> Reorderable(
     val a = if (da < 0) -1 else
         (da + (scarto / altaPx).roundToInt()).coerceIn(fixed, items.lastIndex)
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    LaunchedEffect(da >= 0, scroll) {
+        if (scroll == null) return@LaunchedEffect
+        while (da >= 0) {
+            withFrameNanos { }
+            if (da < 0) break
+            val dito = testa + da * altaPx + scarto + altaPx / 2f
+            val spinta = when {
+                alta <= 0f -> 0f
+                dito < edgePx -> -(edgePx - dito) / edgePx
+                dito > alta - edgePx -> (dito - (alta - edgePx)) / edgePx
+                else -> 0f
+            }
+            if (spinta != 0f) scarto += scroll.scrollBy(spinta.coerceIn(-1f, 1f) * speedPx)
+        }
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .onGloballyPositioned { testa = it.positionInWindow().y }
+    ) {
         items.forEachIndexed { at, item ->
             val preso = at == da
             /*

@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.database.ContentObserver
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -11,6 +12,7 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -469,11 +471,23 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     /**
-     * Called from onCreate and onNewIntent, and NOT from the composition: reading
-     * the intent while composing meant re-reading it on every recomposition, and
-     * the only thing that kept it from re-loading was a guard on the address.
+     * Se l'intento di partenza è già stato letto da **questa** istanza del modello.
+     *
+     * ⚠️⚠️ **È LA GUARDIA DELL'AVVIO, e vive qui perché il modello è la cosa che distingue una
+     * rotazione dalla morte del processo**: sopravvive alla prima e non alla seconda, quindi la
+     * risposta a 'l'ho già letto?' è giusta in tutti e due i casi. Il perché per esteso, col
+     * difetto che chiude, è in `onCreate`.
+     */
+    var intentRead = false
+        private set
+
+    /**
+     * La si chiama da `onCreate` e da `onNewIntent`, e **non** dalla composizione: leggere
+     * l'intento mentre si compone vorrebbe dire rileggerlo a ogni ricomposizione, e a tenerlo
+     * fermo era soltanto una guardia sull'indirizzo.
      */
     fun handleIntent(intent: Intent?) {
+        intentRead = true
         val uri = intent.imageUri()
         if (uri == null) {
             // Partita dalla propria icona: si va dove stanno le immagini, cioè alle cartelle.
@@ -1928,15 +1942,53 @@ class ViewerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        // Only on a fresh start: on a rotation the ViewModel already holds the
-        // picture, and re-reading the intent would load it a second time.
-        if (savedInstanceState == null) model.handleIntent(intent)
+        /*
+         * ⚠️⚠️ **LA GUARDIA È IL MODELLO E NON `savedInstanceState`, DALLA `1.81`: COSÌ UN
+         * COLLEGAMENTO APERTO DA FUORI NON SI PERDE PIÙ QUANDO IL SISTEMA UCCIDE IL PROCESSO**
+         * (censimento della UI del 2026-09-05). La domanda giusta non è 'questa è la prima
+         * creazione?' ma 'l'intento di partenza è già stato letto?', e le due divergono in un
+         * caso: con il processo ucciso in fondo e ricreato, il `Bundle` c'è (quindi la vecchia
+         * guardia saltava la lettura) ma il modello è **nuovo**, quindi la schermata nasceva a
+         * [HOME]. Cioè si tornava dalla galleria di un'altra app e al posto dell'immagine si
+         * trovava la casa.
+         * ⚠️ **Alla rotazione non cambia niente**, che è la ragione per cui la guardia esiste: là
+         * il modello sopravvive e ha già l'immagine in mano, quindi rileggere l'intento la
+         * caricherebbe una seconda volta.
+         */
+        if (!model.intentRead) model.handleIntent(intent)
         // ⚠️ Il tema si legge QUI, fuori da `AivApp`, perché deve avvolgerlo: dentro,
         // avrebbe già ereditato la tavolozza sbagliata. Finché le impostazioni non sono
         // arrivate vale il sistema, che è anche il valore di fabbrica della scelta.
         setContent {
             val chosen = model.settings?.uiTheme ?: UiTheme.SYSTEM
-            AivTheme(darkTheme = chosen.isDark()) {
+            val scuro = chosen.isDark()
+            /*
+             * ⚠️⚠️ **LE BARRE DI SISTEMA SEGUONO IL TEMA DELL'APP, e fino alla `1.80` seguivano
+             * quello del SISTEMA** (censimento della UI del 2026-09-05, l'unico rilievo di
+             * gravità alta). `enableEdgeToEdge()` senza argomenti costruisce due
+             * `SystemBarStyle.auto`, il cui riconoscimento del buio legge la configurazione
+             * delle risorse, e da quel valore scrive l'aspetto chiaro o scuro delle **icone**
+             * di stato e di navigazione. Il tema dell'app invece si risolve qui, nella
+             * composizione, da `model.settings?.uiTheme`: le due fonti divergono ogni volta che
+             * si sceglie 'Chiaro' o 'Scuro' contro il sistema, e nel caso peggiore le icone
+             * finiscono chiare su fondo chiaro, cioè illeggibili.
+             * ⚠️ **Si rifà quando il tema cambia**, e non solo in `onCreate`: la scelta si può
+             * cambiare dalle impostazioni senza ricreare l'attività, e una chiamata sola
+             * lascerebbe le icone del tema di prima. La chiave è il tema risolto, quindi
+             * seguire il sistema mentre il sistema cambia funziona da sé.
+             * ⚠️ **`SystemBarStyle.dark` e non `auto`**: `auto` fa la stessa lettura sbagliata.
+             * Il colore di fondo resta trasparente in tutti e due i casi, che è quello che
+             * l'app dipinge da sé.
+             */
+            LaunchedEffect(scuro) {
+                val stile = if (scuro) {
+                    SystemBarStyle.dark(Color.TRANSPARENT)
+                } else {
+                    SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+                }
+                enableEdgeToEdge(statusBarStyle = stile, navigationBarStyle = stile)
+            }
+            AivTheme(darkTheme = scuro) {
                 // ⚠️ Anche la scelta di che cosa c'è dietro un pannello si mette in scena QUI,
                 // accanto al tema e per la stessa ragione: la chiedono finestre che le
                 // impostazioni non le ricevono. Il perché per esteso sta su [LocalAivDepth].
@@ -2188,6 +2240,21 @@ internal fun AnimatedContentTransitionScope<Screen>.cambioSchermata(): ContentTr
 /**
  * Quello che sta in scena adesso.
  *
+ * ⚠️⚠️ **NESSUNA DELLE INTERCETTAZIONI DI 'INDIETRO' HA L'ANTEPRIMA DEL GESTO, E RESTA COSÌ
+ * FINCHÉ NON LO CHIEDE LUI** (censimento della UI del 2026-09-05: il rilievo è confermato e non
+ * è un difetto da chiudere in un lotto di igiene). Il fatto è esatto: `PredictiveBackHandler`
+ * non compare mai, la libreria che lo offre è già in progetto, e con `targetSdk` 36 l'anteprima
+ * di sistema è accesa di serie, quindi trascinando dal bordo si vede la schermata **di sotto**
+ * invece della nostra che si scosta.
+ * ⚠️⚠️ **PERCHÉ NON ENTRA QUI: NON È IGIENE, È UN'ANIMAZIONE NUOVA IN QUATTORDICI PUNTI.** Ogni
+ * intercettazione dovrebbe raccontare il proprio scostamento mentre il dito trascina, cioè una
+ * decisione di movimento per ciascuna, e il movimento in questa app lo detta lui giro per giro
+ * (i dieci giri della sfocatura sono la misura di quanto conti). Farlo da sé vorrebbe dire
+ * quattordici animazioni mai chieste, e il banco di prova non le vede nemmeno.
+ * ⚠️ **Quello che si può dire misurato**: non manca nessuna dipendenza, e non serve nessun flag
+ * nel manifesto (`android:enableOnBackInvokedCallback` da `targetSdk` 33 il sistema lo ignora).
+ * Il lavoro è tutto nel decidere che cosa si vede mentre il dito tira.
+ *
  * ⚠️⚠️ **STA IN UNA FUNZIONE SUA perché durante la dissolvenza ne vivono DUE**, una per
  * schermata, e il `when` deve leggere quella che gli passa la transizione invece di
  * `model.screen`, che è già quella nuova per tutti e due. Scritto dentro [AivApp] il ramo in
@@ -2270,7 +2337,8 @@ private fun Stage(screen: Screen, model: ViewerViewModel, settings: Settings) {
                 factFields = settings.factRows,
                 onTreePath = { model.treeTo(it) },
                 onTreeOpen = { items, at -> model.openFromTree(items, at) },
-                onBack = if (screen.forStart) ({ model.leaveStartFolderChoice() }) else null,
+                forStart = screen.forStart,
+                onBack = { model.leaveStartFolderChoice() },
                 buckets = model.buckets,
                 onRead = { model.readBuckets(it) }
             )

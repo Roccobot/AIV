@@ -13,6 +13,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Che cosa si sa delle immagini scelte: il conto e il peso sempre, tutto il resto solo
@@ -133,6 +134,24 @@ fun factOrderOf(tokens: List<String>): List<FactField> {
 }
 
 /**
+ * Quanto pesa una selezione, e **nient'altro**.
+ *
+ * ⚠️⚠️ **NASCE PERCHÉ IL PESO IN TESTA ALLA SELEZIONE PASSAVA DA [factsOf], CHE CON UN FILE SOLO
+ * FA MOLTO DI PIÙ** (censimento della UI del 2026-09-05, dove il rilievo è confermato). Là il
+ * ritorno anticipato taglia corto quando gli indirizzi sono **più di uno**, quindi lasciava
+ * passare proprio il caso singolo, cioè l'inizio di ogni selezione: per scrivere un peso si
+ * leggevano anche le misure dell'immagine e tutto l'EXIF, cioè il corredo del dialogo delle
+ * informazioni. Adesso chi vuole solo la somma chiede solo la somma.
+ * ⚠️ **[factsOf] la chiama**, invece di rifare il giro: il peso di una selezione è una cosa sola,
+ * e due somme scritte in due posti divergono al primo ripiego che cambia.
+ */
+suspend fun weightOf(context: Context, uris: List<Uri>): Long = withContext(Dispatchers.IO) {
+    var bytes = 0L
+    for (uri in uris) bytes += sizeOf(context, uri)
+    bytes
+}
+
+/**
  * I dati di una selezione, letti dal disco.
  *
  * ⚠️⚠️ **LE MISURE SI LEGGONO DALLE INTESTAZIONI E NON DECODIFICANDO**
@@ -151,8 +170,7 @@ fun factOrderOf(tokens: List<String>): List<FactField> {
  * semplicemente non compare, che è la regola di tutta la schermata e non un caso speciale.
  */
 suspend fun factsOf(context: Context, uris: List<Uri>): Facts = withContext(Dispatchers.IO) {
-    var bytes = 0L
-    for (uri in uris) bytes += sizeOf(context, uri)
+    val bytes = weightOf(context, uris)
     if (uris.size != 1) return@withContext Facts(uris.size, bytes)
 
     val uri = uris.first()
@@ -332,6 +350,28 @@ private fun streamOf(context: Context, uri: Uri): java.io.InputStream? =
     }
 
 private fun sizeOf(context: Context, uri: Uri): Long {
+    /*
+     * ⚠️⚠️ **UNA MEMORIA PER INDIRIZZO, DALLA `1.81`, e prima ogni assestamento della selezione
+     * pagava una query PER FILE** (censimento della UI del 2026-09-05). Il peso in testa alla
+     * selezione si rifà a ogni cambiamento, quindi scegliendo trenta immagini una per una si
+     * interrogava il `ContentResolver` centinaia di volte per numeri che non cambiano. Le altre
+     * due letture dello stesso genere ce l'avevano già (`Names` e `Videos`), e questa no.
+     * ⚠️ **Il peso di un file non cambia mentre lo si guarda**: chi lo riscrive passa da
+     * un'operazione dell'app, che ricarica la cartella e con lei la selezione.
+     * ⚠️ **Lo zero non si ricorda**, ed è la clausola che conta: zero è anche il ripiego di una
+     * lettura andata male (un indirizzo di rete non ancora in cache), e memorizzarlo
+     * trasformerebbe un errore di un attimo in un peso sbagliato per sempre.
+     */
+    pesi[uri]?.let { return it }
+    val letto = readSize(context, uri)
+    if (letto > 0L) pesi[uri] = letto
+    return letto
+}
+
+/** I pesi già letti, per indirizzo. Vedi la nota su [sizeOf]. */
+private val pesi = ConcurrentHashMap<Uri, Long>()
+
+private fun readSize(context: Context, uri: Uri): Long {
     if (uri.scheme?.lowercase() == "file") {
         return uri.path?.let { runCatching { File(it).length() }.getOrNull() } ?: 0L
     }
