@@ -1537,9 +1537,16 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         showAt(current, index, Arrival.TAPPED)
     }
 
-    /** Fuori dalla griglia: si torna all'elenco delle cartelle, da dove ci si è arrivati. */
+    /**
+     * Fuori dalla griglia: si torna all'elenco delle cartelle, da dove ci si è arrivati.
+     *
+     * ⚠️ **Passa da [HOME] come gli altri sette ritorni**, e fino alla `1.80` era il solo a
+     * riscrivere quel valore a mano: il KDoc della costante è scritto apposta per questo caso, e
+     * questo gli sfuggiva. Il difetto era **latente**, cioè oggi non si vedeva niente, che è
+     * esattamente la forma che quella costante esiste per evitare.
+     */
     fun leaveGrid() {
-        screen = Screen.Folders(forStart = false)
+        screen = HOME
         listed = null
     }
 

@@ -754,7 +754,7 @@ fun ViewerScreen(
     val lightGreys = when (settings.bgTheme) {
         BgTheme.LIGHT -> true
         BgTheme.DARK -> false
-        BgTheme.AUTO -> MaterialTheme.colorScheme.background.luminanceIsLight()
+        BgTheme.AUTO -> MaterialTheme.colorScheme.background.isLight()
     }
     /*
      * ⚠️ **Il tema dell'APP si legge qui e non nel disegno**, e sono due cose diverse da
@@ -3688,7 +3688,6 @@ private fun DrawScope.drawBackground(size: Size, square: Float, light: Boolean, 
     }
 }
 
-private fun Color.luminanceIsLight(): Boolean = (0.2126f * red + 0.7152f * green + 0.0722f * blue) > 0.5f
 
 /**
  * ⚠️ The locale is named, and it is `US` on purpose rather than the phone's: the

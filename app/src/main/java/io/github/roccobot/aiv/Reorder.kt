@@ -199,8 +199,15 @@ fun <T> Reorderable(
  */
 private val ROW = 56.dp
 
-/** La manopola: un bersaglio comodo, non un glifo da 24. */
-private val HANDLE: Dp = 40.dp
+/**
+ * La manopola: un bersaglio comodo, non un glifo da 24.
+ *
+ * ⚠️ **Non è privata perché il rientro della riga si RICAVA da lei** (`SettingsScreen`, la
+ * pagina dei campi delle info): quel rientro esiste solo per lasciarle posto, e fino alla
+ * `1.80` erano due numeri in due file che non si nominavano (44 qui e 40 là). Chi allargasse
+ * la manopola non aveva nessun modo di trovare il numero da correggere.
+ */
+internal val HANDLE: Dp = 40.dp
 
 /** Quanto si spengono le manopole delle righe ferme mentre una viaggia. */
 private const val GHOST = 0.3f

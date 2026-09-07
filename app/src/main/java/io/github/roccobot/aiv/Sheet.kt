@@ -6,14 +6,21 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -49,6 +56,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -558,6 +566,43 @@ internal val ACCELERA: Easing = Easing { f -> 1f - MOLLA(1f - f) }
 
 /** L'uscita per un numero da 0 a 1. Vedi [ACCELERA]. */
 internal fun fuga(): TweenSpec<Float> = tween(durationMillis = USCITA_MS, easing = ACCELERA)
+
+/**
+ * **Arrivare dal basso**: la forma del gesto che in questa app hanno tutte le superfici
+ * appoggiate al bordo di sotto.
+ *
+ * ⚠️⚠️ **NASCE PERCHÉ ERA SCRITTA TRE VOLTE PAROLA PER PAROLA** (censimento della UI del
+ * 2026-09-05): nella scheda della selezione, in quella dell'editor e nella notifica. I quattro
+ * numeri erano già condivisi ([ARRIVO_RIGIDITA], [SHEET_FADE_MS], [USCITA_MS], [ACCELERA]),
+ * quindi un ritocco numerico arrivava a tutte e tre da sé; quello che restava duplicato era la
+ * **forma**, cioè quale curva su quale proprietà e dove cade la dissolvenza. Ed è la parte che
+ * l'utente ha dettato (*devono sparire nello stesso modo in cui entrano, ma con animazione
+ * speculare*), quindi è anche quella che non deve poter divergere.
+ * - ⚠️ **La molla di fabbrica si scrive a mano di proposito**: lasciata implicita, il numero
+ *   tornerebbe quello di Compose e un ritocco a [ARRIVO_RIGIDITA] non arriverebbe qui.
+ */
+internal fun arrivaDalBasso(): EnterTransition = slideInVertically(
+    animationSpec = spring(
+        dampingRatio = Spring.DampingRatioNoBouncy,
+        stiffness = ARRIVO_RIGIDITA,
+        visibilityThreshold = IntOffset.VisibilityThreshold
+    ),
+    initialOffsetY = { it }
+) + fadeIn(animationSpec = tween(durationMillis = SHEET_FADE_MS))
+
+/**
+ * **Andarsene in basso**: l'uscita speculare a [arrivaDalBasso].
+ *
+ * ⚠️ **La dissolvenza sta in CODA**, che è l'altra metà della specularità: il perché per esteso
+ * vive su [sfumaVia], da cui questa prende il ritardo.
+ */
+internal fun vaGiu(): ExitTransition = slideOutVertically(
+    // ⚠️ **La curva è quella di [fuga], scritta per un `IntOffset`**: quella funzione torna una
+    // specifica per un numero da 0 a 1, e uno spostamento in pixel vuole la sua. I due numeri
+    // sono gli stessi, e sono quelli che [fuga] usa.
+    animationSpec = tween(durationMillis = USCITA_MS, easing = ACCELERA),
+    targetOffsetY = { it }
+) + fadeOut(animationSpec = sfumaVia())
 
 /**
  * La dissolvenza dell'uscita: la stessa di [SHEET_FADE_MS], ma **in coda invece che in testa**.

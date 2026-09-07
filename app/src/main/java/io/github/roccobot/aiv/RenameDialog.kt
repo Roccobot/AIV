@@ -841,18 +841,10 @@ internal fun Quiet(
             )
             .tapRoom()
             .padding(horizontal = 8.dp, vertical = 6.dp)
-            .alpha(if (enabled) 1f else QUIET_OFF)
+            .alpha(if (enabled) 1f else OFF_INK)
     )
 }
 
-/**
- * Quanto è sbiadito un comando che in quel momento non ha niente da fare.
- *
- * ⚠️ **Lo stesso numero del `RESET_OFF` delle impostazioni**, che è il valore con cui Material
- * segna un comando spento: due numeri diversi per la stessa idea sarebbero due gradi di
- * 'spento' nella stessa app.
- */
-private const val QUIET_OFF = 0.38f
 
 @Composable
 private fun NamePill(

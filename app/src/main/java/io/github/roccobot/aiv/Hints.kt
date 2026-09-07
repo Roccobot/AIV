@@ -125,9 +125,26 @@ fun BoxScope.HintVeil(
  */
 @Composable
 fun BoxScope.HintCentre(text: String, onDone: () -> Unit) {
+    // ⚠️ `matchParentSize` e non `fillMaxSize`: dentro un `Box` questo velo prende la misura
+    // del genitore **senza** entrare nel suo conto, e il genitore qui è una schermata intera.
+    CentredHint(text = text, onDone = onDone, modifier = Modifier.matchParentSize())
+}
+
+/**
+ * Il corpo di un velo centrato: il velo, il testo e i suoi margini.
+ *
+ * ⚠️⚠️ **NASCE PERCHÉ [HintNotice] RICOPIAVA [HintCentre] MENTRE LA NOTA DICHIARAVA IL
+ * CONTRARIO** (censimento della UI del 2026-09-05): là era scritto che *il velo, il corpo e il
+ * margine sono gli STESSI di [HintCentre], e non una copia con altri numeri*, e le costanti
+ * erano davvero condivise; il **corpo** però era ricopiato riga per riga, e di quello la nota
+ * diceva il falso. Cambiava una riga sola, la misura del velo, che adesso è il parametro.
+ * ⚠️ **La differenza vera fra i due chiamanti è la FINESTRA**, non il disegno: uno si stende sul
+ * `Box` che lo contiene, l'altro apre una finestra propria per stare sopra un dialogo.
+ */
+@Composable
+private fun CentredHint(text: String, onDone: () -> Unit, modifier: Modifier) {
     Box(
-        modifier = Modifier
-            .matchParentSize()
+        modifier = modifier
             .background(HINT_SCRIM)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
@@ -158,9 +175,9 @@ fun BoxScope.HintCentre(text: String, onDone: () -> Unit) {
  * ⚠️ **`usePlatformDefaultWidth = false` è la riga che conta**: senza, il dialogo prende la
  * larghezza di un dialogo Material (il 90% meno i margini) e il velo si vedrebbe come una
  * scheda scura invece che come un velo.
- * ⚠️ **Il velo, il corpo e il margine sono gli STESSI di [HintCentre]**, e non una copia con
- * altri numeri: cambia soltanto la finestra in cui vivono. Il giorno che il contrasto del velo
- * si ritocca, si ritocca una volta.
+ * ⚠️ **Il velo, il corpo e il margine sono gli STESSI di [HintCentre]**, e dalla `1.81` non è
+ * più una raccomandazione: il disegno lo fa `CentredHint` per tutti e due, e questa funzione
+ * gli passa soltanto la finestra in cui vive.
  * ⚠️ **Un tocco qualunque lo archivia**, come tutti gli altri.
  */
 @Composable
@@ -169,25 +186,8 @@ fun HintNotice(text: String, onDone: () -> Unit) {
         onDismissRequest = onDone,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(HINT_SCRIM)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = onDone
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.White,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = HINT_SIDE).widthIn(max = HINT_WIDTH)
-            )
-        }
+        // ⚠️ Qui `fillMaxSize`, perché la finestra è sua e la deve riempire tutta.
+        CentredHint(text = text, onDone = onDone, modifier = Modifier.fillMaxSize())
     }
 }
 

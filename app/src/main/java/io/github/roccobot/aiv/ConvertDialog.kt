@@ -227,11 +227,7 @@ fun ConvertDialog(
                  */
                 if (isVector(image)) {
                     HorizontalDivider(modifier = Modifier.padding(top = 12.dp))
-                    Text(
-                        text = stringResource(R.string.convert_clean),
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(top = 10.dp)
-                    )
+                    Heading(stringResource(R.string.convert_clean))
                     Note(stringResource(R.string.convert_clean_why))
                     Note(stringResource(R.string.convert_clean_keeps), strong = true)
                     Note(stringResource(R.string.convert_clean_c2pa))

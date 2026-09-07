@@ -3,7 +3,6 @@ package io.github.roccobot.aiv
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
-import android.graphics.Matrix
 import android.graphics.drawable.Drawable
 import android.content.pm.ActivityInfo
 import android.net.Uri
@@ -196,13 +195,10 @@ fun EditorScreen(
     // mappa di pixel da due megapixel a ogni ridisegno vorrebbe dire farlo a ogni dito che
     // si muove sul rettangolo.
     val shown: ImageBitmap? = remember(base, turns) {
-        val bitmap = base ?: return@remember null
-        if (turns == 0) bitmap.asImageBitmap()
-        else Bitmap.createBitmap(
-            bitmap, 0, 0, bitmap.width, bitmap.height,
-            Matrix().apply { postRotate(90f * turns) },
-            true
-        ).asImageBitmap()
+        // ⚠️ Passa da [turnedBy], che è la funzione condivisa coi due salvataggi: fino alla
+        // `1.80` questo punto era il solo dei tre senza rete, quindi un errore di memoria su
+        // un'immagine grossa arrivava dentro la composizione.
+        base?.turnedBy(turns)?.asImageBitmap()
     }
 
     /*
@@ -470,8 +466,8 @@ private fun after(done: Done, turns: Int, crop: ImageEdit.Crop): Done = Done(
 
 /** Il passo nuovo: la composizione, e l'anteprima che ne esce. */
 private fun applied(base: Bitmap, done: Done, turns: Int, crop: ImageEdit.Crop): Step {
-    val spun = turnedBitmap(base, turns)
-    val cut = cutBitmap(spun, crop)
+    val spun = base.turnedBy(turns)
+    val cut = spun.cutTo(crop)
     if (spun !== base && spun !== cut) spun.recycle()
     return Step(after(done, turns, crop), cut)
 }
@@ -503,34 +499,6 @@ private fun insideOf(outer: ImageEdit.Crop, inner: ImageEdit.Crop): ImageEdit.Cr
     )
 }
 
-/** L'anteprima girata di [turns] quarti, o quella di prima se non si gira. */
-private fun turnedBitmap(source: Bitmap, turns: Int): Bitmap =
-    if (turns.mod(4) == 0) source
-    else runCatching {
-        Bitmap.createBitmap(
-            source, 0, 0, source.width, source.height,
-            Matrix().apply { postRotate(90f * turns) },
-            true
-        )
-    }.getOrDefault(source)
-
-/**
- * L'anteprima ritagliata.
- *
- * ⚠️ **Gli arrotondamenti sono gli STESSI di `ImageEdit.redraw`**, e non per caso: se qui si
- * troncasse e là si arrotondasse, l'anteprima e il file salvato mostrerebbero due ritagli
- * diversi di un pixel, e la differenza si vedrebbe solo sul risultato finale.
- */
-private fun cutBitmap(source: Bitmap, crop: ImageEdit.Crop): Bitmap {
-    if (crop.whole) return source
-    return runCatching {
-        val x = (crop.left * source.width).toInt().coerceIn(0, source.width - 1)
-        val y = (crop.top * source.height).toInt().coerceIn(0, source.height - 1)
-        val w = ((crop.right - crop.left) * source.width).toInt().coerceIn(1, source.width - x)
-        val h = ((crop.bottom - crop.top) * source.height).toInt().coerceIn(1, source.height - y)
-        Bitmap.createBitmap(source, x, y, w, h)
-    }.getOrDefault(source)
-}
 
 /** La selezione portata a metà larghezza, senza cambiare misura. */
 private fun centredAcross(crop: ImageEdit.Crop): ImageEdit.Crop {
@@ -940,7 +908,7 @@ private val CHIP_PAD = 6.dp
  * ⚠️ Il numero è uno solo apposta: due file con un numero diverso di celle stanno su due
  * griglie diverse, e l'ultima icona di sotto finirebbe spostata rispetto a quella di sopra.
  */
-private const val SHEET_KEYS = 4
+internal const val SHEET_KEYS = 4
 
 
 /** Il respiro fra il bordo di sopra della scheda e la prima fila di chip. Vedi la sua nota. */
@@ -1484,23 +1452,8 @@ private fun fractions(r: Rect, frame: Rect) = ImageEdit.Crop(
  * leggendo'. Il perché la catena dei ripieghi non arrivasse fin qui sta su
  * [ImageSource.rescue].
  */
-private fun preview(context: Context, uri: Uri): Bitmap? = runCatching {
-    ImageDecoder.decodeBitmap(
-        ImageDecoder.createSource(context.contentResolver, uri)
-    ) { decoder, info, _ ->
-        val long = max(info.size.width, info.size.height)
-        if (long > PREVIEW) decoder.setTargetSampleSize(sample(long))
-        decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
-        decoder.isMutableRequired = false
-    }
-}.getOrNull() ?: ImageSource.rescue(context, uri, PREVIEW)
-
-/** Il campionamento: potenza di due, come `ImageDecoder` vuole. */
-private fun sample(long: Int): Int {
-    var step = 1
-    while (long / (step * 2) >= PREVIEW) step *= 2
-    return step
-}
+private fun preview(context: Context, uri: Uri): Bitmap? =
+    ImageSource.pixels(context, uri, PREVIEW)
 
 /** Il lato lungo dell'anteprima. */
 private const val PREVIEW = 1600

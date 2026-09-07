@@ -318,6 +318,23 @@ val BOX_EDGE = 1.dp
 fun Color.isLight(): Boolean = (0.2126f * red + 0.7152f * green + 0.0722f * blue) > 0.5f
 
 /**
+ * Quanto resta visibile un comando **spento**: il valore con cui Material segna il contenuto
+ * inattivo.
+ *
+ * ⚠️⚠️ **NASCE PERCHÉ ERA SCRITTO QUATTRO VOLTE CON QUATTRO NOMI** (`OFF_INK`, `SIDE_OFF`,
+ * `QUIET_OFF`, `RESET_OFF`, censimento della UI del 2026-09-05), e la prova più forte a favore
+ * dell'accorpamento veniva dal codice stesso: tre dei quattro KDoc dichiaravano che il numero è
+ * quello di Material, e il quarto dichiarava di **dover essere uguale** al primo. Un vincolo
+ * scritto e affidato a chi legge è la definizione del difetto.
+ * - ⚠️ **Il conto di quanti sono non si scrive qui**: si contano i chiamanti. Quello che conta è
+ *   che il numero viva in un posto solo, e questo è il posto in cui vivono i valori del tema.
+ * - ⚠️ **A un `Text` nudo nessuno lo applica**, che è la ragione per cui esiste come costante e
+ *   non come colore già sbiadito: i componenti di Material lo mettono da sé, un testo o un
+ *   glifo scritti a mano no.
+ */
+const val OFF_INK = 0.38f
+
+/**
  * Se l'app va vestita di scuro, secondo la scelta dell'utente.
  *
  * ⚠️ Sta qui e non in `AivTheme` perché la scelta arriva **prima** del tema, dal

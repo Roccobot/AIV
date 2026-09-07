@@ -90,7 +90,7 @@ fun InfoSideRow(
             // ⚠️ Anche il titolo si spegne coi gettoni: un'etichetta a pieno colore sopra due
             // gettoni spenti si legge come un guasto invece che come una riga in attesa.
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                alpha = if (enabled) 1f else SIDE_OFF
+                alpha = if (enabled) 1f else OFF_INK
             ),
             modifier = Modifier.weight(1f)
         )
@@ -111,11 +111,3 @@ fun InfoSideRow(
     }
 }
 
-/**
- * Quanto sbiadisce il titolo quando i gettoni sono spenti.
- *
- * ⚠️ **0,38, che è il numero di Material per il contenuto disabilitato**, lo stesso che
- * `FilterChip` applica da sé ai gettoni accanto: scritto qui perché su un `Text` nudo nessuno
- * lo applica, e due sbiadimenti diversi sulla stessa riga si vedrebbero.
- */
-private const val SIDE_OFF = 0.38f

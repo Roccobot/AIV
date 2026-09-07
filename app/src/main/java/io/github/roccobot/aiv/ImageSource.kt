@@ -9,6 +9,7 @@ import android.provider.OpenableColumns
 import android.util.Size
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import kotlin.math.max
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
@@ -381,6 +382,47 @@ object ImageSource {
      *
      * @param box il lato lungo massimo, oppure 0 per 'grande quanto viene'.
      */
+    /**
+     * I pixel di un file, **da qualunque strada arrivino**: il decodificatore di sistema, e se
+     * quello non ce la fa il ripiego di [rescue].
+     *
+     * ⚠️⚠️ **NASCE PERCHÉ QUEL FILO ERA SCRITTO TRE VOLTE FUORI DA QUI** (censimento della UI
+     * del 2026-09-05): nell'anteprima dell'editor, nel suo salvataggio e nella conversione. E
+     * non è una duplicazione qualunque: la catena dei ripieghi è **cresciuta** due volte (AVIF
+     * nella `1.26`, SVG nella `1.31`), e ogni volta ha dovuto rincorrere le copie una per una,
+     * col sintomo peggiore che questo repository abbia visto in quel campo, cioè una schermata
+     * che gira per sempre senza dire niente.
+     * ⚠️ **La differenza vera fra i tre chiamanti è UNA, e adesso è il parametro**: quanto
+     * grande serve la mappa di pixel. L'anteprima ne vuole una campionata, chi riscrive il file
+     * la vuole intera, e `0` vuol dire 'grande quanto viene', esattamente come in [rescue].
+     * ⚠️ **La strada normale non cambia di una riga**: su un JPEG si passa dal decodificatore
+     * di sistema e il ripiego non viene nemmeno interpellato.
+     *
+     * @param box il lato lungo massimo, oppure 0 per 'grande quanto viene'.
+     */
+    fun pixels(context: Context, uri: Uri, box: Int): Bitmap? = runCatching {
+        ImageDecoder.decodeBitmap(
+            ImageDecoder.createSource(context.contentResolver, uri)
+        ) { decoder, info, _ ->
+            if (box > 0) {
+                val long = max(info.size.width, info.size.height)
+                if (long > box) decoder.setTargetSampleSize(sampleFor(long, box))
+            }
+            decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
+            decoder.isMutableRequired = false
+        }
+    }.getOrNull() ?: rescue(context, uri, box)
+
+    /**
+     * Il campionamento per portare un lato lungo dentro un riquadro: una potenza di due, come
+     * `ImageDecoder` vuole.
+     */
+    private fun sampleFor(long: Int, box: Int): Int {
+        var step = 1
+        while (long / (step * 2) >= box) step *= 2
+        return step
+    }
+
     fun rescue(context: Context, uri: Uri, box: Int): Bitmap? {
         val bytes = try {
             context.contentResolver.openInputStream(uri)?.use { it.readBytes() }

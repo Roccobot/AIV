@@ -2,14 +2,7 @@ package io.github.roccobot.aiv
 
 import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.VisibilityThreshold
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.foundation.background
@@ -38,7 +31,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 
 /**
@@ -165,23 +157,8 @@ fun UndoNotice(
     AnimatedVisibility(
         visible = visible,
         modifier = modifier,
-        enter = slideInVertically(
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioNoBouncy,
-                stiffness = ARRIVO_RIGIDITA,
-                visibilityThreshold = IntOffset.VisibilityThreshold
-            ),
-            initialOffsetY = { it }
-        ) + fadeIn(animationSpec = tween(durationMillis = SHEET_FADE_MS)),
-        exit = slideOutVertically(
-            animationSpec = tween(durationMillis = USCITA_MS, easing = ACCELERA),
-            targetOffsetY = { it }
-        ) + fadeOut(
-            animationSpec = tween(
-                durationMillis = SHEET_FADE_MS,
-                delayMillis = USCITA_MS - SHEET_FADE_MS
-            )
-        )
+        enter = arrivaDalBasso(),
+        exit = vaGiu()
     ) {
         Box(
             // ⚠️ **Il rientro di sistema se lo mette da sé**, come le due schede: questa vive

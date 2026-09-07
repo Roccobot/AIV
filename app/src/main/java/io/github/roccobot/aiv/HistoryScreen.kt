@@ -62,12 +62,12 @@ fun HistoryScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     }
 
     Column(modifier = modifier.fillMaxSize().safeDrawingPadding()) {
-        // ⚠️ Il rientro è quello delle impostazioni, [EDGE], e vale anche per la freccia: la
+        // ⚠️ Il rientro è quello delle impostazioni, [PAGE_SIDE], e vale anche per la freccia: la
         // testata e la lista devono cominciare sulla stessa colonna, o la pagina si legge
         // come due pagine.
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = EDGE, vertical = 12.dp)
+            modifier = Modifier.padding(horizontal = PAGE_SIDE, vertical = 12.dp)
         ) {
             IconButton(onClick = onBack) {
                 Icon(
@@ -91,11 +91,11 @@ fun HistoryScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
 
             groups.isEmpty() -> Detail(
                 text = stringResource(R.string.history_none, History.DAYS),
-                modifier = Modifier.padding(horizontal = EDGE)
+                modifier = Modifier.padding(horizontal = PAGE_SIDE)
             )
 
             else -> LazyColumn(
-                contentPadding = PaddingValues(start = EDGE, end = EDGE, bottom = 24.dp)
+                contentPadding = PaddingValues(start = PAGE_SIDE, end = PAGE_SIDE, bottom = 24.dp)
             ) {
                 /*
                  * ⚠️ **La regola dei sette giorni si dice, e sta DENTRO la lista**: chi apre
@@ -177,16 +177,11 @@ private fun Line(path: String) {
     }
 }
 
-/** Un testo di servizio, nello stile che le impostazioni usano per le spiegazioni. */
-@Composable
-private fun Detail(text: String, modifier: Modifier = Modifier) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = modifier
-    )
-}
-
-/** Il margine laterale, quello delle pagine delle impostazioni. */
-private val EDGE = 20.dp
+/*
+ * ⚠️⚠️ **QUI VIVEVANO DUE COPIE DEI MATTONI DELLE IMPOSTAZIONI, FINO ALLA `1.80`**: la
+ * spiegazione (`Detail`) e il margine laterale (`EDGE = 20.dp`), che i loro stessi commenti
+ * dichiaravano presi da là. Adesso arrivano da `SettingsScreen`, dove sono `internal`: il
+ * margine è [PAGE_SIDE] e la spiegazione [Detail]. Due numeri uguali in due file sono un
+ * numero che diverge al primo ritocco, e qui il ritocco sarebbe stato invisibile, perché le
+ * due pagine non si vedono mai insieme.
+ */

@@ -1,5 +1,6 @@
 package io.github.roccobot.aiv
 
+import androidx.annotation.StringRes
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -1554,14 +1555,13 @@ fun GridScreen(
                             onTap = { menu.close(); emptying = true }
                         )
                     }
-                    TapHoldFab(
-                        label = stringResource(R.string.pick_actions),
+                    PickFab(
                         // ⚠️ I colori dell'icona dell'app, dalla `1.36`, come il tastino della
                         // schermata iniziale: il perché per esteso sta là, e i due tastini sono
                         // lo stesso oggetto in due schermate.
                         container = colorResource(R.color.launcher_background),
                         ink = colorResource(R.color.launcher_foreground),
-                        holdLabel = stringResource(shortcutLabel),
+                        holdLabel = shortcutLabel,
                         // ⚠️ **`visible` e non `wanted`**: il FAB deve restare staccato per tutta
                         // l'uscita, o rientrerebbe nella finestra dell'app sotto il velo che se ne
                         // sta andando. ⚠️ Dalla `1.67` `visible` copre anche quello: era `veiling`
@@ -1582,18 +1582,7 @@ fun GridScreen(
                         // più alta**: quella finestra è trasparente al tocco apposta
                         // (vedi `untouchable` in `ActionPad`).
                         onTap = { menu.open() },
-                        onHold = { shortcut(); hintDone() },
-                        /*
-                         * ⚠️⚠️ **I TRE PUNTINI ARRIVANO DALLA SCHERMATA INIZIALE, dalla `1.55`**
-                         * (richiesta dell'utente, giro della `1.54`: *i tre puntini, renderizzati
-                         * in modo identico, vanno a finire sul FAB del cestino, dove c'era
-                         * un'icona ancora più generica*). Là hanno lasciato il posto al marchio
-                         * dell'app, e qui prendono il posto del disco singolo della `1.37`.
-                         * ⚠️ **'Renderizzati in modo identico' è alla lettera**: stesso glifo di
-                         * Material e stessa misura, senza scale né ritocchi, o sarebbero due
-                         * disegni che si somigliano invece dello stesso disegno.
-                         */
-                        glyph = { Icon(imageVector = Icons.Default.MoreHoriz, contentDescription = it) }
+                        onHold = { shortcut(); hintDone() }
                     )
                 }
             }
@@ -1740,17 +1729,12 @@ fun GridScreen(
                     .padding(8.dp),
                 onDone = hintDone
             ) {
-                TapHoldFab(
-                    label = stringResource(R.string.pick_actions),
+                PickFab(
                     container = HINT_MARK,
                     ink = HINT_INK,
-                    holdLabel = stringResource(shortcutLabel),
+                    holdLabel = shortcutLabel,
                     onTap = { hintDone(); menu.open() },
-                    onHold = { shortcut(); hintDone() },
-                    // ⚠️ Lo STESSO glifo del tastino vero, che dalla `1.55` sono i tre puntini:
-                    // questo è la sua copia illuminata sopra il velo, e un velo che evidenzia un
-                    // disegno diverso da quello che sta sotto indica il tasto sbagliato.
-                    glyph = { Icon(imageVector = Icons.Default.MoreHoriz, contentDescription = it) }
+                    onHold = { shortcut(); hintDone() }
                 )
             }
         }
@@ -1873,6 +1857,51 @@ private fun LazyGridState.itemIndexAt(at: Offset): Int? =
  * chi porta un modificatore di puntatore, e qui non ce n'è. Il tocco arriva all'immagine
  * sotto, che è quella che apre.
  */
+/**
+ * Il tastino della selezione: quello vero, e la sua copia illuminata sopra il velo del
+ * suggerimento.
+ *
+ * ⚠️⚠️ **NASCE PERCHÉ ERA SCRITTO DUE VOLTE, E L'INVARIANTE ERA AFFIDATA A UN COMMENTO**
+ * (censimento della UI del 2026-09-05): la nota accanto alla copia diceva *lo STESSO glifo del
+ * tastino vero ... un velo che evidenzia un disegno diverso da quello che sta sotto indica il
+ * tasto sbagliato*, e niente lo teneva fermo. Cambiando il glifo del tastino vero, il velo
+ * avrebbe continuato a illuminare quello di prima senza che nessuno lo segnalasse.
+ * - **I quattro valori condivisi vivono qui**: l'etichetta, l'etichetta del tocco lungo, il
+ *   gesto lungo e il glifo. Quello che i due chiamanti passano è ciò che deve differire, cioè i
+ *   colori e che cosa fa il tocco breve.
+ * - ⚠️⚠️ **I TRE PUNTINI ARRIVANO DALLA SCHERMATA INIZIALE, dalla `1.55`** (richiesta
+ *   dell'utente, giro della `1.54`: *i tre puntini, renderizzati in modo identico, vanno a
+ *   finire sul FAB del cestino, dove c'era un'icona ancora più generica*). Là hanno lasciato il
+ *   posto al marchio dell'app, e qui prendono il posto del disco singolo della `1.37`.
+ *   ⚠️ **'Renderizzati in modo identico' è alla lettera**: stesso glifo di Material e stessa
+ *   misura, senza scale né ritocchi, o sarebbero due disegni che si somigliano invece dello
+ *   stesso disegno. Adesso lo garantisce il fatto che il disegno è uno.
+ *
+ * @param holdLabel la stringa del gesto lungo, che dipende dalla scorciatoia in vigore.
+ */
+@Composable
+private fun PickFab(
+    container: Color,
+    ink: Color,
+    @StringRes holdLabel: Int,
+    onTap: () -> Unit,
+    onHold: () -> Unit,
+    lifted: Boolean = false,
+    pressed: Boolean = false
+) {
+    TapHoldFab(
+        label = stringResource(R.string.pick_actions),
+        container = container,
+        ink = ink,
+        holdLabel = stringResource(holdLabel),
+        lifted = lifted,
+        pressed = pressed,
+        onTap = onTap,
+        onHold = onHold,
+        glyph = { Icon(imageVector = Icons.Default.MoreHoriz, contentDescription = it) }
+    )
+}
+
 @Composable
 private fun Thumbnail(
     uri: Uri,
@@ -2211,7 +2240,7 @@ private fun FilterKey(filter: MediaKind, onFilter: (MediaKind) -> Unit, onSearch
          */
         MenuShell(
             state = menu,
-            position = rememberMenuSpot(MenuSide.AT_ANCHOR, MenuSide.AFTER_ANCHOR)
+            position = rememberMenuAtAnchor()
         ) {
             Row(modifier = Modifier.padding(horizontal = FILTER_PAD)) {
                 // ⚠️ Pellicola, fotografia e croce, in quest'ordine: è quello chiesto, e non
@@ -2562,7 +2591,7 @@ private fun PickMenu(menu: MenuState, content: @Composable () -> Unit) {
         // tastino in orizzontale, e sopra di lui perché sotto non ci sta. Scriverla uguale è
         // quello che rende impossibile che i due menu si comportino in modo diverso.
         state = menu,
-        position = rememberMenuSpot(MenuSide.AT_ANCHOR, MenuSide.AFTER_ANCHOR),
+        position = rememberMenuAtAnchor(),
         content = content
     )
 }
