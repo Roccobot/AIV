@@ -292,7 +292,7 @@ fun EditorScreen(
             Text(
                 text = stringResource(R.string.editor_title),
                 style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f).heading()
             )
             /*
              * ⚠️⚠️ **SALVA SOVRASCRIVE, E NON CHIEDE PIÙ, dalla 1.08** (richiesta dell'utente:
@@ -723,7 +723,7 @@ private fun EditorSheet(
              * ricerca ancora più fuorviante.
              */
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = STAGE_SIDE),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = STAGE_SIDE).oneOf(),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 /*
@@ -755,7 +755,10 @@ private fun EditorSheet(
              * dare al ritaglio, non *dove* metterlo.
              */
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = STAGE_SIDE, vertical = 8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = STAGE_SIDE, vertical = 8.dp)
+                    .oneOf(),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 for (one in Lay.entries) {
@@ -884,7 +887,18 @@ private fun SheetChip(
     Surface(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier.height(CHIP_TALL),
+        /*
+         * ⚠️⚠️ **LA SCELTA NON ERA DETTA A PAROLE, e fino alla `1.80` la segnava solo il
+         * COLORE** (censimento della UI del 2026-09-05). La nota qui sopra dichiara che di
+         * Material *quello che cambia è solo il rientro*, e non era vero: il riscritto aveva
+         * perso anche la semantica, che l'originale porta con sé. A due tocchi di distanza,
+         * nella conversione, la stessa scelta esclusiva è fatta col `FilterChip`, che lo stato
+         * lo dichiara.
+         * ⚠️ **La riga la mette il COMPONENTE e non il chiamante**, come il tocco della riga di
+         * un interruttore: le scelte esclusive dell'editor sono sette, e sette chiamanti che
+         * se la ricordano sono sette modi di dimenticarsene.
+         */
+        modifier = modifier.picked(selected).height(CHIP_TALL),
         shape = RoundedCornerShape(CHIP_ROUND),
         color = if (selected) scheme.secondaryContainer else Color.Transparent,
         contentColor = if (selected) scheme.onSecondaryContainer else scheme.onSurfaceVariant,
@@ -1695,6 +1709,10 @@ private fun PickRow(label: String, icon: Drawable?, here: Boolean, onClick: () -
                 if (here) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent
             )
             .clickable(onClick = onClick)
+            // ⚠️ **La voce in vigore lo dichiara**, e prima la diceva solo il fondo: in un
+            // elenco di scelte esclusive il colore è il segno per chi guarda, e senza `picked`
+            // non ce n'era nessuno per chi ascolta.
+            .picked(here)
             .padding(horizontal = 8.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)

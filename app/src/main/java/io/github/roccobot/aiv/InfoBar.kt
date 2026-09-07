@@ -94,13 +94,17 @@ fun InfoSideRow(
             ),
             modifier = Modifier.weight(1f)
         )
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) {
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+            modifier = Modifier.oneOf()
+        ) {
             InfoPosition.entries.forEach { side ->
                 FilterChip(
                     selected = side == selected,
                     onClick = { onSelect(side) },
                     enabled = enabled,
-                    label = { Text(infoSideName(side)) }
+                    label = { Text(infoSideName(side)) },
+                    modifier = Modifier.picked(side == selected)
                 )
             }
         }

@@ -100,13 +100,35 @@ fun <T> Reorderable(
                     .zIndex(if (preso) 1f else 0f)
                     .graphicsLayer { translationY = if (preso) scarto else scansa }
                     .semantics {
-                        // ⚠️ Le due frecce di prima, come azioni: sono l'unica via al riordino
-                        // per chi usa un lettore di schermo.
+                        /*
+                         * ⚠️ Le due frecce di prima, come azioni: sono l'unica via al riordino
+                         * per chi usa un lettore di schermo.
+                         * ⚠️⚠️ **OGNUNA DELLE DUE VA OFFERTA SOLO SE HA DOVE ANDARE, e fino
+                         * alla `1.80` la prima riga mobile offriva 'sposta su'** (censimento
+                         * della UI del 2026-09-05). Il trascinamento le righe fisse le
+                         * rispetta da sempre (`coerceIn(fixed, ...)`), l'azione parlata no:
+                         * `moved` accettava lo spostamento, quindi l'oggetto in memoria
+                         * portava davvero il nome del file in seconda posizione, e a
+                         * rimetterlo in testa era **solo** il giro dall'archivio. Cioè un
+                         * comando di accessibilità faceva una cosa che le dita non possono
+                         * fare, e la disfaceva un salvataggio.
+                         * ⚠️ **Il gemello di sotto invece è innocuo e si chiude per
+                         * simmetria**: sull'ultima riga `moved(lastIndex, lastIndex + 1)`
+                         * torna la lista intatta, quindi l'azione c'era e non faceva niente.
+                         * Annunciare un comando che non fa niente è un difetto più piccolo,
+                         * ma dello stesso genere.
+                         */
+                        val salire = at > fixed
+                        val scendere = at < items.lastIndex
                         if (!fermo) {
-                            customActions = listOf(
-                                CustomAccessibilityAction(su) { onMove(at, at - 1); true },
-                                CustomAccessibilityAction(giu) { onMove(at, at + 1); true }
-                            )
+                            customActions = buildList {
+                                if (salire) {
+                                    add(CustomAccessibilityAction(su) { onMove(at, at - 1); true })
+                                }
+                                if (scendere) {
+                                    add(CustomAccessibilityAction(giu) { onMove(at, at + 1); true })
+                                }
+                            }
                         }
                     },
                 contentAlignment = Alignment.CenterStart

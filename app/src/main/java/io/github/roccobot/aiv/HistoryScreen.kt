@@ -81,7 +81,7 @@ fun HistoryScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
             Text(
                 text = stringResource(R.string.history_title),
                 style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f).heading()
             )
         }
 
@@ -138,16 +138,19 @@ fun HistoryScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
 /**
  * Quando è avvenuto un ripristino: il capo del suo gruppo.
  *
- * ⚠️ Nel colore primario e in `titleSmall`, come i titoli di gruppo delle impostazioni: chi
- * non distingue quel colore vede comunque un testo di un altro corpo, che è quello che deve
- * dire 'da qui comincia un altro gruppo'.
+ * ⚠️ Nel colore dell'accento e in `titleSmall`, come i titoli di gruppo delle impostazioni:
+ * chi non distingue quella tinta vede comunque un testo di un altro corpo, che è quello che
+ * deve dire 'da qui comincia un altro gruppo'.
+ * ⚠️ **La tinta è [accentInk] e non `primary`, dalla `1.81`**, come nei titoli di gruppo del
+ * pannello: l'accento vero come parole non arriva alla soglia di contrasto, e il corpo del
+ * carattere non la sostituisce.
  */
 @Composable
 private fun Moment(at: Long) {
     Text(
         text = moment(at),
         style = MaterialTheme.typography.titleSmall,
-        color = MaterialTheme.colorScheme.primary,
+        color = accentInk(),
         modifier = Modifier.padding(bottom = 8.dp)
     )
 }

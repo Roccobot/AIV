@@ -183,58 +183,13 @@ private fun Scena(schermo: Screen) {
                 label = "schermata"
             ) { quale ->
                 if (quale is Screen.Folders) {
-                    SchermataIniziale()
+                    CasaVuota()
                 } else {
                     Box(Modifier.fillMaxSize())
                 }
             }
         }
     }
-}
-
-/**
- * La schermata iniziale con gli argomenti minimi, cioè senza cartelle e senza permesso.
- *
- * ⚠️ **Quello che si guarda è il FAB, che c'è in ogni caso**: dipende dalla vista scelta e
- * non dai dati, quindi una casa vuota è la scena più piccola che lo contiene. Le cartelle vere
- * porterebbero le copertine, cioè il caricamento delle miniature, che su una macchina senza
- * telefono non porta niente in più e può soltanto fallire.
- */
-@Composable
-private fun SchermataIniziale() {
-    FolderScreen(
-        view = FolderView.GRID,
-        columns = 3,
-        counted = true,
-        hidden = emptySet(),
-        onHide = {},
-        recents = emptyList(),
-        onPick = {},
-        onOpen = {},
-        onOpenPage = {},
-        onView = {},
-        onForget = {},
-        onSettings = {},
-        onSearch = {},
-        onBin = {},
-        onColumns = {},
-        listCount = true,
-        listText = TextSize.NORMAL,
-        treeHidden = false,
-        treePictures = false,
-        onListCount = {},
-        onListText = {},
-        onTreeHidden = {},
-        onTreePictures = {},
-        treePath = null,
-        binOn = false,
-        factFields = emptyList(),
-        onTreePath = {},
-        onTreeOpen = { _, _ -> },
-        onBack = null,
-        buckets = emptyList(),
-        onRead = {}
-    )
 }
 
 /** Da dove si arriva: una cartella aperta, cioè il caso che l'utente ha segnalato. */

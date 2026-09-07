@@ -179,15 +179,22 @@ fun AddressDialog(
                         imeAction = ImeAction.Go
                     ),
                     enabled = !busy,
-                    keyboardActions = KeyboardActions(onGo = { go(typedToUri(typed)) })
+                    keyboardActions = KeyboardActions(onGo = { go(typedToUri(typed)) }),
+                    /*
+                     * ⚠️⚠️ **L'ERRORE APPARTIENE AL CAMPO, e fino alla `1.80` era un testo
+                     * sciolto nella colonna** (censimento della UI del 2026-09-05): scritto
+                     * fuori, il campo non si colorava, non si annunciava come sbagliato, e chi
+                     * lo esplorava con un lettore di schermo non incontrava mai il messaggio,
+                     * perché viveva in un nodo **fratello** e non dentro il campo.
+                     * ⚠️ **I due parametri vanno insieme**: `isError` dà il colore e lo stato,
+                     * `supportingText` mette la frase dove il lettore la trova. Uno solo dei
+                     * due lascia metà del difetto.
+                     */
+                    isError = problem != null,
+                    supportingText = problem?.let {
+                        { Text(text = stringResource(it), style = MaterialTheme.typography.bodySmall) }
+                    }
                 )
-                problem?.let {
-                    Text(
-                        text = stringResource(it),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
                 if (busy) CircularProgressIndicator(Modifier.size(20.dp))
                 if (recents.isNotEmpty()) {
                     HorizontalDivider()

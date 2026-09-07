@@ -43,6 +43,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
@@ -817,14 +818,28 @@ internal fun Quiet(
     Text(
         text = text,
         style = MaterialTheme.typography.labelMedium,
-        color = MaterialTheme.colorScheme.primary,
+        color = accentInk(),
         modifier = Modifier
             /*
              * ⚠️ **Un bersaglio solo anche coi due gesti**: `combinedClickable` è un nodo, non
              * due, quindi un lettore di schermo annuncia un comando. È la stessa regola delle
              * righe con interruttore del pannello delle impostazioni.
+             * ⚠️⚠️ **IL RUOLO E IL BERSAGLIO ARRIVANO CON LA `1.81`, e il difetto era doppio**
+             * (censimento della UI del 2026-09-05): senza il ruolo un lettore di schermo
+             * leggeva una parola e non un comando, e senza il minimo il bersaglio veniva alto
+             * poco più della metà dei 48dp dovuti, perché `labelMedium` è 12sp su 16 di
+             * interlinea più 6dp di margine per lato. Il colore, che era `primary`, è passato
+             * ad [accentInk] nella stessa passata: come parole l'accento vero non si legge.
+             * ⚠️ **`tapRoom()` va DOPO il gesto**, o non serve a niente: il perché vive su
+             * `TAP_MIN`, in `Talk.kt`.
              */
-            .combinedClickable(enabled = enabled, onClick = onTap, onLongClick = onHold)
+            .combinedClickable(
+                enabled = enabled,
+                role = Role.Button,
+                onClick = onTap,
+                onLongClick = onHold
+            )
+            .tapRoom()
             .padding(horizontal = 8.dp, vertical = 6.dp)
             .alpha(if (enabled) 1f else QUIET_OFF)
     )

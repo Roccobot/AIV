@@ -79,7 +79,11 @@ fun Identity(
         Text(
             text = "Astonishing Image Viewer",
             style = MaterialTheme.typography.titleMedium,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            // ⚠️ **È il titolo della schermata iniziale**, cioè il primo punto in cui un
+            // lettore di schermo si deve poter fermare: nella casa la testata non ne ha un
+            // altro, perché il nome vive nel frontespizio.
+            modifier = Modifier.heading()
         )
         Signature()
     }

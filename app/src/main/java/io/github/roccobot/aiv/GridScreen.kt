@@ -105,6 +105,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -1021,7 +1022,7 @@ fun GridScreen(
                         text = title,
                         style = MaterialTheme.typography.headlineSmall,
                         maxLines = 1,
-                        modifier = Modifier.graphicsLayer { alpha = 1f - aperto() }
+                        modifier = Modifier.heading().graphicsLayer { alpha = 1f - aperto() }
                     )
                     /*
                      * ⚠️⚠️ **IL CONTO DEGLI ELEMENTI STA SOTTO IL TITOLO, ED È LA SUA SPECIFICA
@@ -1175,6 +1176,7 @@ fun GridScreen(
                         maxLines = FRONT_TITLE_LINES,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
+                            .heading()
                             .padding(horizontal = 24.dp)
                             .graphicsLayer { alpha = quanto() }
                     )
@@ -1934,7 +1936,19 @@ private fun Thumbnail(
                 // finisce su un'altra non può vivere dentro la piastrella. Sta sulla
                 // griglia, che è l'unica che le vede tutte. ⚠️ Chi volesse aggiungere un
                 // gesto lo aggiunga **dentro** quello, non accanto.
-                .clickable(onClick = onClick)
+                .clickable(onClick = onClick, role = Role.Button)
+                /*
+                 * ⚠️⚠️ **LA SCELTA SI DICHIARA, e fino alla `1.80` non lo faceva**
+                 * (censimento della UI del 2026-09-05): la descrizione porta la posizione
+                 * nella cartella, la spunta è dichiarata decorativa, e in selezione il tocco
+                 * breve alterna la scelta, quindi la piastrella si comportava da interruttore
+                 * senza dirlo. Chi legge con TalkBack non aveva **nessun** modo di sapere
+                 * quali fotografie aveva scelto.
+                 * ⚠️ **`selected` e non una stringa di stato**: il nome dello stato lo dice il
+                 * lettore di schermo nella lingua del telefono, mentre una `stateDescription`
+                 * sarebbe stata una stringa nuova in ventotto lingue per dire la stessa cosa.
+                 */
+                .semantics { selected = chosen }
         )
         /*
          * ⚠️⚠️ **IL VELO DELLA SCELTA VA PRIMA DEL NASTRO, e l'ordine è una decisione**:

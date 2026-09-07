@@ -35,6 +35,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 
@@ -195,7 +198,22 @@ fun UndoNotice(
                 .padding(NOTICE_EDGE)
         ) {
             Snackbar(
-                modifier = Modifier.edged(NOTICE_ROUND),
+                /*
+                 * ⚠️⚠️ **LA REGIONE VIVA È LA META DI `SnackbarHost` CHE ANDAVA RECUPERATA, e
+                 * fino alla `1.80` la notifica non veniva annunciata affatto** (censimento
+                 * della UI del 2026-09-05). La ragione scritta qui sopra per non usare
+                 * l'ospite riguarda la coda e la durata, e resta buona; ma nel bytecode di
+                 * `SnackbarHostKt` vivono anche `liveRegion` e l'azione di congedo, mentre
+                 * `SnackbarKt` non ne porta nessuna: rinunciando all'ospite si era rinunciato
+                 * anche a loro, senza accorgersene.
+                 * ⚠️ **`Polite` e non `Assertive`**: la notifica dice che una cosa è **già**
+                 * successa e offre di disfarla, quindi non deve interrompere quello che il
+                 * lettore di schermo sta leggendo. Con `Assertive` ogni eliminazione
+                 * tapperebbe la bocca alla schermata.
+                 */
+                modifier = Modifier
+                    .semantics { liveRegion = LiveRegionMode.Polite }
+                    .edged(NOTICE_ROUND),
                 shape = RoundedCornerShape(NOTICE_ROUND),
                 containerColor = MaterialTheme.colorScheme.surfaceVariant,
                 contentColor = MaterialTheme.colorScheme.onSurface,

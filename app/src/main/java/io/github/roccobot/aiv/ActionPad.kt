@@ -753,6 +753,15 @@ private fun PadButton(
             // modificatori sarebbe due catene da tenere d'accordo per niente.
             .combinedClickable(
                 enabled = action.enabled,
+                /*
+                 * ⚠️⚠️ **IL RUOLO SI DICHIARA, e fino alla `1.80` questi tasti non lo
+                 * facevano** (censimento della UI del 2026-09-05): il KDoc qui sopra cura con
+                 * precisione la **voce** del tasto, cioè chi porta la descrizione fra icona e
+                 * testo, e sul ruolo taceva, quindi un lettore di schermo leggeva un
+                 * contenitore con dentro un testo. Il FAB dello stesso file lo dichiarava
+                 * già, e la differenza correva fra due comandi della stessa superficie.
+                 */
+                role = Role.Button,
                 onLongClickLabel = action.holdLabel?.let { stringResource(it) },
                 // ⚠️ Qui il gesto può non esserci, quindi la vibrazione si compone a mano
                 // invece di passare da [withHaptics]: vedi la sua nota.
