@@ -84,8 +84,13 @@ import kotlin.math.roundToInt
  *
  * ⚠️⚠️ **DALLA 1.39 È SPENTO DI FABBRICA, DIETRO UN'IMPOSTAZIONE** (richiesta dell'utente,
  * 2026-09-03: *mettilo dietro un'opzione disattivata di default. Penserò se tenere o meno la
- * feature: rende tutto visibilmente più lento*). Lo dice [LocalAivVeil], e spento vuol dire
- * che qui non si tocca **niente**: ogni finestra resta com'era prima della 1.38.
+ * feature: rende tutto visibilmente più lento*). Lo dice [LocalAivVeil], e spento vuol dire che
+ * qui non si **aggiunge** niente: i dialoghi tornano al velo che Android dà loro e i menu a non
+ * averne.
+ * ⚠️ **L'unica eccezione è la scheda in fondo**, che un velo se lo chiede da sé perché la sua
+ * finestra non ne ha uno di serie (il parametro [bare], e `SHEET_DIM` in `Sheet.kt`). Quindi
+ * 'ogni finestra resta com'era prima della 1.38', che è come diceva questa nota fino alla
+ * `1.78`, non è vero per lei.
  */
 @Composable
 fun WindowVeil(
@@ -110,11 +115,13 @@ fun WindowVeil(
      * (dipingere la sfocatura sulla vista dell'app con un `RenderEffect`) è un rifacimento a
      * sé, di cui si parla nella nota in fondo a questo file.
      *
-     * ⚠️⚠️ **A FUNZIONE SPENTA IL DOSAGGIO NON SI APPLICA, ed è la regola della `1.39` scritta
-     * in una riga**: là l'unico velo che resta è quello che la scheda in fondo chiede alla
-     * propria finestra ([veilFor], ramo `bare`), e dosarlo vorrebbe dire cambiare come si vela
-     * una superficie mentre la funzione è disattivata, cioè fare quello che la `1.39` ha
-     * dichiarato di non fare.
+     * ⚠️⚠️ **A FUNZIONE SPENTA IL DOSAGGIO SI APPLICA LO STESSO, e fino alla `1.78` questa nota
+     * diceva il contrario**: la raccolta qui sotto non guarda l'interruttore, quindi il valore
+     * arriva anche al velo semplice della finestra ([veilFor], ramo `bare`), che è quello che la
+     * scheda in fondo si chiede da sé. E là è giusto così: la scheda passa **la propria patina**
+     * in quel caso (vedi `Sheet.kt`), cioè un livello con la sua opacità che entra e se ne va
+     * con lei. La regola della `1.39` dice che a funzione spenta non si **aggiunge** un velo che
+     * prima non c'era, non che un velo di finestra debba comparire di colpo.
      */
     LaunchedEffect(velo) {
         snapshotFlow { misura().coerceIn(0f, PIENO) }.collect { velo?.at(it) }

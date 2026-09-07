@@ -28,8 +28,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
@@ -91,6 +89,11 @@ import kotlinx.coroutines.withContext
  * più 'le tre pagine' e 'cinque delle voci': **tre conti su tre erano diventati falsi**, e si
  * ricavano tutti con un comando o leggendo [Page]. Il criterio universale sta in
  * `rules/Roccobot.md` § '🔢 I conti si contano, non si scrivono'.
+ * - ⚠️⚠️ **E LA PASSATA DI QUEL GIORNO NON AVEVA PRESO TUTTO: la `1.78` ne ha trovati altri
+ *   quattro in questo stesso file**, tutti al presente e tutti falsi ('le tre pagine' due
+ *   volte, 'tutte e quattro le pagine', 'i quattro gruppi'). Le pagine sono quelle di [Page] e
+ *   i gruppi si contano cercando le chiamate a [Group]: adesso le note nominano la fonte invece
+ *   di riportarne il conto.
  * - ⚠️ **Il 'dodici voci' qui sopra RESTA, e non è un'eccezione di comodo**: è al passato e
  *   dichiarato tale, cioè descrive com'era prima di questo riordino, e un tempo passato non
  *   invecchia. Quello che invecchia è il conto di com'è **adesso**.
@@ -161,8 +164,8 @@ fun SettingsScreen(
      */
     var pageAt by rememberSaveable { mutableIntStateOf(Page.ROOT.ordinal) }
     val page = Page.entries[pageAt]
-    // ⚠️⚠️ **LO SCORRIMENTO DELLA RADICE VIVE QUI E NON DENTRO LA PAGINA**: le tre pagine
-    // stanno in tre rami di un `when`, quindi uno stato ricordato dentro `Shell` nascerebbe
+    // ⚠️⚠️ **LO SCORRIMENTO DELLA RADICE VIVE QUI E NON DENTRO LA PAGINA**: ogni pagina di
+    // [Page] sta in un ramo di un `when`, quindi uno stato ricordato dentro `Shell` nascerebbe
     // nuovo a ogni ritorno, e si tornerebbe indietro trovandosi in cima. Tenuto qui,
     // sopravvive al passaggio, perché `SettingsScreen` non esce di scena. Le sotto-pagine
     // invece il proprio lo vogliono nuovo: si entra dall'inizio.
@@ -411,8 +414,8 @@ private fun Searchable(vararg texts: String?, content: @Composable () -> Unit) {
  *
  * ⚠️ **Scorre con l'elenco invece di restare inchiodato in testata**, ed è una scelta: appena
  * si scrive qualcosa l'elenco si accorcia a poche righe e il campo resta in vista da sé,
- * mentre una testata fissa costerebbe uno strato in più su tutte e quattro le pagine per un
- * caso che non capita.
+ * mentre una testata fissa costerebbe uno strato in più su ogni pagina di [Page] per un caso
+ * che non capita.
  * ⚠️ La crocetta compare **solo con qualcosa scritto**: un tasto che non ha niente da
  * cancellare è un bersaglio che si preme per sbaglio.
  */
@@ -1144,9 +1147,9 @@ private fun ColumnScope.RootPage(
     }
 
     /*
-     * ⚠️⚠️ **STA FUORI DAI QUATTRO GRUPPI, in fondo, e non è una dimenticanza**: non è
+     * ⚠️⚠️ **STA FUORI DAI GRUPPI, in fondo, e non è una dimenticanza**: non è
      * un'impostazione, è un'**azione** sulla memoria dell'app, e non risponde a nessuna
-     * delle quattro domande che i gruppi fanno. Metterla dentro uno di loro direbbe che è
+     * delle domande che i gruppi fanno. Metterla dentro uno di loro direbbe che è
      * una preferenza di quel tema; darle un gruppo suo vorrebbe dire un titolo per una riga
      * sola, cioè una parola in più che non aiuta a trovarla. In fondo è il posto dove le
      * azioni di ripristino stanno in ogni schermata di impostazioni, ed è dove si guarda.
@@ -1204,7 +1207,7 @@ private fun ColumnScope.RootPage(
 }
 
 /**
- * Il guscio comune alle tre pagine: la colonna che scorre, la freccia e il titolo.
+ * Il guscio comune a tutte le pagine: la colonna che scorre, la freccia e il titolo.
  *
  * ⚠️ Il titolo prende `weight`, e non è un dettaglio: 'Informazioni sul file' in tedesco e
  * in tamil è quasi il doppio, e senza peso una `Row` lo taglia invece di mandarlo a capo.
@@ -1807,28 +1810,24 @@ private fun HiddenFolders(settings: Settings, onChange: (Settings) -> Unit) {
 }
 
 /**
- * Quali dati mostrare quando si apre 'Info' su una fotografia, e in che ordine.
+ * Quali dati mostrare quando si apre 'Info' su un'immagine, e in che ordine.
  *
  * ⚠️⚠️ **DUE COMANDI PER RIGA PERCHÉ SONO DUE DOMANDE DIVERSE**, richiesta dell'utente
- * (2026-08-30: *scegliere quali campi e in quale ordine*): la casella dice **se** il campo
- * si vede, le frecce **dove** sta. Un elenco che rispondesse a una sola delle due avrebbe
- * evaso metà della richiesta.
- *
- * ⚠️⚠️ **LE FRECCE E NON IL TRASCINAMENTO, e la scelta è dichiarata**: riordinare una lista
- * col dito in Compose vuol dire scriversi il gesto, la misura delle righe e lo scorrimento
- * automatico ai bordi (lo stesso lavoro che nella griglia è costato una versione), e questa
- * lista è di dieci righe. Due frecce sono meno eleganti e sempre chiare, anche a chi non sa
- * che quella lista si potrebbe trascinare.
+ * (2026-08-30: *scegliere quali campi e in quale ordine*): la casella dice **se** il campo si
+ * vede, la manopola **dove** sta. Un elenco che rispondesse a una sola delle due avrebbe evaso
+ * metà della richiesta.
  *
  * ⚠️ **Il nome del file non ha nessuno dei due comandi**: è sempre visibile e sempre in
- * testa, come l'utente ha chiesto, quindi mostrargli una casella spenta o una freccia
+ * testa, come l'utente ha chiesto, quindi mostrargli una casella spenta o una manopola
  * inerte sarebbe offrire una scelta che non c'è. Gli altri due campi obbligatori (pixel e
- * peso) portano il **lucchetto** al posto della casella e le frecce sì: 'sempre visibile'
+ * peso) portano il **lucchetto** al posto della casella e la manopola sì: 'sempre visibile'
  * non vuol dire 'in posizione fissa'.
  *
- * ⚠️ **La prima freccia su e l'ultima freccia giù restano spente** invece di sparire: una
- * fila di comandi che cambia lunghezza da riga a riga si legge peggio di una in cui uno è
- * grigio.
+ * ⚠️⚠️ **FINO ALLA `1.78` QUESTA KDOC DESCRIVEVA DUE FRECCE, e il riordino si fa col
+ * TRASCINAMENTO dalla `1.57`**: c'era anche un blocco che dichiarava la scelta delle frecce
+ * *e non il trascinamento* con le ragioni per cui il gesto costava troppo, cioè giustificava
+ * per esteso il contrario di quello che il corpo fa (chiama [Reorderable]). Con lui se ne vanno
+ * la nota sulle frecce spente ai due estremi e i due glifi importati e mai usati.
  */
 @Composable
 private fun FactFields(settings: Settings, onChange: (Settings) -> Unit) {

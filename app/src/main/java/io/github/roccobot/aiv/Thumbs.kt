@@ -117,10 +117,10 @@ object Thumbs {
      *
      * ⚠️⚠️ **PRIMA: la chiave della cache in memoria contiene la MISURA richiesta.**
      * Lasciando che ogni riquadro chieda la propria (Coil misura il posto in cui
-     * l'immagine andrà), la stessa fotografia avrebbe una chiave nella griglia e
+     * l'immagine andrà), la stessa immagine avrebbe una chiave nella griglia e
      * un'altra nel visualizzatore, e soprattutto **una nuova a ogni rotazione**, perché
-     * con le colonne adattive il riquadro cambia larghezza: si rigenererebbe tutto,
-     * proprio nel momento in cui l'utente ha già le miniature in mano.
+     * ruotando le colonne diventano di più e il riquadro cambia larghezza: si
+     * rigenererebbe tutto, proprio nel momento in cui l'utente ha già le miniature in mano.
      * ⚠️⚠️ **POI: 512 è la misura che il MediaStore usa per le sue** (`MINI_KIND` è
      * 512x384), quindi chiedere esattamente quella evita al provider un
      * ridimensionamento in più.

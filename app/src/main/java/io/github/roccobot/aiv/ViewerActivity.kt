@@ -2078,10 +2078,16 @@ private fun AivApp(model: ViewerViewModel) {
      * stesso fotogramma, si portava via il `Popup` e l'uscita del menu non veniva disegnata
      * affatto. Con la sfocatura accesa spariva anche quella di colpo, ed è la ragione per cui
      * lui la vede peggio proprio là.
-     * ⚠️ **Il visualizzatore resta fuori, e si dichiara**: entrando o uscendo da lui cambiano le
-     * barre di sistema e lo schermo passa a immersivo, quindi una dissolvenza mostrerebbe per
-     * due decimi di secondo la griglia e l'immagine insieme mentre le barre si muovono. È anche
-     * il passaggio più frequente dell'app, quello che si fa a ogni fotografia aperta.
+     * ⚠️ **Il visualizzatore resta fuori, e si dichiara**: è il passaggio più frequente
+     * dell'app, quello che si fa a ogni immagine aperta, e una dissolvenza mostrerebbe per due
+     * decimi di secondo la griglia e l'immagine insieme.
+     * ⚠️⚠️ **LA RAGIONE SCRITTA QUI FINO ALLA `1.78` ERA FALSA, e la correzione dice il metodo
+     * invece del solo esito**: diceva che entrando o uscendo *le barre di sistema cambiano e lo
+     * schermo passa a immersivo*, e in questa app non c'è niente che nasconda le barre. Misurato:
+     * nessuna delle API che rendono immersiva una schermata compare in `app/src`, e la barra
+     * delle info del visualizzatore si scansa dalle barre di sistema con `safeDrawingPadding()`,
+     * cioè da barre che esistono per tutto il tempo. Una frase falsa in un commento ferma chi
+     * verifica, ed è un costo già pagato due volte in questo progetto.
      */
         AnimatedContent(
             targetState = model.screen,
@@ -2118,10 +2124,13 @@ private fun AivApp(model: ViewerViewModel) {
 /**
  * Quanto dura la dissolvenza fra due schermate.
  *
- * ⚠️ **Più lunga dell'uscita di un menu**, che sono 120ms (`MENU_IN` in `Menus.kt`): la
+ * ⚠️ **Più lunga dell'uscita di un menu**, che sono 75ms (`MENU_OUT_MS` in `Menus.kt`): la
  * schermata di partenza deve restare in vita finché il menu da cui si è usciti ha finito di
- * chiudersi, o si torna al taglio di prima. Il margine è poco, ed è voluto: una transizione
- * di schermata che si sente è peggio di un taglio.
+ * chiudersi, o si torna al taglio di prima.
+ * ⚠️⚠️ **IL MARGINE NON È 'POCO', E FINO ALLA `1.78` LA NOTA NOMINAVA LA COSTANTE SBAGLIATA**:
+ * citava `MENU_IN`, cioè l'**entrata** di un menu, mentre il conto che serve riguarda l'uscita.
+ * Con l'uscita a 75 ms il margine è di 105 ms su 180, cioè largo: chi ritoccasse questa durata
+ * fidandosi di 'poco' lavorerebbe su un numero che non è quello.
  */
 private const val SCHERMO_MS = 180
 

@@ -767,7 +767,7 @@ private fun NamePill(
      * stanno su una riga dipende da quali sono, e un tetto scritto a mano sarebbe sbagliato in
      * ogni lingua e a ogni larghezza.
      * ⚠️ **Converge per costruzione**: si scende di un gradino per volta e mai sotto
-     * [PILL_FLOOR], quindi il giro è finito anche quando stringere non toglie l'orfano.
+     * [NAME_FLOOR], quindi il giro è finito anche quando stringere non toglie l'orfano.
      * ⚠️ **La chiave è il testo**: cambiando nome si riparte dalla misura piena, o il primo
      * nome difficile rimpicciolirebbe per sempre tutti quelli dopo.
      */

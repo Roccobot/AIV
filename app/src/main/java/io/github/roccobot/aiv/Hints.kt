@@ -29,9 +29,12 @@ import androidx.compose.ui.window.DialogProperties
  * ⚠️⚠️ **NASCE COSÌ NELLA 0.67 E DIVENTA CONDIVISO NELLA 0.78** (richiesta dell'utente:
  * *un mini onboarding grafico, che oscura la schermata ed evidenzia in arancione il FAB*).
  * Serve perché il tocco lungo è una scorciatoia che **non si scopre da sola**: un tastino non
- * dichiara i propri gesti. I veli sono diventati **tre** (selezione, cestino, colonne) e
- * vivono in due schermate diverse: il colore, il contrasto misurato e la geometria stanno qui
- * una volta sola, e quello che cambia sono la frase e il tastino.
+ * dichiara i propri gesti. I veli di questa forma vivono in due schermate diverse (il cestino
+ * nella griglia, le colonne nella schermata iniziale): il colore, il contrasto misurato e la
+ * geometria stanno qui una volta sola, e quello che cambia sono la frase e il FAB.
+ * ⚠️ **Fino alla `1.78` la nota ne contava tre e nominava per primo quello della selezione**,
+ * uscito nella `0.94` insieme alla sua chiave: quanti siano non si scrive, perché il conto
+ * invecchia da sé (`Roccobot.md`, § '🪶 Come si mantiene un file di regole').
  *
  * ⚠️⚠️ **LA COPIA EVIDENZIATA FUNZIONA, non è un disegno**, ed è la differenza fra insegnare
  * e raccontare: chi tiene premuto sul velo fa la cosa mentre gliela si spiega, invece di

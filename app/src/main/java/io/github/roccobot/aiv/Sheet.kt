@@ -498,8 +498,13 @@ internal fun arrivo(): SpringSpec<Float> = spring(
  * ⚠️ **'Mini' sono parole sue**, quindi finisce presto: a 110 ms la scheda è già opaca, e la
  * molla a quel punto ha fatto poco più della metà della strada. Il resto del viaggio lo fa da
  * corpo solido, che è quello che distingue un accenno di dissolvenza da un fantasma che sale.
- * ⚠️ **Lineare e non con la curva della salita**: legata alla molla rallenterebbe insieme a
- * lei proprio in fondo, dove ha già finito.
+ * ⚠️ **Con un tempo suo e non con la curva della salita**: legata alla molla rallenterebbe
+ * insieme a lei proprio in fondo, dove ha già finito.
+ * ⚠️⚠️ **E LA CURVA È QUELLA DI SERIE, `FastOutSlowIn`, non lineare come diceva questa nota
+ * fino alla `1.78`**: nessuno dei posti che scrivono questa durata passa una curva, e il valore
+ * di serie di `tween` è quello (misurato sul bytecode di `animation-core`). In questo progetto
+ * `LinearEasing` si scrive per esteso quando lo si vuole, quindi la parola prometteva una cosa
+ * che il codice non fa.
  */
 internal const val SHEET_FADE_MS = 110
 

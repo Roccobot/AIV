@@ -483,10 +483,17 @@ fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (In
              * quella che finisce sull'angolo stondato del vetro.
              * ⚠️ **Misurata sullo screenshot dell'utente**: quattro gradini di grigio sotto la
              * scheda, da `208,207,203` a `248,247,243`, prima della barra di sistema.
-             * ⚠️ **Il rilievo TONALE resta**: quello non è un'ombra ma il colore della
-             * superficie, ed è la cosa che stacca la scheda dalla griglia dietro.
+             * ⚠️⚠️ **E IL RILIEVO TONALE NON C'È PIÙ NEMMENO LUI, DALLA `1.78`: NON FACEVA
+             * NIENTE.** Fino alla `1.77` qui c'era un `tonalElevation` di 6dp e la nota diceva
+             * che *stacca la scheda dalla griglia dietro*. Misurato sul comportamento di
+             * `Surface`: il rilievo tonale cambia il colore **solo** quando il colore ricevuto è
+             * `surface`, e qui è `surfaceContainerHigh`, cioè la superficie tornava intatta.
+             * L'unica via che restava, l'elevazione che si propaga ai figli, non ha nessun
+             * lettore: nessuna `Surface` dentro la scheda chiede il colore `surface`.
+             * ⚠️ **A staccare la scheda ci pensano il colore e il bordo d'accento**, che sono
+             * scelte dichiarate qui sopra: una nota che attribuisce l'effetto a un parametro
+             * spento manda chi ritocca l'aspetto a girare la manopola sbagliata.
              */
-            tonalElevation = SHEET_LIFT
         ) {
             Column(
                 modifier = Modifier
@@ -1020,23 +1027,18 @@ fun fabSide(): Alignment =
  * ⚠️ Cinque e non tre come il menu, e non è simmetria: le azioni là sono dieci, e a tre
  * colonne verrebbero quattro file, cioè un pannello alto quanto mezzo schermo sopra le
  * fotografie che si stanno scegliendo.
- * ⚠️ **Non è privata perché la legge anche chi ROVESCIA le file** per la mano sinistra
- * (`GridScreen`): là serve sapere dove finisce una fila, e un 5 scritto una seconda volta
- * sarebbe il numero che un giorno diverge da questo.
+ * ⚠️ **Non è privata perché la legge anche la pagina che RIORDINA i tasti** (`SettingsScreen`):
+ * quella replica la scheda, e un 5 scritto una seconda volta sarebbe il numero che un giorno
+ * diverge da questo.
+ * ⚠️ **Fino alla `1.78` la ragione scritta era un'altra e non esisteva più**: diceva che la
+ * leggeva chi rovesciava le file per la mano sinistra, e quella specchiatura è uscita del tutto
+ * nella `1.57` (lo dichiara `GridScreen`). Il criterio regge identico, a cambiare era il
+ * lettore.
  */
 internal const val SHEET_COLUMNS = 5
 
 /** Lo smusso dei due angoli alti del pannello, che è quello di una bottomsheet Material. */
 private val SHEET_CORNER = 28.dp
-
-/**
- * Quanto il pannello si stacca da quello che ha sotto.
- *
- * ⚠️ **È il rilievo TONALE e basta, dalla 1.40**: l'ombra è uscita su richiesta dell'utente, e
- * il perché sta sulla `Surface` di [PickSheet]. Restava il dubbio che sul tema scuro il tono da
- * solo non bastasse (là i toni si somigliano tutti): il riscontro dice che basta.
- */
-private val SHEET_LIFT = 6.dp
 
 /**
  * Lo smusso del tastino quadrato, uguale in tutte le schermate.
@@ -1102,10 +1104,13 @@ val BELOW_FAB = FAB_REACH + 20.dp
  * nella passata `Main` il figlio consuma il down per primo: è esattamente il meccanismo che
  * aveva rotto il tocco lungo sulla griglia. Per avere due gesti su un tastino bisogna che di
  * nodo che ascolta ce ne sia **uno**.
- * ⚠️ **La resa non cambia**: `SmallFloatingActionButton` è una `Surface` da [FAB_SIZE] con
- * `primaryContainer`, il suo contrasto e 6dp d'ombra, e questa è quella. L'unica cosa che si
- * perde è l'ombra che cresce al passaggio del **mouse**, che su un telefono non succede: in
- * Material 3 la pressione lascia l'ombra dov'è.
+ * ⚠️ **La misura è quella di Material**, [FAB_SIZE], e da lì non si scosta.
+ * ⚠️⚠️ **MA 'LA RESA NON CAMBIA' NON È PIÙ VERO, E FINO ALLA `1.78` ERA SCRITTO QUI**: la nota
+ * garantiva `primaryContainer` e 6dp d'ombra, cioè quello che `SmallFloatingActionButton` dà, e
+ * di quelle tre cose ne resta una. L'ombra è a zero dalla `1.68` (il perché sta sulla costante
+ * che la portava), e i due colori arrivano **dai chiamanti**, che passano le risorse dell'icona
+ * dell'app: qui dentro la parola `primaryContainer` non compare. Chi legge la firma incontrava
+ * prima questa nota e dopo i fatti che la smentiscono.
  * ⚠️ Il gesto sta **dentro** la `Surface` e non sul suo modificatore, così l'increspatura
  * prende il colore del contenuto ([ink]) invece di quello che c'era fuori.
  *

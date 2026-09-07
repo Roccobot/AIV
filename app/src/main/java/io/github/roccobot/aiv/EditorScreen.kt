@@ -599,7 +599,6 @@ private fun EditorSheet(
     busy: Boolean,
     /** Se l'anteprima è arrivata: prima non c'è niente su cui agire. */
     ready: Boolean,
-    /** Se le due file di tasti vanno nell'ordine della mano sinistra. */
     /** Se c'è un ritocco non ancora confermato. */
     pending: Boolean,
     /** Se c'è almeno un 'Applica' alle spalle. */
@@ -664,8 +663,11 @@ private fun EditorSheet(
          * misurato.
          * ⚠️ **E dalla 1.42 arriva sotto la barra di sistema come le altre due**: il rientro
          * non è più sulla colonna della schermata ma sui suoi tre pezzi, e il perché sta là.
+         * ⚠️⚠️ **E NEMMENO IL RILIEVO TONALE, DALLA `1.78`: NON FACEVA NIENTE.** Il perché
+         * misurato sta sulla `Surface` di `PickSheet`, che portava lo stesso parametro spento:
+         * il rilievo tonale vale solo su una superficie di colore `surface`, e questa è
+         * `surfaceContainerHigh`.
          */
-        tonalElevation = SHEET_RISE
     ) {
         Column(
             /*
@@ -710,10 +712,15 @@ private fun EditorSheet(
              * restano una sessantina di dp, e un chip di Material se ne mangia 32 di rientri.
              * Nei 28 che avanzano non ci sta nemmeno '9:16', figurarsi 'Свободно', che è il
              * 'Libero' russo. Celle uguali vorrebbe dire etichette tagliate in mezza Europa.
-             * ⚠️ **Perciò [FlowRow] con [Arrangement.SpaceBetween]**: la fila arriva ai due
-             * bordi, i distacchi sono tutti uguali, ogni chip resta largo quanto la sua
-             * parola, e nella lingua in cui non ci stanno **va a capo** invece di uscire dallo
-             * schermo. Una `Row` semplice, senza scorrimento, là sborderebbe in silenzio.
+             * ⚠️ **Perciò una `Row` con i PESI**: la fila arriva ai due bordi e 'Libero' si
+             * prende la cella più larga, mentre le quattro proporzioni ne dividono il resto in
+             * parti uguali. Nella lingua in cui una parola non ci sta, il chip la **accorcia con
+             * i tre punti**, che è quello che fa `SheetChip`.
+             * ⚠️⚠️ **FINO ALLA `1.78` QUESTA NOTA DESCRIVEVA UNA `FlowRow` CHE NON C'È, e per
+             * giunta sconsigliava per esteso la soluzione adottata**: prometteva l'andata a capo
+             * e il rimando non si risolveva su niente, perché in questo file `FlowRow` non è
+             * nemmeno importata. Il componente esiste, ma in un altro file, e questo rendeva la
+             * ricerca ancora più fuorviante.
              */
             Row(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = STAGE_SIDE),
@@ -921,10 +928,9 @@ private val CHIP_PAD = 6.dp
  */
 private const val SHEET_KEYS = 4
 
-/** Lo smusso dei due angoli alti, e quanto il pannello si stacca: come la bottomsheet della
- * selezione, perché è la stessa cosa in un'altra schermata. */
+/** Lo smusso dei due angoli alti: come la bottomsheet della selezione, perché è la stessa cosa
+ * in un'altra schermata. */
 private val SHEET_ROUND = 28.dp
-private val SHEET_RISE = 6.dp
 
 /** Il respiro fra il bordo di sopra della scheda e la prima fila di chip. Vedi la sua nota. */
 private val SHEET_TOP = 16.dp
