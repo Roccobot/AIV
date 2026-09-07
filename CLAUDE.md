@@ -684,7 +684,7 @@ tutte le miniature che le passavano sotto.
 - ⚠️ **La nota 'finita la selezione non si riapre' è decaduta con la chiusura**: non c'è più
   niente da riaprire.
 
-⚠️⚠️ **IL CONTO DEGLI ELEMENTI STA SOTTO IL TITOLO, E DICE 'ELEMENTI' E NON 'IMMAGINI'** (sua
+⚠️⚠️ **IL CONTO DEGLI ELEMENTI VA SOTTO IL TITOLO, E DICE 'ELEMENTI' E NON 'IMMAGINI'** (sua
 specifica, giro della `1.77`: *il numero di elementi (non immagini) totali / selezionati
 dev'essere indicato sotto il titolo, centrato, con un carattere leggermente più piccolo e meno
 opaco*; e il punto (b) del campo libero: *non va più bene da quando ci sono anche i video*). Le
@@ -774,7 +774,7 @@ funzione: salvare è un gesto che si fa di fretta.
 - **La finestra chiede il SOLO nome**, e il suffisso si vede accanto al campo senza entrare nel
   campo: senza quello giusto la galleria non sa che cosa tiene in mano. Chi vuole cambiare
   formato ha 'Esporta/Converti', che è un'altra cosa e lo dice.
-- **I due gesti della data**: il tocco breve infila `YYYYMMDD` dove sta il cursore, il lungo rifà
+- **I due gesti della data**: il tocco breve infila `YYYYMMDD` dov'è il cursore, il lungo rifà
   il nome da capo con la sola data. Sono le due cose che si vogliono davvero fare con una data in
   un nome, e nessuna delle due si ottiene dall'altra senza cancellare a mano.
 
