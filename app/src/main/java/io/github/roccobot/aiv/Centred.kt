@@ -335,10 +335,37 @@ private class LowerNode(
          * ⚠️ **La deroga vale finché la tastiera è in scena e non un istante di più**: quando si
          * chiude, questo nodo rimisura e il pannello torna al suo 15% in basso.
          */
-        if (room > 0 && typing()) {
+        /*
+         * ⚠️⚠️ **LA SALITA HA UN TETTO DALLA `1.81`, E SENZA DI LUI UN PANNELLO PICCOLO FINIVA
+         * SUL NOTCH** (riscontro del giro della `1.80`, campo libero punto B: *Controlla la
+         * posizione della finestra di dialogo per la modifica dell'estensione: si apre talmente
+         * in alto da finire sul notch e quasi sull'orologio di sistema*).
+         * ⚠️⚠️ **LA CAUSA È CHE LE DUE MISURE VENGONO DA DUE POSTI DIVERSI**: [room] si ricava da
+         * [windowHeight], che è lo **schermo** meno le barre e la tastiera, mentre a centrare la
+         * scatola gonfia è la **finestra del dialogo**, che il sistema ha già ridotto. Quando gli
+         * inset della vista di un dialogo arrivano a zero, quel conto crede di avere a
+         * disposizione tutto lo schermo e la scatola diventa più alta della finestra: il
+         * contenuto viene posato sopra il bordo di sopra, cioè sul notch.
+         * ⚠️ **Perché si vedeva sul pannellino dell'estensione e non sulla rinomina**: la salita
+         * è `(finestra - pannello) / 2`, quindi cresce quanto più il pannello è **piccolo**. La
+         * rinomina è alta e la sua salita era già stretta; il pannellino dell'estensione ha un
+         * campo corto, e là il conto sbagliato si vedeva tutto.
+         * ⚠️ **Il vincolo si legge SOLO per questo**, e la nota qui sopra resta vera: l'aria che
+         * la stretta misura è una proprietà della finestra dello schermo, non del contenitore.
+         * Qui invece serve sapere dove sono i bordi del contenitore, e quello lo dice solo il
+         * vincolo. ⚠️ **Un'altezza non vincolata non limita niente**, che è il verso prudente:
+         * meglio la misura di prima che un tetto costruito su un infinito.
+         */
+        val climb = climbFor(
+            room = room,
+            panel = placed.height,
+            box = if (constraints.hasBoundedHeight) constraints.maxHeight else 0,
+            air = air
+        )
+        if (climb > 0 && typing()) {
             aria.top = 0
             aria.from = placed.height
-            return layout(placed.width, placed.height + room * 2) { placed.place(0, 0) }
+            return layout(placed.width, placed.height + climb * 2) { placed.place(0, 0) }
         }
         /*
          * ⚠️⚠️ **LO SPOSTAMENTO STA DENTRO L'ALTEZZA RIPORTATA, e fino alla 1.33 NON c'era: è
@@ -434,3 +461,23 @@ private class LowerNode(
  */
 const val LOWER_BY = 0.15f
 val LOWER_AIR = 16.dp
+
+/**
+ * Di quanto può salire un pannello a tastiera aperta, senza uscire dalla propria finestra.
+ *
+ * ⚠️⚠️ **È UNA FUNZIONE A SÉ PERCHÉ IL BANCO DI PROVA LA POSSA MISURARE**: il ramo che la usa
+ * gira solo con la tastiera in scena, e una tastiera Robolectric non la apre. Provata come
+ * funzione, il conto si esercita coi numeri veri del caso che è arrivato a lui.
+ *
+ * @param room la salita voluta, ricavata dall'altezza della finestra dello schermo meno le barre
+ *   e la tastiera: è quella che, da sola, mandava il pannello sul notch.
+ * @param panel l'altezza del pannello già misurato.
+ * @param box l'altezza che il contenitore concede, oppure `0` se non è vincolata.
+ * @param air l'aria da lasciare sopra il pannello, in pixel.
+ * @return la salita da applicare: la voluta, o quella che tiene il pannello dentro la finestra.
+ */
+internal fun climbFor(room: Int, panel: Int, box: Int, air: Int): Int {
+    if (box <= 0) return room
+    val fits = ((box - panel) / 2 - air).coerceAtLeast(0)
+    return minOf(room, fits)
+}
