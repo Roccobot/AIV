@@ -232,36 +232,16 @@ object ImageEdit {
             // SVG: senza, un ritaglio su quei file rispondeva 'troppo grande', che è un
             // messaggio sbagliato su un file di venti kilobyte. Lo zero vuol dire 'grande
             // quanto viene', perché qui si sta per riscrivere e non si mostra niente.
-            full = runCatching {
-                ImageDecoder.decodeBitmap(
-                    ImageDecoder.createSource(context.contentResolver, uri)
-                ) { decoder, _, _ ->
-                    decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
-                    decoder.isMutableRequired = false
-                }
-            }.getOrNull()
-                ?: ImageSource.rescue(context, uri, 0)
+            full = ImageSource.pixels(context, uri, 0)
                 ?: return Result.Failed(R.string.edit_too_big)
 
-            turned = if (turns == 0) full else Bitmap.createBitmap(
-                full, 0, 0, full.width, full.height,
-                Matrix().apply { postRotate(90f * turns) },
-                true
-            )
+            turned = full.turnedBy(turns)
             if (turned !== full) {
                 full.recycle()
                 full = null
             }
 
-            cut = if (crop.whole) turned else {
-                val x = (crop.left * turned.width).toInt().coerceIn(0, turned.width - 1)
-                val y = (crop.top * turned.height).toInt().coerceIn(0, turned.height - 1)
-                val w = ((crop.right - crop.left) * turned.width).toInt()
-                    .coerceIn(1, turned.width - x)
-                val h = ((crop.bottom - crop.top) * turned.height).toInt()
-                    .coerceIn(1, turned.height - y)
-                Bitmap.createBitmap(turned, x, y, w, h)
-            }
+            cut = turned.cutTo(crop)
 
             val kind = format(target.name) ?: Bitmap.CompressFormat.JPEG
             /*
@@ -442,4 +422,54 @@ object ImageEdit {
         ExifInterface.TAG_GPS_DATESTAMP,
         ExifInterface.TAG_GPS_TIMESTAMP
     )
+}
+
+/**
+ * Questa mappa di pixel girata di [turns] quarti di giro, oppure lei stessa.
+ *
+ * ⚠️⚠️ **NASCE PERCHÉ ERA SCRITTA TRE VOLTE** (censimento della UI del 2026-09-05):
+ * nell'anteprima mostrata, nell'anteprima da salvare e nel salvataggio vero. E le tre copie
+ * **non erano identiche**, che è il danno peggiore di una duplicazione: una proteggeva il conto
+ * con un `runCatching` e le altre due no, quindi un errore di memoria su un'immagine grossa
+ * arrivava dentro la composizione. La condizione di uscita era scritta in due modi (`turns == 0`
+ * e `turns.mod(4) == 0`), oggi equivalenti solo perché lo stato è tenuto fra 0 e 3 da chi lo
+ * cambia.
+ * - **Quindi la rete c'è per tutti e tre**: se la rotazione fallisce torna l'originale, che è
+ *   quello che l'unica copia protetta già faceva.
+ * - ⚠️ **Torna `this` quando non c'è niente da girare**, e chi ricicla la copia se ne accorge
+ *   confrontando l'identità (`!==`), come fa il salvataggio: senza quel confronto si
+ *   riciclerebbe la mappa che si sta ancora usando.
+ */
+internal fun Bitmap.turnedBy(turns: Int): Bitmap =
+    if (turns.mod(4) == 0) this
+    else runCatching {
+        Bitmap.createBitmap(
+            this, 0, 0, width, height,
+            Matrix().apply { postRotate(90f * turns) },
+            true
+        )
+    }.getOrDefault(this)
+
+/**
+ * Questa mappa di pixel ritagliata sulle frazioni di [crop], oppure lei stessa.
+ *
+ * ⚠️⚠️ **NASCE PERCHÉ ERA SCRITTA DUE VOLTE, e il commento chiedeva di tenerle uguali A MANO**
+ * (censimento della UI del 2026-09-05): il KDoc dell'anteprima dichiarava *gli arrotondamenti
+ * sono gli STESSI di `ImageEdit.redraw`, e non per caso*, cioè affidava un vincolo a chi legge,
+ * che è la definizione del difetto. Il danno sarebbe stato futuro e silenzioso: un ritaglio
+ * diverso di un pixel fra anteprima e file salvato non dà nessun errore, e si vede solo sul
+ * risultato.
+ * - ⚠️ **Il conto è quello di prima, carattere per carattere**: si tronca (`toInt`) e si stringe
+ *   dentro i bordi, il minimo di larghezza e altezza è **uno** perché un ritaglio di zero pixel
+ *   non è un'immagine, e l'origine può arrivare al più all'ultimo pixel.
+ */
+internal fun Bitmap.cutTo(crop: ImageEdit.Crop): Bitmap {
+    if (crop.whole) return this
+    return runCatching {
+        val x = (crop.left * width).toInt().coerceIn(0, width - 1)
+        val y = (crop.top * height).toInt().coerceIn(0, height - 1)
+        val w = ((crop.right - crop.left) * width).toInt().coerceIn(1, width - x)
+        val h = ((crop.bottom - crop.top) * height).toInt().coerceIn(1, height - y)
+        Bitmap.createBitmap(this, x, y, w, h)
+    }.getOrDefault(this)
 }

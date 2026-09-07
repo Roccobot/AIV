@@ -186,14 +186,8 @@ object Convert {
      * qui `ImageDecoder` fallisce e non per mancanza di memoria. Non era un errore visibile,
      * era qualità persa in silenzio.
      */
-    private fun full(context: Context, uri: Uri): Bitmap? = runCatching {
-        ImageDecoder.decodeBitmap(
-            ImageDecoder.createSource(context.contentResolver, uri)
-        ) { decoder, _, _ ->
-            decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
-            decoder.isMutableRequired = false
-        }
-    }.getOrNull() ?: ImageSource.rescue(context, uri, 0)
+    private fun full(context: Context, uri: Uri): Bitmap? =
+        ImageSource.pixels(context, uri, 0)
 
     /**
      * I servizi di fuori, per tutto quello che Android non sa scrivere.

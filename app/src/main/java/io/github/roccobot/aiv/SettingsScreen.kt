@@ -905,8 +905,9 @@ private fun ColumnScope.RootPage(
         } ?: noEditor
         // ⚠️ La forma è ESATTAMENTE quella della cartella d'avvio (titolo e spiegazione, poi
         // una riga con il valore in vigore e il tasto): sono la stessa cosa, cioè una scelta
-        // che si fa altrove e qui si mostra, e due disposizioni diverse per lo stesso
-        // mestiere farebbero cercare il tasto due volte.
+        // che si fa altrove e qui si mostra, e dalla `1.81` la riga la disegna [ValueAndPick]
+        // per tutte e due, invece di essere scritta due volte con la raccomandazione di
+        // tenerle uguali.
         Column(
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
             verticalArrangement = Arrangement.spacedBy(2.dp)
@@ -914,21 +915,11 @@ private fun ColumnScope.RootPage(
             Text(text = editorLabel, style = MaterialTheme.typography.titleSmall)
             Detail(editorDesc)
         }
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Text(
-                text = editorName,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.weight(1f)
-            )
-            TextButton(onClick = onChooseEditor) {
-                Text(stringResource(R.string.settings_editor_pick))
-            }
-        }
+        ValueAndPick(
+            value = editorName,
+            pick = stringResource(R.string.settings_editor_pick),
+            onPick = onChooseEditor
+        )
     }
 
     /*
@@ -1100,23 +1091,13 @@ private fun ColumnScope.RootPage(
                 else onChange(settings.copy(openAtStart = it))
             }
         )
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Text(
-                text = settings.startFolderName.ifBlank {
-                    stringResource(R.string.settings_start_folder_none)
-                },
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.weight(1f)
-            )
-            TextButton(onClick = onStartFolder) {
-                Text(stringResource(R.string.settings_start_folder_pick))
-            }
-        }
+        ValueAndPick(
+            value = settings.startFolderName.ifBlank {
+                stringResource(R.string.settings_start_folder_none)
+            },
+            pick = stringResource(R.string.settings_start_folder_pick),
+            onPick = onStartFolder
+        )
     }
 
     /*
@@ -1368,13 +1349,52 @@ private fun Group(title: String) {
     )
 }
 
-/** La spiegazione sotto un titolo, nello stile che tutte le voci usano. */
+/**
+ * Una riga che mostra il **valore in vigore** di una scelta che si fa altrove, col tasto che la
+ * apre.
+ *
+ * ⚠️⚠️ **NASCE PERCHÉ ERA SCRITTA DUE VOLTE, E IL CODICE DICHIARAVA CHE DOVEVANO RESTARE
+ * IDENTICHE** (censimento della UI del 2026-09-05): la nota dell'editor diceva *la forma è
+ * ESATTAMENTE quella della cartella d'avvio ... due disposizioni diverse per lo stesso mestiere
+ * farebbero cercare il tasto due volte*, cioè enunciava un vincolo e ne affidava il rispetto a
+ * chi legge. Le due `Row` erano la stessa cosa riga per riga, con gli stessi tre modificatori.
+ * ⚠️ **Le due voci restano diverse dove devono**: quello che cambia è il testo mostrato e che
+ * cosa fa il tasto, e sono i due parametri.
+ */
 @Composable
-private fun Detail(text: String) {
+private fun ValueAndPick(value: String, pick: String, onPick: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f)
+        )
+        TextButton(onClick = onPick) { Text(pick) }
+    }
+}
+
+/**
+ * La spiegazione sotto un titolo, nello stile che tutte le voci usano.
+ *
+ * ⚠️⚠️ **NON È PRIVATA DALLA `1.81`, e prima la Cronologia se la riscriveva** (censimento
+ * della UI del 2026-09-05): quella copia dichiarava nel proprio commento di essere *lo stile
+ * che le impostazioni usano per le spiegazioni*, cioè chi l'ha scritta sapeva di duplicare, e
+ * non aveva un'altra via perché questa era chiusa in casa.
+ * ⚠️ **Il `modifier` c'è perché serve a un chiamante**: la riga di un file ripristinato le
+ * passa un peso. Un valore di serie non cambia niente per gli altri.
+ */
+@Composable
+internal fun Detail(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text,
         style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = modifier
     )
 }
 
@@ -1594,7 +1614,7 @@ private val VERSION_END = 12.dp
  * [Modifier.bordo]. Due numeri diversi darebbero un testo che si sposta quando la riga diventa
  * toccabile.
  */
-private val PAGE_SIDE = 20.dp
+internal val PAGE_SIDE = 20.dp
 
 /**
  * Quanta aria sopra e sotto il testo di una riga che si tocca.
@@ -1949,8 +1969,14 @@ private fun FactFields(settings: Settings, onChange: (Settings) -> Unit) {
     }
 }
 
-/** Quanto spazio lascia una riga alla manopola del trascinamento. */
-private val HANDLE_ROOM = 44.dp
+/**
+ * Quanto spazio lascia una riga alla manopola del trascinamento.
+ *
+ * ⚠️ **Si ricava da [HANDLE], che è la misura vera della manopola**, più il filo d'aria che la
+ * stacca dal testo: fino alla `1.80` era un 44 scritto a mano, cioè un numero che nessuno
+ * avrebbe collegato al 40 dell'altro file.
+ */
+private val HANDLE_ROOM = HANDLE + 4.dp
 
 /**
  * I quattro elenchi di tasti, uno per riquadro.
@@ -1984,7 +2010,7 @@ private fun ButtonOrders(settings: Settings, onChange: (Settings) -> Unit) {
         title = stringResource(R.string.settings_buttons_menu),
         order = settings.menuOrder,
         difetto = MENU_KEYS,
-        columns = MENU_COLUMNS,
+        columns = PAD_COLUMNS,
         onOrder = { onChange(settings.copy(menuOrder = it)) }
     )
     PadOrder(
@@ -1998,28 +2024,28 @@ private fun ButtonOrders(settings: Settings, onChange: (Settings) -> Unit) {
         title = stringResource(R.string.settings_buttons_turn),
         order = settings.turnOrder,
         difetto = TURN_KEYS,
-        columns = EDITOR_COLUMNS,
+        columns = SHEET_KEYS,
         onOrder = { onChange(settings.copy(turnOrder = it)) }
     )
     PadOrder(
         title = stringResource(R.string.settings_buttons_steps),
         order = settings.stepOrder,
         difetto = STEP_KEYS,
-        columns = EDITOR_COLUMNS,
+        columns = SHEET_KEYS,
         onOrder = { onChange(settings.copy(stepOrder = it)) }
     )
 }
 
-/**
- * Quante colonne ha il menu su un file, e quante le due file dell'editor.
- *
- * ⚠️ **Sono le colonne del riquadro VERO, e la replica le deve rompere dove le rompe lui**:
- * un riquadro riordinato su tre colonne e mostrato su due direbbe una bugia sul risultato.
- * ⚠️ Quello della selezione riusa `SHEET_COLUMNS`, che è già pubblica perché la scheda la
- * condivide con chi la disegna: un terzo numero uguale sarebbe il posto in cui divergere.
+/*
+ * ⚠️⚠️ **QUI VIVEVANO DUE NUMERI COPIATI, FINO ALLA `1.80`**: `MENU_COLUMNS = 3` e
+ * `EDITOR_COLUMNS = 4`, cioè gli stessi valori di [PAD_COLUMNS] e [SHEET_KEYS] scritti una
+ * seconda volta. La nota che li accompagnava enunciava il criterio giusto ('un terzo numero
+ * uguale sarebbe il posto in cui divergere') e lo applicava al solo terzo numero, quello della
+ * selezione, che infatti era già condiviso.
+ * ⚠️ **Sono le colonne del riquadro VERO, e la replica le deve rompere dove le rompe lui**: un
+ * riquadro riordinato su tre colonne e mostrato su due direbbe una bugia sul risultato. Adesso
+ * lo garantisce il fatto che il numero è uno.
  */
-private const val MENU_COLUMNS = 3
-private const val EDITOR_COLUMNS = 4
 
 /**
  * Un riquadro da riordinare, col suo titolo.
@@ -2080,7 +2106,7 @@ private fun PadOrder(
                     }
                     .tapRoom()
                     .padding(start = 12.dp, top = 24.dp, bottom = 4.dp)
-                    .alpha(if (order == difetto) RESET_OFF else 1f)
+                    .alpha(if (order == difetto) OFF_INK else 1f)
             )
         }
     }
@@ -2121,14 +2147,6 @@ private fun PadOrder(
     }
 }
 
-/**
- * Quanto è sbiadito 'Ripristina' quando non c'è niente da ripristinare.
- *
- * ⚠️ **Sbiadito e non sparito**: un comando che compare e scompare si cerca proprio nel momento
- * in cui non c'è, e la sua assenza si legge come un guasto. È la stessa ragione del tasto Salva
- * del documento di feedback.
- */
-private const val RESET_OFF = 0.38f
 
 /** L'aria fra un riquadro e il titolo del successivo. */
 private val ARRANGE_GAP = 12.dp

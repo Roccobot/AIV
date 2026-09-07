@@ -763,10 +763,29 @@ private fun place(candidates: IntArray, size: Int, space: Int, margin: Int): Int
 val MenuInWindow = MenuSpot(MenuSide.IN_WINDOW, MenuSide.LOWERED_IN_WINDOW, air = MENU_AIR)
 
 /**
- * Un menu ancorato a un angolo: i due tastini e il filtro della testata.
+ * Il menu **ancorato** al tastino che lo apre: la coppia di lati che i tre menu d'angolo
+ * dell'app chiedono tutti uguale.
+ *
+ * ⚠️⚠️ **NASCE PERCHÉ QUELLA COPPIA ERA SCRITTA TRE VOLTE** (censimento della UI del
+ * 2026-09-05), e la difesa scritta accanto a una delle tre era proprio il ragionamento che
+ * questo file rifiuta per lo stondamento: *scriverla uguale è quello che rende impossibile che
+ * i due menu si comportino in modo diverso*. Il precedente misurato dice il contrario, ed è di
+ * casa: fino alla `1.27` ogni menu portava il proprio raggio, ed erano diventati tre numeri
+ * diversi. Il criterio è scritto su [MENU_ROUND]: *un parametro è un invito a ridiventare tre*.
+ * ⚠️ **Il caso centrato aveva già un nome solo** ([MenuInWindow]), quindi la simmetria mancava
+ * proprio dove i chiamanti erano più numerosi.
+ */
+@Composable
+fun rememberMenuAtAnchor(): MenuSpot =
+    rememberMenuSpot(MenuSide.AT_ANCHOR, MenuSide.AFTER_ANCHOR)
+
+/**
+ * Un menu ancorato a un angolo, con la coppia di lati scelta dal chiamante.
  *
  * ⚠️ Ricordato, perché costruirne uno nuovo a ogni ricomposizione farebbe rimisurare la
  * finestra al `Popup` senza che niente sia cambiato.
+ * ⚠️ **I tre menu d'angolo dell'app passano da [rememberMenuAtAnchor]** e non da qui: questa
+ * resta la forma generale, che serve a chi un domani ne volesse una coppia diversa.
  */
 @Composable
 fun rememberMenuSpot(across: MenuSide, along: MenuSide): MenuSpot {

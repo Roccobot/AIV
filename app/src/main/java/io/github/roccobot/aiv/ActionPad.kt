@@ -4,13 +4,8 @@ import android.view.WindowManager
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -428,29 +423,12 @@ fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (In
          * ancora la molla di fabbrica, e la nota di allora diceva che l'utente aveva descritto
          * come una scheda **entra**: era vero quel giorno.
          */
-        enter = slideInVertically(
-            /*
-             * ⚠️ **È la molla di fabbrica scritta a mano**, e la ragione di scriverla è che
-             * adesso il suo numero vive in un posto solo ([ARRIVO_RIGIDITA] in `Sheet.kt`):
-             * lasciata implicita, un ritocco là non arriverebbe qui e le due schede
-             * tornerebbero a muoversi in due modi.
-             */
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioNoBouncy,
-                stiffness = ARRIVO_RIGIDITA,
-                visibilityThreshold = IntOffset.VisibilityThreshold
-            ),
-            initialOffsetY = { it }
-        ) + fadeIn(animationSpec = tween(durationMillis = SHEET_FADE_MS)),
-        exit = slideOutVertically(
-            animationSpec = tween(durationMillis = USCITA_MS, easing = ACCELERA),
-            targetOffsetY = { it }
-        ) + fadeOut(
-            animationSpec = tween(
-                durationMillis = SHEET_FADE_MS,
-                delayMillis = USCITA_MS - SHEET_FADE_MS
-            )
-        ),
+        /*
+         * ⚠️ **La forma del gesto vive in `Sheet.kt`**, come i suoi quattro numeri: fino alla
+         * `1.80` era scritta qui parola per parola, e in altri due posti uguale.
+         */
+        enter = arrivaDalBasso(),
+        exit = vaGiu(),
         modifier = Modifier.align(Alignment.BottomCenter)
     ) {
         Surface(
@@ -845,8 +823,14 @@ fun withHaptics(action: () -> Unit): () -> Unit {
  */
 val HOLD_BUZZ = HapticFeedbackType.TextHandleMove
 
-/** Quante colonne ha il riquadro: tre, come l'utente le ha chieste. */
-private const val PAD_COLUMNS = 3
+/**
+ * Quante colonne ha il riquadro: tre, come l'utente le ha chieste.
+ *
+ * ⚠️ **Non è privata perché la legge anche la pagina che RIORDINA i tasti**, come già
+ * [SHEET_COLUMNS]: quella replica il riquadro, e un 3 scritto una seconda volta sarebbe il
+ * numero che un giorno diverge da questo.
+ */
+internal const val PAD_COLUMNS = 3
 
 /**
  * Quanto è alta una cella della replica che si riordina.
@@ -863,8 +847,6 @@ private const val ARRANGE_BED = 0.10f
 /** Quanto si vede quando il tasto è in mano: la stessa cosa, più evidente. */
 private const val ARRANGE_HELD = 0.24f
 
-/** Quanto resta di un tasto spento: il valore di Material per un comando inattivo. */
-private const val OFF_INK = 0.38f
 
 /**
  * La larghezza di una cella.
