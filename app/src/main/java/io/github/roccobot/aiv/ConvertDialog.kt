@@ -2,7 +2,6 @@ package io.github.roccobot.aiv
 
 import android.content.Intent
 import android.net.Uri
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -130,11 +129,9 @@ fun ConvertDialog(
                 size = size,
                 destination = destination
             )
-            Toast.makeText(
-                context,
-                if (ok) R.string.toast_saved else R.string.toast_save_failed,
-                Toast.LENGTH_SHORT
-            ).show()
+            Notices.say(context.getString(
+                if (ok) R.string.toast_saved else R.string.toast_save_failed
+            ))
             if (ok) onSaved()
             onDismiss()
         }

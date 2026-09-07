@@ -2,7 +2,6 @@ package io.github.roccobot.aiv
 
 import androidx.annotation.StringRes
 import android.net.Uri
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
@@ -410,12 +409,40 @@ fun GridScreen(
      * ⚠️ **Tre secondi, come li ha chiesti**, e il conto riparte da zero se si azzera una
      * seconda selezione: la chiave dell'effetto è [cleared], quindi un'altra pressione di
      * Indietro rimette la notifica in scena per tre secondi suoi.
+     * ⚠️⚠️ **DALLA `1.84` LA RIGA LA MANDA AL CANALE, e l'attesa non è più qui** (sua risposta
+     * `casa` a `d-avvisi`): la superficie con cui l'app parla è una sola, quindi la durata e il
+     * conto alla rovescia vivono con lei, in `Notice.kt`. Qui resta la sola cosa che è di questa
+     * schermata, cioè **quale** selezione rimettere.
+     * ⚠️⚠️ **E LA CLAUSOLA 'O FINCHÉ NON SI CAMBIA CARTELLA' ADESSO SI OTTIENE TOGLIENDOLA**: con
+     * uno stato locale bastava la chiave del titolo, perché la notifica moriva con la schermata;
+     * una riga che vive nel processo no, e senza il congedo qui sotto uscirebbe dalla cartella
+     * insieme a chi la legge.
      */
+    val azzerata = stringResource(R.string.pick_cleared)
+    val annullaAzzerata = stringResource(R.string.pick_undo)
+    var rigaAzzerata by remember { mutableStateOf<Long?>(null) }
     LaunchedEffect(cleared) {
-        if (cleared != null) {
-            delay(UNDO_MS)
-            cleared = null
+        val quali = cleared ?: return@LaunchedEffect
+        rigaAzzerata = Notices.offer(
+            text = azzerata,
+            action = annullaAzzerata,
+            onGone = { cleared = null }
+        ) {
+            // ⚠️ La selezione da rimettere è quella catturata quando la riga è nata, non
+            // `cleared` riletto adesso: fra il tocco e questa riga lo stato è già stato azzerato
+            // dal congedo, e rileggerlo rimetterebbe una selezione vuota.
+            chosen = quali
         }
+    }
+    /*
+     * ⚠️ **Il congedo ha per chiave il TITOLO**, che è la sola cosa che cambia uscendo da questa
+     * cartella, ed è già la chiave di [cleared] per la stessa ragione. Con `items` girerebbe a
+     * ogni ricarica della lista, cioè anche restando qui.
+     * ⚠️ **Toglie la SUA riga e non quella in scena**: nei tre secondi può esserne arrivata
+     * un'altra, e un congedo cieco porterebbe via un messaggio che non è suo.
+     */
+    DisposableEffect(title) {
+        onDispose { rigaAzzerata?.let { Notices.dismiss(it) } }
     }
 
     /**
@@ -499,18 +526,17 @@ fun GridScreen(
         cleared = chosen
         chosen = emptySet()
         /*
-         * ⚠️⚠️ **E L'ALTRA NOTIFICA IN FONDO SI SPEGNE, DALLA `1.81`: le due si sovrapponevano
-         * ESATTAMENTE** (censimento della UI del 2026-09-05). Le due superfici hanno lo stesso
-         * allineamento in fondo allo schermo, quindi non si affiancano: si coprono. Lo
-         * spegnimento incrociato esisteva già ma andava in un verso solo (una selezione nuova
-         * spegne questa, vedi l'effetto su `picking`), e la sequenza che passava fra le maglie
-         * è stretta ma non impedita da niente: eliminare col cestino attivo, aprire una
-         * selezione nuova, toccare Indietro entro i tre secondi dell'offerta.
-         * ⚠️ **Si spegne l'offerta e non questa**: l'azzeramento è la conseguenza del gesto che
-         * la persona ha appena fatto, quindi è la notizia di adesso; l'offerta di disfare sta
-         * scadendo da sé, e chi voleva usarla l'avrebbe già toccata.
+         * ⚠️⚠️ **LE DUE NOTIFICHE NON SI SOVRAPPONGONO PIÙ PER COSTRUZIONE, DALLA `1.84`**, e
+         * questa riga se ne va con la ragione che la teneva in piedi. Il difetto era del
+         * censimento della UI del 2026-09-05: le due superfici avevano lo stesso allineamento in
+         * fondo allo schermo, quindi non si affiancavano ma si coprivano, e lo spegnimento
+         * incrociato andava in un verso solo. Adesso il canale è **uno**, quindi una riga nuova
+         * prende il posto di quella in scena e l'offerta di disfare si chiude da sé
+         * (`Notices.posa` chiama il suo congedo).
+         * ⚠️ **L'ordine resta quello giusto**: l'azzeramento è la conseguenza del gesto appena
+         * fatto, quindi è la notizia di adesso; l'offerta di disfare stava scadendo da sé, e chi
+         * voleva usarla l'avrebbe già toccata.
          */
-        Undo.clear()
     }
 
     /**
@@ -793,11 +819,7 @@ fun GridScreen(
                 // interrogazione basta e le altre sarebbero la stessa risposta N volte.
                 val head = if (listPath) factsOf(context, list.take(1)).one?.folder else null
                 ImageActions.copyNames(context, list, head)
-                Toast.makeText(
-                    context,
-                    res.getString(R.string.pick_list_done),
-                    Toast.LENGTH_SHORT
-                ).show()
+                Notices.say(res.getString(R.string.pick_list_done))
             }
         },
         // ⚠️ Il tocco lungo su 'Tutti' fa il contrario, come chiesto: le due stanno
@@ -904,8 +926,7 @@ fun GridScreen(
             // dice la stessa cosa e in più offre di disfare, e due messaggi in fondo
             // allo schermo si coprirebbero a vicenda.
             if (kind.speaks(out)) {
-                Toast.makeText(context, outcomeText(res, out, kind.done), Toast.LENGTH_LONG)
-                    .show()
+                Notices.say(outcomeText(res, out, kind.done), NOTICE_LONG_MS)
             }
             worked = true
             onChanged()
@@ -1979,28 +2000,15 @@ fun GridScreen(
          * apparire per 3 secondi (o finché non si cambia cartella) una notifica in basso che
          * a sinistra dice 'Selezione azzerata' e a destra un pulsante 'Annulla' che la
          * ripristina e fa riapparire la bottomsheet*).
-         * ⚠️⚠️ **STA DOPO LA SCHEDA E PRIMA DEI DUE VELI, e l'ordine è la funzione**: in un
-         * `Box` chi è scritto dopo sta sopra, e queste due non si vedono mai insieme (una
-         * selezione nuova spegne la notifica, vedi l'effetto su `picking`), quindi fra loro
-         * l'ordine non conta; conta invece che i veli restino sopra tutte e due, o un tocco
-         * fuori dal menu del tastino finirebbe sul tasto 'Annulla'.
-         * ⚠️ **Non serve dire alla griglia che c'è**: [sheetTall] esiste perché la scheda
-         * delle azioni copre l'ultima fila di immagini per tutto il tempo della selezione,
-         * mentre questa passa in tre secondi e non porta niente da raggiungere sotto di lei.
+         * ⚠️⚠️ **E DALLA `1.84` QUI NON SI DISEGNA PIÙ NIENTE**: la notifica dell'azzeramento
+         * passa dal canale, e la superficie con cui l'app parla è una sola, in `AivApp`. Quello
+         * che resta di questa nota è la ragione per cui il velo dei menu deve restare **sopra**
+         * la notifica, e quella non è cambiata: senza, un tocco fuori dal menu del FAB
+         * finirebbe sul tasto 'Annulla'.
+         * ⚠️ **Non serve dire alla griglia che c'è**: [sheetTall] esiste perché la scheda delle
+         * azioni copre l'ultima fila di immagini per tutto il tempo della selezione, mentre
+         * questa passa in tre secondi e non porta niente da raggiungere sotto di lei.
          */
-        UndoNotice(
-            visible = cleared != null,
-            text = stringResource(R.string.pick_cleared),
-            action = stringResource(R.string.pick_undo),
-            modifier = Modifier.align(Alignment.BottomCenter),
-            // ⚠️ `orEmpty()` e non `!!`: fra il tocco e questa riga il conto dei tre secondi
-            // può essere scaduto, e con la notifica già in uscita il tasto non deve far
-            // cadere l'app. Rimettere una selezione vuota è quello che c'è adesso.
-            onUndo = {
-                chosen = cleared.orEmpty()
-                cleared = null
-            }
-        )
 
         /*
          * ⚠️⚠️ **IL VELO CHE CHIUDEVA IL MENU DEL TASTINO STAVA QUI FINO ALLA `1.69`, E ADESSO

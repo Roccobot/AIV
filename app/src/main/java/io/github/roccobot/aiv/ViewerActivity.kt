@@ -2142,8 +2142,12 @@ private fun AivApp(model: ViewerViewModel) {
         // ⚠️ L'avviso si azzera subito dopo averlo mostrato: senza, la chiave resterebbe la
         // stessa e la frase tornerebbe identica al primo ridisegno, ma soprattutto non si
         // potrebbe più mostrare **due volte** la stessa (due copie salvate di fila).
+        // ⚠️⚠️ **DALLA `1.84` PASSA DAL CANALE E NON DALL'AVVISO DI SISTEMA** (sua risposta
+        // `casa` a `d-avvisi`): la frase è la stessa, cambia la superficie. Il testo si risolve
+        // qui, dove la composizione c'è, perché [Notices] prende parole e non risorse.
+        val frase = stringResource(said)
         LaunchedEffect(said) {
-            Toast.makeText(context, said, Toast.LENGTH_LONG).show()
+            Notices.say(frase, NOTICE_LONG_MS)
             model.noticeShown()
         }
     }
@@ -2162,10 +2166,37 @@ private fun AivApp(model: ViewerViewModel) {
      */
     val disfare = Undo.offerta
     val scope = rememberCoroutineScope()
+    /*
+     * ⚠️⚠️ **DALLA `1.84` L'OFFERTA DIVENTA UNA RIGA DEL CANALE, e l'attesa non è più qui**: la
+     * vita della notifica la governa chi la disegna, quindi il tempo è scritto in un posto solo.
+     * Quello che resta a questo effetto è comporre la frase e dire che cosa fa il tasto.
+     * ⚠️ **`onGone` chiude l'offerta**, per scadenza o perché il tasto è stato toccato: con due
+     * attese parallele i due istanti sarebbero due sorgenti della stessa verità, e il giorno che
+     * una delle due cambia resterebbe in scena un 'Annulla' che non fa più niente.
+     * ⚠️ **Il tasto si prende l'offerta PRIMA che sparisca**: fra il tocco e il lavoro passa un
+     * fotogramma, e rileggere `Undo.offerta` dentro l'ambito la troverebbe già vuota.
+     * ⚠️ **Il valore di riserva della frase non si vede mai**: l'effetto gira soltanto quando
+     * l'offerta c'è, e a quel punto il plurale è già stato risolto.
+     */
+    val annulla = stringResource(R.string.pick_undo)
+    val frase = disfare?.let { pluralStringResource(it.kind.done, it.count, it.count) }
     LaunchedEffect(disfare) {
-        if (disfare != null) {
-            delay(UNDO_MS)
-            Undo.clear()
+        val quale = disfare ?: return@LaunchedEffect
+        Notices.offer(
+            text = frase ?: "",
+            action = annulla,
+            millis = UNDO_MS,
+            onGone = { Undo.clear() }
+        ) {
+            scope.launch {
+                when (quale) {
+                    // ⚠️ Il ripristino dal cestino lo fa `Bin`, che sa da dove veniva ogni file:
+                    // le altre due si disfano sui percorsi, e non passano di là.
+                    is Undo.Offer.Trashed -> Bin.restore(context, quale.landed)
+                    is Undo.Offer.Files -> FileTree.revert(context, quale.steps)
+                }
+                model.reloadGrid()
+            }
         }
     }
     Box(modifier = Modifier.fillMaxSize()) {
@@ -2202,42 +2233,15 @@ private fun AivApp(model: ViewerViewModel) {
         ) { schermo ->
             Stage(schermo, model, settings)
         }
-        UndoNotice(
-            visible = disfare != null,
-            /*
-             * ⚠️ **La frase è quella che l'avviso di sistema diceva prima**, non una nuova: dice
-             * esattamente questo, esiste già in ventotto lingue, e riscriverne una che le
-             * somiglia sarebbe due modi di dire la stessa cosa. Chi ha smesso di dirla è
-             * `FileKind.speaks`, e il perché sta là.
-             * ⚠️ **Il conto è quello dei file passati**: per il cestino `Bin.Sent.landed` porta i
-             * soli arrivati, e per le altre due i passi da disfare sono quelli riusciti, quindi
-             * qui non si sottrae niente.
-             * ⚠️⚠️ **E DALLA `1.83` LA FRASE LA SCEGLIE L'OFFERTA** (campo libero del giro della
-             * `1.82`, punto B): il plurale è quello di [FileKind.done], cioè lo stesso che
-             * l'avviso di sistema diceva per quell'operazione, e le tre frasi esistono già.
-             * ⚠️ **Il valore di riserva non si vede mai**: la notifica esce di scena con
-             * l'offerta, ma la sua animazione dura più di lei, e in quei millisecondi il testo
-             * dell'ultima offerta è quello giusto da tenere.
-             */
-            text = disfare?.let { pluralStringResource(it.kind.done, it.count, it.count) }
-                ?: "",
-            action = stringResource(R.string.pick_undo),
-            modifier = Modifier.align(Alignment.BottomCenter),
-            onUndo = {
-                val quale = disfare
-                Undo.clear()
-                scope.launch {
-                    when (quale) {
-                        // ⚠️ Il ripristino dal cestino lo fa `Bin`, che sa da dove veniva ogni
-                        // file: le altre due si disfano sui percorsi, e non passano di là.
-                        is Undo.Offer.Trashed -> Bin.restore(context, quale.landed)
-                        is Undo.Offer.Files -> FileTree.revert(context, quale.steps)
-                        null -> return@launch
-                    }
-                    model.reloadGrid()
-                }
-            }
-        )
+        /*
+         * ⚠️⚠️ **QUESTA È L'UNICA SUPERFICIE CON CUI L'APP DICE COM'È ANDATA, DALLA `1.84`** (sua
+         * risposta `casa` a `d-avvisi`): vive qui, sopra la transizione fra schermate, perché una
+         * notizia deve poter sopravvivere alla schermata che l'ha prodotta. Dentro un ramo del
+         * `when` se ne andrebbe proprio nell'istante in cui deve restare, che è la clausola
+         * esplicita dell'offerta di disfare (*resta disponibile anche se si cambia cartella*).
+         * ⚠️ **La frase la porta la riga**: qui non si sa che cosa dica, e non serve saperlo.
+         */
+        AppNotice(Notices.line, modifier = Modifier.align(Alignment.BottomCenter))
     }
 }
 
@@ -2638,6 +2642,10 @@ private fun FolderPermission(model: ViewerViewModel) {
         }
         // ⚠️ Una pagina di impostazioni che si apre da sola, senza una parola, è
         // il genere di cosa che fa chiudere l'app: il perché arriva prima.
+        // ⚠️⚠️ **QUESTO È L'UNICO AVVISO DI SISTEMA CHE RESTA, DALLA `1.84`, E NON È UNA
+        // DIMENTICANZA**: la riga dopo porta l'app in **secondo piano**, quindi una notifica di
+        // casa sparirebbe insieme alla schermata che la disegna, cioè non si vedrebbe affatto.
+        // Dire una cosa mentre si esce è esattamente il caso per cui l'avviso di sistema esiste.
         Toast.makeText(context, R.string.folder_why, Toast.LENGTH_LONG).show()
         // ⚠️ Il ripiego sulla pagina generale non è un lusso: quella mirata
         // all'app manca su qualche sistema, e senza il secondo tentativo la

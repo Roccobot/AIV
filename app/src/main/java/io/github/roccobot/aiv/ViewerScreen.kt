@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Rect as PixelRect
 import android.net.Uri
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
@@ -379,8 +378,7 @@ fun ViewerScreen(
             // dice la stessa cosa e in più offre di disfare, e due messaggi in fondo
             // allo schermo si coprirebbero a vicenda.
             if (kind.speaks(out)) {
-                Toast.makeText(context, outcomeText(res, out, kind.done), Toast.LENGTH_LONG)
-                    .show()
+                Notices.say(outcomeText(res, out, kind.done), NOTICE_LONG_MS)
             }
             if (kind.gone && out.done > 0) onFileChanged()
         }
@@ -509,8 +507,9 @@ fun ViewerScreen(
                 val ok = context.contentResolver.openOutputStream(target)?.use { out ->
                     ImageActions.copyOriginalTo(context, from, out)
                 } ?: false
-                val said = if (ok) R.string.toast_saved else R.string.toast_save_failed
-                Toast.makeText(context, said, Toast.LENGTH_SHORT).show()
+                Notices.say(context.getString(
+                    if (ok) R.string.toast_saved else R.string.toast_save_failed
+                ))
             }
         }
     }
@@ -585,16 +584,18 @@ fun ViewerScreen(
                             val ok = ImageActions.saveToFolder(
                                 context, picture, from, chosen.toUri(), name, suffix
                             )
-                            val said = if (ok) R.string.toast_saved else R.string.toast_save_failed
-                            Toast.makeText(context, said, Toast.LENGTH_SHORT).show()
+                            Notices.say(context.getString(
+                                if (ok) R.string.toast_saved else R.string.toast_save_failed
+                            ))
                             if (ok) noteDownload(context, picture, from, suffix)
                         }
                     } else if (ImageActions.downloadsWritable) {
                         scope.launch {
                             val ok =
                                 ImageActions.saveToDownloads(context, picture, from, name, suffix)
-                            val said = if (ok) R.string.toast_saved else R.string.toast_save_failed
-                            Toast.makeText(context, said, Toast.LENGTH_SHORT).show()
+                            Notices.say(context.getString(
+                                if (ok) R.string.toast_saved else R.string.toast_save_failed
+                            ))
                             if (ok) noteDownload(context, picture, from, suffix)
                         }
                     } else {
@@ -751,8 +752,7 @@ fun ViewerScreen(
             share = { picture ->
                 scope.launch {
                     if (!ImageActions.share(context, picture, source)) {
-                        Toast.makeText(context, R.string.toast_copy_failed, Toast.LENGTH_SHORT)
-                            .show()
+                        Notices.say(context.getString(R.string.toast_copy_failed))
                     }
                 }
             },
@@ -1066,24 +1066,25 @@ fun ViewerScreen(
          * punto E): *una notifica in basso come quella dell'annullamento dell'eliminazione, con
          * tanto di timer di 5 secondi. Testo: 'Hai già scaricato questa immagine'; azione a
          * destra: 'Scarica di nuovo'*.
-         * ⚠️ **È [UndoNotice], la stessa dell'eliminazione annullata**: lui l'ha chiesta *come
-         * quella*, e una seconda notifica disegnata a parte sarebbe la copia che diverge al primo
-         * ritocco. Quello che cambia è la durata, che adesso è un parametro.
-         * ⚠️ **Vive dentro il riquadro dell'immagine, in fondo**: qui l'ultimo figlio è quello
-         * che si vede sopra, e una notifica sotto la fotografia non la vedrebbe nessuno.
+         * ⚠️ **È la notifica di casa, la stessa dell'eliminazione annullata**: lui l'ha chiesta
+         * *come quella*, e una seconda notifica disegnata a parte sarebbe la copia che diverge al
+         * primo ritocco. Quello che cambia è la durata, che è un parametro.
+         * ⚠️⚠️ **DALLA `1.84` PASSA DAL CANALE, e qui non si disegna più niente**: la superficie
+         * è una sola e vive in `AivApp`, quindi questo blocco si limita a mandare la riga. Con
+         * lei se ne va anche la ragione per cui doveva stare in fondo al riquadro dell'immagine:
+         * adesso il posto lo decide chi la disegna, che è sopra tutte le schermate.
          */
-        UndoNotice(
-            visible = doppione != null,
-            text = stringResource(R.string.save_seen_notice),
-            action = stringResource(R.string.save_seen_again),
-            onUndo = {
-                val ancora = doppione
-                doppione = null
-                ancora?.invoke()
-            },
-            millis = SAVE_SEEN_MS,
-            modifier = Modifier.align(Alignment.BottomCenter)
-        )
+        val doppioneFrase = stringResource(R.string.save_seen_notice)
+        val doppioneAzione = stringResource(R.string.save_seen_again)
+        LaunchedEffect(doppione) {
+            val ancora = doppione ?: return@LaunchedEffect
+            Notices.offer(
+                text = doppioneFrase,
+                action = doppioneAzione,
+                millis = SAVE_SEEN_MS,
+                onGone = { doppione = null }
+            ) { ancora() }
+        }
     }
 
     // ⚠️ I dialoghi stanno FUORI dal riquadro dell'immagine e fuori dal menu, che è la
@@ -3126,12 +3127,12 @@ private fun ImageMenu(
                 icon = Glyphs.PhotoPair,
                 onTap = {
                     menu.close()
-                    Toast.makeText(
-                        context,
-                        if (ImageActions.copyImage(context, image)) R.string.toast_image_copied
-                        else R.string.toast_copy_failed,
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Notices.say(
+                        context.getString(
+                            if (ImageActions.copyImage(context, image)) R.string.toast_image_copied
+                            else R.string.toast_copy_failed
+                        )
+                    )
                 }
             )
             /*
