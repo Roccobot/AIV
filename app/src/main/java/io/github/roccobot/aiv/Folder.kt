@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import java.text.Collator
 import android.provider.OpenableColumns
 import android.provider.Settings
 import androidx.core.content.ContextCompat
@@ -195,16 +196,31 @@ object Folder {
     }
 
     /**
-     * Le cartelle di immagini del telefono, quella toccata più di recente per prima.
+     * Le cartelle di immagini del telefono, **in ordine alfabetico**.
+     *
+     * ⚠️⚠️ **L'ORDINE È ALFABETICO DALLA `1.83`, E PRIMA ERA PER DATA** (campo libero del giro
+     * della `1.82`, punto C: *mentre le griglie di immagini devono avere le più recenti in cima,
+     * le griglie di cartelle (schermata home) deve essere sempre ordinata alfabeticamente per
+     * nome*). Le due griglie rispondono a due domande diverse: davanti a una cartella si sa già
+     * come si chiama quella che si cerca, davanti alle immagini no, e allora l'ultima arrivata è
+     * quella che si vuole.
+     * ⚠️⚠️ **SI ORDINA ALLA FINE E NON NELLA QUERY, ed è obbligatorio**: l'ordine delle righe fa
+     * un secondo lavoro, cioè far sì che la prima riga di ogni cartella sia la sua immagine più
+     * recente (vedi il ramo della copertina qui sotto). Ordinando la query per nome, la copertina
+     * diventerebbe una riga qualunque.
+     * ⚠️ **Il confronto passa da un [Collator] e non da `sortedBy`**: `compareTo` fra stringhe
+     * ordina per codice, quindi metterebbe tutte le maiuscole prima delle minuscole e le lettere
+     * accentate in fondo. Il collatore della lingua in vigore fa quello che si aspetta chi legge.
      *
      * ⚠️⚠️ **Il raggruppamento si fa QUI e non nella query**, ed è voluto: il `GROUP BY`
      * del MediaStore ha cambiato forma fra le versioni di Android (dalla stringa di
      * selezione all'argomento nel bundle, con provider che lo rifiutano), mentre una
      * passata sulle righe è un comportamento solo, uguale dappertutto. Costa una query
      * e nessun dialetto.
-     * ⚠️ L'ordine delle righe fa **due** lavori: mette davanti la cartella toccata più
-     * di recente, e fa sì che la prima riga di ogni cartella sia la sua foto più nuova,
-     * che è quella da cui si parte.
+     * ⚠️ L'ordine delle righe serve ancora a una cosa: fa sì che la prima riga di ogni cartella
+     * sia la sua immagine più nuova, che è quella che diventa la copertina. Il primo dei suoi due
+     * lavori (mettere davanti la cartella toccata più di recente) è decaduto con l'ordine
+     * alfabetico.
      */
     suspend fun buckets(context: Context): List<Bucket> = withContext(Dispatchers.IO) {
         if (!granted(context)) return@withContext emptyList()
@@ -266,7 +282,11 @@ object Folder {
                 }
             }
         }
-        found.values.toList()
+        // ⚠️ Il collatore si prende una volta per chiamata e non per confronto: `getInstance`
+        // legge la lingua in vigore e costruisce le sue tabelle, che su un elenco di cartelle
+        // sarebbe un lavoro rifatto a ogni paragone.
+        val ordine = Collator.getInstance()
+        found.values.sortedWith(compareBy(ordine) { it.name })
     }
 
     /**
@@ -282,6 +302,59 @@ object Folder {
      * 'che cosa c'è intorno a questa foto', e una sola non è una serie; qui la domanda è
      * 'apri questa cartella', e la risposta deve comunque portare l'immagine da aprire.
      */
+    /**
+     * Quanto pesa una cartella e quanti video contiene.
+     *
+     * ⚠️⚠️ **NASCE PER LE DUE PASTIGLIE DEL FRONTESPIZIO, DALLA `1.83`** (variante 10 del mockup,
+     * scelta da lui): sono due dati che dalla griglia non si sanno, perché là ci sono gli
+     * indirizzi e non le righe. Il brief lo dice in una riga: *il conto va fatto una volta e non
+     * per miniatura*.
+     * ⚠️⚠️ **UNA QUERY SOLA PER TUTTI E DUE I NUMERI, e l'alternativa era una per file**: il peso
+     * di un `content://` si legge dalla sua riga, quindi con l'elenco degli indirizzi in mano
+     * servirebbero duecento interrogazioni per una cartella di duecento immagini. Qui si chiede
+     * al bucket, che è la stessa condizione con cui la cartella è stata letta.
+     * ⚠️ **Il conto dei video si fa QUI e non sugli indirizzi**, benché dall'indirizzo si
+     * riconosca un filmato: la riga porta già il tipo, quindi contarlo costa niente, e chi
+     * chiama non deve sapere come è fatto un indirizzo di video.
+     * ⚠️ **Un peso che non si legge vale zero e non fa fallire niente**: una riga senza `SIZE`
+     * esiste (un file appena arrivato, un provider avaro), e un totale un po' più basso è meglio
+     * di nessun totale.
+     */
+    suspend fun weigh(context: Context, bucket: Long): Facts = withContext(Dispatchers.IO) {
+        if (!granted(context)) return@withContext Facts()
+        var bytes = 0L
+        var clips = 0
+        runCatching {
+            context.contentResolver.query(
+                TABLE,
+                arrayOf(
+                    MediaStore.Images.Media.SIZE,
+                    MediaStore.Files.FileColumns.MEDIA_TYPE
+                ),
+                media("${MediaStore.Images.Media.BUCKET_ID} = ?"),
+                arrayOf(bucket.toString()),
+                null
+            )?.use { c ->
+                val sizeAt = c.column(MediaStore.Images.Media.SIZE)
+                val kindAt = c.column(MediaStore.Files.FileColumns.MEDIA_TYPE)
+                while (c.moveToNext()) {
+                    bytes += sizeAt?.let { if (c.isNull(it)) 0L else c.getLong(it) } ?: 0L
+                    if (c.isClip(kindAt)) clips++
+                }
+            }
+        }
+        Facts(bytes, clips)
+    }
+
+    /**
+     * I due numeri di una cartella: quanto pesa e quanti video ha.
+     *
+     * ⚠️ **Zero e zero è anche la risposta di 'non lo so ancora'**, ed è voluto: chi disegna le
+     * pastiglie le mostra solo con un numero sopra lo zero, quindi una cartella non ancora pesata
+     * e una cartella vuota si comportano allo stesso modo invece di lampeggiare.
+     */
+    data class Facts(val bytes: Long = 0L, val clips: Int = 0)
+
     suspend fun newestIn(context: Context, bucket: Long): Lookup = withContext(Dispatchers.IO) {
         if (!granted(context)) return@withContext Lookup.NoPermission
         val ids = urisOf(context, bucket)
@@ -315,19 +388,40 @@ object Folder {
     suspend fun byName(
         context: Context,
         text: String,
-        hidden: Set<String>
+        hidden: Set<String>,
+        bucket: Long? = null
     ): Lookup = withContext(Dispatchers.IO) {
         if (!granted(context)) return@withContext Lookup.NoPermission
         val needle = text.trim()
         if (needle.isEmpty()) return@withContext Lookup.Found(Series(emptyList(), 0))
         val pattern = "%" + needle.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
         val found = mutableListOf<Uri>()
+        /*
+         * ⚠️⚠️ **IL CONFINE È UNA CONDIZIONE DELLA QUERY E NON UN FILTRO DOPO**: chiedere tutta
+         * la galleria per buttare via il 99% dei risultati costa una lettura di ogni riga a ogni
+         * lettera battuta, ed è proprio quello che la pausa fra un tasto e l'altro esiste per
+         * evitare. Il `BUCKET_ID` è indicizzato, quindi con lui la ricerca in una cartella è più
+         * veloce di quella globale invece che uguale.
+         * ⚠️ **Le cartelle nascoste si filtrano lo stesso**: una cartella nascosta non si apre,
+         * quindi in una ricerca ristretta il caso non capita; ma la riga qui sotto non sa da dove
+         * arriva il confine, e spegnerla sulla fiducia sarebbe un buco che si apre il giorno che
+         * qualcuno chiama questa funzione da un altro posto.
+         */
+        val dove = if (bucket == null) {
+            media("${MediaStore.Images.Media.DISPLAY_NAME} LIKE ? ESCAPE '\\'")
+        } else {
+            media(
+                "${MediaStore.Images.Media.DISPLAY_NAME} LIKE ? ESCAPE '\\' AND " +
+                    "${MediaStore.Images.Media.BUCKET_ID} = ?"
+            )
+        }
+        val args = if (bucket == null) arrayOf(pattern) else arrayOf(pattern, bucket.toString())
         runCatching {
             context.contentResolver.query(
                 TABLE,
                 COLUMNS,
-                media("${MediaStore.Images.Media.DISPLAY_NAME} LIKE ? ESCAPE '\\'"),
-                arrayOf(pattern),
+                dove,
+                args,
                 "${MediaStore.Images.Media.DATE_MODIFIED} DESC, ${MediaStore.Images.Media._ID} DESC"
             )?.use { c ->
                 val idAt = c.column(MediaStore.Images.Media._ID) ?: return@use

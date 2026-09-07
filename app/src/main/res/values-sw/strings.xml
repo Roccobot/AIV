@@ -86,6 +86,11 @@
     <string name="settings_depth_blur">Ukungu</string>
     <string name="settings_depth_shadow">Kivuli</string>
     <string name="settings_depth_none">Hakuna</string>
+    <string name="settings_front">Ukurasa wa mbele wa folda</string>
+    <string name="settings_front_desc">Kile kinachoonyeshwa kwenye ukanda wa juu wa folda, juu ya vijipicha.</string>
+    <string name="settings_front_wash">Upinde rangi</string>
+    <string name="settings_front_serif">Kichwa chenye serifu</string>
+    <string name="settings_front_facts">Maelezo</string>
     <string name="settings_folder_columns">Safu kwenye gridi</string>
     <string name="settings_folder_columns_desc">Idadi ya safu zinazoonyeshwa na gridi ya folda na gridi ya picha. Safu nyingi huingiza vitu vingi kwenye skrini na kupunguza ukubwa wa kila kigae. Kwa nne, jina la folda hukatwa mara nyingi.</string>
     <string name="settings_folder_count">Kihesabu cha vipengele chini ya folda katika mwonekano wa gridi</string>
@@ -162,6 +167,7 @@
     <string name="pick_list">Orodha</string>
     <string name="pick_invert">Geuza</string>
     <string name="pick_all_short">Vyote</string>
+    <string name="pick_clips">Chagua video</string>
     <string name="pick_none">Hakuna</string>
     <string name="filter_title">Kichujio</string>
     <string name="filter_all">Onyesha vyote</string>

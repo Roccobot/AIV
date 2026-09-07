@@ -86,6 +86,11 @@
     <string name="settings_depth_blur">模糊</string>
     <string name="settings_depth_shadow">陰影</string>
     <string name="settings_depth_none">無</string>
+    <string name="settings_front">資料夾封面</string>
+    <string name="settings_front_desc">資料夾頂部區域在縮圖上方顯示的內容。</string>
+    <string name="settings_front_wash">漸層</string>
+    <string name="settings_front_serif">襯線標題</string>
+    <string name="settings_front_facts">資訊</string>
     <string name="settings_folder_columns">格狀檢視的欄數</string>
     <string name="settings_folder_columns_desc">資料夾格狀檢視與圖片格狀檢視顯示幾欄。欄數越多，畫面上放得越多，每個方塊越小。四欄時資料夾名稱通常會被截斷。</string>
     <string name="settings_folder_count">格狀檢視中資料夾下方的項目計數</string>
@@ -162,6 +167,7 @@
     <string name="pick_list">清單</string>
     <string name="pick_invert">反選</string>
     <string name="pick_all_short">全選</string>
+    <string name="pick_clips">選取影片</string>
     <string name="pick_none">全不選</string>
     <string name="filter_title">篩選</string>
     <string name="filter_all">顯示全部</string>

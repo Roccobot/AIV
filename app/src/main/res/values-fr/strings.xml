@@ -86,6 +86,11 @@
     <string name="settings_depth_blur">Flou</string>
     <string name="settings_depth_shadow">Ombre</string>
     <string name="settings_depth_none">Aucun</string>
+    <string name="settings_front">Page de garde du dossier</string>
+    <string name="settings_front_desc">Ce que la bande en haut d\'un dossier affiche, au-dessus des miniatures.</string>
+    <string name="settings_front_wash">Dégradé</string>
+    <string name="settings_front_serif">Titre à empattements</string>
+    <string name="settings_front_facts">Infos</string>
     <string name="settings_folder_columns">Colonnes dans les grilles</string>
     <string name="settings_folder_columns_desc">Combien de colonnes affichent la grille des dossiers et celle des images. Plus de colonnes font tenir plus de choses à l\'écran et rétrécissent chaque case. À quatre, le nom du dossier est souvent tronqué.</string>
     <string name="settings_folder_count">Compteur des éléments sous les dossiers en vue grille</string>
@@ -162,6 +167,7 @@
     <string name="pick_list">Liste</string>
     <string name="pick_invert">Inverser</string>
     <string name="pick_all_short">Tout</string>
+    <string name="pick_clips">Sélectionner les vidéos</string>
     <string name="pick_none">Aucun</string>
     <string name="filter_title">Filtre</string>
     <string name="filter_all">Tout afficher</string>

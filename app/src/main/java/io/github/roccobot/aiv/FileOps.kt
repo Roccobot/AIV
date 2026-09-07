@@ -96,10 +96,31 @@ fun FileJobDialogs(
         is FileJob.Transfer -> DestinationDialog(
             action = if (job.move) R.string.dest_move_here else R.string.dest_here,
             onDismiss = onClose,
+            /*
+             * ⚠️⚠️ **E DALLA `1.83` LE DUE APRONO L'OFFERTA DI DISFARE** (campo libero del giro
+             * della `1.82`, punto B: *aggiungi degli 'Annulla' temporizzati (avvisi in basso)
+             * anche per le operazioni di copia e spostamento*). Sta **qui dentro** e non in chi
+             * chiama, per la stessa ragione scritta sull'eliminazione: questo è l'unico punto
+             * dell'app da cui si copia e si sposta, e le schermate che ci passano sono tre.
+             * ⚠️ **L'offerta si apre dopo l'operazione e con i suoi passi**: quello che si può
+             * disfare lo sa solo chi ha scritto i file, e un elenco costruito qui dalla
+             * destinazione sarebbe una seconda ipotesi sui nomi che `freeName` ha scelto.
+             */
             onPick = { dir ->
                 onClose()
-                if (job.move) onRun(FileKind.MOVE) { FileTree.move(context, job.uris, dir) }
-                else onRun(FileKind.COPY) { FileTree.copy(context, job.uris, dir) }
+                if (job.move) {
+                    onRun(FileKind.MOVE) {
+                        val out = FileTree.move(context, job.uris, dir)
+                        Undo.offer(Undo.Offer.Files(FileKind.MOVE, out.undo))
+                        out
+                    }
+                } else {
+                    onRun(FileKind.COPY) {
+                        val out = FileTree.copy(context, job.uris, dir)
+                        Undo.offer(Undo.Offer.Files(FileKind.COPY, out.undo))
+                        out
+                    }
+                }
             }
         )
 
@@ -150,7 +171,7 @@ fun FileJobDialogs(
                 LaunchedEffect(job) {
                     onRun(FileKind.TRASH) {
                         val sent = Bin.send(context, job.uris)
-                        Undo.offer(sent.landed)
+                        Undo.offer(Undo.Offer.Trashed(sent.landed))
                         sent.outcome
                     }
                     onClose()
@@ -177,7 +198,13 @@ fun FileJobDialogs(
          * imbuto delle altre (l'avviso dell'esito, la rilettura, l'ambito che sopravvive).
          */
         is FileJob.Duplicate -> LaunchedEffect(job) {
-            onRun(FileKind.COPY) { FileTree.duplicate(context, job.uris) }
+            // ⚠️ Anche il duplicato si disfa, ed è una copia come le altre: la voce nasce dal
+            // tocco lungo su 'Copia', quindi è il gesto più facile da dare per sbaglio.
+            onRun(FileKind.COPY) {
+                val out = FileTree.duplicate(context, job.uris)
+                Undo.offer(Undo.Offer.Files(FileKind.COPY, out.undo))
+                out
+            }
             onClose()
         }
 
@@ -387,13 +414,19 @@ enum class FileKind(@PluralsRes val done: Int, val gone: Boolean) {
  * lo dice la notifica con 'Annulla' (vedi [Undo]), che porta la stessa frase e in più il modo
  * di tornare indietro. Due messaggi insieme sarebbero **sovrapposti**, perché un avviso di
  * sistema compare in fondo allo schermo esattamente dove sta la notifica.
+ * ⚠️⚠️ **E DALLA `1.83` NON PARLANO PIÙ NEMMENO LA COPIA E LO SPOSTAMENTO, PER LO STESSO
+ * MOTIVO** (campo libero del giro della `1.82`, punto B): adesso anche loro offrono di disfare,
+ * quindi la loro notizia arriva dalla notifica. ⚠️ **La regola non nomina i tipi ma guarda se
+ * c'è un'offerta** (`out.undo`), che è il solo modo di non doverla riscrivere il giorno che una
+ * quarta operazione diventi reversibile: chi ha qualcosa da disfare ha già chi parla per lui.
  * ⚠️ **Ma se qualcosa è fallito parla lo stesso**: la notifica dice quante sono passate, non
  * quante no, e un'eliminazione a metà è la cosa che va detta per intero.
  * ⚠️ **È una regola sola e sta qui**, non tre condizioni uguali nelle tre schermate che
  * eseguono: quelle divergerebbero al primo ritocco, ed è il difetto che questo file esiste per
  * non avere.
  */
-fun FileKind.speaks(out: FileTree.Outcome): Boolean = this != FileKind.TRASH || out.failed > 0
+fun FileKind.speaks(out: FileTree.Outcome): Boolean =
+    out.failed > 0 || (this != FileKind.TRASH && out.undo.isEmpty())
 
 /**
  * Che cosa dire quando un'operazione finisce: quante sono passate e, solo se ce ne sono,

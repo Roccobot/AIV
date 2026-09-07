@@ -86,6 +86,11 @@
     <string name="settings_depth_blur">ব্লার</string>
     <string name="settings_depth_shadow">ছায়া</string>
     <string name="settings_depth_none">কিছুই নয়</string>
+    <string name="settings_front">ফোল্ডারের শীর্ষপাতা</string>
+    <string name="settings_front_desc">থাম্বনেইলের উপরে ফোল্ডারের উপরের অংশে যা দেখা যায়।</string>
+    <string name="settings_front_wash">গ্রেডিয়েন্ট</string>
+    <string name="settings_front_serif">সেরিফ শিরোনাম</string>
+    <string name="settings_front_facts">তথ্য</string>
     <string name="settings_folder_columns">গ্রিডের কলাম</string>
     <string name="settings_folder_columns_desc">ফোল্ডার গ্রিড ও ছবির গ্রিড কতগুলি কলাম দেখাবে। বেশি কলামে পর্দায় বেশি জিনিস আঁটে এবং প্রতিটি ঘর ছোট হয়। চারটিতে ফোল্ডারের নাম সাধারণত কেটে যায়।</string>
     <string name="settings_folder_count">গ্রিড দৃশ্যে ফোল্ডারের নিচে জিনিসের গণনা</string>
@@ -162,6 +167,7 @@
     <string name="pick_list">তালিকা</string>
     <string name="pick_invert">উল্টান</string>
     <string name="pick_all_short">সব</string>
+    <string name="pick_clips">ভিডিও নির্বাচন করুন</string>
     <string name="pick_none">কিছুই না</string>
     <string name="filter_title">ছাঁকনি</string>
     <string name="filter_all">সব দেখান</string>

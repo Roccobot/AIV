@@ -10,7 +10,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -494,10 +497,16 @@ fun frontIconFade(fullPx: Float, maxPx: Float): Float =
  * **cominci** insieme al rimpicciolimento. Con la rampa dritta l'inchiostro segue la misura in
  * proporzione, che è il modo di far leggere le due cose come un movimento solo.
  *
+ * ⚠️⚠️ **IL VALORE PIENO ARRIVA DA FUORI DALLA `1.83`, e prima era [FRONT_INK]**: con la tinta
+ * accesa l'icona va in negativo all'80% (variante 10), cioè cambia il numero da cui la rampa
+ * parte e **non** la rampa. Scritto qui dentro con un `if`, questa funzione avrebbe dovuto
+ * conoscere un'impostazione, che è esattamente quello che una funzione pura non deve fare.
+ *
  * @param soglia il punto da cui l'icona si stringe, cioè [frontIconFade].
+ * @param pieno l'inchiostro a fascia aperta: [FRONT_INK] di solito, [FRONT_NEG_INK] in negativo.
  */
-fun frontIconInk(aperto: Float, soglia: Float): Float =
-    FRONT_INK * if (soglia <= 0f) 1f else (aperto / soglia).coerceIn(0f, 1f)
+fun frontIconInk(aperto: Float, soglia: Float, pieno: Float = FRONT_INK): Float =
+    pieno * if (soglia <= 0f) 1f else (aperto / soglia).coerceIn(0f, 1f)
 
 /**
  * L'icona del frontespizio si misura sullo spazio che la fascia le lascia, a ogni fotogramma.
@@ -528,6 +537,85 @@ fun Modifier.frontIconMeasure(fullPx: Float, shut: () -> Float, max: Dp): Modifi
         val placeable = measurable.measure(Constraints.fixed(lato, lato))
         layout(placeable.width, placeable.height) { placeable.place(0, 0) }
     }
+
+/**
+ * La **tinta** del frontespizio: piena in cima, spenta una riga di miniature sotto la fascia.
+ *
+ * ⚠️⚠️ **È LA VARIANTE 10 DEL MOCKUP, SCELTA DA LUI** (risposta a `d-frontespizio` del giro della
+ * `1.81`), e le tre cose che la distinguono dalla 8 sono sue: la tinta **non muore col
+ * frontespizio** ma si spegne una riga più in basso, l'icona passa in negativo all'80%, e sotto
+ * il conto arriva una fila di pastiglie. Qui c'è la prima.
+ *
+ * ⚠️⚠️ **SI DIPINGE DIETRO IL BLOCCO 'TESTATA PIÙ FASCIA', ED È QUELLO CHE LA FA ACCORCIARE DA
+ * SÉ**: l'altezza dell'area di disegno **è** quella del blocco, che si stringe mentre la fascia
+ * si chiude, quindi la coda segue senza che nessuno la animi. La richiesta lo dice: *la coda è
+ * attaccata alla fascia e si accorcia con lei*, e l'alternativa (una coda ferma sotto cui scorre
+ * la griglia) tingerebbe una fila diversa a ogni fotogramma.
+ * ⚠️⚠️ **SCONFINA DI PROPOSITO, e in Compose si può**: `drawBehind` non ritaglia, quindi il
+ * rettangolo esce dai fianchi per [air] e sale di [up] fino al bordo dell'area sicura, dove la
+ * tinta deve cominciare (*parte sotto la barra di sistema e prende anche la testata*: partendo
+ * sotto la testata ci sarebbe un gradino netto fra il pieno e il fondo chiaro). I due numeri
+ * sono i rientri della schermata, e chi li cambia passa di qui.
+ * ⚠️ **Il colore è `primary` e non l'accento della sfumatura in fondo**: è la tinta della carta
+ * 8, quella che lui ha dettato, e le due misure di contrasto del mockup (titolo a 8,5, icona in
+ * negativo a 1,9) valgono per lei.
+ * ⚠️⚠️ **DIECI TAPPE E NON DUE, e il perché è lo stesso della sfumatura in fondo**: una rampa
+ * dritta si legge come un bordo sfocato, perché l'occhio vede i due spigoli in cui la salita
+ * comincia e finisce. Le tappe qui sono quelle del mockup, cioè quelle che lui ha guardato.
+ *
+ * @param tint la tinta piena, di solito `colorScheme.primary`.
+ * @param air quanto sconfinare per lato, cioè il rientro orizzontale della schermata.
+ * @param up quanto salire sopra il blocco, cioè il rientro verticale della schermata.
+ * @param tail quanto scendere sotto la fascia: una riga di miniature.
+ */
+fun Modifier.frontWash(tint: Color, air: Dp, up: Dp, tail: Dp): Modifier = drawBehind {
+    val ariaPx = air.toPx()
+    val suPx = up.toPx()
+    val alto = size.height + suPx + tail.toPx()
+    if (alto <= 0f) return@drawBehind
+    drawRect(
+        brush = Brush.verticalGradient(
+            colorStops = WASH_STOPS.map { (at, ink) -> at to tint.copy(alpha = ink) }
+                .toTypedArray(),
+            startY = -suPx,
+            endY = alto - suPx
+        ),
+        topLeft = Offset(-ariaPx, -suPx),
+        size = Size(size.width + ariaPx * 2, alto)
+    )
+}
+
+/**
+ * Le tappe della tinta del frontespizio: dove, e con quanto colore.
+ *
+ * ⚠️ **Sono quelle del mockup**, cioè quelle su cui l'utente ha guardato la variante e ha
+ * misurato i contrasti: cambiarle vorrebbe dire mostrargli una cosa e dargliene un'altra.
+ */
+private val WASH_STOPS = listOf(
+    0f to 1f, 0.12f to 0.97f, 0.24f to 0.90f, 0.36f to 0.78f, 0.48f to 0.62f,
+    0.60f to 0.44f, 0.72f to 0.27f, 0.84f to 0.13f, 0.93f to 0.04f, 1f to 0f
+)
+
+/**
+ * Quanto si vede l'icona della cartella quando la tinta è accesa: **otto decimi**, in negativo.
+ *
+ * ⚠️ **Il numero è suo** (*l'icona centrata in negativo all'80% invece del 20%*), e cambia di
+ * mestiere all'icona: con [FRONT_INK] è un fondale che si intravede, qui è una sagoma. Misurato
+ * sul mockup: stacca di 1,9 dal fondo invece dell'1,2 che aveva al 20%.
+ * ⚠️ **In negativo vuol dire il colore della SUPERFICIE**, non un grigio: sopra la tinta il
+ * colore del contenuto sparirebbe, e quello della superficie è l'unico che sta sempre dall'altra
+ * parte del contrasto, in tutti e due i temi.
+ */
+const val FRONT_NEG_INK = 0.8f
+
+/**
+ * Quanto sta la fila delle pastiglie dal conto degli elementi.
+ *
+ * ⚠️ **Come [FRONT_GAP] e non come [FRONT_COUNT_GAP]**: il nome e il numero sono una cosa sola da
+ * leggere, le pastiglie sono un'altra riga, e con l'aria stretta si leggerebbero come la coda del
+ * conto.
+ */
+val FRONT_CHIP_GAP: Dp = 10.dp
 
 /**
  * Quante righe può prendere il nome della cartella nel frontespizio: **due**.

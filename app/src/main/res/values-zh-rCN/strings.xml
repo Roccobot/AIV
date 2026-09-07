@@ -86,6 +86,11 @@
     <string name="settings_depth_blur">模糊</string>
     <string name="settings_depth_shadow">阴影</string>
     <string name="settings_depth_none">无</string>
+    <string name="settings_front">文件夹封面</string>
+    <string name="settings_front_desc">文件夹顶部区域在缩略图上方显示的内容。</string>
+    <string name="settings_front_wash">渐变</string>
+    <string name="settings_front_serif">衬线标题</string>
+    <string name="settings_front_facts">信息</string>
     <string name="settings_folder_columns">网格的列数</string>
     <string name="settings_folder_columns_desc">文件夹网格和图片网格显示多少列。列数越多，屏幕上放得越多，每个方块越小。四列时文件夹名通常会被截断。</string>
     <string name="settings_folder_count">网格视图中文件夹下方的项目计数</string>
@@ -162,6 +167,7 @@
     <string name="pick_list">列表</string>
     <string name="pick_invert">反选</string>
     <string name="pick_all_short">全选</string>
+    <string name="pick_clips">选择视频</string>
     <string name="pick_none">全不选</string>
     <string name="filter_title">筛选</string>
     <string name="filter_all">显示全部</string>

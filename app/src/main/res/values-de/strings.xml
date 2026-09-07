@@ -86,6 +86,11 @@
     <string name="settings_depth_blur">Weichzeichnen</string>
     <string name="settings_depth_shadow">Schatten</string>
     <string name="settings_depth_none">Nichts</string>
+    <string name="settings_front">Ordner-Titelbereich</string>
+    <string name="settings_front_desc">Was der Bereich oben im Ordner über den Miniaturen zeigt.</string>
+    <string name="settings_front_wash">Verlauf</string>
+    <string name="settings_front_serif">Serifentitel</string>
+    <string name="settings_front_facts">Info</string>
     <string name="settings_folder_columns">Spalten in den Rastern</string>
     <string name="settings_folder_columns_desc">Wie viele Spalten das Ordnerraster und das Bildraster zeigen. Mehr Spalten zeigen mehr auf einmal und verkleinern jede Kachel. Bei vier wird der Ordnername meist abgeschnitten.</string>
     <string name="settings_folder_count">Zähler der Elemente unter den Ordnern in der Rasteransicht</string>
@@ -162,6 +167,7 @@
     <string name="pick_list">Liste</string>
     <string name="pick_invert">Umkehren</string>
     <string name="pick_all_short">Alle</string>
+    <string name="pick_clips">Videos auswählen</string>
     <string name="pick_none">Keine</string>
     <string name="filter_title">Filter</string>
     <string name="filter_all">Alles zeigen</string>

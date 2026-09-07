@@ -86,6 +86,11 @@
     <string name="settings_depth_blur">Rozmycie</string>
     <string name="settings_depth_shadow">Cień</string>
     <string name="settings_depth_none">Nic</string>
+    <string name="settings_front">Nagłówek folderu</string>
+    <string name="settings_front_desc">Co pokazuje pasek u góry folderu, nad miniaturami.</string>
+    <string name="settings_front_wash">Gradient</string>
+    <string name="settings_front_serif">Tytuł szeryfowy</string>
+    <string name="settings_front_facts">Info</string>
     <string name="settings_folder_columns">Kolumny w siatkach</string>
     <string name="settings_folder_columns_desc">Ile kolumn pokazują siatka folderów i siatka obrazów. Więcej kolumn mieści więcej na ekranie i zmniejsza każdy kafelek. Przy czterech nazwa folderu zwykle zostaje ucięta.</string>
     <string name="settings_folder_count">Licznik elementów pod folderami w widoku siatki</string>
@@ -162,6 +167,7 @@
     <string name="pick_list">Lista</string>
     <string name="pick_invert">Odwróć</string>
     <string name="pick_all_short">Wszystko</string>
+    <string name="pick_clips">Zaznacz filmy</string>
     <string name="pick_none">Nic</string>
     <string name="filter_title">Filtr</string>
     <string name="filter_all">Pokaż wszystko</string>

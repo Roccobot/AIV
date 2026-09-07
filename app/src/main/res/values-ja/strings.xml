@@ -86,6 +86,11 @@
     <string name="settings_depth_blur">ぼかし</string>
     <string name="settings_depth_shadow">影</string>
     <string name="settings_depth_none">なし</string>
+    <string name="settings_front">フォルダーの見出し</string>
+    <string name="settings_front_desc">サムネイルの上にあるフォルダー上部の帯に表示する内容。</string>
+    <string name="settings_front_wash">グラデーション</string>
+    <string name="settings_front_serif">セリフ体の見出し</string>
+    <string name="settings_front_facts">情報</string>
     <string name="settings_folder_columns">一覧の列数</string>
     <string name="settings_folder_columns_desc">フォルダ一覧と画像一覧の列数です。列を増やすと一度に多く表示され、各タイルは小さくなります。4 列ではフォルダ名がたいてい途中で切れます。</string>
     <string name="settings_folder_count">グリッド表示でフォルダーの下に項目数を表示</string>
@@ -162,6 +167,7 @@
     <string name="pick_list">一覧</string>
     <string name="pick_invert">反転</string>
     <string name="pick_all_short">すべて</string>
+    <string name="pick_clips">動画を選択</string>
     <string name="pick_none">なし</string>
     <string name="filter_title">絞り込み</string>
     <string name="filter_all">すべて表示</string>

@@ -133,15 +133,17 @@ fun SaveNameDialog(
     val gate = extensionGate(
         where = ExtWhere.DOWNLOAD,
         /*
-         * ⚠️⚠️ **IL TOCCO LUNGO NON SCAVALCA PIÙ LA GRIGLIA DI SICUREZZA, DALLA `1.82`**
-         * (riscontro del giro della `1.81`, voce `save-comandi`: *'Estensione' deve seguire la
-         * propria opzione di visibilità nelle impostazioni*). Fino alla `1.81` era `hold`, cioè
-         * la specifica opposta del giro della `1.79`, punto D.
-         * ⚠️ **Le due condizioni restano diverse di proposito, ma al contrario di prima**:
-         * adesso 'Destinazione' dipende dal **gesto** e 'Estensione' dall'**opzione**, ed è la
-         * simmetria che lui ha scritto nelle due righe di quella voce.
+         * ⚠️⚠️ **IL TOCCO LUNGO SCAVALCA TUTTE E DUE LE OPZIONI, DALLA `1.83`, E ADESSO LA
+         * REGOLA È UNA SOLA** (riscontro del giro della `1.82`, voce `save-quando` non approvata:
+         * *qualunque sia lo stato di 'Consenti la rinomina al salvataggio', la pressione lunga su
+         * 'Scarica' rende sempre disponibili sia 'Destinazione' che 'Estensione'*). Il tocco
+         * lungo è la **versione con tutto**, e le due opzioni valgono per il tocco normale.
+         * ⚠️⚠️ **LE DUE CONDIZIONI NON SONO PIÙ DIVERSE, ed erano il difetto**: la `1.82` faceva
+         * dipendere 'Destinazione' dal gesto **e** dall'opzione, ed 'Estensione' dalla sola
+         * opzione, cioè due regole per due comandi che vivono sulla stessa riga. Chi apriva la
+         * finestra col tocco lungo ne trovava uno solo, senza poter sapere perché.
          */
-        force = false,
+        force = hold,
         // ⚠️ Il pannellino lavora **senza** il punto, come in 'Rinomina', e il punto lo rimette
         // questa riga: è la stessa convenzione, quindi le due finestre si comportano uguale.
         initial = { suffisso.removePrefix(".") },

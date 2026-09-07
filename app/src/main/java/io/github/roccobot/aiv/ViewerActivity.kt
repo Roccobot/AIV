@@ -189,8 +189,19 @@ sealed interface Screen {
      * ⚠️ Per tutto il resto è una **griglia come le altre**: i risultati sono una serie, e
      * da qui si apre il visualizzatore, si sfoglia e si seleziona esattamente come in una
      * cartella.
+     *
+     * ⚠️⚠️ **DALLA `1.83` PORTA UN CONFINE, E PER QUESTO NON È PIÙ UN OGGETTO** (risposta a
+     * `d-fab-voci` del giro della `1.82`: la voce nuova del menu del FAB è *`cerca`*, con la sua
+     * nota: *in quel caso, 'Cerca' è limitato alla cartella corrente*). Il bucket non è come il
+     * testo: non cambia mentre si scrive, quindi appartiene all'identità della schermata e non al
+     * modello. Cambiandolo si è in un'altra ricerca, ed è giusto che la griglia riparta.
+     * ⚠️ **`null` è la ricerca di sempre**, quella di tutta la galleria che si apre dalla
+     * schermata iniziale: il valore di serie fa sì che i suoi chiamanti non cambino di una riga.
+     * ⚠️ **Il nome serve solo a scriverlo nel campo**, che è il modo di dire dove si sta cercando
+     * senza una stringa nuova in ventotto lingue: il bucket da solo è un numero, e la testata non
+     * ha nessun altro posto da cui ricavare il nome della cartella.
      */
-    data object Search : Screen
+    data class Search(val bucket: Long? = null, val name: String? = null) : Screen
 
     /**
      * Il cestino, dalla 0.64.
@@ -235,7 +246,7 @@ sealed interface Screen {
  * più punti e scritta a mano ne dimenticherebbe una.
  */
 private fun Screen.isGrid(): Boolean =
-    this is Screen.Grid || this == Screen.Search || this == Screen.Bin
+    this is Screen.Grid || this is Screen.Search || this == Screen.Bin
 
 /**
  * La casa dell'app.
@@ -902,6 +913,18 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * leggono un solo elenco, quindi non possono dare due ordini diversi e aprire una
      * foto dalla griglia non costa nessuna seconda interrogazione del MediaStore.
      */
+    /**
+     * Il peso della cartella aperta e quanti video ha, per le due pastiglie del frontespizio.
+     *
+     * ⚠️⚠️ **SI LEGGE UNA VOLTA PER CARTELLA E VIVE QUI**, come la cartella stessa: la griglia
+     * riceve due numeri già pronti, e non ha modo di chiederli da sé perché conosce gli
+     * indirizzi e non le righe. Il conto lo fa `Folder.weigh`, con una query sola.
+     * ⚠️ **Si azzera aprendo**, o entrando in una cartella si vedrebbe per un istante il peso di
+     * quella di prima, che è il genere di bugia che non si nota e resta.
+     */
+    var facts: Folder.Facts by mutableStateOf(Folder.Facts())
+        private set
+
     fun openGrid(bucket: Long, name: String) {
         gridFilter = MediaKind.ALL
         screen = Screen.Grid(bucket, name)
@@ -915,7 +938,12 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         val context = getApplication<Application>()
         // ⚠️ Anche qui l'inizio è quello della sequenza SCELTA: la griglia si apre in
         // cima, e il tocco sulla prima miniatura dà la stessa foto da cui parte l'avvio.
+        facts = Folder.Facts()
         viewModelScope.launch { listed = Folder.newestIn(context, bucket).atSequenceStart() }
+        // ⚠️ In un lancio a sé e non in coda all'altro: i due numeri servono alla fascia in
+        // cima, che si vede subito, mentre le miniature arrivano quando arrivano. Uno dopo
+        // l'altro, la cartella si peserebbe solo dopo aver letto tutta la lista.
+        viewModelScope.launch { facts = Folder.weigh(context, bucket) }
     }
 
     /**
@@ -1333,10 +1361,16 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    /** Si entra nella ricerca a mani vuote: il testo di ieri non serve a nessuno. */
-    fun openSearch() {
+    /**
+     * Si entra nella ricerca a mani vuote: il testo di ieri non serve a nessuno.
+     *
+     * ⚠️ **I due argomenti sono il confine**, e senza di loro si cerca in tutta la galleria come
+     * si è sempre fatto: li passa il menu del FAB di una cartella, che è l'unico posto da cui si
+     * chiede una ricerca ristretta.
+     */
+    fun openSearch(bucket: Long? = null, name: String? = null) {
         gridFilter = MediaKind.ALL
-        screen = Screen.Search
+        screen = Screen.Search(bucket, name)
         query = ""
         listed = Folder.Lookup.Found(Folder.Series(emptyList(), 0))
         source = null
@@ -1360,9 +1394,13 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         searching?.cancel()
         val context = getApplication<Application>()
         val hidden = settings?.hiddenFolders.orEmpty()
+        // ⚠️ Il confine si legge dalla schermata a ogni ricerca e non si tiene in un campo: è un
+        // dato della schermata (vedi [Screen.Search]), e una seconda copia direbbe il falso il
+        // giorno che si passa da una ricerca ristretta a una globale.
+        val entro = (screen as? Screen.Search)?.bucket
         searching = viewModelScope.launch {
             delay(SEARCH_PAUSE_MS)
-            listed = Folder.byName(context, text, hidden).atSequenceStart()
+            listed = Folder.byName(context, text, hidden, entro).atSequenceStart()
             // Una ricerca nuova è un elenco nuovo: l'anello dell'ultima foto vista
             // indicherebbe una posizione della lista di prima.
             gridVisited = false
@@ -1396,12 +1434,13 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 viewModelScope.launch {
                     listed = Folder.newestIn(context, here.bucket).atSequenceStart()
                 }
-            Screen.Search -> {
+            is Screen.Search -> {
                 val hidden = settings?.hiddenFolders.orEmpty()
                 val text = query
+                val entro = here.bucket
                 searching?.cancel()
                 searching = viewModelScope.launch {
-                    listed = Folder.byName(context, text, hidden).atSequenceStart()
+                    listed = Folder.byName(context, text, hidden, entro).atSequenceStart()
                 }
             }
             // ⚠️ Il cestino si rilegge dal disco e non dal MediaStore, che là non guarda:
@@ -1578,7 +1617,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             // ⚠️ La ricerca sta qui accanto alla cartella per la stessa ragione: i suoi
             // risultati sono costati una query e vanno ritrovati pronti, col testo ancora
             // nel campo. Passando da `goHome` si tornerebbe a un elenco vuoto.
-            is Screen.Grid, Screen.Search, Screen.Bin -> {
+            is Screen.Grid, is Screen.Search, Screen.Bin -> {
                 screen = dest
                 source = null
                 stopLoad()
@@ -1757,7 +1796,8 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             val fresh = when (from) {
                 is Screen.Grid -> Folder.newestIn(context, from.bucket)
-                Screen.Search -> Folder.byName(context, query, settings?.hiddenFolders.orEmpty())
+                is Screen.Search ->
+                    Folder.byName(context, query, settings?.hiddenFolders.orEmpty(), from.bucket)
                 Screen.Bin -> binLookup(context)
                 else -> null
             }
@@ -2123,7 +2163,7 @@ private fun AivApp(model: ViewerViewModel) {
     val disfare = Undo.offerta
     val scope = rememberCoroutineScope()
     LaunchedEffect(disfare) {
-        if (disfare.isNotEmpty()) {
+        if (disfare != null) {
             delay(UNDO_MS)
             Undo.clear()
         }
@@ -2163,23 +2203,37 @@ private fun AivApp(model: ViewerViewModel) {
             Stage(schermo, model, settings)
         }
         UndoNotice(
-            visible = disfare.isNotEmpty(),
+            visible = disfare != null,
             /*
              * ⚠️ **La frase è quella che l'avviso di sistema diceva prima**, non una nuova: dice
              * esattamente questo, esiste già in ventotto lingue, e riscriverne una che le
              * somiglia sarebbe due modi di dire la stessa cosa. Chi ha smesso di dirla è
              * `FileKind.speaks`, e il perché sta là.
-             * ⚠️ **Il conto è quello dei file ARRIVATI nel cestino**: `Bin.Sent.landed` porta i
-             * soli passati, quindi qui non si sottrae niente.
+             * ⚠️ **Il conto è quello dei file passati**: per il cestino `Bin.Sent.landed` porta i
+             * soli arrivati, e per le altre due i passi da disfare sono quelli riusciti, quindi
+             * qui non si sottrae niente.
+             * ⚠️⚠️ **E DALLA `1.83` LA FRASE LA SCEGLIE L'OFFERTA** (campo libero del giro della
+             * `1.82`, punto B): il plurale è quello di [FileKind.done], cioè lo stesso che
+             * l'avviso di sistema diceva per quell'operazione, e le tre frasi esistono già.
+             * ⚠️ **Il valore di riserva non si vede mai**: la notifica esce di scena con
+             * l'offerta, ma la sua animazione dura più di lei, e in quei millisecondi il testo
+             * dell'ultima offerta è quello giusto da tenere.
              */
-            text = pluralStringResource(R.plurals.trash_done, disfare.size, disfare.size),
+            text = disfare?.let { pluralStringResource(it.kind.done, it.count, it.count) }
+                ?: "",
             action = stringResource(R.string.pick_undo),
             modifier = Modifier.align(Alignment.BottomCenter),
             onUndo = {
-                val quali = disfare
+                val quale = disfare
                 Undo.clear()
                 scope.launch {
-                    Bin.restore(context, quali)
+                    when (quale) {
+                        // ⚠️ Il ripristino dal cestino lo fa `Bin`, che sa da dove veniva ogni
+                        // file: le altre due si disfano sui percorsi, e non passano di là.
+                        is Undo.Offer.Trashed -> Bin.restore(context, quale.landed)
+                        is Undo.Offer.Files -> FileTree.revert(context, quale.steps)
+                        null -> return@launch
+                    }
                     model.reloadGrid()
                 }
             }
@@ -2368,6 +2422,28 @@ private fun Stage(screen: Screen, model: ViewerViewModel, settings: Settings) {
                  */
                 onBin = { model.openBin() },
                 onSettings = { model.openSettings() },
+                /*
+                 * ⚠️⚠️ **'Cerca' DENTRO LA CARTELLA, DALLA `1.83`** (risposta a `d-fab-voci` del
+                 * giro della `1.82`: *cerca*, con la nota *in quel caso, 'Cerca' è limitato alla
+                 * cartella corrente*). Il bucket e il nome viaggiano insieme perché la ricerca
+                 * ristretta è un'altra schermata da quella globale: vedi [Screen.Search].
+                 * ⚠️ **Arriva al solo ramo della cartella**, come i due richiami qui sopra: nella
+                 * ricerca sarebbe una ricerca dentro una ricerca, e nel cestino non c'è nessun
+                 * bucket da cui partire.
+                 */
+                onSearchHere = { model.openSearch(screen.bucket, screen.name) },
+                /*
+                 * ⚠️⚠️ **I QUATTRO CHIP E I DUE NUMERI ARRIVANO SOLO QUI, DALLA `1.83`**: il
+                 * frontespizio esiste nella griglia di una **cartella** e non nelle altre due
+                 * (nel cestino il FAB c'è sempre, nella ricerca la testata porta un campo di
+                 * testo), quindi passarli anche là sarebbe dare valori a una fascia che non si
+                 * disegna.
+                 */
+                frontWash = settings.frontWash,
+                frontSerif = settings.frontSerif,
+                frontFacts = settings.frontFacts,
+                frontPickAll = settings.frontPickAll,
+                facts = model.facts,
                 onOpen = { model.openFromGrid(it) },
                 onBack = { model.leaveGrid() },
                 onChanged = { model.reloadGrid() },
@@ -2396,13 +2472,17 @@ private fun Stage(screen: Screen, model: ViewerViewModel, settings: Settings) {
             )
         }
 
-        Screen.Search -> {
+        is Screen.Search -> {
             BackHandler { model.leaveGrid() }
             // ⚠️ La stessa `GridScreen` della cartella, con due parametri in più: vedi la
             // nota su `query` là dentro per il perché non è una schermata a sé.
             val lookup = model.folder
             GridScreen(
                 title = "",
+                // ⚠️ Il nome della cartella in cui si cerca, e `null` per la ricerca di tutta la
+                // galleria: lo scrive il campo al posto del suo invito, che è il modo di dire
+                // dove si sta cercando senza una stringa nuova in ventotto lingue.
+                searchIn = screen.name,
                 items = lookup?.let { it.seriesOrNull?.items ?: emptyList() },
                 highlight = if (model.gridVisited) model.series?.index else null,
                 onOpen = { model.openFromGrid(it) },

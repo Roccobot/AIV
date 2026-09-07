@@ -1452,3 +1452,50 @@ private fun untouchable() {
         onDispose { }
     }
 }
+
+/**
+ * Il **marchio dell'app** sul tastino, al posto dei tre puntini.
+ *
+ * ⚠️⚠️ **RICHIESTA DELL'UTENTE, giro della `1.54`** (*sostituisci i tre pallini del FAB
+ * principale con il glifo dell'app ... Il glifo è da centrare OTTICAMENTE*). I tre puntini non
+ * sono spariti: sono scesi sul tastino del cestino, dove c'era un disco ancora più generico.
+ *
+ * ⚠️⚠️ **CENTRATO OTTICAMENTE VUOL DIRE CHE IL SUO BARICENTRO STA AL CENTRO, e i due numeri
+ * sono MISURATI e non scelti**: reso il disegno in Chromium a 700 x 600 e pesato l'inchiostro
+ * pixel per pixel, il baricentro cade al 5,0% della larghezza a **sinistra** del centro del
+ * riquadro e al 9,4% dell'altezza **sotto** di lui. Lo spostamento è quello, cambiato di segno.
+ * - **Perché cade lì, e conviene saperlo**: la A è un triangolo, quindi ha la massa in basso, e
+ *   il disco solare sta in alto a **sinistra**. Sono due cose che tirano da parti diverse, e a
+ *   occhio non si indovinano.
+ * - ⚠️ **La misura si rifà se il disegno cambia**: `ic_aiv_mark.xml` è l'inchiostro nudo (la
+ *   tela è esattamente il riquadro dei due tracciati), quindi basta rendere quel file e pesarlo.
+ *
+ * ⚠️ **Si dà la larghezza e l'altezza segue**, come nella barra delle info: il glifo è 70 x 60,
+ * e una misura sola lo schiaccerebbe.
+ */
+@Composable
+internal fun Marchio(descrizione: String?) {
+    Icon(
+        imageVector = Glyphs.AivMark,
+        contentDescription = descrizione,
+        modifier = Modifier
+            .offset(x = MARK_WIDE * MARK_DX, y = MARK_HIGH * MARK_DY)
+            .size(width = MARK_WIDE, height = MARK_HIGH)
+    )
+}
+
+/**
+ * Quanto è largo il marchio sul tastino.
+ *
+ * ⚠️ **24dp è la scatola che avevano i tre puntini**, cioè la misura standard di un glifo di
+ * Material: il tastino è 40dp, quindi restano otto punti d'aria per lato. Chi lo volesse più
+ * discreto muove questo numero e basta: l'altezza e lo spostamento lo seguono.
+ */
+private val MARK_WIDE = 24.dp
+
+/** L'altezza che segue dalla forma del disegno, 70 x 60. */
+private val MARK_HIGH = MARK_WIDE * 60f / 70f
+
+/** Lo spostamento ottico, in frazione del glifo: vedi la misura in testa a [Marchio]. */
+private const val MARK_DX = 0.050f
+private const val MARK_DY = -0.094f

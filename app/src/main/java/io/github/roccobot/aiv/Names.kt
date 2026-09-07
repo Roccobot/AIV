@@ -140,7 +140,7 @@ fun fitName(
  * che si nota, cioè il contrario dell'ordine di priorità che ha dettato.
  *
  * ⚠️ **È `internal` e non privata perché il banco di prova la misura**, ed è la stessa ragione di
- * `climbFor` in `Centred.kt`: sulla piattaforma finta il misuratore di testo dà a **ogni**
+ * `pinClimb` in `Centred.kt`: sulla piattaforma finta il misuratore di testo dà a **ogni**
  * carattere un pixel di larghezza (misurato), quindi né il corpo né la spaziatura cambiano una
  * riga, e una prova che passasse da [fitName] non eserciterebbe questo ordine affatto.
  *

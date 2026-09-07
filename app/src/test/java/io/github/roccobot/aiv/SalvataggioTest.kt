@@ -128,12 +128,17 @@ class SalvataggioTest {
      * **Con un comando solo la riga del titolo porta una pastiglia col testo, e 'Destinazione' non
      * chiude la finestra.**
      *
-     * ⚠️⚠️ **LA PROVA È CAMBIATA CON IL COMPORTAMENTO, E LA RAGIONE È SUA** (riscontro del giro
-     * della `1.81`, voce `save-comandi`: *'Estensione' deve seguire la propria opzione di
-     * visibilità nelle impostazioni*). Fino alla `1.81` il tocco lungo accendeva anche quel
-     * comando, e questa prova lo misurava: adesso il tocco lungo riguarda 'Destinazione' e basta,
-     * quindi con le impostazioni di fabbrica in scena ce n'è **uno solo**. Non è una prova piegata
-     * per far passare un build: è la specifica che si è rovesciata, e la riga sopra dice quale.
+     * ⚠️⚠️ **LA PROVA È CAMBIATA DUE VOLTE PERCHÉ LA SPECIFICA È CAMBIATA DUE VOLTE, E OGNI VOLTA
+     * L'HA SCRITTA LUI.** Nella `1.81` il tocco lungo accendeva tutti e due i comandi; nella
+     * `1.82` 'Estensione' seguiva la sola opzione (voce `save-comandi`) e col tocco lungo ne
+     * restava **uno**; dalla `1.83` il tocco lungo è di nuovo la versione con tutto (voce
+     * `save-quando` non approvata: *se si tiene premuto 'Scarica' ... i due tasti 'Destinazione'
+     * ed 'Estensione' entrambi disponibili*). Non è una prova piegata per far passare un build:
+     * è la riga che qui sopra dice quale specifica misura.
+     * ⚠️⚠️ **QUINDI IL CASO 'UNO SOLO' NON È PIÙ IL TOCCO LUNGO: è il tocco normale con l'opzione
+     * del percorso accesa**, che è la via per cui quel comando esiste da solo. Il caso 'tutti e
+     * due' vive nella prova qui sotto, e i due vestiti sono diversi: pastiglia col testo contro
+     * icona.
      * ⚠️⚠️ **E CHE LA FINESTRA RESTI APERTA È LA METÀ DELLA `1.81` CHE RESTA VERA** (voce
      * `scarica-percorso`: *Voglio solo SELEZIONARE la destinazione, non salvare*): quel comando
      * apre un selettore di cartella e quello che si era battuto deve essere ancora là al ritorno,
@@ -144,7 +149,7 @@ class SalvataggioTest {
         var aperto = 0
         banco.setContent {
             AivTheme(darkTheme = false) {
-                Finestra(hold = true, onPickFolder = { aperto += 1 })
+                Finestra(hold = false, onPickFolder = { aperto += 1 })
             }
         }
 
@@ -155,6 +160,38 @@ class SalvataggioTest {
         banco.onNodeWithText(destinazione).performClick()
         assertEquals("'Destinazione' non ha aperto il selettore di cartella", 1, aperto)
         banco.onNodeWithText("foto").assertExists()
+    }
+
+    /**
+     * **Col tocco lungo i comandi sono due, e allora diventano due icone.**
+     *
+     * ⚠️⚠️ **È LA VOCE `save-quando` DELLA `1.83`, CIOÈ UNA CHE NON AVEVA APPROVATO** (giro della
+     * `1.82`: *qualunque sia lo stato di 'Consenti la rinomina al salvataggio', la pressione lunga
+     * su 'Scarica' rende sempre disponibili sia 'Destinazione' che 'Estensione'*), quindi torna
+     * qui con la prova che l'avrebbe fermata, come prescrive `AIV/CLAUDE.md` § '🧪 Quando si
+     * scrive una prova, e quando no'.
+     * ⚠️ **Le due icone si cercano per DESCRIZIONE e non per testo**: una pastiglia porta il suo
+     * nome come testo, un'icona come descrizione parlata, e cercare nel posto sbagliato darebbe
+     * 'non c'è' anche col comando in scena. È la stessa trappola dichiarata sulla prova sopra.
+     * ⚠️ **La griglia di sicurezza dell'estensione resta chiusa**: qui si misura che il comando
+     * **c'è**, non che il pannellino si apra senza avviso.
+     */
+    @Test
+    fun `col tocco lungo i due comandi sono due icone`() {
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                Finestra(hold = true, onPickFolder = {})
+            }
+        }
+
+        val destinazione = app.getString(R.string.save_name_dest)
+        val estensione = app.getString(R.string.rename_ext)
+        banco.onNodeWithContentDescription(destinazione).assertExists()
+        banco.onNodeWithContentDescription(estensione).assertExists()
+        // ⚠️ Con due comandi in scena nessuno dei due è più una pastiglia col testo: è la
+        // richiesta del punto C del campo libero della `1.81`, e senza questa riga la prova
+        // passerebbe anche se tornassero tutti e due testuali.
+        banco.onNodeWithText(destinazione).assertDoesNotExist()
     }
 
     /**

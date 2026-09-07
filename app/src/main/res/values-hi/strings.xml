@@ -86,6 +86,11 @@
     <string name="settings_depth_blur">ब्लर</string>
     <string name="settings_depth_shadow">छाया</string>
     <string name="settings_depth_none">कुछ नहीं</string>
+    <string name="settings_front">फ़ोल्डर का शीर्ष भाग</string>
+    <string name="settings_front_desc">थंबनेल के ऊपर, फ़ोल्डर की शीर्ष पट्टी में क्या दिखे।</string>
+    <string name="settings_front_wash">ग्रेडिएंट</string>
+    <string name="settings_front_serif">सेरिफ़ शीर्षक</string>
+    <string name="settings_front_facts">जानकारी</string>
     <string name="settings_folder_columns">ग्रिड के स्तंभ</string>
     <string name="settings_folder_columns_desc">फ़ोल्डर ग्रिड और चित्र ग्रिड कितने स्तंभ दिखाएँ। अधिक स्तंभों में स्क्रीन पर अधिक चीज़ें आती हैं और हर खाना छोटा होता है। चार पर फ़ोल्डर का नाम प्रायः कट जाता है।</string>
     <string name="settings_folder_count">ग्रिड दृश्य में फ़ोल्डरों के नीचे वस्तुओं की गिनती</string>
@@ -162,6 +167,7 @@
     <string name="pick_list">सूची</string>
     <string name="pick_invert">उलटें</string>
     <string name="pick_all_short">सभी</string>
+    <string name="pick_clips">वीडियो चुनें</string>
     <string name="pick_none">कोई नहीं</string>
     <string name="filter_title">फ़िल्टर</string>
     <string name="filter_all">सब दिखाएँ</string>

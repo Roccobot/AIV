@@ -694,24 +694,26 @@ fun ViewerScreen(
              */
             folder = cartella?.let { DownloadFolder.label(it) },
             /*
-             * ⚠️⚠️ **'Destinazione' VUOLE L'IMPOSTAZIONE ACCESA **E** IL TOCCO LUNGO, DALLA
-             * `1.82`** (riscontro del giro della `1.81`, voce `save-comandi`: *'Destinazione'
-             * deve comparire sempre solo quando fai un tocco lungo su 'Scarica'*). Fino alla
-             * `1.81` bastava una delle due, cioè la specifica del giro precedente
-             * (`tocco-lungo-due`: *dev'essere presente anche con l'opzione su OFF*).
-             * ⚠️⚠️ **LA `E` AL POSTO DELLA `O` NON È UN'INTERPRETAZIONE LIBERA, ED È IL TESTO
-             * DELL'OPZIONE A DECIDERLO**: nello stesso giro lui ha riscritto la spiegazione di
-             * 'Scegli il percorso di download' in *aggiunge il pulsante 'Destinazione' alla
-             * schermata di download*, e ha tagliato dalla spiegazione della rinomina la coda che
-             * prometteva *in quel caso è disponibile anche 'Destinazione'*. Con la sola `hold`
-             * l'opzione non deciderebbe più niente e il suo testo direbbe il falso.
+             * ⚠️⚠️ **'Destinazione' VUOLE L'IMPOSTAZIONE ACCESA **O** IL TOCCO LUNGO, DALLA
+             * `1.83`, E LA REGOLA È LA STESSA DI 'Estensione'** (riscontro del giro della `1.82`,
+             * voce `save-quando` non approvata, dove lui ha riscritto tutte e due le vie:
+             * *'Destinazione' ed 'Estensione' sono attive solo se le rispettive opzioni sono
+             * ACCESE* con il tocco normale, e *se si tiene premuto 'Scarica' ... i due tasti
+             * 'Destinazione' ed 'Estensione' entrambi disponibili*).
+             * ⚠️⚠️ **LA `E` DELLA `1.82` NON ERA UN'INTERPRETAZIONE SBAGLIATA DI QUELLA VOCE, ERA
+             * UNA SPECIFICA CHE LUI HA POI CAMBIATO**: là aveva scritto *'Destinazione' deve
+             * comparire sempre solo quando fai un tocco lungo*, e il testo dell'opzione diceva
+             * *aggiunge il pulsante 'Destinazione' alla schermata di download*. Quelle due righe
+             * insieme dànno la `e`; questa voce le sostituisce con una regola sola per tutti e
+             * due i comandi, e il testo dell'opzione resta vero perché la schermata di download
+             * col tocco normale è esattamente quella che lo legge.
              * ⚠️ **La scelta si fa qui** perché è questa schermata ad avere le impostazioni in
              * mano: la finestra riceve un gesto o un `null`, e non sa niente di `SettingsStore`.
              * ⚠️⚠️ **E DALLA `1.81` APRE UNA CARTELLA E NON SALVA NIENTE** (voce
              * `scarica-percorso`): il gesto non chiude più la finestra, perché il salvataggio
              * avviene su 'Salva' e non qui.
              */
-            onPickFolder = if (ask.hold && settings.downloadPath) {
+            onPickFolder = if (ask.hold || settings.downloadPath) {
                 { folderPicker.launch(null) }
             } else {
                 null
@@ -3317,7 +3319,22 @@ private fun ImageMenu(
                                 ops.job(FileJob.Restore(one))
                             }
                         } else {
-                            PadAction(PadKey.RENAME, Glyphs.TextCursor, R.string.pick_rename) {
+                            /*
+                             * ⚠️⚠️ **SPENTO SU UN'IMMAGINE DELLA RETE, DALLA `1.83`** (campo
+                             * libero del giro della `1.82`, punto E). Là non c'è nessun file da
+                             * rinominare: fino alla `1.82` il tasto apriva la finestra, si
+                             * scriveva un nome e l'operazione non riusciva.
+                             * ⚠️ **Solo questo dei sei**, ed è quello che ha nominato lui: gli
+                             * altri cinque si comportano già come devono, e allargare la
+                             * correzione a occhio vorrebbe dire spegnere anche quello che
+                             * funziona (la condivisione, per esempio, non passa dai file).
+                             */
+                            PadAction(
+                                key = PadKey.RENAME,
+                                icon = Glyphs.TextCursor,
+                                label = R.string.pick_rename,
+                                enabled = !ImageActions.isRemote(uri)
+                            ) {
                                 menu.close()
                                 ops.job(FileJob.Rename(one))
                             }

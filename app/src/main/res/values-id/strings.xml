@@ -86,6 +86,11 @@
     <string name="settings_depth_blur">Blur</string>
     <string name="settings_depth_shadow">Bayangan</string>
     <string name="settings_depth_none">Tidak ada</string>
+    <string name="settings_front">Sampul folder</string>
+    <string name="settings_front_desc">Apa yang ditampilkan bilah di atas folder, di atas gambar mini.</string>
+    <string name="settings_front_wash">Gradien</string>
+    <string name="settings_front_serif">Judul serif</string>
+    <string name="settings_front_facts">Info</string>
     <string name="settings_folder_columns">Kolom pada kisi</string>
     <string name="settings_folder_columns_desc">Berapa kolom yang ditampilkan kisi folder dan kisi gambar. Lebih banyak kolom memuat lebih banyak di layar dan mengecilkan setiap petak. Pada empat, nama folder biasanya terpotong.</string>
     <string name="settings_folder_count">Penghitung item di bawah folder pada tampilan kisi</string>
@@ -162,6 +167,7 @@
     <string name="pick_list">Daftar</string>
     <string name="pick_invert">Balik</string>
     <string name="pick_all_short">Semua</string>
+    <string name="pick_clips">Pilih video</string>
     <string name="pick_none">Tidak ada</string>
     <string name="filter_title">Saringan</string>
     <string name="filter_all">Tampilkan semua</string>
