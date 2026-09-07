@@ -219,6 +219,9 @@
     <string name="dest_create">Tengeneza</string>
     <string name="dest_here">Nakili ndani ya %1$s</string>
     <string name="dest_move_here">Hamishia ndani ya %1$s</string>
+    <string name="dest_pick_copy">Nakili kwenye folda</string>
+    <string name="dest_pick_move">Hamishia kwenye folda</string>
+    <string name="dest_browse">Vinjari folda zote...</string>
     <string name="menu_copy_here">Nakili</string>
     <plurals name="copy_done">
         <item quantity="one">kipengele %1$d kimenakiliwa</item>

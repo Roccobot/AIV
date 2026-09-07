@@ -219,6 +219,9 @@
     <string name="dest_create">Aanmaken</string>
     <string name="dest_here">Kopiëren naar %1$s</string>
     <string name="dest_move_here">Verplaatsen naar %1$s</string>
+    <string name="dest_pick_copy">Naar een map kopiëren</string>
+    <string name="dest_pick_move">Naar een map verplaatsen</string>
+    <string name="dest_browse">Alle mappen doorzoeken...</string>
     <string name="menu_copy_here">Kopiëren</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d item gekopieerd</item>

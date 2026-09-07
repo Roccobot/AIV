@@ -227,6 +227,9 @@
     <string name="dest_create">Создать</string>
     <string name="dest_here">Копировать в %1$s</string>
     <string name="dest_move_here">Переместить в %1$s</string>
+    <string name="dest_pick_copy">Копировать в папку</string>
+    <string name="dest_pick_move">Переместить в папку</string>
+    <string name="dest_browse">Обзор всех папок...</string>
     <string name="menu_copy_here">Копировать</string>
     <plurals name="copy_done">
         <item quantity="one">скопирован %1$d элемент</item>

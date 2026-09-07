@@ -215,6 +215,9 @@
     <string name="dest_create">สร้าง</string>
     <string name="dest_here">คัดลอกไปที่ %1$s</string>
     <string name="dest_move_here">ย้ายไปที่ %1$s</string>
+    <string name="dest_pick_copy">คัดลอกไปยังโฟลเดอร์</string>
+    <string name="dest_pick_move">ย้ายไปยังโฟลเดอร์</string>
+    <string name="dest_browse">เรียกดูโฟลเดอร์ทั้งหมด...</string>
     <string name="menu_copy_here">คัดลอก</string>
     <plurals name="copy_done">
         <item quantity="other">คัดลอกแล้ว %1$d รายการ</item>

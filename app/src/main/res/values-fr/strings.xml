@@ -223,6 +223,9 @@
     <string name="dest_create">Créer</string>
     <string name="dest_here">Copier dans %1$s</string>
     <string name="dest_move_here">Déplacer dans %1$s</string>
+    <string name="dest_pick_copy">Copier dans un dossier</string>
+    <string name="dest_pick_move">Déplacer vers un dossier</string>
+    <string name="dest_browse">Parcourir tous les dossiers...</string>
     <string name="menu_copy_here">Copier</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d élément copié</item>

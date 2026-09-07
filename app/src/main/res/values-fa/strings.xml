@@ -219,6 +219,9 @@
     <string name="dest_create">ساختن</string>
     <string name="dest_here">رونوشت در %1$s</string>
     <string name="dest_move_here">جابجایی به %1$s</string>
+    <string name="dest_pick_copy">کپی در یک پوشه</string>
+    <string name="dest_pick_move">انتقال به یک پوشه</string>
+    <string name="dest_browse">مرور همه پوشه‌ها...</string>
     <string name="menu_copy_here">رونوشت</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d مورد رونوشت شد</item>

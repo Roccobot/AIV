@@ -215,6 +215,9 @@
     <string name="dest_create">Tạo</string>
     <string name="dest_here">Sao chép vào %1$s</string>
     <string name="dest_move_here">Di chuyển vào %1$s</string>
+    <string name="dest_pick_copy">Sao chép vào một thư mục</string>
+    <string name="dest_pick_move">Di chuyển vào một thư mục</string>
+    <string name="dest_browse">Xem tất cả thư mục...</string>
     <string name="menu_copy_here">Sao chép</string>
     <plurals name="copy_done">
         <item quantity="other">%1$d mục đã sao chép</item>

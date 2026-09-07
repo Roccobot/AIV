@@ -477,6 +477,9 @@
     <string name="dest_create">Create</string>
     <string name="dest_here">Copy into %1$s</string>
     <string name="dest_move_here">Move into %1$s</string>
+    <string name="dest_pick_copy">Copy into a folder</string>
+    <string name="dest_pick_move">Move into a folder</string>
+    <string name="dest_browse">Browse all folders...</string>
     <string name="menu_copy_here">Copy</string>
     <plurals name="copy_done">
         <item quantity="one">%1$d item copied</item>

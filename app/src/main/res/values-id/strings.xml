@@ -215,6 +215,9 @@
     <string name="dest_create">Buat</string>
     <string name="dest_here">Salin ke dalam %1$s</string>
     <string name="dest_move_here">Pindahkan ke dalam %1$s</string>
+    <string name="dest_pick_copy">Salin ke folder</string>
+    <string name="dest_pick_move">Pindahkan ke folder</string>
+    <string name="dest_browse">Jelajahi semua folder...</string>
     <string name="menu_copy_here">Salin</string>
     <plurals name="copy_done">
         <item quantity="other">%1$d item disalin</item>

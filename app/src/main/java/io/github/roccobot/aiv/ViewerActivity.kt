@@ -1940,9 +1940,16 @@ class ViewerActivity : ComponentActivity() {
                 val look = model.settings?.let {
                     PadLook(it.padLabels, it.menuOrder, it.pickOrder, it.turnOrder, it.stepOrder, it.hand)
                 } ?: PadLook()
+                // ⚠️ E la vista delle cartelle, che serve alla finestra della destinazione:
+                // dalla `1.81` quella entra dalla vista normale dell'app, e il perché per
+                // esteso sta su [LocalDestLook].
+                val dove = model.settings?.let {
+                    DestLook(it.folderView, it.folderColumns, it.folderCount, it.listCount, it.listText)
+                } ?: DestLook()
                 CompositionLocalProvider(
                     LocalAivDepth provides (model.settings?.panelDepth ?: PanelDepth.NONE),
-                    LocalPadLook provides look
+                    LocalPadLook provides look,
+                    LocalDestLook provides dove
                 ) {
                     AivApp(model)
                 }

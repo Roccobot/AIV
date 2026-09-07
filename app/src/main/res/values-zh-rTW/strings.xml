@@ -215,6 +215,9 @@
     <string name="dest_create">建立</string>
     <string name="dest_here">複製到 %1$s</string>
     <string name="dest_move_here">移動到 %1$s</string>
+    <string name="dest_pick_copy">複製到資料夾</string>
+    <string name="dest_pick_move">移動到資料夾</string>
+    <string name="dest_browse">瀏覽所有資料夾...</string>
     <string name="menu_copy_here">複製</string>
     <plurals name="copy_done">
         <item quantity="other">已複製 %1$d 項</item>
