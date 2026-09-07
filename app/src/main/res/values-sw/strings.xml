@@ -291,7 +291,7 @@
     <string name="settings_ext_edit">Badilisha viambishi kwa \'Badilisha jina\'</string>
     <string name="settings_ext_edit_desc">Kidirisha cha kubadilisha jina huruhusu kubadilisha viambishi vya faili. Kama hujui unafanya nini, usiwashe hii: inaweza kufanya picha zisisomeke.</string>
     <string name="settings_gpu_thumbs">Weka vijipicha kwenye kumbukumbu ya michoro</string>
-    <string name="settings_gpu_thumbs_desc">Vijipicha huhifadhiwa nje ya kumbukumbu ya programu, hivyo nafasi hubaki kwa picha kubwa. Katika baadhi ya vifaa hili linaweza kuleta matatizo, ndiyo maana limezimwa kwa chaguomsingi.</string>
+    <string name="settings_gpu_thumbs_desc">Huunda akiba ya vijipicha kwenye kumbukumbu ya chipu ya grafiki, hivyo kumbukumbu ya kawaida inasalia wazi. Inaweza kufanya matunzio yajibu kwa kasi zaidi, isilete tofauti yoyote, au katika visa vingine iwe ya polepole, na hivyo ni karibu kila mara kwenye vifaa vya zamani. Ikiwa una matatizo ya utendaji, iwashe na uone kama inasaidia: haijulikani mapema, kwa sababu Android ina michanganyiko mingi ya vifaa na programu.</string>
     <string name="settings_thumbs">Futa vijipicha vilivyohifadhiwa</string>
     <string name="settings_thumbs_empty">Hakuna vijipicha vilivyohifadhiwa</string>
     <string name="settings_thumbs_warn">Gusa kitufe ili kufuta akiba ya vijipicha. Onyesho la kukagua la picha na video litafutwa na litaundwa upya kiotomatiki unapofungua kila folda (katika folda zenye picha kubwa nyingi hii inaweza kuchukua dakika moja au zaidi).</string>
@@ -329,8 +329,8 @@
     <string name="columns_hint">Njia ya mkato: shikilia kitufe kinachoelea ili kufungua chaguo za mwonekano.</string>
     <string name="settings_bin">Washa tapishi</string>
     <string name="settings_bin_desc">Kufuta faili hakuulizi kitu, lakini kitendo kinaweza kubatilishwa kwa \'Rudisha\' kutoka tapishi (kitufe kinachoelea →\u00A0\'Tapishi\'). Unaweza kuzima tapishi kabisa ukipendelea kufuta papo hapo: hapo utaonyeshwa uthibitisho kabla ya kila kufuta.\n⚠️ TAHADHARI: ukiondoa programu, yaliyomo kwenye tapishi hupotea na hayawezi kurudishwa.</string>
-    <string name="settings_bin_sweep">Ondoa takataka kiotomatiki</string>
-    <string name="settings_bin_sweep_desc">Kila faili iliyofutwa hutoka kwenye takataka inapofikia muda uliochagua. Nakala za akiba za kihariri haziishi muda wake kamwe, na usafi hufanyika tu wakati programu imefunguliwa.</string>
+    <string name="settings_bin_sweep">Safisha tupio kiotomatiki</string>
+    <string name="settings_bin_sweep_desc">Ikiwa tupio limewashwa, kila faili ndani yake hufutwa mara inapofikia muda uliochagua. Hii si kumwaga tupio lote kwa mpigo: kila faili huenda peke yake, kwa muda wake. Nakala za usalama zilizohifadhiwa kabla ya kuhariri hubaki.</string>
     <string name="bin_sweep_never">Kamwe</string>
     <string name="bin_sweep_week">Wiki moja</string>
     <string name="bin_sweep_month">Mwezi mmoja</string>

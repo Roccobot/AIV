@@ -305,7 +305,7 @@
     <string name="settings_ext_edit">Alterar extensões em \'Renomear\'</string>
     <string name="settings_ext_edit_desc">O painel de renomeação permite alterar a extensão dos arquivos. Se você não sabe o que está fazendo, não ative esta opção: pode tornar as imagens ilegíveis.</string>
     <string name="settings_gpu_thumbs">Manter as miniaturas na memória gráfica</string>
-    <string name="settings_gpu_thumbs_desc">As miniaturas ficam fora da memória do aplicativo, que assim fica livre para as imagens grandes. Em alguns aparelhos isso pode causar problemas, por isso vem desativado.</string>
+    <string name="settings_gpu_thumbs_desc">Cria o cache das miniaturas na memória do chip gráfico, deixando livre a memória comum. Pode deixar a galeria mais rápida, não mudar nada ou, em alguns casos, quase sempre em aparelhos antigos, deixá-la lenta. Se tiver problemas de desempenho, ative e veja se melhora: não há como saber antes, com todas as combinações de hardware e software que o Android tem.</string>
     <string name="settings_thumbs">Excluir as miniaturas armazenadas</string>
     <string name="settings_thumbs_empty">Nenhuma miniatura armazenada</string>
     <string name="settings_thumbs_warn">Toque no botão para limpar o cache de miniaturas. As pré-visualizações das imagens e dos vídeos serão excluídas e regeneradas automaticamente ao abrir cada pasta (isso pode levar um minuto ou mais nas pastas com muitas imagens grandes).</string>
@@ -345,8 +345,8 @@
     <string name="columns_hint">Atalho: mantenha o botão flutuante pressionado para as opções de exibição.</string>
     <string name="settings_bin">Ativar a lixeira</string>
     <string name="settings_bin_desc">Excluir um arquivo não pergunta nada, mas a ação pode ser desfeita com um \'Restaurar\' na lixeira (botão flutuante →\u00A0\'Lixeira\'). Você pode desativar a lixeira por completo, se preferir uma exclusão instantânea: nesse caso, aparecerá uma confirmação antes de cada exclusão.\n⚠️ ATENÇÃO: se você desinstalar o app, o conteúdo da lixeira é perdido e não pode ser recuperado.</string>
-    <string name="settings_bin_sweep">Esvaziar a lixeira automaticamente</string>
-    <string name="settings_bin_sweep_desc">Cada arquivo excluído sai da lixeira assim que atinge o tempo que você escolher. Os backups do editor nunca expiram, e a limpeza só acontece enquanto o aplicativo está aberto.</string>
+    <string name="settings_bin_sweep">Limpeza automática da lixeira</string>
+    <string name="settings_bin_sweep_desc">Com a lixeira ativa, cada arquivo dentro dela é apagado assim que alcança o tempo que você escolheu. Não é um esvaziamento, que apagaria tudo de uma vez: cada arquivo sai por conta própria, no seu prazo. As cópias de segurança salvas antes de uma edição ficam de fora.</string>
     <string name="bin_sweep_never">Nunca</string>
     <string name="bin_sweep_week">Uma semana</string>
     <string name="bin_sweep_month">Um mês</string>

@@ -305,7 +305,7 @@
     <string name="settings_ext_edit">Modifier les extensions depuis \'Renommer\'</string>
     <string name="settings_ext_edit_desc">Le panneau de renommage permet de changer l\'extension des fichiers. Si tu ne sais pas ce que tu fais, laisse cette option désactivée : elle peut rendre les images illisibles.</string>
     <string name="settings_gpu_thumbs">Garder les miniatures en mémoire graphique</string>
-    <string name="settings_gpu_thumbs_desc">Les miniatures sont conservées hors de la mémoire de l\'application, qui reste ainsi libre pour les grandes images. Sur certains appareils cela peut poser problème, c\'est pourquoi l\'option est désactivée par défaut.</string>
+    <string name="settings_gpu_thumbs_desc">Crée le cache des vignettes dans la mémoire de la puce graphique, ce qui laisse la mémoire normale libre. Ça peut rendre la galerie plus vive, ne rien changer, ou la ralentir dans certains cas, presque toujours sur les appareils anciens. Si tu as des problèmes de performance, active-le et vois si ça aide : on ne peut pas le savoir d\'avance, avec toutes les combinaisons matériel et logiciel d\'Android.</string>
     <string name="settings_thumbs">Supprimer les miniatures enregistrées</string>
     <string name="settings_thumbs_empty">Aucune miniature enregistrée</string>
     <string name="settings_thumbs_warn">Touchez le bouton pour vider le cache des miniatures. Les aperçus des images et des vidéos seront supprimés et régénérés automatiquement à l\'ouverture de chaque dossier (cela peut prendre une minute ou plus dans les dossiers contenant beaucoup de grandes images).</string>
@@ -345,8 +345,8 @@
     <string name="columns_hint">Raccourci : appuyez longuement sur le bouton flottant pour les options d\'affichage.</string>
     <string name="settings_bin">Activer la corbeille</string>
     <string name="settings_bin_desc">La suppression d\'un fichier ne demande rien, mais l\'action est réversible avec un \'Restaurer\' depuis la corbeille (bouton flottant →\u00A0\'Corbeille\'). Vous pouvez désactiver complètement la corbeille si vous préférez une suppression instantanée: dans ce cas, une confirmation apparaît avant chaque suppression.\n⚠️ ATTENTION : si vous désinstallez l\'application, le contenu de la corbeille est perdu et devient irrécupérable.</string>
-    <string name="settings_bin_sweep">Vider la corbeille automatiquement</string>
-    <string name="settings_bin_sweep_desc">Chaque fichier supprimé quitte la corbeille dès qu\'il atteint la durée que vous choisissez. Les copies de sauvegarde de l\'éditeur n\'expirent jamais, et le nettoyage ne se fait que pendant que l\'application est ouverte.</string>
+    <string name="settings_bin_sweep">Nettoyage automatique de la corbeille</string>
+    <string name="settings_bin_sweep_desc">Si la corbeille est active, chaque fichier qu\'elle contient est supprimé dès qu\'il atteint la durée que tu as choisie. Ce n\'est pas un vidage, qui effacerait tout d\'un coup : chaque fichier part séparément, à sa propre échéance. Les sauvegardes faites avant une modification restent en dehors.</string>
     <string name="bin_sweep_never">Jamais</string>
     <string name="bin_sweep_week">Une semaine</string>
     <string name="bin_sweep_month">Un mois</string>
