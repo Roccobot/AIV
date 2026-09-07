@@ -47,6 +47,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
@@ -120,6 +121,16 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import android.text.format.Formatter
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.semantics.onLongClick
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.material.icons.filled.Folder
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.layout.positionInParent
 
 /**
  * Una cartella intera in miniature, ed è il primo passo della galleria.
@@ -167,6 +178,38 @@ fun GridScreen(
      */
     query: String? = null,
     onQuery: (String) -> Unit = {},
+    /**
+     * Se il frontespizio porta la **sfumatura** dell'accento: `Settings.frontWash`.
+     *
+     * ⚠️ **I quattro parametri del frontespizio arrivano da fuori uno per uno**, come ogni altra
+     * impostazione che questa schermata legge: la griglia non conosce `SettingsStore`, e i valori
+     * di riserva dicono quello che dice il valore di fabbrica (vedi la nota su [columns]).
+     */
+    frontWash: Boolean = Settings().frontWash,
+    /** Se il nome nel frontespizio è grande e graziato: `Settings.frontSerif`. */
+    frontSerif: Boolean = Settings().frontSerif,
+    /** Se il frontespizio porta le pastiglie del peso e dei video: `Settings.frontFacts`. */
+    frontFacts: Boolean = Settings().frontFacts,
+    /** Se il frontespizio porta la pastiglia 'Seleziona tutto': `Settings.frontPickAll`. */
+    frontPickAll: Boolean = Settings().frontPickAll,
+    /**
+     * Quanto pesa la cartella e quanti video ha, per le due pastiglie.
+     *
+     * ⚠️ **Arriva contato**: la griglia ha gli indirizzi e non le righe del MediaStore, quindi il
+     * peso non se lo può ricavare senza una lettura per file. Lo conta `Folder.weigh`, una volta
+     * per cartella, e il modello lo tiene.
+     */
+    facts: Folder.Facts = Folder.Facts(),
+    /**
+     * Il nome della cartella dentro cui si sta cercando, e `null` per la ricerca di tutta la
+     * galleria.
+     *
+     * ⚠️⚠️ **PRENDE IL POSTO DELL'INVITO DEL CAMPO, DALLA `1.83`**: una ricerca ristretta e una
+     * globale hanno la stessa testata, quindi senza questa riga niente direbbe che i risultati si
+     * fermano a una cartella, e un elenco corto si leggerebbe come una galleria povera. Il nome è
+     * un **dato** e non un testo da tradurre, che è la ragione per cui non costa una stringa.
+     */
+    searchIn: String? = null,
     /**
      * Quante colonne di miniature, sul lato corto dello schermo: `Settings.folderColumns`.
      *
@@ -274,6 +317,15 @@ fun GridScreen(
     onBin: (() -> Unit)? = null,
     /** Dove manda 'Impostazioni' nel menu del tastino. Vedi [onBin]. */
     onSettings: (() -> Unit)? = null,
+    /**
+     * Apre la ricerca **dentro questa cartella**, dal menu del tastino. Vedi [onBin].
+     *
+     * ⚠️ **Non è [onSearch]**, che apre quella di tutta la galleria e vive nel tocco lungo sul
+     * filtro: qui il confine è la cartella aperta, ed è la risposta di `d-fab-voci` (*in quel
+     * caso, 'Cerca' è limitato alla cartella corrente*). A conoscere il bucket è il chiamante,
+     * quindi questa griglia riceve un gesto e non un numero.
+     */
+    onSearchHere: (() -> Unit)? = null,
     /**
      * Avvisa che la griglia ha una selezione viva, cioè che una rilettura le farebbe danno.
      *
@@ -897,6 +949,9 @@ fun GridScreen(
      * questo riquadro arrivi al vetro.
      */
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+    // ⚠️ La larghezza si cattura qui e non si legge più giù: dentro la colonna il receiver di
+    // [BoxWithConstraints] è coperto da quello della colonna, e `maxWidth` non si raggiunge.
+    val larghezza = maxWidth
 
     /*
      * ⚠️⚠️ **IL FRONTESPIZIO DI UNA CARTELLA, dalla `1.76`, ed è una richiesta sua del giro
@@ -993,7 +1048,7 @@ fun GridScreen(
             .fillMaxSize()
             .safeDrawingPadding()
             .nestedScroll(paging)
-            .padding(horizontal = 8.dp, vertical = 12.dp)
+            .padding(horizontal = GRID_PAD_X, vertical = GRID_PAD_Y)
     ) {
         // ⚠️⚠️ **LA BARRA DELLA SELEZIONE PRENDE IL POSTO DEL TITOLO invece di aggiungersi
         // sopra**: due barre insieme mangerebbero un quarto di schermo alle miniature, che
@@ -1025,7 +1080,9 @@ fun GridScreen(
                     TextField(
                         value = query,
                         onValueChange = onQuery,
-                        placeholder = { Text(stringResource(R.string.search_hint)) },
+                        placeholder = {
+                            Text(searchIn ?: stringResource(R.string.search_hint))
+                        },
                         singleLine = true,
                         // ⚠️ Senza contorno e senza fondo: qui sta al posto di un titolo,
                         // e un campo squadrato in testata sembrerebbe un modulo da
@@ -1172,7 +1229,41 @@ fun GridScreen(
          * volesse chiudere anche quel buco lo faccia con `alpha` **semantico**, non togliendo
          * uno dei due testi.
          */
+        /*
+         * ⚠️⚠️ **LA TINTA SI DIPINGE DIETRO LA FASCIA E SCONFINA IN TRE DIREZIONI, DALLA `1.83`**
+         * (variante 10 del mockup, scelta da lui): sale fino al bordo dell'area sicura per
+         * prendere anche la testata, esce dai fianchi per arrivare ai bordi dello schermo, e
+         * scende **una riga di miniature** sotto la fascia. Il come vive su [Modifier.frontWash];
+         * qui ci sono i tre numeri, che sono i rientri di questa schermata e l'altezza di una
+         * riga.
+         * ⚠️⚠️ **L'ALTEZZA DELLA TESTATA SI MISURA E NON SI SCRIVE**: da qui la fascia non sa
+         * quanto è alta la riga sopra di lei, e un numero scritto a mano si scollerebbe il giorno
+         * che la testata cambia (un titolo che va a capo, un corpo di testo più grande nelle
+         * impostazioni di sistema). Il valore cambia solo quando cambia la testata, quindi la
+         * ricomposizione che costa è una.
+         * ⚠️ **Una riga di miniature si ricava dalle colonne**, che è la stessa divisione che fa
+         * la griglia: scritta come numero fisso, la coda coprirebbe mezza riga con quattro
+         * colonne e una riga e mezza con due.
+         */
+        val rigaMiniature = (larghezza - GRID_PAD_X * 2) / columns
+        var testataAlta by remember { mutableFloatStateOf(0f) }
         if (front) {
+            Box(
+                modifier = Modifier
+                    .onGloballyPositioned { testataAlta = it.positionInParent().y }
+                    .then(
+                        if (frontWash) {
+                            Modifier.frontWash(
+                                tint = MaterialTheme.colorScheme.primary,
+                                air = GRID_PAD_X,
+                                up = with(density) { testataAlta.toDp() } + GRID_PAD_Y,
+                                tail = rigaMiniature
+                            )
+                        } else {
+                            Modifier
+                        }
+                    )
+            ) {
             FrontBand(fullPx = headerPx, shut = { shut }) { quanto ->
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     /*
@@ -1196,9 +1287,23 @@ fun GridScreen(
                      * chiamare qui** perché `GraphicsLayerScope` è una `Density`, e leggerla nel
                      * disegno costa niente: la soglia è la stessa a ogni fotogramma.
                      */
+                    /*
+                     * ⚠️⚠️ **CON LA TINTA ACCESA L'ICONA VA IN NEGATIVO, DALLA `1.83`** (variante
+                     * 10: *l'icona centrata in negativo all'80% invece del 20%*). Cambiano due
+                     * cose insieme e vanno insieme: il **colore**, che diventa quello della
+                     * superficie perché sopra la tinta l'inchiostro del contenuto sparirebbe, e
+                     * l'**inchiostro**, che passa da un accenno a una sagoma.
+                     * ⚠️ **La dissolvenza resta la stessa**: quello che cambia è il valore da cui
+                     * parte, non la curva, quindi la coreografia dello scorrimento non si tocca.
+                     */
                     Icon(
                         imageVector = Glyphs.FolderAiv,
                         contentDescription = null,
+                        tint = if (frontWash) {
+                            MaterialTheme.colorScheme.surface
+                        } else {
+                            LocalContentColor.current
+                        },
                         modifier = Modifier
                             .frontIconMeasure(
                                 fullPx = headerPx,
@@ -1208,7 +1313,8 @@ fun GridScreen(
                             .graphicsLayer {
                                 alpha = frontIconInk(
                                     aperto = quanto(),
-                                    soglia = frontIconFade(headerPx, HEADER_ICON.toPx())
+                                    soglia = frontIconFade(headerPx, HEADER_ICON.toPx()),
+                                    pieno = if (frontWash) FRONT_NEG_INK else FRONT_INK
                                 )
                             }
                     )
@@ -1230,9 +1336,37 @@ fun GridScreen(
                      * la fascia non scrive il titolo alla misura in cui lo troverà in cima, o la
                      * traslazione non avrebbe niente da raccontare.
                      */
+                    /*
+                     * ⚠️⚠️ **COL CHIP 'Titolo graziato' DIVENTA QUELLO DELLA VARIANTE 7, DALLA
+                     * `1.83`**: grande e col carattere graziato, con sopra una cartella **senza
+                     * logo** in piccolo e color accento (la sua specifica, registrata nel brief).
+                     * La 7 al posto dell'icona metteva un filetto: la cartella piccola è la sua
+                     * variazione, ed è anche quello che tiene la fascia riconoscibile quando la
+                     * grande sparisce.
+                     * ⚠️ **Il carattere graziato è quello di SISTEMA** ([FontFamily.Serif]) e non
+                     * un font portato nell'APK: un carattere in più pesa e va scelto, e qui la
+                     * richiesta è la **forma** delle grazie, non una tipografia nuova.
+                     */
+                    if (frontSerif) {
+                        Icon(
+                            imageVector = Icons.Default.Folder,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .size(FRONT_SERIF_MARK)
+                                .graphicsLayer { alpha = quanto() }
+                        )
+                        Spacer(Modifier.height(FRONT_COUNT_GAP))
+                    }
                     Text(
                         text = title,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = if (frontSerif) {
+                            MaterialTheme.typography.headlineMedium.copy(
+                                fontFamily = FontFamily.Serif
+                            )
+                        } else {
+                            MaterialTheme.typography.titleMedium
+                        },
                         textAlign = TextAlign.Center,
                         maxLines = FRONT_TITLE_LINES,
                         overflow = TextOverflow.Ellipsis,
@@ -1266,7 +1400,62 @@ fun GridScreen(
                             modifier = Modifier.graphicsLayer { alpha = quanto() }
                         )
                     }
+                    /*
+                     * ⚠️⚠️ **LA FILA MISTA DELLA VARIANTE 10: DUE DATI E UN COMANDO** (scelta
+                     * sua), e i due vestiti sono diversi apposta: il mockup lo dichiara (*un dato
+                     * e un comando che si somigliano sono la trappola vera di una fila mista*).
+                     * ⚠️⚠️ **I DUE TOCCHI LUNGHI SONO IL PUNTO A DEL SUO CAMPO LIBERO** (giro
+                     * della `1.82`: *tap lungo sulla pastiglia dello spazio occupato → seleziona
+                     * tutto; tap lungo sulla pastiglia del numero dei video → seleziona tutti i
+                     * video*). Sono scorciatoie su un dato, quindi il tocco breve non fa niente:
+                     * un dato che al primo tocco seleziona duecento file sarebbe una sorpresa.
+                     * ⚠️ **Una pastiglia senza numero non compare**: una cartella appena aperta
+                     * non è ancora pesata e una cartella di sole immagini non ha video, e in tutti
+                     * e due i casi uno zero non direbbe niente a nessuno.
+                     * ⚠️ **In selezione la fila resta**, perché 'Seleziona tutto' serve proprio
+                     * là: è la stessa scorciatoia del riquadro, a portata di pollice.
+                     */
+                    val pesa = frontFacts && facts.bytes > 0L
+                    val conta = frontFacts && facts.clips > 0
+                    if (pesa || conta || frontPickAll) {
+                        Spacer(Modifier.height(FRONT_CHIP_GAP))
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier
+                                .padding(horizontal = 24.dp)
+                                .graphicsLayer { alpha = quanto() }
+                        ) {
+                            if (pesa) {
+                                FrontFact(
+                                    text = Formatter.formatShortFileSize(context, facts.bytes),
+                                    holdLabel = stringResource(R.string.pick_all),
+                                    onHold = { chosen = items.orEmpty().toSet() }
+                                )
+                            }
+                            if (conta) {
+                                FrontFact(
+                                    text = pluralStringResource(
+                                        R.plurals.folders_clips,
+                                        facts.clips,
+                                        facts.clips
+                                    ),
+                                    holdLabel = stringResource(R.string.pick_clips),
+                                    onHold = {
+                                        chosen = items.orEmpty().filter { Videos.isVideo(it) }.toSet()
+                                    }
+                                )
+                            }
+                            if (frontPickAll) {
+                                FrontCommand(
+                                    text = stringResource(R.string.pick_all),
+                                    onTap = { chosen = items.orEmpty().toSet() }
+                                )
+                            }
+                        }
+                    }
                 }
+            }
             }
         }
 
@@ -1500,195 +1689,6 @@ fun GridScreen(
                 }
             }
         }
-
-            /*
-             * ⚠️⚠️ **IL TASTINO RESTA SOLO NEL CESTINO SENZA SELEZIONE, dalla 0.94.**
-             * Con una selezione in corso le operazioni stanno nella bottomsheet qui
-             * sotto, e il tastino è sparito perché non aveva più niente da fare (vedi
-             * [PickSheet]). Qui invece porta le tre voci che riguardano il cestino
-             * **intero**, che non sono operazioni su una selezione e non hanno un altro
-             * posto dove stare.
-             */
-            /*
-             * ⚠️⚠️ **E DALLA 1.44 SI FA DA PARTE ANCHE PER LA NOTIFICA**: il gesto Indietro
-             * azzera la selezione, quindi in quell'istante `picking` diventa falso e il
-             * tastino tornerebbe **proprio dove** compare la notifica, che è larga tutto lo
-             * schermo. Coprirebbe il tasto 'Annulla', cioè la sola cosa che quella notifica
-             * ha da offrire.
-             * ⚠️ **Riguarda il solo cestino**, come tutto questo tastino: in una cartella
-             * normale non c'è e la notifica ha il fondo tutto per sé.
-             */
-            /*
-             * ⚠️⚠️ **DALLA `1.82` IL TASTINO C'È ANCHE IN UNA CARTELLA NORMALE** (riscontro del
-             * giro della `1.81`, campo libero punto B: *il FAB deve vedersi in tutte le cartelle,
-             * non solo nella schermata home*). Fino alla `1.81` viveva nel solo cestino, e da
-             * dentro una cartella il cestino e le impostazioni si raggiungevano tornando indietro.
-             * ⚠️ **Le voci non sono le stesse**: nel cestino porta le tre che riguardano il
-             * cestino intero, in una cartella le due destinazioni che di qui non si raggiungono.
-             * A dirlo è [PickMenu], che riceve un blocco diverso.
-             * ⚠️ **Senza i due richiami non compare**, ed è il caso della griglia montata in una
-             * veste che non ha dove mandare (vedi i due parametri): un tastino che apre un menu
-             * vuoto è peggio di un tastino che non c'è.
-             */
-            FabPop(
-                visible = (bin || onSettings != null || onBin != null) &&
-                    !picking && cleared == null,
-                // ⚠️ Il lato è quello scelto nelle impostazioni: vedi `PadLook.hand`.
-                modifier = Modifier.align(fabSide()).padding(8.dp)
-            ) {
-                Box {
-                    /*
-                     * ⚠️⚠️ **IL MENU È SCRITTO PRIMA DEL TASTINO, e quest'ordine è la
-                     * funzione** (1.39): il tastino si stacca in una finestra sua per restare
-                     * sopra il velo (vedi `lifted` in [TapHoldFab]), e fra finestre dello
-                     * stesso tipo comanda l'ordine in cui sono state aggiunte, che è quello
-                     * della composizione. Scritto dopo, il menu coprirebbe il tastino invece
-                     * del contrario.
-                     * ⚠️ **Il menu non si sposta di un pixel**: il posizionatore legge il
-                     * bordo di sopra di questo riquadro, che è lo stesso qualunque sia
-                     * l'ordine dei figli.
-                     */
-                    PickMenu(menu = menu) {
-                        /*
-                         * ⚠️⚠️ **IN UNA CARTELLA IL MENU È UN ALTRO, DALLA `1.82`**: le tre
-                         * voci qui sotto riguardano il cestino intero e in una cartella non
-                         * vogliono dire niente. Quelle di una cartella sono le due destinazioni
-                         * che di qui non si raggiungono, cioè quello per cui lui ha chiesto il
-                         * tastino: *il FAB deve vedersi in tutte le cartelle*.
-                         * ⚠️ **Nello stesso ordine della schermata iniziale**: prima il cestino,
-                         * poi il filetto, poi le impostazioni. Chi ha imparato dove sta una voce
-                         * la ritrova, che è la ragione per cui questo menu passa dallo stesso
-                         * [MenuRow] e non da un elenco scritto a parte.
-                         */
-                        if (!bin) {
-                            onBin?.let { vaiAlCestino ->
-                                MenuRow(
-                                    text = stringResource(R.string.bin_title),
-                                    icon = Glyphs.Bin,
-                                    onTap = { menu.close(); vaiAlCestino() }
-                                )
-                            }
-                            onSettings?.let { vaiAlleImpostazioni ->
-                                if (onBin != null) HorizontalDivider()
-                                MenuRow(
-                                    text = stringResource(R.string.hub_settings),
-                                    icon = Icons.Default.Settings,
-                                    onTap = { menu.close(); vaiAlleImpostazioni() }
-                                )
-                            }
-                            return@PickMenu
-                        }
-                        /*
-                         * ⚠️⚠️ **L'ORDINE NON È CASUALE**: prima quella che rimette a
-                         * posto, poi quella che racconta, ultima quella che cancella per
-                         * sempre. Chi tocca al buio la prima voce di un menu non deve
-                         * poterci svuotare il cestino, e 'Ripristina tutto' come prima
-                         * voce è la richiesta dell'utente.
-                         * ⚠️ **Le due azioni si spengono sul cestino vuoto**, la
-                         * cronologia no: quelle non avrebbero niente su cui agire e
-                         * direbbero '0 fatti', mentre la cronologia ha senso proprio
-                         * quando il cestino è vuoto perché si è ripristinato tutto.
-                         */
-                        /*
-                         * ⚠️⚠️ **TRE `MenuRow` E NON PIÙ TRE `DropdownMenuItem`, dalla
-                         * `1.46`**: erano l'ultima fila di voci scritta con un componente
-                         * diverso da quello degli altri menu, e il prezzo del cambio è
-                         * dichiarato: il rientro di sinistra passa da 12 a 15dp, cioè le tre
-                         * voci si spostano di tre punti a destra. Quei tre punti esistono per
-                         * il glifo che sporge nel menu del visualizzatore, e portarli qui è
-                         * esattamente allineare i due menu fra loro.
-                         * ⚠️ **Il margine sopra e sotto lo mette la superficie**, quindi
-                         * `PICK_EDGE` non c'è più: era il terzo posto in cui viveva lo stesso
-                         * otto.
-                         */
-                        /*
-                         * ⚠️⚠️ **LA CRONOLOGIA STA IN CIMA, dalla 1.53, per sua richiesta**
-                         * (riscontro del giro della `1.51`, voce `icone-cestino`: *cambia
-                         * l'ordine delle voci portando 'Cronologia' in cima*). Le altre due
-                         * agiscono su tutto il contenuto, questa lo racconta: chi apre questo
-                         * menu senza sapere che cosa c'è dentro incontra prima la voce che
-                         * glielo dice, e le due che muovono i file dopo.
-                         * ⚠️ **È anche la sola sempre toccabile**: le altre due si spengono a
-                         * cestino vuoto, quindi in cima ci sarebbero due righe grigie e la sola
-                         * viva in fondo.
-                         */
-                        MenuRow(
-                            text = stringResource(R.string.bin_history),
-                            /*
-                             * ⚠️⚠️ **UN DISEGNO SUO, dalla `1.55`, e la sua terza scelta su
-                             * questa riga.** Nella `1.51` aveva preso il simbolo del riciclo
-                             * fra due proposte, perché `Icons.Default.History` diceva 'il
-                             * tempo' mentre qui conta quello che è **passato di qui**; poi lo
-                             * ha guardato in mano e lo ha ridisegnato (*pensavo che fosse un
-                             * miglioramento, ma non mi piaceva*). Il suo mette insieme le due
-                             * cose: il cassone e la freccia che torna indietro.
-                             */
-                            icon = Glyphs.BinHistory,
-                            onTap = { menu.close(); onHistory() }
-                        )
-                        MenuRow(
-                            text = stringResource(R.string.bin_restore_all),
-                            // ⚠️ **Lo stesso glifo del ripristino singolo, dalla `1.56`**, per
-                            // sua istruzione: il perché sta su [Glyphs.BinRestore].
-                            icon = Glyphs.BinRestore,
-                            enabled = filled,
-                            /*
-                             * ⚠️⚠️ **ADESSO CHIEDE, dalla 1.53, e la nota di prima diceva il
-                             * contrario** (richiesta dell'utente, giro della `1.51`:
-                             * *'Ripristina tutto' deve funzionare previa conferma*). Quella
-                             * nota diceva che il ripristino non chiede perché è reversibile,
-                             * e l'argomento resta vero per **una** immagine: rimette una cosa
-                             * dov'era, e la si rielimina con un tocco. Su **tutto** il cestino
-                             * no, e la differenza non è la reversibilità ma il **sapere dove
-                             * vanno**: i file tornano ognuno nella sua cartella d'origine, che
-                             * possono essere molte e non tutte in mente, quindi disfare a mano
-                             * vorrebbe dire ritrovarli uno per uno.
-                             * ⚠️ **Per questo il testo della conferma nomina la Cronologia**,
-                             * che è il posto in cui quelle destinazioni sono scritte: le parole
-                             * sono sue.
-                             */
-                            onTap = { menu.close(); restoringAll = true }
-                        )
-                        MenuRow(
-                            text = stringResource(R.string.bin_empty),
-                            icon = Icons.Default.DeleteForever,
-                            enabled = filled,
-                            danger = true,
-                            onTap = { menu.close(); emptying = true }
-                        )
-                    }
-                    PickFab(
-                        // ⚠️ I colori dell'icona dell'app, dalla `1.36`, come il tastino della
-                        // schermata iniziale: il perché per esteso sta là, e i due tastini sono
-                        // lo stesso oggetto in due schermate.
-                        container = colorResource(R.color.launcher_background),
-                        ink = colorResource(R.color.launcher_foreground),
-                        holdLabel = shortcutLabel,
-                        // ⚠️ **`visible` e non `wanted`**: il FAB deve restare staccato per tutta
-                        // l'uscita, o rientrerebbe nella finestra dell'app sotto il velo che se ne
-                        // sta andando. ⚠️ Dalla `1.67` `visible` copre anche quello: era `veiling`
-                        // finché la patina durava più del pannello.
-                        lifted = menu.visible,
-                        // ⚠️ **`wanted` e non `visible`**: il perché sta sul parametro
-                        // `pressed` di [TapHoldFab], ed è il riscontro del giro della `1.59`.
-                        pressed = menu.wanted,
-                        // ⚠️ **Apre e basta, dalla 1.06**: a menu aperto il tocco non
-                        // arriva più qui, perché lo consuma `MenuGuard` (in `Menus.kt`,
-                        // messo in scena da `AivTheme`). Un'alternanza qui riaprirebbe
-                        // il menu che quella guardia ha appena chiuso.
-                        // ⚠️⚠️ **IL RIMANDO ERA SBAGLIATO DUE VOLTE FINO ALLA `1.78`**:
-                        // nominava un `menuOpen` che non è mai esistito, e diceva 'in
-                        // fondo alla schermata', mentre dalla `1.70` quella guardia non
-                        // vive più qui dentro.
-                        // ⚠️ **E lo raggiunge ancora benché il FAB stia in una finestra
-                        // più alta**: quella finestra è trasparente al tocco apposta
-                        // (vedi `untouchable` in `ActionPad`).
-                        onTap = { menu.open() },
-                        onHold = { shortcut(); hintDone() }
-                    )
-                }
-            }
-
         }
     }
 
@@ -1728,6 +1728,234 @@ fun GridScreen(
          */
         if (front) {
             GroundFade(modifier = Modifier.align(Alignment.BottomCenter)) { aperto() }
+        }
+
+        /*
+         * ⚠️⚠️ **IL TASTINO STA DOPO LA SFUMATURA, DALLA `1.83`, E FINO ALLA `1.82` VIVEVA NELLA
+         * COLONNA** (riscontro del giro della `1.82`, voce `fab-cartella` approvata con una
+         * riserva: *deve stare SOPRA le sfumature*). In un `Box` l'ultimo figlio sta sopra,
+         * quindi dentro la colonna il tastino finiva **sotto** le due sfumature, che sono figlie
+         * della radice: al riposo non si vedeva, perché con il frontespizio aperto sono
+         * trasparenti, e scorrendo il tastino si velava insieme alle miniature.
+         * ⚠️ **La schermata iniziale ha sempre avuto quest'ordine**, e la sua nota lo dice da
+         * cinque versioni (*sta prima del tastino e non dopo*): questa era l'unica delle due a
+         * non seguirla, perché il suo tastino è nato nel cestino, dove la sfumatura non c'è.
+         * ⚠️ **La posizione sullo schermo non cambia di un pixel**: i tre rientri che la colonna
+         * gli dava adesso sono scritti sul suo modificatore, e sono gli stessi tre che
+         * [HintVeil] usa per illuminarlo.
+         */
+        /*
+         * ⚠️⚠️ **IL TASTINO RESTA SOLO NEL CESTINO SENZA SELEZIONE, dalla 0.94.**
+         * Con una selezione in corso le operazioni stanno nella bottomsheet qui
+         * sotto, e il tastino è sparito perché non aveva più niente da fare (vedi
+         * [PickSheet]). Qui invece porta le tre voci che riguardano il cestino
+         * **intero**, che non sono operazioni su una selezione e non hanno un altro
+         * posto dove stare.
+         */
+        /*
+         * ⚠️⚠️ **E DALLA 1.44 SI FA DA PARTE ANCHE PER LA NOTIFICA**: il gesto Indietro
+         * azzera la selezione, quindi in quell'istante `picking` diventa falso e il
+         * tastino tornerebbe **proprio dove** compare la notifica, che è larga tutto lo
+         * schermo. Coprirebbe il tasto 'Annulla', cioè la sola cosa che quella notifica
+         * ha da offrire.
+         * ⚠️ **Riguarda il solo cestino**, come tutto questo tastino: in una cartella
+         * normale non c'è e la notifica ha il fondo tutto per sé.
+         */
+        /*
+         * ⚠️⚠️ **DALLA `1.82` IL TASTINO C'È ANCHE IN UNA CARTELLA NORMALE** (riscontro del
+         * giro della `1.81`, campo libero punto B: *il FAB deve vedersi in tutte le cartelle,
+         * non solo nella schermata home*). Fino alla `1.81` viveva nel solo cestino, e da
+         * dentro una cartella il cestino e le impostazioni si raggiungevano tornando indietro.
+         * ⚠️ **Le voci non sono le stesse**: nel cestino porta le tre che riguardano il
+         * cestino intero, in una cartella le due destinazioni che di qui non si raggiungono.
+         * A dirlo è [PickMenu], che riceve un blocco diverso.
+         * ⚠️ **Senza i due richiami non compare**, ed è il caso della griglia montata in una
+         * veste che non ha dove mandare (vedi i due parametri): un tastino che apre un menu
+         * vuoto è peggio di un tastino che non c'è.
+         */
+        FabPop(
+            visible = (bin || onSettings != null || onBin != null || onSearchHere != null) &&
+                !picking && cleared == null,
+            // ⚠️ Il lato è quello scelto nelle impostazioni: vedi `PadLook.hand`.
+            // ⚠️ I tre rientri sono quelli che gli dava la colonna, e adesso se li mette da
+            // sé: quello di sistema, il margine della schermata e gli 8dp del tastino.
+            // Sono gli stessi che [HintVeil] riceve per illuminarlo, e restano scritti una
+            // volta sola per ognuno dei due.
+            modifier = Modifier
+                .align(fabSide())
+                .safeDrawingPadding()
+                .padding(horizontal = GRID_PAD_X, vertical = GRID_PAD_Y)
+                .padding(8.dp)
+        ) {
+            Box {
+                /*
+                 * ⚠️⚠️ **IL MENU È SCRITTO PRIMA DEL TASTINO, e quest'ordine è la
+                 * funzione** (1.39): il tastino si stacca in una finestra sua per restare
+                 * sopra il velo (vedi `lifted` in [TapHoldFab]), e fra finestre dello
+                 * stesso tipo comanda l'ordine in cui sono state aggiunte, che è quello
+                 * della composizione. Scritto dopo, il menu coprirebbe il tastino invece
+                 * del contrario.
+                 * ⚠️ **Il menu non si sposta di un pixel**: il posizionatore legge il
+                 * bordo di sopra di questo riquadro, che è lo stesso qualunque sia
+                 * l'ordine dei figli.
+                 */
+                PickMenu(menu = menu) {
+                    /*
+                     * ⚠️⚠️ **IN UNA CARTELLA IL MENU È UN ALTRO, DALLA `1.82`**: le tre
+                     * voci qui sotto riguardano il cestino intero e in una cartella non
+                     * vogliono dire niente. Quelle di una cartella sono le due destinazioni
+                     * che di qui non si raggiungono, cioè quello per cui lui ha chiesto il
+                     * tastino: *il FAB deve vedersi in tutte le cartelle*.
+                     * ⚠️ **Nello stesso ordine della schermata iniziale**: prima il cestino,
+                     * poi il filetto, poi le impostazioni. Chi ha imparato dove sta una voce
+                     * la ritrova, che è la ragione per cui questo menu passa dallo stesso
+                     * [MenuRow] e non da un elenco scritto a parte.
+                     */
+                    if (!bin) {
+                        /*
+                         * ⚠️⚠️ **'Cerca' STA IN CIMA, DALLA `1.83`, COME NELLA SCHERMATA
+                         * INIZIALE** (risposta a `d-fab-voci` del giro della `1.82`): là la sua
+                         * nota dice che *cercare è la domanda che si fa più spesso quando non si
+                         * sa già dove andare*, e in una cartella vale ancora di più, perché le
+                         * altre due voci portano **fuori** di qui mentre questa resta dentro.
+                         */
+                        onSearchHere?.let { cerca ->
+                            MenuRow(
+                                text = stringResource(R.string.hub_search),
+                                icon = Icons.Default.Search,
+                                onTap = { menu.close(); cerca() }
+                            )
+                        }
+                        onBin?.let { vaiAlCestino ->
+                            if (onSearchHere != null) HorizontalDivider()
+                            MenuRow(
+                                text = stringResource(R.string.bin_title),
+                                icon = Glyphs.Bin,
+                                onTap = { menu.close(); vaiAlCestino() }
+                            )
+                        }
+                        onSettings?.let { vaiAlleImpostazioni ->
+                            if (onBin != null) HorizontalDivider()
+                            MenuRow(
+                                text = stringResource(R.string.hub_settings),
+                                icon = Icons.Default.Settings,
+                                onTap = { menu.close(); vaiAlleImpostazioni() }
+                            )
+                        }
+                        return@PickMenu
+                    }
+                    /*
+                     * ⚠️⚠️ **L'ORDINE NON È CASUALE**: prima quella che rimette a
+                     * posto, poi quella che racconta, ultima quella che cancella per
+                     * sempre. Chi tocca al buio la prima voce di un menu non deve
+                     * poterci svuotare il cestino, e 'Ripristina tutto' come prima
+                     * voce è la richiesta dell'utente.
+                     * ⚠️ **Le due azioni si spengono sul cestino vuoto**, la
+                     * cronologia no: quelle non avrebbero niente su cui agire e
+                     * direbbero '0 fatti', mentre la cronologia ha senso proprio
+                     * quando il cestino è vuoto perché si è ripristinato tutto.
+                     */
+                    /*
+                     * ⚠️⚠️ **TRE `MenuRow` E NON PIÙ TRE `DropdownMenuItem`, dalla
+                     * `1.46`**: erano l'ultima fila di voci scritta con un componente
+                     * diverso da quello degli altri menu, e il prezzo del cambio è
+                     * dichiarato: il rientro di sinistra passa da 12 a 15dp, cioè le tre
+                     * voci si spostano di tre punti a destra. Quei tre punti esistono per
+                     * il glifo che sporge nel menu del visualizzatore, e portarli qui è
+                     * esattamente allineare i due menu fra loro.
+                     * ⚠️ **Il margine sopra e sotto lo mette la superficie**, quindi
+                     * `PICK_EDGE` non c'è più: era il terzo posto in cui viveva lo stesso
+                     * otto.
+                     */
+                    /*
+                     * ⚠️⚠️ **LA CRONOLOGIA STA IN CIMA, dalla 1.53, per sua richiesta**
+                     * (riscontro del giro della `1.51`, voce `icone-cestino`: *cambia
+                     * l'ordine delle voci portando 'Cronologia' in cima*). Le altre due
+                     * agiscono su tutto il contenuto, questa lo racconta: chi apre questo
+                     * menu senza sapere che cosa c'è dentro incontra prima la voce che
+                     * glielo dice, e le due che muovono i file dopo.
+                     * ⚠️ **È anche la sola sempre toccabile**: le altre due si spengono a
+                     * cestino vuoto, quindi in cima ci sarebbero due righe grigie e la sola
+                     * viva in fondo.
+                     */
+                    MenuRow(
+                        text = stringResource(R.string.bin_history),
+                        /*
+                         * ⚠️⚠️ **UN DISEGNO SUO, dalla `1.55`, e la sua terza scelta su
+                         * questa riga.** Nella `1.51` aveva preso il simbolo del riciclo
+                         * fra due proposte, perché `Icons.Default.History` diceva 'il
+                         * tempo' mentre qui conta quello che è **passato di qui**; poi lo
+                         * ha guardato in mano e lo ha ridisegnato (*pensavo che fosse un
+                         * miglioramento, ma non mi piaceva*). Il suo mette insieme le due
+                         * cose: il cassone e la freccia che torna indietro.
+                         */
+                        icon = Glyphs.BinHistory,
+                        onTap = { menu.close(); onHistory() }
+                    )
+                    MenuRow(
+                        text = stringResource(R.string.bin_restore_all),
+                        // ⚠️ **Lo stesso glifo del ripristino singolo, dalla `1.56`**, per
+                        // sua istruzione: il perché sta su [Glyphs.BinRestore].
+                        icon = Glyphs.BinRestore,
+                        enabled = filled,
+                        /*
+                         * ⚠️⚠️ **ADESSO CHIEDE, dalla 1.53, e la nota di prima diceva il
+                         * contrario** (richiesta dell'utente, giro della `1.51`:
+                         * *'Ripristina tutto' deve funzionare previa conferma*). Quella
+                         * nota diceva che il ripristino non chiede perché è reversibile,
+                         * e l'argomento resta vero per **una** immagine: rimette una cosa
+                         * dov'era, e la si rielimina con un tocco. Su **tutto** il cestino
+                         * no, e la differenza non è la reversibilità ma il **sapere dove
+                         * vanno**: i file tornano ognuno nella sua cartella d'origine, che
+                         * possono essere molte e non tutte in mente, quindi disfare a mano
+                         * vorrebbe dire ritrovarli uno per uno.
+                         * ⚠️ **Per questo il testo della conferma nomina la Cronologia**,
+                         * che è il posto in cui quelle destinazioni sono scritte: le parole
+                         * sono sue.
+                         */
+                        onTap = { menu.close(); restoringAll = true }
+                    )
+                    MenuRow(
+                        text = stringResource(R.string.bin_empty),
+                        icon = Icons.Default.DeleteForever,
+                        enabled = filled,
+                        danger = true,
+                        onTap = { menu.close(); emptying = true }
+                    )
+                }
+                PickFab(
+                    // ⚠️ I colori dell'icona dell'app, dalla `1.36`, come il tastino della
+                    // schermata iniziale: il perché per esteso è là, e i due tastini sono
+                    // lo stesso oggetto in due schermate.
+                    container = colorResource(R.color.launcher_background),
+                    ink = colorResource(R.color.launcher_foreground),
+                    holdLabel = shortcutLabel,
+                    // ⚠️ E dalla `1.83` anche lo stesso glifo, in una cartella: nel cestino
+                    // restano i tre puntini. Il perché è su [PickFab].
+                    mark = !bin,
+                    // ⚠️ **`visible` e non `wanted`**: il FAB deve restare staccato per tutta
+                    // l'uscita, o rientrerebbe nella finestra dell'app sotto il velo che se ne
+                    // sta andando. ⚠️ Dalla `1.67` `visible` copre anche quello: era `veiling`
+                    // finché la patina durava più del pannello.
+                    lifted = menu.visible,
+                    // ⚠️ **`wanted` e non `visible`**: il perché sta sul parametro
+                    // `pressed` di [TapHoldFab], ed è il riscontro del giro della `1.59`.
+                    pressed = menu.wanted,
+                    // ⚠️ **Apre e basta, dalla 1.06**: a menu aperto il tocco non
+                    // arriva più qui, perché lo consuma `MenuGuard` (in `Menus.kt`,
+                    // messo in scena da `AivTheme`). Un'alternanza qui riaprirebbe
+                    // il menu che quella guardia ha appena chiuso.
+                    // ⚠️⚠️ **IL RIMANDO ERA SBAGLIATO DUE VOLTE FINO ALLA `1.78`**:
+                    // nominava un `menuOpen` che non è mai esistito, e diceva 'in
+                    // fondo alla schermata', mentre dalla `1.70` quella guardia non
+                    // vive più qui dentro.
+                    // ⚠️ **E lo raggiunge ancora benché il FAB stia in una finestra
+                    // più alta**: quella finestra è trasparente al tocco apposta
+                    // (vedi `untouchable` in `ActionPad`).
+                    onTap = { menu.open() },
+                    onHold = { shortcut(); hintDone() }
+                )
+            }
         }
 
         PickSheet(
@@ -1827,7 +2055,7 @@ fun GridScreen(
                 // del tastino. Il perché sta in [HintVeil], sul parametro.
                 inset = Modifier
                     .safeDrawingPadding()
-                    .padding(horizontal = 8.dp, vertical = 12.dp)
+                    .padding(horizontal = GRID_PAD_X, vertical = GRID_PAD_Y)
                     .padding(8.dp),
                 onDone = hintDone
             ) {
@@ -1835,6 +2063,12 @@ fun GridScreen(
                     container = HINT_MARK,
                     ink = HINT_INK,
                     holdLabel = shortcutLabel,
+                    // ⚠️ **Lo stesso valore del tastino vero**, che è il mestiere di questa
+                    // copia: un velo che illuminasse un disegno diverso indicherebbe il tasto
+                    // sbagliato. Oggi questo velo compare solo nel cestino, quindi la condizione
+                    // è sempre falsa: scritta uguale, resta vera anche il giorno che un
+                    // onboarding nuovo comparisse in una cartella.
+                    mark = !bin,
                     onTap = { hintDone(); menu.open() },
                     onHold = { shortcut(); hintDone() }
                 )
@@ -1979,13 +2213,25 @@ private fun LazyGridState.itemIndexAt(at: Offset): Int? =
  *   misura, senza scale né ritocchi, o sarebbero due disegni che si somigliano invece dello
  *   stesso disegno. Adesso lo garantisce il fatto che il disegno è uno.
  *
+ * - ⚠️⚠️ **E IN UNA CARTELLA IL GLIFO È QUELLO DELL'APP, DALLA `1.83`** (riscontro del giro della
+ *   `1.82`, voce `fab-cartella`: *anche dentro le cartelle deve esserci il glifo dell'app:
+ *   l'altra icona sta solo nel cestino*). I tre puntini restano dove sono nati con la `1.55`,
+ *   cioè nel cestino, e in una cartella il tastino è lo stesso oggetto della schermata iniziale:
+ *   stessi colori dalla `1.36`, e adesso anche lo stesso marchio.
+ *   ⚠️ **A sceglierlo è un parametro e non il chiamante**, per la ragione che questa funzione
+ *   esiste: la copia illuminata sotto il velo deve portare **lo stesso** disegno del tastino
+ *   vero, e passandolo da fuori sarebbero di nuovo due decisioni che nessuno tiene insieme.
+ *
  * @param holdLabel la stringa del gesto lungo, che dipende dalla scorciatoia in vigore.
+ * @param mark se il glifo è il marchio dell'app invece dei tre puntini, cioè se questa griglia
+ *   non è il cestino.
  */
 @Composable
 private fun PickFab(
     container: Color,
     ink: Color,
     @StringRes holdLabel: Int,
+    mark: Boolean,
     onTap: () -> Unit,
     onHold: () -> Unit,
     lifted: Boolean = false,
@@ -2000,7 +2246,10 @@ private fun PickFab(
         pressed = pressed,
         onTap = onTap,
         onHold = onHold,
-        glyph = { Icon(imageVector = Icons.Default.MoreHoriz, contentDescription = it) }
+        glyph = {
+            if (mark) Marchio(it)
+            else Icon(imageVector = Icons.Default.MoreHoriz, contentDescription = it)
+        }
     )
 }
 
@@ -2637,6 +2886,87 @@ internal val EDGE_SPEED = 14.dp
 
 /** Tutti i riquadri sono la stessa cosa, e dirlo permette a Compose di riusarli. */
 private const val THUMB_KIND = "thumb"
+
+/**
+ * I rientri della schermata: quanto sta il contenuto dai bordi dell'area sicura.
+ *
+ * ⚠️⚠️ **ERANO SCRITTI IN TRE POSTI E DALLA `1.83` SONO DUE COSTANTI**: la colonna della
+ * schermata, il rientro con cui il velo dell'onboarding illumina il tastino, e il modificatore
+ * del tastino stesso. Adesso ne serve un quarto, la tinta del frontespizio, che deve **uscire**
+ * di esattamente quel tanto per arrivare ai bordi dello schermo: con i numeri copiati, il giorno
+ * che uno cambia la tinta lascerebbe una striscia chiara sui fianchi.
+ */
+private val GRID_PAD_X = 8.dp
+private val GRID_PAD_Y = 12.dp
+
+/**
+ * Quanto è grande la cartella senza logo sopra il titolo graziato.
+ *
+ * ⚠️ **Piccola apposta**: là sotto il nome è grande, e due elementi che competono darebbero una
+ * fascia con due soggetti. Nella variante 7 al suo posto c'era un filetto, che è ancora meno.
+ */
+private val FRONT_SERIF_MARK = 20.dp
+
+/**
+ * Una pastiglia di **dato** nel frontespizio: il peso della cartella, o quanti video ha.
+ *
+ * ⚠️⚠️ **IL TOCCO LUNGO È UNA SCORCIATOIA E IL TOCCO BREVE NON FA NIENTE** (punto A del campo
+ * libero del giro della `1.82`), e la scelta è dichiarata: questi sono **dati**, e un dato che al
+ * primo tocco seleziona duecento file sarebbe una sorpresa. La vibrazione è quella di ogni tocco
+ * lungo dell'app, ed è il solo segno immediato che il gesto è passato.
+ * ⚠️ **Il gesto esiste anche per chi non vede la pastiglia**: `onLongClick` semantico porta
+ * l'etichetta, quindi un lettore di schermo lo annuncia e lo può eseguire. Senza, sarebbe una
+ * funzione riservata a chi sa già che c'è.
+ * ⚠️ **Il vestito è quello della variante 4 del mockup**: contorno, fondo della superficie,
+ * inchiostro smorzato. Un dato non è un comando, e qui si vede.
+ */
+@Composable
+private fun FrontFact(text: String, holdLabel: String, onHold: () -> Unit) {
+    val haptics = LocalHapticFeedback.current
+    val tieni = {
+        haptics.performHapticFeedback(HOLD_BUZZ)
+        onHold()
+    }
+    Text(
+        text = text,
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        maxLines = 1,
+        modifier = Modifier
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, MaterialTheme.colorScheme.surfaceVariant, CircleShape)
+            .semantics { onLongClick(label = holdLabel) { tieni(); true } }
+            .pointerInput(text) { detectTapGestures(onLongPress = { tieni() }) }
+            .padding(horizontal = 8.dp, vertical = 3.dp)
+    )
+}
+
+/**
+ * La pastiglia **comando** del frontespizio: 'Seleziona tutto'.
+ *
+ * ⚠️⚠️ **NON HA IL VESTITO DEI DATI, ED È LA CLAUSOLA DELLA VARIANTE 10**: *un dato e un comando
+ * che si somigliano sono la trappola vera di una fila mista*. Qui il fondo è pieno e scuro e
+ * l'inchiostro è quello della superficie, cioè il rovescio esatto delle due accanto.
+ * ⚠️ **Il colore è `onPrimaryContainer` e non l'accento**: sopra una fascia già tinta d'accento
+ * una pastiglia d'accento sparirebbe dentro il fondo, e il mockup lo misura (il comando stacca di
+ * 6,9 contro l'1,9 dei dati).
+ */
+@Composable
+private fun FrontCommand(text: String, onTap: () -> Unit) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.labelSmall,
+        fontWeight = FontWeight.Medium,
+        color = MaterialTheme.colorScheme.surface,
+        maxLines = 1,
+        modifier = Modifier
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.onPrimaryContainer)
+            .clickable(onClick = onTap)
+            .padding(horizontal = 10.dp, vertical = 3.dp)
+    )
+}
 
 /**
  * La comparsa del FAB del cestino.

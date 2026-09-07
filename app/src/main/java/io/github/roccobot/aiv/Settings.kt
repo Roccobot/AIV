@@ -515,6 +515,43 @@ data class Settings(
      */
     val gridNames: Boolean = false,
     /**
+     * Se il frontespizio di una cartella porta la **sfumatura** dell'accento.
+     *
+     * ⚠️⚠️ **È LA VARIANTE 10 DEL MOCKUP, SCELTA DA LUI** (risposta a `d-frontespizio` del giro
+     * della `1.81`): la tinta parte piena sotto la barra di sistema e si spegne **una riga di
+     * miniature più in basso** del frontespizio, cioè scavalca il bordo della fascia invece di
+     * tagliarla di netto. Con lei l'icona della cartella passa in negativo.
+     * ⚠️ **Accesa di fabbrica, e la decisione registrata dice due cose**: il titolo della voce nel
+     * brief è *variante 10 di fabbrica*, e l'elenco dei chip dice *gli ultimi due accesi di
+     * fabbrica*, cioè [frontFacts] e [frontPickAll]. Senza la sfumatura la 10 non è la 10, quindi
+     * qui vince il titolo; è un tocco per spegnerla, e la voce di collaudo lo chiede.
+     */
+    val frontWash: Boolean = true,
+    /**
+     * Se il nome della cartella nel frontespizio è scritto **grande e col carattere graziato**.
+     *
+     * ⚠️ **Viene dalla variante 7 del mockup** ('Solo il nome'), che nella 10 non c'è: la
+     * combinazione è la sua, e questo chip esiste perché voleva poterla provare.
+     * ⚠️ **Spento di fabbrica**: la 10 porta il titolo di sempre, e un valore di fabbrica non si
+     * sceglie per far vedere una funzione.
+     */
+    val frontSerif: Boolean = false,
+    /**
+     * Se il frontespizio porta le pastiglie del **peso** e del **numero di video**.
+     *
+     * ⚠️ **Sono due dati che oggi non si sanno senza aprire i file**, e vengono dalla variante 4.
+     * Il conto si fa una volta per cartella (vedi `Folder.weigh`) e non per miniatura.
+     */
+    val frontFacts: Boolean = true,
+    /**
+     * Se il frontespizio porta la pastiglia **'Seleziona tutto'**.
+     *
+     * ⚠️ **È un comando in mezzo a due dati**, e per questo ha un vestito diverso: la variante 10
+     * lo dichiara (*un dato e un comando che si somigliano sono la trappola vera di una fila
+     * mista*).
+     */
+    val frontPickAll: Boolean = true,
+    /**
      * Se la finestra di **rinomina** porta il tasto che cambia l'estensione.
      *
      * ⚠️⚠️ **SPENTA DI FABBRICA, ED È UNA GRIGLIA DI SICUREZZA CHIESTA DALL'UTENTE**
@@ -835,6 +872,10 @@ object SettingsStore {
     private val IMAGES_ONLY = booleanPreferencesKey("images-only")
     private val CLIP_AUTOPLAY = booleanPreferencesKey("clip-autoplay")
     private val GRID_NAMES = booleanPreferencesKey("grid-names")
+    private val FRONT_WASH = booleanPreferencesKey("front-wash")
+    private val FRONT_SERIF = booleanPreferencesKey("front-serif")
+    private val FRONT_FACTS = booleanPreferencesKey("front-facts")
+    private val FRONT_PICK_ALL = booleanPreferencesKey("front-pick-all")
     // ⚠️ La chiave resta quella della `1.36` mentre il campo si è rinominato in `extRename`:
     // era già 'estensione in Rinomina', quindi chi l'aveva accesa se la ritrova accesa.
     private val EXT_EDIT = booleanPreferencesKey("ext-edit")
@@ -928,6 +969,13 @@ object SettingsStore {
             imagesOnly = p[IMAGES_ONLY] ?: false,
             clipAutoplay = p[CLIP_AUTOPLAY] ?: false,
             gridNames = p[GRID_NAMES] ?: false,
+            // ⚠️ I quattro valori di fabbrica sono scritti anche qui e non solo sui campi: il
+            // perché è in `AIV/CLAUDE.md`, § '⚙️ Dove va un'impostazione, e chi la deve
+            // trovare' (un'app accesa al primo avvio e spenta dopo il primo salvataggio).
+            frontWash = p[FRONT_WASH] ?: true,
+            frontSerif = p[FRONT_SERIF] ?: false,
+            frontFacts = p[FRONT_FACTS] ?: true,
+            frontPickAll = p[FRONT_PICK_ALL] ?: true,
             extRename = p[EXT_EDIT] ?: false,
             extDownload = p[EXT_DOWNLOAD] ?: false,
             gpuThumbs = p[GPU_THUMBS] ?: false,
@@ -1015,6 +1063,10 @@ object SettingsStore {
             p[IMAGES_ONLY] = settings.imagesOnly
             p[CLIP_AUTOPLAY] = settings.clipAutoplay
             p[GRID_NAMES] = settings.gridNames
+            p[FRONT_WASH] = settings.frontWash
+            p[FRONT_SERIF] = settings.frontSerif
+            p[FRONT_FACTS] = settings.frontFacts
+            p[FRONT_PICK_ALL] = settings.frontPickAll
             p[EXT_EDIT] = settings.extRename
             p[EXT_DOWNLOAD] = settings.extDownload
             p[GPU_THUMBS] = settings.gpuThumbs

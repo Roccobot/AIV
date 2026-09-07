@@ -86,6 +86,11 @@
     <string name="settings_depth_blur">Desenfoque</string>
     <string name="settings_depth_shadow">Sombra</string>
     <string name="settings_depth_none">Nada</string>
+    <string name="settings_front">Portada de la carpeta</string>
+    <string name="settings_front_desc">Lo que muestra la franja superior de una carpeta, encima de las miniaturas.</string>
+    <string name="settings_front_wash">Degradado</string>
+    <string name="settings_front_serif">Título con serifa</string>
+    <string name="settings_front_facts">Info</string>
     <string name="settings_folder_columns">Columnas en las cuadrículas</string>
     <string name="settings_folder_columns_desc">Cuántas columnas muestran la cuadrícula de carpetas y la de imágenes. Más columnas caben más cosas en pantalla y encogen cada celda. Con cuatro, el nombre de la carpeta suele quedar cortado.</string>
     <string name="settings_folder_count">Contador de elementos bajo las carpetas en vista de cuadrícula</string>
@@ -162,6 +167,7 @@
     <string name="pick_list">Lista</string>
     <string name="pick_invert">Invertir</string>
     <string name="pick_all_short">Todo</string>
+    <string name="pick_clips">Seleccionar vídeos</string>
     <string name="pick_none">Ninguno</string>
     <string name="filter_title">Filtro</string>
     <string name="filter_all">Mostrar todo</string>

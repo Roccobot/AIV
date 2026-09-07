@@ -58,31 +58,71 @@ import androidx.compose.ui.unit.dp
  */
 object Undo {
     /**
-     * Che cosa l'ultima eliminazione ha messo nel cestino, e che si può ancora riportare
-     * indietro. Vuoto vuol dire che non c'è niente da offrire.
+     * Che cosa si può disfare adesso, e come.
      *
-     * ⚠️ **Gli indirizzi sono quelli NEL CESTINO e non quelli d'origine**: `Bin.restore` cerca
-     * la riga d'archivio per il nome del file che trova là dentro, e i nomi d'origine possono
-     * essere cambiati per non pestarsi i piedi (vedi `FileTree.freeName`).
+     * ⚠️⚠️ **DA UN ELENCO DI INDIRIZZI A UN TIPO, DALLA `1.83`** (campo libero del giro della
+     * `1.82`, punto B: *aggiungi degli 'Annulla' temporizzati (avvisi in basso) anche per le
+     * operazioni di copia e spostamento*). Fino alla `1.82` qui c'era la sola lista dei file
+     * finiti nel cestino, perché l'eliminazione era l'unica cosa che si potesse disfare: adesso
+     * le operazioni sono tre e ognuna torna indietro in un modo suo, quindi l'offerta deve dire
+     * **che cosa** è successo e non solo su quali file.
+     * ⚠️ **Il tipo di operazione serve anche alla frase**: la notifica scrive il plurale di
+     * [FileKind.done], che esiste già in ventotto lingue per tutte e tre.
      */
-    var offerta by mutableStateOf<List<Uri>>(emptyList())
+    sealed interface Offer {
+        /** Che operazione è stata fatta: decide la frase e il modo di tornare indietro. */
+        val kind: FileKind
+
+        /** Su quanti file, cioè il numero che finisce nella frase. */
+        val count: Int
+
+        /**
+         * Un'eliminazione col cestino acceso: i file sono nel cestino e da lì si ripristinano.
+         *
+         * ⚠️ **Gli indirizzi sono quelli NEL CESTINO e non quelli d'origine**: `Bin.restore`
+         * cerca la riga d'archivio per il nome del file che trova là dentro, e i nomi d'origine
+         * possono essere cambiati per non pestarsi i piedi (vedi `FileTree.freeName`).
+         */
+        data class Trashed(val landed: List<Uri>) : Offer {
+            override val kind = FileKind.TRASH
+            override val count = landed.size
+        }
+
+        /**
+         * Una copia o uno spostamento appena fatti, che si disfano sui file.
+         *
+         * ⚠️ **I passi li produce l'operazione stessa** (`FileTree.Outcome.undo`), e a eseguirli
+         * al contrario è `FileTree.revert`: qui dentro non c'è nessuna logica di file, perché
+         * questo oggetto vive quanto il processo e non deve sapere niente del disco.
+         */
+        data class Files(
+            override val kind: FileKind,
+            val steps: List<FileTree.Undoable>
+        ) : Offer {
+            override val count = steps.size
+        }
+    }
+
+    /** Che cosa si può disfare adesso, e `null` quando non c'è niente da offrire. */
+    var offerta by mutableStateOf<Offer?>(null)
         private set
 
     /**
-     * Un'eliminazione è appena andata a buon fine: si può disfare.
+     * Un'operazione è appena andata a buon fine: si può disfare.
      *
-     * ⚠️ **Un elenco vuoto non apre nessuna offerta**: se non è finito niente nel cestino non
-     * c'è niente da rimettere a posto, e una notifica con un 'Annulla' che non fa nulla è
-     * peggio di nessuna notifica.
+     * ⚠️ **Un'offerta vuota non apre niente**: se non è stato toccato nessun file non c'è niente
+     * da rimettere a posto, e una notifica con un 'Annulla' che non fa nulla è peggio di nessuna
+     * notifica. La prova vive qui e non nei tre chiamanti, che altrimenti la scriverebbero in tre
+     * modi.
      */
-    fun offer(landed: List<Uri>) {
-        if (landed.isEmpty()) return
-        offerta = landed
+    fun offer(what: Offer) {
+        if (what.count == 0) return
+        offerta = what
     }
 
     /** L'offerta è scaduta, o è stata accettata. */
     fun clear() {
-        offerta = emptyList()
+        offerta = null
     }
 }
 

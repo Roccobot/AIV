@@ -214,6 +214,14 @@
     <string name="settings_depth_shadow">Shadow</string>
     <string name="settings_depth_none">None</string>
 
+    <!-- The front page is the band at the top of a folder, with the folder icon and its
+         name. These four chips pick what goes in it; they are independent. -->
+    <string name="settings_front">Folder front page</string>
+    <string name="settings_front_desc">What the band at the top of a folder shows, above the thumbnails.</string>
+    <string name="settings_front_wash">Gradient</string>
+    <string name="settings_front_serif">Serif title</string>
+    <string name="settings_front_facts">Info</string>
+
     <string name="settings_folder_columns">Columns in the grids</string>
     <string name="settings_folder_columns_desc">How many columns the folder grid and the picture grid show. More columns fit more on screen and shrink each tile. At four the folder name under it is usually cut short.</string>
     <string name="settings_folder_count">Item counter under folders in grid view</string>
@@ -400,6 +408,8 @@
     <string name="pick_list">List</string>
     <string name="pick_invert">Invert</string>
     <string name="pick_all_short">All</string>
+    <!-- The long-press shortcut on the video count pill of a folder front page. -->
+    <string name="pick_clips">Select videos</string>
     <string name="pick_none">None</string>
     <string name="filter_title">Filter</string>
     <string name="filter_all">Show everything</string>

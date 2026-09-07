@@ -86,6 +86,11 @@
     <string name="settings_depth_blur">Розмиття</string>
     <string name="settings_depth_shadow">Тінь</string>
     <string name="settings_depth_none">Нічого</string>
+    <string name="settings_front">Заголовок папки</string>
+    <string name="settings_front_desc">Що показує смуга вгорі папки, над мініатюрами.</string>
+    <string name="settings_front_wash">Градієнт</string>
+    <string name="settings_front_serif">Заголовок із засічками</string>
+    <string name="settings_front_facts">Відомості</string>
     <string name="settings_folder_columns">Стовпці в сітках</string>
     <string name="settings_folder_columns_desc">Скільки стовпців показують сітка тек і сітка зображень. Більше стовпців вміщує більше на екрані та зменшує кожну плитку. При чотирьох назву теки зазвичай обрізає.</string>
     <string name="settings_folder_count">Лічильник елементів під теками в режимі сітки</string>
@@ -162,6 +167,7 @@
     <string name="pick_list">Список</string>
     <string name="pick_invert">Обернути</string>
     <string name="pick_all_short">Усе</string>
+    <string name="pick_clips">Вибрати відео</string>
     <string name="pick_none">Нічого</string>
     <string name="filter_title">Фільтр</string>
     <string name="filter_all">Показувати все</string>

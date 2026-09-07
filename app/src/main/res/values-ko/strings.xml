@@ -86,6 +86,11 @@
     <string name="settings_depth_blur">흐리게</string>
     <string name="settings_depth_shadow">그림자</string>
     <string name="settings_depth_none">없음</string>
+    <string name="settings_front">폴더 표지</string>
+    <string name="settings_front_desc">미리보기 위에 있는 폴더 상단 영역에 표시할 내용입니다.</string>
+    <string name="settings_front_wash">그러데이션</string>
+    <string name="settings_front_serif">세리프 제목</string>
+    <string name="settings_front_facts">정보</string>
     <string name="settings_folder_columns">격자의 열 수</string>
     <string name="settings_folder_columns_desc">폴더 격자와 이미지 격자가 보여줄 열 수입니다. 열이 많을수록 화면에 더 많이 들어가고 각 칸은 작아집니다. 네 열에서는 폴더 이름이 대개 잘립니다.</string>
     <string name="settings_folder_count">격자 보기에서 폴더 아래 항목 개수 표시</string>
@@ -162,6 +167,7 @@
     <string name="pick_list">목록</string>
     <string name="pick_invert">반전</string>
     <string name="pick_all_short">전체</string>
+    <string name="pick_clips">동영상 선택</string>
     <string name="pick_none">없음</string>
     <string name="filter_title">필터</string>
     <string name="filter_all">모두 보기</string>

@@ -86,6 +86,11 @@
     <string name="settings_depth_blur">Vervaging</string>
     <string name="settings_depth_shadow">Schaduw</string>
     <string name="settings_depth_none">Niets</string>
+    <string name="settings_front">Voorblad van de map</string>
+    <string name="settings_front_desc">Wat de balk boven in een map laat zien, boven de miniaturen.</string>
+    <string name="settings_front_wash">Verloop</string>
+    <string name="settings_front_serif">Titel met schreef</string>
+    <string name="settings_front_facts">Info</string>
     <string name="settings_folder_columns">Kolommen in de rasters</string>
     <string name="settings_folder_columns_desc">Hoeveel kolommen het mappenraster en het afbeeldingsraster tonen. Meer kolommen passen meer op het scherm en maken elke tegel kleiner. Bij vier wordt de mapnaam meestal afgekapt.</string>
     <string name="settings_folder_count">Teller van de items onder de mappen in rasterweergave</string>
@@ -162,6 +167,7 @@
     <string name="pick_list">Lijst</string>
     <string name="pick_invert">Omkeren</string>
     <string name="pick_all_short">Alles</string>
+    <string name="pick_clips">Video\'s selecteren</string>
     <string name="pick_none">Geen</string>
     <string name="filter_title">Filter</string>
     <string name="filter_all">Alles tonen</string>

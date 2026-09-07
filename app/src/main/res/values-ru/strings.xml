@@ -86,6 +86,11 @@
     <string name="settings_depth_blur">Размытие</string>
     <string name="settings_depth_shadow">Тень</string>
     <string name="settings_depth_none">Ничего</string>
+    <string name="settings_front">Заголовок папки</string>
+    <string name="settings_front_desc">Что показывает полоса вверху папки, над миниатюрами.</string>
+    <string name="settings_front_wash">Градиент</string>
+    <string name="settings_front_serif">Заголовок с засечками</string>
+    <string name="settings_front_facts">Сведения</string>
     <string name="settings_folder_columns">Столбцы в сетках</string>
     <string name="settings_folder_columns_desc">Сколько столбцов показывают сетка папок и сетка изображений. Больше столбцов помещает больше на экране и уменьшает каждую плитку. При четырёх имя папки обычно обрезается.</string>
     <string name="settings_folder_count">Счётчик элементов под папками в режиме сетки</string>
@@ -162,6 +167,7 @@
     <string name="pick_list">Список</string>
     <string name="pick_invert">Обратить</string>
     <string name="pick_all_short">Все</string>
+    <string name="pick_clips">Выбрать видео</string>
     <string name="pick_none">Ничего</string>
     <string name="filter_title">Фильтр</string>
     <string name="filter_all">Показывать всё</string>

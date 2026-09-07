@@ -86,6 +86,11 @@
     <string name="settings_depth_blur">เบลอ</string>
     <string name="settings_depth_shadow">เงา</string>
     <string name="settings_depth_none">ไม่มี</string>
+    <string name="settings_front">หน้าปกโฟลเดอร์</string>
+    <string name="settings_front_desc">สิ่งที่แถบด้านบนของโฟลเดอร์แสดงเหนือภาพขนาดย่อ</string>
+    <string name="settings_front_wash">ไล่ระดับสี</string>
+    <string name="settings_front_serif">หัวเรื่องแบบมีเชิง</string>
+    <string name="settings_front_facts">ข้อมูล</string>
     <string name="settings_folder_columns">จำนวนคอลัมน์ในตาราง</string>
     <string name="settings_folder_columns_desc">ตารางโฟลเดอร์และตารางภาพแสดงกี่คอลัมน์ คอลัมน์มากขึ้นทำให้แสดงได้มากขึ้นบนหน้าจอและแต่ละช่องเล็กลง ที่สี่คอลัมน์ชื่อโฟลเดอร์มักถูกตัด</string>
     <string name="settings_folder_count">ตัวนับรายการใต้โฟลเดอร์ในมุมมองตาราง</string>
@@ -162,6 +167,7 @@
     <string name="pick_list">รายชื่อ</string>
     <string name="pick_invert">สลับ</string>
     <string name="pick_all_short">ทั้งหมด</string>
+    <string name="pick_clips">เลือกวิดีโอ</string>
     <string name="pick_none">ไม่เลือก</string>
     <string name="filter_title">ตัวกรอง</string>
     <string name="filter_all">แสดงทั้งหมด</string>

@@ -155,6 +155,11 @@
     <string name="settings_depth_blur">Sfocatura</string>
     <string name="settings_depth_shadow">Ombreggiatura</string>
     <string name="settings_depth_none">Niente</string>
+    <string name="settings_front">Frontespizio delle cartelle</string>
+    <string name="settings_front_desc">Che cosa mostra la fascia in cima a una cartella, sopra le miniature.</string>
+    <string name="settings_front_wash">Gradiente</string>
+    <string name="settings_front_serif">Titolo graziato</string>
+    <string name="settings_front_facts">Info</string>
 
     <string name="settings_folder_columns">Colonne delle griglie</string>
     <string name="settings_folder_columns_desc">Quante colonne mostrano la griglia delle cartelle e quella delle immagini. Più colonne fanno stare più cose sullo schermo e rimpiccioliscono ogni riquadro. A quattro il nome della cartella viene quasi sempre troncato.</string>
@@ -247,6 +252,7 @@
     <string name="pick_list">Lista</string>
     <string name="pick_invert">Inverti</string>
     <string name="pick_all_short">Tutti</string>
+    <string name="pick_clips">Seleziona i video</string>
     <string name="pick_none">Nessuno</string>
     <string name="filter_title">Filtro</string>
     <string name="filter_all">Mostra tutto</string>

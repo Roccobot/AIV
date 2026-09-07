@@ -86,6 +86,11 @@
     <string name="settings_depth_blur">بلر</string>
     <string name="settings_depth_shadow">سایہ</string>
     <string name="settings_depth_none">کچھ نہیں</string>
+    <string name="settings_front">فولڈر کا سرورق</string>
+    <string name="settings_front_desc">تھمب نیلز کے اوپر، فولڈر کی اوپری پٹی میں کیا دکھایا جائے۔</string>
+    <string name="settings_front_wash">گریڈینٹ</string>
+    <string name="settings_front_serif">سیرف عنوان</string>
+    <string name="settings_front_facts">معلومات</string>
     <string name="settings_folder_columns">گرڈز کے کالم</string>
     <string name="settings_folder_columns_desc">فولڈر گرڈ اور تصویری گرڈ کتنے کالم دکھائیں۔ زیادہ کالم سکرین پر زیادہ چیزیں سماتے ہیں اور ہر خانہ چھوٹا کر دیتے ہیں۔ چار پر فولڈر کا نام عموما کٹ جاتا ہے۔</string>
     <string name="settings_folder_count">گرڈ منظر میں فولڈروں کے نیچے اشیا کا شمار کنندہ</string>
@@ -162,6 +167,7 @@
     <string name="pick_list">فہرست</string>
     <string name="pick_invert">الٹیں</string>
     <string name="pick_all_short">سب</string>
+    <string name="pick_clips">ویڈیوز منتخب کریں</string>
     <string name="pick_none">کوئی نہیں</string>
     <string name="filter_title">فلٹر</string>
     <string name="filter_all">سب دکھائیں</string>

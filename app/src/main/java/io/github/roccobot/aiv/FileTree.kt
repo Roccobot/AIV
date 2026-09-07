@@ -115,7 +115,9 @@ object FileTree {
                 if (ok) done++ else failed++
             }
             scan(context, written)
-            Outcome(done, failed)
+            // ⚠️ Quello che si è scritto è anche quello che si disfa: la copia si annulla
+            // cancellando, e l'originale non si è mosso.
+            Outcome(done, failed, written.map { Undoable(made = it) })
         }
 
     /**
@@ -141,6 +143,10 @@ object FileTree {
         withContext(Dispatchers.IO + NonCancellable) {
             var done = 0
             var failed = 0
+            // ⚠️ I passi da disfare si sommano come i conti: un duplicato è una copia, e
+            // dimenticarli qui darebbe un'operazione che non si annulla senza che nessuno lo
+            // dica.
+            val undo = ArrayList<Undoable>(uris.size)
             for (uri in uris) {
                 val here = fileOf(context, uri)?.parentFile
                 if (here == null) {
@@ -150,8 +156,9 @@ object FileTree {
                 val out = copy(context, listOf(uri), here)
                 done += out.done
                 failed += out.failed
+                undo += out.undo
             }
-            Outcome(done, failed)
+            Outcome(done, failed, undo)
         }
 
     /**
@@ -174,6 +181,9 @@ object FileTree {
             var done = 0
             var failed = 0
             val touched = ArrayList<String>(uris.size * 2)
+            // ⚠️ Chi è tornato indietro **non** ha un passo da disfare: quello che resta dov'era
+            // (lo spostamento dentro la cartella in cui si è già) non ha toccato niente.
+            val passi = ArrayList<Undoable>(uris.size)
             for (uri in uris) {
                 val from = fileOf(context, uri)
                 if (from == null) {
@@ -190,12 +200,13 @@ object FileTree {
                     done++
                     touched += from.absolutePath
                     touched += to.absolutePath
+                    passi += Undoable(made = to.absolutePath, from = from.absolutePath)
                 } else {
                     failed++
                 }
             }
             scan(context, touched)
-            Outcome(done, failed)
+            Outcome(done, failed, passi)
         }
 
     /**
@@ -329,8 +340,85 @@ object FileTree {
     suspend fun namesOf(context: Context, uris: List<Uri>): List<String> =
         withContext(Dispatchers.IO) { ordered(context, uris).map { it.name } }
 
-    /** Quante ne sono passate e quante no: la risposta di ogni operazione su un gruppo. */
-    data class Outcome(val done: Int, val failed: Int)
+    /**
+     * Quante ne sono passate e quante no: la risposta di ogni operazione su un gruppo.
+     *
+     * @property undo i passi per **tornare indietro**, quando l'operazione si può disfare.
+     *   Vuoto vuol dire che non si disfa: o perché l'operazione non è reversibile (una
+     *   cancellazione definitiva), o perché non ha toccato niente.
+     */
+    data class Outcome(val done: Int, val failed: Int, val undo: List<Undoable> = emptyList())
+
+    /**
+     * Un file che si può rimettere com'era, e come.
+     *
+     * ⚠️⚠️ **DUE CASI IN UN TIPO SOLO, E LI DISTINGUE [from]** (campo libero del giro della
+     * `1.82`, punto B: *aggiungi degli 'Annulla' temporizzati (avvisi in basso) anche per le
+     * operazioni di copia e spostamento*): disfare una **copia** vuol dire cancellare quello che
+     * è stato scritto, disfare uno **spostamento** vuol dire riportare il file da dov'è venuto.
+     * Sono la stessa struttura con un campo in più, e due tipi separati avrebbero voluto due
+     * rami identici in chi disfa.
+     * ⚠️⚠️ **SI TIENE IL PERCORSO E NON L'INDIRIZZO, ed è obbligatorio**: l'indirizzo nel
+     * MediaStore di un file appena scritto arriva dopo la scansione, cioè **dopo** che questa
+     * offerta è già in scena, mentre il percorso lo si conosce nell'istante in cui si scrive. È
+     * la stessa ragione per cui `copy` e `move` raccolgono percorsi da dare a `scan`.
+     *
+     * @property made il file che l'operazione ha creato: quello che c'è adesso.
+     * @property from da dove veniva, per uno spostamento; `null` per una copia, dove l'originale
+     *   non si è mosso e non c'è niente da rimettere a posto.
+     */
+    data class Undoable(val made: String, val from: String? = null)
+
+    /**
+     * Rimette com'erano i file di [steps], e dice come è andata.
+     *
+     * ⚠️⚠️ **UNA COPIA SI DISFA CANCELLANDO, UNO SPOSTAMENTO RIPORTANDO**: sono le due
+     * operazioni inverse, e la seconda passa dallo stesso [carry] dell'andata, quindi si comporta
+     * allo stesso modo anche fra due volumi.
+     * ⚠️⚠️ **UN FILE CHE NON C'È PIÙ NON È UN GUASTO, ED È IL CASO CHE CONTA**: fra l'operazione
+     * e il tocco su 'Annulla' passano dei secondi, e in quei secondi la persona può aver
+     * cancellato la copia da un'altra app. Contarlo come fallito direbbe che qualcosa non ha
+     * funzionato, mentre il risultato voluto (quel file non c'è) è esattamente quello che si è
+     * ottenuto.
+     * ⚠️ **La destinazione di un ritorno può essere occupata**, se nel frattempo è arrivato un
+     * file con lo stesso nome: si sceglie un nome libero come fa l'andata, invece di
+     * sovrascrivere qualcosa che nessuno ha chiesto di toccare.
+     */
+    suspend fun revert(context: Context, steps: List<Undoable>): Outcome =
+        withContext(Dispatchers.IO + NonCancellable) {
+            var done = 0
+            var failed = 0
+            val touched = ArrayList<String>(steps.size * 2)
+            for (step in steps) {
+                val made = File(step.made)
+                val home = step.from
+                if (home == null) {
+                    val ok = runCatching { !made.exists() || made.delete() }.getOrDefault(false)
+                    if (ok) done++ else failed++
+                    touched += step.made
+                    continue
+                }
+                if (!made.exists()) {
+                    done++
+                    continue
+                }
+                val back = File(home)
+                val target = if (back.exists()) {
+                    freeName(back.parentFile ?: back, back.name)
+                } else {
+                    back
+                }
+                if (carry(made, target)) {
+                    done++
+                    touched += step.made
+                    touched += target.absolutePath
+                } else {
+                    failed++
+                }
+            }
+            scan(context, touched)
+            Outcome(done, failed)
+        }
 
     /**
      * I file dietro gli indirizzi scelti, in ordine alfabetico.

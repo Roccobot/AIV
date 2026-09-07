@@ -624,6 +624,48 @@ private fun ColumnScope.RootPage(
         onSelect = { onChange(settings.copy(panelDepth = it)) }
     )
 
+    /*
+     * ⚠️⚠️ **QUATTRO PASTIGLIE E NON QUATTRO INTERRUTTORI, ED È LA SUA RICHIESTA** (risposta a
+     * `d-frontespizio` del giro della `1.81`, registrata nel brief: *la voce 'Elementi del
+     * frontespizio' ... e i quattro chip*). Sono **indipendenti**, cioè tutte le combinazioni
+     * sono ammesse, e il pezzo che le disegna dichiara proprio quello: [Toggles], non [Choices].
+     * ⚠️⚠️ **UNA VOCE SOLA E NON QUATTRO, e il criterio è quello del pannello**: rispondono
+     * tutte alla stessa domanda (*che cosa c'è nel frontespizio di una cartella*), quindi sono
+     * una famiglia; quattro righe con quattro titoli sarebbero quattro domande che nessuno si fa
+     * separatamente. Il perché per esteso vive in `AIV/CLAUDE.md`, § '⚙️ Dove va
+     * un'impostazione, e chi la deve trovare'.
+     * ⚠️ **Vive in 'Aspetto' e non nel gruppo del visualizzatore**: parla di come si vede una
+     * schermata, non di come si guarda un'immagine.
+     * ⚠️ **La ricerca le trova per nome**: [Toggles] passa i nomi delle pastiglie a `shown`,
+     * quindi cercando 'gradiente' compare questa voce.
+     */
+    Toggles(
+        label = stringResource(R.string.settings_front),
+        detail = stringResource(R.string.settings_front_desc),
+        names = listOf(
+            stringResource(R.string.settings_front_wash),
+            stringResource(R.string.settings_front_serif),
+            stringResource(R.string.settings_front_facts),
+            stringResource(R.string.pick_all)
+        ),
+        on = listOf(
+            settings.frontWash,
+            settings.frontSerif,
+            settings.frontFacts,
+            settings.frontPickAll
+        ),
+        onFlip = { at ->
+            onChange(
+                when (at) {
+                    0 -> settings.copy(frontWash = !settings.frontWash)
+                    1 -> settings.copy(frontSerif = !settings.frontSerif)
+                    2 -> settings.copy(frontFacts = !settings.frontFacts)
+                    else -> settings.copy(frontPickAll = !settings.frontPickAll)
+                }
+            )
+        }
+    )
+
     Group(stringResource(R.string.settings_group_viewer))
 
     /*

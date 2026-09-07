@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import kotlin.math.abs
 
 /**
  * Che cosa vuol dire 'centrato' in AIV, dalla 1.29.
@@ -51,6 +50,25 @@ import kotlin.math.abs
  * fare è avere **un** modificatore, che è quello che si è fatto: chi apre un dialogo nuovo lo
  * aggiunge, e il valore non è mai scritto due volte. La regola sta anche in `CLAUDE.md`,
  * perché un modificatore da ricordare senza una regola scritta prima o poi si dimentica.
+ *
+ * ⚠️⚠️ **UNA FINESTRA IN CUI SI SCRIVE NON È CENTRATA AFFATTO: È IN ALTO, DALLA `1.83`**
+ * (riscontro del giro della `1.82`, voce `rinomina-ferma` non approvata, dove la specifica è
+ * riscritta in tre righe: *posizionamento ... il più in alto possibile senza toccare la barra
+ * delle notifiche o il notch*, e *niente glitch di posizione alla digitazione*; e la nota di
+ * `ext-aria`: *fai 70 punti e posiziona le finestre di rinomina, salvataggio con nome, modifica
+ * estensione, download, nuova cartella ... sempre in alto appoggiate a quella misura*). Le due
+ * versioni prima di lei salivano **solo** a tastiera aperta, e la salita si ricavava dallo
+ * spazio che la tastiera lasciava libero: quello spazio cambia mentre si scrive, quindi il
+ * pannello ballava. Adesso non dipende più dalla tastiera: sta a [TEXT_AIR] dal bordo di sopra
+ * della propria finestra, sempre, e non c'è niente che possa muoverlo.
+ * ⚠️⚠️ **A DIRE QUALI SONO NON SERVE UN PARAMETRO NUOVO: LO DICE GIÀ [onOutside].** Il criterio
+ * dell'utente sulle modali è *solo le finestre che devono ASSOLUTAMENTE fornire un input siano
+ * modali vere* (giro della `1.69`), quindi 'modale vera' e 'ha un campo di testo' sono la stessa
+ * cosa, e l'elenco che lui ha scritto nella nota di `ext-aria` è **esattamente** quello delle
+ * finestre che passano `null` di qui. Un secondo parametro sarebbe un secondo modo di
+ * dimenticarsene, ed è la trappola che questo file descrive da cinque versioni.
+ * ⚠️ **Chi aprisse una modale senza campo di testo la troverebbe in alto**, e allora la domanda
+ * da farsi è perché sia una modale: il criterio dice che non lo è.
  */
 fun Modifier.lowered(onOutside: (() -> Unit)?): Modifier {
     /*
@@ -97,8 +115,8 @@ fun Modifier.lowered(onOutside: (() -> Unit)?): Modifier {
      * avvolge tutto il pannello, tratto compreso.
      */
     val aria = Air()
-    return veiled() then OutsideElement(onOutside, aria) then LowerElement(aria) then
-        DIALOG_LIFT then DIALOG_EDGE
+    return veiled() then OutsideElement(onOutside, aria) then
+        LowerElement(aria, pinTop = onOutside == null) then DIALOG_LIFT then DIALOG_EDGE
 }
 
 /**
@@ -267,22 +285,31 @@ private val DIALOG_EDGE = Modifier.edged(PANEL_ROUND)
  */
 private val DIALOG_LIFT = Modifier.lifted(PANEL_ROUND)
 
-private class LowerElement(val aria: Air) : ModifierNodeElement<LowerNode>() {
-    override fun create() = LowerNode(aria)
+private class LowerElement(
+    val aria: Air,
+    val pinTop: Boolean
+) : ModifierNodeElement<LowerNode>() {
+    override fun create() = LowerNode(aria, pinTop)
 
     /**
-     * ⚠️ **Non c'è niente da aggiornare, e [Air] in particolare non si riassegna**: la misura
-     * dipende dalla finestra e dalla tastiera, che si leggono quando si misura, e l'oggetto
-     * condiviso dev'essere quello della prima composizione. Il perché sta su [Air].
+     * ⚠️ **[Air] non si riassegna**: la misura dipende dalla finestra e dalla tastiera, che si
+     * leggono quando si misura, e l'oggetto condiviso dev'essere quello della prima composizione.
+     * Il perché sta su [Air].
+     * ⚠️ **L'ancoraggio invece si aggiorna**, perché una finestra può nascere modale e non
+     * esserlo più: senza questa riga il nodo terrebbe per sempre la scelta della prima
+     * composizione, che è la stessa trappola dell'oggetto condiviso vista al rovescio.
      */
-    override fun update(node: LowerNode) = Unit
+    override fun update(node: LowerNode) {
+        node.pinTop = pinTop
+    }
 
-    override fun equals(other: Any?) = other is LowerElement
+    override fun equals(other: Any?) = other is LowerElement && other.pinTop == pinTop
 
-    override fun hashCode() = "lowered".hashCode()
+    override fun hashCode() = "lowered".hashCode() * 31 + pinTop.hashCode()
 
     override fun InspectorInfo.inspectableProperties() {
         name = "lowered"
+        properties["inAlto"] = pinTop
     }
 }
 
@@ -317,25 +344,9 @@ private class LowerElement(val aria: Air) : ModifierNodeElement<LowerNode>() {
  * la finestra, il conto è lo stesso a ogni passata.
  */
 private class LowerNode(
-    private val aria: Air
+    private val aria: Air,
+    var pinTop: Boolean
 ) : Modifier.Node(), LayoutModifierNode, CompositionLocalConsumerModifierNode {
-
-    /**
-     * La salita applicata l'ultima volta, e `0` quando il pannello non è salito.
-     *
-     * ⚠️⚠️ **ESISTE PERCHÉ LA FINESTRA DI 'Rinomina' BALLAVA MENTRE SI SCRIVEVA** (riscontro del
-     * giro della `1.81`, campo libero punto A: *quando si digita scatta tutto in alto
-     * traballando ... e se cancello i caratteri con un gesto di HeliBoard l'intera finestra di
-     * rinomina balla a più non posso*). La salita si ricava dallo spazio che la tastiera lascia
-     * libero, e quello spazio **cambia mentre si scrive**: la barra dei suggerimenti che compare
-     * e sparisce, una tastiera che si allarga sul gesto di cancellazione, l'animazione dell'IME
-     * ancora in corso. Ogni misurazione dava una salita diversa di qualche punto, e il pannello
-     * la seguiva a scatti.
-     * ⚠️ **Il ricordo vive nel NODO e non nella composizione**: qui si misura, e uno stato di
-     * Compose letto durante la misura rifarebbe la misura. Il nodo invece dura quanto la finestra,
-     * che è esattamente la vita di questa decisione.
-     */
-    private var climbHeld = 0
 
     /**
      * L'aria dichiarata **sopra** il pannello, in pixel, e la quota da cui comincia quella
@@ -350,8 +361,8 @@ private class LowerNode(
      * *dentro* la finestra, e `dismissOnClickOutside` non scatta. Sotto il pannello si è fuori
      * dalla scatola, e la chiusura scatta. Da qui 'modale se tocchi sopra, secondaria se tocchi
      * sotto', su ogni finestra centrata dell'app.
-     * ⚠️ **A tastiera aperta i due lati si scambiano**: là la scatola è gonfia **sotto** e il
-     * contenuto sta in cima, quindi l'aria è quella che comincia a `Air.from`.
+     * ⚠️ **In una finestra ancorata in alto i due lati si scambiano**: là la scatola è gonfia
+     * **sotto** e il contenuto sta in cima, quindi l'aria è quella che comincia a `Air.from`.
      * ⚠️ **Zero e [Int.MAX_VALUE] vogliono dire 'nessuna aria da quel lato'**, ed è il caso
      * normale di una finestra alta, dove la stretta ha già ridotto lo spostamento a zero.
      */
@@ -371,6 +382,7 @@ private class LowerNode(
         val insets = ViewCompat.getRootWindowInsets(currentValueOf(LocalView))
         val window = windowHeight(insets)
         val air = LOWER_AIR.roundToPx()
+        if (pinTop) return pinned(measurable, constraints, window, air)
         /*
          * ⚠️⚠️ **IL TETTO NASCE NELLA `1.62`, E TOGLIE UN TAGLIO CHE NESSUNA STRETTA POTEVA
          * TOGLIERE** (riscontro del giro della `1.60`, con schermata: *in presenza di un nome
@@ -396,88 +408,6 @@ private class LowerNode(
         val wanted = (window * LOWER_BY).toInt()
         val shift = minOf(wanted, room)
         /*
-         * ⚠️⚠️ **A TASTIERA APERTA LA CENTRATURA HA UNA DEROGA, ED È SUA** (riscontro del giro
-         * della `1.60`: *voglio che il pannello scorra MOLTO in alto, con il campo testo
-         * praticamente in cima allo schermo, quando la tastiera è aperta. In quella circostanza
-         * la centratura dell'app ha una deroga, che serve per rendere davvero fruibile il
-         * pannello*). Non è la stretta portata all'estremo: la stretta **riduce** la discesa, qui
-         * si va nel verso opposto e si **sale**.
-         * ⚠️⚠️ **E SALIRE SI SCRIVE COL CONTENUTO IN CIMA ALLA SCATOLA GONFIA**, che è il rovescio
-         * esatto della riga qui sotto: la finestra centra la scatola dichiarata, quindi una
-         * scatola più alta di `2*su` col contenuto posato a **zero** lo porta `su` più in alto.
-         * Chi cercasse un `offset` negativo troverebbe il ritaglio che la `1.33` ha già pagato.
-         * ⚠️ **Si sale di [room], cioè il massimo che si può**: il pannello si ferma a
-         * [LOWER_AIR] dal bordo di sopra dell'area che la tastiera lascia libera.
-         * ⚠️ **La deroga vale finché la tastiera è in scena e non un istante di più**: quando si
-         * chiude, questo nodo rimisura e il pannello torna al suo 15% in basso.
-         */
-        /*
-         * ⚠️⚠️ **LA SALITA HA UN TETTO DALLA `1.81`, E SENZA DI LUI UN PANNELLO PICCOLO FINIVA
-         * SUL NOTCH** (riscontro del giro della `1.80`, campo libero punto B: *Controlla la
-         * posizione della finestra di dialogo per la modifica dell'estensione: si apre talmente
-         * in alto da finire sul notch e quasi sull'orologio di sistema*).
-         * ⚠️⚠️ **LA CAUSA È CHE LE DUE MISURE VENGONO DA DUE POSTI DIVERSI**: [room] si ricava da
-         * [windowHeight], che è lo **schermo** meno le barre e la tastiera, mentre a centrare la
-         * scatola gonfia è la **finestra del dialogo**, che il sistema ha già ridotto. Quando gli
-         * inset della vista di un dialogo arrivano a zero, quel conto crede di avere a
-         * disposizione tutto lo schermo e la scatola diventa più alta della finestra: il
-         * contenuto viene posato sopra il bordo di sopra, cioè sul notch.
-         * ⚠️ **Perché si vedeva sul pannellino dell'estensione e non sulla rinomina**: la salita
-         * è `(finestra - pannello) / 2`, quindi cresce quanto più il pannello è **piccolo**. La
-         * rinomina è alta e la sua salita era già stretta; il pannellino dell'estensione ha un
-         * campo corto, e là il conto sbagliato si vedeva tutto.
-         * ⚠️ **Il vincolo si legge SOLO per questo**, e la nota qui sopra resta vera: l'aria che
-         * la stretta misura è una proprietà della finestra dello schermo, non del contenitore.
-         * Qui invece serve sapere dove sono i bordi del contenitore, e quello lo dice solo il
-         * vincolo. ⚠️ **Un'altezza non vincolata non limita niente**, che è il verso prudente:
-         * meglio la misura di prima che un tetto costruito su un infinito.
-         */
-        /*
-         * ⚠️⚠️ **L'ARIA DELLA SALITA È PIÙ LARGA DI QUELLA DELLA STRETTA, DALLA `1.82`**
-         * (riscontro del giro della `1.81`, voce `ext-notch`, approvata con una riserva: *è vero,
-         * ma finisce ancora molto in alto, mi sembra anche troppo*). La `1.81` aveva tolto il
-         * pannello dal notch, e con [LOWER_AIR] restava a un filo dal bordo di sopra: sopra la
-         * finestra si vedeva una striscia di sedici punti, che si legge come un pannello incollato
-         * in cima e non come uno salito quanto serve.
-         * ⚠️ **La deroga resta una deroga**: [KEYBOARD_AIR] è ancora molto meno di quello che il
-         * 15% in basso concederebbe, quindi *il campo di testo praticamente in cima allo schermo*
-         * della richiesta della `1.62` regge.
-         * ⚠️ **Non si tocca [air]**, che è l'aria del tetto e della stretta: allargare quella
-         * stringerebbe ogni pannello dell'app, che è un'altra cosa da questa.
-         */
-        val skyAir = KEYBOARD_AIR.roundToPx()
-        val voluta = climbFor(
-            room = (free / 2 - skyAir).coerceAtLeast(0),
-            panel = placed.height,
-            box = if (constraints.hasBoundedHeight) constraints.maxHeight else 0,
-            air = skyAir
-        )
-        /*
-         * ⚠️⚠️ **LA SALITA SI TIENE FERMA FINCHÉ IL CAMBIAMENTO È PICCOLO** (vedi [climbHeld]):
-         * è il rimedio al pannello che ballava mentre si scriveva. La soglia è [CLIMB_JUMP], cioè
-         * più della barra dei suggerimenti di una tastiera e meno di una tastiera intera: un
-         * cambio di tastiera muove il pannello, una riga in più dentro la stessa no.
-         * ⚠️⚠️ **E IL TETTO SI RIAPPLICA DOPO, SEMPRE**: tenere una salita vecchia più grande di
-         * quella che la finestra concede adesso rimetterebbe il pannello sul notch, cioè il
-         * difetto della `1.80`. Il ricordo può solo **evitare** di risalire, mai far salire di più.
-         */
-        val climb = if (typing(insets)) {
-            val steady = if (climbHeld > 0 && abs(voluta - climbHeld) <= CLIMB_JUMP.roundToPx()) {
-                climbHeld
-            } else {
-                voluta
-            }
-            minOf(steady, voluta.coerceAtLeast(0)).also { climbHeld = it }
-        } else {
-            climbHeld = 0
-            voluta
-        }
-        if (climb > 0 && typing(insets)) {
-            aria.top = 0
-            aria.from = placed.height
-            return layout(placed.width, placed.height + climb * 2) { placed.place(0, 0) }
-        }
-        /*
          * ⚠️⚠️ **LO SPOSTAMENTO STA DENTRO L'ALTEZZA RIPORTATA, e fino alla 1.33 NON c'era: è
          * il difetto che TAGLIAVA I DIALOGHI ALTI.** La nota di prima diceva l'opposto (misura
          * vera e movimento nel solo `place`, *così il genitore continua a centrare*), e la
@@ -501,14 +431,46 @@ private class LowerNode(
     }
 
     /**
-     * Se la tastiera è in scena adesso.
+     * Una finestra in cui si scrive: ancorata in alto, e ferma qualunque cosa faccia la tastiera.
      *
-     * ⚠️ **Si chiede se è VISIBILE e non quanto è alta**: una tastiera che si sta chiudendo ha
-     * ancora un'altezza mentre scende, e la deroga deve finire quando finisce lei, non quando
-     * l'ultimo pixel è sparito.
+     * ⚠️⚠️ **IL CONTO NON GUARDA LA TASTIERA AFFATTO, ED È TUTTA LA CORREZIONE DELLA `1.83`**
+     * (riscontro del giro della `1.82`, voce `rinomina-ferma`: *secondo terzo carattere inserito
+     * o cancellato la finestra si sposta da troppo in basso a molto in alto, e poi ogni 3/4
+     * caratteri c'è un flash della stessa finestra in posizione molto più ribassata*). Fino alla
+     * `1.82` la salita si ricavava dallo spazio libero **sopra la tastiera**, e quello spazio
+     * cambia mentre si scrive: la barra dei suggerimenti, un gesto che allarga la tastiera,
+     * l'animazione dell'IME ancora in corso. La `1.82` ci aveva messo un'isteresi, cioè aveva
+     * reso il ballo più raro invece di toglierne la causa.
+     * ⚠️⚠️ **QUI IL TOP DEL PANNELLO VALE [air] PER COSTRUZIONE, e la prova è algebrica**: la
+     * finestra centra la scatola dichiarata, quindi il contenuto posato a zero in una scatola
+     * alta `pannello + 2*salita` comincia a `(box - pannello - 2*salita) / 2`; con
+     * `salita = (box - pannello) / 2 - air` quel conto vale esattamente `air`, **qualunque**
+     * siano `box` e `pannello`. Cioè la tastiera può muovere la finestra quanto vuole: il bordo
+     * di sopra non si muove, perché a spostarsi è solo il bordo di sotto.
+     * ⚠️ **Il tetto toglie di sotto e non di sopra**: un pannello troppo alto si accorcia e il
+     * suo scorrimento entra in funzione, ma il campo di testo in cima resta dov'è.
+     * ⚠️ **Il ripiego quando il contenitore non è vincolato è la finestra dello schermo**: senza
+     * un `box` non c'è nessun bordo di sopra da cui misurare, e un pannello centrato è meglio di
+     * uno posato su un numero inventato.
      */
-    private fun typing(insets: WindowInsetsCompat?): Boolean =
-        insets?.isVisible(WindowInsetsCompat.Type.ime()) == true
+    private fun MeasureScope.pinned(
+        measurable: Measurable,
+        constraints: Constraints,
+        window: Int,
+        air: Int
+    ): MeasureResult {
+        val sky = TEXT_AIR.roundToPx()
+        val roof = window - sky - air
+        val placed = measurable.measure(
+            if (roof > 0) constraints.copy(maxHeight = minOf(constraints.maxHeight, roof))
+            else constraints
+        )
+        val box = if (constraints.hasBoundedHeight) constraints.maxHeight else window
+        val climb = pinClimb(box = box, panel = placed.height, air = sky)
+        aria.top = 0
+        aria.from = placed.height
+        return layout(placed.width, placed.height + climb * 2) { placed.place(0, 0) }
+    }
 
     /**
      * L'altezza della finestra **dentro le barre di sistema**, in pixel.
@@ -572,44 +534,36 @@ const val LOWER_BY = 0.15f
 val LOWER_AIR = 16.dp
 
 /**
- * L'aria sopra un pannello **salito** perché la tastiera è aperta.
+ * L'aria sopra una finestra in cui si scrive, che sta ancorata in alto: **settanta punti**.
  *
- * ⚠️ **Più larga di [LOWER_AIR] su sua richiesta** (giro della `1.81`, voce `ext-notch`): con
- * sedici punti il pannello arrivava a filo del bordo di sopra, e la salita si leggeva come un
- * pannello scappato in cima. 56dp è l'altezza di una barra di sistema, cioè la striscia che
- * l'occhio riconosce come 'sopra la finestra c'è ancora schermo'.
+ * ⚠️⚠️ **IL NUMERO È SUO** (nota sulla voce `ext-aria` del giro della `1.82`: *fai 70 punti e
+ * posiziona le finestre di rinomina, salvataggio con nome, modifica estensione, download, nuova
+ * cartella ... sempre in alto appoggiate a quella misura*), ed è il terzo in tre versioni: la
+ * `1.81` lasciava [LOWER_AIR], la `1.82` era salita a 56 perché *finisce ancora molto in alto, mi
+ * sembra anche troppo*, e questa è la misura con cui ha detto di fermarsi.
+ * ⚠️ **Adesso vale SEMPRE e non solo a tastiera aperta**: fino alla `1.82` era l'aria di una
+ * deroga che scattava con l'IME in scena, e il perché del cambio è su [Modifier.lowered].
  */
-val KEYBOARD_AIR = 56.dp
+val TEXT_AIR = 70.dp
 
 /**
- * Di quanto deve cambiare la salita perché il pannello si muova davvero.
+ * Di quanto si alza una finestra ancorata in alto, perché il suo bordo di sopra cada ad [air].
  *
- * ⚠️⚠️ **È IL RIMEDIO AL PANNELLO CHE BALLAVA MENTRE SI SCRIVEVA** (giro della `1.81`, campo
- * libero punto A). 72dp è più della barra dei suggerimenti di una tastiera (che sta intorno ai
- * 40) e molto meno di una tastiera intera (che passa i 250): un cambio di tastiera muove il
- * pannello, una riga in più dentro la stessa no.
- * ⚠️ **Una soglia e non un'animazione**: animare la salita vorrebbe dire animare una misura, cioè
- * rifare il layout a ogni fotogramma di un movimento che nessuno ha chiesto. Qui il pannello non
- * si muove affatto, che è quello che lui ha chiesto.
- */
-private val CLIMB_JUMP = 72.dp
-
-/**
- * Di quanto può salire un pannello a tastiera aperta, senza uscire dalla propria finestra.
+ * ⚠️⚠️ **È UNA FUNZIONE A SÉ PERCHÉ IL BANCO DI PROVA LA POSSA MISURARE**: quello che deve
+ * reggere è che il pannello **non si muova** al variare della finestra, e una prova che aprisse
+ * una finestra vera in Robolectric non vedrebbe mai una tastiera cambiare misura. Come funzione,
+ * il conto si esercita con i numeri di quello che è arrivato a lui.
+ * ⚠️ **Non ha bisogno di un tetto come la `climbFor` che sostituisce**: quella partiva da una
+ * salita ricavata dallo schermo e la doveva limitare alla finestra, cioè metteva d'accordo due
+ * misure prese da due posti; qui la misura è una sola, il contenitore, e il pannello non può
+ * uscirne per costruzione.
  *
- * ⚠️⚠️ **È UNA FUNZIONE A SÉ PERCHÉ IL BANCO DI PROVA LA POSSA MISURARE**: il ramo che la usa
- * gira solo con la tastiera in scena, e una tastiera Robolectric non la apre. Provata come
- * funzione, il conto si esercita coi numeri veri del caso che è arrivato a lui.
- *
- * @param room la salita voluta, ricavata dall'altezza della finestra dello schermo meno le barre
- *   e la tastiera: è quella che, da sola, mandava il pannello sul notch.
+ * @param box l'altezza che il contenitore concede, cioè la finestra che centrerà la scatola.
  * @param panel l'altezza del pannello già misurato.
- * @param box l'altezza che il contenitore concede, oppure `0` se non è vincolata.
  * @param air l'aria da lasciare sopra il pannello, in pixel.
- * @return la salita da applicare: la voluta, o quella che tiene il pannello dentro la finestra.
+ * @return la salita da applicare, e `0` quando il pannello riempie già la finestra.
  */
-internal fun climbFor(room: Int, panel: Int, box: Int, air: Int): Int {
-    if (box <= 0) return room
-    val fits = ((box - panel) / 2 - air).coerceAtLeast(0)
-    return minOf(room, fits)
+internal fun pinClimb(box: Int, panel: Int, air: Int): Int {
+    if (box <= 0) return 0
+    return ((box - panel) / 2 - air).coerceAtLeast(0)
 }

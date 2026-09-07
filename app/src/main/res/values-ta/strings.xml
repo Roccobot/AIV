@@ -86,6 +86,11 @@
     <string name="settings_depth_blur">மங்கல்</string>
     <string name="settings_depth_shadow">நிழல்</string>
     <string name="settings_depth_none">எதுவுமில்லை</string>
+    <string name="settings_front">கோப்புறையின் முகப்பு</string>
+    <string name="settings_front_desc">சிறுபடங்களுக்கு மேலே, கோப்புறையின் மேற்பட்டையில் என்ன தெரிய வேண்டும்.</string>
+    <string name="settings_front_wash">நிறமாற்றம்</string>
+    <string name="settings_front_serif">செரிஃப் தலைப்பு</string>
+    <string name="settings_front_facts">தகவல்</string>
     <string name="settings_folder_columns">கட்டங்களின் நிரல்கள்</string>
     <string name="settings_folder_columns_desc">கோப்புறைக் கட்டமும் படக் கட்டமும் காட்டும் நிரல்களின் எண்ணிக்கை. மேலும் நிரல்கள் திரையில் அதிகம் அடங்கும், ஒவ்வொரு கட்டமும் சிறியதாகும். நான்கில் கோப்புறையின் பெயர் பொதுவாக துண்டிக்கப்படும்.</string>
     <string name="settings_folder_count">கட்டக் காட்சியில் கோப்புறைகளுக்குக் கீழே பொருள் எண்ணிக்கை</string>
@@ -162,6 +167,7 @@
     <string name="pick_list">பட்டியல்</string>
     <string name="pick_invert">தலைகீழ்</string>
     <string name="pick_all_short">அனைத்தும்</string>
+    <string name="pick_clips">வீடியோக்களைத் தேர்ந்தெடு</string>
     <string name="pick_none">எதுவுமில்லை</string>
     <string name="filter_title">வடிகட்டி</string>
     <string name="filter_all">எல்லாம் காட்டு</string>

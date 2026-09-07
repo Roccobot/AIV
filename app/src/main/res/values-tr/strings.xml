@@ -86,6 +86,11 @@
     <string name="settings_depth_blur">Bulanıklık</string>
     <string name="settings_depth_shadow">Gölge</string>
     <string name="settings_depth_none">Yok</string>
+    <string name="settings_front">Klasör başlığı</string>
+    <string name="settings_front_desc">Klasörün üstündeki şeridin küçük resimlerin üzerinde gösterdikleri.</string>
+    <string name="settings_front_wash">Gradyan</string>
+    <string name="settings_front_serif">Tırnaklı başlık</string>
+    <string name="settings_front_facts">Bilgi</string>
     <string name="settings_folder_columns">Izgaralardaki sütunlar</string>
     <string name="settings_folder_columns_desc">Klasör ızgarasının ve resim ızgarasının kaç sütun gösterdiği. Daha çok sütun ekrana daha çok sığdırır ve her karoyu küçültür. Dörtte klasör adı genellikle kısaltılır.</string>
     <string name="settings_folder_count">Izgara görünümünde klasörlerin altındaki öge sayacı</string>
@@ -162,6 +167,7 @@
     <string name="pick_list">Liste</string>
     <string name="pick_invert">Tersine çevir</string>
     <string name="pick_all_short">Tümü</string>
+    <string name="pick_clips">Videoları seç</string>
     <string name="pick_none">Hiçbiri</string>
     <string name="filter_title">Süzgeç</string>
     <string name="filter_all">Hepsini göster</string>

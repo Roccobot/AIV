@@ -86,6 +86,11 @@
     <string name="settings_depth_blur">تمويه</string>
     <string name="settings_depth_shadow">ظل</string>
     <string name="settings_depth_none">بلا</string>
+    <string name="settings_front">واجهة المجلد</string>
+    <string name="settings_front_desc">ما يعرضه الشريط العلوي للمجلد فوق المصغرات.</string>
+    <string name="settings_front_wash">تدرج لوني</string>
+    <string name="settings_front_serif">عنوان بحروف مذيلة</string>
+    <string name="settings_front_facts">معلومات</string>
     <string name="settings_folder_columns">أعمدة الشبكات</string>
     <string name="settings_folder_columns_desc">عدد الأعمدة التي تعرضها شبكة المجلدات وشبكة الصور. الأعمدة الأكثر تعرض عناصر أكثر وتصغّر كل مربع. عند أربعة أعمدة يُقتطع اسم المجلد عادة.</string>
     <string name="settings_folder_count">عدّاد العناصر تحت المجلدات في عرض الشبكة</string>
@@ -162,6 +167,7 @@
     <string name="pick_list">قائمة</string>
     <string name="pick_invert">عكس</string>
     <string name="pick_all_short">الكل</string>
+    <string name="pick_clips">تحديد الفيديوهات</string>
     <string name="pick_none">لا شيء</string>
     <string name="filter_title">مرشح</string>
     <string name="filter_all">إظهار الكل</string>

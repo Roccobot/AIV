@@ -227,6 +227,22 @@ object ImageActions {
     }
 
     /**
+     * Se l'immagine arriva dalla rete, cioè se non c'è nessun file su cui lavorare.
+     *
+     * ⚠️⚠️ **SERVE A SPEGNERE 'Rinomina', DALLA `1.83`** (campo libero del giro della `1.82`,
+     * punto E: *'Rinomina' deve essere disattivato (semitrasparente/meno visibile) nel menu
+     * contestuale delle immagini remote (Web)*). Un indirizzo `http` non ha un nome di file che
+     * questa app possa cambiare: il tasto apriva la finestra e l'operazione non riusciva, che è
+     * il peggiore dei due modi di dire di no.
+     * ⚠️ **La domanda si fa sullo SCHEMA e non sul nome**: un indirizzo remoto può finire con
+     * `.jpg` come no, e un file locale ha sempre uno schema che non è quello.
+     */
+    fun isRemote(uri: Uri): Boolean {
+        val scheme = uri.scheme?.lowercase()
+        return scheme == "http" || scheme == "https"
+    }
+
+    /**
      * Se l'indirizzo **si dichiara** un'immagine, cioè senza chiedere a nessuno.
      *
      * ⚠️⚠️ **NON è [leadsToImage] con meno passi: è la domanda che si può fare SENZA
