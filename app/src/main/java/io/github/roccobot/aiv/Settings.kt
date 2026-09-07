@@ -1,6 +1,7 @@
 package io.github.roccobot.aiv
 
 import android.content.Context
+import android.content.Intent
 import androidx.annotation.StringRes
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -13,6 +14,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 /*
@@ -266,17 +268,19 @@ data class Settings(
      * ⚠️⚠️ **ERA UN INTERRUTTORE FINO ALLA `1.80` E DALLA `1.81` È UNA SCELTA A TRE**, su sua
      * istruzione (*facciamo che si può scegliere tra sfocatura e ombreggiatura (MAI insieme)*).
      * Il perché delle tre risposte, e perché due non possono convivere, sta su [PanelDepth].
-     * ⚠️⚠️ **LA SFOCATURA RESTA IL VALORE DI FABBRICA, ED È LA SUA DECISIONE DEL GIRO PRIMA**
-     * (riscontro della `1.79`, campo libero punto A: *imposta la sfocatura come accesa di
-     * fabbrica*). La funzione era nata accesa nella `1.38`, spenta nella `1.39` perché *rende
-     * tutto visibilmente più lento*, e riaccesa nella `1.80` dopo quaranta versioni di prova: il
-     * valore non cambia perché la domanda ha una risposta in più.
+     * ⚠️⚠️ **DALLA `1.82` IL VALORE DI FABBRICA È L'OMBRA** (riscontro del giro della `1.81`,
+     * voce `sfoc-ombra`: *mi piace talmente tanto che voglio l'ombreggiatura come nuova opzione
+     * predefinita di fabbrica*). La storia di questo valore in una riga: acceso nella `1.38`,
+     * spento nella `1.39` perché *rende tutto visibilmente più lento*, sfocatura di fabbrica
+     * nella `1.80` dopo quaranta versioni di prova, e ombra dalla `1.82`, cioè al primo giro in
+     * cui l'ombra è esistita.
+     * ⚠️ **La sfocatura non se ne va**: resta una delle tre risposte, e chi la vuole la sceglie.
      * ⚠️⚠️ **IL VALORE DI FABBRICA STA IN DUE POSTI, e vanno insieme**: qui e nella lettura del
      * flusso. Cambiarne uno solo lascerebbe l'app in un modo al primo avvio e in un altro dopo
      * il primo salvataggio delle impostazioni, che è il genere di difetto che non dà nessun
      * errore.
      */
-    val panelDepth: PanelDepth = PanelDepth.BLUR,
+    val panelDepth: PanelDepth = PanelDepth.SHADOW,
     /**
      * Se il menu a pressione lunga porta anche 'Adatta alla vista' e '100%'.
      *
@@ -878,12 +882,23 @@ object SettingsStore {
             scaleMode = ScaleMode.entries.byToken(p[SCALE_MODE], ScaleMode.PHYSICAL),
             infoPosition = InfoPosition.entries.byToken(p[INFO_POSITION], InfoPosition.TOP),
             infoVisible = p[INFO_VISIBLE] ?: true,
-            // ⚠️ Il ripiego sulla chiave vecchia gira solo finché quella nuova non è mai stata
-            // scritta, e il perché sta su [VEIL]: `false` era 'spento', tutto il resto era la
-            // sfocatura, che resta il valore di fabbrica.
+            /*
+             * ⚠️ Il ripiego sulla chiave vecchia gira solo finché quella nuova non è mai stata
+             * scritta, e il perché sta su [VEIL].
+             * ⚠️⚠️ **I TRE CASI SONO TRE, DALLA `1.82`, e prima erano due**: con l'ombra come
+             * valore di fabbrica, 'la chiave vecchia non dice niente' e 'la chiave vecchia dice
+             * acceso' smettono di essere la stessa cosa. Chi aveva **acceso** la sfocatura tiene
+             * la sfocatura, chi l'aveva spenta tiene il niente, e chi non ha mai toccato la voce
+             * riceve il valore di fabbrica di adesso. Con un `else` solo, il primo si sarebbe
+             * visto cambiare una scelta esplicita da un aggiornamento.
+             */
             panelDepth = p[PANEL_DEPTH]
-                ?.let { PanelDepth.entries.byToken(it, PanelDepth.BLUR) }
-                ?: if (p[VEIL] == false) PanelDepth.NONE else PanelDepth.BLUR,
+                ?.let { PanelDepth.entries.byToken(it, PanelDepth.SHADOW) }
+                ?: when (p[VEIL]) {
+                    false -> PanelDepth.NONE
+                    true -> PanelDepth.BLUR
+                    else -> PanelDepth.SHADOW
+                },
             zoomInMenu = p[ZOOM_IN_MENU] ?: false,
             reverseSequence = p[REVERSE_SEQUENCE] ?: false,
             startFolder = p[START_FOLDER],
@@ -1251,6 +1266,36 @@ object DownloadFolder {
     }
 
     /**
+     * Scorda la cartella scelta e **rende** il permesso persistente che l'accompagnava.
+     *
+     * ⚠️⚠️ **NASCE NELLA `1.82` PERCHÉ IL SELETTORE NON SA RIPORTARE A DOWNLOAD** (riscontro del
+     * giro della `1.81`, voce `save-percorso`: *se cambio cartella di download, non posso più
+     * tornare a storage/emulated/0/Download. Il file picker mi dice che 'per tutelare la mia
+     * privacy' non posso scegliere quella cartella*). Cioè fino alla `1.81` una cartella scelta
+     * una volta era per sempre, e la strada di serie dell'app diventava irraggiungibile
+     * dall'app stessa.
+     * ⚠️ **Il permesso si rende invece di restare appeso**: un albero che non si usa più tiene
+     * uno dei posti che il sistema concede a un'app, e quel numero non è grande. La resa può
+     * fallire (un permesso già scaduto, una cartella smontata) e quello **non è un guasto**: il
+     * dato da togliere è l'indirizzo, e quello si toglie comunque.
+     */
+    suspend fun forget(context: Context) {
+        val tree = context.aivStore.data.first()[TREE]
+        if (tree != null) {
+            try {
+                context.contentResolver.releasePersistableUriPermission(
+                    android.net.Uri.parse(tree),
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                )
+            } catch (e: SecurityException) {
+                // Non era più nostro: l'indirizzo si toglie lo stesso, che è quello che conta.
+            }
+        }
+        set(context, null)
+    }
+
+    /**
      * Il nome da mostrare per una cartella scelta.
      *
      * ⚠️ **Si ricava dall'identificatore del documento e non dall'indirizzo grezzo**: un albero
@@ -1264,4 +1309,90 @@ object DownloadFolder {
         val path = id.substringAfter(':', "").trim('/')
         return path.substringAfterLast('/').ifBlank { id.substringBefore(':') }.ifBlank { id }
     }
+}
+
+/**
+ * Che cosa è già finito in Download di recente, per non scaricarlo due volte.
+ *
+ * ⚠️⚠️ **NASCE NELLA `1.82`, ED È UNA SUA RICHIESTA** (campo libero del giro della `1.81`, punto
+ * E: *quando scelgo 'Salva', l'app deve verificare se ha già scaricato di recente un file con la
+ * stessa estensione e lo stesso numero di byte. Se risulta già scaricato, deve apparire una
+ * notifica in basso ... Testo: 'Hai già scaricato questa immagine'; azione a destra: 'Scarica di
+ * nuovo'*).
+ *
+ * ⚠️⚠️ **LA FIRMA È SUFFISSO PIÙ BYTE, ED È QUELLO CHE HA CHIESTO LUI**: non il nome, che cambia
+ * a ogni rinomina al salvataggio, e non un'impronta del contenuto, che vorrebbe dire rileggere il
+ * file intero prima di ogni salvataggio. Due immagini diverse con lo stesso suffisso e **lo stesso
+ * numero esatto di byte** sono un caso raro, e il prezzo di sbagliarlo è una notifica che si
+ * scavalca con un tocco.
+ *
+ * ⚠️⚠️ **QUANTO DURA IL REGISTRO: TRENTA GIORNI E DUECENTO VOCI, ed è il consiglio che ha
+ * chiesto** (*non so quanto può essere pesante un registro di tutti i file scaricati ... ma
+ * consigliami tu*). Il conto che regge i due numeri: una voce pesa una trentina di byte, quindi
+ * duecento sono meno di sette kilobyte, cioè niente per un `DataStore` che l'app rilegge a ogni
+ * avvio; e trenta giorni è il tempo oltre il quale 'l'ho già scaricata' smette di essere un
+ * ricordo dell'utente e diventa un'informazione che lo sorprende.
+ * ⚠️ **I due limiti lavorano insieme e servono a due cose diverse**: il tempo tiene il registro
+ * onesto, il tetto lo tiene piccolo anche in una giornata di trecento salvataggi.
+ * ⚠️ **La potatura si fa in SCRITTURA e non in lettura**: leggere è la cosa che succede a ogni
+ * salvataggio, scrivere solo quando uno riesce.
+ */
+object DownloadLog {
+    private val SEEN = stringSetPreferencesKey("download-seen")
+
+    /** Trenta giorni in millisecondi: vedi il perché in testa. */
+    private const val KEEP_MS = 30L * 24 * 60 * 60 * 1000
+
+    /** Quante voci al massimo: vedi il perché in testa. */
+    private const val KEEP_MAX = 200
+
+    /**
+     * La firma di un file: il suffisso e i byte.
+     *
+     * ⚠️ **Il suffisso si normalizza in minuscolo e senza punto**: `.JPG` e `jpg` sono lo stesso
+     * formato, e senza questa riga lo stesso file salvato due volte con due scritture diverse
+     * conterebbe come due file.
+     */
+    fun mark(suffix: String, bytes: Long): String =
+        "${suffix.removePrefix(".").lowercase()}:$bytes"
+
+    /** Se quella firma è già passata di qui. */
+    suspend fun seen(context: Context, mark: String): Boolean =
+        context.aivStore.data.first()[SEEN].orEmpty().any { it.substringBeforeLast('@') == mark }
+
+    /**
+     * Prende nota di un salvataggio riuscito.
+     *
+     * @param now l'istante da scrivere accanto alla firma. ⚠️ **Arriva da fuori** perché così
+     *   questa funzione si può misurare senza aspettare un mese.
+     */
+    suspend fun note(context: Context, mark: String, now: Long) {
+        context.aivStore.edit { p ->
+            val vive = prune(p[SEEN].orEmpty(), now)
+            p[SEEN] = vive + "$mark@$now"
+        }
+    }
+
+    /** Scorda tutto: serve a chi vuole ricominciare, e alle prove. */
+    suspend fun clear(context: Context) {
+        context.aivStore.edit { p -> p.remove(SEEN) }
+    }
+
+    /**
+     * Le voci che restano: quelle degli ultimi trenta giorni, al massimo duecento.
+     *
+     * ⚠️ **Le più nuove per prime, e si taglia la coda**: con un tetto raggiunto, la voce da
+     * buttare è la più vecchia, cioè quella con meno probabilità di servire.
+     * ⚠️ **Una voce senza istante si butta**: è un archivio scritto a mano o rotto, e tenerla
+     * vorrebbe dire una firma che non scade mai.
+     */
+    internal fun prune(seen: Set<String>, now: Long): Set<String> = seen
+        .mapNotNull { riga ->
+            val quando = riga.substringAfterLast('@', "").toLongOrNull() ?: return@mapNotNull null
+            if (now - quando > KEEP_MS) null else quando to riga
+        }
+        .sortedByDescending { it.first }
+        .take(KEEP_MAX - 1)
+        .map { it.second }
+        .toSet()
 }

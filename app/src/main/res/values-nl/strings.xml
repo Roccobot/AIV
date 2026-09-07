@@ -298,7 +298,7 @@
     <string name="settings_group_start">Opstarten</string>
     <string name="settings_group_advanced">Geavanceerde functies</string>
     <string name="settings_ext_edit">Extensie wijzigen toestaan</string>
-    <string name="settings_ext_edit_desc">Voegt de knop \'Extensie\' toe aan de vensters die je hieronder kiest. Een extensie wijzigen converteert niets: als je niet weet wat je doet, laat ze beide uit, want een afbeelding kan onleesbaar worden.</string>
+    <string name="settings_ext_edit_desc">Voegt de knop \'Extensie\' toe aan de vensters met bestandsnamen. Kies hieronder in welke. ⚠️ Een extensie wijzigen is geen formaatomzetting (daarvoor is \'Exporteren en omzetten\') en vraagt om voorzichtigheid, want sommige bestanden worden onleesbaar en verdwijnen uit galerij-apps.</string>
     <string name="settings_gpu_thumbs">Miniaturen in het grafisch geheugen houden</string>
     <string name="settings_gpu_thumbs_desc">Bouwt de miniatuurcache in het geheugen van de grafische chip, zodat het gewone geheugen vrij blijft. Het kan de galerij vlotter maken, niets veranderen of hem in sommige gevallen vertragen, bijna altijd op oudere toestellen. Heb je prestatieproblemen, zet het aan en kijk of het helpt: vooraf weet je het niet, met alle hardware- en softwarecombinaties die Android heeft.</string>
     <string name="settings_thumbs">Opgeslagen miniaturen verwijderen</string>
@@ -398,12 +398,15 @@
     <string name="settings_editor_backup">Veiligheidskopie voor het overschrijven</string>
     <string name="settings_editor_backup_desc">Voordat een editor een afbeelding overschrijft, bewaart hij er een kopie van in de prullenbak, waar u die kunt terughalen; hebt u die niet nodig, dan verdwijnt ze bij de volgende \'Prullenbak legen\'.</string>
     <string name="settings_save_rename">Naam wijzigen bij opslaan toestaan</string>
-    <string name="settings_save_rename_desc">Standaard worden bestanden onder hun oorspronkelijke naam opgeslagen. Zet dit aan om bij elke download een naam te bepalen. Ook als het uit staat: houd \'Opslaan\' ingedrukt om alleen die keer een nieuwe naam te typen. In dat geval is ook \'Bestemming\' beschikbaar.</string>
+    <string name="settings_save_rename_desc">Standaard worden bestanden onder hun oorspronkelijke naam opgeslagen. Zet dit aan om bij elke download een naam te bepalen. Ook als het uit staat: houd \'Opslaan\' ingedrukt om alleen die keer een nieuwe naam te typen.</string>
     <string name="settings_download_path">Downloadpad kiezen</string>
     <string name="settings_rename_download">Naam wijzigen en downloads</string>
-    <string name="settings_download_path_desc">Voegt de knop \'Bestemming\' toe aan het opslagvenster, om de map te kiezen waar het bestand heen gaat. Geldt wanneer naam wijzigen bij opslaan aan staat.</string>
+    <string name="settings_download_path_desc">Voegt de knop \'Bestemming\' toe aan het downloadvenster, om de opslagmap te kiezen.</string>
     <string name="save_name_path">Doelmap: %1$s</string>
     <string name="save_name_dest">Bestemming</string>
+    <string name="save_name_default">Download gebruiken</string>
+    <string name="save_seen_notice">Je hebt deze afbeelding al gedownload</string>
+    <string name="save_seen_again">Opnieuw downloaden</string>
     <string name="editor_tall">Staand</string>
     <string name="editor_wide">Liggend</string>
     <string name="pick_cleared">Geen bestand geselecteerd.</string>

@@ -284,7 +284,7 @@
     <string name="settings_group_start">การเริ่มต้น</string>
     <string name="settings_group_advanced">ฟีเจอร์ขั้นสูง</string>
     <string name="settings_ext_edit">อนุญาตให้แก้ไขนามสกุล</string>
-    <string name="settings_ext_edit_desc">เพิ่มปุ่ม \'นามสกุล\' ในหน้าต่างที่คุณเลือกด้านล่าง การเปลี่ยนนามสกุลไม่ได้แปลงอะไรเลย: ถ้าไม่แน่ใจว่าทำอะไร ให้ปิดทั้งสองไว้ เพราะภาพอาจอ่านไม่ได้</string>
+    <string name="settings_ext_edit_desc">เพิ่มปุ่ม \'นามสกุล\' ในหน้าต่างชื่อไฟล์ เลือกด้านล่างว่าจะให้ปรากฏที่ไหน ⚠️ การเปลี่ยนนามสกุลไม่ใช่การแปลงรูปแบบ (สำหรับสิ่งนั้นมี \'ส่งออกและแปลง\') และต้องใช้อย่างระวัง เพราะบางไฟล์อาจอ่านไม่ได้และหายไปจากแอปแกลเลอรี</string>
     <string name="settings_gpu_thumbs">เก็บภาพย่อไว้ในหน่วยความจำกราฟิก</string>
     <string name="settings_gpu_thumbs_desc">สร้างแคชของรูปย่อไว้ในหน่วยความจำของชิปกราฟิก เพื่อเว้นหน่วยความจำหลักไว้ว่าง อาจทำให้แกลเลอรีลื่นขึ้น อาจไม่ต่างอะไร หรือในบางกรณี ซึ่งเกือบทุกครั้งเป็นเครื่องรุ่นเก่า อาจทำให้ช้าลง ถ้ามีปัญหาเรื่องความเร็ว ให้เปิดแล้วดูว่าดีขึ้นไหม เพราะรู้ล่วงหน้าไม่ได้ ด้วยจำนวนฮาร์ดแวร์และซอฟต์แวร์ของเครื่อง Android ที่มีมากมาย</string>
     <string name="settings_thumbs">ลบภาพย่อที่เก็บไว้</string>
@@ -382,12 +382,15 @@
     <string name="settings_editor_backup">สำเนาสำรองก่อนเขียนทับ</string>
     <string name="settings_editor_backup_desc">ก่อนที่โปรแกรมแก้ไขจะเขียนทับภาพ ระบบจะเก็บสำเนาไว้ในถังขยะ ซึ่งคุณกู้คืนได้ หากไม่ต้องการ สำเนานั้นจะถูกลบเมื่อ \'ล้างถังขยะ\' ครั้งต่อไป</string>
     <string name="settings_save_rename">อนุญาตให้เปลี่ยนชื่อเมื่อบันทึก</string>
-    <string name="settings_save_rename_desc">โดยปกติไฟล์จะถูกบันทึกด้วยชื่อเดิม เปิดตัวเลือกนี้เพื่อกำหนดชื่อในทุกการดาวน์โหลด แม้ปิดอยู่ก็แตะ \'บันทึก\' ค้างไว้เพื่อพิมพ์ชื่อใหม่เฉพาะครั้งนั้น: ในกรณีนั้นจะมี \'ปลายทาง\' ให้ใช้ด้วย</string>
+    <string name="settings_save_rename_desc">โดยปกติไฟล์จะถูกบันทึกด้วยชื่อเดิม เปิดตัวเลือกนี้เพื่อกำหนดชื่อในทุกการดาวน์โหลด แม้ปิดอยู่ก็แตะ \'บันทึก\' ค้างไว้เพื่อพิมพ์ชื่อใหม่เฉพาะครั้งนั้น</string>
     <string name="settings_download_path">เลือกตำแหน่งดาวน์โหลด</string>
     <string name="settings_rename_download">การเปลี่ยนชื่อและการดาวน์โหลด</string>
-    <string name="settings_download_path_desc">เพิ่มปุ่ม \'ปลายทาง\' ในหน้าต่างบันทึก เพื่อเลือกโฟลเดอร์ที่ไฟล์จะไป ใช้ได้เมื่อเปิดการเปลี่ยนชื่อเมื่อบันทึกไว้</string>
+    <string name="settings_download_path_desc">เพิ่มปุ่ม \'ปลายทาง\' ในหน้าต่างดาวน์โหลด เพื่อเลือกโฟลเดอร์ที่จะบันทึก</string>
     <string name="save_name_path">โฟลเดอร์ปลายทาง: %1$s</string>
     <string name="save_name_dest">ปลายทาง</string>
+    <string name="save_name_default">ใช้ Download</string>
+    <string name="save_seen_notice">คุณดาวน์โหลดภาพนี้ไปแล้ว</string>
+    <string name="save_seen_again">ดาวน์โหลดอีกครั้ง</string>
     <string name="editor_tall">แนวตั้ง</string>
     <string name="editor_wide">แนวนอน</string>
     <string name="pick_cleared">ไม่ได้เลือกไฟล์ใด</string>

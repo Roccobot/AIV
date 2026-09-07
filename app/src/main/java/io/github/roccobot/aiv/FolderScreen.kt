@@ -237,6 +237,14 @@ fun FolderScreen(
     var sizing by remember { mutableStateOf(false) }
 
     /**
+     * Se si sta battendo il nome di una sottocartella nuova, dalla `1.82`.
+     *
+     * ⚠️ **Lo stato vive qui e non nel menu**, come `sizing`: un tastino che si apre un
+     * dialogo da sé diventa il posto in cui cercare quel dialogo, che non è dove sta.
+     */
+    var making by remember { mutableStateOf(false) }
+
+    /**
      * Se il velo che insegna la scorciatoia delle colonne si è già visto.
      *
      * ⚠️ **Parte da 'già visto', e come nella griglia delle foto è la scelta prudente**: il
@@ -474,6 +482,16 @@ fun FolderScreen(
                 onSearch = onSearch,
                 onBin = onBin,
                 onSize = { sizing = true },
+                /*
+                 * ⚠️ **Le due condizioni sono quelle scritte nel menu**: la vista ad albero, e
+                 * una cartella in cui si sia già scesi. Alla radice `treePath` è nullo, e là
+                 * l'elenco è fatto di volumi.
+                 */
+                onNewFolder = if (view == FolderView.TREE && treePath != null) {
+                    { making = true }
+                } else {
+                    null
+                },
                 // ⚠️ Costante e non numero: [FAB_REACH] dice quanto è alta la fascia
                 // dipinta, e [BELOW_FAB] quanto spazio si lascia sotto l'ultima cartella.
                 modifier = Modifier.align(fabSide()).padding(HUB_PAD)
@@ -528,6 +546,36 @@ fun FolderScreen(
                 )
             }
         }
+    }
+
+    /*
+     * ⚠️⚠️ **LA FINESTRA È QUELLA DEL SELETTORE DI DESTINAZIONE, non una seconda**
+     * ([NewFolderDialog], in `DestinationDialog.kt`): lì dentro 'Nuova cartella' esiste dalla
+     * `0.90` con la stessa domanda, la stessa ripulitura del nome e la stessa modale. Scriverne
+     * una copia qui darebbe due finestre che chiedono la stessa cosa e divergono al primo
+     * ritocco.
+     * ⚠️⚠️ **CREATA LA CARTELLA CI SI ENTRA, e non è un vezzo**: l'elenco dell'albero si
+     * rilegge dal disco quando cambia il percorso, quindi entrarci è anche il modo in cui la
+     * cartella nuova si vede senza un meccanismo di aggiornamento in più. E chi crea una
+     * cartella la sta creando per metterci qualcosa.
+     * ⚠️ **Se la creazione fallisce non si va da nessuna parte**: il disco può rifiutare
+     * (permessi, nome già preso, volume di sola lettura), e navigare in una cartella che non
+     * esiste mostrerebbe un elenco vuoto che sembra un guasto dell'app.
+     */
+    if (making) {
+        NewFolderDialog(
+            onDismiss = { making = false },
+            onCreate = { name ->
+                making = false
+                val dove = treePath
+                if (dove != null) {
+                    val nata = java.io.File(dove, name)
+                    if (runCatching { nata.mkdirs() }.getOrDefault(false)) {
+                        onTreePath(nata.absolutePath)
+                    }
+                }
+            }
+        )
     }
 
     if (sizing) {
@@ -731,6 +779,14 @@ private fun Hub(
      * cercare quel dialogo, che non è dove sta.
      */
     onSize: () -> Unit,
+    /**
+     * Crea una sottocartella nella cartella in cui si è, e `null` quando non c'è una cartella in
+     * cui si sia: alla radice dell'albero e nelle altre due viste.
+     *
+     * ⚠️ **La decisione la prende chi chiama**, come per ogni altro parametro di questo menu:
+     * qui non si sa in che vista si è né dove si è arrivati navigando.
+     */
+    onNewFolder: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val menu = rememberMenuState()
@@ -858,6 +914,25 @@ private fun Hub(
             // Senza questa voce sarebbero irraggiungibili, cioè cancellate.
             // ⚠️ Sta in fondo al gruppo di quelle che aprono qualcosa: è un posto dove si
             // va, come una cartella, ma è il meno frequentato dei quattro.
+            /*
+             * ⚠️⚠️ **'Nuova cartella' C'È SOLO DENTRO UNA CARTELLA DELLA VISTA AD ALBERO**
+             * (riscontro del giro della `1.81`, campo libero punto B: *in vista 'Cartelle di
+             * sistema', il menu del FAB deve avere una funzione in più: `Nuova cartella` sopra
+             * 'Cestino', che crea una nuova sottocartella nella cartella corrente*).
+             * ⚠️ **Alla radice dell'albero non c'è, e non è una dimenticanza**: là l'elenco è
+             * fatto di volumi (la memoria interna, una scheda), che non sono cartelle in cui si
+             * possa scrivere. La 'cartella corrente' esiste dal primo passo in giù.
+             * ⚠️ **Nelle altre due viste nemmeno**: quelle elencano le cartelle che il
+             * MediaStore conosce, cioè un indice, non un posto sul disco. Una cartella creata là
+             * non comparirebbe finché non ci finisce dentro un'immagine.
+             */
+            if (onNewFolder != null) {
+                MenuRow(
+                    text = stringResource(R.string.dest_new),
+                    icon = Glyphs.FolderNew,
+                    onTap = { menu.close(); onNewFolder() }
+                )
+            }
             MenuRow(
                 text = stringResource(R.string.bin_title),
                 icon = Glyphs.Bin,

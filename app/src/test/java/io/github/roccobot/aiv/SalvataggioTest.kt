@@ -125,24 +125,22 @@ class SalvataggioTest {
     }
 
     /**
-     * **Col tocco lungo i due comandi della riga del titolo ci sono tutti e due, e 'Destinazione'
-     * non chiude la finestra.**
+     * **Con un comando solo la riga del titolo porta una pastiglia col testo, e 'Destinazione' non
+     * chiude la finestra.**
      *
-     * ⚠️⚠️ **È LA SUA RICHIESTA ALLA LETTERA** (campo libero del giro della `1.79`, punto D: *la
-     * pressione lunga su 'Scarica' metterà a disposizione la finestra di download con entrambe
-     * le icone-tasto attive*), e senza prova non ce l'avrebbe nessuno: quei due comandi compaiono
-     * per un `force` e per un parametro non nullo, cioè per due strade diverse che non danno
-     * nessun errore se una delle due non arriva.
-     * ⚠️⚠️ **E CHE LA FINESTRA RESTI APERTA È LA METÀ NUOVA DELLA `1.81`** (voce
-     * `scarica-percorso`: *Voglio solo SELEZIONARE la destinazione, non salvare*): fino alla
-     * `1.80` quel comando chiudeva la finestra e apriva la finestra 'Salva file' del sistema,
-     * cioè salvava. Adesso apre un selettore di cartella e quello che si era battuto deve essere
-     * ancora là al ritorno, quindi la prova guarda che il campo del nome sia ancora in scena.
-     * ⚠️ **L'ordine non si prova qui**: 'prima Percorso e poi Estensione' è una posizione, e
-     * quello che il banco può dire è che i due nodi esistono. Il posto si vede.
+     * ⚠️⚠️ **LA PROVA È CAMBIATA CON IL COMPORTAMENTO, E LA RAGIONE È SUA** (riscontro del giro
+     * della `1.81`, voce `save-comandi`: *'Estensione' deve seguire la propria opzione di
+     * visibilità nelle impostazioni*). Fino alla `1.81` il tocco lungo accendeva anche quel
+     * comando, e questa prova lo misurava: adesso il tocco lungo riguarda 'Destinazione' e basta,
+     * quindi con le impostazioni di fabbrica in scena ce n'è **uno solo**. Non è una prova piegata
+     * per far passare un build: è la specifica che si è rovesciata, e la riga sopra dice quale.
+     * ⚠️⚠️ **E CHE LA FINESTRA RESTI APERTA È LA METÀ DELLA `1.81` CHE RESTA VERA** (voce
+     * `scarica-percorso`: *Voglio solo SELEZIONARE la destinazione, non salvare*): quel comando
+     * apre un selettore di cartella e quello che si era battuto deve essere ancora là al ritorno,
+     * quindi la prova guarda che il campo del nome sia ancora in scena.
      */
     @Test
-    fun `col tocco lungo i due comandi del titolo ci sono tutti e due`() {
+    fun `con un comando solo il titolo porta la pastiglia col testo`() {
         var aperto = 0
         banco.setContent {
             AivTheme(darkTheme = false) {
@@ -152,11 +150,35 @@ class SalvataggioTest {
 
         val destinazione = app.getString(R.string.save_name_dest)
         banco.onNodeWithText(destinazione).assertExists()
-        banco.onNodeWithText(app.getString(R.string.rename_ext)).assertExists()
+        banco.onNodeWithText(app.getString(R.string.rename_ext)).assertDoesNotExist()
 
         banco.onNodeWithText(destinazione).performClick()
         assertEquals("'Destinazione' non ha aperto il selettore di cartella", 1, aperto)
         banco.onNodeWithText("foto").assertExists()
+    }
+
+    /**
+     * **Con una cartella scelta c'è la via del ritorno a Download.**
+     *
+     * ⚠️⚠️ **È IL VICOLO CIECO DELLA VOCE `save-percorso`** (giro della `1.81`: *se cambio
+     * cartella di download, non posso più tornare a storage/emulated/0/Download. Il file picker mi
+     * dice che 'per tutelare la mia privacy' non posso scegliere quella cartella*), quindi torna
+     * qui con la prova che lo avrebbe fermato: il comando esiste, si tocca, e chiama chi lo scorda.
+     * ⚠️ **Il caso opposto è nella prova della riga senza cartella**: senza una cartella scelta non
+     * c'è niente da scordare, e il comando non deve comparire.
+     */
+    @Test
+    fun `con una cartella scelta si torna a Download`() {
+        var tornato = 0
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                Finestra(folder = "Vacanze", onUseDownloads = { tornato += 1 })
+            }
+        }
+        val ritorno = app.getString(R.string.save_name_default)
+        banco.onNodeWithText(ritorno).assertExists()
+        banco.onNodeWithText(ritorno).performClick()
+        assertEquals("Il ritorno a Download non ha scordato la cartella", 1, tornato)
     }
 
     /**
@@ -276,6 +298,7 @@ class SalvataggioTest {
         hold: Boolean = false,
         folder: String? = null,
         onPickFolder: (() -> Unit)? = null,
+        onUseDownloads: (() -> Unit)? = null,
         onSave: (String, String) -> Unit = { _, _ -> }
     ) {
         SaveNameDialog(
@@ -283,8 +306,55 @@ class SalvataggioTest {
             hold = hold,
             folder = folder,
             onPickFolder = onPickFolder,
+            onUseDownloads = onUseDownloads,
             onDismiss = {},
             onSave = onSave
         )
     }
+    /**
+     * **Il registro dei download riconosce un doppione e scorda il vecchio.**
+     *
+     * ⚠️⚠️ **NASCE COL REGISTRO, NELLA `1.82`** (campo libero del giro della `1.81`, punto E):
+     * la firma è suffisso più byte, quindi le due cose da provare sono che due scritture diverse
+     * dello stesso suffisso contino come una, e che una voce vecchia esca dal registro.
+     * ⚠️ **Le funzioni pure e non l'archivio**: `DataStore` in una prova vorrebbe un contesto e
+     * un file, e quello che qui può sbagliare è il conto, non la scrittura su disco.
+     */
+    @Test
+    fun `il registro dei download riconosce la stessa firma`() {
+        assertEquals(
+            "Due scritture dello stesso suffisso non hanno dato la stessa firma",
+            DownloadLog.mark(".JPG", 12345L),
+            DownloadLog.mark("jpg", 12345L)
+        )
+        assertTrue(
+            "Due pesi diversi hanno dato la stessa firma",
+            DownloadLog.mark("jpg", 12345L) != DownloadLog.mark("jpg", 12346L)
+        )
+    }
+
+    /**
+     * **Le voci scadute e quelle in eccesso escono dal registro.**
+     *
+     * ⚠️ **Trentuno giorni è un giorno oltre la soglia**, cioè il primo caso che deve uscire: una
+     * prova a trenta esatti misurerebbe l'arrotondamento invece della regola.
+     */
+    @Test
+    fun `il registro dei download si pota`() {
+        val ora = 1_800_000_000_000L
+        val giorno = 24L * 60 * 60 * 1000
+        val vecchia = "jpg:1@${ora - 31 * giorno}"
+        val fresca = "png:2@${ora - giorno}"
+        val potato = DownloadLog.prune(setOf(vecchia, fresca, "rotta:3"), ora)
+        assertTrue("La voce scaduta è rimasta", vecchia !in potato)
+        assertTrue("La voce fresca è stata buttata", fresca in potato)
+        assertTrue("Una voce senza istante è rimasta", potato.none { it.startsWith("rotta") })
+
+        val tante = (1..500).map { "jpg:$it@${ora - it}" }.toSet()
+        assertTrue(
+            "Il tetto del registro non ha tenuto: ${DownloadLog.prune(tante, ora).size} voci",
+            DownloadLog.prune(tante, ora).size < 200
+        )
+    }
+
 }

@@ -326,7 +326,7 @@
     <string name="settings_group_start">Uruchamianie</string>
     <string name="settings_group_advanced">Funkcje zaawansowane</string>
     <string name="settings_ext_edit">Pozwól zmieniać rozszerzenie</string>
-    <string name="settings_ext_edit_desc">Dodaje przycisk \'Rozszerzenie\' do okien wybranych poniżej. Zmiana rozszerzenia niczego nie konwertuje: jeśli nie wiesz, co robisz, zostaw oba wyłączone, bo obraz może stać się nieczytelny.</string>
+    <string name="settings_ext_edit_desc">Dodaje przycisk \'Rozszerzenie\' do okien z nazwami plików. Poniżej wybierz, w których. ⚠️ Zmiana rozszerzenia to nie konwersja formatu (od tego jest \'Eksportuj i konwertuj\') i wymaga ostrożności, bo część plików może stać się nieczytelna i zniknąć z aplikacji galerii.</string>
     <string name="settings_gpu_thumbs">Trzymaj miniatury w pamięci graficznej</string>
     <string name="settings_gpu_thumbs_desc">Tworzy pamięć miniatur w pamięci układu graficznego, więc zwykła pamięć zostaje wolna. Może przyspieszyć galerię, nie zmienić nic albo w niektórych przypadkach ją zwolnić, niemal zawsze na starszych urządzeniach. Gdy masz problemy z wydajnością, włącz to i sprawdź, czy pomaga: z góry nie da się tego wiedzieć, bo Android ma bardzo wiele połączeń sprzętu i oprogramowania.</string>
     <string name="settings_thumbs">Usuń zapisane miniatury</string>
@@ -430,12 +430,15 @@
     <string name="settings_editor_backup">Kopia zapasowa przed nadpisaniem</string>
     <string name="settings_editor_backup_desc">Zanim edytor nadpisze obraz, zapisuje jego kopię w koszu, skąd będzie można ją odzyskać; jeśli nie będzie potrzebna, zniknie przy następnym \'Opróżnij kosz\'.</string>
     <string name="settings_save_rename">Pozwól zmieniać nazwę przy zapisie</string>
-    <string name="settings_save_rename_desc">Domyślnie pliki są zapisywane pod pierwotną nazwą. Włącz to, aby ustalać nazwę przy każdym pobraniu. Nawet gdy jest wyłączone, przytrzymaj \'Zapisz\', aby wpisać nową nazwę tylko tym razem: wtedy dostępne jest także \'Miejsce docelowe\'.</string>
+    <string name="settings_save_rename_desc">Domyślnie pliki są zapisywane pod pierwotną nazwą. Włącz to, aby ustalać nazwę przy każdym pobraniu. Nawet gdy jest wyłączone, przytrzymaj \'Zapisz\', aby wpisać nową nazwę tylko tym razem.</string>
     <string name="settings_download_path">Wybór ścieżki pobierania</string>
     <string name="settings_rename_download">Zmiana nazwy i pobierania</string>
-    <string name="settings_download_path_desc">Dodaje przycisk \'Miejsce docelowe\' do okna zapisu, aby wybrać folder, do którego trafi plik. Działa, gdy zmiana nazwy przy zapisie jest włączona.</string>
+    <string name="settings_download_path_desc">Dodaje przycisk \'Miejsce docelowe\' do okna pobierania, aby wybrać folder zapisu.</string>
     <string name="save_name_path">Folder docelowy: %1$s</string>
     <string name="save_name_dest">Miejsce docelowe</string>
+    <string name="save_name_default">Użyj Download</string>
+    <string name="save_seen_notice">Ten obraz już został pobrany</string>
+    <string name="save_seen_again">Pobierz ponownie</string>
     <string name="editor_tall">Pionowo</string>
     <string name="editor_wide">Poziomo</string>
     <string name="pick_cleared">Nie wybrano żadnego pliku.</string>

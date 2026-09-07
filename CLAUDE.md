@@ -300,6 +300,19 @@ grande un dialogo esattamente al centro fa allungare la mano.
     sopra dell'area che la tastiera lascia libera.
     - ⚠️ **Vale per ogni superficie centrata**, come la misura da cui nasce, e finisce
       nell'istante in cui la tastiera se ne va.
+    - ⚠️⚠️ **L'ARIA SOPRA È 56dp E NON 16, DALLA `1.82`** (riscontro del giro della `1.81`, voce
+      `ext-notch`, approvata con una riserva: *è vero, ma finisce ancora molto in alto, mi sembra
+      anche troppo*). La `1.81` aveva tolto il pannello dal notch e lo lasciava a filo del bordo:
+      `KEYBOARD_AIR` è la striscia che fa leggere 'sopra la finestra c'è ancora schermo'.
+    - ⚠️⚠️ **E LA SALITA SI TIENE FERMA FINCHÉ IL CAMBIAMENTO È PICCOLO, DALLA `1.82`** (campo
+      libero del giro della `1.81`, punto A: *quando si digita scatta tutto in alto traballando
+      ... e se cancello i caratteri con un gesto di HeliBoard l'intera finestra di rinomina balla
+      a più non posso*). Lo spazio che la tastiera lascia libero **cambia mentre si scrive** (la
+      barra dei suggerimenti, un gesto che allarga la tastiera, l'animazione ancora in corso), e
+      la salita lo seguiva punto per punto. Adesso il pannello si sposta solo se il cambiamento
+      supera una soglia più grande di una barra dei suggerimenti e più piccola di una tastiera.
+      ⚠️ **Il tetto si riapplica sempre**: il ricordo può evitare di risalire, mai far salire di
+      più, o si torna sul notch.
     - ⚠️ **Con lei arriva un TETTO sull'altezza**, ed è un difetto a sé che la stretta non
       poteva togliere (*in presenza di un nome molto lungo (ma valido) la finestra è tagliata
       brutalmente*): ridurre lo spostamento non accorcia un pannello più alto della finestra.
@@ -432,6 +445,14 @@ grande un dialogo esattamente al centro fa allungare la mano.
         fabbrica*). Il *penserò se tenere o meno* di allora è la risposta di adesso, dopo
         quaranta versioni di prova. ⚠️ **L'impostazione resta**, e con lei tutto quello che è
         scritto qui sopra: cambia il valore di partenza, non il meccanismo.
+        - ⚠️⚠️ **E DALLA `1.82` DI FABBRICA C'È L'OMBRA E NON LA SFOCATURA** (riscontro del giro
+          della `1.81`, voce `sfoc-ombra`: *mi piace talmente tanto che voglio l'ombreggiatura
+          come nuova opzione predefinita di fabbrica*), cioè al primo giro in cui l'ombra è
+          esistita. La sfocatura resta una delle tre risposte.
+        - ⚠️⚠️ **E I CASI DELLA MIGRAZIONE SONO TRE E NON DUE**: chi aveva **acceso** la
+          sfocatura tiene la sfocatura, chi l'aveva spenta tiene il niente, chi non ha mai
+          toccato la voce riceve l'ombra. Con un `else` solo, una scelta esplicita sarebbe
+          cambiata da un aggiornamento.
         - ⚠️ **Il valore di fabbrica vive in DUE posti**, il campo di `Settings` e la lettura del
           flusso: cambiarne uno solo dà un'app accesa al primo avvio e spenta dopo il primo
           salvataggio, che è un difetto che non dà nessun errore.
@@ -787,15 +808,48 @@ era un gettone tonale, e il pezzo che li disegna è `Quiet`, lo stesso delle due
   deve apparire sotto forma di icona a destra, allineato alla linea di base del titolo*). Con lei
   c'è **'Percorso'**, e l'ordine è il suo: *prima 'Percorso' e poi 'Estensione' ultima a destra*;
   una sola in scena sta comunque a destra, perché è la **fila** che si allinea al bordo.
-  - ⚠️ **Il pezzo che le disegna è `TitleAction`, condiviso con 'Rinomina'**, dove nello stesso
-    giro la pastiglia col testo è diventata anche lei un'icona (campo libero, punto B). Le due
-    finestre portano gli stessi comandi, quindi la forma è **una**.
-  - ⚠️ **I due glifi sono PROVVISORI**: lui ha chiesto una proposta (*proponimi qualche icona per
-    'Estensione' e altre per 'percorso'*), e finché non sceglie ci sono due glifi di Material che
-    si leggono.
-  - ⚠️ **Col tocco lungo su 'Scarica' compaiono tutte e due a impostazioni spente** (campo
-    libero, punto D): quel gesto è già il 'per questa volta sola' che accende la rinomina.
-    ⚠️ **Quello che non scavalca è l'avviso** della prima volta, che è quello che protegge.
+  - ⚠️⚠️ **UNO SOLO È UNA PASTIGLIA COL TESTO, DUE SONO DUE ICONE, DALLA `1.82`** (campo libero
+    del giro della `1.81`, punto C: *chiaramente non possono coesistere due pulsanti testuali in
+    'Scarica' quando 'Destinazione' ed 'Estensione' sono entrambi attivi ... in quel caso si usano
+    le icone ... Quando solo una delle due è attiva, si torna al pulsante testuale*). I due pezzi
+    che li disegnano sono `TitlePill` e `TitleIcon`, condivisi con 'Rinomina', e a scegliere è il
+    **conto** dei comandi in scena: scritte due volte, le due condizioni darebbero una pastiglia
+    accanto a un'icona.
+  - ⚠️⚠️ **I DUE GLIFI SONO SUOI DALLA `1.82`** (`Glyphs.FolderDownload` e `Glyphs.Extension`,
+    arrivati nello ZIP del giro della `1.81`), e non sono più i due provvisori di Material che la
+    `1.80` teneva in attesa della sua scelta.
+  - ⚠️⚠️ **E DALLA `1.82` LE DUE CONDIZIONI SONO ROVESCIATE, SU SUA ISTRUZIONE** (voce
+    `save-comandi`: *'Destinazione' deve comparire sempre solo quando fai un tocco lungo su
+    'Scarica'*, e *'Estensione' deve seguire la propria opzione di visibilità nelle
+    impostazioni*). Quindi 'Destinazione' vuole l'opzione accesa **e** il tocco lungo, e
+    'Estensione' segue la sola opzione, con qualunque gesto. Fino alla `1.81` era il contrario:
+    il tocco lungo le accendeva tutte e due a impostazioni spente.
+    - ⚠️ **La `e` al posto della `o` non è un'interpretazione libera**: nello stesso giro lui ha
+      riscritto la spiegazione di 'Scegli il percorso di download' in *aggiunge il pulsante
+      'Destinazione' alla schermata di download*, e ha tagliato da quella della rinomina la coda
+      che prometteva *in quel caso è disponibile anche 'Destinazione'*.
+
+⚠️⚠️ **SI TORNA A DOWNLOAD DALLA FINESTRA, DALLA `1.82`, PERCHÉ IL SELETTORE NON SA RIPORTARCI**
+(voce `save-percorso`, non approvata: *se cambio cartella di download, non posso più tornare a
+storage/emulated/0/Download. Il file picker mi dice che 'per tutelare la mia privacy' non posso
+scegliere quella cartella*). Cioè una cartella scelta una volta era **definitiva**. Adesso la riga
+che dice la cartella porta accanto il comando che la scorda, e **spegnere l'opzione la scorda
+anche lei**: sono le due vie da cui si può restare chiusi fuori.
+- ⚠️ **Il ritorno non passa dal selettore**, ed è la ragione per cui funziona: scordare l'albero
+  scelto riporta a `MediaStore.Downloads`, che non è un percorso da scegliere.
+- ⚠️ **Scordare rende anche il permesso persistente** (`DownloadFolder.forget`): un albero che non
+  si usa più tiene uno dei posti che il sistema concede all'app.
+
+⚠️⚠️ **E DALLA `1.82` L'APP SI RICORDA CHE COSA HA GIÀ SCARICATO** (campo libero del giro della
+`1.81`, punto E: *l'app deve verificare se ha già scaricato di recente un file con la stessa
+estensione e lo stesso numero di byte ... Testo: 'Hai già scaricato questa immagine'; azione a
+destra: 'Scarica di nuovo'*). La firma è **suffisso più byte**, la notifica è la stessa
+dell'eliminazione annullata con cinque secondi invece di tre, e il registro vive in
+`DownloadLog`.
+- ⚠️ **Trenta giorni e duecento voci**, che è il consiglio che aveva chiesto (*consigliami tu*):
+  il conto che regge i due numeri è in testa a `DownloadLog`.
+- ⚠️ **Senza i byte non si firma niente e si salva**: un sorgente di cui non si legge la lunghezza
+  darebbe `0`, e allora tutte le immagini senza misura avrebbero la stessa firma.
 - ⚠️⚠️ **E 'Rinomina' HA PRESO 'Data' NEL GIRO DELLA `1.78`**, che è la simmetria dall'altra parte
   (campo libero, punto (a): *voglio che 'Rinomina' abbia 'Data', che inserisce YYYYMMDD
   esattamente come implementato in 'Scarica'*). 'Esattamente come' regge solo se il gesto lo fa

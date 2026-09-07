@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DragIndicator
@@ -117,9 +118,21 @@ fun <T> Reorderable(
             withFrameNanos { }
             if (da < 0) break
             val dito = testa + da * altaPx + scarto + altaPx / 2f
+            /*
+             * ⚠️⚠️ **IN ALTO LA SOGLIA È LA CIMA DELL'ELENCO, NON IL BORDO DELLO SCHERMO, DALLA
+             * `1.82`** (riscontro del giro della `1.81`, voce `riordino-scorre`, con la riga
+             * disegnata sopra la prima voce). Sopra questo elenco vivono il titolo della pagina e
+             * la sua spiegazione, cioè un centinaio di dp in cui la riga presa **non può
+             * entrare**: misurando dal bordo della finestra, la banda che fa scorrere cadeva
+             * quasi tutta là dentro e all'insù non scorreva quasi niente.
+             * ⚠️ **In basso resta il bordo della finestra**, e non è un'asimmetria dimenticata:
+             * là sotto l'elenco arriva fino in fondo alla pagina, quindi il bordo è già la fine
+             * della strada.
+             */
+            val cima = testa.coerceAtLeast(0f)
             val spinta = when {
                 alta <= 0f -> 0f
-                dito < edgePx -> -(edgePx - dito) / edgePx
+                dito < cima + edgePx -> -(cima + edgePx - dito) / edgePx
                 dito > alta - edgePx -> (dito - (alta - edgePx)) / edgePx
                 else -> 0f
             }
@@ -204,10 +217,25 @@ fun <T> Reorderable(
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .size(HANDLE)
-                        // ⚠️ Mentre una riga è in viaggio le altre manopole si spengono a
-                        // vista: due dita su due manopole darebbero due partenze e un conto
-                        // solo.
-                        .alpha(if (da < 0 || preso) 1f else GHOST)
+                        /*
+                         * ⚠️⚠️ **IL DISEGNO È PIÙ PICCOLO DEL BERSAGLIO, DALLA `1.82`**
+                         * (riscontro del giro della `1.81`, voce `riordino-scorre`: *maniglie
+                         * più piccole e al 60%*). Fino alla `1.81` il glifo riempiva tutti e 40
+                         * i dp del bersaglio, cioè era grande la metà più di ogni altra icona
+                         * dell'app. Il rientro rimpicciolisce il **disegno** e lascia intero il
+                         * posto in cui si può prendere: rimpicciolire la scatola avrebbe
+                         * ridotto anche quello.
+                         */
+                        .padding((HANDLE - HANDLE_GLYPH) / 2)
+                        /*
+                         * ⚠️ Mentre una riga è in viaggio le altre manopole si spengono a
+                         * vista: due dita su due manopole darebbero due partenze e un conto
+                         * solo.
+                         * ⚠️ **A riposo non è più piena**: [HANDLE_INK] è il 60% che ha chiesto
+                         * lui, e serve a far pesare meno una fila di manopole accanto a una fila
+                         * di nomi, che sono la cosa da leggere.
+                         */
+                        .alpha(if (da < 0 || preso) HANDLE_INK else GHOST)
                         .pointerInput(at, items.size) {
                             detectDragGestures(
                                 onDragStart = {
@@ -264,8 +292,19 @@ private val ROW = 56.dp
  */
 internal val HANDLE: Dp = 40.dp
 
+/**
+ * Quanto è grande il **disegno** dentro il bersaglio.
+ *
+ * ⚠️ **24dp è la misura di ogni altra icona dell'app**, e la manopola non ha nessuna ragione di
+ * essere più grande: quello che deve restare grande è il posto in cui si prende, cioè [HANDLE].
+ */
+private val HANDLE_GLYPH: Dp = 24.dp
+
 /** Quanto si spengono le manopole delle righe ferme mentre una viaggia. */
 private const val GHOST = 0.3f
+
+/** Quanto si vede una manopola a riposo: il 60% che ha chiesto lui nel giro della `1.81`. */
+private const val HANDLE_INK = 0.6f
 
 /**
  * La stessa lista con un elemento spostato.

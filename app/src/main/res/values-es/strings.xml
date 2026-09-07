@@ -312,7 +312,7 @@
     <string name="settings_group_start">Inicio</string>
     <string name="settings_group_advanced">Funciones avanzadas</string>
     <string name="settings_ext_edit">Permitir cambiar la extensión</string>
-    <string name="settings_ext_edit_desc">Añade el botón \'Extensión\' a las ventanas que elijas abajo. Cambiar la extensión no convierte nada: si no sabes lo que haces, déjalos apagados, porque puede volver una imagen ilegible.</string>
+    <string name="settings_ext_edit_desc">Añade el botón \'Extensión\' a las ventanas de nombres de archivo. Elige abajo en cuáles aparece. ⚠️ Cambiar la extensión no es una conversión de formato (para eso está \'Exportar y convertir\') y hay que usarlo con cuidado, porque algunos archivos pueden volverse ilegibles y dejar de verse en las apps de galería.</string>
     <string name="settings_gpu_thumbs">Guardar las miniaturas en la memoria gráfica</string>
     <string name="settings_gpu_thumbs_desc">Crea la caché de miniaturas en la memoria del chip gráfico, dejando libre la memoria normal. Puede hacer la galería más ágil, no cambiar nada o, en algunos casos, casi siempre en dispositivos antiguos, ralentizarla. Si tienes problemas de rendimiento, actívala y comprueba si mejora: no se sabe por adelantado, con todas las combinaciones de hardware y software que hay en Android.</string>
     <string name="settings_thumbs">Eliminar las miniaturas almacenadas</string>
@@ -414,12 +414,15 @@
     <string name="settings_editor_backup">Copia de seguridad antes de sobrescribir</string>
     <string name="settings_editor_backup_desc">Antes de que un editor sobrescriba una imagen, guarda una copia en la papelera, donde podrás recuperarla; si no la necesitas, se eliminará en el siguiente \'Vaciar papelera\'.</string>
     <string name="settings_save_rename">Permitir renombrar al guardar</string>
-    <string name="settings_save_rename_desc">De forma predeterminada, los archivos se guardan con su nombre original. Activa esto para definir un nombre en cada descarga. Incluso desactivado, mantén pulsado \'Guardar\' para escribir un nombre nuevo solo esa vez: en ese caso también está disponible \'Destino\'.</string>
+    <string name="settings_save_rename_desc">De forma predeterminada, los archivos se guardan con su nombre original. Activa esto para definir un nombre en cada descarga. Incluso desactivado, mantén pulsado \'Guardar\' para escribir un nombre nuevo solo esa vez.</string>
     <string name="settings_download_path">Elegir la ruta de descarga</string>
     <string name="settings_rename_download">Renombrar y descargas</string>
-    <string name="settings_download_path_desc">Añade el botón \'Destino\' a la ventana de guardado, para elegir la carpeta a la que va el archivo. Se aplica cuando el renombrado al guardar está activo.</string>
+    <string name="settings_download_path_desc">Añade el botón \'Destino\' a la ventana de descarga, para elegir la carpeta donde se guarda.</string>
     <string name="save_name_path">Carpeta de destino: %1$s</string>
     <string name="save_name_dest">Destino</string>
+    <string name="save_name_default">Usar Download</string>
+    <string name="save_seen_notice">Ya has descargado esta imagen</string>
+    <string name="save_seen_again">Descargar de nuevo</string>
     <string name="editor_tall">Vertical</string>
     <string name="editor_wide">Horizontal</string>
     <string name="pick_cleared">Ningún archivo seleccionado.</string>

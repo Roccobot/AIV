@@ -298,7 +298,7 @@
     <string name="settings_group_start">Start</string>
     <string name="settings_group_advanced">Erweiterte Funktionen</string>
     <string name="settings_ext_edit">Ändern der Endung erlauben</string>
-    <string name="settings_ext_edit_desc">Fügt den unten gewählten Fenstern die Schaltfläche \'Endung\' hinzu. Eine Endung zu ändern konvertiert nichts: Wenn du nicht weißt, was du tust, lass beide aus, denn ein Bild kann unlesbar werden.</string>
+    <string name="settings_ext_edit_desc">Fügt den Fenstern für Dateinamen die Schaltfläche \'Endung\' hinzu. Wähle unten, in welchen. ⚠️ Eine Endung zu ändern ist keine Formatumwandlung (dafür gibt es \'Exportieren und umwandeln\') und will mit Bedacht benutzt werden, denn manche Dateien werden unlesbar und tauchen in Galerie-Apps nicht mehr auf.</string>
     <string name="settings_gpu_thumbs">Miniaturen im Grafikspeicher halten</string>
     <string name="settings_gpu_thumbs_desc">Legt den Miniaturbild-Zwischenspeicher im Speicher des Grafikchips ab und hält den normalen Speicher frei. Das kann die Galerie flotter machen, nichts ändern oder sie in manchen Fällen bremsen, fast immer auf älteren Geräten. Bei Leistungsproblemen schalte es ein und sieh, ob es hilft: vorher weiß man es nicht, so viele Hardware- und Software-Kombinationen gibt es unter Android.</string>
     <string name="settings_thumbs">Gespeicherte Miniaturbilder löschen</string>
@@ -398,12 +398,15 @@
     <string name="settings_editor_backup">Sicherheitskopie vor dem Überschreiben</string>
     <string name="settings_editor_backup_desc">Bevor ein Editor ein Bild überschreibt, legt er eine Kopie in den Papierkorb, wo sie wiederherstellbar bleibt; wird sie nicht gebraucht, verschwindet sie beim nächsten \'Papierkorb leeren\'.</string>
     <string name="settings_save_rename">Umbenennen beim Speichern erlauben</string>
-    <string name="settings_save_rename_desc">Standardmäßig werden Dateien unter ihrem ursprünglichen Namen gespeichert. Aktiviere dies, um bei jedem Download einen Namen festzulegen. Auch wenn es aus ist: \'Speichern\' gedrückt halten, um nur dieses eine Mal einen neuen Namen einzugeben. In diesem Fall ist auch \'Ziel\' verfügbar.</string>
+    <string name="settings_save_rename_desc">Standardmäßig werden Dateien unter ihrem ursprünglichen Namen gespeichert. Aktiviere dies, um bei jedem Download einen Namen festzulegen. Auch wenn es aus ist: \'Speichern\' gedrückt halten, um nur dieses eine Mal einen neuen Namen einzugeben.</string>
     <string name="settings_download_path">Speicherort beim Download wählen</string>
     <string name="settings_rename_download">Umbenennen und Downloads</string>
-    <string name="settings_download_path_desc">Fügt dem Speicherfenster die Schaltfläche \'Ziel\' hinzu, um den Ordner für die Datei zu wählen. Gilt, wenn das Umbenennen beim Speichern aktiv ist.</string>
+    <string name="settings_download_path_desc">Fügt dem Download-Fenster die Schaltfläche \'Ziel\' hinzu, um den Speicherordner zu wählen.</string>
     <string name="save_name_path">Zielordner: %1$s</string>
     <string name="save_name_dest">Ziel</string>
+    <string name="save_name_default">Download verwenden</string>
+    <string name="save_seen_notice">Dieses Bild hast du schon heruntergeladen</string>
+    <string name="save_seen_again">Erneut herunterladen</string>
     <string name="editor_tall">Hochformat</string>
     <string name="editor_wide">Querformat</string>
     <string name="pick_cleared">Keine Datei ausgewählt.</string>

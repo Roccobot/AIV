@@ -312,7 +312,7 @@
     <string name="settings_group_start">Démarrage</string>
     <string name="settings_group_advanced">Fonctions avancées</string>
     <string name="settings_ext_edit">Autoriser la modification de l\'extension</string>
-    <string name="settings_ext_edit_desc">Ajoute le bouton \'Extension\' aux fenêtres choisies ci-dessous. Changer une extension ne convertit rien : si vous ne savez pas ce que vous faites, laissez les deux désactivés, car une image peut devenir illisible.</string>
+    <string name="settings_ext_edit_desc">Ajoute le bouton \'Extension\' aux fenêtres de nom de fichier. Choisis ci-dessous dans lesquelles. ⚠️ Changer une extension n\'est pas une conversion de format (c\'est le rôle d\'\'Exporter et convertir\') et demande de la prudence, car certains fichiers peuvent devenir illisibles et disparaître des applis de galerie.</string>
     <string name="settings_gpu_thumbs">Garder les miniatures en mémoire graphique</string>
     <string name="settings_gpu_thumbs_desc">Crée le cache des vignettes dans la mémoire de la puce graphique, ce qui laisse la mémoire normale libre. Ça peut rendre la galerie plus vive, ne rien changer, ou la ralentir dans certains cas, presque toujours sur les appareils anciens. Si tu as des problèmes de performance, active-le et vois si ça aide : on ne peut pas le savoir d\'avance, avec toutes les combinaisons matériel et logiciel d\'Android.</string>
     <string name="settings_thumbs">Supprimer les miniatures enregistrées</string>
@@ -414,12 +414,15 @@
     <string name="settings_editor_backup">Copie de sûreté avant d\'écraser</string>
     <string name="settings_editor_backup_desc">Avant qu\'un éditeur n\'écrase une image, il en enregistre une copie dans la corbeille, où vous pourrez la récupérer ; si elle ne vous sert pas, elle sera supprimée au prochain \'Vider la corbeille\'.</string>
     <string name="settings_save_rename">Autoriser le renommage à l\'enregistrement</string>
-    <string name="settings_save_rename_desc">Par défaut, les fichiers sont enregistrés sous leur nom d\'origine. Activez ceci pour définir un nom à chaque téléchargement. Même désactivé, maintenez \'Enregistrer\' pour saisir un nouveau nom juste cette fois : dans ce cas \'Destination\' est également disponible.</string>
+    <string name="settings_save_rename_desc">Par défaut, les fichiers sont enregistrés sous leur nom d\'origine. Activez ceci pour définir un nom à chaque téléchargement. Même désactivé, maintenez \'Enregistrer\' pour saisir un nouveau nom juste cette fois.</string>
     <string name="settings_download_path">Choisir le dossier de téléchargement</string>
     <string name="settings_rename_download">Renommage et téléchargements</string>
-    <string name="settings_download_path_desc">Ajoute le bouton \'Destination\' à la fenêtre d\'enregistrement, pour choisir le dossier où va le fichier. S\'applique quand le renommage à l\'enregistrement est actif.</string>
+    <string name="settings_download_path_desc">Ajoute le bouton \'Destination\' à la fenêtre de téléchargement, pour choisir le dossier d\'enregistrement.</string>
     <string name="save_name_path">Dossier de destination : %1$s</string>
     <string name="save_name_dest">Destination</string>
+    <string name="save_name_default">Utiliser Download</string>
+    <string name="save_seen_notice">Vous avez déjà téléchargé cette image</string>
+    <string name="save_seen_again">Télécharger à nouveau</string>
     <string name="editor_tall">Portrait</string>
     <string name="editor_wide">Paysage</string>
     <string name="pick_cleared">Aucun fichier sélectionné.</string>

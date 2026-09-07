@@ -48,6 +48,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material.icons.outlined.Image
@@ -56,6 +57,7 @@ import androidx.compose.material.icons.outlined.Movie
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -262,6 +264,16 @@ fun GridScreen(
      * (cartella e ricerca) a passare una funzione che non useranno mai.
      */
     onHistory: () -> Unit = {},
+    /**
+     * Dove manda 'Cestino' nel menu del tastino, e `null` quando di qui non ci si va.
+     *
+     * ⚠️ **Nulli di serie perché non ogni veste di questa griglia ha dove mandare**: la ricerca e
+     * la cartella d'avvio la montano per mostrare un elenco, non per navigare l'app. Con tutti e
+     * due nulli, in una cartella il tastino non compare affatto.
+     */
+    onBin: (() -> Unit)? = null,
+    /** Dove manda 'Impostazioni' nel menu del tastino. Vedi [onBin]. */
+    onSettings: (() -> Unit)? = null,
     /**
      * Avvisa che la griglia ha una selezione viva, cioè che una rilettura le farebbe danno.
      *
@@ -1506,8 +1518,21 @@ fun GridScreen(
              * ⚠️ **Riguarda il solo cestino**, come tutto questo tastino: in una cartella
              * normale non c'è e la notifica ha il fondo tutto per sé.
              */
+            /*
+             * ⚠️⚠️ **DALLA `1.82` IL TASTINO C'È ANCHE IN UNA CARTELLA NORMALE** (riscontro del
+             * giro della `1.81`, campo libero punto B: *il FAB deve vedersi in tutte le cartelle,
+             * non solo nella schermata home*). Fino alla `1.81` viveva nel solo cestino, e da
+             * dentro una cartella il cestino e le impostazioni si raggiungevano tornando indietro.
+             * ⚠️ **Le voci non sono le stesse**: nel cestino porta le tre che riguardano il
+             * cestino intero, in una cartella le due destinazioni che di qui non si raggiungono.
+             * A dirlo è [PickMenu], che riceve un blocco diverso.
+             * ⚠️ **Senza i due richiami non compare**, ed è il caso della griglia montata in una
+             * veste che non ha dove mandare (vedi i due parametri): un tastino che apre un menu
+             * vuoto è peggio di un tastino che non c'è.
+             */
             FabPop(
-                visible = bin && !picking && cleared == null,
+                visible = (bin || onSettings != null || onBin != null) &&
+                    !picking && cleared == null,
                 // ⚠️ Il lato è quello scelto nelle impostazioni: vedi `PadLook.hand`.
                 modifier = Modifier.align(fabSide()).padding(8.dp)
             ) {
@@ -1524,6 +1549,35 @@ fun GridScreen(
                      * l'ordine dei figli.
                      */
                     PickMenu(menu = menu) {
+                        /*
+                         * ⚠️⚠️ **IN UNA CARTELLA IL MENU È UN ALTRO, DALLA `1.82`**: le tre
+                         * voci qui sotto riguardano il cestino intero e in una cartella non
+                         * vogliono dire niente. Quelle di una cartella sono le due destinazioni
+                         * che di qui non si raggiungono, cioè quello per cui lui ha chiesto il
+                         * tastino: *il FAB deve vedersi in tutte le cartelle*.
+                         * ⚠️ **Nello stesso ordine della schermata iniziale**: prima il cestino,
+                         * poi il filetto, poi le impostazioni. Chi ha imparato dove sta una voce
+                         * la ritrova, che è la ragione per cui questo menu passa dallo stesso
+                         * [MenuRow] e non da un elenco scritto a parte.
+                         */
+                        if (!bin) {
+                            onBin?.let { vaiAlCestino ->
+                                MenuRow(
+                                    text = stringResource(R.string.bin_title),
+                                    icon = Glyphs.Bin,
+                                    onTap = { menu.close(); vaiAlCestino() }
+                                )
+                            }
+                            onSettings?.let { vaiAlleImpostazioni ->
+                                if (onBin != null) HorizontalDivider()
+                                MenuRow(
+                                    text = stringResource(R.string.hub_settings),
+                                    icon = Icons.Default.Settings,
+                                    onTap = { menu.close(); vaiAlleImpostazioni() }
+                                )
+                            }
+                            return@PickMenu
+                        }
                         /*
                          * ⚠️⚠️ **L'ORDINE NON È CASUALE**: prima quella che rimette a
                          * posto, poi quella che racconta, ultima quella che cancella per

@@ -1,5 +1,6 @@
 package io.github.roccobot.aiv
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Rect as PixelRect
 import android.net.Uri
@@ -146,9 +147,11 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
 /** Below this, a picture is a speck: it is the floor of the pinch, not of the fit. */
@@ -563,7 +566,15 @@ fun ViewerScreen(
      * nella finestra lo ritrova già scritto, che è il minimo che si possa fare quando la via
      * diretta non c'è.
      */
-    val scarica: (LoadedImage, String?, String?) -> Unit =
+    /**
+     * Il salvataggio vero, senza nessuna domanda: quello che succede quando si è deciso.
+     *
+     * ⚠️⚠️ **È SEPARATO DA [scarica] DALLA `1.82`, e serve alla notifica dei doppioni**: 'Scarica
+     * di nuovo' deve fare esattamente questo, cioè saltare il controllo che ha appena fermato il
+     * gesto. Con una funzione sola, l'azione della notifica rifarebbe il controllo e la notifica
+     * tornerebbe.
+     */
+    val salva: (LoadedImage, String?, String?) -> Unit =
         remember(source, saver, scope, context, cartella) {
             { picture, name, suffix ->
                 val from = source
@@ -576,6 +587,7 @@ fun ViewerScreen(
                             )
                             val said = if (ok) R.string.toast_saved else R.string.toast_save_failed
                             Toast.makeText(context, said, Toast.LENGTH_SHORT).show()
+                            if (ok) noteDownload(context, picture, from, suffix)
                         }
                     } else if (ImageActions.downloadsWritable) {
                         scope.launch {
@@ -583,6 +595,7 @@ fun ViewerScreen(
                                 ImageActions.saveToDownloads(context, picture, from, name, suffix)
                             val said = if (ok) R.string.toast_saved else R.string.toast_save_failed
                             Toast.makeText(context, said, Toast.LENGTH_SHORT).show()
+                            if (ok) noteDownload(context, picture, from, suffix)
                         }
                     } else {
                         val whole = ImageActions.fileName(picture, from)
@@ -592,6 +605,46 @@ fun ViewerScreen(
                 }
             }
         }
+
+    /*
+     * ⚠️⚠️ **IL DOPPIONE SI INTERCETTA PRIMA DI SCRIVERE, ED È UNA SUA RICHIESTA** (campo libero
+     * del giro della `1.81`, punto E: *quando scelgo 'Salva', l'app deve verificare se ha già
+     * scaricato di recente un file con la stessa estensione e lo stesso numero di byte*).
+     * ⚠️ **Quello che si tiene è il gesto da rifare**, non un vero o un falso: la notifica offre
+     * di scaricare **quella** immagine con **quel** nome, e ricostruire gli argomenti al momento
+     * del tocco vorrebbe dire tenerli da un'altra parte.
+     */
+    var doppione by remember { mutableStateOf<(() -> Unit)?>(null) }
+
+    val scarica: (LoadedImage, String?, String?) -> Unit =
+        remember(source, scope, context, salva) {
+            { picture, name, suffix ->
+                val from = source
+                if (from == null) {
+                    salva(picture, name, suffix)
+                } else {
+                    scope.launch {
+                        val mark = markOf(context, picture, from, suffix)
+                        if (mark != null && DownloadLog.seen(context, mark)) {
+                            doppione = { salva(picture, name, suffix) }
+                        } else {
+                            salva(picture, name, suffix)
+                        }
+                    }
+                }
+            }
+        }
+
+    /*
+     * ⚠️ **La notifica se ne va da sé dopo [SAVE_SEEN_MS]**, che è lo stesso numero passato alla
+     * riga che si consuma: una barra che arriva a zero sopra un tasto ancora vivo direbbe una
+     * scadenza falsa. I cinque secondi li ha chiesti lui.
+     */
+    LaunchedEffect(doppione) {
+        if (doppione == null) return@LaunchedEffect
+        delay(SAVE_SEEN_MS)
+        doppione = null
+    }
 
     /*
      * L'immagine di cui si sta battendo il nome: nullo vuol dire che la finestra è chiusa.
@@ -641,23 +694,37 @@ fun ViewerScreen(
              */
             folder = cartella?.let { DownloadFolder.label(it) },
             /*
-             * ⚠️⚠️ **'Destinazione' C'È SE L'IMPOSTAZIONE È ACCESA O SE SI È TENUTO PREMUTO**, e
-             * la scelta si fa qui perché è questa schermata ad avere le impostazioni in mano: la
-             * finestra riceve un gesto o un `null`, e non deve sapere niente di
-             * `SettingsStore`. È la convenzione dei dialoghi di questo file.
-             * ⚠️⚠️ **COL TOCCO LUNGO C'È ANCHE A IMPOSTAZIONE SPENTA, ED È LA SUA SPECIFICA**
-             * (riscontro del giro della `1.80`, voce `tocco-lungo-due`: *'Scegli percorso'
-             * dev'essere presente anche con l'opzione su OFF*). L'altra metà della stessa frase
-             * dice il contrario per 'Estensione', che invece **segue le impostazioni**: quella la
-             * decide `extensionGate`, e le due condizioni sono diverse di proposito.
+             * ⚠️⚠️ **'Destinazione' VUOLE L'IMPOSTAZIONE ACCESA **E** IL TOCCO LUNGO, DALLA
+             * `1.82`** (riscontro del giro della `1.81`, voce `save-comandi`: *'Destinazione'
+             * deve comparire sempre solo quando fai un tocco lungo su 'Scarica'*). Fino alla
+             * `1.81` bastava una delle due, cioè la specifica del giro precedente
+             * (`tocco-lungo-due`: *dev'essere presente anche con l'opzione su OFF*).
+             * ⚠️⚠️ **LA `E` AL POSTO DELLA `O` NON È UN'INTERPRETAZIONE LIBERA, ED È IL TESTO
+             * DELL'OPZIONE A DECIDERLO**: nello stesso giro lui ha riscritto la spiegazione di
+             * 'Scegli il percorso di download' in *aggiunge il pulsante 'Destinazione' alla
+             * schermata di download*, e ha tagliato dalla spiegazione della rinomina la coda che
+             * prometteva *in quel caso è disponibile anche 'Destinazione'*. Con la sola `hold`
+             * l'opzione non deciderebbe più niente e il suo testo direbbe il falso.
+             * ⚠️ **La scelta si fa qui** perché è questa schermata ad avere le impostazioni in
+             * mano: la finestra riceve un gesto o un `null`, e non sa niente di `SettingsStore`.
              * ⚠️⚠️ **E DALLA `1.81` APRE UNA CARTELLA E NON SALVA NIENTE** (voce
              * `scarica-percorso`): il gesto non chiude più la finestra, perché il salvataggio
              * avviene su 'Salva' e non qui.
              */
-            onPickFolder = if (ask.hold || settings.downloadPath) {
+            onPickFolder = if (ask.hold && settings.downloadPath) {
                 { folderPicker.launch(null) }
             } else {
                 null
+            },
+            /*
+             * ⚠️⚠️ **IL RITORNO A DOWNLOAD C'È SEMPRE CHE UNA CARTELLA SIA STATA SCELTA, E NON
+             * DIPENDE DALL'IMPOSTAZIONE** (riscontro del giro della `1.81`, voce
+             * `save-percorso`): legarlo a `downloadPath` vorrebbe dire che spegnendo l'opzione
+             * si resta chiusi fuori dalla cartella di serie, cioè esattamente il vicolo cieco
+             * che questa riga esiste per aprire.
+             */
+            onUseDownloads = cartella?.let {
+                { scope.launch { DownloadFolder.forget(context) } }
             },
             /*
              * ⚠️ **Chiudendo si dimentica anche il segno del ritorno**: quello serve a riaprire
@@ -991,6 +1058,30 @@ fun ViewerScreen(
                 onDone = { scope.launch { Hint.ZOOM_TAP.remember(context) } }
             )
         }
+
+        /*
+         * ⚠️⚠️ **LA NOTIFICA DEL DOPPIONE, DALLA `1.82`** (campo libero del giro della `1.81`,
+         * punto E): *una notifica in basso come quella dell'annullamento dell'eliminazione, con
+         * tanto di timer di 5 secondi. Testo: 'Hai già scaricato questa immagine'; azione a
+         * destra: 'Scarica di nuovo'*.
+         * ⚠️ **È [UndoNotice], la stessa dell'eliminazione annullata**: lui l'ha chiesta *come
+         * quella*, e una seconda notifica disegnata a parte sarebbe la copia che diverge al primo
+         * ritocco. Quello che cambia è la durata, che adesso è un parametro.
+         * ⚠️ **Vive dentro il riquadro dell'immagine, in fondo**: qui l'ultimo figlio è quello
+         * che si vede sopra, e una notifica sotto la fotografia non la vedrebbe nessuno.
+         */
+        UndoNotice(
+            visible = doppione != null,
+            text = stringResource(R.string.save_seen_notice),
+            action = stringResource(R.string.save_seen_again),
+            onUndo = {
+                val ancora = doppione
+                doppione = null
+                ancora?.invoke()
+            },
+            millis = SAVE_SEEN_MS,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 
     // ⚠️ I dialoghi stanno FUORI dal riquadro dell'immagine e fuori dal menu, che è la
@@ -2109,6 +2200,15 @@ private fun ImageCanvas(
         // reason it is in the userscript: blowing up a 64px icon helps nobody.
         val restScale = if (settings.fitGrow) fitScale else min(fitScale, oneToOne)
 
+        fun clampOffset(candidate: Offset, atScale: Float): Offset {
+            val slackX = max(0f, (imageWidth * atScale - viewWidth) / 2f)
+            val slackY = max(0f, (imageHeight * atScale - viewHeight) / 2f)
+            return Offset(
+                candidate.x.coerceIn(-slackX, slackX),
+                candidate.y.coerceIn(-slackY, slackY)
+            )
+        }
+
         /*
          * ⚠️⚠️ **LA CHIAVE È LA SCALA DI RIPOSO E NON LE IMPOSTAZIONI, DALLA `1.81`** (riscontro
          * dell'utente: *lo zoom si azzera a ogni impostazione cambiata, anche una che con lo zoom
@@ -2119,13 +2219,33 @@ private fun ImageCanvas(
          * sole due impostazioni che contano ('Ingrandisci le immagini piccole' e il metro del
          * 100%) più la misura della vista, cioè esattamente le cose il cui cambiamento rende la
          * scala di prima un numero senza senso.
-         * ⚠️ **Ruotando si azzera lo stesso, e questa versione non lo cambia**: la vista cambia
-         * forma, quindi [restScale] cambia. Conservare l'ingrandimento attraverso una rotazione
-         * vuol dire salvare un **rapporto** e non una scala, ed è un lavoro a sé: qui si toglie il
-         * difetto che lui ha nominato.
+         * ⚠️⚠️ **E DALLA `1.82` QUELLO CHE CAMBIA È IL RIPOSO, NON L'INGRANDIMENTO** (voce
+         * `zoom-rotazione`, non approvata due volte: *è come prima*). Il rapporto rispetto al
+         * riposo e il punto inquadrato li tiene [ZoomKeep], che sopravvive alla rotazione perché
+         * l'activity si ricrea e nessun `remember` arriva dall'altra parte. Quindi qui la chiave
+         * resta la stessa e cambia il **valore di partenza**: la scala di riposo moltiplicata per
+         * l'ingrandimento di prima.
+         * ⚠️ **Il limite si applica al ripristino e non alla nota presa**: `zoomMax` è
+         * un'impostazione, e una scala tenuta con un tetto alto non deve saltare quello di adesso.
          */
-        var scale by remember(image, restScale) { mutableFloatStateOf(restScale) }
-        var offset by remember(image, restScale) { mutableStateOf(Offset.Zero) }
+        val kept = rememberZoomKeep(remember(image, source) { ImageActions.fileName(image, source) })
+        var scale by remember(image, restScale) {
+            mutableFloatStateOf(kept.scaleFor(restScale).coerceIn(MIN_SCALE, settings.zoomMax))
+        }
+        var offset by remember(image, restScale) {
+            mutableStateOf(clampOffset(kept.offsetFor(scale, imageWidth, imageHeight), scale))
+        }
+        /*
+         * ⚠️ **La nota si prende con un flusso e non con un `LaunchedEffect` per valore**: lo
+         * scostamento cambia a ogni fotogramma di una panoramica, e con lui come chiave si
+         * rifarebbe la coroutine sessanta volte al secondo. È la stessa forma con cui la
+         * percentuale esce di qui, poche righe più sotto.
+         */
+        LaunchedEffect(kept, restScale, imageWidth, imageHeight) {
+            snapshotFlow { scale to offset }.collect { (atScale, atOffset) ->
+                kept.record(atScale, atOffset, restScale, imageWidth, imageHeight)
+            }
+        }
 
         // ⚠️ La riga torna a mostrarsi a ogni fotografia nuova, come faceva quando viveva
         // qui dentro: spegnerla è una decisione su **questa** immagine, non una
@@ -2346,15 +2466,6 @@ private fun ImageCanvas(
         // seconda è una velocità in dp al secondo che va tradotta in pixel.
         val decay = remember(density) { splineBasedDecay<Offset>(density) }
         val glideFloor = with(density) { GLIDE_FLOOR.toPx() }
-
-        fun clampOffset(candidate: Offset, atScale: Float): Offset {
-            val slackX = max(0f, (imageWidth * atScale - viewWidth) / 2f)
-            val slackY = max(0f, (imageHeight * atScale - viewHeight) / 2f)
-            return Offset(
-                candidate.x.coerceIn(-slackX, slackX),
-                candidate.y.coerceIn(-slackY, slackY)
-            )
-        }
 
         /** Rescales around a point on screen, keeping what is under that point still. */
         fun zoomAround(anchor: Offset, next: Float, pan: Offset = Offset.Zero) {
@@ -3747,3 +3858,44 @@ internal fun formatBytes(value: Long): String = when {
  * dettagli. Vedi la nota alla chiamata: sono tarature, non misure. */
 private val ANIM_LIP = 24.dp
 private val ANIM_OVER_INFO = 96.dp
+
+/**
+ * Quanto vive la notifica che dice 'questa l'hai già scaricata'.
+ *
+ * ⚠️ **Cinque secondi, e li ha chiesti lui** (campo libero del giro della `1.81`, punto E):
+ * più della notifica dell'eliminazione annullata, che ne dura tre, perché là si disfa un gesto
+ * appena fatto e qui si decide se rifarne uno.
+ */
+private const val SAVE_SEEN_MS = 5000L
+
+/**
+ * La firma di quello che si sta per scaricare: suffisso e byte, oppure `null` se i byte non si
+ * sanno.
+ *
+ * ⚠️⚠️ **SENZA I BYTE NON SI FIRMA NIENTE, e il salvataggio va avanti**: un sorgente di cui non
+ * si riesce a leggere la lunghezza (uno stream remoto, un fornitore che non risponde) darebbe
+ * `0`, e allora **tutte** le immagini senza misura avrebbero la stessa firma, cioè dalla seconda
+ * in poi l'app direbbe 'questa l'hai già scaricata' a immagini mai viste.
+ */
+private suspend fun markOf(
+    context: Context,
+    image: LoadedImage,
+    uri: Uri,
+    suffix: String?
+): String? = withContext(Dispatchers.IO) {
+    val bytes = sizeOf(context, uri)
+    if (bytes <= 0L) return@withContext null
+    val coda = suffix ?: ImageActions.splitName(ImageActions.fileName(image, uri)).second
+    DownloadLog.mark(coda, bytes)
+}
+
+/** Prende nota di un salvataggio riuscito, se la firma si può fare. */
+private suspend fun noteDownload(
+    context: Context,
+    image: LoadedImage,
+    uri: Uri,
+    suffix: String?
+) {
+    val mark = markOf(context, image, uri, suffix) ?: return
+    DownloadLog.note(context, mark, System.currentTimeMillis())
+}

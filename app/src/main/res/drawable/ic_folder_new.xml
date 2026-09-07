@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Nuova cartella': una cartella a contorno con dentro un più.
+
+     DISEGNATA DALL'UTENTE, arrivata nello ZIP del giro della 1.81 come `folderNew.svg`.
+     Serve alla voce che la 1.82 aggiunge al menu del FAB in 'Cartelle di sistema'.
+
+     NON CADE SU `Icons.Filled.CreateNewFolder`, ed è misurato: il tracciato di Material
+     ricostruito dal bytecode e reso accanto a questo a 240px dà 12.465 pixel diversi su
+     57.600, cioè il 21,6% della tela. La ragione si vede: la cartella di Google è PIENA
+     col più intagliato per sottrazione, questa è a CONTORNO, con il rettangolo interno
+     vuoto e il più pieno dentro. Sono due disegni, non due esportazioni dello stesso.
+
+     STESSA CARTELLA DI `ic_folder_download` E DI `ic_folder_aiv`, stesso inchiostro al
+     centesimo (2.01, 4.00, 19.99, 16.00): le tre icone si vedono nello stesso menu, e una
+     cartella che cambia in una sola si nota subito.
+
+     La normalizzazione (numeri separati, comandi impliciti scritti per esteso) non cambia
+     un pixel: misurato rendendo prima e dopo, zero differenze su 57.600.
+
+     Le regole di trasporto vivono in `CLAUDE.md`, § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M20,6h-8l-2,-2h-6c-1.1,0,-1.99,.9,-1.99,2v12c-.01,1.1,.89,2,1.99,2h16c1.1,0,2,-.9,2,-2v-10c0,-1.1,-.9,-2,-2,-2ZM20,18H4v-10h16v10ZM8.5,14h2.5v2.5c0,.22,.18,.4,.4,.4h1.2c.22,0,.4,-.18,.4,-.4v-2.5h2.5c.22,0,.4,-.18,.4,-.4v-1.2c0,-.22,-.18,-.4,-.4,-.4h-2.5v-2.5c0,-.22,-.18,-.4,-.4,-.4h-1.2c-.22,0,-.4,.18,-.4,.4v2.5h-2.5c-.22,0,-.4,.18,-.4,.4v1.2c0,.22,.18,.4,.4,.4Z" />
+</vector>

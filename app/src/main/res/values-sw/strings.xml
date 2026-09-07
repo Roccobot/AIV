@@ -298,7 +298,7 @@
     <string name="settings_group_start">Kuanza</string>
     <string name="settings_group_advanced">Vipengele vya juu</string>
     <string name="settings_ext_edit">Ruhusu kubadilisha kiendelezi</string>
-    <string name="settings_ext_edit_desc">Huongeza kitufe \'Kiendelezi\' kwenye madirisha unayochagua hapa chini. Kubadilisha kiendelezi hakubadilishi kitu: kama hujui unafanya nini, viache vyote vimezimwa, kwa sababu picha inaweza kuwa haisomeki.</string>
+    <string name="settings_ext_edit_desc">Huongeza kitufe \'Kiendelezi\' kwenye madirisha ya majina ya faili. Chagua hapa chini yapi. ⚠️ Kubadilisha kiendelezi si kubadilisha muundo (kwa hilo kuna \'Hamisha na kubadilisha\') na kunahitaji uangalifu, kwa sababu baadhi ya faili zinaweza kutosomeka na kutoonekana tena kwenye programu za matunzio.</string>
     <string name="settings_gpu_thumbs">Weka vijipicha kwenye kumbukumbu ya michoro</string>
     <string name="settings_gpu_thumbs_desc">Huunda akiba ya vijipicha kwenye kumbukumbu ya chipu ya grafiki, hivyo kumbukumbu ya kawaida inasalia wazi. Inaweza kufanya matunzio yajibu kwa kasi zaidi, isilete tofauti yoyote, au katika visa vingine iwe ya polepole, na hivyo ni karibu kila mara kwenye vifaa vya zamani. Ikiwa una matatizo ya utendaji, iwashe na uone kama inasaidia: haijulikani mapema, kwa sababu Android ina michanganyiko mingi ya vifaa na programu.</string>
     <string name="settings_thumbs">Futa vijipicha vilivyohifadhiwa</string>
@@ -398,12 +398,15 @@
     <string name="settings_editor_backup">Nakala ya usalama kabla ya kuandika juu</string>
     <string name="settings_editor_backup_desc">Kabla kihariri hakijaandika juu ya picha, huhifadhi nakala yake kwenye pipa la taka, ambapo unaweza kuirejesha; usipoihitaji, itafutwa wakati wa \'Mwaga pipa la taka\' unaofuata.</string>
     <string name="settings_save_rename">Ruhusu kubadilisha jina wakati wa kuhifadhi</string>
-    <string name="settings_save_rename_desc">Kwa kawaida faili huhifadhiwa kwa jina lake la awali. Washa hii ili kuweka jina kwa kila upakuaji. Hata ikiwa imezimwa, gusa na ubonyeze \'Hifadhi\' ili kuandika jina jipya mara hiyo tu: katika hali hiyo \'Mahali\' pia linapatikana.</string>
+    <string name="settings_save_rename_desc">Kwa kawaida faili huhifadhiwa kwa jina lake la awali. Washa hii ili kuweka jina kwa kila upakuaji. Hata ikiwa imezimwa, gusa na ubonyeze \'Hifadhi\' ili kuandika jina jipya mara hiyo tu.</string>
     <string name="settings_download_path">Chagua njia ya upakuaji</string>
     <string name="settings_rename_download">Kubadilisha jina na vipakuliwa</string>
-    <string name="settings_download_path_desc">Huongeza kitufe \'Mahali\' kwenye dirisha la kuhifadhi, ili kuchagua folda faili litakapoenda. Hutumika wakati kubadilisha jina wakati wa kuhifadhi kumewashwa.</string>
+    <string name="settings_download_path_desc">Huongeza kitufe \'Mahali\' kwenye dirisha la upakuaji, ili kuchagua folda ya kuhifadhi.</string>
     <string name="save_name_path">Folda ya mahali: %1$s</string>
     <string name="save_name_dest">Mahali</string>
+    <string name="save_name_default">Tumia Download</string>
+    <string name="save_seen_notice">Tayari umepakua picha hii</string>
+    <string name="save_seen_again">Pakua tena</string>
     <string name="editor_tall">Wima</string>
     <string name="editor_wide">Mlalo</string>
     <string name="pick_cleared">Hakuna faili iliyochaguliwa.</string>

@@ -128,6 +128,20 @@ object Glyphs {
     }
 
     /**
+     * Un cursore di testo davanti alle lettere `xyz`: 'Estensione'.
+     *
+     * ⚠️ **Disegnato dall'utente** e arrivato nello ZIP del giro della `1.81`. Fino alla `1.81`
+     * qui c'era `Icons.Filled.DriveFileRenameOutline` di Material, dichiarato provvisorio
+     * quando la `1.80` ha messo i due comandi sulla riga del titolo.
+     * ⚠️ **Il cursore è lo stesso segno di [TextCursor]**, che firma 'Rinomina': le due
+     * finestre portano gli stessi comandi, quindi il glifo che cambia il suffisso di un nome
+     * dichiara di appartenere alla stessa famiglia. Il resto sta in testa a
+     * `res/drawable/ic_extension.xml`.
+     */
+    val Extension: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_extension)
+
+    /**
      * Due fogli sovrapposti, quello davanti con montagne e sole: 'Copia immagine'.
      *
      * ⚠️⚠️ **È IL SOLO GLIFO CHE ESCE DALLA PROPRIA TELA, dalla 1.37**, quindi si dichiara
@@ -171,6 +185,33 @@ object Glyphs {
      */
     val FolderPairDashed: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_folder_pair_dashed)
+
+    /**
+     * Una cartella a contorno con dentro un più: 'Nuova cartella'.
+     *
+     * ⚠️ **Disegnata dall'utente** e arrivata nello ZIP del giro della `1.81`, per la voce che
+     * la `1.82` aggiunge al menu del FAB in 'Cartelle di sistema'.
+     * ⚠️ **Non è `Icons.Filled.CreateNewFolder`**, che è una cartella piena col più intagliato:
+     * misurato, il 21,6% della tela di differenza. La misura sta in testa a
+     * `res/drawable/ic_folder_new.xml`.
+     */
+    val FolderNew: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_folder_new)
+
+    /**
+     * Una cartella a contorno con dentro una freccia che scende: 'Percorso'.
+     *
+     * ⚠️ **Disegnata dall'utente** e arrivata nello ZIP del giro della `1.81`. Fino alla `1.81`
+     * qui c'era `Icons.Filled.FolderOpen` di Material, dichiarato provvisorio quando la `1.80`
+     * ha messo i due comandi sulla riga del titolo.
+     * ⚠️ **La freccia scende**, e il verso è tutto quello che il disegno deve dire: la sagoma
+     * più vicina di Material, `DriveFolderUpload`, ha la stessa cartella con la freccia in su,
+     * cioè dice il contrario. La misura sta in testa a `res/drawable/ic_folder_download.xml`.
+     * ⚠️ **La cartella è la stessa di [FolderNew] e di [FolderAiv]**, allo stesso inchiostro:
+     * le tre si incontrano nella stessa app e una che divergesse si noterebbe subito.
+     */
+    val FolderDownload: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_folder_download)
 
     /**
      * Un foglio dietro, e davanti un riquadro **tagliato da una spunta**: 'Seleziona tutto'.
