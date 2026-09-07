@@ -123,8 +123,16 @@ fun WindowVeil(
      * con lei. La regola della `1.39` dice che a funzione spenta non si **aggiunge** un velo che
      * prima non c'era, non che un velo di finestra debba comparire di colpo.
      */
-    LaunchedEffect(velo) {
-        snapshotFlow { misura().coerceIn(0f, PIENO) }.collect { velo?.at(it) }
+    /*
+     * ⚠️ **La guardia sul nullo dalla `1.78`, e non è una prudenza**: con la funzione spenta e
+     * nessun velo di finestra da chiedere, [veilFor] risponde `null`, e senza questa riga il
+     * flusso girava per tutta la durata dell'animazione per chiamare un metodo su niente. È la
+     * stessa guardia che `Veil.at` ha già dentro di sé, portata dove costa zero.
+     */
+    if (velo != null) {
+        LaunchedEffect(velo) {
+            snapshotFlow { misura().coerceIn(0f, PIENO) }.collect { velo.at(it) }
+        }
     }
     DisposableEffect(velo) { onDispose { velo?.off() } }
 }

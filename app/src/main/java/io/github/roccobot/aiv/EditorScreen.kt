@@ -652,8 +652,8 @@ private fun EditorSheet(
         modifier = Modifier
             .fillMaxWidth()
             .background(stageBack())
-            .edgedTop(SHEET_ROUND),
-        shape = RoundedCornerShape(topStart = SHEET_ROUND, topEnd = SHEET_ROUND),
+            .edgedTop(PANEL_ROUND),
+        shape = RoundedCornerShape(topStart = PANEL_ROUND, topEnd = PANEL_ROUND),
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
         /*
          * ⚠️⚠️ **NIENTE OMBRA DALLA 1.40, come le altre due schede appoggiate in basso**
@@ -689,7 +689,7 @@ private fun EditorSheet(
                  * non avere abbastanza spazio: arriva a pelo delle chip delle proporzioni*).
                  * La prima fila è di chip alti 32dp senza rientro proprio, quindi appoggiava
                  * direttamente sul bordo della scheda, dentro la curva dei suoi angoli da
-                 * [SHEET_ROUND].
+                 * [PANEL_ROUND].
                  * ⚠️ **Perché [SHEET_TOP] e non i 12dp della scheda delle informazioni**: là
                  * il respiro lo dà anche il bersaglio da 48dp della crocetta di chiusura, che
                  * qui non c'è. Misurato: a 16dp dal bordo la curva dell'angolo è già rientrata
@@ -928,9 +928,6 @@ private val CHIP_PAD = 6.dp
  */
 private const val SHEET_KEYS = 4
 
-/** Lo smusso dei due angoli alti: come la bottomsheet della selezione, perché è la stessa cosa
- * in un'altra schermata. */
-private val SHEET_ROUND = 28.dp
 
 /** Il respiro fra il bordo di sopra della scheda e la prima fila di chip. Vedi la sua nota. */
 private val SHEET_TOP = 16.dp

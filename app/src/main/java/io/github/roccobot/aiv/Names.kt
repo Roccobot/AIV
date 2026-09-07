@@ -42,7 +42,12 @@ import java.util.concurrent.ConcurrentHashMap
  * nome.
  * ⚠️⚠️ **`TextOverflow.Ellipsis` NON serve e farebbe il danno esatto che si vuole evitare**:
  * mette i tre punti alla **fine**, cioè mangia proprio l'estensione, che è la parte che
- * l'utente ha chiesto di salvare sempre. Serve un'ellissi **in mezzo**, che Compose non ha.
+ * l'utente ha chiesto di salvare sempre.
+ * ⚠️⚠️ **E `TextOverflow.MiddleEllipsis` ESISTE, ma non basta: fino alla `1.78` questa nota
+ * diceva che Compose l'ellissi in mezzo non ce l'ha, ed era falso.** L'app la usa già in due
+ * finestre (l'indirizzo e la destinazione). Quello che non fa è il resto del lavoro di questa
+ * funzione: divide sulla **larghezza** e non garantisce l'estensione intera, non stringe il
+ * corpo per non lasciare un carattere orfano, e non tiene il grassetto sul suffisso.
  */
 fun fitName(
     name: String,

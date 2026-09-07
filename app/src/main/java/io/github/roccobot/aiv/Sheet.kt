@@ -280,8 +280,8 @@ fun Sheet(
                      * `graphicsLayer` non lo fa (`clip` è spento di fabbrica), e il velo che sta
                      * dietro non è un genitore che taglia.
                      */
-                    .edgedTop(SHEET_ROUND),
-                shape = RoundedCornerShape(topStart = SHEET_ROUND, topEnd = SHEET_ROUND),
+                    .edgedTop(PANEL_ROUND),
+                shape = RoundedCornerShape(topStart = PANEL_ROUND, topEnd = PANEL_ROUND),
                 color = MaterialTheme.colorScheme.surfaceContainerHigh
             ) {
                 Column(
@@ -421,14 +421,6 @@ private fun Window.edgeToEdge() {
     }
 }
 
-/**
- * Lo stondamento dei due angoli in alto.
- *
- * ⚠️ **28dp, che è quello delle bottomsheet**, e le regole di casa lo dicono già: i menu
- * stanno a 20 apposta per non confondersi con loro (vedi `MENU_ROUND`). Una scheda appoggiata
- * in basso è una bottomsheet e prende il numero delle bottomsheet.
- */
-private val SHEET_ROUND = 28.dp
 
 /** Il rientro attorno al contenuto, e l'aria fra una riga e l'altra. */
 private val SHEET_PAD = 24.dp

@@ -526,8 +526,12 @@ enum class MenuSide {
     /** Dopo l'ancora, cioè sotto di lei o dal suo lato finale. */
     AFTER_ANCHOR,
 
-    /** Prima dell'ancora, cioè sopra di lei o dal suo lato iniziale. */
-    BEFORE_ANCHOR,
+    /*
+     * ⚠️ **QUI C'ERA `BEFORE_ANCHOR` FINO ALLA `1.78`, e nessuno lo chiedeva**: era il
+     * simmetrico di [AFTER_ANCHOR], cioè 'sopra l'ancora', e le sue due occorrenze erano la
+     * dichiarazione e il ramo del `when` che la serviva. Chi ne avesse bisogno lo ritrova
+     * nella storia git: erano tre candidati come quelli di [AFTER_ANCHOR], letti al rovescio.
+     */
 
     /** In mezzo alla finestra, senza guardare l'ancora. */
     IN_WINDOW,
@@ -549,9 +553,13 @@ enum class MenuSide {
  * densità per sei finestre nei due versi di scrittura, sulle misure vere dei menu dell'app, e
  * danno la stessa posizione dappertutto tranne dove quella vecchia lasciava sforare.
  *
+ * ⚠️ **QUI C'ERA UN `gap` FINO ALLA `1.78`**, cioè quanti pixel staccare il menu dall'ancora,
+ * e nessuno dei posizionatori costruiti nell'app lo passava: valeva zero in tutti e quattro.
+ * Un parametro che nessuno usa non è una possibilità in più, è una riga che chi legge deve
+ * verificare.
+ *
  * @param across la politica sull'asse orizzontale.
  * @param along la politica sull'asse verticale.
- * @param gap quanti pixel stacca il menu dall'ancora, sull'asse in cui è ancorato.
  * @param edge il margine dal bordo di finestra, in pixel.
  * @param air lo stesso margine in frazione della finestra: qui il `Density` non c'è, e un
  *   numero fisso sarebbe otto volte più grande su un telefono vecchio.
@@ -559,7 +567,6 @@ enum class MenuSide {
 class MenuSpot(
     private val across: MenuSide,
     private val along: MenuSide,
-    private val gap: Int = 0,
     private val edge: Int = 0,
     private val air: Float = 0f,
     /**
@@ -583,8 +590,8 @@ class MenuSpot(
      * ⚠️ **Vale sui due lati e nei due versi di scrittura**, perché guarda la distanza dai due
      * bordi e non un lato scelto: il difetto è speculare, e lo dice lui (*specularmente il
      * bordo sinistro della colonna di sinistra se il FAB è a sinistra*).
-     * ⚠️ **Solo in ORIZZONTALE**: in verticale un menu si stacca dalla sua ancora di [gap] e
-     * dal bordo di [edge], e appoggiarlo al vetro lo farebbe finire sotto la barra di sistema.
+     * ⚠️ **Solo in ORIZZONTALE**: in verticale un menu si stacca dal bordo di [edge], e
+     * appoggiarlo al vetro lo farebbe finire sotto la barra di sistema.
      */
     private val flush: Int = 0
 ) : PopupPositionProvider {
@@ -597,7 +604,7 @@ class MenuSpot(
         x = place(
             spots(
                 across, anchorBounds.left, anchorBounds.right,
-                windowSize.width, popupContentSize.width, gap, layoutDirection
+                windowSize.width, popupContentSize.width, layoutDirection
             ),
             size = popupContentSize.width,
             space = windowSize.width,
@@ -608,7 +615,7 @@ class MenuSpot(
         y = place(
             spots(
                 along, anchorBounds.top, anchorBounds.bottom,
-                windowSize.height, popupContentSize.height, gap, LayoutDirection.Ltr
+                windowSize.height, popupContentSize.height, LayoutDirection.Ltr
             ),
             size = popupContentSize.height,
             space = windowSize.height,
@@ -630,7 +637,6 @@ private fun spots(
     to: Int,
     space: Int,
     size: Int,
-    gap: Int,
     dir: LayoutDirection
 ): IntArray = when (side) {
     MenuSide.AT_ANCHOR -> intArrayOf(
@@ -639,8 +645,7 @@ private fun spots(
         // Ultima risorsa: il bordo di finestra più vicino all'ancora.
         if ((from + to) / 2 < space / 2) 0 else space - size
     )
-    MenuSide.AFTER_ANCHOR -> intArrayOf(to + gap, from - size - gap, from - size / 2)
-    MenuSide.BEFORE_ANCHOR -> intArrayOf(from - size - gap, to + gap, from - size / 2)
+    MenuSide.AFTER_ANCHOR -> intArrayOf(to, from - size, from - size / 2)
     MenuSide.IN_WINDOW -> intArrayOf((space - size) / 2)
     // Il centro più il 15%: 'centrato' in AIV vuol dire questo, e il numero è [LOWER_BY].
     MenuSide.LOWERED_IN_WINDOW -> intArrayOf((space - size) / 2 + (space * LOWER_BY).toInt())
@@ -693,12 +698,12 @@ val MenuInWindow = MenuSpot(MenuSide.IN_WINDOW, MenuSide.LOWERED_IN_WINDOW, air 
  * finestra al `Popup` senza che niente sia cambiato.
  */
 @Composable
-fun rememberMenuSpot(across: MenuSide, along: MenuSide, gap: Dp = 0.dp): MenuSpot {
+fun rememberMenuSpot(across: MenuSide, along: MenuSide): MenuSpot {
     val density = LocalDensity.current
-    return remember(density, across, along, gap) {
+    return remember(density, across, along) {
         with(density) {
             MenuSpot(
-                across, along, gap.roundToPx(), MENU_KEEP_OUT.roundToPx(),
+                across, along, MENU_KEEP_OUT.roundToPx(),
                 // ⚠️ La soglia è il margine del FAB, perché la feritoia da coprire è la sua:
                 // vedi `MenuSpot.flush`.
                 flush = HUB_PAD.roundToPx()

@@ -211,11 +211,12 @@ private class OutsideElement(
 /**
  * Il bordo dei dialoghi, con la forma che Material dà loro.
  *
- * ⚠️ **28dp è `shapes.extraLarge`**, cioè la forma di `AlertDialog` quando nessuno la cambia, e
- * qui va scritta perché un nodo non legge il tema di Material. Chi un giorno desse ai dialoghi
- * una forma propria deve cambiarla anche qui, o il bordo taglia gli angoli in un altro punto.
+ * ⚠️ **Il raggio arriva da [PANEL_ROUND]** e non è scritto qui: un nodo non legge il tema di
+ * Material, quindi la forma di un `AlertDialog` va dichiarata a mano, e la costante condivisa è
+ * il posto in cui dichiararla una volta. Chi un giorno desse ai dialoghi una forma propria
+ * cambia quella, o il bordo taglia gli angoli in un altro punto.
  */
-private val DIALOG_EDGE = Modifier.edged(28.dp)
+private val DIALOG_EDGE = Modifier.edged(PANEL_ROUND)
 
 private class LowerElement(val aria: Air) : ModifierNodeElement<LowerNode>() {
     override fun create() = LowerNode(aria)
