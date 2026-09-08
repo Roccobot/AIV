@@ -1149,6 +1149,11 @@ di Material: senza `IconButton` non c'è più niente da disegnare quando il dito
   conseguenza**: il 40% del fondo opposto (*colore dello sfondo scuro su tema chiaro e dello
   sfondo chiaro su tema scuro, opacità 40%*) era del tondo, e senza il tondo un glifo del colore
   del fondo in vigore sparirebbe sul fondo in vigore.
+  - ⚠️⚠️ **E QUEL NUMERO È PROVATO E NON EREDITATO: LA RISPOSTA A `d-salti-ink` È `quaranta`**
+    (giro della `2.00`, cioè *va bene così, 40%*). La domanda esisteva perché quel numero era
+    nato per il **tondo**, che è una superficie piena, mentre un glifo alla stessa opacità si
+    legge meno: le altre due vie erano il 60% e il pieno. Chi lo trovasse smorto sopra una
+    miniatura chiara sappia che è stato guardato con l'app in mano.
 - ⚠️⚠️ **LA PROVA CHE LO PRESIDIA GUARDA I PIXEL**, perché l'albero semantico è identico con e
   senza un fondo: `SaltiSfondoTest` conta quanto del riquadro è tinto, e la controprova dà **82%**
   col tondo contro il **10%** senza.
