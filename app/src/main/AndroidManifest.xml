@@ -178,14 +178,52 @@
                 quindi il sistema crea l'istanza NEL TASK DI CHI CHIAMA e singleTop riusa solo
                 quella già in cima allo stesso task. Con AIV già aperta per conto suo, le due
                 copie convivono in due task e il risultato torna a chi lo aspetta.
-                ⚠️ ACTION_PICK non è dichiarata: quella chiede un indirizzo del MediaStore e la
-                servono le gallerie di sistema. Se un domani servisse, vuole il suo ramo, non
-                una riga in più qui.
+                ⚠️⚠️ **DALLA 1.91 QUESTO FILTRO DA SOLO NON BASTA, ED È MISURATO** (riscontro del
+                giro della 1.89: *non appare in elenco: né tra le app galleria, né tra le app per
+                allegare file*). Il filtro c'era davvero nell'APK servito, letto col dump del
+                manifesto binario, quindi la causa è a valle e sono due fatti di sistema:
+                1) le app di terze parti compaiono nel navigatore file SOLO quando chi chiede usa
+                   GET_CONTENT (in AOSP, `PickActivity.setupLayout` passa `includeApps` vero solo
+                   per quell'azione). Chi allega un file usa quasi sempre ACTION_OPEN_DOCUMENT, e
+                   là l'elenco è fatto dei soli archivi, cioè di chi espone un DocumentsProvider.
+                2) per le immagini, GET_CONTENT se lo prende il selettore foto di sistema, che lo
+                   dichiara con priorità 105 (il navigatore file ha 100). Un'app normale non può
+                   competere, perché Android AZZERA la priorità dichiarata da chi non è di
+                   sistema.
+                ⚠️ Quindi il filtro resta e serve, ma la via che porta AIV in un elenco vero è
+                ACTION_PICK qui sotto. Comparire anche fra gli archivi vuole un DocumentsProvider,
+                che è un lavoro a sé.
             -->
             <intent-filter android:label="@string/app_short_name">
                 <action android:name="android.intent.action.GET_CONTENT" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.OPENABLE" />
+                <data android:mimeType="image/*" />
+                <data android:mimeType="video/*" />
+            </intent-filter>
+
+            <!--
+                ⚠️⚠️ **LA VIA DELLE APP GALLERIA, dalla 1.91**: ACTION_PICK è quello che lancia
+                chi chiede 'scegli un'immagine dalla galleria', e a differenza di GET_CONTENT
+                nessun componente di sistema se lo prende con una priorità che un'app normale non
+                può pareggiare. Il risultato che si consegna è lo stesso (vedi
+                `ViewerActivity.deliver`).
+                ⚠️⚠️ I DUE TIPI DI CARTELLA SERVONO TUTTI E DUE, e non sono un doppione: chi lancia
+                PICK di solito ci mette l'indirizzo del MediaStore
+                (`MediaStore.Images.Media.EXTERNAL_CONTENT_URI`), il cui tipo è
+                `vnd.android.cursor.dir/image`, ma qualcuno chiede il tipo diretto `image/*`. Con
+                un tipo solo si resta fuori da metà degli elenchi.
+                ⚠️ Un filtro che dichiara un tipo e nessuno schema comprende da sé `content:` e
+                `file:`, che sono gli unici due con cui un PICK arriva: scriverli sarebbe rumore.
+                ⚠️⚠️ E L'INDIRIZZO CHE PORTA NON SI APRE: è la sorgente in cui scegliere, non
+                un'immagine da mostrare. La guardia vive su `ViewerViewModel.handleIntent`, ed è
+                la differenza pratica fra questo filtro e quello sopra.
+            -->
+            <intent-filter android:label="@string/app_short_name">
+                <action android:name="android.intent.action.PICK" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="vnd.android.cursor.dir/image" />
+                <data android:mimeType="vnd.android.cursor.dir/video" />
                 <data android:mimeType="image/*" />
                 <data android:mimeType="video/*" />
             </intent-filter>

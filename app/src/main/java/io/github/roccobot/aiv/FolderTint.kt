@@ -66,78 +66,68 @@ data class FrontTint(
 )
 
 /**
- * Le sedici tinte, nell'ordine in cui compaiono nella griglia 4x4.
+ * Le sedici tinte, nell'ordine in cui compaiono nella griglia 4x4: la ruota intera, dal rosso
+ * al rosa.
  *
- * ⚠️⚠️ **LE PRIME OTTO SONO SUE, ALLA LETTERA** (*prime due righe: 4E6367, 00727B, 43B59E,
- * 4FD9BE / C0FFE5, 38BFD3, FFB400, BC4A61; gli altri 8 colori sceglili tu*): sono i colori di
- * casa, cioè la famiglia del verde acqua dell'app più i tre accenti caldi che la rompono.
- * ⚠️⚠️ **TRE DELLE SUE SONO CAMBIATE NELLA `1.86`, E TUTTE E TRE SU SUA ISTRUZIONE.** L'ambra
- * `FFB400` diventa `FFA726`, che è `HINT_MARK`, cioè l'accento dei mini-onboarding (*sostituisci
- * l'arancione che ho inserito con quello dell'accento dei mini-onboarding*): così l'unico
- * arancione dell'app è uno solo.
- * ⚠️⚠️ **E DUE ERANO IL COLORE PREDEFINITO, non uno**, che è il fatto misurato dietro la sua
- * nota (*credo di aver inserito tra i colori di prima anche il colore predefinito nella mia
- * lista; se è così, sostituiscilo con una sua variazione di luminosità o saturazione*): una
- * cartella senza tinta prende `MaterialTheme.colorScheme.primary`, che vale `43B59E` sul tema
- * chiaro e `00727B` su quello scuro, e tutti e due erano nella griglia. Quindi in ciascuno dei
- * due temi c'era un tondo che non aggiungeva niente, perché sceglierlo dava esattamente il
- * colore che la cartella aveva già.
- * ⚠️ **Le due variazioni tengono la tinta e spostano luminosità e saturazione**, e i numeri
- * sono scelti misurando: `23927C` sta a 58 dal predefinito chiaro e a 51 dal più vicino degli
- * altri quindici (il verde `2E7D4F`), `0098A4` a 56 dal predefinito scuro e a 83 dal celeste
- * `38BFD3`. Le vie scartate erano più belle e più vicine: `35907E` cadeva a 51 da `2E7D4F`, e
- * la variazione di sola saturazione (`24D4B0`) finiva a 45 dall'acquamarina `4FD9BE`, cioè
- * risolveva un doppione facendone un altro.
- * ⚠️⚠️ **LE ALTRE OTTO COMPLETANO LA RUOTA, ed è il criterio con cui sono scelte**: nelle sue
- * mancano il blu, l'indaco, il viola, il magenta e tutta la metà calda che non sia l'ambra,
- * quindi una cartella di ritratti e una di documenti finirebbero per forza nella stessa famiglia.
- * Restano nella **stessa fascia di luminosità** delle sue (fra il grigio-blu scuro e la menta
- * chiara), o sedici tondi in fila si leggerebbero come due tavolozze diverse.
+ * ⚠️⚠️ **RIFATTE DA CAPO NELLA `1.91`, ED È SUA ISTRUZIONE** (riscontro del giro della `1.89`,
+ * voce `tinte-coppie`: *crea tu una nuova palette di 16 coppie che coprano tutte le tonalità
+ * possibili*, perché *al momento ci sono troppi verdi, verdini e azzurrini*). La critica ha un
+ * numero, ed è la ragione per cui la tavolozza vecchia non si poteva ritoccare: **sette tinte su
+ * sedici** cadevano in 55 gradi di ruota, fra il verde acqua e l'azzurro, perché otto erano sue e
+ * la sua scelta partiva dai colori di casa. Le tonalità di allora, ordinate: 11, 33, 64, 80, 127,
+ * 155, 156, 173, 176, 205, 210, 210, 261, 284, 309, 343.
  *
- * ⚠️⚠️ **COME NASCE LA SECONDA COLONNA, dalla `1.89`: si sposta la sola LUMINOSITÀ, del minimo
- * che serve.** Tonalità e saturazione restano quelle che sono, quindi una tinta che già stacca
- * dal fondo resta **identica** e una che spariva si muove quanto basta senza cambiare famiglia.
- * La soglia è **3 a 1**, cioè quella dei componenti non testuali, e non quella del testo: un
- * filetto e una cornice sono grafica.
- * - ⚠️ **I fondi sono TRE per tema e conta il peggiore** (`background`, `surface` e
- *   `surfaceVariant` di `Theme.kt`): il nome si scrive sul fondo della schermata, e il filetto,
- *   la cornice e l'alone si posano sul riquadro della copertina, che è `surfaceVariant`. Contro
- *   il solo fondo il conto sarebbe generoso di mezzo punto proprio dove la tinta si vede di più.
+ * ⚠️⚠️ **LE TONALITÀ SONO A PASSO UNIFORME IN OkLCh E NON IN HSL**, cioè 22,5 gradi l'una
+ * dall'altra su una ruota **percettiva**: lo stesso passo in HSL addensa i verdi e dirada i blu,
+ * che è esattamente il difetto da cui questa tavolozza nasce.
+ *
+ * ⚠️⚠️ **I DUE BERSAGLI DI LUMINOSITÀ NON SONO SCELTI, SONO MISURATI SULLA TAVOLOZZA CHE LUI
+ * AVEVA GIÀ APPROVATO**: 0,615 per il tema chiaro, che è la mediana delle sedici di allora, e
+ * 0,760 per quello scuro, che è la fascia delle quattro sue pensate per il fondo scuro
+ * (`38BFD3` a 0,742, `FFA726` a 0,797, `4FD9BE` a 0,804). Così cambia la **distribuzione** delle
+ * tonalità e non il carattere della tavolozza, che a lui andava bene.
+ * - ⚠️ **La croma ha un tetto**, 0,17, che è poco sopra la più satura delle sue (`6C5CE0` a
+ *   0,193): senza, ogni tinta va al limite del gamut e la tavolozza viene fluo. Provato, e la
+ *   prima stesura dava un rosso `FF3C39` e un magenta `FC01C3`.
+ *
+ * ⚠️ **La soglia di contrasto resta 3 a 1** dal peggiore dei tre fondi di quel tema
+ * (`background`, `surface` e `surfaceVariant` di `Theme.kt`), che è quella dei componenti non
+ * testuali: un filetto e una cornice sono grafica. Il conto risulta fra 3,01 e 3,50 sul tema
+ * chiaro e fra 5,7 e 6,7 su quello scuro.
  * - ⚠️ **Sopra una copertina non c'è niente da garantire**, e va detto invece di prometterlo: là
  *   sotto c'è un'immagine qualunque, e nessun colore stacca da tutte le immagini.
- * - **Le sue tinte sono pensate per un fondo scuro**, e questo il conto lo dice: delle otto sue
- *   se ne spostano **quattro** sul tema chiaro e **due** su quello scuro.
- * ⚠️⚠️ **E UNA COPPIA HA AVUTO BISOGNO DELLA SATURAZIONE, perché due delle sue sono la STESSA
- * tonalità a due luminosità diverse**: `23927C` e `4FD9BE` differiscono di 4 millesimi di giro
- * sulla ruota, quindi a distinguerle è solo quanto sono chiare. Vincolando la luminosità sul
- * tema chiaro collassavano: la distanza fra le due varianti scendeva a **10** su 255, cioè due
- * tondi che si leggono come uno. Portando `4FD9BE` a saturazione piena prima di scurirlo si
- * risale a **33**.
- * - **Il metro non è scelto, è misurato**: la coppia più vicina della tavolozza di oggi sta a
- *   **41** (l'acquamarina e il celeste), e una variante non deve avvicinarsi più di quanto lui
- *   abbia già accettato. A 33 non ci arriva, e questo è il residuo dichiarato: sul fondo chiaro
- *   non c'è posto per tre gradini di verde acqua, e nessuno spostamento della sola luminosità lo
- *   crea.
+ *
+ * ⚠️⚠️ **E LE SEDICI SONO PIÙ DISTINGUIBILI DI PRIMA, che è la cosa che lui ha chiesto**: la
+ * coppia più vicina passa da **0,012 a 0,042** di distanza percettiva in OkLab, cioè tre volte e
+ * mezzo. Il caso peggiore di prima erano il grigio-blu `4E6367` e il verde `2E7D4F`, che sul
+ * fondo chiaro si leggevano quasi uguali.
+ * - ⚠️ **Il metro è la distanza percettiva e non lo scarto sui canali**: due colori possono
+ *   distare 32 su 255 e confondersi lo stesso, ed è quello che succedeva a quella coppia.
+ *
+ * ⚠️⚠️ **CON LORO ESCE IL GRIGIO-BLU, cioè l'unico neutro**, e non è una dimenticanza: sedici
+ * tonalità pure sono quello che ha chiesto, e un grigio non è una tonalità. Se una cartella senza
+ * carattere ne avesse bisogno, la ruota scende a quindici: è la domanda `d-tinta-neutro`.
+ * ⚠️⚠️ **E LE CARTELLE GIÀ TINTE CAMBIANO COLORE**, perché nell'archivio vive l'**indice** e non
+ * il colore (vedi `FolderTints`). Non si può evitare rinumerando: i sedici colori sono altri
+ * sedici, quindi non esiste una corrispondenza da tenere.
  */
 val FRONT_TINTS: List<FrontTint> = listOf(
-    // Le sue due righe: la famiglia dell'app, poi i tre caldi.
-    FrontTint(Color(0xFF4E6367), Color(0xFF627D82)),
-    FrontTint(Color(0xFF0098A4), Color(0xFF0098A4)),
-    FrontTint(Color(0xFF23927C), Color(0xFF23927C)),
-    FrontTint(Color(0xFF039B7E), Color(0xFF4FD9BE)),
-    FrontTint(Color(0xFF009D5C), Color(0xFFC0FFE5)),
-    FrontTint(Color(0xFF2596A7), Color(0xFF38BFD3)),
-    FrontTint(Color(0xFFC77600), Color(0xFFFFA726)),
-    FrontTint(Color(0xFFBC4A61), Color(0xFFC0556B)),
-    // Le mie due: i freddi che mancavano, e poi i caldi e i verdi.
-    FrontTint(Color(0xFF4E7FD4), Color(0xFF4E7FD4)),
-    FrontTint(Color(0xFF6C5CE0), Color(0xFF7566E2)),
-    FrontTint(Color(0xFF9B5FC7), Color(0xFF9B5FC7)),
-    FrontTint(Color(0xFFD062A9), Color(0xFFD46FB0)),
-    FrontTint(Color(0xFFDF634A), Color(0xFFE2725B)),
-    FrontTint(Color(0xFFA8823C), Color(0xFFA8823C)),
-    FrontTint(Color(0xFF72943B), Color(0xFF7A9E3F)),
-    FrontTint(Color(0xFF2E7D4F), Color(0xFF328856))
+    FrontTint(Color(0xFFD7534A), Color(0xFFFE8B7F)), // rosso
+    FrontTint(Color(0xFFCF6000), Color(0xFFFE904E)), // corallo
+    FrontTint(Color(0xFFB57500), Color(0xFFEF9D05)), // arancio
+    FrontTint(Color(0xFF9D8201), Color(0xFFD1AE00)), // ambra
+    FrontTint(Color(0xFF7F8F00), Color(0xFFAABE1E)), // oro
+    FrontTint(Color(0xFF469B2C), Color(0xFF74CA5D)), // lime
+    FrontTint(Color(0xFF009B6A), Color(0xFF06D190)), // verde
+    FrontTint(Color(0xFF04998D), Color(0xFF03CCBB)), // smeraldo
+    FrontTint(Color(0xFF0A96A4), Color(0xFF03C8DB)), // acqua
+    FrontTint(Color(0xFF0091BF), Color(0xFF05C1FD)), // ciano
+    FrontTint(Color(0xFF2286E5), Color(0xFF73B5FF)), // cielo
+    FrontTint(Color(0xFF6878E8), Color(0xFF9AABFE)), // azzurro
+    FrontTint(Color(0xFF916ADC), Color(0xFFBB9DFF)), // indaco
+    FrontTint(Color(0xFFAF5EC3), Color(0xFFDF8BF3)), // viola
+    FrontTint(Color(0xFFC554A1), Color(0xFFF782CF)), // magenta
+    FrontTint(Color(0xFFD35078), Color(0xFFFE85A5))  // rosa
 )
 
 /**

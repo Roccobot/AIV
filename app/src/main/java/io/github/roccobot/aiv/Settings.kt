@@ -222,18 +222,29 @@ enum class FolderView(override val token: String) : Choice {
  * ⚠️ **Quattro e non cinque, ed è la sua scelta**: il mockup ne proponeva cinque, e l'angolo
  * piegato è quello che non ha preso. Chi lo ritrovasse fra i disegni sappia che è stato visto e
  * scartato, non dimenticato.
- * ⚠️⚠️ **[NONE] È IL VALORE DI FABBRICA, e non è un modo di nascondere il lavoro**: la sua
- * posizione dichiarata è *sono propenso a lasciare il colore solo lì*, e questi quattro sono le
- * proposte che ha chiesto per cambiarla provandole. Il valore di fabbrica non si sceglie per
- * far vedere una funzione, e questa in più non si vede affatto finché una cartella non ha un
- * colore suo.
+ * ⚠️⚠️ **[NAME] È IL VALORE DI FABBRICA DALLA `1.91`, E LA POSIZIONE DI PRIMA ERA LA SUA**
+ * (riscontro del giro della `1.89`, risposta a `d-colore-come`: *imposta solo 'Nome' (il testo del
+ * titolo della cartella) come attivo per impostazione di fabbrica*). Fino alla `1.90` era [NONE],
+ * e nemmeno quello era una scelta mia: la sua posizione di allora era *sono propenso a lasciare
+ * il colore solo lì*, e i quattro stili erano le proposte per cambiarla provandole. Le ha
+ * provate, e questa è la risposta.
+ * ⚠️ **Resta vero che il valore di fabbrica non si sceglie per far vedere una funzione**: qui a
+ * sceglierlo è stato lui, dopo un giro con l'app in mano.
  * ⚠️ **Nella vista 'Cartelle di sistema' non c'è niente da tingere**, e non è una
  * dimenticanza: là le cartelle sono percorsi letti dal disco, mentre una tinta è appesa al
  * `BUCKET_ID` del MediaStore (vedi [FolderTints]), che quelle non hanno.
+ *
+ * ⚠️⚠️ **L'ORDINE DI DICHIARAZIONE È L'ORDINE DEI CHIP, ed è suo** (stesso giro, testo
+ * `t-colore-stili`: *va tutto benissimo, cambia solo l'ordine nelle impostazioni: metti 'Nome'
+ * dopo 'Nessuno'*). ⚠️ **Cambiarlo non tocca quello che è già salvato**, perché nell'archivio
+ * vive il `token` e non la posizione: è la ragione per cui questo riordino non ha bisogno di
+ * nessuna migrazione.
  */
 enum class FolderColour(override val token: String) : Choice {
     /** Niente: la tinta resta nella sola intestazione, com'era fino alla `1.86`. */
     NONE("none"),
+    /** Il nome della cartella scritto nel suo colore. Il valore di fabbrica dalla `1.91`. */
+    NAME("name"),
     /**
      * Un filetto sotto la copertina.
      *
@@ -244,8 +255,6 @@ enum class FolderColour(override val token: String) : Choice {
     EDGE("edge"),
     /** Una cornice intorno alla copertina, disegnata all'interno del suo bordo. */
     FRAME("frame"),
-    /** Il nome della cartella scritto nel suo colore. */
-    NAME("name"),
     /** Un alone che scende dal bordo di sopra della copertina e si spegne prima della metà. */
     GLOW("glow")
 }
@@ -509,7 +518,7 @@ data class Settings(
      * cambiando vista. Le due rese sono diverse perché diverse sono le due celle, non perché lo
      * sia la scelta.
      */
-    val folderColour: FolderColour = FolderColour.NONE,
+    val folderColour: FolderColour = FolderColour.NAME,
     /**
      * Se l'eliminazione manda le fotografie nel **cestino** invece di cancellarle.
      *
@@ -1016,7 +1025,7 @@ object SettingsStore {
             // griglia a zero colonne, cioè una schermata vuota senza nessun errore.
             folderColumns = p[FOLDER_COLUMNS_KEY]?.takeIf { it in FOLDER_COLUMNS } ?: 2,
             folderCount = p[FOLDER_COUNT] ?: true,
-            folderColour = FolderColour.entries.byToken(p[FOLDER_COLOUR], FolderColour.NONE),
+            folderColour = FolderColour.entries.byToken(p[FOLDER_COLOUR], FolderColour.NAME),
             binOn = p[BIN_ON] ?: true,
             imagesOnly = p[IMAGES_ONLY] ?: false,
             clipAutoplay = p[CLIP_AUTOPLAY] ?: false,

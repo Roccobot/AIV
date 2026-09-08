@@ -17,7 +17,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -45,7 +51,10 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -118,6 +127,14 @@ fun MenuShell(
     state: MenuState,
     /** Dove va il menu: [MenuInWindow] oppure un [rememberMenuSpot]. */
     position: PopupPositionProvider,
+    /**
+     * Quanto deve essere largo almeno il pannello. Vedi [menuFloor], che è l'unico a passarlo.
+     *
+     * ⚠️ **Non specificato vuol dire 'quanto il contenuto'**, che è il comportamento di sempre e
+     * quello che vogliono i menu non ancorati a una griglia: un minimo di serie li allargherebbe
+     * tutti.
+     */
+    minWidth: Dp = Dp.Unspecified,
     content: @Composable () -> Unit
 ) {
     /*
@@ -423,6 +440,14 @@ fun MenuShell(
                  */
                 modifier = Modifier
                     .padding(vertical = MENU_PAD)
+                    /*
+                     * ⚠️ **Il minimo va PRIMA della larghezza intrinseca**, o non serve a
+                     * niente: qui i modificatori di misura si applicano da fuori a dentro,
+                     * quindi il vincolo che arriva alla riga sotto è già stretto al minimo, e
+                     * una larghezza intrinseca più piccola viene riportata dentro quel
+                     * vincolo. Scritto dopo, la larghezza sarebbe già fissata.
+                     */
+                    .widthIn(min = minWidth)
                     .width(IntrinsicSize.Max)
                     .verticalScroll(rememberScrollState())
                     /*
@@ -639,43 +664,43 @@ class MenuSpot(
     private val edge: Int = 0,
     private val air: Float = 0f,
     /**
-     * Entro quanti pixel dal bordo di finestra il pannello ci si appoggia del tutto.
+     * Entro quanti pixel dal bordo di finestra la distanza del pannello si **uniforma** a
+     * [flushTo].
      *
-     * ⚠️⚠️ **NASCE DA UN DIFETTO CHE SI VEDE SOLO CON LA SFOCATURA ACCESA, dalla `1.68`**
-     * (riscontro del giro della `1.67`, con schermata: *a prescindere dal numero di colonne
-     * della griglia, il bordo destro della colonna di destra è sempre vicinissimo al bordo
-     * destro del menu del FAB ... la vicinanza tra i due bordi genera un effetto 'linea
-     * sfocata' assai fastidioso*). Il menu si ancora al FAB, e il FAB ha il suo margine dal
-     * bordo ([HUB_PAD]): fra il fianco del pannello e il vetro resta una feritoia larga
-     * esattamente quel margine, e là dentro si vede la griglia sfocata come una riga
-     * verticale.
-     * ⚠️ **Il rimedio è il suo, alla lettera**: *allargare il menu del FAB e/o avvicinarlo al
-     * bordo di quel tanto che basta per coprire il margine della colonna*. Appoggiarlo al
-     * bordo copre la feritoia e non cambia niente di quello che c'è dentro il pannello.
-     * ⚠️⚠️ **SI SCRIVE COME UNA SOGLIA E NON COME UNO SPOSTAMENTO, e la differenza è tutta**:
-     * uno spostamento fisso muoverebbe **ogni** menu, compresi quelli che stanno in mezzo allo
-     * schermo; una soglia interviene solo dove un fianco è già a meno di [HUB_PAD] dal vetro,
-     * cioè solo dove la feritoia esiste. Un menu centrato non la incontra mai.
+     * ⚠️⚠️ **NASCE DA UN DIFETTO CHE SI VEDEVA SOLO CON LA SFOCATURA, dalla `1.68`** (riscontro
+     * del giro della `1.67`, con schermata: *a prescindere dal numero di colonne della griglia,
+     * il bordo destro della colonna di destra è sempre vicinissimo al bordo destro del menu del
+     * FAB ... la vicinanza tra i due bordi genera un effetto 'linea sfocata' assai fastidioso*).
+     * Il menu si ancora al FAB, quindi il suo fianco cade a [HUB_PAD] dal vetro: questa soglia
+     * riconosce quel caso, e [flushTo] dice dove portarlo.
+     * ⚠️⚠️ **SI SCRIVE COME UNA SOGLIA E NON COME UN MARGINE, ed è misurato**: un margine è un
+     * **minimo**, quindi non muove un candidato che lo rispetta già, e il candidato naturale di
+     * un menu ancorato lo rispetta sempre. La `1.91` ci ha provato e la prova del banco lo ha
+     * preso: col margine il pannello restava a 32 dal bordo invece dei 24 voluti.
+     * ⚠️ **Interviene solo dove il difetto esiste**: un menu centrato non arriva mai a meno di
+     * [HUB_PAD] dal bordo, quindi non la incontra.
      * ⚠️ **Vale sui due lati e nei due versi di scrittura**, perché guarda la distanza dai due
      * bordi e non un lato scelto: il difetto è speculare, e lo dice lui (*specularmente il
      * bordo sinistro della colonna di sinistra se il FAB è a sinistra*).
      * ⚠️ **Solo in ORIZZONTALE**: in verticale un menu si stacca dal bordo di [edge], e
-     * appoggiarlo al vetro lo farebbe finire sotto la barra di sistema.
+     * uniformare là lo farebbe finire sotto la barra di sistema.
      */
     private val flush: Int = 0,
     /**
      * Dove si ferma la **finestra** quando [flush] scatta, in pixel dal bordo.
      *
-     * ⚠️⚠️ **NON È SEMPRE ZERO DALLA `1.86`, PERCHÉ IL VETRO LO VUOLE SOLO LA SFOCATURA**
-     * (riscontro del giro della `1.85`, punto B del campo libero: *ottimo il fatto che il menu
-     * dei FAB va sul bordo destro con la sfocatura attiva, ma dimezza la distanza dal bordo
-     * anche per l'ombreggiatura e per nessun effetto attivo*). La feritoia che [flush] esiste
-     * per coprire si vede **solo** con la sfocatura accesa: là dentro passa la griglia sfocata,
-     * e finché resta larga un pixel il difetto c'è. Con l'ombra o senza effetto non c'è niente
-     * da coprire, e un pannello incollato al vetro è soltanto un pannello incollato al vetro.
-     * ⚠️ **Il numero lo calcola il chiamante e non questo posizionatore**, perché dipende da
-     * due cose che qui non ci sono: la scelta in vigore e il `Density`. Vedi
-     * [rememberMenuSpot].
+     * ⚠️⚠️ **DALLA `1.91` VALE [MENU_INSET] MENO L'ARIA, UGUALE PER I TRE EFFETTI, ED È SUO**
+     * (riscontro del giro della `1.89`, voce `menu-bordo` non approvata: *non voglio che il
+     * margine del menu sia a filo con i margini delle colonne ... e in più spostarlo un po' a
+     * sinistra*, e *la stessa soluzione funzionerebbe anche con la sfocatura*). Fino alla `1.90`
+     * dipendeva dalla scelta: zero con la sfocatura, metà del margine del FAB negli altri due.
+     * ⚠️⚠️ **IL DIFETTO DELLA `1.67` NON ERA LA FASCIA, ERANO DUE BORDI VICINI**, e rileggerlo
+     * così è quello che fa cadere i tre numeri di prima: la `1.68` aveva allontanato i due bordi
+     * portando il pannello **al vetro**, e adesso li allontana nell'altro verso, tirando il
+     * pannello **dentro** oltre il margine della griglia. Per questo la stessa distanza va bene
+     * anche con la sfocatura: quello che dava fastidio era la vicinanza, non da che parte fosse.
+     * ⚠️ **Il numero lo calcola il chiamante e non questo posizionatore**, perché dipende da due
+     * cose che qui non ci sono: l'aria dell'ombra e il `Density`. Vedi [rememberMenuSpot].
      */
     private val flushTo: Int = 0
 ) : PopupPositionProvider {
@@ -693,7 +718,8 @@ class MenuSpot(
             size = popupContentSize.width,
             space = windowSize.width,
             // ⚠️ Zero, ed è quello che passa `DropdownMenu`: in orizzontale un menu si appoggia
-            // al bordo, e un margine lo staccherebbe da dove Material lo mette.
+            // al bordo, e un margine lo staccherebbe da dove Material lo mette. A tirarlo dentro
+            // dove serve ci pensa [flush], che è una soglia e non un minimo.
             margin = 0
         ).let { appoggia(it, popupContentSize.width, windowSize.width, flush, flushTo) },
         y = place(
@@ -745,7 +771,9 @@ private fun spots(
  * menu che non passano quel numero non cambiano di un pixel.
  * ⚠️ **La distanza si UNIFORMA e non si riduce soltanto**: un pannello che si fermasse più
  * vicino di [fino] viene portato a [fino] come gli altri, o la stessa scelta darebbe due
- * distanze diverse a seconda di dov'è l'ancora.
+ * distanze diverse a seconda di dov'è l'ancora. ⚠️ **Dalla `1.91` è la clausola che conta**,
+ * perché adesso [fino] è più grande della distanza naturale invece che più piccola: qui il
+ * pannello viene tirato **dentro**, e un margine non lo avrebbe mosso affatto.
  */
 private fun appoggia(at: Int, size: Int, space: Int, entro: Int, fino: Int): Int = when {
     at in 1..entro -> fino
@@ -805,16 +833,15 @@ fun rememberMenuAtAnchor(): MenuSpot =
  * ⚠️ **I tre menu d'angolo dell'app passano da [rememberMenuAtAnchor]** e non da qui: questa
  * resta la forma generale, che serve a chi un domani ne volesse una coppia diversa.
  *
- * ⚠️⚠️ **QUANTO RESTA FRA IL PANNELLO E IL VETRO LO DECIDE LA SCELTA IN VIGORE, dalla `1.86`**,
- * ed è il conto che il posizionatore non può fare da sé (vedi `MenuSpot.flushTo`): con la
- * sfocatura zero, negli altri due casi la **metà** del margine del FAB.
+ * ⚠️⚠️ **QUANTO RESTA FRA IL PANNELLO E IL VETRO È [MENU_INSET] DALLA `1.91`, UGUALE PER I TRE
+ * EFFETTI**, e prima dipendeva dalla scelta in vigore: con la sfocatura il pannello andava **al
+ * vetro** e negli altri due casi a metà del margine del FAB. Il perché del cambio vive su
+ * `MenuSpot.sideMargin`, e in breve è che il difetto da cui quel meccanismo nasceva erano **due
+ * bordi vicini**, non una fascia.
  * ⚠️⚠️ **E L'ARIA DELL'OMBRA VA SOTTRATTA, perché vive DENTRO la finestra**: con l'ombra il menu
- * si dà `LIFT_ROOM` per lato (il perché è su [MenuShell]), quindi appoggiando la finestra al
- * vetro il pannello disegnato resta a `LIFT_ROOM` dal bordo. Il conto lo dice: metà del margine
- * meno l'aria viene negativo, e una finestra non esce dallo schermo, quindi là il pannello si
- * ferma a `LIFT_ROOM`, cioè al margine intero del FAB. ⚠️ **Avvicinarlo di più vorrebbe dire
- * accorciare l'aria da quel lato**, e allora l'ombra finirebbe contro il bordo della finestra
- * invece che contro quello dello schermo: è il taglio da cui `LIFT_ROOM` è nata.
+ * si dà `LIFT_ROOM` per lato (il perché è su [MenuShell]), quindi il pannello **disegnato** resta
+ * a `LIFT_ROOM` dentro il bordo della finestra. Togliendola dal margine, il pannello cade a
+ * [MENU_INSET] dal vetro con tutti e tre gli effetti, che è la cosa che si vede.
  */
 @Composable
 fun rememberMenuSpot(across: MenuSide, along: MenuSide): MenuSpot {
@@ -822,18 +849,60 @@ fun rememberMenuSpot(across: MenuSide, along: MenuSide): MenuSpot {
     val depth = LocalAivDepth.current
     return remember(density, across, along, depth) {
         with(density) {
-            // ⚠️ La soglia è il margine del FAB, perché la feritoia da coprire è la sua:
-            // vedi `MenuSpot.flush`.
-            val margine = HUB_PAD.roundToPx()
-            val resta = if (depth == PanelDepth.BLUR) 0 else margine / 2
             val aria = if (depth == PanelDepth.SHADOW) LIFT_ROOM.roundToPx() else 0
             MenuSpot(
                 across, along, MENU_KEEP_OUT.roundToPx(),
-                flush = margine,
-                flushTo = (resta - aria).coerceAtLeast(0)
+                // ⚠️ La soglia è il margine del FAB, perché è là che cade il fianco di un menu
+                // ancorato: vedi `MenuSpot.flush`.
+                flush = HUB_PAD.roundToPx(),
+                flushTo = (MENU_INSET.roundToPx() - aria).coerceAtLeast(0)
             )
         }
     }
+}
+
+/**
+ * Quanto resta fra il fianco di un menu ancorato e il bordo dello schermo.
+ *
+ * ⚠️⚠️ **TRE VOLTE IL MARGINE DELLA GRIGLIA, ED È MISURATO SUL SUO MOCKUP** (riscontro del giro
+ * della `1.89`, voce `menu-bordo`): nel disegno che ha mandato il pannello si ferma **24** dentro
+ * il bordo destro della griglia, che a sua volta sta a [GRID_PAD_X] dal vetro. Le misure del
+ * mockup, prese sui pixel: tre celle a 12-181, 185-354, 358-528 su 539 di larghezza, e il
+ * pannello da 137 a 504.
+ * ⚠️ **Non è un numero tondo scelto a occhio**: legato a [GRID_PAD_X] resta giusto il giorno che
+ * il margine della griglia cambia, e scritto come `24.dp` sarebbe una coincidenza che si rompe
+ * senza che nessuno se ne accorga.
+ * ⚠️ **Vale con tutti e tre gli effetti**, ed è sua istruzione: *a dire il vero, la stessa
+ * soluzione funzionerebbe anche con la sfocatura*.
+ */
+internal val MENU_INSET = GRID_PAD_X * 3
+
+/**
+ * La larghezza minima del pannello di un menu ancorato, sopra una griglia di [columns] colonne.
+ *
+ * ⚠️⚠️ **DUE CELLE PIÙ LO SPAZIO CHE LE SEPARA, PIÙ DUE MARGINI DI GRIGLIA, ED È SUO** (voce
+ * `menu-bordo`: *bisogna far sì che con l'ombra attiva il pannello sia più largo di due miniature
+ * della griglia più lo spazio che le separa*). Il **più largo** vale i due margini, ed è la
+ * misura del suo mockup: 368 pixel contro i 342 di due celle e uno spazio, su un pannello dove
+ * un margine ne vale 12.
+ * ⚠️⚠️ **IL TETTO NON È UNA PRUDENZA, ED È QUELLO CHE SALVA LA SCHERMATA INIZIALE**: là le
+ * colonne sono **due**, quindi 'due celle più lo spazio' è la griglia intera e il conto darebbe
+ * un pannello largo quanto la finestra. Limitato, il menu si ferma a [MENU_INSET] dai due lati,
+ * cioè comunque **fuori squadra** rispetto ai bordi delle colonne, che è la cosa che ha chiesto.
+ * ⚠️ **La finestra e non lo schermo**, e i rientri di lato si tolgono: su un telefono con un
+ * ritaglio o in orizzontale la griglia comincia più dentro, e una cella misurata sullo schermo
+ * intero sarebbe più larga del vero.
+ */
+@Composable
+fun menuFloor(columns: Int, gap: Dp): Dp {
+    val density = LocalDensity.current
+    val window = with(density) { LocalWindowInfo.current.containerSize.width.toDp() }
+    val sides = WindowInsets.safeDrawing.asPaddingValues()
+    val dir = LocalLayoutDirection.current
+    val usable = window - sides.calculateStartPadding(dir) - sides.calculateEndPadding(dir) -
+        GRID_PAD_X * 2
+    val cell = (usable - gap * (columns - 1)) / columns
+    return minOf(cell * 2 + gap + GRID_PAD_X * 2, window - MENU_INSET * 2)
 }
 
 /**

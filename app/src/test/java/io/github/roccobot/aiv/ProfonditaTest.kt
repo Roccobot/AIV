@@ -181,19 +181,19 @@ class ProfonditaTest {
     /**
      * **Caso 5: quanto resta fra il pannello di un menu ancorato e il bordo dello schermo.**
      *
-     * ⚠️⚠️ **È IL PUNTO B DEL GIRO DELLA `1.85`, MISURATO** (*ottimo il fatto che il menu dei FAB
-     * va sul bordo destro con la sfocatura attiva, ma dimezza la distanza dal bordo anche per
-     * l'ombreggiatura e per nessun effetto attivo*): fino alla `1.85` la soglia appoggiava la
-     * **finestra** al vetro in tutti e tre i casi, quindi senza effetto il pannello finiva
-     * incollato e con l'ombra restava al margine intero del FAB. Adesso il posto dipende dalla
-     * scelta, e il conto vive in [rememberMenuSpot].
+     * ⚠️⚠️ **DALLA `1.91` LA RISPOSTA È UNA SOLA PER I TRE EFFETTI, ED È SUA** (riscontro del
+     * giro della `1.89`, voce `menu-bordo` non approvata: *non voglio che il margine del menu sia
+     * a filo con i margini delle colonne ... e in più spostarlo un po' a sinistra*, e *la stessa
+     * soluzione funzionerebbe anche con la sfocatura*). Fino alla `1.90` questa prova misurava
+     * tre numeri diversi: zero con la sfocatura, metà margine senza effetto, l'aria con l'ombra.
+     * Quelli erano il rimedio della `1.68` alla feritoia, e la feritoia non è più il problema:
+     * il difetto era la **vicinanza fra due bordi**, quello del pannello e quello della colonna.
      * ⚠️⚠️ **SI MISURA IL PANNELLO E NON LA FINESTRA, ed è tutta la differenza**: con l'ombra la
      * finestra porta [LIFT_ROOM] di aria per lato, quindi le due misure non coincidono ed è la
      * seconda quella che si vede. Una prova sulla posizione della finestra passerebbe anche con
      * il difetto rimesso.
-     * ⚠️ **Con l'ombra il numero atteso è l'aria** e non la metà del margine: metà meno l'aria
-     * viene negativo, e una finestra non esce dallo schermo. Il perché per esteso, e che cosa
-     * costerebbe avvicinarlo lo stesso, vivono su [rememberMenuSpot].
+     * ⚠️ **Controprovata rimettendo il difetto**: con `sideMargin` a zero il pannello torna al
+     * vetro e tutti e tre i casi falliscono.
      */
     @Test
     fun `il pannello di un menu ancorato si ferma dove dice la scelta`() {
@@ -203,6 +203,7 @@ class ProfonditaTest {
         var aria = 0
         var largo = 0
         var pannello = 0
+        var dentro = 0
         banco.setContent {
             Scena(scelta) {
                 dove = rememberMenuAtAnchor()
@@ -211,29 +212,30 @@ class ProfonditaTest {
                     aria = LIFT_ROOM.roundToPx()
                     largo = 400.dp.roundToPx()
                     pannello = 200.dp.roundToPx()
+                    dentro = MENU_INSET.roundToPx()
                 }
             }
         }
         banco.waitForIdle()
         assertEquals(
-            "Con la sfocatura il pannello non arriva al vetro: la feritoia resta aperta",
-            0,
+            "Con la sfocatura il pannello non si stacca dal bordo: i due bordi restano vicini",
+            dentro,
             dalBordo(dove, largo, margine, pannello, 0)
         )
 
         scelta.value = PanelDepth.NONE
         banco.waitForIdle()
         assertEquals(
-            "Senza effetto il pannello non si ferma a metà del margine del FAB",
-            margine / 2,
+            "Senza effetto il pannello non si ferma alla stessa distanza degli altri due",
+            dentro,
             dalBordo(dove, largo, margine, pannello, 0)
         )
 
         scelta.value = PanelDepth.SHADOW
         banco.waitForIdle()
         assertEquals(
-            "Con l'ombra il pannello non si ferma sull'aria che l'ombra chiede",
-            aria,
+            "Con l'ombra l'aria della finestra non è stata scontata: il pannello cade più dentro",
+            dentro,
             dalBordo(dove, largo, margine, pannello, aria)
         )
     }
