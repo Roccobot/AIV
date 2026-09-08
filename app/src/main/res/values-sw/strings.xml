@@ -115,8 +115,8 @@
     <string name="folder_renamed">Jina la folda limebadilishwa</string>
     <string name="folder_rename_taken">Folda yenye jina hili tayari ipo</string>
     <string name="folder_rename_fail">Folda haikuweza kubadilishwa jina</string>
-    <string name="jump_top">Nenda juu</string>
-    <string name="jump_bottom">Nenda chini</string>
+    <string name="jump_top">Nenda mwanzoni</string>
+    <string name="jump_bottom">Nenda mwishoni</string>
     <string name="settings_folder_columns">Safu kwenye gridi</string>
     <string name="settings_folder_columns_desc">Idadi ya safu zinazoonyeshwa na gridi ya folda na gridi ya picha. Safu nyingi huingiza vitu vingi kwenye skrini na kupunguza ukubwa wa kila kigae. Kwa nne, jina la folda hukatwa mara nyingi.</string>
     <string name="settings_folder_count">Kihesabu cha vipengele chini ya folda katika mwonekano wa gridi</string>

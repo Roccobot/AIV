@@ -115,8 +115,8 @@
     <string name="folder_renamed">फ़ोल्डर का नाम बदल दिया</string>
     <string name="folder_rename_taken">इस नाम का फ़ोल्डर पहले से है</string>
     <string name="folder_rename_fail">फ़ोल्डर का नाम नहीं बदला जा सका</string>
-    <string name="jump_top">सबसे ऊपर जाएँ</string>
-    <string name="jump_bottom">सबसे नीचे जाएँ</string>
+    <string name="jump_top">शुरुआत में जाएँ</string>
+    <string name="jump_bottom">अंत में जाएँ</string>
     <string name="settings_folder_columns">ग्रिड के स्तंभ</string>
     <string name="settings_folder_columns_desc">फ़ोल्डर ग्रिड और चित्र ग्रिड कितने स्तंभ दिखाएँ। अधिक स्तंभों में स्क्रीन पर अधिक चीज़ें आती हैं और हर खाना छोटा होता है। चार पर फ़ोल्डर का नाम प्रायः कट जाता है।</string>
     <string name="settings_folder_count">ग्रिड दृश्य में फ़ोल्डरों के नीचे वस्तुओं की गिनती</string>

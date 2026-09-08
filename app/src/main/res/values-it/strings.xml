@@ -184,8 +184,8 @@
     <string name="folder_renamed">Cartella rinominata</string>
     <string name="folder_rename_taken">Esiste già una cartella con questo nome</string>
     <string name="folder_rename_fail">Non è stato possibile rinominare la cartella</string>
-    <string name="jump_top">Vai in cima</string>
-    <string name="jump_bottom">Vai in fondo</string>
+    <string name="jump_top">Vai all\'inizio</string>
+    <string name="jump_bottom">Vai alla fine</string>
 
     <string name="settings_folder_columns">Colonne delle griglie</string>
     <string name="settings_folder_columns_desc">Quante colonne mostrano la griglia delle cartelle e quella delle immagini. Più colonne fanno stare più cose sullo schermo e rimpiccioliscono ogni riquadro. A quattro il nome della cartella viene quasi sempre troncato.</string>

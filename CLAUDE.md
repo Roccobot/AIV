@@ -976,7 +976,10 @@ di pixel ed è **visibile per costruzione**.
 dell'intestazione deve ritornare positiva (sovrapposta) per il tema scuro: bianco, opacità 40%*).
 Quindi i casi sono tre e non due: senza gradiente l'icona è quella di sempre, col gradiente sul
 tema chiaro è in negativo (il colore del fondo, che è la nota della `1.83`), col gradiente sul tema
-scuro è **bianca al 40%** (`FRONT_DARK_INK`).
+scuro è **bianca** (`FRONT_DARK_INK`).
+- ⚠️⚠️ **E DALLA `2.00` QUEL NUMERO È IL 20%, PERCHÉ L'HA GUARDATA SUL TELEFONO** (riscontro del
+  giro della `1.95`, voce `front-icona-scura` approvata con una nota: *OK, ma mettila al 20%*). Il
+  40% era il numero della richiesta, questo è quello della prova.
 - ⚠️ **Il tema da guardare è quello dell'app e non quello di sistema**, cioè `LocalAivLight`: è
   la stessa famiglia del difetto che ha già colpito due volte l'icona in testata e il FAB, e che
   questo file racconta più sopra, dove il tema scelto dentro AIV diverge da quello di Android. E
@@ -1108,12 +1111,23 @@ quello che non ha ancora composto, quindi l'altezza di una riga si ricava da que
 corsa finisce quando nessuno prende più niente, quindi una stima lunga si ferma al bordo lo
 stesso, e una corta arriva con meno decelerazione.
 
-⚠️⚠️ **DOVE CI SONO: IN TUTTE LE CARTELLE E NELLA SCHERMATA INIZIALE** (sua precisazione,
-2026-09-08: *i tasti devono apparire in tutte le cartelle, non solo nella schermata home*).
-`GridScreen` è una sola per la cartella, la ricerca, il cestino e i recenti, quindi la riga si
-scrive una volta e le copre tutte. ⚠️ **Restano fuori due schermate**, e va detto invece di
-lasciarlo scoprire: la vista **'Cartelle di sistema'**, che tiene il proprio scorrimento senza
-esporlo, e le **impostazioni**.
+⚠️⚠️ **DOVE CI SONO: DAPPERTUTTO, DALLA `2.00`** (risposta `tutto` a `d-salti-dove`, dopo la sua
+precisazione del 2026-09-08: *i tasti devono apparire in tutte le cartelle, non solo nella
+schermata home*). `GridScreen` è una sola per la cartella, la ricerca, il cestino e i recenti,
+quindi là la riga si scrive una volta e le copre tutte; con la sua risposta sono entrate anche le
+due che restavano fuori.
+- **'Cartelle di sistema'** teneva il proprio scorrimento **dentro** l'elenco, quindi i tasti non
+  avrebbero avuto niente da muovere: adesso lo stato vive nella schermata e l'elenco lo riceve.
+  ⚠️ Ne basta uno, quello dell'albero: l'altra lista è quella delle memorie, che sono due, e in
+  una lista che ci sta tutta nello schermo i tasti non compaiono comunque.
+- **Le impostazioni** li hanno nel **guscio** (`Shell`), quindi la pagina piatta e tutte le
+  sotto-pagine insieme, con una riga sola invece di una per pagina. ⚠️ Nelle pagine che non
+  scorrono da sé si spengono **senza una condizione scritta**: là lo `ScrollState` non si muove,
+  quindi `canScrollForward` risponde di no.
+  - ⚠️ **È la sola schermata dell'app senza FAB**, e per questo `JumpFabs` ha il parametro
+    `aboveFab`: spento, la colonna non lascia il posto a un tasto che non c'è.
+- ⚠️ **La distanza è una stima dappertutto tranne che là**: una pagina con `verticalScroll`
+  misura tutto il proprio contenuto, quindi la posizione e il fondo sono due numeri esatti.
 
 ⚠️ **Vanno sopra il FAB e sul suo stesso lato**, come ha chiesto (*devono apparire sopra il FAB
 (a destra o sinistra) ed essere perfettamente allineati orizzontalmente con il centro del FAB
@@ -1122,14 +1136,33 @@ larghezza del FAB e centrandoci dentro i tasti: al bordo, cambiando la loro misu
 scollerebbero senza che nessuno se ne accorga. Il chiamante passa lo **stesso** modificatore di
 posizione del FAB, così i rientri restano scritti una volta per schermata.
 
+⚠️⚠️ **UN TASTO È UN GLIFO E BASTA, DALLA `2.00`: NIENTE TONDO DIETRO** (riscontro del giro della
+`1.95`, voce `salti-tasti` non approvata: *i tondi in cui si trovano (che comunque non avevo
+chiesto) appaiono come rettangoli ad ogni tocco, e flashano pieni di glitch. Rendi i glifi più
+grandi ed elimina i tondi di sfondo*). Con il tondo se ne va la causa di tutte e due le cose che
+ha visto, perché quel fondo era la superficie su cui si vedeva lo **stato premuto** del componente
+di Material: senza `IconButton` non c'è più niente da disegnare quando il dito tocca.
+- ⚠️⚠️ **E IL COMPONENTE PORTAVA QUATTRO DECISIONI CHE NESSUNO AVEVA PRESO**: la misura minima del
+  bersaglio, un `size` suo, un `clip` e il ripple. Il bersaglio **misurato** veniva 28dp, cioè più
+  stretto dei 40 del FAB accanto: adesso lo dice `JUMP_TAP`, che vale [FAB_SIZE].
+- ⚠️ **Il colore passa al glifo, e non è un cambiamento della sua specifica ma la sua
+  conseguenza**: il 40% del fondo opposto (*colore dello sfondo scuro su tema chiaro e dello
+  sfondo chiaro su tema scuro, opacità 40%*) era del tondo, e senza il tondo un glifo del colore
+  del fondo in vigore sparirebbe sul fondo in vigore.
+- ⚠️⚠️ **LA PROVA CHE LO PRESIDIA GUARDA I PIXEL**, perché l'albero semantico è identico con e
+  senza un fondo: `SaltiSfondoTest` conta quanto del riquadro è tinto, e la controprova dà **82%**
+  col tondo contro il **10%** senza.
+
 ⚠️⚠️ **A TASTI NASCOSTI NON C'È NIENTE CHE POSSA RUBARE UN TOCCO**, ed è la trappola della `1.70`
 in piccolo: la colonna non porta modificatori di puntatore, e quello che ne ha uno esce
 dall'albero con la dissolvenza. La difesa è l'**assenza**, come per il `MenuGuard`.
 
-⚠️ **Che cosa il banco misura e che cosa no** (`SaltiTest`): vede che a riposo i due tasti non
-sono nell'albero e che il salto passa dallo scorrimento annidato nei due versi. **Non** vede
-quando compaiono e quando se ne vanno, perché quell'attesa il clock di prova la porta a termine
-dentro `waitForIdle`, né la decelerazione, che è resa.
+⚠️ **Che cosa il banco misura e che cosa no** (`SaltiTest` e `SaltiSfondoTest`): vede che a
+riposo i due tasti non sono nell'albero, che il salto passa dallo scorrimento annidato nei due
+versi, che il bersaglio è largo quanto dichiarato, e che dietro il glifo non c'è nessun fondo
+dipinto. **Non** vede quando compaiono e quando se ne vanno, perché quell'attesa il clock di prova
+la porta a termine dentro `waitForIdle`, né la decelerazione, né come il tasto si comporta
+**premuto**: sono rese.
 
 ## 🔖 Lo scorrimento di una schermata sopravvive alla schermata
 

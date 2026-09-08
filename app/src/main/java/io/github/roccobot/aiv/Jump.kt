@@ -6,10 +6,12 @@ import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -17,9 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridItemInfo
 import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -32,13 +32,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
@@ -95,7 +96,7 @@ private const val JUMP_HOLD_MS = 2_000L
 private const val JUMP_SETTLE_MS = 150L
 
 /** L'entrata e l'uscita in dissolvenza, come la transizione di 0,25 s del sito. */
-private const val JUMP_FADE_MS = 250
+internal const val JUMP_FADE_MS = 250
 
 /**
  * Quanto si vede il tasto: **quattro decimi**, ed è suo (*opacità 40%*).
@@ -106,12 +107,27 @@ private const val JUMP_FADE_MS = 250
 private const val JUMP_INK = 0.4f
 
 /**
- * Il lato del tasto: **più piccolo del FAB**, ed è suo (*dimensione: più piccoli del FAB*).
+ * Il lato del glifo: **più piccolo del FAB**, ed è suo (*dimensione: più piccoli del FAB*).
  *
- * ⚠️ Sette decimi di [FAB_SIZE] e non un numero a caso: resta sopra i 24dp che un dito
- * raggiunge senza mirare, e si legge come un comando di servizio accanto a quello principale.
+ * ⚠️⚠️ **DALLA `2.00` QUESTO È IL GLIFO E NON PIÙ IL TASTO INTERO**, ed è la correzione della
+ * voce `salti-tasti` (*rendi i glifi più grandi ed elimina i tondi di sfondo*): finché il tondo
+ * c'era, il disegno dentro ne misurava sei decimi, cioè meno di 17dp. Adesso il tondo non esiste
+ * e questi 28dp sono quello che si vede.
  */
 private val JUMP_SIZE = 28.dp
+
+/**
+ * Il lato dell'**area di tocco**, che è quella del FAB.
+ *
+ * ⚠️⚠️ **DALLA `2.00` LA DECIDE QUESTA RIGA E NON UN COMPONENTE**: fino alla `1.95` il tasto era
+ * un `IconButton`, che porta con sé `minimumInteractiveComponentSize`, un `size` proprio, un
+ * `clip` e un ripple, cioè quattro decisioni che qui non ha preso nessuno. Misurato dal banco, il
+ * bersaglio veniva 28dp, sotto i 40 del FAB accanto.
+ * ⚠️ **Uguale al FAB** perché la colonna è larga così: il bersaglio riempie la colonna e i due
+ * centri coincidono per costruzione invece che per un numero scritto due volte. Presidiata da
+ * `SaltiTest`.
+ */
+internal val JUMP_TAP = FAB_SIZE
 
 /** L'aria fra i due tasti. */
 private val JUMP_GAP = 8.dp
@@ -133,7 +149,7 @@ private class Arrivato : CancellationException("bordo")
  *
  * ⚠️⚠️ **LA COLONNA È LARGA QUANTO IL FAB, ED È COSÌ CHE I CENTRI COINCIDONO** (sua
  * precisazione: *devono apparire sopra il FAB (a destra o sinistra) ed essere perfettamente
- * allineati orizzontalmente con il centro del FAB stesso*): i tasti sono più stretti, quindi
+ * allineati orizzontalmente con il centro del FAB stesso*): i glifi sono più piccoli, quindi
  * centrarli dentro una colonna larga [FAB_SIZE] è la sola forma che tiene l'allineamento
  * qualunque sia la loro misura. Con un allineamento al bordo, cambiando [JUMP_SIZE] i due
  * centri si scollerebbero senza che nessuno se ne accorga.
@@ -141,8 +157,8 @@ private class Arrivato : CancellationException("bordo")
  * modificatore di posizione del FAB: così i rientri (quelli di sistema, il margine della
  * schermata) restano scritti una volta sola per schermata.
  * ⚠️⚠️ **A TASTI NASCOSTI QUI NON C'È NIENTE CHE POSSA RUBARE UN TOCCO**: la colonna non porta
- * nessun modificatore di puntatore, e quello che ne ha uno ([IconButton]) esce dall'albero con
- * la dissolvenza. È la trappola della `1.70`, e la difesa è la stessa: l'assenza.
+ * nessun modificatore di puntatore, e il solo nodo che ne ha uno esce dall'albero con la
+ * dissolvenza. È la trappola della `1.70`, e la difesa è la stessa: l'assenza.
  *
  * @param state la lista da scorrere.
  * @param up quanti pixel mancano per arrivare in cima, stimati al momento del tocco.
@@ -153,6 +169,9 @@ private class Arrivato : CancellationException("bordo")
  * @param more se c'è ancora qualcosa sopra oltre alla lista: la fascia chiusa. Serve perché
  *   chiudendo l'intestazione la lista **non** si muove, quindi `canScrollBackward` risponde di
  *   no proprio nel caso in cui il tasto 'su' ha più da fare.
+ * @param aboveFab se sotto la colonna c'è il FAB, e quindi va lasciato il suo posto. Spento
+ *   nelle **impostazioni**, che sono la sola schermata coi tasti e senza FAB: là quello spazio
+ *   sarebbe aria in fondo allo schermo.
  */
 @Composable
 fun JumpFabs(
@@ -161,7 +180,8 @@ fun JumpFabs(
     down: () -> Float,
     modifier: Modifier = Modifier,
     nested: NestedScrollConnection? = null,
-    more: () -> Boolean = { false }
+    more: () -> Boolean = { false },
+    aboveFab: Boolean = true
 ) {
     var awake by remember { mutableStateOf(false) }
     /*
@@ -190,7 +210,9 @@ fun JumpFabs(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(JUMP_GAP),
-        modifier = modifier.width(FAB_SIZE).padding(bottom = FAB_SIZE + JUMP_FROM_FAB)
+        modifier = modifier
+            .width(FAB_SIZE)
+            .padding(bottom = if (aboveFab) FAB_SIZE + JUMP_FROM_FAB else JUMP_FROM_FAB)
     ) {
         JumpFab(
             visible = awake && goUp,
@@ -206,11 +228,23 @@ fun JumpFabs(
 }
 
 /**
- * Un tasto solo, col fondo del tema **opposto**.
+ * Un tasto solo: **il glifo e basta**, del colore del tema opposto.
  *
- * ⚠️ **Il fondo scuro sul tema chiaro e chiaro sul tema scuro è suo** (*colore dello sfondo
- * scuro su tema chiaro e dello sfondo chiaro su tema scuro, opacità 40%*), e il glifo prende il
- * fondo del tema in vigore: sono i due colori che l'app ha già, quindi qui non ne nasce nessuno.
+ * ⚠️⚠️ **DALLA `2.00` NON C'È NESSUN TONDO DIETRO, ED È SUA ISTRUZIONE** (riscontro del giro
+ * della `1.95`, voce `salti-tasti` non approvata: *i tondi in cui si trovano (che comunque non
+ * avevo chiesto) appaiono come rettangoli ad ogni tocco, e flashano pieni di glitch. Rendi i
+ * glifi più grandi ed elimina i tondi di sfondo*). Con il tondo se ne va la causa di tutte e due
+ * le cose che ha visto: la forma che compariva premendo era lo **stato premuto** del componente
+ * di Material, e il fondo semitrasparente era quello che la faceva vedere.
+ * ⚠️⚠️ **QUINDI NIENTE `IconButton` E NIENTE INDICAZIONE DI STATO**: `indication = null` toglie
+ * l'unica cosa che questo tasto disegnava oltre al proprio glifo. Un riscontro al tocco qui non
+ * serve, perché il tocco fa partire una corsa che si vede.
+ * ⚠️ **Il colore passa al glifo**, e non è un cambiamento della sua specifica ma la sua
+ * conseguenza: il 40% del fondo opposto (*colore dello sfondo scuro su tema chiaro e dello
+ * sfondo chiaro su tema scuro, opacità 40%*) era del tondo, e senza il tondo un glifo del colore
+ * del fondo in vigore sparirebbe sul fondo in vigore.
+ * ⚠️ **Un bersaglio solo e un'etichetta sola**, come la riga di un interruttore: l'etichetta sta
+ * sul nodo che si tocca, e il glifo dentro non ne porta una sua.
  */
 @Composable
 private fun JumpFab(
@@ -225,18 +259,23 @@ private fun JumpFab(
         enter = fadeIn(tween(JUMP_FADE_MS)),
         exit = fadeOut(tween(JUMP_FADE_MS))
     ) {
-        IconButton(
-            onClick = onTap,
+        Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(JUMP_SIZE)
-                .clip(CircleShape)
-                .background(aivGround(!light).copy(alpha = JUMP_INK))
+                .size(JUMP_TAP)
+                .clickable(
+                    interactionSource = null,
+                    indication = null,
+                    role = Role.Button,
+                    onClick = onTap
+                )
+                .semantics { contentDescription = label }
         ) {
             Icon(
                 imageVector = glyph,
-                contentDescription = label,
-                tint = aivGround(light),
-                modifier = Modifier.size(JUMP_SIZE * 0.6f)
+                contentDescription = null,
+                tint = aivGround(!light).copy(alpha = JUMP_INK),
+                modifier = Modifier.size(JUMP_SIZE)
             )
         }
     }
@@ -351,6 +390,19 @@ private fun rowHeight(seen: List<LazyGridItemInfo>): Float {
     val span = seen.maxOf { it.offset.y + it.size.height } - seen.minOf { it.offset.y }
     return span.toFloat() / rows
 }
+
+/**
+ * Quanti pixel mancano per arrivare in cima a una **pagina che scorre tutta intera**.
+ *
+ * ⚠️⚠️ **QUESTA NON È UNA STIMA, ed è l'unica delle sei**: una colonna con `verticalScroll`
+ * misura tutto il proprio contenuto, quindi la posizione e il fondo sono due numeri esatti.
+ * Serve alle **impostazioni**, che sono la pagina più lunga dell'app, e la risposta `tutto` a
+ * `d-salti-dove` le ha portate dentro.
+ */
+fun ScrollState.jumpUpPixels(): Float = value.toFloat()
+
+/** Quanti pixel mancano per arrivare in fondo a una pagina che scorre. Vedi [jumpUpPixels]. */
+fun ScrollState.jumpDownPixels(): Float = (maxValue - value).toFloat()
 
 /** Quanti pixel mancano per arrivare in cima a un elenco. Vedi [jumpUpPixels]. */
 fun LazyListState.jumpUpPixels(): Float {

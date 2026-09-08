@@ -115,8 +115,8 @@
     <string name="folder_renamed">ఫోల్డర్ పేరు మార్చబడింది</string>
     <string name="folder_rename_taken">ఈ పేరుతో ఒక ఫోల్డర్ ఇప్పటికే ఉంది</string>
     <string name="folder_rename_fail">ఫోల్డర్ పేరును మార్చలేకపోయాం</string>
-    <string name="jump_top">పైకి వెళ్లు</string>
-    <string name="jump_bottom">కిందికి వెళ్లు</string>
+    <string name="jump_top">ప్రారంభానికి వెళ్లు</string>
+    <string name="jump_bottom">చివరకు వెళ్లు</string>
     <string name="settings_folder_columns">గడుల్లోని నిలువు వరుసలు</string>
     <string name="settings_folder_columns_desc">సంచయ గడి, చిత్ర గడి ఎన్ని నిలువు వరుసలు చూపాలి. ఎక్కువ నిలువు వరుసలు తెరపై ఎక్కువ ఇముడ్చుతాయి, ప్రతి గడి చిన్నదవుతుంది. నాలుగు వద్ద సంచయం పేరు సాధారణంగా తెగిపోతుంది.</string>
     <string name="settings_folder_count">గ్రిడ్ వీక్షణలో సంచయాల కింద అంశాల లెక్క</string>

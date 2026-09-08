@@ -115,8 +115,8 @@
     <string name="folder_renamed">已重新命名資料夾</string>
     <string name="folder_rename_taken">已有同名資料夾</string>
     <string name="folder_rename_fail">無法重新命名資料夾</string>
-    <string name="jump_top">回到頂端</string>
-    <string name="jump_bottom">前往底部</string>
+    <string name="jump_top">回到開頭</string>
+    <string name="jump_bottom">前往結尾</string>
     <string name="settings_folder_columns">格狀檢視的欄數</string>
     <string name="settings_folder_columns_desc">資料夾格狀檢視與圖片格狀檢視顯示幾欄。欄數越多，畫面上放得越多，每個方塊越小。四欄時資料夾名稱通常會被截斷。</string>
     <string name="settings_folder_count">格狀檢視中資料夾下方的項目計數</string>

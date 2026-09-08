@@ -115,8 +115,8 @@
     <string name="folder_renamed">Ordner umbenannt</string>
     <string name="folder_rename_taken">Es gibt schon einen Ordner mit diesem Namen</string>
     <string name="folder_rename_fail">Der Ordner konnte nicht umbenannt werden</string>
-    <string name="jump_top">Nach oben springen</string>
-    <string name="jump_bottom">Nach unten springen</string>
+    <string name="jump_top">Zum Anfang springen</string>
+    <string name="jump_bottom">Zum Ende springen</string>
     <string name="settings_folder_columns">Spalten in den Rastern</string>
     <string name="settings_folder_columns_desc">Wie viele Spalten das Ordnerraster und das Bildraster zeigen. Mehr Spalten zeigen mehr auf einmal und verkleinern jede Kachel. Bei vier wird der Ordnername meist abgeschnitten.</string>
     <string name="settings_folder_count">Zähler der Elemente unter den Ordnern in der Rasteransicht</string>

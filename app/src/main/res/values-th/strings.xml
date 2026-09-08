@@ -115,8 +115,8 @@
     <string name="folder_renamed">เปลี่ยนชื่อโฟลเดอร์แล้ว</string>
     <string name="folder_rename_taken">มีโฟลเดอร์ชื่อนี้อยู่แล้ว</string>
     <string name="folder_rename_fail">เปลี่ยนชื่อโฟลเดอร์ไม่สำเร็จ</string>
-    <string name="jump_top">ไปด้านบนสุด</string>
-    <string name="jump_bottom">ไปด้านล่างสุด</string>
+    <string name="jump_top">ไปที่จุดเริ่มต้น</string>
+    <string name="jump_bottom">ไปที่จุดสิ้นสุด</string>
     <string name="settings_folder_columns">จำนวนคอลัมน์ในตาราง</string>
     <string name="settings_folder_columns_desc">ตารางโฟลเดอร์และตารางภาพแสดงกี่คอลัมน์ คอลัมน์มากขึ้นทำให้แสดงได้มากขึ้นบนหน้าจอและแต่ละช่องเล็กลง ที่สี่คอลัมน์ชื่อโฟลเดอร์มักถูกตัด</string>
     <string name="settings_folder_count">ตัวนับรายการใต้โฟลเดอร์ในมุมมองตาราง</string>
