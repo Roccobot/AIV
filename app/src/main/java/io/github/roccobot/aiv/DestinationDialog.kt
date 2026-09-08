@@ -385,11 +385,24 @@ private fun FolderShortcut(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(24.dp)
                         )
+                        /*
+                         * ⚠️⚠️ **QUI LE CARTELLE NON SI TINGONO, ED È UNA SCELTA DICHIARATA**
+                         * (dalla `1.87`, quando i quattro stili di [FolderColour] sono nati):
+                         * quella funzione risponde a *riconosco una cartella nell'elenco di
+                         * casa*, e questa finestra non è quell'elenco ma le sole destinazioni in
+                         * cui si può mettere un file.
+                         * ⚠️ **E il costo tecnico sarebbe reale**: le tinte sono un dato delle
+                         * cartelle, non una preferenza di vista, quindi passarle da [DestLook]
+                         * (che è uno `staticCompositionLocalOf`) farebbe ricomporre l'app intera
+                         * a ogni colore scelto. Chi le vuole anche qui le porti per un'altra via.
+                         */
                         look.view == FolderView.GRID -> Covers(
                             folders = elenco,
                             columns = look.columns,
                             counted = look.counted,
                             nameStyle = folderNameStyle(look.columns),
+                            colour = FolderColour.NONE,
+                            tints = emptyMap(),
                             onPick = { bucket -> bucket.path?.let { onPick(File(it)) } },
                             onHide = { }
                         )
@@ -397,6 +410,8 @@ private fun FolderShortcut(
                             folders = elenco,
                             counted = look.listCount,
                             size = look.listText,
+                            colour = FolderColour.NONE,
+                            tints = emptyMap(),
                             onPick = { bucket -> bucket.path?.let { onPick(File(it)) } },
                             onHide = { }
                         )

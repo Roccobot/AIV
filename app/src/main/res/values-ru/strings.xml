@@ -91,6 +91,13 @@
     <string name="settings_front_wash">Градиент</string>
     <string name="settings_front_serif">Заголовок с засечками</string>
     <string name="settings_front_facts">Сведения</string>
+    <string name="settings_colour">Цвет папок</string>
+    <string name="settings_colour_desc">Определяет, где выбранный для папки цвет отображается на главном экране, помимо заголовка.</string>
+    <string name="settings_colour_none">Нет</string>
+    <string name="settings_colour_edge">Полоса</string>
+    <string name="settings_colour_frame">Рамка</string>
+    <string name="settings_colour_name">Название</string>
+    <string name="settings_colour_glow">Свечение</string>
     <string name="front_name_copied">Имя папки скопировано</string>
     <string name="front_path_copied">Путь к папке скопирован</string>
     <string name="front_copy_path">Скопировать путь</string>

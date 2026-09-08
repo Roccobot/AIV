@@ -6,8 +6,11 @@ import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -404,7 +407,7 @@ class IntestazioneTest {
             Box(
                 modifier = Modifier
                     .size(LATO)
-                    .frontWash(tint = Color.Red, air = 0.dp, up = 0.dp, ink = { 1f })
+                    .frontWash(tint = Color.Red, air = 0.dp, up = 0.dp, bar = 0.dp, ink = { 1f })
             ) {
                 Box(modifier = Modifier.fillMaxSize().background(Color.White))
             }
@@ -417,6 +420,59 @@ class IntestazioneTest {
             "Il centro del quadrato bianco è $centro: il gradiente gli è finito sopra",
             Color.White,
             centro
+        )
+    }
+
+    /**
+     * **Sopra la sfumatura c'è una fascia piatta del suo colore di partenza.**
+     *
+     * ⚠️⚠️ **È LA SUA RICHIESTA ALLA LETTERA** (2026-09-08, con schermata: *puoi colorare la barra
+     * di sistema di Android dello stesso colore dell'inizio della sfumatura? ... Stesso colore
+     * della prima striscia di pixel sul bordo*), e il pezzo che la disegna è [Modifier.frontWash].
+     * ⚠️⚠️ **MISURA LA PIATTEZZA E NON UN COLORE**: quanto valga quel colore composto su bianco
+     * dipende da come il canvas fonde i canali, e scriverlo qui vorrebbe dire ricopiare
+     * un'implementazione. Quello che la richiesta chiede è che sopra il gradiente ci sia un tratto
+     * **costante**, e sotto il gradiente cominci a scendere: sono due fatti, e questa li guarda.
+     * ⚠️ **Il tratto si cerca invece di calcolarlo**: la sua altezza in pixel dipende dalla densità
+     * della scena finta, e ricavarla qui vorrebbe dire rifare il conto che sto verificando.
+     */
+    @Test
+    fun `la fascia sopra la sfumatura è piatta`() {
+        banco.setContent {
+            Box(modifier = Modifier.size(LATO).background(Color.White)) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .height(META)
+                        .frontWash(
+                            tint = Color.Red,
+                            air = 0.dp,
+                            up = 0.dp,
+                            bar = BARRA,
+                            ink = { 1f }
+                        )
+                )
+            }
+        }
+        banco.waitForIdle()
+
+        val mappa = banco.onRoot().captureToImage().toPixelMap()
+        val x = mappa.width / 2
+        val cima = (0 until mappa.height).firstOrNull { mappa[x, it] != Color.White }
+        val primo = requireNotNull(cima) { "Nessun pixel colorato: la tinta non si è dipinta" }
+        val colore = mappa[x, primo]
+        var giu = primo
+        while (giu + 1 < mappa.height && mappa[x, giu + 1] == colore) giu++
+
+        assertTrue(
+            "Il tratto costante in cima è alto ${giu - primo + 1} pixel: senza la fascia " +
+                "resterebbero i pochi in cui il gradiente arrotonda uguale",
+            giu - primo + 1 >= FASCIA_MINIMA
+        )
+        assertTrue(
+            "Sotto la fascia il colore non cambia: il gradiente non sta scendendo",
+            mappa[x, mappa.height - 1] != colore
         )
     }
 
@@ -647,4 +703,24 @@ private const val COLORI_DI_UN_TESTO = 3
 
 /** Quanto è largo il quadrato della prova sul meccanismo del gradiente. */
 private val LATO = 100.dp
+
+/** Quanto è alto il nodo che porta la tinta, dentro la scena della fascia: la metà di sotto. */
+private val META = 50.dp
+
+/**
+ * Quanto è alta la barra di sistema finta, nella prova della fascia.
+ *
+ * ⚠️ **Un numero qualunque ma grande abbastanza**: serve solo a separare la fascia dai pochi
+ * pixel in cui il gradiente arrotonda allo stesso colore.
+ */
+private val BARRA = 24.dp
+
+/**
+ * Quanti pixel costanti in cima valgono 'la fascia c'è'.
+ *
+ * ⚠️ **Sotto l'altezza della barra e sopra la coda del gradiente**: la densità della scena finta
+ * non è dichiarata, quindi [BARRA] in pixel non si sa; quello che si sa è che senza fascia il
+ * tratto costante è di pochissimi pixel, perché la tinta comincia a scendere subito.
+ */
+private const val FASCIA_MINIMA = 12
 

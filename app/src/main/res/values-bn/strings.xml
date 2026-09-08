@@ -91,6 +91,13 @@
     <string name="settings_front_wash">গ্রেডিয়েন্ট</string>
     <string name="settings_front_serif">সেরিফ শিরোনাম</string>
     <string name="settings_front_facts">তথ্য</string>
+    <string name="settings_colour">ফোল্ডারের রঙ</string>
+    <string name="settings_colour_desc">ফোল্ডারের জন্য বেছে নেওয়া রঙ হেডার ছাড়া হোম স্ক্রিনে কোথায় দেখা যাবে তা ঠিক করে।</string>
+    <string name="settings_colour_none">কোনোটি নয়</string>
+    <string name="settings_colour_edge">রেখা</string>
+    <string name="settings_colour_frame">ফ্রেম</string>
+    <string name="settings_colour_name">নাম</string>
+    <string name="settings_colour_glow">আভা</string>
     <string name="front_name_copied">ফোল্ডারের নাম কপি হয়েছে</string>
     <string name="front_path_copied">ফোল্ডারের পাথ কপি হয়েছে</string>
     <string name="front_copy_path">পাথ কপি করুন</string>

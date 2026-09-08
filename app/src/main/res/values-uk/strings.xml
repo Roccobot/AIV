@@ -91,6 +91,13 @@
     <string name="settings_front_wash">Градієнт</string>
     <string name="settings_front_serif">Заголовок із засічками</string>
     <string name="settings_front_facts">Відомості</string>
+    <string name="settings_colour">Колір папок</string>
+    <string name="settings_colour_desc">Визначає, де обраний для папки колір показується на головному екрані, окрім заголовка.</string>
+    <string name="settings_colour_none">Немає</string>
+    <string name="settings_colour_edge">Смуга</string>
+    <string name="settings_colour_frame">Рамка</string>
+    <string name="settings_colour_name">Назва</string>
+    <string name="settings_colour_glow">Сяйво</string>
     <string name="front_name_copied">Назву теки скопійовано</string>
     <string name="front_path_copied">Шлях до теки скопійовано</string>
     <string name="front_copy_path">Скопіювати шлях</string>

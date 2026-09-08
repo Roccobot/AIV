@@ -91,6 +91,13 @@
     <string name="settings_front_wash">ग्रेडिएंट</string>
     <string name="settings_front_serif">सेरिफ शीर्षक</string>
     <string name="settings_front_facts">माहिती</string>
+    <string name="settings_colour">फोल्डरचा रंग</string>
+    <string name="settings_colour_desc">फोल्डरसाठी निवडलेला रंग शीर्षकाशिवाय होम स्क्रीनवर कुठे दिसेल हे ठरवते.</string>
+    <string name="settings_colour_none">काहीही नाही</string>
+    <string name="settings_colour_edge">रेषा</string>
+    <string name="settings_colour_frame">चौकट</string>
+    <string name="settings_colour_name">नाव</string>
+    <string name="settings_colour_glow">आभा</string>
     <string name="front_name_copied">फोल्डरचे नाव कॉपी केले</string>
     <string name="front_path_copied">फोल्डरचा मार्ग कॉपी केला</string>
     <string name="front_copy_path">मार्ग कॉपी करा</string>

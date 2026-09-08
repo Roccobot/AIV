@@ -91,6 +91,13 @@
     <string name="settings_front_wash">நிறமாற்றம்</string>
     <string name="settings_front_serif">செரிஃப் தலைப்பு</string>
     <string name="settings_front_facts">தகவல்</string>
+    <string name="settings_colour">கோப்புறை நிறம்</string>
+    <string name="settings_colour_desc">கோப்புறைக்குத் தேர்ந்தெடுத்த நிறம் தலைப்பைத் தவிர முகப்புத் திரையில் எங்கே தெரியும் என்பதை அமைக்கிறது.</string>
+    <string name="settings_colour_none">ஏதுமில்லை</string>
+    <string name="settings_colour_edge">கோடு</string>
+    <string name="settings_colour_frame">சட்டம்</string>
+    <string name="settings_colour_name">பெயர்</string>
+    <string name="settings_colour_glow">ஒளிர்வு</string>
     <string name="front_name_copied">கோப்புறையின் பெயர் நகலெடுக்கப்பட்டது</string>
     <string name="front_path_copied">கோப்புறையின் பாதை நகலெடுக்கப்பட்டது</string>
     <string name="front_copy_path">பாதையை நகலெடு</string>

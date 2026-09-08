@@ -91,6 +91,13 @@
     <string name="settings_front_wash">Verloop</string>
     <string name="settings_front_serif">Titel met schreef</string>
     <string name="settings_front_facts">Info</string>
+    <string name="settings_colour">Mapkleur</string>
+    <string name="settings_colour_desc">Bepaalt waar de kleur die voor een map is gekozen op het startscherm verschijnt, naast de koptekst.</string>
+    <string name="settings_colour_none">Geen</string>
+    <string name="settings_colour_edge">Streep</string>
+    <string name="settings_colour_frame">Kader</string>
+    <string name="settings_colour_name">Naam</string>
+    <string name="settings_colour_glow">Gloed</string>
     <string name="front_name_copied">Mapnaam gekopieerd</string>
     <string name="front_path_copied">Mappad gekopieerd</string>
     <string name="front_copy_path">Pad kopiëren</string>

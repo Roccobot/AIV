@@ -91,6 +91,13 @@
     <string name="settings_front_wash">تدرج لوني</string>
     <string name="settings_front_serif">عنوان بحروف مذيلة</string>
     <string name="settings_front_facts">معلومات</string>
+    <string name="settings_colour">لون المجلدات</string>
+    <string name="settings_colour_desc">يحدد مكان ظهور اللون المختار للمجلد في الشاشة الرئيسية، إضافة إلى ترويسته.</string>
+    <string name="settings_colour_none">بلا</string>
+    <string name="settings_colour_edge">خط سفلي</string>
+    <string name="settings_colour_frame">إطار</string>
+    <string name="settings_colour_name">الاسم</string>
+    <string name="settings_colour_glow">توهج</string>
     <string name="front_name_copied">تم نسخ اسم المجلد</string>
     <string name="front_path_copied">تم نسخ مسار المجلد</string>
     <string name="front_copy_path">نسخ المسار</string>

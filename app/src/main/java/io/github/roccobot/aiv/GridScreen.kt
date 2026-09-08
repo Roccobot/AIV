@@ -620,14 +620,31 @@ fun GridScreen(
     /**
      * 'Tutte', che è il gesto che vale trecento tocchi.
      *
-     * ⚠️ Vive in una variabile perché lo chiamano in **tre** posti: il FAB in testata,
-     * il tocco lungo sul FAB e la sua copia arancione nel velo. Scriverlo
-     * tre volte vorrebbe dire tre occasioni di dimenticare la vibrazione in uno dei tre.
+     * ⚠️ Vive in una variabile perché lo chiamano in **tre** posti: il tasto 'Tutti' del
+     * pannello, il tocco lungo sul FAB e la sua copia arancione nel velo. Scriverlo tre volte
+     * vorrebbe dire tre occasioni di dimenticare la vibrazione in uno dei tre.
      */
     val takeAll: () -> Unit = {
         haptics.performHapticFeedback(HOLD_BUZZ)
         chosen = items?.toSet() ?: emptySet()
     }
+
+    /**
+     * Se tutto quello che c'è in questa griglia è già scelto. Vuota, non conta come 'tutto'.
+     *
+     * ⚠️⚠️ **NON È IL VERSO DEL TOCCO LUNGO SUL FAB, E LA `1.87` HA MISURATO PERCHÉ NON PUÒ
+     * ESSERLO** (sua richiesta: *la pressione lunga sul FAB in una cartella deve
+     * selezionare/deselezionare tutto*): il FAB **non è in scena** quando una selezione è in
+     * corso, perché al suo posto si apre la scheda dei comandi (vedi `visible` di [FabPop], che
+     * porta `!picking`). Quindi un'alternanza scritta sulla sua scorciatoia sarebbe un ramo che
+     * nessun dito può raggiungere, cioè codice morto che sembra una funzione.
+     * ⚠️ **Il rovescio esiste, e sono due**: il tasto 'Tutti' del pannello col proprio tocco
+     * lungo, e la pastiglia dell'intestazione dalla `1.85`. La domanda `d-fab-tutto` chiede a lui
+     * se gli basta o se il FAB deve restare in scena durante la selezione.
+     * ⚠️ **Il conto vive qui e non nell'intestazione** perché lo leggono in due: chi disegna la
+     * pastiglia e chi decide che cosa annuncia il tocco lungo.
+     */
+    val allTaken = !items.isNullOrEmpty() && chosen.containsAll(items.orEmpty())
 
     /**
      * ⚠️⚠️ **IL TOCCO LUNGO È LA SCORCIATOIA DI QUELLO CHE IL TOCCO BREVE OFFRE**, ed è la
@@ -661,6 +678,9 @@ fun GridScreen(
      * ⚠️ Senza questa, chi usa il lettore di schermo si sentirebbe annunciare 'seleziona
      * tutte' su un gesto che svuota il cestino: la scorciatoia esisterebbe solo per chi vede
      * il velo, e per gli altri sarebbe una trappola.
+     * ⚠️ **Non ha un terzo caso per 'tutto già scelto', e la `1.87` ha misurato perché**: con
+     * una selezione in corso questo FAB non è in scena affatto. Il perché per esteso, e le due
+     * vie che il rovescio ha davvero, vivono su [allTaken].
      */
     val shortcutLabel = if (bin && !picking) R.string.bin_empty else R.string.pick_all
 
@@ -1142,6 +1162,11 @@ fun GridScreen(
                     tint = frontTintOf(frontTint) ?: MaterialTheme.colorScheme.primary,
                     air = GRID_PAD_X,
                     up = GRID_PAD_Y,
+                    // ⚠️ **La fascia in cima arriva fin sotto la barra di sistema, dalla
+                    // `1.87`**, ed è la sua richiesta con la schermata alla mano: il numero è
+                    // quello che questa colonna le ha appena lasciato con `safeDrawingPadding`,
+                    // quindi il colore chiude esattamente il buco che quel rientro apre.
+                    bar = with(density) { bordi.getTop(this).toDp() },
                     ink = aperto
                 )
             } else {
@@ -1558,7 +1583,9 @@ fun GridScreen(
                     val conta = frontFacts && facts.clips > 0
                     val scatta = frontFacts && facts.shots > 0
                     val tutti = items.orEmpty()
-                    val presi = tutti.isNotEmpty() && chosen.containsAll(tutti)
+                    // ⚠️ Lo stesso conto del tocco lungo sul FAB, dalla `1.87`: due comandi che
+                    // dicono la stessa cosa non possono avere due idee di che cosa sia 'tutto'.
+                    val presi = allTaken
                     val foto = remember(tutti) { tutti.filterNot { Videos.isVideo(it) }.toSet() }
                     val clip = remember(tutti) { tutti.filter { Videos.isVideo(it) }.toSet() }
                     if (pesa || conta || scatta || frontPickAll) {

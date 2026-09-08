@@ -91,6 +91,13 @@
     <string name="settings_front_wash">Chuyển màu</string>
     <string name="settings_front_serif">Tiêu đề có chân</string>
     <string name="settings_front_facts">Thông tin</string>
+    <string name="settings_colour">Màu thư mục</string>
+    <string name="settings_colour_desc">Đặt nơi hiển thị màu đã chọn cho thư mục trên màn hình chính, ngoài phần đầu trang.</string>
+    <string name="settings_colour_none">Không</string>
+    <string name="settings_colour_edge">Gạch chân</string>
+    <string name="settings_colour_frame">Khung</string>
+    <string name="settings_colour_name">Tên</string>
+    <string name="settings_colour_glow">Ánh sáng</string>
     <string name="front_name_copied">Đã sao chép tên thư mục</string>
     <string name="front_path_copied">Đã sao chép đường dẫn thư mục</string>
     <string name="front_copy_path">Sao chép đường dẫn</string>

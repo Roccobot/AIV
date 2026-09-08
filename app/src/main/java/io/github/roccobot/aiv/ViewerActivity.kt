@@ -948,6 +948,10 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     fun tintFolder(index: Int?) {
         val dove = (screen as? Screen.Grid)?.bucket ?: return
         tint = index
+        // ⚠️ E dalla `1.87` anche la mappa della casa, per la stessa ragione della riga sopra:
+        // uscendo di qui la cartella deve portare il colore nuovo senza aspettare una
+        // rilettura, che con la guardia di [readBuckets] non arriverebbe affatto.
+        folderTints = if (index == null) folderTints - dove else folderTints + (dove to index)
         val context = getApplication<Application>()
         viewModelScope.launch { FolderTints.set(context, dove, index) }
     }
@@ -1510,6 +1514,20 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     private var bucketsJob: Job? = null
 
     /**
+     * Il colore scelto per ogni cartella che ne ha uno, per la schermata iniziale.
+     *
+     * ⚠️⚠️ **SI LEGGE COL SUO ELENCO E SI AGGIORNA A MANO, dalla `1.87`**: la lettura vive in
+     * [readBuckets], che però ha una guardia e non riparte al ritorno da una cartella; quindi un
+     * colore appena scelto arriverebbe alla casa solo dopo un riavvio. A chiudere il buco è
+     * [tintFolder], che scrive anche qui, com'è già per [tint].
+     * ⚠️ **Vuota finché [FolderColour] è [FolderColour.NONE]** non sarebbe un risparmio da
+     * cercare: la lettura è una riga sola dell'archivio, e legarla all'impostazione vorrebbe
+     * dire ricaricare l'elenco quando la si cambia.
+     */
+    var folderTints: Map<Long, Int> by mutableStateOf(emptyMap())
+        private set
+
+    /**
      * Rilegge le cartelle, ma solo se è cambiato qualcosa che le riguarda.
      *
      * ⚠️ **Le chiavi sono due e sono tutte quelle che contano**: il permesso, senza il quale
@@ -1528,6 +1546,11 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         bucketsJob = viewModelScope.launch {
             buckets = if (granted) Folder.buckets(context) else emptyList()
         }
+        // ⚠️ In un lancio a sé e non in coda all'altro, come per i due numeri di una cartella:
+        // le tinte sono una riga di preferenze e arrivano subito, mentre l'elenco passa da una
+        // query al MediaStore. In coda, una cartella colorata si vedrebbe grigia per il tempo
+        // di quella query.
+        viewModelScope.launch { folderTints = FolderTints.all(context) }
     }
 
     /**
@@ -2386,6 +2409,8 @@ private fun Stage(screen: Screen, model: ViewerViewModel, settings: Settings) {
                 view = settings.folderView,
                 columns = settings.folderColumns,
                 counted = settings.folderCount,
+                colour = settings.folderColour,
+                tints = model.folderTints,
                 hidden = settings.hiddenFolders,
                 // ⚠️ Una cartella senza percorso non si può nascondere, e allora non si
                 // finge: il dialogo l'ha già chiesto, quindi qui si scarta in silenzio
@@ -2411,6 +2436,9 @@ private fun Stage(screen: Screen, model: ViewerViewModel, settings: Settings) {
                 // tutte le cartelle*), ed è la ragione per cui passa da `updateSettings`
                 // come ogni altra voce.
                 onColumns = { model.updateSettings(settings.copy(folderColumns = it)) },
+                // ⚠️ Come le colonne: la scorciatoia scrive la stessa preferenza del pannello,
+                // che è la prima clausola della coppia casa/scorciatoia.
+                onColour = { model.updateSettings(settings.copy(folderColour = it)) },
                 // Le opzioni delle altre due viste, dallo stesso popup: passano da
                 // `updateSettings` come le colonne, per la stessa ragione.
                 listCount = settings.listCount,

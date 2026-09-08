@@ -91,6 +91,13 @@
     <string name="settings_front_wash">గ్రేడియంట్</string>
     <string name="settings_front_serif">సెరిఫ్ శీర్షిక</string>
     <string name="settings_front_facts">సమాచారం</string>
+    <string name="settings_colour">ఫోల్డర్ రంగు</string>
+    <string name="settings_colour_desc">ఫోల్డర్‌కు ఎంచుకున్న రంగు శీర్షిక కాకుండా హోమ్ స్క్రీన్‌లో ఎక్కడ కనిపించాలో నిర్ణయిస్తుంది.</string>
+    <string name="settings_colour_none">ఏదీ లేదు</string>
+    <string name="settings_colour_edge">గీత</string>
+    <string name="settings_colour_frame">చట్రం</string>
+    <string name="settings_colour_name">పేరు</string>
+    <string name="settings_colour_glow">కాంతి</string>
     <string name="front_name_copied">ఫోల్డర్ పేరు కాపీ అయింది</string>
     <string name="front_path_copied">ఫోల్డర్ మార్గం కాపీ అయింది</string>
     <string name="front_copy_path">మార్గాన్ని కాపీ చేయండి</string>

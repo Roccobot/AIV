@@ -91,6 +91,13 @@
     <string name="settings_front_wash">Verlauf</string>
     <string name="settings_front_serif">Serifentitel</string>
     <string name="settings_front_facts">Info</string>
+    <string name="settings_colour">Ordnerfarbe</string>
+    <string name="settings_colour_desc">Legt fest, wo die für einen Ordner gewählte Farbe auf dem Startbildschirm erscheint, zusätzlich zur Kopfzeile.</string>
+    <string name="settings_colour_none">Keine</string>
+    <string name="settings_colour_edge">Unterstrich</string>
+    <string name="settings_colour_frame">Rahmen</string>
+    <string name="settings_colour_name">Name</string>
+    <string name="settings_colour_glow">Schimmer</string>
     <string name="front_name_copied">Ordnername kopiert</string>
     <string name="front_path_copied">Ordnerpfad kopiert</string>
     <string name="front_copy_path">Pfad kopieren</string>

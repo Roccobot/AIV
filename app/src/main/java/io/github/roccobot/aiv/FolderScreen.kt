@@ -6,10 +6,12 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -65,8 +67,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
@@ -79,12 +84,13 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import kotlin.math.roundToInt
 import coil3.compose.AsyncImage
+import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
 /**
@@ -126,6 +132,17 @@ fun FolderScreen(
      * che le tocca.
      */
     counted: Boolean,
+    /**
+     * Dove si vede il colore di una cartella, fuori dalla sua intestazione. Vedi [FolderColour].
+     */
+    colour: FolderColour,
+    /**
+     * Il colore scelto per ogni cartella che ne ha uno. Vedi `ViewerViewModel.folderTints`.
+     *
+     * ⚠️ **La mappa arriva intera e non una tinta per cella**: le voci sono poche e vivono in
+     * una chiave sola dell'archivio, mentre le celle sono decine (vedi `FolderTints.all`).
+     */
+    tints: Map<Long, Int>,
     /** I percorsi da non mostrare. Vedi `Settings.hiddenFolders`. */
     hidden: Set<String>,
     onHide: (Folder.Bucket) -> Unit,
@@ -159,6 +176,13 @@ fun FolderScreen(
     listText: TextSize,
     treeHidden: Boolean,
     treePictures: Boolean,
+    /**
+     * Cambia dove si vede il colore di una cartella, dallo stesso popup delle colonne.
+     *
+     * ⚠️ **La stessa preferenza del pannello e non una sua**, come per le colonne: il popup è la
+     * scorciatoia a una scelta che deve sopravvivere alla chiusura dell'app.
+     */
+    onColour: (FolderColour) -> Unit,
     onListCount: (Boolean) -> Unit,
     onListText: (TextSize) -> Unit,
     onTreeHidden: (Boolean) -> Unit,
@@ -427,8 +451,12 @@ fun FolderScreen(
                 )
 
                 view == FolderView.GRID ->
-                    Covers(folders!!, columns, counted, nameStyle, onPick) { hiding = it }
-                else -> Rows(folders!!, listCount, listText, onPick) { hiding = it }
+                    Covers(folders!!, columns, counted, nameStyle, colour, tints, onPick) {
+                        hiding = it
+                    }
+                else -> Rows(folders!!, listCount, listText, colour, tints, onPick) {
+                    hiding = it
+                }
             }
         }
 
@@ -581,12 +609,14 @@ fun FolderScreen(
         ViewOptions(
             view = view,
             columns = columns,
+            colour = colour,
             listCount = listCount,
             listText = listText,
             treeHidden = treeHidden,
             treePictures = treePictures,
             onView = onView,
             onColumns = onColumns,
+            onColour = onColour,
             onListCount = onListCount,
             onListText = onListText,
             onTreeHidden = onTreeHidden,
@@ -1045,12 +1075,14 @@ private fun Hub(
 private fun ViewOptions(
     view: FolderView,
     columns: Int,
+    colour: FolderColour,
     listCount: Boolean,
     listText: TextSize,
     treeHidden: Boolean,
     treePictures: Boolean,
     onView: (FolderView) -> Unit,
     onColumns: (Int) -> Unit,
+    onColour: (FolderColour) -> Unit,
     onListCount: (Boolean) -> Unit,
     onListText: (TextSize) -> Unit,
     onTreeHidden: (Boolean) -> Unit,
@@ -1103,9 +1135,11 @@ private fun ViewOptions(
                                 )
                             }
                         }
+                        ColourChips(colour, onColour)
                     }
                     FolderView.LIST -> {
                         OptionSwitch(R.string.list_count, listCount, onListCount)
+                        ColourChips(colour, onColour)
                         OptionLabel(R.string.text_size)
                         /*
                          * ⚠️⚠️ **UNO SLIDER A TRE FERMI E NON TRE PASTIGLIE, dalla 1.03**
@@ -1154,6 +1188,60 @@ private fun ViewOptions(
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.pick_close)) }
         }
     )
+}
+
+/**
+ * Il colore delle cartelle, dentro il dialogo delle opzioni.
+ *
+ * ⚠️⚠️ **LA STESSA VOCE DEL PANNELLO, DALLA `1.87`, ED È SUA RICHIESTA** (*la stessa opzione
+ * dev'essere disponibile insieme alle colonne e alle dimensioni della griglia dal menu a
+ * pressione lunga sul FAB principale*): il pannello è la casa e questa è la scorciatoia, cioè
+ * la coppia che `AIV/CLAUDE.md` descrive in § '⚙️ Dove va un'impostazione, e chi la deve
+ * trovare'. Preferenza una, chiave una, valore di fabbrica uno.
+ * ⚠️⚠️ **VIVE IN TUTTE E DUE LE VISTE, e non viola la regola delle opzioni della sola vista
+ * scelta**: quella dice che nel dialogo si vedono le voci che agiscono su quello che si sta
+ * guardando, e questa agisce su tutte e due, perché il colore si vede su tutte e due. Nella
+ * terza vista non compare, perché là le cartelle non hanno colore (vedi [FolderColour]).
+ * ⚠️ **Nuda, senza spiegazione**: il titolino dice già di che cosa si parla, e un dialogo che
+ * spiega ogni voce sarebbe un secondo pannello.
+ */
+@Composable
+private fun ColourChips(colour: FolderColour, onColour: (FolderColour) -> Unit) {
+    OptionLabel(R.string.settings_colour)
+    /*
+     * ⚠️ **`FlowRow` come le tre viste**: cinque pastiglie non entrano su una riga sola di uno
+     * schermo stretto, e in tante lingue nemmeno su uno largo. Andando a capo da sé, la stessa
+     * fila vale per ogni larghezza.
+     */
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(OPTION_GAP),
+        modifier = Modifier.oneOf()
+    ) {
+        FolderColour.entries.forEach { one ->
+            FilterChip(
+                selected = one == colour,
+                onClick = { onColour(one) },
+                label = { Text(stringResource(one.label())) },
+                modifier = Modifier.picked(one == colour)
+            )
+        }
+    }
+}
+
+/**
+ * Come si chiama uno stile del colore, nelle due superfici che lo offrono.
+ *
+ * ⚠️ **Una funzione e non due elenchi**: le stesse cinque parole compaiono nel pannello e nella
+ * scorciatoia, e scritte due volte sarebbero due elenchi da tenere allineati a mano ogni volta
+ * che uno stile entra o cambia nome.
+ */
+@StringRes
+internal fun FolderColour.label(): Int = when (this) {
+    FolderColour.NONE -> R.string.settings_colour_none
+    FolderColour.EDGE -> R.string.settings_colour_edge
+    FolderColour.FRAME -> R.string.settings_colour_frame
+    FolderColour.NAME -> R.string.settings_colour_name
+    FolderColour.GLOW -> R.string.settings_colour_glow
 }
 
 /** Il titolino sopra una fila di pastiglie, dentro il dialogo delle opzioni. */
@@ -1285,6 +1373,10 @@ internal fun Covers(
     counted: Boolean,
     /** Il corpo del nome, già scelto e già misurato da chi chiama. Vedi [FolderCard]. */
     nameStyle: TextStyle,
+    /** Dove si vede il colore di una cartella. Vedi [FolderColour]. */
+    colour: FolderColour,
+    /** Il colore di ogni cartella che ne ha uno, per identificatore. */
+    tints: Map<Long, Int>,
     onPick: (Folder.Bucket) -> Unit,
     onHide: (Folder.Bucket) -> Unit
 ) {
@@ -1320,6 +1412,8 @@ internal fun Covers(
                 bucket = bucket,
                 counted = counted,
                 nameStyle = nameStyle,
+                colour = colour,
+                tint = frontTintOf(tints[bucket.id]),
                 onClick = { onPick(bucket) },
                 onLongClick = withHaptics { onHide(bucket) }
             )
@@ -1342,6 +1436,16 @@ internal fun Rows(
     counted: Boolean,
     /** Il corpo del testo scelto per questa vista. Vedi `Settings.listText`. */
     size: TextSize,
+    /**
+     * Dove si vede il colore di una cartella. Vedi [FolderColour].
+     *
+     * ⚠️ **Gli stessi quattro della griglia, con le stesse misure**: la copertina di una riga è
+     * più piccola, ma un filetto è una riga e non una frazione della cella, quindi rimpicciolirlo
+     * qui vorrebbe dire due numeri per la stessa decisione.
+     */
+    colour: FolderColour,
+    /** Il colore di ogni cartella che ne ha uno, per identificatore. */
+    tints: Map<Long, Int>,
     onPick: (Folder.Bucket) -> Unit,
     onHide: (Folder.Bucket) -> Unit
 ) {
@@ -1350,6 +1454,7 @@ internal fun Rows(
         modifier = Modifier.fillMaxWidth()
     ) {
         items(items = folders, key = { it.id }, contentType = { ROW_KIND }) { bucket ->
+            val tinta = frontTintOf(tints[bucket.id])
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -1362,14 +1467,16 @@ internal fun Rows(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(14.dp)
             ) {
+                val shape = RoundedCornerShape(FOLDER_CORNER)
                 Box(
                     modifier = Modifier
                         .size(ROW_COVER)
-                        .clip(RoundedCornerShape(FOLDER_CORNER))
+                        .clip(shape)
                         .background(MaterialTheme.colorScheme.surfaceVariant),
                     contentAlignment = Alignment.Center
                 ) {
                     Cover(bucket.cover)
+                    FolderMark(colour, tinta, shape)
                 }
                 Column(modifier = Modifier.weight(1f)) {
                     /*
@@ -1381,6 +1488,8 @@ internal fun Rows(
                     Text(
                         text = bucket.name,
                         style = size.title(),
+                        color = folderNameInk(colour, tinta),
+                        fontWeight = folderNameWeight(colour, tinta),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -1435,6 +1544,10 @@ private fun FolderCard(
      * risposta oggi e sarebbe il posto da cui i due potrebbero divergere domani.
      */
     nameStyle: TextStyle,
+    /** Dove si vede il colore di questa cartella. Vedi [FolderColour]. */
+    colour: FolderColour,
+    /** Il colore di questa cartella, o `null` se non ne ha scelto uno. */
+    tint: Color?,
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
@@ -1458,6 +1571,7 @@ private fun FolderCard(
             contentAlignment = Alignment.Center
         ) {
             Cover(bucket.cover)
+            FolderMark(colour, tint, shape)
         }
         /*
          * ⚠️⚠️ **UN A CAPO E NON PIÙ DI UNO, dalla 0.77** (richiesta dell'utente: *con
@@ -1475,6 +1589,8 @@ private fun FolderCard(
         Text(
             text = bucket.name,
             style = nameStyle,
+            color = folderNameInk(colour, tint),
+            fontWeight = folderNameWeight(colour, tint),
             maxLines = NAME_LINES,
             overflow = TextOverflow.Ellipsis
         )
@@ -1495,6 +1611,94 @@ private fun FolderCard(
         if (counted) Tally(bucket)
     }
 }
+
+/**
+ * Il colore di una cartella, disegnato dentro la sua copertina.
+ *
+ * ⚠️⚠️ **UN PEZZO SOLO PER LE DUE VISTE E PER I TRE STILI DI COPERTINA**, ed è la ragione per cui
+ * questa funzione esiste invece di tre righe in ognuna delle due celle: gli stili sono una
+ * scelta sola dell'utente, e scritti due volte diventerebbero due rese che divergono al primo
+ * ritocco. Il quarto stile ([FolderColour.NAME]) non passa di qui perché non si disegna: è il
+ * colore di un testo, e vive su [folderNameInk].
+ * ⚠️ **Senza tinta non disegna niente**: una cartella che non ha un colore suo resta com'era,
+ * qualunque stile sia in vigore. Quindi accendere lo stile non cambia nulla finché non si sceglie
+ * un colore, ed è la ragione per cui la voce di collaudo porta il passo passo.
+ * ⚠️ **Vive DENTRO il riquadro ritagliato della copertina**, e i tre stili ci contano: il filetto
+ * segue la curva degli angoli invece di sporgere in un rettangolo, e l'alone non esce dal
+ * riquadro. Chi lo spostasse fuori dal `clip` se ne accorgerebbe solo guardando.
+ */
+@Composable
+private fun BoxScope.FolderMark(colour: FolderColour, tint: Color?, shape: Shape) {
+    if (tint == null) return
+    when (colour) {
+        FolderColour.EDGE -> Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .height(TINT_EDGE)
+                .background(tint)
+        )
+        FolderColour.FRAME -> Box(
+            modifier = Modifier.matchParentSize().border(TINT_FRAME, tint, shape)
+        )
+        FolderColour.GLOW -> Box(
+            modifier = Modifier.matchParentSize().background(
+                Brush.verticalGradient(
+                    0f to tint.copy(alpha = TINT_GLOW),
+                    TINT_GLOW_END to Color.Transparent
+                )
+            )
+        )
+        FolderColour.NONE, FolderColour.NAME -> Unit
+    }
+}
+
+/**
+ * Di che colore si scrive il nome di una cartella: il suo, o quello di sempre.
+ *
+ * ⚠️ **[Color.Unspecified] e non il colore del tema**: così il testo prende quello del suo stile,
+ * che è il comportamento di prima, invece di scriverlo una seconda volta qui.
+ */
+@Composable
+private fun folderNameInk(colour: FolderColour, tint: Color?): Color =
+    if (colour == FolderColour.NAME && tint != null) tint else Color.Unspecified
+
+/**
+ * Quanto pesa il nome di una cartella tinta: **un gradino in più**, e viene dal mockup.
+ *
+ * ⚠️ **Il peso è metà dello stile 'nome'**, non una rifinitura: una tinta chiara su un fondo
+ * chiaro si legge peggio dell'inchiostro di sempre, e il mezzo grado di peso è quello che gli
+ * restituisce il contrasto perso. Nel mockup che ha guardato erano dichiarati insieme.
+ * ⚠️ **`null` vuol dire quello dello stile**, come sopra: negli altri tre stili il nome non si
+ * tocca affatto.
+ */
+@Composable
+private fun folderNameWeight(colour: FolderColour, tint: Color?): FontWeight? =
+    if (colour == FolderColour.NAME && tint != null) FontWeight.Medium else null
+
+/**
+ * Quanto è spesso il filetto sotto la copertina: **quattro punti**, che è il numero del mockup.
+ *
+ * ⚠️ **La ragione è scritta là e regge la scelta dello stile**: su un filetto spesso quattro
+ * punti si distinguono tutte e sedici le tinte, mentre su una riga più sottile le quattro
+ * varianti dello stesso verde si confondono.
+ */
+private val TINT_EDGE = 4.dp
+
+/**
+ * Quanto è spessa la cornice: **due punti**, come il bordo d'accento dell'app.
+ *
+ * ⚠️ **Lo stesso numero di `Edge.kt` e non per caso**: quella è la riga con cui questa app
+ * dichiara 'questa è una mia superficie', e una cornice più grossa intorno a una copertina
+ * suonerebbe come un elemento di un'altra famiglia.
+ */
+private val TINT_FRAME = 2.dp
+
+/** Quanto copre l'alone nel suo punto più forte, in cima alla copertina. Dal mockup. */
+private const val TINT_GLOW = 0.55f
+
+/** Dove l'alone è finito, in frazione dell'altezza della copertina. Dal mockup. */
+private const val TINT_GLOW_END = 0.72f
 
 @Composable
 private fun Cover(uri: Uri?) {

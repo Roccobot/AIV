@@ -91,6 +91,13 @@
     <string name="settings_front_wash">گرادیان</string>
     <string name="settings_front_serif">عنوان سریف</string>
     <string name="settings_front_facts">اطلاعات</string>
+    <string name="settings_colour">رنگ پوشه‌ها</string>
+    <string name="settings_colour_desc">تعیین می‌کند رنگ انتخاب‌شده برای یک پوشه، افزون بر سرصفحه، کجای صفحهٔ اصلی دیده شود.</string>
+    <string name="settings_colour_none">هیچ</string>
+    <string name="settings_colour_edge">خط زیر</string>
+    <string name="settings_colour_frame">قاب</string>
+    <string name="settings_colour_name">نام</string>
+    <string name="settings_colour_glow">درخشش</string>
     <string name="front_name_copied">نام پوشه کپی شد</string>
     <string name="front_path_copied">مسیر پوشه کپی شد</string>
     <string name="front_copy_path">کپی مسیر</string>

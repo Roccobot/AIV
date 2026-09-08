@@ -91,6 +91,13 @@
     <string name="settings_front_wash">グラデーション</string>
     <string name="settings_front_serif">セリフ体の見出し</string>
     <string name="settings_front_facts">情報</string>
+    <string name="settings_colour">フォルダの色</string>
+    <string name="settings_colour_desc">フォルダに選んだ色を、ヘッダー以外にホーム画面のどこに表示するかを設定します。</string>
+    <string name="settings_colour_none">なし</string>
+    <string name="settings_colour_edge">下線</string>
+    <string name="settings_colour_frame">枠</string>
+    <string name="settings_colour_name">名前</string>
+    <string name="settings_colour_glow">グロー</string>
     <string name="front_name_copied">フォルダー名をコピーしました</string>
     <string name="front_path_copied">フォルダーのパスをコピーしました</string>
     <string name="front_copy_path">パスをコピー</string>
