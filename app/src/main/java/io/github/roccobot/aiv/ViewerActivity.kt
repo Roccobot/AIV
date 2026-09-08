@@ -304,6 +304,15 @@ private const val SEARCH_PAUSE_MS = 280L
 private const val OUTSIDE_PAUSE_MS = 700L
 
 /**
+ * Quanto restano in scena le cartelle nascoste: **un minuto**, e il numero è suo.
+ *
+ * ⚠️ **Non è una manopola**: la richiesta dice *temporaneamente (per un minuto)*, e un minuto è
+ * quello che serve a entrare in una cartella nascosta, guardarla e uscirne. Chi ne volesse di più
+ * ha 'Annulla' sulla notifica, che ne concede un altro.
+ */
+private const val PEEK_MS = 60_000L
+
+/**
  * Fills [into] as far as the stream goes, and answers how many bytes it put there.
  *
  * ⚠️⚠️ **A SINGLE `read` IS ALLOWED TO RETURN LESS THAN IT WAS ASKED FOR, and that is the
@@ -365,6 +374,53 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
 
     var recents: List<RecentImage> by mutableStateOf(emptyList())
         private set
+
+    /**
+     * Se le cartelle nascoste sono in scena **adesso**, per il minuto che lui ha chiesto.
+     *
+     * ⚠️⚠️ **NASCE DALLA `1.92`, ED È SUA SPECIFICA ALLA LETTERA** (campo libero del giro della
+     * `1.91`: *'Mostra nascoste', che rende visibili le cartelle nascoste temporaneamente (per un
+     * minuto). Alla fine del minuto, le cartelle tornano ad essere nascoste con un avviso
+     * temporizzato in basso*).
+     * ⚠️⚠️ **VIVE NEL MODELLO E NON NELLA SCHERMATA, e la ragione è il caso d'uso**: le nascoste
+     * si mostrano **per entrarci**, quindi fra l'accensione e la scadenza c'è un giro in una
+     * cartella e il ritorno. Uno stato dentro `FolderScreen` se ne andrebbe con la composizione,
+     * cioè si spegnerebbe proprio nel momento in cui serve.
+     * ⚠️ **Non si salva**, e non è una dimenticanza: quello che si spegne da sé dopo un minuto
+     * non ha senso ritrovarlo riaprendo l'app, dove il minuto sarebbe già passato da un pezzo.
+     */
+    var peeking: Boolean by mutableStateOf(false)
+        private set
+
+    /** Il conto alla rovescia del minuto: si annulla e si rifà a ogni proroga. */
+    private var peekJob: Job? = null
+
+    /**
+     * Accende o spegne la vista temporanea delle cartelle nascoste.
+     *
+     * ⚠️⚠️ **LA SCADENZA PARLA, e il suo 'Annulla' PROROGA invece di disfare** (sue parole: *un
+     * tasto 'Annulla' che prolunga di un minuto*). È lo stesso canale di ogni altro esito
+     * (`Notices`, dalla `1.84`), quindi la voce dell'app resta una: quello che cambia è che qui
+     * l'azione guarda avanti invece che indietro.
+     * ⚠️ **Spegnere a mano non dice niente**: la notifica serve a spiegare una sparizione che
+     * l'utente non ha chiesto, e chi tocca 'Nascondi cartelle' l'ha chiesta.
+     */
+    fun peek(on: Boolean) {
+        peekJob?.cancel()
+        peeking = on
+        if (!on) return
+        val context = getApplication<Application>()
+        peekJob = viewModelScope.launch {
+            delay(PEEK_MS)
+            peeking = false
+            Notices.offer(
+                text = context.getString(R.string.peek_over),
+                action = context.getString(R.string.pick_undo),
+                onAction = { peek(true) },
+                millis = NOTICE_LONG_MS
+            )
+        }
+    }
 
     /** Where the picture on screen came from. The menu needs it, the loader has already used it. */
     var source: Uri? by mutableStateOf(null)
@@ -2561,6 +2617,18 @@ private fun Stage(
                             settings.copy(hiddenFolders = settings.hiddenFolders + it)
                         )
                     }
+                },
+                // ⚠️ La vista temporanea delle nascoste vive nel modello e non qui: il perché
+                // (ci si entra dentro, e la schermata nel frattempo se ne va) vive su `peeking`.
+                peeking = model.peeking,
+                onPeek = { model.peek(it) },
+                // ⚠️ Rimostrare per sempre scrive la stessa preferenza della pagina 'Cartelle
+                // nascoste' nelle impostazioni: una cosa, una chiave, come la coppia
+                // casa/scorciatoia di ogni altra voce.
+                onUnhide = { path ->
+                    model.updateSettings(
+                        settings.copy(hiddenFolders = settings.hiddenFolders - path)
+                    )
                 },
                 recents = model.recents,
                 onPick = { model.folderPicked(it, screen.forStart) },

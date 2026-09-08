@@ -1042,6 +1042,25 @@ ricordarsi di usarla.
 - ⚠️ **Cresce di una voce per schermata visitata e non si pota**: quello che tiene sono un indice e
   uno scarto, mentre un limite col suo sfratto sarebbe più codice di quanto ne risparmi.
 
+⚠️⚠️ **E DALLA `1.92` TORNA ANCHE L'INTESTAZIONE, PERCHÉ LA `1.91` NE AVEVA RIPRISTINATA UNA
+METÀ SOLA** (riscontro del giro della `1.91`, voce `scorri-torna` accettabile: *al ritorno in home
+ritorno al punto giusto ma l'intestazione è attiva. Comportamento sbagliato: l'intestazione deve
+apparire solo se mi trovo in cima alla griglia/lista*). Lo scorrimento rientrava dov'era e la
+fascia ripartiva aperta: due misure della stessa cosa che dicevano il contrario.
+- **La fascia è una FUNZIONE della posizione di scorrimento, quindi vive dove vive lei**: la sua
+  apertura è passata in `rememberSaveable`, cioè dentro lo stesso `SaveableStateHolder`. Le due
+  cose tornano insieme per costruzione, e non perché qualcuno le sincronizza.
+- ⚠️ **Una FRAZIONE e non i pixel**: la rotazione cambia l'altezza della fascia, e i pixel di
+  prima direbbero un'altra apertura. ⚠️ **Con lei cade la nota che diceva il contrario** (*riaprirlo
+  alla rotazione è la cosa giusta da vedere*): valeva quando la lista si azzerava insieme, e dalla
+  `1.91` la lista resta dov'era.
+- ⚠️ **La griglia di una cartella non cambia**: là l'invariante è scritto come regola (con la lista
+  scorsa la fascia si chiude) perché il salto all'immagine da cui si torna scorre **senza** passare
+  dallo scorrimento annidato. Nella schermata iniziale quel salto non esiste.
+- **La prova è `RientroTest`**, e misura la scena come lui la vede: dove comincia la prima cartella
+  prima di uscire e dopo il rientro. ⚠️ Controprovata rimettendo il difetto: la cartella scende di
+  180 pixel invece di 20.
+
 ⚠️⚠️ **E IL SALTO ALL'IMMAGINE DA CUI SI TORNA È DIVENTATO IL SECONDO PASSO**: la griglia riparte
 da dov'era per conto suo, quindi quel salto serve solo quando nel visualizzatore si è **sfogliato**
 fino a un'altra immagine, che di là non si vedeva. Sono la stessa richiesta letta fino in fondo.
@@ -1101,6 +1120,44 @@ sarebbe un ramo che nessun dito può raggiungere.
   `SelezioneTest` provava il gesto due volte ed è fallita alla prima corsa con *the node is no
   longer in the tree*. È il caso proattivo di § '🧪 Quando si scrive una prova, e quando no'
   applicato a una richiesta invece che a un difetto.
+
+## 👁️ 'Mostra nascoste', e perché dura un minuto
+
+⚠️⚠️ **DALLA `1.92`, ED È SUA SPECIFICA ALLA LETTERA** (campo libero del giro della `1.91`): il
+menu del FAB della schermata iniziale porta **'Mostra nascoste'**, che rende visibili le cartelle
+nascoste *temporaneamente*, per un minuto; alla scadenza tornano nascoste con una notifica
+(*'Cartelle di nuovo nascoste.'*) il cui 'Annulla' **proroga** di un altro minuto; mentre sono in
+scena la voce diventa **'Nascondi cartelle'** e cambia glifo; le cartelle in prestito hanno il 70%
+di opacità e il segno `∅` d'accento nell'angolo in alto a destra; il **tocco lungo** sulla voce apre
+un pannello con le nascoste, ripristinabili come nella pagina 'Cartelle nascoste'.
+
+⚠️⚠️ **IL MINUTO VIVE NEL MODELLO E NON NELLA SCHERMATA, e la ragione è il caso d'uso**: le
+nascoste si mostrano **per entrarci**, quindi fra l'accensione e la scadenza c'è un giro dentro
+una cartella e il ritorno. Uno stato dentro `FolderScreen` se ne andrebbe con la composizione, cioè
+proprio nel momento in cui serve. Vive su `ViewerViewModel.peek`, col suo conto alla rovescia.
+- ⚠️ **Non si salva**: quello che si spegne da sé dopo un minuto non ha senso ritrovarlo riaprendo
+  l'app, dove quel minuto sarebbe passato da un pezzo.
+- **La notifica è quella di casa** (`Notices`, dalla `1.84`), quindi la voce dell'app resta una: a
+  cambiare è che qui 'Annulla' guarda **avanti** invece che indietro.
+- ⚠️ **Spegnere a mano non dice niente**: la notifica spiega una sparizione che l'utente non ha
+  chiesto, e chi tocca 'Nascondi cartelle' l'ha chiesta.
+
+⚠️ **La voce c'è SE E SOLO SE una cartella è nascosta**: senza, accenderebbe un minuto in cui non
+compare niente e il tocco lungo aprirebbe un pannello vuoto.
+
+⚠️ **Il pannello del tocco lungo riusa le due stringhe della pagina delle impostazioni**, il titolo
+e il comando: è la stessa richiesta fatta da due posti, e due testi nuovi sarebbero due traduzioni
+da tenere allineate. ⚠️ E **non** si aggiunge uno scorrimento: `Sheet` scorre già da sé, e due
+scorrimenti verticali annidati sono un errore che Compose segnala.
+
+⚠️⚠️ **I DUE GLIFI SONO SUOI, E NON SONO L'OCCHIO DI MATERIAL** (arrivati il 2026-09-08, in due
+mandate: la seconda coppia è quella scelta): sono una **cartella** con un occhio, aperto e sbarrato.
+Material ne ha uno che dice 'vedi' senza dire di che cosa, ed è la ragione per cui questi entrano
+in `res/` invece di essere presi dalla famiglia, che è il criterio di § '🖌️ Come entra un disegno'.
+
+⚠️ **Che cosa il banco misura e che cosa no** (`NascosteTest`): vede il filtro nei due versi, il
+segno sulla sola cartella in prestito e il testo della voce che cambia con lo stato. **Non** vede
+il minuto, che vive nel modello: la scadenza, il suo avviso e la proroga si guardano sul telefono.
 
 ## 📤 AIV come selettore: quando un'altra app chiede un'immagine
 
@@ -1589,6 +1646,21 @@ lunghezza della pagina piatta, e il fatto che una sezione risulti sbilanciata. S
 viene di quattro voci e un'altra di una, sta bene: le domande non si fanno tutte con la stessa
 frequenza. ⚠️ **E i conti non si scrivono**, qui come nei commenti del pannello: quante sono le
 sezioni, le famiglie e le voci si contano nel codice.
+
+## 🇺🇸 L'inglese dell'app è americano
+
+⚠️⚠️ **DALLA `1.92`, ED È SUA RISPOSTA** (`d-inglese-colore` del giro della `1.91`: **`americano`**,
+cioè *uniforma tutto all'americano*). La domanda era nata da una sua riscrittura (*Folder color*)
+che aveva messo una grafia americana in un'app scritta in britannico: nella stessa pagina delle
+impostazioni si leggevano 'Folder color' e 'Header colour'.
+- **Che cosa è cambiato**: nel solo file inglese, `colour` diventa `color`, `centre` diventa
+  `center`, `Greyscale` diventa `Grayscale`. ⚠️ **I nomi delle chiavi NON si toccano**
+  (`settings_colour`, `facts_colour_grey`): il posto nell'interfaccia e la chiave nell'archivio
+  sono due cose indipendenti, e rinominarle non cambierebbe niente per chi usa l'app.
+- ⚠️ **Le altre ventisette lingue non c'entrano**: la scelta riguarda l'inglese, e l'italiano dice
+  'Scala di grigi' come prima.
+- ⚠️ **Da qui in poi l'inglese nuovo si scrive americano**, che è la metà della risposta che vale
+  per il futuro: una stringa nuova in britannico rimetterebbe le due grafie nella stessa pagina.
 
 ## 🧪 Quando si scrive una prova, e quando no
 

@@ -152,6 +152,9 @@
     <string name="hub_view_grid">Вигляд сіткою</string>
     <string name="hub_search">Пошук</string>
     <string name="hub_url">Відкрити адресу</string>
+    <string name="hub_peek">Показати приховані</string>
+    <string name="hub_unpeek">Сховати теки</string>
+    <string name="peek_over">Теки знову приховано.</string>
     <string name="hub_pick">Відкрити зображення</string>
     <string name="hub_settings">Налаштування</string>
     <string name="url_open">Відкрити</string>

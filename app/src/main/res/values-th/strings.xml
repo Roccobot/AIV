@@ -152,6 +152,9 @@
     <string name="hub_view_grid">มุมมองตาราง</string>
     <string name="hub_search">ค้นหา</string>
     <string name="hub_url">เปิดที่อยู่</string>
+    <string name="hub_peek">แสดงที่ซ่อนไว้</string>
+    <string name="hub_unpeek">ซ่อนโฟลเดอร์</string>
+    <string name="peek_over">ซ่อนโฟลเดอร์อีกครั้งแล้ว</string>
     <string name="hub_pick">เปิดภาพ</string>
     <string name="hub_settings">การตั้งค่า</string>
     <string name="url_open">เปิด</string>

@@ -152,6 +152,9 @@
     <string name="hub_view_grid">격자 보기</string>
     <string name="hub_search">검색</string>
     <string name="hub_url">주소 열기</string>
+    <string name="hub_peek">숨긴 항목 표시</string>
+    <string name="hub_unpeek">폴더 숨기기</string>
+    <string name="peek_over">폴더를 다시 숨겼습니다.</string>
     <string name="hub_pick">사진 열기</string>
     <string name="hub_settings">설정</string>
     <string name="url_open">열기</string>

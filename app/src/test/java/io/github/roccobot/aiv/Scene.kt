@@ -12,23 +12,39 @@ import androidx.compose.runtime.Composable
  */
 
 /**
- * La schermata iniziale con gli argomenti minimi, cioè senza cartelle e senza permesso.
+ * La schermata iniziale con gli argomenti minimi.
  *
- * ⚠️ **Quello che si guarda è il FAB, che c'è in ogni caso**: dipende dalla vista scelta e
- * non dai dati, quindi una casa vuota è la scena più piccola che lo contiene. Le cartelle vere
- * porterebbero le copertine, cioè il caricamento delle miniature, che su una macchina senza
- * telefono non porta niente in più e può soltanto fallire.
+ * ⚠️ **Di serie è senza cartelle e senza permesso**: quello che le prime prove guardavano è il
+ * FAB, che c'è in ogni caso perché dipende dalla vista scelta e non dai dati, quindi una casa
+ * vuota era la scena più piccola che lo contenesse.
+ * ⚠️⚠️ **DALLA `1.92` LE CARTELLE SI POSSONO PASSARE, e servono a chi misura lo scorrimento**:
+ * senza righe non c'è niente da scorrere, quindi una prova sull'intestazione che si chiude non
+ * avrebbe nessun gesto da fare. Le copertine chiedono le miniature al caricatore, che su una
+ * macchina senza telefono non risponde: la cella resta vuota e il **nome** si legge lo stesso,
+ * che è quello che una prova cerca nell'albero.
+ *
+ * @param buckets le cartelle finte da mostrare, vuote di serie.
  */
 @Composable
-internal fun CasaVuota() {
+internal fun Casa(
+    buckets: List<Folder.Bucket> = emptyList(),
+    /** I percorsi nascosti, per le prove di 'Mostra nascoste'. */
+    hidden: Set<String> = emptySet(),
+    /** Se le nascoste sono in scena col minuto in corso. */
+    peeking: Boolean = false,
+    onUnhide: (String) -> Unit = {}
+) {
     FolderScreen(
         view = FolderView.GRID,
         columns = 3,
         counted = true,
         colour = FolderColour.NONE,
         tints = emptyMap(),
-        hidden = emptySet(),
+        hidden = hidden,
         onHide = {},
+        peeking = peeking,
+        onPeek = {},
+        onUnhide = onUnhide,
         recents = emptyList(),
         onPick = {},
         onOpen = {},
@@ -54,7 +70,7 @@ internal fun CasaVuota() {
         onTreePath = {},
         onTreeOpen = { _, _ -> },
         forStart = false,
-        buckets = emptyList(),
+        buckets = buckets,
         onRead = {}
     )
 }

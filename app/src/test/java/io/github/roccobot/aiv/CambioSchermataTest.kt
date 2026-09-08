@@ -184,7 +184,7 @@ private fun Scena(schermo: Screen) {
                 label = "schermata"
             ) { quale ->
                 if (quale is Screen.Folders) {
-                    CasaVuota()
+                    Casa()
                 } else {
                     Box(Modifier.fillMaxSize())
                 }

@@ -152,6 +152,9 @@
     <string name="hub_view_grid">نمای شبکه‌ای</string>
     <string name="hub_search">جستجو</string>
     <string name="hub_url">باز کردن نشانی</string>
+    <string name="hub_peek">نمایش پنهان‌ها</string>
+    <string name="hub_unpeek">پنهان کردن پوشه‌ها</string>
+    <string name="peek_over">پوشه‌ها دوباره پنهان شدند.</string>
     <string name="hub_pick">باز کردن تصویر</string>
     <string name="hub_settings">تنظیمات</string>
     <string name="url_open">باز کردن</string>

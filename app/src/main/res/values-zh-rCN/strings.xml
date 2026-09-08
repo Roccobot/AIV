@@ -152,6 +152,9 @@
     <string name="hub_view_grid">网格视图</string>
     <string name="hub_search">搜索</string>
     <string name="hub_url">打开一个地址</string>
+    <string name="hub_peek">显示隐藏项</string>
+    <string name="hub_unpeek">隐藏文件夹</string>
+    <string name="peek_over">文件夹已重新隐藏。</string>
     <string name="hub_pick">打开一张图片</string>
     <string name="hub_settings">设置</string>
     <string name="url_open">打开</string>

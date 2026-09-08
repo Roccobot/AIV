@@ -230,6 +230,9 @@
     <string name="hub_view_grid">Visualizzazione griglia</string>
     <string name="hub_search">Cerca</string>
     <string name="hub_url">Apri un indirizzo</string>
+    <string name="hub_peek">Mostra nascoste</string>
+    <string name="hub_unpeek">Nascondi cartelle</string>
+    <string name="peek_over">Cartelle di nuovo nascoste.</string>
     <string name="hub_pick">Apri un\'immagine</string>
     <string name="hub_settings">Impostazioni</string>
     <string name="url_open">Apri</string>

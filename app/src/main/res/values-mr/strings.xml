@@ -152,6 +152,9 @@
     <string name="hub_view_grid">जाळी रूप</string>
     <string name="hub_search">शोधा</string>
     <string name="hub_url">एक पत्ता उघडा</string>
+    <string name="hub_peek">लपवलेले दाखवा</string>
+    <string name="hub_unpeek">फोल्डर लपवा</string>
+    <string name="peek_over">फोल्डर पुन्हा लपवले.</string>
     <string name="hub_pick">एक प्रतिमा उघडा</string>
     <string name="hub_settings">सेटिंग्ज</string>
     <string name="url_open">उघडा</string>

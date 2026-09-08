@@ -152,6 +152,9 @@
     <string name="hub_view_grid">గడి రూపం</string>
     <string name="hub_search">వెతుకు</string>
     <string name="hub_url">ఒక చిరునామా తెరువు</string>
+    <string name="hub_peek">దాచినవి చూపు</string>
+    <string name="hub_unpeek">ఫోల్డర్‌లను దాచు</string>
+    <string name="peek_over">ఫోల్డర్‌లు మళ్లీ దాచబడ్డాయి.</string>
     <string name="hub_pick">ఒక చిత్రం తెరువు</string>
     <string name="hub_settings">అమరికలు</string>
     <string name="url_open">తెరువు</string>

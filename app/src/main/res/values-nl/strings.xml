@@ -152,6 +152,9 @@
     <string name="hub_view_grid">Rasterweergave</string>
     <string name="hub_search">Zoeken</string>
     <string name="hub_url">Een adres openen</string>
+    <string name="hub_peek">Verborgen tonen</string>
+    <string name="hub_unpeek">Mappen verbergen</string>
+    <string name="peek_over">Mappen weer verborgen.</string>
     <string name="hub_pick">Een afbeelding openen</string>
     <string name="hub_settings">Instellingen</string>
     <string name="url_open">Openen</string>

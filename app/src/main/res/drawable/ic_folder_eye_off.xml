@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Nascondi cartelle', nel menu del FAB della schermata iniziale.
+
+     DISEGNATO DALL'UTENTE, arrivato il 2026-09-08 con la richiesta di 'Mostra nascoste'
+     (campo libero del giro della 1.91). La gemella è `ic_folder_eye`, che dice il rovescio.
+
+     NON È UN GLIFO DI MATERIAL, ed è la ragione per cui entra qui: la famiglia ne ha uno per
+     l'occhio e uno per l'occhio sbarrato, ma nessuno che dica CARTELLA nascosta, che è la cosa
+     di cui parla questa voce. Il criterio vive in `CLAUDE.md`, § 'Come entra un disegno': un file
+     che arriva si misura contro quello che Compose già porta, e qui il confronto non ha un
+     candidato.
+
+     IL TRASPORTO NON CAMBIA UN PIXEL, misurato rendendo a 240px il file di partenza e questo
+     tracciato: la resa è identica byte per byte. Quello che cambia è solo la forma della `d`,
+     cioè i 32 numeri incollati separati e ogni comando implicito scritto per esteso.
+
+     LA REGOLA DI RIEMPIMENTO È QUELLA DEL FILE DI PARTENZA, che non ne dichiara nessuna e quindi
+     vale il `nonzero` di serie di SVG. Si scrive comunque: una regola dichiarata dice quello che
+     il disegno vuole, una omessa dice solo com'è andata.
+
+     Le regole di trasporto vivono in `CLAUDE.md`, § 'Come entra un disegno'. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M4,12.92v-6.92h5.17l2,2h8.83v5c.37,.17,.72,.33,1.05,.47c.33,.15,.65,.34,.95,.58v-6.05c0,-.55,-.2,-1.02,-.59,-1.41s-.86,-.59,-1.41,-.59h-8l-2,-2h-6c-.55,0,-1.02,.2,-1.41,.59s-.59,.86,-.59,1.41v12c0,.55,.2,1.02,.59,1.41s.86,.59,1.41,.59h3v-2h-3v-5.08ZM20.2,15.2c-1.28,-.8,-2.68,-1.2,-4.2,-1.2c-.64,0,-1.26,.09,-1.86,.23l1.77,1.77s.05,0,.08,0c.95,0,1.85,.22,2.69,.65c.84,.43,1.53,1.05,2.06,1.85c-.32,.47,-.69,.87,-1.12,1.22l1.44,1.44c.84,-.72,1.48,-1.6,1.93,-2.66c-.58,-1.4,-1.52,-2.5,-2.8,-3.3ZM10.58,14.5l.92,.92c-1.12,.78,-1.97,1.8,-2.5,3.08c.58,1.4,1.52,2.5,2.8,3.3s2.68,1.2,4.2,1.2c.92,0,1.8,-.16,2.63,-.45l1.37,1.37l1.41,-1.41l-9.42,-9.42l-1.41,1.41ZM12.95,16.87l4.04,4.04c-.32,.06,-.65,.09,-.99,.09c-.95,0,-1.85,-.22,-2.69,-.65c-.84,-.43,-1.53,-1.05,-2.06,-1.85c.45,-.68,1.03,-1.22,1.7,-1.63Z" />
+</vector>

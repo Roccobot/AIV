@@ -152,6 +152,9 @@
     <string name="hub_view_grid">கட்டக் காட்சி</string>
     <string name="hub_search">தேடு</string>
     <string name="hub_url">ஒரு முகவரியைத் திற</string>
+    <string name="hub_peek">மறைந்தவற்றைக் காட்டு</string>
+    <string name="hub_unpeek">கோப்புறைகளை மறை</string>
+    <string name="peek_over">கோப்புறைகள் மீண்டும் மறைக்கப்பட்டன.</string>
     <string name="hub_pick">ஒரு படத்தைத் திற</string>
     <string name="hub_settings">அமைப்புகள்</string>
     <string name="url_open">திற</string>
