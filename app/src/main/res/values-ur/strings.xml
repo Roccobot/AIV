@@ -91,6 +91,13 @@
     <string name="settings_front_wash">گریڈینٹ</string>
     <string name="settings_front_serif">سیرف عنوان</string>
     <string name="settings_front_facts">معلومات</string>
+    <string name="settings_colour">فولڈر کا رنگ</string>
+    <string name="settings_colour_desc">طے کرتا ہے کہ فولڈر کے لیے منتخب رنگ سرخی کے علاوہ ہوم اسکرین پر کہاں دکھائی دے۔</string>
+    <string name="settings_colour_none">کوئی نہیں</string>
+    <string name="settings_colour_edge">زیریں لکیر</string>
+    <string name="settings_colour_frame">فریم</string>
+    <string name="settings_colour_name">نام</string>
+    <string name="settings_colour_glow">چمک</string>
     <string name="front_name_copied">فولڈر کا نام کاپی ہو گیا</string>
     <string name="front_path_copied">فولڈر کا راستہ کاپی ہو گیا</string>
     <string name="front_copy_path">راستہ کاپی کریں</string>

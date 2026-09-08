@@ -91,6 +91,13 @@
     <string name="settings_front_wash">Gradyan</string>
     <string name="settings_front_serif">Tırnaklı başlık</string>
     <string name="settings_front_facts">Bilgi</string>
+    <string name="settings_colour">Klasör rengi</string>
+    <string name="settings_colour_desc">Bir klasör için seçilen rengin, başlığın yanı sıra ana ekranda nerede göründüğünü belirler.</string>
+    <string name="settings_colour_none">Yok</string>
+    <string name="settings_colour_edge">Çizgi</string>
+    <string name="settings_colour_frame">Çerçeve</string>
+    <string name="settings_colour_name">Ad</string>
+    <string name="settings_colour_glow">Parıltı</string>
     <string name="front_name_copied">Klasör adı kopyalandı</string>
     <string name="front_path_copied">Klasör yolu kopyalandı</string>
     <string name="front_copy_path">Yolu kopyala</string>

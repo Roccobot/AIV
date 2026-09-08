@@ -91,6 +91,13 @@
     <string name="settings_front_wash">Gradient</string>
     <string name="settings_front_serif">Tytuł szeryfowy</string>
     <string name="settings_front_facts">Info</string>
+    <string name="settings_colour">Kolor folderów</string>
+    <string name="settings_colour_desc">Określa, gdzie kolor wybrany dla folderu pojawia się na ekranie głównym, poza nagłówkiem.</string>
+    <string name="settings_colour_none">Brak</string>
+    <string name="settings_colour_edge">Kreska</string>
+    <string name="settings_colour_frame">Ramka</string>
+    <string name="settings_colour_name">Nazwa</string>
+    <string name="settings_colour_glow">Poświata</string>
     <string name="front_name_copied">Skopiowano nazwę folderu</string>
     <string name="front_path_copied">Skopiowano ścieżkę folderu</string>
     <string name="front_copy_path">Kopiuj ścieżkę</string>

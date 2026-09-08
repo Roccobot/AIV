@@ -91,6 +91,13 @@
     <string name="settings_front_wash">漸層</string>
     <string name="settings_front_serif">襯線標題</string>
     <string name="settings_front_facts">資訊</string>
+    <string name="settings_colour">資料夾顏色</string>
+    <string name="settings_colour_desc">設定為資料夾選擇的顏色除標題列外在主畫面上的顯示位置。</string>
+    <string name="settings_colour_none">無</string>
+    <string name="settings_colour_edge">底線</string>
+    <string name="settings_colour_frame">外框</string>
+    <string name="settings_colour_name">名稱</string>
+    <string name="settings_colour_glow">光暈</string>
     <string name="front_name_copied">已複製資料夾名稱</string>
     <string name="front_path_copied">已複製資料夾路徑</string>
     <string name="front_copy_path">複製路徑</string>

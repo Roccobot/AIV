@@ -91,6 +91,13 @@
     <string name="settings_front_wash">Gradien</string>
     <string name="settings_front_serif">Judul serif</string>
     <string name="settings_front_facts">Info</string>
+    <string name="settings_colour">Warna folder</string>
+    <string name="settings_colour_desc">Menentukan di mana warna yang dipilih untuk folder muncul di layar utama, selain di bagian atas folder.</string>
+    <string name="settings_colour_none">Tidak ada</string>
+    <string name="settings_colour_edge">Garis</string>
+    <string name="settings_colour_frame">Bingkai</string>
+    <string name="settings_colour_name">Nama</string>
+    <string name="settings_colour_glow">Cahaya</string>
     <string name="front_name_copied">Nama folder disalin</string>
     <string name="front_path_copied">Jalur folder disalin</string>
     <string name="front_copy_path">Salin jalur</string>

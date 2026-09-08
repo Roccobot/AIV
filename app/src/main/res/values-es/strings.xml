@@ -91,6 +91,13 @@
     <string name="settings_front_wash">Degradado</string>
     <string name="settings_front_serif">Título con serifa</string>
     <string name="settings_front_facts">Info</string>
+    <string name="settings_colour">Color de las carpetas</string>
+    <string name="settings_colour_desc">Define dónde aparece el color elegido para una carpeta en la pantalla de inicio, además de en su encabezado.</string>
+    <string name="settings_colour_none">Ninguno</string>
+    <string name="settings_colour_edge">Línea</string>
+    <string name="settings_colour_frame">Marco</string>
+    <string name="settings_colour_name">Nombre</string>
+    <string name="settings_colour_glow">Halo</string>
     <string name="front_name_copied">Nombre de la carpeta copiado</string>
     <string name="front_path_copied">Ruta de la carpeta copiada</string>
     <string name="front_copy_path">Copiar la ruta</string>

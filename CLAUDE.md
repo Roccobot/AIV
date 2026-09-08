@@ -891,6 +891,23 @@ come prima.
   vederlo: il titolo c'era, era al posto giusto ed era opaco. Il come, e perché la prova sulla
   schermata da sola non bastava, vivono in § '🧪 Quando si scrive una prova, e quando no'.
 
+⚠️⚠️ **DALLA `1.87` IL GRADIENTE ARRIVA FIN SOTTO LA BARRA DI SISTEMA** (sua richiesta, con
+schermata: *puoi colorare la barra di sistema di Android dello stesso colore dell'inizio della
+sfumatura? ... Stesso colore della prima striscia di pixel sul bordo (colore scelto al 40%)*).
+Fino alla `1.86` il rettangolo si fermava al bordo dell'area sicura, quindi sopra restava una
+striscia del fondo dell'app e la tinta cominciava con un gradino netto proprio dove l'occhio la
+incontra per prima.
+- ⚠️⚠️ **È UNA FASCIA PIENA E NON UN RETTANGOLO PIÙ ALTO, e la differenza non è di comodo**:
+  allungando il gradiente il suo massimo si sposterebbe sopra la barra, e sotto la testata la
+  tinta verrebbe più chiara del 40%, cioè cambierebbe la rampa che lui ha tarato al giro prima.
+- ⚠️ **Il colore è quello della cartella**, come il resto del gradiente, ed è la sua precisazione
+  (*ovviamente s'intende un colore diverso a seconda del colore di ogni cartella*): la fascia
+  legge la stessa tinta, quindi non c'è un secondo posto da tenere allineato.
+- ⚠️ **Segue lo scorrimento**: scorrendo si spegne insieme alla sfumatura, o resterebbe una
+  striscia colorata in cima a una griglia che non ha più niente di colorato.
+- ⚠️ **Le icone della barra non si toccano**: al 40% sopra il fondo dell'app il contrasto con cui
+  il sistema le disegna resta quello di prima. Chi alzasse `WASH_PEAK` guardi anche quelle.
+
 ⚠️⚠️ **I QUATTRO GESTI DELL'INTESTAZIONE, DALLA `1.85`, SONO SUOI** (stesso riscontro): il tocco
 sul **nome** lo copia e il tocco lungo copia il percorso; il tocco sull'**icona** apre il gestore
 file di sistema in quella cartella, e il tocco lungo sceglie il colore del gradiente **per quella
@@ -909,6 +926,49 @@ cartella** fra sedici tinte in una griglia 4x4.
   ha un colore associato e viene cancellata, non occorre che l'app ricordi il suo colore*), quindi
   l'archivio non si pota. Il perché quello non sia nemmeno una perdita (il `BUCKET_ID` è il CRC
   del percorso, quindi una cartella ricreata si ritrova il suo colore) vive su `FolderTints`.
+
+## 🎨 Dove si vede il colore di una cartella, fuori dall'intestazione
+
+⚠️⚠️ **DALLA `1.87` GLI STILI SONO QUATTRO, E LI HA SCELTI LUI FRA I MOCKUP** (giro della `1.86`,
+domanda `d-colore-come`: *applica i seguenti stili di colore esterni all'intestazione:
+`filetto`, `cornice`, `nome`, `alone`*). Fino alla `1.86` la tinta scelta col tocco lungo
+sull'icona di una cartella si vedeva **solo** nel gradiente della sua intestazione, cioè dopo che
+quella cartella era già aperta; adesso può servire a **riconoscerla** nella schermata iniziale.
+- **Il filetto** è una riga sotto la copertina, **la cornice** un bordo intorno, **il nome** il
+  titolo scritto nel suo colore, **l'alone** una sfumatura che scende dal bordo di sopra. I
+  numeri sono quelli del mockup che ha guardato, e la ragione per cui il filetto è spesso quattro
+  punti è scritta là: sotto quella misura le sedici tinte non si distinguono.
+- ⚠️ **Erano cinque nel mockup**, e l'angolo piegato è quello che non ha preso: chi lo ritrovasse
+  fra i disegni sappia che è stato visto e scartato.
+- ⚠️⚠️ **DI FABBRICA NON SE NE VEDE NESSUNO, e non è un modo di nascondere il lavoro**: la sua
+  posizione dichiarata era *sono propenso a lasciare il colore solo lì*, e questi quattro sono le
+  proposte che ha chiesto per cambiarla provandole. Quindi la voce di collaudo porta il passo
+  passo, perché la funzione non si vede né accendendola né scegliendo un colore: servono tutte e
+  due le cose.
+- ⚠️ **Vale per le due viste della schermata iniziale**, copertine ed elenco, con le stesse
+  misure: la domanda è *come riconosco una cartella*, e non cambia cambiando vista. Nella terza
+  vista non c'è niente da tingere, perché là le cartelle sono percorsi letti dal disco e una tinta
+  è appesa al `BUCKET_ID` del MediaStore.
+- ⚠️⚠️ **NELLA FINESTRA DELLE DESTINAZIONI NON SI TINGE, ED È UNA SCELTA DICHIARATA**: quella non
+  è l'elenco di casa ma le sole cartelle in cui si può mettere un file, e portarci le tinte
+  vorrebbe dire farle passare da `DestLook`, che è uno `staticCompositionLocalOf`, cioè
+  ricomporre l'app intera a ogni colore scelto. Il perché per esteso vive sul chiamante, in
+  `DestinationDialog.kt`.
+- **La voce vive in 'Aspetto' e la sua gemella nel dialogo delle opzioni**, cioè la scorciatoia
+  del tocco lungo sul FAB della schermata iniziale, dove lui l'ha chiesta accanto alle colonne:
+  una preferenza, una chiave, un valore di fabbrica, e i cinque nomi da una funzione sola.
+
+⚠️⚠️ **E IL TOCCO LUNGO SUL FAB NON PUÒ AVERE UN ROVESCIO, PERCHÉ QUEL TASTO SPARISCE A METÀ
+GESTO** (sua richiesta nello stesso giro: *la pressione lunga sul FAB in una cartella deve
+selezionare/deselezionare tutto*). Appena c'è una selezione il FAB lascia il posto alla scheda
+dei comandi, quindi un secondo gesto su di lui non arriva a nessuno: un'alternanza scritta là
+sarebbe un ramo che nessun dito può raggiungere.
+- **Il rovescio esiste e sono due**: il tasto 'Tutti' del pannello col proprio tocco lungo, e la
+  pastiglia dell'intestazione dalla `1.85`.
+- ⚠️ **A misurarlo è stata la prova, non una lettura del codice**: la prima stesura di
+  `SelezioneTest` provava il gesto due volte ed è fallita alla prima corsa con *the node is no
+  longer in the tree*. È il caso proattivo di § '🧪 Quando si scrive una prova, e quando no'
+  applicato a una richiesta invece che a un difetto.
 
 ## 💾 Il salvataggio va sempre in Download, e il nome si chiede solo se lo chiedi
 

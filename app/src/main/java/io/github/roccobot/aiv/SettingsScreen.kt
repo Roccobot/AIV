@@ -665,6 +665,30 @@ private fun ColumnScope.RootPage(
         }
     )
 
+    /*
+     * ⚠️⚠️ **DOVE SI VEDE IL COLORE DI UNA CARTELLA, DALLA `1.87`, ED È IL POSTO CHE HA DETTO
+     * LUI** (*aggiungi un selettore nelle impostazioni ('Colore delle cartelle', sotto
+     * 'Aspetto')*). La domanda è *come riconosco una cartella nella schermata iniziale*, e non
+     * la condivide con nessuna delle voci qui sopra: è una voce sola, quindi non prende un
+     * titolo di famiglia suo.
+     * ⚠️ **Ultima del gruppo, dopo l'intestazione**: quella parla di una cartella aperta, questa
+     * della stessa cartella vista da fuori, e messe vicine si leggono in fila.
+     * ⚠️ **Cinque gettoni e non un interruttore**, come la profondità dei pannelli: gli stili si
+     * escludono a vicenda, e con quattro interruttori esisterebbe lo stato in cui sono accesi
+     * tutti.
+     * ⚠️ **Ha una gemella nel dialogo delle opzioni**, cioè la scorciatoia del tocco lungo sul
+     * FAB (vedi `ColourChips` in `FolderScreen.kt`): stessa preferenza, stessi cinque nomi, che
+     * arrivano dalla stessa funzione.
+     */
+    Choices(
+        label = stringResource(R.string.settings_colour),
+        detail = stringResource(R.string.settings_colour_desc),
+        options = FolderColour.entries,
+        selected = settings.folderColour,
+        nameOf = { stringResource(it.label()) },
+        onSelect = { onChange(settings.copy(folderColour = it)) }
+    )
+
     Group(stringResource(R.string.settings_group_viewer))
 
     /*

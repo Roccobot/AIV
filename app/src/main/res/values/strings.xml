@@ -221,6 +221,13 @@
     <string name="settings_front_wash">Gradient</string>
     <string name="settings_front_serif">Serif title</string>
     <string name="settings_front_facts">Info</string>
+    <string name="settings_colour">Folder colour</string>
+    <string name="settings_colour_desc">Sets where the colour picked for a folder shows up in the home screen, besides its header.</string>
+    <string name="settings_colour_none">None</string>
+    <string name="settings_colour_edge">Underline</string>
+    <string name="settings_colour_frame">Frame</string>
+    <string name="settings_colour_name">Name</string>
+    <string name="settings_colour_glow">Glow</string>
     <string name="front_name_copied">Folder name copied</string>
     <string name="front_path_copied">Folder path copied</string>
     <string name="front_copy_path">Copy the path</string>

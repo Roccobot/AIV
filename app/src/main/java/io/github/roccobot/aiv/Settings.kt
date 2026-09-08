@@ -211,6 +211,46 @@ enum class FolderView(override val token: String) : Choice {
 }
 
 /**
+ * Dove si vede il colore di una cartella, **fuori** dalla sua intestazione.
+ *
+ * ⚠️⚠️ **NASCE NELLA `1.87` DALLA SUA SCELTA FRA I MOCKUP** (giro della `1.86`, domanda
+ * `d-colore-come`: *applica i seguenti stili di colore esterni all'intestazione: `filetto`,
+ * `cornice`, `nome`, `alone`*). Fino alla `1.86` la tinta scelta col tocco lungo sull'icona di
+ * una cartella si vedeva **solo** nel gradiente della sua intestazione, cioè dopo che quella
+ * cartella era già aperta: la domanda a cui questo enum risponde era se dovesse vedersi anche
+ * nella schermata iniziale, dove serve a **riconoscere** una cartella invece che a decorarla.
+ * ⚠️ **Quattro e non cinque, ed è la sua scelta**: il mockup ne proponeva cinque, e l'angolo
+ * piegato è quello che non ha preso. Chi lo ritrovasse fra i disegni sappia che è stato visto e
+ * scartato, non dimenticato.
+ * ⚠️⚠️ **[NONE] È IL VALORE DI FABBRICA, e non è un modo di nascondere il lavoro**: la sua
+ * posizione dichiarata è *sono propenso a lasciare il colore solo lì*, e questi quattro sono le
+ * proposte che ha chiesto per cambiarla provandole. Il valore di fabbrica non si sceglie per
+ * far vedere una funzione, e questa in più non si vede affatto finché una cartella non ha un
+ * colore suo.
+ * ⚠️ **Nella vista 'Cartelle di sistema' non c'è niente da tingere**, e non è una
+ * dimenticanza: là le cartelle sono percorsi letti dal disco, mentre una tinta è appesa al
+ * `BUCKET_ID` del MediaStore (vedi [FolderTints]), che quelle non hanno.
+ */
+enum class FolderColour(override val token: String) : Choice {
+    /** Niente: la tinta resta nella sola intestazione, com'era fino alla `1.86`. */
+    NONE("none"),
+    /**
+     * Un filetto sotto la copertina.
+     *
+     * ⚠️ **Vive DENTRO il riquadro della copertina**, e non sotto: appeso fuori sposterebbe il
+     * nome di quattro punti nelle sole cartelle che hanno un colore, cioè darebbe una griglia
+     * con le righe disallineate fra loro.
+     */
+    EDGE("edge"),
+    /** Una cornice intorno alla copertina, disegnata all'interno del suo bordo. */
+    FRAME("frame"),
+    /** Il nome della cartella scritto nel suo colore. */
+    NAME("name"),
+    /** Un alone che scende dal bordo di sopra della copertina e si spegne prima della metà. */
+    GLOW("glow")
+}
+
+/**
  * Il tema dell'interfaccia, chiesto dall'utente il 2026-08-29.
  *
  * ⚠️⚠️ **NON È LO STESSO DI [BgTheme], e confonderli è l'errore facile**: quello dice di
@@ -460,6 +500,16 @@ data class Settings(
      * chiesto è il modo di far cercare un'impostazione che non si sa di avere.
      */
     val folderCount: Boolean = true,
+    /**
+     * Dove si vede il colore di una cartella fuori dalla sua intestazione. Vedi [FolderColour],
+     * che porta il perché del valore di fabbrica.
+     *
+     * ⚠️ **Vale per tutte e due le viste della schermata iniziale**, copertine ed elenco: è una
+     * risposta alla domanda *come riconosco una cartella*, e quella domanda non cambia
+     * cambiando vista. Le due rese sono diverse perché diverse sono le due celle, non perché lo
+     * sia la scelta.
+     */
+    val folderColour: FolderColour = FolderColour.NONE,
     /**
      * Se l'eliminazione manda le fotografie nel **cestino** invece di cancellarle.
      *
@@ -885,6 +935,7 @@ object SettingsStore {
     private val DOWNLOAD_PATH = booleanPreferencesKey("download-path")
     private val BIN_KEEP = stringPreferencesKey("bin-keep")
     private val FOLDER_COUNT = booleanPreferencesKey("folder-count")
+    private val FOLDER_COLOUR = stringPreferencesKey("folder-colour")
     private val HIDDEN_FOLDERS = stringSetPreferencesKey("hidden-folders")
 
     // ⚠️ Due chiavi e non una, perché sono due domande: in che ordine stanno i campi, e
@@ -965,6 +1016,7 @@ object SettingsStore {
             // griglia a zero colonne, cioè una schermata vuota senza nessun errore.
             folderColumns = p[FOLDER_COLUMNS_KEY]?.takeIf { it in FOLDER_COLUMNS } ?: 2,
             folderCount = p[FOLDER_COUNT] ?: true,
+            folderColour = FolderColour.entries.byToken(p[FOLDER_COLOUR], FolderColour.NONE),
             binOn = p[BIN_ON] ?: true,
             imagesOnly = p[IMAGES_ONLY] ?: false,
             clipAutoplay = p[CLIP_AUTOPLAY] ?: false,
@@ -1059,6 +1111,7 @@ object SettingsStore {
             p[UI_THEME] = settings.uiTheme.token
             p[FOLDER_COLUMNS_KEY] = settings.folderColumns
             p[FOLDER_COUNT] = settings.folderCount
+            p[FOLDER_COLOUR] = settings.folderColour.token
             p[BIN_ON] = settings.binOn
             p[IMAGES_ONLY] = settings.imagesOnly
             p[CLIP_AUTOPLAY] = settings.clipAutoplay
@@ -1477,6 +1530,20 @@ object FolderTints {
     /** La tinta di una cartella, o `null` se non ne ha una. */
     suspend fun of(context: Context, bucket: Long): Int? =
         read(context.aivStore.data.first()[TINTS].orEmpty())[bucket]
+
+    /**
+     * Le tinte di tutte le cartelle segnate, per la schermata iniziale.
+     *
+     * ⚠️⚠️ **NASCE NELLA `1.87` CON I QUATTRO STILI DI [FolderColour]**, e la lettura in blocco
+     * non è una comodità: là le cartelle sono decine, e chiedere la tinta di ognuna con [of]
+     * vorrebbe dire leggere e ricomporre l'intero archivio una volta per cella. Le voci sono
+     * poche e vivono in una chiave sola, quindi il costo di averle tutte è quello di leggerne
+     * una.
+     * ⚠️ **Una cartella senza tinta non compare nella mappa**, e chi legge se lo aspetta: la
+     * mappa dice chi è segnato, non quante cartelle ci sono.
+     */
+    suspend fun all(context: Context): Map<Long, Int> =
+        read(context.aivStore.data.first()[TINTS].orEmpty())
 
     /**
      * Segna la tinta di una cartella, oppure la toglie con un [index] nullo.

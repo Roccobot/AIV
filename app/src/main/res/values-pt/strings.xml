@@ -91,6 +91,13 @@
     <string name="settings_front_wash">Gradiente</string>
     <string name="settings_front_serif">Título com serifa</string>
     <string name="settings_front_facts">Info</string>
+    <string name="settings_colour">Cor das pastas</string>
+    <string name="settings_colour_desc">Define onde a cor escolhida para uma pasta aparece na tela inicial, além do cabeçalho.</string>
+    <string name="settings_colour_none">Nenhuma</string>
+    <string name="settings_colour_edge">Linha</string>
+    <string name="settings_colour_frame">Moldura</string>
+    <string name="settings_colour_name">Nome</string>
+    <string name="settings_colour_glow">Brilho</string>
     <string name="front_name_copied">Nome da pasta copiado</string>
     <string name="front_path_copied">Caminho da pasta copiado</string>
     <string name="front_copy_path">Copiar o caminho</string>

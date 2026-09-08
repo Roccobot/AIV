@@ -595,16 +595,42 @@ fun Modifier.frontIconMeasure(fullPx: Float, shut: () -> Float, max: Dp): Modifi
  * prima di raggiungere la griglia*): fino alla `1.84` la coda arrivava una riga di miniature più
  * in basso, cioè tingeva la prima fila di immagini.
  *
+ * ⚠️⚠️ **E DALLA `1.87` SALE FIN SOTTO LA BARRA DI SISTEMA, CON UNA FASCIA PIENA** (sua
+ * richiesta, con schermata: *puoi colorare la barra di sistema di Android dello stesso colore
+ * dell'inizio della sfumatura?*). Fino alla `1.86` il rettangolo si fermava al bordo dell'area
+ * sicura, quindi sopra restava una striscia del fondo dell'app e la tinta cominciava con un
+ * gradino netto proprio dove l'occhio la incontra per prima.
+ * - ⚠️⚠️ **UNA FASCIA PIENA E NON UN RETTANGOLO PIÙ ALTO, e la differenza non è di comodo**:
+ *   allungando il gradiente verso l'alto il suo massimo si sposterebbe sopra la barra, e sotto
+ *   la testata la tinta verrebbe più chiara di [WASH_PEAK], cioè cambierebbe la rampa che lui ha
+ *   tarato al giro prima. Con la fascia, la barra prende **esattamente** il colore di partenza,
+ *   che è quello che ha chiesto, e la sfumatura resta quella approvata.
+ * - ⚠️ **Segue [ink] come il resto**: scorrendo la fascia si spegne insieme alla sfumatura, o
+ *   resterebbe una striscia colorata in cima a una griglia che non ha più niente di colorato.
+ * - ⚠️ **Le icone della barra non si toccano**: la tinta arriva al 40% sopra il fondo dell'app,
+ *   quindi il contrasto con cui il sistema le disegna resta quello di prima. Chi alzasse
+ *   [WASH_PEAK] guardi anche quelle.
+ *
  * @param tint la tinta piena, di solito `colorScheme.primary`.
  * @param air quanto sconfinare per lato, cioè il rientro orizzontale della schermata.
  * @param up quanto salire sopra il blocco, cioè il rientro verticale della schermata.
+ * @param bar quanto è alta la barra di sistema sopra di lui, cioè il rientro che la schermata le
+ *   ha già lasciato: la fascia piena arriva fin là.
  * @param ink quanto si vede la tinta, da 0 a 1: si legge in fase di **disegno**, perché segue lo
  *   scorrimento e leggerla in composizione farebbe rifare la griglia a ogni pixel.
  */
-fun Modifier.frontWash(tint: Color, air: Dp, up: Dp, ink: () -> Float): Modifier = drawWithCache {
+fun Modifier.frontWash(
+    tint: Color,
+    air: Dp,
+    up: Dp,
+    bar: Dp,
+    ink: () -> Float
+): Modifier = drawWithCache {
     val ariaPx = air.toPx()
     val suPx = up.toPx()
+    val barraPx = bar.toPx()
     val alto = size.height + suPx
+    val pieno = tint.copy(alpha = WASH_PEAK)
     /*
      * ⚠️ **Il pennello si costruisce UNA VOLTA per misura e non a ogni fotogramma**: l'opacità
      * che cambia mentre si scorre entra dal parametro `alpha` di `drawRect`, che moltiplica il
@@ -620,6 +646,12 @@ fun Modifier.frontWash(tint: Color, air: Dp, up: Dp, ink: () -> Float): Modifier
     onDrawBehind {
         val visto = ink()
         if (visto <= 0f || alto <= 0f) return@onDrawBehind
+        if (barraPx > 0f) drawRect(
+            color = pieno,
+            topLeft = Offset(-ariaPx, -suPx - barraPx),
+            size = Size(size.width + ariaPx * 2, barraPx),
+            alpha = visto
+        )
         drawRect(
             brush = pennello,
             topLeft = Offset(-ariaPx, -suPx),

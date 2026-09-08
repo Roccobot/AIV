@@ -91,6 +91,13 @@
     <string name="settings_front_wash">Dégradé</string>
     <string name="settings_front_serif">Titre à empattements</string>
     <string name="settings_front_facts">Infos</string>
+    <string name="settings_colour">Couleur des dossiers</string>
+    <string name="settings_colour_desc">Définit où la couleur choisie pour un dossier apparaît sur l\'écran d\'accueil, en plus de son en-tête.</string>
+    <string name="settings_colour_none">Aucune</string>
+    <string name="settings_colour_edge">Filet</string>
+    <string name="settings_colour_frame">Cadre</string>
+    <string name="settings_colour_name">Nom</string>
+    <string name="settings_colour_glow">Halo</string>
     <string name="front_name_copied">Nom du dossier copié</string>
     <string name="front_path_copied">Chemin du dossier copié</string>
     <string name="front_copy_path">Copier le chemin</string>

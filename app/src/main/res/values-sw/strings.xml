@@ -91,6 +91,13 @@
     <string name="settings_front_wash">Upinde rangi</string>
     <string name="settings_front_serif">Kichwa chenye serifu</string>
     <string name="settings_front_facts">Maelezo</string>
+    <string name="settings_colour">Rangi ya folda</string>
+    <string name="settings_colour_desc">Huamua mahali rangi iliyochaguliwa kwa folda inapoonekana kwenye skrini ya mwanzo, zaidi ya kichwa chake.</string>
+    <string name="settings_colour_none">Hakuna</string>
+    <string name="settings_colour_edge">Mstari</string>
+    <string name="settings_colour_frame">Fremu</string>
+    <string name="settings_colour_name">Jina</string>
+    <string name="settings_colour_glow">Mwangaza</string>
     <string name="front_name_copied">Jina la folda limenakiliwa</string>
     <string name="front_path_copied">Njia ya folda imenakiliwa</string>
     <string name="front_copy_path">Nakili njia</string>

@@ -91,6 +91,13 @@
     <string name="settings_front_wash">그러데이션</string>
     <string name="settings_front_serif">세리프 제목</string>
     <string name="settings_front_facts">정보</string>
+    <string name="settings_colour">폴더 색상</string>
+    <string name="settings_colour_desc">폴더에 선택한 색상이 머리글 외에 홈 화면의 어디에 표시될지 설정합니다.</string>
+    <string name="settings_colour_none">없음</string>
+    <string name="settings_colour_edge">밑줄</string>
+    <string name="settings_colour_frame">테두리</string>
+    <string name="settings_colour_name">이름</string>
+    <string name="settings_colour_glow">광선</string>
     <string name="front_name_copied">폴더 이름을 복사했습니다</string>
     <string name="front_path_copied">폴더 경로를 복사했습니다</string>
     <string name="front_copy_path">경로 복사</string>
