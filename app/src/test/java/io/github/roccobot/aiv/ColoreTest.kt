@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -81,13 +82,78 @@ class ColoreTest {
         )
     }
 
+    /**
+     * **Una cartella senza colore scelto prende l'accento dell'app.**
+     *
+     * ⚠️⚠️ **È LA SUA CORREZIONE ALLA `1.87`** (*'di fabbrica' è il colore di accento del tema,
+     * che è comunque un colore, e se attivassi il filetto dovrebbero essere tutti di quel
+     * colore*): là il disegno era saltato quando la tinta mancava, quindi lo stile si vedeva
+     * solo sulle cartelle già segnate. Il difetto non lo prendeva nessuna delle due prove
+     * sopra, perché tutte e due montano una cartella **con** la sua tinta.
+     */
+    @Test
+    fun `senza colore scelto il filetto porta l'accento dell'app`() {
+        /*
+         * ⚠️⚠️ **L'ACCENTO SI LEGGE DENTRO `AivTheme` E NON FUORI, e la prima stesura di questa
+         * prova sbagliava proprio qui**: scritta prima di [Scena], la riga leggeva il
+         * `MaterialTheme` di serie invece di quello dell'app, quindi cercava un colore che nella
+         * scena non c'è e falliva con la correzione già in vigore.
+         * ⚠️ **E non si scrive il numero qui**: ricopiare l'accento nella prova vorrebbe dire
+         * misurare una costante invece del tema.
+         */
+        var accento = Color.Unspecified
+        banco.setContent {
+            Scena(FolderColour.EDGE, segnata = false) { accento = it }
+        }
+        banco.waitForIdle()
+
+        val quanti = quantiSono(accento)
+        assertTrue(
+            "Di pixel dell'accento ne ho contati $quanti: senza una tinta scelta il filetto " +
+                "non si disegna, e lo stile si vedrebbe solo su qualche cartella",
+            quanti >= RIGA
+        )
+    }
+
+    /**
+     * **La tinta di una cartella segue il tema scelto DENTRO l'app.**
+     *
+     * ⚠️⚠️ **NASCE CON LE COPPIE DELLA `1.89`, ed è la prova che le presidia**: da quella
+     * versione una tinta è due colori, e a sceglierli è [LocalAivLight], che può dire il
+     * contrario della configurazione di sistema. Un `colorResource` o una costante sola
+     * darebbero il colore dell'altro tema senza nessun errore.
+     * ⚠️ **La controprova è dentro**: non conta solo che ci sia la variante scura, ma che di
+     * quella chiara non resti **nessun** pixel. Con la lettura sbagliata la prima metà potrebbe
+     * ancora passare per caso su due tinte simili, la seconda no.
+     */
+    @Test
+    fun `la tinta di una cartella segue il tema dell'app`() {
+        banco.setContent { Scena(FolderColour.EDGE, chiaro = false) }
+        banco.waitForIdle()
+
+        val scuri = quantiSono(FRONT_TINTS[QUALE].dark)
+        assertTrue(
+            "Di pixel della variante scura ne ho contati $scuri: sul tema scuro il filetto " +
+                "non porta la sua metà della coppia",
+            scuri >= RIGA
+        )
+        assertEquals(
+            "Sul tema scuro la copertina porta la variante chiara della tinta",
+            0,
+            quantiSono(FRONT_TINTS[QUALE].light)
+        )
+    }
+
     /** Quanti pixel della scena sono del colore scelto per la cartella. */
-    private fun tinti(): Int {
+    private fun tinti(): Int = quantiSono(TINTA)
+
+    /** Quanti pixel della scena sono di un colore dato. */
+    private fun quantiSono(quale: Color): Int {
         val mappa = banco.onRoot().captureToImage().toPixelMap()
         var quanti = 0
         for (x in 0 until mappa.width) {
             for (y in 0 until mappa.height) {
-                if (mappa[x, y] == TINTA) quanti++
+                if (mappa[x, y] == quale) quanti++
             }
         }
         return quanti
@@ -101,8 +167,16 @@ class ColoreTest {
      * serve è il riquadro, che c'è comunque col simbolo di ripiego.
      */
     @Composable
-    private fun Scena(colour: FolderColour) {
-        AivTheme(darkTheme = false) {
+    private fun Scena(
+        colour: FolderColour,
+        segnata: Boolean = true,
+        /** Quale dei due temi dell'app monta la scena. */
+        chiaro: Boolean = true,
+        /** L'accento del tema dell'app, che solo chi è dentro [AivTheme] può leggere. */
+        onAccento: (Color) -> Unit = {}
+    ) {
+        AivTheme(darkTheme = !chiaro) {
+            onAccento(MaterialTheme.colorScheme.primary)
             Box(modifier = Modifier.size(LATO).background(Color.White)) {
                 Covers(
                     folders = listOf(CARTELLA),
@@ -110,7 +184,7 @@ class ColoreTest {
                     counted = false,
                     nameStyle = folderNameStyle(1),
                     colour = colour,
-                    tints = mapOf(CARTELLA.id to QUALE),
+                    tints = if (segnata) mapOf(CARTELLA.id to QUALE) else emptyMap(),
                     onPick = {},
                     onHide = {}
                 )
@@ -125,8 +199,14 @@ private val CARTELLA = Folder.Bucket(id = 7L, name = "Cartella", pictures = 3, c
 /** Quale delle sedici tinte: la prima, che è il grigio-blu scuro delle sue. */
 private const val QUALE = 0
 
-/** Il colore che la scena deve portare, cioè quello che [QUALE] sceglie. */
-private val TINTA = FRONT_TINTS[QUALE]
+/**
+ * Il colore che la scena deve portare, cioè quello che [QUALE] sceglie.
+ *
+ * ⚠️ **La variante chiara**, perché le prove che lo contano montano il tema chiaro: dalla
+ * `1.89` una tinta è una coppia, e prendere il valore sbagliato darebbe una prova che non trova
+ * mai niente.
+ */
+private val TINTA = FRONT_TINTS[QUALE].light
 
 /** Quanto è larga la scena: una copertina sola, senza andare a cercare la geometria vera. */
 private val LATO = 200.dp

@@ -616,6 +616,40 @@ object ImageActions {
      * su una selezione grande, una copia andata storta non deve mangiarsi le altre
      * quarantanove. Se non ne resta nessuna, torna `false` e chi chiama lo dice.
      */
+    /**
+     * Gli stessi file, in indirizzi che **un'altra app può leggere**.
+     *
+     * ⚠️⚠️ **UN `content://` DEL MEDIASTORE SI PASSA COM'È, e non si ricopia**: è già un
+     * indirizzo che il sistema sa concedere in lettura, e copiarne cinquanta nella cache
+     * vorrebbe dire scrivere qualche gigabyte per un gesto che dura un secondo. La copia resta
+     * per i `file://`, che un'altra app non può leggere e che il nostro FileProvider serve solo
+     * dalla sua cartella (`file_paths.xml`).
+     * ⚠️ **Quello che non si riesce a preparare si SCARTA invece di far fallire tutto**: su una
+     * selezione grande, una copia andata storta non deve mangiarsi le altre quarantanove. Chi
+     * chiama guarda quante ne tornano.
+     * ⚠️⚠️ **VIVE IN UNA FUNZIONE SUA DALLA `1.89`, e non è un riordino di comodo**: da quella
+     * versione la leggono in due, la condivisione e la **consegna al selettore di sistema**
+     * (`ViewerActivity`, modalità scelta). Scritta due volte, il giorno che il FileProvider
+     * cambia cartella una delle due comincia a consegnare indirizzi che nessuno può aprire.
+     * ⚠️ **Chi chiama aggiunge il permesso all'intento**: un indirizzo preparato non concede
+     * niente da sé, serve `FLAG_GRANT_READ_URI_PERMISSION` su chi lo trasporta.
+     */
+    suspend fun readableOutside(context: Context, uris: List<Uri>): List<Uri> {
+        val ready = ArrayList<Uri>(uris.size)
+        for (uri in uris) {
+            if (uri.scheme?.lowercase() == "content") {
+                ready += uri
+                continue
+            }
+            val file = File(shareDir(context), uri.lastPathSegment?.substringAfterLast('/') ?: continue)
+            val ok = runCatching {
+                file.outputStream().use { copyOriginalTo(context, uri, it) }
+            }.getOrDefault(false)
+            if (ok) ready += FileProvider.getUriForFile(context, authority(context), file)
+        }
+        return ready
+    }
+
     suspend fun shareMany(context: Context, uris: List<Uri>): Boolean {
         // ⚠️ La potatura sta QUI e non dentro il giro: là cancellerebbe le copie appena
         // scritte da questo stesso lotto. Vedi [trimShare].
@@ -629,22 +663,11 @@ object ImageActions {
             uris.all { Videos.isVideo(it) } -> "video/*"
             else -> "*/*"
         }
-        val ready = ArrayList<Uri>(uris.size)
-        for (uri in uris) {
-            if (uri.scheme?.lowercase() == "content") {
-                ready += uri
-                continue
-            }
-            val file = File(shareDir(context), uri.lastPathSegment?.substringAfterLast('/') ?: continue)
-            val ok = runCatching {
-                file.outputStream().use { copyOriginalTo(context, uri, it) }
-            }.getOrDefault(false)
-            if (ok) ready += FileProvider.getUriForFile(context, authority(context), file)
-        }
+        val ready = readableOutside(context, uris)
         if (ready.isEmpty()) return false
         val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
             type = kind
-            putParcelableArrayListExtra(Intent.EXTRA_STREAM, ready)
+            putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(ready))
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         context.startActivity(Intent.createChooser(intent, null))

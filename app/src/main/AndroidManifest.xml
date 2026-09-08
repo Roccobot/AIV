@@ -161,6 +161,36 @@
             </intent-filter>
 
             <!--
+                ⚠️⚠️ **AIV FRA LE APP DEL SELETTORE DI SISTEMA, dalla 1.89** (richiesta
+                dell'utente, con schermata: *vorrei che AIV comparisse anche quando scelgo
+                'Altre app' su WhatsApp*). Quella schermata è DocumentsUI, e in fondo agli
+                archivi elenca le app che rispondono a GET_CONTENT: per comparire bisogna
+                dichiararlo qui, e per servire a qualcosa bisogna saper RESTITUIRE un file
+                (vedi `ViewerActivity.deliver`).
+                ⚠️ OPENABLE è la categoria che il selettore aggiunge alla sua richiesta, e
+                senza di lei il filtro non combacia: dice 'quello che restituisci deve essere
+                apribile con un flusso', che è esattamente quello che l'app consegna.
+                ⚠️⚠️ ANCHE I VIDEO, e non è un di più: una cartella di AIV li mostra insieme
+                alle immagini, quindi un filtro sulle sole immagini darebbe un selettore che
+                elenca file che poi non può consegnare.
+                ⚠️⚠️ IL `launchMode="singleTop"` NON DÀ FASTIDIO QUI, e conviene saperlo perché
+                sembra il contrario: chi chiede un risultato non passa da FLAG_ACTIVITY_NEW_TASK,
+                quindi il sistema crea l'istanza NEL TASK DI CHI CHIAMA e singleTop riusa solo
+                quella già in cima allo stesso task. Con AIV già aperta per conto suo, le due
+                copie convivono in due task e il risultato torna a chi lo aspetta.
+                ⚠️ ACTION_PICK non è dichiarata: quella chiede un indirizzo del MediaStore e la
+                servono le gallerie di sistema. Se un domani servisse, vuole il suo ramo, non
+                una riga in più qui.
+            -->
+            <intent-filter android:label="@string/app_short_name">
+                <action android:name="android.intent.action.GET_CONTENT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.OPENABLE" />
+                <data android:mimeType="image/*" />
+                <data android:mimeType="video/*" />
+            </intent-filter>
+
+            <!--
                 2) link diretti, fino ad Android 11
 
                 ⚠️⚠️ **`.tif` E `.tiff` SONO USCITI DA QUI E DAL FILTRO 3 NELLA `1.32`**, su

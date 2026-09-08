@@ -1489,7 +1489,7 @@ internal fun Rows(
                         text = bucket.name,
                         style = size.title(),
                         color = folderNameInk(colour, tinta),
-                        fontWeight = folderNameWeight(colour, tinta),
+                        fontWeight = folderNameWeight(colour),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -1590,7 +1590,7 @@ private fun FolderCard(
             text = bucket.name,
             style = nameStyle,
             color = folderNameInk(colour, tint),
-            fontWeight = folderNameWeight(colour, tint),
+            fontWeight = folderNameWeight(colour),
             maxLines = NAME_LINES,
             overflow = TextOverflow.Ellipsis
         )
@@ -1629,22 +1629,22 @@ private fun FolderCard(
  */
 @Composable
 private fun BoxScope.FolderMark(colour: FolderColour, tint: Color?, shape: Shape) {
-    if (tint == null) return
+    val inchiostro = folderInk(tint)
     when (colour) {
         FolderColour.EDGE -> Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .height(TINT_EDGE)
-                .background(tint)
+                .background(inchiostro)
         )
         FolderColour.FRAME -> Box(
-            modifier = Modifier.matchParentSize().border(TINT_FRAME, tint, shape)
+            modifier = Modifier.matchParentSize().border(TINT_FRAME, inchiostro, shape)
         )
         FolderColour.GLOW -> Box(
             modifier = Modifier.matchParentSize().background(
                 Brush.verticalGradient(
-                    0f to tint.copy(alpha = TINT_GLOW),
+                    0f to inchiostro.copy(alpha = TINT_GLOW),
                     TINT_GLOW_END to Color.Transparent
                 )
             )
@@ -1654,14 +1654,31 @@ private fun BoxScope.FolderMark(colour: FolderColour, tint: Color?, shape: Shape
 }
 
 /**
+ * Di che colore è una cartella: il suo, o l'accento dell'app.
+ *
+ * ⚠️⚠️ **UNA CARTELLA SENZA SCELTA NON È UNA CARTELLA SENZA COLORE, ED È SUA CORREZIONE**
+ * (2026-09-08: *'di fabbrica' è il colore di accento del tema, che è comunque un colore, e se
+ * attivassi il filetto dovrebbero essere tutti di quel colore*). La `1.87` era uscita col
+ * disegno saltato quando la tinta mancava, quindi accendendo uno stile si vedeva **solo** sulle
+ * cartelle già segnate, e le altre restavano nude: uno stile acceso che si applica a metà
+ * elenco si legge come un difetto, non come una scelta.
+ * ⚠️ **È lo stesso ripiego dell'intestazione**, dove il gradiente prende `primary` quando la
+ * cartella non ha una tinta sua: un colore solo per la stessa cartella nei due posti.
+ */
+@Composable
+private fun folderInk(tint: Color?): Color = tint ?: MaterialTheme.colorScheme.primary
+
+/**
  * Di che colore si scrive il nome di una cartella: il suo, o quello di sempre.
  *
  * ⚠️ **[Color.Unspecified] e non il colore del tema**: così il testo prende quello del suo stile,
  * che è il comportamento di prima, invece di scriverlo una seconda volta qui.
+ * ⚠️ **Senza una tinta scelta scrive nell'accento**, come gli altri tre stili dalla `1.89`: il
+ * perché vive su [folderInk].
  */
 @Composable
 private fun folderNameInk(colour: FolderColour, tint: Color?): Color =
-    if (colour == FolderColour.NAME && tint != null) tint else Color.Unspecified
+    if (colour == FolderColour.NAME) folderInk(tint) else Color.Unspecified
 
 /**
  * Quanto pesa il nome di una cartella tinta: **un gradino in più**, e viene dal mockup.
@@ -1671,10 +1688,12 @@ private fun folderNameInk(colour: FolderColour, tint: Color?): Color =
  * restituisce il contrasto perso. Nel mockup che ha guardato erano dichiarati insieme.
  * ⚠️ **`null` vuol dire quello dello stile**, come sopra: negli altri tre stili il nome non si
  * tocca affatto.
+ * ⚠️ **Non guarda più se la tinta è scelta**, dalla `1.89`: il nome è tinto in tutte e due i
+ * casi, quindi il peso lo segue in tutti e due (vedi [folderInk]).
  */
 @Composable
-private fun folderNameWeight(colour: FolderColour, tint: Color?): FontWeight? =
-    if (colour == FolderColour.NAME && tint != null) FontWeight.Medium else null
+private fun folderNameWeight(colour: FolderColour): FontWeight? =
+    if (colour == FolderColour.NAME) FontWeight.Medium else null
 
 /**
  * Quanto è spesso il filetto sotto la copertina: **quattro punti**, che è il numero del mockup.

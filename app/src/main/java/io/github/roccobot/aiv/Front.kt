@@ -607,9 +607,9 @@ fun Modifier.frontIconMeasure(fullPx: Float, shut: () -> Float, max: Dp): Modifi
  *   che è quello che ha chiesto, e la sfumatura resta quella approvata.
  * - ⚠️ **Segue [ink] come il resto**: scorrendo la fascia si spegne insieme alla sfumatura, o
  *   resterebbe una striscia colorata in cima a una griglia che non ha più niente di colorato.
- * - ⚠️ **Le icone della barra non si toccano**: la tinta arriva al 40% sopra il fondo dell'app,
- *   quindi il contrasto con cui il sistema le disegna resta quello di prima. Chi alzasse
- *   [WASH_PEAK] guardi anche quelle.
+ * - ⚠️ **Le icone della barra non si toccano**: la tinta arriva a [WASH_PEAK] sopra il fondo
+ *   dell'app, quindi il contrasto con cui il sistema le disegna resta quello di prima. Chi
+ *   alzasse quel numero guardi anche quelle.
  *
  * @param tint la tinta piena, di solito `colorScheme.primary`.
  * @param air quanto sconfinare per lato, cioè il rientro orizzontale della schermata.
@@ -662,20 +662,25 @@ fun Modifier.frontWash(
 }
 
 /**
- * Quanto arriva a coprire la tinta nel suo punto più forte: **sette decimi**.
+ * Quanto arriva a coprire la tinta nel suo punto più forte: **un quarto**.
  *
- * ⚠️⚠️ **TRE VALORI IN TRE VERSIONI, E LI HA DETTATI TUTTI E TRE COL TELEFONO IN MANO**: il
+ * ⚠️⚠️ **QUATTRO VALORI IN QUATTRO VERSIONI, E LI HA DETTATI TUTTI COL TELEFONO IN MANO**: il
  * pieno fino alla `1.84`, il 70% con la `1.85` (*sfumatura molto meno visibile: inizia il
- * gradiente già dal bordo superiore, e anzi inizia da 70%*), e il **40%** con la `1.86`
- * (riscontro del giro della `1.85`, voce `int-gradiente` approvata con una nota: *ancora troppo
- * invadente: proviamo dal 40% anziché 70%*). Le dieci tappe restano quelle del mockup: quello
- * che cambia è il numero da cui partono, quindi la **forma** della dissolvenza è ancora quella
- * che lui ha guardato.
- * ⚠️ **Si moltiplica invece di riscrivere le tappe**, ed è la ragione per cui tre giri di
- * ritocchi sono costati tre caratteri: scritte col numero già dentro, ogni cambio vorrebbe dire
- * rifare dieci moltiplicazioni a mano.
+ * gradiente già dal bordo superiore, e anzi inizia da 70%*), il 40% con la `1.86` (riscontro del
+ * giro della `1.85`, voce `int-gradiente` approvata con una nota: *ancora troppo invadente:
+ * proviamo dal 40% anziché 70%*), e il **25%** con la `1.89` (*allora porta il valore a 25%*).
+ * Le dieci tappe restano quelle del mockup: quello che cambia è il numero da cui partono, quindi
+ * la **forma** della dissolvenza è ancora quella che lui ha guardato.
+ * ⚠️ **Si moltiplica invece di riscrivere le tappe**, ed è la ragione per cui quattro giri di
+ * ritocchi sono costati quattro caratteri: scritte col numero già dentro, ogni cambio vorrebbe
+ * dire rifare dieci moltiplicazioni a mano.
+ * ⚠️⚠️ **E DALLA `1.87` GOVERNA ANCHE LA BARRA DI SISTEMA, che è la ragione per cui il ritocco
+ * della `1.89` è di un carattere solo** (sua domanda: *se decido di passare da 40% a 25% come
+ * opacità d'inizio per la sfumatura, adatterai automaticamente il colore della barra di
+ * sistema?*). La fascia piena sopra la testata legge questa costante e non una sua copia, quindi
+ * la barra prende sempre esattamente il colore da cui la sfumatura parte.
  */
-private const val WASH_PEAK = 0.40f
+private const val WASH_PEAK = 0.25f
 
 /**
  * Le tappe della tinta dell'intestazione: dove, e con quanto colore.

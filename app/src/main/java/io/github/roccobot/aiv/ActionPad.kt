@@ -1070,6 +1070,21 @@ fun fabSide(): Alignment =
     if (LocalPadLook.current.hand == Hand.RIGHT) Alignment.BottomEnd else Alignment.BottomStart
 
 /**
+ * Lo stesso lato, per chi allinea una fila invece di posare un tasto in un angolo.
+ *
+ * ⚠️⚠️ **NASCE NELLA `1.89` PER LE PASTIGLIE DELL'INTESTAZIONE** (sua richiesta, con schermata:
+ * *quando le pastiglie vanno a capo, voglio che quella nella seconda ... sia centrata a destra o
+ * a sinistra a seconda del lato in cui si trova il FAB. È un'impostazione trasparente ma molto
+ * comoda*): la riga che va a capo si trova sotto il pollice invece che dalla parte opposta.
+ * ⚠️ **Legge lo stesso valore di [fabSide] e non l'impostazione una seconda volta**: due letture
+ * della stessa scelta sono due posti che divergono il giorno che la domanda cambia forma, come
+ * è già successo alla specchiatura nella `1.57`.
+ */
+@Composable
+fun fabEdge(): Alignment.Horizontal =
+    if (LocalPadLook.current.hand == Hand.RIGHT) Alignment.End else Alignment.Start
+
+/**
  * Quante colonne ha la bottomsheet della selezione: **cinque**, come chieste.
  *
  * ⚠️ Cinque e non tre come il menu, e non è simmetria: le azioni là sono dieci, e a tre
