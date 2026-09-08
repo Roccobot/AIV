@@ -386,9 +386,10 @@ class IntestazioneTest {
     /**
      * **Il gradiente si dipinge DIETRO il contenuto del suo nodo.**
      *
-     * ⚠️⚠️ **QUESTA È LA PROVA CHE MORDE, e l'altra da sola non bastava**: misurando il titolo in
-     * testata a schermata intera, il difetto rimesso a mano **non** faceva fallire niente, perché
-     * là dove passa il titolo il gradiente è già quasi finito e il testo si legge lo stesso.
+     * ⚠️⚠️ **QUESTA È LA PROVA CHE FALLISCE COL DIFETTO RIMESSO, e l'altra da sola non
+     * bastava**: misurando il titolo in testata a schermata intera, il difetto rimesso a mano
+     * **non** faceva fallire niente, perché là dove passa il titolo il gradiente è già quasi
+     * finito e il testo si legge lo stesso.
      * Provato, non supposto: con `onDrawWithContent` al posto di `onDrawBehind`, e anche con
      * l'opacità inchiodata al pieno come nella `1.83`, quella prova restava verde. Una prova che
      * non distingue il difetto dalla correzione non misura niente.
