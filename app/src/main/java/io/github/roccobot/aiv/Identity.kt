@@ -73,7 +73,7 @@ fun Identity(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AppIcon(iconSize)
-        // ⚠️ Il numero vive in `Front.kt` dalla `1.76`, dove lo legge anche il frontespizio di
+        // ⚠️ Il numero vive in `Front.kt` dalla `1.76`, dove lo legge anche l'intestazione di
         // una cartella: le due fasce devono somigliarsi, e 'analogo alla home' sono parole sue.
         Spacer(Modifier.height(FRONT_GAP))
         Text(
@@ -82,7 +82,7 @@ fun Identity(
             textAlign = TextAlign.Center,
             // ⚠️ **È il titolo della schermata iniziale**, cioè il primo punto in cui un
             // lettore di schermo si deve poter fermare: nella casa la testata non ne ha un
-            // altro, perché il nome vive nel frontespizio.
+            // altro, perché il nome vive nell'intestazione.
             modifier = Modifier.heading()
         )
         Signature()

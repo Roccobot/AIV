@@ -216,11 +216,20 @@
 
     <!-- The front page is the band at the top of a folder, with the folder icon and its
          name. These four chips pick what goes in it; they are independent. -->
-    <string name="settings_front">Folder front page</string>
-    <string name="settings_front_desc">What the band at the top of a folder shows, above the thumbnails.</string>
+    <string name="settings_front">Folder header</string>
+    <string name="settings_front_desc">Set the look and the features of the band above the file grid.</string>
     <string name="settings_front_wash">Gradient</string>
     <string name="settings_front_serif">Serif title</string>
     <string name="settings_front_facts">Info</string>
+    <string name="front_open">Open in file manager</string>
+    <string name="front_no_files">No app on this phone opens folders.</string>
+    <string name="front_name_copied">Folder name copied</string>
+    <string name="front_path_copied">Folder path copied</string>
+    <string name="front_copy_path">Copy the path</string>
+    <string name="front_unpick">Deselect</string>
+    <string name="front_pick_images">Select pictures</string>
+    <string name="front_tint">Header colour</string>
+    <string name="front_tint_none">Default colour</string>
 
     <string name="settings_folder_columns">Columns in the grids</string>
     <string name="settings_folder_columns_desc">How many columns the folder grid and the picture grid show. More columns fit more on screen and shrink each tile. At four the folder name under it is usually cut short.</string>

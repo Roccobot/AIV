@@ -452,7 +452,7 @@ data class Settings(
     /**
      * Se sotto la copertina di una cartella si vede il conto delle immagini.
      *
-     * ⚠️⚠️ **SPEGNENDOLA la riga di griglia si ACCORCIA, e il frontespizio cresce di
+     * ⚠️⚠️ **SPEGNENDOLA la riga di griglia si ACCORCIA, e l'intestazione cresce di
      * altrettanto**: non resta uno spazio vuoto al suo posto. È la lettura di 'opzionale'
      * che dà qualcosa in cambio, e tiene esatto il conto delle righe visibili
      * (`coverHeader`), che è quello che l'utente ha chiesto al punto 1a.
@@ -515,11 +515,11 @@ data class Settings(
      */
     val gridNames: Boolean = false,
     /**
-     * Se il frontespizio di una cartella porta la **sfumatura** dell'accento.
+     * Se l'intestazione di una cartella porta la **sfumatura** dell'accento.
      *
      * ⚠️⚠️ **È LA VARIANTE 10 DEL MOCKUP, SCELTA DA LUI** (risposta a `d-frontespizio` del giro
      * della `1.81`): la tinta parte piena sotto la barra di sistema e si spegne **una riga di
-     * miniature più in basso** del frontespizio, cioè scavalca il bordo della fascia invece di
+     * miniature più in basso** dell'intestazione, cioè scavalca il bordo della fascia invece di
      * tagliarla di netto. Con lei l'icona della cartella passa in negativo.
      * ⚠️ **Accesa di fabbrica, e la decisione registrata dice due cose**: il titolo della voce nel
      * brief è *variante 10 di fabbrica*, e l'elenco dei chip dice *gli ultimi due accesi di
@@ -528,7 +528,7 @@ data class Settings(
      */
     val frontWash: Boolean = true,
     /**
-     * Se il nome della cartella nel frontespizio è scritto **grande e col carattere graziato**.
+     * Se il nome della cartella nell'intestazione è scritto **grande e col carattere graziato**.
      *
      * ⚠️ **Viene dalla variante 7 del mockup** ('Solo il nome'), che nella 10 non c'è: la
      * combinazione è la sua, e questo chip esiste perché voleva poterla provare.
@@ -537,14 +537,14 @@ data class Settings(
      */
     val frontSerif: Boolean = false,
     /**
-     * Se il frontespizio porta le pastiglie del **peso** e del **numero di video**.
+     * Se l'intestazione porta le pastiglie del **peso** e del **numero di video**.
      *
      * ⚠️ **Sono due dati che oggi non si sanno senza aprire i file**, e vengono dalla variante 4.
      * Il conto si fa una volta per cartella (vedi `Folder.weigh`) e non per miniatura.
      */
     val frontFacts: Boolean = true,
     /**
-     * Se il frontespizio porta la pastiglia **'Seleziona tutto'**.
+     * Se l'intestazione porta la pastiglia **'Seleziona tutto'**.
      *
      * ⚠️ **È un comando in mezzo a due dati**, e per questo ha un vestito diverso: la variante 10
      * lo dichiara (*un dato e un comando che si somigliano sono la trappola vera di una fila
@@ -1447,4 +1447,62 @@ object DownloadLog {
         .take(KEEP_MAX - 1)
         .map { it.second }
         .toSet()
+}
+
+/**
+ * Che colore ha l'intestazione di una cartella: l'archivio della scelta fatta col tocco lungo.
+ *
+ * ⚠️⚠️ **NASCE NELLA `1.85` DA UNA SUA RICHIESTA** (giro della `1.83`: *il tocco lungo sulla
+ * cartella apre un selettore di colore che fa impostare il colore della sfumatura
+ * dell'intestazione per cartella*). Vive qui accanto a [DownloadLog] e **non** dentro [Settings]
+ * per la stessa ragione di quello: è un elenco che cresce col numero di cartelle segnate, e un
+ * data class di preferenze non è il posto di una mappa.
+ *
+ * ⚠️⚠️ **UNA CARTELLA CANCELLATA NON SI RINCORRE, ED È UNA SUA ISTRUZIONE** (2026-09-08: *se una
+ * cartella ha un colore associato e viene cancellata, non occorre che l'app ricordi il suo
+ * colore*). Quindi qui non c'è nessuna potatura: una voce orfana pesa una ventina di byte e non
+ * la legge più nessuno.
+ * ⚠️⚠️ **E NON È NEMMENO UNA PERDITA, per come il MediaStore fa gli identificatori**: il
+ * `BUCKET_ID` è il CRC del percorso in minuscolo, quindi una cartella ricreata **con lo stesso
+ * nome nello stesso posto** ha lo stesso identificatore e si ritrova il suo colore. Chi
+ * aggiungesse una potatura toglierebbe quello, che è un ritorno gradito e non un residuo.
+ *
+ * ⚠️ **La chiave è quel `BUCKET_ID` e non il nome**: due cartelle si possono chiamare uguale in
+ * due posti diversi, e il nome cambia con una rinomina mentre il colore deve restare al posto
+ * suo.
+ */
+object FolderTints {
+    private val TINTS = stringSetPreferencesKey("folder-tints")
+
+    /** La tinta di una cartella, o `null` se non ne ha una. */
+    suspend fun of(context: Context, bucket: Long): Int? =
+        read(context.aivStore.data.first()[TINTS].orEmpty())[bucket]
+
+    /**
+     * Segna la tinta di una cartella, oppure la toglie con un [index] nullo.
+     *
+     * ⚠️ **Riscrive l'insieme intero** invece di togliere e aggiungere: un `Set` di preferenze
+     * non ha un elemento da sostituire, e con poche decine di voci il costo è quello di leggere
+     * una riga.
+     */
+    suspend fun set(context: Context, bucket: Long, index: Int?) {
+        context.aivStore.edit { p ->
+            val ora = read(p[TINTS].orEmpty()).toMutableMap()
+            if (index == null) ora.remove(bucket) else ora[bucket] = index
+            p[TINTS] = ora.map { (dove, quale) -> "$dove=$quale" }.toSet()
+        }
+    }
+
+    /**
+     * Le voci lette dall'archivio.
+     *
+     * ⚠️ **Una riga che non si legge si butta invece di far cadere l'app**: l'archivio è un
+     * insieme di stringhe, quindi ci può finire dentro qualunque cosa, e una cartella senza
+     * colore è un esito accettabile mentre un errore all'apertura non lo è.
+     */
+    private fun read(righe: Set<String>): Map<Long, Int> = righe.mapNotNull { riga ->
+        val dove = riga.substringBefore('=').toLongOrNull() ?: return@mapNotNull null
+        val quale = riga.substringAfter('=', "").toIntOrNull() ?: return@mapNotNull null
+        dove to quale
+    }.toMap()
 }

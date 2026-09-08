@@ -626,10 +626,10 @@ private fun ColumnScope.RootPage(
     /*
      * ⚠️⚠️ **QUATTRO PASTIGLIE E NON QUATTRO INTERRUTTORI, ED È LA SUA RICHIESTA** (risposta a
      * `d-frontespizio` del giro della `1.81`, registrata nel brief: *la voce 'Elementi del
-     * frontespizio' ... e i quattro chip*). Sono **indipendenti**, cioè tutte le combinazioni
+     * intestazione' ... e i quattro chip*). Sono **indipendenti**, cioè tutte le combinazioni
      * sono ammesse, e il pezzo che le disegna dichiara proprio quello: [Toggles], non [Choices].
      * ⚠️⚠️ **UNA VOCE SOLA E NON QUATTRO, e il criterio è quello del pannello**: rispondono
-     * tutte alla stessa domanda (*che cosa c'è nel frontespizio di una cartella*), quindi sono
+     * tutte alla stessa domanda (*che cosa c'è nell'intestazione di una cartella*), quindi sono
      * una famiglia; quattro righe con quattro titoli sarebbero quattro domande che nessuno si fa
      * separatamente. Il perché per esteso vive in `AIV/CLAUDE.md`, § '⚙️ Dove va
      * un'impostazione, e chi la deve trovare'.

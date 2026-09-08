@@ -636,7 +636,16 @@ internal fun TitlePill(text: String, onTap: () -> Unit) {
         shape = MaterialTheme.shapes.large,
         contentPadding = TITLE_PILL_PAD
     ) {
-        Text(text = text, style = MaterialTheme.typography.labelLarge)
+        /*
+         * ⚠️⚠️ **UN GRADINO SOTTO DALLA `1.85`** (riscontro del giro della `1.83`, voce
+         * `save-regola` approvata con una nota: *mi piace moltissimo il pulsante testuale, ma fai
+         * il testo lievemente più piccolo mantenendo l'allineamento ottico corretto*).
+         * ⚠️ **L'allineamento resta giusto senza toccare niente**, ed è la ragione per cui questa
+         * è una riga sola: un `FilledTonalButton` ha un'altezza minima sua (40dp) che il corpo
+         * del testo non cambia, e il testo dentro sta al centro. Cambiando il corpo si accorcia
+         * la **parola**, non la pastiglia, quindi la linea su cui si legge non si muove.
+         */
+        Text(text = text, style = MaterialTheme.typography.labelMedium)
     }
 }
 

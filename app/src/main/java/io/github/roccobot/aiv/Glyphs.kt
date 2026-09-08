@@ -413,7 +413,7 @@ object Glyphs {
     val AivMark: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_aiv_mark)
 
-    /** La cartella col marchio dell'app: l'icona del frontespizio di una cartella. */
+    /** La cartella col marchio dell'app: l'icona dell'intestazione di una cartella. */
     val FolderAiv: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_folder_aiv)
 

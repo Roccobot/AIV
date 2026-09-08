@@ -914,7 +914,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * foto dalla griglia non costa nessuna seconda interrogazione del MediaStore.
      */
     /**
-     * Il peso della cartella aperta e quanti video ha, per le due pastiglie del frontespizio.
+     * Il peso della cartella aperta e quanti video ha, per le due pastiglie dell'intestazione.
      *
      * ⚠️⚠️ **SI LEGGE UNA VOLTA PER CARTELLA E VIVE QUI**, come la cartella stessa: la griglia
      * riceve due numeri già pronti, e non ha modo di chiederli da sé perché conosce gli
@@ -924,6 +924,33 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      */
     var facts: Folder.Facts by mutableStateOf(Folder.Facts())
         private set
+
+    /**
+     * La tinta scelta per la cartella aperta, come indice in [FRONT_TINTS], oppure `null`.
+     *
+     * ⚠️⚠️ **VIVE QUI E NON FRA LE IMPOSTAZIONI, ED È UN DATO DELLA CARTELLA**: la scelta si fa
+     * col tocco lungo sull'icona dell'intestazione (richiesta sua, giro della `1.83`), quindi non
+     * è una preferenza dell'app ma una proprietà di quella cartella. Nel pannello sarebbe una
+     * riga che chiede *di quale?*.
+     * ⚠️ **Si legge una volta per cartella come [facts]**, e non da un flusso: cambia solo quando
+     * lo cambia lui, e in quell'istante lo scriviamo qui e nell'archivio insieme.
+     */
+    var tint: Int? by mutableStateOf(null)
+        private set
+
+    /**
+     * Segna (o toglie) la tinta della cartella aperta.
+     *
+     * ⚠️ **Scrive due volte di proposito**: lo stato in memoria, perché la fascia cambi colore
+     * nello stesso fotogramma, e l'archivio, perché ci sia ancora domani. Aspettare la scrittura
+     * per ridisegnare vorrebbe dire un colore che arriva dopo il tocco.
+     */
+    fun tintFolder(index: Int?) {
+        val dove = (screen as? Screen.Grid)?.bucket ?: return
+        tint = index
+        val context = getApplication<Application>()
+        viewModelScope.launch { FolderTints.set(context, dove, index) }
+    }
 
     fun openGrid(bucket: Long, name: String) {
         gridFilter = MediaKind.ALL
@@ -939,11 +966,15 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         // ⚠️ Anche qui l'inizio è quello della sequenza SCELTA: la griglia si apre in
         // cima, e il tocco sulla prima miniatura dà la stessa foto da cui parte l'avvio.
         facts = Folder.Facts()
+        // ⚠️ **Anche la tinta si azzera**, per la stessa ragione dei numeri: entrando in una
+        // cartella si vedrebbe per un istante il colore di quella di prima.
+        tint = null
         viewModelScope.launch { listed = Folder.newestIn(context, bucket).atSequenceStart() }
         // ⚠️ In un lancio a sé e non in coda all'altro: i due numeri servono alla fascia in
         // cima, che si vede subito, mentre le miniature arrivano quando arrivano. Uno dopo
         // l'altro, la cartella si peserebbe solo dopo aver letto tutta la lista.
         viewModelScope.launch { facts = Folder.weigh(context, bucket) }
+        viewModelScope.launch { tint = FolderTints.of(context, bucket) }
     }
 
     /**
@@ -2438,7 +2469,7 @@ private fun Stage(screen: Screen, model: ViewerViewModel, settings: Settings) {
                 onSearchHere = { model.openSearch(screen.bucket, screen.name) },
                 /*
                  * ⚠️⚠️ **I QUATTRO CHIP E I DUE NUMERI ARRIVANO SOLO QUI, DALLA `1.83`**: il
-                 * frontespizio esiste nella griglia di una **cartella** e non nelle altre due
+                 * intestazione esiste nella griglia di una **cartella** e non nelle altre due
                  * (nel cestino il FAB c'è sempre, nella ricerca la testata porta un campo di
                  * testo), quindi passarli anche là sarebbe dare valori a una fascia che non si
                  * disegna.
@@ -2447,6 +2478,12 @@ private fun Stage(screen: Screen, model: ViewerViewModel, settings: Settings) {
                 frontSerif = settings.frontSerif,
                 frontFacts = settings.frontFacts,
                 frontPickAll = settings.frontPickAll,
+                /*
+                 * ⚠️ **La tinta di questa cartella non viene dalle impostazioni**: è un dato
+                 * della cartella, e il perché vive su [ViewerViewModel.tint].
+                 */
+                frontTint = model.tint,
+                onFrontTint = { model.tintFolder(it) },
                 facts = model.facts,
                 onOpen = { model.openFromGrid(it) },
                 onBack = { model.leaveGrid() },
