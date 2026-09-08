@@ -256,9 +256,11 @@ documento di feedback, in chat, negli artefatti e nei messaggi di commit.
 - ⚠️ **È lo stesso criterio della voce sul velo, applicato a un nome che LUI usa**: la sigla
   compare nella spiegazione della voce 'Posizione dei tasti flottanti', quindi è la parola che
   si trova nel telefono; 'tastino' era un vezzeggiativo mio, che non compariva da nessuna parte.
-- ⚠️ **Nel codice la parola vecchia c'è ancora in molti commenti**, e non si corregge con una
-  passata a parte: entra nella bonifica dei commenti che il piano tiene come tappa senza numero.
-  Quello che conta è che da qui in avanti non se ne scrivano di nuovi.
+- ⚠️ **La bonifica dei commenti è fatta il 2026-09-08**, su sua richiesta (punto D del campo
+  libero del giro della `1.85`): 190 occorrenze in 17 file. ⚠️ **Restano due citazioni SUE, e non
+  sono residui**: quello che ha detto lui si riporta come l'ha detto, e la prima delle due
+  (*i tastini su e giù sono scomodi*, in `Reorder.kt`) non parla nemmeno del FAB, ma delle due
+  frecce del riordino.
 
 ⚠️⚠️ **'VELO' NON SI USA PARLANDO CON LUI: si dice 'Sfocatura dietro i pannelli', cioè il nome
 della voce nelle impostazioni** (riscontro del 2026-09-04, giro della `1.46`: *io continuo a
@@ -518,6 +520,13 @@ grande un dialogo esattamente al centro fa allungare la mano.
 - ⚠️ **I menu non usano quel modificatore ma lo stesso numero**: là il posto lo decide un
   `PopupPositionProvider` (`MenuCenter` in `Menus.kt`), che riceve pixel e nessun `Density`. Il
   15% è la costante `LOWER_BY`, condivisa.
+  - ⚠️⚠️ **E QUANTO RESTA FRA UN MENU ANCORATO E IL BORDO DIPENDE DALL'EFFETTO, DALLA `1.86`**
+    (riscontro del giro della `1.85`, punto B): al vetro ci va solo con la **sfocatura**, perché
+    la feritoia che si vede là dentro esiste solo quando lo sfondo è sfocato; con l'ombra e senza
+    effetto resta la metà del margine del FAB. ⚠️ **Con l'ombra quel conto non si spende**, e la
+    ragione è geometrica: l'aria che l'ombra chiede sta **dentro** la finestra, quindi il pannello
+    non può avvicinarsi al vetro più di `LIFT_ROOM` senza far uscire la finestra dallo schermo, e
+    una finestra non esce. Il conto e la misura vivono su `rememberMenuSpot`.
 - ⚠️ **Un dialogo a tutto schermo NON si sposta**, e non è una dimenticanza: `DestinationDialog`
   riempie la finestra, quindi non c'è nessun centro da spostare.
 - ⚠️⚠️ **E DALLA 1.38 UNA COSA CHE ERA CENTRATA NON LO È PIÙ: le 'Info dettagliate sul file'**,
@@ -614,6 +623,34 @@ non **consumare** a menu chiuso.
   produzione per quello: `compileDebugKotlin` non vede niente, e il progetto non ha un banco di
   prova strumentale. Chi tocca un nodo che copre lo schermo lo sappia, e guardi **prima** se il
   nodo esiste anche quando non serve.
+
+## 🌗 Il tema scelto DENTRO l'app non è quello di sistema
+
+⚠️⚠️ **UNA RISORSA LETTA CON `colorResource` NON SA CHE TEMA HA SCELTO L'UTENTE NELL'APP, E
+QUESTO DIFETTO È ARRIVATO A LUI DUE VOLTE** (riscontro del giro della `1.85`, punto A del campo
+libero: *l'icona della testata della schermata home non passa più ai colori del tema scuro quando
+si passa al tema scuro; nemmeno il FAB lo fa*). Una risorsa si risolve dalla **configurazione**,
+cioè da quello che ha scelto Android; il tema dell'app vive in un `CompositionLocal`
+(`LocalAivLight`) e può dire il contrario, perché l'app ha una voce sua in 'Aspetto'. Con
+'Chiaro' scelto dentro AIV su un telefono in tema scuro, i due valori divergono e vince quello
+sbagliato.
+- **Come si legge una risorsa nel tema dell'app**: si costruisce un contesto con `uiMode`
+  forzato (`createConfigurationContext`) e si legge da lì. Il pezzo è `aivLauncher` in
+  `Theme.kt`, e serve a tenere le risorse come **fonte unica** dei due colori dell'icona invece
+  di ricopiarli in Kotlin.
+- ⚠️ **È la stessa famiglia del difetto delle BARRE DI SISTEMA** trovato dal censimento del
+  2026-09-05: `enableEdgeToEdge()` senza argomenti costruisce due `SystemBarStyle.auto`, che
+  leggono la configurazione, mentre il tema dell'app si risolve nella composizione due righe più
+  sotto. Chi trova un colore che non segue il tema guardi **prima** da dove viene quel colore.
+- ⚠️ **Il banco non lo vede**: una prova gira in una configurazione sola, quindi i due valori
+  coincidono e la misura non dice niente. Questa è una cosa che si guarda sul telefono, con i due
+  temi.
+
+⚠️⚠️ **E DALLA `1.86` I DUE COLORI SONO INCROCIATI DI PROPOSITO** (stessa richiesta): l'icona in
+testata segue il tema in vigore, il FAB porta **l'accento dell'altro** tema, e a menu aperto passa
+a quello del tema in vigore. La sua ragione è scritta: *dà uno stacco maggiore e un accento
+opposto mette più in risalto il pulsante flottante*. Chi trova un FAB che 'non segue il tema' non
+lo corregga: è la specifica.
 
 ## 🎬 Le animazioni dentro una schermata che arriva
 
@@ -935,6 +972,15 @@ era un gettone tonale, e il pezzo che li disegna è `Quiet`, lo stesso delle due
     che li disegnano sono `TitlePill` e `TitleIcon`, condivisi con 'Rinomina', e a scegliere è il
     **conto** dei comandi in scena: scritte due volte, le due condizioni darebbero una pastiglia
     accanto a un'icona.
+    - ⚠️⚠️ **MA DALLA `1.86` IL CASO DI UNO SOLO LO DECIDE LA MISURA, ED È SUA RISPOSTA**
+      (`d-pill-soglia`: **misura**). Il conto resta per il caso di due, dove la risposta è già
+      sua; con un comando solo la pastiglia resta scritta finché il **titolo** entra su una riga
+      accanto a lei, e passa all'icona quando non entra più. La riga la compone `TitleRow`, uno
+      solo per le due finestre, e il conto vive là insieme alla larghezza.
+    - ⚠️ **Che entri si misura sul TITOLO e non sulla pastiglia**: la pastiglia entra sempre,
+      perché è il titolo a cedere (non ha peso, quindi va a capo). Con la parola più lunga delle
+      ventotto lingue, il polacco *Miejsce docelowe*, il titolo andava a capo e il testo non si
+      troncava mai: il difetto era quello.
   - ⚠️⚠️ **I DUE GLIFI SONO SUOI DALLA `1.82`** (`Glyphs.FolderDownload` e `Glyphs.Extension`,
     arrivati nello ZIP del giro della `1.81`), e non sono più i due provvisori di Material che la
     `1.80` teneva in attesa della sua scelta.
@@ -1342,6 +1388,12 @@ testata che spariva sotto il gradiente dell'intestazione.
   sfocatura che stona). Il banco adesso vede *che cosa è coperto da che cosa*, che è un fatto.
 - ⚠️ **Costa la grafica vera per tutta la classe**, e va bene: le altre prove non guardano i
   pixel e girare in `NATIVE` non le cambia.
+- ⚠️⚠️ **E LA VUOLE ANCHE CHI MISURA UN TESTO, che è il secondo caso e non si vede arrivare**:
+  con la grafica di serie un testo misura una frazione di quello che misura su un telefono,
+  quindi una prova che dipende da quanto è **larga** una parola passa con qualunque codice.
+  Misurato nella `1.86`, scrivendo la prova della pastiglia del titolo: nella scena stretta il
+  comando restava scritto, e il difetto era della prova. Chi ne scrive una così le dia una classe
+  sua, perché `@GraphicsMode` vale per tutta la classe.
 
 ⚠️⚠️ **E UNA PROVA CHE NON SI VEDE FALLIRE COL DIFETTO RIMESSO NON MISURA NIENTE: SI RIMETTE IL
 DIFETTO E SI GUARDA.** Nella `1.85` la prima stesura della prova sui pixel guardava il titolo in

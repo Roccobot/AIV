@@ -73,7 +73,6 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -95,13 +94,13 @@ import kotlinx.coroutines.launch
  * è sparita** (decisione dell'utente, 2026-08-29: *non ha più senso la scelta multipla
  * all'avvio, la risolviamo in modo smart*). Chi apre un visualizzatore di immagini vuole
  * vedere immagini: la domanda 'da dove?' la si risponde da soli, e le vie che non sono la
- * risposta di quasi sempre stanno dietro un tastino.
+ * risposta di quasi sempre vivono dietro un FAB.
  *
  * ⚠️ **Serve a DUE cose e la seconda non è un doppione**: da qui si apre una cartella
  * adesso, e da qui si sceglie quella da aprire all'avvio. È la stessa domanda ('quale
  * cartella?'), quindi è la stessa schermata: due elenchi identici che divergono al primo
  * ritocco sono il modo classico di far invecchiare una funzione. ⚠️ Nella seconda veste
- * il tastino **non c'è** e il gesto Indietro **sì**, che è l'esatto contrario della
+ * il FAB **non c'è** e il gesto Indietro **sì**, che è l'esatto contrario della
  * prima: si sta rispondendo a una domanda, non girando per l'app.
  *
  * ⚠️ Le copertine e l'elenco sono **due viste della stessa cosa** e non una migliore
@@ -233,13 +232,13 @@ fun FolderScreen(
      */
     var hiding by remember { mutableStateOf<Folder.Bucket?>(null) }
 
-    /** Se si sta scegliendo la dimensione della griglia col tocco lungo sul tastino. */
+    /** Se si sta scegliendo la dimensione della griglia col tocco lungo sul FAB. */
     var sizing by remember { mutableStateOf(false) }
 
     /**
      * Se si sta battendo il nome di una sottocartella nuova, dalla `1.82`.
      *
-     * ⚠️ **Lo stato vive qui e non nel menu**, come `sizing`: un tastino che si apre un
+     * ⚠️ **Lo stato vive qui e non nel menu**, come `sizing`: un FAB che si apre un
      * dialogo da sé diventa il posto in cui cercare quel dialogo, che non è dove sta.
      */
     var making by remember { mutableStateOf(false) }
@@ -281,7 +280,7 @@ fun FolderScreen(
     val folders = buckets?.filterNot { it.isHidden(hidden) }
 
     // La veste 'casa' e quella 'scegli la cartella d'avvio' si distinguono da qui in giù:
-    // la prima porta l'intestazione e il tastino, la seconda la freccia Indietro.
+    // la prima porta l'intestazione e il FAB, la seconda la freccia Indietro.
     val home = !forStart
 
     BoxWithConstraints(modifier = modifier.fillMaxSize().safeDrawingPadding()) {
@@ -433,13 +432,13 @@ fun FolderScreen(
             }
         }
 
-        // ⚠️ Il tastino manca quando si sta scegliendo la cartella dell'avvio: là dentro
+        // ⚠️ Il FAB manca quando si sta scegliendo la cartella dell'avvio: là dentro
         // ci sono le impostazioni, da cui si è arrivati, e un giro chiuso non serve a
         // nessuno.
         if (home) {
             /*
              * ⚠️⚠️ **LA SFUMATURA CHE INGHIOTTE QUELLO CHE STA SOTTO, dalla 0.77** (richiesta
-             * dell'utente: *dalla coordinata Y in cui comincia il tastino, una piccola
+             * dell'utente: *dalla coordinata Y in cui comincia il FAB, una piccola
              * sfumatura verso il colore di fondo del tema, che inghiotte ciò che sta giù
              * abbastanza velocemente, in modo che dia poco fastidio, e che allo stesso tempo
              * suggerisce che la griglia si scorre*). Al riposo non copre niente, perché
@@ -447,7 +446,7 @@ fun FolderScreen(
              * quando si scorre, dove l'alternativa era una riga tagliata di netto dal bordo
              * dello schermo.
              * ⚠️⚠️ **STA PRIMA DEL TASTINO E NON DOPO**: in un `Box` l'ultimo figlio sta
-             * sopra, quindi scritta dopo dipingerebbe **sul** tastino invece che sotto.
+             * sopra, quindi scritta dopo dipingerebbe **sul** FAB invece che sotto.
              * ⚠️⚠️ **NON RUBA I TOCCHI, e non è una speranza**: Compose fa la prova del tocco
              * solo sui nodi che hanno un modificatore di puntatore, e questo ne ha uno solo di
              * disegno. Senza questo fatto servirebbe un `pointerInput` che lascia passare, che
@@ -463,11 +462,11 @@ fun FolderScreen(
              * coda e il suo pianoro) sono **una** decisione per l'app. Copiarli nella griglia di
              * una cartella avrebbe fatto due tavolozze che divergono al primo ritocco.
              * ⚠️⚠️ **QUI SI VEDONO SEMPRE, e non è una dimenticanza**: in questa schermata il
-             * tastino c'è sempre, quindi la fascia che lo tiene su un fondo neutro non ha ragione
+             * FAB c'è sempre, quindi la fascia che lo tiene su un fondo neutro non ha ragione
              * di andarsene. Nella griglia di una cartella se ne va scorrendo, ed è una richiesta
              * sua: là il FAB non c'è.
              * ⚠️⚠️ **STA PRIMA DEL TASTINO E NON DOPO**: in un `Box` l'ultimo figlio sta sopra,
-             * quindi scritta dopo dipingerebbe **sul** tastino invece che sotto.
+             * quindi scritta dopo dipingerebbe **sul** FAB invece che sotto.
              */
             GroundFade(modifier = Modifier.align(Alignment.BottomCenter))
             Hub(
@@ -502,16 +501,16 @@ fun FolderScreen(
          * ⚠️⚠️ **IL VELO CHE INSEGNA LA SCORCIATOIA DELLE COLONNE, dalla 0.78** (richiesta
          * dell'utente, con la sua frase): è il terzo della famiglia, e gli altri due stanno
          * nella griglia delle foto. La macchina è la stessa, [HintVeil], e qui cambiano la
-         * frase e il tastino.
+         * frase e il FAB.
          * ⚠️⚠️ **COMPARE SOLO QUANDO C'È UNA GRIGLIA DA DIMENSIONARE**, e ognuna delle
-         * condizioni serve: fuori dalla casa il tastino non c'è, senza il permesso non ci
+         * condizioni serve: fuori dalla casa il FAB non c'è, senza il permesso non ci
          * sono cartelle, senza cartelle non c'è niente da disporre, e nell'elenco le colonne
          * non esistono. Al primo avvio, che è anche il primo posto in cui l'app si mostra,
          * insegnare a dimensionare una griglia vuota sarebbe rumore sopra una schermata che
          * chiede un permesso.
          * ⚠️ **Il tocco sulla copia NON apre il menu**, al contrario di quella della
-         * selezione: là il tocco breve del tastino è l'azione principale (le operazioni),
-         * qui è il menu dell'app, che si scopre da sé perché è l'unica cosa che quel tastino
+         * selezione: là il tocco breve del FAB è l'azione principale (le operazioni),
+         * qui è il menu dell'app, che si scopre da sé perché è l'unica cosa che quel FAB
          * fa da sempre. Quello che va insegnato è il tocco **lungo**, ed è quello che la
          * copia fa.
          */
@@ -527,7 +526,7 @@ fun FolderScreen(
         if (hint) {
             HintVeil(
                 text = stringResource(R.string.columns_hint),
-                // ⚠️ Due rientri e non tre come nella griglia delle foto: qui il tastino vive
+                // ⚠️ Due rientri e non tre come nella griglia delle foto: qui il FAB vive
                 // dentro il rientro di sistema più il suo margine, e basta. Il perché sta in
                 // [HintVeil], sul parametro.
                 inset = Modifier.safeDrawingPadding().padding(HUB_PAD),
@@ -540,7 +539,7 @@ fun FolderScreen(
                     holdLabel = stringResource(R.string.columns_title),
                     onTap = hintDone,
                     onHold = { hintDone(); sizing = true },
-                    // ⚠️ Lo stesso glifo del tastino vero, e non uno che gli somiglia: questo è
+                    // ⚠️ Lo stesso glifo del FAB vero, e non uno che gli somiglia: questo è
                     // il suo ritratto sull'onboarding, e deve essere la stessa cosa.
                     glyph = { Marchio(it) }
                 )
@@ -688,7 +687,7 @@ private fun Header(fullPx: Float, icon: Dp, shut: () -> Float) {
 }
 
 /**
- * Il tastino quadrato in basso a destra, e tutto quello che c'è dietro.
+ * Il FAB quadrato in basso a destra, e tutto quello che c'è dietro.
  *
  * ⚠️⚠️ **È IL MENU DELL'APP, non una scorciatoia**: con la schermata iniziale sparita,
  * impostazioni, indirizzo manuale, selettore di sistema e scelta della vista non hanno
@@ -733,7 +732,7 @@ private val FolderView.glyph: ImageVector
  * Il nome corto della vista, per le pastiglie del dialogo delle opzioni.
  *
  * ⚠️⚠️ **DUE NOMI PER LA STESSA COSA, ed è voluto** (richiesta dell'utente, 2026-08-31): nel
- * menu del tastino la voce dice 'Visualizzazione griglia', perché là dentro sta accanto ad
+ * menu del FAB la voce dice 'Visualizzazione griglia', perché là dentro sta accanto ad
  * 'Apri un indirizzo' e a 'Impostazioni' e deve dire di che cosa parla. Nel dialogo il titolo
  * è già 'Opzioni di visualizzazione', quindi ripeterlo su ogni pastiglia è la stessa parola
  * scritta quattro volte, e le pastiglie diventano lunghe il doppio del necessario.
@@ -775,7 +774,7 @@ private fun Hub(
      * Il tocco lungo: la scorciatoia della dimensione della griglia, dalla `0.78`.
      *
      * ⚠️ **Il dialogo lo apre chi chiama e non questo composabile**, come per il velo: sono
-     * cose della schermata, e un tastino che si apre un dialogo da sé diventa il posto in cui
+     * cose della schermata, e un FAB che si apre un dialogo da sé diventa il posto in cui
      * cercare quel dialogo, che non è dove sta.
      */
     onSize: () -> Unit,
@@ -799,10 +798,10 @@ private fun Hub(
     Box(modifier = modifier) {
         /*
          * ⚠️⚠️ **IL MENU È SCRITTO PRIMA DEL TASTINO, e quest'ordine è la funzione** (1.39):
-         * il tastino si stacca in una finestra sua per restare sopra il velo (vedi `lifted` in
+         * il FAB si stacca in una finestra sua per restare sopra il velo (vedi `lifted` in
          * [TapHoldFab]), e fra finestre dello stesso tipo comanda l'ordine in cui sono state
          * aggiunte, che è quello della composizione. Scritto dopo, il menu coprirebbe il
-         * tastino invece del contrario.
+         * FAB invece del contrario.
          * ⚠️ **L'ancoraggio non cambia**: il menu si posiziona contro un punto senza misura,
          * messo nell'angolo di questo riquadro, e quell'angolo è lo stesso qualunque sia
          * l'ordine dei figli.
@@ -811,7 +810,7 @@ private fun Hub(
          * ⚠️⚠️ **PASSA DALLA SUPERFICIE UNICA DALLA `1.46`, e questo menu è il caso che ha
          * dimostrato che serviva.** Era l'ultimo `DropdownMenu` di Material, e la ragione
          * scritta qui era tecnica e non pigrizia: quella superficie voleva un posizionatore, e
-         * i due che c'erano mettevano il menu al centro della finestra o sopra un tastino
+         * i due che c'erano mettevano il menu al centro della finestra o sopra un FAB
          * centrato, mentre questo deve nascere **dall'angolo** in basso a destra. Adesso il
          * posizionatore è uno e sa fare anche quello, quindi la ragione è caduta.
          * ⚠️⚠️ **IL PREZZO STORICO DI ESSERE STATO FUORI**: la `1.28` aveva unificato il raggio
@@ -824,7 +823,7 @@ private fun Hub(
          * superficie, che era **falso**: l'altro era il filtro nella testata della griglia, e
          * per una versione è stato l'unico menu dell'app senza velo.
          * ⚠️ **Le voci cambiano di aspetto in tre modi, tutti voluti**: crescono dal centro del
-         * riquadro e non dall'angolo del tastino, la scala è 0,96 al posto dello 0,8 di
+         * riquadro e non dall'angolo del FAB, la scala è 0,96 al posto dello 0,8 di
          * Material, e la durata è quella scelta dall'utente sul mockup.
          * ⚠️⚠️ **LE ICONE LE HA DALLA `1.51`, e fino a lì era l'unico menu dell'app senza**:
          * due voci volevano un disegno che in Material non c'è, e con icone su alcune righe e
@@ -949,7 +948,7 @@ private fun Hub(
         }
         /*
          * ⚠️⚠️ **NON È PIÙ `SmallFloatingActionButton`, dalla 0.78**, e la ragione è la
-         * stessa dell'altro tastino: quel composabile prende un `onClick` solo, e un
+         * stessa dell'altro FAB: quel composabile prende un `onClick` solo, e un
          * `combinedClickable` messo sul suo modificatore non vedrebbe mai il tocco lungo. La
          * resa non cambia: [TapHoldFab] è la stessa `Surface` da 40dp, quadrata con gli
          * angoli appena smussati come chiesto, perché il tondo pieno griderebbe 'azione
@@ -962,12 +961,13 @@ private fun Hub(
          * dissolvenza della `1.74`, che era la diagnosi giusta e non è bastata a farla piacere.
          * ⚠️⚠️ **CON LEI SE NE VA `Entrata.kt` INTERO, e con quel file `LocalArrivo` e
          * `ConArrivo`**: l'unico dell'app a chiedersi se una schermata stesse ancora arrivando
-         * era questo tastino, quindi il meccanismo non ha un secondo chiamante da servire. Chi lo
+         * era questo FAB, quindi il meccanismo non ha un secondo chiamante da servire. Chi lo
          * cercasse per un'altra animazione lo ritrova nella storia git, con le sue misure.
          * ⚠️ **La pressione resta, ed è un'altra cosa**: vive in [TapHoldFab], la governa il dito
          * e lui l'ha approvata nello stesso riscontro (*animazione alla pressione del FAB: va
          * bene e rimane*).
          */
+        val altroTema = aivLauncher(!LocalAivLight.current)
         TapHoldFab(
             label = stringResource(R.string.hub_open),
             /*
@@ -978,15 +978,22 @@ private fun Hub(
              * un'altra cosa.
              * ⚠️⚠️ **SI PRENDONO DALLE RISORSE DELL'ICONA e non si riscrivono qui**, ed è la
              * parte che conta: `launcher_background` e `launcher_foreground` hanno già la loro
-             * versione in `values-night`, quindi il tastino segue il tema **per costruzione** e
-             * il giorno che l'utente cambia la coppia dell'icona cambia anche il tastino. Due
-             * numeri copiati qui si scollerebbero al primo ritocco dell'icona.
+             * versione in `values-night`, e il giorno che l'utente cambia la coppia dell'icona
+             * cambia anche il FAB. Due numeri copiati qui si scollerebbero al primo ritocco.
+             * ⚠️⚠️ **MA NON PIÙ CON `colorResource`, DALLA `1.86`, E LA DIFFERENZA LUI L'HA
+             * VISTA**: quella legge la configurazione **di sistema**, mentre il tema dell'app è
+             * una sua impostazione, quindi col tema scuro scelto dentro AIV il FAB restava
+             * chiaro. Adesso il tema in vigore lo dà [aivLauncher]. Il perché per esteso vive là.
+             * ⚠️⚠️ **E LA COPPIA È QUELLA DELL'ALTRO TEMA** (*il FAB di tutte le pagine incluso
+             * il cestino deve avere il FAB del colore del tema scuro, che poi diventa chiaro
+             * quando premuto*): il colore di questo tema torna quando si preme, e a scambiarli è
+             * [TapHoldFab].
              * ⚠️ **Il contrasto è quello dell'icona e non è stato rimisurato**: 2,42 nella
              * coppia chiara e 3,25 nella scura, con la ragione scritta in `colors.xml`. Sono
-             * colori scelti da lui, e questo tastino porta un glifo, non del testo.
+             * colori scelti da lui, e questo FAB porta un glifo, non del testo.
              */
-            container = colorResource(R.color.launcher_background),
-            ink = colorResource(R.color.launcher_foreground),
+            container = altroTema.first,
+            ink = altroTema.second,
             holdLabel = stringResource(R.string.columns_title),
             // ⚠️ **`visible` e non `wanted`**: il FAB deve restare staccato per tutta
             // l'uscita, o rientrerebbe nella finestra dell'app sotto il velo che se ne sta
@@ -1012,7 +1019,7 @@ private fun Hub(
 }
 
 /**
- * Le opzioni di visualizzazione, chieste col tocco lungo sul tastino.
+ * Le opzioni di visualizzazione, chieste col tocco lungo sul FAB.
  *
  * ⚠️⚠️ **DALLA `0.99` PORTA ANCHE LA VISTA, e con lei le opzioni di ognuna** (richiesta
  * dell'utente): prima era il solo numero di colonne, quindi la scorciatoia serviva a una
@@ -1297,7 +1304,7 @@ internal fun Covers(
         columns = GridCells.Fixed(spread(columns, LocalWindowInfo.current)),
         horizontalArrangement = Arrangement.spacedBy(FOLDER_GAP),
         verticalArrangement = Arrangement.spacedBy(FOLDER_GAP),
-        // ⚠️ Lo spazio in fondo tiene l'ultima cartella fuori da sotto il tastino, che
+        // ⚠️ Lo spazio in fondo tiene l'ultima cartella fuori da sotto il FAB, che
         // le si siederebbe sopra proprio quando si è scorso fino in fondo.
         contentPadding = PaddingValues(bottom = BELOW_FAB),
         modifier = Modifier.fillMaxWidth()

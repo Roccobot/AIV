@@ -78,7 +78,7 @@ import kotlin.math.roundToInt
  *
  * ⚠️⚠️ **`Popup` E NON `DropdownMenu`, ed è quello che permette di scegliere il posto**: un
  * `DropdownMenu` si posiziona **contro il proprio genitore** e non accetta un posizionatore,
- * quindi con lui non si potevano scrivere né 'al centro della finestra' né 'sopra il tastino'.
+ * quindi con lui non si potevano scrivere né 'al centro della finestra' né 'sopra il FAB'.
  * ⚠️ **Il conto delle finestre non cambia**, e chi cercasse qui un guadagno di prestazioni non
  * lo trova: un `DropdownMenu` di Material **è** un `Popup`.
  *
@@ -190,7 +190,7 @@ fun MenuShell(
 
     /*
      * ⚠️⚠️ **IL CANCELLO SERVE ALL'ORDINE FRA LE FINESTRE**: a menu chiuso non deve esistere
-     * nessun `Popup`, o il tastino che si stacca sopra la propria finestra non sarebbe più
+     * nessun `Popup`, o il FAB che si stacca sopra la propria finestra non sarebbe più
      * l'ultima aggiunta e finirebbe sotto. Un popup sempre presente e trasparente in più si
      * mangerebbe i tocchi.
      */
@@ -223,7 +223,7 @@ fun MenuShell(
             dismissOnBackPress = true,
             /*
              * ⚠️⚠️ **SEMPRE ACCESO, dalla `1.46`, e prima era un parametro con un valore
-             * solo.** Nasceva nella `0.75` per il menu della selezione, dove il tastino
+             * solo.** Nasceva nella `0.75` per il menu della selezione, dove il FAB
              * **alternava** il menu e la chiusura di fuori faceva lampeggiare; la `1.06` ha
              * tolto quell'alternanza, e da allora tutti e tre i chiamanti passavano `true`
              * mentre il KDoc descriveva per esteso un comportamento che non esisteva più. Un
@@ -662,7 +662,22 @@ class MenuSpot(
      * ⚠️ **Solo in ORIZZONTALE**: in verticale un menu si stacca dal bordo di [edge], e
      * appoggiarlo al vetro lo farebbe finire sotto la barra di sistema.
      */
-    private val flush: Int = 0
+    private val flush: Int = 0,
+    /**
+     * Dove si ferma la **finestra** quando [flush] scatta, in pixel dal bordo.
+     *
+     * ⚠️⚠️ **NON È SEMPRE ZERO DALLA `1.86`, PERCHÉ IL VETRO LO VUOLE SOLO LA SFOCATURA**
+     * (riscontro del giro della `1.85`, punto B del campo libero: *ottimo il fatto che il menu
+     * dei FAB va sul bordo destro con la sfocatura attiva, ma dimezza la distanza dal bordo
+     * anche per l'ombreggiatura e per nessun effetto attivo*). La feritoia che [flush] esiste
+     * per coprire si vede **solo** con la sfocatura accesa: là dentro passa la griglia sfocata,
+     * e finché resta larga un pixel il difetto c'è. Con l'ombra o senza effetto non c'è niente
+     * da coprire, e un pannello incollato al vetro è soltanto un pannello incollato al vetro.
+     * ⚠️ **Il numero lo calcola il chiamante e non questo posizionatore**, perché dipende da
+     * due cose che qui non ci sono: la scelta in vigore e il `Density`. Vedi
+     * [rememberMenuSpot].
+     */
+    private val flushTo: Int = 0
 ) : PopupPositionProvider {
     override fun calculatePosition(
         anchorBounds: IntRect,
@@ -680,7 +695,7 @@ class MenuSpot(
             // ⚠️ Zero, ed è quello che passa `DropdownMenu`: in orizzontale un menu si appoggia
             // al bordo, e un margine lo staccherebbe da dove Material lo mette.
             margin = 0
-        ).let { appoggia(it, popupContentSize.width, windowSize.width, flush) },
+        ).let { appoggia(it, popupContentSize.width, windowSize.width, flush, flushTo) },
         y = place(
             spots(
                 along, anchorBounds.top, anchorBounds.bottom,
@@ -721,15 +736,20 @@ private fun spots(
 }
 
 /**
- * Appoggia il pannello al bordo di finestra quando gli manca meno di [entro] per arrivarci.
+ * Porta il pannello a [fino] dal bordo di finestra quando gli manca meno di [entro] per
+ * arrivarci.
  *
- * ⚠️ **Il perché sta su `MenuSpot.flush`**: qui c'è solo il conto, che è una soglia sui due lati.
+ * ⚠️ **Il perché vive su `MenuSpot.flush` e su `MenuSpot.flushTo`**: qui c'è solo il conto,
+ * che è una soglia sui due lati.
  * ⚠️ **A [entro] zero non fa niente**, e non per caso: `1..0` è un intervallo vuoto, quindi i
  * menu che non passano quel numero non cambiano di un pixel.
+ * ⚠️ **La distanza si UNIFORMA e non si riduce soltanto**: un pannello che si fermasse più
+ * vicino di [fino] viene portato a [fino] come gli altri, o la stessa scelta darebbe due
+ * distanze diverse a seconda di dov'è l'ancora.
  */
-private fun appoggia(at: Int, size: Int, space: Int, entro: Int): Int = when {
-    at in 1..entro -> 0
-    space - (at + size) in 1..entro -> space - size
+private fun appoggia(at: Int, size: Int, space: Int, entro: Int, fino: Int): Int = when {
+    at in 1..entro -> fino
+    space - (at + size) in 1..entro -> space - size - fino
     else -> at
 }
 
@@ -761,7 +781,7 @@ private fun place(candidates: IntArray, size: Int, space: Int, margin: Int): Int
 val MenuInWindow = MenuSpot(MenuSide.IN_WINDOW, MenuSide.LOWERED_IN_WINDOW, air = MENU_AIR)
 
 /**
- * Il menu **ancorato** al tastino che lo apre: la coppia di lati che i tre menu d'angolo
+ * Il menu **ancorato** al FAB che lo apre: la coppia di lati che i tre menu d'angolo
  * dell'app chiedono tutti uguale.
  *
  * ⚠️⚠️ **NASCE PERCHÉ QUELLA COPPIA ERA SCRITTA TRE VOLTE** (censimento della UI del
@@ -784,17 +804,33 @@ fun rememberMenuAtAnchor(): MenuSpot =
  * finestra al `Popup` senza che niente sia cambiato.
  * ⚠️ **I tre menu d'angolo dell'app passano da [rememberMenuAtAnchor]** e non da qui: questa
  * resta la forma generale, che serve a chi un domani ne volesse una coppia diversa.
+ *
+ * ⚠️⚠️ **QUANTO RESTA FRA IL PANNELLO E IL VETRO LO DECIDE LA SCELTA IN VIGORE, dalla `1.86`**,
+ * ed è il conto che il posizionatore non può fare da sé (vedi `MenuSpot.flushTo`): con la
+ * sfocatura zero, negli altri due casi la **metà** del margine del FAB.
+ * ⚠️⚠️ **E L'ARIA DELL'OMBRA VA SOTTRATTA, perché vive DENTRO la finestra**: con l'ombra il menu
+ * si dà `LIFT_ROOM` per lato (il perché è su [MenuShell]), quindi appoggiando la finestra al
+ * vetro il pannello disegnato resta a `LIFT_ROOM` dal bordo. Il conto lo dice: metà del margine
+ * meno l'aria viene negativo, e una finestra non esce dallo schermo, quindi là il pannello si
+ * ferma a `LIFT_ROOM`, cioè al margine intero del FAB. ⚠️ **Avvicinarlo di più vorrebbe dire
+ * accorciare l'aria da quel lato**, e allora l'ombra finirebbe contro il bordo della finestra
+ * invece che contro quello dello schermo: è il taglio da cui `LIFT_ROOM` è nata.
  */
 @Composable
 fun rememberMenuSpot(across: MenuSide, along: MenuSide): MenuSpot {
     val density = LocalDensity.current
-    return remember(density, across, along) {
+    val depth = LocalAivDepth.current
+    return remember(density, across, along, depth) {
         with(density) {
+            // ⚠️ La soglia è il margine del FAB, perché la feritoia da coprire è la sua:
+            // vedi `MenuSpot.flush`.
+            val margine = HUB_PAD.roundToPx()
+            val resta = if (depth == PanelDepth.BLUR) 0 else margine / 2
+            val aria = if (depth == PanelDepth.SHADOW) LIFT_ROOM.roundToPx() else 0
             MenuSpot(
                 across, along, MENU_KEEP_OUT.roundToPx(),
-                // ⚠️ La soglia è il margine del FAB, perché la feritoia da coprire è la sua:
-                // vedi `MenuSpot.flush`.
-                flush = HUB_PAD.roundToPx()
+                flush = margine,
+                flushTo = (resta - aria).coerceAtLeast(0)
             )
         }
     }
@@ -927,7 +963,7 @@ fun MenuRow(
      * e non su altre i testi cominciano in due posti diversi, ed è esattamente il
      * disallineamento che la `1.28` ha corretto.
      * ⚠️⚠️ **DALLA `1.51` NESSUN MENU LE PASSA NULLE, e il parametro resta comunque**: fino a
-     * lì era il menu del tastino della schermata iniziale a non averne, perché due delle sue
+     * lì era il menu del FAB della schermata iniziale a non averne, perché due delle sue
      * voci ('Apri un indirizzo' e 'Cestino') volevano un disegno che in Material non c'è e che
      * qui non si inventa, dato che i disegni li manda l'utente. Sono arrivati, e quel menu le
      * ha prese senza che si toccasse altro, che era esattamente quello che questa riga

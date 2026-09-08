@@ -81,8 +81,8 @@
     <string name="settings_light">浅色</string>
     <string name="settings_dark">深色</string>
 
-    <string name="settings_depth">面板背后</string>
-    <string name="settings_depth_desc">打开的面板与屏幕之间靠什么区分。模糊会模糊并压暗背后的内容，阴影会在面板周围绘制阴影。模糊可能使应用在旧设备上变慢。</string>
+    <string name="settings_depth">菜单和面板背后的效果</string>
+    <string name="settings_depth_desc">设置菜单或面板背后的效果，使其从背景中分离并更加醒目。模糊在非常旧的设备上可能造成卡顿。</string>
     <string name="settings_depth_blur">模糊</string>
     <string name="settings_depth_shadow">阴影</string>
     <string name="settings_depth_none">无</string>
@@ -91,13 +91,13 @@
     <string name="settings_front_wash">渐变</string>
     <string name="settings_front_serif">衬线标题</string>
     <string name="settings_front_facts">信息</string>
-    <string name="front_open">在文件管理器中打开</string>
-    <string name="front_no_files">此手机上没有可打开文件夹的应用。</string>
     <string name="front_name_copied">已复制文件夹名称</string>
     <string name="front_path_copied">已复制文件夹路径</string>
     <string name="front_copy_path">复制路径</string>
     <string name="front_unpick">取消选择</string>
     <string name="front_pick_images">选择图片</string>
+    <string name="front_unpick_images">取消选择图片</string>
+    <string name="front_unpick_clips">取消选择视频</string>
     <string name="front_tint">标题栏颜色</string>
     <string name="front_tint_none">默认颜色</string>
     <string name="settings_folder_columns">网格的列数</string>

@@ -161,7 +161,7 @@ sealed interface Screen {
      * ⚠️⚠️ **QUI C'ERA `Home`, la schermata che chiedeva da dove cominciare, ed è
      * sparita** (decisione dell'utente, 2026-08-29). Non è stata sostituita da un'altra
      * schermata ma da una **risposta**, che è questa. Chi cerca dove siano finite le sue
-     * cinque vie le trova dentro il tastino di `FolderScreen`.
+     * cinque vie le trova dentro il FAB di `FolderScreen`.
      * ⚠️ Porta [forStart] perché la stessa schermata risponde a due domande: 'quale
      * cartella apro adesso' e 'quale cartella apro all'avvio'. È l'unico dato che
      * distingue i due usi, e sta qui e non nel modello perché se ne va con la schermata.
@@ -2238,7 +2238,7 @@ private fun AivApp(model: ViewerViewModel) {
      * **sostituivano** in un fotogramma: non c'era nessuna transizione da nessuna parte, e
      * quello che cambiava era solo quanto le due schermate si somigliassero. Fra il cestino e la
      * cronologia, che hanno la stessa testata, il taglio non si notava; fra la schermata
-     * iniziale, che ha il tastino e la fascia sfumata in fondo, e le impostazioni, che non hanno
+     * iniziale, che ha il FAB e la fascia sfumata in fondo, e le impostazioni, che non hanno
      * nessuno dei due, si notava tutto.
      * ⚠️⚠️ **E LA DISSOLVENZA FA UNA SECONDA COSA, che è metà della correzione: tiene in vita
      * la schermata che se ne va, quindi il MENU FA IN TEMPO A CHIUDERSI.** Una voce di menu
@@ -2548,7 +2548,7 @@ private fun Stage(screen: Screen, model: ViewerViewModel, settings: Settings) {
             BackHandler { model.leaveGrid() }
             // ⚠️ La stessa `GridScreen` di una cartella, con `bin` acceso: quello che cambia
             // sta là dentro (elimina definitiva, ripristina al posto di rinomina, e il
-            // tastino anche senza selezione). Il cestino si naviga come una cartella
+            // FAB anche senza selezione). Il cestino si naviga come una cartella
             // qualunque, che era la richiesta.
             val lookup = model.folder
             GridScreen(

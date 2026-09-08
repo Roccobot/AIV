@@ -1,5 +1,6 @@
 package io.github.roccobot.aiv
 
+import android.content.res.Configuration
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,10 +14,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
 /**
@@ -32,7 +35,7 @@ import androidx.compose.ui.unit.dp
  * conseguenza necessaria di aver scelto una tavolozza.** Fino a lì, su Android 12 e
  * successivi, l'app prendeva i colori dallo sfondo del telefono, quindi qualunque tinta
  * scritta qui era invisibile a quasi tutti. L'utente ha chiesto un fondo, un accento e
- * un colore del tastino precisi: o si tengono quelli, o si tiene il colore dinamico.
+ * un colore del FAB precisi: o si tengono quelli, o si tiene il colore dinamico.
  * Chi volesse rimetterlo cancellerebbe la scelta, non aggiungerebbe un'opzione.
  */
 
@@ -82,7 +85,7 @@ private val DARK_BACK = Color(0xFF151B1A)
 private val DARK_SURFACE = Color(0xFF1E2523)
 
 /**
- * L'accento, cioè il colore del tastino e di tutto quello che l'app evidenzia.
+ * L'accento, cioè il colore del FAB e di tutto quello che l'app evidenzia.
  *
  * ⚠️⚠️ **È ESATTAMENTE IL COLORE DELL'ICONA** (`launcher_background` chiaro), per volontà
  * dell'utente: l'app e la sua icona devono essere la stessa cosa. Chi lo cambia deve
@@ -93,7 +96,7 @@ private val DARK_SURFACE = Color(0xFF1E2523)
  * numero e ha risposto *accento OK*. È scritto qui perché nessuno debba rimisurarlo, ed è
  * lo stesso baratto già accettato per l'icona, che misura 2.42. Chi un giorno volesse
  * rientrare nella soglia deve **scurire l'accento**, non schiarire il fondo.
- * ⚠️ Quello che sta SOPRA il tastino invece si legge benissimo: `#00382F` sull'accento
+ * ⚠️ Quello che va SOPRA il FAB invece si legge benissimo: `#00382F` sull'accento
  * misura 5.19.
  */
 private val ACCENT_LIGHT = Color(0xFF43B59E)
@@ -131,7 +134,7 @@ private val LINK_DARK = Color(0xFF4FD9BE)
  * differenza fra una tavolozza applicata e una tavolozza scritta. Verificato sul bytecode
  * di material3 1.5.0-alpha26: `FloatingActionButtonDefaults.containerColor`
  * risolve il token `PrimaryContainer`. Lasciando quel ruolo al suo valore di serie, il
- * tastino sarebbe rimasto **viola** in mezzo a tutto il resto.
+ * FAB sarebbe rimasto **viola** in mezzo a tutto il resto.
  * ⚠️ Qui `primaryContainer` vale **quanto** `primary`, e non è una svista: la richiesta
  * dice un accento solo, e un contenitore più tenue sarebbe un secondo accento.
  *
@@ -381,7 +384,7 @@ val LocalAivLight = staticCompositionLocalOf { true }
  * ⚠️ **Esiste per la stessa ragione di [LocalAivLight], e insieme a lui**: il bordo d'accento
  * (`Modifier.edged`) si disegna da un nodo di modificatore, dove la tavolozza di Material non
  * si raggiunge. Qui non c'è nessun colore nuovo: sono le due costanti che la tavolozza già usa
- * per `primary`, quindi il bordo e il tastino non possono divergere.
+ * per `primary`, quindi il bordo e il FAB non possono divergere.
  */
 fun aivAccent(light: Boolean): Color = if (light) ACCENT_LIGHT else ACCENT_DARK
 
@@ -398,6 +401,36 @@ fun aivAccent(light: Boolean): Color = if (light) ACCENT_LIGHT else ACCENT_DARK
  * errore.
  */
 fun aivOnAccent(light: Boolean): Color = if (light) ON_ACCENT_LIGHT else Color.White
+
+/**
+ * La coppia dell'**icona dell'app** (fondo e glifo) per il tema chiesto.
+ *
+ * ⚠️⚠️ **NASCE NELLA `1.86` DA UN DIFETTO CHE LUI HA VISTO** (riscontro del giro della `1.85`,
+ * campo libero punto A: *l'icona della testata della schermata home non passa più ai colori del
+ * tema scuro quando si passa al tema scuro; nemmeno il FAB lo fa*). La causa è una sola e non
+ * si vede leggendo il codice: `colorResource` legge la configurazione **di sistema**, mentre il
+ * tema dell'app è una **sua impostazione**. Chi tiene Android in chiaro e sceglie il tema scuro
+ * dentro AIV continua a ricevere `values/colors.xml`, cioè la coppia chiara, dentro un'app scura.
+ * ⚠️⚠️ **LE RISORSE RESTANO LA FONTE, e non si copiano quattro numeri qui**: quello che cambia
+ * è **con che configurazione** si leggono. Un contesto con `uiMode` forzato dà la variante
+ * giusta, quindi il giorno che l'utente ritocca la coppia dell'icona il FAB la segue ancora
+ * per costruzione, che era la ragione scritta in `FolderScreen.kt` e resta valida.
+ * ⚠️ **Il conto si fa una volta per tema**, e non a ogni ricomposizione: creare un contesto
+ * costa, e i due valori possibili sono due.
+ */
+@Composable
+fun aivLauncher(light: Boolean): Pair<Color, Color> {
+    val base = LocalContext.current
+    return remember(base, light) {
+        val conf = Configuration(base.resources.configuration).apply {
+            uiMode = (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or
+                if (light) Configuration.UI_MODE_NIGHT_NO else Configuration.UI_MODE_NIGHT_YES
+        }
+        val res = base.createConfigurationContext(conf).resources
+        Color(res.getColor(R.color.launcher_background, null)) to
+            Color(res.getColor(R.color.launcher_foreground, null))
+    }
+}
 
 @Composable
 fun AivTheme(

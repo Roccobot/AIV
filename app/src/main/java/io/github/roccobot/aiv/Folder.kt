@@ -9,7 +9,6 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
-import android.provider.DocumentsContract
 import android.provider.MediaStore
 import java.text.Collator
 import android.provider.OpenableColumns
@@ -382,67 +381,6 @@ object Folder {
         val shots: Int = 0,
         val path: String? = null
     )
-
-    /**
-     * Apre la cartella nel gestore file del telefono, e dice se ci è riuscita.
-     *
-     * ⚠️⚠️ **NASCE DA UNA SUA DOMANDA, E LA RISPOSTA È 'DIPENDE DAL TELEFONO'** (riscontro del
-     * giro della `1.83`: *non so se si può fare: il tocco sull'icona può aprire il file manager
-     * predefinito in quella cartella?*). Android non ha un'azione standard per 'mostrami questa
-     * cartella': quello che esiste è il tipo `vnd.android.document/directory`, che l'app Documenti
-     * di sistema e la maggior parte dei gestori file di terze parti dichiarano, ma nessuno
-     * garantisce.
-     * ⚠️ **Due tentativi in ordine di precisione**: prima la cartella esatta come documento
-     * dell'archivio primario, poi la radice dell'archivio. Il secondo apre il gestore file senza
-     * portarci dentro la cartella, ed è meglio di niente perché il posto lo si raggiunge in due
-     * tocchi.
-     * ⚠️⚠️ **SI PROVA A PARTIRE INVECE DI CHIEDERE PRIMA CHI RISPONDE**: da Android 11
-     * `resolveActivity` vede solo quello che il manifest dichiara in `<queries>`, quindi un
-     * elenco scritto lì diventerebbe la lista dei gestori file che conosciamo oggi. Un
-     * `startActivity` che non trova nessuno lancia, e quel lancio è la risposta.
-     * ⚠️ **Il percorso su disco diventa un percorso di documento**: `/storage/emulated/0/DCIM` è
-     * `primary:DCIM` per l'archivio esterno, che è la forma che quel provider capisce. Una
-     * cartella su una scheda SD ha un altro volume e questa conversione non la copre: là parte il
-     * secondo tentativo.
-     */
-    fun openInFiles(context: Context, path: String?): Boolean {
-        val dentro = path?.removePrefix(PRIMARY_ROOT)?.trim('/').orEmpty()
-        val vie = buildList {
-            if (path != null && path.startsWith(PRIMARY_ROOT) && dentro.isNotEmpty()) {
-                add(
-                    DocumentsContract.buildDocumentUri(
-                        EXTERNAL_DOCS,
-                        "$PRIMARY_VOLUME:$dentro"
-                    )
-                )
-            }
-            add(DocumentsContract.buildRootUri(EXTERNAL_DOCS, PRIMARY_VOLUME))
-        }
-        for (dove in vie) {
-            val andata = runCatching {
-                context.startActivity(
-                    Intent(Intent.ACTION_VIEW)
-                        .setDataAndType(dove, DIR_MIME)
-                        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                )
-            }
-            if (andata.isSuccess) return true
-        }
-        return false
-    }
-
-    /** Dove il sistema monta l'archivio interno. */
-    private const val PRIMARY_ROOT = "/storage/emulated/0"
-
-    /** Come si chiama quel volume per il provider dei documenti. */
-    private const val PRIMARY_VOLUME = "primary"
-
-    /** Il provider dei documenti dell'archivio esterno, che è di sistema. */
-    private const val EXTERNAL_DOCS = "com.android.externalstorage.documents"
-
-    /** Il tipo con cui si chiede di **guardare** una cartella invece di aprirne un file. */
-    private const val DIR_MIME = DocumentsContract.Document.MIME_TYPE_DIR
 
     suspend fun newestIn(context: Context, bucket: Long): Lookup = withContext(Dispatchers.IO) {
         if (!granted(context)) return@withContext Lookup.NoPermission

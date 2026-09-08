@@ -81,8 +81,8 @@
     <string name="settings_light">Светлый</string>
     <string name="settings_dark">Тёмный</string>
 
-    <string name="settings_depth">За панелями</string>
-    <string name="settings_depth_desc">Что отделяет открытую панель от экрана. Размытие размывает и затемняет то, что позади, а тень рисует тень вокруг панели. Размытие может замедлить приложение на старых устройствах.</string>
+    <string name="settings_depth">Эффект за меню и панелями</string>
+    <string name="settings_depth_desc">Задаёт эффект за меню или панелью, который отделяет их от фона и делает заметнее. Размытие может вызывать замедления на очень старых устройствах.</string>
     <string name="settings_depth_blur">Размытие</string>
     <string name="settings_depth_shadow">Тень</string>
     <string name="settings_depth_none">Ничего</string>
@@ -91,13 +91,13 @@
     <string name="settings_front_wash">Градиент</string>
     <string name="settings_front_serif">Заголовок с засечками</string>
     <string name="settings_front_facts">Сведения</string>
-    <string name="front_open">Открыть в файловом менеджере</string>
-    <string name="front_no_files">На этом телефоне нет приложения, открывающего папки.</string>
     <string name="front_name_copied">Имя папки скопировано</string>
     <string name="front_path_copied">Путь к папке скопирован</string>
     <string name="front_copy_path">Скопировать путь</string>
     <string name="front_unpick">Снять выбор</string>
     <string name="front_pick_images">Выбрать изображения</string>
+    <string name="front_unpick_images">Снять выбор изображений</string>
+    <string name="front_unpick_clips">Снять выбор видео</string>
     <string name="front_tint">Цвет заголовка</string>
     <string name="front_tint_none">Цвет по умолчанию</string>
     <string name="settings_folder_columns">Столбцы в сетках</string>

@@ -81,8 +81,8 @@
     <string name="settings_light">வெளிச்சம்</string>
     <string name="settings_dark">இருள்</string>
 
-    <string name="settings_depth">பேனல்களுக்குப் பின்னால்</string>
-    <string name="settings_depth_desc">திறந்த பேனலைத் திரையிலிருந்து பிரிப்பது எது. மங்கல் பின்னால் உள்ளதை மங்கலாக்கி இருட்டாக்கும், நிழல் பேனலைச் சுற்றி நிழலை வரையும். பழைய சாதனங்களில் மங்கல் செயலியை மெதுவாக்கக்கூடும்.</string>
+    <string name="settings_depth">மெனுக்கள் மற்றும் பேனல்களுக்குப் பின்னால் விளைவு</string>
+    <string name="settings_depth_desc">ஒரு மெனு அல்லது பேனலைப் பின்னணியிலிருந்து பிரித்து மேலும் தெளிவாகக் காட்ட அதன் பின்னால் பயன்படுத்தப்படும் விளைவை அமைக்கிறது. மிகப் பழைய சாதனங்களில் மங்கல் சற்று மந்தத்தை ஏற்படுத்தலாம்.</string>
     <string name="settings_depth_blur">மங்கல்</string>
     <string name="settings_depth_shadow">நிழல்</string>
     <string name="settings_depth_none">எதுவுமில்லை</string>
@@ -91,13 +91,13 @@
     <string name="settings_front_wash">நிறமாற்றம்</string>
     <string name="settings_front_serif">செரிஃப் தலைப்பு</string>
     <string name="settings_front_facts">தகவல்</string>
-    <string name="front_open">கோப்பு மேலாளரில் திற</string>
-    <string name="front_no_files">இந்த மொபைலில் கோப்புறைகளைத் திறக்கும் ஆப் இல்லை.</string>
     <string name="front_name_copied">கோப்புறையின் பெயர் நகலெடுக்கப்பட்டது</string>
     <string name="front_path_copied">கோப்புறையின் பாதை நகலெடுக்கப்பட்டது</string>
     <string name="front_copy_path">பாதையை நகலெடு</string>
     <string name="front_unpick">தேர்வை நீக்கு</string>
     <string name="front_pick_images">படங்களைத் தேர்ந்தெடு</string>
+    <string name="front_unpick_images">படங்களின் தேர்வை நீக்கு</string>
+    <string name="front_unpick_clips">வீடியோக்களின் தேர்வை நீக்கு</string>
     <string name="front_tint">தலைப்பின் நிறம்</string>
     <string name="front_tint_none">இயல்புநிலை நிறம்</string>
     <string name="settings_folder_columns">கட்டங்களின் நிரல்கள்</string>

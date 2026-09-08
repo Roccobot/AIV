@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
@@ -44,10 +45,13 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -182,26 +186,21 @@ fun RenameDialog(
          * destra, linea di base del titolo della finestra)*). Il pezzo che la disegna è
          * [TitlePill], lo stesso della finestra del salvataggio: le due finestre portano gli
          * stessi comandi, quindi la forma è una.
-         * ⚠️ **Il titolo tiene il peso**: con una pastiglia accanto, senza il peso un titolo
-         * lungo spingerebbe il comando oltre il bordo invece di andare a capo lui.
+         * ⚠️ **La riga la compone [TitleRow]**, che dalla `1.86` decide anche se la pastiglia
+         * resta scritta o diventa un'icona: qui c'è un comando solo, e la misura del titolo dice
+         * se entra accanto.
          */
         title = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(R.string.pick_rename),
-                    modifier = Modifier.weight(1f)
-                )
-                if (gate.allowed) {
-                    TitlePill(
+            TitleRow(
+                title = stringResource(R.string.pick_rename),
+                commands = if (!gate.allowed) emptyList() else listOf(
+                    TitleCommand(
                         text = stringResource(R.string.rename_ext),
+                        glyph = Glyphs.Extension,
                         onTap = gate.open
                     )
-                }
-            }
+                )
+            )
         },
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
@@ -606,6 +605,78 @@ private fun ExtensionDialog(
 }
 
 /**
+ * Un comando della riga del titolo, nelle due forme che può prendere.
+ *
+ * ⚠️ **Porta tutte e due**, il testo e il glifo, perché a scegliere è [TitleRow] e non il
+ * chiamante: passandone una sola, la forma tornerebbe una decisione di chi apre la finestra.
+ */
+internal class TitleCommand(
+    val text: String,
+    val glyph: ImageVector,
+    val onTap: () -> Unit
+)
+
+/**
+ * La riga del titolo di una finestra coi suoi comandi: il titolo a sinistra, la fila a destra.
+ *
+ * ⚠️⚠️ **A SCEGLIERE FRA PASTIGLIA E ICONA È LA MISURA, DALLA `1.86`, ED È SUA RISPOSTA**
+ * (`d-pill-soglia`: **misura**). Fino alla `1.85` decideva il **conto**: due comandi in scena
+ * volevano dire due icone e uno solo voleva dire la pastiglia col testo, qualunque fosse la
+ * lunghezza della parola. Con una parola lunga (il polacco *Miejsce docelowe*, sedici caratteri,
+ * è la più lunga delle ventotto lingue) il titolo accanto cedeva andando a capo, che è lo stesso
+ * difetto per cui nella `1.82` le due pastiglie insieme erano diventate icone.
+ * ⚠️ **Il conto resta per il caso di DUE, e non è un residuo**: là la risposta è già sua
+ * (riscontro del giro della `1.81`, punto C: *chiaramente non possono coesistere due pulsanti
+ * testuali in 'Scarica' ... in quel caso si usano le icone*), quindi la misura governa il caso
+ * che la domanda apriva, cioè quello di un comando solo.
+ * ⚠️⚠️ **CHE IL TESTO ENTRI VUOL DIRE CHE IL TITOLO RESTA SU UNA RIGA**, e non che la pastiglia entri nel
+ * riquadro: la pastiglia entra sempre, perché è il titolo a cedere ([TitlePill] non ha peso).
+ * Quindi la misura da fare è quella del **titolo**, e l'aria di [TITLE_ROW_GAP] è la distanza
+ * sotto la quale le due parole si toccherebbero.
+ * ⚠️ **L'aria vive nel conto e non nel layout**: messa fra i due, si prenderebbe lo spazio anche
+ * quando i comandi sono icone, cioè sposterebbe una riga che oggi sta bene.
+ */
+@Composable
+internal fun TitleRow(title: String, commands: List<TitleCommand>) {
+    val righello = rememberTextMeasurer()
+    val corpoTitolo = MaterialTheme.typography.headlineSmall
+    val corpoPastiglia = MaterialTheme.typography.labelMedium
+    val density = LocalDensity.current
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        val quanto = { testo: String, stile: TextStyle ->
+            with(density) {
+                righello.measure(AnnotatedString(testo), stile, maxLines = 1).size.width.toDp()
+            }
+        }
+        val aIcone = commands.size > 1 || commands.any { comando ->
+            val pastiglia = maxOf(
+                TITLE_PILL_MIN,
+                quanto(comando.text, corpoPastiglia) + TITLE_PILL_SIDE * 2
+            )
+            quanto(title, corpoTitolo) + TITLE_ROW_GAP + pastiglia > maxWidth
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // ⚠️ Il titolo prende il peso: senza, una parola lunga spingerebbe i comandi oltre
+            // il bordo invece di andare a capo lei.
+            Text(text = title, modifier = Modifier.weight(1f))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                for (comando in commands) {
+                    if (aIcone) TitleIcon(comando.glyph, comando.text, comando.onTap)
+                    else TitlePill(text = comando.text, onTap = comando.onTap)
+                }
+            }
+        }
+    }
+}
+
+/**
  * Un comando sulla riga del titolo di una finestra: una pastiglia col suo testo dentro.
  *
  * ⚠️⚠️ **ERA UN'ICONA NELLA `1.80` ED È TORNATA TESTUALE NELLA `1.81`, PERCHÉ HA CAMBIATO
@@ -649,8 +720,32 @@ internal fun TitlePill(text: String, onTap: () -> Unit) {
     }
 }
 
+/**
+ * Il riempimento orizzontale di una pastiglia del titolo, che è anche metà del conto di
+ * [TitleRow]: la sua larghezza è la parola più due volte questo numero.
+ *
+ * ⚠️ **Sta prima di [TITLE_PILL_PAD] perché lui la legge**: le proprietà di un file si
+ * inizializzano nell'ordine in cui sono scritte, e al contrario il riempimento verrebbe zero.
+ */
+private val TITLE_PILL_SIDE = 12.dp
+
 /** Quanto stringe una pastiglia della riga del titolo, che sta in una fila già piena. */
-private val TITLE_PILL_PAD = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+private val TITLE_PILL_PAD = PaddingValues(horizontal = TITLE_PILL_SIDE, vertical = 0.dp)
+
+/**
+ * La larghezza minima di un `FilledTonalButton`, che Material non espone come costante
+ * pubblica: sotto quel numero la pastiglia non si stringe, quindi una parola corta non la
+ * rimpicciolisce e il conto di [TitleRow] deve saperlo.
+ */
+private val TITLE_PILL_MIN = 58.dp
+
+/**
+ * L'aria che deve restare fra il titolo e la pastiglia perché il testo resti scritto.
+ *
+ * ⚠️ **Non è un margine del layout**: là i due elementi si toccherebbero solo nel caso in cui
+ * questa misura dice già di passare all'icona. Il perché vive su [TitleRow].
+ */
+private val TITLE_ROW_GAP = 8.dp
 
 /**
  * Lo stesso comando di [TitlePill], ma come **icona**: la forma che serve quando nella riga del

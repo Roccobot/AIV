@@ -81,8 +81,8 @@
     <string name="settings_light">हल्का</string>
     <string name="settings_dark">गहरा</string>
 
-    <string name="settings_depth">पैनल के पीछे</string>
-    <string name="settings_depth_desc">खुले पैनल को स्क्रीन से क्या अलग करता है। ब्लर पीछे की चीज़ को धुंधला और गहरा करता है, छाया पैनल के चारों ओर छाया बनाती है। ब्लर पुराने डिवाइस पर ऐप को धीमा कर सकता है।</string>
+    <string name="settings_depth">मेन्यू और पैनल के पीछे का प्रभाव</string>
+    <string name="settings_depth_desc">मेन्यू या पैनल के पीछे लगाया जाने वाला प्रभाव तय करता है, ताकि वह पृष्ठभूमि से अलग और अधिक स्पष्ट दिखे। बहुत पुराने डिवाइस पर ब्लर से थोड़ी सुस्ती आ सकती है।</string>
     <string name="settings_depth_blur">ब्लर</string>
     <string name="settings_depth_shadow">छाया</string>
     <string name="settings_depth_none">कुछ नहीं</string>
@@ -91,13 +91,13 @@
     <string name="settings_front_wash">ग्रेडिएंट</string>
     <string name="settings_front_serif">सेरिफ़ शीर्षक</string>
     <string name="settings_front_facts">जानकारी</string>
-    <string name="front_open">फ़ाइल मैनेजर में खोलें</string>
-    <string name="front_no_files">इस फ़ोन का कोई ऐप फ़ोल्डर नहीं खोलता।</string>
     <string name="front_name_copied">फ़ोल्डर का नाम कॉपी हुआ</string>
     <string name="front_path_copied">फ़ोल्डर का पथ कॉपी हुआ</string>
     <string name="front_copy_path">पथ कॉपी करें</string>
     <string name="front_unpick">चयन हटाएँ</string>
     <string name="front_pick_images">चित्र चुनें</string>
+    <string name="front_unpick_images">चित्रों का चयन हटाएँ</string>
+    <string name="front_unpick_clips">वीडियो का चयन हटाएँ</string>
     <string name="front_tint">शीर्षक का रंग</string>
     <string name="front_tint_none">डिफ़ॉल्ट रंग</string>
     <string name="settings_folder_columns">ग्रिड के स्तंभ</string>

@@ -81,8 +81,8 @@
     <string name="settings_light">Claro</string>
     <string name="settings_dark">Escuro</string>
 
-    <string name="settings_depth">Atrás dos painéis</string>
-    <string name="settings_depth_desc">O que separa da tela um painel aberto. O desfoque desfoca e escurece o que está atrás, a sombra desenha uma sombra ao redor do painel. O desfoque pode deixar o app mais lento em dispositivos antigos.</string>
+    <string name="settings_depth">Efeito atrás de menus e painéis</string>
+    <string name="settings_depth_desc">Define o efeito aplicado atrás de um menu ou painel para separá-lo do fundo e torná-lo mais visível. O desfoque pode causar alguma lentidão em dispositivos muito antigos.</string>
     <string name="settings_depth_blur">Desfoque</string>
     <string name="settings_depth_shadow">Sombra</string>
     <string name="settings_depth_none">Nada</string>
@@ -91,13 +91,13 @@
     <string name="settings_front_wash">Gradiente</string>
     <string name="settings_front_serif">Título com serifa</string>
     <string name="settings_front_facts">Info</string>
-    <string name="front_open">Abrir no gerenciador de arquivos</string>
-    <string name="front_no_files">Nenhum app deste telefone abre pastas.</string>
     <string name="front_name_copied">Nome da pasta copiado</string>
     <string name="front_path_copied">Caminho da pasta copiado</string>
     <string name="front_copy_path">Copiar o caminho</string>
     <string name="front_unpick">Desmarcar</string>
     <string name="front_pick_images">Selecionar as imagens</string>
+    <string name="front_unpick_images">Desmarcar as imagens</string>
+    <string name="front_unpick_clips">Desmarcar vídeos</string>
     <string name="front_tint">Cor do cabeçalho</string>
     <string name="front_tint_none">Cor padrão</string>
     <string name="settings_folder_columns">Colunas nas grades</string>

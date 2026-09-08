@@ -81,8 +81,8 @@
     <string name="settings_light">Açık</string>
     <string name="settings_dark">Koyu</string>
 
-    <string name="settings_depth">Panellerin arkasında</string>
-    <string name="settings_depth_desc">Açılan bir paneli ekrandan ayıran şey. Bulanıklık arkadakini bulanıklaştırıp karartır, gölge panelin çevresine gölge çizer. Bulanıklık eski cihazlarda uygulamayı yavaşlatabilir.</string>
+    <string name="settings_depth">Menülerin ve panellerin arkasındaki efekt</string>
+    <string name="settings_depth_desc">Bir menünün veya panelin arkasına uygulanan, onu arka plandan ayırıp daha görünür kılan efekti belirler. Bulanıklık çok eski cihazlarda yavaşlamaya yol açabilir.</string>
     <string name="settings_depth_blur">Bulanıklık</string>
     <string name="settings_depth_shadow">Gölge</string>
     <string name="settings_depth_none">Yok</string>
@@ -91,13 +91,13 @@
     <string name="settings_front_wash">Gradyan</string>
     <string name="settings_front_serif">Tırnaklı başlık</string>
     <string name="settings_front_facts">Bilgi</string>
-    <string name="front_open">Dosya yöneticisinde aç</string>
-    <string name="front_no_files">Bu telefonda klasörleri açan bir uygulama yok.</string>
     <string name="front_name_copied">Klasör adı kopyalandı</string>
     <string name="front_path_copied">Klasör yolu kopyalandı</string>
     <string name="front_copy_path">Yolu kopyala</string>
     <string name="front_unpick">Seçimi kaldır</string>
     <string name="front_pick_images">Görselleri seç</string>
+    <string name="front_unpick_images">Görsellerin seçimini kaldır</string>
+    <string name="front_unpick_clips">Videoların seçimini kaldır</string>
     <string name="front_tint">Başlık rengi</string>
     <string name="front_tint_none">Varsayılan renk</string>
     <string name="settings_folder_columns">Izgaralardaki sütunlar</string>

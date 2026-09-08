@@ -208,8 +208,8 @@
     <string name="settings_light">Light</string>
     <string name="settings_dark">Dark</string>
 
-    <string name="settings_depth">Behind panels</string>
-    <string name="settings_depth_desc">What sets an open panel apart from the screen. Blur blurs and dims what is behind it, shadow draws a shadow around it. Blur can make the app slower on older devices.</string>
+    <string name="settings_depth">Effect behind menus and panels</string>
+    <string name="settings_depth_desc">Sets the effect drawn behind a menu or a panel to separate it from the background and make it more visible. Blur may cause some slowdown on very old devices.</string>
     <string name="settings_depth_blur">Blur</string>
     <string name="settings_depth_shadow">Shadow</string>
     <string name="settings_depth_none">None</string>
@@ -221,13 +221,13 @@
     <string name="settings_front_wash">Gradient</string>
     <string name="settings_front_serif">Serif title</string>
     <string name="settings_front_facts">Info</string>
-    <string name="front_open">Open in file manager</string>
-    <string name="front_no_files">No app on this phone opens folders.</string>
     <string name="front_name_copied">Folder name copied</string>
     <string name="front_path_copied">Folder path copied</string>
     <string name="front_copy_path">Copy the path</string>
     <string name="front_unpick">Deselect</string>
     <string name="front_pick_images">Select pictures</string>
+    <string name="front_unpick_images">Deselect pictures</string>
+    <string name="front_unpick_clips">Deselect videos</string>
     <string name="front_tint">Header colour</string>
     <string name="front_tint_none">Default colour</string>
 

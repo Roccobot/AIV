@@ -1,6 +1,5 @@
 package io.github.roccobot.aiv
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -21,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
@@ -166,22 +164,34 @@ private const val HOME = "https://roccobot.me"
  * ⚠️ Un `Modifier.scale` è una trasformazione di disegno: nessun genitore la può
  * limitare, e il ritaglio del `Box` continua a valere.
  */
+/*
+ * ⚠️⚠️ **I COLORI SEGUONO IL TEMA DELL'APP E NON QUELLO DI SISTEMA, DALLA `1.86`** (riscontro
+ * del giro della `1.85`, campo libero punto A: *l'icona della testata della schermata home non
+ * passa più ai colori del tema scuro quando si passa al tema scuro*). `colorResource` legge la
+ * configurazione di sistema, mentre il tema di AIV è una sua impostazione: chi teneva Android in
+ * chiaro e sceglieva lo scuro dentro l'app si trovava l'icona chiara in una schermata scura. Il
+ * perché per esteso, e la ragione per cui le risorse restano la fonte, vivono su [aivLauncher].
+ * ⚠️ **Qui il tema è quello IN VIGORE**, al contrario del FAB, che dalla stessa versione porta
+ * la coppia dell'altro: l'icona dice di che colore è l'app, il FAB ci si stacca sopra.
+ */
 @Composable
 private fun AppIcon(size: Dp) {
     val opener = LocalUriHandler.current
     val label = stringResource(R.string.identity_page)
+    val (fondo, glifo) = aivLauncher(LocalAivLight.current)
     Box(
         modifier = Modifier
             .size(size)
             // ⚠️ Il ritaglio PRIMA del tocco, o l'area toccabile resterebbe il quadrato
             // intero e gli angoli fuori dalla forma risponderebbero comunque.
             .clip(RoundedCornerShape(percent = 24))
-            .background(colorResource(R.color.launcher_background))
+            .background(fondo)
             .clickable(onClickLabel = label) { opener.openUri(PAGINA) },
         contentAlignment = Alignment.Center
     ) {
-        Image(
+        Icon(
             painter = painterResource(R.drawable.ic_launcher_foreground),
+            tint = glifo,
             // ⚠️ Descritta perché è un comando, e un comando senza nome è un comando che
             // nessuno può usare al buio. ⚠️ Fino alla 1.36 la descrizione era condizionata,
             // perché sulla schermata iniziale l'icona non si toccava e là era decorazione:

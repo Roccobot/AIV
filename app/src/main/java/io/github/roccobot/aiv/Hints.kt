@@ -23,11 +23,11 @@ import androidx.compose.ui.window.Dialog
 
 /**
  * Il velo del mini onboarding: oscura la schermata, dice la frase e mette in evidenza una
- * copia **funzionante** del tastino che sta insegnando.
+ * copia **funzionante** del FAB che sta insegnando.
  *
  * ⚠️⚠️ **NASCE COSÌ NELLA 0.67 E DIVENTA CONDIVISO NELLA 0.78** (richiesta dell'utente:
  * *un mini onboarding grafico, che oscura la schermata ed evidenzia in arancione il FAB*).
- * Serve perché il tocco lungo è una scorciatoia che **non si scopre da sola**: un tastino non
+ * Serve perché il tocco lungo è una scorciatoia che **non si scopre da sola**: un FAB non
  * dichiara i propri gesti. I veli di questa forma vivono in due schermate diverse (il cestino
  * nella griglia, le colonne nella schermata iniziale): il colore, il contrasto misurato e la
  * geometria stanno qui una volta sola, e quello che cambia sono la frase e il FAB.
@@ -38,7 +38,7 @@ import androidx.compose.ui.window.Dialog
  * ⚠️⚠️ **LA COPIA EVIDENZIATA FUNZIONA, non è un disegno**, ed è la differenza fra insegnare
  * e raccontare: chi tiene premuto sul velo fa la cosa mentre gliela si spiega, invece di
  * doverla richiudere e rifare. È anche il motivo per cui è lo **stesso** [TapHoldFab] del
- * tastino vero, alla stessa misura e nello stesso angolo: cade **sopra** l'originale.
+ * FAB vero, alla stessa misura e nello stesso angolo: cade **sopra** l'originale.
  *
  * ⚠️⚠️ **IL VELO COPRE TUTTO LO SCHERMO dalla `0.73`**, testata e margini di sistema
  * compresi, ed è una correzione: fino alla `0.72` copriva la sola griglia, perché nasceva
@@ -55,14 +55,14 @@ import androidx.compose.ui.window.Dialog
 fun BoxScope.HintVeil(
     text: String,
     /**
-     * I rientri che portano la copia del tastino **esattamente** sopra l'originale.
+     * I rientri che portano la copia del FAB **esattamente** sopra l'originale.
      *
      * ⚠️⚠️ **NON SONO DECORAZIONE, e sono l'unica cosa che il velo non può ricavare da sé**:
-     * il tastino vero vive dentro il rientro di sistema più i margini della sua schermata, e
+     * il FAB vero vive dentro il rientro di sistema più i margini della sua schermata, e
      * il velo nasce fuori da tutti perché è il suo mestiere. Chi ne dimentica uno vede la
      * copia scivolare in un angolo.
      * ⚠️ Arriva come `Modifier` e non come misura perché le catene sono diverse: nella griglia
-     * sono tre (sistema, margine della schermata, margine del tastino), nelle cartelle due.
+     * sono tre (sistema, margine della schermata, margine del FAB), nelle cartelle due.
      */
     inset: Modifier,
     onDone: () -> Unit,
@@ -82,8 +82,8 @@ fun BoxScope.HintVeil(
             )
     ) {
         /*
-         * ⚠️ **Anche l'onboarding segue il lato del tastino**, dalla `1.57`: quello che spiega
-         * è il tastino, e una freccia che punta dalla parte sbagliata spiegherebbe il vuoto.
+         * ⚠️ **Anche l'onboarding segue il lato del FAB**, dalla `1.57`: quello che spiega
+         * è il FAB, e una freccia che punta dalla parte sbagliata spiegherebbe il vuoto.
          */
         val destra = LocalPadLook.current.hand == Hand.RIGHT
         Column(
@@ -115,17 +115,17 @@ fun BoxScope.HintVeil(
 }
 
 /**
- * Il velo che dice una cosa e basta: frase **in mezzo allo schermo**, nessun tastino da
+ * Il velo che dice una cosa e basta: frase **in mezzo allo schermo**, nessun FAB da
  * evidenziare.
  *
  * ⚠️⚠️ **NASCE NELLA 1.25 PERCHÉ IL GESTO NON HA UN POSTO** (richiesta dell'utente,
  * 2026-09-02: *nuovo mini-onboarding, con testo centrato in mezzo allo schermo, alla
  * visualizzazione della prima immagine dopo l'installazione*). Gli altri tre veli indicano un
- * **tastino** e ne mettono in scena una copia funzionante; il doppio tocco si fa sulla
+ * **FAB** e ne mettono in scena una copia funzionante; il doppio tocco si fa sulla
  * fotografia intera, quindi non c'è niente da indicare, e una copia evidenziata coprirebbe
  * proprio la cosa di cui si sta parlando.
  * ⚠️ **Sono la stessa macchina di [HintVeil]**, e condividono il velo e la sua misura di
- * contrasto: cambiano dove sta il testo e il fatto che qui non c'è un tastino. Chi li fondesse
+ * contrasto: cambiano dov'è il testo e il fatto che qui non c'è un FAB. Chi li fondesse
  * in una funzione sola con due parametri opzionali otterrebbe una firma che nessuno dei due
  * usa per intero.
  * ⚠️ **Un tocco qualunque lo archivia**, come gli altri: un onboarding che si deve leggere due
@@ -221,8 +221,8 @@ private val HINT_SCRIM = Color(0xB3000000)
  * Quanto la frase centrata sta lontana dai bordi.
  *
  * ⚠️ Serve solo a [HintCentre]: là il testo è in mezzo allo schermo e senza margine, su un
- * telefono stretto, una frase lunga toccherebbe i due bordi. Il velo con il tastino non ne ha
- * bisogno perché il suo margine glielo dà il rientro del tastino.
+ * telefono stretto, una frase lunga toccherebbe i due bordi. Il velo con il FAB non ne ha
+ * bisogno perché il suo margine glielo dà il rientro del FAB.
  */
 private val HINT_SIDE = 32.dp
 
@@ -240,7 +240,7 @@ val HINT_MARK = Color(0xFFFFA726)
 /** Il glifo sopra l'arancione: misurato 7.29, cioè leggibile senza discussioni. */
 val HINT_INK = Color(0xFF3E2600)
 
-/** Quanto sta lontano il testo dal tastino che indica: abbastanza da non sembrarne parte. */
+/** Quanto sta lontano il testo dal FAB che indica: abbastanza da non sembrarne parte. */
 private val HINT_GAP = 14.dp
 
 /**

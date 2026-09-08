@@ -81,8 +81,8 @@
     <string name="settings_light">হালকা</string>
     <string name="settings_dark">গাঢ়</string>
 
-    <string name="settings_depth">প্যানেলের পিছনে</string>
-    <string name="settings_depth_desc">খোলা প্যানেলকে পর্দা থেকে কী আলাদা করে। ব্লার পিছনের অংশ ঝাপসা ও অন্ধকার করে, ছায়া প্যানেলের চারপাশে ছায়া আঁকে। পুরনো ডিভাইসে ব্লার অ্যাপ ধীর করতে পারে।</string>
+    <string name="settings_depth">মেনু ও প্যানেলের পিছনের প্রভাব</string>
+    <string name="settings_depth_desc">মেনু বা প্যানেলের পিছনে প্রয়োগ করা প্রভাব ঠিক করে, যাতে তা পটভূমি থেকে আলাদা ও বেশি স্পষ্ট দেখায়। খুব পুরনো ডিভাইসে ব্লার কিছুটা ধীরগতি আনতে পারে।</string>
     <string name="settings_depth_blur">ব্লার</string>
     <string name="settings_depth_shadow">ছায়া</string>
     <string name="settings_depth_none">কিছুই নয়</string>
@@ -91,13 +91,13 @@
     <string name="settings_front_wash">গ্রেডিয়েন্ট</string>
     <string name="settings_front_serif">সেরিফ শিরোনাম</string>
     <string name="settings_front_facts">তথ্য</string>
-    <string name="front_open">ফাইল ম্যানেজারে খুলুন</string>
-    <string name="front_no_files">এই ফোনের কোনও অ্যাপ ফোল্ডার খোলে না।</string>
     <string name="front_name_copied">ফোল্ডারের নাম কপি হয়েছে</string>
     <string name="front_path_copied">ফোল্ডারের পাথ কপি হয়েছে</string>
     <string name="front_copy_path">পাথ কপি করুন</string>
     <string name="front_unpick">নির্বাচন সরান</string>
     <string name="front_pick_images">ছবি নির্বাচন করুন</string>
+    <string name="front_unpick_images">ছবির নির্বাচন সরান</string>
+    <string name="front_unpick_clips">ভিডিওর নির্বাচন সরান</string>
     <string name="front_tint">হেডারের রঙ</string>
     <string name="front_tint_none">ডিফল্ট রঙ</string>
     <string name="settings_folder_columns">গ্রিডের কলাম</string>

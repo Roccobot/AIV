@@ -81,8 +81,8 @@
     <string name="settings_light">밝게</string>
     <string name="settings_dark">어둡게</string>
 
-    <string name="settings_depth">패널 뒤</string>
-    <string name="settings_depth_desc">열린 패널을 화면과 구분하는 방식입니다. 흐리게는 뒤쪽을 흐리고 어둡게 하고, 그림자는 패널 주위에 그림자를 그립니다. 흐리게는 구형 기기에서 앱이 느려질 수 있습니다.</string>
+    <string name="settings_depth">메뉴와 패널 뒤 효과</string>
+    <string name="settings_depth_desc">메뉴나 패널 뒤에 적용해 배경과 구분하고 더 잘 보이게 하는 효과를 설정합니다. 흐리게는 아주 오래된 기기에서 다소 느려질 수 있습니다.</string>
     <string name="settings_depth_blur">흐리게</string>
     <string name="settings_depth_shadow">그림자</string>
     <string name="settings_depth_none">없음</string>
@@ -91,13 +91,13 @@
     <string name="settings_front_wash">그러데이션</string>
     <string name="settings_front_serif">세리프 제목</string>
     <string name="settings_front_facts">정보</string>
-    <string name="front_open">파일 관리자에서 열기</string>
-    <string name="front_no_files">이 휴대전화에는 폴더를 여는 앱이 없습니다.</string>
     <string name="front_name_copied">폴더 이름을 복사했습니다</string>
     <string name="front_path_copied">폴더 경로를 복사했습니다</string>
     <string name="front_copy_path">경로 복사</string>
     <string name="front_unpick">선택 해제</string>
     <string name="front_pick_images">이미지 선택</string>
+    <string name="front_unpick_images">이미지 선택 해제</string>
+    <string name="front_unpick_clips">동영상 선택 해제</string>
     <string name="front_tint">헤더 색상</string>
     <string name="front_tint_none">기본 색상</string>
     <string name="settings_folder_columns">격자의 열 수</string>

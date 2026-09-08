@@ -372,7 +372,7 @@ data class Settings(
      * dell'utente, 2026-08-31): spenta, un ritaglio sbagliato si porta via l'originale e non
      * c'è nessuna via di ritorno; accesa, il prezzo è un file in piu nel cestino, che si
      * svuota con un tocco. Fra i due, il valore di serie deve essere quello che perdona.
-     * ⚠️ **Non dipende da [binOn]**: il cestino si raggiunge dal tastino di casa anche quando
+     * ⚠️ **Non dipende da [binOn]**: il cestino si raggiunge dal FAB di casa anche quando
      * l'eliminazione non ci passa, quindi la copia resta recuperabile in tutti e due i casi.
      */
     val editorBackup: Boolean = true,
@@ -472,7 +472,7 @@ data class Settings(
      * ⚠️ **Accesa di serie**: un'app che cancella per sempre al primo tocco sbagliato non è
      * quello che si attende da una galleria, e chi vuole l'eliminazione secca la sceglie.
      * ⚠️ **Spegnerla NON svuota il cestino** e non lo rende irraggiungibile: quello che c'è
-     * dentro resta, e la sua voce nel menu del tastino pure. Sarebbe la sorpresa peggiore.
+     * dentro resta, e la sua voce nel menu del FAB pure. Sarebbe la sorpresa peggiore.
      */
     val binOn: Boolean = true,
     /**
@@ -1170,8 +1170,8 @@ object FolderAsk {
  * che torna è un avviso, e un avviso che torna insegna a chiuderlo senza leggerlo. Vale la
  * stessa ragione già scritta per [FolderAsk].
  *
- * ⚠️⚠️ **QUI C'ERA ANCHE `PICK_ALL`, il velo che insegnava il tocco lungo sul tastino
- * della selezione, ed è uscito nella `0.94` col tastino stesso**: 'scegli tutto' adesso è
+ * ⚠️⚠️ **QUI C'ERA ANCHE `PICK_ALL`, il velo che insegnava il tocco lungo sul FAB
+ * della selezione, ed è uscito nella `0.94` col FAB stesso**: 'scegli tutto' adesso è
  * un tasto della bottomsheet, che si vede, quindi non c'è più niente da insegnare. La sua
  * chiave in archivio (`pick-all-hint-seen`) resta scritta sui telefoni di chi l'aveva già
  * visto e non dà fastidio a nessuno: cancellarla vorrebbe dire una migrazione per liberare

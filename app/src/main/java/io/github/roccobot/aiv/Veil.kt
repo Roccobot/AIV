@@ -385,7 +385,7 @@ internal object VeilStage {
  * ⚠️ **La dose si legge DENTRO il disegno**: così un velo che sale o scende costa un ridisegno e
  * non una ricomposizione, che su sessanta fotogrammi al secondo è la differenza fra un effetto e
  * un rallentamento.
- * ⚠️ **Sopra tutto quello che l'app disegna, tastino compreso**, come faceva il velo di finestra:
+ * ⚠️ **Sopra tutto quello che l'app disegna, FAB compreso**, come faceva il velo di finestra:
  * quello che deve restare sopra è la superficie che si è aperta, e quella vive in un'altra
  * finestra.
  */
@@ -727,6 +727,6 @@ internal val VEIL_FADE: Easing = CubicBezierEasing(0.25f, 0.1f, 0.25f, 1f)
  * `GraphicsLayer` da cui campionare quello che sta sotto: un menu è una **finestra** a sé, e
  * dalla sua finestra i pixel dell'app non si leggono. Quindi il prezzo vero non è l'effetto, è
  * che i menu smetterebbero di essere finestre, e con loro se ne andrebbero l'ordine sopra il
- * tastino, la chiusura col tasto Indietro e quella toccando fuori, che oggi arrivano gratis con
+ * FAB, la chiusura col tasto Indietro e quella toccando fuori, che oggi arrivano gratis con
  * `Popup`.
  */

@@ -81,8 +81,8 @@
     <string name="settings_light">روشن</string>
     <string name="settings_dark">گہرا</string>
 
-    <string name="settings_depth">پینلز کے پیچھے</string>
-    <string name="settings_depth_desc">کھلے پینل کو اسکرین سے کیا الگ کرتا ہے۔ بلر پیچھے کی چیز کو دھندلا اور گہرا کرتا ہے، سایہ پینل کے گرد سایہ بناتا ہے۔ بلر پرانے ڈیوائسز پر ایپ کو سست کر سکتا ہے۔</string>
+    <string name="settings_depth">مینیو اور پینلز کے پیچھے اثر</string>
+    <string name="settings_depth_desc">اس اثر کو طے کرتا ہے جو مینیو یا پینل کے پیچھے لگایا جاتا ہے تاکہ وہ پس منظر سے الگ اور زیادہ نمایاں ہو۔ بلر بہت پرانے ڈیوائسز پر کچھ سستی پیدا کر سکتا ہے۔</string>
     <string name="settings_depth_blur">بلر</string>
     <string name="settings_depth_shadow">سایہ</string>
     <string name="settings_depth_none">کچھ نہیں</string>
@@ -91,13 +91,13 @@
     <string name="settings_front_wash">گریڈینٹ</string>
     <string name="settings_front_serif">سیرف عنوان</string>
     <string name="settings_front_facts">معلومات</string>
-    <string name="front_open">فائل مینیجر میں کھولیں</string>
-    <string name="front_no_files">اس فون کی کوئی ایپ فولڈر نہیں کھولتی۔</string>
     <string name="front_name_copied">فولڈر کا نام کاپی ہو گیا</string>
     <string name="front_path_copied">فولڈر کا راستہ کاپی ہو گیا</string>
     <string name="front_copy_path">راستہ کاپی کریں</string>
     <string name="front_unpick">انتخاب ہٹائیں</string>
     <string name="front_pick_images">تصاویر منتخب کریں</string>
+    <string name="front_unpick_images">تصاویر کا انتخاب ہٹائیں</string>
+    <string name="front_unpick_clips">ویڈیوز کا انتخاب ہٹائیں</string>
     <string name="front_tint">سرخی کا رنگ</string>
     <string name="front_tint_none">طے شدہ رنگ</string>
     <string name="settings_folder_columns">گرڈز کے کالم</string>

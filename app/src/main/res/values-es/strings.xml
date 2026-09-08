@@ -81,8 +81,8 @@
     <string name="settings_light">Claro</string>
     <string name="settings_dark">Oscuro</string>
 
-    <string name="settings_depth">Detrás de los paneles</string>
-    <string name="settings_depth_desc">Qué separa de la pantalla un panel abierto. El desenfoque difumina y oscurece lo que hay detrás, la sombra dibuja una sombra alrededor del panel. El desenfoque puede ralentizar la aplicación en dispositivos antiguos.</string>
+    <string name="settings_depth">Efecto detrás de menús y paneles</string>
+    <string name="settings_depth_desc">Define el efecto aplicado detrás de un menú o un panel para separarlo del fondo y hacerlo más visible. El desenfoque puede causar cierta lentitud en dispositivos muy antiguos.</string>
     <string name="settings_depth_blur">Desenfoque</string>
     <string name="settings_depth_shadow">Sombra</string>
     <string name="settings_depth_none">Nada</string>
@@ -91,13 +91,13 @@
     <string name="settings_front_wash">Degradado</string>
     <string name="settings_front_serif">Título con serifa</string>
     <string name="settings_front_facts">Info</string>
-    <string name="front_open">Abrir en el gestor de archivos</string>
-    <string name="front_no_files">Ninguna aplicación de este teléfono abre carpetas.</string>
     <string name="front_name_copied">Nombre de la carpeta copiado</string>
     <string name="front_path_copied">Ruta de la carpeta copiada</string>
     <string name="front_copy_path">Copiar la ruta</string>
     <string name="front_unpick">Deseleccionar</string>
     <string name="front_pick_images">Seleccionar las imágenes</string>
+    <string name="front_unpick_images">Deseleccionar las imágenes</string>
+    <string name="front_unpick_clips">Deseleccionar vídeos</string>
     <string name="front_tint">Color del encabezado</string>
     <string name="front_tint_none">Color predeterminado</string>
     <string name="settings_folder_columns">Columnas en las cuadrículas</string>

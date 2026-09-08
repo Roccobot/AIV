@@ -81,8 +81,8 @@
     <string name="settings_light">Claire</string>
     <string name="settings_dark">Sombre</string>
 
-    <string name="settings_depth">Derrière les panneaux</string>
-    <string name="settings_depth_desc">Ce qui détache de l\'écran un panneau ouvert. Le flou brouille et assombrit ce qui est derrière, l\'ombre dessine une ombre autour du panneau. Le flou peut ralentir l\'application sur les appareils anciens.</string>
+    <string name="settings_depth">Effet derrière les menus et les panneaux</string>
+    <string name="settings_depth_desc">Définit l\'effet appliqué derrière un menu ou un panneau pour le détacher du fond et le rendre plus visible. Le flou peut provoquer des ralentissements sur les appareils très anciens.</string>
     <string name="settings_depth_blur">Flou</string>
     <string name="settings_depth_shadow">Ombre</string>
     <string name="settings_depth_none">Aucun</string>
@@ -91,13 +91,13 @@
     <string name="settings_front_wash">Dégradé</string>
     <string name="settings_front_serif">Titre à empattements</string>
     <string name="settings_front_facts">Infos</string>
-    <string name="front_open">Ouvrir dans le gestionnaire de fichiers</string>
-    <string name="front_no_files">Aucune application de ce téléphone n\'ouvre les dossiers.</string>
     <string name="front_name_copied">Nom du dossier copié</string>
     <string name="front_path_copied">Chemin du dossier copié</string>
     <string name="front_copy_path">Copier le chemin</string>
     <string name="front_unpick">Désélectionner</string>
     <string name="front_pick_images">Sélectionner les images</string>
+    <string name="front_unpick_images">Désélectionner les images</string>
+    <string name="front_unpick_clips">Désélectionner les vidéos</string>
     <string name="front_tint">Couleur de l\'en-tête</string>
     <string name="front_tint_none">Couleur par défaut</string>
     <string name="settings_folder_columns">Colonnes dans les grilles</string>

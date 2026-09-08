@@ -105,7 +105,6 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -127,6 +126,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material.icons.filled.Folder
@@ -305,7 +305,7 @@ fun GridScreen(
      *
      * ⚠️⚠️ **CAMBIA TRE COSE E NON L'ASPETTO**: 'elimina' diventa definitiva (là dentro non
      * c'è un secondo cestino), 'rinomina' diventa 'ripristina' (un file nel cestino non si
-     * rinomina, richiesta dell'utente), e il tastino compare **anche senza selezione**, per
+     * rinomina, richiesta dell'utente), e il FAB compare **anche senza selezione**, per
      * offrire 'svuota il cestino'. Tutto il resto, miniature comprese, è la griglia di
      * sempre: era la richiesta, cioè che il cestino si navighi come una cartella qualunque.
      */
@@ -319,17 +319,17 @@ fun GridScreen(
      */
     onHistory: () -> Unit = {},
     /**
-     * Dove manda 'Cestino' nel menu del tastino, e `null` quando di qui non ci si va.
+     * Dove manda 'Cestino' nel menu del FAB, e `null` quando di qui non ci si va.
      *
      * ⚠️ **Nulli di serie perché non ogni veste di questa griglia ha dove mandare**: la ricerca e
      * la cartella d'avvio la montano per mostrare un elenco, non per navigare l'app. Con tutti e
-     * due nulli, in una cartella il tastino non compare affatto.
+     * due nulli, in una cartella il FAB non compare affatto.
      */
     onBin: (() -> Unit)? = null,
-    /** Dove manda 'Impostazioni' nel menu del tastino. Vedi [onBin]. */
+    /** Dove manda 'Impostazioni' nel menu del FAB. Vedi [onBin]. */
     onSettings: (() -> Unit)? = null,
     /**
-     * Apre la ricerca **dentro questa cartella**, dal menu del tastino. Vedi [onBin].
+     * Apre la ricerca **dentro questa cartella**, dal menu del FAB. Vedi [onBin].
      *
      * ⚠️ **Non è [onSearch]**, che apre quella di tutta la galleria e vive nel tocco lungo sul
      * filtro: qui il confine è la cartella aperta, ed è la risposta di `d-fab-voci` (*in quel
@@ -620,8 +620,8 @@ fun GridScreen(
     /**
      * 'Tutte', che è il gesto che vale trecento tocchi.
      *
-     * ⚠️ Sta in una variabile perché lo chiamano in **tre** posti: il tastino in testata,
-     * il tocco lungo sul tastino galleggiante e la sua copia arancione nel velo. Scriverlo
+     * ⚠️ Vive in una variabile perché lo chiamano in **tre** posti: il FAB in testata,
+     * il tocco lungo sul FAB e la sua copia arancione nel velo. Scriverlo
      * tre volte vorrebbe dire tre occasioni di dimenticare la vibrazione in uno dei tre.
      */
     val takeAll: () -> Unit = {
@@ -702,7 +702,7 @@ fun GridScreen(
      * Il velo si archivia appena l'utente fa la cosa che insegnava, o appena la salta.
      *
      * ⚠️ Col ramo `null` che non fa niente, e non è ridondanza: questa funzione la chiama
-     * anche il tastino **vero**, dove un velo non c'è, e senza quel ramo un tocco lungo
+     * anche il FAB **vero**, dove un velo non c'è, e senza quel ramo un tocco lungo
      * ordinario archivierebbe un promemoria mai mostrato.
      */
     val hintDone: () -> Unit = {
@@ -1095,7 +1095,6 @@ fun GridScreen(
     val percorsoCopiato = stringResource(R.string.front_path_copied)
     val percorsoEtichetta = stringResource(R.string.front_copy_path)
     val tintaEtichetta = stringResource(R.string.front_tint)
-    val nienteFile = stringResource(R.string.front_no_files)
     val copiaNome = {
         ImageActions.copyName(context, title)
         Notices.say(nomeCopiato)
@@ -1295,17 +1294,17 @@ fun GridScreen(
 
             /*
              * ⚠️⚠️ **QUI NON C'È PIÙ NIENTE, e la ragione per cui c'era è stata SOSTITUITA
-             * invece che dimenticata.** Fino alla `0.72` accanto al conto stava un tastino
+             * invece che dimenticata.** Fino alla `0.72` accanto al conto stava un FAB
              * 'Tutte', messo lì perché su una cartella da trecento foto il gesto
              * alternativo è trecento tocchi. Quel bisogno adesso lo copre il **tocco lungo
-             * sul tastino galleggiante**, che fa la stessa cosa, si annuncia a TalkBack e ha
+             * sul FAB**, che fa la stessa cosa, si annuncia a TalkBack e ha
              * un onboarding che lo insegna una volta.
              * ⚠️ Togliendolo si guadagna la coerenza, che è la ragione dell'utente
              * (2026-08-31): *è un unicum e nessun'altra azione fa apparire qualcosa lì*.
              * In questa barra non compariva nient'altro, mai, in nessun altro modo.
              * ⚠️ Chi volesse rimetterlo tenga presente che ne servirebbe **anche** uno per
              * 'nessuna', o la barra torna a essere un posto dove una sola azione su due ha
-             * un tastino.
+             * un FAB.
              */
         }
         Spacer(Modifier.height(8.dp))
@@ -1362,14 +1361,24 @@ fun GridScreen(
                      * parte, non la curva, quindi la coreografia dello scorrimento non si tocca.
                      */
                     /*
-                     * ⚠️⚠️ **I DUE GESTI SULL'ICONA SONO SUOI, DALLA `1.85`** (riscontro del giro
-                     * della `1.83`): il tocco *apre il file manager predefinito in quella
-                     * cartella*, il tocco lungo *apre un selettore di colore che fa impostare il
-                     * colore della sfumatura dell'intestazione per cartella*.
-                     * ⚠️⚠️ **E ADESSO L'ICONA PARLA**, dove prima aveva la descrizione a `null`
-                     * perché a dire dove si è c'era già il nome: un disegno muto con due azioni
-                     * sopra è una funzione che esiste per chi la sa e non per chi la cerca.
-                     * L'etichetta dice che cosa fa il tocco, e il tocco lungo porta la sua.
+                     * ⚠️⚠️ **SULL'ICONA È RIMASTO UN GESTO SOLO, DALLA `1.86`, E LO HA DECISO
+                     * LUI** (riscontro del giro della `1.85`, voce `int-apri` accettabile: *per il
+                     * momento disattiva questo tocco, e proponimi un'azione alternativa realmente
+                     * utile. In assenza di funzionalità utili, per il momento resta senza*). Il
+                     * tocco lungo, che sceglie il colore, resta com'era.
+                     * ⚠️⚠️ **E CON IL GESTO ESCE IL CODICE CHE LO SERVIVA**, cioè
+                     * `Folder.openInFiles` e le sue due stringhe: un ramo senza chiamanti tenuto
+                     * in caldo per una funzione che forse torna è codice morto, e la storia git lo
+                     * riporta indietro in un comando il giorno che lui sceglie una delle proposte.
+                     * ⚠️ **La sua domanda tecnica ha una risposta, e vive nel documento del giro**
+                     * (*non si potrebbe far scegliere all'utente con quale app aprire la cartella,
+                     * se apparentemente nessuna app è disponibile?*): un selettore di app mostra
+                     * quelle che rispondono all'intento, quindi dove non risponde nessuno non
+                     * mostra niente. Quello che risponde sempre è un'altra strada, ed è una delle
+                     * proposte.
+                     * ⚠️⚠️ **L'ICONA RESTA PARLANTE, e adesso dice il gesto che le è rimasto**:
+                     * con la descrizione a `null` sarebbe un disegno muto con un'azione sopra,
+                     * cioè una funzione per chi la sa e non per chi la cerca.
                      * ⚠️ **Chi ascolta viene PRIMA di chi misura** (regola in `AIV/CLAUDE.md`,
                      * § '👆 Che cosa fa il tocco FUORI da una finestra'): qui i due riquadri
                      * coincidono, ma l'ordine è quello per cui un nodo di tocco non finisce mai
@@ -1377,7 +1386,7 @@ fun GridScreen(
                      */
                     Icon(
                         imageVector = Glyphs.FolderAiv,
-                        contentDescription = stringResource(R.string.front_open),
+                        contentDescription = tintaEtichetta,
                         tint = if (frontWash) {
                             MaterialTheme.colorScheme.surface
                         } else {
@@ -1389,11 +1398,6 @@ fun GridScreen(
                             }
                             .pointerInput(facts.path) {
                                 detectTapGestures(
-                                    onTap = {
-                                        if (!Folder.openInFiles(context, facts.path)) {
-                                            Notices.say(nienteFile)
-                                        }
-                                    },
                                     onLongPress = {
                                         haptics.performHapticFeedback(HOLD_BUZZ)
                                         tinge = true
@@ -1531,19 +1535,32 @@ fun GridScreen(
                      * ⚠️⚠️ **E IL TERZO DATO È LA RISPOSTA A `d-front-altro`**: `immagini`,
                      * cioè *aggiungi il numero di immagini, accanto ai video, così la somma torna
                      * col conto sotto il titolo*. Viene dalla stessa query delle altre due.
-                     * ⚠️ **Il tocco lungo ce l'hanno tutti e tre**, e sul terzo è una simmetria
-                     * mia e non una sua richiesta: due dati che selezionano e un terzo che non fa
-                     * niente si leggerebbero come un difetto del terzo.
-                     * ⚠️⚠️ **E IL SECONDO TOCCO LUNGO SUL PESO DESELEZIONA** (*allo stesso modo,
-                     * un secondo tocco lungo sulla pastiglia della dimensione deve deselezionare
-                     * tutto*): la scorciatoia va nei due versi come il comando accanto, quindi
-                     * anche la sua etichetta parlata cambia.
+                     *
+                     * ⚠️⚠️ **I GESTI SONO QUATTRO COPPIE, E LI HA RIDETTATI NELLA `1.86`**
+                     * (riscontro del giro della `1.85`, voce `int-chip`: *benissimo il colore; le
+                     * funzionalità però devono essere le seguenti (c'ho pensato meglio)*). Ogni
+                     * pastiglia adesso ha **tutti e due** i gesti, e la coppia è sempre la stessa:
+                     * il tocco **aggiunge** alla selezione quello che la pastiglia nomina, il
+                     * tocco lungo lo **toglie**. Fino alla `1.85` i tre dati avevano il solo tocco
+                     * lungo e il comando il solo tocco, cioè quattro pastiglie con tre regole.
+                     * - **Peso**: tocco tutto, tocco lungo niente.
+                     * - **Immagini**: tocco le immagini, tocco lungo via le immagini.
+                     * - **Video**: tocco i video, tocco lungo via i video.
+                     * - **Comando**: tocco tutto, tocco lungo niente.
+                     * ⚠️⚠️ **AGGIUNGE INVECE DI SOSTITUIRE, e la sua chiosa lo richiede**: *(come
+                     * secondo comando dopo il tocco normale equivale a un 'azzera la selezione')*.
+                     * Quella frase torna solo se il tocco somma e il tocco lungo sottrae; con una
+                     * sostituzione la parola **solo** di *deseleziona solo le immagini* non
+                     * vorrebbe dire niente, perché non ci sarebbe mai altro da lasciare in piedi.
+                     * Il guadagno è che i due dati si compongono: immagini più video fa tutto.
                      */
                     val pesa = frontFacts && facts.bytes > 0L
                     val conta = frontFacts && facts.clips > 0
                     val scatta = frontFacts && facts.shots > 0
                     val tutti = items.orEmpty()
                     val presi = tutti.isNotEmpty() && chosen.containsAll(tutti)
+                    val foto = remember(tutti) { tutti.filterNot { Videos.isVideo(it) }.toSet() }
+                    val clip = remember(tutti) { tutti.filter { Videos.isVideo(it) }.toSet() }
                     if (pesa || conta || scatta || frontPickAll) {
                         Spacer(Modifier.height(FRONT_CHIP_GAP))
                         FlowRow(
@@ -1556,12 +1573,10 @@ fun GridScreen(
                             if (pesa) {
                                 FrontChip(
                                     text = Formatter.formatShortFileSize(context, facts.bytes),
-                                    holdLabel = stringResource(
-                                        if (presi) R.string.front_unpick else R.string.pick_all
-                                    ),
-                                    onHold = {
-                                        chosen = if (presi) emptySet() else tutti.toSet()
-                                    }
+                                    tapLabel = stringResource(R.string.pick_all),
+                                    onTap = { chosen = tutti.toSet() },
+                                    holdLabel = stringResource(R.string.front_unpick),
+                                    onHold = { chosen = emptySet() }
                                 )
                             }
                             if (scatta) {
@@ -1571,10 +1586,10 @@ fun GridScreen(
                                         facts.shots,
                                         facts.shots
                                     ),
-                                    holdLabel = stringResource(R.string.front_pick_images),
-                                    onHold = {
-                                        chosen = tutti.filterNot { Videos.isVideo(it) }.toSet()
-                                    }
+                                    tapLabel = stringResource(R.string.front_pick_images),
+                                    onTap = { chosen = chosen + foto },
+                                    holdLabel = stringResource(R.string.front_unpick_images),
+                                    onHold = { chosen = chosen - foto }
                                 )
                             }
                             if (conta) {
@@ -1584,10 +1599,10 @@ fun GridScreen(
                                         facts.clips,
                                         facts.clips
                                     ),
-                                    holdLabel = stringResource(R.string.pick_clips),
-                                    onHold = {
-                                        chosen = tutti.filter { Videos.isVideo(it) }.toSet()
-                                    }
+                                    tapLabel = stringResource(R.string.pick_clips),
+                                    onTap = { chosen = chosen + clip },
+                                    holdLabel = stringResource(R.string.front_unpick_clips),
+                                    onHold = { chosen = chosen - clip }
                                 )
                             }
                             if (frontPickAll) {
@@ -1595,7 +1610,8 @@ fun GridScreen(
                                     picked = presi,
                                     onTap = {
                                         chosen = if (presi) emptySet() else tutti.toSet()
-                                    }
+                                    },
+                                    onHold = { chosen = emptySet() }
                                 )
                             }
                         }
@@ -1608,13 +1624,13 @@ fun GridScreen(
         /*
          * ⚠️⚠️ **IL RIQUADRO AVVOLGE TUTTI E TRE I CASI, dalla 1.06, e non il solo elenco
          * pieno** (riscontro dell'utente sul collaudo: *il FAB deve apparire anche a cestino
-         * vuoto, altrimenti è irraggiungibile*). Fino alla `1.05` il tastino nasceva dentro
+         * vuoto, altrimenti è irraggiungibile*). Fino alla `1.05` il FAB nasceva dentro
          * il ramo dell'elenco pieno, quindi in un cestino vuoto non esisteva: e siccome la
          * **Cronologia** vive nel suo menu, un cestino appena svuotato si portava via l'unica
          * via per sapere che cosa c'era dentro. Il ramo che lo nascondeva era proprio quello
          * in cui serve di più.
          * ⚠️ Il `weight` serve: senza, con tre sole fotografie il riquadro sarebbe alto
-         * quanto loro e il tastino finirebbe a mezza schermata invece che in basso.
+         * quanto loro e il FAB finirebbe a mezza schermata invece che in basso.
          */
         Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
         when {
@@ -1752,17 +1768,17 @@ fun GridScreen(
                     state = state,
                     horizontalArrangement = Arrangement.spacedBy(GAP),
                     verticalArrangement = Arrangement.spacedBy(GAP),
-                    // ⚠️ Il fondo cresce **con la selezione**, cioè quando il tastino
+                    // ⚠️ Il fondo cresce **con la selezione**, cioè quando il FAB
                     // compare: senza, la fotografia in basso a destra resterebbe coperta
                     // proprio mentre la si deve poter toccare. Fuori dalla selezione il
-                    // tastino non c'è e quello spazio sarebbe un buco.
+                    // FAB non c'è e quello spazio sarebbe un buco.
                     /*
                      * ⚠️⚠️ **SOTTO LA GRIGLIA CI VA IL PANNELLO MISURATO, dalla 0.94**: prima
-                     * bastava lo spazio del tastino, che è alto quanto un dito; il pannello
+                     * bastava lo spazio del FAB, che è alto quanto un dito; il pannello
                      * è due file di icone, e con [BELOW_FAB] l'ultima riga di fotografie
                      * sarebbe rimasta sotto di lui senza modo di tirarla fuori.
                      * ⚠️ Fuori dalla selezione il pannello non c'è, e resta [BELOW_FAB] per
-                     * il solo tastino del cestino.
+                     * il solo FAB del cestino.
                      */
                     contentPadding = PaddingValues(
                         bottom = if (picking) {
@@ -1888,12 +1904,12 @@ fun GridScreen(
          * ⚠️⚠️ **IL TASTINO STA DOPO LA SFUMATURA, DALLA `1.83`, E FINO ALLA `1.82` VIVEVA NELLA
          * COLONNA** (riscontro del giro della `1.82`, voce `fab-cartella` approvata con una
          * riserva: *deve stare SOPRA le sfumature*). In un `Box` l'ultimo figlio sta sopra,
-         * quindi dentro la colonna il tastino finiva **sotto** le due sfumature, che sono figlie
+         * quindi dentro la colonna il FAB finiva **sotto** le due sfumature, che sono figlie
          * della radice: al riposo non si vedeva, perché con l'intestazione aperta sono
-         * trasparenti, e scorrendo il tastino si velava insieme alle miniature.
+         * trasparenti, e scorrendo il FAB si velava insieme alle miniature.
          * ⚠️ **La schermata iniziale ha sempre avuto quest'ordine**, e la sua nota lo dice da
-         * cinque versioni (*sta prima del tastino e non dopo*): questa era l'unica delle due a
-         * non seguirla, perché il suo tastino è nato nel cestino, dove la sfumatura non c'è.
+         * cinque versioni (*sta prima del FAB e non dopo*): questa era l'unica delle due a
+         * non seguirla, perché il suo FAB è nato nel cestino, dove la sfumatura non c'è.
          * ⚠️ **La posizione sullo schermo non cambia di un pixel**: i tre rientri che la colonna
          * gli dava adesso sono scritti sul suo modificatore, e sono gli stessi tre che
          * [HintVeil] usa per illuminarlo.
@@ -1901,7 +1917,7 @@ fun GridScreen(
         /*
          * ⚠️⚠️ **IL TASTINO RESTA SOLO NEL CESTINO SENZA SELEZIONE, dalla 0.94.**
          * Con una selezione in corso le operazioni stanno nella bottomsheet qui
-         * sotto, e il tastino è sparito perché non aveva più niente da fare (vedi
+         * sotto, e il FAB è sparito perché non aveva più niente da fare (vedi
          * [PickSheet]). Qui invece porta le tre voci che riguardano il cestino
          * **intero**, che non sono operazioni su una selezione e non hanno un altro
          * posto dove stare.
@@ -1909,10 +1925,10 @@ fun GridScreen(
         /*
          * ⚠️⚠️ **E DALLA 1.44 SI FA DA PARTE ANCHE PER LA NOTIFICA**: il gesto Indietro
          * azzera la selezione, quindi in quell'istante `picking` diventa falso e il
-         * tastino tornerebbe **proprio dove** compare la notifica, che è larga tutto lo
+         * FAB tornerebbe **proprio dove** compare la notifica, che è larga tutto lo
          * schermo. Coprirebbe il tasto 'Annulla', cioè la sola cosa che quella notifica
          * ha da offrire.
-         * ⚠️ **Riguarda il solo cestino**, come tutto questo tastino: in una cartella
+         * ⚠️ **Riguarda il solo cestino**, come tutto questo FAB: in una cartella
          * normale non c'è e la notifica ha il fondo tutto per sé.
          */
         /*
@@ -1924,15 +1940,15 @@ fun GridScreen(
          * cestino intero, in una cartella le due destinazioni che di qui non si raggiungono.
          * A dirlo è [PickMenu], che riceve un blocco diverso.
          * ⚠️ **Senza i due richiami non compare**, ed è il caso della griglia montata in una
-         * veste che non ha dove mandare (vedi i due parametri): un tastino che apre un menu
-         * vuoto è peggio di un tastino che non c'è.
+         * veste che non ha dove mandare (vedi i due parametri): un FAB che apre un menu
+         * vuoto è peggio di un FAB che non c'è.
          */
         FabPop(
             visible = (bin || onSettings != null || onBin != null || onSearchHere != null) &&
                 !picking && cleared == null,
             // ⚠️ Il lato è quello scelto nelle impostazioni: vedi `PadLook.hand`.
             // ⚠️ I tre rientri sono quelli che gli dava la colonna, e adesso se li mette da
-            // sé: quello di sistema, il margine della schermata e gli 8dp del tastino.
+            // sé: quello di sistema, il margine della schermata e gli 8dp del FAB.
             // Sono gli stessi che [HintVeil] riceve per illuminarlo, e restano scritti una
             // volta sola per ognuno dei due.
             modifier = Modifier
@@ -1944,10 +1960,10 @@ fun GridScreen(
             Box {
                 /*
                  * ⚠️⚠️ **IL MENU È SCRITTO PRIMA DEL TASTINO, e quest'ordine è la
-                 * funzione** (1.39): il tastino si stacca in una finestra sua per restare
+                 * funzione** (1.39): il FAB si stacca in una finestra sua per restare
                  * sopra il velo (vedi `lifted` in [TapHoldFab]), e fra finestre dello
                  * stesso tipo comanda l'ordine in cui sono state aggiunte, che è quello
-                 * della composizione. Scritto dopo, il menu coprirebbe il tastino invece
+                 * della composizione. Scritto dopo, il menu coprirebbe il FAB invece
                  * del contrario.
                  * ⚠️ **Il menu non si sposta di un pixel**: il posizionatore legge il
                  * bordo di sopra di questo riquadro, che è lo stesso qualunque sia
@@ -1959,7 +1975,7 @@ fun GridScreen(
                      * voci qui sotto riguardano il cestino intero e in una cartella non
                      * vogliono dire niente. Quelle di una cartella sono le due destinazioni
                      * che di qui non si raggiungono, cioè quello per cui lui ha chiesto il
-                     * tastino: *il FAB deve vedersi in tutte le cartelle*.
+                     * FAB: *il FAB deve vedersi in tutte le cartelle*.
                      * ⚠️ **Nello stesso ordine della schermata iniziale**: prima il cestino,
                      * poi il filetto, poi le impostazioni. Chi ha imparato dove sta una voce
                      * la ritrova, che è la ragione per cui questo menu passa dallo stesso
@@ -2077,12 +2093,15 @@ fun GridScreen(
                         onTap = { menu.close(); emptying = true }
                     )
                 }
+                val altroTema = aivLauncher(!LocalAivLight.current)
                 PickFab(
-                    // ⚠️ I colori dell'icona dell'app, dalla `1.36`, come il tastino della
-                    // schermata iniziale: il perché per esteso è là, e i due tastini sono
-                    // lo stesso oggetto in due schermate.
-                    container = colorResource(R.color.launcher_background),
-                    ink = colorResource(R.color.launcher_foreground),
+                    // ⚠️ I colori dell'icona dell'app, dalla `1.36`, come il FAB della
+                    // schermata iniziale: il perché per esteso è là, e i due FAB sono
+                    // lo stesso oggetto in due schermate. ⚠️ Dalla `1.86` sono quelli
+                    // dell'**altro** tema e li dà `aivLauncher`, che legge le risorse col tema
+                    // dell'app invece che con quello di sistema: le due ragioni vivono là.
+                    container = altroTema.first,
+                    ink = altroTema.second,
                     holdLabel = shortcutLabel,
                     // ⚠️ E dalla `1.83` anche lo stesso glifo, in una cartella: nel cestino
                     // restano i tre puntini. Il perché è su [PickFab].
@@ -2119,7 +2138,7 @@ fun GridScreen(
              * giro della `1.55`: *la specchiatura se ne va del tutto, l'altra funzionalità la
              * sostituirà*). Rovesciava le due file per la mano sinistra, e adesso quel
              * mestiere lo fanno meglio due cose insieme: l'**ordine** che si trascina, che
-             * mette ogni tasto dove uno lo vuole, e il **lato del tastino**, che sposta tutto
+             * mette ogni tasto dove uno lo vuole, e il **lato del FAB**, che sposta tutto
              * il resto. La chiave che diceva la mano adesso dice il lato, quindi chi aveva
              * scelto la sinistra non perde niente.
              */
@@ -2162,8 +2181,8 @@ fun GridScreen(
         /*
          * ⚠️⚠️ **IL MINI ONBOARDING DEL TOCCO LUNGO**, che dalla `0.78` è un velo condiviso:
          * il colore, il contrasto misurato e la geometria stanno in [HintVeil], qui restano la
-         * frase e il tastino.
-         * ⚠️⚠️ **E dalla `0.73` è l'UNICA via a insegnare la scorciatoia**, perché il tastino
+         * frase e il FAB.
+         * ⚠️⚠️ **E dalla `0.73` è l'UNICA via a insegnare la scorciatoia**, perché il FAB
          * 'Tutte' in testata non c'è più (vedi la nota là dove stava): finché c'era, questo
          * velo era un aiuto e la barra la rete di sicurezza.
          * ⚠️⚠️ **IL VELO DI QUESTA SCHERMATA È UNO, quello del cestino**, e compare alla prima
@@ -2179,12 +2198,12 @@ fun GridScreen(
                     when (hint) {
                         Hint.BIN_EMPTY -> R.string.bin_empty_hint
                         // ⚠️ Le colonne non si insegnano qui: quel velo vive nella schermata
-                        // delle cartelle, dove sta il tastino che le cambia. Il ramo c'è
+                        // delle cartelle, dove sta il FAB che le cambia. Il ramo c'è
                         // perché [Hint] è un enum e il `when` deve essere completo, e questa
                         // frase non si vedrà mai (vedi `hint`, che la esclude).
                         Hint.COLUMNS -> R.string.columns_hint
                         // ⚠️ Idem per il doppio tocco, che vive nel visualizzatore e non ha
-                        // nemmeno un tastino da evidenziare: là il velo è `HintCentre`.
+                        // nemmeno un FAB da evidenziare: là il velo è `HintCentre`.
                         Hint.ZOOM_TAP -> R.string.hint_zoom_tap
                         // ⚠️ E idem per l'avviso sulle estensioni, che non è nemmeno un velo
                         // di questa forma: è un `HintNotice`, cioè una finestra sua, aperta
@@ -2193,7 +2212,7 @@ fun GridScreen(
                     }
                 ),
                 // ⚠️ Tre rientri: quello di sistema, il margine della schermata e gli 8dp
-                // del tastino. Il perché sta in [HintVeil], sul parametro.
+                // del FAB. Il perché sta in [HintVeil], sul parametro.
                 inset = Modifier
                     .safeDrawingPadding()
                     .padding(horizontal = GRID_PAD_X, vertical = GRID_PAD_Y)
@@ -2204,7 +2223,7 @@ fun GridScreen(
                     container = HINT_MARK,
                     ink = HINT_INK,
                     holdLabel = shortcutLabel,
-                    // ⚠️ **Lo stesso valore del tastino vero**, che è il mestiere di questa
+                    // ⚠️ **Lo stesso valore del FAB vero**, che è il mestiere di questa
                     // copia: un velo che illuminasse un disegno diverso indicherebbe il tasto
                     // sbagliato. Oggi questo velo compare solo nel cestino, quindi la condizione
                     // è sempre falsa: scritta uguale, resta vera anche il giorno che un
@@ -2222,7 +2241,7 @@ fun GridScreen(
      * ⚠️⚠️ **QUESTO DIALOGO STA QUI E NON IN `FileOps.kt`, e la ragione è che non parla di
      * file scelti**: le altre operazioni ricevono un elenco, questa svuota una cartella
      * intera, quindi non entra in `FileJob`, che è fatto di elenchi. Sta nel solo posto da
-     * cui si può chiedere, cioè il tastino del cestino.
+     * cui si può chiedere, cioè il FAB del cestino.
      * ⚠️ L'esito usa l'avviso dell'eliminazione, che è quello che succede: i file vanno via
      * per davvero.
      */
@@ -2349,13 +2368,13 @@ private fun LazyGridState.itemIndexAt(at: Offset): Int? =
  * sotto, che è quella che apre.
  */
 /**
- * Il tastino della selezione: quello vero, e la sua copia illuminata sopra il velo del
+ * Il FAB della selezione: quello vero, e la sua copia illuminata sopra il velo del
  * suggerimento.
  *
  * ⚠️⚠️ **NASCE PERCHÉ ERA SCRITTO DUE VOLTE, E L'INVARIANTE ERA AFFIDATA A UN COMMENTO**
  * (censimento della UI del 2026-09-05): la nota accanto alla copia diceva *lo STESSO glifo del
- * tastino vero ... un velo che evidenzia un disegno diverso da quello che sta sotto indica il
- * tasto sbagliato*, e niente lo teneva fermo. Cambiando il glifo del tastino vero, il velo
+ * FAB vero ... un velo che evidenzia un disegno diverso da quello che sta sotto indica il
+ * tasto sbagliato*, e niente lo teneva fermo. Cambiando il glifo del FAB vero, il velo
  * avrebbe continuato a illuminare quello di prima senza che nessuno lo segnalasse.
  * - **I quattro valori condivisi vivono qui**: l'etichetta, l'etichetta del tocco lungo, il
  *   gesto lungo e il glifo. Quello che i due chiamanti passano è ciò che deve differire, cioè i
@@ -2371,10 +2390,10 @@ private fun LazyGridState.itemIndexAt(at: Offset): Int? =
  * - ⚠️⚠️ **E IN UNA CARTELLA IL GLIFO È QUELLO DELL'APP, DALLA `1.83`** (riscontro del giro della
  *   `1.82`, voce `fab-cartella`: *anche dentro le cartelle deve esserci il glifo dell'app:
  *   l'altra icona sta solo nel cestino*). I tre puntini restano dove sono nati con la `1.55`,
- *   cioè nel cestino, e in una cartella il tastino è lo stesso oggetto della schermata iniziale:
+ *   cioè nel cestino, e in una cartella il FAB è lo stesso oggetto della schermata iniziale:
  *   stessi colori dalla `1.36`, e adesso anche lo stesso marchio.
  *   ⚠️ **A sceglierlo è un parametro e non il chiamante**, per la ragione che questa funzione
- *   esiste: la copia illuminata sotto il velo deve portare **lo stesso** disegno del tastino
+ *   esiste: la copia illuminata sotto il velo deve portare **lo stesso** disegno del FAB
  *   vero, e passandolo da fuori sarebbero di nuovo due decisioni che nessuno tiene insieme.
  *
  * @param holdLabel la stringa del gesto lungo, che dipende dalla scorciatoia in vigore.
@@ -3046,8 +3065,8 @@ private const val THUMB_KIND = "thumb"
  * I rientri della schermata: quanto sta il contenuto dai bordi dell'area sicura.
  *
  * ⚠️⚠️ **ERANO SCRITTI IN TRE POSTI E DALLA `1.83` SONO DUE COSTANTI**: la colonna della
- * schermata, il rientro con cui il velo dell'onboarding illumina il tastino, e il modificatore
- * del tastino stesso. Adesso ne serve un quarto, la tinta dell'intestazione, che deve **uscire**
+ * schermata, il rientro con cui il velo dell'onboarding illumina il FAB, e il modificatore
+ * del FAB stesso. Adesso ne serve un quarto, la tinta dell'intestazione, che deve **uscire**
  * di esattamente quel tanto per arrivare ai bordi dello schermo: con i numeri copiati, il giorno
  * che uno cambia la tinta lascerebbe una striscia chiara sui fianchi.
  */
@@ -3067,13 +3086,18 @@ private val GRID_PAD_Y = 12.dp
  * ⚠️ **Il vestito è quello della variante 4 del mockup**: contorno, fondo della superficie,
  * inchiostro smorzato.
  *
- * ⚠️⚠️ **IL TOCCO LUNGO È UNA SCORCIATOIA E SUL DATO IL TOCCO BREVE NON FA NIENTE** (punto A del
- * campo libero del giro della `1.82`), e la scelta è dichiarata: un dato che al primo tocco
- * seleziona duecento file sarebbe una sorpresa. La vibrazione è quella di ogni tocco lungo
- * dell'app, ed è il solo segno immediato che il gesto è passato.
- * ⚠️ **Il gesto esiste anche per chi non vede la pastiglia**: `onLongClick` semantico porta
- * l'etichetta, quindi un lettore di schermo lo annuncia e lo può eseguire. Senza, sarebbe una
- * funzione riservata a chi sa già che c'è.
+ * ⚠️⚠️ **DALLA `1.86` OGNI PASTIGLIA HA TUTTI E DUE I GESTI, e la `1.82` diceva il contrario**
+ * (*il tocco lungo è una scorciatoia e sul dato il tocco breve non fa niente*, punto A del campo
+ * libero di quel giro): la ragione di allora era che *un dato che al primo tocco seleziona
+ * duecento file sarebbe una sorpresa*, e a spenderla è lui col telefono in mano, che nel giro
+ * della `1.85` ha ridettato le quattro coppie. Il verso resta leggibile perché è **uno solo**: il
+ * tocco aggiunge quello che la pastiglia nomina, il tocco lungo lo toglie.
+ * ⚠️ **La vibrazione resta sul solo tocco lungo**, ed è il segno che distingue i due gesti: un
+ * tocco che seleziona si vede da sé, uno che toglie arriva dopo mezzo secondo di attesa.
+ * ⚠️⚠️ **E TUTTI E DUE I GESTI ESISTONO PER CHI NON VEDE LA PASTIGLIA**: `onClick` e
+ * `onLongClick` semantici portano la loro etichetta, quindi un lettore di schermo li annuncia e
+ * li può eseguire. Senza il primo, il tocco arriverebbe dal solo `pointerInput`, che nell'albero
+ * semantico non compare: sarebbe una funzione riservata a chi la vede.
  *
  * @param modifier quello che il chiamante aggiunge: serve alla larghezza riservata di [FrontPick].
  */
@@ -3082,6 +3106,7 @@ private fun FrontChip(
     text: String,
     holdLabel: String? = null,
     onHold: (() -> Unit)? = null,
+    tapLabel: String? = null,
     onTap: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
@@ -3113,6 +3138,9 @@ private fun FrontChip(
             .background(MaterialTheme.colorScheme.surface)
             .border(1.dp, MaterialTheme.colorScheme.surfaceVariant, CircleShape)
             .semantics {
+                if (tapLabel != null) {
+                    onClick(label = tapLabel) { tocca?.invoke(); true }
+                }
                 if (holdLabel != null) {
                     onLongClick(label = holdLabel) { tieni?.invoke(); true }
                 }
@@ -3143,9 +3171,18 @@ private fun FrontChip(
  * potuto nel documento di feedback), quindi la pastiglia si tiene larga quanto la più lunga delle
  * due e non si muove al cambio. Una seconda `Text` trasparente sotto avrebbe messo lo stesso
  * testo in due posti e una voce in più nell'albero semantico.
+ *
+ * ⚠️⚠️ **IL TOCCO LUNGO AZZERA SEMPRE, DALLA `1.86`** (*'Seleziona tutto' al tocco = seleziona
+ * tutto; tocco prolungato = azzera la selezione*), e serve con una selezione **parziale**: là il
+ * tocco la completa, e senza il secondo gesto per svuotarla bisognerebbe prima riempirla.
+ * ⚠️⚠️ **MA IL TOCCO RESTA UN INTERRUTTORE, e la scelta va dichiarata perché la sua frase si
+ * può leggere anche alla lettera** (*al tocco = seleziona tutto*, sempre e comunque): con tutto
+ * già selezionato la pastiglia **dice** 'Deseleziona', e un comando che dice una parola e ne fa
+ * un'altra è peggio di un gesto in meno. La voce `int-scarta` di quel cambio di testo è
+ * approvata, quindi qui il testo comanda: la pastiglia fa quello che c'è scritto sopra.
  */
 @Composable
-private fun FrontPick(picked: Boolean, onTap: () -> Unit) {
+private fun FrontPick(picked: Boolean, onTap: () -> Unit, onHold: () -> Unit) {
     val misura = rememberTextMeasurer()
     val stile = MaterialTheme.typography.labelSmall
     val prendi = stringResource(R.string.pick_all)
@@ -3158,7 +3195,10 @@ private fun FrontPick(picked: Boolean, onTap: () -> Unit) {
     }
     FrontChip(
         text = if (picked) scarta else prendi,
+        tapLabel = if (picked) scarta else prendi,
         onTap = onTap,
+        holdLabel = scarta,
+        onHold = onHold,
         modifier = Modifier.width(with(LocalDensity.current) { largo.toDp() })
     )
 }
@@ -3214,7 +3254,7 @@ private fun FabPop(
 }
 
 /**
- * Il menu del cestino: **sul lato del tastino**, sopra di lui.
+ * Il menu del cestino: **sul lato del FAB**, sopra di lui.
  *
  * ⚠️⚠️ **STAVA AL CENTRO FINO ALLA `1.53`, E ADESSO STA DOVE STA QUELLO DELLA SCHERMATA
  * INIZIALE** (riscontro dell'utente, giro della `1.53`, voce `sfocatura-segue`: *i due pannelli
@@ -3232,12 +3272,12 @@ private fun FabPop(
  * selezione da tempo ha la sua scheda in fondo, e quella richiesta è stata sostituita da questa.
  *
  * ⚠️⚠️ **NON È UN `DropdownMenu`, dalla 0.75**. Un `DropdownMenu` si posiziona **accanto al suo
- * genitore** e non accetta un posizionatore: attaccato a un tastino in basso a destra,
+ * genitore** e non accetta un posizionatore: attaccato a un FAB in basso a destra,
  * usciva da quell'angolo. La superficie e il posizionatore stanno in [MenuShell] e `MenuSpot`,
  * condivisi dalla `1.46` con **ogni** menu dell'app.
  * ⚠️⚠️ **DALLA 1.06 SI CHIUDE TOCCANDO FUORI**, che fino alla `1.05` era spento apposta
- * perché il tastino lo **alternava** e le due cose si pestavano (il perché sta in
- * [MenuShell], dove fino alla `1.46` era un parametro). Adesso il tastino si limita ad
+ * perché il FAB lo **alternava** e le due cose si pestavano (il perché vive in
+ * [MenuShell], dove fino alla `1.46` era un parametro). Adesso il FAB si limita ad
  * aprire, e a chiudere ci pensa
  * il velo trasparente della schermata: nessuno dei due può più riaprire quello che l'altro
  * ha appena chiuso. Questo resta acceso per il caso che il velo non copre, cioè un tocco
@@ -3247,7 +3287,7 @@ private fun FabPop(
 private fun PickMenu(menu: MenuState, content: @Composable () -> Unit) {
     MenuShell(
         // ⚠️ La stessa coppia della schermata iniziale, e non una che le somiglia: allineato al
-        // tastino in orizzontale, e sopra di lui perché sotto non ci sta. Scriverla uguale è
+        // FAB in orizzontale, e sopra di lui perché sotto non ci sta. Scriverla uguale è
         // quello che rende impossibile che i due menu si comportino in modo diverso.
         state = menu,
         position = rememberMenuAtAnchor(),
@@ -3281,9 +3321,9 @@ private val FILTER_MARK = 36.dp
 private val FILTER_PAD = 4.dp
 
 /**
- * Da quanto piccolo entra il tastino, e a quanto piccolo torna uscendo.
+ * Da quanto piccolo entra il FAB, e a quanto piccolo torna uscendo.
  *
- * ⚠️ 0,62 e non 0: partendo da zero il tastino sembra **sbucare** da un punto, e con una
+ * ⚠️ 0,62 e non 0: partendo da zero il FAB sembra **sbucare** da un punto, e con una
  * molla elastica diventa un rimbalzo da cartone animato. Partendo da due terzi il gesto si
  * legge come 'era lì e si è fatto avanti'.
  */

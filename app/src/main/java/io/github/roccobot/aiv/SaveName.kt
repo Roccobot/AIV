@@ -173,39 +173,23 @@ fun SaveNameDialog(
          * ⚠️ **A destra ci va la FILA e non ogni icona per conto suo**, e così il caso 'una
          * sola' viene da sé: `SpaceBetween` spinge la fila al bordo, quindi l'unica icona in
          * scena è già allineata a destra senza che nessuno la sposti.
-         * ⚠️ **Il titolo prende il peso**: senza, un titolo lungo spingerebbe le icone oltre il
-         * bordo invece di andare a capo, che è la stessa ragione per cui nella griglia il peso
-         * sta fuori dalla colonna del conto.
+         * ⚠️⚠️ **QUI SI DICE QUALI COMANDI CI SONO E IN CHE ORDINE, E BASTA**: se siano scritti o
+         * disegnati lo decide [TitleRow] dalla misura, che dalla `1.86` è la sua risposta a
+         * `d-pill-soglia`. Il conto che la `1.82` faceva qui vive là, dove c'è anche la
+         * larghezza.
          */
         title = {
             val dest = stringResource(R.string.save_name_dest)
             val ext = stringResource(R.string.rename_ext)
-            // ⚠️ I due comandi in scena si contano una volta: è quel numero, e non le due
-            // condizioni ripetute, a decidere la forma di tutti e due.
-            val insieme = onPickFolder != null && gate.allowed
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(R.string.save_name_title),
-                    modifier = Modifier.weight(1f)
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+            TitleRow(
+                title = stringResource(R.string.save_name_title),
+                commands = buildList {
                     if (onPickFolder != null) {
-                        if (insieme) TitleIcon(Glyphs.FolderDownload, dest, onPickFolder)
-                        else TitlePill(text = dest, onTap = onPickFolder)
+                        add(TitleCommand(dest, Glyphs.FolderDownload, onPickFolder))
                     }
-                    if (gate.allowed) {
-                        if (insieme) TitleIcon(Glyphs.Extension, ext, gate.open)
-                        else TitlePill(text = ext, onTap = gate.open)
-                    }
+                    if (gate.allowed) add(TitleCommand(ext, Glyphs.Extension, gate.open))
                 }
-            }
+            )
         },
         text = {
             Column {

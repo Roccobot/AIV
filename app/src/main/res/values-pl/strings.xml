@@ -81,8 +81,8 @@
     <string name="settings_light">Jasne</string>
     <string name="settings_dark">Ciemne</string>
 
-    <string name="settings_depth">Za panelami</string>
-    <string name="settings_depth_desc">Co oddziela otwarty panel od ekranu. Rozmycie rozmywa i przyciemnia to, co jest z tyłu, a cień rysuje cień wokół panelu. Rozmycie może spowolnić aplikację na starszych urządzeniach.</string>
+    <string name="settings_depth">Efekt za menu i panelami</string>
+    <string name="settings_depth_desc">Określa efekt stosowany za menu lub panelem, aby oddzielić go od tła i uczynić bardziej widocznym. Rozmycie może powodować spowolnienia na bardzo starych urządzeniach.</string>
     <string name="settings_depth_blur">Rozmycie</string>
     <string name="settings_depth_shadow">Cień</string>
     <string name="settings_depth_none">Nic</string>
@@ -91,13 +91,13 @@
     <string name="settings_front_wash">Gradient</string>
     <string name="settings_front_serif">Tytuł szeryfowy</string>
     <string name="settings_front_facts">Info</string>
-    <string name="front_open">Otwórz w menedżerze plików</string>
-    <string name="front_no_files">Żadna aplikacja na tym telefonie nie otwiera folderów.</string>
     <string name="front_name_copied">Skopiowano nazwę folderu</string>
     <string name="front_path_copied">Skopiowano ścieżkę folderu</string>
     <string name="front_copy_path">Kopiuj ścieżkę</string>
     <string name="front_unpick">Odznacz</string>
     <string name="front_pick_images">Zaznacz obrazy</string>
+    <string name="front_unpick_images">Odznacz obrazy</string>
+    <string name="front_unpick_clips">Odznacz filmy</string>
     <string name="front_tint">Kolor nagłówka</string>
     <string name="front_tint_none">Kolor domyślny</string>
     <string name="settings_folder_columns">Kolumny w siatkach</string>
