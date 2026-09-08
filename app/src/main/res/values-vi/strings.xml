@@ -107,6 +107,11 @@
     <string name="front_unpick_clips">Bỏ chọn video</string>
     <string name="front_tint">Màu của phần đầu</string>
     <string name="front_tint_none">Màu mặc định</string>
+    <string name="folder_cover">Chọn ảnh bìa</string>
+    <string name="folder_cover_auto">Ảnh bìa tự động</string>
+    <string name="folder_cover_pick">Chọn ảnh bìa cho \'%1$s\'</string>
+    <string name="folder_cover_done">Đã cập nhật ảnh bìa</string>
+    <string name="folder_cover_fail">Không thể dùng ảnh này làm ảnh bìa</string>
     <string name="settings_folder_columns">Số cột trong lưới</string>
     <string name="settings_folder_columns_desc">Lưới thư mục và lưới ảnh hiển thị bao nhiêu cột. Nhiều cột hơn chứa được nhiều hơn trên màn hình và thu nhỏ từng ô. Ở bốn cột, tên thư mục thường bị cắt ngắn.</string>
     <string name="settings_folder_count">Bộ đếm mục dưới các thư mục ở chế độ lưới</string>

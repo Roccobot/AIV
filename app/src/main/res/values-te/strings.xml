@@ -107,6 +107,11 @@
     <string name="front_unpick_clips">వీడియోల ఎంపిక తీసివేయి</string>
     <string name="front_tint">శీర్షిక రంగు</string>
     <string name="front_tint_none">డిఫాల్ట్ రంగు</string>
+    <string name="folder_cover">కవర్‌ను ఎంచుకోండి</string>
+    <string name="folder_cover_auto">స్వయంచాలక కవర్</string>
+    <string name="folder_cover_pick">\'%1$s\' కవర్‌ను ఎంచుకోండి</string>
+    <string name="folder_cover_done">కవర్ నవీకరించబడింది</string>
+    <string name="folder_cover_fail">ఈ చిత్రాన్ని కవర్‌గా ఉపయోగించలేరు</string>
     <string name="settings_folder_columns">గడుల్లోని నిలువు వరుసలు</string>
     <string name="settings_folder_columns_desc">సంచయ గడి, చిత్ర గడి ఎన్ని నిలువు వరుసలు చూపాలి. ఎక్కువ నిలువు వరుసలు తెరపై ఎక్కువ ఇముడ్చుతాయి, ప్రతి గడి చిన్నదవుతుంది. నాలుగు వద్ద సంచయం పేరు సాధారణంగా తెగిపోతుంది.</string>
     <string name="settings_folder_count">గ్రిడ్ వీక్షణలో సంచయాల కింద అంశాల లెక్క</string>

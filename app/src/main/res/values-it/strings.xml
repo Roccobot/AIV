@@ -176,6 +176,11 @@
     <string name="front_unpick_clips">Deseleziona i video</string>
     <string name="front_tint">Colore dell\'intestazione</string>
     <string name="front_tint_none">Colore predefinito</string>
+    <string name="folder_cover">Scegli la copertina</string>
+    <string name="folder_cover_auto">Copertina automatica</string>
+    <string name="folder_cover_pick">Scegli la copertina di \'%1$s\'</string>
+    <string name="folder_cover_done">Copertina aggiornata</string>
+    <string name="folder_cover_fail">Questa immagine non si può usare come copertina</string>
 
     <string name="settings_folder_columns">Colonne delle griglie</string>
     <string name="settings_folder_columns_desc">Quante colonne mostrano la griglia delle cartelle e quella delle immagini. Più colonne fanno stare più cose sullo schermo e rimpiccioliscono ogni riquadro. A quattro il nome della cartella viene quasi sempre troncato.</string>

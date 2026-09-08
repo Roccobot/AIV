@@ -151,6 +151,14 @@ fun FolderScreen(
      * una chiave sola dell'archivio, mentre le celle sono decine (vedi `FolderTints.all`).
      */
     tints: Map<Long, Int>,
+    /**
+     * La copertina scelta a mano per ogni cartella che ne ha una. Vedi `FolderCovers`.
+     *
+     * ⚠️ **Arriva come la mappa delle tinte e per la stessa ragione**, e come quella dice chi è
+     * segnato e non quante cartelle ci sono: chi non compare qui dentro tiene la sua copertina
+     * automatica, cioè l'immagine più recente.
+     */
+    covers: Map<Long, Uri> = emptyMap(),
     /** I percorsi da non mostrare. Vedi `Settings.hiddenFolders`. */
     hidden: Set<String>,
     onHide: (Folder.Bucket) -> Unit,
@@ -536,9 +544,12 @@ fun FolderScreen(
 
                 view == FolderView.GRID ->
                     Covers(
-                        folders!!, columns, prestate, counted, nameStyle, colour, tints, onPick
+                        folders!!, columns, prestate, counted, nameStyle, colour, tints, covers,
+                        onPick
                     ) { hiding = it }
-                else -> Rows(folders!!, prestate, listCount, listText, colour, tints, onPick) {
+                else -> Rows(
+                    folders!!, prestate, listCount, listText, colour, tints, covers, onPick
+                ) {
                     hiding = it
                 }
             }
@@ -1605,6 +1616,8 @@ internal fun Covers(
     colour: FolderColour,
     /** Il colore di ogni cartella che ne ha uno, per identificatore. */
     tints: Map<Long, Int>,
+    /** La copertina scelta a mano per ogni cartella che ne ha una. Vedi `FolderCovers`. */
+    covers: Map<Long, Uri> = emptyMap(),
     onPick: (Folder.Bucket) -> Unit,
     onHide: (Folder.Bucket) -> Unit
 ) {
@@ -1645,6 +1658,7 @@ internal fun Covers(
                 peeked = bucket.isHidden(peeked),
                 nameStyle = nameStyle,
                 colour = colour,
+                cover = bucket.coverIn(covers),
                 tint = frontTintOf(tints[bucket.id]),
                 onClick = { onPick(bucket) },
                 onLongClick = withHaptics { onHide(bucket) }
@@ -1680,6 +1694,8 @@ internal fun Rows(
     colour: FolderColour,
     /** Il colore di ogni cartella che ne ha uno, per identificatore. */
     tints: Map<Long, Int>,
+    /** La copertina scelta a mano per ogni cartella che ne ha una. Vedi `FolderCovers`. */
+    covers: Map<Long, Uri> = emptyMap(),
     onPick: (Folder.Bucket) -> Unit,
     onHide: (Folder.Bucket) -> Unit
 ) {
@@ -1714,7 +1730,7 @@ internal fun Rows(
                         .background(MaterialTheme.colorScheme.surfaceVariant),
                     contentAlignment = Alignment.Center
                 ) {
-                    Cover(bucket.cover)
+                    Cover(bucket.coverIn(covers))
                     FolderMark(colour, tinta, shape)
                     if (prestata) PeekMark(Modifier.align(Alignment.TopEnd))
                 }
@@ -1786,6 +1802,14 @@ private fun FolderCard(
     nameStyle: TextStyle,
     /** Dove si vede il colore di questa cartella. Vedi [FolderColour]. */
     colour: FolderColour,
+    /**
+     * L'immagine da mostrare: quella scelta a mano se c'è, altrimenti la più recente.
+     *
+     * ⚠️ **La sceglie chi chiama, con [coverIn], e non questa cella**: la mappa delle copertine
+     * scelte arriva intera, e risolverla qui vorrebbe dire passarla a ogni cella per farle fare
+     * la stessa ricerca. È lo stesso criterio della tinta, che arriva già risolta.
+     */
+    cover: Uri?,
     /** Il colore di questa cartella, o `null` se non ne ha scelto uno. */
     tint: Color?,
     /** Se questa cartella è in scena **in prestito**, cioè col minuto di 'Mostra nascoste'. */
@@ -1823,7 +1847,7 @@ private fun FolderCard(
                 .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
-            Cover(bucket.cover)
+            Cover(cover)
             FolderMark(colour, tint, shape)
             if (peeked) PeekMark(Modifier.align(Alignment.TopEnd))
         }

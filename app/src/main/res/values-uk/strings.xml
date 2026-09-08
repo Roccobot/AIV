@@ -107,6 +107,11 @@
     <string name="front_unpick_clips">Зняти вибір відео</string>
     <string name="front_tint">Колір заголовка</string>
     <string name="front_tint_none">Типовий колір</string>
+    <string name="folder_cover">Вибрати обкладинку</string>
+    <string name="folder_cover_auto">Автоматична обкладинка</string>
+    <string name="folder_cover_pick">Виберіть обкладинку для \'%1$s\'</string>
+    <string name="folder_cover_done">Обкладинку оновлено</string>
+    <string name="folder_cover_fail">Це зображення не можна використати як обкладинку</string>
     <string name="settings_folder_columns">Стовпці в сітках</string>
     <string name="settings_folder_columns_desc">Скільки стовпців показують сітка тек і сітка зображень. Більше стовпців вміщує більше на екрані та зменшує кожну плитку. При чотирьох назву теки зазвичай обрізає.</string>
     <string name="settings_folder_count">Лічильник елементів під теками в режимі сітки</string>

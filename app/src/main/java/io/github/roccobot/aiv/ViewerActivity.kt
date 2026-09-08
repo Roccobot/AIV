@@ -1075,6 +1075,103 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch { FolderTints.set(context, dove, index) }
     }
 
+    /**
+     * La copertina scelta a mano per la cartella aperta, o `null` se ha quella automatica.
+     *
+     * ⚠️ **Vive qui accanto a [tint] e per la stessa ragione**: è un dato della cartella e non
+     * una preferenza dell'app. Serve al menu del FAB, che offre di toglierla **se e solo se**
+     * c'è, come la voce 'Mostra nascoste' della schermata iniziale.
+     */
+    var cover: Uri? by mutableStateOf(null)
+        private set
+
+    /**
+     * Per quale cartella si sta scegliendo una copertina, e come si chiama.
+     *
+     * ⚠️⚠️ **È UNA MODALITÀ E NON UNA FINESTRA, PERCHÉ LO DICE LA SUA RISPOSTA** (risposta a
+     * `d-copertina-come`, giro della `1.92`: *può essere scelta dalla normale vista di AIV da
+     * qualsiasi cartella, non necessariamente quella di cui si sta impostando la copertina*).
+     * Una finestra che elenca immagini sarebbe una seconda galleria da scrivere e da tenere
+     * allineata a quella vera; così invece si sfoglia l'app com'è, e il tocco su una miniatura
+     * vale come scelta.
+     * ⚠️ **Vive nel modello e non in una schermata, come [peek]**: fra l'inizio e la scelta si
+     * cambia cartella, quindi uno stato dentro `GridScreen` se ne andrebbe con la composizione,
+     * cioè proprio nel momento in cui serve.
+     * ⚠️ **Porta anche il nome**: la fascia che dice che cosa si sta facendo lo nomina, e alla
+     * cartella di partenza non si torna, quindi da un identificatore non lo si ricaverebbe più.
+     */
+    var covering: Covering? by mutableStateOf(null)
+        private set
+
+    /** La cartella per cui si sta scegliendo una copertina. Vedi [covering]. */
+    data class Covering(val bucket: Long, val name: String)
+
+    /**
+     * Comincia a scegliere la copertina della cartella aperta: il tocco sull'icona
+     * dell'intestazione.
+     *
+     * ⚠️ **NON si esce dalla cartella**, ed è il caso comune: la copertina che si vuole è quasi
+     * sempre una delle immagini che si hanno davanti. Per prenderne una di un'altra cartella
+     * basta uscire e navigare, che è la seconda metà della sua richiesta.
+     */
+    fun startCover() {
+        val quale = screen as? Screen.Grid ?: return
+        covering = Covering(quale.bucket, quale.name)
+    }
+
+    /** Lascia perdere la scelta in corso. */
+    fun stopCover() {
+        covering = null
+    }
+
+    /** L'immagine toccata diventa la copertina della cartella da cui la scelta è partita. */
+    fun coverPicked(source: Uri) {
+        val quale = covering ?: return
+        covering = null
+        applyCover(quale.bucket, source)
+    }
+
+    /** Toglie la copertina scelta della cartella aperta: la voce del menu del FAB. */
+    fun clearCover() {
+        (screen as? Screen.Grid)?.bucket?.let { applyCover(it, null) }
+    }
+
+    /**
+     * Scrive (o toglie) la copertina di [dove], e dice com'è andata.
+     *
+     * ⚠️⚠️ **QUI LO STATO SI SCRIVE DOPO E NON PRIMA, al contrario di [tintFolder]**, e la
+     * differenza è che questa operazione **può non riuscire**: la copia decodifica l'immagine e
+     * la scrive sul disco, quindi scrivere lo stato in anticipo vorrebbe dire una copertina che
+     * la schermata mostra e che sul disco non c'è. Una tinta invece è un numero, e là non c'è
+     * niente che possa andare storto.
+     * ⚠️⚠️ **L'ESITO LO DICE UNA NOTIFICA, E NON È UN DI PIÙ**: la copertina si vede nella
+     * schermata iniziale, cioè quasi mai in quella da cui si è scelto, quindi senza una riga che
+     * parli il comando sembrerebbe non aver fatto niente. È lo stesso caso di 'Copia lista'.
+     * ⚠️ **[cover] si aggiorna solo se la cartella aperta è quella**: scegliendo da un'altra
+     * cartella, quella che si ha davanti non c'entra niente con la copertina appena scritta.
+     */
+    private fun applyCover(dove: Long, source: Uri?) {
+        val context = getApplication<Application>()
+        viewModelScope.launch {
+            val scelta = if (source == null) {
+                FolderCovers.clear(context, dove)
+                null
+            } else {
+                FolderCovers.set(context, dove, source) ?: run {
+                    Notices.say(context.getString(R.string.folder_cover_fail))
+                    return@launch
+                }
+            }
+            if ((screen as? Screen.Grid)?.bucket == dove) cover = scelta
+            folderCovers = if (scelta == null) {
+                folderCovers - dove
+            } else {
+                folderCovers + (dove to scelta)
+            }
+            Notices.say(context.getString(R.string.folder_cover_done))
+        }
+    }
+
     fun openGrid(bucket: Long, name: String) {
         gridFilter = MediaKind.ALL
         screen = Screen.Grid(bucket, name)
@@ -1092,12 +1189,17 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         // ⚠️ **Anche la tinta si azzera**, per la stessa ragione dei numeri: entrando in una
         // cartella si vedrebbe per un istante il colore di quella di prima.
         tint = null
+        // ⚠️ E la copertina scelta con lei, per la stessa ragione: la voce del menu che la
+        // toglie compare solo se c'è, e col ricordo della cartella di prima comparirebbe dove
+        // non c'è niente da togliere.
+        cover = null
         viewModelScope.launch { listed = Folder.newestIn(context, bucket).atSequenceStart() }
         // ⚠️ In un lancio a sé e non in coda all'altro: i due numeri servono alla fascia in
         // cima, che si vede subito, mentre le miniature arrivano quando arrivano. Uno dopo
         // l'altro, la cartella si peserebbe solo dopo aver letto tutta la lista.
         viewModelScope.launch { facts = Folder.weigh(context, bucket) }
         viewModelScope.launch { tint = FolderTints.of(context, bucket) }
+        viewModelScope.launch { cover = FolderCovers.of(context, bucket) }
     }
 
     /**
@@ -1647,6 +1749,16 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         private set
 
     /**
+     * La copertina scelta a mano per ogni cartella che ne ha una, per la schermata iniziale.
+     *
+     * ⚠️ **Vale parola per parola la nota di [folderTints]**, letta con la sua stessa guardia e
+     * aggiornata a mano da [coverFolder]: senza quella scrittura, una copertina appena scelta
+     * arriverebbe alla casa solo dopo un riavvio.
+     */
+    var folderCovers: Map<Long, Uri> by mutableStateOf(emptyMap())
+        private set
+
+    /**
      * Rilegge le cartelle, ma solo se è cambiato qualcosa che le riguarda.
      *
      * ⚠️ **Le chiavi sono due e sono tutte quelle che contano**: il permesso, senza il quale
@@ -1670,6 +1782,9 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         // query al MediaStore. In coda, una cartella colorata si vedrebbe grigia per il tempo
         // di quella query.
         viewModelScope.launch { folderTints = FolderTints.all(context) }
+        // ⚠️ In un lancio suo, per la stessa ragione delle tinte: qui si legge una cartella sul
+        // disco, che è un'altra attesa da quella della query al MediaStore.
+        viewModelScope.launch { folderCovers = FolderCovers.all(context) }
     }
 
     /**
@@ -2470,6 +2585,21 @@ private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
          * ⚠️ **La frase la porta la riga**: qui non si sa che cosa dica, e non serve saperlo.
          */
         AppNotice(Notices.line, modifier = Modifier.align(Alignment.BottomCenter))
+        /*
+         * ⚠️⚠️ **LA FASCIA DELLA COPERTINA VIVE QUI PER LA STESSA RAGIONE DELLA NOTIFICA**: la
+         * scelta comincia in una cartella e può finire in un'altra, quindi l'unica cosa che dice
+         * *stai scegliendo una copertina* deve stare sopra la transizione fra schermate. Dentro
+         * una schermata se ne andrebbe al primo passo della navigazione, cioè subito.
+         * ⚠️ **Non è una notifica**: una notifica dice che cosa è successo e se ne va da sé,
+         * questa dice che cosa sta succedendo e resta finché la modalità è viva.
+         */
+        model.covering?.let { quale ->
+            CoverInvite(
+                name = quale.name,
+                onCancel = { model.stopCover() },
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
+        }
     }
 }
 
@@ -2567,8 +2697,18 @@ private fun Stage(
      * sempre: fuori dalla modalità scelta, e su un indice che l'elenco non ha più.
      */
     fun consegna(items: List<Uri>?, quale: Int): Boolean {
-        if (!model.picking) return false
+        if (!model.picking && model.covering == null) return false
         val scelto = items?.getOrNull(quale) ?: return false
+        /*
+         * ⚠️⚠️ **LA COPERTINA VIENE PRIMA, e i due casi non si sovrappongono mai**: la modalità
+         * copertina si accende da dentro l'app, e quella del selettore da un'altra app che ha
+         * chiesto un'immagine. Ma se un giorno si sovrapponessero, quella che l'utente ha
+         * appena acceso col dito è la sua ultima intenzione.
+         */
+        if (model.covering != null) {
+            model.coverPicked(scelto)
+            return true
+        }
         onPicked(scelto)
         return true
     }
@@ -2607,6 +2747,7 @@ private fun Stage(
                 counted = settings.folderCount,
                 colour = settings.folderColour,
                 tints = model.folderTints,
+                covers = model.folderCovers,
                 hidden = settings.hiddenFolders,
                 // ⚠️ Una cartella senza percorso non si può nascondere, e allora non si
                 // finge: il dialogo l'ha già chiesto, quindi qui si scarta in silenzio
@@ -2634,7 +2775,16 @@ private fun Stage(
                 onPick = { model.folderPicked(it, screen.forStart) },
                 // ⚠️ Anche i recenti consegnano, in modalità scelta: sono immagini come quelle
                 // della griglia, e chi apre un selettore spesso vuole proprio l'ultima aperta.
-                onOpen = { quale -> if (model.picking) onPicked(quale) else model.open(quale) },
+                // ⚠️ E in modalità copertina l'immagine toccata diventa la copertina, come in
+                // ogni altra griglia: dai recenti si sceglie l'ultima aperta, che è spesso
+                // proprio quella che si vuole mettere davanti a una cartella.
+                onOpen = { quale ->
+                    when {
+                        model.covering != null -> model.coverPicked(quale)
+                        model.picking -> onPicked(quale)
+                        else -> model.open(quale)
+                    }
+                },
                 onOpenPage = { model.openPage(it) },
                 onView = { model.updateSettings(settings.copy(folderView = it)) },
                 onForget = { model.forgetRecents() },
@@ -2705,6 +2855,15 @@ private fun Stage(
                  * bucket da cui partire.
                  */
                 onSearchHere = { model.openSearch(screen.bucket, screen.name) },
+                /*
+                 * ⚠️⚠️ **ANCHE QUESTI DUE ARRIVANO AL SOLO RAMO DELLA CARTELLA**: l'intestazione
+                 * con la sua icona esiste qui e non nella ricerca né nel cestino, e una
+                 * copertina è di una cartella. Il perché per esteso vive su
+                 * [ViewerViewModel.covering].
+                 */
+                onCoverPick = { model.startCover() },
+                onCoverClear = { model.clearCover() },
+                coverSet = model.cover != null,
                 /*
                  * ⚠️⚠️ **I QUATTRO CHIP E I DUE NUMERI ARRIVANO SOLO QUI, DALLA `1.83`**: il
                  * intestazione esiste nella griglia di una **cartella** e non nelle altre due

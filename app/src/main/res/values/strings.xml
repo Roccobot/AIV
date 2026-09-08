@@ -237,6 +237,11 @@
     <string name="front_unpick_clips">Deselect videos</string>
     <string name="front_tint">Header color</string>
     <string name="front_tint_none">Default color</string>
+    <string name="folder_cover">Choose the cover</string>
+    <string name="folder_cover_auto">Automatic cover</string>
+    <string name="folder_cover_pick">Choose the cover for \'%1$s\'</string>
+    <string name="folder_cover_done">Cover updated</string>
+    <string name="folder_cover_fail">This picture cannot be used as a cover</string>
 
     <string name="settings_folder_columns">Columns in the grids</string>
     <string name="settings_folder_columns_desc">How many columns the folder grid and the picture grid show. More columns fit more on screen and shrink each tile. At four the folder name under it is usually cut short.</string>

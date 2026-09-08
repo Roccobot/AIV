@@ -107,6 +107,11 @@
     <string name="front_unpick_clips">Odznacz filmy</string>
     <string name="front_tint">Kolor nagłówka</string>
     <string name="front_tint_none">Kolor domyślny</string>
+    <string name="folder_cover">Wybierz okładkę</string>
+    <string name="folder_cover_auto">Okładka automatyczna</string>
+    <string name="folder_cover_pick">Wybierz okładkę folderu \'%1$s\'</string>
+    <string name="folder_cover_done">Okładka zaktualizowana</string>
+    <string name="folder_cover_fail">Tego obrazu nie można użyć jako okładki</string>
     <string name="settings_folder_columns">Kolumny w siatkach</string>
     <string name="settings_folder_columns_desc">Ile kolumn pokazują siatka folderów i siatka obrazów. Więcej kolumn mieści więcej na ekranie i zmniejsza każdy kafelek. Przy czterech nazwa folderu zwykle zostaje ucięta.</string>
     <string name="settings_folder_count">Licznik elementów pod folderami w widoku siatki</string>

@@ -107,6 +107,11 @@
     <string name="front_unpick_clips">Désélectionner les vidéos</string>
     <string name="front_tint">Couleur de l\'en-tête</string>
     <string name="front_tint_none">Couleur par défaut</string>
+    <string name="folder_cover">Choisir la couverture</string>
+    <string name="folder_cover_auto">Couverture automatique</string>
+    <string name="folder_cover_pick">Choisissez la couverture de \'%1$s\'</string>
+    <string name="folder_cover_done">Couverture mise à jour</string>
+    <string name="folder_cover_fail">Cette image ne peut pas servir de couverture</string>
     <string name="settings_folder_columns">Colonnes dans les grilles</string>
     <string name="settings_folder_columns_desc">Combien de colonnes affichent la grille des dossiers et celle des images. Plus de colonnes font tenir plus de choses à l\'écran et rétrécissent chaque case. À quatre, le nom du dossier est souvent tronqué.</string>
     <string name="settings_folder_count">Compteur des éléments sous les dossiers en vue grille</string>

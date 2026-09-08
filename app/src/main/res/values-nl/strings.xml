@@ -107,6 +107,11 @@
     <string name="front_unpick_clips">Video\'s deselecteren</string>
     <string name="front_tint">Kleur van de koptekst</string>
     <string name="front_tint_none">Standaardkleur</string>
+    <string name="folder_cover">Omslag kiezen</string>
+    <string name="folder_cover_auto">Automatische omslag</string>
+    <string name="folder_cover_pick">Kies de omslag van \'%1$s\'</string>
+    <string name="folder_cover_done">Omslag bijgewerkt</string>
+    <string name="folder_cover_fail">Deze afbeelding kan niet als omslag worden gebruikt</string>
     <string name="settings_folder_columns">Kolommen in de rasters</string>
     <string name="settings_folder_columns_desc">Hoeveel kolommen het mappenraster en het afbeeldingsraster tonen. Meer kolommen passen meer op het scherm en maken elke tegel kleiner. Bij vier wordt de mapnaam meestal afgekapt.</string>
     <string name="settings_folder_count">Teller van de items onder de mappen in rasterweergave</string>

@@ -107,6 +107,11 @@
     <string name="front_unpick_clips">व्हिडिओंची निवड रद्द करा</string>
     <string name="front_tint">शीर्षकाचा रंग</string>
     <string name="front_tint_none">पूर्वनिर्धारित रंग</string>
+    <string name="folder_cover">मुखपृष्ठ निवडा</string>
+    <string name="folder_cover_auto">स्वयंचलित मुखपृष्ठ</string>
+    <string name="folder_cover_pick">\'%1$s\' चे मुखपृष्ठ निवडा</string>
+    <string name="folder_cover_done">मुखपृष्ठ अद्ययावत झाले</string>
+    <string name="folder_cover_fail">ही प्रतिमा मुखपृष्ठ म्हणून वापरता येत नाही</string>
     <string name="settings_folder_columns">जाळ्यांतील स्तंभ</string>
     <string name="settings_folder_columns_desc">संचिकासंच जाळी आणि प्रतिमा जाळी किती स्तंभ दाखवतील. अधिक स्तंभांत पडद्यावर अधिक गोष्टी मावतात आणि प्रत्येक खण लहान होतो. चारवर संचिकासंचाचे नाव बहुधा तुटते.</string>
     <string name="settings_folder_count">जाळी दृश्यात फोल्डरखाली घटकांची मोजणी</string>

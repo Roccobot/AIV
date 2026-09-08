@@ -107,6 +107,11 @@
     <string name="front_unpick_clips">ভিডিওর নির্বাচন সরান</string>
     <string name="front_tint">হেডারের রঙ</string>
     <string name="front_tint_none">ডিফল্ট রঙ</string>
+    <string name="folder_cover">কভার বেছে নিন</string>
+    <string name="folder_cover_auto">স্বয়ংক্রিয় কভার</string>
+    <string name="folder_cover_pick">\'%1$s\'-এর কভার বেছে নিন</string>
+    <string name="folder_cover_done">কভার আপডেট হয়েছে</string>
+    <string name="folder_cover_fail">এই ছবিটি কভার হিসেবে ব্যবহার করা যাবে না</string>
     <string name="settings_folder_columns">গ্রিডের কলাম</string>
     <string name="settings_folder_columns_desc">ফোল্ডার গ্রিড ও ছবির গ্রিড কতগুলি কলাম দেখাবে। বেশি কলামে পর্দায় বেশি জিনিস আঁটে এবং প্রতিটি ঘর ছোট হয়। চারটিতে ফোল্ডারের নাম সাধারণত কেটে যায়।</string>
     <string name="settings_folder_count">গ্রিড দৃশ্যে ফোল্ডারের নিচে জিনিসের গণনা</string>

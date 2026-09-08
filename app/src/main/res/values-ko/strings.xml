@@ -107,6 +107,11 @@
     <string name="front_unpick_clips">동영상 선택 해제</string>
     <string name="front_tint">헤더 색상</string>
     <string name="front_tint_none">기본 색상</string>
+    <string name="folder_cover">커버 선택</string>
+    <string name="folder_cover_auto">자동 커버</string>
+    <string name="folder_cover_pick">\'%1$s\' 커버 선택</string>
+    <string name="folder_cover_done">커버를 업데이트했습니다</string>
+    <string name="folder_cover_fail">이 이미지는 커버로 사용할 수 없습니다</string>
     <string name="settings_folder_columns">격자의 열 수</string>
     <string name="settings_folder_columns_desc">폴더 격자와 이미지 격자가 보여줄 열 수입니다. 열이 많을수록 화면에 더 많이 들어가고 각 칸은 작아집니다. 네 열에서는 폴더 이름이 대개 잘립니다.</string>
     <string name="settings_folder_count">격자 보기에서 폴더 아래 항목 개수 표시</string>
