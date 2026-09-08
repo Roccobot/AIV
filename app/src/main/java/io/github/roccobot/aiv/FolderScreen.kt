@@ -114,7 +114,7 @@ fun FolderScreen(
      * Quante colonne mostrano le copertine. Vedi `FOLDER_COLUMNS` in `Settings.kt`.
      *
      * ⚠️ **Dalla `0.93` decide SOLO la larghezza delle copertine**, e quante righe si
-     * vedano è una conseguenza: il frontespizio si prende [HEADER_SHARE] dello schermo e la
+     * vedano è una conseguenza: l'intestazione si prende [HEADER_SHARE] dello schermo e la
      * griglia riempie il resto. Fra la `0.60` e la `0.92` il numero governava anche le
      * righe, che venivano riservate una per una.
      */
@@ -123,7 +123,7 @@ fun FolderScreen(
      * Se sotto la copertina si vede il conto delle immagini. Vedi `Settings.folderCount`.
      *
      * ⚠️ **Spegnendolo la riga si accorcia**, quindi nello stesso spazio ne entra qualcuna
-     * in più: dalla `0.93` il frontespizio non si adatta, ed è la griglia a riempire quello
+     * in più: dalla `0.93` l'intestazione non si adatta, ed è la griglia a riempire quello
      * che le tocca.
      */
     counted: Boolean,
@@ -281,7 +281,7 @@ fun FolderScreen(
     val folders = buckets?.filterNot { it.isHidden(hidden) }
 
     // La veste 'casa' e quella 'scegli la cartella d'avvio' si distinguono da qui in giù:
-    // la prima porta il frontespizio e il tastino, la seconda la freccia Indietro.
+    // la prima porta l'intestazione e il tastino, la seconda la freccia Indietro.
     val home = !forStart
 
     BoxWithConstraints(modifier = modifier.fillMaxSize().safeDrawingPadding()) {
@@ -290,10 +290,10 @@ fun FolderScreen(
         val nameStyle = folderNameStyle(columns)
 
         /*
-         * ⚠️⚠️ **IL FRONTESPIZIO È UNA FRAZIONE FISSA, dalla 0.93, e prima si CALCOLAVA**
+         * ⚠️⚠️ **IL INTESTAZIONE È UNA FRAZIONE FISSA, dalla 0.93, e prima si CALCOLAVA**
          * (istruzione dell'utente, 2026-08-31: *preferisco semplificare e tornare alla
          * logica precedente, che mi piaceva*). Qui viveva `coverHeader`, che riservava alla
-         * griglia un numero esatto di righe e dava al frontespizio quello che avanzava,
+         * griglia un numero esatto di righe e dava all'intestazione quello che avanzava,
          * misurando i due testi sotto ogni copertina per sapere quanto è alta una riga.
          * Funzionava, e non era quello che serviva: l'utente vuole l'intestazione come
          * spazio **deliberato**, per tenere le cartelle in basso a portata di pollice, e un
@@ -313,7 +313,7 @@ fun FolderScreen(
         val headerPx = with(density) { headerMax.toPx() }
 
         /**
-         * Quanti pixel del frontespizio sono già stati chiusi, da 0 a tutto.
+         * Quanti pixel dell'intestazione sono già stati chiusi, da 0 a tutto.
          *
          * ⚠️ La chiave è la misura: ruotando il telefono l'altezza cambia, e un valore
          * di chiusura vecchio non vorrebbe più dire niente. Riaprirlo alla rotazione è
@@ -322,7 +322,7 @@ fun FolderScreen(
         var shut by remember(headerPx) { mutableFloatStateOf(0f) }
 
         /**
-         * ⚠️⚠️ **IL FRONTESPIZIO SI CHIUDE PRIMA CHE L'ELENCO SCORRA, ed è per questo che
+         * ⚠️⚠️ **IL INTESTAZIONE SI CHIUDE PRIMA CHE L'ELENCO SCORRA, ed è per questo che
          * funziona anche con DUE cartelle**: il trascinamento verso l'alto viene
          * intercettato **prima** (`onPreScroll`) e speso tutto qui, quindi l'elenco non ha
          * bisogno di avere niente da scorrere. Verificato sul sorgente di Compose e non
@@ -332,10 +332,10 @@ fun FolderScreen(
          * avrei dovuto gonfiare l'elenco con spazio finto in fondo.
          * ⚠️ E si riapre dall'altra parte con `onPostScroll`: quello arriva solo quando
          * l'elenco è già in cima e ha avanzato del movimento, che è esattamente la
-         * condizione in cui il frontespizio deve tornare.
+         * condizione in cui l'intestazione deve tornare.
          */
         /**
-         * ⚠️⚠️ **IL FRONTESPIZIO SI CHIUDE PRIMA CHE L'ELENCO SCORRA, ed è per questo che
+         * ⚠️⚠️ **IL INTESTAZIONE SI CHIUDE PRIMA CHE L'ELENCO SCORRA, ed è per questo che
          * funziona anche con DUE cartelle**: il fatto per esteso, con la lettura del sorgente
          * di Compose che lo regge, sta su [frontScroll], in `Front.kt`. Dalla `1.76` quella
          * funzione la legge anche la griglia di una cartella.
@@ -353,7 +353,7 @@ fun FolderScreen(
                 .padding(SCREEN_PAD)
         ) {
             if (home) {
-                // ⚠️ L'icona si stringe se il frontespizio è basso, e i casi bassi sono
+                // ⚠️ L'icona si stringe se l'intestazione è basso, e i casi bassi sono
                 // due: l'ORIZZONTALE, dove non resta niente, e le QUATTRO COLONNE, dove
                 // il quadrato di copertine lascia poco più di 180dp, cioè meno di quanto
                 // occupano icona e righe. Senza questo la tela verrebbe tagliata sopra e
@@ -458,7 +458,7 @@ fun FolderScreen(
              */
             /*
              * ⚠️⚠️ **LE DUE SFUMATURE VIVONO IN `Front.kt` DALLA `1.76`**, insieme al
-             * frontespizio e per la stessa ragione: dalla `1.76` le schermate che le portano sono
+             * intestazione e per la stessa ragione: dalla `1.76` le schermate che le portano sono
              * due, e i numeri che lui ha dettato giro per giro (l'altezza, la curva, il picco, la
              * coda e il suo pianoro) sono **una** decisione per l'app. Copiarli nella griglia di
              * una cartella avrebbe fatto due tavolozze che divergono al primo ritocco.
@@ -653,7 +653,7 @@ internal fun folderNameStyle(columns: Int): TextStyle =
     else MaterialTheme.typography.titleSmall
 
 /**
- * Il frontespizio dell'app, che si chiude scorrendo.
+ * L'intestazione dell'app, che si chiude scorrendo.
  *
  * ⚠️⚠️ **NON È SPAZIO DECORATIVO: è spazio messo lì apposta perché ogni cartella sia
  * raggiungibile col pollice** tenendo il telefono a una mano (richiesta dell'utente). Poi
@@ -663,7 +663,7 @@ internal fun folderNameStyle(columns: Int): TextStyle =
  * sé, e l'utente ha chiesto di tornare alla frazione fissa.
  *
  * ⚠️⚠️ **IL FIGLIO SI MISURA SEMPRE ALL'ALTEZZA PIENA e si RITAGLIA, non si schiaccia.**
- * Misurandolo con l'altezza che resta, l'icona verrebbe compressa mentre il frontespizio
+ * Misurandolo con l'altezza che resta, l'icona verrebbe compressa mentre l'intestazione
  * si chiude, cioè un disegno che si deforma invece di uscire di scena. Qui si misura
  * intero, si dichiara alta quel che resta, e lo si colloca **centrato in quel che
  * resta**: il contenuto sale da sé mentre lo spazio si stringe, ed è la parallasse, non
@@ -1461,7 +1461,7 @@ private fun FolderCard(
          * anche la seconda si taglia là, e senza `Ellipsis` si taglierebbe a metà lettera
          * senza dire che manca qualcosa.
          * ⚠️⚠️ **E [NAME_LINES] È LA STESSA COSTANTE CHE MISURA L'ALTEZZA DELLA RIGA**, cioè
-         * chi la cambia qui cambia anche il conto del frontespizio, che è quello che vuole.
+         * chi la cambia qui cambia anche il conto dell'intestazione, che è quello che vuole.
          * Un numero scritto due volte qui avrebbe rifatto il difetto della `0.68`: mezza
          * cartella in vista in fondo alla schermata.
          */
@@ -1539,7 +1539,7 @@ private val FOLDER_GAP = 12.dp
  */
 private val SCREEN_PAD = 12.dp
 
-/** Lo stacco fra il frontespizio (o il titolo) e quello che viene sotto. */
+/** Lo stacco fra l'intestazione (o il titolo) e quello che viene sotto. */
 private val HEADER_GAP = 8.dp
 
 /** Il distacco fra la copertina e le sue due righe di testo, dentro una scheda. */

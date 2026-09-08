@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -78,6 +79,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -178,19 +180,29 @@ fun GridScreen(
     query: String? = null,
     onQuery: (String) -> Unit = {},
     /**
-     * Se il frontespizio porta la **sfumatura** dell'accento: `Settings.frontWash`.
+     * Se l'intestazione porta la **sfumatura** dell'accento: `Settings.frontWash`.
      *
-     * ⚠️ **I quattro parametri del frontespizio arrivano da fuori uno per uno**, come ogni altra
+     * ⚠️ **I quattro parametri dell'intestazione arrivano da fuori uno per uno**, come ogni altra
      * impostazione che questa schermata legge: la griglia non conosce `SettingsStore`, e i valori
      * di riserva dicono quello che dice il valore di fabbrica (vedi la nota su [columns]).
      */
     frontWash: Boolean = Settings().frontWash,
-    /** Se il nome nel frontespizio è grande e graziato: `Settings.frontSerif`. */
+    /** Se il nome nell'intestazione è grande e graziato: `Settings.frontSerif`. */
     frontSerif: Boolean = Settings().frontSerif,
-    /** Se il frontespizio porta le pastiglie del peso e dei video: `Settings.frontFacts`. */
+    /** Se l'intestazione porta le pastiglie del peso e dei video: `Settings.frontFacts`. */
     frontFacts: Boolean = Settings().frontFacts,
-    /** Se il frontespizio porta la pastiglia 'Seleziona tutto': `Settings.frontPickAll`. */
+    /** Se l'intestazione porta la pastiglia 'Seleziona tutto': `Settings.frontPickAll`. */
     frontPickAll: Boolean = Settings().frontPickAll,
+    /**
+     * La tinta scelta per questa cartella, come indice in [FRONT_TINTS], oppure `null` per quella
+     * dell'app.
+     *
+     * ⚠️ **Non è un'impostazione ma un dato della cartella**, e il perché vive su
+     * `ViewerViewModel.tint`: qui arriva come tutti gli altri, cioè già risolto.
+     */
+    frontTint: Int? = null,
+    /** Che cosa fare quando lui sceglie una tinta, o la toglie. */
+    onFrontTint: (Int?) -> Unit = {},
     /**
      * Quanto pesa la cartella e quanti video ha, per le due pastiglie.
      *
@@ -235,7 +247,7 @@ fun GridScreen(
      * ⚠️⚠️ **IL VALORE DI SERIE TIENE IN PIEDI IL BANCO DI PROVA, e fino alla `1.80` qui era
      * scritto 'le anteprime'**, che nel progetto non esistono (censimento della UI del
      * 2026-09-05): nessuna `@Preview` e un solo insieme di sorgenti. La ragione vera è nata
-     * dopo, con la `1.74`, e vale: `FrontespizioTest` monta questa schermata **vera** con i
+     * dopo, con la `1.74`, e vale: `IntestazioneTest` monta questa schermata **vera** con i
      * soli argomenti che la prova misura, e chiedergli anche i nove che non c'entrano niente
      * vorrebbe dire scrivere in una prova dei dati che non guarda nessuno.
      * ⚠️ **Ed è il valore di fabbrica dell'impostazione**, non un valore comodo.
@@ -474,6 +486,14 @@ fun GridScreen(
     var emptying by rememberSaveable { mutableStateOf(false) }
     /** Se la conferma di 'Ripristina tutto' è in scena. Vedi la nota su quella voce. */
     var restoringAll by rememberSaveable { mutableStateOf(false) }
+    /**
+     * Se il selettore della tinta è in scena: lo apre il tocco lungo sull'icona
+     * dell'intestazione.
+     *
+     * ⚠️ **Vive qui e non accanto alla fascia** perché la finestra sta col resto dei dialoghi, e
+     * quello che la apre è dentro un nodo che si rimisura a ogni pixel di scorrimento.
+     */
+    var tinge by rememberSaveable { mutableStateOf(false) }
     val picking = chosen.isNotEmpty()
 
     // ⚠️ In un effetto e non a filo della composizione: avvisare il modello è un cambiamento
@@ -963,7 +983,7 @@ fun GridScreen(
      * ⚠️ **Il `Box` non ha margini propri**, ed è quello che gli permette di arrivare fino
      * al bordo dello schermo: i margini restano sulla `Column`, cioè sul contenuto. Chi ne
      * spostasse uno sul `Box` rimetterebbe il difetto.
-     * ⚠️⚠️ **DALLA `1.76` MISURA, e serve al frontespizio**: quella fascia si prende
+     * ⚠️⚠️ **DALLA `1.76` MISURA, e serve all'intestazione**: quella fascia si prende
      * [HEADER_SHARE] dell'altezza, quindi qualcuno deve saperla. ⚠️ **I rientri di sistema si
      * sottraggono a mano** e non si spostano qui col resto: la frazione dev'essere quella
      * dell'area utile, come nella schermata iniziale, ma il velo dell'onboarding ha bisogno che
@@ -975,7 +995,7 @@ fun GridScreen(
     val larghezza = maxWidth
 
     /*
-     * ⚠️⚠️ **IL FRONTESPIZIO DI UNA CARTELLA, dalla `1.76`, ed è una richiesta sua del giro
+     * ⚠️⚠️ **IL INTESTAZIONE DI UNA CARTELLA, dalla `1.76`, ed è una richiesta sua del giro
      * della `1.67`**: *l'icona va posizionata esattamente come quella oggi presente sulla
      * schermata home, ma semitrasparente (~50%), e sotto, al posto del nome dell'app, il titolo
      * della cartella scritto un po' più piccolo per lasciare spazio anche a nomi lunghi. Poi,
@@ -1000,7 +1020,7 @@ fun GridScreen(
     val headerPx = with(density) { headerMax.toPx() }
 
     /**
-     * Quanti pixel di frontespizio sono già stati chiusi, da 0 a tutto.
+     * Quanti pixel di intestazione sono già stati chiusi, da 0 a tutto.
      *
      * ⚠️ La chiave è la misura, come nella schermata iniziale: ruotando il telefono l'altezza
      * cambia, e un valore di chiusura vecchio non vorrebbe più dire niente.
@@ -1012,7 +1032,7 @@ fun GridScreen(
     }
 
     /*
-     * ⚠️⚠️ **LA SELEZIONE NON CHIUDE IL FRONTESPIZIO, E FINO ALLA `1.77` LO CHIUDEVA: È UN
+     * ⚠️⚠️ **LA SELEZIONE NON CHIUDE IL INTESTAZIONE, E FINO ALLA `1.77` LO CHIUDEVA: È UN
      * ROVESCIAMENTO SUO, con una ragione che nessuna delle due parti aveva previsto** (riscontro
      * del giro della `1.77`, voce `front-misure` non approvata): *appena si tocca a lungo per
      * iniziare a selezionare, lo spostamento delle miniature in alto fa già selezionare più
@@ -1033,7 +1053,7 @@ fun GridScreen(
      */
 
     /*
-     * ⚠️⚠️ **CON LA GRIGLIA SCORSA IL FRONTESPIZIO NON PUÒ STARE APERTO, e questo copre il
+     * ⚠️⚠️ **CON LA GRIGLIA SCORSA IL INTESTAZIONE NON PUÒ STARE APERTO, e questo copre il
      * ritorno dal visualizzatore** (sua specifica: *resta come era, chiuso se la griglia non è in
      * cima*). Con le dita la cosa è già vera per costruzione, perché [frontScroll] spende il
      * trascinamento qui prima che l'elenco si muova; quello che sfugge è lo scorrimento
@@ -1064,6 +1084,37 @@ fun GridScreen(
         items?.let { pluralStringResource(R.plurals.items_count, it.size, it.size) }
     }
 
+    /*
+     * ⚠️⚠️ **I GESTI DELL'INTESTAZIONE, DALLA `1.85`**: il nome si copia toccandolo e il tocco
+     * lungo ci aggiunge il percorso; l'icona apre il gestore file di sistema, e il tocco lungo
+     * il colore di quella cartella. Sono quattro richieste sue del giro della `1.83`.
+     * ⚠️ **Le stringhe si risolvono QUI e non dentro i gesti**: `stringResource` è una funzione
+     * di composizione, e in una lambda che parte da un tocco non si può chiamare.
+     */
+    val nomeCopiato = stringResource(R.string.front_name_copied)
+    val percorsoCopiato = stringResource(R.string.front_path_copied)
+    val percorsoEtichetta = stringResource(R.string.front_copy_path)
+    val tintaEtichetta = stringResource(R.string.front_tint)
+    val nienteFile = stringResource(R.string.front_no_files)
+    val copiaNome = {
+        ImageActions.copyName(context, title)
+        Notices.say(nomeCopiato)
+    }
+    /*
+     * ⚠️ **Il percorso PORTA GIÀ il nome della cartella** (è `/storage/emulated/0/DCIM/Camera`,
+     * non la cartella che la contiene), quindi *il nome della cartella con il percorso* è quella
+     * stringa e basta: attaccarci il titolo in coda scriverebbe l'ultimo pezzo due volte.
+     */
+    val viaLungo = {
+        val dove = facts.path
+        if (dove.isNullOrBlank()) {
+            copiaNome()
+        } else {
+            ImageActions.copyName(context, dove)
+            Notices.say(percorsoCopiato)
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -1071,6 +1122,33 @@ fun GridScreen(
             .nestedScroll(paging)
             .padding(horizontal = GRID_PAD_X, vertical = GRID_PAD_Y)
     ) {
+        /*
+         * ⚠️⚠️ **LA TESTATA E LA FASCIA VIVONO IN UN BLOCCO SOLO, DALLA `1.85`, E LA TINTA SI
+         * DIPINGE DIETRO DI LUI**: è la correzione del difetto che ha fatto bocciare la `1.83`
+         * (voce `front-dieci`: *il nome della cartella e gli elementi non passano più in testa
+         * allo scorrimento (lo spazio rimane vuoto)*). Fino alla `1.84` la tinta viveva su un
+         * nodo che la colonna disegnava **dopo** la testata, quindi il rettangolo che sconfina
+         * verso l'alto le finiva sopra e si mangiava il titolo che stava comparendo. Il perché
+         * per esteso, e la trappola che resta per chi lo rifà, vivono su [Modifier.frontWash].
+         * ⚠️ **Il blocco si accorcia da sé**: quando la fascia si chiude qui dentro resta la sola
+         * testata, quindi l'area della tinta segue senza che nessuno la animi.
+         * ⚠️ **Sconfina di [GRID_PAD_Y] verso l'alto** e non più dell'altezza della testata: da
+         * qui al bordo dell'area sicura c'è solo il rientro verticale della schermata, che è un
+         * numero noto. Con lui è sparita anche la misura della testata, che era un
+         * `onGloballyPositioned` con la sua ricomposizione.
+         */
+        Column(
+            modifier = if (front && frontWash) {
+                Modifier.frontWash(
+                    tint = frontTintOf(frontTint) ?: MaterialTheme.colorScheme.primary,
+                    air = GRID_PAD_X,
+                    up = GRID_PAD_Y,
+                    ink = aperto
+                )
+            } else {
+                Modifier
+            }
+        ) {
         // ⚠️⚠️ **LA BARRA DELLA SELEZIONE PRENDE IL POSTO DEL TITOLO invece di aggiungersi
         // sopra**: due barre insieme mangerebbero un quarto di schermo alle miniature, che
         // sono la cosa per cui si è entrati. Ed è anche il modo di dire che si è in un
@@ -1126,7 +1204,7 @@ fun GridScreen(
                     )
                 } else {
                     /*
-                     * ⚠️⚠️ **IL TITOLO SI DISSOLVE COL FRONTESPIZIO, dalla `1.76`**: mentre la
+                     * ⚠️⚠️ **IL TITOLO SI DISSOLVE COL INTESTAZIONE, dalla `1.76`**: mentre la
                      * fascia è aperta il nome della cartella si legge là dentro, grande e al
                      * centro, e chiudendola sale verso qui e lascia il posto a questo, che è
                      * *come già appare adesso in posizione finale* (parole sue). ⚠️ **La
@@ -1137,7 +1215,7 @@ fun GridScreen(
                      * ⚠️ **Le due opacità sono complementari e non due curve**: sommano uno a
                      * ogni istante, quindi non esiste un punto della corsa in cui il nome della
                      * cartella si legga meno che agli estremi.
-                     * ⚠️ **Senza frontespizio l'opacità è piena**, perché lì `aperto` vale zero:
+                     * ⚠️ **Senza intestazione l'opacità è piena**, perché lì `aperto` vale zero:
                      * il titolo del cestino e quello della ricerca non hanno niente da cui
                      * arrivare.
                      * ⚠️⚠️ **E IL TITOLO RESTA IL NOME DELLA CARTELLA ANCHE IN SELEZIONE, dalla
@@ -1233,7 +1311,7 @@ fun GridScreen(
         Spacer(Modifier.height(8.dp))
 
         /*
-         * ⚠️⚠️ **LA FASCIA DEL FRONTESPIZIO, dalla `1.76`**: l'icona della cartella a mezza
+         * ⚠️⚠️ **LA FASCIA DEL INTESTAZIONE, dalla `1.76`**: l'icona della cartella a mezza
          * tinta e sotto il nome, *con un posizionamento analogo alla home*. Il meccanismo di
          * misura, il ritaglio e la parallasse stanno in [FrontBand]; qui c'è solo quello che si
          * vede dentro.
@@ -1250,41 +1328,7 @@ fun GridScreen(
          * volesse chiudere anche quel buco lo faccia con `alpha` **semantico**, non togliendo
          * uno dei due testi.
          */
-        /*
-         * ⚠️⚠️ **LA TINTA SI DIPINGE DIETRO LA FASCIA E SCONFINA IN TRE DIREZIONI, DALLA `1.83`**
-         * (variante 10 del mockup, scelta da lui): sale fino al bordo dell'area sicura per
-         * prendere anche la testata, esce dai fianchi per arrivare ai bordi dello schermo, e
-         * scende **una riga di miniature** sotto la fascia. Il come vive su [Modifier.frontWash];
-         * qui ci sono i tre numeri, che sono i rientri di questa schermata e l'altezza di una
-         * riga.
-         * ⚠️⚠️ **L'ALTEZZA DELLA TESTATA SI MISURA E NON SI SCRIVE**: da qui la fascia non sa
-         * quanto è alta la riga sopra di lei, e un numero scritto a mano si scollerebbe il giorno
-         * che la testata cambia (un titolo che va a capo, un corpo di testo più grande nelle
-         * impostazioni di sistema). Il valore cambia solo quando cambia la testata, quindi la
-         * ricomposizione che costa è una.
-         * ⚠️ **Una riga di miniature si ricava dalle colonne**, che è la stessa divisione che fa
-         * la griglia: scritta come numero fisso, la coda coprirebbe mezza riga con quattro
-         * colonne e una riga e mezza con due.
-         */
-        val rigaMiniature = (larghezza - GRID_PAD_X * 2) / columns
-        var testataAlta by remember { mutableFloatStateOf(0f) }
         if (front) {
-            Box(
-                modifier = Modifier
-                    .onGloballyPositioned { testataAlta = it.positionInParent().y }
-                    .then(
-                        if (frontWash) {
-                            Modifier.frontWash(
-                                tint = MaterialTheme.colorScheme.primary,
-                                air = GRID_PAD_X,
-                                up = with(density) { testataAlta.toDp() } + GRID_PAD_Y,
-                                tail = rigaMiniature
-                            )
-                        } else {
-                            Modifier
-                        }
-                    )
-            ) {
             FrontBand(fullPx = headerPx, shut = { shut }) { quanto ->
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     /*
@@ -1317,15 +1361,45 @@ fun GridScreen(
                      * ⚠️ **La dissolvenza resta la stessa**: quello che cambia è il valore da cui
                      * parte, non la curva, quindi la coreografia dello scorrimento non si tocca.
                      */
+                    /*
+                     * ⚠️⚠️ **I DUE GESTI SULL'ICONA SONO SUOI, DALLA `1.85`** (riscontro del giro
+                     * della `1.83`): il tocco *apre il file manager predefinito in quella
+                     * cartella*, il tocco lungo *apre un selettore di colore che fa impostare il
+                     * colore della sfumatura dell'intestazione per cartella*.
+                     * ⚠️⚠️ **E ADESSO L'ICONA PARLA**, dove prima aveva la descrizione a `null`
+                     * perché a dire dove si è c'era già il nome: un disegno muto con due azioni
+                     * sopra è una funzione che esiste per chi la sa e non per chi la cerca.
+                     * L'etichetta dice che cosa fa il tocco, e il tocco lungo porta la sua.
+                     * ⚠️ **Chi ascolta viene PRIMA di chi misura** (regola in `AIV/CLAUDE.md`,
+                     * § '👆 Che cosa fa il tocco FUORI da una finestra'): qui i due riquadri
+                     * coincidono, ma l'ordine è quello per cui un nodo di tocco non finisce mai
+                     * dietro un confine di layout.
+                     */
                     Icon(
                         imageVector = Glyphs.FolderAiv,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.front_open),
                         tint = if (frontWash) {
                             MaterialTheme.colorScheme.surface
                         } else {
                             LocalContentColor.current
                         },
                         modifier = Modifier
+                            .semantics {
+                                onLongClick(label = tintaEtichetta) { tinge = true; true }
+                            }
+                            .pointerInput(facts.path) {
+                                detectTapGestures(
+                                    onTap = {
+                                        if (!Folder.openInFiles(context, facts.path)) {
+                                            Notices.say(nienteFile)
+                                        }
+                                    },
+                                    onLongPress = {
+                                        haptics.performHapticFeedback(HOLD_BUZZ)
+                                        tinge = true
+                                    }
+                                )
+                            }
                             .frontIconMeasure(
                                 fullPx = headerPx,
                                 shut = { shut },
@@ -1358,41 +1432,51 @@ fun GridScreen(
                      * traslazione non avrebbe niente da raccontare.
                      */
                     /*
-                     * ⚠️⚠️ **COL CHIP 'Titolo graziato' DIVENTA QUELLO DELLA VARIANTE 7, DALLA
-                     * `1.83`**: grande e col carattere graziato, con sopra una cartella **senza
-                     * logo** in piccolo e color accento (la sua specifica, registrata nel brief).
-                     * La 7 al posto dell'icona metteva un filetto: la cartella piccola è la sua
-                     * variazione, ed è anche quello che tiene la fascia riconoscibile quando la
-                     * grande sparisce.
+                     * ⚠️⚠️ **'Titolo graziato' CAMBIA SOLO IL CARATTERE, DALLA `1.85`, ED È UNA
+                     * SUA CORREZIONE** (riscontro del giro della `1.83`: *l'opzione 'Testo
+                     * graziato' cambia solo il carattere, niente iconcina color accento
+                     * aggiuntiva*). Nella `1.83` quel chip faceva tre cose insieme, perché
+                     * traduceva la variante 7 del mockup: il carattere, un corpo più grande, e
+                     * una cartella piccola color accento sopra il nome. Adesso ne fa una, e le
+                     * altre due sono uscite: la cartellina con lei, e il corpo perché il titolo
+                     * è più grande **sempre**.
                      * ⚠️ **Il carattere graziato è quello di SISTEMA** ([FontFamily.Serif]) e non
                      * un font portato nell'APK: un carattere in più pesa e va scelto, e qui la
                      * richiesta è la **forma** delle grazie, non una tipografia nuova.
+                     * ⚠️⚠️ **UN GRADINO SU ANCORA, DALLA `1.85`, ED È IL SUO TERZO NUMERO**
+                     * (*il testo dev'essere un po' più grande di default*): `titleSmall` nella
+                     * `1.76`, `titleMedium` nella `1.77`, `titleLarge` adesso. ⚠️ **E resta
+                     * sotto la testata**, che è `headlineSmall`: se la fascia scrivesse il nome
+                     * alla misura in cui lo troverà in cima, la traslazione non avrebbe niente
+                     * da raccontare.
+                     *
+                     * ⚠️⚠️ **I DUE GESTI SUL NOME SONO SUOI** (stesso riscontro, come *bonus*):
+                     * *un tap sul nome della cartella copia il suo nome (con notifica toast); un
+                     * tap lungo copia il nome della cartella con il percorso*.
+                     * ⚠️ **Senza percorso il tocco lungo copia il solo nome** invece di non fare
+                     * niente: la cartella di una ricerca o una appena aperta può non averlo
+                     * ancora, e un gesto che a volte tace si legge come rotto.
                      */
-                    if (frontSerif) {
-                        Icon(
-                            imageVector = Icons.Default.Folder,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier
-                                .size(FRONT_SERIF_MARK)
-                                .graphicsLayer { alpha = quanto() }
-                        )
-                        Spacer(Modifier.height(FRONT_COUNT_GAP))
-                    }
                     Text(
                         text = title,
-                        style = if (frontSerif) {
-                            MaterialTheme.typography.headlineMedium.copy(
-                                fontFamily = FontFamily.Serif
-                            )
-                        } else {
-                            MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleLarge.let {
+                            if (frontSerif) it.copy(fontFamily = FontFamily.Serif) else it
                         },
                         textAlign = TextAlign.Center,
                         maxLines = FRONT_TITLE_LINES,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
                             .heading()
+                            .semantics { onLongClick(label = percorsoEtichetta) { viaLungo(); true } }
+                            .pointerInput(title, facts.path) {
+                                detectTapGestures(
+                                    onTap = { copiaNome() },
+                                    onLongPress = {
+                                        haptics.performHapticFeedback(HOLD_BUZZ)
+                                        viaLungo()
+                                    }
+                                )
+                            }
                             .padding(horizontal = 24.dp)
                             .graphicsLayer { alpha = quanto() }
                     )
@@ -1436,9 +1520,31 @@ fun GridScreen(
                      * ⚠️ **In selezione la fila resta**, perché 'Seleziona tutto' serve proprio
                      * là: è la stessa scorciatoia del riquadro, a portata di pollice.
                      */
+                    /*
+                     * ⚠️⚠️ **TUTTE DELLO STESSO COLORE DALLA `1.85`, ED È UNA SUA CORREZIONE**
+                     * (riscontro del giro della `1.83`: *le pastiglie restano (se abilitate), ma
+                     * tutte dello stesso colore neutro, senza distinzione tra info e selezione*).
+                     * La `1.83` dava al comando un vestito pieno e scuro, perché il mockup
+                     * dichiarava che *un dato e un comando che si somigliano sono la trappola vera
+                     * di una fila mista*: col telefono in mano ha deciso il contrario, e adesso il
+                     * pezzo che le disegna è **uno**.
+                     * ⚠️⚠️ **E IL TERZO DATO È LA RISPOSTA A `d-front-altro`**: `immagini`,
+                     * cioè *aggiungi il numero di immagini, accanto ai video, così la somma torna
+                     * col conto sotto il titolo*. Viene dalla stessa query delle altre due.
+                     * ⚠️ **Il tocco lungo ce l'hanno tutti e tre**, e sul terzo è una simmetria
+                     * mia e non una sua richiesta: due dati che selezionano e un terzo che non fa
+                     * niente si leggerebbero come un difetto del terzo.
+                     * ⚠️⚠️ **E IL SECONDO TOCCO LUNGO SUL PESO DESELEZIONA** (*allo stesso modo,
+                     * un secondo tocco lungo sulla pastiglia della dimensione deve deselezionare
+                     * tutto*): la scorciatoia va nei due versi come il comando accanto, quindi
+                     * anche la sua etichetta parlata cambia.
+                     */
                     val pesa = frontFacts && facts.bytes > 0L
                     val conta = frontFacts && facts.clips > 0
-                    if (pesa || conta || frontPickAll) {
+                    val scatta = frontFacts && facts.shots > 0
+                    val tutti = items.orEmpty()
+                    val presi = tutti.isNotEmpty() && chosen.containsAll(tutti)
+                    if (pesa || conta || scatta || frontPickAll) {
                         Spacer(Modifier.height(FRONT_CHIP_GAP))
                         FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -1448,14 +1554,31 @@ fun GridScreen(
                                 .graphicsLayer { alpha = quanto() }
                         ) {
                             if (pesa) {
-                                FrontFact(
+                                FrontChip(
                                     text = Formatter.formatShortFileSize(context, facts.bytes),
-                                    holdLabel = stringResource(R.string.pick_all),
-                                    onHold = { chosen = items.orEmpty().toSet() }
+                                    holdLabel = stringResource(
+                                        if (presi) R.string.front_unpick else R.string.pick_all
+                                    ),
+                                    onHold = {
+                                        chosen = if (presi) emptySet() else tutti.toSet()
+                                    }
+                                )
+                            }
+                            if (scatta) {
+                                FrontChip(
+                                    text = pluralStringResource(
+                                        R.plurals.folders_count,
+                                        facts.shots,
+                                        facts.shots
+                                    ),
+                                    holdLabel = stringResource(R.string.front_pick_images),
+                                    onHold = {
+                                        chosen = tutti.filterNot { Videos.isVideo(it) }.toSet()
+                                    }
                                 )
                             }
                             if (conta) {
-                                FrontFact(
+                                FrontChip(
                                     text = pluralStringResource(
                                         R.plurals.folders_clips,
                                         facts.clips,
@@ -1463,21 +1586,23 @@ fun GridScreen(
                                     ),
                                     holdLabel = stringResource(R.string.pick_clips),
                                     onHold = {
-                                        chosen = items.orEmpty().filter { Videos.isVideo(it) }.toSet()
+                                        chosen = tutti.filter { Videos.isVideo(it) }.toSet()
                                     }
                                 )
                             }
                             if (frontPickAll) {
-                                FrontCommand(
-                                    text = stringResource(R.string.pick_all),
-                                    onTap = { chosen = items.orEmpty().toSet() }
+                                FrontPick(
+                                    picked = presi,
+                                    onTap = {
+                                        chosen = if (presi) emptySet() else tutti.toSet()
+                                    }
                                 )
                             }
                         }
                     }
                 }
             }
-            }
+        }
         }
 
         /*
@@ -1740,15 +1865,23 @@ fun GridScreen(
          * lasciare campo libero alla griglia piena su tutto lo schermo; anche in questo caso:
          * l'opposto se si torna in cima*). Nella schermata iniziale restano sempre, perché là il
          * FAB c'è sempre e vuole un fondo neutro sotto di sé; qui il FAB non c'è, quindi appena
-         * il frontespizio è chiuso non hanno più niente da fare.
+         * l'intestazione è chiusa non hanno più niente da fare.
          * ⚠️ **La stessa curva, gli stessi numeri**: vivono in [GroundFade], che la schermata
          * iniziale legge dalla stessa riga. 'Sincronizzato' è alla lettera, perché è lo stesso
          * `aperto` che muove il titolo.
          * ⚠️⚠️ **STA PRIMA DELLA SCHEDA, DELLA NOTIFICA E DEI VELI**: in un `Box` l'ultimo
          * figlio sta sopra, e nessuno dei tre va sbiadito da lei.
+         * ⚠️⚠️ **E QUI DI STRATI NE RESTA UNO, DALLA `1.85`** (riscontro del giro della `1.83`,
+         * voce `fab-sopra`: *togli la seconda sfumatura sovrapposta, quella corta. SOLO DALLE
+         * CARTELLE, resta in home*). La coda serviva a chiudere in pieno l'ultima striscia di
+         * schermo, e qui sotto quella striscia adesso passa il FAB.
          */
         if (front) {
-            GroundFade(modifier = Modifier.align(Alignment.BottomCenter)) { aperto() }
+            GroundFade(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                alpha = aperto,
+                foot = false
+            )
         }
 
         /*
@@ -1756,7 +1889,7 @@ fun GridScreen(
          * COLONNA** (riscontro del giro della `1.82`, voce `fab-cartella` approvata con una
          * riserva: *deve stare SOPRA le sfumature*). In un `Box` l'ultimo figlio sta sopra,
          * quindi dentro la colonna il tastino finiva **sotto** le due sfumature, che sono figlie
-         * della radice: al riposo non si vedeva, perché con il frontespizio aperto sono
+         * della radice: al riposo non si vedeva, perché con l'intestazione aperta sono
          * trasparenti, e scorrendo il tastino si velava insieme alle miniature.
          * ⚠️ **La schermata iniziale ha sempre avuto quest'ordine**, e la sua nota lo dice da
          * cinque versioni (*sta prima del tastino e non dopo*): questa era l'unica delle due a
@@ -2101,6 +2234,20 @@ fun GridScreen(
      * schermata: il perché sta su [cleared]. ⚠️ Chi la rimettesse avrebbe due cure per lo
      * stesso sbaglio, una che chiede prima e una che disfa dopo.
      */
+
+    /*
+     * ⚠️ **Il selettore della tinta di questa cartella**, che apre il tocco lungo sull'icona
+     * dell'intestazione. Vive qui con gli altri dialoghi della schermata e non dentro la fascia:
+     * una finestra dentro un nodo che si misura e si ritaglia a ogni fotogramma di scorrimento
+     * sarebbe una finestra che nasce e muore con lui.
+     */
+    if (tinge) {
+        TintDialog(
+            current = frontTint,
+            onPick = onFrontTint,
+            onDismiss = { tinge = false }
+        )
+    }
 
     /*
      * ⚠️⚠️ **LA CONFERMA DI 'RIPRISTINA TUTTO', dalla 1.53, e NON è pericolosa**: il tasto
@@ -2900,7 +3047,7 @@ private const val THUMB_KIND = "thumb"
  *
  * ⚠️⚠️ **ERANO SCRITTI IN TRE POSTI E DALLA `1.83` SONO DUE COSTANTI**: la colonna della
  * schermata, il rientro con cui il velo dell'onboarding illumina il tastino, e il modificatore
- * del tastino stesso. Adesso ne serve un quarto, la tinta del frontespizio, che deve **uscire**
+ * del tastino stesso. Adesso ne serve un quarto, la tinta dell'intestazione, che deve **uscire**
  * di esattamente quel tanto per arrivare ai bordi dello schermo: con i numeri copiati, il giorno
  * che uno cambia la tinta lascerebbe una striscia chiara sui fianchi.
  */
@@ -2908,71 +3055,111 @@ private val GRID_PAD_X = 8.dp
 private val GRID_PAD_Y = 12.dp
 
 /**
- * Quanto è grande la cartella senza logo sopra il titolo graziato.
+ * Una pastiglia dell'intestazione: il peso della cartella, quante immagini, quanti video, o il
+ * comando che seleziona tutto.
  *
- * ⚠️ **Piccola apposta**: là sotto il nome è grande, e due elementi che competono darebbero una
- * fascia con due soggetti. Nella variante 7 al suo posto c'era un filetto, che è ancora meno.
- */
-private val FRONT_SERIF_MARK = 20.dp
-
-/**
- * Una pastiglia di **dato** nel frontespizio: il peso della cartella, o quanti video ha.
+ * ⚠️⚠️ **UNA SOLA DALLA `1.85`, ED È UNA SUA CORREZIONE** (riscontro del giro della `1.83`:
+ * *tutte dello stesso colore neutro, senza distinzione tra info e selezione*). Fino alla `1.84`
+ * ce n'erano due, e la seconda aveva il fondo pieno e scuro perché il mockup della variante 10
+ * dichiarava che *un dato e un comando che si somigliano sono la trappola vera di una fila
+ * mista*: col telefono in mano ha deciso il contrario. Con l'unificazione il vestito non può più
+ * divergere fra le quattro.
+ * ⚠️ **Il vestito è quello della variante 4 del mockup**: contorno, fondo della superficie,
+ * inchiostro smorzato.
  *
- * ⚠️⚠️ **IL TOCCO LUNGO È UNA SCORCIATOIA E IL TOCCO BREVE NON FA NIENTE** (punto A del campo
- * libero del giro della `1.82`), e la scelta è dichiarata: questi sono **dati**, e un dato che al
- * primo tocco seleziona duecento file sarebbe una sorpresa. La vibrazione è quella di ogni tocco
- * lungo dell'app, ed è il solo segno immediato che il gesto è passato.
+ * ⚠️⚠️ **IL TOCCO LUNGO È UNA SCORCIATOIA E SUL DATO IL TOCCO BREVE NON FA NIENTE** (punto A del
+ * campo libero del giro della `1.82`), e la scelta è dichiarata: un dato che al primo tocco
+ * seleziona duecento file sarebbe una sorpresa. La vibrazione è quella di ogni tocco lungo
+ * dell'app, ed è il solo segno immediato che il gesto è passato.
  * ⚠️ **Il gesto esiste anche per chi non vede la pastiglia**: `onLongClick` semantico porta
  * l'etichetta, quindi un lettore di schermo lo annuncia e lo può eseguire. Senza, sarebbe una
  * funzione riservata a chi sa già che c'è.
- * ⚠️ **Il vestito è quello della variante 4 del mockup**: contorno, fondo della superficie,
- * inchiostro smorzato. Un dato non è un comando, e qui si vede.
+ *
+ * @param modifier quello che il chiamante aggiunge: serve alla larghezza riservata di [FrontPick].
  */
 @Composable
-private fun FrontFact(text: String, holdLabel: String, onHold: () -> Unit) {
+private fun FrontChip(
+    text: String,
+    holdLabel: String? = null,
+    onHold: (() -> Unit)? = null,
+    onTap: (() -> Unit)? = null,
+    modifier: Modifier = Modifier
+) {
     val haptics = LocalHapticFeedback.current
-    val tieni = {
-        haptics.performHapticFeedback(HOLD_BUZZ)
-        onHold()
-    }
+    /*
+     * ⚠️⚠️ **LE DUE AZIONI SI LEGGONO DA UNO STATO AGGIORNATO, e senza questo il comando farebbe
+     * la cosa di prima**: `pointerInput` cattura le sue lambda quando parte, e con le lambda come
+     * chiavi ripartirebbe a ogni ricomposizione. Qui il testo e l'azione di [FrontPick] cambiano
+     * insieme alla selezione, quindi un gestore catturato al primo giro scarterebbe la selezione
+     * anche dopo che la pastiglia ha ricominciato a dire 'Seleziona tutto'.
+     */
+    val tocca by rememberUpdatedState(onTap)
+    val tieni by rememberUpdatedState(
+        onHold?.let {
+            {
+                haptics.performHapticFeedback(HOLD_BUZZ)
+                it()
+            }
+        }
+    )
     Text(
         text = text,
         style = MaterialTheme.typography.labelSmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         maxLines = 1,
+        textAlign = TextAlign.Center,
         modifier = Modifier
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.surface)
             .border(1.dp, MaterialTheme.colorScheme.surfaceVariant, CircleShape)
-            .semantics { onLongClick(label = holdLabel) { tieni(); true } }
-            .pointerInput(text) { detectTapGestures(onLongPress = { tieni() }) }
+            .semantics {
+                if (holdLabel != null) {
+                    onLongClick(label = holdLabel) { tieni?.invoke(); true }
+                }
+            }
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = { tocca?.invoke() },
+                    onLongPress = { tieni?.invoke() }
+                )
+            }
             .padding(horizontal = 8.dp, vertical = 3.dp)
+            .then(modifier)
     )
 }
 
 /**
- * La pastiglia **comando** del frontespizio: 'Seleziona tutto'.
+ * La pastiglia comando dell'intestazione, che dice 'Seleziona tutto' oppure 'Deseleziona'.
  *
- * ⚠️⚠️ **NON HA IL VESTITO DEI DATI, ED È LA CLAUSOLA DELLA VARIANTE 10**: *un dato e un comando
- * che si somigliano sono la trappola vera di una fila mista*. Qui il fondo è pieno e scuro e
- * l'inchiostro è quello della superficie, cioè il rovescio esatto delle due accanto.
- * ⚠️ **Il colore è `onPrimaryContainer` e non l'accento**: sopra una fascia già tinta d'accento
- * una pastiglia d'accento sparirebbe dentro il fondo, e il mockup lo misura (il comando stacca di
- * 6,9 contro l'1,9 dei dati).
+ * ⚠️⚠️ **IL TESTO CAMBIA COL SECONDO TOCCO, DALLA `1.85`, ED È SUO** (riscontro del giro della
+ * `1.83`: *dopo il tocco su 'Seleziona tutto' il tasto deve cambiare testo in 'Deseleziona', con
+ * le logiche anti-jitter; un secondo tocco scarta la selezione (anche se nel frattempo è
+ * cambiata)*).
+ * ⚠️ **'Anche se nel frattempo è cambiata' viene da sé**: il comando scarta **tutto** quello che
+ * è selezionato in quel momento, e la parola che porta dipende dallo stato di adesso, non da che
+ * cosa ha fatto il tocco di prima.
+ * ⚠️⚠️ **L'ANTI-JITTER SI MISURA, invece di riservare lo spazio con una copia nascosta**: le due
+ * parole sono per forza di lunghezza diversa (qui la causa non si può togliere, come si era
+ * potuto nel documento di feedback), quindi la pastiglia si tiene larga quanto la più lunga delle
+ * due e non si muove al cambio. Una seconda `Text` trasparente sotto avrebbe messo lo stesso
+ * testo in due posti e una voce in più nell'albero semantico.
  */
 @Composable
-private fun FrontCommand(text: String, onTap: () -> Unit) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.labelSmall,
-        fontWeight = FontWeight.Medium,
-        color = MaterialTheme.colorScheme.surface,
-        maxLines = 1,
-        modifier = Modifier
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.onPrimaryContainer)
-            .clickable(onClick = onTap)
-            .padding(horizontal = 10.dp, vertical = 3.dp)
+private fun FrontPick(picked: Boolean, onTap: () -> Unit) {
+    val misura = rememberTextMeasurer()
+    val stile = MaterialTheme.typography.labelSmall
+    val prendi = stringResource(R.string.pick_all)
+    val scarta = stringResource(R.string.front_unpick)
+    val largo = remember(prendi, scarta, stile, misura) {
+        maxOf(
+            misura.measure(prendi, stile).size.width,
+            misura.measure(scarta, stile).size.width
+        )
+    }
+    FrontChip(
+        text = if (picked) scarta else prendi,
+        onTap = onTap,
+        modifier = Modifier.width(with(LocalDensity.current) { largo.toDp() })
     )
 }
 

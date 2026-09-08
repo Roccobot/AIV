@@ -10,7 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 /**
- * Il **frontespizio**: la fascia in cima che si chiude scorrendo, e la sfumatura in fondo che
+ * Il **intestazione**: la fascia in cima che si chiude scorrendo, e la sfumatura in fondo che
  * gli fa da controparte.
  *
  * ⚠️⚠️ **STA IN UN FILE SUO DALLA `1.76`, PERCHÉ DA QUELLA VERSIONE LE SCHERMATE CHE LO
@@ -41,7 +41,7 @@ import kotlin.math.roundToInt
  */
 
 /**
- * Quanta parte dello schermo tiene il frontespizio da aperto: **un terzo scarso**.
+ * Quanta parte dello schermo tiene l'intestazione da aperto: **un terzo scarso**.
  *
  * ⚠️⚠️ **NON È UNA PROPORZIONE ESTETICA ma una misura di portata del pollice**: l'utente
  * usa l'intestazione come scusa per tenere le cartelle in basso, in stile OneUI (sue
@@ -66,13 +66,13 @@ import kotlin.math.roundToInt
 const val HEADER_SHARE = 0.34f
 
 /**
- * Quanto è larga l'icona del frontespizio: più grande di quella delle impostazioni, perché qui
+ * Quanto è larga l'icona dell'intestazione: più grande di quella delle impostazioni, perché qui
  * accoglie.
  */
 val HEADER_ICON = 96.dp
 
 /**
- * Quanto è aperto il frontespizio, da 0 (chiuso) a 1.
+ * Quanto è aperto l'intestazione, da 0 (chiuso) a 1.
  *
  * ⚠️ **La formula sta in un posto solo perché la leggono in tre**: la fascia, per sbiadire il suo
  * contenuto; la testata di una cartella, per far comparire il titolo quando la fascia lo lascia
@@ -86,10 +86,10 @@ fun frontOpen(fullPx: Float, chiuso: Float): Float =
     if (fullPx > 0f) (1f - chiuso / fullPx).coerceIn(0f, 1f) else 0f
 
 /**
- * La fascia del frontespizio: alta [fullPx] da aperta, e alta quel che resta mentre si chiude.
+ * La fascia dell'intestazione: alta [fullPx] da aperta, e alta quel che resta mentre si chiude.
  *
  * ⚠️⚠️ **IL FIGLIO SI MISURA SEMPRE ALL'ALTEZZA PIENA e si RITAGLIA, non si schiaccia.**
- * Misurandolo con l'altezza che resta, l'icona verrebbe compressa mentre il frontespizio
+ * Misurandolo con l'altezza che resta, l'icona verrebbe compressa mentre l'intestazione
  * si chiude, cioè un disegno che si deforma invece di uscire di scena. Qui si misura
  * intero, si dichiara alta quel che resta, e lo si colloca **centrato in quel che
  * resta**: il contenuto sale da sé mentre lo spazio si stringe, ed è la parallasse, non
@@ -169,14 +169,27 @@ fun FrontBand(
  * che hanno un modificatore di puntatore, e qui non ce n'è nessuno. Senza questo fatto servirebbe
  * un `pointerInput` che lascia passare, che è il rimedio a un problema che non c'è.
  *
+ * ⚠️⚠️ **E DALLA `1.85` NELLE CARTELLE DI STRATO CE N'È UNO SOLO** (riscontro del giro della
+ * `1.83`, voce `fab-sopra` approvata con una prova: *togli la seconda sfumatura sovrapposta,
+ * quella corta. SOLO DALLE CARTELLE, resta in home*). Il secondo strato è nato per chiudere in
+ * pieno l'ultima striscia di schermo, e là dentro quella striscia adesso la attraversa il FAB,
+ * che dalla `1.83` passa **sopra** le sfumature: la coda gli finiva addosso.
+ *
  * @param alpha quanto si vedono, da 0 a 1. ⚠️ **Il valore di serie è il pieno**, che è il caso
  *   della schermata iniziale: là il tastino c'è sempre, quindi la fascia che lo tiene su un fondo
  *   neutro non ha ragione di andarsene. Nella griglia di una cartella invece se ne va scorrendo,
  *   ed è una richiesta sua (*le due sfumature in basso devono progressivamente sparire e lasciare
  *   campo libero alla griglia piena su tutto lo schermo*).
+ * @param foot se disegnare anche la coda che chiude in pieno l'ultima striscia. ⚠️ **Il valore di
+ *   serie è di averla**, perché la schermata iniziale non ha cambiato idea: quello che cambia è
+ *   la cartella, e un valore di serie rovesciato avrebbe tolto la coda anche a lei.
  */
 @Composable
-fun GroundFade(modifier: Modifier = Modifier, alpha: () -> Float = { 1f }) {
+fun GroundFade(
+    modifier: Modifier = Modifier,
+    alpha: () -> Float = { 1f },
+    foot: Boolean = true
+) {
     val ground = MaterialTheme.colorScheme.background
     val ramp = remember(ground) {
         Array(GRADIENT_STOPS + 1) { step ->
@@ -211,13 +224,15 @@ fun GroundFade(modifier: Modifier = Modifier, alpha: () -> Float = { 1f }) {
         )
         // ⚠️ **Sta DOPO la fascia grande**: in un `Box` l'ultimo figlio sta sopra, e questa coda
         // esiste per riportare al pieno quello che la fascia lascia a sei decimi.
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .height(FOOT_REACH)
-                .background(Brush.verticalGradient(colorStops = piede))
-        )
+        if (foot) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(FOOT_REACH)
+                    .background(Brush.verticalGradient(colorStops = piede))
+            )
+        }
     }
 }
 
@@ -380,7 +395,7 @@ private fun smoothstep(t: Float): Float {
 }
 
 /**
- * Lo scorrimento che **chiude il frontespizio prima che l'elenco scorra**, e lo riapre in cima.
+ * Lo scorrimento che **chiude l'intestazione prima che l'elenco scorra**, e lo riapre in cima.
  *
  * ⚠️⚠️ **FUNZIONA ANCHE CON DUE ELEMENTI, e il fatto è verificato sul sorgente di Compose e non
  * supposto**: il trascinamento verso l'alto viene intercettato **prima** (`onPreScroll`) e speso
@@ -389,10 +404,10 @@ private fun smoothstep(t: Float): Float {
  * trascinamento dipende dal **tipo di puntatore** (`canDrag`) e non dal fatto che ci sia spazio
  * da scorrere. Senza questo fatto avrei dovuto gonfiare l'elenco con spazio finto in fondo.
  * ⚠️ E si riapre dall'altra parte con `onPostScroll`: quello arriva solo quando l'elenco è già in
- * cima e ha avanzato del movimento, che è esattamente la condizione in cui il frontespizio deve
+ * cima e ha avanzato del movimento, che è esattamente la condizione in cui l'intestazione deve
  * tornare.
  *
- * @param quanto quanti pixel di frontespizio ci sono in tutto.
+ * @param quanto quanti pixel di intestazione ci sono in tutto.
  * @param chiuso quanti ne sono già stati chiusi.
  * @param chiudi dove scrivere il numero nuovo.
  */
@@ -421,7 +436,7 @@ fun frontScroll(
 }
 
 /**
- * Quanto sta l'icona del frontespizio dal titolo sotto di lei.
+ * Quanto sta l'icona dell'intestazione dal titolo sotto di lei.
  *
  * ⚠️ **Lo stesso numero della schermata iniziale** (dove viveva dentro `Identity`), perché le due
  * fasce devono somigliarsi: 'analogo alla home' sono parole sue.
@@ -429,7 +444,7 @@ fun frontScroll(
 val FRONT_GAP: Dp = 10.dp
 
 /**
- * Quanto sta il conto degli elementi dal nome della cartella, nel frontespizio.
+ * Quanto sta il conto degli elementi dal nome della cartella, nell'intestazione.
  *
  * ⚠️ **Più corto di [FRONT_GAP], e non è un numero a caso**: il nome e il numero sono **una**
  * cosa da leggere insieme, mentre l'icona sopra è un fondale. Un'aria uguale a quella dell'icona
@@ -438,7 +453,7 @@ val FRONT_GAP: Dp = 10.dp
 val FRONT_COUNT_GAP: Dp = 2.dp
 
 /**
- * Quanto si vede l'icona nel frontespizio di una cartella: **diciotto centesimi**.
+ * Quanto si vede l'icona nell'intestazione di una cartella: **diciotto centesimi**.
  *
  * ⚠️ **Il numero è suo, e questo è il TERZO in tre versioni**: la `1.76` era uscita col ~50%
  * della sua specifica (*ma semitrasparente (~50%)*), la `1.77` è scesa a 0,3 col telefono in
@@ -455,7 +470,7 @@ val FRONT_COUNT_GAP: Dp = 2.dp
 const val FRONT_INK = 0.18f
 
 /**
- * Quanta parte dello spazio verticale libero può prendere l'icona del frontespizio.
+ * Quanta parte dello spazio verticale libero può prendere l'icona dell'intestazione.
  *
  * ⚠️ **Era un `0.5f` scritto a mano nel chiamante**, e questo è il posto in cui viveva già lo
  * stesso conto della schermata iniziale: appare qui perché dalla `1.78` lo legge anche
@@ -464,7 +479,7 @@ const val FRONT_INK = 0.18f
 const val FRONT_ICON_SHARE = 0.5f
 
 /**
- * Da che apertura l'icona del frontespizio comincia a rimpicciolirsi, e con lei a sbiadire.
+ * Da che apertura l'icona dell'intestazione comincia a rimpicciolirsi, e con lei a sbiadire.
  *
  * ⚠️⚠️ **SI RICAVA DALLA MISURA E NON È PIÙ UN NUMERO SCRITTO A MANO, dalla `1.80`** (riscontro
  * del giro della `1.79`, voce `front-selezione` approvata con una nota: *l'icona cartella deve
@@ -488,7 +503,7 @@ fun frontIconFade(fullPx: Float, maxPx: Float): Float =
     if (fullPx <= 0f) 1f else (maxPx / (fullPx * FRONT_ICON_SHARE)).coerceIn(0f, 1f)
 
 /**
- * Quanto inchiostro ha l'icona del frontespizio con la fascia aperta di [aperto].
+ * Quanto inchiostro ha l'icona dell'intestazione con la fascia aperta di [aperto].
  *
  * ⚠️ **Sta accanto ai suoi numeri e non nel chiamante**: la curva e la soglia sono una cosa sola,
  * e separarle vorrebbe dire cambiare una soglia senza cambiare la curva.
@@ -509,7 +524,7 @@ fun frontIconInk(aperto: Float, soglia: Float, pieno: Float = FRONT_INK): Float 
     pieno * if (soglia <= 0f) 1f else (aperto / soglia).coerceIn(0f, 1f)
 
 /**
- * L'icona del frontespizio si misura sullo spazio che la fascia le lascia, a ogni fotogramma.
+ * L'icona dell'intestazione si misura sullo spazio che la fascia le lascia, a ogni fotogramma.
  *
  * ⚠️⚠️ **È UNA MISURA E NON UNA SCALA, ed è la differenza fra le due parole della sua
  * richiesta**: *rimpicciolirsi* e *adattarsi allo spazio disponibile in verticale*. Una
@@ -539,11 +554,11 @@ fun Modifier.frontIconMeasure(fullPx: Float, shut: () -> Float, max: Dp): Modifi
     }
 
 /**
- * La **tinta** del frontespizio: piena in cima, spenta una riga di miniature sotto la fascia.
+ * La **tinta** dell'intestazione: piena in cima, spenta una riga di miniature sotto la fascia.
  *
  * ⚠️⚠️ **È LA VARIANTE 10 DEL MOCKUP, SCELTA DA LUI** (risposta a `d-frontespizio` del giro della
  * `1.81`), e le tre cose che la distinguono dalla 8 sono sue: la tinta **non muore col
- * frontespizio** ma si spegne una riga più in basso, l'icona passa in negativo all'80%, e sotto
+ * intestazione** ma si spegne una riga più in basso, l'icona passa in negativo all'80%, e sotto
  * il conto arriva una fila di pastiglie. Qui c'è la prima.
  *
  * ⚠️⚠️ **SI DIPINGE DIETRO IL BLOCCO 'TESTATA PIÙ FASCIA', ED È QUELLO CHE LA FA ACCORCIARE DA
@@ -558,35 +573,76 @@ fun Modifier.frontIconMeasure(fullPx: Float, shut: () -> Float, max: Dp): Modifi
  * sono i rientri della schermata, e chi li cambia passa di qui.
  * ⚠️ **Il colore è `primary` e non l'accento della sfumatura in fondo**: è la tinta della carta
  * 8, quella che lui ha dettato, e le due misure di contrasto del mockup (titolo a 8,5, icona in
- * negativo a 1,9) valgono per lei.
+ * negativo a 1,9) valgono per lei. ⚠️ **Dalla `1.85` può arrivare anche il colore scelto per
+ * quella cartella**, e chi sceglie è il chiamante: qui la tinta è un ingresso.
  * ⚠️⚠️ **DIECI TAPPE E NON DUE, e il perché è lo stesso della sfumatura in fondo**: una rampa
  * dritta si legge come un bordo sfocato, perché l'occhio vede i due spigoli in cui la salita
  * comincia e finisce. Le tappe qui sono quelle del mockup, cioè quelle che lui ha guardato.
  *
+ * ⚠️⚠️ **DALLA `1.85` LA TINTA VA DIETRO IL BLOCCO INTERO 'TESTATA PIÙ FASCIA', E NON DIETRO LA
+ * SOLA FASCIA: È LA CORREZIONE DEL DIFETTO CHE HA FATTO BOCCIARE LA `1.83`** (riscontro della
+ * voce `front-dieci`: *il nome della cartella e gli elementi non passano più in testa allo
+ * scorrimento (lo spazio rimane vuoto)*). `drawBehind` disegna dietro il contenuto **del proprio
+ * nodo**, non dietro i fratelli che la colonna ha già disegnato: con la tinta su un nodo che
+ * veniva dopo la testata, il rettangolo che sconfina verso l'alto le finiva **sopra**, e il
+ * titolo che stava comparendo ci spariva dentro. Chi la sposta di nuovo su un fratello successivo
+ * rifà lo stesso difetto, e il compilatore non dirà niente.
+ * ⚠️ **Con lei sparisce anche la misura della testata**: l'altezza da cui la tinta parte adesso è
+ * quella del nodo, quindi non c'è più niente da misurare con un `onGloballyPositioned` e da
+ * ricomporre quando cambia.
+ *
+ * ⚠️⚠️ **E NON SCENDE PIÙ SOTTO LA FASCIA** (stesso riscontro: *inizia da 70% e sfuma verso lo 0
+ * prima di raggiungere la griglia*): fino alla `1.84` la coda arrivava una riga di miniature più
+ * in basso, cioè tingeva la prima fila di immagini.
+ *
  * @param tint la tinta piena, di solito `colorScheme.primary`.
  * @param air quanto sconfinare per lato, cioè il rientro orizzontale della schermata.
  * @param up quanto salire sopra il blocco, cioè il rientro verticale della schermata.
- * @param tail quanto scendere sotto la fascia: una riga di miniature.
+ * @param ink quanto si vede la tinta, da 0 a 1: si legge in fase di **disegno**, perché segue lo
+ *   scorrimento e leggerla in composizione farebbe rifare la griglia a ogni pixel.
  */
-fun Modifier.frontWash(tint: Color, air: Dp, up: Dp, tail: Dp): Modifier = drawBehind {
+fun Modifier.frontWash(tint: Color, air: Dp, up: Dp, ink: () -> Float): Modifier = drawWithCache {
     val ariaPx = air.toPx()
     val suPx = up.toPx()
-    val alto = size.height + suPx + tail.toPx()
-    if (alto <= 0f) return@drawBehind
-    drawRect(
-        brush = Brush.verticalGradient(
-            colorStops = WASH_STOPS.map { (at, ink) -> at to tint.copy(alpha = ink) }
-                .toTypedArray(),
-            startY = -suPx,
-            endY = alto - suPx
-        ),
-        topLeft = Offset(-ariaPx, -suPx),
-        size = Size(size.width + ariaPx * 2, alto)
+    val alto = size.height + suPx
+    /*
+     * ⚠️ **Il pennello si costruisce UNA VOLTA per misura e non a ogni fotogramma**: l'opacità
+     * che cambia mentre si scorre entra dal parametro `alpha` di `drawRect`, che moltiplica il
+     * colore già composto. Rifacendo le dieci tappe a ogni disegno si allocherebbe un pennello
+     * per fotogramma per ottenere lo stesso risultato.
+     */
+    val pennello = Brush.verticalGradient(
+        colorStops = WASH_STOPS.map { (at, quanto) -> at to tint.copy(alpha = quanto * WASH_PEAK) }
+            .toTypedArray(),
+        startY = -suPx,
+        endY = alto - suPx
     )
+    onDrawBehind {
+        val visto = ink()
+        if (visto <= 0f || alto <= 0f) return@onDrawBehind
+        drawRect(
+            brush = pennello,
+            topLeft = Offset(-ariaPx, -suPx),
+            size = Size(size.width + ariaPx * 2, alto),
+            alpha = visto
+        )
+    }
 }
 
 /**
- * Le tappe della tinta del frontespizio: dove, e con quanto colore.
+ * Quanto arriva a coprire la tinta nel suo punto più forte: **sette decimi**.
+ *
+ * ⚠️⚠️ **ERA IL PIENO FINO ALLA `1.84`** (riscontro del giro della `1.83`, voce `front-dieci`:
+ * *sfumatura molto meno visibile: inizia il gradiente già dal bordo superiore, e anzi inizia da
+ * 70%*). Le dieci tappe restano quelle del mockup: quello che cambia è il numero da cui partono,
+ * quindi la **forma** della dissolvenza è ancora quella che lui ha guardato.
+ * ⚠️ **Si moltiplica invece di riscrivere le tappe**: scritte con il 70% già dentro, il giorno
+ * che quel numero cambia bisognerebbe rifare dieci moltiplicazioni a mano.
+ */
+private const val WASH_PEAK = 0.70f
+
+/**
+ * Le tappe della tinta dell'intestazione: dove, e con quanto colore.
  *
  * ⚠️ **Sono quelle del mockup**, cioè quelle su cui l'utente ha guardato la variante e ha
  * misurato i contrasti: cambiarle vorrebbe dire mostrargli una cosa e dargliene un'altra.
@@ -597,16 +653,19 @@ private val WASH_STOPS = listOf(
 )
 
 /**
- * Quanto si vede l'icona della cartella quando la tinta è accesa: **otto decimi**, in negativo.
+ * Quanto si vede l'icona della cartella quando la tinta è accesa: **tutto**, in negativo.
  *
- * ⚠️ **Il numero è suo** (*l'icona centrata in negativo all'80% invece del 20%*), e cambia di
- * mestiere all'icona: con [FRONT_INK] è un fondale che si intravede, qui è una sagoma. Misurato
- * sul mockup: stacca di 1,9 dal fondo invece dell'1,2 che aveva al 20%.
+ * ⚠️ **Il numero è suo, ed è il secondo**: la `1.83` era uscita all'80% con la sua prima
+ * specifica (*l'icona centrata in negativo all'80% invece del 20%*), e il giro dopo lo ha portato
+ * al pieno con la sfumatura sotto molto più chiara (*l'icona resta in negativo, 100%, vediamo che
+ * effetto fa*). Le due cose vanno insieme: su una tinta al 70% una sagoma all'80% si spegne.
+ * ⚠️ **Resta un numero e non sparisce**: con [FRONT_INK] è un fondale che si intravede, qui è una
+ * sagoma, e sono i due estremi della stessa rampa (vedi [frontIconInk]).
  * ⚠️ **In negativo vuol dire il colore della SUPERFICIE**, non un grigio: sopra la tinta il
  * colore del contenuto sparirebbe, e quello della superficie è l'unico che sta sempre dall'altra
  * parte del contrasto, in tutti e due i temi.
  */
-const val FRONT_NEG_INK = 0.8f
+const val FRONT_NEG_INK = 1f
 
 /**
  * Quanto sta la fila delle pastiglie dal conto degli elementi.
@@ -618,7 +677,7 @@ const val FRONT_NEG_INK = 0.8f
 val FRONT_CHIP_GAP: Dp = 10.dp
 
 /**
- * Quante righe può prendere il nome della cartella nel frontespizio: **due**.
+ * Quante righe può prendere il nome della cartella nell'intestazione: **due**.
  *
  * ⚠️ **È la metà della ragione per cui quel titolo è più piccolo di quello della testata**: la
  * richiesta dice *scritto un po' più piccolo per lasciare spazio anche a nomi lunghi*, e un nome

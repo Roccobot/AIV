@@ -55,7 +55,7 @@ class SemanticheTest {
      * di TalkBack non trovava un solo punto di aggancio: l'unico modo di scendere una schermata
      * era passare voce per voce. Qui si misura quello della schermata iniziale, che è il primo
      * che si incontra aprendo l'app.
-     * ⚠️ **Nella casa il titolo vive nel FRONTESPIZIO e non nella testata**: là in cima non c'è
+     * ⚠️ **Nella casa il titolo vive nel INTESTAZIONE e non nella testata**: là in cima non c'è
      * niente da leggere, perché il nome dell'app è quello grande sotto l'icona (`Identity`).
      */
     @Test
@@ -162,7 +162,7 @@ class SemanticheTest {
         const val ATTESA = 5_000L
 
         /**
-         * Il nome dell'app come lo scrive il frontespizio.
+         * Il nome dell'app come lo scrive l'intestazione.
          *
          * ⚠️ **Non è una stringa di risorsa**, ed è una scelta dell'app: il nome del prodotto
          * non si traduce, quindi `Identity` lo scrive come letterale. Qui si ripete per la

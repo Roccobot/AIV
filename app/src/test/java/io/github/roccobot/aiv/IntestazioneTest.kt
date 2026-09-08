@@ -1,21 +1,30 @@
 package io.github.roccobot.aiv
 
+import android.content.ClipboardManager
 import android.content.Context
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
+import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
@@ -24,9 +33,10 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 /**
- * Il banco di prova del **frontespizio di una cartella**, nato con lui nella `1.76`.
+ * Il banco di prova del **intestazione di una cartella**, nato con lui nella `1.76`.
  *
  * ⚠️⚠️ **ESISTE PER LA METÀ PROATTIVA DELLA REGOLA, non per un difetto arrivato a lui**
  * (`CLAUDE.md`, § 'Quando si scrive una prova, e quando no'): un modificatore che **misura** e
@@ -40,13 +50,20 @@ import org.robolectric.annotation.Config
  */
 @RunWith(AndroidJUnit4::class)
 @Config(shadows = [OmbraArchivio::class])
-class FrontespizioTest {
+/*
+ * ⚠️⚠️ **LA GRAFICA VERA SERVE A UNA PROVA SOLA, MA VALE PER LA CLASSE**: `captureToImage` senza
+ * `NATIVE` restituisce un'immagine vuota, cioè una prova che passa sempre. Robolectric lo dichiara
+ * per classe o per metodo, e per classe costa poco: le altre prove qui non guardano i pixel, e
+ * girare in grafica vera non le cambia.
+ */
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+class IntestazioneTest {
 
     @get:Rule
     val banco = createComposeRule()
 
     /**
-     * **La griglia parte sotto il frontespizio, e scorrendo il frontespizio si chiude.**
+     * **La griglia parte sotto l'intestazione, e scorrendo l'intestazione si chiude.**
      *
      * ⚠️ **Le due metà servono insieme**: la prima da sola passerebbe con una fascia inchiodata
      * (cioè con la griglia condannata a cominciare a un terzo di schermo per sempre), la seconda
@@ -57,14 +74,14 @@ class FrontespizioTest {
      * anche se la griglia gli finisse sotto.
      */
     @Test
-    fun `la griglia parte sotto il frontespizio e si chiude scorrendo`() {
+    fun `la griglia parte sotto l'intestazione e si chiude scorrendo`() {
         banco.setContent { Scena() }
         banco.waitForIdle()
 
         val alto = banco.onRoot().fetchSemanticsNode().size.height.toFloat()
         val prima = riquadro()
         assertTrue(
-            "La prima miniatura comincia a ${prima}px su $alto: il frontespizio non la spinge giù",
+            "La prima miniatura comincia a ${prima}px su $alto: l'intestazione non la spinge giù",
             prima > alto * SOGLIA_APERTO
         )
 
@@ -73,7 +90,7 @@ class FrontespizioTest {
          * quello parte dal bordo di sotto del nodo, che qui è il margine della schermata, e da
          * là non c'è nessuna griglia sotto il dito. Misurato: con `swipeUp()` la prima miniatura
          * non si muoveva di un pixel.
-         * ⚠️ **Lungo quanto il frontespizio e non di più**: così [frontScroll] lo spende tutto per
+         * ⚠️ **Lungo quanto l'intestazione e non di più**: così [frontScroll] lo spende tutto per
          * chiudere la fascia e la griglia non ha bisogno di scorrere, che è il fatto scritto là.
          */
         val largo = banco.onRoot().fetchSemanticsNode().size.width.toFloat()
@@ -89,11 +106,11 @@ class FrontespizioTest {
         /*
          * ⚠️ **`null` conta come chiuso**: l'inerzia del trascinamento può portare la prima
          * miniatura fuori dallo schermo, e una griglia che ha scorso di più di così ha per forza
-         * chiuso la fascia prima, perché il frontespizio si spende sempre per primo.
+         * chiuso la fascia prima, perché l'intestazione si spende sempre per prima.
          */
         val dopo = miniature()[1]?.top
         assertTrue(
-            "La prima miniatura è a ${dopo}px e prima era a $prima: il frontespizio non si chiude",
+            "La prima miniatura è a ${dopo}px e prima era a $prima: l'intestazione non si chiude",
             dopo == null || prima - dopo > alto * HEADER_SHARE * QUASI_TUTTO
         )
     }
@@ -139,7 +156,7 @@ class FrontespizioTest {
     }
 
     /**
-     * **Cominciare una selezione non chiude il frontespizio.**
+     * **Cominciare una selezione non chiude l'intestazione.**
      *
      * ⚠️⚠️ **QUESTO DIFETTO È ARRIVATO A LUI, e la prova torna con la correzione, nella stessa
      * versione** (`CLAUDE.md`, § '🧪 Quando si scrive una prova, e quando no'). La `1.76`
@@ -154,7 +171,7 @@ class FrontespizioTest {
      * sì senza aver provato niente.
      */
     @Test
-    fun `la selezione non chiude il frontespizio`() {
+    fun `la selezione non chiude l'intestazione`() {
         banco.setContent { Scena() }
         banco.waitForIdle()
 
@@ -170,7 +187,7 @@ class FrontespizioTest {
         )
 
         assertEquals(
-            "La prima miniatura si è spostata cominciando la selezione: il frontespizio si chiude",
+            "La prima miniatura si è spostata cominciando la selezione: l'intestazione si chiude",
             prima,
             riquadro(),
             FERMO
@@ -289,6 +306,208 @@ class FrontespizioTest {
     }
 
     /**
+     * **Chiudendo la fascia il nome arriva in testata, e il gradiente non se lo mangia.**
+     *
+     * ⚠️⚠️ **QUESTO DIFETTO È ARRIVATO A LUI E HA FATTO BOCCIARE LA `1.83`** (voce `front-dieci`:
+     * *il nome della cartella e gli elementi (selezionati o meno) non passano più in testa allo
+     * scorrimento (lo spazio rimane vuoto)*), quindi la prova torna con la correzione, nella
+     * stessa versione. La causa era che il gradiente si dipingeva su un nodo che la colonna
+     * disegnava **dopo** la testata: sconfinando verso l'alto le finiva sopra.
+     *
+     * ⚠️⚠️ **MA QUESTA MISURA IL SINTOMO E NON LA CAUSA, e va detto invece di lasciarlo credere**:
+     * a rimettere il difetto e vederla fallire non ci riesce, ed è provato (vedi la prova sul
+     * meccanismo qui sotto, che invece lo prende). Quello che presidia è **la scena come lui la
+     * vede**: a fascia chiusa il nome in testata si legge, qualunque sia la ragione per cui non è
+     * coperto. Fra le ragioni c'è anche che il gradiente sbiadisce con lo scorrimento, che è
+     * l'altra metà della sua richiesta, quindi togliendo quella questa prova diventa rossa.
+     *
+     * ⚠️⚠️ **SI GUARDANO I PIXEL, ED È LA PRIMA VOLTA IN QUESTO BANCO**: nessuna misura di
+     * struttura poteva vedere il difetto, perché il titolo c'era, era al posto giusto, era opaco
+     * e aveva le sue dimensioni. Quello che non si vedeva era il **disegno**, e per guardarlo
+     * serve la grafica vera (vedi `@GraphicsMode` sulla classe).
+     * ⚠️⚠️ **SI CONTANO I COLORI RIGA PER RIGA E NON SUL RIQUADRO INTERO, ed è la differenza fra
+     * misurare e fingere**: il gradiente è **verticale**, quindi su un riquadro intero i colori
+     * distinti sarebbero tanti anche con il titolo completamente coperto, una tinta per riga. In
+     * una singola riga orizzontale il gradiente ha un colore solo, quindi una riga con molti
+     * colori è una riga in cui c'è scritto qualcosa.
+     * ⚠️ **La tinta è quella scelta a mano e non quella dell'app**: così il fondo è un colore
+     * noto e pieno, cioè il caso peggiore per la leggibilità del titolo.
+     */
+    @Test
+    fun `il nome arriva in testata e il gradiente non lo copre`() {
+        banco.setContent { Scena(tinta = TINTA_SCURA) }
+        banco.waitForIdle()
+
+        val alto = banco.onRoot().fetchSemanticsNode().size.height.toFloat()
+        val largo = banco.onRoot().fetchSemanticsNode().size.width.toFloat()
+        banco.onRoot().performTouchInput {
+            swipe(
+                start = Offset(largo / 2f, alto * DA),
+                end = Offset(largo / 2f, alto * (DA - HEADER_SHARE)),
+                durationMillis = LENTO
+            )
+        }
+        banco.waitForIdle()
+
+        /*
+         * ⚠️⚠️ **IL NODO SI SCEGLIE FRA QUELLI DENTRO LO SCHERMO, e la prima stesura di questa
+         * prova sbagliava proprio qui**: il nome sta due volte nell'albero, e a fascia chiusa la
+         * copia della fascia è **sopra il bordo di sopra** (la fascia la posa in negativo e la
+         * ritaglia). `boundsInRoot` non ritaglia niente, quindi 'il più in alto' era quella, e la
+         * prova finiva a contare i colori di zero pixel: 0 colori è 'non ho guardato', non 'non
+         * si legge'.
+         */
+        val dentro = banco.onAllNodesWithText(TITOLO).fetchSemanticsNodes()
+            .map { it.boundsInRoot }
+            .filter { it.top >= 0f && it.bottom <= alto && it.height > 0f }
+        val dove = requireNotNull(dentro.minByOrNull { it.top }) {
+            "Il nome della cartella non è in scena dentro lo schermo"
+        }
+
+        val mappa = banco.onRoot().captureToImage().toPixelMap()
+        var piuColori = 0
+        for (y in dove.top.toInt().coerceAtLeast(0) until dove.bottom.toInt()
+            .coerceAtMost(mappa.height)) {
+            val riga = mutableSetOf<Long>()
+            for (x in dove.left.toInt().coerceAtLeast(0) until dove.right.toInt()
+                .coerceAtMost(mappa.width)) {
+                riga.add(mappa[x, y].value.toLong())
+            }
+            piuColori = maxOf(piuColori, riga.size)
+        }
+
+        assertTrue(
+            "Nella riga più ricca del titolo in testata ci sono $piuColori colori: il nome non " +
+                "si legge, il gradiente gli è finito sopra",
+            piuColori > COLORI_DI_UN_TESTO
+        )
+    }
+
+    /**
+     * **Il gradiente si dipinge DIETRO il contenuto del suo nodo.**
+     *
+     * ⚠️⚠️ **QUESTA È LA PROVA CHE MORDE, e l'altra da sola non bastava**: misurando il titolo in
+     * testata a schermata intera, il difetto rimesso a mano **non** faceva fallire niente, perché
+     * là dove passa il titolo il gradiente è già quasi finito e il testo si legge lo stesso.
+     * Provato, non supposto: con `onDrawWithContent` al posto di `onDrawBehind`, e anche con
+     * l'opacità inchiodata al pieno come nella `1.83`, quella prova restava verde. Una prova che
+     * non distingue il difetto dalla correzione non misura niente.
+     * ⚠️ **Quindi si misura il meccanismo su una scena minima**: un quadrato bianco pieno dentro
+     * un nodo che porta il gradiente. Dietro, il bianco resta bianco; sopra, il centro si tinge.
+     * ⚠️ **Il colore è rosso e l'opacità è il pieno**: servono il caso più visibile possibile, o
+     * la differenza fra le due vie sarebbe una sfumatura da soglia.
+     */
+    @Test
+    fun `il gradiente si dipinge dietro il contenuto`() {
+        banco.setContent {
+            Box(
+                modifier = Modifier
+                    .size(LATO)
+                    .frontWash(tint = Color.Red, air = 0.dp, up = 0.dp, ink = { 1f })
+            ) {
+                Box(modifier = Modifier.fillMaxSize().background(Color.White))
+            }
+        }
+        banco.waitForIdle()
+
+        val mappa = banco.onRoot().captureToImage().toPixelMap()
+        val centro = mappa[mappa.width / 2, mappa.height / 2]
+        assertEquals(
+            "Il centro del quadrato bianco è $centro: il gradiente gli è finito sopra",
+            Color.White,
+            centro
+        )
+    }
+
+    /**
+     * **La pastiglia dice 'Deseleziona' dopo il primo tocco, e un secondo tocco scarta.**
+     *
+     * ⚠️⚠️ **È LA SUA RICHIESTA ALLA LETTERA** (voce `front-dieci`: *dopo il tocco su 'Seleziona
+     * tutto' il tasto deve cambiare testo in 'Deseleziona', con le logiche anti-jitter; un
+     * secondo tocco scarta la selezione*), ed è di struttura, quindi il banco la vede tutta.
+     * ⚠️⚠️ **LA LARGHEZZA SI MISURA PRIMA E DOPO, e senza quella metà la prova non guarderebbe
+     * l'anti-jitter**: due parole di lunghezza diversa in una pastiglia che si adatta la farebbero
+     * ballare, che è esattamente quello che lui non vuole.
+     * ⚠️ **Il gesto passa per il TESTO e non per la posizione**: la pastiglia si sposta se il
+     * titolo va a capo, e un tocco per coordinate misurerebbe dov'era invece di che cosa fa.
+     */
+    @Test
+    fun `la pastiglia scarta la selezione e non cambia larghezza`() {
+        banco.setContent { Scena() }
+        banco.waitForIdle()
+
+        val prendi = app.getString(R.string.pick_all)
+        val scarta = app.getString(R.string.front_unpick)
+        val primo = banco.onAllNodesWithText(prendi).fetchSemanticsNodes()
+            .firstOrNull()?.boundsInRoot
+        val largo = requireNotNull(primo) { "La pastiglia 'Seleziona tutto' non è in scena" }.width
+
+        banco.onNodeWithText(prendi).performClick()
+        banco.waitForIdle()
+
+        val tutte = app.resources.getQuantityString(R.plurals.pick_count, FOTO.size, FOTO.size)
+        assertTrue(
+            "Il tocco non ha selezionato niente: il conto '$tutte' non c'è",
+            banco.onAllNodesWithText(tutte).fetchSemanticsNodes().isNotEmpty()
+        )
+
+        val dopo = banco.onAllNodesWithText(scarta).fetchSemanticsNodes().firstOrNull()
+        val adesso = requireNotNull(dopo) { "La pastiglia non dice '$scarta'" }.boundsInRoot
+        assertEquals(
+            "La pastiglia era larga $largo e adesso è ${adesso.width}: balla al cambio di parola",
+            largo,
+            adesso.width,
+            FERMO
+        )
+
+        banco.onNodeWithText(scarta).performClick()
+        banco.waitForIdle()
+
+        assertTrue(
+            "Il secondo tocco non ha scartato la selezione",
+            banco.onAllNodesWithText(tutte).fetchSemanticsNodes().isEmpty()
+        )
+    }
+
+    /**
+     * **Il tocco sul nome copia il nome, e il tocco lungo copia il percorso.**
+     *
+     * ⚠️ **Sono due gesti suoi del giro della `1.83`** (*un tap sul nome della cartella copia il
+     * suo nome (con notifica toast); un tap lungo copia il nome della cartella con il percorso*),
+     * e sono di struttura: quello che finisce negli appunti si legge.
+     * ⚠️⚠️ **SENZA PERCORSO IL TOCCO LUNGO COPIA IL NOME, e la prova lo misura invece di
+     * saltarlo**: qui la cartella finta non ha nessun percorso, che è anche il caso vero di una
+     * cartella appena aperta, e un gesto che in quel caso non facesse niente si leggerebbe come
+     * rotto.
+     */
+    @Test
+    fun `il tocco sul nome lo copia`() {
+        banco.setContent { Scena() }
+        banco.waitForIdle()
+
+        val appunti = app.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        /*
+         * ⚠️⚠️ **I GESTI VIVONO SUL NOME GRANDE DELL'INTESTAZIONE, NON SU QUELLO DELLA TESTATA**,
+         * ed è una scelta dichiarata: la copia della testata è trasparente finché la fascia è
+         * aperta, e un nodo trasparente riceve comunque i tocchi, quindi mettere i gesti anche là
+         * vorrebbe dire un tocco sul vuoto che copia un nome. Il nome grande è quello più in
+         * BASSO fra i due, e si tocca per coordinate perché è di quel disegno che si parla.
+         */
+        val grande = banco.onAllNodesWithText(TITOLO).fetchSemanticsNodes()
+            .map { it.boundsInRoot }
+            .maxByOrNull { it.top }
+        val dove = requireNotNull(grande) { "Il nome della cartella non è in scena" }
+        banco.onRoot().performTouchInput { click(dove.center) }
+        banco.waitForIdle()
+
+        assertEquals(
+            "Il tocco sul nome non l'ha copiato",
+            TITOLO,
+            appunti.primaryClip?.getItemAt(0)?.text?.toString()
+        )
+    }
+
+    /**
      * I riquadri delle miniature che stanno nell'albero semantico, per posizione.
      *
      * ⚠️ **Si chiedono per NOME e una per una**: la descrizione parlata di una miniatura dice
@@ -315,7 +534,7 @@ class FrontespizioTest {
     private val app: Context get() = ApplicationProvider.getApplicationContext()
 
     @Composable
-    private fun Scena(onOpen: (Int) -> Unit = {}) {
+    private fun Scena(onOpen: (Int) -> Unit = {}, tinta: Int? = null) {
         AivTheme(darkTheme = false) {
             Box(modifier = Modifier.fillMaxSize()) {
                 GridScreen(
@@ -325,7 +544,8 @@ class FrontespizioTest {
                     onOpen = onOpen,
                     onBack = {},
                     onChanged = {},
-                    onSearch = {}
+                    onSearch = {},
+                    frontTint = tinta
                 )
             }
         }
@@ -335,14 +555,14 @@ class FrontespizioTest {
 /**
  * Le immagini della cartella finta: abbastanza da riempire lo schermo e avanzare.
  *
- * ⚠️ **Servono davvero tante**: con poche, chiudere il frontespizio non lascerebbe niente da
+ * ⚠️ **Servono davvero tante**: con poche, chiudere l'intestazione non lascerebbe niente da
  * scorrere e la seconda metà della prima prova misurerebbe una griglia che non si muove. ⚠️ Il
  * fatto che [frontScroll] chiuda la fascia **anche** senza niente da scorrere è vero e sta
  * scritto là, ma qui serve anche il tratto dopo.
  */
 private val FOTO = (1..40).map { Uri.parse("file:///finta/$it.jpg") }
 
-/** Il nome della cartella finta, che il frontespizio scrive e la testata ripete. */
+/** Il nome della cartella finta, che l'intestazione scrive e la testata ripete. */
 private const val TITOLO = "Cartella di prova"
 
 /**
@@ -404,7 +624,26 @@ private const val NIENTE = 0f
  *
  * ⚠️ **Lungo di proposito**: la velocità che il banco ricava dagli ultimi campioni diventa
  * inerzia, e un gesto veloce porterebbe la griglia molto oltre la chiusura della fascia, cioè
- * misurerebbe l'inerzia invece del frontespizio.
+ * misurerebbe l'inerzia invece dell'intestazione.
  */
 private const val LENTO = 400L
+
+/**
+ * Quale delle sedici tinte usa la prova dei pixel: la prima, che è la più scura.
+ *
+ * ⚠️ **Una scelta a mano e non quella dell'app**: il caso peggiore per la leggibilità del titolo è
+ * un fondo pieno e scuro, e con la tinta dell'app il colore dipenderebbe dal tema.
+ */
+private const val TINTA_SCURA = 0
+
+/**
+ * Quanti colori deve avere almeno una riga perché ci sia scritto qualcosa.
+ *
+ * ⚠️ **Tre e non due**: un testo antialiasato ne porta decine, mentre un fondo pieno ne ha uno e
+ * un bordo di raccordo può portarne due. La soglia separa 'c'è una parola' da 'c'è una sfumatura'.
+ */
+private const val COLORI_DI_UN_TESTO = 3
+
+/** Quanto è largo il quadrato della prova sul meccanismo del gradiente. */
+private val LATO = 100.dp
 

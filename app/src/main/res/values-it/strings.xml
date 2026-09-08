@@ -155,11 +155,20 @@
     <string name="settings_depth_blur">Sfocatura</string>
     <string name="settings_depth_shadow">Ombreggiatura</string>
     <string name="settings_depth_none">Niente</string>
-    <string name="settings_front">Frontespizio delle cartelle</string>
-    <string name="settings_front_desc">Che cosa mostra la fascia in cima a una cartella, sopra le miniature.</string>
+    <string name="settings_front">Intestazione delle cartelle</string>
+    <string name="settings_front_desc">Imposta l\'aspetto e le funzionalità della fascia sopra la griglia dei file.</string>
     <string name="settings_front_wash">Gradiente</string>
     <string name="settings_front_serif">Titolo graziato</string>
     <string name="settings_front_facts">Info</string>
+    <string name="front_open">Apri nel gestore file</string>
+    <string name="front_no_files">Nessuna app di questo telefono apre le cartelle.</string>
+    <string name="front_name_copied">Nome della cartella copiato</string>
+    <string name="front_path_copied">Percorso della cartella copiato</string>
+    <string name="front_copy_path">Copia il percorso</string>
+    <string name="front_unpick">Deseleziona</string>
+    <string name="front_pick_images">Seleziona le immagini</string>
+    <string name="front_tint">Colore dell\'intestazione</string>
+    <string name="front_tint_none">Colore predefinito</string>
 
     <string name="settings_folder_columns">Colonne delle griglie</string>
     <string name="settings_folder_columns_desc">Quante colonne mostrano la griglia delle cartelle e quella delle immagini. Più colonne fanno stare più cose sullo schermo e rimpiccioliscono ogni riquadro. A quattro il nome della cartella viene quasi sempre troncato.</string>

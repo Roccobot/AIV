@@ -9,6 +9,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.provider.DocumentsContract
 import android.provider.MediaStore
 import java.text.Collator
 import android.provider.OpenableColumns
@@ -305,7 +306,7 @@ object Folder {
     /**
      * Quanto pesa una cartella e quanti video contiene.
      *
-     * ⚠️⚠️ **NASCE PER LE DUE PASTIGLIE DEL FRONTESPIZIO, DALLA `1.83`** (variante 10 del mockup,
+     * ⚠️⚠️ **NASCE PER LE DUE PASTIGLIE DEL INTESTAZIONE, DALLA `1.83`** (variante 10 del mockup,
      * scelta da lui): sono due dati che dalla griglia non si sanno, perché là ci sono gli
      * indirizzi e non le righe. Il brief lo dice in una riga: *il conto va fatto una volta e non
      * per miniatura*.
@@ -324,12 +325,15 @@ object Folder {
         if (!granted(context)) return@withContext Facts()
         var bytes = 0L
         var clips = 0
+        var shots = 0
+        var path: String? = null
         runCatching {
             context.contentResolver.query(
                 TABLE,
                 arrayOf(
                     MediaStore.Images.Media.SIZE,
-                    MediaStore.Files.FileColumns.MEDIA_TYPE
+                    MediaStore.Files.FileColumns.MEDIA_TYPE,
+                    @Suppress("DEPRECATION") MediaStore.MediaColumns.DATA
                 ),
                 media("${MediaStore.Images.Media.BUCKET_ID} = ?"),
                 arrayOf(bucket.toString()),
@@ -337,23 +341,108 @@ object Folder {
             )?.use { c ->
                 val sizeAt = c.column(MediaStore.Images.Media.SIZE)
                 val kindAt = c.column(MediaStore.Files.FileColumns.MEDIA_TYPE)
+                @Suppress("DEPRECATION")
+                val dataAt = c.column(MediaStore.MediaColumns.DATA)
                 while (c.moveToNext()) {
                     bytes += sizeAt?.let { if (c.isNull(it)) 0L else c.getLong(it) } ?: 0L
-                    if (c.isClip(kindAt)) clips++
+                    if (c.isClip(kindAt)) clips++ else shots++
+                    if (path == null && dataAt != null && !c.isNull(dataAt)) {
+                        path = c.getString(dataAt).substringBeforeLast('/', "").ifBlank { null }
+                    }
                 }
             }
         }
-        Facts(bytes, clips)
+        Facts(bytes, clips, shots, path)
     }
 
     /**
-     * I due numeri di una cartella: quanto pesa e quanti video ha.
+     * Quello che di una cartella si sa solo interrogando il `MediaStore`.
      *
-     * ⚠️ **Zero e zero è anche la risposta di 'non lo so ancora'**, ed è voluto: chi disegna le
+     * ⚠️ **Zero è anche la risposta di 'non lo so ancora'**, ed è voluto: chi disegna le
      * pastiglie le mostra solo con un numero sopra lo zero, quindi una cartella non ancora pesata
      * e una cartella vuota si comportano allo stesso modo invece di lampeggiare.
+     * ⚠️⚠️ **[shots] E [path] ARRIVANO CON LA `1.85`, DALLA STESSA QUERY**: il terzo è la risposta
+     * a `d-front-altro` (*aggiungi il numero di immagini*), il quarto serve ai due gesti
+     * dell'intestazione (aprire il gestore file, e copiare il nome col percorso). Nessuno dei due
+     * costa una lettura in più, che è la ragione per cui vivono qui invece che in una funzione
+     * loro.
+     *
+     * @param shots quante immagini, cioè le righe che non sono video: contate qui e non
+     *   sottratte dal totale, perché una riga di un tipo che non conosciamo non è né l'una né
+     *   l'altra cosa.
+     * @param path la cartella su disco, presa dalla prima riga che ce l'ha.
+     *   ⚠️ **Si legge da `DATA`, che è deprecata, e non da `RELATIVE_PATH`**: quella nasce con
+     *   l'API 29 e questa app arriva ad Android 9, quindi la seconda darebbe `null` proprio dove
+     *   il gestore file di sistema è l'unica via per guardare una cartella. Il campo resta
+     *   leggibile, e quello che è deprecato è **scriverlo**.
      */
-    data class Facts(val bytes: Long = 0L, val clips: Int = 0)
+    data class Facts(
+        val bytes: Long = 0L,
+        val clips: Int = 0,
+        val shots: Int = 0,
+        val path: String? = null
+    )
+
+    /**
+     * Apre la cartella nel gestore file del telefono, e dice se ci è riuscita.
+     *
+     * ⚠️⚠️ **NASCE DA UNA SUA DOMANDA, E LA RISPOSTA È 'DIPENDE DAL TELEFONO'** (riscontro del
+     * giro della `1.83`: *non so se si può fare: il tocco sull'icona può aprire il file manager
+     * predefinito in quella cartella?*). Android non ha un'azione standard per 'mostrami questa
+     * cartella': quello che esiste è il tipo `vnd.android.document/directory`, che l'app Documenti
+     * di sistema e la maggior parte dei gestori file di terze parti dichiarano, ma nessuno
+     * garantisce.
+     * ⚠️ **Due tentativi in ordine di precisione**: prima la cartella esatta come documento
+     * dell'archivio primario, poi la radice dell'archivio. Il secondo apre il gestore file senza
+     * portarci dentro la cartella, ed è meglio di niente perché il posto lo si raggiunge in due
+     * tocchi.
+     * ⚠️⚠️ **SI PROVA A PARTIRE INVECE DI CHIEDERE PRIMA CHI RISPONDE**: da Android 11
+     * `resolveActivity` vede solo quello che il manifest dichiara in `<queries>`, quindi un
+     * elenco scritto lì diventerebbe la lista dei gestori file che conosciamo oggi. Un
+     * `startActivity` che non trova nessuno lancia, e quel lancio è la risposta.
+     * ⚠️ **Il percorso su disco diventa un percorso di documento**: `/storage/emulated/0/DCIM` è
+     * `primary:DCIM` per l'archivio esterno, che è la forma che quel provider capisce. Una
+     * cartella su una scheda SD ha un altro volume e questa conversione non la copre: là parte il
+     * secondo tentativo.
+     */
+    fun openInFiles(context: Context, path: String?): Boolean {
+        val dentro = path?.removePrefix(PRIMARY_ROOT)?.trim('/').orEmpty()
+        val vie = buildList {
+            if (path != null && path.startsWith(PRIMARY_ROOT) && dentro.isNotEmpty()) {
+                add(
+                    DocumentsContract.buildDocumentUri(
+                        EXTERNAL_DOCS,
+                        "$PRIMARY_VOLUME:$dentro"
+                    )
+                )
+            }
+            add(DocumentsContract.buildRootUri(EXTERNAL_DOCS, PRIMARY_VOLUME))
+        }
+        for (dove in vie) {
+            val andata = runCatching {
+                context.startActivity(
+                    Intent(Intent.ACTION_VIEW)
+                        .setDataAndType(dove, DIR_MIME)
+                        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+            }
+            if (andata.isSuccess) return true
+        }
+        return false
+    }
+
+    /** Dove il sistema monta l'archivio interno. */
+    private const val PRIMARY_ROOT = "/storage/emulated/0"
+
+    /** Come si chiama quel volume per il provider dei documenti. */
+    private const val PRIMARY_VOLUME = "primary"
+
+    /** Il provider dei documenti dell'archivio esterno, che è di sistema. */
+    private const val EXTERNAL_DOCS = "com.android.externalstorage.documents"
+
+    /** Il tipo con cui si chiede di **guardare** una cartella invece di aprirne un file. */
+    private const val DIR_MIME = DocumentsContract.Document.MIME_TYPE_DIR
 
     suspend fun newestIn(context: Context, bucket: Long): Lookup = withContext(Dispatchers.IO) {
         if (!granted(context)) return@withContext Lookup.NoPermission

@@ -231,6 +231,25 @@ testa, e la prima a cambiare sarebbe stata quella che nessuno guarda.
 
 ## 🗣️ Come si chiamano le cose
 
+⚠️⚠️ **LA FASCIA IN CIMA A UNA CARTELLA SI CHIAMA 'INTESTAZIONE', DAL 2026-09-08** (sua
+istruzione: *manca solo qualche ritocco al frontespizio, che da adesso chiamerò intestazione*), e
+nello stesso giro ha riscritto la voce delle impostazioni in **'Intestazione delle cartelle'**.
+Quindi il nome non è più una preferenza di chi scrive: è la parola che si trova nel telefono, che
+è il criterio della voce sul velo qui sotto.
+- ⚠️ **'Frontespizio' è terminologia morta**: non si usa né in chat, né in un commit, né in una
+  voce del documento di feedback, né in un artefatto. Chi la trova in un branch vecchio o in un
+  commento sappia che è la stessa cosa.
+- ⚠️ **Nel codice il prefisso resta `front`** (`Front.kt`, `frontWash`, `FRONT_INK`), e non è una
+  dimenticanza: rinominare cinquanta simboli non cambia niente per chi usa l'app e romperebbe
+  ogni rimando scritto finora. La bonifica del 2026-09-08 ha toccato la **prosa** dei commenti,
+  che è la parte che si legge parlando con lui.
+
+⚠️⚠️ **E LA SFUMATURA D'ACCENTO DIETRO L'INTESTAZIONE SI CHIAMA 'GRADIENTE'** (sua correzione,
+2026-09-08: *se per tinta intendi la sfumatura/gradiente*), che è l'etichetta del suo interruttore
+in 'Aspetto'. **Tinta** è il nome interno (`frontWash`, `WASH_STOPS`) e resta nel codice.
+- ⚠️ **Le sfumature in fondo allo schermo sono un'altra cosa**, e si dicono così: quando in una
+  frase compaiono tutte e due, quella dell'intestazione si nomina per esteso.
+
 ⚠️⚠️ **QUEL PULSANTE SI CHIAMA 'FAB', E 'TASTINO' NON SI USA PARLANDO CON LUI** (riscontro del
 giro della `1.60`: *e il pulsante si chiama FAB, lascia perdere 'tastino'*). Vale nelle voci del
 documento di feedback, in chat, negli artefatti e nei messaggi di commit.
@@ -655,9 +674,9 @@ posto ad avere la transizione in mano.
   di schermata il FAB **non si muove e non cambia misura**, cioè la forma esatta del difetto che
   gli era arrivato due volte.
 
-## 🖼️ Il frontespizio, e le due schermate che lo portano
+## 🖼️ Intestazione delle cartelle, e le due schermate che la portano
 
-⚠️⚠️ **DALLA `1.76` IL FRONTESPIZIO NON È PIÙ DELLA SOLA SCHERMATA INIZIALE, e quello che
+⚠️⚠️ **DALLA `1.76` L'INTESTAZIONE NON È PIÙ DELLA SOLA SCHERMATA INIZIALE, e quello che
 condividono vive in `Front.kt`**: la frazione di schermo, il meccanismo della fascia che si
 chiude, lo scorrimento che la chiude prima che l'elenco si muova, e le due sfumature in fondo.
 La richiesta è del giro della `1.67` (*l'icona va posizionata esattamente come quella oggi
@@ -694,11 +713,11 @@ legga meno che agli estremi.
 - ⚠️ **In posizione finale è quella di sempre, per costruzione**: la copia della testata non è
   stata toccata, ha solo un'opacità.
 
-⚠️⚠️ **QUANDO IL FRONTESPIZIO DI UNA CARTELLA È CHIUSO: DUE RISPOSTE SUE, ED ERANO TRE.** Mentre
+⚠️⚠️ **QUANDO L'INTESTAZIONE DI UNA CARTELLA È CHIUSA: DUE RISPOSTE SUE, ED ERANO TRE.** Mentre
 la griglia **carica** è aperto; tornando dal **visualizzatore** resta com'era, cioè chiuso se la
 griglia non è in cima.
 - **La seconda si ottiene da una regola sola e non da un ricordo**: con la griglia scorsa il
-  frontespizio non può essere aperto. Con le dita è già vero per costruzione (lo scorrimento si
+  intestazione non può essere aperto. Con le dita è già vero per costruzione (lo scorrimento si
   spende prima là), e quello che sfuggiva è il salto **programmato** all'immagine da cui si è
   tornati, che non passa dallo scorrimento annidato.
 
@@ -773,10 +792,15 @@ devono progressivamente sparire e lasciare campo libero alla griglia piena su tu
   cestino e per la ricerca resta vero il resto (nessuno l'ha chiesto, e nella ricerca la testata
   porta un campo di testo invece di un titolo che possa traslare), ma è una scelta non rivista,
   non una conseguenza.
+- ⚠️⚠️ **E DALLA `1.85` QUI DI SFUMATURE CE N'È UNA SOLA** (riscontro del giro della `1.83`, voce
+  `fab-sopra` approvata con una prova: *togli la seconda sfumatura sovrapposta, quella corta. SOLO
+  DALLE CARTELLE, resta in home*). La coda esisteva per chiudere in pieno l'ultima striscia di
+  schermo, e là sotto adesso passa il FAB. ⚠️ **Nella schermata iniziale resta**, e il valore di
+  serie di `GroundFade` è di averla: un valore di serie rovesciato l'avrebbe tolta anche a lei.
 
-⚠️⚠️ **DALLA `1.83` IL FRONTESPIZIO DI UNA CARTELLA È LA VARIANTE 10 DEL MOCKUP, E LA COMPONGONO
+⚠️⚠️ **DALLA `1.83` L'INTESTAZIONE DI UNA CARTELLA È LA VARIANTE 10 DEL MOCKUP, E LA COMPONGONO
 QUATTRO INTERRUTTORI** (sua risposta a `d-frontespizio` e punto H del giro della `1.81`), che
-vivono in 'Aspetto' sotto 'Frontespizio delle cartelle': `frontWash` (la sfumatura dell'accento),
+vivono in 'Aspetto' sotto 'Intestazione delle cartelle': `frontWash` (la sfumatura dell'accento),
 `frontSerif` (il titolo col carattere graziato), `frontFacts` (le pastiglie del peso e dei video)
 e `frontPickAll` (la pastiglia 'Seleziona tutto').
 - ⚠️ **La sfumatura si accorcia per COSTRUZIONE e non con un secondo conto**: è dipinta dietro il
@@ -788,15 +812,66 @@ e `frontPickAll` (la pastiglia 'Seleziona tutto').
   DICEVA DUE COSE**: il titolo della decisione era *variante 10 di fabbrica* e l'elenco dei chip
   diceva *gli ultimi due accesi di fabbrica*. Senza la sfumatura la 10 non è la 10, quindi è
   acceso anche `frontWash`; resta spento `frontSerif`, il solo dei quattro a cambiare **come è
-  scritto** il nome invece di aggiungere qualcosa. ⚠️ **La domanda `d-front-serif` gliela chiede
-  nel giro della `1.83`**: chi la trova risposta aggiorni il valore e questa riga.
+  scritto** il nome invece di aggiungere qualcosa. ⚠️⚠️ **E LA RISPOSTA A `d-front-serif` È
+  ARRIVATA NEL GIRO DELLA `1.83`: `tre`**, cioè *va bene così*, quindi il valore di fabbrica non
+  si tocca più.
 - ⚠️ **Le pastiglie dei dati costano UNA query**, `Folder.weigh`, una volta per cartella: il peso
   non si ottiene sommando i file uno per uno, e il numero di video non si conta scorrendo
   l'elenco già caricato. La pastiglia c'è solo se il suo dato esiste, quindi in una cartella
   senza video la seconda non compare.
 - ⚠️ **I due tocchi lunghi sono suoi** (punto A del campo libero della `1.82`): sul peso entra in
-  selezione con tutto selezionato, sui video coi soli video. La pastiglia comando ha un vestito
-  diverso dalle due dei dati, perché fa una cosa invece di dirla.
+  selezione con tutto selezionato, sui video coi soli video.
+
+⚠️⚠️ **E DALLA `1.85` QUELLA VARIANTE È RIDISEGNATA, PERCHÉ DAL VIVO NON GLI È PIACIUTA**
+(riscontro del giro della `1.83`, voce `front-dieci` non approvata: *a vederla dal vivo non sono
+più così convinto della grafica, e mancano anche delle funzionalità che avevo dimenticato di
+chiedere*). Quello che cambia, tutto suo:
+- **Il gradiente parte dal 70% e finisce prima della griglia** (`WASH_PEAK`), dove la `1.83`
+  partiva dal pieno e scendeva **una riga di miniature dentro** la griglia, cioè tingeva la prima
+  fila di immagini.
+- **Sbiadisce mentre si scorre** e sparisce quando la griglia è nella posizione nuova: prima
+  restava pieno a fascia chiusa, ed è la metà della ragione per cui il titolo in testata non si
+  vedeva.
+- **Il titolo è un gradino più grande** (`titleLarge`) e **'Titolo graziato' cambia solo il
+  carattere**: la cartellina d'accento che la `1.83` gli metteva sopra è uscita.
+- **L'icona in negativo va al pieno** (`FRONT_NEG_INK`), perché su un gradiente al 70% una sagoma
+  all'80% si spegne.
+- **Le quattro pastiglie hanno lo stesso vestito neutro**, e il comando dice **'Deseleziona'**
+  dopo il primo tocco.
+- **La terza pastiglia dei dati conta le immagini**, che è la risposta `immagini` a
+  `d-front-altro`.
+
+⚠️⚠️ **IL TITOLO IN TESTATA SPARIVA SOTTO IL GRADIENTE, E LA CAUSA VALE PER OGNI `drawBehind`
+CHE SCONFINA** (stesso riscontro: *il nome della cartella e gli elementi (selezionati o meno) non
+passano più in testa allo scorrimento (lo spazio rimane vuoto)*). `drawBehind` disegna dietro il
+contenuto **del proprio nodo**, non dietro i fratelli che il genitore ha già disegnato: il
+gradiente viveva su un nodo che veniva dopo la testata, quindi il rettangolo che sale le finiva
+sopra. Adesso la tinta vive sul blocco che contiene **testata più fascia**, e si accorcia da sé
+come prima.
+- ⚠️ **Con lei sparisce la misura della testata**: l'altezza da cui partire è quella del nodo,
+  quindi non serve più un `onGloballyPositioned` con la sua ricomposizione.
+- ⚠️⚠️ **E LA PROVA CHE LO PRESIDIA GUARDA I PIXEL**, perché nessuna misura di struttura poteva
+  vederlo: il titolo c'era, era al posto giusto ed era opaco. Il come, e perché la prova sulla
+  schermata da sola non bastava, vivono in § '🧪 Quando si scrive una prova, e quando no'.
+
+⚠️⚠️ **I QUATTRO GESTI DELL'INTESTAZIONE, DALLA `1.85`, SONO SUOI** (stesso riscontro): il tocco
+sul **nome** lo copia e il tocco lungo copia il percorso; il tocco sull'**icona** apre il gestore
+file di sistema in quella cartella, e il tocco lungo sceglie il colore del gradiente **per quella
+cartella** fra sedici tinte in una griglia 4x4.
+- ⚠️ **I gesti vivono sul nome grande e non sulla copia in testata**, ed è una scelta: la copia in
+  testata è trasparente finché la fascia è aperta, e un nodo trasparente riceve comunque i tocchi,
+  quindi metterli anche là darebbe un tocco sul vuoto che copia un nome.
+- ⚠️⚠️ **APRIRE IL GESTORE FILE DIPENDE DAL TELEFONO, e la sua domanda era proprio questa** (*non
+  so se si può fare*): Android non ha un'azione standard per 'mostrami questa cartella'. Si prova
+  in due modi (la cartella esatta come documento dell'archivio primario, poi la radice), e se
+  nessuno risponde l'app lo dice. Il perché non si chiede prima chi risponde vive su
+  `Folder.openInFiles`.
+- ⚠️ **Le prime otto tinte sono sue e le altre otto completano la ruota**: il criterio, e perché
+  sono numeri e non risorse colore, vivono in `FolderTint.kt`.
+- ⚠️⚠️ **UNA CARTELLA CANCELLATA NON SI RINCORRE** (sua istruzione, 2026-09-08: *se una cartella
+  ha un colore associato e viene cancellata, non occorre che l'app ricordi il suo colore*), quindi
+  l'archivio non si pota. Il perché quello non sia nemmeno una perdita (il `BUCKET_ID` è il CRC
+  del percorso, quindi una cartella ricreata si ritrova il suo colore) vive su `FolderTints`.
 
 ## 💾 Il salvataggio va sempre in Download, e il nome si chiede solo se lo chiedi
 
@@ -1039,9 +1114,15 @@ compone una frase con un plurale o con un nome di file, e un canale che accettas
 `@StringRes` costringerebbe a due strade. Chi chiama ha già il `Context`, perché serviva anche
 all'avviso di sistema.
 
-⚠️ **Le durate sono quelle dell'avviso di sistema**, 2 secondi e 3,5: sono le stesse frasi di
+⚠️ **Le durate erano quelle dell'avviso di sistema**, 2 secondi e 3,5: erano le stesse frasi di
 prima, e cambiare superficie **e** tempo insieme avrebbe reso indistinguibili le due cause al
 primo 'mi sembra troppo veloce'.
+- ⚠️⚠️ **E DALLA `1.85` QUELLA LUNGA È DI TRE SECONDI, PERCHÉ QUEL VINCOLO È SPESO** (riscontro
+  del giro della `1.84`, voce `voce-unica` approvata con una domanda: *cosa dura tre secondi e
+  mezzo? A meno che non ci sia un motivo specifico, portalo a 3*). La superficie nuova è provata e
+  approvata, quindi non c'è più niente da tenere fermo. ⚠️ Adesso coincide con i tre secondi in
+  cui si può disfare, e non è un caso da correggere: due frasi che si somigliano restano in scena
+  lo stesso tempo.
 
 ⚠️⚠️ **UN AVVISO DI SISTEMA RESTA, ED È UNO SOLO**: quello che spiega perché si sta per aprire la
 pagina delle impostazioni di Android (`folder_why`, in `ViewerActivity`). Là l'app va in
@@ -1250,6 +1331,29 @@ codice può essere valido e non fare niente, e quello non lo vede nessun compila
 dall'apparecchio, perché il banco non lo vede e una prova che finge di vederlo è peggio del
 niente; e per riscrivere in una prova quello che il codice già dice, che non verifica un
 comportamento ma ricopia un'implementazione, e cade al primo ritocco senza che nulla sia rotto.
+
+⚠️⚠️ **DALLA `1.85` IL BANCO SA GUARDARE I PIXEL, E CON LORO VEDE UNA CLASSE DI DIFETTI CHE PRIMA
+NON VEDEVA**: quelli di **disegno**, cioè un elemento che c'è, è al posto giusto, è opaco, e
+finisce sotto qualcos'altro. Serve `@GraphicsMode(NATIVE)` sulla classe, e poi
+`captureToImage().toPixelMap()` dà i colori veri. Il caso che l'ha fatto nascere è il titolo in
+testata che spariva sotto il gradiente dell'intestazione.
+- ⚠️ **Non allarga il confine dichiarato**: quello che dipende dall'**apparecchio** resta fuori, e
+  anche quello che dipende da come una cosa si **percepisce** (una dissolvenza troppo lenta, una
+  sfocatura che stona). Il banco adesso vede *che cosa è coperto da che cosa*, che è un fatto.
+- ⚠️ **Costa la grafica vera per tutta la classe**, e va bene: le altre prove non guardano i
+  pixel e girare in `NATIVE` non le cambia.
+
+⚠️⚠️ **E UNA PROVA CHE NON SI VEDE FALLIRE COL DIFETTO RIMESSO NON MISURA NIENTE: SI RIMETTE IL
+DIFETTO E SI GUARDA.** Nella `1.85` la prima stesura della prova sui pixel guardava il titolo in
+testata a schermata intera, ed è rimasta **verde** con il difetto rimesso a mano in due forme
+diverse, perché là dove passa il titolo il gradiente è già quasi finito. La prova che morde
+guarda il **meccanismo** su una scena minima: un quadrato bianco pieno dentro un nodo che porta
+il gradiente. Dietro, il bianco resta bianco; sopra, il centro si tinge.
+- ⚠️ **La prima non si è buttata**: presidia la scena **come lui la vede**, che è un'altra cosa
+  buona da presidiare. Quello che è cambiato è il suo KDoc, che adesso dichiara che cosa misura e
+  che cosa no.
+- ⚠️ **Il costo della controprova è un minuto**, ed è la sola cosa che distingue una prova da una
+  riga verde: il criterio universale vive in `rules/Roccobot.md` § '🧪 Test e verifiche'.
 
 ⚠️⚠️ **UNA PROVA ROSSA NON SI AGGIRA MAI**: non si salta, non si spegne, non si mette in
 quarantena, e non si rilascia con la scusa che 'quella riga non c'entra'. Se la prova è

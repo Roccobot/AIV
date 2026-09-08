@@ -158,9 +158,17 @@ object Notices {
  * delle due guardare.
  * ⚠️ **Chi diceva `LENGTH_LONG` tiene [NOTICE_LONG_MS]**, cioè gli esiti di un'operazione sui
  * file: sono frasi con un numero dentro, e si leggono più lentamente di 'Copiato'.
+ * ⚠️⚠️ **MA DALLA `1.85` QUELLA LUNGA È DI TRE SECONDI, ED È SUA** (riscontro del giro della
+ * `1.84`, voce `voce-unica` approvata con una domanda: *cosa dura tre secondi e mezzo? A meno che
+ * non ci sia un motivo specifico, portalo a 3*). Il motivo c'era e adesso è **speso**: i 3,5
+ * erano `LENGTH_LONG`, e servivano a non cambiare la superficie e il tempo insieme. Con la
+ * superficie nuova già provata e approvata, quel vincolo è finito.
+ * ⚠️ **Adesso coincide con [UNDO_MS]**, cioè coi tre secondi in cui si può disfare, e non è un
+ * caso da correggere: una frase che offre 'Annulla' e una che dice com'è andata restano in scena
+ * lo stesso tempo, che è la cosa che uno si aspetta guardandole.
  */
 const val NOTICE_MS = 2000L
-const val NOTICE_LONG_MS = 3500L
+const val NOTICE_LONG_MS = 3000L
 
 /**
  * La superficie unica con cui l'app parla, in fondo allo schermo.
