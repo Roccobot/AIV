@@ -163,8 +163,10 @@
     <string name="folder_no_images">Der Ordner enthält keine Bilder.</string>
     <string name="folder_no_videos">Der Ordner enthält keine Videos.</string>
     <string name="cancel">Abbrechen</string>
-    <string name="hide_folder_title">%1$s ausblenden?</string>
-    <string name="hide_folder_desc">Er taucht nicht mehr unter den Ordnern zum Durchblättern auf. Nichts wird gelöscht: die Dateien bleiben, wo sie sind, und du kannst den Ordner in den Einstellungen zurückholen.</string>
+    <string name="hide_folder_title">\'%1$s\' ausblenden?</string>
+    <string name="hide_folder_desc">Der Ordner wird in der Raster- und Listenansicht nicht mehr aufgeführt. Das ist nur eine Anzeigeeinstellung: es wird nichts gelöscht.</string>
+    <string name="show_folder_title">\'%1$s\' wieder anzeigen?</string>
+    <string name="show_folder_desc">Der Ordner wird in der Raster- und Listenansicht wieder normal aufgeführt.</string>
     <string name="hide_folder_do">Ausblenden</string>
     <string name="settings_hidden">Ausgeblendete Ordner</string>
     <string name="settings_hidden_desc">Ein langer Druck auf einen Ordner blendet ihn aus. Diese erscheinen nicht mehr in der Liste, auf dem Telefon sind sie unberührt.</string>

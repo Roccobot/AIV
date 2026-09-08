@@ -10,7 +10,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.runBlocking
@@ -145,6 +147,71 @@ class NascosteTest {
                 .fetchSemanticsNodes().isEmpty() &&
                 banco.onAllNodesWithText(app.getString(R.string.hub_peek))
                     .fetchSemanticsNodes().isEmpty()
+        )
+    }
+
+    /**
+     * **Il tocco lungo su una cartella in prestito propone di mostrarla, non di nasconderla.**
+     *
+     * ⚠️⚠️ **È IL DIFETTO CHE HA TROVATO LUI** (2026-09-08: *la pressione lunga su una cartella
+     * nascosta deve proporre il contrario, ovvero di renderla di nuovo visibile*), quindi la
+     * correzione porta la sua prova, come prescrive `AIV/CLAUDE.md` § '🧪 Quando si scrive una
+     * prova, e quando no'. Il codice era valido e il comando non faceva niente: nascondere una
+     * cartella già nascosta.
+     * ⚠️ **Si guarda il TITOLO e non il tasto**: il tasto del ripristino riusa la stringa del
+     * pannello ('Mostra'), che compare anche altrove; il titolo è la frase che distingue i due
+     * versi della stessa finestra.
+     */
+    @Test
+    fun `il tocco lungo su una nascosta in prestito propone di mostrarla`() {
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Casa(CARTELLE, hidden = NASCOSTE, peeking = true)
+                }
+            }
+        }
+        banco.waitForIdle()
+
+        banco.onAllNodesWithText(SEGRETA)[0].performTouchInput { longClick() }
+        banco.waitForIdle()
+
+        assertTrue(
+            "La finestra non propone di mostrare di nuovo la cartella in prestito",
+            banco.onAllNodesWithText(app.getString(R.string.show_folder_title, SEGRETA))
+                .fetchSemanticsNodes().isNotEmpty()
+        )
+        assertTrue(
+            "La finestra propone ancora di nascondere una cartella già nascosta",
+            banco.onAllNodesWithText(app.getString(R.string.hide_folder_title, SEGRETA))
+                .fetchSemanticsNodes().isEmpty()
+        )
+    }
+
+    /**
+     * **Su una cartella normale la stessa finestra propone di nasconderla.**
+     *
+     * ⚠️ **È la metà che tiene onesta l'altra**: una finestra inchiodata sul ripristino
+     * passerebbe la prova qui sopra e romperebbe il gesto di sempre.
+     */
+    @Test
+    fun `il tocco lungo su una cartella normale propone di nasconderla`() {
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Casa(CARTELLE, hidden = NASCOSTE, peeking = true)
+                }
+            }
+        }
+        banco.waitForIdle()
+
+        banco.onAllNodesWithText(NORMALE)[0].performTouchInput { longClick() }
+        banco.waitForIdle()
+
+        assertTrue(
+            "La finestra non propone di nascondere una cartella normale",
+            banco.onAllNodesWithText(app.getString(R.string.hide_folder_title, NORMALE))
+                .fetchSemanticsNodes().isNotEmpty()
         )
     }
 

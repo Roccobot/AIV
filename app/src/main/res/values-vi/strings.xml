@@ -163,8 +163,10 @@
     <string name="folder_no_images">Thư mục không có hình ảnh nào.</string>
     <string name="folder_no_videos">Thư mục không có video.</string>
     <string name="cancel">Hủy</string>
-    <string name="hide_folder_title">Ẩn %1$s?</string>
-    <string name="hide_folder_desc">Thư mục sẽ không còn hiện trong số các thư mục để xem. Không có gì bị xóa: các tệp vẫn ở nguyên chỗ, và bạn có thể đưa thư mục trở lại từ phần cài đặt.</string>
+    <string name="hide_folder_title">Ẩn \'%1$s\'?</string>
+    <string name="hide_folder_desc">Thư mục sẽ không được liệt kê ở dạng lưới và danh sách. Đây chỉ là một tùy chọn hiển thị: không có gì bị xóa.</string>
+    <string name="show_folder_title">Hiện lại \'%1$s\'?</string>
+    <string name="show_folder_desc">Thư mục sẽ hiện lại bình thường giữa các thư mục ở dạng lưới và danh sách.</string>
     <string name="hide_folder_do">Ẩn</string>
     <string name="settings_hidden">Thư mục đã ẩn</string>
     <string name="settings_hidden_desc">Nhấn giữ một thư mục để ẩn nó. Những thư mục này không còn hiện trong danh sách, nhưng trên điện thoại chúng vẫn nguyên vẹn.</string>

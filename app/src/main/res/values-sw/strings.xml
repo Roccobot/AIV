@@ -163,8 +163,10 @@
     <string name="folder_no_images">Folda haina picha.</string>
     <string name="folder_no_videos">Folda haina video.</string>
     <string name="cancel">Ghairi</string>
-    <string name="hide_folder_title">Ficha %1$s?</string>
-    <string name="hide_folder_desc">Haitaonekana tena kati ya folda za kupitia. Hakuna kinachofutwa: mafaili yanabaki yalipo, na unaweza kuirudisha folda kutoka kwenye mipangilio.</string>
+    <string name="hide_folder_title">Ficha \'%1$s\'?</string>
+    <string name="hide_folder_desc">Folda haitaorodheshwa katika mwonekano wa gridi wala wa orodha. Ni mpangilio wa mwonekano tu: hakuna kinachofutwa.</string>
+    <string name="show_folder_title">Onyesha tena \'%1$s\'?</string>
+    <string name="show_folder_desc">Folda itaonekana tena kama kawaida kati ya folda katika mwonekano wa gridi na wa orodha.</string>
     <string name="hide_folder_do">Ficha</string>
     <string name="settings_hidden">Folda zilizofichwa</string>
     <string name="settings_hidden_desc">Kubonyeza folda kwa muda mrefu huificha. Hizi hazionekani tena kwenye orodha, lakini kwenye simu hazijaguswa.</string>

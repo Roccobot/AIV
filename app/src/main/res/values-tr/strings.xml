@@ -163,8 +163,10 @@
     <string name="folder_no_images">Klasörde görsel yok.</string>
     <string name="folder_no_videos">Klasörde video yok.</string>
     <string name="cancel">Vazgeç</string>
-    <string name="hide_folder_title">%1$s gizlensin mi?</string>
-    <string name="hide_folder_desc">Çevrilecek klasörler arasında artık görünmez. Hiçbir şey silinmez: dosyalar yerinde kalır ve klasörü ayarlardan geri getirebilirsin.</string>
+    <string name="hide_folder_title">\'%1$s\' gizlensin mi?</string>
+    <string name="hide_folder_desc">Klasör ızgara ve liste görünümünde listelenmez. Bu yalnızca bir görüntüleme ayarıdır: hiçbir şey silinmez.</string>
+    <string name="show_folder_title">\'%1$s\' yeniden gösterilsin mi?</string>
+    <string name="show_folder_desc">Klasör ızgara ve liste görünümünde klasörler arasında yeniden normal şekilde görünür.</string>
     <string name="hide_folder_do">Gizle</string>
     <string name="settings_hidden">Gizlenen klasörler</string>
     <string name="settings_hidden_desc">Bir klasöre uzun basmak onu gizler. Bunlar listede görünmez ama telefonda oldukları gibi durur.</string>

@@ -163,8 +163,10 @@
     <string name="folder_no_images">У теці немає зображень.</string>
     <string name="folder_no_videos">У теці немає відео.</string>
     <string name="cancel">Скасувати</string>
-    <string name="hide_folder_title">Сховати %1$s?</string>
-    <string name="hide_folder_desc">Вона перестане з\'являтися серед тек для перегляду. Нічого не видаляється: файли лишаються на місці, а теку можна повернути з налаштувань.</string>
+    <string name="hide_folder_title">Сховати \'%1$s\'?</string>
+    <string name="hide_folder_desc">Тека не відображатиметься у вигляді сітки та списку. Це лише налаштування відображення: нічого не видаляється.</string>
+    <string name="show_folder_title">Знову показати \'%1$s\'?</string>
+    <string name="show_folder_desc">Тека знову звично відображатиметься серед тек у вигляді сітки та списку.</string>
     <string name="hide_folder_do">Сховати</string>
     <string name="settings_hidden">Сховані теки</string>
     <string name="settings_hidden_desc">Довге натискання на теку ховає її. Ці більше не з\'являються у списку, але на телефоні вони недоторкані.</string>

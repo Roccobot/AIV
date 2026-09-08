@@ -163,8 +163,10 @@
     <string name="folder_no_images">フォルダーに画像はありません。</string>
     <string name="folder_no_videos">フォルダーに動画はありません。</string>
     <string name="cancel">キャンセル</string>
-    <string name="hide_folder_title">%1$s を隠しますか?</string>
-    <string name="hide_folder_desc">めくるフォルダの一覧に出なくなります。何も削除しません。ファイルはそのままの場所にあり、設定から元に戻せます。</string>
+    <string name="hide_folder_title">\'%1$s\' を隠しますか?</string>
+    <string name="hide_folder_desc">グリッド表示とリスト表示にフォルダが出なくなります。表示の設定だけで、何も削除されません。</string>
+    <string name="show_folder_title">\'%1$s\' をまた表示しますか?</string>
+    <string name="show_folder_desc">グリッド表示とリスト表示のフォルダの中に、また普通に出るようになります。</string>
     <string name="hide_folder_do">隠す</string>
     <string name="settings_hidden">隠したフォルダ</string>
     <string name="settings_hidden_desc">フォルダを長押しすると隠せます。一覧には出ませんが、端末の中ではそのままです。</string>

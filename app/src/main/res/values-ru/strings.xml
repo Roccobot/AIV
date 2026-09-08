@@ -163,8 +163,10 @@
     <string name="folder_no_images">В папке нет изображений.</string>
     <string name="folder_no_videos">В папке нет видео.</string>
     <string name="cancel">Отмена</string>
-    <string name="hide_folder_title">Скрыть %1$s?</string>
-    <string name="hide_folder_desc">Она перестанет появляться среди папок для просмотра. Ничего не удаляется: файлы остаются на месте, а папку можно вернуть из настроек.</string>
+    <string name="hide_folder_title">Скрыть \'%1$s\'?</string>
+    <string name="hide_folder_desc">Папка не будет отображаться в виде сетки и списка. Это только настройка отображения: ничего не удаляется.</string>
+    <string name="show_folder_title">Снова показать \'%1$s\'?</string>
+    <string name="show_folder_desc">Папка снова будет обычным образом отображаться среди папок в виде сетки и списка.</string>
     <string name="hide_folder_do">Скрыть</string>
     <string name="settings_hidden">Скрытые папки</string>
     <string name="settings_hidden_desc">Долгое нажатие на папку скрывает её. Эти больше не появляются в списке, но на телефоне они нетронуты.</string>

@@ -163,8 +163,10 @@
     <string name="folder_no_images">این پوشه تصویری ندارد.</string>
     <string name="folder_no_videos">پوشه ویدیویی ندارد.</string>
     <string name="cancel">لغو</string>
-    <string name="hide_folder_title">پنهان کردن %1$s؟</string>
-    <string name="hide_folder_desc">دیگر میان پوشه‌های قابل مرور دیده نمی‌شود. چیزی پاک نمی‌شود: فایل‌ها همان‌جا می‌مانند، و می‌توانید پوشه را از تنظیمات بازگردانید.</string>
+    <string name="hide_folder_title">پنهان کردن \'%1$s\'؟</string>
+    <string name="hide_folder_desc">پوشه در نمای شبکه‌ای و فهرستی فهرست نمی‌شود. این فقط یک تنظیم نمایش است: چیزی پاک نمی‌شود.</string>
+    <string name="show_folder_title">نمایش دوبارهٔ \'%1$s\'؟</string>
+    <string name="show_folder_desc">پوشه دوباره مثل همیشه میان پوشه‌ها در نمای شبکه‌ای و فهرستی دیده می‌شود.</string>
     <string name="hide_folder_do">پنهان کردن</string>
     <string name="settings_hidden">پوشه‌های پنهان</string>
     <string name="settings_hidden_desc">فشار طولانی روی یک پوشه آن را پنهان می‌کند. اینها دیگر در فهرست دیده نمی‌شوند، اما در گوشی دست‌نخورده‌اند.</string>

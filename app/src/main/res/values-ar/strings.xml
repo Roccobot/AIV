@@ -163,8 +163,10 @@
     <string name="folder_no_images">لا يحتوي المجلد على صور.</string>
     <string name="folder_no_videos">لا يحتوي المجلد على مقاطع فيديو.</string>
     <string name="cancel">إلغاء</string>
-    <string name="hide_folder_title">إخفاء %1$s؟</string>
-    <string name="hide_folder_desc">لن يظهر بعد الآن بين المجلدات التي تتصفحها. لا يُحذف شيء: الملفات تبقى مكانها، ويمكنك إعادة المجلد من الإعدادات.</string>
+    <string name="hide_folder_title">إخفاء \'%1$s\'؟</string>
+    <string name="hide_folder_desc">لن يظهر المجلد في عرض الشبكة ولا في عرض القائمة. هذا إعداد عرض فقط: لا يُحذف أي شيء.</string>
+    <string name="show_folder_title">إظهار \'%1$s\' مرة أخرى؟</string>
+    <string name="show_folder_desc">سيظهر المجلد من جديد بشكل طبيعي بين المجلدات في عرض الشبكة وعرض القائمة.</string>
     <string name="hide_folder_do">إخفاء</string>
     <string name="settings_hidden">المجلدات المخفية</string>
     <string name="settings_hidden_desc">الضغط المطول على مجلد يخفيه. هذه لم تعد تظهر في القائمة، لكنها في الهاتف كما هي.</string>

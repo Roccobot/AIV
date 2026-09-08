@@ -163,8 +163,10 @@
     <string name="folder_no_images">Folder tidak berisi gambar.</string>
     <string name="folder_no_videos">Folder tidak berisi video.</string>
     <string name="cancel">Batal</string>
-    <string name="hide_folder_title">Sembunyikan %1$s?</string>
-    <string name="hide_folder_desc">Folder ini tidak lagi muncul di antara folder yang ditelusuri. Tidak ada yang dihapus: berkasnya tetap di tempatnya, dan kamu bisa memunculkannya kembali dari pengaturan.</string>
+    <string name="hide_folder_title">Sembunyikan \'%1$s\'?</string>
+    <string name="hide_folder_desc">Folder tidak akan ditampilkan di tampilan kisi maupun daftar. Ini hanya pengaturan tampilan: tidak ada yang dihapus.</string>
+    <string name="show_folder_title">Tampilkan lagi \'%1$s\'?</string>
+    <string name="show_folder_desc">Folder akan tampil normal lagi di antara folder pada tampilan kisi dan daftar.</string>
     <string name="hide_folder_do">Sembunyikan</string>
     <string name="settings_hidden">Folder tersembunyi</string>
     <string name="settings_hidden_desc">Tekan lama sebuah folder untuk menyembunyikannya. Folder ini tidak lagi muncul di daftar, tetapi di ponsel tetap utuh.</string>
