@@ -107,6 +107,11 @@
     <string name="front_unpick_clips">ยกเลิกการเลือกวิดีโอ</string>
     <string name="front_tint">สีของส่วนหัว</string>
     <string name="front_tint_none">สีเริ่มต้น</string>
+    <string name="folder_cover">เลือกภาพปก</string>
+    <string name="folder_cover_auto">ภาพปกอัตโนมัติ</string>
+    <string name="folder_cover_pick">เลือกภาพปกของ \'%1$s\'</string>
+    <string name="folder_cover_done">อัปเดตภาพปกแล้ว</string>
+    <string name="folder_cover_fail">ใช้ภาพนี้เป็นภาพปกไม่ได้</string>
     <string name="settings_folder_columns">จำนวนคอลัมน์ในตาราง</string>
     <string name="settings_folder_columns_desc">ตารางโฟลเดอร์และตารางภาพแสดงกี่คอลัมน์ คอลัมน์มากขึ้นทำให้แสดงได้มากขึ้นบนหน้าจอและแต่ละช่องเล็กลง ที่สี่คอลัมน์ชื่อโฟลเดอร์มักถูกตัด</string>
     <string name="settings_folder_count">ตัวนับรายการใต้โฟลเดอร์ในมุมมองตาราง</string>

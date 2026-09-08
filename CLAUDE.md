@@ -1127,6 +1127,58 @@ sarebbe un ramo che nessun dito può raggiungere.
   longer in the tree*. È il caso proattivo di § '🧪 Quando si scrive una prova, e quando no'
   applicato a una richiesta invece che a un difetto.
 
+## 🖼️ La copertina scelta a mano
+
+⚠️⚠️ **DALLA `1.94`, E LA CONDIZIONE CON CUI L'HA CHIESTA DECIDE COME È FATTA** (*immagine
+personalizzata per le cartelle*, con la clausola *solo se si può fare in modo che resti la stessa
+anche dopo l'eventuale eliminazione dell'originale*). Tenere l'indirizzo dell'immagine scelta
+sarebbe costato una riga, e il giorno che quell'immagine viene cancellata o spostata la cartella
+tornerebbe alla copertina automatica senza che nessuno abbia toccato niente: quindi l'immagine si
+**copia in casa dell'app**, ridotta, e da quel momento non dipende più da dove è nata.
+- ⚠️ **Non è più *quell'immagine*, ed è giusto dirlo**: è una sua riduzione a mille pixel di lato,
+  perché una copertina si vede al massimo a cinquecento. Quello che ha chiesto è che resti.
+- ⚠️ **Il file È l'archivio**: non c'è nessuna preferenza da tenere allineata, e la domanda
+  *questa cartella ha una copertina?* si risponde guardando se il file esiste. Il perché per
+  esteso, e il nome che porta l'istante (che è quello che tiene onesta la cache di Coil), vivono
+  in testa a `FolderCover.kt`.
+
+⚠️⚠️ **IL GESTO È IL TOCCO SULL'ICONA DELL'INTESTAZIONE, ED È SUA RISPOSTA** (`d-copertina-come`,
+giro della `1.92`: *solo con il tocco singolo sull'icona dell'intestazione di una cartella*). È il
+gesto che la `1.86` aveva lasciato libero chiedendo *un'azione alternativa realmente utile*, e la
+sua risposta lo ha riempito.
+- ⚠️⚠️ **E L'IMMAGINE SI SCEGLIE DENTRO AIV, DA QUALUNQUE CARTELLA** (seconda metà della stessa
+  risposta: *può essere scelta dalla normale vista di AIV da qualsiasi cartella, non
+  necessariamente quella di cui si sta impostando la copertina*). Quindi quello che parte dal
+  tocco è una **modalità** e non una finestra: si sfoglia l'app com'è, e il tocco su una
+  miniatura vale come scelta. Una finestra che elencasse immagini sarebbe una seconda galleria da
+  tenere allineata a quella vera.
+- **Non si esce dalla cartella**, ed è il caso comune: la copertina che si vuole è quasi sempre
+  una delle immagini che si hanno davanti. Per prenderne una di un'altra cartella basta uscire e
+  navigare.
+- ⚠️ **La modalità vive nel modello e non in una schermata** (`ViewerViewModel.covering`), per la
+  stessa ragione del minuto di 'Mostra nascoste': fra l'inizio e la scelta si cambia schermata, e
+  uno stato dentro la griglia se ne andrebbe proprio nel momento in cui serve.
+- **Vale per tutte e tre le griglie e per i recenti**, come la modalità del selettore di sistema:
+  una modalità che funziona in una schermata su tre sembra rotta.
+
+⚠️ **A dire che la scelta è in corso è una fascia in fondo allo schermo** (`CoverInvite`), che
+vive accanto alla notifica di casa e sopra la transizione fra schermate: la scelta comincia in una
+cartella e può finire in un'altra, quindi l'unica cosa che lo dice deve sopravvivere al cambio di
+schermata. ⚠️ **Non è una notifica**: una notifica dice che una cosa **è** successa e se ne va da
+sé, questa dice che cosa **sta** succedendo e resta finché la modalità è viva. Il suo tasto è la
+via per lasciar perdere.
+
+⚠️ **A togliere la copertina scelta è una voce del menu del FAB**, che compare **se e solo se**
+una copertina scelta esiste, come 'Mostra nascoste' nella schermata iniziale. Là non c'è la voce
+che sceglie, e non è una dimenticanza: a scegliere è il tocco sull'icona, e una seconda porta per
+la stessa cosa sarebbe un secondo modo da imparare per un comando che si dà una volta per
+cartella.
+
+⚠️ **Che cosa il banco misura e che cosa no** (`CopertinaTest`): vede il gesto sull'icona (che
+convive col tocco lungo del colore senza confondersi), la voce del menu nei due versi, la fascia
+dell'invito e la precedenza della scelta sull'automatica. **Non** vede la copia dell'immagine, che
+decodifica e riscrive un file: quella si prova sul telefono.
+
 ## 👁️ 'Mostra nascoste', e perché dura un minuto
 
 ⚠️⚠️ **DALLA `1.92`, ED È SUA SPECIFICA ALLA LETTERA** (campo libero del giro della `1.91`): il

@@ -107,6 +107,11 @@
     <string name="front_unpick_clips">Ondoa uteuzi wa video</string>
     <string name="front_tint">Rangi ya kichwa</string>
     <string name="front_tint_none">Rangi chaguo-msingi</string>
+    <string name="folder_cover">Chagua jalada</string>
+    <string name="folder_cover_auto">Jalada la kiotomatiki</string>
+    <string name="folder_cover_pick">Chagua jalada la \'%1$s\'</string>
+    <string name="folder_cover_done">Jalada limesasishwa</string>
+    <string name="folder_cover_fail">Picha hii haiwezi kutumika kama jalada</string>
     <string name="settings_folder_columns">Safu kwenye gridi</string>
     <string name="settings_folder_columns_desc">Idadi ya safu zinazoonyeshwa na gridi ya folda na gridi ya picha. Safu nyingi huingiza vitu vingi kwenye skrini na kupunguza ukubwa wa kila kigae. Kwa nne, jina la folda hukatwa mara nyingi.</string>
     <string name="settings_folder_count">Kihesabu cha vipengele chini ya folda katika mwonekano wa gridi</string>

@@ -107,6 +107,11 @@
     <string name="front_unpick_clips">Deseleccionar vídeos</string>
     <string name="front_tint">Color del encabezado</string>
     <string name="front_tint_none">Color predeterminado</string>
+    <string name="folder_cover">Elegir la portada</string>
+    <string name="folder_cover_auto">Portada automática</string>
+    <string name="folder_cover_pick">Elige la portada de \'%1$s\'</string>
+    <string name="folder_cover_done">Portada actualizada</string>
+    <string name="folder_cover_fail">Esta imagen no se puede usar como portada</string>
     <string name="settings_folder_columns">Columnas en las cuadrículas</string>
     <string name="settings_folder_columns_desc">Cuántas columnas muestran la cuadrícula de carpetas y la de imágenes. Más columnas caben más cosas en pantalla y encogen cada celda. Con cuatro, el nombre de la carpeta suele quedar cortado.</string>
     <string name="settings_folder_count">Contador de elementos bajo las carpetas en vista de cuadrícula</string>

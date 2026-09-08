@@ -107,6 +107,11 @@
     <string name="front_unpick_clips">वीडियो का चयन हटाएँ</string>
     <string name="front_tint">शीर्षक का रंग</string>
     <string name="front_tint_none">डिफ़ॉल्ट रंग</string>
+    <string name="folder_cover">कवर चुनें</string>
+    <string name="folder_cover_auto">स्वचालित कवर</string>
+    <string name="folder_cover_pick">\'%1$s\' का कवर चुनें</string>
+    <string name="folder_cover_done">कवर अपडेट हो गया</string>
+    <string name="folder_cover_fail">इस छवि को कवर के रूप में इस्तेमाल नहीं किया जा सकता</string>
     <string name="settings_folder_columns">ग्रिड के स्तंभ</string>
     <string name="settings_folder_columns_desc">फ़ोल्डर ग्रिड और चित्र ग्रिड कितने स्तंभ दिखाएँ। अधिक स्तंभों में स्क्रीन पर अधिक चीज़ें आती हैं और हर खाना छोटा होता है। चार पर फ़ोल्डर का नाम प्रायः कट जाता है।</string>
     <string name="settings_folder_count">ग्रिड दृश्य में फ़ोल्डरों के नीचे वस्तुओं की गिनती</string>

@@ -107,6 +107,11 @@
     <string name="front_unpick_clips">إلغاء تحديد الفيديوهات</string>
     <string name="front_tint">لون الترويسة</string>
     <string name="front_tint_none">اللون الافتراضي</string>
+    <string name="folder_cover">اختر الغلاف</string>
+    <string name="folder_cover_auto">غلاف تلقائي</string>
+    <string name="folder_cover_pick">اختر غلاف \'%1$s\'</string>
+    <string name="folder_cover_done">تم تحديث الغلاف</string>
+    <string name="folder_cover_fail">لا يمكن استخدام هذه الصورة كغلاف</string>
     <string name="settings_folder_columns">أعمدة الشبكات</string>
     <string name="settings_folder_columns_desc">عدد الأعمدة التي تعرضها شبكة المجلدات وشبكة الصور. الأعمدة الأكثر تعرض عناصر أكثر وتصغّر كل مربع. عند أربعة أعمدة يُقتطع اسم المجلد عادة.</string>
     <string name="settings_folder_count">عدّاد العناصر تحت المجلدات في عرض الشبكة</string>

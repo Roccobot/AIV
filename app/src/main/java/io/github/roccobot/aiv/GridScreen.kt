@@ -55,6 +55,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.FilterList
+import androidx.compose.material.icons.outlined.HideImage
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Movie
@@ -340,6 +341,29 @@ fun GridScreen(
      * quindi questa griglia riceve un gesto e non un numero.
      */
     onSearchHere: (() -> Unit)? = null,
+    /**
+     * Comincia a scegliere la copertina di questa cartella: è il **tocco sull'icona**
+     * dell'intestazione. Nullo quando di qui non si sceglie niente, come [onBin].
+     *
+     * ⚠️⚠️ **IL GESTO È QUELLO CHE HA SCELTO LUI** (risposta a `d-copertina-come`, giro della
+     * `1.92`: *solo con il tocco singolo sull'icona dell'intestazione di una cartella*), ed è il
+     * gesto che la `1.86` aveva lasciato libero aspettando *un'azione alternativa realmente
+     * utile*.
+     * ⚠️ **Comincia e basta: l'immagine si sceglie dopo, e altrove.** La seconda metà della sua
+     * risposta dice *può essere scelta dalla normale vista di AIV da qualsiasi cartella*, quindi
+     * quello che parte di qui è una modalità e non una finestra: il perché per esteso vive su
+     * `ViewerViewModel.covering`.
+     */
+    onCoverPick: (() -> Unit)? = null,
+    /** Toglie la copertina scelta: la voce del menu del FAB. Vedi [coverSet]. */
+    onCoverClear: (() -> Unit)? = null,
+    /**
+     * Se questa cartella ha già una copertina scelta a mano.
+     *
+     * ⚠️ **Governa una voce sola, quella che la toglie**: senza, il menu offrirebbe di togliere
+     * una cosa che non c'è. È lo stesso criterio di 'Mostra nascoste' nella schermata iniziale.
+     */
+    coverSet: Boolean = false,
     /**
      * Avvisa che la griglia ha una selezione viva, cioè che una rilettura le farebbe danno.
      *
@@ -1128,6 +1152,13 @@ fun GridScreen(
     val percorsoCopiato = stringResource(R.string.front_path_copied)
     val percorsoEtichetta = stringResource(R.string.front_copy_path)
     val tintaEtichetta = stringResource(R.string.front_tint)
+    val copertinaEtichetta = stringResource(R.string.folder_cover)
+    /*
+     * ⚠️ **Il gesto si legge VIVO e non catturato**: il riconoscitore dei tocchi nasce una volta
+     * sola (`pointerInput(Unit)`, o si riavvierebbe a ogni ricomposizione), quindi la lambda che
+     * cattura sarebbe quella del primo giro. Con questo, il tocco chiama sempre quella di adesso.
+     */
+    val scegliCopertina by rememberUpdatedState(onCoverPick)
     val copiaNome = {
         ImageActions.copyName(context, title)
         Notices.say(nomeCopiato)
@@ -1415,11 +1446,14 @@ fun GridScreen(
                      * parte, non la curva, quindi la coreografia dello scorrimento non si tocca.
                      */
                     /*
-                     * ⚠️⚠️ **SULL'ICONA È RIMASTO UN GESTO SOLO, DALLA `1.86`, E LO HA DECISO
-                     * LUI** (riscontro del giro della `1.85`, voce `int-apri` accettabile: *per il
+                     * ⚠️⚠️ **IL TOCCO SULL'ICONA SCEGLIE LA COPERTINA, DALLA `1.94`, ED È LA
+                     * PROPOSTA CHE ASPETTAVA** (risposta a `d-copertina-come` del giro della
+                     * `1.92`: *solo con il tocco singolo sull'icona dell'intestazione di una
+                     * cartella*). Dalla `1.86` quel gesto era spento su sua istruzione (*per il
                      * momento disattiva questo tocco, e proponimi un'azione alternativa realmente
-                     * utile. In assenza di funzionalità utili, per il momento resta senza*). Il
-                     * tocco lungo, che sceglie il colore, resta com'era.
+                     * utile. In assenza di funzionalità utili, per il momento resta senza*): la
+                     * riga qui sotto è quella funzione utile arrivata. Il tocco lungo, che sceglie
+                     * il colore, resta com'era.
                      * ⚠️⚠️ **E CON IL GESTO ESCE IL CODICE CHE LO SERVIVA**, cioè
                      * `Folder.openInFiles` e le sue due stringhe: un ramo senza chiamanti tenuto
                      * in caldo per una funzione che forse torna è codice morto, e la storia git lo
@@ -1440,7 +1474,16 @@ fun GridScreen(
                      */
                     Icon(
                         imageVector = Glyphs.FolderAiv,
-                        contentDescription = tintaEtichetta,
+                        /*
+                         * ⚠️ **La descrizione è quella del TOCCO, e il tocco lungo se la dichiara
+                         * a parte**: chi ascolta sente prima che cosa fa il gesto normale, che è
+                         * quello che farà.
+                         */
+                        contentDescription = if (scegliCopertina != null) {
+                            copertinaEtichetta
+                        } else {
+                            tintaEtichetta
+                        },
                         tint = if (frontWash) {
                             MaterialTheme.colorScheme.surface
                         } else {
@@ -1450,12 +1493,13 @@ fun GridScreen(
                             .semantics {
                                 onLongClick(label = tintaEtichetta) { tinge = true; true }
                             }
-                            .pointerInput(facts.path) {
+                            .pointerInput(Unit) {
                                 detectTapGestures(
                                     onLongPress = {
                                         haptics.performHapticFeedback(HOLD_BUZZ)
                                         tinge = true
-                                    }
+                                    },
+                                    onTap = { scegliCopertina?.invoke() }
                                 )
                             }
                             .frontIconMeasure(
@@ -2077,8 +2121,31 @@ fun GridScreen(
                                 onTap = { menu.close(); cerca() }
                             )
                         }
-                        onBin?.let { vaiAlCestino ->
+                        /*
+                         * ⚠️⚠️ **QUI C'È LA SOLA VOCE CHE TOGLIE, e non quella che sceglie**: a
+                         * scegliere è il tocco sull'icona dell'intestazione, che è la sua
+                         * specifica alla lettera (risposta a `d-copertina-come`: *solo con il
+                         * tocco singolo sull'icona dell'intestazione di una cartella*). Una
+                         * seconda porta per la stessa cosa sarebbe un secondo modo da imparare
+                         * per un comando che si dà una volta per cartella.
+                         * ⚠️ **C'è se e solo se una copertina scelta esiste**, come 'Mostra
+                         * nascoste' nella schermata iniziale: offrire di togliere quello che non
+                         * c'è è una riga che non fa niente.
+                         * ⚠️ **Vive fra 'Cerca' e 'Cestino' perché l'ordine dice una cosa**: sopra
+                         * quello che si fa dentro questa cartella, sotto quello che porta
+                         * altrove.
+                         */
+                        val togliCopertina = onCoverClear.takeIf { coverSet }
+                        togliCopertina?.let { togli ->
                             if (onSearchHere != null) HorizontalDivider()
+                            MenuRow(
+                                text = stringResource(R.string.folder_cover_auto),
+                                icon = Icons.Outlined.HideImage,
+                                onTap = { menu.close(); togli() }
+                            )
+                        }
+                        onBin?.let { vaiAlCestino ->
+                            if (onSearchHere != null || togliCopertina != null) HorizontalDivider()
                             MenuRow(
                                 text = stringResource(R.string.bin_title),
                                 icon = Glyphs.Bin,

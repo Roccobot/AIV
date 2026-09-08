@@ -107,6 +107,11 @@
     <string name="front_unpick_clips">Batalkan pilihan video</string>
     <string name="front_tint">Warna header</string>
     <string name="front_tint_none">Warna bawaan</string>
+    <string name="folder_cover">Pilih sampul</string>
+    <string name="folder_cover_auto">Sampul otomatis</string>
+    <string name="folder_cover_pick">Pilih sampul untuk \'%1$s\'</string>
+    <string name="folder_cover_done">Sampul diperbarui</string>
+    <string name="folder_cover_fail">Gambar ini tidak bisa dipakai sebagai sampul</string>
     <string name="settings_folder_columns">Kolom pada kisi</string>
     <string name="settings_folder_columns_desc">Berapa kolom yang ditampilkan kisi folder dan kisi gambar. Lebih banyak kolom memuat lebih banyak di layar dan mengecilkan setiap petak. Pada empat, nama folder biasanya terpotong.</string>
     <string name="settings_folder_count">Penghitung item di bawah folder pada tampilan kisi</string>

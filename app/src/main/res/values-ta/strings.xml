@@ -107,6 +107,11 @@
     <string name="front_unpick_clips">வீடியோக்களின் தேர்வை நீக்கு</string>
     <string name="front_tint">தலைப்பின் நிறம்</string>
     <string name="front_tint_none">இயல்புநிலை நிறம்</string>
+    <string name="folder_cover">அட்டைப் படத்தைத் தேர்வுசெய்</string>
+    <string name="folder_cover_auto">தானியங்கு அட்டைப் படம்</string>
+    <string name="folder_cover_pick">\'%1$s\' இன் அட்டைப் படத்தைத் தேர்வுசெய்</string>
+    <string name="folder_cover_done">அட்டைப் படம் புதுப்பிக்கப்பட்டது</string>
+    <string name="folder_cover_fail">இந்தப் படத்தை அட்டைப் படமாகப் பயன்படுத்த முடியாது</string>
     <string name="settings_folder_columns">கட்டங்களின் நிரல்கள்</string>
     <string name="settings_folder_columns_desc">கோப்புறைக் கட்டமும் படக் கட்டமும் காட்டும் நிரல்களின் எண்ணிக்கை. மேலும் நிரல்கள் திரையில் அதிகம் அடங்கும், ஒவ்வொரு கட்டமும் சிறியதாகும். நான்கில் கோப்புறையின் பெயர் பொதுவாக துண்டிக்கப்படும்.</string>
     <string name="settings_folder_count">கட்டக் காட்சியில் கோப்புறைகளுக்குக் கீழே பொருள் எண்ணிக்கை</string>

@@ -107,6 +107,11 @@
     <string name="front_unpick_clips">Videoların seçimini kaldır</string>
     <string name="front_tint">Başlık rengi</string>
     <string name="front_tint_none">Varsayılan renk</string>
+    <string name="folder_cover">Kapağı seç</string>
+    <string name="folder_cover_auto">Otomatik kapak</string>
+    <string name="folder_cover_pick">\'%1$s\' klasörünün kapağını seç</string>
+    <string name="folder_cover_done">Kapak güncellendi</string>
+    <string name="folder_cover_fail">Bu görsel kapak olarak kullanılamaz</string>
     <string name="settings_folder_columns">Izgaralardaki sütunlar</string>
     <string name="settings_folder_columns_desc">Klasör ızgarasının ve resim ızgarasının kaç sütun gösterdiği. Daha çok sütun ekrana daha çok sığdırır ve her karoyu küçültür. Dörtte klasör adı genellikle kısaltılır.</string>
     <string name="settings_folder_count">Izgara görünümünde klasörlerin altındaki öge sayacı</string>

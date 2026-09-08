@@ -107,6 +107,11 @@
     <string name="front_unpick_clips">取消選取影片</string>
     <string name="front_tint">標題列顏色</string>
     <string name="front_tint_none">預設顏色</string>
+    <string name="folder_cover">選擇封面</string>
+    <string name="folder_cover_auto">自動封面</string>
+    <string name="folder_cover_pick">選擇 \'%1$s\' 的封面</string>
+    <string name="folder_cover_done">封面已更新</string>
+    <string name="folder_cover_fail">這張圖片無法用作封面</string>
     <string name="settings_folder_columns">格狀檢視的欄數</string>
     <string name="settings_folder_columns_desc">資料夾格狀檢視與圖片格狀檢視顯示幾欄。欄數越多，畫面上放得越多，每個方塊越小。四欄時資料夾名稱通常會被截斷。</string>
     <string name="settings_folder_count">格狀檢視中資料夾下方的項目計數</string>
