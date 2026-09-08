@@ -327,8 +327,13 @@ internal val GRADIENT_REACH = FAB_REACH * GRADIENT_TIMES
  * dello schermo, e un massimo raggiunto in una riga di pixel non si vede come un massimo.
  * ⚠️ **La curva, il colore e il modo di sommarsi restano quelli che ha dettato lui**: quello
  * che si aggiunge è un pianoro in fondo, non una curva nuova.
+ * ⚠️⚠️ **CINQUANTACINQUE DALLA `1.91`, E LA RAGIONE È LA `1.90`** (sua richiesta: *adesso che la
+ * griglia arriva fino alla fine del vetro anche in basso, la seconda sfumatura deve ... finire il
+ * gradiente 15dp più in alto*). Finché la griglia si fermava sopra la barra gestuale, sotto la
+ * coda c'era il fondo dell'app; adesso là sotto passano le miniature, quindi la stessa coda ha
+ * più da coprire e la sua cima deve cominciare prima.
  */
-private val FOOT_REACH = 40.dp
+private val FOOT_REACH = 55.dp
 
 /**
  * Quanto dura il pieno in fondo alla coda, misurato dal bordo dello schermo in su.
@@ -345,8 +350,12 @@ private val FOOT_REACH = 40.dp
  * raccordo sopra.
  * ⚠️ **Chi trovasse scritto 'dieci su quaranta' altrove sappia che è superato**, e il numero da
  * guardare è questo: la salita si ricava per differenza, non si scrive due volte.
+ * ⚠️⚠️ **TRENTADUE DALLA `1.91`, ED È IL SUO TERZO NUMERO** (sua richiesta dopo la `1.90`: *la
+ * seconda sfumatura deve essere a 100% 10dp più in alto*). Il pieno sale insieme alla cima della
+ * coda ([FOOT_REACH], 15 in più), quindi la salita resta un raccordo di 23 dp: le due misure sono
+ * arrivate insieme perché insieme tengono la proporzione che aveva tarato nella `1.62`.
  */
-private val FOOT_SOLID = 22.dp
+private val FOOT_SOLID = 32.dp
 
 /**
  * In quanti gradini si disegna la coda.

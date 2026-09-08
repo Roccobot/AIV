@@ -520,13 +520,28 @@ grande un dialogo esattamente al centro fa allungare la mano.
 - ⚠️ **I menu non usano quel modificatore ma lo stesso numero**: là il posto lo decide un
   `PopupPositionProvider` (`MenuCenter` in `Menus.kt`), che riceve pixel e nessun `Density`. Il
   15% è la costante `LOWER_BY`, condivisa.
-  - ⚠️⚠️ **E QUANTO RESTA FRA UN MENU ANCORATO E IL BORDO DIPENDE DALL'EFFETTO, DALLA `1.86`**
-    (riscontro del giro della `1.85`, punto B): al vetro ci va solo con la **sfocatura**, perché
-    la feritoia che si vede là dentro esiste solo quando lo sfondo è sfocato; con l'ombra e senza
-    effetto resta la metà del margine del FAB. ⚠️ **Con l'ombra quel conto non si spende**, e la
-    ragione è geometrica: l'aria che l'ombra chiede sta **dentro** la finestra, quindi il pannello
-    non può avvicinarsi al vetro più di `LIFT_ROOM` senza far uscire la finestra dallo schermo, e
-    una finestra non esce. Il conto e la misura vivono su `rememberMenuSpot`.
+  - ⚠️⚠️ **UN MENU ANCORATO SI FERMA A TRE MARGINI DI GRIGLIA DAL VETRO, DALLA `1.91`, ED È
+    UGUALE PER I TRE EFFETTI** (riscontro del giro della `1.89`, voce `menu-bordo` non approvata:
+    *non voglio che il margine del menu sia a filo con i margini delle colonne ... e in più
+    spostarlo un po' a sinistra*, e *la stessa soluzione funzionerebbe anche con la sfocatura*).
+    Fino alla `1.90` la distanza dipendeva dalla scelta: al vetro con la sfocatura, metà del
+    margine del FAB negli altri due casi.
+    - ⚠️⚠️ **IL DIFETTO DELLA `1.67` NON ERA LA FASCIA SFOCATA, ERANO DUE BORDI VICINI**, e questa
+      rilettura è quello che fa cadere i tre numeri di allora: *la vicinanza tra i due bordi genera
+      un effetto 'linea sfocata'*. La `1.68` li aveva allontanati portando il pannello **al
+      vetro**, la `1.91` li allontana nell'altro verso, tirandolo **dentro** oltre il margine
+      della griglia. Per questo la stessa distanza va bene con tutti e tre gli effetti.
+    - ⚠️⚠️ **E IL PANNELLO È PIÙ LARGO DI DUE CELLE PIÙ IL LORO SPAZIO** (*bisogna far sì che con
+      l'ombra attiva il pannello sia più largo di due miniature della griglia più lo spazio che le
+      separa*), col **tetto** che nella schermata iniziale entra in funzione: là le colonne sono
+      due, quindi quel conto darebbe un pannello largo quanto la finestra. Le misure prese sul suo
+      mockup e il conto vivono su `menuFloor`, in `Menus.kt`.
+    - ⚠️⚠️ **SI SCRIVE COME UNA SOGLIA E NON COME UN MARGINE, ED È MISURATO DAL BANCO**: un margine
+      è un **minimo**, e il candidato naturale di un menu ancorato lo rispetta già, quindi non lo
+      muove. La `1.91` ci ha provato: col margine il pannello restava a 32 dal bordo invece dei 24
+      voluti, e a prenderlo è stata la prova.
+    - ⚠️ **L'aria dell'ombra si sconta**, perché vive **dentro** la finestra: senza toglierla, con
+      l'ombra il pannello cadrebbe più dentro degli altri due.
 - ⚠️ **Un dialogo a tutto schermo NON si sposta**, e non è una dimenticanza: `DestinationDialog`
   riempie la finestra, quindi non c'è nessun centro da spostare.
 - ⚠️⚠️ **E DALLA 1.38 UNA COSA CHE ERA CENTRATA NON LO È PIÙ: le 'Info dettagliate sul file'**,
@@ -834,6 +849,12 @@ devono progressivamente sparire e lasciare campo libero alla griglia piena su tu
   DALLE CARTELLE, resta in home*). La coda esisteva per chiudere in pieno l'ultima striscia di
   schermo, e là sotto adesso passa il FAB. ⚠️ **Nella schermata iniziale resta**, e il valore di
   serie di `GroundFade` è di averla: un valore di serie rovesciato l'avrebbe tolta anche a lei.
+  - ⚠️⚠️ **E NELLA SCHERMATA INIZIALE QUELLA CODA SI È ALZATA CON LA `1.91`** (sua richiesta dopo
+    la `1.90`: *adesso che la griglia arriva fino alla fine del vetro anche in basso, la seconda
+    sfumatura deve essere a 100% 10dp più in alto e finire il gradiente 15dp più in alto*). La
+    ragione è la `1.90`: finché la griglia si fermava sopra la barra gestuale, sotto la coda c'era
+    il fondo dell'app; adesso là sotto passano le miniature, quindi la stessa coda ha più da
+    coprire. I due numeri vivono su `FOOT_SOLID` e `FOOT_REACH`.
 
 ⚠️⚠️ **DALLA `1.83` L'INTESTAZIONE DI UNA CARTELLA È LA VARIANTE 10 DEL MOCKUP, E LA COMPONGONO
 QUATTRO INTERRUTTORI** (sua risposta a `d-frontespizio` e punto H del giro della `1.81`), che
@@ -955,6 +976,22 @@ cartella** fra sedici tinte in una griglia 4x4.
     già da tutti e due i fondi.
   - ⚠️ **La scelta resta un indice e non un colore**, quindi la nota di allora non è rovesciata:
     a cambiare col tema è come quel colore si scrive, non quale ha scelto lui.
+- ⚠️⚠️ **E DALLA `1.91` LE SEDICI SONO ALTRE SEDICI: LA RUOTA INTERA, SU SUA ISTRUZIONE**
+  (riscontro del giro della `1.89`, voce `tinte-coppie` accettabile: *crea tu una nuova palette di
+  16 coppie che coprano tutte le tonalità possibili*, perché *al momento ci sono troppi verdi,
+  verdini e azzurrini*). La sua critica ha un numero, ed è la ragione per cui la tavolozza non si
+  poteva ritoccare: **sette tinte su sedici** cadevano in 55 gradi di ruota, perché otto erano sue
+  e partivano dai colori di casa.
+  - ⚠️ **Le tonalità sono a passo uniforme in OkLCh e non in HSL**, che è percettivo: lo stesso
+    passo in HSL addensa i verdi e dirada i blu, cioè rifarebbe il difetto.
+  - ⚠️ **I due bersagli di luminosità sono MISURATI sulla tavolozza che aveva approvato**, non
+    scelti: così cambia la distribuzione delle tonalità e non il carattere. Il conto, il tetto di
+    croma e i contrasti vivono in `FolderTint.kt`.
+  - ⚠️ **Sono più distinguibili di prima**, ed è la cosa che ha chiesto: la coppia più vicina passa
+    da **0,012 a 0,042** di distanza percettiva.
+  - ⚠️⚠️ **CON LORO ESCE IL GRIGIO-BLU, cioè l'unico neutro**, e le cartelle già tinte **cambiano
+    colore**: nell'archivio vive l'indice, e i sedici colori sono altri sedici. Non si evita
+    rinumerando, perché non esiste una corrispondenza da tenere.
 - ⚠️⚠️ **UNA CARTELLA CANCELLATA NON SI RINCORRE** (sua istruzione, 2026-09-08: *se una cartella
   ha un colore associato e viene cancellata, non occorre che l'app ricordi il suo colore*), quindi
   l'archivio non si pota. Il perché quello non sia nemmeno una perdita (il `BUCKET_ID` è il CRC
@@ -986,6 +1023,35 @@ sotto la barra gestuale non ci poteva arrivare niente.
   i rientri di sistema valgono zero, quindi una prova misurerebbe una somma di zeri. Si guarda
   sul telefono, con la navigazione gestuale e con quella a tre tasti.
 
+## 🔖 Lo scorrimento di una schermata sopravvive alla schermata
+
+⚠️⚠️ **DALLA `1.91`, ED È UNA SUA RICHIESTA** (campo libero del giro della `1.89`, punto A: *se
+scorro la schermata home, entro in una cartella e poi torno alla home, voglio che sia nello stesso
+punto dello scorrimento in cui si trovava al mio tocco sulla cartella*). Fino alla `1.90` la
+posizione viveva **dentro** la schermata, e una schermata che cambia esce dalla composizione
+portandosela via.
+
+⚠️⚠️ **NON C'È UN ARCHIVIO SCRITTO A MANO: COMPOSE NE HA UNO FATTO PER QUESTO.** Un
+`SaveableStateHolder` in `AivApp` tiene da parte quello che una schermata ha in `rememberSaveable`
+e glielo ridà quando rientra, e `rememberLazyGridState` è proprio un `rememberSaveable`. Una mappa
+di posizioni scritta da noi avrebbe coperto la sola griglia, e ogni schermata nuova avrebbe dovuto
+ricordarsi di usarla.
+- ⚠️ **La chiave distingue le cartelle fra loro** (`Screen.saveKey`), ed è una **stringa** perché
+  finisce in un `Bundle`. Porta solo quello che fa identità: il nome di una cartella no, perché una
+  cartella rinominata è la stessa cartella.
+- ⚠️ **Cresce di una voce per schermata visitata e non si pota**: quello che tiene sono un indice e
+  uno scarto, mentre un limite col suo sfratto sarebbe più codice di quanto ne risparmi.
+
+⚠️⚠️ **E IL SALTO ALL'IMMAGINE DA CUI SI TORNA È DIVENTATO IL SECONDO PASSO**: la griglia riparte
+da dov'era per conto suo, quindi quel salto serve solo quando nel visualizzatore si è **sfogliato**
+fino a un'altra immagine, che di là non si vedeva. Sono la stessa richiesta letta fino in fondo.
+- ⚠️⚠️ **LA BANDIERINA DI PRIMA SI SAREBBE ROTTA IN SILENZIO, ed è il difetto che questa nota
+  esiste per non far rifare**: il salto si faceva 'una volta per visita', e a rimetterla a zero
+  ci pensava il cambio di schermata che portava via il composable. Con lo scorrimento che
+  sopravvive, anche la bandierina tornava indietro a `true` e il salto non si sarebbe fatto **mai**
+  più. Adesso si ricorda **quale** immagine è già stata servita, e un indice risolve i due casi
+  (la rotazione e il ritorno) con un dato solo.
+
 ## 🎨 Dove si vede il colore di una cartella, fuori dall'intestazione
 
 ⚠️⚠️ **DALLA `1.87` GLI STILI SONO QUATTRO, E LI HA SCELTI LUI FRA I MOCKUP** (giro della `1.86`,
@@ -999,11 +1065,18 @@ quella cartella era già aperta; adesso può servire a **riconoscerla** nella sc
   punti è scritta là: sotto quella misura le sedici tinte non si distinguono.
 - ⚠️ **Erano cinque nel mockup**, e l'angolo piegato è quello che non ha preso: chi lo ritrovasse
   fra i disegni sappia che è stato visto e scartato.
-- ⚠️⚠️ **DI FABBRICA NON SE NE VEDE NESSUNO, e non è un modo di nascondere il lavoro**: la sua
-  posizione dichiarata era *sono propenso a lasciare il colore solo lì*, e questi quattro sono le
-  proposte che ha chiesto per cambiarla provandole. Quindi la voce di collaudo porta il passo
-  passo, perché la funzione non si vede né accendendola né scegliendo un colore: servono tutte e
-  due le cose.
+- ⚠️⚠️ **DALLA `1.91` DI FABBRICA C'È 'NOME', ED È LA SUA RISPOSTA DOPO AVERLI PROVATI** (giro
+  della `1.89`, `d-colore-come`: *imposta solo 'Nome' (il testo del titolo della cartella) come
+  attivo per impostazione di fabbrica*). Fino alla `1.90` non se ne vedeva nessuno, e nemmeno
+  quello era una scelta mia: la sua posizione dichiarata era *sono propenso a lasciare il colore
+  solo lì*, e i quattro stili erano le proposte per cambiarla provandole.
+  - ⚠️ **Resta vero che un valore di fabbrica non si sceglie per far vedere una funzione**: qui a
+    sceglierlo è stato lui, con l'app in mano.
+  - ⚠️ **Nell'elenco 'Nome' viene subito dopo 'Nessuno'**, ed è sua istruzione (testo
+    `t-colore-stili`). L'ordine dei chip è l'ordine di dichiarazione dell'enum, e cambiarlo **non**
+    tocca quello che è già salvato, perché nell'archivio vive il token e non la posizione.
+  - ⚠️ **La voce di collaudo porta comunque il passo passo**, perché la funzione non si vede se la
+    cartella non ha un colore suo: le due cose servono tutte e due.
 - ⚠️ **Vale per le due viste della schermata iniziale**, copertine ed elenco, con le stesse
   misure: la domanda è *come riconosco una cartella*, e non cambia cambiando vista. Nella terza
   vista non c'è niente da tingere, perché là le cartelle sono percorsi letti dal disco e una tinta
@@ -1036,6 +1109,28 @@ schermata di WhatsApp: *vorrei che AIV comparisse anche quando scelgo 'Altre app
 schermata è **DocumentsUI**, e sotto gli archivi elenca le app che rispondono a
 `ACTION_GET_CONTENT`: per comparire servono due cose insieme, il filtro nel manifesto e la
 capacità di **restituire** un file.
+
+⚠️⚠️ **MA QUEL FILTRO DA SOLO NON BASTAVA, E LA `1.91` AGGIUNGE `ACTION_PICK`** (riscontro del giro
+della `1.89`, voce `selettore-app` non approvata: *non appare in elenco: né tra le app galleria,
+né tra le app per allegare file*). Il filtro **c'era** davvero nell'APK, misurato col dump del
+manifesto binario del file servito da Pages: la causa è a valle, e sono due fatti di sistema letti
+sulle fonti.
+1. **Le app di terze parti compaiono nel navigatore file SOLO se chi chiede usa `GET_CONTENT`**:
+   in AOSP, `PickActivity.setupLayout` passa `includeApps` vero soltanto per quell'azione. Chi
+   allega un file usa quasi sempre `ACTION_OPEN_DOCUMENT`, e là l'elenco è fatto dei soli
+   **archivi**, cioè di chi espone un `DocumentsProvider`.
+2. **Per le immagini, `GET_CONTENT` se lo prende il selettore foto di sistema**, che lo dichiara
+   con priorità **105** (il navigatore file ha 100). Un'app normale non può competere, perché
+   Android **azzera** la priorità dichiarata da chi non è di sistema.
+- ⚠️ **Quindi `ACTION_PICK` è l'unica delle tre vie che un'app di terze parti può ancora servire**,
+  ed è quella che usa chi chiede *un'immagine dalla galleria*. Il filtro dichiara i due tipi di
+  cartella (`vnd.android.cursor.dir/*`) **e** i due diretti, perché i chiamanti si dividono fra i
+  due modi.
+- ⚠️⚠️ **UN `ACTION_PICK` PORTA UN INDIRIZZO, E NON È UN'IMMAGINE DA APRIRE**: è la sorgente in cui
+  scegliere. Senza la guardia in `handleIntent` l'app si aprirebbe sul visualizzatore invece di
+  lasciar scegliere.
+- ⚠️ **Comparire anche fra gli archivi vuole un `DocumentsProvider`**, che è un lavoro a sé e non
+  un filtro in più.
 
 ⚠️⚠️ **NON È UNA SCHERMATA NUOVA: L'APP SI APRE COM'È, E CAMBIA UNA COSA SOLA.** Il tocco su una
 miniatura, che aprirebbe il visualizzatore, consegna il file a chi lo ha chiesto e chiude. Tutto

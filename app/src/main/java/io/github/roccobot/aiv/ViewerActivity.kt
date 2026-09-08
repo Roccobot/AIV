@@ -42,6 +42,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -236,6 +237,30 @@ sealed interface Screen {
      * sola, il visualizzatore, e non ha bisogno di viaggiare qui dentro.
      */
     data class Editor(val uri: Uri, val name: String) : Screen
+}
+
+/**
+ * La chiave con cui questa schermata ritrova quello che aveva da parte: vedi il
+ * `SaveableStateProvider` in `AivApp`.
+ *
+ * ⚠️⚠️ **UNA STRINGA E NON LA SCHERMATA STESSA**, benché siano tutte `data class` e quindi
+ * confrontabili: la chiave finisce in un `Bundle` quando il sistema mette via l'activity, e là
+ * dentro ci vanno i tipi che un `Bundle` conosce. Un `Uri` o un oggetto nostro non ci starebbero.
+ * ⚠️⚠️ **PORTA SOLO QUELLO CHE FA IDENTITÀ, e il nome della cartella non lo fa**: una cartella
+ * rinominata resta la stessa cartella, e con il nome nella chiave si ritroverebbe in cima. Il
+ * criterio è lo stesso con cui [Screen.Search] non porta il testo cercato.
+ * ⚠️ **`forStart` invece fa identità**: la stessa schermata risponde a due domande diverse, e
+ * chi sceglie la cartella d'avvio non sta scorrendo l'elenco di casa.
+ */
+private fun Screen.saveKey(): String = when (this) {
+    is Screen.Folders -> "folders:$forStart"
+    is Screen.Grid -> "grid:$bucket"
+    is Screen.Search -> "search:${bucket ?: 0L}"
+    Screen.Bin -> "bin"
+    Screen.History -> "history"
+    Screen.Settings -> "settings"
+    Screen.Viewer -> "viewer"
+    is Screen.Editor -> "editor"
 }
 
 /**
@@ -508,6 +533,14 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * ⚠️ **È uno stato del modello e non un parametro di schermata**: l'intento si legge una
      * volta in `onCreate`, e la scelta deve sopravvivere alla rotazione e alla navigazione fra
      * cartelle, che sono esattamente le cose che il modello tiene in piedi.
+     *
+     * ⚠️⚠️ **E DALLA `1.91` LE AZIONI SONO DUE, PERCHÉ LA PRIMA NON BASTAVA** (riscontro del giro
+     * della `1.89`, voce `selettore-app` non approvata: *non appare in elenco: né tra le app
+     * galleria, né tra le app per allegare file*). Il filtro c'era davvero nell'APK, misurato sul
+     * manifesto binario del file servito: a non bastare è la strada. `ACTION_PICK` è quella che
+     * usa chi chiede *un'immagine dalla galleria*, ed è l'unica delle tre che un'app di terze
+     * parti può ancora servire; il perché le altre due non si possano raggiungere vive nel
+     * manifesto, accanto ai due filtri.
      */
     var picking: Boolean by mutableStateOf(false)
         private set
@@ -519,8 +552,17 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
          * quindi finisce nel ramo di sotto insieme all'avvio dall'icona, che è giusto (si parte
          * dalle cartelle). Quello che lo distingue è solo questa bandierina.
          */
-        picking = intent?.action == Intent.ACTION_GET_CONTENT
-        val uri = intent.imageUri()
+        picking = intent?.action == Intent.ACTION_GET_CONTENT ||
+            intent?.action == Intent.ACTION_PICK
+        /*
+         * ⚠️⚠️ **UN `ACTION_PICK` PORTA UN INDIRIZZO, E NON È UN'IMMAGINE DA APRIRE**: chi lo
+         * lancia ci mette la **sorgente** in cui scegliere, cioè di solito
+         * `MediaStore.Images.Media.EXTERNAL_CONTENT_URI`. Passandolo a `imageUri` l'app si
+         * aprirebbe sul visualizzatore con in mano l'elenco intero invece di lasciar scegliere,
+         * che è il difetto che questa riga evita. `GET_CONTENT` invece non porta niente, quindi
+         * questa guardia non cambia il caso della `1.89`.
+         */
+        val uri = if (picking) null else intent.imageUri()
         if (uri == null) {
             // Partita dalla propria icona: si va dove stanno le immagini, cioè alle cartelle.
             screen = HOME
@@ -2335,12 +2377,33 @@ private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
      * cioè da barre che esistono per tutto il tempo. Una frase falsa in un commento ferma chi
      * verifica, ed è un costo già pagato due volte in questo progetto.
      */
+        /*
+         * ⚠️⚠️ **LO SCORRIMENTO DI UNA SCHERMATA SOPRAVVIVE ALLA SCHERMATA, DALLA `1.91`, ED È
+         * UNA SUA RICHIESTA** (campo libero del giro della `1.89`, punto A: *se scorro la
+         * schermata home, entro in una cartella e poi torno alla home, voglio che sia nello
+         * stesso punto dello scorrimento in cui si trovava al mio tocco sulla cartella*). Fino
+         * alla `1.90` la posizione viveva **dentro** la schermata, e una schermata che cambia
+         * esce dalla composizione portandosela via: tornando, la griglia ripartiva da capo.
+         * ⚠️⚠️ **NON SERVE UN ARCHIVIO SCRITTO A MANO: Compose ne ha uno fatto per questo.** Un
+         * `SaveableStateHolder` tiene da parte tutto quello che una schermata ha in
+         * `rememberSaveable` e glielo restituisce quando rientra, e `rememberLazyGridState` è
+         * proprio un `rememberSaveable`. Una mappa di posizioni scritta da noi avrebbe coperto la
+         * sola griglia, e ogni schermata nuova avrebbe dovuto ricordarsi di usarla.
+         * ⚠️ **La chiave distingue le cartelle fra loro** (vedi [saveKey]): due cartelle sono due
+         * posizioni, e con una chiave sola la seconda erediterebbe quella della prima.
+         * ⚠️ **Cresce di una voce per schermata visitata**, e non si pota: quello che tiene sono
+         * un indice e uno scarto, cioè due numeri, mentre un limite col suo sfratto sarebbe più
+         * codice di quanto ne risparmi.
+         */
+        val stanze = rememberSaveableStateHolder()
         AnimatedContent(
             targetState = model.screen,
             transitionSpec = { cambioSchermata() },
             label = "schermata"
         ) { schermo ->
-            Stage(schermo, model, settings, onPicked)
+            stanze.SaveableStateProvider(schermo.saveKey()) {
+                Stage(schermo, model, settings, onPicked)
+            }
         }
         /*
          * ⚠️⚠️ **QUESTA È L'UNICA SUPERFICIE CON CUI L'APP DICE COM'È ANDATA, DALLA `1.84`** (sua

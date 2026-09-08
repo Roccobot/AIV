@@ -520,6 +520,7 @@ fun FolderScreen(
             GroundFade(modifier = Modifier.align(Alignment.BottomCenter))
             Hub(
                 view = view,
+                columns = columns,
                 granted = granted,
                 recents = recents,
                 onOpen = onOpen,
@@ -803,6 +804,14 @@ private fun FolderView.shortLabel(): Int = when (this) {
 private fun Hub(
     view: FolderView,
     /**
+     * Quante colonne ha la griglia sotto: serve alla **larghezza** del menu, non al FAB.
+     *
+     * ⚠️ **È la scelta e non il numero effettivo**, cioè lo stesso valore che riceve la griglia:
+     * a tradurlo in colonne vere ci pensa `spread`, e farlo qui darebbe due conti da tenere
+     * d'accordo. Il perché della misura vive su `menuFloor`.
+     */
+    columns: Int,
+    /**
      * Se l'app ha il permesso sui file, cioè se le cartelle si possono leggere.
      *
      * ⚠️ **Arriva da fuori e non si rilegge qui**: chi chiama ce l'ha già, e lo tiene
@@ -892,7 +901,17 @@ private fun Hub(
          */
         MenuShell(
             state = menu,
-            position = rememberMenuAtAnchor()
+            position = rememberMenuAtAnchor(),
+            /*
+             * ⚠️⚠️ **LA LARGHEZZA LA DETTA LA GRIGLIA SOTTO, dalla `1.91`** (riscontro del giro
+             * della `1.89`, voce `menu-bordo`): il pannello deve essere più largo di due celle
+             * più lo spazio che le separa, e non deve cadere a filo coi bordi delle colonne. Il
+             * conto, il tetto e le misure del suo mockup vivono su `menuFloor`.
+             * ⚠️ **Qui le colonne sono due di fabbrica**, cioè il caso in cui il tetto entra in
+             * funzione: il menu si ferma a `MENU_INSET` dai due lati invece di allargarsi quanto
+             * la griglia intera.
+             */
+            minWidth = menuFloor(spread(columns, LocalWindowInfo.current), FOLDER_GAP)
         ) {
             // ⚠️⚠️ **LA VOCE NOMINA LA VISTA CHE SI OTTIENE, non quella in cui si è**, ed
             // è la cosa da non rovesciare quando si riscrive l'etichetta: una riga di menu

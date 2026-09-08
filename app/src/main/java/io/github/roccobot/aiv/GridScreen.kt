@@ -898,20 +898,30 @@ fun GridScreen(
     val speedPx = with(density) { EDGE_SPEED.toPx() }
 
     /*
-     * ⚠️⚠️ UNA VOLTA SOLA PER VISITA, e la bandierina non è pignoleria: alla ROTAZIONE
-     * `rememberLazyGridState` ripristina da sé il punto in cui si stava scorrendo
-     * (dentro è un `rememberSaveable`), e un effetto che riparte lo butterebbe via
-     * riportando la griglia sulla foto da cui si era entrati. Anche la bandierina è
-     * saveable, per la stessa ragione.
-     * ⚠️ Cambiando SCHERMATA invece il composable esce dalla composizione e si porta via
-     * la bandierina: rientrando ci si riposiziona, che è esattamente quello che serve.
+     * ⚠️⚠️ **QUALE FOTO È GIÀ STATA SERVITA, E DALLA `1.91` NON È PIÙ UN SÌ O NO.** Fino alla
+     * `1.90` qui viveva una bandierina: il salto si faceva una volta per visita, e a rimetterla
+     * a zero ci pensava il **cambio di schermata**, che portava via il composable e con lui la
+     * bandierina. Adesso lo scorrimento di una schermata sopravvive (il `SaveableStateProvider`
+     * di `AivApp`), quindi anche la bandierina tornerebbe indietro a `true` e il salto non si
+     * farebbe **mai** più.
+     * ⚠️ **Ricordare l'indice invece del sì o no risolve tutti e due i casi con un dato solo**:
+     * alla rotazione l'indice è lo stesso e non si salta, tornando dal visualizzatore su
+     * un'altra foto è diverso e si salta.
+     * ⚠️ **Meno uno e non `null`**, perché `rememberSaveable` di un `Int?` costringerebbe a
+     * scrivere un `Saver`: nessuna posizione vale meno uno.
      */
-    var placed by rememberSaveable { mutableStateOf(false) }
+    var servito by rememberSaveable { mutableStateOf(-1) }
 
     /*
-     * Tornando dal visualizzatore la griglia si porta SULLA foto che si stava guardando:
-     * dopo dieci strisciate, ritrovarsi in cima è perdere il posto.
+     * Tornando dal visualizzatore la griglia si porta SULLA foto che si stava guardando, se
+     * quella foto non è già in vista: dopo dieci strisciate, ritrovarsi in cima è perdere il
+     * posto.
      *
+     * ⚠️⚠️ **DALLA `1.91` QUESTO È IL SECONDO PASSO E NON PIÙ IL PRIMO**: la griglia riparte da
+     * dov'era per conto suo, quindi qui si corregge soltanto il caso in cui **nel visualizzatore
+     * si è sfogliato** fino a un'altra immagine. Sono la stessa richiesta letta fino in fondo:
+     * *voglio ritrovarmi nello stesso punto dove mi trovavo prima del tocco sull'elemento*, e
+     * quel punto non c'è più se intanto si è arrivati a un'immagine che di là non si vedeva.
      * ⚠️⚠️ **SI ASPETTA LA PRIMA MISURA PRIMA DI DECIDERE**, e senza quell'attesa la
      * griglia si muoverebbe SEMPRE: al primo giro di composizione nessun riquadro è
      * ancora stato disposto, quindi 'non è in vista' sarebbe vero anche per una foto
@@ -922,9 +932,9 @@ fun GridScreen(
      * mezza tagliata dal bordo è 'in vista' per il codice e non per chi guarda.
      */
     LaunchedEffect(items, highlight) {
-        if (placed || items == null || highlight == null) return@LaunchedEffect
+        if (items == null || highlight == null || highlight == servito) return@LaunchedEffect
         if (highlight !in items.indices) return@LaunchedEffect
-        placed = true
+        servito = highlight
         snapshotFlow { state.layoutInfo.totalItemsCount }.first { it > 0 }
         val info = state.layoutInfo
         val seen = info.visibleItemsInfo.firstOrNull { it.index == highlight }
@@ -2040,7 +2050,7 @@ fun GridScreen(
                  * bordo di sopra di questo riquadro, che è lo stesso qualunque sia
                  * l'ordine dei figli.
                  */
-                PickMenu(menu = menu) {
+                PickMenu(menu = menu, columns = columns) {
                     /*
                      * ⚠️⚠️ **IN UNA CARTELLA IL MENU È UN ALTRO, DALLA `1.82`**: le tre
                      * voci qui sotto riguardano il cestino intero e in una cartella non
@@ -3141,7 +3151,10 @@ private const val THUMB_KIND = "thumb"
  * di esattamente quel tanto per arrivare ai bordi dello schermo: con i numeri copiati, il giorno
  * che uno cambia la tinta lascerebbe una striscia chiara sui fianchi.
  */
-private val GRID_PAD_X = 8.dp
+// ⚠️ **Non è privato dalla `1.91`**: da lui si ricavano [MENU_INSET] e la larghezza minima di un
+// menu ancorato (`menuFloor`), cioè due misure che parlano della griglia da fuori. Ricopiare l'8
+// là dentro sarebbe la coincidenza che si rompe al primo ritocco di questo margine.
+internal val GRID_PAD_X = 8.dp
 private val GRID_PAD_Y = 12.dp
 
 /**
@@ -3355,13 +3368,19 @@ private fun FabPop(
  * fuori dalla finestra dell'app.
  */
 @Composable
-private fun PickMenu(menu: MenuState, content: @Composable () -> Unit) {
+private fun PickMenu(menu: MenuState, columns: Int, content: @Composable () -> Unit) {
     MenuShell(
         // ⚠️ La stessa coppia della schermata iniziale, e non una che le somiglia: allineato al
         // FAB in orizzontale, e sopra di lui perché sotto non ci sta. Scriverla uguale è
         // quello che rende impossibile che i due menu si comportino in modo diverso.
         state = menu,
         position = rememberMenuAtAnchor(),
+        /*
+         * ⚠️ **Il gap è quello di QUESTA griglia**, che è più stretto di quello delle cartelle:
+         * la misura si prende dalla griglia che il menu copre, non da una qualunque. È il caso
+         * del suo mockup, dove le colonne sono tre e il tetto non interviene.
+         */
+        minWidth = menuFloor(spread(columns, LocalWindowInfo.current), GAP),
         content = content
     )
 }
