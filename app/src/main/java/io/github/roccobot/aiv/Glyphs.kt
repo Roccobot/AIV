@@ -155,6 +155,20 @@ object Glyphs {
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_folder_eye_off)
 
     /**
+     * Un chevron in su: il tasto che porta in cima alla lista.
+     *
+     * ⚠️ **Disegnato dall'utente** e arrivato col riscontro del giro della `1.94`, insieme alla
+     * richiesta dei due tasti di scorrimento. Non è la freccia di Material: quella è un tratto di
+     * spessore costante, questo si assottiglia verso le punte, che sono tonde.
+     */
+    val BrowseTop: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_browse_top)
+
+    /** Un chevron in giù: la gemella che porta in fondo. */
+    val BrowseBottom: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_browse_bottom)
+
+    /**
      * Due fogli sovrapposti, quello davanti con montagne e sole: 'Copia immagine'.
      *
      * ⚠️⚠️ **È IL SOLO GLIFO CHE ESCE DALLA PROPRIA TELA, dalla 1.37**, quindi si dichiara

@@ -99,8 +99,6 @@
     <string name="settings_colour_name">Назва</string>
     <string name="settings_colour_glow">Сяйво</string>
     <string name="front_name_copied">Назву теки скопійовано</string>
-    <string name="front_path_copied">Шлях до теки скопійовано</string>
-    <string name="front_copy_path">Скопіювати шлях</string>
     <string name="front_unpick">Зняти вибір</string>
     <string name="front_pick_images">Вибрати зображення</string>
     <string name="front_unpick_images">Зняти вибір зображень</string>
@@ -108,10 +106,17 @@
     <string name="front_tint">Колір заголовка</string>
     <string name="front_tint_none">Типовий колір</string>
     <string name="folder_cover">Вибрати обкладинку</string>
-    <string name="folder_cover_auto">Автоматична обкладинка</string>
+    <string name="folder_cover_auto">Типова обкладинка</string>
     <string name="folder_cover_pick">Виберіть обкладинку для \'%1$s\'</string>
     <string name="folder_cover_done">Обкладинку оновлено</string>
     <string name="folder_cover_fail">Це зображення не можна використати як обкладинку</string>
+    <string name="folder_cover_reset">Типову обкладинку відновлено</string>
+    <string name="hint_cover">Дотик до значка теки в шапці задає власну обкладинку: це може бути будь-яке зображення на пристрої, не обов\'язково з теки, у якій ви перебуваєте, і воно лишається збереженим у HD, навіть якщо видалити оригінал. Щоб повернути типову обкладинку, увійдіть у режим вибору й торкніться значка тієї самої теки ще раз.</string>
+    <string name="folder_renamed">Теку перейменовано</string>
+    <string name="folder_rename_taken">Тека з такою назвою вже є</string>
+    <string name="folder_rename_fail">Не вдалося перейменувати теку</string>
+    <string name="jump_top">На початок</string>
+    <string name="jump_bottom">У кінець</string>
     <string name="settings_folder_columns">Стовпці в сітках</string>
     <string name="settings_folder_columns_desc">Скільки стовпців показують сітка тек і сітка зображень. Більше стовпців вміщує більше на екрані та зменшує кожну плитку. При чотирьох назву теки зазвичай обрізає.</string>
     <string name="settings_folder_count">Лічильник елементів під теками в режимі сітки</string>
@@ -169,7 +174,7 @@
     <string name="folder_no_videos">У теці немає відео.</string>
     <string name="cancel">Скасувати</string>
     <string name="hide_folder_title">Сховати \'%1$s\'?</string>
-    <string name="hide_folder_desc">Тека не відображатиметься у вигляді сітки та списку. Це лише налаштування відображення: нічого не видаляється.</string>
+    <string name="hide_folder_desc">Тека не відображатиметься у вигляді сітки та списку. Це лише налаштування відображення: жоден файл не буде видалено.</string>
     <string name="show_folder_title">Знову показати \'%1$s\'?</string>
     <string name="show_folder_desc">Тека знову звично відображатиметься серед тек у вигляді сітки та списку.</string>
     <string name="hide_folder_do">Сховати</string>

@@ -8,15 +8,27 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -110,6 +122,75 @@ fun BoxScope.HintVeil(
                 modifier = Modifier.widthIn(max = HINT_WIDTH)
             )
             fab()
+        }
+    }
+}
+
+/**
+ * Il velo che evidenzia **un pezzo qualunque della schermata**, dov'è, e scrive la frase sotto.
+ *
+ * ⚠️⚠️ **NASCE NELLA `1.95` PER L'ICONA DELL'INTESTAZIONE**, cioè per il gesto che sceglie la
+ * copertina di una cartella. Gli altri due veli non bastavano: [HintVeil] mette una copia del FAB
+ * nell'angolo in fondo, e [HintCentre] non indica niente. Qui la cosa da indicare sta **in cima**,
+ * al centro, e la sua posizione dipende da quanto la fascia è aperta.
+ *
+ * ⚠️⚠️ **IL POSTO NON SI RICALCOLA: SI MISURA**, e questa è la differenza che rende il velo
+ * esatto per costruzione. Rifare qui la catena dei rientri (barra di sistema, testata, fascia, e
+ * la misura che l'icona cede scorrendo) vorrebbe dire una seconda geometria da tenere allineata
+ * alla prima, e basterebbe un ritocco all'intestazione per far cadere l'evidenziazione sul vuoto.
+ * Chi chiama passa il riquadro che l'icona vera occupa, letto con `onGloballyPositioned`.
+ * ⚠️ **L'origine si sottrae**, perché il riquadro arriva in coordinate della radice e questo velo
+ * vive dentro il `Box` della schermata: senza, su una schermata che non comincia a zero la copia
+ * scivolerebbe di tutto il rientro.
+ *
+ * ⚠️ **La copia è un disegno e non un tasto**, al contrario di quella di [HintVeil]: là il velo
+ * insegna un gesto che si può fare **mentre** lo si legge, qui il gesto è già stato fatto (il velo
+ * compare perché l'icona è stata toccata), quindi una copia che risponde rifarebbe l'azione.
+ * ⚠️ **Un tocco qualunque lo archivia**, come tutti gli altri.
+ */
+@Composable
+fun BoxScope.HintSpot(
+    text: String,
+    /** Dove sta la cosa da evidenziare, in coordinate della radice. */
+    spot: Rect,
+    glyph: ImageVector,
+    onDone: () -> Unit
+) {
+    var origine by remember { mutableStateOf(Offset.Zero) }
+    Box(
+        modifier = Modifier
+            .matchParentSize()
+            .onGloballyPositioned { origine = it.positionInRoot() }
+            .background(HINT_SCRIM)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onDone
+            )
+    ) {
+        with(LocalDensity.current) {
+            Icon(
+                imageVector = glyph,
+                contentDescription = null,
+                tint = HINT_MARK,
+                modifier = Modifier
+                    .offset(
+                        x = (spot.left - origine.x).toDp(),
+                        y = (spot.top - origine.y).toDp()
+                    )
+                    .size(width = spot.width.toDp(), height = spot.height.toDp())
+            )
+            Text(
+                text = text,
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .offset(y = (spot.bottom - origine.y).toDp() + HINT_GAP)
+                    .padding(horizontal = HINT_SIDE)
+                    .widthIn(max = HINT_WIDTH)
+            )
         }
     }
 }

@@ -956,10 +956,55 @@ incontra per prima.
   sempre esattamente il colore da cui la sfumatura parte. ⚠️ **Il valore di oggi è 25%**, ed è il
   quarto in quattro versioni: la storia dei quattro vive sulla costante.
 
+⚠️⚠️ **IL GRADIENTE SI DIPINGE COL DITHERING, DALLA `1.95`, E SENZA DI LUI FA LE BANDE** (sua
+segnalazione: *noto un banding fastidioso nel gradiente dell'intestazione: riducilo al massimo. La
+sfumatura dev'essere omogenea e di *MASSIMA* qualità*). La causa è aritmetica e non si toglie
+scegliendo colori migliori: fra il picco (`WASH_PEAK`, un quarto) e il fondo ci sono pochi livelli
+su 255, distribuiti su tutta l'altezza della fascia, quindi ogni gradino di colore è alto decine
+di pixel ed è **visibile per costruzione**.
+- **Il rimedio a 8 bit è il rumore ordinato**, cioè il dithering di Skia: sparpaglia l'errore di
+  arrotondamento fra i pixel vicini e il gradino si scioglie. Android lo accende da sé in un
+  `GradientDrawable`, e Compose **no**, ed è la ragione per cui la fascia lo faceva.
+- ⚠️ **Non si ottiene con `Modifier.background(brush)`**: quella strada non dà accesso al
+  `Paint`. Il pennello si posa a mano (`Brush.applyTo` più `drawIntoCanvas`), con
+  `asFrameworkPaint().isDither = true`, che è la riga che fa tutto il lavoro.
+- ⚠️ **Il rettangolo si dipinge più largo dello schermo** (l'aria della fascia piena sotto la
+  barra di sistema): il pennello si costruisce sulla misura vera, o la rampa finirebbe prima del
+  bordo.
+
+⚠️⚠️ **NEL TEMA SCURO L'ICONA TORNA POSITIVA, DALLA `1.95`, ED È SUA ISTRUZIONE** (*l'icona
+dell'intestazione deve ritornare positiva (sovrapposta) per il tema scuro: bianco, opacità 40%*).
+Quindi i casi sono tre e non due: senza gradiente l'icona è quella di sempre, col gradiente sul
+tema chiaro è in negativo (il colore del fondo, che è la nota della `1.83`), col gradiente sul tema
+scuro è **bianca al 40%** (`FRONT_DARK_INK`).
+- ⚠️ **Il tema da guardare è quello dell'app e non quello di sistema**, cioè `LocalAivLight`: è
+  la stessa famiglia del difetto che ha già colpito due volte l'icona in testata e il FAB, e che
+  questo file racconta più sopra, dove il tema scelto dentro AIV diverge da quello di Android. E
+  si legge **prima** del `graphicsLayer`, perché là dentro non si è più in composizione.
+
 ⚠️⚠️ **I QUATTRO GESTI DELL'INTESTAZIONE, DALLA `1.85`, SONO SUOI** (stesso riscontro): il tocco
-sul **nome** lo copia e il tocco lungo copia il percorso; il tocco sull'**icona** apre il gestore
-file di sistema in quella cartella, e il tocco lungo sceglie il colore del gradiente **per quella
-cartella** fra sedici tinte in una griglia 4x4.
+sul **nome** lo copia e il tocco lungo **rinomina la cartella**; il tocco sull'**icona** sceglie
+la copertina, e il tocco lungo sceglie il colore del gradiente **per quella cartella** fra sedici
+tinte in una griglia 4x4.
+- ⚠️⚠️ **DUE DEI QUATTRO SONO CAMBIATI DOPO**, e chi legge una nota vecchia lo sappia: il tocco
+  sull'icona apriva il gestore file di sistema fino alla `1.93` (dalla `1.94` sceglie la
+  copertina, § '🖼️ La copertina scelta a mano'), e il tocco lungo sul nome copiava il percorso
+  fino alla `1.94`.
+- ⚠️⚠️ **LA RINOMINA È LA STESSA FINESTRA DEL FILE SINGOLO, ED È SUA ISTRUZIONE** (2026-09-08:
+  *usa esattamente la stessa finestra di rinomina del file singolo, ovviamente senza percorso né
+  estensione ... tutte le altre logiche di rinomina sono identiche*). Quello che cambia lo dice
+  il parametro `folder` di `RenameDialog`, e sono tre cose: il campo parte dal nome della
+  cartella **intero**, i comandi sotto il campo non ci sono, e un'estensione eventuale resta nel
+  campo invece di vivere accanto (*nei rari casi in cui la cartella dovesse avere un'estensione,
+  eccezionalmente dev'essere visualizzata direttamente nello spazio nome*).
+- ⚠️⚠️ **RINOMINARE CAMBIA IL `BUCKET_ID`, QUINDI LA GRIGLIA SI RIAPRE SU UN'ALTRA CARTELLA**:
+  per il MediaStore l'identificatore viene dal percorso, e quello di prima non esiste più.
+  Restando sul vecchio, la stessa schermata mostrerebbe una cartella vuota senza dare nessun
+  errore. Con lui viaggiano copertina e tinta (§ '🖼️ La copertina scelta a mano').
+- ⚠️ **Il nome nuovo si dà al disco e poi si dice al MediaStore**: `File.renameTo` sposta
+  l'albero in un colpo, ma l'indice non se ne accorge da sé, quindi i file di prima si tolgono e
+  quelli di dopo si aggiungono con `MediaScannerConnection`. Senza, la cartella nuova resterebbe
+  invisibile all'app fino al prossimo giro dell'indicizzatore di sistema.
 - ⚠️ **I gesti vivono sul nome grande e non sulla copia in testata**, ed è una scelta: la copia in
   testata è trasparente finché la fascia è aperta, e un nodo trasparente riceve comunque i tocchi,
   quindi metterli anche là darebbe un tocco sul vuoto che copia un nome.
@@ -1028,6 +1073,63 @@ sotto la barra gestuale non ci poteva arrivare niente.
 - ⚠️⚠️ **NON HA UNA PROVA DEL BANCO, e la ragione è la stessa delle altre due della `1.89`**: là
   i rientri di sistema valgono zero, quindi una prova misurerebbe una somma di zeri. Si guarda
   sul telefono, con la navigazione gestuale e con quella a tre tasti.
+
+## ⏫ I due tasti che portano in cima e in fondo
+
+⚠️⚠️ **DALLA `1.95`, E IL MODELLO È DICHIARATO DA LUI: 'I Grandi di Terramare'** (*mi servono dei
+tasti 'scorri in cima' e 'scorri in fondo' che appaiono in sovrimpressione sul lato dello schermo
+(stesso lato del FAB, cambiano lato con lui): la logica è la stessa di quelli di `Earthsea Top`
+(mobile), e l'aspetto simile. Appaiono allo scorrimento della schermata e sono visibili solo per 2
+secondi ... devono avere ESATTAMENTE la velocità, la decelerazione e la logica di `Earthsea
+Top`*). Quindi i numeri di `Jump.kt` non sono scelte: sono **misure prese** su
+`earthsea/top/index.html`, e chi li ritocca li stacca da quella sorgente.
+- **Che cosa viene di là**: la durata `min(800, 280 + |dist| * 0.16)` in millisecondi, l'easing
+  quintico in uscita `1 - (1-x)^5`, la comparsa allo scorrimento, e i due stadi del congedo (una
+  quiete di 150 ms che dice 'lo scorrimento è finito', e solo dopo il conto alla rovescia).
+- ⚠️ **Il numero che NON viene di là è l'attesa**: sul sito è 0,8 s su mobile e 3 s su desktop,
+  qui sono i **2 secondi** che ha dettato lui.
+- ⚠️ **E il tasto c'è solo se ha dove andare**, come sul sito: in cima non compare quello su, in
+  fondo non compare quello giù, e in una lista che sta tutta nello schermo non ce n'è nessuno.
+
+⚠️⚠️ **IL SALTO PASSA DALLO SCORRIMENTO ANNIDATO, ESATTAMENTE COME UN DITO, E QUELLA È LA RIGA
+CHE FA FUNZIONARE LA SUA RICHIESTA** (*il tasto 'su' fa scorrere in cima fino alla visualizzazione
+piena dell'intestazione*). Muovendo la sola lista, il salto arriverebbe in cima con la fascia
+ancora chiusa; mandando il delta a `frontScroll` prima e dopo la lista, l'intestazione si riapre
+**perché è quello che già succede col dito**, e non per una riga in più.
+- ⚠️⚠️ **LA FASCIA CHIUSA CONTA COME 'C'È ANCORA SPAZIO SOPRA'**: chiudendola la lista non si
+  muove di un pixel, quindi `canScrollBackward` risponde di no proprio nel caso in cui il tasto
+  ha qualcosa da fare. Senza quella condizione il tasto 'su' sparirebbe dove serve di più.
+- ⚠️ **I segni sono due mondi**: `scrollBy` conta positivo verso il fondo, il puntatore conta
+  positivo verso il basso, cioè verso l'inizio. Il banco lo presidia (`SaltiTest`), perché un `-`
+  di troppo dà un tasto che va dalla parte sbagliata e non lo vede nessun compilatore.
+
+⚠️ **La distanza è una STIMA, e serve solo alla durata**: una lista pigra non sa quanto è alto
+quello che non ha ancora composto, quindi l'altezza di una riga si ricava da quelle in scena. La
+corsa finisce quando nessuno prende più niente, quindi una stima lunga si ferma al bordo lo
+stesso, e una corta arriva con meno decelerazione.
+
+⚠️⚠️ **DOVE CI SONO: IN TUTTE LE CARTELLE E NELLA SCHERMATA INIZIALE** (sua precisazione,
+2026-09-08: *i tasti devono apparire in tutte le cartelle, non solo nella schermata home*).
+`GridScreen` è una sola per la cartella, la ricerca, il cestino e i recenti, quindi la riga si
+scrive una volta e le copre tutte. ⚠️ **Restano fuori due schermate**, e va detto invece di
+lasciarlo scoprire: la vista **'Cartelle di sistema'**, che tiene il proprio scorrimento senza
+esporlo, e le **impostazioni**.
+
+⚠️ **Vanno sopra il FAB e sul suo stesso lato**, come ha chiesto (*devono apparire sopra il FAB
+(a destra o sinistra) ed essere perfettamente allineati orizzontalmente con il centro del FAB
+stesso. Dimensione: più piccoli del FAB*). L'allineamento si ottiene dando alla colonna la
+larghezza del FAB e centrandoci dentro i tasti: al bordo, cambiando la loro misura i due centri si
+scollerebbero senza che nessuno se ne accorga. Il chiamante passa lo **stesso** modificatore di
+posizione del FAB, così i rientri restano scritti una volta per schermata.
+
+⚠️⚠️ **A TASTI NASCOSTI NON C'È NIENTE CHE POSSA RUBARE UN TOCCO**, ed è la trappola della `1.70`
+in piccolo: la colonna non porta modificatori di puntatore, e quello che ne ha uno esce
+dall'albero con la dissolvenza. La difesa è l'**assenza**, come per il `MenuGuard`.
+
+⚠️ **Che cosa il banco misura e che cosa no** (`SaltiTest`): vede che a riposo i due tasti non
+sono nell'albero e che il salto passa dallo scorrimento annidato nei due versi. **Non** vede
+quando compaiono e quando se ne vanno, perché quell'attesa il clock di prova la porta a termine
+dentro `waitForIdle`, né la decelerazione, che è resa.
 
 ## 🔖 Lo scorrimento di una schermata sopravvive alla schermata
 
@@ -1168,16 +1270,61 @@ schermata. ⚠️ **Non è una notifica**: una notifica dice che una cosa **è**
 sé, questa dice che cosa **sta** succedendo e resta finché la modalità è viva. Il suo tasto è la
 via per lasciar perdere.
 
-⚠️ **A togliere la copertina scelta è una voce del menu del FAB**, che compare **se e solo se**
-una copertina scelta esiste, come 'Mostra nascoste' nella schermata iniziale. Là non c'è la voce
-che sceglie, e non è una dimenticanza: a scegliere è il tocco sull'icona, e una seconda porta per
-la stessa cosa sarebbe un secondo modo da imparare per un comando che si dà una volta per
-cartella.
+⚠️⚠️ **A TOGLIERE LA COPERTINA È LO STESSO GESTO CHE LA METTE, DALLA `1.95`, ED È SUA
+RICHIESTA** (*aggiungiamo un gesto ricorsivo: se in modalità 'scegli copertina' tocco di nuovo
+l'icona dell'intestazione DELLA STESSA CARTELLA, la copertina torna quella predefinita (ultima
+immagine)*). Quindi il gesto è uno e fa e disfa, che è la forma che si impara una volta sola.
+- ⚠️⚠️ **'DELLA STESSA CARTELLA' È METÀ DELLA SPECIFICA, e senza quella metà il gesto sarebbe
+  un'altra cosa** (*se tocco una cartella di intestazione, poi vado in un'altra cartella e tocco
+  la cartella dell'intestazione, si attiva la scelta della copertina per quella immagine*): il
+  secondo tocco **su un'altra** cartella non azzera niente, sposta la scelta là. È la ragione per
+  cui la modalità porta con sé il bucket da cui è partita.
+- ⚠️ **La voce del menu del FAB c'è ancora ma è SPENTA** (`COVER_MENU_ROW`, in `FolderCover.kt`),
+  ed è sua istruzione (*spegni la funzionalità del FAB senza eliminarla, in caso cambiassi idea,
+  ma rinomina la voce in `Copertina predefinita`*). Chi la riaccende trova il ramo intero,
+  compresa la prova del banco, che misura il **legame** con l'interruttore invece dell'assenza.
+- ⚠️ **Nel menu non c'è mai stata la voce che SCEGLIE**, e non era una dimenticanza: a scegliere
+  è il tocco sull'icona, e una seconda porta per la stessa cosa sarebbe un secondo modo da
+  imparare per un comando che si dà una volta per cartella.
+
+⚠️⚠️ **IL PRIMO TOCCO PORTA UN MINI-ONBOARDING, E IL TESTO È SUO ALLA LETTERA** (richiesta del
+2026-09-08): il velo illumina l'icona dell'intestazione nell'arancione degli onboarding e sotto
+scrive che cosa si può fare, comprese le due cose che non si vedono (l'immagine può venire da
+un'altra cartella, e resta anche se l'originale sparisce) e come si torna indietro. Si vede una
+volta sola, e la chiave è `Hint.COVER`.
+- ⚠️ **Il riquadro da illuminare arriva da una misura e non da un conto**: l'icona vive dentro
+  una fascia che si stringe a ogni pixel di scorrimento, quindi la sua posizione la dà
+  `onGloballyPositioned`, e il velo la riceve come `Rect`. Un rettangolo calcolato dalle costanti
+  dell'intestazione sarebbe giusto solo a fascia tutta aperta.
+
+⚠️⚠️ **UNA RINOMINA FATTA DENTRO AIV SI PORTA DIETRO COPERTINA E COLORE, E DA FUORI NO**
+(sua domanda, 2026-09-08: *cosa succede all'immagine memorizzata come copertina se rinomino la
+cartella da AIV? E se la rinomino dall'esterno?*). Il `BUCKET_ID` del MediaStore è il CRC del
+**percorso**, quindi una cartella rinominata è un'altra cartella per l'archivio: senza fare
+niente, ogni rinomina lascerebbe orfani la copertina e la tinta. Da dentro si travasano
+(`FolderCovers.move` e `FolderTints.move`); da fuori nessuno ci può arrivare, ed è per questo che
+esiste la potatura.
+- ⚠️⚠️ **LA POTATURA HA UN PERIODO DI GRAZIA, E NON È PRUDENZA GENERICA** (`FolderCovers.sweep`,
+  trenta giorni): l'elenco delle cartelle vive del MediaStore, e una scheda SD smontata o un
+  volume non ancora indicizzato lo fanno arrivare **corto**. Cancellando al primo giro, un
+  telefono con la SD fuori perderebbe le copertine di tutto quello che c'è sopra. Con la grazia,
+  una cartella che torna entro il mese si ritrova la sua.
+- ⚠️ **L'elenco vuoto non cancella niente**: è il caso del permesso non ancora concesso, dove
+  'nessuna cartella' non vuol dire che non ce ne sono.
+- ⚠️ **La data che conta è quella del FILE**, che la potatura aggiorna a ogni giro per le
+  cartelle vive: così non serve un secondo archivio con gli istanti, e la domanda *da quanto
+  questa copertina non ha più una cartella* si risponde guardando il disco.
+
+⚠️⚠️ **'PREDEFINITA' E NON 'AUTOMATICA', DALLA `1.95`** (sua correzione, 2026-09-08:
+`PREDEFINITA* (non 'automatica')`): è la parola della voce nelle impostazioni e della notifica,
+quindi vale in chat, nelle voci del documento di feedback e nei commenti, per il criterio di
+§ '🗣️ Come si chiamano le cose'. La copertina 'predefinita' è quella che l'app sceglie da sé,
+cioè l'ultima immagine della cartella.
 
 ⚠️ **Che cosa il banco misura e che cosa no** (`CopertinaTest`): vede il gesto sull'icona (che
-convive col tocco lungo del colore senza confondersi), la voce del menu nei due versi, la fascia
-dell'invito e la precedenza della scelta sull'automatica. **Non** vede la copia dell'immagine, che
-decodifica e riscrive un file: quella si prova sul telefono.
+convive col tocco lungo del colore senza confondersi), il legame fra la voce del menu e il suo
+interruttore, la fascia dell'invito e la precedenza della scelta sulla predefinita. **Non** vede
+la copia dell'immagine, che decodifica e riscrive un file: quella si prova sul telefono.
 
 ## 👁️ 'Mostra nascoste', e perché dura un minuto
 
@@ -1223,10 +1370,19 @@ e il comando: è la stessa richiesta fatta da due posti, e due testi nuovi sareb
 da tenere allineate. ⚠️ E **non** si aggiunge uno scorrimento: `Sheet` scorre già da sé, e due
 scorrimenti verticali annidati sono un errore che Compose segnala.
 
-⚠️⚠️ **I DUE GLIFI SONO SUOI, E NON SONO L'OCCHIO DI MATERIAL** (arrivati il 2026-09-08, in due
-mandate: la seconda coppia è quella scelta): sono una **cartella** con un occhio, aperto e sbarrato.
-Material ne ha uno che dice 'vedi' senza dire di che cosa, ed è la ragione per cui questi entrano
-in `res/` invece di essere presi dalla famiglia, che è il criterio di § '🖌️ Come entra un disegno'.
+⚠️⚠️ **I DUE GLIFI SONO SUOI, E NON SONO L'OCCHIO DI MATERIAL** (arrivati il 2026-09-08, in tre
+mandate: vale l'ultima): sono una **cartella** con un occhio, aperto e sbarrato. Material ne ha uno
+che dice 'vedi' senza dire di che cosa, ed è la ragione per cui questi entrano in `res/` invece di
+essere presi dalla famiglia, che è il criterio di § '🖌️ Come entra un disegno'.
+- ⚠️⚠️ **UN ANGOLO L'HA ARROTONDATO LA SESSIONE, E LUI L'HA CHIESTO** (*nell'icona
+  `folderHide.svg` non sono riuscito ad arrotondare come gli altri l'angolo evidenziato nello
+  screenshot: pensaci tu prima di caricarla*). Il raggio non è scelto: è **quello degli altri
+  angoli dello stesso disegno**, cioè la stessa curva ruotata di un quarto di giro, e la sua
+  misura in Illustrator (0,4px) lo conferma. Fa 43 pixel diversi su 57.600, tutti sull'angolo.
+
+⚠️ **Il testo che chiede conferma dice 'nessun file sarà eliminato', dalla `1.95`**, ed è sua
+istruzione: prima diceva *nulla è cancellato*, che è la stessa cosa detta in modo da far pensare
+proprio a quello che non succede.
 
 ⚠️ **Che cosa il banco misura e che cosa no** (`NascosteTest`): vede il filtro nei due versi, il
 segno sulla sola cartella in prestito e il testo della voce che cambia con lo stato. **Non** vede

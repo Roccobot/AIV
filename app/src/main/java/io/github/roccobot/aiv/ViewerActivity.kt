@@ -1107,16 +1107,34 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
     data class Covering(val bucket: Long, val name: String)
 
     /**
-     * Comincia a scegliere la copertina della cartella aperta: il tocco sull'icona
-     * dell'intestazione.
+     * Il tocco sull'icona dell'intestazione: comincia a scegliere la copertina, **oppure** riporta
+     * quella predefinita se la scelta era già partita da questa stessa cartella.
      *
      * ⚠️ **NON si esce dalla cartella**, ed è il caso comune: la copertina che si vuole è quasi
      * sempre una delle immagini che si hanno davanti. Per prenderne una di un'altra cartella
      * basta uscire e navigare, che è la seconda metà della sua richiesta.
+     *
+     * ⚠️⚠️ **IL SECONDO TOCCO SULLA STESSA CARTELLA RIPORTA LA PREDEFINITA, DALLA `1.95`, ED È IL
+     * SOLO MODO DI TORNARCI** (sua richiesta, giro della `1.94`: *aggiungiamo un gesto ricorsivo:
+     * se in modalità 'scegli copertina' tocco di nuovo l'icona dell'intestazione DELLA STESSA
+     * CARTELLA, la copertina torna quella predefinita*). Con lui la voce del menu che toglieva la
+     * copertina si spegne, e la ragione è sua: *un tocco involontario ripristina troppo facilmente
+     * la copertina PREDEFINITA, e se non ricordi più qual era la personalizzata (o non ce l'hai
+     * più) non puoi selezionarla di nuovo*. Qui il tocco involontario non basta: ce ne vogliono
+     * due, e in mezzo c'è una fascia che dice che cosa sta succedendo.
+     * ⚠️⚠️ **SU UN'ALTRA CARTELLA IL GESTO RICOMINCIA INVECE DI AZZERARE, e lo ha chiesto lui
+     * dirimendo il caso** (*se tocco una cartella di intestazione, poi vado in un'altra cartella e
+     * tocco la cartella dell'intestazione, si attiva la scelta della copertina per quella*). Cioè
+     * il confronto è sull'identificatore, non sul fatto che una scelta sia in corso.
      */
     fun startCover() {
         val quale = screen as? Screen.Grid ?: return
-        covering = Covering(quale.bucket, quale.name)
+        if (covering?.bucket == quale.bucket) {
+            covering = null
+            applyCover(quale.bucket, null)
+        } else {
+            covering = Covering(quale.bucket, quale.name)
+        }
     }
 
     /** Lascia perdere la scelta in corso. */
@@ -1168,7 +1186,74 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
             } else {
                 folderCovers + (dove to scelta)
             }
-            Notices.say(context.getString(R.string.folder_cover_done))
+            /*
+             * ⚠️ **Due frasi e non una, dalla `1.95`**: 'aggiornata' dice che c'è una copertina
+             * nuova, e tornando alla predefinita non ce n'è nessuna. Con una frase sola il gesto
+             * ricorsivo direbbe la stessa cosa dei due versi opposti, e quello che serve a chi lo
+             * fa è sapere **quale** dei due è successo.
+             */
+            Notices.say(
+                context.getString(
+                    if (scelta == null) R.string.folder_cover_reset else R.string.folder_cover_done
+                )
+            )
+        }
+    }
+
+    /**
+     * Rinomina la cartella aperta, e ci resta dentro.
+     *
+     * ⚠️⚠️ **IL `BUCKET_ID` CAMBIA, QUINDI LA GRIGLIA SI RIAPRE SU UN'ALTRA CARTELLA**: per il
+     * MediaStore l'identificatore viene dal percorso, e quello di prima non esiste più. Restando
+     * sul vecchio, la stessa schermata mostrerebbe una cartella vuota senza dare nessun errore.
+     * ⚠️⚠️ **E PRIMA DI RIAPRIRE SI TRAVASANO COPERTINA E COLORE**, che è la risposta alla sua
+     * domanda (*cosa succede all'immagine memorizzata come copertina se rinomino la cartella da
+     * AIV?*): sono appesi all'identificatore, quindi senza questo passaggio una rinomina li
+     * perderebbe tutte le volte. Da **fuori** non si può, e là interviene la potatura di
+     * [FolderCovers.sweep].
+     * ⚠️ **Il percorso arriva da [facts], che la griglia ha già letto**: chiederlo di nuovo qui
+     * vorrebbe dire una query in più per un dato che è già in mano.
+     * ⚠️ **Senza percorso non si fa niente e si dice**: una cartella appena aperta può non averlo
+     * ancora, e una rinomina che tace si legge come un'app che non risponde.
+     */
+    fun renameFolder(name: String) {
+        val quale = screen as? Screen.Grid ?: return
+        val context = getApplication<Application>()
+        val dove = facts.path
+        if (dove.isNullOrBlank()) {
+            Notices.say(context.getString(R.string.folder_rename_fail))
+            return
+        }
+        viewModelScope.launch {
+            val esito = Folder.rename(context, dove, name)
+            when (esito.esito) {
+                Folder.Renamed.Esito.DONE -> {
+                    val nato = esito.bucket
+                    if (nato != null) {
+                        FolderCovers.move(context, quale.bucket, nato)
+                        FolderTints.move(context, quale.bucket, nato)
+                        folderCovers = FolderCovers.all(context)
+                        folderTints = FolderTints.all(context)
+                        openGrid(nato, name.trim())
+                    } else {
+                        /*
+                         * ⚠️ **Senza identificatore nuovo si torna alla casa invece di restare**:
+                         * succede quando la cartella non ha media indicizzati, e là non c'è nessuna
+                         * griglia da mostrare. Restare vorrebbe dire una schermata vuota che sembra
+                         * un guasto.
+                         */
+                        screen = HOME
+                    }
+                    // ⚠️ La casa rilegge le cartelle da sé, perché il MediaStore è cambiato:
+                    // legge [outsideStamp] come chiave, quindi basta muoverlo.
+                    outsideStamp++
+                    Notices.say(context.getString(R.string.folder_renamed))
+                }
+                Folder.Renamed.Esito.TAKEN ->
+                    Notices.say(context.getString(R.string.folder_rename_taken))
+                Folder.Renamed.Esito.BAD_NAME, Folder.Renamed.Esito.FAILED ->
+                    Notices.say(context.getString(R.string.folder_rename_fail))
+            }
         }
     }
 
@@ -1775,7 +1860,23 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         // volo, e l'ultima a rispondere non è detto sia l'ultima partita.
         bucketsJob?.cancel()
         bucketsJob = viewModelScope.launch {
-            buckets = if (granted) Folder.buckets(context) else emptyList()
+            val letti = if (granted) Folder.buckets(context) else emptyList()
+            buckets = letti
+            /*
+             * ⚠️⚠️ **QUI SI POTANO LE COPERTINE ORFANE, E QUESTO È L'UNICO MOMENTO IN CUI SI PUÒ**
+             * (sua domanda, 2026-09-08: *forse dopotutto serve un sistema che una volta alla
+             * settimana verifichi che non siano memorizzate copertine per cartelle che non
+             * esistono più*): il `BUCKET_ID` viene dal percorso, quindi una rinomina fatta da
+             * un'altra app lascia in casa un file appeso a una cartella che non esiste più. Serve
+             * l'elenco **vero** dei bucket, ed è quello che si è appena letto.
+             * ⚠️ **Non è un lavoro programmato**, che è la sua regola sul cestino (`d-cestino-chiusa`:
+             * *nulla deve avvenire al di fuori dell'app aperta in primo piano*). Il periodo di
+             * grazia, che è quello che rende sicura una potatura fatta a ogni lettura, vive su
+             * [FolderCovers.sweep].
+             * ⚠️ **In coda alla lettura e non in un lancio suo**: dipende dal suo risultato, e con
+             * un elenco vuoto non fa niente.
+             */
+            FolderCovers.sweep(context, letti.map { it.id }.toSet())
         }
         // ⚠️ In un lancio a sé e non in coda all'altro, come per i due numeri di una cartella:
         // le tinte sono una riga di preferenze e arrivano subito, mentre l'elenco passa da una
@@ -2864,9 +2965,16 @@ private fun Stage(
                 onCoverPick = { model.startCover() },
                 onCoverClear = { model.clearCover() },
                 coverSet = model.cover != null,
+                // ⚠️ Serve al solo mini onboarding, e vuole **questa** cartella: scegliendo la
+                // copertina di un'altra si naviga, e un velo che comparisse là indicherebbe
+                // l'icona sbagliata.
+                coverHere = model.covering?.bucket == screen.bucket,
+                // ⚠️ Anche la rinomina è del solo ramo della cartella, e per la stessa ragione:
+                // il gesto vive sul nome dell'intestazione, che qui c'è e altrove no.
+                onFolderRename = { model.renameFolder(it) },
                 /*
-                 * ⚠️⚠️ **I QUATTRO CHIP E I DUE NUMERI ARRIVANO SOLO QUI, DALLA `1.83`**: il
-                 * intestazione esiste nella griglia di una **cartella** e non nelle altre due
+                 * ⚠️⚠️ **I QUATTRO CHIP E I DUE NUMERI ARRIVANO SOLO QUI, DALLA `1.83`**:
+                 * l'intestazione esiste nella griglia di una **cartella** e non nelle altre due
                  * (nel cestino il FAB c'è sempre, nella ricerca la testata porta un campo di
                  * testo), quindi passarli anche là sarebbe dare valori a una fascia che non si
                  * disegna.

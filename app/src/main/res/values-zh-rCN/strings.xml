@@ -99,8 +99,6 @@
     <string name="settings_colour_name">名称</string>
     <string name="settings_colour_glow">光晕</string>
     <string name="front_name_copied">已复制文件夹名称</string>
-    <string name="front_path_copied">已复制文件夹路径</string>
-    <string name="front_copy_path">复制路径</string>
     <string name="front_unpick">取消选择</string>
     <string name="front_pick_images">选择图片</string>
     <string name="front_unpick_images">取消选择图片</string>
@@ -108,10 +106,17 @@
     <string name="front_tint">标题栏颜色</string>
     <string name="front_tint_none">默认颜色</string>
     <string name="folder_cover">选择封面</string>
-    <string name="folder_cover_auto">自动封面</string>
+    <string name="folder_cover_auto">默认封面</string>
     <string name="folder_cover_pick">选择 \'%1$s\' 的封面</string>
     <string name="folder_cover_done">封面已更新</string>
     <string name="folder_cover_fail">这张图片无法用作封面</string>
+    <string name="folder_cover_reset">已恢复默认封面</string>
+    <string name="hint_cover">点按页眉中的文件夹图标即可设置自定义封面：可以是设备上的任意图片，不必位于当前文件夹中，即使删除原图，封面也会以 HD 保存下来。要恢复默认封面，请进入选择模式并再次点按同一文件夹的图标。</string>
+    <string name="folder_renamed">已重命名文件夹</string>
+    <string name="folder_rename_taken">已有同名文件夹</string>
+    <string name="folder_rename_fail">无法重命名文件夹</string>
+    <string name="jump_top">回到顶部</string>
+    <string name="jump_bottom">前往底部</string>
     <string name="settings_folder_columns">网格的列数</string>
     <string name="settings_folder_columns_desc">文件夹网格和图片网格显示多少列。列数越多，屏幕上放得越多，每个方块越小。四列时文件夹名通常会被截断。</string>
     <string name="settings_folder_count">网格视图中文件夹下方的项目计数</string>
@@ -169,7 +174,7 @@
     <string name="folder_no_videos">文件夹中没有视频。</string>
     <string name="cancel">取消</string>
     <string name="hide_folder_title">隐藏 \'%1$s\' 吗?</string>
-    <string name="hide_folder_desc">该文件夹不会出现在网格视图和列表视图中。这只是显示设置，不会删除任何内容。</string>
+    <string name="hide_folder_desc">该文件夹不会出现在网格视图和列表视图中。这只是显示设置，不会删除任何文件。</string>
     <string name="show_folder_title">重新显示 \'%1$s\' 吗?</string>
     <string name="show_folder_desc">该文件夹会重新正常出现在网格视图和列表视图的文件夹中。</string>
     <string name="hide_folder_do">隐藏</string>

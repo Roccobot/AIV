@@ -99,8 +99,6 @@
     <string name="settings_colour_name">الاسم</string>
     <string name="settings_colour_glow">توهج</string>
     <string name="front_name_copied">تم نسخ اسم المجلد</string>
-    <string name="front_path_copied">تم نسخ مسار المجلد</string>
-    <string name="front_copy_path">نسخ المسار</string>
     <string name="front_unpick">إلغاء التحديد</string>
     <string name="front_pick_images">تحديد الصور</string>
     <string name="front_unpick_images">إلغاء تحديد الصور</string>
@@ -108,10 +106,17 @@
     <string name="front_tint">لون الترويسة</string>
     <string name="front_tint_none">اللون الافتراضي</string>
     <string name="folder_cover">اختر الغلاف</string>
-    <string name="folder_cover_auto">غلاف تلقائي</string>
+    <string name="folder_cover_auto">غلاف افتراضي</string>
     <string name="folder_cover_pick">اختر غلاف \'%1$s\'</string>
     <string name="folder_cover_done">تم تحديث الغلاف</string>
     <string name="folder_cover_fail">لا يمكن استخدام هذه الصورة كغلاف</string>
+    <string name="folder_cover_reset">تمت استعادة الغلاف الافتراضي</string>
+    <string name="hint_cover">لمسة على أيقونة المجلد في الترويسة تضبط غلافًا مخصصًا: يمكن أن يكون أي صورة على جهازك، وليس بالضرورة داخل المجلد الذي تتصفحه، ويبقى محفوظًا بدقة HD حتى لو حذفت الأصل. للعودة إلى الغلاف الافتراضي، ادخل وضع الاختيار والمس أيقونة المجلد نفسه مرة أخرى.</string>
+    <string name="folder_renamed">تمت إعادة تسمية المجلد</string>
+    <string name="folder_rename_taken">يوجد مجلد بهذا الاسم بالفعل</string>
+    <string name="folder_rename_fail">تعذّرت إعادة تسمية المجلد</string>
+    <string name="jump_top">الانتقال إلى الأعلى</string>
+    <string name="jump_bottom">الانتقال إلى الأسفل</string>
     <string name="settings_folder_columns">أعمدة الشبكات</string>
     <string name="settings_folder_columns_desc">عدد الأعمدة التي تعرضها شبكة المجلدات وشبكة الصور. الأعمدة الأكثر تعرض عناصر أكثر وتصغّر كل مربع. عند أربعة أعمدة يُقتطع اسم المجلد عادة.</string>
     <string name="settings_folder_count">عدّاد العناصر تحت المجلدات في عرض الشبكة</string>
@@ -169,7 +174,7 @@
     <string name="folder_no_videos">لا يحتوي المجلد على مقاطع فيديو.</string>
     <string name="cancel">إلغاء</string>
     <string name="hide_folder_title">إخفاء \'%1$s\'؟</string>
-    <string name="hide_folder_desc">لن يظهر المجلد في عرض الشبكة ولا في عرض القائمة. هذا إعداد عرض فقط: لا يُحذف أي شيء.</string>
+    <string name="hide_folder_desc">لن يظهر المجلد في عرض الشبكة ولا في عرض القائمة. هذا إعداد عرض فقط: لن يُحذف أي ملف.</string>
     <string name="show_folder_title">إظهار \'%1$s\' مرة أخرى؟</string>
     <string name="show_folder_desc">سيظهر المجلد من جديد بشكل طبيعي بين المجلدات في عرض الشبكة وعرض القائمة.</string>
     <string name="hide_folder_do">إخفاء</string>

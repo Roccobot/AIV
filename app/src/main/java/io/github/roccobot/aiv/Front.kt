@@ -18,6 +18,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -672,6 +674,24 @@ fun Modifier.frontWash(
         startY = -suPx,
         endY = alto - suPx
     )
+    /*
+     * ⚠️⚠️ **IL PENNELLO SI POSA CON UN PAINT CHE DITHERA, DALLA `1.95`, E SENZA QUESTA RIGA LA
+     * SFUMATURA HA LE BANDE** (sua segnalazione: *noto un banding fastidioso nel gradiente
+     * dell'intestazione: riducilo al massimo*). Il conto che spiega il difetto: fra il picco della
+     * tinta e il fondo dell'app ci sono una manciata di livelli su 255, e quei livelli sono
+     * distribuiti su tutta l'altezza della fascia, quindi ogni gradino della quantizzazione a 8
+     * bit è alto decine di pixel, cioè una striscia che si vede.
+     * ⚠️⚠️ **A 8 BIT L'UNICO RIMEDIO È IL DITHERING**, che spezza il gradino con mezzo livello di
+     * rumore ordinato: non si ottiene con più tappe (l'interpolazione è già continua, a quantizzare
+     * è la destinazione) e non si ottiene schiarendo la rampa.
+     * ⚠️⚠️ **E COMPOSE NON LO ACCENDE DA SÉ, che è la ragione per cui il difetto si vede QUI**:
+     * [DrawScope.drawRect] costruisce un paint suo, dove il dither resta spento;
+     * `GradientDrawable`, cioè la stessa sfumatura scritta in XML per una `View`, lo accende di
+     * serie. Da qui il paint di casa, con `isDither` acceso e riusato per ogni fotogramma.
+     * ⚠️ **La fascia piena sopra la testata non passa di qui**: è tinta unita, e una tinta unita
+     * non ha nessuna rampa da quantizzare.
+     */
+    val pittura = Paint().apply { asFrameworkPaint().isDither = true }
     onDrawBehind {
         val visto = ink()
         if (visto <= 0f || alto <= 0f) return@onDrawBehind
@@ -681,12 +701,11 @@ fun Modifier.frontWash(
             size = Size(size.width + ariaPx * 2, barraPx),
             alpha = visto
         )
-        drawRect(
-            brush = pennello,
-            topLeft = Offset(-ariaPx, -suPx),
-            size = Size(size.width + ariaPx * 2, alto),
-            alpha = visto
-        )
+        val largo = size.width + ariaPx * 2
+        pennello.applyTo(Size(largo, alto), pittura, visto)
+        drawIntoCanvas { tela ->
+            tela.drawRect(-ariaPx, -suPx, largo - ariaPx, alto - suPx, pittura)
+        }
     }
 }
 
@@ -736,6 +755,20 @@ private val WASH_STOPS = listOf(
  * parte del contrasto, in tutti e due i temi.
  */
 const val FRONT_NEG_INK = 1f
+
+/**
+ * Quanto si vede l'icona della cartella col gradiente acceso **nel tema scuro**: poco più di un
+ * terzo, in bianco.
+ *
+ * ⚠️⚠️ **DALLA `1.95`, ED È SUA RICHIESTA** (*l'icona dell'intestazione deve ritornare positiva
+ * (sovrapposta) per il tema scuro: bianco, opacità 40%*). Fino alla `1.94` il negativo valeva per
+ * tutti e due i temi, e il fatto che nel tema scuro non funzionasse è geometrico e non di gusto:
+ * lì la superficie dell'app è quasi nera, quindi 'in negativo' vuol dire una sagoma nera su una
+ * tinta al 25% di un fondo già scuro, cioè due scuri uno sopra l'altro.
+ * ⚠️ **Bianco e non [FRONT_INK] del contenuto**: il colore del contenuto nel tema scuro è un
+ * bianco sporco di superficie, e la sua parola è *bianco*.
+ */
+const val FRONT_DARK_INK = 0.4f
 
 /**
  * Quanto sta la fila delle pastiglie dal conto degli elementi.

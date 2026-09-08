@@ -355,6 +355,110 @@ object Folder {
     }
 
     /**
+     * Rinomina la cartella che vive in [path], e dice dove è finita.
+     *
+     * ⚠️⚠️ **NASCE NELLA `1.95` DAL TOCCO LUNGO SUL NOME DELL'INTESTAZIONE** (sua richiesta:
+     * *non più 'copia percorso' -> passa a 'Rinomina': per rinominare facilmente la cartella*).
+     *
+     * ⚠️⚠️ **SI RINOMINA SUL DISCO E NON NEL `MediaStore`**, ed è la sola via che rinomini
+     * davvero **la cartella**: il provider conosce i file, non le directory, quindi passando di
+     * là si dovrebbero riscrivere il `RELATIVE_PATH` di ogni riga una per una, e una cartella
+     * senza media (o con dentro file che il MediaStore non indicizza) resterebbe dov'è, mezza
+     * spostata. L'app ha l'accesso a tutti i file, che è il permesso con cui crea già le cartelle
+     * nuove: `renameTo` è atomico e sposta tutto quello che c'è dentro, indicizzato o no.
+     *
+     * ⚠️⚠️ **IL `BUCKET_ID` CAMBIA, E QUESTO GOVERNA TUTTO IL RESTO**: il MediaStore lo ricava
+     * dal **percorso**, quindi per lui la cartella rinominata è una cartella nuova, e quella di
+     * prima non esiste più. Chi chiama deve riaprire la griglia sull'identificatore nuovo, e
+     * portarsi dietro quello che era appeso al vecchio (la copertina scelta e la tinta).
+     * ⚠️ **L'identificatore nuovo si CHIEDE al MediaStore e non si calcola**: la formula che lo
+     * ricava dal percorso è un dettaglio del provider, cambiata già una volta fra due versioni di
+     * Android, e un numero calcolato a mano che diverge non darebbe nessun errore: darebbe una
+     * cartella vuota. Qui si legge la riga di un file che ci vive dentro.
+     *
+     * ⚠️ **Lo scan riguarda i file, non la cartella**: `MediaScannerConnection` indicizza file, e
+     * di una directory non fa niente. Quindi si raccolgono i percorsi prima (per togliere le righe
+     * vecchie) e i corrispondenti dopo (per metterne di nuove), e si aspetta, che è quello che
+     * [FileTree.scan] fa già per copie e spostamenti.
+     * ⚠️ **Il nome si controlla qui e non solo nella finestra**: uno slash trasformerebbe una
+     * rinomina in uno spostamento, e i due nomi speciali del file system porterebbero altrove.
+     * Una finestra è un posto in cui si scrive, non una garanzia.
+     */
+    suspend fun rename(context: Context, path: String, name: String): Renamed =
+        withContext(Dispatchers.IO) {
+            val pulito = name.trim()
+            if (pulito.isEmpty() || pulito.contains('/') || pulito == "." || pulito == "..") {
+                return@withContext Renamed.BAD_NAME
+            }
+            val vecchia = File(path)
+            val casa = vecchia.parentFile
+            if (casa == null || !vecchia.isDirectory) return@withContext Renamed.FAILED
+            val nuova = File(casa, pulito)
+            if (nuova.absolutePath == vecchia.absolutePath) return@withContext Renamed.FAILED
+            // ⚠️ Un nome già preso non si rinumera come per i file: là il numero fa parte del
+            // mestiere della copia, qui l'utente ha scritto un nome e riceverne un altro sarebbe
+            // una sorpresa. Si dice che è occupato e si lascia riscrivere.
+            if (nuova.exists()) return@withContext Renamed.TAKEN
+            val prima = runCatching {
+                vecchia.walkTopDown().filter { it.isFile }.map { it.absolutePath }.toList()
+            }.getOrDefault(emptyList())
+            if (!runCatching { vecchia.renameTo(nuova) }.getOrDefault(false)) {
+                return@withContext Renamed.FAILED
+            }
+            val dopo = prima.map { nuova.absolutePath + it.removePrefix(vecchia.absolutePath) }
+            FileTree.scan(context, prima + dopo)
+            Renamed(Renamed.Esito.DONE, bucketAt(context, nuova.absolutePath), nuova.absolutePath)
+        }
+
+    /** Com'è andata una rinomina di cartella, e dov'è finita. */
+    class Renamed(val esito: Esito, val bucket: Long?, val path: String?) {
+
+        enum class Esito { DONE, TAKEN, BAD_NAME, FAILED }
+
+        companion object {
+            val TAKEN = Renamed(Esito.TAKEN, null, null)
+            val BAD_NAME = Renamed(Esito.BAD_NAME, null, null)
+            val FAILED = Renamed(Esito.FAILED, null, null)
+        }
+    }
+
+    /**
+     * L'identificatore che il `MediaStore` dà alla cartella in [path], letto da un file che ci
+     * vive dentro.
+     *
+     * ⚠️ **`null` quando la cartella non ha media indicizzati**, e non è un guasto: una cartella
+     * senza immagini né video non compare nella schermata iniziale, quindi non c'è nessun
+     * identificatore da conoscere.
+     * ⚠️⚠️ **IL `LIKE` RESTRINGE MA NON DECIDE, E I DUE PASSI SERVONO TUTTI E DUE**: da solo
+     * prenderebbe le **sottocartelle**, che hanno un bucket loro, e i suoi due jolly (`%` e `_`,
+     * e il secondo in un nome di cartella è comune) allargherebbero il risultato invece di
+     * restringerlo. Quindi SQLite taglia il grosso e il confronto esatto sul genitore sceglie:
+     * senza il primo passo questa query leggerebbe l'intera galleria riga per riga, senza il
+     * secondo risponderebbe con la cartella sbagliata.
+     */
+    private fun bucketAt(context: Context, path: String): Long? = runCatching {
+        context.contentResolver.query(
+            TABLE,
+            arrayOf(MediaStore.Images.Media.BUCKET_ID, @Suppress("DEPRECATION") MediaStore.MediaColumns.DATA),
+            media("${@Suppress("DEPRECATION") MediaStore.MediaColumns.DATA} LIKE ?"),
+            arrayOf("$path/%"),
+            null
+        )?.use { c ->
+            val bucketAt = c.column(MediaStore.Images.Media.BUCKET_ID)
+            @Suppress("DEPRECATION")
+            val dataAt = c.column(MediaStore.MediaColumns.DATA)
+            if (bucketAt == null || dataAt == null) return@use null
+            while (c.moveToNext()) {
+                if (c.isNull(dataAt)) continue
+                if (c.getString(dataAt).substringBeforeLast('/', "") == path) {
+                    return@use c.getLong(bucketAt)
+                }
+            }
+            null
+        }
+    }.getOrNull()
+
+    /**
      * Quello che di una cartella si sa solo interrogando il `MediaStore`.
      *
      * ⚠️ **Zero è anche la risposta di 'non lo so ancora'**, ed è voluto: chi disegna le

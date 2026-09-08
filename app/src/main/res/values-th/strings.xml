@@ -99,8 +99,6 @@
     <string name="settings_colour_name">ชื่อ</string>
     <string name="settings_colour_glow">แสงเรือง</string>
     <string name="front_name_copied">คัดลอกชื่อโฟลเดอร์แล้ว</string>
-    <string name="front_path_copied">คัดลอกเส้นทางโฟลเดอร์แล้ว</string>
-    <string name="front_copy_path">คัดลอกเส้นทาง</string>
     <string name="front_unpick">ยกเลิกการเลือก</string>
     <string name="front_pick_images">เลือกรูปภาพ</string>
     <string name="front_unpick_images">ยกเลิกการเลือกรูปภาพ</string>
@@ -108,10 +106,17 @@
     <string name="front_tint">สีของส่วนหัว</string>
     <string name="front_tint_none">สีเริ่มต้น</string>
     <string name="folder_cover">เลือกภาพปก</string>
-    <string name="folder_cover_auto">ภาพปกอัตโนมัติ</string>
+    <string name="folder_cover_auto">ภาพปกเริ่มต้น</string>
     <string name="folder_cover_pick">เลือกภาพปกของ \'%1$s\'</string>
     <string name="folder_cover_done">อัปเดตภาพปกแล้ว</string>
     <string name="folder_cover_fail">ใช้ภาพนี้เป็นภาพปกไม่ได้</string>
+    <string name="folder_cover_reset">คืนค่าภาพปกเริ่มต้นแล้ว</string>
+    <string name="hint_cover">แตะไอคอนโฟลเดอร์ที่ส่วนหัวเพื่อตั้งภาพปกของคุณเอง จะเป็นภาพใดก็ได้ในเครื่อง ไม่จำเป็นต้องอยู่ในโฟลเดอร์ที่เปิดอยู่ และภาพจะถูกเก็บไว้แบบ HD แม้คุณลบต้นฉบับ หากต้องการกลับไปใช้ภาพปกเริ่มต้น ให้เข้าโหมดเลือกแล้วแตะไอคอนของโฟลเดอร์เดิมอีกครั้ง</string>
+    <string name="folder_renamed">เปลี่ยนชื่อโฟลเดอร์แล้ว</string>
+    <string name="folder_rename_taken">มีโฟลเดอร์ชื่อนี้อยู่แล้ว</string>
+    <string name="folder_rename_fail">เปลี่ยนชื่อโฟลเดอร์ไม่สำเร็จ</string>
+    <string name="jump_top">ไปด้านบนสุด</string>
+    <string name="jump_bottom">ไปด้านล่างสุด</string>
     <string name="settings_folder_columns">จำนวนคอลัมน์ในตาราง</string>
     <string name="settings_folder_columns_desc">ตารางโฟลเดอร์และตารางภาพแสดงกี่คอลัมน์ คอลัมน์มากขึ้นทำให้แสดงได้มากขึ้นบนหน้าจอและแต่ละช่องเล็กลง ที่สี่คอลัมน์ชื่อโฟลเดอร์มักถูกตัด</string>
     <string name="settings_folder_count">ตัวนับรายการใต้โฟลเดอร์ในมุมมองตาราง</string>
@@ -169,7 +174,7 @@
     <string name="folder_no_videos">โฟลเดอร์ไม่มีวิดีโอ</string>
     <string name="cancel">ยกเลิก</string>
     <string name="hide_folder_title">ซ่อน \'%1$s\' ไหม</string>
-    <string name="hide_folder_desc">โฟลเดอร์จะไม่ปรากฏในมุมมองตารางและมุมมองรายการ นี่เป็นเพียงการตั้งค่าการแสดงผล ไม่มีอะไรถูกลบ</string>
+    <string name="hide_folder_desc">โฟลเดอร์จะไม่ปรากฏในมุมมองตารางและมุมมองรายการ นี่เป็นเพียงการตั้งค่าการแสดงผล จะไม่มีไฟล์ใดถูกลบ</string>
     <string name="show_folder_title">แสดง \'%1$s\' อีกครั้งไหม</string>
     <string name="show_folder_desc">โฟลเดอร์จะกลับมาปรากฏตามปกติในมุมมองตารางและมุมมองรายการ</string>
     <string name="hide_folder_do">ซ่อน</string>

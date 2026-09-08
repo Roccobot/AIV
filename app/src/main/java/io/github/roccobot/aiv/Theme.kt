@@ -403,6 +403,17 @@ fun aivAccent(light: Boolean): Color = if (light) ACCENT_LIGHT else ACCENT_DARK
 fun aivOnAccent(light: Boolean): Color = if (light) ON_ACCENT_LIGHT else Color.White
 
 /**
+ * Il fondo dell'app per il tema chiesto.
+ *
+ * ⚠️⚠️ **ESISTE PER CHI VUOLE IL FONDO DELL'ALTRO TEMA, ed è la `1.95`**: i due tasti dello
+ * scorrimento hanno il fondo scuro sul tema chiaro e chiaro sul tema scuro (istruzione
+ * dell'utente), quindi uno dei due colori non è quello della tavolozza in vigore e da
+ * `MaterialTheme` non si raggiunge. ⚠️ **Non nasce nessun colore nuovo**: sono le due costanti
+ * che le tavolozze usano per `background`, come [aivAccent] fa con `primary`.
+ */
+fun aivGround(light: Boolean): Color = if (light) LIGHT_BACK else DARK_BACK
+
+/**
  * La coppia dell'**icona dell'app** (fondo e glifo) per il tema chiesto.
  *
  * ⚠️⚠️ **NASCE NELLA `1.86` DA UN DIFETTO CHE LUI HA VISTO** (riscontro del giro della `1.85`,

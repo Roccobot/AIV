@@ -99,8 +99,6 @@
     <string name="settings_colour_name">نام</string>
     <string name="settings_colour_glow">چمک</string>
     <string name="front_name_copied">فولڈر کا نام کاپی ہو گیا</string>
-    <string name="front_path_copied">فولڈر کا راستہ کاپی ہو گیا</string>
-    <string name="front_copy_path">راستہ کاپی کریں</string>
     <string name="front_unpick">انتخاب ہٹائیں</string>
     <string name="front_pick_images">تصاویر منتخب کریں</string>
     <string name="front_unpick_images">تصاویر کا انتخاب ہٹائیں</string>
@@ -108,10 +106,17 @@
     <string name="front_tint">سرخی کا رنگ</string>
     <string name="front_tint_none">طے شدہ رنگ</string>
     <string name="folder_cover">سرورق منتخب کریں</string>
-    <string name="folder_cover_auto">خودکار سرورق</string>
+    <string name="folder_cover_auto">طے شدہ سرورق</string>
     <string name="folder_cover_pick">\'%1$s\' کا سرورق منتخب کریں</string>
     <string name="folder_cover_done">سرورق اپ ڈیٹ ہو گیا</string>
     <string name="folder_cover_fail">یہ تصویر سرورق کے طور پر استعمال نہیں ہو سکتی</string>
+    <string name="folder_cover_reset">طے شدہ سرورق بحال ہو گیا</string>
+    <string name="hint_cover">سرخی میں فولڈر کے آئیکن پر ایک لمس اپنی مرضی کا سرورق مقرر کرتا ہے: یہ آپ کے آلے کی کوئی بھی تصویر ہو سکتی ہے، ضروری نہیں کہ اسی فولڈر کی ہو جس میں آپ ہیں، اور اصل تصویر حذف کرنے پر بھی یہ HD میں محفوظ رہتی ہے۔ طے شدہ سرورق پر واپس جانے کے لیے انتخاب موڈ میں جائیں اور اسی فولڈر کے آئیکن کو دوبارہ چھوئیں۔</string>
+    <string name="folder_renamed">فولڈر کا نام تبدیل ہو گیا</string>
+    <string name="folder_rename_taken">اس نام کا فولڈر پہلے سے موجود ہے</string>
+    <string name="folder_rename_fail">فولڈر کا نام تبدیل نہیں ہو سکا</string>
+    <string name="jump_top">اوپر جائیں</string>
+    <string name="jump_bottom">نیچے جائیں</string>
     <string name="settings_folder_columns">گرڈز کے کالم</string>
     <string name="settings_folder_columns_desc">فولڈر گرڈ اور تصویری گرڈ کتنے کالم دکھائیں۔ زیادہ کالم سکرین پر زیادہ چیزیں سماتے ہیں اور ہر خانہ چھوٹا کر دیتے ہیں۔ چار پر فولڈر کا نام عموما کٹ جاتا ہے۔</string>
     <string name="settings_folder_count">گرڈ منظر میں فولڈروں کے نیچے اشیا کا شمار کنندہ</string>
@@ -169,7 +174,7 @@
     <string name="folder_no_videos">فولڈر میں کوئی ویڈیو نہیں۔</string>
     <string name="cancel">منسوخ</string>
     <string name="hide_folder_title">\'%1$s\' چھپائیں؟</string>
-    <string name="hide_folder_desc">فولڈر گرڈ اور فہرست ویو میں نہیں دکھایا جائے گا۔ یہ صرف دکھانے کی ترتیب ہے: کچھ بھی حذف نہیں ہوتا۔</string>
+    <string name="hide_folder_desc">فولڈر گرڈ اور فہرست ویو میں نہیں دکھایا جائے گا۔ یہ صرف دکھانے کی ترتیب ہے: کوئی فائل حذف نہیں ہوگی۔</string>
     <string name="show_folder_title">\'%1$s\' دوبارہ دکھائیں؟</string>
     <string name="show_folder_desc">فولڈر گرڈ اور فہرست ویو میں فولڈروں کے درمیان دوبارہ معمول کے مطابق دکھائی دے گا۔</string>
     <string name="hide_folder_do">چھپائیں</string>

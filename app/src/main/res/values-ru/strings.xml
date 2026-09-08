@@ -99,8 +99,6 @@
     <string name="settings_colour_name">Название</string>
     <string name="settings_colour_glow">Свечение</string>
     <string name="front_name_copied">Имя папки скопировано</string>
-    <string name="front_path_copied">Путь к папке скопирован</string>
-    <string name="front_copy_path">Скопировать путь</string>
     <string name="front_unpick">Снять выбор</string>
     <string name="front_pick_images">Выбрать изображения</string>
     <string name="front_unpick_images">Снять выбор изображений</string>
@@ -108,10 +106,17 @@
     <string name="front_tint">Цвет заголовка</string>
     <string name="front_tint_none">Цвет по умолчанию</string>
     <string name="folder_cover">Выбрать обложку</string>
-    <string name="folder_cover_auto">Обложка автоматически</string>
+    <string name="folder_cover_auto">Обложка по умолчанию</string>
     <string name="folder_cover_pick">Выберите обложку для \'%1$s\'</string>
     <string name="folder_cover_done">Обложка обновлена</string>
     <string name="folder_cover_fail">Это изображение нельзя использовать как обложку</string>
+    <string name="folder_cover_reset">Обложка по умолчанию восстановлена</string>
+    <string name="hint_cover">Касание значка папки в шапке задаёт свою обложку: это может быть любое изображение на устройстве, не обязательно из папки, в которой вы находитесь, и оно останется сохранённым в HD, даже если удалить оригинал. Чтобы вернуть обложку по умолчанию, войдите в режим выбора и коснитесь значка той же папки ещё раз.</string>
+    <string name="folder_renamed">Папка переименована</string>
+    <string name="folder_rename_taken">Папка с таким именем уже есть</string>
+    <string name="folder_rename_fail">Не удалось переименовать папку</string>
+    <string name="jump_top">В начало</string>
+    <string name="jump_bottom">В конец</string>
     <string name="settings_folder_columns">Столбцы в сетках</string>
     <string name="settings_folder_columns_desc">Сколько столбцов показывают сетка папок и сетка изображений. Больше столбцов помещает больше на экране и уменьшает каждую плитку. При четырёх имя папки обычно обрезается.</string>
     <string name="settings_folder_count">Счётчик элементов под папками в режиме сетки</string>
@@ -169,7 +174,7 @@
     <string name="folder_no_videos">В папке нет видео.</string>
     <string name="cancel">Отмена</string>
     <string name="hide_folder_title">Скрыть \'%1$s\'?</string>
-    <string name="hide_folder_desc">Папка не будет отображаться в виде сетки и списка. Это только настройка отображения: ничего не удаляется.</string>
+    <string name="hide_folder_desc">Папка не будет отображаться в виде сетки и списка. Это только настройка отображения: ни один файл не будет удалён.</string>
     <string name="show_folder_title">Снова показать \'%1$s\'?</string>
     <string name="show_folder_desc">Папка снова будет обычным образом отображаться среди папок в виде сетки и списка.</string>
     <string name="hide_folder_do">Скрыть</string>

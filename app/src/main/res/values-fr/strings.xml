@@ -99,8 +99,6 @@
     <string name="settings_colour_name">Nom</string>
     <string name="settings_colour_glow">Halo</string>
     <string name="front_name_copied">Nom du dossier copié</string>
-    <string name="front_path_copied">Chemin du dossier copié</string>
-    <string name="front_copy_path">Copier le chemin</string>
     <string name="front_unpick">Désélectionner</string>
     <string name="front_pick_images">Sélectionner les images</string>
     <string name="front_unpick_images">Désélectionner les images</string>
@@ -108,10 +106,17 @@
     <string name="front_tint">Couleur de l\'en-tête</string>
     <string name="front_tint_none">Couleur par défaut</string>
     <string name="folder_cover">Choisir la couverture</string>
-    <string name="folder_cover_auto">Couverture automatique</string>
+    <string name="folder_cover_auto">Couverture par défaut</string>
     <string name="folder_cover_pick">Choisissez la couverture de \'%1$s\'</string>
     <string name="folder_cover_done">Couverture mise à jour</string>
     <string name="folder_cover_fail">Cette image ne peut pas servir de couverture</string>
+    <string name="folder_cover_reset">Couverture par défaut rétablie</string>
+    <string name="hint_cover">Une touche sur l\'icône du dossier dans l\'en-tête définit une couverture personnalisée : ce peut être n\'importe quelle image de ton appareil, pas forcément une image du dossier où tu te trouves, et elle reste enregistrée en HD même si tu supprimes l\'originale. Pour revenir à la couverture par défaut, entre en mode sélection et touche à nouveau l\'icône du même dossier.</string>
+    <string name="folder_renamed">Dossier renommé</string>
+    <string name="folder_rename_taken">Un dossier porte déjà ce nom</string>
+    <string name="folder_rename_fail">Le dossier n\'a pas pu être renommé</string>
+    <string name="jump_top">Aller en haut</string>
+    <string name="jump_bottom">Aller en bas</string>
     <string name="settings_folder_columns">Colonnes dans les grilles</string>
     <string name="settings_folder_columns_desc">Combien de colonnes affichent la grille des dossiers et celle des images. Plus de colonnes font tenir plus de choses à l\'écran et rétrécissent chaque case. À quatre, le nom du dossier est souvent tronqué.</string>
     <string name="settings_folder_count">Compteur des éléments sous les dossiers en vue grille</string>
@@ -169,7 +174,7 @@
     <string name="folder_no_videos">Le dossier ne contient aucune vidéo.</string>
     <string name="cancel">Annuler</string>
     <string name="hide_folder_title">Masquer \'%1$s\' ?</string>
-    <string name="hide_folder_desc">Le dossier n\'est plus listé en vue grille ni en vue liste. C\'est seulement un réglage d\'affichage : rien n\'est supprimé.</string>
+    <string name="hide_folder_desc">Le dossier n\'est plus listé en vue grille ni en vue liste. C\'est seulement un réglage d\'affichage : aucun fichier ne sera supprimé.</string>
     <string name="show_folder_title">Réafficher \'%1$s\' ?</string>
     <string name="show_folder_desc">Le dossier réapparaît normalement parmi les dossiers en vue grille et en vue liste.</string>
     <string name="hide_folder_do">Masquer</string>

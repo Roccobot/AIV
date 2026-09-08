@@ -99,8 +99,6 @@
     <string name="settings_colour_name">పేరు</string>
     <string name="settings_colour_glow">కాంతి</string>
     <string name="front_name_copied">ఫోల్డర్ పేరు కాపీ అయింది</string>
-    <string name="front_path_copied">ఫోల్డర్ మార్గం కాపీ అయింది</string>
-    <string name="front_copy_path">మార్గాన్ని కాపీ చేయండి</string>
     <string name="front_unpick">ఎంపిక తీసివేయి</string>
     <string name="front_pick_images">చిత్రాలను ఎంచుకోండి</string>
     <string name="front_unpick_images">చిత్రాల ఎంపిక తీసివేయి</string>
@@ -108,10 +106,17 @@
     <string name="front_tint">శీర్షిక రంగు</string>
     <string name="front_tint_none">డిఫాల్ట్ రంగు</string>
     <string name="folder_cover">కవర్‌ను ఎంచుకోండి</string>
-    <string name="folder_cover_auto">స్వయంచాలక కవర్</string>
+    <string name="folder_cover_auto">డిఫాల్ట్ కవర్</string>
     <string name="folder_cover_pick">\'%1$s\' కవర్‌ను ఎంచుకోండి</string>
     <string name="folder_cover_done">కవర్ నవీకరించబడింది</string>
     <string name="folder_cover_fail">ఈ చిత్రాన్ని కవర్‌గా ఉపయోగించలేరు</string>
+    <string name="folder_cover_reset">డిఫాల్ట్ కవర్ పునరుద్ధరించబడింది</string>
+    <string name="hint_cover">శీర్షికలోని సంచయం చిహ్నాన్ని తాకితే మీ స్వంత కవర్ చిత్రాన్ని అమర్చవచ్చు: అది పరికరంలోని ఏ చిత్రమైనా కావచ్చు, మీరు ఉన్న సంచయంలోనిదే కానక్కర్లేదు, అసలు చిత్రాన్ని తొలగించినా అది HD నాణ్యతలో నిల్వ ఉంటుంది. డిఫాల్ట్ కవర్‌కు తిరిగి రావాలంటే ఎంపిక రీతిలోకి వెళ్లి అదే సంచయం చిహ్నాన్ని మళ్లీ తాకండి.</string>
+    <string name="folder_renamed">ఫోల్డర్ పేరు మార్చబడింది</string>
+    <string name="folder_rename_taken">ఈ పేరుతో ఒక ఫోల్డర్ ఇప్పటికే ఉంది</string>
+    <string name="folder_rename_fail">ఫోల్డర్ పేరును మార్చలేకపోయాం</string>
+    <string name="jump_top">పైకి వెళ్లు</string>
+    <string name="jump_bottom">కిందికి వెళ్లు</string>
     <string name="settings_folder_columns">గడుల్లోని నిలువు వరుసలు</string>
     <string name="settings_folder_columns_desc">సంచయ గడి, చిత్ర గడి ఎన్ని నిలువు వరుసలు చూపాలి. ఎక్కువ నిలువు వరుసలు తెరపై ఎక్కువ ఇముడ్చుతాయి, ప్రతి గడి చిన్నదవుతుంది. నాలుగు వద్ద సంచయం పేరు సాధారణంగా తెగిపోతుంది.</string>
     <string name="settings_folder_count">గ్రిడ్ వీక్షణలో సంచయాల కింద అంశాల లెక్క</string>
@@ -169,7 +174,7 @@
     <string name="folder_no_videos">ఫోల్డర్‌లో వీడియోలు లేవు.</string>
     <string name="cancel">రద్దు</string>
     <string name="hide_folder_title">\'%1$s\'ను దాచాలా?</string>
-    <string name="hide_folder_desc">గ్రిడ్ మరియు జాబితా వీక్షణలో సంచయం కనబడదు. ఇది కేవలం చూపే అమరిక మాత్రమే: ఏదీ తొలగించబడదు.</string>
+    <string name="hide_folder_desc">గ్రిడ్ మరియు జాబితా వీక్షణలో సంచయం కనబడదు. ఇది కేవలం చూపే అమరిక మాత్రమే: ఏ ఫైలూ తొలగించబడదు.</string>
     <string name="show_folder_title">\'%1$s\'ను మళ్ళీ చూపాలా?</string>
     <string name="show_folder_desc">గ్రిడ్ మరియు జాబితా వీక్షణలో సంచయాల మధ్య అది మళ్ళీ మామూలుగా కనబడుతుంది.</string>
     <string name="hide_folder_do">దాచు</string>

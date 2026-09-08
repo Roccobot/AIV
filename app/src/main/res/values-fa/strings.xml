@@ -99,8 +99,6 @@
     <string name="settings_colour_name">نام</string>
     <string name="settings_colour_glow">درخشش</string>
     <string name="front_name_copied">نام پوشه کپی شد</string>
-    <string name="front_path_copied">مسیر پوشه کپی شد</string>
-    <string name="front_copy_path">کپی مسیر</string>
     <string name="front_unpick">لغو انتخاب</string>
     <string name="front_pick_images">انتخاب تصاویر</string>
     <string name="front_unpick_images">لغو انتخاب تصاویر</string>
@@ -108,10 +106,17 @@
     <string name="front_tint">رنگ سربرگ</string>
     <string name="front_tint_none">رنگ پیش‌فرض</string>
     <string name="folder_cover">انتخاب جلد</string>
-    <string name="folder_cover_auto">جلد خودکار</string>
+    <string name="folder_cover_auto">جلد پیش‌فرض</string>
     <string name="folder_cover_pick">جلد \'%1$s\' را انتخاب کنید</string>
     <string name="folder_cover_done">جلد به‌روزرسانی شد</string>
     <string name="folder_cover_fail">این تصویر را نمی‌توان به عنوان جلد استفاده کرد</string>
+    <string name="folder_cover_reset">جلد پیش‌فرض بازگردانده شد</string>
+    <string name="hint_cover">یک ضربه روی نماد پوشه در سربرگ، جلد دلخواه را تنظیم می‌کند: می‌تواند هر تصویری در دستگاه شما باشد، نه لزوماً داخل پوشه‌ای که در آن هستید، و حتی با حذف نسخهٔ اصلی با کیفیت HD ذخیره می‌ماند. برای بازگشت به جلد پیش‌فرض، وارد حالت انتخاب شوید و دوباره روی نماد همان پوشه ضربه بزنید.</string>
+    <string name="folder_renamed">نام پوشه تغییر کرد</string>
+    <string name="folder_rename_taken">پوشه‌ای با این نام از قبل هست</string>
+    <string name="folder_rename_fail">تغییر نام پوشه ممکن نشد</string>
+    <string name="jump_top">رفتن به بالا</string>
+    <string name="jump_bottom">رفتن به پایین</string>
     <string name="settings_folder_columns">ستون‌های شبکه‌ها</string>
     <string name="settings_folder_columns_desc">شبکه پوشه‌ها و شبکه تصویرها چند ستون نشان دهند. ستون‌های بیشتر چیزهای بیشتری را در صفحه جا می‌دهند و هر کاشی را کوچک‌تر می‌کنند. با چهار ستون نام پوشه معمولا بریده می‌شود.</string>
     <string name="settings_folder_count">شمارندهٔ موارد زیر پوشه‌ها در نمای شبکه‌ای</string>
@@ -169,7 +174,7 @@
     <string name="folder_no_videos">پوشه ویدیویی ندارد.</string>
     <string name="cancel">لغو</string>
     <string name="hide_folder_title">پنهان کردن \'%1$s\'؟</string>
-    <string name="hide_folder_desc">پوشه در نمای شبکه‌ای و فهرستی فهرست نمی‌شود. این فقط یک تنظیم نمایش است: چیزی پاک نمی‌شود.</string>
+    <string name="hide_folder_desc">پوشه در نمای شبکه‌ای و فهرستی فهرست نمی‌شود. این فقط یک تنظیم نمایش است: هیچ فایلی حذف نمی‌شود.</string>
     <string name="show_folder_title">نمایش دوبارهٔ \'%1$s\'؟</string>
     <string name="show_folder_desc">پوشه دوباره مثل همیشه میان پوشه‌ها در نمای شبکه‌ای و فهرستی دیده می‌شود.</string>
     <string name="hide_folder_do">پنهان کردن</string>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 'Scorri in cima', il tasto in sovrimpressione sul lato del FAB.
+
+     DISEGNATO DALL'UTENTE, arrivato il 2026-09-08 col riscontro del giro della 1.94 (punto B del
+     campo libero, che chiede i due tasti). La gemella è `ic_browse_bottom`.
+
+     NON È UN GLIFO DI MATERIAL, ed è la ragione per cui entra qui: la famiglia ha frecce e
+     chevron, questo è un chevron a spessore variabile con le punte tonde, cioè il suo disegno.
+     Il criterio vive in `CLAUDE.md`, § 'Come entra un disegno'.
+
+     IL TRASPORTO NON CAMBIA UN PIXEL, misurato rendendo a 240px il file di partenza e questo
+     tracciato: zero pixel diversi su 57.600. Quello che cambia è solo la forma della `d`, cioè i
+     numeri incollati separati e ogni comando implicito scritto per esteso.
+
+     LA REGOLA DI RIEMPIMENTO È QUELLA DEL FILE DI PARTENZA, che non ne dichiara nessuna e quindi
+     vale il `nonzero` di serie di SVG. Si scrive comunque: una regola dichiarata dice quello che
+     il disegno vuole, una omessa dice solo com'è andata. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M20.69,14.17l-7.28,-7.28c-.78,-.78 -2.05,-.78 -2.83,0l-7.28,7.28c-.8,.8 -.8,2.11 0,2.91s2.11,.8 2.91,0l3.39,-3.39c1.32,-1.32 3.45,-1.32 4.77,0l3.39,3.39c.8,.8 2.11,.8 2.91,0c.8,-.8 .8,-2.11 0,-2.91Z" />
+</vector>

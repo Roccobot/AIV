@@ -229,8 +229,6 @@
     <string name="settings_colour_name">Name</string>
     <string name="settings_colour_glow">Glow</string>
     <string name="front_name_copied">Folder name copied</string>
-    <string name="front_path_copied">Folder path copied</string>
-    <string name="front_copy_path">Copy the path</string>
     <string name="front_unpick">Deselect</string>
     <string name="front_pick_images">Select pictures</string>
     <string name="front_unpick_images">Deselect pictures</string>
@@ -238,10 +236,17 @@
     <string name="front_tint">Header color</string>
     <string name="front_tint_none">Default color</string>
     <string name="folder_cover">Choose the cover</string>
-    <string name="folder_cover_auto">Automatic cover</string>
+    <string name="folder_cover_auto">Default cover</string>
     <string name="folder_cover_pick">Choose the cover for \'%1$s\'</string>
     <string name="folder_cover_done">Cover updated</string>
     <string name="folder_cover_fail">This picture cannot be used as a cover</string>
+    <string name="folder_cover_reset">Default cover restored</string>
+    <string name="hint_cover">A tap on the folder icon in the header sets a custom cover image: it can be any picture on your device, not necessarily one inside the folder you are in, and it stays stored in HD even if you delete the original. To go back to the default cover, enter selection mode and tap the icon of the same folder again.</string>
+    <string name="folder_renamed">Folder renamed</string>
+    <string name="folder_rename_taken">A folder with this name already exists</string>
+    <string name="folder_rename_fail">The folder could not be renamed</string>
+    <string name="jump_top">Go to the top</string>
+    <string name="jump_bottom">Go to the bottom</string>
 
     <string name="settings_folder_columns">Columns in the grids</string>
     <string name="settings_folder_columns_desc">How many columns the folder grid and the picture grid show. More columns fit more on screen and shrink each tile. At four the folder name under it is usually cut short.</string>
@@ -381,7 +386,7 @@
     <string name="cancel">Cancel</string>
 
     <string name="hide_folder_title">Hide \'%1$s\'?</string>
-    <string name="hide_folder_desc">The folder will not be listed in grid or list view. It is only a display setting: nothing is deleted.</string>
+    <string name="hide_folder_desc">The folder will not be listed in grid or list view. It is only a display setting: no file will be deleted.</string>
     <string name="show_folder_title">Show \'%1$s\' again?</string>
     <string name="show_folder_desc">The folder will be listed normally again among the folders in grid and list view.</string>
     <string name="hide_folder_do">Hide</string>
