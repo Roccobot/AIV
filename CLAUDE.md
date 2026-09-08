@@ -61,6 +61,12 @@ dice lui'.
 - ⚠️ **È qui e non solo là perché questo file sopravvive alla compattazione**, come la
   regola di registro nel `CLAUDE.md` di root: un file di regole entra in scena quando lo si
   legge, e da un riassunto sparisce.
+- ⚠️⚠️ **QUINDI IL RISVEGLIO AUTOMATICO SU QUESTI DUE DOCUMENTI NON SERVE, E LA SUA ASSENZA NON
+  SI SCRIVE COME UNA MANCANZA** (sua precisazione, 2026-09-08: *in ogni caso è giusto che sia
+  così: abbiamo stabilito che sarò sempre io a darti il via libera*). La sottoscrizione è
+  rifiutata da mesi con `mint_failed`, e il brief la registrava a ogni giro come un difetto da
+  rimediare: anche funzionando sveglierebbe la sessione **a ogni salvataggio**, cioè in mezzo a
+  una compilazione. Quello che si scrive è il fatto, cioè che il via libera arriva da lui.
 
 ⚠️⚠️ **ERANO DUE FINO AL 2026-09-03, e il secondo era il Changelog AIV** (decisione
 dell'utente: *cancella l'artefatto changelog, ho visto che non mi serve e non l'ho mai
