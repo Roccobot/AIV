@@ -24,7 +24,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -307,7 +312,23 @@ fun FolderScreen(
     // la prima porta l'intestazione e il FAB, la seconda la freccia Indietro.
     val home = !forStart
 
-    BoxWithConstraints(modifier = modifier.fillMaxSize().safeDrawingPadding()) {
+    /*
+     * ⚠️⚠️ **IL RIENTRO DI SOTTO NON STA PIÙ QUI, DALLA `1.90`** (sua richiesta: *non si può
+     * estendere la vista della griglia fino al margine inferiore dello schermo?*). Un
+     * `safeDrawingPadding()` sul contenitore toglie lo spazio **prima** che la griglia cominci
+     * a disegnare, quindi le copertine non potevano arrivare sotto la barra gestuale; adesso
+     * quel rientro vive nel `contentPadding` delle due viste, che è lo stesso spazio ma dalla
+     * parte giusta: le cartelle ci scorrono sotto e l'ultima riga resta raggiungibile.
+     * ⚠️ **Con lui la sfumatura in fondo arriva al vetro**, e non è un effetto da correggere: è
+     * quello che tiene la barra gestuale sopra un fondo neutro invece che sopra le copertine.
+     */
+    BoxWithConstraints(
+        modifier = modifier
+            .fillMaxSize()
+            .windowInsetsPadding(
+                WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
+            )
+    ) {
         val density = LocalDensity.current
 
         val nameStyle = folderNameStyle(columns)
@@ -521,7 +542,12 @@ fun FolderScreen(
                 },
                 // ⚠️ Costante e non numero: [FAB_REACH] dice quanto è alta la fascia
                 // dipinta, e [BELOW_FAB] quanto spazio si lascia sotto l'ultima cartella.
-                modifier = Modifier.align(fabSide()).padding(HUB_PAD)
+                // ⚠️⚠️ **IL RIENTRO DI SISTEMA SE LO METTE DA SÉ, DALLA `1.90`**: fino a lì
+                // glielo dava il contenitore, che adesso lo lascia al `contentPadding` della
+                // griglia perché le copertine arrivino al vetro. Senza questa riga il FAB
+                // scenderebbe sopra la barra gestuale. ⚠️ Sono gli stessi due rientri che il
+                // velo della scorciatoia si mette qui sotto, e adesso le due righe coincidono.
+                modifier = Modifier.align(fabSide()).safeDrawingPadding().padding(HUB_PAD)
             )
         }
 
@@ -1398,7 +1424,10 @@ internal fun Covers(
         verticalArrangement = Arrangement.spacedBy(FOLDER_GAP),
         // ⚠️ Lo spazio in fondo tiene l'ultima cartella fuori da sotto il FAB, che
         // le si siederebbe sopra proprio quando si è scorso fino in fondo.
-        contentPadding = PaddingValues(bottom = BELOW_FAB),
+        // ⚠️ **Il rientro di sotto si somma dalla `1.90`**: il contenitore ha smesso di
+        // metterselo perché le copertine arrivino al vetro, quindi lo spazio che tiene
+        // l'ultima riga fuori da sotto la barra gestuale vive qui.
+        contentPadding = PaddingValues(bottom = BELOW_FAB + bottomInset()),
         modifier = Modifier.fillMaxWidth()
     ) {
         items(
@@ -1450,7 +1479,10 @@ internal fun Rows(
     onHide: (Folder.Bucket) -> Unit
 ) {
     LazyColumn(
-        contentPadding = PaddingValues(bottom = BELOW_FAB),
+        // ⚠️ **Il rientro di sotto si somma dalla `1.90`**: il contenitore ha smesso di
+        // metterselo perché le copertine arrivino al vetro, quindi lo spazio che tiene
+        // l'ultima riga fuori da sotto la barra gestuale vive qui.
+        contentPadding = PaddingValues(bottom = BELOW_FAB + bottomInset()),
         modifier = Modifier.fillMaxWidth()
     ) {
         items(items = folders, key = { it.id }, contentType = { ROW_KIND }) { bucket ->

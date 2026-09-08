@@ -24,13 +24,16 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -1134,12 +1137,28 @@ fun GridScreen(
         }
     }
 
+    /*
+     * ⚠️⚠️ **IL RIENTRO DI SOTTO NON STA PIÙ QUI, DALLA `1.90`** (sua richiesta: *non si può
+     * estendere la vista della griglia fino al margine inferiore dello schermo? Quella (la linea
+     * della navigazione gestuale) può restare in sovrapposizione*). Un `safeDrawingPadding()`
+     * sul contenitore toglie lo spazio **prima** che la griglia cominci a disegnare, quindi là
+     * sotto non ci può arrivare niente; passandolo al `contentPadding` della lista le miniature
+     * scorrono sotto la barra gestuale e l'ultima riga resta raggiungibile lo stesso.
+     * ⚠️ **Anche il margine verticale della schermata si scompone**, per la stessa ragione: in
+     * cima resta un rientro, in fondo diventa spazio di scorrimento. Lasciandolo qui la griglia
+     * si sarebbe fermata dodici punti sopra il vetro, cioè avrebbe risolto il problema a metà.
+     * ⚠️ **Il FAB non si muove**: vive in una finestra sua e i rientri se li mette da sé, che è
+     * il motivo per cui questa modifica non lo tocca.
+     */
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .safeDrawingPadding()
+            .windowInsetsPadding(
+                WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
+            )
             .nestedScroll(paging)
-            .padding(horizontal = GRID_PAD_X, vertical = GRID_PAD_Y)
+            .padding(horizontal = GRID_PAD_X)
+            .padding(top = GRID_PAD_Y)
     ) {
         /*
          * ⚠️⚠️ **LA TESTATA E LA FASCIA VIVONO IN UN BLOCCO SOLO, DALLA `1.85`, E LA TINTA SI
@@ -1826,8 +1845,14 @@ fun GridScreen(
                      * ⚠️ Fuori dalla selezione il pannello non c'è, e resta [BELOW_FAB] per
                      * il solo FAB del cestino.
                      */
+                    /*
+                     * ⚠️⚠️ **E DALLA `1.90` CI SI SOMMANO IL MARGINE DELLA SCHERMATA E IL
+                     * RIENTRO DI SOTTO**, che il contenitore ha smesso di mettersi: senza,
+                     * l'ultima riga di miniature finirebbe sotto la barra gestuale senza modo
+                     * di tirarla fuori, che è il prezzo di far arrivare la griglia al vetro.
+                     */
                     contentPadding = PaddingValues(
-                        bottom = if (picking) {
+                        bottom = GRID_PAD_Y + bottomInset() + if (picking) {
                             with(LocalDensity.current) { sheetTall.toDp() }
                         } else if (bin) BELOW_FAB else 16.dp
                     ),
