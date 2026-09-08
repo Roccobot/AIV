@@ -54,6 +54,7 @@ import coil3.compose.setSingletonImageLoaderFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -497,8 +498,28 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * l'intento mentre si compone vorrebbe dire rileggerlo a ogni ricomposizione, e a tenerlo
      * fermo era soltanto una guardia sull'indirizzo.
      */
+    /**
+     * Se questa esecuzione serve a **scegliere** un'immagine per un'altra app.
+     *
+     * ⚠️⚠️ **NASCE NELLA `1.89` DA UNA SUA RICHIESTA** (*vorrei che AIV comparisse anche quando
+     * scelgo 'Altre app' su WhatsApp*): con `ACTION_GET_CONTENT` l'app si apre come sempre, e a
+     * cambiare è una cosa sola, cioè che cosa fa il tocco su una miniatura. Là dove aprirebbe il
+     * visualizzatore, consegna il file a chi lo ha chiesto e si chiude.
+     * ⚠️ **È uno stato del modello e non un parametro di schermata**: l'intento si legge una
+     * volta in `onCreate`, e la scelta deve sopravvivere alla rotazione e alla navigazione fra
+     * cartelle, che sono esattamente le cose che il modello tiene in piedi.
+     */
+    var picking: Boolean by mutableStateOf(false)
+        private set
+
     fun handleIntent(intent: Intent?) {
         intentRead = true
+        /*
+         * ⚠️ **Si legge PRIMA di guardare l'indirizzo**: un `GET_CONTENT` non ne porta nessuno,
+         * quindi finisce nel ramo di sotto insieme all'avvio dall'icona, che è giusto (si parte
+         * dalle cartelle). Quello che lo distingue è solo questa bandierina.
+         */
+        picking = intent?.action == Intent.ACTION_GET_CONTENT
         val uri = intent.imageUri()
         if (uri == null) {
             // Partita dalla propria icona: si va dove stanno le immagini, cioè alle cartelle.
@@ -2104,7 +2125,7 @@ class ViewerActivity : ComponentActivity() {
                     LocalPadLook provides look,
                     LocalDestLook provides dove
                 ) {
-                    AivApp(model)
+                    AivApp(model, onPicked = ::deliver)
                 }
             }
         }
@@ -2133,10 +2154,44 @@ class ViewerActivity : ComponentActivity() {
         setIntent(intent)
         model.handleIntent(intent)
     }
+
+    /**
+     * Consegna l'immagine scelta a chi ha aperto AIV come **selettore**, e chiude.
+     *
+     * ⚠️⚠️ **NASCE NELLA `1.89`** (*vorrei che AIV comparisse anche quando scelgo 'Altre app' su
+     * WhatsApp*): il selettore di sistema elenca, oltre agli archivi, le app che rispondono a
+     * `ACTION_GET_CONTENT`, e per esserci bisogna sia dichiararlo nel manifesto sia saper
+     * **restituire** un file.
+     * ⚠️⚠️ **L'INDIRIZZO SI PREPARA E NON SI PASSA COM'È, o l'app può cadere**: un `file://` che
+     * esce dal processo fa scattare `FileUriExposedException` da Android 7, e le cartelle lette
+     * dal disco portano proprio quello. [ImageActions.readableOutside] è la stessa strada della
+     * condivisione, quindi un `content://` passa senza copiare niente e un `file://` diventa una
+     * copia servita dal FileProvider.
+     * ⚠️ **Il permesso viaggia con l'intento**: senza `FLAG_GRANT_READ_URI_PERMISSION` chi riceve
+     * si vede un indirizzo che non può aprire, che è il modo peggiore di fallire.
+     * ⚠️ **Se la preparazione non riesce non si consegna e non si chiude**: meglio restare
+     * nell'app con un avviso che tornare a chi ha chiesto con le mani vuote e senza spiegazione.
+     * ⚠️ **Un'immagine per volta**: `EXTRA_ALLOW_MULTIPLE` non è gestito, e un chiamante che lo
+     * chiede riceve comunque un file solo, che è una risposta legittima.
+     */
+    private fun deliver(uri: Uri) {
+        lifecycleScope.launch {
+            val fuori = ImageActions.readableOutside(this@ViewerActivity, listOf(uri)).firstOrNull()
+            if (fuori == null) {
+                Notices.say(resources.getQuantityString(R.plurals.op_failed, 1, 1), NOTICE_LONG_MS)
+                return@launch
+            }
+            setResult(
+                RESULT_OK,
+                Intent().setData(fuori).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            )
+            finish()
+        }
+    }
 }
 
 @Composable
-private fun AivApp(model: ViewerViewModel) {
+private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
     // ⚠️ PRIMA DI TUTTO IL RESTO, e non è una preferenza di ordine: la fabbrica va
     // dichiarata prima che una qualunque immagine chieda il caricatore, o quella
     // richiesta si prende quello predefinito e le miniature tornano a passare dalla
@@ -2285,7 +2340,7 @@ private fun AivApp(model: ViewerViewModel) {
             transitionSpec = { cambioSchermata() },
             label = "schermata"
         ) { schermo ->
-            Stage(schermo, model, settings)
+            Stage(schermo, model, settings, onPicked)
         }
         /*
          * ⚠️⚠️ **QUESTA È L'UNICA SUPERFICIE CON CUI L'APP DICE COM'È ANDATA, DALLA `1.84`** (sua
@@ -2376,7 +2431,29 @@ internal fun AnimatedContentTransitionScope<Screen>.cambioSchermata(): ContentTr
  * restasse.
  */
 @Composable
-private fun Stage(screen: Screen, model: ViewerViewModel, settings: Settings) {
+private fun Stage(
+    screen: Screen,
+    model: ViewerViewModel,
+    settings: Settings,
+    /** Che cosa fare del file scelto quando l'app è un selettore. Vedi [ViewerViewModel.picking]. */
+    onPicked: (Uri) -> Unit
+) {
+    /**
+     * Consegna la miniatura toccata invece di aprirla, quando l'app è un selettore.
+     *
+     * ⚠️⚠️ **VALE PER TUTTE E TRE LE GRIGLIE, e non per la sola cartella**: la ricerca e il
+     * cestino mostrano immagini come le altre, e chi arriva da un'altra app può volere proprio
+     * quelle. Una modalità che funziona in una schermata su tre è una modalità che sembra rotta.
+     * ⚠️ **Torna `false` quando non c'è niente da consegnare**, e allora chi chiama apre come
+     * sempre: fuori dalla modalità scelta, e su un indice che l'elenco non ha più.
+     */
+    fun consegna(items: List<Uri>?, quale: Int): Boolean {
+        if (!model.picking) return false
+        val scelto = items?.getOrNull(quale) ?: return false
+        onPicked(scelto)
+        return true
+    }
+
     when (screen) {
         Screen.Settings -> {
             BackHandler { model.leaveSettings() }
@@ -2424,7 +2501,9 @@ private fun Stage(screen: Screen, model: ViewerViewModel, settings: Settings) {
                 },
                 recents = model.recents,
                 onPick = { model.folderPicked(it, screen.forStart) },
-                onOpen = { model.open(it) },
+                // ⚠️ Anche i recenti consegnano, in modalità scelta: sono immagini come quelle
+                // della griglia, e chi apre un selettore spesso vuole proprio l'ultima aperta.
+                onOpen = { quale -> if (model.picking) onPicked(quale) else model.open(quale) },
                 onOpenPage = { model.openPage(it) },
                 onView = { model.updateSettings(settings.copy(folderView = it)) },
                 onForget = { model.forgetRecents() },
@@ -2513,7 +2592,10 @@ private fun Stage(screen: Screen, model: ViewerViewModel, settings: Settings) {
                 frontTint = model.tint,
                 onFrontTint = { model.tintFolder(it) },
                 facts = model.facts,
-                onOpen = { model.openFromGrid(it) },
+                onOpen = { quale ->
+                    // ⚠️ In modalità scelta consegna e chiude, altrimenti apre come sempre.
+                    if (!consegna(lookup?.seriesOrNull?.items, quale)) model.openFromGrid(quale)
+                },
                 onBack = { model.leaveGrid() },
                 onChanged = { model.reloadGrid() },
                 columns = settings.folderColumns,
@@ -2554,7 +2636,10 @@ private fun Stage(screen: Screen, model: ViewerViewModel, settings: Settings) {
                 searchIn = screen.name,
                 items = lookup?.let { it.seriesOrNull?.items ?: emptyList() },
                 highlight = if (model.gridVisited) model.series?.index else null,
-                onOpen = { model.openFromGrid(it) },
+                onOpen = { quale ->
+                    // ⚠️ In modalità scelta consegna e chiude, altrimenti apre come sempre.
+                    if (!consegna(lookup?.seriesOrNull?.items, quale)) model.openFromGrid(quale)
+                },
                 onBack = { model.leaveGrid() },
                 onChanged = { model.reloadGrid() },
                 columns = settings.folderColumns,
@@ -2583,7 +2668,10 @@ private fun Stage(screen: Screen, model: ViewerViewModel, settings: Settings) {
                 title = stringResource(R.string.bin_title),
                 items = lookup?.let { it.seriesOrNull?.items ?: emptyList() },
                 highlight = if (model.gridVisited) model.series?.index else null,
-                onOpen = { model.openFromGrid(it) },
+                onOpen = { quale ->
+                    // ⚠️ In modalità scelta consegna e chiude, altrimenti apre come sempre.
+                    if (!consegna(lookup?.seriesOrNull?.items, quale)) model.openFromGrid(quale)
+                },
                 onBack = { model.leaveGrid() },
                 onChanged = { model.reloadGrid() },
                 columns = settings.folderColumns,

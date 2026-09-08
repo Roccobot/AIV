@@ -1590,8 +1590,27 @@ fun GridScreen(
                     val clip = remember(tutti) { tutti.filter { Videos.isVideo(it) }.toSet() }
                     if (pesa || conta || scatta || frontPickAll) {
                         Spacer(Modifier.height(FRONT_CHIP_GAP))
+                        /*
+                         * ⚠️⚠️ **LA FILA SI ALLINEA AL LATO DEL FAB, DALLA `1.89`** (sua
+                         * richiesta, con schermata: *quando le pastiglie vanno a capo, voglio
+                         * che quella nella seconda (che è sempre 'Seleziona tutto', essendo in
+                         * ultima posizione) sia centrata a destra o a sinistra a seconda del
+                         * lato in cui si trova il FAB*). Fino alla `1.87` la seconda riga
+                         * restava all'inizio, cioè dalla parte opposta al pollice quando il FAB
+                         * è a destra.
+                         * ⚠️ **L'allineamento è della FILA e non dell'ultima pastiglia**, ed è
+                         * il solo modo che `FlowRow` offre: le sue righe hanno un allineamento
+                         * solo, e non c'è un modificatore che ne sposti una.
+                         * ⚠️⚠️ **E TOCCA SOLO IL CASO CHE HA CHIESTO, cioè quando si va a capo:
+                         * misurato dal banco, non ragionato.** Il blocco dell'intestazione è
+                         * centrato, quindi questa fila si dimensiona sul **contenuto** e non
+                         * sulla larghezza della schermata: con le pastiglie tutte su una riga
+                         * non le avanza un pixel da distribuire, e l'allineamento non ha niente
+                         * da spostare. Quando si va a capo la fila è larga quanto la riga più
+                         * lunga, ed è dentro quella larghezza che la seconda si sposta.
+                         */
                         FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp, fabEdge()),
                             verticalArrangement = Arrangement.spacedBy(4.dp),
                             modifier = Modifier
                                 .padding(horizontal = 24.dp)

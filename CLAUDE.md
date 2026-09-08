@@ -858,6 +858,20 @@ e `frontPickAll` (la pastiglia 'Seleziona tutto').
   senza video la seconda non compare.
 - ⚠️ **I due tocchi lunghi sono suoi** (punto A del campo libero della `1.82`): sul peso entra in
   selezione con tutto selezionato, sui video coi soli video.
+- ⚠️⚠️ **E DALLA `1.89` LA FILA SI ALLINEA AL LATO DEL FAB** (sua richiesta, con schermata:
+  *quando le pastiglie vanno a capo, voglio che quella nella seconda (che è sempre 'Seleziona
+  tutto', essendo in ultima posizione) sia centrata a destra o a sinistra a seconda del lato in
+  cui si trova il FAB*), così la riga che va a capo si trova sotto il pollice invece che dalla
+  parte opposta. Il lato lo dà `fabEdge`, che legge la stessa scelta di `fabSide`.
+  - ⚠️⚠️ **TOCCA SOLO IL CASO IN CUI SI VA A CAPO, ed è misurato dal banco e non ragionato**: il
+    blocco dell'intestazione è centrato, quindi la fila si dimensiona sul **contenuto** e con le
+    pastiglie tutte su una riga non le avanza un pixel da distribuire. La prima stesura della
+    prova falliva **col codice giusto** proprio per questo.
+  - ⚠️ **Quella prova poi è uscita, e va detto invece di lasciarla credere scritta**: per far
+    andare a capo la fila serve una scena stretta, e là la pastiglia del comando non si disegna
+    affatto, perché la fascia la ritaglia. È un caso limite che vale la pena guardare sul
+    telefono: su uno schermo molto stretto, o con i caratteri grandi, 'Seleziona tutto' potrebbe
+    non vedersi.
 
 ⚠️⚠️ **E DALLA `1.85` QUELLA VARIANTE È RIDISEGNATA, PERCHÉ DAL VIVO NON GLI È PIACIUTA**
 (riscontro del giro della `1.83`, voce `front-dieci` non approvata: *a vederla dal vivo non sono
@@ -905,8 +919,15 @@ incontra per prima.
   legge la stessa tinta, quindi non c'è un secondo posto da tenere allineato.
 - ⚠️ **Segue lo scorrimento**: scorrendo si spegne insieme alla sfumatura, o resterebbe una
   striscia colorata in cima a una griglia che non ha più niente di colorato.
-- ⚠️ **Le icone della barra non si toccano**: al 40% sopra il fondo dell'app il contrasto con cui
-  il sistema le disegna resta quello di prima. Chi alzasse `WASH_PEAK` guardi anche quelle.
+- ⚠️ **Le icone della barra non si toccano**: a `WASH_PEAK` sopra il fondo dell'app il contrasto
+  con cui il sistema le disegna resta quello di prima. Chi alzasse quel numero guardi anche
+  quelle.
+- ⚠️⚠️ **E QUEL NUMERO GOVERNA TUTTI E DUE, che è la ragione per cui il ritocco della `1.89` è
+  costato un carattere** (sua domanda: *se decido di passare da 40% a 25% come opacità d'inizio
+  per la sfumatura, adatterai automaticamente il colore della barra di sistema?*, e poi *allora
+  porta il valore a 25%*). La fascia legge `WASH_PEAK` e non una sua copia, quindi la barra prende
+  sempre esattamente il colore da cui la sfumatura parte. ⚠️ **Il valore di oggi è 25%**, ed è il
+  quarto in quattro versioni: la storia dei quattro vive sulla costante.
 
 ⚠️⚠️ **I QUATTRO GESTI DELL'INTESTAZIONE, DALLA `1.85`, SONO SUOI** (stesso riscontro): il tocco
 sul **nome** lo copia e il tocco lungo copia il percorso; il tocco sull'**icona** apre il gestore
@@ -922,6 +943,18 @@ cartella** fra sedici tinte in una griglia 4x4.
   `Folder.openInFiles`.
 - ⚠️ **Le prime otto tinte sono sue e le altre otto completano la ruota**: il criterio, e perché
   sono numeri e non risorse colore, vivono in `FolderTint.kt`.
+- ⚠️⚠️ **E DALLA `1.89` OGNI TINTA È UNA COPPIA, UNA PER TEMA** (sua richiesta: *ognuno dei 16
+  colori dovrebbe essere in realtà una COPPIA di colori: una per il tema chiaro e una per il tema
+  scuro, fatti in modo che ci sia sempre una differenza minima dal colore di fondo*). Fino alla
+  `1.88` il numero era uno solo, e la conseguenza è misurata: la menta `C0FFE5` sul fondo chiaro
+  aveva un contrasto di **1,03**, cioè spariva. Il criterio, i fondi contro cui si misura e la
+  coppia che ha avuto bisogno anche della saturazione vivono in `FolderTint.kt`.
+  - ⚠️ **Nel selettore i tondi sono tagliati in due in orizzontale**, come ha chiesto: sopra la
+    variante del tema chiaro, sotto quella del tema scuro, **in tutti e due i temi**. Undici
+    coppie su sedici hanno le due metà diverse, e le altre cinque no perché quella tinta stacca
+    già da tutti e due i fondi.
+  - ⚠️ **La scelta resta un indice e non un colore**, quindi la nota di allora non è rovesciata:
+    a cambiare col tema è come quel colore si scrive, non quale ha scelto lui.
 - ⚠️⚠️ **UNA CARTELLA CANCELLATA NON SI RINCORRE** (sua istruzione, 2026-09-08: *se una cartella
   ha un colore associato e viene cancellata, non occorre che l'app ricordi il suo colore*), quindi
   l'archivio non si pota. Il perché quello non sia nemmeno una perdita (il `BUCKET_ID` è il CRC
@@ -969,6 +1002,44 @@ sarebbe un ramo che nessun dito può raggiungere.
   `SelezioneTest` provava il gesto due volte ed è fallita alla prima corsa con *the node is no
   longer in the tree*. È il caso proattivo di § '🧪 Quando si scrive una prova, e quando no'
   applicato a una richiesta invece che a un difetto.
+
+## 📤 AIV come selettore: quando un'altra app chiede un'immagine
+
+⚠️⚠️ **DALLA `1.89` AIV COMPARE FRA LE APP DEL SELETTORE DI SISTEMA** (sua richiesta, con
+schermata di WhatsApp: *vorrei che AIV comparisse anche quando scelgo 'Altre app'*). Quella
+schermata è **DocumentsUI**, e sotto gli archivi elenca le app che rispondono a
+`ACTION_GET_CONTENT`: per comparire servono due cose insieme, il filtro nel manifesto e la
+capacità di **restituire** un file.
+
+⚠️⚠️ **NON È UNA SCHERMATA NUOVA: L'APP SI APRE COM'È, E CAMBIA UNA COSA SOLA.** Il tocco su una
+miniatura, che aprirebbe il visualizzatore, consegna il file a chi lo ha chiesto e chiude. Tutto
+il resto (le cartelle, la ricerca, il cestino, le impostazioni) resta quello di sempre, quindi
+non c'è una seconda navigazione da tenere allineata alla prima.
+- **Vale per tutte e tre le griglie e per i recenti**: la ricerca e il cestino mostrano immagini
+  come la cartella, e una modalità che funziona in una schermata su tre sembra rotta.
+- ⚠️ **Indietro annulla**, perché chiudere senza `setResult` vale `RESULT_CANCELED`, che è
+  esattamente quello che chi ha chiesto si aspetta.
+
+⚠️⚠️ **L'INDIRIZZO SI PREPARA E NON SI PASSA COM'È, O L'APP PUÒ CADERE**: un `file://` che esce
+dal processo fa scattare `FileUriExposedException` da Android 7, e le cartelle lette dal disco
+portano proprio quello. La strada è la stessa della condivisione (`ImageActions.readableOutside`,
+estratta nella `1.89` proprio perché adesso la leggono in due): un `content://` passa senza
+copiare niente, un `file://` diventa una copia servita dal FileProvider.
+- ⚠️ **Il permesso viaggia con l'intento**, cioè `FLAG_GRANT_READ_URI_PERMISSION`: senza, chi
+  riceve si vede un indirizzo che non può aprire.
+
+⚠️ **`launchMode="singleTop"` NON dà fastidio qui, e conviene saperlo perché sembra il
+contrario**: chi chiede un risultato non passa da `FLAG_ACTIVITY_NEW_TASK`, quindi il sistema
+crea l'istanza **nel task di chi chiama**, e `singleTop` riusa solo quella già in cima allo
+stesso task. Con AIV già aperta per conto suo, le due copie convivono in due task.
+
+⚠️ **Un'immagine per volta**: `EXTRA_ALLOW_MULTIPLE` non è gestito, e un chiamante che lo chiede
+riceve comunque un file solo, che è una risposta legittima. La selezione multipla dell'app
+esiste, ma consegnarla vorrebbe dire un comando in più nella scheda dei comandi.
+
+⚠️⚠️ **NON HA UNA PROVA DEL BANCO, e la ragione è quella dichiarata in § '🧪 Quando si scrive una
+prova, e quando no'**: il banco non ha un selettore di sistema né un'app che riceve, quindi
+quello che si potrebbe misurare qui è il ramo interno e non la funzione. Si prova sul telefono.
 
 ## 💾 Il salvataggio va sempre in Download, e il nome si chiede solo se lo chiedi
 
