@@ -111,7 +111,7 @@ fun ActionPad(
      * ⚠️ **Serve alla bottomsheet della selezione, che è larga quanto lo schermo**: là
      * cinque celle da 76dp lascerebbero un vuoto a destra su un telefono largo e
      * sforerebbero su uno stretto. Nel menu del tocco lungo, che si apre attorno a un
-     * tastino, la larghezza fissa resta quella giusta: là è il riquadro a doversi
+     * FAB, la larghezza fissa resta quella giusta: là è il riquadro a doversi
      * adattare al contenuto, non il contrario.
      */
     stretch: Boolean = false,
@@ -421,9 +421,9 @@ fun PadArrange(
  * tocchi, quindi con lei aperta non si potrebbe più aggiungere una fotografia alla
  * selezione: sarebbe la contraddizione esatta della cosa chiesta. Qui è una `Surface`
  * appoggiata in fondo al `Box` della schermata, che occupa il posto suo e basta.
- * ⚠️ **Il tastino della selezione se n'è andato con lei** (stessa istruzione: *il FAB di
+ * ⚠️ **Il FAB della selezione se n'è andato con lei** (stessa istruzione: *il FAB di
  * selezione non serve più*), e la ragione l'ha trovata l'utente: se il menu si apre da sé,
- * un tastino che lo apre non ha più niente da fare.
+ * un FAB che lo apre non ha più niente da fare.
  * ⚠️⚠️ **LA MANIGLIA NON C'È PIÙ, dalla 1.42, e la regola che l'ha tolta è generale**
  * (riscontro `niente-ombre`: *togli anche il tratto-manopola, a meno che non sia interattivo,
  * lo si può trascinare*). Questa non si trascinava: era un segno che diceva 'qui c'è un
@@ -1037,12 +1037,12 @@ class PadLook(
     /** La seconda fila dell'editor: la cronologia e la conferma. */
     val step: List<PadKey> = STEP_KEYS,
     /**
-     * Da che parte dello schermo sta il tastino.
+     * Da che parte dello schermo sta il FAB.
      *
      * ⚠️⚠️ **VIAGGIA QUI E NON PER PARAMETRO, ed è la stessa ragione delle altre cinque**: i
-     * tastini vivono in tre schermate e in un velo di onboarding, e la catena per portarci un
+     * FAB vivono in tre schermate e in un velo di onboarding, e la catena per portarci un
      * valore dalle impostazioni le attraversa tutte. ⚠️ **E sta con l'aspetto dei riquadri
-     * invece che per conto suo** perché il tastino apre il riquadro: chi sposta l'uno sposta
+     * invece che per conto suo** perché il FAB apre il riquadro: chi sposta l'uno sposta
      * anche dove si apre l'altro.
      */
     val hand: Hand = Hand.RIGHT
@@ -1052,17 +1052,17 @@ class PadLook(
 val LocalPadLook = compositionLocalOf { PadLook() }
 
 /**
- * Da che angolo in basso sta il tastino, secondo l'impostazione.
+ * Da che angolo in basso sta il FAB, secondo l'impostazione.
  *
  * ⚠️⚠️ **NASCE NELLA `1.57` E PRENDE IL POSTO DELLA SPECCHIATURA** (tappa del piano d'azione,
  * e decisione dell'utente: *la specchiatura se ne va del tutto*). Prima l'impostazione diceva
  * quale **mano** si usa e rovesciava le file di un riquadro; adesso dice da che parte sta il
- * tastino, e con lui si sposta tutto quello che gli gira intorno.
+ * FAB, e con lui si sposta tutto quello che gli gira intorno.
  * ⚠️ **La chiave sull'archivio non cambia**, quindi chi aveva scelto la sinistra ritrova la
  * sinistra: la domanda ha cambiato forma ma non verso, ed è il caso in cui una chiave si
  * tiene invece di scriverne una nuova.
  * ⚠️ **`End` e `Start` e non 'destra' e 'sinistra' vere**: in arabo, persiano e urdu tutta
- * l'interfaccia si specchia, e un tastino inchiodato a destra sarebbe l'unico pezzo a non
+ * l'interfaccia si specchia, e un FAB inchiodato a destra sarebbe l'unico pezzo a non
  * seguirla. Nelle venticinque lingue che si leggono da sinistra le due cose coincidono.
  */
 @Composable
@@ -1087,11 +1087,11 @@ internal const val SHEET_COLUMNS = 5
 
 
 /**
- * Lo smusso del tastino quadrato, uguale in tutte le schermate.
+ * Lo smusso del FAB quadrato, uguale in tutte le schermate.
  *
  * ⚠️ Quadrato ma non tagliente: il tondo pieno griderebbe 'azione principale', e in questa
  * app l'azione principale sono sempre le fotografie. ⚠️ **Sta qui e non in una schermata**
- * perché i tastini sono due, quello delle cartelle e quello della selezione, e due numeri
+ * perché i FAB sono due, quello delle cartelle e quello della selezione, e due numeri
  * uguali scritti in due file sono un numero che prima o poi diverge.
  */
 val FAB_CORNER = 12.dp
@@ -1100,38 +1100,38 @@ val FAB_CORNER = 12.dp
  * La misura di `SmallFloatingActionButton`, che [TapHoldFab] rifà a mano.
  *
  * ⚠️ È anche l'altezza che [FAB_REACH] somma al margine: i due numeri descrivono lo stesso
- * tastino, e slegati si sarebbero mossi uno per volta.
+ * FAB, e slegati si sarebbero mossi uno per volta.
  */
 val FAB_SIZE = 40.dp
 
 
 /**
- * Il margine del tastino quadrato dalle due sponde della schermata delle cartelle.
+ * Il margine del FAB quadrato dalle due sponde della schermata delle cartelle.
  *
- * ⚠️ Sta qui e non là perché [FAB_REACH] lo somma: il giorno che il tastino si sposta di un
+ * ⚠️ Sta qui e non là perché [FAB_REACH] lo somma: il giorno che il FAB si sposta di un
  * dp, il conto che tiene le cartelle sopra di lui deve muoversi con lui.
  */
 val HUB_PAD = 16.dp
 
 /**
- * Quanto arriva in su il tastino quadrato delle cartelle, misurato dal fondo dello schermo:
+ * Quanto arriva in su il FAB quadrato delle cartelle, misurato dal fondo dello schermo:
  * il suo margine ([HUB_PAD]) più la sua altezza.
  *
  * ⚠️⚠️ **È LA Y DA CUI PARTE LA SFUMATURA che inghiotte quello che sta sotto** (richiesta
- * dell'utente, dalla `0.77`). Comincia dove comincia il **tastino**, non dove finisce lo
+ * dell'utente, dalla `0.77`). Comincia dove comincia il **FAB**, non dove finisce lo
  * spazio che gli si lascia, che è [BELOW_FAB] e vale una ventina di dp in più: la differenza
- * fra i due numeri è l'aria che al riposo resta fra l'ultima cartella e il tastino, e la
+ * fra i due numeri è l'aria che al riposo resta fra l'ultima cartella e il FAB, e la
  * sfumatura deve trovarla vuota.
- * ⚠️ L'altezza è [FAB_SIZE], cioè la misura che Material dà a un tastino piccolo senza
+ * ⚠️ L'altezza è [FAB_SIZE], cioè la misura che Material dà a un FAB piccolo senza
  * esporla come costante pubblica: è un dato suo, non una nostra scelta.
  */
 val FAB_REACH = HUB_PAD + FAB_SIZE
 
 /**
- * Quanto spazio resta sotto l'ultimo elemento di una griglia, perché il tastino non gli si
+ * Quanto spazio resta sotto l'ultimo elemento di una griglia, perché il FAB non gli si
  * sieda sopra.
  *
- * ⚠️ Serve **solo** quando il tastino c'è: nella griglia delle foto compare con la
+ * ⚠️ Serve **solo** quando il FAB c'è: nella griglia delle foto compare con la
  * selezione, quindi il fondo cresce da quel momento. Senza, la fotografia in basso a
  * destra resterebbe coperta proprio mentre si sta scegliendo, cioè quando la si deve poter
  * toccare.
@@ -1142,13 +1142,13 @@ val FAB_REACH = HUB_PAD + FAB_SIZE
 val BELOW_FAB = FAB_REACH + 20.dp
 
 /**
- * Un tastino galleggiante con **due** gesti: tocco breve e tocco lungo.
+ * Un FAB con **due** gesti: tocco breve e tocco lungo.
  *
  * ⚠️⚠️ **NON È `SmallFloatingActionButton`, e non è un capriccio**: quel composabile prende
  * un `onClick` solo, e il `modifier` che gli si passa finisce **fuori** dal suo `clickable`,
  * cioè come genitore. Un `combinedClickable` messo là non vedrebbe mai il tocco lungo, perché
  * nella passata `Main` il figlio consuma il down per primo: è esattamente il meccanismo che
- * aveva rotto il tocco lungo sulla griglia. Per avere due gesti su un tastino bisogna che di
+ * aveva rotto il tocco lungo sulla griglia. Per avere due gesti su un FAB bisogna che di
  * nodo che ascolta ce ne sia **uno**.
  * ⚠️ **La misura è quella di Material**, [FAB_SIZE], e da lì non si scosta.
  * ⚠️⚠️ **MA 'LA RESA NON CAMBIA' NON È PIÙ VERO, E FINO ALLA `1.78` ERA SCRITTO QUI**: la nota
@@ -1160,7 +1160,7 @@ val BELOW_FAB = FAB_REACH + 20.dp
  * ⚠️ Il gesto sta **dentro** la `Surface` e non sul suo modificatore, così l'increspatura
  * prende il colore del contenuto ([ink]) invece di quello che c'era fuori.
  *
- * ⚠️⚠️ **STA QUI, CONDIVISO, DALLA 0.78**: i tastini col tocco lungo sono diventati **due**,
+ * ⚠️⚠️ **STA QUI, CONDIVISO, DALLA 0.78**: i FAB col tocco lungo sono diventati **due**,
  * quello della selezione e quello quadrato delle cartelle, e differiscono per il **glifo** e
  * per quello che i due gesti fanno. Tutto il resto (misura, smusso, ombra, il nodo unico che
  * ascolta, l'etichetta del tocco lungo per il lettore di schermo) è la stessa cosa scritta
@@ -1168,7 +1168,7 @@ val BELOW_FAB = FAB_REACH + 20.dp
  */
 @Composable
 fun TapHoldFab(
-    /** Che cos'è il tastino, per il lettore di schermo: la sua azione breve. */
+    /** Che cos'è il FAB, per il lettore di schermo: la sua azione breve. */
     label: String,
     container: Color,
     ink: Color,
@@ -1176,22 +1176,22 @@ fun TapHoldFab(
      * Che cosa fa il tocco lungo, per il lettore di schermo.
      *
      * ⚠️ **Si DICHIARA, o resta una scorciatoia che esiste solo per chi vede**: l'etichetta la
-     * legge il lettore di schermo fra le azioni disponibili sul tastino.
+     * legge il lettore di schermo fra le azioni disponibili sul FAB.
      * ⚠️ Arriva da fuori perché il gesto fa cose diverse a seconda della schermata e di dove si
      * è dentro di lei, e un'etichetta fissa ne annuncerebbe una mentre succede l'altra.
      */
     holdLabel: String,
     /**
-     * Il tastino si stacca in una **finestra sua**, per restare sopra la sfocatura del suo menu.
+     * Il FAB si stacca in una **finestra sua**, per restare sopra la sfocatura del suo menu.
      *
      * ⚠️⚠️ **RICHIESTA DELL'UTENTE, 1.39** (2026-09-03: *quando la sfocatura si applica dove c'è
      * un FAB, questo deve rimanere SOPRA l'area sfocata e velata*). Col velo di finestra (vedi
      * `WindowVeil`) non si può ritagliare un buco: quel velo sta **dietro** la finestra che lo
-     * chiede, e tutto quello che è più in basso ci finisce sotto, tastino compreso. La sola via
+     * chiede, e tutto quello che è più in basso ci finisce sotto, FAB compreso. La sola via
      * per tenerlo fuori è metterlo in una finestra **più in alto** di quella che vela.
-     * ⚠️ **Vale solo per il menu che il tastino stesso apre**, e chi lo accende è il suo `open`.
+     * ⚠️ **Vale solo per il menu che il FAB stesso apre**, e chi lo accende è il suo `open`.
      * Un dialogo di Material è una finestra di **altro tipo**, sempre sopra le finestre dei menu,
-     * quindi con un dialogo aperto il tastino resta velato: ed è giusto, perché un modale deve
+     * quindi con un dialogo aperto il FAB resta velato: ed è giusto, perché un modale deve
      * restare modale.
      * ⚠️⚠️ **IL MENU VA COMPOSTO PRIMA DEL TASTINO**, o questo non serve a niente: fra finestre
      * dello stesso tipo l'ordine è quello in cui sono state aggiunte, e la composizione decide
@@ -1202,27 +1202,27 @@ fun TapHoldFab(
      */
     lifted: Boolean = false,
     /**
-     * Se il tastino deve mostrarsi **premuto**, cioè col rimbalzo fatto, la × al posto del glifo
+     * Se il FAB deve mostrarsi **premuto**, cioè col rimbalzo fatto, la × al posto del glifo
      * e l'accento dell'altro tema.
      *
      * ⚠️⚠️ **È UN SEGNALE A SÉ E NON [lifted], DALLA `1.60`, PERCHÉ I DUE NON FINISCONO
      * INSIEME** (riscontro del giro della `1.59`: *niente rimbalzo, solo un movimento unico*).
-     * [lifted] dice se il tastino vive nella sua finestra, quindi resta vero per tutta la
+     * [lifted] dice se il FAB vive nella sua finestra, quindi resta vero per tutta la
      * **discesa** del menu (`MenuState.visible`); e legandoci lo stato premuto, il ritorno del
-     * tastino cominciava solo dopo che il menu era sparito del tutto. Erano due movimenti con una
+     * FAB cominciava solo dopo che il menu era sparito del tutto. Erano due movimenti con una
      * pausa in mezzo, ed è quello che si legge come un secondo tempo.
      * ⚠️ **Chi apre un menu passa `wanted`**, che è il verso opposto: cade nell'istante in cui si
-     * chiede la chiusura, quindi il tastino torna al suo colore **insieme** al menu che se ne va.
+     * chiede la chiusura, quindi il FAB torna al suo colore **insieme** al menu che se ne va.
      * ⚠️ **Il valore di serie è [lifted]** perché per chi non ha un menu i due coincidono, e un
-     * tastino senza menu non ha nessun secondo tempo da evitare.
+     * FAB senza menu non ha nessun secondo tempo da evitare.
      */
     pressed: Boolean = lifted,
     onTap: () -> Unit,
     onHold: () -> Unit,
     /**
-     * Che cosa si vede sul tastino, con la descrizione da dare al lettore di schermo.
+     * Che cosa si vede sul FAB, con la descrizione da dare al lettore di schermo.
      *
-     * ⚠️⚠️ **È UNA FESSURA E NON UN `ImageVector`, dalla `1.55`**: il tastino della schermata
+     * ⚠️⚠️ **È UNA FESSURA E NON UN `ImageVector`, dalla `1.55`**: il FAB della schermata
      * iniziale porta il **marchio dell'app**, che è un disegno più largo che alto e va messo in
      * scena con una misura sua e uno spostamento suo (vedi `Marchio` in `FolderScreen.kt`). Un
      * `ImageVector` obbligava a una scatola quadrata da 24dp, che quel disegno schiaccia.
@@ -1236,7 +1236,7 @@ fun TapHoldFab(
      * dopo tre versioni che alzavano un numero senza mai farsi vedere, sta su [RIMBALZO].
      * ⚠️ **La × dice che cosa fa adesso il tasto**, e sono sue parole: *indicando che la sua
      * nuova funzione è chiudere il menu*. Quindi non è una decorazione: è l'unica cosa sul
-     * tastino che comunichi un'azione diversa da quella di prima.
+     * FAB che comunichi un'azione diversa da quella di prima.
      * ⚠️⚠️ **DUE ANIMAZIONI SI LEGGONO NEL DISEGNO E UNA IN COMPOSIZIONE, ed è una scelta
      * misurata**: il rimbalzo e la dissolvenza dei simboli stanno dentro `graphicsLayer`, cioè
      * costano un ridisegno per fotogramma; il colore invece arriva a `Surface`, che lo vuole in
@@ -1263,16 +1263,23 @@ fun TapHoldFab(
         rimbalzo.animateTo(1f, tween(RIMBALZO_SU_MS, easing = FastOutSlowInEasing))
     }
     /*
-     * ⚠️⚠️ **L'ACCENTO DELL'ALTRO TEMA, e non un colore nuovo**: [aivAccent] e [aivOnAccent]
-     * dànno le stesse due coppie che la tavolozza usa per `primaryContainer`, quindi il tastino
-     * premuto è ancora un tastino di questa app, non una macchia di un colore inventato.
+     * ⚠️⚠️ **DALLA `1.86` I DUE ESTREMI SONO SCAMBIATI, ED È SUO** (riscontro del giro della
+     * `1.85`, campo libero punto A: *il FAB di tutte le pagine incluso il cestino deve avere il
+     * FAB del colore del tema scuro, che poi diventa chiaro quando premuto*, e al rovescio sul
+     * tema scuro). Fino alla `1.85` il FAB stava nell'accento **di questo** tema e passava a
+     * quello dell'altro da premuto; adesso a riposo porta l'altro e da premuto torna a questo.
+     * La sua ragione è scritta: *dà uno stacco maggiore, e un accento opposto mette più in
+     * risalto il pulsante flottante*.
+     * ⚠️ **Il colore a riposo lo passa il chiamante** ([container]), perché non è sempre quello
+     * dell'app: i due FAB che un mini-onboarding evidenzia portano l'arancione. Quello che
+     * questa funzione decide è il **secondo** estremo, cioè dove va il colore quando si preme.
      * ⚠️ **Anche l'inchiostro cambia**, e senza di lui il contrasto cadrebbe: sull'accento scuro
      * (`#00727B`) l'inchiostro del tema chiaro (`#00382F`) misura 2,05, cioè illeggibile. Le due
      * coppie sono quelle di Material e stanno insieme per costruzione.
      */
     val light = LocalAivLight.current
-    val fondo = lerp(container, aivAccent(!light), tinta.value)
-    val segno = lerp(ink, aivOnAccent(!light), tinta.value)
+    val fondo = lerp(container, aivAccent(light), tinta.value)
+    val segno = lerp(ink, aivOnAccent(light), tinta.value)
     /*
      * ⚠️ **I due simboli stanno uno sopra l'altro in una scatola sola**, e la scatola si misura
      * sul più grande: così il tasto non si rimisura mentre la dissolvenza va, e il glifo che sta
@@ -1322,7 +1329,7 @@ fun TapHoldFab(
                     scaleX = k
                     scaleY = k
                 }
-                // ⚠️ Da staccato il tastino non prende i tocchi ([untouchable]), quindi non è
+                // ⚠️ Da staccato il FAB non prende i tocchi ([untouchable]), quindi non è
                 // più un comando: annunciarlo darebbe un tasto che il lettore di schermo trova e
                 // che non fa niente.
                 .then(if (muto) Modifier.clearAndSetSemantics { } else Modifier),
@@ -1354,18 +1361,18 @@ fun TapHoldFab(
      * una finestra non occupa spazio nel genitore, quindi senza questa scatola il riquadro si
      * stringerebbe e il menu, che si ancora a lui, salterebbe altrove proprio mentre si apre.
      * ⚠️ **`Alignment.TopStart` mette la finestra sull'angolo dell'ancora**, cioè esattamente
-     * dove il tastino sarebbe stato: il tastino non si muove, cambia solo la finestra che lo
+     * dove il FAB sarebbe stato: il FAB non si muove, cambia solo la finestra che lo
      * disegna.
      *
      * ⚠️⚠️ **IL SOSIA C'È SOLO FINCHÉ LA FINESTRA NON DISEGNA, DALLA `1.68`, ED È UNA SUA
      * ISTRUZIONE** (giro della `1.67`: *a menu aperto, deve esistere SOLO il FAB ricolorato SOPRA
      * la sfocatura (se presente); nel livello della sfocatura non dev'esserci nessun FAB*). Prima
      * il sosia restava per tutto il tempo, e con la sfocatura accesa si vedeva un FAB sfocato
-     * dietro quello nitido: due tastini invece di uno.
+     * dietro quello nitido: due FAB invece di uno.
      * ⚠️⚠️ **MA NON SI PUÒ TOGLIERE DEL TUTTO, o torna il lampo della `1.46`** (*il tastino FAB
      * fa un flash*): passare da 'disegnato qui' a 'disegnato in una finestra sua' vuol dire
      * togliere un nodo e chiedere al gestore delle finestre di aggiungerne una, e le due cose non
-     * capitano nello stesso fotogramma. Per quel fotogramma il tastino non ci sarebbe da nessuna
+     * capitano nello stesso fotogramma. Per quel fotogramma il FAB non ci sarebbe da nessuna
      * parte. Quindi il sosia riempie **solo** quel buco, e se ne va appena la finestra ha
      * disegnato.
      * ⚠️ **`withFrameNanos` e non un semplice effetto**: un `DisposableEffect` dentro il `Popup`
@@ -1400,7 +1407,7 @@ fun TapHoldFab(
             ) {
                 /*
                  * ⚠️ **La tinta si dà col `CompositionLocal` e non a mano**: qui non c'è la
-                 * `Surface` che nel tastino vero porta `contentColor`, e la fessura disegna un
+                 * `Surface` che nel FAB vero porta `contentColor`, e la fessura disegna un
                  * `Icon` che quel colore lo legge da lì. Passarlo come parametro vorrebbe dire
                  * chiedere a chi riempie la fessura di saperlo, e i due disegni divergerebbero.
                  */
@@ -1426,17 +1433,17 @@ fun TapHoldFab(
  * ⚠️⚠️ **SENZA QUESTA RIGA IL TASTINO STACCATO ROMPEREBBE LA CHIUSURA DEL MENU, dalla 1.06**
  * (*tutti i menu di tutti i FAB devono andarsene se si tocca un punto qualsiasi fuori dal
  * popup, incluso il FAB stesso*). Quel tocco oggi lo raccoglie il velo trasparente della
- * schermata, che sta nella finestra dell'app: un tastino in una finestra **più alta** se lo
+ * schermata, che vive nella finestra dell'app: un FAB in una finestra **più alta** se lo
  * prenderebbe per primo e il menu resterebbe aperto, con l'aggravante che il suo `onTap` lo
  * riaprirebbe subito dopo. È il lampeggio che la `1.06` aveva chiuso.
- * ⚠️ **Quindi il tastino staccato è solo da guardare**, ed è giusto così: mentre il suo menu
+ * ⚠️ **Quindi il FAB staccato è solo da guardare**, ed è giusto così: mentre il suo menu
  * è aperto l'unica cosa che il suo tocco deve fare è chiudere quel menu, e a chiuderlo pensa
  * chi lo faceva già.
  * ⚠️ **Si passa dai `LayoutParams` della radice**, come il velo dei popup: un `Popup` non ha
  * un `Window` suo, e la sua finestra sono i parametri della vista che Compose ha aggiunto al
  * gestore. La nota per esteso sta in `Veil.kt`.
  * ⚠️ **Niente da rimettere a posto all'uscita**: la finestra muore col popup, e questa esiste
- * solo finché il tastino sta per conto suo.
+ * solo finché il FAB sta per conto suo.
  */
 @Composable
 private fun untouchable() {
@@ -1454,11 +1461,11 @@ private fun untouchable() {
 }
 
 /**
- * Il **marchio dell'app** sul tastino, al posto dei tre puntini.
+ * Il **marchio dell'app** sul FAB, al posto dei tre puntini.
  *
  * ⚠️⚠️ **RICHIESTA DELL'UTENTE, giro della `1.54`** (*sostituisci i tre pallini del FAB
  * principale con il glifo dell'app ... Il glifo è da centrare OTTICAMENTE*). I tre puntini non
- * sono spariti: sono scesi sul tastino del cestino, dove c'era un disco ancora più generico.
+ * sono spariti: sono scesi sul FAB del cestino, dove c'era un disco ancora più generico.
  *
  * ⚠️⚠️ **CENTRATO OTTICAMENTE VUOL DIRE CHE IL SUO BARICENTRO STA AL CENTRO, e i due numeri
  * sono MISURATI e non scelti**: reso il disegno in Chromium a 700 x 600 e pesato l'inchiostro
@@ -1485,10 +1492,10 @@ internal fun Marchio(descrizione: String?) {
 }
 
 /**
- * Quanto è largo il marchio sul tastino.
+ * Quanto è largo il marchio sul FAB.
  *
  * ⚠️ **24dp è la scatola che avevano i tre puntini**, cioè la misura standard di un glifo di
- * Material: il tastino è 40dp, quindi restano otto punti d'aria per lato. Chi lo volesse più
+ * Material: il FAB è 40dp, quindi restano otto punti d'aria per lato. Chi lo volesse più
  * discreto muove questo numero e basta: l'altezza e lo spostamento lo seguono.
  */
 private val MARK_WIDE = 24.dp

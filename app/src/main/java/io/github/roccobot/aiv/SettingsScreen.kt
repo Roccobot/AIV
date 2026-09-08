@@ -864,7 +864,7 @@ private fun ColumnScope.RootPage(
         /*
          * ⚠️⚠️ **DALLA `1.57` QUESTA VOCE DICE UN'ALTRA COSA, e la chiave è la stessa** (tappa
          * del piano d'azione): diceva quale **mano** si usa e rovesciava le file di un
-         * riquadro, adesso dice da che parte sta il **tastino**. La specchiatura se n'è andata
+         * riquadro, adesso dice da che parte sta il **FAB**. La specchiatura se n'è andata
          * del tutto, e quel mestiere lo fanno l'ordine che si trascina e questo lato.
          * ⚠️ **La chiave resta `hand`**: la domanda ha cambiato forma ma non verso, quindi chi
          * aveva scelto la sinistra ritrova la sinistra. Una chiave nuova gli avrebbe rimesso
@@ -1753,7 +1753,7 @@ private const val SUMMARY_JOIN = ", "
 private fun ViewOptionsPage(settings: Settings, onChange: (Settings) -> Unit) {
     Group(stringResource(R.string.view_grid))
 
-    // ⚠️ Le colonne restano anche nella scorciatoia del tocco lungo sul tastino, e non è un
+    // ⚠️ Le colonne restano anche nella scorciatoia del tocco lungo sul FAB, e non è un
     // doppione: la scorciatoia scrive questa stessa impostazione.
     Choices(
         label = stringResource(R.string.settings_folder_columns),

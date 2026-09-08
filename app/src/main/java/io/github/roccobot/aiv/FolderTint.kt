@@ -47,6 +47,23 @@ import androidx.compose.ui.unit.dp
  * ⚠️⚠️ **LE PRIME OTTO SONO SUE, ALLA LETTERA** (*prime due righe: 4E6367, 00727B, 43B59E,
  * 4FD9BE / C0FFE5, 38BFD3, FFB400, BC4A61; gli altri 8 colori sceglili tu*): sono i colori di
  * casa, cioè la famiglia del verde acqua dell'app più i tre accenti caldi che la rompono.
+ * ⚠️⚠️ **TRE DELLE SUE SONO CAMBIATE NELLA `1.86`, E TUTTE E TRE SU SUA ISTRUZIONE.** L'ambra
+ * `FFB400` diventa `FFA726`, che è `HINT_MARK`, cioè l'accento dei mini-onboarding (*sostituisci
+ * l'arancione che ho inserito con quello dell'accento dei mini-onboarding*): così l'unico
+ * arancione dell'app è uno solo.
+ * ⚠️⚠️ **E DUE ERANO IL COLORE PREDEFINITO, non uno**, che è il fatto misurato dietro la sua
+ * nota (*credo di aver inserito tra i colori di prima anche il colore predefinito nella mia
+ * lista; se è così, sostituiscilo con una sua variazione di luminosità o saturazione*): una
+ * cartella senza tinta prende `MaterialTheme.colorScheme.primary`, che vale `43B59E` sul tema
+ * chiaro e `00727B` su quello scuro, e tutti e due erano nella griglia. Quindi in ciascuno dei
+ * due temi c'era un tondo che non aggiungeva niente, perché sceglierlo dava esattamente il
+ * colore che la cartella aveva già.
+ * ⚠️ **Le due variazioni tengono la tinta e spostano luminosità e saturazione**, e i numeri
+ * sono scelti misurando: `23927C` sta a 58 dal predefinito chiaro e a 51 dal più vicino degli
+ * altri quindici (il verde `2E7D4F`), `0098A4` a 56 dal predefinito scuro e a 83 dal celeste
+ * `38BFD3`. Le vie scartate erano più belle e più vicine: `35907E` cadeva a 51 da `2E7D4F`, e
+ * la variazione di sola saturazione (`24D4B0`) finiva a 45 dall'acquamarina `4FD9BE`, cioè
+ * risolveva un doppione facendone un altro.
  * ⚠️⚠️ **LE ALTRE OTTO COMPLETANO LA RUOTA, ed è il criterio con cui sono scelte**: nelle sue
  * mancano il blu, l'indaco, il viola, il magenta e tutta la metà calda che non sia l'ambra,
  * quindi una cartella di ritratti e una di documenti finirebbero per forza nella stessa famiglia.
@@ -57,8 +74,8 @@ import androidx.compose.ui.unit.dp
  */
 val FRONT_TINTS: List<Color> = listOf(
     // Le sue due righe: la famiglia dell'app, poi i tre caldi.
-    Color(0xFF4E6367), Color(0xFF00727B), Color(0xFF43B59E), Color(0xFF4FD9BE),
-    Color(0xFFC0FFE5), Color(0xFF38BFD3), Color(0xFFFFB400), Color(0xFFBC4A61),
+    Color(0xFF4E6367), Color(0xFF0098A4), Color(0xFF23927C), Color(0xFF4FD9BE),
+    Color(0xFFC0FFE5), Color(0xFF38BFD3), Color(0xFFFFA726), Color(0xFFBC4A61),
     // Le mie due: i freddi che mancavano, e poi i caldi e i verdi.
     Color(0xFF4E7FD4), Color(0xFF6C5CE0), Color(0xFF9B5FC7), Color(0xFFD46FB0),
     Color(0xFFE2725B), Color(0xFFA8823C), Color(0xFF7A9E3F), Color(0xFF2E7D4F)

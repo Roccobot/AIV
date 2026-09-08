@@ -81,8 +81,8 @@
     <string name="settings_light">వెలుతురు</string>
     <string name="settings_dark">చీకటి</string>
 
-    <string name="settings_depth">ప్యానెల్ల వెనుక</string>
-    <string name="settings_depth_desc">తెరిచిన ప్యానెల్‌ను స్క్రీన్ నుండి వేరు చేసేది ఏది. బ్లర్ వెనుక ఉన్నదాన్ని మసకబారుస్తుంది, నీడ ప్యానెల్ చుట్టూ నీడను గీస్తుంది. పాత పరికరాల్లో బ్లర్ యాప్‌ను నెమ్మదిగా చేయవచ్చు.</string>
+    <string name="settings_depth">మెనూలు మరియు ప్యానెల్ల వెనుక ప్రభావం</string>
+    <string name="settings_depth_desc">మెనూ లేదా ప్యానెల్‌ను నేపథ్యం నుండి వేరు చేసి మరింత స్పష్టంగా చూపేందుకు దాని వెనుక వర్తించే ప్రభావాన్ని నిర్ణయిస్తుంది. చాలా పాత పరికరాల్లో బ్లర్ కొంత నెమ్మదిని కలిగించవచ్చు.</string>
     <string name="settings_depth_blur">బ్లర్</string>
     <string name="settings_depth_shadow">నీడ</string>
     <string name="settings_depth_none">ఏదీ లేదు</string>
@@ -91,13 +91,13 @@
     <string name="settings_front_wash">గ్రేడియంట్</string>
     <string name="settings_front_serif">సెరిఫ్ శీర్షిక</string>
     <string name="settings_front_facts">సమాచారం</string>
-    <string name="front_open">ఫైల్ మేనేజర్‌లో తెరవండి</string>
-    <string name="front_no_files">ఈ ఫోన్‌లో ఫోల్డర్‌లను తెరిచే యాప్ లేదు.</string>
     <string name="front_name_copied">ఫోల్డర్ పేరు కాపీ అయింది</string>
     <string name="front_path_copied">ఫోల్డర్ మార్గం కాపీ అయింది</string>
     <string name="front_copy_path">మార్గాన్ని కాపీ చేయండి</string>
     <string name="front_unpick">ఎంపిక తీసివేయి</string>
     <string name="front_pick_images">చిత్రాలను ఎంచుకోండి</string>
+    <string name="front_unpick_images">చిత్రాల ఎంపిక తీసివేయి</string>
+    <string name="front_unpick_clips">వీడియోల ఎంపిక తీసివేయి</string>
     <string name="front_tint">శీర్షిక రంగు</string>
     <string name="front_tint_none">డిఫాల్ట్ రంగు</string>
     <string name="settings_folder_columns">గడుల్లోని నిలువు వరుసలు</string>

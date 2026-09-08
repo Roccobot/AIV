@@ -202,7 +202,7 @@ fun TreeList(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
-                    // ⚠️ Il margine dal basso è l'altezza del tastino: senza, su una
+                    // ⚠️ Il margine dal basso è l'altezza del FAB: senza, su una
                     // cartella vuota la frase finirebbe centrata **sotto** di lui.
                     modifier = Modifier.padding(horizontal = 24.dp).padding(bottom = BELOW_FAB)
                 )
@@ -433,7 +433,7 @@ private fun SpotRow(
  * macchina sotto ([FileJob]) prende comunque una lista, quindi qui la lista ha un elemento.
  * Una selezione multipla in questa vista si può aggiungere quando servirà, e passerà da qui.
  * ⚠️ **Al centro dello schermo**, come il menu del visualizzatore e non come quello della
- * griglia (che sta sopra il suo tastino): qui non c'è nessun tastino da cui il riquadro
+ * griglia (che è sopra il suo FAB): qui non c'è nessun FAB da cui il riquadro
  * possa nascere, perché il gesto parte da una riga qualunque dell'elenco.
  */
 @Composable

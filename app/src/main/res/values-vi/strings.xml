@@ -81,8 +81,8 @@
     <string name="settings_light">Sáng</string>
     <string name="settings_dark">Tối</string>
 
-    <string name="settings_depth">Phía sau bảng</string>
-    <string name="settings_depth_desc">Điều tách một bảng đang mở khỏi màn hình. Làm mờ sẽ làm mờ và tối phần phía sau, còn bóng sẽ vẽ bóng quanh bảng. Làm mờ có thể khiến ứng dụng chậm hơn trên thiết bị cũ.</string>
+    <string name="settings_depth">Hiệu ứng phía sau menu và bảng</string>
+    <string name="settings_depth_desc">Đặt hiệu ứng phía sau menu hoặc bảng để tách nó khỏi nền và làm nó dễ thấy hơn. Làm mờ có thể gây chậm trên thiết bị rất cũ.</string>
     <string name="settings_depth_blur">Làm mờ</string>
     <string name="settings_depth_shadow">Bóng</string>
     <string name="settings_depth_none">Không</string>
@@ -91,13 +91,13 @@
     <string name="settings_front_wash">Chuyển màu</string>
     <string name="settings_front_serif">Tiêu đề có chân</string>
     <string name="settings_front_facts">Thông tin</string>
-    <string name="front_open">Mở trong trình quản lý tệp</string>
-    <string name="front_no_files">Không có ứng dụng nào trên điện thoại này mở thư mục.</string>
     <string name="front_name_copied">Đã sao chép tên thư mục</string>
     <string name="front_path_copied">Đã sao chép đường dẫn thư mục</string>
     <string name="front_copy_path">Sao chép đường dẫn</string>
     <string name="front_unpick">Bỏ chọn</string>
     <string name="front_pick_images">Chọn hình ảnh</string>
+    <string name="front_unpick_images">Bỏ chọn hình ảnh</string>
+    <string name="front_unpick_clips">Bỏ chọn video</string>
     <string name="front_tint">Màu của phần đầu</string>
     <string name="front_tint_none">Màu mặc định</string>
     <string name="settings_folder_columns">Số cột trong lưới</string>

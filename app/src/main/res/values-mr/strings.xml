@@ -81,8 +81,8 @@
     <string name="settings_light">उजळ</string>
     <string name="settings_dark">गडद</string>
 
-    <string name="settings_depth">पॅनेलच्या मागे</string>
-    <string name="settings_depth_desc">उघडलेले पॅनेल स्क्रीनपासून कशाने वेगळे दिसते. ब्लर मागचे अंधुक आणि गडद करते, सावली पॅनेलभोवती सावली काढते. ब्लरमुळे जुन्या उपकरणांवर अ‍ॅप हळू होऊ शकते.</string>
+    <string name="settings_depth">मेनू आणि पॅनेलच्या मागील परिणाम</string>
+    <string name="settings_depth_desc">मेनू किंवा पॅनेलच्या मागे लावला जाणारा परिणाम ठरवते, जेणेकरून तो पार्श्वभूमीपासून वेगळा आणि अधिक स्पष्ट दिसेल. खूप जुन्या उपकरणांवर ब्लरमुळे थोडा संथपणा येऊ शकतो.</string>
     <string name="settings_depth_blur">ब्लर</string>
     <string name="settings_depth_shadow">सावली</string>
     <string name="settings_depth_none">काहीही नाही</string>
@@ -91,13 +91,13 @@
     <string name="settings_front_wash">ग्रेडिएंट</string>
     <string name="settings_front_serif">सेरिफ शीर्षक</string>
     <string name="settings_front_facts">माहिती</string>
-    <string name="front_open">फाइल व्यवस्थापकात उघडा</string>
-    <string name="front_no_files">या फोनवरील कोणतेही अ‍ॅप फोल्डर उघडत नाही.</string>
     <string name="front_name_copied">फोल्डरचे नाव कॉपी केले</string>
     <string name="front_path_copied">फोल्डरचा मार्ग कॉपी केला</string>
     <string name="front_copy_path">मार्ग कॉपी करा</string>
     <string name="front_unpick">निवड रद्द करा</string>
     <string name="front_pick_images">प्रतिमा निवडा</string>
+    <string name="front_unpick_images">प्रतिमांची निवड रद्द करा</string>
+    <string name="front_unpick_clips">व्हिडिओंची निवड रद्द करा</string>
     <string name="front_tint">शीर्षकाचा रंग</string>
     <string name="front_tint_none">पूर्वनिर्धारित रंग</string>
     <string name="settings_folder_columns">जाळ्यांतील स्तंभ</string>

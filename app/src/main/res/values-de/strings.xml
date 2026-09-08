@@ -81,8 +81,8 @@
     <string name="settings_light">Hell</string>
     <string name="settings_dark">Dunkel</string>
 
-    <string name="settings_depth">Hinter Panels</string>
-    <string name="settings_depth_desc">Was ein geöffnetes Panel vom Bildschirm abhebt. Weichzeichnen verwischt und verdunkelt den Hintergrund, Schatten zeichnet einen Schatten um das Panel. Weichzeichnen kann die App auf älteren Geräten verlangsamen.</string>
+    <string name="settings_depth">Effekt hinter Menüs und Panels</string>
+    <string name="settings_depth_desc">Legt den Effekt hinter einem Menü oder Panel fest, der es vom Hintergrund abhebt und besser sichtbar macht. Weichzeichnen kann auf sehr alten Geräten zu Verzögerungen führen.</string>
     <string name="settings_depth_blur">Weichzeichnen</string>
     <string name="settings_depth_shadow">Schatten</string>
     <string name="settings_depth_none">Nichts</string>
@@ -91,13 +91,13 @@
     <string name="settings_front_wash">Verlauf</string>
     <string name="settings_front_serif">Serifentitel</string>
     <string name="settings_front_facts">Info</string>
-    <string name="front_open">Im Dateimanager öffnen</string>
-    <string name="front_no_files">Keine App auf diesem Telefon öffnet Ordner.</string>
     <string name="front_name_copied">Ordnername kopiert</string>
     <string name="front_path_copied">Ordnerpfad kopiert</string>
     <string name="front_copy_path">Pfad kopieren</string>
     <string name="front_unpick">Abwählen</string>
     <string name="front_pick_images">Bilder auswählen</string>
+    <string name="front_unpick_images">Bilder abwählen</string>
+    <string name="front_unpick_clips">Videos abwählen</string>
     <string name="front_tint">Farbe der Kopfzeile</string>
     <string name="front_tint_none">Standardfarbe</string>
     <string name="settings_folder_columns">Spalten in den Rastern</string>

@@ -81,8 +81,8 @@
     <string name="settings_light">روشن</string>
     <string name="settings_dark">تیره</string>
 
-    <string name="settings_depth">پشت پنل‌ها</string>
-    <string name="settings_depth_desc">چه چیزی پنل باز را از صفحه جدا می‌کند. تاری پشت آن را مبهم و تاریک می‌کند و سایه دور پنل سایه می‌کشد. تاری ممکن است برنامه را در دستگاه‌های قدیمی کندتر کند.</string>
+    <string name="settings_depth">جلوه پشت منوها و پنل‌ها</string>
+    <string name="settings_depth_desc">جلوه‌ای را که پشت منو یا پنل اعمال می‌شود تعیین می‌کند تا آن را از پس‌زمینه جدا و نمایان‌تر کند. تاری ممکن است در دستگاه‌های بسیار قدیمی کندی ایجاد کند.</string>
     <string name="settings_depth_blur">تاری</string>
     <string name="settings_depth_shadow">سایه</string>
     <string name="settings_depth_none">هیچ</string>
@@ -91,13 +91,13 @@
     <string name="settings_front_wash">گرادیان</string>
     <string name="settings_front_serif">عنوان سریف</string>
     <string name="settings_front_facts">اطلاعات</string>
-    <string name="front_open">باز کردن در مدیر فایل</string>
-    <string name="front_no_files">هیچ برنامه‌ای در این گوشی پوشه‌ها را باز نمی‌کند.</string>
     <string name="front_name_copied">نام پوشه کپی شد</string>
     <string name="front_path_copied">مسیر پوشه کپی شد</string>
     <string name="front_copy_path">کپی مسیر</string>
     <string name="front_unpick">لغو انتخاب</string>
     <string name="front_pick_images">انتخاب تصاویر</string>
+    <string name="front_unpick_images">لغو انتخاب تصاویر</string>
+    <string name="front_unpick_clips">لغو انتخاب ویدیوها</string>
     <string name="front_tint">رنگ سربرگ</string>
     <string name="front_tint_none">رنگ پیش‌فرض</string>
     <string name="settings_folder_columns">ستون‌های شبکه‌ها</string>

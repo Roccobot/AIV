@@ -10,6 +10,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasAnyDescendant
@@ -18,6 +19,9 @@ import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.After
@@ -172,6 +176,85 @@ class ProfonditaTest {
         banco.waitForIdle()
 
         assertTrue("Un tocco sulla voce ha chiuso il menu", stato.wanted)
+    }
+
+    /**
+     * **Caso 5: quanto resta fra il pannello di un menu ancorato e il bordo dello schermo.**
+     *
+     * ⚠️⚠️ **È IL PUNTO B DEL GIRO DELLA `1.85`, MISURATO** (*ottimo il fatto che il menu dei FAB
+     * va sul bordo destro con la sfocatura attiva, ma dimezza la distanza dal bordo anche per
+     * l'ombreggiatura e per nessun effetto attivo*): fino alla `1.85` la soglia appoggiava la
+     * **finestra** al vetro in tutti e tre i casi, quindi senza effetto il pannello finiva
+     * incollato e con l'ombra restava al margine intero del FAB. Adesso il posto dipende dalla
+     * scelta, e il conto vive in [rememberMenuSpot].
+     * ⚠️⚠️ **SI MISURA IL PANNELLO E NON LA FINESTRA, ed è tutta la differenza**: con l'ombra la
+     * finestra porta [LIFT_ROOM] di aria per lato, quindi le due misure non coincidono ed è la
+     * seconda quella che si vede. Una prova sulla posizione della finestra passerebbe anche con
+     * il difetto rimesso.
+     * ⚠️ **Con l'ombra il numero atteso è l'aria** e non la metà del margine: metà meno l'aria
+     * viene negativo, e una finestra non esce dallo schermo. Il perché per esteso, e che cosa
+     * costerebbe avvicinarlo lo stesso, vivono su [rememberMenuSpot].
+     */
+    @Test
+    fun `il pannello di un menu ancorato si ferma dove dice la scelta`() {
+        val scelta = mutableStateOf(PanelDepth.BLUR)
+        lateinit var dove: MenuSpot
+        var margine = 0
+        var aria = 0
+        var largo = 0
+        var pannello = 0
+        banco.setContent {
+            Scena(scelta) {
+                dove = rememberMenuAtAnchor()
+                with(LocalDensity.current) {
+                    margine = HUB_PAD.roundToPx()
+                    aria = LIFT_ROOM.roundToPx()
+                    largo = 400.dp.roundToPx()
+                    pannello = 200.dp.roundToPx()
+                }
+            }
+        }
+        banco.waitForIdle()
+        assertEquals(
+            "Con la sfocatura il pannello non arriva al vetro: la feritoia resta aperta",
+            0,
+            dalBordo(dove, largo, margine, pannello, 0)
+        )
+
+        scelta.value = PanelDepth.NONE
+        banco.waitForIdle()
+        assertEquals(
+            "Senza effetto il pannello non si ferma a metà del margine del FAB",
+            margine / 2,
+            dalBordo(dove, largo, margine, pannello, 0)
+        )
+
+        scelta.value = PanelDepth.SHADOW
+        banco.waitForIdle()
+        assertEquals(
+            "Con l'ombra il pannello non si ferma sull'aria che l'ombra chiede",
+            aria,
+            dalBordo(dove, largo, margine, pannello, aria)
+        )
+    }
+
+    /**
+     * Quanto resta fra il fianco destro del **pannello disegnato** e il bordo destro della
+     * finestra, dando a [dove] la geometria del menu del FAB: un FAB appoggiato in basso a
+     * destra col suo margine, e un pannello che con l'ombra si porta dietro [aria] per lato.
+     */
+    private fun dalBordo(
+        dove: MenuSpot,
+        largo: Int,
+        margine: Int,
+        pannello: Int,
+        aria: Int
+    ): Int {
+        val fab = largo / 8
+        val ancora = IntRect(largo - margine - fab, largo, largo - margine, largo + fab)
+        val misura = IntSize(pannello + 2 * aria, largo / 4)
+        val x = dove.calculatePosition(ancora, IntSize(largo, largo * 2), LayoutDirection.Ltr, misura).x
+        return largo - (x + misura.width) + aria
     }
 
     /** La finestra del menu, che nell'albero della prova è una root a sé. */

@@ -81,8 +81,8 @@
     <string name="settings_light">Nyepesi</string>
     <string name="settings_dark">Nyeusi</string>
 
-    <string name="settings_depth">Nyuma ya paneli</string>
-    <string name="settings_depth_desc">Kinachotenganisha paneli iliyofunguliwa na skrini. Ukungu hutia ukungu na kutia giza kilicho nyuma, kivuli huchora kivuli kuzunguka paneli. Ukungu unaweza kufanya programu iwe polepole kwenye vifaa vya zamani.</string>
+    <string name="settings_depth">Athari nyuma ya menyu na paneli</string>
+    <string name="settings_depth_desc">Huweka athari inayotumika nyuma ya menyu au paneli ili kuitenganisha na mandharinyuma na kuifanya ionekane zaidi. Ukungu unaweza kupunguza kasi kwenye vifaa vya zamani sana.</string>
     <string name="settings_depth_blur">Ukungu</string>
     <string name="settings_depth_shadow">Kivuli</string>
     <string name="settings_depth_none">Hakuna</string>
@@ -91,13 +91,13 @@
     <string name="settings_front_wash">Upinde rangi</string>
     <string name="settings_front_serif">Kichwa chenye serifu</string>
     <string name="settings_front_facts">Maelezo</string>
-    <string name="front_open">Fungua katika kidhibiti cha faili</string>
-    <string name="front_no_files">Hakuna programu kwenye simu hii inayofungua folda.</string>
     <string name="front_name_copied">Jina la folda limenakiliwa</string>
     <string name="front_path_copied">Njia ya folda imenakiliwa</string>
     <string name="front_copy_path">Nakili njia</string>
     <string name="front_unpick">Ondoa uteuzi</string>
     <string name="front_pick_images">Chagua picha</string>
+    <string name="front_unpick_images">Ondoa uteuzi wa picha</string>
+    <string name="front_unpick_clips">Ondoa uteuzi wa video</string>
     <string name="front_tint">Rangi ya kichwa</string>
     <string name="front_tint_none">Rangi chaguo-msingi</string>
     <string name="settings_folder_columns">Safu kwenye gridi</string>
@@ -166,7 +166,7 @@
     <string name="grid_item">Kipengele cha %1$d kati ya %2$d</string>
     <string name="grid_item_last">Kipengele cha %1$d kati ya %2$d, ulichokiangalia mwisho</string>
     <string name="pick_leave">Toka kwenye uteuzi</string>
-    <string name="pick_all">Chagua zote</string>
+    <string name="pick_all">Chagua vyote</string>
     <string name="pick_info">Taarifa</string>
     <string name="pick_close">Funga</string>
     <string name="pick_actions">Vitendo kwa zilizochaguliwa</string>

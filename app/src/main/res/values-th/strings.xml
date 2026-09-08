@@ -81,8 +81,8 @@
     <string name="settings_light">สว่าง</string>
     <string name="settings_dark">มืด</string>
 
-    <string name="settings_depth">ด้านหลังแผง</string>
-    <string name="settings_depth_desc">สิ่งที่แยกแผงที่เปิดอยู่ออกจากหน้าจอ การเบลอจะเบลอและทำให้ด้านหลังมืดลง เงาจะวาดเงารอบแผง การเบลออาจทำให้แอปทำงานช้าลงบนอุปกรณ์รุ่นเก่า</string>
+    <string name="settings_depth">เอฟเฟกต์ด้านหลังเมนูและแผง</string>
+    <string name="settings_depth_desc">กำหนดเอฟเฟกต์ที่ใช้ด้านหลังเมนูหรือแผงเพื่อแยกออกจากพื้นหลังและทำให้เห็นชัดขึ้น การเบลออาจทำให้ช้าลงบนอุปกรณ์ที่เก่ามาก</string>
     <string name="settings_depth_blur">เบลอ</string>
     <string name="settings_depth_shadow">เงา</string>
     <string name="settings_depth_none">ไม่มี</string>
@@ -91,13 +91,13 @@
     <string name="settings_front_wash">ไล่ระดับสี</string>
     <string name="settings_front_serif">หัวเรื่องแบบมีเชิง</string>
     <string name="settings_front_facts">ข้อมูล</string>
-    <string name="front_open">เปิดในตัวจัดการไฟล์</string>
-    <string name="front_no_files">ไม่มีแอปในโทรศัพท์นี้ที่เปิดโฟลเดอร์ได้</string>
     <string name="front_name_copied">คัดลอกชื่อโฟลเดอร์แล้ว</string>
     <string name="front_path_copied">คัดลอกเส้นทางโฟลเดอร์แล้ว</string>
     <string name="front_copy_path">คัดลอกเส้นทาง</string>
     <string name="front_unpick">ยกเลิกการเลือก</string>
     <string name="front_pick_images">เลือกรูปภาพ</string>
+    <string name="front_unpick_images">ยกเลิกการเลือกรูปภาพ</string>
+    <string name="front_unpick_clips">ยกเลิกการเลือกวิดีโอ</string>
     <string name="front_tint">สีของส่วนหัว</string>
     <string name="front_tint_none">สีเริ่มต้น</string>
     <string name="settings_folder_columns">จำนวนคอลัมน์ในตาราง</string>

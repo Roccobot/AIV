@@ -81,8 +81,8 @@
     <string name="settings_light">فاتح</string>
     <string name="settings_dark">داكن</string>
 
-    <string name="settings_depth">خلف اللوحات</string>
-    <string name="settings_depth_desc">ما يفصل اللوحة المفتوحة عن الشاشة. التمويه يموه ويعتم ما خلفها، والظل يرسم ظلا حولها. قد يجعل التمويه التطبيق أبطأ على الأجهزة القديمة.</string>
+    <string name="settings_depth">التأثير خلف القوائم واللوحات</string>
+    <string name="settings_depth_desc">يحدد التأثير المطبق خلف قائمة أو لوحة لفصلها عن الخلفية وجعلها أوضح. قد يسبب التمويه بعض البطء على الأجهزة القديمة جدا.</string>
     <string name="settings_depth_blur">تمويه</string>
     <string name="settings_depth_shadow">ظل</string>
     <string name="settings_depth_none">بلا</string>
@@ -91,13 +91,13 @@
     <string name="settings_front_wash">تدرج لوني</string>
     <string name="settings_front_serif">عنوان بحروف مذيلة</string>
     <string name="settings_front_facts">معلومات</string>
-    <string name="front_open">الفتح في مدير الملفات</string>
-    <string name="front_no_files">لا يوجد تطبيق على هذا الهاتف يفتح المجلدات.</string>
     <string name="front_name_copied">تم نسخ اسم المجلد</string>
     <string name="front_path_copied">تم نسخ مسار المجلد</string>
     <string name="front_copy_path">نسخ المسار</string>
     <string name="front_unpick">إلغاء التحديد</string>
     <string name="front_pick_images">تحديد الصور</string>
+    <string name="front_unpick_images">إلغاء تحديد الصور</string>
+    <string name="front_unpick_clips">إلغاء تحديد الفيديوهات</string>
     <string name="front_tint">لون الترويسة</string>
     <string name="front_tint_none">اللون الافتراضي</string>
     <string name="settings_folder_columns">أعمدة الشبكات</string>

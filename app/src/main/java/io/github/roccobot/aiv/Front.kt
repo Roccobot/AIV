@@ -137,7 +137,7 @@ fun FrontBand(
  * Le due sfumature in fondo allo schermo, che inghiottono quello che gli scorre sotto.
  *
  * ⚠️⚠️ **LA FASCIA GRANDE, dalla `0.77`** (richiesta dell'utente: *dalla coordinata Y in cui
- * comincia il tastino, una piccola sfumatura verso il colore di fondo del tema, che inghiotte
+ * comincia il FAB, una piccola sfumatura verso il colore di fondo del tema, che inghiotte
  * ciò che sta giù abbastanza velocemente, in modo che dia poco fastidio, e che allo stesso
  * tempo suggerisce che la griglia si scorre*). Nella schermata iniziale al riposo non copre
  * niente, perché lo spazio riservato ([BELOW_FAB]) tiene l'ultima cartella sopra di lei; serve
@@ -176,7 +176,7 @@ fun FrontBand(
  * che dalla `1.83` passa **sopra** le sfumature: la coda gli finiva addosso.
  *
  * @param alpha quanto si vedono, da 0 a 1. ⚠️ **Il valore di serie è il pieno**, che è il caso
- *   della schermata iniziale: là il tastino c'è sempre, quindi la fascia che lo tiene su un fondo
+ *   della schermata iniziale: là il FAB c'è sempre, quindi la fascia che lo tiene su un fondo
  *   neutro non ha ragione di andarsene. Nella griglia di una cartella invece se ne va scorrendo,
  *   ed è una richiesta sua (*le due sfumature in basso devono progressivamente sparire e lasciare
  *   campo libero alla griglia piena su tutto lo schermo*).
@@ -237,7 +237,7 @@ fun GroundFade(
 }
 
 /**
- * Quante volte il tastino è alta la fascia dipinta.
+ * Quante volte il FAB è alta la fascia dipinta.
  *
  * ⚠️⚠️ **DUE E MEZZO DALLA `1.56`, ED È IL TERZO CAMBIO IN TRE VERSIONI**: quattro nella `1.54`
  * per fare posto a una coda in cima, tre nella `1.55` quando quella coda è sparita, e adesso due
@@ -254,12 +254,12 @@ fun GroundFade(
 private const val GRADIENT_TIMES = 2.5f
 
 /**
- * L'opacità massima della sfumatura, quella che tiene dal tastino in giù.
+ * L'opacità massima della sfumatura, quella che tiene dal FAB in giù.
  *
  * ⚠️⚠️ **ERA IL PIENO FINO ALLA `1.54`, E ADESSO NON LO È PIÙ** (richiesta dell'utente, giro
  * della `1.54`: *il colore non parte più da 100%, bensì da 70%*, e poi giro della `1.55`:
  * *l'opacità massima sul bordo inferiore scende al 60%*). ⚠️ **Il prezzo è dichiarato**: la
- * promessa vecchia era che sotto il tastino non passasse mai un'immagine, e con sei decimi di
+ * promessa vecchia era che sotto il FAB non passasse mai un'immagine, e con sei decimi di
  * colore un'immagine molto contrastata si intravede. È una scelta sua, non una svista, ed è in
  * linea con la concessione che aveva già fatto sulla stessa fascia (*può andare anche il 20%: si
  * intuisce comunque bene che è una cosa che va scomparendo*).
@@ -277,7 +277,7 @@ private const val GRADIENT_PEAK = 0.60f
 private const val GRADIENT_STOPS = 20
 
 /**
- * Quanto è alta la fascia dipinta sopra il tastino.
+ * Quanto è alta la fascia dipinta sopra il FAB.
  *
  * ⚠️ **Non è privata perché la legge il banco di prova**: per sapere se un tocco cade **dentro**
  * la sfumatura serve sapere fin dove arriva, e ricopiare il numero là darebbe una prova che
@@ -314,7 +314,7 @@ private val FOOT_REACH = 40.dp
  * Quanto dura il pieno in fondo alla coda, misurato dal bordo dello schermo in su.
  *
  * ⚠️⚠️ **È LA STESSA FORMA DELLA FASCIA GRANDE, e non un'invenzione**: anche [swallow] sale
- * fino al bordo del tastino e poi tiene il suo massimo, e la ragione è la stessa in tutti e due
+ * fino al bordo del FAB e poi tiene il suo massimo, e la ragione è la stessa in tutti e due
  * i posti. Una dissolvenza che tocca il massimo e subito finisce non ha un massimo da leggere:
  * si vede la salita, e quello che sta in cima lo si deduce.
  * ⚠️⚠️ **VENTIDUE DALLA `1.62`, ED È IL SUO SECONDO NUMERO SU QUESTO PIANORO** (riscontro del
@@ -342,11 +342,11 @@ private val FOOT_SOLID = 22.dp
 private const val FOOT_STOPS = 20
 
 /**
- * A che punto della sua altezza la sfumatura sopra il tastino ha inghiottito tutto.
+ * A che punto della sua altezza la sfumatura sopra il FAB ha inghiottito tutto.
  *
  * ⚠️⚠️ **NON È UN NUMERO SCELTO A OCCHIO (era 0,55): si RICAVA.** Il bordo superiore del
- * tastino sta a [FAB_REACH] dal fondo, cioè a questa frazione della fascia dipinta: da lì in
- * giù il colore non cresce più, quindi il tastino sta tutto su un fondo di un colore solo.
+ * FAB sta a [FAB_REACH] dal fondo, cioè a questa frazione della fascia dipinta: da lì in
+ * giù il colore non cresce più, quindi il FAB sta tutto su un fondo di un colore solo.
  * Cambiando [GRADIENT_TIMES] il conto si rifà da sé.
  * ⚠️ Il rovescio da conoscere: alzando la fascia, il tratto a colore fermo resta lo stesso e
  * cresce solo la dissolvenza sopra, che è esattamente ciò che 'più graduale' vuol dire.
@@ -363,7 +363,7 @@ private const val SWALLOW = 1f / GRADIENT_TIMES
  * comparso di colpo in una riga di pixel. Adesso in cima si arriva a zero, quindi lo scalino non
  * esiste e la seconda salita non ha più niente da nascondere.
  * ⚠️ **Il tratto si ricava da [SWALLOW]** e non è scritto a mano: si sale da niente a
- * [GRADIENT_PEAK] fino al bordo del tastino, e da lì in giù il colore sta fermo. Cambiando
+ * [GRADIENT_PEAK] fino al bordo del FAB, e da lì in giù il colore sta fermo. Cambiando
  * [GRADIENT_TIMES] i due tratti si ridistribuiscono da soli.
  */
 private fun swallow(at: Float): Float {
@@ -632,14 +632,18 @@ fun Modifier.frontWash(tint: Color, air: Dp, up: Dp, ink: () -> Float): Modifier
 /**
  * Quanto arriva a coprire la tinta nel suo punto più forte: **sette decimi**.
  *
- * ⚠️⚠️ **ERA IL PIENO FINO ALLA `1.84`** (riscontro del giro della `1.83`, voce `front-dieci`:
- * *sfumatura molto meno visibile: inizia il gradiente già dal bordo superiore, e anzi inizia da
- * 70%*). Le dieci tappe restano quelle del mockup: quello che cambia è il numero da cui partono,
- * quindi la **forma** della dissolvenza è ancora quella che lui ha guardato.
- * ⚠️ **Si moltiplica invece di riscrivere le tappe**: scritte con il 70% già dentro, il giorno
- * che quel numero cambia bisognerebbe rifare dieci moltiplicazioni a mano.
+ * ⚠️⚠️ **TRE VALORI IN TRE VERSIONI, E LI HA DETTATI TUTTI E TRE COL TELEFONO IN MANO**: il
+ * pieno fino alla `1.84`, il 70% con la `1.85` (*sfumatura molto meno visibile: inizia il
+ * gradiente già dal bordo superiore, e anzi inizia da 70%*), e il **40%** con la `1.86`
+ * (riscontro del giro della `1.85`, voce `int-gradiente` approvata con una nota: *ancora troppo
+ * invadente: proviamo dal 40% anziché 70%*). Le dieci tappe restano quelle del mockup: quello
+ * che cambia è il numero da cui partono, quindi la **forma** della dissolvenza è ancora quella
+ * che lui ha guardato.
+ * ⚠️ **Si moltiplica invece di riscrivere le tappe**, ed è la ragione per cui tre giri di
+ * ritocchi sono costati tre caratteri: scritte col numero già dentro, ogni cambio vorrebbe dire
+ * rifare dieci moltiplicazioni a mano.
  */
-private const val WASH_PEAK = 0.70f
+private const val WASH_PEAK = 0.40f
 
 /**
  * Le tappe della tinta dell'intestazione: dove, e con quanto colore.

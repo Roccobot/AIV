@@ -3382,7 +3382,7 @@ private fun ImageMenu(
             // (istruzione dell'utente): erano arrivate nella 0.30 perché la loro rotella
             // occupava un posto che serviva al contatore della cartella, e restavano
             // l'unica via per raggiungerle da dentro una fotografia. Dalla 0.41 le porta
-            // il tastino della schermata delle cartelle, quindi questa voce era diventata
+            // il FAB della schermata delle cartelle, quindi questa voce era diventata
             // la seconda porta di una stanza sola.
             // ⚠️ LA RICERCA IMMAGINE NON C'È PIÙ, dalla 0.18, e non è una dimenticanza:
             // l'utente l'ha spenta dopo averla provata sul telefono, perché non

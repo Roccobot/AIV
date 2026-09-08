@@ -150,23 +150,23 @@
     <string name="settings_light">Chiara</string>
     <string name="settings_dark">Scura</string>
 
-    <string name="settings_depth">Dietro i pannelli</string>
-    <string name="settings_depth_desc">Che cosa stacca dalla schermata un pannello che si apre. La sfocatura sfoca e scurisce quello che c\'è dietro, l\'ombreggiatura disegna un\'ombra intorno al pannello. La sfocatura può rendere l\'app più lenta su dispositivi datati.</string>
+    <string name="settings_depth">Effetto dietro menu e pannelli</string>
+    <string name="settings_depth_desc">Definisce l\'effetto applicato dietro un menu o un pannello per staccarlo dallo sfondo e renderlo più visibile. La sfocatura potrebbe causare qualche rallentamento su dispositivi molto datati.</string>
     <string name="settings_depth_blur">Sfocatura</string>
-    <string name="settings_depth_shadow">Ombreggiatura</string>
+    <string name="settings_depth_shadow">Ombra</string>
     <string name="settings_depth_none">Niente</string>
     <string name="settings_front">Intestazione delle cartelle</string>
     <string name="settings_front_desc">Imposta l\'aspetto e le funzionalità della fascia sopra la griglia dei file.</string>
     <string name="settings_front_wash">Gradiente</string>
     <string name="settings_front_serif">Titolo graziato</string>
     <string name="settings_front_facts">Info</string>
-    <string name="front_open">Apri nel gestore file</string>
-    <string name="front_no_files">Nessuna app di questo telefono apre le cartelle.</string>
     <string name="front_name_copied">Nome della cartella copiato</string>
     <string name="front_path_copied">Percorso della cartella copiato</string>
     <string name="front_copy_path">Copia il percorso</string>
     <string name="front_unpick">Deseleziona</string>
     <string name="front_pick_images">Seleziona le immagini</string>
+    <string name="front_unpick_images">Deseleziona le immagini</string>
+    <string name="front_unpick_clips">Deseleziona i video</string>
     <string name="front_tint">Colore dell\'intestazione</string>
     <string name="front_tint_none">Colore predefinito</string>
 
@@ -217,7 +217,7 @@
     <string name="folders_permission">Per elencare le cartelle serve l\'accesso a tutti i file. È lo stesso permesso che serve a sfogliare una cartella, e si concede da una pagina di sistema.</string>
     <string name="folders_grant">Concedi l\'accesso</string>
     <string name="folders_none">Nessuna cartella contiene niente da mostrare.</string>
-    <!-- ── Il tastino quadrato in basso a destra ── -->
+    <!-- ── Il FAB quadrato in basso a destra ── -->
     <string name="hub_open">Altro</string>
     <string name="hub_view_list">Visualizzazione lista</string>
     <string name="hub_view_grid">Visualizzazione griglia</string>
@@ -251,7 +251,7 @@
 
     <!-- ── Scegliere più immagini in una cartella ── -->
     <string name="pick_leave">Esci dalla selezione</string>
-    <string name="pick_all">Seleziona tutte</string>
+    <string name="pick_all">Seleziona tutti</string>
     <string name="pick_info">Info</string>
     <string name="pick_close">Chiudi</string>
     <string name="pick_actions">Operazioni sulla selezione</string>

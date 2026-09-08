@@ -81,8 +81,8 @@
     <string name="settings_light">淺色</string>
     <string name="settings_dark">深色</string>
 
-    <string name="settings_depth">面板背後</string>
-    <string name="settings_depth_desc">開啟的面板與螢幕之間靠什麼區分。模糊會模糊並壓暗背後的內容，陰影會在面板周圍繪製陰影。模糊可能使應用程式在舊裝置上變慢。</string>
+    <string name="settings_depth">選單與面板背後的效果</string>
+    <string name="settings_depth_desc">設定選單或面板背後的效果，使其從背景中分離並更加醒目。模糊在非常舊的裝置上可能造成卡頓。</string>
     <string name="settings_depth_blur">模糊</string>
     <string name="settings_depth_shadow">陰影</string>
     <string name="settings_depth_none">無</string>
@@ -91,13 +91,13 @@
     <string name="settings_front_wash">漸層</string>
     <string name="settings_front_serif">襯線標題</string>
     <string name="settings_front_facts">資訊</string>
-    <string name="front_open">在檔案管理員中開啟</string>
-    <string name="front_no_files">這支手機上沒有可開啟資料夾的應用程式。</string>
     <string name="front_name_copied">已複製資料夾名稱</string>
     <string name="front_path_copied">已複製資料夾路徑</string>
     <string name="front_copy_path">複製路徑</string>
     <string name="front_unpick">取消選取</string>
     <string name="front_pick_images">選取圖片</string>
+    <string name="front_unpick_images">取消選取圖片</string>
+    <string name="front_unpick_clips">取消選取影片</string>
     <string name="front_tint">標題列顏色</string>
     <string name="front_tint_none">預設顏色</string>
     <string name="settings_folder_columns">格狀檢視的欄數</string>

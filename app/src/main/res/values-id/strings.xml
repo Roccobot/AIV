@@ -81,8 +81,8 @@
     <string name="settings_light">Terang</string>
     <string name="settings_dark">Gelap</string>
 
-    <string name="settings_depth">Di belakang panel</string>
-    <string name="settings_depth_desc">Apa yang memisahkan panel terbuka dari layar. Blur mengaburkan dan menggelapkan yang ada di belakangnya, bayangan menggambar bayangan di sekelilingnya. Blur dapat membuat aplikasi lebih lambat pada perangkat lama.</string>
+    <string name="settings_depth">Efek di belakang menu dan panel</string>
+    <string name="settings_depth_desc">Menentukan efek di belakang menu atau panel untuk memisahkannya dari latar dan membuatnya lebih terlihat. Blur dapat menyebabkan sedikit perlambatan pada perangkat yang sangat lama.</string>
     <string name="settings_depth_blur">Blur</string>
     <string name="settings_depth_shadow">Bayangan</string>
     <string name="settings_depth_none">Tidak ada</string>
@@ -91,13 +91,13 @@
     <string name="settings_front_wash">Gradien</string>
     <string name="settings_front_serif">Judul serif</string>
     <string name="settings_front_facts">Info</string>
-    <string name="front_open">Buka di pengelola berkas</string>
-    <string name="front_no_files">Tidak ada aplikasi di ponsel ini yang membuka folder.</string>
     <string name="front_name_copied">Nama folder disalin</string>
     <string name="front_path_copied">Jalur folder disalin</string>
     <string name="front_copy_path">Salin jalur</string>
     <string name="front_unpick">Batalkan pilihan</string>
     <string name="front_pick_images">Pilih gambar</string>
+    <string name="front_unpick_images">Batalkan pilihan gambar</string>
+    <string name="front_unpick_clips">Batalkan pilihan video</string>
     <string name="front_tint">Warna header</string>
     <string name="front_tint_none">Warna bawaan</string>
     <string name="settings_folder_columns">Kolom pada kisi</string>

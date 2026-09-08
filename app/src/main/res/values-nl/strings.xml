@@ -81,8 +81,8 @@
     <string name="settings_light">Licht</string>
     <string name="settings_dark">Donker</string>
 
-    <string name="settings_depth">Achter panelen</string>
-    <string name="settings_depth_desc">Wat een geopend paneel losmaakt van het scherm. Vervaging maakt de achtergrond onscherp en donkerder, schaduw tekent een schaduw om het paneel. Vervaging kan de app langzamer maken op oudere toestellen.</string>
+    <string name="settings_depth">Effect achter menu\'s en panelen</string>
+    <string name="settings_depth_desc">Bepaalt het effect achter een menu of paneel om het los te maken van de achtergrond en beter zichtbaar te maken. Vervaging kan op zeer oude toestellen enige vertraging veroorzaken.</string>
     <string name="settings_depth_blur">Vervaging</string>
     <string name="settings_depth_shadow">Schaduw</string>
     <string name="settings_depth_none">Niets</string>
@@ -91,13 +91,13 @@
     <string name="settings_front_wash">Verloop</string>
     <string name="settings_front_serif">Titel met schreef</string>
     <string name="settings_front_facts">Info</string>
-    <string name="front_open">Openen in bestandsbeheer</string>
-    <string name="front_no_files">Geen app op deze telefoon opent mappen.</string>
     <string name="front_name_copied">Mapnaam gekopieerd</string>
     <string name="front_path_copied">Mappad gekopieerd</string>
     <string name="front_copy_path">Pad kopiëren</string>
     <string name="front_unpick">Deselecteren</string>
     <string name="front_pick_images">Afbeeldingen selecteren</string>
+    <string name="front_unpick_images">Afbeeldingen deselecteren</string>
+    <string name="front_unpick_clips">Video\'s deselecteren</string>
     <string name="front_tint">Kleur van de koptekst</string>
     <string name="front_tint_none">Standaardkleur</string>
     <string name="settings_folder_columns">Kolommen in de rasters</string>
