@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 'Nascondi cartelle', nel menu del FAB della schermata iniziale.
 
-     DISEGNATO DALL'UTENTE, arrivato il 2026-09-08 con la richiesta di 'Mostra nascoste'
-     (campo libero del giro della 1.91). La gemella è `ic_folder_eye`, che dice il rovescio.
+     DISEGNATO DALL'UTENTE, e questa è la sua SECONDA versione, arrivata il 2026-09-08 col
+     riscontro del giro della 1.94 (punto C del campo libero). La gemella è `ic_folder_eye`, che
+     dice il rovescio.
 
-     NON È UN GLIFO DI MATERIAL, ed è la ragione per cui entra qui: la famiglia ne ha uno per
-     l'occhio e uno per l'occhio sbarrato, ma nessuno che dica CARTELLA nascosta, che è la cosa
-     di cui parla questa voce. Il criterio vive in `CLAUDE.md`, § 'Come entra un disegno': un file
-     che arriva si misura contro quello che Compose già porta, e qui il confronto non ha un
-     candidato.
+     UN ANGOLO È STONDATO QUI E NON NEL FILE DI PARTENZA, ed è lui a chiederlo (`nell'icona
+     folderHide.svg non sono riuscito ad arrotondare come gli altri l'angolo evidenziato nello
+     screenshot: pensaci tu prima di caricarla`). È l'angolo da cui parte la sbarra, in alto a
+     sinistra: gli altri tre della sbarra portano un raccordo di 0,4 unità, quello no.
+     IL RAGGIO NON È SCELTO A OCCHIO: si ricava dagli altri tre raccordi dello stesso tracciato,
+     dove la tangente dista 0,403 dal vertice su un angolo retto, cioè un raggio di 0,4; e
+     coincide con quello che lui ha misurato in Illustrator (`l'arrotondamento dell'icona mi
+     risultava di 0,4px`). La curva è quella degli altri, ruotata di un quarto di giro, quindi il
+     raccordo nuovo non è una forma diversa vestita uguale.
+     Costo misurato: 43 pixel diversi su 57.600 a 240px, tutti sull'angolo.
 
-     IL TRASPORTO NON CAMBIA UN PIXEL, misurato rendendo a 240px il file di partenza e questo
-     tracciato: la resa è identica byte per byte. Quello che cambia è solo la forma della `d`,
-     cioè i 32 numeri incollati separati e ogni comando implicito scritto per esteso.
+     IL RESTO DEL TRASPORTO NON CAMBIA UN PIXEL: quello che cambia è la forma della `d`, cioè i
+     numeri incollati separati e ogni comando implicito scritto per esteso.
 
      LA REGOLA DI RIEMPIMENTO È QUELLA DEL FILE DI PARTENZA, che non ne dichiara nessuna e quindi
      vale il `nonzero` di serie di SVG. Si scrive comunque: una regola dichiarata dice quello che
@@ -27,5 +32,5 @@
     <path
         android:fillColor="#FF000000"
         android:fillType="nonZero"
-        android:pathData="M4,12.92v-6.92h5.17l2,2h8.83v5c.37,.17,.72,.33,1.05,.47c.33,.15,.65,.34,.95,.58v-6.05c0,-.55,-.2,-1.02,-.59,-1.41s-.86,-.59,-1.41,-.59h-8l-2,-2h-6c-.55,0,-1.02,.2,-1.41,.59s-.59,.86,-.59,1.41v12c0,.55,.2,1.02,.59,1.41s.86,.59,1.41,.59h3v-2h-3v-5.08ZM20.2,15.2c-1.28,-.8,-2.68,-1.2,-4.2,-1.2c-.64,0,-1.26,.09,-1.86,.23l1.77,1.77s.05,0,.08,0c.95,0,1.85,.22,2.69,.65c.84,.43,1.53,1.05,2.06,1.85c-.32,.47,-.69,.87,-1.12,1.22l1.44,1.44c.84,-.72,1.48,-1.6,1.93,-2.66c-.58,-1.4,-1.52,-2.5,-2.8,-3.3ZM10.58,14.5l.92,.92c-1.12,.78,-1.97,1.8,-2.5,3.08c.58,1.4,1.52,2.5,2.8,3.3s2.68,1.2,4.2,1.2c.92,0,1.8,-.16,2.63,-.45l1.37,1.37l1.41,-1.41l-9.42,-9.42l-1.41,1.41ZM12.95,16.87l4.04,4.04c-.32,.06,-.65,.09,-.99,.09c-.95,0,-1.85,-.22,-2.69,-.65c-.84,-.43,-1.53,-1.05,-2.06,-1.85c.45,-.68,1.03,-1.22,1.7,-1.63Z" />
+        android:pathData="M6.99,18h-2.99V6.4c0,-.22 .18,-.4 .4,-.4h4.61c.11,0 .21,.04 .28,.12l1.88,1.88h8.43c.22,0 .4,.18 .4,.4v4.6c.37,.17 .62,.29 .94,.47c.26,.15 .76,.51 1.06,.73v-6.2c0,-.55 -.2,-1.02 -.59,-1.41s-.86,-.59 -1.41,-.59h-7.84c-.11,0 -.21,-.04 -.28,-.12l-1.77,-1.77c-.07,-.07 -.18,-.12 -.28,-.12h-5.84c-.55,0 -1.02,.2 -1.41,.59s-.59,.86 -.59,1.41v12c0,.55 .2,1.02 .59,1.41s.86,.59 1.41,.59h3.85c-.18,-.25 -.38,-.58 -.56,-1c-.16,-.37 -.25,-.72 -.3,-1ZM12.08,12.97c-.16,-.16 -.41,-.16 -.57,0l-.845,.845c-.16,.16 -.16,.41 0,.57l.635,.635c-1.07,.74 -1.89,1.71 -2.43,2.91c-.05,.11 -.05,.24 0,.35c.59,1.32 1.5,2.36 2.72,3.12c1.28,.8 2.68,1.2 4.2,1.2c.92,0 1.8,-.16 2.63,-.45l1.09,1.09c.16,.16 .41,.16 .57,0l.84,-.84c.16,-.16 .16,-.41 0,-.57l-8.85,-8.85ZM15.8,20.6c-.95,0 -1.85,-.22 -2.69,-.65c-.75,-.39 -1.38,-.92 -1.89,-1.61c-.11,-.14 -.1,-.35 0,-.49c.42,-.57 .94,-1.03 1.53,-1.39l4.04,4.04c-.32,.06 -.65,.09 -.99,.09ZM22.72,17.93c-.59,-1.32 -1.5,-2.36 -2.73,-3.13c-1.28,-.8 -2.68,-1.2 -4.2,-1.2c-.64,0 -1.26,.09 -1.86,.23l1.77,1.77s.05,0 .08,0c.95,0 1.85,.22 2.69,.65c.75,.39 1.39,.92 1.89,1.61c.1,.14 .1,.34 0,.48c-.28,.37 -.6,.69 -.95,.98l1.44,1.44c.8,-.68 1.41,-1.5 1.85,-2.49c.05,-.11 .05,-.24 0,-.35Z" />
 </vector>

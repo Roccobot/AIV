@@ -99,8 +99,6 @@
     <string name="settings_colour_name">Name</string>
     <string name="settings_colour_glow">Schimmer</string>
     <string name="front_name_copied">Ordnername kopiert</string>
-    <string name="front_path_copied">Ordnerpfad kopiert</string>
-    <string name="front_copy_path">Pfad kopieren</string>
     <string name="front_unpick">Abwählen</string>
     <string name="front_pick_images">Bilder auswählen</string>
     <string name="front_unpick_images">Bilder abwählen</string>
@@ -108,10 +106,17 @@
     <string name="front_tint">Farbe der Kopfzeile</string>
     <string name="front_tint_none">Standardfarbe</string>
     <string name="folder_cover">Titelbild wählen</string>
-    <string name="folder_cover_auto">Automatisches Titelbild</string>
+    <string name="folder_cover_auto">Standard-Titelbild</string>
     <string name="folder_cover_pick">Titelbild für \'%1$s\' wählen</string>
     <string name="folder_cover_done">Titelbild aktualisiert</string>
     <string name="folder_cover_fail">Dieses Bild lässt sich nicht als Titelbild verwenden</string>
+    <string name="folder_cover_reset">Standard-Titelbild wiederhergestellt</string>
+    <string name="hint_cover">Ein Tippen auf das Ordnersymbol in der Kopfzeile legt ein eigenes Titelbild fest: Es kann jedes Bild auf deinem Gerät sein, nicht unbedingt eines aus dem Ordner, in dem du gerade bist, und es bleibt in HD gespeichert, auch wenn du das Original löschst. Um zum Standard-Titelbild zurückzukehren, wechsle in den Auswahlmodus und tippe erneut auf das Symbol desselben Ordners.</string>
+    <string name="folder_renamed">Ordner umbenannt</string>
+    <string name="folder_rename_taken">Es gibt schon einen Ordner mit diesem Namen</string>
+    <string name="folder_rename_fail">Der Ordner konnte nicht umbenannt werden</string>
+    <string name="jump_top">Nach oben springen</string>
+    <string name="jump_bottom">Nach unten springen</string>
     <string name="settings_folder_columns">Spalten in den Rastern</string>
     <string name="settings_folder_columns_desc">Wie viele Spalten das Ordnerraster und das Bildraster zeigen. Mehr Spalten zeigen mehr auf einmal und verkleinern jede Kachel. Bei vier wird der Ordnername meist abgeschnitten.</string>
     <string name="settings_folder_count">Zähler der Elemente unter den Ordnern in der Rasteransicht</string>
@@ -169,7 +174,7 @@
     <string name="folder_no_videos">Der Ordner enthält keine Videos.</string>
     <string name="cancel">Abbrechen</string>
     <string name="hide_folder_title">\'%1$s\' ausblenden?</string>
-    <string name="hide_folder_desc">Der Ordner wird in der Raster- und Listenansicht nicht mehr aufgeführt. Das ist nur eine Anzeigeeinstellung: es wird nichts gelöscht.</string>
+    <string name="hide_folder_desc">Der Ordner wird in der Raster- und Listenansicht nicht mehr aufgeführt. Das ist nur eine Anzeigeeinstellung: es wird keine Datei gelöscht.</string>
     <string name="show_folder_title">\'%1$s\' wieder anzeigen?</string>
     <string name="show_folder_desc">Der Ordner wird in der Raster- und Listenansicht wieder normal aufgeführt.</string>
     <string name="hide_folder_do">Ausblenden</string>

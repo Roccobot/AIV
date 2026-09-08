@@ -96,6 +96,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.graphicsLayer
@@ -129,6 +130,7 @@ import android.text.format.Formatter
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onLongClick
@@ -375,7 +377,27 @@ fun GridScreen(
      * ⚠️ Il valore di serie non fa niente, e per una funzione va bene: chi monta questa
      * schermata nel banco di prova non ha un modello dietro da avvisare.
      */
-    onBusy: (Boolean) -> Unit = {}
+    onBusy: (Boolean) -> Unit = {},
+    /**
+     * Se la scelta di una copertina è in corso **per questa cartella**.
+     *
+     * ⚠️ **Serve solo al mini onboarding**, che compare la prima volta che il gesto avvia la
+     * scelta: la modalità vive nel modello, perché fra l'inizio e la scelta si cambia schermata,
+     * quindi da qui si vede solo come un `Boolean`.
+     * ⚠️ **Per QUESTA cartella e non 'una qualunque'**: scegliendo la copertina di un'altra si
+     * naviga, e un velo che comparisse là indicherebbe l'icona sbagliata.
+     */
+    coverHere: Boolean = false,
+    /**
+     * Rinomina la cartella aperta: il tocco lungo sul nome dell'intestazione.
+     *
+     * ⚠️ **`null` dove non c'è una cartella da rinominare**, cioè nel cestino, nella ricerca e nel
+     * banco di prova: là l'intestazione non c'è, e con lei il gesto.
+     * ⚠️ **La rinomina vera la fa il modello e non questa schermata**: tocca il disco, cambia
+     * l'identificatore della cartella e con lui la copertina e la tinta, e alla fine riapre la
+     * griglia. Da qui esce il solo nome nuovo.
+     */
+    onFolderRename: ((String) -> Unit)? = null
 ) {
     val state = rememberLazyGridState()
     val context = LocalContext.current
@@ -521,6 +543,14 @@ fun GridScreen(
      * quello che la apre è dentro un nodo che si rimisura a ogni pixel di scorrimento.
      */
     var tinge by rememberSaveable { mutableStateOf(false) }
+    /**
+     * Se la finestra che rinomina la cartella è in scena: la apre il tocco lungo sul nome
+     * dell'intestazione.
+     *
+     * ⚠️ **Vive qui accanto a [tinge] per la stessa ragione**: chi la apre è dentro la fascia,
+     * che si rimisura a ogni pixel di scorrimento, e la finestra sta col resto dei dialoghi.
+     */
+    var rinomina by rememberSaveable { mutableStateOf(false) }
     val picking = chosen.isNotEmpty()
 
     // ⚠️ In un effetto e non a filo della composizione: avvisare il modello è un cambiamento
@@ -645,6 +675,26 @@ fun GridScreen(
     }
 
     /**
+     * Se il mini onboarding della copertina si è già visto. Stessa ragione del valore di partenza
+     * del suo gemello qui sopra.
+     */
+    val coverSeen by produceState(initialValue = true, context) {
+        Hint.COVER.flow(context).collect { value = it }
+    }
+
+    /**
+     * Dove sta l'icona dell'intestazione, in coordinate della radice.
+     *
+     * ⚠️⚠️ **SI MISURA INVECE DI RICALCOLARLA**, perché il velo che la evidenzia deve caderci
+     * sopra: la sua posizione dipende dai rientri di sistema, dalla testata, da quanto la fascia è
+     * aperta e dalla misura che l'icona cede scorrendo, cioè da quattro cose che cambiano. Il
+     * perché per esteso vive su [HintSpot].
+     * ⚠️ **`null` finché non è stata disegnata**, ed è la condizione che tiene il velo fuori
+     * scena: senza il riquadro non c'è niente da indicare.
+     */
+    var iconaSpot by remember { mutableStateOf<Rect?>(null) }
+
+    /**
      * 'Tutte', che è il gesto che vale trecento tocchi.
      *
      * ⚠️ Vive in una variabile perché lo chiamano in **tre** posti: il tasto 'Tutti' del
@@ -760,7 +810,10 @@ fun GridScreen(
             // lo stesso per il doppio tocco, che vive nel visualizzatore.
             // ⚠️ Dalla 1.36 c'è anche l'avviso sul cambio di estensione, che vive dentro
             // la finestra di rinomina: stessa storia, ramo obbligato dall'enum.
-            Hint.COLUMNS, Hint.ZOOM_TAP, Hint.EXT_WARN -> Unit
+            // ⚠️ Dalla 1.95 c'è anche quello della copertina, che vive in questa schermata ma
+            // non passa da qui: indica l'icona dell'intestazione, quindi ha un velo suo e si
+            // archivia per conto proprio.
+            Hint.COLUMNS, Hint.ZOOM_TAP, Hint.EXT_WARN, Hint.COVER -> Unit
             null -> Unit
         }
         hint?.let { seen -> scope.launch { seen.remember(context) } }
@@ -1149,10 +1202,17 @@ fun GridScreen(
      * di composizione, e in una lambda che parte da un tocco non si può chiamare.
      */
     val nomeCopiato = stringResource(R.string.front_name_copied)
-    val percorsoCopiato = stringResource(R.string.front_path_copied)
-    val percorsoEtichetta = stringResource(R.string.front_copy_path)
+    val rinominaEtichetta = stringResource(R.string.pick_rename)
     val tintaEtichetta = stringResource(R.string.front_tint)
     val copertinaEtichetta = stringResource(R.string.folder_cover)
+
+    /*
+     * ⚠️ **Il tema dell'app, letto QUI perché serve in fase di disegno**: l'inchiostro dell'icona
+     * dell'intestazione lo sceglie una `graphicsLayer`, che gira fuori dalla composizione e un
+     * `CompositionLocal` non lo può leggere. È il tema di AIV e non quello di sistema, che è la
+     * distinzione di `AIV/CLAUDE.md`, § '🌗 Il tema scelto DENTRO l'app non è quello di sistema'.
+     */
+    val chiaro = LocalAivLight.current
     /*
      * ⚠️ **Il gesto si legge VIVO e non catturato**: il riconoscitore dei tocchi nasce una volta
      * sola (`pointerInput(Unit)`, o si riavvierebbe a ogni ricomposizione), quindi la lambda che
@@ -1164,19 +1224,13 @@ fun GridScreen(
         Notices.say(nomeCopiato)
     }
     /*
-     * ⚠️ **Il percorso PORTA GIÀ il nome della cartella** (è `/storage/emulated/0/DCIM/Camera`,
-     * non la cartella che la contiene), quindi *il nome della cartella con il percorso* è quella
-     * stringa e basta: attaccarci il titolo in coda scriverebbe l'ultimo pezzo due volte.
+     * ⚠️⚠️ **IL TOCCO LUNGO SUL NOME RINOMINA LA CARTELLA, DALLA `1.95`, E FINO ALLA `1.94`
+     * COPIAVA IL PERCORSO** (sua richiesta, 2026-09-08: *non più 'copia percorso' -> passa a
+     * 'Rinomina': per rinominare facilmente la cartella*). Con lui escono di scena le due stringhe
+     * di allora, `front_copy_path` e `front_path_copied`, che non avevano più nessun chiamante.
+     * ⚠️ **Il tocco breve non cambia**: copia il nome, come dalla `1.85`.
      */
-    val viaLungo = {
-        val dove = facts.path
-        if (dove.isNullOrBlank()) {
-            copiaNome()
-        } else {
-            ImageActions.copyName(context, dove)
-            Notices.say(percorsoCopiato)
-        }
-    }
+    val viaLungo = { if (onFolderRename != null) rinomina = true }
 
     /*
      * ⚠️⚠️ **IL RIENTRO DI SOTTO NON STA PIÙ QUI, DALLA `1.90`** (sua richiesta: *non si può
@@ -1484,10 +1538,21 @@ fun GridScreen(
                         } else {
                             tintaEtichetta
                         },
-                        tint = if (frontWash) {
-                            MaterialTheme.colorScheme.surface
-                        } else {
-                            LocalContentColor.current
+                        /*
+                         * ⚠️⚠️ **NEL TEMA SCURO L'ICONA È BIANCA E SOVRAPPOSTA, DALLA `1.95`, E
+                         * NON PIÙ IN NEGATIVO** (sua richiesta: *l'icona dell'intestazione deve
+                         * ritornare positiva (sovrapposta) per il tema scuro: bianco, opacità
+                         * 40%*). Il negativo è la sagoma della **superficie**, che nel tema chiaro
+                         * è quasi bianca e stacca sulla tinta, mentre nel tema scuro è quasi nera:
+                         * là 'in negativo' voleva dire uno scuro sopra un altro scuro.
+                         * ⚠️ **Il tema è quello dell'APP e non quello di sistema** ([LocalAivLight]),
+                         * per la stessa ragione dell'icona in testata: l'app ha una voce sua in
+                         * 'Aspetto', e una risorsa letta dalla configurazione direbbe il contrario.
+                         */
+                        tint = when {
+                            !frontWash -> LocalContentColor.current
+                            chiaro -> MaterialTheme.colorScheme.surface
+                            else -> Color.White
                         },
                         modifier = Modifier
                             .semantics {
@@ -1507,11 +1572,21 @@ fun GridScreen(
                                 shut = { shut },
                                 max = HEADER_ICON
                             )
+                            // ⚠️ Il riquadro serve al velo del mini onboarding, che ci cade sopra:
+                            // il perché si misura invece di ricalcolarlo vive su [iconaSpot].
+                            .onGloballyPositioned { iconaSpot = it.boundsInRoot() }
                             .graphicsLayer {
                                 alpha = frontIconInk(
                                     aperto = quanto(),
                                     soglia = frontIconFade(headerPx, HEADER_ICON.toPx()),
-                                    pieno = if (frontWash) FRONT_NEG_INK else FRONT_INK
+                                    // ⚠️ Il pieno segue il colore scelto qui sopra: la sagoma in
+                                    // negativo vuole tutto l'inchiostro, il bianco sovrapposto ne
+                                    // vuole il 40%, che è il numero che ha dettato lui.
+                                    pieno = when {
+                                        !frontWash -> FRONT_INK
+                                        chiaro -> FRONT_NEG_INK
+                                        else -> FRONT_DARK_INK
+                                    }
                                 )
                             }
                     )
@@ -1569,7 +1644,7 @@ fun GridScreen(
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
                             .heading()
-                            .semantics { onLongClick(label = percorsoEtichetta) { viaLungo(); true } }
+                            .semantics { onLongClick(label = rinominaEtichetta) { viaLungo(); true } }
                             .pointerInput(title, facts.path) {
                                 detectTapGestures(
                                     onTap = { copiaNome() },
@@ -2068,6 +2143,31 @@ fun GridScreen(
          * veste che non ha dove mandare (vedi i due parametri): un FAB che apre un menu
          * vuoto è peggio di un FAB che non c'è.
          */
+        /*
+         * ⚠️⚠️ **I DUE TASTI DELLO SCORRIMENTO PORTANO LO STESSO MODIFICATORE DEL FAB, e non è
+         * una copia da tenere allineata**: sono le sue parole (*devono apparire sopra il FAB (a
+         * destra o sinistra) ed essere perfettamente allineati orizzontalmente con il centro del
+         * FAB stesso*), e l'unico modo perché due cose stiano sulla stessa verticale è che
+         * partano dagli stessi rientri. Lo spazio del FAB se lo mette [JumpFabs].
+         * ⚠️ **Il salto 'in su' passa dallo scorrimento annidato**, che è quello che riapre
+         * l'intestazione: senza, il tasto porterebbe la griglia in cima lasciando la fascia
+         * chiusa, mentre lui ha chiesto *fino alla visualizzazione piena dell'intestazione*.
+         * ⚠️ **E la fascia chiusa conta come 'c'è ancora spazio sopra'**: chiudendola la griglia
+         * non si muove di un pixel, quindi `canScrollBackward` risponde di no proprio nel caso
+         * in cui il tasto ha qualcosa da fare.
+         */
+        JumpFabs(
+            state = state,
+            up = { state.jumpUpPixels() + shut },
+            down = { state.jumpDownPixels() },
+            nested = paging,
+            more = { shut > 0f },
+            modifier = Modifier
+                .align(fabSide())
+                .safeDrawingPadding()
+                .padding(horizontal = GRID_PAD_X, vertical = GRID_PAD_Y)
+                .padding(8.dp)
+        )
         FabPop(
             visible = (bin || onSettings != null || onBin != null || onSearchHere != null) &&
                 !picking && cleared == null,
@@ -2134,8 +2234,12 @@ fun GridScreen(
                          * ⚠️ **Vive fra 'Cerca' e 'Cestino' perché l'ordine dice una cosa**: sopra
                          * quello che si fa dentro questa cartella, sotto quello che porta
                          * altrove.
+                         * ⚠️⚠️ **DALLA `1.95` NON SI VEDE, PERCHÉ [COVER_MENU_ROW] È SPENTA**: la
+                         * voce l'ha bocciata lui, e a togliere la copertina adesso è il gesto
+                         * ricorsivo sull'icona dell'intestazione. Il perché, e come si riaccende,
+                         * vivono su quella costante.
                          */
-                        val togliCopertina = onCoverClear.takeIf { coverSet }
+                        val togliCopertina = onCoverClear.takeIf { coverSet && COVER_MENU_ROW }
                         togliCopertina?.let { togli ->
                             if (onSearchHere != null) HorizontalDivider()
                             MenuRow(
@@ -2357,6 +2461,9 @@ fun GridScreen(
                         // di questa forma: è un `HintNotice`, cioè una finestra sua, aperta
                         // dalla finestra di rinomina.
                         Hint.EXT_WARN -> R.string.hint_ext_warn
+                        // ⚠️ E idem per la copertina: quel velo indica l'icona dell'intestazione,
+                        // quindi è un `HintSpot` e la sua frase la sceglie lui.
+                        Hint.COVER -> R.string.hint_cover
                     }
                 ),
                 // ⚠️ Tre rientri: quello di sistema, il margine della schermata e gli 8dp
@@ -2383,6 +2490,29 @@ fun GridScreen(
             }
         }
 
+        /*
+         * ⚠️⚠️ **IL MINI ONBOARDING DELLA COPERTINA, DALLA `1.95`, ED È SUA RICHIESTA ALLA
+         * LETTERA** (riscontro del giro della `1.94`: *la prima volta che si tocca la copertina e
+         * si avvia la selezione di un'immagine personalizzata, deve esserci un mini-onboarding con
+         * l'icona dell'intestazione evidenziata nell'arancione onboarding, più il seguente testo
+         * sotto, centrato*). Il testo è il suo, e vive in `hint_cover`.
+         * ⚠️ **Non passa da [hint]**, che è il velo del FAB: quello indica un tasto in fondo allo
+         * schermo e questo un'icona in cima, quindi sono due veli diversi e non due frasi dello
+         * stesso. La chiave però è nello stesso enum, perché 'Ripristina gli avvisi' li deve
+         * rimettere tutti.
+         * ⚠️ **Vuole il riquadro dell'icona**, quindi non compare prima che la fascia sia stata
+         * disegnata: è la condizione su [iconaSpot], e in pratica non si vede mai, perché il velo
+         * nasce da un tocco **su** quell'icona.
+         */
+        val dovIcona = iconaSpot
+        if (coverHere && !coverSeen && dovIcona != null) {
+            HintSpot(
+                text = stringResource(R.string.hint_cover),
+                spot = dovIcona,
+                glyph = Glyphs.FolderAiv,
+                onDone = { scope.launch { Hint.COVER.remember(context) } }
+            )
+        }
     }
 
     /*
@@ -2401,6 +2531,27 @@ fun GridScreen(
      * schermata: il perché sta su [cleared]. ⚠️ Chi la rimettesse avrebbe due cure per lo
      * stesso sbaglio, una che chiede prima e una che disfa dopo.
      */
+
+    /*
+     * ⚠️⚠️ **LA RINOMINA DELLA CARTELLA È LA STESSA FINESTRA DEL FILE SINGOLO, ED È SUA
+     * ISTRUZIONE** (2026-09-08: *usa esattamente la stessa finestra di rinomina del file singolo,
+     * ovviamente senza percorso né estensione*). Quello che cambia lo dice il parametro `folder`
+     * di [RenameDialog], e il perché di ogni differenza vive là.
+     * ⚠️ **Il nome che arriva è il titolo della schermata**, cioè quello che si vede
+     * nell'intestazione: la cartella è questa, e il campo parte da com'è scritta adesso.
+     */
+    val rinominaCartella = onFolderRename
+    if (rinomina && rinominaCartella != null) {
+        RenameDialog(
+            uris = emptyList(),
+            folder = title,
+            onDismiss = { rinomina = false },
+            onRename = { nome, _, _ ->
+                rinomina = false
+                rinominaCartella(nome)
+            }
+        )
+    }
 
     /*
      * ⚠️ **Il selettore della tinta di questa cartella**, che apre il tocco lungo sull'icona

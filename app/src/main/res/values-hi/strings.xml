@@ -99,8 +99,6 @@
     <string name="settings_colour_name">नाम</string>
     <string name="settings_colour_glow">आभा</string>
     <string name="front_name_copied">फ़ोल्डर का नाम कॉपी हुआ</string>
-    <string name="front_path_copied">फ़ोल्डर का पथ कॉपी हुआ</string>
-    <string name="front_copy_path">पथ कॉपी करें</string>
     <string name="front_unpick">चयन हटाएँ</string>
     <string name="front_pick_images">चित्र चुनें</string>
     <string name="front_unpick_images">चित्रों का चयन हटाएँ</string>
@@ -108,10 +106,17 @@
     <string name="front_tint">शीर्षक का रंग</string>
     <string name="front_tint_none">डिफ़ॉल्ट रंग</string>
     <string name="folder_cover">कवर चुनें</string>
-    <string name="folder_cover_auto">स्वचालित कवर</string>
+    <string name="folder_cover_auto">डिफ़ॉल्ट कवर</string>
     <string name="folder_cover_pick">\'%1$s\' का कवर चुनें</string>
     <string name="folder_cover_done">कवर अपडेट हो गया</string>
     <string name="folder_cover_fail">इस छवि को कवर के रूप में इस्तेमाल नहीं किया जा सकता</string>
+    <string name="folder_cover_reset">डिफ़ॉल्ट कवर बहाल किया गया</string>
+    <string name="hint_cover">शीर्ष पट्टी में फ़ोल्डर के आइकन पर एक टैप अपनी पसंद का कवर तय करता है: यह आपके डिवाइस की कोई भी तस्वीर हो सकती है, ज़रूरी नहीं कि उसी फ़ोल्डर की हो जिसमें आप हैं, और मूल तस्वीर मिटाने पर भी यह HD में संग्रहीत रहती है। डिफ़ॉल्ट कवर पर लौटने के लिए चयन मोड में जाएँ और उसी फ़ोल्डर के आइकन को फिर से टैप करें।</string>
+    <string name="folder_renamed">फ़ोल्डर का नाम बदल दिया</string>
+    <string name="folder_rename_taken">इस नाम का फ़ोल्डर पहले से है</string>
+    <string name="folder_rename_fail">फ़ोल्डर का नाम नहीं बदला जा सका</string>
+    <string name="jump_top">सबसे ऊपर जाएँ</string>
+    <string name="jump_bottom">सबसे नीचे जाएँ</string>
     <string name="settings_folder_columns">ग्रिड के स्तंभ</string>
     <string name="settings_folder_columns_desc">फ़ोल्डर ग्रिड और चित्र ग्रिड कितने स्तंभ दिखाएँ। अधिक स्तंभों में स्क्रीन पर अधिक चीज़ें आती हैं और हर खाना छोटा होता है। चार पर फ़ोल्डर का नाम प्रायः कट जाता है।</string>
     <string name="settings_folder_count">ग्रिड दृश्य में फ़ोल्डरों के नीचे वस्तुओं की गिनती</string>
@@ -169,7 +174,7 @@
     <string name="folder_no_videos">फ़ोल्डर में कोई वीडियो नहीं है।</string>
     <string name="cancel">रद्द करें</string>
     <string name="hide_folder_title">\'%1$s\' छिपाएँ?</string>
-    <string name="hide_folder_desc">फ़ोल्डर ग्रिड और सूची दृश्य में नहीं दिखेगा। यह केवल दिखाने की सेटिंग है: कुछ भी मिटता नहीं।</string>
+    <string name="hide_folder_desc">फ़ोल्डर ग्रिड और सूची दृश्य में नहीं दिखेगा। यह केवल दिखाने की सेटिंग है: कोई फ़ाइल नहीं मिटेगी।</string>
     <string name="show_folder_title">\'%1$s\' फिर दिखाएँ?</string>
     <string name="show_folder_desc">फ़ोल्डर ग्रिड और सूची दृश्य में फ़ोल्डरों के बीच फिर सामान्य रूप से दिखेगा।</string>
     <string name="hide_folder_do">छिपाएँ</string>

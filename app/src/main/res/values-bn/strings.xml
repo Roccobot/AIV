@@ -99,8 +99,6 @@
     <string name="settings_colour_name">নাম</string>
     <string name="settings_colour_glow">আভা</string>
     <string name="front_name_copied">ফোল্ডারের নাম কপি হয়েছে</string>
-    <string name="front_path_copied">ফোল্ডারের পাথ কপি হয়েছে</string>
-    <string name="front_copy_path">পাথ কপি করুন</string>
     <string name="front_unpick">নির্বাচন সরান</string>
     <string name="front_pick_images">ছবি নির্বাচন করুন</string>
     <string name="front_unpick_images">ছবির নির্বাচন সরান</string>
@@ -108,10 +106,17 @@
     <string name="front_tint">হেডারের রঙ</string>
     <string name="front_tint_none">ডিফল্ট রঙ</string>
     <string name="folder_cover">কভার বেছে নিন</string>
-    <string name="folder_cover_auto">স্বয়ংক্রিয় কভার</string>
+    <string name="folder_cover_auto">ডিফল্ট কভার</string>
     <string name="folder_cover_pick">\'%1$s\'-এর কভার বেছে নিন</string>
     <string name="folder_cover_done">কভার আপডেট হয়েছে</string>
     <string name="folder_cover_fail">এই ছবিটি কভার হিসেবে ব্যবহার করা যাবে না</string>
+    <string name="folder_cover_reset">ডিফল্ট কভার ফিরিয়ে আনা হয়েছে</string>
+    <string name="hint_cover">হেডারে ফোল্ডারের আইকনে একটি টোকা দিলে নিজের পছন্দের কভার সেট হয়: এটি আপনার ডিভাইসের যেকোনো ছবি হতে পারে, যে ফোল্ডারে আছেন সেটির ভেতরের হওয়া জরুরি নয়, আর মূল ছবি মুছে ফেললেও এটি HD-তে সংরক্ষিত থাকে। ডিফল্ট কভারে ফিরতে নির্বাচন মোডে ঢুকে একই ফোল্ডারের আইকনে আবার টোকা দিন।</string>
+    <string name="folder_renamed">ফোল্ডারের নাম বদলানো হয়েছে</string>
+    <string name="folder_rename_taken">এই নামের ফোল্ডার আগে থেকেই আছে</string>
+    <string name="folder_rename_fail">ফোল্ডারের নাম বদলানো যায়নি</string>
+    <string name="jump_top">উপরে যান</string>
+    <string name="jump_bottom">নিচে যান</string>
     <string name="settings_folder_columns">গ্রিডের কলাম</string>
     <string name="settings_folder_columns_desc">ফোল্ডার গ্রিড ও ছবির গ্রিড কতগুলি কলাম দেখাবে। বেশি কলামে পর্দায় বেশি জিনিস আঁটে এবং প্রতিটি ঘর ছোট হয়। চারটিতে ফোল্ডারের নাম সাধারণত কেটে যায়।</string>
     <string name="settings_folder_count">গ্রিড দৃশ্যে ফোল্ডারের নিচে জিনিসের গণনা</string>
@@ -169,7 +174,7 @@
     <string name="folder_no_videos">ফোল্ডারে কোনো ভিডিও নেই।</string>
     <string name="cancel">বাতিল</string>
     <string name="hide_folder_title">\'%1$s\' লুকাবেন?</string>
-    <string name="hide_folder_desc">ফোল্ডারটি গ্রিড ও তালিকা ভিউয়ে দেখানো হবে না। এটি শুধু দেখানোর সেটিং: কিছুই মুছে যায় না।</string>
+    <string name="hide_folder_desc">ফোল্ডারটি গ্রিড ও তালিকা ভিউয়ে দেখানো হবে না। এটি শুধু দেখানোর সেটিং: কোনো ফাইল মুছে যাবে না।</string>
     <string name="show_folder_title">\'%1$s\' আবার দেখাবেন?</string>
     <string name="show_folder_desc">ফোল্ডারটি গ্রিড ও তালিকা ভিউয়ে ফোল্ডারগুলোর মধ্যে আবার স্বাভাবিকভাবে দেখা যাবে।</string>
     <string name="hide_folder_do">লুকান</string>

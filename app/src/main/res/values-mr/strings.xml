@@ -99,8 +99,6 @@
     <string name="settings_colour_name">नाव</string>
     <string name="settings_colour_glow">आभा</string>
     <string name="front_name_copied">फोल्डरचे नाव कॉपी केले</string>
-    <string name="front_path_copied">फोल्डरचा मार्ग कॉपी केला</string>
-    <string name="front_copy_path">मार्ग कॉपी करा</string>
     <string name="front_unpick">निवड रद्द करा</string>
     <string name="front_pick_images">प्रतिमा निवडा</string>
     <string name="front_unpick_images">प्रतिमांची निवड रद्द करा</string>
@@ -108,10 +106,17 @@
     <string name="front_tint">शीर्षकाचा रंग</string>
     <string name="front_tint_none">पूर्वनिर्धारित रंग</string>
     <string name="folder_cover">मुखपृष्ठ निवडा</string>
-    <string name="folder_cover_auto">स्वयंचलित मुखपृष्ठ</string>
+    <string name="folder_cover_auto">पूर्वनिर्धारित मुखपृष्ठ</string>
     <string name="folder_cover_pick">\'%1$s\' चे मुखपृष्ठ निवडा</string>
     <string name="folder_cover_done">मुखपृष्ठ अद्ययावत झाले</string>
     <string name="folder_cover_fail">ही प्रतिमा मुखपृष्ठ म्हणून वापरता येत नाही</string>
+    <string name="folder_cover_reset">पूर्वनिर्धारित मुखपृष्ठ पुन्हा आणले</string>
+    <string name="hint_cover">शीर्षपट्टीतील संचिकासंचाच्या चिन्हावर एक स्पर्श स्वतःचे मुखपृष्ठ ठरवतो: ते तुमच्या उपकरणावरील कोणतेही चित्र असू शकते, तुम्ही असलेल्या संचिकासंचातलेच असायला हवे असे नाही, आणि मूळ चित्र पुसले तरी ते HD मध्ये साठवलेले राहते. पूर्वनिर्धारित मुखपृष्ठाकडे परतण्यासाठी निवड पद्धतीत जा आणि त्याच संचिकासंचाच्या चिन्हाला पुन्हा स्पर्श करा.</string>
+    <string name="folder_renamed">फोल्डरचे नाव बदलले</string>
+    <string name="folder_rename_taken">या नावाचे फोल्डर आधीच आहे</string>
+    <string name="folder_rename_fail">फोल्डरचे नाव बदलता आले नाही</string>
+    <string name="jump_top">सर्वात वर जा</string>
+    <string name="jump_bottom">सर्वात खाली जा</string>
     <string name="settings_folder_columns">जाळ्यांतील स्तंभ</string>
     <string name="settings_folder_columns_desc">संचिकासंच जाळी आणि प्रतिमा जाळी किती स्तंभ दाखवतील. अधिक स्तंभांत पडद्यावर अधिक गोष्टी मावतात आणि प्रत्येक खण लहान होतो. चारवर संचिकासंचाचे नाव बहुधा तुटते.</string>
     <string name="settings_folder_count">जाळी दृश्यात फोल्डरखाली घटकांची मोजणी</string>
@@ -169,7 +174,7 @@
     <string name="folder_no_videos">फोल्डरमध्ये व्हिडिओ नाहीत.</string>
     <string name="cancel">रद्द</string>
     <string name="hide_folder_title">\'%1$s\' लपवायचा?</string>
-    <string name="hide_folder_desc">संचिकासंच ग्रिड आणि यादी दृश्यात दिसणार नाही. ही फक्त दाखवण्याची सेटिंग आहे: काहीही पुसले जात नाही.</string>
+    <string name="hide_folder_desc">संचिकासंच ग्रिड आणि यादी दृश्यात दिसणार नाही. ही फक्त दाखवण्याची सेटिंग आहे: कोणतीही संचिका पुसली जाणार नाही.</string>
     <string name="show_folder_title">\'%1$s\' पुन्हा दाखवायचा?</string>
     <string name="show_folder_desc">संचिकासंच ग्रिड आणि यादी दृश्यात संचिकासंचांमध्ये पुन्हा नेहमीप्रमाणे दिसेल.</string>
     <string name="hide_folder_do">लपवा</string>

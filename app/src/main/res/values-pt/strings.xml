@@ -99,8 +99,6 @@
     <string name="settings_colour_name">Nome</string>
     <string name="settings_colour_glow">Brilho</string>
     <string name="front_name_copied">Nome da pasta copiado</string>
-    <string name="front_path_copied">Caminho da pasta copiado</string>
-    <string name="front_copy_path">Copiar o caminho</string>
     <string name="front_unpick">Desmarcar</string>
     <string name="front_pick_images">Selecionar as imagens</string>
     <string name="front_unpick_images">Desmarcar as imagens</string>
@@ -108,10 +106,17 @@
     <string name="front_tint">Cor do cabeçalho</string>
     <string name="front_tint_none">Cor padrão</string>
     <string name="folder_cover">Escolher a capa</string>
-    <string name="folder_cover_auto">Capa automática</string>
+    <string name="folder_cover_auto">Capa padrão</string>
     <string name="folder_cover_pick">Escolha a capa de \'%1$s\'</string>
     <string name="folder_cover_done">Capa atualizada</string>
     <string name="folder_cover_fail">Não é possível usar esta imagem como capa</string>
+    <string name="folder_cover_reset">Capa padrão restaurada</string>
+    <string name="hint_cover">Um toque no ícone da pasta no cabeçalho define uma capa personalizada: pode ser qualquer imagem do seu aparelho, não necessariamente uma da pasta em que você está, e fica guardada em HD mesmo se você excluir a original. Para voltar à capa padrão, entre no modo de seleção e toque de novo no ícone da mesma pasta.</string>
+    <string name="folder_renamed">Pasta renomeada</string>
+    <string name="folder_rename_taken">Já existe uma pasta com este nome</string>
+    <string name="folder_rename_fail">Não foi possível renomear a pasta</string>
+    <string name="jump_top">Ir para o topo</string>
+    <string name="jump_bottom">Ir para o fim</string>
     <string name="settings_folder_columns">Colunas nas grades</string>
     <string name="settings_folder_columns_desc">Quantas colunas a grade de pastas e a de imagens mostram. Mais colunas cabem mais coisas na tela e encolhem cada bloco. Em quatro, o nome da pasta costuma ficar cortado.</string>
     <string name="settings_folder_count">Contador de itens sob as pastas na visualização em grade</string>
@@ -169,7 +174,7 @@
     <string name="folder_no_videos">A pasta não contém vídeos.</string>
     <string name="cancel">Cancelar</string>
     <string name="hide_folder_title">Ocultar \'%1$s\'?</string>
-    <string name="hide_folder_desc">A pasta não será listada na visualização em grade nem em lista. É apenas uma configuração de exibição: nada é excluído.</string>
+    <string name="hide_folder_desc">A pasta não será listada na visualização em grade nem em lista. É apenas uma configuração de exibição: nenhum arquivo será excluído.</string>
     <string name="show_folder_title">Mostrar \'%1$s\' de novo?</string>
     <string name="show_folder_desc">A pasta voltará a aparecer normalmente entre as pastas na visualização em grade e em lista.</string>
     <string name="hide_folder_do">Ocultar</string>

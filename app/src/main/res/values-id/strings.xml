@@ -99,8 +99,6 @@
     <string name="settings_colour_name">Nama</string>
     <string name="settings_colour_glow">Cahaya</string>
     <string name="front_name_copied">Nama folder disalin</string>
-    <string name="front_path_copied">Jalur folder disalin</string>
-    <string name="front_copy_path">Salin jalur</string>
     <string name="front_unpick">Batalkan pilihan</string>
     <string name="front_pick_images">Pilih gambar</string>
     <string name="front_unpick_images">Batalkan pilihan gambar</string>
@@ -108,10 +106,17 @@
     <string name="front_tint">Warna header</string>
     <string name="front_tint_none">Warna bawaan</string>
     <string name="folder_cover">Pilih sampul</string>
-    <string name="folder_cover_auto">Sampul otomatis</string>
+    <string name="folder_cover_auto">Sampul bawaan</string>
     <string name="folder_cover_pick">Pilih sampul untuk \'%1$s\'</string>
     <string name="folder_cover_done">Sampul diperbarui</string>
     <string name="folder_cover_fail">Gambar ini tidak bisa dipakai sebagai sampul</string>
+    <string name="folder_cover_reset">Sampul bawaan dipulihkan</string>
+    <string name="hint_cover">Ketuk ikon folder di kepala halaman untuk menetapkan sampul sendiri: bisa gambar apa pun di perangkatmu, tidak harus dari folder tempatmu berada, dan tetap tersimpan dalam HD meskipun aslinya kamu hapus. Untuk kembali ke sampul bawaan, masuk ke mode pemilihan lalu ketuk lagi ikon folder yang sama.</string>
+    <string name="folder_renamed">Nama folder diubah</string>
+    <string name="folder_rename_taken">Folder dengan nama ini sudah ada</string>
+    <string name="folder_rename_fail">Nama folder tidak dapat diubah</string>
+    <string name="jump_top">Ke atas</string>
+    <string name="jump_bottom">Ke bawah</string>
     <string name="settings_folder_columns">Kolom pada kisi</string>
     <string name="settings_folder_columns_desc">Berapa kolom yang ditampilkan kisi folder dan kisi gambar. Lebih banyak kolom memuat lebih banyak di layar dan mengecilkan setiap petak. Pada empat, nama folder biasanya terpotong.</string>
     <string name="settings_folder_count">Penghitung item di bawah folder pada tampilan kisi</string>
@@ -169,7 +174,7 @@
     <string name="folder_no_videos">Folder tidak berisi video.</string>
     <string name="cancel">Batal</string>
     <string name="hide_folder_title">Sembunyikan \'%1$s\'?</string>
-    <string name="hide_folder_desc">Folder tidak akan ditampilkan di tampilan kisi maupun daftar. Ini hanya pengaturan tampilan: tidak ada yang dihapus.</string>
+    <string name="hide_folder_desc">Folder tidak akan ditampilkan di tampilan kisi maupun daftar. Ini hanya pengaturan tampilan: tidak ada berkas yang akan dihapus.</string>
     <string name="show_folder_title">Tampilkan lagi \'%1$s\'?</string>
     <string name="show_folder_desc">Folder akan tampil normal lagi di antara folder pada tampilan kisi dan daftar.</string>
     <string name="hide_folder_do">Sembunyikan</string>

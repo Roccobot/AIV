@@ -99,8 +99,6 @@
     <string name="settings_colour_name">Jina</string>
     <string name="settings_colour_glow">Mwangaza</string>
     <string name="front_name_copied">Jina la folda limenakiliwa</string>
-    <string name="front_path_copied">Njia ya folda imenakiliwa</string>
-    <string name="front_copy_path">Nakili njia</string>
     <string name="front_unpick">Ondoa uteuzi</string>
     <string name="front_pick_images">Chagua picha</string>
     <string name="front_unpick_images">Ondoa uteuzi wa picha</string>
@@ -108,10 +106,17 @@
     <string name="front_tint">Rangi ya kichwa</string>
     <string name="front_tint_none">Rangi chaguo-msingi</string>
     <string name="folder_cover">Chagua jalada</string>
-    <string name="folder_cover_auto">Jalada la kiotomatiki</string>
+    <string name="folder_cover_auto">Jalada chaguo-msingi</string>
     <string name="folder_cover_pick">Chagua jalada la \'%1$s\'</string>
     <string name="folder_cover_done">Jalada limesasishwa</string>
     <string name="folder_cover_fail">Picha hii haiwezi kutumika kama jalada</string>
+    <string name="folder_cover_reset">Jalada chaguo-msingi limerejeshwa</string>
+    <string name="hint_cover">Kugusa aikoni ya folda kwenye kichwa huweka jalada lako mwenyewe: linaweza kuwa picha yoyote kwenye kifaa chako, si lazima iwe ndani ya folda uliyomo, na hubaki limehifadhiwa kwa HD hata ukifuta ile ya awali. Kurudi kwenye jalada chaguo-msingi, ingia katika hali ya kuchagua kisha gusa tena aikoni ya folda hiyo hiyo.</string>
+    <string name="folder_renamed">Jina la folda limebadilishwa</string>
+    <string name="folder_rename_taken">Folda yenye jina hili tayari ipo</string>
+    <string name="folder_rename_fail">Folda haikuweza kubadilishwa jina</string>
+    <string name="jump_top">Nenda juu</string>
+    <string name="jump_bottom">Nenda chini</string>
     <string name="settings_folder_columns">Safu kwenye gridi</string>
     <string name="settings_folder_columns_desc">Idadi ya safu zinazoonyeshwa na gridi ya folda na gridi ya picha. Safu nyingi huingiza vitu vingi kwenye skrini na kupunguza ukubwa wa kila kigae. Kwa nne, jina la folda hukatwa mara nyingi.</string>
     <string name="settings_folder_count">Kihesabu cha vipengele chini ya folda katika mwonekano wa gridi</string>
@@ -169,7 +174,7 @@
     <string name="folder_no_videos">Folda haina video.</string>
     <string name="cancel">Ghairi</string>
     <string name="hide_folder_title">Ficha \'%1$s\'?</string>
-    <string name="hide_folder_desc">Folda haitaorodheshwa katika mwonekano wa gridi wala wa orodha. Ni mpangilio wa mwonekano tu: hakuna kinachofutwa.</string>
+    <string name="hide_folder_desc">Folda haitaorodheshwa katika mwonekano wa gridi wala wa orodha. Ni mpangilio wa mwonekano tu: hakuna faili itakayofutwa.</string>
     <string name="show_folder_title">Onyesha tena \'%1$s\'?</string>
     <string name="show_folder_desc">Folda itaonekana tena kama kawaida kati ya folda katika mwonekano wa gridi na wa orodha.</string>
     <string name="hide_folder_do">Ficha</string>

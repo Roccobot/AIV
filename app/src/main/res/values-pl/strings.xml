@@ -99,8 +99,6 @@
     <string name="settings_colour_name">Nazwa</string>
     <string name="settings_colour_glow">Poświata</string>
     <string name="front_name_copied">Skopiowano nazwę folderu</string>
-    <string name="front_path_copied">Skopiowano ścieżkę folderu</string>
-    <string name="front_copy_path">Kopiuj ścieżkę</string>
     <string name="front_unpick">Odznacz</string>
     <string name="front_pick_images">Zaznacz obrazy</string>
     <string name="front_unpick_images">Odznacz obrazy</string>
@@ -108,10 +106,17 @@
     <string name="front_tint">Kolor nagłówka</string>
     <string name="front_tint_none">Kolor domyślny</string>
     <string name="folder_cover">Wybierz okładkę</string>
-    <string name="folder_cover_auto">Okładka automatyczna</string>
+    <string name="folder_cover_auto">Okładka domyślna</string>
     <string name="folder_cover_pick">Wybierz okładkę folderu \'%1$s\'</string>
     <string name="folder_cover_done">Okładka zaktualizowana</string>
     <string name="folder_cover_fail">Tego obrazu nie można użyć jako okładki</string>
+    <string name="folder_cover_reset">Przywrócono okładkę domyślną</string>
+    <string name="hint_cover">Dotknięcie ikony folderu w nagłówku ustawia własną okładkę: może to być dowolny obraz z urządzenia, niekoniecznie z folderu, w którym jesteś, i zostaje zapisany w HD nawet po usunięciu oryginału. Aby wrócić do okładki domyślnej, przejdź w tryb wyboru i dotknij ponownie ikony tego samego folderu.</string>
+    <string name="folder_renamed">Zmieniono nazwę folderu</string>
+    <string name="folder_rename_taken">Folder o tej nazwie już istnieje</string>
+    <string name="folder_rename_fail">Nie udało się zmienić nazwy folderu</string>
+    <string name="jump_top">Przejdź na górę</string>
+    <string name="jump_bottom">Przejdź na dół</string>
     <string name="settings_folder_columns">Kolumny w siatkach</string>
     <string name="settings_folder_columns_desc">Ile kolumn pokazują siatka folderów i siatka obrazów. Więcej kolumn mieści więcej na ekranie i zmniejsza każdy kafelek. Przy czterech nazwa folderu zwykle zostaje ucięta.</string>
     <string name="settings_folder_count">Licznik elementów pod folderami w widoku siatki</string>
@@ -169,7 +174,7 @@
     <string name="folder_no_videos">Folder nie zawiera filmów.</string>
     <string name="cancel">Anuluj</string>
     <string name="hide_folder_title">Ukryć \'%1$s\'?</string>
-    <string name="hide_folder_desc">Folder nie będzie widoczny w widoku siatki ani listy. To tylko ustawienie wyświetlania: nic nie zostaje usunięte.</string>
+    <string name="hide_folder_desc">Folder nie będzie widoczny w widoku siatki ani listy. To tylko ustawienie wyświetlania: żaden plik nie zostanie usunięty.</string>
     <string name="show_folder_title">Pokazać znowu \'%1$s\'?</string>
     <string name="show_folder_desc">Folder znowu pojawi się normalnie wśród folderów w widoku siatki i listy.</string>
     <string name="hide_folder_do">Ukryj</string>

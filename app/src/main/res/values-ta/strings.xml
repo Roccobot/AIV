@@ -99,8 +99,6 @@
     <string name="settings_colour_name">பெயர்</string>
     <string name="settings_colour_glow">ஒளிர்வு</string>
     <string name="front_name_copied">கோப்புறையின் பெயர் நகலெடுக்கப்பட்டது</string>
-    <string name="front_path_copied">கோப்புறையின் பாதை நகலெடுக்கப்பட்டது</string>
-    <string name="front_copy_path">பாதையை நகலெடு</string>
     <string name="front_unpick">தேர்வை நீக்கு</string>
     <string name="front_pick_images">படங்களைத் தேர்ந்தெடு</string>
     <string name="front_unpick_images">படங்களின் தேர்வை நீக்கு</string>
@@ -108,10 +106,17 @@
     <string name="front_tint">தலைப்பின் நிறம்</string>
     <string name="front_tint_none">இயல்புநிலை நிறம்</string>
     <string name="folder_cover">அட்டைப் படத்தைத் தேர்வுசெய்</string>
-    <string name="folder_cover_auto">தானியங்கு அட்டைப் படம்</string>
+    <string name="folder_cover_auto">இயல்புநிலை அட்டைப் படம்</string>
     <string name="folder_cover_pick">\'%1$s\' இன் அட்டைப் படத்தைத் தேர்வுசெய்</string>
     <string name="folder_cover_done">அட்டைப் படம் புதுப்பிக்கப்பட்டது</string>
     <string name="folder_cover_fail">இந்தப் படத்தை அட்டைப் படமாகப் பயன்படுத்த முடியாது</string>
+    <string name="folder_cover_reset">இயல்புநிலை அட்டைப் படம் மீட்கப்பட்டது</string>
+    <string name="hint_cover">தலைப்புப் பகுதியில் உள்ள கோப்புறை உருவத்தைத் தொட்டால் உங்கள் சொந்த அட்டைப் படத்தை அமைக்கலாம்: அது சாதனத்தில் உள்ள எந்தப் படமாகவும் இருக்கலாம், நீங்கள் இருக்கும் கோப்புறையில் இருக்க வேண்டிய அவசியமில்லை, மூலப் படத்தை அழித்தாலும் அது HD தரத்தில் சேமிக்கப்பட்டே இருக்கும். இயல்புநிலை அட்டைப் படத்துக்குத் திரும்ப, தேர்வு நிலைக்குச் சென்று அதே கோப்புறையின் உருவத்தை மீண்டும் தொடுங்கள்.</string>
+    <string name="folder_renamed">கோப்புறையின் பெயர் மாற்றப்பட்டது</string>
+    <string name="folder_rename_taken">இந்தப் பெயரில் ஒரு கோப்புறை ஏற்கெனவே உள்ளது</string>
+    <string name="folder_rename_fail">கோப்புறையின் பெயரை மாற்ற முடியவில்லை</string>
+    <string name="jump_top">மேலே செல்</string>
+    <string name="jump_bottom">கீழே செல்</string>
     <string name="settings_folder_columns">கட்டங்களின் நிரல்கள்</string>
     <string name="settings_folder_columns_desc">கோப்புறைக் கட்டமும் படக் கட்டமும் காட்டும் நிரல்களின் எண்ணிக்கை. மேலும் நிரல்கள் திரையில் அதிகம் அடங்கும், ஒவ்வொரு கட்டமும் சிறியதாகும். நான்கில் கோப்புறையின் பெயர் பொதுவாக துண்டிக்கப்படும்.</string>
     <string name="settings_folder_count">கட்டக் காட்சியில் கோப்புறைகளுக்குக் கீழே பொருள் எண்ணிக்கை</string>
@@ -169,7 +174,7 @@
     <string name="folder_no_videos">கோப்புறையில் காணொலிகள் இல்லை.</string>
     <string name="cancel">ரத்து</string>
     <string name="hide_folder_title">\'%1$s\'-ஐ மறைக்கவா?</string>
-    <string name="hide_folder_desc">கட்டக் காட்சியிலும் பட்டியல் காட்சியிலும் கோப்புறை பட்டியலிடப்படாது. இது காட்சி அமைப்பு மட்டுமே: எதுவும் அழிக்கப்படுவதில்லை.</string>
+    <string name="hide_folder_desc">கட்டக் காட்சியிலும் பட்டியல் காட்சியிலும் கோப்புறை பட்டியலிடப்படாது. இது காட்சி அமைப்பு மட்டுமே: எந்தக் கோப்பும் அழிக்கப்படாது.</string>
     <string name="show_folder_title">\'%1$s\'-ஐ மீண்டும் காட்டவா?</string>
     <string name="show_folder_desc">கட்டக் காட்சியிலும் பட்டியல் காட்சியிலும் கோப்புறைகளுக்கு இடையே அது மீண்டும் வழக்கம் போல் தெரியும்.</string>
     <string name="hide_folder_do">மறை</string>

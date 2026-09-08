@@ -99,8 +99,6 @@
     <string name="settings_colour_name">名前</string>
     <string name="settings_colour_glow">グロー</string>
     <string name="front_name_copied">フォルダー名をコピーしました</string>
-    <string name="front_path_copied">フォルダーのパスをコピーしました</string>
-    <string name="front_copy_path">パスをコピー</string>
     <string name="front_unpick">選択を解除</string>
     <string name="front_pick_images">画像を選択</string>
     <string name="front_unpick_images">画像の選択を解除</string>
@@ -108,10 +106,17 @@
     <string name="front_tint">ヘッダーの色</string>
     <string name="front_tint_none">既定の色</string>
     <string name="folder_cover">カバーを選ぶ</string>
-    <string name="folder_cover_auto">自動のカバー</string>
+    <string name="folder_cover_auto">既定のカバー</string>
     <string name="folder_cover_pick">\'%1$s\' のカバーを選んでください</string>
     <string name="folder_cover_done">カバーを更新しました</string>
     <string name="folder_cover_fail">この画像はカバーに使えません</string>
+    <string name="folder_cover_reset">既定のカバーに戻しました</string>
+    <string name="hint_cover">ヘッダーのフォルダのアイコンをタップすると、好きなカバー画像を設定できます。端末内のどの画像でもよく、開いているフォルダの中の画像である必要はありません。元の画像を削除しても HD で保存されたまま残ります。既定のカバーに戻すには、選択モードに入って同じフォルダのアイコンをもう一度タップします。</string>
+    <string name="folder_renamed">フォルダーの名前を変更しました</string>
+    <string name="folder_rename_taken">この名前のフォルダーはすでにあります</string>
+    <string name="folder_rename_fail">フォルダーの名前を変更できませんでした</string>
+    <string name="jump_top">先頭へ移動</string>
+    <string name="jump_bottom">末尾へ移動</string>
     <string name="settings_folder_columns">一覧の列数</string>
     <string name="settings_folder_columns_desc">フォルダ一覧と画像一覧の列数です。列を増やすと一度に多く表示され、各タイルは小さくなります。4 列ではフォルダ名がたいてい途中で切れます。</string>
     <string name="settings_folder_count">グリッド表示でフォルダーの下に項目数を表示</string>
@@ -169,7 +174,7 @@
     <string name="folder_no_videos">フォルダーに動画はありません。</string>
     <string name="cancel">キャンセル</string>
     <string name="hide_folder_title">\'%1$s\' を隠しますか?</string>
-    <string name="hide_folder_desc">グリッド表示とリスト表示にフォルダが出なくなります。表示の設定だけで、何も削除されません。</string>
+    <string name="hide_folder_desc">グリッド表示とリスト表示にフォルダが出なくなります。表示の設定だけで、ファイルは削除されません。</string>
     <string name="show_folder_title">\'%1$s\' をまた表示しますか?</string>
     <string name="show_folder_desc">グリッド表示とリスト表示のフォルダの中に、また普通に出るようになります。</string>
     <string name="hide_folder_do">隠す</string>

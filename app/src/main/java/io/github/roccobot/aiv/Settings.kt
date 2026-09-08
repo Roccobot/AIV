@@ -1283,7 +1283,21 @@ enum class Hint(token: String) {
      * il paragrafo nelle impostazioni, e questo velo è quello che si vede **mentre** la si usa,
      * cioè nel momento in cui serve.
      */
-    EXT_WARN("ext-warn-hint-seen");
+    EXT_WARN("ext-warn-hint-seen"),
+
+    /**
+     * La copertina scelta a mano, dalla `1.95`: **nella griglia di una cartella**, la prima volta
+     * che il tocco sull'icona dell'intestazione avvia la scelta.
+     *
+     * ⚠️⚠️ **NASCE COL GESTO CHE SOSTITUISCE UNA VOCE DI MENU** (riscontro del giro della `1.94`,
+     * voce `copertina-togli`): la voce che toglieva la copertina si spegne, e al suo posto c'è un
+     * gesto ricorsivo sulla stessa icona. Un gesto non si dichiara da sé, e questo ne fa **due**
+     * cose diverse a seconda della cartella, quindi senza il velo resterebbe una funzione per chi
+     * la sa. Il testo è suo alla lettera.
+     * ⚠️ **Indica l'ICONA e non un FAB**, cioè il terzo genere di velo: gli altri due evidenziano
+     * il FAB in fondo o non evidenziano niente. Da qui `HintSpot`.
+     */
+    COVER("cover-hint-seen");
 
     private val seen = booleanPreferencesKey(token)
 
@@ -1566,6 +1580,28 @@ object FolderTints {
             val ora = read(p[TINTS].orEmpty()).toMutableMap()
             if (index == null) ora.remove(bucket) else ora[bucket] = index
             p[TINTS] = ora.map { (dove, quale) -> "$dove=$quale" }.toSet()
+        }
+    }
+
+    /**
+     * Porta la tinta di [da] su [a]: la cartella è la stessa, rinominata.
+     *
+     * ⚠️⚠️ **SERVE PERCHÉ IL `BUCKET_ID` DIPENDE DAL PERCORSO** (sua domanda, 2026-09-08: *cosa
+     * succede all'immagine memorizzata come copertina se rinomino la cartella da AIV?*): dopo una
+     * rinomina il MediaStore dà alla cartella un identificatore nuovo, quindi senza questo
+     * travaso il colore resterebbe appeso a uno che non esiste più e la cartella si ritroverebbe
+     * senza tinta. Rinominando da **fuori** non si può fare niente, ed è la differenza fra i due
+     * casi.
+     * ⚠️ **Se non c'è niente da spostare non scrive**: una cartella senza tinta è il caso comune,
+     * e una scrittura a vuoto sull'archivio è una ricomposizione per tutti quelli che lo leggono.
+     */
+    suspend fun move(context: Context, da: Long, a: Long) {
+        if (da == a) return
+        context.aivStore.edit { p ->
+            val ora = read(p[TINTS].orEmpty()).toMutableMap()
+            val quale = ora.remove(da) ?: return@edit
+            ora[a] = quale
+            p[TINTS] = ora.map { (dove, indice) -> "$dove=$indice" }.toSet()
         }
     }
 

@@ -99,8 +99,6 @@
     <string name="settings_colour_name">Naam</string>
     <string name="settings_colour_glow">Gloed</string>
     <string name="front_name_copied">Mapnaam gekopieerd</string>
-    <string name="front_path_copied">Mappad gekopieerd</string>
-    <string name="front_copy_path">Pad kopiëren</string>
     <string name="front_unpick">Deselecteren</string>
     <string name="front_pick_images">Afbeeldingen selecteren</string>
     <string name="front_unpick_images">Afbeeldingen deselecteren</string>
@@ -108,10 +106,17 @@
     <string name="front_tint">Kleur van de koptekst</string>
     <string name="front_tint_none">Standaardkleur</string>
     <string name="folder_cover">Omslag kiezen</string>
-    <string name="folder_cover_auto">Automatische omslag</string>
+    <string name="folder_cover_auto">Standaardomslag</string>
     <string name="folder_cover_pick">Kies de omslag van \'%1$s\'</string>
     <string name="folder_cover_done">Omslag bijgewerkt</string>
     <string name="folder_cover_fail">Deze afbeelding kan niet als omslag worden gebruikt</string>
+    <string name="folder_cover_reset">Standaardomslag hersteld</string>
+    <string name="hint_cover">Een tik op het mappictogram in de kop stelt een eigen omslag in: dat kan elke afbeelding op je toestel zijn, niet per se een uit de map waarin je bent, en hij blijft in HD bewaard ook als je het origineel verwijdert. Wil je terug naar de standaardomslag, ga dan naar de selectiemodus en tik opnieuw op het pictogram van dezelfde map.</string>
+    <string name="folder_renamed">Map hernoemd</string>
+    <string name="folder_rename_taken">Er bestaat al een map met deze naam</string>
+    <string name="folder_rename_fail">De map kon niet worden hernoemd</string>
+    <string name="jump_top">Naar boven</string>
+    <string name="jump_bottom">Naar beneden</string>
     <string name="settings_folder_columns">Kolommen in de rasters</string>
     <string name="settings_folder_columns_desc">Hoeveel kolommen het mappenraster en het afbeeldingsraster tonen. Meer kolommen passen meer op het scherm en maken elke tegel kleiner. Bij vier wordt de mapnaam meestal afgekapt.</string>
     <string name="settings_folder_count">Teller van de items onder de mappen in rasterweergave</string>
@@ -169,7 +174,7 @@
     <string name="folder_no_videos">De map bevat geen video\'s.</string>
     <string name="cancel">Annuleren</string>
     <string name="hide_folder_title">\'%1$s\' verbergen?</string>
-    <string name="hide_folder_desc">De map wordt niet meer getoond in de raster- en lijstweergave. Het is alleen een weergave-instelling: er wordt niets verwijderd.</string>
+    <string name="hide_folder_desc">De map wordt niet meer getoond in de raster- en lijstweergave. Het is alleen een weergave-instelling: er wordt geen bestand verwijderd.</string>
     <string name="show_folder_title">\'%1$s\' weer tonen?</string>
     <string name="show_folder_desc">De map verschijnt weer gewoon tussen de mappen in de raster- en lijstweergave.</string>
     <string name="hide_folder_do">Verbergen</string>

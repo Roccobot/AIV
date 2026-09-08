@@ -80,11 +80,29 @@ import kotlinx.coroutines.launch
 fun RenameDialog(
     uris: List<Uri>,
     onDismiss: () -> Unit,
-    onRename: (template: String, start: Int, extension: String?) -> Unit
+    onRename: (template: String, start: Int, extension: String?) -> Unit,
+    /**
+     * Il nome della **cartella** da rinominare, quando è una cartella e non dei file.
+     *
+     * ⚠️⚠️ **È LA STESSA FINESTRA, ED È LA SUA RICHIESTA ALLA LETTERA** (2026-09-08: *usa
+     * esattamente la stessa finestra di rinomina del file singolo, ovviamente senza percorso né
+     * estensione. Tutte le altre logiche di rinomina sono identiche*). Da qui un parametro invece
+     * di una finestra gemella: due copie della stessa cosa divergono al primo ritocco, e questa
+     * finestra ne ha avuti sette in dieci versioni.
+     * ⚠️⚠️ **CON LUI IL CAMPO PARTE DAL NOME INTERO, ESTENSIONE COMPRESA**, che è l'altra metà
+     * della richiesta (*nei rari casi in cui la cartella dovesse avere un'estensione,
+     * eccezionalmente dev'essere visualizzata direttamente nello spazio nome*). Per i file invece
+     * il suffisso vive fuori dal campo, perché là è un dato del formato e cambiarlo è un'altra
+     * operazione: una cartella che si chiama `foto.old` non ha nessun formato, ha un nome col
+     * punto dentro.
+     * ⚠️ **E il comando 'Estensione' non c'è**: cambierebbe il suffisso di un file, e qui non c'è
+     * nessun file.
+     */
+    folder: String? = null
 ) {
     val context = LocalContext.current
-    val names by produceState<List<String>?>(null, uris) {
-        value = FileTree.namesOf(context, uris)
+    val names by produceState<List<String>?>(null, uris, folder) {
+        value = folder?.let { listOf(it) } ?: FileTree.namesOf(context, uris)
     }
 
     var template by rememberSaveable { mutableStateOf("") }
@@ -124,7 +142,9 @@ fun RenameDialog(
     // originale, non da un template di rinomina batch*). Con un file la schermata proponeva
     // `Museo ##`, chiedeva da che numero partire e spiegava i cancelletti: tre cose che
     // servono a numerare ottanta foto e nessuna che serva a cambiare un nome.
-    val singolo = uris.size == 1
+    // ⚠️ Una cartella è un nome solo, quindi vale tutto quello che vale per il file singolo: niente
+    // primo numero, niente spiegazione dei cancelletti, e il tasto della tastiera che dice 'fine'.
+    val singolo = folder != null || uris.size == 1
 
     val listed = names
     LaunchedEffect(listed) {
@@ -136,8 +156,13 @@ fun RenameDialog(
         if (listed.isEmpty()) return@LaunchedEffect
         // ⚠️ Il nome **senza estensione**, perché l'estensione la rimette `renderName`: con
         // lei dentro il template il file diventerebbe `foto.jpg.jpg`.
-        template = if (singolo) listed.first().substringBeforeLast('.', listed.first())
-        else suggestTemplate(listed.first(), listed.size, start.toIntOrNull() ?: 1)
+        // ⚠️ Per una CARTELLA invece il nome è intero, punto compreso: è la sua specifica, e il
+        // perché vive sul parametro [folder].
+        template = when {
+            folder != null -> listed.first()
+            singolo -> listed.first().substringBeforeLast('.', listed.first())
+            else -> suggestTemplate(listed.first(), listed.size, start.toIntOrNull() ?: 1)
+        }
     }
 
     /*
@@ -162,8 +187,11 @@ fun RenameDialog(
     // solo questa schermata è la rinomina normale, e pretendere un numero dentro il nome
     // sarebbe pretendere una numerazione da un solo elemento.
     val numbered = clean.contains('#')
+    // ⚠️ Il cancelletto lo pretende il solo caso in cui i nomi da fare sono più di uno, e la
+    // condizione si scrive su [singolo] e non su `uris.size`: con una cartella quell'elenco è
+    // vuoto, quindi il conto direbbe 'più di uno' e il tasto resterebbe spento per sempre.
     val ready = listed != null && clean.isNotEmpty() && first != null && first >= 0 &&
-        (uris.size == 1 || numbered)
+        (singolo || numbered)
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -193,7 +221,9 @@ fun RenameDialog(
         title = {
             TitleRow(
                 title = stringResource(R.string.pick_rename),
-                commands = if (!gate.allowed) emptyList() else listOf(
+                // ⚠️ Con una cartella il comando non c'è, qualunque cosa dica l'impostazione: là
+                // non c'è nessun file di cui cambiare il suffisso.
+                commands = if (!gate.allowed || folder != null) emptyList() else listOf(
                     TitleCommand(
                         text = stringResource(R.string.rename_ext),
                         glyph = Glyphs.Extension,

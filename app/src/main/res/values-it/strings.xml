@@ -168,8 +168,6 @@
     <string name="settings_colour_name">Nome</string>
     <string name="settings_colour_glow">Alone</string>
     <string name="front_name_copied">Nome della cartella copiato</string>
-    <string name="front_path_copied">Percorso della cartella copiato</string>
-    <string name="front_copy_path">Copia il percorso</string>
     <string name="front_unpick">Deseleziona</string>
     <string name="front_pick_images">Seleziona le immagini</string>
     <string name="front_unpick_images">Deseleziona le immagini</string>
@@ -177,10 +175,17 @@
     <string name="front_tint">Colore dell\'intestazione</string>
     <string name="front_tint_none">Colore predefinito</string>
     <string name="folder_cover">Scegli la copertina</string>
-    <string name="folder_cover_auto">Copertina automatica</string>
+    <string name="folder_cover_auto">Copertina predefinita</string>
     <string name="folder_cover_pick">Scegli la copertina di \'%1$s\'</string>
     <string name="folder_cover_done">Copertina aggiornata</string>
     <string name="folder_cover_fail">Questa immagine non si può usare come copertina</string>
+    <string name="folder_cover_reset">Copertina predefinita ripristinata</string>
+    <string name="hint_cover">Con un tocco sulla cartella dell\'intestazione puoi impostare un\'immagine di copertina personalizzata: può essere qualsiasi immagine del tuo dispositivo, non necessariamente contenuta nella cartella in cui ti trovi, e resta memorizzata in HD anche se cancelli l\'originale. Per tornare alla copertina predefinita, entra in modalità selezione e tocca di nuovo l\'icona della stessa cartella.</string>
+    <string name="folder_renamed">Cartella rinominata</string>
+    <string name="folder_rename_taken">Esiste già una cartella con questo nome</string>
+    <string name="folder_rename_fail">Non è stato possibile rinominare la cartella</string>
+    <string name="jump_top">Vai in cima</string>
+    <string name="jump_bottom">Vai in fondo</string>
 
     <string name="settings_folder_columns">Colonne delle griglie</string>
     <string name="settings_folder_columns_desc">Quante colonne mostrano la griglia delle cartelle e quella delle immagini. Più colonne fanno stare più cose sullo schermo e rimpiccioliscono ogni riquadro. A quattro il nome della cartella viene quasi sempre troncato.</string>
@@ -248,7 +253,7 @@
     <string name="cancel">Annulla</string>
 
     <string name="hide_folder_title">Vuoi nascondere \'%1$s\'?</string>
-    <string name="hide_folder_desc">La cartella non sarà elencata in vista griglia e lista. È solo un\'impostazione di visualizzazione: nulla è cancellato.</string>
+    <string name="hide_folder_desc">La cartella non sarà elencata in vista griglia e lista. È solo un\'impostazione di visualizzazione: nessun file sarà eliminato.</string>
     <string name="show_folder_title">Vuoi mostrare di nuovo \'%1$s\'?</string>
     <string name="show_folder_desc">La cartella tornerà ad essere visibile normalmente tra le cartelle in vista griglia e lista.</string>
     <string name="hide_folder_do">Nascondi</string>

@@ -32,11 +32,16 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -429,6 +434,19 @@ fun FolderScreen(
          */
         val shut = { shutFrac * headerPx }
 
+        /*
+         * ⚠️⚠️ **I DUE SCORRIMENTI VIVONO QUI DALLA `1.95`, PERCHÉ I TASTI DEL SALTO LI DEVONO
+         * MUOVERE**: prima nascevano dentro [Covers] e [Rows], che è il posto naturale finché
+         * nessun altro li tocca. ⚠️ **Continuano a sopravvivere alla schermata**, che è la cosa
+         * da non rompere (la `1.91`): sono `rememberSaveable` come prima, e il
+         * `SaveableStateHolder` che li tiene da parte è quello di `AivApp`, che sta più in alto
+         * di questa funzione.
+         * ⚠️ **Due e non uno**: le due viste sono una griglia e un elenco, cioè due tipi di
+         * stato diversi, e la posizione dell'una non vuol dire niente per l'altra.
+         */
+        val coverScroll = rememberLazyGridState()
+        val rowScroll = rememberLazyListState()
+
         /**
          * ⚠️⚠️ **IL INTESTAZIONE SI CHIUDE PRIMA CHE L'ELENCO SCORRA, ed è per questo che
          * funziona anche con DUE cartelle**: il trascinamento verso l'alto viene
@@ -545,10 +563,11 @@ fun FolderScreen(
                 view == FolderView.GRID ->
                     Covers(
                         folders!!, columns, prestate, counted, nameStyle, colour, tints, covers,
-                        onPick
+                        onPick, coverScroll
                     ) { hiding = it }
                 else -> Rows(
-                    folders!!, prestate, listCount, listText, colour, tints, covers, onPick
+                    folders!!, prestate, listCount, listText, colour, tints, covers, onPick,
+                    rowScroll
                 ) {
                     hiding = it
                 }
@@ -592,6 +611,41 @@ fun FolderScreen(
              * quindi scritta dopo dipingerebbe **sul** FAB invece che sotto.
              */
             GroundFade(modifier = Modifier.align(Alignment.BottomCenter))
+            /*
+             * ⚠️⚠️ **I DUE TASTI DEL SALTO VANNO SOPRA IL FAB E PORTANO IL SUO STESSO
+             * MODIFICATORE**, che è il solo modo perché i due centri stiano sulla stessa
+             * verticale: il perché per esteso vive su [JumpFabs].
+             * ⚠️ **La vista ad albero resta fuori**, e va detto invece di lasciarlo scoprire:
+             * là l'elenco è di [TreeList], che tiene il proprio scorrimento e non lo espone.
+             * Chi la volesse coprire solleva quello stato come si è fatto per le altre due.
+             * ⚠️ **E la fascia chiusa conta come 'c'è ancora spazio sopra'**, come nella griglia
+             * di una cartella: chiudendola l'elenco non si muove, quindi da solo direbbe di
+             * essere già in cima.
+             */
+            if (view != FolderView.TREE) {
+                val scorre: ScrollableState =
+                    if (view == FolderView.GRID) coverScroll else rowScroll
+                JumpFabs(
+                    state = scorre,
+                    up = {
+                        shut() + if (view == FolderView.GRID) {
+                            coverScroll.jumpUpPixels()
+                        } else {
+                            rowScroll.jumpUpPixels()
+                        }
+                    },
+                    down = {
+                        if (view == FolderView.GRID) {
+                            coverScroll.jumpDownPixels()
+                        } else {
+                            rowScroll.jumpDownPixels()
+                        }
+                    },
+                    nested = paging,
+                    more = { shutFrac > 0f },
+                    modifier = Modifier.align(fabSide()).safeDrawingPadding().padding(HUB_PAD)
+                )
+            }
             Hub(
                 view = view,
                 columns = columns,
@@ -1619,9 +1673,21 @@ internal fun Covers(
     /** La copertina scelta a mano per ogni cartella che ne ha una. Vedi `FolderCovers`. */
     covers: Map<Long, Uri> = emptyMap(),
     onPick: (Folder.Bucket) -> Unit,
+    /**
+     * Lo scorrimento della griglia.
+     *
+     * ⚠️⚠️ **SI PUÒ PASSARE DALLA `1.95` PERCHÉ I DUE TASTI DEL SALTO LO DEVONO MUOVERE**, e
+     * il valore di serie tiene com'erano gli altri due chiamanti (la finestra delle
+     * destinazioni e il banco di prova): quello che cambia è **chi** lo tiene, non dove vive.
+     * ⚠️ **Vive qui in fondo e non dopo la prima riga com'è d'uso**, perché i chiamanti passano
+     * gli argomenti per posizione: messo in mezzo, il primo di loro avrebbe consegnato una
+     * lambda a questo parametro.
+     */
+    state: LazyGridState = rememberLazyGridState(),
     onHide: (Folder.Bucket) -> Unit
 ) {
     LazyVerticalGrid(
+        state = state,
         // ⚠️⚠️ **FISSO E NON PIÙ ADATTIVO dalla 0.45**, perché il numero adesso lo sceglie
         // l'utente (richiesta del 2026-08-29, dopo aver confermato che le copertine
         // bastano): un minimo in dp e un numero scelto sono due modi opposti di
@@ -1697,9 +1763,12 @@ internal fun Rows(
     /** La copertina scelta a mano per ogni cartella che ne ha una. Vedi `FolderCovers`. */
     covers: Map<Long, Uri> = emptyMap(),
     onPick: (Folder.Bucket) -> Unit,
+    /** Lo scorrimento dell'elenco: vedi il gemello di [Covers]. */
+    state: LazyListState = rememberLazyListState(),
     onHide: (Folder.Bucket) -> Unit
 ) {
     LazyColumn(
+        state = state,
         // ⚠️ **Il rientro di sotto si somma dalla `1.90`**: il contenitore ha smesso di
         // metterselo perché le copertine arrivino al vetro, quindi lo spazio che tiene
         // l'ultima riga fuori da sotto la barra gestuale vive qui.

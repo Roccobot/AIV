@@ -102,19 +102,34 @@ class CopertinaTest {
         )
     }
 
-    /** **Con una copertina scelta, il menu del FAB offre di tornare a quella automatica.** */
+    /**
+     * **La voce del menu segue [COVER_MENU_ROW], e quando c'è riporta alla copertina
+     * predefinita.**
+     *
+     * ⚠️⚠️ **DALLA `1.95` QUELL'INTERRUTTORE È SPENTO, ED È SUA ISTRUZIONE** (*spegni la
+     * funzionalità del FAB senza eliminarla, in caso cambiassi idea, ma rinomina la voce in
+     * `Copertina predefinita`*): con la voce fuori scena, la prova di prima chiedeva una riga
+     * che l'utente ha tolto, quindi è **la prova** a essere cambiata, e la ragione è questa.
+     * ⚠️⚠️ **MA NON SI È RIDOTTA A 'la voce non c'è'**, che sarebbe una prova contro il giorno in
+     * cui lui cambia idea: misura il **legame** fra l'interruttore e quello che si vede, quindi
+     * regge in tutti e due gli stati, e la seconda metà (il tocco che toglie davvero la
+     * copertina) torna a girare da sé appena la voce rientra.
+     */
     @Test
-    fun `con una copertina scelta il menu offre di togliere`() {
+    fun `la voce del menu segue il suo interruttore`() {
         var tolta = 0
         banco.setContent { Scena(coverSet = true, onCoverClear = { tolta++ }) }
         banco.waitForIdle()
         apriIlMenu()
 
         val voce = app.getString(R.string.folder_cover_auto)
-        assertTrue(
-            "Il menu non offre di tornare alla copertina automatica",
-            banco.onAllNodesWithText(voce).fetchSemanticsNodes().isNotEmpty()
+        val inScena = banco.onAllNodesWithText(voce).fetchSemanticsNodes().isNotEmpty()
+        assertEquals(
+            "La voce del menu non segue COVER_MENU_ROW",
+            COVER_MENU_ROW,
+            inScena
         )
+        if (!inScena) return
 
         banco.onNodeWithText(voce).performClick()
         banco.waitForIdle()
