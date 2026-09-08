@@ -163,8 +163,10 @@
     <string name="folder_no_images">資料夾中沒有影像。</string>
     <string name="folder_no_videos">資料夾中沒有影片。</string>
     <string name="cancel">取消</string>
-    <string name="hide_folder_title">隱藏 %1$s 嗎?</string>
-    <string name="hide_folder_desc">它不再出現在可翻看的資料夾裡。不會刪除任何東西:檔案仍在原處,你可以在設定裡把資料夾找回來。</string>
+    <string name="hide_folder_title">隱藏 \'%1$s\' 嗎?</string>
+    <string name="hide_folder_desc">該資料夾不會出現在格狀檢視與清單檢視中。這只是顯示設定，不會刪除任何內容。</string>
+    <string name="show_folder_title">重新顯示 \'%1$s\' 嗎?</string>
+    <string name="show_folder_desc">該資料夾會重新正常出現在格狀檢視與清單檢視的資料夾中。</string>
     <string name="hide_folder_do">隱藏</string>
     <string name="settings_hidden">已隱藏的資料夾</string>
     <string name="settings_hidden_desc">長按一個資料夾即可隱藏它。這些資料夾不再出現在清單裡,但在手機上原封不動。</string>

@@ -1151,6 +1151,21 @@ proprio nel momento in cui serve. Vive su `ViewerViewModel.peek`, col suo conto 
 ⚠️ **La voce c'è SE E SOLO SE una cartella è nascosta**: senza, accenderebbe un minuto in cui non
 compare niente e il tocco lungo aprirebbe un pannello vuoto.
 
+⚠️⚠️ **E DALLA `1.93` IL TOCCO LUNGO SU UNA CARTELLA IN PRESTITO PROPONE IL CONTRARIO** (sua
+segnalazione, con schermata: *la pressione lunga su una cartella nascosta deve proporre il
+contrario, ovvero di renderla di nuovo visibile*). Fino alla `1.92` quel gesto offriva di
+nascondere una cartella **già** nascosta, cioè un comando che non faceva niente.
+- **Il verso lo decide il fatto e non un secondo stato**: il gesto è uno, e una cartella in scena
+  può essere nascosta solo mentre il minuto la tiene in prestito. Due stati paralleli si
+  contraddicono il giorno che ne cambia uno.
+- **Il tasto riusa 'Mostra'**, la parola del pannello e delle impostazioni: un sinonimo nuovo qui
+  sarebbe una terza parola per lo stesso comando.
+- ⚠️⚠️ **CON LEI CAMBIANO ANCHE I DUE TESTI DEL 'NASCONDI', ED È SUA ISTRUZIONE** (*per
+  uniformare cambia anche la versione 'nascondi'*): il nome della cartella va **fra apici** in
+  tutte e due le finestre, e la spiegazione dice che cosa è (*un'impostazione di
+  visualizzazione*) invece di raccontare dove si ritrova la cartella. Le quattro frasi sono sue
+  alla lettera.
+
 ⚠️ **Il pannello del tocco lungo riusa le due stringhe della pagina delle impostazioni**, il titolo
 e il comando: è la stessa richiesta fatta da due posti, e due testi nuovi sarebbero due traduzioni
 da tenere allineate. ⚠️ E **non** si aggiunge uno scorrimento: `Sheet` scorre già da sé, e due

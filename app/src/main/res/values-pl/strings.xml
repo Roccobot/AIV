@@ -163,8 +163,10 @@
     <string name="folder_no_images">Folder nie zawiera obrazów.</string>
     <string name="folder_no_videos">Folder nie zawiera filmów.</string>
     <string name="cancel">Anuluj</string>
-    <string name="hide_folder_title">Ukryć %1$s?</string>
-    <string name="hide_folder_desc">Folder przestaje się pokazywać wśród tych do przeglądania. Nic nie zostaje usunięte: pliki zostają na miejscu, a folder można przywrócić z ustawień.</string>
+    <string name="hide_folder_title">Ukryć \'%1$s\'?</string>
+    <string name="hide_folder_desc">Folder nie będzie widoczny w widoku siatki ani listy. To tylko ustawienie wyświetlania: nic nie zostaje usunięte.</string>
+    <string name="show_folder_title">Pokazać znowu \'%1$s\'?</string>
+    <string name="show_folder_desc">Folder znowu pojawi się normalnie wśród folderów w widoku siatki i listy.</string>
     <string name="hide_folder_do">Ukryj</string>
     <string name="settings_hidden">Ukryte foldery</string>
     <string name="settings_hidden_desc">Przytrzymaj folder, aby go ukryć. Te nie pokazują się już na liście, ale w telefonie są nietknięte.</string>

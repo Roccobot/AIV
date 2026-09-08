@@ -242,8 +242,10 @@
     <string name="folder_no_videos">La cartella non contiene video.</string>
     <string name="cancel">Annulla</string>
 
-    <string name="hide_folder_title">Nascondere %1$s?</string>
-    <string name="hide_folder_desc">Smette di comparire fra le cartelle da sfogliare. Non si cancella niente: i file restano dove sono, e la cartella si rivede dalle impostazioni.</string>
+    <string name="hide_folder_title">Vuoi nascondere \'%1$s\'?</string>
+    <string name="hide_folder_desc">La cartella non sarà elencata in vista griglia e lista. È solo un\'impostazione di visualizzazione: nulla è cancellato.</string>
+    <string name="show_folder_title">Vuoi mostrare di nuovo \'%1$s\'?</string>
+    <string name="show_folder_desc">La cartella tornerà ad essere visibile normalmente tra le cartelle in vista griglia e lista.</string>
     <string name="hide_folder_do">Nascondi</string>
     <string name="settings_hidden">Cartelle nascoste</string>
     <string name="settings_hidden_desc">Si nasconde una cartella tenendola premuta nell\'elenco. Queste non compaiono più, ma sul telefono sono intatte.</string>

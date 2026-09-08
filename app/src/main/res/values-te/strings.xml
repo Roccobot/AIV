@@ -163,8 +163,10 @@
     <string name="folder_no_images">ఫోల్డర్‌లో చిత్రాలు లేవు.</string>
     <string name="folder_no_videos">ఫోల్డర్‌లో వీడియోలు లేవు.</string>
     <string name="cancel">రద్దు</string>
-    <string name="hide_folder_title">%1$sను దాచాలా?</string>
-    <string name="hide_folder_desc">చూసే సంచయాల మధ్య ఇది ఇకపై కనబడదు. ఏదీ తొలగించబడదు: ఫైళ్ళు అక్కడే ఉంటాయి, అమరికల నుంచి సంచయాన్ని తిరిగి తీసుకురావచ్చు.</string>
+    <string name="hide_folder_title">\'%1$s\'ను దాచాలా?</string>
+    <string name="hide_folder_desc">గ్రిడ్ మరియు జాబితా వీక్షణలో సంచయం కనబడదు. ఇది కేవలం చూపే అమరిక మాత్రమే: ఏదీ తొలగించబడదు.</string>
+    <string name="show_folder_title">\'%1$s\'ను మళ్ళీ చూపాలా?</string>
+    <string name="show_folder_desc">గ్రిడ్ మరియు జాబితా వీక్షణలో సంచయాల మధ్య అది మళ్ళీ మామూలుగా కనబడుతుంది.</string>
     <string name="hide_folder_do">దాచు</string>
     <string name="settings_hidden">దాచిన సంచయాలు</string>
     <string name="settings_hidden_desc">ఒక సంచయాన్ని నొక్కి పట్టుకుంటే దాచబడుతుంది. ఇవి ఇకపై జాబితాలో కనబడవు, కానీ ఫోనులో ముట్టుకోకుండా ఉంటాయి.</string>

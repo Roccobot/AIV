@@ -375,8 +375,10 @@
     <string name="folder_no_videos">The folder holds no videos.</string>
     <string name="cancel">Cancel</string>
 
-    <string name="hide_folder_title">Hide %1$s?</string>
-    <string name="hide_folder_desc">It stops showing up among the folders to leaf through. Nothing is deleted: the files stay where they are, and you can bring the folder back from the settings.</string>
+    <string name="hide_folder_title">Hide \'%1$s\'?</string>
+    <string name="hide_folder_desc">The folder will not be listed in grid or list view. It is only a display setting: nothing is deleted.</string>
+    <string name="show_folder_title">Show \'%1$s\' again?</string>
+    <string name="show_folder_desc">The folder will be listed normally again among the folders in grid and list view.</string>
     <string name="hide_folder_do">Hide</string>
     <string name="settings_hidden">Hidden folders</string>
     <string name="settings_hidden_desc">Long press a folder to hide it. These no longer show up in the list, but they are untouched on the phone.</string>

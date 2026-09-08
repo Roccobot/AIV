@@ -163,8 +163,10 @@
     <string name="folder_no_images">फोल्डरमध्ये कोणतीही प्रतिमा नाही.</string>
     <string name="folder_no_videos">फोल्डरमध्ये व्हिडिओ नाहीत.</string>
     <string name="cancel">रद्द</string>
-    <string name="hide_folder_title">%1$s लपवायचा?</string>
-    <string name="hide_folder_desc">पाहण्याच्या संचिकासंचांमध्ये हा आता दिसणार नाही. काहीही पुसले जात नाही: संचिका जागेवरच राहतात, आणि सेटिंग्जमधून संचिकासंच परत आणता येतो.</string>
+    <string name="hide_folder_title">\'%1$s\' लपवायचा?</string>
+    <string name="hide_folder_desc">संचिकासंच ग्रिड आणि यादी दृश्यात दिसणार नाही. ही फक्त दाखवण्याची सेटिंग आहे: काहीही पुसले जात नाही.</string>
+    <string name="show_folder_title">\'%1$s\' पुन्हा दाखवायचा?</string>
+    <string name="show_folder_desc">संचिकासंच ग्रिड आणि यादी दृश्यात संचिकासंचांमध्ये पुन्हा नेहमीप्रमाणे दिसेल.</string>
     <string name="hide_folder_do">लपवा</string>
     <string name="settings_hidden">लपवलेले संचिकासंच</string>
     <string name="settings_hidden_desc">एखादा संचिकासंच दाबून धरल्यास तो लपतो. हे आता यादीत दिसत नाहीत, पण फोनवर तसेच अबाधित असतात.</string>

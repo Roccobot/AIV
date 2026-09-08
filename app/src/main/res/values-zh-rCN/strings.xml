@@ -163,8 +163,10 @@
     <string name="folder_no_images">文件夹中没有图像。</string>
     <string name="folder_no_videos">文件夹中没有视频。</string>
     <string name="cancel">取消</string>
-    <string name="hide_folder_title">隐藏 %1$s 吗?</string>
-    <string name="hide_folder_desc">它不再出现在可翻看的文件夹里。不会删除任何东西:文件仍在原处,你可以在设置里把文件夹找回来。</string>
+    <string name="hide_folder_title">隐藏 \'%1$s\' 吗?</string>
+    <string name="hide_folder_desc">该文件夹不会出现在网格视图和列表视图中。这只是显示设置，不会删除任何内容。</string>
+    <string name="show_folder_title">重新显示 \'%1$s\' 吗?</string>
+    <string name="show_folder_desc">该文件夹会重新正常出现在网格视图和列表视图的文件夹中。</string>
     <string name="hide_folder_do">隐藏</string>
     <string name="settings_hidden">已隐藏的文件夹</string>
     <string name="settings_hidden_desc">长按一个文件夹即可隐藏它。这些文件夹不再出现在列表里,但在手机上原封不动。</string>

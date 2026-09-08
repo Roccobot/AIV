@@ -163,8 +163,10 @@
     <string name="folder_no_images">A pasta não contém imagens.</string>
     <string name="folder_no_videos">A pasta não contém vídeos.</string>
     <string name="cancel">Cancelar</string>
-    <string name="hide_folder_title">Ocultar %1$s?</string>
-    <string name="hide_folder_desc">Deixa de aparecer entre as pastas para folhear. Nada é apagado: os arquivos ficam onde estão, e você pode trazer a pasta de volta pelas configurações.</string>
+    <string name="hide_folder_title">Ocultar \'%1$s\'?</string>
+    <string name="hide_folder_desc">A pasta não será listada na visualização em grade nem em lista. É apenas uma configuração de exibição: nada é excluído.</string>
+    <string name="show_folder_title">Mostrar \'%1$s\' de novo?</string>
+    <string name="show_folder_desc">A pasta voltará a aparecer normalmente entre as pastas na visualização em grade e em lista.</string>
     <string name="hide_folder_do">Ocultar</string>
     <string name="settings_hidden">Pastas ocultas</string>
     <string name="settings_hidden_desc">Um toque longo numa pasta a oculta. Estas não aparecem mais na lista, mas estão intactas no celular.</string>

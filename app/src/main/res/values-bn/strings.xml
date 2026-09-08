@@ -163,8 +163,10 @@
     <string name="folder_no_images">ফোল্ডারে কোনো ছবি নেই।</string>
     <string name="folder_no_videos">ফোল্ডারে কোনো ভিডিও নেই।</string>
     <string name="cancel">বাতিল</string>
-    <string name="hide_folder_title">%1$s লুকাবেন?</string>
-    <string name="hide_folder_desc">এটি আর দেখার ফোল্ডারগুলোর মধ্যে দেখা যাবে না। কিছুই মুছে যায় না: ফাইলগুলো যেখানে আছে সেখানেই থাকে, আর সেটিংস থেকে ফোল্ডারটি ফিরিয়ে আনা যায়।</string>
+    <string name="hide_folder_title">\'%1$s\' লুকাবেন?</string>
+    <string name="hide_folder_desc">ফোল্ডারটি গ্রিড ও তালিকা ভিউয়ে দেখানো হবে না। এটি শুধু দেখানোর সেটিং: কিছুই মুছে যায় না।</string>
+    <string name="show_folder_title">\'%1$s\' আবার দেখাবেন?</string>
+    <string name="show_folder_desc">ফোল্ডারটি গ্রিড ও তালিকা ভিউয়ে ফোল্ডারগুলোর মধ্যে আবার স্বাভাবিকভাবে দেখা যাবে।</string>
     <string name="hide_folder_do">লুকান</string>
     <string name="settings_hidden">লুকানো ফোল্ডার</string>
     <string name="settings_hidden_desc">কোনো ফোল্ডার চেপে ধরে রাখলে সেটি লুকিয়ে যায়। এগুলো আর তালিকায় দেখা যায় না, কিন্তু ফোনে অটুট থাকে।</string>

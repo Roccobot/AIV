@@ -163,8 +163,10 @@
     <string name="folder_no_images">Le dossier ne contient aucune image.</string>
     <string name="folder_no_videos">Le dossier ne contient aucune vidéo.</string>
     <string name="cancel">Annuler</string>
-    <string name="hide_folder_title">Masquer %1$s ?</string>
-    <string name="hide_folder_desc">Il n\'apparaît plus parmi les dossiers à parcourir. Rien n\'est supprimé : les fichiers restent où ils sont, et vous pouvez le faire réapparaître depuis les réglages.</string>
+    <string name="hide_folder_title">Masquer \'%1$s\' ?</string>
+    <string name="hide_folder_desc">Le dossier n\'est plus listé en vue grille ni en vue liste. C\'est seulement un réglage d\'affichage : rien n\'est supprimé.</string>
+    <string name="show_folder_title">Réafficher \'%1$s\' ?</string>
+    <string name="show_folder_desc">Le dossier réapparaît normalement parmi les dossiers en vue grille et en vue liste.</string>
     <string name="hide_folder_do">Masquer</string>
     <string name="settings_hidden">Dossiers masqués</string>
     <string name="settings_hidden_desc">Un appui long sur un dossier le masque. Ceux-ci n\'apparaissent plus dans la liste, mais ils sont intacts sur le téléphone.</string>

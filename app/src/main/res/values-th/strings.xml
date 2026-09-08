@@ -163,8 +163,10 @@
     <string name="folder_no_images">โฟลเดอร์นี้ไม่มีรูปภาพ</string>
     <string name="folder_no_videos">โฟลเดอร์ไม่มีวิดีโอ</string>
     <string name="cancel">ยกเลิก</string>
-    <string name="hide_folder_title">ซ่อน %1$s ไหม</string>
-    <string name="hide_folder_desc">โฟลเดอร์จะไม่ปรากฏในโฟลเดอร์ที่ใช้ดูอีก ไม่มีอะไรถูกลบ: ไฟล์ยังอยู่ที่เดิม และคุณเรียกโฟลเดอร์กลับมาได้จากการตั้งค่า</string>
+    <string name="hide_folder_title">ซ่อน \'%1$s\' ไหม</string>
+    <string name="hide_folder_desc">โฟลเดอร์จะไม่ปรากฏในมุมมองตารางและมุมมองรายการ นี่เป็นเพียงการตั้งค่าการแสดงผล ไม่มีอะไรถูกลบ</string>
+    <string name="show_folder_title">แสดง \'%1$s\' อีกครั้งไหม</string>
+    <string name="show_folder_desc">โฟลเดอร์จะกลับมาปรากฏตามปกติในมุมมองตารางและมุมมองรายการ</string>
     <string name="hide_folder_do">ซ่อน</string>
     <string name="settings_hidden">โฟลเดอร์ที่ซ่อนไว้</string>
     <string name="settings_hidden_desc">กดโฟลเดอร์ค้างไว้เพื่อซ่อน โฟลเดอร์เหล่านี้จะไม่ปรากฏในรายการอีก แต่ในโทรศัพท์ยังอยู่ครบ</string>

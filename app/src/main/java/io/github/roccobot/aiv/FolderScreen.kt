@@ -763,17 +763,45 @@ fun FolderScreen(
     }
 
     hiding?.let { bucket ->
+        /*
+         * ⚠️⚠️ **IL TOCCO LUNGO SU UNA CARTELLA IN PRESTITO PROPONE IL CONTRARIO, DALLA
+         * `1.93`** (sua segnalazione: *la pressione lunga su una cartella nascosta deve
+         * proporre il contrario, ovvero di renderla di nuovo visibile*). Con 'Mostra nascoste'
+         * acceso una cartella nascosta è in scena, e fino alla `1.92` il gesto le offriva di
+         * nascondersi una seconda volta, cioè un comando che non faceva niente.
+         * ⚠️ **Il verso lo decide il FATTO e non un secondo stato**: il gesto è uno, e una
+         * cartella in scena può essere nascosta solo durante il minuto. Due stati paralleli
+         * direbbero il contrario l'uno dell'altro il giorno che ne cambia uno.
+         */
+        val nascosta = bucket.isHidden(hidden)
         AlertDialog(
             onDismissRequest = { hiding = null },
             modifier = Modifier.lowered { hiding = null },
-            title = { Text(stringResource(R.string.hide_folder_title, bucket.name)) },
+            title = {
+                Text(stringResource(
+                    if (nascosta) R.string.show_folder_title else R.string.hide_folder_title,
+                    bucket.name
+                ))
+            },
             // ⚠️ Il testo dice DOVE va a finire, e dirlo qui è metà della funzione: una
             // cartella che sparisce senza che si sappia come riaverla è indistinguibile
             // da una cartella persa.
-            text = { Text(stringResource(R.string.hide_folder_desc)) },
+            text = {
+                Text(stringResource(
+                    if (nascosta) R.string.show_folder_desc else R.string.hide_folder_desc
+                ))
+            },
             confirmButton = {
-                TextButton(onClick = { onHide(bucket); hiding = null }) {
-                    Text(stringResource(R.string.hide_folder_do))
+                TextButton(onClick = {
+                    if (nascosta) bucket.path?.let(onUnhide) else onHide(bucket)
+                    hiding = null
+                }) {
+                    // ⚠️ 'Mostra' è la stessa parola del pannello e delle impostazioni, quindi
+                    // si riusa la sua stringa: un sinonimo nuovo qui sarebbe una terza parola
+                    // per lo stesso comando.
+                    Text(stringResource(
+                        if (nascosta) R.string.settings_hidden_show else R.string.hide_folder_do
+                    ))
                 }
             },
             dismissButton = {

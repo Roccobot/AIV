@@ -163,8 +163,10 @@
     <string name="folder_no_images">De map bevat geen afbeeldingen.</string>
     <string name="folder_no_videos">De map bevat geen video\'s.</string>
     <string name="cancel">Annuleren</string>
-    <string name="hide_folder_title">%1$s verbergen?</string>
-    <string name="hide_folder_desc">Hij verschijnt niet meer tussen de mappen om door te bladeren. Er wordt niets verwijderd: de bestanden blijven waar ze zijn, en je kunt de map terughalen via de instellingen.</string>
+    <string name="hide_folder_title">\'%1$s\' verbergen?</string>
+    <string name="hide_folder_desc">De map wordt niet meer getoond in de raster- en lijstweergave. Het is alleen een weergave-instelling: er wordt niets verwijderd.</string>
+    <string name="show_folder_title">\'%1$s\' weer tonen?</string>
+    <string name="show_folder_desc">De map verschijnt weer gewoon tussen de mappen in de raster- en lijstweergave.</string>
     <string name="hide_folder_do">Verbergen</string>
     <string name="settings_hidden">Verborgen mappen</string>
     <string name="settings_hidden_desc">Houd een map ingedrukt om ze te verbergen. Deze verschijnen niet meer in de lijst, maar op de telefoon zijn ze onaangeroerd.</string>

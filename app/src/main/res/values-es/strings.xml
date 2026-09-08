@@ -163,8 +163,10 @@
     <string name="folder_no_images">La carpeta no contiene imágenes.</string>
     <string name="folder_no_videos">La carpeta no contiene vídeos.</string>
     <string name="cancel">Cancelar</string>
-    <string name="hide_folder_title">¿Ocultar %1$s?</string>
-    <string name="hide_folder_desc">Deja de aparecer entre las carpetas por las que pasar. No se borra nada: los archivos se quedan donde están, y puedes recuperar la carpeta desde los ajustes.</string>
+    <string name="hide_folder_title">¿Ocultar \'%1$s\'?</string>
+    <string name="hide_folder_desc">La carpeta no aparecerá en la vista de cuadrícula ni de lista. Es solo un ajuste de visualización: no se borra nada.</string>
+    <string name="show_folder_title">¿Volver a mostrar \'%1$s\'?</string>
+    <string name="show_folder_desc">La carpeta volverá a verse con normalidad entre las carpetas en la vista de cuadrícula y de lista.</string>
     <string name="hide_folder_do">Ocultar</string>
     <string name="settings_hidden">Carpetas ocultas</string>
     <string name="settings_hidden_desc">Una pulsación larga sobre una carpeta la oculta. Estas ya no aparecen en la lista, pero siguen intactas en el teléfono.</string>

@@ -163,8 +163,10 @@
     <string name="folder_no_images">फ़ोल्डर में कोई छवि नहीं है।</string>
     <string name="folder_no_videos">फ़ोल्डर में कोई वीडियो नहीं है।</string>
     <string name="cancel">रद्द करें</string>
-    <string name="hide_folder_title">%1$s छिपाएँ?</string>
-    <string name="hide_folder_desc">यह पलटने वाले फ़ोल्डरों में दिखना बंद कर देगा। कुछ भी मिटता नहीं: फ़ाइलें जहाँ हैं वहीं रहती हैं, और फ़ोल्डर सेटिंग्स से वापस लाया जा सकता है।</string>
+    <string name="hide_folder_title">\'%1$s\' छिपाएँ?</string>
+    <string name="hide_folder_desc">फ़ोल्डर ग्रिड और सूची दृश्य में नहीं दिखेगा। यह केवल दिखाने की सेटिंग है: कुछ भी मिटता नहीं।</string>
+    <string name="show_folder_title">\'%1$s\' फिर दिखाएँ?</string>
+    <string name="show_folder_desc">फ़ोल्डर ग्रिड और सूची दृश्य में फ़ोल्डरों के बीच फिर सामान्य रूप से दिखेगा।</string>
     <string name="hide_folder_do">छिपाएँ</string>
     <string name="settings_hidden">छिपे फ़ोल्डर</string>
     <string name="settings_hidden_desc">किसी फ़ोल्डर को देर तक दबाने से वह छिप जाता है। ये सूची में नहीं दिखते, पर फ़ोन में ज्यों के त्यों हैं।</string>

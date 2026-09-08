@@ -163,8 +163,10 @@
     <string name="folder_no_images">فولڈر میں کوئی تصویر نہیں ہے۔</string>
     <string name="folder_no_videos">فولڈر میں کوئی ویڈیو نہیں۔</string>
     <string name="cancel">منسوخ</string>
-    <string name="hide_folder_title">%1$s چھپائیں؟</string>
-    <string name="hide_folder_desc">یہ اب دیکھنے والے فولڈروں میں نہیں دکھے گا۔ کچھ نہیں مٹتا: فائلیں اپنی جگہ رہتی ہیں، اور فولڈر ترتیبات سے واپس لایا جا سکتا ہے۔</string>
+    <string name="hide_folder_title">\'%1$s\' چھپائیں؟</string>
+    <string name="hide_folder_desc">فولڈر گرڈ اور فہرست ویو میں نہیں دکھایا جائے گا۔ یہ صرف دکھانے کی ترتیب ہے: کچھ بھی حذف نہیں ہوتا۔</string>
+    <string name="show_folder_title">\'%1$s\' دوبارہ دکھائیں؟</string>
+    <string name="show_folder_desc">فولڈر گرڈ اور فہرست ویو میں فولڈروں کے درمیان دوبارہ معمول کے مطابق دکھائی دے گا۔</string>
     <string name="hide_folder_do">چھپائیں</string>
     <string name="settings_hidden">چھپے ہوئے فولڈر</string>
     <string name="settings_hidden_desc">کسی فولڈر کو دبا کر رکھنا اسے چھپا دیتا ہے۔ یہ اب فہرست میں نہیں دکھتے، مگر فون میں جوں کے توں ہیں۔</string>
