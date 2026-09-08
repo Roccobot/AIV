@@ -1346,7 +1346,7 @@ testata che spariva sotto il gradiente dell'intestazione.
 ⚠️⚠️ **E UNA PROVA CHE NON SI VEDE FALLIRE COL DIFETTO RIMESSO NON MISURA NIENTE: SI RIMETTE IL
 DIFETTO E SI GUARDA.** Nella `1.85` la prima stesura della prova sui pixel guardava il titolo in
 testata a schermata intera, ed è rimasta **verde** con il difetto rimesso a mano in due forme
-diverse, perché là dove passa il titolo il gradiente è già quasi finito. La prova che morde
+diverse, perché là dove passa il titolo il gradiente è già quasi finito. Quella che lo rileva
 guarda il **meccanismo** su una scena minima: un quadrato bianco pieno dentro un nodo che porta
 il gradiente. Dietro, il bianco resta bianco; sopra, il centro si tinge.
 - ⚠️ **La prima non si è buttata**: presidia la scena **come lui la vede**, che è un'altra cosa

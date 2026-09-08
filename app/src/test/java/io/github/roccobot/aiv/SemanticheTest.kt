@@ -79,8 +79,8 @@ class SemanticheTest {
      * Una prova che non vede quello che cerca è peggio del niente, e quell'asserzione è stata
      * tolta invece di essere lasciata in verde: il bersaglio resta una cosa che si misura sul
      * telefono, e il perché della forma vive su `TAP_MIN` in `Talk.kt`.
-     * ⚠️ **Il ruolo invece è un dato e si misura**: la prova morde, cioè fallisce se qualcuno lo
-     * toglie di nuovo.
+     * ⚠️ **Il ruolo invece è un dato e si misura**: la prova fallisce se qualcuno lo toglie di
+     * nuovo.
      */
     @Test
     fun `un comando della rinomina si annuncia come pulsante`() {

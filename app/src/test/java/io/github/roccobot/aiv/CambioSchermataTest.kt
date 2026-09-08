@@ -134,8 +134,9 @@ class CambioSchermataTest {
      * decimo di secondo dopo ogni cambio di schermata l'app non rispondeva: è in piccolo il
      * blocco totale della `1.70`.
      * ⚠️ **Si contano le finestre e non lo stato del menu**, e la ragione è che l'altra misura
-     * **non morde**: `MenuScene` è una mappa di stato letta fuori dalla composizione, e dal filo
-     * della prova a orologio fermo risponde 'nessuno' anche quando un menu è in scena. Una prova
+     * **non vede il difetto**: `MenuScene` è una mappa di stato letta fuori dalla
+     * composizione, e dal filo della prova a orologio fermo risponde 'nessuno' anche quando un
+     * menu è in scena. Una prova
      * che non vede quello che cerca è peggio del niente, e questa forma invece l'ha visto (tre
      * radici invece di una).
      */
