@@ -2,7 +2,10 @@ package io.github.roccobot.aiv
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -184,6 +187,23 @@ fun FrontBand(
  *   serie è di averla**, perché la schermata iniziale non ha cambiato idea: quello che cambia è
  *   la cartella, e un valore di serie rovesciato avrebbe tolto la coda anche a lei.
  */
+/**
+ * Quanto rientra il bordo di SOTTO dello schermo: la barra gestuale, o zero dove non c'è.
+ *
+ * ⚠️⚠️ **NASCE NELLA `1.90` PERCHÉ LE GRIGLIE ARRIVANO AL VETRO** (sua richiesta: *non si può
+ * estendere la vista della griglia fino al margine inferiore dello schermo? Quella può restare
+ * in sovrapposizione*). Le due schermate hanno smesso di mettersi il rientro di sotto sul
+ * **contenitore**, che è quello che impediva di disegnare là sotto, e lo passano al
+ * `contentPadding` della loro lista: così le miniature scorrono sotto la barra gestuale e
+ * l'ultima riga resta comunque raggiungibile, perché lo scorrimento ha quello spazio in più.
+ * ⚠️ **`safeDrawing` e non `navigationBars`**: comprende anche il ritaglio del display e la
+ * tastiera, cioè tutto quello che sul bordo di sotto può mangiarsi il contenuto. È lo stesso
+ * insieme che le schermate usavano prima con `safeDrawingPadding`, quindi il conto non cambia:
+ * cambia solo chi se lo mette.
+ */
+@Composable
+fun bottomInset(): Dp = WindowInsets.safeDrawing.asPaddingValues().calculateBottomPadding()
+
 @Composable
 fun GroundFade(
     modifier: Modifier = Modifier,

@@ -960,6 +960,32 @@ cartella** fra sedici tinte in una griglia 4x4.
   l'archivio non si pota. Il perché quello non sia nemmeno una perdita (il `BUCKET_ID` è il CRC
   del percorso, quindi una cartella ricreata si ritrova il suo colore) vive su `FolderTints`.
 
+## 📐 Le griglie arrivano al vetro, anche in basso
+
+⚠️⚠️ **DALLA `1.90` IL RIENTRO DI SOTTO NON STA PIÙ SUL CONTENITORE** (sua richiesta: *così come
+abbiamo colorato la barra di sistema in alto, non sarebbe possibile riempire tutto lo spazio fino
+al bordo, anche se c'è la linea della navigazione gestuale? Quella può restare in
+sovrapposizione*). Fino alla `1.89` le due schermate mettevano `safeDrawingPadding()` sul
+contenitore intero, e quello **toglie lo spazio prima** che la griglia cominci a disegnare:
+sotto la barra gestuale non ci poteva arrivare niente.
+- **Adesso quel rientro vive nel `contentPadding` della lista**, che è lo stesso spazio dalla
+  parte giusta: le miniature scorrono sotto la barra e l'ultima riga resta raggiungibile, perché
+  lo scorrimento ha quello spazio in più in fondo. La misura la dà `bottomInset()`, in
+  `Front.kt`, che la leggono in due.
+- ⚠️ **Anche il margine verticale della schermata si scompone**, e non è pedanteria: lasciato sul
+  contenitore avrebbe fermato la griglia dodici punti sopra il vetro, cioè avrebbe risolto la
+  cosa a metà.
+- **Con lui la sfumatura in fondo arriva al vetro**, ed è quello che tiene la barra gestuale
+  sopra un fondo neutro invece che sopra le miniature nude: è il gemello della fascia piena che
+  in cima tiene la barra di sistema sopra il gradiente.
+- ⚠️ **Il FAB della griglia non si è mosso**, perché vive in una finestra sua e i rientri se li
+  mette da sé; quello della schermata iniziale invece li prendeva dal contenitore, quindi adesso
+  porta `safeDrawingPadding()` come il velo della scorciatoia che lo illumina. Le due righe
+  adesso coincidono, e prima divergevano.
+- ⚠️⚠️ **NON HA UNA PROVA DEL BANCO, e la ragione è la stessa delle altre due della `1.89`**: là
+  i rientri di sistema valgono zero, quindi una prova misurerebbe una somma di zeri. Si guarda
+  sul telefono, con la navigazione gestuale e con quella a tre tasti.
+
 ## 🎨 Dove si vede il colore di una cartella, fuori dall'intestazione
 
 ⚠️⚠️ **DALLA `1.87` GLI STILI SONO QUATTRO, E LI HA SCELTI LUI FRA I MOCKUP** (giro della `1.86`,
