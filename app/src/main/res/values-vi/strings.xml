@@ -152,6 +152,9 @@
     <string name="hub_view_grid">Dạng lưới</string>
     <string name="hub_search">Tìm</string>
     <string name="hub_url">Mở một địa chỉ</string>
+    <string name="hub_peek">Hiện thư mục ẩn</string>
+    <string name="hub_unpeek">Ẩn thư mục</string>
+    <string name="peek_over">Đã ẩn lại các thư mục.</string>
     <string name="hub_pick">Mở một ảnh</string>
     <string name="hub_settings">Cài đặt</string>
     <string name="url_open">Mở</string>

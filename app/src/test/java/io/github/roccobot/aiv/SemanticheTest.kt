@@ -60,7 +60,7 @@ class SemanticheTest {
      */
     @Test
     fun `il titolo della schermata iniziale e un'intestazione`() {
-        banco.setContent { AivTheme(darkTheme = false) { CasaVuota() } }
+        banco.setContent { AivTheme(darkTheme = false) { Casa() } }
         banco.waitForIdle()
         val nodo = banco.onNodeWithText(NOME_APP).fetchSemanticsNode()
         assertNotNull(

@@ -152,6 +152,9 @@
     <string name="hub_view_grid">Tampilan kisi</string>
     <string name="hub_search">Cari</string>
     <string name="hub_url">Buka alamat</string>
+    <string name="hub_peek">Tampilkan tersembunyi</string>
+    <string name="hub_unpeek">Sembunyikan folder</string>
+    <string name="peek_over">Folder disembunyikan lagi.</string>
     <string name="hub_pick">Buka gambar</string>
     <string name="hub_settings">Pengaturan</string>
     <string name="url_open">Buka</string>

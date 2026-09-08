@@ -152,6 +152,9 @@
     <string name="hub_view_grid">Widok siatki</string>
     <string name="hub_search">Szukaj</string>
     <string name="hub_url">Otwórz adres</string>
+    <string name="hub_peek">Pokaż ukryte</string>
+    <string name="hub_unpeek">Ukryj foldery</string>
+    <string name="peek_over">Foldery znowu ukryte.</string>
     <string name="hub_pick">Otwórz obraz</string>
     <string name="hub_settings">Ustawienia</string>
     <string name="url_open">Otwórz</string>

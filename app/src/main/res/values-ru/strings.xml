@@ -152,6 +152,9 @@
     <string name="hub_view_grid">Вид сеткой</string>
     <string name="hub_search">Поиск</string>
     <string name="hub_url">Открыть адрес</string>
+    <string name="hub_peek">Показать скрытые</string>
+    <string name="hub_unpeek">Скрыть папки</string>
+    <string name="peek_over">Папки снова скрыты.</string>
     <string name="hub_pick">Открыть изображение</string>
     <string name="hub_settings">Настройки</string>
     <string name="url_open">Открыть</string>

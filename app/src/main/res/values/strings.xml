@@ -107,8 +107,8 @@
     <string name="editor_undo">Undo</string>
     <string name="editor_redo">Redo</string>
     <string name="editor_original">Reset</string>
-    <string name="editor_center_across">Centre horizontally</string>
-    <string name="editor_center_down">Centre vertically</string>
+    <string name="editor_center_across">Center horizontally</string>
+    <string name="editor_center_down">Center vertically</string>
     <string name="editor_done">Saved</string>
     <!-- Said when the copy went next to the original instead of over it. -->
     <string name="editor_done_copy">Copy saved</string>
@@ -194,11 +194,11 @@
 
     <string name="settings_background">Viewer background</string>
     <string name="settings_bg_checker">Checkerboard</string>
-    <string name="settings_bg_solid">Flat colour</string>
+    <string name="settings_bg_solid">Flat color</string>
     <string name="settings_bg_desc">The checkerboard is the ideal way to see transparent pixels, something that on a serious viewer is information, not aesthetic decoration.</string>
 
     <string name="settings_ui_theme">App theme</string>
-    <string name="settings_ui_theme_desc">Not to be confused with the viewer\'s background colour.</string>
+    <string name="settings_ui_theme_desc">Not to be confused with the viewer\'s background color.</string>
     <string name="settings_system">System</string>
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_dark">Dark</string>
@@ -235,8 +235,8 @@
     <string name="front_pick_images">Select pictures</string>
     <string name="front_unpick_images">Deselect pictures</string>
     <string name="front_unpick_clips">Deselect videos</string>
-    <string name="front_tint">Header colour</string>
-    <string name="front_tint_none">Default colour</string>
+    <string name="front_tint">Header color</string>
+    <string name="front_tint_none">Default color</string>
 
     <string name="settings_folder_columns">Columns in the grids</string>
     <string name="settings_folder_columns_desc">How many columns the folder grid and the picture grid show. More columns fit more on screen and shrink each tile. At four the folder name under it is usually cut short.</string>
@@ -363,6 +363,9 @@
          there is no address to grant. -->
     <string name="tree_unopenable">No app on this phone can open it</string>
     <string name="hub_url">Open an address</string>
+    <string name="hub_peek">Show hidden</string>
+    <string name="hub_unpeek">Hide folders</string>
+    <string name="peek_over">Folders hidden again.</string>
     <string name="hub_pick">Open a picture</string>
     <string name="hub_settings">Settings</string>
     <string name="url_open">Open</string>
@@ -469,11 +472,11 @@
     <string name="facts_modified">Last modified</string>
     <string name="facts_folder">Folder</string>
     <string name="facts_encoding">Encoding</string>
-    <string name="facts_colours">Colour mode</string>
+    <string name="facts_colours">Color mode</string>
     <string name="facts_frames">Frames</string>
     <string name="facts_duration">Duration</string>
-    <string name="facts_colour_grey">Greyscale</string>
-    <string name="facts_colour_indexed">Indexed colour</string>
+    <string name="facts_colour_grey">Grayscale</string>
+    <string name="facts_colour_indexed">Indexed color</string>
     <string name="facts_colour_rgb">RGB</string>
     <string name="facts_colour_rgba">RGBA</string>
     <string name="facts_colour_bits">%1$s %2$d bit</string>
@@ -623,12 +626,12 @@
     <string name="anim_prev">Previous frame</string>
     <string name="anim_next">Next frame</string>
     <plurals name="facts_colour_count">
-        <item quantity="one">%1$d colour</item>
-        <item quantity="other">%1$d colours</item>
+        <item quantity="one">%1$d color</item>
+        <item quantity="other">%1$d colors</item>
     </plurals>
     <string name="settings_buttons">Button order</string>
     <string name="settings_buttons_menu">Menu on a file</string>
-    <string name="settings_buttons_turn">Editor: rotate and centre</string>
+    <string name="settings_buttons_turn">Editor: rotate and center</string>
     <string name="settings_buttons_steps">Editor: undo and apply</string>
     <string name="settings_labels">Labels under icons</string>
     <string name="settings_labels_desc">If turned off, the icon panels get more compact. List menus are unchanged.</string>

@@ -152,6 +152,9 @@
     <string name="hub_view_grid">عرض كشبكة</string>
     <string name="hub_search">بحث</string>
     <string name="hub_url">فتح عنوان</string>
+    <string name="hub_peek">إظهار المخفية</string>
+    <string name="hub_unpeek">إخفاء المجلدات</string>
+    <string name="peek_over">أُخفيت المجلدات مرة أخرى.</string>
     <string name="hub_pick">فتح صورة</string>
     <string name="hub_settings">الإعدادات</string>
     <string name="url_open">فتح</string>

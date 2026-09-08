@@ -152,6 +152,9 @@
     <string name="hub_view_grid">Vue en grille</string>
     <string name="hub_search">Rechercher</string>
     <string name="hub_url">Ouvrir une adresse</string>
+    <string name="hub_peek">Afficher les masqués</string>
+    <string name="hub_unpeek">Masquer les dossiers</string>
+    <string name="peek_over">Dossiers masqués à nouveau.</string>
     <string name="hub_pick">Ouvrir une image</string>
     <string name="hub_settings">Réglages</string>
     <string name="url_open">Ouvrir</string>

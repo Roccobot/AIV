@@ -152,6 +152,9 @@
     <string name="hub_view_grid">Izgara görünümü</string>
     <string name="hub_search">Ara</string>
     <string name="hub_url">Bir adres aç</string>
+    <string name="hub_peek">Gizlileri göster</string>
+    <string name="hub_unpeek">Klasörleri gizle</string>
+    <string name="peek_over">Klasörler yeniden gizlendi.</string>
     <string name="hub_pick">Bir görsel aç</string>
     <string name="hub_settings">Ayarlar</string>
     <string name="url_open">Aç</string>

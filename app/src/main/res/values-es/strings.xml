@@ -152,6 +152,9 @@
     <string name="hub_view_grid">Vista de cuadrícula</string>
     <string name="hub_search">Buscar</string>
     <string name="hub_url">Abrir una dirección</string>
+    <string name="hub_peek">Mostrar ocultas</string>
+    <string name="hub_unpeek">Ocultar carpetas</string>
+    <string name="peek_over">Carpetas ocultas de nuevo.</string>
     <string name="hub_pick">Abrir una imagen</string>
     <string name="hub_settings">Ajustes</string>
     <string name="url_open">Abrir</string>

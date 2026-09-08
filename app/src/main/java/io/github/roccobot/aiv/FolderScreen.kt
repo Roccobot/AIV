@@ -52,6 +52,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -68,9 +69,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -151,6 +154,18 @@ fun FolderScreen(
     /** I percorsi da non mostrare. Vedi `Settings.hiddenFolders`. */
     hidden: Set<String>,
     onHide: (Folder.Bucket) -> Unit,
+    /**
+     * Se le nascoste sono in scena adesso, per il minuto di 'Mostra nascoste'. Vedi
+     * `ViewerViewModel.peeking`.
+     *
+     * ⚠️ **Le cartelle in più si vedono per quello che sono**: al 70% di inchiostro e con il
+     * segno del vuoto in un angolo, che è la sua specifica.
+     */
+    peeking: Boolean = false,
+    /** Accende e spegne la vista temporanea. */
+    onPeek: (Boolean) -> Unit = {},
+    /** Rimostra una cartella per sempre, cioè la toglie da `Settings.hiddenFolders`. */
+    onUnhide: (String) -> Unit = {},
     recents: List<RecentImage>,
     onPick: (Folder.Bucket) -> Unit,
     onOpen: (Uri) -> Unit,
@@ -261,6 +276,9 @@ fun FolderScreen(
      */
     var hiding by remember { mutableStateOf<Folder.Bucket?>(null) }
 
+    /** Se il pannello delle cartelle nascoste è aperto: lo apre il tocco lungo sulla voce. */
+    var listing by remember { mutableStateOf(false) }
+
     /** Se si sta scegliendo la dimensione della griglia col tocco lungo sul FAB. */
     var sizing by remember { mutableStateOf(false) }
 
@@ -306,11 +324,23 @@ fun FolderScreen(
     // ⚠️ Ed è un filtro e non una chiave di rilettura, dalla 1.46: nascondere una cartella
     // cambia quello che si guarda, non quello che c'è sul disco, quindi si vede al
     // fotogramma dopo senza costare una query.
-    val folders = buckets?.filterNot { it.isHidden(hidden) }
+    // ⚠️⚠️ **CON 'Mostra nascoste' ACCESO IL FILTRO NON GIRA, DALLA `1.92`**: la vista temporanea
+    // è esattamente 'guarda anche quelle', e toglierle qui per rimetterle dopo vorrebbe dire due
+    // elenchi. Quali fossero nascoste si sa lo stesso, perché [hidden] arriva comunque: è quello
+    // che serve al segno del vuoto e all'inchiostro ridotto.
+    val folders = buckets?.filterNot { !peeking && it.isHidden(hidden) }
 
     // La veste 'casa' e quella 'scegli la cartella d'avvio' si distinguono da qui in giù:
     // la prima porta l'intestazione e il FAB, la seconda la freccia Indietro.
     val home = !forStart
+
+    /**
+     * Quali cartelle sono in scena **in prestito**: le nascoste, e solo mentre dura il minuto.
+     *
+     * ⚠️ **Si ricava e non si tiene**: è l'insieme delle nascoste quando la vista temporanea è
+     * accesa e niente quando è spenta, cioè un dato derivato da due che ci sono già.
+     */
+    val prestate = if (peeking) hidden else emptySet()
 
     /*
      * ⚠️⚠️ **IL RIENTRO DI SOTTO NON STA PIÙ QUI, DALLA `1.90`** (sua richiesta: *non si può
@@ -357,13 +387,39 @@ fun FolderScreen(
         val headerPx = with(density) { headerMax.toPx() }
 
         /**
-         * Quanti pixel dell'intestazione sono già stati chiusi, da 0 a tutto.
+         * Quanta parte dell'intestazione è già chiusa, da 0 (tutta aperta) a 1.
          *
-         * ⚠️ La chiave è la misura: ruotando il telefono l'altezza cambia, e un valore
-         * di chiusura vecchio non vorrebbe più dire niente. Riaprirlo alla rotazione è
-         * anche la cosa giusta da vedere.
+         * ⚠️⚠️ **DALLA `1.92` È UNA FRAZIONE SALVATA, E PRIMA ERANO PIXEL CHE SI PERDEVANO**
+         * (riscontro del giro della `1.91`, voce `scorri-torna` accettabile: *al ritorno in home
+         * ritorno al punto giusto ma l'intestazione è attiva. Comportamento sbagliato:
+         * l'intestazione deve apparire solo se mi trovo in cima alla griglia/lista*). La `1.91` ha
+         * fatto sopravvivere lo **scorrimento** alla schermata e questo stato è rimasto indietro:
+         * la lista rientrava dov'era e la fascia ripartiva aperta, cioè due misure della stessa
+         * cosa che dicevano il contrario.
+         * ⚠️⚠️ **LA FASCIA È UNA FUNZIONE DELLA POSIZIONE DI SCORRIMENTO, quindi vive dove vive
+         * lei**: in `rememberSaveable`, cioè dentro il `SaveableStateHolder` che `AivApp` tiene per
+         * schermata. Così le due cose tornano insieme **per costruzione**, e non perché qualcuno si
+         * ricorda di sincronizzarle. La griglia di una cartella ha lo stesso invariante scritto
+         * come regola (`GridScreen`, la riga che chiude la fascia quando la lista non è in cima):
+         * là serve perché il salto all'immagine da cui si torna scorre la lista **senza** passare
+         * dallo scorrimento annidato, e qui quel salto non c'è.
+         * ⚠️⚠️ **UNA FRAZIONE E NON I PIXEL, perché la rotazione cambia l'altezza della fascia**:
+         * salvando i pixel, tornando in verticale una fascia chiusa a metà sarebbe chiusa di
+         * un'altra quantità. ⚠️ **E la nota di prima diceva il contrario** (*riaprirlo alla
+         * rotazione è anche la cosa giusta da vedere*): quella ragione è **decaduta con la
+         * `1.91`**, perché allora la lista si azzerava insieme alla fascia, mentre adesso resta
+         * dov'era, e una fascia aperta sopra una lista scorsa è il difetto che gli è arrivato.
          */
-        var shut by remember(headerPx) { mutableFloatStateOf(0f) }
+        var shutFrac by rememberSaveable { mutableFloatStateOf(0f) }
+
+        /**
+         * Quanti pixel di fascia sono chiusi adesso: la frazione riportata sull'altezza di oggi.
+         *
+         * ⚠️ **Si legge da una lambda e non da un valore**: chi la usa lo fa in fase di misura e di
+         * disegno, dove un valore nuovo costa un ridisegno invece di una ricomposizione. È lo
+         * stesso motivo per cui [FrontBand] prende `shut` come funzione.
+         */
+        val shut = { shutFrac * headerPx }
 
         /**
          * ⚠️⚠️ **IL INTESTAZIONE SI CHIUDE PRIMA CHE L'ELENCO SCORRA, ed è per questo che
@@ -385,7 +441,14 @@ fun FolderScreen(
          * funzione la legge anche la griglia di una cartella.
          */
         val paging = remember(headerPx) {
-            frontScroll(quanto = headerPx, chiuso = { shut }, chiudi = { shut = it })
+            frontScroll(
+                quanto = headerPx,
+                chiuso = shut,
+                // ⚠️ I pixel che arrivano dallo scorrimento tornano frazione qui, che è il solo
+                // posto in cui si scrive: l'altezza della fascia è il denominatore, e a zero
+                // (la veste 'scegli la cartella', dove l'intestazione non c'è) non si divide.
+                chiudi = { quanti -> shutFrac = if (headerPx > 0f) quanti / headerPx else 0f }
+            )
         }
 
         Column(
@@ -402,7 +465,7 @@ fun FolderScreen(
                 // il quadrato di copertine lascia poco più di 180dp, cioè meno di quanto
                 // occupano icona e righe. Senza questo la tela verrebbe tagliata sopra e
                 // sotto invece di stare dentro.
-                Header(headerPx, minOf(HEADER_ICON, headerMax * 0.5f)) { shut }
+                Header(headerPx, minOf(HEADER_ICON, headerMax * 0.5f), shut)
             } else {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = onBack) {
@@ -472,10 +535,10 @@ fun FolderScreen(
                 )
 
                 view == FolderView.GRID ->
-                    Covers(folders!!, columns, counted, nameStyle, colour, tints, onPick) {
-                        hiding = it
-                    }
-                else -> Rows(folders!!, listCount, listText, colour, tints, onPick) {
+                    Covers(
+                        folders!!, columns, prestate, counted, nameStyle, colour, tints, onPick
+                    ) { hiding = it }
+                else -> Rows(folders!!, prestate, listCount, listText, colour, tints, onPick) {
                     hiding = it
                 }
             }
@@ -530,6 +593,10 @@ fun FolderScreen(
                 onSettings = onSettings,
                 onSearch = onSearch,
                 onBin = onBin,
+                hiddenCount = hidden.size,
+                peeking = peeking,
+                onPeek = onPeek,
+                onPeekList = { listing = true },
                 onSize = { sizing = true },
                 /*
                  * ⚠️ **Le due condizioni sono quelle scritte nel menu**: la vista ad albero, e
@@ -650,6 +717,49 @@ fun FolderScreen(
             onTreePictures = onTreePictures,
             onDismiss = { sizing = false }
         )
+    }
+
+    /*
+     * ⚠️⚠️ **IL PANNELLO È LA STESSA COSA DELLA PAGINA NELLE IMPOSTAZIONI, e lo dice lui**
+     * (*un pannello (scrollabile, se necessario) con le cartelle nascoste dalla vista
+     * principale, che possono essere ripristinate come visibili, esattamente come nelle
+     * impostazioni alla voce 'Cartelle nascoste'*). Quindi porta le stesse due stringhe di
+     * quella pagina, il titolo e il comando: sono la stessa richiesta fatta da due posti, e
+     * scriverne altre due vorrebbe dire due testi da tradurre e da tenere allineati.
+     * ⚠️ **Lo scorrimento non si aggiunge**: [Sheet] scorre già da sé, e un secondo scorrimento
+     * verticale annidato nello stesso verso è un errore che Compose segnala a mano tesa.
+     */
+    if (listing) {
+        Sheet(title = stringResource(R.string.settings_hidden), onDismiss = { listing = false }) {
+            hidden.sorted().forEach { path ->
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        // ⚠️ Il nome davanti e il percorso sotto, come nelle impostazioni: due
+                        // cartelle possono chiamarsi uguale, e il percorso è l'unica cosa che le
+                        // distingue.
+                        Text(
+                            text = path.substringAfterLast('/'),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = path,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    TextButton(onClick = {
+                        onUnhide(path)
+                        // ⚠️ L'ultima riga che se ne va chiude il pannello: restare davanti a un
+                        // elenco vuoto vorrebbe dire cercare da soli la via d'uscita.
+                        if (hidden.size <= 1) listing = false
+                    }) { Text(stringResource(R.string.settings_hidden_show)) }
+                }
+            }
+        }
     }
 
     hiding?.let { bucket ->
@@ -836,6 +946,19 @@ private fun Hub(
     onSearch: () -> Unit,
     onBin: () -> Unit,
     /**
+     * Quante cartelle sono nascoste: la voce 'Mostra nascoste' c'è **se e solo se** ce n'è una.
+     *
+     * ⚠️ **Un conto e non l'insieme**: qui serve solo sapere se la voce ha un oggetto, e
+     * l'elenco lo mostra il pannello, che vive nella schermata insieme all'insieme vero.
+     */
+    hiddenCount: Int,
+    /** Se le nascoste sono in scena adesso: decide il testo e il glifo della voce. */
+    peeking: Boolean,
+    /** Il tocco sulla voce: accende il minuto, o lo spegne subito. */
+    onPeek: (Boolean) -> Unit,
+    /** Il tocco lungo sulla voce: apre il pannello delle nascoste. */
+    onPeekList: () -> Unit,
+    /**
      * Il tocco lungo: la scorciatoia della dimensione della griglia, dalla `0.78`.
      *
      * ⚠️ **Il dialogo lo apre chi chiama e non questo composabile**, come per il velo: sono
@@ -935,6 +1058,29 @@ private fun Hub(
                     text = stringResource(other.label()),
                     icon = other.glyph,
                     onTap = { menu.close(); onView(other) }
+                )
+            }
+
+            /*
+             * ⚠️⚠️ **'Mostra nascoste' STA COL GRUPPO DELLE VISTE, e non con le azioni**: quelle
+             * righe rispondono a *come guardo le cartelle*, e questa risponde a *quali ne
+             * guardo*, che è la stessa domanda vista dall'altro lato. Le azioni sotto invece
+             * portano da un'altra parte.
+             * ⚠️⚠️ **C'È SE E SOLO SE CE N'È UNA NASCOSTA**: senza, la voce accenderebbe un
+             * minuto in cui non compare niente e il tocco lungo aprirebbe un pannello vuoto.
+             * ⚠️ **La riga nomina quello che il tocco FA, come le viste**: con le nascoste in
+             * scena dice 'Nascondi cartelle', perché è quello che succede toccandola.
+             * ⚠️ **I due glifi sono suoi** (2026-09-08), e sono una cartella con un occhio:
+             * quelli di Material dicono 'vedi' e 'non vedere' senza dire di che cosa.
+             */
+            if (hiddenCount > 0) {
+                MenuRow(
+                    text = stringResource(
+                        if (peeking) R.string.hub_unpeek else R.string.hub_peek
+                    ),
+                    icon = if (peeking) Glyphs.FolderEyeOff else Glyphs.FolderEye,
+                    onTap = { menu.close(); onPeek(!peeking) },
+                    onHold = { menu.close(); onPeekList() }
                 )
             }
 
@@ -1415,6 +1561,15 @@ private fun TextSize.detail() = when (this) {
 internal fun Covers(
     folders: List<Folder.Bucket>,
     columns: Int,
+    /**
+     * I percorsi delle cartelle in scena **in prestito**, cioè col minuto di 'Mostra nascoste'.
+     *
+     * ⚠️ **Un insieme e non un booleano per cella**: chi chiama ha già l'elenco delle nascoste, e
+     * il conto di quali lo siano lo fa [isHidden], che è lo stesso pezzo che le filtra. Vuoto
+     * (il valore di serie) vuol dire che nessuna è in prestito, che è il caso di ogni altro
+     * chiamante.
+     */
+    peeked: Set<String> = emptySet(),
     counted: Boolean,
     /** Il corpo del nome, già scelto e già misurato da chi chiama. Vedi [FolderCard]. */
     nameStyle: TextStyle,
@@ -1459,6 +1614,7 @@ internal fun Covers(
             FolderCard(
                 bucket = bucket,
                 counted = counted,
+                peeked = bucket.isHidden(peeked),
                 nameStyle = nameStyle,
                 colour = colour,
                 tint = frontTintOf(tints[bucket.id]),
@@ -1480,6 +1636,8 @@ internal fun Covers(
 @Composable
 internal fun Rows(
     folders: List<Folder.Bucket>,
+    /** Come l'omonimo di [Covers]: le cartelle in scena col minuto di 'Mostra nascoste'. */
+    peeked: Set<String> = emptySet(),
     /** Se sotto il nome si legge il conto. Vedi `Settings.listCount`. */
     counted: Boolean,
     /** Il corpo del testo scelto per questa vista. Vedi `Settings.listText`. */
@@ -1506,9 +1664,11 @@ internal fun Rows(
     ) {
         items(items = folders, key = { it.id }, contentType = { ROW_KIND }) { bucket ->
             val tinta = frontTintOf(tints[bucket.id])
+            val prestata = bucket.isHidden(peeked)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .alpha(if (prestata) PEEK_INK else 1f)
                     .combinedClickable(
                         role = Role.Button,
                         onClick = { onPick(bucket) },
@@ -1528,6 +1688,7 @@ internal fun Rows(
                 ) {
                     Cover(bucket.cover)
                     FolderMark(colour, tinta, shape)
+                    if (prestata) PeekMark(Modifier.align(Alignment.TopEnd))
                 }
                 Column(modifier = Modifier.weight(1f)) {
                     /*
@@ -1599,6 +1760,8 @@ private fun FolderCard(
     colour: FolderColour,
     /** Il colore di questa cartella, o `null` se non ne ha scelto uno. */
     tint: Color?,
+    /** Se questa cartella è in scena **in prestito**, cioè col minuto di 'Mostra nascoste'. */
+    peeked: Boolean = false,
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
@@ -1606,13 +1769,24 @@ private fun FolderCard(
     Column(
         // ⚠️ Il tocco lungo nasconde, ed è lo stesso gesto in tutte e due le viste: chi
         // impara a nascondere dalle copertine non deve reimpararlo nell'elenco.
-        modifier = Modifier.combinedClickable(
-            role = Role.Button,
-            onClick = onClick,
-            onLongClick = withHaptics(onLongClick)
-        ),
+        modifier = Modifier
+            .alpha(if (peeked) PEEK_INK else 1f)
+            .combinedClickable(
+                role = Role.Button,
+                onClick = onClick,
+                onLongClick = withHaptics(onLongClick)
+            ),
         verticalArrangement = Arrangement.spacedBy(CARD_GAP)
     ) {
+        /*
+         * ⚠️ **Il segno del vuoto vive DENTRO la copertina e sotto la stessa opacità della
+         * cella**, che è la sua specifica alla lettera (*devono avere il 70% di opacità e un
+         * badge `∅` del colore dell'accento nell'angolo in alto a destra*): l'inchiostro ridotto
+         * dice *questa non dovrebbe essere qui*, il segno dice **perché**.
+         * ⚠️ **Il carattere è il suo**, e non un glifo disegnato: `∅` vuol dire 'insieme vuoto'
+         * in ogni lingua, e un'icona nuova sarebbe un disegno in più da mantenere per dire lo
+         * stesso.
+         */
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -1623,6 +1797,7 @@ private fun FolderCard(
         ) {
             Cover(bucket.cover)
             FolderMark(colour, tint, shape)
+            if (peeked) PeekMark(Modifier.align(Alignment.TopEnd))
         }
         /*
          * ⚠️⚠️ **UN A CAPO E NON PIÙ DI UNO, dalla 0.77** (richiesta dell'utente: *con
@@ -1661,6 +1836,31 @@ private fun FolderCard(
          */
         if (counted) Tally(bucket)
     }
+}
+
+/**
+ * Il segno che dice 'questa cartella è nascosta, la stai vedendo in prestito'.
+ *
+ * ⚠️⚠️ **NASCE DALLA `1.92` CON 'Mostra nascoste', ED È LA SUA SPECIFICA** (*un badge `∅` del
+ * colore dell'accento nell'angolo in alto a destra*). Vive in un pezzo solo perché lo disegnano
+ * le due viste della schermata iniziale: scritto due volte, il giorno che cambia il segno o il
+ * suo posto ne cambierebbe uno.
+ * ⚠️ **Il fondo scuro sotto il segno non è decorazione**: una copertina può essere di qualunque
+ * colore, e un carattere d'accento su una miniatura chiara sparisce. La pastiglia gli dà il
+ * contrasto che il testo di un'app ha sempre.
+ */
+@Composable
+private fun PeekMark(modifier: Modifier = Modifier) {
+    Text(
+        text = PEEK_MARK,
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = modifier
+            .padding(PEEK_EDGE)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = PEEK_PAD_INK))
+            .padding(horizontal = PEEK_PAD, vertical = 0.dp)
+    )
 }
 
 /**
@@ -1837,6 +2037,26 @@ private val FOLDER_CORNER = 12.dp
 
 /** La copertina dell'elenco: grande quanto due righe di testo, che è l'altezza della riga. */
 private val ROW_COVER = 48.dp
+
+/**
+ * Quanto inchiostro tiene una cartella vista **in prestito**: il 70%, che è il suo numero.
+ *
+ * ⚠️ **Non è un grigio ma un'opacità**: la copertina resta la sua, e quello che cambia è che la
+ * cella si legge come una cosa che sta per andarsene.
+ */
+private const val PEEK_INK = 0.7f
+
+/** Il segno del prestito: l'insieme vuoto, come lo ha chiesto lui. */
+private const val PEEK_MARK = "∅"
+
+/** Quanto il segno rientra dall'angolo della copertina. */
+private val PEEK_EDGE = 4.dp
+
+/** Quanta aria ai fianchi del segno, dentro la sua pastiglia. */
+private val PEEK_PAD = 6.dp
+
+/** Quanto copre la pastiglia sotto il segno: abbastanza da staccarlo da una copertina chiara. */
+private const val PEEK_PAD_INK = 0.85f
 
 /**
  * Lo spazio fra le voci del dialogo delle opzioni, e fra le pastiglie di una sua fila.

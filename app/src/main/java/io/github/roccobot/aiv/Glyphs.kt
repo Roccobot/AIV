@@ -142,6 +142,19 @@ object Glyphs {
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_extension)
 
     /**
+     * 'Mostra nascoste': una cartella con un occhio, nel menu della schermata iniziale.
+     *
+     * ⚠️ **Non è l'occhio di Material**, ed è la ragione per cui è un file: quello dice 'vedi'
+     * senza dire di che cosa, e qui la cosa da nominare è la **cartella**.
+     */
+    val FolderEye: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_folder_eye)
+
+    /** 'Nascondi cartelle': la gemella con l'occhio sbarrato. */
+    val FolderEyeOff: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_folder_eye_off)
+
+    /**
      * Due fogli sovrapposti, quello davanti con montagne e sole: 'Copia immagine'.
      *
      * ⚠️⚠️ **È IL SOLO GLIFO CHE ESCE DALLA PROPRIA TELA, dalla 1.37**, quindi si dichiara

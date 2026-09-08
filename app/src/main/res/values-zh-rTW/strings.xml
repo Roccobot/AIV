@@ -152,6 +152,9 @@
     <string name="hub_view_grid">格狀檢視</string>
     <string name="hub_search">搜尋</string>
     <string name="hub_url">開啟一個網址</string>
+    <string name="hub_peek">顯示隱藏項目</string>
+    <string name="hub_unpeek">隱藏資料夾</string>
+    <string name="peek_over">資料夾已重新隱藏。</string>
     <string name="hub_pick">開啟一張圖片</string>
     <string name="hub_settings">設定</string>
     <string name="url_open">開啟</string>

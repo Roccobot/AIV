@@ -152,6 +152,9 @@
     <string name="hub_view_grid">گرڈ کا منظر</string>
     <string name="hub_search">تلاش</string>
     <string name="hub_url">ایک پتہ کھولیں</string>
+    <string name="hub_peek">پوشیدہ دکھائیں</string>
+    <string name="hub_unpeek">فولڈر چھپائیں</string>
+    <string name="peek_over">فولڈر دوبارہ چھپا دیے گئے۔</string>
     <string name="hub_pick">ایک تصویر کھولیں</string>
     <string name="hub_settings">ترتیبات</string>
     <string name="url_open">کھولیں</string>

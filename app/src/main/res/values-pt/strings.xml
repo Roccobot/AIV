@@ -152,6 +152,9 @@
     <string name="hub_view_grid">Ver em grade</string>
     <string name="hub_search">Buscar</string>
     <string name="hub_url">Abrir um endereço</string>
+    <string name="hub_peek">Mostrar ocultas</string>
+    <string name="hub_unpeek">Ocultar pastas</string>
+    <string name="peek_over">Pastas ocultas novamente.</string>
     <string name="hub_pick">Abrir uma imagem</string>
     <string name="hub_settings">Configurações</string>
     <string name="url_open">Abrir</string>

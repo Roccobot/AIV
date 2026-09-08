@@ -152,6 +152,9 @@
     <string name="hub_view_grid">Rasteransicht</string>
     <string name="hub_search">Suchen</string>
     <string name="hub_url">Adresse öffnen</string>
+    <string name="hub_peek">Ausgeblendete zeigen</string>
+    <string name="hub_unpeek">Ordner ausblenden</string>
+    <string name="peek_over">Ordner wieder ausgeblendet.</string>
     <string name="hub_pick">Bild öffnen</string>
     <string name="hub_settings">Einstellungen</string>
     <string name="url_open">Öffnen</string>

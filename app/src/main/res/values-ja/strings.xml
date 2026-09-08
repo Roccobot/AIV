@@ -152,6 +152,9 @@
     <string name="hub_view_grid">グリッド表示</string>
     <string name="hub_search">検索</string>
     <string name="hub_url">アドレスを開く</string>
+    <string name="hub_peek">非表示を表示</string>
+    <string name="hub_unpeek">フォルダを隠す</string>
+    <string name="peek_over">フォルダを再び非表示にしました。</string>
     <string name="hub_pick">画像を開く</string>
     <string name="hub_settings">設定</string>
     <string name="url_open">開く</string>
