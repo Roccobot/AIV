@@ -115,8 +115,8 @@
     <string name="folder_renamed">Dossier renommé</string>
     <string name="folder_rename_taken">Un dossier porte déjà ce nom</string>
     <string name="folder_rename_fail">Le dossier n\'a pas pu être renommé</string>
-    <string name="jump_top">Aller en haut</string>
-    <string name="jump_bottom">Aller en bas</string>
+    <string name="jump_top">Aller au début</string>
+    <string name="jump_bottom">Aller à la fin</string>
     <string name="settings_folder_columns">Colonnes dans les grilles</string>
     <string name="settings_folder_columns_desc">Combien de colonnes affichent la grille des dossiers et celle des images. Plus de colonnes font tenir plus de choses à l\'écran et rétrécissent chaque case. À quatre, le nom du dossier est souvent tronqué.</string>
     <string name="settings_folder_count">Compteur des éléments sous les dossiers en vue grille</string>

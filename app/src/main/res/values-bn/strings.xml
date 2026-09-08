@@ -115,8 +115,8 @@
     <string name="folder_renamed">ফোল্ডারের নাম বদলানো হয়েছে</string>
     <string name="folder_rename_taken">এই নামের ফোল্ডার আগে থেকেই আছে</string>
     <string name="folder_rename_fail">ফোল্ডারের নাম বদলানো যায়নি</string>
-    <string name="jump_top">উপরে যান</string>
-    <string name="jump_bottom">নিচে যান</string>
+    <string name="jump_top">শুরুতে যান</string>
+    <string name="jump_bottom">শেষে যান</string>
     <string name="settings_folder_columns">গ্রিডের কলাম</string>
     <string name="settings_folder_columns_desc">ফোল্ডার গ্রিড ও ছবির গ্রিড কতগুলি কলাম দেখাবে। বেশি কলামে পর্দায় বেশি জিনিস আঁটে এবং প্রতিটি ঘর ছোট হয়। চারটিতে ফোল্ডারের নাম সাধারণত কেটে যায়।</string>
     <string name="settings_folder_count">গ্রিড দৃশ্যে ফোল্ডারের নিচে জিনিসের গণনা</string>

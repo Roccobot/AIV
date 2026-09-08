@@ -757,18 +757,21 @@ private val WASH_STOPS = listOf(
 const val FRONT_NEG_INK = 1f
 
 /**
- * Quanto si vede l'icona della cartella col gradiente acceso **nel tema scuro**: poco più di un
- * terzo, in bianco.
+ * Quanto si vede l'icona della cartella col gradiente acceso **nel tema scuro**: un quinto, in
+ * bianco.
  *
  * ⚠️⚠️ **DALLA `1.95`, ED È SUA RICHIESTA** (*l'icona dell'intestazione deve ritornare positiva
  * (sovrapposta) per il tema scuro: bianco, opacità 40%*). Fino alla `1.94` il negativo valeva per
  * tutti e due i temi, e il fatto che nel tema scuro non funzionasse è geometrico e non di gusto:
  * lì la superficie dell'app è quasi nera, quindi 'in negativo' vuol dire una sagoma nera su una
  * tinta al 25% di un fondo già scuro, cioè due scuri uno sopra l'altro.
+ * ⚠️⚠️ **E DALLA `2.00` VALE 0,2, PERCHÉ L'HA GUARDATA SUL TELEFONO** (riscontro del giro della
+ * `1.95`, voce `front-icona-scura` approvata con una nota: *OK, ma mettila al 20%*). Il 40% era
+ * il numero della richiesta, questo è quello della prova.
  * ⚠️ **Bianco e non [FRONT_INK] del contenuto**: il colore del contenuto nel tema scuro è un
  * bianco sporco di superficie, e la sua parola è *bianco*.
  */
-const val FRONT_DARK_INK = 0.4f
+const val FRONT_DARK_INK = 0.2f
 
 /**
  * Quanto sta la fila delle pastiglie dal conto degli elementi.

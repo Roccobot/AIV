@@ -245,8 +245,8 @@
     <string name="folder_renamed">Folder renamed</string>
     <string name="folder_rename_taken">A folder with this name already exists</string>
     <string name="folder_rename_fail">The folder could not be renamed</string>
-    <string name="jump_top">Go to the top</string>
-    <string name="jump_bottom">Go to the bottom</string>
+    <string name="jump_top">Go to the start</string>
+    <string name="jump_bottom">Go to the end</string>
 
     <string name="settings_folder_columns">Columns in the grids</string>
     <string name="settings_folder_columns_desc">How many columns the folder grid and the picture grid show. More columns fit more on screen and shrink each tile. At four the folder name under it is usually cut short.</string>

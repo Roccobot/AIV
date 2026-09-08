@@ -115,8 +115,8 @@
     <string name="folder_renamed">نام پوشه تغییر کرد</string>
     <string name="folder_rename_taken">پوشه‌ای با این نام از قبل هست</string>
     <string name="folder_rename_fail">تغییر نام پوشه ممکن نشد</string>
-    <string name="jump_top">رفتن به بالا</string>
-    <string name="jump_bottom">رفتن به پایین</string>
+    <string name="jump_top">رفتن به ابتدا</string>
+    <string name="jump_bottom">رفتن به انتها</string>
     <string name="settings_folder_columns">ستون‌های شبکه‌ها</string>
     <string name="settings_folder_columns_desc">شبکه پوشه‌ها و شبکه تصویرها چند ستون نشان دهند. ستون‌های بیشتر چیزهای بیشتری را در صفحه جا می‌دهند و هر کاشی را کوچک‌تر می‌کنند. با چهار ستون نام پوشه معمولا بریده می‌شود.</string>
     <string name="settings_folder_count">شمارندهٔ موارد زیر پوشه‌ها در نمای شبکه‌ای</string>

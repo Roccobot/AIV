@@ -115,8 +115,8 @@
     <string name="folder_renamed">Zmieniono nazwę folderu</string>
     <string name="folder_rename_taken">Folder o tej nazwie już istnieje</string>
     <string name="folder_rename_fail">Nie udało się zmienić nazwy folderu</string>
-    <string name="jump_top">Przejdź na górę</string>
-    <string name="jump_bottom">Przejdź na dół</string>
+    <string name="jump_top">Przejdź na początek</string>
+    <string name="jump_bottom">Przejdź na koniec</string>
     <string name="settings_folder_columns">Kolumny w siatkach</string>
     <string name="settings_folder_columns_desc">Ile kolumn pokazują siatka folderów i siatka obrazów. Więcej kolumn mieści więcej na ekranie i zmniejsza każdy kafelek. Przy czterech nazwa folderu zwykle zostaje ucięta.</string>
     <string name="settings_folder_count">Licznik elementów pod folderami w widoku siatki</string>

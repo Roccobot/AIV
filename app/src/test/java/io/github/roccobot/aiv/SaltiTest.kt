@@ -17,10 +17,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipe
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.width
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.launch
@@ -116,10 +123,58 @@ class SaltiTest {
         assertEquals("Salendo, la fascia deve riaprirsi", 0f, shut, 0.5f)
     }
 
-    private fun quanti(id: Int): Int {
-        val testo = ApplicationProvider.getApplicationContext<Context>().getString(id)
-        return banco.onAllNodesWithContentDescription(testo).fetchSemanticsNodes().size
+    /**
+     * **Un tasto occupa esattamente la misura dichiarata, e non una più grande.**
+     *
+     * ⚠️⚠️ **NASCE DA UNA VOCE NON APPROVATA, ED È LA REGOLA** (`AIV/CLAUDE.md`, § '🧪 Quando si
+     * scrive una prova, e quando no'): nel giro della `1.95` la voce `salti-tasti` è tornata
+     * indietro (*i tondi in cui si trovano ... appaiono come rettangoli ad ogni tocco*), e la
+     * misura ha trovato una causa che nessuno aveva ragionato: un [androidx.compose.material3.IconButton]
+     * porta `minimumInteractiveComponentSize`, che **ignora i vincoli in entrata** e restituisce
+     * al genitore 48dp qualunque misura gli si dia. Il tondo dipinto era quindi più grande del
+     * FAB stesso, che ne misura 40.
+     *
+     * ⚠️ **Che cosa questa prova NON vede**: la forma che il tasto prendeva **premuto**, che in
+     * Material 3 Expressive è un'altra ([androidx.compose.material3.IconButton] morfa da tondo a
+     * quadrato arrotondato). Quella è resa, e a toglierla è la stessa correzione: senza quel
+     * componente non c'è più nessuno stato premuto da disegnare.
+     */
+    @Test
+    fun `il tasto occupa la misura dichiarata`() {
+        banco.mainClock.autoAdvance = false
+        banco.setContent { Scena() }
+        banco.mainClock.advanceTimeBy(RESPIRO)
+
+        /*
+         * ⚠️ **Il trascinamento ha coordinate esplicite**, come in `IntestazioneTest`: `swipeUp()`
+         * nudo parte dal bordo di sotto della radice, dove non c'è nessuna griglia sotto il dito.
+         */
+        val scena = banco.onRoot().fetchSemanticsNode().size
+        banco.onRoot().performTouchInput {
+            swipe(
+                start = Offset(scena.width / 2f, scena.height * DA),
+                end = Offset(scena.width / 2f, scena.height * A),
+                durationMillis = LENTO
+            )
+        }
+        /*
+         * ⚠️⚠️ **IL CLOCK RESTA FERMO, o i tasti non ci sono più**: dopo la quiete parte il conto
+         * alla rovescia di due secondi, e `waitForIdle` lo porterebbe a termine. Si avanza quel
+         * tanto che basta alla dissolvenza di entrata.
+         */
+        banco.mainClock.advanceTimeBy(JUMP_FADE_MS.toLong())
+
+        val riquadro = banco.onAllNodesWithContentDescription(voce(R.string.jump_top))[0]
+            .getUnclippedBoundsInRoot()
+        assertEquals("Il tasto è largo quanto dichiarato", JUMP_TAP.value, riquadro.width.value, 0.5f)
+        assertEquals("Il tasto è alto quanto dichiarato", JUMP_TAP.value, riquadro.height.value, 0.5f)
     }
+
+    private fun voce(id: Int): String =
+        ApplicationProvider.getApplicationContext<Context>().getString(id)
+
+    private fun quanti(id: Int): Int =
+        banco.onAllNodesWithContentDescription(voce(id)).fetchSemanticsNodes().size
 
     /** La griglia di una cartella con gli argomenti minimi, come nelle altre prove. */
     @Composable
@@ -157,3 +212,13 @@ private const val RIGA = 48
  * misurerebbe la stima invece del meccanismo.
  */
 private const val LONTANO = 100_000f
+
+/** Quanto si lascia comporre la scena prima di toccarla, col clock fermo. */
+private const val RESPIRO = 1_000L
+
+/** Da dove a dove va il trascinamento, in frazioni dell'altezza della scena. */
+private const val DA = 0.8f
+private const val A = 0.2f
+
+/** Quanto dura il trascinamento: lento abbastanza da essere uno scorrimento e non un lancio. */
+private const val LENTO = 300L

@@ -115,8 +115,8 @@
     <string name="folder_renamed">Map hernoemd</string>
     <string name="folder_rename_taken">Er bestaat al een map met deze naam</string>
     <string name="folder_rename_fail">De map kon niet worden hernoemd</string>
-    <string name="jump_top">Naar boven</string>
-    <string name="jump_bottom">Naar beneden</string>
+    <string name="jump_top">Naar het begin</string>
+    <string name="jump_bottom">Naar het einde</string>
     <string name="settings_folder_columns">Kolommen in de rasters</string>
     <string name="settings_folder_columns_desc">Hoeveel kolommen het mappenraster en het afbeeldingsraster tonen. Meer kolommen passen meer op het scherm en maken elke tegel kleiner. Bij vier wordt de mapnaam meestal afgekapt.</string>
     <string name="settings_folder_count">Teller van de items onder de mappen in rasterweergave</string>

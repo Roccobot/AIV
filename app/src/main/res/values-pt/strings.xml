@@ -115,7 +115,7 @@
     <string name="folder_renamed">Pasta renomeada</string>
     <string name="folder_rename_taken">Já existe uma pasta com este nome</string>
     <string name="folder_rename_fail">Não foi possível renomear a pasta</string>
-    <string name="jump_top">Ir para o topo</string>
+    <string name="jump_top">Ir para o início</string>
     <string name="jump_bottom">Ir para o fim</string>
     <string name="settings_folder_columns">Colunas nas grades</string>
     <string name="settings_folder_columns_desc">Quantas colunas a grade de pastas e a de imagens mostram. Mais colunas cabem mais coisas na tela e encolhem cada bloco. Em quatro, o nome da pasta costuma ficar cortado.</string>

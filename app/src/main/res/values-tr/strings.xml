@@ -115,8 +115,8 @@
     <string name="folder_renamed">Klasör yeniden adlandırıldı</string>
     <string name="folder_rename_taken">Bu adda bir klasör zaten var</string>
     <string name="folder_rename_fail">Klasör yeniden adlandırılamadı</string>
-    <string name="jump_top">En üste git</string>
-    <string name="jump_bottom">En alta git</string>
+    <string name="jump_top">Başa git</string>
+    <string name="jump_bottom">Sona git</string>
     <string name="settings_folder_columns">Izgaralardaki sütunlar</string>
     <string name="settings_folder_columns_desc">Klasör ızgarasının ve resim ızgarasının kaç sütun gösterdiği. Daha çok sütun ekrana daha çok sığdırır ve her karoyu küçültür. Dörtte klasör adı genellikle kısaltılır.</string>
     <string name="settings_folder_count">Izgara görünümünde klasörlerin altındaki öge sayacı</string>

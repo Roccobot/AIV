@@ -17,9 +17,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
@@ -149,66 +152,84 @@ fun TreeList(
      */
     val here = path ?: roots.singleOrNull()?.file?.absolutePath
 
+    /*
+     * ⚠️⚠️ **LO SCORRIMENTO DELL'ELENCO VIVE QUI, ED È LA SUA RISPOSTA `tutto`**
+     * (`d-salti-dove` del giro della `1.95`): fino alla `1.95` questa vista teneva il proprio
+     * scorrimento dentro [Spots], quindi i due tasti del salto non avevano niente da muovere, e
+     * questa era una delle due schermate scoperte.
+     * ⚠️ **Uno solo, e per l'elenco dell'albero**: l'altra lista è quella delle memorie, che
+     * sono due, e in una lista che ci sta tutta nello schermo i tasti non compaiono comunque.
+     */
+    val scroll = rememberLazyListState()
+
     // ⚠️ **A tutta ALTEZZA e non solo a tutta larghezza**, dal 2026-08-31: serve al `weight`
     // del riquadro che centra 'la cartella è vuota' (vedi più sotto). Le due liste non
     // cambiano di una virgola, perché una `LazyColumn` senza peso prendeva già tutto lo
     // spazio che il genitore le concedeva.
-    Column(modifier = modifier.fillMaxSize()) {
-        if (here == null) {
-            Roots(roots, onPath)
-            return@Column
-        }
-        val dir = remember(here) { File(here) }
-        val up = remember(dir, roots) { Tree.parent(dir, roots) }
-        PathBar(dir, up, roots, onPath)
-        /*
-         * ⚠️⚠️ **DUE CHIAVI CON DUE EFFETTI DIVERSI, e il `remember` ne ha una sola**:
-         * cambiando cartella l'elenco si **azzera** (`remember(here)`), o per un istante si
-         * vedrebbero le righe della cartella di prima sotto il nome della nuova; rileggendo
-         * dopo un'operazione **non** si azzera, o la lista lampeggerebbe vuota per il tempo
-         * di una lettura di directory.
-         * ⚠️ Era un `produceState` nella `0.84`, e quello ricorda **senza chiavi**: il valore
-         * sopravviveva al cambio di cartella, cioè proprio il caso che qui si vuole azzerare.
-         */
-        var spots by remember(here) { mutableStateOf<List<Tree.Spot>?>(null) }
-        // ⚠️ Le due opzioni sono CHIAVI dell'effetto: cambiandole la cartella si rilegge,
-        // che è l'unico modo perché il filtro si veda senza uscire e rientrare.
-        LaunchedEffect(here, tick, showHidden, onlyPictures) {
-            spots = Tree.list(File(here), showHidden, onlyPictures)
-        }
-        when {
-            spots == null -> Unit
-            /*
-             * ⚠️⚠️ **LA FRASE STA AL CENTRO DEL VUOTO, e non appesa sotto il percorso**
-             * (richiesta dell'utente, 2026-08-31). Il vuoto di una cartella è tutto lo
-             * spazio che resta sotto la barra del percorso: una riga di testo posata in
-             * cima a quello spazio si legge come l'inizio di un elenco che non arriva mai,
-             * mentre in mezzo si legge per quello che è, cioè che qui non c'è niente.
-             * ⚠️ **Il `weight` funziona solo perché la colonna qui sopra è a tutta altezza**:
-             * in una colonna che si adatta al contenuto non c'è spazio residuo da
-             * distribuire, e questo riquadro verrebbe alto zero. Le due cose si tengono, e
-             * chi togliesse `fillMaxSize` rimetterebbe la frase in cima senza capire perché.
-             */
-            spots!!.isEmpty() -> Box(
-                modifier = Modifier.fillMaxWidth().weight(1f),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    // ⚠️ La stessa chiave della griglia, dalla 1.09: erano due stringhe con
-                    // lo stesso significato in 28 lingue, e due frasi per un'idea sola
-                    // divergono al primo ritocco di una delle due (era già successo: qui
-                    // 'La cartella è vuota', là 'Questa cartella non contiene più niente').
-                    text = stringResource(R.string.folder_empty),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    // ⚠️ Il margine dal basso è l'altezza del FAB: senza, su una
-                    // cartella vuota la frase finirebbe centrata **sotto** di lui.
-                    modifier = Modifier.padding(horizontal = 24.dp).padding(bottom = BELOW_FAB)
-                )
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            if (here == null) {
+                Roots(roots, onPath)
+                return@Column
             }
-            else -> Spots(spots!!, hidden, onPath, onOpen) { acting = it; menu.open() }
+            val dir = remember(here) { File(here) }
+            val up = remember(dir, roots) { Tree.parent(dir, roots) }
+            PathBar(dir, up, roots, onPath)
+            /*
+             * ⚠️⚠️ **DUE CHIAVI CON DUE EFFETTI DIVERSI, e il `remember` ne ha una sola**:
+             * cambiando cartella l'elenco si **azzera** (`remember(here)`), o per un istante si
+             * vedrebbero le righe della cartella di prima sotto il nome della nuova; rileggendo
+             * dopo un'operazione **non** si azzera, o la lista lampeggerebbe vuota per il tempo
+             * di una lettura di directory.
+             * ⚠️ Era un `produceState` nella `0.84`, e quello ricorda **senza chiavi**: il valore
+             * sopravviveva al cambio di cartella, cioè proprio il caso che qui si vuole azzerare.
+             */
+            var spots by remember(here) { mutableStateOf<List<Tree.Spot>?>(null) }
+            // ⚠️ Le due opzioni sono CHIAVI dell'effetto: cambiandole la cartella si rilegge,
+            // che è l'unico modo perché il filtro si veda senza uscire e rientrare.
+            LaunchedEffect(here, tick, showHidden, onlyPictures) {
+                spots = Tree.list(File(here), showHidden, onlyPictures)
+            }
+            when {
+                spots == null -> Unit
+                /*
+                 * ⚠️⚠️ **LA FRASE STA AL CENTRO DEL VUOTO, e non appesa sotto il percorso**
+                 * (richiesta dell'utente, 2026-08-31). Il vuoto di una cartella è tutto lo
+                 * spazio che resta sotto la barra del percorso: una riga di testo posata in
+                 * cima a quello spazio si legge come l'inizio di un elenco che non arriva mai,
+                 * mentre in mezzo si legge per quello che è, cioè che qui non c'è niente.
+                 * ⚠️ **Il `weight` funziona solo perché la colonna qui sopra è a tutta altezza**:
+                 * in una colonna che si adatta al contenuto non c'è spazio residuo da
+                 * distribuire, e questo riquadro verrebbe alto zero. Le due cose si tengono, e
+                 * chi togliesse `fillMaxSize` rimetterebbe la frase in cima senza capire perché.
+                 */
+                spots!!.isEmpty() -> Box(
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        // ⚠️ La stessa chiave della griglia, dalla 1.09: erano due stringhe con
+                        // lo stesso significato in 28 lingue, e due frasi per un'idea sola
+                        // divergono al primo ritocco di una delle due (era già successo: qui
+                        // 'La cartella è vuota', là 'Questa cartella non contiene più niente').
+                        text = stringResource(R.string.folder_empty),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        // ⚠️ Il margine dal basso è l'altezza del FAB: senza, su una
+                        // cartella vuota la frase finirebbe centrata **sotto** di lui.
+                        modifier = Modifier.padding(horizontal = 24.dp).padding(bottom = BELOW_FAB)
+                    )
+                }
+                else -> Spots(spots!!, scroll, hidden, onPath, onOpen) { acting = it; menu.open() }
+            }
         }
+        JumpFabs(
+            state = scroll,
+            up = { scroll.jumpUpPixels() },
+            down = { scroll.jumpDownPixels() },
+            modifier = Modifier.align(fabSide()).safeDrawingPadding().padding(GRID_PAD_X)
+        )
     }
 
     /*
@@ -324,6 +345,13 @@ private fun PathBar(dir: File, up: File?, roots: List<Tree.Root>, onPath: (Strin
 @Composable
 private fun Spots(
     spots: List<Tree.Spot>,
+    /**
+     * Lo scorrimento dell'elenco.
+     *
+     * ⚠️ **Arriva da fuori e non nasce qui, dalla `2.00`**: i due tasti del salto vivono nel
+     * contenitore della schermata, e uno stato ricordato qui dentro non lo raggiungerebbe.
+     */
+    scroll: LazyListState,
     hidden: Set<String>,
     onPath: (String?) -> Unit,
     onOpen: (List<Uri>, Int) -> Unit,
@@ -335,7 +363,7 @@ private fun Spots(
     val reels = remember(spots) { spots.filter { it.media } }
     val addresses = remember(reels) { reels.map { Uri.fromFile(it.file) } }
 
-    LazyColumn(contentPadding = PaddingValues(bottom = BELOW_FAB)) {
+    LazyColumn(state = scroll, contentPadding = PaddingValues(bottom = BELOW_FAB)) {
         items(items = spots, key = { it.path }) { spot ->
             SpotRow(
                 spot = spot,

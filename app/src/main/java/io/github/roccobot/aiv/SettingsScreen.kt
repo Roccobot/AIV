@@ -1352,68 +1352,87 @@ private fun Shell(
     version: Boolean = false,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .safeDrawingPadding()
-            .then(if (scrolls) Modifier.verticalScroll(scroll) else Modifier)
-            .padding(horizontal = PAGE_SIDE, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.settings_back)
-                )
-            }
-            Text(
-                text = title,
-                style = MaterialTheme.typography.headlineSmall,
-                // ⚠️ La linea di base entra nel conto della riga: vedi il numero qui sotto.
-                modifier = Modifier.weight(1f).alignByBaseline().heading()
-            )
-            if (version) {
-                /*
-                 * ⚠️⚠️ **IL NUMERO ARRIVA DA `BuildConfig` E NON DA UNA STRINGA**: la fonte
-                 * unica del `versionName` è `app/build.gradle.kts`, e il tag del rilascio la
-                 * conferma invece di ripeterla. Una stringa scritta a mano qui sarebbe il
-                 * secondo posto in cui scriverla, e il primo a mentire.
-                 * ⚠️⚠️ **IL NOME DELL'APP AL POSTO DELLA `v`, dalla `1.59`** (sua richiesta, giro
-                 * della `1.58`: *invece della forma 'v1.58' scrivi in formato 'AIV 1.58'*). Erano
-                 * la stessa cosa a due lettere di distanza soltanto in apparenza: `v` dice che
-                 * quello che segue è una versione, che il numero già dice da sé, mentre `AIV`
-                 * dice **di che cosa** è la versione, e in un pannello che non nomina l'app da
-                 * nessun'altra parte quello è l'unico posto in cui compare.
-                 * ⚠️ **Non si traduce e non è una stringa**, come la `v` di prima: è il nome
-                 * proprio dell'app, uguale in tutte e ventotto le lingue, e una stringa
-                 * sarebbe ventotto righe da mantenere per ripetere tre lettere.
-                 * ⚠️ **Discreto vuol dire questi tre pezzi insieme**: il corpo più piccolo che
-                 * il tema abbia, il monospazio, e l'inchiostro tenue. Il monospazio serve a una
-                 * cosa precisa: le cifre hanno tutte la stessa larghezza, quindi il numero non
-                 * cambia ingombro passando dalla `1.9` alla `1.10`.
-                 */
+    /*
+     * ⚠️⚠️ **I DUE TASTI DELLO SCORRIMENTO VIVONO QUI, ED È LA SUA RISPOSTA `tutto`**
+     * (`d-salti-dove` del giro della `1.95`): scritti nel guscio, coprono la pagina piatta e
+     * tutte le sotto-pagine con una riga sola, invece di una riga per pagina.
+     * ⚠️ **Nelle pagine che NON scorrono da sé si spengono senza una condizione**: là [scroll]
+     * non si muove, quindi `canScrollForward` risponde di no e i tasti non compaiono. Una
+     * guardia scritta a mano direbbe la stessa cosa in un secondo posto.
+     * ⚠️ **Non c'è nessun FAB sotto**, e questa è la sola schermata dell'app in cui succede:
+     * `aboveFab` spento toglie il posto che gli si lascerebbe per niente.
+     */
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .safeDrawingPadding()
+                .then(if (scrolls) Modifier.verticalScroll(scroll) else Modifier)
+                .padding(horizontal = PAGE_SIDE, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.settings_back)
+                    )
+                }
                 Text(
-                    text = "AIV " + BuildConfig.VERSION_NAME,
-                    style = MaterialTheme.typography.labelSmall,
-                    fontFamily = FontFamily.Monospace,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = VERSION_FADE),
-                    /*
-                     * ⚠️⚠️ **APPOGGIATO SULLA LINEA DI BASE DEL TITOLO, dalla `1.57`**
-                     * (riscontro dell'utente, giro della `1.56`). Centrato in verticale, come
-                     * era, un corpo piccolo accanto a uno grande galleggia a metà della sua
-                     * riga: l'occhio confronta le linee su cui i due poggiano, non i loro
-                     * centri. ⚠️ **Vale sui due testi e non su uno**: la riga allinea per linea
-                     * di base solo i figli che lo chiedono, e uno solo non ha con chi
-                     * allinearsi. La freccia resta centrata, perché un glifo non ha linea di
-                     * base.
-                     */
-                    modifier = Modifier.alignByBaseline().padding(end = VERSION_END)
+                    text = title,
+                    style = MaterialTheme.typography.headlineSmall,
+                    // ⚠️ La linea di base entra nel conto della riga: vedi il numero qui sotto.
+                    modifier = Modifier.weight(1f).alignByBaseline().heading()
                 )
+                if (version) {
+                    /*
+                     * ⚠️⚠️ **IL NUMERO ARRIVA DA `BuildConfig` E NON DA UNA STRINGA**: la fonte
+                     * unica del `versionName` è `app/build.gradle.kts`, e il tag del rilascio la
+                     * conferma invece di ripeterla. Una stringa scritta a mano qui sarebbe il
+                     * secondo posto in cui scriverla, e il primo a mentire.
+                     * ⚠️⚠️ **IL NOME DELL'APP AL POSTO DELLA `v`, dalla `1.59`** (sua richiesta, giro
+                     * della `1.58`: *invece della forma 'v1.58' scrivi in formato 'AIV 1.58'*). Erano
+                     * la stessa cosa a due lettere di distanza soltanto in apparenza: `v` dice che
+                     * quello che segue è una versione, che il numero già dice da sé, mentre `AIV`
+                     * dice **di che cosa** è la versione, e in un pannello che non nomina l'app da
+                     * nessun'altra parte quello è l'unico posto in cui compare.
+                     * ⚠️ **Non si traduce e non è una stringa**, come la `v` di prima: è il nome
+                     * proprio dell'app, uguale in tutte e ventotto le lingue, e una stringa
+                     * sarebbe ventotto righe da mantenere per ripetere tre lettere.
+                     * ⚠️ **Discreto vuol dire questi tre pezzi insieme**: il corpo più piccolo che
+                     * il tema abbia, il monospazio, e l'inchiostro tenue. Il monospazio serve a una
+                     * cosa precisa: le cifre hanno tutte la stessa larghezza, quindi il numero non
+                     * cambia ingombro passando dalla `1.9` alla `1.10`.
+                     */
+                    Text(
+                        text = "AIV " + BuildConfig.VERSION_NAME,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontFamily = FontFamily.Monospace,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = VERSION_FADE),
+                        /*
+                         * ⚠️⚠️ **APPOGGIATO SULLA LINEA DI BASE DEL TITOLO, dalla `1.57`**
+                         * (riscontro dell'utente, giro della `1.56`). Centrato in verticale, come
+                         * era, un corpo piccolo accanto a uno grande galleggia a metà della sua
+                         * riga: l'occhio confronta le linee su cui i due poggiano, non i loro
+                         * centri. ⚠️ **Vale sui due testi e non su uno**: la riga allinea per linea
+                         * di base solo i figli che lo chiedono, e uno solo non ha con chi
+                         * allinearsi. La freccia resta centrata, perché un glifo non ha linea di
+                         * base.
+                         */
+                        modifier = Modifier.alignByBaseline().padding(end = VERSION_END)
+                    )
+                }
             }
+            Spacer(Modifier.height(8.dp))
+            content()
         }
-        Spacer(Modifier.height(8.dp))
-        content()
+        JumpFabs(
+            state = scroll,
+            up = { scroll.jumpUpPixels() },
+            down = { scroll.jumpDownPixels() },
+            aboveFab = false,
+            modifier = Modifier.align(fabSide()).safeDrawingPadding().padding(PAGE_SIDE)
+        )
     }
 }
 
