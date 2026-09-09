@@ -3306,10 +3306,16 @@ private val BADGE_GLYPH = 12.dp
  * e la ragione è che la piastrella non ha una misura fissa: le colonne sono `Adaptive`,
  * quindi su un tablet o in orizzontale la miniatura cresce. Un cateto in dp resterebbe
  * quello di un telefono e su uno schermo grande diventerebbe un francobollo nell'angolo.
- * ⚠️ Il valore viene dal mockup su cui l'utente ha scelto: a 108dp fa poco meno di 48dp
- * di cateto, che è quanto serve perché si legga anche da lontano.
+ * ⚠️ Il valore veniva dal mockup su cui l'utente ha scelto: `0,44`, cioè a 108dp poco meno
+ * di 48dp di cateto.
+ * ⚠️⚠️ **DALLA `2.03` È `0,36`, E LO HA CHIESTO LUI DOPO AVERLO VISTO SUL TELEFONO**
+ * (*rimpicciolisci un po' l'angolo colorato che indica l'ultimo elemento visualizzato*). Il
+ * cateto scende da 48dp a 39dp sulla stessa piastrella, cioè il triangolo copre un terzo di
+ * fotografia in meno: è il baratto scritto sul nastro, e adesso pende dall'altra parte.
+ * ⚠️ **Il mockup non decide più**, quindi chi lo riaprisse non ci trova questo numero: là il
+ * segno era disegnato e non provato, e questo viene dall'app in mano.
  */
-private const val MARK_LEG = 0.44f
+private const val MARK_LEG = 0.36f
 
 /**
  * Quanto è OPACO il nastro dell'ultima foto vista.

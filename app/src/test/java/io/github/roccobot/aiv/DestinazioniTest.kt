@@ -40,7 +40,7 @@ class DestinazioniTest {
         )
         assertEquals(
             listOf("Camera"),
-            destinations(elenco, cestino, emptySet()).map { it.name }
+            destinations(elenco, cestino, emptySet(), peeking = false).map { it.name }
         )
     }
 
@@ -58,7 +58,7 @@ class DestinazioniTest {
             cartella("Dentro", "$cestino/2026"),
             cartella("Camera", "/storage/emulated/0/DCIM/Camera")
         )
-        assertEquals(listOf("Camera"), destinations(elenco, cestino, emptySet()).map { it.name })
+        assertEquals(listOf("Camera"), destinations(elenco, cestino, emptySet(), peeking = false).map { it.name })
     }
 
     /**
@@ -71,7 +71,7 @@ class DestinazioniTest {
     @Test
     fun `una cartella che somiglia al cestino resta`() {
         val elenco = listOf(cartella("Quasi", "${cestino}-vecchio"))
-        assertEquals(listOf("Quasi"), destinations(elenco, cestino, emptySet()).map { it.name })
+        assertEquals(listOf("Quasi"), destinations(elenco, cestino, emptySet(), peeking = false).map { it.name })
     }
 
     /**
@@ -98,12 +98,37 @@ class DestinazioniTest {
         )
         assertEquals(
             listOf("Privatissimo", "Camera"),
-            destinations(elenco, cestino, setOf(nascosta)).map { it.name }
+            destinations(elenco, cestino, setOf(nascosta), peeking = false).map { it.name }
         )
     }
 
     /**
-     * **Caso 5: l'ordine non si tocca.**
+     * **Caso 5: col minuto di 'Mostra nascoste' acceso, una nascosta è una destinazione.**
+     *
+     * ⚠️⚠️ **È IL SUO RISCONTRO DELLA `2.02`** (voce `dest-nascoste`: *deve valere anche per le
+     * destinazioni*), e rovescia il caso qui sopra a parità di tutto il resto: le stesse
+     * cartelle, lo stesso insieme di nascoste, e cambia il solo prestito.
+     * ⚠️ **Il cestino resta fuori lo stesso**, ed è la metà che si perde scrivendo il prestito
+     * come un'uscita anticipata dal filtro: quella esclusione non ha niente a che vedere con le
+     * nascoste, e un file spostato là dentro sparirebbe al primo svuotamento.
+     */
+    @Test
+    fun `col prestito acceso una nascosta e una destinazione`() {
+        val nascosta = "/storage/emulated/0/Privato"
+        val elenco = listOf(
+            cartella("Privato", nascosta),
+            cartella("Dentro", "$nascosta/2026"),
+            cartella("Bin", cestino),
+            cartella("Camera", "/storage/emulated/0/DCIM/Camera")
+        )
+        assertEquals(
+            listOf("Privato", "Dentro", "Camera"),
+            destinations(elenco, cestino, setOf(nascosta), peeking = true).map { it.name }
+        )
+    }
+
+    /**
+     * **Caso 6: l'ordine non si tocca.**
      *
      * ⚠️ L'elenco arriva con la cartella toccata più di recente per prima, che è la ragione per
      * cui la scorciatoia è comoda: riordinarlo qui vorrebbe dire perdere proprio quello.
@@ -117,7 +142,7 @@ class DestinazioniTest {
         )
         assertEquals(
             listOf("Terza", "Prima", "Seconda"),
-            destinations(elenco, cestino, emptySet()).map { it.name }
+            destinations(elenco, cestino, emptySet(), peeking = false).map { it.name }
         )
     }
 }

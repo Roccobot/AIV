@@ -1468,12 +1468,26 @@ dalla schermata iniziale e la lasciava in bella vista appena si copiava un file.
   schermate che chiedono *questa cartella è nascosta?* leggono la stessa riga. Un secondo
   confronto sul percorso avrebbe due modi di trattare il separatore, e il primo a divergere
   sarebbe quello che nessuno guarda.
-- ⚠️⚠️ **IL MINUTO DI 'MOSTRA NASCOSTE' NON APRE UN'ECCEZIONE QUI**, ed è la sua clausola letta
-  fino in fondo: *se serve le rendo visibili di volta in volta* vuol dire che a scoprire una
-  cartella è un gesto suo nelle impostazioni, non un prestito di sessione. Il prestito vive in
-  `ViewerViewModel.peek`, che è del modello della schermata iniziale, e la finestra delle
-  destinazioni legge le preferenze da sé: portarcelo dentro vorrebbe dire far dipendere l'elenco
-  delle destinazioni da un conto alla rovescia partito altrove.
+- ⚠️⚠️ **MA IL MINUTO DI 'MOSTRA NASCOSTE' APRE UN'ECCEZIONE, DALLA `2.03`, ED È IL SUO
+  RISCONTRO** (giro della `2.02`, voce `dest-nascoste` accettabile: *deve valere anche per le
+  destinazioni*). La `2.02` aveva letto la sua parentesi al contrario, e la voce di collaudo
+  gliel'aveva chiesto in chiare lettere: fino a lei una cartella in prestito compariva in casa e
+  non fra le destinazioni, cioè il prestito valeva a metà.
+  - ⚠️ **La ragione di allora sembrava buona e guardava dalla parte sbagliata**: diceva che un
+    elenco legato a un conto alla rovescia acceso altrove è imprevedibile proprio nel gesto in cui
+    si sposta un file. Quello che non guardava è **perché** il prestito si accende, cioè per
+    entrare in una cartella nascosta: copiarci dentro è la cosa che si vuole fare mentre dura.
+  - **Il prestito arriva alla finestra con un `CompositionLocal`** (`LocalPeek`), come le
+    preferenze di vista e per la stessa ragione: a chiederlo è una finestra, e passarlo come
+    argomento vorrebbe dire quattro livelli per un dato che nessuno di loro guarda. ⚠️ **Non è
+    `staticCompositionLocalOf` come `LocalDestLook`**, e la differenza è misurata sul costo:
+    questo valore cambia due volte per prestito, e uno static local ricomporrebbe l'app intera a
+    ogni cambiamento.
+  - ⚠️ **Si fotografa all'apertura, come l'elenco**: il minuto scade da sé, e una finestra che lo
+    seguisse farebbe sparire delle righe da sotto il dito mentre si sceglie dove mettere un file.
+  - ⚠️ **Il cestino resta fuori lo stesso**, ed è la metà che si perde scrivendo il prestito come
+    un'uscita anticipata dal filtro: quell'esclusione non ha niente a che vedere con le nascoste.
+    A presidiarlo è il caso 5 di `DestinazioniTest`.
 
 ⚠️ **Che cosa il banco misura e che cosa no** (`NascosteTest`): vede il filtro nei due versi, il
 segno sulla sola cartella in prestito e il testo della voce che cambia con lo stato. **Non** vede
@@ -1741,13 +1755,29 @@ guardato.
   il tocco lungo: una parola sola entra in una cella stretta in tutte e ventotto le lingue, mentre
   la locuzione intera non entrerebbe in nessuna. Il verticale ha la sua etichetta e la annuncia
   `holdLabel`, che è il meccanismo con cui l'app dichiara un tocco lungo.
+- ⚠️⚠️ **MA LA CELLA STRETTA NON BASTAVA PER 'Centra in orizzontale', E DALLA `2.03` IL CORPO
+  DELL'ETICHETTA È UN GRADINO SOTTO** (sua segnalazione con schermata: *riduci leggermente la
+  dimensione delle etichette di testo delle funzioni dell'editor, in modo che ci stia l'intero
+  contenuto*). A `labelSmall` quella parola chiede **77dp** e la cella ne vale 76: mancava un
+  punto, e l'ellissi si mangiava tre lettere. Il numero di oggi vive su `padLabel`, in
+  `ActionPad.kt`, con la misura che lo regge.
+  - ⚠️⚠️ **LA MISURA VIENE DAI SUOI PIXEL E NON DAL BANCO, ed è la ragione per cui non c'è una
+    prova**: con la grafica di Robolectric quella parola a 11sp entra perfino in 64dp, perché là
+    il carattere è più stretto di quello del telefono. È il caso dichiarato in § '🧪 Quando si
+    scrive una prova, e quando no', cioè quello che dipende dall'apparecchio: una prova sarebbe
+    verde con e senza la correzione.
+  - ⚠️ **Il corpo è UNO per tutte le file**, perché il tasto è uno solo: due corpi diversi sotto
+    due icone identiche si vedrebbero prima nella scheda della selezione, dove le due file stanno
+    una sopra l'altra.
 - ⚠️ **Le due file dell'editor non si allineano più**, cinque contro quattro, ed è un compromesso
   dichiarato: allinearle vorrebbe dire una cella vuota in mezzo alla seconda, cioè un posto che
   invita a toccare qualcosa che non c'è.
 
-⚠️⚠️ **IL GLIFO È DI MATERIAL ED È PROVVISORIO, come i due della `1.80`**: `Icons.Filled.Flip` sta
-là finché lui non ne manda uno suo, e la voce di collaudo glielo chiede. Il criterio che decide
-fra un glifo di Material e uno in `res/` vive in § '🖌️ Come entra un disegno'.
+⚠️⚠️ **IL GLIFO È DI MATERIAL E CI RESTA, DALLA `2.03`, ED È SUA RISPOSTA** (`d-flip-glifo` del
+giro della `2.02`: **`resta`**, cioè *va bene quello di Material*). `Icons.Filled.Flip` era nato
+provvisorio come i due della `1.80`, e la domanda esisteva perché là, nella stessa situazione,
+aveva risposto mandando i suoi: qui ha scelto il contrario, quindi non si richiede più. Il criterio
+che decide fra un glifo di Material e uno in `res/` vive in § '🖌️ Come entra un disegno'.
 
 ⚠️⚠️ **E IL TASTO NUOVO SI INFILA IN UN ORDINE GIÀ SALVATO, che è il caso che nessuno guarda**:
 sul telefono di chi ha già usato l'app la fila è salvata con quattro gettoni, e senza un

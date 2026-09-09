@@ -181,6 +181,9 @@ class ColoreTest {
                 Covers(
                     folders = listOf(CARTELLA),
                     columns = 1,
+                    // ⚠️ Vuoto e scritto, come [covers] e dalla `2.03` per la stessa ragione:
+                    // qui nessuna cartella è in prestito.
+                    peeked = emptySet(),
                     counted = false,
                     nameStyle = folderNameStyle(1),
                     colour = colour,

@@ -1647,11 +1647,15 @@ internal fun Covers(
      * I percorsi delle cartelle in scena **in prestito**, cioè col minuto di 'Mostra nascoste'.
      *
      * ⚠️ **Un insieme e non un booleano per cella**: chi chiama ha già l'elenco delle nascoste, e
-     * il conto di quali lo siano lo fa [isHidden], che è lo stesso pezzo che le filtra. Vuoto
-     * (il valore di serie) vuol dire che nessuna è in prestito, che è il caso di ogni altro
-     * chiamante.
+     * il conto di quali lo siano lo fa [isHidden], che è lo stesso pezzo che le filtra. Un insieme
+     * vuoto vuol dire che nessuna è in prestito.
+     * ⚠️⚠️ **NON HA UN VALORE DI SERIE, DALLA `2.03`, PER LA STESSA RAGIONE DI [covers]**: fino
+     * alla `2.02` la finestra delle destinazioni ereditava `emptySet()` senza scriverlo, quindi
+     * là una cartella in prestito si vedeva senza il segno che dice perché c'è. Adesso chi apre
+     * una vista di cartelle deve dichiarare quali sono in prestito, e a presidiarlo è il
+     * compilatore.
      */
-    peeked: Set<String> = emptySet(),
+    peeked: Set<String>,
     counted: Boolean,
     /** Il corpo del nome, già scelto e già misurato da chi chiama. Vedi [FolderCard]. */
     nameStyle: TextStyle,
@@ -1745,8 +1749,11 @@ internal fun Covers(
 @Composable
 internal fun Rows(
     folders: List<Folder.Bucket>,
-    /** Come l'omonimo di [Covers]: le cartelle in scena col minuto di 'Mostra nascoste'. */
-    peeked: Set<String> = emptySet(),
+    /**
+     * Come l'omonimo di [Covers]: le cartelle in scena col minuto di 'Mostra nascoste', e senza
+     * valore di serie per la stessa ragione.
+     */
+    peeked: Set<String>,
     /** Se sotto il nome si legge il conto. Vedi `Settings.listCount`. */
     counted: Boolean,
     /** Il corpo del testo scelto per questa vista. Vedi `Settings.listText`. */

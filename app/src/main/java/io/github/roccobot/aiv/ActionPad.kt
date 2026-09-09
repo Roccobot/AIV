@@ -50,11 +50,13 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.VectorConverter
@@ -466,7 +468,7 @@ fun PadArrange(
                         )
                         Text(
                             text = stringResource(chiave.label()),
-                            style = MaterialTheme.typography.labelSmall,
+                            style = padLabel(),
                             color = inchiostro,
                             textAlign = TextAlign.Center,
                             maxLines = 2,
@@ -887,7 +889,7 @@ private fun PadButton(
         if (!labels) return@Column
         Text(
             text = stringResource(action.label),
-            style = MaterialTheme.typography.labelSmall,
+            style = padLabel(),
             color = tint,
             textAlign = TextAlign.Center,
             // ⚠️ Due righe e non una: fra le lingue che stanno per arrivare ce ne sono
@@ -900,6 +902,32 @@ private fun PadButton(
         )
     }
 }
+
+/**
+ * Il vestito dell'etichetta di un tasto, per il modello e per la sua replica.
+ *
+ * ⚠️⚠️ **UN GRADINO SOTTO `labelSmall`, DALLA `2.03`, ED È UNA MISURA E NON UN GUSTO** (sua
+ * segnalazione, con schermata: *riduci leggermente la dimensione delle etichette di testo
+ * delle funzioni dell'editor, in modo che ci stia l'intero contenuto senza tagliare
+ * 'orizzontale'*). Nella fila da cinque dell'editor la cella vale [PAD_CELL], cioè 76dp, e
+ * 'Centra in orizzontale' va a capo sulla parola più lunga: misurata sulla sua schermata,
+ * quella parola a 11sp chiede **77dp**, cioè un punto più di quanto ce n'è, e l'ellissi si
+ * mangiava le ultime tre lettere.
+ * - ⚠️⚠️ **IL BANCO NON POTEVA VEDERLO, ed è la ragione per cui il numero viene dai suoi
+ *   pixel**: con la grafica di Robolectric la stessa parola a 11sp entra in 64dp, perché là
+ *   il carattere è più stretto di quello del telefono. È il caso dichiarato in
+ *   `AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e quando no', cioè quello che dipende
+ *   dall'apparecchio: una prova che lo misurasse sarebbe verde con e senza la correzione.
+ * - **Perché 10sp e non 10,5**: a 10,5 la stessa parola viene 73dp, cioè tre punti di
+ *   margine, e con un carattere di sistema un po' più largo si torna a tagliare. A 10sp ne
+ *   restano sei, e la riduzione resta quella che ha chiesto, cioè leggera.
+ * - ⚠️ **Vale per TUTTE le file e non per la sola riga di mezzo**: il tasto è uno solo
+ *   ([PadButton]), e due corpi diversi sotto due icone identiche si vedrebbero prima nella
+ *   scheda della selezione, dove le due file stanno una sopra l'altra.
+ */
+@Composable
+private fun padLabel(): TextStyle =
+    MaterialTheme.typography.labelSmall.copy(fontSize = PAD_LABEL_SIZE)
 
 /**
  * Lo stesso gesto, con la vibrazione breve del sistema davanti.
@@ -991,6 +1019,9 @@ private val PAD_GAP = 8.dp
 
 /** Quanto stacca la parola dalla sua icona: poco, perché sono la stessa cosa. */
 private val PAD_LABEL_GAP = 2.dp
+
+/** Il corpo dell'etichetta di un tasto. Il perché di questo numero vive su [padLabel]. */
+private val PAD_LABEL_SIZE = 10.sp
 
 /**
  * Il margine laterale del riquadro dentro il menu che lo contiene.

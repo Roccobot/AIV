@@ -2434,10 +2434,14 @@ class ViewerActivity : ComponentActivity() {
                 val dove = model.settings?.let {
                     DestLook(it.folderView, it.folderColumns, it.folderCount, it.listCount, it.listText)
                 } ?: DestLook()
+                // ⚠️ E accanto a loro il minuto di 'Mostra nascoste', dalla `2.03`: la finestra
+                // delle destinazioni deve sapere se è acceso, e il perché per esteso, con la
+                // ragione per cui questo non è uno static local, vive su [LocalPeek].
                 CompositionLocalProvider(
                     LocalAivDepth provides (model.settings?.panelDepth ?: PanelDepth.NONE),
                     LocalPadLook provides look,
-                    LocalDestLook provides dove
+                    LocalDestLook provides dove,
+                    LocalPeek provides model.peeking
                 ) {
                     AivApp(model, onPicked = ::deliver)
                 }
