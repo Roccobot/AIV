@@ -675,34 +675,45 @@ fun Modifier.frontWash(
         endY = alto - suPx
     )
     /*
-     * ⚠️⚠️ **IL PENNELLO SI POSA CON UN PAINT CHE DITHERA, DALLA `1.95`, E SENZA QUESTA RIGA LA
-     * SFUMATURA HA LE BANDE** (sua segnalazione: *noto un banding fastidioso nel gradiente
-     * dell'intestazione: riducilo al massimo*). Il conto che spiega il difetto: fra il picco della
-     * tinta e il fondo dell'app ci sono una manciata di livelli su 255, e quei livelli sono
-     * distribuiti su tutta l'altezza della fascia, quindi ogni gradino della quantizzazione a 8
-     * bit è alto decine di pixel, cioè una striscia che si vede.
-     * ⚠️⚠️ **A 8 BIT L'UNICO RIMEDIO È IL DITHERING**, che spezza il gradino con mezzo livello di
-     * rumore ordinato: non si ottiene con più tappe (l'interpolazione è già continua, a quantizzare
-     * è la destinazione) e non si ottiene schiarendo la rampa.
-     * ⚠️⚠️ **E COMPOSE NON LO ACCENDE DA SÉ, che è la ragione per cui il difetto si vede QUI**:
-     * [DrawScope.drawRect] costruisce un paint suo, dove il dither resta spento;
-     * `GradientDrawable`, cioè la stessa sfumatura scritta in XML per una `View`, lo accende di
-     * serie. Da qui il paint di casa, con `isDither` acceso e riusato per ogni fotogramma.
+     * ⚠️⚠️ **IL PENNELLO SI POSA CON UN PAINT DI CASA, DALLA `1.95`, PERCHÉ QUELLO DI COMPOSE NON
+     * DITHERA** (sua segnalazione: *noto un banding fastidioso nel gradiente dell'intestazione:
+     * riducilo al massimo*). [DrawScope.drawRect] costruisce un paint suo, dove il dither resta
+     * spento; `GradientDrawable`, cioè la stessa sfumatura scritta in XML per una `View`, lo
+     * accende di serie. Da qui il paint di casa, acceso e riusato per ogni fotogramma.
+     * ⚠️⚠️ **E DALLA `2.04` C'È ANCHE UN DITHER SCRITTO DA NOI, PERCHÉ IL MEZZO LIVELLO DI SKIA
+     * NON È BASTATO** (riscontro del giro della `2.03`: *vedo ancora del banding. Se per fare un
+     * gradiente di qualità superiore serve gestire una profondità colore più alta, o più memoria,
+     * o più risorse, per me va bene*). Il conto del difetto, che cosa aggiunge il rumore scritto
+     * a mano, e perché sotto Android 13 non c'è, vivono in testa a `Dither.kt`.
+     * ⚠️ **Le due strade non si sommano a caso**: col rumore in scena il pennello vive **dentro**
+     * lo shader, quindi qui resta da dare al paint la sola opacità dello scorrimento; senza, il
+     * pennello si posa come prima.
      * ⚠️ **La fascia piena sopra la testata non passa di qui**: è tinta unita, e una tinta unita
      * non ha nessuna rampa da quantizzare.
      */
-    val pittura = Paint().apply { asFrameworkPaint().isDither = true }
+    val largo = size.width + ariaPx * 2
+    val misura = Size(largo, alto)
+    val grana = ditherShader(pennello, misura)
+    val pittura = Paint().apply {
+        /*
+         * ⚠️ **I due dither non si sommano**: col rumore nostro in scena, quello di Skia
+         * aggiungerebbe il suo mezzo livello sopra un livello già corretto, cioè più grana senza
+         * niente in cambio. Misurato dal banco: i toni distinti in una riga passano da dieci a
+         * sette, che è quello che tre canali arrotondati per conto loro possono dare.
+         */
+        asFrameworkPaint().isDither = grana == null
+        if (grana != null) asFrameworkPaint().shader = grana
+    }
     onDrawBehind {
         val visto = ink()
         if (visto <= 0f || alto <= 0f) return@onDrawBehind
         if (barraPx > 0f) drawRect(
             color = pieno,
             topLeft = Offset(-ariaPx, -suPx - barraPx),
-            size = Size(size.width + ariaPx * 2, barraPx),
+            size = Size(largo, barraPx),
             alpha = visto
         )
-        val largo = size.width + ariaPx * 2
-        pennello.applyTo(Size(largo, alto), pittura, visto)
+        if (grana != null) pittura.alpha = visto else pennello.applyTo(misura, pittura, visto)
         drawIntoCanvas { tela ->
             tela.drawRect(-ariaPx, -suPx, largo - ariaPx, alto - suPx, pittura)
         }

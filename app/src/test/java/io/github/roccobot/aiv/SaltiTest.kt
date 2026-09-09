@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -170,6 +171,60 @@ class SaltiTest {
         assertEquals("Il tasto è alto quanto dichiarato", JUMP_TAP.value, riquadro.height.value, 0.5f)
     }
 
+    /**
+     * **In cima ci sono tutti e due i tasti, non solo quello che ha dove andare.**
+     *
+     * ⚠️⚠️ **NASCE CON LA RICHIESTA DELLA `2.04`, ED È LA FORMA ESATTA DI QUELLO CHE GLI DAVA
+     * FASTIDIO** (*non occorre far sparire prima il tasto 'su' se si arriva in cima o il tasto
+     * 'giù' se si arriva in fondo: crea solo confusione*): fino alla `2.03` la colonna si
+     * accorciava da sé arrivando a un capo, e i due tasti non se ne andavano più insieme.
+     * ⚠️ **La lista è in cima e lo dichiara**, con le due misure prima delle asserzioni vere:
+     * senza, una lista che si fosse mossa di un pixel renderebbe la prova verde per il motivo
+     * sbagliato, cioè proprio nel caso che deve prendere.
+     * ⚠️ **Il gesto va verso il basso**, cioè dove non c'è niente da scorrere: muove zero pixel e
+     * accende lo stesso lo scorrimento, che è quello che fa comparire i tasti.
+     * ⚠️ **Controprovata rimettendo il difetto** (le due condizioni separate): il tasto 'in cima'
+     * non esiste, e l'asserzione conta 0 invece di 1.
+     */
+    @Test
+    fun `in cima restano tutti e due i tasti`() {
+        var lista: LazyListState? = null
+        banco.mainClock.autoAdvance = false
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                val state = rememberLazyListState()
+                lista = state
+                Box(Modifier.fillMaxSize()) {
+                    LazyColumn(state = state, modifier = Modifier.fillMaxSize()) {
+                        items(RIGHE) { n -> Text("riga $n", modifier = Modifier.height(RIGA.dp)) }
+                    }
+                    JumpFabs(
+                        state = state,
+                        up = { state.jumpUpPixels() },
+                        down = { state.jumpDownPixels() },
+                        modifier = Modifier.align(Alignment.BottomEnd)
+                    )
+                }
+            }
+        }
+        banco.mainClock.advanceTimeBy(RESPIRO)
+
+        val scena = banco.onRoot().fetchSemanticsNode().size
+        banco.onRoot().performTouchInput {
+            swipe(
+                start = Offset(scena.width * LATO, scena.height * A),
+                end = Offset(scena.width * LATO, scena.height * DA),
+                durationMillis = LENTO
+            )
+        }
+        banco.mainClock.advanceTimeBy(JUMP_FADE_MS.toLong())
+
+        assertEquals("La lista deve essere rimasta in cima", 0, lista?.firstVisibleItemIndex)
+        assertEquals("E senza scarto", 0, lista?.firstVisibleItemScrollOffset)
+        assertEquals("In cima il tasto 'in cima' c'è lo stesso", 1, quanti(R.string.jump_top))
+        assertEquals("E accanto a lui quello 'in fondo'", 1, quanti(R.string.jump_bottom))
+    }
+
     private fun voce(id: Int): String =
         ApplicationProvider.getApplicationContext<Context>().getString(id)
 
@@ -219,6 +274,14 @@ private const val RESPIRO = 1_000L
 /** Da dove a dove va il trascinamento, in frazioni dell'altezza della scena. */
 private const val DA = 0.8f
 private const val A = 0.2f
+
+/**
+ * Su quale colonna passa il dito, in frazioni della larghezza.
+ *
+ * ⚠️ **A sinistra e non al centro**: la colonna dei tasti vive in fondo a destra, e un gesto che
+ * le passasse sopra finirebbe su di loro invece che sulla lista.
+ */
+private const val LATO = 0.25f
 
 /** Quanto dura il trascinamento: lento abbastanza da essere uno scorrimento e non un lancio. */
 private const val LENTO = 300L
