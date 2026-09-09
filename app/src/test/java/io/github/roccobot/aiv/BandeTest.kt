@@ -4,7 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
@@ -99,6 +102,133 @@ class BandeTest {
             toniMax <= TONI_MAX
         )
     }
+
+    /**
+     * **La tessera dei telefoni vecchi porta il rumore nell'opacità, e la rampa resta la sua.**
+     *
+     * ⚠️⚠️ **SI GUARDA LA TESSERA E NON I PIXEL RESI, E LA RAGIONE È MISURATA**: la prima stesura
+     * di questa prova contava le righe miste nel **disegno**, ed è rimasta **verde con il rumore
+     * azzerato**, cioè non misurava niente. Sul banco una riga porta due toni adiacenti anche
+     * senza nessun rumore nostro: nel disegno ne entra uno di Skia, e i due non si distinguono.
+     * Nell'opacità della tessera invece il rumore o c'è o non c'è.
+     * ⚠️ **Le due asserzioni guardano i due versi dello stesso numero**, come nella prova qui
+     * sopra: che il rumore ci sia, e che resti piccolo.
+     */
+    @Test
+    fun `la tessera dei telefoni vecchi porta il rumore nell'opacità`() {
+        val alta = 300
+        val mappa = rampBitmap(PROVE_STOPS, PICCO, alta)
+        assertTrue("La tessera non si è costruita", mappa != null)
+        val quadro = mappa!!
+        var miste = 0
+        var largoMax = 0
+        for (y in 0 until alta) {
+            var meno = 255
+            var piu = 0
+            for (x in 0 until quadro.width) {
+                /*
+                 * ⚠️ **L'opacità si legge da `getPixel`, che su una ALPHA_8 dà il nero con quel
+                 * canale**: la bitmap non ha colori, e il valore che interessa è il byte alto.
+                 */
+                val a = (quadro.getPixel(x, y) ushr 24) and 0xFF
+                meno = minOf(meno, a)
+                piu = maxOf(piu, a)
+            }
+            if (piu > meno) miste++
+            largoMax = maxOf(largoMax, piu - meno)
+        }
+        assertTrue(
+            "Solo $miste righe su $alta hanno più di un livello: la tessera non porta rumore",
+            miste >= alta * QUOTA_MISTE
+        )
+        assertTrue(
+            "Una riga si allarga di $largoMax livelli: è una grana, non un dither",
+            largoMax <= LARGO_MAX
+        )
+        /*
+         * ⚠️ **E la rampa resta quella dichiarata**: la media di una riga deve cadere sul valore
+         * delle tappe, o il rumore starebbe coprendo una rampa sbagliata. In cima vale il picco,
+         * in fondo zero.
+         */
+        var somma = 0
+        for (x in 0 until quadro.width) somma += (quadro.getPixel(x, 0) ushr 24) and 0xFF
+        val media = somma.toFloat() / quadro.width
+        assertTrue(
+            "In cima la tessera vale $media invece di ${PICCO * 255}",
+            kotlin.math.abs(media - PICCO * 255f) <= LARGO_MAX
+        )
+    }
+
+    /**
+     * **La maschera dei telefoni vecchi si tinge del colore del paint.**
+     *
+     * ⚠️⚠️ **MISURA IL MODO IN CUI QUESTA STRADA PUÒ FALLIRE**: la maschera è un'immagine di sola
+     * opacità, e chi la posa si aspetta che Skia la moduli col colore del paint. Se non lo
+     * facesse, la fascia verrebbe **nera** su un telefono che nessuno dei due ha, e nessuno se ne
+     * accorgerebbe fino a una segnalazione.
+     * ⚠️⚠️ **PERCHÉ NON SI MONTA `frontWash` COM'È**: là il ramo lo sceglie la versione di Android,
+     * e il banco gira su una piattaforma recente, quindi passerebbe sempre dallo shader. Montare
+     * una seconda piattaforma finta costerebbe duecento megabyte a ogni corsa in CI. Le due righe
+     * che posano la maschera sono ricopiate qui, e sono le uniche: la rampa, il rumore e il modo di
+     * ancorarla vengono tutte da [rampMask].
+     * ⚠️ **Che cosa NON vede**: se sul telefono la strada venga presa davvero, che è un `if` sulla
+     * versione di sistema, e se il rimedio basti a far sparire le bande dai suoi occhi.
+     */
+    @Test
+    fun `la maschera dei telefoni vecchi si tinge`() {
+        var costruita = false
+        banco.setContent {
+            Box(modifier = Modifier.background(Color.White)) {
+                Box(
+                    modifier = Modifier
+                        .size(LARGA.dp, ALTA.dp)
+                        .testTag(FASCIA)
+                        /*
+                         * ⚠️ **La maschera si costruisce QUI, alla misura vera in pixel**: quanto
+                         * valga un punto sul banco è una cosa della piattaforma finta, e una
+                         * prova che la desse per uno misurerebbe una rampa spostata il giorno che
+                         * cambia. Nell'app la costruisce `drawWithCache`, una volta per misura.
+                         */
+                        .drawBehind {
+                            val maschera =
+                                rampMask(PROVE_STOPS, PICCO, size.height.toInt(), 0f) ?: return@drawBehind
+                            costruita = true
+                            val pittura = Paint().apply {
+                                color = TINTA
+                                asFrameworkPaint().shader = maschera
+                            }
+                            drawIntoCanvas { tela ->
+                                tela.drawRect(0f, 0f, size.width, size.height, pittura)
+                            }
+                        }
+                )
+            }
+        }
+        banco.waitForIdle()
+
+        val mappa = banco.onNodeWithTag(FASCIA).captureToImage().toPixelMap()
+        /*
+         * ⚠️ **La spia si guarda DOPO la cattura, e non prima**: il disegno gira quando la scena
+         * viene dipinta davvero, non quando la composizione è a riposo. Messa prima, la prova
+         * falliva sempre con un messaggio che accusava la maschera invece dell'attesa, ed è
+         * successo alla prima corsa.
+         */
+        assertTrue("La maschera non si è costruita", costruita)
+        /*
+         * ⚠️ **Il colore atteso si calcola invece di scriverlo**: in cima la rampa vale il suo
+         * massimo, quindi sopra il bianco esce la tinta miscelata a [PICCO]. Un numero scritto a
+         * mano andrebbe rifatto al primo ritocco del picco, e nel frattempo mentirebbe.
+         */
+        val alto = mappa[mappa.width / 2, 1]
+        val atteso = { canale: Float, tinta: Float -> tinta * PICCO + canale * (1f - PICCO) }
+        val scartoRosso = kotlin.math.abs(alto.red - atteso(1f, TINTA.red))
+        val scartoBlu = kotlin.math.abs(alto.blue - atteso(1f, TINTA.blue))
+        assertTrue(
+            "In cima il colore è $alto: la maschera non si è tinta col colore del paint",
+            scartoRosso < SCARTO && scartoBlu < SCARTO
+        )
+
+    }
 }
 
 /** L'etichetta con cui la prova ritrova il rettangolo del gradiente. */
@@ -133,3 +263,30 @@ private const val QUOTA_MISTE = 0.9f
  * per conto suo, quindi le combinazioni sono più delle tre che si conterebbero a mente.
  */
 private const val TONI_MAX = 8
+
+/**
+ * Le tappe con cui si prova la maschera, e il suo picco.
+ *
+ * ⚠️ **Sono una rampa di prova e non quelle dell'intestazione**: `WASH_STOPS` è privata di
+ * `Front.kt`, e quello che questa prova misura è il **meccanismo** della maschera, cioè che si
+ * tinga e che porti rumore. Le tappe vere le misura la prova qui sopra, che monta `frontWash`.
+ */
+private val PROVE_STOPS = listOf(0f to 1f, 1f to 0f)
+private const val PICCO = 0.25f
+
+/**
+ * Di quanti livelli può allargarsi una riga della tessera.
+ *
+ * ⚠️ **Quattro, cioè i due livelli del rumore presi ai due estremi**: la distribuzione è
+ * triangolare, quindi la coda arriva a più e meno due, e una riga larga più di così vorrebbe dire
+ * che qualcuno ha alzato la dose.
+ */
+private const val LARGO_MAX = 4
+
+/**
+ * Quanto può discostarsi il colore misurato da quello atteso.
+ *
+ * ⚠️ **Un paio di livelli su 255, cioè il rumore stesso più l'arrotondamento**: una soglia più
+ * stretta renderebbe la prova rossa proprio per la cosa che deve esserci.
+ */
+private const val SCARTO = 0.02f
