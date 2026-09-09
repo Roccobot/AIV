@@ -1,5 +1,6 @@
 package io.github.roccobot.aiv
 
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
@@ -338,8 +339,20 @@ private fun FolderShortcut(
      * ricevono da chi chiama: il visualizzatore e l'albero non ne hanno un elenco in mano, e
      * farglielo caricare per passarlo qui vorrebbe dire la stessa query in tre posti.
      */
-    val cartelle by produceState<List<Folder.Bucket>?>(null, context) {
-        value = destinations(Folder.buckets(context), Bin.dir(context).absolutePath)
+    /*
+     * ⚠️⚠️ **LE COPERTINE SCELTE A MANO SI CARICANO QUI, dalla `2.01`, E PRIMA NON ARRIVAVANO**
+     * (sua segnalazione, 2026-09-09: *quando copio o sposto e devo selezionare la destinazione,
+     * le cartelle appaiono con la loro copertina originale, non con la personalizzata*). Le due
+     * viste hanno il parametro da sempre, ma con un valore di serie vuoto: questa finestra lo
+     * ereditava in silenzio, e `coverIn` cadeva sempre sulla copertina predefinita. Adesso quel
+     * parametro è obbligatorio, quindi il difetto non si può più rifare per omissione.
+     * ⚠️ **Si caricano nello STESSO `produceState` delle cartelle**, e non in un secondo: così
+     * l'elenco compare già con le copertine giuste, mentre con due attese ci sarebbe un tratto
+     * in cui si vedono quelle predefinite.
+     */
+    val dati by produceState<Pair<List<Folder.Bucket>, Map<Long, Uri>>?>(null, context) {
+        value = destinations(Folder.buckets(context), Bin.dir(context).absolutePath) to
+            FolderCovers.all(context)
     }
 
     Dialog(
@@ -376,7 +389,8 @@ private fun FolderShortcut(
                 // ⚠️ Il peso sta sul contenitore, come nell'albero: così 'Sfoglia...' resta in
                 // fondo anche mentre l'elenco si carica, invece di saltare a metà schermo.
                 Box(modifier = Modifier.weight(1f).padding(horizontal = 12.dp)) {
-                    val elenco = cartelle
+                    val elenco = dati?.first
+                    val copertine = dati?.second.orEmpty()
                     when {
                         elenco == null -> Unit
                         elenco.isEmpty() -> Text(
@@ -391,10 +405,16 @@ private fun FolderShortcut(
                          * quella funzione risponde a *riconosco una cartella nell'elenco di
                          * casa*, e questa finestra non è quell'elenco ma le sole destinazioni in
                          * cui si può mettere un file.
-                         * ⚠️ **E il costo tecnico sarebbe reale**: le tinte sono un dato delle
-                         * cartelle, non una preferenza di vista, quindi passarle da [DestLook]
-                         * (che è uno `staticCompositionLocalOf`) farebbe ricomporre l'app intera
-                         * a ogni colore scelto. Chi le vuole anche qui le porti per un'altra via.
+                         * ⚠️⚠️ **E LA COPERTINA SCELTA A MANO INVECE C'È, dalla `2.01`**: non è
+                         * un'incoerenza con la riga qui sopra, perché le due cose rispondono a
+                         * due domande diverse. Una tinta serve a **riconoscere** una cartella
+                         * nell'elenco di casa; una copertina **è** l'aspetto di quella cartella,
+                         * quindi mostrarne un'altra qui la fa sembrare un'altra cartella.
+                         * ⚠️ **La via è quella che questa nota indicava**, cioè un'altra: le
+                         * copertine si caricano nel `produceState` qui sopra e non passano da
+                         * [DestLook], quindi il costo tecnico delle tinte (una ricomposizione
+                         * dell'app intera a ogni colore scelto) qui non si paga. Chi volesse
+                         * anche le tinte ha adesso una strada che costa una riga.
                          */
                         look.view == FolderView.GRID -> Covers(
                             folders = elenco,
@@ -403,6 +423,7 @@ private fun FolderShortcut(
                             nameStyle = folderNameStyle(look.columns),
                             colour = FolderColour.NONE,
                             tints = emptyMap(),
+                            covers = copertine,
                             onPick = { bucket -> bucket.path?.let { onPick(File(it)) } },
                             onHide = { }
                         )
@@ -412,6 +433,7 @@ private fun FolderShortcut(
                             size = look.listText,
                             colour = FolderColour.NONE,
                             tints = emptyMap(),
+                            covers = copertine,
                             onPick = { bucket -> bucket.path?.let { onPick(File(it)) } },
                             onHide = { }
                         )

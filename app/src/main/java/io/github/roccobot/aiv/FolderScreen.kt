@@ -1670,8 +1670,20 @@ internal fun Covers(
     colour: FolderColour,
     /** Il colore di ogni cartella che ne ha uno, per identificatore. */
     tints: Map<Long, Int>,
-    /** La copertina scelta a mano per ogni cartella che ne ha una. Vedi `FolderCovers`. */
-    covers: Map<Long, Uri> = emptyMap(),
+    /**
+     * La copertina scelta a mano per ogni cartella che ne ha una. Vedi `FolderCovers`.
+     *
+     * ⚠️⚠️ **NON HA UN VALORE DI SERIE, DALLA `2.01`, E L'AVERLO AVUTO È STATO IL DIFETTO**
+     * (sua segnalazione, 2026-09-09: nella finestra delle destinazioni *le cartelle appaiono
+     * con la loro copertina originale, non con la personalizzata*). Questa vista ha due
+     * chiamanti, e il secondo ereditava `emptyMap()` senza scriverlo: `coverIn` cadeva sempre
+     * sulla copertina predefinita, e nel codice non c'era niente da leggere che lo dicesse.
+     * Adesso chi apre una vista di cartelle **deve dichiarare** che copertine porta, e a
+     * presidiarlo è il compilatore invece di una prova. È lo stesso criterio del parametro di
+     * `Modifier.lowered`, e la prova che regge è [tints], che il valore di serie non l'ha mai
+     * avuto: là infatti la finestra scrive la sua scelta a chiare lettere.
+     */
+    covers: Map<Long, Uri>,
     onPick: (Folder.Bucket) -> Unit,
     /**
      * Lo scorrimento della griglia.
@@ -1760,8 +1772,8 @@ internal fun Rows(
     colour: FolderColour,
     /** Il colore di ogni cartella che ne ha uno, per identificatore. */
     tints: Map<Long, Int>,
-    /** La copertina scelta a mano per ogni cartella che ne ha una. Vedi `FolderCovers`. */
-    covers: Map<Long, Uri> = emptyMap(),
+    /** Le copertine scelte a mano, e senza valore di serie: vedi il gemello di [Covers]. */
+    covers: Map<Long, Uri>,
     onPick: (Folder.Bucket) -> Unit,
     /** Lo scorrimento dell'elenco: vedi il gemello di [Covers]. */
     state: LazyListState = rememberLazyListState(),
