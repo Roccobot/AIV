@@ -1741,6 +1741,20 @@ guardato.
   il tocco lungo: una parola sola entra in una cella stretta in tutte e ventotto le lingue, mentre
   la locuzione intera non entrerebbe in nessuna. Il verticale ha la sua etichetta e la annuncia
   `holdLabel`, che è il meccanismo con cui l'app dichiara un tocco lungo.
+- ⚠️⚠️ **MA LA CELLA STRETTA NON BASTAVA PER 'Centra in orizzontale', E DALLA `2.03` IL CORPO
+  DELL'ETICHETTA È UN GRADINO SOTTO** (sua segnalazione con schermata: *riduci leggermente la
+  dimensione delle etichette di testo delle funzioni dell'editor, in modo che ci stia l'intero
+  contenuto*). A `labelSmall` quella parola chiede **77dp** e la cella ne vale 76: mancava un
+  punto, e l'ellissi si mangiava tre lettere. Il numero di oggi vive su `padLabel`, in
+  `ActionPad.kt`, con la misura che lo regge.
+  - ⚠️⚠️ **LA MISURA VIENE DAI SUOI PIXEL E NON DAL BANCO, ed è la ragione per cui non c'è una
+    prova**: con la grafica di Robolectric quella parola a 11sp entra perfino in 64dp, perché là
+    il carattere è più stretto di quello del telefono. È il caso dichiarato in § '🧪 Quando si
+    scrive una prova, e quando no', cioè quello che dipende dall'apparecchio: una prova sarebbe
+    verde con e senza la correzione.
+  - ⚠️ **Il corpo è UNO per tutte le file**, perché il tasto è uno solo: due corpi diversi sotto
+    due icone identiche si vedrebbero prima nella scheda della selezione, dove le due file stanno
+    una sopra l'altra.
 - ⚠️ **Le due file dell'editor non si allineano più**, cinque contro quattro, ed è un compromesso
   dichiarato: allinearle vorrebbe dire una cella vuota in mezzo alla seconda, cioè un posto che
   invita a toccare qualcosa che non c'è.
