@@ -1110,14 +1110,26 @@ Top`*). Quindi i numeri di `Jump.kt` non sono scelte: sono **misure prese** su
 - **Che cosa viene di là**: la durata `min(800, 280 + |dist| * 0.16)` in millisecondi, l'easing
   quintico in uscita `1 - (1-x)^5`, la comparsa allo scorrimento, e i due stadi del congedo (una
   quiete di 150 ms che dice 'lo scorrimento è finito', e solo dopo il conto alla rovescia).
-- ⚠️ **Il numero che NON viene di là è l'attesa**: sul sito è 0,8 s su mobile e 3 s su desktop,
-  qui sono i **2 secondi** che ha dettato lui.
-- ⚠️⚠️ **E DALLA `2.04` NON VIENE DI LÀ NEMMENO L'USCITA: DURA UN SECONDO ED È GRADUALE**
+- ⚠️ **Il numero che NON viene di là è l'attesa**: lui l'ha dettata due volte, **2 secondi** nella
+  `1.95` e **0,8** nella `2.05`, e il secondo coincide con quello del sito su mobile senza venire
+  di là (vedi la voce sui due tempi, qui sotto).
+- ⚠️⚠️ **E DALLA `2.04` NON VIENE DI LÀ NEMMENO L'USCITA: È GRADUALE E DURA MOLTO PIÙ DI LÀ**
   (riscontro del giro della `2.03`: *l'uscita dei due tasti dev'essere più 'morbida': dissolvenza
   di circa un secondo, graduale*). Il quarto di secondo del sito era giusto su una pagina web e
   troppo secco sopra una griglia di miniature. ⚠️ **L'entrata resta quella di prima**, e la
   differenza è voluta: quello che arriva dev'essere subito toccabile. ⚠️ **La curva è lineare**,
   perché quella di serie parte quasi ferma e poi cade, cioè il contrario di graduale.
+- ⚠️⚠️ **E DALLA `2.05` I DUE TEMPI SI TARANO INSIEME, PERCHÉ SONO LO STESSO TEMPO: 0,8 SECONDI
+  PIENI PIÙ 1,6 DI USCITA** (sua richiesta, 2026-09-09: *visto che i tasti su/giù sono
+  utilizzabili anche durante la dissolvenza (lunga), falli durare 0,8 secondi, con una dissolvenza
+  di 1,6 secondi*). Il fatto che lo regge è che un nodo che sbiadisce **resta nell'albero** e
+  riceve i tocchi, quindi l'attesa piena e l'uscita non sono un tempo utile e una coda: sono due
+  pezzi dello stesso tempo utile, e ridurre il primo allungando la seconda toglie ingombro senza
+  togliere il comando.
+  - ⚠️ **Il totale scende comunque**, e si dice invece di lasciarlo scoprire: il tratto in cui il
+    tasto risponde passa da **3 secondi a 2,4**, e la parte a piena opacità da 2 a 0,8.
+  - ⚠️ **Chi ne ritocca uno guarda l'altro**: separati, il primo numero che cambia sposta il
+    totale senza che nessuno se ne accorga.
 - ⚠️⚠️ **E I DUE TASTI SE NE VANNO INSIEME, DALLA `2.04`: LA CONDIZIONE È UNA SOLA** (stesso
   riscontro: *non occorre far sparire prima il tasto 'su' se si arriva in cima o il tasto 'giù' se
   si arriva in fondo: crea solo confusione*). Fino alla `2.03` ogni tasto guardava il proprio
@@ -1197,10 +1209,18 @@ dall'albero con la dissolvenza. La difesa è l'**assenza**, come per il `MenuGua
 
 ⚠️ **Che cosa il banco misura e che cosa no** (`SaltiTest` e `SaltiSfondoTest`): vede che a
 riposo i due tasti non sono nell'albero, che il salto passa dallo scorrimento annidato nei due
-versi, che il bersaglio è largo quanto dichiarato, che in cima ci sono tutti e due, e che dietro
-il glifo non c'è nessun fondo dipinto. **Non** vede quando compaiono e quando se ne vanno, perché
-quell'attesa il clock di prova la porta a termine dentro `waitForIdle`, né quanto dura la
-dissolvenza, né la decelerazione, né come il tasto si comporta **premuto**: sono rese.
+versi, che il bersaglio è largo quanto dichiarato, che in cima ci sono tutti e due, che dietro il
+glifo non c'è nessun fondo dipinto, e che **un tasto in uscita risponde ancora al tocco**. **Non**
+vede quanto quei tempi siano giusti per l'occhio, né la decelerazione, né come il tasto si
+comporta **premuto**: sono rese.
+- ⚠️⚠️ **QUELL'ULTIMA PROVA NASCE COL RITOCCO DELLA `2.05`, ED È LA SUA PREMESSA**: i due numeri
+  valgono quello che valgono solo se il tratto in dissolvenza è tempo utile, quindi il banco
+  entra **dentro** l'uscita col clock fermo e da là tocca il tasto. ⚠️ **Il gesto che la prepara
+  finisce fermo**, o un lancio inerziale sposterebbe l'inizio del conto alla rovescia e la prova
+  misurerebbe un istante diverso da quello che dice.
+- ⚠️ **Fino alla `2.04` era scritto che il banco quel tratto non lo vedeva**, ed era vero finché
+  nessuno lo aveva provato con `autoAdvance` spento: quello che resta fuori è la **percezione**,
+  non il tempo.
 
 ## 🔖 Lo scorrimento di una schermata sopravvive alla schermata
 

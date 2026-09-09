@@ -23,7 +23,9 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.unit.dp
@@ -48,10 +50,13 @@ import org.robolectric.annotation.Config
  * segni sono due mondi opposti. Un `-` di troppo dà un tasto che va dalla parte sbagliata, e
  * nessun compilatore lo vede.
  *
- * ⚠️ **Che cosa NON vede**: quando i tasti compaiono e quando se ne vanno. Quella è un'attesa di
- * due secondi dopo la quiete, e nel banco il clock di prova la porta a termine dentro
- * `waitForIdle`, cioè la misurerebbe sempre scaduta. Si guarda sul telefono, ed è dichiarato
- * nella voce di collaudo. Neanche la decelerazione si vede: quella è resa, non struttura.
+ * ⚠️ **Che cosa NON vede**: **quanto** si vedono i tasti, cioè se l'attesa e l'uscita siano lunghe
+ * al punto giusto per l'occhio. Quella è percezione, e si guarda sul telefono. Neanche la
+ * decelerazione della corsa si vede, per la stessa ragione.
+ * ⚠️⚠️ **MA IL CLOCK FERMO GLI FA VEDERE DOVE ARRIVA LA FINESTRA DEL TOCCO**, che è un'altra cosa
+ * ed è struttura: `il tasto risponde anche mentre sbiadisce` entra **dentro** la dissolvenza e da
+ * là tocca il tasto. Fino alla `2.04` qui c'era scritto che il banco quel tratto non lo vedeva:
+ * era vero finché nessuno lo aveva provato con `autoAdvance` spento.
  */
 @RunWith(AndroidJUnit4::class)
 @Config(shadows = [OmbraArchivio::class])
@@ -160,7 +165,7 @@ class SaltiTest {
         }
         /*
          * ⚠️⚠️ **IL CLOCK RESTA FERMO, o i tasti non ci sono più**: dopo la quiete parte il conto
-         * alla rovescia di due secondi, e `waitForIdle` lo porterebbe a termine. Si avanza quel
+         * alla rovescia del congedo, e `waitForIdle` lo porterebbe a termine. Si avanza quel
          * tanto che basta alla dissolvenza di entrata.
          */
         banco.mainClock.advanceTimeBy(JUMP_FADE_MS.toLong())
@@ -225,6 +230,67 @@ class SaltiTest {
         assertEquals("E accanto a lui quello 'in fondo'", 1, quanti(R.string.jump_bottom))
     }
 
+    /**
+     * **Un tasto che sta sbiadendo risponde ancora al tocco, e la corsa parte.**
+     *
+     * ⚠️⚠️ **È LA PREMESSA DELLA RITARATURA DELLA `2.05`, ED È SUA** (*visto che i tasti su/giù
+     * sono utilizzabili anche durante la dissolvenza (lunga), falli durare 0,8 secondi, con una
+     * dissolvenza di 1,6 secondi*): l'attesa piena scende e l'uscita cresce **perché** quel tratto
+     * è tempo utile. Se un giorno smettesse di esserlo, i due numeri direbbero il contrario di
+     * quello che fanno, e nessun compilatore lo vedrebbe.
+     * ⚠️ **Il gesto finisce FERMO, e non è pedanteria**: un trascinamento che si chiude in
+     * movimento lascia un lancio inerziale, e finché la lista corre il conto alla rovescia non
+     * parte nemmeno. Con l'ultimo campione più vecchio della finestra del velocimetro la velocità
+     * stimata è zero, quindi da lì in poi i tempi sono quelli scritti.
+     * ⚠️ **La prima asserzione è già una misura**, e non una precondizione: dopo [JUMP_HOLD_MS] il
+     * tasto **c'è ancora**, che è esattamente quello che un'uscita istantanea toglierebbe.
+     * ⚠️ **Controprovata abbassando [JUMP_OUT_MS]** a un valore più corto di quello che la prova
+     * lascia passare: il tasto non c'è più, e la prova diventa rossa su quella riga.
+     */
+    @Test
+    fun `il tasto risponde anche mentre sbiadisce`() {
+        var lista: LazyListState? = null
+        banco.mainClock.autoAdvance = false
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                val state = rememberLazyListState()
+                lista = state
+                Box(Modifier.fillMaxSize()) {
+                    LazyColumn(state = state, modifier = Modifier.fillMaxSize()) {
+                        items(RIGHE) { n -> Text("riga $n", modifier = Modifier.height(RIGA.dp)) }
+                    }
+                    JumpFabs(
+                        state = state,
+                        up = { state.jumpUpPixels() },
+                        down = { state.jumpDownPixels() },
+                        modifier = Modifier.align(Alignment.BottomEnd)
+                    )
+                }
+            }
+        }
+        banco.mainClock.advanceTimeBy(RESPIRO)
+
+        val scena = banco.onRoot().fetchSemanticsNode().size
+        banco.onRoot().performTouchInput {
+            down(Offset(scena.width * LATO, scena.height * DA))
+            moveTo(Offset(scena.width * LATO, scena.height * A))
+            advanceEventTime(FERMO)
+            up()
+        }
+        banco.mainClock.advanceTimeBy(JUMP_FADE_MS.toLong())
+        assertTrue("La lista deve essersi mossa", (lista?.firstVisibleItemIndex ?: 0) > 0)
+
+        banco.mainClock.advanceTimeBy(JUMP_SETTLE_MS + JUMP_HOLD_MS + JUMP_OUT_MS / 2)
+        assertEquals("A metà dissolvenza il tasto c'è ancora", 1, quanti(R.string.jump_top))
+
+        banco.onNodeWithContentDescription(voce(R.string.jump_top)).performClick()
+        banco.mainClock.autoAdvance = true
+        banco.waitForIdle()
+
+        assertEquals("Il tocco durante l'uscita riporta in cima", 0, lista?.firstVisibleItemIndex)
+        assertEquals("E senza scarto", 0, lista?.firstVisibleItemScrollOffset)
+    }
+
     private fun voce(id: Int): String =
         ApplicationProvider.getApplicationContext<Context>().getString(id)
 
@@ -285,3 +351,11 @@ private const val LATO = 0.25f
 
 /** Quanto dura il trascinamento: lento abbastanza da essere uno scorrimento e non un lancio. */
 private const val LENTO = 300L
+
+/**
+ * Quanto il dito resta fermo prima di staccarsi, in millisecondi.
+ *
+ * ⚠️ **Più lungo della finestra del velocimetro** (100 ms): così l'ultimo campione di movimento è
+ * fuori tempo massimo, la velocità stimata è zero e la lista non parte per inerzia.
+ */
+private const val FERMO = 300L

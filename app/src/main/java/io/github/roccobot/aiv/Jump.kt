@@ -60,11 +60,16 @@ import kotlin.math.pow
  * quella sorgente.
  *
  * ⚠️⚠️ **MA DALLA `2.04` DUE COSE SONO SUE E NON DEL SITO, e sono scritte dove vivono**: l'uscita
- * dura un secondo invece di un quarto ([JUMP_OUT_MS]), e i due tasti se ne vanno **insieme**
- * invece che ognuno per conto suo (la condizione unica dentro [JumpFabs]). Le ha chieste vedendo
- * la copia fedele con l'app in mano, ed è la ragione per cui la fedeltà non è più il criterio di
- * tutto il file: *all'interno di un'app ci sono un paio di cose che dovrebbero funzionare
- * diversamente*. Quello che non è nominato qui viene ancora di là.
+ * non dura più un quarto di secondo ([JUMP_OUT_MS]), e i due tasti se ne vanno **insieme** invece
+ * che ognuno per conto suo (la condizione unica dentro [JumpFabs]). Le ha chieste vedendo la copia
+ * fedele con l'app in mano, ed è la ragione per cui la fedeltà non è più il criterio di tutto il
+ * file: *all'interno di un'app ci sono un paio di cose che dovrebbero funzionare diversamente*.
+ * Quello che non è nominato qui viene ancora di là.
+ *
+ * ⚠️⚠️ **E DALLA `2.05` I DUE TEMPI SONO RITARATI INSIEME, PERCHÉ SONO LO STESSO TEMPO**
+ * ([JUMP_HOLD_MS] e [JUMP_OUT_MS]): un tasto che sbiadisce si tocca ancora, quindi quanto **resta
+ * pieno** e quanto **impiega ad andarsene** non sono un tempo utile e una coda. Il conto e la sua
+ * ragione vivono su [JUMP_HOLD_MS].
  */
 
 /** La parte fissa della durata, in millisecondi: `280 + |dist| * 0.16`, con tetto a 800. */
@@ -86,13 +91,25 @@ private const val JUMP_MAX_MS = 800f
 private val QUINT_OUT = Easing { x -> 1f - (1f - x).pow(5) }
 
 /**
- * Quanto restano in scena dopo che lo scorrimento si è fermato: **due secondi**, ed è suo
- * (*sono visibili solo per 2 secondi*).
+ * Quanto restano in scena **pieni** dopo che lo scorrimento si è fermato: **otto decimi di
+ * secondo**, ed è suo.
  *
- * ⚠️ Sul sito il valore è un altro (0,8 s su mobile, 3 s su desktop): la logica è quella, il
- * numero l'ha dettato lui per questa app.
+ * ⚠️⚠️ **DALLA `2.05` QUESTO NUMERO E [JUMP_OUT_MS] SI TARANO INSIEME, PERCHÉ SONO LO STESSO
+ * TEMPO** (2026-09-09: *visto che i tasti su/giù sono utilizzabili anche durante la dissolvenza
+ * (lunga), falli durare 0,8 secondi, con una dissolvenza di 1,6 secondi*). Il fatto che lo regge è
+ * misurato dal banco: un nodo che sbiadisce **resta nell'albero** e riceve i tocchi finché non ne
+ * esce, quindi l'attesa piena e l'uscita non sono un tempo utile e una coda, ma **due pezzi dello
+ * stesso tempo utile**. Ridurre il primo allungando la seconda toglie ingombro senza togliere il
+ * comando.
+ * ⚠️ **Il totale scende comunque, e va saputo invece di lasciarlo scoprire**: il tratto in cui il
+ * tasto risponde passa da **3 secondi a 2,4** (prima erano 2 pieni più 1 di uscita), e la parte a
+ * piena opacità da 2 secondi a 0,8.
+ * ⚠️⚠️ **E ADESSO COINCIDE COL SITO SENZA VENIRE DI LÀ**: otto decimi è esattamente l'attesa di
+ * 'I Grandi di Terramare' su mobile, quella che la `1.95` aveva scartato per i due secondi che
+ * aveva dettato lui. Chi lo trova uguale non concluda che il file sia tornato fedele: ci è
+ * arrivato da un'altra strada, e l'uscita di là dista un quarto di secondo.
  */
-private const val JUMP_HOLD_MS = 2_000L
+internal const val JUMP_HOLD_MS = 800L
 
 /**
  * La quiete che dichiara finito lo scorrimento, prima di far partire il conto alla rovescia.
@@ -101,23 +118,26 @@ private const val JUMP_HOLD_MS = 2_000L
  * lancio inerziale è fatto di tanti eventi ravvicinati, e ognuno rimette il conto a zero. Chi
  * togliesse questa attesa vedrebbe i tasti sparire mentre la lista sta ancora correndo.
  */
-private const val JUMP_SETTLE_MS = 150L
+internal const val JUMP_SETTLE_MS = 150L
 
 /** L'entrata in dissolvenza, come la transizione di 0,25 s del sito: aprire dev'essere pronto. */
 internal const val JUMP_FADE_MS = 250
 
 /**
- * L'uscita in dissolvenza: **un secondo**, ed è suo.
+ * L'uscita in dissolvenza: **un secondo e sei decimi**, ed è suo.
  *
  * ⚠️⚠️ **DALLA `2.04` NON È PIÙ QUELLA DEL SITO, ED È LA PRIMA VOLTA CHE UN NUMERO DI QUESTO FILE
  * SI STACCA DA LÀ** (riscontro del giro della `2.03`: *l'uscita dei due tasti dev'essere più
  * 'morbida': dissolvenza di circa un secondo, graduale*). Su una pagina web quei tasti se ne vanno
  * in un quarto di secondo e nessuno se ne accorge; sopra una griglia di miniature la stessa uscita
  * si legge come uno scatto, perché il tasto sparisce mentre l'occhio è ancora là.
+ * ⚠️⚠️ **E DALLA `2.05` VALE UN SECONDO E SEI DECIMI, PERCHÉ IL TASTO SI TOCCA ANCHE MENTRE
+ * SBIADISCE**: quello che è cresciuto qui è sceso su [JUMP_HOLD_MS], che è dove vivono il conto e
+ * la sua ragione. I due numeri non si ritoccano uno per volta.
  * ⚠️ **L'entrata resta [JUMP_FADE_MS]**, e la differenza è voluta: quello che arriva deve essere
  * subito toccabile, quello che se ne va può prendersi tempo.
  */
-internal const val JUMP_OUT_MS = 1_000
+internal const val JUMP_OUT_MS = 1_600
 
 /**
  * Quanto si vede il tasto: **quattro decimi**, ed è suo (*opacità 40%*).
