@@ -185,6 +185,10 @@ class ColoreTest {
                     nameStyle = folderNameStyle(1),
                     colour = colour,
                     tints = if (segnata) mapOf(CARTELLA.id to QUALE) else emptyMap(),
+                    // ⚠️ Vuota e scritta, perché dalla `2.01` quel parametro non ha un valore
+                    // di serie: qui si misura il colore, e nessuna cartella ha una copertina
+                    // scelta a mano. Il perché vive sul parametro, in `FolderScreen.kt`.
+                    covers = emptyMap(),
                     onPick = {},
                     onHide = {}
                 )

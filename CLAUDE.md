@@ -1251,6 +1251,15 @@ quella cartella era già aperta; adesso può servire a **riconoscerla** nella sc
   vorrebbe dire farle passare da `DestLook`, che è uno `staticCompositionLocalOf`, cioè
   ricomporre l'app intera a ogni colore scelto. Il perché per esteso vive sul chiamante, in
   `DestinationDialog.kt`.
+  - ⚠️⚠️ **MA LÀ LA COPERTINA SCELTA A MANO C'È, DALLA `2.01`, E NON È UN'INCOERENZA**: le due
+    cose rispondono a due domande diverse. Una tinta serve a **riconoscere** una cartella
+    nell'elenco di casa; una copertina **è** l'aspetto di quella cartella, quindi mostrarne
+    un'altra la fa sembrare un'altra cartella. Il difetto e la sua causa vivono in § '🖼️ La
+    copertina scelta a mano'.
+  - ⚠️ **E il costo tecnico della tinta adesso è dimezzato**, quindi chi rileggesse quella
+    ragione sappia che è più debole di prima: le copertine si caricano **dentro** la finestra e
+    non passano da `DestLook`, cioè la via che quella nota indicava esiste ed è scritta. Restano
+    una scelta dichiarata, non un impedimento.
 - **La voce vive in 'Aspetto' e la sua gemella nel dialogo delle opzioni**, cioè la scorciatoia
   del tocco lungo sul FAB della schermata iniziale, dove lui l'ha chiesta accanto alle colonne:
   una preferenza, una chiave, un valore di fabbrica, e i cinque nomi da una funzione sola.
@@ -1300,6 +1309,28 @@ sua risposta lo ha riempito.
   uno stato dentro la griglia se ne andrebbe proprio nel momento in cui serve.
 - **Vale per tutte e tre le griglie e per i recenti**, come la modalità del selettore di sistema:
   una modalità che funziona in una schermata su tre sembra rotta.
+
+⚠️⚠️ **E SI VEDE ANCHE NELLA FINESTRA DELLE DESTINAZIONI, DALLA `2.01`: PRIMA NO, ED ERA UN
+DIFETTO** (sua segnalazione, 2026-09-09: *quando copio o sposto e devo selezionare la
+destinazione, le cartelle appaiono con la loro copertina originale, non con la personalizzata*).
+Quella finestra riusa le **stesse due viste** della schermata iniziale, e le due viste hanno il
+parametro delle copertine da sempre: quello che mancava era il valore, perché il parametro aveva
+un **valore di serie vuoto** e la finestra lo ereditava senza scriverlo. Con la mappa vuota
+`coverIn` cade sempre sulla copertina predefinita, e nel codice non c'era niente da leggere che
+lo dicesse.
+- ⚠️⚠️ **IL PRESIDIO È IL COMPILATORE E NON UNA PROVA, e qui è più forte**: `covers` ha perso il
+  valore di serie, quindi chi apre una vista di cartelle **deve dichiarare** che copertine porta.
+  Al primo build ha subito preso un chiamante che lo ometteva (`ColoreTest`), che è la
+  controprova. È lo stesso criterio del parametro di `Modifier.lowered`, e la prova che regge è
+  la **tinta**: quel parametro il valore di serie non l'ha mai avuto, e infatti la finestra la
+  sua scelta la scrive a chiare lettere.
+- ⚠️ **Il banco non poteva vederlo**, e va detto invece di fingere una prova: montare quella
+  finestra vuole un MediaStore con delle cartelle dentro, che in Robolectric è vuoto, quindi
+  l'elenco sarebbe vuoto e non ci sarebbe niente da misurare.
+- ⚠️ **Le copertine si caricano DENTRO la finestra**, nello stesso `produceState` che chiede le
+  cartelle al MediaStore, e con la stessa ragione: chi apre quella finestra (il visualizzatore,
+  la griglia) non ha la mappa in mano. Nello stesso e non in un secondo, o l'elenco comparirebbe
+  per un tratto con le copertine predefinite.
 
 ⚠️ **A dire che la scelta è in corso è una fascia in fondo allo schermo** (`CoverInvite`), che
 vive accanto alla notifica di casa e sopra la transizione fra schermate: la scelta comincia in una
