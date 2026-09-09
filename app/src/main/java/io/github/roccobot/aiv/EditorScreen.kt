@@ -34,6 +34,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Flip
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -119,7 +120,7 @@ fun EditorScreen(
      * è più di questa schermata: la decide il formato del file, e il formato lo conosce il
      * modello.
      */
-    onSave: (turns: Int, crop: ImageEdit.Crop) -> Unit,
+    onSave: (turns: Int, mirror: Boolean, crop: ImageEdit.Crop) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -181,7 +182,13 @@ fun EditorScreen(
     /** L'immagine su cui si sta lavorando adesso: l'ultimo passo, o l'originale. */
     val base = steps.lastOrNull()?.preview ?: origin
 
-    var turns by remember(base) { mutableIntStateOf(0) }
+    /*
+     * ⚠️⚠️ **UNO STATO SOLO PER LA POSA, DALLA `2.02`, E PRIMA ERA UN INTERO**: da quando c'è
+     * anche la riflessione, 'girato di due quarti' e 'specchiato' non sono due variabili
+     * indipendenti, perché uno specchio davanti a una rotazione la rovescia. Tenendone due,
+     * ogni chiamante avrebbe dovuto ricordarsi quel conto: qui lo fa `Spin.then`, una volta.
+     */
+    var spin by remember(base) { mutableStateOf(Spin.STILL) }
     var shape by remember(base) { mutableStateOf(Shape.FREE) }
     var crop by remember(base) { mutableStateOf(ImageEdit.Crop.WHOLE) }
 
@@ -194,11 +201,11 @@ fun EditorScreen(
     // ⚠️ L'anteprima girata si ricalcola SOLO quando cambia il quarto di giro: girare una
     // mappa di pixel da due megapixel a ogni ridisegno vorrebbe dire farlo a ogni dito che
     // si muove sul rettangolo.
-    val shown: ImageBitmap? = remember(base, turns) {
-        // ⚠️ Passa da [turnedBy], che è la funzione condivisa coi due salvataggi: fino alla
+    val shown: ImageBitmap? = remember(base, spin) {
+        // ⚠️ Passa da [spunBy], che è la funzione condivisa coi due salvataggi: fino alla
         // `1.80` questo punto era il solo dei tre senza rete, quindi un errore di memoria su
         // un'immagine grossa arrivava dentro la composizione.
-        base?.turnedBy(turns)?.asImageBitmap()
+        base?.spunBy(spin.turns, spin.mirror)?.asImageBitmap()
     }
 
     /*
@@ -222,10 +229,10 @@ fun EditorScreen(
     val aspect = shown?.let { it.width.toFloat() / it.height } ?: 1f
 
     /** Se c'è qualcosa di non ancora confermato con 'Applica'. */
-    val pending = turns != 0 || !crop.whole
+    val pending = spin != Spin.STILL || !crop.whole
 
-    /** Tutto quello che si è fatto finora, composto in una rotazione e un rettangolo soli. */
-    val total = after(steps.lastOrNull()?.done ?: Done.NOTHING, turns, crop)
+    /** Tutto quello che si è fatto finora, composto in una posa e un rettangolo soli. */
+    val total = after(steps.lastOrNull()?.done ?: Done.NOTHING, spin, crop)
 
     /*
      * ⚠️⚠️ **IL RIENTRO DI SISTEMA NON STA PIÙ QUI, dalla 1.42, ed è quello che porta la scheda
@@ -311,8 +318,9 @@ fun EditorScreen(
              * confermato prima, cioè quasi tutto il lavoro.
              */
             TextButton(
-                onClick = { onSave(total.turns, total.crop) },
-                enabled = shown != null && !busy && !(total.turns == 0 && total.crop.whole)
+                onClick = { onSave(total.spin.turns, total.spin.mirror, total.crop) },
+                enabled = shown != null && !busy &&
+                    !(total.spin == Spin.STILL && total.crop.whole)
             ) {
                 Text(stringResource(R.string.editor_save))
             }
@@ -390,17 +398,33 @@ fun EditorScreen(
                 }
             },
             onTurn = { way ->
-                turns = (turns + way).mod(4)
+                spin = spin.then(Spin(way.mod(4), false))
                 // ⚠️ La proporzione si rifà sull'aspetto NUOVO, che è il reciproco di quello
                 // di adesso: dopo un quarto di giro i due lati si scambiano, e il conto fatto
                 // con l'aspetto vecchio darebbe un rettangolo storto per un fotogramma.
                 crop = shape.fit(1f / aspect, lay)
             },
+            /*
+             * ⚠️⚠️ **RIFLETTERE NON RIFÀ IL RETTAGLIO, E GIRARE SÌ: la differenza è l'aspetto**
+             * (richiesta dell'utente, 2026-09-09). Un quarto di giro scambia i due lati, quindi
+             * la selezione va rifatta sulla proporzione nuova; uno specchio lascia i lati come
+             * sono, quindi il rettangolo si può **ribaltare** e resta esattamente sulla stessa
+             * porzione di immagine. Rifarlo anche qui sarebbe buttare via una selezione in corso
+             * per niente.
+             * ⚠️ **Lo ribalta [spunRect]**, cioè la stessa funzione che compone i passi: il
+             * rettangolo e l'immagine si muovono insieme per costruzione, e non perché due conti
+             * scritti a parte dicono la stessa cosa.
+             */
+            onFlip = { down ->
+                val gesto = if (down) Spin.DOWN else Spin.ACROSS
+                spin = spin.then(gesto)
+                crop = spunRect(crop, gesto)
+            },
             onCentreAcross = { crop = centredAcross(crop) },
             onCentreDown = { crop = centredDown(crop) },
             onApply = {
                 val picture = base ?: return@EditorSheet
-                steps = steps + applied(picture, steps.lastOrNull()?.done ?: Done.NOTHING, turns, crop)
+                steps = steps + applied(picture, steps.lastOrNull()?.done ?: Done.NOTHING, spin, crop)
                 undone = emptyList()
             },
             onUndo = {
@@ -410,7 +434,7 @@ fun EditorScreen(
                 // lasciando in piedi il ritocco in corso) farebbe sparire un pezzo di immagine
                 // mentre il rettangolo resta dov'è.
                 if (pending) {
-                    turns = 0
+                    spin = Spin.STILL
                     crop = ImageEdit.Crop.WHOLE
                     shape = Shape.FREE
                 } else {
@@ -442,46 +466,95 @@ fun EditorScreen(
  */
 private class Step(val done: Done, val preview: Bitmap)
 
-/** Una rotazione e un rettangolo: quello che si sa applicare al file vero. */
-private data class Done(val turns: Int, val crop: ImageEdit.Crop) {
+/**
+ * Uno specchio facoltativo e una rotazione: le otto pose in cui si può mettere un'immagine.
+ *
+ * ⚠️⚠️ **SONO OTTO E NON INFINITE, ED È QUELLO CHE PERMETTE DI NON RIFARE I GESTI UNO PER
+ * UNO**: riflessioni e quarti di giro si compongono sempre in *uno* specchio più *una*
+ * rotazione, quindi dieci tocchi sui tasti diventano una trasformazione sola da applicare al
+ * file. Sono anche le otto dell'orientamento EXIF, e non è una coincidenza: quel campo esiste
+ * per dire in che posa sta una fotografia.
+ * ⚠️ **L'ordine dichiarato è 'specchia, poi gira'**, lo stesso di `ImageEdit.save`: senza
+ * fissarne uno, `Spin(1, true)` sarebbe due trasformazioni diverse a seconda di chi lo legge.
+ */
+internal data class Spin(val turns: Int, val mirror: Boolean) {
+
+    /**
+     * Questa posa, e **poi** [next]: cioè `next` applicata a quello che si vede adesso.
+     *
+     * ⚠️⚠️ **UNO SPECCHIO DAVANTI A UNA ROTAZIONE LA ROVESCIA, e questa riga è tutto il
+     * conto**: `M ∘ R(k) = R(-k) ∘ M`, quindi con `next.mirror` i quarti di giro accumulati
+     * cambiano segno e lo specchio si alterna. Chi scrivesse una somma anche in quel ramo
+     * otterrebbe un'immagine girata dalla parte sbagliata **solo** quando c'è già una
+     * rotazione, cioè un difetto che passa tutte le prove fatte a immagine dritta.
+     */
+    fun then(next: Spin): Spin =
+        if (next.mirror) Spin((next.turns - turns).mod(4), !mirror)
+        else Spin((next.turns + turns).mod(4), mirror)
+
     companion object {
-        val NOTHING = Done(0, ImageEdit.Crop.WHOLE)
+        val STILL = Spin(0, false)
+
+        /** Il gesto 'rifletti in orizzontale': lo specchio nudo. */
+        val ACROSS = Spin(0, true)
+
+        /**
+         * Il gesto 'rifletti in verticale'.
+         *
+         * ⚠️ **È lo specchio orizzontale più mezzo giro**, e non un secondo meccanismo: un
+         * ribaltamento sull'asse orizzontale è esattamente questo, e tenerne uno solo vuol dire
+         * che tutto il resto (la matrice, l'EXIF, il rettangolo) ha un caso in meno da coprire.
+         */
+        val DOWN = Spin(2, true)
+    }
+}
+
+/** Una posa e un rettangolo: quello che si sa applicare al file vero. */
+private data class Done(val spin: Spin, val crop: ImageEdit.Crop) {
+    companion object {
+        val NOTHING = Done(Spin.STILL, ImageEdit.Crop.WHOLE)
     }
 }
 
 /**
- * Quello che si ottiene facendo [turns] e [crop] **dopo** [done].
+ * Quello che si ottiene facendo [spin] e [crop] **dopo** [done].
  *
  * ⚠️⚠️ **LA COMPOSIZIONE È ESATTA, non un'approssimazione, e vale la pena sapere perché**: la
- * catena è sempre 'gira, poi ritaglia' (lo è in `ImageEdit.redraw`), e girare un ritaglio è la
- * stessa cosa che ritagliare l'immagine girata, col rettangolo girato dentro il quadrato
- * unitario ([turnedRect]). Portata fuori la rotazione, restano due ritagli uno dentro l'altro,
- * e due ritagli si compongono in uno ([insideOf]). Quindi n passi qualunque diventano una
- * rotazione e un rettangolo, sempre, senza perdere niente.
+ * catena è sempre 'metti in posa, poi ritaglia' (lo è in `ImageEdit.redraw`), e mettere in posa
+ * un ritaglio è la stessa cosa che ritagliare l'immagine in posa, col rettangolo messo in posa
+ * dentro il quadrato unitario ([spunRect]). Portata fuori la posa, restano due ritagli uno
+ * dentro l'altro, e due ritagli si compongono in uno ([insideOf]). Quindi n passi qualunque
+ * diventano una posa e un rettangolo, sempre, senza perdere niente.
  */
-private fun after(done: Done, turns: Int, crop: ImageEdit.Crop): Done = Done(
-    (done.turns + turns).mod(4),
-    insideOf(turnedRect(done.crop, turns), crop)
+private fun after(done: Done, spin: Spin, crop: ImageEdit.Crop): Done = Done(
+    done.spin.then(spin),
+    insideOf(spunRect(done.crop, spin), crop)
 )
 
 /** Il passo nuovo: la composizione, e l'anteprima che ne esce. */
-private fun applied(base: Bitmap, done: Done, turns: Int, crop: ImageEdit.Crop): Step {
-    val spun = base.turnedBy(turns)
+private fun applied(base: Bitmap, done: Done, spin: Spin, crop: ImageEdit.Crop): Step {
+    val spun = base.spunBy(spin.turns, spin.mirror)
     val cut = spun.cutTo(crop)
     if (spun !== base && spun !== cut) spun.recycle()
-    return Step(after(done, turns, crop), cut)
+    return Step(after(done, spin, crop), cut)
 }
 
 /**
- * Lo stesso rettangolo dopo [turns] quarti di giro **in senso orario**, in frazioni.
+ * Lo stesso rettangolo dopo [spin], in frazioni.
  *
  * ⚠️ Girando di un quarto in senso orario il punto `(x, y)` va in `(1 - y, x)`, quindi il lato
  * sinistro nuovo viene dal fondo vecchio. Chi la ritocca la riderivi da lì: il
  * segno sbagliato dà un ritaglio speculare, che su una fotografia simmetrica non si vede.
+ * ⚠️ **Lo specchio viene PRIMA delle rotazioni**, come nella posa che descrive: sul quadrato
+ * unitario ribalta la x, quindi il lato sinistro nuovo viene dal destro vecchio.
  */
-private fun turnedRect(crop: ImageEdit.Crop, turns: Int): ImageEdit.Crop {
-    var out = crop
-    repeat(turns.mod(4)) {
+internal fun spunRect(crop: ImageEdit.Crop, spin: Spin): ImageEdit.Crop {
+    var out = if (spin.mirror) {
+        ImageEdit.Crop(1f - crop.right, crop.top, 1f - crop.left, crop.bottom)
+    } else {
+        crop
+    }
+    repeat(spin.turns.mod(4)) {
         out = ImageEdit.Crop(1f - out.bottom, out.left, 1f - out.top, out.right)
     }
     return out
@@ -577,6 +650,8 @@ private fun EditorSheet(
     onLay: (Lay) -> Unit,
     /** Un quarto di giro: `1` in senso orario, `3` antiorario. */
     onTurn: (Int) -> Unit,
+    /** Uno specchio: `false` sull'asse verticale (destra e sinistra), `true` sull'orizzontale. */
+    onFlip: (Boolean) -> Unit,
     onCentreAcross: () -> Unit,
     onCentreDown: () -> Unit,
     onApply: () -> Unit,
@@ -775,6 +850,30 @@ private fun EditorSheet(
                 enabled = live
             ) { onCentreDown() }
 
+            /*
+             * ⚠️⚠️ **L'ETICHETTA DICE 'Rifletti' E BASTA, E IL VERSO LO DICONO IL GLIFO E IL
+             * GESTO** (sua richiesta, 2026-09-09: *un 'Rifletti in orizzontale' (a pressione
+             * lunga diventa 'Rifletti in verticale')*, col suo dubbio: *forse non ci sta
+             * l'etichetta di testo*). Il dubbio era fondato e la causa è misurata: con cinque
+             * celle la fila si stringe, e 'Rifletti in orizzontale' non entra sotto un glifo da
+             * 24 punti nemmeno su due righe. Quello che entra è la parola sola, e i due versi
+             * restano dove si leggono davvero: il glifo mostra lo specchio destra-sinistra, e
+             * il tocco lungo si annuncia con la sua etichetta.
+             * ⚠️ **Il tocco lungo ha SEMPRE la sua etichetta**, come vuole [PadAction.onHold]:
+             * un gesto che il lettore di schermo non annuncia esiste solo per chi lo scopre per
+             * caso.
+             * ⚠️⚠️ **IL GLIFO È DI MATERIAL E NON SUO, ed è dichiarato come lo furono
+             * `FolderDownload` ed `Extension` nella `1.80`**: gli altri sette di questa scheda
+             * li ha disegnati lui, quindi questo si vede che viene da un'altra mano. Resta
+             * finché non ne manda uno suo, e la voce di collaudo glielo chiede.
+             */
+            val flipKey = PadAction(
+                PadKey.FLIP, Icons.Filled.Flip, R.string.editor_flip,
+                enabled = live,
+                onHold = { onFlip(true) },
+                holdLabel = R.string.editor_flip_down
+            ) { onFlip(false) }
+
             val applyKey = PadAction(
                 PadKey.APPLY, Glyphs.EditApply, R.string.editor_apply, enabled = live && pending
             ) { onApply() }
@@ -809,10 +908,21 @@ private fun EditorSheet(
              * è un mestiere e la cronologia un altro, quindi un tasto non passa di fila. Sono
              * due ordini salvati, non uno da otto.
              */
+            /*
+             * ⚠️⚠️ **LA PRIMA FILA HA CINQUE COLONNE E LA SECONDA QUATTRO, DALLA `2.02`, E LE
+             * DUE NON SI ALLINEANO PIÙ**: è il prezzo del tasto nuovo, e va saputo per non
+             * leggerlo come un difetto. Il posto è quello che ha chiesto lui (*al centro fra
+             * 'Centra in orizzontale' e 'Ruota a sinistra'*), che in una fila di cinque è
+             * esattamente la terza cella. ⚠️ **Le due file restano allineate agli estremi**,
+             * perché lo spazio si distribuisce fra le celle: a divergere sono le colonne in
+             * mezzo, che fra un mestiere e l'altro il filetto già separa.
+             * ⚠️ **La seconda fila NON passa a cinque per simmetria**: là i tasti sono quattro,
+             * e una colonna vuota in fondo sarebbe un buco invece di un allineamento.
+             */
             ActionPad(
-                columns = SHEET_KEYS,
+                columns = TURN_KEYS.size,
                 stretch = true,
-                actions = listOf(downKey, acrossKey, turnLeft, turnRight)
+                actions = listOf(downKey, acrossKey, flipKey, turnLeft, turnRight)
                     .inOrder(LocalPadLook.current.turn)
             )
 

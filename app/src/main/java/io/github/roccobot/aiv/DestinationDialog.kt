@@ -50,6 +50,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import kotlinx.coroutines.flow.first
 import java.io.File
 
 /**
@@ -314,6 +315,24 @@ data class DestLook(
 val LocalDestLook = staticCompositionLocalOf { DestLook() }
 
 /**
+ * Quello che la finestra delle destinazioni carica da sé, in una lettura sola.
+ *
+ * ⚠️⚠️ **NON PASSA DA [DestLook], ED È LA DIFFERENZA CHE CONTA**: quello è uno
+ * `staticCompositionLocalOf`, quindi ogni suo cambiamento ricompone l'app intera, e per un
+ * colore scelto su una cartella sarebbe un prezzo assurdo. Questi dati invece nascono e muoiono
+ * con la finestra, che è l'unica a guardarli.
+ * ⚠️ **Insieme e non in quattro attese**: l'elenco compare già coi suoi colori e le sue
+ * copertine, mentre con letture separate ci sarebbe un tratto in cui si vedono le cartelle
+ * vestite da un'altra parte.
+ */
+private data class DestData(
+    val folders: List<Folder.Bucket>,
+    val covers: Map<Long, Uri>,
+    val tints: Map<Long, Int>,
+    val colour: FolderColour
+)
+
+/**
  * Le cartelle dell'app come **destinazioni**: un tocco e l'operazione parte.
  *
  * ⚠️⚠️ **RIUSA LE DUE VISTE DELLA SCHERMATA INIZIALE, non ne disegna una terza**: `Covers` e
@@ -350,9 +369,21 @@ private fun FolderShortcut(
      * l'elenco compare già con le copertine giuste, mentre con due attese ci sarebbe un tratto
      * in cui si vedono quelle predefinite.
      */
-    val dati by produceState<Pair<List<Folder.Bucket>, Map<Long, Uri>>?>(null, context) {
-        value = destinations(Folder.buckets(context), Bin.dir(context).absolutePath) to
-            FolderCovers.all(context)
+    val dati by produceState<DestData?>(null, context) {
+        // ⚠️ **Una lettura sola e non un flusso in ascolto**, come per le cartelle: qui
+        // l'elenco è una fotografia presa all'apertura, e né le esclusioni né il colore
+        // cambiano mentre si sceglie dove mettere un file.
+        val preferenze = SettingsStore.flow(context).first()
+        value = DestData(
+            folders = destinations(
+                buckets = Folder.buckets(context),
+                bin = Bin.dir(context).absolutePath,
+                hidden = preferenze.hiddenFolders
+            ),
+            covers = FolderCovers.all(context),
+            tints = FolderTints.all(context),
+            colour = preferenze.folderColour
+        )
     }
 
     Dialog(
@@ -389,8 +420,7 @@ private fun FolderShortcut(
                 // ⚠️ Il peso sta sul contenitore, come nell'albero: così 'Sfoglia...' resta in
                 // fondo anche mentre l'elenco si carica, invece di saltare a metà schermo.
                 Box(modifier = Modifier.weight(1f).padding(horizontal = 12.dp)) {
-                    val elenco = dati?.first
-                    val copertine = dati?.second.orEmpty()
+                    val elenco = dati?.folders
                     when {
                         elenco == null -> Unit
                         elenco.isEmpty() -> Text(
@@ -400,30 +430,30 @@ private fun FolderShortcut(
                             modifier = Modifier.padding(24.dp)
                         )
                         /*
-                         * ⚠️⚠️ **QUI LE CARTELLE NON SI TINGONO, ED È UNA SCELTA DICHIARATA**
-                         * (dalla `1.87`, quando i quattro stili di [FolderColour] sono nati):
-                         * quella funzione risponde a *riconosco una cartella nell'elenco di
-                         * casa*, e questa finestra non è quell'elenco ma le sole destinazioni in
-                         * cui si può mettere un file.
-                         * ⚠️⚠️ **E LA COPERTINA SCELTA A MANO INVECE C'È, dalla `2.01`**: non è
-                         * un'incoerenza con la riga qui sopra, perché le due cose rispondono a
-                         * due domande diverse. Una tinta serve a **riconoscere** una cartella
-                         * nell'elenco di casa; una copertina **è** l'aspetto di quella cartella,
-                         * quindi mostrarne un'altra qui la fa sembrare un'altra cartella.
-                         * ⚠️ **La via è quella che questa nota indicava**, cioè un'altra: le
-                         * copertine si caricano nel `produceState` qui sopra e non passano da
-                         * [DestLook], quindi il costo tecnico delle tinte (una ricomposizione
-                         * dell'app intera a ogni colore scelto) qui non si paga. Chi volesse
-                         * anche le tinte ha adesso una strada che costa una riga.
+                         * ⚠️⚠️ **QUI LE CARTELLE SI TINGONO, DALLA `2.02`, E FINO ALLA `2.01`
+                         * NO** (risposta `tinta` a `d-dest-tinta`, giro della `2.01`: *una
+                         * cartella si riconosce allo stesso modo dappertutto*). La scelta di
+                         * prima era dichiarata e aveva due ragioni: questa finestra non è
+                         * l'elenco di casa, e le tinte sarebbero passate da [DestLook], cioè uno
+                         * `staticCompositionLocalOf`, ricomponendo l'app intera a ogni colore
+                         * scelto.
+                         * ⚠️ **La seconda ragione è caduta col lavoro della `2.01`**: i dati di
+                         * una cartella si caricano nel `produceState` qui sopra, quindi il
+                         * colore arriva senza toccare nessun `CompositionLocal`. La prima l'ha
+                         * decisa lui, ed è la risposta.
+                         * ⚠️ **Lo STILE è quello che ha scelto nelle impostazioni**, non uno
+                         * fissato qui: se in casa vede i nomi colorati, li vede colorati anche
+                         * qui, e chi ha scelto 'Nessuno' non vede niente. Un valore scritto a
+                         * mano avrebbe fatto due impostazioni per la stessa domanda.
                          */
                         look.view == FolderView.GRID -> Covers(
                             folders = elenco,
                             columns = look.columns,
                             counted = look.counted,
                             nameStyle = folderNameStyle(look.columns),
-                            colour = FolderColour.NONE,
-                            tints = emptyMap(),
-                            covers = copertine,
+                            colour = dati?.colour ?: FolderColour.NONE,
+                            tints = dati?.tints.orEmpty(),
+                            covers = dati?.covers.orEmpty(),
                             onPick = { bucket -> bucket.path?.let { onPick(File(it)) } },
                             onHide = { }
                         )
@@ -431,9 +461,9 @@ private fun FolderShortcut(
                             folders = elenco,
                             counted = look.listCount,
                             size = look.listText,
-                            colour = FolderColour.NONE,
-                            tints = emptyMap(),
-                            covers = copertine,
+                            colour = dati?.colour ?: FolderColour.NONE,
+                            tints = dati?.tints.orEmpty(),
+                            covers = dati?.covers.orEmpty(),
                             onPick = { bucket -> bucket.path?.let { onPick(File(it)) } },
                             onHide = { }
                         )
@@ -471,15 +501,31 @@ private fun FolderShortcut(
  * copiarci dentro vuol dire mettere un file in un posto che si svuota, e spostarcelo è
  * eliminarlo passando dalla porta di servizio. Là il controllo è doppio (l'elenco e il tasto),
  * qui basta una volta, perché di gesti per scegliere ce n'è uno solo.
+ * ⚠️⚠️ **E NEMMENO UNA CARTELLA NASCOSTA, DALLA `2.02`** (sua richiesta, 2026-09-09: *le
+ * cartelle nascoste devono rimanere nascoste anche quando si copiano/spostano file (se serve le
+ * rendo visibili di volta in volta)*). Fino alla `2.01` l'esclusione valeva per la schermata
+ * iniziale e non per questa finestra, quindi una cartella tolta dall'elenco di casa ricompariva
+ * appena si toccava 'Copia'.
+ * ⚠️ **Il filtro vive QUI e non nella finestra**, cioè accanto a quello del cestino: sono la
+ * stessa domanda (*questa cartella può essere una destinazione?*), e una condizione scritta nel
+ * corpo della finestra sarebbe fuori da quello che il banco misura.
+ * ⚠️⚠️ **IL MINUTO DI 'Mostra nascoste' NON APRE UN'ECCEZIONE, ed è la sua parentesi letta alla
+ * lettera**: la via per vederle è renderle visibili, non un prestito che vale altrove. Un
+ * elenco di destinazioni che cambia a seconda di un conto alla rovescia acceso in un'altra
+ * schermata sarebbe imprevedibile proprio nel gesto in cui si sposta un file.
  * ⚠️ **Funzione a sé perché il banco la misura**: è la sola parte di questa finestra che si può
  * provare senza uno schermo, ed è quella in cui un errore manda dei file in un posto sbagliato.
  * ⚠️ **Il percorso del cestino arriva come argomento e non si chiede a `Bin`**: quello vuole un
  * `Context`, e con lui questa funzione smetterebbe di essere misurabile senza un telefono.
  */
-internal fun destinations(buckets: List<Folder.Bucket>, bin: String): List<Folder.Bucket> =
+internal fun destinations(
+    buckets: List<Folder.Bucket>,
+    bin: String,
+    hidden: Set<String>
+): List<Folder.Bucket> =
     buckets.filter { bucket ->
         val path = bucket.path
-        path != null && path != bin && !path.startsWith("$bin/")
+        path != null && path != bin && !path.startsWith("$bin/") && !bucket.isHidden(hidden)
     }
 
 /**

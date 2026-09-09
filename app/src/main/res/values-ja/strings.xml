@@ -151,7 +151,7 @@
     <string name="settings_clipboard_desc">アプリを開いたとき（新規の起動）、システムのクリップボードに画像への直接のリンクがあれば、ホーム画面ではなくその画像がビューアーで直接開きます。</string>
     <string name="settings_start_folder">起動時にフォルダを開く</string>
     <string name="settings_start_folder_desc">起動時に、ホーム画面ではなく指定したフォルダーの中身を表示します。</string>
-    <string name="settings_start_folder_none">フォルダを選んでいません</string>
+    <string name="settings_start_folder_none">フォルダが選択されていません</string>
     <string name="settings_start_folder_pick">選ぶ</string>
     <string name="folders_title">フォルダ</string>
     <string name="folders_permission">フォルダを一覧にするにはすべてのファイルへのアクセスが必要です。フォルダをめくるのと同じ権限で、システムのページで許可します。</string>
@@ -387,6 +387,8 @@
     <string name="editor_pick">何で編集しますか</string>
     <string name="editor_left">左に回す</string>
     <string name="editor_right">右に回す</string>
+    <string name="editor_flip">反転</string>
+    <string name="editor_flip_down">上下反転</string>
     <string name="editor_free">自由</string>
     <string name="editor_save">保存</string>
     <string name="editor_apply">適用</string>

@@ -403,6 +403,8 @@
     <string name="editor_pick">Unahariri kwa kitu gani?</string>
     <string name="editor_left">Zungusha kushoto</string>
     <string name="editor_right">Zungusha kulia</string>
+    <string name="editor_flip">Geuza</string>
+    <string name="editor_flip_down">Geuza wima</string>
     <string name="editor_free">Huru</string>
     <string name="editor_save">Hifadhi</string>
     <string name="editor_apply">Tumia</string>

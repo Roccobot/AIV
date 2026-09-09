@@ -1063,3 +1063,24 @@ object Folder {
         id
     )
 }
+
+/**
+ * Se questa cartella è fra quelle che l'utente ha escluso.
+ *
+ * ⚠️⚠️ **IL CONFRONTO È SUL SEPARATORE, e senza di lui la funzione nasconderebbe cose che
+ * nessuno ha escluso**: con un `startsWith` nudo, escludere `.../Foo` toglierebbe anche
+ * `.../Foo2` e `.../Foobar`, che sono cartelle diverse con un nome che comincia uguale.
+ * Chiedendo la barra dopo, si nasconde `Foo` e tutto quello che sta **dentro** `Foo`, che
+ * è quello che vuol dire escludere un percorso.
+ * ⚠️ **Una cartella senza percorso non si nasconde mai**: il provider può non servire la
+ * colonna, e allora non c'è niente da confrontare. Meglio mostrarne una di troppo che
+ * nasconderne una a caso.
+ * ⚠️⚠️ **VIVE QUI DALLA `2.02`, E PRIMA ERA PRIVATA IN `FolderScreen.kt`**: adesso la leggono
+ * in due, perché una cartella esclusa non compare nemmeno fra le destinazioni di una copia
+ * (vedi `destinations`). Una seconda copia del confronto avrebbe potuto divergere proprio sul
+ * separatore, che è la parte difficile.
+ */
+internal fun Folder.Bucket.isHidden(hidden: Set<String>): Boolean {
+    val own = path ?: return false
+    return hidden.any { own == it || own.startsWith("$it/") }
+}

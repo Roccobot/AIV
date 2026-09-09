@@ -151,7 +151,7 @@
     <string name="settings_clipboard_desc">Wanneer u de app opent (een nieuwe start) en het klembord van het systeem een rechtstreekse koppeling naar een afbeelding bevat, gaat die afbeelding meteen open in de viewer in plaats van het beginscherm.</string>
     <string name="settings_start_folder">Een map openen bij het starten</string>
     <string name="settings_start_folder_desc">Toont bij het opstarten de inhoud van een bepaalde map in plaats van het beginscherm.</string>
-    <string name="settings_start_folder_none">Geen map gekozen</string>
+    <string name="settings_start_folder_none">Geen map geselecteerd</string>
     <string name="settings_start_folder_pick">Kiezen</string>
     <string name="folders_title">Mappen</string>
     <string name="folders_permission">Voor het opsommen van de mappen is toegang tot alle bestanden nodig. Het is dezelfde toestemming die je een map laat doorbladeren, en ze wordt gegeven op een systeempagina.</string>
@@ -403,6 +403,8 @@
     <string name="editor_pick">Waarmee bewerk je?</string>
     <string name="editor_left">Naar links draaien</string>
     <string name="editor_right">Naar rechts draaien</string>
+    <string name="editor_flip">Spiegelen</string>
+    <string name="editor_flip_down">Verticaal spiegelen</string>
     <string name="editor_free">Vrij</string>
     <string name="editor_save">Opslaan</string>
     <string name="editor_apply">Toepassen</string>

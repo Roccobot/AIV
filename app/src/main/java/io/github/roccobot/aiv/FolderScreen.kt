@@ -878,22 +878,11 @@ fun FolderScreen(
     }
 }
 
-/**
- * Se questa cartella è fra quelle che l'utente ha escluso.
- *
- * ⚠️⚠️ **IL CONFRONTO È SUL SEPARATORE, e senza di lui la funzione nasconderebbe cose che
- * nessuno ha escluso**: con un `startsWith` nudo, escludere `.../Foo` toglierebbe anche
- * `.../Foo2` e `.../Foobar`, che sono cartelle diverse con un nome che comincia uguale.
- * Chiedendo la barra dopo, si nasconde `Foo` e tutto quello che sta **dentro** `Foo`, che
- * è quello che vuol dire escludere un percorso.
- * ⚠️ **Una cartella senza percorso non si nasconde mai**: il provider può non servire la
- * colonna, e allora non c'è niente da confrontare. Meglio mostrarne una di troppo che
- * nasconderne una a caso.
+/*
+ * ⚠️ `Folder.Bucket.isHidden` viveva qui e dalla `2.02` vive in `Folder.kt`, perché adesso la
+ * leggono in due: questa schermata e la finestra delle destinazioni. La domanda 'questa
+ * cartella è esclusa?' è della cartella e non della schermata che la disegna.
  */
-private fun Folder.Bucket.isHidden(hidden: Set<String>): Boolean {
-    val own = path ?: return false
-    return hidden.any { own == it || own.startsWith("$it/") }
-}
 
 /**
  * Il corpo del nome di una cartella, che dipende da quante colonne ci sono.

@@ -97,6 +97,8 @@
     <string name="editor_pick">What do you edit with?</string>
     <string name="editor_left">Rotate\nleft</string>
     <string name="editor_right">Rotate\nright</string>
+    <string name="editor_flip">Flip</string>
+    <string name="editor_flip_down">Flip vertically</string>
     <string name="editor_free">Free</string>
     <!-- The two crop orientations. They stand on their own as chip labels, so they
          say which way the selection stands, not which way the photograph does. -->
@@ -315,7 +317,7 @@
     <string name="settings_clipboard_desc">When you open the app (a fresh start), if the system clipboard holds a direct link to an image, that image opens straight in the viewer instead of the home screen.</string>
     <string name="settings_start_folder">Open a folder at startup</string>
     <string name="settings_start_folder_desc">Shows the contents of a specific folder at startup, instead of the home screen.</string>
-    <string name="settings_start_folder_none">No folder chosen</string>
+    <string name="settings_start_folder_none">No folder selected</string>
     <string name="settings_start_folder_pick">Choose</string>
 
     <!-- Asked for testing, kept because it is useful: the shortcut veils show once and

@@ -110,8 +110,18 @@ object ImageEdit {
      * Applica e scrive.
      *
      * @param turns quarti di giro in senso orario, da 0 a 3.
+     * @param mirror se prima della rotazione l'immagine si specchia sull'asse verticale.
      * @param crop che cosa tenere, in frazioni, dopo la rotazione.
      * @param backup se, sovrascrivendo, una copia della versione di prima va nel cestino.
+     *
+     * ⚠️⚠️ **L'ORDINE È 'SPECCHIA, GIRA, TAGLIA', E NON È UNA CONVENZIONE FRA TANTE**: con
+     * quello, ogni catena di riflessioni e rotazioni si riscrive in **un** solo specchio più
+     * **una** sola rotazione (le otto trasformazioni del quadrato, che sono le stesse otto
+     * dell'orientamento EXIF). Tenendo invece un elenco di gesti, salvare vorrebbe dire
+     * rifarli uno per uno sui pixel, cioè decodificare e ricomprimere più volte.
+     * ⚠️ **Il conto che lo rende possibile** è che uno specchio davanti a una rotazione la
+     * rovescia: `M ∘ R(k) = R(-k) ∘ M`. Vive su `Spin.then`, in `EditorScreen.kt`, ed è quello
+     * che compone i passi prima di arrivare qui.
      *
      * ⚠️ **`NonCancellable` come le altre operazioni sui file**: a metà scrittura una
      * cancellazione lascerebbe un file troncato dove prima c'era una fotografia.
@@ -120,6 +130,7 @@ object ImageEdit {
         context: Context,
         uri: Uri,
         turns: Int,
+        mirror: Boolean,
         crop: Crop,
         way: Way,
         backup: Boolean
@@ -127,7 +138,9 @@ object ImageEdit {
         val source = FileTree.fileOf(context, uri)
             ?: return@withContext Result.Failed(R.string.edit_no_file)
         val dir = source.parentFile ?: return@withContext Result.Failed(R.string.edit_no_file)
-        if (turns == 0 && crop.whole) return@withContext Result.Failed(R.string.edit_nothing)
+        if (turns == 0 && !mirror && crop.whole) {
+            return@withContext Result.Failed(R.string.edit_nothing)
+        }
 
         /*
          * ⚠️⚠️ **LA COPIA DI SICUREZZA SI FA QUI, PRIMA DI OGNI ALTRA COSA, ed è l'unico
@@ -148,7 +161,13 @@ object ImageEdit {
         val jpeg = source.extension.lowercase() in JPEG_EXT
         // ⚠️ La via senza perdita vale solo se non c'è ritaglio: tagliare vuol dire per forza
         // riscrivere i pixel, e allora tanto vale girarli insieme.
-        if (jpeg && crop.whole) return@withContext turnOnly(context, source, dir, turns, way)
+        // ⚠️⚠️ **E VALE ANCHE PER UNO SPECCHIO, DALLA `2.02`**: l'orientamento EXIF ne porta
+        // quattro con lo specchio (2, 4, 5, 7), quindi riflettere un JPEG non costa una
+        // ricompressione più di quanto ne costi girarlo. Chi credesse il contrario toglierebbe
+        // qualità a un gesto che oggi non ne toglie.
+        if (jpeg && crop.whole) {
+            return@withContext turnOnly(context, source, dir, turns, mirror, way)
+        }
 
         val target = when (way) {
             Way.OVERWRITE ->
@@ -156,7 +175,7 @@ object ImageEdit {
                 else return@withContext Result.Failed(R.string.edit_no_overwrite)
             Way.COPY -> FileTree.freeName(dir, outputName(source.name))
         }
-        redraw(context, uri, source, target, turns, crop)
+        redraw(context, uri, source, target, turns, mirror, crop)
     }
 
     /**
@@ -171,6 +190,7 @@ object ImageEdit {
         source: File,
         dir: File,
         turns: Int,
+        mirror: Boolean,
         way: Way
     ): Result {
         val target = when (way) {
@@ -192,7 +212,7 @@ object ImageEdit {
             val now = exif.getAttributeInt(
                 ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL
             )
-            exif.setAttribute(ExifInterface.TAG_ORIENTATION, turned(now, turns).toString())
+            exif.setAttribute(ExifInterface.TAG_ORIENTATION, spun(now, turns, mirror).toString())
             exif.saveAttributes()
             true
         }.getOrDefault(false)
@@ -221,6 +241,7 @@ object ImageEdit {
         source: File,
         target: File,
         turns: Int,
+        mirror: Boolean,
         crop: Crop
     ): Result {
         val temp = File(target.parentFile, target.name + ".part")
@@ -235,7 +256,7 @@ object ImageEdit {
             full = ImageSource.pixels(context, uri, 0)
                 ?: return Result.Failed(R.string.edit_too_big)
 
-            turned = full.turnedBy(turns)
+            turned = full.spunBy(turns, mirror)
             if (turned !== full) {
                 full.recycle()
                 full = null
@@ -315,22 +336,30 @@ object ImageEdit {
     }
 
     /**
-     * L'orientamento EXIF dopo [turns] quarti di giro in senso orario.
+     * L'orientamento EXIF dopo uno specchio facoltativo e [turns] quarti di giro in senso
+     * orario.
      *
      * ⚠️⚠️ **LA TABELLA È DERIVATA, non ricordata**: un orientamento EXIF è uno specchio
      * facoltativo seguito da una rotazione (1 e 6 e 3 e 8 senza specchio, 2 e 7 e 4 e 5 con),
      * e girare la vista di 90 gradi aggiunge 90 alla rotazione lasciando lo specchio dov'è.
      * Da lì escono i due cicli qui sotto. Chi la copia da un forum prende quella di 'ruota il
      * file', che è un'altra cosa e sbaglia sulle quattro con lo specchio.
+     * ⚠️⚠️ **E LO SPECCHIO PASSA ALL'ALTRO CICLO ROVESCIANDO L'INDICE, dalla `2.02`**: con
+     * l'orientamento scritto come `R(i) ∘ M^s`, mettere uno specchio davanti dà
+     * `M ∘ R(i) ∘ M^s = R(-i) ∘ M^(1-s)`, cioè l'altro ciclo alla posizione **meno** i. È lo
+     * stesso conto di `Spin.then`, e chi lo scrivesse come 'stessa posizione, altro ciclo'
+     * sbaglierebbe su tutti gli orientamenti tranne i due dritti, senza che niente dia errore.
      */
-    internal fun turned(now: Int, turns: Int): Int {
+    internal fun spun(now: Int, turns: Int, mirror: Boolean): Int {
         val cycle = when (now) {
             in DIRECT -> DIRECT
             in MIRROR -> MIRROR
             else -> DIRECT
         }
         val at = cycle.indexOf(now).takeIf { it >= 0 } ?: 0
-        return cycle[(at + turns).mod(cycle.size)]
+        if (!mirror) return cycle[(at + turns).mod(cycle.size)]
+        val other = if (cycle === MIRROR) DIRECT else MIRROR
+        return other[(turns - at).mod(other.size)]
     }
 
     /** Il ciclo dei quarti di giro senza specchio: normale, 90, 180, 270. */
@@ -425,7 +454,7 @@ object ImageEdit {
 }
 
 /**
- * Questa mappa di pixel girata di [turns] quarti di giro, oppure lei stessa.
+ * Questa mappa di pixel specchiata e girata di [turns] quarti di giro, oppure lei stessa.
  *
  * ⚠️⚠️ **NASCE PERCHÉ ERA SCRITTA TRE VOLTE** (censimento della UI del 2026-09-05):
  * nell'anteprima mostrata, nell'anteprima da salvare e nel salvataggio vero. E le tre copie
@@ -440,12 +469,24 @@ object ImageEdit {
  *   confrontando l'identità (`!==`), come fa il salvataggio: senza quel confronto si
  *   riciclerebbe la mappa che si sta ancora usando.
  */
-internal fun Bitmap.turnedBy(turns: Int): Bitmap =
-    if (turns.mod(4) == 0) this
+internal fun Bitmap.spunBy(turns: Int, mirror: Boolean): Bitmap =
+    if (turns.mod(4) == 0 && !mirror) this
     else runCatching {
         Bitmap.createBitmap(
             this, 0, 0, width, height,
-            Matrix().apply { postRotate(90f * turns) },
+            /*
+             * ⚠️⚠️ **L'ORDINE DELLE DUE RIGHE È LA TRASFORMAZIONE, e scambiarle dà un'altra
+             * cosa**: `postScale` prima e `postRotate` dopo vuol dire 'specchia, poi gira',
+             * che è l'ordine dichiarato in [save] e quello con cui i passi si compongono.
+             * Al contrario, uno specchio dopo un quarto di giro ribalta l'altro asse.
+             * ⚠️ **Lo specchio è sull'asse VERTICALE** (la x cambia segno), cioè quello che
+             * scambia destra e sinistra: il verticale si ottiene da lui più mezzo giro, e a
+             * comporlo è chi chiama.
+             */
+            Matrix().apply {
+                if (mirror) postScale(-1f, 1f)
+                postRotate(90f * turns)
+            },
             true
         )
     }.getOrDefault(this)

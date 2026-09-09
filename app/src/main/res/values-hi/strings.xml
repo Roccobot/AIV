@@ -151,7 +151,7 @@
     <string name="settings_clipboard_desc">जब आप ऐप खोलते हैं (नई शुरुआत) और सिस्टम के क्लिपबोर्ड में किसी छवि का सीधा लिंक हो, तो होम स्क्रीन के बजाय वही छवि सीधे दर्शक में खुल जाती है।</string>
     <string name="settings_start_folder">शुरू होते ही एक फ़ोल्डर खोलें</string>
     <string name="settings_start_folder_desc">शुरू होने पर होम स्क्रीन के बजाय किसी निश्चित फ़ोल्डर की सामग्री दिखाता है।</string>
-    <string name="settings_start_folder_none">कोई फ़ोल्डर नहीं चुना</string>
+    <string name="settings_start_folder_none">कोई फ़ोल्डर चयनित नहीं</string>
     <string name="settings_start_folder_pick">चुनें</string>
     <string name="folders_title">फ़ोल्डर</string>
     <string name="folders_permission">फ़ोल्डरों की सूची के लिए सभी फ़ाइलों तक पहुँच चाहिए। यह वही अनुमति है जो फ़ोल्डर पलटने देती है, और यह सिस्टम के पन्ने से दी जाती है।</string>
@@ -403,6 +403,8 @@
     <string name="editor_pick">किससे संपादित करते हैं?</string>
     <string name="editor_left">बाएँ घुमाएँ</string>
     <string name="editor_right">दाएँ घुमाएँ</string>
+    <string name="editor_flip">पलटें</string>
+    <string name="editor_flip_down">लंबवत पलटें</string>
     <string name="editor_free">मुक्त</string>
     <string name="editor_save">सहेजें</string>
     <string name="editor_apply">लागू करें</string>

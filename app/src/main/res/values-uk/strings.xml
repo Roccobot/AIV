@@ -151,7 +151,7 @@
     <string name="settings_clipboard_desc">Коли ви відкриваєте застосунок (новий запуск), а системний буфер обміну містить пряме посилання на зображення, воно відкриється одразу в переглядачі замість головного екрана.</string>
     <string name="settings_start_folder">Відкривати теку під час запуску</string>
     <string name="settings_start_folder_desc">Показує під час запуску вміст вибраної теки замість головного екрана.</string>
-    <string name="settings_start_folder_none">Теку не обрано</string>
+    <string name="settings_start_folder_none">Теку не вибрано</string>
     <string name="settings_start_folder_pick">Обрати</string>
     <string name="folders_title">Теки</string>
     <string name="folders_permission">Для списку тек потрібен доступ до всіх файлів. Це той самий дозвіл, який дає гортати теку, і він надається на сторінці системи.</string>
@@ -435,6 +435,8 @@
     <string name="editor_pick">Чим редагувати?</string>
     <string name="editor_left">Повернути ліворуч</string>
     <string name="editor_right">Повернути праворуч</string>
+    <string name="editor_flip">Відобразити</string>
+    <string name="editor_flip_down">Відобразити вертикально</string>
     <string name="editor_free">Вільно</string>
     <string name="editor_save">Зберегти</string>
     <string name="editor_apply">Застосувати</string>

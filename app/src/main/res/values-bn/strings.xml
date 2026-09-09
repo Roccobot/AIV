@@ -151,7 +151,7 @@
     <string name="settings_clipboard_desc">অ্যাপ খুললে (নতুন করে চালু করলে) সিস্টেমের ক্লিপবোর্ডে কোনো ছবির সরাসরি লিঙ্ক থাকলে, হোম পর্দার বদলে সেই ছবিই সরাসরি দর্শকে খোলে।</string>
     <string name="settings_start_folder">চালু করার সময় একটি ফোল্ডার খুলুন</string>
     <string name="settings_start_folder_desc">চালু হওয়ার সময় হোম পর্দার বদলে নির্দিষ্ট একটি ফোল্ডারের বিষয়বস্তু দেখায়।</string>
-    <string name="settings_start_folder_none">কোনো ফোল্ডার বাছাই করা হয়নি</string>
+    <string name="settings_start_folder_none">কোনো ফোল্ডার নির্বাচিত হয়নি</string>
     <string name="settings_start_folder_pick">বাছুন</string>
     <string name="folders_title">ফোল্ডার</string>
     <string name="folders_permission">ফোল্ডারের তালিকা করতে সব ফাইলে প্রবেশাধিকার দরকার। এটি সেই একই অনুমতি যা একটি ফোল্ডার দেখতে দেয়, আর সিস্টেমের একটি পাতা থেকে দেওয়া হয়।</string>
@@ -403,6 +403,8 @@
     <string name="editor_pick">কী দিয়ে সম্পাদনা করেন?</string>
     <string name="editor_left">বাঁয়ে ঘোরান</string>
     <string name="editor_right">ডানে ঘোরান</string>
+    <string name="editor_flip">উল্টান</string>
+    <string name="editor_flip_down">উল্লম্বভাবে উল্টান</string>
     <string name="editor_free">মুক্ত</string>
     <string name="editor_save">সংরক্ষণ করুন</string>
     <string name="editor_apply">প্রয়োগ করুন</string>

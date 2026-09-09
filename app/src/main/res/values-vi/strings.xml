@@ -387,6 +387,8 @@
     <string name="editor_pick">Sửa bằng gì?</string>
     <string name="editor_left">Xoay trái</string>
     <string name="editor_right">Xoay phải</string>
+    <string name="editor_flip">Lật</string>
+    <string name="editor_flip_down">Lật dọc</string>
     <string name="editor_free">Tự do</string>
     <string name="editor_save">Lưu</string>
     <string name="editor_apply">Áp dụng</string>

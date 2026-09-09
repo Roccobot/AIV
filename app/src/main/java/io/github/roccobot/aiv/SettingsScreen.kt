@@ -2193,7 +2193,10 @@ private fun ButtonOrders(settings: Settings, onChange: (Settings) -> Unit) {
         title = stringResource(R.string.settings_buttons_turn),
         order = settings.turnOrder,
         difetto = TURN_KEYS,
-        columns = SHEET_KEYS,
+        // ⚠️ **Cinque e non più [SHEET_KEYS], dalla `2.02`**: da quando c'è 'Rifletti' quella
+        // fila ne ha uno in più della seconda, e la replica deve rompere le righe dove le
+        // rompe il riquadro vero. Il numero è quello della lista, non una copia.
+        columns = TURN_KEYS.size,
         onOrder = { onChange(settings.copy(turnOrder = it)) }
     )
     PadOrder(

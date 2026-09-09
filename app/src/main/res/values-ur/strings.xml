@@ -151,7 +151,7 @@
     <string name="settings_clipboard_desc">جب آپ ایپ کھولتے ہیں (نیا آغاز) اور نظام کے کلپ بورڈ میں کسی تصویر کا براہِ راست ربط ہو، تو ہوم سکرین کے بجائے وہی تصویر سیدھی ناظر میں کھل جاتی ہے۔</string>
     <string name="settings_start_folder">شروع میں ایک فولڈر کھولیں</string>
     <string name="settings_start_folder_desc">آغاز پر ہوم سکرین کے بجائے کسی مخصوص فولڈر کا مواد دکھاتا ہے۔</string>
-    <string name="settings_start_folder_none">کوئی فولڈر نہیں چنا گیا</string>
+    <string name="settings_start_folder_none">کوئی فولڈر منتخب نہیں</string>
     <string name="settings_start_folder_pick">چنیں</string>
     <string name="folders_title">فولڈر</string>
     <string name="folders_permission">فولڈر گنوانے کے لیے تمام فائلوں تک رسائی درکار ہے۔ یہ وہی اجازت ہے جو کسی فولڈر کو دیکھنے دیتی ہے، اور نظام کے ایک صفحے سے دی جاتی ہے۔</string>
@@ -403,6 +403,8 @@
     <string name="editor_pick">کس سے ترمیم کرتے ہیں؟</string>
     <string name="editor_left">بائیں گھمائیں</string>
     <string name="editor_right">دائیں گھمائیں</string>
+    <string name="editor_flip">پلٹیں</string>
+    <string name="editor_flip_down">عمودی پلٹیں</string>
     <string name="editor_free">آزاد</string>
     <string name="editor_save">محفوظ کریں</string>
     <string name="editor_apply">لاگو کریں</string>
