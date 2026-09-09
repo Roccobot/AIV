@@ -35,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -315,6 +316,24 @@ data class DestLook(
 val LocalDestLook = staticCompositionLocalOf { DestLook() }
 
 /**
+ * Se il minuto di **'Mostra nascoste'** è acceso mentre si sceglie una destinazione.
+ *
+ * ⚠️⚠️ **DALLA `2.03`, ED È IL SUO RISCONTRO** (giro della `2.02`, voce `dest-nascoste`
+ * accettabile: *deve valere anche per le destinazioni*). La `2.02` aveva letto la sua parentesi
+ * al contrario, e la voce di collaudo gli chiedeva proprio questo: fino a lei una cartella in
+ * prestito compariva in casa e non fra le destinazioni, cioè il prestito valeva a metà.
+ * ⚠️ **Un `CompositionLocal` per la ragione di [LocalDestLook]**: a chiederlo è una finestra, e
+ * il prestito vive nel modello della schermata iniziale. Passarlo come argomento vorrebbe dire
+ * quattro livelli (la griglia, i dialoghi dei file, questa finestra, la scorciatoia) per un dato
+ * che nessuno di loro guarda.
+ * ⚠️⚠️ **MA NON È `staticCompositionLocalOf` come lui, ed è la differenza che conta**: questo
+ * valore **cambia** due volte per prestito, e uno static local ricompone l'app intera a ogni
+ * cambiamento. Con quello normale si ricompone chi lo legge, che è questa finestra e nessun
+ * altro.
+ */
+val LocalPeek = compositionLocalOf { false }
+
+/**
  * Quello che la finestra delle destinazioni carica da sé, in una lettura sola.
  *
  * ⚠️⚠️ **NON PASSA DA [DestLook], ED È LA DIFFERENZA CHE CONTA**: quello è uno
@@ -329,7 +348,16 @@ private data class DestData(
     val folders: List<Folder.Bucket>,
     val covers: Map<Long, Uri>,
     val tints: Map<Long, Int>,
-    val colour: FolderColour
+    val colour: FolderColour,
+    /**
+     * Le cartelle in elenco **in prestito**: le nascoste, e solo mentre dura il minuto.
+     *
+     * ⚠️ **Si ricava come nella schermata iniziale e non si tiene a parte**: è l'insieme delle
+     * nascoste col prestito acceso e niente col prestito spento, cioè lo stesso conto che
+     * `FolderScreen` fa su `prestate`. Serve al segno del vuoto e all'inchiostro ridotto, che
+     * dicono perché quella cartella è in elenco.
+     */
+    val peeked: Set<String>
 )
 
 /**
@@ -353,6 +381,7 @@ private fun FolderShortcut(
     onBrowse: () -> Unit
 ) {
     val context = LocalContext.current
+    val peekNow = LocalPeek.current
     /*
      * ⚠️ **Le cartelle si chiedono al MediaStore come fa la schermata iniziale**, e non si
      * ricevono da chi chiama: il visualizzatore e l'albero non ne hanno un elenco in mano, e
@@ -369,6 +398,13 @@ private fun FolderShortcut(
      * l'elenco compare già con le copertine giuste, mentre con due attese ci sarebbe un tratto
      * in cui si vedono quelle predefinite.
      */
+    /*
+     * ⚠️⚠️ **IL PRESTITO SI FOTOGRAFA ALL'APERTURA, e il `remember` è la riga che lo dice**: il
+     * minuto scade da sé, e un elenco che lo seguisse farebbe sparire delle righe da sotto il
+     * dito mentre si sceglie dove mettere un file. È la stessa scelta dell'elenco qui sotto, che
+     * pure è una fotografia: quello che cambia dopo l'apertura si guarda alla prossima.
+     */
+    val prestito = remember { peekNow }
     val dati by produceState<DestData?>(null, context) {
         // ⚠️ **Una lettura sola e non un flusso in ascolto**, come per le cartelle: qui
         // l'elenco è una fotografia presa all'apertura, e né le esclusioni né il colore
@@ -378,11 +414,13 @@ private fun FolderShortcut(
             folders = destinations(
                 buckets = Folder.buckets(context),
                 bin = Bin.dir(context).absolutePath,
-                hidden = preferenze.hiddenFolders
+                hidden = preferenze.hiddenFolders,
+                peeking = prestito
             ),
             covers = FolderCovers.all(context),
             tints = FolderTints.all(context),
-            colour = preferenze.folderColour
+            colour = preferenze.folderColour,
+            peeked = if (prestito) preferenze.hiddenFolders else emptySet()
         )
     }
 
@@ -449,6 +487,7 @@ private fun FolderShortcut(
                         look.view == FolderView.GRID -> Covers(
                             folders = elenco,
                             columns = look.columns,
+                            peeked = dati?.peeked.orEmpty(),
                             counted = look.counted,
                             nameStyle = folderNameStyle(look.columns),
                             colour = dati?.colour ?: FolderColour.NONE,
@@ -459,6 +498,7 @@ private fun FolderShortcut(
                         )
                         else -> Rows(
                             folders = elenco,
+                            peeked = dati?.peeked.orEmpty(),
                             counted = look.listCount,
                             size = look.listText,
                             colour = dati?.colour ?: FolderColour.NONE,
@@ -509,10 +549,16 @@ private fun FolderShortcut(
  * ⚠️ **Il filtro vive QUI e non nella finestra**, cioè accanto a quello del cestino: sono la
  * stessa domanda (*questa cartella può essere una destinazione?*), e una condizione scritta nel
  * corpo della finestra sarebbe fuori da quello che il banco misura.
- * ⚠️⚠️ **IL MINUTO DI 'Mostra nascoste' NON APRE UN'ECCEZIONE, ed è la sua parentesi letta alla
- * lettera**: la via per vederle è renderle visibili, non un prestito che vale altrove. Un
- * elenco di destinazioni che cambia a seconda di un conto alla rovescia acceso in un'altra
- * schermata sarebbe imprevedibile proprio nel gesto in cui si sposta un file.
+ * ⚠️⚠️ **MA IL MINUTO DI 'Mostra nascoste' APRE UN'ECCEZIONE, DALLA `2.03`, ED È IL SUO
+ * RISCONTRO** (giro della `2.02`, voce `dest-nascoste` accettabile: *deve valere anche per le
+ * destinazioni*). La `2.02` aveva letto la sua parentesi al contrario, e la nota di allora
+ * diceva che un elenco legato a un conto alla rovescia acceso altrove sarebbe imprevedibile:
+ * quello che quel ragionamento non guardava è che il prestito **si accende apposta per entrare
+ * in una cartella nascosta**, quindi copiarci dentro è la cosa che si vuole fare mentre dura.
+ * ⚠️ **Il prestito è un argomento e non un secondo insieme**: chi chiama passa le nascoste come
+ * prima e dice se il minuto è acceso, che è lo stesso conto della schermata iniziale
+ * (`filterNot { !peeking && ... }`). Sottrarre le prestate da [hidden] avrebbe dato lo stesso
+ * elenco e avrebbe reso il prestito invisibile a chi legge questa firma.
  * ⚠️ **Funzione a sé perché il banco la misura**: è la sola parte di questa finestra che si può
  * provare senza uno schermo, ed è quella in cui un errore manda dei file in un posto sbagliato.
  * ⚠️ **Il percorso del cestino arriva come argomento e non si chiede a `Bin`**: quello vuole un
@@ -521,11 +567,13 @@ private fun FolderShortcut(
 internal fun destinations(
     buckets: List<Folder.Bucket>,
     bin: String,
-    hidden: Set<String>
+    hidden: Set<String>,
+    peeking: Boolean
 ): List<Folder.Bucket> =
     buckets.filter { bucket ->
         val path = bucket.path
-        path != null && path != bin && !path.startsWith("$bin/") && !bucket.isHidden(hidden)
+        path != null && path != bin && !path.startsWith("$bin/") &&
+            (peeking || !bucket.isHidden(hidden))
     }
 
 /**

@@ -862,10 +862,13 @@ private fun EditorSheet(
              * ⚠️ **Il tocco lungo ha SEMPRE la sua etichetta**, come vuole [PadAction.onHold]:
              * un gesto che il lettore di schermo non annuncia esiste solo per chi lo scopre per
              * caso.
-             * ⚠️⚠️ **IL GLIFO È DI MATERIAL E NON SUO, ed è dichiarato come lo furono
-             * `FolderDownload` ed `Extension` nella `1.80`**: gli altri sette di questa scheda
-             * li ha disegnati lui, quindi questo si vede che viene da un'altra mano. Resta
-             * finché non ne manda uno suo, e la voce di collaudo glielo chiede.
+             * ⚠️⚠️ **IL GLIFO È DI MATERIAL E CI RESTA, DALLA `2.03`, ED È SUA RISPOSTA**
+             * (`d-flip-glifo` del giro della `2.02`: **`resta`**, cioè *va bene quello di
+             * Material*). Gli altri sette di questa scheda li ha disegnati lui, quindi questo si
+             * vede che viene da un'altra mano, e la domanda esisteva per quello: con
+             * `FolderDownload` ed `Extension`, nella stessa situazione, aveva risposto mandando i
+             * suoi. Qui ha scelto il contrario, quindi **non è più provvisorio** e non si
+             * richiede.
              */
             val flipKey = PadAction(
                 PadKey.FLIP, Icons.Filled.Flip, R.string.editor_flip,
