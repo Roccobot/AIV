@@ -982,8 +982,22 @@ gira **su ogni pixel**, legge la sfumatura e le somma un livello pieno di rumore
   INVENTARE UNA CAUSA**: sul banco quel dither si vede **agire** (184 righe miste su 210 col solo
   paint, contro 0 senza niente), ma il banco disegna col processore e il telefono con la scheda
   grafica. Il rimedio nuovo non dipende da quella risposta, ed è tutto il suo valore.
-- ⚠️ **Vale da Android 13 in su**: uno shader scritto a mano vuole `RuntimeShader`, che nasce là.
-  Sotto, la sfumatura resta quella della `1.95`, col solo dither del paint.
+- ⚠️⚠️ **E DALLA `2.06` C'È ANCHE SOTTO ANDROID 13, PER SUA RISPOSTA** (`d-dither-vecchi` del giro
+  della `2.05`: **`copri`**). Uno shader scritto a mano vuole `RuntimeShader`, che nasce con la 13,
+  quindi fino alla `2.05` là restava la sfumatura della `1.95`, cioè quella in cui le bande le
+  vedeva. La strada che resta senza shader è **precalcolare** la rampa col rumore già dentro e
+  stenderla come **maschera** (`rampMask`): lo stesso conto, fatto una volta per misura invece che
+  a ogni pixel di ogni fotogramma.
+  - ⚠️ **La maschera è di sola opacità e il colore lo mette il paint**, perché il gradiente è una
+    tinta sola con l'opacità che scende: un byte per pixel invece di quattro, e una tessera larga
+    128 che si ripete, cioè un paio di centinaio di kB in tutto. Le bande sono orizzontali, quindi
+    a romperle serve che il rumore cambi lungo la riga, e che si ripeta ogni 128 pixel non si vede.
+  - ⚠️⚠️ **IL RUMORE VA SULL'OPACITÀ, E SI TAGLIA DA SÉ LA DOSE**: un livello di opacità ne muove
+    `|tinta - fondo| / 255` sul risultato, quindi arriva forte dove i due colori distano tanto
+    (cioè dove le bande si vedono) e piano dove distano poco. Il conto che porta ai due livelli
+    scelti vive su `GRAIN_STEPS`.
+  - ⚠️⚠️ **NESSUNO DEI DUE PUÒ GUARDARLA, E LA DOMANDA LO DICEVA PRIMA**: né lui né io abbiamo un
+    telefono sotto la 13, quindi questo ramo lo presidia il banco e non l'ha guardato nessuno.
 - ⚠️⚠️ **E NON SI PORTA ALLE ALTRE SFUMATURE, PERCHÉ IL CONTO DICE CHE LÀ NON SERVE**: quelle in
   fondo allo schermo attraversano **tutti** i livelli in un centinaio di punti, quindi un gradino
   viene alto **un pixel**; il gradiente dell'intestazione ne attraversa un quarto su quasi tutto
@@ -992,6 +1006,12 @@ gira **su ogni pixel**, legge la sfumatura e le somma un livello pieno di rumore
   gradiente i pixel non siano tutti uguali, che è il mattone di cui una banda è fatta, e che il
   rumore resti di un livello invece di diventare una grana. **Non** vede se le strisce si vedano:
   quello è percezione, e si guarda sul telefono.
+  - ⚠️⚠️ **MA PER LA MASCHERA DELLA `2.06` QUELLA MISURA NON BASTA, ED È MISURATO**: la prima
+    stesura contava le righe miste nel **disegno** ed è rimasta verde con il rumore azzerato,
+    perché sul banco una riga porta due toni adiacenti anche senza niente, cioè nel disegno entra
+    un rumore di Skia che non si distingue dal nostro. La prova buona guarda **la tessera**, dove
+    il rumore o c'è o non c'è, più un secondo caso sul disegno che misura la cosa che può davvero
+    rompersi: che la maschera si **tinga** col colore del paint invece di venire nera.
 
 ⚠️⚠️ **NEL TEMA SCURO L'ICONA TORNA POSITIVA, DALLA `1.95`, ED È SUA ISTRUZIONE** (*l'icona
 dell'intestazione deve ritornare positiva (sovrapposta) per il tema scuro: bianco, opacità 40%*).

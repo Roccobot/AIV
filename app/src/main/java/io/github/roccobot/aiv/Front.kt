@@ -27,6 +27,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlin.math.ceil
 import kotlin.math.roundToInt
 
 /**
@@ -683,17 +684,23 @@ fun Modifier.frontWash(
      * ⚠️⚠️ **E DALLA `2.04` C'È ANCHE UN DITHER SCRITTO DA NOI, PERCHÉ IL MEZZO LIVELLO DI SKIA
      * NON È BASTATO** (riscontro del giro della `2.03`: *vedo ancora del banding. Se per fare un
      * gradiente di qualità superiore serve gestire una profondità colore più alta, o più memoria,
-     * o più risorse, per me va bene*). Il conto del difetto, che cosa aggiunge il rumore scritto
-     * a mano, e perché sotto Android 13 non c'è, vivono in testa a `Dither.kt`.
-     * ⚠️ **Le due strade non si sommano a caso**: col rumore in scena il pennello vive **dentro**
-     * lo shader, quindi qui resta da dare al paint la sola opacità dello scorrimento; senza, il
-     * pennello si posa come prima.
+     * o più risorse, per me va bene*). Il conto del difetto e che cosa aggiunge il rumore scritto
+     * a mano vivono in testa a `Dither.kt`.
+     * ⚠️⚠️ **E DALLA `2.06` LE STRADE SONO DUE, PERCHÉ UNO SHADER SCRITTO A MANO NASCE CON ANDROID
+     * 13** (risposta `copri` a `d-dither-vecchi`, giro della `2.05`): da lì in su il rumore lo
+     * mette uno shader che gira su ogni pixel e porta dentro anche la sfumatura; sotto, la stessa
+     * rampa arriva **precalcolata** come maschera, col rumore già dentro e il colore che lo mette
+     * questo paint.
+     * ⚠️ **Nessuna delle due si somma al dither di Skia**: quello resta acceso soltanto dove non
+     * c'è nessun rumore nostro, cioè dove non c'è nemmeno una rampa da quantizzare.
      * ⚠️ **La fascia piena sopra la testata non passa di qui**: è tinta unita, e una tinta unita
      * non ha nessuna rampa da quantizzare.
      */
     val largo = size.width + ariaPx * 2
     val misura = Size(largo, alto)
     val grana = ditherShader(pennello, misura)
+    val maschera =
+        if (grana == null) rampMask(WASH_STOPS, WASH_PEAK, ceil(alto).toInt(), -suPx) else null
     val pittura = Paint().apply {
         /*
          * ⚠️ **I due dither non si sommano**: col rumore nostro in scena, quello di Skia
@@ -701,8 +708,17 @@ fun Modifier.frontWash(
          * niente in cambio. Misurato dal banco: i toni distinti in una riga passano da dieci a
          * sette, che è quello che tre canali arrotondati per conto loro possono dare.
          */
-        asFrameworkPaint().isDither = grana == null
+        asFrameworkPaint().isDither = grana == null && maschera == null
         if (grana != null) asFrameworkPaint().shader = grana
+        /*
+         * ⚠️⚠️ **IL COLORE SI SCRIVE QUI E L'OPACITÀ A OGNI FOTOGRAMMA, E L'ORDINE CONTA**: in
+         * Compose `color` riscrive anche il byte dell'opacità, quindi messo dopo `alpha` gli
+         * cancellerebbe lo scorrimento. La maschera porta la rampa, la tinta la porta il paint.
+         */
+        if (maschera != null) {
+            color = tint
+            asFrameworkPaint().shader = maschera
+        }
     }
     onDrawBehind {
         val visto = ink()
@@ -713,7 +729,8 @@ fun Modifier.frontWash(
             size = Size(largo, barraPx),
             alpha = visto
         )
-        if (grana != null) pittura.alpha = visto else pennello.applyTo(misura, pittura, visto)
+        if (grana != null || maschera != null) pittura.alpha = visto
+        else pennello.applyTo(misura, pittura, visto)
         drawIntoCanvas { tela ->
             tela.drawRect(-ariaPx, -suPx, largo - ariaPx, alto - suPx, pittura)
         }
