@@ -972,6 +972,27 @@ di pixel ed è **visibile per costruzione**.
   barra di sistema): il pennello si costruisce sulla misura vera, o la rampa finirebbe prima del
   bordo.
 
+⚠️⚠️ **E DALLA `2.04` IL RUMORE LO SCRIVIAMO NOI, PERCHÉ QUELLO DEL PAINT NON GLI È BASTATO**
+(riscontro del giro della `2.03`: *secondo me la sfumatura può essere ulteriormente migliorata,
+vedo ancora del banding. Se per fare un gradiente di qualità superiore serve gestire una
+profondità colore più alta, o più memoria, o più risorse, per me va bene*). Il pezzo è `Dither.kt`
+e vive in un file suo perché la spiegazione del difetto è più lunga del rimedio: uno shader che
+gira **su ogni pixel**, legge la sfumatura e le somma un livello pieno di rumore triangolare.
+- ⚠️⚠️ **PERCHÉ IL RIMEDIO DELLA `1.95` NON SIA BASTATO NON SI SA, E SI SCRIVE COSÌ INVECE DI
+  INVENTARE UNA CAUSA**: sul banco quel dither si vede **agire** (184 righe miste su 210 col solo
+  paint, contro 0 senza niente), ma il banco disegna col processore e il telefono con la scheda
+  grafica. Il rimedio nuovo non dipende da quella risposta, ed è tutto il suo valore.
+- ⚠️ **Vale da Android 13 in su**: uno shader scritto a mano vuole `RuntimeShader`, che nasce là.
+  Sotto, la sfumatura resta quella della `1.95`, col solo dither del paint.
+- ⚠️⚠️ **E NON SI PORTA ALLE ALTRE SFUMATURE, PERCHÉ IL CONTO DICE CHE LÀ NON SERVE**: quelle in
+  fondo allo schermo attraversano **tutti** i livelli in un centinaio di punti, quindi un gradino
+  viene alto **un pixel**; il gradiente dell'intestazione ne attraversa un quarto su quasi tutto
+  lo schermo, e là un gradino viene alto **quasi quaranta pixel**. Stesso disegno, due aritmetiche.
+- ⚠️ **La prova che lo presidia guarda i pixel** (`BandeTest`): misura che in una riga del
+  gradiente i pixel non siano tutti uguali, che è il mattone di cui una banda è fatta, e che il
+  rumore resti di un livello invece di diventare una grana. **Non** vede se le strisce si vedano:
+  quello è percezione, e si guarda sul telefono.
+
 ⚠️⚠️ **NEL TEMA SCURO L'ICONA TORNA POSITIVA, DALLA `1.95`, ED È SUA ISTRUZIONE** (*l'icona
 dell'intestazione deve ritornare positiva (sovrapposta) per il tema scuro: bianco, opacità 40%*).
 Quindi i casi sono tre e non due: senza gradiente l'icona è quella di sempre, col gradiente sul
@@ -1091,8 +1112,20 @@ Top`*). Quindi i numeri di `Jump.kt` non sono scelte: sono **misure prese** su
   quiete di 150 ms che dice 'lo scorrimento è finito', e solo dopo il conto alla rovescia).
 - ⚠️ **Il numero che NON viene di là è l'attesa**: sul sito è 0,8 s su mobile e 3 s su desktop,
   qui sono i **2 secondi** che ha dettato lui.
-- ⚠️ **E il tasto c'è solo se ha dove andare**, come sul sito: in cima non compare quello su, in
-  fondo non compare quello giù, e in una lista che sta tutta nello schermo non ce n'è nessuno.
+- ⚠️⚠️ **E DALLA `2.04` NON VIENE DI LÀ NEMMENO L'USCITA: DURA UN SECONDO ED È GRADUALE**
+  (riscontro del giro della `2.03`: *l'uscita dei due tasti dev'essere più 'morbida': dissolvenza
+  di circa un secondo, graduale*). Il quarto di secondo del sito era giusto su una pagina web e
+  troppo secco sopra una griglia di miniature. ⚠️ **L'entrata resta quella di prima**, e la
+  differenza è voluta: quello che arriva dev'essere subito toccabile. ⚠️ **La curva è lineare**,
+  perché quella di serie parte quasi ferma e poi cade, cioè il contrario di graduale.
+- ⚠️⚠️ **E I DUE TASTI SE NE VANNO INSIEME, DALLA `2.04`: LA CONDIZIONE È UNA SOLA** (stesso
+  riscontro: *non occorre far sparire prima il tasto 'su' se si arriva in cima o il tasto 'giù' se
+  si arriva in fondo: crea solo confusione*). Fino alla `2.03` ogni tasto guardava il proprio
+  verso, come sul sito, quindi arrivando a un capo la colonna si accorciava sotto l'occhio.
+  - ⚠️ **Quello che resta della regola del sito è la metà che riguarda la coppia**: in una lista
+    che ci sta tutta nello schermo non compare **nessuno** dei due.
+  - ⚠️ **Un tasto che non ha dove andare non è un comando morto**: toccarlo chiede una corsa di
+    zero pixel, che `glide` scarta alla prima riga.
 
 ⚠️⚠️ **IL SALTO PASSA DALLO SCORRIMENTO ANNIDATO, ESATTAMENTE COME UN DITO, E QUELLA È LA RIGA
 CHE FA FUNZIONARE LA SUA RICHIESTA** (*il tasto 'su' fa scorrere in cima fino alla visualizzazione
@@ -1164,10 +1197,10 @@ dall'albero con la dissolvenza. La difesa è l'**assenza**, come per il `MenuGua
 
 ⚠️ **Che cosa il banco misura e che cosa no** (`SaltiTest` e `SaltiSfondoTest`): vede che a
 riposo i due tasti non sono nell'albero, che il salto passa dallo scorrimento annidato nei due
-versi, che il bersaglio è largo quanto dichiarato, e che dietro il glifo non c'è nessun fondo
-dipinto. **Non** vede quando compaiono e quando se ne vanno, perché quell'attesa il clock di prova
-la porta a termine dentro `waitForIdle`, né la decelerazione, né come il tasto si comporta
-**premuto**: sono rese.
+versi, che il bersaglio è largo quanto dichiarato, che in cima ci sono tutti e due, e che dietro
+il glifo non c'è nessun fondo dipinto. **Non** vede quando compaiono e quando se ne vanno, perché
+quell'attesa il clock di prova la porta a termine dentro `waitForIdle`, né quanto dura la
+dissolvenza, né la decelerazione, né come il tasto si comporta **premuto**: sono rese.
 
 ## 🔖 Lo scorrimento di una schermata sopravvive alla schermata
 

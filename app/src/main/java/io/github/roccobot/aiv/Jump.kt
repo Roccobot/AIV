@@ -2,6 +2,7 @@ package io.github.roccobot.aiv
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -57,6 +58,13 @@ import kotlin.math.pow
  * decelerazione e la logica di `Earthsea Top`*). Quindi i numeri di questo file non sono
  * scelte: sono **misure prese** su `earthsea/top/index.html`, e chi li ritocca li stacca da
  * quella sorgente.
+ *
+ * ⚠️⚠️ **MA DALLA `2.04` DUE COSE SONO SUE E NON DEL SITO, e sono scritte dove vivono**: l'uscita
+ * dura un secondo invece di un quarto ([JUMP_OUT_MS]), e i due tasti se ne vanno **insieme**
+ * invece che ognuno per conto suo (la condizione unica dentro [JumpFabs]). Le ha chieste vedendo
+ * la copia fedele con l'app in mano, ed è la ragione per cui la fedeltà non è più il criterio di
+ * tutto il file: *all'interno di un'app ci sono un paio di cose che dovrebbero funzionare
+ * diversamente*. Quello che non è nominato qui viene ancora di là.
  */
 
 /** La parte fissa della durata, in millisecondi: `280 + |dist| * 0.16`, con tetto a 800. */
@@ -95,8 +103,21 @@ private const val JUMP_HOLD_MS = 2_000L
  */
 private const val JUMP_SETTLE_MS = 150L
 
-/** L'entrata e l'uscita in dissolvenza, come la transizione di 0,25 s del sito. */
+/** L'entrata in dissolvenza, come la transizione di 0,25 s del sito: aprire dev'essere pronto. */
 internal const val JUMP_FADE_MS = 250
+
+/**
+ * L'uscita in dissolvenza: **un secondo**, ed è suo.
+ *
+ * ⚠️⚠️ **DALLA `2.04` NON È PIÙ QUELLA DEL SITO, ED È LA PRIMA VOLTA CHE UN NUMERO DI QUESTO FILE
+ * SI STACCA DA LÀ** (riscontro del giro della `2.03`: *l'uscita dei due tasti dev'essere più
+ * 'morbida': dissolvenza di circa un secondo, graduale*). Su una pagina web quei tasti se ne vanno
+ * in un quarto di secondo e nessuno se ne accorge; sopra una griglia di miniature la stessa uscita
+ * si legge come uno scatto, perché il tasto sparisce mentre l'occhio è ancora là.
+ * ⚠️ **L'entrata resta [JUMP_FADE_MS]**, e la differenza è voluta: quello che arriva deve essere
+ * subito toccabile, quello che se ne va può prendersi tempo.
+ */
+internal const val JUMP_OUT_MS = 1_000
 
 /**
  * Quanto si vede il tasto: **quattro decimi**, ed è suo (*opacità 40%*).
@@ -167,8 +188,8 @@ private class Arrivato : CancellationException("bordo")
  *   l'intestazione, e passando di qui il tasto 'su' arriva **fino alla fascia aperta**, che è
  *   la sua richiesta. Senza, i tasti muovono la sola lista.
  * @param more se c'è ancora qualcosa sopra oltre alla lista: la fascia chiusa. Serve perché
- *   chiudendo l'intestazione la lista **non** si muove, quindi `canScrollBackward` risponde di
- *   no proprio nel caso in cui il tasto 'su' ha più da fare.
+ *   chiudendo l'intestazione la lista **non** si muove, quindi da sola direbbe di non avere
+ *   dove andare proprio nel caso in cui il tasto 'su' ha più da fare.
  * @param aboveFab se sotto la colonna c'è il FAB, e quindi va lasciato il suo posto. Spento
  *   nelle **impostazioni**, che sono la sola schermata coi tasti e senza FAB: là quello spazio
  *   sarebbe aria in fondo allo schermo.
@@ -204,8 +225,21 @@ fun JumpFabs(
      * nessun errore.
      */
     val extra by rememberUpdatedState(more)
-    val goUp by remember(state) { derivedStateOf { state.canScrollBackward || extra() } }
-    val goDown by remember(state) { derivedStateOf { state.canScrollForward } }
+    /*
+     * ⚠️⚠️ **UNA CONDIZIONE SOLA PER TUTTI E DUE, DALLA `2.04`, ED È SUA** (riscontro del giro
+     * della `2.03`: *non occorre far sparire prima il tasto 'su' se si arriva in cima o il tasto
+     * 'giù' se si arriva in fondo: crea solo confusione. Semplicemente, scompaiono insieme*).
+     * Fino alla `2.03` ogni tasto guardava il proprio verso, come sul sito: arrivando in cima il
+     * 'su' se ne andava da solo, e restava una colonna spaiata che si accorciava sotto l'occhio.
+     * ⚠️ **Quello che resta della regola del sito è la metà che riguarda la coppia**: in una
+     * lista che ci sta tutta nello schermo non compare **nessuno** dei due, perché là non c'è
+     * niente da scorrere in nessuno dei due versi.
+     * ⚠️ **E il tasto che non ha dove andare non è un comando morto**: toccarlo chiede una corsa
+     * di zero pixel, che [glide] scarta alla prima riga.
+     */
+    val hasRoom by remember(state) {
+        derivedStateOf { state.canScrollBackward || state.canScrollForward || extra() }
+    }
     val scope = rememberCoroutineScope()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -215,12 +249,12 @@ fun JumpFabs(
             .padding(bottom = if (aboveFab) FAB_SIZE + JUMP_FROM_FAB else JUMP_FROM_FAB)
     ) {
         JumpFab(
-            visible = awake && goUp,
+            visible = awake && hasRoom,
             glyph = Glyphs.BrowseTop,
             label = stringResource(R.string.jump_top)
         ) { scope.launch { glide(state, nested, -up()) } }
         JumpFab(
-            visible = awake && goDown,
+            visible = awake && hasRoom,
             glyph = Glyphs.BrowseBottom,
             label = stringResource(R.string.jump_bottom)
         ) { scope.launch { glide(state, nested, down()) } }
@@ -257,7 +291,14 @@ private fun JumpFab(
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn(tween(JUMP_FADE_MS)),
-        exit = fadeOut(tween(JUMP_FADE_MS))
+        /*
+         * ⚠️⚠️ **L'USCITA È LINEARE, E LA CURVA È METÀ DELLA SUA RICHIESTA** (*dissolvenza di
+         * circa un secondo, GRADUALE*): la curva di serie di `tween` è `FastOutSlowInEasing`, che
+         * parte quasi ferma e poi cade. Su un quarto di secondo non si vede, su un secondo sì, e
+         * quello che si vedrebbe è un tasto che resta pieno mezzo secondo e poi se ne va di
+         * colpo, cioè il contrario di graduale.
+         */
+        exit = fadeOut(tween(JUMP_OUT_MS, easing = LinearEasing))
     ) {
         Box(
             contentAlignment = Alignment.Center,
