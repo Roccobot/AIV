@@ -435,6 +435,8 @@
     <string name="editor_pick">Чем редактировать?</string>
     <string name="editor_left">Повернуть влево</string>
     <string name="editor_right">Повернуть вправо</string>
+    <string name="editor_flip">Отразить</string>
+    <string name="editor_flip_down">Отразить по вертикали</string>
     <string name="editor_free">Свободно</string>
     <string name="editor_save">Сохранить</string>
     <string name="editor_apply">Применить</string>

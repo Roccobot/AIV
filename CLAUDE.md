@@ -1246,20 +1246,25 @@ quella cartella era già aperta; adesso può servire a **riconoscerla** nella sc
   misure: la domanda è *come riconosco una cartella*, e non cambia cambiando vista. Nella terza
   vista non c'è niente da tingere, perché là le cartelle sono percorsi letti dal disco e una tinta
   è appesa al `BUCKET_ID` del MediaStore.
-- ⚠️⚠️ **NELLA FINESTRA DELLE DESTINAZIONI NON SI TINGE, ED È UNA SCELTA DICHIARATA**: quella non
-  è l'elenco di casa ma le sole cartelle in cui si può mettere un file, e portarci le tinte
-  vorrebbe dire farle passare da `DestLook`, che è uno `staticCompositionLocalOf`, cioè
-  ricomporre l'app intera a ogni colore scelto. Il perché per esteso vive sul chiamante, in
-  `DestinationDialog.kt`.
-  - ⚠️⚠️ **MA LÀ LA COPERTINA SCELTA A MANO C'È, DALLA `2.01`, E NON È UN'INCOERENZA**: le due
-    cose rispondono a due domande diverse. Una tinta serve a **riconoscere** una cartella
-    nell'elenco di casa; una copertina **è** l'aspetto di quella cartella, quindi mostrarne
-    un'altra la fa sembrare un'altra cartella. Il difetto e la sua causa vivono in § '🖼️ La
+- ⚠️⚠️ **NELLA FINESTRA DELLE DESTINAZIONI SI TINGE, DALLA `2.02`, ED È SUA RISPOSTA**
+  (`d-dest-tinta` del giro della `2.01`: **`tinta`**, cioè *il colore entri anche fra le
+  destinazioni*). Fino alla `2.01` era una scelta dichiarata al contrario, e la ragione tecnica
+  che la reggeva era già caduta: diceva che portare le tinte là vorrebbe dire farle passare da
+  `DestLook`, che è uno `staticCompositionLocalOf`, cioè ricomporre l'app intera a ogni colore
+  scelto. ⚠️ **Ma la strada era già scritta**: dalla `2.01` le copertine si caricano **dentro**
+  la finestra, nello stesso `produceState` che chiede le cartelle al MediaStore, e la tinta
+  viaggia di lì insieme a loro.
+  - ⚠️ **Quindi restava solo l'argomento di merito**, che era: una tinta serve a riconoscere una
+    cartella **nell'elenco di casa**. A rispondere è stato lui, ed è una domanda che si fa
+    guardando l'app: chi sceglie dove mettere un file cerca la stessa cartella che riconosce
+    dal colore in casa.
+  - ⚠️⚠️ **LA COPERTINA ERA ARRIVATA UN GIRO PRIMA, E NON PER LO STESSO MOTIVO**: quella era un
+    **difetto** (la finestra mostrava la copertina predefinita al posto di quella scelta), questa
+    è una funzione in più che ha chiesto lui. Il difetto e la sua causa vivono in § '🖼️ La
     copertina scelta a mano'.
-  - ⚠️ **E il costo tecnico della tinta adesso è dimezzato**, quindi chi rileggesse quella
-    ragione sappia che è più debole di prima: le copertine si caricano **dentro** la finestra e
-    non passano da `DestLook`, cioè la via che quella nota indicava esiste ed è scritta. Restano
-    una scelta dichiarata, non un impedimento.
+  - **Le due viste non sono state toccate**, e questa è la prova che il trasloco era già fatto:
+    `covers` e `tints` sono parametri che hanno da sempre, e la finestra adesso li scrive tutti
+    e due invece di scriverne uno solo.
 - **La voce vive in 'Aspetto' e la sua gemella nel dialogo delle opzioni**, cioè la scorciatoia
   del tocco lungo sul FAB della schermata iniziale, dove lui l'ha chiesta accanto alle colonne:
   una preferenza, una chiave, un valore di fabbrica, e i cinque nomi da una funzione sola.
@@ -1453,9 +1458,28 @@ essere presi dalla famiglia, che è il criterio di § '🖌️ Come entra un dis
 istruzione: prima diceva *nulla è cancellato*, che è la stessa cosa detta in modo da far pensare
 proprio a quello che non succede.
 
+⚠️⚠️ **UNA CARTELLA NASCOSTA NON È NEMMENO UNA DESTINAZIONE, DALLA `2.02`, ED È SUA ISTRUZIONE**
+(2026-09-09: *le cartelle nascoste devono rimanere nascoste anche quando si copiano/spostano file
+(se serve le rendo visibili di volta in volta)*). Fino alla `2.01` la finestra delle destinazioni
+elencava **tutto** quello che il MediaStore restituiva, quindi nascondere una cartella la toglieva
+dalla schermata iniziale e la lasciava in bella vista appena si copiava un file.
+- **Il filtro è quello di casa e non un secondo conto**: `Folder.Bucket.isHidden` viveva in
+  `FolderScreen.kt` e adesso vive accanto al tipo che interroga, in `Folder.kt`, così le due
+  schermate che chiedono *questa cartella è nascosta?* leggono la stessa riga. Un secondo
+  confronto sul percorso avrebbe due modi di trattare il separatore, e il primo a divergere
+  sarebbe quello che nessuno guarda.
+- ⚠️⚠️ **IL MINUTO DI 'MOSTRA NASCOSTE' NON APRE UN'ECCEZIONE QUI**, ed è la sua clausola letta
+  fino in fondo: *se serve le rendo visibili di volta in volta* vuol dire che a scoprire una
+  cartella è un gesto suo nelle impostazioni, non un prestito di sessione. Il prestito vive in
+  `ViewerViewModel.peek`, che è del modello della schermata iniziale, e la finestra delle
+  destinazioni legge le preferenze da sé: portarcelo dentro vorrebbe dire far dipendere l'elenco
+  delle destinazioni da un conto alla rovescia partito altrove.
+
 ⚠️ **Che cosa il banco misura e che cosa no** (`NascosteTest`): vede il filtro nei due versi, il
 segno sulla sola cartella in prestito e il testo della voce che cambia con lo stato. **Non** vede
 il minuto, che vive nel modello: la scadenza, il suo avviso e la proroga si guardano sul telefono.
+⚠️ Il filtro delle **destinazioni** invece lo misura `DestinazioniTest`, insieme al cestino: là la
+prova è di sola logica, perché `destinations` è una funzione che si chiama senza montare niente.
 
 ## 📤 AIV come selettore: quando un'altra app chiede un'immagine
 
@@ -1674,6 +1698,63 @@ difetto da segnalazione dell'utente. Il banco l'ha preso prima che uscisse.
 - **Perché nessun altro controllo poteva vederlo**: il codice era valido e il tipo giusto; a
   mancare era un argomento che ha un valore di serie, e quel valore di serie lancia invece di
   avvisare. È la stessa forma del blocco della `1.70`, in piccolo.
+
+## 🔄 Le otto pose dell'editor, e la fila che è diventata di cinque
+
+⚠️⚠️ **DALLA `2.02` L'EDITOR RIFLETTE, ED È SUA RICHIESTA** (2026-09-09: *riusciamo ad aggiungere
+un 'Rifletti in orizzontale' (a pressione lunga diventa 'Rifletti in verticale') nell'editor
+interno? il comando potrebbe stare al centro fra 'Centra in orizzontale' e 'Ruota a
+sinistra'/antiorario. Però forse non ci sta l'etichetta di testo*). Fino alla `2.01` l'editor
+sapeva mettere un'immagine in quattro pose, adesso in **otto**: le quattro rotazioni e le stesse
+quattro riflesse.
+
+⚠️⚠️ **UNO SPECCHIO DAVANTI A UNA ROTAZIONE LA ROVESCIA, E QUESTO GOVERNA TUTTO IL RESTO.** La
+posa è `Spin(turns, mirror)`, con l'ordine dichiarato **specchia, poi gira**, e comporre due gesti
+non è sommare due numeri: vale `M ∘ R(k) = R(-k) ∘ M`, quindi un gesto di specchio che arriva
+dopo un quarto di giro dà 'riflesso e girato di **tre**', non di uno.
+- ⚠️⚠️ **UNA SOMMA AL POSTO DELLA SOTTRAZIONE NON DÀ NESSUN ERRORE, e su un'immagine dritta non
+  si vede affatto**: le due pose coincidono finché non c'è già una rotazione. È il caso proattivo
+  di § '🧪 Quando si scrive una prova, e quando no', e la prova è `RiflettiTest`, nata **con** la
+  funzione.
+- **Il conto vive in un posto solo**, `Spin.then`, e da lui dipendono le altre tre cose che si
+  muovono insieme: che cosa si vede a schermo, il tag EXIF che il salvataggio senza perdita
+  scrive, e il rettangolo di ritaglio.
+
+⚠️⚠️ **L'EXIF HA DUE CICLI E NON UNA TABELLA, e uno specchio passa dall'uno all'altro
+ROVESCIANDO L'INDICE**: `DIRECT` sono `1, 6, 3, 8` e `MIRROR` sono `2, 7, 4, 5`, cioè le stesse
+quattro rotazioni viste allo specchio. Girare vuol dire avanzare di `turns` dentro il proprio
+ciclo; riflettere vuol dire saltare all'altro ciclo alla posizione `turns - at`, che è la stessa
+legge di sopra scritta con gli indici.
+- ⚠️ **Non si ricopia una tabella di sedici caselle**: sarebbe la stessa legge scritta una seconda
+  volta, e la prova che le lega (`ImageEdit.spun` composto due volte contro la posa composta, su
+  tutte e otto le partenze) sta in piedi solo perché la fonte è una.
+
+⚠️⚠️ **IL SUO DUBBIO SULL'ETICHETTA ERA FONDATO, E LA CAUSA È MISURATA**: con cinque celle da
+`PAD_CELL` (76dp) più i quattro distacchi da `PAD_GAP` servono **412dp**, che su uno schermo da
+360 non ci stanno. ⚠️ **E il difetto era già in casa**, cioè non lo portava il tasto nuovo: la
+scheda della selezione con le etichette accese aveva lo stesso conto, e nessuno l'aveva
+guardato.
+- **Il rimedio è che la cella si stringe**, come faceva già la replica del riordino
+  (`PadArrange`): con `stretch` la larghezza si divide fra le colonne e `PAD_CELL` resta il
+  **tetto**, quindi dove c'è posto non cambia niente.
+- ⚠️ **L'etichetta è 'Rifletti' e non 'Rifletti in orizzontale'**, e il verso lo dicono il glifo e
+  il tocco lungo: una parola sola entra in una cella stretta in tutte e ventotto le lingue, mentre
+  la locuzione intera non entrerebbe in nessuna. Il verticale ha la sua etichetta e la annuncia
+  `holdLabel`, che è il meccanismo con cui l'app dichiara un tocco lungo.
+- ⚠️ **Le due file dell'editor non si allineano più**, cinque contro quattro, ed è un compromesso
+  dichiarato: allinearle vorrebbe dire una cella vuota in mezzo alla seconda, cioè un posto che
+  invita a toccare qualcosa che non c'è.
+
+⚠️⚠️ **IL GLIFO È DI MATERIAL ED È PROVVISORIO, come i due della `1.80`**: `Icons.Filled.Flip` sta
+là finché lui non ne manda uno suo, e la voce di collaudo glielo chiede. Il criterio che decide
+fra un glifo di Material e uno in `res/` vive in § '🖌️ Come entra un disegno'.
+
+⚠️⚠️ **E IL TASTO NUOVO SI INFILA IN UN ORDINE GIÀ SALVATO, che è il caso che nessuno guarda**:
+sul telefono di chi ha già usato l'app la fila è salvata con quattro gettoni, e senza un
+meccanismo il quinto comparirebbe **in coda**, cioè dopo le due rotazioni invece che al posto che
+ha chiesto lui. A metterlo dov'è dichiarato è `padOrderOf`, che legge `TURN_KEYS`: quella
+costante è insieme l'ordine di fabbrica e il numero di colonne, e le due cose sono lo stesso
+elenco.
 
 ## 🗑️ Lo svuotamento automatico del cestino, e le tre decisioni che lo governano
 

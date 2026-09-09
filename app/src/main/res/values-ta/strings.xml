@@ -403,6 +403,8 @@
     <string name="editor_pick">எதைக் கொண்டு திருத்துகிறீர்கள்?</string>
     <string name="editor_left">இடப்புறம் சுழற்று</string>
     <string name="editor_right">வலப்புறம் சுழற்று</string>
+    <string name="editor_flip">புரட்டு</string>
+    <string name="editor_flip_down">செங்குத்தாகப் புரட்டு</string>
     <string name="editor_free">தடையற்றது</string>
     <string name="editor_save">சேமி</string>
     <string name="editor_apply">பயன்படுத்து</string>

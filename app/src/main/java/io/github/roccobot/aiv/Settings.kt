@@ -827,15 +827,23 @@ val PICK_KEYS = listOf(
 )
 
 /**
- * I quattro della prima fila dell'editor.
+ * La prima fila dell'editor: centrare, riflettere e girare.
  *
  * ⚠️ **L'ordine di fabbrica è quello della mano DESTRA**, che è il valore di fabbrica
  * dell'impostazione che fino alla `1.55` specchiava le due file. Chi teneva la sinistra
  * ritrova la sua fila rovesciata **una volta sola**, alla prima apertura dopo l'aggiornamento,
  * e da lì la mette come vuole trascinando.
+ * ⚠️⚠️ **'Rifletti' STA IN MEZZO, ED È IL POSTO CHE HA CHIESTO LUI** (2026-09-09: *il comando
+ * potrebbe stare al centro fra 'Centra in orizzontale' e 'Ruota a sinistra'*). Non è una
+ * simmetria trovata a occhio: sono cinque tasti e quello nuovo è il terzo.
+ * ⚠️ **Chi aggiorna se lo ritrova lì e non in fondo**, perché `padOrderOf` infila un tasto
+ * nuovo dove questa lista lo mette, subito dopo l'ultimo dei suoi predecessori già in scena.
+ * ⚠️ **La sua LUNGHEZZA è anche il numero di colonne della fila**, e la legge `EditorScreen`:
+ * un 5 scritto due volte sarebbe il posto in cui, aggiungendo un tasto, la fila va a capo
+ * senza che nessuno abbia toccato il numero.
  */
 val TURN_KEYS = listOf(
-    PadKey.CENTRE_DOWN, PadKey.CENTRE_ACROSS, PadKey.TURN_LEFT, PadKey.TURN_RIGHT
+    PadKey.CENTRE_DOWN, PadKey.CENTRE_ACROSS, PadKey.FLIP, PadKey.TURN_LEFT, PadKey.TURN_RIGHT
 )
 
 /** I quattro della seconda fila dell'editor, sempre nell'ordine della mano destra. */

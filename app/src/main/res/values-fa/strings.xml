@@ -151,7 +151,7 @@
     <string name="settings_clipboard_desc">هنگامی که برنامه را باز می‌کنید (شروعی تازه)، اگر بریده‌دان سامانه پیوندی مستقیم به یک تصویر داشته باشد، همان تصویر به‌جای صفحهٔ خانه یکراست در نمایشگر باز می‌شود.</string>
     <string name="settings_start_folder">باز کردن پوشه در آغاز</string>
     <string name="settings_start_folder_desc">هنگام شروع، به‌جای صفحهٔ خانه محتوای پوشه‌ای مشخص را نشان می‌دهد.</string>
-    <string name="settings_start_folder_none">پوشه‌ای برگزیده نشده</string>
+    <string name="settings_start_folder_none">هیچ پوشه‌ای انتخاب نشده</string>
     <string name="settings_start_folder_pick">برگزیدن</string>
     <string name="folders_title">پوشه‌ها</string>
     <string name="folders_permission">فهرست کردن پوشه‌ها به دسترسی به همه فایل‌ها نیاز دارد. همان اجازه‌ای است که مرور یک پوشه را ممکن می‌کند، و از صفحه‌ای در سیستم داده می‌شود.</string>
@@ -403,6 +403,8 @@
     <string name="editor_pick">با چه چیزی ویرایش می‌کنی؟</string>
     <string name="editor_left">چرخش به چپ</string>
     <string name="editor_right">چرخش به راست</string>
+    <string name="editor_flip">بازتاب</string>
+    <string name="editor_flip_down">بازتاب عمودی</string>
     <string name="editor_free">آزاد</string>
     <string name="editor_save">ذخیره</string>
     <string name="editor_apply">اعمال</string>

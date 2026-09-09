@@ -151,7 +151,7 @@
     <string name="settings_clipboard_desc">Quando você abre o aplicativo (novo início), se a área de transferência do sistema contiver um link direto para uma imagem, ela abre direto no visualizador em vez da tela inicial.</string>
     <string name="settings_start_folder">Abrir uma pasta ao iniciar</string>
     <string name="settings_start_folder_desc">Mostra ao iniciar o conteúdo de uma pasta específica, em vez da tela inicial.</string>
-    <string name="settings_start_folder_none">Nenhuma pasta escolhida</string>
+    <string name="settings_start_folder_none">Nenhuma pasta selecionada</string>
     <string name="settings_start_folder_pick">Escolher</string>
     <string name="folders_title">Pastas</string>
     <string name="folders_permission">Listar as pastas exige acesso a todos os arquivos. É a mesma permissão que deixa folhear uma pasta, e ela é concedida numa página do sistema.</string>
@@ -419,6 +419,8 @@
     <string name="editor_pick">Com o que você edita?</string>
     <string name="editor_left">Girar para a esquerda</string>
     <string name="editor_right">Girar para a direita</string>
+    <string name="editor_flip">Espelhar</string>
+    <string name="editor_flip_down">Espelhar na vertical</string>
     <string name="editor_free">Livre</string>
     <string name="editor_save">Salvar</string>
     <string name="editor_apply">Aplicar</string>

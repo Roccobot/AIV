@@ -387,6 +387,8 @@
     <string name="editor_pick">무엇으로 편집할까요?</string>
     <string name="editor_left">왼쪽으로 돌리기</string>
     <string name="editor_right">오른쪽으로 돌리기</string>
+    <string name="editor_flip">뒤집기</string>
+    <string name="editor_flip_down">상하 뒤집기</string>
     <string name="editor_free">자유</string>
     <string name="editor_save">저장</string>
     <string name="editor_apply">적용</string>

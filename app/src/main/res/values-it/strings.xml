@@ -68,6 +68,8 @@
     <string name="editor_pick">Con che cosa modifichi?</string>
     <string name="editor_left">Ruota\na sinistra</string>
     <string name="editor_right">Ruota\na destra</string>
+    <string name="editor_flip">Rifletti</string>
+    <string name="editor_flip_down">Rifletti in verticale</string>
     <string name="editor_free">Libero</string>
     <string name="editor_tall">Verticale</string>
     <string name="editor_wide">Orizzontale</string>
@@ -227,7 +229,7 @@
     <string name="settings_clipboard_desc">Quando apri l\'app (nuovo avvio), se gli appunti di sistema contengono un link diretto a un\'immagine, questa si aprirà direttamente nel visualizzatore al posto della schermata home.</string>
     <string name="settings_start_folder">Apri una cartella all\'avvio</string>
     <string name="settings_start_folder_desc">Visualizza il contenuto di una cartella specifica all\'avvio, al posto della schermata home.</string>
-    <string name="settings_start_folder_none">Nessuna cartella scelta</string>
+    <string name="settings_start_folder_none">Nessuna cartella selezionata</string>
     <string name="settings_start_folder_pick">Scegli</string>
 
     <string name="folders_title">Cartelle</string>

@@ -151,7 +151,7 @@
     <string name="settings_clipboard_desc">Quand vous ouvrez l\'application (nouveau démarrage), si le presse-papiers du système contient un lien direct vers une image, celle-ci s\'ouvre directement dans la visionneuse à la place de l\'écran d\'accueil.</string>
     <string name="settings_start_folder">Ouvrir un dossier au démarrage</string>
     <string name="settings_start_folder_desc">Affiche au démarrage le contenu d\'un dossier précis, à la place de l\'écran d\'accueil.</string>
-    <string name="settings_start_folder_none">Aucun dossier choisi</string>
+    <string name="settings_start_folder_none">Aucun dossier sélectionné</string>
     <string name="settings_start_folder_pick">Choisir</string>
     <string name="folders_title">Dossiers</string>
     <string name="folders_permission">Lister les dossiers demande l\'accès à tous les fichiers. C\'est la même autorisation qui permet de parcourir un dossier, et elle s\'accorde depuis une page du système.</string>
@@ -419,6 +419,8 @@
     <string name="editor_pick">Avec quoi modifier ?</string>
     <string name="editor_left">Tourner à gauche</string>
     <string name="editor_right">Tourner à droite</string>
+    <string name="editor_flip">Refléter</string>
+    <string name="editor_flip_down">Refléter verticalement</string>
     <string name="editor_free">Libre</string>
     <string name="editor_save">Enregistrer</string>
     <string name="editor_apply">Appliquer</string>

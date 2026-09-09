@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Flip
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.automirrored.outlined.FormatListBulleted
@@ -52,6 +53,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.animation.core.Animatable
@@ -126,6 +128,52 @@ fun ActionPad(
     labels: Boolean = LocalPadLook.current.labels
 ) {
     /*
+     * ⚠️⚠️ **IL RIQUADRO DISTESO SI MISURA PRIMA DI DISEGNARSI, DALLA `2.02`**: gli serve la
+     * larghezza vera per sapere se le sue colonne ci stanno (vedi [cella] in [PadBody]).
+     * ⚠️⚠️ **E IL RAMO A LARGHEZZA FISSA NON PASSA DI QUI, di proposito**: `BoxWithConstraints`
+     * è un `SubcomposeLayout`, e una subcomposizione dentro una misura **intrinseca** non si
+     * può fare. I menu chiedono proprio quella (la loro larghezza la fanno le voci di testo
+     * sopra il riquadro), quindi là si va dritti al corpo, con la cella piena di sempre.
+     */
+    if (stretch) {
+        BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
+            PadBody(
+                actions = actions,
+                columns = columns,
+                stretch = true,
+                labels = labels,
+                // ⚠️ **Al netto dei due fianchi**, che il corpo mette come padding: è la
+                // larghezza che le celle possono davvero dividersi.
+                room = maxWidth - PAD_EDGE * 2
+            )
+        }
+    } else {
+        PadBody(
+            actions = actions,
+            modifier = modifier,
+            columns = columns,
+            stretch = false,
+            labels = labels,
+            room = Dp.Unspecified
+        )
+    }
+}
+
+/**
+ * Il corpo del riquadro: le righe di celle, con la larghezza già decisa da chi lo chiama.
+ *
+ * @param room quanto spazio hanno le celle in tutto, o [Dp.Unspecified] dove non si misura.
+ */
+@Composable
+private fun PadBody(
+    actions: List<PadAction>,
+    columns: Int,
+    stretch: Boolean,
+    labels: Boolean,
+    room: Dp,
+    modifier: Modifier = Modifier
+) {
+    /*
      * ⚠️⚠️ **IL FIANCO SINISTRO NON È PIÙ [PAD_EDGE], dalla `1.59`: È DERIVATO DALLA COLONNA
      * DELLE ICONE DELLA LISTA** ([MENU_ICON_MID]), perché sopra questo riquadro, nei menu, ci
      * sono voci in lista e le loro icone devono cadere sulla stessa verticale della prima
@@ -145,7 +193,26 @@ fun ActionPad(
      * non allineava niente. ⚠️ **La distinzione è [stretch] e non [labels]**: in un menu con le
      * parole spente l'allineamento serve ancora, ed è là che è stato chiesto.
      */
-    val cella = if (labels) PAD_CELL else PAD_CELL_BARE
+    val piena = if (labels) PAD_CELL else PAD_CELL_BARE
+    /*
+     * ⚠️⚠️ **LA CELLA SI STRINGE SE LE COLONNE NON CI STANNO, DALLA `2.02`, E IL CONTO È
+     * QUELLO DELLA REPLICA** ([PadArrange], che lo faceva da sempre): cinque celle da 76dp più
+     * i distacchi fanno 412dp, cioè più di uno schermo da 360, e senza questa riga la fila
+     * usciva dal vetro invece di restringersi. Si vedeva già oggi nella scheda della selezione
+     * con le parole accese, e la prima fila dell'editor lo avrebbe fatto sempre da quando ha
+     * cinque tasti.
+     * ⚠️ **Non cambia niente dove c'è posto**, perché il tetto resta [PAD_CELL]: una fila che
+     * entra è larga come prima, cifra per cifra.
+     * ⚠️⚠️ **VALE SOLO CON [stretch], e non è una prudenza**: là il riquadro riempie la
+     * larghezza, quindi il vincolo che arriva è quello vero. Dove la larghezza è **intrinseca**
+     * (i menu) il vincolo può essere illimitato, e un conto fatto su quello darebbe una cella
+     * infinita: là si tiene la misura piena, che è quella che il pannello usa per dimensionarsi.
+     */
+    val cella = if (stretch && room != Dp.Unspecified) {
+        ((room - PAD_GAP * (columns - 1)) / columns).coerceAtMost(piena)
+    } else {
+        piena
+    }
     val avvio =
         if (stretch) PAD_EDGE else (MENU_ICON_MID - cella / 2).coerceAtLeast(PAD_EDGE)
     Column(
@@ -570,11 +637,12 @@ enum class PadKey(override val token: String) : Choice {
     NONE("none"),
     INVERT("invert"),
 
-    // La prima fila dell'editor: girare e centrare.
+    // La prima fila dell'editor: girare, riflettere e centrare.
     TURN_LEFT("turn-left"),
     TURN_RIGHT("turn-right"),
     CENTRE_ACROSS("centre-across"),
     CENTRE_DOWN("centre-down"),
+    FLIP("flip"),
 
     // La seconda fila dell'editor: la cronologia e la conferma.
     ORIGINAL("original"),
@@ -623,6 +691,7 @@ fun PadKey.label(): Int = when (this) {
     PadKey.TURN_RIGHT -> R.string.editor_right
     PadKey.CENTRE_ACROSS -> R.string.editor_center_across
     PadKey.CENTRE_DOWN -> R.string.editor_center_down
+    PadKey.FLIP -> R.string.editor_flip
     PadKey.ORIGINAL -> R.string.editor_original
     PadKey.UNDO -> R.string.editor_undo
     PadKey.REDO -> R.string.editor_redo
@@ -655,6 +724,7 @@ fun PadKey.glyph(): ImageVector = when (this) {
     PadKey.TURN_RIGHT -> Glyphs.TurnRight
     PadKey.CENTRE_ACROSS -> Glyphs.AlignAcross
     PadKey.CENTRE_DOWN -> Glyphs.AlignDown
+    PadKey.FLIP -> Icons.Filled.Flip
     PadKey.ORIGINAL -> Glyphs.EditReset
     PadKey.UNDO -> Glyphs.EditUndo
     PadKey.REDO -> Glyphs.EditRedo

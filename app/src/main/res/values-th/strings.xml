@@ -387,6 +387,8 @@
     <string name="editor_pick">แก้ไขด้วยอะไร</string>
     <string name="editor_left">หมุนซ้าย</string>
     <string name="editor_right">หมุนขวา</string>
+    <string name="editor_flip">พลิก</string>
+    <string name="editor_flip_down">พลิกแนวตั้ง</string>
     <string name="editor_free">อิสระ</string>
     <string name="editor_save">บันทึก</string>
     <string name="editor_apply">ใช้</string>

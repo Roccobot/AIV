@@ -151,7 +151,7 @@
     <string name="settings_clipboard_desc">Wenn Sie die App öffnen (neuer Start) und die Zwischenablage des Systems einen direkten Link zu einem Bild enthält, öffnet sich dieses Bild sofort im Betrachter statt des Startbildschirms.</string>
     <string name="settings_start_folder">Beim Start einen Ordner öffnen</string>
     <string name="settings_start_folder_desc">Zeigt beim Start den Inhalt eines bestimmten Ordners statt des Startbildschirms.</string>
-    <string name="settings_start_folder_none">Kein Ordner gewählt</string>
+    <string name="settings_start_folder_none">Kein Ordner ausgewählt</string>
     <string name="settings_start_folder_pick">Wählen</string>
     <string name="folders_title">Ordner</string>
     <string name="folders_permission">Für die Ordnerliste braucht es Zugriff auf alle Dateien. Es ist dieselbe Berechtigung, die das Durchblättern erlaubt, und sie wird auf einer Systemseite erteilt.</string>
@@ -403,6 +403,8 @@
     <string name="editor_pick">Womit bearbeitest du?</string>
     <string name="editor_left">Nach links drehen</string>
     <string name="editor_right">Nach rechts drehen</string>
+    <string name="editor_flip">Spiegeln</string>
+    <string name="editor_flip_down">Vertikal spiegeln</string>
     <string name="editor_free">Frei</string>
     <string name="editor_save">Speichern</string>
     <string name="editor_apply">Anwenden</string>

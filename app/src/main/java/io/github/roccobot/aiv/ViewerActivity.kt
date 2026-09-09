@@ -1656,7 +1656,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
      * ⚠️ La miniatura si butta **solo dopo un esito buono**: il ritaglio fallito lascia il
      * file com'era, e cancellarla costringerebbe a rigenerarla per niente.
      */
-    fun editSave(turns: Int, crop: ImageEdit.Crop) {
+    fun editSave(turns: Int, mirror: Boolean, crop: ImageEdit.Crop) {
         if (editorBusy) return
         val here = screen as? Screen.Editor ?: return
         val context = getApplication<Application>()
@@ -1679,7 +1679,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         editorBusy = true
         viewModelScope.launch {
             val esito = ImageEdit.save(
-                context, here.uri, turns, crop, way,
+                context, here.uri, turns, mirror, crop, way,
                 backup = settings?.editorBackup ?: true
             )
             editorBusy = false
@@ -3109,7 +3109,7 @@ private fun Stage(
             EditorScreen(
                 uri = screen.uri,
                 busy = model.editorBusy,
-                onSave = { turns, crop -> model.editSave(turns, crop) },
+                onSave = { turns, mirror, crop -> model.editSave(turns, mirror, crop) },
                 onBack = { model.leaveEditor() }
             )
         }

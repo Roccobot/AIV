@@ -151,7 +151,7 @@
     <string name="settings_clipboard_desc">عند فتح التطبيق (بدء جديد)، إذا كانت حافظة النظام تحتوي على رابط مباشر لصورة، فستُفتَح تلك الصورة في العارض مباشرةً بدلًا من الشاشة الرئيسية.</string>
     <string name="settings_start_folder">فتح مجلد عند البدء</string>
     <string name="settings_start_folder_desc">يعرض عند البدء محتوى مجلد محدّد بدلًا من الشاشة الرئيسية.</string>
-    <string name="settings_start_folder_none">لم يُختر أي مجلد</string>
+    <string name="settings_start_folder_none">لم يُحدد أي مجلد</string>
     <string name="settings_start_folder_pick">اختيار</string>
     <string name="folders_title">المجلدات</string>
     <string name="folders_permission">سرد المجلدات يحتاج الوصول إلى كل الملفات. وهو الإذن نفسه الذي يتيح تصفح مجلد، ويُمنح من صفحة في النظام.</string>
@@ -467,6 +467,8 @@
     <string name="editor_pick">بأي تطبيق تحرّر؟</string>
     <string name="editor_left">تدوير لليسار</string>
     <string name="editor_right">تدوير لليمين</string>
+    <string name="editor_flip">عكس</string>
+    <string name="editor_flip_down">عكس عمودي</string>
     <string name="editor_free">حر</string>
     <string name="editor_save">حفظ</string>
     <string name="editor_apply">تطبيق</string>

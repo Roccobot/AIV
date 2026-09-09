@@ -403,6 +403,8 @@
     <string name="editor_pick">Neyle düzenliyorsun?</string>
     <string name="editor_left">Sola çevir</string>
     <string name="editor_right">Sağa çevir</string>
+    <string name="editor_flip">Yansıt</string>
+    <string name="editor_flip_down">Dikey yansıt</string>
     <string name="editor_free">Serbest</string>
     <string name="editor_save">Kaydet</string>
     <string name="editor_apply">Uygula</string>

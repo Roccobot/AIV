@@ -151,7 +151,7 @@
     <string name="settings_clipboard_desc">Cuando abres la aplicación (inicio nuevo), si el portapapeles del sistema contiene un enlace directo a una imagen, esta se abre directamente en el visor en lugar de la pantalla de inicio.</string>
     <string name="settings_start_folder">Abrir una carpeta al arrancar</string>
     <string name="settings_start_folder_desc">Muestra al inicio el contenido de una carpeta concreta, en lugar de la pantalla de inicio.</string>
-    <string name="settings_start_folder_none">Ninguna carpeta elegida</string>
+    <string name="settings_start_folder_none">Ninguna carpeta seleccionada</string>
     <string name="settings_start_folder_pick">Elegir</string>
     <string name="folders_title">Carpetas</string>
     <string name="folders_permission">Para listar las carpetas hace falta acceso a todos los archivos. Es el mismo permiso que deja pasar por una carpeta, y se concede desde una página del sistema.</string>
@@ -419,6 +419,8 @@
     <string name="editor_pick">¿Con qué editas?</string>
     <string name="editor_left">Girar a la izquierda</string>
     <string name="editor_right">Girar a la derecha</string>
+    <string name="editor_flip">Reflejar</string>
+    <string name="editor_flip_down">Reflejar en vertical</string>
     <string name="editor_free">Libre</string>
     <string name="editor_save">Guardar</string>
     <string name="editor_apply">Aplicar</string>

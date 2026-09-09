@@ -403,6 +403,8 @@
     <string name="editor_pick">कशाने संपादन करता?</string>
     <string name="editor_left">डावीकडे फिरवा</string>
     <string name="editor_right">उजवीकडे फिरवा</string>
+    <string name="editor_flip">उलटा</string>
+    <string name="editor_flip_down">उभे उलटा</string>
     <string name="editor_free">मुक्त</string>
     <string name="editor_save">जतन करा</string>
     <string name="editor_apply">लागू करा</string>
