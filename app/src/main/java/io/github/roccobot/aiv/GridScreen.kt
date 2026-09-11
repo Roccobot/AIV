@@ -1245,12 +1245,33 @@ fun GridScreen(
      * ⚠️ **Il FAB non si muove**: vive in una finestra sua e i rientri se li mette da sé, che è
      * il motivo per cui questa modifica non lo tocca.
      */
+    /*
+     * ⚠️⚠️ **IL GLIFO DEL FAB DIVENTA IL CHEVRON SCORRENDO, DALLA `2.07`**: il gesto lo raccoglie
+     * il contenitore e il disegno lo fa il FAB, quindi lo stato vive qui, dove li si vede tutti
+     * e due. Il perché del meccanismo, e i cinque numeri del mockup, vivono in `Jump.kt`.
+     * ⚠️ **La fascia chiusa entra nella stima del 'su'**: chiudendola la griglia non si muove di
+     * un pixel, quindi da sola direbbe di essere già in cima proprio nel caso in cui il salto ha
+     * qualcosa da fare.
+     */
+    val arm = rememberJumpArm(
+        state = state,
+        up = { state.jumpUpPixels() + shut },
+        down = { state.jumpDownPixels() }
+    )
     Column(
         modifier = Modifier
             .fillMaxSize()
             .windowInsetsPadding(
                 WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
             )
+            /*
+             * ⚠️⚠️ **IL GESTO SI GUARDA PRIMA DI `paging`, E L'ORDINE È MISURATO**: in una catena
+             * di modificatori il `nestedScroll` scritto **per primo** è quello che riceve per
+             * primo il delta della lista, e `frontScroll` ne consuma la parte con cui chiude
+             * l'intestazione. Scritto dopo, al motore del glifo arrivava **zero** finché la
+             * fascia aveva spazio da chiudere: misurato sul banco, un colpo solo con somma 0.
+             */
+            .nestedScroll(arm.watch)
             .nestedScroll(paging)
             .padding(horizontal = GRID_PAD_X)
             .padding(top = GRID_PAD_Y)
@@ -2143,31 +2164,6 @@ fun GridScreen(
          * veste che non ha dove mandare (vedi i due parametri): un FAB che apre un menu
          * vuoto è peggio di un FAB che non c'è.
          */
-        /*
-         * ⚠️⚠️ **I DUE TASTI DELLO SCORRIMENTO PORTANO LO STESSO MODIFICATORE DEL FAB, e non è
-         * una copia da tenere allineata**: sono le sue parole (*devono apparire sopra il FAB (a
-         * destra o sinistra) ed essere perfettamente allineati orizzontalmente con il centro del
-         * FAB stesso*), e l'unico modo perché due cose stiano sulla stessa verticale è che
-         * partano dagli stessi rientri. Lo spazio del FAB se lo mette [JumpFabs].
-         * ⚠️ **Il salto 'in su' passa dallo scorrimento annidato**, che è quello che riapre
-         * l'intestazione: senza, il tasto porterebbe la griglia in cima lasciando la fascia
-         * chiusa, mentre lui ha chiesto *fino alla visualizzazione piena dell'intestazione*.
-         * ⚠️ **E la fascia chiusa conta come 'c'è ancora spazio sopra'**: chiudendola la griglia
-         * non si muove di un pixel, quindi `canScrollBackward` risponde di no proprio nel caso
-         * in cui il tasto ha qualcosa da fare.
-         */
-        JumpFabs(
-            state = state,
-            up = { state.jumpUpPixels() + shut },
-            down = { state.jumpDownPixels() },
-            nested = paging,
-            more = { shut > 0f },
-            modifier = Modifier
-                .align(fabSide())
-                .safeDrawingPadding()
-                .padding(horizontal = GRID_PAD_X, vertical = GRID_PAD_Y)
-                .padding(8.dp)
-        )
         FabPop(
             visible = (bin || onSettings != null || onBin != null || onSearchHere != null) &&
                 !picking && cleared == null,
@@ -2358,6 +2354,14 @@ fun GridScreen(
                     // ⚠️ E dalla `1.83` anche lo stesso glifo, in una cartella: nel cestino
                     // restano i tre puntini. Il perché è su [PickFab].
                     mark = !bin,
+                    /*
+                     * ⚠️⚠️ **A TASTO ARMATO IL TOCCO FA IL SALTO E NON APRE IL MENU, DALLA
+                     * `2.07`**: è la conseguenza della sua scelta, cioè che il comando viva
+                     * **sul** FAB invece che accanto. Il tratto in cui il menu non si apre è
+                     * quello in cui il chevron si vede, e finisce da sé un secondo dopo
+                     * l'ultimo pixel scorso.
+                     */
+                    arm = arm,
                     // ⚠️ **`visible` e non `wanted`**: il FAB deve restare staccato per tutta
                     // l'uscita, o rientrerebbe nella finestra dell'app sotto il velo che se ne
                     // sta andando. ⚠️ Dalla `1.67` `visible` copre anche quello: era `veiling`
@@ -2377,7 +2381,7 @@ fun GridScreen(
                     // ⚠️ **E lo raggiunge ancora benché il FAB stia in una finestra
                     // più alta**: quella finestra è trasparente al tocco apposta
                     // (vedi `untouchable` in `ActionPad`).
-                    onTap = { menu.open() },
+                    onTap = { if (arm.armed) scope.launch { arm.leap(paging) } else menu.open() },
                     onHold = { shortcut(); hintDone() }
                 )
             }
@@ -2484,6 +2488,9 @@ fun GridScreen(
                     // è sempre falsa: scritta uguale, resta vera anche il giorno che un
                     // onboarding nuovo comparisse in una cartella.
                     mark = !bin,
+                    // ⚠️ Qui il salto non c'è: questa copia vive dentro un velo che insegna il
+                    // tocco lungo, e un chevron sopra di lei indicherebbe un altro comando.
+                    arm = null,
                     onTap = { hintDone(); menu.open() },
                     onHold = { shortcut(); hintDone() }
                 )
@@ -2705,13 +2712,27 @@ private fun PickFab(
     ink: Color,
     @StringRes holdLabel: Int,
     mark: Boolean,
+    /**
+     * Lo stato del glifo del salto, o `null` dove quel comando non c'è.
+     *
+     * ⚠️ **Non ha un valore di serie di proposito**, come il parametro di `Modifier.lowered`:
+     * chi disegna un FAB deve **dichiarare** se quel FAB porta anche il salto, e non può farlo
+     * per omissione. L'unico `null` di oggi è la copia illuminata di un onboarding, dove il
+     * chevron non c'entra e il velo indica un gesto diverso.
+     */
+    arm: JumpArm?,
     onTap: () -> Unit,
     onHold: () -> Unit,
     lifted: Boolean = false,
     pressed: Boolean = false
 ) {
+    val home = @Composable { d: String? ->
+        if (mark) Marchio(d)
+        else Icon(imageVector = Icons.Default.MoreHoriz, contentDescription = d)
+    }
     TapHoldFab(
-        label = stringResource(R.string.pick_actions),
+        label = arm?.let { jumpLabel(it, stringResource(R.string.pick_actions)) }
+            ?: stringResource(R.string.pick_actions),
         container = container,
         ink = ink,
         holdLabel = stringResource(holdLabel),
@@ -2719,10 +2740,7 @@ private fun PickFab(
         pressed = pressed,
         onTap = onTap,
         onHold = onHold,
-        glyph = {
-            if (mark) Marchio(it)
-            else Icon(imageVector = Icons.Default.MoreHoriz, contentDescription = it)
-        }
+        glyph = { d -> if (arm == null) home(d) else JumpGlyph(arm) { home(d) } }
     )
 }
 

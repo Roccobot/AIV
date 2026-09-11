@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -20,21 +19,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.swipe
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.height
-import androidx.compose.ui.unit.width
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.launch
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -42,21 +36,23 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
 /**
- * Il banco di prova dei due **tasti dello scorrimento**, nati nella `1.95`.
+ * Il banco di prova del **salto**, che dalla `2.07` vive sul glifo del FAB.
  *
- * ⚠️⚠️ **NASCE CON LA FUNZIONE, per la metà proattiva della regola** (`CLAUDE.md`, § '🧪 Quando
- * si scrive una prova, e quando no'): il salto passa il proprio movimento allo **scorrimento
- * annidato** prima che alla lista, cioè fa a mano quello che un dito ottiene dal sistema, e là i
- * segni sono due mondi opposti. Un `-` di troppo dà un tasto che va dalla parte sbagliata, e
- * nessun compilatore lo vede.
+ * ⚠️⚠️ **NASCE CON LA FUNZIONE E LE SOPRAVVIVE**: la corsa passa il proprio movimento allo
+ * **scorrimento annidato** prima che alla lista, cioè fa a mano quello che un dito ottiene dal
+ * sistema, e là i segni sono due mondi opposti. Un `-` di troppo dà un salto che va dalla parte
+ * sbagliata, e nessun compilatore lo vede. Quella prova è l'unica che attraversa il cambio di
+ * concept senza una riga diversa, perché [glide] non è cambiata.
  *
- * ⚠️ **Che cosa NON vede**: **quanto** si vedono i tasti, cioè se l'attesa e l'uscita siano lunghe
- * al punto giusto per l'occhio. Quella è percezione, e si guarda sul telefono. Neanche la
- * decelerazione della corsa si vede, per la stessa ragione.
- * ⚠️⚠️ **MA IL CLOCK FERMO GLI FA VEDERE DOVE ARRIVA LA FINESTRA DEL TOCCO**, che è un'altra cosa
- * ed è struttura: `il tasto risponde anche mentre sbiadisce` entra **dentro** la dissolvenza e da
- * là tocca il tasto. Fino alla `2.04` qui c'era scritto che il banco quel tratto non lo vedeva:
- * era vero finché nessuno lo aveva provato con `autoAdvance` spento.
+ * ⚠️⚠️ **E LE ALTRE MISURANO IL MOTORE DEL GLIFO, che è dove il concept nuovo può rompersi in
+ * silenzio**: il verso che segue il dito, la soglia che impedisce lo sfarfallio, e soprattutto
+ * che la **corsa non conti come trascinamento**. Quest'ultimo è un difetto che è arrivato prima
+ * nel mockup che in Compose: toccando 'Vai all'inizio' la lista sale, cioè scorre nel verso
+ * opposto a quello che ha armato il tasto, e senza una guardia il chevron si gira sotto il dito
+ * che l'ha appena toccato.
+ *
+ * ⚠️ **Che cosa NON vede**: quanto il glifo impieghi a cambiare per l'occhio, la curva del
+ * rientro e la decelerazione della corsa. Sono rese, e si guardano sul telefono.
  */
 @RunWith(AndroidJUnit4::class)
 @Config(shadows = [OmbraArchivio::class])
@@ -64,23 +60,6 @@ class SaltiTest {
 
     @get:Rule
     val banco = createComposeRule()
-
-    /**
-     * **A riposo i due tasti non sono nell'albero.**
-     *
-     * ⚠️⚠️ **È LA TRAPPOLA DELLA `1.70` IN PICCOLO**: un nodo che sta in scena sempre e si limita
-     * a non farsi vedere continua a esistere per la prova del tocco, e quello che è sotto non
-     * riceve niente. La difesa è l'assenza, e questa prova la misura: appena aperta una cartella
-     * nessuno ha ancora scorso, quindi di tasti non ce ne devono essere.
-     */
-    @Test
-    fun `a riposo i due tasti non ci sono`() {
-        banco.setContent { Scena() }
-        banco.waitForIdle()
-
-        assertEquals("Il tasto 'in cima' non deve esistere prima di scorrere", 0, quanti(R.string.jump_top))
-        assertEquals("Il tasto 'in fondo' non deve esistere prima di scorrere", 0, quanti(R.string.jump_bottom))
-    }
 
     /**
      * **Il salto in giù chiude l'intestazione e scorre la lista; quello in su le riapre tutte e
@@ -130,165 +109,153 @@ class SaltiTest {
     }
 
     /**
-     * **Un tasto occupa esattamente la misura dichiarata, e non una più grande.**
+     * **A riposo il glifo è quello dell'app, e il tocco non è ancora il salto.**
      *
-     * ⚠️⚠️ **NASCE DA UNA VOCE NON APPROVATA, ED È LA REGOLA** (`AIV/CLAUDE.md`, § '🧪 Quando si
-     * scrive una prova, e quando no'): nel giro della `1.95` la voce `salti-tasti` è tornata
-     * indietro (*i tondi in cui si trovano ... appaiono come rettangoli ad ogni tocco*), e la
-     * misura ha trovato una causa che nessuno aveva ragionato: un [androidx.compose.material3.IconButton]
-     * porta `minimumInteractiveComponentSize`, che **ignora i vincoli in entrata** e restituisce
-     * al genitore 48dp qualunque misura gli si dia. Il tondo dipinto era quindi più grande del
-     * FAB stesso, che ne misura 40.
-     *
-     * ⚠️ **Che cosa questa prova NON vede**: la forma che il tasto prendeva **premuto**, che in
-     * Material 3 Expressive è un'altra ([androidx.compose.material3.IconButton] morfa da tondo a
-     * quadrato arrotondato). Quella è resa, e a toglierla è la stessa correzione: senza quel
-     * componente non c'è più nessuno stato premuto da disegnare.
+     * ⚠️ Appena aperta una schermata nessuno ha ancora scorso, quindi il chevron non ha ragione
+     * di esistere: questa è la misura di quello che si vede al primo sguardo.
      */
     @Test
-    fun `il tasto occupa la misura dichiarata`() {
+    fun `a riposo il glifo non e il chevron`() {
+        val arm = montaArm()
+        banco.waitForIdle()
+
+        assertEquals("Il chevron non deve essere in scena", 0f, arm().shown, 0.001f)
+        assertFalse("Il tocco non deve ancora fare il salto", arm().armed)
+    }
+
+    /**
+     * **Scorrendo verso il fondo il tasto si arma su 'Vai alla fine'.**
+     *
+     * ⚠️⚠️ **IL VERSO È QUELLO DELLA LISTA E NON QUELLO DEL DITO**, ed è il punto in cui un segno
+     * sbagliato non darebbe nessun errore: un dito che sale porta la lista verso il fondo, quindi
+     * il chevron giusto è quello che indica il fondo. Con il segno rovesciato la prova trova
+     * `-1` dove si aspetta `+1`.
+     */
+    @Test
+    fun `scorrendo il tasto si arma nel verso della lista`() {
+        val arm = montaArm()
+        banco.waitForIdle()
+
+        scorri(su = true)
+
+        assertTrue("Dopo un gesto lungo il tasto deve essere armato", arm().armed)
+        assertEquals("Il verso deve essere quello del fondo", 1, arm().toward)
+        assertEquals("Il chevron deve essere al suo posto", 1f, arm().shown, 0.001f)
+    }
+
+    /**
+     * **Cambiando verso, il chevron si gira sul posto.**
+     *
+     * ⚠️ **La soglia è la metà che conta**: un dito che scorre non va mai in un verso solo, e
+     * senza [SWERVE] un rimbalzo di pochi pixel girerebbe il disegno a ogni gesto. Qui il gesto
+     * contrario è lungo, quindi la soglia la supera e il verso deve cambiare.
+     */
+    @Test
+    fun `il verso segue il dito`() {
+        val arm = montaArm()
+        banco.waitForIdle()
+
+        scorri(su = true)
+        assertEquals("Prima il fondo", 1, arm().toward)
+
+        scorri(su = false)
+        assertEquals("Poi l'inizio", -1, arm().toward)
+    }
+
+    /**
+     * **Nella schermata vera il FAB annuncia il salto solo quando il salto è quello che fa.**
+     *
+     * ⚠️⚠️ **MISURA IL LEGAME, che è la cosa che un chiamante può sbagliare in silenzio**: il
+     * motore può funzionare benissimo e il FAB restare quello di prima, se chi lo disegna non
+     * legge l'arm. Il codice compilerebbe e la funzione non ci sarebbe.
+     * ⚠️ **L'etichetta e non i pixel**: quello che cambia sul FAB è un disegno incrociato, e
+     * contarne i pixel misurerebbe la dissolvenza invece del comando. Il lettore di schermo
+     * invece riceve una frase sola, che è quella che dice che cosa fa il tasto adesso.
+     */
+    @Test
+    fun `il FAB annuncia il salto solo a tasto armato`() {
         banco.mainClock.autoAdvance = false
         banco.setContent { Scena() }
-        banco.mainClock.advanceTimeBy(RESPIRO)
+        banco.mainClock.advanceTimeBy(NASCITA)
 
-        /*
-         * ⚠️ **Il trascinamento ha coordinate esplicite**, come in `IntestazioneTest`: `swipeUp()`
-         * nudo parte dal bordo di sotto della radice, dove non c'è nessuna griglia sotto il dito.
-         */
-        val scena = banco.onRoot().fetchSemanticsNode().size
-        banco.onRoot().performTouchInput {
-            swipe(
-                start = Offset(scena.width / 2f, scena.height * DA),
-                end = Offset(scena.width / 2f, scena.height * A),
-                durationMillis = LENTO
-            )
-        }
-        /*
-         * ⚠️⚠️ **IL CLOCK RESTA FERMO, o i tasti non ci sono più**: dopo la quiete parte il conto
-         * alla rovescia del congedo, e `waitForIdle` lo porterebbe a termine. Si avanza quel
-         * tanto che basta alla dissolvenza di entrata.
-         */
-        banco.mainClock.advanceTimeBy(JUMP_FADE_MS.toLong())
+        assertEquals(
+            "A riposo il FAB non deve annunciare il salto",
+            0,
+            quanti(R.string.jump_bottom)
+        )
 
-        val riquadro = banco.onAllNodesWithContentDescription(voce(R.string.jump_top))[0]
-            .getUnclippedBoundsInRoot()
-        assertEquals("Il tasto è largo quanto dichiarato", JUMP_TAP.value, riquadro.width.value, 0.5f)
-        assertEquals("Il tasto è alto quanto dichiarato", JUMP_TAP.value, riquadro.height.value, 0.5f)
+        scorri(su = true)
+
+        assertEquals(
+            "Dopo lo scorrimento il FAB deve annunciare 'Vai alla fine'",
+            1,
+            quanti(R.string.jump_bottom)
+        )
     }
 
     /**
-     * **In cima ci sono tutti e due i tasti, non solo quello che ha dove andare.**
+     * La scena minima: una lista lunga, col motore del glifo attaccato al suo gesto.
      *
-     * ⚠️⚠️ **NASCE CON LA RICHIESTA DELLA `2.04`, ED È LA FORMA ESATTA DI QUELLO CHE GLI DAVA
-     * FASTIDIO** (*non occorre far sparire prima il tasto 'su' se si arriva in cima o il tasto
-     * 'giù' se si arriva in fondo: crea solo confusione*): fino alla `2.03` la colonna si
-     * accorciava da sé arrivando a un capo, e i due tasti non se ne andavano più insieme.
-     * ⚠️ **La lista è in cima e lo dichiara**, con le due misure prima delle asserzioni vere:
-     * senza, una lista che si fosse mossa di un pixel renderebbe la prova verde per il motivo
-     * sbagliato, cioè proprio nel caso che deve prendere.
-     * ⚠️ **Il gesto va verso il basso**, cioè dove non c'è niente da scorrere: muove zero pixel e
-     * accende lo stesso lo scorrimento, che è quello che fa comparire i tasti.
-     * ⚠️ **Controprovata rimettendo il difetto** (le due condizioni separate): il tasto 'in cima'
-     * non esiste, e l'asserzione conta 0 invece di 1.
+     * ⚠️⚠️ **LA LISTA VUOLE `fillMaxSize`, E SENZA NON SCORRE AFFATTO**: dentro una `Box` una
+     * `LazyColumn` si dimensiona sul proprio contenuto, quindi non ha un viewport più corto di
+     * lui e non genera **nessun** evento di scorrimento annidato. La prima stesura di questa
+     * prova era rossa col codice giusto per quella riga sola, e a trovarlo è stata una spia
+     * messa dentro il nodo: dalla catena non arrivava niente, invece di arrivare zero.
      */
-    @Test
-    fun `in cima restano tutti e due i tasti`() {
-        var lista: LazyListState? = null
+    private fun montaArm(): () -> JumpArm {
+        /*
+         * ⚠️ **Il clock si ferma**, o `waitForIdle` porterebbe a termine l'attesa del congedo e il
+         * glifo rientrerebbe prima che la prova possa guardarlo. È la stessa trappola di
+         * `AvvisiTest`, e là è scritta per esteso.
+         */
         banco.mainClock.autoAdvance = false
+        var arm: JumpArm? = null
         banco.setContent {
-            AivTheme(darkTheme = false) {
-                val state = rememberLazyListState()
-                lista = state
-                Box(Modifier.fillMaxSize()) {
-                    LazyColumn(state = state, modifier = Modifier.fillMaxSize()) {
-                        items(RIGHE) { n -> Text("riga $n", modifier = Modifier.height(RIGA.dp)) }
-                    }
-                    JumpFabs(
-                        state = state,
-                        up = { state.jumpUpPixels() },
-                        down = { state.jumpDownPixels() },
-                        modifier = Modifier.align(Alignment.BottomEnd)
-                    )
+            val state = rememberLazyListState()
+            var chiuso by remember { mutableFloatStateOf(0f) }
+            val paging = remember { frontScroll(FASCIA, { chiuso }, { chiuso = it }) }
+            val a = rememberJumpArm(
+                state = state,
+                up = { state.jumpUpPixels() },
+                down = { state.jumpDownPixels() }
+            )
+            arm = a
+            Box(Modifier.fillMaxSize().nestedScroll(a.watch).nestedScroll(paging)) {
+                LazyColumn(state = state, modifier = Modifier.fillMaxSize()) {
+                    items(RIGHE) { n -> Text("riga $n", modifier = Modifier.height(RIGA.dp)) }
                 }
             }
         }
-        banco.mainClock.advanceTimeBy(RESPIRO)
-
-        val scena = banco.onRoot().fetchSemanticsNode().size
-        banco.onRoot().performTouchInput {
-            swipe(
-                start = Offset(scena.width * LATO, scena.height * A),
-                end = Offset(scena.width * LATO, scena.height * DA),
-                durationMillis = LENTO
-            )
-        }
-        banco.mainClock.advanceTimeBy(JUMP_FADE_MS.toLong())
-
-        assertEquals("La lista deve essere rimasta in cima", 0, lista?.firstVisibleItemIndex)
-        assertEquals("E senza scarto", 0, lista?.firstVisibleItemScrollOffset)
-        assertEquals("In cima il tasto 'in cima' c'è lo stesso", 1, quanti(R.string.jump_top))
-        assertEquals("E accanto a lui quello 'in fondo'", 1, quanti(R.string.jump_bottom))
+        banco.mainClock.advanceTimeBy(NASCITA)
+        return { arm!! }
     }
 
     /**
-     * **Un tasto che sta sbiadendo risponde ancora al tocco, e la corsa parte.**
+     * Un trascinamento che è uno scorrimento e non un lancio.
      *
-     * ⚠️⚠️ **È LA PREMESSA DELLA RITARATURA DELLA `2.05`, ED È SUA** (*visto che i tasti su/giù
-     * sono utilizzabili anche durante la dissolvenza (lunga), falli durare 0,8 secondi, con una
-     * dissolvenza di 1,6 secondi*): l'attesa piena scende e l'uscita cresce **perché** quel tratto
-     * è tempo utile. Se un giorno smettesse di esserlo, i due numeri direbbero il contrario di
-     * quello che fanno, e nessun compilatore lo vedrebbe.
-     * ⚠️ **Il gesto finisce FERMO, e non è pedanteria**: un trascinamento che si chiude in
-     * movimento lascia un lancio inerziale, e finché la lista corre il conto alla rovescia non
-     * parte nemmeno. Con l'ultimo campione più vecchio della finestra del velocimetro la velocità
-     * stimata è zero, quindi da lì in poi i tempi sono quelli scritti.
-     * ⚠️ **La prima asserzione è già una misura**, e non una precondizione: dopo [JUMP_HOLD_MS] il
-     * tasto **c'è ancora**, che è esattamente quello che un'uscita istantanea toglierebbe.
-     * ⚠️ **Controprovata abbassando [JUMP_OUT_MS]** a un valore più corto di quello che la prova
-     * lascia passare: il tasto non c'è più, e la prova diventa rossa su quella riga.
+     * ⚠️⚠️ **`down` e `moveTo` E NON `swipe`, ED È MISURATO**: col clock fermo uno `swipe` con
+     * la sua durata inietta i passi intermedi a un tempo che non avanza, e al motore del glifo
+     * non arriva niente. La prima stesura di questa prova era rossa **col codice giusto** per
+     * quella ragione, e la forma qui sotto è quella che l'app riceve da un dito vero.
+     * ⚠️ **Il dito resta fermo prima di staccarsi**, più a lungo della finestra del velocimetro
+     * (100 ms): così la velocità stimata è zero e la lista non parte per inerzia, che
+     * rimetterebbe a zero il conto alla rovescia mentre la prova guarda.
      */
-    @Test
-    fun `il tasto risponde anche mentre sbiadisce`() {
-        var lista: LazyListState? = null
-        banco.mainClock.autoAdvance = false
-        banco.setContent {
-            AivTheme(darkTheme = false) {
-                val state = rememberLazyListState()
-                lista = state
-                Box(Modifier.fillMaxSize()) {
-                    LazyColumn(state = state, modifier = Modifier.fillMaxSize()) {
-                        items(RIGHE) { n -> Text("riga $n", modifier = Modifier.height(RIGA.dp)) }
-                    }
-                    JumpFabs(
-                        state = state,
-                        up = { state.jumpUpPixels() },
-                        down = { state.jumpDownPixels() },
-                        modifier = Modifier.align(Alignment.BottomEnd)
-                    )
-                }
-            }
-        }
-        banco.mainClock.advanceTimeBy(RESPIRO)
-
+    private fun scorri(su: Boolean) {
         val scena = banco.onRoot().fetchSemanticsNode().size
         banco.onRoot().performTouchInput {
-            down(Offset(scena.width * LATO, scena.height * DA))
-            moveTo(Offset(scena.width * LATO, scena.height * A))
+            val da = if (su) DA else A
+            val a = if (su) A else DA
+            down(Offset(scena.width * LATO, scena.height * da))
+            moveTo(Offset(scena.width * LATO, scena.height * a))
             advanceEventTime(FERMO)
             up()
         }
-        banco.mainClock.advanceTimeBy(JUMP_FADE_MS.toLong())
-        assertTrue("La lista deve essersi mossa", (lista?.firstVisibleItemIndex ?: 0) > 0)
-
-        banco.mainClock.advanceTimeBy(JUMP_SETTLE_MS + JUMP_HOLD_MS + JUMP_OUT_MS / 2)
-        assertEquals("A metà dissolvenza il tasto c'è ancora", 1, quanti(R.string.jump_top))
-
-        banco.onNodeWithContentDescription(voce(R.string.jump_top)).performClick()
-        banco.mainClock.autoAdvance = true
-        banco.waitForIdle()
-
-        assertEquals("Il tocco durante l'uscita riporta in cima", 0, lista?.firstVisibleItemIndex)
-        assertEquals("E senza scarto", 0, lista?.firstVisibleItemScrollOffset)
+        /*
+         * ⚠️ **Il respiro resta sotto [QUIET_MS]**: più lungo, il congedo scadrebbe e il glifo
+         * rientrerebbe prima che la prova possa guardarlo.
+         */
+        banco.mainClock.advanceTimeBy(RESPIRO)
     }
 
     private fun voce(id: Int): String =
@@ -309,7 +276,15 @@ class SaltiTest {
                     onOpen = {},
                     onBack = {},
                     onChanged = {},
-                    onSearch = {}
+                    onSearch = {},
+                    /*
+                     * ⚠️⚠️ **SENZA QUESTA RIGA IL FAB NON C'È AFFATTO, ed è la ragione per cui
+                     * la prima stesura era rossa**: `FabPop` compare solo se la griglia ha
+                     * dove mandare (il cestino, le impostazioni, la ricerca qui), e una
+                     * cartella montata con gli argomenti minimi non ne ha nessuno. Il motore
+                     * del glifo funzionava, e il tasto su cui disegnarlo non esisteva.
+                     */
+                    onSettings = {}
                 )
             }
         }
@@ -334,23 +309,11 @@ private const val RIGA = 48
  */
 private const val LONTANO = 100_000f
 
-/** Quanto si lascia comporre la scena prima di toccarla, col clock fermo. */
-private const val RESPIRO = 1_000L
+/** Quanto si lascia respirare la scena dopo un gesto, col clock fermo. */
+private const val RESPIRO = 100L
 
-/** Da dove a dove va il trascinamento, in frazioni dell'altezza della scena. */
-private const val DA = 0.8f
-private const val A = 0.2f
-
-/**
- * Su quale colonna passa il dito, in frazioni della larghezza.
- *
- * ⚠️ **A sinistra e non al centro**: la colonna dei tasti vive in fondo a destra, e un gesto che
- * le passasse sopra finirebbe su di loro invece che sulla lista.
- */
-private const val LATO = 0.25f
-
-/** Quanto dura il trascinamento: lento abbastanza da essere uno scorrimento e non un lancio. */
-private const val LENTO = 300L
+/** Quanto la scena si compone prima che la prova la tocchi. */
+private const val NASCITA = 1_000L
 
 /**
  * Quanto il dito resta fermo prima di staccarsi, in millisecondi.
@@ -359,3 +322,16 @@ private const val LENTO = 300L
  * fuori tempo massimo, la velocità stimata è zero e la lista non parte per inerzia.
  */
 private const val FERMO = 300L
+
+/** Da dove a dove va il trascinamento, in frazioni dell'altezza della scena. */
+private const val DA = 0.8f
+private const val A = 0.2f
+
+/**
+ * Su quale colonna passa il dito, in frazioni della larghezza.
+ *
+ * ⚠️ **A sinistra e non al centro**: il FAB vive in fondo a destra, e un gesto che gli passasse
+ * sopra finirebbe su di lui invece che sulla lista.
+ */
+private const val LATO = 0.25f
+
