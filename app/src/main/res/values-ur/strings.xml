@@ -402,8 +402,23 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">ترمیم</string>
     <string name="menu_edit_hold">ایپ منتخب کریں</string>
-    <string name="editor_internal">اندرونی مدیر</string>
+    <string name="editor_internal">سادہ ایڈیٹر</string>
     <string name="editor_title">مدیر</string>
+    <string name="editor_full">مکمل ایڈیٹر</string>
+    <string name="look_light">روشنی</string>
+    <string name="look_exposure">ایکسپوژر</string>
+    <string name="look_brightness">چمک</string>
+    <string name="look_contrast">کنٹراسٹ</string>
+    <string name="look_shadows">سائے</string>
+    <string name="look_highlights">روشن حصے</string>
+    <string name="look_reset_one">%1$s ری سیٹ کریں</string>
+    <string name="look_compare">اصل دیکھنے کے لیے دبائے رکھیں</string>
+    <string name="look_failed">یہ فون تبدیلیاں لاگو نہیں کر سکا</string>
+    <string name="settings_quality">محفوظ کرنے کا معیار</string>
+    <string name="settings_quality_desc">مکمل ایڈیٹر فائل کیسے لکھتا ہے۔ \'اعلیٰ\' اور \'زیادہ سے زیادہ\' دونوں JPEG ہیں: دیکھنے میں ایک جیسے ہیں اور دوسرا تقریباً دگنا بڑا ہے۔ \'بغیر نقصان\' اصل کے اوپر لکھنے کے بجائے اس کے ساتھ ایک PNG لکھتا ہے اور ہر پکسل رکھتا ہے۔</string>
+    <string name="quality_high">اعلیٰ</string>
+    <string name="quality_max">زیادہ سے زیادہ</string>
+    <string name="quality_lossless">بغیر نقصان</string>
     <string name="editor_pick">کس سے ترمیم کرتے ہیں؟</string>
     <string name="editor_left">بائیں گھمائیں</string>
     <string name="editor_right">دائیں گھمائیں</string>

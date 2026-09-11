@@ -402,8 +402,23 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Bearbeiten</string>
     <string name="menu_edit_hold">App auswählen</string>
-    <string name="editor_internal">Eingebauter Editor</string>
+    <string name="editor_internal">Einfacher Editor</string>
     <string name="editor_title">Editor</string>
+    <string name="editor_full">Vollständiger Editor</string>
+    <string name="look_light">Licht</string>
+    <string name="look_exposure">Belichtung</string>
+    <string name="look_brightness">Helligkeit</string>
+    <string name="look_contrast">Kontrast</string>
+    <string name="look_shadows">Schatten</string>
+    <string name="look_highlights">Lichter</string>
+    <string name="look_reset_one">%1$s zurücksetzen</string>
+    <string name="look_compare">Gedrückt halten, um das Original zu sehen</string>
+    <string name="look_failed">Dieses Telefon konnte die Änderungen nicht anwenden</string>
+    <string name="settings_quality">Speicherqualität</string>
+    <string name="settings_quality_desc">Wie der vollständige Editor die Datei schreibt. \'Hoch\' und \'Maximal\' sind beide JPEG: sie sehen gleich aus, und die zweite ist etwa doppelt so groß. \'Verlustfrei\' schreibt ein PNG neben das Original statt darüber und behält jeden Bildpunkt.</string>
+    <string name="quality_high">Hoch</string>
+    <string name="quality_max">Maximal</string>
+    <string name="quality_lossless">Verlustfrei</string>
     <string name="editor_pick">Womit bearbeitest du?</string>
     <string name="editor_left">Nach links drehen</string>
     <string name="editor_right">Nach rechts drehen</string>

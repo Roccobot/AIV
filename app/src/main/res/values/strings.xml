@@ -92,8 +92,23 @@
          string for both, because they are the same idea and two would drift apart. -->
     <string name="menu_edit">Edit</string>
     <string name="menu_edit_hold">Choose the app</string>
-    <string name="editor_internal">Built in editor</string>
+    <string name="editor_internal">Simple editor</string>
     <string name="editor_title">Editor</string>
+    <string name="editor_full">Full editor</string>
+    <string name="look_light">Light</string>
+    <string name="look_exposure">Exposure</string>
+    <string name="look_brightness">Brightness</string>
+    <string name="look_contrast">Contrast</string>
+    <string name="look_shadows">Shadows</string>
+    <string name="look_highlights">Highlights</string>
+    <string name="look_reset_one">Reset %1$s</string>
+    <string name="look_compare">Press and hold to see the original</string>
+    <string name="look_failed">This phone could not apply the changes</string>
+    <string name="settings_quality">Saving quality</string>
+    <string name="settings_quality_desc">How the full editor writes the file. \'High\' and \'Maximum\' are both JPEG: they look the same and the second one is about twice the size. \'Lossless\' writes a PNG next to the original instead of over it, and keeps every pixel.</string>
+    <string name="quality_high">High</string>
+    <string name="quality_max">Maximum</string>
+    <string name="quality_lossless">Lossless</string>
     <string name="editor_pick">What do you edit with?</string>
     <string name="editor_left">Rotate\nleft</string>
     <string name="editor_right">Rotate\nright</string>

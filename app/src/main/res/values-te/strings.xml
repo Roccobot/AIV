@@ -402,8 +402,23 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">సవరించు</string>
     <string name="menu_edit_hold">యాప్‌ను ఎంచుకోండి</string>
-    <string name="editor_internal">లోపలి సవరణి</string>
+    <string name="editor_internal">సరళ ఎడిటర్</string>
     <string name="editor_title">సవరణి</string>
+    <string name="editor_full">పూర్తి ఎడిటర్</string>
+    <string name="look_light">కాంతి</string>
+    <string name="look_exposure">ఎక్స్‌పోజర్</string>
+    <string name="look_brightness">ప్రకాశం</string>
+    <string name="look_contrast">కాంట్రాస్ట్</string>
+    <string name="look_shadows">నీడలు</string>
+    <string name="look_highlights">హైలైట్లు</string>
+    <string name="look_reset_one">%1$s రీసెట్ చేయి</string>
+    <string name="look_compare">అసలైనది చూడటానికి నొక్కి పట్టుకోండి</string>
+    <string name="look_failed">ఈ ఫోన్ మార్పులను వర్తింపజేయలేకపోయింది</string>
+    <string name="settings_quality">సేవ్ నాణ్యత</string>
+    <string name="settings_quality_desc">పూర్తి ఎడిటర్ ఫైల్‌ను ఎలా రాస్తుంది. \'అధిక\' మరియు \'గరిష్ఠ\' రెండూ JPEG: చూడటానికి ఒకేలా, రెండోది దాదాపు రెట్టింపు పెద్దది. \'నష్టం లేని\' అసలుపై రాయకుండా దాని పక్కన PNG రాసి ప్రతి పిక్సెల్‌ను ఉంచుతుంది.</string>
+    <string name="quality_high">అధిక</string>
+    <string name="quality_max">గరిష్ఠ</string>
+    <string name="quality_lossless">నష్టం లేని</string>
     <string name="editor_pick">దేనితో సవరిస్తారు?</string>
     <string name="editor_left">ఎడమవైపు తిప్పు</string>
     <string name="editor_right">కుడివైపు తిప్పు</string>

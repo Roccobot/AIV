@@ -402,8 +402,23 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Düzenle</string>
     <string name="menu_edit_hold">Uygulamayı seç</string>
-    <string name="editor_internal">Yerleşik düzenleyici</string>
+    <string name="editor_internal">Basit düzenleyici</string>
     <string name="editor_title">Düzenleyici</string>
+    <string name="editor_full">Tam düzenleyici</string>
+    <string name="look_light">Işık</string>
+    <string name="look_exposure">Pozlama</string>
+    <string name="look_brightness">Parlaklık</string>
+    <string name="look_contrast">Kontrast</string>
+    <string name="look_shadows">Gölgeler</string>
+    <string name="look_highlights">Parlak alanlar</string>
+    <string name="look_reset_one">%1$s sıfırla</string>
+    <string name="look_compare">Orijinali görmek için basılı tutun</string>
+    <string name="look_failed">Bu telefon değişiklikleri uygulayamadı</string>
+    <string name="settings_quality">Kaydetme kalitesi</string>
+    <string name="settings_quality_desc">Tam düzenleyicinin dosyayı nasıl yazdığı. \'Yüksek\' ve \'En yüksek\' ikisi de JPEG: göze aynı görünür, ikincisi yaklaşık iki kat büyüktür. \'Kayıpsız\' orijinalin üzerine değil yanına bir PNG yazar ve her pikseli korur.</string>
+    <string name="quality_high">Yüksek</string>
+    <string name="quality_max">En yüksek</string>
+    <string name="quality_lossless">Kayıpsız</string>
     <string name="editor_pick">Neyle düzenliyorsun?</string>
     <string name="editor_left">Sola çevir</string>
     <string name="editor_right">Sağa çevir</string>

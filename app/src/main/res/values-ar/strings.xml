@@ -466,8 +466,23 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">تحرير</string>
     <string name="menu_edit_hold">اختيار التطبيق</string>
-    <string name="editor_internal">المحرر المدمج</string>
+    <string name="editor_internal">محرر بسيط</string>
     <string name="editor_title">المحرر</string>
+    <string name="editor_full">محرر كامل</string>
+    <string name="look_light">الإضاءة</string>
+    <string name="look_exposure">التعريض</string>
+    <string name="look_brightness">السطوع</string>
+    <string name="look_contrast">التباين</string>
+    <string name="look_shadows">الظلال</string>
+    <string name="look_highlights">الإضاءات</string>
+    <string name="look_reset_one">إعادة ضبط %1$s</string>
+    <string name="look_compare">اضغط مع الاستمرار لرؤية الأصل</string>
+    <string name="look_failed">تعذّر على هذا الهاتف تطبيق التغييرات</string>
+    <string name="settings_quality">جودة الحفظ</string>
+    <string name="settings_quality_desc">كيف يكتب المحرر الكامل الملف. \'عالية\' و\'قصوى\' كلتاهما JPEG: تبدوان متشابهتين والثانية أكبر بنحو الضعف. \'بلا فقدان\' تكتب ملف PNG بجوار الأصل بدلاً من الكتابة فوقه، وتحتفظ بكل بكسل.</string>
+    <string name="quality_high">عالية</string>
+    <string name="quality_max">قصوى</string>
+    <string name="quality_lossless">بلا فقدان</string>
     <string name="editor_pick">بأي تطبيق تحرّر؟</string>
     <string name="editor_left">تدوير لليسار</string>
     <string name="editor_right">تدوير لليمين</string>

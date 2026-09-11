@@ -386,8 +386,23 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Edit</string>
     <string name="menu_edit_hold">Pilih aplikasi</string>
-    <string name="editor_internal">Editor bawaan</string>
+    <string name="editor_internal">Editor sederhana</string>
     <string name="editor_title">Editor</string>
+    <string name="editor_full">Editor lengkap</string>
+    <string name="look_light">Cahaya</string>
+    <string name="look_exposure">Eksposur</string>
+    <string name="look_brightness">Kecerahan</string>
+    <string name="look_contrast">Kontras</string>
+    <string name="look_shadows">Bayangan</string>
+    <string name="look_highlights">Sorotan</string>
+    <string name="look_reset_one">Setel ulang %1$s</string>
+    <string name="look_compare">Tekan dan tahan untuk melihat aslinya</string>
+    <string name="look_failed">Ponsel ini tidak dapat menerapkan perubahan</string>
+    <string name="settings_quality">Kualitas penyimpanan</string>
+    <string name="settings_quality_desc">Bagaimana editor lengkap menulis berkas. \'Tinggi\' dan \'Maksimum\' sama-sama JPEG: terlihat sama dan yang kedua kira-kira dua kali lebih besar. \'Tanpa kehilangan\' menulis PNG di samping aslinya, bukan menimpanya, dan menjaga setiap piksel.</string>
+    <string name="quality_high">Tinggi</string>
+    <string name="quality_max">Maksimum</string>
+    <string name="quality_lossless">Tanpa kehilangan</string>
     <string name="editor_pick">Pakai apa untuk mengedit?</string>
     <string name="editor_left">Putar ke kiri</string>
     <string name="editor_right">Putar ke kanan</string>

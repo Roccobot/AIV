@@ -402,8 +402,23 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">ویرایش</string>
     <string name="menu_edit_hold">انتخاب برنامه</string>
-    <string name="editor_internal">ویرایشگر داخلی</string>
+    <string name="editor_internal">ویرایشگر ساده</string>
     <string name="editor_title">ویرایشگر</string>
+    <string name="editor_full">ویرایشگر کامل</string>
+    <string name="look_light">نور</string>
+    <string name="look_exposure">نوردهی</string>
+    <string name="look_brightness">روشنایی</string>
+    <string name="look_contrast">کنتراست</string>
+    <string name="look_shadows">سایه‌ها</string>
+    <string name="look_highlights">روشنی‌ها</string>
+    <string name="look_reset_one">بازنشانی %1$s</string>
+    <string name="look_compare">برای دیدن تصویر اصلی نگه دارید</string>
+    <string name="look_failed">این گوشی نتوانست تغییرات را اعمال کند</string>
+    <string name="settings_quality">کیفیت ذخیره</string>
+    <string name="settings_quality_desc">روشی که ویرایشگر کامل فایل را می‌نویسد. \'بالا\' و \'بیشینه\' هر دو JPEG هستند: به چشم یکسان‌اند و دومی حدود دو برابر بزرگ‌تر است. \'بدون افت\' یک PNG کنار تصویر اصلی می‌نویسد و هیچ پیکسلی را دور نمی‌ریزد.</string>
+    <string name="quality_high">بالا</string>
+    <string name="quality_max">بیشینه</string>
+    <string name="quality_lossless">بدون افت</string>
     <string name="editor_pick">با چه چیزی ویرایش می‌کنی؟</string>
     <string name="editor_left">چرخش به چپ</string>
     <string name="editor_right">چرخش به راست</string>

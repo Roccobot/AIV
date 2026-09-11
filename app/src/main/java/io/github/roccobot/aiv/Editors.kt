@@ -36,6 +36,20 @@ object Editors {
     const val INTERNAL = "interno"
 
     /**
+     * Il valore che vuol dire 'l'editor completo dentro AIV'.
+     *
+     * ⚠️⚠️ **È UN SECONDO VALORE E NON UN INTERRUTTORE ACCANTO AL PRIMO**: la scelta
+     * dell'editor è **una stringa sola** (`Settings.editorApp`), quindi i due editor di casa
+     * vivono nello stesso elenco delle app installate, che è esattamente come l'utente li vede
+     * (*due voci predefinite accanto alle app installate*). Un campo a parte vorrebbe dire due
+     * valori da tenere d'accordo, e il giorno che divergono l'app aprirebbe un editor mentre la
+     * pagina delle impostazioni ne dichiara un altro.
+     * ⚠️ **Il valore scritto non è 'completo' per caso**: quello che finisce nell'archivio non
+     * si traduce e non si rinomina, perché una scelta gia salvata deve continuare a valere.
+     */
+    const val FULL = "completo"
+
+    /**
      * Il prefisso che marca una scelta raggiunta con la CONDIVISIONE invece che con la
      * modifica.
      *
@@ -156,6 +170,16 @@ object Editors {
     fun labelOf(context: Context, id: String): String? {
         if (id.isBlank()) return null
         if (id == INTERNAL) return context.getString(R.string.editor_internal)
+        /*
+         * ⚠️⚠️ **SU UN TELEFONO CHE NON LO REGGE LA VOCE RISPONDE `null`, cioè 'nessuno
+         * scelto'**, e non è una scortesia: chi aggiornasse l'app portandosi dietro questa
+         * scelta da un telefono nuovo si troverebbe le impostazioni che dichiarano un editor
+         * che non si puo aprire. Rispondendo `null`, la domanda si rifà e lui sceglie
+         * qualcosa che esiste.
+         */
+        if (id == FULL) {
+            return if (advancedEditorAvailable()) context.getString(R.string.editor_full) else null
+        }
         return installed(context).firstOrNull { it.id == id }?.label
     }
 

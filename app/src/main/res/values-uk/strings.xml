@@ -434,8 +434,23 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Змінити</string>
     <string name="menu_edit_hold">Вибрати застосунок</string>
-    <string name="editor_internal">Вбудований редактор</string>
+    <string name="editor_internal">Простий редактор</string>
     <string name="editor_title">Редактор</string>
+    <string name="editor_full">Повний редактор</string>
+    <string name="look_light">Світло</string>
+    <string name="look_exposure">Експозиція</string>
+    <string name="look_brightness">Яскравість</string>
+    <string name="look_contrast">Контраст</string>
+    <string name="look_shadows">Тіні</string>
+    <string name="look_highlights">Світлі</string>
+    <string name="look_reset_one">Скинути %1$s</string>
+    <string name="look_compare">Утримуйте, щоб побачити оригінал</string>
+    <string name="look_failed">Цьому телефону не вдалося застосувати зміни</string>
+    <string name="settings_quality">Якість збереження</string>
+    <string name="settings_quality_desc">Як повний редактор записує файл. \'Висока\' і \'Максимальна\' - це JPEG: на око однакові, другий приблизно вдвічі більший. \'Без втрат\' пише PNG поряд з оригіналом, а не поверх, і зберігає кожен піксель.</string>
+    <string name="quality_high">Висока</string>
+    <string name="quality_max">Максимальна</string>
+    <string name="quality_lossless">Без втрат</string>
     <string name="editor_pick">Чим редагувати?</string>
     <string name="editor_left">Повернути ліворуч</string>
     <string name="editor_right">Повернути праворуч</string>

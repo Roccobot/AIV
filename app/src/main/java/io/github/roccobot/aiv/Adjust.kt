@@ -1,0 +1,315 @@
+package io.github.roccobot.aiv
+
+import android.graphics.RuntimeShader
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.ui.graphics.Shader
+import kotlin.math.abs
+import kotlin.math.pow
+
+/*
+ * ⚠️⚠️ **A CHE COSA SERVE QUESTO FILE: È IL CONTO DELL'EDITOR COMPLETO, E NE ESISTE UNA COPIA
+ * SOLA.** L'editor di casa sa mettere un'immagine in posa e ritagliarla, cioè non tocca un pixel;
+ * quello che l'utente ha chiesto (*luminosità/contrasto e tonalità/saturazione fatte BENE, curve,
+ * raddrizzamento*) cambia invece ogni pixel, e per farlo mentre lui muove un cursore serve che il
+ * conto giri sulla **scheda grafica**.
+ *
+ * ⚠️⚠️ **IL CONTO VIVE IN AGSL E NON ANCHE IN KOTLIN, ED È UNA DECISIONE DICHIARATA.** La via
+ * comoda sarebbe scriverlo due volte: uno shader per l'anteprima, che dev'essere immediata, e un
+ * giro sui pixel in Kotlin per il salvataggio, che deve lavorare sul file pieno. Sono **due
+ * implementazioni della stessa matematica**, e il giorno che una cambia l'altra mente: l'utente
+ * vedrebbe un'anteprima e salverebbe un'altra immagine, senza che niente dia errore. Quindi il
+ * programma è uno, e il salvataggio lo fa girare fuori schermo (vedi `AdjustRender.kt`).
+ * - ⚠️ **Il prezzo è dichiarato**: `RuntimeShader` nasce con Android 13, quindi sotto quella
+ *   versione l'editor completo non c'è. È l'istruzione dell'utente dell'11 settembre, e là resta
+ *   l'editor di casa, che non perde niente perché lavora sulla posa.
+ * - ⚠️ **E il banco non può misurare i pixel che ne escono**: una prova gira senza scheda
+ *   grafica. Quello che il banco misura è il modello e la struttura, ed è scritto nelle prove.
+ *
+ * ⚠️⚠️ **I CONTI SI FANNO IN LUCE LINEARE, NON SUI NUMERI DEL FILE.** Un valore sRGB non è la
+ * quantità di luce: è quella quantità passata per una curva che imita l'occhio. Sommare o
+ * moltiplicare là dentro dà i risultati sporchi che si vedono negli editor fatti male (un
+ * contrasto che vira, un'esposizione che spegne i colori). Qui si va in lineare, si fa il conto,
+ * e si torna: l'andata e il ritorno costano quattro `pow` per pixel, che sulla scheda grafica non
+ * si sentono.
+ *
+ * ⚠️⚠️ **E I COLORI CHE ARRIVANO SONO PREMOLTIPLICATI**: `shader.eval` in Skia dà il colore già
+ * moltiplicato per la propria opacità, quindi su un PNG con trasparenza un conto fatto così
+ * com'è tratterebbe un pixel semitrasparente come un pixel scuro. Si divide per l'opacità prima e
+ * si rimoltiplica dopo. Su una fotografia opaca la divisione è per uno e non cambia niente, ed è
+ * la ragione per cui questo difetto non si vedrebbe provando.
+ */
+
+/**
+ * Il modulo **Luce**: i cinque valori che dicono quanta luce ha un'immagine e come è distribuita.
+ *
+ * ⚠️⚠️ **SONO CINQUE PERCHÉ FANNO COSE DIVERSE, e chi ne toglie uno perde un gesto**: [exposure]
+ * moltiplica la luce (è il diaframma), [brightness] la solleva senza bruciare i chiari, [contrast]
+ * allarga o stringe la distanza fra scuri e chiari intorno al grigio medio, [shadows] e
+ * [highlights] agiscono **solo** su un'estremità. Le prime tre toccano tutto, le ultime due
+ * recuperano quello che le prime tre hanno schiacciato.
+ *
+ * ⚠️ **L'unità di [exposure] è lo STOP**, cioè quella della fotografia: +1 vuol dire il doppio
+ * della luce, -1 la metà. Gli altri quattro sono frazioni da -1 a +1, e l'interfaccia li mostra da
+ * -100 a +100 perché è il linguaggio che lui conosce da Lightroom.
+ */
+data class Light(
+    val exposure: Float = 0f,
+    val brightness: Float = 0f,
+    val contrast: Float = 0f,
+    val shadows: Float = 0f,
+    val highlights: Float = 0f
+) {
+
+    /**
+     * Se questo modulo non cambia un pixel.
+     *
+     * ⚠️ **Si confronta con una tolleranza e non con lo zero esatto**: un cursore lasciato
+     * andare può fermarsi a un millesimo dallo zero, e quel millesimo non si vede ma
+     * costringerebbe a riscrivere il file. La soglia è quella sotto cui il conto non muove
+     * nemmeno un livello su 255.
+     */
+    val idle: Boolean
+        get() = abs(exposure) < DEAD && abs(brightness) < DEAD && abs(contrast) < DEAD &&
+            abs(shadows) < DEAD && abs(highlights) < DEAD
+
+    /**
+     * Il fattore per cui si moltiplica la luce, cioè due elevato agli stop.
+     *
+     * ⚠️ **Il conto vive qui e non nello shader**, perché uno stop è una convenzione della
+     * fotografia e non un'operazione grafica: dentro il programma arriva un numero puro, e il
+     * programma non ha bisogno di sapere che cosa sia uno stop.
+     */
+    val gain: Float get() = 2f.pow(exposure)
+
+    companion object {
+        val NONE = Light()
+
+        /** Sotto questa soglia un cursore vale zero: vedi [idle]. */
+        private const val DEAD = 0.0005f
+
+        /** Quanti stop può coprire il cursore dell'esposizione, in su e in giù. */
+        const val EXPOSURE_RANGE = 2f
+    }
+}
+
+/**
+ * Tutto quello che l'editor completo sa fare a un'immagine, in un oggetto solo.
+ *
+ * ⚠️⚠️ **È UN VALORE E NON UNA CATENA DI GESTI, ed è la stessa scelta dell'editor di casa**: là
+ * dieci rotazioni si compongono in una posa sola perché le pose sono otto; qui dieci
+ * spostamenti di un cursore sono **un** valore di quel cursore. Un elenco di gesti costringerebbe
+ * a riapplicarli uno per uno sul file pieno, cioè a rifare dieci volte lo stesso lavoro.
+ *
+ * ⚠️⚠️ **CRESCE COI MODULI E LA SUA FORMA NON CAMBIA**: il Colore, le curve e la geometria
+ * entreranno come altri campi accanto a [light]. Chi li aggiunge tocca [idle] e [lossless], che
+ * sono le due domande che tutto il resto fa a questo oggetto, e nient'altro.
+ */
+data class Look(val light: Light = Light.NONE) {
+
+    /** Se non c'è niente da applicare: l'immagine esce identica a com'è entrata. */
+    val idle: Boolean get() = light.idle
+
+    /**
+     * Se quello che c'è da fare **non** riscrive i pixel.
+     *
+     * ⚠️⚠️ **È LA CLAUSOLA DELL'UTENTE, e per questo è una proprietà del modello e non una
+     * riga nel salvataggio** (*quelle che non prevedono la riscrittura del file pixel per pixel
+     * devono essere lossless*): finché la pila contiene solo posa e ritaglio senza taglio, il
+     * file si può girare cambiando un tag EXIF, che è quello che l'editor di casa fa dalla
+     * `1.03`. Appena entra un valore di Luce, i pixel vanno riscritti e non c'è modo di
+     * evitarlo.
+     * ⚠️ **Quando la geometria entrerà in questo oggetto** (quarto giro, col raddrizzamento), la
+     * risposta resta esattamente questa: la posa non tocca i pixel, tutto il resto sì.
+     */
+    val lossless: Boolean get() = light.idle
+
+    companion object {
+        val NONE = Look()
+    }
+}
+
+/**
+ * Con quanta cura si riscrive il file, ed è una sua scelta a tre.
+ *
+ * ⚠️⚠️ **NON SONO TRE GRADI DELLA STESSA COSA: LE PRIME DUE SONO UN JPEG, LA TERZA UN ALTRO
+ * FORMATO.** 'Alta' e 'Massima' sono lo stesso codificatore spinto di più, e fra loro la
+ * differenza a occhio quasi non c'è mentre il file quasi raddoppia; 'Senza perdita' cambia
+ * mestiere, scrive un PNG e non butta via un bit, al prezzo di un file parecchie volte più
+ * grosso. La terza si sceglie quando l'immagine si dovrà rilavorare ancora.
+ *
+ * ⚠️ **Il valore vive nelle impostazioni e non si chiede a ogni salvataggio**: salvare è un
+ * gesto che si fa di fretta, e una domanda in mezzo lo rallenterebbe ogni volta per una
+ * decisione che si prende una volta sola. È la stessa lettura che ha avuto 'Scarica'.
+ */
+enum class Quality(override val token: String) : Choice {
+    HIGH("alta"),
+    MAX("massima"),
+    LOSSLESS("senza-perdita");
+
+    companion object {
+        /** Il valore di fabbrica: vedi il KDoc del campo in `Settings`. */
+        val DEFAULT = HIGH
+    }
+}
+
+/**
+ * Il programma che gira **su ogni pixel** dell'immagine.
+ *
+ * ⚠️⚠️ **L'ORDINE DELLE CINQUE OPERAZIONI È LA SPECIFICA, e cambiarlo cambia il risultato**:
+ * esposizione, poi ombre e luci, poi contrasto, poi luminosità. È l'ordine di un banco di sviluppo
+ * fotografico, e la ragione di ognuno dei tre passaggi:
+ * - **L'esposizione viene prima** perché è l'unica moltiplicativa pura: è come aver aperto di più
+ *   il diaframma, quindi tutto quello che segue lavora sull'immagine 'come sarebbe stata'.
+ * - **Ombre e luci vengono prima del contrasto** perché servono a **recuperare** quello che
+ *   l'esposizione ha schiacciato, e il contrasto deve poi lavorare su un'immagine già recuperata.
+ *   Al contrario, si recupererebbe quello che il contrasto ha appena bruciato.
+ * - **La luminosità viene ultima** perché è l'aggiustamento finale dell'occhio: è la manopola che
+ *   si tocca guardando il risultato, non una che entra nel conto degli altri.
+ *
+ * ⚠️⚠️ **IL CONTRASTO HA UN PERNO E NON È UNA MOLTIPLICAZIONE**: `(c - 0.5) * k + 0.5` fatto in
+ * lineare sposterebbe il grigio medio, perché il grigio medio in luce lineare **non** è 0,5 ma
+ * circa 0,18. Il perno è quello, ed è la ragione per cui alzando il contrasto l'immagine non si
+ * scurisce tutta.
+ * ⚠️ **E si usa una curva a S invece di una retta**: una retta ripida taglia i due estremi, cioè
+ * brucia i bianchi e chiude i neri. La forma qui sotto tende agli estremi senza toccarli mai,
+ * quindi alzando il contrasto al massimo non si perde nessun dettaglio.
+ *
+ * ⚠️⚠️ **OMBRE E LUCI PESANO SU UNA MASCHERA, ed è quello che le distingue dalla luminosità**: la
+ * maschera vale uno dove il pixel è scuro (per le ombre) o chiaro (per le luci) e si spegne
+ * dall'altra parte. Elevata al quadrato, la transizione è morbida: con una maschera lineare il
+ * confine fra la zona toccata e quella no si vede come un alone.
+ */
+private const val LIGHT_AGSL = """
+uniform shader image;
+uniform half gain;
+uniform half brightness;
+uniform half contrast;
+uniform half shadows;
+uniform half highlights;
+
+// Da sRGB a luce lineare, con la curva vera e non con un'elevazione a 2.2: la parte bassa
+// della curva sRGB è un segmento di retta, e approssimarla con una potenza sbaglia proprio sui
+// neri, cioè dove l'occhio guarda.
+half3 toLinear(half3 c) {
+    half3 low = c / half(12.92);
+    half3 high = pow((c + half(0.055)) / half(1.055), half3(2.4));
+    return mix(low, high, step(half3(0.04045), c));
+}
+
+half3 toSrgb(half3 c) {
+    half3 low = c * half(12.92);
+    half3 high = half(1.055) * pow(c, half3(1.0 / 2.4)) - half(0.055);
+    return mix(low, high, step(half3(0.0031308), c));
+}
+
+// La luminanza percettiva, coi pesi di Rec. 709: serve alle maschere di ombre e luci, che
+// devono seguire quanto un pixel SEMBRA chiaro e non quanto lo è il suo canale più forte.
+half luma(half3 c) {
+    return dot(c, half3(0.2126, 0.7152, 0.0722));
+}
+
+// La curva a S del contrasto, su un valore in [0, 1] e col perno in mezzo. Per k positivo
+// stringe verso gli estremi senza raggiungerli, per k negativo apre verso il centro.
+half sCurve(half x, half k) {
+    half t = clamp(x, half(0.0), half(1.0));
+    if (k >= half(0.0)) {
+        half s = t * t * (half(3.0) - half(2.0) * t);
+        return mix(t, s, k);
+    }
+    // L'inversa della stessa curva, approssimata da una radice: riporta il centro verso i due
+    // estremi, cioè spiana l'immagine invece di stringerla.
+    half s = half(0.5) + half(0.5) * sign(t - half(0.5)) * pow(abs(t - half(0.5)) * half(2.0), half(0.5));
+    return mix(t, s, -k);
+}
+
+half4 main(float2 p) {
+    half4 src = image.eval(p);
+    // ⚠️ Il colore arriva premoltiplicato: si divide per l'opacità prima di lavorare, o un
+    // pixel semitrasparente verrebbe trattato come un pixel scuro.
+    half a = src.a;
+    half3 c = a > half(0.0) ? src.rgb / a : src.rgb;
+
+    half3 lin = toLinear(clamp(c, half3(0.0), half3(1.0)));
+
+    // 1. Esposizione: la luce si moltiplica, che è quello che fa un diaframma.
+    lin = lin * gain;
+
+    // 2. Ombre e luci, ognuna sulla propria maschera quadratica.
+    half l = clamp(luma(lin), half(0.0), half(1.0));
+    half darkMask = (half(1.0) - l) * (half(1.0) - l);
+    half lightMask = l * l;
+    lin = lin * (half(1.0) + shadows * darkMask * half(0.8));
+    lin = lin * (half(1.0) + highlights * lightMask * half(0.8));
+
+    lin = max(lin, half3(0.0));
+    half3 out = toSrgb(clamp(lin, half3(0.0), half3(1.0)));
+
+    // 3. Contrasto: sul valore percettivo, che è dove una curva a S si comporta come l'occhio
+    // si aspetta. In lineare la stessa curva sposterebbe tutto verso i neri.
+    out = half3(sCurve(out.r, contrast), sCurve(out.g, contrast), sCurve(out.b, contrast));
+
+    // 4. Luminosità: solleva verso il bianco o abbassa verso il nero senza mai tagliare,
+    // perché il passo è una frazione di quanto manca all'estremo.
+    if (brightness > half(0.0)) {
+        out = out + (half3(1.0) - out) * brightness;
+    } else {
+        out = out * (half(1.0) + brightness);
+    }
+
+    out = clamp(out, half3(0.0), half3(1.0));
+    return half4(out * a, a);
+}
+"""
+
+/**
+ * Il programma compilato con [look] dentro, agganciato all'immagine [image], oppure `null` dove
+ * questa strada non esiste.
+ *
+ * ⚠️⚠️ **`null` VUOL DIRE ANDROID 12 O PRIMA**, e chi chiama non ha una seconda strada: l'editor
+ * completo non si offre nemmeno, ed è l'istruzione dell'utente. È lo stesso controllo di
+ * `ditherShader`, e per la stessa ragione vive in due funzioni (il controllo di versione e l'uso
+ * della classe che nasce con la 13 devono stare separati, o l'analizzatore statico non riconosce
+ * la guardia).
+ *
+ * ⚠️ **Il programma si ricompila a ogni chiamata**, e non è uno spreco da correggere: `RuntimeShader`
+ * compila una volta e tiene il risultato, e quello che cambia a ogni fotogramma sono i soli
+ * `setFloatUniform`, che costano niente. Chi volesse tenerlo in una cache guardi prima se il
+ * profilo dice che serve.
+ */
+internal fun lookShader(image: Shader, look: Look): Shader? {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return null
+    /*
+     * ⚠️⚠️ **UN PROGRAMMA CHE NON COMPILA NON PUÒ FAR CADERE L'APP, e la rete vive qui e non nei
+     * chiamanti**: `RuntimeShader` lancia se la scheda grafica rifiuta il testo del programma, e
+     * chi chiama sta disegnando un fotogramma. Rispondendo `null` si vede l'immagine senza il
+     * conto applicato, che è brutto ma è un'app viva; il salvataggio invece se ne accorge e
+     * rifiuta, invece di scrivere un file sbagliato.
+     * ⚠️ **Copre anche il banco di prova**, dove non c'è nessuna scheda grafica: una prova che
+     * monta la schermata misura la pila dei passi e non i pixel, e senza questa riga cadrebbe
+     * sul primo cursore mosso.
+     */
+    return runCatching { lightOver(image, look.light) }.getOrNull()
+}
+
+/** Vedi la nota su [lookShader]: esiste perché la guardia di versione sia riconoscibile. */
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+private fun lightOver(image: Shader, light: Light): Shader =
+    RuntimeShader(LIGHT_AGSL).apply {
+        setInputShader("image", image)
+        setFloatUniform("gain", light.gain)
+        setFloatUniform("brightness", light.brightness)
+        setFloatUniform("contrast", light.contrast)
+        setFloatUniform("shadows", light.shadows)
+        setFloatUniform("highlights", light.highlights)
+    }
+
+/**
+ * Se questo telefono sa far girare l'editor completo.
+ *
+ * ⚠️⚠️ **SI CHIEDE QUI E NON IN TRE POSTI**: lo chiedono il selettore degli editor (per offrire o
+ * no la voce), il modello (per sapere dove mandare chi tocca 'Modifica') e le impostazioni. Scritto
+ * tre volte, il giorno che il requisito cambia due dei tre mentirebbero.
+ */
+internal fun advancedEditorAvailable(): Boolean =
+    Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU

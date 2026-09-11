@@ -402,8 +402,23 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Bewerken</string>
     <string name="menu_edit_hold">App kiezen</string>
-    <string name="editor_internal">Ingebouwde editor</string>
+    <string name="editor_internal">Eenvoudige editor</string>
     <string name="editor_title">Editor</string>
+    <string name="editor_full">Volledige editor</string>
+    <string name="look_light">Licht</string>
+    <string name="look_exposure">Belichting</string>
+    <string name="look_brightness">Helderheid</string>
+    <string name="look_contrast">Contrast</string>
+    <string name="look_shadows">Schaduwen</string>
+    <string name="look_highlights">Hoge lichten</string>
+    <string name="look_reset_one">%1$s herstellen</string>
+    <string name="look_compare">Houd ingedrukt om het origineel te zien</string>
+    <string name="look_failed">Deze telefoon kon de wijzigingen niet toepassen</string>
+    <string name="settings_quality">Opslagkwaliteit</string>
+    <string name="settings_quality_desc">Hoe de volledige editor het bestand schrijft. \'Hoog\' en \'Maximaal\' zijn allebei JPEG: ze ogen gelijk en de tweede is ongeveer twee keer zo groot. \'Verliesvrij\' schrijft een PNG naast het origineel in plaats van eroverheen, en behoudt elke pixel.</string>
+    <string name="quality_high">Hoog</string>
+    <string name="quality_max">Maximaal</string>
+    <string name="quality_lossless">Verliesvrij</string>
     <string name="editor_pick">Waarmee bewerk je?</string>
     <string name="editor_left">Naar links draaien</string>
     <string name="editor_right">Naar rechts draaien</string>
