@@ -11,6 +11,11 @@
      'carica' al posto di uno che dice 'scarica' non è una variante, e il verso della freccia
      è l'unica cosa che il disegno deve dire.
 
+     RIDISEGNATO DA LUI PER LA 2.12 (*vai con queste 3 icone*), ed è il più vicino dei tre a
+     quello che sostituisce: la freccia INTAGLIA il bordo di sopra della cartella invece di
+     stare tutta dentro. Misurato: 871 pixel diversi su 57.600, cioè l'1,5%, con l'inchiostro
+     quasi fermo (+3%), perché qui la differenza è tutta nell'intaglio.
+
      STESSA CARTELLA DI `ic_folder_new` E DI `ic_folder_aiv`, stesso inchiostro al
      centesimo (2.01, 4.00, 19.99, 16.00).
 
@@ -25,5 +30,5 @@
     <path
         android:fillColor="#FF000000"
         android:fillType="nonZero"
-        android:pathData="M20,6h-8l-2,-2h-6c-1.1,0,-1.99,.9,-1.99,2v12c-.01,1.1,.89,2,1.99,2h16c1.1,0,2,-.9,2,-2v-10c0,-1.1,-.9,-2,-2,-2ZM20,18H4v-10h16v10ZM11.87,17.03c.08,.08,.2,.08,.28,0l3.57,-3.59c.16,-.16,.16,-.41,0,-.56l-.85,-.85c-.16,-.16,-.41,-.16,-.57,0l-1.31,1.31v-3.76c0,-.22,-.18,-.4,-.4,-.4h-1.2c-.22,0,-.4,.18,-.4,.4v3.76l-1.31,-1.3c-.16,-.16,-.41,-.15,-.56,0l-.85,.85c-.16,.16,-.16,.41,0,.57l3.59,3.59Z" />
+        android:pathData="M20,6h-8l-2,-2h-6c-1.1,0,-1.99,.9,-1.99,2v12c-.01,1.1,.89,2,1.99,2h16c1.1,0,2,-.9,2,-2v-10c0,-1.1,-.9,-2,-2,-2ZM20,18H4v-10h6.99v5.88l-1.38,-1.38c-.2,-.2,-.44,-.3,-.71,-.3s-.51,.1,-.71,.3c-.18,.2,-.27,.44,-.27,.71s.09,.5,.27,.69l3.1,3.1c.2,.2,.43,.3,.7,.3s.5,-.1,.7,-.3l3.1,-3.08c.2,-.18,.3,-.41,.29,-.69c0,-.27,-.1,-.51,-.29,-.71c-.2,-.2,-.43,-.3,-.7,-.31c-.27,0,-.5,.09,-.7,.29l-1.4,1.38v-5.88h7.01v10Z" />
 </vector>

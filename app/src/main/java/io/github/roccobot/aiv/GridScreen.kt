@@ -99,6 +99,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -2876,21 +2879,12 @@ private fun Thumbnail(
              * #4FD9BE*). L'argomento con cui allora era stata esclusa è qui sotto e **regge
              * ancora**: quello che è cambiato è la sua preferenza, e la scelta resta doppia
              * proprio per questo.
-             * ⚠️⚠️ **IL COLORE È `accentInk` E NON IL NUMERO CHE HA SCRITTO, e i due coincidono
-             * dove lui guardava**: `#4FD9BE` è esattamente l'accento leggibile del tema scuro
-             * (`LINK_DARK` in `Theme.kt`), cioè il colore che il suo mockup porta perché il
-             * mockup è scuro. Scritto a mano resterebbe quello anche sul tema chiaro, dove
-             * l'app usa il suo gemello; letto dal tema, il segno è lo stesso colore con cui
-             * l'app scrive tutto quello che deve **spiccare restando leggibile**.
-             * ⚠️ **Non è `colorScheme.primary`**, che è il colore del nastro qui sotto: quello
-             * è l'accento pieno, e su una fotografia qualunque una riga sottile di accento
-             * pieno si legge meno della sua versione da inchiostro. Un tratto da tre punti non
-             * ha l'area per difendersi da sé, che è invece quello che fa un triangolo.
-             * ⚠️ **`border` disegna verso l'INTERNO della sagoma**, quindi il bordo esterno
-             * della cornice coincide col bordo della miniatura e non c'è niente che sborda: è
-             * la stessa ragione per cui il nastro chiede un `clip`.
+             * ⚠️ **Lo spessore e il colore vivono su [lastFrame]**, insieme alle ragioni per cui
+             * sono cambiati con la `2.12`.
+             * ⚠️ Resta un riquadro fratello, come il nastro: due fratelli si dipingono
+             * nell'ordine in cui sono scritti, e su questo non c'è niente da sapere.
              */
-            Box(modifier = Modifier.matchParentSize().border(MARK_EDGE, accentInk(), shape))
+            Box(modifier = Modifier.matchParentSize().lastFrame(shape))
         }
         if (marked && mark == LastMark.CORNER) {
             /*
@@ -3384,17 +3378,66 @@ private const val MARK_LEG = 0.36f
 private const val MARK_ALPHA = 0.85f
 
 /**
- * Quanto è spessa la **cornice** dell'ultimo media visualizzato: tre punti.
+ * Quanto è spessa la **cornice** dell'ultimo media visualizzato, in frazione del lato.
  *
- * ⚠️⚠️ **VIENE DAL SUO MOCKUP, MISURATO**: là la cornice è spessa 10 pixel su una miniatura larga
- * 366, cioè il **2,7%** del lato; su un telefono da 393 punti con tre colonne la cella ne vale
- * centoventi, e quel rapporto dà 3,3 punti.
- * ⚠️ **In dp e non in frazione del lato, al contrario di [MARK_LEG]**: un nastro è una forma, e su
- * un tablet deve crescere con la piastrella o diventa un francobollo; una cornice è un **tratto**,
- * e un tratto ha lo stesso spessore ovunque, come il filetto sotto una copertina (quattro punti) e
- * il bordo d'accento dei pannelli (due).
+ * ⚠️⚠️ **IL NUMERO È SUO E ARRIVA DOPO AVERLA VISTA** (riscontro del giro della `2.11`, voce
+ * `ind-ultimo` non approvata: *se lo spessore viene dal mio mockup, ho sbagliato io: serve più
+ * spesso (5%*). Il `2,7%` di prima era misurato sul suo mockup, cioè sul disegno e non sull'app in
+ * mano: quello che il mockup non diceva è quanto di quel tratto si perde su una fotografia.
+ * ⚠️⚠️ **E CAMBIA L'UNITÀ, NON SOLO IL NUMERO: ADESSO È UNA FRAZIONE COME [MARK_LEG].** La nota di
+ * prima diceva che un tratto ha lo stesso spessore ovunque, come il filetto sotto una copertina e
+ * il bordo dei pannelli: vale per il bordo di una **superficie dell'app**, che è sempre la stessa,
+ * e non per un segno posato su una piastrella le cui colonne le sceglie lui. Fra due e cinque
+ * colonne il lato della cella quasi si triplica, quindi lo stesso numero in punti darebbe un segno
+ * che pesa il triplo da una parte e un terzo dall'altra. In frazione pesa uguale dappertutto, che
+ * è il modo in cui lui ha scritto la richiesta.
  */
-private val MARK_EDGE = 3.dp
+private const val MARK_EDGE = 0.05f
+
+/**
+ * Quanto è OPACA la cornice: l'80%, ed è suo (stessa riga del riscontro).
+ *
+ * ⚠️ Non è la stessa cosa di [MARK_ALPHA], che vale per il nastro: là il triangolo copre un angolo
+ * di immagine e la trasparenza serve a lasciarlo intravedere, qui il tratto corre sul bordo e la
+ * trasparenza lo ammorbidisce contro quello che ha sotto.
+ */
+private const val MARK_FRAME_ALPHA = 0.8f
+
+/**
+ * Il tratto che segna l'ultimo media visualizzato, dipinto **dentro** la sagoma [shape].
+ *
+ * ⚠️⚠️ **IL COLORE È L'ARANCIONE DEGLI ONBOARDING, ED È SUA RICHIESTA** (*proviamo con
+ * l'arancione-onboarding*): [HINT_MARK], `#FFA726`. Fino alla `2.11` era `accentInk()`, cioè il
+ * verde acqua leggibile del tema in vigore, e il difetto che lui ha visto è che *più vivido* e
+ * verde acqua non stanno insieme: quel colore è il colore di casa, quindi su una schermata che ne
+ * è piena un tratto sottile non stacca da niente.
+ * ⚠️⚠️ **QUINDI ADESSO L'ARANCIONE DICE DUE COSE, e va saputo invece di scoprirlo**: era
+ * l'evidenziatore dei mini onboarding e **l'unico posto in cui la tavolozza si rompe apposta**
+ * (vedi [HINT_MARK]); da qui in poi è anche il segno dell'ultimo media. I due non si incontrano
+ * mai sullo stesso pixel, perché un onboarding vive sopra un velo scuro che copre la griglia, ma
+ * chi aggiunge un terzo uso di quel colore stia attento: è l'unico che l'app ha per dire
+ * 'guarda qui'.
+ * ⚠️ **Non è `colorScheme.primary`**, che resta il colore del nastro: quello è l'accento pieno, e
+ * i due segni devono distinguersi anche a colpo d'occhio.
+ * ⚠️⚠️ **LO STROKE SI DISEGNA DOPPIO E POI SI RITAGLIA, e non è un trucco di comodo**: un tratto
+ * è centrato sul contorno, quindi metà cadrebbe **fuori** dalla miniatura; disegnandolo di
+ * `2 * spessore` dentro un ritaglio della sagoma, la metà di fuori sparisce e quella di dentro
+ * vale esattamente lo spessore voluto, col bordo esterno che coincide col bordo della miniatura.
+ * È quello che faceva `border`, e serviva rifarlo a mano perché lo spessore adesso è una frazione
+ * della misura, che un modificatore di bordo non può leggere.
+ * ⚠️ **Vive fuori dal composable perché il banco lo monta da solo**: una miniatura vuole un
+ * MediaStore con dentro delle immagini, e in Robolectric è vuoto, quindi la sola cosa misurabile
+ * è il meccanismo su una scena minima (`CorniceTest`).
+ */
+internal fun Modifier.lastFrame(shape: Shape): Modifier = this
+    .clip(shape)
+    .drawBehind {
+        drawOutline(
+            outline = shape.createOutline(size, layoutDirection, this),
+            color = HINT_MARK.copy(alpha = MARK_FRAME_ALPHA),
+            style = Stroke(width = size.minDimension * MARK_EDGE * 2f)
+        )
+    }
 
 /**
  * Quanto si SCHIARISCE una miniatura scelta.
