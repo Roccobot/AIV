@@ -407,11 +407,13 @@
     <string name="editor_full">पूर्ण संपादक</string>
     <string name="look_light">प्रकाश</string>
     <string name="look_exposure">एक्सपोजर</string>
-    <string name="look_brightness">तेजस्विता</string>
+    <string name="look_whites">पांढरे</string>
+    <string name="look_blacks">काळे</string>
     <string name="look_contrast">कॉन्ट्रास्ट</string>
     <string name="look_shadows">सावल्या</string>
     <string name="look_highlights">हायलाइट</string>
     <string name="look_reset_one">%1$s रीसेट करा</string>
+    <string name="look_peek_one">%1$s ची तुलना करा</string>
     <string name="look_compare">मूळ पाहण्यासाठी दाबून धरा</string>
     <string name="look_failed">बदल जतन करता आले नाहीत</string>
     <string name="settings_quality">स्वरूप आणि दर्जा</string>

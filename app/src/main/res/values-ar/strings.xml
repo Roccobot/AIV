@@ -471,11 +471,13 @@
     <string name="editor_full">محرر كامل</string>
     <string name="look_light">الإضاءة</string>
     <string name="look_exposure">التعريض</string>
-    <string name="look_brightness">السطوع</string>
+    <string name="look_whites">الأبيض</string>
+    <string name="look_blacks">الأسود</string>
     <string name="look_contrast">التباين</string>
     <string name="look_shadows">الظلال</string>
     <string name="look_highlights">الإضاءات</string>
     <string name="look_reset_one">إعادة ضبط %1$s</string>
+    <string name="look_peek_one">مقارنة %1$s</string>
     <string name="look_compare">اضغط مع الاستمرار لرؤية الأصل</string>
     <string name="look_failed">تعذّر حفظ التعديلات</string>
     <string name="settings_quality">التنسيق والجودة</string>

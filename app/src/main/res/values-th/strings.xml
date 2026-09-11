@@ -391,11 +391,13 @@
     <string name="editor_full">ตัวแก้ไขแบบเต็ม</string>
     <string name="look_light">แสง</string>
     <string name="look_exposure">การรับแสง</string>
-    <string name="look_brightness">ความสว่าง</string>
+    <string name="look_whites">สีขาว</string>
+    <string name="look_blacks">สีดำ</string>
     <string name="look_contrast">คอนทราสต์</string>
     <string name="look_shadows">เงา</string>
     <string name="look_highlights">ไฮไลต์</string>
     <string name="look_reset_one">รีเซ็ต %1$s</string>
+    <string name="look_peek_one">เปรียบเทียบ %1$s</string>
     <string name="look_compare">กดค้างไว้เพื่อดูต้นฉบับ</string>
     <string name="look_failed">บันทึกการเปลี่ยนแปลงไม่ได้</string>
     <string name="settings_quality">รูปแบบและคุณภาพ</string>

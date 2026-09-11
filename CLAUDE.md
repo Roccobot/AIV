@@ -1840,10 +1840,74 @@ ritaglia senza toccare un pixel, questo la **sviluppa**. Un editor solo che face
 mestieri dovrebbe
 ricomprimere anche quando gira una fotografia, cioè perdere qualità per un gesto che oggi non ne
 fa perdere. Chi tocca 'Modifica' sceglie fra i due la prima volta, e la scelta si ricorda.
-- ⚠️ **Arriva in cinque versioni e questa è la prima**: la spina dorsale più il modulo **Luce**,
-  cioè i cinque cursori dell'esposizione, della luminosità, del contrasto, delle ombre e delle
-  luci. Le altre quattro (il Colore; le curve e il colore mirato; la geometria col
-  raddrizzamento; i preset) vivono nel piano d'azione, che è il posto delle versioni in sequenza.
+- ⚠️ **Arriva in più versioni e il modulo **Luce** è la prima**: le altre (il Colore; le curve e
+  il colore mirato; la geometria col raddrizzamento; i preset) vivono nel piano d'azione, che è il
+  posto delle versioni in sequenza.
+
+⚠️⚠️ **I CURSORI DELLA LUCE SONO I SEI DEL PANNELLO BASE DI LIGHTROOM, DALLA `2.16`, E IL SESTO
+NON C'ERA MENTRE UNO DI QUELLI DI PRIMA È USCITO** (riscontro del giro della `2.15`, voce
+`luce-taratura` accettabile: *'Luminosità', oltre a confondermi (Lightroom ha solo 'Esposizione'),
+è anche ben poco 'smart' dato che l'output va da 100% nero a 100% bianco*). Fino alla `2.15` erano
+cinque e uno era **Luminosità**, cioè un passo additivo verso il bianco o verso il nero: al fondo
+della corsa dava esattamente il rettangolo pieno che lui ha descritto.
+- **Al suo posto entrano i punti di BIANCO e di NERO**, che spostano i due estremi dell'intervallo
+  tonale e ridistribuiscono quello che c'è in mezzo. ⚠️ **Non possono appiattire l'immagine per
+  costruzione**: ogni punto si muove al massimo di un quarto della scala, quindi l'intervallo più
+  stretto che si può chiedere vale comunque metà.
+- ⚠️ **Non è una sostituzione alla pari, ed è la ragione per cui sono due**: la luminosità toccava
+  tutto allo stesso modo, i punti toccano gli estremi. Quello che lei faceva bene lo fa
+  l'esposizione, che è il cursore che Lightroom ha al suo posto.
+- ⚠️ **Ombre e luci restano un'altra cosa dai punti**, e le due coppie si distinguono per quanto
+  sono larghe: una fascia contro un punto. Chi ne togliesse una perderebbe il recupero.
+- ⚠️ **L'ordine è il suo, cioè quello di Lightroom**: esposizione, contrasto, luci, ombre,
+  bianchi, neri. Chi apre questo editor ha in mente quel pannello.
+
+⚠️⚠️ **E I CURSORI NON SONO PIÙ QUELLI DI MATERIAL, PER DUE RAGIONI CHE SONO TUTTE E DUE SUE.** La
+prima è l'aspetto, dallo stesso riscontro (*credo che mi piacerebbero di più dei bei tondi grossi
+al posto delle barrette verticali Material*), e da sola non basterebbe, perché quel pezzo accetta
+un tondo scritto da noi. La seconda è il **doppio tocco che azzera**: uno `Slider` risponde al
+primo tocco saltando al punto, quindi il primo dei due scriverebbe nella storia un valore che
+nessuno ha chiesto.
+- **Adesso il passo aspetta di sapere se i tocchi erano due**, e chi tocca due volte ottiene un
+  passo solo. ⚠️ **Il trascinamento invece non aspetta niente**: appena il dito supera la soglia
+  si muove, e il doppio tocco non è più possibile.
+- ⚠️⚠️ **L'AZIONE SEMANTICA VA TENUTA**: senza `setProgress` un cursore scritto in casa è muto per
+  un lettore di schermo e **invisibile al banco di prova**, che i cursori li muove da lì. Costa tre
+  righe, e senza di lei `LuceTest` non misura più niente.
+- ⚠️ **I sei cursori sono una tabella e non sei blocchi copiati**: ognuno porta tre gesti, e
+  scritti riga per riga sarebbero diciotto occasioni di sbagliarne uno. Un cursore nuovo prende i
+  gesti per costruzione, che è lo stesso criterio per cui `Modifier.lowered()` si porta dietro il
+  velo.
+
+⚠️⚠️ **I DUE GESTI NUOVI SONO SUOI, E IL SECONDO CONFRONTA UN CURSORE SOLO** (richiesta del
+2026-09-11: *doppio tocco sul nome, sul cursore o sul percorso = reset dello slider. Dito premuto
+sul nome = 'vedi originale' fino a rilascio del dito, ma solo relativo alla modifica dello slider
+stessi rispetto all'originale*). Quindi i confronti col prima sono due: il tocco lungo
+sull'**immagine** mostra l'originale intero, quello sul **nome** mostra l'immagine senza quel solo
+cursore, che è la risposta alla domanda che ci si fa muovendo una manopola.
+- ⚠️ **Il tocco lungo vive sul nome e non sulla barra**, e non è una scelta di comodo: sulla barra
+  il dito è già appoggiato mentre si trascina, quindi scatterebbe ogni volta che ci si ferma un
+  istante a guardare.
+- ⚠️ **Il valore da confrontare lo costruisce la scheda e non il palco**, con lo stesso `write` con
+  cui il cursore scrive: al palco arriva un `Look` già fatto, e lui disegna quello che riceve.
+- **Il numero accanto al cursore azzera ancora**, ed è l'unica delle quattro superfici che si vede
+  da sola, cioè che dice 'sono io il comando'.
+
+⚠️⚠️ **E L'IMMAGINE SI PUÒ INGRANDIRE, DALLA `2.16`** (campo libero dello stesso giro: *qui capita
+di lavorare sui dettagli, perciò credo sia necessario che si possa zoomare nell'immagine che si sta
+editando*): pinza, panoramica e doppio tocco.
+- ⚠️⚠️ **I QUATTRO GESTI DEL PALCO VIVONO IN UN RILEVATORE SOLO, E NON È UNA SCELTA DI STILE**: il
+  tocco lungo del confronto e la pinza nascono dallo stesso dito che scende, quindi scritti in due
+  `pointerInput` si contenderebbero l'evento. Il caso peggiore non è che un gesto non parta: è che
+  il confronto si **accenda durante una pinza**, perché `waitForUpOrCancellation` risponde `null`
+  sia allo scadere del tempo sia a un evento consumato da altri, e quel `null` là vale 'il dito è
+  fermo da mezzo secondo'. Il precedente in casa è la strisciata del visualizzatore, che per la
+  stessa ragione non ha mai funzionato fino alla `0.22`.
+- ⚠️ **Ingrandisce l'ANTEPRIMA e non il file**: quello che si vede è la riduzione che l'editor
+  decodifica per lavorare in fretta, quindi il tetto serve a fermarsi prima che l'immagine diventi
+  un mosaico.
+- ⚠️ **Si scala il rettangolo e non la tela**: il pennello porta uno shader con la sua matrice, e
+  una tela scalata ingrandirebbe il conto invece dell'immagine.
 
 ⚠️⚠️ **IL CONTO VIVE IN AGSL E NON ANCHE IN KOTLIN, ED È LA DECISIONE CHE REGGE TUTTO IL RESTO.**
 La via comoda sarebbe scriverlo due volte: uno shader per l'anteprima, che dev'essere immediata,
@@ -1869,11 +1933,15 @@ vedrebbe un'anteprima e salverebbe un'altra immagine, senza che niente dia error
     posto della fotografia. Un quadrato di colore noto costa un millesimo di secondo e distingue
     'non ha funzionato' da 'è venuto nero davvero'.
 
-⚠️⚠️ **I CONTI SI FANNO IN LUCE LINEARE, E L'ORDINE DELLE CINQUE OPERAZIONI È LA SPECIFICA**:
-esposizione, poi ombre e luci, poi contrasto, poi luminosità. Un valore sRGB non è la quantità di
-luce ma quella quantità passata per una curva, quindi sommare o moltiplicare là dentro dà i
-risultati sporchi che si vedono negli editor fatti male: un contrasto che vira, un'esposizione che
-spegne i colori. Il perché di ogni passaggio, e il perno del contrasto, vivono in `Adjust.kt`.
+⚠️⚠️ **I CONTI SI FANNO IN LUCE LINEARE, E L'ORDINE DELLE OPERAZIONI È LA SPECIFICA**:
+esposizione, poi ombre e luci, poi i punti di bianco e di nero, poi il contrasto. Un valore sRGB
+non è la quantità di luce ma quella quantità passata per una curva, quindi sommare o moltiplicare
+là dentro dà i risultati sporchi che si vedono negli editor fatti male: un contrasto che vira,
+un'esposizione che spegne i colori. Il perché di ogni passaggio, e il perno del contrasto, vivono
+in `Adjust.kt`.
+- ⚠️ **I punti vengono prima del contrasto** perché dichiarano dove finisce l'immagine, e la curva
+  a S lavora dentro l'intervallo che quei due estremi definiscono. Al contrario, taglierebbero i
+  toni che la curva ha appena creato.
 
 ⚠️⚠️ **LA PILA È DI VALORI E NON DI GESTI, e un passo nasce quando il dito LASCIA il cursore**:
 dentro un trascinamento un cursore passa per cento valori, e una pila che li prendesse tutti
@@ -1946,9 +2014,17 @@ due icone accanto a una scritta sarebbero una fila che si legge in due modi.
 
 ⚠️ **Che cosa il banco misura e che cosa no**: `LuceTest` guarda il modello (la soglia del
 riposo, il guadagno in stop, il senza perdita) e la **storia dei passi** montando la schermata
-vera, coi comandi che camminano avanti e indietro; `ContoTest` guarda che il programma dello
-shader compili e che `lookShader` lo consegni. **Non** vedono i pixel che ne escono, né il
-confronto col prima: quelli si guardano sul telefono.
+vera, coi comandi che camminano avanti e indietro; dalla `2.16` guarda anche il **doppio tocco**
+sul nome e sulla barra, e l'ingrandimento dell'immagine, che misura a **pixel**; `ContoTest`
+guarda che il programma dello shader compili e che `lookShader` lo consegni. **Non** vedono i
+pixel che escono dal conto, né il confronto col prima, né la pinza a due dita: quelli si guardano
+sul telefono.
+- ⚠️⚠️ **DUE DELLE TRE PROVE NUOVE SONO NATE VERDI PER CASO, E LA CONTROPROVA LO HA DETTO.** Quella
+  del doppio tocco sulla barra toccava il **centro**, dove la barra vale già zero: col passo di
+  troppo rimesso a mano restava verde, perché il salto del primo tocco portava proprio dove il
+  doppio tocco voleva arrivare. Adesso tocca a un quarto, e il passo intermedio si vede. È il
+  caso generale di § '🧪 Quando si scrive una prova, e quando no': una prova che non si vede
+  fallire col difetto rimesso non misura niente.
 
 ## 🗑️ Lo svuotamento automatico del cestino, e le tre decisioni che lo governano
 

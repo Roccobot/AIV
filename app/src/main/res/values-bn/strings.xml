@@ -407,11 +407,13 @@
     <string name="editor_full">সম্পূর্ণ সম্পাদক</string>
     <string name="look_light">আলো</string>
     <string name="look_exposure">এক্সপোজার</string>
-    <string name="look_brightness">উজ্জ্বলতা</string>
+    <string name="look_whites">সাদা</string>
+    <string name="look_blacks">কালো</string>
     <string name="look_contrast">কনট্রাস্ট</string>
     <string name="look_shadows">ছায়া</string>
     <string name="look_highlights">হাইলাইট</string>
     <string name="look_reset_one">%1$s রিসেট করুন</string>
+    <string name="look_peek_one">%1$s তুলনা করুন</string>
     <string name="look_compare">মূলটি দেখতে চেপে ধরে রাখুন</string>
     <string name="look_failed">পরিবর্তনগুলি সংরক্ষণ করা যায়নি</string>
     <string name="settings_quality">বিন্যাস ও গুণমান</string>

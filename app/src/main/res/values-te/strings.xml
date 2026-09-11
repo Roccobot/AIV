@@ -407,11 +407,13 @@
     <string name="editor_full">పూర్తి ఎడిటర్</string>
     <string name="look_light">కాంతి</string>
     <string name="look_exposure">ఎక్స్‌పోజర్</string>
-    <string name="look_brightness">ప్రకాశం</string>
+    <string name="look_whites">తెలుపు</string>
+    <string name="look_blacks">నలుపు</string>
     <string name="look_contrast">కాంట్రాస్ట్</string>
     <string name="look_shadows">నీడలు</string>
     <string name="look_highlights">హైలైట్లు</string>
     <string name="look_reset_one">%1$s రీసెట్ చేయి</string>
+    <string name="look_peek_one">%1$s పోల్చు</string>
     <string name="look_compare">అసలైనది చూడటానికి నొక్కి పట్టుకోండి</string>
     <string name="look_failed">మార్పులను సేవ్ చేయడం సాధ్యం కాలేదు</string>
     <string name="settings_quality">ఫార్మాట్ మరియు నాణ్యత</string>

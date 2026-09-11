@@ -407,11 +407,13 @@
     <string name="editor_full">Kihariri kamili</string>
     <string name="look_light">Mwanga</string>
     <string name="look_exposure">Mwangaza</string>
-    <string name="look_brightness">Ung\'avu</string>
+    <string name="look_whites">Nyeupe</string>
+    <string name="look_blacks">Nyeusi</string>
     <string name="look_contrast">Utofautishaji</string>
     <string name="look_shadows">Vivuli</string>
     <string name="look_highlights">Sehemu angavu</string>
     <string name="look_reset_one">Weka upya %1$s</string>
+    <string name="look_peek_one">Linganisha %1$s</string>
     <string name="look_compare">Shikilia ili kuona picha asilia</string>
     <string name="look_failed">Mabadiliko hayakuweza kuhifadhiwa</string>
     <string name="settings_quality">Muundo na ubora</string>

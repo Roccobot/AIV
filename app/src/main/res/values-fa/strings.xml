@@ -407,11 +407,13 @@
     <string name="editor_full">ویرایشگر کامل</string>
     <string name="look_light">نور</string>
     <string name="look_exposure">نوردهی</string>
-    <string name="look_brightness">روشنایی</string>
+    <string name="look_whites">سفیدی‌ها</string>
+    <string name="look_blacks">سیاهی‌ها</string>
     <string name="look_contrast">کنتراست</string>
     <string name="look_shadows">سایه‌ها</string>
     <string name="look_highlights">روشنی‌ها</string>
     <string name="look_reset_one">بازنشانی %1$s</string>
+    <string name="look_peek_one">مقایسه %1$s</string>
     <string name="look_compare">برای دیدن تصویر اصلی نگه دارید</string>
     <string name="look_failed">ذخیرهٔ تغییرها ممکن نشد</string>
     <string name="settings_quality">قالب و کیفیت</string>

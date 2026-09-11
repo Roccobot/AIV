@@ -407,11 +407,13 @@
     <string name="editor_full">முழு திருத்தி</string>
     <string name="look_light">ஒளி</string>
     <string name="look_exposure">வெளிச்சம்</string>
-    <string name="look_brightness">ஒளிர்வு</string>
+    <string name="look_whites">வெண்மை</string>
+    <string name="look_blacks">கருமை</string>
     <string name="look_contrast">மாறுபாடு</string>
     <string name="look_shadows">நிழல்கள்</string>
     <string name="look_highlights">ஒளிப்பகுதி</string>
     <string name="look_reset_one">%1$s மீட்டமை</string>
+    <string name="look_peek_one">%1$s ஒப்பிடு</string>
     <string name="look_compare">அசலைக் காண அழுத்திப் பிடிக்கவும்</string>
     <string name="look_failed">மாற்றங்களைச் சேமிக்க முடியவில்லை</string>
     <string name="settings_quality">வடிவம் மற்றும் தரம்</string>

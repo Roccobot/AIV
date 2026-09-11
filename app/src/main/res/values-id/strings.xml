@@ -391,11 +391,13 @@
     <string name="editor_full">Editor lengkap</string>
     <string name="look_light">Cahaya</string>
     <string name="look_exposure">Eksposur</string>
-    <string name="look_brightness">Kecerahan</string>
+    <string name="look_whites">Putih</string>
+    <string name="look_blacks">Hitam</string>
     <string name="look_contrast">Kontras</string>
     <string name="look_shadows">Bayangan</string>
     <string name="look_highlights">Sorotan</string>
     <string name="look_reset_one">Setel ulang %1$s</string>
+    <string name="look_peek_one">Bandingkan %1$s</string>
     <string name="look_compare">Tekan dan tahan untuk melihat aslinya</string>
     <string name="look_failed">Perubahan tidak dapat disimpan</string>
     <string name="settings_quality">Format dan kualitas</string>

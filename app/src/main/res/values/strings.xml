@@ -97,11 +97,13 @@
     <string name="editor_full">Full editor</string>
     <string name="look_light">Light</string>
     <string name="look_exposure">Exposure</string>
-    <string name="look_brightness">Brightness</string>
+    <string name="look_whites">Whites</string>
+    <string name="look_blacks">Blacks</string>
     <string name="look_contrast">Contrast</string>
     <string name="look_shadows">Shadows</string>
     <string name="look_highlights">Highlights</string>
     <string name="look_reset_one">Reset %1$s</string>
+    <string name="look_peek_one">Compare %1$s</string>
     <string name="look_compare">Press and hold to see the original</string>
     <string name="look_failed">The changes could not be saved</string>
     <string name="settings_quality">Format and quality</string>
