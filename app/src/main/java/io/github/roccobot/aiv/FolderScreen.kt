@@ -85,6 +85,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
@@ -477,9 +478,46 @@ fun FolderScreen(
             )
         }
 
+        /*
+         * ⚠️⚠️ **IL GLIFO DEL FAB DIVENTA IL CHEVRON SCORRENDO, DALLA `2.07`**: lo stato vive
+         * qui perché lo leggono in due, il contenitore (che gli passa il gesto) e [Hub] (che
+         * disegna il FAB). Il perché di tutto il meccanismo vive in `Jump.kt`.
+         * ⚠️⚠️ **NELLA VISTA AD ALBERO NON SI ARMA, E LA DIFESA È NON MONTARE IL GESTO**: là
+         * l'elenco è di [TreeList], che tiene il proprio scorrimento e non lo espone, quindi il
+         * salto muoverebbe una lista che non è in scena. Spegnere il solo tocco lascerebbe il
+         * chevron a comparire per niente.
+         */
+        val scorre: ScrollableState = if (view == FolderView.GRID) coverScroll else rowScroll
+        val arm = rememberJumpArm(
+            state = scorre,
+            up = {
+                shut() + if (view == FolderView.GRID) {
+                    coverScroll.jumpUpPixels()
+                } else {
+                    rowScroll.jumpUpPixels()
+                }
+            },
+            down = {
+                if (view == FolderView.GRID) {
+                    coverScroll.jumpDownPixels()
+                } else {
+                    rowScroll.jumpDownPixels()
+                }
+            }
+        )
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                /*
+                 * ⚠️⚠️ **IL GESTO SI GUARDA PRIMA DI `paging`, E L'ORDINE È MISURATO**: in una
+                 * catena di modificatori il `nestedScroll` scritto **per primo** riceve per primo
+                 * il delta della lista, e `frontScroll` ne consuma la parte con cui chiude
+                 * l'intestazione. Scritto dopo, al motore del glifo arrivava **zero** finché la
+                 * fascia aveva spazio da chiudere.
+                 */
+                .then(
+                    if (view == FolderView.TREE) Modifier else Modifier.nestedScroll(arm.watch)
+                )
                 .nestedScroll(paging)
                 // ⚠️ Il margine laterale è 12 e non 20 perché è quello che permette **due**
                 // colonne di copertine su uno schermo da 360dp. Il conto sta in `FOLDER_CELL`.
@@ -611,43 +649,15 @@ fun FolderScreen(
              * quindi scritta dopo dipingerebbe **sul** FAB invece che sotto.
              */
             GroundFade(modifier = Modifier.align(Alignment.BottomCenter))
-            /*
-             * ⚠️⚠️ **I DUE TASTI DEL SALTO VANNO SOPRA IL FAB E PORTANO IL SUO STESSO
-             * MODIFICATORE**, che è il solo modo perché i due centri stiano sulla stessa
-             * verticale: il perché per esteso vive su [JumpFabs].
-             * ⚠️ **La vista ad albero resta fuori**, e va detto invece di lasciarlo scoprire:
-             * là l'elenco è di [TreeList], che tiene il proprio scorrimento e non lo espone.
-             * Chi la volesse coprire solleva quello stato come si è fatto per le altre due.
-             * ⚠️ **E la fascia chiusa conta come 'c'è ancora spazio sopra'**, come nella griglia
-             * di una cartella: chiudendola l'elenco non si muove, quindi da solo direbbe di
-             * essere già in cima.
-             */
-            if (view != FolderView.TREE) {
-                val scorre: ScrollableState =
-                    if (view == FolderView.GRID) coverScroll else rowScroll
-                JumpFabs(
-                    state = scorre,
-                    up = {
-                        shut() + if (view == FolderView.GRID) {
-                            coverScroll.jumpUpPixels()
-                        } else {
-                            rowScroll.jumpUpPixels()
-                        }
-                    },
-                    down = {
-                        if (view == FolderView.GRID) {
-                            coverScroll.jumpDownPixels()
-                        } else {
-                            rowScroll.jumpDownPixels()
-                        }
-                    },
-                    nested = paging,
-                    more = { shutFrac > 0f },
-                    modifier = Modifier.align(fabSide()).safeDrawingPadding().padding(HUB_PAD)
-                )
-            }
             Hub(
                 view = view,
+                /*
+                 * ⚠️ **Il salto passa dallo scorrimento annidato, come un dito**: è quello che
+                 * riapre l'intestazione arrivando in cima, che è la sua richiesta. Nella vista
+                 * ad albero l'arm non si arma mai, perché là il gesto non gli arriva.
+                 */
+                arm = arm,
+                nested = paging,
                 columns = columns,
                 granted = granted,
                 recents = recents,
@@ -996,6 +1006,22 @@ private fun FolderView.shortLabel(): Int = when (this) {
 private fun Hub(
     view: FolderView,
     /**
+     * Lo stato del glifo del FAB, che scorrendo diventa il chevron del salto.
+     *
+     * ⚠️ **Arriva da fuori e non nasce qui**: a riempirlo è il gesto, che il contenitore
+     * raccoglie, e questo composabile è il posto in cui quel disegno si vede. Il perché di
+     * tutto il meccanismo vive in `Jump.kt`.
+     */
+    arm: JumpArm,
+    /**
+     * Lo scorrimento annidato della schermata, che la corsa attraversa come un dito.
+     *
+     * ⚠️ **Senza, il salto arriverebbe in cima con l'intestazione ancora chiusa**, e lui ha
+     * chiesto il contrario: *fa scorrere in cima fino alla visualizzazione piena
+     * dell'intestazione*.
+     */
+    nested: NestedScrollConnection,
+    /**
      * Quante colonne ha la griglia sotto: serve alla **larghezza** del menu, non al FAB.
      *
      * ⚠️ **È la scelta e non il numero effettivo**, cioè lo stesso valore che riceve la griglia:
@@ -1271,8 +1297,18 @@ private fun Hub(
          * bene e rimane*).
          */
         val altroTema = aivLauncher(!LocalAivLight.current)
+        /*
+         * ⚠️⚠️ **A TASTO ARMATO IL TOCCO FA IL SALTO E NON APRE IL MENU, DALLA `2.07`**: è la
+         * conseguenza diretta della sua scelta, cioè che il comando viva **sul** FAB invece che
+         * accanto. Il tratto in cui il menu non si apre è quello in cui il chevron si vede, e
+         * finisce da sé un secondo dopo l'ultimo pixel scorso.
+         * ⚠️ **L'etichetta segue il comando**: un lettore di schermo che annunciasse il menu
+         * mentre il tasto porta in fondo direbbe la cosa sbagliata proprio a chi non vede il
+         * glifo.
+         */
+        val salto = rememberCoroutineScope()
         TapHoldFab(
-            label = stringResource(R.string.hub_open),
+            label = jumpLabel(arm, stringResource(R.string.hub_open)),
             /*
              * ⚠️⚠️ **I COLORI SONO QUELLI DELL'ICONA DELL'APP, dalla 1.36** (richiesta
              * dell'utente, 2026-09-02: *il FAB deve rispecchiare nei colori (sfondo e glifo) la
@@ -1304,9 +1340,9 @@ private fun Hub(
             // patina durava più del pannello.
             lifted = menu.visible,
             pressed = menu.wanted,
-            onTap = { menu.open() },
+            onTap = { if (arm.armed) salto.launch { arm.leap(nested) } else menu.open() },
             onHold = onSize,
-            glyph = { Marchio(it) }
+            glyph = { JumpGlyph(arm) { Marchio(it) } }
         )
     }
 

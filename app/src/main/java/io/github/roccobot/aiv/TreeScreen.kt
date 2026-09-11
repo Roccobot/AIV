@@ -224,12 +224,6 @@ fun TreeList(
                 else -> Spots(spots!!, scroll, hidden, onPath, onOpen) { acting = it; menu.open() }
             }
         }
-        JumpFabs(
-            state = scroll,
-            up = { scroll.jumpUpPixels() },
-            down = { scroll.jumpDownPixels() },
-            modifier = Modifier.align(fabSide()).safeDrawingPadding().padding(GRID_PAD_X)
-        )
     }
 
     /*

@@ -132,6 +132,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.compose.PlayerSurface
+import androidx.media3.ui.compose.SURFACE_TYPE_TEXTURE_VIEW
 import androidx.media3.ui.compose.modifiers.resizeWithContentScale
 import androidx.media3.ui.compose.state.rememberPlayPauseButtonState
 import androidx.media3.ui.compose.state.rememberPresentationState
@@ -1497,8 +1498,38 @@ private fun ClipStage(
          * ⚠️ Lo stesso modificatore va **anche al fotogramma di copertura** qui sotto, o
          * all'apertura si vedrebbe la miniatura in un riquadro e il video in un altro.
          */
-        val scaled = Modifier.resizeWithContentScale(ContentScale.Fit, shown.videoSizeDp)
-        PlayerSurface(player = player, modifier = scaled)
+        /*
+         * ⚠️⚠️ **FINCHÉ LA MISURA DEL FILMATO NON SI SA, IL RIQUADRO PRENDE TUTTO, E DALLA
+         * `2.07` QUESTA RIGA ESISTE PER UN DIFETTO CHE GLI È ARRIVATO** (2026-09-10: *questi
+         * appaiono per una frazione di secondo in piccolo e poi con un flash fastidioso passano
+         * a tutto schermo*). La causa è **letta nel bytecode** di `resizeWithContentScale`: con
+         * la misura ancora nulla quel modificatore vale `fillMaxSize().wrapContentSize()`, cioè
+         * *centra il figlio alla sua misura naturale*, e la misura naturale di una superficie
+         * vuota (o della miniatura di copertura) è piccola. Il salto è l'istante in cui la
+         * misura vera arriva e il riquadro passa a quella calcolata.
+         * ⚠️ **Con `fillMaxSize` il fotogramma di copertura non si deforma**, perché lo disegna
+         * `ContentScale.Fit`: le proporzioni sono già le sue.
+         */
+        val fitted = Modifier.resizeWithContentScale(ContentScale.Fit, shown.videoSizeDp)
+        val scaled = if (shown.videoSizeDp == null) Modifier.fillMaxSize() else fitted
+        /*
+         * ⚠️⚠️ **LA SUPERFICIE È A TEXTURE E NON NATIVA, DALLA `2.07`, ED È IL SECONDO SINTOMO
+         * DELLA STESSA SEGNALAZIONE** (*scorrendo da un video all'elemento successivo, il
+         * fotogramma del video non se ne va con l'effetto scorrimento: scompare e basta*). Una
+         * `SurfaceView` la compone il **sistema**, in una finestra sua, fuori dall'albero che la
+         * vista anima e ritaglia: qualunque animazione le passi sopra, lei resta ferma e poi
+         * sparisce di colpo. Una `TextureView` vive nell'albero, quindi scorre, sfuma e si
+         * ritaglia come qualunque altra vista.
+         * ⚠️ **Il prezzo è dichiarato e non nascosto**: la texture costa più memoria grafica e
+         * un fotogramma in più all'avvio, ed è la ragione per cui il lettore preferisce la
+         * nativa. Qui il filmato vive dentro uno sfogliatore che scorre, cioè esattamente il caso
+         * in cui quella preferenza costa una funzione.
+         */
+        PlayerSurface(
+            player = player,
+            surfaceType = SURFACE_TYPE_TEXTURE_VIEW,
+            modifier = scaled
+        )
 
         /*
          * ⚠️⚠️ **IL FOTOGRAMMA COPRE LA SUPERFICIE FINCHÉ IL VIDEO NON HA DA MOSTRARE

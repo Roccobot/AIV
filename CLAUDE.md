@@ -1118,129 +1118,77 @@ sotto la barra gestuale non ci poteva arrivare niente.
   i rientri di sistema valgono zero, quindi una prova misurerebbe una somma di zeri. Si guarda
   sul telefono, con la navigazione gestuale e con quella a tre tasti.
 
-## ⏫ I due tasti che portano in cima e in fondo
+## ⏫ Il salto in cima e in fondo, sul glifo del FAB
 
-⚠️⚠️ **DALLA `1.95`, E IL MODELLO È DICHIARATO DA LUI: 'I Grandi di Terramare'** (*mi servono dei
-tasti 'scorri in cima' e 'scorri in fondo' che appaiono in sovrimpressione sul lato dello schermo
-(stesso lato del FAB, cambiano lato con lui): la logica è la stessa di quelli di `Earthsea Top`
-(mobile), e l'aspetto simile. Appaiono allo scorrimento della schermata e sono visibili solo per 2
-secondi ... devono avere ESATTAMENTE la velocità, la decelerazione e la logica di `Earthsea
-Top`*). Quindi i numeri di `Jump.kt` non sono scelte: sono **misure prese** su
-`earthsea/top/index.html`, e chi li ritocca li stacca da quella sorgente.
-- **Che cosa viene di là**: la durata `min(800, 280 + |dist| * 0.16)` in millisecondi, l'easing
-  quintico in uscita `1 - (1-x)^5`, la comparsa allo scorrimento, e i due stadi del congedo (una
-  quiete di 150 ms che dice 'lo scorrimento è finito', e solo dopo il conto alla rovescia).
-- ⚠️ **Il numero che NON viene di là è l'attesa**: lui l'ha dettata due volte, **2 secondi** nella
-  `1.95` e **0,8** nella `2.05`, e il secondo coincide con quello del sito su mobile senza venire
-  di là (vedi la voce sui due tempi, qui sotto).
-- ⚠️⚠️ **E DALLA `2.04` NON VIENE DI LÀ NEMMENO L'USCITA: È GRADUALE E DURA MOLTO PIÙ DI LÀ**
-  (riscontro del giro della `2.03`: *l'uscita dei due tasti dev'essere più 'morbida': dissolvenza
-  di circa un secondo, graduale*). Il quarto di secondo del sito era giusto su una pagina web e
-  troppo secco sopra una griglia di miniature. ⚠️ **L'entrata resta quella di prima**, e la
-  differenza è voluta: quello che arriva dev'essere subito toccabile. ⚠️ **La curva è lineare**,
-  perché quella di serie parte quasi ferma e poi cade, cioè il contrario di graduale.
-- ⚠️⚠️ **E DALLA `2.05` I DUE TEMPI SI TARANO INSIEME, PERCHÉ SONO LO STESSO TEMPO: 0,8 SECONDI
-  PIENI PIÙ 1,6 DI USCITA** (sua richiesta, 2026-09-09: *visto che i tasti su/giù sono
-  utilizzabili anche durante la dissolvenza (lunga), falli durare 0,8 secondi, con una dissolvenza
-  di 1,6 secondi*). Il fatto che lo regge è che un nodo che sbiadisce **resta nell'albero** e
-  riceve i tocchi, quindi l'attesa piena e l'uscita non sono un tempo utile e una coda: sono due
-  pezzi dello stesso tempo utile, e ridurre il primo allungando la seconda toglie ingombro senza
-  togliere il comando.
-  - ⚠️ **Il totale scende comunque**, e si dice invece di lasciarlo scoprire: il tratto in cui il
-    tasto risponde passa da **3 secondi a 2,4**, e la parte a piena opacità da 2 a 0,8.
-  - ⚠️ **Chi ne ritocca uno guarda l'altro**: separati, il primo numero che cambia sposta il
-    totale senza che nessuno se ne accorga.
-- ⚠️⚠️ **E I DUE TASTI SE NE VANNO INSIEME, DALLA `2.04`: LA CONDIZIONE È UNA SOLA** (stesso
-  riscontro: *non occorre far sparire prima il tasto 'su' se si arriva in cima o il tasto 'giù' se
-  si arriva in fondo: crea solo confusione*). Fino alla `2.03` ogni tasto guardava il proprio
-  verso, come sul sito, quindi arrivando a un capo la colonna si accorciava sotto l'occhio.
-  - ⚠️ **Quello che resta della regola del sito è la metà che riguarda la coppia**: in una lista
-    che ci sta tutta nello schermo non compare **nessuno** dei due.
-  - ⚠️ **Un tasto che non ha dove andare non è un comando morto**: toccarlo chiede una corsa di
-    zero pixel, che `glide` scarta alla prima riga.
+⚠️⚠️ **DALLA `2.07` I DUE TASTI NON CI SONO PIÙ: A PORTARE IN CIMA E IN FONDO È IL FAB, E IL SUO
+GLIFO DIVENTA UN CHEVRON** (sua scelta del 2026-09-09, dopo aver guardato due mockup animati:
+*questo è molto più pulito e fluido ... ho già scelto, appena possibile implementiamo questo*).
+Il pezzo nuovo non esiste: niente colonna che compare, niente seconda finestra, niente tasto in
+più da mettere da qualche parte, e il FAB non sparisce mai dallo schermo. Quello che cambia è il
+**disegno** dentro un tasto che c'era già, con lo stesso incrocio di zoom e dissolvenza con cui
+diventa la `×` a menu aperto.
+- ⚠️⚠️ **E IL TASTO È UNO SOLO, DECISO DAL VERSO DELLO SCORRIMENTO** (*se scorro per vedere altre
+  immagini in basso, appare solo il tasto 'giù'*): scorrendo verso il fondo il glifo diventa 'Vai
+  alla fine', scorrendo verso l'alto 'Vai all'inizio'. Le due domande di prima (dove voglio
+  andare, e quale dei due tasti tocco) diventano una sola. ⚠️ **Quello che si perde è
+  dichiarato**: i due versi non sono più disponibili insieme, e chi vuole l'altro scorre un
+  momento nell'altro senso.
+- ⚠️⚠️ **A TASTO ARMATO IL TOCCO FA IL SALTO E NON APRE IL MENU**, che è la conseguenza diretta
+  di un comando che vive **sul** FAB: il tratto in cui il menu non si apre è quello in cui il
+  chevron si vede, e finisce da sé un secondo dopo l'ultimo pixel scorso.
+- **I cinque numeri sono del mockup che ha approvato guardandolo**, e vivono in `Jump.kt`: 44
+  pixel di corsa piena, 8 nel verso opposto per cambiare chevron, 150 ms di quiete a corsa
+  incompleta, un secondo di attesa a tasto armato e un quarto di secondo di rientro.
+- ⚠️⚠️ **IL CROSSFADE VUOLE UN ESPONENTE SOTTO UNO, ED È MISURATO**: con due opacità lineari
+  incrociate, a metà corsa i due glifi sono tutti e due al 9% nello stesso fotogramma, cioè il
+  tasto resta vuoto. A 0,8 la somma non scende mai sotto il pieno.
+
+⚠️⚠️ **DOVE IL FAB NON C'È, IL COMANDO NON C'È PIÙ.** Nelle **impostazioni** è la sua risposta
+alla lettera (2026-09-09: *lì non serve nessun tasto, in realtà ... le impostazioni che cerco le
+trovo o con la ricerca o con le sezioni e le sotto-pagine, non scorrendo una lista finché non
+vedo quello che cerco*); in **'Cartelle di sistema'** e nella vista ad albero della schermata
+iniziale è la conseguenza di un tasto che vive sul FAB, e là il FAB non esiste.
+
+⚠️⚠️ **IL GESTO SI GUARDA PRIMA DI `frontScroll`, E L'ORDINE DEI DUE `nestedScroll` È MISURATO**:
+in una catena di modificatori quello scritto **per primo** riceve per primo il delta della lista,
+e la fascia dell'intestazione ne consuma la sua parte per chiudersi. Scritto dopo, al motore del
+glifo arrivava **zero** finché la fascia aveva spazio da chiudere: un colpo solo con somma 0,
+contato da una spia messa dentro il nodo.
 
 ⚠️⚠️ **IL SALTO PASSA DALLO SCORRIMENTO ANNIDATO, ESATTAMENTE COME UN DITO, E QUELLA È LA RIGA
 CHE FA FUNZIONARE LA SUA RICHIESTA** (*il tasto 'su' fa scorrere in cima fino alla visualizzazione
 piena dell'intestazione*). Muovendo la sola lista, il salto arriverebbe in cima con la fascia
 ancora chiusa; mandando il delta a `frontScroll` prima e dopo la lista, l'intestazione si riapre
 **perché è quello che già succede col dito**, e non per una riga in più.
-- ⚠️⚠️ **LA FASCIA CHIUSA CONTA COME 'C'È ANCORA SPAZIO SOPRA'**: chiudendola la lista non si
-  muove di un pixel, quindi `canScrollBackward` risponde di no proprio nel caso in cui il tasto
-  ha qualcosa da fare. Senza quella condizione il tasto 'su' sparirebbe dove serve di più.
 - ⚠️ **I segni sono due mondi**: `scrollBy` conta positivo verso il fondo, il puntatore conta
-  positivo verso il basso, cioè verso l'inizio. Il banco lo presidia (`SaltiTest`), perché un `-`
-  di troppo dà un tasto che va dalla parte sbagliata e non lo vede nessun compilatore.
+  positivo verso il basso, cioè verso l'inizio. Il banco lo presidia, perché un `-` di troppo dà
+  un salto che va dalla parte sbagliata e non lo vede nessun compilatore.
+- ⚠️ **La distanza è una STIMA, e serve solo alla durata**: una lista pigra non sa quanto è alto
+  quello che non ha ancora composto. La corsa finisce quando nessuno prende più niente, quindi
+  una stima lunga si ferma al bordo lo stesso.
 
-⚠️ **La distanza è una STIMA, e serve solo alla durata**: una lista pigra non sa quanto è alto
-quello che non ha ancora composto, quindi l'altezza di una riga si ricava da quelle in scena. La
-corsa finisce quando nessuno prende più niente, quindi una stima lunga si ferma al bordo lo
-stesso, e una corta arriva con meno decelerazione.
+⚠️⚠️ **UNA GUARDIA CHE IL MOCKUP AVEVA, E CHE QUI NON SERVE: DUE CONTROPROVE L'HANNO SMENTITA.**
+Là una riga escludeva la corsa dal conto del gesto (*toccando 'vai all'inizio' la lista sale,
+cioè scorre nel verso opposto a quello che ha armato il tasto*), e la prima stesura l'aveva
+copiata. Togliendola, il banco restava verde, perché `glide` muove la lista dentro
+`state.scroll {}` e quel movimento non risale la catena dei modificatori; e facendogliela
+attraversare a mano, il chevron **non si gira lo stesso**, perché una corsa verso l'inizio muove
+la lista nel verso che il chevron già indica. Il rischio non esiste in nessuna delle due strade,
+e quella riga non c'è più, insieme alla prova che la presidiava.
 
-⚠️⚠️ **DOVE CI SONO: DAPPERTUTTO, DALLA `2.00`** (risposta `tutto` a `d-salti-dove`, dopo la sua
-precisazione del 2026-09-08: *i tasti devono apparire in tutte le cartelle, non solo nella
-schermata home*). `GridScreen` è una sola per la cartella, la ricerca, il cestino e i recenti,
-quindi là la riga si scrive una volta e le copre tutte; con la sua risposta sono entrate anche le
-due che restavano fuori.
-- **'Cartelle di sistema'** teneva il proprio scorrimento **dentro** l'elenco, quindi i tasti non
-  avrebbero avuto niente da muovere: adesso lo stato vive nella schermata e l'elenco lo riceve.
-  ⚠️ Ne basta uno, quello dell'albero: l'altra lista è quella delle memorie, che sono due, e in
-  una lista che ci sta tutta nello schermo i tasti non compaiono comunque.
-- **Le impostazioni** li hanno nel **guscio** (`Shell`), quindi la pagina piatta e tutte le
-  sotto-pagine insieme, con una riga sola invece di una per pagina. ⚠️ Nelle pagine che non
-  scorrono da sé si spengono **senza una condizione scritta**: là lo `ScrollState` non si muove,
-  quindi `canScrollForward` risponde di no.
-  - ⚠️ **È la sola schermata dell'app senza FAB**, e per questo `JumpFabs` ha il parametro
-    `aboveFab`: spento, la colonna non lascia il posto a un tasto che non c'è.
-- ⚠️ **La distanza è una stima dappertutto tranne che là**: una pagina con `verticalScroll`
-  misura tutto il proprio contenuto, quindi la posizione e il fondo sono due numeri esatti.
-
-⚠️ **Vanno sopra il FAB e sul suo stesso lato**, come ha chiesto (*devono apparire sopra il FAB
-(a destra o sinistra) ed essere perfettamente allineati orizzontalmente con il centro del FAB
-stesso. Dimensione: più piccoli del FAB*). L'allineamento si ottiene dando alla colonna la
-larghezza del FAB e centrandoci dentro i tasti: al bordo, cambiando la loro misura i due centri si
-scollerebbero senza che nessuno se ne accorga. Il chiamante passa lo **stesso** modificatore di
-posizione del FAB, così i rientri restano scritti una volta per schermata.
-
-⚠️⚠️ **UN TASTO È UN GLIFO E BASTA, DALLA `2.00`: NIENTE TONDO DIETRO** (riscontro del giro della
-`1.95`, voce `salti-tasti` non approvata: *i tondi in cui si trovano (che comunque non avevo
-chiesto) appaiono come rettangoli ad ogni tocco, e flashano pieni di glitch. Rendi i glifi più
-grandi ed elimina i tondi di sfondo*). Con il tondo se ne va la causa di tutte e due le cose che
-ha visto, perché quel fondo era la superficie su cui si vedeva lo **stato premuto** del componente
-di Material: senza `IconButton` non c'è più niente da disegnare quando il dito tocca.
-- ⚠️⚠️ **E IL COMPONENTE PORTAVA QUATTRO DECISIONI CHE NESSUNO AVEVA PRESO**: la misura minima del
-  bersaglio, un `size` suo, un `clip` e il ripple. Il bersaglio **misurato** veniva 28dp, cioè più
-  stretto dei 40 del FAB accanto: adesso lo dice `JUMP_TAP`, che vale [FAB_SIZE].
-- ⚠️ **Il colore passa al glifo, e non è un cambiamento della sua specifica ma la sua
-  conseguenza**: il 40% del fondo opposto (*colore dello sfondo scuro su tema chiaro e dello
-  sfondo chiaro su tema scuro, opacità 40%*) era del tondo, e senza il tondo un glifo del colore
-  del fondo in vigore sparirebbe sul fondo in vigore.
-  - ⚠️⚠️ **E QUEL NUMERO È PROVATO E NON EREDITATO: LA RISPOSTA A `d-salti-ink` È `quaranta`**
-    (giro della `2.00`, cioè *va bene così, 40%*). La domanda esisteva perché quel numero era
-    nato per il **tondo**, che è una superficie piena, mentre un glifo alla stessa opacità si
-    legge meno: le altre due vie erano il 60% e il pieno. Chi lo trovasse smorto sopra una
-    miniatura chiara sappia che è stato guardato con l'app in mano.
-- ⚠️⚠️ **LA PROVA CHE LO PRESIDIA GUARDA I PIXEL**, perché l'albero semantico è identico con e
-  senza un fondo: `SaltiSfondoTest` conta quanto del riquadro è tinto, e la controprova dà **82%**
-  col tondo contro il **10%** senza.
-
-⚠️⚠️ **A TASTI NASCOSTI NON C'È NIENTE CHE POSSA RUBARE UN TOCCO**, ed è la trappola della `1.70`
-in piccolo: la colonna non porta modificatori di puntatore, e quello che ne ha uno esce
-dall'albero con la dissolvenza. La difesa è l'**assenza**, come per il `MenuGuard`.
-
-⚠️ **Che cosa il banco misura e che cosa no** (`SaltiTest` e `SaltiSfondoTest`): vede che a
-riposo i due tasti non sono nell'albero, che il salto passa dallo scorrimento annidato nei due
-versi, che il bersaglio è largo quanto dichiarato, che in cima ci sono tutti e due, che dietro il
-glifo non c'è nessun fondo dipinto, e che **un tasto in uscita risponde ancora al tocco**. **Non**
-vede quanto quei tempi siano giusti per l'occhio, né la decelerazione, né come il tasto si
-comporta **premuto**: sono rese.
-- ⚠️⚠️ **QUELL'ULTIMA PROVA NASCE COL RITOCCO DELLA `2.05`, ED È LA SUA PREMESSA**: i due numeri
-  valgono quello che valgono solo se il tratto in dissolvenza è tempo utile, quindi il banco
-  entra **dentro** l'uscita col clock fermo e da là tocca il tasto. ⚠️ **Il gesto che la prepara
-  finisce fermo**, o un lancio inerziale sposterebbe l'inizio del conto alla rovescia e la prova
-  misurerebbe un istante diverso da quello che dice.
-- ⚠️ **Fino alla `2.04` era scritto che il banco quel tratto non lo vedeva**, ed era vero finché
-  nessuno lo aveva provato con `autoAdvance` spento: quello che resta fuori è la **percezione**,
-  non il tempo.
+⚠️ **Che cosa il banco misura e che cosa no** (`SaltiTest`): vede che il salto passa dallo
+scorrimento annidato nei due versi, che a riposo il chevron non è in scena, che il verso segue il
+dito e cambia con lui, e che nella schermata vera il FAB **annuncia** il salto solo a tasto
+armato. **Non** vede quanto il glifo impieghi a cambiare per l'occhio, la curva del rientro né la
+decelerazione: sono rese, e si guardano sul telefono.
+- ⚠️⚠️ **DUE TRAPPOLE DEL BANCO, TROVATE SCRIVENDO QUESTE PROVE**: una `LazyColumn` senza
+  `fillMaxSize` dentro una `Box` si dimensiona sul contenuto, quindi non ha un viewport più
+  corto di lui e **non genera nessun evento** di scorrimento annidato; e uno `swipe` con la sua
+  durata, col clock fermo, inietta i passi a un tempo che non avanza. Tutte e due davano una
+  prova rossa **col codice giusto**.
+- ⚠️ **E il FAB non c'è in una griglia montata con gli argomenti minimi**: `FabPop` compare solo
+  se la schermata ha dove mandare, quindi una prova che lo guarda deve passarle almeno una
+  destinazione.
 
 ## 🔖 Lo scorrimento di una schermata sopravvive alla schermata
 

@@ -1426,13 +1426,6 @@ private fun Shell(
             Spacer(Modifier.height(8.dp))
             content()
         }
-        JumpFabs(
-            state = scroll,
-            up = { scroll.jumpUpPixels() },
-            down = { scroll.jumpDownPixels() },
-            aboveFab = false,
-            modifier = Modifier.align(fabSide()).safeDrawingPadding().padding(PAGE_SIDE)
-        )
     }
 }
 
