@@ -2879,12 +2879,17 @@ private fun Thumbnail(
              * #4FD9BE*). L'argomento con cui allora era stata esclusa è qui sotto e **regge
              * ancora**: quello che è cambiato è la sua preferenza, e la scelta resta doppia
              * proprio per questo.
-             * ⚠️ **Lo spessore e il colore vivono su [lastFrame]**, insieme alle ragioni per cui
-             * sono cambiati con la `2.12`.
+             * ⚠️ **Lo spessore vive su [lastFrame]**, insieme alle ragioni per cui è cambiato con
+             * la `2.12`; il **colore** arriva da qui perché è un colore del tema, e un modificatore
+             * che non è un composable non lo può leggere da sé.
              * ⚠️ Resta un riquadro fratello, come il nastro: due fratelli si dipingono
              * nell'ordine in cui sono scritti, e su questo non c'è niente da sapere.
              */
-            Box(modifier = Modifier.matchParentSize().lastFrame(shape))
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .lastFrame(shape, MaterialTheme.colorScheme.primary)
+            )
         }
         if (marked && mark == LastMark.CORNER) {
             /*
@@ -3395,30 +3400,38 @@ private const val MARK_ALPHA = 0.85f
 private const val MARK_EDGE = 0.05f
 
 /**
- * Quanto è OPACA la cornice: l'80%, ed è suo (stessa riga del riscontro).
+ * Quanto è OPACA la cornice: l'80%, ed è suo (riscontro del giro della `2.11`).
  *
  * ⚠️ Non è la stessa cosa di [MARK_ALPHA], che vale per il nastro: là il triangolo copre un angolo
  * di immagine e la trasparenza serve a lasciarlo intravedere, qui il tratto corre sul bordo e la
  * trasparenza lo ammorbidisce contro quello che ha sotto.
+ * ⚠️ **Resta invariata con la `2.13`**, che ha cambiato il solo colore: i due numeri del tratto
+ * sono quelli che ha dettato lui guardando l'app, e il colore era la terza cosa della stessa riga.
+ * ⚠️ **È `internal` perché il banco calcola da lei il colore atteso** invece di riscriverlo:
+ * un numero copiato in `CorniceTest` sarebbe una seconda fonte, e le due divergerebbero al primo
+ * ritocco dell'opacità.
  */
-private const val MARK_FRAME_ALPHA = 0.8f
+internal const val MARK_FRAME_ALPHA = 0.8f
 
 /**
- * Il tratto che segna l'ultimo media visualizzato, dipinto **dentro** la sagoma [shape].
+ * Il tratto che segna l'ultimo media visualizzato, dipinto in [color] **dentro** la sagoma [shape].
  *
- * ⚠️⚠️ **IL COLORE È L'ARANCIONE DEGLI ONBOARDING, ED È SUA RICHIESTA** (*proviamo con
- * l'arancione-onboarding*): [HINT_MARK], `#FFA726`. Fino alla `2.11` era `accentInk()`, cioè il
- * verde acqua leggibile del tema in vigore, e il difetto che lui ha visto è che *più vivido* e
- * verde acqua non stanno insieme: quel colore è il colore di casa, quindi su una schermata che ne
- * è piena un tratto sottile non stacca da niente.
- * ⚠️⚠️ **QUINDI ADESSO L'ARANCIONE DICE DUE COSE, e va saputo invece di scoprirlo**: era
- * l'evidenziatore dei mini onboarding e **l'unico posto in cui la tavolozza si rompe apposta**
- * (vedi [HINT_MARK]); da qui in poi è anche il segno dell'ultimo media. I due non si incontrano
- * mai sullo stesso pixel, perché un onboarding vive sopra un velo scuro che copre la griglia, ma
- * chi aggiunge un terzo uso di quel colore stia attento: è l'unico che l'app ha per dire
- * 'guarda qui'.
- * ⚠️ **Non è `colorScheme.primary`**, che resta il colore del nastro: quello è l'accento pieno, e
- * i due segni devono distinguersi anche a colpo d'occhio.
+ * ⚠️⚠️ **DALLA `2.13` IL COLORE È L'ACCENTO DELL'APP, ED È SUA RICHIESTA** (riscontro del giro
+ * della `2.12`, voce `ind-cornice` approvata con una nota: *forse con questo spessore sarebbe
+ * visibile anche nel colore d'accento. Proviamo*). La `2.12` lo aveva portato sull'arancione degli
+ * onboarding perché a `2,7%` il verde acqua *non era abbastanza vivido*, e il 5% ha tolto proprio
+ * quella causa: un tratto spesso ha l'area per farsi vedere anche in un colore di casa.
+ * ⚠️⚠️ **QUINDI CADE LA NOTA CHE LO ESCLUDEVA** (*non è `colorScheme.primary`, che resta il colore
+ * del nastro: i due segni devono distinguersi a colpo d'occhio*), e cade perché guardava dalla
+ * parte sbagliata: i due segni **non si vedono mai insieme**, sono le due risposte dello stesso
+ * interruttore. Che siano dello stesso colore dice il vero, cioè che sono due forme di una cosa
+ * sola.
+ * ⚠️ **Con lei l'arancione [HINT_MARK] torna a dire una cosa sola**, l'evidenziatore dei mini
+ * onboarding, che è l'unico posto in cui la tavolozza dell'app si rompe apposta.
+ * ⚠️ **Il colore arriva da fuori perché questo non è un composable**, quindi non può leggere il
+ * tema; il chiamante passa `MaterialTheme.colorScheme.primary`, com'è per il nastro. È anche la
+ * cosa che il banco può misurare (`CorniceTest`): che il tratto prenda il colore ricevuto e la
+ * sua opacità, invece di un numero scritto qui dentro.
  * ⚠️⚠️ **LO STROKE SI DISEGNA DOPPIO E POI SI RITAGLIA, e non è un trucco di comodo**: un tratto
  * è centrato sul contorno, quindi metà cadrebbe **fuori** dalla miniatura; disegnandolo di
  * `2 * spessore` dentro un ritaglio della sagoma, la metà di fuori sparisce e quella di dentro
@@ -3429,12 +3442,12 @@ private const val MARK_FRAME_ALPHA = 0.8f
  * MediaStore con dentro delle immagini, e in Robolectric è vuoto, quindi la sola cosa misurabile
  * è il meccanismo su una scena minima (`CorniceTest`).
  */
-internal fun Modifier.lastFrame(shape: Shape): Modifier = this
+internal fun Modifier.lastFrame(shape: Shape, color: Color): Modifier = this
     .clip(shape)
     .drawBehind {
         drawOutline(
             outline = shape.createOutline(size, layoutDirection, this),
-            color = HINT_MARK.copy(alpha = MARK_FRAME_ALPHA),
+            color = color.copy(alpha = MARK_FRAME_ALPHA),
             style = Stroke(width = size.minDimension * MARK_EDGE * 2f)
         )
     }

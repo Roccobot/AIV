@@ -30,8 +30,15 @@ import org.robolectric.annotation.GraphicsMode
  * scrive una prova, e quando no'): nel giro della `2.11` la voce `ind-ultimo` è tornata indietro
  * perché il tratto era troppo sottile e troppo poco vivido. Quanto si veda è percezione e il
  * banco non la sa guardare, ma le due cose che la correzione ha cambiato sono fatti: che lo
- * spessore sia una **frazione del lato** invece di una misura fissa, e che il colore sia
- * l'arancione degli onboarding invece del verde acqua di casa.
+ * spessore sia una **frazione del lato** invece di una misura fissa, e che il tratto prenda il
+ * colore che gli si passa, all'opacità dichiarata.
+ *
+ * ⚠️⚠️ **LA SECONDA PROVA HA CAMBIATO BERSAGLIO CON LA `2.13`, E IL BERSAGLIO NUOVO È PIÙ FORTE**:
+ * fino alla `2.12` misurava che il tratto fosse **arancione**, cioè ricopiava una costante, e
+ * sarebbe diventata rossa per una decisione invece che per un difetto (è successo: il colore è
+ * cambiato su sua richiesta). Adesso il colore lo passa il chiamante, e quello che si misura è il
+ * **legame**: che il tratto sia esattamente quel colore fuso al [MARK_FRAME_ALPHA] sul fondo. Chi
+ * rimettesse una costante dentro [lastFrame] la vedrebbe fallire.
  *
  * ⚠️⚠️ **MISURA IL MECCANISMO E NON LA GRIGLIA, e non è un ripiego**: una miniatura vuole un
  * MediaStore con dentro delle immagini, che in Robolectric è vuoto (vedi `IndicatoreTest`).
@@ -74,21 +81,23 @@ class CorniceTest {
     }
 
     /**
-     * **Il colore è l'arancione degli onboarding e non l'accento di casa.**
+     * **Il tratto porta il colore che riceve, all'opacità dichiarata.**
      *
-     * ⚠️⚠️ **SI MISURA SUL ROSSO CONTRO IL BLU, e i due colori non si somigliano affatto**:
-     * l'arancione [HINT_MARK] steso all'80% su un fondo bianco dà un rosso pieno e un blu basso,
-     * mentre il verde acqua che c'era prima ha il rosso basso. Un confronto col valore esatto
-     * dipenderebbe da come il banco arrotonda la fusione, e non direbbe niente di più.
+     * ⚠️ **Il colore atteso si CALCOLA invece di scriverlo**: è la tinta passata, fusa al
+     * [MARK_FRAME_ALPHA] sul bianco del fondo. Un valore scritto a mano direbbe soltanto come il
+     * banco arrotonda, e cadrebbe al primo ritocco dell'opacità senza che nulla sia rotto.
+     * ⚠️ **La tolleranza è di un centesimo per canale**, che è l'arrotondamento a otto bit: un
+     * confronto esatto fra due `Float` fallirebbe per l'ultimo decimale.
      */
     @Test
-    fun `il tratto e arancione`() {
-        banco.setContent { Scena(120.dp, LARGA) }
+    fun `il tratto prende il colore che riceve`() {
+        banco.setContent { Scena(120.dp, LARGA, PROVA) }
         val pixel = banco.onNodeWithTag(LARGA).captureToImage().toPixelMap()
         val tinta = pixel[1, pixel.height / 2]
-        assertTrue("il rosso deve essere pieno: $tinta", tinta.red > 0.9f)
-        assertTrue("il blu deve stare sotto la metà: $tinta", tinta.blue < 0.5f)
-        assertTrue("il verde sta in mezzo: $tinta", tinta.green > 0.5f && tinta.green < 0.85f)
+        val a = MARK_FRAME_ALPHA
+        assertEquals("rosso: $tinta", PROVA.red * a + (1 - a), tinta.red, 0.01f)
+        assertEquals("verde: $tinta", PROVA.green * a + (1 - a), tinta.green, 0.01f)
+        assertEquals("blu: $tinta", PROVA.blue * a + (1 - a), tinta.blue, 0.01f)
     }
 
     /**
@@ -107,12 +116,12 @@ class CorniceTest {
 
     /** Un quadrato bianco col solo tratto sopra: il fondo chiaro è quello che lo fa contare. */
     @Composable
-    private fun Scena(lato: Dp, tag: String) {
+    private fun Scena(lato: Dp, tag: String, tinta: Color = PROVA) {
         Box(
             Modifier
                 .size(lato)
                 .background(Color.White)
-                .lastFrame(RoundedCornerShape(4.dp))
+                .lastFrame(RoundedCornerShape(4.dp), tinta)
                 .testTag(tag)
         )
     }
@@ -120,5 +129,14 @@ class CorniceTest {
     private companion object {
         const val STRETTA = "stretta"
         const val LARGA = "larga"
+
+        /**
+         * La tinta che la scena passa al tratto.
+         *
+         * ⚠️ **Non è un colore del tema di proposito**: la prova misura che il tratto usi quello
+         * che riceve, e un colore preso da `MaterialTheme` renderebbe verde anche un tratto che se
+         * lo va a prendere da sé, cioè proprio il difetto da cui questa prova difende.
+         */
+        val PROVA = Color(0xFF3366CC)
     }
 }
