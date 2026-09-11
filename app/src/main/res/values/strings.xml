@@ -103,9 +103,9 @@
     <string name="look_highlights">Highlights</string>
     <string name="look_reset_one">Reset %1$s</string>
     <string name="look_compare">Press and hold to see the original</string>
-    <string name="look_failed">This phone could not apply the changes</string>
-    <string name="settings_quality">Saving quality</string>
-    <string name="settings_quality_desc">How the full editor writes the file. \'High\' and \'Maximum\' are both JPEG: they look the same and the second one is about twice the size. \'Lossless\' writes a PNG next to the original instead of over it, and keeps every pixel.</string>
+    <string name="look_failed">The changes could not be saved</string>
+    <string name="settings_quality">Format and quality</string>
+    <string name="settings_quality_desc">Quality and format of saved images: two JPEG levels (High = 95%, Maximum = 100%) and PNG (no compression). JPEG suits photographs and cuts the file size by giving up some \'invisible\' detail; PNG has no compression and keeps all the original information, but is particularly heavy with photographs.</string>
     <string name="quality_high">High</string>
     <string name="quality_max">Maximum</string>
     <string name="quality_lossless">Lossless</string>

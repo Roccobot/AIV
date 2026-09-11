@@ -413,9 +413,9 @@
     <string name="look_highlights">Sehemu angavu</string>
     <string name="look_reset_one">Weka upya %1$s</string>
     <string name="look_compare">Shikilia ili kuona picha asilia</string>
-    <string name="look_failed">Simu hii haikuweza kutumia mabadiliko</string>
-    <string name="settings_quality">Ubora wa kuhifadhi</string>
-    <string name="settings_quality_desc">Jinsi kihariri kamili kinavyoandika faili. \'Juu\' na \'Ya juu zaidi\' zote ni JPEG: zinaonekana sawa na ya pili ni takribani mara mbili kwa ukubwa. \'Bila hasara\' huandika PNG kando ya picha asilia badala ya juu yake, na huhifadhi kila pikseli.</string>
+    <string name="look_failed">Mabadiliko hayakuweza kuhifadhiwa</string>
+    <string name="settings_quality">Muundo na ubora</string>
+    <string name="settings_quality_desc">Ubora na muundo wa picha zilizohifadhiwa: viwango viwili vya JPEG (Juu = 95%, Upeo = 100%) na PNG (bila mbano). JPEG inafaa kwa picha na hupunguza ukubwa wa faili kwa kuacha baadhi ya maelezo \'yasiyoonekana\'; PNG haina mbano na huhifadhi taarifa zote za awali, lakini huwa nzito sana kwa picha.</string>
     <string name="quality_high">Juu</string>
     <string name="quality_max">Ya juu zaidi</string>
     <string name="quality_lossless">Bila hasara</string>

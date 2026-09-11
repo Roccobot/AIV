@@ -401,18 +401,29 @@ private fun LookSheet(
                 onSettled = onSettled
             )
 
+            /*
+             * ⚠️⚠️ **TRE ICONE E NON TRE SCRITTE, DALLA `2.15`, ED È IL SUO RISCONTRO** (giro
+             * della `2.14`, voce `luce-storia`: *'Annulla' e 'Ripristina' devono essere icone, non
+             * testo*).
+             * ⚠️⚠️ **E I GLIFI SONO QUELLI CHE L'EDITOR DI CASA USA GIÀ PER GLI STESSI TRE
+             * COMANDI**, cioè i suoi: disegnarne altri vorrebbe dire due segni per lo stesso gesto
+             * a un tocco di distanza, visto che dalla stessa immagine si entra nell'uno o
+             * nell'altro editor.
+             * ⚠️ **Anche il terzo, che lui non ha nominato**: due icone accanto a una scritta
+             * sarebbero una fila che si legge in due modi, e 'Originale' il suo glifo ce l'ha già.
+             */
             Row(
                 modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
                 horizontalArrangement = Arrangement.End
             ) {
-                TextButton(onClick = onUndo, enabled = canUndo && !busy) {
-                    Text(stringResource(R.string.editor_undo))
+                IconButton(onClick = onUndo, enabled = canUndo && !busy) {
+                    Icon(Glyphs.EditUndo, stringResource(R.string.editor_undo))
                 }
-                TextButton(onClick = onRedo, enabled = canRedo && !busy) {
-                    Text(stringResource(R.string.editor_redo))
+                IconButton(onClick = onRedo, enabled = canRedo && !busy) {
+                    Icon(Glyphs.EditRedo, stringResource(R.string.editor_redo))
                 }
-                TextButton(onClick = onOriginal, enabled = !look.idle && !busy) {
-                    Text(stringResource(R.string.editor_original))
+                IconButton(onClick = onOriginal, enabled = !look.idle && !busy) {
+                    Icon(Glyphs.EditReset, stringResource(R.string.editor_original))
                 }
             }
         }

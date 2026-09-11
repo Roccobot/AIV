@@ -413,9 +413,9 @@
     <string name="look_highlights">ஒளிப்பகுதி</string>
     <string name="look_reset_one">%1$s மீட்டமை</string>
     <string name="look_compare">அசலைக் காண அழுத்திப் பிடிக்கவும்</string>
-    <string name="look_failed">இந்த ஃபோனால் மாற்றங்களைப் பயன்படுத்த முடியவில்லை</string>
-    <string name="settings_quality">சேமிப்புத் தரம்</string>
-    <string name="settings_quality_desc">முழு திருத்தி கோப்பை எழுதும் விதம். \'உயர்ந்த\' மற்றும் \'அதிகபட்ச\' இரண்டும் JPEG: பார்வைக்கு ஒரே மாதிரி, இரண்டாவது ஏறக்குறைய இரு மடங்கு பெரியது. \'இழப்பற்ற\' அசலின் மேல் எழுதாமல் அதற்கு அருகில் ஒரு PNG எழுதி ஒவ்வொரு பிக்சலையும் காக்கிறது.</string>
+    <string name="look_failed">மாற்றங்களைச் சேமிக்க முடியவில்லை</string>
+    <string name="settings_quality">வடிவம் மற்றும் தரம்</string>
+    <string name="settings_quality_desc">சேமிக்கப்படும் படங்களின் தரமும் வடிவமும்: JPEG இரண்டு நிலைகள் (உயர் = 95%, அதிகபட்சம் = 100%) மற்றும் PNG (சுருக்கம் இல்லாமல்). JPEG புகைப்படங்களுக்கு ஏற்றது, சில \'கண்ணுக்குத் தெரியாத\' விவரங்களை விட்டுக் கோப்பின் அளவைக் குறைக்கிறது; PNG இல் சுருக்கம் இல்லை, அசல் தகவல் அனைத்தும் அப்படியே இருக்கும், ஆனால் புகைப்படங்களில் இது மிகவும் கனமாகும்.</string>
     <string name="quality_high">உயர்ந்த</string>
     <string name="quality_max">அதிகபட்ச</string>
     <string name="quality_lossless">இழப்பற்ற</string>

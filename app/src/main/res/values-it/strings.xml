@@ -74,9 +74,9 @@
     <string name="look_highlights">Luci</string>
     <string name="look_reset_one">Azzera %1$s</string>
     <string name="look_compare">Tieni premuto per vedere l\'originale</string>
-    <string name="look_failed">Questo telefono non è riuscito ad applicare le modifiche</string>
-    <string name="settings_quality">Qualità del salvataggio</string>
-    <string name="settings_quality_desc">Come l\'editor completo riscrive il file. \'Alta\' e \'Massima\' sono tutte e due JPEG: a occhio si somigliano e la seconda pesa circa il doppio. \'Senza perdita\' scrive un PNG accanto all\'originale invece che sopra, e non butta via nessun pixel.</string>
+    <string name="look_failed">Non è stato possibile salvare le modifiche</string>
+    <string name="settings_quality">Formato e qualità</string>
+    <string name="settings_quality_desc">Qualità e formato delle immagini salvate: due livelli JPEG (Alta = 95%, Massima = 100%) e PNG (senza compressione). Il JPEG è adatto per le foto e riduce il peso del file sacrificando alcuni dettagli \'invisibili\'; PNG non ha compressione e mantiene tutte le informazioni originali, ma risulta particolarmente pesante con le foto.</string>
     <string name="quality_high">Alta</string>
     <string name="quality_max">Massima</string>
     <string name="quality_lossless">Senza perdita</string>

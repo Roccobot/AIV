@@ -1901,11 +1901,54 @@ salvataggio: salvare è un gesto che si fa di fretta, ed è la stessa lettura ch
 'Scarica'. ⚠️ **Le prime due sono un JPEG e la terza un altro formato**: 'Senza perdita' scrive
 un PNG **accanto** invece di sovrascrivere, perché il formato cambia.
 
-⚠️ **Che cosa il banco misura e che cosa no** (`LuceTest`): il modello (la soglia del riposo, il
-guadagno in stop, il senza perdita) e la **storia dei passi** montando la schermata vera, coi
-comandi che camminano avanti e indietro. **Non** vede i pixel che escono dal conto, perché una
-prova gira senza scheda grafica e `lookShader` risponde `null`, né il confronto col prima, che si
-vede solo dai pixel: quelli si guardano sul telefono.
+⚠️⚠️ **E NELLA `2.14` QUEL PROGRAMMA NON COMPILAVA AFFATTO, SU NESSUN TELEFONO** (riscontro del
+giro, voce `luce-cursori` non approvata: *nessuno slider ha avuto effetto sull'immagine*, e
+salvando *'Questo telefono non è riuscito ad applicare le modifiche'*). La causa è una parola:
+**`out` è un qualificatore di parametro del linguaggio**, quindi `half3 out = ...` è un errore di
+sintassi e il compilatore rifiuta il programma intero, dalla prima riga. Quattro voci su cinque
+sono tornate indietro per quella.
+- ⚠️⚠️ **A NASCONDERLA È STATA LA RETE CHE DOVEVA PROTEGGERE**: `lookShader` avvolge la
+  compilazione in un `runCatching` perché un programma rifiutato non faccia cadere l'app mentre
+  disegna un fotogramma. Quella riga serve e resta, ma **trasforma un errore di sintassi in un
+  `null`**, cioè in 'questo telefono non sa farlo': la diagnosi arrivava rovesciata, e il testo
+  che l'utente leggeva accusava il suo telefono.
+- ⚠️⚠️ **UNA STRINGA DI PROGRAMMA NON LA GUARDA NESSUN COMPILATORE, ed è la stessa famiglia del
+  `pathData` che `aapt2` non legge**: Kotlin compila `LIGHT_AGSL` come compilerebbe una poesia.
+  Il presidio è `ContoTest`, che il programma lo **compila davvero**, senza rete, così un errore
+  di sintassi arriva col messaggio, la riga e la colonna.
+- ⚠️⚠️ **MA IL BANCO NON PUÒ ESEGUIRLO, ed è misurato**: disegnare con un `RuntimeShader` su una
+  tela di memoria fallisce con *Software rendering doesn't support RuntimeShader*, perché
+  Robolectric disegna col processore e Android quella strada la vieta. Quindi il banco risponde
+  *questo programma è valido* e non *questo conto è giusto*, e la differenza fra le due cose si
+  guarda sul telefono.
+- ⚠️ **I versi dei cinque cursori si verificano con un modello di SESSIONE**, scritto e buttato:
+  riscrivere il conto in Kotlin dentro il repository sarebbe la seconda copia che questa sezione
+  esiste per non avere, mentre un conto fatto una volta in una sessione è una misura come le
+  altre.
+
+⚠️⚠️ **E LA STESSA PASSATA HA TROVATO DUE DIFETTI DI MERITO, che nessuno aveva potuto vedere
+perché il programma non è mai partito**:
+- **Il contrasto negativo andava dalla parte sbagliata**: il ramo `k < 0` portava un tono da 0,6 a
+  0,72, cioè **allontanava** dal perno, quindi il cursore alzava il contrasto in tutti e due i
+  versi. Adesso comprime verso il perno, e non arriva a zero: a -100 resta il 40% della distanza,
+  o l'immagine diventerebbe un rettangolo grigio.
+- **Le maschere di ombre e luci guardavano la luce e non l'occhio**: in luce lineare un grigio
+  medio vale 0,22, quindi la maschera delle ombre gli dava 0,61 e il cursore sollevava i mezzi
+  toni come fa la luminosità. Adesso la maschera si costruisce sul valore percettivo, che è la
+  sola cosa che distingue quei due cursori dal terzo.
+
+⚠️⚠️ **I TRE COMANDI DELLA STORIA SONO ICONE DALLA `2.15`, ED È IL SUO RISCONTRO** (voce
+`luce-storia`: *'Annulla' e 'Ripristina' devono essere icone, non testo*). I glifi sono quelli
+che l'**editor di casa** usa già per gli stessi tre comandi, cioè i suoi: disegnarne altri
+vorrebbe dire due segni per lo stesso gesto a un tocco di distanza, visto che dalla stessa
+immagine si entra nell'uno o nell'altro editor. ⚠️ **Anche il terzo, che lui non ha nominato**:
+due icone accanto a una scritta sarebbero una fila che si legge in due modi.
+
+⚠️ **Che cosa il banco misura e che cosa no**: `LuceTest` guarda il modello (la soglia del
+riposo, il guadagno in stop, il senza perdita) e la **storia dei passi** montando la schermata
+vera, coi comandi che camminano avanti e indietro; `ContoTest` guarda che il programma dello
+shader compili e che `lookShader` lo consegni. **Non** vedono i pixel che ne escono, né il
+confronto col prima: quelli si guardano sul telefono.
 
 ## 🗑️ Lo svuotamento automatico del cestino, e le tre decisioni che lo governano
 

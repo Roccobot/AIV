@@ -413,9 +413,9 @@
     <string name="look_highlights">हायलाइट</string>
     <string name="look_reset_one">%1$s रीसेट करा</string>
     <string name="look_compare">मूळ पाहण्यासाठी दाबून धरा</string>
-    <string name="look_failed">हा फोन बदल लागू करू शकला नाही</string>
-    <string name="settings_quality">जतन गुणवत्ता</string>
-    <string name="settings_quality_desc">पूर्ण संपादक फाइल कशी लिहितो. \'उच्च\' आणि \'कमाल\' दोन्ही JPEG आहेत: दिसायला सारखे आणि दुसरे जवळपास दुप्पट मोठे. \'हानिरहित\' मूळवर लिहिण्याऐवजी त्याच्या शेजारी PNG लिहितो आणि प्रत्येक पिक्सेल ठेवतो.</string>
+    <string name="look_failed">बदल जतन करता आले नाहीत</string>
+    <string name="settings_quality">स्वरूप आणि दर्जा</string>
+    <string name="settings_quality_desc">जतन केलेल्या प्रतिमांचा दर्जा आणि स्वरूप: JPEG चे दोन स्तर (उच्च = 95%, कमाल = 100%) आणि PNG (संकुचनाशिवाय). JPEG छायाचित्रांसाठी योग्य आहे आणि काही \'अदृश्य\' तपशील सोडून फाइलचा आकार कमी करते; PNG मध्ये संकुचन नसते आणि सर्व मूळ माहिती टिकून राहते, पण छायाचित्रांसोबत ते विशेष जड होते.</string>
     <string name="quality_high">उच्च</string>
     <string name="quality_max">कमाल</string>
     <string name="quality_lossless">हानिरहित</string>

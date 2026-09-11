@@ -397,9 +397,9 @@
     <string name="look_highlights">Sorotan</string>
     <string name="look_reset_one">Setel ulang %1$s</string>
     <string name="look_compare">Tekan dan tahan untuk melihat aslinya</string>
-    <string name="look_failed">Ponsel ini tidak dapat menerapkan perubahan</string>
-    <string name="settings_quality">Kualitas penyimpanan</string>
-    <string name="settings_quality_desc">Bagaimana editor lengkap menulis berkas. \'Tinggi\' dan \'Maksimum\' sama-sama JPEG: terlihat sama dan yang kedua kira-kira dua kali lebih besar. \'Tanpa kehilangan\' menulis PNG di samping aslinya, bukan menimpanya, dan menjaga setiap piksel.</string>
+    <string name="look_failed">Perubahan tidak dapat disimpan</string>
+    <string name="settings_quality">Format dan kualitas</string>
+    <string name="settings_quality_desc">Kualitas dan format gambar yang disimpan: dua tingkat JPEG (Tinggi = 95%, Maksimum = 100%) dan PNG (tanpa kompresi). JPEG cocok untuk foto dan memperkecil ukuran berkas dengan melepas beberapa detail \'tak terlihat\'; PNG tanpa kompresi dan menyimpan semua informasi asli, tetapi menjadi sangat berat untuk foto.</string>
     <string name="quality_high">Tinggi</string>
     <string name="quality_max">Maksimum</string>
     <string name="quality_lossless">Tanpa kehilangan</string>

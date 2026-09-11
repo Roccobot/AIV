@@ -397,9 +397,9 @@
     <string name="look_highlights">高光</string>
     <string name="look_reset_one">重置%1$s</string>
     <string name="look_compare">长按查看原图</string>
-    <string name="look_failed">此手机无法应用这些更改</string>
-    <string name="settings_quality">保存质量</string>
-    <string name="settings_quality_desc">完整编辑器写入文件的方式。\'高\' 和 \'最高\' 都是 JPEG：看起来一样，后者约为两倍大小。\'无损\' 会在原图旁边写入 PNG 而不是覆盖原图，并保留每一个像素。</string>
+    <string name="look_failed">无法保存所做的更改</string>
+    <string name="settings_quality">格式与画质</string>
+    <string name="settings_quality_desc">保存图像的画质与格式：JPEG 两档（高 = 95%，最高 = 100%）和 PNG（无压缩）。JPEG 适合照片，会舍弃一些\'看不见\'的细节来减小文件；PNG 没有压缩，保留全部原始信息，但用于照片时特别大。</string>
     <string name="quality_high">高</string>
     <string name="quality_max">最高</string>
     <string name="quality_lossless">无损</string>

@@ -397,9 +397,9 @@
     <string name="look_highlights">ไฮไลต์</string>
     <string name="look_reset_one">รีเซ็ต %1$s</string>
     <string name="look_compare">กดค้างไว้เพื่อดูต้นฉบับ</string>
-    <string name="look_failed">โทรศัพท์นี้ใช้การเปลี่ยนแปลงไม่ได้</string>
-    <string name="settings_quality">คุณภาพการบันทึก</string>
-    <string name="settings_quality_desc">วิธีที่ตัวแก้ไขแบบเต็มเขียนไฟล์ \'สูง\' และ \'สูงสุด\' เป็น JPEG ทั้งคู่ ดูเหมือนกันและแบบที่สองมีขนาดราวสองเท่า \'ไม่สูญเสีย\' เขียนไฟล์ PNG ไว้ข้างต้นฉบับแทนที่จะเขียนทับ และเก็บทุกพิกเซลไว้</string>
+    <string name="look_failed">บันทึกการเปลี่ยนแปลงไม่ได้</string>
+    <string name="settings_quality">รูปแบบและคุณภาพ</string>
+    <string name="settings_quality_desc">คุณภาพและรูปแบบของภาพที่บันทึก: JPEG สองระดับ (สูง = 95%, สูงสุด = 100%) และ PNG (ไม่มีการบีบอัด) JPEG เหมาะกับภาพถ่ายและลดขนาดไฟล์โดยยอมเสียรายละเอียดบางอย่างที่ \'มองไม่เห็น\' ส่วน PNG ไม่มีการบีบอัดและเก็บข้อมูลต้นฉบับไว้ทั้งหมด แต่จะหนักเป็นพิเศษกับภาพถ่าย</string>
     <string name="quality_high">สูง</string>
     <string name="quality_max">สูงสุด</string>
     <string name="quality_lossless">ไม่สูญเสีย</string>
