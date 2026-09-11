@@ -334,6 +334,9 @@
     <string name="settings_group_browse">ఫోల్డర్‌లు</string>
     <string name="settings_group_start">ప్రారంభం</string>
     <string name="settings_group_advanced">అధునాతన సౌకర్యాలు</string>
+    <string name="settings_page_info">సమాచారం</string>
+    <string name="settings_page_controls">నియంత్రణలు మరియు బటన్‌లు</string>
+    <string name="settings_page_editing">ఎడిటర్ మరియు సేవ్</string>
     <string name="settings_ext_edit">పొడిగింపును మార్చడానికి అనుమతించు</string>
     <string name="settings_ext_edit_desc">ఫైల్ పేరు విండోలకు \'పొడిగింపు\' బటన్‌ను జోడిస్తుంది. ఏ విండోలలో కనిపించాలో కింద ఎంచుకో. ⚠️ పొడిగింపు మార్చడం ఫార్మాట్ మార్పిడి కాదు (దానికి \'ఎగుమతి చేసి మార్చు\' ఉంది), జాగ్రత్తగా వాడాలి: కొన్ని ఫైళ్లు చదవలేనివిగా మారి గ్యాలరీ యాప్‌లలో కనిపించకపోవచ్చు.</string>
     <string name="settings_gpu_thumbs">సూక్ష్మచిత్రాలను గ్రాఫిక్స్ మెమరీలో ఉంచు</string>
@@ -394,6 +397,7 @@
     <string name="settings_images_only">చిత్రాలను మాత్రమే తిప్పు</string>
     <string name="settings_images_only_desc">వీక్షకిలో జరపడం వీడియోలను దాటవేసి చిత్రాలను మాత్రమే తిరగేస్తుంది. సాధారణ వీక్షణ నుండి ఒక్క తాకిడితో వీడియోను తెరవవచ్చు.</string>
     <string name="settings_clip_autoplay">వీడియోలను నేరుగా ఆడించు</string>
+    <string name="settings_clip_autoplay_desc">ఒక ట్యాప్‌తో తెరిచిన వీడియో దానంతట అదే మొదలవుతుంది. తిప్పుతున్నప్పుడు వీడియోలు ప్లే బటన్‌తో పాజ్‌లోనే ఉంటాయి.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">సవరించు</string>

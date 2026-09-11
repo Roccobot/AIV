@@ -348,6 +348,9 @@
     <string name="settings_group_browse">Dossiers</string>
     <string name="settings_group_start">Démarrage</string>
     <string name="settings_group_advanced">Fonctions avancées</string>
+    <string name="settings_page_info">Informations</string>
+    <string name="settings_page_controls">Commandes et boutons</string>
+    <string name="settings_page_editing">Éditeur et enregistrement</string>
     <string name="settings_ext_edit">Autoriser la modification de l\'extension</string>
     <string name="settings_ext_edit_desc">Ajoute le bouton \'Extension\' aux fenêtres de nom de fichier. Choisis ci-dessous dans lesquelles. ⚠️ Changer une extension n\'est pas une conversion de format (c\'est le rôle d\'\'Exporter et convertir\') et demande de la prudence, car certains fichiers peuvent devenir illisibles et disparaître des applis de galerie.</string>
     <string name="settings_gpu_thumbs">Garder les miniatures en mémoire graphique</string>
@@ -410,6 +413,7 @@
     <string name="settings_images_only">Ne feuilleter que les images</string>
     <string name="settings_images_only_desc">Dans la visionneuse, le balayage ignore les vidéos et ne feuillette que les images. Une vidéo s\'ouvre toujours d\'une touche depuis la vue normale.</string>
     <string name="settings_clip_autoplay">Lire les vidéos directement</string>
+    <string name="settings_clip_autoplay_desc">Une vidéo ouverte d\'une pression démarre toute seule. En faisant défiler, les vidéos restent en pause avec le bouton de lecture par-dessus.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Modifier</string>

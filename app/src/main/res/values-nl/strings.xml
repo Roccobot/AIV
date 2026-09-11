@@ -334,6 +334,9 @@
     <string name="settings_group_browse">Mappen</string>
     <string name="settings_group_start">Opstarten</string>
     <string name="settings_group_advanced">Geavanceerde functies</string>
+    <string name="settings_page_info">Informatie</string>
+    <string name="settings_page_controls">Bediening en knoppen</string>
+    <string name="settings_page_editing">Editor en opslaan</string>
     <string name="settings_ext_edit">Extensie wijzigen toestaan</string>
     <string name="settings_ext_edit_desc">Voegt de knop \'Extensie\' toe aan de vensters met bestandsnamen. Kies hieronder in welke. ⚠️ Een extensie wijzigen is geen formaatomzetting (daarvoor is \'Exporteren en omzetten\') en vraagt om voorzichtigheid, want sommige bestanden worden onleesbaar en verdwijnen uit galerij-apps.</string>
     <string name="settings_gpu_thumbs">Miniaturen in het grafisch geheugen houden</string>
@@ -394,6 +397,7 @@
     <string name="settings_images_only">Alleen door foto\'s bladeren</string>
     <string name="settings_images_only_desc">In de viewer slaat het vegen de video\'s over en bladert het alleen door afbeeldingen. Vanuit de normale weergave opent een video nog steeds met één tik.</string>
     <string name="settings_clip_autoplay">Video\'s direct afspelen</string>
+    <string name="settings_clip_autoplay_desc">Een video die je met een tik opent, start vanzelf. Tijdens het bladeren blijven video\'s gepauzeerd met de afspeelknop erop.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Bewerken</string>

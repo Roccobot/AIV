@@ -320,6 +320,9 @@
     <string name="settings_group_browse">文件夹</string>
     <string name="settings_group_start">启动</string>
     <string name="settings_group_advanced">高级功能</string>
+    <string name="settings_page_info">信息</string>
+    <string name="settings_page_controls">控件与按钮</string>
+    <string name="settings_page_editing">编辑器与保存</string>
     <string name="settings_ext_edit">允许修改扩展名</string>
     <string name="settings_ext_edit_desc">在文件名窗口中添加 \'扩展名\' 按钮。在下面选择出现在哪些窗口。⚠️ 修改扩展名不等于格式转换（那是 \'导出并转换\' 的事），要谨慎使用，因为有些文件会变得无法读取，并从相册应用中消失。</string>
     <string name="settings_gpu_thumbs">把缩略图放在图形内存里</string>
@@ -378,6 +381,7 @@
     <string name="settings_images_only">只翻阅图片</string>
     <string name="settings_images_only_desc">在查看器中滑动会跳过视频，只翻阅图像。在普通视图中轻触仍然可以打开视频。</string>
     <string name="settings_clip_autoplay">直接播放视频</string>
+    <string name="settings_clip_autoplay_desc">轻点打开的视频会自动播放。翻阅时视频保持暂停，并叠加播放按钮。</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">编辑</string>

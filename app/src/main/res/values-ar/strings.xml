@@ -390,6 +390,9 @@
     <string name="settings_group_browse">المجلدات</string>
     <string name="settings_group_start">بدء التشغيل</string>
     <string name="settings_group_advanced">ميزات متقدمة</string>
+    <string name="settings_page_info">المعلومات</string>
+    <string name="settings_page_controls">عناصر التحكم والأزرار</string>
+    <string name="settings_page_editing">المحرر والحفظ</string>
     <string name="settings_ext_edit">السماح بتعديل الامتداد</string>
     <string name="settings_ext_edit_desc">يضيف زر \'الامتداد\' إلى نوافذ أسماء الملفات. اختر أدناه أين يظهر. ⚠️ تغيير الامتداد ليس تحويلاً للصيغة (لذلك يوجد \'تصدير وتحويل\') ويحتاج إلى حذر، لأن بعض الملفات قد تصبح غير قابلة للقراءة ولا تظهر في تطبيقات المعرض.</string>
     <string name="settings_gpu_thumbs">الاحتفاظ بالصور المصغرة في ذاكرة الرسوميات</string>
@@ -458,6 +461,7 @@
     <string name="settings_images_only">تصفح الصور فقط</string>
     <string name="settings_images_only_desc">في العارض، يتخطّى السحب مقاطع الفيديو ويتصفّح الصور وحدها. ويمكن فتح مقطع الفيديو بلمسة من العرض العادي.</string>
     <string name="settings_clip_autoplay">تشغيل الفيديو مباشرةً</string>
+    <string name="settings_clip_autoplay_desc">يبدأ الفيديو المفتوح بنقرة من تلقاء نفسه. وأثناء التصفح تبقى مقاطع الفيديو متوقفة مؤقتًا مع زر التشغيل فوقها.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">تحرير</string>

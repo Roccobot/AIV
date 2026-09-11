@@ -175,7 +175,8 @@
     <string name="settings_search_clear">Clear the search</string>
     <string name="settings_search_none">No results</string>
 
-    <!-- The sections the settings are gathered into, in the order they appear. -->
+    <!-- The sections the settings are gathered into, in the order they appear. Two of them no
+         longer head a section and title a page instead: 'Viewer' and 'Folders'. -->
     <string name="settings_group_look">Appearance</string>
     <string name="settings_group_viewer">Viewer</string>
     <string name="settings_group_clips">Navigation</string>
@@ -184,6 +185,11 @@
     <string name="settings_group_browse">Folders</string>
     <string name="settings_group_start">Startup</string>
     <string name="settings_group_advanced">Advanced features</string>
+
+    <!-- The pages a settings family lives in, where no section title already names it. -->
+    <string name="settings_page_info">Information</string>
+    <string name="settings_page_controls">Controls and buttons</string>
+    <string name="settings_page_editing">Editor and saving</string>
     <string name="settings_ext_edit">Allow editing the extension</string>
     <string name="settings_ext_edit_desc">Adds an \'Extension\' button to the file name windows. Pick below which ones it appears in. ⚠️ Changing an extension is not a format conversion (that is what \'Export and convert\' is for) and needs care, because some files may become unreadable and stop showing up in gallery apps.</string>
     <string name="settings_gpu_thumbs">Keep thumbnails in graphics memory</string>
@@ -309,6 +315,7 @@
     <string name="settings_images_only">Leaf through pictures only</string>
     <string name="settings_images_only_desc">In the viewer, swiping skips videos and browses images only. You can still open a video with a tap from the normal view.</string>
     <string name="settings_clip_autoplay">Play videos straight away</string>
+    <string name="settings_clip_autoplay_desc">A video opened with a tap starts playing on its own. While leafing through, videos stay paused with the play button on top.</string>
 
     <!-- Off by default, and the second sentence is the reason why: the system notice
          is the cost of the feature, so it belongs next to the switch rather than as a

@@ -362,6 +362,9 @@
     <string name="settings_group_browse">Foldery</string>
     <string name="settings_group_start">Uruchamianie</string>
     <string name="settings_group_advanced">Funkcje zaawansowane</string>
+    <string name="settings_page_info">Informacje</string>
+    <string name="settings_page_controls">Sterowanie i przyciski</string>
+    <string name="settings_page_editing">Edytor i zapisywanie</string>
     <string name="settings_ext_edit">Pozwól zmieniać rozszerzenie</string>
     <string name="settings_ext_edit_desc">Dodaje przycisk \'Rozszerzenie\' do okien z nazwami plików. Poniżej wybierz, w których. ⚠️ Zmiana rozszerzenia to nie konwersja formatu (od tego jest \'Eksportuj i konwertuj\') i wymaga ostrożności, bo część plików może stać się nieczytelna i zniknąć z aplikacji galerii.</string>
     <string name="settings_gpu_thumbs">Trzymaj miniatury w pamięci graficznej</string>
@@ -426,6 +429,7 @@
     <string name="settings_images_only">Przeglądaj tylko zdjęcia</string>
     <string name="settings_images_only_desc">W przeglądarce przesunięcie pomija filmy i przegląda tylko obrazy. Film nadal otwiera się dotknięciem w widoku zwykłym.</string>
     <string name="settings_clip_autoplay">Odtwarzaj filmy od razu</string>
+    <string name="settings_clip_autoplay_desc">Film otwarty dotknięciem uruchamia się sam. Podczas przeglądania filmy pozostają wstrzymane z przyciskiem odtwarzania na wierzchu.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Edytuj</string>

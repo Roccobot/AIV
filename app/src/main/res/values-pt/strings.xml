@@ -348,6 +348,9 @@
     <string name="settings_group_browse">Pastas</string>
     <string name="settings_group_start">Início</string>
     <string name="settings_group_advanced">Recursos avançados</string>
+    <string name="settings_page_info">Informações</string>
+    <string name="settings_page_controls">Controles e botões</string>
+    <string name="settings_page_editing">Editor e salvamento</string>
     <string name="settings_ext_edit">Permitir alterar a extensão</string>
     <string name="settings_ext_edit_desc">Adiciona o botão \'Extensão\' às janelas de nomes de ficheiro. Escolhe abaixo em quais aparece. ⚠️ Mudar a extensão não é converter o formato (para isso existe \'Exportar e converter\') e exige cuidado, porque alguns ficheiros podem ficar ilegíveis e deixar de aparecer nas apps de galeria.</string>
     <string name="settings_gpu_thumbs">Manter as miniaturas na memória gráfica</string>
@@ -410,6 +413,7 @@
     <string name="settings_images_only">Folhear só as imagens</string>
     <string name="settings_images_only_desc">No visualizador, o deslize salta os vídeos e folheia apenas as imagens. Um vídeo pode ser aberto com um toque a partir da visualização normal.</string>
     <string name="settings_clip_autoplay">Reproduzir os vídeos de imediato</string>
+    <string name="settings_clip_autoplay_desc">Um vídeo aberto com um toque começa sozinho. Ao percorrer, os vídeos ficam pausados com o botão de reprodução por cima.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Editar</string>

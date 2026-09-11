@@ -334,6 +334,9 @@
     <string name="settings_group_browse">फ़ोल्डर</string>
     <string name="settings_group_start">शुरुआत</string>
     <string name="settings_group_advanced">उन्नत सुविधाएँ</string>
+    <string name="settings_page_info">जानकारी</string>
+    <string name="settings_page_controls">नियंत्रण और बटन</string>
+    <string name="settings_page_editing">संपादक और सहेजना</string>
     <string name="settings_ext_edit">एक्सटेंशन बदलने दें</string>
     <string name="settings_ext_edit_desc">फ़ाइल नाम की विंडो में \'एक्सटेंशन\' बटन जोड़ता है. नीचे चुनो कि किनमें दिखे. ⚠️ एक्सटेंशन बदलना फ़ॉर्मैट बदलना नहीं है (उसके लिए \'निर्यात करें और बदलें\' है) और सावधानी चाहता है, क्योंकि कुछ फ़ाइलें अपठनीय हो सकती हैं और गैलरी ऐप में दिखना बंद कर सकती हैं.</string>
     <string name="settings_gpu_thumbs">थंबनेल ग्राफ़िक्स मेमोरी में रखें</string>
@@ -394,6 +397,7 @@
     <string name="settings_images_only">सिर्फ़ तस्वीरें देखें</string>
     <string name="settings_images_only_desc">दर्शक में सरकाने पर वीडियो छूट जाते हैं और केवल छवियाँ पलटती हैं। सामान्य दृश्य से एक स्पर्श पर वीडियो खोला जा सकता है।</string>
     <string name="settings_clip_autoplay">वीडियो सीधे चलाएँ</string>
+    <string name="settings_clip_autoplay_desc">टैप से खोला गया वीडियो अपने आप चलने लगता है। पलटते समय वीडियो प्ले बटन के साथ रुके रहते हैं।</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">संपादित करें</string>

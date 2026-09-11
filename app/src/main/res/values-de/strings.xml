@@ -334,6 +334,9 @@
     <string name="settings_group_browse">Ordner</string>
     <string name="settings_group_start">Start</string>
     <string name="settings_group_advanced">Erweiterte Funktionen</string>
+    <string name="settings_page_info">Informationen</string>
+    <string name="settings_page_controls">Bedienelemente und Schaltflächen</string>
+    <string name="settings_page_editing">Editor und Speichern</string>
     <string name="settings_ext_edit">Ändern der Endung erlauben</string>
     <string name="settings_ext_edit_desc">Fügt den Fenstern für Dateinamen die Schaltfläche \'Endung\' hinzu. Wähle unten, in welchen. ⚠️ Eine Endung zu ändern ist keine Formatumwandlung (dafür gibt es \'Exportieren und umwandeln\') und will mit Bedacht benutzt werden, denn manche Dateien werden unlesbar und tauchen in Galerie-Apps nicht mehr auf.</string>
     <string name="settings_gpu_thumbs">Miniaturen im Grafikspeicher halten</string>
@@ -394,6 +397,7 @@
     <string name="settings_images_only">Nur Bilder durchblättern</string>
     <string name="settings_images_only_desc">Im Betrachter überspringt das Wischen die Videos und blättert nur Bilder durch. Aus der normalen Ansicht lässt sich ein Video weiterhin mit einer Berührung öffnen.</string>
     <string name="settings_clip_autoplay">Videos sofort abspielen</string>
+    <string name="settings_clip_autoplay_desc">Ein mit einem Tippen geöffnetes Video startet von selbst. Beim Durchblättern bleiben Videos pausiert, mit der Wiedergabetaste darüber.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Bearbeiten</string>

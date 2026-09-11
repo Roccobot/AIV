@@ -334,6 +334,9 @@
     <string name="settings_group_browse">फोल्डर</string>
     <string name="settings_group_start">सुरुवात</string>
     <string name="settings_group_advanced">प्रगत सुविधा</string>
+    <string name="settings_page_info">माहिती</string>
+    <string name="settings_page_controls">नियंत्रणे आणि बटणे</string>
+    <string name="settings_page_editing">संपादक आणि जतन</string>
     <string name="settings_ext_edit">एक्सटेन्शन बदलू द्या</string>
     <string name="settings_ext_edit_desc">फाइल नावाच्या विंडोमध्ये \'विस्तार\' बटण जोडते. कोणत्या विंडोत दिसावे ते खाली निवड. ⚠️ विस्तार बदलणे म्हणजे स्वरूप रूपांतर नव्हे (त्यासाठी \'निर्यात आणि रूपांतर\' आहे) आणि ते जपून वापरावे, कारण काही फाइल वाचता न येण्याजोग्या होऊन गॅलरी ॲपमध्ये दिसेनाशा होऊ शकतात.</string>
     <string name="settings_gpu_thumbs">थंबनेल ग्राफिक्स मेमरीत ठेवा</string>
@@ -394,6 +397,7 @@
     <string name="settings_images_only">फक्त चित्रे पाहा</string>
     <string name="settings_images_only_desc">दर्शकात सरकवल्यावर व्हिडिओ वगळले जातात आणि फक्त प्रतिमा पलटतात. सामान्य दृश्यातून एका स्पर्शाने व्हिडिओ उघडता येतो.</string>
     <string name="settings_clip_autoplay">व्हिडिओ थेट चालवा</string>
+    <string name="settings_clip_autoplay_desc">टॅपने उघडलेला व्हिडिओ आपोआप सुरू होतो. चाळताना व्हिडिओ प्ले बटणासह थांबलेले राहतात.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">संपादन</string>

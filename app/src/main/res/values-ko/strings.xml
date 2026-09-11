@@ -320,6 +320,9 @@
     <string name="settings_group_browse">폴더</string>
     <string name="settings_group_start">시작</string>
     <string name="settings_group_advanced">고급 기능</string>
+    <string name="settings_page_info">정보</string>
+    <string name="settings_page_controls">컨트롤과 버튼</string>
+    <string name="settings_page_editing">편집기와 저장</string>
     <string name="settings_ext_edit">확장자 변경 허용</string>
     <string name="settings_ext_edit_desc">파일 이름 창에 \'확장자\' 버튼을 추가합니다. 어느 창에 나타낼지는 아래에서 고르세요. ⚠️ 확장자를 바꾸는 것은 형식 변환이 아니며(그것은 \'내보내기 및 변환\'가 합니다) 조심해서 써야 합니다. 일부 파일은 읽을 수 없게 되어 갤러리 앱에서 사라집니다.</string>
     <string name="settings_gpu_thumbs">미리보기를 그래픽 메모리에 보관</string>
@@ -378,6 +381,7 @@
     <string name="settings_images_only">사진만 넘기기</string>
     <string name="settings_images_only_desc">뷰어에서 밀면 동영상을 건너뛰고 이미지만 넘깁니다. 동영상은 일반 화면에서 한 번 누르면 열립니다.</string>
     <string name="settings_clip_autoplay">동영상 바로 재생</string>
+    <string name="settings_clip_autoplay_desc">탭으로 연 동영상은 저절로 재생됩니다. 넘겨 보는 동안에는 재생 버튼이 겹쳐진 채 일시정지 상태로 남습니다.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">편집</string>
