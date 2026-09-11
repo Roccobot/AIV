@@ -413,9 +413,9 @@
     <string name="look_highlights">Lichter</string>
     <string name="look_reset_one">%1$s zurücksetzen</string>
     <string name="look_compare">Gedrückt halten, um das Original zu sehen</string>
-    <string name="look_failed">Dieses Telefon konnte die Änderungen nicht anwenden</string>
-    <string name="settings_quality">Speicherqualität</string>
-    <string name="settings_quality_desc">Wie der vollständige Editor die Datei schreibt. \'Hoch\' und \'Maximal\' sind beide JPEG: sie sehen gleich aus, und die zweite ist etwa doppelt so groß. \'Verlustfrei\' schreibt ein PNG neben das Original statt darüber und behält jeden Bildpunkt.</string>
+    <string name="look_failed">Die Änderungen konnten nicht gespeichert werden</string>
+    <string name="settings_quality">Format und Qualität</string>
+    <string name="settings_quality_desc">Qualität und Format der gespeicherten Bilder: zwei JPEG-Stufen (Hoch = 95 %, Maximal = 100 %) und PNG (ohne Komprimierung). JPEG eignet sich für Fotos und verringert die Dateigröße, indem es einige \'unsichtbare\' Details aufgibt; PNG hat keine Komprimierung und behält alle ursprünglichen Informationen, wird bei Fotos aber besonders schwer.</string>
     <string name="quality_high">Hoch</string>
     <string name="quality_max">Maximal</string>
     <string name="quality_lossless">Verlustfrei</string>

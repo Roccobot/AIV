@@ -413,9 +413,9 @@
     <string name="look_highlights">روشن حصے</string>
     <string name="look_reset_one">%1$s ری سیٹ کریں</string>
     <string name="look_compare">اصل دیکھنے کے لیے دبائے رکھیں</string>
-    <string name="look_failed">یہ فون تبدیلیاں لاگو نہیں کر سکا</string>
-    <string name="settings_quality">محفوظ کرنے کا معیار</string>
-    <string name="settings_quality_desc">مکمل ایڈیٹر فائل کیسے لکھتا ہے۔ \'اعلیٰ\' اور \'زیادہ سے زیادہ\' دونوں JPEG ہیں: دیکھنے میں ایک جیسے ہیں اور دوسرا تقریباً دگنا بڑا ہے۔ \'بغیر نقصان\' اصل کے اوپر لکھنے کے بجائے اس کے ساتھ ایک PNG لکھتا ہے اور ہر پکسل رکھتا ہے۔</string>
+    <string name="look_failed">تبدیلیاں محفوظ نہیں ہو سکیں</string>
+    <string name="settings_quality">فارمیٹ اور معیار</string>
+    <string name="settings_quality_desc">محفوظ کی گئی تصویروں کا معیار اور فارمیٹ: JPEG کے دو درجے (اعلیٰ = ۹۵٪، زیادہ سے زیادہ = ۱۰۰٪) اور PNG (بغیر دبائو کے)۔ JPEG تصویروں کے لیے موزوں ہے اور کچھ \'غیر مرئی\' تفصیلات چھوڑ کر فائل کا حجم کم کرتا ہے؛ PNG میں دبائو نہیں ہوتا اور تمام اصل معلومات محفوظ رہتی ہیں، مگر تصویروں کے ساتھ یہ خاصا بھاری ہو جاتا ہے۔</string>
     <string name="quality_high">اعلیٰ</string>
     <string name="quality_max">زیادہ سے زیادہ</string>
     <string name="quality_lossless">بغیر نقصان</string>

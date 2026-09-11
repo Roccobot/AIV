@@ -445,9 +445,9 @@
     <string name="look_highlights">Света</string>
     <string name="look_reset_one">Сбросить %1$s</string>
     <string name="look_compare">Удерживайте, чтобы увидеть оригинал</string>
-    <string name="look_failed">Этому телефону не удалось применить изменения</string>
-    <string name="settings_quality">Качество сохранения</string>
-    <string name="settings_quality_desc">Как полный редактор записывает файл. \'Высокое\' и \'Максимальное\' - это JPEG: на глаз одинаковы, второй примерно вдвое больше. \'Без потерь\' пишет PNG рядом с оригиналом, а не поверх, и сохраняет каждый пиксель.</string>
+    <string name="look_failed">Не удалось сохранить изменения</string>
+    <string name="settings_quality">Формат и качество</string>
+    <string name="settings_quality_desc">Качество и формат сохраняемых изображений: два уровня JPEG (Высокое = 95 %, Максимальное = 100 %) и PNG (без сжатия). JPEG подходит для фотографий и уменьшает размер файла, жертвуя некоторыми \'невидимыми\' деталями; PNG не сжимается и сохраняет всю исходную информацию, но с фотографиями получается особенно тяжёлым.</string>
     <string name="quality_high">Высокое</string>
     <string name="quality_max">Максимальное</string>
     <string name="quality_lossless">Без потерь</string>

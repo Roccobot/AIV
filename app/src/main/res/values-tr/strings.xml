@@ -413,9 +413,9 @@
     <string name="look_highlights">Parlak alanlar</string>
     <string name="look_reset_one">%1$s sıfırla</string>
     <string name="look_compare">Orijinali görmek için basılı tutun</string>
-    <string name="look_failed">Bu telefon değişiklikleri uygulayamadı</string>
-    <string name="settings_quality">Kaydetme kalitesi</string>
-    <string name="settings_quality_desc">Tam düzenleyicinin dosyayı nasıl yazdığı. \'Yüksek\' ve \'En yüksek\' ikisi de JPEG: göze aynı görünür, ikincisi yaklaşık iki kat büyüktür. \'Kayıpsız\' orijinalin üzerine değil yanına bir PNG yazar ve her pikseli korur.</string>
+    <string name="look_failed">Değişiklikler kaydedilemedi</string>
+    <string name="settings_quality">Biçim ve kalite</string>
+    <string name="settings_quality_desc">Kaydedilen görüntülerin kalitesi ve biçimi: iki JPEG düzeyi (Yüksek = %95, En yüksek = %100) ve PNG (sıkıştırmasız). JPEG fotoğraflara uygundur ve bazı \'görünmez\' ayrıntılardan vazgeçerek dosya boyutunu küçültür; PNG sıkıştırma kullanmaz ve tüm özgün bilgiyi korur, ancak fotoğraflarda özellikle ağır olur.</string>
     <string name="quality_high">Yüksek</string>
     <string name="quality_max">En yüksek</string>
     <string name="quality_lossless">Kayıpsız</string>

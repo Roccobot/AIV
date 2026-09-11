@@ -429,9 +429,9 @@
     <string name="look_highlights">Luces</string>
     <string name="look_reset_one">Restablecer %1$s</string>
     <string name="look_compare">Mantén pulsado para ver el original</string>
-    <string name="look_failed">Este teléfono no ha podido aplicar los cambios</string>
-    <string name="settings_quality">Calidad al guardar</string>
-    <string name="settings_quality_desc">Cómo el editor completo escribe el archivo. \'Alta\' y \'Máxima\' son las dos JPEG: se ven igual y la segunda pesa casi el doble. \'Sin pérdida\' escribe un PNG junto al original en lugar de encima, y conserva todos los píxeles.</string>
+    <string name="look_failed">No se han podido guardar los cambios</string>
+    <string name="settings_quality">Formato y calidad</string>
+    <string name="settings_quality_desc">Calidad y formato de las imágenes guardadas: dos niveles JPEG (Alta = 95 %, Máxima = 100 %) y PNG (sin compresión). El JPEG va bien con las fotografías y reduce el peso del archivo sacrificando algunos detalles \'invisibles\'; el PNG no tiene compresión y conserva toda la información original, pero resulta muy pesado con las fotografías.</string>
     <string name="quality_high">Alta</string>
     <string name="quality_max">Máxima</string>
     <string name="quality_lossless">Sin pérdida</string>

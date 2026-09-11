@@ -445,9 +445,9 @@
     <string name="look_highlights">Światła</string>
     <string name="look_reset_one">Wyzeruj %1$s</string>
     <string name="look_compare">Przytrzymaj, aby zobaczyć oryginał</string>
-    <string name="look_failed">Ten telefon nie zdołał zastosować zmian</string>
-    <string name="settings_quality">Jakość zapisu</string>
-    <string name="settings_quality_desc">Jak pełny edytor zapisuje plik. \'Wysoka\' i \'Maksymalna\' to oba JPEG: wyglądają tak samo, a druga waży około dwa razy więcej. \'Bezstratna\' zapisuje PNG obok oryginału zamiast na nim i zachowuje każdy piksel.</string>
+    <string name="look_failed">Nie udało się zapisać zmian</string>
+    <string name="settings_quality">Format i jakość</string>
+    <string name="settings_quality_desc">Jakość i format zapisywanych obrazów: dwa poziomy JPEG (Wysoka = 95%, Maksymalna = 100%) oraz PNG (bez kompresji). JPEG nadaje się do zdjęć i zmniejsza rozmiar pliku, rezygnując z części \'niewidocznych\' szczegółów; PNG nie ma kompresji i zachowuje wszystkie pierwotne informacje, ale przy zdjęciach jest szczególnie ciężki.</string>
     <string name="quality_high">Wysoka</string>
     <string name="quality_max">Maksymalna</string>
     <string name="quality_lossless">Bezstratna</string>

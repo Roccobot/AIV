@@ -413,9 +413,9 @@
     <string name="look_highlights">Hoge lichten</string>
     <string name="look_reset_one">%1$s herstellen</string>
     <string name="look_compare">Houd ingedrukt om het origineel te zien</string>
-    <string name="look_failed">Deze telefoon kon de wijzigingen niet toepassen</string>
-    <string name="settings_quality">Opslagkwaliteit</string>
-    <string name="settings_quality_desc">Hoe de volledige editor het bestand schrijft. \'Hoog\' en \'Maximaal\' zijn allebei JPEG: ze ogen gelijk en de tweede is ongeveer twee keer zo groot. \'Verliesvrij\' schrijft een PNG naast het origineel in plaats van eroverheen, en behoudt elke pixel.</string>
+    <string name="look_failed">De wijzigingen konden niet worden opgeslagen</string>
+    <string name="settings_quality">Formaat en kwaliteit</string>
+    <string name="settings_quality_desc">Kwaliteit en formaat van opgeslagen afbeeldingen: twee JPEG-niveaus (Hoog = 95%, Maximaal = 100%) en PNG (zonder compressie). JPEG is geschikt voor foto\'s en verkleint het bestand door enkele \'onzichtbare\' details op te geven; PNG heeft geen compressie en behoudt alle oorspronkelijke informatie, maar wordt bij foto\'s bijzonder zwaar.</string>
     <string name="quality_high">Hoog</string>
     <string name="quality_max">Maximaal</string>
     <string name="quality_lossless">Verliesvrij</string>

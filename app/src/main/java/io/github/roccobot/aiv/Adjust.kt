@@ -180,7 +180,7 @@ enum class Quality(override val token: String) : Choice {
  * dall'altra parte. Elevata al quadrato, la transizione è morbida: con una maschera lineare il
  * confine fra la zona toccata e quella no si vede come un alone.
  */
-private const val LIGHT_AGSL = """
+internal const val LIGHT_AGSL = """
 uniform shader image;
 uniform half gain;
 uniform half brightness;
@@ -209,18 +209,22 @@ half luma(half3 c) {
     return dot(c, half3(0.2126, 0.7152, 0.0722));
 }
 
-// La curva a S del contrasto, su un valore in [0, 1] e col perno in mezzo. Per k positivo
-// stringe verso gli estremi senza raggiungerli, per k negativo apre verso il centro.
+// La curva del contrasto, su un valore in [0, 1] e col perno in mezzo. Per k positivo allontana
+// dal centro senza mai raggiungere gli estremi, per k negativo avvicina al centro.
 half sCurve(half x, half k) {
     half t = clamp(x, half(0.0), half(1.0));
     if (k >= half(0.0)) {
         half s = t * t * (half(3.0) - half(2.0) * t);
         return mix(t, s, k);
     }
-    // L'inversa della stessa curva, approssimata da una radice: riporta il centro verso i due
-    // estremi, cioè spiana l'immagine invece di stringerla.
-    half s = half(0.5) + half(0.5) * sign(t - half(0.5)) * pow(abs(t - half(0.5)) * half(2.0), half(0.5));
-    return mix(t, s, -k);
+    // ⚠️⚠️ **IL RAMO NEGATIVO ANDAVA DALLA PARTE SBAGLIATA FINO ALLA `2.14`**, e non se ne era
+    // accorto nessuno perché il programma non compilava affatto: la radice che c'era scritta
+    // portava un tono a 0,6 fino a 0,72, cioè **allontanava** dal centro, quindi il cursore del
+    // contrasto alzava il contrasto in tutti e due i versi.
+    // ⚠️ **Il fattore non arriva a zero**: a -100 resta il 40% della distanza dal perno, o
+    // l'immagine diventerebbe un rettangolo grigio, che non è quello che chiede chi abbassa il
+    // contrasto.
+    return half(0.5) + (t - half(0.5)) * (half(1.0) + k * half(0.6));
 }
 
 half4 main(float2 p) {
@@ -236,29 +240,38 @@ half4 main(float2 p) {
     lin = lin * gain;
 
     // 2. Ombre e luci, ognuna sulla propria maschera quadratica.
-    half l = clamp(luma(lin), half(0.0), half(1.0));
+    // ⚠️⚠️ **LA MASCHERA GUARDA IL VALORE PERCETTIVO E NON LA QUANTITÀ DI LUCE**: in luce
+    // lineare un grigio medio vale 0,22, quindi una maschera costruita là darebbe 0,61 di
+    // 'ombra' a un pixel che l'occhio vede esattamente a metà, e il cursore delle ombre
+    // solleverebbe i mezzi toni come fa la luminosità. Costa una conversione in più per pixel,
+    // e vale quella: è la sola cosa che distingue questi due cursori dal terzo.
+    half l = clamp(luma(toSrgb(clamp(lin, half3(0.0), half3(1.0)))), half(0.0), half(1.0));
     half darkMask = (half(1.0) - l) * (half(1.0) - l);
     half lightMask = l * l;
     lin = lin * (half(1.0) + shadows * darkMask * half(0.8));
     lin = lin * (half(1.0) + highlights * lightMask * half(0.8));
 
     lin = max(lin, half3(0.0));
-    half3 out = toSrgb(clamp(lin, half3(0.0), half3(1.0)));
+    // ⚠️⚠️ **QUESTA VARIABILE NON SI CHIAMA `out`, E IL NOME È LA CORREZIONE DELLA `2.15`**:
+    // `out` è un qualificatore di parametro del linguaggio, quindi `half3 out` è un errore di
+    // sintassi e il programma intero non compila. Il difetto è uscito nella `2.14` ed è arrivato
+    // a lui: nessun cursore muoveva l'immagine, perché il programma non esisteva.
+    half3 rgb = toSrgb(clamp(lin, half3(0.0), half3(1.0)));
 
     // 3. Contrasto: sul valore percettivo, che è dove una curva a S si comporta come l'occhio
     // si aspetta. In lineare la stessa curva sposterebbe tutto verso i neri.
-    out = half3(sCurve(out.r, contrast), sCurve(out.g, contrast), sCurve(out.b, contrast));
+    rgb = half3(sCurve(rgb.r, contrast), sCurve(rgb.g, contrast), sCurve(rgb.b, contrast));
 
     // 4. Luminosità: solleva verso il bianco o abbassa verso il nero senza mai tagliare,
     // perché il passo è una frazione di quanto manca all'estremo.
     if (brightness > half(0.0)) {
-        out = out + (half3(1.0) - out) * brightness;
+        rgb = rgb + (half3(1.0) - rgb) * brightness;
     } else {
-        out = out * (half(1.0) + brightness);
+        rgb = rgb * (half(1.0) + brightness);
     }
 
-    out = clamp(out, half3(0.0), half3(1.0));
-    return half4(out * a, a);
+    rgb = clamp(rgb, half3(0.0), half3(1.0));
+    return half4(rgb * a, a);
 }
 """
 

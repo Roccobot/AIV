@@ -413,9 +413,9 @@
     <string name="look_highlights">روشنی‌ها</string>
     <string name="look_reset_one">بازنشانی %1$s</string>
     <string name="look_compare">برای دیدن تصویر اصلی نگه دارید</string>
-    <string name="look_failed">این گوشی نتوانست تغییرات را اعمال کند</string>
-    <string name="settings_quality">کیفیت ذخیره</string>
-    <string name="settings_quality_desc">روشی که ویرایشگر کامل فایل را می‌نویسد. \'بالا\' و \'بیشینه\' هر دو JPEG هستند: به چشم یکسان‌اند و دومی حدود دو برابر بزرگ‌تر است. \'بدون افت\' یک PNG کنار تصویر اصلی می‌نویسد و هیچ پیکسلی را دور نمی‌ریزد.</string>
+    <string name="look_failed">ذخیرهٔ تغییرها ممکن نشد</string>
+    <string name="settings_quality">قالب و کیفیت</string>
+    <string name="settings_quality_desc">کیفیت و قالب تصویرهای ذخیره‌شده: دو سطح JPEG (بالا = ۹۵٪، بیشینه = ۱۰۰٪) و PNG (بدون فشرده‌سازی). JPEG برای عکس مناسب است و با چشم‌پوشی از برخی جزئیات \'نامرئی\' حجم پرونده را کم می‌کند؛ PNG فشرده‌سازی ندارد و همهٔ اطلاعات اصلی را نگه می‌دارد، اما با عکس بسیار سنگین می‌شود.</string>
     <string name="quality_high">بالا</string>
     <string name="quality_max">بیشینه</string>
     <string name="quality_lossless">بدون افت</string>

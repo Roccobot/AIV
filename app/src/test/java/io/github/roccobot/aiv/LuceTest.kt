@@ -119,7 +119,7 @@ class LuceTest {
         banco.setContent { Scena() }
         banco.waitForIdle()
 
-        banco.onNodeWithText(testo(R.string.editor_undo)).assertIsNotEnabled()
+        banco.onNodeWithContentDescription(testo(R.string.editor_undo)).assertIsNotEnabled()
 
         muovi(LUMINOSITA, 0.5f)
 
@@ -128,7 +128,7 @@ class LuceTest {
             1,
             quanti("+50")
         )
-        banco.onNodeWithText(testo(R.string.editor_undo)).assertIsEnabled()
+        banco.onNodeWithContentDescription(testo(R.string.editor_undo)).assertIsEnabled()
     }
 
     /**
@@ -147,11 +147,11 @@ class LuceTest {
 
         muovi(LUMINOSITA, 0.5f)
 
-        banco.onNodeWithText(testo(R.string.editor_undo)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.editor_undo)).performClick()
         banco.waitForIdle()
         assertEquals("'Annulla' non ha riportato il cursore a zero", 0, quanti("+50"))
 
-        banco.onNodeWithText(testo(R.string.editor_redo)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.editor_redo)).performClick()
         banco.waitForIdle()
         assertEquals(
             "'Ripristina' ha riportato un passo che non porta il valore mosso",
@@ -179,13 +179,13 @@ class LuceTest {
         banco.waitForIdle()
 
         muovi(LUMINOSITA, 0.5f)
-        banco.onNodeWithText(testo(R.string.editor_undo)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.editor_undo)).performClick()
         banco.waitForIdle()
-        banco.onNodeWithText(testo(R.string.editor_redo)).assertIsEnabled()
+        banco.onNodeWithContentDescription(testo(R.string.editor_redo)).assertIsEnabled()
 
         muovi(CONTRASTO, 0.25f)
 
-        banco.onNodeWithText(testo(R.string.editor_redo)).assertIsNotEnabled()
+        banco.onNodeWithContentDescription(testo(R.string.editor_redo)).assertIsNotEnabled()
         assertEquals("Il passo nuovo non è quello che si vede", 1, quanti("+25"))
     }
 
@@ -208,7 +208,7 @@ class LuceTest {
         banco.waitForIdle()
         assertEquals("Il numero non ha azzerato il cursore", 0, quanti("+50"))
 
-        banco.onNodeWithText(testo(R.string.editor_undo)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.editor_undo)).performClick()
         banco.waitForIdle()
         assertEquals(
             "L'azzeramento non era un passo: 'Annulla' non lo ha disfatto",
@@ -231,16 +231,16 @@ class LuceTest {
         muovi(LUMINOSITA, 0.5f)
         muovi(CONTRASTO, 0.25f)
 
-        banco.onNodeWithText(testo(R.string.editor_original)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.editor_original)).performClick()
         banco.waitForIdle()
         assertEquals(
             "'Originale' non ha riportato i cursori a zero",
             0,
             quanti("+50") + quanti("+25")
         )
-        banco.onNodeWithText(testo(R.string.editor_original)).assertIsNotEnabled()
+        banco.onNodeWithContentDescription(testo(R.string.editor_original)).assertIsNotEnabled()
 
-        banco.onNodeWithText(testo(R.string.editor_undo)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.editor_undo)).performClick()
         banco.waitForIdle()
         assertEquals(
             "'Annulla' non ha disfatto 'Originale'",

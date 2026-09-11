@@ -413,9 +413,9 @@
     <string name="look_highlights">हाइलाइट</string>
     <string name="look_reset_one">%1$s रीसेट करें</string>
     <string name="look_compare">मूल देखने के लिए दबाए रखें</string>
-    <string name="look_failed">यह फ़ोन बदलाव लागू नहीं कर सका</string>
-    <string name="settings_quality">सहेजने की गुणवत्ता</string>
-    <string name="settings_quality_desc">पूर्ण संपादक फ़ाइल कैसे लिखता है। \'उच्च\' और \'अधिकतम\' दोनों JPEG हैं: देखने में एक जैसे और दूसरा लगभग दोगुना बड़ा। \'बिना हानि\' मूल के ऊपर लिखने के बजाय उसके साथ एक PNG लिखता है और हर पिक्सेल रखता है।</string>
+    <string name="look_failed">बदलाव सहेजे नहीं जा सके</string>
+    <string name="settings_quality">प्रारूप और गुणवत्ता</string>
+    <string name="settings_quality_desc">सहेजी गई छवियों की गुणवत्ता और प्रारूप: JPEG के दो स्तर (उच्च = 95%, अधिकतम = 100%) और PNG (बिना संपीड़न)। JPEG तस्वीरों के लिए उपयुक्त है और कुछ \'अदृश्य\' विवरण छोड़कर फ़ाइल का आकार घटाता है; PNG में संपीड़न नहीं होता और सारी मूल जानकारी बनी रहती है, पर तस्वीरों के साथ यह बहुत भारी हो जाता है।</string>
     <string name="quality_high">उच्च</string>
     <string name="quality_max">अधिकतम</string>
     <string name="quality_lossless">बिना हानि</string>

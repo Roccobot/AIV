@@ -397,9 +397,9 @@
     <string name="look_highlights">ハイライト</string>
     <string name="look_reset_one">%1$s をリセット</string>
     <string name="look_compare">長押しで元の画像を表示</string>
-    <string name="look_failed">この端末では変更を適用できませんでした</string>
-    <string name="settings_quality">保存品質</string>
-    <string name="settings_quality_desc">フル編集がファイルを書き出す方法です。\'高\' と \'最高\' はどちらも JPEG で、見た目は同じで後者はおよそ二倍の大きさです。\'可逆\' は元の画像に上書きせず隣に PNG を書き出し、画素をひとつも捨てません。</string>
+    <string name="look_failed">変更を保存できませんでした</string>
+    <string name="settings_quality">形式と画質</string>
+    <string name="settings_quality_desc">保存する画像の画質と形式: JPEG の 2 段階 (高 = 95%、最高 = 100%) と PNG (非圧縮)。JPEG は写真に向き、\'見えない\' 細部を捨ててファイルを軽くします。PNG は圧縮せず元の情報をすべて保ちますが、写真では特に重くなります。</string>
     <string name="quality_high">高</string>
     <string name="quality_max">最高</string>
     <string name="quality_lossless">可逆</string>

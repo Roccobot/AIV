@@ -397,9 +397,9 @@
     <string name="look_highlights">밝은 부분</string>
     <string name="look_reset_one">%1$s 초기화</string>
     <string name="look_compare">길게 눌러 원본 보기</string>
-    <string name="look_failed">이 휴대전화에서는 변경을 적용할 수 없습니다</string>
-    <string name="settings_quality">저장 품질</string>
-    <string name="settings_quality_desc">전체 편집기가 파일을 저장하는 방식입니다. \'높음\'과 \'최고\'는 모두 JPEG이며 보기에는 같고 두 번째가 약 두 배 큽니다. \'무손실\'은 원본에 덮어쓰지 않고 옆에 PNG를 저장하며 모든 픽셀을 지킵니다.</string>
+    <string name="look_failed">변경 내용을 저장하지 못했습니다</string>
+    <string name="settings_quality">형식과 품질</string>
+    <string name="settings_quality_desc">저장되는 이미지의 품질과 형식: JPEG 두 단계(높음 = 95%, 최고 = 100%)와 PNG(무압축). JPEG는 사진에 알맞고 \'보이지 않는\' 세부를 버려 파일 크기를 줄입니다. PNG는 압축이 없어 원본 정보를 모두 지키지만 사진에서는 특히 무거워집니다.</string>
     <string name="quality_high">높음</string>
     <string name="quality_max">최고</string>
     <string name="quality_lossless">무손실</string>
