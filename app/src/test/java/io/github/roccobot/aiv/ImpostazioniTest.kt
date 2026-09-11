@@ -2,6 +2,8 @@ package io.github.roccobot.aiv
 
 import android.content.Context
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -146,5 +148,56 @@ class ImpostazioniTest {
         banco.waitForIdle()
 
         banco.onNodeWithText(elenco).assertExists()
+    }
+
+    /**
+     * **Cercando il nome di una pagina compare la riga che la apre.**
+     *
+     * ⚠️⚠️ **È IL DIFETTO CHE GLI È ARRIVATO** (giro accorpato, voce `imp-ricerca`: *ho cercato
+     * 'Adattamento' e non mi ha trovato 'Adattamento e zoom'*): appiattendo sempre, il titolo
+     * della pagina usciva di scena, e nessuna delle voci di dentro porta quella parola.
+     * ⚠️ **La parola cercata è del TITOLO e di nessuna voce**, o la prova sarebbe verde anche
+     * col difetto rimesso: 'Fit and' non compare in nessuna delle righe di quella pagina.
+     * ⚠️ **Controprovata** riportando la condizione a `LocalQuery.current.isBlank()`: la riga
+     * non compare e la prova cade.
+     */
+    @Test
+    fun `la ricerca trova il titolo di una pagina`() {
+        apriIlPannello()
+        val pagina = testo(R.string.settings_zoom_page)
+
+        banco.onNodeWithText(pagina).assertDoesNotExist()
+        banco.onNode(hasSetTextAction()).performTextInput(pagina.substringBeforeLast(' '))
+        banco.waitForIdle()
+
+        banco.onNodeWithText(pagina).assertExists()
+    }
+
+    /**
+     * **Cercando il nome di una sezione compaiono il suo titolo e le voci che contiene.**
+     *
+     * ⚠️⚠️ **È L'ALTRA META DELLA SUA VOCE** (*forse dovrebbe trovare anche i titoli di
+     * sezione*), e misura le due cose insieme perché una senza l'altra sarebbe peggio del
+     * niente: le voci compaiono senza portare la parola cercata, quindi il titolo in cima è la
+     * sola cosa che dice perché sono lì.
+     * ⚠️ **La voce scelta non ha niente in comune col titolo della sezione**, o la corrispondenza
+     * potrebbe venire dal suo testo invece che dalla sezione.
+     * ⚠️ **Controprovata** togliendo da `shown` la riga che guarda `LocalSection`: il titolo
+     * resta (è lui a corrispondere) e la voce sparisce, cioè cade la prima asserzione.
+     * ⚠️⚠️ **IL TITOLO SI CERCA COME INTESTAZIONE, e la prima stesura falliva senza**: quello
+     * che si cerca è scritto anche nel **campo di ricerca**, quindi i nodi con quel testo sono
+     * due e `assertExists` ne vuole uno. [Group] è dichiarato come intestazione, il campo no.
+     */
+    @Test
+    fun `la ricerca trova le voci di una sezione dal suo titolo`() {
+        apriIlPannello()
+        val sezione = testo(R.string.settings_group_advanced)
+        val voce = testo(R.string.settings_gpu_thumbs)
+
+        banco.onNode(hasSetTextAction()).performTextInput(sezione)
+        banco.waitForIdle()
+
+        banco.onNodeWithText(voce).assertExists()
+        banco.onNode(hasText(sezione) and isHeading()).assertExists()
     }
 }

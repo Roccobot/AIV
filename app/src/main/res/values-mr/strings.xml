@@ -335,7 +335,7 @@
     <string name="settings_group_start">सुरुवात</string>
     <string name="settings_group_advanced">प्रगत सुविधा</string>
     <string name="settings_page_info">माहिती</string>
-    <string name="settings_page_controls">नियंत्रणे आणि बटणे</string>
+    <string name="settings_page_controls">लेबल आणि बटणे</string>
     <string name="settings_page_editing">संपादक आणि जतन</string>
     <string name="settings_ext_edit">एक्सटेन्शन बदलू द्या</string>
     <string name="settings_ext_edit_desc">फाइल नावाच्या विंडोमध्ये \'विस्तार\' बटण जोडते. कोणत्या विंडोत दिसावे ते खाली निवड. ⚠️ विस्तार बदलणे म्हणजे स्वरूप रूपांतर नव्हे (त्यासाठी \'निर्यात आणि रूपांतर\' आहे) आणि ते जपून वापरावे, कारण काही फाइल वाचता न येण्याजोग्या होऊन गॅलरी ॲपमध्ये दिसेनाशा होऊ शकतात.</string>
@@ -417,6 +417,7 @@
     <string name="editor_original">मूळ</string>
     <string name="editor_center_across">आडवे मध्यभागी</string>
     <string name="editor_center_down">उभे मध्यभागी</string>
+    <string name="editor_center_both">आडवे आणि उभे मध्यभागी</string>
     <string name="editor_done">जतन झाले</string>
     <string name="editor_done_copy">प्रत जतन झाली</string>
     <string name="editor_done_lossless">पुन्हा दाबल्याशिवाय जतन झाले</string>

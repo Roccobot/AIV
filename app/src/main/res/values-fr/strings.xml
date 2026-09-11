@@ -349,7 +349,7 @@
     <string name="settings_group_start">Démarrage</string>
     <string name="settings_group_advanced">Fonctions avancées</string>
     <string name="settings_page_info">Informations</string>
-    <string name="settings_page_controls">Commandes et boutons</string>
+    <string name="settings_page_controls">Libellés et boutons</string>
     <string name="settings_page_editing">Éditeur et enregistrement</string>
     <string name="settings_ext_edit">Autoriser la modification de l\'extension</string>
     <string name="settings_ext_edit_desc">Ajoute le bouton \'Extension\' aux fenêtres de nom de fichier. Choisis ci-dessous dans lesquelles. ⚠️ Changer une extension n\'est pas une conversion de format (c\'est le rôle d\'\'Exporter et convertir\') et demande de la prudence, car certains fichiers peuvent devenir illisibles et disparaître des applis de galerie.</string>
@@ -433,6 +433,7 @@
     <string name="editor_original">Original</string>
     <string name="editor_center_across">Centrer horizontalement</string>
     <string name="editor_center_down">Centrer verticalement</string>
+    <string name="editor_center_both">Centrer horizontalement et verticalement</string>
     <string name="editor_done">Enregistrée</string>
     <string name="editor_done_copy">Copie enregistrée</string>
     <string name="editor_done_lossless">Enregistrée sans recompression</string>

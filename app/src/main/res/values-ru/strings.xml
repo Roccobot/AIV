@@ -363,7 +363,7 @@
     <string name="settings_group_start">Запуск</string>
     <string name="settings_group_advanced">Расширенные функции</string>
     <string name="settings_page_info">Информация</string>
-    <string name="settings_page_controls">Элементы управления и кнопки</string>
+    <string name="settings_page_controls">Подписи и кнопки</string>
     <string name="settings_page_editing">Редактор и сохранение</string>
     <string name="settings_ext_edit">Разрешить изменение расширения</string>
     <string name="settings_ext_edit_desc">Добавляет кнопку \'Расширение\' в окна с именами файлов. Ниже выбери, в какие. ⚠️ Смена расширения не преобразует формат (для этого есть \'Экспортировать и преобразовать\') и требует осторожности: некоторые файлы станут нечитаемыми и пропадут из приложений галереи.</string>
@@ -449,6 +449,7 @@
     <string name="editor_original">Оригинал</string>
     <string name="editor_center_across">По центру по горизонтали</string>
     <string name="editor_center_down">По центру по вертикали</string>
+    <string name="editor_center_both">По центру по горизонтали и вертикали</string>
     <string name="editor_done">Сохранено</string>
     <string name="editor_done_copy">Копия сохранена</string>
     <string name="editor_done_lossless">Сохранено без пересжатия</string>

@@ -335,7 +335,7 @@
     <string name="settings_group_start">آغاز</string>
     <string name="settings_group_advanced">اعلیٰ خصوصیات</string>
     <string name="settings_page_info">معلومات</string>
-    <string name="settings_page_controls">کنٹرولز اور بٹن</string>
+    <string name="settings_page_controls">لیبلز اور بٹن</string>
     <string name="settings_page_editing">ایڈیٹر اور محفوظ کرنا</string>
     <string name="settings_ext_edit">توسیع بدلنے کی اجازت</string>
     <string name="settings_ext_edit_desc">فائل کے ناموں کی ونڈوز میں \'لاحقہ\' بٹن شامل کرتا ہے۔ نیچے چنو کہ کن میں دکھے۔ ⚠️ لاحقہ بدلنا فارمیٹ کی تبدیلی نہیں ہے (اس کے لیے \'برآمد اور تبدیل\' ہے) اور احتیاط چاہتا ہے، کیونکہ کچھ فائلیں ناقابلِ مطالعہ ہو کر گیلری ایپس میں دکھنا بند ہو سکتی ہیں۔</string>
@@ -417,6 +417,7 @@
     <string name="editor_original">اصل</string>
     <string name="editor_center_across">افقی طور پر درمیان میں</string>
     <string name="editor_center_down">عمودی طور پر درمیان میں</string>
+    <string name="editor_center_both">افقی اور عمودی طور پر درمیان میں</string>
     <string name="editor_done">محفوظ ہو گیا</string>
     <string name="editor_done_copy">نقل محفوظ ہو گئی</string>
     <string name="editor_done_lossless">دوبارہ دبائے بغیر محفوظ ہو گیا</string>

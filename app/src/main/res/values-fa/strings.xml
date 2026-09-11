@@ -335,7 +335,7 @@
     <string name="settings_group_start">راه‌اندازی</string>
     <string name="settings_group_advanced">قابلیت‌های پیشرفته</string>
     <string name="settings_page_info">اطلاعات</string>
-    <string name="settings_page_controls">کنترل‌ها و دکمه‌ها</string>
+    <string name="settings_page_controls">برچسب‌ها و دکمه‌ها</string>
     <string name="settings_page_editing">ویرایشگر و ذخیره</string>
     <string name="settings_ext_edit">اجازه تغییر پسوند</string>
     <string name="settings_ext_edit_desc">دکمهٔ \'پسوند\' را به پنجره‌های نام فایل می‌افزاید. پایین‌تر انتخاب کن در کدام‌ها دیده شود. ⚠️ تغییر پسوند تبدیل قالب نیست (برای آن \'برون‌بری و تبدیل\' هست) و باید با احتیاط به کار برود، چون برخی فایل‌ها ناخوانا می‌شوند و دیگر در برنامه‌های گالری دیده نمی‌شوند.</string>
@@ -417,6 +417,7 @@
     <string name="editor_original">اصل</string>
     <string name="editor_center_across">وسط‌چین افقی</string>
     <string name="editor_center_down">وسط‌چین عمودی</string>
+    <string name="editor_center_both">وسط‌چین افقی و عمودی</string>
     <string name="editor_done">ذخیره شد</string>
     <string name="editor_done_copy">رونوشت ذخیره شد</string>
     <string name="editor_done_lossless">بدون فشرده‌سازی دوباره ذخیره شد</string>

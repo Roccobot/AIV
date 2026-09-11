@@ -321,7 +321,7 @@
     <string name="settings_group_start">시작</string>
     <string name="settings_group_advanced">고급 기능</string>
     <string name="settings_page_info">정보</string>
-    <string name="settings_page_controls">컨트롤과 버튼</string>
+    <string name="settings_page_controls">라벨과 버튼</string>
     <string name="settings_page_editing">편집기와 저장</string>
     <string name="settings_ext_edit">확장자 변경 허용</string>
     <string name="settings_ext_edit_desc">파일 이름 창에 \'확장자\' 버튼을 추가합니다. 어느 창에 나타낼지는 아래에서 고르세요. ⚠️ 확장자를 바꾸는 것은 형식 변환이 아니며(그것은 \'내보내기 및 변환\'가 합니다) 조심해서 써야 합니다. 일부 파일은 읽을 수 없게 되어 갤러리 앱에서 사라집니다.</string>
@@ -401,6 +401,7 @@
     <string name="editor_original">원본</string>
     <string name="editor_center_across">가로 가운데로</string>
     <string name="editor_center_down">세로 가운데로</string>
+    <string name="editor_center_both">가로세로 가운데로</string>
     <string name="editor_done">저장했습니다</string>
     <string name="editor_done_copy">사본을 저장했습니다</string>
     <string name="editor_done_lossless">다시 압축하지 않고 저장했습니다</string>

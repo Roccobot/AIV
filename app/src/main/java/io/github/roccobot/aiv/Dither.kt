@@ -70,6 +70,28 @@ import kotlin.math.roundToInt
  *   luminoso della propria opacità non è un colore, e che cosa ne farebbe il miscelatore non è
  *   scritto da nessuna parte.
  *
+ * ⚠️⚠️ **E LA `2.10` HA CERCATO LA CAUSA DI UN BANDING CHE LUI VEDE ANCORA: HA TROVATO UN DIFETTO
+ * VERO, E NON LA CAUSA** (punto G del campo libero del giro accorpato: *il banding del gradiente è
+ * tornato, visibile soprattutto nel tema scuro*). Le misure si scrivono qui perché la sessione
+ * dopo non ripercorra le stesse strade, e perché due di loro **smentiscono** un sospetto che era
+ * scritto nel brief.
+ * - **Le due sorgenti del rumore non erano indipendenti**, ed è il difetto corretto: vedi il blocco
+ *   su [DITHER_AGSL]. Ma l'effetto sulle bande è piccolo, ed è misurato: simulando una rampa che
+ *   scende di un livello ogni trenta righe, la media del disegno quantizzato si stacca da quella
+ *   vera di **0,017 livelli** col rumore di prima, contro **0,5** senza nessun rumore. Cioè il
+ *   dither di prima già teneva la media giusta.
+ * - **La rampa a dieci segmenti non c'entra**, e il sospetto era ragionevole perché fra una tappa
+ *   e l'altra l'interpolazione è lineare e la pendenza cambia di colpo: il salto più grande vale
+ *   1,15 livelli ogni cento pixel. Ma il profilo si discosta da una curva liscia che passa per gli
+ *   **stessi** punti di **0,14 livelli** al massimo, cioè meno di un quanto.
+ * - **Il rumore non porta strutture sue lungo la colonna**: la media di riga oscilla fra -0,007 e
+ *   +0,006 livelli su una riga di mille pixel, quindi non aggiunge nessuna banda.
+ * - ⚠️⚠️ **QUELLO CHE RESTA DA MISURARE È SUL SUO TELEFONO, E LA VOCE DI COLLAUDO GLI CHIEDE UNA
+ *   SCHERMATA**: da un'immagine catturata si conta se i pixel di una riga sono tutti uguali (il
+ *   rumore non arriva fino al vetro, e allora la causa è nel percorso di disegno) oppure misti (il
+ *   rumore arriva, e le bande vengono da altro). Nessuno dei conti fatti qui può rispondere, perché
+ *   il banco disegna col processore e il suo telefono con la scheda grafica.
+ *
  * ⚠️ **Il rumore è ancorato allo SCHERMO e non alla sfumatura**, perché la coordinata che arriva
  * qui è quella del pixel: scorrendo, la tinta si muove e la grana sta ferma. È la cosa giusta da
  * vedere, e la contraria (una grana che scorre insieme alla tinta) si noterebbe come un velo che
@@ -95,6 +117,14 @@ import kotlin.math.roundToInt
  * con una sorgente sola (distribuzione piatta) l'errore di arrotondamento resta legato al colore,
  * cioè le bande si attenuano invece di sparire. È il risultato classico della teoria del dither,
  * e costa una riga in più.
+ * ⚠️⚠️ **E FINO ALLA `2.09` NON ERANO INDIPENDENTI, CIOÈ IL CODICE FACEVA QUELLO CHE LA RIGA QUI
+ * SOPRA DICE DI NON FARE**: la seconda sorgente era la **stessa funzione** valutata in `p + (37,
+ * 17)`, e questa funzione dipende da `p` solo attraverso un prodotto scalare, quindi spostare `p`
+ * di una costante equivale a spostare quello scalare di una costante. Misurato: valeva
+ * `g2 = fract(g1 + 0,87)` con uno scarto massimo di 0,017, cioè un legame **deterministico**; la
+ * distribuzione della somma veniva piatta invece che triangolare, e il picco 0,87 livelli invece
+ * di 1. Dalla `2.10` la seconda sorgente ha **coefficienti propri** (i due scambiati), e la
+ * distribuzione misurata è la triangolare vera con picco 1,000.
  * ⚠️ **La sorgente è un rumore a gradiente interlacciato** e non un seno moltiplicato per un
  * numero grande: il secondo, sui numeri a mezza precisione di uno shader, degenera a strisce
  * proprio dove serve uniforme.
@@ -102,13 +132,14 @@ import kotlin.math.roundToInt
 private const val DITHER_AGSL = """
 uniform shader ramp;
 
-half grain(float2 p) {
-    return half(fract(52.9829189 * fract(dot(p, float2(0.06711056, 0.00583715)))));
+half grain(float2 p, float2 k) {
+    return half(fract(52.9829189 * fract(dot(p, k))));
 }
 
 half4 main(float2 p) {
     half4 c = ramp.eval(p);
-    half noise = (grain(p) + grain(p + float2(37.0, 17.0)) - 1.0) * half(1.0 / 255.0);
+    half due = grain(p, float2(0.06711056, 0.00583715)) + grain(p, float2(0.00583715, 0.06711056));
+    half noise = (due - 1.0) * half(1.0 / 255.0);
     return half4(clamp(c.rgb + noise, half3(0.0), half3(c.a)), c.a);
 }
 """

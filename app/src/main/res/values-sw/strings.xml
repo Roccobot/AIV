@@ -335,7 +335,7 @@
     <string name="settings_group_start">Kuanza</string>
     <string name="settings_group_advanced">Vipengele vya juu</string>
     <string name="settings_page_info">Taarifa</string>
-    <string name="settings_page_controls">Vidhibiti na vitufe</string>
+    <string name="settings_page_controls">Lebo na vitufe</string>
     <string name="settings_page_editing">Kihariri na kuhifadhi</string>
     <string name="settings_ext_edit">Ruhusu kubadilisha kiendelezi</string>
     <string name="settings_ext_edit_desc">Huongeza kitufe \'Kiendelezi\' kwenye madirisha ya majina ya faili. Chagua hapa chini yapi. ⚠️ Kubadilisha kiendelezi si kubadilisha muundo (kwa hilo kuna \'Hamisha na kubadilisha\') na kunahitaji uangalifu, kwa sababu baadhi ya faili zinaweza kutosomeka na kutoonekana tena kwenye programu za matunzio.</string>
@@ -417,6 +417,7 @@
     <string name="editor_original">Asili</string>
     <string name="editor_center_across">Weka katikati mlalo</string>
     <string name="editor_center_down">Weka katikati wima</string>
+    <string name="editor_center_both">Weka katikati mlalo na wima</string>
     <string name="editor_done">Imehifadhiwa</string>
     <string name="editor_done_copy">Nakala imehifadhiwa</string>
     <string name="editor_done_lossless">Imehifadhiwa bila kubana upya</string>

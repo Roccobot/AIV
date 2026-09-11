@@ -88,6 +88,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
@@ -1647,9 +1648,35 @@ internal fun ClipStage(
          * misura vera arriva e il riquadro passa a quella calcolata.
          * ⚠️ **Con `fillMaxSize` il fotogramma di copertura non si deforma**, perché lo disegna
          * `ContentScale.Fit`: le proporzioni sono già le sue.
+         *
+         * ⚠️⚠️ **MA QUEL RIQUADRO NON SI PUÒ DARE ANCHE ALLA SUPERFICIE, E DALLA `2.10` NON SI FA
+         * PIÙ** (riscontro del giro accorpato, voce `video-sfoglia` non approvata: *c'è ancora il
+         * flash all'ingresso del video: per una frazione di secondo appare a tutto schermo*). La
+         * `2.07` ha risolto il salto di misura e ha aperto questo, perché le due cose che portano
+         * quel riquadro **non si comportano allo stesso modo**: la copertura la disegna
+         * `ContentScale.Fit` e tiene le sue proporzioni, la superficie invece si prende lo spazio
+         * che le si dà, e il filmato ci finisce dentro deformato, che è il difetto già visto nella
+         * `0.86` e scritto qui sotto.
+         * ⚠️⚠️ **CHE COSA SI VEDA IN QUEL LAMPO NON LO SA NESSUNO, E SI SCRIVE COSÌ INVECE DI
+         * DARLO PER OSSERVATO**: la sua voce diceva 'stretchato', e lui stesso lo ha corretto
+         * (2026-09-11: *non ho fatto in tempo a vedere come appare nel flash a tutto schermo ...
+         * è davvero troppo veloce per capire se è ancora stretchato o meno*). Il fatto certo è il
+         * **lampo a tutto schermo**; la deformazione è quello che il codice dice che dovrebbe
+         * succederci dentro, e la cura non dipende da quale delle due sia.
+         * ⚠️⚠️ **QUINDI IL RIQUADRO RESTA PIENO E A NON VEDERSI È LA SUPERFICIE**: il layout non
+         * salta (che era la correzione della `2.07`) e in quel tratto della superficie non si vede
+         * niente, perché finché la misura non si sa è trasparente e davanti c'è la copertura.
+         * ⚠️ **La copertura resta anche dopo il primo fotogramma**, cioè l'altra metà della cura:
+         * `coverSurface` si spegne appena il lettore ha qualcosa da mostrare, e se in quell'istante
+         * la misura non è ancora arrivata sotto non ci sarebbe più niente da vedere.
+         * ⚠️ **Un filmato senza misura non esiste**, e vale la pena saperlo prima di temere una
+         * schermata nera per sempre: se la misura non arriva è perché non arriva **nemmeno un
+         * fotogramma**, e in quel caso `coverSurface` resta acceso da sé, cioè il comportamento è
+         * quello di prima.
          */
+        val misurato = shown.videoSizeDp != null
         val fitted = Modifier.resizeWithContentScale(ContentScale.Fit, shown.videoSizeDp)
-        val scaled = if (shown.videoSizeDp == null) Modifier.fillMaxSize() else fitted
+        val scaled = if (misurato) fitted else Modifier.fillMaxSize()
         /*
          * ⚠️⚠️ **IL RIQUADRO DEL FILMATO SI TRASCINA, E I COMANDI NO**: questo livello porta la
          * superficie e il suo fotogramma di copertura, che sono le sole due cose che devono
@@ -1681,7 +1708,9 @@ internal fun ClipStage(
             PlayerSurface(
                 player = player,
                 surfaceType = SURFACE_TYPE_TEXTURE_VIEW,
-                modifier = scaled
+                // ⚠️ Trasparente e non assente: la superficie deve restare nell'albero per
+                // ricevere il filmato, e quello che si toglie è solo il suo disegno.
+                modifier = if (misurato) scaled else scaled.alpha(0f)
             )
 
             /*
@@ -1694,8 +1723,11 @@ internal fun ClipStage(
              * ⚠️ **Il sostituto va sotto e non al posto**, come in [Preview]: per un fotogramma
              * il pittore di Coil non disegna niente, e nello sfoglio quel fotogramma cade
              * esattamente quando la pagina arriva al centro.
+             * ⚠️⚠️ **E DALLA `2.10` RESTA ANCHE FINCHÉ LA MISURA NON SI SA**, che è l'altra metà
+             * della cura del flash scritta più sopra: i due istanti non coincidono, e nel tratto
+             * fra il primo fotogramma e l'arrivo della misura la superficie è trasparente.
              */
-            if (shown.coverSurface) {
+            if (shown.coverSurface || !misurato) {
                 standIn?.let {
                     Image(
                         painter = it,

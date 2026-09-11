@@ -335,7 +335,7 @@
     <string name="settings_group_start">Başlangıç</string>
     <string name="settings_group_advanced">Gelişmiş özellikler</string>
     <string name="settings_page_info">Bilgiler</string>
-    <string name="settings_page_controls">Denetimler ve düğmeler</string>
+    <string name="settings_page_controls">Etiketler ve düğmeler</string>
     <string name="settings_page_editing">Düzenleyici ve kaydetme</string>
     <string name="settings_ext_edit">Uzantının değiştirilmesine izin ver</string>
     <string name="settings_ext_edit_desc">Dosya adı pencerelerine \'Uzantı\' düğmesini ekler. Hangilerinde görüneceğini aşağıdan seç. ⚠️ Uzantıyı değiştirmek biçim dönüştürmek değildir (bunun için \'Dışa aktar ve dönüştür\' var) ve dikkat ister, çünkü bazı dosyalar okunamaz hâle gelip galeri uygulamalarında görünmez olur.</string>
@@ -417,6 +417,7 @@
     <string name="editor_original">Özgün</string>
     <string name="editor_center_across">Yatayda ortala</string>
     <string name="editor_center_down">Dikeyde ortala</string>
+    <string name="editor_center_both">Yatayda ve dikeyde ortala</string>
     <string name="editor_done">Kaydedildi</string>
     <string name="editor_done_copy">Kopya kaydedildi</string>
     <string name="editor_done_lossless">Yeniden sıkıştırmadan kaydedildi</string>

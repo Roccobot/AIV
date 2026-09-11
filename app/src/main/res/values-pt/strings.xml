@@ -349,7 +349,7 @@
     <string name="settings_group_start">Início</string>
     <string name="settings_group_advanced">Recursos avançados</string>
     <string name="settings_page_info">Informações</string>
-    <string name="settings_page_controls">Controles e botões</string>
+    <string name="settings_page_controls">Rótulos e botões</string>
     <string name="settings_page_editing">Editor e salvamento</string>
     <string name="settings_ext_edit">Permitir alterar a extensão</string>
     <string name="settings_ext_edit_desc">Adiciona o botão \'Extensão\' às janelas de nomes de ficheiro. Escolhe abaixo em quais aparece. ⚠️ Mudar a extensão não é converter o formato (para isso existe \'Exportar e converter\') e exige cuidado, porque alguns ficheiros podem ficar ilegíveis e deixar de aparecer nas apps de galeria.</string>
@@ -433,6 +433,7 @@
     <string name="editor_original">Original</string>
     <string name="editor_center_across">Centralizar na horizontal</string>
     <string name="editor_center_down">Centralizar na vertical</string>
+    <string name="editor_center_both">Centralizar na horizontal e na vertical</string>
     <string name="editor_done">Salva</string>
     <string name="editor_done_copy">Cópia salva</string>
     <string name="editor_done_lossless">Salva sem recomprimir</string>

@@ -335,7 +335,7 @@
     <string name="settings_group_start">সূচনা</string>
     <string name="settings_group_advanced">উন্নত সুবিধা</string>
     <string name="settings_page_info">তথ্য</string>
-    <string name="settings_page_controls">নিয়ন্ত্রণ ও বোতাম</string>
+    <string name="settings_page_controls">লেবেল ও বোতাম</string>
     <string name="settings_page_editing">সম্পাদক ও সংরক্ষণ</string>
     <string name="settings_ext_edit">এক্সটেনশন বদলানোর অনুমতি দাও</string>
     <string name="settings_ext_edit_desc">ফাইলের নামের উইন্ডোতে \'এক্সটেনশন\' বোতাম যোগ করে। কোথায় দেখাবে তা নিচে বেছে নাও। ⚠️ এক্সটেনশন বদলানো ফরম্যাট রূপান্তর নয় (তার জন্য \'রপ্তানি ও রূপান্তর\' আছে) এবং সাবধানে ব্যবহার করা উচিত, কারণ কিছু ফাইল অপঠনযোগ্য হয়ে গ্যালারি অ্যাপে আর দেখা না-ও যেতে পারে।</string>
@@ -417,6 +417,7 @@
     <string name="editor_original">মূল</string>
     <string name="editor_center_across">আনুভূমিকভাবে কেন্দ্রে</string>
     <string name="editor_center_down">উল্লম্বভাবে কেন্দ্রে</string>
+    <string name="editor_center_both">আনুভূমিক ও উল্লম্বভাবে কেন্দ্রে</string>
     <string name="editor_done">সংরক্ষিত হয়েছে</string>
     <string name="editor_done_copy">অনুলিপি সংরক্ষিত হয়েছে</string>
     <string name="editor_done_lossless">পুনরায় সংকুচিত না করেই সংরক্ষিত হয়েছে</string>

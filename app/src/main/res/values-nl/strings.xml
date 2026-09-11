@@ -335,7 +335,7 @@
     <string name="settings_group_start">Opstarten</string>
     <string name="settings_group_advanced">Geavanceerde functies</string>
     <string name="settings_page_info">Informatie</string>
-    <string name="settings_page_controls">Bediening en knoppen</string>
+    <string name="settings_page_controls">Labels en knoppen</string>
     <string name="settings_page_editing">Editor en opslaan</string>
     <string name="settings_ext_edit">Extensie wijzigen toestaan</string>
     <string name="settings_ext_edit_desc">Voegt de knop \'Extensie\' toe aan de vensters met bestandsnamen. Kies hieronder in welke. ⚠️ Een extensie wijzigen is geen formaatomzetting (daarvoor is \'Exporteren en omzetten\') en vraagt om voorzichtigheid, want sommige bestanden worden onleesbaar en verdwijnen uit galerij-apps.</string>
@@ -417,6 +417,7 @@
     <string name="editor_original">Origineel</string>
     <string name="editor_center_across">Horizontaal centreren</string>
     <string name="editor_center_down">Verticaal centreren</string>
+    <string name="editor_center_both">Horizontaal en verticaal centreren</string>
     <string name="editor_done">Opgeslagen</string>
     <string name="editor_done_copy">Kopie opgeslagen</string>
     <string name="editor_done_lossless">Opgeslagen zonder opnieuw te comprimeren</string>

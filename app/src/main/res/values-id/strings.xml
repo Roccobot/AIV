@@ -321,7 +321,7 @@
     <string name="settings_group_start">Permulaan</string>
     <string name="settings_group_advanced">Fitur lanjutan</string>
     <string name="settings_page_info">Informasi</string>
-    <string name="settings_page_controls">Kontrol dan tombol</string>
+    <string name="settings_page_controls">Label dan tombol</string>
     <string name="settings_page_editing">Editor dan penyimpanan</string>
     <string name="settings_ext_edit">Izinkan mengubah ekstensi</string>
     <string name="settings_ext_edit_desc">Menambahkan tombol \'Ekstensi\' ke jendela nama berkas. Pilih di bawah untuk yang mana. ⚠️ Mengubah ekstensi bukan konversi format (untuk itu ada \'Ekspor dan konversi\') dan perlu kehati-hatian, karena sebagian berkas bisa jadi tak terbaca dan hilang dari aplikasi galeri.</string>
@@ -401,6 +401,7 @@
     <string name="editor_original">Asli</string>
     <string name="editor_center_across">Tengahkan mendatar</string>
     <string name="editor_center_down">Tengahkan tegak</string>
+    <string name="editor_center_both">Tengahkan mendatar dan tegak</string>
     <string name="editor_done">Tersimpan</string>
     <string name="editor_done_copy">Salinan tersimpan</string>
     <string name="editor_done_lossless">Tersimpan tanpa dikompres ulang</string>
