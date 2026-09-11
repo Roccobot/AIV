@@ -320,6 +320,9 @@
     <string name="settings_group_browse">フォルダー</string>
     <string name="settings_group_start">起動</string>
     <string name="settings_group_advanced">詳細機能</string>
+    <string name="settings_page_info">情報</string>
+    <string name="settings_page_controls">操作とボタン</string>
+    <string name="settings_page_editing">編集アプリと保存</string>
     <string name="settings_ext_edit">拡張子の変更を許可</string>
     <string name="settings_ext_edit_desc">ファイル名のウィンドウに \'拡張子\' ボタンを追加します。どのウィンドウに出すかは下で選びます。⚠️ 拡張子を変えても形式の変換にはなりません（それには \'書き出して変換\' があります）。慎重に使ってください。読めなくなり、ギャラリーアプリに出てこなくなるファイルがあります。</string>
     <string name="settings_gpu_thumbs">サムネイルをグラフィックメモリーに置く</string>
@@ -378,6 +381,7 @@
     <string name="settings_images_only">写真だけをめくる</string>
     <string name="settings_images_only_desc">ビューアーでスワイプすると動画を飛ばし、画像だけをめくります。動画は通常の表示から軽くたたけば開けます。</string>
     <string name="settings_clip_autoplay">動画をすぐに再生する</string>
+    <string name="settings_clip_autoplay_desc">タップして開いた動画はひとりでに再生されます。めくっているあいだは一時停止のままで、再生ボタンが重なって表示されます。</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">編集</string>

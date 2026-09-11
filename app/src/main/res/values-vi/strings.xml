@@ -320,6 +320,9 @@
     <string name="settings_group_browse">Thư mục</string>
     <string name="settings_group_start">Khởi động</string>
     <string name="settings_group_advanced">Tính năng nâng cao</string>
+    <string name="settings_page_info">Thông tin</string>
+    <string name="settings_page_controls">Điều khiển và nút</string>
+    <string name="settings_page_editing">Trình chỉnh sửa và lưu</string>
     <string name="settings_ext_edit">Cho phép sửa phần mở rộng</string>
     <string name="settings_ext_edit_desc">Thêm nút \'Phần mở rộng\' vào các cửa sổ tên tệp. Chọn bên dưới nút xuất hiện ở đâu. ⚠️ Đổi phần mở rộng không phải là chuyển đổi định dạng (việc đó có \'Xuất và chuyển đổi\') và cần thận trọng, vì một số tệp có thể không đọc được và biến mất khỏi ứng dụng thư viện.</string>
     <string name="settings_gpu_thumbs">Giữ ảnh thu nhỏ trong bộ nhớ đồ họa</string>
@@ -378,6 +381,7 @@
     <string name="settings_images_only">Chỉ lướt qua ảnh</string>
     <string name="settings_images_only_desc">Trong trình xem, việc vuốt bỏ qua video và chỉ lướt qua ảnh. Vẫn có thể mở video bằng một lần chạm từ chế độ xem thường.</string>
     <string name="settings_clip_autoplay">Phát video ngay</string>
+    <string name="settings_clip_autoplay_desc">Video mở bằng một lần chạm sẽ tự phát. Khi lướt qua, video vẫn tạm dừng với nút phát ở trên.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Sửa</string>

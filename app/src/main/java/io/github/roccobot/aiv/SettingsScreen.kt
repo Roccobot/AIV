@@ -50,11 +50,15 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.Modifier
@@ -112,9 +116,14 @@ import kotlinx.coroutines.withContext
  * miniature memorizzate'.
  * - ⚠️ **Una riga sola che non è né un elenco né delicata, in una sotto-pagina costerebbe un
  *   tocco senza guadagnare niente**, ed è la clausola che vale più delle altre.
- * - ⚠️ **La soglia si conta sulla FAMIGLIA e non sulla sezione**: 'Aspetto' porta il tema, la
- *   coppia dello sfondo e il velo, cioè tre famiglie, e nessuna arriva alla soglia. Contandola
- *   sulla sezione, il tema dell'app finirebbe dietro un tocco.
+ * - ⚠️ **La soglia si conta sulla FAMIGLIA e non sulla sezione**: sotto 'Aspetto' vivono il
+ *   tema dell'app e l'effetto dietro i pannelli, cioè due famiglie, e nessuna arriva alla
+ *   soglia. Contandola sulla sezione, il tema dell'app finirebbe dietro un tocco.
+ * - ⚠️⚠️ **E DALLA `2.09` C'È UN QUINTO MODO, CHE È UNA SUA SCELTA E NON UN CRITERIO NUOVO**
+ *   (`d-imp-strada`: **`livelli`**): una famiglia che ne **contiene** già un'altra scende
+ *   dietro una porta, perché nella pagina piatta la sua riga e il suo contenuto si leggevano
+ *   allo stesso livello. È il modo con cui nascono le cinque pagine del primo livello, e fino
+ *   alla `2.08` era proprio il caso che la profondità uno vietava.
  *
  * ⚠️⚠️ **OGNI RIGA CHE APRE UNA PAGINA DICE QUANTO È LUNGO QUELLO CHE C'È DENTRO**, e non è
  * decorazione: nascondere un elenco dietro un tocco fa perdere l'unica cosa che l'elenco
@@ -156,16 +165,19 @@ fun SettingsScreen(
     modifier: Modifier = Modifier
 ) {
     /*
-     * ⚠️⚠️ **SALVATO E NON SOLO RICORDATO, dalla `1.46`**: `ViewerActivity` non dichiara
+     * ⚠️⚠️ **SALVATA E NON SOLO RICORDATA, dalla `1.46`**: `ViewerActivity` non dichiara
      * `configChanges`, quindi ruotare il telefono ricrea la composizione, e con un `remember`
-     * semplice si tornava nella radice perdendo anche quello che si stava cercando. Con una
-     * sotto-pagina in più lo stato perso pesa di più.
-     * ⚠️ **Si salva l'ORDINALE e non la costante**: un `Int` non pone dubbi su che cosa il
+     * semplice si tornava nella radice perdendo anche quello che si stava cercando.
+     * ⚠️ **Si salvano gli ORDINALI e non le costanti**: un `Int` non pone dubbi su che cosa il
      * salvataggio sappia serializzare, mentre un enum ci arriva solo se qualcuno gli scrive un
      * `Saver`. Il valore vero resta [page], che si legge sotto.
      */
-    var pageAt by rememberSaveable { mutableIntStateOf(Page.ROOT.ordinal) }
-    val page = Page.entries[pageAt]
+    val stack = rememberSaveable(saver = PAGE_STACK) { mutableStateListOf() }
+    val page = stack.lastOrNull() ?: Page.ROOT
+    // ⚠️ Due funzioni e non due assegnazioni sparse: chi apre una pagina non deve sapere che
+    // la navigazione è una pila, e chi torna indietro nemmeno.
+    fun open(next: Page) { stack.add(next) }
+    fun back() { if (stack.isNotEmpty()) stack.removeAt(stack.lastIndex) }
     // ⚠️⚠️ **LO SCORRIMENTO DELLA RADICE VIVE QUI E NON DENTRO LA PAGINA**: ogni pagina di
     // [Page] sta in un ramo di un `when`, quindi uno stato ricordato dentro `Shell` nascerebbe
     // nuovo a ogni ritorno, e si tornerebbe indietro trovandosi in cima. Tenuto qui,
@@ -179,7 +191,7 @@ fun SettingsScreen(
     // ⚠️ Vince su quello dell'attività (`ViewerActivity`, che qui chiama `leaveSettings`)
     // perché è registrato DOPO: il dispatcher di Android serve l'ultimo arrivato fra quelli
     // accesi. È lo stesso annidamento della selezione nella griglia, che regge da versioni.
-    BackHandler(enabled = page != Page.ROOT) { pageAt = Page.ROOT.ordinal }
+    BackHandler(enabled = stack.isNotEmpty()) { back() }
     // ⚠️ Con una ricerca in corso Indietro la annulla invece di uscire, ed è quello che fa
     // ogni ricerca dentro un elenco: uscire dalle impostazioni lasciando l'elenco filtrato
     // costringerebbe a rientrare per rivederlo intero. I due non sono mai accesi insieme.
@@ -245,7 +257,7 @@ fun SettingsScreen(
                         onChooseEditor = onChooseEditor,
                         thumbBytes = thumbBytes,
                         onClearThumbs = clearThumbs,
-                        onOpen = { pageAt = it.ordinal }
+                        onOpen = { open(it) }
                     )
                 }
             }
@@ -262,6 +274,61 @@ fun SettingsScreen(
             }
         }
 
+        /*
+         * ⚠️⚠️ **LE CINQUE PAGINE DEL PRIMO LIVELLO, DALLA `2.09`, E OGNUNA NE CONTIENE UN'ALTRA**
+         * (sua risposta `livelli` a `d-imp-strada`, giro della `2.07`): sono le famiglie che
+         * prima vivevano distese nella pagina piatta, e la loro ragione non è la lunghezza ma
+         * quella scritta in `AIV/CLAUDE.md`, § '⚙️ Dove va un'impostazione, e chi la deve
+         * trovare'. Il titolo di ognuna dice la **domanda** a cui le voci di dentro rispondono.
+         * ⚠️ **Il corpo lo scrive una funzione a sé**, e non è una divisione di comodo: lo stesso
+         * corpo lo compone la radice quando una ricerca è in corso (vedi [PageOfRows]), quindi
+         * scritto qui dentro sarebbe irraggiungibile proprio mentre si cerca.
+         */
+        Page.FOLDERS -> Shell(
+            title = stringResource(R.string.settings_group_browse),
+            onBack = { back() },
+            modifier = modifier
+        ) {
+            FoldersPage(settings = settings, onChange = onChange, onOpen = { open(it) })
+        }
+
+        Page.VIEWER -> Shell(
+            title = stringResource(R.string.settings_group_viewer),
+            onBack = { back() },
+            modifier = modifier
+        ) {
+            ViewerPage(settings = settings, onChange = onChange, onOpen = { open(it) })
+        }
+
+        Page.INFO -> Shell(
+            title = stringResource(R.string.settings_page_info),
+            onBack = { back() },
+            modifier = modifier
+        ) {
+            InfoPage(settings = settings, onChange = onChange, onOpen = { open(it) })
+        }
+
+        Page.CONTROLS -> Shell(
+            title = stringResource(R.string.settings_page_controls),
+            onBack = { back() },
+            modifier = modifier
+        ) {
+            ControlsPage(settings = settings, onChange = onChange, onOpen = { open(it) })
+        }
+
+        Page.EDITING -> Shell(
+            title = stringResource(R.string.settings_page_editing),
+            onBack = { back() },
+            modifier = modifier
+        ) {
+            EditingPage(
+                settings = settings,
+                onChange = onChange,
+                onChooseEditor = onChooseEditor,
+                onOpen = { open(it) }
+            )
+        }
+
         Page.FACTS -> {
             /*
              * ⚠️⚠️ **LO SCORRIMENTO DELLA PAGINA ARRIVA FIN DENTRO IL RIORDINO, dalla `1.81`**:
@@ -272,7 +339,7 @@ fun SettingsScreen(
             val scroll = rememberScrollState()
             Shell(
                 title = stringResource(R.string.settings_facts),
-                onBack = { pageAt = Page.ROOT.ordinal },
+                onBack = { back() },
                 modifier = modifier,
                 scroll = scroll
             ) {
@@ -283,7 +350,7 @@ fun SettingsScreen(
 
         Page.BUTTONS -> Shell(
             title = stringResource(R.string.settings_buttons),
-            onBack = { pageAt = Page.ROOT.ordinal },
+            onBack = { back() },
             modifier = modifier
         ) {
             ButtonOrders(settings = settings, onChange = onChange)
@@ -291,7 +358,7 @@ fun SettingsScreen(
 
         Page.HIDDEN -> Shell(
             title = stringResource(R.string.settings_hidden),
-            onBack = { pageAt = Page.ROOT.ordinal },
+            onBack = { back() },
             modifier = modifier
         ) {
             HiddenFolders(settings = settings, onChange = onChange)
@@ -299,7 +366,7 @@ fun SettingsScreen(
 
         Page.ZOOM -> Shell(
             title = stringResource(R.string.settings_zoom_page),
-            onBack = { pageAt = Page.ROOT.ordinal },
+            onBack = { back() },
             modifier = modifier
         ) {
             ZoomAndFit(settings = settings, onChange = onChange)
@@ -307,7 +374,7 @@ fun SettingsScreen(
 
         Page.VIEWS -> Shell(
             title = stringResource(R.string.view_options),
-            onBack = { pageAt = Page.ROOT.ordinal },
+            onBack = { back() },
             modifier = modifier
         ) {
             ViewOptionsPage(settings = settings, onChange = onChange)
@@ -325,7 +392,7 @@ fun SettingsScreen(
          */
         Page.SAVING -> Shell(
             title = stringResource(R.string.settings_rename_download),
-            onBack = { pageAt = Page.ROOT.ordinal },
+            onBack = { back() },
             modifier = modifier
         ) {
             RenameAndDownload(settings = settings, onChange = onChange)
@@ -348,7 +415,7 @@ fun SettingsScreen(
          */
         Page.THUMBS -> Shell(
             title = stringResource(R.string.settings_thumbs),
-            onBack = { pageAt = Page.ROOT.ordinal },
+            onBack = { back() },
             modifier = modifier,
             scrolls = false
         ) {
@@ -378,11 +445,32 @@ fun SettingsScreen(
 /**
  * Quale pagina si sta guardando.
  *
- * ⚠️ **La profondità è UNO**: una sotto-pagina non ne apre un'altra, perché la navigazione è
- * questo valore e nient'altro, senza una pila, e Indietro riporta alla radice. Una famiglia
- * che ne conterrebbe un'altra tiene nella pagina piatta la riga che apre la seconda.
+ * ⚠️⚠️ **LA PROFONDITÀ È DUE DALLA `2.09`, E PRIMA ERA UNO** (sua risposta `livelli` a
+ * `d-imp-strada`): fino alla `2.08` la navigazione era **questo valore e nient'altro**, quindi
+ * una sotto-pagina non ne poteva aprire un'altra e Indietro riportava sempre alla radice. Le
+ * cinque famiglie che sono scese di un livello ne contengono già una ciascuna (l'elenco dei
+ * dati, l'ordine dei pulsanti, la vista delle cartelle, le nascoste, 'Rinomina e download'),
+ * quindi senza una pila non si potevano chiudere.
+ * ⚠️ **`ROOT` non entra mai nella pila**: la radice è la pila **vuota**, e mettercela dentro
+ * darebbe due modi di dire la stessa cosa, con un Indietro che a volte non esce.
  */
-private enum class Page { ROOT, FACTS, HIDDEN, ZOOM, VIEWS, THUMBS, BUTTONS, SAVING }
+private enum class Page {
+    ROOT,
+    FOLDERS, VIEWER, INFO, CONTROLS, EDITING,
+    FACTS, HIDDEN, ZOOM, VIEWS, THUMBS, BUTTONS, SAVING
+}
+
+/**
+ * Come la pila delle pagine sopravvive a una rotazione.
+ *
+ * ⚠️ **Salva gli ordinali** per la stessa ragione per cui li salvava il valore solo di prima:
+ * un `Int` il `Bundle` lo sa scrivere, un enum no. ⚠️ E il ripristino torna una lista di stato,
+ * non una lista qualunque: quella che si legge è la stessa che si modifica aprendo una pagina.
+ */
+private val PAGE_STACK = listSaver<SnapshotStateList<Page>, Int>(
+    save = { it.map(Page::ordinal) },
+    restore = { saved -> saved.map { Page.entries[it] }.toMutableStateList() }
+)
 
 /**
  * Che cosa si sta cercando nelle impostazioni, e stringa vuota quando non si cerca.
@@ -504,13 +592,17 @@ private fun SearchField(query: String, onQuery: (String) -> Unit) {
 private val SEARCH_PILL = 28.dp
 
 /**
- * La pagina piatta: le sezioni, e le righe che aprono le sotto-pagine.
+ * La pagina piatta: le sezioni, le voci che si toccano qui, e le porte delle famiglie.
  *
- * ⚠️ L'ordine delle sezioni va dal generale al particolare: prima com'è fatta l'app, poi come
- * si guarda un'immagine, poi come si sfoglia, come si comanda e come si modifica, poi come si
- * trovano le cartelle, e per ultimo che cosa succede all'accensione, che è la voce che si
- * tocca una volta e non si guarda più. È un criterio **stabile**: ordinare per frequenza, o
- * per la domanda che si fa più spesso, si riaprirebbe a ogni voce aggiunta.
+ * ⚠️ L'ordine delle sezioni va dal generale al particolare: prima com'è fatta l'app e che cosa
+ * ci si vede dentro, poi come si sfoglia, come si comanda e come si modifica, e per ultimo che
+ * cosa succede all'accensione, che è la voce che si tocca una volta e non si guarda più. È un
+ * criterio **stabile**: ordinare per frequenza, o per la domanda che si fa più spesso, si
+ * riaprirebbe a ogni voce aggiunta.
+ * ⚠️⚠️ **DALLA `2.09` UNA FAMIGLIA GRANDE NON VIVE QUI, VIVE DIETRO UNA PORTA** (sua risposta
+ * `livelli` a `d-imp-strada`, giro della `2.07`), e quello che resta in questa pagina sono le
+ * voci che nessuna famiglia raccoglie. ⚠️ **Il guadagno non è la lunghezza**, che non è mai
+ * stata il suo metro: è che scorrendo si leggono domande invece di opzioni.
  * ⚠️⚠️ **DOVE VA UNA VOCE NUOVA LO DICE UNA REGOLA, e non questo elenco**: sta in
  * `AIV/CLAUDE.md` § '⚙️ Dove va un'impostazione, e chi la deve trovare', e la cosa da leggere
  * prima di aggiungere una riga è quella. Qui accanto a ogni sezione c'è il **perché** di
@@ -528,11 +620,6 @@ private fun ColumnScope.RootPage(
     onClearThumbs: () -> Unit,
     onOpen: (Page) -> Unit
 ) {
-    // ⚠️ Serve alle due righe che portano i nomi delle voci interne fra i testi della ricerca:
-    // quelle liste si ricordano, e una lettura di risorsa dentro un `remember` vuole
-    // l'oggetto delle risorse invece di `stringResource`, che è componibile.
-    val res = LocalResources.current
-
     Group(stringResource(R.string.settings_group_look))
 
     // ⚠️ Il tema dell'APP sta per primo e prima di quello dello sfondo, che gli somiglia
@@ -558,44 +645,12 @@ private fun ColumnScope.RootPage(
         onSelect = { onChange(settings.copy(uiTheme = it)) }
     )
 
-    Choices(
-        label = stringResource(R.string.settings_background),
-        detail = stringResource(R.string.settings_bg_desc),
-        options = BgType.entries,
-        selected = settings.bgType,
-        nameOf = {
-            stringResource(
-                when (it) {
-                    BgType.CHECKER -> R.string.settings_bg_checker
-                    BgType.SOLID -> R.string.settings_bg_solid
-                }
-            )
-        },
-        onSelect = { onChange(settings.copy(bgType = it)) }
-    )
-
-    Choices(
-        label = stringResource(R.string.settings_bg_theme),
-        detail = null,
-        options = BgTheme.entries,
-        selected = settings.bgTheme,
-        nameOf = {
-            stringResource(
-                when (it) {
-                    BgTheme.AUTO -> R.string.settings_auto
-                    BgTheme.LIGHT -> R.string.settings_light
-                    BgTheme.DARK -> R.string.settings_dark
-                }
-            )
-        },
-        onSelect = { onChange(settings.copy(bgTheme = it)) }
-    )
-
     /*
-     * ⚠️⚠️ **ULTIMA DEL GRUPPO E NON SUBITO DOPO IL TEMA**, che pure le somiglia: le due
-     * righe sopra sono una coppia (che cosa c'è dietro la fotografia, e di che tinta), e
-     * infilarsi in mezzo a loro le spezzerebbe. Questa parla di quello che c'è dietro le
-     * **finestre**, che è un'altra domanda.
+     * ⚠️⚠️ **SUBITO DOPO IL TEMA DALLA `2.09`, E PRIMA ERA ULTIMA DEL GRUPPO**: in mezzo c'era
+     * la coppia dello sfondo (che cosa c'è dietro un'immagine, e di che tinta), che con la
+     * strada B è scesa nella pagina del visualizzatore. Quella coppia rispondeva a una domanda
+     * sull'immagine aperta; questa parla di quello che c'è dietro le **finestre**, cioè
+     * dell'app, ed è per questo che è rimasta accanto al tema.
      * ⚠️ **La spiegazione dichiara il costo**, che è la ragione per cui la voce esiste: chi
      * sceglie deve sapere che cosa sta comprando, o leggerà la lentezza come un difetto
      * dell'app.
@@ -624,199 +679,55 @@ private fun ColumnScope.RootPage(
     )
 
     /*
-     * ⚠️⚠️ **QUATTRO PASTIGLIE E NON QUATTRO INTERRUTTORI, ED È LA SUA RICHIESTA** (risposta a
-     * `d-frontespizio` del giro della `1.81`, registrata nel brief: *la voce 'Elementi del
-     * intestazione' ... e i quattro chip*). Sono **indipendenti**, cioè tutte le combinazioni
-     * sono ammesse, e il pezzo che le disegna dichiara proprio quello: [Toggles], non [Choices].
-     * ⚠️⚠️ **UNA VOCE SOLA E NON QUATTRO, e il criterio è quello del pannello**: rispondono
-     * tutte alla stessa domanda (*che cosa c'è nell'intestazione di una cartella*), quindi sono
-     * una famiglia; quattro righe con quattro titoli sarebbero quattro domande che nessuno si fa
-     * separatamente. Il perché per esteso vive in `AIV/CLAUDE.md`, § '⚙️ Dove va
-     * un'impostazione, e chi la deve trovare'.
-     * ⚠️ **Vive in 'Aspetto' e non nel gruppo del visualizzatore**: parla di come si vede una
-     * schermata, non di come si guarda un'immagine.
-     * ⚠️ **La ricerca le trova per nome**: [Toggles] passa i nomi delle pastiglie a `shown`,
-     * quindi cercando 'gradiente' compare questa voce.
-     */
-    Toggles(
-        label = stringResource(R.string.settings_front),
-        detail = stringResource(R.string.settings_front_desc),
-        names = listOf(
-            stringResource(R.string.settings_front_wash),
-            stringResource(R.string.settings_front_serif),
-            stringResource(R.string.settings_front_facts),
-            stringResource(R.string.pick_all)
-        ),
-        on = listOf(
-            settings.frontWash,
-            settings.frontSerif,
-            settings.frontFacts,
-            settings.frontPickAll
-        ),
-        onFlip = { at ->
-            onChange(
-                when (at) {
-                    0 -> settings.copy(frontWash = !settings.frontWash)
-                    1 -> settings.copy(frontSerif = !settings.frontSerif)
-                    2 -> settings.copy(frontFacts = !settings.frontFacts)
-                    else -> settings.copy(frontPickAll = !settings.frontPickAll)
-                }
-            )
-        }
-    )
-
-    /*
-     * ⚠️⚠️ **DOVE SI VEDE IL COLORE DI UNA CARTELLA, DALLA `1.87`, ED È IL POSTO CHE HA DETTO
-     * LUI** (*aggiungi un selettore nelle impostazioni ('Colore delle cartelle', sotto
-     * 'Aspetto')*). La domanda è *come riconosco una cartella nella schermata iniziale*, e non
-     * la condivide con nessuna delle voci qui sopra: è una voce sola, quindi non prende un
-     * titolo di famiglia suo.
-     * ⚠️ **Ultima del gruppo, dopo l'intestazione**: quella parla di una cartella aperta, questa
-     * della stessa cartella vista da fuori, e messe vicine si leggono in fila.
-     * ⚠️ **Cinque gettoni e non un interruttore**, come la profondità dei pannelli: gli stili si
-     * escludono a vicenda, e con quattro interruttori esisterebbe lo stato in cui sono accesi
-     * tutti.
-     * ⚠️ **Ha una gemella nel dialogo delle opzioni**, cioè la scorciatoia del tocco lungo sul
-     * FAB (vedi `ColourChips` in `FolderScreen.kt`): stessa preferenza, stessi cinque nomi, che
-     * arrivano dalla stessa funzione.
-     */
-    Choices(
-        label = stringResource(R.string.settings_colour),
-        detail = stringResource(R.string.settings_colour_desc),
-        options = FolderColour.entries,
-        selected = settings.folderColour,
-        nameOf = { stringResource(it.label()) },
-        onSelect = { onChange(settings.copy(folderColour = it)) }
-    )
-
-    Group(stringResource(R.string.settings_group_viewer))
-
-    /*
-     * ⚠️⚠️ **LE VOCI DELICATE STANNO IN UNA SOTTO-PAGINA, per volontà dell'utente**
-     * (2026-09-01: *sono impostazioni delicate: le voglio in una sotto-pagina 'Adattamento e
-     * zoom'*). Sono le sole del pannello che cambiano il modo in cui un'immagine viene
-     * **misurata** invece di che cosa si vede intorno: sbagliarle non rompe niente, ma rende
-     * ogni immagine diversa da come ci si aspetta, e chi le incontra per caso scorrendo
-     * l'elenco non ha modo di saperlo.
-     * ⚠️ **Restano nel gruppo del visualizzatore**, in cima: la sotto-pagina le raccoglie, non
-     * le sposta altrove. Era la richiesta alla lettera.
+     * ⚠️⚠️ **TRE PORTE AL POSTO DI DICIOTTO RIGHE, DALLA `2.09`, ED È LA SUA RISPOSTA**
+     * (`d-imp-strada` del giro della `2.07`: **`livelli`**). Le tre famiglie che rispondono a
+     * *che cosa vedo* vivono dietro un tocco, e il riepilogo dice che cosa c'è dentro senza
+     * bisogno di entrare.
+     * ⚠️⚠️ **STANNO IN 'Aspetto' PERCHÉ LE LORO DUE SEZIONI SONO SPARITE, e non è un ripiego**:
+     * una sezione che conterrebbe **soltanto** la porta della propria famiglia scriverebbe la
+     * stessa parola due volte a mezzo centimetro di distanza ('Cartelle' sopra 'Cartelle'), ed è
+     * il caso che la regola chiama *una voce sola non prende un titolo*. I due titoli non si sono
+     * persi e non sono stati tradotti di nuovo: adesso titolano le due pagine.
+     * ⚠️ **L'ordine va dal contenitore al contenuto**: le cartelle, poi l'immagine aperta, poi
+     * quello che l'app dice di lei.
      */
     PageOfRows(
-        label = stringResource(R.string.settings_zoom_page),
-        // ⚠️⚠️ **IL RIEPILOGO SI COMPONE DAI TITOLI DELLE VOCI, dalla 1.46, e prima era una
-        // frase a mano**: `settings_zoom_page_summary` nominava tre argomenti e la pagina ne
-        // portava quattro dalla 1.26, cioè era invecchiata in silenzio in ventisette lingue.
-        // Composto così non può: se una voce entra, esce o cambia nome, il riepilogo la segue.
+        label = stringResource(R.string.settings_group_browse),
+        // ⚠️ L'ultima voce c'è **solo se esiste**, come la riga che la apre: un riepilogo che
+        // nomina le cartelle nascoste dove non ce n'è nessuna manda a cercare una riga che
+        // dentro non si trova.
+        summary = buildList {
+            add(stringResource(R.string.settings_front))
+            add(stringResource(R.string.settings_colour))
+            add(stringResource(R.string.view_options))
+            if (settings.hiddenFolders.isNotEmpty()) {
+                add(stringResource(R.string.settings_hidden))
+            }
+        }.joinToString(SUMMARY_JOIN),
+        onOpen = { onOpen(Page.FOLDERS) }
+    ) { FoldersPage(settings = settings, onChange = onChange, onOpen = onOpen) }
+
+    PageOfRows(
+        label = stringResource(R.string.settings_group_viewer),
         summary = listOf(
-            stringResource(R.string.settings_fit_grow),
-            stringResource(R.string.settings_zoom_max),
-            stringResource(R.string.settings_scale_mode),
-            stringResource(R.string.settings_zoom_menu)
+            stringResource(R.string.settings_background),
+            stringResource(R.string.settings_bg_theme),
+            stringResource(R.string.settings_zoom_page),
+            stringResource(R.string.settings_clip_autoplay)
         ).joinToString(SUMMARY_JOIN),
-        onOpen = { onOpen(Page.ZOOM) }
-    ) { ZoomAndFit(settings = settings, onChange = onChange) }
+        onOpen = { onOpen(Page.VIEWER) }
+    ) { ViewerPage(settings = settings, onChange = onChange, onOpen = onOpen) }
 
-    /*
-     * ⚠️⚠️ **INTERRUTTORE PIÙ RIGA SUBORDINATA, dalla 1.38, ED È UN RITORNO ALLA FORMA DELLA
-     * 1.25** (riscontro `chip-colonna`, 2026-09-02: *torna indietro nelle impostazioni -> due
-     * righe: 'Barra delle info' in linea con l'interruttore off/on; 'Posizione'
-     * gerarchicamente subordinata alla riga precedente, in linea e allineati a destra, i chip
-     * 'In alto' 'In basso' in questo ordine*).
-     * ⚠️⚠️ **LA 1.26 AVEVA FUSO LE DUE RIGHE IN TRE GETTONI, E LA RICHIESTA ERA DELL'ALTRO
-     * POSTO: È UN MIO SCAMBIO, e lui lo ha detto per esteso** (*quando l'ho chiesto per il
-     * pannello l'hai fatta nelle impostazioni, e viceversa; di conseguenza ti ho sempre dato il
-     * feedback sbagliato*). I tre gettoni impilati che questa riga si porta dietro da tre
-     * versioni sono nati da quello scambio, e ogni riscontro che li ha limati stava limando la
-     * cosa sbagliata. Non è quindi la 'quinta forma in cinque versioni': è la 1.25 rimessa dove
-     * era, con l'aggiunta che segue.
-     * ⚠️ **La forma corretta di 'gerarchicamente subordinata' è quella già scritta**: si veda
-     * [InfoSideRow], che è la riga della 1.25 tornata in scena, e che adesso vive in un file
-     * suo perché la vogliono **identica** in due posti.
-     */
-    SwitchRow(
-        label = stringResource(R.string.settings_info_visible),
-        detail = null,
-        checked = settings.infoVisible,
-        onChange = { onChange(settings.copy(infoVisible = it)) }
-    )
-
-    /*
-     * ⚠️⚠️ **I DUE GETTONI SI TOCCANO SOLO A BARRA ACCESA, dalla 1.38** (stessa richiesta: *in
-     * entrambi i casi, i due chip della posizione sono selezionabili solo quando l'interruttore
-     * principale è ON*), e questa è la parte NUOVA rispetto alla 1.25, dove restavano sempre
-     * attivi.
-     * ⚠️⚠️ **MA IL VALORE SOTTO NON SI PERDE, ed è la ragione per cui `infoPosition` resta un
-     * campo suo**: spenta la barra, il lato scelto rimane scritto e si ritrova riaccendendola.
-     * Spegnere i gettoni è una cosa che riguarda quello che si può toccare, non quello che si
-     * ricorda.
-     * ⚠️ **Chi cerca 'In alto' con la ricerca li trova comunque**, spenti: nasconderli
-     * direbbe che quell'impostazione non esiste, mentre esiste e ha un interruttore sopra.
-     */
-    if (shown(
-            stringResource(R.string.settings_info_position),
-            null,
-            infoSideName(InfoPosition.TOP),
-            infoSideName(InfoPosition.BOTTOM)
-        )
-    ) {
-        InfoSideRow(
-            selected = settings.infoPosition,
-            enabled = settings.infoVisible,
-            onSelect = { onChange(settings.copy(infoPosition = it)) },
-            /*
-             * ⚠️⚠️ **NIENTE RIENTRO A SINISTRA, dalla 1.41, e la 1.38 lo aveva rimesso**
-             * (riscontro `barra-impostazioni`, 2026-09-03: *di nuovo 'Posizione' con rientro
-             * -> deve stare allineato a sinistra e basta, senza spazi/indentazioni
-             * iniziali*). 'Gerarchicamente subordinata' lo dicono il corpo leggero del
-             * titolo e il fatto che i gettoni si spengono con l'interruttore sopra: uno
-             * scalino a sinistra è una terza cosa, e non l'ha chiesta.
-             * ⚠️ **Resta il solo distacco in alto**, che non è un rientro ma l'aria fra due
-             * righe.
-             */
-            modifier = Modifier.padding(top = 4.dp)
-        )
-    }
-
-    /*
-     * ⚠️ **Accanto alla barra delle info e non fra le voci dell'editor**: sono le due sole
-     * impostazioni che dicono che cosa si vede SOPRA l'immagine mentre la si guarda, e chi
-     * cerca l'una trova l'altra.
-     */
-    SwitchRow(
-        label = stringResource(R.string.settings_anim_counter),
-        detail = stringResource(R.string.settings_anim_counter_desc),
-        checked = settings.animCounter,
-        onChange = { onChange(settings.copy(animCounter = it)) }
-    )
-
-    PageRow(
-        label = stringResource(R.string.settings_facts),
-        summary = pluralStringResource(
-            R.plurals.settings_facts_count,
-            settings.factRows.size,
-            settings.factRows.size
-        ),
-        onOpen = { onOpen(Page.FACTS) },
-        /*
-         * ⚠️⚠️ **QUESTA PAGINA NON SI APPIATTISCE NELLA RICERCA, e i suoi campi si cercano da
-         * qui**: dentro c'è un ELENCO con due comandi per riga, la casella e le due frecce, e
-         * le frecce lavorano sull'ordine INTERO, quindi in un elenco filtrato manderebbero un
-         * campo in una posizione che non si vede. La copertura è l'altra: i nomi dei campi
-         * entrano fra i testi che la ricerca confronta su questa riga, e chi cerca 'fotocamera'
-         * trova la riga che porta dove quella voce vive. Costa zero stringhe, perché quei nomi
-         * esistono già in tutte le lingue.
-         */
-        /*
-         * ⚠️ **Ricordati, e fino alla `1.80` si rifacevano a ogni ricomposizione della
-         * radice** (censimento della UI del 2026-09-05): quella lista di nomi si ricostruiva a
-         * ogni tocco su una voce del pannello, insieme alla conversione in array che `PageRow`
-         * fa dentro. ⚠️ **La chiave è l'oggetto delle risorse e non il `Context`**: quello che
-         * cambia quando cambia la lingua è il primo, e con lui i nomi si rileggono da soli.
-         */
-        extra = remember(res, settings.factOrder) {
-            settings.factOrder.map { res.getString(it.label) }
-        }
-    )
+    PageOfRows(
+        label = stringResource(R.string.settings_page_info),
+        summary = listOf(
+            stringResource(R.string.settings_info_visible),
+            stringResource(R.string.settings_facts),
+            stringResource(R.string.settings_anim_counter),
+            stringResource(R.string.settings_pick_weight)
+        ).joinToString(SUMMARY_JOIN),
+        onOpen = { onOpen(Page.INFO) }
+    ) { InfoPage(settings = settings, onChange = onChange, onOpen = onOpen) }
 
     /*
      * ⚠️⚠️ **SEZIONE NUOVA NELLA `1.46`, E NASCE PER SCIOGLIERE UN RIPIEGO CHE IL CODICE
@@ -828,8 +739,11 @@ private fun ColumnScope.RootPage(
      * ⚠️⚠️ **IL TITOLO È UNA PAROLA SOLA DALLA 1.48, E PRIMA NE NOMINAVA DUE** ('Video e
      * scorrimento', riscritto dall'utente nel giro della `1.46`). Il titolo vecchio elencava
      * quello che c'è dentro; questo dice **che cosa si viene a fare qui**, cioè decidere come
-     * ci si muove fra un'immagine e l'altra, ed è la domanda che tiene insieme tutte e tre le
-     * voci: che cosa si salta, che cosa parte da sé, e da che parte si va.
+     * ci si muove fra un'immagine e l'altra, ed è la domanda che tiene insieme le voci rimaste:
+     * che cosa si salta, e da che parte si va.
+     * ⚠️⚠️ **LA TERZA SE N'È ANDATA NELLA `2.09`**, ed è uno degli otto traslochi che lui ha
+     * approvato in blocco: la riproduzione diretta dice che cosa fa un video **quando lo apro**,
+     * cioè risponde a una domanda sul visualizzatore e non su come ci si arriva.
      * ⚠️ **Un titolo che elenca non è vietato**, e in questa schermata ce ne sono ancora: la
      * regola dice che una sezione a nessuna domanda risponde, dice dove si è, quindi un titolo
      * vale l'altro finché lo dice bene.
@@ -843,20 +757,6 @@ private fun ColumnScope.RootPage(
         onChange = { onChange(settings.copy(imagesOnly = it)) }
     )
 
-    /*
-     * ⚠️⚠️ **SENZA SPIEGAZIONE, E ACCANTO ALLA VOCE CHE LA DÀ** (richiesta dell'utente,
-     * 2026-09-03: *senza testo esplicativo*). Le due voci sono l'una il rovescio dell'altra,
-     * quella spegne il **gesto** e questa accende il **tocco**, e la descrizione di sopra
-     * nomina già il tocco: staccarle avrebbe lasciato una voce muta senza niente intorno che
-     * la spieghi. Il perché sia spenta di fabbrica sta su `Settings.clipAutoplay`.
-     */
-    SwitchRow(
-        label = stringResource(R.string.settings_clip_autoplay),
-        detail = null,
-        checked = settings.clipAutoplay,
-        onChange = { onChange(settings.copy(clipAutoplay = it)) }
-    )
-
     // ⚠️ Una voce sola non prende un titolo suo, e va nella famiglia la cui domanda le sta
     // più vicina: il verso dello scorrimento sta coi video perché è l'altra cosa che il
     // gesto di sfogliare decide.
@@ -868,82 +768,35 @@ private fun ColumnScope.RootPage(
     )
 
     /*
-     * ⚠️⚠️ **SEZIONE NUOVA NELLA `1.46`, e che le tre siano una famiglia lo diceva già il
+     * ⚠️⚠️ **SEZIONE NUOVA NELLA `1.46`, e che i comandi fossero una famiglia lo diceva già il
      * codice**: la testata della selezione stava *accanto alle altre voci della selezione,
      * come il lato dominante e il percorso in testa alla lista*. Quello che mancava era il
      * titolo, e la nota di allora diceva anche perché (*una voce sola non fa un gruppo, e due
-     * mezze voci in fondo alla pagina sarebbero più difficili da trovare*): con tre voci il
-     * gruppo si fa, e quella scusa non serve più.
+     * mezze voci in fondo alla pagina sarebbero più difficili da trovare*).
      * ⚠️ **La mano NON sta sotto 'Aspetto'**: non è come l'app è vestita, e sotto quel titolo
      * nessuno la cerca.
      * ⚠️ **Il titolo dice 'indicatori' e non più 'selezione' dalla 1.48** (riscritto
-     * dall'utente nel giro della `1.46`): due delle tre voci accendono qualcosa che si
-     * **guarda** (il percorso in testa alla lista, la testata della selezione), e 'selezione'
-     * ne nominava una sola delle due.
+     * dall'utente nel giro della `1.46`): nomina due famiglie vicine, e dalla `2.09` si vede a
+     * occhio nudo, perché una delle due è una porta e l'altra una riga.
      */
     Group(stringResource(R.string.settings_group_input))
 
-    Choices(
-        label = stringResource(R.string.settings_hand),
-        /*
-         * ⚠️⚠️ **DALLA `1.57` QUESTA VOCE DICE UN'ALTRA COSA, e la chiave è la stessa** (tappa
-         * del piano d'azione): diceva quale **mano** si usa e rovesciava le file di un
-         * riquadro, adesso dice da che parte sta il **FAB**. La specchiatura se n'è andata
-         * del tutto, e quel mestiere lo fanno l'ordine che si trascina e questo lato.
-         * ⚠️ **La chiave resta `hand`**: la domanda ha cambiato forma ma non verso, quindi chi
-         * aveva scelto la sinistra ritrova la sinistra. Una chiave nuova gli avrebbe rimesso
-         * il valore di fabbrica senza dirglielo.
-         */
-        detail = stringResource(R.string.settings_hand_desc),
-        options = Hand.entries,
-        selected = settings.hand,
-        nameOf = {
-            stringResource(
-                when (it) {
-                    Hand.RIGHT -> R.string.settings_right
-                    Hand.LEFT -> R.string.settings_left
-                }
-            )
-        },
-        onSelect = { onChange(settings.copy(hand = it)) }
-    )
-
     /*
-     * ⚠️⚠️ **LE DUE VOCI NUOVE DELLA `1.56` STANNO CON LA MANO, e la famiglia resta di tre.**
-     * La domanda che le tiene insieme è una sola, e si scrive come la scrive chi apre il
-     * pannello: *come si presentano i comandi che uso*. Da che parte stanno, come si leggono,
-     * in che ordine sono. Le altre due voci di questa sezione rispondono a un'altra domanda
-     * (che cosa si vede scritto), e per questo il titolo ne nomina due.
-     * ⚠️ **Tre voci, quindi la soglia della sotto-pagina non scatta**: la famiglia resta qui,
-     * e la sotto-pagina che si apre più giù è un'altra cosa (un elenco con comandi per riga,
-     * che è il primo dei quattro modi di diventarlo).
+     * ⚠️⚠️ **LA FAMIGLIA DEI COMANDI SCENDE DI UN LIVELLO NELLA `2.09`**: il lato del FAB, le
+     * etichette e l'ordine dei pulsanti rispondono tutti a *come si presentano i comandi che
+     * uso*, e la loro pagina ne contiene già un'altra, cioè i quattro riquadri da trascinare.
+     * ⚠️ **La sezione resta e nomina due famiglie**, come faceva prima: qui sotto è rimasta la
+     * riga degli indicatori, che risponde a un'altra domanda.
      */
-    SwitchRow(
-        label = stringResource(R.string.settings_labels),
-        detail = stringResource(R.string.settings_labels_desc),
-        checked = settings.padLabels,
-        onChange = { onChange(settings.copy(padLabels = it)) }
-    )
-
-    /*
-     * ⚠️⚠️ **LA RICERCA TROVA I TASTI DA QUI, e non da dentro la pagina**: quella è un ELENCO
-     * con un comando per riga, quindi non si appiattisce (le manopole lavorano sull'ordine
-     * intero, e in un elenco filtrato manderebbero un tasto in una posizione che non si vede).
-     * La copertura è l'altra via prevista dalla regola: i nomi dei tasti arrivano qui come
-     * testi in più, e sono stringhe che esistono già in tutte le lingue.
-     */
-    PageRow(
-        label = stringResource(R.string.settings_buttons),
-        summary = null,
-        onOpen = { onOpen(Page.BUTTONS) },
-        // ⚠️ Ricordati come i nomi dei campi delle info, e per la stessa ragione: le quattro
-        // liste fanno ventiquattro elementi e diciotto distinti, e si rifacevano tutte a ogni
-        // tocco su una voce del pannello.
-        extra = remember(res) {
-            (MENU_KEYS + PICK_KEYS + TURN_KEYS + STEP_KEYS).distinct()
-                .map { res.getString(it.label()) }
-        }
-    )
+    PageOfRows(
+        label = stringResource(R.string.settings_page_controls),
+        summary = listOf(
+            stringResource(R.string.settings_hand),
+            stringResource(R.string.settings_labels),
+            stringResource(R.string.settings_buttons)
+        ).joinToString(SUMMARY_JOIN),
+        onOpen = { onOpen(Page.CONTROLS) }
+    ) { ControlsPage(settings = settings, onChange = onChange, onOpen = onOpen) }
 
     SwitchRow(
         label = stringResource(R.string.settings_list_path),
@@ -955,14 +808,6 @@ private fun ColumnScope.RootPage(
         onChange = { onChange(settings.copy(listPath = it)) }
     )
 
-    // ⚠️ Il costo che quest'interruttore esiste per togliere sta su `Settings.pickWeight`.
-    SwitchRow(
-        label = stringResource(R.string.settings_pick_weight),
-        detail = stringResource(R.string.settings_pick_weight_desc),
-        checked = settings.pickWeight,
-        onChange = { onChange(settings.copy(pickWeight = it)) }
-    )
-
     /*
      * ⚠️⚠️ **SEZIONE NUOVA NELLA `1.46`, E MANTIENE UNA PROMESSA CHE IL CODICE AVEVA MESSO PER
      * ISCRITTO**: il cestino stava fra le cartelle *PER MANCANZA DI UNO MIGLIORE*, con la riga
@@ -970,11 +815,15 @@ private fun ColumnScope.RootPage(
      * domanda sola: come non si perde un file quando lo si modifica o lo si cancella. E il
      * legame fra le due metà non è supposto, lo dice la stringa pubblicata della copia di
      * sicurezza, che finisce proprio nel cestino.
-     * ⚠️ **Tre voci, quindi sotto-SEZIONE e non sotto-pagina**: la soglia è dell'utente (*fino
-     * a 2-3 opzioni correlate basta una sotto-sezione della pagina principale*), e un cancello
-     * sul cestino allontanerebbe la risposta a 'come recupero un file cancellato'.
-     * ⚠️ **L'ordine interno segue il percorso di un file**: con che cosa si modifica, se ne
-     * resta una copia, e se cancellare si può disfare.
+     * ⚠️⚠️ **DALLA `2.09` LA SEZIONE PORTA DUE FAMIGLIE E NON UNA**: la porta dell'editor e del
+     * salvataggio, e le due voci del cestino. La domanda della sezione resta quella di allora,
+     * *come non si perde un file*, e il legame fra le due metà non è supposto: lo dice la
+     * stringa pubblicata della copia di sicurezza, che finisce proprio nel cestino.
+     * ⚠️ **Il cestino NON è sceso con le altre**, ed è la soglia a dirlo: le sue voci sono due,
+     * cioè dentro il *2-3* dell'utente, e un cancello sul cestino allontanerebbe la risposta a
+     * 'come recupero un file cancellato'.
+     * ⚠️ **L'ordine interno segue il percorso di un file**: con che cosa si modifica e come si
+     * salva, e poi che cosa succede se si cancella.
      * ⚠️⚠️ **IL TITOLO NON NOMINA PIÙ IL CESTINO DALLA 1.48** ('Modifica e cestino', riscritto
      * dall'utente nel giro della `1.46`), e la voce del cestino è **rimasta qui**: chi la cerca
      * la trova con la ricerca, che confronta il titolo della voce e non quello della sezione.
@@ -984,85 +833,31 @@ private fun ColumnScope.RootPage(
     Group(stringResource(R.string.settings_group_files))
 
     /*
-     * ⚠️⚠️ **È LO STESSO SELETTORE del primo utilizzo** (richiesta dell'utente), e la parola
-     * 'stesso' è tecnica e non descrittiva: la finestra è una sola, [EditorPicker], aperta
-     * dal modello (`chooseEditor`) invece che da questa schermata. Due finestre gemelle
-     * sarebbero divergite alla prima voce aggiunta.
+     * ⚠️⚠️ **L'EDITOR E IL SALVATAGGIO SCENDONO DI UN LIVELLO NELLA `2.09`, E IL CESTINO NO**:
+     * quelle tre voci dicono *con che cosa si modifica un file e con che nome si salva*, e la
+     * terza era già una pagina; le due che restano qui sotto dicono *che cosa succede a un file
+     * che si cancella*, e sono due, cioè dentro la soglia.
      */
-    val editorLabel = stringResource(R.string.settings_editor)
-    val editorDesc = stringResource(R.string.settings_editor_desc)
-    Searchable(editorLabel, editorDesc) {
-        val context = LocalContext.current
-        val noEditor = stringResource(R.string.settings_editor_none)
-        // ⚠️ Ricordato, e non chiesto a ogni disegno: leggerlo vuol dire interrogare il
-        // `PackageManager`, cioè elencare le app del telefono. La chiave è la scelta, e in più
-        // la frase di ripiego, che cambia quando cambia la lingua.
-        val editorName = remember(settings.editorApp, noEditor) {
-            Editors.labelOf(context, settings.editorApp)
-        } ?: noEditor
-        // ⚠️ La forma è ESATTAMENTE quella della cartella d'avvio (titolo e spiegazione, poi
-        // una riga con il valore in vigore e il tasto): sono la stessa cosa, cioè una scelta
-        // che si fa altrove e qui si mostra, e dalla `1.81` la riga la disegna [ValueAndPick]
-        // per tutte e due, invece di essere scritta due volte con la raccomandazione di
-        // tenerle uguali.
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Text(text = editorLabel, style = MaterialTheme.typography.titleSmall)
-            Detail(editorDesc)
-        }
-        ValueAndPick(
-            value = editorName,
-            pick = stringResource(R.string.settings_editor_pick),
-            onPick = onChooseEditor
+    PageOfRows(
+        label = stringResource(R.string.settings_page_editing),
+        summary = listOf(
+            stringResource(R.string.settings_editor),
+            stringResource(R.string.settings_editor_backup),
+            stringResource(R.string.settings_rename_download)
+        ).joinToString(SUMMARY_JOIN),
+        onOpen = { onOpen(Page.EDITING) }
+    ) {
+        EditingPage(
+            settings = settings,
+            onChange = onChange,
+            onChooseEditor = onChooseEditor,
+            onOpen = onOpen
         )
     }
 
-    /*
-     * ⚠️⚠️ **VALE PER TUTTI GLI EDITOR DALLA `1.13`, ed è il rovescio di quello che c'era
-     * scritto qui** (domanda dell'utente: *vale solo per l'editor interno o per tutti quelli
-     * che supportano 'Modifica'?*). Fino alla `1.12` copriva il solo editor di casa, e la
-     * nota di allora spiegava perché un'app di fuori non si potesse coprire: la copia si fa
-     * **prima** di lanciarla, quindi si può eccome. Sta sotto la scelta dell'app perché è la
-     * stessa faccenda, non perché ne riguardi una sola.
-     */
-    SwitchRow(
-        label = stringResource(R.string.settings_editor_backup),
-        detail = stringResource(R.string.settings_editor_backup_desc),
-        checked = settings.editorBackup,
-        onChange = { onChange(settings.copy(editorBackup = it)) }
-    )
-
-    /*
-     * ⚠️⚠️ **TRE VOCI DIETRO UN TOCCO DALLA `1.81`, E LA SOTTO-PAGINA L'HA CHIESTA LUI ALLA
-     * LETTERA** (riscontro del giro della `1.80`, campo libero punto A: *Crea una nuova
-     * sotto-pagina 'Rinomina e download' delle impostazioni (sezione 'Modifica e backup')*).
-     * Fino alla `1.80` erano due righe in questa pagina, e la terza (l'estensione) viveva in
-     * 'Funzionalità avanzate': tre voci sono oltre il *2-3* della sua soglia, e la famiglia è
-     * una sola, cioè *che nome ha il file che salvo e dove finisce*.
-     * ⚠️ **La terza voce cambia sezione e non perde la sua chiave**: chi aveva acceso
-     * l'estensione in 'Rinomina' se la ritrova accesa, perché il posto nell'interfaccia e la
-     * chiave nell'archivio sono due cose indipendenti (vedi `Settings.extRename`).
-     * ⚠️ **Resta in 'Modifica e backup' e non apre una sezione sua**: la domanda è la stessa
-     * della scelta dell'editor (che riscrive un file) e della copia di sicurezza (che lo
-     * protegge), e non è quella del cestino, che parla di quello che si cancella.
-     * ⚠️ **Il riepilogo si compone dai titoli delle tre voci**, come quello dello zoom: scritto
-     * a mano invecchierebbe al primo trasloco, e il precedente è misurato.
-     */
-    PageOfRows(
-        label = stringResource(R.string.settings_rename_download),
-        summary = listOf(
-            stringResource(R.string.settings_save_rename),
-            stringResource(R.string.settings_download_path),
-            stringResource(R.string.settings_ext_edit)
-        ).joinToString(SUMMARY_JOIN),
-        onOpen = { onOpen(Page.SAVING) }
-    ) { RenameAndDownload(settings = settings, onChange = onChange) }
-
-    // ⚠️ Ultima della sezione, e non è un ordine casuale: le due sopra parlano di una
-    // modifica, questa di una cancellazione, e il cestino è la rete che le raccoglie tutte
-    // e due.
+    // ⚠️ Dopo la porta dell'editor, e non è un ordine casuale: là dentro si parla di una
+    // modifica e di un salvataggio, qui di una cancellazione, e il cestino è la rete che le
+    // raccoglie tutte e due.
     SwitchRow(
         label = stringResource(R.string.settings_bin),
         detail = stringResource(R.string.settings_bin_desc),
@@ -1075,10 +870,10 @@ private fun ColumnScope.RootPage(
      * perché il piano diceva il contrario**: là era prevista una sotto-pagina, con la ragione
      * che questa voce *cambia il metro con cui un file è protetto*, cioè uno dei due soli casi
      * per cui una voce è delicata. Ma la soglia non si conta sulla voce, si conta sulla
-     * **famiglia**: alla domanda 'come faccio a non perdere un file per sbaglio' rispondono la
-     * copia di sicurezza dell'editor, il cestino e questa, cioè **tre** voci, e tre stanno
-     * dentro la soglia dell'utente per una sotto-sezione. Mandare una famiglia intera dietro un
-     * tocco per proteggerne una riga costerebbe due tocchi alle altre due.
+     * **famiglia**: alla domanda 'che cosa succede a un file che cancello' rispondono il
+     * cestino e questa, cioè due voci, che stanno dentro la soglia dell'utente per una
+     * sotto-sezione. Mandare una famiglia intera dietro un tocco per proteggerne una riga
+     * costerebbe un tocco anche all'altra.
      * ⚠️ **La protezione resta e viene da altre due parti**: il valore di fabbrica è 'Mai',
      * quindi non cancella niente finché non lo si accende, e sotto il titolo c'è il paragrafo
      * che dice che cosa succede.
@@ -1102,64 +897,6 @@ private fun ColumnScope.RootPage(
         },
         onSelect = { onChange(settings.copy(binKeep = it)) }
     )
-
-    Group(stringResource(R.string.settings_group_browse))
-
-    /*
-     * ⚠️⚠️ **PAGINA NUOVA, ED È LA SOLA AGGIUNTA DI STRUTTURA DELLA `1.46`**: le voci che
-     * decidono come si presentano gli elenchi di casa sono una domanda sola e sono più di
-     * tre, quindi la soglia dell'utente le manda dietro un tocco.
-     * ⚠️⚠️ **E QUATTRO DI LORO PRIMA NON SI RAGGIUNGEVANO AFFATTO DA QUI**: le opzioni della
-     * vista a elenco e di quella ad albero vivevano soltanto nel dialogo della schermata
-     * iniziale, quindi la ricerca delle impostazioni non le trovava. Non era una scelta
-     * dichiarata come quella di `Settings.folderView`, che l'eccezione ce l'ha scritta nel
-     * KDoc: era un buco, e il precedente di casa è che una scelta da guardare ha **casa e
-     * scorciatoia insieme**, come le colonne.
-     * ⚠️ **Il titolo è LA STESSA stringa che titola il dialogo**, ed è deliberato: due
-     * superfici con lo stesso titolo sono la prova visibile che il dialogo è una scorciatoia
-     * alla stessa cosa, e non un secondo posto in cui quella scelta vive per conto suo.
-     */
-    PageOfRows(
-        label = stringResource(R.string.view_options),
-        // ⚠️ Composto dai tre nomi che la pagina usa come titolini: zero stringhe nuove, e se
-        // un titolino cambia cambia anche il riepilogo.
-        summary = listOf(
-            stringResource(R.string.view_grid),
-            stringResource(R.string.view_list),
-            // ⚠️ `hub_view_tree` ('Cartelle di sistema') e NON `view_tree` ('Cartelle'), che
-            // collide col titolo di questa sezione.
-            stringResource(R.string.hub_view_tree)
-        ).joinToString(SUMMARY_JOIN),
-        onOpen = { onOpen(Page.VIEWS) }
-    ) { ViewOptionsPage(settings = settings, onChange = onChange) }
-
-    /*
-     * ⚠️⚠️ **L'ELENCO DELLE NASCOSTE È METÀ DELLA FUNZIONE, non un di più**: si nasconde con
-     * un tocco lungo, cioè da un'altra schermata e senza lasciare traccia, quindi se non ci
-     * fosse un posto in cui rivedere che cosa si è nascosto l'unico modo di riavere una
-     * cartella sarebbe indovinare che esiste quest'impostazione. Una funzione che toglie
-     * qualcosa deve dire dove l'ha messa.
-     * ⚠️ Compare **solo quando c'è qualcosa**, e la sotto-pagina non ha cambiato la scelta:
-     * una riga sempre presente e quasi sempre vuota è rumore in una schermata che si scorre.
-     * La pagina invece la stringa vuota la sa dire, perché ci si può restare dentro dopo aver
-     * rimostrato l'ultima.
-     */
-    if (settings.hiddenFolders.isNotEmpty()) {
-        PageRow(
-            label = stringResource(R.string.settings_hidden),
-            summary = pluralStringResource(
-                R.plurals.settings_hidden_count,
-                settings.hiddenFolders.size,
-                settings.hiddenFolders.size
-            ),
-            onOpen = { onOpen(Page.HIDDEN) },
-            // ⚠️ Anche questa pagina è un ELENCO e non si appiattisce, perché ogni riga porta
-            // il suo tasto 'Mostra': la copertura sono i percorsi, che entrano fra i testi da
-            // confrontare e non costano una stringa, perché sono dati. Guadagno collaterale:
-            // una cartella nascosta diventa cercabile per nome, cosa che prima non era.
-            extra = settings.hiddenFolders.sorted()
-        )
-    }
 
     Group(stringResource(R.string.settings_group_start))
 
@@ -1321,6 +1058,555 @@ private fun ColumnScope.RootPage(
 }
 
 /**
+ * La pagina 'Cartelle': come si vedono le cartelle di casa, e quali.
+ *
+ * ⚠️⚠️ **NASCE NELLA `2.09` DA QUATTRO VOCI CHE VIVEVANO IN TRE POSTI DIVERSI**: l'intestazione
+ * e il colore stavano in 'Aspetto', la vista e le nascoste nella sezione 'Cartelle'. La domanda
+ * che le tiene insieme è una sola, *come riconosco e come vedo una cartella*, e quattro sono
+ * oltre il *2-3* della soglia dell'utente.
+ * ⚠️ **Ne contiene altre due**, ed è una delle cinque per cui la profondità è passata a due:
+ * vedi [Page].
+ */
+@Composable
+private fun FoldersPage(
+    settings: Settings,
+    onChange: (Settings) -> Unit,
+    onOpen: (Page) -> Unit
+) {
+    /*
+     * ⚠️⚠️ **QUATTRO PASTIGLIE E NON QUATTRO INTERRUTTORI, ED È LA SUA RICHIESTA** (risposta a
+     * `d-frontespizio` del giro della `1.81`, registrata nel brief: *la voce 'Elementi del
+     * intestazione' ... e i quattro chip*). Sono **indipendenti**, cioè tutte le combinazioni
+     * sono ammesse, e il pezzo che le disegna dichiara proprio quello: [Toggles], non [Choices].
+     * ⚠️⚠️ **UNA VOCE SOLA E NON QUATTRO, e il criterio è quello del pannello**: rispondono
+     * tutte alla stessa domanda (*che cosa c'è nell'intestazione di una cartella*), quindi sono
+     * una famiglia; quattro righe con quattro titoli sarebbero quattro domande che nessuno si fa
+     * separatamente. Il perché per esteso vive in `AIV/CLAUDE.md`, § '⚙️ Dove va
+     * un'impostazione, e chi la deve trovare'.
+     * ⚠️⚠️ **VIVEVA IN 'Aspetto' FINO ALLA `2.08`, E DALLA `2.09` STA CON LE CARTELLE**: è uno
+     * degli otto traslochi approvati in blocco, e la ragione è che la sua domanda nomina una
+     * cartella (*che cosa c'è nell'intestazione di una cartella*), non il vestito dell'app.
+     * Sotto 'Aspetto' ci stava per il **verbo**, cioè perché parla di come si vede qualcosa, e
+     * quello è il posto in cui l'effetto si vede, non quello in cui la voce si cerca.
+     * ⚠️ **La ricerca le trova per nome**: [Toggles] passa i nomi delle pastiglie a `shown`,
+     * quindi cercando 'gradiente' compare questa voce.
+     */
+    Toggles(
+        label = stringResource(R.string.settings_front),
+        detail = stringResource(R.string.settings_front_desc),
+        names = listOf(
+            stringResource(R.string.settings_front_wash),
+            stringResource(R.string.settings_front_serif),
+            stringResource(R.string.settings_front_facts),
+            stringResource(R.string.pick_all)
+        ),
+        on = listOf(
+            settings.frontWash,
+            settings.frontSerif,
+            settings.frontFacts,
+            settings.frontPickAll
+        ),
+        onFlip = { at ->
+            onChange(
+                when (at) {
+                    0 -> settings.copy(frontWash = !settings.frontWash)
+                    1 -> settings.copy(frontSerif = !settings.frontSerif)
+                    2 -> settings.copy(frontFacts = !settings.frontFacts)
+                    else -> settings.copy(frontPickAll = !settings.frontPickAll)
+                }
+            )
+        }
+    )
+
+    /*
+     * ⚠️⚠️ **DOVE SI VEDE IL COLORE DI UNA CARTELLA, DALLA `1.87`**: la domanda è *come
+     * riconosco una cartella nella schermata iniziale*.
+     * ⚠️⚠️ **IL POSTO CHE AVEVA DETTO LUI ERA 'Aspetto'** (*aggiungi un selettore nelle
+     * impostazioni ('Colore delle cartelle', sotto 'Aspetto')*), e dalla `2.09` sta con le
+     * cartelle: è uno degli otto traslochi che ha approvato in blocco, e sposta la voce senza
+     * toccarne né la chiave né il testo.
+     * ⚠️ **Dopo l'intestazione**: quella parla di una cartella aperta, questa della stessa
+     * cartella vista da fuori, e messe vicine si leggono in fila.
+     * ⚠️ **Cinque gettoni e non un interruttore**, come la profondità dei pannelli: gli stili si
+     * escludono a vicenda, e con quattro interruttori esisterebbe lo stato in cui sono accesi
+     * tutti.
+     * ⚠️ **Ha una gemella nel dialogo delle opzioni**, cioè la scorciatoia del tocco lungo sul
+     * FAB (vedi `ColourChips` in `FolderScreen.kt`): stessa preferenza, stessi cinque nomi, che
+     * arrivano dalla stessa funzione.
+     */
+    Choices(
+        label = stringResource(R.string.settings_colour),
+        detail = stringResource(R.string.settings_colour_desc),
+        options = FolderColour.entries,
+        selected = settings.folderColour,
+        nameOf = { stringResource(it.label()) },
+        onSelect = { onChange(settings.copy(folderColour = it)) }
+    )
+
+    /*
+     * ⚠️⚠️ **PAGINA NUOVA, ED È LA SOLA AGGIUNTA DI STRUTTURA DELLA `1.46`**: le voci che
+     * decidono come si presentano gli elenchi di casa sono una domanda sola e sono più di
+     * tre, quindi la soglia dell'utente le manda dietro un tocco.
+     * ⚠️⚠️ **E QUATTRO DI LORO PRIMA NON SI RAGGIUNGEVANO AFFATTO DA QUI**: le opzioni della
+     * vista a elenco e di quella ad albero vivevano soltanto nel dialogo della schermata
+     * iniziale, quindi la ricerca delle impostazioni non le trovava. Non era una scelta
+     * dichiarata come quella di `Settings.folderView`, che l'eccezione ce l'ha scritta nel
+     * KDoc: era un buco, e il precedente di casa è che una scelta da guardare ha **casa e
+     * scorciatoia insieme**, come le colonne.
+     * ⚠️ **Il titolo è LA STESSA stringa che titola il dialogo**, ed è deliberato: due
+     * superfici con lo stesso titolo sono la prova visibile che il dialogo è una scorciatoia
+     * alla stessa cosa, e non un secondo posto in cui quella scelta vive per conto suo.
+     */
+    PageOfRows(
+        label = stringResource(R.string.view_options),
+        // ⚠️ Composto dai tre nomi che la pagina usa come titolini: zero stringhe nuove, e se
+        // un titolino cambia cambia anche il riepilogo.
+        summary = listOf(
+            stringResource(R.string.view_grid),
+            stringResource(R.string.view_list),
+            // ⚠️ `hub_view_tree` ('Cartelle di sistema') e NON `view_tree` ('Cartelle'), che
+            // collide col titolo di questa sezione.
+            stringResource(R.string.hub_view_tree)
+        ).joinToString(SUMMARY_JOIN),
+        onOpen = { onOpen(Page.VIEWS) }
+    ) { ViewOptionsPage(settings = settings, onChange = onChange) }
+
+    /*
+     * ⚠️⚠️ **L'ELENCO DELLE NASCOSTE È METÀ DELLA FUNZIONE, non un di più**: si nasconde con
+     * un tocco lungo, cioè da un'altra schermata e senza lasciare traccia, quindi se non ci
+     * fosse un posto in cui rivedere che cosa si è nascosto l'unico modo di riavere una
+     * cartella sarebbe indovinare che esiste quest'impostazione. Una funzione che toglie
+     * qualcosa deve dire dove l'ha messa.
+     * ⚠️ Compare **solo quando c'è qualcosa**, e la sotto-pagina non ha cambiato la scelta:
+     * una riga sempre presente e quasi sempre vuota è rumore in una schermata che si scorre.
+     * La pagina invece la stringa vuota la sa dire, perché ci si può restare dentro dopo aver
+     * rimostrato l'ultima.
+     */
+    if (settings.hiddenFolders.isNotEmpty()) {
+        PageRow(
+            label = stringResource(R.string.settings_hidden),
+            summary = pluralStringResource(
+                R.plurals.settings_hidden_count,
+                settings.hiddenFolders.size,
+                settings.hiddenFolders.size
+            ),
+            onOpen = { onOpen(Page.HIDDEN) },
+            // ⚠️ Anche questa pagina è un ELENCO e non si appiattisce, perché ogni riga porta
+            // il suo tasto 'Mostra': la copertura sono i percorsi, che entrano fra i testi da
+            // confrontare e non costano una stringa, perché sono dati. Guadagno collaterale:
+            // una cartella nascosta diventa cercabile per nome, cosa che prima non era.
+            extra = settings.hiddenFolders.sorted()
+        )
+    }
+
+}
+
+/**
+ * La pagina 'Visualizzatore': come si guarda un'immagine aperta.
+ *
+ * ⚠️⚠️ **RACCOGLIE UN TRASLOCO CHE ARRIVA DA DUE SEZIONI**: la coppia dello sfondo veniva da
+ * 'Aspetto' (che cosa c'è dietro un'immagine trasparente è una domanda sul visualizzatore, non
+ * sul vestito dell'app) e la riproduzione diretta dei video veniva da 'Navigazione' (quella
+ * dice che cosa fa un video **quando lo apro**, non come ci si arriva).
+ * ⚠️ **'Adattamento e zoom' resta una pagina a sé**, dentro questa: le sue voci sono delicate,
+ * che è uno dei quattro modi di diventare una sotto-pagina, e quel tocco in più è una
+ * protezione che non si toglie raccogliendole.
+ */
+@Composable
+private fun ViewerPage(
+    settings: Settings,
+    onChange: (Settings) -> Unit,
+    onOpen: (Page) -> Unit
+) {
+    Choices(
+        label = stringResource(R.string.settings_background),
+        detail = stringResource(R.string.settings_bg_desc),
+        options = BgType.entries,
+        selected = settings.bgType,
+        nameOf = {
+            stringResource(
+                when (it) {
+                    BgType.CHECKER -> R.string.settings_bg_checker
+                    BgType.SOLID -> R.string.settings_bg_solid
+                }
+            )
+        },
+        onSelect = { onChange(settings.copy(bgType = it)) }
+    )
+
+    Choices(
+        label = stringResource(R.string.settings_bg_theme),
+        detail = null,
+        options = BgTheme.entries,
+        selected = settings.bgTheme,
+        nameOf = {
+            stringResource(
+                when (it) {
+                    BgTheme.AUTO -> R.string.settings_auto
+                    BgTheme.LIGHT -> R.string.settings_light
+                    BgTheme.DARK -> R.string.settings_dark
+                }
+            )
+        },
+        onSelect = { onChange(settings.copy(bgTheme = it)) }
+    )
+
+    /*
+     * ⚠️⚠️ **LE VOCI DELICATE STANNO IN UNA SOTTO-PAGINA, per volontà dell'utente**
+     * (2026-09-01: *sono impostazioni delicate: le voglio in una sotto-pagina 'Adattamento e
+     * zoom'*). Sono le sole del pannello che cambiano il modo in cui un'immagine viene
+     * **misurata** invece di che cosa si vede intorno: sbagliarle non rompe niente, ma rende
+     * ogni immagine diversa da come ci si aspetta, e chi le incontra per caso scorrendo
+     * l'elenco non ha modo di saperlo.
+     * ⚠️ **Restano col visualizzatore**, come chiedeva la richiesta alla lettera: la `1.46` le
+     * aveva raccolte in una pagina dentro la sezione, la `2.09` ha mandato la sezione intera
+     * dietro una porta, e loro sono rimaste dove erano rispetto alle vicine.
+     */
+    PageOfRows(
+        label = stringResource(R.string.settings_zoom_page),
+        // ⚠️⚠️ **IL RIEPILOGO SI COMPONE DAI TITOLI DELLE VOCI, dalla 1.46, e prima era una
+        // frase a mano**: `settings_zoom_page_summary` nominava tre argomenti e la pagina ne
+        // portava quattro dalla 1.26, cioè era invecchiata in silenzio in ventisette lingue.
+        // Composto così non può: se una voce entra, esce o cambia nome, il riepilogo la segue.
+        summary = listOf(
+            stringResource(R.string.settings_fit_grow),
+            stringResource(R.string.settings_zoom_max),
+            stringResource(R.string.settings_scale_mode),
+            stringResource(R.string.settings_zoom_menu)
+        ).joinToString(SUMMARY_JOIN),
+        onOpen = { onOpen(Page.ZOOM) }
+    ) { ZoomAndFit(settings = settings, onChange = onChange) }
+
+    /*
+     * ⚠️⚠️ **ADESSO HA UNA SPIEGAZIONE SUA, E PRIMA NON POTEVA AVERNE**: fino alla `2.08` viveva
+     * sotto 'Sfoglia solo le immagini' ed era **muta** per richiesta dell'utente (2026-09-03:
+     * *senza testo esplicativo*), perché la descrizione della voce sopra nominava già il tocco
+     * di cui questa parla. Le due sono l'una il rovescio dell'altra, quella spegne il **gesto**
+     * e questa accende il **tocco**: staccandole, la richiesta di allora sarebbe diventata una
+     * riga senza niente intorno che la spieghi.
+     * ⚠️ **È il solo costo in stringhe del trasloco**, e si paga una volta: il testo dice quello
+     * che diceva la vicina, cioè che cosa parte da sé e che cosa no. Il perché sia spenta di
+     * fabbrica sta su `Settings.clipAutoplay`.
+     */
+    SwitchRow(
+        label = stringResource(R.string.settings_clip_autoplay),
+        detail = stringResource(R.string.settings_clip_autoplay_desc),
+        checked = settings.clipAutoplay,
+        onChange = { onChange(settings.copy(clipAutoplay = it)) }
+    )
+
+}
+
+/**
+ * La pagina 'Informazioni': che cosa l'app dice di un file.
+ *
+ * ⚠️⚠️ **È LA FAMIGLIA CHE ERA SPARSA IN TRE SEZIONI, e il codice lo confessava**: la regola
+ * scritta dice che *l'interruttore della barra delle info è lontano dall'elenco dei dati che
+ * governa*, e il peso della selezione stava fra i comandi. Adesso l'interruttore, l'elenco dei
+ * dati, il contatore dei fotogrammi e il peso di una selezione rispondono alla stessa domanda
+ * nello stesso posto.
+ * ⚠️ **L'elenco dei dati resta una pagina a sé**, dentro questa: è un elenco con comandi riga
+ * per riga, cioè il primo dei quattro modi, e la sua copertura per la ricerca è `extra`.
+ */
+@Composable
+private fun InfoPage(
+    settings: Settings,
+    onChange: (Settings) -> Unit,
+    onOpen: (Page) -> Unit
+) {
+    // ⚠️ Serve alla riga che porta i nomi delle voci interne fra i testi della ricerca: quella
+    // lista si ricorda, e una lettura di risorsa dentro un `remember` vuole l'oggetto delle
+    // risorse invece di `stringResource`, che è componibile.
+    val res = LocalResources.current
+
+    /*
+     * ⚠️⚠️ **INTERRUTTORE PIÙ RIGA SUBORDINATA, dalla 1.38, ED È UN RITORNO ALLA FORMA DELLA
+     * 1.25** (riscontro `chip-colonna`, 2026-09-02: *torna indietro nelle impostazioni -> due
+     * righe: 'Barra delle info' in linea con l'interruttore off/on; 'Posizione'
+     * gerarchicamente subordinata alla riga precedente, in linea e allineati a destra, i chip
+     * 'In alto' 'In basso' in questo ordine*).
+     * ⚠️⚠️ **LA 1.26 AVEVA FUSO LE DUE RIGHE IN TRE GETTONI, E LA RICHIESTA ERA DELL'ALTRO
+     * POSTO: È UN MIO SCAMBIO, e lui lo ha detto per esteso** (*quando l'ho chiesto per il
+     * pannello l'hai fatta nelle impostazioni, e viceversa; di conseguenza ti ho sempre dato il
+     * feedback sbagliato*). I tre gettoni impilati che questa riga si porta dietro da tre
+     * versioni sono nati da quello scambio, e ogni riscontro che li ha limati stava limando la
+     * cosa sbagliata. Non è quindi la 'quinta forma in cinque versioni': è la 1.25 rimessa dove
+     * era, con l'aggiunta che segue.
+     * ⚠️ **La forma corretta di 'gerarchicamente subordinata' è quella già scritta**: si veda
+     * [InfoSideRow], che è la riga della 1.25 tornata in scena, e che adesso vive in un file
+     * suo perché la vogliono **identica** in due posti.
+     */
+    SwitchRow(
+        label = stringResource(R.string.settings_info_visible),
+        detail = null,
+        checked = settings.infoVisible,
+        onChange = { onChange(settings.copy(infoVisible = it)) }
+    )
+
+    /*
+     * ⚠️⚠️ **I DUE GETTONI SI TOCCANO SOLO A BARRA ACCESA, dalla 1.38** (stessa richiesta: *in
+     * entrambi i casi, i due chip della posizione sono selezionabili solo quando l'interruttore
+     * principale è ON*), e questa è la parte NUOVA rispetto alla 1.25, dove restavano sempre
+     * attivi.
+     * ⚠️⚠️ **MA IL VALORE SOTTO NON SI PERDE, ed è la ragione per cui `infoPosition` resta un
+     * campo suo**: spenta la barra, il lato scelto rimane scritto e si ritrova riaccendendola.
+     * Spegnere i gettoni è una cosa che riguarda quello che si può toccare, non quello che si
+     * ricorda.
+     * ⚠️ **Chi cerca 'In alto' con la ricerca li trova comunque**, spenti: nasconderli
+     * direbbe che quell'impostazione non esiste, mentre esiste e ha un interruttore sopra.
+     */
+    if (shown(
+            stringResource(R.string.settings_info_position),
+            null,
+            infoSideName(InfoPosition.TOP),
+            infoSideName(InfoPosition.BOTTOM)
+        )
+    ) {
+        InfoSideRow(
+            selected = settings.infoPosition,
+            enabled = settings.infoVisible,
+            onSelect = { onChange(settings.copy(infoPosition = it)) },
+            /*
+             * ⚠️⚠️ **NIENTE RIENTRO A SINISTRA, dalla 1.41, e la 1.38 lo aveva rimesso**
+             * (riscontro `barra-impostazioni`, 2026-09-03: *di nuovo 'Posizione' con rientro
+             * -> deve stare allineato a sinistra e basta, senza spazi/indentazioni
+             * iniziali*). 'Gerarchicamente subordinata' lo dicono il corpo leggero del
+             * titolo e il fatto che i gettoni si spengono con l'interruttore sopra: uno
+             * scalino a sinistra è una terza cosa, e non l'ha chiesta.
+             * ⚠️ **Resta il solo distacco in alto**, che non è un rientro ma l'aria fra due
+             * righe.
+             */
+            modifier = Modifier.padding(top = 4.dp)
+        )
+    }
+
+    /*
+     * ⚠️ **Accanto alla barra delle info e non fra le voci dell'editor**: sono le due sole
+     * impostazioni che dicono che cosa si vede SOPRA l'immagine mentre la si guarda, e chi
+     * cerca l'una trova l'altra.
+     */
+    SwitchRow(
+        label = stringResource(R.string.settings_anim_counter),
+        detail = stringResource(R.string.settings_anim_counter_desc),
+        checked = settings.animCounter,
+        onChange = { onChange(settings.copy(animCounter = it)) }
+    )
+
+    PageRow(
+        label = stringResource(R.string.settings_facts),
+        summary = pluralStringResource(
+            R.plurals.settings_facts_count,
+            settings.factRows.size,
+            settings.factRows.size
+        ),
+        onOpen = { onOpen(Page.FACTS) },
+        /*
+         * ⚠️⚠️ **QUESTA PAGINA NON SI APPIATTISCE NELLA RICERCA, e i suoi campi si cercano da
+         * qui**: dentro c'è un ELENCO con due comandi per riga, la casella e le due frecce, e
+         * le frecce lavorano sull'ordine INTERO, quindi in un elenco filtrato manderebbero un
+         * campo in una posizione che non si vede. La copertura è l'altra: i nomi dei campi
+         * entrano fra i testi che la ricerca confronta su questa riga, e chi cerca 'fotocamera'
+         * trova la riga che porta dove quella voce vive. Costa zero stringhe, perché quei nomi
+         * esistono già in tutte le lingue.
+         */
+        /*
+         * ⚠️ **Ricordati, e fino alla `1.80` si rifacevano a ogni ricomposizione della
+         * radice** (censimento della UI del 2026-09-05): quella lista di nomi si ricostruiva a
+         * ogni tocco su una voce del pannello, insieme alla conversione in array che `PageRow`
+         * fa dentro. ⚠️ **La chiave è l'oggetto delle risorse e non il `Context`**: quello che
+         * cambia quando cambia la lingua è il primo, e con lui i nomi si rileggono da soli.
+         */
+        extra = remember(res, settings.factOrder) {
+            settings.factOrder.map { res.getString(it.label) }
+        }
+    )
+
+    // ⚠️ Il costo che quest'interruttore esiste per togliere sta su `Settings.pickWeight`.
+    SwitchRow(
+        label = stringResource(R.string.settings_pick_weight),
+        detail = stringResource(R.string.settings_pick_weight_desc),
+        checked = settings.pickWeight,
+        onChange = { onChange(settings.copy(pickWeight = it)) }
+    )
+
+}
+
+/**
+ * La pagina 'Comandi e tasti': come si presentano i comandi che si usano.
+ *
+ * ⚠️ **Le tre voci sono quelle che stavano in cima a 'Comandi e indicatori', nello stesso
+ * ordine**: chi le conosceva le ritrova dove le aveva lasciate, un gradino più in là.
+ */
+@Composable
+private fun ControlsPage(
+    settings: Settings,
+    onChange: (Settings) -> Unit,
+    onOpen: (Page) -> Unit
+) {
+    // ⚠️ Serve alla riga che porta i nomi delle voci interne fra i testi della ricerca: quella
+    // lista si ricorda, e una lettura di risorsa dentro un `remember` vuole l'oggetto delle
+    // risorse invece di `stringResource`, che è componibile.
+    val res = LocalResources.current
+
+    Choices(
+        label = stringResource(R.string.settings_hand),
+        /*
+         * ⚠️⚠️ **DALLA `1.57` QUESTA VOCE DICE UN'ALTRA COSA, e la chiave è la stessa** (tappa
+         * del piano d'azione): diceva quale **mano** si usa e rovesciava le file di un
+         * riquadro, adesso dice da che parte sta il **FAB**. La specchiatura se n'è andata
+         * del tutto, e quel mestiere lo fanno l'ordine che si trascina e questo lato.
+         * ⚠️ **La chiave resta `hand`**: la domanda ha cambiato forma ma non verso, quindi chi
+         * aveva scelto la sinistra ritrova la sinistra. Una chiave nuova gli avrebbe rimesso
+         * il valore di fabbrica senza dirglielo.
+         */
+        detail = stringResource(R.string.settings_hand_desc),
+        options = Hand.entries,
+        selected = settings.hand,
+        nameOf = {
+            stringResource(
+                when (it) {
+                    Hand.RIGHT -> R.string.settings_right
+                    Hand.LEFT -> R.string.settings_left
+                }
+            )
+        },
+        onSelect = { onChange(settings.copy(hand = it)) }
+    )
+
+    /*
+     * ⚠️⚠️ **LE DUE VOCI NUOVE DELLA `1.56` STANNO CON LA MANO, e la famiglia è di tre.**
+     * La domanda che le tiene insieme è una sola, e si scrive come la scrive chi apre il
+     * pannello: *come si presentano i comandi che uso*. Da che parte stanno, come si leggono,
+     * in che ordine sono.
+     * ⚠️⚠️ **FINO ALLA `2.08` QUESTE TRE STAVANO NELLA PAGINA PIATTA, e la nota di allora
+     * diceva che tre non fanno scattare la soglia**: è ancora vero, e non è quello che le ha
+     * fatte scendere. Sono scese perché la strada B raccoglie una famiglia dietro una porta
+     * quando ne contiene già un'altra, e qui l'altra è l'ordine dei pulsanti.
+     */
+    SwitchRow(
+        label = stringResource(R.string.settings_labels),
+        detail = stringResource(R.string.settings_labels_desc),
+        checked = settings.padLabels,
+        onChange = { onChange(settings.copy(padLabels = it)) }
+    )
+
+    /*
+     * ⚠️⚠️ **LA RICERCA TROVA I TASTI DA QUI, e non da dentro la pagina**: quella è un ELENCO
+     * con un comando per riga, quindi non si appiattisce (le manopole lavorano sull'ordine
+     * intero, e in un elenco filtrato manderebbero un tasto in una posizione che non si vede).
+     * La copertura è l'altra via prevista dalla regola: i nomi dei tasti arrivano qui come
+     * testi in più, e sono stringhe che esistono già in tutte le lingue.
+     */
+    PageRow(
+        label = stringResource(R.string.settings_buttons),
+        summary = null,
+        onOpen = { onOpen(Page.BUTTONS) },
+        // ⚠️ Ricordati come i nomi dei campi delle info, e per la stessa ragione: le quattro
+        // liste fanno ventiquattro elementi e diciotto distinti, e si rifacevano tutte a ogni
+        // tocco su una voce del pannello.
+        extra = remember(res) {
+            (MENU_KEYS + PICK_KEYS + TURN_KEYS + STEP_KEYS).distinct()
+                .map { res.getString(it.label()) }
+        }
+    )
+
+}
+
+/**
+ * La pagina 'Editor e salvataggio': con che cosa si modifica un file e con che nome si salva.
+ *
+ * ⚠️ **Il titolo non dice 'Modifica e backup'**, che è la sezione da cui si arriva: due testi
+ * uguali uno sopra l'altro direbbero due volte la stessa cosa, e la sezione porta anche le due
+ * voci del cestino, che qui dentro non ci sono.
+ */
+@Composable
+private fun EditingPage(
+    settings: Settings,
+    onChange: (Settings) -> Unit,
+    onChooseEditor: () -> Unit,
+    onOpen: (Page) -> Unit
+) {
+    /*
+     * ⚠️⚠️ **È LO STESSO SELETTORE del primo utilizzo** (richiesta dell'utente), e la parola
+     * 'stesso' è tecnica e non descrittiva: la finestra è una sola, [EditorPicker], aperta
+     * dal modello (`chooseEditor`) invece che da questa schermata. Due finestre gemelle
+     * sarebbero divergite alla prima voce aggiunta.
+     */
+    val editorLabel = stringResource(R.string.settings_editor)
+    val editorDesc = stringResource(R.string.settings_editor_desc)
+    Searchable(editorLabel, editorDesc) {
+        val context = LocalContext.current
+        val noEditor = stringResource(R.string.settings_editor_none)
+        // ⚠️ Ricordato, e non chiesto a ogni disegno: leggerlo vuol dire interrogare il
+        // `PackageManager`, cioè elencare le app del telefono. La chiave è la scelta, e in più
+        // la frase di ripiego, che cambia quando cambia la lingua.
+        val editorName = remember(settings.editorApp, noEditor) {
+            Editors.labelOf(context, settings.editorApp)
+        } ?: noEditor
+        // ⚠️ La forma è ESATTAMENTE quella della cartella d'avvio (titolo e spiegazione, poi
+        // una riga con il valore in vigore e il tasto): sono la stessa cosa, cioè una scelta
+        // che si fa altrove e qui si mostra, e dalla `1.81` la riga la disegna [ValueAndPick]
+        // per tutte e due, invece di essere scritta due volte con la raccomandazione di
+        // tenerle uguali.
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Text(text = editorLabel, style = MaterialTheme.typography.titleSmall)
+            Detail(editorDesc)
+        }
+        ValueAndPick(
+            value = editorName,
+            pick = stringResource(R.string.settings_editor_pick),
+            onPick = onChooseEditor
+        )
+    }
+
+    /*
+     * ⚠️⚠️ **VALE PER TUTTI GLI EDITOR DALLA `1.13`, ed è il rovescio di quello che c'era
+     * scritto qui** (domanda dell'utente: *vale solo per l'editor interno o per tutti quelli
+     * che supportano 'Modifica'?*). Fino alla `1.12` copriva il solo editor di casa, e la
+     * nota di allora spiegava perché un'app di fuori non si potesse coprire: la copia si fa
+     * **prima** di lanciarla, quindi si può eccome. Vive sotto la scelta dell'app perché è la
+     * stessa faccenda, non perché ne riguardi una sola.
+     */
+    SwitchRow(
+        label = stringResource(R.string.settings_editor_backup),
+        detail = stringResource(R.string.settings_editor_backup_desc),
+        checked = settings.editorBackup,
+        onChange = { onChange(settings.copy(editorBackup = it)) }
+    )
+
+    /*
+     * ⚠️⚠️ **TRE VOCI DIETRO UN TOCCO DALLA `1.81`, E LA SOTTO-PAGINA L'HA CHIESTA LUI ALLA
+     * LETTERA** (riscontro del giro della `1.80`, campo libero punto A: *Crea una nuova
+     * sotto-pagina 'Rinomina e download' delle impostazioni (sezione 'Modifica e backup')*).
+     * Fino alla `1.80` erano due righe in questa pagina, e la terza (l'estensione) viveva in
+     * 'Funzionalità avanzate': tre voci sono oltre il *2-3* della sua soglia, e la famiglia è
+     * una sola, cioè *che nome ha il file che salvo e dove finisce*.
+     * ⚠️ **La terza voce cambia sezione e non perde la sua chiave**: chi aveva acceso
+     * l'estensione in 'Rinomina' se la ritrova accesa, perché il posto nell'interfaccia e la
+     * chiave nell'archivio sono due cose indipendenti (vedi `Settings.extRename`).
+     * ⚠️⚠️ **DALLA `2.09` È UNA PAGINA DENTRO UNA PAGINA**, ed è uno dei due casi che hanno
+     * fatto cadere la profondità uno: la sua famiglia (la scelta dell'editor, la copia di
+     * sicurezza, e lei) è scesa dietro una porta, e lei era già una pagina. La domanda non è
+     * cambiata, e non è quella del cestino, che parla di quello che si cancella.
+     * ⚠️ **Il riepilogo si compone dai titoli delle tre voci**, come quello dello zoom: scritto
+     * a mano invecchierebbe al primo trasloco, e il precedente è misurato.
+     */
+    PageOfRows(
+        label = stringResource(R.string.settings_rename_download),
+        summary = listOf(
+            stringResource(R.string.settings_save_rename),
+            stringResource(R.string.settings_download_path),
+            stringResource(R.string.settings_ext_edit)
+        ).joinToString(SUMMARY_JOIN),
+        onOpen = { onOpen(Page.SAVING) }
+    ) { RenameAndDownload(settings = settings, onChange = onChange) }
+
+}
+
+/**
  * Il guscio comune a tutte le pagine: la colonna che scorre, la freccia e il titolo.
  *
  * ⚠️ Il titolo prende `weight`, e non è un dettaglio: 'Informazioni sul file' in tedesco e
@@ -1346,8 +1632,8 @@ private fun Shell(
      *
      * ⚠️⚠️ **SOLO NELLA PAGINA PRINCIPALE, e per richiesta** (utente, 2026-09-04: *nelle
      * impostazioni, in linea con il titolo 'Impostazioni' ma a destra, vorrei che apparisse il
-     * numero della versione dell'app*). Su ogni sotto-pagina sarebbe la stessa riga ripetuta
-     * cinque volte, e il numero smetterebbe di essere una firma per diventare un ornamento.
+     * numero della versione dell'app*). Su ogni sotto-pagina sarebbe la stessa riga ripetuta a
+     * ogni livello, e il numero smetterebbe di essere una firma per diventare un ornamento.
      */
     version: Boolean = false,
     content: @Composable ColumnScope.() -> Unit
@@ -1594,6 +1880,11 @@ private fun PageRow(
  * vengono da posti diversi e mescolati.
  * ⚠️ **Non vale per le pagine che sono ELENCHI**: là il corpo non si appiattisce, e la
  * copertura è il parametro `extra` di [PageRow].
+ * ⚠️⚠️ **SI ANNIDA DA SÉ, E DALLA `2.09` È MISURATO INVECE CHE SPERATO**: il corpo di una
+ * pagina si compone **dentro** il provider di `LocalQuery`, quindi una pagina dentro una
+ * pagina incontra la stessa condizione una seconda volta e si appiattisce a sua volta. La
+ * misura è `ImpostazioniTest`, che cerca una voce di 'Adattamento e zoom', cioè due livelli
+ * sotto, e la trova; controprovata togliendo l'appiattimento alla porta che la contiene.
  */
 @Composable
 private fun PageOfRows(

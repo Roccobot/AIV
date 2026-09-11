@@ -458,6 +458,9 @@
     <string name="settings_group_browse">Cartelle</string>
     <string name="settings_group_start">Avvio</string>
     <string name="settings_group_advanced">Funzionalità avanzate</string>
+    <string name="settings_page_info">Informazioni</string>
+    <string name="settings_page_controls">Comandi e tasti</string>
+    <string name="settings_page_editing">Editor e salvataggio</string>
     <string name="settings_ext_edit">Consenti la modifica dell\'estensione</string>
     <string name="settings_ext_edit_desc">Aggiunge il pulsante \'Estensione\' alle finestre di dialogo dei nomi di file. Scegli qui sotto per quali moduli abilitarlo. ⚠️ Il cambio di estensione non equivale a una conversione di formato (per quello c\'è \'Esporta/Converti\') e va usato con cautela, perché alcuni file potrebbero diventare illeggibili e non essere più visualizzati dalle app galleria.</string>
     <string name="settings_gpu_thumbs">Salva le miniature nella memoria grafica</string>
@@ -523,6 +526,7 @@
     <string name="settings_images_only">Sfoglia solo le immagini</string>
     <string name="settings_images_only_desc">Nel visualizzatore lo scorrimento salta i video e sfoglia solo le immagini. Puoi comunque aprire i video con un tocco dalla vista normale.</string>
     <string name="settings_clip_autoplay">Riproduci i video direttamente</string>
+    <string name="settings_clip_autoplay_desc">Un video aperto con un tocco parte da sé. Sfogliando resta in pausa, con il tasto di riproduzione in sovrimpressione.</string>
     <string name="pick_cleared">Nessun file selezionato.</string>
     <string name="pick_undo">Annulla</string>
     <string name="pick_list_done">Lista file copiata negli appunti</string>

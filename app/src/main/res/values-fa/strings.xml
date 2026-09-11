@@ -334,6 +334,9 @@
     <string name="settings_group_browse">پوشه‌ها</string>
     <string name="settings_group_start">راه‌اندازی</string>
     <string name="settings_group_advanced">قابلیت‌های پیشرفته</string>
+    <string name="settings_page_info">اطلاعات</string>
+    <string name="settings_page_controls">کنترل‌ها و دکمه‌ها</string>
+    <string name="settings_page_editing">ویرایشگر و ذخیره</string>
     <string name="settings_ext_edit">اجازه تغییر پسوند</string>
     <string name="settings_ext_edit_desc">دکمهٔ \'پسوند\' را به پنجره‌های نام فایل می‌افزاید. پایین‌تر انتخاب کن در کدام‌ها دیده شود. ⚠️ تغییر پسوند تبدیل قالب نیست (برای آن \'برون‌بری و تبدیل\' هست) و باید با احتیاط به کار برود، چون برخی فایل‌ها ناخوانا می‌شوند و دیگر در برنامه‌های گالری دیده نمی‌شوند.</string>
     <string name="settings_gpu_thumbs">نگه‌داشتن بندانگشتی‌ها در حافظه گرافیکی</string>
@@ -394,6 +397,7 @@
     <string name="settings_images_only">فقط تصویرها را ورق بزن</string>
     <string name="settings_images_only_desc">در نمایشگر، کشیدن ویدیوها را رد می‌کند و تنها تصویرها را ورق می‌زند. می‌توان ویدیو را با یک لمس از نمای عادی باز کرد.</string>
     <string name="settings_clip_autoplay">پخش مستقیم ویدیوها</string>
+    <string name="settings_clip_autoplay_desc">ویدیویی که با یک ضربه باز شود خودش پخش می‌شود. هنگام ورق زدن، ویدیوها با دکمه پخش روی آن‌ها متوقف می‌مانند.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">ویرایش</string>

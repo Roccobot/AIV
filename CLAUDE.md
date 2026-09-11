@@ -1947,8 +1947,8 @@ del visualizzatore ed è finita nella pagina dello zoom, perché di zoom parla.
 ⚠️⚠️ **FAMIGLIA E SEZIONE SONO DUE COSE, E LA SOGLIA SI CONTA SULLA FAMIGLIA.** La **famiglia**
 sono le voci di una domanda sola; la **sezione** è il titolo di gruppo nella pagina piatta, e
 raccoglie le famiglie vicine per dire, mentre si scorre, di che cosa si sta parlando.
-Confonderle è l'errore che manda dietro un tocco il tema dell'app: 'Aspetto' porta il tema, la
-coppia dello sfondo e il velo, cioè tre famiglie, e nessuna arriva alla soglia.
+Confonderle è l'errore che manda dietro un tocco il tema dell'app: sotto 'Aspetto' vivono il
+tema e l'effetto dietro i pannelli, cioè due famiglie, e nessuna arriva alla soglia.
 - **La soglia è dell'utente** (*fino a 2-3 opzioni correlate basta una sotto-sezione della
   pagina principale; più di 2-3 si va con la sotto-pagina*) e si applica alla lettera. Il
   trasloco si fa **nello stesso giro** in cui entra la voce che fa scattare la soglia, e nello
@@ -1980,6 +1980,12 @@ nasce con la `1.54`.
   - **Il paletto che lo tiene stretto**: il paragrafo dev'essere **necessario**, cioè spiegare
     che cosa succede dopo che si è toccato. Una spiegazione che il titolo già dà non lo rende
     necessario, e allora la voce resta nella pagina piatta come tutte le altre.
+- ⚠️⚠️ **E DALLA `2.09` CE N'È UN QUINTO, CHE È UNA SUA SCELTA E NON UN CRITERIO NUOVO**
+  (`d-imp-strada` del giro della `2.07`: **`livelli`**): la famiglia **ne contiene già
+  un'altra**. Nella pagina piatta la riga che apriva la pagina interna e le sue voci sorelle si
+  leggevano allo stesso livello, quindi la famiglia non si vedeva come una cosa sola; con la
+  porta si vede, e il suo riepilogo dice che cosa c'è dentro. È il modo con cui nascono le
+  cinque pagine del primo livello, ed è esattamente il caso che la profondità uno vietava.
 
 ⚠️⚠️ **E L'ELENCO DI CHE COSA È DELICATO È CHIUSO, DUE CASI E NON PIÙ**: sbagliare la voce può
 costare un file, o toglie la rete che lo protegge; oppure la voce cambia il **metro** con cui
@@ -1988,9 +1994,48 @@ rompere niente. Un elenco aperto si allarga da sé: qualunque voce, con abbastan
 guadagna il tocco in più, e la pagina piatta si svuota una riga per volta.
 - ⚠️ **Il rovescio resta vero, ed è la clausola che vale più di tutte**: una riga sola che non è
   né un elenco né delicata, in una sotto-pagina costerebbe un tocco senza guadagnare niente.
-- ⚠️ **La profondità è UNO**: una sotto-pagina non ne apre un'altra, perché la navigazione è un
-  valore solo senza pila e Indietro riporta alla radice. Una famiglia che ne conterrebbe
-  un'altra tiene nella pagina piatta la riga che apre la seconda.
+
+⚠️⚠️ **LA PROFONDITÀ È DUE DALLA `2.09`, E FINO ALLA `2.08` ERA UNO** (sua risposta `livelli` a
+`d-imp-strada`, giro della `2.07`). La regola di allora diceva che *una sotto-pagina non ne apre
+un'altra, perché la navigazione è un valore solo senza pila e Indietro riporta alla radice*:
+adesso la navigazione è una **pila**, quindi una pagina ne può aprire un'altra e Indietro risale
+un gradino per volta.
+- ⚠️⚠️ **QUELLO CHE LA REGOLA VECCHIA VIETAVA ERA PROPRIO IL CASO DELLA STRADA B**: quattro
+  delle cinque famiglie scese ne contengono già una (l'elenco dei dati, l'ordine dei pulsanti,
+  la vista delle cartelle con le nascoste, 'Rinomina e download'), quindi senza la pila non si
+  potevano chiudere. La regola non è caduta per comodità: è caduta perché lui ha scelto la
+  strada che la rendeva falsa.
+- ⚠️ **Due e non di più**: la pila regge qualunque profondità, ma le famiglie di questo pannello
+  arrivano a due, e un terzo livello vorrebbe dire una famiglia dentro una famiglia dentro una
+  famiglia, che è più di quanto chi cerca una voce tenga a mente.
+- ⚠️ **La pila è misurata e non ragionata** (`ImpostazioniTest`): si aprono due livelli, il primo
+  Indietro deve riportare a quello di sopra e il secondo deve uscire. Controprovata rimettendo il
+  `back()` che svuotava, cioè il comportamento della `2.08`.
+- ⚠️⚠️ **E LA COPERTURA DELLA RICERCA SI ANNIDA DA SÉ, CHE ERA LA COSA DA MISURARE**: il corpo di
+  una pagina si compone **dentro** il provider della ricerca, quindi una pagina dentro una pagina
+  incontra la stessa condizione una seconda volta e si appiattisce a sua volta. Misurato cercando
+  una voce di 'Adattamento e zoom', che vive due livelli sotto, e controprovato togliendo
+  l'appiattimento alla porta che la contiene.
+
+⚠️⚠️ **LE PAGINE DEL PRIMO LIVELLO, E LE DUE SEZIONI SPARITE CON LORO** (dalla `2.09`):
+**'Cartelle'** (intestazione, colore, opzioni di visualizzazione, nascoste),
+**'Visualizzatore'** (sfondo, tinta dello sfondo, adattamento e zoom, riproduzione diretta dei
+video), **'Informazioni'** (barra delle info, elenco dei dati, contatore dei fotogrammi, peso di
+una selezione), **'Comandi e tasti'** (lato del FAB, etichette, ordine dei pulsanti) ed
+**'Editor e salvataggio'** (editor, copia di sicurezza, rinomina e download).
+- ⚠️⚠️ **'Visualizzatore' E 'Cartelle' NON SONO PIÙ TITOLI DI SEZIONE, e i loro testi non sono
+  stati tradotti di nuovo**: titolano le due pagine omonime. Una sezione che conterrebbe
+  **soltanto** la porta della propria famiglia scriverebbe la stessa parola due volte a mezzo
+  centimetro di distanza, che è il caso di *una voce sola non prende un titolo*.
+- ⚠️ **Le tre porte che restavano senza sezione vivono sotto 'Aspetto'**, che è la sezione della
+  domanda *che cosa vedo*: come si vedono le cartelle, come si vede un'immagine aperta, che cosa
+  l'app dice di lei.
+- ⚠️⚠️ **GLI OTTO TRASLOCHI NON TOCCANO NESSUNA CHIAVE**, quindi nessuno perde le sue scelte
+  aggiornando: il posto nell'interfaccia e la chiave nell'archivio sono due cose indipendenti.
+- ⚠️ **Le stringhe nuove sono i titoli delle tre pagine che non ne avevano uno**, più la
+  spiegazione della riproduzione diretta dei video: quella voce era **muta** per richiesta
+  dell'utente (*senza testo esplicativo*) perché stava sotto 'Sfoglia solo le immagini', che la
+  spiegava, e il trasloco l'ha staccata da lei.
 
 ⚠️ **UNA VOCE SOLA NON PRENDE UN TITOLO**, e va nella sezione della famiglia la cui domanda le
 è più vicina, mai sopra un titolo, perché sopra un titolo si legge come la prima riga di

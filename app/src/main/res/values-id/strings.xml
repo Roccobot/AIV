@@ -320,6 +320,9 @@
     <string name="settings_group_browse">Folder</string>
     <string name="settings_group_start">Permulaan</string>
     <string name="settings_group_advanced">Fitur lanjutan</string>
+    <string name="settings_page_info">Informasi</string>
+    <string name="settings_page_controls">Kontrol dan tombol</string>
+    <string name="settings_page_editing">Editor dan penyimpanan</string>
     <string name="settings_ext_edit">Izinkan mengubah ekstensi</string>
     <string name="settings_ext_edit_desc">Menambahkan tombol \'Ekstensi\' ke jendela nama berkas. Pilih di bawah untuk yang mana. ⚠️ Mengubah ekstensi bukan konversi format (untuk itu ada \'Ekspor dan konversi\') dan perlu kehati-hatian, karena sebagian berkas bisa jadi tak terbaca dan hilang dari aplikasi galeri.</string>
     <string name="settings_gpu_thumbs">Simpan gambar mini di memori grafis</string>
@@ -378,6 +381,7 @@
     <string name="settings_images_only">Telusuri gambar saja</string>
     <string name="settings_images_only_desc">Di penampil, gesekan melewati video dan hanya menelusuri gambar. Video tetap bisa dibuka dengan satu ketukan dari tampilan biasa.</string>
     <string name="settings_clip_autoplay">Putar video secara langsung</string>
+    <string name="settings_clip_autoplay_desc">Video yang dibuka dengan ketukan mulai sendiri. Saat menelusuri, video tetap dijeda dengan tombol putar di atasnya.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Edit</string>

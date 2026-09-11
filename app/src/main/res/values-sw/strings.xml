@@ -334,6 +334,9 @@
     <string name="settings_group_browse">Folda</string>
     <string name="settings_group_start">Kuanza</string>
     <string name="settings_group_advanced">Vipengele vya juu</string>
+    <string name="settings_page_info">Taarifa</string>
+    <string name="settings_page_controls">Vidhibiti na vitufe</string>
+    <string name="settings_page_editing">Kihariri na kuhifadhi</string>
     <string name="settings_ext_edit">Ruhusu kubadilisha kiendelezi</string>
     <string name="settings_ext_edit_desc">Huongeza kitufe \'Kiendelezi\' kwenye madirisha ya majina ya faili. Chagua hapa chini yapi. ⚠️ Kubadilisha kiendelezi si kubadilisha muundo (kwa hilo kuna \'Hamisha na kubadilisha\') na kunahitaji uangalifu, kwa sababu baadhi ya faili zinaweza kutosomeka na kutoonekana tena kwenye programu za matunzio.</string>
     <string name="settings_gpu_thumbs">Weka vijipicha kwenye kumbukumbu ya michoro</string>
@@ -394,6 +397,7 @@
     <string name="settings_images_only">Pitia picha pekee</string>
     <string name="settings_images_only_desc">Katika kitazamaji, kutelezesha huruka video na kupitia picha pekee. Video bado inaweza kufunguliwa kwa mguso mmoja kutoka mwonekano wa kawaida.</string>
     <string name="settings_clip_autoplay">Cheza video mara moja</string>
+    <string name="settings_clip_autoplay_desc">Video inayofunguliwa kwa kugusa huanza yenyewe. Unapopitia, video hubaki zimesimamishwa na kitufe cha kucheza juu yake.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Hariri</string>

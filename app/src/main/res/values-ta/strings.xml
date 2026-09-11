@@ -334,6 +334,9 @@
     <string name="settings_group_browse">கோப்புறைகள்</string>
     <string name="settings_group_start">தொடக்கம்</string>
     <string name="settings_group_advanced">மேம்பட்ட வசதிகள்</string>
+    <string name="settings_page_info">தகவல்</string>
+    <string name="settings_page_controls">கட்டுப்பாடுகள் மற்றும் பொத்தான்கள்</string>
+    <string name="settings_page_editing">திருத்தி மற்றும் சேமிப்பு</string>
     <string name="settings_ext_edit">நீட்டிப்பை மாற்ற அனுமதி</string>
     <string name="settings_ext_edit_desc">கோப்புப் பெயர் சாளரங்களில் \'நீட்டிப்பு\' பொத்தானைச் சேர்க்கும். எவற்றில் தோன்ற வேண்டும் என்பதைக் கீழே தேர்ந்தெடு. ⚠️ நீட்டிப்பை மாற்றுவது வடிவ மாற்றம் அல்ல (அதற்கு \'ஏற்றுமதி செய்து மாற்று\' உள்ளது), எச்சரிக்கை தேவை: சில கோப்புகள் படிக்க முடியாமல் போய் தொகுப்பு செயலிகளில் தெரியாமல் போகலாம்.</string>
     <string name="settings_gpu_thumbs">சிறுபடங்களை வரைகலை நினைவகத்தில் வைக்கவும்</string>
@@ -394,6 +397,7 @@
     <string name="settings_images_only">படங்களை மட்டும் புரட்டு</string>
     <string name="settings_images_only_desc">காட்டியில் தள்ளுவது காணொளிகளைத் தவிர்த்து படங்களை மட்டும் புரட்டும். வழக்கமான காட்சியிலிருந்து ஒரு தொடுதலில் காணொளியைத் திறக்கலாம்.</string>
     <string name="settings_clip_autoplay">காணொளிகளை உடனே இயக்கு</string>
+    <string name="settings_clip_autoplay_desc">ஒரு தட்டலில் திறக்கப்படும் வீடியோ தானாகவே இயங்கும். புரட்டும்போது வீடியோக்கள் இயக்கு பொத்தானுடன் இடைநிறுத்தப்பட்டே இருக்கும்.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">திருத்து</string>

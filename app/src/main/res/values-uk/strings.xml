@@ -362,6 +362,9 @@
     <string name="settings_group_browse">Теки</string>
     <string name="settings_group_start">Запуск</string>
     <string name="settings_group_advanced">Розширені функції</string>
+    <string name="settings_page_info">Інформація</string>
+    <string name="settings_page_controls">Елементи керування та кнопки</string>
+    <string name="settings_page_editing">Редактор і збереження</string>
     <string name="settings_ext_edit">Дозволити змінювати розширення</string>
     <string name="settings_ext_edit_desc">Додає кнопку \'Розширення\' до вікон з іменами файлів. Нижче вибери, до яких. ⚠️ Зміна розширення не перетворює формат (для цього є \'Експортувати й перетворити\') і потребує обачності: деякі файли стануть нечитабельними і зникнуть із застосунків галереї.</string>
     <string name="settings_gpu_thumbs">Тримати мініатюри у графічній пам\'яті</string>
@@ -426,6 +429,7 @@
     <string name="settings_images_only">Гортати лише фотографії</string>
     <string name="settings_images_only_desc">У переглядачі проведення пропускає відео й гортає лише зображення. Відео все одно можна відкрити дотиком зі звичайного вигляду.</string>
     <string name="settings_clip_autoplay">Відразу відтворювати відео</string>
+    <string name="settings_clip_autoplay_desc">Відео, відкрите дотиком, запускається саме. Під час гортання відео лишаються на паузі з кнопкою відтворення поверх.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Змінити</string>

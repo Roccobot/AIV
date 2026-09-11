@@ -348,6 +348,9 @@
     <string name="settings_group_browse">Carpetas</string>
     <string name="settings_group_start">Inicio</string>
     <string name="settings_group_advanced">Funciones avanzadas</string>
+    <string name="settings_page_info">Información</string>
+    <string name="settings_page_controls">Controles y botones</string>
+    <string name="settings_page_editing">Editor y guardado</string>
     <string name="settings_ext_edit">Permitir cambiar la extensión</string>
     <string name="settings_ext_edit_desc">Añade el botón \'Extensión\' a las ventanas de nombres de archivo. Elige abajo en cuáles aparece. ⚠️ Cambiar la extensión no es una conversión de formato (para eso está \'Exportar y convertir\') y hay que usarlo con cuidado, porque algunos archivos pueden volverse ilegibles y dejar de verse en las apps de galería.</string>
     <string name="settings_gpu_thumbs">Guardar las miniaturas en la memoria gráfica</string>
@@ -410,6 +413,7 @@
     <string name="settings_images_only">Pasar solo las imágenes</string>
     <string name="settings_images_only_desc">En el visor, el deslizamiento salta los vídeos y solo pasa las imágenes. Se puede abrir un vídeo con un toque desde la vista normal.</string>
     <string name="settings_clip_autoplay">Reproducir los vídeos directamente</string>
+    <string name="settings_clip_autoplay_desc">Un video abierto con un toque empieza solo. Al pasar de una imagen a otra, los videos siguen en pausa con el botón de reproducción encima.</string>
 
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Editar</string>
