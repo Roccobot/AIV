@@ -69,6 +69,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setProgress
@@ -732,12 +733,21 @@ private fun LookDial(
             .height(DIAL_ROW)
             .semantics {
                 progressBarRangeInfo = ProgressBarRangeInfo(value, -span..span)
-                if (enabled) {
-                    setProgress { target ->
-                        onLive(target.coerceIn(-span, span))
-                        onSettled()
-                        true
-                    }
+                /*
+                 * ⚠️⚠️ **L'AZIONE C'È ANCHE DA SPENTO, E RISPONDE `false`: dichiararla solo da
+                 * acceso ha fatto una prova ROSSA IN CI E VERDE QUI.** Finché l'anteprima si
+                 * decodifica i cursori sono spenti, quindi il nodo non portava nessuna azione
+                 * e il banco, che i cursori li muove da lì, non li trovava affatto: su una
+                 * macchina più lenta la scena arriva un attimo dopo, e la prova falliva mentre
+                 * qui passava. ⚠️ Un lettore di schermo lo annuncia spento per il `disabled()`,
+                 * che è il modo giusto di dire 'c'è ma adesso non si può'.
+                 */
+                if (!enabled) disabled()
+                setProgress { target ->
+                    if (!enabled) return@setProgress false
+                    onLive(target.coerceIn(-span, span))
+                    onSettled()
+                    true
                 }
             }
             .pointerInput(enabled, span) {

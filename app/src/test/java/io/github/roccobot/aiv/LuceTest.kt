@@ -19,6 +19,7 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -124,7 +125,7 @@ class LuceTest {
     @Test
     fun `un gesto compiuto scrive un passo nella storia`() {
         banco.setContent { Scena() }
-        banco.waitForIdle()
+        pronta()
 
         banco.onNodeWithContentDescription(testo(R.string.editor_undo)).assertIsNotEnabled()
 
@@ -150,7 +151,7 @@ class LuceTest {
     fun `Annulla e Ripristina camminano nella storia`() {
         var salvato: Look? = null
         banco.setContent { Scena(onSave = { salvato = it }) }
-        banco.waitForIdle()
+        pronta()
 
         muovi(CONTRASTO, 0.5f)
 
@@ -183,7 +184,7 @@ class LuceTest {
     @Test
     fun `un passo nuovo taglia quello che veniva dopo`() {
         banco.setContent { Scena() }
-        banco.waitForIdle()
+        pronta()
 
         muovi(CONTRASTO, 0.5f)
         banco.onNodeWithContentDescription(testo(R.string.editor_undo)).performClick()
@@ -206,7 +207,7 @@ class LuceTest {
     @Test
     fun `il numero azzera il suo cursore e scrive un passo`() {
         banco.setContent { Scena() }
-        banco.waitForIdle()
+        pronta()
 
         muovi(CONTRASTO, 0.5f)
 
@@ -233,7 +234,7 @@ class LuceTest {
     @Test
     fun `Originale riporta a zero e si disfa`() {
         banco.setContent { Scena() }
-        banco.waitForIdle()
+        pronta()
 
         muovi(CONTRASTO, 0.5f)
         muovi(OMBRE, 0.25f)
@@ -266,7 +267,7 @@ class LuceTest {
     @Test
     fun `a riposo il salvataggio e spento`() {
         banco.setContent { Scena() }
-        banco.waitForIdle()
+        pronta()
 
         banco.onNodeWithText(testo(R.string.editor_save)).assertIsNotEnabled()
         muovi(CONTRASTO, 0.5f)
@@ -284,7 +285,7 @@ class LuceTest {
     @Test
     fun `il doppio tocco sul nome azzera il suo cursore`() {
         banco.setContent { Scena() }
-        banco.waitForIdle()
+        pronta()
 
         muovi(CONTRASTO, 0.5f)
 
@@ -314,7 +315,7 @@ class LuceTest {
     @Test
     fun `il doppio tocco sulla barra azzera senza lasciare passi in mezzo`() {
         banco.setContent { Scena() }
-        banco.waitForIdle()
+        pronta()
 
         muovi(CONTRASTO, 0.5f)
 
@@ -351,7 +352,7 @@ class LuceTest {
     @Test
     fun `il doppio tocco sull'immagine la ingrandisce`() {
         banco.setContent { Scena() }
-        banco.waitForIdle()
+        pronta()
 
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
         val prima = bianchi(palco)
@@ -377,6 +378,25 @@ class LuceTest {
             }
         }
         return conto
+    }
+
+    /**
+     * Aspetta che la scena sia davvero in piedi, cioè che l'anteprima sia decodificata.
+     *
+     * ⚠️⚠️ **`waitForIdle` NON BASTA, ED È QUELLO CHE HA FATTO UNA PROVA ROSSA IN CI E VERDE
+     * QUI**: la decodifica dell'anteprima gira su `Dispatchers.IO`, cioè su un thread vero, e
+     * nessuna attesa di composizione la comprende. Finché non è finita i cursori sono spenti e
+     * il palco non c'è, quindi una prova che agisce là dentro tocca una scheda che non si può
+     * toccare: su una macchina più lenta arriva un attimo dopo, e la corsa cambia esito.
+     * ⚠️ **Si aspetta il PALCO e non un cursore**: il palco compare solo quando l'immagine
+     * esiste, mentre i cursori ci sono sempre e cambiano solo stato.
+     */
+    private fun pronta() {
+        banco.waitUntil(ATTESA) {
+            banco.onAllNodesWithContentDescription(testo(R.string.look_compare))
+                .fetchSemanticsNodes().isNotEmpty()
+        }
+        banco.waitForIdle()
     }
 
     /**
@@ -452,3 +472,6 @@ private const val OMBRE = 3
 
 /** Il lato del quadrato finto: piccolo, perché di lui serve solo che esista. */
 private const val LATO = 64
+
+/** Quanto si aspetta che l'anteprima arrivi: vedi `pronta()`. */
+private const val ATTESA = 5000L
