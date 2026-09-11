@@ -455,6 +455,9 @@
     <string name="settings_buttons_steps">편집기: 실행 취소와 적용</string>
     <string name="settings_labels">아이콘 아래 레이블</string>
     <string name="settings_labels_desc">끄면 아이콘 패널이 더 조밀해집니다. 목록 메뉴는 바뀌지 않습니다.</string>
+    <string name="settings_last_mark">마지막으로 본 항목 표시</string>
+    <string name="settings_last_mark_frame">테두리</string>
+    <string name="settings_last_mark_corner">모서리</string>
     <string name="settings_buttons_how">버튼을 길게 누른 다음 끌어서 그 패널 안에서의 자리를 바꿉니다.</string>
     <string name="settings_buttons_reset">초기화</string>
     <string name="settings_buttons_reset_ask">버튼을 기본 배치로 되돌릴까요?</string>

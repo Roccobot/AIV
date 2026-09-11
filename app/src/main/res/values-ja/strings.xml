@@ -455,6 +455,9 @@
     <string name="settings_buttons_steps">エディター: 元に戻す・適用</string>
     <string name="settings_labels">アイコンの下のラベル</string>
     <string name="settings_labels_desc">オフにすると、アイコンのパネルがよりコンパクトになります。一覧形式のメニューは変わりません。</string>
+    <string name="settings_last_mark">最後に表示した項目の目印</string>
+    <string name="settings_last_mark_frame">枠</string>
+    <string name="settings_last_mark_corner">角</string>
     <string name="settings_buttons_how">ボタンを長押しし、そのままドラッグして、そのパネル内での位置を変えます。</string>
     <string name="settings_buttons_reset">リセット</string>
     <string name="settings_buttons_reset_ask">ボタンを既定の並びに戻しますか？</string>

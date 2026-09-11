@@ -455,6 +455,9 @@
     <string name="settings_buttons_steps">编辑器：撤销与应用</string>
     <string name="settings_labels">图标下方的标签</string>
     <string name="settings_labels_desc">若关闭，图标面板会更紧凑。列表菜单不变。</string>
+    <string name="settings_last_mark">最近查看项目的标记</string>
+    <string name="settings_last_mark_frame">边框</string>
+    <string name="settings_last_mark_corner">边角</string>
     <string name="settings_buttons_how">长按一个按钮，然后拖动它来改变它在所属面板中的位置。</string>
     <string name="settings_buttons_reset">重置</string>
     <string name="settings_buttons_reset_ask">要把按钮恢复成默认排列吗？</string>

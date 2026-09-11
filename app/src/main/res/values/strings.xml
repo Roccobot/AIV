@@ -657,6 +657,9 @@
     <string name="settings_buttons_steps">Editor: undo and apply</string>
     <string name="settings_labels">Labels under icons</string>
     <string name="settings_labels_desc">If turned off, the icon panels get more compact. List menus are unchanged.</string>
+    <string name="settings_last_mark">Last viewed item marker</string>
+    <string name="settings_last_mark_frame">Frame</string>
+    <string name="settings_last_mark_corner">Corner</string>
     <string name="settings_buttons_how">Press and hold a button, then drag it to change its place within its panel.</string>
     <string name="settings_buttons_reset">Reset</string>
     <string name="settings_buttons_reset_ask">Do you want the buttons back in their default arrangement?</string>

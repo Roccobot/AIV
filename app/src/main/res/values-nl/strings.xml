@@ -472,6 +472,9 @@
     <string name="settings_buttons_steps">Editor: ongedaan maken en toepassen</string>
     <string name="settings_labels">Labels onder de pictogrammen</string>
     <string name="settings_labels_desc">Als ze uitstaan, worden de pictogrampanelen compacter. Lijstmenu\'s veranderen niet.</string>
+    <string name="settings_last_mark">Markering van het laatst bekeken item</string>
+    <string name="settings_last_mark_frame">Kader</string>
+    <string name="settings_last_mark_corner">Hoek</string>
     <string name="settings_buttons_how">Houd een knop ingedrukt en sleep hem naar zijn plaats binnen zijn eigen paneel.</string>
     <string name="settings_buttons_reset">Herstellen</string>
     <string name="settings_buttons_reset_ask">Wil je de knoppen terug in de standaardindeling?</string>

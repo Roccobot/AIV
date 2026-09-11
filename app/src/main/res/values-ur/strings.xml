@@ -472,6 +472,9 @@
     <string name="settings_buttons_steps">مدیر: کالعدم کرنا اور لاگو کرنا</string>
     <string name="settings_labels">آئیکنوں کے نیچے لیبل</string>
     <string name="settings_labels_desc">بند کرنے پر آئیکن پینل زیادہ مختصر ہو جاتے ہیں۔ فہرست والے مینو نہیں بدلتے۔</string>
+    <string name="settings_last_mark">آخری دیکھی گئی آئٹم کا نشان</string>
+    <string name="settings_last_mark_frame">فریم</string>
+    <string name="settings_last_mark_corner">کونہ</string>
     <string name="settings_buttons_how">کسی بٹن کو دبائے رکھیں اور اسے گھسیٹ کر اس کے اپنے پینل میں اس کی جگہ بدلیں۔</string>
     <string name="settings_buttons_reset">ری سیٹ</string>
     <string name="settings_buttons_reset_ask">بٹنوں کو طے شدہ ترتیب پر واپس لانا ہے؟</string>

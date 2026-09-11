@@ -472,6 +472,9 @@
     <string name="settings_buttons_steps">திருத்தி: செயல்தவிர்த்தலும் பயன்படுத்தலும்</string>
     <string name="settings_labels">சின்னங்களுக்குக் கீழே பெயர்கள்</string>
     <string name="settings_labels_desc">அணைத்தால் சின்னப் பலகங்கள் இன்னும் நெருக்கமாகும். பட்டியல் பட்டிகள் மாறாது.</string>
+    <string name="settings_last_mark">கடைசியாகப் பார்த்த உருப்படியின் குறி</string>
+    <string name="settings_last_mark_frame">சட்டகம்</string>
+    <string name="settings_last_mark_corner">மூலை</string>
     <string name="settings_buttons_how">ஒரு பொத்தானை அழுத்திப் பிடித்து இழுத்து, அதன் சொந்தப் பலகத்தில் அதன் இடத்தை மாற்றவும்.</string>
     <string name="settings_buttons_reset">மீட்டமை</string>
     <string name="settings_buttons_reset_ask">பொத்தான்களை இயல்பு அமைப்புக்குத் திரும்பக் கொண்டுவரவா?</string>

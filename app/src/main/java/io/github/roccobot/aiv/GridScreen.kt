@@ -307,6 +307,13 @@ fun GridScreen(
      */
     gridNames: Boolean = Settings().gridNames,
     /**
+     * Con che segno si riconosce l'ultimo media visualizzato. Vedi `Settings.lastMark`.
+     *
+     * ⚠️ Il valore di serie è quello di fabbrica dell'impostazione, cioè la **cornice**: la
+     * griglia montata dal banco di prova è quella che trova chi installa l'app adesso.
+     */
+    lastMark: LastMark = Settings().lastMark,
+    /**
      * Se questa griglia è il **cestino**.
      *
      * ⚠️⚠️ **CAMBIA TRE COSE E NON L'ASPETTO**: 'elimina' diventa definitiva (là dentro non
@@ -2026,6 +2033,7 @@ fun GridScreen(
                             marked = index == highlight,
                             chosen = uri in chosen,
                             named = gridNames,
+                            mark = lastMark,
                             room = cellPx,
                             // ⚠️ In selezione il tocco NORMALE sceglie invece di aprire,
                             // ed è la convenzione di ogni galleria: chi ne ha scelte
@@ -2753,6 +2761,8 @@ private fun Thumbnail(
     chosen: Boolean,
     /** Se sotto la miniatura va il nome del file. Vedi `Settings.gridNames`. */
     named: Boolean,
+    /** Con che segno si disegna [marked]: la cornice o il nastro nell'angolo. */
+    mark: LastMark,
     /** Quanto è larga la cella, in pixel: serve solo al nome. Vedi `cellPx`. */
     room: Int,
     onClick: () -> Unit
@@ -2858,7 +2868,31 @@ private fun Thumbnail(
                     .background(Color.White.copy(alpha = PICKED_VEIL))
             )
         }
-        if (marked) {
+        if (marked && mark == LastMark.FRAME) {
+            /*
+             * ⚠️⚠️ **LA CORNICE È DELLA `2.11`, E RIMETTE IN SCENA QUELLO CHE LA `0.58` AVEVA
+             * SCARTATO** (punto D del campo libero del giro accorpato: *voglio che il nuovo
+             * indicatore sia una semplice cornice come quella nel mockup allegato, colore
+             * #4FD9BE*). L'argomento con cui allora era stata esclusa è qui sotto e **regge
+             * ancora**: quello che è cambiato è la sua preferenza, e la scelta resta doppia
+             * proprio per questo.
+             * ⚠️⚠️ **IL COLORE È `accentInk` E NON IL NUMERO CHE HA SCRITTO, e i due coincidono
+             * dove lui guardava**: `#4FD9BE` è esattamente l'accento leggibile del tema scuro
+             * (`LINK_DARK` in `Theme.kt`), cioè il colore che il suo mockup porta perché il
+             * mockup è scuro. Scritto a mano resterebbe quello anche sul tema chiaro, dove
+             * l'app usa il suo gemello; letto dal tema, il segno è lo stesso colore con cui
+             * l'app scrive tutto quello che deve **spiccare restando leggibile**.
+             * ⚠️ **Non è `colorScheme.primary`**, che è il colore del nastro qui sotto: quello
+             * è l'accento pieno, e su una fotografia qualunque una riga sottile di accento
+             * pieno si legge meno della sua versione da inchiostro. Un tratto da tre punti non
+             * ha l'area per difendersi da sé, che è invece quello che fa un triangolo.
+             * ⚠️ **`border` disegna verso l'INTERNO della sagoma**, quindi il bordo esterno
+             * della cornice coincide col bordo della miniatura e non c'è niente che sborda: è
+             * la stessa ragione per cui il nastro chiede un `clip`.
+             */
+            Box(modifier = Modifier.matchParentSize().border(MARK_EDGE, accentInk(), shape))
+        }
+        if (marked && mark == LastMark.CORNER) {
             /*
              * ⚠️⚠️ **UN NASTRO NELL'ANGOLO IN BASSO A SINISTRA dalla 0.58** (scelta
              * dell'utente fra cinque proposte, 2026-08-30). Prima era una cornice
@@ -2866,6 +2900,8 @@ private fun Thumbnail(
              * cornice attorno a una miniatura è il gesto universale della **selezione**,
              * quindi da lontano quel segno diceva la cosa sbagliata. Un triangolo in un
              * angolo non somiglia a niente di tutto ciò.
+             * ⚠️⚠️ **DALLA `2.11` È UNA DELLE DUE RISPOSTE E NON PIÙ L'UNICO SEGNO**, ed è
+             * quella che trova chi aggiorna: il perché vive su [LastMark] e su `MarkMigration`.
              * ⚠️⚠️ **L'angolo è quello DIAGONALMENTE OPPOSTO alla spunta, ed è la ragione
              * per cui è in basso a sinistra e non altrove**: sulla piastrella che è insieme
              * vista e scelta i due segni stanno alla massima distanza possibile e non si
@@ -3346,6 +3382,19 @@ private const val MARK_LEG = 0.36f
  * schiarisce: questo è l'opacità di un singolo triangolo dipinto sopra.
  */
 private const val MARK_ALPHA = 0.85f
+
+/**
+ * Quanto è spessa la **cornice** dell'ultimo media visualizzato: tre punti.
+ *
+ * ⚠️⚠️ **VIENE DAL SUO MOCKUP, MISURATO**: là la cornice è spessa 10 pixel su una miniatura larga
+ * 366, cioè il **2,7%** del lato; su un telefono da 393 punti con tre colonne la cella ne vale
+ * centoventi, e quel rapporto dà 3,3 punti.
+ * ⚠️ **In dp e non in frazione del lato, al contrario di [MARK_LEG]**: un nastro è una forma, e su
+ * un tablet deve crescere con la piastrella o diventa un francobollo; una cornice è un **tratto**,
+ * e un tratto ha lo stesso spessore ovunque, come il filetto sotto una copertina (quattro punti) e
+ * il bordo d'accento dei pannelli (due).
+ */
+private val MARK_EDGE = 3.dp
 
 /**
  * Quanto si SCHIARISCE una miniatura scelta.

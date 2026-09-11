@@ -489,6 +489,9 @@
     <string name="settings_buttons_steps">Éditeur : annuler et appliquer</string>
     <string name="settings_labels">Libellés sous les icônes</string>
     <string name="settings_labels_desc">Si elles sont désactivées, les panneaux d\'icônes deviennent plus compacts. Les menus en liste ne changent pas.</string>
+    <string name="settings_last_mark">Repère du dernier élément consulté</string>
+    <string name="settings_last_mark_frame">Cadre</string>
+    <string name="settings_last_mark_corner">Coin</string>
     <string name="settings_buttons_how">Appuyez longuement sur un bouton et faites-le glisser pour changer sa place au sein de son panneau.</string>
     <string name="settings_buttons_reset">Réinitialiser</string>
     <string name="settings_buttons_reset_ask">Voulez-vous remettre les boutons dans leur disposition par défaut ?</string>

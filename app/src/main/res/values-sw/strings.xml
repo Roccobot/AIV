@@ -472,6 +472,9 @@
     <string name="settings_buttons_steps">Kihariri: kutendua na kutumia</string>
     <string name="settings_labels">Lebo chini ya aikoni</string>
     <string name="settings_labels_desc">Zikizimwa, vidirisha vya aikoni hubana zaidi. Menyu za orodha hazibadiliki.</string>
+    <string name="settings_last_mark">Alama ya kipengee cha mwisho kilichotazamwa</string>
+    <string name="settings_last_mark_frame">Fremu</string>
+    <string name="settings_last_mark_corner">Pembe</string>
     <string name="settings_buttons_how">Shikilia kitufe kisha ukiburute ili kubadilisha nafasi yake ndani ya kidirisha chake.</string>
     <string name="settings_buttons_reset">Weka upya</string>
     <string name="settings_buttons_reset_ask">Unataka vitufe virudi kwenye mpangilio wa awali?</string>

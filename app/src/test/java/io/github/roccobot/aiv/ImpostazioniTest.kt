@@ -200,4 +200,39 @@ class ImpostazioniTest {
         banco.onNodeWithText(voce).assertExists()
         banco.onNode(hasText(sezione) and isHeading()).assertExists()
     }
+
+    /**
+     * **Aprendo una pagina dalla ricerca, la ricerca si azzera e il ritorno trova il pannello
+     * intero.**
+     *
+     * ⚠️⚠️ **È LA NOTA DELLA VOCE APPROVATA** (giro della `2.10`, `imp-cerca-titoli`: *se dalla
+     * ricerca poi approdo ad un elemento con cui interagisco (es. apro una sotto-pagina), la
+     * ricerca si resetta e torno all'inizio delle impostazioni senza nulla digitato*), e vale la
+     * pena misurarla perché il campo e la pila sono due stati che nessun compilatore lega.
+     * ⚠️ **Le due asserzioni sono due fatti diversi**: che il campo sia vuoto, e che la pagina
+     * piatta sia tornata intera. Una voce filtrata via dalla ricerca è la prova della seconda,
+     * perché con la ricerca ancora accesa non sarebbe in scena.
+     * ⚠️ **Controprovata** togliendo l'azzeramento da `open`: al ritorno la radice porta ancora
+     * il filtro e tutte e due le asserzioni cadono.
+     */
+    @Test
+    fun `aprire una pagina dalla ricerca la azzera`() {
+        apriIlPannello()
+        val pagina = testo(R.string.settings_zoom_page)
+        val cerca = pagina.substringBeforeLast(' ')
+        val altrove = testo(R.string.settings_gpu_thumbs)
+        val indietro = testo(R.string.settings_back)
+
+        banco.onNode(hasSetTextAction()).performTextInput(cerca)
+        banco.waitForIdle()
+        banco.onNodeWithText(altrove).assertDoesNotExist()
+
+        banco.onNodeWithText(pagina).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(indietro).performClick()
+        banco.waitForIdle()
+
+        banco.onNode(hasSetTextAction() and hasText(cerca)).assertDoesNotExist()
+        banco.onNodeWithText(altrove).assertExists()
+    }
 }

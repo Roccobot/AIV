@@ -1,9 +1,17 @@
 package io.github.roccobot.aiv
 
+import android.content.Context
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -171,5 +179,58 @@ class AvvisiTest {
         assertNotNull(Notices.line)
         assertTrue("il secondo deve avere un identificatore suo", secondo != primo)
         assertEquals(secondo, Notices.line?.id)
+    }
+
+    /**
+     * **Con la scheda della selezione in scena, la notifica le resta sopra e non la copre.**
+     *
+     * ⚠️⚠️ **È IL PUNTO C DEL CAMPO LIBERO** (*in alcune circostanze (es. si inizia una selezione
+     * dopo un 'copia', 'sposta' o 'elimina'), la bottomsheet della selezione va a finire sotto la
+     * notifica in basso*), e il banco lo vede perché è una questione di **posizione**, cioè di
+     * struttura: dove finisce una superficie rispetto a un'altra.
+     * ⚠️ **Il confronto è col tasto e non col bordo della scheda**, che nell'albero non ha un
+     * nodo suo: se la notifica copre i comandi il difetto c'è, e il bordo della scheda sta ancora
+     * più in alto del tasto, quindi la misura è più stretta del vero.
+     * ⚠️ **Controprovata** togliendo `abovePickSheet()` dalla notifica: il suo bordo di sotto
+     * finisce in fondo allo schermo, cioè sotto i tasti, e il caso cade.
+     */
+    @Test
+    fun `la notifica sale sopra la scheda della selezione`() {
+        Notices.say("1 elemento copiato")
+        banco.mainClock.autoAdvance = false
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                Box(Modifier.fillMaxSize()) {
+                    PickSheet(
+                        visible = true,
+                        actions = listOf(
+                            PadAction(
+                                key = PadKey.COPY,
+                                icon = Icons.Outlined.Info,
+                                label = R.string.menu_copy_here
+                            ) { }
+                        )
+                    )
+                    AppNotice(
+                        Notices.line,
+                        modifier = Modifier.align(Alignment.BottomCenter).abovePickSheet()
+                    )
+                }
+            }
+        }
+        banco.waitForIdle()
+        // ⚠️ La scheda entra con un'animazione, quindi il posto vero ce l'ha a corsa finita: col
+        // clock fermo il tempo lo si fa passare a mano, o si misura un pannello ancora in viaggio.
+        banco.mainClock.advanceTimeBy(1_000)
+        banco.waitForIdle()
+
+        val notifica = banco.onNodeWithText("1 elemento copiato").getBoundsInRoot()
+        val tasto = banco.onNodeWithText(
+            ApplicationProvider.getApplicationContext<Context>().getString(R.string.menu_copy_here)
+        ).getBoundsInRoot()
+        assertTrue(
+            "la notifica (fino a ${notifica.bottom}) copre i tasti (da ${tasto.top})",
+            notifica.bottom <= tasto.top
+        )
     }
 }

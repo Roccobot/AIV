@@ -455,6 +455,9 @@
     <string name="settings_buttons_steps">Trình sửa: hoàn tác và áp dụng</string>
     <string name="settings_labels">Nhãn dưới biểu tượng</string>
     <string name="settings_labels_desc">Nếu tắt, các bảng biểu tượng trở nên gọn hơn. Menu dạng danh sách không thay đổi.</string>
+    <string name="settings_last_mark">Dấu của mục đã xem gần nhất</string>
+    <string name="settings_last_mark_frame">Khung</string>
+    <string name="settings_last_mark_corner">Góc</string>
     <string name="settings_buttons_how">Nhấn giữ một nút rồi kéo để đổi vị trí của nó trong bảng của chính nó.</string>
     <string name="settings_buttons_reset">Đặt lại</string>
     <string name="settings_buttons_reset_ask">Bạn muốn đưa các nút về cách sắp đặt mặc định?</string>

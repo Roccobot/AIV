@@ -33,4 +33,7 @@
     <string name="settings_images_only_desc">En el visor, el deslizamiento salta los videos y solo pasa las imágenes. Se puede abrir un video con un toque desde la vista normal.</string>
     <string name="settings_clip_autoplay">Reproducir los videos directamente</string>
     <string name="settings_save_rename_desc">De forma predeterminada, todos los archivos se descargan en Descargas con su nombre original. Activa esta función para definir un nombre de guardado en cada descarga. Aunque la dejes desactivada, puedes mantener presionado \'Guardar\' para activarla al momento solo cuando haga falta.</string>
+    <string name="settings_last_mark">Marca del último elemento visto</string>
+    <string name="settings_last_mark_frame">Marco</string>
+    <string name="settings_last_mark_corner">Esquina</string>
 </resources>
