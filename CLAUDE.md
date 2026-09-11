@@ -2235,21 +2235,35 @@ viene dal mio mockup, ho sbagliato io: serve più spesso (5%, più vivido e all'
 Proviamo con l'arancione-onboarding*). La `2.11` aveva preso le sue misure dal **mockup**, cioè da
 un disegno: quello che il disegno non dice è quanto di un tratto sottile si perde su una
 fotografia vera.
-- ⚠️⚠️ **L'ARANCIONE ADESSO DICE DUE COSE, e va saputo invece di scoprirlo**: `HINT_MARK`
-  (`#FFA726`) era l'evidenziatore dei mini onboarding e **l'unico posto in cui la tavolozza si
-  rompe apposta**; da qui in poi è anche il segno dell'ultimo media. I due non si incontrano mai
-  sullo stesso pixel, perché un onboarding vive sopra un velo scuro che copre la griglia, ma è
-  l'unico colore che l'app ha per dire 'guarda qui', e un terzo uso lo consumerebbe.
 - ⚠️⚠️ **E CAMBIA L'UNITÀ, NON SOLO IL NUMERO: la nota che diceva 'in dp e non in frazione' è
   superata.** Valeva per il bordo di una **superficie dell'app**, che è sempre la stessa (il
   filetto sotto una copertina, il bordo d'accento dei pannelli); qui il segno vive su una
   piastrella le cui colonne le sceglie lui, e fra due e cinque colonne il lato quasi si triplica.
   Con un numero in punti lo stesso segno peserebbe il triplo da una parte e un terzo dall'altra.
-- ⚠️ **Non è `colorScheme.primary`**, che resta il colore del nastro: quello è l'accento pieno, e
-  i due segni devono distinguersi a colpo d'occhio.
 - ⚠️ **Il tratto si disegna doppio dentro un ritaglio della sagoma**: un tratto è centrato sul
   contorno, quindi metà cadrebbe fuori dalla miniatura. È quello che faceva `border`, che però non
   può leggere una misura per ricavarne lo spessore.
+
+⚠️⚠️ **MA DALLA `2.13` IL COLORE È L'ACCENTO DELL'APP, E L'ARANCIONE È DURATO UNA VERSIONE**
+(riscontro del giro della `2.12`, voce `ind-cornice` approvata con una nota: *forse con questo
+spessore sarebbe visibile anche nel colore d'accento. Proviamo*). La `2.12` era passata a
+`HINT_MARK` perché a `2,7%` il verde acqua *non era abbastanza vivido*, e il 5% ha tolto proprio
+quella causa: un tratto spesso ha l'area per farsi vedere anche in un colore di casa.
+- ⚠️⚠️ **CADE LA NOTA CHE ESCLUDEVA `colorScheme.primary`** (*i due segni devono distinguersi a
+  colpo d'occhio*), e cade perché guardava dalla parte sbagliata: nastro e cornice **non si vedono
+  mai insieme**, sono le due risposte dello stesso interruttore. Lo stesso colore dice il vero,
+  cioè che sono due forme di un segno solo.
+- ⚠️ **Quindi l'arancione torna a dire una cosa sola**, l'evidenziatore dei mini onboarding, che
+  è l'unico posto in cui la tavolozza dell'app si rompe apposta. La nota della `2.12` che lo dava
+  per doppio è superata.
+- ⚠️ **Il colore arriva dal chiamante**, perché `lastFrame` non è un composable e un colore del
+  tema non lo può leggere da sé. È anche quello che rende la prova più forte: misura il **legame**
+  invece di ricopiare una costante.
+- ⚠️⚠️ **E LA PROVA HA CAMBIATO BERSAGLIO CON LUI**: fino alla `2.12` `CorniceTest` misurava che
+  il tratto fosse arancione, cioè ricopiava un valore, ed è diventata rossa per una **decisione**
+  invece che per un difetto. Adesso misura che il tratto prenda il colore ricevuto, fuso
+  all'opacità dichiarata: è il caso generale di una prova che verifica un comportamento invece di
+  un'implementazione, scritto in § '🧪 Quando si scrive una prova, e quando no'.
 
 ⚠️ **La voce vive in 'Etichette e pulsanti' perché lo ha chiesto lui**, e la famiglia lo regge per
 il titolo della pagina che la contiene, 'Comandi e indicatori': quella parola ce l'ha già, mentre
@@ -2261,9 +2275,9 @@ aggiorna l'app su un telefono già usato. **Non** vede il segno dentro la grigli
 vuole delle immagini vere, e il MediaStore di Robolectric è vuoto.
 - ⚠️⚠️ **MA IL TRATTO SÌ, DALLA `2.12`, E LA STRADA È QUELLA DEL GRADIENTE**: `CorniceTest` monta
   il modificatore che lo disegna su una scena minima e guarda i pixel, cioè misura il
-  **meccanismo** invece della schermata. Vede le due cose che la correzione ha cambiato: che lo
-  spessore raddoppi col lato, e che il colore sia l'arancione invece del verde acqua.
-  Controprovata in tutti e due i versi, rimettendo prima la misura fissa e poi il colore vecchio.
+  **meccanismo** invece della schermata. Vede che lo spessore raddoppia col lato, e che il tratto
+  prende il colore che gli si passa all'opacità dichiarata. Controprovata in tutti e due i versi,
+  rimettendo prima la misura fissa e poi una costante al posto del colore ricevuto.
 
 ## 🧪 Quando si scrive una prova, e quando no
 
