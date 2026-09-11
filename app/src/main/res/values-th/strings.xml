@@ -321,7 +321,7 @@
     <string name="settings_group_start">การเริ่มต้น</string>
     <string name="settings_group_advanced">ฟีเจอร์ขั้นสูง</string>
     <string name="settings_page_info">ข้อมูล</string>
-    <string name="settings_page_controls">การควบคุมและปุ่ม</string>
+    <string name="settings_page_controls">ป้ายกำกับและปุ่ม</string>
     <string name="settings_page_editing">โปรแกรมแก้ไขและการบันทึก</string>
     <string name="settings_ext_edit">อนุญาตให้แก้ไขนามสกุล</string>
     <string name="settings_ext_edit_desc">เพิ่มปุ่ม \'นามสกุล\' ในหน้าต่างชื่อไฟล์ เลือกด้านล่างว่าจะให้ปรากฏที่ไหน ⚠️ การเปลี่ยนนามสกุลไม่ใช่การแปลงรูปแบบ (สำหรับสิ่งนั้นมี \'ส่งออกและแปลง\') และต้องใช้อย่างระวัง เพราะบางไฟล์อาจอ่านไม่ได้และหายไปจากแอปแกลเลอรี</string>
@@ -401,6 +401,7 @@
     <string name="editor_original">ต้นฉบับ</string>
     <string name="editor_center_across">จัดกึ่งกลางแนวนอน</string>
     <string name="editor_center_down">จัดกึ่งกลางแนวตั้ง</string>
+    <string name="editor_center_both">จัดกึ่งกลางแนวนอนและแนวตั้ง</string>
     <string name="editor_done">บันทึกแล้ว</string>
     <string name="editor_done_copy">บันทึกสำเนาแล้ว</string>
     <string name="editor_done_lossless">บันทึกแล้วโดยไม่บีบอัดใหม่</string>

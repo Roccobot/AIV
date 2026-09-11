@@ -111,6 +111,7 @@
     <string name="editor_original">Reset</string>
     <string name="editor_center_across">Center horizontally</string>
     <string name="editor_center_down">Center vertically</string>
+    <string name="editor_center_both">Center horizontally and vertically</string>
     <string name="editor_done">Saved</string>
     <!-- Said when the copy went next to the original instead of over it. -->
     <string name="editor_done_copy">Copy saved</string>
@@ -188,7 +189,7 @@
 
     <!-- The pages a settings family lives in, where no section title already names it. -->
     <string name="settings_page_info">Information</string>
-    <string name="settings_page_controls">Controls and buttons</string>
+    <string name="settings_page_controls">Labels and buttons</string>
     <string name="settings_page_editing">Editor and saving</string>
     <string name="settings_ext_edit">Allow editing the extension</string>
     <string name="settings_ext_edit_desc">Adds an \'Extension\' button to the file name windows. Pick below which ones it appears in. ⚠️ Changing an extension is not a format conversion (that is what \'Export and convert\' is for) and needs care, because some files may become unreadable and stop showing up in gallery apps.</string>

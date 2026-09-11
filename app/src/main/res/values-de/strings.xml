@@ -335,7 +335,7 @@
     <string name="settings_group_start">Start</string>
     <string name="settings_group_advanced">Erweiterte Funktionen</string>
     <string name="settings_page_info">Informationen</string>
-    <string name="settings_page_controls">Bedienelemente und Schaltflächen</string>
+    <string name="settings_page_controls">Beschriftungen und Schaltflächen</string>
     <string name="settings_page_editing">Editor und Speichern</string>
     <string name="settings_ext_edit">Ändern der Endung erlauben</string>
     <string name="settings_ext_edit_desc">Fügt den Fenstern für Dateinamen die Schaltfläche \'Endung\' hinzu. Wähle unten, in welchen. ⚠️ Eine Endung zu ändern ist keine Formatumwandlung (dafür gibt es \'Exportieren und umwandeln\') und will mit Bedacht benutzt werden, denn manche Dateien werden unlesbar und tauchen in Galerie-Apps nicht mehr auf.</string>
@@ -417,6 +417,7 @@
     <string name="editor_original">Original</string>
     <string name="editor_center_across">Waagerecht zentrieren</string>
     <string name="editor_center_down">Senkrecht zentrieren</string>
+    <string name="editor_center_both">Waagerecht und senkrecht zentrieren</string>
     <string name="editor_done">Gespeichert</string>
     <string name="editor_done_copy">Kopie gespeichert</string>
     <string name="editor_done_lossless">Gespeichert, ohne neu zu komprimieren</string>

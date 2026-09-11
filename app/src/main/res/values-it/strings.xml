@@ -80,6 +80,7 @@
     <string name="editor_original">Azzera</string>
     <string name="editor_center_across">Centra in orizzontale</string>
     <string name="editor_center_down">Centra in verticale</string>
+    <string name="editor_center_both">Centra in orizzontale e in verticale</string>
     <string name="editor_done">Salvata</string>
     <string name="editor_done_copy">Copia salvata</string>
     <string name="editor_done_lossless">Salvata senza ricomprimere</string>
@@ -459,7 +460,7 @@
     <string name="settings_group_start">Avvio</string>
     <string name="settings_group_advanced">Funzionalità avanzate</string>
     <string name="settings_page_info">Informazioni</string>
-    <string name="settings_page_controls">Comandi e tasti</string>
+    <string name="settings_page_controls">Etichette e pulsanti</string>
     <string name="settings_page_editing">Editor e salvataggio</string>
     <string name="settings_ext_edit">Consenti la modifica dell\'estensione</string>
     <string name="settings_ext_edit_desc">Aggiunge il pulsante \'Estensione\' alle finestre di dialogo dei nomi di file. Scegli qui sotto per quali moduli abilitarlo. ⚠️ Il cambio di estensione non equivale a una conversione di formato (per quello c\'è \'Esporta/Converti\') e va usato con cautela, perché alcuni file potrebbero diventare illeggibili e non essere più visualizzati dalle app galleria.</string>

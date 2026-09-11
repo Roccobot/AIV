@@ -363,7 +363,7 @@
     <string name="settings_group_start">Uruchamianie</string>
     <string name="settings_group_advanced">Funkcje zaawansowane</string>
     <string name="settings_page_info">Informacje</string>
-    <string name="settings_page_controls">Sterowanie i przyciski</string>
+    <string name="settings_page_controls">Etykiety i przyciski</string>
     <string name="settings_page_editing">Edytor i zapisywanie</string>
     <string name="settings_ext_edit">Pozwól zmieniać rozszerzenie</string>
     <string name="settings_ext_edit_desc">Dodaje przycisk \'Rozszerzenie\' do okien z nazwami plików. Poniżej wybierz, w których. ⚠️ Zmiana rozszerzenia to nie konwersja formatu (od tego jest \'Eksportuj i konwertuj\') i wymaga ostrożności, bo część plików może stać się nieczytelna i zniknąć z aplikacji galerii.</string>
@@ -449,6 +449,7 @@
     <string name="editor_original">Oryginał</string>
     <string name="editor_center_across">Wyśrodkuj w poziomie</string>
     <string name="editor_center_down">Wyśrodkuj w pionie</string>
+    <string name="editor_center_both">Wyśrodkuj w poziomie i w pionie</string>
     <string name="editor_done">Zapisano</string>
     <string name="editor_done_copy">Zapisano kopię</string>
     <string name="editor_done_lossless">Zapisano bez ponownej kompresji</string>

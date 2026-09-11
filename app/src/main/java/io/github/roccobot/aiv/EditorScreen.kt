@@ -422,6 +422,7 @@ fun EditorScreen(
             },
             onCentreAcross = { crop = centredAcross(crop) },
             onCentreDown = { crop = centredDown(crop) },
+            onCentreBoth = { crop = centredDown(centredAcross(crop)) },
             onApply = {
                 val picture = base ?: return@EditorSheet
                 steps = steps + applied(picture, steps.lastOrNull()?.done ?: Done.NOTHING, spin, crop)
@@ -654,6 +655,8 @@ private fun EditorSheet(
     onFlip: (Boolean) -> Unit,
     onCentreAcross: () -> Unit,
     onCentreDown: () -> Unit,
+    /** Il tocco lungo su uno qualunque dei due tasti di centratura: vedi là. */
+    onCentreBoth: () -> Unit,
     onApply: () -> Unit,
     onUndo: () -> Unit,
     onRedo: () -> Unit,
@@ -841,13 +844,29 @@ private fun EditorSheet(
               * del collaudo: *usa le mie icone che ti ho già passato*): quelle di Material
               * non gli dicevano abbastanza. Vedi [Glyphs.AlignAcross].
               */
+            /*
+             * ⚠️⚠️ **IL TOCCO LUNGO CENTRA SU TUTTI E DUE GLI ASSI, DALLA `2.10`, ED È SUO**
+             * (punto F del campo libero del giro accorpato: *pressione lunga sui due tasti di
+             * centratura: centra su tutti e due gli assi*). Lo stesso gesto sui due tasti fa la
+             * stessa cosa, e non è una svista: quello che si vuole è *al centro*, e chi tiene
+             * premuto non deve chiedersi quale dei due tasti sia quello giusto.
+             * ⚠️ **Il conto è la composizione delle due funzioni, e l'ordine non conta**: una
+             * tocca i due lati verticali e l'altra i due orizzontali, quindi sono indipendenti.
+             * Scrivere un terzo conto darebbe una terza definizione di 'al centro'.
+             * ⚠️ **L'etichetta del gesto c'è**, come vuole [PadAction.onHold]: un gesto che il
+             * lettore di schermo non annuncia esiste solo per chi lo scopre per caso.
+             */
             val acrossKey = PadAction(
                 PadKey.CENTRE_ACROSS, Glyphs.AlignAcross, R.string.editor_center_across,
-                enabled = live
+                enabled = live,
+                onHold = { onCentreBoth() },
+                holdLabel = R.string.editor_center_both
             ) { onCentreAcross() }
             val downKey = PadAction(
                 PadKey.CENTRE_DOWN, Glyphs.AlignDown, R.string.editor_center_down,
-                enabled = live
+                enabled = live,
+                onHold = { onCentreBoth() },
+                holdLabel = R.string.editor_center_both
             ) { onCentreDown() }
 
             /*

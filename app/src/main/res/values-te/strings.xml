@@ -335,7 +335,7 @@
     <string name="settings_group_start">ప్రారంభం</string>
     <string name="settings_group_advanced">అధునాతన సౌకర్యాలు</string>
     <string name="settings_page_info">సమాచారం</string>
-    <string name="settings_page_controls">నియంత్రణలు మరియు బటన్‌లు</string>
+    <string name="settings_page_controls">లేబుల్‌లు మరియు బటన్‌లు</string>
     <string name="settings_page_editing">ఎడిటర్ మరియు సేవ్</string>
     <string name="settings_ext_edit">పొడిగింపును మార్చడానికి అనుమతించు</string>
     <string name="settings_ext_edit_desc">ఫైల్ పేరు విండోలకు \'పొడిగింపు\' బటన్‌ను జోడిస్తుంది. ఏ విండోలలో కనిపించాలో కింద ఎంచుకో. ⚠️ పొడిగింపు మార్చడం ఫార్మాట్ మార్పిడి కాదు (దానికి \'ఎగుమతి చేసి మార్చు\' ఉంది), జాగ్రత్తగా వాడాలి: కొన్ని ఫైళ్లు చదవలేనివిగా మారి గ్యాలరీ యాప్‌లలో కనిపించకపోవచ్చు.</string>
@@ -417,6 +417,7 @@
     <string name="editor_original">అసలు</string>
     <string name="editor_center_across">అడ్డంగా మధ్యలో</string>
     <string name="editor_center_down">నిలువుగా మధ్యలో</string>
+    <string name="editor_center_both">అడ్డంగా మరియు నిలువుగా మధ్యలో</string>
     <string name="editor_done">భద్రపరచబడింది</string>
     <string name="editor_done_copy">నకలు భద్రపరచబడింది</string>
     <string name="editor_done_lossless">మళ్లీ కుదించకుండానే భద్రపరచబడింది</string>

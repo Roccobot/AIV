@@ -391,7 +391,7 @@
     <string name="settings_group_start">بدء التشغيل</string>
     <string name="settings_group_advanced">ميزات متقدمة</string>
     <string name="settings_page_info">المعلومات</string>
-    <string name="settings_page_controls">عناصر التحكم والأزرار</string>
+    <string name="settings_page_controls">التسميات والأزرار</string>
     <string name="settings_page_editing">المحرر والحفظ</string>
     <string name="settings_ext_edit">السماح بتعديل الامتداد</string>
     <string name="settings_ext_edit_desc">يضيف زر \'الامتداد\' إلى نوافذ أسماء الملفات. اختر أدناه أين يظهر. ⚠️ تغيير الامتداد ليس تحويلاً للصيغة (لذلك يوجد \'تصدير وتحويل\') ويحتاج إلى حذر، لأن بعض الملفات قد تصبح غير قابلة للقراءة ولا تظهر في تطبيقات المعرض.</string>
@@ -481,6 +481,7 @@
     <string name="editor_original">الأصل</string>
     <string name="editor_center_across">توسيط أفقي</string>
     <string name="editor_center_down">توسيط رأسي</string>
+    <string name="editor_center_both">توسيط أفقي ورأسي</string>
     <string name="editor_done">تم الحفظ</string>
     <string name="editor_done_copy">تم حفظ النسخة</string>
     <string name="editor_done_lossless">تم الحفظ دون إعادة ضغط</string>

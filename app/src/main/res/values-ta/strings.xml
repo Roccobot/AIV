@@ -335,7 +335,7 @@
     <string name="settings_group_start">தொடக்கம்</string>
     <string name="settings_group_advanced">மேம்பட்ட வசதிகள்</string>
     <string name="settings_page_info">தகவல்</string>
-    <string name="settings_page_controls">கட்டுப்பாடுகள் மற்றும் பொத்தான்கள்</string>
+    <string name="settings_page_controls">லேபிள்கள் மற்றும் பொத்தான்கள்</string>
     <string name="settings_page_editing">திருத்தி மற்றும் சேமிப்பு</string>
     <string name="settings_ext_edit">நீட்டிப்பை மாற்ற அனுமதி</string>
     <string name="settings_ext_edit_desc">கோப்புப் பெயர் சாளரங்களில் \'நீட்டிப்பு\' பொத்தானைச் சேர்க்கும். எவற்றில் தோன்ற வேண்டும் என்பதைக் கீழே தேர்ந்தெடு. ⚠️ நீட்டிப்பை மாற்றுவது வடிவ மாற்றம் அல்ல (அதற்கு \'ஏற்றுமதி செய்து மாற்று\' உள்ளது), எச்சரிக்கை தேவை: சில கோப்புகள் படிக்க முடியாமல் போய் தொகுப்பு செயலிகளில் தெரியாமல் போகலாம்.</string>
@@ -417,6 +417,7 @@
     <string name="editor_original">அசல்</string>
     <string name="editor_center_across">கிடைமட்டமாக நடுவில்</string>
     <string name="editor_center_down">செங்குத்தாக நடுவில்</string>
+    <string name="editor_center_both">கிடைமட்டமாகவும் செங்குத்தாகவும் நடுவில்</string>
     <string name="editor_done">சேமிக்கப்பட்டது</string>
     <string name="editor_done_copy">நகல் சேமிக்கப்பட்டது</string>
     <string name="editor_done_lossless">மீண்டும் சுருக்காமல் சேமிக்கப்பட்டது</string>
