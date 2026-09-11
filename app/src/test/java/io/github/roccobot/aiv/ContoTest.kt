@@ -65,7 +65,10 @@ class ContoTest {
     @Test
     fun `lookShader consegna il programma coi cinque valori`() {
         val pieno = Look(
-            Light(exposure = 1f, brightness = 0.3f, contrast = -0.4f, shadows = 0.5f, highlights = -0.5f)
+            Light(
+                exposure = 1f, contrast = -0.4f, highlights = -0.5f, shadows = 0.5f,
+                whites = 0.3f, blacks = -0.2f
+            )
         )
         assertNotNull(
             "lookShader ha risposto null: il programma non compila o un uniform non combacia",

@@ -407,11 +407,13 @@
     <string name="editor_full">Vollständiger Editor</string>
     <string name="look_light">Licht</string>
     <string name="look_exposure">Belichtung</string>
-    <string name="look_brightness">Helligkeit</string>
+    <string name="look_whites">Weiß</string>
+    <string name="look_blacks">Schwarz</string>
     <string name="look_contrast">Kontrast</string>
     <string name="look_shadows">Schatten</string>
     <string name="look_highlights">Lichter</string>
     <string name="look_reset_one">%1$s zurücksetzen</string>
+    <string name="look_peek_one">%1$s vergleichen</string>
     <string name="look_compare">Gedrückt halten, um das Original zu sehen</string>
     <string name="look_failed">Die Änderungen konnten nicht gespeichert werden</string>
     <string name="settings_quality">Format und Qualität</string>

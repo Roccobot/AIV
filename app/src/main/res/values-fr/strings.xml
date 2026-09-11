@@ -423,11 +423,13 @@
     <string name="editor_full">Éditeur complet</string>
     <string name="look_light">Lumière</string>
     <string name="look_exposure">Exposition</string>
-    <string name="look_brightness">Luminosité</string>
+    <string name="look_whites">Blancs</string>
+    <string name="look_blacks">Noirs</string>
     <string name="look_contrast">Contraste</string>
     <string name="look_shadows">Ombres</string>
     <string name="look_highlights">Hautes lumières</string>
     <string name="look_reset_one">Réinitialiser %1$s</string>
+    <string name="look_peek_one">Comparer %1$s</string>
     <string name="look_compare">Maintenez appuyé pour voir l\'original</string>
     <string name="look_failed">Les modifications n\'ont pas pu être enregistrées</string>
     <string name="settings_quality">Format et qualité</string>

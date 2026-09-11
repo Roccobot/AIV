@@ -391,11 +391,13 @@
     <string name="editor_full">전체 편집기</string>
     <string name="look_light">빛</string>
     <string name="look_exposure">노출</string>
-    <string name="look_brightness">밝기</string>
+    <string name="look_whites">흰색 계열</string>
+    <string name="look_blacks">검정 계열</string>
     <string name="look_contrast">대비</string>
     <string name="look_shadows">어두운 부분</string>
     <string name="look_highlights">밝은 부분</string>
     <string name="look_reset_one">%1$s 초기화</string>
+    <string name="look_peek_one">%1$s 비교</string>
     <string name="look_compare">길게 눌러 원본 보기</string>
     <string name="look_failed">변경 내용을 저장하지 못했습니다</string>
     <string name="settings_quality">형식과 품질</string>

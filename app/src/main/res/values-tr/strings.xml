@@ -407,11 +407,13 @@
     <string name="editor_full">Tam düzenleyici</string>
     <string name="look_light">Işık</string>
     <string name="look_exposure">Pozlama</string>
-    <string name="look_brightness">Parlaklık</string>
+    <string name="look_whites">Beyazlar</string>
+    <string name="look_blacks">Siyahlar</string>
     <string name="look_contrast">Kontrast</string>
     <string name="look_shadows">Gölgeler</string>
     <string name="look_highlights">Parlak alanlar</string>
     <string name="look_reset_one">%1$s sıfırla</string>
+    <string name="look_peek_one">%1$s karşılaştır</string>
     <string name="look_compare">Orijinali görmek için basılı tutun</string>
     <string name="look_failed">Değişiklikler kaydedilemedi</string>
     <string name="settings_quality">Biçim ve kalite</string>

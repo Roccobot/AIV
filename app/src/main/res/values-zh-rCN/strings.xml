@@ -391,11 +391,13 @@
     <string name="editor_full">完整编辑器</string>
     <string name="look_light">光线</string>
     <string name="look_exposure">曝光</string>
-    <string name="look_brightness">亮度</string>
+    <string name="look_whites">白色色阶</string>
+    <string name="look_blacks">黑色色阶</string>
     <string name="look_contrast">对比度</string>
     <string name="look_shadows">阴影</string>
     <string name="look_highlights">高光</string>
     <string name="look_reset_one">重置%1$s</string>
+    <string name="look_peek_one">对比%1$s</string>
     <string name="look_compare">长按查看原图</string>
     <string name="look_failed">无法保存所做的更改</string>
     <string name="settings_quality">格式与画质</string>

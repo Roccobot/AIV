@@ -407,11 +407,13 @@
     <string name="editor_full">مکمل ایڈیٹر</string>
     <string name="look_light">روشنی</string>
     <string name="look_exposure">ایکسپوژر</string>
-    <string name="look_brightness">چمک</string>
+    <string name="look_whites">سفید حصے</string>
+    <string name="look_blacks">سیاہ حصے</string>
     <string name="look_contrast">کنٹراسٹ</string>
     <string name="look_shadows">سائے</string>
     <string name="look_highlights">روشن حصے</string>
     <string name="look_reset_one">%1$s ری سیٹ کریں</string>
+    <string name="look_peek_one">%1$s کا موازنہ کریں</string>
     <string name="look_compare">اصل دیکھنے کے لیے دبائے رکھیں</string>
     <string name="look_failed">تبدیلیاں محفوظ نہیں ہو سکیں</string>
     <string name="settings_quality">فارمیٹ اور معیار</string>

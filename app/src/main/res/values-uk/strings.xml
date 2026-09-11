@@ -439,11 +439,13 @@
     <string name="editor_full">Повний редактор</string>
     <string name="look_light">Світло</string>
     <string name="look_exposure">Експозиція</string>
-    <string name="look_brightness">Яскравість</string>
+    <string name="look_whites">Білі</string>
+    <string name="look_blacks">Чорні</string>
     <string name="look_contrast">Контраст</string>
     <string name="look_shadows">Тіні</string>
     <string name="look_highlights">Світлі</string>
     <string name="look_reset_one">Скинути %1$s</string>
+    <string name="look_peek_one">Порівняти %1$s</string>
     <string name="look_compare">Утримуйте, щоб побачити оригінал</string>
     <string name="look_failed">Не вдалося зберегти зміни</string>
     <string name="settings_quality">Формат і якість</string>

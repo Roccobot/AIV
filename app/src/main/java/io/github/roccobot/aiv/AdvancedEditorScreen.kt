@@ -8,11 +8,15 @@ import android.graphics.RectF
 import android.graphics.Shader.TileMode
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculateCentroid
+import androidx.compose.foundation.gestures.calculatePan
+import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,6 +26,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -34,7 +39,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -42,19 +46,32 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.input.pointer.AwaitPointerEventScope
+import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
@@ -77,10 +94,14 @@ import kotlin.math.roundToInt
  * renderebbe 'Annulla' inutilizzabile. Quello che si disfa è un **gesto compiuto**, che è la cosa
  * che l'utente ricorda di aver fatto.
  *
- * ⚠️⚠️ **IL CONFRONTO COL PRIMA È UN TOCCO LUNGO SULL'IMMAGINE**: finché il dito resta giù si
- * vede l'originale, e al rilascio torna il lavoro. È il gesto di ogni editor fotografico, e vale
- * la pena scriverlo perché l'alternativa (un tasto che alterna) lascia in dubbio su quale delle
- * due si stia guardando.
+ * ⚠️⚠️ **I CONFRONTI COL PRIMA SONO DUE, E SONO SUOI** (richiesta del 2026-09-11): il tocco lungo
+ * **sull'immagine** mostra l'originale intero, il tocco lungo **sul nome di un cursore** mostra
+ * l'immagine senza quel solo cursore. Il secondo è quello che serve mentre si lavora, perché
+ * risponde alla domanda che ci si fa muovendo una manopola: *questa, da sola, che cosa sta
+ * facendo?*
+ * - ⚠️ **Il palco non sa fare la sottrazione, e non deve**: a costruire il valore da mostrare è la
+ *   scheda, che ha in mano sia il valore vivo sia il modo di azzerare quel campo. Qui arriva un
+ *   [Look] già fatto, e il palco disegna quello che riceve.
  */
 @Composable
 fun AdvancedEditorScreen(
@@ -126,8 +147,11 @@ fun AdvancedEditorScreen(
     /** Quello che si vede adesso, compreso il movimento di cursore ancora in corso. */
     var look by remember(uri) { mutableStateOf(Look.NONE) }
 
-    /** Se il dito è premuto sull'immagine: si guarda l'originale. */
+    /** Se il dito è premuto sull'immagine: si guarda l'originale intero. */
     var comparing by remember(uri) { mutableStateOf(false) }
+
+    /** Il confronto di un cursore solo: quello che si vede senza di lui, o `null`. */
+    var peek by remember(uri) { mutableStateOf<Look?>(null) }
 
     BackHandler { onBack() }
 
@@ -139,12 +163,11 @@ fun AdvancedEditorScreen(
      * Un passo compiuto entra nella storia, e taglia quello che veniva dopo.
      *
      * ⚠️⚠️ **QUELLO CHE ENTRA È [look], CIOÈ QUELLO CHE SI VEDE, E NON UN VALORE CHE ARRIVA
-     * DAL CURSORE**: un cursore non sa che cosa fanno gli altri quattro, quindi un passo
-     * costruito dal suo solo valore perderebbe tutto il resto. ⚠️ **E [look] si legge qui e
-     * non si cattura**: è una proprietà delegata a uno stato, quindi la lettura è sempre
-     * quella del momento in cui questa funzione gira. Il perché non sia un dettaglio vive
-     * sul parametro `onSettled` di [LookKnob], ed è un difetto che il banco ha preso alla
-     * prima corsa.
+     * DAL CURSORE**: un cursore non sa che cosa fanno gli altri, quindi un passo costruito dal
+     * suo solo valore perderebbe tutto il resto. ⚠️ **E [look] si legge qui e non si cattura**:
+     * è una proprietà delegata a uno stato, quindi la lettura è sempre quella del momento in cui
+     * questa funzione gira. Il perché non sia un dettaglio vive sul parametro `onSettled` di
+     * [LookKnob], ed è un difetto che il banco ha preso alla prima corsa.
      */
     fun push() {
         if (look == history[at]) return
@@ -197,7 +220,7 @@ fun AdvancedEditorScreen(
             } else {
                 LookStage(
                     picture = picture,
-                    look = if (comparing) Look.NONE else look,
+                    look = if (comparing) Look.NONE else peek ?: look,
                     onCompare = { comparing = it },
                     modifier = Modifier.fillMaxSize()
                 )
@@ -212,6 +235,7 @@ fun AdvancedEditorScreen(
             canRedo = at < history.size - 1,
             onLive = { look = it },
             onSettled = { push() },
+            onPeek = { peek = it },
             onUndo = {
                 if (at > 0) {
                     at -= 1
@@ -233,7 +257,7 @@ fun AdvancedEditorScreen(
 }
 
 /**
- * Il palco: l'immagine con il conto applicato sopra.
+ * Il palco: l'immagine con il conto applicato sopra, e lo zoom per guardarne i dettagli.
  *
  * ⚠️⚠️ **IL CONTO SI APPLICA COL PENNELLO E NON CON UN SECONDO BITMAP**: disegnare l'anteprima
  * dentro uno shader costa un solo passaggio sulla scheda grafica a ogni fotogramma, mentre
@@ -243,6 +267,21 @@ fun AdvancedEditorScreen(
  * ⚠️ **A riposo lo shader non si mette affatto**: senza valori da applicare il programma
  * restituirebbe esattamente quello che riceve, e saltarlo è insieme più veloce e la prova che il
  * confronto col prima mostra davvero l'immagine di partenza.
+ *
+ * ⚠️⚠️ **LO ZOOM È DELLA `2.16` ED È UNA SUA RICHIESTA** (campo libero del giro della `2.15`:
+ * *qui capita di lavorare sui dettagli, perciò credo sia necessario che si possa zoomare
+ * nell'immagine che si sta editando*). ⚠️ **Ingrandisce l'ANTEPRIMA e non il file**: quello che
+ * si vede è la riduzione che l'editor decodifica per lavorare in fretta, quindi oltre un certo
+ * ingrandimento si vedono i suoi pixel e non quelli della fotografia. Il tetto è [ZOOM_MAX], e
+ * serve proprio a fermarsi prima che l'immagine diventi un mosaico.
+ *
+ * ⚠️⚠️ **I QUATTRO GESTI VIVONO IN UN RILEVATORE SOLO, E NON È UNA SCELTA DI STILE**: il tocco
+ * lungo del confronto e la pinza nascono dallo stesso dito che scende, quindi scritti in due
+ * `pointerInput` si contenderebbero l'evento. Il caso peggiore non è che un gesto non parta: è
+ * che il confronto si accenda **durante una pinza**, perché `waitForUpOrCancellation` risponde
+ * `null` sia allo scadere del tempo sia a un evento consumato da qualcun altro, e quel `null`
+ * qui vale 'il dito è fermo da mezzo secondo'. Il precedente in casa è la strisciata del
+ * visualizzatore, che per la stessa ragione non ha mai funzionato fino alla `0.22`.
  */
 @Composable
 private fun LookStage(
@@ -252,48 +291,104 @@ private fun LookStage(
     modifier: Modifier = Modifier
 ) {
     val hold = stringResource(R.string.look_compare)
+    var scale by remember(picture) { mutableFloatStateOf(1f) }
+    var shift by remember(picture) { mutableStateOf(Offset.Zero) }
+    val wide = picture.width.toFloat() / picture.height
+
     Canvas(
         modifier = modifier
+            // ⚠️ Ingrandita, l'immagine esce dal proprio riquadro: senza questa riga andrebbe a
+            // finire sopra la testata e sopra la scheda dei cursori.
+            .clipToBounds()
             .semantics { contentDescription = hold }
-            /*
-             * ⚠️⚠️ **IL TOCCO LUNGO SI SCRIVE A MANO E NON CON `detectTapGestures`**: quello
-             * annuncia il tocco lungo **una volta**, mentre qui serve sapere anche **quando il
-             * dito si alza**, cioè per quanto tempo il confronto resta acceso. Con l'altra via
-             * servirebbe un secondo gesto per il rilascio, e i due si contenderebbero l'evento.
-             */
-            .pointerInput(Unit) {
+            .pointerInput(picture) {
+                /**
+                 * Porta lo spostamento dentro i bordi dell'immagine ingrandita.
+                 *
+                 * ⚠️ **Un margine non esiste**: a ingrandimento uno la risposta è zero, cioè
+                 * l'immagine resta centrata e nessuna panoramica la può staccare dal centro.
+                 */
+                fun reined(want: Offset, zoom: Float): Offset {
+                    val room = Size(size.width.toFloat(), size.height.toFloat())
+                    val box = fitted(room, wide)
+                    val slackX = ((box.width() * zoom) - room.width).coerceAtLeast(0f) / 2f
+                    val slackY = ((box.height() * zoom) - room.height).coerceAtLeast(0f) / 2f
+                    return Offset(
+                        want.x.coerceIn(-slackX, slackX),
+                        want.y.coerceIn(-slackY, slackY)
+                    )
+                }
+
                 awaitEachGesture {
-                    awaitFirstDown(requireUnconsumed = false)
-                    val alzato = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
-                        waitForUpOrCancellation()
+                    val down = awaitFirstDown(requireUnconsumed = false)
+                    val middle = Offset(size.width / 2f, size.height / 2f)
+                    /*
+                     * Fase 1: chi vince fra il tempo, il movimento e il secondo dito. Il tempo si
+                     * misura qui e non dentro il ciclo degli eventi, perché un dito **fermo** non
+                     * genera nessun evento: il tocco lungo lo può vedere solo un timeout.
+                     */
+                    val esito = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
+                        settled(down, viewConfiguration.touchSlop)
                     }
-                    if (alzato == null) {
-                        onCompare(true)
-                        waitForUpOrCancellation()
-                        onCompare(false)
+                    when (esito) {
+                        null -> {
+                            onCompare(true)
+                            waitForUpOrCancellation()
+                            onCompare(false)
+                        }
+                        Settled.UP -> {
+                            // Un tocco secco: forse è il primo di due. Il secondo alterna fra
+                            // l'immagine adattata e quella ingrandita sul punto toccato.
+                            val again = withTimeoutOrNull(viewConfiguration.doubleTapTimeoutMillis) {
+                                awaitFirstDown(requireUnconsumed = false)
+                            }
+                            if (again != null) {
+                                again.consume()
+                                if (scale > 1f) {
+                                    scale = 1f
+                                    shift = Offset.Zero
+                                } else {
+                                    val from = again.position - middle
+                                    scale = ZOOM_TAP
+                                    shift = reined(from * (1f - ZOOM_TAP), ZOOM_TAP)
+                                }
+                                waitForUpOrCancellation()
+                            }
+                        }
+                        else -> transformed { centroid, pan, zoom ->
+                            val next = (scale * zoom).coerceIn(1f, ZOOM_MAX)
+                            // Il punto sotto le dita resta fermo: si riscrive lo spostamento
+                            // intorno al centroide, invece di scalare e poi ricentrare.
+                            val grown = next / scale
+                            val from = centroid - middle
+                            scale = next
+                            shift = reined(from + (shift - from) * grown + pan, next)
+                        }
                     }
                 }
             }
     ) {
         val room = size
         if (room.width <= 0f || room.height <= 0f) return@Canvas
-        val wide = picture.width.toFloat() / picture.height
-        val box = if (room.width / room.height > wide) {
-            val h = room.height
-            val w = h * wide
-            RectF((room.width - w) / 2f, 0f, (room.width + w) / 2f, h)
-        } else {
-            val w = room.width
-            val h = w / wide
-            RectF(0f, (room.height - h) / 2f, w, (room.height + h) / 2f)
-        }
+        val box = fitted(room, wide)
+        val middle = Offset(room.width / 2f, room.height / 2f)
+        // Il rettangolo da disegnare: quello adattato, ingrandito attorno al centro del palco e
+        // poi spostato. ⚠️ **Si scala il RETTANGOLO e non la tela**: il pennello porta uno
+        // shader con la sua matrice, e una tela scalata scalerebbe anche quella, cioè
+        // ingrandirebbe il conto invece dell'immagine.
+        val view = RectF(
+            middle.x + (box.left - middle.x) * scale + shift.x,
+            middle.y + (box.top - middle.y) * scale + shift.y,
+            middle.x + (box.right - middle.x) * scale + shift.x,
+            middle.y + (box.bottom - middle.y) * scale + shift.y
+        )
 
         val image = BitmapShader(picture, TileMode.CLAMP, TileMode.CLAMP).apply {
             setLocalMatrix(
                 Matrix().apply {
                     setRectToRect(
                         RectF(0f, 0f, picture.width.toFloat(), picture.height.toFloat()),
-                        box,
+                        view,
                         Matrix.ScaleToFit.FILL
                     )
                 }
@@ -304,9 +399,109 @@ private fun LookStage(
             asFrameworkPaint().isFilterBitmap = true
             asFrameworkPaint().shader = shader ?: image
         }
-        drawIntoCanvas { tela -> tela.drawRect(box.left, box.top, box.right, box.bottom, paint) }
+        drawIntoCanvas { tela -> tela.drawRect(view.left, view.top, view.right, view.bottom, paint) }
     }
 }
+
+/** Come è andata a finire l'attesa di [settled]. */
+private enum class Settled { UP, MOVED, MULTI }
+
+/**
+ * Attende che il dito faccia qualcosa: si alzi, si muova oltre la soglia, o porti un compagno.
+ *
+ * ⚠️ **Non risponde mai se il dito resta fermo**, ed è il suo mestiere: chi la chiama la avvolge
+ * in un timeout, e il timeout scaduto **è** il tocco lungo.
+ */
+private suspend fun AwaitPointerEventScope.settled(
+    down: PointerInputChange,
+    slop: Float
+): Settled {
+    var travel = Offset.Zero
+    while (true) {
+        val event = awaitPointerEvent()
+        if (event.changes.count { it.pressed } > 1) return Settled.MULTI
+        val mine = event.changes.firstOrNull { it.id == down.id } ?: return Settled.UP
+        if (!mine.pressed) return Settled.UP
+        travel += mine.positionChange()
+        if (travel.getDistance() > slop) return Settled.MOVED
+    }
+}
+
+/**
+ * Pinza e panoramica, fino a quando l'ultimo dito si alza.
+ *
+ * ⚠️ **Consuma quello che usa**: qui non c'è nessun altro rilevatore da disturbare, ma un evento
+ * non consumato risale ai genitori, e sopra questo palco vive lo scorrimento della schermata.
+ */
+private suspend fun AwaitPointerEventScope.transformed(
+    onMove: (centroid: Offset, pan: Offset, zoom: Float) -> Unit
+) {
+    var alive = true
+    while (alive) {
+        val event = awaitPointerEvent()
+        val zoom = event.calculateZoom()
+        val pan = event.calculatePan()
+        if (zoom != 1f || pan != Offset.Zero) {
+            onMove(event.calculateCentroid(useCurrent = false), pan, zoom)
+            event.changes.forEach { if (it.positionChanged()) it.consume() }
+        }
+        alive = event.changes.any { it.pressed }
+    }
+}
+
+/**
+ * Il rettangolo in cui un'immagine larga [wide] entra dentro [room] senza deformarsi.
+ *
+ * ⚠️ **La leggono in due, il disegno e il gesto**, ed è la ragione per cui è una funzione: i
+ * limiti della panoramica si contano sull'immagine adattata, quindi due conti scritti in due
+ * posti darebbero una panoramica che si ferma dove l'immagine non finisce.
+ */
+private fun fitted(room: Size, wide: Float): RectF =
+    if (room.width / room.height > wide) {
+        val h = room.height
+        val w = h * wide
+        RectF((room.width - w) / 2f, 0f, (room.width + w) / 2f, h)
+    } else {
+        val w = room.width
+        val h = w / wide
+        RectF(0f, (room.height - h) / 2f, w, (room.height + h) / 2f)
+    }
+
+/**
+ * Un cursore del modulo: il suo nome, come si legge il suo valore e come si riscrive.
+ *
+ * ⚠️⚠️ **I CURSORI SONO UNA TABELLA E NON SEI BLOCCHI COPIATI, DALLA `2.16`**: ognuno porta ora
+ * **tre** gesti (il trascinamento, il doppio tocco che azzera, il tocco lungo che confronta), e
+ * scritti riga per riga sarebbero diciotto occasioni di sbagliarne uno. Con la tabella il
+ * comportamento si scrive **una** volta e un cursore nuovo lo prende per costruzione, che è lo
+ * stesso criterio per cui `Modifier.lowered()` si porta dietro il velo.
+ */
+private class Dial(
+    @param:StringRes val name: Int,
+    val read: (Light) -> Float,
+    val write: (Light, Float) -> Light,
+    val span: Float = 1f,
+    val stops: Boolean = false
+)
+
+/**
+ * I sei cursori del modulo Luce, nell'ordine in cui la scheda li disegna.
+ *
+ * ⚠️⚠️ **È L'ORDINE DEL PANNELLO BASE DI LIGHTROOM, ED È IL SUO RIFERIMENTO** (giro della `2.15`:
+ * *Lightroom ha solo 'Esposizione'*): chi apre questo editor ha in mente quello, quindi un ordine
+ * nostro costringerebbe a cercare ogni volta il cursore che si sa già di voler muovere.
+ */
+private val DIALS = listOf(
+    Dial(
+        R.string.look_exposure, { it.exposure }, { l, v -> l.copy(exposure = v) },
+        span = Light.EXPOSURE_RANGE, stops = true
+    ),
+    Dial(R.string.look_contrast, { it.contrast }, { l, v -> l.copy(contrast = v) }),
+    Dial(R.string.look_highlights, { it.highlights }, { l, v -> l.copy(highlights = v) }),
+    Dial(R.string.look_shadows, { it.shadows }, { l, v -> l.copy(shadows = v) }),
+    Dial(R.string.look_whites, { it.whites }, { l, v -> l.copy(whites = v) }),
+    Dial(R.string.look_blacks, { it.blacks }, { l, v -> l.copy(blacks = v) })
+)
 
 /**
  * La scheda in fondo: i cursori del modulo e i tre comandi della storia.
@@ -325,6 +520,7 @@ private fun LookSheet(
     canRedo: Boolean,
     onLive: (Look) -> Unit,
     onSettled: () -> Unit,
+    onPeek: (Look?) -> Unit,
     onUndo: () -> Unit,
     onRedo: () -> Unit,
     onOriginal: () -> Unit
@@ -353,53 +549,34 @@ private fun LookSheet(
                         WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
                     )
                 )
-                .padding(start = 16.dp, end = 16.dp, top = SHEET_TOP, bottom = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+                .padding(start = 16.dp, end = 16.dp, top = SHEET_TOP, bottom = 10.dp)
         ) {
             Text(
                 text = stringResource(R.string.look_light),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 4.dp).heading()
+                modifier = Modifier.padding(bottom = 2.dp).heading()
             )
 
-            LookKnob(
-                name = stringResource(R.string.look_exposure),
-                value = light.exposure,
-                span = Light.EXPOSURE_RANGE,
-                stops = true,
-                enabled = ready && !busy,
-                onLive = { onLive(look.copy(light = light.copy(exposure = it))) },
-                onSettled = onSettled
-            )
-            LookKnob(
-                name = stringResource(R.string.look_brightness),
-                value = light.brightness,
-                enabled = ready && !busy,
-                onLive = { onLive(look.copy(light = light.copy(brightness = it))) },
-                onSettled = onSettled
-            )
-            LookKnob(
-                name = stringResource(R.string.look_contrast),
-                value = light.contrast,
-                enabled = ready && !busy,
-                onLive = { onLive(look.copy(light = light.copy(contrast = it))) },
-                onSettled = onSettled
-            )
-            LookKnob(
-                name = stringResource(R.string.look_shadows),
-                value = light.shadows,
-                enabled = ready && !busy,
-                onLive = { onLive(look.copy(light = light.copy(shadows = it))) },
-                onSettled = onSettled
-            )
-            LookKnob(
-                name = stringResource(R.string.look_highlights),
-                value = light.highlights,
-                enabled = ready && !busy,
-                onLive = { onLive(look.copy(light = light.copy(highlights = it))) },
-                onSettled = onSettled
-            )
+            DIALS.forEach { knob ->
+                LookKnob(
+                    name = stringResource(knob.name),
+                    value = knob.read(light),
+                    span = knob.span,
+                    stops = knob.stops,
+                    enabled = ready && !busy,
+                    onLive = { onLive(look.copy(light = knob.write(light, it))) },
+                    onSettled = onSettled,
+                    /*
+                     * ⚠️ **Il valore da confrontare si costruisce QUI**, con lo stesso `write` con
+                     * cui il cursore scrive: è l'immagine di adesso con questo solo campo a zero,
+                     * cioè la risposta alla domanda 'questo cursore, da solo, che cosa fa?'.
+                     */
+                    onPeek = { on ->
+                        onPeek(if (on) look.copy(light = knob.write(light, 0f)) else null)
+                    }
+                )
+            }
 
             /*
              * ⚠️⚠️ **TRE ICONE E NON TRE SCRITTE, DALLA `2.15`, ED È IL SUO RISCONTRO** (giro
@@ -413,7 +590,7 @@ private fun LookSheet(
              * sarebbero una fila che si legge in due modi, e 'Originale' il suo glifo ce l'ha già.
              */
             Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
                 horizontalArrangement = Arrangement.End
             ) {
                 IconButton(onClick = onUndo, enabled = canUndo && !busy) {
@@ -433,10 +610,16 @@ private fun LookSheet(
 /**
  * Una riga di cursore: il nome, la barra e il numero.
  *
- * ⚠️⚠️ **IL NUMERO È IL TASTO CHE AZZERA, e non c'è un secondo comando**: in un editor a cursori
- * il gesto che si fa più spesso è 'rimetti questo a zero', e senza una via rapida lo si insegue
- * col dito senza mai centrarlo. Il numero c'è già, è largo abbastanza da toccarlo, e quando il
- * valore è zero non fa niente, quindi non serve nemmeno spegnerlo.
+ * ⚠️⚠️ **IL NUMERO È IL TASTO CHE AZZERA, e non è l'unico dalla `2.16`**: in un editor a cursori
+ * il gesto che si fa più spesso è 'rimetti questo a zero', e adesso lo fanno anche il **doppio
+ * tocco** sul nome, sul tondo e sulla barra (sua richiesta del 2026-09-11). Il numero resta
+ * perché è l'unica delle quattro superfici che si vede da sola, cioè che dice 'sono io il
+ * comando'.
+ *
+ * ⚠️⚠️ **IL TOCCO LUNGO SUL NOME MOSTRA L'IMMAGINE SENZA QUESTO CURSORE** (stessa richiesta:
+ * *ma solo relativo alla modifica dello slider stesso rispetto all'originale*), e vive sul **nome**
+ * e non sulla barra perché la barra ha già il dito sopra mentre si trascina: un tocco lungo là
+ * dentro scatterebbe ogni volta che ci si ferma un istante a guardare.
  *
  * ⚠️ **Due chiamate diverse mentre si trascina e alla fine**: quella continua muove quello che si
  * vede, quella finale scrive un passo nella storia. Vedi la nota sulla pila in
@@ -458,22 +641,28 @@ private fun LookKnob(
     enabled: Boolean,
     onLive: (Float) -> Unit,
     onSettled: () -> Unit,
+    onPeek: (Boolean) -> Unit,
     span: Float = 1f,
     stops: Boolean = false
 ) {
     val zero = stringResource(R.string.look_reset_one, name)
+    val against = stringResource(R.string.look_peek_one, name)
+    val reset = { onLive(0f); onSettled() }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = name,
             style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.width(KNOB_NAME)
+            modifier = Modifier
+                .width(KNOB_NAME)
+                .semantics { contentDescription = against }
+                .heldOrTwice(enabled = enabled, onTwice = reset, onHold = onPeek)
         )
-        Slider(
+        LookDial(
             value = value,
-            onValueChange = onLive,
-            onValueChangeFinished = onSettled,
-            valueRange = -span..span,
+            span = span,
             enabled = enabled,
+            onLive = onLive,
+            onSettled = onSettled,
             modifier = Modifier.weight(1f)
         )
         Text(
@@ -489,9 +678,197 @@ private fun LookKnob(
             else MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .width(KNOB_VALUE)
-                .clickable(enabled = enabled) { onLive(0f); onSettled() }
+                .clickable(enabled = enabled) { reset() }
                 .semantics { contentDescription = zero }
         )
+    }
+}
+
+/**
+ * La barra di un cursore, disegnata in casa.
+ *
+ * ⚠️⚠️ **NON È UNO `Slider` DI MATERIAL, E LE RAGIONI SONO DUE, TUTTE E DUE SUE.** La prima è
+ * l'aspetto (giro della `2.15`, voce `luce-taratura`: *credo che mi piacerebbero di più dei bei
+ * tondi grossi al posto delle barrette verticali Material*), e da sola non basterebbe, perché il
+ * pezzo di Material accetta un tondo scritto da noi. La seconda è il **doppio tocco che azzera**:
+ * uno `Slider` risponde al primo tocco saltando al punto, quindi il primo dei due toccherebbe il
+ * cursore e scriverebbe un passo nella storia che nessuno ha chiesto. Qui il salto si scrive dopo
+ * che il doppio tocco è stato escluso, e chi tocca due volte ottiene **un** passo solo.
+ *
+ * ⚠️ **Il trascinamento invece non aspetta niente**: appena il dito supera la soglia si muove, e
+ * il doppio tocco non è più possibile. Il ritardo esiste solo per il tocco secco, dove si misura
+ * in una frazione di secondo e non si vede, perché il valore si è già mosso.
+ *
+ * ⚠️⚠️ **L'AZIONE SEMANTICA NON È UN DI PIÙ**: senza `setProgress` questo cursore sarebbe muto per
+ * un lettore di schermo e invisibile al banco di prova, che i cursori li muove **da lì**. Chi
+ * riscrive questo pezzo la tenga: costa tre righe e senza di lei `LuceTest` non misura niente.
+ */
+@Composable
+private fun LookDial(
+    value: Float,
+    span: Float,
+    enabled: Boolean,
+    onLive: (Float) -> Unit,
+    onSettled: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val ink = MaterialTheme.colorScheme.primary
+    val rail = MaterialTheme.colorScheme.surfaceVariant
+    val mark = MaterialTheme.colorScheme.outline
+    val face = MaterialTheme.colorScheme.surfaceContainerHigh
+    val faded = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+    /*
+     * ⚠️⚠️ **IL VALORE SI LEGGE VIVO E NON SI CATTURA, ED È LO STESSO DIFETTO DEL PASSO DELLA
+     * `2.14`**: il corpo di un `pointerInput` si ricostruisce solo quando cambiano le sue chiavi,
+     * quindi il parametro di questa funzione resterebbe quello della prima composizione. Serve a
+     * sapere **dov'è il tondo** quando il dito scende: con un valore stantio, un tocco sul
+     * tondo verrebbe letto come un tocco lontano, e il cursore salterebbe dove il dito non ha
+     * chiesto di andare.
+     */
+    val live by rememberUpdatedState(value)
+
+    Canvas(
+        modifier = modifier
+            .height(DIAL_ROW)
+            .semantics {
+                progressBarRangeInfo = ProgressBarRangeInfo(value, -span..span)
+                if (enabled) {
+                    setProgress { target ->
+                        onLive(target.coerceIn(-span, span))
+                        onSettled()
+                        true
+                    }
+                }
+            }
+            .pointerInput(enabled, span) {
+                if (!enabled) return@pointerInput
+                val knob = DIAL_KNOB.toPx()
+                /** Il valore che corrisponde a una posizione del dito. */
+                fun valueAt(x: Float): Float {
+                    val run = (size.width - 2f * knob).coerceAtLeast(1f)
+                    val part = ((x - knob) / run).coerceIn(0f, 1f)
+                    return -span + part * 2f * span
+                }
+
+                awaitEachGesture {
+                    val down = awaitFirstDown()
+                    down.consume()
+                    // Il tondo sta dove dice il valore: toccando lontano da lui si salta subito,
+                    // toccandolo si trascina da dove è.
+                    val run = (size.width - 2f * knob).coerceAtLeast(1f)
+                    val here = knob + ((live + span) / (2f * span)) * run
+                    var dragging = abs(down.position.x - here) > knob
+                    if (dragging) onLive(valueAt(down.position.x))
+
+                    var alive = true
+                    var moved = false
+                    while (alive) {
+                        val event = awaitPointerEvent()
+                        val mine = event.changes.firstOrNull { it.id == down.id }
+                        if (mine == null || !mine.pressed) {
+                            alive = false
+                        } else if (mine.positionChanged()) {
+                            if (!dragging &&
+                                abs(mine.position.x - down.position.x) > viewConfiguration.touchSlop
+                            ) {
+                                dragging = true
+                            }
+                            if (dragging) {
+                                moved = true
+                                onLive(valueAt(mine.position.x))
+                            }
+                            mine.consume()
+                        }
+                    }
+
+                    if (moved) {
+                        onSettled()
+                    } else {
+                        /*
+                         * ⚠️ **Il passo aspetta di sapere se erano due tocchi**: scritto subito,
+                         * un doppio tocco lascerebbe nella storia il salto del primo, cioè un
+                         * valore che nessuno voleva e che 'Annulla' riporterebbe indietro.
+                         */
+                        val again = withTimeoutOrNull(viewConfiguration.doubleTapTimeoutMillis) {
+                            awaitFirstDown()
+                        }
+                        if (again == null) {
+                            onSettled()
+                        } else {
+                            again.consume()
+                            onLive(0f)
+                            onSettled()
+                            waitForUpOrCancellation()
+                        }
+                    }
+                }
+            }
+    ) {
+        val knob = DIAL_KNOB.toPx()
+        val thick = DIAL_RAIL.toPx()
+        val middle = size.height / 2f
+        val run = (size.width - 2f * knob).coerceAtLeast(1f)
+        val part = (value + span) / (2f * span)
+        val at = knob + part * run
+        val zero = knob + 0.5f * run
+        val hot = if (enabled) ink else faded
+        val dead = if (enabled) rail else rail.copy(alpha = 0.5f)
+
+        drawLine(
+            dead, Offset(knob, middle), Offset(size.width - knob, middle), thick,
+            cap = StrokeCap.Round
+        )
+        // Il tratto acceso parte dallo zero, perché questi cursori sono bipolari: un pieno che
+        // partisse da sinistra direbbe che il valore neutro è già mezzo acceso.
+        drawLine(hot, Offset(zero, middle), Offset(at, middle), thick, cap = StrokeCap.Round)
+        // La tacca dello zero, che il tondo copre quando è al centro: senza, il valore neutro si
+        // trova solo guardando il numero.
+        drawLine(
+            if (enabled) mark else faded,
+            Offset(zero, middle - thick),
+            Offset(zero, middle + thick),
+            DIAL_ZERO.toPx()
+        )
+        // Un alone del colore del pannello sotto il tondo, così il tondo stacca dalla barra senza
+        // bisogno di un'ombra.
+        drawCircle(face, knob, Offset(at, middle))
+        drawCircle(hot, knob - DIAL_RING.toPx(), Offset(at, middle))
+    }
+}
+
+/**
+ * Il doppio tocco e il dito premuto, su una superficie che non è un tasto.
+ *
+ * ⚠️⚠️ **NON SI OTTIENE CON `detectTapGestures`, e la ragione è il RILASCIO**: quel rilevatore
+ * annuncia il tocco lungo una volta e non dice più niente, mentre qui il confronto deve durare
+ * *fino a che il dito si alza*. Con l'altra strada servirebbe un secondo gesto per il rilascio, e
+ * i due si contenderebbero l'evento.
+ */
+private fun Modifier.heldOrTwice(
+    enabled: Boolean,
+    onTwice: () -> Unit,
+    onHold: (Boolean) -> Unit
+): Modifier = this.pointerInput(enabled) {
+    if (!enabled) return@pointerInput
+    awaitEachGesture {
+        val down = awaitFirstDown()
+        down.consume()
+        val esito = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
+            settled(down, viewConfiguration.touchSlop)
+        }
+        if (esito == null) {
+            onHold(true)
+            waitForUpOrCancellation()
+            onHold(false)
+            return@awaitEachGesture
+        }
+        if (esito != Settled.UP) return@awaitEachGesture
+        val again = withTimeoutOrNull(viewConfiguration.doubleTapTimeoutMillis) { awaitFirstDown() }
+        if (again != null) {
+            again.consume()
+            onTwice()
+            waitForUpOrCancellation()
+        }
     }
 }
 
@@ -500,3 +877,40 @@ private val KNOB_NAME = 96.dp
 
 /** Quanto è larga la colonna del numero: ci deve stare `-100` col segno. */
 private val KNOB_VALUE = 48.dp
+
+/**
+ * L'altezza di una riga di cursore.
+ *
+ * ⚠️ **È l'area di tocco e non l'altezza del disegno**: il tondo è alto la metà, e il resto serve
+ * perché il dito prenda la barra senza centrarla.
+ */
+private val DIAL_ROW = 40.dp
+
+/** Il raggio del tondo, che è la misura che lui ha chiesto di far crescere. */
+private val DIAL_KNOB = 11.dp
+
+/** Lo spessore della barra. */
+private val DIAL_RAIL = 4.dp
+
+/** Quanto il tondo si stacca dal pannello: è l'alone che sostituisce un'ombra. */
+private val DIAL_RING = 2.dp
+
+/** Lo spessore della tacca dello zero. */
+private val DIAL_ZERO = 1.5.dp
+
+/**
+ * Dove arriva il doppio tocco sull'immagine.
+ *
+ * ⚠️ **Due volte e non di più**: il doppio tocco serve a guardare un dettaglio in un colpo, e da
+ * lì si continua con le dita. Un salto più lungo porterebbe quasi sempre fuori dal punto voluto.
+ */
+private const val ZOOM_TAP = 2f
+
+/**
+ * Il tetto dell'ingrandimento.
+ *
+ * ⚠️ **Lo decide l'anteprima e non il gusto**: quello che si vede è la riduzione con cui l'editor
+ * lavora in fretta, quindi oltre questo ingrandimento si guarderebbero i pixel di quella e non
+ * quelli della fotografia.
+ */
+private const val ZOOM_MAX = 6f

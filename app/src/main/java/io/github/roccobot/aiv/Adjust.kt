@@ -41,24 +41,38 @@ import kotlin.math.pow
  */
 
 /**
- * Il modulo **Luce**: i cinque valori che dicono quanta luce ha un'immagine e come è distribuita.
+ * Il modulo **Luce**: i sei valori che dicono quanta luce ha un'immagine e come è distribuita.
  *
- * ⚠️⚠️ **SONO CINQUE PERCHÉ FANNO COSE DIVERSE, e chi ne toglie uno perde un gesto**: [exposure]
- * moltiplica la luce (è il diaframma), [brightness] la solleva senza bruciare i chiari, [contrast]
- * allarga o stringe la distanza fra scuri e chiari intorno al grigio medio, [shadows] e
- * [highlights] agiscono **solo** su un'estremità. Le prime tre toccano tutto, le ultime due
- * recuperano quello che le prime tre hanno schiacciato.
+ * ⚠️⚠️ **SONO I SEI DEL PANNELLO BASE DI LIGHTROOM, NELLO STESSO ORDINE, DALLA `2.16`, ED È IL SUO
+ * RISCONTRO** (giro della `2.15`, voce `luce-taratura` accettabile: *'Luminosità', oltre a
+ * confondermi (Lightroom ha solo 'Esposizione'), è anche ben poco 'smart' dato che l'output va da
+ * 100% nero a 100% bianco*). Fino alla `2.15` erano cinque, e uno era **Luminosità**: un passo
+ * additivo verso il bianco o verso il nero, che al fondo della corsa dava esattamente il
+ * rettangolo bianco o nero che lui ha descritto. Al suo posto entrano i due che mancavano,
+ * [whites] e [blacks], che spostano i **punti** dell'intervallo tonale invece di spingerci dentro
+ * tutta l'immagine.
+ * - ⚠️ **Non è una sostituzione alla pari, ed è la ragione per cui sono due**: la luminosità
+ *   toccava tutto allo stesso modo, i punti toccano gli estremi e lasciano stare il resto. Quello
+ *   che 'Luminosità' faceva bene lo fa [exposure], che è il cursore che Lightroom ha al suo posto.
+ *
+ * ⚠️⚠️ **OGNUNO FA UNA COSA CHE GLI ALTRI NON SANNO FARE**: [exposure] moltiplica la luce (è il
+ * diaframma), [contrast] allarga o stringe la distanza fra scuri e chiari intorno al grigio medio,
+ * [highlights] e [shadows] **recuperano** una fascia larga a un'estremità, [whites] e [blacks]
+ * spostano il punto in cui l'immagine diventa bianca o nera. Le prime due toccano tutto, le altre
+ * quattro lavorano su un'estremità, e le due coppie si distinguono per **quanto sono larghe**: una
+ * fascia contro un punto.
  *
  * ⚠️ **L'unità di [exposure] è lo STOP**, cioè quella della fotografia: +1 vuol dire il doppio
- * della luce, -1 la metà. Gli altri quattro sono frazioni da -1 a +1, e l'interfaccia li mostra da
+ * della luce, -1 la metà. Gli altri cinque sono frazioni da -1 a +1, e l'interfaccia li mostra da
  * -100 a +100 perché è il linguaggio che lui conosce da Lightroom.
  */
 data class Light(
     val exposure: Float = 0f,
-    val brightness: Float = 0f,
     val contrast: Float = 0f,
+    val highlights: Float = 0f,
     val shadows: Float = 0f,
-    val highlights: Float = 0f
+    val whites: Float = 0f,
+    val blacks: Float = 0f
 ) {
 
     /**
@@ -70,8 +84,8 @@ data class Light(
      * nemmeno un livello su 255.
      */
     val idle: Boolean
-        get() = abs(exposure) < DEAD && abs(brightness) < DEAD && abs(contrast) < DEAD &&
-            abs(shadows) < DEAD && abs(highlights) < DEAD
+        get() = abs(exposure) < DEAD && abs(contrast) < DEAD && abs(highlights) < DEAD &&
+            abs(shadows) < DEAD && abs(whites) < DEAD && abs(blacks) < DEAD
 
     /**
      * Il fattore per cui si moltiplica la luce, cioè due elevato agli stop.
@@ -156,16 +170,17 @@ enum class Quality(override val token: String) : Choice {
 /**
  * Il programma che gira **su ogni pixel** dell'immagine.
  *
- * ⚠️⚠️ **L'ORDINE DELLE CINQUE OPERAZIONI È LA SPECIFICA, e cambiarlo cambia il risultato**:
- * esposizione, poi ombre e luci, poi contrasto, poi luminosità. È l'ordine di un banco di sviluppo
- * fotografico, e la ragione di ognuno dei tre passaggi:
+ * ⚠️⚠️ **L'ORDINE DELLE SEI OPERAZIONI È LA SPECIFICA, e cambiarlo cambia il risultato**:
+ * esposizione, poi ombre e luci, poi i punti di bianco e di nero, poi il contrasto. È l'ordine di
+ * un banco di sviluppo fotografico, e la ragione di ognuno dei passaggi:
  * - **L'esposizione viene prima** perché è l'unica moltiplicativa pura: è come aver aperto di più
  *   il diaframma, quindi tutto quello che segue lavora sull'immagine 'come sarebbe stata'.
  * - **Ombre e luci vengono prima del contrasto** perché servono a **recuperare** quello che
  *   l'esposizione ha schiacciato, e il contrasto deve poi lavorare su un'immagine già recuperata.
  *   Al contrario, si recupererebbe quello che il contrasto ha appena bruciato.
- * - **La luminosità viene ultima** perché è l'aggiustamento finale dell'occhio: è la manopola che
- *   si tocca guardando il risultato, non una che entra nel conto degli altri.
+ * - **I punti vengono prima del contrasto** perché dichiarano **dove finisce** l'immagine, e la
+ *   curva a S lavora dentro l'intervallo che quei due estremi definiscono. Al contrario, i punti
+ *   taglierebbero i toni che la curva ha appena creato.
  *
  * ⚠️⚠️ **IL CONTRASTO HA UN PERNO E NON È UNA MOLTIPLICAZIONE**: `(c - 0.5) * k + 0.5` fatto in
  * lineare sposterebbe il grigio medio, perché il grigio medio in luce lineare **non** è 0,5 ma
@@ -175,18 +190,30 @@ enum class Quality(override val token: String) : Choice {
  * brucia i bianchi e chiude i neri. La forma qui sotto tende agli estremi senza toccarli mai,
  * quindi alzando il contrasto al massimo non si perde nessun dettaglio.
  *
- * ⚠️⚠️ **OMBRE E LUCI PESANO SU UNA MASCHERA, ed è quello che le distingue dalla luminosità**: la
+ * ⚠️⚠️ **OMBRE E LUCI PESANO SU UNA MASCHERA, ed è quello che le distingue dai punti**: la
  * maschera vale uno dove il pixel è scuro (per le ombre) o chiaro (per le luci) e si spegne
  * dall'altra parte. Elevata al quadrato, la transizione è morbida: con una maschera lineare il
  * confine fra la zona toccata e quella no si vede come un alone.
+ *
+ * ⚠️⚠️ **I PUNTI DI BIANCO E DI NERO SONO UNA RIMAPPATURA LINEARE, cioè i livelli in ingresso, e
+ * per questo non possono appiattire l'immagine**: si spostano i due estremi dell'intervallo e si
+ * ridistribuisce quello che c'è in mezzo. Al fondo della corsa si perde **un quarto** della scala
+ * da una parte, e il resto dei toni resta distribuito: è la differenza col cursore che questo
+ * conto aveva fino alla `2.15`, dove l'estremo era il bianco pieno o il nero pieno.
  */
 internal const val LIGHT_AGSL = """
 uniform shader image;
 uniform half gain;
-uniform half brightness;
 uniform half contrast;
-uniform half shadows;
 uniform half highlights;
+uniform half shadows;
+uniform half whites;
+uniform half blacks;
+
+// Di quanto si sposta al massimo un punto, cioè un quarto della scala per parte. Il numero
+// decide quanto è forte il cursore, e a un quarto l'intervallo più stretto che si può chiedere
+// vale comunque metà scala: non esiste un valore dei due cursori che dia un'immagine piatta.
+const half POINT_SHIFT = 0.25;
 
 // Da sRGB a luce lineare, con la curva vera e non con un'elevazione a 2.2: la parte bassa
 // della curva sRGB è un segmento di retta, e approssimarla con una potenza sbaglia proprio sui
@@ -258,17 +285,20 @@ half4 main(float2 p) {
     // a lui: nessun cursore muoveva l'immagine, perché il programma non esisteva.
     half3 rgb = toSrgb(clamp(lin, half3(0.0), half3(1.0)));
 
-    // 3. Contrasto: sul valore percettivo, che è dove una curva a S si comporta come l'occhio
+    // 3. Punti di bianco e di nero: l'intervallo tonale si ridefinisce spostando i suoi due
+    // estremi, e quello che c'è in mezzo si ridistribuisce fra loro.
+    // ⚠️ **I due cursori vanno in versi opposti di proposito**: alzando i neri l'immagine si
+    // apre (il punto scende sotto lo zero e nessun tono arriva più al nero), alzando i bianchi
+    // si chiude verso l'alto (il punto scende sotto l'uno e i chiari arrivano al bianco). È il
+    // verso che hanno in un pannello di livelli, ed è quello che lui conosce.
+    half floorAt = -blacks * POINT_SHIFT;
+    half ceilAt = half(1.0) - whites * POINT_SHIFT;
+    rgb = (rgb - half3(floorAt)) / (ceilAt - floorAt);
+    rgb = clamp(rgb, half3(0.0), half3(1.0));
+
+    // 4. Contrasto: sul valore percettivo, che è dove una curva a S si comporta come l'occhio
     // si aspetta. In lineare la stessa curva sposterebbe tutto verso i neri.
     rgb = half3(sCurve(rgb.r, contrast), sCurve(rgb.g, contrast), sCurve(rgb.b, contrast));
-
-    // 4. Luminosità: solleva verso il bianco o abbassa verso il nero senza mai tagliare,
-    // perché il passo è una frazione di quanto manca all'estremo.
-    if (brightness > half(0.0)) {
-        rgb = rgb + (half3(1.0) - rgb) * brightness;
-    } else {
-        rgb = rgb * (half(1.0) + brightness);
-    }
 
     rgb = clamp(rgb, half3(0.0), half3(1.0));
     return half4(rgb * a, a);
@@ -311,10 +341,11 @@ private fun lightOver(image: Shader, light: Light): Shader =
     RuntimeShader(LIGHT_AGSL).apply {
         setInputShader("image", image)
         setFloatUniform("gain", light.gain)
-        setFloatUniform("brightness", light.brightness)
         setFloatUniform("contrast", light.contrast)
-        setFloatUniform("shadows", light.shadows)
         setFloatUniform("highlights", light.highlights)
+        setFloatUniform("shadows", light.shadows)
+        setFloatUniform("whites", light.whites)
+        setFloatUniform("blacks", light.blacks)
     }
 
 /**

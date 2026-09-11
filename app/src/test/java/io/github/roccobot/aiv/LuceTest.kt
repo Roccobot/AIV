@@ -8,16 +8,23 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color as InkColor
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
@@ -68,9 +75,9 @@ class LuceTest {
     @Test
     fun `sotto la soglia il modulo e a riposo`() {
         assertTrue(Light.NONE.idle)
-        assertTrue(Light(brightness = 0.0001f).idle)
+        assertTrue(Light(whites = 0.0001f).idle)
         assertTrue(Light(exposure = -0.0004f).idle)
-        assertFalse(Light(brightness = 0.01f).idle)
+        assertFalse(Light(blacks = 0.01f).idle)
         assertFalse(Light(highlights = -0.01f).idle)
     }
 
@@ -121,7 +128,7 @@ class LuceTest {
 
         banco.onNodeWithContentDescription(testo(R.string.editor_undo)).assertIsNotEnabled()
 
-        muovi(LUMINOSITA, 0.5f)
+        muovi(CONTRASTO, 0.5f)
 
         assertEquals(
             "Il cursore non ha mosso l'anteprima",
@@ -145,7 +152,7 @@ class LuceTest {
         banco.setContent { Scena(onSave = { salvato = it }) }
         banco.waitForIdle()
 
-        muovi(LUMINOSITA, 0.5f)
+        muovi(CONTRASTO, 0.5f)
 
         banco.onNodeWithContentDescription(testo(R.string.editor_undo)).performClick()
         banco.waitForIdle()
@@ -162,7 +169,7 @@ class LuceTest {
         banco.onNodeWithText(testo(R.string.editor_save)).performClick()
         banco.waitForIdle()
         assertNotNull("'Salva' non ha consegnato niente", salvato)
-        assertEquals(0.5f, salvato?.light?.brightness ?: 0f, 1e-4f)
+        assertEquals(0.5f, salvato?.light?.contrast ?: 0f, 1e-4f)
     }
 
     /**
@@ -178,12 +185,12 @@ class LuceTest {
         banco.setContent { Scena() }
         banco.waitForIdle()
 
-        muovi(LUMINOSITA, 0.5f)
+        muovi(CONTRASTO, 0.5f)
         banco.onNodeWithContentDescription(testo(R.string.editor_undo)).performClick()
         banco.waitForIdle()
         banco.onNodeWithContentDescription(testo(R.string.editor_redo)).assertIsEnabled()
 
-        muovi(CONTRASTO, 0.25f)
+        muovi(OMBRE, 0.25f)
 
         banco.onNodeWithContentDescription(testo(R.string.editor_redo)).assertIsNotEnabled()
         assertEquals("Il passo nuovo non è quello che si vede", 1, quanti("+25"))
@@ -201,9 +208,9 @@ class LuceTest {
         banco.setContent { Scena() }
         banco.waitForIdle()
 
-        muovi(LUMINOSITA, 0.5f)
+        muovi(CONTRASTO, 0.5f)
 
-        val azzera = testo(R.string.look_reset_one, testo(R.string.look_brightness))
+        val azzera = testo(R.string.look_reset_one, testo(R.string.look_contrast))
         banco.onNodeWithContentDescription(azzera).performClick()
         banco.waitForIdle()
         assertEquals("Il numero non ha azzerato il cursore", 0, quanti("+50"))
@@ -228,8 +235,8 @@ class LuceTest {
         banco.setContent { Scena() }
         banco.waitForIdle()
 
-        muovi(LUMINOSITA, 0.5f)
-        muovi(CONTRASTO, 0.25f)
+        muovi(CONTRASTO, 0.5f)
+        muovi(OMBRE, 0.25f)
 
         banco.onNodeWithContentDescription(testo(R.string.editor_original)).performClick()
         banco.waitForIdle()
@@ -262,8 +269,114 @@ class LuceTest {
         banco.waitForIdle()
 
         banco.onNodeWithText(testo(R.string.editor_save)).assertIsNotEnabled()
-        muovi(LUMINOSITA, 0.5f)
+        muovi(CONTRASTO, 0.5f)
         banco.onNodeWithText(testo(R.string.editor_save)).assertIsEnabled()
+    }
+
+    /**
+     * **Caso 10: il doppio tocco sul nome azzera il suo cursore, e resta un passo.**
+     *
+     * ⚠️⚠️ **È LA SUA RICHIESTA DEL 2026-09-11** (*per ogni slider (non solo 'luci'): doppio tocco
+     * sul nome, sul cursore o sul percorso = reset dello slider*), e il banco la misura sul
+     * **nome** e sulla **barra**, che sono le due superfici con due gesti addosso: il nome porta
+     * anche il tocco lungo del confronto, la barra anche il trascinamento.
+     */
+    @Test
+    fun `il doppio tocco sul nome azzera il suo cursore`() {
+        banco.setContent { Scena() }
+        banco.waitForIdle()
+
+        muovi(CONTRASTO, 0.5f)
+
+        banco.onNodeWithContentDescription(
+            testo(R.string.look_peek_one, testo(R.string.look_contrast))
+        ).performTouchInput { doubleClick() }
+        banco.waitForIdle()
+        assertEquals("Il doppio tocco sul nome non ha azzerato il cursore", 0, quanti("+50"))
+
+        banco.onNodeWithContentDescription(testo(R.string.editor_undo)).performClick()
+        banco.waitForIdle()
+        assertEquals(
+            "L'azzeramento non era un passo: 'Annulla' non lo ha disfatto",
+            1,
+            quanti("+50")
+        )
+    }
+
+    /**
+     * **Caso 11: e il doppio tocco sulla barra fa la stessa cosa, con UN passo solo.**
+     *
+     * ⚠️⚠️ **IL PASSO UNICO È LA MISURA CHE VALE**, ed è la ragione per cui la barra non è più uno
+     * `Slider` di Material: quello salta al punto al **primo** dei due tocchi, quindi la storia si
+     * riempirebbe di un valore che nessuno ha chiesto e 'Annulla' tornerebbe là invece che al
+     * lavoro di prima. Qui si misura che un 'Annulla' solo riporti al valore mosso.
+     */
+    @Test
+    fun `il doppio tocco sulla barra azzera senza lasciare passi in mezzo`() {
+        banco.setContent { Scena() }
+        banco.waitForIdle()
+
+        muovi(CONTRASTO, 0.5f)
+
+        /*
+         * ⚠️⚠️ **IL TOCCO VA A UN QUARTO DELLA BARRA E NON AL CENTRO, ED È LA CONTROPROVA CHE LO
+         * HA DETTO**: al centro della barra c'è lo zero, quindi il salto del primo tocco
+         * porterebbe proprio dove il doppio tocco vuole arrivare, e la prova resterebbe verde
+         * anche col passo di troppo rimesso. A un quarto il passo intermedio vale -50, e
+         * 'Annulla' lo trova.
+         */
+        banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[CONTRASTO]
+            .performTouchInput { doubleClick(Offset(width * 0.25f, height / 2f)) }
+        banco.waitForIdle()
+        assertEquals("Il doppio tocco sulla barra non ha azzerato il cursore", 0, quanti("+50"))
+
+        banco.onNodeWithContentDescription(testo(R.string.editor_undo)).performClick()
+        banco.waitForIdle()
+        assertEquals(
+            "Fra il valore mosso e l'azzeramento è rimasto un passo che nessuno ha chiesto",
+            1,
+            quanti("+50")
+        )
+    }
+
+    /**
+     * **Caso 12: il doppio tocco sull'immagine la ingrandisce.**
+     *
+     * ⚠️⚠️ **SI GUARDANO I PIXEL, PERCHÉ NON C'È ALTRO DA GUARDARE**: lo zoom vive dentro un
+     * `Canvas`, quindi nell'albero non cambia niente e una prova di struttura sarebbe verde con e
+     * senza la funzione. Qui si conta quanto bianco copre l'immagine prima e dopo il gesto.
+     * ⚠️ **Che cosa NON vede**: la pinza a due dita e la panoramica, che vogliono due puntatori e
+     * una scena con una misura vera; e la resa dell'ingrandimento, che si guarda sul telefono.
+     */
+    @Test
+    fun `il doppio tocco sull'immagine la ingrandisce`() {
+        banco.setContent { Scena() }
+        banco.waitForIdle()
+
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        val prima = bianchi(palco)
+        assertTrue("La scena non mostra l'immagine: non c'è niente da misurare", prima > 0)
+
+        palco.performTouchInput { doubleClick() }
+        banco.waitForIdle()
+
+        val dopo = bianchi(palco)
+        assertTrue(
+            "Il doppio tocco non ha ingrandito l'immagine: $prima pixel prima, $dopo dopo",
+            dopo > prima
+        )
+    }
+
+    /** Quanti pixel bianchi copre il nodo: è l'immagine finta, su un fondo che bianco non è. */
+    private fun bianchi(nodo: SemanticsNodeInteraction): Int {
+        val pixel = nodo.captureToImage().toPixelMap()
+        var conto = 0
+        for (y in 0 until pixel.height) {
+            for (x in 0 until pixel.width) {
+                if (pixel[x, y] == InkColor.White) conto += 1
+            }
+        }
+        return conto
     }
 
     /**
@@ -328,14 +441,14 @@ class LuceTest {
 /**
  * Quale riga occupano i due cursori che queste prove muovono.
  *
- * ⚠️ **Si contano nell'ordine in cui la scheda li disegna**, che è quello del banco di sviluppo
- * dichiarato in `Adjust.kt`: esposizione, luminosità, contrasto, ombre, luci. ⚠️ **Non è
+ * ⚠️ **Si contano nell'ordine in cui la scheda li disegna**, che dalla `2.16` è quello del
+ * pannello Base di Lightroom: esposizione, contrasto, luci, ombre, bianchi, neri. ⚠️ **Non è
  * l'esposizione** quella che si muove, e non è un caso: il suo numero si scrive con due decimali e
  * il separatore decimale dipende dalla lingua della macchina, quindi una prova che lo leggesse
  * sarebbe rossa o verde a seconda di dove gira.
  */
-private const val LUMINOSITA = 1
-private const val CONTRASTO = 2
+private const val CONTRASTO = 1
+private const val OMBRE = 3
 
 /** Il lato del quadrato finto: piccolo, perché di lui serve solo che esista. */
 private const val LATO = 64

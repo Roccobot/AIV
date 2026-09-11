@@ -391,11 +391,13 @@
     <string name="editor_full">フル編集</string>
     <string name="look_light">光</string>
     <string name="look_exposure">露出</string>
-    <string name="look_brightness">明るさ</string>
+    <string name="look_whites">白レベル</string>
+    <string name="look_blacks">黒レベル</string>
     <string name="look_contrast">コントラスト</string>
     <string name="look_shadows">シャドウ</string>
     <string name="look_highlights">ハイライト</string>
     <string name="look_reset_one">%1$s をリセット</string>
+    <string name="look_peek_one">%1$s を比較</string>
     <string name="look_compare">長押しで元の画像を表示</string>
     <string name="look_failed">変更を保存できませんでした</string>
     <string name="settings_quality">形式と画質</string>
