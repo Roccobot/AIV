@@ -5,6 +5,13 @@
      quella davanti, e il verso conta: spostare vuol dire che l'originale non resta dov'era,
      quindi la cartella che si svuota è quella da cui si parte, cioè quella in fondo.
 
+     RIDISEGNATO DA LUI PER LA 2.12, ED È LA SUA SECONDA VERSIONE: la prima sfondava il fianco
+     destro della cartella con la freccia, questa la tiene tutta dentro e col tratto della
+     cartella. Prima il glifo si distingueva da 'Copia' per il solo tratteggio, adesso la
+     freccia dice il verso. Misurato: 2.388 pixel diversi su 57.600, cioè il 4,1%, con
+     l'inchiostro che cresce del 24%, e le due versioni che ha mandato distano fra loro il
+     6,3%, cioè più di quanto questa disti dal glifo che sostituisce.
+
      I TRATTINI SONO PEZZI DI TRACCIATO, e non un tratteggio: un vettore di Android non
      conosce `stroke-dasharray`, quindi non esiste altro modo. Qui non si vede perché l'icona
      è piena e i trattini sono già cinque dei suoi sette sottotracciati. Fino alla 0.80, che
@@ -21,5 +28,5 @@
     <path
         android:fillColor="#FF000000"
         android:fillType="nonZero"
-        android:pathData="M3,11.91H1v4.42h2v-4.42ZM2.6,6h0c-.88,0,-1.6,.72,-1.6,1.6v2.82h2v-4.02c0,-.22,-.18,-.4,-.4,-.4ZM3,17.82H1v1.18c0,1.1,.9,2,2,2h3.18v-2h-3.18v-1.18ZM14.58,21h3.82c.88,0,1.6,-.72,1.6,-1.6h0c0,-.22,-.18,-.4,-.4,-.4h-5.02v2ZM7.67,21h5.42v-2h-5.42v2ZM21,4h-7l-2,-2h-5c-1.1,0,-1.99,.9,-1.99,2v11c-.01,1.1,.89,2,1.99,2h14c1.1,0,2,-.9,2,-2V6c0,-1.1,-.9,-2,-2,-2ZM21,15H7V4h4.17l2,2h7.83v9Z" />
+        android:pathData="M3,17.82H1v1.18c0,1.1,.9,2,2,2h3.18v-2h-3.18v-1.18ZM7.67,21h5.42v-2h-5.42v2ZM3,11.91H1v4.42h2v-4.42ZM3,6.4c0,-.22,-.18,-.4,-.4,-.4c-.88,0,-1.6,.72,-1.6,1.6v2.82h2v-4.02ZM21,4h-7l-2,-2h-5c-1.1,0,-1.99,.9,-1.99,2v11c-.01,1.1,.89,2,1.99,2h14c1.1,0,2,-.9,2,-2V6c0,-1.1,-.9,-2,-2,-2ZM21,15H7V4h4.17l2,2h7.83v9ZM19.6,19h-5.02v2h3.82c.88,0,1.6,-.72,1.6,-1.6c0,-.22,-.18,-.4,-.4,-.4ZM13.39,8.7l.8,.82h-3.36c-.5,0,-.91,.41,-.91,.91s.41,.91,.91,.91h3.36l-.79,.79c-.18,.18,-.27,.4,-.27,.65s.09,.47,.27,.65c.18,.17,.4,.25,.65,.25s.46,-.08,.62,-.25l2.36,-2.36c.18,-.18,.27,-.39,.27,-.64s-.09,-.45,-.27,-.64l-2.34,-2.36c-.17,-.18,-.37,-.27,-.62,-.26c-.25,0,-.47,.09,-.65,.26c-.18,.18,-.28,.39,-.28,.64c0,.24,.08,.45,.26,.64Z" />
 </vector>

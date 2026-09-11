@@ -2229,18 +2229,27 @@ da che parte cade dipende da quando l'app è arrivata sul telefono.
   un'installazione nuova, e là arriva la cornice. Sono i telefoni su cui l'app è stata installata
   e mai aperta.
 
-⚠️⚠️ **IL COLORE È `accentInk` E NON IL NUMERO CHE HA SCRITTO, E I DUE COINCIDONO DOVE LUI
-GUARDAVA**: `#4FD9BE` è esattamente l'accento leggibile del tema scuro (`LINK_DARK` in `Theme.kt`),
-cioè il colore che il suo mockup porta perché il mockup è scuro. Scritto a mano resterebbe quello
-anche sul tema chiaro, dove l'app usa il suo gemello.
-- ⚠️ **Non è `colorScheme.primary`**, che è il colore del nastro: quello è l'accento pieno, e su
-  una fotografia qualunque una riga sottile di accento pieno si legge meno della sua versione da
-  inchiostro. Un tratto da tre punti non ha l'area per difendersi da sé, che è invece quello che fa
-  un triangolo.
-- ⚠️ **Lo spessore è in dp e non in frazione del lato**, al contrario del nastro: un nastro è una
-  forma e su un tablet deve crescere con la piastrella, un tratto ha lo stesso spessore ovunque,
-  come il filetto sotto una copertina e il bordo d'accento dei pannelli. I tre punti vengono dal
-  suo mockup, dove la cornice vale il 2,7% del lato della miniatura.
+⚠️⚠️ **DALLA `2.12` LA CORNICE È ARANCIONE, SPESSA IL 5% DEL LATO E OPACA ALL'80%, E I TRE NUMERI
+SONO SUOI** (riscontro del giro della `2.11`, voce `ind-ultimo` non approvata: *se lo spessore
+viene dal mio mockup, ho sbagliato io: serve più spesso (5%, più vivido e all'80% di opacità.
+Proviamo con l'arancione-onboarding*). La `2.11` aveva preso le sue misure dal **mockup**, cioè da
+un disegno: quello che il disegno non dice è quanto di un tratto sottile si perde su una
+fotografia vera.
+- ⚠️⚠️ **L'ARANCIONE ADESSO DICE DUE COSE, e va saputo invece di scoprirlo**: `HINT_MARK`
+  (`#FFA726`) era l'evidenziatore dei mini onboarding e **l'unico posto in cui la tavolozza si
+  rompe apposta**; da qui in poi è anche il segno dell'ultimo media. I due non si incontrano mai
+  sullo stesso pixel, perché un onboarding vive sopra un velo scuro che copre la griglia, ma è
+  l'unico colore che l'app ha per dire 'guarda qui', e un terzo uso lo consumerebbe.
+- ⚠️⚠️ **E CAMBIA L'UNITÀ, NON SOLO IL NUMERO: la nota che diceva 'in dp e non in frazione' è
+  superata.** Valeva per il bordo di una **superficie dell'app**, che è sempre la stessa (il
+  filetto sotto una copertina, il bordo d'accento dei pannelli); qui il segno vive su una
+  piastrella le cui colonne le sceglie lui, e fra due e cinque colonne il lato quasi si triplica.
+  Con un numero in punti lo stesso segno peserebbe il triplo da una parte e un terzo dall'altra.
+- ⚠️ **Non è `colorScheme.primary`**, che resta il colore del nastro: quello è l'accento pieno, e
+  i due segni devono distinguersi a colpo d'occhio.
+- ⚠️ **Il tratto si disegna doppio dentro un ritaglio della sagoma**: un tratto è centrato sul
+  contorno, quindi metà cadrebbe fuori dalla miniatura. È quello che faceva `border`, che però non
+  può leggere una misura per ricavarne lo spessore.
 
 ⚠️ **La voce vive in 'Etichette e pulsanti' perché lo ha chiesto lui**, e la famiglia lo regge per
 il titolo della pagina che la contiene, 'Comandi e indicatori': quella parola ce l'ha già, mentre
@@ -2248,8 +2257,13 @@ la domanda della famiglia (*come si presentano i comandi che uso*) da sola non b
 
 ⚠️ **Che cosa il banco misura e che cosa no** (`IndicatoreTest`): la migrazione nei tre casi, che è
 la sola cosa qui dentro che possa rompersi **in silenzio**, perché nessuno la vede finché non
-aggiorna l'app su un telefono già usato. **Non** vede il segno disegnato: una miniatura vuole una
-griglia con dentro delle immagini vere, e il MediaStore di Robolectric è vuoto.
+aggiorna l'app su un telefono già usato. **Non** vede il segno dentro la griglia: una miniatura
+vuole delle immagini vere, e il MediaStore di Robolectric è vuoto.
+- ⚠️⚠️ **MA IL TRATTO SÌ, DALLA `2.12`, E LA STRADA È QUELLA DEL GRADIENTE**: `CorniceTest` monta
+  il modificatore che lo disegna su una scena minima e guarda i pixel, cioè misura il
+  **meccanismo** invece della schermata. Vede le due cose che la correzione ha cambiato: che lo
+  spessore raddoppi col lato, e che il colore sia l'arancione invece del verde acqua.
+  Controprovata in tutti e due i versi, rimettendo prima la misura fissa e poi il colore vecchio.
 
 ## 🧪 Quando si scrive una prova, e quando no
 
