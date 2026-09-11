@@ -2119,6 +2119,16 @@ causa che non era la sua.
   vera o con la dichiarazione che la causa non si conosce, e la voce nuova lo dice all'utente.
   Una nota che tiene in piedi una causa falsa manda la sessione dopo a cercare dove ha già
   guardato qualcuno.
+- ⚠️⚠️ **IL SECONDO PRECEDENTE È LA `2.07`, E DICE UNA COSA IN PIÙ: UNA CONDIZIONE NECESSARIA
+  SEMBRA UNA CAUSA.** Là il filmato non se ne andava scorrendo, e la correzione ha portato la
+  superficie del lettore da nativa a texture, cioè ha tolto **l'impedimento**: una `SurfaceView`
+  non si lascia traslare. Il ragionamento era giusto e il difetto è rimasto, perché nessuno
+  traslava quella superficie: lo sfoglio col dito viveva nel solo `ImageCanvas`, e sul filmato
+  il baratto era **scritto nel codice** (*qui il dito non trascina la pagina*). La `2.08` ha
+  portato là la stessa macchina.
+  - **Come si riconosce prima di spendere un giro**: si guarda che cosa **fa muovere** la cosa
+    che deve muoversi, e non solo che cosa glielo impedisce. Tolto l'impedimento, la domanda
+    *adesso chi lo muove?* ha una risposta o non ce l'ha.
 
 ⚠️⚠️ **E UNA MODIFICA CHE TOCCA LA GERARCHIA DEI TOCCHI PORTA LA SUA PROVA ANCHE SENZA UN
 DIFETTO ALLE SPALLE**, che è la metà proattiva della regola. Sono tre i casi, e si riconoscono
