@@ -402,8 +402,23 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">সম্পাদনা</string>
     <string name="menu_edit_hold">অ্যাপ বাছুন</string>
-    <string name="editor_internal">অন্তর্নির্মিত সম্পাদক</string>
+    <string name="editor_internal">সরল সম্পাদক</string>
     <string name="editor_title">সম্পাদক</string>
+    <string name="editor_full">সম্পূর্ণ সম্পাদক</string>
+    <string name="look_light">আলো</string>
+    <string name="look_exposure">এক্সপোজার</string>
+    <string name="look_brightness">উজ্জ্বলতা</string>
+    <string name="look_contrast">কনট্রাস্ট</string>
+    <string name="look_shadows">ছায়া</string>
+    <string name="look_highlights">হাইলাইট</string>
+    <string name="look_reset_one">%1$s রিসেট করুন</string>
+    <string name="look_compare">মূলটি দেখতে চেপে ধরে রাখুন</string>
+    <string name="look_failed">এই ফোন পরিবর্তনগুলি প্রয়োগ করতে পারেনি</string>
+    <string name="settings_quality">সংরক্ষণের মান</string>
+    <string name="settings_quality_desc">সম্পূর্ণ সম্পাদক কীভাবে ফাইল লেখে। \'উচ্চ\' ও \'সর্বোচ্চ\' দুটিই JPEG: দেখতে একই এবং দ্বিতীয়টি প্রায় দ্বিগুণ বড়। \'ক্ষতিহীন\' মূলের উপরে না লিখে তার পাশে একটি PNG লেখে এবং প্রতিটি পিক্সেল রাখে।</string>
+    <string name="quality_high">উচ্চ</string>
+    <string name="quality_max">সর্বোচ্চ</string>
+    <string name="quality_lossless">ক্ষতিহীন</string>
     <string name="editor_pick">কী দিয়ে সম্পাদনা করেন?</string>
     <string name="editor_left">বাঁয়ে ঘোরান</string>
     <string name="editor_right">ডানে ঘোরান</string>

@@ -418,8 +418,23 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Editar</string>
     <string name="menu_edit_hold">Elegir la aplicación</string>
-    <string name="editor_internal">Editor interno</string>
+    <string name="editor_internal">Editor sencillo</string>
     <string name="editor_title">Editor</string>
+    <string name="editor_full">Editor completo</string>
+    <string name="look_light">Luz</string>
+    <string name="look_exposure">Exposición</string>
+    <string name="look_brightness">Brillo</string>
+    <string name="look_contrast">Contraste</string>
+    <string name="look_shadows">Sombras</string>
+    <string name="look_highlights">Luces</string>
+    <string name="look_reset_one">Restablecer %1$s</string>
+    <string name="look_compare">Mantén pulsado para ver el original</string>
+    <string name="look_failed">Este teléfono no ha podido aplicar los cambios</string>
+    <string name="settings_quality">Calidad al guardar</string>
+    <string name="settings_quality_desc">Cómo el editor completo escribe el archivo. \'Alta\' y \'Máxima\' son las dos JPEG: se ven igual y la segunda pesa casi el doble. \'Sin pérdida\' escribe un PNG junto al original en lugar de encima, y conserva todos los píxeles.</string>
+    <string name="quality_high">Alta</string>
+    <string name="quality_max">Máxima</string>
+    <string name="quality_lossless">Sin pérdida</string>
     <string name="editor_pick">¿Con qué editas?</string>
     <string name="editor_left">Girar a la izquierda</string>
     <string name="editor_right">Girar a la derecha</string>

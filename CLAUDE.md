@@ -1832,6 +1832,81 @@ ha chiesto lui. A metterlo dov'è dichiarato è `padOrderOf`, che legge `TURN_KE
 costante è insieme l'ordine di fabbrica e il numero di colonne, e le due cose sono lo stesso
 elenco.
 
+## 🎚️ L'editor completo, e il conto che esiste in una copia sola
+
+⚠️⚠️ **DALLA `2.14` GLI EDITOR SONO DUE, E IL NUOVO NON SOSTITUISCE QUELLO DI CASA: È LA SUA
+SCELTA** (2026-09-11: *due editor separati*). Quello di casa mette un'immagine in **posa** e la
+ritaglia senza toccare un pixel, questo la **sviluppa**. Un editor solo che facesse tutti e due i
+mestieri dovrebbe
+ricomprimere anche quando gira una fotografia, cioè perdere qualità per un gesto che oggi non ne
+fa perdere. Chi tocca 'Modifica' sceglie fra i due la prima volta, e la scelta si ricorda.
+- ⚠️ **Arriva in cinque versioni e questa è la prima**: la spina dorsale più il modulo **Luce**,
+  cioè i cinque cursori dell'esposizione, della luminosità, del contrasto, delle ombre e delle
+  luci. Le altre quattro (il Colore; le curve e il colore mirato; la geometria col
+  raddrizzamento; i preset) vivono nel piano d'azione, che è il posto delle versioni in sequenza.
+
+⚠️⚠️ **IL CONTO VIVE IN AGSL E NON ANCHE IN KOTLIN, ED È LA DECISIONE CHE REGGE TUTTO IL RESTO.**
+La via comoda sarebbe scriverlo due volte: uno shader per l'anteprima, che dev'essere immediata,
+e un giro sui pixel in Kotlin per il salvataggio, che lavora sul file pieno. Sono **due
+implementazioni della stessa matematica**, e il giorno che una cambia l'altra mente: l'utente
+vedrebbe un'anteprima e salverebbe un'altra immagine, senza che niente dia errore.
+- ⚠️⚠️ **IL PREZZO È CHE SOTTO ANDROID 13 L'EDITOR COMPLETO NON C'È**, ed è la sua istruzione
+  (2026-09-11): `RuntimeShader` nasce con quella versione, e là resta l'editor di casa, che non
+  perde niente perché lavora sulla posa. Chi lo chiede lo chiede a `advancedEditorAvailable()`,
+  uno solo, perché la stessa domanda la fanno il selettore degli editor, il modello e le
+  impostazioni.
+- ⚠️⚠️ **QUINDI IL SALVATAGGIO DISEGNA DAVVERO, FUORI SCHERMO** (`AdjustRender.kt`): un
+  `RuntimeShader` non gira su una tela di memoria, quindi applicare lo **stesso** conto a venti
+  megapixel vuol dire un `ImageReader` più un `HardwareRenderer`, e si lavora a **tessere**
+  perché una texture ha un tetto che non è lo stesso su ogni telefono.
+  - ⚠️⚠️ **LE TESSERE NON SI SOVRAPPONGONO, E QUESTO DIPENDE DAL CONTO**: la Luce guarda **un
+    pixel per volta**, quindi due tessere accostate non hanno nessuna cucitura. Chi aggiungesse
+    un'operazione che guarda i vicini (una nitidezza, una chiarezza, una sfocatura) deve dare a
+    ogni tessera un bordo di sovrapposizione e buttarlo via dopo, o sulle giunzioni comparirebbe
+    una riga. È la cosa da guardare per prima quando i moduli cresceranno.
+  - ⚠️ **E prima di fidarsi si prova** (`AdjustRender.works`): se quel percorso non funziona su
+    un telefono, quello che se ne ricava è un'immagine **nera**, e scritta sul file prende il
+    posto della fotografia. Un quadrato di colore noto costa un millesimo di secondo e distingue
+    'non ha funzionato' da 'è venuto nero davvero'.
+
+⚠️⚠️ **I CONTI SI FANNO IN LUCE LINEARE, E L'ORDINE DELLE CINQUE OPERAZIONI È LA SPECIFICA**:
+esposizione, poi ombre e luci, poi contrasto, poi luminosità. Un valore sRGB non è la quantità di
+luce ma quella quantità passata per una curva, quindi sommare o moltiplicare là dentro dà i
+risultati sporchi che si vedono negli editor fatti male: un contrasto che vira, un'esposizione che
+spegne i colori. Il perché di ogni passaggio, e il perno del contrasto, vivono in `Adjust.kt`.
+
+⚠️⚠️ **LA PILA È DI VALORI E NON DI GESTI, e un passo nasce quando il dito LASCIA il cursore**:
+dentro un trascinamento un cursore passa per cento valori, e una pila che li prendesse tutti
+renderebbe 'Annulla' inutilizzabile. Quello che si disfa è un **gesto compiuto**, che è la cosa
+che l'utente ricorda di aver fatto.
+- ⚠️⚠️ **E IL PASSO SE LO VA A PRENDERE DALLO STATO VIVO, PERCHÉ IL VALORE CATTURATO ERA UN
+  DIFETTO**: la prima stesura consegnava il parametro del cursore a `onValueChangeFinished`, e
+  Compose chiama quella e `onValueChange` **senza per forza ricomporre in mezzo**, quindi il
+  passo portava il valore di prima. L'immagine cambiava e 'Annulla' restava spento. ⚠️ **Non
+  sarebbe arrivato sempre**, ed è la ragione per cui fa più paura: con un dito vero fra le due
+  chiamate c'è quasi sempre un fotogramma, quindi si sarebbe visto una volta su dieci.
+- ⚠️ **La storia è una lista con un indice e non due pile**: con due pile ogni passo nuovo deve
+  ricordarsi di svuotare la seconda, e chi se ne dimentica lascia un 'Ripristina' che riporta a
+  una strada abbandonata.
+
+⚠️⚠️ **'SENZA PERDITA' È UNA PROPRIETÀ DEL MODELLO E NON UNA RIGA DEL SALVATAGGIO** (`Look.lossless`),
+ed è la clausola dell'utente (*quelle che non prevedono la riscrittura del file pixel per pixel
+devono essere lossless*): finché c'è solo la posa il file si gira cambiando un tag EXIF, come
+l'editor di casa fa dalla `1.03`; appena entra un valore di Luce i pixel vanno riscritti e non
+c'è modo di evitarlo. ⚠️ **Quando la geometria entrerà in questo oggetto**, col raddrizzamento,
+la risposta resta esattamente questa.
+
+⚠️ **La qualità di scrittura è a tre ed è una voce delle impostazioni**, non una domanda a ogni
+salvataggio: salvare è un gesto che si fa di fretta, ed è la stessa lettura che ha avuto
+'Scarica'. ⚠️ **Le prime due sono un JPEG e la terza un altro formato**: 'Senza perdita' scrive
+un PNG **accanto** invece di sovrascrivere, perché il formato cambia.
+
+⚠️ **Che cosa il banco misura e che cosa no** (`LuceTest`): il modello (la soglia del riposo, il
+guadagno in stop, il senza perdita) e la **storia dei passi** montando la schermata vera, coi
+comandi che camminano avanti e indietro. **Non** vede i pixel che escono dal conto, perché una
+prova gira senza scheda grafica e `lookShader` risponde `null`, né il confronto col prima, che si
+vede solo dai pixel: quelli si guardano sul telefono.
+
 ## 🗑️ Lo svuotamento automatico del cestino, e le tre decisioni che lo governano
 
 ⚠️⚠️ **LE TRE RISPOSTE SONO SUE, SI CITANO CON LA LORO CHIAVE, E UNA ERA STATA REGISTRATA AL

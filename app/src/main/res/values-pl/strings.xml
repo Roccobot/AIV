@@ -434,8 +434,23 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">Edytuj</string>
     <string name="menu_edit_hold">Wybierz aplikację</string>
-    <string name="editor_internal">Wbudowany edytor</string>
+    <string name="editor_internal">Prosty edytor</string>
     <string name="editor_title">Edytor</string>
+    <string name="editor_full">Pełny edytor</string>
+    <string name="look_light">Światło</string>
+    <string name="look_exposure">Ekspozycja</string>
+    <string name="look_brightness">Jasność</string>
+    <string name="look_contrast">Kontrast</string>
+    <string name="look_shadows">Cienie</string>
+    <string name="look_highlights">Światła</string>
+    <string name="look_reset_one">Wyzeruj %1$s</string>
+    <string name="look_compare">Przytrzymaj, aby zobaczyć oryginał</string>
+    <string name="look_failed">Ten telefon nie zdołał zastosować zmian</string>
+    <string name="settings_quality">Jakość zapisu</string>
+    <string name="settings_quality_desc">Jak pełny edytor zapisuje plik. \'Wysoka\' i \'Maksymalna\' to oba JPEG: wyglądają tak samo, a druga waży około dwa razy więcej. \'Bezstratna\' zapisuje PNG obok oryginału zamiast na nim i zachowuje każdy piksel.</string>
+    <string name="quality_high">Wysoka</string>
+    <string name="quality_max">Maksymalna</string>
+    <string name="quality_lossless">Bezstratna</string>
     <string name="editor_pick">Czym edytujesz?</string>
     <string name="editor_left">Obróć w lewo</string>
     <string name="editor_right">Obróć w prawo</string>

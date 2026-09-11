@@ -386,8 +386,23 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">편집</string>
     <string name="menu_edit_hold">앱 선택</string>
-    <string name="editor_internal">내장 편집기</string>
+    <string name="editor_internal">간단 편집기</string>
     <string name="editor_title">편집기</string>
+    <string name="editor_full">전체 편집기</string>
+    <string name="look_light">빛</string>
+    <string name="look_exposure">노출</string>
+    <string name="look_brightness">밝기</string>
+    <string name="look_contrast">대비</string>
+    <string name="look_shadows">어두운 부분</string>
+    <string name="look_highlights">밝은 부분</string>
+    <string name="look_reset_one">%1$s 초기화</string>
+    <string name="look_compare">길게 눌러 원본 보기</string>
+    <string name="look_failed">이 휴대전화에서는 변경을 적용할 수 없습니다</string>
+    <string name="settings_quality">저장 품질</string>
+    <string name="settings_quality_desc">전체 편집기가 파일을 저장하는 방식입니다. \'높음\'과 \'최고\'는 모두 JPEG이며 보기에는 같고 두 번째가 약 두 배 큽니다. \'무손실\'은 원본에 덮어쓰지 않고 옆에 PNG를 저장하며 모든 픽셀을 지킵니다.</string>
+    <string name="quality_high">높음</string>
+    <string name="quality_max">최고</string>
+    <string name="quality_lossless">무손실</string>
     <string name="editor_pick">무엇으로 편집할까요?</string>
     <string name="editor_left">왼쪽으로 돌리기</string>
     <string name="editor_right">오른쪽으로 돌리기</string>

@@ -402,8 +402,23 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">संपादन</string>
     <string name="menu_edit_hold">ॲप निवडा</string>
-    <string name="editor_internal">अंगभूत संपादक</string>
+    <string name="editor_internal">साधा संपादक</string>
     <string name="editor_title">संपादक</string>
+    <string name="editor_full">पूर्ण संपादक</string>
+    <string name="look_light">प्रकाश</string>
+    <string name="look_exposure">एक्सपोजर</string>
+    <string name="look_brightness">तेजस्विता</string>
+    <string name="look_contrast">कॉन्ट्रास्ट</string>
+    <string name="look_shadows">सावल्या</string>
+    <string name="look_highlights">हायलाइट</string>
+    <string name="look_reset_one">%1$s रीसेट करा</string>
+    <string name="look_compare">मूळ पाहण्यासाठी दाबून धरा</string>
+    <string name="look_failed">हा फोन बदल लागू करू शकला नाही</string>
+    <string name="settings_quality">जतन गुणवत्ता</string>
+    <string name="settings_quality_desc">पूर्ण संपादक फाइल कशी लिहितो. \'उच्च\' आणि \'कमाल\' दोन्ही JPEG आहेत: दिसायला सारखे आणि दुसरे जवळपास दुप्पट मोठे. \'हानिरहित\' मूळवर लिहिण्याऐवजी त्याच्या शेजारी PNG लिहितो आणि प्रत्येक पिक्सेल ठेवतो.</string>
+    <string name="quality_high">उच्च</string>
+    <string name="quality_max">कमाल</string>
+    <string name="quality_lossless">हानिरहित</string>
     <string name="editor_pick">कशाने संपादन करता?</string>
     <string name="editor_left">डावीकडे फिरवा</string>
     <string name="editor_right">उजवीकडे फिरवा</string>

@@ -386,8 +386,23 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">編集</string>
     <string name="menu_edit_hold">アプリを選ぶ</string>
-    <string name="editor_internal">内蔵エディター</string>
+    <string name="editor_internal">シンプル編集</string>
     <string name="editor_title">エディター</string>
+    <string name="editor_full">フル編集</string>
+    <string name="look_light">光</string>
+    <string name="look_exposure">露出</string>
+    <string name="look_brightness">明るさ</string>
+    <string name="look_contrast">コントラスト</string>
+    <string name="look_shadows">シャドウ</string>
+    <string name="look_highlights">ハイライト</string>
+    <string name="look_reset_one">%1$s をリセット</string>
+    <string name="look_compare">長押しで元の画像を表示</string>
+    <string name="look_failed">この端末では変更を適用できませんでした</string>
+    <string name="settings_quality">保存品質</string>
+    <string name="settings_quality_desc">フル編集がファイルを書き出す方法です。\'高\' と \'最高\' はどちらも JPEG で、見た目は同じで後者はおよそ二倍の大きさです。\'可逆\' は元の画像に上書きせず隣に PNG を書き出し、画素をひとつも捨てません。</string>
+    <string name="quality_high">高</string>
+    <string name="quality_max">最高</string>
+    <string name="quality_lossless">可逆</string>
     <string name="editor_pick">何で編集しますか</string>
     <string name="editor_left">左に回す</string>
     <string name="editor_right">右に回す</string>

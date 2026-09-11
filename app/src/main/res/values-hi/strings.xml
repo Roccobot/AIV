@@ -402,8 +402,23 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">संपादित करें</string>
     <string name="menu_edit_hold">ऐप चुनें</string>
-    <string name="editor_internal">अंतर्निहित संपादक</string>
+    <string name="editor_internal">सरल संपादक</string>
     <string name="editor_title">संपादक</string>
+    <string name="editor_full">पूर्ण संपादक</string>
+    <string name="look_light">प्रकाश</string>
+    <string name="look_exposure">एक्सपोज़र</string>
+    <string name="look_brightness">चमक</string>
+    <string name="look_contrast">कंट्रास्ट</string>
+    <string name="look_shadows">छाया</string>
+    <string name="look_highlights">हाइलाइट</string>
+    <string name="look_reset_one">%1$s रीसेट करें</string>
+    <string name="look_compare">मूल देखने के लिए दबाए रखें</string>
+    <string name="look_failed">यह फ़ोन बदलाव लागू नहीं कर सका</string>
+    <string name="settings_quality">सहेजने की गुणवत्ता</string>
+    <string name="settings_quality_desc">पूर्ण संपादक फ़ाइल कैसे लिखता है। \'उच्च\' और \'अधिकतम\' दोनों JPEG हैं: देखने में एक जैसे और दूसरा लगभग दोगुना बड़ा। \'बिना हानि\' मूल के ऊपर लिखने के बजाय उसके साथ एक PNG लिखता है और हर पिक्सेल रखता है।</string>
+    <string name="quality_high">उच्च</string>
+    <string name="quality_max">अधिकतम</string>
+    <string name="quality_lossless">बिना हानि</string>
     <string name="editor_pick">किससे संपादित करते हैं?</string>
     <string name="editor_left">बाएँ घुमाएँ</string>
     <string name="editor_right">दाएँ घुमाएँ</string>

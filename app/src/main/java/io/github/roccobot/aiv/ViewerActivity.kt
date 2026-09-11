@@ -237,6 +237,17 @@ sealed interface Screen {
      * sola, il visualizzatore, e non ha bisogno di viaggiare qui dentro.
      */
     data class Editor(val uri: Uri, val name: String) : Screen
+
+    /**
+     * L'editor **completo**, dalla `2.14`: quello che cambia i pixel.
+     *
+     * ⚠️⚠️ **È UNA SCHERMATA A SÉ E NON UNA MODALITÀ DELL'ALTRA**, ed è la sua scelta (*due
+     * editor separati*): i due hanno comandi diversi, un salvataggio diverso e un perimetro
+     * diverso, e un `if` dentro una schermata sola avrebbe dovuto reggere tutte e due le
+     * forme. ⚠️ **Porta il nome come l'altra**, e per la stessa ragione: serve al salvataggio
+     * per sapere che formato ha in mano.
+     */
+    data class FullEditor(val uri: Uri, val name: String) : Screen
 }
 
 /**
@@ -261,6 +272,7 @@ private fun Screen.saveKey(): String = when (this) {
     Screen.Settings -> "settings"
     Screen.Viewer -> "viewer"
     is Screen.Editor -> "editor"
+    is Screen.FullEditor -> "editor-pieno"
 }
 
 /**
@@ -1447,6 +1459,7 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 editorAsk = true
             }
             chosen == Editors.INTERNAL -> openEditor(uri)
+            chosen == Editors.FULL -> openFullEditor(uri)
             else -> openOutside(uri, chosen)
         }
     }
@@ -1486,7 +1499,11 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
         editorFor = null
         settings?.let { updateSettings(it.copy(editorApp = id)) }
         if (waiting == null) return
-        if (id == Editors.INTERNAL) openEditor(waiting) else openOutside(waiting, id)
+        when (id) {
+            Editors.INTERNAL -> openEditor(waiting)
+            Editors.FULL -> openFullEditor(waiting)
+            else -> openOutside(waiting, id)
+        }
     }
 
     /** Selettore chiuso senza scegliere: non si ricorda niente e non si apre niente. */
@@ -1505,6 +1522,26 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                 return@launch
             }
             screen = Screen.Editor(uri, name)
+        }
+    }
+
+    /**
+     * L'editor completo: come [openEditor], e il nome serve per la stessa ragione.
+     *
+     * ⚠️ **Nessuna guardia di versione qui**: la voce non si offre affatto dove il conto non
+     * puo girare (vedi `EditorPicker`), e una scelta salvata su un telefono che non la regge
+     * torna a dire 'nessuno scelto' (vedi `Editors.labelOf`). Ripetere il controllo in un terzo
+     * posto vorrebbe dire tre risposte da tenere d'accordo.
+     */
+    private fun openFullEditor(uri: Uri) {
+        val context = getApplication<Application>()
+        viewModelScope.launch {
+            val name = withContext(Dispatchers.IO) { FileTree.displayName(context, uri) }
+            if (name == null) {
+                notice = R.string.edit_no_file
+                return@launch
+            }
+            screen = Screen.FullEditor(uri, name)
         }
     }
 
@@ -1720,6 +1757,50 @@ class ViewerViewModel(application: Application) : AndroidViewModel(application) 
                         else -> R.string.editor_done
                     }
                     if (way == ImageEdit.Way.OVERWRITE) {
+                        Thumbs.forget(context, here.uri)
+                        retry()
+                    }
+                    screen = Screen.Viewer
+                    afterFileChanged()
+                }
+            }
+        }
+    }
+
+    /**
+     * Salva quello che l'editor completo ha in mano.
+     *
+     * ⚠️⚠️ **GIRA NELL'AMBITO DEL MODELLO, come l'altro e per la stessa ragione**: il primo atto
+     * di un salvataggio riuscito è chiudere l'editor, cioè smontare la composizione che l'ha
+     * chiesto, e un lavoro appeso a quella si fermerebbe a metà scrittura sul file vero. Qui pesa
+     * di piu: applicare il conto a venti megapixel dura secondi, non decimi.
+     * ⚠️ **Il formato di uscita lo decide la QUALITÀ e non questa funzione**: 'Senza perdita'
+     * scrive un PNG accanto, le altre due riscrivono il file dov'è. Il conto vive in
+     * `ImageEdit.saveLook`, che è il posto in cui vivono tutte le domande sui file.
+     */
+    fun lookSave(look: Look) {
+        if (editorBusy) return
+        val here = screen as? Screen.FullEditor ?: return
+        val context = getApplication<Application>()
+        editorBusy = true
+        viewModelScope.launch {
+            val esito = ImageEdit.saveLook(
+                context, here.uri, look,
+                quality = settings?.editorQuality ?: Quality.DEFAULT,
+                backup = settings?.editorBackup ?: true
+            )
+            editorBusy = false
+            when (esito) {
+                is ImageEdit.Result.Failed -> notice = esito.why
+                is ImageEdit.Result.Done -> {
+                    /*
+                     * ⚠️ **La miniatura si butta solo quando si è riscritto SOPRA**: con 'Senza
+                     * perdita' esce un file nuovo, e quella di partenza è ancora giusta.
+                     */
+                    val sopra = esito.file.absolutePath ==
+                        FileTree.fileOf(context, here.uri)?.absolutePath
+                    notice = if (sopra) R.string.editor_done else R.string.editor_done_copy
+                    if (sopra) {
                         Thumbs.forget(context, here.uri)
                         retry()
                     }
@@ -3171,6 +3252,21 @@ private fun Stage(
                 uri = screen.uri,
                 busy = model.editorBusy,
                 onSave = { turns, mirror, crop -> model.editSave(turns, mirror, crop) },
+                onBack = { model.leaveEditor() }
+            )
+        }
+
+        /*
+         * ⚠️ **Indietro va dove va l'altro editor**, cioè al visualizzatore: tutti e due si
+         * aprono dal menu del tocco lungo e da nessun altro posto, quindi la destinazione è
+         * una sola e non ha bisogno di viaggiare nella schermata.
+         */
+        is Screen.FullEditor -> {
+            BackHandler { model.leaveEditor() }
+            AdvancedEditorScreen(
+                uri = screen.uri,
+                busy = model.editorBusy,
+                onSave = { look -> model.lookSave(look) },
                 onBack = { model.leaveEditor() }
             )
         }

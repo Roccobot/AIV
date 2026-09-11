@@ -1660,6 +1660,34 @@ private fun EditingPage(
     )
 
     /*
+     * ⚠️⚠️ **VIVE NELLA FAMIGLIA DELL'EDITOR PERCHÉ RISPONDE ALLA SUA STESSA DOMANDA**, cioè
+     * *che cosa succede quando modifico una fotografia*: quale editor si apre, se l'originale
+     * si salva prima, e con quanta cura si riscrive il file. Non vive in 'Rinomina e download',
+     * che risponde a *che nome ha il file che salvo e dove finisce*: là il nome, qui i pixel.
+     * ⚠️ **Riguarda il solo editor completo**, ed è scritto nella sua spiegazione: quello di
+     * casa non ricomprime affatto quando puo evitarlo, quindi per lui questa scelta non
+     * esisterebbe.
+     */
+    if (advancedEditorAvailable()) {
+        Choices(
+            label = stringResource(R.string.settings_quality),
+            detail = stringResource(R.string.settings_quality_desc),
+            options = Quality.entries,
+            selected = settings.editorQuality,
+            nameOf = {
+                stringResource(
+                    when (it) {
+                        Quality.HIGH -> R.string.quality_high
+                        Quality.MAX -> R.string.quality_max
+                        Quality.LOSSLESS -> R.string.quality_lossless
+                    }
+                )
+            },
+            onSelect = { onChange(settings.copy(editorQuality = it)) }
+        )
+    }
+
+    /*
      * ⚠️⚠️ **TRE VOCI DIETRO UN TOCCO DALLA `1.81`, E LA SOTTO-PAGINA L'HA CHIESTA LUI ALLA
      * LETTERA** (riscontro del giro della `1.80`, campo libero punto A: *Crea una nuova
      * sotto-pagina 'Rinomina e download' delle impostazioni (sezione 'Modifica e backup')*).

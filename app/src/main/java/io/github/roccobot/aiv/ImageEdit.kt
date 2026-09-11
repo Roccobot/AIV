@@ -179,6 +179,119 @@ object ImageEdit {
     }
 
     /**
+     * Applica i valori dell'editor **completo** e scrive.
+     *
+     * ⚠️⚠️ **VIVE QUI E NON IN UN FILE SUO, ED È UNA SCELTA**: questo oggetto è la casa della
+     * domanda *che cosa succede quando l'editor salva*, e le due strade (la posa e i valori)
+     * condividono la copia di sicurezza, il travaso EXIF, il file provvisorio e il rinomina
+     * finale. Scritte in due posti, la prima a cambiare sarebbe quella che nessuno guarda.
+     *
+     * ⚠️⚠️ **LA QUALITÀ DECIDE ANCHE IL FORMATO, e chi sceglie 'senza perdita' riceve un file
+     * NUOVO**: un JPEG non puo essere senza perdita, quindi là esce un PNG, che ha un altro
+     * nome e quindi si mette accanto invece di prendere il posto. Non è un ripiego: è l'unica
+     * lettura onesta di quella scelta, e il nome diverso lo dice a chi guarda la cartella.
+     *
+     * ⚠️ **`NonCancellable` come tutto il resto**: una scrittura interrotta a metà lascerebbe un
+     * file troncato al posto di una fotografia.
+     */
+    suspend fun saveLook(
+        context: Context,
+        uri: Uri,
+        look: Look,
+        quality: Quality,
+        backup: Boolean
+    ): Result = withContext(Dispatchers.IO + NonCancellable) {
+        val source = FileTree.fileOf(context, uri)
+            ?: return@withContext Result.Failed(R.string.edit_no_file)
+        val dir = source.parentFile ?: return@withContext Result.Failed(R.string.edit_no_file)
+        if (look.idle) return@withContext Result.Failed(R.string.edit_nothing)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            return@withContext Result.Failed(R.string.look_failed)
+        }
+
+        val kind = lookFormat(source.name, quality)
+        val target = lookTarget(source, dir, kind)
+        // ⚠️ La copia di sicurezza si fa **solo** quando si sovrascrive, e prima di tutto: è la
+        // stessa regola di [save], e la stessa ragione (chi l'ha accesa ha chiesto di non poter
+        // perdere l'originale, quindi un fallimento ferma il salvataggio invece di procedere).
+        if (target == source && backup && Bin.keep(context, source) == null) {
+            return@withContext Result.Failed(R.string.edit_no_backup)
+        }
+
+        val temp = File(target.parentFile, target.name + ".part")
+        var full: Bitmap? = null
+        var done: Bitmap? = null
+        try {
+            full = ImageSource.pixels(context, uri, 0)
+                ?: return@withContext Result.Failed(R.string.edit_too_big)
+            done = AdjustRender.apply(full, look)
+                ?: return@withContext Result.Failed(R.string.look_failed)
+            // ⚠️ La trasparenza va su fondo bianco come nell'altra strada, e con la stessa
+            // funzione: il JPEG butta via il canale alfa, e i pixel trasparenti resterebbero
+            // col loro colore, che quasi sempre è il nero.
+            val piatta = if (kind == Bitmap.CompressFormat.JPEG) Convert.flatten(done) else done
+            val written = runCatching {
+                temp.outputStream().use { piatta.compress(kind, lookQuality(quality), it) }
+            }.getOrDefault(false)
+            if (piatta !== done) piatta.recycle()
+            if (!written) {
+                temp.delete()
+                return@withContext Result.Failed(R.string.edit_failed)
+            }
+        } catch (_: OutOfMemoryError) {
+            temp.delete()
+            return@withContext Result.Failed(R.string.edit_too_big)
+        } finally {
+            done?.recycle()
+            full?.recycle()
+        }
+
+        carryExif(source, temp)
+        if (!temp.renameTo(target)) {
+            temp.delete()
+            return@withContext Result.Failed(R.string.edit_failed)
+        }
+        FileTree.scan(context, listOfNotNull(source.absolutePath, target.absolutePath))
+        Result.Done(target, lossless = false)
+    }
+
+    /** In che formato esce un salvataggio dell'editor completo, data la qualità scelta. */
+    private fun lookFormat(name: String, quality: Quality): Bitmap.CompressFormat =
+        if (quality == Quality.LOSSLESS) Bitmap.CompressFormat.PNG
+        else format(name) ?: Bitmap.CompressFormat.JPEG
+
+    /**
+     * Dove si scrive: sopra l'originale se il formato resta quello, accanto se cambia.
+     *
+     * ⚠️ **Il confronto è sul FORMATO e non sull'estensione**: `.jpg` e `.jpeg` sono lo stesso
+     * formato, e un file che si chiama in un modo non deve cambiare nome solo perché l'altra
+     * grafia era più comune.
+     */
+    private fun lookTarget(
+        source: File,
+        dir: File,
+        kind: Bitmap.CompressFormat
+    ): File = if (format(source.name) == kind) source
+    else FileTree.freeName(dir, source.nameWithoutExtension + extensionOf(kind))
+
+    /** Il suffisso di un formato, con il punto. */
+    private fun extensionOf(kind: Bitmap.CompressFormat): String =
+        if (kind == Bitmap.CompressFormat.PNG) ".png" else ".jpg"
+
+    /**
+     * Quanto si comprime, dato quello che l'utente ha scelto.
+     *
+     * ⚠️ **Su PNG il numero non conta**, ed è giusto così: quel formato non perde niente,
+     * quindi 'Massima' e 'Senza perdita' non sono la stessa cosa detta due volte. La prima è un
+     * JPEG spinto al limite, la seconda un file che non butta via un bit.
+     */
+    private fun lookQuality(quality: Quality): Int = when (quality) {
+        Quality.HIGH -> QUALITY
+        Quality.MAX -> 100
+        Quality.LOSSLESS -> 100
+    }
+
+    /**
      * La via senza perdita: si cambia il numero dell'orientamento e basta.
      *
      * ⚠️ **La copia si fa PRIMA di toccare il tag**: cambiando prima il tag sull'originale e

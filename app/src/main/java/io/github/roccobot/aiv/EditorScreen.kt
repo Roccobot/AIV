@@ -1043,8 +1043,14 @@ private val CHIP_PAD = 6.dp
 internal const val SHEET_KEYS = 4
 
 
-/** Il respiro fra il bordo di sopra della scheda e la prima fila di chip. Vedi la sua nota. */
-private val SHEET_TOP = 16.dp
+/**
+ * Il respiro fra il bordo di sopra della scheda e la prima fila di chip. Vedi la sua nota.
+ *
+ * ⚠️ **Condiviso con l'editor completo, come le altre tre misure di questa schermata**: le due
+ * schermate hanno la stessa testata, lo stesso palco e la stessa scheda in fondo, e un secondo
+ * numero scritto là sarebbe la prima cosa a divergere. Vedi `AdvancedEditorScreen.kt`.
+ */
+internal val SHEET_TOP = 16.dp
 
 /**
  * Il rientro che un `TextButton` di Material si porta dentro, per lato.
@@ -1054,7 +1060,7 @@ private val SHEET_TOP = 16.dp
  * sulla linea del resto della schermata, e un numero sbagliato lo sposterebbe in silenzio.
  * Vedi la nota sulla testata, in [EditorScreen].
  */
-private val TEXT_BUTTON_PAD = 12.dp
+internal val TEXT_BUTTON_PAD = 12.dp
 
 /** Come sta la selezione: in piedi o coricata. Vedi i due tasti in [EditorScreen]. */
 private enum class Lay(@StringRes val label: Int) {
@@ -1584,7 +1590,7 @@ private fun fractions(r: Rect, frame: Rect) = ImageEdit.Crop(
  * leggendo'. Il perché la catena dei ripieghi non arrivasse fin qui sta su
  * [ImageSource.rescue].
  */
-private fun preview(context: Context, uri: Uri): Bitmap? =
+internal fun preview(context: Context, uri: Uri): Bitmap? =
     ImageSource.pixels(context, uri, PREVIEW)
 
 /** Il lato lungo dell'anteprima. */
@@ -1671,8 +1677,8 @@ private val LEAST_SIDE = 32.dp
  * meno di un decimo di uno schermo da telefono, e in cambio l'ultimo pixel dell'immagine è
  * raggiungibile.
  */
-private val STAGE_PAD = 12.dp
-private val STAGE_SIDE = 24.dp
+internal val STAGE_PAD = 12.dp
+internal val STAGE_SIDE = 24.dp
 
 /**
  * Chi modifica le fotografie: si sceglie la prima volta e si cambia dalle impostazioni.
@@ -1725,6 +1731,22 @@ fun EditorPicker(
                     here = chosen == Editors.INTERNAL,
                     onClick = { onPick(Editors.INTERNAL) }
                 )
+                /*
+                 * ⚠️⚠️ **IL SECONDO EDITOR DI CASA STA SUBITO SOTTO IL PRIMO, e compare solo
+                 * dove puo funzionare**: il conto che applica gira sulla scheda grafica con un
+                 * programma scritto a mano, che nasce con Android 13. Sotto quella versione la
+                 * voce **non si offre affatto**, invece di offrirla e poi dire di no: è
+                 * l'istruzione dell'utente (*sotto la 13 resta l'editor di oggi*), e una voce
+                 * che si puo toccare e non fa niente sarebbe peggio della sua assenza.
+                 */
+                if (advancedEditorAvailable()) {
+                    PickRow(
+                        label = stringResource(R.string.editor_full),
+                        icon = null,
+                        here = chosen == Editors.FULL,
+                        onClick = { onPick(Editors.FULL) }
+                    )
+                }
                 edit.forEach { one ->
                     PickRow(
                         label = one.label,

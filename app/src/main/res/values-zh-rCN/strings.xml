@@ -386,8 +386,23 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">编辑</string>
     <string name="menu_edit_hold">选择应用</string>
-    <string name="editor_internal">内置编辑器</string>
+    <string name="editor_internal">简易编辑器</string>
     <string name="editor_title">编辑器</string>
+    <string name="editor_full">完整编辑器</string>
+    <string name="look_light">光线</string>
+    <string name="look_exposure">曝光</string>
+    <string name="look_brightness">亮度</string>
+    <string name="look_contrast">对比度</string>
+    <string name="look_shadows">阴影</string>
+    <string name="look_highlights">高光</string>
+    <string name="look_reset_one">重置%1$s</string>
+    <string name="look_compare">长按查看原图</string>
+    <string name="look_failed">此手机无法应用这些更改</string>
+    <string name="settings_quality">保存质量</string>
+    <string name="settings_quality_desc">完整编辑器写入文件的方式。\'高\' 和 \'最高\' 都是 JPEG：看起来一样，后者约为两倍大小。\'无损\' 会在原图旁边写入 PNG 而不是覆盖原图，并保留每一个像素。</string>
+    <string name="quality_high">高</string>
+    <string name="quality_max">最高</string>
+    <string name="quality_lossless">无损</string>
     <string name="editor_pick">用什么编辑？</string>
     <string name="editor_left">向左旋转</string>
     <string name="editor_right">向右旋转</string>

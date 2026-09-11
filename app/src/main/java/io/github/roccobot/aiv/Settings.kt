@@ -439,6 +439,19 @@ data class Settings(
     val editorApp: String = "",
 
     /**
+     * Con quanta cura l'editor completo riscrive il file.
+     *
+     * ⚠️⚠️ **'Alta' di fabbrica, e la ragione non è la prudenza ma il MESTIERE di un JPEG**: a
+     * 95 la differenza a occhio dal massimo non c'è, e il file quasi raddoppia passando a 100,
+     * perché la quantizzazione smette di fare il suo lavoro. 'Senza perdita' scriverebbe un PNG
+     * per ogni salvataggio, cioè file parecchie volte piu grossi per una cosa che serve quando
+     * l'immagine si dovrà rilavorare ancora.
+     * ⚠️ **Il valore è il token e non la posizione** (vedi `Quality`): l'ordine dei gettoni puo
+     * cambiare senza che nessuno perda la sua scelta.
+     */
+    val editorQuality: Quality = Quality.DEFAULT,
+
+    /**
      * Se prima di sovrascrivere una fotografia se ne mette una copia nel cestino.
      *
      * ⚠️⚠️ **ACCESA DI FABBRICA, e la ragione è che il danno è ASIMMETRICO** (richiesta
@@ -1006,6 +1019,7 @@ object SettingsStore {
     private val LIST_PATH = booleanPreferencesKey("list-path")
     private val PICK_WEIGHT = booleanPreferencesKey("pick-weight")
     private val EDITOR_APP = stringPreferencesKey("editor-app")
+    private val EDITOR_QUALITY = stringPreferencesKey("editor-quality")
     private val EDITOR_BACKUP = booleanPreferencesKey("editor-backup")
     private val ANIM_COUNTER = booleanPreferencesKey("anim-counter")
     private val LIST_COUNT = booleanPreferencesKey("list-count")
@@ -1100,6 +1114,7 @@ object SettingsStore {
             listPath = p[LIST_PATH] ?: false,
             pickWeight = p[PICK_WEIGHT] ?: true,
             editorApp = p[EDITOR_APP] ?: "",
+            editorQuality = Quality.entries.byToken(p[EDITOR_QUALITY], Quality.DEFAULT),
             editorBackup = p[EDITOR_BACKUP] ?: true,
             animCounter = p[ANIM_COUNTER] ?: true,
             listCount = p[LIST_COUNT] ?: true,
@@ -1199,6 +1214,7 @@ object SettingsStore {
             p[LIST_PATH] = settings.listPath
             p[PICK_WEIGHT] = settings.pickWeight
             p[EDITOR_APP] = settings.editorApp
+            p[EDITOR_QUALITY] = settings.editorQuality.token
             p[EDITOR_BACKUP] = settings.editorBackup
             p[ANIM_COUNTER] = settings.animCounter
             p[LIST_COUNT] = settings.listCount

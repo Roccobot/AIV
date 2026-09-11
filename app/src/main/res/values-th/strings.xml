@@ -386,8 +386,23 @@
     <!-- Modificare una fotografia (1.03) -->
     <string name="menu_edit">แก้ไข</string>
     <string name="menu_edit_hold">เลือกแอป</string>
-    <string name="editor_internal">ตัวแก้ไขในตัว</string>
+    <string name="editor_internal">ตัวแก้ไขอย่างง่าย</string>
     <string name="editor_title">ตัวแก้ไข</string>
+    <string name="editor_full">ตัวแก้ไขแบบเต็ม</string>
+    <string name="look_light">แสง</string>
+    <string name="look_exposure">การรับแสง</string>
+    <string name="look_brightness">ความสว่าง</string>
+    <string name="look_contrast">คอนทราสต์</string>
+    <string name="look_shadows">เงา</string>
+    <string name="look_highlights">ไฮไลต์</string>
+    <string name="look_reset_one">รีเซ็ต %1$s</string>
+    <string name="look_compare">กดค้างไว้เพื่อดูต้นฉบับ</string>
+    <string name="look_failed">โทรศัพท์นี้ใช้การเปลี่ยนแปลงไม่ได้</string>
+    <string name="settings_quality">คุณภาพการบันทึก</string>
+    <string name="settings_quality_desc">วิธีที่ตัวแก้ไขแบบเต็มเขียนไฟล์ \'สูง\' และ \'สูงสุด\' เป็น JPEG ทั้งคู่ ดูเหมือนกันและแบบที่สองมีขนาดราวสองเท่า \'ไม่สูญเสีย\' เขียนไฟล์ PNG ไว้ข้างต้นฉบับแทนที่จะเขียนทับ และเก็บทุกพิกเซลไว้</string>
+    <string name="quality_high">สูง</string>
+    <string name="quality_max">สูงสุด</string>
+    <string name="quality_lossless">ไม่สูญเสีย</string>
     <string name="editor_pick">แก้ไขด้วยอะไร</string>
     <string name="editor_left">หมุนซ้าย</string>
     <string name="editor_right">หมุนขวา</string>
