@@ -275,6 +275,34 @@ private fun Screen.isGrid(): Boolean =
     this is Screen.Grid || this is Screen.Search || this == Screen.Bin
 
 /**
+ * Se in questa schermata il FAB può esserci.
+ *
+ * ⚠️⚠️ **SERVE A FARLO USCIRE RIMPICCIOLENDOSI, DALLA `2.11`** (punto A del campo libero del giro
+ * accorpato: *quando dal menu del FAB approdo ad una schermata senza FAB (esempio → Impostazioni),
+ * il pulsante deve sparire rimpicciolendosi fino a sparire*), e la domanda la fa la schermata che
+ * **se ne va**, guardando dove si sta andando: vedi [LocalSenzaFab].
+ * ⚠️ **Dice 'può', non 'ce l'ha'**: in una griglia il FAB compare solo se c'è dove mandare, e da
+ * qui quel dato non si vede. Un falso positivo costa niente, perché un FAB che non c'è non ha
+ * nessuna uscita da animare.
+ * ⚠️ **Le quattro sono la casa e le tre griglie**, cioè [isGrid] più l'elenco delle cartelle: nel
+ * visualizzatore, nell'editor, nelle impostazioni e nella cronologia il FAB non è mai esistito.
+ */
+private fun Screen.hasFab(): Boolean = this is Screen.Folders || isGrid()
+
+/**
+ * Se questa schermata, mentre si va verso [verso], è quella che se ne va **e** là il FAB non c'è.
+ *
+ * ⚠️⚠️ **VIVE IN UNA FUNZIONE SUA PER LA STESSA RAGIONE DI [cambioSchermata]: perché il banco
+ * possa misurare questa e non una copia.** Sono due termini e una negazione, cioè la forma in cui
+ * un `!` di troppo dà un FAB che sparisce quando dovrebbe restare, senza che niente vada in
+ * errore.
+ * ⚠️ **Il primo termine dice CHI SONO IO**: dentro la transizione la stessa funzione gira due
+ * volte, una per il contenuto che esce e una per quello che entra, e solo il primo ha un FAB da
+ * congedare. Senza quel termine sparirebbe anche il FAB della schermata che arriva.
+ */
+internal fun Screen.senzaFabVerso(verso: Screen): Boolean = this != verso && !verso.hasFab()
+
+/**
  * La casa dell'app.
  *
  * ⚠️ Un nome solo perché i posti che ci tornano sono sei (l'avvio, l'uscita dal
@@ -2677,8 +2705,22 @@ private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
             transitionSpec = { cambioSchermata() },
             label = "schermata"
         ) { schermo ->
-            stanze.SaveableStateProvider(schermo.saveKey()) {
-                Stage(schermo, model, settings, onPicked)
+            /*
+             * ⚠️⚠️ **QUESTA È LA SOLA COSA CHE SA DOVE SI STA ANDANDO, ED È PER IL FAB CHE ESCE**
+             * (punto A del campo libero del giro accorpato). Il contenuto uscente vive ancora per
+             * i 180 ms della dissolvenza, e in quel tratto `schermo` è la schermata di prima
+             * mentre [ViewerViewModel.screen] è già quella nuova: il confronto fra i due dice
+             * insieme *io sono quella che se ne va* e *dove si sta andando il FAB non c'è*.
+             * ⚠️ **Si legge il modello QUI DENTRO apposta**: così il contenuto uscente si
+             * ricompone quando il bersaglio cambia, che è l'istante in cui l'uscita deve partire.
+             * ⚠️ **Non è il ritorno di `LocalArrivo`**, che la `1.75` ha tolto: quello diceva
+             * quando una schermata aveva finito di **entrare**, e serviva a far aspettare
+             * un'animazione; questo dice dove si va, e serve a farne partire una.
+             */
+            CompositionLocalProvider(LocalSenzaFab provides schermo.senzaFabVerso(model.screen)) {
+                stanze.SaveableStateProvider(schermo.saveKey()) {
+                    Stage(schermo, model, settings, onPicked)
+                }
             }
         }
         /*
@@ -2688,8 +2730,17 @@ private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
          * `when` se ne andrebbe proprio nell'istante in cui deve restare, che è la clausola
          * esplicita dell'offerta di disfare (*resta disponibile anche se si cambia cartella*).
          * ⚠️ **La frase la porta la riga**: qui non si sa che cosa dica, e non serve saperlo.
+         * ⚠️⚠️ **E DALLA `2.11` SALE SOPRA LA SCHEDA DELLA SELEZIONE** (punto C del campo libero
+         * del giro accorpato: *in alcune circostanze (es. si inizia una selezione dopo un 'copia',
+         * 'sposta' o 'elimina'), la bottomsheet della selezione va a finire sotto la notifica in
+         * basso*). Le due superfici sono appoggiate allo stesso bordo e nascono da due gesti che
+         * si susseguono, quindi prima o poi si incontrano: il perché a muoversi sia questa, e non
+         * la scheda, vive su [Modifier.abovePickSheet].
          */
-        AppNotice(Notices.line, modifier = Modifier.align(Alignment.BottomCenter))
+        AppNotice(
+            Notices.line,
+            modifier = Modifier.align(Alignment.BottomCenter).abovePickSheet()
+        )
         /*
          * ⚠️⚠️ **LA FASCIA DELLA COPERTINA VIVE QUI PER LA STESSA RAGIONE DELLA NOTIFICA**: la
          * scelta comincia in una cartella e può finire in un'altra, quindi l'unica cosa che dice
@@ -2702,7 +2753,10 @@ private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
             CoverInvite(
                 name = quale.name,
                 onCancel = { model.stopCover() },
-                modifier = Modifier.align(Alignment.BottomCenter)
+                // ⚠️ **Sale anche lei**, per la stessa ragione della notifica: è appoggiata allo
+                // stesso bordo, e una riga in meno di così vorrebbe dire scommettere che le due
+                // cose non si incontrino mai.
+                modifier = Modifier.align(Alignment.BottomCenter).abovePickSheet()
             )
         }
     }
@@ -3021,6 +3075,7 @@ private fun Stage(
                 onSearch = { model.openSearch() },
                 onFilter = { model.sift(it) },
                 gridNames = settings.gridNames,
+                lastMark = settings.lastMark,
                 onBusy = { model.gridBusy = it }
             )
         }
@@ -3055,6 +3110,7 @@ private fun Stage(
                 filter = model.gridFilter,
                 onFilter = { model.sift(it) },
                 gridNames = settings.gridNames,
+                lastMark = settings.lastMark,
                 onBusy = { model.gridBusy = it }
             )
         }
@@ -3097,6 +3153,7 @@ private fun Stage(
                 onSearch = { model.openSearch() },
                 onFilter = { model.sift(it) },
                 gridNames = settings.gridNames,
+                lastMark = settings.lastMark,
                 bin = true,
                 onHistory = { model.openHistory() },
                 onBusy = { model.gridBusy = it }

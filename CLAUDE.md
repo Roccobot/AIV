@@ -717,6 +717,31 @@ per quei sei fotogrammi il FAB si vedeva **pieno** mentre tutto il resto sfumava
   § '🧪 Quando si scrive una prova, e quando no': una scusa scritta accanto a un'asserzione
   saltata è il modo in cui una prova mente in verde.
 
+⚠️⚠️ **E DALLA `2.11` IL FAB SI CONGEDA RIMPICCIOLENDOSI, QUANDO SI VA DOVE NON C'È** (punto A
+del campo libero del giro accorpato: *quando dal menu del FAB approdo ad una schermata senza FAB
+(esempio → Impostazioni), il pulsante deve sparire rimpicciolendosi fino a sparire*). Fra le due
+varianti che aveva descritto la scelta era mia, e la dichiaro: **si rimpicciolisce tutto, glifo
+compreso**, perché la seconda (il pulsante che fa da maschera) taglia il glifo mentre il cerchio
+si stringe, cioè mostra per qualche fotogramma un disegno mutilato.
+- ⚠️⚠️ **A SAPERE DOVE SI STA ANDANDO È SOLO CHI METTE IN SCENA LE SCHERMATE**, cioè `AivApp`: una
+  schermata non sa dove porta una voce del proprio menu. Il valore viaggia in un `CompositionLocal`
+  (`LocalSenzaFab`) fornito **dentro** la transizione, dove il contenuto uscente vive ancora e il
+  bersaglio è già quello nuovo.
+- ⚠️ **Lo legge `TapHoldFab` e non i suoi chiamanti**, così un FAB nuovo prende l'uscita per
+  costruzione: è lo stesso criterio per cui `lowered()` porta con sé il velo.
+- ⚠️⚠️ **DURA MENO DELLA DISSOLVENZA DI SCHERMATA, E IL CONTO È LA REGOLA QUI SOPRA LETTA AL
+  ROVESCIO**: quei 180 ms scendono ripidi, e l'opacità della schermata che se ne va vale 0,54 a
+  60 ms e 0,16 a 100. Con cento millisecondi e una curva che parte veloce, a 40 ms il tasto è già
+  sotto la metà mentre la schermata è ancora al 72%. **Allungare quel numero peggiora**, perché il
+  rimpicciolimento finirebbe sotto un velo che non lascia passare niente.
+- ⚠️ **La scala si moltiplica al rimbalzo invece di sostituirlo**: toccando una voce del menu il
+  FAB sta ancora tornando su dal suo rimbalzo, e due scale su due nodi darebbero un tasto che si
+  stringe mentre un altro lo allarga.
+- ⚠️ **Che cosa il banco misura** (`UscitaFabTest`): che il tasto copra meno pixel a metà corsa e
+  nessuno alla fine, e le quattro combinazioni di *quando* l'uscita parte. La scala vive in un
+  `graphicsLayer`, quindi il riquadro non cambia e una prova che guardasse `boundsInRoot` sarebbe
+  verde con e senza la correzione.
+
 ⚠️⚠️ **IL MECCANISMO CHE SERVIVA AD ASPETTARE NON C'È PIÙ, DALLA `1.75`, E LA REGOLA RESTA.**
 `LocalArrivo` e `ConArrivo` erano nati nella `1.74` per il solo chiamante che ne avesse bisogno,
 l'entrata del FAB, e con lei se ne sono andati (riscontro dell'utente, giro della `1.74`:
@@ -1909,6 +1934,30 @@ primo 'mi sembra troppo veloce'.
   cui si può disfare, e non è un caso da correggere: due frasi che si somigliano restano in scena
   lo stesso tempo.
 
+⚠️⚠️ **DALLA `2.11` LA NOTIFICA SALE SOPRA LA SCHEDA DELLA SELEZIONE, E A MUOVERSI È LEI**
+(punto C del campo libero del giro accorpato: *in alcune circostanze (es. si inizia una selezione
+dopo un 'copia', 'sposta' o 'elimina'), la bottomsheet della selezione va a finire sotto la
+notifica in basso*). Le due superfici sono appoggiate allo stesso bordo e nascono da due gesti che
+si susseguono, quindi prima o poi si incontrano.
+- ⚠️⚠️ **LA SUA PROPOSTA ERA IL CONTRARIO, E LA SCELTA È DICHIARATA** (*finché è visibile l'avviso
+  la bottomsheet arriva più in alto e poi si abbassa?*): muovere la scheda sposterebbe i
+  **comandi** mentre il dito sta per toccarli, che è la stessa famiglia del difetto della griglia
+  che scorre sotto un dito appoggiato (la nota della `1.78` sull'intestazione). Una notifica
+  invece si tocca di rado, e quando la si tocca è per disfare, cioè prima che la selezione
+  ricominci.
+- ⚠️⚠️ **NON C'È NESSUNA ANIMAZIONE IN PIÙ, E QUI STA IL VALORE**: la scheda dichiara a ogni
+  fotogramma quanta parte di schermo occupa (`PickStage`), e chi le si appoggia sopra la segue **per
+  costruzione**, senza una seconda curva da tenere allineata alla prima. Due animazioni scritte in
+  due posti divergono al primo ritocco.
+- ⚠️ **Un oggetto di processo e non un `CompositionLocal`**: chi deve sapere (la notifica di casa e
+  la fascia della copertina) vive sopra la transizione fra schermate, cioè in un ramo che non
+  discende dalla scheda, e un local va dall'alto in basso.
+- ⚠️⚠️ **E IL VALORE SI LEGGE IN COMPOSIZIONE, PERCHÉ LA VIA CHE COSTA MENO NON FUNZIONA**: letto
+  dentro `Modifier.offset { }`, cioè nella fase di layout, quel lambda è stato valutato **una
+  volta sola** con lo zero di partenza e non è più tornato quando il valore è salito. Perché non
+  torni non si sa, e si scrive così invece di inventare una causa: il sospetto è che a scriverlo
+  sia un `onGloballyPositioned`, cioè la stessa passata che dovrebbe rileggerlo.
+
 ⚠️⚠️ **UN AVVISO DI SISTEMA RESTA, ED È UNO SOLO**: quello che spiega perché si sta per aprire la
 pagina delle impostazioni di Android (`folder_why`, in `ViewerActivity`). Là l'app va in
 **secondo piano** nello stesso istante, quindi una notifica di casa non si vedrebbe affatto: dire
@@ -2072,6 +2121,20 @@ ricerca è una richiesta dell'utente.
 - **Il collaudo di una voce nuova è di due tocchi**: si cerca una parola del titolo e una della
   spiegazione, e la voce deve comparire da sé. Se compare la riga che apre la pagina invece
   della voce, il rimedio non è scrivere quella parola nel riepilogo, è coprire la voce.
+- ⚠️⚠️ **E DALLA `2.11` UNA RICERCA FINISCE QUANDO PORTA DA QUALCHE PARTE** (riscontro del giro
+  della `2.10`, voce `imp-cerca-titoli` approvata con una nota: *se dalla ricerca poi approdo ad
+  un elemento con cui interagisco (es. apro una sotto-pagina), la ricerca si resetta e torno
+  all'inizio delle impostazioni senza nulla digitato nel 'cerca'*). Una ricerca è il modo di
+  **arrivare** a una voce, non uno stato in cui restare: trovarsela ancora accesa al ritorno
+  costringe a svuotare il campo per rivedere il pannello intero.
+  - ⚠️ **Vale per la NAVIGAZIONE e non per ogni tocco**, che è più stretto della lettera della
+    sua frase: un interruttore toccato mentre la ricerca è in corso deve restare dove lui lo
+    sta guardando, e svuotare il campo glielo farebbe sparire da sotto il dito.
+  - ⚠️ **Si scrive nella funzione che apre una pagina e non nei chiamanti**: ogni `PageRow`
+    passa di là, quindi una voce nuova prende la regola per costruzione.
+  - ⚠️ **Lo scorrimento torna in cima solo se la ricerca c'era**: senza quella condizione si
+    rifarebbe il difetto che la radice esiste per evitare, cioè una pagina piatta che si azzera
+    a ogni giro in una sotto-pagina.
 
 ⚠️⚠️ **UNA VOCE PUÒ VIVERE IN DUE POSTI: IL PANNELLO È LA CASA, IL DIALOGO 'OPZIONI DI
 VISUALIZZAZIONE' È LA SCORCIATOIA.** Quattro clausole, e nessuna è negoziabile.
@@ -2136,6 +2199,57 @@ impostazioni si leggevano 'Folder color' e 'Header colour'.
   'Scala di grigi' come prima.
 - ⚠️ **Da qui in poi l'inglese nuovo si scrive americano**, che è la metà della risposta che vale
   per il futuro: una stringa nuova in britannico rimetterebbe le due grafie nella stessa pagina.
+
+## 🏷️ L'indicatore dell'ultimo media, e la sua migrazione
+
+⚠️⚠️ **DALLA `2.11` I SEGNI SONO DUE E SI SCEGLIE, ED È SUA RICHIESTA** (punto D del campo libero
+del giro accorpato: *aggiungi 'Indicatore dell'ultimo media visualizzato' con due chip di
+selezione esclusiva: 'Cornice' e 'Angolo' (predefinito di fabbrica: 'Cornice')*). Fino alla `2.10`
+il segno era uno solo, il nastro triangolare nell'angolo, e non si poteva cambiare.
+
+⚠️⚠️ **LA CORNICE RIMETTE IN SCENA QUELLO CHE LA `0.58` AVEVA SCARTATO, E L'ARGOMENTO DI ALLORA
+REGGE ANCORA**: là la cornice era fra le cinque proposte e lui aveva scelto il nastro, perché *una
+cornice attorno a una miniatura è il gesto universale della selezione, quindi da lontano quel segno
+dice la cosa sbagliata*. Quello che è cambiato non è l'argomento, è la sua preferenza, e la scelta
+resta doppia proprio perché i due segni dicono cose diverse. Chi trova quella nota in `GridScreen`
+non la corregga: vale per tutte e due le versioni.
+
+⚠️⚠️ **CHI AGGIORNA TIENE L'ANGOLO, ED È L'ALTRA METÀ DELLA SUA CLAUSOLA** (*chi aggiorna dovrà
+trovare la doppia scelta, ma anche se 'Cornice' è l'impostazione di fabbrica, deve restare
+'Angolo', per non stravolgere la UI di chi è già utente*). Cioè il valore di fabbrica è uno solo, e
+da che parte cade dipende da quando l'app è arrivata sul telefono.
+- ⚠️⚠️ **SI DECIDE UNA VOLTA SOLA E SI SCRIVE, e la via che sembrava più corta è un difetto**:
+  leggere 'l'archivio è vuoto' a ogni lettura darebbe la cornice finché l'utente non tocca una
+  qualunque altra impostazione, e da quel momento l'angolo. Una **migrazione** dell'archivio gira
+  prima della prima lettura e lascia una risposta che non cambia più.
+- ⚠️ **Il segno di 'già utente' è che l'archivio porti qualcosa**, e regge perché in quello store
+  vivono anche i promemoria che l'app scrive da sé: la domanda sul permesso ai file, che si fa al
+  primo avvio, e i mini onboarding.
+- ⚠️ **Il caso limite si dichiara**: un archivio davvero vuoto è indistinguibile da
+  un'installazione nuova, e là arriva la cornice. Sono i telefoni su cui l'app è stata installata
+  e mai aperta.
+
+⚠️⚠️ **IL COLORE È `accentInk` E NON IL NUMERO CHE HA SCRITTO, E I DUE COINCIDONO DOVE LUI
+GUARDAVA**: `#4FD9BE` è esattamente l'accento leggibile del tema scuro (`LINK_DARK` in `Theme.kt`),
+cioè il colore che il suo mockup porta perché il mockup è scuro. Scritto a mano resterebbe quello
+anche sul tema chiaro, dove l'app usa il suo gemello.
+- ⚠️ **Non è `colorScheme.primary`**, che è il colore del nastro: quello è l'accento pieno, e su
+  una fotografia qualunque una riga sottile di accento pieno si legge meno della sua versione da
+  inchiostro. Un tratto da tre punti non ha l'area per difendersi da sé, che è invece quello che fa
+  un triangolo.
+- ⚠️ **Lo spessore è in dp e non in frazione del lato**, al contrario del nastro: un nastro è una
+  forma e su un tablet deve crescere con la piastrella, un tratto ha lo stesso spessore ovunque,
+  come il filetto sotto una copertina e il bordo d'accento dei pannelli. I tre punti vengono dal
+  suo mockup, dove la cornice vale il 2,7% del lato della miniatura.
+
+⚠️ **La voce vive in 'Etichette e pulsanti' perché lo ha chiesto lui**, e la famiglia lo regge per
+il titolo della pagina che la contiene, 'Comandi e indicatori': quella parola ce l'ha già, mentre
+la domanda della famiglia (*come si presentano i comandi che uso*) da sola non basterebbe.
+
+⚠️ **Che cosa il banco misura e che cosa no** (`IndicatoreTest`): la migrazione nei tre casi, che è
+la sola cosa qui dentro che possa rompersi **in silenzio**, perché nessuno la vede finché non
+aggiorna l'app su un telefono già usato. **Non** vede il segno disegnato: una miniatura vuole una
+griglia con dentro delle immagini vere, e il MediaStore di Robolectric è vuoto.
 
 ## 🧪 Quando si scrive una prova, e quando no
 

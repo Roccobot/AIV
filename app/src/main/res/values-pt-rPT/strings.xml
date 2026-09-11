@@ -137,4 +137,7 @@
     <!-- aplicativo -> aplicacao, aparelhos -> dispositivos, isso -> isto. -->
     <string name="settings_gpu_thumbs_desc">Cria a cache das miniaturas na memória do chip gráfico, deixando livre a memória comum. Pode deixar a galeria mais rápida, não mudar nada ou, em alguns casos, quase sempre em aparelhos antigos, deixá-la lenta. Se tiver problemas de desempenho, ative e veja se melhora: não há como saber antes, com todas as combinações de hardware e software que o Android tem.</string>
     <string name="save_name_title">Nome do ficheiro</string>
+    <string name="settings_last_mark">Marca do último item visto</string>
+    <string name="settings_last_mark_frame">Moldura</string>
+    <string name="settings_last_mark_corner">Canto</string>
 </resources>

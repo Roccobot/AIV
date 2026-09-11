@@ -489,6 +489,9 @@
     <string name="settings_buttons_steps">Editor: desfazer e aplicar</string>
     <string name="settings_labels">Rótulos sob os ícones</string>
     <string name="settings_labels_desc">Se desativados, os painéis de ícones ficam mais compactos. Os menus em lista não mudam.</string>
+    <string name="settings_last_mark">Marca do último item visto</string>
+    <string name="settings_last_mark_frame">Moldura</string>
+    <string name="settings_last_mark_corner">Canto</string>
     <string name="settings_buttons_how">Mantenha um botão pressionado e arraste-o para mudar seu lugar dentro do seu painel.</string>
     <string name="settings_buttons_reset">Redefinir</string>
     <string name="settings_buttons_reset_ask">Quer voltar com os botões para a disposição padrão?</string>

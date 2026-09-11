@@ -472,6 +472,9 @@
     <string name="settings_buttons_steps">संपादक: पूर्ववत और लागू करना</string>
     <string name="settings_labels">आइकनों के नीचे लेबल</string>
     <string name="settings_labels_desc">बंद करने पर आइकन पैनल अधिक संक्षिप्त हो जाते हैं। सूची वाले मेन्यू नहीं बदलते।</string>
+    <string name="settings_last_mark">आखिरी देखे गए आइटम का चिह्न</string>
+    <string name="settings_last_mark_frame">फ़्रेम</string>
+    <string name="settings_last_mark_corner">कोना</string>
     <string name="settings_buttons_how">किसी बटन को दबाकर रखें और उसे खींचकर उसके अपने पैनल में उसकी जगह बदलें।</string>
     <string name="settings_buttons_reset">रीसेट</string>
     <string name="settings_buttons_reset_ask">बटनों को डिफ़ॉल्ट क्रम में लौटाना चाहते हैं?</string>

@@ -12,6 +12,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
+import androidx.datastore.core.DataMigration
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -117,6 +118,29 @@ enum class PanelDepth(override val token: String) : Choice {
     SHADOW("shadow"),
     /** Niente: le finestre restano come Android le dà. */
     NONE("none")
+}
+
+/**
+ * Come si riconosce l'**ultimo media visualizzato** in una griglia.
+ *
+ * ⚠️⚠️ **DUE DALLA `2.11`, ED È SUA RICHIESTA** (punto D del campo libero del giro accorpato:
+ * *aggiungi 'Indicatore dell'ultimo media visualizzato' con due chip di selezione esclusiva:
+ * 'Cornice' e 'Angolo' (predefinito di fabbrica: 'Cornice')*). Fino alla `2.10` il segno era uno
+ * solo, il nastro nell'angolo, e non si poteva cambiare.
+ * ⚠️⚠️ **[FRAME] ROVESCIA UNA SCELTA DELLA `0.58`, E VA SAPUTO PERCHÉ NON SEMBRI UNA SVISTA**:
+ * allora la cornice era fra le cinque proposte e l'aveva **scartata**, per una ragione scritta in
+ * `GridScreen` e che regge ancora (*una cornice attorno a una miniatura è il gesto universale
+ * della selezione, quindi da lontano quel segno dice la cosa sbagliata*). Adesso la rivuole, con
+ * un mockup suo: quello che cambia non è l'argomento, è la sua preferenza, e la scelta resta
+ * doppia proprio perché i due segni dicono cose diverse.
+ * ⚠️ **Quale dei due arriva di fabbrica dipende da quando l'app è stata installata**: il perché e
+ * il come vivono su `MarkMigration`.
+ */
+enum class LastMark(override val token: String) : Choice {
+    /** Una cornice intorno alla miniatura, del colore d'accento: il mockup della `2.11`. */
+    FRAME("frame"),
+    /** Il nastro triangolare nell'angolo in basso a sinistra, cioè il segno dalla `0.58`. */
+    CORNER("corner")
 }
 
 /**
@@ -801,6 +825,19 @@ data class Settings(
      * accanto al testo, e togliere il testo lascerebbe una riga con un glifo e un vuoto.
      */
     val padLabels: Boolean = true,
+    /**
+     * Con che segno si riconosce l'ultimo media visualizzato in una griglia.
+     *
+     * ⚠️⚠️ **IL VALORE DI FABBRICA È LA CORNICE, ED È SUO ALLA LETTERA** (punto D del campo
+     * libero del giro accorpato: *predefinito di fabbrica: 'Cornice'*), quindi qui non c'è niente
+     * da giustificare: non è un valore scelto per far vedere una funzione, è quello che ha
+     * chiesto.
+     * ⚠️⚠️ **MA CHI AGGIORNA TROVA L'ANGOLO**, che è l'altra metà della sua clausola, e non si
+     * ottiene da questo numero: lo decide una migrazione dell'archivio, e il perché vive su
+     * `MarkMigration`. Questo resta il valore di fabbrica dichiarato, cioè quello che vale se
+     * l'archivio non dice niente.
+     */
+    val lastMark: LastMark = LastMark.FRAME,
 ) {
     /** I campi da mostrare, nell'ordine scelto e senza quelli spenti. */
     val factRows: List<FactField> get() = factOrder.filterNot { it in factOff }
@@ -887,7 +924,49 @@ fun padOrderOf(tokens: List<String>, base: List<PadKey>): List<PadKey> {
  * file', and two different names would mean two files for one small set of
  * preferences.
  */
-private val Context.aivStore: DataStore<Preferences> by preferencesDataStore(name = "aiv-settings")
+private val Context.aivStore: DataStore<Preferences> by preferencesDataStore(
+    name = "aiv-settings",
+    produceMigrations = { listOf(MarkMigration) }
+)
+
+/**
+ * La chiave dell'indicatore dell'ultimo media, e sta **a livello di file** e non fra le altre.
+ *
+ * ⚠️ **Perché qui**: la legge anche [MarkMigration], che deve vivere accanto al delegato dello
+ * store, cioè fuori da [SettingsStore]. È l'unica chiave con questa necessità.
+ */
+internal val LAST_MARK = stringPreferencesKey("last-mark")
+
+/**
+ * Chi aggiorna tiene l'angolo, chi installa adesso trova la cornice.
+ *
+ * ⚠️⚠️ **È UNA SUA CLAUSOLA ALLA LETTERA** (punto D del campo libero del giro accorpato: *chi
+ * aggiorna dovrà trovare la doppia scelta, ma anche se 'Cornice' è l'impostazione di fabbrica,
+ * deve restare 'Angolo', per non stravolgere la UI di chi è già utente*). Cioè il valore di
+ * fabbrica è uno solo, ma **da che parte cade** dipende da quando l'app è arrivata sul telefono.
+ * ⚠️⚠️ **SI DECIDE UNA VOLTA SOLA E SI SCRIVE, e la via che sembrava più corta è un difetto**:
+ * leggere 'l'archivio è vuoto' a ogni lettura darebbe la cornice finché l'utente non tocca una
+ * qualunque altra impostazione, e da quel momento l'angolo. Una migrazione gira **prima della
+ * prima lettura** e lascia nell'archivio una risposta che non cambia più.
+ * ⚠️ **Il segno di 'già utente' è che l'archivio porti qualcosa**, e regge perché in questo store
+ * vivono anche i promemoria che l'app scrive da sé: la domanda sul permesso ai file, che si fa al
+ * primo avvio, e i mini onboarding. Chi ha aperto l'app una volta ha già una chiave.
+ * ⚠️ **Il caso limite si dichiara invece di nasconderlo**: un archivio davvero vuoto è
+ * indistinguibile da un'installazione nuova, e là la cornice arriva. Sono i telefoni su cui l'app
+ * è stata installata e mai aperta.
+ */
+internal object MarkMigration : DataMigration<Preferences> {
+    override suspend fun shouldMigrate(currentData: Preferences): Boolean =
+        currentData[LAST_MARK] == null
+
+    override suspend fun migrate(currentData: Preferences): Preferences =
+        currentData.toMutablePreferences().apply {
+            val quale = if (currentData.asMap().isEmpty()) LastMark.FRAME else LastMark.CORNER
+            this[LAST_MARK] = quale.token
+        }
+
+    override suspend fun cleanUp() = Unit
+}
 
 /** Reads and writes the settings. */
 object SettingsStore {
@@ -1058,6 +1137,12 @@ object SettingsStore {
             turnOrder = padOrderOf((p[TURN_ORDER] ?: "").split(','), TURN_KEYS),
             stepOrder = padOrderOf((p[STEP_ORDER] ?: "").split(','), STEP_KEYS),
             padLabels = p[PAD_LABELS] ?: true,
+            /*
+             * ⚠️ **Il ripiego è il valore di fabbrica dichiarato**, e in pratica non si usa mai:
+             * a scrivere la chiave ci pensa `MarkMigration`, che gira prima della prima lettura.
+             * Resta perché un ripiego che non c'è è un `null` che nessuno ha previsto.
+             */
+            lastMark = LastMark.entries.byToken(p[LAST_MARK], LastMark.FRAME),
             // ⚠️ I campi sempre visibili si tolgono **in lettura**: un archivio che li
             // dichiarasse spenti (una versione futura, un file modificato a mano) non deve
             // poter far sparire il nome del file.
@@ -1150,6 +1235,7 @@ object SettingsStore {
             p[TURN_ORDER] = settings.turnOrder.joinToString(",") { it.token }
             p[STEP_ORDER] = settings.stepOrder.joinToString(",") { it.token }
             p[PAD_LABELS] = settings.padLabels
+            p[LAST_MARK] = settings.lastMark.token
             p[FACT_OFF] = settings.factOff.filterNot { it.always }.map { it.token }.toSet()
         }
     }

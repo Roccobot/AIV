@@ -3,6 +3,7 @@ package io.github.roccobot.aiv
 import android.view.WindowManager
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -17,6 +18,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -36,16 +39,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -504,6 +511,7 @@ fun PadArrange(
  */
 @Composable
 fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (Int) -> Unit = {}) {
+    val finestra = LocalWindowInfo.current.containerSize.height
     AnimatedVisibility(
         visible = visible,
         /*
@@ -533,6 +541,28 @@ fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (In
         exit = vaGiu(),
         modifier = Modifier.align(Alignment.BottomCenter)
     ) {
+        /*
+         * ⚠️⚠️ **QUANTO LA SCHEDA COPRE DAL FONDO SI DICHIARA A OGNI FOTOGRAMMA, DALLA `2.11`,
+         * E NON È LA STESSA COSA DI [onHeight]** (punto C del campo libero del giro accorpato:
+         * *in alcune circostanze (es. si inizia una selezione dopo un 'copia', 'sposta' o
+         * 'elimina'), la bottomsheet della selezione va a finire sotto la notifica in basso*).
+         * Quel parametro dice quanto è alto il **contenuto**, e serve alla griglia per lasciargli
+         * il posto; questo dice quanta parte di schermo la scheda **occupa adesso**, cioè un
+         * numero che cambia mentre sale e mentre scende.
+         * ⚠️⚠️ **A SALIRE È LA NOTIFICA E NON LA SCHEDA, ed è una scelta contro la sua proposta**
+         * (*finché è visibile l'avviso la bottomsheet arriva più in alto e poi si abbassa?*):
+         * muovere la scheda sposterebbe i **comandi** mentre il dito sta per toccarli, che è la
+         * stessa famiglia del difetto della griglia che scorre sotto un dito appoggiato (la nota
+         * della `1.78` sull'intestazione). Una notifica invece non si tocca quasi mai, e quando
+         * la si tocca è per disfare, cioè prima che la selezione ricominci.
+         * ⚠️⚠️ **SI MISURA LA POSIZIONE E NON SI ANIMA NIENTE, e qui sta il valore**: la scheda
+         * entra ed esce con le sue curve, e chi la legge le segue **per costruzione**, senza una
+         * seconda animazione da tenere allineata alla prima. Due animazioni scritte in due posti
+         * divergono al primo ritocco, ed è un difetto che questo repository ha già pagato.
+         * ⚠️ **Sul contenitore e non sul contenuto**: la scheda arriva al vetro e il rientro di
+         * sistema ce l'ha dentro, quindi quello che copre parte dal bordo dello schermo.
+         */
+        DisposableEffect(Unit) { onDispose { PickStage.cover(0) } }
         Surface(
             /*
              * ⚠️⚠️ **IL BORDO D'ACCENTO CE L'HA ANCHE LEI, dalla `1.55`, ed è una decisione
@@ -551,7 +581,11 @@ fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (In
              * *le bottomsheet non stanno bene con la riga intorno*): resta la cima con i due
              * archi, e i fianchi finiscono fuori dallo schermo. Il perché sta su `edgedTop`.
              */
-            modifier = Modifier.edgedTop(PANEL_ROUND),
+            modifier = Modifier
+                .edgedTop(PANEL_ROUND)
+                .onGloballyPositioned {
+                    PickStage.cover(finestra - it.positionInWindow().y.roundToInt())
+                },
             shape = RoundedCornerShape(topStart = PANEL_ROUND, topEnd = PANEL_ROUND),
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
             /*
@@ -609,6 +643,56 @@ fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (In
             }
         }
     }
+}
+
+/**
+ * Quanta parte di schermo si prende, **in questo fotogramma**, la scheda della selezione.
+ *
+ * ⚠️⚠️ **ESISTE PERCHÉ CHI DEVE SAPERLO NON VIVE DENTRO LA SCHERMATA**: la notifica di casa e la
+ * fascia della copertina vivono sopra la transizione fra schermate (`ViewerActivity`), cioè in un
+ * ramo che non discende da [PickSheet]. Un `CompositionLocal` va dall'alto in basso e qui il verso
+ * è il contrario, quindi la via è la stessa di [Notices] e di [VeilStage]: un oggetto di processo
+ * che una superficie scrive e le altre leggono.
+ * ⚠️ **Un numero solo e non una mappa, al contrario di [VeilStage]**: di schede della selezione ce
+ * n'è al più una in scena, perché ce n'è una per griglia e le griglie non si sovrappongono.
+ * ⚠️⚠️ **SI LEGGE IN COMPOSIZIONE, E LA VIA PIÙ ECONOMICA NON FUNZIONA: È MISURATO.** La prima
+ * stesura lo leggeva dentro `Modifier.offset { }`, cioè nella fase di layout, che è la strada che
+ * costa zero ricomposizioni; col banco alla mano quel lambda è stato valutato **una volta sola**,
+ * con lo zero di partenza, e non è più tornato quando il valore è salito a 94. Perché non torni
+ * non si sa, e si scrive così invece di inventare una causa: il sospetto è che a scriverlo sia un
+ * `onGloballyPositioned`, cioè la stessa passata di layout che dovrebbe rileggerlo.
+ * ⚠️ **Il costo si paga e si dichiara**: la notifica si ricompone a ogni fotogramma nei due terzi
+ * di secondo in cui la scheda sale o scende, ed è un nodo con dentro una frase e un tasto.
+ */
+internal object PickStage {
+    private val quanto = mutableIntStateOf(0)
+
+    /** Quanti pixel di schermo copre, contati dal bordo di sotto: `0` quando non è in scena. */
+    val covers: Int get() = quanto.intValue
+
+    fun cover(px: Int) {
+        quanto.intValue = px.coerceAtLeast(0)
+    }
+}
+
+/**
+ * Tiene una superficie appoggiata in fondo **sopra** la scheda della selezione, quando c'è.
+ *
+ * ⚠️⚠️ **LO CHIAMANO LE DUE COSE CHE VIVONO IN FONDO SOPRA LA TRANSIZIONE**, cioè la notifica di
+ * casa e la fascia della copertina: sono le sole due superfici che la scheda può coprire, perché
+ * tutto il resto o vive dentro una schermata o è una finestra sua. Una riga sola per tutte e due,
+ * così una terza che nascesse non ha un secondo modo con cui sbagliare.
+ * ⚠️⚠️ **SI SOTTRAE IL RIENTRO DI SISTEMA, e senza quel termine la notifica salirebbe troppo**:
+ * chi chiama si è già scansato dalla barra di navigazione, e la scheda quella barra la copre,
+ * quindi alzarsi di tutto quello che la scheda occupa conterebbe quella striscia due volte.
+ * ⚠️ **Uno spostamento e non un rientro**: la superficie resta larga e alta com'era, e a muoversi
+ * è solo dove viene posata. Un `padding` la rimisurerebbe a ogni fotogramma della salita.
+ */
+@Composable
+internal fun Modifier.abovePickSheet(): Modifier {
+    val barra = WindowInsets.navigationBars.getBottom(LocalDensity.current)
+    val su = (PickStage.covers - barra).coerceAtLeast(0)
+    return offset { IntOffset(0, -su) }
 }
 
 /**
@@ -1074,6 +1158,21 @@ private const val MORPH_MS = RIMBALZO_GIU_MS + RIMBALZO_SU_MS
 private const val TINTA_MS = 55
 
 /**
+ * In quanto tempo il FAB si rimpicciolisce fino a sparire, andando dove non c'è.
+ *
+ * ⚠️⚠️ **IL NUMERO VIENE DALLA DISSOLVENZA DI SCHERMATA, E IL CONTO È MISURATO**: quei 180 ms
+ * scendono con la curva di serie di `tween`, che è ripida in mezzo, e l'opacità della schermata
+ * che se ne va vale 0,54 a 60 ms, 0,30 a 80 e 0,16 a 100. Cioè tutto quello che il FAB fa dopo il
+ * primo decimo di secondo lo fa dietro un velo che non lascia passare quasi niente.
+ * ⚠️ **Con questi cento millisecondi e una curva che parte veloce**, a 40 ms il tasto è già sotto
+ * la metà e la schermata è ancora al 72%: il rimpicciolimento si vede quando c'è da vederlo, e
+ * l'ultimo tratto se ne va insieme a tutto il resto.
+ * ⚠️ **Allungarlo peggiora invece di migliorare**, ed è la lezione della `1.73` letta al
+ * rovescio: là un'animazione di entrata giocata sotto la dissolvenza si vedeva solo per la coda.
+ */
+private const val VIA_MS = 100
+
+/**
  * Il lato della × che prende il posto del glifo, e quanto zoom fanno i due simboli.
  *
  * ⚠️ **Più piccola del glifo dell'app**, come ha chiesto (*il simbolo × centrato e piccolo*):
@@ -1258,6 +1357,21 @@ val FAB_REACH = HUB_PAD + FAB_SIZE
 val BELOW_FAB = FAB_REACH + 20.dp
 
 /**
+ * Se questa schermata sta uscendo verso una **senza FAB**.
+ *
+ * ⚠️⚠️ **LO FORNISCE `AivApp`, DENTRO LA TRANSIZIONE FRA SCHERMATE, ED È L'UNICO POSTO CHE SA
+ * DOVE SI STA ANDANDO** (punto A del campo libero del giro accorpato: *quando dal menu del FAB
+ * approdo ad una schermata senza FAB (esempio → Impostazioni), il pulsante deve sparire
+ * rimpicciolendosi fino a sparire*). Una schermata non sa dove porta una voce del proprio menu,
+ * e il FAB meno che mai: quello che sa tutti e due gli stati è chi li mette in scena.
+ * ⚠️ **Lo legge [TapHoldFab] e non i suoi chiamanti**, così un FAB nuovo prende l'uscita per
+ * costruzione: è lo stesso criterio per cui `lowered()` porta con sé il velo.
+ * ⚠️ **Fuori dalla transizione vale `false`**, che è il valore giusto per chi non sta andando da
+ * nessuna parte: una prova che monta il solo FAB lo trova fermo, com'è a riposo nell'app.
+ */
+internal val LocalSenzaFab = compositionLocalOf { false }
+
+/**
  * Un FAB con **due** gesti: tocco breve e tocco lungo.
  *
  * ⚠️⚠️ **NON È `SmallFloatingActionButton`, e non è un capriccio**: quel composabile prende
@@ -1365,6 +1479,31 @@ fun TapHoldFab(
     val tinta = remember { Animatable(if (pressed) 1f else 0f) }
     val rimbalzo = remember { Animatable(1f) }
     var primo by remember { mutableStateOf(true) }
+    /*
+     * ⚠️⚠️ **L'USCITA VERSO UNA SCHERMATA SENZA FAB, DALLA `2.11`, ED È LA VARIANTE 1 DELLE DUE
+     * CHE HA DESCRITTO** (punto A del campo libero: *1) si rimpicciolisce tutto, incluso il glifo.
+     * 2) si rimpicciolisce il pulsante, il glifo resta identico ma il pulsante fa da maschera*).
+     * La scelta è dichiarata perché ha detto *decidi tu*: la seconda taglia il glifo mentre il
+     * cerchio si stringe, cioè fa vedere per qualche fotogramma un disegno mutilato, mentre la
+     * scala uniforme è già il linguaggio con cui questo tasto si muove (il rimbalzo, l'entrata
+     * del cestino).
+     * ⚠️⚠️ **SI MOLTIPLICA AL RIMBALZO INVECE DI SOSTITUIRLO, e i due possono capitare insieme**:
+     * toccando una voce del menu il FAB sta ancora tornando su dal suo rimbalzo, e due scale
+     * scritte su due nodi darebbero un tasto che si stringe mentre un altro lo allarga.
+     * ⚠️⚠️ **PIÙ CORTA DELLA DISSOLVENZA DI SCHERMATA, E IL CONTO È QUELLO DELLA `1.73`**: le
+     * opacità si moltiplicano, quindi quello che il FAB fa in quei 180 ms lo fa dietro un velo
+     * che cala. A [VIA_MS] la scala è a zero quando l'opacità è ancora sopra i due terzi, cioè il
+     * rimpicciolimento si vede tutto e quello che sparisce dopo è un tasto già sparito.
+     * ⚠️ **Non c'è un ritorno da animare**: la schermata che rientra compone un FAB nuovo, che
+     * nasce a uno. Lo `snapTo` copre il caso in cui la navigazione venga annullata, dove il tasto
+     * deve tornare intero senza una seconda animazione che non racconta niente.
+     */
+    val via = remember { Animatable(1f) }
+    val senzaFab = LocalSenzaFab.current
+    LaunchedEffect(senzaFab) {
+        if (senzaFab) via.animateTo(0f, tween(VIA_MS, easing = FastOutLinearInEasing))
+        else via.snapTo(1f)
+    }
     LaunchedEffect(pressed) {
         val a = if (pressed) 1f else 0f
         if (primo) {
@@ -1441,7 +1580,7 @@ fun TapHoldFab(
             modifier = Modifier
                 .size(FAB_SIZE)
                 .graphicsLayer {
-                    val k = rimbalzo.value
+                    val k = rimbalzo.value * via.value
                     scaleX = k
                     scaleY = k
                 }

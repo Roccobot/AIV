@@ -548,6 +548,9 @@
     <string name="settings_buttons_steps">Editor: annulla e applica</string>
     <string name="settings_labels">Etichette sotto le icone</string>
     <string name="settings_labels_desc">Se disattivate, i riquadri di icone diventano più compatti. I menu a elenco non cambiano.</string>
+    <string name="settings_last_mark">Indicatore dell\'ultimo media visualizzato</string>
+    <string name="settings_last_mark_frame">Cornice</string>
+    <string name="settings_last_mark_corner">Angolo</string>
     <string name="settings_buttons_how">Tieni premuto un tasto e trascinalo per cambiare la sua posizione all\'interno del suo pannello.</string>
     <string name="settings_buttons_reset">Ripristina</string>
     <string name="settings_buttons_reset_ask">Vuoi riportare i pulsanti alla disposizione predefinita?</string>

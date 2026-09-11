@@ -179,10 +179,6 @@ fun SettingsScreen(
      */
     val stack = rememberSaveable(saver = PAGE_STACK) { mutableStateListOf() }
     val page = stack.lastOrNull() ?: Page.ROOT
-    // ⚠️ Due funzioni e non due assegnazioni sparse: chi apre una pagina non deve sapere che
-    // la navigazione è una pila, e chi torna indietro nemmeno.
-    fun open(next: Page) { stack.add(next) }
-    fun back() { if (stack.isNotEmpty()) stack.removeAt(stack.lastIndex) }
     // ⚠️⚠️ **LO SCORRIMENTO DELLA RADICE VIVE QUI E NON DENTRO LA PAGINA**: ogni pagina di
     // [Page] sta in un ramo di un `when`, quindi uno stato ricordato dentro `Shell` nascerebbe
     // nuovo a ogni ritorno, e si tornerebbe indietro trovandosi in cima. Tenuto qui,
@@ -193,6 +189,35 @@ fun SettingsScreen(
     // sotto-pagina e il ritorno non devono cancellare quello che si stava cercando. E si
     // salva, come la pagina, perché una rotazione non è un modo di annullare una ricerca.
     var query by rememberSaveable { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
+    // ⚠️ Due funzioni e non due assegnazioni sparse: chi apre una pagina non deve sapere che
+    // la navigazione è una pila, e chi torna indietro nemmeno.
+    fun open(next: Page) {
+        /*
+         * ⚠️⚠️ **UNA RICERCA FINISCE QUANDO PORTA DA QUALCHE PARTE, DALLA `2.11`** (riscontro
+         * del giro della `2.10`, voce `imp-cerca-titoli` approvata con una nota: *se dalla
+         * ricerca poi approdo ad un elemento con cui interagisco (es. apro una sotto-pagina),
+         * la ricerca si resetta e torno all'inizio delle impostazioni senza nulla digitato nel
+         * 'cerca'*). Cioè una ricerca è il modo di **arrivare** a una voce, non uno stato in
+         * cui restare: arrivati, ha finito il suo lavoro, e trovarsela ancora accesa al
+         * ritorno costringe a svuotare il campo per rivedere il pannello intero.
+         * ⚠️⚠️ **SI SCRIVE QUI E NON NEI CHIAMANTI, perché questa è la sola porta**: ogni
+         * `PageRow` apre la sua pagina passando di qua, quindi una voce nuova prende la regola
+         * per costruzione, e non c'è un secondo modo di aprire una pagina con cui sbagliare.
+         * ⚠️ **Vale per la NAVIGAZIONE e non per ogni tocco**, che è più stretto della lettera
+         * della sua frase: un interruttore toccato mentre la ricerca è in corso resta dove
+         * lui lo sta guardando, e svuotare il campo glielo farebbe sparire da sotto il dito.
+         * ⚠️ **Lo scorrimento torna in cima solo se la ricerca c'era**: senza, si rifarebbe il
+         * difetto che la riga qui sopra esiste per evitare, cioè una radice che si azzera a
+         * ogni giro in una sotto-pagina.
+         */
+        if (query.isNotBlank()) {
+            query = ""
+            scope.launch { rootScroll.scrollTo(0) }
+        }
+        stack.add(next)
+    }
+    fun back() { if (stack.isNotEmpty()) stack.removeAt(stack.lastIndex) }
     // ⚠️ Vince su quello dell'attività (`ViewerActivity`, che qui chiama `leaveSettings`)
     // perché è registrato DOPO: il dispatcher di Android serve l'ultimo arrivato fra quelli
     // accesi. È lo stesso annidamento della selezione nella griglia, che regge da versioni.
@@ -218,7 +243,6 @@ fun SettingsScreen(
      * megabyte di prima finché non si esce dalle impostazioni.
      */
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     var emptied by remember { mutableIntStateOf(0) }
     val thumbBytes = remember(emptied) { AvifCache.bytes(context) }
     val clearThumbs: () -> Unit = {
@@ -1520,6 +1544,32 @@ private fun ControlsPage(
         detail = stringResource(R.string.settings_labels_desc),
         checked = settings.padLabels,
         onChange = { onChange(settings.copy(padLabels = it)) }
+    )
+
+    /*
+     * ⚠️⚠️ **VIVE QUI PERCHÉ LO HA CHIESTO LUI, E LA FAMIGLIA LO REGGE** (punto D del campo libero
+     * del giro accorpato: *in `Impostazioni`/`Comandi e indicatori` (che diventa `Etichette e
+     * pulsanti`) aggiungi 'Indicatore dell'ultimo media visualizzato'*). La domanda della
+     * famiglia è *come si presentano i comandi che uso*, e un indicatore non è un comando: a
+     * tenerli insieme è il titolo della pagina che le contiene, 'Comandi e indicatori', che
+     * quella parola ce l'ha già.
+     * ⚠️ **Senza spiegazione**, per il criterio di questo file: il titolo dice per intero che
+     * cos'è, e quello che resta da sapere lo dicono i due nomi.
+     */
+    Choices(
+        label = stringResource(R.string.settings_last_mark),
+        detail = null,
+        options = LastMark.entries,
+        selected = settings.lastMark,
+        nameOf = {
+            stringResource(
+                when (it) {
+                    LastMark.FRAME -> R.string.settings_last_mark_frame
+                    LastMark.CORNER -> R.string.settings_last_mark_corner
+                }
+            )
+        },
+        onSelect = { onChange(settings.copy(lastMark = it)) }
     )
 
     /*

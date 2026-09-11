@@ -472,6 +472,9 @@
     <string name="settings_buttons_steps">संपादक: पूर्ववत आणि लागू करणे</string>
     <string name="settings_labels">चिन्हांखालील लेबले</string>
     <string name="settings_labels_desc">बंद केल्यास चिन्हांची पटले अधिक सुटसुटीत होतात. यादी मेनू बदलत नाहीत.</string>
+    <string name="settings_last_mark">शेवटच्या पाहिलेल्या आयटमची खूण</string>
+    <string name="settings_last_mark_frame">चौकट</string>
+    <string name="settings_last_mark_corner">कोपरा</string>
     <string name="settings_buttons_how">एखादे बटण दाबून धरा आणि ओढून त्याच्या स्वतःच्या पटलातील जागा बदला.</string>
     <string name="settings_buttons_reset">रीसेट</string>
     <string name="settings_buttons_reset_ask">बटणे मूळ मांडणीत परत आणायची आहेत का?</string>

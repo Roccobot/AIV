@@ -472,6 +472,9 @@
     <string name="settings_buttons_steps">সম্পাদক: পূর্বাবস্থা ও প্রয়োগ</string>
     <string name="settings_labels">আইকনের নিচে লেবেল</string>
     <string name="settings_labels_desc">বন্ধ করলে আইকনের প্যানেল আরও ছোট হয়। তালিকা মেনু বদলায় না।</string>
+    <string name="settings_last_mark">শেষ দেখা আইটেমের চিহ্ন</string>
+    <string name="settings_last_mark_frame">ফ্রেম</string>
+    <string name="settings_last_mark_corner">কোণ</string>
     <string name="settings_buttons_how">একটি বোতাম চেপে ধরে টেনে নিয়ে তার নিজের প্যানেলে তার জায়গা বদলান।</string>
     <string name="settings_buttons_reset">রিসেট</string>
     <string name="settings_buttons_reset_ask">বোতামগুলি ডিফল্ট বিন্যাসে ফিরিয়ে নিতে চান?</string>

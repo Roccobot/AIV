@@ -489,6 +489,9 @@
     <string name="settings_buttons_steps">Editor: deshacer y aplicar</string>
     <string name="settings_labels">Etiquetas bajo los iconos</string>
     <string name="settings_labels_desc">Si se desactivan, los paneles de iconos se vuelven más compactos. Los menús de lista no cambian.</string>
+    <string name="settings_last_mark">Marca del último elemento visto</string>
+    <string name="settings_last_mark_frame">Marco</string>
+    <string name="settings_last_mark_corner">Esquina</string>
     <string name="settings_buttons_how">Mantén pulsado un botón y arrástralo para cambiar su lugar dentro de su panel.</string>
     <string name="settings_buttons_reset">Restablecer</string>
     <string name="settings_buttons_reset_ask">¿Quieres devolver los botones a su disposición predeterminada?</string>
