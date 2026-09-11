@@ -104,6 +104,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalDensity
@@ -961,7 +962,11 @@ fun ViewerScreen(
                 uri = state.uri,
                 // La strisciata porta avanti e indietro solo se c'è una serie: fuori da una
                 // cartella un filmato è un vicolo cieco, come una fotografia sola.
-                stepping = folder?.seriesOrNull != null,
+                // ⚠️ **Dalla `2.08` arriva la serie intera e non più un booleano**: al filmato
+                // non basta sapere SE si può sfogliare, gli servono le vicine da far entrare
+                // dal bordo, che sono le stesse che [ImageCanvas] chiede a `toward`.
+                series = folder?.seriesOrNull,
+                settings = settings,
                 onStep = onStep,
                 // ⚠️ La regola non è qui: `Arrival.plays` incrocia la provenienza con
                 // l'impostazione in un punto solo, e questo è il posto che la interroga.
@@ -1281,19 +1286,37 @@ private class InfoBar {
  * e un tasto**: sfogliando una cartella mista si arriva su un filmato, e senza il gesto ci
  * si troverebbe **bloccati**, costretti a tornare alla griglia per riprendere da dopo. È il
  * difetto peggiore che questo pezzo poteva avere.
- * ⚠️ **Ma è una strisciata SEMPLICE, e la differenza si vede**: qui il dito non trascina la
- * pagina, non c'è la vicina che entra dal bordo e non c'è la resistenza al capolinea. Tutta
- * quella macchina vive in `ImageCanvas` e poggia su una fotografia decodificata, che qui non
- * c'è. Il baratto è dichiarato: sul filmato il passaggio è secco.
- * ⚠️ **La soglia è la stessa frazione di larghezza dell'altra strisciata** (un quinto), così
- * il gesto ha la stessa taratura in tutti e due i posti: due numeri diversi si sentirebbero
- * come due gesti diversi.
+ * ⚠️⚠️ **E DALLA `2.08` È LA STESSA STRISCIATA DELLE FOTOGRAFIE: il filmato si trascina col
+ * dito, la vicina entra dal bordo e la pagina si assesta prima del passo** (riscontro del giro
+ * della `2.07`, voce `video-scorre` non approvata: *allo scorrimento del dito non vedo comunque
+ * scorrere il video dentro o fuori la schermata con animazione slide-in/slide-out*). Fino alla
+ * `2.07` il gesto contava i pixel e al rilascio chiedeva il passo, senza muovere niente: il
+ * filmato spariva di colpo. ⚠️ **Il baratto era dichiarato proprio in questa nota** (*qui il
+ * dito non trascina la pagina, non c'è la vicina che entra dal bordo*), ed è la ragione per cui
+ * la `2.07` ha cercato la causa nella superficie invece che nel gesto.
+ * ⚠️⚠️ **LA TEXTURE DELLA `2.07` ERA NECESSARIA E NON SUFFICIENTE**: una `SurfaceView` la
+ * compone il sistema fuori dall'albero e non si lascia traslare, quindi senza quel cambio
+ * questo non si potrebbe fare; ma da sola quella riga ha reso il filmato **traslabile** senza
+ * che nessuno lo traslasse.
+ * ⚠️ **I numeri sono quelli di `ImageCanvas` e non ne nascono di nuovi**: la soglia è un quinto
+ * della larghezza, lo stacco fra le pagine è [PAGE_GAP], l'assestamento dura [SNAP_MS] e il
+ * capolinea frena a [END_RESISTANCE]. Due tarature diverse si sentirebbero come due gesti
+ * diversi.
+ * ⚠️ **Quello che resta di là è lo ZOOM**, e non serve qui: la pinza, la panoramica e i
+ * tasselli poggiano su una fotografia decodificata, che un filmato non ha. Di quella macchina
+ * questa funzione prende il solo pezzo dello sfoglio.
  */
 @Composable
 @androidx.annotation.OptIn(UnstableApi::class)
-private fun ClipStage(
+// ⚠️ `internal` e non `private` per il **banco di prova**, che dalla `2.08` la monta: il passo
+// non si chiede più alla fine del gesto ma alla fine dell'assestamento, e quello è un legame
+// che un compilatore non vede. Nessun altro modulo la chiama.
+internal fun ClipStage(
     uri: Uri,
-    stepping: Boolean,
+    /** La serie da sfogliare, o `null` fuori da una cartella. */
+    series: Folder.Series?,
+    /** Servono alle vicine, che sono miniature come quelle di `ImageCanvas`. */
+    settings: Settings,
     onStep: (Int) -> Unit,
     /** Se questo filmato deve partire da sé. Vedi `Arrival.plays`. */
     autoStart: Boolean,
@@ -1302,7 +1325,28 @@ private fun ClipStage(
 ) {
     val context = LocalContext.current
     val model = remember(uri, context) { Thumbs.request(context, uri) }
-    val poster = rememberAsyncImagePainter(model = model)
+    val poster = rememberAsyncImagePainter(
+        model = model,
+        // ⚠️ La chiave si registra qui come in [Preview], cioè nel posto in cui Coil la dice:
+        // senza, un filmato aperto dalla griglia non lascerebbe niente da leggere al
+        // sostituto qui sotto, e il primo fotogramma del giro dopo tornerebbe vuoto.
+        onState = { st ->
+            if (st is AsyncImagePainter.State.Success) Thumbs.note(uri, st.result.memoryCacheKey)
+        }
+    )
+    /*
+     * ⚠️⚠️ **IL SOSTITUTO LETTO IN COMPOSIZIONE, DALLA `2.08`, ED È L'ALTRA METÀ DELLO
+     * SCORRIMENTO**: `AsyncImagePainter` parte da una coroutine e non disegna niente al primo
+     * fotogramma, anche quando l'immagine è già in memoria (misurato sul bytecode di Coil, e
+     * scritto accanto a `Thumbs.note`). Quindi la vicina scivolava dentro come miniatura, il
+     * dito si alzava, e al centro compariva un fotogramma **nero** prima del filmato: la corsa
+     * arrivava e la continuità si rompeva proprio alla fine.
+     * ⚠️ È lo stesso rimedio di [Preview], e deve esserlo: la miniatura che entra dal bordo e
+     * quella che resta al centro sono lo stesso disegno in due istanti consecutivi.
+     * ⚠️ **Sotto e non al posto**: quando il pittore vero arriva disegna la stessa immagine
+     * nello stesso riquadro, quindi il passaggio non si vede e non serve nessuna animazione.
+     */
+    val standIn = remember(uri, context) { Thumbs.cached(context, uri)?.asPainter(context) }
 
     /*
      * ⚠️⚠️ **UN LETTORE SOLO PER TUTTA LA VITA DELLA SCHERMATA, e non uno per filmato**:
@@ -1408,6 +1452,69 @@ private fun ClipStage(
         }
     }
 
+    /*
+     * ⚠️⚠️ **I DUE STATI DELLO SFOGLIO HANNO L'INDIRIZZO PER CHIAVE, e là dove [ImageCanvas]
+     * conta sul proprio smontaggio qui conta su quello**: fra due filmati adiacenti questa
+     * funzione **resta in scena** (vedi la nota sulla luminosità), quindi nessuno la
+     * ricostruirebbe da capo. Con `uri` per chiave la pagina nuova nasce al centro e ferma,
+     * qualunque strada l'abbia aperta.
+     */
+    var travel by remember(uri) { mutableFloatStateOf(0f) }
+
+    /** Se una pagina sta andando a destinazione, per non far cominciare una seconda corsa. */
+    var settling by remember(uri) { mutableStateOf(false) }
+
+    /*
+     * ⚠️ **La larghezza serve in composizione e non solo nel gesto**: il rilevatore ha la sua
+     * `size`, ma a posare le due vicine fuori dallo schermo è un `graphicsLayer`, che quella
+     * misura non ce l'ha. Una sola fonte, letta dal layout.
+     */
+    var viewWidth by remember { mutableFloatStateOf(0f) }
+    val density = LocalDensity.current
+    val pageGap = with(density) { PAGE_GAP.toPx() }
+
+    /*
+     * ⚠️ **`derivedStateOf` e non `travel != 0f` letto qui**: quel valore cambia a ogni
+     * fotogramma del trascinamento, e leggerlo nel corpo rifarebbe la composizione sessanta
+     * volte al secondo. Così si ricompone due volte per gesto, e il movimento passa dal
+     * `graphicsLayer`, che legge lo stato senza ricomporre niente.
+     */
+    val dragging by remember(uri) { derivedStateOf { travel != 0f } }
+
+    /*
+     * ⚠️ **Le vicine si chiedono a `toward` come in [ImageCanvas], con la stessa regola di
+     * salto**: chi entra dal bordo e chi `onStep` aprirà devono essere lo stesso elemento, o si
+     * vede entrare una cosa e comparirne un'altra.
+     */
+    val skipVideos = settings.imagesOnly
+    val nextUri = series?.toward(1, skipVideos)
+    val prevUri = series?.toward(-1, skipVideos)
+    val stepping = series != null
+
+    /*
+     * ⚠️ **Il passo si chiede DOPO l'animazione**, come di là: chiesto prima, l'elemento nuovo
+     * arriverebbe mentre il filmato sta ancora scivolando via, e si vedrebbero due pagine
+     * sovrapposte.
+     * ⚠️ **Nessuno spegne `settling` quando il passo c'è**, e non è una dimenticanza: o la
+     * composizione se ne va (di qua si passa a un'immagine) o cambia `uri`, e le chiavi qui
+     * sopra rifanno i due stati. La pagina non può restare fuori schermo perché il passo si
+     * chiede solo dove `toward` ha risposto, cioè dove il visualizzatore ha davvero dove
+     * andare.
+     */
+    fun settle(step: Int) {
+        if (step == 0 && travel == 0f) return
+        settling = true
+        scope.launch {
+            val target = when {
+                step > 0 -> -(viewWidth + pageGap)
+                step < 0 -> viewWidth + pageGap
+                else -> 0f
+            }
+            Animatable(travel).animateTo(target, tween(SNAP_MS)) { travel = value }
+            if (step == 0) settling = false else onStep(step)
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -1424,7 +1531,8 @@ private fun ClipStage(
              * disturberebbe soltanto.
              */
             .background(Color.Black)
-            .pointerInput(uri, stepping) {
+            .onSizeChanged { viewWidth = it.width.toFloat() }
+            .pointerInput(uri, stepping, skipVideos) {
                 val threshold = size.width / 5f
                 val reach = size.height * KNOB_SPAN
                 val middle = size.width / 2f
@@ -1446,10 +1554,27 @@ private fun ClipStage(
                     // superata: durante il trascinamento il dito può tornare indietro, e
                     // cambiare pagina a metà strada toglierebbe a chi striscia la
                     // possibilità di ripensarci, che l'altra strisciata concede.
+                    // ⚠️ **E adesso il gesto non finisce col passo ma con l'assestamento**: la
+                    // pagina va a destinazione o torna al suo posto, e solo là si chiede.
                     onDragEnd = {
                         if (axis != Axis.SIDEWAYS || !stepping) return@detectDragGestures
-                        if (travelled <= -threshold) onStep(1)
-                        else if (travelled >= threshold) onStep(-1)
+                        val step = when {
+                            travelled <= -threshold -> 1
+                            travelled >= threshold -> -1
+                            else -> 0
+                        }
+                        val reachable = when {
+                            step > 0 -> nextUri != null
+                            step < 0 -> prevUri != null
+                            else -> false
+                        }
+                        settle(if (reachable) step else 0)
+                    },
+                    // ⚠️ Un gesto annullato (un secondo dito, una finestra che si apre) non
+                    // lascia la pagina di traverso: torna al suo posto come se il dito fosse
+                    // tornato indietro.
+                    onDragCancel = {
+                        if (axis == Axis.SIDEWAYS) settle(0)
                     },
                     onDrag = { _, delta ->
                         /*
@@ -1468,6 +1593,19 @@ private fun ClipStage(
                         }
                         if (axis == Axis.SIDEWAYS) {
                             travelled += delta.x
+                            /*
+                             * ⚠️ **La resistenza al capolinea è quella di [ImageCanvas]**: dove
+                             * non c'è niente da aprire la pagina si lascia tirare a un terzo,
+                             * cioè dice 'di qua non si va' invece di scivolare su un vuoto.
+                             * ⚠️ E il gesto muove il filmato **solo** se c'è una serie: senza,
+                             * `settle` non verrebbe mai chiamato e la pagina resterebbe di
+                             * traverso.
+                             */
+                            if (stepping) {
+                                val reachable =
+                                    if (travelled < 0f) nextUri != null else prevUri != null
+                                travel = if (reachable) travelled else travelled * END_RESISTANCE
+                            }
                             return@detectDragGestures
                         }
                         travelled += delta.y
@@ -1513,6 +1651,21 @@ private fun ClipStage(
         val fitted = Modifier.resizeWithContentScale(ContentScale.Fit, shown.videoSizeDp)
         val scaled = if (shown.videoSizeDp == null) Modifier.fillMaxSize() else fitted
         /*
+         * ⚠️⚠️ **IL RIQUADRO DEL FILMATO SI TRASCINA, E I COMANDI NO**: questo livello porta la
+         * superficie e il suo fotogramma di copertura, che sono le sole due cose che devono
+         * uscire dallo schermo. L'indicatore delle manopole e la fila dei tasti restano dove
+         * sono, perché appartengono al lettore e non alla pagina.
+         * ⚠️ **Un livello solo e non due**: muovendo la superficie e la copertura ognuna per
+         * conto suo, un fotogramma di ritardo fra le due basterebbe a far vedere il bordo
+         * dell'una staccarsi dall'altra.
+         */
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer { translationX = travel },
+            contentAlignment = Alignment.Center
+        ) {
+        /*
          * ⚠️⚠️ **LA SUPERFICIE È A TEXTURE E NON NATIVA, DALLA `2.07`, ED È IL SECONDO SINTOMO
          * DELLA STESSA SEGNALAZIONE** (*scorrendo da un video all'elemento successivo, il
          * fotogramma del video non se ne va con l'effetto scorrimento: scompare e basta*). Una
@@ -1525,27 +1678,47 @@ private fun ClipStage(
          * nativa. Qui il filmato vive dentro uno sfogliatore che scorre, cioè esattamente il caso
          * in cui quella preferenza costa una funzione.
          */
-        PlayerSurface(
-            player = player,
-            surfaceType = SURFACE_TYPE_TEXTURE_VIEW,
-            modifier = scaled
-        )
-
-        /*
-         * ⚠️⚠️ **IL FOTOGRAMMA COPRE LA SUPERFICIE FINCHÉ IL VIDEO NON HA DA MOSTRARE
-         * NIENTE** (`coverSurface`), ed è la continuità con la `0.83`: è la stessa miniatura
-         * che la griglia ha già in memoria, quindi al posto del rettangolo nero
-         * dell'apertura si vede il filmato fermo. Senza, ogni apertura comincerebbe con un
-         * lampo nero, che è lo stesso difetto che le anteprime delle fotografie esistono per
-         * togliere.
-         */
-        if (shown.coverSurface) {
-            Image(
-                painter = poster,
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
+            PlayerSurface(
+                player = player,
+                surfaceType = SURFACE_TYPE_TEXTURE_VIEW,
                 modifier = scaled
             )
+
+            /*
+             * ⚠️⚠️ **IL FOTOGRAMMA COPRE LA SUPERFICIE FINCHÉ IL VIDEO NON HA DA MOSTRARE
+             * NIENTE** (`coverSurface`), ed è la continuità con la `0.83`: è la stessa
+             * miniatura che la griglia ha già in memoria, quindi al posto del rettangolo nero
+             * dell'apertura si vede il filmato fermo. Senza, ogni apertura comincerebbe con un
+             * lampo nero, che è lo stesso difetto che le anteprime delle fotografie esistono
+             * per togliere.
+             * ⚠️ **Il sostituto va sotto e non al posto**, come in [Preview]: per un fotogramma
+             * il pittore di Coil non disegna niente, e nello sfoglio quel fotogramma cade
+             * esattamente quando la pagina arriva al centro.
+             */
+            if (shown.coverSurface) {
+                standIn?.let {
+                    Image(
+                        painter = it,
+                        contentDescription = null,
+                        contentScale = ContentScale.Fit,
+                        modifier = scaled
+                    )
+                }
+                Image(
+                    painter = poster,
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = scaled
+                )
+            }
+        }
+
+        // ⚠️ Le vicine esistono SOLO mentre si trascina, come in [ImageCanvas], e sono le
+        // stesse miniature della griglia: entrano nell'istante del gesto perché sono già in
+        // memoria, e a riposo non c'è niente da tenere in scena.
+        if (dragging) {
+            Neighbour(nextUri, settings) { travel + viewWidth + pageGap }
+            Neighbour(prevUri, settings) { travel - viewWidth - pageGap }
         }
 
         // ⚠️ L'indicatore sta sopra i comandi e sotto niente: è l'unica risposta visibile a
