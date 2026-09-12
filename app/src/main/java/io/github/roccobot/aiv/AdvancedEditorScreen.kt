@@ -10,9 +10,7 @@ import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -97,6 +95,7 @@ import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.contentDescription
@@ -111,6 +110,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -474,21 +474,28 @@ private fun LookStage(
      */
     var aimTint by remember(picture) { mutableStateOf<Color?>(null) }
     /**
-     * Quanto manca all'armamento del gesto mirato, da `0` a `1`, e il posto in cui il dito si è
-     * fermato quando ci è arrivato.
+     * Dove il dito si era fermato quando il gesto mirato si è armato: `null` finché non lo è.
      *
-     * ⚠️⚠️ **IL TEMPO E IL DISEGNO VENGONO DALLA STESSA SORGENTE, ED È IL PUNTO DI QUESTA
-     * SCELTA**: il contatore che lui ha chiesto (*deve esserci un contatore 'visuale': solo se mi
-     * fermo in un punto per 1,5 secondi poi il trascinamento su/giù agisce sulla curva*) deve
-     * avanzare **senza che arrivi nessun evento**, perché un dito fermo non ne produce nessuno.
-     * Un'animazione fa tutte e due le cose: disegna il progresso e, arrivando in fondo, arma. Con
-     * un timeout nel rilevatore e una barra animata a parte i due istanti sarebbero due, e il
-     * primo a scivolare sarebbe quello che si vede.
+     * ⚠️⚠️ **IL CONTATORE VISUALE È DURATO UNA VERSIONE, E LA `2.26` LO TOGLIE SU SUO RISCONTRO**
+     * (giro della `2.25`, voce `mirino-trascina` non approvata: *il contatore visuale che deve
+     * ripartire ad ogni spostamento lo rende lentissimo (si aggiorna a scatti, inutilizzabile).
+     * Lascia stare il contatore: abbassa il tempo a 1,2 secondi ma non mostrare nulla:
+     * semplicemente, si sente una breve vibrazione allo scattare degli 1,2 secondi e da quel
+     * momento si può trascinare*). Adesso l'attesa è un `delay` e basta, e a dire 'ci siamo' è la
+     * vibrazione di casa.
+     * ⚠️⚠️ **PERCHÉ QUELL'ARCO COSTASSE TANTO SI LEGGE NEL CODICE, e non è misurato sul telefono**:
+     * il suo progresso si leggeva **dentro il disegno di questo `Canvas`**, che è lo stesso che
+     * dipinge l'immagine con tutto il conto dello sviluppo. Quindi ogni fotogramma dell'arco
+     * costava una passata intera dello shader sull'anteprima (col Dettaglio acceso sono diciotto
+     * campioni per pixel), sessanta volte al secondo **mentre il dito era fermo**, e ricominciava
+     * da capo a ogni movimento. Con l'attesa muta, un dito fermo non produce nessun fotogramma.
+     * ⚠️ **Il disegno non aveva un secondo nodo su cui vivere**: la lente si dipinge sopra
+     * l'immagine dentro lo stesso `Canvas`, quindi non c'era modo di ridisegnare l'arco da solo.
      */
-    val armFill = remember(picture) { Animatable(0f) }
     var armedAt by remember(picture) { mutableStateOf<Offset?>(null) }
     val lensInk = MaterialTheme.colorScheme.primary
     val lensBack = MaterialTheme.colorScheme.surface
+    val haptics = LocalHapticFeedback.current
     /** La corsa del doppio tocco, tenuta per poterla fermare appena un dito scende. */
     var ride by remember(picture) { mutableStateOf<Job?>(null) }
     val scope = rememberCoroutineScope()
@@ -603,10 +610,15 @@ private fun LookStage(
                             conto?.cancel()
                             armedAt = null
                             conto = scope.launch {
-                                armFill.snapTo(0f)
-                                armFill.animateTo(1f, tween(AIM_ARM_MS, easing = LinearEasing))
+                                delay(AIM_ARM_MS.toLong())
                                 val qui = preso ?: return@launch
                                 armedAt = dove
+                                // ⚠️ **La vibrazione È il contatore, dalla `2.26`**: era l'arco
+                                // sul bordo della lente, e adesso l'unica cosa che dice 'da qui
+                                // in poi trascini la curva' è questo colpetto. Il tipo è quello
+                                // di casa per il tocco lungo (vedi [HOLD_BUZZ]), quindi non
+                                // nasce una seconda vibrazione da tarare.
+                                haptics.performHapticFeedback(HOLD_BUZZ)
                                 onAimStart(qui)
                             }
                         }
@@ -651,7 +663,6 @@ private fun LookStage(
                             lens = null
                             aimTint = null
                             armedAt = null
-                            scope.launch { armFill.snapTo(0f) }
                         }
                         onAimEnd()
                         return@awaitEachGesture
@@ -887,30 +898,6 @@ private fun LookStage(
                 center = centro,
                 style = Stroke(width = LENS_EDGE.toPx())
             )
-            /*
-             * ⚠️⚠️ **IL CONTATORE DELL'ARMAMENTO VIVE SUL BORDO DELLA LENTE, DALLA `2.25`** (sua
-             * richiesta: *deve esserci un contatore 'visuale'*): un arco che si chiude in
-             * [AIM_ARM_MS] e, arrivato in fondo, resta pieno finché il dito muove la curva. Un
-             * segno nuovo da qualche altra parte sarebbe una seconda cosa da guardare mentre si
-             * guarda il pixel; qui il cerchio che c'è già diventa il conto alla rovescia.
-             * ⚠️ **Parte dall'alto e gira in avanti**: `-90` gradi è mezzogiorno, che è il verso in
-             * cui si legge un'attesa.
-             * ⚠️ **Il tratto è più spesso di quello del bordo**, o a corsa finita i due si
-             * sovrapporrebbero e non si vedrebbe niente cambiare.
-             */
-            val giro = armFill.value
-            if (giro > 0f) {
-                val spesso = LENS_EDGE.toPx() * AIM_ARC
-                drawArc(
-                    color = aimTint ?: lensInk,
-                    startAngle = -90f,
-                    sweepAngle = 360f * giro,
-                    useCenter = false,
-                    topLeft = Offset(centro.x - raggio, centro.y - raggio),
-                    size = androidx.compose.ui.geometry.Size(raggio * 2f, raggio * 2f),
-                    style = Stroke(width = spesso)
-                )
-            }
             /*
              * ⚠️⚠️ **IL MIRINO È DI DUE COLORI, E NON È UNA DECORAZIONE**: dice quale pixel si sta
              * prendendo, e deve vedersi sopra qualunque immagine. Un anello chiaro dentro uno nero
@@ -2561,13 +2548,8 @@ private val LENS_PIP_LINE = 2.dp
  * poi il trascinamento su/giù agisce sulla curva*), e non è un tocco lungo: un tocco lungo si
  * misura dal momento in cui il dito **scende**, questa attesa riparte da capo a ogni pixel di
  * movimento, perché quello che si aspetta è che il mirino sia **fermo dove si vuole**.
+ * ⚠️⚠️ **E DALLA `2.26` VALE 1,2 SECONDI, CHE È IL SUO SECONDO NUMERO** (giro della `2.25`, voce
+ * `mirino-trascina` non approvata: *abbassa il tempo a 1,2 secondi ma non mostrare nulla*). Il
+ * contatore che li mostrava è uscito, e il perché vive su `armedAt`, in [LookStage].
  */
-private const val AIM_ARM_MS = 1_500
-
-/**
- * Quanto è più spesso del bordo l'arco che conta l'attesa dell'armamento.
- *
- * ⚠️ **Più del bordo e non uguale**: disegnato con lo stesso tratto, l'arco lo coprirebbe
- * esattamente e il contatore non si vedrebbe avanzare.
- */
-private const val AIM_ARC = 1.75f
+private const val AIM_ARM_MS = 1_200

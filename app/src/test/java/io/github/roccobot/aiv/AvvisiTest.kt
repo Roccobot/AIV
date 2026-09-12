@@ -320,4 +320,69 @@ class AvvisiTest {
             )
         }
     }
+
+    /**
+     * **Quando sale sopra una fascia, la notifica resta larga: non si stringe anche di fianco.**
+     *
+     * ⚠️⚠️ **È LA SUA RISPOSTA `sempre` A `d-avviso-forma-2`** (giro della `2.25`: *può stare
+     * massimizzata il larghezza solo quando (per la presenza della bottomsheet) si sposta sopra*).
+     * Sopra una scheda larga tutto lo schermo non c'è nessun comando da schivare di fianco, quindi
+     * rientrare là toglierebbe spazio al testo senza guadagnare niente.
+     * ⚠️⚠️ **LA SCENA È QUELLA CHE SUL TELEFONO DURA QUALCHE FOTOGRAMMA**: appena c'è una selezione
+     * il FAB lascia il posto alla scheda, quindi i due chiedenti convivono solo durante il cambio.
+     * Il banco li tiene in scena insieme, che è il solo modo di misurare quel fotogramma.
+     * ⚠️ **Si guarda che la notifica ARRIVI sopra il FAB**, cioè il contrario dei due casi qui
+     * sopra: è la forma esatta della regola, perché il rientro o c'è o non c'è.
+     * ⚠️ **Controprovata** togliendo la condizione da `aboveFoot()`: la notifica si stringe anche
+     * qui, il suo bordo destro torna prima del tasto e il caso cade.
+     */
+    @Test
+    fun `sopra una fascia la notifica non si stringe`() {
+        Notices.say("1 elemento spostato")
+        banco.mainClock.autoAdvance = false
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                Box(Modifier.fillMaxSize()) {
+                    PickSheet(
+                        visible = true,
+                        actions = listOf(
+                            PadAction(
+                                key = PadKey.COPY,
+                                icon = Icons.Outlined.Info,
+                                label = R.string.menu_copy_here
+                            ) { }
+                        )
+                    )
+                    Box(modifier = Modifier.align(Alignment.BottomEnd).testTag("fab")) {
+                        TapHoldFab(
+                            label = "Comandi",
+                            container = Color.Black,
+                            ink = Color.White,
+                            holdLabel = "Tutti",
+                            onTap = { },
+                            onHold = { }
+                        ) { quale -> Icon(Icons.Outlined.Info, contentDescription = quale) }
+                    }
+                    AppNotice(
+                        Notices.line,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .aboveFoot()
+                            .testTag("avviso")
+                    )
+                }
+            }
+        }
+        banco.waitForIdle()
+        banco.mainClock.advanceTimeBy(1_000)
+        banco.waitForIdle()
+
+        val notifica = banco.onNodeWithTag("avviso").getBoundsInRoot()
+        val tasto = banco.onNodeWithTag("fab").getBoundsInRoot()
+        assertTrue(
+            "salendo sopra la scheda la notifica (fino a ${notifica.right}) doveva restare larga, " +
+                "e invece si è stretta prima del FAB (da ${tasto.left})",
+            notifica.right > tasto.left
+        )
+    }
 }

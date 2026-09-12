@@ -756,14 +756,24 @@ internal object FootStage {
  * sparisce.
  * ⚠️ **Il lato lo dichiara chi occupa lo spazio e non lo legge questa riga**: `fabSide` è una
  * preferenza, e leggerla qui vorrebbe dire un secondo posto che decide dov'è il FAB.
+ *
+ * ⚠️⚠️ **E CHI SALE NON SI STRINGE, DALLA `2.26`, ED È LA SUA RISPOSTA `sempre` A
+ * `d-avviso-forma-2`** (giro della `2.25`: *può stare massimizzata il larghezza solo quando (per
+ * la presenza della bottomsheet) si sposta sopra*). Sopra una scheda larga tutto lo schermo non
+ * c'è nessun comando da schivare di fianco, quindi rientrare là costerebbe spazio al testo senza
+ * guadagnare niente. ⚠️ **Oggi i due casi non si incontrano quasi mai** (appena c'è una selezione
+ * il FAB lascia il posto alla scheda), ma 'quasi' non è una regola: durante quel cambio le due
+ * dichiarazioni convivono per qualche fotogramma, e senza questa riga la notifica salirebbe **e**
+ * si stringerebbe insieme.
  */
 @Composable
 internal fun Modifier.aboveFoot(): Modifier {
     val density = LocalDensity.current
     val barra = WindowInsets.navigationBars.getBottom(density)
     val su = (FootStage.covers - barra).coerceAtLeast(0)
-    val sinistra = with(density) { FootStage.left.toDp() }
-    val destra = with(density) { FootStage.right.toDp() }
+    val stretta = su == 0
+    val sinistra = with(density) { (if (stretta) FootStage.left else 0).toDp() }
+    val destra = with(density) { (if (stretta) FootStage.right else 0).toDp() }
     return padding(start = sinistra, end = destra).offset { IntOffset(0, -su) }
 }
 
