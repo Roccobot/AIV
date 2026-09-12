@@ -175,6 +175,10 @@ enum class Quality(override val token: String) : Choice {
  * un banco di sviluppo fotografico, e la ragione di ognuno dei passaggi:
  * - **L'esposizione viene prima** perché è l'unica moltiplicativa pura: è come aver aperto di più
  *   il diaframma, quindi tutto quello che segue lavora sull'immagine 'come sarebbe stata'.
+ *   ⚠️⚠️ **E dalla `2.18` si porta dietro la PIEGA delle alte luci**, perché è lei a portare la
+ *   luce fuori dalla scala: quello che sforava veniva schiacciato sul bianco, e adesso si
+ *   comprime. Il perché, le misure e il costo dichiarato vivono su `shoulder`, qui sotto. ⚠️ Con
+ *   lei tutto quello che segue riceve un segnale già dentro l'intervallo, maschere comprese.
  * - **Ombre e luci vengono prima del contrasto** perché servono a **recuperare** quello che
  *   l'esposizione ha schiacciato, e il contrasto deve poi lavorare su un'immagine già recuperata.
  *   Al contrario, si recupererebbe quello che il contrasto ha appena bruciato.
@@ -214,6 +218,44 @@ uniform half blacks;
 // decide quanto è forte il cursore, e a un quarto l'intervallo più stretto che si può chiedere
 // vale comunque metà scala: non esiste un valore dei due cursori che dia un'immagine piatta.
 const half POINT_SHIFT = 0.25;
+
+// ⚠️⚠️ **LA PIEGA DELLE ALTE LUCI, DALLA `2.18`, ED È IL SUO RISCONTRO** (campo libero del giro
+// della `2.17`: *l'esposizione è troppo brusca sulle tonalità chiare: aumentandola le parti
+// chiare diventano bianche troppo velocemente*). La causa era un taglio: la luce si moltiplica e
+// quello che usciva dall'intervallo veniva schiacciato sul bianco, quindi sopra una certa
+// esposizione tutti i toni chiari diventavano **lo stesso** bianco. Misurato a +1,5 stop: dei 77
+// livelli sopra il 70% di scala ne restava **uno**, e con la piega ne restano 17.
+//
+// ⚠️⚠️ **LA SOGLIA SI RICAVA DAL GUADAGNO E NON È UN NUMERO, e questo è quello che rende la
+// funzione neutra a riposo**: la piega comincia al tono che moltiplicato per il guadagno arriva
+// esattamente al bianco, cioè `1/g`. A guadagno 1 quella soglia vale 1, quindi la funzione è
+// l'**identità** su tutto l'intervallo e un'immagine non toccata esce identica (misurato: scarto
+// nullo su tutti e 256 i livelli). Con una soglia scritta a mano, invece, un'immagine a riposo
+// perderebbe i suoi chiari senza che nessuno abbia mosso niente.
+//
+// ⚠️ **I mezzi toni tengono il guadagno pieno**: sotto la soglia non si tocca niente, quindi a
+// +1 stop un grigio medio raddoppia come prima. La piega lavora solo dove il taglio bruciava.
+//
+// ⚠️ **Il costo è dichiarato e misurato**: un bianco pieno non resta esattamente pieno (a +1 stop
+// arriva a 252 su 255), perché la curva tende al bianco senza raggiungerlo mai. È uniforme su
+// tutta l'area, quindi non ha un bordo da cui si veda. ⚠️ **La variante che lo teneva a 255 è
+// stata provata e scartata**: normalizzare la coda rende la pendenza alla piega **maggiore** di
+// uno (1,12 a un quarto di stop), cioè apre un tratto in cui il contrasto cresce invece di
+// comprimersi, e un'inversione di pendenza si vede come un gradino. Così la pendenza vale uno
+// alla piega e cala da lì in poi.
+//
+// ⚠️ **Si applica per CANALE e non sulla luminanza**: un colore acceso che satura un canale solo
+// virava, perché quel canale si fermava mentre gli altri salivano; piegandoli tutti e tre con la
+// stessa curva, il colore si desatura dolcemente verso i chiari, che è quello che fa una
+// pellicola.
+half shoulder(half v, half g) {
+    half k = min(half(1.0), half(1.0) / g);
+    half room = max(half(1.0) - k, half(0.0001));
+    if (v <= k) {
+        return v;
+    }
+    return k + room * (half(1.0) - exp(-(v - k) / room));
+}
 
 // Da sRGB a luce lineare, con la curva vera e non con un'elevazione a 2.2: la parte bassa
 // della curva sRGB è un segmento di retta, e approssimarla con una potenza sbaglia proprio sui
@@ -263,8 +305,13 @@ half4 main(float2 p) {
 
     half3 lin = toLinear(clamp(c, half3(0.0), half3(1.0)));
 
-    // 1. Esposizione: la luce si moltiplica, che è quello che fa un diaframma.
-    lin = lin * gain;
+    // 1. Esposizione: la luce si moltiplica, che è quello che fa un diaframma, e quello che
+    // uscirebbe dalla scala si piega invece di essere tagliato: vedi `shoulder`.
+    lin = half3(
+        shoulder(lin.r * gain, gain),
+        shoulder(lin.g * gain, gain),
+        shoulder(lin.b * gain, gain)
+    );
 
     // 2. Ombre e luci, ognuna sulla propria maschera quadratica.
     // ⚠️⚠️ **LA MASCHERA GUARDA IL VALORE PERCETTIVO E NON LA QUANTITÀ DI LUCE**: in luce

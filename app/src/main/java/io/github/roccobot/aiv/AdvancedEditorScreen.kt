@@ -86,6 +86,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.math.abs
+import kotlin.math.pow
 import kotlin.math.roundToInt
 
 /**
@@ -299,7 +300,13 @@ fun AdvancedEditorScreen(
  * ingrandimento si vedono i suoi pixel e non quelli della fotografia. Il tetto è [ZOOM_MAX], e
  * serve proprio a fermarsi prima che l'immagine diventi un mosaico.
  *
- * ⚠️⚠️ **I QUATTRO GESTI VIVONO IN UN RILEVATORE SOLO, E NON È UNA SCELTA DI STILE**: il tocco
+ * ⚠️⚠️ **E DALLA `2.18` SI INGRANDISCE ANCHE A UNA MANO** (nota sulla voce `zoom-corsa` del giro
+ * della `2.17`: *mi piacerebbe anche il gesto di ingrandimento a una mano: doppio tocco con
+ * trascinamento al secondo (giù per ingrandire)*): il secondo tocco di un doppio tocco, invece di
+ * alzarsi, resta giù e trascina. Il conto vive su [pulled] e il punto fermo è quello toccato,
+ * quindi il gesto ingrandisce senza spostare: chi vuole spostare ha la panoramica.
+ *
+ * ⚠️⚠️ **TUTTI I GESTI VIVONO IN UN RILEVATORE SOLO, E NON È UNA SCELTA DI STILE**: il tocco
  * lungo del confronto e la pinza nascono dallo stesso dito che scende, quindi scritti in due
  * `pointerInput` si contenderebbero l'evento. Il caso peggiore non è che un gesto non parta: è
  * che il confronto si accenda **durante una pinza**, perché `waitForUpOrCancellation` risponde
@@ -330,6 +337,23 @@ private fun LookStage(
             .semantics { contentDescription = hold }
             .pointerInput(picture) {
                 val room = Size(size.width.toFloat(), size.height.toFloat())
+                val middle = Offset(size.width / 2f, size.height / 2f)
+                val span = ZOOM_PULL.toPx()
+
+                /*
+                 * La pinza, scritta una volta sola perché la raggiungono due strade: le dita che
+                 * si muovono subito, e il compagno che arriva mentre il secondo tocco è ancora
+                 * giù. Due copie di questo conto divergerebbero al primo ritocco.
+                 */
+                fun pinch(centroid: Offset, pan: Offset, zoom: Float) {
+                    val next = (scale * zoom).coerceIn(1f, ZOOM_MAX)
+                    // Il punto sotto le dita resta fermo: si riscrive lo spostamento intorno al
+                    // centroide, invece di scalare e poi ricentrare.
+                    val grown = next / scale
+                    val from = centroid - middle
+                    scale = next
+                    shift = reined(from + (shift - from) * grown + pan, next, room, wide)
+                }
 
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
@@ -339,7 +363,6 @@ private fun LookStage(
                      * ingrandendo vuole prendere il comando, non aspettare il suo turno.
                      */
                     ride?.cancel()
-                    val middle = Offset(size.width / 2f, size.height / 2f)
                     /*
                      * Fase 1: chi vince fra il tempo, il movimento e il secondo dito. Il tempo si
                      * misura qui e non dentro il ciclo degli eventi, perché un dito **fermo** non
@@ -368,49 +391,76 @@ private fun LookStage(
                             }
                             if (again != null) {
                                 again.consume()
-                                val big = scale <= 1f
-                                val toScale = if (big) ZOOM_TAP else 1f
-                                val toShift =
-                                    if (!big) Offset.Zero
-                                    else reined(
-                                        (again.position - middle) * (1f - ZOOM_TAP),
-                                        ZOOM_TAP, room, wide
-                                    )
                                 val fromScale = scale
                                 val fromShift = shift
+                                val anchor = again.position - middle
                                 /*
-                                 * ⚠️⚠️ **CI SI ARRIVA CON UN'ANIMAZIONE, DALLA `2.17`, ED È IL SUO
-                                 * RISCONTRO** (giro della `2.16`, voce `luce-zoom` approvata con
-                                 * una nota: *mi piacerebbe di più se al doppio tocco l'immagine
-                                 * passasse da uno zoom all'altro con un'animazione anziché con uno
-                                 * stacco netto*). ⚠️ **A muoversi è un progresso solo**, e da lui
-                                 * si ricavano ingrandimento e spostamento: animarli separati
-                                 * vorrebbe dire due corse da tenere allineate, e una che finisse
-                                 * prima dell'altra farebbe scivolare l'immagine a ingrandimento
-                                 * fermo.
+                                 * ⚠️⚠️ **IL SECONDO TOCCO È DUE GESTI, DALLA `2.18`, ED È UNA SUA
+                                 * RICHIESTA** (nota sulla voce `zoom-corsa` del giro della `2.17`:
+                                 * *mi piacerebbe anche il gesto di ingrandimento a una mano:
+                                 * doppio tocco con trascinamento al secondo (giù per
+                                 * ingrandire)*). A dire quale dei due è non c'è nessun indizio al
+                                 * momento in cui il dito scende: lo dice quello che fa dopo, cioè
+                                 * se si alza o se trascina, e per saperlo si aspetta.
+                                 * ⚠️ **Quindi la corsa del doppio tocco parte quando il dito si
+                                 * ALZA e non quando scende**, che è il solo prezzo di questo
+                                 * gesto: dura quanto un tocco, e chi tocca due volte non sta
+                                 * ancora guardando l'immagine.
                                  */
-                                ride = scope.launch {
-                                    animate(
-                                        initialValue = 0f,
-                                        targetValue = 1f,
-                                        animationSpec = tween(ZOOM_RIDE, easing = FastOutSlowInEasing)
-                                    ) { t, _ ->
-                                        scale = fromScale + (toScale - fromScale) * t
-                                        shift = lerp(fromShift, toShift, t)
+                                when (settled(again, viewConfiguration.touchSlop)) {
+                                    Settled.MOVED -> hauled(again) { dy ->
+                                        /*
+                                         * ⚠️ **Il conto riparte sempre dallo stato in cui il gesto
+                                         * è cominciato**, invece di comporsi un pezzo per volta:
+                                         * i limiti della panoramica troncano, e uno spostamento
+                                         * accumulato sul valore troncato deriverebbe mentre il
+                                         * dito va avanti e indietro.
+                                         */
+                                        val next = pulled(fromScale, dy, span)
+                                        scale = next
+                                        shift = reined(
+                                            anchor + (fromShift - anchor) * (next / fromScale),
+                                            next, room, wide
+                                        )
+                                    }
+                                    // Un compagno arrivato mentre il secondo tocco è ancora giù:
+                                    // chi apre due dita vuole la pinza, non un doppio tocco.
+                                    Settled.MULTI -> transformed(::pinch)
+                                    Settled.UP -> {
+                                        // Un doppio tocco secco: alterna fra l'immagine adattata e
+                                        // quella ingrandita sul punto toccato.
+                                        val big = fromScale <= 1f
+                                        val toScale = if (big) ZOOM_TAP else 1f
+                                        val toShift =
+                                            if (!big) Offset.Zero
+                                            else reined(anchor * (1f - ZOOM_TAP), ZOOM_TAP, room, wide)
+                                        /*
+                                         * ⚠️⚠️ **CI SI ARRIVA CON UN'ANIMAZIONE, DALLA `2.17`, ED È
+                                         * IL SUO RISCONTRO** (giro della `2.16`, voce `luce-zoom`
+                                         * approvata con una nota: *mi piacerebbe di più se al
+                                         * doppio tocco l'immagine passasse da uno zoom all'altro
+                                         * con un'animazione anziché con uno stacco netto*).
+                                         * ⚠️ **A muoversi è un progresso solo**, e da lui si
+                                         * ricavano ingrandimento e spostamento: animarli separati
+                                         * vorrebbe dire due corse da tenere allineate, e una che
+                                         * finisse prima dell'altra farebbe scivolare l'immagine a
+                                         * ingrandimento fermo.
+                                         */
+                                        ride = scope.launch {
+                                            animate(
+                                                initialValue = 0f,
+                                                targetValue = 1f,
+                                                animationSpec = tween(ZOOM_RIDE, easing = FastOutSlowInEasing)
+                                            ) { t, _ ->
+                                                scale = fromScale + (toScale - fromScale) * t
+                                                shift = lerp(fromShift, toShift, t)
+                                            }
+                                        }
                                     }
                                 }
-                                waitForUpOrCancellation()
                             }
                         }
-                        else -> transformed { centroid, pan, zoom ->
-                            val next = (scale * zoom).coerceIn(1f, ZOOM_MAX)
-                            // Il punto sotto le dita resta fermo: si riscrive lo spostamento
-                            // intorno al centroide, invece di scalare e poi ricentrare.
-                            val grown = next / scale
-                            val from = centroid - middle
-                            scale = next
-                            shift = reined(from + (shift - from) * grown + pan, next, room, wide)
-                        }
+                        else -> transformed(::pinch)
                     }
                 }
             }
@@ -504,6 +554,51 @@ private suspend fun AwaitPointerEventScope.transformed(
         alive = event.changes.any { it.pressed }
     }
 }
+
+/**
+ * Il dito che, dopo un doppio tocco, resta giù e trascina: l'ingrandimento a una mano.
+ *
+ * ⚠️ **Riferisce sempre la distanza dal punto di partenza e non l'ultimo passo**, così il conto
+ * non accumula e il dito che torna indietro riporta l'immagine dov'era. ⚠️ **Il primo evento che
+ * ha superato la soglia l'ha già letto `settled`**, e non si perde niente: quello dopo porta la
+ * posizione corrente, che è tutto quello che serve.
+ *
+ * ⚠️ **Consuma quello che usa**, come la pinza: un evento non consumato risale ai genitori, e
+ * sopra questo palco vive lo scorrimento della schermata.
+ */
+private suspend fun AwaitPointerEventScope.hauled(
+    down: PointerInputChange,
+    onPull: (Float) -> Unit
+) {
+    var alive = true
+    while (alive) {
+        val event = awaitPointerEvent()
+        val mine = event.changes.firstOrNull { it.id == down.id }
+        if (mine != null && mine.positionChanged()) {
+            onPull(mine.position.y - down.position.y)
+            mine.consume()
+        }
+        alive = event.changes.any { it.pressed }
+    }
+}
+
+/**
+ * Dove arriva l'ingrandimento a una mano: da [from], trascinando di [dy] pixel.
+ *
+ * ⚠️⚠️ **SI RADDOPPIA A OGNI [span], E NON CRESCE DI UN TANTO AL PIXEL**: l'ingrandimento si
+ * percepisce in rapporti e non in differenze, quindi con una crescita lineare lo stesso
+ * trascinamento varrebbe moltissimo vicino a uno e quasi niente vicino al tetto. Con la potenza,
+ * un centimetro di dito vale sempre lo stesso raddoppio.
+ *
+ * ⚠️ **Giù ingrandisce**, come lo ha chiesto lui, e il verso è tutto qui: il puntatore conta
+ * positivo verso il basso. Un segno di troppo darebbe un gesto rovesciato che nessun compilatore
+ * vede, ed è la ragione per cui questa riga ha una prova.
+ *
+ * ⚠️ **Il tetto è lo stesso della pinza**: lo decide l'anteprima (vedi [ZOOM_MAX]), non il gesto
+ * da cui si arriva.
+ */
+internal fun pulled(from: Float, dy: Float, span: Float): Float =
+    (from * 2f.pow(dy / span)).coerceIn(1f, ZOOM_MAX)
 
 /**
  * Lo spostamento [want] riportato dentro i bordi di un'immagine ingrandita di [zoom].
@@ -1024,6 +1119,16 @@ private const val ZOOM_TAP = 2f
  * quelli della fotografia.
  */
 private const val ZOOM_MAX = 6f
+
+/**
+ * Quanto dito serve per raddoppiare l'ingrandimento a una mano.
+ *
+ * ⚠️ **Il conto che lo regge**: da uno a [ZOOM_MAX] ci sono due raddoppi e mezzo, quindi con
+ * questa misura l'intera corsa entra in poco più di un terzo di schermo, cioè in un trascinamento
+ * che il pollice fa senza staccarsi. Più corto, il tetto arriverebbe prima di aver guardato
+ * l'immagine; più lungo, si finirebbe il vetro a metà strada.
+ */
+private val ZOOM_PULL = 96.dp
 
 /**
  * Quanto dura la corsa del doppio tocco, in millisecondi.

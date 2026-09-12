@@ -1909,6 +1909,29 @@ editando*): pinza, panoramica e doppio tocco.
 - ⚠️ **Si scala il rettangolo e non la tela**: il pennello porta uno shader con la sua matrice, e
   una tela scalata ingrandirebbe il conto invece dell'immagine.
 
+⚠️⚠️ **E DALLA `2.18` SI INGRANDISCE ANCHE A UNA MANO** (nota sulla voce `zoom-corsa` del giro della
+`2.17`, approvata: *mi piacerebbe anche il gesto di ingrandimento a una mano: doppio tocco con
+trascinamento al secondo (giù per ingrandire)*): il secondo tocco di un doppio tocco, invece di
+alzarsi, resta giù e trascina.
+- ⚠️⚠️ **A DIRE QUALE DEI DUE GESTI È NON C'È NESSUN INDIZIO QUANDO IL DITO SCENDE, e da qui viene
+  l'unico prezzo**: lo dice quello che il dito fa dopo, cioè se si alza o se trascina, quindi la
+  corsa del doppio tocco parte **quando il dito si alza** e non quando scende. Dura quanto un
+  tocco, e chi tocca due volte non sta ancora guardando l'immagine.
+- ⚠️ **Si raddoppia a ogni `ZOOM_PULL` e non si cresce di un tanto al pixel**: l'ingrandimento si
+  percepisce in rapporti, quindi con una crescita lineare lo stesso dito varrebbe moltissimo vicino
+  a uno e quasi niente vicino al tetto. Il conto è `pulled`, e da uno al tetto ci vuole poco più di
+  un terzo di schermo.
+- ⚠️ **Ingrandisce senza spostare**: il punto fermo è quello toccato, per tutto il gesto. Chi vuole
+  spostare ha la panoramica, e un gesto che facesse tutte e due le cose seguirebbe il dito mentre
+  l'immagine cresce.
+- ⚠️ **Un compagno che arriva mentre il secondo tocco è giù apre la pinza**: chi allarga due dita
+  vuole quella, non un doppio tocco. La pinza è scritta una volta sola e la raggiungono due strade.
+- ⚠️⚠️ **IL BANCO HA IMPOSTO COME SI INIETTA QUEL GESTO, E LA PRIMA STESURA ERA VERDE A VUOTO**: il
+  primo evento che supera la soglia del gesto se lo prende `settled`, quindi un trascinamento
+  spezzato in passi uguali su un palco alto sessanta pixel superava i sedici della soglia solo
+  **all'ultimo**, e a valle arrivava il solo dito che si alzava. Adesso il movimento va in due
+  colpi, uno che paga la soglia e uno che il gesto legge.
+
 ⚠️⚠️ **IL CONTO VIVE IN AGSL E NON ANCHE IN KOTLIN, ED È LA DECISIONE CHE REGGE TUTTO IL RESTO.**
 La via comoda sarebbe scriverlo due volte: uno shader per l'anteprima, che dev'essere immediata,
 e un giro sui pixel in Kotlin per il salvataggio, che lavora sul file pieno. Sono **due
@@ -1942,6 +1965,35 @@ in `Adjust.kt`.
 - ⚠️ **I punti vengono prima del contrasto** perché dichiarano dove finisce l'immagine, e la curva
   a S lavora dentro l'intervallo che quei due estremi definiscono. Al contrario, taglierebbero i
   toni che la curva ha appena creato.
+
+⚠️⚠️ **E DALLA `2.18` L'ESPOSIZIONE PIEGA LE ALTE LUCI INVECE DI TAGLIARLE, ED È IL SUO RISCONTRO**
+(campo libero del giro della `2.17`: *l'esposizione è troppo brusca sulle tonalità chiare:
+aumentandola le parti chiare diventano bianche troppo velocemente*). La causa era un taglio: la
+luce si moltiplica, e quello che usciva dalla scala veniva schiacciato sul bianco, quindi sopra una
+certa esposizione tutti i toni chiari diventavano **lo stesso** bianco. La misura è netta: a +1,5
+stop, dei 77 livelli sopra il 70% di scala ne restava **uno**, e con la piega ne restano 17.
+- ⚠️⚠️ **LA SOGLIA SI RICAVA DAL GUADAGNO E NON È UN NUMERO, ed è questo che tiene la funzione
+  neutra a riposo**: la piega comincia al tono che, moltiplicato per il guadagno, arriva esattamente
+  al bianco. A guadagno uno quella soglia vale uno, quindi la curva è l'**identità** su tutto
+  l'intervallo e un'immagine non toccata esce identica (misurato: scarto nullo su tutti e 256 i
+  livelli). Con una soglia scritta a mano, un'immagine a riposo perderebbe i suoi chiari senza che
+  nessuno abbia mosso niente.
+- ⚠️ **I mezzi toni tengono il guadagno pieno**: sotto la soglia non si tocca niente, quindi a +1
+  stop un grigio medio raddoppia come prima. La piega lavora solo dove il taglio bruciava, e
+  l'esposizione resta un'esposizione.
+- ⚠️⚠️ **IL COSTO È DICHIARATO E LA VARIANTE CHE LO EVITAVA È STATA SCARTATA**: un bianco pieno non
+  resta esattamente pieno (a +1 stop arriva a 252 su 255), perché la curva tende al bianco senza
+  raggiungerlo. È uniforme su tutta l'area, quindi non ha un bordo da cui si veda. Normalizzare la
+  coda lo terrebbe a 255, ma porterebbe la pendenza alla piega **sopra** uno (1,12 a un quarto di
+  stop), cioè aprirebbe un tratto in cui il contrasto cresce invece di comprimersi, e
+  un'inversione di pendenza si vede come un gradino.
+- ⚠️ **Si applica per CANALE**: un colore acceso che satura un canale solo virava, perché quel
+  canale si fermava mentre gli altri salivano. Piegandoli tutti e tre con la stessa curva, il
+  colore si desatura dolcemente verso i chiari, che è quello che fa una pellicola.
+- ⚠️⚠️ **IL BANCO NON LA PUÒ MISURARE, e va detto**: il conto vive in AGSL e su una tela di memoria
+  non gira, quindi `ContoTest` dice che il programma **compila** e non che la curva è giusta. I
+  numeri qui sopra vengono da un modello di sessione, scritto e buttato, che è la stessa strada dei
+  versi dei cursori.
 
 ⚠️⚠️ **LA PILA È DI VALORI E NON DI GESTI, e un passo nasce quando il dito LASCIA il cursore**:
 dentro un trascinamento un cursore passa per cento valori, e una pila che li prendesse tutti
@@ -2015,10 +2067,11 @@ due icone accanto a una scritta sarebbero una fila che si legge in due modi.
 ⚠️ **Che cosa il banco misura e che cosa no**: `LuceTest` guarda il modello (la soglia del
 riposo, il guadagno in stop, il senza perdita) e la **storia dei passi** montando la schermata
 vera, coi comandi che camminano avanti e indietro; dalla `2.16` guarda anche il **doppio tocco**
-sul nome e sulla barra, e l'ingrandimento dell'immagine, che misura a **pixel**; `ContoTest`
-guarda che il programma dello shader compili e che `lookShader` lo consegni. **Non** vedono i
-pixel che escono dal conto, né il confronto col prima, né la pinza a due dita: quelli si guardano
-sul telefono.
+sul nome e sulla barra, e l'ingrandimento dell'immagine, che misura a **pixel**; dalla `2.18` il
+conto dell'**ingrandimento a una mano** (il verso, il raddoppio, il tetto) e il gesto sul palco,
+anche lui a pixel; `ContoTest` guarda che il programma dello shader compili e che `lookShader` lo
+consegni. **Non** vedono i pixel che escono dal conto, né il confronto col prima, né la pinza a
+due dita: quelli si guardano sul telefono.
 - ⚠️⚠️ **DUE DELLE TRE PROVE NUOVE SONO NATE VERDI PER CASO, E LA CONTROPROVA LO HA DETTO.** Quella
   del doppio tocco sulla barra toccava il **centro**, dove la barra vale già zero: col passo di
   troppo rimesso a mano restava verde, perché il salto del primo tocco portava proprio dove il
