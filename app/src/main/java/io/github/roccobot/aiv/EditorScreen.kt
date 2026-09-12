@@ -277,15 +277,18 @@ fun EditorScreen(
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.settings_back))
             }
             /*
-             * ⚠️⚠️ **QUESTA SCHERMATA SI CHIAMA 'EDITOR' E NON 'MODIFICA', dalla 1.49**
-             * (istruzione dell'utente, 2026-09-04: *'Modifica' è la funzione, che mette a
-             * disposizione anche altre app: una volta scelto l'editor interno, è quello il suo
-             * nome*). Perciò la stringa è **sua** e non `menu_edit`: quella resta la voce del
-             * menu del visualizzatore, cioè il comando che apre l'editor **scelto**, che può
-             * essere un'app di fuori. Due nomi per due cose, e nessuno dei due copre l'altro.
-             * ⚠️ **Le traduzioni non sono inventate**: sono il sostantivo che ogni lingua già
-             * usa in [R.string.editor_internal] ('Editor interno'), senza il qualificatore.
-             * ⚠️ **Il corpo è `headlineSmall`, come TUTTE le altre schermate**, dalla stessa
+             * ⚠️⚠️ **IN TESTA C'È 'MODIFICA IMMAGINE', DALLA `2.20`, E LA STRINGA È LA STESSA
+             * DELL'EDITOR COMPLETO** (sua istruzione, 2026-09-12: *l'utente deve pensare alla
+             * differenza tra i due (e alla loro stessa esistenza) solo quando fa la scelta*).
+             * Quindi la chiave resta questa, che è sempre stata 'il titolo della schermata mentre
+             * si modifica', e a cambiare è il suo testo.
+             * ⚠️⚠️ **DECADE LA NOTA DELLA `1.49`, e conviene saperlo per non rimetterla**: diceva
+             * *questa schermata si chiama 'Editor' e non 'Modifica'* (sua istruzione, 2026-09-04:
+             * *'Modifica' è la funzione, che mette a disposizione anche altre app: una volta
+             * scelto l'editor interno, è quello il suo nome*). Allora l'editor in casa era uno; da
+             * quando sono due, il nome del singolo è esattamente la cosa che non serve sapere
+             * mentre si lavora, e i due nomi restano dove la scelta si fa.
+             * ⚠️ **Il corpo è `headlineSmall`, come TUTTE le altre schermate**, dalla 1.49
              * versione: era `titleMedium`, cioè l'unico titolo dell'app scritto più piccolo,
              * e nessuna nota diceva perché. La ragione per cui poteva essere voluto era che
              * questa testata porta anche un comando, e la misura l'ha smentita: a scala
