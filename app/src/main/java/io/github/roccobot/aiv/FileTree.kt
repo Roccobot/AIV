@@ -569,13 +569,21 @@ object FileTree {
      *   stava, quindi un file che torna sopra l'indirizzo di uno appena riscritto si ritrova la
      *   miniatura di quello. Chiamava già questa funzione, che rifà la miniatura **di sistema**
      *   (la nota di [Thumbs.forget] lo dice da sempre): a mancare era la nostra.
-     * - ⚠️ **Non copre il caso in cui il MediaScanner non risponda con un indirizzo**, e si
-     *   dichiara: là non c'è nessuna chiave da togliere, e la miniatura la rifà comunque il
-     *   sistema perché la riga è nuova.
+     * - ⚠️⚠️ **E DALLA `2.25` SI BUTTA ANCHE QUELLA DEL `file://`, che è un secondo indirizzo
+     *   per lo stesso file**: la vista 'Cartelle di sistema' legge il disco, quindi là le
+     *   immagini viaggiano come percorsi e non come righe del MediaStore, e la chiave della
+     *   loro miniatura è un'altra. Col solo richiamo dello scanner quella restava intatta, cioè
+     *   la stessa fotografia si correggeva in una vista e non nell'altra.
+     *   ⚠️ **Non aspetta il richiamo** e non può: il richiamo dice che cos'ha trovato il
+     *   sistema, questo indirizzo lo sappiamo già noi.
+     * - ⚠️ **Il caso in cui il MediaScanner non risponda con un indirizzo adesso è coperto a
+     *   metà**, e la nota di prima diceva che non lo era affatto: la chiave del `content://`
+     *   resta fuori portata, quella del percorso no.
      */
     internal suspend fun scan(context: Context, paths: List<String>) {
         val list = paths.distinct().filter { it.isNotBlank() }
         if (list.isEmpty()) return
+        list.forEach { Thumbs.forget(context, Uri.fromFile(File(it))) }
         runCatching {
             withTimeoutOrNull(SCAN_WAIT_MS) {
                 suspendCancellableCoroutine { cont ->

@@ -64,6 +64,26 @@ object Bin {
     /** La cartella del cestino, creata se manca: per chi ci deve scrivere. */
     private fun ready(context: Context): File = dir(context).also { runCatching { it.mkdirs() } }
 
+    /**
+     * Dice che a questo percorso del cestino il contenuto è cambiato: un file è arrivato, o se
+     * n'è andato.
+     *
+     * ⚠️⚠️ **QUI `FileTree.scan` NON ARRIVA, ED È LA CONSEGUENZA DIRETTA DI DOV'È IL CESTINO**:
+     * il MediaStore quella cartella non la indicizza affatto (vedi la nota in testa a questo
+     * oggetto), quindi una scansione non produce nessun indirizzo e la chiamata a
+     * [Thumbs.forget] che vive dentro `scan` non si fa **mai** per un file di qui. Le miniature
+     * del cestino sono l'unica parte dell'app che nessuno dichiarava cambiata.
+     * ⚠️⚠️ **E I PERCORSI DI QUI SI RIUSANO, che è quello che rende la cosa un difetto e non una
+     * mancanza teorica**: il nome lo sceglie `FileTree.freeName`, quindi appena un `foto.jpg`
+     * esce dal cestino quel percorso torna libero, e il `foto.jpg` che arriva domani se lo
+     * ritrova. La cache di Coil ha l'indirizzo per chiave, cioè servirebbe la miniatura del
+     * file di ieri.
+     * ⚠️ **Si chiama quando un file NASCE e quando MUORE**, non solo quando nasce: la miniatura
+     * di un percorso che si è liberato è già il seme del difetto successivo, e buttarla costa
+     * una voce di mappa.
+     */
+    private fun touch(context: Context, file: File) = Thumbs.forget(context, file.toUri())
+
     /** Vedi [dir]: il percorso non cambia mai per tutta la vita del processo. */
     @Volatile
     private var known: File? = null
@@ -118,6 +138,7 @@ object Bin {
                     val to = FileTree.freeName(bin, from.name)
                     if (FileTree.carry(from, to)) {
                         done++
+                        touch(context, to)
                         touched += from.absolutePath
                         landed += to.toUri()
                         records += Record(to.name, now, from.absolutePath, KIND_SENT)
@@ -180,6 +201,7 @@ object Bin {
                     to.delete()
                     return@withLock null
                 }
+                touch(context, to)
                 val records = read(context).toMutableList()
                 records += Record(
                     to.name,
@@ -209,6 +231,7 @@ object Bin {
         withContext(Dispatchers.IO + NonCancellable) {
             lock.withLock {
                 val gone = runCatching { kept.delete() }.getOrDefault(false)
+                if (gone) touch(context, kept)
                 write(context, read(context).filterNot { it.name == kept.name })
                 gone
             }
@@ -258,6 +281,7 @@ object Bin {
                     val to = FileTree.freeName(parent, target.name)
                     if (FileTree.carry(from, to)) {
                         done++
+                        touch(context, from)
                         touched += to.absolutePath
                         records -= record
                     } else {
@@ -289,6 +313,7 @@ object Bin {
                 for (file in files) {
                     if (runCatching { file.delete() }.getOrDefault(false)) {
                         done++
+                        touch(context, file)
                         left.removeAll { it.name == file.name }
                     } else {
                         failed++
@@ -315,13 +340,13 @@ object Bin {
      * dal cestino sono quattro e tre cancellano la propria riga ([restore], [drop], [empty]);
      * la quarta, l'eliminazione definitiva di una selezione, passa da `FileTree.delete` e non
      * sa niente di questo archivio, quindi lasciava dietro una riga per ogni file. Nel cestino
-     * quella e la via **normale**, e l'archivio cresceva per sempre.
-     * ⚠️ **Si pota QUI e non nel punto che cancella**, ed e una scelta: un rimedio nel
+     * quella è la via **normale**, e l'archivio cresceva per sempre.
+     * ⚠️ **Si pota QUI e non nel punto che cancella**, ed è una scelta: un rimedio nel
      * chiamante va ricordato, e il giorno che nasce una quinta uscita torna il difetto. Qui il
-     * conto torna da se, perche questa funzione ha gia in mano l'elenco dei file che
-     * **esistono**: una riga che non trova il suo file non descrive piu niente, e chi apre il
-     * cestino e esattamente il momento in cui accorgersene.
-     * ⚠️ **E chiude anche quello che si e accumulato fin qui**, che un rimedio nel chiamante non
+     * conto torna da sé, perché questa funzione ha già in mano l'elenco dei file che
+     * **esistono**: una riga che non trova il suo file non descrive più niente, e chi apre il
+     * cestino è esattamente il momento in cui accorgersene.
+     * ⚠️ **E chiude anche quello che si è accumulato fin qui**, che un rimedio nel chiamante non
      * avrebbe fatto. Stessa scelta e stessa forma della purga di `History.batches`: si riscrive
      * il file **solo** se la potatura ha tolto qualcosa, o si scriverebbe a ogni apertura.
      */

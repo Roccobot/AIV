@@ -682,15 +682,48 @@ internal object FootStage {
      */
     private val coprono = mutableStateMapOf<Any, Int>()
 
+    /*
+     * ⚠️⚠️ **E DALLA `2.25` UN COMANDO PUÒ OCCUPARE UN FIANCO INVECE DI UNA FASCIA, ED È IL SUO
+     * RISCONTRO** (giro della `2.24`, voce `avviso-fab` approvata con una richiesta, e risposta
+     * **`stringe`** a `d-avviso-forma`: *non si potrebbe fare lo stesso avviso meno largo di quel
+     * tanto che basta a stare a fianco del FAB?*). La `2.24` faceva **salire** la notifica sopra il
+     * FAB, che è la risposta giusta per una scheda larga tutto lo schermo e quella sbagliata per un
+     * tasto che vive in un angolo: là accanto lo spazio c'è.
+     * ⚠️ **Due mappe e non una firmata**: il lato di un comando può cambiare (la scelta di
+     * `fabSide`), quindi chi scrive deve togliersi dall'altra parte, e con un numero col segno
+     * quella riga sarebbe un trucco da rileggere ogni volta.
+     */
+    private val aDestra = mutableStateMapOf<Any, Int>()
+    private val aSinistra = mutableStateMapOf<Any, Int>()
+
     /** Quanti pixel di schermo copre, contati dal bordo di sotto: `0` quando non c'è nessuno. */
     val covers: Int get() = coprono.values.maxOrNull() ?: 0
+
+    /** Quanti pixel occupa in fondo a destra, contati dal bordo destro della finestra. */
+    val right: Int get() = aDestra.values.maxOrNull() ?: 0
+
+    /** Quanti pixel occupa in fondo a sinistra, contati dal bordo sinistro della finestra. */
+    val left: Int get() = aSinistra.values.maxOrNull() ?: 0
 
     fun cover(chi: Any, px: Int) {
         if (px <= 0) coprono.remove(chi) else coprono[chi] = px
     }
 
+    /**
+     * Dice che [chi] occupa [px] pixel del fondo dello schermo dal lato dichiarato, invece di una
+     * fascia larga quanto la finestra.
+     */
+    fun beside(chi: Any, px: Int, right: Boolean) {
+        val qui = if (right) aDestra else aSinistra
+        val altrove = if (right) aSinistra else aDestra
+        altrove.remove(chi)
+        if (px <= 0) qui.remove(chi) else qui[chi] = px
+    }
+
     fun off(chi: Any) {
         coprono.remove(chi)
+        aDestra.remove(chi)
+        aSinistra.remove(chi)
     }
 }
 
@@ -711,12 +744,27 @@ internal object FootStage {
  * striscia due volte.
  * ⚠️ **Uno spostamento e non un rientro**: la superficie resta larga e alta com'era, e a muoversi
  * è solo dove viene posata. Un `padding` la rimisurerebbe a ogni fotogramma della salita.
+ *
+ * ⚠️⚠️ **E DALLA `2.25` DAVANTI A UN COMANDO DI FIANCO SI STRINGE INVECE DI SALIRE, ED È LA SUA
+ * RISPOSTA `stringe`**: accanto a un tasto che vive in un angolo lo spazio c'è, e salirgli sopra
+ * lascia una striscia vuota larga tutto lo schermo. Il costo lo ha previsto lui (*ci sarebbe meno
+ * spazio per il testo*), e le due cose convivono: si sale sopra chi occupa una fascia, si stringe
+ * accanto a chi occupa un fianco.
+ * ⚠️ **Qui il rientro è la scelta giusta, al contrario della salita**: la larghezza di un comando
+ * non cambia mentre lo si guarda (il FAB che se ne va si rimpicciolisce in un `graphicsLayer`,
+ * quindi il suo riquadro resta), e una rimisurazione si paga solo quando quel comando compare o
+ * sparisce.
+ * ⚠️ **Il lato lo dichiara chi occupa lo spazio e non lo legge questa riga**: `fabSide` è una
+ * preferenza, e leggerla qui vorrebbe dire un secondo posto che decide dov'è il FAB.
  */
 @Composable
 internal fun Modifier.aboveFoot(): Modifier {
-    val barra = WindowInsets.navigationBars.getBottom(LocalDensity.current)
+    val density = LocalDensity.current
+    val barra = WindowInsets.navigationBars.getBottom(density)
     val su = (FootStage.covers - barra).coerceAtLeast(0)
-    return offset { IntOffset(0, -su) }
+    val sinistra = with(density) { FootStage.left.toDp() }
+    val destra = with(density) { FootStage.right.toDp() }
+    return padding(start = sinistra, end = destra).offset { IntOffset(0, -su) }
 }
 
 /**
@@ -1632,9 +1680,18 @@ fun TapHoldFab(
     }
 
     /*
-     * ⚠️⚠️ **IL FAB DICHIARA QUANTO COPRE DEL FONDO DELLO SCHERMO, DALLA `2.24`, COSÌ LA NOTIFICA
-     * NON GLI FINISCE SOPRA** (segnalazione dell'utente, punto A1 del giro della `2.23`): il
-     * perché a scansarsi sia la notifica e non questo tasto vive su [Modifier.aboveFoot].
+     * ⚠️⚠️ **IL FAB DICHIARA QUANTO OCCUPA DEL FONDO DELLO SCHERMO, COSÌ LA NOTIFICA NON GLI FINISCE
+     * SOPRA** (segnalazione dell'utente, punto A1 del giro della `2.23`): il perché a scansarsi sia
+     * la notifica e non questo tasto vive su [Modifier.aboveFoot].
+     * ⚠️⚠️ **DALLA `2.25` DICHIARA UN FIANCO E NON UNA FASCIA, ED È IL SUO RISCONTRO** (giro della
+     * `2.24`, voce `avviso-fab`, e risposta `stringe` a `d-avviso-forma`): la `2.24` faceva salire
+     * la notifica sopra di lui, e lui ha chiesto che si stringa e resti in fondo, perché *di
+     * fianco* al FAB lo spazio c'è.
+     * ⚠️⚠️ **DA CHE PARTE STA SI MISURA E NON SI LEGGE DA UNA PREFERENZA**: il nodo sa dov'è nella
+     * finestra, quindi il lato si ricava dal suo centro e la larghezza da occupare è il pezzo che
+     * lo separa dal bordo, margine compreso. Leggendo `fabSide` ci sarebbero due posti a decidere
+     * dov'è il FAB, e il giorno che uno dei due cambia la notifica si stringerebbe dalla parte
+     * sbagliata.
      * ⚠️ **Vive QUI e non nei due chiamanti**, così un FAB nuovo lo dichiara per costruzione: è lo
      * stesso criterio per cui `lowered()` si porta dietro il velo, e per cui l'uscita verso una
      * schermata senza FAB la legge questa funzione invece dei suoi chiamanti.
@@ -1642,10 +1699,13 @@ fun TapHoldFab(
      * due, e con una chiave sola il secondo cancellerebbe la misura del primo.
      */
     val quota = remember { Any() }
-    val finestra = LocalWindowInfo.current.containerSize.height
+    val larga = LocalWindowInfo.current.containerSize.width
     DisposableEffect(quota) { onDispose { FootStage.off(quota) } }
     val misura = Modifier.onGloballyPositioned {
-        FootStage.cover(quota, finestra - it.positionInWindow().y.roundToInt())
+        val da = it.positionInWindow().x.roundToInt()
+        val fino = da + it.size.width
+        val destra = da + fino > larga
+        FootStage.beside(quota, if (destra) larga - da else fino, destra)
     }
 
     if (!lifted) {

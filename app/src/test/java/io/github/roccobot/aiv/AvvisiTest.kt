@@ -239,26 +239,50 @@ class AvvisiTest {
     }
 
     /**
-     * **Col FAB in scena, la notifica gli resta sopra e non lo copre.**
+     * **Col FAB in scena la notifica si stringe accanto a lui, da tutte e due le parti.**
      *
      * ⚠️⚠️ **È IL PUNTO A1 DEL CAMPO LIBERO DEL GIRO DELLA `2.23`** (*la notifica inferiore con
-     * 'Annulla' (es. per 'Sposta') a volte va sopra il FAB (su qualunque lato sia)*), ed è la
-     * stessa misura del caso qui sopra su un secondo chiedente: il banco lo vede perché è una
-     * questione di **posizione**.
+     * 'Annulla' (es. per 'Sposta') a volte va sopra il FAB (su qualunque lato sia)*), letto fino in
+     * fondo col riscontro del giro della `2.24` (*non si potrebbe fare lo stesso avviso meno largo
+     * di quel tanto che basta a stare a fianco del FAB?*, e la risposta **`stringe`**). La `2.24` lo
+     * faceva salire, ed è la misura che questo caso ha sostituito.
+     * ⚠️⚠️ **SI GUARDANO TUTTI E DUE I LATI, ED È SUA LA RAGIONE** (*'di fianco' ha un significato
+     * di default e un altro se il FAB è a sinistra*): il lato lo decide il FAB misurando dov'è, e
+     * una prova su un lato solo passerebbe anche con la parte fissa scritta a mano.
      * ⚠️ **Il riquadro del FAB si prende dal nodo che lo avvolge e non dal suo glifo**: quello che
      * il tasto annuncia è un'icona da 24dp centrata in 56, quindi misurandola il caso passerebbe
      * anche con la notifica addosso al bordo del tasto.
-     * ⚠️ **Controprovata** togliendo `aboveFoot()` dalla notifica: il suo bordo di sotto finisce
-     * in fondo allo schermo, cioè sopra il tasto, e il caso cade.
+     * ⚠️⚠️ **E LO STESSO VALE PER LA NOTIFICA, CHE SI MISURA DAL SUO NODO E NON DAL TESTO: LO HA
+     * DETTO LA CONTROPROVA.** La prima stesura guardava `onNodeWithText`, cioè la frase, che dentro
+     * la sua superficie finisce ben prima del bordo: col rientro tolto a mano il caso del FAB a
+     * destra **restava verde**, perché là fra la fine del testo e il tasto c'è lo spazio della
+     * superficie vuota. È il caso generale scritto in `AIV/CLAUDE.md` § '🧪 Quando si scrive una
+     * prova, e quando no': una prova che non si vede fallire col difetto rimesso non misura niente.
+     * ⚠️ **Controprovata** togliendo il rientro da `aboveFoot()`: la notifica resta larga quanto lo
+     * schermo e prende il FAB sotto di sé, in tutti e due i casi.
      */
     @Test
-    fun `la notifica sale sopra il FAB`() {
+    fun `la notifica si stringe accanto al FAB a destra`() = accantoAlFab(destra = true)
+
+    /** Vedi il caso qui sopra: è lo stesso, con il FAB dall'altra parte. */
+    @Test
+    fun `la notifica si stringe accanto al FAB a sinistra`() = accantoAlFab(destra = false)
+
+    /**
+     * La scena dei due casi qui sopra: un FAB in un angolo in fondo e la notifica di casa.
+     *
+     * ⚠️ **La misura è orizzontale e non verticale**: quello che si vuole è che i due non si
+     * tocchino **restando** tutti e due in fondo, quindi si guarda dove finisce la notifica dal
+     * lato del tasto.
+     */
+    private fun accantoAlFab(destra: Boolean) {
         Notices.say("1 elemento spostato")
         banco.mainClock.autoAdvance = false
         banco.setContent {
             AivTheme(darkTheme = false) {
                 Box(Modifier.fillMaxSize()) {
-                    Box(modifier = Modifier.align(Alignment.BottomEnd).testTag("fab")) {
+                    val dove = if (destra) Alignment.BottomEnd else Alignment.BottomStart
+                    Box(modifier = Modifier.align(dove).testTag("fab")) {
                         TapHoldFab(
                             label = "Comandi",
                             container = Color.Black,
@@ -270,7 +294,10 @@ class AvvisiTest {
                     }
                     AppNotice(
                         Notices.line,
-                        modifier = Modifier.align(Alignment.BottomCenter).aboveFoot()
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .aboveFoot()
+                            .testTag("avviso")
                     )
                 }
             }
@@ -279,11 +306,18 @@ class AvvisiTest {
         banco.mainClock.advanceTimeBy(1_000)
         banco.waitForIdle()
 
-        val notifica = banco.onNodeWithText("1 elemento spostato").getBoundsInRoot()
+        val notifica = banco.onNodeWithTag("avviso").getBoundsInRoot()
         val tasto = banco.onNodeWithTag("fab").getBoundsInRoot()
-        assertTrue(
-            "la notifica (fino a ${notifica.bottom}) copre il FAB (da ${tasto.top})",
-            notifica.bottom <= tasto.top
-        )
+        if (destra) {
+            assertTrue(
+                "la notifica (fino a ${notifica.right}) copre il FAB (da ${tasto.left})",
+                notifica.right <= tasto.left
+            )
+        } else {
+            assertTrue(
+                "la notifica (da ${notifica.left}) copre il FAB (fino a ${tasto.right})",
+                notifica.left >= tasto.right
+            )
+        }
     }
 }

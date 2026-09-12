@@ -10,7 +10,9 @@ import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -459,6 +461,32 @@ private fun LookStage(
      * a un gesto.
      */
     var lens by remember(picture) { mutableStateOf<Offset?>(null) }
+    /**
+     * Il colore della fascia a cui appartiene il pixel sotto il dito, e `null` per un grigio.
+     *
+     * ⚠️⚠️ **DALLA `2.25`, ED È SUA RICHIESTA** (giro della `2.24`, voce `mirato-lente` non
+     * approvata: *l'anello del 'mirino' deve essere più spessa e deve variare dinamicamente il
+     * colore per corrispondere a uno degli 8 colori standard, in modo che si capisca all'istante su
+     * cosa si agirà se ci si ferma lì*). Col mirino trascinabile la domanda *che cosa prendo* si
+     * fa a ogni pixel, e la risposta deve stare sul dito invece che nella fila delle pastiglie.
+     * ⚠️ **Il colore è quello del CENTRO della fascia, come le pastiglie**, e passa dalla stessa
+     * funzione: due conti darebbero due verdi diversi per la stessa fascia.
+     */
+    var aimTint by remember(picture) { mutableStateOf<Color?>(null) }
+    /**
+     * Quanto manca all'armamento del gesto mirato, da `0` a `1`, e il posto in cui il dito si è
+     * fermato quando ci è arrivato.
+     *
+     * ⚠️⚠️ **IL TEMPO E IL DISEGNO VENGONO DALLA STESSA SORGENTE, ED È IL PUNTO DI QUESTA
+     * SCELTA**: il contatore che lui ha chiesto (*deve esserci un contatore 'visuale': solo se mi
+     * fermo in un punto per 1,5 secondi poi il trascinamento su/giù agisce sulla curva*) deve
+     * avanzare **senza che arrivi nessun evento**, perché un dito fermo non ne produce nessuno.
+     * Un'animazione fa tutte e due le cose: disegna il progresso e, arrivando in fondo, arma. Con
+     * un timeout nel rilevatore e una barra animata a parte i due istanti sarebbero due, e il
+     * primo a scivolare sarebbe quello che si vede.
+     */
+    val armFill = remember(picture) { Animatable(0f) }
+    var armedAt by remember(picture) { mutableStateOf<Offset?>(null) }
     val lensInk = MaterialTheme.colorScheme.primary
     val lensBack = MaterialTheme.colorScheme.surface
     /** La corsa del doppio tocco, tenuta per poterla fermare appena un dito scende. */
@@ -538,22 +566,80 @@ private fun LookStage(
                      * mezzo secondo, e la prima a sbagliare sarebbe quella che si usa di più.
                      */
                     if (aiming()) {
-                        val preso = colourAt(down.position)
-                        if (preso != null) {
-                            onAimStart(preso)
-                            /*
-                             * ⚠️⚠️ **LA LENTE SI ANCORA AL PUNTO IN CUI IL DITO È SCESO, E NON LO
-                             * SEGUE**: il pixel campionato è quello del tocco e non cambia più
-                             * mentre si tira, quindi una lente che inseguisse il dito
-                             * mostrerebbe un colore che non è quello preso. Ferma, resta la
-                             * prova di che cosa si è scelto.
-                             */
-                            lens = down.position
+                        /*
+                         * ⚠️⚠️ **LA LENTE SEGUE IL DITO, DALLA `2.25`, ED È SUA ISTRUZIONE** (giro
+                         * della `2.24`, voce `mirato-lente` non approvata: *dev'essere possibile
+                         * trascinare il 'mirino', perché difficilmente con il dito si azzecca il
+                         * punto giusto al primo colpo*). ⚠️ **Rovescia la nota della `2.24`**, che
+                         * diceva il contrario (*si ancora al punto in cui il dito è sceso e non lo
+                         * segue*, perché una lente che insegue mostrerebbe un colore diverso da
+                         * quello preso): quell'argomento reggeva finché il pixel si prendeva
+                         * all'istante del tocco, e adesso il pixel è quello sotto il dito **ora**,
+                         * quindi la lente e la scelta dicono la stessa cosa a ogni fotogramma.
+                         * ⚠️⚠️ **E IL TRASCINAMENTO NON MUOVE PIÙ NIENTE FINCHÉ NON SI ARMA**: è la
+                         * conseguenza diretta, e l'ha chiesta lui insieme al resto (*solo se mi
+                         * fermo in un punto per 1,5 secondi poi il trascinamento su/giù agisce
+                         * sulla curva*). Senza quella soglia i due gesti sarebbero lo stesso
+                         * movimento, e scegliere un tono vorrebbe già dire spostarlo.
+                         */
+                        var preso = colourAt(down.position)
+                        var dove = down.position
+                        lens = dove
+                        aimTint = preso?.let { tintOfPixel(it) }
+                        var conto: Job? = null
+                        /**
+                         * Fa ripartire l'attesa dell'armamento da capo: il dito si è mosso.
+                         *
+                         * ⚠️⚠️ **IL CONTO SI AZZERA A OGNI MOVIMENTO E AL DISTACCO, ED È SUA
+                         * PRECISAZIONE** (2026-09-12: *il contatore di 1,5 secondi si deve
+                         * resettare ogni volta che il dito si muove o si stacca dallo schermo*). Il
+                         * secondo dei due casi vive nel `finally` più sotto, che è il solo posto
+                         * che scatta anche quando il gesto viene annullato.
+                         * ⚠️ **'Si muove' vuol dire oltre la soglia del tocco**, e il paletto è
+                         * necessario: un dito appoggiato trema sempre di un pixel o due, quindi con
+                         * un conto che riparte a ogni evento l'armamento non arriverebbe mai.
+                         */
+                        fun riparti() {
+                            conto?.cancel()
+                            armedAt = null
+                            conto = scope.launch {
+                                armFill.snapTo(0f)
+                                armFill.animateTo(1f, tween(AIM_ARM_MS, easing = LinearEasing))
+                                val qui = preso ?: return@launch
+                                armedAt = dove
+                                onAimStart(qui)
+                            }
                         }
                         try {
-                            // ⚠️ **Il verso si rovescia qui**: il puntatore conta positivo verso
-                            // il basso, e chi tira in su vuole il tono più chiaro.
-                            hauled(down) { dy -> onAimPull(-dy / room.height) }
+                            riparti()
+                            while (true) {
+                                val punto = awaitPointerEvent().changes
+                                    .firstOrNull { it.id == down.id } ?: break
+                                if (!punto.pressed) break
+                                val ora = punto.position
+                                val da = armedAt
+                                if (da != null) {
+                                    // ⚠️ **Il verso si rovescia qui**: il puntatore conta positivo
+                                    // verso il basso, e chi tira in su vuole il tono più chiaro.
+                                    onAimPull(-(ora.y - da.y) / room.height)
+                                    punto.consume()
+                                } else if ((ora - dove).getDistance() > viewConfiguration.touchSlop) {
+                                    dove = ora
+                                    lens = ora
+                                    preso = colourAt(ora)
+                                    aimTint = preso?.let { tintOfPixel(it) }
+                                    riparti()
+                                    punto.consume()
+                                }
+                            }
+                            /*
+                             * ⚠️⚠️ **UN DITO CHE SI ALZA PRIMA DELL'ARMAMENTO SCEGLIE LO STESSO, E
+                             * SENZA QUESTA RIGA UN TOCCO SECCO NON FAREBBE PIÙ NIENTE**: è il gesto
+                             * con cui si prendeva un tono fino alla `2.24`, e l'attesa di 1,5
+                             * secondi è nata per **separare** il trascinamento dalla scelta, non
+                             * per mettere un pedaggio davanti alla scelta.
+                             */
+                            if (armedAt == null) preso?.let { onAimStart(it) }
                         } finally {
                             /*
                              * ⚠️⚠️ **NEL `finally`, PER LA STESSA RAGIONE DEL CONFRONTO DELLA
@@ -561,7 +647,11 @@ private fun LookStage(
                              * `pointerInput` cambia chiave, e un'attesa annullata non torna alla
                              * riga dopo. Senza, la lente resterebbe in scena senza un dito.
                              */
+                            conto?.cancel()
                             lens = null
+                            aimTint = null
+                            armedAt = null
+                            scope.launch { armFill.snapTo(0f) }
                         }
                         onAimEnd()
                         return@awaitEachGesture
@@ -798,9 +888,40 @@ private fun LookStage(
                 style = Stroke(width = LENS_EDGE.toPx())
             )
             /*
+             * ⚠️⚠️ **IL CONTATORE DELL'ARMAMENTO VIVE SUL BORDO DELLA LENTE, DALLA `2.25`** (sua
+             * richiesta: *deve esserci un contatore 'visuale'*): un arco che si chiude in
+             * [AIM_ARM_MS] e, arrivato in fondo, resta pieno finché il dito muove la curva. Un
+             * segno nuovo da qualche altra parte sarebbe una seconda cosa da guardare mentre si
+             * guarda il pixel; qui il cerchio che c'è già diventa il conto alla rovescia.
+             * ⚠️ **Parte dall'alto e gira in avanti**: `-90` gradi è mezzogiorno, che è il verso in
+             * cui si legge un'attesa.
+             * ⚠️ **Il tratto è più spesso di quello del bordo**, o a corsa finita i due si
+             * sovrapporrebbero e non si vedrebbe niente cambiare.
+             */
+            val giro = armFill.value
+            if (giro > 0f) {
+                val spesso = LENS_EDGE.toPx() * AIM_ARC
+                drawArc(
+                    color = aimTint ?: lensInk,
+                    startAngle = -90f,
+                    sweepAngle = 360f * giro,
+                    useCenter = false,
+                    topLeft = Offset(centro.x - raggio, centro.y - raggio),
+                    size = androidx.compose.ui.geometry.Size(raggio * 2f, raggio * 2f),
+                    style = Stroke(width = spesso)
+                )
+            }
+            /*
              * ⚠️⚠️ **IL MIRINO È DI DUE COLORI, E NON È UNA DECORAZIONE**: dice quale pixel si sta
-             * prendendo, e deve vedersi sopra qualunque immagine. Un anello bianco dentro uno nero
+             * prendendo, e deve vedersi sopra qualunque immagine. Un anello chiaro dentro uno nero
              * si distingue tanto su un cielo quanto su un'ombra, che un colore solo non fa.
+             * ⚠️⚠️ **E DALLA `2.25` QUELLO DI DENTRO PORTA IL COLORE DELLA FASCIA** (sua richiesta:
+             * *deve variare dinamicamente il colore per corrispondere a uno degli 8 colori
+             * standard, in modo che si capisca all'istante su cosa si agirà se ci si ferma lì*).
+             * Su un grigio, che non appartiene a nessuna fascia, resta bianco: dire 'rosso' di un
+             * pixel senza colore sarebbe la stessa bugia che `Mix.bandOf` evita rispondendo `-1`.
+             * ⚠️ **Il tratto è raddoppiato**, come ha chiesto: a un pixel di spessore il colore
+             * della fascia non si distingueva da quello che c'è sotto.
              */
             val occhio = LENS_PIP.toPx()
             val tratto = LENS_PIP_LINE.toPx()
@@ -811,7 +932,7 @@ private fun LookStage(
                 style = Stroke(width = tratto)
             )
             drawCircle(
-                color = Color.White,
+                color = aimTint ?: Color.White,
                 radius = occhio,
                 center = centro,
                 style = Stroke(width = tratto)
@@ -1769,7 +1890,7 @@ private fun BandChip(
     modifier: Modifier = Modifier
 ) {
     val wipe = stringResource(R.string.look_reset_one, name)
-    val tint = Color.hsv(hue * 360f, BAND_SAT, BAND_VAL)
+    val tint = bandTint(hue)
     val ring = MaterialTheme.colorScheme.primary
     Canvas(
         modifier = modifier
@@ -2289,6 +2410,26 @@ private const val BAND_SAT = 0.85f
 private const val BAND_VAL = 0.95f
 
 /**
+ * Il colore con cui si disegna la fascia della tonalità [hue], in giri.
+ *
+ * ⚠️⚠️ **UNA FUNZIONE SOLA PER LE PASTIGLIE E PER IL MIRINO, DALLA `2.25`**: dalla richiesta di far
+ * portare al mirino *uno degli 8 colori standard* nasce un secondo posto che disegna una fascia, e
+ * due conti darebbero due verdi diversi per lo stesso colore. È la stessa ragione per cui la fila
+ * delle pastiglie prende la tonalità dai centri di `Mix` invece di avere un elenco suo.
+ */
+private fun bandTint(hue: Float): Color = Color.hsv(hue * 360f, BAND_SAT, BAND_VAL)
+
+/**
+ * Il colore della fascia a cui appartiene [pixel], e `null` se quel pixel è un grigio.
+ *
+ * ⚠️ **Il `null` non è un caso limite da chiudere con un colore qualunque**: un grigio non
+ * appartiene a nessuna fascia, e dargli il rosso vorrebbe dire promettere al dito una fascia su cui
+ * quel pixel non ha nessun peso. Vedi `Mix.bandOf`, che risponde `-1` per la stessa ragione.
+ */
+internal fun tintOfPixel(pixel: Int): Color? =
+    Mix.bandOf(pixel).takeIf { it >= 0 }?.let { bandTint(Mix.CENTRES[it]) }
+
+/**
  * Quanto è alto il grafico della curva.
  *
  * ⚠️ **Non è quadrato, ed è un compromesso dichiarato**: il perché vive sul KDoc di [CurveBoard].
@@ -2401,6 +2542,32 @@ private const val LENS_ZOOM = 6f
 /** Il bordo della lente: lo stesso delle altre superfici dell'app, e per la stessa ragione. */
 private val LENS_EDGE = 2.dp
 
-/** Il raggio dell'anello del mirino, e lo spessore dei suoi due tratti. */
+/**
+ * Il raggio dell'anello del mirino, e lo spessore dei suoi due tratti.
+ *
+ * ⚠️ **Il tratto è raddoppiato dalla `2.25`, su sua richiesta** (*l'anello del 'mirino' deve essere
+ * più spessa*): a un punto di spessore il colore della fascia che l'anello adesso porta si
+ * confondeva con l'immagine sotto.
+ */
 private val LENS_PIP = 5.dp
-private val LENS_PIP_LINE = 1.dp
+private val LENS_PIP_LINE = 2.dp
+
+/**
+ * Quanto si deve stare fermi perché il gesto mirato si armi, cioè perché il trascinamento
+ * cominci a muovere la curva invece del mirino.
+ *
+ * ⚠️⚠️ **IL NUMERO È SUO** (giro della `2.24`, nota su `d-lente-curve`: *visto che deve essere
+ * trascinabile, deve esserci un contatore 'visuale': solo se mi fermo in un punto per 1,5 secondi
+ * poi il trascinamento su/giù agisce sulla curva*), e non è un tocco lungo: un tocco lungo si
+ * misura dal momento in cui il dito **scende**, questa attesa riparte da capo a ogni pixel di
+ * movimento, perché quello che si aspetta è che il mirino sia **fermo dove si vuole**.
+ */
+private const val AIM_ARM_MS = 1_500
+
+/**
+ * Quanto è più spesso del bordo l'arco che conta l'attesa dell'armamento.
+ *
+ * ⚠️ **Più del bordo e non uguale**: disegnato con lo stesso tratto, l'arco lo coprirebbe
+ * esattamente e il contatore non si vedrebbe avanzare.
+ */
+private const val AIM_ARC = 1.75f
