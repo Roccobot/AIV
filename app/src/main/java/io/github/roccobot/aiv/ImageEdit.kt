@@ -220,11 +220,24 @@ object ImageEdit {
 
         val temp = File(target.parentFile, target.name + ".part")
         var full: Bitmap? = null
+        var shaded: Bitmap? = null
         var done: Bitmap? = null
         try {
             full = ImageSource.pixels(context, uri, 0)
                 ?: return@withContext Result.Failed(R.string.edit_too_big)
-            done = AdjustRender.apply(full, look)
+            /*
+             * ⚠️⚠️ **DUE PASSATE E NON UNA, DALLA `2.29`, E L'ORDINE È LA SPECIFICA**: prima il
+             * colore, che gira sulla scheda grafica a tessere, e poi la geometria, che è una maglia
+             * di triangoli su una tela normale. Il Dettaglio guarda i pixel vicini, quindi deve
+             * leggerli **come sono nel file**: deformando prima, misurerebbe una nitidezza che il
+             * ricampionamento ha appena ammorbidito.
+             * ⚠️ **Ognuna delle due si salta quando non ha niente da fare**, ed è il caso comune:
+             * chi raddrizza soltanto non paga una passata di shader su venti megapixel, e chi
+             * sviluppa soltanto non paga il ricampionamento.
+             */
+            shaded = if (look.plain) full else AdjustRender.apply(full, look)
+                ?: return@withContext Result.Failed(R.string.look_failed)
+            done = if (look.geo.idle) shaded else Warp.render(shaded, look.geo)
                 ?: return@withContext Result.Failed(R.string.look_failed)
             // ⚠️ La trasparenza va su fondo bianco come nell'altra strada, e con la stessa
             // funzione: il JPEG butta via il canale alfa, e i pixel trasparenti resterebbero
@@ -242,7 +255,11 @@ object ImageEdit {
             temp.delete()
             return@withContext Result.Failed(R.string.edit_too_big)
         } finally {
-            done?.recycle()
+            // ⚠️ Le tre mappe possono essere la stessa: una passata saltata consegna quella che ha
+            // ricevuto, e riciclare due volte lo stesso bitmap è un errore che non si vede finché
+            // qualcuno non lo legge dopo.
+            if (done !== shaded) done?.recycle()
+            if (shaded !== full) shaded?.recycle()
             full?.recycle()
         }
 

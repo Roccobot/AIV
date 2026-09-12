@@ -468,6 +468,12 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Krzywa tonalna</string>
     <string name="look_target">Celowany</string>
+    <string name="look_geometry">Geometria</string>
+    <string name="look_straighten">Prostowanie</string>
+    <string name="look_aspect">Proporcje</string>
+    <string name="look_horizontal">Poziomo</string>
+    <string name="look_vertical">Pionowo</string>
+    <string name="look_distortion">Zniekształcenie</string>
     <string name="look_contrast">Kontrast</string>
     <string name="look_shadows">Cienie</string>
     <string name="look_highlights">Światła</string>

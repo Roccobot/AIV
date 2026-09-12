@@ -436,6 +436,12 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Tooncurve</string>
     <string name="look_target">Doelgericht</string>
+    <string name="look_geometry">Geometrie</string>
+    <string name="look_straighten">Rechtzetten</string>
+    <string name="look_aspect">Verhouding</string>
+    <string name="look_horizontal">Horizontaal</string>
+    <string name="look_vertical">Verticaal</string>
+    <string name="look_distortion">Vervorming</string>
     <string name="look_contrast">Contrast</string>
     <string name="look_shadows">Schaduwen</string>
     <string name="look_highlights">Hoge lichten</string>

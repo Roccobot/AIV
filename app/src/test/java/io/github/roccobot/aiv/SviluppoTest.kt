@@ -3,6 +3,7 @@ package io.github.roccobot.aiv
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.RectF
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +28,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ApplicationProvider
@@ -824,6 +826,180 @@ class SviluppoTest {
         assertEquals("due rossi sono la stessa fascia, quindi lo stesso segno", chiaro, cupo)
         assertEquals("un grigio non appartiene a nessuna fascia", null, tintOfPixel(Color.GRAY))
     }
+
+    /**
+     * **Caso 25: la geometria a riposo non sposta un pixel, e la maglia è la griglia.**
+     *
+     * ⚠️⚠️ **A RIPOSO IL CONTO DEVE ESSERE L'IDENTITÀ ESATTA, E NON 'QUASI'**: la deformazione
+     * ricampiona, quindi un'immagine che passasse dalla maglia con uno scarto di mezzo pixel
+     * perderebbe nitidezza senza che nessuno abbia mosso niente. La guardia che lo tiene è che il
+     * palco a geometria ferma disegna un rettangolo e non una maglia, e questa riga misura che
+     * anche il conto, da solo, non muoverebbe niente.
+     */
+    @Test
+    fun `la geometria a riposo lascia ogni punto dov'è`() {
+        assertTrue(Geometry.NONE.idle)
+        assertTrue(Look(geo = Geometry.NONE).lossless)
+
+        val piano = Warp.plan(Geometry.NONE, cx = 50f, cy = 40f, w = 100f, h = 80f)
+        assertEquals("a riposo non si ingrandisce niente", 1f, piano.cover, 1e-5f)
+        for (x in listOf(0f, 37f, 100f)) {
+            for (y in listOf(0f, 21f, 80f)) {
+                val p = piano.map(x, y)
+                assertEquals(x, p[0], 1e-4f)
+                assertEquals(y, p[1], 1e-4f)
+            }
+        }
+
+        val dove = RectF(0f, 0f, 100f, 80f)
+        val verts = Warp.points(piano, dove, cells = 4)
+        val texs = Warp.grid(dove, cells = 4)
+        assertEquals(texs.size, verts.size)
+        for (i in verts.indices) assertEquals(texs[i], verts[i], 1e-4f)
+    }
+
+    /**
+     * **Caso 26: l'andata e il ritorno della geometria si disfano a vicenda.**
+     *
+     * ⚠️⚠️ **È LA PROVA CHE REGGE IL COLORE MIRATO, ED È L'UNICA COSA DI QUESTO MODULO CHE POSSA
+     * ROMPERSI IN SILENZIO**: col dito si tocca l'immagine **deformata**, e il pixel da leggere
+     * vive prima della deformazione. Un segno sbagliato in [WarpPlan.back] non dà nessun errore e
+     * non si vede sul palco: si vede solo prendendo un colore che sta da un'altra parte.
+     * ⚠️ **La distorsione non ha una formula chiusa** e si inverte con quattro giri di Newton:
+     * qui si misura che quei quattro bastino, invece di fidarsi del numero.
+     * ⚠️ **Controprovata** rovesciando un segno nel keystone dell'inversa: lo scarto passa da
+     * meno di un millesimo di pixel a parecchi pixel.
+     */
+    @Test
+    fun `la geometria torna indietro dove è andata`() {
+        val prove = listOf(
+            Geometry(straighten = 1f),
+            Geometry(aspect = -1f),
+            Geometry(horizontal = 1f),
+            Geometry(vertical = -1f),
+            Geometry(distortion = 1f),
+            Geometry(distortion = -1f),
+            Geometry(straighten = 0.4f, aspect = 0.3f, horizontal = -0.6f, vertical = 0.5f, distortion = 0.7f)
+        )
+        for (geo in prove) {
+            val piano = Warp.plan(geo, cx = 60f, cy = 45f, w = 120f, h = 90f)
+            for (x in listOf(5f, 60f, 115f)) {
+                for (y in listOf(5f, 45f, 85f)) {
+                    val p = piano.map(x, y)
+                    val q = piano.back(p[0], p[1])
+                    assertEquals("$geo in x", x, q[0], 0.02f)
+                    assertEquals("$geo in y", y, q[1], 0.02f)
+                }
+            }
+        }
+    }
+
+    /**
+     * **Caso 27: la scala di copertura non lascia bordi scoperti.**
+     *
+     * ⚠️⚠️ **SENZA DI LEI UN RADDRIZZAMENTO LASCEREBBE QUATTRO CUNEI VUOTI AGLI ANGOLI**, che è
+     * quello che si vede in ogni editor che quel conto non ce l'ha. La misura è al rovescio, e per
+     * questo vale: si prende il **contorno del rettangolo di arrivo** e si guarda da dove viene
+     * ogni suo punto; se viene da dentro il rettangolo di partenza, là c'è un pixel da disegnare.
+     * ⚠️ **La controprova è dentro la prova**: lo stesso piano con `cover = 1` lascia scoperti dei
+     * punti, cioè senza quel conto il difetto ci sarebbe.
+     * ⚠️ **Si prova anche col barile**, dove il punto più rientrato non è un angolo ma il mezzo di
+     * un lato: è il caso che i quattro angoli da soli non prenderebbero.
+     * ⚠️⚠️ **LA TOLLERANZA È MEZZO PIXEL E NON UN MILLESIMO, ED È LA MISURA GIUSTA**: quattro
+     * punti stanno **sul bordo per costruzione**, perché la scala è la più piccola che copre, e là
+     * l'errore del campionamento del contorno li porta fuori di qualche centesimo. Un bordo
+     * scoperto si vede da un pixel in su, e la controprova ne misura sette.
+     */
+    @Test
+    fun `la copertura non lascia bordi vuoti`() {
+        for (geo in listOf(
+            Geometry(straighten = 1f),
+            Geometry(distortion = -1f),
+            Geometry(horizontal = 0.8f, vertical = -0.8f)
+        )) {
+            val piano = Warp.plan(geo, cx = 60f, cy = 45f, w = 120f, h = 90f)
+            assertTrue("$geo doveva ingrandire", piano.cover > 1f)
+            assertEquals("$geo: un bordo è rimasto scoperto", 0, scoperti(piano))
+            val nudo = WarpPlan(
+                half = piano.half, cx = piano.cx, cy = piano.cy, ax = piano.ax, ay = piano.ay,
+                cosT = piano.cosT, sinT = piano.sinT, stretch = piano.stretch,
+                slantX = piano.slantX, slantY = piano.slantY, bend = piano.bend, cover = 1f
+            )
+            assertTrue("$geo: senza copertura il difetto doveva vedersi", scoperti(nudo) > 0)
+        }
+    }
+
+    /**
+     * **Caso 28: il sesto modulo porta i suoi cinque cursori, azzera solo i suoi, e toglie il
+     * senza perdita.**
+     *
+     * ⚠️ **La geometria ricampiona per definizione**, quindi appena un suo cursore si muove il file
+     * va riscritto: dichiararsi senza perdita qui vorrebbe dire salvare un'immagine diversa da
+     * quella che si vede.
+     */
+    @Test
+    fun `il modulo geometria porta i cinque cursori e ricampiona`() {
+        assertTrue(Look(geo = Geometry(straighten = 0.2f)).lossless.not())
+        assertFalse(Geometry(distortion = 0.01f).idle)
+
+        banco.setContent { Scena() }
+        pronta()
+        muovi(1, 0.5f)
+        assertTrue(valore(1) > 0.2f)
+
+        /*
+         * ⚠️⚠️ **IL SESTO GETTONE VA RAGGIUNTO SCORRENDO, E SENZA QUESTA RIGA LA PROVA MENTE**: la
+         * fila dei moduli scorre in orizzontale dalla `2.23`, quindi col sesto nome la pastiglia
+         * cade fuori dalla larghezza del banco. Il tocco non dà nessun errore e non cambia modulo:
+         * si contavano i sei cursori della Luce credendo di guardare la Geometria.
+         */
+        banco.onNodeWithText(testo(R.string.look_geometry)).performScrollTo().performClick()
+        banco.waitForIdle()
+        assertEquals(5, quantiCursori())
+        assertEquals(0, quanteFasce())
+
+        muovi(0, 0.6f)
+        assertTrue(valore(0) > 0.2f)
+        banco.onNodeWithText(testo(R.string.look_geometry)).performTouchInput { longClick() }
+        banco.waitForIdle()
+        assertEquals("la geometria doveva azzerarsi", 0f, valore(0), 1e-3f)
+
+        // ⚠️ Anche il ritorno vuole lo scorrimento, ed è lo stesso difetto al rovescio: la fila è
+        // rimasta scorsa in fondo, quindi adesso è la Luce a stare fuori dalla larghezza.
+        banco.onNodeWithText(testo(R.string.look_light)).performScrollTo().performClick()
+        banco.waitForIdle()
+        assertTrue("la luce non doveva essere toccata", valore(1) > 0.2f)
+    }
+
+    /**
+     * Quanti punti del contorno del rettangolo di arrivo vengono da **fuori** dell'immagine, cioè
+     * quanti pixel resterebbero scoperti: vedi il caso 27.
+     */
+    private fun scoperti(piano: WarpPlan): Int {
+        val w = piano.ax * piano.half
+        val h = piano.ay * piano.half
+        var conto = 0
+        for (i in 0..40) {
+            val t = i / 40f
+            val xs = piano.cx - w + 2f * w * t
+            val ys = piano.cy - h + 2f * h * t
+            for (p in listOf(
+                piano.back(xs, piano.cy - h),
+                piano.back(xs, piano.cy + h),
+                piano.back(piano.cx - w, ys),
+                piano.back(piano.cx + w, ys)
+            )) {
+                val fuori = abs(p[0] - piano.cx) > w + 0.5f || abs(p[1] - piano.cy) > h + 0.5f
+                if (fuori) conto += 1
+            }
+        }
+        return conto
+    }
+
+    /** Quanti cursori sono in scena, contati dalla loro azione semantica. */
+    private fun quantiCursori(): Int =
+        banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))
+            .fetchSemanticsNodes().size
 
     /**
      * Il punto medio, in orizzontale, dei pixel cambiati fra due scatti: `0` se non ne è cambiato

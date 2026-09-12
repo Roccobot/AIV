@@ -452,6 +452,12 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Curva de tons</string>
     <string name="look_target">Direcionado</string>
+    <string name="look_geometry">Geometria</string>
+    <string name="look_straighten">Endireitar</string>
+    <string name="look_aspect">Proporção</string>
+    <string name="look_horizontal">Horizontal</string>
+    <string name="look_vertical">Vertical</string>
+    <string name="look_distortion">Distorção</string>
     <string name="look_contrast">Contraste</string>
     <string name="look_shadows">Sombras</string>
     <string name="look_highlights">Luzes</string>

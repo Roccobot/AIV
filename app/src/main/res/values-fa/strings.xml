@@ -436,6 +436,12 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">منحنی تون</string>
     <string name="look_target">هدفمند</string>
+    <string name="look_geometry">هندسه</string>
+    <string name="look_straighten">تراز کردن</string>
+    <string name="look_aspect">نسبت</string>
+    <string name="look_horizontal">افقی</string>
+    <string name="look_vertical">عمودی</string>
+    <string name="look_distortion">اعوجاج</string>
     <string name="look_contrast">کنتراست</string>
     <string name="look_shadows">سایه‌ها</string>
     <string name="look_highlights">روشنی‌ها</string>

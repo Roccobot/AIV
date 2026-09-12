@@ -89,6 +89,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.positionChange
@@ -486,6 +487,16 @@ private fun LookStage(
     modifier: Modifier = Modifier
 ) {
     val hold = stringResource(R.string.look_compare)
+    /**
+     * La geometria di **adesso**, per chi la legge dentro un gesto.
+     *
+     * ⚠️⚠️ **È LA STESSA PRUDENZA DI [aiming], DALLA `2.29`**: il corpo di un `pointerInput` si
+     * ricostruisce solo quando cambiano le sue chiavi, quindi un `look` catturato porterebbe la
+     * geometria di quando quel nodo è nato, e il colore mirato leggerebbe il pixel di una
+     * deformazione vecchia. ⚠️ **E la chiave non si tocca**: metterci il `look` annullerebbe il
+     * gesto in corso a ogni cursore mosso.
+     */
+    val geoNow by rememberUpdatedState(look.geo)
     var scale by remember(picture) { mutableFloatStateOf(1f) }
     var shift by remember(picture) { mutableStateOf(Offset.Zero) }
     /**
@@ -570,9 +581,23 @@ private fun LookStage(
      * letture di stato non diventano dipendenze di nessuno. È la ragione per cui le chiavi sono
      * [resting] e [stage] e non i due valori che al conto servono davvero.
      */
-    LaunchedEffect(picture, full, stage, resting) {
+    LaunchedEffect(picture, full, stage, resting, look.geo.idle) {
         val source = full
         if (source == null || stage.width <= 0f || stage.height <= 0f) {
+            sharp = null
+            return@LaunchedEffect
+        }
+        /*
+         * ⚠️⚠️ **COL MODULO GEOMETRIA MOSSO IL PEZZO NITIDO NON SI LEGGE, E SI DICHIARA INVECE DI
+         * LASCIARLO SBAGLIARE**: `sharpAsk` ricava la porzione inquadrata dal rettangolo in cui
+         * l'immagine **intera** è disegnata, e con la deformazione quel rettangolo non dice più
+         * dove finisce un pixel. Il pezzo si dipingerebbe al posto sbagliato, cioè un rattoppo
+         * spostato sopra l'anteprima.
+         * ⚠️ **Quello che si perde è l'anteprima a risoluzione piena mentre si raddrizza**, e non
+         * il contrario: sotto c'è sempre l'immagine intera, quindi qui non manca niente. La strada
+         * per riaverlo è far passare anche il pezzo dalla maglia, che è un lavoro a sé.
+         */
+        if (!look.geo.idle) {
             sharp = null
             return@LaunchedEffect
         }
@@ -653,8 +678,23 @@ private fun LookStage(
                     val b = view.bottom
                     if (at.x < l || at.x > r || at.y < t || at.y > b) return null
                     if (r - l <= 0f || b - t <= 0f) return null
-                    val u = ((at.x - l) / (r - l)).coerceIn(0f, 1f)
-                    val v = ((at.y - t) / (b - t)).coerceIn(0f, 1f)
+                    /*
+                     * ⚠️⚠️ **COL MODULO GEOMETRIA IL DITO TOCCA L'IMMAGINE DEFORMATA, DALLA `2.29`,
+                     * E IL COLORE VIVE PRIMA DELLA DEFORMAZIONE**: quello che si vede sotto il dito
+                     * è arrivato là da un altro punto del file, quindi senza la mappatura inversa
+                     * questo tasto prenderebbe il pixel di un altro posto. La funzione è
+                     * `WarpPlan.back`, cioè l'inversa esatta di quella che il disegno applica: una
+                     * seconda stima darebbe un colore vicino e sbagliato.
+                     */
+                    val geo = geoNow
+                    val where = if (geo.idle) at else {
+                        val p = Warp
+                            .plan(geo, view.centerX(), view.centerY(), view.width(), view.height())
+                            .back(at.x, at.y)
+                        Offset(p[0], p[1])
+                    }
+                    val u = ((where.x - l) / (r - l)).coerceIn(0f, 1f)
+                    val v = ((where.y - t) / (b - t)).coerceIn(0f, 1f)
                     sharp?.pixel(u, v)?.let { return it }
                     return picture.getPixel(
                         (u * (picture.width - 1)).roundToInt(),
@@ -941,7 +981,7 @@ private fun LookStage(
              * pezzo disegnato da solo riceve lo stesso raggio del tutto: consegnando la misura del
              * pezzo, il filtro cambierebbe forza mentre si sposta la panoramica.
              */
-            val shader = if (look.idle) null else lookShader(image, look, lato)
+            val shader = if (look.plain) null else lookShader(image, look, lato)
             return Paint().apply {
                 asFrameworkPaint().isFilterBitmap = !nitido
                 asFrameworkPaint().shader = shader ?: image
@@ -951,12 +991,32 @@ private fun LookStage(
         /** Il lato lungo dell'immagine intera come è disegnata adesso. */
         val lato = max(view.width(), view.height())
 
-        drawIntoCanvas { tela ->
-            tela.drawRect(
-                view.left, view.top, view.right, view.bottom,
-                pennello(picture, view, false, lato)
-            )
+        /*
+         * ⚠️⚠️ **CON LA GEOMETRIA MOSSA NON SI DISEGNA UN RETTANGOLO MA UNA MAGLIA, DALLA `2.29`**,
+         * e il pennello è lo stesso: quello che cambia è **dove** finisce ogni pixel, non di che
+         * colore è. La maglia la costruisce `Warp`, cioè lo stesso conto che il salvataggio applica
+         * al file pieno: una fonte, due lettori.
+         * ⚠️ **A geometria ferma resta il rettangolo di sempre**, e non è un'ottimizzazione: mille
+         * triangoli per disegnare un rettangolo sarebbero mille occasioni di una cucitura che a
+         * rettangolo non esiste.
+         */
+        fun stendi(mappa: Bitmap, dove: RectF, nitido: Boolean) {
+            val paint = pennello(mappa, dove, nitido, lato)
+            drawIntoCanvas { tela ->
+                if (look.geo.idle) {
+                    tela.drawRect(dove.left, dove.top, dove.right, dove.bottom, paint)
+                } else {
+                    Warp.draw(
+                        tela.nativeCanvas,
+                        dove,
+                        Warp.plan(look.geo, view.centerX(), view.centerY(), view.width(), view.height()),
+                        paint.asFrameworkPaint()
+                    )
+                }
+            }
         }
+
+        stendi(picture, view, false)
 
         /*
          * ⚠️⚠️ **IL PEZZO NITIDO SI DISEGNA SOPRA L'ANTEPRIMA, NON AL SUO POSTO, DALLA `2.27`**, ed
@@ -1002,11 +1062,27 @@ private fun LookStage(
                 if (alta) dito.y - aria - raggio else dito.y + aria + raggio
             )
             val k = LENS_ZOOM
+            /*
+             * ⚠️⚠️ **COL MODULO GEOMETRIA LA LENTE INQUADRA IL PUNTO SORGENTE E NON QUELLO
+             * TOCCATO, DALLA `2.29`**: dentro il tondo l'immagine si disegna **non deformata**
+             * (là non c'è nessuna maglia), quindi centrandola sul dito mostrerebbe la porzione
+             * che in quel punto ci sarebbe **senza** la deformazione, mentre il colore lo prende
+             * `colourAt` dal punto sorgente. Sarebbe di nuovo vedere un pixel e prenderne un
+             * altro, che è il difetto che la nota della `2.24` esiste per non rifare.
+             * ⚠️ **A spostarsi è quello che si inquadra, non dove la lente si posa**: il tondo
+             * resta sopra il dito, perché quella è la ragione per cui esiste.
+             */
+            val fonte = if (look.geo.idle) dito else {
+                val p = Warp
+                    .plan(look.geo, view.centerX(), view.centerY(), view.width(), view.height())
+                    .back(dito.x, dito.y)
+                Offset(p[0], p[1])
+            }
             val vista = RectF(
-                centro.x + (view.left - dito.x) * k,
-                centro.y + (view.top - dito.y) * k,
-                centro.x + (view.right - dito.x) * k,
-                centro.y + (view.bottom - dito.y) * k
+                centro.x + (view.left - fonte.x) * k,
+                centro.y + (view.top - fonte.y) * k,
+                centro.x + (view.right - fonte.x) * k,
+                centro.y + (view.bottom - fonte.y) * k
             )
             val tondo = Path().apply { addOval(Rect(centro, raggio)) }
             // ⚠️ **Il fondo si dipinge prima**: toccando vicino a un bordo dell'immagine, dentro
@@ -1519,6 +1595,54 @@ private val DETAIL_ROWS = listOf(
 )
 
 /**
+ * I cinque cursori del **Geometria**, nell'ordine del pannello di Lightroom: raddrizzamento,
+ * proporzioni, orizzontale, verticale, distorsione.
+ *
+ * ⚠️⚠️ **I DUE KEYSTONE SI CHIAMANO COL PROPRIO ASSE E NON 'PROSPETTIVA', ED È IL NOME CHE HA IN
+ * MANO**: sono tutte e due una correzione di prospettiva, quindi chiamarne uno 'Prospettiva'
+ * direbbe che l'altro è un'altra cosa. Lightroom li chiama 'Verticale' e 'Orizzontale', che è il
+ * pannello che lui conosce, e nel codice il campo porta la stessa parola: qui non c'è nessuna
+ * ragione per cui il nome interno debba divergere da quello che si legge nel telefono.
+ *
+ * ⚠️⚠️ **SONO TUTTI E CINQUE BIPOLARI, E QUI NON È UNA SCELTA MA LA NATURA DEL MODULO**: ognuno ha
+ * due versi opposti che vogliono dire due correzioni diverse (si ruota da una parte o dall'altra,
+ * si stira in larghezza o in altezza, si guarda dal basso o dall'alto), e lo zero è l'immagine come
+ * la fotocamera l'ha presa.
+ *
+ * ⚠️ **Il raddrizzamento si mostra da -100 a +100 come gli altri e non in gradi**, che è quello che
+ * farebbe Lightroom: un secondo modo di scrivere un numero vorrebbe dire un secondo formato nella
+ * riga del cursore, e quanto valga il fondo corsa lo dice [Warp.TILT], che è il posto in cui quel
+ * grado vive.
+ */
+private val GEO_ROWS = listOf(
+    Dial(
+        R.string.look_straighten,
+        { it.geo.straighten },
+        { k, v -> k.copy(geo = k.geo.copy(straighten = v)) }
+    ),
+    Dial(
+        R.string.look_aspect,
+        { it.geo.aspect },
+        { k, v -> k.copy(geo = k.geo.copy(aspect = v)) }
+    ),
+    Dial(
+        R.string.look_horizontal,
+        { it.geo.horizontal },
+        { k, v -> k.copy(geo = k.geo.copy(horizontal = v)) }
+    ),
+    Dial(
+        R.string.look_vertical,
+        { it.geo.vertical },
+        { k, v -> k.copy(geo = k.geo.copy(vertical = v)) }
+    ),
+    Dial(
+        R.string.look_distortion,
+        { it.geo.distortion },
+        { k, v -> k.copy(geo = k.geo.copy(distortion = v)) }
+    )
+)
+
+/**
  * I moduli, nell'ordine in cui la fila li disegna.
  *
  * ⚠️⚠️ **L'ORDINE DEI CURSORI È QUELLO DEL PANNELLO DI LIGHTROOM, ED È IL SUO RIFERIMENTO** (giro
@@ -1565,6 +1689,21 @@ private val MODULES = listOf(
         clear = { it.copy(tone = Tone.NONE) },
         spent = { !it.tone.idle },
         extra = Extra.CURVES
+    ),
+    /*
+     * ⚠️⚠️ **IL SESTO MODULO È L'UNICO CHE NON CAMBIA IL COLORE DI UN PIXEL, E VIENE PER ULTIMO
+     * NELLA FILA COME NELLA CATENA**: gli altri cinque dicono di che colore è un pixel, questo dice
+     * dove va a finire, e la ragione per cui è l'ultimo dei due conti vive in testa a `Geometry.kt`
+     * (il Dettaglio deve leggere i pixel del file e non quelli già interpolati).
+     * ⚠️ **Non offre il colore mirato**, e la condizione se lo dice da sé: `Extra.NONE` vuol dire
+     * che la scheda mostra i soli cursori, e mirare un colore in un modulo che i colori non li
+     * tocca non vorrebbe dire niente.
+     */
+    Module(
+        R.string.look_geometry,
+        rows = { GEO_ROWS },
+        clear = { it.copy(geo = Geometry.NONE) },
+        spent = { !it.geo.idle }
     )
 )
 
