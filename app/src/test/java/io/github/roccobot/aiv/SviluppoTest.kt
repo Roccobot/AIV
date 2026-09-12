@@ -8,9 +8,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.PixelMap
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.down
+import androidx.compose.ui.test.up
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.click
@@ -697,6 +702,59 @@ class SviluppoTest {
         assertTrue(Tone.levelOf(blu, Tone.WHOLE) < 0.1f)
         assertEquals(1f, Tone.levelOf(giallo, Tone.RED), 1e-3f)
         assertEquals(0f, Tone.levelOf(giallo, Tone.BLUE), 1e-3f)
+    }
+
+    /**
+     * **La lente del colore mirato c'è mentre il dito è giù, e sparisce quando si alza.**
+     *
+     * ⚠️⚠️ **NASCE DALLA SUA RISPOSTA A `d-mirato-hsl`** (giro della `2.23`: *serve un selettore
+     * con zoom e anteprima dei pixel campionati*), e quello che il banco può vederne è questo:
+     * che il palco cambi disegno col dito giù e torni **identico** al rilascio. Il difetto che
+     * presidia è quello della `2.17`, cioè una cosa che si accende con un gesto e resta accesa.
+     * ⚠️ **Si contano i pixel DIVERSI e non quelli di un colore**: il bordo e il mirino sono
+     * tratti sottili, e l'antialiasing non garantisce un solo pixel del colore esatto, quindi una
+     * misura sul colore potrebbe restare a zero con la lente in scena.
+     * ⚠️ **Quello che NON vede**: se la lente mostri il pixel giusto, che è il suo mestiere. Il
+     * conto vive sulla scheda grafica e qui non gira, quindi quello si guarda sul telefono.
+     */
+    @Test
+    fun `la lente del mirato c'e col dito giu e sparisce al rilascio`() {
+        banco.setContent { Scena() }
+        pronta()
+        banco.onNodeWithText(testo(R.string.look_tone)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithText(testo(R.string.look_target)).performClick()
+        banco.waitForIdle()
+
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        val riposo = palco.captureToImage().toPixelMap()
+
+        palco.performTouchInput { down(center) }
+        banco.waitForIdle()
+        val conDito = palco.captureToImage().toPixelMap()
+        assertTrue(
+            "col dito giù il palco deve portare la lente, e invece è identico",
+            diversi(riposo, conDito) > 0
+        )
+
+        palco.performTouchInput { up() }
+        banco.waitForIdle()
+        assertEquals(
+            "al rilascio la lente doveva sparire",
+            0,
+            diversi(riposo, palco.captureToImage().toPixelMap())
+        )
+    }
+
+    /** Quanti pixel cambiano fra due scatti dello stesso nodo. */
+    private fun diversi(a: PixelMap, b: PixelMap): Int {
+        var conto = 0
+        for (y in 0 until minOf(a.height, b.height)) {
+            for (x in 0 until minOf(a.width, b.width)) {
+                if (a[x, y] != b[x, y]) conto += 1
+            }
+        }
+        return conto
     }
 
     /** Quanti nodi portano questa descrizione parlata. */

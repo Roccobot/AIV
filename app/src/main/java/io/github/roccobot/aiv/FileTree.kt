@@ -557,6 +557,21 @@ object FileTree {
      * ⚠️ Il tetto di attesa non è pessimismo: un richiamo che non arriva mai
      * bloccherebbe la selezione per sempre, e una galleria in ritardo di qualche secondo
      * è un guaio molto più piccolo.
+     *
+     * ⚠️⚠️ **E DALLA `2.24` BUTTA ANCHE LA MINIATURA CHE TENIAMO NOI PER QUELL'INDIRIZZO**
+     * (segnalazione dell'utente, punto A2 del campo libero del giro della `2.23`: *se si modifica
+     * una foto, poi si recupera la copia di backup dal cestino, questa ha la miniatura
+     * dell'immagine modificata, non la propria*). Chi fa scandire un percorso sta **dichiarando**
+     * che là il contenuto è cambiato, e la cache di [Thumbs] è indicizzata sull'indirizzo e non
+     * sul contenuto: quindi le due cose vanno insieme, e scritte qui un chiamante nuovo le prende
+     * per costruzione invece di doversi ricordare la seconda riga.
+     * - **Perché il ripristino era il caso che si vedeva**: `Bin.restore` rimette il file dove
+     *   stava, quindi un file che torna sopra l'indirizzo di uno appena riscritto si ritrova la
+     *   miniatura di quello. Chiamava già questa funzione, che rifà la miniatura **di sistema**
+     *   (la nota di [Thumbs.forget] lo dice da sempre): a mancare era la nostra.
+     * - ⚠️ **Non copre il caso in cui il MediaScanner non risponda con un indirizzo**, e si
+     *   dichiara: là non c'è nessuna chiave da togliere, e la miniatura la rifà comunque il
+     *   sistema perché la riga è nuova.
      */
     internal suspend fun scan(context: Context, paths: List<String>) {
         val list = paths.distinct().filter { it.isNotBlank() }
@@ -565,7 +580,8 @@ object FileTree {
             withTimeoutOrNull(SCAN_WAIT_MS) {
                 suspendCancellableCoroutine { cont ->
                     val left = AtomicInteger(list.size)
-                    MediaScannerConnection.scanFile(context, list.toTypedArray(), null) { _, _ ->
+                    MediaScannerConnection.scanFile(context, list.toTypedArray(), null) { _, uri ->
+                        if (uri != null) Thumbs.forget(context, uri)
                         if (left.decrementAndGet() == 0 && cont.isActive) cont.resume(Unit)
                     }
                 }

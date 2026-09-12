@@ -39,7 +39,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,6 +72,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
@@ -562,7 +562,8 @@ fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (In
          * ⚠️ **Sul contenitore e non sul contenuto**: la scheda arriva al vetro e il rientro di
          * sistema ce l'ha dentro, quindi quello che copre parte dal bordo dello schermo.
          */
-        DisposableEffect(Unit) { onDispose { PickStage.cover(0) } }
+        val quota = remember { Any() }
+        DisposableEffect(quota) { onDispose { FootStage.off(quota) } }
         Surface(
             /*
              * ⚠️⚠️ **IL BORDO D'ACCENTO CE L'HA ANCHE LEI, dalla `1.55`, ed è una decisione
@@ -584,7 +585,7 @@ fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (In
             modifier = Modifier
                 .edgedTop(PANEL_ROUND)
                 .onGloballyPositioned {
-                    PickStage.cover(finestra - it.positionInWindow().y.roundToInt())
+                    FootStage.cover(quota, finestra - it.positionInWindow().y.roundToInt())
                 },
             shape = RoundedCornerShape(topStart = PANEL_ROUND, topEnd = PANEL_ROUND),
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
@@ -646,15 +647,21 @@ fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (In
 }
 
 /**
- * Quanta parte di schermo si prende, **in questo fotogramma**, la scheda della selezione.
+ * Quanta parte del fondo dello schermo è già occupata, **in questo fotogramma**.
  *
  * ⚠️⚠️ **ESISTE PERCHÉ CHI DEVE SAPERLO NON VIVE DENTRO LA SCHERMATA**: la notifica di casa e la
  * fascia della copertina vivono sopra la transizione fra schermate (`ViewerActivity`), cioè in un
  * ramo che non discende da [PickSheet]. Un `CompositionLocal` va dall'alto in basso e qui il verso
  * è il contrario, quindi la via è la stessa di [Notices] e di [VeilStage]: un oggetto di processo
  * che una superficie scrive e le altre leggono.
- * ⚠️ **Un numero solo e non una mappa, al contrario di [VeilStage]**: di schede della selezione ce
- * n'è al più una in scena, perché ce n'è una per griglia e le griglie non si sovrappongono.
+ * ⚠️⚠️ **A SCRIVERCI SONO IN DUE DALLA `2.24`, E IL SECONDO È IL FAB** (segnalazione dell'utente,
+ * punto A1 del campo libero del giro della `2.23`: *la notifica inferiore con 'Annulla' (es. per
+ * 'Sposta') a volte va sopra il FAB (su qualunque lato sia)*). Fino alla `2.23` il solo chiedente
+ * era la scheda della selezione, e la notifica la copriva: quel tasto è in un angolo, la notifica
+ * è larga quasi tutto lo schermo, e a disegnarla è la radice dell'app, cioè dopo di lui.
+ * ⚠️ **Il FAB della griglia si stacca in una finestra sua a menu aperto, e la misura regge lo
+ * stesso**: là resta un segnaposto della stessa misura (vedi [TapHoldFab]), che vive nella
+ * finestra dell'app ed è quello che si misura.
  * ⚠️⚠️ **SI LEGGE IN COMPOSIZIONE, E LA VIA PIÙ ECONOMICA NON FUNZIONA: È MISURATO.** La prima
  * stesura lo leggeva dentro `Modifier.offset { }`, cioè nella fase di layout, che è la strada che
  * costa zero ricomposizioni; col banco alla mano quel lambda è stato valutato **una volta sola**,
@@ -664,34 +671,51 @@ fun BoxScope.PickSheet(visible: Boolean, actions: List<PadAction>, onHeight: (In
  * ⚠️ **Il costo si paga e si dichiara**: la notifica si ricompone a ogni fotogramma nei due terzi
  * di secondo in cui la scheda sale o scende, ed è un nodo con dentro una frase e un tasto.
  */
-internal object PickStage {
-    private val quanto = mutableIntStateOf(0)
+internal object FootStage {
+    /*
+     * ⚠️⚠️ **UNA MAPPA E NON UN NUMERO, DALLA `2.24`, E LA RAGIONE È CHE ADESSO I CHIEDENTI SONO
+     * DUE**: la scheda della selezione e il FAB. Con un numero solo, il secondo a scrivere
+     * cancellerebbe la richiesta del primo, e chi se ne va porterebbe via anche l'ingombro
+     * dell'altro. È la stessa forma di [VeilStage], e per la stessa ragione.
+     * ⚠️ **Vale il massimo e non la somma**: le due superfici sono appoggiate allo stesso bordo,
+     * quindi quella che sta più in alto le comprende tutte.
+     */
+    private val coprono = mutableStateMapOf<Any, Int>()
 
-    /** Quanti pixel di schermo copre, contati dal bordo di sotto: `0` quando non è in scena. */
-    val covers: Int get() = quanto.intValue
+    /** Quanti pixel di schermo copre, contati dal bordo di sotto: `0` quando non c'è nessuno. */
+    val covers: Int get() = coprono.values.maxOrNull() ?: 0
 
-    fun cover(px: Int) {
-        quanto.intValue = px.coerceAtLeast(0)
+    fun cover(chi: Any, px: Int) {
+        if (px <= 0) coprono.remove(chi) else coprono[chi] = px
+    }
+
+    fun off(chi: Any) {
+        coprono.remove(chi)
     }
 }
 
 /**
- * Tiene una superficie appoggiata in fondo **sopra** la scheda della selezione, quando c'è.
+ * Tiene una superficie appoggiata in fondo **sopra** quello che il fondo dello schermo già porta.
  *
  * ⚠️⚠️ **LO CHIAMANO LE DUE COSE CHE VIVONO IN FONDO SOPRA LA TRANSIZIONE**, cioè la notifica di
- * casa e la fascia della copertina: sono le sole due superfici che la scheda può coprire, perché
- * tutto il resto o vive dentro una schermata o è una finestra sua. Una riga sola per tutte e due,
- * così una terza che nascesse non ha un secondo modo con cui sbagliare.
+ * casa e la fascia della copertina: sono le sole due superfici che possono finire sopra qualcosa,
+ * perché tutto il resto o vive dentro una schermata o è una finestra sua. Una riga sola per tutte
+ * e due, così una terza che nascesse non ha un secondo modo con cui sbagliare.
+ * ⚠️⚠️ **CHI SI SCANSA È SEMPRE QUESTA, E NON CHI LE È SOTTO**: là ci sono i **comandi** (la scheda
+ * della selezione, il FAB), e muoverli vorrebbe dire spostarli mentre il dito sta per toccarli,
+ * che è la stessa famiglia del difetto della griglia che scorre sotto un dito appoggiato. Una
+ * notifica invece si tocca di rado, e quando la si tocca è per disfare.
  * ⚠️⚠️ **SI SOTTRAE IL RIENTRO DI SISTEMA, e senza quel termine la notifica salirebbe troppo**:
- * chi chiama si è già scansato dalla barra di navigazione, e la scheda quella barra la copre,
- * quindi alzarsi di tutto quello che la scheda occupa conterebbe quella striscia due volte.
+ * chi chiama si è già scansato dalla barra di navigazione, e quello che dichiara l'ingombro conta
+ * dal bordo della **finestra**, quindi alzarsi di tutto quello che copre conterebbe quella
+ * striscia due volte.
  * ⚠️ **Uno spostamento e non un rientro**: la superficie resta larga e alta com'era, e a muoversi
  * è solo dove viene posata. Un `padding` la rimisurerebbe a ogni fotogramma della salita.
  */
 @Composable
-internal fun Modifier.abovePickSheet(): Modifier {
+internal fun Modifier.aboveFoot(): Modifier {
     val barra = WindowInsets.navigationBars.getBottom(LocalDensity.current)
-    val su = (PickStage.covers - barra).coerceAtLeast(0)
+    val su = (FootStage.covers - barra).coerceAtLeast(0)
     return offset { IntOffset(0, -su) }
 }
 
@@ -1607,8 +1631,25 @@ fun TapHoldFab(
         }
     }
 
+    /*
+     * ⚠️⚠️ **IL FAB DICHIARA QUANTO COPRE DEL FONDO DELLO SCHERMO, DALLA `2.24`, COSÌ LA NOTIFICA
+     * NON GLI FINISCE SOPRA** (segnalazione dell'utente, punto A1 del giro della `2.23`): il
+     * perché a scansarsi sia la notifica e non questo tasto vive su [Modifier.aboveFoot].
+     * ⚠️ **Vive QUI e non nei due chiamanti**, così un FAB nuovo lo dichiara per costruzione: è lo
+     * stesso criterio per cui `lowered()` si porta dietro il velo, e per cui l'uscita verso una
+     * schermata senza FAB la legge questa funzione invece dei suoi chiamanti.
+     * ⚠️ **Una chiave per ogni FAB in scena**: durante la dissolvenza fra due schermate ce ne sono
+     * due, e con una chiave sola il secondo cancellerebbe la misura del primo.
+     */
+    val quota = remember { Any() }
+    val finestra = LocalWindowInfo.current.containerSize.height
+    DisposableEffect(quota) { onDispose { FootStage.off(quota) } }
+    val misura = Modifier.onGloballyPositioned {
+        FootStage.cover(quota, finestra - it.positionInWindow().y.roundToInt())
+    }
+
     if (!lifted) {
-        tasto(false)
+        Box(modifier = misura) { tasto(false) }
         return
     }
     /*

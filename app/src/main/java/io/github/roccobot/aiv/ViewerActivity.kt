@@ -2816,11 +2816,17 @@ private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
          * 'sposta' o 'elimina'), la bottomsheet della selezione va a finire sotto la notifica in
          * basso*). Le due superfici sono appoggiate allo stesso bordo e nascono da due gesti che
          * si susseguono, quindi prima o poi si incontrano: il perché a muoversi sia questa, e non
-         * la scheda, vive su [Modifier.abovePickSheet].
+         * la scheda, vive su [Modifier.aboveFoot].
+         * ⚠️⚠️ **E DALLA `2.24` SALE ANCHE SOPRA IL FAB, PER LA STESSA RAGIONE** (punto A1 del campo
+         * libero del giro della `2.23`: *la notifica inferiore con 'Annulla' (es. per 'Sposta') a
+         * volte va sopra il FAB (su qualunque lato sia)*). Quel tasto vive in un angolo e questa
+         * riga è larga quasi tutto lo schermo, quindi si incontrano **sempre**; e a disegnarla è
+         * questa radice, cioè dopo la schermata, quindi gli finiva sopra. Il meccanismo non è
+         * nuovo: è lo stesso della scheda, con un secondo chiedente in [FootStage].
          */
         AppNotice(
             Notices.line,
-            modifier = Modifier.align(Alignment.BottomCenter).abovePickSheet()
+            modifier = Modifier.align(Alignment.BottomCenter).aboveFoot()
         )
         /*
          * ⚠️⚠️ **LA FASCIA DELLA COPERTINA VIVE QUI PER LA STESSA RAGIONE DELLA NOTIFICA**: la
@@ -2837,7 +2843,7 @@ private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
                 // ⚠️ **Sale anche lei**, per la stessa ragione della notifica: è appoggiata allo
                 // stesso bordo, e una riga in meno di così vorrebbe dire scommettere che le due
                 // cose non si incontrino mai.
-                modifier = Modifier.align(Alignment.BottomCenter).abovePickSheet()
+                modifier = Modifier.align(Alignment.BottomCenter).aboveFoot()
             )
         }
     }

@@ -77,6 +77,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Color
@@ -85,6 +86,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerInputChange
@@ -445,6 +447,20 @@ private fun LookStage(
     val hold = stringResource(R.string.look_compare)
     var scale by remember(picture) { mutableFloatStateOf(1f) }
     var shift by remember(picture) { mutableStateOf(Offset.Zero) }
+    /**
+     * Dove il dito è sceso nel gesto mirato in corso, cioè dove va la lente: `null` a riposo.
+     *
+     * ⚠️⚠️ **NASCE DALLA SUA RISPOSTA A `d-mirato-hsl`, DALLA `2.24`** (giro della `2.23`: *serve un
+     * selettore con zoom e anteprima dei pixel campionati. Anche per le curve, forse*): il colore
+     * mirato legge il pixel **sotto il dito**, cioè sotto la cosa che lo copre, e senza un
+     * ingrandimento non c'è modo di sapere quale si sta prendendo.
+     * ⚠️ **Si legge nel DISEGNO e non in composizione**: un `Canvas` rilegge lo stato nella fase di
+     * disegno, quindi muoverlo costa un ridisegno e nessuna ricomposizione, che è quello che serve
+     * a un gesto.
+     */
+    var lens by remember(picture) { mutableStateOf<Offset?>(null) }
+    val lensInk = MaterialTheme.colorScheme.primary
+    val lensBack = MaterialTheme.colorScheme.surface
     /** La corsa del doppio tocco, tenuta per poterla fermare appena un dito scende. */
     var ride by remember(picture) { mutableStateOf<Job?>(null) }
     val scope = rememberCoroutineScope()
@@ -522,10 +538,31 @@ private fun LookStage(
                      * mezzo secondo, e la prima a sbagliare sarebbe quella che si usa di più.
                      */
                     if (aiming()) {
-                        colourAt(down.position)?.let(onAimStart)
-                        // ⚠️ **Il verso si rovescia qui**: il puntatore conta positivo verso il
-                        // basso, e chi tira in su vuole il tono più chiaro.
-                        hauled(down) { dy -> onAimPull(-dy / room.height) }
+                        val preso = colourAt(down.position)
+                        if (preso != null) {
+                            onAimStart(preso)
+                            /*
+                             * ⚠️⚠️ **LA LENTE SI ANCORA AL PUNTO IN CUI IL DITO È SCESO, E NON LO
+                             * SEGUE**: il pixel campionato è quello del tocco e non cambia più
+                             * mentre si tira, quindi una lente che inseguisse il dito
+                             * mostrerebbe un colore che non è quello preso. Ferma, resta la
+                             * prova di che cosa si è scelto.
+                             */
+                            lens = down.position
+                        }
+                        try {
+                            // ⚠️ **Il verso si rovescia qui**: il puntatore conta positivo verso
+                            // il basso, e chi tira in su vuole il tono più chiaro.
+                            hauled(down) { dy -> onAimPull(-dy / room.height) }
+                        } finally {
+                            /*
+                             * ⚠️⚠️ **NEL `finally`, PER LA STESSA RAGIONE DEL CONFRONTO DELLA
+                             * `2.17`**: un rilevatore di gesti viene annullato quando il suo
+                             * `pointerInput` cambia chiave, e un'attesa annullata non torna alla
+                             * riga dopo. Senza, la lente resterebbe in scena senza un dito.
+                             */
+                            lens = null
+                        }
                         onAimEnd()
                         return@awaitEachGesture
                     }
@@ -655,42 +692,131 @@ private fun LookStage(
             middle.y + (box.bottom - middle.y) * scale + safe.y
         )
 
-        val image = BitmapShader(picture, TileMode.CLAMP, TileMode.CLAMP).apply {
-            setLocalMatrix(
-                Matrix().apply {
-                    setRectToRect(
-                        RectF(0f, 0f, picture.width.toFloat(), picture.height.toFloat()),
-                        view,
-                        Matrix.ScaleToFit.FILL
+        /**
+         * Il pennello che disegna l'immagine **col conto già applicato** dentro il rettangolo
+         * [dove], col filtro lineare o con quello a pixel interi.
+         *
+         * ⚠️⚠️ **È UNA FUNZIONE DALLA `2.24` PERCHÉ ADESSO I RETTANGOLI SONO DUE**: il palco e la
+         * lente del colore mirato. Scritta due volte, la seconda copia mostrerebbe un'immagine
+         * sviluppata in un altro modo il giorno che una delle due cambia, ed è esattamente il
+         * genere di divergenza che l'editor completo esiste per non avere.
+         */
+        fun pennello(dove: RectF, nitido: Boolean): Paint {
+            val image = BitmapShader(picture, TileMode.CLAMP, TileMode.CLAMP).apply {
+                setLocalMatrix(
+                    Matrix().apply {
+                        setRectToRect(
+                            RectF(0f, 0f, picture.width.toFloat(), picture.height.toFloat()),
+                            dove,
+                            Matrix.ScaleToFit.FILL
+                        )
+                    }
+                )
+            }
+            /*
+             * ⚠️⚠️ **IL FILTRO LINEARE SERVE AL DETTAGLIO, DALLA `2.22`**: quel modulo legge i
+             * vicini a distanze che non cadono su un pixel intero, e senza filtro ogni campione
+             * verrebbe arrotondato al pixel più vicino, cioè il vicinato si accartoccerebbe su
+             * meno punti di quanti ne chiede. ⚠️ **Non basta `isFilterBitmap` del pennello**, che
+             * governa il disegno e non i campioni che uno shader chiede a un altro.
+             * ⚠️⚠️ **NELLA LENTE INVECE SI VOGLIONO I PIXEL INTERI, ED È IL SUO SCOPO**: là si
+             * guarda **quale** pixel si sta prendendo, e il filtro lineare mescola i vicini
+             * proprio nel punto in cui bisogna distinguerli.
+             */
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                image.setFilterMode(
+                    if (nitido) BitmapShader.FILTER_MODE_NEAREST else BitmapShader.FILTER_MODE_LINEAR
+                )
+            }
+            /*
+             * ⚠️⚠️ **LA MISURA CHE SI CONSEGNA È IL LATO LUNGO DEL RETTANGOLO DISEGNATO, e non
+             * quello della mappa di pixel**: il Dettaglio ragiona in frazioni del lato, e qui il
+             * conto gira nello spazio dello schermo. Così l'ingrandimento ingrandisce anche il
+             * risultato del filtro, invece di cambiarlo: a ogni scala il filtro lavora sugli
+             * stessi pixel dell'anteprima.
+             */
+            val shader =
+                if (look.idle) null
+                else lookShader(image, look, max(dove.width(), dove.height()))
+            return Paint().apply {
+                asFrameworkPaint().isFilterBitmap = !nitido
+                asFrameworkPaint().shader = shader ?: image
+            }
+        }
+
+        drawIntoCanvas { tela ->
+            tela.drawRect(view.left, view.top, view.right, view.bottom, pennello(view, false))
+        }
+
+        /*
+         * ⚠️⚠️ **LA LENTE DEL COLORE MIRATO, DALLA `2.24`**: l'ingrandimento si costruisce scalando
+         * il **rettangolo già calcolato** attorno al punto toccato e posandolo sul centro della
+         * lente, che è lo stesso conto del palco con un fattore in più. Una seconda catena di
+         * misure darebbe una lente che mostra un altro pezzo di immagine appena l'ingrandimento o
+         * la panoramica cambiano.
+         */
+        val dito = lens
+        if (dito != null) {
+            val raggio = LENS_SIDE.toPx() / 2f
+            val aria = LENS_AIR.toPx()
+            /*
+             * ⚠️ **Sopra il dito, e sotto solo se sopra non ci sta**: una lente disegnata dove il
+             * dito è appoggiato sarebbe coperta dal dito, che è il difetto che deve togliere.
+             * ⚠️ **Il centro si tiene dentro il palco in orizzontale**, o toccando vicino a un
+             * fianco metà lente finirebbe fuori.
+             */
+            val alta = dito.y - aria - raggio * 2f >= 0f
+            val centro = Offset(
+                dito.x.coerceIn(raggio, (room.width - raggio).coerceAtLeast(raggio)),
+                if (alta) dito.y - aria - raggio else dito.y + aria + raggio
+            )
+            val k = LENS_ZOOM
+            val vista = RectF(
+                centro.x + (view.left - dito.x) * k,
+                centro.y + (view.top - dito.y) * k,
+                centro.x + (view.right - dito.x) * k,
+                centro.y + (view.bottom - dito.y) * k
+            )
+            val tondo = Path().apply { addOval(Rect(centro, raggio)) }
+            // ⚠️ **Il fondo si dipinge prima**: toccando vicino a un bordo dell'immagine, dentro
+            // la lente resterebbe scoperto il palco, cioè l'immagine a scala uno, che si legge
+            // come un secondo disegno invece che come il fuori.
+            drawCircle(color = lensBack, radius = raggio, center = centro)
+            clipPath(tondo) {
+                drawIntoCanvas { tela ->
+                    tela.drawRect(
+                        vista.left, vista.top, vista.right, vista.bottom, pennello(vista, true)
                     )
                 }
+            }
+            // ⚠️ **Il bordo è quello di casa**: 2dp d'accento, come ogni superficie dell'app
+            // (vedi `Edge.kt`), perché anche questa è una superficie che si apre sopra un'altra.
+            drawCircle(
+                color = lensInk,
+                radius = raggio,
+                center = centro,
+                style = Stroke(width = LENS_EDGE.toPx())
+            )
+            /*
+             * ⚠️⚠️ **IL MIRINO È DI DUE COLORI, E NON È UNA DECORAZIONE**: dice quale pixel si sta
+             * prendendo, e deve vedersi sopra qualunque immagine. Un anello bianco dentro uno nero
+             * si distingue tanto su un cielo quanto su un'ombra, che un colore solo non fa.
+             */
+            val occhio = LENS_PIP.toPx()
+            val tratto = LENS_PIP_LINE.toPx()
+            drawCircle(
+                color = Color.Black,
+                radius = occhio + tratto,
+                center = centro,
+                style = Stroke(width = tratto)
+            )
+            drawCircle(
+                color = Color.White,
+                radius = occhio,
+                center = centro,
+                style = Stroke(width = tratto)
             )
         }
-        /*
-         * ⚠️⚠️ **IL FILTRO LINEARE SERVE AL DETTAGLIO, DALLA `2.22`**: quel modulo legge i vicini a
-         * distanze che non cadono su un pixel intero, e senza filtro ogni campione verrebbe
-         * arrotondato al pixel più vicino, cioè il vicinato si accartoccerebbe su meno punti di
-         * quanti ne chiede. ⚠️ **Non basta `isFilterBitmap` del pennello**, che governa il disegno
-         * e non i campioni che uno shader chiede a un altro.
-         */
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            image.setFilterMode(BitmapShader.FILTER_MODE_LINEAR)
-        }
-        /*
-         * ⚠️⚠️ **LA MISURA CHE SI CONSEGNA È IL LATO LUNGO DEL RETTANGOLO DISEGNATO, e non quello
-         * della mappa di pixel**: il Dettaglio ragiona in frazioni del lato, e qui il conto gira
-         * nello spazio dello schermo. Così l'ingrandimento ingrandisce anche il risultato del
-         * filtro, invece di cambiarlo: a ogni scala il filtro lavora sugli stessi pixel
-         * dell'anteprima.
-         */
-        val shader =
-            if (look.idle) null
-            else lookShader(image, look, max(view.width(), view.height()))
-        val paint = Paint().apply {
-            asFrameworkPaint().isFilterBitmap = true
-            asFrameworkPaint().shader = shader ?: image
-        }
-        drawIntoCanvas { tela -> tela.drawRect(view.left, view.top, view.right, view.bottom, paint) }
     }
 }
 
@@ -2247,3 +2373,34 @@ private val ZOOM_PULL = 96.dp
  * decisa e si posa, che è il modo in cui una lente si ferma.
  */
 private const val ZOOM_RIDE = 220
+
+/**
+ * Il lato della lente del colore mirato.
+ *
+ * ⚠️ **Poco più di un polpastrello**: deve stare sopra il dito senza coprire la fotografia su cui
+ * si sta scegliendo, e mostrare abbastanza intorno da capire dove si è. Il riferimento in casa è
+ * la lente dell'angolo del ritaglio, nell'editor di casa.
+ */
+private val LENS_SIDE = 112.dp
+
+/** Quanto la lente sta staccata dal dito: abbastanza da non finire sotto il polpastrello. */
+private val LENS_AIR = 20.dp
+
+/**
+ * Di quanto la lente ingrandisce.
+ *
+ * ⚠️ **Si moltiplica all'ingrandimento del palco invece di sostituirlo**: chi ha già ingrandito
+ * l'immagine sta guardando da vicino, e una lente a scala fissa gliela mostrerebbe **più piccola**
+ * di quello che ha davanti.
+ * ⚠️ **Sei e non dieci**: con questa misura la lente mostra una ventina di pixel dell'anteprima
+ * per lato, cioè il pixel scelto e il suo intorno. Più su, si vedrebbe un colore solo e non si
+ * capirebbe più dove si è.
+ */
+private const val LENS_ZOOM = 6f
+
+/** Il bordo della lente: lo stesso delle altre superfici dell'app, e per la stessa ragione. */
+private val LENS_EDGE = 2.dp
+
+/** Il raggio dell'anello del mirino, e lo spessore dei suoi due tratti. */
+private val LENS_PIP = 5.dp
+private val LENS_PIP_LINE = 1.dp

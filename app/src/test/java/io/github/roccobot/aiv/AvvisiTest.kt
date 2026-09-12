@@ -5,11 +5,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.Icon
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -191,7 +195,7 @@ class AvvisiTest {
      * ⚠️ **Il confronto è col tasto e non col bordo della scheda**, che nell'albero non ha un
      * nodo suo: se la notifica copre i comandi il difetto c'è, e il bordo della scheda sta ancora
      * più in alto del tasto, quindi la misura è più stretta del vero.
-     * ⚠️ **Controprovata** togliendo `abovePickSheet()` dalla notifica: il suo bordo di sotto
+     * ⚠️ **Controprovata** togliendo `aboveFoot()` dalla notifica: il suo bordo di sotto
      * finisce in fondo allo schermo, cioè sotto i tasti, e il caso cade.
      */
     @Test
@@ -213,7 +217,7 @@ class AvvisiTest {
                     )
                     AppNotice(
                         Notices.line,
-                        modifier = Modifier.align(Alignment.BottomCenter).abovePickSheet()
+                        modifier = Modifier.align(Alignment.BottomCenter).aboveFoot()
                     )
                 }
             }
@@ -230,6 +234,55 @@ class AvvisiTest {
         ).getBoundsInRoot()
         assertTrue(
             "la notifica (fino a ${notifica.bottom}) copre i tasti (da ${tasto.top})",
+            notifica.bottom <= tasto.top
+        )
+    }
+
+    /**
+     * **Col FAB in scena, la notifica gli resta sopra e non lo copre.**
+     *
+     * ⚠️⚠️ **È IL PUNTO A1 DEL CAMPO LIBERO DEL GIRO DELLA `2.23`** (*la notifica inferiore con
+     * 'Annulla' (es. per 'Sposta') a volte va sopra il FAB (su qualunque lato sia)*), ed è la
+     * stessa misura del caso qui sopra su un secondo chiedente: il banco lo vede perché è una
+     * questione di **posizione**.
+     * ⚠️ **Il riquadro del FAB si prende dal nodo che lo avvolge e non dal suo glifo**: quello che
+     * il tasto annuncia è un'icona da 24dp centrata in 56, quindi misurandola il caso passerebbe
+     * anche con la notifica addosso al bordo del tasto.
+     * ⚠️ **Controprovata** togliendo `aboveFoot()` dalla notifica: il suo bordo di sotto finisce
+     * in fondo allo schermo, cioè sopra il tasto, e il caso cade.
+     */
+    @Test
+    fun `la notifica sale sopra il FAB`() {
+        Notices.say("1 elemento spostato")
+        banco.mainClock.autoAdvance = false
+        banco.setContent {
+            AivTheme(darkTheme = false) {
+                Box(Modifier.fillMaxSize()) {
+                    Box(modifier = Modifier.align(Alignment.BottomEnd).testTag("fab")) {
+                        TapHoldFab(
+                            label = "Comandi",
+                            container = Color.Black,
+                            ink = Color.White,
+                            holdLabel = "Tutti",
+                            onTap = { },
+                            onHold = { }
+                        ) { quale -> Icon(Icons.Outlined.Info, contentDescription = quale) }
+                    }
+                    AppNotice(
+                        Notices.line,
+                        modifier = Modifier.align(Alignment.BottomCenter).aboveFoot()
+                    )
+                }
+            }
+        }
+        banco.waitForIdle()
+        banco.mainClock.advanceTimeBy(1_000)
+        banco.waitForIdle()
+
+        val notifica = banco.onNodeWithText("1 elemento spostato").getBoundsInRoot()
+        val tasto = banco.onNodeWithTag("fab").getBoundsInRoot()
+        assertTrue(
+            "la notifica (fino a ${notifica.bottom}) copre il FAB (da ${tasto.top})",
             notifica.bottom <= tasto.top
         )
     }
