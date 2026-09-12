@@ -1975,8 +1975,12 @@ e un interruttore porta l'immagine in **bianco e nero**.
   avrebbero più niente da fare.
 - ⚠️⚠️ **I PESI PER FASCIA DEL BIANCO E NERO NON CI SONO, E LA SCELTA È DICHIARATA**: il piano
   d'azione li metteva in questo modulo, ma sono la **stessa macchina** delle otto fasce dell'HSL,
-  che è il giro dopo; scritti adesso sarebbero scritti due volte. Qui il grigio viene dai pesi
-  percettivi di Rec. 709, cioè da come l'occhio lo vede.
+  che è il **quarto** giro; scritti adesso sarebbero scritti due volte. Qui il grigio viene dai
+  pesi percettivi di Rec. 709, cioè da come l'occhio lo vede.
+  - ⚠️ **Il giro dopo è il DETTAGLIO e non l'HSL**, ed è una sua risposta (`d-dettaglio` del giro
+    della `2.16`: **`subito`**), quindi l'ordine dei sette è Luce, Colore, Dettaglio, HSL, curve,
+    Geometria, preset. La domanda `d-bn-pesi`, nel giro della `2.19`, gli chiede se quei pesi
+    valga la pena aspettarli fin là.
 
 ⚠️⚠️ **E CON LUI ARRIVA LA FILA DEI MODULI, COL 'RESET MODULO' SUL TOCCO LUNGO** (campo libero del
 giro della `2.14`, punto 2: *per ciascun modulo ci dev'essere anche un 'Reset modulo'... potrebbe
