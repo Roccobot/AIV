@@ -420,6 +420,12 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">色調曲線</string>
     <string name="look_target">定向</string>
+    <string name="look_geometry">幾何校正</string>
+    <string name="look_straighten">拉直</string>
+    <string name="look_aspect">長寬比</string>
+    <string name="look_horizontal">水平</string>
+    <string name="look_vertical">垂直</string>
+    <string name="look_distortion">變形</string>
     <string name="look_contrast">對比</string>
     <string name="look_shadows">陰影</string>
     <string name="look_highlights">高光</string>

@@ -436,6 +436,12 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Ton eğrisi</string>
     <string name="look_target">Hedefli</string>
+    <string name="look_geometry">Geometri</string>
+    <string name="look_straighten">Düzleştirme</string>
+    <string name="look_aspect">En boy</string>
+    <string name="look_horizontal">Yatay</string>
+    <string name="look_vertical">Dikey</string>
+    <string name="look_distortion">Bozulma</string>
     <string name="look_contrast">Kontrast</string>
     <string name="look_shadows">Gölgeler</string>
     <string name="look_highlights">Parlak alanlar</string>

@@ -468,6 +468,12 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Тонова крива</string>
     <string name="look_target">Точково</string>
+    <string name="look_geometry">Геометрія</string>
+    <string name="look_straighten">Вирівнювання</string>
+    <string name="look_aspect">Пропорції</string>
+    <string name="look_horizontal">По горизонталі</string>
+    <string name="look_vertical">По вертикалі</string>
+    <string name="look_distortion">Дисторсія</string>
     <string name="look_contrast">Контраст</string>
     <string name="look_shadows">Тіні</string>
     <string name="look_highlights">Світлі</string>

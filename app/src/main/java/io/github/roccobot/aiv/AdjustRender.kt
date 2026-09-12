@@ -60,7 +60,10 @@ internal object AdjustRender {
      * mano, e qui non si sa se sia l'unica copia.
      */
     fun apply(source: Bitmap, look: Look): Bitmap? {
-        if (look.idle) return null
+        // ⚠️ **Si guarda il COLORE e non l'immagine intera, dalla `2.29`**: qui si fa girare lo
+        // shader, e con la sola geometria mossa quel programma non ha niente da applicare. La
+        // deformazione è la passata dopo, e vive in `Geometry.kt`.
+        if (look.plain) return null
         if (!works()) return null
         val w = source.width
         val h = source.height

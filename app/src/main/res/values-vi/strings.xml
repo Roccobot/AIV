@@ -420,6 +420,12 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Đường cong tông màu</string>
     <string name="look_target">Nhắm mục tiêu</string>
+    <string name="look_geometry">Hình học</string>
+    <string name="look_straighten">Làm thẳng</string>
+    <string name="look_aspect">Tỉ lệ</string>
+    <string name="look_horizontal">Ngang</string>
+    <string name="look_vertical">Dọc</string>
+    <string name="look_distortion">Méo ảnh</string>
     <string name="look_contrast">Tương phản</string>
     <string name="look_shadows">Vùng tối</string>
     <string name="look_highlights">Vùng sáng</string>

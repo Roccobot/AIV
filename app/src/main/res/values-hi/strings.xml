@@ -436,6 +436,12 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">टोन कर्व</string>
     <string name="look_target">लक्षित</string>
+    <string name="look_geometry">ज्यामिति</string>
+    <string name="look_straighten">सीधा करें</string>
+    <string name="look_aspect">अनुपात</string>
+    <string name="look_horizontal">क्षैतिज</string>
+    <string name="look_vertical">ऊर्ध्वाधर</string>
+    <string name="look_distortion">विरूपण</string>
     <string name="look_contrast">कंट्रास्ट</string>
     <string name="look_shadows">छाया</string>
     <string name="look_highlights">हाइलाइट</string>

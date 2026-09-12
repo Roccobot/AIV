@@ -420,6 +420,12 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">톤 곡선</string>
     <string name="look_target">타깃</string>
+    <string name="look_geometry">지오메트리</string>
+    <string name="look_straighten">수평 맞추기</string>
+    <string name="look_aspect">비율</string>
+    <string name="look_horizontal">가로</string>
+    <string name="look_vertical">세로</string>
+    <string name="look_distortion">왜곡</string>
     <string name="look_contrast">대비</string>
     <string name="look_shadows">어두운 부분</string>
     <string name="look_highlights">밝은 부분</string>

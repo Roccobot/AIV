@@ -436,6 +436,12 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">టోన్ కర్వ్</string>
     <string name="look_target">లక్ష్యం</string>
+    <string name="look_geometry">జ్యామితి</string>
+    <string name="look_straighten">సరిచేయి</string>
+    <string name="look_aspect">నిష్పత్తి</string>
+    <string name="look_horizontal">సమాంతరం</string>
+    <string name="look_vertical">నిలువు</string>
+    <string name="look_distortion">వక్రీకరణ</string>
     <string name="look_contrast">కాంట్రాస్ట్</string>
     <string name="look_shadows">నీడలు</string>
     <string name="look_highlights">హైలైట్లు</string>

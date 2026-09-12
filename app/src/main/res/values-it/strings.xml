@@ -97,6 +97,12 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Curva tonale</string>
     <string name="look_target">Mirato</string>
+    <string name="look_geometry">Geometria</string>
+    <string name="look_straighten">Raddrizza</string>
+    <string name="look_aspect">Proporzioni</string>
+    <string name="look_horizontal">Orizzontale</string>
+    <string name="look_vertical">Verticale</string>
+    <string name="look_distortion">Distorsione</string>
     <string name="look_contrast">Contrasto</string>
     <string name="look_shadows">Ombre</string>
     <string name="look_highlights">Luci</string>

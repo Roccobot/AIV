@@ -1841,9 +1841,8 @@ mestieri dovrebbe
 ricomprimere anche quando gira una fotografia, cioè perdere qualità per un gesto che oggi non ne
 fa perdere. Chi tocca 'Modifica' sceglie fra i due la prima volta, e la scelta si ricorda.
 - ⚠️ **Arriva in più versioni e il modulo **Luce** è la prima**: dopo di lei sono usciti il Colore,
-  l'HSL, il Dettaglio, le **Curve** e l'anteprima a risoluzione piena, e quelle che restano (la
-  geometria col raddrizzamento, i preset) vivono nel piano d'azione, che è il posto delle versioni
-  in sequenza.
+  l'HSL, il Dettaglio, le **Curve**, l'anteprima a risoluzione piena e la **Geometria**, e quello
+  che resta (i preset) vive nel piano d'azione, che è il posto delle versioni in sequenza.
 
 ⚠️⚠️ **MA I DUE EDITOR SI CHIAMANO ALLO STESSO MODO IN TESTATA, DALLA `2.20`, ED È SUA
 ISTRUZIONE** (2026-09-12: *in testa/titolo, mentre modifico le immagini, deve apparire 'Modifica
@@ -2140,8 +2139,10 @@ che l'utente ricorda di aver fatto.
 ed è la clausola dell'utente (*quelle che non prevedono la riscrittura del file pixel per pixel
 devono essere lossless*): finché c'è solo la posa il file si gira cambiando un tag EXIF, come
 l'editor di casa fa dalla `1.03`; appena entra un valore di Luce i pixel vanno riscritti e non
-c'è modo di evitarlo. ⚠️ **Quando la geometria entrerà in questo oggetto**, col raddrizzamento,
-la risposta resta esattamente questa.
+c'è modo di evitarlo. ⚠️⚠️ **E LA GEOMETRIA È ENTRATA CON LA `2.29`, con la risposta che era già
+scritta qui**: quel modulo **ricampiona** per definizione, quindi un suo cursore mosso toglie il
+senza perdita come uno di Luce. Chi legge la nota vecchia, che lo dava come un caso futuro, sappia
+che il caso è arrivato e la risposta non è cambiata.
 
 ⚠️ **La qualità di scrittura è a tre ed è una voce delle impostazioni**, non una domanda a ogni
 salvataggio: salvare è un gesto che si fa di fretta, ed è la stessa lettura che ha avuto
@@ -2680,6 +2681,81 @@ in orizzontale e non si tolgano, che il modulo porti i quattro canali e nessun c
 mirato si offra nei soli due moduli, e i due conti che fa su un pixel. **Non** vede i pixel che ne
 escono, né i due gesti sul grafico: quelli si guardano sul telefono, e la voce di collaudo li
 chiede.
+
+## 📐 Il modulo Geometria, e il conto che non passa dallo shader
+
+⚠️⚠️ **È IL SESTO MODULO DELL'EDITOR COMPLETO, DALLA `2.29`, E PORTA TUTTI E CINQUE I COMANDI IN
+UNA VERSIONE SOLA: È LA SUA RISPOSTA `intera` A `d-geo-quanto`** (giro della `2.28`). La domanda
+chiedeva se spezzarla in due giri, col raddrizzamento e l'aspetto davanti e le tre correzioni
+dell'obiettivo dietro; la risposta è di provarla come un pannello finito. I cursori sono
+raddrizzamento, proporzioni, orizzontale, verticale e distorsione.
+
+⚠️⚠️ **GLI ALTRI CINQUE MODULI DICONO DI CHE COLORE È UN PIXEL, QUESTO DICE DOVE VA, E PER QUESTO
+NON PUÒ VIVERE NELLO SHADER.** La regola di `Adjust.kt` manda il conto in AGSL perché anteprima e
+salvataggio leggano la stessa matematica; qui non si può, e la ragione è **misurata**: il
+salvataggio lavora a tessere, e una tessera legge la propria porzione di sorgente, mentre una
+deformazione fa leggere a un pixel di uscita un punto che può stare dall'altra parte della
+fotografia. Con la geometria dentro lo shader, ogni tessera leggerebbe il pezzo sbagliato.
+- ⚠️⚠️ **MA LA REGOLA DI FONDO RESTA SODDISFATTA, e la distinzione è la stessa delle Curve**:
+  quella regola non dice 'il conto vive in AGSL', dice che la **stessa matematica non si scrive
+  due volte**. Qui il conto è scritto una volta, in Kotlin (`Geometry.kt`), e i lettori sono due:
+  il palco e il salvataggio passano tutti e due da `Warp.draw`, con la stessa griglia.
+- ⚠️ **E in più il banco lo può misurare**, che con l'AGSL non succede: l'andata e il ritorno, la
+  scala di copertura e la griglia sono Kotlin puro, quindi si provano davvero.
+
+⚠️⚠️ **SI DISEGNA COME UNA MAGLIA DI TRIANGOLI E NON COME UNA MATRICE**: quattro comandi su cinque
+sarebbero una matrice 3x3, che Android sa applicare da sé, ma la distorsione **curva le righe** e
+nessuna matrice lo sa fare. Con una maglia fitta i cinque comandi passano dalla stessa strada, e
+non esistono due meccanismi che possono divergere.
+- ⚠️ **A geometria ferma resta il rettangolo di sempre**, e non è un'ottimizzazione: mille
+  triangoli per disegnare un rettangolo sarebbero mille occasioni di una cucitura che a rettangolo
+  non esiste.
+- ⚠️ **Il costo dichiarato è l'approssimazione**: dentro una cella la deformazione è lineare,
+  quindi la sola curvatura si vede a tratti. Con trentadue celle per lato lo scarto resta sotto il
+  pixel, ed è la stessa via di `drawBitmapMesh`.
+
+⚠️⚠️ **LA SCALA DI COPERTURA SI RICAVA E NON È UN SESTO CURSORE**: senza di lei un raddrizzamento
+lascerebbe quattro cunei vuoti agli angoli, che è quello che si vede in ogni editor che quel conto
+non ce l'ha. Si misura sul **contorno** e non sui quattro angoli, perché il punto più rientrato
+dipende dal comando: con un keystone è un angolo, con la distorsione a barile è il mezzo di un
+lato.
+
+⚠️⚠️ **IL FONDO CORSA DELLA DISTORSIONE È IL TETTO OLTRE IL QUALE IL DISEGNO SI RIPIEGA, E LO HA
+TROVATO IL BANCO**: la mappa radiale è invertibile finché `1 + 3k r²` resta positivo, e il raggio
+più grande, in coordinate isotrope, è quello dell'angolo di un'immagine **quadrata**, cioè radice
+di due. Là il tetto vale `-0,167`, quindi il `-0,25` della prima stesura stava oltre e agli angoli
+l'inversa non esisteva. Il numero di oggi è `0,12`, con la misura scritta sulla costante.
+- ⚠️ **Il palco non dava nessun errore**, ed è la ragione per cui questo difetto è interessante: a
+  sbagliare era il **colore mirato**, cioè un pixel preso da un'altra parte della fotografia. A
+  prenderlo è stata la prova dell'andata e ritorno, non una lettura del codice.
+
+⚠️⚠️ **IL COLORE MIRATO PASSA DALLA MAPPATURA INVERSA, E LA LENTE CON LUI**: il dito tocca
+l'immagine **deformata** e il colore vive prima della deformazione, quindi `colourAt` chiede a
+`WarpPlan.back` da dove viene il punto toccato. ⚠️ **E la lente inquadra quel punto**, non quello
+sotto il dito: dentro il tondo l'immagine si disegna non deformata, quindi centrandola sul dito si
+tornerebbe a vedere un pixel e a prenderne un altro, che è il difetto che la nota della `2.24`
+esiste per non rifare.
+
+⚠️ **Col modulo mosso il pezzo a risoluzione piena non si legge, e si dichiara**: `sharpAsk` ricava
+la porzione inquadrata dal rettangolo in cui l'immagine **intera** è disegnata, e con la
+deformazione quel rettangolo non dice più dove finisce un pixel. Quello che si perde è l'anteprima
+nitida mentre si raddrizza, e sotto c'è sempre l'immagine intera.
+
+⚠️ **I due keystone si chiamano col proprio asse e non 'prospettiva'**: sono tutti e due una
+correzione di prospettiva, quindi chiamarne uno 'Prospettiva' direbbe che l'altro è un'altra cosa.
+Lightroom li chiama 'Verticale' e 'Orizzontale', e qui il campo del codice porta la stessa parola
+che si legge nel telefono.
+
+⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`): che a riposo il conto sia
+l'identità **esatta** e la maglia coincida con la griglia, che l'andata e il ritorno si disfacciano
+a vicenda con tutti e cinque i cursori a fondo corsa, che la copertura non lasci bordi vuoti (con
+la controprova a scala uno dentro la prova stessa), e che il sesto modulo porti i suoi cinque
+cursori e azzeri solo i propri. **Non** vede i pixel deformati: che un orizzonte venga dritto e che
+una facciata si raddrizzi si guardano sul telefono, e la voce di collaudo lo chiede.
+- ⚠️⚠️ **IL SESTO GETTONE VA RAGGIUNTO SCORRENDO, E SENZA QUELLA RIGA LA PROVA MENTE**: la fila dei
+  moduli scorre in orizzontale dalla `2.23`, quindi col sesto nome la pastiglia cade fuori dalla
+  larghezza del banco; il tocco non dà nessun errore e non cambia modulo, e si contavano i sei
+  cursori della Luce credendo di guardare la Geometria.
 
 ## 🗑️ Lo svuotamento automatico del cestino, e le tre decisioni che lo governano
 

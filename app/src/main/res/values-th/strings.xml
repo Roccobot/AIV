@@ -420,6 +420,12 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">เส้นโค้งโทน</string>
     <string name="look_target">เจาะจง</string>
+    <string name="look_geometry">เรขาคณิต</string>
+    <string name="look_straighten">ปรับให้ตรง</string>
+    <string name="look_aspect">สัดส่วน</string>
+    <string name="look_horizontal">แนวนอน</string>
+    <string name="look_vertical">แนวตั้ง</string>
+    <string name="look_distortion">ความบิดเบี้ยว</string>
     <string name="look_contrast">คอนทราสต์</string>
     <string name="look_shadows">เงา</string>
     <string name="look_highlights">ไฮไลต์</string>

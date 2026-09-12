@@ -711,21 +711,38 @@ data class Tone(
  * a riapplicarli uno per uno sul file pieno, cioè a rifare dieci volte lo stesso lavoro.
  *
  * ⚠️⚠️ **CRESCE COI MODULI E LA SUA FORMA NON CAMBIA**: [chroma] è entrato accanto a [light] con
- * la `2.19`, [mix] con la `2.21` e [detail] con la `2.22`, senza toccare niente di quello che legge
- * questo oggetto, e le curve e la geometria entreranno allo stesso modo. Chi li aggiunge tocca
+ * la `2.19`, [mix] con la `2.21`, [detail] con la `2.22`, [tone] con la `2.23` e [geo] con la
+ * `2.29`, senza toccare niente di quello che legge questo oggetto. Chi ne aggiunge uno tocca
  * [idle] e [lossless], che sono le due domande che tutto il resto fa qui, e nient'altro.
+ *
+ * ⚠️⚠️ **MA [geo] NON È UN MODULO COME GLI ALTRI CINQUE, ED È LA RAGIONE PER CUI ESISTE [plain]**:
+ * quelli dicono di che **colore** è un pixel e passano dallo shader, questo dice **dove** va e
+ * passa da una maglia di triangoli (vedi `Geometry.kt`). Le due strade sono due passate distinte,
+ * quindi chi disegna deve poter chiedere se **quella** passata serve, e non solo se l'immagine è
+ * intonsa.
  */
 data class Look(
     val light: Light = Light.NONE,
     val chroma: Chroma = Chroma.NONE,
     val mix: Mix = Mix.NONE,
     val detail: Detail = Detail.NONE,
-    val tone: Tone = Tone.NONE
+    val tone: Tone = Tone.NONE,
+    val geo: Geometry = Geometry.NONE
 ) {
+
+    /**
+     * Se il conto del **colore** non cambia un pixel, cioè se lo shader non ha niente da fare.
+     *
+     * ⚠️ **Non è [idle] e la differenza non è una sfumatura**: un'immagine con la sola geometria
+     * mossa non è intonsa (i pixel si spostano), ma il programma dello shader là non serve, e
+     * farlo girare per niente costerebbe una passata intera su ogni fotogramma dell'anteprima.
+     */
+    val plain: Boolean
+        get() = light.idle && chroma.idle && mix.idle && detail.idle && tone.idle
 
     /** Se non c'è niente da applicare: l'immagine esce identica a com'è entrata. */
     val idle: Boolean
-        get() = light.idle && chroma.idle && mix.idle && detail.idle && tone.idle
+        get() = plain && geo.idle
 
     /**
      * Se quello che c'è da fare **non** riscrive i pixel.
@@ -736,8 +753,9 @@ data class Look(
      * file si può girare cambiando un tag EXIF, che è quello che l'editor di casa fa dalla
      * `1.03`. Appena entra un valore di Luce, i pixel vanno riscritti e non c'è modo di
      * evitarlo.
-     * ⚠️ **Quando la geometria entrerà in questo oggetto** (quarto giro, col raddrizzamento), la
-     * risposta resta esattamente questa: la posa non tocca i pixel, tutto il resto sì.
+     * ⚠️ **E con la geometria, dalla `2.29`, la risposta è la stessa**: raddrizzare ricampiona,
+     * cioè decide per ogni pixel di arrivo un colore che prima non stava là. La posa dell'editor di
+     * casa resta l'unica cosa che gira un'immagine senza riscriverla, e vive nell'altro editor.
      */
     val lossless: Boolean get() = idle
 
