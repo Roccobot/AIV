@@ -409,6 +409,12 @@
     <string name="look_exposure">ఎక్స్‌పోజర్</string>
     <string name="look_whites">తెలుపు</string>
     <string name="look_blacks">నలుపు</string>
+    <string name="look_color">రంగు</string>
+    <string name="look_temp">ఉష్ణోగ్రత</string>
+    <string name="look_tint">ఛాయ</string>
+    <string name="look_saturation">సంతృప్తత</string>
+    <string name="look_vibrance">సజీవత</string>
+    <string name="look_bw">నలుపు తెలుపు</string>
     <string name="look_contrast">కాంట్రాస్ట్</string>
     <string name="look_shadows">నీడలు</string>
     <string name="look_highlights">హైలైట్లు</string>

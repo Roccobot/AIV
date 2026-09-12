@@ -409,6 +409,12 @@
     <string name="look_exposure">Mwangaza</string>
     <string name="look_whites">Nyeupe</string>
     <string name="look_blacks">Nyeusi</string>
+    <string name="look_color">Rangi</string>
+    <string name="look_temp">Halijoto</string>
+    <string name="look_tint">Kiwango cha rangi</string>
+    <string name="look_saturation">Ukolezi</string>
+    <string name="look_vibrance">Uchangamfu</string>
+    <string name="look_bw">Nyeusi na nyeupe</string>
     <string name="look_contrast">Utofautishaji</string>
     <string name="look_shadows">Vivuli</string>
     <string name="look_highlights">Sehemu angavu</string>

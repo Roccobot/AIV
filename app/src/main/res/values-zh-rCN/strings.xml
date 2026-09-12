@@ -393,6 +393,12 @@
     <string name="look_exposure">曝光</string>
     <string name="look_whites">白色色阶</string>
     <string name="look_blacks">黑色色阶</string>
+    <string name="look_color">颜色</string>
+    <string name="look_temp">色温</string>
+    <string name="look_tint">色调</string>
+    <string name="look_saturation">饱和度</string>
+    <string name="look_vibrance">自然饱和度</string>
+    <string name="look_bw">黑白</string>
     <string name="look_contrast">对比度</string>
     <string name="look_shadows">阴影</string>
     <string name="look_highlights">高光</string>

@@ -409,6 +409,12 @@
     <string name="look_exposure">نوردهی</string>
     <string name="look_whites">سفیدی‌ها</string>
     <string name="look_blacks">سیاهی‌ها</string>
+    <string name="look_color">رنگ</string>
+    <string name="look_temp">دما</string>
+    <string name="look_tint">ته‌رنگ</string>
+    <string name="look_saturation">اشباع</string>
+    <string name="look_vibrance">شادابی</string>
+    <string name="look_bw">سیاه و سفید</string>
     <string name="look_contrast">کنتراست</string>
     <string name="look_shadows">سایه‌ها</string>
     <string name="look_highlights">روشنی‌ها</string>

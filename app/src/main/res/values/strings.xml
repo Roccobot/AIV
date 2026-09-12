@@ -99,6 +99,12 @@
     <string name="look_exposure">Exposure</string>
     <string name="look_whites">Whites</string>
     <string name="look_blacks">Blacks</string>
+    <string name="look_color">Color</string>
+    <string name="look_temp">Temperature</string>
+    <string name="look_tint">Tint</string>
+    <string name="look_saturation">Saturation</string>
+    <string name="look_vibrance">Vibrance</string>
+    <string name="look_bw">Black and white</string>
     <string name="look_contrast">Contrast</string>
     <string name="look_shadows">Shadows</string>
     <string name="look_highlights">Highlights</string>

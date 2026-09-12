@@ -409,6 +409,12 @@
     <string name="look_exposure">एक्सपोजर</string>
     <string name="look_whites">पांढरे</string>
     <string name="look_blacks">काळे</string>
+    <string name="look_color">रंग</string>
+    <string name="look_temp">तापमान</string>
+    <string name="look_tint">रंगछटा</string>
+    <string name="look_saturation">संपृक्तता</string>
+    <string name="look_vibrance">सजीवता</string>
+    <string name="look_bw">कृष्णधवल</string>
     <string name="look_contrast">कॉन्ट्रास्ट</string>
     <string name="look_shadows">सावल्या</string>
     <string name="look_highlights">हायलाइट</string>

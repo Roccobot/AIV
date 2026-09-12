@@ -409,6 +409,12 @@
     <string name="look_exposure">Pozlama</string>
     <string name="look_whites">Beyazlar</string>
     <string name="look_blacks">Siyahlar</string>
+    <string name="look_color">Renk</string>
+    <string name="look_temp">Sıcaklık</string>
+    <string name="look_tint">Ton</string>
+    <string name="look_saturation">Doygunluk</string>
+    <string name="look_vibrance">Canlılık</string>
+    <string name="look_bw">Siyah beyaz</string>
     <string name="look_contrast">Kontrast</string>
     <string name="look_shadows">Gölgeler</string>
     <string name="look_highlights">Parlak alanlar</string>

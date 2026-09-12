@@ -409,6 +409,12 @@
     <string name="look_exposure">এক্সপোজার</string>
     <string name="look_whites">সাদা</string>
     <string name="look_blacks">কালো</string>
+    <string name="look_color">রঙ</string>
+    <string name="look_temp">তাপমাত্রা</string>
+    <string name="look_tint">আভা</string>
+    <string name="look_saturation">স্যাচুরেশন</string>
+    <string name="look_vibrance">প্রাণবন্ততা</string>
+    <string name="look_bw">সাদা-কালো</string>
     <string name="look_contrast">কনট্রাস্ট</string>
     <string name="look_shadows">ছায়া</string>
     <string name="look_highlights">হাইলাইট</string>

@@ -441,6 +441,12 @@
     <string name="look_exposure">Экспозиция</string>
     <string name="look_whites">Белые</string>
     <string name="look_blacks">Чёрные</string>
+    <string name="look_color">Цвет</string>
+    <string name="look_temp">Температура</string>
+    <string name="look_tint">Оттенок</string>
+    <string name="look_saturation">Насыщенность</string>
+    <string name="look_vibrance">Красочность</string>
+    <string name="look_bw">Чёрно-белое</string>
     <string name="look_contrast">Контраст</string>
     <string name="look_shadows">Тени</string>
     <string name="look_highlights">Света</string>

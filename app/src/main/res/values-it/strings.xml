@@ -70,6 +70,12 @@
     <string name="look_exposure">Esposizione</string>
     <string name="look_whites">Bianchi</string>
     <string name="look_blacks">Neri</string>
+    <string name="look_color">Colore</string>
+    <string name="look_temp">Temperatura</string>
+    <string name="look_tint">Tinta</string>
+    <string name="look_saturation">Saturazione</string>
+    <string name="look_vibrance">Vividezza</string>
+    <string name="look_bw">Bianco e nero</string>
     <string name="look_contrast">Contrasto</string>
     <string name="look_shadows">Ombre</string>
     <string name="look_highlights">Luci</string>

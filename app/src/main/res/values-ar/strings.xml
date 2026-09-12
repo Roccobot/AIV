@@ -473,6 +473,12 @@
     <string name="look_exposure">التعريض</string>
     <string name="look_whites">الأبيض</string>
     <string name="look_blacks">الأسود</string>
+    <string name="look_color">اللون</string>
+    <string name="look_temp">الحرارة</string>
+    <string name="look_tint">الصبغة</string>
+    <string name="look_saturation">التشبع</string>
+    <string name="look_vibrance">الحيوية</string>
+    <string name="look_bw">أبيض وأسود</string>
     <string name="look_contrast">التباين</string>
     <string name="look_shadows">الظلال</string>
     <string name="look_highlights">الإضاءات</string>
