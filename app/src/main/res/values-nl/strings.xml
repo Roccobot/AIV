@@ -415,6 +415,17 @@
     <string name="look_saturation">Verzadiging</string>
     <string name="look_vibrance">Levendigheid</string>
     <string name="look_bw">Zwart-wit</string>
+    <string name="look_mix">HSL</string>
+    <string name="look_hue">Kleurtoon</string>
+    <string name="look_lum">Luminantie</string>
+    <string name="look_band_red">Rood</string>
+    <string name="look_band_orange">Oranje</string>
+    <string name="look_band_yellow">Geel</string>
+    <string name="look_band_green">Groen</string>
+    <string name="look_band_aqua">Aqua</string>
+    <string name="look_band_blue">Blauw</string>
+    <string name="look_band_purple">Paars</string>
+    <string name="look_band_magenta">Magenta</string>
     <string name="look_contrast">Contrast</string>
     <string name="look_shadows">Schaduwen</string>
     <string name="look_highlights">Hoge lichten</string>

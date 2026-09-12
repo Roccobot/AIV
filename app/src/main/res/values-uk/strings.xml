@@ -447,6 +447,17 @@
     <string name="look_saturation">Насиченість</string>
     <string name="look_vibrance">Барвистість</string>
     <string name="look_bw">Чорно-біле</string>
+    <string name="look_mix">HSL</string>
+    <string name="look_hue">Відтінок</string>
+    <string name="look_lum">Яскравість</string>
+    <string name="look_band_red">Червоний</string>
+    <string name="look_band_orange">Помаранчевий</string>
+    <string name="look_band_yellow">Жовтий</string>
+    <string name="look_band_green">Зелений</string>
+    <string name="look_band_aqua">Бірюзовий</string>
+    <string name="look_band_blue">Синій</string>
+    <string name="look_band_purple">Фіолетовий</string>
+    <string name="look_band_magenta">Пурпуровий</string>
     <string name="look_contrast">Контраст</string>
     <string name="look_shadows">Тіні</string>
     <string name="look_highlights">Світлі</string>

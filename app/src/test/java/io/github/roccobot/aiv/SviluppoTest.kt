@@ -18,6 +18,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
@@ -40,8 +41,20 @@ import kotlin.math.abs
  */
 private const val RIGA = 1
 
+/** I nomi delle otto fasce, per contare le pastiglie in scena senza ricopiarne l'elenco. */
+private val BANDE = listOf(
+    R.string.look_band_red,
+    R.string.look_band_orange,
+    R.string.look_band_yellow,
+    R.string.look_band_green,
+    R.string.look_band_aqua,
+    R.string.look_band_blue,
+    R.string.look_band_purple,
+    R.string.look_band_magenta
+)
+
 /**
- * Il banco del modulo **Colore**, e della fila che sceglie i moduli.
+ * Il banco dei moduli **Colore** e **HSL**, e della fila che sceglie i moduli.
  *
  * ⚠️⚠️ **NON SI CHIAMA `ColoreTest` PERCHÉ QUEL NOME È GIÀ PRESO, e da un'altra cosa**: là vive
  * il colore di una **cartella**, cioè la tinta della sua intestazione. Qui si sviluppa
@@ -215,6 +228,165 @@ class SviluppoTest {
             valore(RIGA),
             1e-3f
         )
+    }
+
+    /**
+     * **Caso 7: i raggi delle fasce combaciano, che è quello che fa sommare i pesi a uno.**
+     *
+     * ⚠️⚠️ **MISURA LA PROPRIETÀ E NON RICOPIA IL CONTO**: il conto dei pesi vive in AGSL e il
+     * banco non lo può eseguire, ma quello che lo rende corretto è una relazione fra i numeri che
+     * gli arrivano, e questa si misura. Se il raggio di una fascia verso l'alto non è lo stesso
+     * che la vicina ha verso il basso, fra i due centri i pesi non sommano più a uno e in quel
+     * tratto l'immagine riceve **meno** di quanto i due cursori chiedono, senza che niente lo
+     * dica.
+     *
+     * ⚠️ **E la somma dei raggi verso l'alto fa un giro intero**: senza, resterebbe un arco di
+     * tonalità che non appartiene a nessuna fascia.
+     */
+    @Test
+    fun `i raggi delle fasce combaciano`() {
+        var giro = 0f
+        for (i in 0 until Mix.COUNT) {
+            val dopo = (i + 1) % Mix.COUNT
+            assertEquals(
+                "il raggio fra la fascia $i e la $dopo non combacia",
+                Mix.SPAN_HI[i],
+                Mix.SPAN_LO[dopo],
+                1e-6f
+            )
+            assertTrue("la fascia $i ha un raggio nullo", Mix.SPAN_HI[i] > 0f)
+            giro += Mix.SPAN_HI[i]
+        }
+        assertEquals("i raggi non coprono un giro intero", 1f, giro, 1e-5f)
+    }
+
+    /**
+     * **Caso 8: un valore di HSL toglie il senza perdita, e sotto la soglia il modulo è a riposo.**
+     *
+     * ⚠️ **È la clausola dell'utente letta sul terzo modulo** (*quelle che non prevedono la
+     * riscrittura del file pixel per pixel devono essere lossless*): una fascia mossa riscrive i
+     * pixel come un cursore di Luce, e senza questa riga l'immagine si salverebbe girando un tag
+     * EXIF, cioè senza il conto applicato.
+     */
+    @Test
+    fun `un valore di hsl toglie il senza perdita`() {
+        assertTrue(Mix.NONE.idle)
+        assertTrue(Mix.NONE.swap(3) { it.copy(lum = 0.0001f) }.idle)
+        assertFalse(Mix.NONE.swap(3) { it.copy(lum = 0.4f) }.idle)
+        assertFalse(Look(mix = Mix.NONE.swap(0) { it.copy(hue = 0.5f) }).lossless)
+    }
+
+    /**
+     * **Caso 9: la fascia scelta cambia i valori che i tre cursori mostrano e scrivono.**
+     *
+     * ⚠️⚠️ **È LA CORREZIONE DELLA `2.20` LETTA SU UNA DIMENSIONE IN PIÙ**: i cursori dell'HSL
+     * sono tre soli e le fasce otto, quindi lo stesso nodo serve otto insiemi di valori. Se la
+     * riga risolvesse la fascia della composizione in cui è nata invece di quella scelta adesso,
+     * muovere un cursore scriverebbe nel colore sbagliato, e a vederlo sarebbe solo l'immagine.
+     */
+    @Test
+    fun `la fascia scelta cambia i cursori`() {
+        banco.setContent { Scena() }
+        pronta()
+        banco.onNodeWithText(testo(R.string.look_mix)).performClick()
+        banco.waitForIdle()
+
+        muovi(0, 0.5f)
+        assertTrue("il tocco non ha mosso la tonalità del rosso", valore(0) > 0.2f)
+
+        fascia(R.string.look_band_green)
+        assertEquals("il verde doveva essere intatto", 0f, valore(0), 1e-3f)
+        muovi(0, -0.5f)
+        assertTrue("il tocco non ha mosso la tonalità del verde", valore(0) < -0.2f)
+
+        fascia(R.string.look_band_red)
+        assertTrue("il rosso doveva ritrovare il suo valore", valore(0) > 0.2f)
+    }
+
+    /**
+     * **Caso 10: il tocco lungo su una pastiglia azzera quella fascia e lascia stare le altre.**
+     *
+     * ⚠️ **È il gesto del gettone di un modulo un gradino più in basso**, e la metà che conta è la
+     * seconda: un azzeramento che si portasse via anche le altre fasce sarebbe il 'Reset modulo',
+     * che è la riga sopra.
+     */
+    @Test
+    fun `il tocco lungo su una fascia azzera solo quella`() {
+        banco.setContent { Scena() }
+        pronta()
+        banco.onNodeWithText(testo(R.string.look_mix)).performClick()
+        banco.waitForIdle()
+
+        muovi(2, 0.5f)
+        fascia(R.string.look_band_blue)
+        muovi(2, 0.5f)
+        assertTrue(valore(2) > 0.2f)
+
+        banco.onNodeWithContentDescription(testo(R.string.look_band_blue))
+            .performTouchInput { longClick() }
+        banco.waitForIdle()
+        assertEquals("il blu doveva azzerarsi", 0f, valore(2), 1e-3f)
+
+        fascia(R.string.look_band_red)
+        assertTrue("il rosso non doveva essere toccato", valore(2) > 0.2f)
+    }
+
+    /**
+     * **Caso 11: col bianco e nero l'HSL tiene la sola luminanza, che è la miscela del grigio.**
+     *
+     * ⚠️⚠️ **È LA SUA RISPOSTA `hsl` A `d-bn-pesi`, MISURATA**: i pesi per fascia del bianco e nero
+     * non sono un secondo meccanismo, sono questa riga. Se si spegnesse anche lei, la risposta non
+     * sarebbe implementata affatto; se restassero accese le altre due, si offrirebbero due cursori
+     * che su un'immagine senza colori non fanno niente.
+     */
+    @Test
+    fun `il bianco e nero lascia la sola luminanza dell'hsl`() {
+        banco.setContent { Scena() }
+        pronta()
+        banco.onNodeWithText(testo(R.string.look_color)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithText(testo(R.string.look_bw)).performClick()
+        banco.waitForIdle()
+
+        banco.onNodeWithText(testo(R.string.look_mix)).performClick()
+        banco.waitForIdle()
+
+        cursore(0).assertIsNotEnabled()
+        cursore(1).assertIsNotEnabled()
+        cursore(2).assertIsEnabled()
+    }
+
+    /**
+     * **Caso 12: la fila delle fasce c'è solo nel modulo che ne ha.**
+     *
+     * ⚠️ Una pastiglia che restasse in scena negli altri due moduli sceglierebbe una fascia che là
+     * non vuol dire niente, e il suo tocco lungo azzererebbe un colore da una schermata che di
+     * colori non parla.
+     */
+    @Test
+    fun `le pastiglie ci sono solo nell'hsl`() {
+        banco.setContent { Scena() }
+        pronta()
+        assertEquals(0, quanteFasce())
+
+        banco.onNodeWithText(testo(R.string.look_mix)).performClick()
+        banco.waitForIdle()
+        assertEquals(Mix.COUNT, quanteFasce())
+
+        banco.onNodeWithText(testo(R.string.look_color)).performClick()
+        banco.waitForIdle()
+        assertEquals(0, quanteFasce())
+    }
+
+    /** Sceglie una fascia toccando la sua pastiglia. */
+    private fun fascia(nome: Int) {
+        banco.onNodeWithContentDescription(testo(nome)).performClick()
+        banco.waitForIdle()
+    }
+
+    /** Quante pastiglie di fascia sono in scena, contate dai loro nomi. */
+    private fun quanteFasce(): Int = BANDE.count {
+        banco.onAllNodesWithContentDescription(testo(it)).fetchSemanticsNodes().isNotEmpty()
     }
 
     /** Vedi la nota su `pronta()` in `LuceTest`: il palco compare quando l'immagine esiste. */

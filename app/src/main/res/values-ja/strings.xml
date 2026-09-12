@@ -399,6 +399,17 @@
     <string name="look_saturation">彩度</string>
     <string name="look_vibrance">自然な彩度</string>
     <string name="look_bw">白黒</string>
+    <string name="look_mix">HSL</string>
+    <string name="look_hue">色相</string>
+    <string name="look_lum">輝度</string>
+    <string name="look_band_red">レッド</string>
+    <string name="look_band_orange">オレンジ</string>
+    <string name="look_band_yellow">イエロー</string>
+    <string name="look_band_green">グリーン</string>
+    <string name="look_band_aqua">アクア</string>
+    <string name="look_band_blue">ブルー</string>
+    <string name="look_band_purple">パープル</string>
+    <string name="look_band_magenta">マゼンタ</string>
     <string name="look_contrast">コントラスト</string>
     <string name="look_shadows">シャドウ</string>
     <string name="look_highlights">ハイライト</string>

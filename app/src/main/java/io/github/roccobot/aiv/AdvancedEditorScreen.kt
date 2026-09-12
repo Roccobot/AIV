@@ -72,8 +72,10 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.lerp
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerInputChange
@@ -87,6 +89,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.text.style.TextAlign
@@ -709,9 +713,140 @@ private class Dial(
  */
 private class Module(
     @param:StringRes val name: Int,
-    val dials: List<Dial>,
+    /**
+     * I cursori da mostrare, data la fascia scelta.
+     *
+     * ⚠️ **È una funzione e non una lista perché l'HSL ne ha otto insiemi**, uno per fascia, e
+     * quale si vede lo decide la fila delle pastiglie. Gli altri due moduli rispondono sempre la
+     * stessa lista, e il parametro lo ignorano.
+     */
+    val rows: (Int) -> List<Dial>,
     val clear: (Look) -> Look,
-    val spent: (Look) -> Boolean
+    val spent: (Look) -> Boolean,
+    /** Se il modulo lavora su una fascia per volta: solo qui compare la fila delle pastiglie. */
+    val banded: Boolean = false
+)
+
+/**
+ * I nomi delle otto fasce, nell'ordine dei centri di [Mix.CENTRES].
+ *
+ * ⚠️ **I due elenchi si leggono per indice e non si possono disallineare senza che si veda**: la
+ * pastiglia prende il colore dal centro e il nome da qui, quindi una coppia sbagliata darebbe una
+ * pastiglia verde che si chiama 'Blu'.
+ */
+private val BAND_NAMES = listOf(
+    R.string.look_band_red,
+    R.string.look_band_orange,
+    R.string.look_band_yellow,
+    R.string.look_band_green,
+    R.string.look_band_aqua,
+    R.string.look_band_blue,
+    R.string.look_band_purple,
+    R.string.look_band_magenta
+)
+
+/**
+ * I tre cursori dell'HSL, uno per ognuna delle otto fasce: ventiquattro oggetti, costruiti una
+ * volta sola.
+ *
+ * ⚠️⚠️ **SONO PRECOSTRUITI E NON GENERATI A OGNI RICOMPOSIZIONE, ED È QUELLO CHE TIENE IN PIEDI IL
+ * `key`**: la scheda dà a ogni riga come chiave il proprio [Dial], e una chiave che cambia a ogni
+ * giro butterebbe e rifarebbe i nodi dei cursori in continuazione, cioè annullerebbe ogni gesto in
+ * corso. Così invece le chiavi sono stabili per tutta la vita del processo, e due fasce non ne
+ * hanno nessuna in comune: cambiando fascia i nodi si buttano invece di passare di mano.
+ *
+ * ⚠️⚠️ **LA SATURAZIONE RIUSA LA STRINGA DEL MODULO COLORE**, perché è esattamente la stessa
+ * parola: una chiave nuova che dice lo stesso testo sarebbe una seconda traduzione da tenere
+ * allineata in ventotto lingue.
+ */
+private val MIX_ROWS: List<List<Dial>> = List(Mix.COUNT) { b ->
+    listOf(
+        Dial(
+            R.string.look_hue,
+            { it.mix.bands[b].hue },
+            { k, v -> k.copy(mix = k.mix.swap(b) { it.copy(hue = v) }) },
+            dims = true
+        ),
+        Dial(
+            R.string.look_saturation,
+            { it.mix.bands[b].sat },
+            { k, v -> k.copy(mix = k.mix.swap(b) { it.copy(sat = v) }) },
+            dims = true
+        ),
+        /*
+         * ⚠️⚠️ **QUESTA RIGA È ANCHE LA MISCELA DEL BIANCO E NERO, ED È LA SUA RISPOSTA `hsl` A
+         * `d-bn-pesi`**: col bianco e nero acceso le altre due non hanno più niente da fare e si
+         * spengono, mentre questa diventa **quanto quel colore pesa nel grigio**. Non porta
+         * `dims`, ed è tutta la differenza: il conto è lo stesso, e il bianco e nero viene dopo
+         * di lui proprio per raccoglierne il risultato.
+         */
+        Dial(
+            R.string.look_lum,
+            { it.mix.bands[b].lum },
+            { k, v -> k.copy(mix = k.mix.swap(b) { it.copy(lum = v) }) }
+        )
+    )
+}
+
+/** I sei cursori del modulo Luce. */
+private val LIGHT_ROWS = listOf(
+    Dial(
+        R.string.look_exposure,
+        { it.light.exposure },
+        { k, v -> k.copy(light = k.light.copy(exposure = v)) },
+        span = Light.EXPOSURE_RANGE, stops = true
+    ),
+    Dial(
+        R.string.look_contrast,
+        { it.light.contrast },
+        { k, v -> k.copy(light = k.light.copy(contrast = v)) }
+    ),
+    Dial(
+        R.string.look_highlights,
+        { it.light.highlights },
+        { k, v -> k.copy(light = k.light.copy(highlights = v)) }
+    ),
+    Dial(
+        R.string.look_shadows,
+        { it.light.shadows },
+        { k, v -> k.copy(light = k.light.copy(shadows = v)) }
+    ),
+    Dial(
+        R.string.look_whites,
+        { it.light.whites },
+        { k, v -> k.copy(light = k.light.copy(whites = v)) }
+    ),
+    Dial(
+        R.string.look_blacks,
+        { it.light.blacks },
+        { k, v -> k.copy(light = k.light.copy(blacks = v)) }
+    )
+)
+
+/** I quattro cursori del modulo Colore: l'interruttore del bianco e nero è il quinto comando. */
+private val COLOUR_ROWS = listOf(
+    Dial(
+        R.string.look_temp,
+        { it.chroma.temp },
+        { k, v -> k.copy(chroma = k.chroma.copy(temp = v)) }
+    ),
+    Dial(
+        R.string.look_tint,
+        { it.chroma.tint },
+        { k, v -> k.copy(chroma = k.chroma.copy(tint = v)) }
+    ),
+    Dial(
+        R.string.look_saturation,
+        { it.chroma.saturation },
+        { k, v -> k.copy(chroma = k.chroma.copy(saturation = v)) },
+        dims = true
+    ),
+    Dial(
+        R.string.look_vibrance,
+        { it.chroma.vibrance },
+        { k, v -> k.copy(chroma = k.chroma.copy(vibrance = v)) },
+        dims = true
+    )
 )
 
 /**
@@ -721,75 +856,28 @@ private class Module(
  * della `2.15`: *Lightroom ha solo 'Esposizione'*): chi apre questo editor ha in mente quello,
  * quindi un ordine nostro costringerebbe a cercare ogni volta il cursore che si sa già di voler
  * muovere. Vale per la Luce come per il Colore, dove temperatura e tinta vengono prima di quanto
- * i colori sono accesi.
+ * i colori sono accesi, e per l'HSL, dove tonalità, saturazione e luminanza sono le tre righe di
+ * quel pannello nel suo ordine.
  */
 private val MODULES = listOf(
     Module(
         R.string.look_light,
-        listOf(
-            Dial(
-                R.string.look_exposure,
-                { it.light.exposure },
-                { k, v -> k.copy(light = k.light.copy(exposure = v)) },
-                span = Light.EXPOSURE_RANGE, stops = true
-            ),
-            Dial(
-                R.string.look_contrast,
-                { it.light.contrast },
-                { k, v -> k.copy(light = k.light.copy(contrast = v)) }
-            ),
-            Dial(
-                R.string.look_highlights,
-                { it.light.highlights },
-                { k, v -> k.copy(light = k.light.copy(highlights = v)) }
-            ),
-            Dial(
-                R.string.look_shadows,
-                { it.light.shadows },
-                { k, v -> k.copy(light = k.light.copy(shadows = v)) }
-            ),
-            Dial(
-                R.string.look_whites,
-                { it.light.whites },
-                { k, v -> k.copy(light = k.light.copy(whites = v)) }
-            ),
-            Dial(
-                R.string.look_blacks,
-                { it.light.blacks },
-                { k, v -> k.copy(light = k.light.copy(blacks = v)) }
-            )
-        ),
+        rows = { LIGHT_ROWS },
         clear = { it.copy(light = Light.NONE) },
         spent = { !it.light.idle }
     ),
     Module(
         R.string.look_color,
-        listOf(
-            Dial(
-                R.string.look_temp,
-                { it.chroma.temp },
-                { k, v -> k.copy(chroma = k.chroma.copy(temp = v)) }
-            ),
-            Dial(
-                R.string.look_tint,
-                { it.chroma.tint },
-                { k, v -> k.copy(chroma = k.chroma.copy(tint = v)) }
-            ),
-            Dial(
-                R.string.look_saturation,
-                { it.chroma.saturation },
-                { k, v -> k.copy(chroma = k.chroma.copy(saturation = v)) },
-                dims = true
-            ),
-            Dial(
-                R.string.look_vibrance,
-                { it.chroma.vibrance },
-                { k, v -> k.copy(chroma = k.chroma.copy(vibrance = v)) },
-                dims = true
-            )
-        ),
+        rows = { COLOUR_ROWS },
         clear = { it.copy(chroma = Chroma.NONE) },
         spent = { !it.chroma.idle }
+    ),
+    Module(
+        R.string.look_mix,
+        rows = { MIX_ROWS[it] },
+        clear = { it.copy(mix = Mix.NONE) },
+        spent = { !it.mix.idle },
+        banded = true
     )
 )
 
@@ -826,17 +914,29 @@ private fun LookSheet(
      * dell'immagine, quindi non entra nella storia dei passi e 'Annulla' non deve riportarcelo.
      */
     var module by rememberSaveable { mutableIntStateOf(0) }
+
+    /**
+     * Quale fascia di colore si sta guardando, per i moduli che ne hanno.
+     *
+     * ⚠️ **Vive qui accanto a [module] e per la stessa ragione**: è dove si ha lo sguardo e non
+     * una proprietà dell'immagine, quindi non entra nella storia dei passi e 'Annulla' non deve
+     * riportarcelo.
+     */
+    var band by rememberSaveable { mutableIntStateOf(0) }
     val chosen = MODULES[module]
 
     /**
-     * Il cursore che sta alla riga [riga] del modulo che si sta guardando **adesso**, o `null` se
-     * là non c'è niente (i moduli non hanno tutti lo stesso numero di cursori).
+     * Il cursore che sta alla riga [riga] del modulo e della fascia che si stanno guardando
+     * **adesso**, o `null` se là non c'è niente (i moduli non hanno tutti lo stesso numero di
+     * cursori).
      *
-     * ⚠️ **Legge [module] al momento della chiamata e non alla composizione**, ed è tutto il suo
-     * valore: chiamata da dentro il rilevatore di un gesto, risponde con quello che il dito ha
-     * davvero sotto il dito.
+     * ⚠️ **Legge [module] e [band] al momento della chiamata e non alla composizione**, ed è tutto
+     * il suo valore: chiamata da dentro il rilevatore di un gesto, risponde con quello che il dito
+     * ha davvero sotto. ⚠️ **La fascia è entrata nel conto con la `2.21` e non è un secondo
+     * meccanismo**: è la stessa correzione della `2.20` su una dimensione in più, e senza di lei
+     * un cursore dell'HSL scriverebbe nella fascia da cui il suo nodo è nato.
      */
-    fun dialAt(riga: Int): Dial? = MODULES[module].dials.getOrNull(riga)
+    fun dialAt(riga: Int): Dial? = MODULES[module].rows(band).getOrNull(riga)
     /*
      * ⚠️⚠️ **LA SUPERFICIE È QUELLA DELL'EDITOR DI CASA, riga per riga**: il fondo del palco che
      * passa sotto gli angoli stondati, il bordo d'accento che corre di fuori, il colore, e il
@@ -890,6 +990,39 @@ private fun LookSheet(
             }
 
             /*
+             * ⚠️⚠️ **LA FILA DELLE OTTO FASCE, DALLA `2.21`**: compare solo per i moduli che
+             * lavorano su un colore per volta, cioè oggi l'HSL soltanto. È la seconda fila di
+             * gettoni della scheda, e la sua forma è di proposito **diversa** dalla prima: là ci
+             * sono parole, qui ci sono colori, e un colore dice che cosa si sta scegliendo senza
+             * che nessuno lo debba leggere.
+             * ⚠️ **I due gesti sono gli stessi del gettone di un modulo**, tocco per scegliere e
+             * tocco lungo per azzerare, un gradino più in basso: là si azzera il modulo, qui la
+             * fascia. Chi impara il gesto sopra lo ritrova qui.
+             */
+            if (chosen.banded) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    BAND_NAMES.forEachIndexed { i, nome ->
+                        BandChip(
+                            name = stringResource(nome),
+                            hue = Mix.CENTRES[i],
+                            chosen = i == band,
+                            spent = !look.mix.bands[i].idle,
+                            enabled = ready && !busy,
+                            onTap = { band = i },
+                            onHold = {
+                                onLive { it.copy(mix = it.mix.swap(i) { Band.NONE }) }
+                                onSettled()
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
+
+            /*
              * ⚠️⚠️ **UN GESTO SCRIVE LA RIGA CHE TOCCA NEL MODULO CHE SI VEDE, E NON UN CURSORE
              * CHE SI PORTA DENTRO, DALLA `2.20`** (campo libero del giro della `2.19`: *il mio
              * tocco, mentre provo a spostare la tinta o la saturazione, sposta invece il contrasto
@@ -909,7 +1042,7 @@ private fun LookSheet(
              * oggetto di [MODULES] e quindi stabile per tutta la vita del processo: due moduli non
              * ne hanno nessuno in comune, e i nodi si buttano invece di passare di mano.
              */
-            chosen.dials.forEachIndexed { riga, knob ->
+            chosen.rows(band).forEachIndexed { riga, knob ->
                 key(knob) {
                     LookKnob(
                         name = stringResource(knob.name),
@@ -1056,6 +1189,64 @@ private fun ModuleChip(
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primary)
             )
+        }
+    }
+}
+
+/**
+ * Una pastiglia della fila delle fasce: il tondo del suo colore, l'anello di 'scelta' e il punto
+ * di 'toccata'.
+ *
+ * ⚠️⚠️ **IL COLORE ARRIVA DAL CENTRO DELLA FASCIA E NON DA UNA TAVOLOZZA SCRITTA A MANO**: è lo
+ * stesso numero che il conto usa per sapere a quale fascia appartiene un pixel, quindi la
+ * pastiglia non può dire un colore che il cursore non tocca. Con due elenchi, il primo a divergere
+ * sarebbe quello che nessuno guarda.
+ *
+ * ⚠️ **I due segni sono in due posti diversi**, l'anello intorno e il punto sotto: si possono
+ * vedere insieme (la fascia scelta è spesso anche quella toccata), e sovrapposti si
+ * confonderebbero. È la stessa coppia di domande del gettone di un modulo, dove il punto sta
+ * accanto al nome perché là il posto c'è.
+ */
+@Composable
+private fun BandChip(
+    name: String,
+    hue: Float,
+    chosen: Boolean,
+    spent: Boolean,
+    enabled: Boolean,
+    onTap: () -> Unit,
+    onHold: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val wipe = stringResource(R.string.look_reset_one, name)
+    val tint = Color.hsv(hue * 360f, BAND_SAT, BAND_VAL)
+    val ring = MaterialTheme.colorScheme.primary
+    Canvas(
+        modifier = modifier
+            .height(BAND_ROW)
+            .semantics {
+                contentDescription = name
+                role = Role.Tab
+                selected = chosen
+            }
+            .combinedClickable(
+                enabled = enabled,
+                onClick = onTap,
+                onLongClick = onHold,
+                onLongClickLabel = wipe
+            )
+            .alpha(if (enabled) 1f else OFF_INK)
+    ) {
+        val dot = BAND_DOT.toPx() / 2f
+        val gap = BAND_GAP.toPx()
+        val mark = MODULE_MARK.toPx() / 2f
+        val middle = Offset(size.width / 2f, dot + gap)
+        drawCircle(tint, dot, middle)
+        if (chosen) {
+            drawCircle(ring, dot + gap, middle, style = Stroke(BAND_RING.toPx()))
+        }
+        if (spent) {
+            drawCircle(ring, mark, Offset(middle.x, middle.y + dot + gap * 2f + mark))
         }
     }
 }
@@ -1363,6 +1554,33 @@ private val KNOB_NAME = 96.dp
 
 /** Il punto che dice 'questo modulo ha toccato l'immagine', nel gettone della fila. */
 private val MODULE_MARK = 6.dp
+
+/**
+ * L'altezza di una pastiglia della fila delle fasce.
+ *
+ * ⚠️ **È l'area di tocco e non il disegno**: dentro vivono il tondo, l'anello di chi è scelto e il
+ * punto di chi è stato toccato, e il resto serve al dito.
+ */
+private val BAND_ROW = 44.dp
+
+/** Il diametro del tondo di una fascia. */
+private val BAND_DOT = 22.dp
+
+/** Quanto l'anello di 'scelta' sta fuori dal tondo, e il punto sotto di lui. */
+private val BAND_GAP = 3.dp
+
+/** Lo spessore dell'anello di 'scelta'. */
+private val BAND_RING = 2.dp
+
+/**
+ * Quanto sono saturi e chiari i tondi della fila.
+ *
+ * ⚠️ **Non è il colore che il conto vedrà**, ed è giusto così: la pastiglia deve dire *quale
+ * colore* si sta scegliendo, quindi porta la tonalità della fascia alla sua massima riconoscibilità
+ * invece che al colore medio di una fotografia, che sarebbe un grigio sporco diverso ogni volta.
+ */
+private const val BAND_SAT = 0.85f
+private const val BAND_VAL = 0.95f
 
 /** Quanto è larga la colonna del numero: ci deve stare `-100` col segno. */
 private val KNOB_VALUE = 48.dp

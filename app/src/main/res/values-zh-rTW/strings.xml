@@ -399,6 +399,17 @@
     <string name="look_saturation">飽和度</string>
     <string name="look_vibrance">自然飽和度</string>
     <string name="look_bw">黑白</string>
+    <string name="look_mix">HSL</string>
+    <string name="look_hue">色相</string>
+    <string name="look_lum">明亮度</string>
+    <string name="look_band_red">紅色</string>
+    <string name="look_band_orange">橙色</string>
+    <string name="look_band_yellow">黃色</string>
+    <string name="look_band_green">綠色</string>
+    <string name="look_band_aqua">青色</string>
+    <string name="look_band_blue">藍色</string>
+    <string name="look_band_purple">紫色</string>
+    <string name="look_band_magenta">洋紅</string>
     <string name="look_contrast">對比</string>
     <string name="look_shadows">陰影</string>
     <string name="look_highlights">高光</string>
