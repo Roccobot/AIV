@@ -6,17 +6,23 @@ import android.graphics.Color
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color as InkColor
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
@@ -26,6 +32,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
@@ -37,6 +44,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.GraphicsMode
 import java.io.File
+import kotlin.math.abs
 
 /**
  * Il banco dell'**editor completo**: il modulo Luce e la pila dei passi.
@@ -368,6 +376,114 @@ class LuceTest {
         )
     }
 
+    /**
+     * **Caso 13: muovere un cursore non riporta indietro gli altri.**
+     *
+     * ⚠️⚠️ **QUESTA PROVA È VERDE ANCHE SUL CODICE DELLA `2.16`, ED È SCRITTA LO STESSO**: la
+     * segnalazione del giro (voce `luce-sei`: *quasi sempre se modifico il contrasto la luminosità
+     * si azzera*) **non si riproduce sul banco**, e le quattro ipotesi misurate in sessione sono
+     * cadute una per una: le catture dei gesti sono fresche, un trascinamento vero non tocca gli
+     * altri cursori, il rilascio del tocco lungo arriva, due tocchi ravvicinati su cursori diversi
+     * non si confondono. Resta come presidio dell'**invariante**: il giorno che qualcuno
+     * riscrivesse questa strada facendo passare un [Look] già fatto, questa riga se ne
+     * accorgerebbe.
+     *
+     * ⚠️ **Si tocca col dito e non con `muovi`**: l'azione semantica vive in un
+     * `Modifier.semantics`, che si riscrive a ogni ricomposizione, mentre i gesti vivono in un
+     * `pointerInput`, che è il solo posto in cui un valore vecchio potrebbe sopravvivere.
+     */
+    @Test
+    fun `un cursore mosso col dito non riporta indietro gli altri`() {
+        banco.setContent { Scena() }
+        pronta()
+
+        tocca(CONTRASTO, 0.25f)
+        val mosso = valore(CONTRASTO)
+        assertTrue("Il tocco sulla barra non ha mosso il cursore", abs(mosso) > 0.1f)
+
+        tocca(OMBRE, 0.75f)
+        assertTrue("Il secondo tocco non ha mosso il suo cursore", abs(valore(OMBRE)) > 0.1f)
+        assertEquals(
+            "Muovendo un secondo cursore il primo è tornato al valore di prima",
+            mosso,
+            valore(CONTRASTO),
+            SOGLIA
+        )
+    }
+
+    /**
+     * **Caso 14: il confronto si spegne anche quando il gesto viene portato via.**
+     *
+     * ⚠️⚠️ **QUESTA MISURA UNA CORREZIONE, ED È CONTROPROVATA**: il confronto di un cursore si
+     * accende con `onHold(true)` e si spegne con `onHold(false)`, e in mezzo c'è un'attesa. Un
+     * rilevatore di gesti viene **annullato** quando il suo `pointerInput` cambia chiave, e qui
+     * basta un salvataggio che parte: senza lo spegnimento in un `finally` il confronto resta
+     * acceso per sempre, e l'immagine mostra un cursore in meno senza che nessun numero lo dica.
+     * ⚠️ **Si monta il modificatore da solo e non la schermata**: quello che il confronto fa si
+     * vede dai pixel, e sul banco lo shader non gira; qui si misura il **meccanismo**, che è un
+     * fatto.
+     */
+    @Test
+    fun `il confronto si spegne anche se il gesto viene portato via`() {
+        var acceso = 0
+        var spento = 0
+        val vivo = mutableStateOf(true)
+        banco.setContent {
+            Box(
+                modifier = Modifier
+                    .size(60.dp)
+                    .semantics { contentDescription = "nome" }
+                    .heldOrTwice(
+                        enabled = vivo.value,
+                        onTwice = {},
+                        onHold = { on -> if (on) acceso += 1 else spento += 1 }
+                    )
+            )
+        }
+
+        banco.onNodeWithContentDescription("nome").performTouchInput { down(center) }
+        banco.mainClock.advanceTimeBy(ATTESA_TOCCO)
+        banco.waitForIdle()
+        assertEquals("Il dito fermo non ha acceso il confronto", 1, acceso)
+
+        // Il gesto viene portato via: è quello che fa un salvataggio che parte mentre si confronta.
+        banco.runOnIdle { vivo.value = false }
+        banco.waitForIdle()
+        assertEquals("Il confronto è rimasto acceso dopo che il gesto è stato annullato", 1, spento)
+    }
+
+    /**
+     * **Caso 15: all'ingrandimento ci si arriva con una corsa, e non con uno stacco.**
+     *
+     * ⚠️⚠️ **IL CLOCK SI FERMA, O NON C'È NIENTE DA VEDERE**: con l'avanzamento automatico
+     * `waitForIdle` porta l'animazione fino in fondo, quindi la misura direbbe soltanto dove si
+     * arriva, che è già quello che guarda il caso 12. Fermandolo si può guardare **a metà corsa**,
+     * che è la sola differenza fra un'animazione e un'assegnazione.
+     * ⚠️ **Che cosa NON vede**: come la corsa si percepisce, cioè la durata e la curva. Quelle si
+     * guardano sul telefono, e la voce di collaudo le chiede.
+     */
+    @Test
+    fun `il doppio tocco sull'immagine ci arriva con una corsa`() {
+        banco.setContent { Scena() }
+        pronta()
+
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        val prima = bianchi(palco)
+        assertTrue("La scena non mostra l'immagine: non c'è niente da misurare", prima > 0)
+
+        banco.mainClock.autoAdvance = false
+        palco.performTouchInput { doubleClick() }
+        banco.mainClock.advanceTimeBy(META_CORSA)
+        val meta = bianchi(palco)
+
+        banco.mainClock.autoAdvance = true
+        banco.waitForIdle()
+        val dopo = bianchi(palco)
+
+        assertTrue("A metà corsa l'immagine non era ancora cresciuta: $prima, poi $meta", meta > prima)
+        assertTrue("A metà corsa l'immagine era già arrivata: $meta contro $dopo", meta < dopo)
+    }
+
     /** Quanti pixel bianchi copre il nodo: è l'immagine finta, su un fondo che bianco non è. */
     private fun bianchi(nodo: SemanticsNodeInteraction): Int {
         val pixel = nodo.captureToImage().toPixelMap()
@@ -415,6 +531,24 @@ class LuceTest {
             .performSemanticsAction(SemanticsActions.SetProgress) { it(a) }
         banco.waitForIdle()
     }
+
+    /**
+     * Tocca la barra di un cursore a una frazione della sua larghezza, come farebbe un dito.
+     *
+     * ⚠️ **Un tocco secco e non una strisciata**: toccando lontano dal tondo il cursore salta
+     * subito al punto, quindi il valore si muove senza dover iniettare un gesto con la sua durata,
+     * che col clock di prova è una delle trappole di casa.
+     */
+    private fun tocca(quale: Int, dove: Float) {
+        banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[quale]
+            .performTouchInput { click(Offset(width * dove, height / 2f)) }
+        banco.waitForIdle()
+    }
+
+    /** Che cosa dice un cursore di sé: il valore che annuncia, non quello che il numero scrive. */
+    private fun valore(quale: Int): Float =
+        banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))[quale]
+            .fetchSemanticsNode().config[SemanticsProperties.ProgressBarRangeInfo].current
 
     /** Quanti nodi portano scritto [detto]: è la spia di che cosa dicono i numeri dei cursori. */
     private fun quanti(detto: String): Int =
@@ -475,3 +609,18 @@ private const val LATO = 64
 
 /** Quanto si aspetta che l'anteprima arrivi: vedi `pronta()`. */
 private const val ATTESA = 5000L
+
+/**
+ * Quanto si avanza per guardare la corsa del doppio tocco a metà strada.
+ *
+ * ⚠️ **È la metà di `ZOOM_RIDE`**, e non lo legge perché quella costante è privata del suo file:
+ * quello che conta qui è cadere **dentro** la corsa, quindi un valore vicino alla metà basta, e il
+ * giorno che la durata cambiasse questa misura resterebbe buona finché resta minore.
+ */
+private const val META_CORSA = 110L
+
+/** Quanto vicini devono essere due valori di un cursore per dirli uguali. */
+private const val SOGLIA = 0.0001f
+
+/** Quanto si tiene il dito fermo perché valga come tocco lungo: il doppio del suo tempo, e basta. */
+private const val ATTESA_TOCCO = 1000L
