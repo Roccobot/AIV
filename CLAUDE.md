@@ -2504,6 +2504,31 @@ muove; nell'**HSL** il tocco **sceglie la fascia** del colore toccato.
   'rosso': mandare il dito su una fascia che con quel pixel non c'entra farebbe parlare i tre
   cursori di un colore che là non esiste.
 
+⚠️⚠️ **E DALLA `2.24` IL DITO PORTA UNA LENTE, PERCHÉ IL PIXEL CHE SI PRENDE È COPERTO DAL DITO**
+(sua risposta a `d-mirato-hsl`, giro della `2.23`: **`niente`**, cioè nessun cursore si muove col
+trascinamento, *ma serve un selettore con zoom e anteprima dei pixel campionati. Anche per le
+curve, forse*). Un tondo ingrandito compare sopra il dito, col mirino sul pixel campionato.
+- ⚠️⚠️ **IL 'FORSE' LO SCIOLGO IO, E LA SCELTA È DICHIARATA: LA LENTE C'È NEI DUE MODULI.** Il
+  gesto è lo stesso e il meccanismo è uno, quindi farla in un modulo solo vorrebbe dire due
+  comportamenti per lo stesso tasto, a un tocco di distanza. La voce di collaudo gli chiede se
+  toglierla dalle Curve, dove il bersaglio è un tono e non un colore.
+- ⚠️ **Si ancora al punto in cui il dito è sceso e non lo segue**: il pixel campionato è quello del
+  tocco e non cambia più mentre si tira, quindi una lente che inseguisse il dito mostrerebbe un
+  colore che non è quello preso.
+- ⚠️⚠️ **DENTRO LA LENTE IL FILTRO È A PIXEL INTERI, ED È IL SUO SCOPO**: là si guarda **quale**
+  pixel si sta prendendo, e il filtro lineare che il Dettaglio pretende mescolerebbe i vicini
+  proprio nel punto in cui bisogna distinguerli. Il pennello è **uno** per i due rettangoli
+  (`pennello`, in `AdvancedEditorScreen.kt`), o la lente mostrerebbe un'immagine sviluppata in un
+  altro modo.
+- ⚠️ **L'ingrandimento si moltiplica a quello del palco invece di sostituirlo**: chi ha già
+  ingrandito sta guardando da vicino, e una lente a scala fissa gliela mostrerebbe più piccola di
+  quello che ha davanti.
+- ⚠️ **Lo spegnimento vive in un `finally`**, per la stessa ragione del confronto della `2.17`: un
+  rilevatore annullato non torna alla riga dopo, e la lente resterebbe in scena senza un dito.
+- **La prova è `SviluppoTest`**, e misura quello che il banco può vedere: che il palco cambi
+  disegno col dito giù e torni **identico** al rilascio. ⚠️ **Non** vede se il pixel mostrato sia
+  quello giusto, perché il conto vive sulla scheda grafica: quello si guarda sul telefono.
+
 ⚠️⚠️ **E 'DOVE SI HA LO SGUARDO' HA DOVUTO TRASLOCARE, PERCHÉ IL MIRATO VIVE SUL PALCO**: il
 modulo, la fascia e il canale stavano dentro la scheda, e il gesto che tocca l'immagine deve sapere
 quale modulo si sta guardando. Adesso vivono in un oggetto solo (`Gaze`) che la schermata passa a
@@ -2650,6 +2675,42 @@ si susseguono, quindi prima o poi si incontrano.
   volta sola** con lo zero di partenza e non è più tornato quando il valore è salito. Perché non
   torni non si sa, e si scrive così invece di inventare una causa: il sospetto è che a scriverlo
   sia un `onGloballyPositioned`, cioè la stessa passata che dovrebbe rileggerlo.
+
+⚠️⚠️ **E DALLA `2.24` SALE ANCHE SOPRA IL FAB, PERCHÉ I CHIEDENTI SONO DIVENTATI DUE**
+(segnalazione dell'utente, punto A1 del campo libero del giro della `2.23`: *la notifica inferiore
+con 'Annulla' (es. per 'Sposta') a volte va sopra il FAB (su qualunque lato sia). Si può aggirare
+il problema?*). Sì, e col meccanismo che c'era già: `PickStage` diventa `FootStage`, cioè una
+**mappa** di chi occupa il fondo dello schermo, e la notifica si alza del massimo.
+- ⚠️⚠️ **NON SI INCONTRANO 'A VOLTE': SI INCONTRANO SEMPRE**, e il 'a volte' della sua frase è
+  quanto spesso capita di avere una notifica in una schermata col FAB. Quel tasto vive in un
+  angolo, la notifica è larga quasi tutto lo schermo, e a disegnarla è la radice dell'app, cioè
+  **dopo** la schermata: la sovrapposizione è per costruzione, non una combinazione sfortunata.
+- ⚠️ **A dichiarare l'ingombro è `TapHoldFab` e non i due chiamanti**, così un FAB nuovo lo fa per
+  costruzione: è lo stesso criterio per cui `lowered()` si porta dietro il velo, e per cui l'uscita
+  verso una schermata senza FAB la legge quella funzione.
+- ⚠️ **La misura regge anche a menu aperto**, quando il FAB si stacca in una finestra sua: là resta
+  un segnaposto della stessa misura, che vive nella finestra dell'app ed è quello che si misura.
+- ⚠️ **Il costo è dichiarato**: nelle due griglie il FAB c'è sempre, quindi là la notifica sta
+  stabilmente più in alto di prima. È il prezzo di non muovere un comando, che è il criterio della
+  `2.11`, e la voce di collaudo lo mette per iscritto.
+- **La prova è `AvvisiTest`**, con lo stesso caso della scheda della selezione su un secondo
+  chiedente. ⚠️ Controprovata togliendo la dichiarazione al FAB: la notifica torna a coprirlo.
+
+⚠️⚠️ **UNA MINIATURA VECCHIA SOPRAVVIVE A UN FILE CHE CAMBIA, E DALLA `2.24` LO SCAN LA BUTTA**
+(segnalazione dell'utente, punto A2 dello stesso campo libero: *se si modifica una foto, poi si
+recupera la copia di backup dal cestino, questa ha la miniatura dell'immagine modificata, non la
+propria. Per le copie di sicurezza l'anteprima va ricreata quando escono dal cestino*). La cache
+di `Thumbs` è indicizzata sull'**indirizzo** e non sul contenuto, ed è l'unica dell'app che possa
+mentire: Coil qui non ha cache su disco, e quella di sistema si rifà da sé con lo scan.
+- **Il rimedio vive in `FileTree.scan`**, cioè dove il chiamante **dichiara** che un percorso è
+  cambiato: le due cose vanno insieme, e scritte là un chiamante nuovo le prende per costruzione
+  invece di doversi ricordare la seconda riga. `Bin.restore` chiamava già lo scan.
+- ⚠️⚠️ **LA CAUSA NON È ACCERTATA FINO IN FONDO, E SI SCRIVE COSÌ**: perché il file ripristinato si
+  ritrovi l'indirizzo di quello riscritto dipende da come il MediaStore rinumera, e senza il
+  telefono non si misura. Quello che si è fatto è **chiudere l'unica via** per cui l'app può
+  mostrare una miniatura vecchia, e la voce di collaudo lo dice a lui.
+- ⚠️ **Non ha una prova del banco, e va detto**: il callback del MediaScanner in Robolectric non
+  arriva, quindi una prova misurerebbe una riga che non gira. Si guarda sul telefono.
 
 ⚠️⚠️ **UN AVVISO DI SISTEMA RESTA, ED È UNO SOLO**: quello che spiega perché si sta per aprire la
 pagina delle impostazioni di Android (`folder_why`, in `ViewerActivity`). Là l'app va in
