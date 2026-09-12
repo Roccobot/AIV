@@ -2817,12 +2817,18 @@ private fun AivApp(model: ViewerViewModel, onPicked: (Uri) -> Unit = {}) {
          * basso*). Le due superfici sono appoggiate allo stesso bordo e nascono da due gesti che
          * si susseguono, quindi prima o poi si incontrano: il perché a muoversi sia questa, e non
          * la scheda, vive su [Modifier.aboveFoot].
-         * ⚠️⚠️ **E DALLA `2.24` SALE ANCHE SOPRA IL FAB, PER LA STESSA RAGIONE** (punto A1 del campo
-         * libero del giro della `2.23`: *la notifica inferiore con 'Annulla' (es. per 'Sposta') a
-         * volte va sopra il FAB (su qualunque lato sia)*). Quel tasto vive in un angolo e questa
-         * riga è larga quasi tutto lo schermo, quindi si incontrano **sempre**; e a disegnarla è
-         * questa radice, cioè dopo la schermata, quindi gli finiva sopra. Il meccanismo non è
-         * nuovo: è lo stesso della scheda, con un secondo chiedente in [FootStage].
+         * ⚠️⚠️ **E DALLA `2.24` SI SCANSA ANCHE DAL FAB** (punto A1 del campo libero del giro della
+         * `2.23`: *la notifica inferiore con 'Annulla' (es. per 'Sposta') a volte va sopra il FAB
+         * (su qualunque lato sia)*). Quel tasto vive in un angolo e questa riga è larga quasi tutto
+         * lo schermo, quindi si incontrano **sempre**; e a disegnarla è questa radice, cioè dopo la
+         * schermata, quindi gli finiva sopra. Il meccanismo non è nuovo: è lo stesso della scheda,
+         * con un secondo chiedente in [FootStage].
+         * ⚠️⚠️ **MA DALLA `2.25` SI STRINGE INVECE DI SALIRE, ED È LA SUA RISPOSTA `stringe`** (giro
+         * della `2.24`, voce `avviso-fab` approvata con una richiesta: *non si potrebbe fare lo
+         * stesso avviso meno largo di quel tanto che basta a stare a fianco del FAB?*). Sopra una
+         * scheda larga tutto lo schermo si sale, perché accanto non c'è niente; accanto a un tasto
+         * in un angolo si sta, e salirgli sopra lascia vuota una striscia larga quanto la finestra.
+         * ⚠️ **Il lato lo dichiara il FAB**, che sa dov'è: qui non si legge nessuna preferenza.
          */
         AppNotice(
             Notices.line,

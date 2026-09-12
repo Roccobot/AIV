@@ -15,6 +15,7 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.down
+import androidx.compose.ui.test.moveTo
 import androidx.compose.ui.test.up
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -744,6 +745,103 @@ class SviluppoTest {
             0,
             diversi(riposo, palco.captureToImage().toPixelMap())
         )
+    }
+
+    /**
+     * **La lente segue il dito, invece di restare dove il dito è sceso.**
+     *
+     * ⚠️⚠️ **È LA SUA RICHIESTA DEL GIRO DELLA `2.24`** (voce `mirato-lente` non approvata:
+     * *dev'essere possibile trascinare il 'mirino', perché difficilmente con il dito si azzecca il
+     * punto giusto al primo colpo*), e rovescia quello che la `2.24` aveva scritto apposta.
+     * ⚠️ **Si confrontano due scatti col dito GIÙ**, in due punti diversi: se la lente restasse
+     * ancorata, il secondo sarebbe identico al primo, perché nient'altro si muove.
+     * ⚠️⚠️ **SI MISURA IN ORIZZONTALE, E IL BANCO LO HA IMPOSTO**: qui il palco è alto una
+     * quarantina di pixel, quindi un movimento verticale grande quanto un quarto di lui non arriva
+     * nemmeno alla soglia del tocco, e il gesto resta fermo **col codice giusto**. Una spia messa
+     * dentro il rilevatore lo ha misurato: gli eventi arrivavano, e la distanza era sei pixel
+     * contro sedici di soglia. In larghezza lo spazio c'è.
+     * ⚠️⚠️ **IL CLOCK VA FERMATO, E SENZA QUELLA RIGA LA PROVA MISURAVA IL CONTRARIO**: con
+     * l'avanzamento automatico `waitForIdle` porta a termine le attese pendenti, cioè fa **scadere**
+     * il secondo e mezzo dell'armamento; da lì in poi il dito muove la curva e non più la lente, e
+     * il secondo scatto è identico al primo **col codice giusto**. Quindi questo caso misura anche
+     * l'altra metà della richiesta: prima dell'armamento a muoversi è il mirino.
+     * ⚠️⚠️ **SI GUARDA DOVE SONO I PIXEL CAMBIATI E NON QUANTI: LO HA DETTO LA
+     * CONTROPROVA.** La prima stesura confrontava i due scatti col dito giù e chiedeva che
+     * fossero diversi: col difetto rimesso **restava verde**, perché fra i due fotogrammi cambia
+     * anche il contatore dell'armamento, che cresce da sé. Il baricentro invece dice *dove* è la
+     * lente, e il contatore vive dentro di lei, quindi la segue.
+     * ⚠️ **Controprovata** rimettendo l'ancoraggio della `2.24`, cioè togliendo l'assegnazione di
+     * `lens` dentro il ciclo: il baricentro non si muove.
+     */
+    @Test
+    fun `la lente segue il dito che si sposta`() {
+        banco.setContent { Scena() }
+        pronta()
+        banco.onNodeWithText(testo(R.string.look_tone)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithText(testo(R.string.look_target)).performClick()
+        banco.waitForIdle()
+        banco.mainClock.autoAdvance = false
+
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        val riposo = palco.captureToImage().toPixelMap()
+        palco.performTouchInput { down(center) }
+        banco.mainClock.advanceTimeByFrame()
+        val primo = centroX(riposo, palco.captureToImage().toPixelMap())
+
+        val salto = riposo.width / 3f
+        palco.performTouchInput { moveTo(center + Offset(-salto, 0f)) }
+        banco.mainClock.advanceTimeByFrame()
+        val poi = centroX(riposo, palco.captureToImage().toPixelMap())
+
+        assertTrue("senza la lente in scena non c'e niente da misurare", primo > 0f && poi > 0f)
+        assertTrue(
+            "la lente doveva seguire il dito: era a $primo e adesso e a $poi",
+            primo - poi > salto / 3f
+        )
+        palco.performTouchInput { up() }
+    }
+
+    /**
+     * **Il mirino porta il colore della FASCIA, non quello del pixel.**
+     *
+     * ⚠️⚠️ **È L'ALTRA METÀ DELLA SUA RICHIESTA** (*deve variare dinamicamente il colore per
+     * corrispondere a uno degli 8 colori standard, in modo che si capisca all'istante su cosa si
+     * agirà se ci si ferma lì*): quello che deve dire l'anello è **quale delle otto** si sta per
+     * toccare, quindi due rossi diversi devono darlo identico. Prendendo il colore del pixel la
+     * lente direbbe una cosa vera e inutile, cioè quello che già si vede.
+     * ⚠️ **E un grigio non ha fascia**: là il mirino resta bianco, che è il caso in cui `Mix.bandOf`
+     * risponde `-1`.
+     * ⚠️ **Controprovata** facendo tornare il colore del pixel: i due rossi divergono.
+     */
+    @Test
+    fun `il mirino prende il colore della fascia e non del pixel`() {
+        val chiaro = tintOfPixel(Color.rgb(255, 40, 40))
+        val cupo = tintOfPixel(Color.rgb(120, 12, 12))
+        assertTrue("un rosso deve avere la sua fascia", chiaro != null)
+        assertEquals("due rossi sono la stessa fascia, quindi lo stesso segno", chiaro, cupo)
+        assertEquals("un grigio non appartiene a nessuna fascia", null, tintOfPixel(Color.GRAY))
+    }
+
+    /**
+     * Il punto medio, in orizzontale, dei pixel cambiati fra due scatti: `0` se non ne è cambiato
+     * nessuno.
+     *
+     * ⚠️ **Dice DOVE è successo qualcosa**, che è la sola misura che distingue una lente che si
+     * sposta da una lente ferma con dentro qualcosa che si muove.
+     */
+    private fun centroX(a: PixelMap, b: PixelMap): Float {
+        var somma = 0f
+        var conto = 0
+        for (y in 0 until minOf(a.height, b.height)) {
+            for (x in 0 until minOf(a.width, b.width)) {
+                if (a[x, y] != b[x, y]) {
+                    somma += x
+                    conto += 1
+                }
+            }
+        }
+        return if (conto == 0) 0f else somma / conto
     }
 
     /** Quanti pixel cambiano fra due scatti dello stesso nodo. */

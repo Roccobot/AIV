@@ -190,6 +190,27 @@ object Thumbs {
     /** Quante chiavi si ricordano. Costano una stringa l'una: il tetto serve a non crescere. */
     private const val KEYS = 64
 
+    /**
+     * Gli indirizzi il cui contenuto è **cambiato** da quando l'app ne ha visto la miniatura.
+     *
+     * ⚠️⚠️ **ESISTE PERCHÉ LA MINIATURA DEL SISTEMA NON HA LA DATA NELLA CHIAVE, e questa è la
+     * via che restava aperta dopo la `2.24`** (riscontro del giro, voce `mini-cestino` non
+     * approvata: *ancora sbagliata, solo nella miniatura (griglia). Era così anche prima*). Il
+     * provider tiene le proprie miniature per **riga**, quindi una fotografia riscritta sopra
+     * il proprio indirizzo tiene la riga che aveva e può farsi servire la miniatura di prima:
+     * [forget] svuota la cache che teniamo noi, e su quella del sistema non ha nessuna presa.
+     * ⚠️ **La stessa lezione era già scritta in casa**: [AvifCache] mette la data del file
+     * nella propria chiave proprio per questo, e la dichiara. Là si è potuto, qui no, perché la
+     * chiave la compone il provider.
+     * ⚠️⚠️ **QUINDI NON SI CURA LA CAUSA, SI CHIUDE LA VIA**: per un indirizzo dichiarato
+     * riscritto la strada di sistema si salta **una volta**, e la miniatura la fa la decodifica
+     * normale, che apre il file vero. Il costo è una decodifica per file riscritto, e chi non
+     * riscrive niente non paga nulla.
+     * ⚠️ Stesso tetto di [KEYS], e per la stessa ragione: sono stringhe, e il tetto serve a non
+     * crescere.
+     */
+    private val stale = LinkedHashSet<String>()
+
     /** Registra dove Coil ha messo la miniatura di [uri], appena l'ha messa. */
     @Synchronized
     fun note(uri: AndroidUri, key: MemoryCache.Key?) {
@@ -217,15 +238,46 @@ object Thumbs {
      * fotografia dall'editor interno l'indirizzo resta identico, quindi senza questa
      * chiamata la griglia continuerebbe a mostrare la miniatura di **prima** del ritaglio,
      * cioè un'immagine che sul telefono non esiste più.
-     * ⚠️ **Non tocca la miniatura del SISTEMA**, che è un'altra cache e non è nostra: quella
-     * la rifà il MediaScanner, ed è la ragione per cui [ImageEdit] chiama `FileTree.scan`
-     * dopo ogni scrittura. Qui si toglie la sola copia che teniamo noi.
+     * ⚠️⚠️ **NON TOCCA LA MINIATURA DEL SISTEMA, E FINO ALLA `2.24` QUESTA NOTA DICEVA CHE LA
+     * RIFACEVA IL MediaScanner: non è misurato, e il sintomo dice il contrario.** Quella cache
+     * è del provider e la sua chiave è la **riga**, non il contenuto, quindi una fotografia
+     * riscritta sopra il proprio indirizzo può farsi servire la miniatura di prima. Per questo
+     * la chiamata segna l'indirizzo in [stale], e la strada di sistema si salta una volta: il
+     * perché per esteso vive là.
+     * ⚠️⚠️ **E NON DIPENDE PIÙ DA [keys], che aveva un tetto di [KEYS] voci mentre la cache di
+     * Coil ne tiene quante la memoria le concede**: oltre quel numero la chiave era già stata
+     * sfrattata di qui, quindi non c'era niente da rimuovere e l'immagine restava là. Adesso si
+     * cercano **tutte** le chiavi che portano quell'indirizzo, e la mappa di casa serve solo a
+     * [cached].
+     * - ⚠️ **La chiave di Coil per un indirizzo è la sua stringa**, letto nel bytecode di
+     *   `UriKeyer` e non ricordato: `key(uri, options)` restituisce `uri.toString()`, e la
+     *   misura richiesta vive negli **extra**. Quindi confrontare `key` prende tutte le misure
+     *   dello stesso file, che è esattamente quello che serve.
+     * - ⚠️ **Si filtra prima e si rimuove dopo**: `keys` è un insieme che il caricatore
+     *   compone, e rimuovere mentre lo si scorre è la via all'errore di concorrenza.
      */
     @Synchronized
     fun forget(context: Context, uri: AndroidUri) {
-        val key = keys.remove(uri.toString()) ?: return
-        SingletonImageLoader.get(context).memoryCache?.remove(key)
+        val at = uri.toString()
+        stale += at
+        while (stale.size > KEYS) stale.remove(stale.first())
+        val cache = SingletonImageLoader.get(context).memoryCache ?: return
+        keys.remove(at)?.let { cache.remove(it) }
+        cache.keys.filter { it.key == at }.forEach { cache.remove(it) }
     }
+
+    /**
+     * Se l'indirizzo è stato dichiarato **riscritto** da [forget], e in quel caso lo consuma.
+     *
+     * ⚠️⚠️ **CONSUMA INVECE DI RICORDARE, ed è la differenza fra una correzione e un costo
+     * permanente**: chi risponde `true` manda quella richiesta alla decodifica normale, cioè
+     * paga una lettura del file vero; se il segno restasse, quell'indirizzo non userebbe **mai
+     * più** la miniatura già pronta del sistema, che è la ragione per cui questo file esiste.
+     * ⚠️ **Un file riscritto e poi riscritto ancora si segna di nuovo**, perché a segnarlo è
+     * chi dichiara il cambiamento: il consumo non è una rinuncia, è la fine di quel giro.
+     */
+    @Synchronized
+    fun rewritten(uri: AndroidUri): Boolean = stale.remove(uri.toString())
 
     /**
      * Butta **tutto** quello che Coil tiene in memoria, e le chiavi che lo indirizzavano.
@@ -310,6 +362,19 @@ private class SystemThumbnailFetcher(
             options.size.height.pxOrElse { FALLBACK_PX }
         )
         val uri = data.toAndroidUri()
+
+        /*
+         * ⚠️⚠️ **UN INDIRIZZO DICHIARATO RISCRITTO NON SI CHIEDE AL SISTEMA, DALLA `2.25`**: la
+         * cache del provider ha la **riga** per chiave e non il contenuto, quindi là la
+         * miniatura di prima è ancora buona e ce la servirebbe. Tirandosi indietro, la
+         * richiesta prosegue nella decodifica normale, che apre il file vero. Il perché per
+         * esteso, e perché non si cura la causa ma si chiude la via, vivono su [Thumbs.stale].
+         * ⚠️⚠️ **I FILMATI NO, e non è una dimenticanza**: di un `mp4` la decodifica normale di
+         * Coil non sa che farsene, quindi tirarsi indietro là vorrebbe dire **nessuna**
+         * miniatura invece di una vecchia. Un filmato riscritto è un caso che questa app non
+         * produce: l'editor lavora sulle immagini.
+         */
+        if (!Videos.isVideo(uri) && Thumbs.rewritten(uri)) return@withContext null
 
         /*
          * ⚠️⚠️ **I FORMATI CON LA TRASPARENZA NON PASSANO DA QUI, dalla 1.36, e la

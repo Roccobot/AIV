@@ -2512,9 +2512,36 @@ curve, forse*). Un tondo ingrandito compare sopra il dito, col mirino sul pixel 
   gesto è lo stesso e il meccanismo è uno, quindi farla in un modulo solo vorrebbe dire due
   comportamenti per lo stesso tasto, a un tocco di distanza. La voce di collaudo gli chiede se
   toglierla dalle Curve, dove il bersaglio è un tono e non un colore.
-- ⚠️ **Si ancora al punto in cui il dito è sceso e non lo segue**: il pixel campionato è quello del
-  tocco e non cambia più mentre si tira, quindi una lente che inseguisse il dito mostrerebbe un
-  colore che non è quello preso.
+- ⚠️⚠️ **MA DALLA `2.25` IL MIRINO SI TRASCINA, ED È SUA ISTRUZIONE** (riscontro del giro, voce
+  `mirato-lente` non approvata: *funziona benissimo, ma dev'essere possibile trascinare il
+  'mirino', perché difficilmente con il dito si azzecca il punto giusto al primo colpo*). ⚠️ **E
+  con lei cade la nota della `2.24`**, che diceva il contrario (*si ancora al punto in cui il dito
+  è sceso e non lo segue*, perché una lente che insegue mostrerebbe un colore diverso da quello
+  preso): quell'argomento reggeva finché il pixel si prendeva all'istante del tocco, e adesso il
+  pixel è quello sotto il dito **ora**, quindi la lente e la scelta dicono la stessa cosa.
+  - ⚠️⚠️ **QUINDI IL TRASCINAMENTO NON MUOVE PIÙ LA CURVA FINCHÉ NON CI SI FERMA, E IL NUMERO È
+    SUO** (nota su `d-lente-curve`: *visto che deve essere trascinabile, deve esserci un contatore
+    'visuale': solo se mi fermo in un punto per 1,5 secondi poi il trascinamento su/giù agisce
+    sulla curva*). Senza quella soglia i due gesti sarebbero lo stesso movimento, e scegliere un
+    tono vorrebbe già dire spostarlo.
+  - ⚠️ **Il conto riparte a ogni movimento e si azzera al distacco** (sua precisazione del
+    2026-09-12), e 'si muove' vuol dire **oltre la soglia del tocco**: un dito appoggiato trema di
+    un pixel o due, quindi con un conto che riparte a ogni evento l'armamento non arriverebbe mai.
+  - ⚠️⚠️ **IL TEMPO E IL DISEGNO VENGONO DALLA STESSA SORGENTE**: il contatore è un'animazione che
+    dura `AIM_ARM_MS` e, arrivando in fondo, **arma**. Un timeout nel rilevatore più una barra
+    animata a parte sarebbero due istanti, e il primo a scivolare sarebbe quello che si vede. Il
+    contatore è un arco sul bordo della lente, cioè un segno che c'era già.
+  - ⚠️ **Un dito che si alza prima sceglie lo stesso**: l'attesa è nata per separare il
+    trascinamento dalla scelta, non per mettere un pedaggio davanti alla scelta, e senza quella
+    riga un tocco secco non farebbe più niente.
+- ⚠️⚠️ **E L'ANELLO DEL MIRINO PORTA IL COLORE DELLA FASCIA, DALLA `2.25`** (stessa voce:
+  *l'anello del 'mirino' deve essere più spessa e deve variare dinamicamente il colore per
+  corrispondere a uno degli 8 colori standard, in modo che si capisca all'istante su cosa si
+  agirà se ci si ferma lì*): il tratto raddoppia, e il tondo interno prende il colore del **centro**
+  della fascia, dalla stessa funzione delle pastiglie. Su un grigio resta bianco, perché un grigio
+  non appartiene a nessuna fascia.
+  - ⚠️ **Il colore è della fascia e non del pixel**, ed è quello che l'anello deve dire: col colore
+    del pixel direbbe una cosa vera e inutile, cioè quello che si vede già.
 - ⚠️⚠️ **DENTRO LA LENTE IL FILTRO È A PIXEL INTERI, ED È IL SUO SCOPO**: là si guarda **quale**
   pixel si sta prendendo, e il filtro lineare che il Dettaglio pretende mescolerebbe i vicini
   proprio nel punto in cui bisogna distinguerli. Il pennello è **uno** per i due rettangoli
@@ -2526,8 +2553,16 @@ curve, forse*). Un tondo ingrandito compare sopra il dito, col mirino sul pixel 
 - ⚠️ **Lo spegnimento vive in un `finally`**, per la stessa ragione del confronto della `2.17`: un
   rilevatore annullato non torna alla riga dopo, e la lente resterebbe in scena senza un dito.
 - **La prova è `SviluppoTest`**, e misura quello che il banco può vedere: che il palco cambi
-  disegno col dito giù e torni **identico** al rilascio. ⚠️ **Non** vede se il pixel mostrato sia
-  quello giusto, perché il conto vive sulla scheda grafica: quello si guarda sul telefono.
+  disegno col dito giù e torni **identico** al rilascio, che la lente **segua** il dito, e che il
+  colore dell'anello sia quello della fascia. ⚠️ **Non** vede se il pixel mostrato sia quello
+  giusto, né il contatore e l'armamento: il conto vive sulla scheda grafica e il tempo del banco è
+  fermo, quindi quelli si guardano sul telefono.
+  - ⚠️⚠️ **IL BANCO HA IMPOSTO DUE COSE, E TUTTE E DUE LE HA DETTE LA CONTROPROVA.** La prova del
+    trascinamento misura **dove** stanno i pixel cambiati e non quanti sono, perché fra due
+    fotogrammi cambia anche il contatore, che cresce da sé: contandoli, restava verde col difetto
+    rimesso. E si misura **in orizzontale**, perché là il palco di prova è alto una quarantina di
+    pixel e un movimento verticale grande quanto un quarto di lui non arriva nemmeno alla soglia
+    del tocco (misurato con una spia dentro il rilevatore: sei pixel contro sedici di soglia).
 
 ⚠️⚠️ **E 'DOVE SI HA LO SGUARDO' HA DOVUTO TRASLOCARE, PERCHÉ IL MIRATO VIVE SUL PALCO**: il
 modulo, la fascia e il canale stavano dentro la scheda, e il gesto che tocca l'immagine deve sapere
@@ -2695,6 +2730,60 @@ il problema?*). Sì, e col meccanismo che c'era già: `PickStage` diventa `FootS
   `2.11`, e la voce di collaudo lo mette per iscritto.
 - **La prova è `AvvisiTest`**, con lo stesso caso della scheda della selezione su un secondo
   chiedente. ⚠️ Controprovata togliendo la dichiarazione al FAB: la notifica torna a coprirlo.
+
+⚠️⚠️ **MA DALLA `2.25` NON SALE: SI STRINGE ACCANTO AL FAB, ED È LA SUA RISPOSTA `stringe` A
+`d-avviso-forma`** (giro della `2.24`, voce `avviso-fab` approvata con una richiesta: *non si
+potrebbe fare lo stesso avviso meno largo di quel tanto che basta a stare a fianco del FAB?*).
+Salire è la risposta giusta davanti a una scheda larga tutto lo schermo, perché accanto non c'è
+niente; davanti a un tasto che vive in un angolo lascia vuota una striscia larga quanto la
+finestra, mentre lo spazio di fianco c'è.
+- ⚠️⚠️ **QUINDI `FootStage` TIENE DUE COSE E NON UNA**: chi occupa una **fascia** (la scheda della
+  selezione) e chi occupa un **fianco** (il FAB). Un modificatore solo, `aboveFoot`, le legge tutte
+  e due: sale sopra la prima e si stringe accanto al secondo.
+- ⚠️⚠️ **DA CHE PARTE STA IL FAB SI MISURA E NON SI LEGGE DA `fabSide`**: il nodo sa dov'è nella
+  finestra, quindi il lato si ricava dal suo centro. Leggendo la preferenza ci sarebbero due posti
+  a decidere dov'è quel tasto, e il giorno che uno dei due cambia la notifica si stringerebbe
+  dalla parte sbagliata. È la sua stessa osservazione (*'di fianco' ha un significato di default e
+  un altro se il FAB è a sinistra*), risolta misurando.
+- ⚠️ **Qui il rientro è la scelta giusta, al contrario della salita**: la larghezza di un comando
+  non cambia mentre lo si guarda, quindi una rimisurazione si paga solo quando quel comando compare
+  o sparisce; l'alzata invece è animata, e là un `padding` costerebbe una misura per fotogramma.
+- ⚠️ **Il testo ha meno spazio, e lo ha previsto lui** (*ci sarebbe meno spazio per il testo, ma
+  basta diminuire un pelo la spaziatura o la larghezza o il corpo del carattere*): il corpo non è
+  stato toccato, perché quanto si perde si vede sul telefono e non sul banco. La voce di collaudo
+  glielo chiede, insieme al suo *potrebbe anche essere un'opzione*, che per ora non è un'opzione.
+- **La prova sono i due casi di `AvvisiTest`**, uno per lato. ⚠️⚠️ **E LA CONTROPROVA HA TROVATO UN
+  DIFETTO NELLA PRIMA STESURA**: misurava `onNodeWithText`, cioè la frase, che dentro la sua
+  superficie finisce ben prima del bordo, quindi col rientro tolto a mano il caso del FAB a destra
+  **restava verde**. Adesso si misura il nodo della notifica.
+
+⚠️⚠️ **E LA MINIATURA VECCHIA NON SE N'ERA ANDATA: DALLA `2.25` LE VIE CHIUSE SONO TRE, E LA CAUSA
+NON È ACCERTATA** (riscontro del giro della `2.24`, voce `mini-cestino` non approvata: *ancora
+sbagliata, solo nella miniatura (griglia). Era così anche prima*). La correzione della `2.24`
+buttava la cache di Coil per l'indirizzo dichiarato cambiato, e quello che il suo riscontro dice è
+che il difetto non passava di lì.
+- **Via 1, la miniatura del SISTEMA**: il provider tiene le proprie per **riga** e non per
+  contenuto, quindi una fotografia riscritta sopra il proprio indirizzo può farsi servire quella di
+  prima, e `Thumbs.forget` su quella cache non ha nessuna presa. ⚠️ **La nota della `2.24` diceva
+  che la rifaceva il MediaScanner**: non era misurato, e il sintomo dice il contrario. Adesso un
+  indirizzo dichiarato riscritto **salta la strada di sistema una volta** e passa dalla decodifica
+  normale, che apre il file vero: non si cura la causa, si chiude la via.
+- **Via 2, il tetto della mappa di casa**: `Thumbs.forget` cercava la chiave in una mappa di 64
+  voci, mentre la cache di Coil ne tiene quante la memoria le concede, quindi oltre quel numero non
+  c'era niente da rimuovere. Adesso si cercano tutte le chiavi che portano quell'indirizzo.
+- **Via 3, i percorsi del CESTINO**: là il MediaStore non vede niente, quindi `FileTree.scan` non
+  produce nessun indirizzo e la chiamata che vive dentro non si fa **mai**; e quei percorsi si
+  riusano, perché il nome lo sceglie `FileTree.freeName`. Adesso il cestino dichiara i propri, sia
+  quando un file arriva sia quando se ne va.
+- ⚠️ **E lo `scan` butta anche la miniatura del `file://`**, che è un secondo indirizzo per lo
+  stesso file: nella vista 'Cartelle di sistema' le immagini viaggiano come percorsi, quindi la
+  stessa fotografia si correggeva in una vista e non nell'altra.
+- ⚠️⚠️ **CHE COSA RESTA FUORI, E SI DICHIARA**: perché la miniatura sbagliata compaia proprio là
+  dipende da come il provider rinumera e da che cosa tiene in cache, e senza il telefono non si
+  misura. Quello che si è fatto è togliere **tutte** le strade per cui l'app può servire una
+  miniatura vecchia per un indirizzo dichiarato cambiato.
+- **La prova è `MiniatureTest`**, quattro casi, controprovati uno per uno rimettendo il difetto.
+  ⚠️ **Non** vede la miniatura che si vede: quella la fa il provider, e il banco non ne ha uno.
 
 ⚠️⚠️ **UNA MINIATURA VECCHIA SOPRAVVIVE A UN FILE CHE CAMBIA, E DALLA `2.24` LO SCAN LA BUTTA**
 (segnalazione dell'utente, punto A2 dello stesso campo libero: *se si modifica una foto, poi si
