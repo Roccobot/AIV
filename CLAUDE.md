@@ -2527,10 +2527,25 @@ curve, forse*). Un tondo ingrandito compare sopra il dito, col mirino sul pixel 
   - ⚠️ **Il conto riparte a ogni movimento e si azzera al distacco** (sua precisazione del
     2026-09-12), e 'si muove' vuol dire **oltre la soglia del tocco**: un dito appoggiato trema di
     un pixel o due, quindi con un conto che riparte a ogni evento l'armamento non arriverebbe mai.
-  - ⚠️⚠️ **IL TEMPO E IL DISEGNO VENGONO DALLA STESSA SORGENTE**: il contatore è un'animazione che
-    dura `AIM_ARM_MS` e, arrivando in fondo, **arma**. Un timeout nel rilevatore più una barra
-    animata a parte sarebbero due istanti, e il primo a scivolare sarebbe quello che si vede. Il
-    contatore è un arco sul bordo della lente, cioè un segno che c'era già.
+  - ⚠️⚠️ **MA QUEL CONTATORE È DURATO UNA VERSIONE: DALLA `2.26` L'ATTESA È MUTA, DURA 1,2 SECONDI
+    E FINISCE CON UNA VIBRAZIONE** (riscontro del giro della `2.25`, voce `mirino-trascina` non
+    approvata: *il contatore visuale che deve ripartire ad ogni spostamento lo rende lentissimo (si
+    aggiorna a scatti, inutilizzabile). Lascia stare il contatore: abbassa il tempo a 1,2 secondi ma
+    non mostrare nulla: semplicemente, si sente una breve vibrazione allo scattare degli 1,2 secondi
+    e da quel momento si può trascinare*). Il numero vive su `AIM_ARM_MS` e la vibrazione è quella
+    di casa, `HOLD_BUZZ`, cioè quella del tocco lungo: una seconda da tarare non nasce.
+    - ⚠️⚠️ **PERCHÉ COSTASSE TANTO SI LEGGE NEL CODICE, E NON È MISURATO SUL TELEFONO**: il
+      progresso dell'arco si leggeva **dentro il disegno del `Canvas` del palco**, che è lo stesso
+      che dipinge l'immagine con tutto il conto dello sviluppo. Quindi ogni fotogramma del
+      contatore costava una passata intera dello shader sull'anteprima (col Dettaglio acceso sono
+      diciotto campioni per pixel), sessanta volte al secondo **mentre il dito era fermo**, e
+      ricominciava da capo a ogni movimento. Con l'attesa muta un dito fermo non produce nessun
+      fotogramma.
+    - ⚠️ **Non c'era un secondo nodo su cui spostarlo**: la lente si dipinge sopra l'immagine
+      dentro quello stesso `Canvas`, quindi l'arco non si poteva ridisegnare da solo.
+    - ⚠️⚠️ **QUINDI 'IL TEMPO E IL DISEGNO DALLA STESSA SORGENTE' È UNA NOTA SUPERATA**: era la
+      ragione per cui l'attesa era un'animazione invece di un timeout, e con il contatore se ne va
+      anche lei. Chi la ritrova in un commento vecchio sappia che oggi l'attesa è un `delay`.
   - ⚠️ **Un dito che si alza prima sceglie lo stesso**: l'attesa è nata per separare il
     trascinamento dalla scelta, non per mettere un pedaggio davanti alla scelta, e senza quella
     riga un tocco secco non farebbe più niente.
@@ -2756,6 +2771,14 @@ finestra, mentre lo spazio di fianco c'è.
   DIFETTO NELLA PRIMA STESURA**: misurava `onNodeWithText`, cioè la frase, che dentro la sua
   superficie finisce ben prima del bordo, quindi col rientro tolto a mano il caso del FAB a destra
   **restava verde**. Adesso si misura il nodo della notifica.
+- ⚠️⚠️ **E CHI SALE NON SI STRINGE, DALLA `2.26`, ED È LA SUA RISPOSTA `sempre` A
+  `d-avviso-forma-2`** (giro della `2.25`: *può stare massimizzata il larghezza solo quando (per la
+  presenza della bottomsheet) si sposta sopra*). Sopra una scheda larga tutto lo schermo non c'è
+  nessun comando da schivare di fianco, quindi rientrare là costerebbe spazio al testo senza
+  guadagnare niente. ⚠️ **Oggi i due casi non si incontrano quasi mai**, perché appena c'è una
+  selezione il FAB lascia il posto alla scheda: 'quasi' non è una regola, e durante quel cambio le
+  due dichiarazioni convivono per qualche fotogramma. A presidiarlo è il terzo caso di
+  `AvvisiTest`, controprovato togliendo la condizione.
 
 ⚠️⚠️ **E LA MINIATURA VECCHIA NON SE N'ERA ANDATA: DALLA `2.25` LE VIE CHIUSE SONO TRE, E LA CAUSA
 NON È ACCERTATA** (riscontro del giro della `2.24`, voce `mini-cestino` non approvata: *ancora

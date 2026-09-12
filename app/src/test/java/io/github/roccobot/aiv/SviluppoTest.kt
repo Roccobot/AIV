@@ -762,14 +762,16 @@ class SviluppoTest {
      * contro sedici di soglia. In larghezza lo spazio c'è.
      * ⚠️⚠️ **IL CLOCK VA FERMATO, E SENZA QUELLA RIGA LA PROVA MISURAVA IL CONTRARIO**: con
      * l'avanzamento automatico `waitForIdle` porta a termine le attese pendenti, cioè fa **scadere**
-     * il secondo e mezzo dell'armamento; da lì in poi il dito muove la curva e non più la lente, e
-     * il secondo scatto è identico al primo **col codice giusto**. Quindi questo caso misura anche
-     * l'altra metà della richiesta: prima dell'armamento a muoversi è il mirino.
+     * l'attesa dell'armamento; da lì in poi il dito muove la curva e non più la lente, e il secondo
+     * scatto è identico al primo **col codice giusto**. Quindi questo caso misura anche l'altra
+     * metà della richiesta: prima dell'armamento a muoversi è il mirino.
      * ⚠️⚠️ **SI GUARDA DOVE SONO I PIXEL CAMBIATI E NON QUANTI: LO HA DETTO LA
      * CONTROPROVA.** La prima stesura confrontava i due scatti col dito giù e chiedeva che
-     * fossero diversi: col difetto rimesso **restava verde**, perché fra i due fotogrammi cambia
-     * anche il contatore dell'armamento, che cresce da sé. Il baricentro invece dice *dove* è la
-     * lente, e il contatore vive dentro di lei, quindi la segue.
+     * fossero diversi: col difetto rimesso **restava verde**, perché fra i due fotogrammi cambiava
+     * anche il contatore dell'armamento, che cresceva da sé. ⚠️ **Quel contatore è uscito con la
+     * `2.26`** (§ '📈 Il modulo Curve, e il colore mirato'), quindi oggi il conto dei pixel diversi
+     * direbbe il vero lo stesso: il baricentro resta perché dice *dove* è la lente, che è la cosa
+     * che questo caso misura, e non dipende da che cosa la lente porti dentro.
      * ⚠️ **Controprovata** rimettendo l'ancoraggio della `2.24`, cioè togliendo l'assegnazione di
      * `lens` dentro il ciclo: il baricentro non si muove.
      */
