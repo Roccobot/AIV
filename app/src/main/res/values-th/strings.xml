@@ -416,6 +416,10 @@
     <string name="look_masking">การมาสก์</string>
     <string name="look_noise">นอยส์</string>
     <string name="look_noise_color">นอยส์สี</string>
+    <string name="look_tone">เส้นโค้ง</string>
+    <string name="look_tone_rgb">RGB</string>
+    <string name="look_tone_board">เส้นโค้งโทน</string>
+    <string name="look_target">เจาะจง</string>
     <string name="look_contrast">คอนทราสต์</string>
     <string name="look_shadows">เงา</string>
     <string name="look_highlights">ไฮไลต์</string>

@@ -93,6 +93,10 @@
     <string name="look_masking">Mascheratura</string>
     <string name="look_noise">Rumore</string>
     <string name="look_noise_color">Rumore colore</string>
+    <string name="look_tone">Curve</string>
+    <string name="look_tone_rgb">RGB</string>
+    <string name="look_tone_board">Curva tonale</string>
+    <string name="look_target">Mirato</string>
     <string name="look_contrast">Contrasto</string>
     <string name="look_shadows">Ombre</string>
     <string name="look_highlights">Luci</string>

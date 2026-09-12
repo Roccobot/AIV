@@ -464,6 +464,10 @@
     <string name="look_masking">Maskowanie</string>
     <string name="look_noise">Szum</string>
     <string name="look_noise_color">Szum barwny</string>
+    <string name="look_tone">Krzywa</string>
+    <string name="look_tone_rgb">RGB</string>
+    <string name="look_tone_board">Krzywa tonalna</string>
+    <string name="look_target">Celowany</string>
     <string name="look_contrast">Kontrast</string>
     <string name="look_shadows">Cienie</string>
     <string name="look_highlights">Światła</string>

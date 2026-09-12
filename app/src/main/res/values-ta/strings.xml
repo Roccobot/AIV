@@ -432,6 +432,10 @@
     <string name="look_masking">மறைப்பு</string>
     <string name="look_noise">இரைச்சல்</string>
     <string name="look_noise_color">வண்ண இரைச்சல்</string>
+    <string name="look_tone">வளைவு</string>
+    <string name="look_tone_rgb">RGB</string>
+    <string name="look_tone_board">தொனி வளைவு</string>
+    <string name="look_target">இலக்கு</string>
     <string name="look_contrast">மாறுபாடு</string>
     <string name="look_shadows">நிழல்கள்</string>
     <string name="look_highlights">ஒளிப்பகுதி</string>

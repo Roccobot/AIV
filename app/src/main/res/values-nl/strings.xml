@@ -432,6 +432,10 @@
     <string name="look_masking">Maskeren</string>
     <string name="look_noise">Ruis</string>
     <string name="look_noise_color">Kleurruis</string>
+    <string name="look_tone">Curve</string>
+    <string name="look_tone_rgb">RGB</string>
+    <string name="look_tone_board">Tooncurve</string>
+    <string name="look_target">Doelgericht</string>
     <string name="look_contrast">Contrast</string>
     <string name="look_shadows">Schaduwen</string>
     <string name="look_highlights">Hoge lichten</string>

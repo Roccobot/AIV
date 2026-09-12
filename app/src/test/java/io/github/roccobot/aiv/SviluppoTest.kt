@@ -54,6 +54,20 @@ private val BANDE = listOf(
 )
 
 /**
+ * I nomi dei quattro canali delle curve.
+ *
+ * ⚠️ **Sono ricopiati e non presi dalla schermata**, che li tiene in un valore privato: qui serve
+ * sapere che cosa deve comparire, e una prova che leggesse la stessa lista del codice direbbe solo
+ * che quella lista è uguale a se stessa.
+ */
+private val TONE_NAMES_TEST = listOf(
+    R.string.look_tone_rgb,
+    R.string.look_band_red,
+    R.string.look_band_green,
+    R.string.look_band_blue
+)
+
+/**
  * Il banco dei moduli **Colore** e **HSL**, e della fila che sceglie i moduli.
  *
  * ⚠️⚠️ **NON SI CHIAMA `ColoreTest` PERCHÉ QUEL NOME È GIÀ PRESO, e da un'altra cosa**: là vive
@@ -513,6 +527,181 @@ class SviluppoTest {
         assertEquals(prima.put.right, dopo.put.left)
         assertTrue("in lettura invece si sovrappongono", dopo.read.left < prima.put.right)
     }
+
+    /**
+     * **Caso 18: una curva a riposo è l'identità, e la spline non oltrepassa mai.**
+     *
+     * ⚠️⚠️ **LE DUE COSE SI PRESIDIANO INSIEME PERCHÉ SONO LA STESSA PROPRIETÀ**: la tabella che va
+     * alla scheda grafica è l'unica cosa che l'immagine vede, quindi a riposo deve essere la
+     * diagonale **esatta** (o un'immagine non toccata perderebbe un livello qua e là), e con un
+     * punto alzato non deve mai tornare indietro, o fra due toni vicini ne uscirebbe uno più scuro
+     * del suo vicino più chiaro, che sull'immagine si vede come un anello di tono invertito.
+     *
+     * ⚠️ **Controprovata con una cubica NATURALE al posto della monotona**: con quel conto, un
+     * punto alzato di poco fa scendere la curva sotto il valore del punto prima, cioè il caso che
+     * questa riga esiste per escludere.
+     */
+    @Test
+    fun `la curva a riposo è l'identità e non oltrepassa`() {
+        val ferma = Curve.NONE.table()
+        for (i in 0 until Curve.SIZE) {
+            assertEquals("livello $i", i.toFloat() / (Curve.SIZE - 1), ferma[i], 1e-6f)
+        }
+        assertTrue(Curve.NONE.idle)
+        assertTrue(Look().lossless)
+
+        // Un punto alzato in mezzo: la curva passa di lì e resta monotona su tutta la corsa.
+        val alzata = Curve(listOf(Knot(0f, 0f), Knot(0.5f, 0.8f), Knot(1f, 1f)))
+        val tavola = alzata.table()
+        assertFalse(alzata.idle)
+        assertFalse(Look(tone = Tone(all = alzata)).lossless)
+        assertEquals("il punto deve stare sulla curva", 0.8f, tavola[128], 0.01f)
+        for (i in 1 until Curve.SIZE) {
+            assertTrue("inversione al livello $i", tavola[i] >= tavola[i - 1] - 1e-4f)
+        }
+
+        /*
+         * ⚠️⚠️ **IL TRATTO PIATTO È IL CASO CHE DISTINGUE I DUE CONTI, ed è la ragione per cui
+         * questa curva ha quattro punti**: fra due punti alla stessa altezza la secante vale zero,
+         * e una cubica naturale ci arriva con le tangenti dei tratti vicini, cioè **sale e poi
+         * torna giù**. La correzione monotona azzera quelle due tangenti, e il tratto viene piatto
+         * esatto. Con una curva a tre punti i due conti danno quasi lo stesso disegno, e la
+         * controprova resterebbe verde.
+         */
+        val piana = Curve(
+            listOf(Knot(0f, 0f), Knot(0.4f, 0.75f), Knot(0.7f, 0.75f), Knot(1f, 1f))
+        )
+        val steso = piana.table()
+        for (i in 103..178) {
+            assertEquals("il tratto piatto si è gonfiato al livello $i", 0.75f, steso[i], 2e-3f)
+        }
+    }
+
+    /**
+     * **Caso 19: la tabella compone `all(canale(v))`, e non il contrario.**
+     *
+     * ⚠️⚠️ **L'ORDINE ROVESCIATO NON DÀ NESSUN ERRORE E SI VEDE SOLO SULL'IMMAGINE**: con la curva
+     * di un canale e quella di tutti i toni mosse insieme, i due ordini danno due immagini diverse,
+     * e quello sbagliato fa saltare di posto la curva del canale ogni volta che si tocca il
+     * composito. Le due curve di questa prova sono **costanti e diverse**, che è il solo modo di
+     * distinguere i due ordini con un numero.
+     */
+    @Test
+    fun `la tabella compone il canale sotto il composito`() {
+        val mezzo = Curve(listOf(Knot(0f, 0.5f), Knot(1f, 0.5f)))
+        val quarto = Curve(listOf(Knot(0f, 0.25f), Knot(1f, 0.25f)))
+        val lut = Tone(all = mezzo, red = quarto).lut()
+        val rosso = (lut[200] shr 16) and 0xFF
+        val verde = (lut[200] shr 8) and 0xFF
+        assertTrue(
+            "il rosso deve passare prima dal canale e poi dal composito, ed è $rosso",
+            abs(rosso - 128) <= 2
+        )
+        assertTrue("il verde ha solo il composito, ed è $verde", abs(verde - 128) <= 2)
+    }
+
+    /**
+     * **Caso 20: gli estremi restano agli estremi, e non si tolgono.**
+     *
+     * ⚠️⚠️ **SONO LA CONDIZIONE PER CUI LA CURVA DICE QUALCOSA DI OGNI TONO**: un primo punto
+     * spostato a mezza scala lascerebbe la prima metà dei toni senza risposta, e la spline
+     * risponderebbe con la coda del primo tratto, cioè con un valore che nessuno ha chiesto.
+     * ⚠️ **E due punti non si scavalcano**: un tratto di larghezza zero è una divisione per zero
+     * nella spline, e due punti in ordine invertito una curva che torna indietro.
+     */
+    @Test
+    fun `gli estremi non si muovono in orizzontale e non si tolgono`() {
+        val tre = Curve(listOf(Knot(0f, 0f), Knot(0.5f, 0.5f), Knot(1f, 1f)))
+        assertEquals(0f, tre.move(0, 0.9f, 0.2f).knots[0].at, 1e-6f)
+        assertEquals(0.2f, tre.move(0, 0.9f, 0.2f).knots[0].to, 1e-6f)
+        assertEquals(1f, tre.move(2, 0.1f, 0.7f).knots[2].at, 1e-6f)
+        assertEquals(3, tre.drop(0).knots.size)
+        assertEquals(3, tre.drop(2).knots.size)
+        assertEquals(2, tre.drop(1).knots.size)
+        // Il punto di mezzo non scavalca i vicini, in nessuno dei due versi.
+        assertTrue(tre.move(1, 2f, 0.5f).knots[1].at < 1f)
+        assertTrue(tre.move(1, -2f, 0.5f).knots[1].at > 0f)
+    }
+
+    /**
+     * **Caso 21: il modulo Curve porta i quattro canali e nessun cursore, e il tocco lungo su un
+     * canale azzera solo quello.**
+     *
+     * ⚠️ **È la stessa forma del caso del Dettaglio, su un modulo che di cursori non ne ha
+     * affatto**: qui a rompersi in silenzio sarebbe un gettone che scrive nel canale sbagliato,
+     * cioè un azzeramento che porta via la curva di un altro colore.
+     */
+    @Test
+    fun `il modulo curve porta i canali e nessun cursore`() {
+        banco.setContent { Scena() }
+        pronta()
+        banco.onNodeWithText(testo(R.string.look_tone)).performClick()
+        banco.waitForIdle()
+
+        assertEquals(4, TONE_NAMES_TEST.count { quanti(testo(it)) > 0 })
+        assertEquals(
+            "un modulo di sole curve non ha cursori",
+            0,
+            banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))
+                .fetchSemanticsNodes().size
+        )
+        assertTrue("il grafico deve essere in scena", quantiDetti(R.string.look_tone_board) > 0)
+    }
+
+    /**
+     * **Caso 22: il colore mirato si offre nei soli moduli che hanno un bersaglio.**
+     *
+     * ⚠️⚠️ **È LA CONDIZIONE CHE TIENE VIVO IL PALCO**: quel tasto arma una modalità in cui il
+     * palco fa solo il mirato, e in un modulo senza bersaglio sarebbe una modalità che non fa
+     * niente mentre spegne pinza e doppio tocco.
+     */
+    @Test
+    fun `il mirato c'è nelle curve e nell'hsl e non negli altri`() {
+        banco.setContent { Scena() }
+        pronta()
+        assertEquals("nella Luce non c'è niente da mirare", 0, quanti(testo(R.string.look_target)))
+
+        banco.onNodeWithText(testo(R.string.look_tone)).performClick()
+        banco.waitForIdle()
+        assertEquals(1, quanti(testo(R.string.look_target)))
+
+        banco.onNodeWithText(testo(R.string.look_mix)).performClick()
+        banco.waitForIdle()
+        assertEquals(1, quanti(testo(R.string.look_target)))
+
+        banco.onNodeWithText(testo(R.string.look_detail)).performClick()
+        banco.waitForIdle()
+        assertEquals(0, quanti(testo(R.string.look_target)))
+    }
+
+    /**
+     * **Caso 23: i due conti che il colore mirato fa su un pixel.**
+     *
+     * ⚠️⚠️ **UN GRIGIO NON APPARTIENE A NESSUNA FASCIA, ed è la risposta che non si può inventare**:
+     * dando 'rosso' a un pixel senza colore, il dito finirebbe su una fascia che con quel pixel non
+     * c'entra, e i tre cursori parlerebbero di un colore che là non esiste.
+     * ⚠️ **E per il composito il livello è la luminanza percettiva**: un giallo pieno è un tono
+     * alto e un blu pieno un tono basso, che è dove l'occhio li vede; con la media dei canali
+     * sarebbero lo stesso tono.
+     */
+    @Test
+    fun `il mirato legge la fascia e il livello di un pixel`() {
+        assertEquals(0, Mix.bandOf(Color.rgb(255, 0, 0)))
+        assertEquals(5, Mix.bandOf(Color.rgb(0, 0, 255)))
+        assertEquals(3, Mix.bandOf(Color.rgb(0, 255, 0)))
+        assertEquals("un grigio non ha fascia", -1, Mix.bandOf(Color.rgb(128, 128, 128)))
+
+        val giallo = Color.rgb(255, 255, 0)
+        val blu = Color.rgb(0, 0, 255)
+        assertTrue(Tone.levelOf(giallo, Tone.WHOLE) > 0.9f)
+        assertTrue(Tone.levelOf(blu, Tone.WHOLE) < 0.1f)
+        assertEquals(1f, Tone.levelOf(giallo, Tone.RED), 1e-3f)
+        assertEquals(0f, Tone.levelOf(giallo, Tone.BLUE), 1e-3f)
+    }
+
+    /** Quanti nodi portano questa descrizione parlata. */
+    private fun quantiDetti(id: Int): Int =
+        banco.onAllNodesWithContentDescription(testo(id)).fetchSemanticsNodes().size
 
     /** Sceglie una fascia toccando la sua pastiglia. */
     private fun fascia(nome: Int) {

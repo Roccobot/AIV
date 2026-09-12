@@ -118,6 +118,24 @@ class ContoTest {
         )
     }
 
+    /**
+     * E lo consegna anche con una curva dentro, che porta un **secondo shader** in ingresso.
+     *
+     * ⚠️⚠️ **UN `uniform shader` È UNA FORMA CHE QUESTO PROGRAMMA NON AVEVA, E SI CONSEGNA CON
+     * UN'ALTRA CHIAMATA**: i valori passano da `setFloatUniform`, una tabella da `setInputShader`,
+     * e un nome che non combacia non dà errore di compilazione: dà un'eccezione al primo
+     * fotogramma, che la rete di `lookShader` trasformerebbe in un `null`, cioè in 'questo telefono
+     * non sa farlo'. È la stessa forma del difetto della `2.14`.
+     */
+    @Test
+    fun `lookShader consegna il programma con la curva`() {
+        val curva = Curve(listOf(Knot(0f, 0.1f), Knot(0.5f, 0.7f), Knot(1f, 1f)))
+        assertNotNull(
+            "lookShader ha risposto null: la tabella della curva non combacia",
+            lookShader(sorgente(), Look(tone = Tone(all = curva)), SPAN)
+        )
+    }
+
     /** Una sorgente qualunque: qui conta che il programma la accetti, non che colore abbia. */
     private fun sorgente(): BitmapShader {
         val mappa = Bitmap.createBitmap(4, 4, Bitmap.Config.ARGB_8888)

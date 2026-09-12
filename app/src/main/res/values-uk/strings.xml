@@ -464,6 +464,10 @@
     <string name="look_masking">Маскування</string>
     <string name="look_noise">Шум</string>
     <string name="look_noise_color">Колірний шум</string>
+    <string name="look_tone">Крива</string>
+    <string name="look_tone_rgb">RGB</string>
+    <string name="look_tone_board">Тонова крива</string>
+    <string name="look_target">Точково</string>
     <string name="look_contrast">Контраст</string>
     <string name="look_shadows">Тіні</string>
     <string name="look_highlights">Світлі</string>

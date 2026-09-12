@@ -416,6 +416,10 @@
     <string name="look_masking">Mặt nạ</string>
     <string name="look_noise">Nhiễu</string>
     <string name="look_noise_color">Nhiễu màu</string>
+    <string name="look_tone">Đường cong</string>
+    <string name="look_tone_rgb">RGB</string>
+    <string name="look_tone_board">Đường cong tông màu</string>
+    <string name="look_target">Nhắm mục tiêu</string>
     <string name="look_contrast">Tương phản</string>
     <string name="look_shadows">Vùng tối</string>
     <string name="look_highlights">Vùng sáng</string>

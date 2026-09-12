@@ -22,6 +22,9 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculateCentroid
 import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateZoom
+import androidx.compose.foundation.gestures.drag
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,6 +48,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -62,6 +66,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
@@ -70,11 +75,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
@@ -84,6 +92,7 @@ import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.contentDescription
@@ -188,6 +197,21 @@ fun AdvancedEditorScreen(
      */
     var peek by remember(uri) { mutableStateOf<((Look) -> Look)?>(null) }
 
+    /** Dove si ha lo sguardo nella scheda, e se il colore mirato è armato: vedi [Gaze]. */
+    val gaze = rememberSaveable(uri, saver = Gaze.Saver) { Gaze() }
+
+    /**
+     * Quale punto della curva il colore mirato sta muovendo, e da dove partiva.
+     *
+     * ⚠️⚠️ **IL PUNTO DI PARTENZA SI FOTOGRAFA ALL'INIZIO DEL GESTO, ED È QUELLO CHE TIENE FERMO IL
+     * DITO**: il palco riferisce quanto si è tirato **da dove il dito è sceso**, e non l'ultimo
+     * passo, quindi il valore si ricostruisce sempre da capo. Sommando i passi uno per uno, il
+     * troncamento agli estremi si mangerebbe la corsa: portando il punto fino al bianco e poi
+     * tornando indietro, il dito e la curva si troverebbero sfasati.
+     */
+    var aimed by remember(uri) { mutableIntStateOf(-1) }
+    var aimFrom by remember(uri) { mutableFloatStateOf(0f) }
+
     BackHandler { onBack() }
 
     LaunchedEffect(uri) {
@@ -208,6 +232,45 @@ fun AdvancedEditorScreen(
         if (look == history[at]) return
         history = history.take(at + 1) + look
         at = history.size - 1
+    }
+
+    /**
+     * Il colore mirato, primo tempo: che cosa vuol dire aver toccato il pixel [pixel].
+     *
+     * ⚠️⚠️ **I DUE MODULI RISPONDONO IN DUE MODI, E NON È UN'INCOERENZA**: nell'HSL quello che si
+     * indica è **quale colore**, cioè una scelta fra otto, e il gesto porta il dito su quella
+     * fascia; nelle Curve quello che si indica è **un tono**, e un tono è un punto da muovere. Sono
+     * le due nature dei due moduli, non due convenzioni.
+     *
+     * ⚠️⚠️ **E NELL'HSL IL TRASCINAMENTO NON MUOVE NIENTE, DI PROPOSITO**: là i cursori sono tre
+     * (tonalità, saturazione, luminanza), e sceglierne uno per il dito sarebbe una decisione che
+     * lui non ha preso. Il giro lo chiede, e finché non risponde il gesto sceglie la fascia e si
+     * ferma.
+     */
+    fun aimStart(pixel: Int) {
+        aimed = -1
+        when (MODULES[gaze.module].extra) {
+            Extra.BANDS -> Mix.bandOf(pixel).takeIf { it >= 0 }?.let { gaze.band = it }
+            Extra.CURVES -> {
+                val (grown, i) = look.tone.curve(gaze.channel)
+                    .grow(Tone.levelOf(pixel, gaze.channel))
+                look = look.copy(tone = look.tone.swap(gaze.channel) { grown })
+                aimed = i
+                aimFrom = grown.knots[i].to
+            }
+            Extra.NONE -> Unit
+        }
+    }
+
+    /** Il colore mirato, secondo tempo: il dito ha tirato di [dy], in frazione di palco. */
+    fun aimPull(dy: Float) {
+        val i = aimed
+        if (i < 0) return
+        look = look.copy(
+            tone = look.tone.swap(gaze.channel) { c ->
+                c.knots.getOrNull(i)?.let { c.move(i, it.at, aimFrom + dy) } ?: c
+            }
+        )
     }
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -270,6 +333,17 @@ fun AdvancedEditorScreen(
                     picture = picture,
                     look = if (comparing) Look.NONE else peek?.invoke(look) ?: look,
                     onCompare = { comparing = it },
+                    /*
+                     * ⚠️⚠️ **IL MIRATO VALE SOLO NEI MODULI CHE LO SANNO USARE, E SI GUARDA QUI**:
+                     * il tasto che lo arma compare nei soli due, ma passando a un terzo modulo
+                     * resterebbe armato e il palco smetterebbe di rispondere a pinza e doppio
+                     * tocco senza che nessuno veda più il tasto per spegnerlo. Chiedendolo alla
+                     * tabella dei moduli, quel caso non esiste.
+                     */
+                    aiming = { gaze.aiming && MODULES[gaze.module].extra != Extra.NONE },
+                    onAimStart = { aimStart(it) },
+                    onAimPull = { aimPull(it) },
+                    onAimEnd = { push() },
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -281,6 +355,7 @@ fun AdvancedEditorScreen(
             ready = origin != null,
             canUndo = at > 0,
             canRedo = at < history.size - 1,
+            gaze = gaze,
             /*
              * ⚠️⚠️ **QUI SI LEGGE LO STATO VIVO, ED È IL PUNTO IN CUI LA CORREZIONE DELLA `2.17`
              * FUNZIONA**: quello che arriva è un cambiamento da applicare, non un'immagine già
@@ -349,6 +424,22 @@ private fun LookStage(
     picture: Bitmap,
     look: Look,
     onCompare: (Boolean) -> Unit,
+    /**
+     * Se il colore mirato è armato.
+     *
+     * ⚠️⚠️ **È UNA FUNZIONE E NON UN VALORE, ED È LA STESSA PRUDENZA DELLA `2.17`**: questa riga la
+     * legge il corpo di un `pointerInput`, che si ricostruisce solo quando cambiano le sue chiavi;
+     * un valore catturato invecchierebbe, mentre una funzione che legge uno stato risponde sempre
+     * con quello di adesso. ⚠️ **E la chiave non si tocca**: metterci il mirato annullerebbe il
+     * gesto in corso ogni volta che lo si arma.
+     */
+    aiming: () -> Boolean,
+    /** Il pixel toccato, al principio di un gesto mirato: vedi [AdvancedEditorScreen]. */
+    onAimStart: (Int) -> Unit,
+    /** Quanto il dito ha tirato da dove è sceso, in frazione di palco e **positivo in su**. */
+    onAimPull: (Float) -> Unit,
+    /** Il gesto mirato è finito: quello che si è fatto diventa un passo della storia. */
+    onAimEnd: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val hold = stringResource(R.string.look_compare)
@@ -385,6 +476,35 @@ private fun LookStage(
                     shift = reined(from + (shift - from) * grown + pan, next, room, wide)
                 }
 
+                /**
+                 * Il colore del pixel dell'anteprima sotto il punto [at], o `null` se là c'è il
+                 * fondo del palco invece dell'immagine.
+                 *
+                 * ⚠️⚠️ **IL COLORE È QUELLO DEL FILE E NON QUELLO CHE SI VEDE, e va detto**: quello
+                 * che si vede è il risultato del conto, che vive sulla scheda grafica e non si può
+                 * rileggere. Quindi il tono che il colore mirato prende è quello di partenza: con
+                 * un'esposizione già alzata di molto, il punto nasce un po' più in basso di dove
+                 * il dito lo vede.
+                 * ⚠️ **Il rettangolo si ricostruisce come nel disegno**, con le stesse tre righe:
+                 * sono lo stesso conto, e il disegno lo fa già a ogni fotogramma.
+                 */
+                fun colourAt(at: Offset): Int? {
+                    val box = fitted(room, wide)
+                    val safe = reined(shift, scale, room, wide)
+                    val l = middle.x + (box.left - middle.x) * scale + safe.x
+                    val t = middle.y + (box.top - middle.y) * scale + safe.y
+                    val r = middle.x + (box.right - middle.x) * scale + safe.x
+                    val b = middle.y + (box.bottom - middle.y) * scale + safe.y
+                    if (at.x < l || at.x > r || at.y < t || at.y > b) return null
+                    if (r - l <= 0f || b - t <= 0f) return null
+                    val u = ((at.x - l) / (r - l)).coerceIn(0f, 1f)
+                    val v = ((at.y - t) / (b - t)).coerceIn(0f, 1f)
+                    return picture.getPixel(
+                        (u * (picture.width - 1)).roundToInt(),
+                        (v * (picture.height - 1)).roundToInt()
+                    )
+                }
+
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
                     /*
@@ -393,6 +513,22 @@ private fun LookStage(
                      * ingrandendo vuole prendere il comando, non aspettare il suo turno.
                      */
                     ride?.cancel()
+                    /*
+                     * ⚠️⚠️ **COL COLORE MIRATO ARMATO IL PALCO FA SOLO QUELLO, ED È UNA MODALITÀ
+                     * DICHIARATA**: pinza, panoramica, doppio tocco e confronto restano fermi
+                     * finché il tasto è acceso. La via alternativa era infilare il mirato accanto
+                     * agli altri quattro, e in questo rilevatore ognuno nasce dallo stesso dito
+                     * che scende: un quinto gesto vorrebbe dire cinque strade da distinguere in
+                     * mezzo secondo, e la prima a sbagliare sarebbe quella che si usa di più.
+                     */
+                    if (aiming()) {
+                        colourAt(down.position)?.let(onAimStart)
+                        // ⚠️ **Il verso si rovescia qui**: il puntatore conta positivo verso il
+                        // basso, e chi tira in su vuole il tono più chiaro.
+                        hauled(down) { dy -> onAimPull(-dy / room.height) }
+                        onAimEnd()
+                        return@awaitEachGesture
+                    }
                     /*
                      * Fase 1: chi vince fra il tempo, il movimento e il secondo dito. Il tempo si
                      * misura qui e non dentro il ciclo degli eventi, perché un dito **fermo** non
@@ -759,9 +895,33 @@ private class Module(
     val rows: (Int) -> List<Dial>,
     val clear: (Look) -> Look,
     val spent: (Look) -> Boolean,
-    /** Se il modulo lavora su una fascia per volta: solo qui compare la fila delle pastiglie. */
-    val banded: Boolean = false
+    /** Che cosa questo modulo ha in più dei suoi cursori: vedi [Extra]. */
+    val extra: Extra = Extra.NONE
 )
+
+/**
+ * Che cosa un modulo mette in scena oltre ai propri cursori.
+ *
+ * ⚠️⚠️ **È UN VALORE SOLO E NON DUE BANDIERINE, DALLA `2.23`**: fino alla `2.22` c'era `banded`, e
+ * col modulo Curve sarebbe servita una seconda bandierina accanto a lei. Due booleani indipendenti
+ * si possono accendere insieme, e un modulo che dichiarasse le fasce **e** il grafico sarebbe una
+ * riga che compila e non vuol dire niente. Con un valore solo quel caso non esiste.
+ */
+private enum class Extra {
+    /** Niente: la scheda mostra i soli cursori, come la Luce e il Colore. */
+    NONE,
+
+    /** La fila delle otto fasce di colore, cioè l'HSL. */
+    BANDS,
+
+    /**
+     * La fila dei quattro canali e il grafico della curva, cioè le Curve.
+     *
+     * ⚠️ **Quel modulo non ha cursori affatto**, ed è il primo: il suo comando è il grafico, e la
+     * sua lista di righe è vuota, quindi il ciclo dei cursori non disegna niente per costruzione.
+     */
+    CURVES
+}
 
 /**
  * I cursori che il **bianco e nero** spegne: là non c'è più niente da saturare, e un cursore che
@@ -973,15 +1133,105 @@ private val MODULES = listOf(
         rows = { MIX_ROWS[it] },
         clear = { it.copy(mix = Mix.NONE) },
         spent = { !it.mix.idle },
-        banded = true
+        extra = Extra.BANDS
     ),
     Module(
         R.string.look_detail,
         rows = { DETAIL_ROWS },
         clear = { it.copy(detail = Detail.NONE) },
         spent = { !it.detail.idle }
+    ),
+    /*
+     * ⚠️⚠️ **IL QUINTO MODULO NON HA CURSORI, ED È IL PRIMO COSÌ**: quello che un cursore sa dire è
+     * 'quanto', e una curva dice 'quanto per ogni tono', cioè una cosa che nessuna manopola può
+     * esprimere. Il suo comando è il grafico, e la sua lista di righe è vuota.
+     */
+    Module(
+        R.string.look_tone,
+        rows = { emptyList() },
+        clear = { it.copy(tone = Tone.NONE) },
+        spent = { !it.tone.idle },
+        extra = Extra.CURVES
     )
 )
+
+/**
+ * I nomi dei quattro canali delle curve, nell'ordine degli indici di [Tone].
+ *
+ * ⚠️ **I tre colori riusano le stringhe delle fasce dell'HSL**, che dicono esattamente quelle tre
+ * parole: chiavi nuove che dicono lo stesso testo sarebbero tre traduzioni in più da tenere
+ * allineate in ventotto lingue.
+ */
+private val TONE_NAMES = listOf(
+    R.string.look_tone_rgb,
+    R.string.look_band_red,
+    R.string.look_band_green,
+    R.string.look_band_blue
+)
+
+/**
+ * Dove si ha lo **sguardo** nella scheda: il modulo, la fascia dell'HSL, il canale delle curve, e
+ * se il colore mirato è armato.
+ *
+ * ⚠️⚠️ **NON È UNA PROPRIETÀ DELL'IMMAGINE, E PER QUESTO NON ENTRA NELLA STORIA DEI PASSI**: è
+ * dove si sta guardando, quindi 'Annulla' non deve riportarci un modulo o una fascia.
+ *
+ * ⚠️⚠️ **MA DALLA `2.23` NON PUÒ PIÙ VIVERE DENTRO LA SCHEDA, ED È IL COLORE MIRATO A COSTRINGERE
+ * AL TRASLOCO**: quel gesto vive sul **palco**, e per sapere che cosa fare di un pixel toccato
+ * deve sapere quale modulo si sta guardando (una curva o una fascia) e, per le curve, quale
+ * canale. Con questi valori dentro la scheda il palco non li potrebbe leggere, e passarglieli uno
+ * per uno vorrebbe dire quattro parametri che si tengono allineati a mano.
+ *
+ * ⚠️ **Le letture restano osservabili**: sono stati di Compose, quindi chi li legge si ricompone,
+ * e un gesto che li legge al momento in cui scrive vede il valore di adesso. È la stessa
+ * condizione su cui poggia la correzione della `2.20`.
+ */
+private class Gaze(module: Int = 0, band: Int = 0, channel: Int = Tone.WHOLE) {
+    var module by mutableIntStateOf(module)
+    var band by mutableIntStateOf(band)
+    var channel by mutableIntStateOf(channel)
+
+    /**
+     * Se il colore mirato è armato.
+     *
+     * ⚠️ **Non si salva alla rotazione, al contrario degli altri tre**: è una **modalità** accesa
+     * per un gesto, non una scelta, e ritrovarla accesa dopo essere tornati alla schermata
+     * vorrebbe dire un palco che non risponde più ai gesti di sempre senza che nessuno lo abbia
+     * chiesto.
+     */
+    var aiming by mutableStateOf(false)
+
+    companion object {
+        /**
+         * ⚠️ **Salva i tre interi e non l'oggetto**: un `Saver` scritto per elenco è il modo con
+         * cui Compose porta uno stato attraverso la morte del processo, e questi tre valori sono
+         * esattamente quello che `rememberSaveable` teneva prima della `2.23`, quando vivevano
+         * dentro la scheda.
+         */
+        val Saver = listSaver<Gaze, Int>(
+            save = { listOf(it.module, it.band, it.channel) },
+            restore = { Gaze(it[0], it[1], it[2]) }
+        )
+    }
+}
+
+/**
+ * Di che colore si disegna la curva del canale [channel].
+ *
+ * ⚠️⚠️ **I TRE COLORI SONO SCRITTI QUI E NON PRESI DAL TEMA, ED È UNA SCELTA**: sono il **nome**
+ * del canale, non un accento dell'app, quindi devono dire 'rosso', 'verde' e 'blu' in tutti e due i
+ * temi. Sono presi più chiari del colore puro per la stessa ragione per cui le sedici tinte delle
+ * cartelle sono una coppia: un blu pieno su fondo scuro non si distingue dal fondo.
+ * - ⚠️ **Il composito invece è l'accento dell'app**, perché non è un canale: è la curva di tutti i
+ *   toni, e il colore che le tocca è quello della superficie che la disegna.
+ */
+@Composable
+private fun toneInk(channel: Int): Color = when (channel) {
+    Tone.RED -> Color(0xFFEF5350)
+    Tone.GREEN -> Color(0xFF66BB6A)
+    Tone.BLUE -> Color(0xFF64B5F6)
+    else -> MaterialTheme.colorScheme.primary
+}
 
 /**
  * La scheda in fondo: la fila dei moduli, i cursori di quello scelto e i tre comandi della storia.
@@ -1002,6 +1252,8 @@ private fun LookSheet(
     ready: Boolean,
     canUndo: Boolean,
     canRedo: Boolean,
+    /** Dove si ha lo sguardo: il modulo, la fascia, il canale, e se il mirato è armato. */
+    gaze: Gaze,
     onLive: ((Look) -> Look) -> Unit,
     onSettled: () -> Unit,
     onPeek: (((Look) -> Look)?) -> Unit,
@@ -1009,22 +1261,8 @@ private fun LookSheet(
     onRedo: () -> Unit,
     onOriginal: () -> Unit
 ) {
-    /**
-     * Quale modulo si sta guardando.
-     *
-     * ⚠️ **Vive nella scheda e non nel modello**: è dove si ha lo sguardo, non una proprietà
-     * dell'immagine, quindi non entra nella storia dei passi e 'Annulla' non deve riportarcelo.
-     */
-    var module by rememberSaveable { mutableIntStateOf(0) }
-
-    /**
-     * Quale fascia di colore si sta guardando, per i moduli che ne hanno.
-     *
-     * ⚠️ **Vive qui accanto a [module] e per la stessa ragione**: è dove si ha lo sguardo e non
-     * una proprietà dell'immagine, quindi non entra nella storia dei passi e 'Annulla' non deve
-     * riportarcelo.
-     */
-    var band by rememberSaveable { mutableIntStateOf(0) }
+    val module = gaze.module
+    val band = gaze.band
     val chosen = MODULES[module]
 
     /**
@@ -1038,7 +1276,7 @@ private fun LookSheet(
      * meccanismo**: è la stessa correzione della `2.20` su una dimensione in più, e senza di lei
      * un cursore dell'HSL scriverebbe nella fascia da cui il suo nodo è nato.
      */
-    fun dialAt(riga: Int): Dial? = MODULES[module].rows(band).getOrNull(riga)
+    fun dialAt(riga: Int): Dial? = MODULES[gaze.module].rows(gaze.band).getOrNull(riga)
     /*
      * ⚠️⚠️ **LA SUPERFICIE È QUELLA DELL'EDITOR DI CASA, riga per riga**: il fondo del palco che
      * passa sotto gli angoli stondati, il bordo d'accento che corre di fuori, il colore, e il
@@ -1072,8 +1310,20 @@ private fun LookSheet(
              * limite da chiudere: è il modo di disfare quello che si è fatto altrove senza
              * andarci.
              */
+            /*
+             * ⚠️⚠️ **LA FILA SCORRE, DALLA `2.23`, E SENZA QUESTA RIGA IL PALCO SPARISCE**: col
+             * quinto gettone i nomi non entrano più nella larghezza, quindi ognuno andava a capo
+             * dentro la propria pastiglia e la fila cresceva in altezza. La scheda è alta quanto
+             * il suo contenuto e il palco si prende quello che resta: il banco l'ha misurato come
+             * un'immagine alta **zero** pixel, cioè l'editor senza più niente da guardare.
+             * ⚠️ **Scorrere e non andare a capo**: i moduli saranno sette, e una fila che va a
+             * capo si mangia una riga di schermo per sempre invece che solo mentre la si usa.
+             */
             Row(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
+                    .padding(bottom = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 MODULES.forEachIndexed { i, mod ->
@@ -1082,7 +1332,7 @@ private fun LookSheet(
                         chosen = i == module,
                         spent = mod.spent(look),
                         enabled = ready && !busy,
-                        onTap = { module = i },
+                        onTap = { gaze.module = i },
                         onHold = {
                             onLive(mod.clear)
                             onSettled()
@@ -1101,7 +1351,7 @@ private fun LookSheet(
              * tocco lungo per azzerare, un gradino più in basso: là si azzera il modulo, qui la
              * fascia. Chi impara il gesto sopra lo ritrova qui.
              */
-            if (chosen.banded) {
+            if (chosen.extra == Extra.BANDS) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -1113,7 +1363,7 @@ private fun LookSheet(
                             chosen = i == band,
                             spent = !look.mix.bands[i].idle,
                             enabled = ready && !busy,
-                            onTap = { band = i },
+                            onTap = { gaze.band = i },
                             onHold = {
                                 onLive { it.copy(mix = it.mix.swap(i) { Band.NONE }) }
                                 onSettled()
@@ -1122,6 +1372,53 @@ private fun LookSheet(
                         )
                     }
                 }
+            }
+
+            /*
+             * ⚠️⚠️ **LA FILA DEI QUATTRO CANALI E IL GRAFICO, DALLA `2.23`**: è la terza forma che
+             * questa scheda può prendere, e la sola in cui non ci sono cursori. I gesti dei
+             * gettoni sono quelli di sempre, tocco per scegliere e tocco lungo per azzerare, un
+             * gradino più in basso: là si azzera il modulo, qui la curva di quel canale.
+             * ⚠️ **Il gettone è lo stesso della fila dei moduli e non un pezzo nuovo**: quello che
+             * serve qui è esattamente quello che fa già, cioè un nome, il segno di 'toccato' e i
+             * due gesti.
+             */
+            if (chosen.extra == Extra.CURVES) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    TONE_NAMES.forEachIndexed { i, nome ->
+                        ModuleChip(
+                            name = stringResource(nome),
+                            chosen = i == gaze.channel,
+                            spent = !look.tone.curve(i).idle,
+                            enabled = ready && !busy,
+                            onTap = { gaze.channel = i },
+                            onHold = {
+                                onLive { k -> k.copy(tone = k.tone.swap(i) { Curve.NONE }) }
+                                onSettled()
+                            }
+                        )
+                    }
+                }
+                CurveBoard(
+                    curve = look.tone.curve(gaze.channel),
+                    ink = toneInk(gaze.channel),
+                    enabled = ready && !busy,
+                    /*
+                     * ⚠️⚠️ **QUELLO CHE ARRIVA È UN CAMBIAMENTO E IL CANALE SI RISOLVE QUI, cioè la
+                     * regola della `2.20` applicata a un modulo che non ha cursori**: il gesto del
+                     * grafico non si porta dentro né la curva né il canale, che invecchierebbero
+                     * tutti e due; legge [Gaze.channel] al momento della scrittura, e la curva di
+                     * partenza è quella viva.
+                     */
+                    onEdit = { cambia ->
+                        onLive { k -> k.copy(tone = k.tone.swap(gaze.channel, cambia)) }
+                    },
+                    onSettled = onSettled,
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp)
+                )
             }
 
             /*
@@ -1222,8 +1519,30 @@ private fun LookSheet(
              */
             Row(
                 modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
-                horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                /*
+                 * ⚠️⚠️ **IL COLORE MIRATO C'È DOVE IL MODULO HA UN BERSAGLIO DA SCEGLIERE, e non è
+                 * una coincidenza**: quel gesto serve a dire *questo colore qui*, e ha senso solo
+                 * dove esiste qualcosa da puntare, cioè una fascia dell'HSL o la curva di un
+                 * canale. Negli altri due moduli un cursore vale per tutta l'immagine, quindi non
+                 * c'è niente da mirare.
+                 * ⚠️ **È un `FilterChip` e non il gettone di casa**, e non contraddice la nota di
+                 * [ModuleChip]: quel pezzo è scritto a mano perché gli serve il **tocco lungo**, e
+                 * qui il gesto è uno solo.
+                 */
+                if (chosen.extra != Extra.NONE) {
+                    FilterChip(
+                        selected = gaze.aiming,
+                        onClick = { gaze.aiming = !gaze.aiming },
+                        enabled = ready && !busy,
+                        label = { Text(stringResource(R.string.look_target)) }
+                    )
+                } else {
+                    Spacer(Modifier.width(0.dp))
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onUndo, enabled = canUndo && !busy) {
                     Icon(Glyphs.EditUndo, stringResource(R.string.editor_undo))
                 }
@@ -1232,6 +1551,7 @@ private fun LookSheet(
                 }
                 IconButton(onClick = onOriginal, enabled = !look.idle && !busy) {
                     Icon(Glyphs.EditReset, stringResource(R.string.editor_original))
+                }
                 }
             }
         }
@@ -1351,6 +1671,137 @@ private fun BandChip(
         }
         if (spent) {
             drawCircle(ring, mark, Offset(middle.x, middle.y + dot + gap * 2f + mark))
+        }
+    }
+}
+
+/**
+ * Il grafico di una curva tonale: il fondo con la griglia, la diagonale, la curva e i suoi punti.
+ *
+ * ⚠️⚠️ **I GESTI SONO DUE E SONO QUELLI DI CASA**: il **trascinamento** prende il punto sotto il
+ * dito, o ne fa uno nuovo, e lo porta dove si vuole; il **tocco lungo** su un punto esistente lo
+ * toglie. Il secondo è lo stesso gesto con cui si azzera un modulo e una fascia, un gradino più in
+ * basso: là si azzera un insieme di valori, qui si toglie un punto.
+ * - ⚠️ **Un tocco secco fa nascere un punto SULLA curva**, senza spostarla: chi tocca il grafico
+ *   vuole prendere quella curva in quel punto, e farla saltare al dito nell'istante in cui la si
+ *   prende sarebbe un movimento che nessuno ha chiesto.
+ *
+ * ⚠️⚠️ **IL RIQUADRO NON È QUADRATO, ED È UN COMPROMESSO DICHIARATO**: un grafico tonale si disegna
+ * quadrato, perché così la diagonale è davvero a quarantacinque gradi e la pendenza si legge a
+ * occhio. Qui la scheda porta già due file di gettoni e i tre comandi della storia, e un quadrato
+ * largo quanto lo schermo si prenderebbe metà del palco, cioè l'immagine su cui si sta lavorando.
+ * La forma della curva resta leggibile, e a dire i valori ci sono i punti.
+ *
+ * ⚠️ **Che cosa resta fuori, e si dichiara**: un grafico a punti non si governa con un lettore di
+ * schermo, quindi qui l'accessibilità si ferma alla descrizione di che cosa è. Chi lavora così ha
+ * i sei cursori della Luce, che coprono lo stesso mestiere con dei comandi che si annunciano.
+ */
+@Composable
+private fun CurveBoard(
+    curve: Curve,
+    ink: Color,
+    enabled: Boolean,
+    onEdit: ((Curve) -> Curve) -> Unit,
+    onSettled: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val board = stringResource(R.string.look_tone_board)
+    val face = MaterialTheme.colorScheme.surfaceContainerHighest
+    val grid = MaterialTheme.colorScheme.onSurfaceVariant
+    val round = with(LocalDensity.current) { BOARD_ROUND.toPx() }
+    val dot = with(LocalDensity.current) { BOARD_DOT.toPx() }
+    val line = with(LocalDensity.current) { BOARD_LINE.toPx() }
+    val pad = with(LocalDensity.current) { BOARD_PAD.toPx() }
+
+    Canvas(
+        modifier = modifier
+            .height(BOARD_H)
+            .semantics { contentDescription = board }
+            .pointerInput(enabled, curve.knots.size) {
+                if (!enabled) return@pointerInput
+                val wide = (size.width - 2 * pad).coerceAtLeast(1f)
+                val tall = (size.height - 2 * pad).coerceAtLeast(1f)
+
+                /** Dove cade, in scala della curva, il punto [at] dello schermo. */
+                fun atOf(at: Offset): Float = ((at.x - pad) / wide).coerceIn(0f, 1f)
+                fun toOf(at: Offset): Float = (1f - (at.y - pad) / tall).coerceIn(0f, 1f)
+
+                awaitEachGesture {
+                    val down = awaitFirstDown()
+                    val x = atOf(down.position)
+                    val near = curve.nearest(x)
+                    /*
+                     * ⚠️ **Il tempo si misura qui e non dentro il ciclo degli eventi**, per la
+                     * ragione scritta su [settled]: un dito fermo non genera nessun evento, quindi
+                     * il tocco lungo lo può vedere solo un timeout.
+                     */
+                    val esito = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
+                        settled(down, viewConfiguration.touchSlop)
+                    }
+                    if (esito == null) {
+                        // Il tocco lungo: se sotto il dito c'era un punto, se ne va.
+                        if (near > 0) {
+                            onEdit { it.drop(near) }
+                            onSettled()
+                        }
+                        waitForUpOrCancellation()
+                        return@awaitEachGesture
+                    }
+                    /*
+                     * ⚠️ **L'indice si ricava PRIMA di scrivere**: `grow` risponde anche dove è
+                     * finito il punto, e da lì in poi il gesto muove quello. Ricavarlo dopo, dalla
+                     * curva viva, vorrebbe dire cercarlo a ogni fotogramma mentre si sposta.
+                     */
+                    val i = if (near >= 0) near else curve.grow(x).second
+                    if (near < 0) {
+                        onEdit { it.grow(x).first }
+                    }
+                    if (esito == Settled.MOVED) {
+                        drag(down.id) { change ->
+                            onEdit { it.move(i, atOf(change.position), toOf(change.position)) }
+                            change.consume()
+                        }
+                    }
+                    onSettled()
+                }
+            }
+    ) {
+        val wide = (size.width - 2 * pad).coerceAtLeast(1f)
+        val tall = (size.height - 2 * pad).coerceAtLeast(1f)
+        fun px(x: Float) = pad + x * wide
+        fun py(y: Float) = pad + (1f - y) * tall
+
+        drawRoundRect(color = face, cornerRadius = CornerRadius(round, round))
+        // La griglia in terzi e la diagonale: due riferimenti che dicono dov'è il dito senza
+        // nessun numero scritto. ⚠️ La diagonale è **la curva che non fa niente**, quindi si
+        // disegna tratteggiata: piena si confonderebbe con una curva a riposo.
+        for (k in 1..2) {
+            val t = k / 3f
+            drawLine(grid.copy(alpha = 0.18f), Offset(px(t), py(0f)), Offset(px(t), py(1f)), line)
+            drawLine(grid.copy(alpha = 0.18f), Offset(px(0f), py(t)), Offset(px(1f), py(t)), line)
+        }
+        drawLine(
+            color = grid.copy(alpha = 0.35f),
+            start = Offset(px(0f), py(0f)),
+            end = Offset(px(1f), py(1f)),
+            strokeWidth = line,
+            pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 6f))
+        )
+
+        // La curva, letta dalla stessa tabella che va alla scheda grafica: quello che si vede qui
+        // è esattamente quello che l'immagine riceve, e non un secondo disegno che le somiglia.
+        val table = curve.table()
+        val path = Path().apply {
+            moveTo(px(0f), py(table[0]))
+            for (k in 1 until Curve.SIZE) {
+                lineTo(px(k.toFloat() / (Curve.SIZE - 1)), py(table[k]))
+            }
+        }
+        drawPath(path, color = ink, style = Stroke(width = line * 2f))
+
+        curve.knots.forEach { k ->
+            drawCircle(color = ink, radius = dot, center = Offset(px(k.at), py(k.to)))
+            drawCircle(color = face, radius = dot - line, center = Offset(px(k.at), py(k.to)))
         }
     }
 }
@@ -1710,6 +2161,32 @@ private val BAND_RING = 2.dp
  */
 private const val BAND_SAT = 0.85f
 private const val BAND_VAL = 0.95f
+
+/**
+ * Quanto è alto il grafico della curva.
+ *
+ * ⚠️ **Non è quadrato, ed è un compromesso dichiarato**: il perché vive sul KDoc di [CurveBoard].
+ * Questo numero è quello che lascia al palco più di metà schermo con la scheda delle curve aperta,
+ * che è la condizione da cui si guarda quello che la curva sta facendo.
+ */
+private val BOARD_H = 190.dp
+
+/** Lo stondamento del riquadro del grafico: quello delle altre superfici di questa scheda. */
+private val BOARD_ROUND = 10.dp
+
+/** Il raggio del tondo di un punto della curva. */
+private val BOARD_DOT = 6.dp
+
+/** Lo spessore della griglia del grafico; la curva ne vale il doppio. */
+private val BOARD_LINE = 1.5.dp
+
+/**
+ * L'aria fra il bordo del riquadro e il disegno.
+ *
+ * ⚠️ **Vale più di [BOARD_DOT] di proposito**: i due estremi della curva cadono sui bordi, e con
+ * meno aria il loro tondo verrebbe tagliato a metà dal riquadro.
+ */
+private val BOARD_PAD = 8.dp
 
 /** Quanto è larga la colonna del numero: ci deve stare `-100` col segno. */
 private val KNOB_VALUE = 48.dp

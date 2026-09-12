@@ -432,6 +432,10 @@
     <string name="look_masking">মাস্কিং</string>
     <string name="look_noise">নয়েজ</string>
     <string name="look_noise_color">রঙের নয়েজ</string>
+    <string name="look_tone">কার্ভ</string>
+    <string name="look_tone_rgb">RGB</string>
+    <string name="look_tone_board">টোন কার্ভ</string>
+    <string name="look_target">টার্গেটেড</string>
     <string name="look_contrast">কনট্রাস্ট</string>
     <string name="look_shadows">ছায়া</string>
     <string name="look_highlights">হাইলাইট</string>
