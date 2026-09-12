@@ -108,6 +108,50 @@ data class Light(
 }
 
 /**
+ * Il modulo **Colore**: che tinta ha la luce, e quanto sono accesi i colori.
+ *
+ * ⚠️⚠️ **È IL SECONDO MODULO, DALLA `2.19`, ED È IL SUO CAMPO LIBERO** (giro della `2.18`: *vai
+ * avanti con gli altri step dell'editor completo*). Dove la Luce dice **quanta** luce c'è e come è
+ * distribuita, questo dice **di che colore** è: [temp] e [tint] rifanno il bilanciamento del
+ * bianco, [saturation] e [vibrance] decidono quanto i colori sono accesi, [mono] li toglie.
+ *
+ * ⚠️⚠️ **SATURAZIONE E VIVIDEZZA NON SONO LO STESSO CURSORE PIÙ PIANO, e questa è la ragione per
+ * cui sono due**: la saturazione muove tutti i colori allo stesso modo, quindi alzandola i colori
+ * già accesi arrivano al limite e si impastano (una maglietta rossa diventa una macchia). La
+ * vividezza pesa il suo effetto sull'**inverso** di quanto un colore è già saturo, quindi lavora
+ * sui colori spenti e lascia stare quelli accesi: è il cursore che si usa sui ritratti, perché
+ * l'incarnato è poco saturo e il cielo dietro no.
+ *
+ * ⚠️⚠️ **I PESI PER FASCIA DEL BIANCO E NERO NON SONO QUI, E LA SCELTA È DICHIARATA**: il piano
+ * d'azione li metteva in questo modulo, ma sono la **stessa macchina** delle otto fasce dell'HSL,
+ * che è il giro dopo; scritti adesso sarebbero scritti due volte, e la prima a divergere sarebbe
+ * quella che nessuno guarda. Qui [mono] usa i pesi percettivi di Rec. 709, cioè quelli con cui
+ * l'occhio vede il grigio, e i pesi che si scelgono a mano arrivano con le fasce.
+ *
+ * ⚠️ **Sono tutti frazioni da -1 a +1**, e l'interfaccia li mostra da -100 a +100 come quelli
+ * della Luce: è il linguaggio di Lightroom, che è quello che lui conosce.
+ */
+data class Chroma(
+    val temp: Float = 0f,
+    val tint: Float = 0f,
+    val saturation: Float = 0f,
+    val vibrance: Float = 0f,
+    val mono: Boolean = false
+) {
+
+    /** Se questo modulo non cambia un pixel: vedi la nota sulla tolleranza in [Light.idle]. */
+    val idle: Boolean
+        get() = !mono && abs(temp) < DEAD && abs(tint) < DEAD &&
+            abs(saturation) < DEAD && abs(vibrance) < DEAD
+
+    companion object {
+        val NONE = Chroma()
+
+        private const val DEAD = 0.0005f
+    }
+}
+
+/**
  * Tutto quello che l'editor completo sa fare a un'immagine, in un oggetto solo.
  *
  * ⚠️⚠️ **È UN VALORE E NON UNA CATENA DI GESTI, ed è la stessa scelta dell'editor di casa**: là
@@ -115,14 +159,15 @@ data class Light(
  * spostamenti di un cursore sono **un** valore di quel cursore. Un elenco di gesti costringerebbe
  * a riapplicarli uno per uno sul file pieno, cioè a rifare dieci volte lo stesso lavoro.
  *
- * ⚠️⚠️ **CRESCE COI MODULI E LA SUA FORMA NON CAMBIA**: il Colore, le curve e la geometria
- * entreranno come altri campi accanto a [light]. Chi li aggiunge tocca [idle] e [lossless], che
- * sono le due domande che tutto il resto fa a questo oggetto, e nient'altro.
+ * ⚠️⚠️ **CRESCE COI MODULI E LA SUA FORMA NON CAMBIA**: [chroma] è entrato accanto a [light] con
+ * la `2.19` senza toccare niente di quello che legge questo oggetto, e le curve e la geometria
+ * entreranno allo stesso modo. Chi li aggiunge tocca [idle] e [lossless], che sono le due domande
+ * che tutto il resto fa qui, e nient'altro.
  */
-data class Look(val light: Light = Light.NONE) {
+data class Look(val light: Light = Light.NONE, val chroma: Chroma = Chroma.NONE) {
 
     /** Se non c'è niente da applicare: l'immagine esce identica a com'è entrata. */
-    val idle: Boolean get() = light.idle
+    val idle: Boolean get() = light.idle && chroma.idle
 
     /**
      * Se quello che c'è da fare **non** riscrive i pixel.
@@ -136,7 +181,7 @@ data class Look(val light: Light = Light.NONE) {
      * ⚠️ **Quando la geometria entrerà in questo oggetto** (quarto giro, col raddrizzamento), la
      * risposta resta esattamente questa: la posa non tocca i pixel, tutto il resto sì.
      */
-    val lossless: Boolean get() = light.idle
+    val lossless: Boolean get() = idle
 
     companion object {
         val NONE = Look()
@@ -170,9 +215,16 @@ enum class Quality(override val token: String) : Choice {
 /**
  * Il programma che gira **su ogni pixel** dell'immagine.
  *
- * ⚠️⚠️ **L'ORDINE DELLE SEI OPERAZIONI È LA SPECIFICA, e cambiarlo cambia il risultato**:
- * esposizione, poi ombre e luci, poi i punti di bianco e di nero, poi il contrasto. È l'ordine di
- * un banco di sviluppo fotografico, e la ragione di ognuno dei passaggi:
+ * ⚠️⚠️ **L'ORDINE DELLE OPERAZIONI È LA SPECIFICA, e cambiarlo cambia il risultato**: il
+ * bilanciamento del bianco, poi l'esposizione, poi ombre e luci, poi i punti di bianco e di nero,
+ * poi il contrasto, e per ultimo quanto sono accesi i colori. È l'ordine di un banco di sviluppo
+ * fotografico, e la ragione di ognuno dei passaggi:
+ * - **Il bilanciamento viene per primo, dalla `2.19`**, perché non corregge niente: dice di che
+ *   colore era la luce dello scatto, cioè **da quale immagine si parte**. Messo dopo, la piega
+ *   delle alte luci lavorerebbe su un canale che il bilanciamento sta ancora per spingere fuori.
+ * - **Saturazione e vividezza vengono per ultime** perché sono un giudizio sull'immagine finita:
+ *   messe prima, ogni cursore della Luce le rimetterebbe in discussione, e alzare il contrasto
+ *   alzerebbe di suo anche la saturazione.
  * - **L'esposizione viene prima** perché è l'unica moltiplicativa pura: è come aver aperto di più
  *   il diaframma, quindi tutto quello che segue lavora sull'immagine 'come sarebbe stata'.
  *   ⚠️⚠️ **E dalla `2.18` si porta dietro la PIEGA delle alte luci**, perché è lei a portare la
@@ -205,7 +257,7 @@ enum class Quality(override val token: String) : Choice {
  * da una parte, e il resto dei toni resta distribuito: è la differenza col cursore che questo
  * conto aveva fino alla `2.15`, dove l'estremo era il bianco pieno o il nero pieno.
  */
-internal const val LIGHT_AGSL = """
+internal const val LOOK_AGSL = """
 uniform shader image;
 uniform half gain;
 uniform half contrast;
@@ -213,6 +265,19 @@ uniform half highlights;
 uniform half shadows;
 uniform half whites;
 uniform half blacks;
+uniform half warmth;
+uniform half green;
+uniform half saturation;
+uniform half vibrance;
+uniform half mono;
+
+// Quanto spostano i due cursori del bilanciamento del bianco, al fondo della corsa. Il numero
+// dice quanto è forte il cursore, e a 0,3 il massimo copre lo scarto fra una luce di casa e la
+// luce del giorno, che è il tratto in cui si lavora davvero.
+const half WB_REACH = 0.3;
+
+// Quanto è morbida la piega delle alte luci: vedi `shoulder`, dove il numero è misurato.
+const half SHOULDER_SOFT = 1.5;
 
 // Di quanto si sposta al massimo un punto, cioè un quarto della scala per parte. Il numero
 // decide quanto è forte il cursore, e a un quarto l'intervallo più stretto che si può chiedere
@@ -248,13 +313,44 @@ const half POINT_SHIFT = 0.25;
 // virava, perché quel canale si fermava mentre gli altri salivano; piegandoli tutti e tre con la
 // stessa curva, il colore si desatura dolcemente verso i chiari, che è quello che fa una
 // pellicola.
+//
+// ⚠️⚠️ **E DALLA `2.19` LA PIEGA COMINCIA PRIMA, PERCHÉ LUI L'HA GUARDATA** (nota sulla voce
+// `luce-piega` del giro della `2.18`, approvata: *ancora un pelo più morbida*). La soglia non è
+// più `1/g` ma `1/g` elevato a `SHOULDER_SOFT`: un esponente sopra uno la abbassa, cioè fa
+// cominciare la compressione più giù e la distribuisce su un tratto più lungo.
+// - ⚠️⚠️ **L'ESPONENTE NON TOCCA LA NEUTRALITÀ A RIPOSO, ed è la ragione per cui si agisce lì**:
+//   a guadagno 1 la soglia vale `1` elevato a qualunque cosa, cioè sempre 1, quindi la funzione
+//   resta l'identità e un'immagine non toccata esce identica (rimisurato: scarto nullo su tutti e
+//   256 i livelli). Una soglia abbassata con una sottrazione avrebbe perso quella proprietà.
+// - **Il numero viene da una misura e non da un tentativo**: a +1,5 stop i livelli distinti che
+//   restano sopra il 70% di scala passano da 17 (esponente 1) a **23** (esponente 1,5), mentre il
+//   grigio medio a +1 stop non si muove di un livello. Oltre 1,5 il guadagno si ferma (24 a
+//   esponente 2) e i mezzi toni alti cominciano a cedere, quindi quello è il punto in cui
+//   l'immagine guadagna senza che l'esposizione smetta di lavorare sui mezzi toni.
 half shoulder(half v, half g) {
-    half k = min(half(1.0), half(1.0) / g);
+    half k = min(half(1.0), pow(half(1.0) / g, SHOULDER_SOFT));
     half room = max(half(1.0) - k, half(0.0001));
     if (v <= k) {
         return v;
     }
     return k + room * (half(1.0) - exp(-(v - k) / room));
+}
+
+// Il bilanciamento del bianco: i tre moltiplicatori di canale, con la luminanza tenuta ferma.
+//
+// ⚠️⚠️ **LA NORMALIZZAZIONE NON È UNA RIFINITURA: SENZA, QUESTI DUE CURSORI DIVENTANO UN TERZO
+// CURSORE DI ESPOSIZIONE.** Scaldare vuol dire alzare il rosso e abbassare il blu, e siccome il
+// verde pesa il 71% della luminanza percepita, il solo cursore della tinta cambierebbe di brutto
+// quanto l'immagine sembra luminosa. Dividendo per la luminanza dei moltiplicatori, un grigio
+// resta esattamente della stessa chiarezza e a cambiare è solo il suo colore.
+half3 balance(half3 c, half w, half g) {
+    half3 mul = half3(
+        half(1.0) + w * WB_REACH,
+        half(1.0) + g * WB_REACH,
+        half(1.0) - w * WB_REACH
+    );
+    half keep = dot(mul, half3(0.2126, 0.7152, 0.0722));
+    return c * mul / max(keep, half(0.0001));
 }
 
 // Da sRGB a luce lineare, con la curva vera e non con un'elevazione a 2.2: la parte bassa
@@ -305,6 +401,12 @@ half4 main(float2 p) {
 
     half3 lin = toLinear(clamp(c, half3(0.0), half3(1.0)));
 
+    // 0. Bilanciamento del bianco, che viene PRIMA di tutto perché non è una correzione: dice di
+    // che colore era la luce che ha fatto quello scatto, cioè da quale immagine si parte. Messo
+    // dopo l'esposizione, la piega delle alte luci lavorerebbe su un canale che il bilanciamento
+    // sta ancora per spingere fuori scala.
+    lin = balance(lin, warmth, green);
+
     // 1. Esposizione: la luce si moltiplica, che è quello che fa un diaframma, e quello che
     // uscirebbe dalla scala si piega invece di essere tagliato: vedi `shoulder`.
     lin = half3(
@@ -347,6 +449,26 @@ half4 main(float2 p) {
     // si aspetta. In lineare la stessa curva sposterebbe tutto verso i neri.
     rgb = half3(sCurve(rgb.r, contrast), sCurve(rgb.g, contrast), sCurve(rgb.b, contrast));
 
+    // 5. Quanto sono accesi i colori, e viene per ULTIMO perché è un giudizio sull'immagine
+    // finita: messo prima, ogni cursore della Luce lo rimetterebbe in discussione, e alzare il
+    // contrasto alzerebbe di suo anche la saturazione.
+    // ⚠️⚠️ **SI LAVORA SUL VALORE PERCETTIVO E NON IN LINEARE**, al contrario della Luce: la
+    // saturazione è quanto un colore si distingue dal grigio **per l'occhio**, e in luce lineare
+    // lo stesso conto spegnerebbe i colori scuri molto più di quelli chiari.
+    half grey = luma(rgb);
+    // La vividezza pesa il suo effetto sull'inverso di quanto un colore è GIÀ saturo, ed è
+    // questo che la distingue dalla saturazione: dove il colore è acceso il peso va a zero,
+    // quindi un cielo già pieno non si impasta mentre un incarnato spento si alza.
+    half top = max(rgb.r, max(rgb.g, rgb.b));
+    half bottom = min(rgb.r, min(rgb.g, rgb.b));
+    half already = top > half(0.0) ? (top - bottom) / top : half(0.0);
+    half push = half(1.0) + saturation + vibrance * (half(1.0) - already);
+    rgb = mix(half3(grey), rgb, max(push, half(0.0)));
+
+    // Il bianco e nero viene dopo, e non è la saturazione a -100: quello lascerebbe il conto
+    // esposto a un cursore che qualcuno può aver alzato, mentre qui il grigio è il grigio.
+    rgb = mix(rgb, half3(grey), mono);
+
     rgb = clamp(rgb, half3(0.0), half3(1.0));
     return half4(rgb * a, a);
 }
@@ -379,13 +501,22 @@ internal fun lookShader(image: Shader, look: Look): Shader? {
      * monta la schermata misura la pila dei passi e non i pixel, e senza questa riga cadrebbe
      * sul primo cursore mosso.
      */
-    return runCatching { lightOver(image, look.light) }.getOrNull()
+    return runCatching { lightOver(image, look) }.getOrNull()
 }
 
-/** Vedi la nota su [lookShader]: esiste perché la guardia di versione sia riconoscibile. */
+/**
+ * Vedi la nota su [lookShader]: esiste perché la guardia di versione sia riconoscibile.
+ *
+ * ⚠️ **I valori si consegnano tutti, anche quelli a zero**: un uniform non scritto vale quello che
+ * c'era prima, e con un programma ricompilato a ogni chiamata varrebbe zero per caso invece che
+ * per scelta. Chi aggiunge un campo a [Look] aggiunge una riga qui, e il banco se ne accorge
+ * perché il programma non compila senza il suo uniform.
+ */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-private fun lightOver(image: Shader, light: Light): Shader =
-    RuntimeShader(LIGHT_AGSL).apply {
+private fun lightOver(image: Shader, look: Look): Shader {
+    val light = look.light
+    val chroma = look.chroma
+    return RuntimeShader(LOOK_AGSL).apply {
         setInputShader("image", image)
         setFloatUniform("gain", light.gain)
         setFloatUniform("contrast", light.contrast)
@@ -393,7 +524,13 @@ private fun lightOver(image: Shader, light: Light): Shader =
         setFloatUniform("shadows", light.shadows)
         setFloatUniform("whites", light.whites)
         setFloatUniform("blacks", light.blacks)
+        setFloatUniform("warmth", chroma.temp)
+        setFloatUniform("green", chroma.tint)
+        setFloatUniform("saturation", chroma.saturation)
+        setFloatUniform("vibrance", chroma.vibrance)
+        setFloatUniform("mono", if (chroma.mono) 1f else 0f)
     }
+}
 
 /**
  * Se questo telefono sa far girare l'editor completo.

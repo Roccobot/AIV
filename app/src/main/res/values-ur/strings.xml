@@ -409,6 +409,12 @@
     <string name="look_exposure">ایکسپوژر</string>
     <string name="look_whites">سفید حصے</string>
     <string name="look_blacks">سیاہ حصے</string>
+    <string name="look_color">رنگ</string>
+    <string name="look_temp">درجہ حرارت</string>
+    <string name="look_tint">رنگت</string>
+    <string name="look_saturation">سیرابی</string>
+    <string name="look_vibrance">شوخی</string>
+    <string name="look_bw">سیاہ و سفید</string>
     <string name="look_contrast">کنٹراسٹ</string>
     <string name="look_shadows">سائے</string>
     <string name="look_highlights">روشن حصے</string>

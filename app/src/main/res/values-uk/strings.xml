@@ -441,6 +441,12 @@
     <string name="look_exposure">Експозиція</string>
     <string name="look_whites">Білі</string>
     <string name="look_blacks">Чорні</string>
+    <string name="look_color">Колір</string>
+    <string name="look_temp">Температура</string>
+    <string name="look_tint">Відтінок</string>
+    <string name="look_saturation">Насиченість</string>
+    <string name="look_vibrance">Барвистість</string>
+    <string name="look_bw">Чорно-біле</string>
     <string name="look_contrast">Контраст</string>
     <string name="look_shadows">Тіні</string>
     <string name="look_highlights">Світлі</string>

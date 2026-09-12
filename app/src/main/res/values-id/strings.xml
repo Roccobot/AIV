@@ -393,6 +393,12 @@
     <string name="look_exposure">Eksposur</string>
     <string name="look_whites">Putih</string>
     <string name="look_blacks">Hitam</string>
+    <string name="look_color">Warna</string>
+    <string name="look_temp">Suhu</string>
+    <string name="look_tint">Rona</string>
+    <string name="look_saturation">Saturasi</string>
+    <string name="look_vibrance">Vibrance</string>
+    <string name="look_bw">Hitam putih</string>
     <string name="look_contrast">Kontras</string>
     <string name="look_shadows">Bayangan</string>
     <string name="look_highlights">Sorotan</string>

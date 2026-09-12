@@ -1956,8 +1956,47 @@ vedrebbe un'anteprima e salverebbe un'altra immagine, senza che niente dia error
     posto della fotografia. Un quadrato di colore noto costa un millesimo di secondo e distingue
     'non ha funzionato' da 'è venuto nero davvero'.
 
-⚠️⚠️ **I CONTI SI FANNO IN LUCE LINEARE, E L'ORDINE DELLE OPERAZIONI È LA SPECIFICA**:
-esposizione, poi ombre e luci, poi i punti di bianco e di nero, poi il contrasto. Un valore sRGB
+⚠️⚠️ **IL MODULO COLORE È IL SECONDO, DALLA `2.19`, ED È IL SUO CAMPO LIBERO** (giro della
+`2.18`: *vai avanti con gli altri step dell'editor completo*): **temperatura** e **tinta** rifanno
+il bilanciamento del bianco, **saturazione** e **vividezza** decidono quanto i colori sono accesi,
+e un interruttore porta l'immagine in **bianco e nero**.
+- ⚠️⚠️ **SATURAZIONE E VIVIDEZZA NON SONO LO STESSO CURSORE PIÙ PIANO**: la saturazione muove
+  tutti i colori insieme, quindi alzandola quelli già accesi arrivano al limite e si impastano; la
+  vividezza pesa il suo effetto sull'**inverso** di quanto un colore è già saturo, cioè lavora sui
+  colori spenti e lascia stare gli altri. È il cursore dei ritratti, dove l'incarnato è poco saturo
+  e il cielo dietro no.
+- ⚠️⚠️ **IL BILANCIAMENTO TIENE FERMA LA LUMINANZA, E SENZA QUELLA RIGA SAREBBE UN TERZO CURSORE
+  DI ESPOSIZIONE**: il verde pesa il 71% della luminanza percepita, quindi il solo cursore della
+  tinta cambierebbe di brutto quanto l'immagine sembra luminosa. I tre moltiplicatori si dividono
+  per la loro luminanza, e un grigio resta della stessa chiarezza cambiando solo colore.
+- ⚠️⚠️ **IL BIANCO E NERO È UN INTERRUTTORE E NON LA SATURAZIONE A -100**: è una scelta e non una
+  quantità, e scritto come fondo corsa di un cursore resterebbe esposto a chiunque muova quel
+  cursore. Nel conto viene **dopo**, e nella scheda spegne saturazione e vividezza, che là non
+  avrebbero più niente da fare.
+- ⚠️⚠️ **I PESI PER FASCIA DEL BIANCO E NERO NON CI SONO, E LA SCELTA È DICHIARATA**: il piano
+  d'azione li metteva in questo modulo, ma sono la **stessa macchina** delle otto fasce dell'HSL,
+  che è il giro dopo; scritti adesso sarebbero scritti due volte. Qui il grigio viene dai pesi
+  percettivi di Rec. 709, cioè da come l'occhio lo vede.
+
+⚠️⚠️ **E CON LUI ARRIVA LA FILA DEI MODULI, COL 'RESET MODULO' SUL TOCCO LUNGO** (campo libero del
+giro della `2.14`, punto 2: *per ciascun modulo ci dev'essere anche un 'Reset modulo'... potrebbe
+essere il tocco lungo sul nome del modulo*). Tutti e due arrivano adesso per la stessa ragione: con
+un modulo solo la fila avrebbe detto dove si è, che era l'unico posto possibile, e l'azzeramento
+avrebbe fatto quello che fa 'Originale', che è lì accanto.
+- ⚠️ **Un gettone dice anche se il suo modulo ha toccato l'immagine**, col punto d'accento: i
+  cursori di un modulo che non si sta guardando non si vedono, quindi senza quel segno un'immagine
+  cambiata da un modulo chiuso non avrebbe niente che lo dica.
+- ⚠️⚠️ **IL GETTONE È SCRITTO IN CASA E NON È UN `FilterChip`, E LA RAGIONE È IL TOCCO LUNGO**:
+  quel pezzo di Material prende il suo `onClick` e non offre un secondo gesto, quindi il 'Reset
+  modulo' andrebbe messo con un `pointerInput` nel modificatore, cioè in un **secondo nodo** che
+  consuma il tocco prima che il chip lo veda. Con `combinedClickable` i gesti sono due e il
+  bersaglio resta uno, che è la regola di ogni riga di questa app.
+- ⚠️ **Quale modulo si sta guardando non entra nella storia dei passi**: è dove si ha lo sguardo e
+  non una proprietà dell'immagine, quindi 'Annulla' non deve riportarcelo.
+
+⚠️⚠️ **I CONTI SI FANNO IN LUCE LINEARE, E L'ORDINE DELLE OPERAZIONI È LA SPECIFICA**: il
+bilanciamento del bianco, poi l'esposizione, poi ombre e luci, poi i punti di bianco e di nero, poi
+il contrasto, e per ultimo quanto sono accesi i colori. Un valore sRGB
 non è la quantità di luce ma quella quantità passata per una curva, quindi sommare o moltiplicare
 là dentro dà i risultati sporchi che si vedono negli editor fatti male: un contrasto che vira,
 un'esposizione che spegne i colori. Il perché di ogni passaggio, e il perno del contrasto, vivono
@@ -1987,6 +2026,16 @@ stop, dei 77 livelli sopra il 70% di scala ne restava **uno**, e con la piega ne
   coda lo terrebbe a 255, ma porterebbe la pendenza alla piega **sopra** uno (1,12 a un quarto di
   stop), cioè aprirebbe un tratto in cui il contrasto cresce invece di comprimersi, e
   un'inversione di pendenza si vede come un gradino.
+- ⚠️⚠️ **E DALLA `2.19` COMINCIA PRIMA, PERCHÉ L'HA GUARDATA** (nota sulla voce `luce-piega`,
+  approvata: *ancora un pelo più morbida*): la soglia non è più `1/g` ma `1/g` elevato a
+  `SHOULDER_SOFT`, cioè **1,5**. ⚠️ **L'esponente non tocca la neutralità a riposo, ed è la ragione
+  per cui si agisce lì**: a guadagno uno la soglia vale `1` elevato a qualunque cosa, quindi la
+  curva resta l'identità (rimisurato: scarto nullo su tutti e 256 i livelli), mentre una soglia
+  abbassata con una sottrazione avrebbe perso quella proprietà.
+  - **Il numero è misurato e non tentato**: a +1,5 stop i livelli distinti sopra il 70% di scala
+    passano da **17 a 23**, e il grigio medio a +1 stop non si muove di un livello. Oltre 1,5 il
+    guadagno si ferma (24 a esponente 2) e i mezzi toni alti cominciano a cedere, quindi quello è
+    il punto in cui l'immagine guadagna senza che l'esposizione smetta di lavorare sui mezzi toni.
 - ⚠️ **Si applica per CANALE**: un colore acceso che satura un canale solo virava, perché quel
   canale si fermava mentre gli altri salivano. Piegandoli tutti e tre con la stessa curva, il
   colore si desatura dolcemente verso i chiari, che è quello che fa una pellicola.
@@ -2033,7 +2082,7 @@ sono tornate indietro per quella.
   `null`**, cioè in 'questo telefono non sa farlo': la diagnosi arrivava rovesciata, e il testo
   che l'utente leggeva accusava il suo telefono.
 - ⚠️⚠️ **UNA STRINGA DI PROGRAMMA NON LA GUARDA NESSUN COMPILATORE, ed è la stessa famiglia del
-  `pathData` che `aapt2` non legge**: Kotlin compila `LIGHT_AGSL` come compilerebbe una poesia.
+  `pathData` che `aapt2` non legge**: Kotlin compila `LOOK_AGSL` come compilerebbe una poesia.
   Il presidio è `ContoTest`, che il programma lo **compila davvero**, senza rete, così un errore
   di sintassi arriva col messaggio, la riga e la colonna.
 - ⚠️⚠️ **MA IL BANCO NON PUÒ ESEGUIRLO, ed è misurato**: disegnare con un `RuntimeShader` su una
@@ -2072,6 +2121,13 @@ conto dell'**ingrandimento a una mano** (il verso, il raddoppio, il tetto) e il 
 anche lui a pixel; `ContoTest` guarda che il programma dello shader compili e che `lookShader` lo
 consegni. **Non** vedono i pixel che escono dal conto, né il confronto col prima, né la pinza a
 due dita: quelli si guardano sul telefono.
+- ⚠️⚠️ **DALLA `2.19` C'È ANCHE `SviluppoTest`, E NON SI CHIAMA `ColoreTest` PERCHÉ QUEL NOME È
+  GIÀ PRESO**: là vive il colore di una **cartella**, cioè la tinta della sua intestazione, e due
+  prove omonime in un repository che parla di tutte e due in ogni giro sono due cose che qualcuno
+  scambia. Misura quello che il secondo modulo porta di rompibile in silenzio: che il gettone
+  cambi i cursori in scena, che il 'Reset modulo' azzeri **solo** il suo, che il bianco e nero
+  spenga saturazione e vividezza, e che un valore di Colore tolga il senza perdita. Controprovata
+  rimettendo i tre difetti, uno per prova.
 - ⚠️⚠️ **DUE DELLE TRE PROVE NUOVE SONO NATE VERDI PER CASO, E LA CONTROPROVA LO HA DETTO.** Quella
   del doppio tocco sulla barra toccava il **centro**, dove la barra vale già zero: col passo di
   troppo rimesso a mano restava verde, perché il salto del primo tocco portava proprio dove il

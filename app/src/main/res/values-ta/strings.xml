@@ -409,6 +409,12 @@
     <string name="look_exposure">வெளிச்சம்</string>
     <string name="look_whites">வெண்மை</string>
     <string name="look_blacks">கருமை</string>
+    <string name="look_color">நிறம்</string>
+    <string name="look_temp">வெப்பநிலை</string>
+    <string name="look_tint">சாயல்</string>
+    <string name="look_saturation">நிறச்செறிவு</string>
+    <string name="look_vibrance">உயிர்ப்பு</string>
+    <string name="look_bw">கருப்பு வெள்ளை</string>
     <string name="look_contrast">மாறுபாடு</string>
     <string name="look_shadows">நிழல்கள்</string>
     <string name="look_highlights">ஒளிப்பகுதி</string>

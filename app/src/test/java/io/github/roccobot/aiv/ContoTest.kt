@@ -52,7 +52,7 @@ class ContoTest {
      */
     @Test
     fun `il programma compila`() {
-        RuntimeShader(LIGHT_AGSL)
+        RuntimeShader(LOOK_AGSL)
     }
 
     /**

@@ -393,6 +393,12 @@
     <string name="look_exposure">노출</string>
     <string name="look_whites">흰색 계열</string>
     <string name="look_blacks">검정 계열</string>
+    <string name="look_color">색상</string>
+    <string name="look_temp">색온도</string>
+    <string name="look_tint">색조</string>
+    <string name="look_saturation">채도</string>
+    <string name="look_vibrance">생동감</string>
+    <string name="look_bw">흑백</string>
     <string name="look_contrast">대비</string>
     <string name="look_shadows">어두운 부분</string>
     <string name="look_highlights">밝은 부분</string>

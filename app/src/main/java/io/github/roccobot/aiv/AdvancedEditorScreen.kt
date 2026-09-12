@@ -15,6 +15,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculateCentroid
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,8 +35,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -43,6 +48,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -54,10 +60,13 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -76,6 +85,7 @@ import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.text.style.TextAlign
@@ -647,10 +657,12 @@ private fun fitted(room: Size, wide: Float): RectF =
  */
 private class Dial(
     @param:StringRes val name: Int,
-    val read: (Light) -> Float,
-    val write: (Light, Float) -> Light,
+    val read: (Look) -> Float,
+    val write: (Look, Float) -> Look,
     val span: Float = 1f,
-    val stops: Boolean = false
+    val stops: Boolean = false,
+    /** Se il bianco e nero lo spegne: vedi la nota sul suo `enabled`, nella scheda. */
+    val dims: Boolean = false
 ) {
     /**
      * Il cambiamento che porta questo cursore a [v], da applicare a quello che si vede **adesso**.
@@ -665,35 +677,119 @@ private class Dial(
      * Con una trasformazione il punto di partenza lo legge **chi la applica**, che è lo stato
      * vivo, e l'età della lambda non conta più.
      */
-    fun set(v: Float): (Look) -> Look = { it.copy(light = write(it.light, v)) }
+    fun set(v: Float): (Look) -> Look = { write(it, v) }
 }
 
 /**
- * I sei cursori del modulo Luce, nell'ordine in cui la scheda li disegna.
+ * Un modulo: il suo nome, i suoi cursori, e come si rimette a zero tutto insieme.
  *
- * ⚠️⚠️ **È L'ORDINE DEL PANNELLO BASE DI LIGHTROOM, ED È IL SUO RIFERIMENTO** (giro della `2.15`:
- * *Lightroom ha solo 'Esposizione'*): chi apre questo editor ha in mente quello, quindi un ordine
- * nostro costringerebbe a cercare ogni volta il cursore che si sa già di voler muovere.
+ * ⚠️⚠️ **NASCE COL SECONDO MODULO, DALLA `2.19`, E FINO ALLA `2.18` NON SERVIVA**: con la sola
+ * Luce l'elenco dei cursori era la scheda intera, e una fila di gettoni con un gettone solo
+ * avrebbe detto dove si è, che era l'unico posto possibile. Adesso i moduli sono due e la fila
+ * li sceglie.
+ *
+ * ⚠️⚠️ **[clear] È IL 'RESET MODULO' CHE LUI HA CHIESTO** (campo libero del giro della `2.14`,
+ * punto 2: *per ciascun modulo ci dev'essere anche un 'Reset modulo'... potrebbe essere il tocco
+ * lungo sul nome del modulo*), e arriva adesso per la stessa ragione: con un modulo solo avrebbe
+ * fatto esattamente quello che fa 'Originale', che è lì accanto.
  */
-private val DIALS = listOf(
-    Dial(
-        R.string.look_exposure, { it.exposure }, { l, v -> l.copy(exposure = v) },
-        span = Light.EXPOSURE_RANGE, stops = true
-    ),
-    Dial(R.string.look_contrast, { it.contrast }, { l, v -> l.copy(contrast = v) }),
-    Dial(R.string.look_highlights, { it.highlights }, { l, v -> l.copy(highlights = v) }),
-    Dial(R.string.look_shadows, { it.shadows }, { l, v -> l.copy(shadows = v) }),
-    Dial(R.string.look_whites, { it.whites }, { l, v -> l.copy(whites = v) }),
-    Dial(R.string.look_blacks, { it.blacks }, { l, v -> l.copy(blacks = v) })
+private class Module(
+    @param:StringRes val name: Int,
+    val dials: List<Dial>,
+    val clear: (Look) -> Look,
+    val spent: (Look) -> Boolean
 )
 
 /**
- * La scheda in fondo: i cursori del modulo e i tre comandi della storia.
+ * I moduli, nell'ordine in cui la fila li disegna.
  *
- * ⚠️⚠️ **I MODULI SONO UNO SOLO E LA FILA CHE LI SCEGLIE NON SI DISEGNA ANCORA**, ed è dichiarato
- * invece di essere una dimenticanza: con un modulo solo, una fila di un gettone direbbe soltanto
- * dove si è, che è l'unico posto possibile. Entra col Colore, cioè al giro dopo, e la struttura
- * che la regge (un elenco di moduli, ognuno coi suoi cursori) c'è già.
+ * ⚠️⚠️ **L'ORDINE DEI CURSORI È QUELLO DEL PANNELLO DI LIGHTROOM, ED È IL SUO RIFERIMENTO** (giro
+ * della `2.15`: *Lightroom ha solo 'Esposizione'*): chi apre questo editor ha in mente quello,
+ * quindi un ordine nostro costringerebbe a cercare ogni volta il cursore che si sa già di voler
+ * muovere. Vale per la Luce come per il Colore, dove temperatura e tinta vengono prima di quanto
+ * i colori sono accesi.
+ */
+private val MODULES = listOf(
+    Module(
+        R.string.look_light,
+        listOf(
+            Dial(
+                R.string.look_exposure,
+                { it.light.exposure },
+                { k, v -> k.copy(light = k.light.copy(exposure = v)) },
+                span = Light.EXPOSURE_RANGE, stops = true
+            ),
+            Dial(
+                R.string.look_contrast,
+                { it.light.contrast },
+                { k, v -> k.copy(light = k.light.copy(contrast = v)) }
+            ),
+            Dial(
+                R.string.look_highlights,
+                { it.light.highlights },
+                { k, v -> k.copy(light = k.light.copy(highlights = v)) }
+            ),
+            Dial(
+                R.string.look_shadows,
+                { it.light.shadows },
+                { k, v -> k.copy(light = k.light.copy(shadows = v)) }
+            ),
+            Dial(
+                R.string.look_whites,
+                { it.light.whites },
+                { k, v -> k.copy(light = k.light.copy(whites = v)) }
+            ),
+            Dial(
+                R.string.look_blacks,
+                { it.light.blacks },
+                { k, v -> k.copy(light = k.light.copy(blacks = v)) }
+            )
+        ),
+        clear = { it.copy(light = Light.NONE) },
+        spent = { !it.light.idle }
+    ),
+    Module(
+        R.string.look_color,
+        listOf(
+            Dial(
+                R.string.look_temp,
+                { it.chroma.temp },
+                { k, v -> k.copy(chroma = k.chroma.copy(temp = v)) }
+            ),
+            Dial(
+                R.string.look_tint,
+                { it.chroma.tint },
+                { k, v -> k.copy(chroma = k.chroma.copy(tint = v)) }
+            ),
+            Dial(
+                R.string.look_saturation,
+                { it.chroma.saturation },
+                { k, v -> k.copy(chroma = k.chroma.copy(saturation = v)) },
+                dims = true
+            ),
+            Dial(
+                R.string.look_vibrance,
+                { it.chroma.vibrance },
+                { k, v -> k.copy(chroma = k.chroma.copy(vibrance = v)) },
+                dims = true
+            )
+        ),
+        clear = { it.copy(chroma = Chroma.NONE) },
+        spent = { !it.chroma.idle }
+    )
+)
+
+/**
+ * La scheda in fondo: la fila dei moduli, i cursori di quello scelto e i tre comandi della storia.
+ *
+ * ⚠️⚠️ **LA FILA DEI MODULI ENTRA CON LA `2.19`, cioè col secondo modulo**: fino alla `2.18` i
+ * cursori erano la scheda intera e un gettone solo avrebbe detto dove si è, che era l'unico posto
+ * possibile.
+ *
+ * ⚠️⚠️ **UN GETTONE DICE ANCHE SE IL SUO MODULO È STATO TOCCATO**, col punto d'accento accanto al
+ * nome: i cursori di un modulo che non si sta guardando non si vedono, quindi senza quel segno
+ * un'immagine cambiata da un modulo chiuso non avrebbe niente che lo dica, e 'Originale' sembrerebbe
+ * l'unico modo per tornare indietro.
  */
 @Composable
 private fun LookSheet(
@@ -709,7 +805,14 @@ private fun LookSheet(
     onRedo: () -> Unit,
     onOriginal: () -> Unit
 ) {
-    val light = look.light
+    /**
+     * Quale modulo si sta guardando.
+     *
+     * ⚠️ **Vive nella scheda e non nel modello**: è dove si ha lo sguardo, non una proprietà
+     * dell'immagine, quindi non entra nella storia dei passi e 'Annulla' non deve riportarcelo.
+     */
+    var module by rememberSaveable { mutableIntStateOf(0) }
+    val chosen = MODULES[module]
     /*
      * ⚠️⚠️ **LA SUPERFICIE È QUELLA DELL'EDITOR DI CASA, riga per riga**: il fondo del palco che
      * passa sotto gli angoli stondati, il bordo d'accento che corre di fuori, il colore, e il
@@ -735,20 +838,45 @@ private fun LookSheet(
                 )
                 .padding(start = 16.dp, end = 16.dp, top = SHEET_TOP, bottom = 10.dp)
         ) {
-            Text(
-                text = stringResource(R.string.look_light),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 2.dp).heading()
-            )
+            /*
+             * ⚠️⚠️ **IL TOCCO LUNGO SU UN GETTONE AZZERA QUEL MODULO, ED È IL SUO 'RESET
+             * MODULO'**: vive sul nome, come lo aveva descritto, e sul gettone invece che su un
+             * titolo perché dalla `2.19` il nome del modulo **è** il gettone.
+             * ⚠️ **Il gesto c'è anche sul modulo che non si sta guardando**, e non è un caso
+             * limite da chiudere: è il modo di disfare quello che si è fatto altrove senza
+             * andarci.
+             */
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                MODULES.forEachIndexed { i, mod ->
+                    ModuleChip(
+                        name = stringResource(mod.name),
+                        chosen = i == module,
+                        spent = mod.spent(look),
+                        enabled = ready && !busy,
+                        onTap = { module = i },
+                        onHold = {
+                            onLive(mod.clear)
+                            onSettled()
+                        }
+                    )
+                }
+            }
 
-            DIALS.forEach { knob ->
+            chosen.dials.forEach { knob ->
                 LookKnob(
                     name = stringResource(knob.name),
-                    value = knob.read(light),
+                    value = knob.read(look),
                     span = knob.span,
                     stops = knob.stops,
-                    enabled = ready && !busy,
+                    /*
+                     * ⚠️ **Col bianco e nero acceso i due cursori dei colori si spengono**: là
+                     * non c'è più niente da saturare, e un cursore che si muove senza cambiare
+                     * l'immagine si legge come un guasto.
+                     */
+                    enabled = ready && !busy && !(look.chroma.mono && knob.dims),
                     onLive = { onLive(knob.set(it)) },
                     onSettled = onSettled,
                     /*
@@ -761,6 +889,41 @@ private fun LookSheet(
                      */
                     onPeek = { on -> onPeek(if (on) knob.set(0f) else null) }
                 )
+            }
+
+            /*
+             * ⚠️⚠️ **IL BIANCO E NERO È UN INTERRUTTORE E NON UN CURSORE A -100**: è una scelta
+             * (questa immagine è a colori, o non lo è) e non una quantità, e scritto come fondo
+             * corsa della saturazione resterebbe esposto a chiunque muova quel cursore. Nel conto
+             * viene infatti dopo, e sulla stessa riga dei cursori perché è il quinto comando di
+             * questo modulo.
+             * ⚠️ **La riga è un bersaglio solo**, con `Role.Switch` sulla riga e niente
+             * sull'interruttore: è la stessa regola delle righe del pannello delle impostazioni.
+             */
+            if (chosen.name == R.string.look_color) {
+                val bw = stringResource(R.string.look_bw)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .toggleable(
+                            value = look.chroma.mono,
+                            enabled = ready && !busy,
+                            role = Role.Switch,
+                            onValueChange = { on ->
+                                onLive { it.copy(chroma = it.chroma.copy(mono = on)) }
+                                onSettled()
+                            }
+                        )
+                        .padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = bw,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Switch(checked = look.chroma.mono, onCheckedChange = null, enabled = ready && !busy)
+                }
             }
 
             /*
@@ -788,6 +951,65 @@ private fun LookSheet(
                     Icon(Glyphs.EditReset, stringResource(R.string.editor_original))
                 }
             }
+        }
+    }
+}
+
+/**
+ * Un gettone della fila dei moduli: il nome, il segno di 'toccato', e i due gesti.
+ *
+ * ⚠️⚠️ **È SCRITTO IN CASA E NON È UN `FilterChip`, E LA RAGIONE È IL TOCCO LUNGO**: quel pezzo
+ * di Material prende il suo `onClick` e non offre un secondo gesto, quindi il 'Reset modulo'
+ * andrebbe messo con un `pointerInput` nel modificatore, cioè in un **secondo nodo** che consuma
+ * il tocco prima che il chip lo veda. Con `combinedClickable` i gesti sono due e il bersaglio
+ * resta uno, che è la regola di ogni riga di questa app.
+ */
+@Composable
+private fun ModuleChip(
+    name: String,
+    chosen: Boolean,
+    spent: Boolean,
+    enabled: Boolean,
+    onTap: () -> Unit,
+    onHold: () -> Unit
+) {
+    val wipe = stringResource(R.string.look_reset_one, name)
+    val face = if (chosen) {
+        MaterialTheme.colorScheme.secondaryContainer
+    } else {
+        MaterialTheme.colorScheme.surfaceContainerHighest
+    }
+    val ink = if (chosen) {
+        MaterialTheme.colorScheme.onSecondaryContainer
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(50))
+            .background(face)
+            .combinedClickable(
+                enabled = enabled,
+                role = Role.Tab,
+                onClick = onTap,
+                onLongClick = onHold,
+                onLongClickLabel = wipe
+            )
+            .padding(horizontal = 14.dp, vertical = 8.dp)
+            .alpha(if (enabled) 1f else OFF_INK),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = name, style = MaterialTheme.typography.labelLarge, color = ink)
+        // Il segno di 'questo modulo ha toccato l'immagine': senza, i cursori di un modulo che
+        // non si sta guardando non hanno niente che li dichiari.
+        if (spent) {
+            Spacer(Modifier.width(6.dp))
+            Box(
+                Modifier
+                    .size(MODULE_MARK)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary)
+            )
         }
     }
 }
@@ -1079,6 +1301,9 @@ internal fun Modifier.heldOrTwice(
 
 /** Quanto è larga la colonna dei nomi dei cursori. */
 private val KNOB_NAME = 96.dp
+
+/** Il punto che dice 'questo modulo ha toccato l'immagine', nel gettone della fila. */
+private val MODULE_MARK = 6.dp
 
 /** Quanto è larga la colonna del numero: ci deve stare `-100` col segno. */
 private val KNOB_VALUE = 48.dp

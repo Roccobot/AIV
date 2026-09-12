@@ -425,6 +425,12 @@
     <string name="look_exposure">Exposição</string>
     <string name="look_whites">Brancos</string>
     <string name="look_blacks">Pretos</string>
+    <string name="look_color">Cor</string>
+    <string name="look_temp">Temperatura</string>
+    <string name="look_tint">Matiz</string>
+    <string name="look_saturation">Saturação</string>
+    <string name="look_vibrance">Vibração</string>
+    <string name="look_bw">Preto e branco</string>
     <string name="look_contrast">Contraste</string>
     <string name="look_shadows">Sombras</string>
     <string name="look_highlights">Luzes</string>

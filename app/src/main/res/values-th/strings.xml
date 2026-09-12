@@ -393,6 +393,12 @@
     <string name="look_exposure">การรับแสง</string>
     <string name="look_whites">สีขาว</string>
     <string name="look_blacks">สีดำ</string>
+    <string name="look_color">สี</string>
+    <string name="look_temp">อุณหภูมิสี</string>
+    <string name="look_tint">โทนสี</string>
+    <string name="look_saturation">ความอิ่มตัว</string>
+    <string name="look_vibrance">ความสดใส</string>
+    <string name="look_bw">ขาวดำ</string>
     <string name="look_contrast">คอนทราสต์</string>
     <string name="look_shadows">เงา</string>
     <string name="look_highlights">ไฮไลต์</string>
