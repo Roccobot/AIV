@@ -426,6 +426,12 @@
     <string name="look_band_blue">నీలం</string>
     <string name="look_band_purple">ఊదా</string>
     <string name="look_band_magenta">మెజెంటా</string>
+    <string name="look_detail">వివరాలు</string>
+    <string name="look_sharpen">పదును</string>
+    <string name="look_radius">వ్యాసార్ధం</string>
+    <string name="look_masking">మాస్కింగ్</string>
+    <string name="look_noise">నాయిస్</string>
+    <string name="look_noise_color">రంగు నాయిస్</string>
     <string name="look_contrast">కాంట్రాస్ట్</string>
     <string name="look_shadows">నీడలు</string>
     <string name="look_highlights">హైలైట్లు</string>

@@ -7,6 +7,7 @@ import android.graphics.Matrix
 import android.graphics.RectF
 import android.graphics.Shader.TileMode
 import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -101,6 +102,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.math.abs
+import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
@@ -528,7 +530,26 @@ private fun LookStage(
                 }
             )
         }
-        val shader = if (look.idle) null else lookShader(image, look)
+        /*
+         * ⚠️⚠️ **IL FILTRO LINEARE SERVE AL DETTAGLIO, DALLA `2.22`**: quel modulo legge i vicini a
+         * distanze che non cadono su un pixel intero, e senza filtro ogni campione verrebbe
+         * arrotondato al pixel più vicino, cioè il vicinato si accartoccerebbe su meno punti di
+         * quanti ne chiede. ⚠️ **Non basta `isFilterBitmap` del pennello**, che governa il disegno
+         * e non i campioni che uno shader chiede a un altro.
+         */
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            image.setFilterMode(BitmapShader.FILTER_MODE_LINEAR)
+        }
+        /*
+         * ⚠️⚠️ **LA MISURA CHE SI CONSEGNA È IL LATO LUNGO DEL RETTANGOLO DISEGNATO, e non quello
+         * della mappa di pixel**: il Dettaglio ragiona in frazioni del lato, e qui il conto gira
+         * nello spazio dello schermo. Così l'ingrandimento ingrandisce anche il risultato del
+         * filtro, invece di cambiarlo: a ogni scala il filtro lavora sugli stessi pixel
+         * dell'anteprima.
+         */
+        val shader =
+            if (look.idle) null
+            else lookShader(image, look, max(view.width(), view.height()))
         val paint = Paint().apply {
             asFrameworkPaint().isFilterBitmap = true
             asFrameworkPaint().shader = shader ?: image
@@ -679,8 +700,23 @@ private class Dial(
     val write: (Look, Float) -> Look,
     val span: Float = 1f,
     val stops: Boolean = false,
-    /** Se il bianco e nero lo spegne: vedi la nota sul suo `enabled`, nella scheda. */
-    val dims: Boolean = false
+    /**
+     * Se la corsa parte da zero invece che da `-span`.
+     *
+     * ⚠️⚠️ **NASCE COL DETTAGLIO, DALLA `2.22`, E NON È UNA VARIANTE GRAFICA**: fino alla `2.21`
+     * ogni cursore era bipolare, perché ognuno aveva un verso in su e uno in giù. Là invece
+     * 'nessuna nitidezza' e 'nessuna riduzione del rumore' sono il fondo naturale: una nitidezza
+     * negativa sarebbe una sfocatura, e una riduzione negativa non vuol dire niente.
+     */
+    val unipolar: Boolean = false,
+    /**
+     * Quando questo cursore non governa niente, e l'interfaccia lo spegne.
+     *
+     * ⚠️ **Dalla `2.22` è una domanda e non più un interruttore del bianco e nero**: i casi sono
+     * due (i colori spenti dal bianco e nero, e la maschera di contrasto senza nitidezza) e
+     * scriverne uno per ognuno moltiplicherebbe i campi di questa tabella.
+     */
+    val off: (Look) -> Boolean = { false }
 ) {
     /**
      * Il cambiamento che porta questo cursore a [v], da applicare a quello che si vede **adesso**.
@@ -728,6 +764,20 @@ private class Module(
 )
 
 /**
+ * I cursori che il **bianco e nero** spegne: là non c'è più niente da saturare, e un cursore che
+ * si muove senza cambiare l'immagine si legge come un guasto.
+ */
+private val MONO: (Look) -> Boolean = { it.chroma.mono }
+
+/**
+ * I cursori che governano la **maschera di contrasto**, e che senza di lei non governano niente.
+ *
+ * ⚠️ **Sono due dei cinque del Dettaglio**, il raggio e la mascheratura: non sono quantità, sono
+ * come la nitidezza lavora. Con la nitidezza a zero non c'è nessuna maschera da governare.
+ */
+private val UNSHARP: (Look) -> Boolean = { it.detail.flat }
+
+/**
  * I nomi delle otto fasce, nell'ordine dei centri di [Mix.CENTRES].
  *
  * ⚠️ **I due elenchi si leggono per indice e non si possono disallineare senza che si veda**: la
@@ -765,13 +815,13 @@ private val MIX_ROWS: List<List<Dial>> = List(Mix.COUNT) { b ->
             R.string.look_hue,
             { it.mix.bands[b].hue },
             { k, v -> k.copy(mix = k.mix.swap(b) { it.copy(hue = v) }) },
-            dims = true
+            off = MONO
         ),
         Dial(
             R.string.look_saturation,
             { it.mix.bands[b].sat },
             { k, v -> k.copy(mix = k.mix.swap(b) { it.copy(sat = v) }) },
-            dims = true
+            off = MONO
         ),
         /*
          * ⚠️⚠️ **QUESTA RIGA È ANCHE LA MISCELA DEL BIANCO E NERO, ED È LA SUA RISPOSTA `hsl` A
@@ -839,13 +889,59 @@ private val COLOUR_ROWS = listOf(
         R.string.look_saturation,
         { it.chroma.saturation },
         { k, v -> k.copy(chroma = k.chroma.copy(saturation = v)) },
-        dims = true
+        off = MONO
     ),
     Dial(
         R.string.look_vibrance,
         { it.chroma.vibrance },
         { k, v -> k.copy(chroma = k.chroma.copy(vibrance = v)) },
-        dims = true
+        off = MONO
+    )
+)
+
+/**
+ * I cinque cursori del modulo Dettaglio, nell'ordine del pannello di Lightroom: prima la maschera
+ * di contrasto coi suoi due comandi, poi le due riduzioni del rumore.
+ *
+ * ⚠️⚠️ **IL RAGGIO È L'UNICO BIPOLARE DEI CINQUE, E IL SUO ZERO È IL RAGGIO DI SERIE**: gli altri
+ * quattro partono da zero perché 'niente nitidezza' e 'niente riduzione' sono il loro fondo, mentre
+ * un raggio zero non esiste. Il perché, con le misure, vive su [Detail.sharpReach].
+ *
+ * ⚠️ **'Rumore' e 'Rumore colore' e non 'Luminanza' e 'Colore'**: sono i nomi che Lightroom dà a
+ * quei due cursori, ma qui 'Luminanza' è già la terza riga dell'HSL e 'Colore' è il nome di un
+ * modulo, quindi due parole direbbero due cose a mezzo centimetro di distanza.
+ */
+private val DETAIL_ROWS = listOf(
+    Dial(
+        R.string.look_sharpen,
+        { it.detail.sharpen },
+        { k, v -> k.copy(detail = k.detail.copy(sharpen = v)) },
+        unipolar = true
+    ),
+    Dial(
+        R.string.look_radius,
+        { it.detail.radius },
+        { k, v -> k.copy(detail = k.detail.copy(radius = v)) },
+        off = UNSHARP
+    ),
+    Dial(
+        R.string.look_masking,
+        { it.detail.masking },
+        { k, v -> k.copy(detail = k.detail.copy(masking = v)) },
+        unipolar = true,
+        off = UNSHARP
+    ),
+    Dial(
+        R.string.look_noise,
+        { it.detail.noise },
+        { k, v -> k.copy(detail = k.detail.copy(noise = v)) },
+        unipolar = true
+    ),
+    Dial(
+        R.string.look_noise_color,
+        { it.detail.noiseColor },
+        { k, v -> k.copy(detail = k.detail.copy(noiseColor = v)) },
+        unipolar = true
     )
 )
 
@@ -878,6 +974,12 @@ private val MODULES = listOf(
         clear = { it.copy(mix = Mix.NONE) },
         spent = { !it.mix.idle },
         banded = true
+    ),
+    Module(
+        R.string.look_detail,
+        rows = { DETAIL_ROWS },
+        clear = { it.copy(detail = Detail.NONE) },
+        spent = { !it.detail.idle }
     )
 )
 
@@ -1049,12 +1151,14 @@ private fun LookSheet(
                         value = knob.read(look),
                         span = knob.span,
                         stops = knob.stops,
+                        unipolar = knob.unipolar,
                         /*
-                         * ⚠️ **Col bianco e nero acceso i due cursori dei colori si spengono**:
-                         * là non c'è più niente da saturare, e un cursore che si muove senza
-                         * cambiare l'immagine si legge come un guasto.
+                         * ⚠️ **Un cursore che non governa niente si spegne**, e i casi sono due: i
+                         * colori col bianco e nero acceso, e la maschera di contrasto senza
+                         * nitidezza. Un cursore che si muove senza cambiare l'immagine si legge
+                         * come un guasto.
                          */
-                        enabled = ready && !busy && !(look.chroma.mono && knob.dims),
+                        enabled = ready && !busy && !knob.off(look),
                         onLive = { v -> dialAt(riga)?.let { onLive(it.set(v)) } },
                         onSettled = onSettled,
                         /*
@@ -1287,7 +1391,8 @@ private fun LookKnob(
     onSettled: () -> Unit,
     onPeek: (Boolean) -> Unit,
     span: Float = 1f,
-    stops: Boolean = false
+    stops: Boolean = false,
+    unipolar: Boolean = false
 ) {
     val zero = stringResource(R.string.look_reset_one, name)
     val against = stringResource(R.string.look_peek_one, name)
@@ -1317,6 +1422,7 @@ private fun LookKnob(
         LookDial(
             value = value,
             span = span,
+            unipolar = unipolar,
             enabled = enabled,
             onLive = { write(it) },
             onSettled = { settle() },
@@ -1327,8 +1433,15 @@ private fun LookKnob(
              * ⚠️ **Gli stop si scrivono con due decimali e il resto come numero intero**: un
              * diaframma è +0,33 e una percentuale è +33, e scriverli allo stesso modo
              * farebbe leggere un valore per l'altro.
+             * ⚠️ **E un cursore monopolare non porta il segno**, dalla `2.22`: là il numero non
+             * può essere negativo, e un `+` davanti a una corsa che parte da zero dice che
+             * esiste un verso che non c'è.
              */
-            text = if (stops) "%+.2f".format(value) else "%+d".format((value * 100).roundToInt()),
+            text = when {
+                stops -> "%+.2f".format(value)
+                unipolar -> "%d".format((value * 100).roundToInt())
+                else -> "%+d".format((value * 100).roundToInt())
+            },
             style = MaterialTheme.typography.labelMedium,
             textAlign = TextAlign.End,
             color = if (abs(value) < 0.0005f) MaterialTheme.colorScheme.onSurfaceVariant
@@ -1367,8 +1480,20 @@ private fun LookDial(
     enabled: Boolean,
     onLive: (Float) -> Unit,
     onSettled: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    unipolar: Boolean = false
 ) {
+    /**
+     * Il fondo corsa: lo zero per i cursori che un verso solo ce l'hanno, `-span` per gli altri.
+     *
+     * ⚠️ **Si legge da qui in tutti e quattro i posti** (la semantica, l'azione, il conto del
+     * gesto e il disegno): scritto quattro volte, il primo a divergere sarebbe quello che
+     * nessuno guarda, e un tondo disegnato dove il dito non lo trova è un difetto che non dà
+     * nessun errore.
+     */
+    val low = if (unipolar) 0f else -span
+    /** L'ampiezza della corsa, cioè quanto vale il tratto da un estremo all'altro. */
+    val sweep = span - low
     val ink = MaterialTheme.colorScheme.primary
     val rail = MaterialTheme.colorScheme.surfaceVariant
     val mark = MaterialTheme.colorScheme.outline
@@ -1388,7 +1513,7 @@ private fun LookDial(
         modifier = modifier
             .height(DIAL_ROW)
             .semantics {
-                progressBarRangeInfo = ProgressBarRangeInfo(value, -span..span)
+                progressBarRangeInfo = ProgressBarRangeInfo(value, low..span)
                 /*
                  * ⚠️⚠️ **L'AZIONE C'È ANCHE DA SPENTO, E RISPONDE `false`: dichiararla solo da
                  * acceso ha fatto una prova ROSSA IN CI E VERDE QUI.** Finché l'anteprima si
@@ -1401,19 +1526,19 @@ private fun LookDial(
                 if (!enabled) disabled()
                 setProgress { target ->
                     if (!enabled) return@setProgress false
-                    onLive(target.coerceIn(-span, span))
+                    onLive(target.coerceIn(low, span))
                     onSettled()
                     true
                 }
             }
-            .pointerInput(enabled, span) {
+            .pointerInput(enabled, span, low) {
                 if (!enabled) return@pointerInput
                 val knob = DIAL_KNOB.toPx()
                 /** Il valore che corrisponde a una posizione del dito. */
                 fun valueAt(x: Float): Float {
                     val run = (size.width - 2f * knob).coerceAtLeast(1f)
                     val part = ((x - knob) / run).coerceIn(0f, 1f)
-                    return -span + part * 2f * span
+                    return low + part * sweep
                 }
 
                 awaitEachGesture {
@@ -1422,7 +1547,7 @@ private fun LookDial(
                     // Il tondo sta dove dice il valore: toccando lontano da lui si salta subito,
                     // toccandolo si trascina da dove è.
                     val run = (size.width - 2f * knob).coerceAtLeast(1f)
-                    val here = knob + ((live + span) / (2f * span)) * run
+                    val here = knob + ((live - low) / sweep) * run
                     var dragging = abs(down.position.x - here) > knob
                     if (dragging) onLive(valueAt(down.position.x))
 
@@ -1474,9 +1599,9 @@ private fun LookDial(
         val thick = DIAL_RAIL.toPx()
         val middle = size.height / 2f
         val run = (size.width - 2f * knob).coerceAtLeast(1f)
-        val part = (value + span) / (2f * span)
+        val part = (value - low) / sweep
         val at = knob + part * run
-        val zero = knob + 0.5f * run
+        val zero = knob + ((0f - low) / sweep) * run
         val hot = if (enabled) ink else faded
         val dead = if (enabled) rail else rail.copy(alpha = 0.5f)
 
@@ -1484,17 +1609,21 @@ private fun LookDial(
             dead, Offset(knob, middle), Offset(size.width - knob, middle), thick,
             cap = StrokeCap.Round
         )
-        // Il tratto acceso parte dallo zero, perché questi cursori sono bipolari: un pieno che
-        // partisse da sinistra direbbe che il valore neutro è già mezzo acceso.
+        // Il tratto acceso parte dallo zero: su un cursore bipolare quello è il centro, e un
+        // pieno che partisse da sinistra direbbe che il valore neutro è già mezzo acceso; su uno
+        // monopolare lo zero **è** il fondo corsa, quindi il tratto parte da sinistra da sé.
         drawLine(hot, Offset(zero, middle), Offset(at, middle), thick, cap = StrokeCap.Round)
         // La tacca dello zero, che il tondo copre quando è al centro: senza, il valore neutro si
-        // trova solo guardando il numero.
-        drawLine(
-            if (enabled) mark else faded,
-            Offset(zero, middle - thick),
-            Offset(zero, middle + thick),
-            DIAL_ZERO.toPx()
-        )
+        // trova solo guardando il numero. ⚠️ **Su un cursore monopolare non si disegna**: là
+        // cadrebbe sotto il tondo a riposo, cioè segnerebbe il fondo corsa, che si vede da sé.
+        if (!unipolar) {
+            drawLine(
+                if (enabled) mark else faded,
+                Offset(zero, middle - thick),
+                Offset(zero, middle + thick),
+                DIAL_ZERO.toPx()
+            )
+        }
         // Un alone del colore del pannello sotto il tondo, così il tondo stacca dalla barra senza
         // bisogno di un'ombra.
         drawCircle(face, knob, Offset(at, middle))

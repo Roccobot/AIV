@@ -87,6 +87,12 @@
     <string name="look_band_blue">Blu</string>
     <string name="look_band_purple">Viola</string>
     <string name="look_band_magenta">Magenta</string>
+    <string name="look_detail">Dettaglio</string>
+    <string name="look_sharpen">Nitidezza</string>
+    <string name="look_radius">Raggio</string>
+    <string name="look_masking">Mascheratura</string>
+    <string name="look_noise">Rumore</string>
+    <string name="look_noise_color">Rumore colore</string>
     <string name="look_contrast">Contrasto</string>
     <string name="look_shadows">Ombre</string>
     <string name="look_highlights">Luci</string>

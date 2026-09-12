@@ -458,6 +458,12 @@
     <string name="look_band_blue">Niebieski</string>
     <string name="look_band_purple">Fioletowy</string>
     <string name="look_band_magenta">Magenta</string>
+    <string name="look_detail">Szczegóły</string>
+    <string name="look_sharpen">Wyostrzanie</string>
+    <string name="look_radius">Promień</string>
+    <string name="look_masking">Maskowanie</string>
+    <string name="look_noise">Szum</string>
+    <string name="look_noise_color">Szum barwny</string>
     <string name="look_contrast">Kontrast</string>
     <string name="look_shadows">Cienie</string>
     <string name="look_highlights">Światła</string>

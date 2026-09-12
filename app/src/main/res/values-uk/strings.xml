@@ -458,6 +458,12 @@
     <string name="look_band_blue">Синій</string>
     <string name="look_band_purple">Фіолетовий</string>
     <string name="look_band_magenta">Пурпуровий</string>
+    <string name="look_detail">Деталі</string>
+    <string name="look_sharpen">Різкість</string>
+    <string name="look_radius">Радіус</string>
+    <string name="look_masking">Маскування</string>
+    <string name="look_noise">Шум</string>
+    <string name="look_noise_color">Колірний шум</string>
     <string name="look_contrast">Контраст</string>
     <string name="look_shadows">Тіні</string>
     <string name="look_highlights">Світлі</string>

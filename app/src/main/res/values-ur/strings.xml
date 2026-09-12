@@ -426,6 +426,12 @@
     <string name="look_band_blue">نیلا</string>
     <string name="look_band_purple">جامنی</string>
     <string name="look_band_magenta">مجینٹا</string>
+    <string name="look_detail">تفصیل</string>
+    <string name="look_sharpen">تیزی</string>
+    <string name="look_radius">رداس</string>
+    <string name="look_masking">ماسکنگ</string>
+    <string name="look_noise">شور</string>
+    <string name="look_noise_color">رنگ کا شور</string>
     <string name="look_contrast">کنٹراسٹ</string>
     <string name="look_shadows">سائے</string>
     <string name="look_highlights">روشن حصے</string>

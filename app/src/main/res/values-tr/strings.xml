@@ -426,6 +426,12 @@
     <string name="look_band_blue">Mavi</string>
     <string name="look_band_purple">Mor</string>
     <string name="look_band_magenta">Macenta</string>
+    <string name="look_detail">Ayrıntı</string>
+    <string name="look_sharpen">Keskinlik</string>
+    <string name="look_radius">Yarıçap</string>
+    <string name="look_masking">Maskeleme</string>
+    <string name="look_noise">Parazit</string>
+    <string name="look_noise_color">Renk paraziti</string>
     <string name="look_contrast">Kontrast</string>
     <string name="look_shadows">Gölgeler</string>
     <string name="look_highlights">Parlak alanlar</string>

@@ -410,6 +410,12 @@
     <string name="look_band_blue">Biru</string>
     <string name="look_band_purple">Ungu</string>
     <string name="look_band_magenta">Magenta</string>
+    <string name="look_detail">Detail</string>
+    <string name="look_sharpen">Ketajaman</string>
+    <string name="look_radius">Radius</string>
+    <string name="look_masking">Masking</string>
+    <string name="look_noise">Derau</string>
+    <string name="look_noise_color">Derau warna</string>
     <string name="look_contrast">Kontras</string>
     <string name="look_shadows">Bayangan</string>
     <string name="look_highlights">Sorotan</string>

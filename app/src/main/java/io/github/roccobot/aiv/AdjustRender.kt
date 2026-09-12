@@ -35,12 +35,14 @@ import androidx.compose.ui.graphics.Shader as ComposeShader
  * schede grafiche accettano una texture così. Il minimo che ogni apparecchio con Android 13
  * garantisce è [TILE], quindi si lavora in quadrati di quel lato: chiedere alla scheda quanto
  * regge vorrebbe dire aprire un contesto grafico per una domanda sola.
- * - ⚠️⚠️ **LE TESSERE NON SI SOVRAPPONGONO, E QUESTO DIPENDE DAL CONTO**: le operazioni della
- *   Luce guardano **un pixel per volta**, quindi due tessere accostate non hanno nessuna
- *   cucitura. Chi aggiungesse un'operazione che guarda i vicini (una nitidezza, una chiarezza,
- *   una sfocatura) deve dare a ogni tessera un bordo di sovrapposizione e buttarlo via dopo, o
- *   sulle giunzioni comparirebbe una riga. È la cosa da guardare per prima quando i moduli
- *   cresceranno.
+ * - ⚠️⚠️ **DALLA `2.22` LE TESSERE SI SOVRAPPONGONO, E IL BORDO SI BUTTA VIA DOPO**: fino alla
+ *   `2.21` ogni operazione guardava **un pixel per volta**, quindi due tessere accostate non
+ *   avevano nessuna cucitura; il modulo Dettaglio guarda i vicini, e senza un bordo il filtro
+ *   dell'ultima colonna di una tessera leggerebbe il **bordo ripetuto** invece del pixel che sta
+ *   di là, cioè su ogni giunzione comparirebbe una riga. Il conto vive in [tileBox], e quanto
+ *   largo debba essere quel bordo lo dice il filtro stesso (`Detail.bleed`).
+ * - ⚠️ **Il passo si stringe di quanto il bordo cresce**, o una tessera col bordo supererebbe il
+ *   tetto della texture, che è la ragione per cui le tessere esistono.
  *
  * ⚠️⚠️ **E PRIMA DI FIDARSI SI PROVA, con [works]**: se questo percorso non funziona su un
  * telefono (una scheda grafica che rifiuta il formato, un buffer che non arriva), quello che se
@@ -64,6 +66,16 @@ internal object AdjustRender {
         val h = source.height
         if (w <= 0 || h <= 0) return null
 
+        /*
+         * ⚠️⚠️ **LA MISURA CHE SI CONSEGNA È IL LATO LUNGO DELL'IMMAGINE INTERA, NON DELLA
+         * TESSERA**: il Dettaglio ragiona in frazioni del lato, e una tessera che dichiarasse il
+         * proprio darebbe un filtro più stretto sulle immagini grandi, cioè proprio dove le
+         * tessere sono più d'una. È anche quello che tiene il risultato uguale all'anteprima.
+         */
+        val span = maxOf(w, h).toFloat()
+        val bleed = look.detail.bleed(span)
+        val step = (TILE - 2 * bleed).coerceAtLeast(1)
+
         val out = try {
             Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         } catch (e: OutOfMemoryError) {
@@ -74,23 +86,27 @@ internal object AdjustRender {
         var y = 0
         while (y < h) {
             var x = 0
-            val th = minOf(TILE, h - y)
+            val th = minOf(step, h - y)
             while (x < w) {
-                val tw = minOf(TILE, w - x)
+                val tw = minOf(step, w - x)
+                val box = tileBox(w, h, x, y, tw, th, bleed)
                 /*
                  * ⚠️ **La tessera si ritaglia dal sorgente invece di traslare lo shader**: uno
                  * shader che legge il bitmap intero costringerebbe comunque la scheda grafica a
                  * caricarlo tutto, che è esattamente quello che le tessere esistono per evitare.
                  */
-                val piece = runCatching { Bitmap.createBitmap(source, x, y, tw, th) }
-                    .getOrNull() ?: run { out.recycle(); return null }
-                val done = draw(piece, look, tw, th)
+                val piece = runCatching {
+                    Bitmap.createBitmap(
+                        source, box.read.left, box.read.top, box.read.width(), box.read.height()
+                    )
+                }.getOrNull() ?: run { out.recycle(); return null }
+                val done = draw(piece, look, box.read.width(), box.read.height(), span)
                 if (piece !== source) piece.recycle()
                 if (done == null) {
                     out.recycle()
                     return null
                 }
-                canvas.drawBitmap(done, Rect(0, 0, tw, th), Rect(x, y, x + tw, y + th), null)
+                canvas.drawBitmap(done, box.take, box.put, null)
                 done.recycle()
                 x += tw
             }
@@ -107,7 +123,7 @@ internal object AdjustRender {
      * tessere sarebbero dodici. Il `finally` copre anche la strada dell'errore, che è quella in
      * cui una perdita non si nota.
      */
-    private fun draw(piece: Bitmap, look: Look, w: Int, h: Int): Bitmap? {
+    private fun draw(piece: Bitmap, look: Look, w: Int, h: Int, span: Float): Bitmap? {
         var reader: ImageReader? = null
         var renderer: HardwareRenderer? = null
         var node: RenderNode? = null
@@ -122,7 +138,14 @@ internal object AdjustRender {
             node.setPosition(0, 0, w, h)
 
             val image = BitmapShader(piece, TileMode.CLAMP, TileMode.CLAMP)
-            val shader = lookShader(image as ComposeShader, look) ?: return null
+            /*
+             * ⚠️ **Il filtro lineare serve al Dettaglio**, che legge i vicini a distanze che non
+             * cadono su un pixel intero: senza, ogni campione verrebbe arrotondato al pixel più
+             * vicino e il vicinato si accartoccerebbe su meno punti di quanti ne chiede. È la
+             * stessa riga che l'anteprima mette sul proprio shader.
+             */
+            image.setFilterMode(BitmapShader.FILTER_MODE_LINEAR)
+            val shader = lookShader(image as ComposeShader, look, span) ?: return null
             val paint = Paint().apply { this.shader = shader }
 
             val canvas = node.beginRecording()
@@ -186,7 +209,7 @@ internal object AdjustRender {
             return false
         }
         probe.eraseColor(android.graphics.Color.WHITE)
-        val done = draw(probe, Look.NONE, PROBE, PROBE)
+        val done = draw(probe, Look.NONE, PROBE, PROBE, PROBE.toFloat())
         probe.recycle()
         if (done == null) return false
         val pixel = done.getPixel(PROBE / 2, PROBE / 2)
@@ -224,4 +247,42 @@ internal object AdjustRender {
      * 254: dà zero.
      */
     private const val NEAR = 250
+}
+
+/**
+ * I tre riquadri di una tessera: da dove si legge, che cosa si tiene, e dove si mette.
+ *
+ * ⚠️ **Sono tre e non due perché il bordo si TAGLIA ai margini dell'immagine**: una tessera
+ * d'angolo non ha vicini da un lato, quindi [read] è più stretto di quanto il bordo chiederebbe,
+ * e [take] deve saperlo. Là il filtro legge il bordo ripetuto, che è il comportamento giusto: di
+ * là dall'immagine non c'è niente.
+ */
+internal data class TileBox(val read: Rect, val take: Rect, val put: Rect)
+
+/**
+ * Dove leggere, che cosa tenere e dove mettere la tessera che comincia a ([x], [y]) ed è larga
+ * [tw] per [th], su un'immagine di [w] per [h], con [bleed] pixel di bordo.
+ *
+ * ⚠️⚠️ **VIVE FUORI DALL'OGGETTO E NON USA NIENTE DI ANDROID 13, ED È DI PROPOSITO**: il conto
+ * degli indici è la sola cosa di questo file che il banco di prova possa misurare, perché
+ * disegnare vuole una scheda grafica. Un `bleed` sbagliato di un pixel darebbe una riga sulle
+ * giunzioni, che è un difetto che si vede solo su una fotografia grande e solo guardandola da
+ * vicino.
+ *
+ * ⚠️ **Le tessere si sovrappongono in lettura e non in scrittura**: [put] sono esattamente i
+ * pixel della tessera, quindi due tessere vicine non si toccano mai e quello che si copia non
+ * dipende dall'ordine.
+ */
+internal fun tileBox(w: Int, h: Int, x: Int, y: Int, tw: Int, th: Int, bleed: Int): TileBox {
+    val left = maxOf(0, x - bleed)
+    val top = maxOf(0, y - bleed)
+    val right = minOf(w, x + tw + bleed)
+    val bottom = minOf(h, y + th + bleed)
+    val inX = x - left
+    val inY = y - top
+    return TileBox(
+        read = Rect(left, top, right, bottom),
+        take = Rect(inX, inY, inX + tw, inY + th),
+        put = Rect(x, y, x + tw, y + th)
+    )
 }

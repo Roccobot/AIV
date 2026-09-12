@@ -72,7 +72,7 @@ class ContoTest {
         )
         assertNotNull(
             "lookShader ha risposto null: il programma non compila o un uniform non combacia",
-            lookShader(sorgente(), pieno)
+            lookShader(sorgente(), pieno, SPAN)
         )
     }
 
@@ -93,7 +93,28 @@ class ContoTest {
             .swap(5) { it.copy(lum = -1f) }
         assertNotNull(
             "lookShader ha risposto null: un array di uniform non combacia",
-            lookShader(sorgente(), Look(mix = fasce))
+            lookShader(sorgente(), Look(mix = fasce), SPAN)
+        )
+    }
+
+    /**
+     * E lo consegna anche col Dettaglio dentro, che porta due uniform di una forma nuova.
+     *
+     * ⚠️⚠️ **I DUE PASSI DEL VICINATO SONO `float2` E NON `half`, ED È LA FORMA CHE NON C'ERA**:
+     * si sommano alle coordinate del pixel, che nel salvataggio arrivano a duemila, e in `half`
+     * un numero così grande perde i decimali. Un nome che non combacia o un tipo sbagliato non dà
+     * errore di compilazione: dà un'eccezione al primo fotogramma, che la rete di `lookShader`
+     * trasformerebbe in un `null`, cioè in 'questo telefono non sa farlo'. È la stessa forma del
+     * difetto della `2.14`.
+     */
+    @Test
+    fun `lookShader consegna il programma col Dettaglio`() {
+        val fine = Detail(
+            sharpen = 0.7f, radius = 0.5f, masking = 0.4f, noise = 0.6f, noiseColor = 0.3f
+        )
+        assertNotNull(
+            "lookShader ha risposto null: un uniform del Dettaglio non combacia",
+            lookShader(sorgente(), Look(detail = fine), SPAN)
         )
     }
 
@@ -102,5 +123,13 @@ class ContoTest {
         val mappa = Bitmap.createBitmap(4, 4, Bitmap.Config.ARGB_8888)
         mappa.eraseColor(Color.rgb(128, 128, 128))
         return BitmapShader(mappa, TileMode.CLAMP, TileMode.CLAMP)
+    }
+
+    private companion object {
+        /**
+         * Il lato lungo che si dichiara al programma: qui conta solo che ci sia, perché il
+         * vicinato del Dettaglio si ricava da lui e non da quanto è grande la sorgente finta.
+         */
+        const val SPAN = 4000f
     }
 }

@@ -442,6 +442,12 @@
     <string name="look_band_blue">Azul</string>
     <string name="look_band_purple">Púrpura</string>
     <string name="look_band_magenta">Magenta</string>
+    <string name="look_detail">Detalle</string>
+    <string name="look_sharpen">Enfoque</string>
+    <string name="look_radius">Radio</string>
+    <string name="look_masking">Enmascarar</string>
+    <string name="look_noise">Ruido</string>
+    <string name="look_noise_color">Ruido de color</string>
     <string name="look_contrast">Contraste</string>
     <string name="look_shadows">Sombras</string>
     <string name="look_highlights">Luces</string>

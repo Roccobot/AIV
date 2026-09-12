@@ -410,6 +410,12 @@
     <string name="look_band_blue">ブルー</string>
     <string name="look_band_purple">パープル</string>
     <string name="look_band_magenta">マゼンタ</string>
+    <string name="look_detail">ディテール</string>
+    <string name="look_sharpen">シャープ</string>
+    <string name="look_radius">半径</string>
+    <string name="look_masking">マスク</string>
+    <string name="look_noise">ノイズ</string>
+    <string name="look_noise_color">カラーノイズ</string>
     <string name="look_contrast">コントラスト</string>
     <string name="look_shadows">シャドウ</string>
     <string name="look_highlights">ハイライト</string>

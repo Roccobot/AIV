@@ -378,6 +378,142 @@ class SviluppoTest {
         assertEquals(0, quanteFasce())
     }
 
+    /**
+     * **Caso 13: il Dettaglio è a riposo anche col raggio e la mascheratura mossi.**
+     *
+     * ⚠️⚠️ **DUE CURSORI SU CINQUE NON CAMBIANO UN PIXEL DA SOLI, E QUESTA È LA RIGA CHE LO
+     * PRESIDIA**: il raggio e la mascheratura dicono **come** la maschera di contrasto lavora,
+     * non quanto. Contandoli in [Detail.idle], un'immagine con la sola mascheratura mossa si
+     * dichiarerebbe da riscrivere, cioè verrebbe ricompressa per niente, e il senza perdita se
+     * ne andrebbe senza che nessuno abbia chiesto niente.
+     */
+    @Test
+    fun `il raggio e la mascheratura da soli lasciano il dettaglio a riposo`() {
+        assertTrue(Detail.NONE.idle)
+        assertTrue(Detail(radius = 1f, masking = 1f).idle)
+        assertTrue(Look(detail = Detail(radius = -1f)).lossless)
+        assertFalse(Detail(sharpen = 0.01f).idle)
+        assertFalse(Detail(noise = 0.01f).idle)
+        assertFalse(Detail(noiseColor = 0.01f).idle)
+        assertFalse(Look(detail = Detail(noise = 0.5f)).lossless)
+    }
+
+    /**
+     * **Caso 14: il raggio e la mascheratura sono spenti finché la nitidezza è a zero.**
+     *
+     * ⚠️ **È la stessa regola del bianco e nero letta su un altro modulo**: un cursore che si
+     * muove senza cambiare l'immagine si legge come un guasto. Qui misura anche il meccanismo
+     * nuovo, cioè che un cursore dichiari **quando** non governa niente invece di guardare un
+     * interruttore scritto nella scheda.
+     */
+    @Test
+    fun `il raggio e la mascheratura seguono la nitidezza`() {
+        banco.setContent { Scena() }
+        pronta()
+        banco.onNodeWithText(testo(R.string.look_detail)).performClick()
+        banco.waitForIdle()
+
+        cursore(1).assertIsNotEnabled()
+        cursore(2).assertIsNotEnabled()
+        cursore(3).assertIsEnabled()
+
+        muovi(0, 0.5f)
+        cursore(1).assertIsEnabled()
+        cursore(2).assertIsEnabled()
+    }
+
+    /**
+     * **Caso 15: il 'Reset modulo' del Dettaglio azzera il suo e lascia stare gli altri.**
+     *
+     * ⚠️ Col quarto modulo i gettoni sono quattro, e un azzeramento che prendesse anche i vicini
+     * porterebbe via il lavoro fatto in una schermata che non si sta guardando.
+     */
+    @Test
+    fun `il tocco lungo sul dettaglio azzera solo il dettaglio`() {
+        banco.setContent { Scena() }
+        pronta()
+        muovi(1, 0.5f)
+        assertTrue(valore(1) > 0.2f)
+
+        banco.onNodeWithText(testo(R.string.look_detail)).performClick()
+        banco.waitForIdle()
+        muovi(0, 0.6f)
+        assertTrue(valore(0) > 0.2f)
+
+        banco.onNodeWithText(testo(R.string.look_detail)).performTouchInput { longClick() }
+        banco.waitForIdle()
+        assertEquals("il dettaglio doveva azzerarsi", 0f, valore(0), 1e-3f)
+
+        banco.onNodeWithText(testo(R.string.look_light)).performClick()
+        banco.waitForIdle()
+        assertTrue("la luce non doveva essere toccata", valore(1) > 0.2f)
+    }
+
+    /**
+     * **Caso 16: le misure del Dettaglio si scalano col lato dell'immagine.**
+     *
+     * ⚠️⚠️ **È QUELLO CHE TIENE INSIEME L'ANTEPRIMA E IL FILE SALVATO**: il conto gira su due
+     * immagini di misura diversa, e un raggio scritto in pixel peserebbe più del doppio
+     * sull'anteprima, che è una riduzione. Scritto come frazione del lato, il rapporto fra i due
+     * risultati è **uno** per costruzione, e questa prova lo misura invece di ricopiare il conto,
+     * che vive in AGSL e il banco non lo può eseguire.
+     */
+    @Test
+    fun `il raggio del dettaglio segue il lato dell'immagine`() {
+        val fine = Detail(sharpen = 0.5f)
+        assertEquals(2f * fine.sharpReach(1000f), fine.sharpReach(2000f), 1e-4f)
+        assertEquals(2f * Detail.grainReach(1000f), Detail.grainReach(2000f), 1e-4f)
+
+        // Il cursore del raggio raddoppia e dimezza: è il verso che l'utente si aspetta, e un
+        // segno di troppo lo rovescerebbe senza che nessun compilatore lo veda.
+        val stretto = Detail(sharpen = 0.5f, radius = -1f).sharpReach(4000f)
+        val largo = Detail(sharpen = 0.5f, radius = 1f).sharpReach(4000f)
+        assertEquals(4f * stretto, largo, 1e-3f)
+    }
+
+    /**
+     * **Caso 17: le tessere del salvataggio leggono il bordo e copiano solo quello che vale.**
+     *
+     * ⚠️⚠️ **QUESTO È IL CONTO CHE IL DETTAGLIO HA RESO NECESSARIO, ed è l'unica cosa del
+     * salvataggio che il banco possa misurare**: disegnare vuole una scheda grafica, ma un indice
+     * sbagliato di un pixel si vede qui. Senza bordo, il filtro dell'ultima colonna di una tessera
+     * leggerebbe il bordo ripetuto invece del pixel che sta di là, e su ogni giunzione comparirebbe
+     * una riga.
+     * - **A modulo spento il bordo vale zero**, quindi le tessere tornano quelle di prima e chi non
+     *   usa il Dettaglio non paga niente.
+     * - **Il bordo si taglia ai margini dell'immagine**, dove non c'è niente da leggere, e là
+     *   quello che si tiene comincia da zero.
+     */
+    @Test
+    fun `le tessere prendono il bordo e copiano solo il centro`() {
+        assertEquals(0, Look.NONE.detail.bleed(4000f))
+        val fine = Detail(sharpen = 0.5f)
+        assertTrue("il bordo deve coprire il raggio", fine.bleed(4000f) > fine.sharpReach(4000f))
+
+        // Una tessera in mezzo: legge il bordo da tutti e quattro i lati, e tiene il centro.
+        val dentro = tileBox(w = 100, h = 100, x = 40, y = 40, tw = 20, th = 20, bleed = 4)
+        assertEquals(36, dentro.read.left)
+        assertEquals(64, dentro.read.bottom)
+        assertEquals(4, dentro.take.left)
+        assertEquals(24, dentro.take.right)
+        assertEquals(20, dentro.put.width())
+
+        // Una tessera d'angolo: di là dall'immagine non c'è niente, quindi il bordo si taglia e
+        // quello che si tiene comincia da zero.
+        val angolo = tileBox(w = 100, h = 100, x = 0, y = 0, tw = 20, th = 20, bleed = 4)
+        assertEquals(0, angolo.read.left)
+        assertEquals(0, angolo.take.left)
+        assertEquals(20, angolo.take.right)
+        assertEquals(0, angolo.put.left)
+
+        // Due tessere vicine non si sovrappongono in scrittura: quello che si copia non dipende
+        // dall'ordine in cui si disegnano.
+        val prima = tileBox(w = 100, h = 100, x = 0, y = 0, tw = 20, th = 20, bleed = 4)
+        val dopo = tileBox(w = 100, h = 100, x = 20, y = 0, tw = 20, th = 20, bleed = 4)
+        assertEquals(prima.put.right, dopo.put.left)
+        assertTrue("in lettura invece si sovrappongono", dopo.read.left < prima.put.right)
+    }
+
     /** Sceglie una fascia toccando la sua pastiglia. */
     private fun fascia(nome: Int) {
         banco.onNodeWithContentDescription(testo(nome)).performClick()
