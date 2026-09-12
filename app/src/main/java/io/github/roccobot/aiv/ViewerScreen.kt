@@ -2,6 +2,7 @@ package io.github.roccobot.aiv
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.RectF
 import android.graphics.Rect as PixelRect
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -142,9 +143,7 @@ import androidx.media3.ui.compose.state.rememberProgressStateWithTickInterval
 import coil3.compose.rememberAsyncImagePainter
 import java.util.Locale
 import kotlin.math.abs
-import kotlin.math.ceil
 import kotlin.math.exp
-import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -245,33 +244,6 @@ private const val TILE_DELAY_MS = 200L
  * telefono si decodificano molto prima, quindi sfogliando non lo si vede mai.
  */
 private const val PROGRESS_GRACE_MS = 500L
-
-/**
- * Il tetto in pixel di un pezzo letto a piena risoluzione, **contato in schermate**.
- *
- * ⚠️⚠️ **ERA UN NUMERO FISSO, QUATTRO MILIONI, ED È IL DIFETTO CHE HA RESO INUTILE LA
- * `0.39` SUI TELEFONI DI OGGI** (segnalazione dell'utente, 2026-08-29: *con l'immagine
- * grande non mi accorgo di nulla*, con la riga dei dettagli che diceva `sampled`, quindi
- * i tasselli dovevano accendersi). La nota vecchia diceva 'circa uno schermo e mezzo', e
- * il conto **non torna più**: su uno schermo da 1440x3120 una schermata sola è
- * **4.49 milioni** di pixel, cioè già sopra il tetto. Quel numero è nato quando 1080x2400
- * (2.59 milioni) era il normale.
- * ⚠️⚠️ **E la conseguenza era esattamente 'non succede niente', nel punto in cui la
- * funzione serve di più**: al **100%** il pezzo da leggere è grande **esattamente una
- * schermata**, quindi il tetto lo respingeva, il campionamento veniva alzato per
- * rientrare, e alzato arrivava al livello del bitmap di base, dove leggere non guadagna
- * niente e si rinuncia. Il codice faceva la cosa giusta con un dato sbagliato.
- * ⚠️ **Due schermate e non quattro**, e le due soglie vogliono dire cose diverse: il caso
- * peggiore teorico è **quattro** schermate (il campionamento arrotonda per difetto, quindi
- * fino al doppio per lato), ma capita solo **sotto** il 100%, dove il bitmap di base è
- * ingrandito appena e il guadagno è marginale mentre il costo sarebbe di 69 MB. A due
- * schermate il 100% e tutti gli ingrandimenti sopra di lui passano sempre, perché da lì
- * in su il pezzo **si restringe** man mano che si ingrandisce.
- * ⚠️ Il minimo esiste per gli schermi piccoli, dove due schermate sarebbero un pezzo
- * troppo modesto per valere la lettura.
- */
-private const val TILE_SCREENFULS = 2L
-private const val MIN_TILE_PIXELS = 4_000_000L
 
 @Composable
 fun ViewerScreen(
@@ -2176,27 +2148,18 @@ private data class SharpTile(val bitmap: ImageBitmap, val area: PixelRect)
 private data class RegionHolder(val reader: RegionSource?)
 
 /**
- * Quale pezzo leggere adesso, e con quanto campionamento.
+ * Che pezzo leggere adesso, con la **geometria del visualizzatore** al posto di quella
+ * dell'editor: dove la fotografia finisce sullo schermo sono le stesse quattro righe del
+ * `graphicsLayer` che la disegna, e del `Canvas` che ci posa sopra il pezzo.
  *
- * ⚠️⚠️ **SOPRA LA SCALA 1 E NON PRIMA**, ed è il confine esatto oltre il quale il bitmap
- * di base viene **ingrandito**: sotto, un pixel del bitmap copre meno di un pixel di
- * schermo e il dettaglio che manca non si vedrebbe comunque. È anche la ragione per cui
- * il campionamento chiesto qui risulta sempre più fine di quello del bitmap di base:
- * sono la stessa disuguaglianza scritta in due modi.
- *
- * ⚠️ **Il campionamento si arrotonda per DIFETTO** (la potenza di due immediatamente
- * sotto): per eccesso si leggerebbe meno dettaglio di quello che lo schermo può mostrare,
- * cioè si farebbe tutto questo lavoro per restare sfocati. Il prezzo è un pezzo che può
- * venire fino al doppio del necessario per lato, e per quello c'è il tetto.
- *
- * ⚠️ Il tetto sui pixel non è prudenza generica: senza, un ingrandimento appena sopra la
- * soglia su una fotografia enorme chiederebbe un pezzo grande quanto tutto lo schermo
- * moltiplicato per quattro, cioè una decina di volte la memoria del bitmap che sta già
- * mostrando. Quando alzare il campionamento per rientrare lo porta al livello del bitmap
- * di base, tanto vale non leggere niente.
+ * ⚠️⚠️ **IL CONTO CHE SCEGLIE IL PEZZO NON VIVE PIÙ QUI, DALLA `2.27`**: è [sharpAsk], in
+ * `Regions.kt`, perché adesso lo chiede anche l'editor completo, che lavora su un'anteprima
+ * ridotta e ha esattamente lo stesso problema. Due copie della stessa aritmetica sarebbero
+ * divergenti al primo ritocco, e questa è la seconda volta che il repository la incontra.
  */
-private suspend fun sharpen(
+private fun asked(
     reader: RegionSource,
+    basePixels: Int,
     baseWidth: Float,
     baseHeight: Float,
     viewWidth: Float,
@@ -2204,59 +2167,16 @@ private suspend fun sharpen(
     scale: Float,
     offset: Offset
 ): Sharpening {
-    if (scale <= 1f) return Sharpening.None("no tile: zoom")
-    val perPixel = baseWidth / reader.width
-    if (perPixel <= 0f) return Sharpening.None("no tile: base")
-
-    // Da schermo a coordinate viste: l'inversa della formula del `graphicsLayer`.
-    fun seenX(screen: Float) = ((screen - viewWidth / 2f - offset.x) / scale + baseWidth / 2f) / perPixel
-    fun seenY(screen: Float) = ((screen - viewHeight / 2f - offset.y) / scale + baseHeight / 2f) / perPixel
-
-    val area = PixelRect(
-        floor(seenX(0f)).toInt().coerceIn(0, reader.width),
-        floor(seenY(0f)).toInt().coerceIn(0, reader.height),
-        ceil(seenX(viewWidth)).toInt().coerceIn(0, reader.width),
-        ceil(seenY(viewHeight)).toInt().coerceIn(0, reader.height)
+    val midX = viewWidth / 2f + offset.x
+    val midY = viewHeight / 2f + offset.y
+    val drawn = RectF(
+        midX - baseWidth / 2f * scale,
+        midY - baseHeight / 2f * scale,
+        midX + baseWidth / 2f * scale,
+        midY + baseHeight / 2f * scale
     )
-    if (area.width() <= 0 || area.height() <= 0) return Sharpening.None("no tile: area")
-
-    val baseSample = (reader.width / baseWidth).roundToInt().coerceAtLeast(1)
-    // ⚠️ Il tetto si calcola sulla VISTA e non è più un numero scritto a mano: il perché,
-    // e il conto che il numero fisso sbagliava, stanno accanto a `TILE_SCREENFULS`.
-    val cap = maxOf(MIN_TILE_PIXELS, viewWidth.toLong() * viewHeight.toLong() * TILE_SCREENFULS)
-    // Il campionamento che si vorrebbe, prima che il tetto lo alzi: i due si distinguono
-    // perché dicono due cose diverse a chi legge la diagnostica, e distinguerli è l'unico
-    // modo di sapere se un giorno il tetto tornasse a essere il problema.
-    val ideal = powerOfTwoAtMost(1f / (scale * perPixel))
-    var sample = ideal
-    while ((area.width().toLong() / sample) * (area.height().toLong() / sample) > cap) {
-        sample *= 2
-    }
-    if (sample >= baseSample) {
-        return Sharpening.None(if (ideal >= baseSample) "no tile: gain" else "no tile: cap")
-    }
-
-    val tile = reader.tile(area, sample) ?: return Sharpening.None("no tile: read")
-    return Sharpening.Done(SharpTile(tile.asImageBitmap(), area))
+    return sharpAsk(reader.width, reader.height, basePixels, drawn, viewWidth, viewHeight)
 }
-
-/**
- * L'esito di una lettura a piena risoluzione, col **motivo** quando non se ne fa niente.
- *
- * ⚠️⚠️ **IL MOTIVO ESISTE PERCHÉ IL SILENZIO NON DICE PERCHÉ, ed è la lezione già pagata
- * dallo sfoglio**: 'non succede niente' è identico fra una funzione rotta, una funzione
- * che ha deciso di non fare niente e un formato che non si sa rileggere. La riga dei
- * dettagli lo stampa, come stampa l'esito della ricerca della cartella, ed è così che la
- * `0.49` ha potuto nominare il difetto.
- */
-private sealed interface Sharpening {
-    data class Done(val tile: SharpTile) : Sharpening
-    data class None(val why: String) : Sharpening
-}
-
-/** La potenza di due immediatamente sotto, e mai meno di uno. */
-private fun powerOfTwoAtMost(value: Float): Int =
-    if (value < 2f) 1 else Integer.highestOneBit(value.toInt())
 
 /**
  * La fotografia vicina, mentre si sfoglia col dito.
@@ -2637,17 +2557,23 @@ private fun ImageCanvas(
             }
             snapshotFlow { scale to offset }.collectLatest { (atScale, atOffset) ->
                 delay(TILE_DELAY_MS)
+                // ⚠️ **I pixel del bitmap di base e la sua misura su schermo sono due cose**,
+                // e servono tutte e due: la prima dice quanto dettaglio si ha già in mano, la
+                // seconda dove la fotografia è finita. Coincidono solo al 100%.
                 when (
-                    val done =
-                        sharpen(reader, imageWidth, imageHeight, viewWidth, viewHeight, atScale, atOffset)
+                    val ask = asked(
+                        reader, image.bitmap.width, imageWidth, imageHeight,
+                        viewWidth, viewHeight, atScale, atOffset
+                    )
                 ) {
-                    is Sharpening.Done -> {
-                        sharp = done.tile
-                        info.tiles = "sharp"
+                    is Sharpening.Read -> {
+                        val tile = reader.tile(ask.area, ask.sample)
+                        sharp = tile?.let { SharpTile(it.asImageBitmap(), ask.area) }
+                        info.tiles = if (tile != null) "sharp" else "no tile: read"
                     }
                     is Sharpening.None -> {
                         sharp = null
-                        info.tiles = done.why
+                        info.tiles = ask.why
                     }
                 }
             }
