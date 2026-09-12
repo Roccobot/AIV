@@ -19,6 +19,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.captureToImage
@@ -484,6 +485,103 @@ class LuceTest {
         assertTrue("A metà corsa l'immagine era già arrivata: $meta contro $dopo", meta < dopo)
     }
 
+    /**
+     * **Caso 16: il conto dell'ingrandimento a una mano, col suo verso e col suo tetto.**
+     *
+     * ⚠️⚠️ **IL VERSO È LA COSA DA MISURARE, e un segno di troppo non lo vede nessun
+     * compilatore**: lui lo ha chiesto *giù per ingrandire*, e il puntatore conta positivo verso
+     * il basso, quindi un gesto rovesciato compilerebbe e girerebbe. È lo stesso genere di riga
+     * dei due mondi di segni presidiati da `SaltiTest`.
+     * ⚠️ **Si misurano i RAPPORTI e non i numeri**: quello che il conto promette è che lo stesso
+     * dito valga sempre lo stesso raddoppio, da qualunque ingrandimento parta.
+     */
+    @Test
+    fun `il trascinamento a una mano raddoppia, e il verso è il suo`() {
+        val span = 100f
+        assertEquals("Fermo, il dito ha mosso l'ingrandimento", 1f, pulled(1f, 0f, span), SOGLIA)
+        assertEquals("Giù di una misura non ha raddoppiato", 2f, pulled(1f, span, span), SOGLIA)
+        assertEquals("Giù di due misure non ha quadruplicato", 4f, pulled(1f, 2 * span, span), SOGLIA)
+        assertEquals(
+            "Lo stesso dito non vale lo stesso raddoppio partendo da più in alto",
+            4f, pulled(2f, span, span), SOGLIA
+        )
+        assertEquals(
+            "Su, da ingrandita, l'immagine non è tornata dov'era",
+            2f, pulled(4f, -span, span), SOGLIA
+        )
+        assertEquals(
+            "Su, da adattata, l'immagine si è rimpicciolita sotto il suo riquadro",
+            1f, pulled(1f, -span, span), SOGLIA
+        )
+        val tetto = pulled(1f, 10 * span, span)
+        assertTrue("Il tetto è più basso di dove arriva il doppio tocco", tetto > 2f)
+        assertEquals(
+            "Oltre il tetto il dito continua a ingrandire",
+            tetto, pulled(1f, 20 * span, span), SOGLIA
+        )
+    }
+
+    /**
+     * **Caso 17: il secondo tocco che trascina ingrandisce, e verso l'alto non fa niente.**
+     *
+     * ⚠️⚠️ **IL TRASCINAMENTO VERSO L'ALTO È LA CONTROPROVA, e per questo viene prima**: con
+     * l'immagine già adattata non c'è niente da rimpicciolire, quindi il gesto non deve muovere un
+     * pixel. Col codice della `2.17` il secondo tocco faceva partire la corsa verso
+     * l'ingrandimento **appena il dito scendeva**, e nessun trascinamento la fermava: quella riga
+     * diventa rossa, ed è la prova che questa misura non è verde per caso.
+     * ⚠️⚠️ **IL DITO SI MUOVE IN DUE TEMPI, ED È IL BANCO CHE LO HA IMPOSTO**: il primo evento che
+     * supera la soglia del gesto se lo prende `settled`, quindi il movimento va iniettato in due
+     * colpi, uno che paga la soglia e uno che il gesto legge. La prima stesura lo spezzava in sei
+     * passi uguali, e restava **verde a vuoto**: con un palco alto sessanta pixel e una soglia di
+     * sedici, la somma la superava solo all'ultimo passo, e a `hauled` arrivava il solo dito che si
+     * alzava. Con un dito vero gli eventi sono decine e il caso non esiste.
+     * ⚠️ **Che cosa NON vede**: quanto sale per ogni centimetro di dito, che è una resa e si
+     * guarda sul telefono; il conto lo misura il caso 16.
+     */
+    @Test
+    fun `il secondo tocco che trascina ingrandisce solo verso il basso`() {
+        banco.setContent { Scena() }
+        pronta()
+
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        val prima = bianchi(palco)
+        assertTrue("La scena non mostra l'immagine: non c'è niente da misurare", prima > 0)
+
+        palco.performTouchInput { trascina(-QUANTO) }
+        banco.waitForIdle()
+        assertEquals(
+            "Trascinando verso l'alto l'immagine si è ingrandita lo stesso",
+            prima,
+            bianchi(palco)
+        )
+
+        palco.performTouchInput { trascina(QUANTO) }
+        banco.waitForIdle()
+        val dopo = bianchi(palco)
+        assertTrue(
+            "Trascinando verso il basso l'immagine non si è ingrandita: $prima pixel, poi $dopo",
+            dopo > prima
+        )
+    }
+
+    /**
+     * Un doppio tocco il cui secondo dito resta giù e trascina di [quanto] dell'altezza.
+     *
+     * ⚠️ **Parte dal centro e non da un punto qualunque**: il punto del tocco è quello che resta
+     * fermo mentre l'immagine cresce, e dal centro l'immagine cresce da tutte e quattro le parti,
+     * cioè copre più palco. Da un angolo, metà della crescita finirebbe fuori dal riquadro.
+     */
+    private fun TouchInjectionScope.trascina(quanto: Float) {
+        val punto = center
+        val fine = height * quanto
+        down(punto)
+        up()
+        down(punto)
+        moveTo(punto + Offset(0f, fine * SOGLIA_PAGATA))
+        moveTo(punto + Offset(0f, fine))
+        up()
+    }
+
     /** Quanti pixel bianchi copre il nodo: è l'immagine finta, su un fondo che bianco non è. */
     private fun bianchi(nodo: SemanticsNodeInteraction): Int {
         val pixel = nodo.captureToImage().toPixelMap()
@@ -621,6 +719,18 @@ private const val META_CORSA = 110L
 
 /** Quanto vicini devono essere due valori di un cursore per dirli uguali. */
 private const val SOGLIA = 0.0001f
+
+/**
+ * Quanta altezza del palco percorre il dito dell'ingrandimento a una mano.
+ *
+ * ⚠️ **Dal centro al bordo e non oltre**: il gesto parte in mezzo al palco, quindi metà altezza è
+ * tutto quello che c'è, e un trascinamento più lungo finirebbe contro il tetto dell'ingrandimento,
+ * dove la misura direbbe soltanto che il tetto esiste.
+ */
+private const val QUANTO = 0.45f
+
+/** Quanta parte di quel trascinamento paga la soglia del gesto: vedi la nota del caso 17. */
+private const val SOGLIA_PAGATA = 0.9f
 
 /** Quanto si tiene il dito fermo perché valga come tocco lungo: il doppio del suo tempo, e basta. */
 private const val ATTESA_TOCCO = 1000L
