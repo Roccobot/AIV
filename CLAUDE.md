@@ -2026,6 +2026,54 @@ sul telefono.
   caso generale di § '🧪 Quando si scrive una prova, e quando no': una prova che non si vede
   fallire col difetto rimesso non misura niente.
 
+⚠️⚠️ **UN CONFRONTO ACCESO NON PUÒ PIÙ RESTARE ACCESO, DALLA `2.17`, E QUESTA È L'UNICA COSA
+MISURATA DI QUEL GIRO** (riscontro del giro della `2.16`, voce `luce-sei` approvata con una nota:
+*C'è uno strano collegamento tra i diversi cursori ... quasi sempre se modifico il contrasto la
+luminosità si azzera; se faccio un doppio tocco su un nome di slider se ne resetta anche un
+altro*). Il confronto di un cursore si accende con `onHold(true)` e si spegne con `onHold(false)`,
+e in mezzo c'è un'attesa: un rilevatore di gesti viene **annullato** quando il suo `pointerInput`
+cambia chiave (qui basta un salvataggio che parte, che spegne i cursori), e un'attesa annullata
+non torna alla riga dopo. Adesso lo spegnimento vive in un `finally`, di là e sul palco.
+- ⚠️ **Perché è il candidato**: col confronto acceso l'immagine mostra un cursore in meno, e
+  nessun numero lo dice. Chi guarda vede un cursore che 'si è azzerato' senza che il suo valore
+  sia cambiato, ed è la descrizione che lui ha dato.
+- ⚠️ **La prova è `LuceTest`, caso 14**, e monta il modificatore da solo: il confronto si vede dai
+  pixel, e sul banco lo shader non gira. Controprovata togliendo il `finally`.
+
+⚠️⚠️ **MA LA CAUSA NON È ACCERTATA, E SI SCRIVE COSÌ INVECE DI INVENTARLA**: quel difetto **non si
+riproduce sul banco**, e le quattro ipotesi misurate in sessione sono cadute una per una. Chi ci
+torna sopra non le rifaccia:
+1. **Una lambda catturata dentro un `pointerInput` invecchia**: no. Misurato con una sonda, sia
+   catturando uno stato delegato sia catturando un parametro: il gesto vede sempre il valore
+   fresco.
+2. **Un trascinamento vero riporta indietro gli altri cursori**: no. Misurato iniettando gli
+   eventi uno per uno con una ricomposizione in mezzo, che è la condizione del telefono.
+3. **Il rilascio di un tocco lungo si perde nel caso normale**: no, arriva.
+4. **Due tocchi ravvicinati su due cursori diversi si confondono**: no.
+
+⚠️ **Quello che resta sono due DIFESE, dichiarate come tali**: un cambiamento da applicare al
+posto di un'immagine già fatta (§ `Dial.set`), così nessun gesto porta più con sé un `Look` che
+possa invecchiare; e il confronto tenuto come **trasformazione** invece che come fotografia, così
+un confronto rimasto acceso non congela quello che si vede. Nessuna delle due è la cura misurata
+di quel difetto, e la voce di collaudo lo dice all'utente insieme alla domanda che discrimina: si
+azzera il **numero** del cursore, o solo l'immagine?
+
+⚠️⚠️ **E IL DOPPIO TOCCO SULL'IMMAGINE CI ARRIVA CON UNA CORSA, DALLA `2.17`** (stesso giro, voce
+`luce-zoom` approvata con una nota: *mi piacerebbe di più se al doppio tocco l'immagine passasse
+da uno zoom all'altro con un'animazione anziché con uno stacco netto*).
+- ⚠️ **A muoversi è un progresso solo**, e da lui si ricavano ingrandimento e spostamento: due
+  corse separate sarebbero due cose da tenere allineate, e quella che finisse prima farebbe
+  scivolare l'immagine a ingrandimento fermo.
+- ⚠️ **Un dito che scende la ferma dove è arrivata**: chi tocca mentre l'immagine si ingrandisce
+  vuole prendere il comando, non aspettare il suo turno.
+- ⚠️⚠️ **E LO SPOSTAMENTO SI RIPORTA NEI BORDI DOVE SI DISEGNA, non solo nel gesto**: il limite
+  dipende dall'ingrandimento, quindi un valore buono per l'arrivo è **troppo** a metà corsa, e per
+  qualche fotogramma si vedrebbe una striscia di fondo da un lato. La funzione è pura e
+  applicarla due volte non cambia niente.
+- ⚠️ **La prova guarda a metà corsa col clock fermo**: con l'avanzamento automatico l'animazione
+  finisce dentro `waitForIdle`, e la misura direbbe solo dove si arriva. La durata e la curva
+  invece si guardano sul telefono.
+
 ## 🗑️ Lo svuotamento automatico del cestino, e le tre decisioni che lo governano
 
 ⚠️⚠️ **LE TRE RISPOSTE SONO SUE, SI CITANO CON LA LORO CHIAVE, E UNA ERA STATA REGISTRATA AL

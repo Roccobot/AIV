@@ -9,6 +9,9 @@ import android.graphics.Shader.TileMode
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -50,6 +53,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -57,6 +61,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
@@ -76,6 +81,8 @@ import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.math.abs
@@ -151,8 +158,17 @@ fun AdvancedEditorScreen(
     /** Se il dito è premuto sull'immagine: si guarda l'originale intero. */
     var comparing by remember(uri) { mutableStateOf(false) }
 
-    /** Il confronto di un cursore solo: quello che si vede senza di lui, o `null`. */
-    var peek by remember(uri) { mutableStateOf<Look?>(null) }
+    /**
+     * Il confronto di un cursore solo: **come** togliere quel cursore, o `null`.
+     *
+     * ⚠️⚠️ **UN CAMBIAMENTO E NON UN'IMMAGINE GIÀ FATTA, DALLA `2.17`**: fotografando il [Look] al
+     * momento del tocco, un confronto che per qualunque ragione restasse acceso **congelerebbe**
+     * quello che si vede, e da lì in poi muovere un cursore non cambierebbe più niente, cioè gli
+     * altri sembrerebbero azzerati. Applicandolo qui, a quello che si vede adesso, l'immagine
+     * segue i cursori comunque, e un confronto rimasto acceso costa al massimo un cursore che non
+     * si vede applicato.
+     */
+    var peek by remember(uri) { mutableStateOf<((Look) -> Look)?>(null) }
 
     BackHandler { onBack() }
 
@@ -221,7 +237,7 @@ fun AdvancedEditorScreen(
             } else {
                 LookStage(
                     picture = picture,
-                    look = if (comparing) Look.NONE else peek ?: look,
+                    look = if (comparing) Look.NONE else peek?.invoke(look) ?: look,
                     onCompare = { comparing = it },
                     modifier = Modifier.fillMaxSize()
                 )
@@ -234,9 +250,16 @@ fun AdvancedEditorScreen(
             ready = origin != null,
             canUndo = at > 0,
             canRedo = at < history.size - 1,
-            onLive = { look = it },
+            /*
+             * ⚠️⚠️ **QUI SI LEGGE LO STATO VIVO, ED È IL PUNTO IN CUI LA CORREZIONE DELLA `2.17`
+             * FUNZIONA**: quello che arriva è un cambiamento da applicare, non un'immagine già
+             * fatta, quindi il punto di partenza è [look] letto **adesso**. È lo stesso motivo per
+             * cui `push` legge [look] invece di riceverlo, e la ragione per esteso vive su
+             * [Dial.set].
+             */
+            onLive = { cambia -> look = cambia(look) },
             onSettled = { push() },
-            onPeek = { peek = it },
+            onPeek = { senza -> peek = senza },
             onUndo = {
                 if (at > 0) {
                     at -= 1
@@ -294,6 +317,9 @@ private fun LookStage(
     val hold = stringResource(R.string.look_compare)
     var scale by remember(picture) { mutableFloatStateOf(1f) }
     var shift by remember(picture) { mutableStateOf(Offset.Zero) }
+    /** La corsa del doppio tocco, tenuta per poterla fermare appena un dito scende. */
+    var ride by remember(picture) { mutableStateOf<Job?>(null) }
+    val scope = rememberCoroutineScope()
     val wide = picture.width.toFloat() / picture.height
 
     Canvas(
@@ -303,25 +329,16 @@ private fun LookStage(
             .clipToBounds()
             .semantics { contentDescription = hold }
             .pointerInput(picture) {
-                /**
-                 * Porta lo spostamento dentro i bordi dell'immagine ingrandita.
-                 *
-                 * ⚠️ **Un margine non esiste**: a ingrandimento uno la risposta è zero, cioè
-                 * l'immagine resta centrata e nessuna panoramica la può staccare dal centro.
-                 */
-                fun reined(want: Offset, zoom: Float): Offset {
-                    val room = Size(size.width.toFloat(), size.height.toFloat())
-                    val box = fitted(room, wide)
-                    val slackX = ((box.width() * zoom) - room.width).coerceAtLeast(0f) / 2f
-                    val slackY = ((box.height() * zoom) - room.height).coerceAtLeast(0f) / 2f
-                    return Offset(
-                        want.x.coerceIn(-slackX, slackX),
-                        want.y.coerceIn(-slackY, slackY)
-                    )
-                }
+                val room = Size(size.width.toFloat(), size.height.toFloat())
 
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
+                    /*
+                     * ⚠️ **Un dito che scende ferma la corsa dove è arrivata**, e non c'è nessun
+                     * altro posto in cui annullarla: chi tocca mentre l'immagine si sta
+                     * ingrandendo vuole prendere il comando, non aspettare il suo turno.
+                     */
+                    ride?.cancel()
                     val middle = Offset(size.width / 2f, size.height / 2f)
                     /*
                      * Fase 1: chi vince fra il tempo, il movimento e il secondo dito. Il tempo si
@@ -334,8 +351,14 @@ private fun LookStage(
                     when (esito) {
                         null -> {
                             onCompare(true)
-                            waitForUpOrCancellation()
-                            onCompare(false)
+                            // Lo spegnimento in un `finally`, per la ragione misurata su
+                            // `heldOrTwice`: un'attesa annullata non torna alla riga dopo, e
+                            // l'immagine resterebbe l'originale senza che niente lo dica.
+                            try {
+                                waitForUpOrCancellation()
+                            } finally {
+                                onCompare(false)
+                            }
                         }
                         Settled.UP -> {
                             // Un tocco secco: forse è il primo di due. Il secondo alterna fra
@@ -345,13 +368,36 @@ private fun LookStage(
                             }
                             if (again != null) {
                                 again.consume()
-                                if (scale > 1f) {
-                                    scale = 1f
-                                    shift = Offset.Zero
-                                } else {
-                                    val from = again.position - middle
-                                    scale = ZOOM_TAP
-                                    shift = reined(from * (1f - ZOOM_TAP), ZOOM_TAP)
+                                val big = scale <= 1f
+                                val toScale = if (big) ZOOM_TAP else 1f
+                                val toShift =
+                                    if (!big) Offset.Zero
+                                    else reined(
+                                        (again.position - middle) * (1f - ZOOM_TAP),
+                                        ZOOM_TAP, room, wide
+                                    )
+                                val fromScale = scale
+                                val fromShift = shift
+                                /*
+                                 * ⚠️⚠️ **CI SI ARRIVA CON UN'ANIMAZIONE, DALLA `2.17`, ED È IL SUO
+                                 * RISCONTRO** (giro della `2.16`, voce `luce-zoom` approvata con
+                                 * una nota: *mi piacerebbe di più se al doppio tocco l'immagine
+                                 * passasse da uno zoom all'altro con un'animazione anziché con uno
+                                 * stacco netto*). ⚠️ **A muoversi è un progresso solo**, e da lui
+                                 * si ricavano ingrandimento e spostamento: animarli separati
+                                 * vorrebbe dire due corse da tenere allineate, e una che finisse
+                                 * prima dell'altra farebbe scivolare l'immagine a ingrandimento
+                                 * fermo.
+                                 */
+                                ride = scope.launch {
+                                    animate(
+                                        initialValue = 0f,
+                                        targetValue = 1f,
+                                        animationSpec = tween(ZOOM_RIDE, easing = FastOutSlowInEasing)
+                                    ) { t, _ ->
+                                        scale = fromScale + (toScale - fromScale) * t
+                                        shift = lerp(fromShift, toShift, t)
+                                    }
                                 }
                                 waitForUpOrCancellation()
                             }
@@ -363,7 +409,7 @@ private fun LookStage(
                             val grown = next / scale
                             val from = centroid - middle
                             scale = next
-                            shift = reined(from + (shift - from) * grown + pan, next)
+                            shift = reined(from + (shift - from) * grown + pan, next, room, wide)
                         }
                     }
                 }
@@ -373,15 +419,24 @@ private fun LookStage(
         if (room.width <= 0f || room.height <= 0f) return@Canvas
         val box = fitted(room, wide)
         val middle = Offset(room.width / 2f, room.height / 2f)
+        /*
+         * ⚠️⚠️ **LO SPOSTAMENTO SI RIPORTA NEI BORDI QUI E NON SOLO NEL GESTO, DALLA `2.17`**: il
+         * limite dipende dall'ingrandimento, quindi durante la corsa del doppio tocco un valore
+         * buono per l'arrivo è **troppo** per un ingrandimento intermedio, e per qualche fotogramma
+         * si vedrebbe una striscia di fondo da un lato. Applicarlo dove si disegna lo chiude per
+         * ogni combinazione, e non toglie niente al gesto: la funzione è pura e applicarla due
+         * volte dà lo stesso risultato.
+         */
+        val safe = reined(shift, scale, room, wide)
         // Il rettangolo da disegnare: quello adattato, ingrandito attorno al centro del palco e
         // poi spostato. ⚠️ **Si scala il RETTANGOLO e non la tela**: il pennello porta uno
         // shader con la sua matrice, e una tela scalata scalerebbe anche quella, cioè
         // ingrandirebbe il conto invece dell'immagine.
         val view = RectF(
-            middle.x + (box.left - middle.x) * scale + shift.x,
-            middle.y + (box.top - middle.y) * scale + shift.y,
-            middle.x + (box.right - middle.x) * scale + shift.x,
-            middle.y + (box.bottom - middle.y) * scale + shift.y
+            middle.x + (box.left - middle.x) * scale + safe.x,
+            middle.y + (box.top - middle.y) * scale + safe.y,
+            middle.x + (box.right - middle.x) * scale + safe.x,
+            middle.y + (box.bottom - middle.y) * scale + safe.y
         )
 
         val image = BitmapShader(picture, TileMode.CLAMP, TileMode.CLAMP).apply {
@@ -451,6 +506,24 @@ private suspend fun AwaitPointerEventScope.transformed(
 }
 
 /**
+ * Lo spostamento [want] riportato dentro i bordi di un'immagine ingrandita di [zoom].
+ *
+ * ⚠️ **Un margine non esiste**: a ingrandimento uno la risposta è zero, cioè l'immagine resta
+ * centrata e nessuna panoramica la può staccare dal centro.
+ *
+ * ⚠️⚠️ **LA LEGGONO IL GESTO E IL DISEGNO, E DALLA `2.17` SERVONO TUTTI E DUE**: il gesto la usa
+ * per non accumulare uno spostamento che poi andrebbe riavvolto, il disegno per il tratto in cui
+ * l'ingrandimento si muove da sé. È **pura e idempotente**, quindi applicarla due volte non
+ * cambia niente.
+ */
+private fun reined(want: Offset, zoom: Float, room: Size, wide: Float): Offset {
+    val box = fitted(room, wide)
+    val slackX = ((box.width() * zoom) - room.width).coerceAtLeast(0f) / 2f
+    val slackY = ((box.height() * zoom) - room.height).coerceAtLeast(0f) / 2f
+    return Offset(want.x.coerceIn(-slackX, slackX), want.y.coerceIn(-slackY, slackY))
+}
+
+/**
  * Il rettangolo in cui un'immagine larga [wide] entra dentro [room] senza deformarsi.
  *
  * ⚠️ **La leggono in due, il disegno e il gesto**, ed è la ragione per cui è una funzione: i
@@ -483,7 +556,22 @@ private class Dial(
     val write: (Light, Float) -> Light,
     val span: Float = 1f,
     val stops: Boolean = false
-)
+) {
+    /**
+     * Il cambiamento che porta questo cursore a [v], da applicare a quello che si vede **adesso**.
+     *
+     * ⚠️⚠️ **È UNA TRASFORMAZIONE E NON UN [Look] GIÀ FATTO, ED È LA CORREZIONE DELLA `2.17`**
+     * (riscontro del giro della `2.16`, voce `luce-sei`: *quasi sempre se modifico il contrasto la
+     * luminosità si azzera; se faccio un doppio tocco su un nome di slider se ne resetta anche un
+     * altro*). Costruendo qui il `Look` di arrivo servirebbe quello di partenza, e chi chiama lo
+     * avrebbe **catturato**: il corpo di un `pointerInput` si ricostruisce solo quando cambiano le
+     * sue chiavi, quindi ogni gesto scriveva a partire dall'immagine di quando il suo nodo era
+     * nato, e tutto quello che gli altri cursori avevano fatto nel frattempo tornava indietro.
+     * Con una trasformazione il punto di partenza lo legge **chi la applica**, che è lo stato
+     * vivo, e l'età della lambda non conta più.
+     */
+    fun set(v: Float): (Look) -> Look = { it.copy(light = write(it.light, v)) }
+}
 
 /**
  * I sei cursori del modulo Luce, nell'ordine in cui la scheda li disegna.
@@ -519,9 +607,9 @@ private fun LookSheet(
     ready: Boolean,
     canUndo: Boolean,
     canRedo: Boolean,
-    onLive: (Look) -> Unit,
+    onLive: ((Look) -> Look) -> Unit,
     onSettled: () -> Unit,
-    onPeek: (Look?) -> Unit,
+    onPeek: (((Look) -> Look)?) -> Unit,
     onUndo: () -> Unit,
     onRedo: () -> Unit,
     onOriginal: () -> Unit
@@ -566,16 +654,17 @@ private fun LookSheet(
                     span = knob.span,
                     stops = knob.stops,
                     enabled = ready && !busy,
-                    onLive = { onLive(look.copy(light = knob.write(light, it))) },
+                    onLive = { onLive(knob.set(it)) },
                     onSettled = onSettled,
                     /*
-                     * ⚠️ **Il valore da confrontare si costruisce QUI**, con lo stesso `write` con
-                     * cui il cursore scrive: è l'immagine di adesso con questo solo campo a zero,
-                     * cioè la risposta alla domanda 'questo cursore, da solo, che cosa fa?'.
+                     * ⚠️ **Il confronto si costruisce QUI**, con lo stesso `set` con cui il cursore
+                     * scrive: è l'immagine di adesso con questo solo campo a zero, cioè la risposta
+                     * alla domanda 'questo cursore, da solo, che cosa fa?'.
+                     * ⚠️⚠️ **E PARTE DA QUELLO CHE SI VEDE ADESSO E NON DA [look]**, per la ragione
+                     * misurata su [Dial.set]: questa riga vive dentro il rilevatore di un gesto, e
+                     * il valore che ci si cattura invecchia.
                      */
-                    onPeek = { on ->
-                        onPeek(if (on) look.copy(light = knob.write(light, 0f)) else null)
-                    }
+                    onPeek = { on -> onPeek(if (on) knob.set(0f) else null) }
                 )
             }
 
@@ -854,7 +943,7 @@ private fun LookDial(
  * *fino a che il dito si alza*. Con l'altra strada servirebbe un secondo gesto per il rilascio, e
  * i due si contenderebbero l'evento.
  */
-private fun Modifier.heldOrTwice(
+internal fun Modifier.heldOrTwice(
     enabled: Boolean,
     onTwice: () -> Unit,
     onHold: (Boolean) -> Unit
@@ -868,8 +957,19 @@ private fun Modifier.heldOrTwice(
         }
         if (esito == null) {
             onHold(true)
-            waitForUpOrCancellation()
-            onHold(false)
+            /*
+             * ⚠️⚠️ **LO SPEGNIMENTO VIVE IN UN `finally`, DALLA `2.17`, E NON È PRUDENZA
+             * GENERICA**:
+             * un rilevatore di gesti viene **annullato** quando il suo `pointerInput` cambia chiave
+             * (qui basta un salvataggio che parte, che spegne i cursori), e un'attesa annullata non
+             * torna alla riga dopo. Senza, il confronto resterebbe acceso per sempre, e l'immagine
+             * mostrerebbe un cursore in meno senza che nessun numero lo dica.
+             */
+            try {
+                waitForUpOrCancellation()
+            } finally {
+                onHold(false)
+            }
             return@awaitEachGesture
         }
         if (esito != Settled.UP) return@awaitEachGesture
@@ -924,3 +1024,13 @@ private const val ZOOM_TAP = 2f
  * quelli della fotografia.
  */
 private const val ZOOM_MAX = 6f
+
+/**
+ * Quanto dura la corsa del doppio tocco, in millisecondi.
+ *
+ * ⚠️ **È il numero della prima stesura e si guarda sul telefono**: il banco misura che la corsa
+ * esista e dove finisca, non come si percepisce. Il riferimento in casa è la dissolvenza fra due
+ * schermate (180 ms): qui è un filo più lunga perché il movimento è più grande, e la curva parte
+ * decisa e si posa, che è il modo in cui una lente si ferma.
+ */
+private const val ZOOM_RIDE = 220
