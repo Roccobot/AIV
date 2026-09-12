@@ -1956,15 +1956,21 @@ riduzione del rumore si giudica su un'immagine che il rumore non ce l'ha più.
   che si leggono nel **disegno** e non in composizione: metterli fra le chiavi di un effetto
   ricomporrebbe il palco a ogni fotogramma di panoramica, che è il costo che quella scelta esiste
   per non pagare.
-- ⚠️ **La lente del colore mirato resta sull'anteprima**, e non è una dimenticanza: il colore che
-  il mirato prende lo legge `colourAt` da lei, quindi una lente che mostrasse i pixel del file
-  farebbe vedere un pixel e ne prenderebbe un altro.
+- ⚠️⚠️ **LA LENTE DEL COLORE MIRATO MOSTRA QUESTO PEZZO, DALLA `2.28`, ED È LA SUA RISPOSTA
+  `pieno` A `d-lente-pieno`**: quello che si vede nel mirino è esattamente il pixel che si prende,
+  perché `colourAt` campiona dallo stesso pezzo con lo stesso conto. ⚠️ **Fino alla `2.27` era il
+  contrario e la ragione era buona**: la lente mostrava l'anteprima perché il colore veniva di là,
+  e mostrare i pixel del file campionandone altri avrebbe fatto vedere un pixel e preso l'altro.
+  A cadere non è quell'argomento, è la metà che teneva ferma: adesso si muovono insieme, e il
+  perché vive in § '📈 Il modulo Curve, e il colore mirato'.
 - ⚠️ **Al Dettaglio si consegna il lato dell'immagine INTERA**, non quello del pezzo: quel modulo
   ragiona in frazioni del lato, e col lato del pezzo il filtro cambierebbe forza mentre si sposta
   la panoramica.
-- ⚠️⚠️ **CHE COSA IL BANCO MISURA E CHE COSA NO** (`TasselloTest`, sei casi controprovati): il
+- ⚠️⚠️ **CHE COSA IL BANCO MISURA E CHE COSA NO** (`TasselloTest`, ogni caso controprovato): il
   conto, cioè la soglia, che il pezzo sia la porzione inquadrata in pixel del file, che senza
-  guadagno non si legga, e che il tetto alzi il campionamento invece di chiedere una montagna.
+  guadagno non si legga, e che il tetto alzi il campionamento invece di chiedere una montagna;
+  dalla `2.28` anche i **due conti del pezzo**, cioè dove si posa e quale pixel cade sotto un
+  punto, che si misurano con un bitmap scritto a mano e senza nessun file da aprire.
   **Non** vede il pezzo letto: quello vuole un file vero e un `BitmapRegionDecoder` che lo apra,
   e si guarda sul telefono.
 
@@ -2618,6 +2624,25 @@ curve, forse*). Un tondo ingrandito compare sopra il dito, col mirino sul pixel 
   proprio nel punto in cui bisogna distinguerli. Il pennello è **uno** per i due rettangoli
   (`pennello`, in `AdvancedEditorScreen.kt`), o la lente mostrerebbe un'immagine sviluppata in un
   altro modo.
+- ⚠️⚠️ **E DALLA `2.28` QUELLO CHE INGRANDISCE È IL PEZZO LETTO DAL FILE, QUANDO C'È, CHE È LA SUA
+  RISPOSTA `pieno` A `d-lente-pieno`** (giro della `2.27`): dalla `2.24` alla `2.27` mostrava
+  l'anteprima, cioè la riduzione a 1600 pixel di lato su cui l'editor lavora, quindi ingrandita sei
+  volte faceva vedere i pixel di quella e non quelli della fotografia. Adesso sotto il mirino c'è
+  il file.
+  - ⚠️⚠️ **E IL COLORE SI PRENDE DALLO STESSO PEZZO, CON LO STESSO CONTO**: sono **una** modifica e
+    non due, perché disegnare il file e campionare l'anteprima (o il contrario) è esattamente il
+    difetto che la nota della `2.24` esisteva per evitare, cioè vedere un pixel e prenderne un
+    altro. I due conti vivono in `SharpPiece`, in `Regions.kt`, e chi tocca uno dei due chiamanti
+    guardi l'altro.
+  - ⚠️ **Quello che si guadagna è un colore più preciso**, e si vede dove il disegno è fine: un
+    pixel dell'anteprima è la media di due o tre pixel veri, quindi puntando un capello o una riga
+    di testo il colore preso poteva cadere in una fascia che con quel pixel non c'entrava.
+  - ⚠️ **Il pezzo copre la sola finestra inquadrata**, quindi fuori di lì il colore torna a venire
+    dall'anteprima: è il caso normale e non un ripiego, perché quello che si vede fuori da quella
+    finestra è l'anteprima anche sul palco.
+  - ⚠️ **Il banco misura i due conti e non il disegno**: montare il palco col pezzo vuole un file
+    vero e un `BitmapRegionDecoder`, quindi che la lente mostri davvero i pixel del file si guarda
+    sul telefono, e la voce di collaudo lo chiede.
 - ⚠️ **L'ingrandimento si moltiplica a quello del palco invece di sostituirlo**: chi ha già
   ingrandito sta guardando da vicino, e una lente a scala fissa gliela mostrerebbe più piccola di
   quello che ha davanti.

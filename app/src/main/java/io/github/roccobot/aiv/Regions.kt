@@ -362,6 +362,62 @@ internal fun sharpAsk(
     return Sharpening.Read(area, sample)
 }
 
+/**
+ * Un pezzo del file letto a risoluzione piena, con le frazioni di immagine che copre.
+ *
+ * ⚠️ **Le frazioni e non i pixel di schermo**: il rettangolo dove disegnarlo si ricalcola a ogni
+ * fotogramma da quello dell'immagine intera, quindi il pezzo resta incollato alla fotografia
+ * anche se la vista si è mossa fra la richiesta e la risposta.
+ * ⚠️⚠️ **QUESTA MAPPA DI PIXEL NON SI RICICLA MAI, e non è una svista**: quando ne arriva una
+ * nuova, la vecchia può essere ancora dentro lo shader di un fotogramma che si sta disegnando, e
+ * `recycle` là vuol dire cadere. Se ne occupa il raccoglitore, come per ogni altro bitmap
+ * dell'app.
+ * ⚠️⚠️ **VIVE QUI DALLA `2.28`, COI SUOI DUE CONTI, E PRIMA ERA UNA CLASSE NUDA NELL'EDITOR**: da
+ * quando la lente del colore mirato mostra il pezzo, ognuno dei due conti ha **due** chiamanti, e
+ * due copie delle stesse tre righe darebbero un rattoppo al posto giusto sul palco e al posto
+ * sbagliato dentro la lente. Con loro qui, il banco può misurarli senza un file vero.
+ *
+ * @property area lo stesso rettangolo in coordinate **viste**, cioè in pixel del file: serve a
+ * riconoscere il pezzo che si ha già in mano.
+ */
+internal class SharpPiece(val pixels: Bitmap, val area: Rect, val at: RectF) {
+
+    /**
+     * Dove disegnare il pezzo, dato [view], cioè dove l'immagine **intera** è disegnata adesso.
+     *
+     * ⚠️ **Lo chiedono in due e vogliono due rettangoli diversi**: il palco passa la propria vista,
+     * la lente quella ingrandita del suo tondo. È lo stesso conto, e per questo è una funzione.
+     */
+    fun place(view: RectF): RectF = RectF(
+        view.left + at.left * view.width(),
+        view.top + at.top * view.height(),
+        view.left + at.right * view.width(),
+        view.top + at.bottom * view.height()
+    )
+
+    /**
+     * Il colore del pixel che cade a [u],[v], frazioni dell'immagine **intera**, o `null` se quel
+     * punto è fuori dal pezzo.
+     *
+     * ⚠️⚠️ **IL `null` NON È UN ERRORE: È IL CASO NORMALE FUORI DALLA FINESTRA INQUADRATA**, e chi
+     * chiama torna all'anteprima. Il pezzo copre quello che si vede, e il mirino si trascina anche
+     * oltre.
+     * ⚠️ **Le due conversioni sono una sola riga per asse**, e vanno tenute insieme: sbagliarne una
+     * dà un colore preso da un altro punto dell'immagine, che non dà nessun errore e a occhio non
+     * si distingue da una scelta legittima.
+     */
+    fun pixel(u: Float, v: Float): Int? {
+        if (at.width() <= 0f || at.height() <= 0f) return null
+        if (u < at.left || u > at.right || v < at.top || v > at.bottom) return null
+        val x = ((u - at.left) / at.width() * (pixels.width - 1)).roundToInt()
+        val y = ((v - at.top) / at.height() * (pixels.height - 1)).roundToInt()
+        return pixels.getPixel(
+            x.coerceIn(0, pixels.width - 1),
+            y.coerceIn(0, pixels.height - 1)
+        )
+    }
+}
+
 /** La potenza di due immediatamente sotto, e mai meno di uno. */
 private fun powerOfTwoAtMost(value: Float): Int =
     if (value < 2f) 1 else Integer.highestOneBit(value.toInt())

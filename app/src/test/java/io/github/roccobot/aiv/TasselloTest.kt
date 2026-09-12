@@ -1,8 +1,11 @@
 package io.github.roccobot.aiv
 
+import android.graphics.Bitmap
+import android.graphics.Rect
 import android.graphics.RectF
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -21,11 +24,19 @@ import org.junit.runner.RunWith
  * file vero e un `BitmapRegionDecoder` che lo apra, e si guardano sul telefono: la voce di
  * collaudo lo chiede.
  *
+ * ⚠️⚠️ **E DALLA `2.28` MISURA ANCHE I DUE CONTI DEL PEZZO**, cioè [SharpPiece.place] e
+ * [SharpPiece.pixel]: da quando la lente del colore mirato mostra il pezzo invece dell'anteprima,
+ * ognuno dei due ha **due** chiamanti, e quello che i due devono dire è la stessa cosa. Sono
+ * misurabili qui perché il trasloco della stessa versione li ha portati in `Regions.kt`: un pezzo
+ * si costruisce con un bitmap scritto a mano, senza nessun file da aprire.
+ *
  * ⚠️ **Ogni caso è controprovato rimettendo il difetto**, come prescrive
  * `AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e quando no': togliendo la guardia
  * dell'ingrandimento il caso 1 passa a `Read`, togliendo il tetto il caso 5 chiede un pezzo da
- * cinque milioni e mezzo di pixel, e ricavando l'area dalle misure dell'anteprima invece che da
- * quelle del file il caso 3 la trova nell'angolo sbagliato.
+ * cinque milioni e mezzo di pixel, ricavando l'area dalle misure dell'anteprima invece che da
+ * quelle del file il caso 3 la trova nell'angolo sbagliato, scambiando i due assi in [place] il
+ * caso 7 posa il pezzo fuori dall'immagine, e leggendo le frazioni senza togliere l'origine del
+ * pezzo il caso 8 prende l'ultimo pixel al posto di quello di mezzo.
  */
 @RunWith(AndroidJUnit4::class)
 class TasselloTest {
@@ -169,5 +180,80 @@ class TasselloTest {
         )
         val letto = esito as Sharpening.Read
         assertTrue("Undici pixel per pixel: il campionamento è ${letto.sample}", letto.sample >= 8)
+    }
+
+    /**
+     * Un pezzo finto che copre la porzione centrale dell'immagine, con ogni pixel di un colore che
+     * dice da dove viene: così un colore letto è insieme il valore e il punto che lo porta.
+     *
+     * ⚠️ **I lati sono dispari e diversi fra loro**: con un pezzo quadrato uno scambio degli assi
+     * non si vedrebbe, e con lati pari il pixel di mezzo non esisterebbe.
+     */
+    private fun pezzo(): SharpPiece {
+        val larghi = 9
+        val alti = 5
+        val pixels = Bitmap.createBitmap(larghi, alti, Bitmap.Config.ARGB_8888)
+        for (y in 0 until alti) {
+            for (x in 0 until larghi) {
+                pixels.setPixel(x, y, 0xFF000000.toInt() or (x shl 8) or y)
+            }
+        }
+        return SharpPiece(
+            pixels = pixels,
+            area = Rect(1200, 1600, 3600, 3200),
+            at = RectF(0.2f, 0.4f, 0.6f, 0.8f)
+        )
+    }
+
+    /**
+     * **Caso 7: il pezzo si posa dove dicono le sue frazioni, sul rettangolo che gli si dà.**
+     *
+     * ⚠️ **La vista non è quadrata di proposito**: è quello che distingue il conto giusto da uno
+     * che misuri tutti e due gli assi sulla larghezza, e su un palco quadrato i due coinciderebbero.
+     * ⚠️ **Chi glielo chiede sono due**, il palco con la propria vista e la lente con quella
+     * ingrandita del suo tondo: è la ragione per cui questo conto è una funzione e non due righe
+     * scritte due volte.
+     */
+    @Test
+    fun `il pezzo si posa dove dicono le frazioni`() {
+        val dove = pezzo().place(RectF(100f, 200f, 500f, 400f))
+        assertEquals("Bordo sinistro", 180f, dove.left, 0.01f)
+        assertEquals("Bordo di sopra", 280f, dove.top, 0.01f)
+        assertEquals("Bordo destro", 340f, dove.right, 0.01f)
+        assertEquals("Bordo di sotto", 360f, dove.bottom, 0.01f)
+    }
+
+    /**
+     * **Caso 8: il colore preso è quello del pixel del file sotto il punto.**
+     *
+     * ⚠️⚠️ **LE FRAZIONI IN INGRESSO SONO QUELLE DELL'IMMAGINE INTERA, NON DEL PEZZO**, ed è il
+     * difetto che questa prova esiste per prendere: leggendole come frazioni del pezzo, il punto di
+     * mezzo darebbe l'ultimo pixel e il colore preso sarebbe quello di un altro punto della
+     * fotografia. Non dà nessun errore, e a occhio non si distingue da una scelta legittima.
+     * ⚠️ **Il colore dice dove sta**, quindi l'asserzione nomina il pixel e non un valore: `0x0402`
+     * è il pixel che cade a quattro colonne e due righe, cioè il centro.
+     */
+    @Test
+    fun `il colore preso viene dal pixel giusto del pezzo`() {
+        val fine = pezzo()
+        assertEquals("Il primo pixel", 0xFF000000.toInt(), fine.pixel(0.2f, 0.4f))
+        assertEquals("Quello di mezzo", 0xFF000402.toInt(), fine.pixel(0.4f, 0.6f))
+        assertEquals("L'ultimo", 0xFF000804.toInt(), fine.pixel(0.6f, 0.8f))
+    }
+
+    /**
+     * **Caso 9: fuori dalla finestra inquadrata non c'è colore, e non è un errore.**
+     *
+     * ⚠️ Il pezzo copre quello che si vede, e il mirino si trascina anche oltre: là il `null` manda
+     * il chiamante all'anteprima, che l'immagine intera ce l'ha. Senza questa guardia si
+     * prenderebbe il pixel del bordo del pezzo, cioè un colore sbagliato spacciato per buono.
+     */
+    @Test
+    fun `fuori dal pezzo non si prende niente`() {
+        val fine = pezzo()
+        assertNull("A sinistra del pezzo", fine.pixel(0.1f, 0.6f))
+        assertNull("Sopra il pezzo", fine.pixel(0.4f, 0.1f))
+        assertNull("A destra del pezzo", fine.pixel(0.9f, 0.6f))
+        assertNull("Sotto il pezzo", fine.pixel(0.4f, 0.95f))
     }
 }
