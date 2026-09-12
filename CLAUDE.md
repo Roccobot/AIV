@@ -2108,8 +2108,15 @@ torna sopra non le rifaccia:
 posto di un'immagine già fatta (§ `Dial.set`), così nessun gesto porta più con sé un `Look` che
 possa invecchiare; e il confronto tenuto come **trasformazione** invece che come fotografia, così
 un confronto rimasto acceso non congela quello che si vede. Nessuna delle due è la cura misurata
-di quel difetto, e la voce di collaudo lo dice all'utente insieme alla domanda che discrimina: si
-azzera il **numero** del cursore, o solo l'immagine?
+di quel difetto, e restano perché il sintomo è sparito senza che si sappia quale delle tre righe
+lo abbia tolto.
+
+⚠️⚠️ **E IL SINTOMO NON C'È PIÙ, CHE È LA SUA RISPOSTA `via` A `d-legame-cosa`** (giro della
+`2.17`: *non succede più*). La domanda serviva a distinguere le due cause (si azzera il numero
+del cursore, o soltanto l'immagine?), e la risposta la chiude **senza** distinguerle: quello che
+si sa è che il difetto è uscito con la `2.17`, non quale delle tre righe lo abbia tolto.
+- ⚠️ **Le quattro ipotesi qui sopra non decadono**: restano misure vere, e chi ritrovasse quel
+  sintomo riparte da lì invece di rifarle.
 
 ⚠️⚠️ **E IL DOPPIO TOCCO SULL'IMMAGINE CI ARRIVA CON UNA CORSA, DALLA `2.17`** (stesso giro, voce
 `luce-zoom` approvata con una nota: *mi piacerebbe di più se al doppio tocco l'immagine passasse
