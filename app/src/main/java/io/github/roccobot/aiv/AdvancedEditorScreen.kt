@@ -628,7 +628,7 @@ private fun LookStage(
                 }
 
                 /**
-                 * Il colore del pixel dell'anteprima sotto il punto [at], o `null` se là c'è il
+                 * Il colore del pixel dell'immagine sotto il punto [at], o `null` se là c'è il
                  * fondo del palco invece dell'immagine.
                  *
                  * ⚠️⚠️ **IL COLORE È QUELLO DEL FILE E NON QUELLO CHE SI VEDE, e va detto**: quello
@@ -638,6 +638,12 @@ private fun LookStage(
                  * il dito lo vede.
                  * ⚠️ **Il rettangolo è quello del disegno**, e passa dalla stessa funzione: sono
                  * lo stesso conto, e il disegno lo fa già a ogni fotogramma.
+                 * ⚠️⚠️ **E DALLA `2.28` SI PRENDE DAL PEZZO NITIDO QUANDO C'È**, che è la sua
+                 * risposta `pieno` a `d-lente-pieno`: un pixel dell'anteprima è la media di due o
+                 * tre pixel veri, quindi puntando un dettaglio fine il colore preso poteva cadere
+                 * in una fascia che con quel pixel non c'entrava. ⚠️ **Va insieme al disegno della
+                 * lente**, che dalla stessa versione mostra lo stesso pezzo: se uno dei due
+                 * cambiasse senza l'altro, si tornerebbe a vedere un pixel e a prenderne un altro.
                  */
                 fun colourAt(at: Offset): Int? {
                     val view = viewport(room, wide, scale, shift)
@@ -649,6 +655,7 @@ private fun LookStage(
                     if (r - l <= 0f || b - t <= 0f) return null
                     val u = ((at.x - l) / (r - l)).coerceIn(0f, 1f)
                     val v = ((at.y - t) / (b - t)).coerceIn(0f, 1f)
+                    sharp?.pixel(u, v)?.let { return it }
                     return picture.getPixel(
                         (u * (picture.width - 1)).roundToInt(),
                         (v * (picture.height - 1)).roundToInt()
@@ -963,12 +970,7 @@ private fun LookStage(
          */
         val fine = sharp
         if (fine != null) {
-            val dove = RectF(
-                view.left + fine.at.left * view.width(),
-                view.top + fine.at.top * view.height(),
-                view.left + fine.at.right * view.width(),
-                view.top + fine.at.bottom * view.height()
-            )
+            val dove = fine.place(view)
             drawIntoCanvas { tela ->
                 tela.drawRect(
                     dove.left, dove.top, dove.right, dove.bottom,
@@ -1012,17 +1014,34 @@ private fun LookStage(
             // come un secondo disegno invece che come il fuori.
             drawCircle(color = lensBack, radius = raggio, center = centro)
             /*
-             * ⚠️ **La lente mostra l'ANTEPRIMA anche quando il pezzo nitido c'è**, e non è una
-             * dimenticanza: il colore che il mirato prende lo legge `colourAt` dall'anteprima,
-             * quindi una lente che mostrasse i pixel del file farebbe vedere un pixel e ne
-             * prenderebbe un altro. Era la stessa ragione per cui il filtro qui è a pixel interi.
+             * ⚠️⚠️ **DALLA `2.28` LA LENTE MOSTRA IL PEZZO LETTO DAL FILE, QUANDO C'È, ED È LA SUA
+             * RISPOSTA `pieno` A `d-lente-pieno`**: quello che si vede nel mirino è esattamente il
+             * pixel che si prende. ⚠️ **Le due cose vanno insieme e non si possono separare**:
+             * `colourAt` legge dallo stesso pezzo con lo stesso conto (`SharpPiece.pixel`), quindi
+             * disegnare qui il file e campionare di là l'anteprima, o il contrario, farebbe vedere
+             * un pixel e prenderne un altro. Chi tocca una delle due guardi l'altra.
+             * ⚠️ **Il pezzo si dipinge SOPRA l'anteprima anche qui**, come sul palco: copre la sola
+             * finestra inquadrata, e dove non arriva resta l'immagine intera invece di un buco.
+             * ⚠️ **Il filtro resta a pixel interi in tutti e due i rettangoli**: qui si guarda
+             * **quale** pixel si sta prendendo, e una fusione coi vicini lo nasconderebbe proprio
+             * dove va distinto.
              */
+            val vetro = max(vista.width(), vista.height())
             clipPath(tondo) {
                 drawIntoCanvas { tela ->
                     tela.drawRect(
                         vista.left, vista.top, vista.right, vista.bottom,
-                        pennello(picture, vista, true, max(vista.width(), vista.height()))
+                        pennello(picture, vista, true, vetro)
                     )
+                }
+                if (fine != null) {
+                    val sotto = fine.place(vista)
+                    drawIntoCanvas { tela ->
+                        tela.drawRect(
+                            sotto.left, sotto.top, sotto.right, sotto.bottom,
+                            pennello(fine.pixels, sotto, true, vetro)
+                        )
+                    }
                 }
             }
             // ⚠️ **Il bordo è quello di casa**: 2dp d'accento, come ogni superficie dell'app
@@ -1189,21 +1208,6 @@ private fun fitted(room: Size, wide: Float): RectF =
         val h = w / wide
         RectF(0f, (room.height - h) / 2f, w, (room.height + h) / 2f)
     }
-
-/**
- * Un pezzo del file letto a risoluzione piena, con le frazioni di immagine che copre.
- *
- * ⚠️ **Le frazioni e non i pixel di schermo**: il rettangolo dove disegnarlo si ricalcola a ogni
- * fotogramma da quello dell'immagine intera, quindi il pezzo resta incollato alla fotografia
- * anche se la vista si è mossa fra la richiesta e la risposta.
- * ⚠️⚠️ **QUESTA MAPPA DI PIXEL NON SI RICICLA MAI, e non è una svista**: quando ne arriva una
- * nuova, la vecchia può essere ancora dentro lo shader di un fotogramma che si sta disegnando, e
- * `recycle` là vuol dire cadere. Se ne occupa il raccoglitore, come per ogni altro bitmap
- * dell'app.
- * @property area lo stesso rettangolo in coordinate **viste**, cioè in pixel del file: serve a
- * riconoscere il pezzo che si ha già in mano.
- */
-private class SharpPiece(val pixels: Bitmap, val area: PixelRect, val at: RectF)
 
 /**
  * Dove l'immagine intera finisce sullo schermo: adattata al palco, ingrandita attorno al suo
