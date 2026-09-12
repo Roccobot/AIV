@@ -1841,7 +1841,7 @@ mestieri dovrebbe
 ricomprimere anche quando gira una fotografia, cioè perdere qualità per un gesto che oggi non ne
 fa perdere. Chi tocca 'Modifica' sceglie fra i due la prima volta, e la scelta si ricorda.
 - ⚠️ **Arriva in più versioni e il modulo **Luce** è la prima**: dopo di lei sono usciti il Colore,
-  l'HSL, il Dettaglio e le **Curve**, e quelle che restano (l'anteprima a risoluzione piena, la
+  l'HSL, il Dettaglio, le **Curve** e l'anteprima a risoluzione piena, e quelle che restano (la
   geometria col raddrizzamento, i preset) vivono nel piano d'azione, che è il posto delle versioni
   in sequenza.
 
@@ -1924,6 +1924,50 @@ editando*): pinza, panoramica e doppio tocco.
 - ⚠️ **Si scala il rettangolo e non la tela**: il pennello porta uno shader con la sua matrice, e
   una tela scalata ingrandirebbe il conto invece dell'immagine.
 
+⚠️⚠️ **MA DALLA `2.27` QUELLO CHE SI VEDE INGRANDITO ARRIVA DAL FILE, ED È LA SUA RISPOSTA
+`pieno` A `d-dett-vedere`** (giro della `2.22`): fermandosi, la finestra inquadrata si **rilegge
+a piena risoluzione** e si dipinge sopra l'anteprima. È l'unico dei sette lavori in sequenza che
+non è un modulo e non porta cursori, e serve al Dettaglio più che a tutti gli altri: su una
+riduzione a 1600 pixel di lato la grana del sensore è **già stata mediata**, quindi là la
+riduzione del rumore si giudica su un'immagine che il rumore non ce l'ha più.
+- ⚠️⚠️ **IL CONTO CHE SCEGLIE IL PEZZO È QUELLO DEL VISUALIZZATORE, TRASLOCATO E NON RISCRITTO**:
+  vive in `Regions.kt` (`sharpAsk`), dove già viveva la lettura a pezzi, e la stessa funzione la
+  chiamano tutte e due le schermate. Due copie di quell'aritmetica sarebbero divergenti al primo
+  ritocco, ed è la seconda volta che questo repository incontra quel conto.
+  - **Quello che le due geometrie non condividono** è come si arriva al rettangolo: il
+    visualizzatore lo ricava dal proprio `graphicsLayer`, l'editor da `viewport`. Quindi il conto
+    riceve il **risultato**, cioè dove l'immagine intera finisce sullo schermo, e non scala e
+    spostamento.
+  - ⚠️ **Con lui cambia un dato del visualizzatore, e si dichiara**: il guadagno si misura sui
+    **pixel del bitmap di base** e non sulla sua misura su schermo. Le due coincidono al 100%, e
+    dove divergono la formula nuova è quella giusta: un bitmap campionato disegnato piccolo non
+    guadagna niente da una rilettura, e uno ingrandito già a riposo sì.
+- ⚠️⚠️ **LA SOGLIA SI RICAVA E NON È UN NUMERO**: si legge dal file solo quando l'anteprima è
+  disegnata **più larga dei propri pixel**, perché sotto quel confine un suo pixel copre meno di
+  un pixel di schermo e il dettaglio che manca non si vedrebbe comunque.
+- ⚠️⚠️ **IL PEZZO SI DIPINGE SOPRA L'ANTEPRIMA E NON AL SUO POSTO**, ed è quello che rende innocua
+  tutta la strada: sotto c'è sempre l'immagine intera, quindi finché il pezzo non arriva non manca
+  niente, e se un giorno finisse fuori posto si vedrebbe un rettangolo spostato invece di un
+  buco. ⚠️ **È ancorato all'immagine e non allo schermo**: quello che si tiene sono le frazioni
+  che copre, quindi resta incollato alla fotografia mentre il dito la muove.
+- ⚠️⚠️ **SI CHIEDE A GESTO FINITO, E IL VIA È UN CONTATORE**: durante una pinza la vista passa per
+  cento posizioni, e leggere a ognuna vorrebbe dire decodificare sessanta volte al secondo pezzi
+  che nessuno ha ancora guardato. ⚠️ **E dev'essere un contatore invece di scala e spostamento**,
+  che si leggono nel **disegno** e non in composizione: metterli fra le chiavi di un effetto
+  ricomporrebbe il palco a ogni fotogramma di panoramica, che è il costo che quella scelta esiste
+  per non pagare.
+- ⚠️ **La lente del colore mirato resta sull'anteprima**, e non è una dimenticanza: il colore che
+  il mirato prende lo legge `colourAt` da lei, quindi una lente che mostrasse i pixel del file
+  farebbe vedere un pixel e ne prenderebbe un altro.
+- ⚠️ **Al Dettaglio si consegna il lato dell'immagine INTERA**, non quello del pezzo: quel modulo
+  ragiona in frazioni del lato, e col lato del pezzo il filtro cambierebbe forza mentre si sposta
+  la panoramica.
+- ⚠️⚠️ **CHE COSA IL BANCO MISURA E CHE COSA NO** (`TasselloTest`, sei casi controprovati): il
+  conto, cioè la soglia, che il pezzo sia la porzione inquadrata in pixel del file, che senza
+  guadagno non si legga, e che il tetto alzi il campionamento invece di chiedere una montagna.
+  **Non** vede il pezzo letto: quello vuole un file vero e un `BitmapRegionDecoder` che lo apra,
+  e si guarda sul telefono.
+
 ⚠️⚠️ **E DALLA `2.18` SI INGRANDISCE ANCHE A UNA MANO** (nota sulla voce `zoom-corsa` del giro della
 `2.17`, approvata: *mi piacerebbe anche il gesto di ingrandimento a una mano: doppio tocco con
 trascinamento al secondo (giù per ingrandire)*): il secondo tocco di un doppio tocco, invece di
@@ -2003,7 +2047,8 @@ e un interruttore porta l'immagine in **bianco e nero**.
     piena quando si ingrandisce**, che è la sua risposta `pieno` a `d-dett-vedere` (giro della
     `2.22`). Non porta cursori: ridecodifica dal file la sola finestra inquadrata, perché oggi
     l'editor lavora su una riduzione e là la grana del sensore è già mediata. La scelta stessa
-    dichiarava che costa una versione a parte, ed entra in sequenza **dopo le Curve**.
+    dichiarava che costa una versione a parte, ed è **uscita con la `2.27`**, dopo le Curve: il
+    come vive più sotto, sotto il blocco dell'ingrandimento.
 
 ⚠️⚠️ **E CON LUI ARRIVA LA FILA DEI MODULI, COL 'RESET MODULO' SUL TOCCO LUNGO** (campo libero del
 giro della `2.14`, punto 2: *per ciascun modulo ci dev'essere anche un 'Reset modulo'... potrebbe
@@ -2546,6 +2591,17 @@ curve, forse*). Un tondo ingrandito compare sopra il dito, col mirino sul pixel 
     - ⚠️⚠️ **QUINDI 'IL TEMPO E IL DISEGNO DALLA STESSA SORGENTE' È UNA NOTA SUPERATA**: era la
       ragione per cui l'attesa era un'animazione invece di un timeout, e con il contatore se ne va
       anche lei. Chi la ritrova in un commento vecchio sappia che oggi l'attesa è un `delay`.
+    - ⚠️⚠️ **E DALLA `2.27` QUELLA VIBRAZIONE NON È PIÙ QUELLA DEL TOCCO LUNGO, PERCHÉ LA VOLEVA
+      PIÙ FORTE** (nota su `d-armato-segno`, giro della `2.26`: *Vibrazione lievemente più forte*).
+      Il tipo è `AIM_BUZZ`, che vive accanto a `HOLD_BUZZ` in `ActionPad.kt` ed è il gradino
+      subito sopra: `ContextClick` vale **6** e `TextHandleMove` vale **9** nel bytecode di
+      `PlatformHapticFeedbackType`, dove il nove è il colpetto più leggero della famiglia.
+      - ⚠️⚠️ **LE COSTANTI SONO DUE PERCHÉ `HOLD_BUZZ` NON SI PUÒ TOCCARE**: quella è il colpetto
+        di **ogni** pressione lunga dell'app, e la `1.21` l'ha resa più discreta su sua richiesta
+        (*vorrei una vibrazione leggermente più breve ... morbida e discreta*). Alzarla qui
+        vorrebbe dire rovesciare quella richiesta in venti punti che col mirino non c'entrano.
+      - ⚠️ **E non `LongPress`**, che è il colpo pieno già scartato dalla `1.21`: 'lievemente' non
+        lo giustifica.
   - ⚠️ **Un dito che si alza prima sceglie lo stesso**: l'attesa è nata per separare il
     trascinamento dalla scelta, non per mettere un pedaggio davanti alla scelta, e senza quella
     riga un tocco secco non farebbe più niente.

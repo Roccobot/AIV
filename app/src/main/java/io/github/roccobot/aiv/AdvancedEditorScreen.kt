@@ -6,6 +6,7 @@ import android.graphics.BitmapShader
 import android.graphics.Matrix
 import android.graphics.RectF
 import android.graphics.Shader.TileMode
+import android.graphics.Rect as PixelRect
 import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.BackHandler
@@ -93,6 +94,7 @@ import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -223,6 +225,37 @@ fun AdvancedEditorScreen(
     }
 
     /**
+     * La lettura a pezzi del file vero, per quando si ingrandisce: `null` finché non si sa, e
+     * `null` per sempre se quel file non si sa rileggere a pezzi.
+     *
+     * ⚠️⚠️ **SERVE PERCHÉ QUESTO EDITOR LAVORA SU UN'ANTEPRIMA, ED È LA SUA RISPOSTA `pieno` A
+     * `d-dett-vedere`** (giro della `2.22`): l'immagine che si sviluppa è ridotta a 1600 pixel di
+     * lato per essere immediata, quindi ingrandendo si guardano **i suoi** pixel e non quelli
+     * della fotografia, e la grana che il modulo Dettaglio esiste per togliere là è già stata
+     * mediata. Rileggere dal file la sola finestra inquadrata è il solo modo di vedere quello su
+     * cui si sta lavorando davvero.
+     * ⚠️ **Non si ridecodifica l'immagine intera**, che è esattamente quello che l'anteprima esiste
+     * per evitare: a venti megapixel sarebbero ottanta megabyte fermi per tutto il tempo in cui la
+     * schermata è aperta.
+     */
+    var full by remember(uri) { mutableStateOf<RegionSource?>(null) }
+    LaunchedEffect(uri, origin) {
+        val base = origin ?: return@LaunchedEffect
+        if (full == null) full = RegionSource.open(context, uri, base)
+    }
+    /*
+     * ⚠️ **Il decodificatore tiene i byte del file in memoria nativa**, quindi va chiuso quando la
+     * schermata se ne va: senza, quella memoria resta presa fino al primo giro del raccoglitore.
+     * La cattura in una variabile locale non è cerimonia: il lambda di `onDispose` deve chiudere
+     * **quello** che l'effetto aveva in mano, e leggendo lo stato delegato prenderebbe quello di
+     * adesso.
+     */
+    val opened = full
+    DisposableEffect(opened) {
+        onDispose { opened?.close() }
+    }
+
+    /**
      * Un passo compiuto entra nella storia, e taglia quello che veniva dopo.
      *
      * ⚠️⚠️ **QUELLO CHE ENTRA È [look], CIOÈ QUELLO CHE SI VEDE, E NON UN VALORE CHE ARRIVA
@@ -335,6 +368,7 @@ fun AdvancedEditorScreen(
             } else {
                 LookStage(
                     picture = picture,
+                    full = full,
                     look = if (comparing) Look.NONE else peek?.invoke(look) ?: look,
                     onCompare = { comparing = it },
                     /*
@@ -426,6 +460,11 @@ fun AdvancedEditorScreen(
 @Composable
 private fun LookStage(
     picture: Bitmap,
+    /**
+     * Da dove rileggere il file a piena risoluzione quando [picture] viene ingrandita oltre i
+     * propri pixel, o `null` se quel file non si sa rileggere a pezzi.
+     */
+    full: RegionSource?,
     look: Look,
     onCompare: (Boolean) -> Unit,
     /**
@@ -501,11 +540,72 @@ private fun LookStage(
     val scope = rememberCoroutineScope()
     val wide = picture.width.toFloat() / picture.height
 
+    /** Il pezzo di file letto a risoluzione piena, quando c'è: vedi [SharpPiece]. */
+    var sharp by remember(picture) { mutableStateOf<SharpPiece?>(null) }
+    /**
+     * Quanto è grande il palco, misurato dal layout.
+     *
+     * ⚠️ **Serve solo alla richiesta del pezzo**: il disegno la misura da sé a ogni fotogramma
+     * (`size`, dentro il `Canvas`), ma una richiesta vive in una coroutine, dove quel numero non
+     * si può leggere. Costa una ricomposizione alla prima misura e a ogni rotazione.
+     */
+    var stage by remember(picture) { mutableStateOf(Size.Zero) }
+    /**
+     * Sale di uno ogni volta che la vista si **ferma**, ed è il via alla richiesta del pezzo.
+     *
+     * ⚠️⚠️ **SI CHIEDE A GESTO FINITO, E NON È UN RIPIEGO DEL DEBOUNCE**: durante una pinza la
+     * vista passa per cento posizioni, e leggere dal file a ognuna vorrebbe dire decodificare
+     * sessanta volte al secondo pezzi che nessuno ha ancora guardato. Finché ci si muove si vede
+     * l'anteprima ingrandita, cioè quello che si vedeva prima di questa funzione.
+     * ⚠️⚠️ **E DEVE ESSERE UN CONTATORE INVECE DI `scale` E `shift`**: quei due si leggono nel
+     * **disegno** e non in composizione, ed è quello che tiene un gesto a costo zero (la nota vive
+     * su [lens]). Metterli fra le chiavi di un effetto li porterebbe in composizione, cioè
+     * ricomporrebbe il palco a ogni fotogramma di panoramica.
+     */
+    var resting by remember(picture) { mutableIntStateOf(0) }
+
+    /*
+     * ⚠️⚠️ **QUI DENTRO [scale] E [shift] SI LEGGONO SENZA COSTO**: il blocco di un
+     * `LaunchedEffect` gira in una coroutine, fuori dalla passata di composizione, quindi le sue
+     * letture di stato non diventano dipendenze di nessuno. È la ragione per cui le chiavi sono
+     * [resting] e [stage] e non i due valori che al conto servono davvero.
+     */
+    LaunchedEffect(picture, full, stage, resting) {
+        val source = full
+        if (source == null || stage.width <= 0f || stage.height <= 0f) {
+            sharp = null
+            return@LaunchedEffect
+        }
+        val view = viewport(stage, wide, scale, shift)
+        val ask = sharpAsk(
+            source.width, source.height, picture.width, view, stage.width, stage.height
+        )
+        if (ask !is Sharpening.Read) {
+            sharp = null
+            return@LaunchedEffect
+        }
+        // Lo stesso pezzo che si ha già in mano: un gesto può finire dove era cominciato, e
+        // rileggerlo costerebbe una decodifica per niente.
+        if (sharp?.area == ask.area) return@LaunchedEffect
+        val pixels = source.tile(ask.area, ask.sample) ?: return@LaunchedEffect
+        sharp = SharpPiece(
+            pixels = pixels,
+            area = ask.area,
+            at = RectF(
+                ask.area.left.toFloat() / source.width,
+                ask.area.top.toFloat() / source.height,
+                ask.area.right.toFloat() / source.width,
+                ask.area.bottom.toFloat() / source.height
+            )
+        )
+    }
+
     Canvas(
         modifier = modifier
             // ⚠️ Ingrandita, l'immagine esce dal proprio riquadro: senza questa riga andrebbe a
             // finire sopra la testata e sopra la scheda dei cursori.
             .clipToBounds()
+            .onSizeChanged { stage = Size(it.width.toFloat(), it.height.toFloat()) }
             .semantics { contentDescription = hold }
             .pointerInput(picture) {
                 val room = Size(size.width.toFloat(), size.height.toFloat())
@@ -536,16 +636,15 @@ private fun LookStage(
                  * rileggere. Quindi il tono che il colore mirato prende è quello di partenza: con
                  * un'esposizione già alzata di molto, il punto nasce un po' più in basso di dove
                  * il dito lo vede.
-                 * ⚠️ **Il rettangolo si ricostruisce come nel disegno**, con le stesse tre righe:
-                 * sono lo stesso conto, e il disegno lo fa già a ogni fotogramma.
+                 * ⚠️ **Il rettangolo è quello del disegno**, e passa dalla stessa funzione: sono
+                 * lo stesso conto, e il disegno lo fa già a ogni fotogramma.
                  */
                 fun colourAt(at: Offset): Int? {
-                    val box = fitted(room, wide)
-                    val safe = reined(shift, scale, room, wide)
-                    val l = middle.x + (box.left - middle.x) * scale + safe.x
-                    val t = middle.y + (box.top - middle.y) * scale + safe.y
-                    val r = middle.x + (box.right - middle.x) * scale + safe.x
-                    val b = middle.y + (box.bottom - middle.y) * scale + safe.y
+                    val view = viewport(room, wide, scale, shift)
+                    val l = view.left
+                    val t = view.top
+                    val r = view.right
+                    val b = view.bottom
                     if (at.x < l || at.x > r || at.y < t || at.y > b) return null
                     if (r - l <= 0f || b - t <= 0f) return null
                     val u = ((at.x - l) / (r - l)).coerceIn(0f, 1f)
@@ -615,10 +714,13 @@ private fun LookStage(
                                 armedAt = dove
                                 // ⚠️ **La vibrazione È il contatore, dalla `2.26`**: era l'arco
                                 // sul bordo della lente, e adesso l'unica cosa che dice 'da qui
-                                // in poi trascini la curva' è questo colpetto. Il tipo è quello
-                                // di casa per il tocco lungo (vedi [HOLD_BUZZ]), quindi non
-                                // nasce una seconda vibrazione da tarare.
-                                haptics.performHapticFeedback(HOLD_BUZZ)
+                                // in poi trascini la curva' è questo colpetto.
+                                // ⚠️⚠️ **E DALLA `2.27` È PIÙ FORTE DI QUELLA DEL TOCCO LUNGO,
+                                // SU SUA RICHIESTA** (nota su `d-armato-segno`: *Vibrazione
+                                // lievemente più forte*): il tipo è [AIM_BUZZ], che è il
+                                // gradino sopra [HOLD_BUZZ] e vive accanto a lui. Alzare quello
+                                // avrebbe cambiato ogni tocco lungo dell'app.
+                                haptics.performHapticFeedback(AIM_BUZZ)
                                 onAimStart(qui)
                             }
                         }
@@ -759,6 +861,10 @@ private fun LookStage(
                                                 scale = fromScale + (toScale - fromScale) * t
                                                 shift = lerp(fromShift, toShift, t)
                                             }
+                                            // ⚠️ **La corsa finisce dopo il gesto**, quindi il
+                                            // via al pezzo nitido lo dà lei: annullata da un dito
+                                            // che scende, lo darà il gesto che la ferma.
+                                            resting++
                                         }
                                     }
                                 }
@@ -766,48 +872,39 @@ private fun LookStage(
                         }
                         else -> transformed(::pinch)
                     }
+                    // ⚠️ **Il via al pezzo nitido è qui e non dentro i rami**: la vista è ferma
+                    // quando il gesto è finito, qualunque dei quattro fosse, e un gesto che non
+                    // l'ha mossa affatto costa soltanto una richiesta che si riconosce già
+                    // soddisfatta.
+                    resting++
                 }
             }
     ) {
         val room = size
         if (room.width <= 0f || room.height <= 0f) return@Canvas
-        val box = fitted(room, wide)
-        val middle = Offset(room.width / 2f, room.height / 2f)
-        /*
-         * ⚠️⚠️ **LO SPOSTAMENTO SI RIPORTA NEI BORDI QUI E NON SOLO NEL GESTO, DALLA `2.17`**: il
-         * limite dipende dall'ingrandimento, quindi durante la corsa del doppio tocco un valore
-         * buono per l'arrivo è **troppo** per un ingrandimento intermedio, e per qualche fotogramma
-         * si vedrebbe una striscia di fondo da un lato. Applicarlo dove si disegna lo chiude per
-         * ogni combinazione, e non toglie niente al gesto: la funzione è pura e applicarla due
-         * volte dà lo stesso risultato.
-         */
-        val safe = reined(shift, scale, room, wide)
         // Il rettangolo da disegnare: quello adattato, ingrandito attorno al centro del palco e
         // poi spostato. ⚠️ **Si scala il RETTANGOLO e non la tela**: il pennello porta uno
         // shader con la sua matrice, e una tela scalata scalerebbe anche quella, cioè
         // ingrandirebbe il conto invece dell'immagine.
-        val view = RectF(
-            middle.x + (box.left - middle.x) * scale + safe.x,
-            middle.y + (box.top - middle.y) * scale + safe.y,
-            middle.x + (box.right - middle.x) * scale + safe.x,
-            middle.y + (box.bottom - middle.y) * scale + safe.y
-        )
+        val view = viewport(room, wide, scale, shift)
 
         /**
-         * Il pennello che disegna l'immagine **col conto già applicato** dentro il rettangolo
-         * [dove], col filtro lineare o con quello a pixel interi.
+         * Il pennello che disegna [mappa] **col conto già applicato** dentro il rettangolo
+         * [dove], col filtro lineare o con quello a pixel interi. [lato] è il lato lungo
+         * dell'immagine **intera** come è disegnata adesso.
          *
-         * ⚠️⚠️ **È UNA FUNZIONE DALLA `2.24` PERCHÉ ADESSO I RETTANGOLI SONO DUE**: il palco e la
-         * lente del colore mirato. Scritta due volte, la seconda copia mostrerebbe un'immagine
-         * sviluppata in un altro modo il giorno che una delle due cambia, ed è esattamente il
-         * genere di divergenza che l'editor completo esiste per non avere.
+         * ⚠️⚠️ **È UNA FUNZIONE DALLA `2.24` PERCHÉ I RETTANGOLI SONO PIÙ DI UNO**: il palco, la
+         * lente del colore mirato, e dalla `2.27` il pezzo letto a risoluzione piena. Scritta più
+         * volte, la seconda copia mostrerebbe un'immagine sviluppata in un altro modo il giorno
+         * che una delle due cambia, ed è esattamente il genere di divergenza che l'editor completo
+         * esiste per non avere.
          */
-        fun pennello(dove: RectF, nitido: Boolean): Paint {
-            val image = BitmapShader(picture, TileMode.CLAMP, TileMode.CLAMP).apply {
+        fun pennello(mappa: Bitmap, dove: RectF, nitido: Boolean, lato: Float): Paint {
+            val image = BitmapShader(mappa, TileMode.CLAMP, TileMode.CLAMP).apply {
                 setLocalMatrix(
                     Matrix().apply {
                         setRectToRect(
-                            RectF(0f, 0f, picture.width.toFloat(), picture.height.toFloat()),
+                            RectF(0f, 0f, mappa.width.toFloat(), mappa.height.toFloat()),
                             dove,
                             Matrix.ScaleToFit.FILL
                         )
@@ -830,23 +927,54 @@ private fun LookStage(
                 )
             }
             /*
-             * ⚠️⚠️ **LA MISURA CHE SI CONSEGNA È IL LATO LUNGO DEL RETTANGOLO DISEGNATO, e non
-             * quello della mappa di pixel**: il Dettaglio ragiona in frazioni del lato, e qui il
-             * conto gira nello spazio dello schermo. Così l'ingrandimento ingrandisce anche il
-             * risultato del filtro, invece di cambiarlo: a ogni scala il filtro lavora sugli
-             * stessi pixel dell'anteprima.
+             * ⚠️⚠️ **LA MISURA CHE SI CONSEGNA È IL LATO LUNGO DELL'IMMAGINE INTERA COME È
+             * DISEGNATA, e non quello della mappa di pixel né quello del pezzo**: il Dettaglio
+             * ragiona in frazioni del lato, e qui il conto gira nello spazio dello schermo. Così
+             * l'ingrandimento ingrandisce anche il risultato del filtro invece di cambiarlo, e un
+             * pezzo disegnato da solo riceve lo stesso raggio del tutto: consegnando la misura del
+             * pezzo, il filtro cambierebbe forza mentre si sposta la panoramica.
              */
-            val shader =
-                if (look.idle) null
-                else lookShader(image, look, max(dove.width(), dove.height()))
+            val shader = if (look.idle) null else lookShader(image, look, lato)
             return Paint().apply {
                 asFrameworkPaint().isFilterBitmap = !nitido
                 asFrameworkPaint().shader = shader ?: image
             }
         }
 
+        /** Il lato lungo dell'immagine intera come è disegnata adesso. */
+        val lato = max(view.width(), view.height())
+
         drawIntoCanvas { tela ->
-            tela.drawRect(view.left, view.top, view.right, view.bottom, pennello(view, false))
+            tela.drawRect(
+                view.left, view.top, view.right, view.bottom,
+                pennello(picture, view, false, lato)
+            )
+        }
+
+        /*
+         * ⚠️⚠️ **IL PEZZO NITIDO SI DISEGNA SOPRA L'ANTEPRIMA, NON AL SUO POSTO, DALLA `2.27`**, ed
+         * è quello che rende innocua tutta questa strada: sotto c'è sempre l'immagine intera com'è
+         * sempre stata, e questo è un rattoppo nitido sulla parte che si guarda. Se un giorno
+         * finisse fuori posto si vedrebbe un rettangolo spostato, non un'immagine mancante, e
+         * finché non arriva non manca niente.
+         * ⚠️ **Il pezzo è ancorato all'IMMAGINE e non allo schermo**: quello che si tiene sono le
+         * frazioni che copre, quindi il rettangolo si ricalcola qui a ogni fotogramma e il
+         * rattoppo resta incollato alla fotografia mentre il dito la muove.
+         */
+        val fine = sharp
+        if (fine != null) {
+            val dove = RectF(
+                view.left + fine.at.left * view.width(),
+                view.top + fine.at.top * view.height(),
+                view.left + fine.at.right * view.width(),
+                view.top + fine.at.bottom * view.height()
+            )
+            drawIntoCanvas { tela ->
+                tela.drawRect(
+                    dove.left, dove.top, dove.right, dove.bottom,
+                    pennello(fine.pixels, dove, false, lato)
+                )
+            }
         }
 
         /*
@@ -883,10 +1011,17 @@ private fun LookStage(
             // la lente resterebbe scoperto il palco, cioè l'immagine a scala uno, che si legge
             // come un secondo disegno invece che come il fuori.
             drawCircle(color = lensBack, radius = raggio, center = centro)
+            /*
+             * ⚠️ **La lente mostra l'ANTEPRIMA anche quando il pezzo nitido c'è**, e non è una
+             * dimenticanza: il colore che il mirato prende lo legge `colourAt` dall'anteprima,
+             * quindi una lente che mostrasse i pixel del file farebbe vedere un pixel e ne
+             * prenderebbe un altro. Era la stessa ragione per cui il filtro qui è a pixel interi.
+             */
             clipPath(tondo) {
                 drawIntoCanvas { tela ->
                     tela.drawRect(
-                        vista.left, vista.top, vista.right, vista.bottom, pennello(vista, true)
+                        vista.left, vista.top, vista.right, vista.bottom,
+                        pennello(picture, vista, true, max(vista.width(), vista.height()))
                     )
                 }
             }
@@ -1054,6 +1189,46 @@ private fun fitted(room: Size, wide: Float): RectF =
         val h = w / wide
         RectF(0f, (room.height - h) / 2f, w, (room.height + h) / 2f)
     }
+
+/**
+ * Un pezzo del file letto a risoluzione piena, con le frazioni di immagine che copre.
+ *
+ * ⚠️ **Le frazioni e non i pixel di schermo**: il rettangolo dove disegnarlo si ricalcola a ogni
+ * fotogramma da quello dell'immagine intera, quindi il pezzo resta incollato alla fotografia
+ * anche se la vista si è mossa fra la richiesta e la risposta.
+ * ⚠️⚠️ **QUESTA MAPPA DI PIXEL NON SI RICICLA MAI, e non è una svista**: quando ne arriva una
+ * nuova, la vecchia può essere ancora dentro lo shader di un fotogramma che si sta disegnando, e
+ * `recycle` là vuol dire cadere. Se ne occupa il raccoglitore, come per ogni altro bitmap
+ * dell'app.
+ * @property area lo stesso rettangolo in coordinate **viste**, cioè in pixel del file: serve a
+ * riconoscere il pezzo che si ha già in mano.
+ */
+private class SharpPiece(val pixels: Bitmap, val area: PixelRect, val at: RectF)
+
+/**
+ * Dove l'immagine intera finisce sullo schermo: adattata al palco, ingrandita attorno al suo
+ * centro e poi spostata.
+ *
+ * ⚠️⚠️ **LA LEGGONO IN TRE, E FINO ALLA `2.27` ERANO TRE COPIE DELLE STESSE QUATTRO RIGHE**: il
+ * disegno, il gesto che deve sapere che pixel c'è sotto il dito, e adesso la richiesta del pezzo
+ * a risoluzione piena. Sono lo stesso conto, e un rettangolo ricostruito in un modo diverso
+ * dall'altro darebbe un colore preso da un punto e una lente che ne mostra un altro.
+ * ⚠️ **Lo spostamento si riporta nei bordi QUI**, cioè in tutti e tre i chiamanti insieme: la
+ * funzione è pura e applicarla due volte dà lo stesso risultato, quindi chi la chiama non ha una
+ * seconda riga da ricordare.
+ */
+private fun viewport(room: Size, wide: Float, scale: Float, shift: Offset): RectF {
+    val box = fitted(room, wide)
+    val safe = reined(shift, scale, room, wide)
+    val midX = room.width / 2f
+    val midY = room.height / 2f
+    return RectF(
+        midX + (box.left - midX) * scale + safe.x,
+        midY + (box.top - midY) * scale + safe.y,
+        midX + (box.right - midX) * scale + safe.x,
+        midY + (box.bottom - midY) * scale + safe.y
+    )
+}
 
 /**
  * Un cursore del modulo: il suo nome, come si legge il suo valore e come si riscrive.

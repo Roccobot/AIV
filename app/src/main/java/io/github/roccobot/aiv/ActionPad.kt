@@ -1145,6 +1145,27 @@ fun withHaptics(action: () -> Unit): () -> Unit {
 val HOLD_BUZZ = HapticFeedbackType.TextHandleMove
 
 /**
+ * Il colpetto che dice 'adesso puoi trascinare', quando il mirino del colore mirato si arma.
+ *
+ * ⚠️⚠️ **ESISTE PERCHÉ [HOLD_BUZZ] NON SI PUÒ TOCCARE, ed è la sola ragione per cui sono due**
+ * (riscontro del giro della `2.26`, nota su `d-armato-segno`: *Vibrazione lievemente più
+ * forte*). Quella costante è il colpetto di **ogni** pressione lunga dell'app, e la `1.21` l'ha
+ * resa più discreta su sua richiesta: alzarla qui vorrebbe dire rovesciare quella richiesta in
+ * venti punti che con il mirino non c'entrano niente.
+ * ⚠️⚠️ **È IL GRADINO SUBITO SOPRA, E IL NUMERO È MISURATO SUL BYTECODE di
+ * `PlatformHapticFeedbackType`**: `ContextClick` vale **6** e `TextHandleMove` vale **9**, cioè
+ * `CONTEXT_CLICK` e `TEXT_HANDLE_MOVE` di `HapticFeedbackConstants`, dove il secondo è il tocco
+ * più leggero della famiglia. ⚠️ **E non `LongPress`**, che è il colpo pieno già scartato dalla
+ * `1.21`: 'lievemente' non lo giustifica.
+ * ⚠️ **Vive qui e non nell'editor** perché è la gemella di [HOLD_BUZZ], e due colpetti dell'app
+ * dichiarati in due file sarebbero due tarature che nessuno confronta più.
+ * ⚠️ **Nasce con l'API 23**, quindi sotto il minSdk 28: Compose passa il numero grezzo a
+ * `performHapticFeedback` senza nessun ripiego, e una costante troppo nuova non farebbe vibrare
+ * niente (è il caso di `SegmentTick` e `ToggleOn`, che sono di Android 14).
+ */
+val AIM_BUZZ = HapticFeedbackType.ContextClick
+
+/**
  * Quante colonne ha il riquadro: tre, come l'utente le ha chieste.
  *
  * ⚠️ **Non è privata perché la legge anche la pagina che RIORDINA i tasti**, come già
