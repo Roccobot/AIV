@@ -1841,8 +1841,9 @@ mestieri dovrebbe
 ricomprimere anche quando gira una fotografia, cioè perdere qualità per un gesto che oggi non ne
 fa perdere. Chi tocca 'Modifica' sceglie fra i due la prima volta, e la scelta si ricorda.
 - ⚠️ **Arriva in più versioni e il modulo **Luce** è la prima**: dopo di lei sono usciti il Colore,
-  l'HSL e il Dettaglio, e quelle che restano (le curve, la geometria col raddrizzamento, i preset)
-  vivono nel piano d'azione, che è il posto delle versioni in sequenza.
+  l'HSL, il Dettaglio e le **Curve**, e quelle che restano (l'anteprima a risoluzione piena, la
+  geometria col raddrizzamento, i preset) vivono nel piano d'azione, che è il posto delle versioni
+  in sequenza.
 
 ⚠️⚠️ **MA I DUE EDITOR SI CHIAMANO ALLO STESSO MODO IN TESTATA, DALLA `2.20`, ED È SUA
 ISTRUZIONE** (2026-09-12: *in testa/titolo, mentre modifico le immagini, deve apparire 'Modifica
@@ -1994,10 +1995,15 @@ e un interruttore porta l'immagine in **bianco e nero**.
   come l'occhio lo vede.
   - ⚠️⚠️ **E L'ORDINE DEI SETTE È CAMBIATO CON LA `2.21`, SU SUA ISTRUZIONE** (campo libero del
     giro della `2.20`: *mi sembra più logico implementare HSL dopo il colore, va' avanti con
-    quello*): adesso è Luce, Colore, HSL, Dettaglio, curve, Geometria, preset. ⚠️ **Prevale sulla
+    quello*): adesso è Luce, Colore, HSL, Dettaglio, Curve, Geometria, preset. ⚠️ **Prevale sulla
     sua risposta `subito` a `d-dettaglio`** (giro della `2.16`), che metteva il Dettaglio al terzo
     posto: è un'istruzione più recente dello stesso utente, e le note che dànno il Dettaglio per
     il giro dopo il Colore sono superate.
+  - ⚠️⚠️ **E DALLA `2.23` NE ESISTE UNO IN PIÙ CHE NON È UN MODULO**: l'**anteprima a risoluzione
+    piena quando si ingrandisce**, che è la sua risposta `pieno` a `d-dett-vedere` (giro della
+    `2.22`). Non porta cursori: ridecodifica dal file la sola finestra inquadrata, perché oggi
+    l'editor lavora su una riduzione e là la grana del sensore è già mediata. La scelta stessa
+    dichiarava che costa una versione a parte, ed entra in sequenza **dopo le Curve**.
 
 ⚠️⚠️ **E CON LUI ARRIVA LA FILA DEI MODULI, COL 'RESET MODULO' SUL TOCCO LUNGO** (campo libero del
 giro della `2.14`, punto 2: *per ciascun modulo ci dev'essere anche un 'Reset modulo'... potrebbe
@@ -2409,6 +2415,115 @@ nitidezza è a zero, che il 'Reset modulo' azzeri **solo** il suo, che le misure
 dell'immagine, e che le tessere leggano il bordo e copino solo il centro. **Non** vede i pixel che
 ne escono: che la nitidezza sia nitida e che il rumore se ne vada si guarda sul telefono, e la voce
 di collaudo lo chiede.
+
+## 📈 Il modulo Curve, e il colore mirato
+
+⚠️⚠️ **È IL QUINTO MODULO DELL'EDITOR COMPLETO, DALLA `2.23`, ED È IL PRIMO SENZA CURSORI**: quello
+che una manopola sa dire è *quanto*, e una curva dice *quanto per ogni tono*, cioè una cosa che
+nessun cursore può esprimere. Il suo comando è un **grafico** con dei punti da prendere col dito, e
+i canali sono quattro: il composito (RGB) e i tre colori.
+
+⚠️⚠️ **IL CONTO PASSA ALLA SCHEDA GRAFICA COME UNA TABELLA, E QUESTA È LA DECISIONE CHE REGGE
+TUTTO IL RESTO.** Gli altri quattro moduli mandano allo shader dei **numeri** e il conto vive in
+AGSL, che è la regola scritta in testa a `Adjust.kt`; una spline invece vuole un ciclo sui suoi
+punti, e i punti sono in numero variabile. Scritta là costerebbe quel ciclo venti milioni di volte
+per un risultato che dipende **solo** dal livello in ingresso, cioè da 256 valori possibili: la si
+calcola una volta e la si consegna come una riga di 256 pixel (`uniform shader tone`).
+- ⚠️⚠️ **NON È LA SECONDA COPIA CHE QUELLA REGOLA ESISTE PER NON AVERE, e la distinzione è
+  precisa**: una seconda copia sarebbe lo **stesso conto** scritto due volte, una per l'anteprima e
+  una per il salvataggio. Qui il conto è uno e vive in Kotlin; quello che gira sui pixel è una
+  **lettura** della sua tabella, e la stessa tabella la leggono l'anteprima, il salvataggio e il
+  grafico che la disegna. Una fonte, tre lettori.
+- ⚠️ **Tre letture per pixel e non una**: i tre canali entrano nella tabella a tre posizioni
+  diverse, quindi una lettura sola darebbe i tre canali dello stesso livello, che è un'altra cosa.
+- ⚠️⚠️ **DUE TRAPPOLE EVITATE NELLA BITMAP, e nessuna delle due dà errore**: Skia consegna a uno
+  shader i colori **premoltiplicati**, quindi la tabella è opaca (moltiplicare per uno non cambia
+  niente); e il campionamento vuole il **filtro lineare**, o due livelli vicini che cadono nella
+  stessa voce escono identici e la curva si vede a gradini. La seconda è la riga gemella di quella
+  del Dettaglio.
+
+⚠️⚠️ **LA SPLINE È MONOTONA (Fritsch-Carlson) E NON UNA CUBICA NATURALE, E NON È UN DETTAGLIO DI
+QUALITÀ**: una cubica naturale **oltrepassa** fra due punti vicini, quindi un tratto piatto fra due
+punti alla stessa altezza si gonfia e poi torna giù, cioè un tono più chiaro esce più scuro del suo
+vicino. Sull'immagine è un anello di tono invertito, ed è il difetto classico delle curve fatte
+male.
+- ⚠️ **Su punti allineati la spline è ESATTAMENTE la retta**, ed è la ragione per cui `Curve.idle`
+  può guardare i soli punti invece di confrontare 256 valori: punti sulla diagonale vogliono dire
+  tabella identità.
+- ⚠️ **Il tratto piatto è il caso che distingue i due conti**, e per questo la prova ne porta uno:
+  con una curva a tre punti le due matematiche danno quasi lo stesso disegno, e la controprova
+  resterebbe verde.
+
+⚠️⚠️ **LE QUATTRO CURVE SI COMPONGONO IN `all(canale(v))`, E L'ORDINE ROVESCIATO NON DÀ NESSUN
+ERRORE**: è la convenzione di ogni editor che ha questo pannello (prima la curva del canale, poi
+quella del composito), e al contrario una curva sul rosso cambierebbe di posto ogni volta che si
+tocca quella di tutti i toni. ⚠️ **La composizione si fa in Kotlin**, dentro la tabella, quindi sui
+pixel resta una lettura per canale.
+
+⚠️ **Il posto nella catena è fra il contrasto e l'HSL, e le due cose hanno due ragioni diverse**:
+dopo il contrasto, perché la curva a S è una rimappatura predefinita e questa è quella fatta a mano,
+e al contrario i due comandi si contenderebbero gli stessi toni; prima dell'HSL, perché le tre curve
+di canale **cambiano la tonalità** di un pixel, e chi sceglie i colori per tonalità deve leggere
+quella definitiva.
+
+⚠️⚠️ **I GESTI DEL GRAFICO SONO DUE, E SONO QUELLI DI CASA**: il **trascinamento** prende il punto
+sotto il dito, o ne fa uno nuovo, e lo porta dove si vuole; il **tocco lungo** su un punto lo
+toglie, che è lo stesso gesto con cui si azzera un modulo e una fascia, un gradino più in basso.
+- **Un tocco secco fa nascere un punto SULLA curva**, senza spostarla: chi tocca vuole prendere
+  quella curva in quel punto, e farla saltare al dito sarebbe un movimento che nessuno ha chiesto.
+- ⚠️ **I due estremi si muovono solo in verticale e non si tolgono**: una curva tonale deve dire
+  che cosa fare di **ogni** tono, e un primo punto a mezza scala lascerebbe la prima metà senza
+  risposta.
+- ⚠️ **Il riquadro non è quadrato, ed è un compromesso dichiarato**: un grafico tonale si disegna
+  quadrato, ma qui la scheda porta già due file di gettoni e i comandi della storia, e un quadrato
+  largo quanto lo schermo si prenderebbe metà del palco, cioè l'immagine su cui si lavora.
+- ⚠️ **Che cosa resta fuori**: un grafico a punti non si governa con un lettore di schermo, quindi
+  là l'accessibilità si ferma alla descrizione. Chi lavora così ha i sei cursori della Luce, che
+  coprono lo stesso mestiere con dei comandi che si annunciano.
+
+⚠️⚠️ **E IL COLORE MIRATO ARRIVA QUI, PERCHÉ È LA SUA RISPOSTA `curve` A `d-hsl-mirato`** (giro
+della `2.21`). Il tasto **'Mirato'** arma una modalità in cui il dito lavora **sull'immagine**
+invece che sui comandi, e i due moduli che lo offrono rispondono in due modi, che sono le loro due
+nature: nelle **Curve** il tocco prende il punto al tono toccato e il trascinamento verticale lo
+muove; nell'**HSL** il tocco **sceglie la fascia** del colore toccato.
+- ⚠️⚠️ **NELL'HSL IL TRASCINAMENTO NON MUOVE NIENTE, ED È UNA SCELTA DICHIARATA**: là i cursori
+  sono tre, e sceglierne uno per il dito sarebbe una decisione che lui non ha preso. Il giro della
+  `2.23` lo chiede con `d-mirato-hsl`.
+- ⚠️⚠️ **ARMATO, IL PALCO FA SOLO QUELLO**: pinza, panoramica, doppio tocco e confronto restano
+  fermi finché il tasto è acceso. La via alternativa era un quinto gesto accanto agli altri quattro,
+  e in quel rilevatore ognuno nasce dallo stesso dito che scende: cinque strade da distinguere in
+  mezzo secondo, e la prima a sbagliare sarebbe quella che si usa di più.
+- ⚠️ **Il tasto c'è nei soli moduli che hanno un bersaglio**, e non è una coincidenza: mirare vuol
+  dire *questo colore qui*, e ha senso dove esiste qualcosa da puntare. La condizione si legge
+  dalla tabella dei moduli, o passando a un terzo modulo la modalità resterebbe armata senza più un
+  tasto per spegnerla.
+- ⚠️⚠️ **IL COLORE LETTO È QUELLO DEL FILE E NON QUELLO CHE SI VEDE, e va detto**: quello che si
+  vede è il risultato del conto, che vive sulla scheda grafica e non si può rileggere. Con
+  un'esposizione già alzata di molto, il punto nasce un po' più in basso di dove il dito lo vede.
+- ⚠️ **Un grigio non appartiene a nessuna fascia**, e `Mix.bandOf` risponde `-1` invece di dire
+  'rosso': mandare il dito su una fascia che con quel pixel non c'entra farebbe parlare i tre
+  cursori di un colore che là non esiste.
+
+⚠️⚠️ **E 'DOVE SI HA LO SGUARDO' HA DOVUTO TRASLOCARE, PERCHÉ IL MIRATO VIVE SUL PALCO**: il
+modulo, la fascia e il canale stavano dentro la scheda, e il gesto che tocca l'immagine deve sapere
+quale modulo si sta guardando. Adesso vivono in un oggetto solo (`Gaze`) che la schermata passa a
+tutti e due. ⚠️ **Non entrano nella storia dei passi**, che era la ragione per cui stavano fuori dal
+modello, e non è cambiata.
+
+⚠️⚠️ **LA FILA DEI MODULI SCORRE, DALLA `2.23`, E SENZA QUELLA RIGA IL PALCO SPARIVA**: col quinto
+gettone i nomi non entravano più nella larghezza, quindi ognuno andava a capo dentro la propria
+pastiglia e la fila cresceva in altezza; la scheda è alta quanto il suo contenuto, e il palco si
+prende quello che resta. ⚠️ **Il banco l'ha misurato come un'immagine alta zero pixel**, cioè
+l'editor senza più niente da guardare, e non è arrivato a lui: è il caso per cui le prove sui pixel
+esistono.
+
+⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`, più `ContoTest` per il programma):
+che la curva a riposo sia l'identità **esatta**, che la spline non oltrepassi e che un tratto piatto
+resti piatto, che la tabella componga il canale sotto il composito, che gli estremi non si muovano
+in orizzontale e non si tolgano, che il modulo porti i quattro canali e nessun cursore, che il
+mirato si offra nei soli due moduli, e i due conti che fa su un pixel. **Non** vede i pixel che ne
+escono, né i due gesti sul grafico: quelli si guardano sul telefono, e la voce di collaudo li
+chiede.
 
 ## 🗑️ Lo svuotamento automatico del cestino, e le tre decisioni che lo governano
 

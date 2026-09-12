@@ -432,6 +432,10 @@
     <string name="look_masking">ماسکنگ</string>
     <string name="look_noise">شور</string>
     <string name="look_noise_color">رنگ کا شور</string>
+    <string name="look_tone">کرو</string>
+    <string name="look_tone_rgb">RGB</string>
+    <string name="look_tone_board">ٹون کرو</string>
+    <string name="look_target">ہدف شدہ</string>
     <string name="look_contrast">کنٹراسٹ</string>
     <string name="look_shadows">سائے</string>
     <string name="look_highlights">روشن حصے</string>

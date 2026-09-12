@@ -416,6 +416,10 @@
     <string name="look_masking">마스킹</string>
     <string name="look_noise">노이즈</string>
     <string name="look_noise_color">색상 노이즈</string>
+    <string name="look_tone">곡선</string>
+    <string name="look_tone_rgb">RGB</string>
+    <string name="look_tone_board">톤 곡선</string>
+    <string name="look_target">타깃</string>
     <string name="look_contrast">대비</string>
     <string name="look_shadows">어두운 부분</string>
     <string name="look_highlights">밝은 부분</string>

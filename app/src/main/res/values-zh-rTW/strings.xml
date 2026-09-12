@@ -416,6 +416,10 @@
     <string name="look_masking">遮色片</string>
     <string name="look_noise">雜訊</string>
     <string name="look_noise_color">彩色雜訊</string>
+    <string name="look_tone">曲線</string>
+    <string name="look_tone_rgb">RGB</string>
+    <string name="look_tone_board">色調曲線</string>
+    <string name="look_target">定向</string>
     <string name="look_contrast">對比</string>
     <string name="look_shadows">陰影</string>
     <string name="look_highlights">高光</string>

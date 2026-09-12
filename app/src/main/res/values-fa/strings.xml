@@ -432,6 +432,10 @@
     <string name="look_masking">ماسک</string>
     <string name="look_noise">نویز</string>
     <string name="look_noise_color">نویز رنگ</string>
+    <string name="look_tone">منحنی</string>
+    <string name="look_tone_rgb">RGB</string>
+    <string name="look_tone_board">منحنی تون</string>
+    <string name="look_target">هدفمند</string>
     <string name="look_contrast">کنتراست</string>
     <string name="look_shadows">سایه‌ها</string>
     <string name="look_highlights">روشنی‌ها</string>

@@ -432,6 +432,10 @@
     <string name="look_masking">మాస్కింగ్</string>
     <string name="look_noise">నాయిస్</string>
     <string name="look_noise_color">రంగు నాయిస్</string>
+    <string name="look_tone">కర్వ్</string>
+    <string name="look_tone_rgb">RGB</string>
+    <string name="look_tone_board">టోన్ కర్వ్</string>
+    <string name="look_target">లక్ష్యం</string>
     <string name="look_contrast">కాంట్రాస్ట్</string>
     <string name="look_shadows">నీడలు</string>
     <string name="look_highlights">హైలైట్లు</string>

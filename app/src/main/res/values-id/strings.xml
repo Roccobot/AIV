@@ -416,6 +416,10 @@
     <string name="look_masking">Masking</string>
     <string name="look_noise">Derau</string>
     <string name="look_noise_color">Derau warna</string>
+    <string name="look_tone">Kurva</string>
+    <string name="look_tone_rgb">RGB</string>
+    <string name="look_tone_board">Kurva nada</string>
+    <string name="look_target">Tertarget</string>
     <string name="look_contrast">Kontras</string>
     <string name="look_shadows">Bayangan</string>
     <string name="look_highlights">Sorotan</string>

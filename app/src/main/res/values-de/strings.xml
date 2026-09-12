@@ -432,6 +432,10 @@
     <string name="look_masking">Maskieren</string>
     <string name="look_noise">Rauschen</string>
     <string name="look_noise_color">Farbrauschen</string>
+    <string name="look_tone">Kurve</string>
+    <string name="look_tone_rgb">RGB</string>
+    <string name="look_tone_board">Tonwertkurve</string>
+    <string name="look_target">Gezielt</string>
     <string name="look_contrast">Kontrast</string>
     <string name="look_shadows">Schatten</string>
     <string name="look_highlights">Lichter</string>

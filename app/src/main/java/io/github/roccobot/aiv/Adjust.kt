@@ -1,6 +1,9 @@
 package io.github.roccobot.aiv
 
+import android.graphics.Bitmap
+import android.graphics.BitmapShader
 import android.graphics.RuntimeShader
+import android.graphics.Shader.TileMode
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.Shader
@@ -8,7 +11,10 @@ import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.pow
+import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
 /*
  * ⚠️⚠️ **A CHE COSA SERVE QUESTO FILE: È IL CONTO DELL'EDITOR COMPLETO, E NE ESISTE UNA COPIA
@@ -240,6 +246,45 @@ data class Mix(val bands: List<Band> = List(COUNT) { Band.NONE }) {
 
         /** Una differenza di tonalità riportata in un giro, cioè in `[0, 1)`. */
         private fun round(x: Float): Float = x - floor(x)
+
+        /**
+         * A quale fascia appartiene il colore [pixel], cioè quale centro è il più vicino alla sua
+         * tonalità, oppure `-1` se quel colore è un grigio.
+         *
+         * ⚠️⚠️ **SERVE AL COLORE MIRATO, E IL GRIGIO NON È UN CASO LIMITE DA CHIUDERE CON UNO
+         * ZERO**: un pixel senza colore non appartiene a nessuna fascia (è esattamente la ragione
+         * per cui il conto dello shader lo lascia stare), quindi rispondere 'rosso' vorrebbe dire
+         * mandare il dito su una fascia che con quel pixel non c'entra. Chi chiama non fa niente.
+         *
+         * ⚠️ **La tonalità si ricava qui e non si chiede allo shader**: quello gira sulla scheda
+         * grafica e non risponde a domande, e il conto è di sei righe.
+         */
+        fun bandOf(pixel: Int): Int {
+            val r = ((pixel shr 16) and 0xFF) / 255f
+            val g = ((pixel shr 8) and 0xFF) / 255f
+            val b = (pixel and 0xFF) / 255f
+            val top = max(r, max(g, b))
+            val bottom = min(r, min(g, b))
+            val span = top - bottom
+            if (span < 0.004f) return -1
+            val sixth = when {
+                top == r -> ((g - b) / span + 6f) % 6f
+                top == g -> (b - r) / span + 2f
+                else -> (r - g) / span + 4f
+            }
+            val hue = sixth / 6f
+            var best = 0
+            var near = 1f
+            for (i in 0 until COUNT) {
+                val s = hue - CENTRES[i]
+                val d = abs(s - floor(s + 0.5f))
+                if (d < near) {
+                    near = d
+                    best = i
+                }
+            }
+            return best
+        }
     }
 }
 
@@ -349,6 +394,315 @@ data class Detail(
 }
 
 /**
+ * Un punto di una curva tonale: il tono che **entra** e il tono che **esce**, tutti e due in
+ * `[0, 1]`.
+ *
+ * ⚠️ **I due estremi hanno [at] fisso a 0 e a 1**, e si muovono solo in [to]: una curva tonale
+ * deve dire che cosa fare di **ogni** tono, e un primo punto a mezza scala lascerebbe la prima
+ * metà senza risposta.
+ */
+data class Knot(val at: Float, val to: Float)
+
+/**
+ * Una curva tonale: i suoi punti, e la tabella di 256 valori che se ne ricava.
+ *
+ * ⚠️⚠️ **IL CONTO CHE PASSA ALLA SCHEDA GRAFICA È UNA TABELLA E NON UN PROGRAMMA, ED È LA
+ * DECISIONE CHE REGGE TUTTO IL RESTO.** Gli altri quattro moduli mandano allo shader dei **numeri**
+ * (un guadagno, un raggio) e il conto vive tutto in AGSL, che è la regola scritta in testa a questo
+ * file; una spline invece vuole un ciclo sui punti per ogni pixel, e i punti sono in numero
+ * variabile. Scritta in AGSL costerebbe quel ciclo venti milioni di volte per un risultato che
+ * dipende **solo** dal livello in ingresso, cioè da 256 valori possibili: la si calcola una volta e
+ * si consegna come una riga di 256 pixel.
+ * - ⚠️⚠️ **NON È LA SECONDA COPIA CHE QUESTO FILE ESISTE PER NON AVERE**, e la distinzione è
+ *   precisa: una seconda copia sarebbe lo **stesso conto** scritto due volte, una per l'anteprima e
+ *   una per il salvataggio, cioè due cose che possono divergere. Qui il conto è **uno** e vive qui;
+ *   quello che va in AGSL è una lettura della sua tabella, e la stessa tabella la leggono
+ *   l'anteprima, il salvataggio e il grafico che la disegna. Una fonte, tre lettori.
+ *
+ * ⚠️⚠️ **LA SPLINE È MONOTONA (Fritsch-Carlson) E NON UNA CUBICA NATURALE, E NON È UN DETTAGLIO
+ * DI QUALITÀ**: una cubica naturale **oltrepassa** fra due punti vicini, quindi con un punto alzato
+ * di poco la curva scende sotto il suo vicino, cioè un tono più chiaro esce più scuro di quello
+ * accanto. Sull'immagine si vede come un anello di tono invertito, ed è il difetto classico delle
+ * curve fatte male. La correzione monotona limita le tangenti e quel caso non esiste per
+ * costruzione.
+ * - ⚠️ **Su punti allineati la spline è ESATTAMENTE la retta**: le secanti valgono tutte la stessa
+ *   pendenza, le tangenti diventano quella, e l'Hermite fra due punti con quei valori dà il
+ *   segmento. È la ragione per cui [idle] può guardare i soli punti invece di confrontare 256
+ *   valori.
+ */
+data class Curve(val knots: List<Knot> = ENDS) {
+
+    /**
+     * Se questa curva non cambia un tono, cioè se ogni punto è sulla diagonale.
+     *
+     * ⚠️ **Si guardano i PUNTI e non la tabella**, e regge sulla proprietà scritta qui sopra: una
+     * spline monotona per punti allineati **è** la retta, quindi punti sulla diagonale vogliono
+     * dire tabella identità, senza doverla calcolare per scoprirlo.
+     */
+    val idle: Boolean get() = knots.all { abs(it.to - it.at) < DEAD }
+
+    /**
+     * Questa curva col punto [i] portato in ([at], [to]), tenuto dentro l'intervallo e fra i suoi
+     * vicini.
+     *
+     * ⚠️⚠️ **I DUE ESTREMI NON SI MUOVONO IN ORIZZONTALE, ed è la specifica del tipo e non una
+     * prudenza**: una curva tonale deve dire che cosa fare di ogni tono, quindi il primo punto sta
+     * a zero e l'ultimo a uno per costruzione. Di loro si muove la sola uscita, che è il modo di
+     * alzare i neri o chiudere i bianchi.
+     *
+     * ⚠️ **Gli altri non scavalcano i vicini**: due punti alla stessa ascissa darebbero un tratto
+     * di larghezza zero, cioè una divisione per zero nella spline, e due punti in ordine invertito
+     * una curva che torna indietro. Il margine è [GAP], che è anche la distanza sotto la quale due
+     * punti non si distinguerebbero col dito.
+     */
+    fun move(i: Int, at: Float, to: Float): Curve = copy(
+        knots = knots.toMutableList().also {
+            val x = when (i) {
+                0 -> 0f
+                it.size - 1 -> 1f
+                else -> at.coerceIn(it[i - 1].at + GAP, it[i + 1].at - GAP)
+            }
+            it[i] = Knot(x, to.coerceIn(0f, 1f))
+        }
+    )
+
+    /**
+     * L'indice del punto che sta a un dito da [at], oppure `-1` se là non c'è niente.
+     *
+     * ⚠️ **La soglia è la stessa di [grow]**, ed è quello che tiene insieme i due gesti del
+     * grafico: quello che il tocco lungo toglie è esattamente il punto che il trascinamento
+     * avrebbe preso.
+     */
+    fun nearest(at: Float): Int = knots.indexOfFirst { abs(it.at - at) < NEAR }
+
+    /**
+     * Questa curva con un punto in più a [at], oppure com'è se là ce n'è già uno o se il tetto è
+     * raggiunto. Il secondo valore dice dove è finito il punto da prendere col dito.
+     *
+     * ⚠️ **Il punto nuovo nasce SULLA curva e non dove il dito ha toccato**: chi tocca il grafico
+     * vuole prendere quella curva in quel punto, e farla saltare al dito nell'istante in cui la si
+     * prende vorrebbe dire un movimento che nessuno ha chiesto.
+     *
+     * ⚠️ **Il tetto è [MAX_KNOTS] e si dichiara**: oltre una dozzina di punti una curva tonale non
+     * si governa più col dito, e ogni punto in più costa un tratto di spline in cui la monotonia
+     * limita le tangenti, cioè una curva che si irrigidisce da sé.
+     */
+    fun grow(at: Float): Pair<Curve, Int> {
+        val x = at.coerceIn(0f, 1f)
+        val near = nearest(x)
+        if (near >= 0) return this to near
+        if (knots.size >= MAX_KNOTS) return this to knots.indexOfFirst { abs(it.at - x) < 0.5f }
+            .coerceAtLeast(0)
+        val where = knots.indexOfFirst { it.at > x }.let { if (it < 0) knots.size else it }
+        val grown = knots.toMutableList().also {
+            it.add(where, Knot(x, valueAt(x)))
+        }
+        return copy(knots = grown) to where
+    }
+
+    /**
+     * Questa curva senza il punto [i], oppure com'è se [i] è uno dei due estremi.
+     *
+     * ⚠️ **Gli estremi non si tolgono**: senza di loro la curva non direbbe più che cosa fare dei
+     * toni fuori dal primo e dall'ultimo punto.
+     */
+    fun drop(i: Int): Curve =
+        if (i <= 0 || i >= knots.size - 1) this
+        else copy(knots = knots.toMutableList().also { it.removeAt(i) })
+
+    /** Quanto vale questa curva nel tono [x], letto dalla sua tabella. */
+    fun valueAt(x: Float): Float =
+        table()[(x.coerceIn(0f, 1f) * (SIZE - 1)).roundToInt()]
+
+    /**
+     * I 256 valori di questa curva, uno per livello in ingresso.
+     *
+     * ⚠️ **Il conto è quello di Fritsch-Carlson**, in tre passi: le pendenze secanti fra punti
+     * vicini, le tangenti come loro media, e la **correzione** che tiene la curva monotona
+     * (tangenti azzerate dove la secante è piatta, e limitate al cerchio di raggio 3 dove
+     * altrimenti la cubica oltrepasserebbe). Senza il terzo passo questa sarebbe una cubica
+     * naturale, cioè la curva che il KDoc del tipo esiste per escludere.
+     */
+    fun table(): FloatArray {
+        val n = knots.size
+        val out = FloatArray(SIZE)
+        if (n < 2) {
+            val flat = (knots.firstOrNull()?.to ?: 0f).coerceIn(0f, 1f)
+            return out.also { it.fill(flat) }
+        }
+        val d = FloatArray(n - 1) { i ->
+            val dx = knots[i + 1].at - knots[i].at
+            if (dx > 1e-6f) (knots[i + 1].to - knots[i].to) / dx else 0f
+        }
+        val m = FloatArray(n)
+        m[0] = d[0]
+        m[n - 1] = d[n - 2]
+        for (i in 1 until n - 1) m[i] = (d[i - 1] + d[i]) / 2f
+        for (i in 0 until n - 1) {
+            if (abs(d[i]) < 1e-6f) {
+                m[i] = 0f
+                m[i + 1] = 0f
+                continue
+            }
+            val a = m[i] / d[i]
+            val b = m[i + 1] / d[i]
+            if (a < 0f) m[i] = 0f
+            if (b < 0f) m[i + 1] = 0f
+            val s = a * a + b * b
+            if (s > 9f) {
+                val t = 3f / sqrt(s)
+                m[i] = t * a * d[i]
+                m[i + 1] = t * b * d[i]
+            }
+        }
+        var seg = 0
+        for (k in 0 until SIZE) {
+            val x = k.toFloat() / (SIZE - 1)
+            while (seg < n - 2 && x > knots[seg + 1].at) seg++
+            val h = knots[seg + 1].at - knots[seg].at
+            val y = if (h <= 1e-6f) {
+                knots[seg + 1].to
+            } else {
+                val t = ((x - knots[seg].at) / h).coerceIn(0f, 1f)
+                val t2 = t * t
+                val t3 = t2 * t
+                (2f * t3 - 3f * t2 + 1f) * knots[seg].to +
+                    (t3 - 2f * t2 + t) * h * m[seg] +
+                    (-2f * t3 + 3f * t2) * knots[seg + 1].to +
+                    (t3 - t2) * h * m[seg + 1]
+            }
+            out[k] = y.coerceIn(0f, 1f)
+        }
+        return out
+    }
+
+    companion object {
+        /** Quanti valori ha una tabella: uno per livello di un file a 8 bit. */
+        const val SIZE = 256
+
+        /** Il tetto dei punti di una curva: vedi [grow]. */
+        const val MAX_KNOTS = 16
+
+        /** I due estremi, cioè la curva che non fa niente. */
+        val ENDS = listOf(Knot(0f, 0f), Knot(1f, 1f))
+
+        val NONE = Curve()
+
+        private const val DEAD = 0.002f
+
+        /**
+         * Quanto vicino a un punto esistente un tocco vale 'prendi quello' invece di 'fanne uno
+         * nuovo': un ventesimo di scala, cioè un dito su un grafico largo un palmo.
+         */
+        private const val NEAR = 0.05f
+
+        /** La distanza minima fra due punti vicini: vedi [move]. */
+        private const val GAP = 0.01f
+    }
+}
+
+/**
+ * Il modulo **Curve**: la curva di tutti i toni e le tre dei canali.
+ *
+ * ⚠️⚠️ **LE QUATTRO CURVE SI COMPONGONO IN TRE TABELLE, E L'ORDINE È `all(canale(v))`**: è la
+ * convenzione di ogni editor che ha questo pannello (prima la curva del canale, poi quella del
+ * composito), e con l'ordine rovesciato una curva sul rosso cambierebbe di posto ogni volta che si
+ * tocca quella di tutti i toni.
+ * - ⚠️⚠️ **LA COMPOSIZIONE SI FA IN KOTLIN E NON SULLA SCHEDA GRAFICA**, ed è quello che rende il
+ *   conto per pixel **una lettura sola per canale**: comporre là vorrebbe dire due letture per
+ *   canale e la stessa risposta.
+ *
+ * ⚠️ **Il canale che si sta guardando non vive qui**: è dove si ha lo sguardo, come il modulo e la
+ * fascia dell'HSL, quindi vive nella scheda e non entra nella storia dei passi.
+ */
+data class Tone(
+    val all: Curve = Curve.NONE,
+    val red: Curve = Curve.NONE,
+    val green: Curve = Curve.NONE,
+    val blue: Curve = Curve.NONE
+) {
+
+    /** Se nessuna delle quattro curve cambia un tono. */
+    val idle: Boolean get() = all.idle && red.idle && green.idle && blue.idle
+
+    /** La curva del canale [i], nell'ordine in cui la fila dei canali li disegna. */
+    fun curve(i: Int): Curve = when (i) {
+        RED -> red
+        GREEN -> green
+        BLUE -> blue
+        else -> all
+    }
+
+    /** Questo modulo con la curva del canale [i] passata per [edit]. */
+    fun swap(i: Int, edit: (Curve) -> Curve): Tone = when (i) {
+        RED -> copy(red = edit(red))
+        GREEN -> copy(green = edit(green))
+        BLUE -> copy(blue = edit(blue))
+        else -> copy(all = edit(all))
+    }
+
+    /**
+     * La tabella da consegnare alla scheda grafica: 256 colori opachi, in cui ogni canale porta la
+     * propria curva **già composta** con quella di tutti i toni.
+     *
+     * ⚠️⚠️ **I COLORI SONO OPACHI DI PROPOSITO, e non è una svista sull'opacità**: Skia consegna a
+     * uno shader i colori **premoltiplicati**, quindi una tabella con un'opacità qualunque
+     * arriverebbe moltiplicata per lei, cioè con dei valori che non sono quelli che ci si è messi.
+     * Con l'opacità piena la moltiplicazione è per uno. È la stessa trappola scritta in testa a
+     * questo file per l'immagine.
+     */
+    fun lut(): IntArray {
+        val base = all.table()
+        val r = red.table()
+        val g = green.table()
+        val b = blue.table()
+        return IntArray(Curve.SIZE) { i ->
+            val top = Curve.SIZE - 1
+            val rr = (base[(r[i] * top).roundToInt()] * 255f).roundToInt().coerceIn(0, 255)
+            val gg = (base[(g[i] * top).roundToInt()] * 255f).roundToInt().coerceIn(0, 255)
+            val bb = (base[(b[i] * top).roundToInt()] * 255f).roundToInt().coerceIn(0, 255)
+            (0xFF shl 24) or (rr shl 16) or (gg shl 8) or bb
+        }
+    }
+
+    companion object {
+        val NONE = Tone()
+
+        /** Gli indici dei canali, nell'ordine della fila: tutti i toni, rosso, verde, blu. */
+        const val WHOLE = 0
+        const val RED = 1
+        const val GREEN = 2
+        const val BLUE = 3
+
+        /** Quanti canali ha questo modulo. */
+        const val COUNT = 4
+
+        /**
+         * A quale livello della curva del canale [channel] sta il colore [pixel].
+         *
+         * ⚠️⚠️ **SERVE AL COLORE MIRATO, E PER IL COMPOSITO È LA LUMINANZA PERCETTIVA**: chi tocca
+         * un punto dell'immagine indica un **tono**, e il tono di un pixel colorato è quanto quel
+         * pixel sembra chiaro, non la media dei suoi canali. Coi pesi di Rec. 709 un giallo pieno
+         * cade in alto e un blu pieno in basso, che è dove l'occhio li vede.
+         *
+         * ⚠️ **Per i tre canali invece è il canale**, senza pesi: là la curva governa quel canale, e
+         * il punto da prendere è il suo.
+         */
+        fun levelOf(pixel: Int, channel: Int): Float {
+            val r = ((pixel shr 16) and 0xFF) / 255f
+            val g = ((pixel shr 8) and 0xFF) / 255f
+            val b = (pixel and 0xFF) / 255f
+            return when (channel) {
+                RED -> r
+                GREEN -> g
+                BLUE -> b
+                else -> 0.2126f * r + 0.7152f * g + 0.0722f * b
+            }
+        }
+    }
+}
+
+/**
  * Tutto quello che l'editor completo sa fare a un'immagine, in un oggetto solo.
  *
  * ⚠️⚠️ **È UN VALORE E NON UNA CATENA DI GESTI, ed è la stessa scelta dell'editor di casa**: là
@@ -365,11 +719,13 @@ data class Look(
     val light: Light = Light.NONE,
     val chroma: Chroma = Chroma.NONE,
     val mix: Mix = Mix.NONE,
-    val detail: Detail = Detail.NONE
+    val detail: Detail = Detail.NONE,
+    val tone: Tone = Tone.NONE
 ) {
 
     /** Se non c'è niente da applicare: l'immagine esce identica a com'è entrata. */
-    val idle: Boolean get() = light.idle && chroma.idle && mix.idle && detail.idle
+    val idle: Boolean
+        get() = light.idle && chroma.idle && mix.idle && detail.idle && tone.idle
 
     /**
      * Se quello che c'è da fare **non** riscrive i pixel.
@@ -419,8 +775,9 @@ enum class Quality(override val token: String) : Choice {
  *
  * ⚠️⚠️ **L'ORDINE DELLE OPERAZIONI È LA SPECIFICA, e cambiarlo cambia il risultato**: il Dettaglio,
  * poi il bilanciamento del bianco, poi l'esposizione, poi ombre e luci, poi i punti di bianco e di
- * nero, poi il contrasto, poi l'HSL per fascia, e per ultimo quanto sono accesi i colori. È
- * l'ordine di un banco di sviluppo fotografico, e la ragione di ognuno dei passaggi:
+ * nero, poi il contrasto, poi la curva tonale, poi l'HSL per fascia, e per ultimo quanto sono
+ * accesi i colori. È l'ordine di un banco di sviluppo fotografico, e la ragione di ognuno dei
+ * passaggi:
  * - **Il Dettaglio viene per primo, dalla `2.22`**, perché è il solo modulo che parla del **file**
  *   e non dell'immagine: quanto rumore ha il sensore, e quanto il disegno fine va accentuato.
  *   Messo dopo, il contrasto avrebbe già moltiplicato la grana che quel modulo esiste per togliere.
@@ -464,6 +821,13 @@ enum class Quality(override val token: String) : Choice {
  */
 internal const val LOOK_AGSL = """
 uniform shader image;
+// ⚠️⚠️ **LA CURVA TONALE ARRIVA COME IMMAGINE E NON COME NUMERI, ED È IL SOLO UNIFORM DI QUESTO
+// PROGRAMMA CHE NON SIA UN VALORE**: una spline vuole un ciclo sui suoi punti, e quei punti sono in
+// numero variabile, quindi il conto vive in Kotlin (`Curve` in `Adjust.kt`) e qui arriva la sua
+// **tabella**, una riga di 256 pixel in cui ogni canale porta la propria curva già composta con
+// quella di tutti i toni. Il perché, e perché non è la seconda copia che questo file esiste per non
+// avere, vivono sul KDoc di quel tipo.
+uniform shader tone;
 uniform half gain;
 uniform half contrast;
 uniform half highlights;
@@ -482,6 +846,7 @@ uniform half spanHi[8];
 uniform half bandHue[8];
 uniform half bandSat[8];
 uniform half bandLum[8];
+uniform half toneOn;
 uniform half detailOn;
 uniform half sharpen;
 uniform half masking;
@@ -852,7 +1217,27 @@ half4 main(float2 p) {
     // si aspetta. In lineare la stessa curva sposterebbe tutto verso i neri.
     rgb = half3(sCurve(rgb.r, contrast), sCurve(rgb.g, contrast), sCurve(rgb.b, contrast));
 
-    // 5. L'HSL per fascia: gli stessi tre comandi su otto colori.
+    // 5. La curva tonale, cioè i toni rimappati uno per uno.
+    // ⚠️⚠️ **VIENE DOPO IL CONTRASTO E PRIMA DELL'HSL, E LE DUE COSE HANNO DUE RAGIONI DIVERSE.**
+    // Dopo il contrasto, perché la curva a S è una rimappatura predefinita e questa è quella fatta
+    // a mano: al contrario, la S lavorerebbe su una distribuzione che la curva ha appena
+    // ridisegnato, e i due comandi si contenderebbero gli stessi toni. Prima dell'HSL, perché le
+    // tre curve di canale **cambiano la tonalità** di un pixel (una curva sul blu vira tutta
+    // l'immagine), e chi scegle i colori per tonalità deve leggere quella definitiva.
+    // ⚠️⚠️ **TRE LETTURE E NON UNA, e non è uno spreco**: i tre canali entrano nella tabella a tre
+    // posizioni diverse, quindi una lettura sola darebbe i tre canali dello stesso livello, che è
+    // un'altra cosa. Il canale che si legge da ognuna è quello a cui la sua colonna appartiene.
+    // ⚠️ **Il mezzo pixel è il centro della voce**: la tabella è larga 256, quindi il livello `v`
+    // vive a `v * 255 + 0.5`, e fra due voci il filtro lineare interpola.
+    if (toneOn > half(0.5)) {
+        rgb = half3(
+            tone.eval(float2(float(rgb.r) * 255.0 + 0.5, 0.5)).r,
+            tone.eval(float2(float(rgb.g) * 255.0 + 0.5, 0.5)).g,
+            tone.eval(float2(float(rgb.b) * 255.0 + 0.5, 0.5)).b
+        );
+    }
+
+    // 6. L'HSL per fascia: gli stessi tre comandi su otto colori.
     // ⚠️⚠️ **VIENE PRIMA DELLA SATURAZIONE E DOPO IL CONTRASTO, E LE DUE COSE HANNO DUE RAGIONI
     // DIVERSE.** Dopo il contrasto, perché sceglie i colori per **tonalità** e la tonalità è
     // quella che la luce ha finito di definire; prima della saturazione, perché quella è il
@@ -885,7 +1270,7 @@ half4 main(float2 p) {
         }
     }
 
-    // 6. Quanto sono accesi i colori, e viene per ULTIMO perché è un giudizio sull'immagine
+    // 7. Quanto sono accesi i colori, e viene per ULTIMO perché è un giudizio sull'immagine
     // finita: messo prima, ogni cursore della Luce lo rimetterebbe in discussione, e alzare il
     // contrasto alzerebbe di suo anche la saturazione.
     // ⚠️⚠️ **SI LAVORA SUL VALORE PERCETTIVO E NON IN LINEARE**, al contrario della Luce: la
@@ -909,6 +1294,34 @@ half4 main(float2 p) {
     return half4(rgb * a, a);
 }
 """
+
+/**
+ * La tabella di una curva a riposo, cioè la diagonale, costruita una volta sola per tutto il
+ * processo.
+ *
+ * ⚠️ **Serve perché lo shader vuole quella tabella SEMPRE**: un `uniform shader` non dichiarato
+ * fa rifiutare il programma, quindi anche un'immagine che non ha curve deve consegnarne una. Senza
+ * questa, ogni fotogramma di ogni immagine pagherebbe 1024 valori di spline e una bitmap, per
+ * ottenere sempre lo stesso risultato.
+ * - ⚠️ **È immutabile e la leggono in due**, l'anteprima e il salvataggio, che girano su thread
+ *   diversi: una bitmap che nessuno scrive si può condividere, e quello che si costruisce a ogni
+ *   chiamata è il solo `BitmapShader`, che costa niente.
+ */
+private val FLAT_TONE: Bitmap by lazy { toneBitmap(Tone.NONE) }
+
+/**
+ * La tabella di [tone] come riga di 256 pixel, da consegnare allo shader.
+ *
+ * ⚠️⚠️ **LA BITMAP È `ARGB_8888` OPACA E IN sRGB, E LE DUE COSE SONO DUE TRAPPOLE EVITATE**: Skia
+ * consegna a uno shader i colori **premoltiplicati**, quindi un'opacità diversa da uno
+ * moltiplicherebbe i valori della tabella; e se lo spazio colore della bitmap non fosse quello
+ * della destinazione, Skia convertirebbe i numeri mentre li legge. Qui la tabella non è
+ * un'immagine: è un elenco di valori, e deve arrivare **identica** a come è stata scritta.
+ */
+private fun toneBitmap(tone: Tone): Bitmap =
+    Bitmap.createBitmap(Curve.SIZE, 1, Bitmap.Config.ARGB_8888).apply {
+        setPixels(tone.lut(), 0, Curve.SIZE, 0, 0, Curve.SIZE, 1)
+    }
 
 /**
  * Il programma compilato con [look] dentro, agganciato all'immagine [image], oppure `null` dove
@@ -963,6 +1376,23 @@ private fun lightOver(image: Shader, look: Look, span: Float): Shader {
     val grain = Detail.grainReach(span)
     return RuntimeShader(LOOK_AGSL).apply {
         setInputShader("image", image)
+        /*
+         * ⚠️⚠️ **IL FILTRO LINEARE SULLA TABELLA È LA RIGA CHE LA RENDE UNA CURVA E NON UNA
+         * SCALINATA**: senza, il campionamento arrotonda al pixel più vicino, quindi due livelli
+         * vicini che cadono nella stessa voce escono identici e la curva si vede a gradini. È la
+         * riga gemella di quella del Dettaglio, e per la stessa ragione: `isFilterBitmap` del
+         * pennello governa il disegno e non i campioni che uno shader chiede a un altro.
+         * ⚠️ **A riposo la tabella è quella tenuta da parte**, quindi un'immagine non toccata non
+         * paga nemmeno la sua costruzione: vedi [FLAT_TONE].
+         */
+        val lut = if (look.tone.idle) FLAT_TONE else toneBitmap(look.tone)
+        setInputShader(
+            "tone",
+            BitmapShader(lut, TileMode.CLAMP, TileMode.CLAMP).apply {
+                setFilterMode(BitmapShader.FILTER_MODE_LINEAR)
+            }
+        )
+        setFloatUniform("toneOn", if (look.tone.idle) 0f else 1f)
         setFloatUniform("gain", light.gain)
         setFloatUniform("contrast", light.contrast)
         setFloatUniform("highlights", light.highlights)

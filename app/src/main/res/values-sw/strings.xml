@@ -432,6 +432,10 @@
     <string name="look_masking">Kufunika</string>
     <string name="look_noise">Kelele</string>
     <string name="look_noise_color">Kelele ya rangi</string>
+    <string name="look_tone">Mkunjo</string>
+    <string name="look_tone_rgb">RGB</string>
+    <string name="look_tone_board">Mkunjo wa toni</string>
+    <string name="look_target">Lengwa</string>
     <string name="look_contrast">Utofautishaji</string>
     <string name="look_shadows">Vivuli</string>
     <string name="look_highlights">Sehemu angavu</string>

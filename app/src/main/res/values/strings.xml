@@ -122,6 +122,10 @@
     <string name="look_masking">Masking</string>
     <string name="look_noise">Noise</string>
     <string name="look_noise_color">Color noise</string>
+    <string name="look_tone">Curve</string>
+    <string name="look_tone_rgb">RGB</string>
+    <string name="look_tone_board">Tone curve</string>
+    <string name="look_target">Targeted</string>
     <string name="look_contrast">Contrast</string>
     <string name="look_shadows">Shadows</string>
     <string name="look_highlights">Highlights</string>
