@@ -387,7 +387,7 @@
     <string name="menu_edit">편집</string>
     <string name="menu_edit_hold">앱 선택</string>
     <string name="editor_internal">간단 편집기</string>
-    <string name="editor_title">편집기</string>
+    <string name="editor_title">이미지 편집</string>
     <string name="editor_full">전체 편집기</string>
     <string name="look_light">빛</string>
     <string name="look_exposure">노출</string>

@@ -403,7 +403,7 @@
     <string name="menu_edit">Bearbeiten</string>
     <string name="menu_edit_hold">App auswählen</string>
     <string name="editor_internal">Einfacher Editor</string>
-    <string name="editor_title">Editor</string>
+    <string name="editor_title">Bild bearbeiten</string>
     <string name="editor_full">Vollständiger Editor</string>
     <string name="look_light">Licht</string>
     <string name="look_exposure">Belichtung</string>

@@ -93,7 +93,7 @@
     <string name="menu_edit">Edit</string>
     <string name="menu_edit_hold">Choose the app</string>
     <string name="editor_internal">Simple editor</string>
-    <string name="editor_title">Editor</string>
+    <string name="editor_title">Edit image</string>
     <string name="editor_full">Full editor</string>
     <string name="look_light">Light</string>
     <string name="look_exposure">Exposure</string>

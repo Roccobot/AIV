@@ -55,6 +55,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -220,8 +221,21 @@ fun AdvancedEditorScreen(
             IconButton(onClick = onBack) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.settings_back))
             }
+            /*
+             * ⚠️⚠️ **IN TESTA C'È QUELLO CHE SI STA FACENDO, E NON QUALE DEI DUE EDITOR È, DALLA
+             * `2.20`** (sua istruzione, 2026-09-12: *mentre modifico le immagini deve apparire
+             * 'Modifica immagine', che è quello che sto facendo, sia che usi l'editor semplice,
+             * sia che usi quello completo. L'utente deve pensare alla differenza tra i due (e alla
+             * loro stessa esistenza) solo quando fa la scelta*). Quindi la stringa è la stessa
+             * delle due schermate, e i nomi dei due editor restano dove la scelta si fa: il
+             * selettore e l'elenco delle app.
+             * ⚠️ **Con lei decade la nota della `1.49`**, che diceva *questa schermata si chiama
+             * 'Editor' e non 'Modifica'*: là il ragionamento partiva dal fatto che 'Modifica' è la
+             * funzione che apre anche un'app di fuori, e con due editor in casa il nome del
+             * singolo è diventato la cosa che non serve sapere mentre si lavora.
+             */
             Text(
-                text = stringResource(R.string.editor_full),
+                text = stringResource(R.string.editor_title),
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.weight(1f).heading()
             )
@@ -813,6 +827,16 @@ private fun LookSheet(
      */
     var module by rememberSaveable { mutableIntStateOf(0) }
     val chosen = MODULES[module]
+
+    /**
+     * Il cursore che sta alla riga [riga] del modulo che si sta guardando **adesso**, o `null` se
+     * là non c'è niente (i moduli non hanno tutti lo stesso numero di cursori).
+     *
+     * ⚠️ **Legge [module] al momento della chiamata e non alla composizione**, ed è tutto il suo
+     * valore: chiamata da dentro il rilevatore di un gesto, risponde con quello che il dito ha
+     * davvero sotto il dito.
+     */
+    fun dialAt(riga: Int): Dial? = MODULES[module].dials.getOrNull(riga)
     /*
      * ⚠️⚠️ **LA SUPERFICIE È QUELLA DELL'EDITOR DI CASA, riga per riga**: il fondo del palco che
      * passa sotto gli angoli stondati, il bordo d'accento che corre di fuori, il colore, e il
@@ -865,30 +889,52 @@ private fun LookSheet(
                 }
             }
 
-            chosen.dials.forEach { knob ->
-                LookKnob(
-                    name = stringResource(knob.name),
-                    value = knob.read(look),
-                    span = knob.span,
-                    stops = knob.stops,
-                    /*
-                     * ⚠️ **Col bianco e nero acceso i due cursori dei colori si spengono**: là
-                     * non c'è più niente da saturare, e un cursore che si muove senza cambiare
-                     * l'immagine si legge come un guasto.
-                     */
-                    enabled = ready && !busy && !(look.chroma.mono && knob.dims),
-                    onLive = { onLive(knob.set(it)) },
-                    onSettled = onSettled,
-                    /*
-                     * ⚠️ **Il confronto si costruisce QUI**, con lo stesso `set` con cui il cursore
-                     * scrive: è l'immagine di adesso con questo solo campo a zero, cioè la risposta
-                     * alla domanda 'questo cursore, da solo, che cosa fa?'.
-                     * ⚠️⚠️ **E PARTE DA QUELLO CHE SI VEDE ADESSO E NON DA [look]**, per la ragione
-                     * misurata su [Dial.set]: questa riga vive dentro il rilevatore di un gesto, e
-                     * il valore che ci si cattura invecchia.
-                     */
-                    onPeek = { on -> onPeek(if (on) knob.set(0f) else null) }
-                )
+            /*
+             * ⚠️⚠️ **UN GESTO SCRIVE LA RIGA CHE TOCCA NEL MODULO CHE SI VEDE, E NON UN CURSORE
+             * CHE SI PORTA DENTRO, DALLA `2.20`** (campo libero del giro della `2.19`: *il mio
+             * tocco, mentre provo a spostare la tinta o la saturazione, sposta invece il contrasto
+             * che è nell'altro modulo; lo stesso succede altrove, c'è qualcosa di mescolato*). Una
+             * lambda che si porta dentro il proprio [Dial] dice il vero finché il nodo che la
+             * tiene è quello per cui è nata; risolvendo la **riga** al momento della scrittura, il
+             * cursore numero N scrive sempre il cursore numero N di quello che è in scena adesso,
+             * cioè quello che il dito sta toccando.
+             * ⚠️⚠️ **LA CAUSA NON È ACCERTATA, E SI SCRIVE COSÌ INVECE DI INVENTARLA**: quel
+             * difetto **non si riproduce sul banco**, né col tocco secco né con un trascinamento
+             * vero, e una spia messa dentro il gesto risponde col cursore giusto in tutti e due i
+             * casi. Quindi questa riga non è la cura misurata di quel difetto: è il meccanismo che
+             * lo rende impossibile qualunque sia la sua causa, ed è dichiarato come tale.
+             * ⚠️ **Il `key` è la seconda metà**: senza, Compose riusa i composable di una lista
+             * **per posizione**, quindi cambiando modulo i nodi dei cursori passano di mano
+             * portandosi dietro tutto quello che un nodo tiene. La chiave è il [Dial], che è un
+             * oggetto di [MODULES] e quindi stabile per tutta la vita del processo: due moduli non
+             * ne hanno nessuno in comune, e i nodi si buttano invece di passare di mano.
+             */
+            chosen.dials.forEachIndexed { riga, knob ->
+                key(knob) {
+                    LookKnob(
+                        name = stringResource(knob.name),
+                        value = knob.read(look),
+                        span = knob.span,
+                        stops = knob.stops,
+                        /*
+                         * ⚠️ **Col bianco e nero acceso i due cursori dei colori si spengono**:
+                         * là non c'è più niente da saturare, e un cursore che si muove senza
+                         * cambiare l'immagine si legge come un guasto.
+                         */
+                        enabled = ready && !busy && !(look.chroma.mono && knob.dims),
+                        onLive = { v -> dialAt(riga)?.let { onLive(it.set(v)) } },
+                        onSettled = onSettled,
+                        /*
+                         * ⚠️ **Il confronto si costruisce QUI**, con lo stesso `set` con cui il
+                         * cursore scrive: è l'immagine di adesso con questo solo campo a zero,
+                         * cioè la risposta alla domanda 'questo cursore, da solo, che cosa fa?'.
+                         * ⚠️⚠️ **E PARTE DA QUELLO CHE SI VEDE ADESSO E NON DA [look]**, per la
+                         * ragione misurata su [Dial.set]: questa riga vive dentro il rilevatore
+                         * di un gesto, e il valore che ci si cattura invecchia.
+                         */
+                        onPeek = { on -> onPeek(if (on) dialAt(riga)?.set(0f) else null) }
+                    )
+                }
             }
 
             /*
@@ -1054,7 +1100,20 @@ private fun LookKnob(
 ) {
     val zero = stringResource(R.string.look_reset_one, name)
     val against = stringResource(R.string.look_peek_one, name)
-    val reset = { onLive(0f); onSettled() }
+    /*
+     * ⚠️⚠️ **LE TRE LAMBDA SI LEGGONO VIVE, DALLA `2.20`, ED È UNA DIFESA DICHIARATA E NON UNA
+     * CURA MISURATA**: il corpo di un `pointerInput` si ricostruisce solo quando cambiano le sue
+     * chiavi, quindi in linea di principio un rilevatore può chiamare le lambda della composizione
+     * in cui è nato. ⚠️ **Che qui succeda non è provato**: una spia messa dentro il gesto dice che
+     * a rispondere è sempre la lambda di adesso, e l'ipotesi era già caduta nella `2.17`, misurata
+     * in due modi. Con uno stato aggiornato in mezzo la domanda non si pone più, e costa tre
+     * righe.
+     * ⚠️ **È la stessa forma di `live` in [LookDial]**, che là vale per il valore.
+     */
+    val write by rememberUpdatedState(onLive)
+    val settle by rememberUpdatedState(onSettled)
+    val peek by rememberUpdatedState(onPeek)
+    val reset = { write(0f); settle() }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = name,
@@ -1062,14 +1121,14 @@ private fun LookKnob(
             modifier = Modifier
                 .width(KNOB_NAME)
                 .semantics { contentDescription = against }
-                .heldOrTwice(enabled = enabled, onTwice = reset, onHold = onPeek)
+                .heldOrTwice(enabled = enabled, onTwice = reset, onHold = { peek(it) })
         )
         LookDial(
             value = value,
             span = span,
             enabled = enabled,
-            onLive = onLive,
-            onSettled = onSettled,
+            onLive = { write(it) },
+            onSettled = { settle() },
             modifier = Modifier.weight(1f)
         )
         Text(

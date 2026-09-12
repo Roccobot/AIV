@@ -1844,6 +1844,20 @@ fa perdere. Chi tocca 'Modifica' sceglie fra i due la prima volta, e la scelta s
   il colore mirato; la geometria col raddrizzamento; i preset) vivono nel piano d'azione, che è il
   posto delle versioni in sequenza.
 
+⚠️⚠️ **MA I DUE EDITOR SI CHIAMANO ALLO STESSO MODO IN TESTATA, DALLA `2.20`, ED È SUA
+ISTRUZIONE** (2026-09-12: *in testa/titolo, mentre modifico le immagini, deve apparire 'Modifica
+immagine', che è quello che sto facendo, sia che usi l'editor semplice, sia che usi quello
+completo. L'utente deve pensare alla differenza tra i due (e alla loro stessa esistenza) solo
+quando fa la scelta*). Il titolo dice **che cosa si sta facendo** e non con quale dei due arnesi:
+chi ha già scelto ha finito di pensarci.
+- ⚠️ **La distinzione resta dov'è la scelta**, cioè nel selettore che si apre toccando 'Modifica'
+  e nella voce delle impostazioni: là `editor_full` continua a nominare l'editor completo, ed è
+  l'unico posto in cui quel nome compare.
+- ⚠️ **Quindi la regola della `1.49` è decaduta** (*questa schermata si chiama Editor e non
+  Modifica*): valeva quando l'editor era uno e il titolo poteva dire il nome dell'arnese. Chi
+  trova quella nota in un commento vecchio sappia che il criterio di oggi è il rovescio, per il
+  criterio di § '🗣️ Come si chiamano le cose'.
+
 ⚠️⚠️ **I CURSORI DELLA LUCE SONO I SEI DEL PANNELLO BASE DI LIGHTROOM, DALLA `2.16`, E IL SESTO
 NON C'ERA MENTRE UNO DI QUELLI DI PRIMA È USCITO** (riscontro del giro della `2.15`, voce
 `luce-taratura` accettabile: *'Luminosità', oltre a confondermi (Lightroom ha solo 'Esposizione'),
@@ -2177,6 +2191,29 @@ del cursore, o soltanto l'immagine?), e la risposta la chiude **senza** distingu
 si sa è che il difetto è uscito con la `2.17`, non quale delle tre righe lo abbia tolto.
 - ⚠️ **Le quattro ipotesi qui sopra non decadono**: restano misure vere, e chi ritrovasse quel
   sintomo riparte da lì invece di rifarle.
+
+⚠️⚠️ **E COL SECONDO MODULO IL SINTOMO È TORNATO PIÙ GRANDE: DALLA `2.20` UN GESTO SCRIVE LA RIGA
+CHE TOCCA E NON UN CURSORE CHE SI PORTA DENTRO** (campo libero del giro della `2.19`: *il mio
+tocco, mentre provo a spostare la tinta o la saturazione, sposta invece il contrasto che è
+nell'altro modulo; lo stesso succede altrove, c'è qualcosa di mescolato*). La coppia che ha
+nominato è la **stessa riga di due moduli**: la tinta è la seconda del Colore e il contrasto la
+seconda della Luce.
+- ⚠️⚠️ **LA CAUSA NON È ACCERTATA NEMMENO QUESTA VOLTA, E IL BANCO NON LA RIPRODUCE**: il caso
+  nuovo di `SviluppoTest` tocca **col dito**, e resta verde anche togliendo la correzione; una
+  spia messa dentro il gesto dice che a rispondere è il cursore toccato, col tocco secco come con
+  un trascinamento vero, e la Luce resta a zero. Quindi quello che si è fatto è **togliere la
+  possibilità**, non curare una causa, e la voce di collaudo lo dice a lui.
+- **Il meccanismo**: la lambda di un cursore non porta più il proprio `Dial`, porta il **numero di
+  riga**, e chi scrive risolve quella riga nel modulo in scena in quell'istante (`dialAt`). Così
+  il cursore numero N scrive sempre il numero N di quello che si sta guardando, che è quello che
+  il dito ha sotto.
+- ⚠️ **Il `key` è la seconda metà**: senza, Compose riusa i composable di una lista **per
+  posizione**, quindi cambiando modulo i nodi dei cursori passano di mano con tutto quello che un
+  nodo tiene. La chiave è il `Dial`, che è un oggetto della tabella dei moduli, quindi stabile per
+  tutta la vita del processo.
+- ⚠️ **Somiglia alla correzione della `2.17` e non è la stessa cosa**: là si era tolta la cattura
+  di un `Look`, qui quella di un oggetto. Tutte e due tolgono una cattura, e nessuna delle due
+  nasce da un difetto riprodotto sul banco.
 
 ⚠️⚠️ **E IL DOPPIO TOCCO SULL'IMMAGINE CI ARRIVA CON UNA CORSA, DALLA `2.17`** (stesso giro, voce
 `luce-zoom` approvata con una nota: *mi piacerebbe di più se al doppio tocco l'immagine passasse

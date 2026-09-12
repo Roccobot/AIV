@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithContentDescription
@@ -30,6 +32,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.GraphicsMode
 import java.io.File
+import kotlin.math.abs
+
+/**
+ * La riga su cui i due moduli si sovrappongono: la **seconda** di tutti e due, cioè il contrasto
+ * della Luce e la tinta del Colore. È il numero che il difetto della `2.19` metteva in comune.
+ */
+private const val RIGA = 1
 
 /**
  * Il banco del modulo **Colore**, e della fila che sceglie i moduli.
@@ -168,6 +177,46 @@ class SviluppoTest {
         cursore(0).assertIsEnabled()
     }
 
+    /**
+     * **Caso 6: il dito su un cursore del Colore non muove quello della Luce.**
+     *
+     * ⚠️⚠️ **QUESTA PROVA NON MISURA IL DIFETTO DEL GIRO DELLA `2.19`, E VA DETTO** (campo libero:
+     * *il mio tocco, mentre provo a spostare la tinta o la saturazione, sposta invece il contrasto
+     * che è nell'altro modulo*): quel difetto **sul banco non si riproduce**, e questo caso è
+     * rimasto verde anche togliendo a mano la correzione, in tutte e due le sue metà. Una spia
+     * messa dentro il gesto ha detto perché: a rispondere è sempre il cursore che si tocca, sia
+     * col tocco secco sia con un trascinamento vero. Quello che questa prova presidia è la
+     * **funzione** (un cursore scrive il proprio campo e nient'altro), non la causa di quel
+     * difetto, che resta non accertata.
+     *
+     * ⚠️⚠️ **SI TOCCA COL DITO, E LE ALTRE PROVE NON LO FANNO**: i cinque casi qui sopra muovono i
+     * cursori con l'azione semantica, che vive in un `Modifier.semantics` e si riscrive a ogni
+     * ricomposizione. Il dito passa invece dal `pointerInput`, che è un'altra strada e va
+     * percorsa da qualcuno.
+     *
+     * ⚠️ **I due cursori sono lo STESSO numero di riga**, ed è il punto: la tinta è la seconda del
+     * Colore e il contrasto la seconda della Luce, cioè la coppia che lui ha nominato.
+     */
+    @Test
+    fun `il cursore di un modulo non muove quello dell'altro`() {
+        banco.setContent { Scena() }
+        pronta()
+
+        banco.onNodeWithText(testo(R.string.look_color)).performClick()
+        banco.waitForIdle()
+        tocca(RIGA, 0.25f)
+        assertTrue("Il tocco non ha mosso la tinta", abs(valore(RIGA)) > 0.1f)
+
+        banco.onNodeWithText(testo(R.string.look_light)).performClick()
+        banco.waitForIdle()
+        assertEquals(
+            "Il tocco sulla tinta ha mosso il contrasto, che è nell'altro modulo",
+            0f,
+            valore(RIGA),
+            1e-3f
+        )
+    }
+
     /** Vedi la nota su `pronta()` in `LuceTest`: il palco compare quando l'immagine esiste. */
     private fun pronta() {
         banco.waitUntil(5_000) {
@@ -182,6 +231,18 @@ class SviluppoTest {
 
     private fun muovi(quale: Int, a: Float) {
         cursore(quale).performSemanticsAction(SemanticsActions.SetProgress) { it(a) }
+        banco.waitForIdle()
+    }
+
+    /**
+     * Tocca la barra di un cursore a una frazione della sua larghezza, come farebbe un dito.
+     *
+     * ⚠️ **Un tocco secco e non una strisciata**: toccando lontano dal tondo il cursore salta
+     * subito al punto, quindi il valore si muove senza iniettare un gesto con la sua durata, che
+     * col clock di prova è una delle trappole di casa.
+     */
+    private fun tocca(quale: Int, dove: Float) {
+        cursore(quale).performTouchInput { click(Offset(width * dove, height / 2f)) }
         banco.waitForIdle()
     }
 
