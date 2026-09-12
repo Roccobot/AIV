@@ -399,6 +399,17 @@
     <string name="look_saturation">채도</string>
     <string name="look_vibrance">생동감</string>
     <string name="look_bw">흑백</string>
+    <string name="look_mix">HSL</string>
+    <string name="look_hue">색조</string>
+    <string name="look_lum">광도</string>
+    <string name="look_band_red">빨강</string>
+    <string name="look_band_orange">주황</string>
+    <string name="look_band_yellow">노랑</string>
+    <string name="look_band_green">초록</string>
+    <string name="look_band_aqua">아쿠아</string>
+    <string name="look_band_blue">파랑</string>
+    <string name="look_band_purple">보라</string>
+    <string name="look_band_magenta">마젠타</string>
     <string name="look_contrast">대비</string>
     <string name="look_shadows">어두운 부분</string>
     <string name="look_highlights">밝은 부분</string>

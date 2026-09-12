@@ -431,6 +431,17 @@
     <string name="look_saturation">Saturação</string>
     <string name="look_vibrance">Vibração</string>
     <string name="look_bw">Preto e branco</string>
+    <string name="look_mix">HSL</string>
+    <string name="look_hue">Matiz</string>
+    <string name="look_lum">Luminância</string>
+    <string name="look_band_red">Vermelho</string>
+    <string name="look_band_orange">Laranja</string>
+    <string name="look_band_yellow">Amarelo</string>
+    <string name="look_band_green">Verde</string>
+    <string name="look_band_aqua">Água</string>
+    <string name="look_band_blue">Azul</string>
+    <string name="look_band_purple">Roxo</string>
+    <string name="look_band_magenta">Magenta</string>
     <string name="look_contrast">Contraste</string>
     <string name="look_shadows">Sombras</string>
     <string name="look_highlights">Luzes</string>

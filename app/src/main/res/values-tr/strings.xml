@@ -415,6 +415,17 @@
     <string name="look_saturation">Doygunluk</string>
     <string name="look_vibrance">Canlılık</string>
     <string name="look_bw">Siyah beyaz</string>
+    <string name="look_mix">HSL</string>
+    <string name="look_hue">Renk tonu</string>
+    <string name="look_lum">Parlaklık</string>
+    <string name="look_band_red">Kırmızı</string>
+    <string name="look_band_orange">Turuncu</string>
+    <string name="look_band_yellow">Sarı</string>
+    <string name="look_band_green">Yeşil</string>
+    <string name="look_band_aqua">Turkuaz</string>
+    <string name="look_band_blue">Mavi</string>
+    <string name="look_band_purple">Mor</string>
+    <string name="look_band_magenta">Macenta</string>
     <string name="look_contrast">Kontrast</string>
     <string name="look_shadows">Gölgeler</string>
     <string name="look_highlights">Parlak alanlar</string>

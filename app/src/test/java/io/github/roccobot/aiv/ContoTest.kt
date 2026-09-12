@@ -76,6 +76,27 @@ class ContoTest {
         )
     }
 
+    /**
+     * E lo consegna anche con le otto fasce dell'HSL dentro.
+     *
+     * ⚠️⚠️ **QUESTI UNIFORM SONO ARRAY, CHE È UNA FORMA CHE IL PROGRAMMA NON AVEVA**: sei array da
+     * otto valori (i centri, i due raggi e i tre cursori per fascia), consegnati con la variante di
+     * `setFloatUniform` che prende un `FloatArray`. Un array di lunghezza sbagliata o un nome che
+     * non combacia non dà errore di compilazione: dà un'eccezione al primo fotogramma, che la rete
+     * di `lookShader` trasformerebbe in un `null`, cioè in 'questo telefono non sa farlo'. È
+     * esattamente la forma del difetto della `2.14`.
+     */
+    @Test
+    fun `lookShader consegna il programma con le otto fasce`() {
+        val fasce = Mix.NONE
+            .swap(0) { it.copy(hue = 0.5f, sat = -0.3f, lum = 0.8f) }
+            .swap(5) { it.copy(lum = -1f) }
+        assertNotNull(
+            "lookShader ha risposto null: un array di uniform non combacia",
+            lookShader(sorgente(), Look(mix = fasce))
+        )
+    }
+
     /** Una sorgente qualunque: qui conta che il programma la accetti, non che colore abbia. */
     private fun sorgente(): BitmapShader {
         val mappa = Bitmap.createBitmap(4, 4, Bitmap.Config.ARGB_8888)

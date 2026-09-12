@@ -415,6 +415,17 @@
     <string name="look_saturation">நிறச்செறிவு</string>
     <string name="look_vibrance">உயிர்ப்பு</string>
     <string name="look_bw">கருப்பு வெள்ளை</string>
+    <string name="look_mix">HSL</string>
+    <string name="look_hue">நிறச்சாயல்</string>
+    <string name="look_lum">ஒளிர்வு</string>
+    <string name="look_band_red">சிவப்பு</string>
+    <string name="look_band_orange">ஆரஞ்சு</string>
+    <string name="look_band_yellow">மஞ்சள்</string>
+    <string name="look_band_green">பச்சை</string>
+    <string name="look_band_aqua">நீலப்பச்சை</string>
+    <string name="look_band_blue">நீலம்</string>
+    <string name="look_band_purple">ஊதா</string>
+    <string name="look_band_magenta">மெஜந்தா</string>
     <string name="look_contrast">மாறுபாடு</string>
     <string name="look_shadows">நிழல்கள்</string>
     <string name="look_highlights">ஒளிப்பகுதி</string>

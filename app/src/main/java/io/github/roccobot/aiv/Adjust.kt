@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.Shader
 import kotlin.math.abs
+import kotlin.math.floor
 import kotlin.math.pow
 
 /*
@@ -122,11 +123,11 @@ data class Light(
  * sui colori spenti e lascia stare quelli accesi: è il cursore che si usa sui ritratti, perché
  * l'incarnato è poco saturo e il cielo dietro no.
  *
- * ⚠️⚠️ **I PESI PER FASCIA DEL BIANCO E NERO NON SONO QUI, E LA SCELTA È DICHIARATA**: il piano
- * d'azione li metteva in questo modulo, ma sono la **stessa macchina** delle otto fasce dell'HSL,
- * che è il giro dopo; scritti adesso sarebbero scritti due volte, e la prima a divergere sarebbe
- * quella che nessuno guarda. Qui [mono] usa i pesi percettivi di Rec. 709, cioè quelli con cui
- * l'occhio vede il grigio, e i pesi che si scelgono a mano arrivano con le fasce.
+ * ⚠️⚠️ **I PESI PER FASCIA DEL BIANCO E NERO NON SONO QUI, E DALLA `2.21` SI SA DOVE SONO**: il
+ * piano d'azione li metteva in questo modulo, ma sono la **stessa macchina** delle otto fasce
+ * dell'HSL, e adesso vivono là (vedi [Mix]), che è la sua risposta `hsl` a `d-bn-pesi`. Qui [mono]
+ * usa i pesi percettivi di Rec. 709, cioè quelli con cui l'occhio vede il grigio, e chi vuole
+ * scurire i cieli di una fotografia in bianco e nero muove la luminanza della fascia del blu.
  *
  * ⚠️ **Sono tutti frazioni da -1 a +1**, e l'interfaccia li mostra da -100 a +100 come quelli
  * della Luce: è il linguaggio di Lightroom, che è quello che lui conosce.
@@ -152,6 +153,95 @@ data class Chroma(
 }
 
 /**
+ * Che cosa si chiede a **una** delle otto fasce di colore: spostane la tonalità, accendila o
+ * spegnila, schiariscila o scuriscila.
+ *
+ * ⚠️ **Sono tre frazioni da -1 a +1**, come i cursori degli altri due moduli, e l'interfaccia le
+ * mostra da -100 a +100: è il linguaggio di Lightroom, che è quello che lui conosce.
+ */
+data class Band(val hue: Float = 0f, val sat: Float = 0f, val lum: Float = 0f) {
+
+    /** Se questa fascia non cambia un pixel: vedi la nota sulla tolleranza in [Light.idle]. */
+    val idle: Boolean get() = abs(hue) < DEAD && abs(sat) < DEAD && abs(lum) < DEAD
+
+    companion object {
+        val NONE = Band()
+
+        private const val DEAD = 0.0005f
+    }
+}
+
+/**
+ * Il modulo **HSL**: gli stessi tre comandi ripetuti su otto fasce di colore.
+ *
+ * ⚠️⚠️ **È IL TERZO MODULO, DALLA `2.21`, ED È IL SUO CAMPO LIBERO** (giro della `2.20`: *mi
+ * sembra più logico implementare HSL dopo il colore, va' avanti con quello*). Prende il posto del
+ * Dettaglio, che scala di un giro: fino a quel messaggio l'ordine era quello della sua risposta
+ * `subito` a `d-dettaglio`, e questa istruzione lo rovescia.
+ *
+ * ⚠️⚠️ **DOVE IL MODULO COLORE PARLA A TUTTA L'IMMAGINE, QUESTO PARLA A UN COLORE SOLO, ed è
+ * questo che lo rende un modulo a sé**: la saturazione del Colore accende tutto insieme, qui si
+ * accende il cielo lasciando stare l'incarnato. La macchina è la stessa per tutte e otto le fasce,
+ * e una fascia non toccata non costa niente.
+ *
+ * ⚠️⚠️ **E QUI DENTRO VIVONO ANCHE I PESI PER FASCIA DEL BIANCO E NERO, CHE È LA SUA RISPOSTA
+ * `hsl` A `d-bn-pesi`** (giro della `2.19`): col bianco e nero acceso le prime due righe non hanno
+ * più niente da fare e resta [lum], che diventa **quanto quel colore pesa nel grigio**. Non è un
+ * secondo meccanismo che gli somiglia: è lo stesso conto, e il bianco e nero viene dopo di lui
+ * proprio perché possa raccoglierne il risultato.
+ *
+ * ⚠️⚠️ **I CENTRI DELLE FASCE VIVONO QUI E NON NELLO SHADER, e non è una comodità**: li leggono in
+ * due, il conto (per sapere a quale fascia appartiene un pixel) e l'interfaccia (per dare a ogni
+ * pastiglia il colore della sua fascia). Scritti due volte, il giorno che uno si sposta la
+ * pastiglia direbbe un colore che il conto non tocca.
+ * - ⚠️ **Non sono equispaziati, ed è di proposito**: sono gli otto di Lightroom, dove fra il rosso
+ *   e il giallo ci sono tre fasce in 60 gradi e fra il giallo e l'acqua due in 120. La ruota dei
+ *   colori non è uniforme per l'occhio, e quei centri stanno dove l'occhio distingue.
+ */
+data class Mix(val bands: List<Band> = List(COUNT) { Band.NONE }) {
+
+    /** Se nessuna fascia cambia un pixel. */
+    val idle: Boolean get() = bands.all { it.idle }
+
+    /** Questo stesso insieme con la fascia [i] riscritta da [how]. */
+    fun swap(i: Int, how: (Band) -> Band): Mix =
+        Mix(bands.mapIndexed { j, b -> if (j == i) how(b) else b })
+
+    companion object {
+        val NONE = Mix()
+
+        /** Quante fasce: otto, come il pannello di Lightroom. */
+        const val COUNT = 8
+
+        /**
+         * Dov'è il centro di ogni fascia, in frazione di giro (0 = rosso).
+         *
+         * ⚠️ **È un `FloatArray` perché finisce tale e quale in un uniform**: `setFloatUniform`
+         * vuole quello, e una conversione a ogni fotogramma sarebbe una copia per niente.
+         */
+        val CENTRES = floatArrayOf(
+            0f, 30f / 360f, 60f / 360f, 120f / 360f,
+            180f / 360f, 240f / 360f, 280f / 360f, 320f / 360f
+        )
+
+        /**
+         * Fin dove arriva una fascia dalla parte delle tonalità più alte, e da quella delle più
+         * basse: esattamente fino al centro vicino.
+         *
+         * ⚠️⚠️ **SI RICAVANO DAI CENTRI E NON SI SCRIVONO, ed è quello che fa tornare il conto**:
+         * con un raggio uguale alla distanza dal vicino, fra due centri adiacenti i due pesi
+         * sommano a uno e tutti gli altri valgono zero, quindi il conto non ha bisogno di
+         * normalizzare niente. Il perché un raggio unico non basti vive su `pick`, nello shader.
+         */
+        val SPAN_HI = FloatArray(COUNT) { round(CENTRES[(it + 1) % COUNT] - CENTRES[it]) }
+        val SPAN_LO = FloatArray(COUNT) { round(CENTRES[it] - CENTRES[(it + COUNT - 1) % COUNT]) }
+
+        /** Una differenza di tonalità riportata in un giro, cioè in `[0, 1)`. */
+        private fun round(x: Float): Float = x - floor(x)
+    }
+}
+
+/**
  * Tutto quello che l'editor completo sa fare a un'immagine, in un oggetto solo.
  *
  * ⚠️⚠️ **È UN VALORE E NON UNA CATENA DI GESTI, ed è la stessa scelta dell'editor di casa**: là
@@ -160,14 +250,18 @@ data class Chroma(
  * a riapplicarli uno per uno sul file pieno, cioè a rifare dieci volte lo stesso lavoro.
  *
  * ⚠️⚠️ **CRESCE COI MODULI E LA SUA FORMA NON CAMBIA**: [chroma] è entrato accanto a [light] con
- * la `2.19` senza toccare niente di quello che legge questo oggetto, e le curve e la geometria
- * entreranno allo stesso modo. Chi li aggiunge tocca [idle] e [lossless], che sono le due domande
- * che tutto il resto fa qui, e nient'altro.
+ * la `2.19` e [mix] con la `2.21`, senza toccare niente di quello che legge questo oggetto, e le
+ * curve e la geometria entreranno allo stesso modo. Chi li aggiunge tocca [idle] e [lossless], che
+ * sono le due domande che tutto il resto fa qui, e nient'altro.
  */
-data class Look(val light: Light = Light.NONE, val chroma: Chroma = Chroma.NONE) {
+data class Look(
+    val light: Light = Light.NONE,
+    val chroma: Chroma = Chroma.NONE,
+    val mix: Mix = Mix.NONE
+) {
 
     /** Se non c'è niente da applicare: l'immagine esce identica a com'è entrata. */
-    val idle: Boolean get() = light.idle && chroma.idle
+    val idle: Boolean get() = light.idle && chroma.idle && mix.idle
 
     /**
      * Se quello che c'è da fare **non** riscrive i pixel.
@@ -217,8 +311,8 @@ enum class Quality(override val token: String) : Choice {
  *
  * ⚠️⚠️ **L'ORDINE DELLE OPERAZIONI È LA SPECIFICA, e cambiarlo cambia il risultato**: il
  * bilanciamento del bianco, poi l'esposizione, poi ombre e luci, poi i punti di bianco e di nero,
- * poi il contrasto, e per ultimo quanto sono accesi i colori. È l'ordine di un banco di sviluppo
- * fotografico, e la ragione di ognuno dei passaggi:
+ * poi il contrasto, poi l'HSL per fascia, e per ultimo quanto sono accesi i colori. È l'ordine di
+ * un banco di sviluppo fotografico, e la ragione di ognuno dei passaggi:
  * - **Il bilanciamento viene per primo, dalla `2.19`**, perché non corregge niente: dice di che
  *   colore era la luce dello scatto, cioè **da quale immagine si parte**. Messo dopo, la piega
  *   delle alte luci lavorerebbe su un canale che il bilanciamento sta ancora per spingere fuori.
@@ -270,6 +364,13 @@ uniform half green;
 uniform half saturation;
 uniform half vibrance;
 uniform half mono;
+uniform half mixOn;
+uniform half centre[8];
+uniform half spanLo[8];
+uniform half spanHi[8];
+uniform half bandHue[8];
+uniform half bandSat[8];
+uniform half bandLum[8];
 
 // Quanto spostano i due cursori del bilanciamento del bianco, al fondo della corsa. Il numero
 // dice quanto è forte il cursore, e a 0,3 il massimo copre lo scarto fra una luce di casa e la
@@ -283,6 +384,17 @@ const half SHOULDER_SOFT = 1.5;
 // decide quanto è forte il cursore, e a un quarto l'intervallo più stretto che si può chiedere
 // vale comunque metà scala: non esiste un valore dei due cursori che dia un'immagine piatta.
 const half POINT_SHIFT = 0.25;
+
+// Di quanto il cursore della tonalità sposta una fascia, al fondo della corsa: trenta gradi,
+// cioè un dodicesimo di giro. È la distanza fra due fasce vicine nella metà fitta della ruota,
+// quindi al massimo un colore arriva **accanto** al suo vicino senza scavalcarlo: oltre, un
+// rosso spinto diventerebbe giallo e il cursore si leggerebbe come rotto.
+const half HUE_REACH = 0.0833;
+
+// Di quanto il cursore della luminanza schiarisce o scurisce una fascia, al fondo della corsa.
+// A metà, un colore pieno diventa la metà più chiaro o più scuro: è il tratto in cui un cielo
+// si stacca dalle nuvole senza che il resto dell'immagine se ne accorga.
+const half LUM_REACH = 0.5;
 
 // ⚠️⚠️ **LA PIEGA DELLE ALTE LUCI, DALLA `2.18`, ED È IL SUO RISCONTRO** (campo libero del giro
 // della `2.17`: *l'esposizione è troppo brusca sulle tonalità chiare: aumentandola le parti
@@ -392,6 +504,67 @@ half sCurve(half x, half k) {
     return half(0.5) + (t - half(0.5)) * (half(1.0) + k * half(0.6));
 }
 
+// Da RGB a tonalità, saturazione e valore, **senza rami**: la forma classica di Sam Hocevar, che
+// ottiene con due `mix` l'ordinamento dei tre canali. Scritta con gli `if` costerebbe divergenza
+// su ogni pixel di un bordo, cioè proprio dove i colori cambiano.
+//
+// ⚠️ **La tonalità esce in frazione di giro** (0 = rosso, 1/3 = verde, 2/3 = blu), che è l'unità
+// in cui vivono i centri delle fasce: gradi e frazioni mescolati sarebbero due unità nello stesso
+// conto.
+//
+// ⚠️ **L'epsilon è 1e-4 e non 1e-10**: in `half` il più piccolo numero normale vale circa 6e-5,
+// quindi la costante che si legge in giro diventerebbe zero e su un pixel nero il conto
+// dividerebbe per zero.
+half3 toHsv(half3 c) {
+    half4 p = mix(
+        half4(c.bg, half(-1.0), half(2.0) / half(3.0)),
+        half4(c.gb, half(0.0), half(-1.0) / half(3.0)),
+        step(c.b, c.g)
+    );
+    half4 q = mix(half4(p.xyw, c.r), half4(c.r, p.yzx), step(p.x, c.r));
+    half chroma = q.x - min(q.w, q.y);
+    half e = half(0.0001);
+    return half3(
+        abs((q.w - q.y) / (half(6.0) * chroma + e) + q.z),
+        chroma / (q.x + e),
+        q.x
+    );
+}
+
+half3 fromHsv(half3 c) {
+    half3 p = abs(
+        fract(half3(c.x) + half3(half(1.0), half(2.0) / half(3.0), half(1.0) / half(3.0))) *
+            half(6.0) - half3(3.0)
+    );
+    return c.z * mix(half3(1.0), clamp(p - half3(1.0), half3(0.0), half3(1.0)), c.y);
+}
+
+// Quanto le otto fasce chiedono a un pixel di tonalità `h`: la somma dei tre valori di ognuna,
+// pesata da quanto quel pixel le appartiene.
+//
+// ⚠️⚠️ **I PESI SONO TRIANGOLARI CON UN RAGGIO PER LATO, E COSÌ LA SOMMA VALE UNO SENZA
+// NORMALIZZARE**: il raggio di una fascia da un lato è esattamente la distanza dal centro vicino,
+// quindi fra due centri adiacenti i due pesi sommano a uno e tutti gli altri sono zero. ⚠️ **Un
+// raggio unico non lo permetterebbe**, ed è il conto che ha fatto scartare la prima stesura: coi
+// centri di Lightroom, che non sono equispaziati, con un raggio di sessanta gradi un rosso pieno
+// riceveva tre fasce e del proprio cursore gli arrivava il 55 per cento.
+//
+// ⚠️ **I due raggi arrivano da Kotlin insieme ai centri**, e non sono un secondo dato: si ricavano
+// dai centri, e chi sposta un centro si ritrova i raggi giusti senza toccare niente.
+half3 pick(half h) {
+    half3 want = half3(0.0);
+    for (int i = 0; i < 8; i++) {
+        // La distanza firmata dal centro, riportata in mezzo giro per parte: la ruota si chiude,
+        // quindi fra un rosso a 359 gradi e il centro a 0 la distanza è un grado e non 359.
+        half s = h - centre[i];
+        s = s - floor(s + half(0.5));
+        half span = s >= half(0.0) ? spanHi[i] : spanLo[i];
+        half w = max(half(0.0), half(1.0) - abs(s) / span);
+        want += w * half3(bandHue[i], bandSat[i], bandLum[i]);
+    }
+    return want;
+}
+
 half4 main(float2 p) {
     half4 src = image.eval(p);
     // ⚠️ Il colore arriva premoltiplicato: si divide per l'opacità prima di lavorare, o un
@@ -449,7 +622,40 @@ half4 main(float2 p) {
     // si aspetta. In lineare la stessa curva sposterebbe tutto verso i neri.
     rgb = half3(sCurve(rgb.r, contrast), sCurve(rgb.g, contrast), sCurve(rgb.b, contrast));
 
-    // 5. Quanto sono accesi i colori, e viene per ULTIMO perché è un giudizio sull'immagine
+    // 5. L'HSL per fascia: gli stessi tre comandi su otto colori.
+    // ⚠️⚠️ **VIENE PRIMA DELLA SATURAZIONE E DOPO IL CONTRASTO, E LE DUE COSE HANNO DUE RAGIONI
+    // DIVERSE.** Dopo il contrasto, perché sceglie i colori per **tonalità** e la tonalità è
+    // quella che la luce ha finito di definire; prima della saturazione, perché quella è il
+    // giudizio finale su tutta l'immagine mentre questo è mirato, e soprattutto perché il grigio
+    // del bianco e nero si ricava da quello che esce **di qui**: è così che la luminanza per
+    // fascia diventa la miscela del bianco e nero, che è la sua risposta a `d-bn-pesi`.
+    // ⚠️⚠️ **LA GUARDIA UNIFORME TIENE NEUTRO IL CONTO A RIPOSO**: l'andata e il ritorno da HSV in
+    // `half` non sono esattamente l'identità, quindi senza questa riga un'immagine non toccata
+    // perderebbe un livello qua e là. Con nessuna fascia mossa il blocco non gira affatto.
+    if (mixOn > half(0.5)) {
+        half3 hsv = toHsv(rgb);
+        half3 want = pick(hsv.x);
+        // ⚠️ **E la seconda guardia vale per PIXEL**: chi appartiene a fasce tutte a zero riceve
+        // esattamente zero da `pick`, quindi non ha niente da guadagnare dalla conversione e tutto
+        // da perdere. Muovendo una fascia sola, il resto dell'immagine resta identico.
+        if (dot(abs(want), half3(1.0)) > half(0.0)) {
+            // Quanto il pixel ha colore: un grigio non appartiene a nessuna fascia, e senza questo
+            // peso il cursore della luminanza schiarirebbe anche il cielo bianco e il rumore degli
+            // scuri, che tonalità non ne hanno.
+            half ink = hsv.y;
+            hsv.x = fract(hsv.x + want.x * HUE_REACH);
+            // ⚠️ **La saturazione si MOLTIPLICA e non si somma**: un grigio ha saturazione zero,
+            // quindi resta grigio qualunque cosa chieda la sua fascia, e a -100 il colore arriva
+            // esattamente al grigio invece di attraversarlo.
+            hsv.y = clamp(hsv.y * (half(1.0) + want.y), half(0.0), half(1.0));
+            hsv.z = clamp(
+                hsv.z * (half(1.0) + want.z * LUM_REACH * ink), half(0.0), half(1.0)
+            );
+            rgb = fromHsv(hsv);
+        }
+    }
+
+    // 6. Quanto sono accesi i colori, e viene per ULTIMO perché è un giudizio sull'immagine
     // finita: messo prima, ogni cursore della Luce lo rimetterebbe in discussione, e alzare il
     // contrasto alzerebbe di suo anche la saturazione.
     // ⚠️⚠️ **SI LAVORA SUL VALORE PERCETTIVO E NON IN LINEARE**, al contrario della Luce: la
@@ -529,6 +735,13 @@ private fun lightOver(image: Shader, look: Look): Shader {
         setFloatUniform("saturation", chroma.saturation)
         setFloatUniform("vibrance", chroma.vibrance)
         setFloatUniform("mono", if (chroma.mono) 1f else 0f)
+        setFloatUniform("mixOn", if (look.mix.idle) 0f else 1f)
+        setFloatUniform("centre", Mix.CENTRES)
+        setFloatUniform("spanLo", Mix.SPAN_LO)
+        setFloatUniform("spanHi", Mix.SPAN_HI)
+        setFloatUniform("bandHue", FloatArray(Mix.COUNT) { look.mix.bands[it].hue })
+        setFloatUniform("bandSat", FloatArray(Mix.COUNT) { look.mix.bands[it].sat })
+        setFloatUniform("bandLum", FloatArray(Mix.COUNT) { look.mix.bands[it].lum })
     }
 }
 

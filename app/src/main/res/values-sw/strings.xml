@@ -415,6 +415,17 @@
     <string name="look_saturation">Ukolezi</string>
     <string name="look_vibrance">Uchangamfu</string>
     <string name="look_bw">Nyeusi na nyeupe</string>
+    <string name="look_mix">HSL</string>
+    <string name="look_hue">Toni</string>
+    <string name="look_lum">Uangavu</string>
+    <string name="look_band_red">Nyekundu</string>
+    <string name="look_band_orange">Chungwa</string>
+    <string name="look_band_yellow">Njano</string>
+    <string name="look_band_green">Kijani</string>
+    <string name="look_band_aqua">Samawati</string>
+    <string name="look_band_blue">Buluu</string>
+    <string name="look_band_purple">Zambarau</string>
+    <string name="look_band_magenta">Magenta</string>
     <string name="look_contrast">Utofautishaji</string>
     <string name="look_shadows">Vivuli</string>
     <string name="look_highlights">Sehemu angavu</string>

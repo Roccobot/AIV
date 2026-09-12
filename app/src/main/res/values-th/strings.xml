@@ -399,6 +399,17 @@
     <string name="look_saturation">ความอิ่มตัว</string>
     <string name="look_vibrance">ความสดใส</string>
     <string name="look_bw">ขาวดำ</string>
+    <string name="look_mix">HSL</string>
+    <string name="look_hue">เฉดสี</string>
+    <string name="look_lum">ความสว่าง</string>
+    <string name="look_band_red">แดง</string>
+    <string name="look_band_orange">ส้ม</string>
+    <string name="look_band_yellow">เหลือง</string>
+    <string name="look_band_green">เขียว</string>
+    <string name="look_band_aqua">ฟ้าอมเขียว</string>
+    <string name="look_band_blue">น้ำเงิน</string>
+    <string name="look_band_purple">ม่วง</string>
+    <string name="look_band_magenta">บานเย็น</string>
     <string name="look_contrast">คอนทราสต์</string>
     <string name="look_shadows">เงา</string>
     <string name="look_highlights">ไฮไลต์</string>

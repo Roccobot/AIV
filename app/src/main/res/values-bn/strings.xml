@@ -415,6 +415,17 @@
     <string name="look_saturation">স্যাচুরেশন</string>
     <string name="look_vibrance">প্রাণবন্ততা</string>
     <string name="look_bw">সাদা-কালো</string>
+    <string name="look_mix">HSL</string>
+    <string name="look_hue">বর্ণ</string>
+    <string name="look_lum">উজ্জ্বলতা</string>
+    <string name="look_band_red">লাল</string>
+    <string name="look_band_orange">কমলা</string>
+    <string name="look_band_yellow">হলুদ</string>
+    <string name="look_band_green">সবুজ</string>
+    <string name="look_band_aqua">আকাশি</string>
+    <string name="look_band_blue">নীল</string>
+    <string name="look_band_purple">বেগুনি</string>
+    <string name="look_band_magenta">ম্যাজেন্টা</string>
     <string name="look_contrast">কনট্রাস্ট</string>
     <string name="look_shadows">ছায়া</string>
     <string name="look_highlights">হাইলাইট</string>

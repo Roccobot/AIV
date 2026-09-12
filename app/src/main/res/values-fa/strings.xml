@@ -415,6 +415,17 @@
     <string name="look_saturation">اشباع</string>
     <string name="look_vibrance">شادابی</string>
     <string name="look_bw">سیاه و سفید</string>
+    <string name="look_mix">HSL</string>
+    <string name="look_hue">فام</string>
+    <string name="look_lum">روشنایی</string>
+    <string name="look_band_red">قرمز</string>
+    <string name="look_band_orange">نارنجی</string>
+    <string name="look_band_yellow">زرد</string>
+    <string name="look_band_green">سبز</string>
+    <string name="look_band_aqua">فیروزه‌ای</string>
+    <string name="look_band_blue">آبی</string>
+    <string name="look_band_purple">بنفش</string>
+    <string name="look_band_magenta">سرخابی</string>
     <string name="look_contrast">کنتراست</string>
     <string name="look_shadows">سایه‌ها</string>
     <string name="look_highlights">روشنی‌ها</string>

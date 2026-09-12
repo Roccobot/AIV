@@ -415,6 +415,17 @@
     <string name="look_saturation">سیرابی</string>
     <string name="look_vibrance">شوخی</string>
     <string name="look_bw">سیاہ و سفید</string>
+    <string name="look_mix">HSL</string>
+    <string name="look_hue">رنگت</string>
+    <string name="look_lum">چمک</string>
+    <string name="look_band_red">سرخ</string>
+    <string name="look_band_orange">نارنجی</string>
+    <string name="look_band_yellow">پیلا</string>
+    <string name="look_band_green">سبز</string>
+    <string name="look_band_aqua">فیروزی</string>
+    <string name="look_band_blue">نیلا</string>
+    <string name="look_band_purple">جامنی</string>
+    <string name="look_band_magenta">مجینٹا</string>
     <string name="look_contrast">کنٹراسٹ</string>
     <string name="look_shadows">سائے</string>
     <string name="look_highlights">روشن حصے</string>

@@ -415,6 +415,17 @@
     <string name="look_saturation">సంతృప్తత</string>
     <string name="look_vibrance">సజీవత</string>
     <string name="look_bw">నలుపు తెలుపు</string>
+    <string name="look_mix">HSL</string>
+    <string name="look_hue">రంగు ఛాయ</string>
+    <string name="look_lum">ప్రకాశం</string>
+    <string name="look_band_red">ఎరుపు</string>
+    <string name="look_band_orange">నారింజ</string>
+    <string name="look_band_yellow">పసుపు</string>
+    <string name="look_band_green">ఆకుపచ్చ</string>
+    <string name="look_band_aqua">నీలిపచ్చ</string>
+    <string name="look_band_blue">నీలం</string>
+    <string name="look_band_purple">ఊదా</string>
+    <string name="look_band_magenta">మెజెంటా</string>
     <string name="look_contrast">కాంట్రాస్ట్</string>
     <string name="look_shadows">నీడలు</string>
     <string name="look_highlights">హైలైట్లు</string>

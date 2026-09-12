@@ -447,6 +447,17 @@
     <string name="look_saturation">Насыщенность</string>
     <string name="look_vibrance">Красочность</string>
     <string name="look_bw">Чёрно-белое</string>
+    <string name="look_mix">HSL</string>
+    <string name="look_hue">Оттенок</string>
+    <string name="look_lum">Яркость</string>
+    <string name="look_band_red">Красный</string>
+    <string name="look_band_orange">Оранжевый</string>
+    <string name="look_band_yellow">Жёлтый</string>
+    <string name="look_band_green">Зелёный</string>
+    <string name="look_band_aqua">Бирюзовый</string>
+    <string name="look_band_blue">Синий</string>
+    <string name="look_band_purple">Фиолетовый</string>
+    <string name="look_band_magenta">Пурпурный</string>
     <string name="look_contrast">Контраст</string>
     <string name="look_shadows">Тени</string>
     <string name="look_highlights">Света</string>

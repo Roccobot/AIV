@@ -415,6 +415,17 @@
     <string name="look_saturation">Sättigung</string>
     <string name="look_vibrance">Dynamik</string>
     <string name="look_bw">Schwarzweiß</string>
+    <string name="look_mix">HSL</string>
+    <string name="look_hue">Farbton</string>
+    <string name="look_lum">Luminanz</string>
+    <string name="look_band_red">Rot</string>
+    <string name="look_band_orange">Orange</string>
+    <string name="look_band_yellow">Gelb</string>
+    <string name="look_band_green">Grün</string>
+    <string name="look_band_aqua">Türkis</string>
+    <string name="look_band_blue">Blau</string>
+    <string name="look_band_purple">Violett</string>
+    <string name="look_band_magenta">Magenta</string>
     <string name="look_contrast">Kontrast</string>
     <string name="look_shadows">Schatten</string>
     <string name="look_highlights">Lichter</string>

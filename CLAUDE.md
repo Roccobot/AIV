@@ -1840,9 +1840,9 @@ ritaglia senza toccare un pixel, questo la **sviluppa**. Un editor solo che face
 mestieri dovrebbe
 ricomprimere anche quando gira una fotografia, cioè perdere qualità per un gesto che oggi non ne
 fa perdere. Chi tocca 'Modifica' sceglie fra i due la prima volta, e la scelta si ricorda.
-- ⚠️ **Arriva in più versioni e il modulo **Luce** è la prima**: le altre (il Colore; le curve e
-  il colore mirato; la geometria col raddrizzamento; i preset) vivono nel piano d'azione, che è il
-  posto delle versioni in sequenza.
+- ⚠️ **Arriva in più versioni e il modulo **Luce** è la prima**: le altre (il Colore, l'HSL, il
+  Dettaglio, le curve, la geometria col raddrizzamento, i preset) vivono nel piano d'azione, che è
+  il posto delle versioni in sequenza.
 
 ⚠️⚠️ **MA I DUE EDITOR SI CHIAMANO ALLO STESSO MODO IN TESTATA, DALLA `2.20`, ED È SUA
 ISTRUZIONE** (2026-09-12: *in testa/titolo, mentre modifico le immagini, deve apparire 'Modifica
@@ -1987,14 +1987,17 @@ e un interruttore porta l'immagine in **bianco e nero**.
   quantità, e scritto come fondo corsa di un cursore resterebbe esposto a chiunque muova quel
   cursore. Nel conto viene **dopo**, e nella scheda spegne saturazione e vividezza, che là non
   avrebbero più niente da fare.
-- ⚠️⚠️ **I PESI PER FASCIA DEL BIANCO E NERO NON CI SONO, E LA SCELTA È DICHIARATA**: il piano
-  d'azione li metteva in questo modulo, ma sono la **stessa macchina** delle otto fasce dell'HSL,
-  che è il **quarto** giro; scritti adesso sarebbero scritti due volte. Qui il grigio viene dai
-  pesi percettivi di Rec. 709, cioè da come l'occhio lo vede.
-  - ⚠️ **Il giro dopo è il DETTAGLIO e non l'HSL**, ed è una sua risposta (`d-dettaglio` del giro
-    della `2.16`: **`subito`**), quindi l'ordine dei sette è Luce, Colore, Dettaglio, HSL, curve,
-    Geometria, preset. La domanda `d-bn-pesi`, nel giro della `2.19`, gli chiede se quei pesi
-    valga la pena aspettarli fin là.
+- ⚠️⚠️ **I PESI PER FASCIA DEL BIANCO E NERO NON SONO QUI, E DALLA `2.21` SI SA DOVE SONO**: il
+  piano d'azione li metteva in questo modulo, ma sono la **stessa macchina** delle otto fasce
+  dell'HSL, e là vivono (§ '🎨 Il modulo HSL, otto fasce e una macchina sola'), che è la sua
+  risposta **`hsl`** a `d-bn-pesi`. Qui il grigio viene dai pesi percettivi di Rec. 709, cioè da
+  come l'occhio lo vede.
+  - ⚠️⚠️ **E L'ORDINE DEI SETTE È CAMBIATO CON LA `2.21`, SU SUA ISTRUZIONE** (campo libero del
+    giro della `2.20`: *mi sembra più logico implementare HSL dopo il colore, va' avanti con
+    quello*): adesso è Luce, Colore, HSL, Dettaglio, curve, Geometria, preset. ⚠️ **Prevale sulla
+    sua risposta `subito` a `d-dettaglio`** (giro della `2.16`), che metteva il Dettaglio al terzo
+    posto: è un'istruzione più recente dello stesso utente, e le note che dànno il Dettaglio per
+    il giro dopo il Colore sono superate.
 
 ⚠️⚠️ **E CON LUI ARRIVA LA FILA DEI MODULI, COL 'RESET MODULO' SUL TOCCO LUNGO** (campo libero del
 giro della `2.14`, punto 2: *per ciascun modulo ci dev'essere anche un 'Reset modulo'... potrebbe
@@ -2146,6 +2149,10 @@ due dita: quelli si guardano sul telefono.
   cambi i cursori in scena, che il 'Reset modulo' azzeri **solo** il suo, che il bianco e nero
   spenga saturazione e vividezza, e che un valore di Colore tolga il senza perdita. Controprovata
   rimettendo i tre difetti, uno per prova.
+  - ⚠️ **Dalla `2.21` copre anche il terzo modulo**, e per la stessa ragione: là a rompersi in
+    silenzio sono la fascia scelta (un cursore che scrive nel colore sbagliato) e i raggi che
+    devono combaciare. L'elenco per esteso vive in § '🎨 Il modulo HSL, otto fasce e una macchina
+    sola'; anche questi cinque casi sono controprovati rimettendo il difetto.
 - ⚠️⚠️ **DUE DELLE TRE PROVE NUOVE SONO NATE VERDI PER CASO, E LA CONTROPROVA LO HA DETTO.** Quella
   del doppio tocco sulla barra toccava il **centro**, dove la barra vale già zero: col passo di
   troppo rimesso a mano restava verde, perché il salto del primo tocco portava proprio dove il
@@ -2214,6 +2221,11 @@ seconda della Luce.
 - ⚠️ **Somiglia alla correzione della `2.17` e non è la stessa cosa**: là si era tolta la cattura
   di un `Look`, qui quella di un oggetto. Tutte e due tolgono una cattura, e nessuna delle due
   nasce da un difetto riprodotto sul banco.
+- ⚠️⚠️ **E IL SINTOMO NON C'È PIÙ, CHE È LA SUA NOTA SU `d-mescola-gesto`** (giro della `2.20`:
+  **`trascina`**, con la coda *comunque è risolto*). Quindi il difetto è chiuso **senza** che la
+  sua causa sia stata accertata, come quello della `2.17`: la risposta dice con quale gesto lo
+  vedeva, non perché succedesse. ⚠️ **La domanda gemella `d-mescola-cosa` è rimasta senza
+  risposta**, e non si ripropone: serviva a distinguere due cause su un sintomo che non c'è più.
 
 ⚠️⚠️ **E IL DOPPIO TOCCO SULL'IMMAGINE CI ARRIVA CON UNA CORSA, DALLA `2.17`** (stesso giro, voce
 `luce-zoom` approvata con una nota: *mi piacerebbe di più se al doppio tocco l'immagine passasse
@@ -2230,6 +2242,81 @@ da uno zoom all'altro con un'animazione anziché con uno stacco netto*).
 - ⚠️ **La prova guarda a metà corsa col clock fermo**: con l'avanzamento automatico l'animazione
   finisce dentro `waitForIdle`, e la misura direbbe solo dove si arriva. La durata e la curva
   invece si guardano sul telefono.
+
+## 🎨 Il modulo HSL, otto fasce e una macchina sola
+
+⚠️⚠️ **È IL TERZO MODULO DELL'EDITOR COMPLETO, DALLA `2.21`, ED È IL SUO CAMPO LIBERO** (giro della
+`2.20`: *mi sembra più logico implementare HSL dopo il colore, va' avanti con quello*). Dove il
+modulo Colore parla a tutta l'immagine, questo parla a **un colore per volta**: la saturazione del
+Colore accende tutto insieme, qui si accende il cielo lasciando stare l'incarnato. Le fasce sono
+otto, come in Lightroom, e ognuna porta i tre cursori di quel pannello: tonalità, saturazione,
+luminanza.
+
+⚠️⚠️ **E QUI DENTRO VIVONO ANCHE I PESI PER FASCIA DEL BIANCO E NERO, CHE È LA SUA RISPOSTA `hsl` A
+`d-bn-pesi`** (giro della `2.19`): col bianco e nero acceso le prime due righe non hanno più niente
+da fare e si spengono, mentre la **luminanza** diventa quanto quel colore pesa nel grigio. Non è un
+secondo meccanismo che gli somiglia, è lo stesso conto, e il bianco e nero viene **dopo** di lui
+proprio per raccoglierne il risultato. ⚠️ **Chi volesse scurire un cielo in una fotografia in
+bianco e nero** muove la luminanza della fascia del blu, che è il gesto di chi metteva un filtro
+giallo davanti all'obiettivo.
+
+⚠️⚠️ **I PESI DELLE FASCE SONO TRIANGOLARI CON UN RAGGIO PER LATO, E COSÌ LA SOMMA VALE UNO SENZA
+NORMALIZZARE NIENTE**: il raggio di una fascia da un lato è esattamente la distanza dal centro
+vicino, quindi fra due centri adiacenti i due pesi sommano a uno e tutti gli altri valgono zero.
+- ⚠️⚠️ **LA PRIMA STESURA AVEVA UN RAGGIO UNICO ED È STATA SCARTATA SU UNA MISURA**: i centri di
+  Lightroom **non sono equispaziati** (tre fasce nei primi sessanta gradi, due nei centoventi
+  successivi), quindi con sessanta gradi per tutti un rosso pieno riceveva tre fasce e del proprio
+  cursore gli arrivava il **55 per cento**. Normalizzare dividendo per la somma toglie lo
+  sbilanciamento ma non quello: il centro continuerebbe a dividere il suo effetto con i vicini.
+- ⚠️ **I due raggi si RICAVANO dai centri e non si scrivono**: chi spostasse un centro si
+  ritroverebbe i raggi giusti senza toccare altro. A presidiarlo è `SviluppoTest`, che misura la
+  **relazione** (il raggio di una fascia verso l'alto è quello che la vicina ha verso il basso, e
+  la somma fa un giro intero) invece di ricopiare il conto, che vive in AGSL e il banco non lo può
+  eseguire.
+
+⚠️⚠️ **IL CONTO PASSA PER HSV E A RIPOSO NON SI FA AFFATTO, E LE DUE GUARDIE SONO DUE.** L'andata e
+il ritorno da HSV in `half` non sono esattamente l'identità, quindi senza guardie un'immagine non
+toccata perderebbe un livello qua e là: una guardia **uniforme** salta il blocco quando nessuna
+fascia è mossa, e una guardia **per pixel** lo salta per chi appartiene a fasce tutte a zero.
+Muovendo una fascia sola, il resto dell'immagine resta identico.
+- ⚠️ **La saturazione si moltiplica e non si somma**: un grigio ha saturazione zero, quindi resta
+  grigio qualunque cosa chieda la sua fascia, e a -100 il colore arriva esattamente al grigio
+  invece di attraversarlo.
+- ⚠️ **La luminanza è pesata da quanto il pixel ha colore**, e senza quel peso schiarirebbe anche
+  un cielo bianco e il rumore degli scuri, che tonalità non ne hanno. Tonalità e saturazione quel
+  peso non ce l'hanno scritto perché ce l'hanno per costruzione: ruotare o saturare un grigio non
+  cambia un grigio.
+- ⚠️ **La tonalità si sposta al massimo di trenta gradi**, che è la distanza fra due fasce vicine
+  nella metà fitta della ruota: oltre, un rosso spinto diventerebbe giallo e il cursore si
+  leggerebbe come rotto.
+
+⚠️⚠️ **IL POSTO NELLA CATENA È FRA IL CONTRASTO E LA SATURAZIONE, E LE DUE COSE HANNO DUE RAGIONI
+DIVERSE**: dopo il contrasto, perché sceglie i colori **per tonalità** e la tonalità è quella che
+la luce ha finito di definire; prima della saturazione, perché quella è il giudizio finale su tutta
+l'immagine mentre questo è mirato, e perché il grigio del bianco e nero si ricava da quello che
+esce **di qui**.
+
+⚠️ **La fila delle otto pastiglie prende il colore dal CENTRO della fascia**, che è lo stesso
+numero che il conto usa per sapere a quale fascia appartiene un pixel: con due elenchi, il primo a
+divergere sarebbe quello che nessuno guarda. I due gesti sono quelli del gettone di un modulo un
+gradino più in basso, tocco per scegliere e tocco lungo per azzerare: là si azzera il modulo, qui
+la fascia.
+
+⚠️⚠️ **I VENTIQUATTRO CURSORI SONO PRECOSTRUITI, ED È QUELLO CHE TIENE IN PIEDI LA CORREZIONE DELLA
+`2.20`**: le righe in scena sono tre e le fasce otto, quindi lo stesso nodo serve otto insiemi di
+valori. La riga risolve **modulo e fascia al momento della scrittura**, che è la stessa correzione
+di allora su una dimensione in più; e la chiave di ogni riga è il suo cursore, che è un oggetto
+costruito una volta sola, quindi due fasce non ne hanno nessuno in comune e cambiando fascia i nodi
+si buttano invece di passare di mano. ⚠️ **Generare i cursori a ogni ricomposizione romperebbe
+tutto**: una chiave che cambia a ogni giro butterebbe e rifarebbe i nodi in continuazione, cioè
+annullerebbe ogni gesto in corso.
+
+⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`, più `ContoTest` per il programma):
+che la fascia scelta cambi i valori che i tre cursori mostrano e scrivono, che il tocco lungo su
+una pastiglia azzeri **solo** quella, che col bianco e nero resti accesa la sola luminanza, che le
+pastiglie ci siano solo nel modulo che ne ha, e che il programma compili con gli uniform ad array.
+**Non** vede i pixel che ne escono: che il cursore del blu tocchi davvero il cielo e lasci stare
+l'incarnato si guarda sul telefono, e la voce di collaudo lo chiede.
 
 ## 🗑️ Lo svuotamento automatico del cestino, e le tre decisioni che lo governano
 

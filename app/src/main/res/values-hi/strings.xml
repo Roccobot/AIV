@@ -415,6 +415,17 @@
     <string name="look_saturation">संतृप्ति</string>
     <string name="look_vibrance">सजीवता</string>
     <string name="look_bw">श्याम-श्वेत</string>
+    <string name="look_mix">HSL</string>
+    <string name="look_hue">रंगत</string>
+    <string name="look_lum">चमक</string>
+    <string name="look_band_red">लाल</string>
+    <string name="look_band_orange">नारंगी</string>
+    <string name="look_band_yellow">पीला</string>
+    <string name="look_band_green">हरा</string>
+    <string name="look_band_aqua">फ़िरोज़ी</string>
+    <string name="look_band_blue">नीला</string>
+    <string name="look_band_purple">बैंगनी</string>
+    <string name="look_band_magenta">मैजेंटा</string>
     <string name="look_contrast">कंट्रास्ट</string>
     <string name="look_shadows">छाया</string>
     <string name="look_highlights">हाइलाइट</string>

@@ -399,6 +399,17 @@
     <string name="look_saturation">Saturasi</string>
     <string name="look_vibrance">Vibrance</string>
     <string name="look_bw">Hitam putih</string>
+    <string name="look_mix">HSL</string>
+    <string name="look_hue">Rona</string>
+    <string name="look_lum">Luminans</string>
+    <string name="look_band_red">Merah</string>
+    <string name="look_band_orange">Oranye</string>
+    <string name="look_band_yellow">Kuning</string>
+    <string name="look_band_green">Hijau</string>
+    <string name="look_band_aqua">Toska</string>
+    <string name="look_band_blue">Biru</string>
+    <string name="look_band_purple">Ungu</string>
+    <string name="look_band_magenta">Magenta</string>
     <string name="look_contrast">Kontras</string>
     <string name="look_shadows">Bayangan</string>
     <string name="look_highlights">Sorotan</string>
