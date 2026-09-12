@@ -458,6 +458,12 @@
     <string name="look_band_blue">Синий</string>
     <string name="look_band_purple">Фиолетовый</string>
     <string name="look_band_magenta">Пурпурный</string>
+    <string name="look_detail">Детали</string>
+    <string name="look_sharpen">Резкость</string>
+    <string name="look_radius">Радиус</string>
+    <string name="look_masking">Маскирование</string>
+    <string name="look_noise">Шум</string>
+    <string name="look_noise_color">Цветовой шум</string>
     <string name="look_contrast">Контраст</string>
     <string name="look_shadows">Тени</string>
     <string name="look_highlights">Света</string>

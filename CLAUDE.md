@@ -1840,9 +1840,9 @@ ritaglia senza toccare un pixel, questo la **sviluppa**. Un editor solo che face
 mestieri dovrebbe
 ricomprimere anche quando gira una fotografia, cioè perdere qualità per un gesto che oggi non ne
 fa perdere. Chi tocca 'Modifica' sceglie fra i due la prima volta, e la scelta si ricorda.
-- ⚠️ **Arriva in più versioni e il modulo **Luce** è la prima**: le altre (il Colore, l'HSL, il
-  Dettaglio, le curve, la geometria col raddrizzamento, i preset) vivono nel piano d'azione, che è
-  il posto delle versioni in sequenza.
+- ⚠️ **Arriva in più versioni e il modulo **Luce** è la prima**: dopo di lei sono usciti il Colore,
+  l'HSL e il Dettaglio, e quelle che restano (le curve, la geometria col raddrizzamento, i preset)
+  vivono nel piano d'azione, che è il posto delle versioni in sequenza.
 
 ⚠️⚠️ **MA I DUE EDITOR SI CHIAMANO ALLO STESSO MODO IN TESTATA, DALLA `2.20`, ED È SUA
 ISTRUZIONE** (2026-09-12: *in testa/titolo, mentre modifico le immagini, deve apparire 'Modifica
@@ -1960,11 +1960,11 @@ vedrebbe un'anteprima e salverebbe un'altra immagine, senza che niente dia error
   `RuntimeShader` non gira su una tela di memoria, quindi applicare lo **stesso** conto a venti
   megapixel vuol dire un `ImageReader` più un `HardwareRenderer`, e si lavora a **tessere**
   perché una texture ha un tetto che non è lo stesso su ogni telefono.
-  - ⚠️⚠️ **LE TESSERE NON SI SOVRAPPONGONO, E QUESTO DIPENDE DAL CONTO**: la Luce guarda **un
-    pixel per volta**, quindi due tessere accostate non hanno nessuna cucitura. Chi aggiungesse
-    un'operazione che guarda i vicini (una nitidezza, una chiarezza, una sfocatura) deve dare a
-    ogni tessera un bordo di sovrapposizione e buttarlo via dopo, o sulle giunzioni comparirebbe
-    una riga. È la cosa da guardare per prima quando i moduli cresceranno.
+  - ⚠️⚠️ **LE TESSERE SI SOVRAPPONGONO DALLA `2.22`, E FINO ALLA `2.21` NO**: là ogni operazione
+    guardava **un pixel per volta**, quindi due tessere accostate non avevano nessuna cucitura, e
+    questa nota diceva che chi avesse aggiunto un'operazione che guarda i vicini avrebbe dovuto
+    dare a ogni tessera un bordo da buttare via dopo. Quel giorno è arrivato col modulo Dettaglio,
+    e il come vive in § '🔍 Il modulo Dettaglio, e le prime due operazioni che guardano i vicini'.
   - ⚠️ **E prima di fidarsi si prova** (`AdjustRender.works`): se quel percorso non funziona su
     un telefono, quello che se ne ricava è un'immagine **nera**, e scritta sul file prende il
     posto della fotografia. Un quadrato di colore noto costa un millesimo di secondo e distingue
@@ -2153,6 +2153,10 @@ due dita: quelli si guardano sul telefono.
     silenzio sono la fascia scelta (un cursore che scrive nel colore sbagliato) e i raggi che
     devono combaciare. L'elenco per esteso vive in § '🎨 Il modulo HSL, otto fasce e una macchina
     sola'; anche questi cinque casi sono controprovati rimettendo il difetto.
+  - ⚠️ **E dalla `2.22` il quarto**, dove le cose che si rompono in silenzio sono un modulo che si
+    dichiara da riscrivere quando non lo è, due cursori che restano accesi senza governare niente,
+    e gli indici delle tessere del salvataggio. L'elenco vive in § '🔍 Il modulo Dettaglio, e le
+    prime due operazioni che guardano i vicini', e anche questi cinque casi sono controprovati.
 - ⚠️⚠️ **DUE DELLE TRE PROVE NUOVE SONO NATE VERDI PER CASO, E LA CONTROPROVA LO HA DETTO.** Quella
   del doppio tocco sulla barra toccava il **centro**, dove la barra vale già zero: col passo di
   troppo rimesso a mano restava verde, perché il salto del primo tocco portava proprio dove il
@@ -2317,6 +2321,94 @@ una pastiglia azzeri **solo** quella, che col bianco e nero resti accesa la sola
 pastiglie ci siano solo nel modulo che ne ha, e che il programma compili con gli uniform ad array.
 **Non** vede i pixel che ne escono: che il cursore del blu tocchi davvero il cielo e lasci stare
 l'incarnato si guarda sul telefono, e la voce di collaudo lo chiede.
+
+## 🔍 Il modulo Dettaglio, e le prime due operazioni che guardano i vicini
+
+⚠️⚠️ **È IL QUARTO MODULO DELL'EDITOR COMPLETO, DALLA `2.22`, E SONO LE DUE FUNZIONI CHE HA
+CHIESTO LUI** (campo libero del giro della `2.15`: *'Maschera di contrasto' e 'Riduzione
+rumore'*). Dove gli altri tre moduli parlano del **colore** di un pixel, questo parla del suo
+**intorno**: sono le prime due operazioni dell'editor che leggono i pixel vicini, e da lì viene
+tutto quello che costano. I cursori sono cinque, nell'ordine del pannello di Lightroom: nitidezza,
+raggio, mascheratura, rumore, rumore colore.
+
+⚠️⚠️ **LE MISURE SONO FRAZIONI DEL LATO E NON PIXEL, ED È QUESTO CHE TIENE INSIEME L'ANTEPRIMA E
+IL FILE SALVATO.** Il conto gira su due immagini di misura diversa: l'anteprima, che l'editor
+riduce a 1600 pixel di lato per lavorare in fretta, e il file pieno, che il salvataggio lavora a
+tessere. Un raggio scritto in pixel peserebbe più del doppio sull'anteprima; scritto come frazione
+del lato, ognuno dei due lo converte con la **propria** misura e i due risultati coincidono in
+proporzione, senza nessun secondo dato da tenere allineato.
+- ⚠️ **Quello che resta fuori si dichiara**: l'anteprima è già una riduzione, quindi la grana fine
+  del sensore là è **già stata mediata**, e la riduzione del rumore si giudica davvero sul file
+  salvato. È lo stesso limite per cui in un editor da tavolo la nitidezza si guarda al 100%.
+- ⚠️ **Il raggio di serie è un millesimo del lato**, cioè quattro pixel su un file da quattromila:
+  è micro-contrasto, e si vede anche guardando l'immagine intera. Un raggio da nitidezza di cattura
+  (un pixel) si vedrebbe solo ingrandendo, e un cursore che a occhio non fa niente si legge come
+  rotto: quel raggio c'è, ed è il fondo corsa del cursore 'Raggio'.
+
+⚠️⚠️ **DUE CURSORI SU CINQUE NON CAMBIANO UN PIXEL DA SOLI, E L'INTERFACCIA LI SPEGNE**: il raggio
+e la mascheratura non sono quantità, sono **come** la maschera di contrasto lavora. Con la
+nitidezza a zero non c'è nessuna maschera da governare, e `Detail.idle` non li conta: contandoli,
+un'immagine con la sola mascheratura mossa si dichiarerebbe da riscrivere, cioè verrebbe
+ricompressa per niente.
+- ⚠️ **Il meccanismo che li spegne è nato qui e vale per tutti**: fino alla `2.21` un cursore
+  poteva dichiarare solo 'il bianco e nero mi spegne', e adesso dichiara **quando** non governa
+  niente. I casi sono due, e scriverne un campo per ognuno moltiplicherebbe la tabella dei cursori.
+
+⚠️⚠️ **E IL RAGGIO È IL PRIMO CURSORE BIPOLARE DI UN MODULO CHE NE HA QUATTRO MONOPOLARI**: 'niente
+nitidezza' e 'niente riduzione' sono il fondo naturale di quei quattro, perché una nitidezza
+negativa sarebbe una sfocatura e una riduzione negativa non vuol dire niente; un raggio zero invece
+non esiste, quindi là lo zero è il raggio di serie e la corsa lo raddoppia o lo dimezza.
+- ⚠️ **Un cursore monopolare non porta il segno e non disegna la tacca dello zero**: là il numero
+  non può essere negativo, e la tacca cadrebbe sotto il tondo a riposo.
+
+⚠️⚠️ **IL DETTAGLIO VIENE PER PRIMO NELLA CATENA, PRIMA DEL BILANCIAMENTO DEL BIANCO**, ed è
+l'unico modulo che parla del **file** invece che dell'immagine: quanto rumore ha il sensore, e
+quanto il disegno fine va accentuato. Messo dopo, il contrasto avrebbe già moltiplicato la grana
+che questo modulo esiste per togliere. ⚠️ **E lavora sui valori del file e non in luce lineare**,
+al contrario della Luce: il rumore è quello che l'occhio vede nei numeri del file, e una
+conversione per ognuno dei diciotto campioni costerebbe più di tutto il resto del programma.
+
+⚠️ **Dentro il modulo la riduzione viene prima della nitidezza**, perché accentuare e poi spianare
+vuol dire lavorare due volte contro se stessi; e il dettaglio da accentuare si misura
+sull'immagine **già ripulita**, o il rumore appena tolto tornerebbe dentro moltiplicato.
+
+⚠️⚠️ **LE DUE MEDIE ESCONO DA DUE VICINATI DIVERSI, E OGNUNO PAGA SOLO CHI LO USA**: la nitidezza
+prende la media **binomiale** (pesi 1-2-1) a distanza del raggio, la riduzione una media
+**bilaterale** in cui ogni vicino pesa per quanto somiglia al centro, così la grana si media e un
+contorno no. Sono nove campioni per mestiere, dietro due guardie separate: chi non chiede la
+nitidezza non paga i suoi nove.
+- ⚠️ **La mascheratura si ricava dagli stessi campioni**, cioè dalla differenza massima dal centro,
+  e non ne costa altri. A zero passa tutto, e salendo la nitidezza arriva solo dove c'è un contorno
+  vero: senza di lei, alzare la nitidezza su un cielo vuol dire alzare il suo rumore.
+- ⚠️ **Il rumore di colore prende la crominanza della media e le rimette la luminanza del centro**,
+  quindi le macchie colorate spariscono e il disegno resta, perché il disegno vive nella luminanza.
+  Senza quella riga sarebbe una seconda sfocatura.
+
+⚠️⚠️ **E IL SALVATAGGIO A TESSERE HA DOVUTO CAMBIARE, che è la cosa annunciata da quando l'editor
+completo esiste**: fino alla `2.21` ogni operazione guardava un pixel per volta, quindi due tessere
+accostate non avevano nessuna cucitura. Adesso il filtro legge i vicini, e senza un bordo di
+sovrapposizione l'ultima colonna di una tessera leggerebbe il **bordo ripetuto** invece del pixel
+che sta di là: su ogni giunzione comparirebbe una riga.
+- ⚠️⚠️ **QUANTO LARGO DEBBA ESSERE QUEL BORDO LO DICE IL FILTRO, E NON È UN NUMERO SCRITTO A MANO**
+  (`Detail.bleed`): è esattamente quanto il filtro arriva lontano, più un pixel per il
+  campionamento bilineare. A modulo spento vale **zero**, quindi le tessere tornano quelle di
+  prima e chi non usa il Dettaglio non paga niente.
+- ⚠️ **Il passo si stringe di quanto il bordo cresce**, o una tessera col bordo supererebbe il
+  tetto della texture, che è la ragione per cui le tessere esistono.
+- ⚠️ **Il bordo si taglia ai margini dell'immagine**, dove non c'è niente da leggere: là il filtro
+  legge il bordo ripetuto, che è il comportamento giusto.
+- ⚠️ **Il filtro lineare sul `BitmapShader` è la riga gemella**, e va in tutti e due i posti
+  (l'anteprima e il salvataggio): i campioni cadono a distanze che non sono pixel interi, e senza
+  filtro verrebbero arrotondati al pixel più vicino, cioè il vicinato si accartoccerebbe su meno
+  punti di quanti ne chiede. ⚠️ **Non basta `isFilterBitmap` del pennello**, che governa il disegno
+  e non i campioni che uno shader chiede a un altro.
+
+⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`, più `ContoTest` per il programma):
+che il raggio e la mascheratura da soli lascino il modulo a riposo, che si spengano finché la
+nitidezza è a zero, che il 'Reset modulo' azzeri **solo** il suo, che le misure si scalino col lato
+dell'immagine, e che le tessere leggano il bordo e copino solo il centro. **Non** vede i pixel che
+ne escono: che la nitidezza sia nitida e che il rumore se ne vada si guarda sul telefono, e la voce
+di collaudo lo chiede.
 
 ## 🗑️ Lo svuotamento automatico del cestino, e le tre decisioni che lo governano
 

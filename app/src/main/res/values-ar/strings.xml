@@ -490,6 +490,12 @@
     <string name="look_band_blue">أزرق</string>
     <string name="look_band_purple">بنفسجي</string>
     <string name="look_band_magenta">أرجواني</string>
+    <string name="look_detail">التفاصيل</string>
+    <string name="look_sharpen">الحدة</string>
+    <string name="look_radius">نصف القطر</string>
+    <string name="look_masking">الإخفاء</string>
+    <string name="look_noise">التشويش</string>
+    <string name="look_noise_color">تشويش الألوان</string>
     <string name="look_contrast">التباين</string>
     <string name="look_shadows">الظلال</string>
     <string name="look_highlights">الإضاءات</string>

@@ -426,6 +426,12 @@
     <string name="look_band_blue">Blauw</string>
     <string name="look_band_purple">Paars</string>
     <string name="look_band_magenta">Magenta</string>
+    <string name="look_detail">Detail</string>
+    <string name="look_sharpen">Verscherping</string>
+    <string name="look_radius">Radius</string>
+    <string name="look_masking">Maskeren</string>
+    <string name="look_noise">Ruis</string>
+    <string name="look_noise_color">Kleurruis</string>
     <string name="look_contrast">Contrast</string>
     <string name="look_shadows">Schaduwen</string>
     <string name="look_highlights">Hoge lichten</string>

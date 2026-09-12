@@ -410,6 +410,12 @@
     <string name="look_band_blue">蓝色</string>
     <string name="look_band_purple">紫色</string>
     <string name="look_band_magenta">洋红</string>
+    <string name="look_detail">细节</string>
+    <string name="look_sharpen">锐化</string>
+    <string name="look_radius">半径</string>
+    <string name="look_masking">蒙版</string>
+    <string name="look_noise">噪点</string>
+    <string name="look_noise_color">彩色噪点</string>
     <string name="look_contrast">对比度</string>
     <string name="look_shadows">阴影</string>
     <string name="look_highlights">高光</string>

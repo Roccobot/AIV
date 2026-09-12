@@ -426,6 +426,12 @@
     <string name="look_band_blue">निळा</string>
     <string name="look_band_purple">जांभळा</string>
     <string name="look_band_magenta">मॅजेंटा</string>
+    <string name="look_detail">तपशील</string>
+    <string name="look_sharpen">धारदारपणा</string>
+    <string name="look_radius">त्रिज्या</string>
+    <string name="look_masking">मास्किंग</string>
+    <string name="look_noise">नॉइज</string>
+    <string name="look_noise_color">रंग नॉइज</string>
     <string name="look_contrast">कॉन्ट्रास्ट</string>
     <string name="look_shadows">सावल्या</string>
     <string name="look_highlights">हायलाइट</string>

@@ -426,6 +426,12 @@
     <string name="look_band_blue">آبی</string>
     <string name="look_band_purple">بنفش</string>
     <string name="look_band_magenta">سرخابی</string>
+    <string name="look_detail">جزئیات</string>
+    <string name="look_sharpen">وضوح</string>
+    <string name="look_radius">شعاع</string>
+    <string name="look_masking">ماسک</string>
+    <string name="look_noise">نویز</string>
+    <string name="look_noise_color">نویز رنگ</string>
     <string name="look_contrast">کنتراست</string>
     <string name="look_shadows">سایه‌ها</string>
     <string name="look_highlights">روشنی‌ها</string>

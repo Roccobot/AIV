@@ -410,6 +410,12 @@
     <string name="look_band_blue">น้ำเงิน</string>
     <string name="look_band_purple">ม่วง</string>
     <string name="look_band_magenta">บานเย็น</string>
+    <string name="look_detail">รายละเอียด</string>
+    <string name="look_sharpen">ความคมชัด</string>
+    <string name="look_radius">รัศมี</string>
+    <string name="look_masking">การมาสก์</string>
+    <string name="look_noise">นอยส์</string>
+    <string name="look_noise_color">นอยส์สี</string>
     <string name="look_contrast">คอนทราสต์</string>
     <string name="look_shadows">เงา</string>
     <string name="look_highlights">ไฮไลต์</string>

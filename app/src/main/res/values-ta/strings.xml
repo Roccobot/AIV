@@ -426,6 +426,12 @@
     <string name="look_band_blue">நீலம்</string>
     <string name="look_band_purple">ஊதா</string>
     <string name="look_band_magenta">மெஜந்தா</string>
+    <string name="look_detail">விவரம்</string>
+    <string name="look_sharpen">கூர்மை</string>
+    <string name="look_radius">ஆரம்</string>
+    <string name="look_masking">மறைப்பு</string>
+    <string name="look_noise">இரைச்சல்</string>
+    <string name="look_noise_color">வண்ண இரைச்சல்</string>
     <string name="look_contrast">மாறுபாடு</string>
     <string name="look_shadows">நிழல்கள்</string>
     <string name="look_highlights">ஒளிப்பகுதி</string>

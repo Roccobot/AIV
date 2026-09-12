@@ -5,7 +5,9 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.Shader
 import kotlin.math.abs
+import kotlin.math.ceil
 import kotlin.math.floor
+import kotlin.math.max
 import kotlin.math.pow
 
 /*
@@ -242,6 +244,111 @@ data class Mix(val bands: List<Band> = List(COUNT) { Band.NONE }) {
 }
 
 /**
+ * Il modulo **Dettaglio**: quanto il disegno fine si accentua, e quanto rumore si toglie.
+ *
+ * ⚠️⚠️ **È IL QUARTO MODULO, DALLA `2.22`, E SONO LE DUE FUNZIONI CHE HA CHIESTO LUI** (campo
+ * libero del giro della `2.15`: *'Maschera di contrasto' e 'Riduzione rumore'*). Dove gli altri tre
+ * moduli parlano del **colore** di un pixel, questo parla del suo **intorno**: sono le prime due
+ * operazioni dell'editor che guardano i pixel vicini, e da qui viene tutto quello che costano.
+ *
+ * ⚠️⚠️ **LE MISURE SONO FRAZIONI DEL LATO E NON PIXEL, ED È QUESTO CHE TIENE INSIEME L'ANTEPRIMA E
+ * IL FILE SALVATO.** Il conto gira su due immagini di misura diversa: l'anteprima, che l'editor
+ * riduce per lavorare in fretta, e il file pieno, che il salvataggio lavora a tessere. Un raggio
+ * scritto in pixel darebbe due risultati diversi (sull'anteprima, ridotta due volte e mezzo,
+ * peserebbe più del doppio); scritto come frazione del lato, ognuno dei due lo converte con la
+ * **propria** misura e i due risultati coincidono in proporzione, senza nessun secondo dato da
+ * tenere allineato.
+ * - ⚠️ **Quello che resta fuori si dichiara**: l'anteprima è già una riduzione, quindi la grana
+ *   fine del sensore là è **già stata mediata**, e la riduzione del rumore si giudica davvero sul
+ *   file salvato. È lo stesso limite per cui in un editor da tavolo la nitidezza si guarda al 100%.
+ *
+ * ⚠️⚠️ **DUE CURSORI SU CINQUE NON CAMBIANO UN PIXEL DA SOLI, ed è la ragione per cui [idle] ne
+ * guarda tre**: [radius] e [masking] non sono quantità, sono **come** la maschera di contrasto
+ * lavora. Con [sharpen] a zero non c'è nessuna maschera da governare, e infatti l'interfaccia li
+ * spegne.
+ *
+ * ⚠️ **[radius] è l'unico bipolare dei cinque**: lo zero è il raggio di serie, e la corsa lo
+ * raddoppia o lo dimezza. Gli altri quattro partono da zero perché 'nessuna nitidezza' e 'nessuna
+ * riduzione' sono il loro fondo naturale: una nitidezza negativa sarebbe una sfocatura, e una
+ * riduzione del rumore negativa non vuol dire niente.
+ */
+data class Detail(
+    val sharpen: Float = 0f,
+    val radius: Float = 0f,
+    val masking: Float = 0f,
+    val noise: Float = 0f,
+    val noiseColor: Float = 0f
+) {
+
+    /** Se questo modulo non cambia un pixel: vedi la nota sui due cursori che non lavorano. */
+    val idle: Boolean
+        get() = abs(sharpen) < DEAD && abs(noise) < DEAD && abs(noiseColor) < DEAD
+
+    /** Se la maschera di contrasto è spenta, cioè se [radius] e [masking] non governano niente. */
+    val flat: Boolean get() = abs(sharpen) < DEAD
+
+    /**
+     * Il raggio della maschera di contrasto, in unità dello spazio in cui il conto gira, dato il
+     * lato lungo dell'immagine [long] nello stesso spazio.
+     *
+     * ⚠️ **Il cursore raddoppia e dimezza invece di sommare**, perché un raggio si percepisce in
+     * rapporti: a zero vale [SHARP_SPAN] del lato, che su un file da quattromila pixel sono quattro
+     * pixel, cioè il micro-contrasto; al fondo della corsa si va da due a otto, che è il tratto
+     * fra la nitidezza di cattura e la chiarezza.
+     */
+    fun sharpReach(long: Float): Float = SHARP_SPAN * long * 2f.pow(radius)
+
+    /**
+     * Quanti pixel di sovrapposizione vuole una tessera del salvataggio, dato il lato lungo
+     * dell'immagine **intera**.
+     *
+     * ⚠️⚠️ **SI RICAVA DAL CONTO E NON È UN NUMERO SCRITTO A MANO**: il bordo serve perché il
+     * filtro legge i vicini, quindi è esattamente quanto il filtro arriva lontano. Un numero fisso
+     * sarebbe troppo piccolo sulle immagini grandi (una riga sulle giunzioni) o sprecato su quelle
+     * piccole.
+     * - ⚠️ **Il pixel in più copre il campionamento bilineare**, che a coordinate frazionarie legge
+     *   un pixel oltre quello che il raggio dichiara.
+     * - ⚠️ **A modulo spento vale zero**, quindi chi non usa questa funzione non paga niente: le
+     *   tessere tornano quelle di prima.
+     */
+    fun bleed(long: Float): Int {
+        if (idle) return 0
+        var reach = 0f
+        if (abs(sharpen) >= DEAD) reach = max(reach, sharpReach(long))
+        if (abs(noise) >= DEAD || abs(noiseColor) >= DEAD) reach = max(reach, grainReach(long))
+        return ceil(reach).toInt() + 1
+    }
+
+    companion object {
+        val NONE = Detail()
+
+        private const val DEAD = 0.0005f
+
+        /**
+         * Il raggio di serie della maschera di contrasto, in frazione del lato lungo.
+         *
+         * ⚠️ **Su un file da quattromila pixel sono quattro pixel**, cioè un micro-contrasto che si
+         * vede anche guardando l'immagine intera. Un raggio da nitidezza di cattura (un pixel) si
+         * vede solo ingrandendo, e un cursore che a occhio non fa niente si legge come rotto: qui
+         * quel raggio c'è, ed è il fondo corsa di [radius].
+         */
+        const val SHARP_SPAN = 1f / 1000f
+
+        /**
+         * Il vicinato della riduzione del rumore, in frazione del lato lungo.
+         *
+         * ⚠️ **Non dipende da [radius], ed è una scelta**: il raggio governa **come** si accentua
+         * il disegno, mentre il rumore vuole sempre lo stesso intorno stretto. Legarli vorrebbe
+         * dire che chi cerca la chiarezza si ritrova un'immagine spianata.
+         */
+        const val GRAIN_SPAN = 1f / 1200f
+
+        /** Il vicinato della riduzione del rumore: vedi [GRAIN_SPAN]. */
+        fun grainReach(long: Float): Float = GRAIN_SPAN * long
+    }
+}
+
+/**
  * Tutto quello che l'editor completo sa fare a un'immagine, in un oggetto solo.
  *
  * ⚠️⚠️ **È UN VALORE E NON UNA CATENA DI GESTI, ed è la stessa scelta dell'editor di casa**: là
@@ -250,18 +357,19 @@ data class Mix(val bands: List<Band> = List(COUNT) { Band.NONE }) {
  * a riapplicarli uno per uno sul file pieno, cioè a rifare dieci volte lo stesso lavoro.
  *
  * ⚠️⚠️ **CRESCE COI MODULI E LA SUA FORMA NON CAMBIA**: [chroma] è entrato accanto a [light] con
- * la `2.19` e [mix] con la `2.21`, senza toccare niente di quello che legge questo oggetto, e le
- * curve e la geometria entreranno allo stesso modo. Chi li aggiunge tocca [idle] e [lossless], che
- * sono le due domande che tutto il resto fa qui, e nient'altro.
+ * la `2.19`, [mix] con la `2.21` e [detail] con la `2.22`, senza toccare niente di quello che legge
+ * questo oggetto, e le curve e la geometria entreranno allo stesso modo. Chi li aggiunge tocca
+ * [idle] e [lossless], che sono le due domande che tutto il resto fa qui, e nient'altro.
  */
 data class Look(
     val light: Light = Light.NONE,
     val chroma: Chroma = Chroma.NONE,
-    val mix: Mix = Mix.NONE
+    val mix: Mix = Mix.NONE,
+    val detail: Detail = Detail.NONE
 ) {
 
     /** Se non c'è niente da applicare: l'immagine esce identica a com'è entrata. */
-    val idle: Boolean get() = light.idle && chroma.idle && mix.idle
+    val idle: Boolean get() = light.idle && chroma.idle && mix.idle && detail.idle
 
     /**
      * Se quello che c'è da fare **non** riscrive i pixel.
@@ -309,10 +417,13 @@ enum class Quality(override val token: String) : Choice {
 /**
  * Il programma che gira **su ogni pixel** dell'immagine.
  *
- * ⚠️⚠️ **L'ORDINE DELLE OPERAZIONI È LA SPECIFICA, e cambiarlo cambia il risultato**: il
- * bilanciamento del bianco, poi l'esposizione, poi ombre e luci, poi i punti di bianco e di nero,
- * poi il contrasto, poi l'HSL per fascia, e per ultimo quanto sono accesi i colori. È l'ordine di
- * un banco di sviluppo fotografico, e la ragione di ognuno dei passaggi:
+ * ⚠️⚠️ **L'ORDINE DELLE OPERAZIONI È LA SPECIFICA, e cambiarlo cambia il risultato**: il Dettaglio,
+ * poi il bilanciamento del bianco, poi l'esposizione, poi ombre e luci, poi i punti di bianco e di
+ * nero, poi il contrasto, poi l'HSL per fascia, e per ultimo quanto sono accesi i colori. È
+ * l'ordine di un banco di sviluppo fotografico, e la ragione di ognuno dei passaggi:
+ * - **Il Dettaglio viene per primo, dalla `2.22`**, perché è il solo modulo che parla del **file**
+ *   e non dell'immagine: quanto rumore ha il sensore, e quanto il disegno fine va accentuato.
+ *   Messo dopo, il contrasto avrebbe già moltiplicato la grana che quel modulo esiste per togliere.
  * - **Il bilanciamento viene per primo, dalla `2.19`**, perché non corregge niente: dice di che
  *   colore era la luce dello scatto, cioè **da quale immagine si parte**. Messo dopo, la piega
  *   delle alte luci lavorerebbe su un canale che il bilanciamento sta ancora per spingere fuori.
@@ -371,6 +482,16 @@ uniform half spanHi[8];
 uniform half bandHue[8];
 uniform half bandSat[8];
 uniform half bandLum[8];
+uniform half detailOn;
+uniform half sharpen;
+uniform half masking;
+uniform half noise;
+uniform half noiseColor;
+// ⚠️ **I due passi arrivano in `float` e non in `half`**, e non è pignoleria: si sommano a `p`,
+// che nel salvataggio arriva a duemila, e in `half` un numero così grande non ha più i decimali.
+// Un passo arrotondato darebbe un vicinato storto proprio sulle immagini grandi.
+uniform float2 reach;
+uniform float2 grain;
 
 // Quanto spostano i due cursori del bilanciamento del bianco, al fondo della corsa. Il numero
 // dice quanto è forte il cursore, e a 0,3 il massimo copre lo scarto fra una luce di casa e la
@@ -395,6 +516,22 @@ const half HUE_REACH = 0.0833;
 // A metà, un colore pieno diventa la metà più chiaro o più scuro: è il tratto in cui un cielo
 // si stacca dalle nuvole senza che il resto dell'immagine se ne accorga.
 const half LUM_REACH = 0.5;
+
+// Quanto vale la maschera di contrasto al fondo della corsa: una volta e mezzo il dettaglio
+// estratto. Oltre, gli aloni intorno ai bordi smettono di essere nitidezza e diventano un segno
+// che si vede da solo.
+const half SHARP_REACH = 1.5;
+
+// Quanto bordo serve, al massimo della mascheratura, perché la nitidezza passi. Il numero si
+// legge sulla scala di `edge`, che somma le tre differenze di canale: 0,6 vuol dire che al fondo
+// corsa passano soltanto i contorni netti, e il cielo resta com'è.
+const half MASK_REACH = 0.6;
+
+// Quanto in fretta un vicino DIVERSO smette di contare, nella riduzione del rumore. La grana di
+// un sensore muove pochi livelli su 255 (`edge` intorno a 0,05), un contorno vero ne muove
+// decine (0,3 e oltre): con questo fattore il primo pesa quasi come il centro e il secondo non
+// pesa affatto, quindi si media il rumore senza spianare i bordi.
+const half NOISE_EDGE = 120.0;
 
 // ⚠️⚠️ **LA PIEGA DELLE ALTE LUCI, DALLA `2.18`, ED È IL SUO RISCONTRO** (campo libero del giro
 // della `2.17`: *l'esposizione è troppo brusca sulle tonalità chiare: aumentandola le parti
@@ -486,6 +623,88 @@ half luma(half3 c) {
     return dot(c, half3(0.2126, 0.7152, 0.0722));
 }
 
+// Un pixel dell'immagine, già diviso per la propria opacità: vedi la nota sul premoltiplicato in
+// testa a questo file. È l'unico posto da cui il Dettaglio guarda i vicini.
+half3 tap(float2 at) {
+    half4 s = image.eval(at);
+    return s.a > half(0.0) ? s.rgb / s.a : s.rgb;
+}
+
+// Il modulo Dettaglio: la riduzione del rumore e la maschera di contrasto, sui valori del file.
+//
+// ⚠️⚠️ **È L'UNICO BLOCCO CHE GUARDA I PIXEL VICINI, e da qui viene tutto quello che costa**: gli
+// altri tre moduli leggono un pixel e rispondono, questo ne legge nove per ogni mestiere. Le due
+// guardie interne servono a questo: chi non chiede la nitidezza non paga i suoi nove campioni, e
+// chi non chiede la riduzione non paga gli altri.
+//
+// ⚠️⚠️ **SI LAVORA SUI VALORI DEL FILE E NON IN LUCE LINEARE**, al contrario della Luce: il rumore
+// e il disegno fine sono quello che l'occhio vede nei numeri del file, e una conversione per ognuno
+// dei diciotto campioni costerebbe più di tutto il resto del programma messo insieme.
+//
+// ⚠️ **La riduzione viene PRIMA della nitidezza**: accentuare e poi spianare vuol dire lavorare due
+// volte contro se stessi, e quello che resterebbe accentuato è proprio il rumore.
+half3 detailed(float2 p, half3 c) {
+    half3 done = c;
+
+    if (noise > half(0.0) || noiseColor > half(0.0)) {
+        // La media BILATERALE: ogni vicino pesa per quanto somiglia al centro, quindi la grana si
+        // media e un contorno no. Il centro entra nel ciclo da sé, con distanza zero e peso uno.
+        half3 sum = half3(0.0);
+        half weight = half(0.0);
+        for (int j = -1; j <= 1; j++) {
+            for (int i = -1; i <= 1; i++) {
+                half3 s = tap(p + float2(float(i) * grain.x, float(j) * grain.y));
+                half far = dot(abs(s - c), half3(1.0));
+                half w = exp(-far * far * NOISE_EDGE);
+                sum += s * w;
+                weight += w;
+            }
+        }
+        half3 avg = sum / max(weight, half(0.0001));
+        half lum = luma(c);
+        half soft = luma(avg);
+        // ⚠️ **Il rumore di COLORE prende la crominanza della media e le rimette la luminanza del
+        // centro**: così le macchie colorate spariscono e il disegno resta, perché il disegno vive
+        // nella luminanza. Senza quella correzione questo cursore sarebbe una seconda sfocatura.
+        done = mix(done, avg + (lum - soft), noiseColor);
+        // ⚠️ **Il rumore di LUMINANZA si somma invece di mescolare**: quello che si porta verso la
+        // media è il solo valore chiaro/scuro, e il colore appena deciso qui sopra non si tocca.
+        done += mix(lum, soft, noise) - lum;
+    }
+
+    if (sharpen > half(0.0)) {
+        // La media BINOMIALE (pesi 1-2-1 per riga e per colonna): è la sfocatura da cui si ricava
+        // il dettaglio, che è la differenza fra un pixel e il suo intorno.
+        half3 sum = half3(0.0);
+        half weight = half(0.0);
+        half edge = half(0.0);
+        for (int j = -1; j <= 1; j++) {
+            for (int i = -1; i <= 1; i++) {
+                half3 s = tap(p + float2(float(i) * reach.x, float(j) * reach.y));
+                half w = half((2.0 - abs(float(i))) * (2.0 - abs(float(j))));
+                sum += s * w;
+                weight += w;
+                // Quanto questo intorno ha un contorno dentro: serve alla mascheratura, e si
+                // ricava dagli stessi campioni invece di costarne altri.
+                edge = max(edge, dot(abs(s - c), half3(1.0)));
+            }
+        }
+        half3 soft = sum / weight;
+        // ⚠️ **La mascheratura protegge il PIATTO**: a zero passa tutto, e salendo la nitidezza
+        // arriva solo dove c'è un contorno vero. Senza di lei, alzare la nitidezza su un cielo
+        // vuol dire alzare il suo rumore, che è il difetto classico di questo cursore.
+        half gate = half(1.0);
+        if (masking > half(0.0)) {
+            gate = smoothstep(half(0.0), masking * MASK_REACH, edge);
+        }
+        // ⚠️ **Il dettaglio si misura su `done` e non su `c`**, cioè sull'immagine già ripulita:
+        // così il rumore appena tolto non torna dentro moltiplicato.
+        done += (done - soft) * sharpen * SHARP_REACH * gate;
+    }
+
+    return clamp(done, half3(0.0), half3(1.0));
+}
+
 // La curva del contrasto, su un valore in [0, 1] e col perno in mezzo. Per k positivo allontana
 // dal centro senza mai raggiungere gli estremi, per k negativo avvicina al centro.
 half sCurve(half x, half k) {
@@ -570,9 +789,20 @@ half4 main(float2 p) {
     // ⚠️ Il colore arriva premoltiplicato: si divide per l'opacità prima di lavorare, o un
     // pixel semitrasparente verrebbe trattato come un pixel scuro.
     half a = src.a;
-    half3 c = a > half(0.0) ? src.rgb / a : src.rgb;
+    half3 c = clamp(a > half(0.0) ? src.rgb / a : src.rgb, half3(0.0), half3(1.0));
 
-    half3 lin = toLinear(clamp(c, half3(0.0), half3(1.0)));
+    // 0. Il Dettaglio, che viene PRIMA di tutto perché è l'unico modulo che parla del **file** e
+    // non dell'immagine: dice quanto rumore ha il sensore e quanto il disegno fine va accentuato.
+    // Messo dopo, il contrasto avrebbe già moltiplicato la grana che questo modulo esiste per
+    // togliere.
+    // ⚠️⚠️ **LA GUARDIA UNIFORME NON È UN'OTTIMIZZAZIONE: È QUELLO CHE TIENE NEUTRO IL CONTO A
+    // RIPOSO.** Dentro `detailed` si legge l'immagine altre otto volte per mestiere, e su un'
+    // immagine non toccata quei campioni non devono nemmeno essere chiesti.
+    if (detailOn > half(0.5)) {
+        c = detailed(p, c);
+    }
+
+    half3 lin = toLinear(c);
 
     // 0. Bilanciamento del bianco, che viene PRIMA di tutto perché non è una correzione: dice di
     // che colore era la luce che ha fatto quello scatto, cioè da quale immagine si parte. Messo
@@ -682,7 +912,13 @@ half4 main(float2 p) {
 
 /**
  * Il programma compilato con [look] dentro, agganciato all'immagine [image], oppure `null` dove
- * questa strada non esiste.
+ * questa strada non esiste. [span] è il lato lungo dell'immagine **nello spazio in cui il conto
+ * gira**: i pixel della tessera per il salvataggio, il rettangolo disegnato per l'anteprima.
+ *
+ * ⚠️⚠️ **[span] NON HA UN VALORE DI SERIE, E NON È UNA DIMENTICANZA**: il modulo Dettaglio ragiona
+ * in frazioni del lato, quindi chi chiama deve **dichiarare** quanto misura l'immagine da cui
+ * legge. Un valore di serie sarebbe giusto per uno dei due chiamanti e sbagliato per l'altro,
+ * senza che niente lo dica: è la stessa forma di presidio del parametro di `Modifier.lowered`.
  *
  * ⚠️⚠️ **`null` VUOL DIRE ANDROID 12 O PRIMA**, e chi chiama non ha una seconda strada: l'editor
  * completo non si offre nemmeno, ed è l'istruzione dell'utente. È lo stesso controllo di
@@ -695,7 +931,7 @@ half4 main(float2 p) {
  * `setFloatUniform`, che costano niente. Chi volesse tenerlo in una cache guardi prima se il
  * profilo dice che serve.
  */
-internal fun lookShader(image: Shader, look: Look): Shader? {
+internal fun lookShader(image: Shader, look: Look, span: Float): Shader? {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return null
     /*
      * ⚠️⚠️ **UN PROGRAMMA CHE NON COMPILA NON PUÒ FAR CADERE L'APP, e la rete vive qui e non nei
@@ -707,7 +943,7 @@ internal fun lookShader(image: Shader, look: Look): Shader? {
      * monta la schermata misura la pila dei passi e non i pixel, e senza questa riga cadrebbe
      * sul primo cursore mosso.
      */
-    return runCatching { lightOver(image, look) }.getOrNull()
+    return runCatching { lightOver(image, look, span) }.getOrNull()
 }
 
 /**
@@ -719,9 +955,12 @@ internal fun lookShader(image: Shader, look: Look): Shader? {
  * perché il programma non compila senza il suo uniform.
  */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-private fun lightOver(image: Shader, look: Look): Shader {
+private fun lightOver(image: Shader, look: Look, span: Float): Shader {
     val light = look.light
     val chroma = look.chroma
+    val detail = look.detail
+    val sharp = detail.sharpReach(span)
+    val grain = Detail.grainReach(span)
     return RuntimeShader(LOOK_AGSL).apply {
         setInputShader("image", image)
         setFloatUniform("gain", light.gain)
@@ -742,6 +981,13 @@ private fun lightOver(image: Shader, look: Look): Shader {
         setFloatUniform("bandHue", FloatArray(Mix.COUNT) { look.mix.bands[it].hue })
         setFloatUniform("bandSat", FloatArray(Mix.COUNT) { look.mix.bands[it].sat })
         setFloatUniform("bandLum", FloatArray(Mix.COUNT) { look.mix.bands[it].lum })
+        setFloatUniform("detailOn", if (detail.idle) 0f else 1f)
+        setFloatUniform("sharpen", detail.sharpen)
+        setFloatUniform("masking", detail.masking)
+        setFloatUniform("noise", detail.noise)
+        setFloatUniform("noiseColor", detail.noiseColor)
+        setFloatUniform("reach", sharp, sharp)
+        setFloatUniform("grain", grain, grain)
     }
 }
 
