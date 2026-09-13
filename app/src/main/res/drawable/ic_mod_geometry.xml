@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Il modulo 'Geometria'.
+
+     AMMORBIDISCE `Icons.Filled.Transform` di Material, dalla 2.32, e non cambia nient'altro:
+     gli spigoli esterni diventano raccordi da 0,4 unità su 24. È il trattamento che l'utente
+     dà alle icone che disegna lui (2026-09-13: *arrotondare di ~0,4px i bordi esterni*), e
+     la divergenza voluta è la ragione per cui questo file esiste invece di chiamare `Icons`:
+     il criterio vive in `CLAUDE.md`, § 'Come entra un disegno'.
+
+     LO SCARTO CONTRO IL GLIFO DI MATERIAL è 150 pixel su 57.600 (0,26% della tela),
+     misurato rendendo i due a 240px. Il disegno cade nello stesso riquadro.
+
+     IL TRACCIATO È RICOSTRUITO DAL BYTECODE di `material-icons`, cioè dalle chiamate a
+     `PathBuilder` in ordine, che è la sola fonte che non chieda di fidarsi di una memoria.
+     Ogni comando è scritto per esteso e in coordinate assolute, e i numeri sono separati:
+     un tracciato che passa di qui lo legge qualunque parser conforme. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M22,17.6L22,16.4A0.4,0.4,0,0,0,21.6,16L8,16L8,4L9.752,4A0.103,0.103,0,0,0,9.825,3.825L7.283,1.283A0.4,0.4,0,0,0,6.717,1.283L4.175,3.825A0.103,0.103,0,0,0,4.248,4L6,4L6,6L2.4,6A0.4,0.4,0,0,0,2,6.4L2,7.6A0.4,0.4,0,0,0,2.4,8L6,8L6,16C6,17.1,6.9,18,8,18L16,18L16,20L14.248,20A0.103,0.103,0,0,0,14.175,20.175L16.717,22.717A0.4,0.4,0,0,0,17.283,22.717L19.825,20.175A0.103,0.103,0,0,0,19.752,20L18,20L18,18L21.6,18A0.4,0.4,0,0,0,22,17.6ZM10.4,8L16,8L16,13.6A0.4,0.4,0,0,0,16.4,14L17.6,14A0.4,0.4,0,0,0,18,13.6L18,8C18,6.9,17.1,6,16,6L10.4,6A0.4,0.4,0,0,0,10,6.4L10,7.6A0.4,0.4,0,0,0,10.4,8Z" />
+</vector>

@@ -420,6 +420,7 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">เส้นโค้งโทน</string>
     <string name="look_target">เจาะจง</string>
+    <string name="look_auto">อัตโนมัติ</string>
     <string name="look_geometry">เรขาคณิต</string>
     <string name="look_crop">ครอบตัด</string>
     <string name="look_straighten">ปรับให้ตรง</string>
@@ -445,6 +446,7 @@
     <string name="editor_flip">พลิก</string>
     <string name="editor_flip_down">พลิกแนวตั้ง</string>
     <string name="editor_free">อิสระ</string>
+    <string name="editor_shape_original">ต้นฉบับ</string>
     <string name="editor_save">บันทึก</string>
     <string name="editor_apply">ใช้</string>
     <string name="editor_undo">เลิกทำ</string>

@@ -436,6 +436,7 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">தொனி வளைவு</string>
     <string name="look_target">இலக்கு</string>
+    <string name="look_auto">தானியங்கு</string>
     <string name="look_geometry">வடிவியல்</string>
     <string name="look_crop">வெட்டு</string>
     <string name="look_straighten">நேராக்கு</string>
@@ -461,6 +462,7 @@
     <string name="editor_flip">புரட்டு</string>
     <string name="editor_flip_down">செங்குத்தாகப் புரட்டு</string>
     <string name="editor_free">தடையற்றது</string>
+    <string name="editor_shape_original">அசல்</string>
     <string name="editor_save">சேமி</string>
     <string name="editor_apply">பயன்படுத்து</string>
     <string name="editor_undo">செயல்தவிர்</string>

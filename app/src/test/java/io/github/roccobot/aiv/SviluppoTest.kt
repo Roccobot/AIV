@@ -34,10 +34,13 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import java.io.File
 import kotlin.math.abs
@@ -60,12 +63,26 @@ private val MODULI = listOf(
     R.string.look_light,
     R.string.look_color,
     R.string.look_mix,
-    R.string.look_detail,
-    R.string.look_tone
+    R.string.look_tone,
+    R.string.look_detail
 )
 
-/** I tre comandi di posa del modulo Ritaglio, che sono quelli dell'editor di casa. */
-private val POSA = listOf(R.string.editor_left, R.string.editor_right, R.string.editor_flip)
+/**
+ * I cinque comandi di posa del modulo Ritaglio, che sono quelli dell'editor di casa.
+ *
+ * ⚠️ **Erano tre fino alla `2.31`**, e le due centrature sono entrate con i formati: senza una forma
+ * scelta non avevano niente da centrare.
+ */
+private val POSA = listOf(
+    R.string.editor_center_across,
+    R.string.editor_center_down,
+    R.string.editor_flip,
+    R.string.editor_left,
+    R.string.editor_right
+)
+
+/** Le sei forme del ritaglio: le due che si dicono a parole, e le quattro proporzioni. */
+private val FORME = listOf("1:1", "2:3", "3:4", "9:16")
 
 /** I nomi delle otto fasce, per contare le pastiglie in scena senza ricopiarne l'elenco. */
 private val BANDE = listOf(
@@ -675,29 +692,36 @@ class SviluppoTest {
     }
 
     /**
-     * **Caso 22: il colore mirato si offre nei soli moduli che hanno un bersaglio.**
+     * **Caso 22: il colore mirato si offre nel solo modulo che ha un bersaglio, e come icona.**
      *
      * ⚠️⚠️ **È LA CONDIZIONE CHE TIENE VIVO IL PALCO**: quel tasto arma una modalità in cui il
      * palco fa solo il mirato, e in un modulo senza bersaglio sarebbe una modalità che non fa
      * niente mentre spegne pinza e doppio tocco.
+     * ⚠️⚠️ **DALLA `2.32` LE CURVE NON MIRANO PIÙ, ED È LA SUA RISPOSTA `via` A `d-mirato-curve`**
+     * (giro della `2.31`: *via, e si torna subito a zoomare/spostare l'immagine toccandola*). La
+     * prova guarda **anche** quel modulo, perché una condizione che si allarga da sé non darebbe
+     * nessun errore.
+     * ⚠️ **Il nome non si scrive più**, perché il comando è un'icona: resta come descrizione, che è
+     * quello che un lettore di schermo annuncia, ed è lo stesso criterio dei sette gettoni.
      */
     @Test
-    fun `il mirato c'è nelle curve e nell'hsl e non negli altri`() {
+    fun `il mirato c'è nel solo hsl e si annuncia senza scriversi`() {
         banco.setContent { Scena() }
         pronta()
-        assertEquals("nella Luce non c'è niente da mirare", 0, quanti(testo(R.string.look_target)))
+        assertEquals("nella Luce non c'è niente da mirare", 0, quantiDetti(R.string.look_target))
 
         banco.onNodeWithContentDescription(testo(R.string.look_tone)).performClick()
         banco.waitForIdle()
-        assertEquals(1, quanti(testo(R.string.look_target)))
+        assertEquals("dalla 2.32 le Curve non mirano", 0, quantiDetti(R.string.look_target))
 
         banco.onNodeWithContentDescription(testo(R.string.look_mix)).performClick()
         banco.waitForIdle()
-        assertEquals(1, quanti(testo(R.string.look_target)))
+        assertEquals(1, quantiDetti(R.string.look_target))
+        assertEquals("il nome resta detto e non scritto", 0, quanti(testo(R.string.look_target)))
 
         banco.onNodeWithContentDescription(testo(R.string.look_detail)).performClick()
         banco.waitForIdle()
-        assertEquals(0, quanti(testo(R.string.look_target)))
+        assertEquals(0, quantiDetti(R.string.look_target))
     }
 
     /**
@@ -737,14 +761,16 @@ class SviluppoTest {
      * misura sul colore potrebbe restare a zero con la lente in scena.
      * ⚠️ **Quello che NON vede**: se la lente mostri il pixel giusto, che è il suo mestiere. Il
      * conto vive sulla scheda grafica e qui non gira, quindi quello si guarda sul telefono.
+     * ⚠️ **Il modulo è l'HSL e non le Curve, dalla `2.32`**: là il mirato non c'è più (sua risposta
+     * `via` a `d-mirato-curve`), e il tasto che lo arma è un'icona, quindi si cerca per descrizione.
      */
     @Test
     fun `la lente del mirato c'e col dito giu e sparisce al rilascio`() {
         banco.setContent { Scena() }
         pronta()
-        banco.onNodeWithContentDescription(testo(R.string.look_tone)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_mix)).performClick()
         banco.waitForIdle()
-        banco.onNodeWithText(testo(R.string.look_target)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_target)).performClick()
         banco.waitForIdle()
 
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
@@ -780,11 +806,12 @@ class SviluppoTest {
      * nemmeno alla soglia del tocco, e il gesto resta fermo **col codice giusto**. Una spia messa
      * dentro il rilevatore lo ha misurato: gli eventi arrivavano, e la distanza era sei pixel
      * contro sedici di soglia. In larghezza lo spazio c'è.
-     * ⚠️⚠️ **IL CLOCK VA FERMATO, E SENZA QUELLA RIGA LA PROVA MISURAVA IL CONTRARIO**: con
-     * l'avanzamento automatico `waitForIdle` porta a termine le attese pendenti, cioè fa **scadere**
-     * l'attesa dell'armamento; da lì in poi il dito muove la curva e non più la lente, e il secondo
-     * scatto è identico al primo **col codice giusto**. Quindi questo caso misura anche l'altra
-     * metà della richiesta: prima dell'armamento a muoversi è il mirino.
+     * ⚠️ **Il clock resta fermo**, così ogni scatto è un fotogramma dichiarato invece del punto in
+     * cui `waitForIdle` decide di fermarsi. ⚠️⚠️ **E LA RAGIONE DI PRIMA È DECADUTA CON LA `2.30`**:
+     * l'attesa dell'armamento serviva a separare la scelta dal trascinamento, e nell'HSL il
+     * trascinamento non muove niente, quindi quell'attesa non c'è più (suo riscontro sulla voce
+     * `geo-mirato`). Chi legge quella nota in un commento vecchio sappia che oggi qui non scade
+     * niente.
      * ⚠️⚠️ **SI GUARDA DOVE SONO I PIXEL CAMBIATI E NON QUANTI: LO HA DETTO LA
      * CONTROPROVA.** La prima stesura confrontava i due scatti col dito giù e chiedeva che
      * fossero diversi: col difetto rimesso **restava verde**, perché fra i due fotogrammi cambiava
@@ -799,9 +826,9 @@ class SviluppoTest {
     fun `la lente segue il dito che si sposta`() {
         banco.setContent { Scena() }
         pronta()
-        banco.onNodeWithContentDescription(testo(R.string.look_tone)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_mix)).performClick()
         banco.waitForIdle()
-        banco.onNodeWithText(testo(R.string.look_target)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_target)).performClick()
         banco.waitForIdle()
         banco.mainClock.autoAdvance = false
 
@@ -1346,6 +1373,235 @@ class SviluppoTest {
     }
 
     /**
+     * **Caso 37: le sei forme del Ritaglio, e 'Originale' che è l'immagine intera.**
+     *
+     * ⚠️⚠️ **'ORIGINALE' È SUA RICHIESTA** (2026-09-13: *tra i vincoli di proporzione dev'esserci
+     * anche 'Originale', ma scelta di default resta 'Libera'*), ed è la sola forma il cui rapporto
+     * non è scritto nel codice: lo porta l'immagine. Quello che può rompersi in silenzio è il verso,
+     * cioè che nel verso naturale dia il rapporto della fotografia invece del suo reciproco: sul
+     * quadrato di prova i due numeri **coincidono**, quindi qui il conto si misura su un'immagine
+     * larga, e la scena misura soltanto che i sei gettoni ci siano.
+     * ⚠️ **Nel suo verso non toglie niente**, ed è la proprietà da cui dipende il senza perdita: un
+     * ritaglio che tagliasse un pixel per un arrotondamento farebbe riscrivere il file a chi ha
+     * soltanto scelto 'Originale'.
+     */
+    @Test
+    fun `il ritaglio porta le sei forme e Originale e l'immagine intera`() {
+        val largo = 3f / 2f
+        assertEquals(largo, Shape.ORIGINAL.value(Lay.WIDE, largo)!!, 1e-4f)
+        assertEquals(1f / largo, Shape.ORIGINAL.value(Lay.TALL, largo)!!, 1e-4f)
+        assertTrue(
+            "nel suo verso 'Originale' non taglia niente",
+            Shape.ORIGINAL.fit(largo, Lay.WIDE).whole
+        )
+        assertFalse(
+            "nell'altro verso taglia, come ogni altra forma",
+            Shape.ORIGINAL.fit(largo, Lay.TALL).whole
+        )
+        assertNull("'Libero' non ha un rapporto da tenere", Shape.FREE.value(Lay.WIDE, largo))
+        assertNotNull("le due parole sono 'Libero' e 'Originale'", Shape.ORIGINAL.word)
+        assertNull("una proporzione si scrive col suo numero", Shape.ONE.word)
+
+        banco.setContent { Scena() }
+        pronta()
+        for (numero in FORME) assertEquals("nella Luce i formati non ci sono", 0, quanti(numero))
+
+        banco.onNodeWithContentDescription(testo(R.string.look_crop)).performClick()
+        banco.waitForIdle()
+        for (numero in FORME) assertEquals("manca il formato $numero", 1, quanti(numero))
+        assertEquals(1, quanti(testo(R.string.editor_free)))
+        assertEquals(1, quanti(testo(R.string.editor_shape_original)))
+    }
+
+    /**
+     * **Caso 38: col Ritaglio in scena l'immagine lascia l'aria alle squadrette.**
+     *
+     * ⚠️⚠️ **È IL SUO RISCONTRO** (giro della `2.31`, voce `crop-modulo` non approvata: *all'avvio
+     * del modulo gli angoli di ritaglio non sono del tutto visibili*). Le squadrette si disegnano a
+     * cavallo del bordo del rettangolo, quindi metà del loro spessore cade **fuori** dall'immagine:
+     * con l'immagine a filo del palco, che ritaglia il proprio contenuto, quella metà spariva.
+     * ⚠️⚠️ **SI MISURA DOVE COMINCIA L'IMMAGINE E NON DOVE COMINCIA IL DISEGNO, ED È IL BANCO CHE
+     * LO HA IMPOSTO**: nell'aria ci vanno proprio le squadrette, quindi il primo pixel diverso dal
+     * fondo è a un passo dal bordo del palco anche quando la correzione c'è, ed è giusto così. La
+     * misura è il **bianco** dell'immagine lungo la colonna di mezzo, che con `air` a zero
+     * comincerebbe alla riga zero.
+     * ⚠️ **E la seconda metà è che sopra quel bianco ci sia la squadretta**: senza, la prova
+     * direbbe soltanto che l'immagine è più piccola, non che quello spazio serve a qualcosa.
+     */
+    @Test
+    fun `col ritaglio l'immagine lascia l'aria alle squadrette`() {
+        banco.setContent { Scena() }
+        pronta()
+        banco.onNodeWithContentDescription(testo(R.string.look_crop)).performClick()
+        banco.waitForIdle()
+
+        val scatto = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+            .captureToImage().toPixelMap()
+        val fondo = scatto[0, 0]
+        val mezzo = scatto.width / 2
+        val cima = (0 until scatto.height).firstOrNull { scatto[mezzo, it] != fondo }
+        assertNotNull("il palco deve disegnare l'immagine", cima)
+        assertTrue(
+            "l'immagine comincia a filo del palco: le squadrette restano tagliate",
+            cima!! >= 4
+        )
+
+        val riga = scatto.height / 2
+        val sinistra = (0 until scatto.width).firstOrNull { scatto[it, riga] != fondo }
+        assertNotNull(sinistra)
+        assertTrue(
+            "sopra l'immagine deve esserci la squadretta",
+            (0 until cima).any { scatto[sinistra!! + 1, it] != fondo }
+        )
+    }
+
+    /**
+     * **Caso 41: dentro la lente l'immagine è quella DEFORMATA.**
+     *
+     * ⚠️⚠️ **È IL SUO RISCONTRO, ED È LA SECONDA VOLTA** (giro della `2.31`, voce `geo-lente` non
+     * approvata: *continua ad essere lento e a non mostrare l'immagine deformata*). La `2.30` aveva
+     * portato la maglia dentro il tondo e lo aveva presidiato misurando il **conto**, cioè dove
+     * cade il punto toccato: quel numero era giusto e il disegno no, e fra le due cose il banco
+     * guardava la prima. Questa prova guarda i pixel.
+     * ⚠️⚠️ **SI MISURA IL CONTENUTO DELLA LENTE E NON IL PALCO, E I QUATTRO SCATTI SERVONO TUTTI**:
+     * col dito giù cambia la sola lente, quindi la differenza fra riposo e dito giù è la sua
+     * maschera; dentro quella maschera, i pixel devono **cambiare** quando la geometria si muove.
+     * Disegnando l'immagine non deformata, là dentro i due casi darebbero lo stesso identico
+     * disegno.
+     * ⚠️ **La scena è grande**, perché sul banco di serie il palco è alto una settantina di pixel e
+     * la lente non ci starebbe affatto.
+     * ⚠️ **L'immagine è una sfumatura e il cursore è la distorsione**: su un quadrato bianco pieno
+     * nessuna deformazione si vede, e la distorsione è quella che curva le righe, cioè quella che
+     * cambia di più il contenuto di un tondo preso al centro.
+     */
+    @Test
+    @Config(qualifiers = "w600dp-h900dp")
+    fun `la lente mostra l'immagine deformata`() {
+        banco.setContent { Scena(sfumato()) }
+        pronta()
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+
+        banco.onNodeWithContentDescription(testo(R.string.look_mix)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(testo(R.string.look_target)).performClick()
+        banco.waitForIdle()
+
+        val fermoSu = palco.captureToImage().toPixelMap()
+        palco.performTouchInput { down(center + Offset(width * 0.3f, height * 0.2f)) }
+        banco.waitForIdle()
+        val fermoGiu = palco.captureToImage().toPixelMap()
+        palco.performTouchInput { up() }
+        banco.waitForIdle()
+
+        banco.onNodeWithContentDescription(testo(R.string.look_geometry)).performClick()
+        banco.waitForIdle()
+        muovi(4, 1f)
+        banco.onNodeWithContentDescription(testo(R.string.look_mix)).performClick()
+        banco.waitForIdle()
+
+        val mossoSu = palco.captureToImage().toPixelMap()
+        palco.performTouchInput { down(center + Offset(width * 0.3f, height * 0.2f)) }
+        banco.waitForIdle()
+        val mossoGiu = palco.captureToImage().toPixelMap()
+        palco.performTouchInput { up() }
+
+        var dentro = 0
+        var cambiati = 0
+        for (y in 0 until fermoSu.height) {
+            for (x in 0 until fermoSu.width) {
+                val lente = fermoSu[x, y] != fermoGiu[x, y] && mossoSu[x, y] != mossoGiu[x, y]
+                if (!lente) continue
+                dentro += 1
+                if (fermoGiu[x, y] != mossoGiu[x, y]) cambiati += 1
+            }
+        }
+        fun riquadro(a: PixelMap, b: PixelMap): String {
+            var x0 = 9999; var y0 = 9999; var x1 = -1; var y1 = -1
+            for (y in 0 until a.height) for (x in 0 until a.width) if (a[x, y] != b[x, y]) {
+                if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y
+            }
+            return "$x0,$y0 - $x1,$y1"
+        }
+        println("SPIA palco ${fermoSu.width}x${fermoSu.height} fermo=" + riquadro(fermoSu, fermoGiu) + " mosso=" + riquadro(mossoSu, mossoGiu) + " dentro=" + dentro)
+        assertTrue("senza la lente in scena non c'è niente da misurare", dentro > 100)
+        assertTrue(
+            "dentro la lente il disegno non cambia con la geometria: $cambiati su $dentro",
+            cambiati > dentro / 4
+        )
+    }
+
+    /**
+     * **Caso 39: il conto di 'Auto', cioè i due estremi e la dominante.**
+     *
+     * ⚠️⚠️ **È SUA RICHIESTA** (campo libero del giro della `2.31`: *aggiungi un tasto 'Auto' che
+     * imita 'Colore automatico' di Photoshop ... dev'essere annullabile*), e quello che il banco può
+     * misurare è il conto, che è puro: i pixel arrivano già campionati.
+     * ⚠️ **I due numeri attesi vengono dall'inversa dello shader** e non da una taratura: con
+     * l'immagine fra il 20% e l'80% della scala, per portare quei due estremi al nero e al bianco i
+     * cursori valgono `0,2 / 0,25` e `0,2 / 0,25`, cioè otto decimi di corsa.
+     * ⚠️ **La guardia dell'immagine piatta è la seconda metà**: senza, un rettangolo di un colore
+     * solo si stirerebbe fino a diventare due colori.
+     */
+    @Test
+    fun `auto porta i due estremi al nero e al bianco`() {
+        val scala = IntArray(200) { i ->
+            val v = 51 + 153 * i / 199
+            Color.rgb(v, v, v)
+        }
+        val fatto = Auto.tuned(Look.NONE, scala)
+        assertEquals("il punto di nero", -0.8f, fatto.light.blacks, 0.05f)
+        assertEquals("il punto di bianco", 0.8f, fatto.light.whites, 0.05f)
+        assertEquals("un grigio non ha dominante", 0f, fatto.chroma.temp, 0.02f)
+        assertEquals(0f, fatto.chroma.tint, 0.02f)
+        assertTrue("'Auto' non tocca gli altri cursori", fatto.light.exposure == 0f)
+
+        val piatta = IntArray(100) { Color.rgb(128, 128, 128) }
+        val ferma = Auto.tuned(Look.NONE, piatta)
+        assertEquals("un'immagine piatta non si stira", 0f, ferma.light.blacks, 1e-4f)
+        assertEquals(0f, ferma.light.whites, 1e-4f)
+
+        val caldo = IntArray(200) { i ->
+            val v = 51 + 153 * i / 199
+            Color.rgb(minOf(255, v + 40), v, v)
+        }
+        assertTrue(
+            "un'immagine calda si raffredda",
+            Auto.tuned(Look.NONE, caldo).chroma.temp < -0.05f
+        )
+    }
+
+    /**
+     * **Caso 40: 'Auto' scrive nei cursori, e quello che scrive si disfa.**
+     *
+     * ⚠️⚠️ **QUELLO CHE PUÒ ROMPERSI È IL COLLEGAMENTO**: il conto vive in [Auto] e il tasto sta
+     * nella scheda, quindi il codice compilerebbe lo stesso con un tasto che non consegna
+     * l'immagine o che non scrive nel modello, e in scena non succederebbe niente.
+     * ⚠️ **L'immagine di prova è una SFUMATURA e non il quadrato bianco**: su un colore solo la
+     * guardia dell'immagine piatta risponde 'non c'è niente da stirare', quindi la misura direbbe
+     * che il tasto non fa niente proprio dove è giusto che non lo faccia.
+     * ⚠️ **'Annulla' acceso è la metà che lui ha chiesto** (*dev'essere annullabile*): un comando che
+     * scrive nel modello entra nella storia dei passi come un gesto qualunque.
+     */
+    @Test
+    fun `auto scrive nei punti e si puo disfare`() {
+        banco.setContent { Scena(sfumato()) }
+        pronta()
+
+        val neri = valore(5)
+        val bianchi = valore(4)
+        banco.onNodeWithContentDescription(testo(R.string.editor_undo)).assertIsNotEnabled()
+
+        banco.onNodeWithContentDescription(testo(R.string.look_auto)).performClick()
+        banco.waitForIdle()
+
+        assertTrue(
+            "'Auto' doveva scrivere nei due punti",
+            valore(5) != neri || valore(4) != bianchi
+        )
+        banco.onNodeWithContentDescription(testo(R.string.editor_undo)).assertIsEnabled()
+    }
+
+    /**
      * Quanti punti del contorno del rettangolo di arrivo vengono da **fuori** dell'immagine, cioè
      * quanti pixel resterebbero scoperti: vedi il caso 27.
      */
@@ -1463,10 +1719,10 @@ class SviluppoTest {
     private val app: Context get() = ApplicationProvider.getApplicationContext()
 
     @Composable
-    private fun Scena() {
+    private fun Scena(uri: Uri = quadrato()) {
         AivTheme(darkTheme = false) {
             Box(modifier = Modifier.fillMaxSize()) {
-                AdvancedEditorScreen(uri = quadrato(), busy = false, onSave = {}, onBack = {})
+                AdvancedEditorScreen(uri = uri, busy = false, onSave = {}, onBack = {})
             }
         }
     }
@@ -1477,6 +1733,26 @@ class SviluppoTest {
         if (!file.exists()) {
             val mappa = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888)
             mappa.eraseColor(Color.WHITE)
+            file.outputStream().use { mappa.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        }
+        return Uri.fromFile(file)
+    }
+
+    /**
+     * Un PNG che va dal 20% all'80% della scala, per le prove che hanno bisogno di **toni**.
+     *
+     * ⚠️ **Il quadrato bianco non serve a 'Auto'**: su un colore solo la guardia dell'immagine
+     * piatta risponde che non c'è niente da stirare, quindi il tasto non scriverebbe niente e la
+     * misura direbbe che non funziona proprio dove è giusto che non faccia nulla.
+     */
+    private fun sfumato(): Uri {
+        val file = File(app.cacheDir, "sfumato.png")
+        if (!file.exists()) {
+            val mappa = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888)
+            for (y in 0 until 64) {
+                val v = 51 + 153 * y / 63
+                for (x in 0 until 64) mappa.setPixel(x, y, Color.rgb(v, v, v))
+            }
             file.outputStream().use { mappa.compress(Bitmap.CompressFormat.PNG, 100, it) }
         }
         return Uri.fromFile(file)

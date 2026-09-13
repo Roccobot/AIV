@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Il modulo 'Luce'.
+
+     AMMORBIDISCE `Icons.Filled.WbSunny` di Material, dalla 2.32, e non cambia nient'altro:
+     gli spigoli esterni diventano raccordi da 0,4 unità su 24. È il trattamento che l'utente
+     dà alle icone che disegna lui (2026-09-13: *arrotondare di ~0,4px i bordi esterni*), e
+     la divergenza voluta è la ragione per cui questo file esiste invece di chiamare `Icons`:
+     il criterio vive in `CLAUDE.md`, § 'Come entra un disegno'.
+
+     LO SCARTO CONTRO IL GLIFO DI MATERIAL è 383 pixel su 57.600 (0,66% della tela),
+     misurato rendendo i due a 240px. Il disegno cade nello stesso riquadro.
+
+     IL TRACCIATO È RICOSTRUITO DAL BYTECODE di `material-icons`, cioè dalle chiamate a
+     `PathBuilder` in ordine, che è la sola fonte che non chieda di fidarsi di una memoria.
+     Ogni comando è scritto per esteso e in coordinate assolute, e i numeri sono separati:
+     un tracciato che passa di qui lo legge qualunque parser conforme. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M6.478,4.559L5.243,3.331A0.4,0.4,0,0,0,4.678,3.332L3.833,4.177A0.4,0.4,0,0,0,3.833,4.743L5.058,5.968A0.4,0.4,0,0,0,5.623,5.969L6.477,5.121A0.396,0.396,0,0,0,6.478,4.559ZM3.6,10.5L1.4,10.5A0.4,0.4,0,0,0,1,10.9L1,12.1A0.4,0.4,0,0,0,1.4,12.5L3.6,12.5A0.4,0.4,0,0,0,4,12.1L4,10.9A0.4,0.4,0,0,0,3.6,10.5ZM12.6,0.55L11.4,0.55A0.4,0.4,0,0,0,11,0.95L11,3.1A0.4,0.4,0,0,0,11.4,3.5L12.6,3.5A0.4,0.4,0,0,0,13,3.1L13,0.95A0.4,0.4,0,0,0,12.6,0.55ZM20.167,4.177L19.323,3.333A0.4,0.4,0,0,0,18.757,3.333L17.533,4.557A0.4,0.4,0,0,0,17.533,5.123L18.377,5.967A0.4,0.4,0,0,0,18.943,5.967L20.167,4.743A0.4,0.4,0,0,0,20.167,4.177ZM17.521,18.443L18.749,19.677A0.398,0.398,0,0,0,19.312,19.678L20.158,18.832A0.398,0.398,0,0,0,20.157,18.269L18.923,17.041A0.4,0.4,0,0,0,18.358,17.042L17.522,17.878A0.4,0.4,0,0,0,17.521,18.443ZM20,10.9L20,12.1A0.4,0.4,0,0,0,20.4,12.5L22.6,12.5A0.4,0.4,0,0,0,23,12.1L23,10.9A0.4,0.4,0,0,0,22.6,10.5L20.4,10.5A0.4,0.4,0,0,0,20,10.9ZM12,5.5C8.69,5.5,6,8.19,6,11.5C6,14.81,8.69,17.5,12,17.5C15.31,17.5,18,14.81,18,11.5C18,8.19,15.31,5.5,12,5.5ZM11.4,22.45L12.6,22.45A0.4,0.4,0,0,0,13,22.05L13,19.9A0.4,0.4,0,0,0,12.6,19.5L11.4,19.5A0.4,0.4,0,0,0,11,19.9L11,22.05A0.4,0.4,0,0,0,11.4,22.45ZM3.832,18.822L4.678,19.668A0.398,0.398,0,0,0,5.241,19.667L6.469,18.433A0.4,0.4,0,0,0,6.468,17.868L5.622,17.022A0.398,0.398,0,0,0,5.059,17.023L3.831,18.257A0.4,0.4,0,0,0,3.832,18.822Z" />
+</vector>

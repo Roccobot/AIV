@@ -500,6 +500,7 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">منحنى النغمات</string>
     <string name="look_target">مُستهدف</string>
+    <string name="look_auto">تلقائي</string>
     <string name="look_geometry">الهندسة</string>
     <string name="look_crop">قص</string>
     <string name="look_straighten">التقويم</string>
@@ -525,6 +526,7 @@
     <string name="editor_flip">عكس</string>
     <string name="editor_flip_down">عكس عمودي</string>
     <string name="editor_free">حر</string>
+    <string name="editor_shape_original">الأصلية</string>
     <string name="editor_save">حفظ</string>
     <string name="editor_apply">تطبيق</string>
     <string name="editor_undo">تراجع</string>

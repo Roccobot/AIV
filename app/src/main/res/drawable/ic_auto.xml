@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Il tasto 'Auto', che imita 'Colore automatico' di Photoshop.
+
+     AMMORBIDISCE `Icons.Filled.AutoFixHigh` di Material, dalla 2.32, e non cambia nient'altro:
+     gli spigoli esterni diventano raccordi da 0,4 unità su 24. È il trattamento che l'utente
+     dà alle icone che disegna lui (2026-09-13: *arrotondare di ~0,4px i bordi esterni*), e
+     la divergenza voluta è la ragione per cui questo file esiste invece di chiamare `Icons`:
+     il criterio vive in `CLAUDE.md`, § 'Come entra un disegno'.
+
+     LO SCARTO CONTRO IL GLIFO DI MATERIAL è 343 pixel su 57.600 (0,60% della tela),
+     misurato rendendo i due a 240px. Le punte delle tre stelle stringono il raggio invece di accorciarsi: a
+     raggio fisso un angolo di 30 gradi arretrerebbe di 1,15 unità, cioè il 5%
+     della tela, e le stelle venivano tozze. A restare costante è quanto il
+     vertice arretra, e vale quello di un angolo retto.
+
+     IL TRACCIATO È RICOSTRUITO DAL BYTECODE di `material-icons`, cioè dalle chiamate a
+     `PathBuilder` in ordine, che è la sola fonte che non chieda di fidarsi di una memoria.
+     Ogni comando è scritto per esteso e in coordinate assolute, e i numeri sono separati:
+     un tracciato che passa di qui lo legge qualunque parser conforme. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M7.5,5.6L9.809,6.893A0.062,0.062,0,0,0,9.893,6.809L8.6,4.5L9.893,2.191A0.062,0.062,0,0,0,9.809,2.107L7.5,3.4L5.191,2.107A0.062,0.062,0,0,0,5.107,2.191L6.4,4.5L5.107,6.809A0.062,0.062,0,0,0,5.191,6.893L7.5,5.6ZM19.5,15.4L17.191,14.107A0.062,0.062,0,0,0,17.107,14.191L18.4,16.5L17.107,18.809A0.062,0.062,0,0,0,17.191,18.893L19.5,17.6L21.809,18.893A0.062,0.062,0,0,0,21.893,18.809L20.6,16.5L21.893,14.191A0.062,0.062,0,0,0,21.809,14.107L19.5,15.4ZM21.809,2.107L19.5,3.4L17.191,2.107A0.062,0.062,0,0,0,17.107,2.191L18.4,4.5L17.107,6.809A0.062,0.062,0,0,0,17.191,6.893L19.5,5.6L21.809,6.893A0.062,0.062,0,0,0,21.893,6.809L20.6,4.5L21.893,2.191A0.062,0.062,0,0,0,21.809,2.107ZM14.37,7.29C13.98,6.9,13.35,6.9,12.96,7.29L1.29,18.96C0.9,19.35,0.9,19.98,1.29,20.37L3.63,22.71C4.02,23.1,4.65,23.1,5.04,22.71L16.7,11.05C17.09,10.66,17.09,10.03,16.7,9.64L14.37,7.29ZM13.057,12.497L11.503,10.943A0.4,0.4,0,0,1,11.503,10.377L13.377,8.503A0.4,0.4,0,0,1,13.943,8.503L15.497,10.057A0.4,0.4,0,0,1,15.497,10.623L13.623,12.497A0.4,0.4,0,0,1,13.057,12.497Z" />
+</vector>

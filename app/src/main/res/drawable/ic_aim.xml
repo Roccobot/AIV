@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Il tasto 'Mirato', che arma il colore mirato.
+
+     AMMORBIDISCE `Icons.Filled.GpsFixed` di Material, dalla 2.32, e non cambia nient'altro:
+     gli spigoli esterni diventano raccordi da 0,4 unità su 24. È il trattamento che l'utente
+     dà alle icone che disegna lui (2026-09-13: *arrotondare di ~0,4px i bordi esterni*), e
+     la divergenza voluta è la ragione per cui questo file esiste invece di chiamare `Icons`:
+     il criterio vive in `CLAUDE.md`, § 'Come entra un disegno'.
+
+     LO SCARTO CONTRO IL GLIFO DI MATERIAL è 56 pixel su 57.600 (0,10% della tela),
+     misurato rendendo i due a 240px. Il disegno cade nello stesso riquadro.
+
+     IL TRACCIATO È RICOSTRUITO DAL BYTECODE di `material-icons`, cioè dalle chiamate a
+     `PathBuilder` in ordine, che è la sola fonte che non chieda di fidarsi di una memoria.
+     Ogni comando è scritto per esteso e in coordinate assolute, e i numeri sono separati:
+     un tracciato che passa di qui lo legge qualunque parser conforme. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M12,8C9.79,8,8,9.79,8,12C8,14.21,9.79,16,12,16C14.21,16,16,14.21,16,12C16,9.79,14.21,8,12,8ZM20.94,11C20.48,6.83,17.17,3.52,13,3.06L13,1.4A0.4,0.4,0,0,0,12.6,1L11.4,1A0.4,0.4,0,0,0,11,1.4L11,3.06C6.83,3.52,3.52,6.83,3.06,11L1.4,11A0.4,0.4,0,0,0,1,11.4L1,12.6A0.4,0.4,0,0,0,1.4,13L3.06,13C3.52,17.17,6.83,20.48,11,20.94L11,22.6A0.4,0.4,0,0,0,11.4,23L12.6,23A0.4,0.4,0,0,0,13,22.6L13,20.94C17.17,20.48,20.48,17.17,20.94,13L22.6,13A0.4,0.4,0,0,0,23,12.6L23,11.4A0.4,0.4,0,0,0,22.6,11L20.94,11ZM12,19C8.13,19,5,15.87,5,12C5,8.13,8.13,5,12,5C15.87,5,19,8.13,19,12C19,15.87,15.87,19,12,19Z" />
+</vector>

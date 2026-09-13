@@ -420,6 +420,7 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">톤 곡선</string>
     <string name="look_target">타깃</string>
+    <string name="look_auto">자동</string>
     <string name="look_geometry">지오메트리</string>
     <string name="look_crop">자르기</string>
     <string name="look_straighten">수평 맞추기</string>
@@ -445,6 +446,7 @@
     <string name="editor_flip">뒤집기</string>
     <string name="editor_flip_down">상하 뒤집기</string>
     <string name="editor_free">자유</string>
+    <string name="editor_shape_original">원본</string>
     <string name="editor_save">저장</string>
     <string name="editor_apply">적용</string>
     <string name="editor_undo">실행 취소</string>

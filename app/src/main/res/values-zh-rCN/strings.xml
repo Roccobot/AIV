@@ -420,6 +420,7 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">色调曲线</string>
     <string name="look_target">定向</string>
+    <string name="look_auto">自动</string>
     <string name="look_geometry">几何校正</string>
     <string name="look_crop">裁剪</string>
     <string name="look_straighten">拉直</string>
@@ -445,6 +446,7 @@
     <string name="editor_flip">翻转</string>
     <string name="editor_flip_down">垂直翻转</string>
     <string name="editor_free">自由</string>
+    <string name="editor_shape_original">原始</string>
     <string name="editor_save">保存</string>
     <string name="editor_apply">应用</string>
     <string name="editor_undo">撤销</string>

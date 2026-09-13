@@ -436,6 +436,7 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Ton eğrisi</string>
     <string name="look_target">Hedefli</string>
+    <string name="look_auto">Otomatik</string>
     <string name="look_geometry">Geometri</string>
     <string name="look_crop">Kırp</string>
     <string name="look_straighten">Düzleştirme</string>
@@ -461,6 +462,7 @@
     <string name="editor_flip">Yansıt</string>
     <string name="editor_flip_down">Dikey yansıt</string>
     <string name="editor_free">Serbest</string>
+    <string name="editor_shape_original">Orijinal</string>
     <string name="editor_save">Kaydet</string>
     <string name="editor_apply">Uygula</string>
     <string name="editor_undo">Geri al</string>

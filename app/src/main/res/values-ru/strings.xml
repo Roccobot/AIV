@@ -468,6 +468,7 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Тоновая кривая</string>
     <string name="look_target">Точечно</string>
+    <string name="look_auto">Авто</string>
     <string name="look_geometry">Геометрия</string>
     <string name="look_crop">Кадрирование</string>
     <string name="look_straighten">Выравнивание</string>
@@ -493,6 +494,7 @@
     <string name="editor_flip">Отразить</string>
     <string name="editor_flip_down">Отразить по вертикали</string>
     <string name="editor_free">Свободно</string>
+    <string name="editor_shape_original">Исходные</string>
     <string name="editor_save">Сохранить</string>
     <string name="editor_apply">Применить</string>
     <string name="editor_undo">Отменить</string>

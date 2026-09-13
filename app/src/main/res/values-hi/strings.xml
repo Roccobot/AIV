@@ -436,6 +436,7 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">टोन कर्व</string>
     <string name="look_target">लक्षित</string>
+    <string name="look_auto">स्वतः</string>
     <string name="look_geometry">ज्यामिति</string>
     <string name="look_crop">क्रॉप</string>
     <string name="look_straighten">सीधा करें</string>
@@ -461,6 +462,7 @@
     <string name="editor_flip">पलटें</string>
     <string name="editor_flip_down">लंबवत पलटें</string>
     <string name="editor_free">मुक्त</string>
+    <string name="editor_shape_original">मूल</string>
     <string name="editor_save">सहेजें</string>
     <string name="editor_apply">लागू करें</string>
     <string name="editor_undo">पूर्ववत</string>

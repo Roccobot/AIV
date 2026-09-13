@@ -436,6 +436,7 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Tooncurve</string>
     <string name="look_target">Doelgericht</string>
+    <string name="look_auto">Auto</string>
     <string name="look_geometry">Geometrie</string>
     <string name="look_crop">Bijsnijden</string>
     <string name="look_straighten">Rechtzetten</string>
@@ -461,6 +462,7 @@
     <string name="editor_flip">Spiegelen</string>
     <string name="editor_flip_down">Verticaal spiegelen</string>
     <string name="editor_free">Vrij</string>
+    <string name="editor_shape_original">Origineel</string>
     <string name="editor_save">Opslaan</string>
     <string name="editor_apply">Toepassen</string>
     <string name="editor_undo">Ongedaan maken</string>

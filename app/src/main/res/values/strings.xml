@@ -126,6 +126,7 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Tone curve</string>
     <string name="look_target">Targeted</string>
+    <string name="look_auto">Auto</string>
     <string name="look_geometry">Geometry</string>
     <string name="look_crop">Crop</string>
     <string name="look_straighten">Straighten</string>
@@ -151,6 +152,8 @@
     <string name="editor_flip">Flip</string>
     <string name="editor_flip_down">Flip vertically</string>
     <string name="editor_free">Free</string>
+    <!-- Crop shape: the picture's own aspect ratio. -->
+    <string name="editor_shape_original">Original</string>
     <!-- The two crop orientations. They stand on their own as chip labels, so they
          say which way the selection stands, not which way the photograph does. -->
     <string name="editor_tall">Portrait</string>

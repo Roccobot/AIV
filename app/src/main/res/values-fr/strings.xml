@@ -452,6 +452,7 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Courbe des tonalités</string>
     <string name="look_target">Ciblé</string>
+    <string name="look_auto">Auto</string>
     <string name="look_geometry">Géométrie</string>
     <string name="look_crop">Recadrer</string>
     <string name="look_straighten">Redresser</string>
@@ -477,6 +478,7 @@
     <string name="editor_flip">Refléter</string>
     <string name="editor_flip_down">Refléter verticalement</string>
     <string name="editor_free">Libre</string>
+    <string name="editor_shape_original">Original</string>
     <string name="editor_save">Enregistrer</string>
     <string name="editor_apply">Appliquer</string>
     <string name="editor_undo">Annuler</string>

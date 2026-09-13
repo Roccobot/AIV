@@ -97,6 +97,7 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Curva tonale</string>
     <string name="look_target">Mirato</string>
+    <string name="look_auto">Auto</string>
     <string name="look_geometry">Geometria</string>
     <string name="look_crop">Ritaglio</string>
     <string name="look_straighten">Raddrizza</string>
@@ -122,6 +123,7 @@
     <string name="editor_flip">Rifletti</string>
     <string name="editor_flip_down">Rifletti in verticale</string>
     <string name="editor_free">Libero</string>
+    <string name="editor_shape_original">Originale</string>
     <string name="editor_tall">Verticale</string>
     <string name="editor_wide">Orizzontale</string>
     <string name="editor_save">Salva</string>

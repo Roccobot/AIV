@@ -420,6 +420,7 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Kurva nada</string>
     <string name="look_target">Tertarget</string>
+    <string name="look_auto">Otomatis</string>
     <string name="look_geometry">Geometri</string>
     <string name="look_crop">Pangkas</string>
     <string name="look_straighten">Luruskan</string>
@@ -445,6 +446,7 @@
     <string name="editor_flip">Balik</string>
     <string name="editor_flip_down">Balik vertikal</string>
     <string name="editor_free">Bebas</string>
+    <string name="editor_shape_original">Asli</string>
     <string name="editor_save">Simpan</string>
     <string name="editor_apply">Terapkan</string>
     <string name="editor_undo">Urungkan</string>

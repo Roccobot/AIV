@@ -235,6 +235,30 @@ testa, e la prima a cambiare sarebbe stata quella che nessuno guarda.
   uno scarto sopra zero guardi **prima** se è una scala o una traslazione uniforme, che si vede
   dall'inchiostro: stesso centro e lati in proporzione.
 
+⚠️⚠️ **E DALLA `2.32` UN DISEGNO PUÒ NASCERE QUI: I NOVE GLIFI DELL'EDITOR COMPLETO SONO
+AMMORBIDITI DALLA SESSIONE**, ed è sua richiesta (2026-09-13, dopo aver guardato la tavola dei
+glifi: *cerca solo di arrotondare di ~0,4px i bordi esterni, che è il trattamento che ho fatto a
+tutte quelle preparate da me finora*). Fino a quel giorno un disegno di casa arrivava da lui, e
+questo è lo stesso trattamento applicato ai glifi di Material che l'editor già usava.
+- **Che cosa si tocca**: i giunti che svoltano nel verso del proprio sottotracciato, cioè gli
+  spigoli che **sporgono**. Un angolo che rientra è un raccordo interno e non un bordo esterno;
+  un buco prende gli stessi raccordi, perché i suoi angoli sporgono verso l'inchiostro.
+- ⚠️⚠️ **IL RAGGIO NON È COSTANTE, LO È QUANTO IL VERTICE ARRETRA, E SENZA QUELLA MISURA LE
+  PUNTE VENGONO TOZZE**: con 0,4 fisso un angolo di 30 gradi arretra di **1,15 unità** su 24,
+  cioè il 5% della tela, contro le 0,17 di un angolo retto, e le tre stelle di 'Auto' si
+  accorciavano di brutto. Adesso il tetto è l'arretramento dell'angolo retto, quindi sulla
+  famiglia Material, dove gli spigoli sono quasi tutti retti, il raggio resta 0,4 esatto.
+- ⚠️ **Il raccordo è un arco fra due rette e una quadratica dove c'è una curva**: un arco è
+  tangente ai suoi due lati solo se sono rette, mentre una quadratica col controllo nel vertice
+  lo è per costruzione. L'unico caso in casa sono i due spigoli della semiluna del 'Dettaglio'.
+- ⚠️⚠️ **DUE DEI NOVE NON SONO ENTRATI, ED È IL CRITERIO QUI SOPRA APPLICATO ALLA LETTERA**:
+  `Palette` e `Timeline` sono disegnati tutti di curve e cerchi, quindi non hanno un solo
+  spigolo e l'ammorbidimento li lascia a **zero pixel** di scarto. Là vince Material, e i moduli
+  'Colore' e 'Curve' chiamano `Icons` invece di un file.
+- ⚠️ **Il tracciato si ricostruisce dal bytecode**, cioè dalla stessa fonte con cui si misura uno
+  scarto: si legge dalle chiamate a `PathBuilder` in ordine, si raccorda, e si riscrive in
+  coordinate assolute coi comandi per esteso. Gli scarti misurati vivono in testa a ogni file.
+
 ## 🗣️ Come si chiamano le cose
 
 ⚠️⚠️ **LA FASCIA IN CIMA A UNA CARTELLA SI CHIAMA 'INTESTAZIONE', DAL 2026-09-08** (sua
@@ -2049,9 +2073,10 @@ e un interruttore porta l'immagine in **bianco e nero**.
     quello*): l'HSL è uscito prima del Dettaglio. ⚠️ **Prevale sulla sua risposta `subito` a
     `d-dettaglio`** (giro della `2.16`), che metteva il Dettaglio al terzo posto: è un'istruzione
     più recente dello stesso utente, e le note che dànno il Dettaglio per il giro dopo il Colore
-    sono superate. ⚠️⚠️ **E QUELL'ORDINE NON È PIÙ QUELLO DELLA FILA, DALLA `2.31`**, che è
-    Ritaglio, Geometria, Luce, Colore, HSL, Dettaglio, Curve: chi legge qui l'ordine dei gettoni
-    guardi § '✂️ Il modulo Ritaglio, e la fila che è diventata di icone'.
+    sono superate. ⚠️⚠️ **E QUELL'ORDINE NON È PIÙ QUELLO DELLA FILA, DALLA `2.31`**: chi legge
+    qui l'ordine dei gettoni guardi § '✂️ Il modulo Ritaglio, e la fila che è diventata di icone'.
+    ⚠️ **Dalla `2.32` il Dettaglio è l'ultimo**, cioè dopo le Curve, ed è sua istruzione (giro
+    della `2.31`: *per ora fa' un ulteriore spostamento: modulo 'Dettagli' ultimo in fondo*).
   - ⚠️⚠️ **E DALLA `2.23` NE ESISTE UNO IN PIÙ CHE NON È UN MODULO**: l'**anteprima a risoluzione
     piena quando si ingrandisce**, che è la sua risposta `pieno` a `d-dett-vedere` (giro della
     `2.22`). Non porta cursori: ridecodifica dal file la sola finestra inquadrata, perché oggi
@@ -2189,6 +2214,28 @@ perché il programma non è mai partito**:
   medio vale 0,22, quindi la maschera delle ombre gli dava 0,61 e il cursore sollevava i mezzi
   toni come fa la luminosità. Adesso la maschera si costruisce sul valore percettivo, che è la
   sola cosa che distingue quei due cursori dal terzo.
+
+⚠️⚠️ **IL TASTO 'AUTO' IMITA 'COLORE AUTOMATICO' DI PHOTOSHOP, DALLA `2.32`, ED È SUA RICHIESTA**
+(campo libero del giro della `2.31`: *aggiungi un tasto 'Auto' che imita 'Colore automatico' di
+Photoshop. Può stare a sinistra di 'Annulla', solo icona; dev'essere annullabile*). Quel comando fa
+due cose e non una: porta i due estremi dell'intervallo tonale al nero e al bianco, e toglie la
+dominante. Qui diventano **quattro cursori**, i due punti della Luce e i due del bilanciamento, e
+nessun altro si muove.
+- ⚠️⚠️ **SCRIVE NEI CURSORI E NON DIPINGE NIENTE, ED È QUELLO CHE LO RENDE ANNULLABILE**: quello
+  che ne esce è un `Look` come un altro, quindi entra nella storia dei passi e 'Annulla' lo disfa
+  senza una strada sua. ⚠️ **E si vede**: dopo un 'Auto' si continua a mano da dove il conto è
+  arrivato.
+- ⚠️ **I due conti sono le INVERSE delle formule dello shader** e non due tarature: per portare il
+  percentile basso a zero serve esattamente `-lo / POINT_SHIFT`, e la dominante si toglie
+  invertendo `balance`, cioè con due rapporti. Il perché di ognuno, il taglio dello 0,5% e la
+  guardia dell'immagine piatta vivono in `AutoLook.kt`.
+- ⚠️ **Legge l'anteprima e la campiona**: percentili e medie su duecentomila punti valgono quanto
+  su due milioni, e leggere il file pieno costerebbe una pausa per una cifra che non si muove di
+  un livello.
+- ⚠️ **Il glifo è la bacchetta di Material ammorbidita**, come i sette dei moduli e quello del
+  mirato: il criterio e la misura vivono in § '🖌️ Come entra un disegno'. Nasce comunque
+  provvisorio, come i due della `1.80`: se non dice abbastanza, il giro di collaudo lo chiede e
+  lui manda il suo.
 
 ⚠️⚠️ **I TRE COMANDI DELLA STORIA SONO ICONE DALLA `2.15`, ED È IL SUO RISCONTRO** (voce
 `luce-storia`: *'Annulla' e 'Ripristina' devono essere icone, non testo*). I glifi sono quelli
@@ -2543,6 +2590,37 @@ della `2.21`). Il tasto **'Mirato'** arma una modalità in cui il dito lavora **
 invece che sui comandi, e i due moduli che lo offrono rispondono in due modi, che sono le loro due
 nature: nelle **Curve** il tocco prende il punto al tono toccato e il trascinamento verticale lo
 muove; nell'**HSL** il tocco **sceglie la fascia** del colore toccato.
+
+⚠️⚠️ **MA DALLA `2.32` NELLE CURVE IL MIRATO NON C'È PIÙ, ED È LA SUA RISPOSTA `via` A
+`d-mirato-curve`** (giro della `2.31`: *via, e si torna subito a zoomare/spostare l'immagine
+toccandola*). Quindi il tasto vive nel **solo** HSL, e su un grafico che si governa col dito il
+palco torna a fare quello che fa dappertutto: pinza, panoramica, doppio tocco e confronto.
+- ⚠️ **Con lui cadono le due cose che distinguevano i due modi**: il gesto resta uno (si sceglie
+  la fascia quando il dito si alza) e `Aim` non ha più tre stati da dichiarare. Chi legge qui che
+  i moduli col mirato sono due sappia che era vero fino alla `2.31`.
+- ⚠️ **Il tasto è un'icona dalla `2.32`**, come i sette gettoni dei moduli: il nome resta la
+  descrizione parlata, che è quello che un lettore di schermo annuncia e quello che il banco
+  cerca.
+
+⚠️⚠️ **E LA LENTE VIVE IN UNA TELA SUA, DALLA `2.32`: È QUELLO CHE LA RENDE VELOCE** (riscontro
+del giro della `2.31`, voce `geo-lente` non approvata: *continua ad essere lento e a non mostrare
+l'immagine deformata*). Un `Canvas` si ridisegna quando cambia uno stato che il suo **disegno**
+legge: fino alla `2.31` il tondo viveva dentro il disegno del palco, quindi ogni pixel di dito
+invalidava la tela dell'immagine, cioè faceva rigirare tutto il conto dello sviluppo su tutta
+l'anteprima (col Dettaglio acceso sono diciotto campioni per pixel) sessanta volte al secondo.
+- ⚠️ **La seconda tela non porta nessun `pointerInput`**, quindi non entra nella hit-test e non
+  può rubare i tocchi al palco, che è la trappola del `MenuGuard` della `1.70`.
+- ⚠️ **Il conto della vista si rifà invece di passarselo**: tutte e due le tele leggono scala e
+  spostamento nella propria passata di disegno, e un valore catturato porterebbe la geometria di
+  un fotogramma prima.
+- ⚠️⚠️ **L'ALTRA METÀ DEL SUO RISCONTRO NON SI RIPRODUCE, E IL BANCO DICE IL CONTRARIO**: dentro
+  il tondo l'immagine **è** quella deformata, misurata a pixel (`SviluppoTest`, la lente col dito
+  giù confrontata fra geometria ferma e mossa). ⚠️⚠️ **E LA STESSA MISURA DICE PERCHÉ LUI PUÒ NON
+  VEDERLA: AL CENTRO DELL'IMMAGINE UNA DEFORMAZIONE NON C'È PER COSTRUZIONE** (toccando il centro
+  cambiavano 103 pixel su 10.421, cioè l'1%). Il raddrizzamento, i due keystone e la distorsione
+  tengono fermo il centro e crescono col raggio, e la lente ingrandisce sei volte: quello che si
+  inquadra al centro è il punto in cui non succede niente. Chi lo prova tocchi **lontano dal
+  centro**, e la voce di collaudo glielo dice passo passo.
 - ⚠️⚠️ **NELL'HSL IL TRASCINAMENTO NON MUOVE NIENTE, ED È UNA SCELTA DICHIARATA**: là i cursori
   sono tre, e sceglierne uno per il dito sarebbe una decisione che lui non ha preso. Il giro della
   `2.23` lo chiede con `d-mirato-hsl`, e la sua risposta è **`niente`**.
@@ -2844,9 +2922,33 @@ squadrette, il velo intorno, i terzi, la presa del dito e il lato minimo vivono 
 `EditorScreen.kt` (`cropOverlay`, `grabbed`, `dragged`, `cropBox`, `cropFractions`), e questo palco
 li **chiama**. Due disegni dello stesso comando divergerebbero al primo ritocco, e chi lo vedrebbe
 per primo è lui, che i due editor li apre dalla stessa immagine.
-- ⚠️ **Non ci sono i gettoni dei formati**, cioè il rettangolo è libero: là sono una fila di
-  pastiglie in più in una scheda che ne porta già due, e il giro di collaudo chiede se servono
-  prima di portarli.
+- ⚠️⚠️ **E DALLA `2.32` CI SONO ANCHE I FORMATI E LE DUE CENTRATURE, ED È LA SUA RISPOSTA
+  `formati` A `d-crop-formati`** (giro della `2.31`: *portali, con le centrature*). Fino alla
+  `2.31` il rettangolo era libero, e senza una forma scelta le due centrature non avrebbero avuto
+  niente da centrare: con lei ce l'hanno, quindi la fila della posa passa da tre tasti a cinque,
+  cioè agli stessi dell'editor di casa.
+  - ⚠️⚠️ **'ORIGINALE' È UNA FORMA IN PIÙ, ED È SUA RICHIESTA** (2026-09-13: *tra i vincoli di
+    proporzione dev'esserci anche 'Originale', ma scelta di default resta 'Libera'*). È la sola
+    il cui rapporto **non è scritto nel codice**: lo porta l'immagine, quindi in `Shape` il
+    rapporto di ogni forma è una **funzione** del riquadro invece di una costante. Nel verso
+    naturale dell'immagine non taglia niente per costruzione, che è la proprietà da cui dipende
+    il senza perdita.
+  - ⚠️⚠️ **E LE FILE DEI GETTONI SONO DIVENTATE DUE, PER UNA MISURA**: con 'Originale' le forme
+    che si dicono a parole sono **due**, e su uno schermo da 360dp la fila unica coi pesi dava
+    loro una cinquantina di dp netti a testa, cioè le troncava col punto fermo (in italiano
+    'Originale' ne chiede una sessantina, in tedesco e in russo di più). Adesso le due parole
+    vanno sopra e le quattro proporzioni sotto, il pezzo è **uno solo** (`ShapeRows`, in
+    `EditorScreen.kt`) e lo chiamano tutti e due gli editor. Il prezzo è una riga di 32dp che il
+    palco non ha più, ed è dichiarato.
+- ⚠️⚠️ **L'IMMAGINE LASCIA L'ARIA ALLE SQUADRETTE, DALLA `2.32`, ED È IL SUO RISCONTRO** (giro
+  della `2.31`, voce `crop-modulo` non approvata: *all'avvio del modulo gli angoli di ritaglio non
+  sono del tutto visibili*). Una squadretta si disegna **a cavallo** del bordo del rettangolo,
+  quindi metà del suo spessore cade fuori dall'immagine: col riquadro a filo del palco, che
+  ritaglia il proprio contenuto, quella metà spariva. Adesso l'immagine si adatta a una stanza
+  ridotta di `CROP_AIR` per lato, che è esattamente `HANDLE_THICK + GRIP_HALO`, cioè quanto la
+  squadretta sporge.
+  - ⚠️ **L'aria vale zero quando il ritaglio non è in scena**, o l'immagine si rimpicciolirebbe
+    negli altri sei moduli per far posto a niente.
 - ⚠️⚠️ **È IL PRIMO MODULO CHE PRENDE IL DITO SULL'IMMAGINE**: gli altri sei mettono i comandi nella
   scheda, questo li mette **sul palco**, quindi finché è in scena il palco fa solo quello (pinza,
   panoramica, doppio tocco e confronto restano fermi), che è la stessa modalità dichiarata del

@@ -436,6 +436,7 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">منحنی تون</string>
     <string name="look_target">هدفمند</string>
+    <string name="look_auto">خودکار</string>
     <string name="look_geometry">هندسه</string>
     <string name="look_crop">برش</string>
     <string name="look_straighten">تراز کردن</string>
@@ -461,6 +462,7 @@
     <string name="editor_flip">بازتاب</string>
     <string name="editor_flip_down">بازتاب عمودی</string>
     <string name="editor_free">آزاد</string>
+    <string name="editor_shape_original">اصلی</string>
     <string name="editor_save">ذخیره</string>
     <string name="editor_apply">اعمال</string>
     <string name="editor_undo">واگرد</string>
