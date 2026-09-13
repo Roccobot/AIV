@@ -436,6 +436,7 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Tonwertkurve</string>
     <string name="look_target">Gezielt</string>
+    <string name="look_auto">Auto</string>
     <string name="look_geometry">Geometrie</string>
     <string name="look_crop">Zuschneiden</string>
     <string name="look_straighten">Ausrichten</string>
@@ -461,6 +462,7 @@
     <string name="editor_flip">Spiegeln</string>
     <string name="editor_flip_down">Vertikal spiegeln</string>
     <string name="editor_free">Frei</string>
+    <string name="editor_shape_original">Original</string>
     <string name="editor_save">Speichern</string>
     <string name="editor_apply">Anwenden</string>
     <string name="editor_undo">Rückgängig</string>

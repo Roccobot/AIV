@@ -436,6 +436,7 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">టోన్ కర్వ్</string>
     <string name="look_target">లక్ష్యం</string>
+    <string name="look_auto">ఆటో</string>
     <string name="look_geometry">జ్యామితి</string>
     <string name="look_crop">కత్తిరించు</string>
     <string name="look_straighten">సరిచేయి</string>
@@ -461,6 +462,7 @@
     <string name="editor_flip">తిప్పు</string>
     <string name="editor_flip_down">నిలువుగా తిప్పు</string>
     <string name="editor_free">స్వేచ్ఛ</string>
+    <string name="editor_shape_original">అసలు</string>
     <string name="editor_save">భద్రపరచండి</string>
     <string name="editor_apply">వర్తింపజేయి</string>
     <string name="editor_undo">చర్యరద్దు</string>

@@ -420,6 +420,7 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">トーンカーブ</string>
     <string name="look_target">ターゲット</string>
+    <string name="look_auto">自動</string>
     <string name="look_geometry">ジオメトリ</string>
     <string name="look_crop">切り抜き</string>
     <string name="look_straighten">角度補正</string>
@@ -445,6 +446,7 @@
     <string name="editor_flip">反転</string>
     <string name="editor_flip_down">上下反転</string>
     <string name="editor_free">自由</string>
+    <string name="editor_shape_original">元の比率</string>
     <string name="editor_save">保存</string>
     <string name="editor_apply">適用</string>
     <string name="editor_undo">元に戻す</string>

@@ -436,6 +436,7 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">ٹون کرو</string>
     <string name="look_target">ہدف شدہ</string>
+    <string name="look_auto">خودکار</string>
     <string name="look_geometry">جیومیٹری</string>
     <string name="look_crop">تراشنا</string>
     <string name="look_straighten">سیدھا کرنا</string>
@@ -461,6 +462,7 @@
     <string name="editor_flip">پلٹیں</string>
     <string name="editor_flip_down">عمودی پلٹیں</string>
     <string name="editor_free">آزاد</string>
+    <string name="editor_shape_original">اصل</string>
     <string name="editor_save">محفوظ کریں</string>
     <string name="editor_apply">لاگو کریں</string>
     <string name="editor_undo">کالعدم</string>

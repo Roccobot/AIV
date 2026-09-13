@@ -452,6 +452,7 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Curva de tons</string>
     <string name="look_target">Direcionado</string>
+    <string name="look_auto">Auto</string>
     <string name="look_geometry">Geometria</string>
     <string name="look_crop">Cortar</string>
     <string name="look_straighten">Endireitar</string>
@@ -477,6 +478,7 @@
     <string name="editor_flip">Espelhar</string>
     <string name="editor_flip_down">Espelhar na vertical</string>
     <string name="editor_free">Livre</string>
+    <string name="editor_shape_original">Original</string>
     <string name="editor_save">Salvar</string>
     <string name="editor_apply">Aplicar</string>
     <string name="editor_undo">Desfazer</string>

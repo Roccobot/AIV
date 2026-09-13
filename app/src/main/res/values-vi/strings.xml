@@ -420,6 +420,7 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Đường cong tông màu</string>
     <string name="look_target">Nhắm mục tiêu</string>
+    <string name="look_auto">Tự động</string>
     <string name="look_geometry">Hình học</string>
     <string name="look_crop">Cắt</string>
     <string name="look_straighten">Làm thẳng</string>
@@ -445,6 +446,7 @@
     <string name="editor_flip">Lật</string>
     <string name="editor_flip_down">Lật dọc</string>
     <string name="editor_free">Tự do</string>
+    <string name="editor_shape_original">Gốc</string>
     <string name="editor_save">Lưu</string>
     <string name="editor_apply">Áp dụng</string>
     <string name="editor_undo">Hoàn tác</string>

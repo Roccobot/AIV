@@ -366,7 +366,7 @@ fun EditorScreen(
                     loupe = with(density) { LOUPE_SIDE.toPx() },
                     edge = with(density) { LOUPE_EDGE.toPx() },
                     onCrop = { crop = it },
-                    keep = shape.value(lay)
+                    keep = shape.value(lay, aspect)
                 )
             }
         }
@@ -391,7 +391,11 @@ fun EditorScreen(
                  * selezione ridotta per sbaglio non avrebbe più un modo rapido di tornare
                  * grande, e 'Ripristina' azzererebbe anche i passi confermati.
                  */
-                crop = if (one == shape) one.fit(aspect, lay) else reshaped(crop, aspect, one.value(lay))
+                crop = if (one == shape) {
+                    one.fit(aspect, lay)
+                } else {
+                    reshaped(crop, aspect, one.value(lay, aspect))
+                }
                 shape = one
             },
             onLay = { one ->
@@ -536,13 +540,13 @@ private fun insideOf(outer: ImageEdit.Crop, inner: ImageEdit.Crop): ImageEdit.Cr
 
 
 /** La selezione portata a metà larghezza, senza cambiare misura. */
-private fun centredAcross(crop: ImageEdit.Crop): ImageEdit.Crop {
+internal fun centredAcross(crop: ImageEdit.Crop): ImageEdit.Crop {
     val w = crop.right - crop.left
     return ImageEdit.Crop((1f - w) / 2f, crop.top, (1f + w) / 2f, crop.bottom)
 }
 
 /** La selezione portata a metà altezza, senza cambiare misura. */
-private fun centredDown(crop: ImageEdit.Crop): ImageEdit.Crop {
+internal fun centredDown(crop: ImageEdit.Crop): ImageEdit.Crop {
     val h = crop.bottom - crop.top
     return ImageEdit.Crop(crop.left, (1f - h) / 2f, crop.right, (1f + h) / 2f)
 }
@@ -560,7 +564,7 @@ private fun centredDown(crop: ImageEdit.Crop): ImageEdit.Crop {
  * ⚠️ **Se non ci sta si rimpicciolisce, e solo dopo si sposta**: la forma è quello che si è
  * chiesto, la posizione è quello che si può cedere. Come in [flipped].
  */
-private fun reshaped(crop: ImageEdit.Crop, frame: Float, want: Float?): ImageEdit.Crop {
+internal fun reshaped(crop: ImageEdit.Crop, frame: Float, want: Float?): ImageEdit.Crop {
     if (want == null || frame <= 0f) return crop
     val area = (crop.right - crop.left) * (crop.bottom - crop.top)
     if (area <= 0f) return crop
@@ -705,54 +709,13 @@ private fun EditorSheet(
                 .padding(top = SHEET_TOP),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            /*
-             * ⚠️ Le proporzioni sono CINQUE e non otto, perché le stesse quattro forme lette
-             * nell'altro verso sono le altre quattro: '2:3' e '3:2' non sono due scelte, sono
-             * la stessa scelta con l'orientamento girato. Vedi [Shape].
-             *
-             * ⚠️⚠️ **PRENDONO TUTTA LA LARGHEZZA, ed è una richiesta** (utente, 2026-09-01:
-             * *fa' in modo che le 5 proporzioni occupino tutto lo spazio orizzontale della
-             * bottomsheet: è più elegante e ordinato*). Prima la fila scorreva di lato e
-             * finiva dove finivano le parole, lasciando un vuoto a destra.
-             * ⚠️⚠️ **MA NON a celle uguali, e la ragione è una misura**: su uno schermo da
-             * 360dp, tolti i due margini da 24 e i quattro distacchi da 8, a ogni quinto
-             * restano una sessantina di dp, e un chip di Material se ne mangia 32 di rientri.
-             * Nei 28 che avanzano non ci sta nemmeno '9:16', figurarsi 'Свободно', che è il
-             * 'Libero' russo. Celle uguali vorrebbe dire etichette tagliate in mezza Europa.
-             * ⚠️ **Perciò una `Row` con i PESI**: la fila arriva ai due bordi e 'Libero' si
-             * prende la cella più larga, mentre le quattro proporzioni ne dividono il resto in
-             * parti uguali. Nella lingua in cui una parola non ci sta, il chip la **accorcia con
-             * i tre punti**, che è quello che fa `SheetChip`.
-             * ⚠️⚠️ **FINO ALLA `1.78` QUESTA NOTA DESCRIVEVA UNA `FlowRow` CHE NON C'È, e per
-             * giunta sconsigliava per esteso la soluzione adottata**: prometteva l'andata a capo
-             * e il rimando non si risolveva su niente, perché in questo file `FlowRow` non è
-             * nemmeno importata. Il componente esiste, ma in un altro file, e questo rendeva la
-             * ricerca ancora più fuorviante.
-             */
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = STAGE_SIDE).oneOf(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                /*
-                 * ⚠️⚠️ **'Libero' È PIÙ LARGO DEGLI ALTRI QUATTRO, e le celle uguali sono
-                 * durate una versione** (correzione dell'utente, 2026-09-01, voce `ed-chip`
-                 * del collaudo: *la richiesta non era che fossero tutte uguali, ma che
-                 * occupassero tutto lo spazio*). Le quattro proporzioni portano numeri che
-                 * **non si traducono**, quindi la loro larghezza è nota e non cresce mai;
-                 * 'Libero' è l'unica parola vera della fila, ed è quella che in tedesco, in
-                 * russo o in tamil può aver bisogno di posto. Dare a tutti la stessa cella
-                 * vuol dire tararla sul caso peggiore di uno solo, e sprecarla per quattro.
-                 */
-                for (one in Shape.entries) {
-                    SheetChip(
-                        text = one.text(lay) ?: stringResource(R.string.editor_free),
-                        selected = one == shape,
-                        enabled = live,
-                        onClick = { onShape(one) },
-                        modifier = Modifier.weight(if (one == Shape.FREE) FREE_ROOM else 1f)
-                    )
-                }
-            }
+            ShapeRows(
+                shape = shape,
+                lay = lay,
+                enabled = live,
+                onShape = onShape,
+                modifier = Modifier.padding(horizontal = STAGE_SIDE)
+            )
 
             /*
              * ⚠️⚠️ **DUE TASTI CHE SI ESCLUDONO, e cambiarli RIBALTA la selezione sul posto**
@@ -937,7 +900,7 @@ private fun EditorSheet(
  * accorcia invece di sbordare fuori dal chip.
  */
 @Composable
-private fun SheetChip(
+internal fun SheetChip(
     text: String,
     selected: Boolean,
     enabled: Boolean,
@@ -981,13 +944,64 @@ private fun SheetChip(
 }
 
 /**
- * Quanto è più larga la cella di 'Libero' rispetto a una delle quattro proporzioni.
+ * Le sei forme del ritaglio, in **due file**: le due che si dicono a parole sopra, le quattro
+ * proporzioni sotto.
  *
- * ⚠️ Con 1,6 la fila resta piena da bordo a bordo e la parola prende quasi il 29% invece
- * del 20: su uno schermo da 360dp sono una settantina di dp netti, che bastano al 'Libero'
- * di tutte e ventotto le lingue. Vedi la nota sulla fila dei chip.
+ * ⚠️⚠️ **È UN PEZZO SOLO PERCHÉ I DUE EDITOR MOSTRANO LA STESSA FILA**: dalla `2.31` il modulo
+ * Ritaglio dell'editor completo chiama lo stesso ritaglio di casa, e dalla `2.32` anche gli
+ * stessi formati. Scritta due volte, la fila divergerebbe al primo ritocco, e a vederlo sarebbe
+ * lui, che i due editor li apre dalla stessa immagine.
+ *
+ * ⚠️⚠️ **PRENDONO TUTTA LA LARGHEZZA, ed è una richiesta** (utente, 2026-09-01: *fa' in modo
+ * che le 5 proporzioni occupino tutto lo spazio orizzontale della bottomsheet: è più elegante e
+ * ordinato*). Prima la fila scorreva di lato e finiva dove finivano le parole, lasciando un
+ * vuoto a destra.
+ *
+ * ⚠️⚠️ **LE FILE SONO DUE DALLA `2.32`, E PRIMA ERA UNA SOLA COI PESI: A DIVIDERLA È STATA UNA
+ * MISURA.** Fino alla `2.31` le forme erano cinque, e l'unica parola vera era 'Libero', che si
+ * prendeva una cella più larga (`1,6` contro `1`) mentre le quattro proporzioni dividevano il
+ * resto. Con 'Originale' le parole vere diventano **due**, e su uno schermo da 360dp quel conto
+ * dà 63dp a testa, cioè una cinquantina netti dentro il chip: 'Originale' ne chiede una
+ * sessantina in italiano, e di più in tedesco o in russo. Cioè la fila unica avrebbe troncato
+ * col punto fermo proprio le due voci che una parola ce l'hanno.
+ * ⚠️ **Divise, ogni parola prende metà riga** (una cinquantina di dp in più di prima) e i
+ * quattro numeri, che non si traducono mai, stanno larghi. Il prezzo è una riga di 32dp che il
+ * palco non ha più, ed è dichiarato.
+ * ⚠️ **Il gruppo di scelta è UNO** (`oneOf` sulla colonna e non sulle due righe): le sei voci
+ * sono una scelta sola, e due gruppi da due e da quattro direbbero a un lettore di schermo che
+ * le scelte sono due.
  */
-private const val FREE_ROOM = 1.6f
+@Composable
+internal fun ShapeRows(
+    shape: Shape,
+    lay: Lay,
+    enabled: Boolean,
+    onShape: (Shape) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val (parole, numeri) = Shape.entries.partition { it.word != null }
+    Column(
+        modifier = modifier.fillMaxWidth().oneOf(),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        for (fila in listOf(parole, numeri)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                for (one in fila) {
+                    SheetChip(
+                        text = one.word?.let { stringResource(it) } ?: one.text(lay).orEmpty(),
+                        selected = one == shape,
+                        enabled = enabled,
+                        onClick = { onShape(one) },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
+    }
+}
 
 /** Le misure del chip di casa: quelle di Material, tranne il rientro. */
 private val CHIP_TALL = 32.dp
@@ -1024,7 +1038,7 @@ internal val SHEET_TOP = 16.dp
 internal val TEXT_BUTTON_PAD = 12.dp
 
 /** Come sta la selezione: in piedi o coricata. Vedi i due tasti in [EditorScreen]. */
-private enum class Lay(@StringRes val label: Int) {
+internal enum class Lay(@StringRes val label: Int) {
     TALL(R.string.editor_tall),
     WIDE(R.string.editor_wide)
 }
@@ -1032,29 +1046,51 @@ private enum class Lay(@StringRes val label: Int) {
 /**
  * Con che forma si ritaglia, **senza** dire da che parte sta.
  *
- * ⚠️⚠️ **QUATTRO FORME E NON OTTO, ed è la struttura che la richiesta dell'utente impone**:
- * '2:3' e '3:2' non sono due scelte diverse, sono la stessa forma letta nei due versi, e chi
- * le tiene separate deve poi tenere d'accordo due elenchi ogni volta che l'orientamento
- * cambia. Qui il verso lo dà [Lay], e la forma resta selezionata mentre gli si gira intorno.
+ * ⚠️⚠️ **QUATTRO PROPORZIONI E NON OTTO, ed è la struttura che la richiesta dell'utente
+ * impone**: '2:3' e '3:2' non sono due scelte diverse, sono la stessa forma letta nei due
+ * versi, e chi le tiene separate deve poi tenere d'accordo due elenchi ogni volta che
+ * l'orientamento cambia. Qui il verso lo dà [Lay], e la forma resta selezionata mentre gli si
+ * gira intorno.
  * ⚠️ **Il valore è larghezza diviso altezza in verticale**, e in orizzontale è il suo
  * reciproco: un numero solo per forma, e l'inversione è una divisione.
  * ⚠️ **`null` è 'libero'**: con un numero anche per quello servirebbe un caso speciale in
  * ogni conto, mentre così il caso speciale è uno solo e sta qui.
- * ⚠️ **Le etichette NON sono risorse, tranne 'Libero'**: '16:9' si scrive uguale in tutte le
+ * ⚠️ **Le etichette NON sono risorse quando sono numeri**: '16:9' si scrive uguale in tutte le
  * lingue, e metterlo in ventotto file vorrebbe dire ventotto occasioni di scriverlo storto
- * per zero traduzioni.
+ * per zero traduzioni. Le due forme che si dicono a parole portano invece la loro, in [word].
+ *
+ * ⚠️⚠️ **'ORIGINALE' È ARRIVATA CON LA `2.32`, ED È SUA RICHIESTA** (2026-09-13: *tra i
+ * vincoli di proporzione dev'esserci anche 'Originale', ma scelta di default resta 'Libera'*).
+ * È la sola forma il cui rapporto **non è un numero scritto qui**: lo porta l'immagine, quindi
+ * il valore arriva dal `frame` che si passa a [value] e a [fit].
+ * ⚠️ **Quindi il rapporto è una funzione e non una costante, per tutte e sei**: un campo
+ * `Float?` più un booleano 'questa lo prende dall'immagine' direbbe la stessa cosa in due
+ * pezzi, e il conto finirebbe in chi legge invece che qui.
+ * ⚠️ **Nel verso naturale dell'immagine 'Originale' vale l'immagine INTERA**, per costruzione:
+ * [fit] con un rapporto uguale al frame non trova niente da togliere. Nell'altro verso dà lo
+ * stesso rapporto trasposto, che è come si comportano anche le quattro proporzioni.
  */
-private enum class Shape(val tall: Float?, private val up: String?, private val flat: String?) {
-    FREE(null, null, null),
-    ONE(1f, "1:1", "1:1"),
-    TWO_THREE(2f / 3f, "2:3", "3:2"),
-    THREE_FOUR(3f / 4f, "3:4", "4:3"),
-    NINE_SIXTEEN(9f / 16f, "9:16", "16:9");
+internal enum class Shape(
+    private val tall: (Float) -> Float?,
+    @StringRes val word: Int?,
+    private val up: String?,
+    private val flat: String?
+) {
+    FREE({ null }, R.string.editor_free, null, null),
+    ORIGINAL({ if (it > 0f) min(it, 1f / it) else null }, R.string.editor_shape_original, null, null),
+    ONE({ 1f }, null, "1:1", "1:1"),
+    TWO_THREE({ 2f / 3f }, null, "2:3", "3:2"),
+    THREE_FOUR({ 3f / 4f }, null, "3:4", "4:3"),
+    NINE_SIXTEEN({ 9f / 16f }, null, "9:16", "16:9");
 
-    /** Larghezza diviso altezza in questo verso, e `null` se la forma è libera. */
-    fun value(lay: Lay): Float? = tall?.let { if (lay == Lay.TALL) it else 1f / it }
+    /**
+     * Larghezza diviso altezza in questo verso dentro un'immagine larga [frame] volte la sua
+     * altezza, e `null` se la forma è libera.
+     */
+    fun value(lay: Lay, frame: Float): Float? =
+        tall(frame)?.let { if (lay == Lay.TALL) it else 1f / it }
 
-    /** Come si scrive in questo verso, e `null` per 'libero', che è una risorsa. */
+    /** Come si scrive in questo verso, e `null` per le due che portano una parola in [word]. */
     fun text(lay: Lay): String? = if (lay == Lay.TALL) up else flat
 
     /**
@@ -1062,7 +1098,7 @@ private enum class Shape(val tall: Float?, private val up: String?, private val 
      * altezza, centrato, in frazioni.
      */
     fun fit(frame: Float, lay: Lay): ImageEdit.Crop {
-        val want = value(lay) ?: return ImageEdit.Crop.WHOLE
+        val want = value(lay, frame) ?: return ImageEdit.Crop.WHOLE
         return if (want >= frame) {
             // Sta largo quanto l'immagine, e avanza sopra e sotto.
             val h = (frame / want).coerceAtMost(1f)
@@ -1091,7 +1127,7 @@ private fun startLay(base: Bitmap?): Lay =
  * dopo, se serve, si sposta il centro quel tanto che basta a rientrare: la forma è la cosa
  * che si è chiesta, la posizione è quella che si può cedere.
  */
-private fun flipped(crop: ImageEdit.Crop, frame: Float): ImageEdit.Crop {
+internal fun flipped(crop: ImageEdit.Crop, frame: Float): ImageEdit.Crop {
     if (frame <= 0f) return crop
     val cx = (crop.left + crop.right) / 2f
     val cy = (crop.top + crop.bottom) / 2f

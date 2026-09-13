@@ -436,6 +436,7 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Mkunjo wa toni</string>
     <string name="look_target">Lengwa</string>
+    <string name="look_auto">Otomatiki</string>
     <string name="look_geometry">Jiometri</string>
     <string name="look_crop">Punguza</string>
     <string name="look_straighten">Nyoosha</string>
@@ -461,6 +462,7 @@
     <string name="editor_flip">Geuza</string>
     <string name="editor_flip_down">Geuza wima</string>
     <string name="editor_free">Huru</string>
+    <string name="editor_shape_original">Asili</string>
     <string name="editor_save">Hifadhi</string>
     <string name="editor_apply">Tumia</string>
     <string name="editor_undo">Tendua</string>

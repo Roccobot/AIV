@@ -468,6 +468,7 @@
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Krzywa tonalna</string>
     <string name="look_target">Celowany</string>
+    <string name="look_auto">Auto</string>
     <string name="look_geometry">Geometria</string>
     <string name="look_crop">Kadrowanie</string>
     <string name="look_straighten">Prostowanie</string>
@@ -493,6 +494,7 @@
     <string name="editor_flip">Odbij</string>
     <string name="editor_flip_down">Odbij w pionie</string>
     <string name="editor_free">Dowolne</string>
+    <string name="editor_shape_original">Oryginalne</string>
     <string name="editor_save">Zapisz</string>
     <string name="editor_apply">Zastosuj</string>
     <string name="editor_undo">Cofnij</string>
