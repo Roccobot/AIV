@@ -557,6 +557,7 @@
     <string name="settings_buttons_menu">Menu pliku</string>
     <string name="settings_buttons_turn">Edytor: obracanie i wyśrodkowanie</string>
     <string name="settings_buttons_steps">Edytor: cofanie i stosowanie</string>
+    <string name="settings_buttons_mods">Pełny edytor: moduły</string>
     <string name="settings_labels">Etykiety pod ikonami</string>
     <string name="settings_labels_desc">Po wyłączeniu panele ikon stają się bardziej zwarte. Menu listy pozostają bez zmian.</string>
     <string name="settings_last_mark">Oznaczenie ostatnio oglądanego elementu</string>

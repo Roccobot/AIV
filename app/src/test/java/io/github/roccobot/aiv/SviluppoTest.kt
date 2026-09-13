@@ -8,6 +8,7 @@ import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.graphics.toPixelMap
@@ -1701,7 +1702,14 @@ class SviluppoTest {
         assertEquals("il punto di bianco", 0.8f, fatto.light.whites, 0.05f)
         assertEquals("un grigio non ha dominante", 0f, fatto.chroma.temp, 0.02f)
         assertEquals(0f, fatto.chroma.tint, 0.02f)
-        assertTrue("'Auto' non tocca gli altri cursori", fatto.light.exposure == 0f)
+        /*
+         * ⚠️⚠️ **QUESTA RIGA È CAMBIATA CON LA `2.34`, ED È UNA DECISIONE E NON UN DIFETTO**: fino
+         * alla `2.33` misurava che l'esposizione restasse a zero, perché 'Auto' toccava quattro
+         * cursori; dalla sua risposta `piu` a `d-auto-quanto` ne tocca sei. Su questa scala la
+         * mediana è già al grigio di mezzo, quindi il guadagno non ha niente da correggere, ed è la
+         * misura giusta da fare qui: dice che il conto nuovo non muove quello che è già a posto.
+         */
+        assertEquals("una mediana già al centro non chiede guadagno", 0f, fatto.light.exposure, 0.1f)
 
         val piatta = IntArray(100) { Color.rgb(128, 128, 128) }
         val ferma = Auto.tuned(Look.NONE, piatta)
@@ -1719,7 +1727,119 @@ class SviluppoTest {
     }
 
     /**
-     * **Caso 40: 'Auto' scrive nei cursori, e quello che scrive si disfa.**
+     * **Caso 40: la fila dei moduli segue l'ordine scelto, e li porta tutti e sette.**
+     *
+     * ⚠️⚠️ **È SUA RICHIESTA** (2026-09-13: *voglio poter ordinare anche i pulsanti dei moduli*), e
+     * quello che può rompersi in silenzio è la **copertura**: l'ordine è un elenco di gettoni e i
+     * moduli sono una tabella, quindi un modulo nuovo che si dimenticasse di dichiarare la propria
+     * chiave sparirebbe dalla fila senza che niente dia errore. La prima misura conta i sette, la
+     * seconda guarda che si dispongano dove l'ordine dice.
+     * ⚠️ **Si misura la POSIZIONE e non la sequenza dei nodi**: l'albero di Compose li elenca
+     * nell'ordine in cui li compone, che è quello dell'ordine, quindi una prova che leggesse quello
+     * sarebbe verde anche con una fila disegnata al contrario.
+     * ⚠️ **L'ordine di prova è rovesciato** e non spostato di uno: così ogni gettone cambia posto,
+     * e la misura non può passare per caso.
+     */
+    @Test
+    fun `la fila dei moduli segue l'ordine scelto`() {
+        banco.setContent { Scena(mods = MOD_KEYS.reversed()) }
+        pronta()
+
+        for (nome in MODULI) {
+            assertEquals("nella fila ci sono tutti e sette", 1, quantiDetti(nome))
+        }
+        val primo = dove(R.string.look_detail)
+        val ultimo = dove(R.string.look_crop)
+        assertTrue(
+            "col nome rovesciato il Dettaglio apre la fila e il Ritaglio la chiude",
+            primo < ultimo
+        )
+        assertEquals("e restano su una riga sola", dove(R.string.look_detail, alto = true),
+            dove(R.string.look_crop, alto = true), 1f)
+    }
+
+    /**
+     * **Caso 41: le sei forme del ritaglio vanno su una fila sola.**
+     *
+     * ⚠️⚠️ **È LA SUA RISPOSTA `una` A `d-crop-righe`** (giro della `2.32`: *rimettile su una fila
+     * sola*, *anche a costo di troncare le due parole: preferisco lo spazio per l'immagine*): la
+     * `2.32` le aveva divise in due file, e quella riga in più il palco non ce l'ha.
+     * ⚠️ **Si misura il bordo di SOPRA di ognuna**, che è la cosa che distingue una fila da due, e
+     * non la larghezza: quella dipende da quanto il carattere del banco è stretto, che è il caso
+     * dichiarato in `AIV/CLAUDE.md` § '🧪 Quando si scrive una prova, e quando no'.
+     */
+    @Test
+    fun `le sei forme del ritaglio vanno su una fila sola`() {
+        banco.setContent { Scena() }
+        pronta()
+        banco.onNodeWithContentDescription(testo(R.string.look_crop)).performClick()
+        banco.waitForIdle()
+
+        val cime = (FORME + listOf(testo(R.string.editor_free), testo(R.string.editor_shape_original)))
+            .map { banco.onNodeWithText(it).fetchSemanticsNode().boundsInRoot.top }
+        assertEquals("le sei forme ci sono tutte", 6, cime.size)
+        assertTrue(
+            "e cominciano tutte alla stessa altezza, cioè su una riga sola",
+            cime.max() - cime.min() < 1f
+        )
+    }
+
+    /**
+     * **Caso 42: 'Auto' sistema anche la luce media, cioè esposizione e contrasto.**
+     *
+     * ⚠️⚠️ **È LA SUA RISPOSTA `piu` A `d-auto-quanto`** (giro della `2.32`: *che tocchi anche
+     * esposizione e contrasto*), e quello che si misura è il verso: una fotografia scura riceve
+     * guadagno, una già al centro no, e una addensata attorno al grigio riceve contrasto.
+     * ⚠️⚠️ **L'ORDINE DEL CONTO È LA COSA CHE PUÒ ROMPERSI IN SILENZIO**: nella catena
+     * l'esposizione viene prima dei punti, quindi i due estremi vanno misurati **dopo** il
+     * guadagno. Calcolati prima, su un'immagine scura il punto di bianco resterebbe quello di
+     * partenza e l'immagine finirebbe slavata: è il caso della prima misura qui sotto, dove col
+     * conto sbagliato `whites` varrebbe quasi tutta la corsa.
+     * ⚠️ **Il contrasto non scende sotto zero**, e la rampa uniforme lo controprova: là la
+     * dispersione è `0,289`, cioè sopra il bersaglio, e un conto senza quel limite risponderebbe
+     * con un numero negativo, cioè spianerebbe una fotografia che non ha nessun difetto.
+     */
+    @Test
+    fun `auto porta la luce media al centro e apre le immagini piatte`() {
+        /*
+         * Una fotografia scura con qualche alta luce: la massa fra l'8% e il 25% della scala, e
+         * una decina di pixel all'85%. È la scena che distingue i due ordini, e per questo ha una
+         * coda chiara: con la sola massa scura il punto di bianco andrebbe a fondo corsa in tutti
+         * e due i casi, e la misura non direbbe niente.
+         */
+        val scura = IntArray(200) { i ->
+            val v = if (i < 190) 20 + 44 * i / 189 else 204 + (i - 190)
+            Color.rgb(v, v, v)
+        }
+        val aperta = Auto.tuned(Look.NONE, scura)
+        assertTrue("una fotografia scura chiede guadagno", aperta.light.exposure > 0.5f)
+        assertTrue(
+            "il guadagno resta nella corsa del cursore",
+            aperta.light.exposure <= Light.EXPOSURE_RANGE
+        )
+        assertEquals(
+            "dopo due stop le alte luci sono già al bianco, quindi il punto non ha da muoversi",
+            0f, aperta.light.whites, 0.05f
+        )
+
+        // Una fotografia addensata attorno al grigio, coi soli estremi sparsi.
+        val molle = IntArray(400) { i ->
+            val v = if (i < 8) 8 + 30 * i else 118 + (i % 21)
+            Color.rgb(v, v, v)
+        }
+        val aperto = Auto.tuned(Look.NONE, molle)
+        assertTrue("una fotografia piatta chiede contrasto", aperto.light.contrast > 0.05f)
+
+        // La rampa uniforme: già dispersa quanto basta, quindi il contrasto non si muove.
+        val rampa = IntArray(256) { Color.rgb(it, it, it) }
+        assertEquals(
+            "una fotografia già distesa non si spiana",
+            0f, Auto.tuned(Look.NONE, rampa).light.contrast, 1e-4f
+        )
+    }
+
+    /**
+     * **Caso 43: 'Auto' scrive nei cursori, e quello che scrive si disfa.**
      *
      * ⚠️⚠️ **QUELLO CHE PUÒ ROMPERSI È IL COLLEGAMENTO**: il conto vive in [Auto] e il tasto sta
      * nella scheda, quindi il codice compilerebbe lo stesso con un tasto che non consegna
@@ -1823,6 +1943,17 @@ class SviluppoTest {
     }
 
     /** Quanti nodi portano questa descrizione parlata. */
+    /**
+     * Dove comincia il gettone che si annuncia con [id]: a sinistra, o in alto se [alto].
+     *
+     * ⚠️ **In pixel della scena e non in dp**: qui serve un confronto fra due posizioni, e la
+     * conversione non cambierebbe nessuno dei due versi.
+     */
+    private fun dove(id: Int, alto: Boolean = false): Float {
+        val riquadro = banco.onNodeWithContentDescription(testo(id)).fetchSemanticsNode().boundsInRoot
+        return if (alto) riquadro.top else riquadro.left
+    }
+
     private fun quantiDetti(id: Int): Int =
         banco.onAllNodesWithContentDescription(testo(id)).fetchSemanticsNodes().size
 
@@ -1878,10 +2009,15 @@ class SviluppoTest {
     private val app: Context get() = ApplicationProvider.getApplicationContext()
 
     @Composable
-    private fun Scena(uri: Uri = quadrato()) {
+    private fun Scena(uri: Uri = quadrato(), mods: List<PadKey> = MOD_KEYS) {
         AivTheme(darkTheme = false) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                AdvancedEditorScreen(uri = uri, busy = false, onSave = {}, onBack = {})
+            // ⚠️ L'ordine dei moduli viaggia di qui anche nell'app: la scheda le impostazioni
+            // non le riceve, quindi una prova che lo passasse per parametro misurerebbe una
+            // strada che nessuno percorre.
+            CompositionLocalProvider(LocalPadLook provides PadLook(mods = mods)) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    AdvancedEditorScreen(uri = uri, busy = false, onSave = {}, onBack = {})
+                }
             }
         }
     }

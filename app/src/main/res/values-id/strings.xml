@@ -506,6 +506,7 @@
     <string name="settings_buttons_menu">Menu pada berkas</string>
     <string name="settings_buttons_turn">Editor: putar dan tengahkan</string>
     <string name="settings_buttons_steps">Editor: urungkan dan terapkan</string>
+    <string name="settings_buttons_mods">Editor lengkap: modul</string>
     <string name="settings_labels">Label di bawah ikon</string>
     <string name="settings_labels_desc">Jika dimatikan, panel ikon menjadi lebih ringkas. Menu daftar tidak berubah.</string>
     <string name="settings_last_mark">Penanda item terakhir yang dilihat</string>

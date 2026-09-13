@@ -828,6 +828,16 @@ data class Settings(
     /** L'ordine della seconda fila dell'editor: la cronologia e la conferma. */
     val stepOrder: List<PadKey> = STEP_KEYS,
     /**
+     * L'ordine dei sette moduli dell'editor completo, dalla `2.34`.
+     *
+     * ⚠️ **È un ordine come gli altri quattro, ed è sua richiesta** (2026-09-13: *voglio poter
+     * ordinare anche i pulsanti dei moduli*). ⚠️ **Vive qui anche sui telefoni che l'editor
+     * completo non ce l'hanno** (sotto Android 13): una preferenza che non si può cambiare
+     * resta scritta e non fa danno, mentre una lettura condizionale vorrebbe dire due strade
+     * per un dato solo.
+     */
+    val modOrder: List<PadKey> = MOD_KEYS,
+    /**
      * Se sotto le icone dei riquadri a griglia si legge la parola.
      *
      * ⚠️ **Accesa di fabbrica, perché è come l'app è sempre stata**: l'interruttore nasce per
@@ -899,6 +909,22 @@ val TURN_KEYS = listOf(
 /** I quattro della seconda fila dell'editor, sempre nell'ordine della mano destra. */
 val STEP_KEYS = listOf(
     PadKey.ORIGINAL, PadKey.UNDO, PadKey.REDO, PadKey.APPLY
+)
+
+/**
+ * I sette moduli dell'editor completo, nell'ordine che ha dettato lui.
+ *
+ * ⚠️⚠️ **QUESTO ELENCO È UNA PERMUTAZIONE DELLA TABELLA DEI MODULI, E NON UNA SECONDA TABELLA**:
+ * qui ci sono le chiavi con cui l'ordine si salva, là (`MODULES`, in `AdvancedEditorScreen.kt`)
+ * che cosa ogni modulo fa, come si chiama e che segno porta. A legarli è la chiave che ogni
+ * modulo dichiara, e il banco misura che i due elenchi si coprano: un modulo nuovo che si
+ * dimenticasse di qui sparirebbe dalla fila senza dare nessun errore.
+ * ⚠️ **L'ordine di fabbrica è il suo** (campo libero del giro della `2.29` per i primi due, e il
+ * riscontro della `2.31` per il Dettaglio in fondo), quindi è lo stesso della tabella.
+ */
+val MOD_KEYS = listOf(
+    PadKey.MOD_CROP, PadKey.MOD_GEOMETRY, PadKey.MOD_LIGHT, PadKey.MOD_COLOUR,
+    PadKey.MOD_MIX, PadKey.MOD_TONE, PadKey.MOD_DETAIL
 )
 
 /**
@@ -1069,6 +1095,7 @@ object SettingsStore {
     private val PICK_ORDER = stringPreferencesKey("pick-order")
     private val TURN_ORDER = stringPreferencesKey("turn-order")
     private val STEP_ORDER = stringPreferencesKey("step-order")
+    private val MOD_ORDER = stringPreferencesKey("mod-order")
     private val PAD_LABELS = booleanPreferencesKey("pad-labels")
 
     /** Bounds of the only numeric setting, so a stored value out of range cannot reach the viewer. */
@@ -1151,6 +1178,7 @@ object SettingsStore {
             pickOrder = padOrderOf((p[PICK_ORDER] ?: "").split(','), PICK_KEYS),
             turnOrder = padOrderOf((p[TURN_ORDER] ?: "").split(','), TURN_KEYS),
             stepOrder = padOrderOf((p[STEP_ORDER] ?: "").split(','), STEP_KEYS),
+            modOrder = padOrderOf((p[MOD_ORDER] ?: "").split(','), MOD_KEYS),
             padLabels = p[PAD_LABELS] ?: true,
             /*
              * ⚠️ **Il ripiego è il valore di fabbrica dichiarato**, e in pratica non si usa mai:
@@ -1250,6 +1278,7 @@ object SettingsStore {
             p[PICK_ORDER] = settings.pickOrder.joinToString(",") { it.token }
             p[TURN_ORDER] = settings.turnOrder.joinToString(",") { it.token }
             p[STEP_ORDER] = settings.stepOrder.joinToString(",") { it.token }
+            p[MOD_ORDER] = settings.modOrder.joinToString(",") { it.token }
             p[PAD_LABELS] = settings.padLabels
             p[LAST_MARK] = settings.lastMark.token
             p[FACT_OFF] = settings.factOff.filterNot { it.always }.map { it.token }.toSet()

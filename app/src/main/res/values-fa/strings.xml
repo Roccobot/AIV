@@ -523,6 +523,7 @@
     <string name="settings_buttons_menu">منوی یک پرونده</string>
     <string name="settings_buttons_turn">ویرایشگر: چرخش و وسط‌چین</string>
     <string name="settings_buttons_steps">ویرایشگر: واگرد و اعمال</string>
+    <string name="settings_buttons_mods">ویرایشگر کامل: ماژول‌ها</string>
     <string name="settings_labels">برچسب‌ها زیر نمادها</string>
     <string name="settings_labels_desc">اگر خاموش باشند، پنل‌های نماد فشرده‌تر می‌شوند. منوهای فهرستی تغییری نمی‌کنند.</string>
     <string name="settings_last_mark">نشان آخرین مورد دیده‌شده</string>

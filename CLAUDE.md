@@ -2233,9 +2233,34 @@ nessun altro si muove.
   su due milioni, e leggere il file pieno costerebbe una pausa per una cifra che non si muove di
   un livello.
 - ⚠️ **Il glifo è la bacchetta di Material ammorbidita**, come i sette dei moduli e quello del
-  mirato: il criterio e la misura vivono in § '🖌️ Come entra un disegno'. Nasce comunque
-  provvisorio, come i due della `1.80`: se non dice abbastanza, il giro di collaudo lo chiede e
-  lui manda il suo.
+  mirato: il criterio e la misura vivono in § '🖌️ Come entra un disegno'. ⚠️⚠️ **E DALLA `2.34`
+  NON È PIÙ PROVVISORIO**, che è la sua risposta `resta` a `d-auto-glifo` (giro della `2.32`: *va
+  bene quello di Material*): la domanda esisteva perché nella stessa situazione, con i due glifi
+  della `1.80`, aveva risposto mandando i suoi.
+
+⚠️⚠️ **E DALLA `2.34` 'AUTO' SISTEMA ANCHE LA LUCE MEDIA, CHE È LA SUA RISPOSTA `piu` A
+`d-auto-quanto`** (giro della `2.32`: *che tocchi anche esposizione e contrasto*, cioè *un colpo
+solo che sistema anche la luce media, in un tasto solo*). Photoshop quelle due le tiene in comandi
+separati ('Tono automatico' e 'Contrasto automatico'); la domanda gli chiedeva se accorparle, e i
+cursori mossi passano da quattro a **sei**.
+- ⚠️⚠️ **I SEI SI CALCOLANO NELL'ORDINE IN CUI LA CATENA LI APPLICA, E SENZA QUELLA CURA I DUE
+  NUOVI ROMPONO I DUE VECCHI**: l'esposizione viene **prima** dei punti, quindi i percentili
+  misurati sull'immagine com'è non sono quelli che i punti troveranno. Prima il guadagno dalla
+  mediana, poi i due estremi **già esposti**, e per ultimo il contrasto sulla distribuzione che ne
+  esce. A presidiarlo è la prova, che misura una fotografia scura con qualche alta luce: là dopo
+  due stop il punto di bianco non ha più niente da fare, mentre col conto sbagliato spenderebbe
+  mezza corsa.
+- ⚠️ **Il bersaglio dell'esposizione è il perno del contrasto**, cioè `0,5`: una mediana che cade
+  lì riceve una curva a S simmetrica, mentre spostata darebbe una S che allarga da una parte e
+  schiaccia dall'altra. Il numero non è una taratura, è quello che la formula del cursore accanto
+  usa come centro. ⚠️ **E si guarda la mediana e non la media**, per la stessa ragione per cui i
+  punti tagliano mezzo per cento: un cielo bianco tira la media di parecchi livelli.
+- ⚠️⚠️ **IL CONTRASTO VA SOLO IN SU, COME QUELLO DI PHOTOSHOP**: un'immagine più dispersa del
+  bersaglio non ha un difetto da correggere, ha un carattere, e spianarla vorrebbe dire che 'Auto'
+  toglie qualcosa a chi lo tocca su una fotografia già buona. Il legame fra il cursore e la
+  dispersione è la **pendenza al perno** (`sCurve` mescola la retta con `smoothstep`, che nel
+  mezzo vale 1,5), quindi è un conto chiuso e non una taratura; che sia del primo ordine è
+  dichiarato, e il verso in cui sbaglia è quello timido.
 
 ⚠️⚠️ **I TRE COMANDI DELLA STORIA SONO ICONE DALLA `2.15`, ED È IL SUO RISCONTRO** (voce
 `luce-storia`: *'Annulla' e 'Ripristina' devono essere icone, non testo*). I glifi sono quelli
@@ -2956,13 +2981,24 @@ per primo è lui, che i due editor li apre dalla stessa immagine.
     rapporto di ogni forma è una **funzione** del riquadro invece di una costante. Nel verso
     naturale dell'immagine non taglia niente per costruzione, che è la proprietà da cui dipende
     il senza perdita.
-  - ⚠️⚠️ **E LE FILE DEI GETTONI SONO DIVENTATE DUE, PER UNA MISURA**: con 'Originale' le forme
-    che si dicono a parole sono **due**, e su uno schermo da 360dp la fila unica coi pesi dava
-    loro una cinquantina di dp netti a testa, cioè le troncava col punto fermo (in italiano
-    'Originale' ne chiede una sessantina, in tedesco e in russo di più). Adesso le due parole
-    vanno sopra e le quattro proporzioni sotto, il pezzo è **uno solo** (`ShapeRows`, in
-    `EditorScreen.kt`) e lo chiamano tutti e due gli editor. Il prezzo è una riga di 32dp che il
-    palco non ha più, ed è dichiarato.
+  - ⚠️⚠️ **LE FILE ERANO DIVENTATE DUE CON LA `2.32`, E DALLA `2.34` TORNANO UNA: È LA SUA
+    RISPOSTA `una` A `d-crop-righe`** (giro della `2.32`: *rimettile su una fila sola*, con la
+    ragione scritta nella scelta: *anche a costo di troncare le due parole: preferisco lo spazio
+    per l'immagine*). La `2.32` le aveva divise perché con 'Originale' le parole vere erano
+    diventate due e su 360dp si troncavano; la domanda gli chiedeva se quella riga da 32dp valesse
+    lo spazio che toglieva al palco, e la risposta è no.
+    - ⚠️⚠️ **E NON SI TRONCANO LO STESSO, PERCHÉ IL CORPO SCENDE DI UN GRADINO**: è l'altra metà
+      del suo riscontro, dal campo libero (*puoi rimpicciolire i testi dei pulsanti proporzione*).
+      Il conto, con la parola più lunga delle ventotto lingue (il polacco *Oryginalne*): su 360dp
+      la fila ne ha 312 netti, meno i cinque distacchi restano 282; col peso in più alle due
+      parole una prende 57dp e un numero 42, e a `labelMedium` quella parola ne chiede una
+      quarantina più i due rientri del chip.
+    - ⚠️ **Il peso in più va alle due parole e non a tutte e sei**: '16:9' sono quattro caratteri
+      che non si traducono mai, quindi dividere la riga in parti uguali regalerebbe ai numeri lo
+      spazio che serve alle parole.
+    - ⚠️ **Il corpo lo passa la fila e non il chip**: gli altri chip della scheda (il verso della
+      selezione) hanno due celle su tutta la larghezza, quindi là non c'è niente da stringere. Il
+      pezzo resta **uno solo** (`ShapeRow`, in `EditorScreen.kt`) e lo chiamano i due editor.
 - ⚠️⚠️ **L'IMMAGINE LASCIA L'ARIA ALLE SQUADRETTE, DALLA `2.32`, ED È IL SUO RISCONTRO** (giro
   della `2.31`, voce `crop-modulo` non approvata: *all'avvio del modulo gli angoli di ritaglio non
   sono del tutto visibili*). Una squadretta si disegna **a cavallo** del bordo del rettangolo,
@@ -3016,6 +3052,30 @@ metà dei moduli fuori dallo schermo per chi non sa che si scorre.
   quattro e i loro nomi sono una lettera o poco più, quindi un'icona direbbe meno della parola. Il
   pezzo è lo stesso e sceglie da sé, perché il glifo è facoltativo.
 
+⚠️⚠️ **E DALLA `2.34` QUELLA FILA SI RIORDINA COME I QUATTRO RIQUADRI DI CASA, ED È SUA
+RICHIESTA** (2026-09-13: *voglio poter ordinare anche i pulsanti dei moduli*). Il riordino a
+trascinamento esisteva dalla `1.57` per il menu su un file, la scheda della selezione e le due file
+dell'editor: i moduli entrano **là dentro** invece di avere il proprio, perché un secondo
+meccanismo per lo stesso gesto sarebbe una seconda occasione di divergere.
+- ⚠️⚠️ **OGNI MODULO PORTA LA PROPRIA CHIAVE, E NOME E GLIFO RESTANO NELLA TABELLA DEI MODULI**:
+  un ordine nell'archivio è un elenco di gettoni, quindi senza una chiave un modulo si potrebbe
+  salvare solo per indice, cioè con un numero che cambia significato appena se ne aggiunge uno.
+  ⚠️ **I due elenchi si coprono a vicenda e il banco lo misura**: un modulo nuovo che si
+  dimenticasse di `MOD_KEYS` sparirebbe dalla fila senza che niente dia errore.
+- ⚠️⚠️ **QUELLO CHE SI RIORDINA È COME I GETTONI SI VEDONO, E NON L'IDENTITÀ DI NIENTE**: lo
+  sguardo tiene il posto nella **tabella**, quindi spostare un gettone non cambia il modulo aperto
+  e `LOOK_FIRST` continua a dire la Luce. Con un indice legato alla fila, ogni trascinamento
+  avrebbe cambiato che cosa si apre.
+- ⚠️⚠️ **LA REPLICA NELLE IMPOSTAZIONI È DI SOLE ICONE, ED È IL CRITERIO DI `PadArrange` APPLICATO,
+  non una deroga**: quel riquadro deve somigliare al modello, e il modello le parole non le ha (le
+  ha tolte la `2.31`, perché sette nomi non entrano in nessuna larghezza). Scriverle darebbe sette
+  parole troncate su sette colonne. ⚠️ **Il nome resta quello che un lettore di schermo annuncia**,
+  come nel gettone vero, e le due azioni parlate che spostano una cella non cambiano.
+- ⚠️ **Il riquadro c'è solo dove c'è l'editor completo**, cioè da Android 13: è l'unico dei cinque
+  a dipendere dal telefono, e mostrarlo altrove vorrebbe dire far riordinare una fila che non si
+  può aprire. ⚠️ **La preferenza invece si salva lo stesso**, perché un archivio non deve cambiare
+  forma con la versione di Android.
+
 ⚠️⚠️ **E DALLA `2.33` C'È 'APPLICA', ED È SUA RICHIESTA** (2026-09-13: *manca 'Applica' per il
 ritaglio*). Fino alla `2.32` il rettangolo si tirava e non si vedeva applicato mai: il taglio
 compariva soltanto nel file salvato, quindi non esisteva il momento in cui l'immagine su cui si
@@ -3041,7 +3101,9 @@ lavora diventa quella tagliata.
 ⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`): che il rettangolo segua la posa nei
 due gesti e dopo quattro giri torni dov'era, che una posa resti senza perdita e un ritaglio no, che
 i sette gettoni si annuncino col nome senza scriverlo, che il Ritaglio porti i tre comandi e nessun
-cursore, e che tirando una squadretta il palco cambi disegno. **Non** vede il file salvato, cioè che
+cursore, e che tirando una squadretta il palco cambi disegno; dalla `2.34` anche che la fila dei
+moduli **segua l'ordine scelto** portandoli tutti e sette, e che le sei forme stiano su una riga
+sola. **Non** vede il file salvato, cioè che
 i pixel tagliati siano quelli giusti: quello si guarda sul telefono, e la voce di collaudo lo chiede.
 - ⚠️⚠️ **E LA PROVA HA PAGATO ALLA PRIMA CORSA, TROVANDO UN DIFETTO CHE NESSUN COMPILATORE POTEVA
   VEDERE**: il gesto consumava l'evento **prima** di leggerne il delta, e `positionChange()` risponde

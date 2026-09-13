@@ -74,6 +74,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
@@ -709,7 +710,7 @@ private fun EditorSheet(
                 .padding(top = SHEET_TOP),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            ShapeRows(
+            ShapeRow(
                 shape = shape,
                 lay = lay,
                 enabled = live,
@@ -905,7 +906,14 @@ internal fun SheetChip(
     selected: Boolean,
     enabled: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /**
+     * Il corpo della parola, dalla `2.34`.
+     *
+     * ⚠️ **Ha il valore di serie di sempre**, quindi i chip che non lo nominano non cambiano:
+     * lo passa la sola fila dei formati, che con sei celle è l'unica stretta.
+     */
+    style: TextStyle = MaterialTheme.typography.labelLarge
 ) {
     val scheme = MaterialTheme.colorScheme
     Surface(
@@ -934,7 +942,7 @@ internal fun SheetChip(
         ) {
             Text(
                 text = text,
-                style = MaterialTheme.typography.labelLarge,
+                style = style,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center
@@ -944,8 +952,7 @@ internal fun SheetChip(
 }
 
 /**
- * Le sei forme del ritaglio, in **due file**: le due che si dicono a parole sopra, le quattro
- * proporzioni sotto.
+ * Le sei forme del ritaglio, in **una fila sola**.
  *
  * ⚠️⚠️ **È UN PEZZO SOLO PERCHÉ I DUE EDITOR MOSTRANO LA STESSA FILA**: dalla `2.31` il modulo
  * Ritaglio dell'editor completo chiama lo stesso ritaglio di casa, e dalla `2.32` anche gli
@@ -957,51 +964,53 @@ internal fun SheetChip(
  * ordinato*). Prima la fila scorreva di lato e finiva dove finivano le parole, lasciando un
  * vuoto a destra.
  *
- * ⚠️⚠️ **LE FILE SONO DUE DALLA `2.32`, E PRIMA ERA UNA SOLA COI PESI: A DIVIDERLA È STATA UNA
- * MISURA.** Fino alla `2.31` le forme erano cinque, e l'unica parola vera era 'Libero', che si
- * prendeva una cella più larga (`1,6` contro `1`) mentre le quattro proporzioni dividevano il
- * resto. Con 'Originale' le parole vere diventano **due**, e su uno schermo da 360dp quel conto
- * dà 63dp a testa, cioè una cinquantina netti dentro il chip: 'Originale' ne chiede una
- * sessantina in italiano, e di più in tedesco o in russo. Cioè la fila unica avrebbe troncato
- * col punto fermo proprio le due voci che una parola ce l'hanno.
- * ⚠️ **Divise, ogni parola prende metà riga** (una cinquantina di dp in più di prima) e i
- * quattro numeri, che non si traducono mai, stanno larghi. Il prezzo è una riga di 32dp che il
- * palco non ha più, ed è dichiarato.
- * ⚠️ **Il gruppo di scelta è UNO** (`oneOf` sulla colonna e non sulle due righe): le sei voci
- * sono una scelta sola, e due gruppi da due e da quattro direbbero a un lettore di schermo che
- * le scelte sono due.
+ * ⚠️⚠️ **UNA SOLA DALLA `2.34`, ED È LA SUA RISPOSTA `una` A `d-crop-righe`** (giro della
+ * `2.32`: *rimettile su una fila sola*, con la ragione scritta nella scelta: *anche a costo di
+ * troncare le due parole: preferisco lo spazio per l'immagine*). La `2.32` le aveva divise in
+ * due perché con 'Originale' le parole vere erano diventate due e su 360dp si troncavano; la
+ * domanda gli chiedeva se quella riga valesse i 32dp che toglieva al palco, e la risposta è no.
+ * ⚠️⚠️ **E NON SI TRONCANO LO STESSO, perché il corpo scende di un gradino**: è l'altra metà
+ * del suo riscontro, dal campo libero (*puoi rimpicciolire i testi dei pulsanti proporzione*).
+ * Il conto, con la parola più lunga delle ventotto lingue (il polacco *Oryginalne*, dieci
+ * caratteri): su uno schermo da 360dp la fila ne ha 312 netti, meno i cinque distacchi da 6dp
+ * restano 282; con [SHAPE_WORD] una parola prende **57dp** e un numero 42, e a `labelMedium`
+ * quella parola ne chiede una quarantina più i due rientri del chip. Entra, e i quattro numeri
+ * stanno larghi.
+ * ⚠️ **Il peso in più va alle due parole e non a tutte e sei**: '16:9' sono quattro caratteri
+ * che non si traducono mai, quindi dividere la riga in parti uguali vorrebbe dire regalare ai
+ * numeri lo spazio che serve alle parole.
+ * ⚠️ **Il corpo lo passa questa fila e non [SheetChip]**: gli altri chip della scheda (il verso
+ * della selezione) hanno due celle su tutta la larghezza, quindi là non c'è niente da stringere.
  */
 @Composable
-internal fun ShapeRows(
+internal fun ShapeRow(
     shape: Shape,
     lay: Lay,
     enabled: Boolean,
     onShape: (Shape) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val (parole, numeri) = Shape.entries.partition { it.word != null }
-    Column(
+    Row(
         modifier = modifier.fillMaxWidth().oneOf(),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        for (fila in listOf(parole, numeri)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                for (one in fila) {
-                    SheetChip(
-                        text = one.word?.let { stringResource(it) } ?: one.text(lay).orEmpty(),
-                        selected = one == shape,
-                        enabled = enabled,
-                        onClick = { onShape(one) },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
+        for (one in Shape.entries) {
+            SheetChip(
+                text = one.word?.let { stringResource(it) } ?: one.text(lay).orEmpty(),
+                selected = one == shape,
+                enabled = enabled,
+                onClick = { onShape(one) },
+                modifier = Modifier.weight(if (one.word != null) SHAPE_WORD else 1f),
+                style = MaterialTheme.typography.labelMedium
+            )
         }
     }
 }
+
+/**
+ * Quanto è più larga la cella di una forma che si dice a parole: vedi il conto in [ShapeRow].
+ */
+private const val SHAPE_WORD = 1.35f
 
 /** Le misure del chip di casa: quelle di Material, tranne il rientro. */
 private val CHIP_TALL = 32.dp

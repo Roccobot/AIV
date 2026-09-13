@@ -2530,12 +2530,15 @@ class ViewerActivity : ComponentActivity() {
                 // ⚠️ Anche la scelta di che cosa c'è dietro un pannello si mette in scena QUI,
                 // accanto al tema e per la stessa ragione: la chiedono finestre che le
                 // impostazioni non le ricevono. Il perché per esteso sta su [LocalAivDepth].
-                // ⚠️ E accanto a lui i riquadri: le parole sotto le icone e i quattro
+                // ⚠️ E accanto a lui i riquadri: le parole sotto le icone e i cinque
                 // ordini dei tasti. Stessa ragione del velo, scritta su [LocalPadLook]: li
                 // chiedono finestre che le impostazioni non ricevono. Finché le impostazioni
                 // non sono arrivate vale quello che l'app ha sempre fatto.
                 val look = model.settings?.let {
-                    PadLook(it.padLabels, it.menuOrder, it.pickOrder, it.turnOrder, it.stepOrder, it.hand)
+                    PadLook(
+                        it.padLabels, it.menuOrder, it.pickOrder, it.turnOrder, it.stepOrder,
+                        it.modOrder, it.hand
+                    )
                 } ?: PadLook()
                 // ⚠️ E la vista delle cartelle, che serve alla finestra della destinazione:
                 // dalla `1.81` quella entra dalla vista normale dell'app, e il perché per

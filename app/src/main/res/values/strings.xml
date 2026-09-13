@@ -709,6 +709,7 @@
     <string name="settings_buttons_menu">Menu on a file</string>
     <string name="settings_buttons_turn">Editor: rotate and center</string>
     <string name="settings_buttons_steps">Editor: undo and apply</string>
+    <string name="settings_buttons_mods">Full editor: modules</string>
     <string name="settings_labels">Labels under icons</string>
     <string name="settings_labels_desc">If turned off, the icon panels get more compact. List menus are unchanged.</string>
     <string name="settings_last_mark">Last viewed item marker</string>

@@ -1605,6 +1605,18 @@ private class Dial(
  * fatto esattamente quello che fa 'Originale', che è lì accanto.
  */
 private class Module(
+    /**
+     * Il gettone con cui questo modulo si salva, dalla `2.34`.
+     *
+     * ⚠️⚠️ **ESISTE PERCHÉ LA FILA SI RIORDINA** (sua richiesta, 2026-09-13: *voglio poter
+     * ordinare anche i pulsanti dei moduli*), e l'ordine di un riquadro nell'archivio è un
+     * elenco di gettoni: senza una chiave, un modulo si potrebbe salvare solo per indice, cioè
+     * con un numero che cambia significato il giorno che se ne aggiunge uno.
+     * ⚠️ **È un [PadKey] e non un enum suo**: il riordino, la replica nelle impostazioni e le
+     * azioni parlate sono quelli dei quattro riquadri di casa, e un secondo tipo vorrebbe dire
+     * un secondo meccanismo identico da tenere allineato.
+     */
+    val key: PadKey,
     @param:StringRes val name: Int,
     /**
      * I cursori da mostrare, data la fascia scelta.
@@ -1922,6 +1934,7 @@ private val MODULES = listOf(
      * vive in [Gaze], che lo dichiara.
      */
     Module(
+        PadKey.MOD_CROP,
         R.string.look_crop,
         rows = { emptyList() },
         // ⚠️ Il 'Reset modulo' porta via anche la vista confermata: senza, il palco resterebbe a
@@ -1943,6 +1956,7 @@ private val MODULES = listOf(
      * tocca non vorrebbe dire niente.
      */
     Module(
+        PadKey.MOD_GEOMETRY,
         R.string.look_geometry,
         rows = { GEO_ROWS },
         clear = { it.copy(geo = Geometry.NONE) },
@@ -1950,6 +1964,7 @@ private val MODULES = listOf(
         icon = { Glyphs.ModGeometry }
     ),
     Module(
+        PadKey.MOD_LIGHT,
         R.string.look_light,
         rows = { LIGHT_ROWS },
         clear = { it.copy(light = Light.NONE) },
@@ -1957,6 +1972,7 @@ private val MODULES = listOf(
         icon = { Glyphs.ModLight }
     ),
     Module(
+        PadKey.MOD_COLOUR,
         R.string.look_color,
         rows = { COLOUR_ROWS },
         clear = { it.copy(chroma = Chroma.NONE) },
@@ -1964,6 +1980,7 @@ private val MODULES = listOf(
         icon = { Icons.Filled.Palette }
     ),
     Module(
+        PadKey.MOD_MIX,
         R.string.look_mix,
         rows = { MIX_ROWS[it] },
         clear = { it.copy(mix = Mix.NONE) },
@@ -1977,6 +1994,7 @@ private val MODULES = listOf(
      * esprimere. Il suo comando è il grafico, e la sua lista di righe è vuota.
      */
     Module(
+        PadKey.MOD_TONE,
         R.string.look_tone,
         rows = { emptyList() },
         clear = { it.copy(tone = Tone.NONE) },
@@ -1995,6 +2013,7 @@ private val MODULES = listOf(
      * posto nella catena è l'ordine in cui il conto gira.
      */
     Module(
+        PadKey.MOD_DETAIL,
         R.string.look_detail,
         rows = { DETAIL_ROWS },
         clear = { it.copy(detail = Detail.NONE) },
@@ -2002,6 +2021,40 @@ private val MODULES = listOf(
         icon = { Glyphs.ModDetail }
     )
 )
+
+/**
+ * Il modulo che porta questa chiave.
+ *
+ * ⚠️⚠️ **LANCIA SE LA CHIAVE NON È DI UN MODULO, e non risponde `null`**: i chiamanti sono i
+ * due `when` di `ActionPad.kt`, che ci arrivano dai soli sette rami delle chiavi dei moduli, e
+ * la fila che la legge riceve un ordine già ripulito da `padOrderOf`. Un `null` da gestire
+ * vorrebbe dire un ramo che nessuna strada può raggiungere, cioè codice morto; e che i due
+ * elenchi si coprano lo misura il banco.
+ */
+private fun moduleOf(key: PadKey): Module = MODULES.first { it.key == key }
+
+/**
+ * Come si chiama un modulo, per chi lo deve nominare fuori dall'editor.
+ *
+ * ⚠️ **La fonte è la tabella e non un secondo elenco**: la pagina che riordina i riquadri, i
+ * testi che la ricerca delle impostazioni confronta e la fila vera dicono tutti questa parola.
+ */
+@StringRes
+internal fun modName(key: PadKey): Int = moduleOf(key).name
+
+/** Il segno di un modulo, alla stessa fonte del nome: vedi [modName]. */
+@Composable
+internal fun modGlyph(key: PadKey): ImageVector = moduleOf(key).icon()
+
+/**
+ * Il posto di un modulo nella tabella, cioè quello che [Gaze.module] tiene.
+ *
+ * ⚠️⚠️ **L'ORDINE SCELTO È UNA PERMUTAZIONE DEL DISEGNO, E NON CAMBIA L'IDENTITÀ DI NIENTE**:
+ * quello che si riordina è come i gettoni si vedono, mentre l'indice che lo sguardo porta resta
+ * il posto nella tabella. Con un indice legato alla fila, spostare un gettone cambierebbe il
+ * modulo aperto, e [LOOK_FIRST] direbbe un'altra cosa a ogni trascinamento.
+ */
+private fun modIndex(key: PadKey): Int = MODULES.indexOfFirst { it.key == key }
 
 /**
  * Quante colonne ha la fila della posa, cioè quanti sono i suoi tasti.
@@ -2241,11 +2294,21 @@ private fun LookSheet(
              * coi nomi scritti la fila cresceva in altezza e il palco si riduceva a zero pixel,
              * e scorrere teneva metà dei moduli fuori dallo schermo per chi non sa che si scorre.
              */
+            /*
+             * ⚠️⚠️ **L'ORDINE DEI GETTONI È QUELLO SCELTO NELLE IMPOSTAZIONI, DALLA `2.34`, ED È
+             * SUA RICHIESTA** (2026-09-13: *voglio poter ordinare anche i pulsanti dei moduli*).
+             * ⚠️ **Si scorre l'ordine e non la tabella**: quello che cambia è come i sette si
+             * vedono, mentre il modulo aperto resta un indice della tabella (vedi [modIndex]).
+             * ⚠️ **Arriva da `LocalPadLook` come gli altri quattro ordini**, perché questa scheda
+             * le impostazioni non le riceve.
+             */
             Row(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                MODULES.forEachIndexed { i, mod ->
+                for (key in LocalPadLook.current.mods) {
+                    val i = modIndex(key)
+                    val mod = MODULES[i]
                     ModuleChip(
                         name = stringResource(mod.name),
                         icon = mod.icon(),
@@ -2474,12 +2537,12 @@ private fun ModuleBody(
         }
         /*
          * ⚠️⚠️ **LE FILE SONO QUELLE DELL'EDITOR DI CASA, E DALLA `2.32` SONO LO STESSO
-         * PEZZO**: le forme le disegna `ShapeRows`, che vive di là, e qui resta la sola
+         * PEZZO**: le forme le disegna `ShapeRow`, che vive di là, e qui resta la sola
          * cosa che cambia fra i due editor, cioè dove si scrive la scelta. Fino alla
          * `2.31` questa fila era ricopiata riga per riga, e con 'Originale' sarebbero
          * state due copie da tenere d'accordo invece di una.
          */
-        ShapeRows(
+        ShapeRow(
             shape = cropShape(gaze),
             lay = lay,
             enabled = live,
@@ -2863,7 +2926,7 @@ private fun ModuleChip(
                 onLongClick = onHold,
                 onLongClickLabel = wipe
             )
-            .padding(horizontal = if (icon == null) MODULE_SIDE else 0.dp, vertical = 8.dp)
+            .padding(horizontal = if (icon == null) MODULE_SIDE else 0.dp, vertical = MODULE_PAD)
             .alpha(if (enabled) 1f else OFF_INK),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
@@ -3418,6 +3481,15 @@ private val MODULE_MARK = 6.dp
  * rientro ai fianchi toglierebbe area di tocco senza spostare niente.
  */
 private val MODULE_SIDE = 14.dp
+
+/**
+ * L'aria sopra e sotto il glifo di un gettone dei moduli.
+ *
+ * ⚠️ **Non è privata perché la legge anche la REPLICA**, cioè il riquadro che riordina la fila
+ * nelle impostazioni: là l'altezza di una cella si ricava da questo numero più il glifo, e
+ * scriverne un altro vorrebbe dire una replica che si scosta dal modello al primo ritocco.
+ */
+internal val MODULE_PAD = 8.dp
 
 /**
  * L'altezza di una pastiglia della fila delle fasce.
