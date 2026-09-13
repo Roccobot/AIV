@@ -265,6 +265,10 @@ questo è lo stesso trattamento applicato ai glifi di Material che l'editor già
   colore*, che è il gesto del colore mirato; quel modulo invece porta tre cursori per ognuna delle
   otto fasce. ⚠️ **Il trattamento non cambia**: stesso raccordo, stessa misura in testa al file
   (210 pixel su 57.600), e lo stesso verificatore.
+  - ⚠️ **Ci resta, con una riserva sua** (giro della `2.36`, voce `hsl-glifo` accettabile: *sembra
+    più 'Impostazioni', ma va bene lo stesso*): tre guide con un cursore sono il segno che Material
+    dà anche alle impostazioni, quindi la somiglianza è del disegno e non una svista. Chi volesse
+    chiuderla gli proponga un glifo suo, che è la strada dei nove della `2.32`.
 
 ## 🗣️ Come si chiamano le cose
 
@@ -2085,33 +2089,43 @@ e un interruttore porta l'immagine in **bianco e nero**.
   senza che nessuno abbia toccato la Luce. Il conto vive in Kotlin (`Chroma.greyMix`) e lo shader
   ne riceve il risultato: non è la seconda copia che `Adjust.kt` vieta, perché il conto è scritto
   una volta sola e ha un lettore solo, ed è per questo che il banco lo può misurare.
-- ⚠️⚠️ **COMPARE COL BIANCO E NERO, DALLA `2.36`, E NELLA `2.35` C'ERA SEMPRE E SI SPEGNEVA** (sua
-  istruzione, 2026-09-13: *'Filtro' deve apparire solo quando l'interruttore 'Bianco e nero' è
-  acceso*). Un cursore **spento** si vede e dice 'qui non c'è niente da fare', e serve dove il
-  gesto torna sensato da sé, cioè a saturazione e vividezza; una riga **nascosta** appartiene a
-  un'altra modalità, e a colori 'Filtro' non è un comando spento, è un comando che non esiste.
-  - ⚠️⚠️ **QUELLO CHE LO TENEVA IN SCENA ERA L'ALTEZZA DELLA SCHEDA, E LA `2.36` TOGLIE QUEL
-    PREZZO INVECE DI PAGARLO**: `SteadyBody` misura i moduli **col corpo pieno**, cioè contando
-    anche le righe che un valore nasconde, quindi l'altezza comune è già la maggiore delle due e
-    non cresce quando il 'Filtro' entra.
-  - ⚠️⚠️ **E L'ARGOMENTO DELLA `2.35` NON ERA MISURATO: OGGI QUELLA RIGA NON CAMBIA UN PIXEL.** Sul
-    banco il modulo più alto è quello delle **Curve** (238 punti contro i 220 del Colore col
-    'Filtro' in scena), quindi anche senza la misura col corpo pieno la scheda non ballerebbe. Ma
-    quella disuguaglianza è una coincidenza fra due numeri, non una proprietà: basta una scala del
-    carattere più grande, una lingua che manda a capo un nome, o un grafico più basso.
-  - ⚠️ **L'indice della riga non cambia**: il corpo scorre la lista **intera** e salta le nascoste,
-    quindi `dialAt` continua a rispondere per posizione, che è la correzione della `2.20`. Oggi il
-    'Filtro' è l'ultimo dei cinque e filtrare la lista non sposterebbe niente; il giorno che una
-    riga nascosta ne avesse un'altra sotto, quella scriverebbe nel cursore accanto senza che niente
-    dia errore.
-  - ⚠️ **La prova del banco è in due pezzi, e il perché è il numero qui sopra**: il caso sulla
-    schermata misura il fatto come lui lo vede (quattro cursori a colori, cinque in bianco e nero,
-    e il palco che non si accorcia) e **non** si vede fallire togliendo la misura col corpo pieno;
-    quello su `SteadyBody` monta una scena minima e misura il meccanismo, ed è l'unico che la
-    controprova fa diventare rosso.
+- ⚠️⚠️ **SI CHIAMA 'FILTRO BN' DALLA `2.37`, C'È SEMPRE, ED È SPENTO A COLORI: LA `2.36` LO
+  NASCONDEVA** (punto A del suo campo libero del giro della `2.36`: *'Filtro' diventa 'Filtro BN' /
+  'B/W Filter' / ecc. e va posizionato (non attivo) DOPO l'interruttore 'Bianco e nero'. Si attiva
+  solo con l'interruttore ON*). La `2.36` aveva letto la sua istruzione di allora (*deve apparire
+  solo quando l'interruttore è acceso*) come 'sparisce', e quello che voleva era un'altra cosa:
+  **quella riga vive sotto il comando da cui dipende**, cioè si legge come la sua conseguenza.
+  - ⚠️⚠️ **L'INTERRUTTORE NON È PIÙ IN FONDO, E A METTERLO DAVANTI AL FILTRO È L'IDENTITÀ DELLA
+    RIGA E NON UN INDICE** (`knob === FILTER_ROW`, in `AdvancedEditorScreen.kt`): un numero di riga
+    scritto là dentro direbbe il vero finché nessuno tocca l'ordine dei cursori del Colore, e il
+    giorno che qualcuno ce ne infila uno l'interruttore comparirebbe in mezzo a due manopole senza
+    che niente dia errore.
+  - ⚠️⚠️ **CON LEI ESCE TUTTO IL MECCANISMO CHE LA NASCONDEVA, PERCHÉ NON AVEVA PIÙ CHIAMANTI**:
+    il campo `Dial.hide` e la misura **col corpo pieno** di `SteadyBody`, che esisteva solo per
+    pagare quella comparsa. Quindi oggi un modulo ha **un'altezza sola**, e la nota della `2.36`
+    che la dava per doppia è superata.
+  - ⚠️ **L'argomento della `2.35`, che era rimasto non misurato, adesso è misurato e non serve più
+    a niente**: sul banco il modulo più alto è quello delle **Curve** (238 punti contro i 220 del
+    Colore col 'Filtro' in scena), quindi nemmeno la `2.36` faceva ballare la scheda.
+  - ⚠️ **La prova del banco misura due cose insieme**, il verso della condizione (scritta al
+    contrario il cursore sarebbe acceso proprio dove non governa niente) e il **posto**, in pixel,
+    perché l'interruttore non è un cursore e fra le righe non ha un numero. Controprovata due
+    volte, spostando l'interruttore sotto il filtro e rovesciando la condizione.
+- ⚠️⚠️ **E DALLA `2.37` LA CORSA FA POCO PIÙ DEL DOPPIO, ED È LA SUA NOTA** (giro della `2.36`,
+  voce `bn-filtro` accettabile: *me l'aspettavo più ampio, ma può anche andare*). Il conto misura
+  quanto: coi pesi della `2.35` un cielo azzurro scendeva di 11 punti su 100 e l'incarnato saliva
+  di 8, adesso scende di 19 e sale di 13, e lo stacco fra i due passa da 29 a **42**. ⚠️ **Il verde
+  non arriva a zero**, e quello che lo tiene su è misurato: coi pesi di un canale solo un cielo blu
+  puro diventerebbe nero, cioè le nuvole scure perderebbero ogni disegno.
 - ⚠️ **Il verde resta dov'è ai due estremi**: il filtro verde del fogliame è il terzo della
   famiglia e su un asse solo non ci sta; chi lo vuole muove la luminanza della fascia verde
   dell'HSL, che dalla `2.21` è la miscela per fascia del bianco e nero.
+  - ⚠️⚠️ **E I TRE FILTRI CLASSICI NON DIVENTANO UN ELENCO A TENDINA: LA SUA CONDIZIONE NON SI PUÒ
+    SODDISFARE** (`d-filtro-verde` del giro della `2.36`, senza scelta, con la nota *se si può fare
+    una dropdown o qualcosa del genere con i 3 filtri classici senza occupare più spazio, OK.
+    Sennò va bene così*). Un elenco a tendina è un comando in più sulla riga, quindi o si prende lo
+    spazio del cursore o ne prende uno suo: il *senza occupare più spazio* è proprio quello che non
+    si può avere, e la risposta è quindi la seconda metà della sua frase.
 
 ⚠️⚠️ **I PESI PER FASCIA DEL BIANCO E NERO NON SONO QUI, E DALLA `2.21` SI SA DOVE SONO**: il
   piano d'azione li metteva in questo modulo, ma sono la **stessa macchina** delle otto fasce
@@ -2896,6 +2910,28 @@ nei corti va distribuito invece di restare in fondo.
   entra in una colonna più stretta, e i punti che avanzano vanno alla barra, cioè alla sola parte
   della riga con cui si lavora. In più allontana il caso in cui un nome lungo va a capo e fa
   crescere la sua riga.
+  - ⚠️⚠️ **E DALLA `2.37` QUELLA COLONNA SI MISURA INVECE DI ESSERE UN NUMERO, ED È IL PUNTO B DEL
+    SUO CAMPO LIBERO** (giro della `2.36`: *'Mascheratura' deve stare per esteso nel modulo
+    Dettagli, senza andare a capo: aumenta la larghezza quanto basta, oppure fallo diventare
+    'Maschera'*). Le due vie che ha dato hanno lo stesso difetto, ed è il conto a dirlo: **'quanto
+    basta' non è un numero**. In Roboto a corpo pieno quella parola chiede 79 punti su 84, cioè
+    entra con un margine del 6% e va a capo appena il testo cresce di un decimo, che è quello che
+    succede alzando la dimensione dei caratteri di sistema; e non è il caso peggiore, perché su
+    ventotto lingue **quattordici** nomi superano quegli 84 punti già a scala uno: il più largo
+    dei latini è il francese 'Hautes lumières', che ne chiede 93, e il russo 'orizzontale' arriva a
+    95.
+  - ⚠️ **A misurare è il telefono** (`rememberTextMeasurer`), quindi la colonna cresce insieme al
+    testo; un conto fatto in casa con le metriche di Roboto sarebbe di nuovo un numero. Fra un
+    minimo (gli 84 di prima, o in una lingua dai nomi corti la barra partirebbe da un altro punto)
+    e un tetto (oltre il quale la colonna si mangerebbe la barra, e allora si torna al nome su due
+    righe, che è il male minore).
+  - ⚠️ **Si misurano i nomi di TUTTI i moduli**: una colonna che si dimensionasse sul modulo aperto
+    cambierebbe larghezza a ogni gettone toccato, cioè rifarebbe in orizzontale il ballo che la
+    `2.33` ha tolto in verticale.
+  - ⚠️⚠️ **NON HA UNA PROVA DEL BANCO, E VA DETTO**: con la grafica di Robolectric i caratteri sono
+    più stretti di quelli del telefono, quindi là la misura cade sempre sul minimo e una prova
+    sarebbe verde con e senza la correzione. È il caso dichiarato in § '🧪 Quando si scrive una
+    prova, e quando no'.
 - ⚠️⚠️ **IL RESPIRO HA UN TETTO, E SENZA DI LUI SAREBBE PEGGIO DEL VUOTO**: nel Ritaglio avanzano
   un centinaio di punti su tre blocchi, e divisi in parti uguali darebbero mezzo centimetro fra una
   fila di tasti e l'altra, cioè tre isole invece di un pannello. Col tetto ognuno prende il suo
@@ -3120,8 +3156,23 @@ per primo è lui, che i due editor li apre dalla stessa immagine.
   ritaglia il proprio contenuto, quella metà spariva. Adesso l'immagine si adatta a una stanza
   ridotta di `CROP_AIR` per lato, che è esattamente `HANDLE_THICK + GRIP_HALO`, cioè quanto la
   squadretta sporge.
-  - ⚠️ **L'aria vale zero quando il ritaglio non è in scena**, o l'immagine si rimpicciolirebbe
-    negli altri sei moduli per far posto a niente.
+  - ⚠️⚠️ **MA DALLA `2.37` QUELL'ARIA VALE IN TUTTI E SETTE I MODULI, ED È IL PUNTO C DEL SUO
+    CAMPO LIBERO** (giro della `2.36`: *Consideralo un anti-jitter tra moduli: al cambio da un
+    altro modulo al ritaglio, l'immagine *NON* deve rimpicciolirsi, il che significa che le
+    maniglie dell'area di ritaglio devono essere ESTERNE allo spazio dedicato all'anteprima
+    immagine*). La nota della `2.32` diceva che fuori dal Ritaglio sarebbe stata spazio tolto per
+    niente, e guardava **un modulo per volta** invece del passaggio da uno all'altro: entrando nel
+    Ritaglio l'immagine perdeva `CROP_AIR` per lato e si rimpiccioliva sotto gli occhi, cioè in
+    orizzontale lo stesso ballo che la `2.33` aveva tolto in verticale.
+    - ⚠️ **Quello che costa è dichiarato**: negli altri sei moduli l'immagine è più piccola di
+      cinque punti per lato di quanto sarebbe, cioè meno dell'uno per cento su uno schermo da
+      telefono. È il prezzo di una misura che non cambia mai, ed è lo stesso baratto di
+      `SteadyBody`.
+    - ⚠️ **La prova guarda i bordi dell'immagine e non l'altezza del palco**: il palco non si è mai
+      mosso, a muoversi era il rettangolo in cui l'immagine è disegnata dentro di lui. ⚠️ **Un
+      pixel per lato si concede**, perché il velo del ritaglio ha il bordo interno esattamente sul
+      bordo dell'immagine e il suo antialiasing non è fondo; la controprova è di un altro ordine di
+      grandezza (quattro pixel).
 - ⚠️⚠️ **È IL PRIMO MODULO CHE PRENDE IL DITO SULL'IMMAGINE**: gli altri sei mettono i comandi nella
   scheda, questo li mette **sul palco**, quindi finché è in scena il palco fa solo quello (pinza,
   panoramica, doppio tocco e confronto restano fermi), che è la stessa modalità dichiarata del

@@ -7,12 +7,9 @@ import android.graphics.RectF
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.geometry.Offset
@@ -24,7 +21,6 @@ import androidx.compose.ui.test.down
 import androidx.compose.ui.test.moveTo
 import androidx.compose.ui.test.up
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.click
@@ -33,7 +29,6 @@ import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
@@ -59,9 +54,6 @@ import kotlin.math.abs
  * della Luce e la tinta del Colore. È il numero che il difetto della `2.19` metteva in comune.
  */
 private const val RIGA = 1
-
-/** L'etichetta con cui la prova ritrova la stanza di [SteadyBody] in una scena minima. */
-private const val STEADY = "stanza"
 
 /**
  * I nomi dei sette moduli, nell'ordine in cui la fila li disegna.
@@ -1694,60 +1686,86 @@ class SviluppoTest {
     }
 
     /**
-     * **Il 'Filtro' compare col bianco e nero, e la scheda non si allunga per lui.**
+     * **Il 'Filtro BN' c'è sempre, è spento a colori, e vive sotto l'interruttore.**
      *
-     * ⚠️⚠️ **QUELLO CHE PUÒ ROMPERSI IN SILENZIO È IL VERSO DELLA CONDIZIONE**: scritta al
-     * contrario, il cursore comparirebbe a colori (dove non governa niente) e sparirebbe in bianco
-     * e nero (dove è l'unico che conta), e il codice compilerebbe uguale.
-     * ⚠️⚠️ **E LA SCHEDA NON SI ALLUNGA, MA QUESTA PROVA NON PUÒ MISURARLO, E VA DETTO**: sul banco
-     * il modulo più alto è quello delle Curve (238 punti contro i 220 del Colore col 'Filtro' in
-     * scena), quindi il palco resta identico **anche** togliendo la misura col corpo pieno, cioè
-     * una riga qui non si vedrebbe fallire. A misurare quel meccanismo è il caso su [SteadyBody]:
-     * qui resta il fatto come lui lo vede, e vale come tale.
+     * ⚠️⚠️ **È IL PUNTO A DEL SUO CAMPO LIBERO** (giro della `2.36`: *'Filtro' ... va posizionato
+     * (non attivo) DOPO l'interruttore 'Bianco e nero'. Si attiva solo con l'interruttore ON*).
+     * La `2.36` lo toglieva dalla scena a colori, e adesso c'è sempre.
+     * ⚠️⚠️ **QUELLO CHE PUÒ ROMPERSI IN SILENZIO SONO DUE COSE, E SI MISURANO INSIEME**: il verso
+     * della condizione (scritta al contrario, il cursore sarebbe acceso proprio dove non governa
+     * niente) e il **posto**, che dipende dall'identità della riga e non da un indice; spostandolo
+     * nell'elenco, il codice compilerebbe uguale e l'interruttore finirebbe in coda.
+     * ⚠️ **Il posto si misura in pixel e non contando le righe**: l'interruttore non è un cursore,
+     * quindi fra le righe non ha un numero, e quello che lui vede è dove cade sullo schermo.
      */
     @Test
-    fun `il filtro compare col bianco e nero senza allungare la scheda`() {
+    fun `il filtro è spento a colori e vive sotto l'interruttore`() {
         banco.setContent { Scena() }
         pronta()
         modulo(R.string.look_color)
 
-        assertEquals("a colori il Colore porta quattro cursori", 4, quantiCursori())
+        assertEquals("il Colore porta cinque cursori", 5, quantiCursori())
+        cursore(4).assertIsNotEnabled()
+        cursore(3).assertIsEnabled()
+
+        val interruttore = banco.onNodeWithText(testo(R.string.look_bw))
+            .fetchSemanticsNode().positionInRoot.y
+        assertTrue(
+            "il 'Filtro BN' deve venire dopo l'interruttore",
+            cursore(4).fetchSemanticsNode().positionInRoot.y > interruttore
+        )
+        assertTrue(
+            "e la vividezza sopra",
+            cursore(3).fetchSemanticsNode().positionInRoot.y < interruttore
+        )
+
         val prima = altezzaPalco()
         assertTrue(prima > 0)
-
         banco.onNodeWithText(testo(R.string.look_bw)).performClick()
         banco.waitForIdle()
 
-        assertEquals("e col bianco e nero ne porta cinque", 5, quantiCursori())
+        assertEquals("col bianco e nero restano cinque", 5, quantiCursori())
         cursore(4).assertIsEnabled()
         cursore(2).assertIsNotEnabled()
         assertEquals("e il palco non deve accorciarsi", prima, altezzaPalco())
     }
 
     /**
-     * **L'altezza comune è la maggiore delle due di un corpo che cambia.**
+     * **L'immagine non cambia misura entrando nel Ritaglio.**
      *
-     * ⚠️⚠️ **MISURA IL MECCANISMO E NON LA SCHERMATA, PER LA RAGIONE SCRITTA NEL CASO QUI SOPRA**:
-     * nella schermata vera il Colore non è il modulo più alto, quindi là la misura col corpo pieno
-     * non cambia un pixel e una prova non la vedrebbe. Qui la scena è minima: due corpi, il primo
-     * dei quali è alto il doppio quando gli si chiede quello **pieno**.
-     * ⚠️ **Controprovata** passando `false` al posto di `pieno` dentro [SteadyBody]: la colonna
-     * resta alta quanto il corpo corto, e il contenuto della scheda esce dalla sua stanza.
+     * ⚠️⚠️ **È IL PUNTO C DEL SUO CAMPO LIBERO** (giro della `2.36`: *Consideralo un anti-jitter tra
+     * moduli: al cambio da un altro modulo al ritaglio, l'immagine NON deve rimpicciolirsi*). Fino
+     * alla `2.36` l'aria delle squadrette valeva zero negli altri sei moduli, quindi entrare nel
+     * Ritaglio toglieva `CROP_AIR` per lato all'immagine, che si rimpiccioliva sotto gli occhi.
+     * ⚠️ **Si misurano i BORDI e non l'altezza del palco**: il palco non si è mai mosso (ci pensa
+     * `SteadyBody`), a muoversi era il rettangolo in cui l'immagine è disegnata **dentro** di lui,
+     * e quello si vede solo guardando i pixel.
+     * ⚠️⚠️ **UN PIXEL PER LATO SI CONCEDE, E NON È PRUDENZA GENERICA**: nel Ritaglio il velo del
+     * ritaglio copre quello che sta **fuori** dal rettangolo, e il suo bordo interno cade
+     * esattamente sul bordo dell'immagine; il pixel di sfumatura che l'antialiasing lascia lì non
+     * è fondo, quindi il conto lo legge come immagine. La misura che conta è di un altro ordine di
+     * grandezza: **controprovata** rimettendo la condizione di prima, il bordo sinistro passa da
+     * 116 a 120, cioè rientra di quattro pixel (i cinque di `CROP_AIR` meno quello di sfumatura).
      */
     @Test
-    fun `l'altezza comune conta anche le righe che un valore nasconde`() {
-        val corto = 20.dp
-        val pienoAlto = 60.dp
-        banco.setContent {
-            SteadyBody(slots = 2, chosen = 0, modifier = Modifier.testTag(STEADY)) { quale, pieno ->
-                Box(Modifier.fillMaxWidth().height(if (quale == 0 && pieno) pienoAlto else corto))
-            }
-        }
-        banco.waitForIdle()
+    fun `l'immagine non cambia misura entrando nel Ritaglio`() {
+        banco.setContent { Scena() }
+        pronta()
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
 
-        val alta = banco.onNodeWithTag(STEADY).fetchSemanticsNode().size.height
-        val quanto = with(banco.density) { pienoAlto.roundToPx() }
-        assertEquals("la stanza deve valere il corpo pieno", quanto, alta)
+        modulo(R.string.look_light)
+        val (daFuori, aFuori) = bordi(palco.captureToImage().toPixelMap())
+
+        modulo(R.string.look_crop)
+        val (daDentro, aDentro) = bordi(palco.captureToImage().toPixelMap())
+        assertTrue(
+            "il bordo sinistro non deve rientrare: $daFuori diventa $daDentro",
+            abs(daDentro - daFuori) <= 1
+        )
+        assertTrue(
+            "e nemmeno il destro: $aFuori diventa $aDentro",
+            abs(aDentro - aFuori) <= 1
+        )
     }
 
     /**
@@ -1790,6 +1808,21 @@ class SviluppoTest {
     private fun quantiCursori(): Int =
         banco.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))
             .fetchSemanticsNodes().size
+
+    /**
+     * Dove comincia e dove finisce l'immagine, sulla riga di mezzo di uno scatto del palco.
+     *
+     * ⚠️ **Il fondo è il pixel del bordo sinistro**, che è la stessa lettura con cui si trova la
+     * squadretta: l'immagine è centrata nel palco, quindi il primo pixel diverso dal fondo è il suo
+     * bordo. Sulla riga di mezzo non passa nessuna squadretta, che vive agli angoli.
+     */
+    private fun bordi(scatto: PixelMap): Pair<Int, Int> {
+        val riga = scatto.height / 2
+        val fondo = scatto[0, riga]
+        val da = (0 until scatto.width).first { scatto[it, riga] != fondo }
+        val a = (scatto.width - 1 downTo 0).first { scatto[it, riga] != fondo }
+        return da to a
+    }
 
     /** Quanti pixel cambiano fra due scatti dello stesso nodo. */
     private fun diversi(a: PixelMap, b: PixelMap): Int {
