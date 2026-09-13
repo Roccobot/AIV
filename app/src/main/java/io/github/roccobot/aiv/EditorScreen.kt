@@ -1499,6 +1499,16 @@ internal fun grabbed(at: Offset, r: Rect, grip: Float): Grab {
 }
 
 /**
+ * Come `coerceIn`, ma con un intervallo che non può essere vuoto: se il massimo cade sotto il
+ * minimo vince il minimo.
+ *
+ * ⚠️ **Esiste perché `coerceIn` con un intervallo rovesciato LANCIA**, e i limiti di un rettangolo
+ * di ritaglio si rovesciano da soli quando il riquadro è più piccolo del lato minimo, o quando il
+ * dito porta una squadretta oltre il bordo opposto. Vedi la nota su [dragged].
+ */
+private fun within(v: Float, lo: Float, hi: Float): Float = v.coerceIn(lo, max(lo, hi))
+
+/**
  * Il rettangolo dopo lo spostamento del dito.
  *
  * ⚠️⚠️ **CON UNA PROPORZIONE BLOCCATA SI MUOVE UN LATO E L'ALTRO SEGUE**, e l'angolo opposto
@@ -1519,7 +1529,14 @@ internal fun dragged(
         val dy = delta.y.coerceIn(frame.top - r.top, frame.bottom - r.bottom)
         return r.translate(dx, dy)
     }
-    val small = least
+    /*
+     * ⚠️⚠️ **IL LATO MINIMO NON PUÒ SUPERARE IL RIQUADRO, O IL GESTO FA CADERE L'APP**: con
+     * un'immagine molto allungata, o su un palco corto, il riquadro disegnato è più basso del lato
+     * minimo, e allora `frame.top .. bottom - small` è un intervallo **vuoto**, cioè un
+     * `IllegalArgumentException` dentro il dito che sta tirando una squadretta. Non è un caso di
+     * scuola: il banco lo ha preso su un palco alto 118 pixel con un lato minimo di 122.
+     */
+    val small = least.coerceAtMost(min(frame.width, frame.height))
     var left = r.left
     var top = r.top
     var right = r.right
@@ -1531,10 +1548,15 @@ internal fun dragged(
         Grab.BOTTOM_RIGHT -> { right += delta.x; bottom += delta.y }
         else -> Unit
     }
-    left = left.coerceIn(frame.left, right - small)
-    right = right.coerceIn(left + small, frame.right)
-    top = top.coerceIn(frame.top, bottom - small)
-    bottom = bottom.coerceIn(top + small, frame.bottom)
+    /*
+     * ⚠️ **E i quattro limiti passano da [within]**, che un intervallo vuoto non lo può avere: il
+     * lato limitato al riquadro chiude il caso comune, ma un dito che tira una squadretta molto
+     * oltre il bordo opposto porta comunque l'estremo dalla parte sbagliata.
+     */
+    left = within(left, frame.left, right - small)
+    right = within(right, left + small, frame.right)
+    top = within(top, frame.top, bottom - small)
+    bottom = within(bottom, top + small, frame.bottom)
 
     if (keep == null) return Rect(left, top, right, bottom)
 

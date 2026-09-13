@@ -2771,6 +2771,29 @@ esistono. ⚠️⚠️ **DALLA `2.31` LO SCORRIMENTO NON C'È PIÙ**, perché i 
 tutti: il perché, e perché lo scorrimento era un rimedio e non una scelta, vivono in § '✂️ Il modulo
 Ritaglio, e la fila che è diventata di icone'.
 
+⚠️⚠️ **E DALLA `2.33` LA SCHEDA NON CAMBIA PIÙ ALTEZZA PASSANDO DA UN MODULO ALL'ALTRO, ED È SUA
+RICHIESTA** (2026-09-13: *voglio che la bottomsheet dell'editor completo sia sempre alta uguale:
+non deve ballare da un modulo all'altro*). Fino alla `2.32` la scheda si dimensionava sul proprio
+contenuto e il palco prendeva quel che restava, quindi ogni gettone toccato cambiava la misura
+dell'immagine su cui si lavora.
+- ⚠️⚠️ **L'ALTEZZA SI MISURA E NON SI SCRIVE**: `SteadyBody` compone ogni corpo una volta, lo
+  misura e tiene il massimo, perché quanto sia alta una riga di cursori dipende dal corpo del
+  carattere, dalla sua scala e dalla lingua. Un numero in `dp` sarebbe giusto su un telefono e
+  sbagliato sul prossimo, e per accorgersene servirebbe che qualcuno guardasse.
+- ⚠️⚠️ **LE COPIE MISURATE VIVONO UN GIRO SOLO, E LA PRIMA STESURA LE TENEVA IN SCENA**: con un
+  `SubcomposeLayout` che le misura a ogni passata quei corpi **restano nell'albero**, quindi un
+  lettore di schermo annuncia i cursori di sette moduli e il banco li conta; sette prove sono
+  diventate rosse in un colpo. Adesso la misura si scrive in uno stato e la ricomposizione che ne
+  segue le porta via, e mentre ci sono non hanno semantica.
+- ⚠️ **Il costo si vede e si dichiara**: il modulo più alto è la Luce (sei cursori) e il più corto
+  l'HSL, e fra i due ballavano settanta punti su una scena di prova. Cioè il palco non si allunga
+  più nei moduli corti, e non si accorcia in quelli alti.
+- ⚠️⚠️ **E IL BANCO HA TROVATO UN DIFETTO VERO MENTRE LO MISURAVA**: con un palco più corto, tirare
+  una squadretta faceva **cadere l'app**, perché un riquadro più piccolo del lato minimo dà a
+  `coerceIn` un intervallo vuoto. Non dipende dalla scheda: lo stesso succede con un'immagine molto
+  allungata, e adesso i quattro limiti passano da `within`, che un intervallo vuoto non lo può
+  avere.
+
 ⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`, più `ContoTest` per il programma):
 che la curva a riposo sia l'identità **esatta**, che la spline non oltrepassi e che un tratto piatto
 resti piatto, che la tabella componga il canale sotto il composito, che gli estremi non si muovano
@@ -2992,6 +3015,28 @@ metà dei moduli fuori dallo schermo per chi non sa che si scorre.
 - ⚠️ **I quattro canali delle Curve restano scritti**, e non è un'incoerenza: là i gettoni sono
   quattro e i loro nomi sono una lettera o poco più, quindi un'icona direbbe meno della parola. Il
   pezzo è lo stesso e sceglie da sé, perché il glifo è facoltativo.
+
+⚠️⚠️ **E DALLA `2.33` C'È 'APPLICA', ED È SUA RICHIESTA** (2026-09-13: *manca 'Applica' per il
+ritaglio*). Fino alla `2.32` il rettangolo si tirava e non si vedeva applicato mai: il taglio
+compariva soltanto nel file salvato, quindi non esisteva il momento in cui l'immagine su cui si
+lavora diventa quella tagliata.
+- ⚠️⚠️ **QUELLO CHE FA È LA SUA SCELTA FRA DUE LETTURE, E LA DOMANDA GLI È STATA FATTA**: il palco
+  passa a inquadrare la porzione tenuta e negli altri moduli si lavora su quella; **rientrando nel
+  Ritaglio l'immagine torna intera** con le squadrette dov'erano, quindi il taglio si può allargare
+  o rifare. L'altra lettura, cioè tagliare davvero e ripartire come fa l'editor di casa, è stata
+  scartata da lui.
+- ⚠️⚠️ **NON TAGLIA NIENTE, E QUESTO È IL PUNTO**: il rettangolo era già nel modello e il file si
+  salva tagliato da sempre. Quello che mancava era **vederlo**, quindi il tasto scrive un valore
+  (`Look.framed`) invece di riscrivere un'immagine.
+- ⚠️ **Quel valore vive nel modello e non nello sguardo**, ed è la ragione per cui 'Annulla' lo
+  disfa come ogni altro passo: è l'unico campo di `Look` che non cambia un pixel del file, e per
+  questo non entra né in `idle` né in `lossless`.
+- ⚠️ **Il glifo e la parola sono quelli dell'editor di casa**, come i tre comandi della storia: lo
+  stesso gesto a un tocco di distanza non può avere due segni, e nessuna stringa nuova nasce.
+- ⚠️ **Il conto non tocca nessun altro**: `view` resta il riquadro in cui l'immagine **intera** è
+  disegnata, che è quello su cui si reggono il pezzo a risoluzione piena, la lente, il colore
+  mirato e la maglia della geometria; a cambiare è che lo si ricava da dove deve cadere la porzione
+  (`spread`), e che il disegno si ferma al suo confine (`cutout`).
 
 ⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`): che il rettangolo segua la posa nei
 due gesti e dopo quattro giri torni dov'era, che una posa resti senza perdita e un ritaglio no, che

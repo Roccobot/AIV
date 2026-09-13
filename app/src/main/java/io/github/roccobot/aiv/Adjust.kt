@@ -738,7 +738,23 @@ data class Look(
     val mix: Mix = Mix.NONE,
     val detail: Detail = Detail.NONE,
     val tone: Tone = Tone.NONE,
-    val geo: Geometry = Geometry.NONE
+    val geo: Geometry = Geometry.NONE,
+    /**
+     * Se il palco inquadra il **taglio** invece dell'immagine intera, cioè se il ritaglio è stato
+     * confermato con 'Applica'.
+     *
+     * ⚠️⚠️ **È L'UNICO CAMPO CHE NON CAMBIA UN PIXEL DEL FILE: DICE CHE COSA SI VEDE MENTRE SI
+     * LAVORA**, e il taglio si applica al salvataggio comunque, come è sempre stato. Vive qui e
+     * non nello sguardo per una ragione sola, ed è sua (2026-09-13): così 'Applica' è un passo
+     * come gli altri, e 'Annulla' lo disfa senza bisogno di una strada tutta sua.
+     * ⚠️ **Perciò non entra né in [idle] né in [lossless]**: un'immagine con la sola vista
+     * confermata esce identica a com'è entrata, e un 'Salva' acceso per niente sarebbe una
+     * promessa falsa.
+     * ⚠️ **Nel modulo Ritaglio l'immagine torna comunque intera**, perché le squadrette si tirano
+     * ai bordi di quello che si vede: la condizione vive sul palco, dove si sa quale modulo è in
+     * scena.
+     */
+    val framed: Boolean = false
 ) {
 
     /**

@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.captureToImage
@@ -189,6 +190,135 @@ class SviluppoTest {
 
         banco.onNodeWithText(testo(R.string.look_saturation)).assertExists()
         assertEquals(0, quanti(testo(R.string.look_exposure)))
+    }
+
+    /**
+     * **'Applica' fa inquadrare al palco il taglio tenuto, e 'Annulla' lo disfa.**
+     *
+     * ⚠️⚠️ **È SUA RICHIESTA E LA SUA SCELTA FRA DUE LETTURE** (2026-09-13: *manca 'Applica' per
+     * il ritaglio*, e poi *il palco passa a inquadrare la porzione scelta, e negli altri moduli
+     * si lavora su quella*). Fino alla `2.32` il rettangolo si tirava e non si vedeva applicato
+     * mai: il taglio compariva solo nel file salvato.
+     *
+     * ⚠️ **Si misura a pixel perché non c'è altro da guardare**: quello che cambia è **dove**
+     * l'immagine è disegnata, e nessuna misura di struttura lo vede.
+     * ⚠️ **La scena è grande**, come le altre prove che tirano una squadretta: vedi la nota là.
+     */
+    @Test
+    @Config(qualifiers = "w600dp-h900dp")
+    fun `applica fa inquadrare il taglio e annulla lo disfa`() {
+        banco.setContent { Scena() }
+        pronta()
+        banco.onNodeWithContentDescription(testo(R.string.look_crop)).performClick()
+        banco.waitForIdle()
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+
+        // Si tira una squadretta, come farebbe un dito: i tre momenti in tre chiamate.
+        val riposo = palco.captureToImage().toPixelMap()
+        val riga = riposo.height / 2
+        val fondo = riposo[0, riga]
+        val bordo = (0 until riposo.width).firstOrNull { riposo[it, riga] != fondo } ?: 0
+        palco.performTouchInput { down(Offset(bordo + 2f, 2f)) }
+        banco.waitForIdle()
+        palco.performTouchInput { moveTo(Offset(width / 3f, height / 3f)) }
+        banco.waitForIdle()
+        palco.performTouchInput { up() }
+        banco.waitForIdle()
+
+        /*
+         * ⚠️ **Il tasto vive nel solo Ritaglio**, come 'Mirato' nel solo HSL: in un altro modulo
+         * non deve esserci, o prometterebbe un comando che quel modulo non ha.
+         */
+        banco.onNodeWithContentDescription(testo(R.string.editor_apply)).assertExists()
+        banco.onNodeWithContentDescription(testo(R.string.look_light)).performClick()
+        banco.waitForIdle()
+        assertEquals(0, quantiDetti(R.string.editor_apply))
+        val intera = palco.captureToImage().toPixelMap()
+
+        banco.onNodeWithContentDescription(testo(R.string.look_crop)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(testo(R.string.editor_apply)).performClick()
+        banco.waitForIdle()
+        banco.onNodeWithContentDescription(testo(R.string.look_light)).performClick()
+        banco.waitForIdle()
+        val tagliata = palco.captureToImage().toPixelMap()
+        assertTrue(
+            "col taglio confermato il palco deve inquadrare la porzione",
+            diversi(intera, tagliata) > 0
+        )
+
+        /*
+         * ⚠️ **'Annulla' lo disfa come ogni altro passo**, ed è la ragione per cui la vista
+         * confermata vive nel modello invece che nello sguardo: senza, il tasto non avrebbe
+         * niente da riportare indietro.
+         */
+        banco.onNodeWithContentDescription(testo(R.string.editor_undo)).performClick()
+        banco.waitForIdle()
+        assertEquals(
+            "dopo 'Annulla' si torna a vedere l'immagine intera",
+            0,
+            diversi(intera, palco.captureToImage().toPixelMap())
+        )
+    }
+
+    /**
+     * **Tirare una squadretta non fa cadere l'app quando il riquadro è più piccolo del lato
+     * minimo.**
+     *
+     * ⚠️⚠️ **L'HA TROVATO IL BANCO, ED È UN DIFETTO VERO E NON UN LIMITE DELLA SCENA**: con un
+     * riquadro più basso del lato minimo (un'immagine molto allungata, o un palco corto)
+     * `frame.top .. bottom - small` è un intervallo **vuoto**, e `coerceIn` su un intervallo
+     * rovesciato lancia. Quello che si vede è l'app che cade in mano a chi sta ritagliando, e
+     * nessun compilatore lo poteva dire.
+     *
+     * ⚠️ **I due casi sono diversi**: il primo è il riquadro più piccolo del lato minimo, il
+     * secondo è un dito che porta una squadretta molto oltre il bordo opposto, e la prima
+     * correzione da sola non lo copre.
+     */
+    @Test
+    fun `tirare una squadretta non cade su un riquadro basso`() {
+        val stretto = Rect(0f, 0f, 300f, 100f)
+        val tutto = Rect(0f, 0f, 300f, 100f)
+        val giu = dragged(tutto, Grab.TOP_LEFT, Offset(10f, 10f), stretto, null, 122f)
+        assertTrue("il rettangolo deve restare valido", giu.width >= 0f && giu.height >= 0f)
+
+        val largo = Rect(0f, 0f, 300f, 300f)
+        val dentro = Rect(50f, 50f, 250f, 250f)
+        val oltre = dragged(dentro, Grab.TOP_LEFT, Offset(400f, 400f), largo, null, 40f)
+        assertTrue("nemmeno tirando oltre il bordo opposto", oltre.width >= 0f)
+    }
+
+    /**
+     * **La scheda non cambia altezza passando da un modulo all'altro, e si misura sul palco.**
+     *
+     * ⚠️⚠️ **È SUA RICHIESTA** (2026-09-13: *voglio che la bottomsheet dell'editor completo sia
+     * sempre alta uguale: non deve ballare da un modulo all'altro*). La scheda e il palco si
+     * dividono lo schermo, quindi l'altezza dell'immagine è la stessa misura letta dalla parte in
+     * cui si guarda: se la scheda si allunga, il palco si accorcia di altrettanto.
+     *
+     * ⚠️ **Controprovata togliendo `SteadyBody`**: fra la Luce, che ha sei cursori, e le Curve,
+     * che hanno un grafico, il palco cambiava di centinaia di pixel.
+     */
+    @Test
+    fun `la scheda non cambia altezza cambiando modulo`() {
+        banco.setContent { Scena() }
+        pronta()
+
+        val quanto = altezzaPalco()
+        assertTrue(quanto > 0)
+        for (modulo in listOf(
+            R.string.look_crop,
+            R.string.look_geometry,
+            R.string.look_color,
+            R.string.look_mix,
+            R.string.look_tone,
+            R.string.look_detail,
+            R.string.look_light
+        )) {
+            banco.onNodeWithContentDescription(testo(modulo)).performClick()
+            banco.waitForIdle()
+            assertEquals(quanto, altezzaPalco())
+        }
     }
 
     /**
@@ -763,8 +893,14 @@ class SviluppoTest {
      * conto vive sulla scheda grafica e qui non gira, quindi quello si guarda sul telefono.
      * ⚠️ **Il modulo è l'HSL e non le Curve, dalla `2.32`**: là il mirato non c'è più (sua risposta
      * `via` a `d-mirato-curve`), e il tasto che lo arma è un'icona, quindi si cerca per descrizione.
+     * ⚠️⚠️ **LA SCENA È GRANDE, E DALLA `2.33` NON È PIÙ FACOLTATIVO**: da quando la scheda è alta
+     * quanto il modulo più alto, sul banco di serie il palco perde una settantina di pixel, e là
+     * dentro non ci stanno né la lente né un rettangolo di ritaglio col suo lato minimo. È lo
+     * stesso rimedio già dichiarato sulla prova della lente deformata, e misura la cosa che deve
+     * misurare invece dei limiti di una scena minuscola.
      */
     @Test
+    @Config(qualifiers = "w600dp-h900dp")
     fun `la lente del mirato c'e col dito giu e sparisce al rilascio`() {
         banco.setContent { Scena() }
         pronta()
@@ -821,8 +957,14 @@ class SviluppoTest {
      * che questo caso misura, e non dipende da che cosa la lente porti dentro.
      * ⚠️ **Controprovata** rimettendo l'ancoraggio della `2.24`, cioè togliendo l'assegnazione di
      * `lens` dentro il ciclo: il baricentro non si muove.
+     * ⚠️⚠️ **LA SCENA È GRANDE, E DALLA `2.33` NON È PIÙ FACOLTATIVO**: da quando la scheda è alta
+     * quanto il modulo più alto, sul banco di serie il palco perde una settantina di pixel, e là
+     * dentro non ci stanno né la lente né un rettangolo di ritaglio col suo lato minimo. È lo
+     * stesso rimedio già dichiarato sulla prova della lente deformata, e misura la cosa che deve
+     * misurare invece dei limiti di una scena minuscola.
      */
     @Test
+    @Config(qualifiers = "w600dp-h900dp")
     fun `la lente segue il dito che si sposta`() {
         banco.setContent { Scena() }
         pronta()
@@ -1336,8 +1478,14 @@ class SviluppoTest {
      * velo copre la parte esclusa, quindi dopo il gesto una fetta di immagine si scurisce.
      * ⚠️ **L'angolo si TROVA nei pixel**: dove cominci l'immagine dipende da quanto spazio la scheda
      * lascia al palco, e un conto scritto qui direbbe il vero fino al primo cursore in più.
+     * ⚠️⚠️ **LA SCENA È GRANDE, E DALLA `2.33` NON È PIÙ FACOLTATIVO**: da quando la scheda è alta
+     * quanto il modulo più alto, sul banco di serie il palco perde una settantina di pixel, e là
+     * dentro non ci stanno né la lente né un rettangolo di ritaglio col suo lato minimo. È lo
+     * stesso rimedio già dichiarato sulla prova della lente deformata, e misura la cosa che deve
+     * misurare invece dei limiti di una scena minuscola.
      */
     @Test
+    @Config(qualifiers = "w600dp-h900dp")
     fun `il ritaglio si tira col dito sul palco`() {
         banco.setContent { Scena() }
         pronta()
@@ -1625,6 +1773,17 @@ class SviluppoTest {
         }
         return conto
     }
+
+    /**
+     * Quanto è alto il palco, cioè l'immagine su cui si lavora.
+     *
+     * ⚠️ **È la misura della scheda letta dall'altra parte**: le due si dividono lo schermo sotto
+     * la testata, quindi una scheda che si allunga è un palco che si accorcia, e il palco è quello
+     * che l'utente guarda.
+     */
+    private fun altezzaPalco(): Int =
+        banco.onNodeWithContentDescription(testo(R.string.look_compare))
+            .fetchSemanticsNode().size.height
 
     /** Quanti cursori sono in scena, contati dalla loro azione semantica. */
     private fun quantiCursori(): Int =
