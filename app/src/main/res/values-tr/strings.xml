@@ -414,7 +414,7 @@
     <string name="look_tint">Ton</string>
     <string name="look_saturation">Doygunluk</string>
     <string name="look_vibrance">Canlılık</string>
-    <string name="look_filter">Filtre</string>
+    <string name="look_filter">S/B filtre</string>
     <string name="look_bw">Siyah beyaz</string>
     <string name="look_mix">HSL</string>
     <string name="look_hue">Renk tonu</string>

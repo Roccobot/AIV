@@ -398,7 +398,7 @@
     <string name="look_tint">色かぶり補正</string>
     <string name="look_saturation">彩度</string>
     <string name="look_vibrance">自然な彩度</string>
-    <string name="look_filter">フィルター</string>
+    <string name="look_filter">モノクロフィルター</string>
     <string name="look_bw">白黒</string>
     <string name="look_mix">HSL</string>
     <string name="look_hue">色相</string>

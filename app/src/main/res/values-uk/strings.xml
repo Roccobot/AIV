@@ -446,7 +446,7 @@
     <string name="look_tint">Відтінок</string>
     <string name="look_saturation">Насиченість</string>
     <string name="look_vibrance">Барвистість</string>
-    <string name="look_filter">Світлофільтр</string>
+    <string name="look_filter">Фільтр Ч/Б</string>
     <string name="look_bw">Чорно-біле</string>
     <string name="look_mix">HSL</string>
     <string name="look_hue">Відтінок</string>

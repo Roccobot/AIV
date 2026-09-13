@@ -118,9 +118,11 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setProgress
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -524,13 +526,24 @@ private fun LookStage(
     val airPx = with(LocalDensity.current) { CROP_AIR.toPx() }
 
     /**
-     * L'aria da lasciare intorno all'immagine: quanta ne chiedono le squadrette, e zero quando non
-     * ci sono.
+     * L'aria da lasciare intorno all'immagine: quanta ne chiedono le squadrette del ritaglio.
      *
+     * ⚠️⚠️ **VALE SEMPRE DALLA `2.37`, ANCHE NEI SEI MODULI CHE SQUADRETTE NON NE HANNO, ED È IL
+     * PUNTO C DEL SUO CAMPO LIBERO** (giro della `2.36`: *Consideralo un anti-jitter tra moduli: al
+     * cambio da un altro modulo al ritaglio, l'immagine NON deve rimpicciolirsi, il che significa
+     * che le maniglie dell'area di ritaglio devono essere ESTERNE allo spazio dedicato
+     * all'anteprima immagine*). Fino alla `2.36` valeva zero fuori dal Ritaglio, e quello che
+     * sembrava un risparmio era un **salto**: entrando in quel modulo l'immagine perdeva cinque
+     * punti per lato e si rimpiccioliva sotto gli occhi, cioè in orizzontale lo stesso ballo che la
+     * `2.33` aveva tolto in verticale.
+     * ⚠️ **Quello che costa è dichiarato**: negli altri sei moduli l'immagine è più piccola di
+     * cinque punti per lato di quanto sarebbe, cioè meno dell'uno per cento su uno schermo da
+     * telefono. È il prezzo di una misura che non cambia mai, ed è lo stesso baratto di
+     * [SteadyBody].
      * ⚠️ **È una funzione e non un valore**, per la stessa ragione di [geoNow]: la leggono il
      * disegno e i gesti, che vivono fuori dalla composizione e vogliono il valore di adesso.
      */
-    fun air(): Float = if (cutNow != null) airPx else 0f
+    fun air(): Float = airPx
     /**
      * L'anteprima **messa in posa**, cioè quello che si guarda e si tocca, dalla `2.31`.
      *
@@ -1271,8 +1284,10 @@ private fun reined(want: Offset, zoom: Float, room: Size, wide: Float, air: Floa
  * il ritaglio le tagliava.
  * ⚠️ **Si rimpicciolisce l'IMMAGINE e non il palco**: dando il rientro al `Canvas`, l'immagine
  * tornerebbe a toccarne i bordi e il taglio si ripeterebbe un pixel più in là.
- * ⚠️ **Vale solo col Ritaglio in scena**: negli altri moduli non c'è niente da tirare, e l'aria
- * sarebbe spazio tolto all'immagine per niente.
+ * ⚠️⚠️ **E DALLA `2.37` VALE IN TUTTI E SETTE I MODULI, ANCHE DOVE SQUADRETTE NON CE NE SONO**: la
+ * nota di allora diceva che fuori dal Ritaglio sarebbe stata spazio tolto per niente, e guardava un
+ * modulo per volta invece del passaggio da uno all'altro. Il perché per esteso vive su `air()`,
+ * dentro il palco.
  */
 private fun fitted(room: Size, wide: Float, air: Float = 0f): RectF {
     val dentro = Size(
@@ -1389,20 +1404,7 @@ private class Dial(
      * due (i colori spenti dal bianco e nero, e la maschera di contrasto senza nitidezza) e
      * scriverne uno per ognuno moltiplicherebbe i campi di questa tabella.
      */
-    val off: (Look) -> Boolean = { false },
-    /**
-     * Quando questa riga non è in scena affatto.
-     *
-     * ⚠️⚠️ **È UN'ALTRA COSA DA [off], E LA DISTINZIONE È SUA** (2026-09-13: *'Filtro' deve
-     * apparire solo quando l'interruttore 'Bianco e nero' è acceso*): un cursore **spento** si
-     * vede e dice 'qui non c'è niente da fare', e serve dove il gesto torna sensato da sé (la
-     * saturazione, appena il bianco e nero se ne va); un cursore **nascosto** appartiene a
-     * un'altra modalità, e a colori 'Filtro' non è un comando spento, è un comando che non esiste.
-     * ⚠️ **L'indice della riga non cambia**: il corpo scorre la lista **intera** e salta le
-     * nascoste, quindi `dialAt` continua a rispondere per posizione, che è la correzione della
-     * `2.20`.
-     */
-    val hide: (Look) -> Boolean = { false }
+    val off: (Look) -> Boolean = { false }
 ) {
     /**
      * Il cambiamento che porta questo cursore a [v], da applicare a quello che si vede **adesso**.
@@ -1518,13 +1520,18 @@ private enum class Extra {
 private val MONO: (Look) -> Boolean = { it.chroma.mono }
 
 /**
- * Il rovescio di [MONO]: la riga che appartiene **solo** al bianco e nero, cioè il 'Filtro'.
+ * Il rovescio di [MONO]: la riga che governa qualcosa **solo** col bianco e nero, cioè il
+ * 'Filtro BN'.
  *
- * ⚠️⚠️ **DALLA `2.36` NASCONDE INVECE DI SPEGNERE, ED È SUA ISTRUZIONE** (2026-09-13: *'Filtro'
- * deve apparire solo quando l'interruttore 'Bianco e nero' è acceso*). La `2.35` teneva quella
- * riga sempre in scena e la spegneva, per non far cambiare altezza al corpo del Colore; il prezzo
- * di comparire non si paga più perché [SteadyBody] misura i moduli **col corpo pieno**, cioè
- * contando anche le righe che un valore nasconde.
+ * ⚠️⚠️ **SPEGNE, E DALLA `2.36` ALLA `2.37` NASCONDEVA**: la `2.36` toglieva quella riga dalla
+ * scena a colori (*'Filtro' deve apparire solo quando l'interruttore 'Bianco e nero' è acceso*), e
+ * il punto A del campo libero del giro dopo la rimette in scena dicendo dove deve stare: *'Filtro'
+ * diventa 'Filtro BN' ... e va posizionato (non attivo) DOPO l'interruttore 'Bianco e nero'*. Cioè
+ * quello che chiedeva non era una riga che sparisce, era una riga che si legge come la conseguenza
+ * del comando che la governa.
+ * ⚠️ **Con lei esce il meccanismo che la nascondeva** (`Dial.hide`, e la misura col corpo pieno di
+ * [SteadyBody] che esisteva per pagarlo): non aveva più nessun altro chiamante, e un meccanismo
+ * senza chiamanti è codice morto.
  */
 private val NOT_MONO: (Look) -> Boolean = { !it.chroma.mono }
 
@@ -1633,18 +1640,39 @@ private val LIGHT_ROWS = listOf(
 )
 
 /**
- * I cursori del modulo Colore: l'interruttore del bianco e nero è il comando in fondo.
+ * Il cursore del **filtro del bianco e nero**, che è l'unica riga di un modulo a **non** venire
+ * dopo tutte le altre nel disegno: davanti a lei si posa l'interruttore del bianco e nero.
+ *
+ * ⚠️⚠️ **VIVE A PARTE PERCHÉ IL CORPO LA RICONOSCE PER IDENTITÀ E NON PER INDICE** (`knob ===
+ * FILTER_ROW`): un numero di riga scritto là dentro direbbe il vero finché nessuno tocca l'ordine
+ * di [COLOUR_ROWS], e il giorno che qualcuno ci infila un cursore l'interruttore comparirebbe in
+ * mezzo a due manopole senza che niente dia errore.
+ * ⚠️ **È la riga che il punto A del giro della `2.36` ha spostato**: il perché per esteso vive su
+ * [NOT_MONO] e su [COLOUR_ROWS].
+ */
+private val FILTER_ROW = Dial(
+    R.string.look_filter,
+    { it.chroma.filter },
+    { k, v -> k.copy(chroma = k.chroma.copy(filter = v)) },
+    off = NOT_MONO
+)
+
+/**
+ * I cursori del modulo Colore, con l'interruttore del bianco e nero fra i quattro del colore e il
+ * 'Filtro BN'.
  *
  * ⚠️⚠️ **IL QUINTO È IL 'FILTRO' E LAVORA SOLO COL BIANCO E NERO ACCESO, DALLA `2.35`** (sua
  * richiesta, 2026-09-13: *se attivo 'bianco e nero', voglio che appaia uno slider 'Filtro' che
  * definisca la resa del bianco e nero in base a come sono mappati i colori nell'output*). Che cosa
  * fa, e perché è un asse e non una ruota, vive su [Chroma.grey].
- * ⚠️⚠️ **COMPARE COL BIANCO E NERO, DALLA `2.36`, E NELLA `2.35` C'ERA SEMPRE E SI SPEGNEVA** (sua
- * istruzione, 2026-09-13: *'Filtro' deve apparire solo quando l'interruttore 'Bianco e nero' è
- * acceso*). Quello che la teneva in scena era l'altezza del corpo, e non regge più: vedi
- * [Dial.hide] e la misura col corpo pieno di [SteadyBody].
- * ⚠️ **Va sotto i quattro e non accanto all'interruttore**, che è l'ordine dei comandi di questo
- * modulo da sempre: prima i cursori, in fondo la riga che accende.
+ * ⚠️⚠️ **DALLA `2.37` SI CHIAMA 'FILTRO BN', C'È SEMPRE E VIVE SOTTO L'INTERRUTTORE**, ed è il punto
+ * A del campo libero del giro della `2.36`: *'Filtro' diventa 'Filtro BN' ... e va posizionato (non
+ * attivo) DOPO l'interruttore 'Bianco e nero'. Si attiva solo con l'interruttore ON*. La `2.36` la
+ * nascondeva a colori, e questo la rimette in scena spenta: il perché vive su [NOT_MONO], e come
+ * l'interruttore le finisce davanti su [FILTER_ROW].
+ * ⚠️ **Gli altri quattro restano sopra l'interruttore**, che è l'ordine dei comandi di questo
+ * modulo da sempre: prima i cursori del colore, poi la riga che accende, e sotto di lei il solo
+ * comando che da quella riga dipende.
  */
 private val COLOUR_ROWS = listOf(
     Dial(
@@ -1669,13 +1697,9 @@ private val COLOUR_ROWS = listOf(
         { k, v -> k.copy(chroma = k.chroma.copy(vibrance = v)) },
         off = MONO
     ),
-    Dial(
-        R.string.look_filter,
-        { it.chroma.filter },
-        { k, v -> k.copy(chroma = k.chroma.copy(filter = v)) },
-        hide = NOT_MONO
-    )
+    FILTER_ROW
 )
+
 
 /**
  * I cinque cursori del modulo Dettaglio, nell'ordine del pannello di Lightroom: prima la maschera
@@ -2196,19 +2220,25 @@ private fun LookSheet(
              * Curve (un grafico) le cambiava l'altezza, e con lei quella del palco: l'immagine su
              * cui si lavora cambiava misura a ogni gettone toccato.
              */
+            /*
+             * ⚠️ **La colonna dei nomi si misura QUI e non dentro il corpo**, cioè una volta per
+             * scheda invece di una per modulo: la misura è la stessa per tutti e sette, perché
+             * guarda i nomi di tutti, e [SteadyBody] compone ogni corpo una volta per misurarlo.
+             */
+            val nameWidth = knobNameWidth()
             SteadyBody(
                 slots = MODULES.size,
                 chosen = module,
                 modifier = Modifier.fillMaxWidth()
-            ) { indice, pieno ->
+            ) { indice ->
                 ModuleBody(
                     module = indice,
-                    full = pieno,
                     look = look,
                     gaze = gaze,
                     ready = ready,
                     busy = busy,
                     origin = origin,
+                    nameWidth = nameWidth,
                     onLive = onLive,
                     onSettled = onSettled,
                     onPeek = onPeek
@@ -2346,21 +2376,21 @@ private fun LookSheet(
  * della `2.20` e non cambia: le copie che si misurano non vengono posizionate, quindi nessun dito
  * le raggiunge, e quella in scena scrive nel modulo che si sta guardando.
  *
- * ⚠️⚠️ **[full] È LA SECONDA METÀ DI QUELLA MISURA, DALLA `2.36`**: una riga che un valore
- * nasconde ([Dial.hide]) c'è o non c'è a seconda di quel valore, quindi un modulo che la porta è
- * alto due misure diverse. Chi misura chiede il corpo **pieno**, cioè il più alto che quel modulo
- * possa venire, e chi lo mette in scena chiede quello vero: così il 'Filtro' può comparire
- * all'accensione del bianco e nero senza che la scheda torni a ballare.
+ * ⚠️⚠️ **UN MODULO HA UN'ALTEZZA SOLA, E FRA LA `2.36` E LA `2.37` NON ERA COSÌ**: là il 'Filtro'
+ * del Colore compariva col bianco e nero, quindi quel corpo era alto due misure diverse e questa
+ * funzione aveva un secondo argomento che chiedeva *dammi il più alto che puoi venire*. Con la riga
+ * tornata sempre in scena (vedi [NOT_MONO]) quel parametro non aveva più niente da dire.
  */
 @Composable
 private fun ModuleBody(
     module: Int,
-    full: Boolean,
     look: Look,
     gaze: Gaze,
     ready: Boolean,
     busy: Boolean,
     origin: Bitmap?,
+    /** La colonna dei nomi, misurata una volta per tutti i moduli: vedi [knobNameWidth]. */
+    nameWidth: Dp,
     onLive: ((Look) -> Look) -> Unit,
     onSettled: () -> Unit,
     onPeek: (((Look) -> Look)?) -> Unit
@@ -2620,14 +2650,20 @@ private fun ModuleBody(
      */
     mod.rows(band).forEachIndexed { riga, knob ->
         /*
-         * ⚠️⚠️ **UNA RIGA NASCOSTA SI SALTA E NON SI TOGLIE DALLA LISTA, DALLA `2.36`**: la
-         * lista si scorre **intera**, quindi `riga` resta l'indice che `dialAt` risolverà al
-         * momento della scrittura. Oggi il 'Filtro' è l'ultimo dei cinque e filtrare prima
-         * non sposterebbe niente; il giorno che una riga nascosta ne avesse un'altra sotto,
-         * quella scriverebbe nel cursore accanto senza che niente dia errore, cioè sarebbe il
-         * difetto che la `2.20` ha chiuso rifatto con un altro strumento.
+         * ⚠️⚠️ **L'INTERRUTTORE DEL BIANCO E NERO SI DISEGNA DAVANTI AL FILTRO, DALLA `2.37`**
+         * (punto A del campo libero del giro della `2.36`: *'Filtro BN' ... va posizionato (non
+         * attivo) DOPO l'interruttore 'Bianco e nero'*). A dirlo è l'identità della riga e non
+         * un indice: il perché vive su [FILTER_ROW].
          */
-        if (!full && knob.hide(look)) return@forEachIndexed
+        if (knob === FILTER_ROW) {
+            MonoSwitch(
+                look = look,
+                ready = ready,
+                busy = busy,
+                onLive = onLive,
+                onSettled = onSettled
+            )
+        }
         key(knob) {
             LookKnob(
                 name = stringResource(knob.name),
@@ -2642,6 +2678,7 @@ private fun ModuleBody(
                  * come un guasto.
                  */
                 enabled = ready && !busy && !knob.off(look),
+                nameWidth = nameWidth,
                 onLive = { v -> dialAt(riga)?.let { onLive(it.set(v)) } },
                 onSettled = onSettled,
                 /*
@@ -2656,45 +2693,56 @@ private fun ModuleBody(
             )
         }
     }
+}
 
-    /*
-     * ⚠️⚠️ **IL BIANCO E NERO È UN INTERRUTTORE E NON UN CURSORE A -100**: è una scelta
-     * (questa immagine è a colori, o non lo è) e non una quantità, e scritto come fondo
-     * corsa della saturazione resterebbe esposto a chiunque muova quel cursore. Nel conto
-     * viene infatti dopo, e sulla stessa riga dei cursori perché è il quinto comando di
-     * questo modulo.
-     * ⚠️ **La riga è un bersaglio solo**, con `Role.Switch` sulla riga e niente
-     * sull'interruttore: è la stessa regola delle righe del pannello delle impostazioni.
-     */
-    if (mod.name == R.string.look_color) {
-        val bw = stringResource(R.string.look_bw)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .toggleable(
-                    value = look.chroma.mono,
-                    enabled = ready && !busy,
-                    role = Role.Switch,
-                    onValueChange = { on ->
-                        onLive { it.copy(chroma = it.chroma.copy(mono = on)) }
-                        onSettled()
-                    }
-                )
-                .padding(vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            /*
-             * ⚠️ **Lo stesso corpo dei nomi dei cursori**, che dalla `2.35` è un gradino sotto:
-             * questa riga vive in mezzo a loro, e due corpi diversi nella stessa colonna si
-             * vedrebbero prima di qualunque altra cosa.
-             */
-            Text(
-                text = bw,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.weight(1f)
+/**
+ * L'interruttore del **bianco e nero**, che nel modulo Colore vive fra i quattro cursori del colore
+ * e il 'Filtro BN'.
+ *
+ * ⚠️⚠️ **È UN INTERRUTTORE E NON UN CURSORE A -100**: è una scelta (questa immagine è a colori, o
+ * non lo è) e non una quantità, e scritto come fondo corsa della saturazione resterebbe esposto a
+ * chiunque muova quel cursore. Nel conto viene infatti dopo, e qui vive sulla stessa colonna dei
+ * cursori perché è uno dei comandi di questo modulo.
+ * ⚠️⚠️ **E DALLA `2.37` NON È PIÙ L'ULTIMA RIGA**, ed è il suo riscontro (punto A del campo libero
+ * del giro della `2.36`): sotto di lui c'è il 'Filtro BN', che è il solo comando del modulo a
+ * dipendere da questo, quindi si legge come la sua conseguenza invece che come un quinto cursore.
+ * ⚠️ **La riga è un bersaglio solo**, con `Role.Switch` sulla riga e niente sull'interruttore: è la
+ * stessa regola delle righe del pannello delle impostazioni.
+ */
+@Composable
+private fun MonoSwitch(
+    look: Look,
+    ready: Boolean,
+    busy: Boolean,
+    onLive: ((Look) -> Look) -> Unit,
+    onSettled: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .toggleable(
+                value = look.chroma.mono,
+                enabled = ready && !busy,
+                role = Role.Switch,
+                onValueChange = { on ->
+                    onLive { it.copy(chroma = it.chroma.copy(mono = on)) }
+                    onSettled()
+                }
             )
-            Switch(checked = look.chroma.mono, onCheckedChange = null, enabled = ready && !busy)
-        }
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        /*
+         * ⚠️ **Lo stesso corpo dei nomi dei cursori**, che dalla `2.35` è un gradino sotto: questa
+         * riga vive in mezzo a loro, e due corpi diversi nella stessa colonna si vedrebbero prima
+         * di qualunque altra cosa.
+         */
+        Text(
+            text = stringResource(R.string.look_bw),
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.weight(1f)
+        )
+        Switch(checked = look.chroma.mono, onCheckedChange = null, enabled = ready && !busy)
     }
 }
 
@@ -2726,29 +2774,18 @@ private fun ModuleBody(
  * questa schermata inibisce la rotazione, e un cambio di configurazione rifà l'activity, cioè
  * anche questo `remember`.
  *
- * ⚠️⚠️ **E SI MISURA IL CORPO PIENO, DALLA `2.36`, PERCHÉ UNA RIGA PUÒ COMPARIRE**: il 'Filtro'
- * del Colore entra in scena quando si accende il bianco e nero, quindi quel modulo ha **due**
- * altezze, e la misura presa una volta sola deve essere la maggiore delle due. Il secondo
- * argomento di [body] dice appunto *dammi il più alto che puoi venire*, e vale `true` soltanto
- * per le copie che nessuno vede.
- * ⚠️⚠️ **OGGI NON CAMBIA UN PIXEL, E LA MISURA LO DICE INVECE DI LASCIARLO CREDERE**: sul banco
- * il modulo più alto è quello delle **Curve** (238 punti, cioè i quattro gettoni più il grafico),
- * e il Colore col 'Filtro' in scena ne vale 220. Quella disuguaglianza però è una coincidenza fra
- * due numeri, non una proprietà: basta una scala del carattere più grande, una lingua che manda a
- * capo un nome, o un grafico più basso, e il Colore diventa il più alto. Senza questa riga la
- * scheda crescerebbe di una riga al tocco di quell'interruttore, e a vederlo sarebbe lui.
- *
- * ⚠️ **Per questo è `internal` e non privato, come [Breathe]**: quello che il banco deve misurare
- * è il **meccanismo**, cioè che l'altezza comune sia la maggiore fra le due di un corpo che
- * cambia; misurandolo dalla schermata vera la prova resterebbe verde anche col difetto rimesso,
- * perché oggi il Colore non è il modulo più alto.
+ * ⚠️⚠️ **E UN MODULO HA UN'ALTEZZA SOLA, CHE È QUELLO CHE RENDE VERA QUESTA MISURA**: nessuna riga
+ * compare e sparisce col valore di un cursore, quindi il corpo che si misura è lo stesso che si
+ * vedrà. Fra la `2.36` e la `2.37` non era così: il 'Filtro' del Colore compariva col bianco e
+ * nero, e [body] aveva un secondo argomento che chiedeva *dammi il più alto che puoi venire*. Il
+ * perché quella riga sia tornata sempre in scena vive su [NOT_MONO].
  */
 @Composable
 internal fun SteadyBody(
     slots: Int,
     chosen: Int,
     modifier: Modifier = Modifier,
-    body: @Composable (Int, Boolean) -> Unit
+    body: @Composable (Int) -> Unit
 ) {
     var tallest by remember { mutableStateOf<Int?>(null) }
     Box(modifier) {
@@ -2756,7 +2793,7 @@ internal fun SteadyBody(
             Layout(
                 content = {
                     for (i in 0 until slots) {
-                        Column(modifier = Modifier.fillMaxWidth()) { body(i, true) }
+                        Column(modifier = Modifier.fillMaxWidth()) { body(i) }
                     }
                 },
                 modifier = Modifier.clearAndSetSemantics { }
@@ -2781,7 +2818,7 @@ internal fun SteadyBody(
                 .heightIn(min = with(LocalDensity.current) { (tallest ?: 0).toDp() }),
             verticalArrangement = Breathe
         ) {
-            body(chosen, false)
+            body(chosen)
         }
     }
 }
@@ -3129,6 +3166,8 @@ private fun LookKnob(
     name: String,
     value: Float,
     enabled: Boolean,
+    /** La colonna del nome, misurata una volta per tutti i cursori: vedi [knobNameWidth]. */
+    nameWidth: Dp,
     onLive: (Float) -> Unit,
     onSettled: () -> Unit,
     onPeek: (Boolean) -> Unit,
@@ -3161,12 +3200,14 @@ private fun LookKnob(
          * punti che avanzano vanno alla barra. ⚠️ **E toglie un rischio**: un nome lungo che va a
          * capo fa crescere la sua riga oltre [DIAL_ROW], e a corpo più piccolo quel caso arriva
          * più tardi in tutte e ventotto le lingue.
+         * ⚠️⚠️ **E DALLA `2.37` LA COLONNA LA DECIDE LA MISURA**, che è quello che toglie del tutto
+         * quel rischio invece di allontanarlo: vedi [knobNameWidth].
          */
         Text(
             text = name,
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier
-                .width(KNOB_NAME)
+                .width(nameWidth)
                 .semantics { contentDescription = against }
                 .heldOrTwice(enabled = enabled, onTwice = reset, onHold = { peek(it) })
         )
@@ -3430,15 +3471,68 @@ internal fun Modifier.heldOrTwice(
 }
 
 /**
- * Quanto è larga la colonna dei nomi dei cursori.
+ * Il minimo della colonna dei nomi dei cursori, cioè quanto era larga fino alla `2.36`.
  *
  * ⚠️⚠️ **SCESA DALLA `2.35` INSIEME AL CORPO DEL NOME, ED È SUA RICHIESTA** (2026-09-13: *cerca di
  * mantenere tutto più compatto: riduci dimensioni del testo, padding, ecc. per i moduli che
  * occupano più spazio verticale*). Il nome si scrive un gradino più piccolo, quindi la stessa
  * parola chiede meno larghezza, e i dodici punti che avanzano vanno alla **barra**, cioè alla sola
  * parte di quella riga con cui si lavora.
+ * ⚠️ **Dalla `2.37` è un minimo e non la misura**: vedi [knobNameWidth]. Resta perché in una lingua
+ * dai nomi corti la colonna si stringerebbe, e la barra partirebbe da un punto diverso da quello
+ * che lui ha davanti da venti versioni.
  */
-private val KNOB_NAME = 84.dp
+private val KNOB_NAME_MIN = 84.dp
+
+/**
+ * Il tetto della colonna dei nomi: oltre, un nome va a capo come faceva prima.
+ *
+ * ⚠️⚠️ **ESISTE PERCHÉ LA MISURA CRESCE COL TESTO, E SENZA DI LUI SI MANGEREBBE LA BARRA**: con la
+ * scala dei caratteri di sistema al massimo, o in una lingua dai nomi lunghissimi, la colonna
+ * arriverebbe a prendersi mezza riga e il cursore diventerebbe un tratto di un centimetro. Sopra il
+ * tetto si torna al comportamento di prima, che è il male minore fra i due: un nome su due righe si
+ * legge, un cursore che non si può muovere no.
+ * ⚠️ **Il numero copre quello che si misura oggi**: il nome più largo delle ventotto lingue è lo
+ * swahili 'Kichujio cha B/W', e in Roboto a corpo pieno chiede una novantina di punti.
+ */
+private val KNOB_NAME_MAX = 132.dp
+
+/**
+ * Quanto è larga la colonna dei nomi dei cursori: quanto il più largo di tutti, col carattere e la
+ * scala di **questo** telefono.
+ *
+ * ⚠️⚠️ **SI MISURA E NON SI SCRIVE, DALLA `2.37`, ED È IL PUNTO B DEL SUO CAMPO LIBERO** (giro
+ * della `2.36`: *'Mascheratura' deve stare per esteso nel modulo Dettagli, senza andare a capo:
+ * aumenta la larghezza quanto basta, oppure fallo diventare 'Maschera'*). Le due vie che ha dato
+ * hanno lo stesso difetto, ed è il conto a dirlo: **'quanto basta' non è un numero**. In Roboto a
+ * corpo pieno 'Mascheratura' chiede 79 punti su 84, cioè entra con un margine del 6%, e va a capo
+ * appena il testo cresce di un decimo, che è quello che succede alzando la dimensione dei
+ * caratteri di sistema; e non è nemmeno il caso peggiore, perché su ventotto lingue **quattordici**
+ * nomi superano quegli 84 punti a scala uno: il più largo dei latini è il francese 'Hautes
+ * lumières', che ne chiede 93, e il russo 'orizzontale' arriva a 95. Accorciare una parola cura una
+ * lingua sola; allargare di un numero fisso cura una scala sola.
+ *
+ * ⚠️⚠️ **E QUELLO CHE LO RENDE VERO È CHE LA MISURA LA FA IL TELEFONO**: `rememberTextMeasurer`
+ * usa il carattere di sistema e la scala in vigore, quindi la colonna cresce insieme al testo. Un
+ * conto fatto qui con le metriche di Roboto sarebbe di nuovo un numero, giusto su un telefono e
+ * sbagliato sul prossimo.
+ *
+ * ⚠️ **Si misurano i nomi di TUTTI i moduli e non quelli in scena**: una colonna che si
+ * dimensionasse sul modulo aperto cambierebbe larghezza a ogni gettone toccato, cioè rifarebbe in
+ * orizzontale il ballo che la `2.33` ha tolto in verticale.
+ * ⚠️ **Le otto fasce dell'HSL portano gli stessi tre nomi**, quindi basta chiedere la prima.
+ */
+@Composable
+private fun knobNameWidth(): Dp {
+    val measurer = rememberTextMeasurer()
+    val stile = MaterialTheme.typography.bodySmall
+    val nomi = MODULES.flatMap { it.rows(0) }.map { stringResource(it.name) }
+    val density = LocalDensity.current
+    return remember(measurer, stile, nomi, density) {
+        val largo = nomi.maxOfOrNull { measurer.measure(it, stile).size.width } ?: 0
+        with(density) { largo.toDp() }.coerceIn(KNOB_NAME_MIN, KNOB_NAME_MAX)
+    }
+}
 
 /** Il punto che dice 'questo modulo ha toccato l'immagine', nel gettone della fila. */
 private val MODULE_MARK = 6.dp
@@ -3594,7 +3688,10 @@ private val ZOOM_PULL = 96.dp
 private const val ZOOM_RIDE = 220
 
 /**
- * L'aria intorno all'immagine mentre il modulo **Ritaglio** è in scena.
+ * L'aria intorno all'immagine, che è quella di cui le squadrette del **Ritaglio** hanno bisogno.
+ *
+ * ⚠️ **Dalla `2.37` vale in tutti e sette i moduli**, perché l'immagine non cambi misura entrando
+ * nel Ritaglio: il perché per esteso vive su `air()`, dentro il palco.
  *
  * ⚠️⚠️ **SI RICAVA DALLA SQUADRETTA E NON È UN NUMERO SCELTO**: il tracciato di `bracket` corre a
  * mezzo spessore **fuori** dal rettangolo, e l'alone gli sta intorno, quindi l'inchiostro arriva

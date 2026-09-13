@@ -104,7 +104,7 @@
     <string name="look_tint">Tint</string>
     <string name="look_saturation">Saturation</string>
     <string name="look_vibrance">Vibrance</string>
-    <string name="look_filter">Filter</string>
+    <string name="look_filter">B/W filter</string>
     <string name="look_bw">Black and white</string>
     <string name="look_mix">HSL</string>
     <string name="look_hue">Hue</string>

@@ -75,7 +75,7 @@
     <string name="look_tint">Tinta</string>
     <string name="look_saturation">Saturazione</string>
     <string name="look_vibrance">Vividezza</string>
-    <string name="look_filter">Filtro</string>
+    <string name="look_filter">Filtro BN</string>
     <string name="look_bw">Bianco e nero</string>
     <string name="look_mix">HSL</string>
     <string name="look_hue">Tonalità</string>

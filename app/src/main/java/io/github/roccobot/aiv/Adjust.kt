@@ -157,7 +157,11 @@ data class Chroma(
      * ⚠️⚠️ **ZERO È IL BIANCO E NERO DI SEMPRE**: a riposo i pesi sono quelli di Rec. 709, quindi
      * chi aggiorna non si ritrova le sue immagini diverse. Il conto vive in [greyMix].
      * ⚠️ **Conta solo col [mono] acceso**, e per questo non entra in [idle]: senza bianco e nero
-     * non c'è nessun grigio da comporre, e l'interfaccia lo spegne (vedi la riga in `COLOUR_ROWS`).
+     * non c'è nessun grigio da comporre, e l'interfaccia lo spegne.
+     * ⚠️⚠️ **E DALLA `2.37` LA SUA RIGA VIVE SOTTO L'INTERRUTTORE E NON SI NASCONDE PIÙ**, che è il
+     * punto A del suo campo libero del giro della `2.36`: la `2.36` la toglieva dalla scena a
+     * colori, e adesso c'è sempre, spenta, subito dopo il comando da cui dipende. Il perché vive su
+     * `FILTER_ROW`, in `AdvancedEditorScreen.kt`.
      */
     val filter: Float = 0f
 ) {
@@ -207,11 +211,24 @@ data class Chroma(
          */
         val REC709 = floatArrayOf(0.2126f, 0.7152f, 0.0722f)
 
-        /** Il filtro rosso: il cielo viene cupo e l'incarnato chiaro. */
-        private val WARM = floatArrayOf(0.60f, 0.38f, 0.02f)
+        /**
+         * Il filtro rosso: il cielo viene cupo e l'incarnato chiaro.
+         *
+         * ⚠️⚠️ **PIÙ FORTE DALLA `2.37`, ED È LA SUA NOTA SULLA VOCE `bn-filtro`** (giro della
+         * `2.36`, esito accettabile: *me l'aspettavo più ampio, ma può anche andare*). Il conto
+         * misura quanto: con i pesi della `2.35` un cielo azzurro scendeva di **11 punti su 100** e
+         * l'incarnato saliva di 8, quindi lo stacco fra i due passava da 10 a 29; adesso il cielo
+         * scende di 19 e l'incarnato sale di 13, e quello stacco vale **42**. Cioè il fondo corsa
+         * fa poco più del doppio di prima.
+         * ⚠️⚠️ **IL VERDE NON ARRIVA A ZERO, E QUELLO CHE LO TIENE SU È UN CASO MISURATO**: coi
+         * pesi di un canale solo (1, 0, 0) un cielo blu **puro** diventerebbe nero, cioè le nuvole
+         * scure perderebbero ogni disegno; un filtro vero davanti a un obiettivo lascia passare un
+         * po' di tutto, e questi due numeri sono quel poco.
+         */
+        private val WARM = floatArrayOf(0.85f, 0.15f, 0.00f)
 
-        /** Il filtro blu: il cielo viene lattiginoso e le labbra scure. */
-        private val COOL = floatArrayOf(0.00f, 0.30f, 0.70f)
+        /** Il filtro blu: il cielo viene lattiginoso e le labbra scure. Vedi la misura su [WARM]. */
+        private val COOL = floatArrayOf(0.00f, 0.15f, 0.85f)
 
         /** I pesi del grigio per il filtro [f], da -1 (blu) a +1 (rosso): vedi [Chroma.grey]. */
         fun greyMix(f: Float): FloatArray {
