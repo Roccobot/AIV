@@ -2540,7 +2540,19 @@ nature: nelle **Curve** il tocco prende il punto al tono toccato e il trasciname
 muove; nell'**HSL** il tocco **sceglie la fascia** del colore toccato.
 - ⚠️⚠️ **NELL'HSL IL TRASCINAMENTO NON MUOVE NIENTE, ED È UNA SCELTA DICHIARATA**: là i cursori
   sono tre, e sceglierne uno per il dito sarebbe una decisione che lui non ha preso. Il giro della
-  `2.23` lo chiede con `d-mirato-hsl`.
+  `2.23` lo chiede con `d-mirato-hsl`, e la sua risposta è **`niente`**.
+- ⚠️⚠️ **QUINDI NELL'HSL NON C'È NESSUNA ATTESA E NESSUNA VIBRAZIONE, DALLA `2.30`, ED È IL SUO
+  RISCONTRO** (giro della `2.29`, voce `geo-mirato`: *perché anche HLS mirato ha la vibrazione dopo
+  1,2 secondi? È una cosa che ha senso solo per le curve*). L'attesa di `AIM_ARM_MS` è nata per
+  **separare** la scelta dal trascinamento, e dove il trascinamento non muove niente separava una
+  cosa sola: era un pedaggio con un segno in fondo che annunciava un potere che non arrivava. Là la
+  fascia si sceglie quando il dito si alza, che è la strada che il codice già percorreva per chi
+  non aspettava.
+  - **Il palco lo sa da una funzione sola a tre stati** (`Aim`: spento, sceglie, trascina), e a
+    rispondere è la tabella dei moduli: due predicati separati sarebbero due letture della stessa
+    tabella, e il giorno che una cambia si contraddicono.
+  - ⚠️ **Il banco non lo vede**, e va detto: l'attesa è un `delay` e il tempo del banco è fermo,
+    quindi questa correzione si guarda sul telefono.
 - ⚠️⚠️ **ARMATO, IL PALCO FA SOLO QUELLO**: pinza, panoramica, doppio tocco e confronto restano
   fermi finché il tasto è acceso. La via alternativa era un quinto gesto accanto agli altri quattro,
   e in quel rilevatore ognuno nasce dallo stesso dito che scende: cinque strade da distinguere in
@@ -2720,6 +2732,37 @@ non ce l'ha. Si misura sul **contorno** e non sui quattro angoli, perché il pun
 dipende dal comando: con un keystone è un angolo, con la distorsione a barile è il mezzo di un
 lato.
 
+⚠️⚠️ **MA IL SUO RITAGLIO NON SI VEDEVA, E DALLA `2.30` SÌ** (riscontro del giro della `2.29`, voce
+`geo-dritto` non approvata: *anche il ritaglio per non lasciare angoli vuoti dovrebbe vedersi in
+tempo reale*). La copertura c'era e faceva il suo lavoro; a mancare era un confine: sul palco la
+maglia si disegnava **senza ritaglio**, quindi ingrandita usciva dal riquadro dell'immagine e
+andava a finire sul fondo, mentre il salvataggio disegna dentro un bitmap grande quanto
+l'originale, cioè taglia. Si vedeva una cosa e se ne salvava un'altra.
+- ⚠️ **Il riquadro da ritagliare è quello dell'immagine e non quello del palco**: il `clipToBounds`
+  del palco c'era già e non bastava, perché il palco è più grande.
+- ⚠️ **La prova guarda un pixel del FONDO accanto all'immagine**, e ⚠️⚠️ **il banco ha imposto due
+  cose**: al modulo si passa **prima** dello scatto a riposo (la Geometria ha un cursore in meno
+  della Luce, quindi la scheda si accorcia, il palco si allunga e l'immagine cresce: si
+  confrontavano due scene diverse), e il cursore da muovere è **'Proporzioni'** e non il
+  raddrizzamento, che alla riga di mezzo sporge di un decimo di pixel.
+
+⚠️⚠️ **E IL PERNO DI UN KEYSTONE È LA RETTA DI MEZZO, DALLA `2.30`** (stesso riscontro: *dovrebbero
+avere come perno una retta che rimane al centro, anziché un appoggio laterale*). Fino alla `2.29` i
+due keystone erano **una** divisione prospettica sola, che è l'omografia da manuale e manda rette in
+rette, ma non è centrata: il lato che si apre andava a +54% e quello che si stringe a -26%, quindi
+il trapezio scivolava tutto da una parte e l'immagine sembrava appoggiata a un bordo invece di
+ruotare attorno a sé.
+- **Adesso ogni asse è una Möbius sul proprio lato**, e i due keystone si applicano in sequenza: i
+  bordi non si muovono, il trapezio è isoscele, il centro dei quattro vertici resta il centro, e
+  resta un'omografia. Il conto, e le due varianti scartate, vivono su `Warp.SLANT`.
+- ⚠️ **Deformare la sola coordinata trasversale sarebbe stato più corto e CURVA LE VERTICALI**:
+  quella mappa manda una retta in un'iperbole, che in un comando di prospettiva è peggio del difetto
+  che toglie.
+- ⚠️ **Il prezzo è dichiarato**: su un 4:3 col cursore a fondo corsa la copertura passa da 1,26 a
+  1,34, perché un trapezio centrato rientra da tutte e due le parti invece che da una sola.
+- ⚠️ **Il numero non cambia**, ed è la sua risposta `bene` a `d-geo-corsa`: cambia come si
+  distribuisce, non quanto pesa.
+
 ⚠️⚠️ **IL FONDO CORSA DELLA DISTORSIONE È IL TETTO OLTRE IL QUALE IL DISEGNO SI RIPIEGA, E LO HA
 TROVATO IL BANCO**: la mappa radiale è invertibile finché `1 + 3k r²` resta positivo, e il raggio
 più grande, in coordinate isotrope, è quello dell'angolo di un'immagine **quadrata**, cioè radice
@@ -2731,10 +2774,24 @@ l'inversa non esisteva. Il numero di oggi è `0,12`, con la misura scritta sulla
 
 ⚠️⚠️ **IL COLORE MIRATO PASSA DALLA MAPPATURA INVERSA, E LA LENTE CON LUI**: il dito tocca
 l'immagine **deformata** e il colore vive prima della deformazione, quindi `colourAt` chiede a
-`WarpPlan.back` da dove viene il punto toccato. ⚠️ **E la lente inquadra quel punto**, non quello
-sotto il dito: dentro il tondo l'immagine si disegna non deformata, quindi centrandola sul dito si
-tornerebbe a vedere un pixel e a prenderne un altro, che è il difetto che la nota della `2.24`
-esiste per non rifare.
+`WarpPlan.back` da dove viene il punto toccato.
+
+⚠️⚠️ **MA LA LENTE INQUADRA IL PUNTO TOCCATO E MOSTRA L'IMMAGINE DEFORMATA, DALLA `2.30`, E LA NOTA
+DELLA `2.29` È ROVESCIATA** (riscontro del giro, voce `geo-mirato` non approvata: *Il punto non è
+quello giusto, si vede l'immagine prima della distorsione*). Quella nota diceva che la lente si
+sposta sul punto **sorgente**, perché dentro il tondo l'immagine si disegnava non deformata e
+centrarla sul dito avrebbe fatto vedere un pixel e prenderne un altro. Il conto tornava, e quello
+che si vedeva era un'altra immagine: la fotografia com'era prima della geometria.
+- **Adesso la maglia c'è anche dentro il tondo**, costruita sul riquadro della lente: il conto è
+  **invariante per similitudine**, quindi la deformazione è la stessa scalata e il punto toccato
+  cade al centro del mirino per costruzione, non per un aggiustamento.
+- ⚠️ **Il colore non cambia strada** e continua a venire da `WarpPlan.back`: i due dicono la stessa
+  cosa, perché il pixel che si vede nel punto deformato **è** il pixel sorgente.
+- ⚠️ **Anche là dentro si ritaglia**, come sul palco: quello che si vede nel mirino è quello che il
+  salvataggio scriverà, ingrandito, bordo tagliato compreso.
+- ⚠️ **Il banco misura il conto e non il disegno**: che il riquadro ingrandito attorno al dito posi
+  il pixel toccato al centro del tondo è Kotlin puro, e la controprova (il riquadro attorno al punto
+  sorgente, cioè la strada della `2.29`) vive dentro la prova stessa.
 
 ⚠️ **Col modulo mosso il pezzo a risoluzione piena non si legge, e si dichiara**: `sharpAsk` ricava
 la porzione inquadrata dal rettangolo in cui l'immagine **intera** è disegnata, e con la
@@ -2750,8 +2807,10 @@ che si legge nel telefono.
 l'identità **esatta** e la maglia coincida con la griglia, che l'andata e il ritorno si disfacciano
 a vicenda con tutti e cinque i cursori a fondo corsa, che la copertura non lasci bordi vuoti (con
 la controprova a scala uno dentro la prova stessa), e che il sesto modulo porti i suoi cinque
-cursori e azzeri solo i propri. **Non** vede i pixel deformati: che un orizzonte venga dritto e che
-una facciata si raddrizzi si guardano sul telefono, e la voce di collaudo lo chiede.
+cursori e azzeri solo i propri; dalla `2.30` anche che un keystone tenga il **centro** e apra i due
+lati alla pari, che l'immagine deformata non esca dal proprio riquadro (e questa guarda i pixel), e
+il conto su cui la lente si regge. **Non** vede i pixel deformati: che un orizzonte venga dritto e
+che una facciata si raddrizzi si guardano sul telefono, e la voce di collaudo lo chiede.
 - ⚠️⚠️ **IL SESTO GETTONE VA RAGGIUNTO SCORRENDO, E SENZA QUELLA RIGA LA PROVA MENTE**: la fila dei
   moduli scorre in orizzontale dalla `2.23`, quindi col sesto nome la pastiglia cade fuori dalla
   larghezza del banco; il tocco non dà nessun errore e non cambia modulo, e si contavano i sei

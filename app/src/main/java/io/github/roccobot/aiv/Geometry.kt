@@ -147,13 +147,22 @@ internal class WarpPlan(
             ny = ry
         }
 
-        // 4. Il keystone: quello che è più lontano si stringe, e il divisore dice quanto.
+        // 4. I due keystone, uno per asse e in sequenza: un lato si allarga, quello opposto si
+        // stringe di altrettanto, e la retta di mezzo resta dov'è. Il conto per esteso, e perché
+        // la divisione unica di prima faceva scivolare l'immagine, vivono su [Warp.SLANT].
         // ⚠️ **Il divisore si tiene lontano dallo zero**: a denominatore nullo il punto andrebbe
         // all'infinito, e un vertice all'infinito farebbe sparire l'immagine invece di deformarla.
-        if (slantX != 0f || slantY != 0f) {
-            val d = max(1f + slantX * nx + slantY * ny, EDGE)
-            nx /= d
-            ny /= d
+        if (slantY != 0f && ay > 0f) {
+            val u = ny / ay
+            val d = max(1f + slantY * u, EDGE)
+            nx = nx * (1f - slantY * slantY) / d
+            ny = ay * (u + slantY) / d
+        }
+        if (slantX != 0f && ax > 0f) {
+            val v = nx / ax
+            val d = max(1f + slantX * v, EDGE)
+            ny = ny * (1f - slantX * slantX) / d
+            nx = ax * (v + slantX) / d
         }
 
         return floatArrayOf(cx + nx * cover * half, cy + ny * cover * half)
@@ -175,10 +184,22 @@ internal class WarpPlan(
         var nx = (x - cx) / (half * cover)
         var ny = (y - cy) / (half * cover)
 
-        if (slantX != 0f || slantY != 0f) {
-            val d = max(1f - slantX * nx - slantY * ny, EDGE)
-            nx /= d
+        /*
+         * I due keystone si disfano in ordine contrario, e ognuno ha la sua formula chiusa: la
+         * mappa di un asse è una Möbius, quindi l'inversa è la stessa espressione con il segno
+         * cambiato e senza il fattore del lato. Il conto è su [Warp.SLANT].
+         */
+        if (slantX != 0f && ax > 0f) {
+            val v = nx / ax
+            val d = max(1f - slantX * v, EDGE)
             ny /= d
+            nx = ax * (v - slantX) / d
+        }
+        if (slantY != 0f && ay > 0f) {
+            val u = ny / ay
+            val d = max(1f - slantY * u, EDGE)
+            nx /= d
+            ny = ay * (u - slantY) / d
         }
 
         if (sinT != 0f) {
@@ -245,11 +266,42 @@ internal object Warp {
     const val STRETCH = 0.25f
 
     /**
-     * Quanto pesa un keystone al fondo della corsa.
+     * Quanto pesa un keystone al fondo della corsa, cioè di quanto si allarga il lato che si apre.
      *
-     * ⚠️ **Il numero è il coefficiente del divisore**: a 0,35 un bordo si stringe di un terzo e
-     * l'opposto si allarga di altrettanto, che copre la facciata fotografata dal basso senza
-     * arrivare al punto in cui l'immagine si chiude a ventaglio.
+     * ⚠️⚠️ **IL PERNO È LA RETTA DI MEZZO, DALLA `2.30`, ED È IL SUO RISCONTRO** (giro della
+     * `2.29`, voce `geo-dritto` non approvata: *dovrebbero avere come perno una retta che rimane
+     * al centro, anziché un appoggio laterale*). Fino alla `2.29` i due keystone erano **una**
+     * divisione prospettica sola (`nx` e `ny` divisi per `1 + sx*nx + sy*ny`), che è l'omografia da
+     * manuale e manda rette in rette, ma **non è centrata**: a 0,35 il lato che si apre andava a
+     * `1/0,65`, cioè +54%, e quello che si stringe a `1/1,35`, cioè -26%. Le due cose non si
+     * compensano, quindi il trapezio scivolava tutto da una parte (misurato: il suo centro cadeva
+     * a 0,4 di semialtezza dal centro dell'inquadratura) e l'immagine sembrava appoggiata a un
+     * bordo invece di ruotare attorno a sé.
+     *
+     * ⚠️⚠️ **ADESSO OGNI ASSE È UNA MÖBIUS SUL PROPRIO LATO, E I DUE KEYSTONE SI APPLICANO IN
+     * SEQUENZA.** Per il verticale, con `u = ny / ay` e `s` questo coefficiente:
+     * `u -> (u + s) / (1 + s*u)` e `nx -> nx * (1 - s^2) / (1 + s*u)`. Tre proprietà, e sono
+     * esattamente quello che chiedeva:
+     * - **i bordi non si muovono** (`u = ±1` resta `±1`), quindi l'altezza è quella di prima e il
+     *   trapezio è isoscele: il lato di sopra vale `1 + s` e quello di sotto `1 - s`, cioè il
+     *   numero qui sotto si legge direttamente come un +35% e un -35%;
+     * - **il centro dei quattro vertici resta il centro**, che è la forma esatta del difetto;
+     * - **resta un'omografia**, quindi le righe dritte restano dritte. ⚠️ Deformare la sola
+     *   coordinata trasversale (`nx /= 1 + s*ny`, lasciando `ny` dov'è) sarebbe stato più corto e
+     *   **curva le verticali**: quella mappa manda una retta in un'iperbole, che in un comando di
+     *   prospettiva è peggio del difetto che toglie.
+     *
+     * ⚠️ **La normalizzazione è sul lato VERO e non su quello lungo**: le coordinate di lavoro sono
+     * isotrope (vedi [WarpPlan]), quindi su un'immagine larga il bordo di sopra sta a `ay` e non a
+     * uno. Normalizzando sul lato lungo il perno tornerebbe a scappare, in proporzione a quanto
+     * l'immagine è lontana dal quadrato.
+     *
+     * ⚠️ **Il prezzo è un filo di copertura in più**, ed è dichiarato: su un 4:3 con questo cursore
+     * a fondo corsa la scala passa da 1,26 a 1,34, perché un trapezio centrato rientra da tutte e
+     * due le parti invece che da una sola.
+     *
+     * ⚠️ **Il numero non è cambiato**, ed è la sua risposta `bene` a `d-geo-corsa` (giro della
+     * `2.29`): quello che cambia è come si distribuisce, non quanto pesa.
      */
     const val SLANT = 0.35f
 
