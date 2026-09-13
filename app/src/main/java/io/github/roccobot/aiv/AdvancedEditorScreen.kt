@@ -48,16 +48,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AutoFixHigh
-import androidx.compose.material.icons.filled.Colorize
-import androidx.compose.material.icons.filled.Crop
-import androidx.compose.material.icons.filled.Deblur
 import androidx.compose.material.icons.filled.Flip
-import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Timeline
-import androidx.compose.material.icons.filled.Transform
-import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -1547,8 +1540,12 @@ private class Module(
      * sa che si scorre.
      * ⚠️ **Il nome non se ne va, cambia posto**: resta il `contentDescription` del gettone, cioè
      * quello che un lettore di schermo annuncia, e l'etichetta del 'Reset modulo'.
+     * ⚠️⚠️ **È UNA LAMBDA E NON UN `ImageVector`, DALLA `2.32`, PERCHÉ CINQUE GLIFI SU SETTE
+     * VIVONO IN `res/`**: là il disegno si legge con `vectorResource`, che è `@Composable`,
+     * mentre questa tabella è una costante di file. La lambda si valuta dove il gettone si
+     * compone, cioè dove quella lettura ha il suo `remember`.
      */
-    val icon: ImageVector,
+    val icon: @Composable () -> ImageVector,
     /** Che cosa questo modulo ha in più dei suoi cursori: vedi [Extra]. */
     val extra: Extra = Extra.NONE
 )
@@ -1843,7 +1840,7 @@ private val MODULES = listOf(
         rows = { emptyList() },
         clear = { it.copy(spin = Spin.STILL, crop = ImageEdit.Crop.WHOLE) },
         spent = { !it.square },
-        icon = Icons.Filled.Crop,
+        icon = { Glyphs.ModCrop },
         extra = Extra.CROP
     ),
     /*
@@ -1862,28 +1859,28 @@ private val MODULES = listOf(
         rows = { GEO_ROWS },
         clear = { it.copy(geo = Geometry.NONE) },
         spent = { !it.geo.idle },
-        icon = Icons.Filled.Transform
+        icon = { Glyphs.ModGeometry }
     ),
     Module(
         R.string.look_light,
         rows = { LIGHT_ROWS },
         clear = { it.copy(light = Light.NONE) },
         spent = { !it.light.idle },
-        icon = Icons.Filled.WbSunny
+        icon = { Glyphs.ModLight }
     ),
     Module(
         R.string.look_color,
         rows = { COLOUR_ROWS },
         clear = { it.copy(chroma = Chroma.NONE) },
         spent = { !it.chroma.idle },
-        icon = Icons.Filled.Palette
+        icon = { Icons.Filled.Palette }
     ),
     Module(
         R.string.look_mix,
         rows = { MIX_ROWS[it] },
         clear = { it.copy(mix = Mix.NONE) },
         spent = { !it.mix.idle },
-        icon = Icons.Filled.Colorize,
+        icon = { Glyphs.ModMix },
         extra = Extra.BANDS
     ),
     /*
@@ -1896,7 +1893,7 @@ private val MODULES = listOf(
         rows = { emptyList() },
         clear = { it.copy(tone = Tone.NONE) },
         spent = { !it.tone.idle },
-        icon = Icons.Filled.Timeline,
+        icon = { Icons.Filled.Timeline },
         extra = Extra.CURVES
     ),
     /*
@@ -1914,7 +1911,7 @@ private val MODULES = listOf(
         rows = { DETAIL_ROWS },
         clear = { it.copy(detail = Detail.NONE) },
         spent = { !it.detail.idle },
-        icon = Icons.Filled.Deblur
+        icon = { Glyphs.ModDetail }
     )
 )
 
@@ -2180,7 +2177,7 @@ private fun LookSheet(
                 MODULES.forEachIndexed { i, mod ->
                     ModuleChip(
                         name = stringResource(mod.name),
-                        icon = mod.icon,
+                        icon = mod.icon(),
                         chosen = i == module,
                         spent = mod.spent(look),
                         enabled = ready && !busy,
@@ -2528,7 +2525,7 @@ private fun LookSheet(
                         enabled = ready && !busy
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.GpsFixed,
+                            imageVector = Glyphs.Aim,
                             contentDescription = stringResource(R.string.look_target),
                             tint = if (gaze.aiming) {
                                 MaterialTheme.colorScheme.primary
@@ -2560,7 +2557,7 @@ private fun LookSheet(
                     },
                     enabled = ready && !busy && sorgente != null
                 ) {
-                    Icon(Icons.Filled.AutoFixHigh, stringResource(R.string.look_auto))
+                    Icon(Glyphs.Auto, stringResource(R.string.look_auto))
                 }
                 IconButton(onClick = onUndo, enabled = canUndo && !busy) {
                     Icon(Glyphs.EditUndo, stringResource(R.string.editor_undo))

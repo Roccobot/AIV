@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Il modulo 'HSL'.
+
+     AMMORBIDISCE `Icons.Filled.Colorize` di Material, dalla 2.32, e non cambia nient'altro:
+     gli spigoli esterni diventano raccordi da 0,4 unità su 24. È il trattamento che l'utente
+     dà alle icone che disegna lui (2026-09-13: *arrotondare di ~0,4px i bordi esterni*), e
+     la divergenza voluta è la ragione per cui questo file esiste invece di chiamare `Icons`:
+     il criterio vive in `CLAUDE.md`, § 'Come entra un disegno'.
+
+     LO SCARTO CONTRO IL GLIFO DI MATERIAL è 232 pixel su 57.600 (0,40% della tela),
+     misurato rendendo i due a 240px. Il disegno cade nello stesso riquadro.
+
+     IL TRACCIATO È RICOSTRUITO DAL BYTECODE di `material-icons`, cioè dalle chiamate a
+     `PathBuilder` in ordine, che è la sola fonte che non chieda di fidarsi di una memoria.
+     Ogni comando è scritto per esteso e in coordinate assolute, e i numeri sono separati:
+     un tracciato che passa di qui lo legge qualunque parser conforme. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M20.71,5.63L18.37,3.29C17.98,2.9,17.35,2.9,16.96,3.29L13.84,6.41L12.193,4.78A0.4,0.4,0,0,0,11.629,4.781L10.783,5.627A0.4,0.4,0,0,0,10.783,6.193L11.92,7.33L3.117,16.133A0.4,0.4,0,0,0,3,16.416L3,20.6A0.4,0.4,0,0,0,3.4,21L7.584,21A0.4,0.4,0,0,0,7.867,20.883L16.67,12.08L17.807,13.217A0.4,0.4,0,0,0,18.373,13.217L19.217,12.373A0.4,0.4,0,0,0,19.217,11.807L17.58,10.17L20.7,7.05C21.1,6.65,21.1,6.02,20.71,5.63ZM6.637,18.717L5.283,17.363A0.4,0.4,0,0,1,5.283,16.797L12.777,9.303A0.4,0.4,0,0,1,13.343,9.303L14.697,10.657A0.4,0.4,0,0,1,14.697,11.223L7.203,18.717A0.4,0.4,0,0,1,6.637,18.717Z" />
+</vector>

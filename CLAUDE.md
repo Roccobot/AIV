@@ -235,6 +235,30 @@ testa, e la prima a cambiare sarebbe stata quella che nessuno guarda.
   uno scarto sopra zero guardi **prima** se è una scala o una traslazione uniforme, che si vede
   dall'inchiostro: stesso centro e lati in proporzione.
 
+⚠️⚠️ **E DALLA `2.32` UN DISEGNO PUÒ NASCERE QUI: I NOVE GLIFI DELL'EDITOR COMPLETO SONO
+AMMORBIDITI DALLA SESSIONE**, ed è sua richiesta (2026-09-13, dopo aver guardato la tavola dei
+glifi: *cerca solo di arrotondare di ~0,4px i bordi esterni, che è il trattamento che ho fatto a
+tutte quelle preparate da me finora*). Fino a quel giorno un disegno di casa arrivava da lui, e
+questo è lo stesso trattamento applicato ai glifi di Material che l'editor già usava.
+- **Che cosa si tocca**: i giunti che svoltano nel verso del proprio sottotracciato, cioè gli
+  spigoli che **sporgono**. Un angolo che rientra è un raccordo interno e non un bordo esterno;
+  un buco prende gli stessi raccordi, perché i suoi angoli sporgono verso l'inchiostro.
+- ⚠️⚠️ **IL RAGGIO NON È COSTANTE, LO È QUANTO IL VERTICE ARRETRA, E SENZA QUELLA MISURA LE
+  PUNTE VENGONO TOZZE**: con 0,4 fisso un angolo di 30 gradi arretra di **1,15 unità** su 24,
+  cioè il 5% della tela, contro le 0,17 di un angolo retto, e le tre stelle di 'Auto' si
+  accorciavano di brutto. Adesso il tetto è l'arretramento dell'angolo retto, quindi sulla
+  famiglia Material, dove gli spigoli sono quasi tutti retti, il raggio resta 0,4 esatto.
+- ⚠️ **Il raccordo è un arco fra due rette e una quadratica dove c'è una curva**: un arco è
+  tangente ai suoi due lati solo se sono rette, mentre una quadratica col controllo nel vertice
+  lo è per costruzione. L'unico caso in casa sono i due spigoli della semiluna del 'Dettaglio'.
+- ⚠️⚠️ **DUE DEI NOVE NON SONO ENTRATI, ED È IL CRITERIO QUI SOPRA APPLICATO ALLA LETTERA**:
+  `Palette` e `Timeline` sono disegnati tutti di curve e cerchi, quindi non hanno un solo
+  spigolo e l'ammorbidimento li lascia a **zero pixel** di scarto. Là vince Material, e i moduli
+  'Colore' e 'Curve' chiamano `Icons` invece di un file.
+- ⚠️ **Il tracciato si ricostruisce dal bytecode**, cioè dalla stessa fonte con cui si misura uno
+  scarto: si legge dalle chiamate a `PathBuilder` in ordine, si raccorda, e si riscrive in
+  coordinate assolute coi comandi per esteso. Gli scarti misurati vivono in testa a ogni file.
+
 ## 🗣️ Come si chiamano le cose
 
 ⚠️⚠️ **LA FASCIA IN CIMA A UNA CARTELLA SI CHIAMA 'INTESTAZIONE', DAL 2026-09-08** (sua
@@ -2208,8 +2232,10 @@ nessun altro si muove.
 - ⚠️ **Legge l'anteprima e la campiona**: percentili e medie su duecentomila punti valgono quanto
   su due milioni, e leggere il file pieno costerebbe una pausa per una cifra che non si muove di
   un livello.
-- ⚠️ **Il glifo è di Material e nasce provvisorio**, come i due della `1.80`: se non dice
-  abbastanza, il giro di collaudo lo chiede e lui manda il suo.
+- ⚠️ **Il glifo è la bacchetta di Material ammorbidita**, come i sette dei moduli e quello del
+  mirato: il criterio e la misura vivono in § '🖌️ Come entra un disegno'. Nasce comunque
+  provvisorio, come i due della `1.80`: se non dice abbastanza, il giro di collaudo lo chiede e
+  lui manda il suo.
 
 ⚠️⚠️ **I TRE COMANDI DELLA STORIA SONO ICONE DALLA `2.15`, ED È IL SUO RISCONTRO** (voce
 `luce-storia`: *'Annulla' e 'Ripristina' devono essere icone, non testo*). I glifi sono quelli

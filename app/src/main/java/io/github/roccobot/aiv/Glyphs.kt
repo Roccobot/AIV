@@ -454,6 +454,54 @@ object Glyphs {
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_tian)
 
     /*
+     * ⚠️⚠️ **I SETTE DELLA `2.32` SONO UN TERZO CASO: AMMORBIDISCONO UN GLIFO DI MATERIAL CHE
+     * NESSUNO HA RIDISEGNATO**, cioè li ha lavorati la sessione invece di arrivare da un file
+     * dell'utente. La sua richiesta è del 2026-09-13, dopo aver guardato la tavola dei glifi
+     * dell'editor completo: *cerca solo di arrotondare di ~0,4px i bordi esterni, che è il
+     * trattamento che ho fatto a tutte quelle preparate da me finora*.
+     * ⚠️⚠️ **NON È LA DUPLICAZIONE CHE LA NOTA IN TESTA VIETA, per la stessa ragione dei sei
+     * della `1.51`**: il divieto esiste perché due copie dello stesso disegno divergano, e qui
+     * divergono apposta. Lo scarto contro il glifo di Material è misurato in testa a ogni file
+     * e va dallo 0,10% allo 0,66% della tela.
+     * ⚠️⚠️ **E DUE DEI NOVE NON SONO ENTRATI, che è la stessa nota dei sei di allora**: la
+     * tavolozza (`Palette`) e il grafico (`Timeline`) sono disegnati **tutti** di curve e
+     * cerchi, quindi non hanno un solo spigolo da raccordare e l'ammorbidimento li lascia a
+     * **zero pixel** di scarto. Là il divieto vale in pieno, e i moduli 'Colore' e 'Curve'
+     * chiamano `Icons` invece di un file.
+     * ⚠️ **Il tracciato è ricostruito dal bytecode di `material-icons`** e non copiato da un
+     * elenco: il criterio, e il perché quella sia la sola fonte attendibile, vivono in
+     * `CLAUDE.md`, § 'Come entra un disegno'.
+     */
+
+    /** Le forbici del ritaglio: il primo modulo dell'editor completo. */
+    val ModCrop: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_mod_crop)
+
+    /** Il riquadro con le due frecce: il modulo 'Geometria'. */
+    val ModGeometry: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_mod_geometry)
+
+    /** Il sole coi raggi: il modulo 'Luce'. */
+    val ModLight: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_mod_light)
+
+    /** Il contagocce: il modulo 'HSL', che lavora su un colore per volta. */
+    val ModMix: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_mod_mix)
+
+    /** La semiluna sfumata coi tre punti: il modulo 'Dettaglio'. */
+    val ModDetail: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_mod_detail)
+
+    /** Il mirino: il tasto 'Mirato', che arma il colore mirato. */
+    val Aim: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_aim)
+
+    /** La bacchetta con le tre stelle: il tasto 'Auto' dell'editor completo. */
+    val Auto: ImageVector
+        @Composable get() = ImageVector.vectorResource(R.drawable.ic_auto)
+
+    /*
      * ⚠️⚠️ **`ic_launcher_foreground.xml` NON ENTRA QUI, e non è una dimenticanza**: quello è
      * l'icona dell'app, si disegna con `Image` sopra il proprio fondo colorato e **non è
      * tinto**, cioè non è un'icona di comando. Questo catalogo espone disegni che `Icon`

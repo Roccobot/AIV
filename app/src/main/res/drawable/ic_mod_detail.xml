@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Il modulo 'Dettaglio'.
+
+     AMMORBIDISCE `Icons.Filled.Deblur` di Material, dalla 2.32, e non cambia nient'altro:
+     gli spigoli esterni diventano raccordi da 0,4 unità su 24. È il trattamento che l'utente
+     dà alle icone che disegna lui (2026-09-13: *arrotondare di ~0,4px i bordi esterni*), e
+     la divergenza voluta è la ragione per cui questo file esiste invece di chiamare `Icons`:
+     il criterio vive in `CLAUDE.md`, § 'Come entra un disegno'.
+
+     LO SCARTO CONTRO IL GLIFO DI MATERIAL è 167 pixel su 57.600 (0,29% della tela),
+     misurato rendendo i due a 240px. I due spigoli sono quelli della semiluna, dove una retta incontra una curva:
+     là il raccordo è una quadratica invece di un arco, perché una quadratica col
+     controllo nel vertice è tangente ai due lati anche quando uno dei due è curvo.
+
+     IL TRACCIATO È RICOSTRUITO DAL BYTECODE di `material-icons`, cioè dalle chiamate a
+     `PathBuilder` in ordine, che è la sola fonte che non chieda di fidarsi di una memoria.
+     Ogni comando è scritto per esteso e in coordinate assolute, e i numeri sono separati:
+     un tracciato che passa di qui lo legge qualunque parser conforme. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="nonZero"
+        android:pathData="M12,3.4L12,20.6Q12,21,12.445,20.989C17.208,20.757,21,16.821,21,12C21,7.179,17.208,3.243,12.445,3.011Q12,3,12,3.4ZM5,14A1,1,1,1,0,7,14A1,1,1,1,0,5,14ZM5,18A1,1,1,1,0,7,18A1,1,1,1,0,5,18ZM5,10A1,1,1,1,0,7,10A1,1,1,1,0,5,10ZM2.5,10A1,1,0.5,0.5,0,3.5,10A1,1,0.5,0.5,0,2.5,10ZM5,6A1,1,1,1,0,7,6A1,1,1,1,0,5,6ZM2.5,14A1,1,0.5,0.5,0,3.5,14A1,1,0.5,0.5,0,2.5,14ZM9.5,21A1,1,0.5,0.5,0,10.5,21A1,1,0.5,0.5,0,9.5,21ZM9.5,3A1,1,0.5,0.5,0,10.5,3A1,1,0.5,0.5,0,9.5,3ZM9,6A1,1,1,1,0,11,6A1,1,1,1,0,9,6ZM8.5,14A1,1,1.5,1.5,0,11.5,14A1,1,1.5,1.5,0,8.5,14ZM8.5,10A1,1,1.5,1.5,0,11.5,10A1,1,1.5,1.5,0,8.5,10ZM9,18A1,1,1,1,0,11,18A1,1,1,1,0,9,18Z" />
+</vector>
