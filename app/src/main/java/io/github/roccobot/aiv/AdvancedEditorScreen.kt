@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
@@ -101,12 +102,14 @@ import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.progressBarRangeInfo
@@ -116,6 +119,7 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -575,6 +579,29 @@ private fun LookStage(
     val scope = rememberCoroutineScope()
     val wide = posed.width.toFloat() / posed.height
 
+    /**
+     * Il taglio che il palco **inquadra**, o `null` se si vede l'immagine intera.
+     *
+     * ⚠️⚠️ **DALLA `2.33`, ED È IL SUO 'APPLICA'** (2026-09-13: *manca 'Applica' per il
+     * ritaglio*, e la sua scelta fra le due letture: *il palco passa a inquadrare la porzione
+     * scelta, e negli altri moduli si lavora su quella*). Fino alla `2.32` il rettangolo si
+     * tirava e non si vedeva mai applicato: il taglio compariva solo nel file salvato.
+     * ⚠️ **Nel modulo Ritaglio non vale**, ed è la seconda metà della sua risposta: là l'immagine
+     * torna intera con le squadrette dov'erano, quindi il taglio si può allargare o rifare.
+     */
+    val framed = look.crop.takeIf { look.framed && cutting == null && !it.whole }
+
+    /**
+     * Quanto è larga rispetto all'alta la porzione che si vede: l'immagine intera, o il taglio.
+     *
+     * ⚠️ **È questo numero a entrare nella stanza**, non l'aspetto dell'immagine: con un taglio
+     * confermato quello che deve stare dentro il palco è lui, e dove finisca l'immagine intera lo
+     * ricava [spread].
+     */
+    val shown =
+        if (framed == null) wide
+        else wide * (framed.right - framed.left) / (framed.bottom - framed.top)
+
     /** Il pezzo di file letto a risoluzione piena, quando c'è: vedi [SharpPiece]. */
     var sharp by remember(picture) { mutableStateOf<SharpPiece?>(null) }
     /**
@@ -638,7 +665,7 @@ private fun LookStage(
             sharp = null
             return@LaunchedEffect
         }
-        val view = viewport(stage, wide, scale, shift, air())
+        val view = viewport(stage, shown, scale, shift, air(), framed)
         val ask = sharpAsk(
             source.width, source.height, picture.width, view, stage.width, stage.height
         )
@@ -759,7 +786,7 @@ private fun LookStage(
                     val grown = next / scale
                     val from = centroid - middle
                     scale = next
-                    shift = reined(from + (shift - from) * grown + pan, next, room, wide, air())
+                    shift = reined(from + (shift - from) * grown + pan, next, room, shown, air())
                 }
 
                 /**
@@ -781,7 +808,7 @@ private fun LookStage(
                  * cambiasse senza l'altro, si tornerebbe a vedere un pixel e a prenderne un altro.
                  */
                 fun colourAt(at: Offset): Int? {
-                    val view = viewport(room, wide, scale, shift, air())
+                    val view = viewport(room, shown, scale, shift, air(), framed)
                     val l = view.left
                     val t = view.top
                     val r = view.right
@@ -838,7 +865,7 @@ private fun LookStage(
                      */
                     val taglio = cutNow
                     if (taglio != null) {
-                        val vista = viewport(room, wide, scale, shift, air())
+                        val vista = viewport(room, shown, scale, shift, air(), framed)
                         val frame = Rect(vista.left, vista.top, vista.right, vista.bottom)
                         var going = cropBox(taglio, frame)
                         val presa = grabbed(down.position, going, GRIP.toPx())
@@ -987,7 +1014,7 @@ private fun LookStage(
                                         scale = next
                                         shift = reined(
                                             anchor + (fromShift - anchor) * (next / fromScale),
-                                            next, room, wide, air()
+                                            next, room, shown, air()
                                         )
                                     }
                                     // Un compagno arrivato mentre il secondo tocco è ancora giù:
@@ -1000,7 +1027,7 @@ private fun LookStage(
                                         val toScale = if (big) ZOOM_TAP else 1f
                                         val toShift =
                                             if (!big) Offset.Zero
-                                            else reined(anchor * (1f - ZOOM_TAP), ZOOM_TAP, room, wide, air())
+                                            else reined(anchor * (1f - ZOOM_TAP), ZOOM_TAP, room, shown, air())
                                         /*
                                          * ⚠️⚠️ **CI SI ARRIVA CON UN'ANIMAZIONE, DALLA `2.17`, ED È
                                          * IL SUO RISCONTRO** (giro della `2.16`, voce `luce-zoom`
@@ -1047,7 +1074,7 @@ private fun LookStage(
         // poi spostato. ⚠️ **Si scala il RETTANGOLO e non la tela**: il pennello porta uno
         // shader con la sua matrice, e una tela scalata scalerebbe anche quella, cioè
         // ingrandirebbe il conto invece dell'immagine.
-        val view = viewport(room, wide, scale, shift, air())
+        val view = viewport(room, shown, scale, shift, air(), framed)
 
         /** Il lato lungo dell'immagine intera come è disegnata adesso. */
         val lato = max(view.width(), view.height())
@@ -1090,7 +1117,19 @@ private fun LookStage(
             }
         }
 
-        stendi(posed, view, false)
+        /*
+         * ⚠️⚠️ **COL TAGLIO CONFERMATO SI DISEGNA L'IMMAGINE INTERA E SE NE VEDE UNA PORZIONE,
+         * DALLA `2.33`**: [view] resta il riquadro dell'immagine tutta quanta, che è quello su cui
+         * tutti gli altri conti del palco si reggono, e a fare il taglio è il confine. Disegnarne
+         * una copia già ritagliata vorrebbe dire un secondo bitmap a ogni fotogramma, e con lui
+         * due geometrie da tenere d'accordo.
+         * ⚠️ **A taglio non confermato il confine è il riquadro stesso**, quindi qui non cambia
+         * niente: `cutout` con `null` risponde quello che riceve.
+         */
+        val visto = cutout(view, framed)
+        clipRect(visto.left, visto.top, visto.right, visto.bottom) {
+            stendi(posed, view, false)
+        }
 
         /*
          * ⚠️⚠️ **IL PEZZO NITIDO SI DISEGNA SOPRA L'ANTEPRIMA, NON AL SUO POSTO, DALLA `2.27`**, ed
@@ -1147,7 +1186,7 @@ private fun LookStage(
     Canvas(modifier = Modifier.fillMaxSize()) {
         val room = size
         if (room.width <= 0f || room.height <= 0f) return@Canvas
-        val view = viewport(room, wide, scale, shift, air())
+        val view = viewport(room, shown, scale, shift, air(), framed)
         val lato = max(view.width(), view.height())
         val fine = sharp
         /*
@@ -1224,8 +1263,14 @@ private fun LookStage(
             val lente = if (look.geo.idle) null else Warp.plan(
                 look.geo, vista.centerX(), vista.centerY(), vista.width(), vista.height()
             )
+            /*
+             * ⚠️ **E col taglio confermato il confine è il suo, come sul palco**: qui il conto è
+             * lo stesso scalato, quindi anche dentro il tondo si vede quello che il salvataggio
+             * scriverà. A taglio non confermato `cutout` risponde il riquadro che riceve.
+             */
+            val dentro = cutout(vista, framed)
             clipPath(tondo) {
-                clipRect(vista.left, vista.top, vista.right, vista.bottom) {
+                clipRect(dentro.left, dentro.top, dentro.right, dentro.bottom) {
                     drawIntoCanvas { tela ->
                         val paint = pennello(posed, vista, true, vetro)
                         if (lente == null) {
@@ -1443,18 +1488,59 @@ private fun fitted(room: Size, wide: Float, air: Float = 0f): RectF {
  * funzione è pura e applicarla due volte dà lo stesso risultato, quindi chi la chiama non ha una
  * seconda riga da ricordare.
  */
-private fun viewport(room: Size, wide: Float, scale: Float, shift: Offset, air: Float = 0f): RectF {
+private fun viewport(
+    room: Size,
+    wide: Float,
+    scale: Float,
+    shift: Offset,
+    air: Float = 0f,
+    /**
+     * Il taglio confermato con 'Applica', quando il palco inquadra lui invece dell'immagine
+     * intera: vedi [spread].
+     */
+    cut: ImageEdit.Crop? = null
+): RectF {
     val box = fitted(room, wide, air)
     val safe = reined(shift, scale, room, wide, air)
     val midX = room.width / 2f
     val midY = room.height / 2f
-    return RectF(
+    val seen = RectF(
         midX + (box.left - midX) * scale + safe.x,
         midY + (box.top - midY) * scale + safe.y,
         midX + (box.right - midX) * scale + safe.x,
         midY + (box.bottom - midY) * scale + safe.y
     )
+    return if (cut == null) seen else spread(seen, cut)
 }
+
+/**
+ * Dove finisce l'immagine **intera**, dato dove deve finire il suo taglio [cut].
+ *
+ * ⚠️⚠️ **È IL PEZZO CHE FA VEDERE IL RITAGLIO SENZA TOCCARE UN ALTRO CONTO, DALLA `2.33`**: tutto
+ * il palco (il pezzo a risoluzione piena, la lente, il colore mirato, la maglia della geometria)
+ * ragiona su *dove finisce l'immagine intera sullo schermo*, e quel riquadro qui continua a
+ * esistere: quello che cambia è che adesso si ricava da dove deve cadere la **porzione** scelta,
+ * invece che dalla stanza. Cambiando il significato di quel rettangolo si sarebbero dovuti
+ * riscrivere tutti gli altri.
+ * ⚠️ **L'inversa è [cutout]**, che dal riquadro dell'immagine intera dice dove cade il taglio: è
+ * quella che serve al disegno, perché è il confine oltre il quale non si deve vedere niente.
+ */
+private fun spread(seen: RectF, cut: ImageEdit.Crop): RectF {
+    val w = seen.width() / (cut.right - cut.left).coerceAtLeast(0.001f)
+    val h = seen.height() / (cut.bottom - cut.top).coerceAtLeast(0.001f)
+    val left = seen.left - cut.left * w
+    val top = seen.top - cut.top * h
+    return RectF(left, top, left + w, top + h)
+}
+
+/** Dove cade il taglio [cut] dentro il riquadro [view] dell'immagine intera: vedi [spread]. */
+private fun cutout(view: RectF, cut: ImageEdit.Crop?): RectF =
+    if (cut == null) view else RectF(
+        view.left + cut.left * view.width(),
+        view.top + cut.top * view.height(),
+        view.left + cut.right * view.width(),
+        view.top + cut.bottom * view.height()
+    )
 
 /**
  * Un cursore del modulo: il suo nome, come si legge il suo valore e come si riscrive.
@@ -1838,7 +1924,9 @@ private val MODULES = listOf(
     Module(
         R.string.look_crop,
         rows = { emptyList() },
-        clear = { it.copy(spin = Spin.STILL, crop = ImageEdit.Crop.WHOLE) },
+        // ⚠️ Il 'Reset modulo' porta via anche la vista confermata: senza, il palco resterebbe a
+        // inquadrare un taglio che non c'è più, cioè l'immagine intera dentro un riquadro.
+        clear = { it.copy(spin = Spin.STILL, crop = ImageEdit.Crop.WHOLE, framed = false) },
         spent = { !it.square },
         icon = { Glyphs.ModCrop },
         extra = Extra.CROP
@@ -2112,24 +2200,7 @@ private fun LookSheet(
     onOriginal: () -> Unit
 ) {
     val module = gaze.module
-    val band = gaze.band
     val chosen = MODULES[module]
-
-    /**
-     * Il cursore che sta alla riga [riga] del modulo e della fascia che si stanno guardando
-     * **adesso**, o `null` se là non c'è niente (i moduli non hanno tutti lo stesso numero di
-     * cursori).
-     *
-     * ⚠️ **Legge [module] e [band] al momento della chiamata e non alla composizione**, ed è tutto
-     * il suo valore: chiamata da dentro il rilevatore di un gesto, risponde con quello che il dito
-     * ha davvero sotto. ⚠️ **La fascia è entrata nel conto con la `2.21` e non è un secondo
-     * meccanismo**: è la stessa correzione della `2.20` su una dimensione in più, e senza di lei
-     * un cursore dell'HSL scriverebbe nella fascia da cui il suo nodo è nato.
-     */
-    fun dialAt(riga: Int): Dial? = MODULES[gaze.module].rows(gaze.band).getOrNull(riga)
-
-    /** Quante volte l'immagine **già posata** è più larga che alta: vedi [posedAspect]. */
-    fun cropAspect(k: Look): Float = posedAspect(origin, k.spin)
     /*
      * ⚠️⚠️ **LA SUPERFICIE È QUELLA DELL'EDITOR DI CASA, riga per riga**: il fondo del palco che
      * passa sotto gli angoli stondati, il bordo d'accento che corre di fuori, il colore, e il
@@ -2192,294 +2263,29 @@ private fun LookSheet(
             }
 
             /*
-             * ⚠️⚠️ **LA FILA DELLA POSA È DEL SOLO MODULO RITAGLIO, DALLA `2.31`, E I TRE TASTI
-             * SONO QUELLI DELL'EDITOR DI CASA**: stesso pezzo (`ActionPad`), stessi glifi, stesse
-             * etichette e stesso tocco lungo sul terzo. Disegnarne di nuovi vorrebbe dire due segni
-             * per lo stesso gesto a un tocco di distanza, visto che dalla stessa immagine si entra
-             * nell'uno o nell'altro editor.
-             * ⚠️⚠️ **E DALLA `2.32` SONO CINQUE, CON I FORMATI SOPRA, ED È LA SUA RISPOSTA
-             * `formati` A `d-crop-formati`** (giro della `2.31`: *portali, con le centrature*).
-             * Fino alla `2.31` il rettangolo era libero e le due centrature non avrebbero avuto
-             * niente da centrare: con una forma scelta ce l'hanno, ed è la stessa fila dell'editor
-             * di casa.
-             * ⚠️ **L'ordine salvato dal riordino non si legge**: quello è l'ordine della fila della
-             * selezione, e infilarci dentro questi tasti darebbe una fila che si riordina in un
-             * modo che nessuno ha chiesto.
+             * ⚠️⚠️ **IL CORPO È ALTO QUANTO IL MODULO PIÙ ALTO, DALLA `2.33`, ED È SUA
+             * RICHIESTA** (2026-09-13: *voglio che la bottomsheet dell'editor completo sia sempre
+             * alta uguale: non deve ballare da un modulo all'altro*). Fino alla `2.32` la scheda si
+             * dimensionava sul proprio contenuto, quindi passare dalla Luce (sei cursori) alle
+             * Curve (un grafico) le cambiava l'altezza, e con lei quella del palco: l'immagine su
+             * cui si lavora cambiava misura a ogni gettone toccato.
              */
-            if (chosen.extra == Extra.CROP) {
-                val live = ready && !busy
-                val lay = cropLay(gaze)
-                fun pose(gesto: Spin) {
-                    onLive { spunLook(it, gesto) }
-                    onSettled()
-                }
-                /*
-                 * ⚠️⚠️ **LE FILE SONO QUELLE DELL'EDITOR DI CASA, E DALLA `2.32` SONO LO STESSO
-                 * PEZZO**: le forme le disegna `ShapeRows`, che vive di là, e qui resta la sola
-                 * cosa che cambia fra i due editor, cioè dove si scrive la scelta. Fino alla
-                 * `2.31` questa fila era ricopiata riga per riga, e con 'Originale' sarebbero
-                 * state due copie da tenere d'accordo invece di una.
-                 */
-                ShapeRows(
-                    shape = cropShape(gaze),
-                    lay = lay,
-                    enabled = live,
-                    onShape = { one ->
-                        /*
-                         * ⚠️ **Ritoccare la forma GIÀ scelta rimette il rettangolo intero**, ed è
-                         * la via di fuga dell'editor di casa: senza, una selezione ridotta per
-                         * sbaglio non avrebbe un modo rapido di tornare grande.
-                         */
-                        onLive { k ->
-                            val quanto = cropAspect(k)
-                            k.copy(
-                                crop = if (one == cropShape(gaze)) {
-                                    one.fit(quanto, lay)
-                                } else {
-                                    reshaped(k.crop, quanto, one.value(lay, quanto))
-                                }
-                            )
-                        }
-                        gaze.shape = one.ordinal
-                        onSettled()
-                    },
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    for (one in Lay.entries) {
-                        SheetChip(
-                            text = stringResource(one.label),
-                            selected = one == lay,
-                            enabled = live,
-                            onClick = {
-                                if (one != lay) {
-                                    onLive { k -> k.copy(crop = flipped(k.crop, cropAspect(k))) }
-                                    gaze.lay = one.ordinal
-                                    onSettled()
-                                }
-                            },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                }
-                ActionPad(
-                    columns = POSE_KEYS,
-                    stretch = true,
-                    actions = listOf(
-                        PadAction(
-                            PadKey.CENTRE_ACROSS, Glyphs.AlignAcross, R.string.editor_center_across,
-                            enabled = live,
-                            onHold = {
-                                onLive { it.copy(crop = centredDown(centredAcross(it.crop))) }
-                                onSettled()
-                            },
-                            holdLabel = R.string.editor_center_both
-                        ) {
-                            onLive { it.copy(crop = centredAcross(it.crop)) }
-                            onSettled()
-                        },
-                        PadAction(
-                            PadKey.CENTRE_DOWN, Glyphs.AlignDown, R.string.editor_center_down,
-                            enabled = live,
-                            onHold = {
-                                onLive { it.copy(crop = centredDown(centredAcross(it.crop))) }
-                                onSettled()
-                            },
-                            holdLabel = R.string.editor_center_both
-                        ) {
-                            onLive { it.copy(crop = centredDown(it.crop)) }
-                            onSettled()
-                        },
-                        /*
-                         * ⚠️ **Il tocco lungo ha SEMPRE la sua etichetta**, come vuole
-                         * [PadAction.onHold]: un gesto che il lettore di schermo non annuncia
-                         * esiste solo per chi lo scopre per caso.
-                         */
-                        PadAction(
-                            PadKey.FLIP, Icons.Filled.Flip, R.string.editor_flip,
-                            enabled = live,
-                            onHold = { pose(Spin.DOWN) },
-                            holdLabel = R.string.editor_flip_down
-                        ) { pose(Spin.ACROSS) },
-                        PadAction(
-                            PadKey.TURN_LEFT, Glyphs.TurnLeft, R.string.editor_left,
-                            enabled = live
-                        ) { pose(Spin(3, false)) },
-                        PadAction(
-                            PadKey.TURN_RIGHT, Glyphs.TurnRight, R.string.editor_right,
-                            enabled = live
-                        ) { pose(Spin(1, false)) }
-                    ),
-                    modifier = Modifier.padding(bottom = 6.dp)
-                )
-            }
-
-            /*
-             * ⚠️⚠️ **LA FILA DELLE OTTO FASCE, DALLA `2.21`**: compare solo per i moduli che
-             * lavorano su un colore per volta, cioè oggi l'HSL soltanto. È la seconda fila di
-             * gettoni della scheda, e la sua forma è di proposito **diversa** dalla prima: là ci
-             * sono parole, qui ci sono colori, e un colore dice che cosa si sta scegliendo senza
-             * che nessuno lo debba leggere.
-             * ⚠️ **I due gesti sono gli stessi del gettone di un modulo**, tocco per scegliere e
-             * tocco lungo per azzerare, un gradino più in basso: là si azzera il modulo, qui la
-             * fascia. Chi impara il gesto sopra lo ritrova qui.
-             */
-            if (chosen.extra == Extra.BANDS) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    BAND_NAMES.forEachIndexed { i, nome ->
-                        BandChip(
-                            name = stringResource(nome),
-                            hue = Mix.CENTRES[i],
-                            chosen = i == band,
-                            spent = !look.mix.bands[i].idle,
-                            enabled = ready && !busy,
-                            onTap = { gaze.band = i },
-                            onHold = {
-                                onLive { it.copy(mix = it.mix.swap(i) { Band.NONE }) }
-                                onSettled()
-                            },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                }
-            }
-
-            /*
-             * ⚠️⚠️ **LA FILA DEI QUATTRO CANALI E IL GRAFICO, DALLA `2.23`**: è la terza forma che
-             * questa scheda può prendere, e la sola in cui non ci sono cursori. I gesti dei
-             * gettoni sono quelli di sempre, tocco per scegliere e tocco lungo per azzerare, un
-             * gradino più in basso: là si azzera il modulo, qui la curva di quel canale.
-             * ⚠️ **Il gettone è lo stesso della fila dei moduli e non un pezzo nuovo**: quello che
-             * serve qui è esattamente quello che fa già, cioè un nome, il segno di 'toccato' e i
-             * due gesti.
-             */
-            if (chosen.extra == Extra.CURVES) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    TONE_NAMES.forEachIndexed { i, nome ->
-                        ModuleChip(
-                            name = stringResource(nome),
-                            chosen = i == gaze.channel,
-                            spent = !look.tone.curve(i).idle,
-                            enabled = ready && !busy,
-                            onTap = { gaze.channel = i },
-                            onHold = {
-                                onLive { k -> k.copy(tone = k.tone.swap(i) { Curve.NONE }) }
-                                onSettled()
-                            }
-                        )
-                    }
-                }
-                CurveBoard(
-                    curve = look.tone.curve(gaze.channel),
-                    ink = toneInk(gaze.channel),
-                    enabled = ready && !busy,
-                    /*
-                     * ⚠️⚠️ **QUELLO CHE ARRIVA È UN CAMBIAMENTO E IL CANALE SI RISOLVE QUI, cioè la
-                     * regola della `2.20` applicata a un modulo che non ha cursori**: il gesto del
-                     * grafico non si porta dentro né la curva né il canale, che invecchierebbero
-                     * tutti e due; legge [Gaze.channel] al momento della scrittura, e la curva di
-                     * partenza è quella viva.
-                     */
-                    onEdit = { cambia ->
-                        onLive { k -> k.copy(tone = k.tone.swap(gaze.channel, cambia)) }
-                    },
+            SteadyBody(
+                slots = MODULES.size,
+                chosen = module,
+                modifier = Modifier.fillMaxWidth()
+            ) { indice ->
+                ModuleBody(
+                    module = indice,
+                    look = look,
+                    gaze = gaze,
+                    ready = ready,
+                    busy = busy,
+                    origin = origin,
+                    onLive = onLive,
                     onSettled = onSettled,
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp)
+                    onPeek = onPeek
                 )
-            }
-
-            /*
-             * ⚠️⚠️ **UN GESTO SCRIVE LA RIGA CHE TOCCA NEL MODULO CHE SI VEDE, E NON UN CURSORE
-             * CHE SI PORTA DENTRO, DALLA `2.20`** (campo libero del giro della `2.19`: *il mio
-             * tocco, mentre provo a spostare la tinta o la saturazione, sposta invece il contrasto
-             * che è nell'altro modulo; lo stesso succede altrove, c'è qualcosa di mescolato*). Una
-             * lambda che si porta dentro il proprio [Dial] dice il vero finché il nodo che la
-             * tiene è quello per cui è nata; risolvendo la **riga** al momento della scrittura, il
-             * cursore numero N scrive sempre il cursore numero N di quello che è in scena adesso,
-             * cioè quello che il dito sta toccando.
-             * ⚠️⚠️ **LA CAUSA NON È ACCERTATA, E SI SCRIVE COSÌ INVECE DI INVENTARLA**: quel
-             * difetto **non si riproduce sul banco**, né col tocco secco né con un trascinamento
-             * vero, e una spia messa dentro il gesto risponde col cursore giusto in tutti e due i
-             * casi. Quindi questa riga non è la cura misurata di quel difetto: è il meccanismo che
-             * lo rende impossibile qualunque sia la sua causa, ed è dichiarato come tale.
-             * ⚠️ **Il `key` è la seconda metà**: senza, Compose riusa i composable di una lista
-             * **per posizione**, quindi cambiando modulo i nodi dei cursori passano di mano
-             * portandosi dietro tutto quello che un nodo tiene. La chiave è il [Dial], che è un
-             * oggetto di [MODULES] e quindi stabile per tutta la vita del processo: due moduli non
-             * ne hanno nessuno in comune, e i nodi si buttano invece di passare di mano.
-             */
-            chosen.rows(band).forEachIndexed { riga, knob ->
-                key(knob) {
-                    LookKnob(
-                        name = stringResource(knob.name),
-                        value = knob.read(look),
-                        span = knob.span,
-                        stops = knob.stops,
-                        unipolar = knob.unipolar,
-                        /*
-                         * ⚠️ **Un cursore che non governa niente si spegne**, e i casi sono due: i
-                         * colori col bianco e nero acceso, e la maschera di contrasto senza
-                         * nitidezza. Un cursore che si muove senza cambiare l'immagine si legge
-                         * come un guasto.
-                         */
-                        enabled = ready && !busy && !knob.off(look),
-                        onLive = { v -> dialAt(riga)?.let { onLive(it.set(v)) } },
-                        onSettled = onSettled,
-                        /*
-                         * ⚠️ **Il confronto si costruisce QUI**, con lo stesso `set` con cui il
-                         * cursore scrive: è l'immagine di adesso con questo solo campo a zero,
-                         * cioè la risposta alla domanda 'questo cursore, da solo, che cosa fa?'.
-                         * ⚠️⚠️ **E PARTE DA QUELLO CHE SI VEDE ADESSO E NON DA [look]**, per la
-                         * ragione misurata su [Dial.set]: questa riga vive dentro il rilevatore
-                         * di un gesto, e il valore che ci si cattura invecchia.
-                         */
-                        onPeek = { on -> onPeek(if (on) dialAt(riga)?.set(0f) else null) }
-                    )
-                }
-            }
-
-            /*
-             * ⚠️⚠️ **IL BIANCO E NERO È UN INTERRUTTORE E NON UN CURSORE A -100**: è una scelta
-             * (questa immagine è a colori, o non lo è) e non una quantità, e scritto come fondo
-             * corsa della saturazione resterebbe esposto a chiunque muova quel cursore. Nel conto
-             * viene infatti dopo, e sulla stessa riga dei cursori perché è il quinto comando di
-             * questo modulo.
-             * ⚠️ **La riga è un bersaglio solo**, con `Role.Switch` sulla riga e niente
-             * sull'interruttore: è la stessa regola delle righe del pannello delle impostazioni.
-             */
-            if (chosen.name == R.string.look_color) {
-                val bw = stringResource(R.string.look_bw)
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .toggleable(
-                            value = look.chroma.mono,
-                            enabled = ready && !busy,
-                            role = Role.Switch,
-                            onValueChange = { on ->
-                                onLive { it.copy(chroma = it.chroma.copy(mono = on)) }
-                                onSettled()
-                            }
-                        )
-                        .padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = bw,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Switch(checked = look.chroma.mono, onCheckedChange = null, enabled = ready && !busy)
-                }
             }
 
             /*
@@ -2519,6 +2325,33 @@ private fun LookSheet(
                  * ⚠️ **A dire che è acceso è il colore**: un `IconButton` non ha uno stato scelto,
                  * quindi il glifo passa all'accento quando la modalità è armata.
                  */
+                /*
+                 * ⚠️⚠️ **'APPLICA' C'È NEL SOLO RITAGLIO, DALLA `2.33`, ED È SUA RICHIESTA**
+                 * (2026-09-13: *manca 'Applica' per il ritaglio*). Quello che fa è la sua scelta
+                 * fra le due letture: il palco passa a inquadrare la porzione tenuta, e negli
+                 * altri moduli si lavora su quella; rientrando qui l'immagine torna intera con le
+                 * squadrette dov'erano, quindi il taglio si può allargare o rifare.
+                 * ⚠️⚠️ **NON TAGLIA NIENTE, E QUESTO È IL PUNTO**: il rettangolo era già nel
+                 * modello e il file si salva tagliato comunque, da sempre. Quello che mancava era
+                 * il momento in cui **si vede**, e per questo il tasto scrive un valore
+                 * ([Look.framed]) invece di riscrivere un'immagine.
+                 * ⚠️ **Il glifo e la parola sono quelli dell'editor di casa**, come i tre comandi
+                 * della storia: lo stesso gesto a un tocco di distanza non può avere due segni.
+                 * ⚠️ **Prende il posto di 'Mirato'**, cioè il primo: i due comandi che
+                 * appartengono a un modulo solo vivono nello stesso punto della fila, e chi ne
+                 * impara uno ritrova l'altro.
+                 */
+                if (chosen.extra == Extra.CROP) {
+                    IconButton(
+                        onClick = {
+                            onLive { it.copy(framed = true) }
+                            onSettled()
+                        },
+                        enabled = ready && !busy && !look.crop.whole && !look.framed
+                    ) {
+                        Icon(Glyphs.EditApply, stringResource(R.string.editor_apply))
+                    }
+                }
                 if (chosen.extra == Extra.BANDS) {
                     IconButton(
                         onClick = { gaze.aiming = !gaze.aiming },
@@ -2569,6 +2402,412 @@ private fun LookSheet(
                     Icon(Glyphs.EditReset, stringResource(R.string.editor_original))
                 }
             }
+        }
+    }
+}
+
+/**
+ * Quello che la scheda mostra fra la fila dei gettoni e quella dei comandi: i cursori del modulo
+ * [module], e quello che quel modulo ha in più (le forme e la posa del Ritaglio, le otto fasce
+ * dell'HSL, il grafico delle Curve, l'interruttore del bianco e nero del Colore).
+ *
+ * ⚠️⚠️ **PRENDE L'INDICE DEL MODULO INVECE DI LEGGERE [Gaze.module], ED È QUELLO CHE PERMETTE DI
+ * MISURARLI TUTTI**: [SteadyBody] compone questo corpo una volta per modulo per sapere quale sia
+ * il più alto, e un corpo che si chiedesse da sé quale modulo è in scena risponderebbe sette volte
+ * la stessa altezza.
+ * ⚠️ **Le lambda di scrittura invece leggono lo sguardo VIVO** (`dialAt`), che è la correzione
+ * della `2.20` e non cambia: le copie che si misurano non vengono posizionate, quindi nessun dito
+ * le raggiunge, e quella in scena scrive nel modulo che si sta guardando.
+ */
+@Composable
+private fun ModuleBody(
+    module: Int,
+    look: Look,
+    gaze: Gaze,
+    ready: Boolean,
+    busy: Boolean,
+    origin: Bitmap?,
+    onLive: ((Look) -> Look) -> Unit,
+    onSettled: () -> Unit,
+    onPeek: (((Look) -> Look)?) -> Unit
+) {
+    val mod = MODULES[module]
+    val band = gaze.band
+
+    /**
+     * Il cursore che sta alla riga [riga] del modulo e della fascia che si stanno guardando
+     * **adesso**, o `null` se là non c'è niente (i moduli non hanno tutti lo stesso numero di
+     * cursori).
+     *
+     * ⚠️ **Legge [Gaze.module] e [Gaze.band] al momento della chiamata e non alla composizione**,
+     * ed è tutto il suo valore: chiamata da dentro il rilevatore di un gesto, risponde con quello
+     * che il dito ha davvero sotto. ⚠️ **La fascia è entrata nel conto con la `2.21` e non è un
+     * secondo meccanismo**: è la stessa correzione della `2.20` su una dimensione in più, e senza
+     * di lei un cursore dell'HSL scriverebbe nella fascia da cui il suo nodo è nato.
+     */
+    fun dialAt(riga: Int): Dial? = MODULES[gaze.module].rows(gaze.band).getOrNull(riga)
+
+    /** Quante volte l'immagine **già posata** è più larga che alta: vedi [posedAspect]. */
+    fun cropAspect(k: Look): Float = posedAspect(origin, k.spin)
+
+    /*
+     * ⚠️⚠️ **LA FILA DELLA POSA È DEL SOLO MODULO RITAGLIO, DALLA `2.31`, E I TRE TASTI
+     * SONO QUELLI DELL'EDITOR DI CASA**: stesso pezzo (`ActionPad`), stessi glifi, stesse
+     * etichette e stesso tocco lungo sul terzo. Disegnarne di nuovi vorrebbe dire due segni
+     * per lo stesso gesto a un tocco di distanza, visto che dalla stessa immagine si entra
+     * nell'uno o nell'altro editor.
+     * ⚠️⚠️ **E DALLA `2.32` SONO CINQUE, CON I FORMATI SOPRA, ED È LA SUA RISPOSTA
+     * `formati` A `d-crop-formati`** (giro della `2.31`: *portali, con le centrature*).
+     * Fino alla `2.31` il rettangolo era libero e le due centrature non avrebbero avuto
+     * niente da centrare: con una forma scelta ce l'hanno, ed è la stessa fila dell'editor
+     * di casa.
+     * ⚠️ **L'ordine salvato dal riordino non si legge**: quello è l'ordine della fila della
+     * selezione, e infilarci dentro questi tasti darebbe una fila che si riordina in un
+     * modo che nessuno ha chiesto.
+     */
+    if (mod.extra == Extra.CROP) {
+        val live = ready && !busy
+        val lay = cropLay(gaze)
+        fun pose(gesto: Spin) {
+            onLive { spunLook(it, gesto) }
+            onSettled()
+        }
+        /*
+         * ⚠️⚠️ **LE FILE SONO QUELLE DELL'EDITOR DI CASA, E DALLA `2.32` SONO LO STESSO
+         * PEZZO**: le forme le disegna `ShapeRows`, che vive di là, e qui resta la sola
+         * cosa che cambia fra i due editor, cioè dove si scrive la scelta. Fino alla
+         * `2.31` questa fila era ricopiata riga per riga, e con 'Originale' sarebbero
+         * state due copie da tenere d'accordo invece di una.
+         */
+        ShapeRows(
+            shape = cropShape(gaze),
+            lay = lay,
+            enabled = live,
+            onShape = { one ->
+                /*
+                 * ⚠️ **Ritoccare la forma GIÀ scelta rimette il rettangolo intero**, ed è
+                 * la via di fuga dell'editor di casa: senza, una selezione ridotta per
+                 * sbaglio non avrebbe un modo rapido di tornare grande.
+                 */
+                onLive { k ->
+                    val quanto = cropAspect(k)
+                    k.copy(
+                        crop = if (one == cropShape(gaze)) {
+                            one.fit(quanto, lay)
+                        } else {
+                            reshaped(k.crop, quanto, one.value(lay, quanto))
+                        }
+                    )
+                }
+                gaze.shape = one.ordinal
+                onSettled()
+            },
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            for (one in Lay.entries) {
+                SheetChip(
+                    text = stringResource(one.label),
+                    selected = one == lay,
+                    enabled = live,
+                    onClick = {
+                        if (one != lay) {
+                            onLive { k -> k.copy(crop = flipped(k.crop, cropAspect(k))) }
+                            gaze.lay = one.ordinal
+                            onSettled()
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+        ActionPad(
+            columns = POSE_KEYS,
+            stretch = true,
+            actions = listOf(
+                PadAction(
+                    PadKey.CENTRE_ACROSS, Glyphs.AlignAcross, R.string.editor_center_across,
+                    enabled = live,
+                    onHold = {
+                        onLive { it.copy(crop = centredDown(centredAcross(it.crop))) }
+                        onSettled()
+                    },
+                    holdLabel = R.string.editor_center_both
+                ) {
+                    onLive { it.copy(crop = centredAcross(it.crop)) }
+                    onSettled()
+                },
+                PadAction(
+                    PadKey.CENTRE_DOWN, Glyphs.AlignDown, R.string.editor_center_down,
+                    enabled = live,
+                    onHold = {
+                        onLive { it.copy(crop = centredDown(centredAcross(it.crop))) }
+                        onSettled()
+                    },
+                    holdLabel = R.string.editor_center_both
+                ) {
+                    onLive { it.copy(crop = centredDown(it.crop)) }
+                    onSettled()
+                },
+                /*
+                 * ⚠️ **Il tocco lungo ha SEMPRE la sua etichetta**, come vuole
+                 * [PadAction.onHold]: un gesto che il lettore di schermo non annuncia
+                 * esiste solo per chi lo scopre per caso.
+                 */
+                PadAction(
+                    PadKey.FLIP, Icons.Filled.Flip, R.string.editor_flip,
+                    enabled = live,
+                    onHold = { pose(Spin.DOWN) },
+                    holdLabel = R.string.editor_flip_down
+                ) { pose(Spin.ACROSS) },
+                PadAction(
+                    PadKey.TURN_LEFT, Glyphs.TurnLeft, R.string.editor_left,
+                    enabled = live
+                ) { pose(Spin(3, false)) },
+                PadAction(
+                    PadKey.TURN_RIGHT, Glyphs.TurnRight, R.string.editor_right,
+                    enabled = live
+                ) { pose(Spin(1, false)) }
+            ),
+            modifier = Modifier.padding(bottom = 6.dp)
+        )
+    }
+
+    /*
+     * ⚠️⚠️ **LA FILA DELLE OTTO FASCE, DALLA `2.21`**: compare solo per i moduli che
+     * lavorano su un colore per volta, cioè oggi l'HSL soltanto. È la seconda fila di
+     * gettoni della scheda, e la sua forma è di proposito **diversa** dalla prima: là ci
+     * sono parole, qui ci sono colori, e un colore dice che cosa si sta scegliendo senza
+     * che nessuno lo debba leggere.
+     * ⚠️ **I due gesti sono gli stessi del gettone di un modulo**, tocco per scegliere e
+     * tocco lungo per azzerare, un gradino più in basso: là si azzera il modulo, qui la
+     * fascia. Chi impara il gesto sopra lo ritrova qui.
+     */
+    if (mod.extra == Extra.BANDS) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            BAND_NAMES.forEachIndexed { i, nome ->
+                BandChip(
+                    name = stringResource(nome),
+                    hue = Mix.CENTRES[i],
+                    chosen = i == band,
+                    spent = !look.mix.bands[i].idle,
+                    enabled = ready && !busy,
+                    onTap = { gaze.band = i },
+                    onHold = {
+                        onLive { it.copy(mix = it.mix.swap(i) { Band.NONE }) }
+                        onSettled()
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+
+    /*
+     * ⚠️⚠️ **LA FILA DEI QUATTRO CANALI E IL GRAFICO, DALLA `2.23`**: è la terza forma che
+     * questa scheda può prendere, e la sola in cui non ci sono cursori. I gesti dei
+     * gettoni sono quelli di sempre, tocco per scegliere e tocco lungo per azzerare, un
+     * gradino più in basso: là si azzera il modulo, qui la curva di quel canale.
+     * ⚠️ **Il gettone è lo stesso della fila dei moduli e non un pezzo nuovo**: quello che
+     * serve qui è esattamente quello che fa già, cioè un nome, il segno di 'toccato' e i
+     * due gesti.
+     */
+    if (mod.extra == Extra.CURVES) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            TONE_NAMES.forEachIndexed { i, nome ->
+                ModuleChip(
+                    name = stringResource(nome),
+                    chosen = i == gaze.channel,
+                    spent = !look.tone.curve(i).idle,
+                    enabled = ready && !busy,
+                    onTap = { gaze.channel = i },
+                    onHold = {
+                        onLive { k -> k.copy(tone = k.tone.swap(i) { Curve.NONE }) }
+                        onSettled()
+                    }
+                )
+            }
+        }
+        CurveBoard(
+            curve = look.tone.curve(gaze.channel),
+            ink = toneInk(gaze.channel),
+            enabled = ready && !busy,
+            /*
+             * ⚠️⚠️ **QUELLO CHE ARRIVA È UN CAMBIAMENTO E IL CANALE SI RISOLVE QUI, cioè la
+             * regola della `2.20` applicata a un modulo che non ha cursori**: il gesto del
+             * grafico non si porta dentro né la curva né il canale, che invecchierebbero
+             * tutti e due; legge [Gaze.channel] al momento della scrittura, e la curva di
+             * partenza è quella viva.
+             */
+            onEdit = { cambia ->
+                onLive { k -> k.copy(tone = k.tone.swap(gaze.channel, cambia)) }
+            },
+            onSettled = onSettled,
+            modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp)
+        )
+    }
+
+    /*
+     * ⚠️⚠️ **UN GESTO SCRIVE LA RIGA CHE TOCCA NEL MODULO CHE SI VEDE, E NON UN CURSORE
+     * CHE SI PORTA DENTRO, DALLA `2.20`** (campo libero del giro della `2.19`: *il mio
+     * tocco, mentre provo a spostare la tinta o la saturazione, sposta invece il contrasto
+     * che è nell'altro modulo; lo stesso succede altrove, c'è qualcosa di mescolato*). Una
+     * lambda che si porta dentro il proprio [Dial] dice il vero finché il nodo che la
+     * tiene è quello per cui è nata; risolvendo la **riga** al momento della scrittura, il
+     * cursore numero N scrive sempre il cursore numero N di quello che è in scena adesso,
+     * cioè quello che il dito sta toccando.
+     * ⚠️⚠️ **LA CAUSA NON È ACCERTATA, E SI SCRIVE COSÌ INVECE DI INVENTARLA**: quel
+     * difetto **non si riproduce sul banco**, né col tocco secco né con un trascinamento
+     * vero, e una spia messa dentro il gesto risponde col cursore giusto in tutti e due i
+     * casi. Quindi questa riga non è la cura misurata di quel difetto: è il meccanismo che
+     * lo rende impossibile qualunque sia la sua causa, ed è dichiarato come tale.
+     * ⚠️ **Il `key` è la seconda metà**: senza, Compose riusa i composable di una lista
+     * **per posizione**, quindi cambiando modulo i nodi dei cursori passano di mano
+     * portandosi dietro tutto quello che un nodo tiene. La chiave è il [Dial], che è un
+     * oggetto di [MODULES] e quindi stabile per tutta la vita del processo: due moduli non
+     * ne hanno nessuno in comune, e i nodi si buttano invece di passare di mano.
+     */
+    mod.rows(band).forEachIndexed { riga, knob ->
+        key(knob) {
+            LookKnob(
+                name = stringResource(knob.name),
+                value = knob.read(look),
+                span = knob.span,
+                stops = knob.stops,
+                unipolar = knob.unipolar,
+                /*
+                 * ⚠️ **Un cursore che non governa niente si spegne**, e i casi sono due: i
+                 * colori col bianco e nero acceso, e la maschera di contrasto senza
+                 * nitidezza. Un cursore che si muove senza cambiare l'immagine si legge
+                 * come un guasto.
+                 */
+                enabled = ready && !busy && !knob.off(look),
+                onLive = { v -> dialAt(riga)?.let { onLive(it.set(v)) } },
+                onSettled = onSettled,
+                /*
+                 * ⚠️ **Il confronto si costruisce QUI**, con lo stesso `set` con cui il
+                 * cursore scrive: è l'immagine di adesso con questo solo campo a zero,
+                 * cioè la risposta alla domanda 'questo cursore, da solo, che cosa fa?'.
+                 * ⚠️⚠️ **E PARTE DA QUELLO CHE SI VEDE ADESSO E NON DA [look]**, per la
+                 * ragione misurata su [Dial.set]: questa riga vive dentro il rilevatore
+                 * di un gesto, e il valore che ci si cattura invecchia.
+                 */
+                onPeek = { on -> onPeek(if (on) dialAt(riga)?.set(0f) else null) }
+            )
+        }
+    }
+
+    /*
+     * ⚠️⚠️ **IL BIANCO E NERO È UN INTERRUTTORE E NON UN CURSORE A -100**: è una scelta
+     * (questa immagine è a colori, o non lo è) e non una quantità, e scritto come fondo
+     * corsa della saturazione resterebbe esposto a chiunque muova quel cursore. Nel conto
+     * viene infatti dopo, e sulla stessa riga dei cursori perché è il quinto comando di
+     * questo modulo.
+     * ⚠️ **La riga è un bersaglio solo**, con `Role.Switch` sulla riga e niente
+     * sull'interruttore: è la stessa regola delle righe del pannello delle impostazioni.
+     */
+    if (mod.name == R.string.look_color) {
+        val bw = stringResource(R.string.look_bw)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .toggleable(
+                    value = look.chroma.mono,
+                    enabled = ready && !busy,
+                    role = Role.Switch,
+                    onValueChange = { on ->
+                        onLive { it.copy(chroma = it.chroma.copy(mono = on)) }
+                        onSettled()
+                    }
+                )
+                .padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = bw,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f)
+            )
+            Switch(checked = look.chroma.mono, onCheckedChange = null, enabled = ready && !busy)
+        }
+    }
+}
+
+/**
+ * Il corpo della scheda, alto quanto il più alto dei [slots] moduli: così la scheda non cambia
+ * misura passando da un modulo all'altro, e il palco sopra di lei nemmeno.
+ *
+ * ⚠️⚠️ **L'ALTEZZA SI MISURA E NON SI SCRIVE**: i moduli portano cursori, gettoni e un grafico, e
+ * quanto sia alta una di quelle righe dipende dal corpo del carattere, dalla sua scala e dalla
+ * lingua. Un numero in `dp` scritto qui sarebbe giusto su un telefono e sbagliato sul prossimo, e
+ * per accorgersene servirebbe che qualcuno guardasse; quello che regge è comporre ogni corpo una
+ * volta, misurarlo, e tenere il massimo.
+ *
+ * ⚠️⚠️ **LE COPIE VIVONO UN GIRO SOLO, E NON È UN'OTTIMIZZAZIONE: LA PRIMA STESURA LE TENEVA IN
+ * SCENA E HA FATTO ROSSE SETTE PROVE.** Misurandole con un `SubcomposeLayout` a ogni passata,
+ * quei corpi restano nell'albero: non si disegnano e non prendono il dito (nessuno li posiziona),
+ * ma **ci sono**, quindi un lettore di schermo annuncia i cursori di sette moduli e il banco li
+ * conta. Qui la misura si scrive in uno stato, e la ricomposizione che ne segue le porta via:
+ * dal secondo giro nell'albero c'è il solo modulo che si sta guardando.
+ *
+ * ⚠️ **E mentre ci sono non hanno semantica** (`clearAndSetSemantics`), che è la seconda porta
+ * chiusa: fra la misura e la ricomposizione passa un fotogramma, e in quel fotogramma là dentro
+ * non c'è niente da annunciare.
+ *
+ * ⚠️ **Il giro costa una volta per schermata aperta**: le altezze non dipendono dai valori dei
+ * cursori (un cursore è alto uguale a +100 come a zero), quindi rifare quella misura a ogni
+ * fotogramma di trascinamento vorrebbe dire comporre sette moduli sessanta volte al secondo, che
+ * è il difetto misurato nella `2.26`. ⚠️ **Che la larghezza non cambi è vero per costruzione**:
+ * questa schermata inibisce la rotazione, e un cambio di configurazione rifà l'activity, cioè
+ * anche questo `remember`.
+ */
+@Composable
+private fun SteadyBody(
+    slots: Int,
+    chosen: Int,
+    modifier: Modifier = Modifier,
+    body: @Composable (Int) -> Unit
+) {
+    var tallest by remember { mutableStateOf<Int?>(null) }
+    Box(modifier) {
+        if (tallest == null) {
+            Layout(
+                content = {
+                    for (i in 0 until slots) {
+                        Column(modifier = Modifier.fillMaxWidth()) { body(i) }
+                    }
+                },
+                modifier = Modifier.clearAndSetSemantics { }
+            ) { corpi, constraints ->
+                val libero = constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity)
+                val massimo = corpi.maxOfOrNull { it.measure(libero).height } ?: 0
+                /*
+                 * ⚠️⚠️ **NESSUN `place`, ED È QUELLO CHE RENDE INNOCUE LE COPIE**: un nodo che
+                 * non viene posato non si disegna e non entra nella hit-test dei tocchi, che è la
+                 * stessa proprietà su cui si regge la seconda tela della lente.
+                 * ⚠️ **La misura si scrive nel piazzamento**, che è la fase in cui Compose
+                 * ammette una scrittura di stato: quella scrittura è il via alla ricomposizione
+                 * che porta via queste copie, e succede una volta perché il valore poi non è più
+                 * nullo.
+                 */
+                layout(0, 0) { tallest = massimo }
+            }
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = with(LocalDensity.current) { (tallest ?: 0).toDp() })
+        ) {
+            body(chosen)
         }
     }
 }
