@@ -88,6 +88,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
@@ -378,8 +379,18 @@ fun AdvancedEditorScreen(
                      * resterebbe armato e il palco smetterebbe di rispondere a pinza e doppio
                      * tocco senza che nessuno veda più il tasto per spegnerlo. Chiedendolo alla
                      * tabella dei moduli, quel caso non esiste.
+                     * ⚠️⚠️ **E DALLA `2.30` LA STESSA RIGA DICE ANCHE CHE GESTO È**: le Curve
+                     * trascinano, l'HSL sceglie e basta, e da quella differenza dipende se il dito
+                     * fermo debba armarsi (vedi [Aim]). Due domande separate avrebbero due letture
+                     * della stessa tabella, e il giorno che una cambia si contraddicono.
                      */
-                    aiming = { gaze.aiming && MODULES[gaze.module].extra != Extra.NONE },
+                    aim = {
+                        if (!gaze.aiming) Aim.NONE else when (MODULES[gaze.module].extra) {
+                            Extra.CURVES -> Aim.PULL
+                            Extra.BANDS -> Aim.PICK
+                            Extra.NONE -> Aim.NONE
+                        }
+                    },
                     onAimStart = { aimStart(it) },
                     onAimPull = { aimPull(it) },
                     onAimEnd = { push() },
@@ -469,7 +480,7 @@ private fun LookStage(
     look: Look,
     onCompare: (Boolean) -> Unit,
     /**
-     * Se il colore mirato è armato.
+     * Che cosa fa il dito adesso, cioè se il colore mirato è acceso e che gesto porta: vedi [Aim].
      *
      * ⚠️⚠️ **È UNA FUNZIONE E NON UN VALORE, ED È LA STESSA PRUDENZA DELLA `2.17`**: questa riga la
      * legge il corpo di un `pointerInput`, che si ricostruisce solo quando cambiano le sue chiavi;
@@ -477,7 +488,7 @@ private fun LookStage(
      * con quello di adesso. ⚠️ **E la chiave non si tocca**: metterci il mirato annullerebbe il
      * gesto in corso ogni volta che lo si arma.
      */
-    aiming: () -> Boolean,
+    aim: () -> Aim,
     /** Il pixel toccato, al principio di un gesto mirato: vedi [AdvancedEditorScreen]. */
     onAimStart: (Int) -> Unit,
     /** Quanto il dito ha tirato da dove è sceso, in frazione di palco e **positivo in su**. */
@@ -718,7 +729,8 @@ private fun LookStage(
                      * che scende: un quinto gesto vorrebbe dire cinque strade da distinguere in
                      * mezzo secondo, e la prima a sbagliare sarebbe quella che si usa di più.
                      */
-                    if (aiming()) {
+                    val modo = aim()
+                    if (modo != Aim.NONE) {
                         /*
                          * ⚠️⚠️ **LA LENTE SEGUE IL DITO, DALLA `2.25`, ED È SUA ISTRUZIONE** (giro
                          * della `2.24`, voce `mirato-lente` non approvata: *dev'essere possibile
@@ -755,6 +767,17 @@ private fun LookStage(
                         fun riparti() {
                             conto?.cancel()
                             armedAt = null
+                            /*
+                             * ⚠️⚠️ **DOVE IL DITO NON TRASCINA NON C'È NIENTE DA ARMARE, DALLA
+                             * `2.30`, ED È IL SUO RISCONTRO** (giro della `2.29`, voce `geo-mirato`:
+                             * *perché anche HLS mirato ha la vibrazione dopo 1,2 secondi? È una cosa
+                             * che ha senso solo per le curve*). L'attesa è nata per **separare** la
+                             * scelta dal trascinamento, e nell'HSL il trascinamento non muove
+                             * niente: là era un pedaggio con una vibrazione in fondo, cioè un segno
+                             * che annunciava un potere che non arrivava. Senza di lei il gesto resta
+                             * quello che era, e la fascia si sceglie quando il dito si alza.
+                             */
+                            if (modo != Aim.PULL) return
                             conto = scope.launch {
                                 delay(AIM_ARM_MS.toLong())
                                 val qui = preso ?: return@launch
@@ -1002,16 +1025,29 @@ private fun LookStage(
          */
         fun stendi(mappa: Bitmap, dove: RectF, nitido: Boolean) {
             val paint = pennello(mappa, dove, nitido, lato)
-            drawIntoCanvas { tela ->
-                if (look.geo.idle) {
+            if (look.geo.idle) {
+                drawIntoCanvas { tela ->
                     tela.drawRect(dove.left, dove.top, dove.right, dove.bottom, paint)
-                } else {
-                    Warp.draw(
-                        tela.nativeCanvas,
-                        dove,
-                        Warp.plan(look.geo, view.centerX(), view.centerY(), view.width(), view.height()),
-                        paint.asFrameworkPaint()
-                    )
+                }
+                return
+            }
+            /*
+             * ⚠️⚠️ **IL RITAGLIO SI VEDE MENTRE SI MUOVE UN CURSORE, DALLA `2.30`, ED È IL SUO
+             * RISCONTRO** (giro della `2.29`, voce `geo-dritto`: *anche il ritaglio per non
+             * lasciare angoli vuoti dovrebbe vedersi in tempo reale*). La scala di copertura c'era
+             * già e faceva il suo lavoro, ma qui la maglia si disegnava **senza confini**: ingrandita
+             * per coprire, usciva dal riquadro dell'immagine e finiva sul fondo del palco. Quindi si
+             * vedeva la deformazione intera, mentre il salvataggio disegna dentro un bitmap grande
+             * quanto l'originale, cioè taglia. Due immagini diverse per lo stesso conto.
+             * ⚠️ **Il riquadro è quello dell'immagine e non quello del palco**: `clipToBounds` più
+             * sopra ferma il disegno al palco, che è più grande, quindi da solo non bastava.
+             */
+            val piano = Warp.plan(
+                look.geo, view.centerX(), view.centerY(), view.width(), view.height()
+            )
+            clipRect(dove.left, dove.top, dove.right, dove.bottom) {
+                drawIntoCanvas { tela ->
+                    Warp.draw(tela.nativeCanvas, dove, piano, paint.asFrameworkPaint())
                 }
             }
         }
@@ -1063,26 +1099,25 @@ private fun LookStage(
             )
             val k = LENS_ZOOM
             /*
-             * ⚠️⚠️ **COL MODULO GEOMETRIA LA LENTE INQUADRA IL PUNTO SORGENTE E NON QUELLO
-             * TOCCATO, DALLA `2.29`**: dentro il tondo l'immagine si disegna **non deformata**
-             * (là non c'è nessuna maglia), quindi centrandola sul dito mostrerebbe la porzione
-             * che in quel punto ci sarebbe **senza** la deformazione, mentre il colore lo prende
-             * `colourAt` dal punto sorgente. Sarebbe di nuovo vedere un pixel e prenderne un
-             * altro, che è il difetto che la nota della `2.24` esiste per non rifare.
-             * ⚠️ **A spostarsi è quello che si inquadra, non dove la lente si posa**: il tondo
-             * resta sopra il dito, perché quella è la ragione per cui esiste.
+             * ⚠️⚠️ **LA LENTE INQUADRA IL PUNTO TOCCATO E MOSTRA L'IMMAGINE DEFORMATA, DALLA
+             * `2.30`, ED È IL SUO RISCONTRO** (giro della `2.29`, voce `geo-mirato` non approvata:
+             * *Il punto non è quello giusto, si vede l'immagine prima della distorsione*). La
+             * `2.29` aveva risolto il problema dalla parte sbagliata: dentro il tondo disegnava
+             * l'immagine **senza** la maglia e allora, per non mostrare un pixel e prenderne un
+             * altro, spostava l'inquadratura sul punto sorgente. Il conto tornava e quello che si
+             * vedeva era un'altra immagine, cioè la fotografia com'era prima della geometria.
+             * ⚠️⚠️ **ADESSO LA MAGLIA C'È ANCHE QUI, E IL CONTO È LO STESSO SCALATO**: `Warp.plan`
+             * normalizza sul rettangolo che riceve, quindi costruito su [vista] (che è il riquadro
+             * dell'immagine ingrandito di [k] attorno al dito) dà **la stessa** deformazione, e il
+             * punto toccato cade esattamente al centro del tondo per costruzione. Il colore
+             * continua a venire da `WarpPlan.back`, e i due dicono la stessa cosa: il pixel che si
+             * vede nel punto deformato è il pixel sorgente.
              */
-            val fonte = if (look.geo.idle) dito else {
-                val p = Warp
-                    .plan(look.geo, view.centerX(), view.centerY(), view.width(), view.height())
-                    .back(dito.x, dito.y)
-                Offset(p[0], p[1])
-            }
             val vista = RectF(
-                centro.x + (view.left - fonte.x) * k,
-                centro.y + (view.top - fonte.y) * k,
-                centro.x + (view.right - fonte.x) * k,
-                centro.y + (view.bottom - fonte.y) * k
+                centro.x + (view.left - dito.x) * k,
+                centro.y + (view.top - dito.y) * k,
+                centro.x + (view.right - dito.x) * k,
+                centro.y + (view.bottom - dito.y) * k
             )
             val tondo = Path().apply { addOval(Rect(centro, raggio)) }
             // ⚠️ **Il fondo si dipinge prima**: toccando vicino a un bordo dell'immagine, dentro
@@ -1103,20 +1138,35 @@ private fun LookStage(
              * dove va distinto.
              */
             val vetro = max(vista.width(), vista.height())
+            /*
+             * ⚠️ **La maglia si costruisce sul rettangolo della lente**, e il ritaglio è il suo
+             * gemello di quello del palco: quello che qui si vede è quello che il salvataggio
+             * scriverà, ingrandito, bordo tagliato compreso.
+             * ⚠️ **Il pezzo nitido qui non c'è mai con la geometria mossa**, perché in quel caso
+             * non si legge affatto (vedi la nota sul `LaunchedEffect` che lo chiede): resta un
+             * rettangolo, e non serve deformarlo.
+             */
+            val lente = if (look.geo.idle) null else Warp.plan(
+                look.geo, vista.centerX(), vista.centerY(), vista.width(), vista.height()
+            )
             clipPath(tondo) {
-                drawIntoCanvas { tela ->
-                    tela.drawRect(
-                        vista.left, vista.top, vista.right, vista.bottom,
-                        pennello(picture, vista, true, vetro)
-                    )
-                }
-                if (fine != null) {
-                    val sotto = fine.place(vista)
+                clipRect(vista.left, vista.top, vista.right, vista.bottom) {
                     drawIntoCanvas { tela ->
-                        tela.drawRect(
-                            sotto.left, sotto.top, sotto.right, sotto.bottom,
-                            pennello(fine.pixels, sotto, true, vetro)
-                        )
+                        val paint = pennello(picture, vista, true, vetro)
+                        if (lente == null) {
+                            tela.drawRect(vista.left, vista.top, vista.right, vista.bottom, paint)
+                        } else {
+                            Warp.draw(tela.nativeCanvas, vista, lente, paint.asFrameworkPaint())
+                        }
+                    }
+                    if (fine != null) {
+                        val sotto = fine.place(vista)
+                        drawIntoCanvas { tela ->
+                            tela.drawRect(
+                                sotto.left, sotto.top, sotto.right, sotto.bottom,
+                                pennello(fine.pixels, sotto, true, vetro)
+                            )
+                        }
                     }
                 }
             }
@@ -1387,6 +1437,35 @@ private class Module(
     /** Che cosa questo modulo ha in più dei suoi cursori: vedi [Extra]. */
     val extra: Extra = Extra.NONE
 )
+
+/**
+ * Che cosa fa il dito sul palco, cioè se il colore mirato è acceso e che gesto porta con sé.
+ *
+ * ⚠️⚠️ **SONO TRE E NON UN BOOLEANO, DALLA `2.30`, E LA RAGIONE È UN SUO RISCONTRO** (giro della
+ * `2.29`, voce `geo-mirato`: *perché anche HLS mirato ha la vibrazione dopo 1,2 secondi? È una
+ * cosa che ha senso solo per le curve*). Fino alla `2.29` il palco sapeva soltanto se il mirato
+ * era acceso, quindi trattava i due moduli allo stesso modo e faceva aspettare anche dove non
+ * c'era niente da aspettare.
+ * ⚠️ **Ed è una funzione sola invece di due predicati**: chiedere 'è armato?' e 'trascina?' in due
+ * righe vorrebbe dire due letture della stessa tabella, che il giorno che una cambia si
+ * contraddicono. Qui a rispondere è [MODULES], una volta.
+ */
+private enum class Aim {
+    /** Il mirato è spento: il palco fa i suoi quattro gesti. */
+    NONE,
+
+    /**
+     * Il dito sceglie e basta, cioè l'HSL: quello che si indica è **quale colore**, e la fascia si
+     * prende quando il dito si alza.
+     */
+    PICK,
+
+    /**
+     * Il dito sceglie e poi, passata l'attesa, trascina: cioè le Curve, dove quello che si indica è
+     * un **tono**, e un tono è un punto da muovere.
+     */
+    PULL
+}
 
 /**
  * Che cosa un modulo mette in scena oltre ai propri cursori.

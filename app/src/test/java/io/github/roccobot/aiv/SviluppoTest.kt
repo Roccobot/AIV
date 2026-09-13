@@ -920,14 +920,212 @@ class SviluppoTest {
             val piano = Warp.plan(geo, cx = 60f, cy = 45f, w = 120f, h = 90f)
             assertTrue("$geo doveva ingrandire", piano.cover > 1f)
             assertEquals("$geo: un bordo è rimasto scoperto", 0, scoperti(piano))
-            val nudo = WarpPlan(
-                half = piano.half, cx = piano.cx, cy = piano.cy, ax = piano.ax, ay = piano.ay,
-                cosT = piano.cosT, sinT = piano.sinT, stretch = piano.stretch,
-                slantX = piano.slantX, slantY = piano.slantY, bend = piano.bend, cover = 1f
+            assertTrue(
+                "$geo: senza copertura il difetto doveva vedersi",
+                scoperti(senzaCopertura(piano)) > 0
             )
-            assertTrue("$geo: senza copertura il difetto doveva vedersi", scoperti(nudo) > 0)
         }
     }
+
+    /**
+     * **Caso 29: un keystone tiene il centro, e apre i due lati in modo simmetrico.**
+     *
+     * ⚠️⚠️ **È LA FORMA ESATTA DEL SUO RISCONTRO** (giro della `2.29`, voce `geo-dritto` non
+     * approvata: *dovrebbero avere come perno una retta che rimane al centro, anziché un appoggio
+     * laterale*). Il difetto non era la deformazione ma **dove** finiva: con la divisione
+     * prospettica unica della `2.29` il trapezio scivolava tutto da una parte, e dopo la scala di
+     * copertura l'immagine sembrava appoggiata a un bordo.
+     * ⚠️ **Si guarda il piano SENZA copertura**, perché quella scala nasconderebbe metà della
+     * misura riportando il disegno dentro il riquadro.
+     * ⚠️ **Il centro dei quattro vertici è la misura giusta**, e non il centro dell'immagine: un
+     * trapezio isoscele ha là il suo baricentro, e uno scivolato no.
+     * ⚠️ **Controprovata** rimettendo la divisione unica: il centro cade 12,7 pixel più su, su 90
+     * di altezza.
+     */
+    @Test
+    fun `il keystone tiene il centro e apre i due lati alla pari`() {
+        val w = 120f
+        val h = 90f
+        for (geo in listOf(Geometry(vertical = 1f), Geometry(horizontal = -1f))) {
+            val angoli = quattroAngoli(geo, w, h)
+            assertEquals(
+                "$geo: il centro dei quattro vertici doveva restare il centro, in orizzontale",
+                60f, angoli.map { it[0] }.average().toFloat(), 0.01f
+            )
+            assertEquals(
+                "$geo: e in verticale",
+                45f, angoli.map { it[1] }.average().toFloat(), 0.01f
+            )
+        }
+
+        /*
+         * ⚠️ **E il numero si legge direttamente**: col cursore a fondo corsa il lato che si apre
+         * vale `1 + SLANT` e quello che si stringe `1 - SLANT`, cioè il coefficiente è la frazione
+         * di cui i due lati si muovono. Fino alla `2.29` erano +54% e -26%, che è la stessa
+         * asimmetria vista dall'altra parte.
+         */
+        val angoli = quattroAngoli(Geometry(vertical = 1f), w, h)
+        assertEquals(
+            "il lato che si apre doveva valere 1 + SLANT",
+            w * (1f + Warp.SLANT), angoli[1][0] - angoli[0][0], 0.02f
+        )
+        assertEquals(
+            "quello che si stringe, 1 - SLANT",
+            w * (1f - Warp.SLANT), angoli[2][0] - angoli[3][0], 0.02f
+        )
+        assertEquals("e l'altezza non si tocca", 0f, angoli[0][1], 0.02f)
+        assertEquals("nemmeno di sotto", h, angoli[2][1], 0.02f)
+    }
+
+    /**
+     * **Caso 30: la lente del colore mirato inquadra il punto toccato, con la stessa
+     * deformazione.**
+     *
+     * ⚠️⚠️ **È LA SUA SEGNALAZIONE** (giro della `2.29`, voce `geo-mirato` non approvata: *Il punto
+     * non è quello giusto, si vede l'immagine prima della distorsione*), e quello che il banco può
+     * misurarne è il conto su cui la lente si regge: la deformazione è **invariante per
+     * similitudine**, quindi costruita sul riquadro ingrandito attorno al dito posa il pixel
+     * toccato esattamente al centro del tondo.
+     * ⚠️ **Senza quella proprietà la lente non si poteva fare così**, e la `2.29` infatti aveva
+     * preso l'altra strada: disegnare l'immagine non deformata e spostare l'inquadratura sul punto
+     * sorgente, cioè mostrare un'altra immagine.
+     * ⚠️ **Controprovata** costruendo il riquadro attorno al punto sorgente, come faceva la `2.29`:
+     * il pixel toccato cade lontano dal centro.
+     */
+    @Test
+    fun `la lente inquadra il punto toccato con la stessa deformazione`() {
+        val geo = Geometry(
+            straighten = 0.5f, aspect = 0.2f, horizontal = -0.4f, vertical = 0.6f, distortion = 0.5f
+        )
+        val l = 0f
+        val t = 0f
+        val r = 120f
+        val b = 90f
+        val piano = Warp.plan(geo, (l + r) / 2f, (t + b) / 2f, r - l, b - t)
+
+        // Il dito da qualche parte sul palco, il tondo della lente sopra di lui, e il riquadro
+        // dell'immagine ingrandito di `k` attorno al dito: è il conto di `AdvancedEditorScreen`.
+        val k = 6f
+        val ditoX = 80f
+        val ditoY = 30f
+        val cx = 200f
+        val cy = 150f
+        val vl = cx + (l - ditoX) * k
+        val vt = cy + (t - ditoY) * k
+        val lente = Warp.plan(
+            geo,
+            cx + ((l + r) / 2f - ditoX) * k,
+            cy + ((t + b) / 2f - ditoY) * k,
+            (r - l) * k,
+            (b - t) * k
+        )
+
+        val fonte = piano.back(ditoX, ditoY)
+        val posato = lente.map(cx + (fonte[0] - ditoX) * k, cy + (fonte[1] - ditoY) * k)
+        assertEquals("il pixel toccato doveva cadere al centro del tondo", cx, posato[0], 0.1f)
+        assertEquals("e in verticale", cy, posato[1], 0.1f)
+
+        // E non solo al centro: dentro il tondo la deformazione è quella del palco, scalata.
+        for (x in listOf(10f, 60f, 110f)) {
+            for (y in listOf(10f, 45f, 80f)) {
+                val sul = piano.map(x, y)
+                val nel = lente.map(vl + (x - l) * k, vt + (y - t) * k)
+                assertEquals("in ($x, $y)", cx + (sul[0] - ditoX) * k, nel[0], 0.1f)
+                assertEquals("in ($x, $y)", cy + (sul[1] - ditoY) * k, nel[1], 0.1f)
+            }
+        }
+
+        /*
+         * ⚠️ **La controprova vive dentro la prova**: col riquadro costruito attorno al punto
+         * SORGENTE, che è la strada della `2.29`, il pixel toccato non cade più al centro del
+         * tondo. Cioè la misura qui sopra distingue le due scelte invece di essere vera comunque.
+         */
+        val comeAllora = Warp.plan(
+            geo,
+            cx + ((l + r) / 2f - fonte[0]) * k,
+            cy + ((t + b) / 2f - fonte[1]) * k,
+            (r - l) * k,
+            (b - t) * k
+        )
+        val storto = comeAllora.map(cx, cy)
+        assertTrue(
+            "ancorata al punto sorgente la lente doveva sbagliare bersaglio",
+            abs(storto[0] - cx) + abs(storto[1] - cy) > 1f
+        )
+    }
+
+    /**
+     * **Caso 31: la geometria non esce dal riquadro dell'immagine.**
+     *
+     * ⚠️⚠️ **È L'ALTRA METÀ DEL SUO RISCONTRO** (giro della `2.29`, voce `geo-dritto`: *anche il
+     * ritaglio per non lasciare angoli vuoti dovrebbe vedersi in tempo reale*). La scala di
+     * copertura c'era già, ma sul palco la maglia si disegnava senza confini: ingrandita per
+     * coprire, finiva sul fondo intorno all'immagine, mentre il salvataggio disegna dentro un
+     * bitmap grande quanto l'originale, cioè taglia. Si vedeva una cosa e se ne salvava un'altra.
+     * ⚠️ **Si guarda un pixel del FONDO accanto all'immagine**: qui l'anteprima è quadrata e il
+     * palco è più largo, quindi ai fianchi resta una banda, e senza il ritaglio il raddrizzamento
+     * a fondo corsa ci arriva sopra (la copertura vale circa 1,34, cioè sfora del 17% del lato).
+     * ⚠️ **Controprovata** togliendo il `clipRect`: quel pixel diventa l'immagine.
+     */
+    @Test
+    fun `la geometria non deborda dal riquadro dell'immagine`() {
+        banco.setContent { Scena() }
+        pronta()
+        /*
+         * ⚠️⚠️ **AL MODULO SI PASSA PRIMA DELLO SCATTO A RIPOSO, E IL BANCO LO HA IMPOSTO**: la
+         * scheda è alta quanto il suo contenuto, e la Geometria ha un cursore in meno della Luce,
+         * quindi cambiando modulo il palco si allunga e l'immagine adattata cresce. Scattando prima
+         * si confrontavano due scene diverse, e la prova falliva **col codice giusto**.
+         */
+        banco.onNodeWithText(testo(R.string.look_geometry)).performScrollTo().performClick()
+        banco.waitForIdle()
+
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        val riposo = palco.captureToImage().toPixelMap()
+        val riga = riposo.height / 2
+        /*
+         * ⚠️ **Il bordo dell'immagine si TROVA nei pixel invece di calcolarlo**: l'anteprima è un
+         * quadrato bianco su fondo, e dove cominci dipende da quanto spazio la scheda lascia al
+         * palco. Un conto scritto qui direbbe il vero finché la scheda non cambia di un cursore.
+         */
+        val fondo = riposo[0, riga]
+        val bordo = (0 until riposo.width).firstOrNull { riposo[it, riga] != fondo } ?: 0
+        assertTrue("serve una banda di fondo accanto all'immagine", bordo > 8)
+        val spia = bordo - 4
+
+        /*
+         * ⚠️ **Il cursore è 'Proporzioni' e non il raddrizzamento**: quello sporge di un decimo di
+         * pixel alla riga di mezzo (la rotazione muove gli angoli, non i fianchi), mentre l'aspetto
+         * allarga del 25% e la copertura ne aggiunge altrettanto, cioè una dozzina di pixel qui.
+         * Una prova che non può vedere il difetto è peggio del niente.
+         */
+        muovi(1, 1f)
+
+        assertEquals(
+            "l'immagine deformata doveva restare dentro il suo riquadro",
+            fondo,
+            palco.captureToImage().toPixelMap()[spia, riga]
+        )
+    }
+
+    /** I quattro vertici del rettangolo deformato, in senso orario da quello in alto a sinistra. */
+    private fun quattroAngoli(geo: Geometry, w: Float, h: Float): List<FloatArray> {
+        val nudo = senzaCopertura(Warp.plan(geo, cx = w / 2f, cy = h / 2f, w = w, h = h))
+        return listOf(nudo.map(0f, 0f), nudo.map(w, 0f), nudo.map(w, h), nudo.map(0f, h))
+    }
+
+    /**
+     * Lo stesso piano senza la scala di copertura, cioè la sola deformazione.
+     *
+     * ⚠️ **Serve a guardare quello che la copertura poi nasconde**: quella scala riporta il disegno
+     * dentro il riquadro, quindi una misura fatta dopo di lei non distingue un trapezio centrato da
+     * uno scivolato.
+     */
+    private fun senzaCopertura(piano: WarpPlan) = WarpPlan(
+        half = piano.half, cx = piano.cx, cy = piano.cy, ax = piano.ax, ay = piano.ay,
+        cosT = piano.cosT, sinT = piano.sinT, stretch = piano.stretch,
+        slantX = piano.slantX, slantY = piano.slantY, bend = piano.bend, cover = 1f
+    )
 
     /**
      * **Caso 28: il sesto modulo porta i suoi cinque cursori, azzera solo i suoi, e toglie il
