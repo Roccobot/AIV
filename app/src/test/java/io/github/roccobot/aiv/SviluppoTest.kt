@@ -21,11 +21,13 @@ import androidx.compose.ui.test.down
 import androidx.compose.ui.test.moveTo
 import androidx.compose.ui.test.up
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -1766,6 +1768,38 @@ class SviluppoTest {
             "e nemmeno il destro: $aFuori diventa $aDentro",
             abs(aDentro - aFuori) <= 1
         )
+    }
+
+    /**
+     * **Caso 34: fra il nome di un cursore e la sua barra resta dell'aria.**
+     *
+     * ⚠️⚠️ **È LA SUA SEGNALAZIONE CON SCHERMATA** (2026-09-13: *lascia più spazio per i testi ...
+     * più un po' di aria, perché al momento è tutto troppo attaccato*). Fino alla `2.37` le tre
+     * colonne di una riga si toccavano: la colonna dei nomi è larga quanto il più largo di **tutti**
+     * i moduli, quindi proprio quel nome arrivava a filo del tondo, che a riposo ha il centro sul
+     * bordo della barra.
+     * ⚠️ **La soglia è più bassa della costante di proposito**: qui si misura il **fatto** che
+     * l'aria ci sia, non il numero che la produce, quindi un ritocco a [KNOB_GAP] non fa diventare
+     * rossa questa prova mentre il comportamento è ancora giusto.
+     * ⚠️ **Si misura in dp e non in pixel**: il confronto è con una misura dichiarata, e in pixel
+     * dipenderebbe dalla densità della scena di prova.
+     * ⚠️⚠️ **CONTROPROVATA** togliendo il distacco: là l'aria è **zero**, cioè il nome e la barra
+     * si toccano, che è esattamente quello che lui ha visto sul telefono.
+     */
+    @Test
+    fun `fra il nome di un cursore e la sua barra resta dell'aria`() {
+        banco.setContent { Scena() }
+        pronta()
+        modulo(R.string.look_detail)
+
+        val nome = banco
+            .onNodeWithContentDescription(
+                testo(R.string.look_peek_one, testo(R.string.look_sharpen))
+            )
+            .getUnclippedBoundsInRoot()
+        val barra = cursore(0).getUnclippedBoundsInRoot()
+        val aria = barra.left - nome.right
+        assertTrue("fra il nome e la barra deve restare dell'aria, misurata $aria", aria >= 8.dp)
     }
 
     /**

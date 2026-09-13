@@ -120,6 +120,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -3191,7 +3192,10 @@ private fun LookKnob(
     val settle by rememberUpdatedState(onSettled)
     val peek by rememberUpdatedState(onPeek)
     val reset = { write(0f); settle() }
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(KNOB_GAP)
+    ) {
         /*
          * ⚠️⚠️ **UN GRADINO PIÙ PICCOLO DALLA `2.35`, ED È SUA RICHIESTA** (2026-09-13: *riduci
          * dimensioni del testo, padding, ecc. per i moduli che occupano più spazio verticale*).
@@ -3202,10 +3206,23 @@ private fun LookKnob(
          * più tardi in tutte e ventotto le lingue.
          * ⚠️⚠️ **E DALLA `2.37` LA COLONNA LA DECIDE LA MISURA**, che è quello che toglie del tutto
          * quel rischio invece di allontanarlo: vedi [knobNameWidth].
+         * ⚠️⚠️ **IL NOME PUÒ ANDARE A CAPO, E DALLA `2.38` LA SUA CONDIZIONE È UN NUMERO** (sua
+         * istruzione, 2026-09-13: *'colore' può anche andare a capo, a patto che lo slider rimanga
+         * alla stessa distanza da quello sopra*). Due righe di `bodySmall` valgono **32 punti**
+         * contro i 36 di [DIAL_ROW], quindi la riga non cresce e la barra resta dov'è: la
+         * condizione la tiene una misura e non una speranza.
+         * ⚠️ **La terza riga non c'è**, e `maxLines` la esclude: là l'altezza sfonderebbe
+         * [DIAL_ROW] e il passo fra due cursori cambierebbe.
+         * ⚠️⚠️ **QUELLO CHE RESTA FUORI SI DICHIARA**: con la scala dei caratteri di sistema oltre
+         * il 150% due righe superano i 36 punti, e **quella** riga si allunga. Non si chiude con
+         * un'altezza fissa: là il testo sborderebbe sulla riga vicina invece di essere tagliato,
+         * che è peggio del passo diverso.
          */
         Text(
             text = name,
             style = MaterialTheme.typography.bodySmall,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .width(nameWidth)
                 .semantics { contentDescription = against }
@@ -3621,6 +3638,20 @@ private val BOARD_PAD = 8.dp
 
 /** Quanto è larga la colonna del numero: ci deve stare `-100` col segno. */
 private val KNOB_VALUE = 44.dp
+
+/**
+ * L'aria fra le tre colonne di una riga di cursore: il nome, la barra e il numero.
+ *
+ * ⚠️⚠️ **NASCE DALLA `2.38`, ED È SUA SEGNALAZIONE CON SCHERMATA** (2026-09-13: *lascia più spazio
+ * per i testi ... più un po' di aria, perché al momento è tutto troppo attaccato*). Fino alla
+ * `2.37` le tre colonne si toccavano: la colonna dei nomi è larga quanto il **più largo** di tutti
+ * i moduli, quindi proprio quel nome arrivava a filo del tondo, che a riposo ha il centro sul bordo
+ * della barra. Il testo non era tagliato, ma si leggeva come incollato al comando.
+ * ⚠️ **Lo spazio lo paga la barra e non il nome**: la colonna del nome e quella del numero hanno
+ * una larghezza dichiarata, quindi i ventiquattro punti dei due distacchi escono dal `weight` della
+ * barra, cioè dalla sola parte della riga che può cedere senza che niente si tronchi.
+ */
+private val KNOB_GAP = 12.dp
 
 /**
  * L'altezza di una riga di cursore.

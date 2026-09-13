@@ -93,7 +93,7 @@
     <string name="look_radius">Raggio</string>
     <string name="look_masking">Mascheratura</string>
     <string name="look_noise">Rumore</string>
-    <string name="look_noise_color">Rumore colore</string>
+    <string name="look_noise_color">Disturbo colore</string>
     <string name="look_tone">Curve</string>
     <string name="look_tone_rgb">RGB</string>
     <string name="look_tone_board">Curva tonale</string>

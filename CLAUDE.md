@@ -2567,6 +2567,12 @@ che questo modulo esiste per togliere. ⚠️ **E lavora sui valori del file e n
 al contrario della Luce: il rumore è quello che l'occhio vede nei numeri del file, e una
 conversione per ognuno dei diciotto campioni costerebbe più di tutto il resto del programma.
 
+⚠️⚠️ **IL QUINTO CURSORE IN ITALIANO SI CHIAMA 'DISTURBO COLORE', DALLA `2.38`** (sua istruzione,
+2026-09-13: *`Rumore colore` diventa `Disturbo colore`*). ⚠️ **Cambia il solo file italiano**: la
+sua riga ne nomina uno, quindi il quarto resta 'Rumore' e le altre ventisette lingue non c'entrano,
+come per la grafia americana dell'inglese. ⚠️ **La chiave non si tocca** (`look_noise_color`): il
+posto nell'interfaccia e la chiave nell'archivio sono due cose indipendenti.
+
 ⚠️ **Dentro il modulo la riduzione viene prima della nitidezza**, perché accentuare e poi spianare
 vuol dire lavorare due volte contro se stessi; e il dettaglio da accentuare si misura
 sull'immagine **già ripulita**, o il rumore appena tolto tornerebbe dentro moltiplicato.
@@ -2932,6 +2938,24 @@ nei corti va distribuito invece di restare in fondo.
     più stretti di quelli del telefono, quindi là la misura cade sempre sul minimo e una prova
     sarebbe verde con e senza la correzione. È il caso dichiarato in § '🧪 Quando si scrive una
     prova, e quando no'.
+  - ⚠️⚠️ **E DALLA `2.38` LE TRE COLONNE NON SI TOCCANO PIÙ, ED È LA SUA SEGNALAZIONE CON
+    SCHERMATA** (2026-09-13: *lascia più spazio per i testi ... più un po' di aria, perché al
+    momento è tutto troppo attaccato*). La colonna è larga quanto il nome più largo di tutti i
+    moduli, quindi **proprio quel nome** arrivava a filo del tondo, che a riposo ha il centro sul
+    bordo della barra: il testo non era tagliato, ma si leggeva incollato al comando. Adesso fra
+    le tre colonne c'è `KNOB_GAP`, e i ventiquattro punti li paga la **barra**, che è la sola a
+    non avere una larghezza dichiarata.
+    - ⚠️⚠️ **IL NOME PUÒ ANDARE A CAPO, E LA SUA CONDIZIONE È UN NUMERO** (*'colore' può anche
+      andare a capo, a patto che lo slider rimanga alla stessa distanza da quello sopra*): due
+      righe di `bodySmall` valgono **32 punti** contro i 36 di `DIAL_ROW`, quindi la riga non
+      cresce e il passo fra due cursori resta quello. La terza riga la esclude `maxLines`.
+    - ⚠️ **Oltre il 150% di scala dei caratteri quella misura cade**, e quella riga si allunga: si
+      dichiara invece di chiuderla con un'altezza fissa, perché là il testo sborderebbe sulla riga
+      vicina invece di essere tagliato, che è peggio del passo diverso.
+    - ⚠️ **La prova misura il fatto e non il numero**: che fra il nome e la barra resti dell'aria,
+      con una soglia più bassa della costante, così un ritocco a `KNOB_GAP` non la fa diventare
+      rossa mentre il comportamento è ancora giusto. Controprovata togliendo il distacco: l'aria
+      misurata è **zero**, cioè il nome e la barra si toccano.
 - ⚠️⚠️ **IL RESPIRO HA UN TETTO, E SENZA DI LUI SAREBBE PEGGIO DEL VUOTO**: nel Ritaglio avanzano
   un centinaio di punti su tre blocchi, e divisi in parti uguali darebbero mezzo centimetro fra una
   fila di tasti e l'altra, cioè tre isole invece di un pannello. Col tetto ognuno prende il suo
