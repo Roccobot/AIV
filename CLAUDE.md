@@ -258,6 +258,13 @@ questo è lo stesso trattamento applicato ai glifi di Material che l'editor già
 - ⚠️ **Il tracciato si ricostruisce dal bytecode**, cioè dalla stessa fonte con cui si misura uno
   scarto: si legge dalle chiamate a `PathBuilder` in ordine, si raccorda, e si riscrive in
   coordinate assolute coi comandi per esteso. Gli scarti misurati vivono in testa a ogni file.
+- ⚠️⚠️ **E UNO DEI SETTE È CAMBIATO DI DISEGNO CON LA `2.36`, SU SUA ISTRUZIONE** (2026-09-13, dopo
+  aver guardato la fila dei gettoni: *l'icona di HLS dev'essere più simile a una serie di slider
+  stilizzati, non dev'essere un contagocce*): l'HSL nasceva da `Icons.Filled.Colorize` e adesso
+  nasce da `Icons.Filled.Tune`, cioè le tre guide col cursore. Un contagocce dice *prendi un
+  colore*, che è il gesto del colore mirato; quel modulo invece porta tre cursori per ognuna delle
+  otto fasce. ⚠️ **Il trattamento non cambia**: stesso raccordo, stessa misura in testa al file
+  (210 pixel su 57.600), e lo stesso verificatore.
 
 ## 🗣️ Come si chiamano le cose
 
@@ -2078,10 +2085,30 @@ e un interruttore porta l'immagine in **bianco e nero**.
   senza che nessuno abbia toccato la Luce. Il conto vive in Kotlin (`Chroma.greyMix`) e lo shader
   ne riceve il risultato: non è la seconda copia che `Adjust.kt` vieta, perché il conto è scritto
   una volta sola e ha un lettore solo, ed è per questo che il banco lo può misurare.
-- ⚠️⚠️ **LA RIGA C'È SEMPRE E SI SPEGNE, INVECE DI COMPARIRE**: è il meccanismo con cui saturazione
-  e vividezza si spengono col bianco e nero acceso, qui al rovescio. Comparendo cambierebbe
-  l'altezza del corpo, cioè la scheda tornerebbe a ballare (la `2.33` esiste per non farlo), e una
-  funzione che non si vede non si scopre.
+- ⚠️⚠️ **COMPARE COL BIANCO E NERO, DALLA `2.36`, E NELLA `2.35` C'ERA SEMPRE E SI SPEGNEVA** (sua
+  istruzione, 2026-09-13: *'Filtro' deve apparire solo quando l'interruttore 'Bianco e nero' è
+  acceso*). Un cursore **spento** si vede e dice 'qui non c'è niente da fare', e serve dove il
+  gesto torna sensato da sé, cioè a saturazione e vividezza; una riga **nascosta** appartiene a
+  un'altra modalità, e a colori 'Filtro' non è un comando spento, è un comando che non esiste.
+  - ⚠️⚠️ **QUELLO CHE LO TENEVA IN SCENA ERA L'ALTEZZA DELLA SCHEDA, E LA `2.36` TOGLIE QUEL
+    PREZZO INVECE DI PAGARLO**: `SteadyBody` misura i moduli **col corpo pieno**, cioè contando
+    anche le righe che un valore nasconde, quindi l'altezza comune è già la maggiore delle due e
+    non cresce quando il 'Filtro' entra.
+  - ⚠️⚠️ **E L'ARGOMENTO DELLA `2.35` NON ERA MISURATO: OGGI QUELLA RIGA NON CAMBIA UN PIXEL.** Sul
+    banco il modulo più alto è quello delle **Curve** (238 punti contro i 220 del Colore col
+    'Filtro' in scena), quindi anche senza la misura col corpo pieno la scheda non ballerebbe. Ma
+    quella disuguaglianza è una coincidenza fra due numeri, non una proprietà: basta una scala del
+    carattere più grande, una lingua che manda a capo un nome, o un grafico più basso.
+  - ⚠️ **L'indice della riga non cambia**: il corpo scorre la lista **intera** e salta le nascoste,
+    quindi `dialAt` continua a rispondere per posizione, che è la correzione della `2.20`. Oggi il
+    'Filtro' è l'ultimo dei cinque e filtrare la lista non sposterebbe niente; il giorno che una
+    riga nascosta ne avesse un'altra sotto, quella scriverebbe nel cursore accanto senza che niente
+    dia errore.
+  - ⚠️ **La prova del banco è in due pezzi, e il perché è il numero qui sopra**: il caso sulla
+    schermata misura il fatto come lui lo vede (quattro cursori a colori, cinque in bianco e nero,
+    e il palco che non si accorcia) e **non** si vede fallire togliendo la misura col corpo pieno;
+    quello su `SteadyBody` monta una scena minima e misura il meccanismo, ed è l'unico che la
+    controprova fa diventare rosso.
 - ⚠️ **Il verde resta dov'è ai due estremi**: il filtro verde del fogliame è il terzo della
   famiglia e su un asse solo non ci sta; chi lo vuole muove la luminanza della fascia verde
   dell'HSL, che dalla `2.21` è la miscela per fascia del bianco e nero.

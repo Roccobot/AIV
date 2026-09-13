@@ -1389,7 +1389,20 @@ private class Dial(
      * due (i colori spenti dal bianco e nero, e la maschera di contrasto senza nitidezza) e
      * scriverne uno per ognuno moltiplicherebbe i campi di questa tabella.
      */
-    val off: (Look) -> Boolean = { false }
+    val off: (Look) -> Boolean = { false },
+    /**
+     * Quando questa riga non è in scena affatto.
+     *
+     * ⚠️⚠️ **È UN'ALTRA COSA DA [off], E LA DISTINZIONE È SUA** (2026-09-13: *'Filtro' deve
+     * apparire solo quando l'interruttore 'Bianco e nero' è acceso*): un cursore **spento** si
+     * vede e dice 'qui non c'è niente da fare', e serve dove il gesto torna sensato da sé (la
+     * saturazione, appena il bianco e nero se ne va); un cursore **nascosto** appartiene a
+     * un'altra modalità, e a colori 'Filtro' non è un comando spento, è un comando che non esiste.
+     * ⚠️ **L'indice della riga non cambia**: il corpo scorre la lista **intera** e salta le
+     * nascoste, quindi `dialAt` continua a rispondere per posizione, che è la correzione della
+     * `2.20`.
+     */
+    val hide: (Look) -> Boolean = { false }
 ) {
     /**
      * Il cambiamento che porta questo cursore a [v], da applicare a quello che si vede **adesso**.
@@ -1505,12 +1518,13 @@ private enum class Extra {
 private val MONO: (Look) -> Boolean = { it.chroma.mono }
 
 /**
- * Il rovescio di [MONO]: il cursore che governa **solo** il bianco e nero, cioè il 'Filtro'.
+ * Il rovescio di [MONO]: la riga che appartiene **solo** al bianco e nero, cioè il 'Filtro'.
  *
- * ⚠️ **Esiste perché quella riga c'è sempre**, dalla `2.35`: comparire all'accensione del bianco e
- * nero vorrebbe dire un cursore in più nel corpo del Colore, cioè una scheda che torna a ballare
- * (la `2.33` esiste per non farlo). Così le righe sono cinque in tutti e due i casi, e a cambiare
- * è quali sono accese.
+ * ⚠️⚠️ **DALLA `2.36` NASCONDE INVECE DI SPEGNERE, ED È SUA ISTRUZIONE** (2026-09-13: *'Filtro'
+ * deve apparire solo quando l'interruttore 'Bianco e nero' è acceso*). La `2.35` teneva quella
+ * riga sempre in scena e la spegneva, per non far cambiare altezza al corpo del Colore; il prezzo
+ * di comparire non si paga più perché [SteadyBody] misura i moduli **col corpo pieno**, cioè
+ * contando anche le righe che un valore nasconde.
  */
 private val NOT_MONO: (Look) -> Boolean = { !it.chroma.mono }
 
@@ -1625,10 +1639,10 @@ private val LIGHT_ROWS = listOf(
  * richiesta, 2026-09-13: *se attivo 'bianco e nero', voglio che appaia uno slider 'Filtro' che
  * definisca la resa del bianco e nero in base a come sono mappati i colori nell'output*). Che cosa
  * fa, e perché è un asse e non una ruota, vive su [Chroma.grey].
- * ⚠️⚠️ **C'È SEMPRE E SI SPEGNE, INVECE DI COMPARIRE**: è lo stesso meccanismo con cui saturazione
- * e vividezza si spengono quando il bianco e nero è acceso, e qui vale al rovescio. Comparendo
- * cambierebbe l'altezza del corpo, cioè la scheda tornerebbe a ballare fra un modulo e l'altro (la
- * `2.33` esiste per non farlo), e la funzione non si scoprirebbe perché non si vedrebbe.
+ * ⚠️⚠️ **COMPARE COL BIANCO E NERO, DALLA `2.36`, E NELLA `2.35` C'ERA SEMPRE E SI SPEGNEVA** (sua
+ * istruzione, 2026-09-13: *'Filtro' deve apparire solo quando l'interruttore 'Bianco e nero' è
+ * acceso*). Quello che la teneva in scena era l'altezza del corpo, e non regge più: vedi
+ * [Dial.hide] e la misura col corpo pieno di [SteadyBody].
  * ⚠️ **Va sotto i quattro e non accanto all'interruttore**, che è l'ordine dei comandi di questo
  * modulo da sempre: prima i cursori, in fondo la riga che accende.
  */
@@ -1659,7 +1673,7 @@ private val COLOUR_ROWS = listOf(
         R.string.look_filter,
         { it.chroma.filter },
         { k, v -> k.copy(chroma = k.chroma.copy(filter = v)) },
-        off = NOT_MONO
+        hide = NOT_MONO
     )
 )
 
@@ -2186,9 +2200,10 @@ private fun LookSheet(
                 slots = MODULES.size,
                 chosen = module,
                 modifier = Modifier.fillMaxWidth()
-            ) { indice ->
+            ) { indice, pieno ->
                 ModuleBody(
                     module = indice,
+                    full = pieno,
                     look = look,
                     gaze = gaze,
                     ready = ready,
@@ -2330,10 +2345,17 @@ private fun LookSheet(
  * ⚠️ **Le lambda di scrittura invece leggono lo sguardo VIVO** (`dialAt`), che è la correzione
  * della `2.20` e non cambia: le copie che si misurano non vengono posizionate, quindi nessun dito
  * le raggiunge, e quella in scena scrive nel modulo che si sta guardando.
+ *
+ * ⚠️⚠️ **[full] È LA SECONDA METÀ DI QUELLA MISURA, DALLA `2.36`**: una riga che un valore
+ * nasconde ([Dial.hide]) c'è o non c'è a seconda di quel valore, quindi un modulo che la porta è
+ * alto due misure diverse. Chi misura chiede il corpo **pieno**, cioè il più alto che quel modulo
+ * possa venire, e chi lo mette in scena chiede quello vero: così il 'Filtro' può comparire
+ * all'accensione del bianco e nero senza che la scheda torni a ballare.
  */
 @Composable
 private fun ModuleBody(
     module: Int,
+    full: Boolean,
     look: Look,
     gaze: Gaze,
     ready: Boolean,
@@ -2597,6 +2619,15 @@ private fun ModuleBody(
      * ne hanno nessuno in comune, e i nodi si buttano invece di passare di mano.
      */
     mod.rows(band).forEachIndexed { riga, knob ->
+        /*
+         * ⚠️⚠️ **UNA RIGA NASCOSTA SI SALTA E NON SI TOGLIE DALLA LISTA, DALLA `2.36`**: la
+         * lista si scorre **intera**, quindi `riga` resta l'indice che `dialAt` risolverà al
+         * momento della scrittura. Oggi il 'Filtro' è l'ultimo dei cinque e filtrare prima
+         * non sposterebbe niente; il giorno che una riga nascosta ne avesse un'altra sotto,
+         * quella scriverebbe nel cursore accanto senza che niente dia errore, cioè sarebbe il
+         * difetto che la `2.20` ha chiuso rifatto con un altro strumento.
+         */
+        if (!full && knob.hide(look)) return@forEachIndexed
         key(knob) {
             LookKnob(
                 name = stringResource(knob.name),
@@ -2694,13 +2725,30 @@ private fun ModuleBody(
  * è il difetto misurato nella `2.26`. ⚠️ **Che la larghezza non cambi è vero per costruzione**:
  * questa schermata inibisce la rotazione, e un cambio di configurazione rifà l'activity, cioè
  * anche questo `remember`.
+ *
+ * ⚠️⚠️ **E SI MISURA IL CORPO PIENO, DALLA `2.36`, PERCHÉ UNA RIGA PUÒ COMPARIRE**: il 'Filtro'
+ * del Colore entra in scena quando si accende il bianco e nero, quindi quel modulo ha **due**
+ * altezze, e la misura presa una volta sola deve essere la maggiore delle due. Il secondo
+ * argomento di [body] dice appunto *dammi il più alto che puoi venire*, e vale `true` soltanto
+ * per le copie che nessuno vede.
+ * ⚠️⚠️ **OGGI NON CAMBIA UN PIXEL, E LA MISURA LO DICE INVECE DI LASCIARLO CREDERE**: sul banco
+ * il modulo più alto è quello delle **Curve** (238 punti, cioè i quattro gettoni più il grafico),
+ * e il Colore col 'Filtro' in scena ne vale 220. Quella disuguaglianza però è una coincidenza fra
+ * due numeri, non una proprietà: basta una scala del carattere più grande, una lingua che manda a
+ * capo un nome, o un grafico più basso, e il Colore diventa il più alto. Senza questa riga la
+ * scheda crescerebbe di una riga al tocco di quell'interruttore, e a vederlo sarebbe lui.
+ *
+ * ⚠️ **Per questo è `internal` e non privato, come [Breathe]**: quello che il banco deve misurare
+ * è il **meccanismo**, cioè che l'altezza comune sia la maggiore fra le due di un corpo che
+ * cambia; misurandolo dalla schermata vera la prova resterebbe verde anche col difetto rimesso,
+ * perché oggi il Colore non è il modulo più alto.
  */
 @Composable
-private fun SteadyBody(
+internal fun SteadyBody(
     slots: Int,
     chosen: Int,
     modifier: Modifier = Modifier,
-    body: @Composable (Int) -> Unit
+    body: @Composable (Int, Boolean) -> Unit
 ) {
     var tallest by remember { mutableStateOf<Int?>(null) }
     Box(modifier) {
@@ -2708,7 +2756,7 @@ private fun SteadyBody(
             Layout(
                 content = {
                     for (i in 0 until slots) {
-                        Column(modifier = Modifier.fillMaxWidth()) { body(i) }
+                        Column(modifier = Modifier.fillMaxWidth()) { body(i, true) }
                     }
                 },
                 modifier = Modifier.clearAndSetSemantics { }
@@ -2733,7 +2781,7 @@ private fun SteadyBody(
                 .heightIn(min = with(LocalDensity.current) { (tallest ?: 0).toDp() }),
             verticalArrangement = Breathe
         ) {
-            body(chosen)
+            body(chosen, false)
         }
     }
 }
