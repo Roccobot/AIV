@@ -506,6 +506,7 @@
     <string name="settings_buttons_menu">파일 메뉴</string>
     <string name="settings_buttons_turn">편집기: 회전과 가운데 맞춤</string>
     <string name="settings_buttons_steps">편집기: 실행 취소와 적용</string>
+    <string name="settings_buttons_mods">전체 편집기: 모듈</string>
     <string name="settings_labels">아이콘 아래 레이블</string>
     <string name="settings_labels_desc">끄면 아이콘 패널이 더 조밀해집니다. 목록 메뉴는 바뀌지 않습니다.</string>
     <string name="settings_last_mark">마지막으로 본 항목 표시</string>

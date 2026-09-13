@@ -338,24 +338,41 @@ private fun PadBody(
  *   sotto il dito, andata a capo dove va a capo il modello (*voglio agire su un oggetto che
  *   somiglia al vero menu*, giro della `1.56`). Di quella non si perde niente.
  *
+ * ⚠️⚠️ **E DALLA `2.34` UN RIQUADRO PUÒ ESSERE DI SOLE ICONE, ED È IL CRITERIO QUI SOPRA
+ * APPLICATO, non una deroga**: la fila dei moduli dell'editor completo le parole non le ha, per
+ * sua richiesta (la `2.31` le ha tolte perché sette nomi non entrano in nessuna larghezza).
+ * Scriverle qui darebbe una replica che somiglia **meno** al modello, e per giunta su sette
+ * colonne le troncherebbe tutte. ⚠️ **Il nome non si perde**: è il `contentDescription`
+ * dell'icona, cioè quello che un lettore di schermo annuncia, esattamente come nel gettone vero,
+ * e le due azioni parlate che spostano la cella restano.
+ *
  * @param columns quante colonne ha il riquadro **vero**, non quante ne stanno qui: la replica
  *   deve rompere le righe dove le rompe il modello.
+ * @param labels se sotto il glifo si scrive la parola, cioè se il riquadro vero ce l'ha.
  */
 @Composable
 fun PadArrange(
     order: List<PadKey>,
     columns: Int,
     onOrder: (List<PadKey>) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    labels: Boolean = true
 ) {
     val haptics = LocalHapticFeedback.current
     val prima = stringResource(R.string.settings_buttons_before)
     val dopo = stringResource(R.string.settings_buttons_after)
     val righe = (order.size + columns - 1) / columns
+    /*
+     * ⚠️ **L'altezza della cella si RICAVA dal suo contenuto e non è un secondo numero**: senza
+     * la parola resta il solo glifo, quindi la cella vale quanto lui più l'aria che il gettone
+     * vero gli lascia ([MODULE_PAD], di là). Tenendo [ARRANGE_HIGH] si vedrebbe un'icona in
+     * mezzo al vuoto, cioè una replica che somiglia meno al modello.
+     */
+    val alta = if (labels) ARRANGE_HIGH else PAD_ICON + MODULE_PAD * 2
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         val larga = ((maxWidth - PAD_GAP * (columns - 1)) / columns).coerceAtMost(PAD_CELL)
         val passoX = with(LocalDensity.current) { (larga + PAD_GAP).toPx() }
-        val passoY = with(LocalDensity.current) { (ARRANGE_HIGH + PAD_GAP).toPx() }
+        val passoY = with(LocalDensity.current) { (alta + PAD_GAP).toPx() }
 
         var preso by remember { mutableStateOf<PadKey?>(null) }
         var scarto by remember { mutableStateOf(Offset.Zero) }
@@ -382,7 +399,7 @@ fun PadArrange(
         val a = bersaglio(da)
         val visto = if (da < 0 || a < 0) order else order.moved(da, a)
 
-        Box(modifier = Modifier.height(ARRANGE_HIGH * righe + PAD_GAP * (righe - 1))) {
+        Box(modifier = Modifier.height(alta * righe + PAD_GAP * (righe - 1))) {
             for (chiave in order) {
                 val suo = chiave == preso
                 val meta = if (suo) posto(da) + scarto else posto(visto.indexOf(chiave))
@@ -417,7 +434,7 @@ fun PadArrange(
                         // ⚠️ Il tasto preso sta sopra gli altri, o passerebbe sotto il vicino
                         // proprio nel momento in cui lo scavalca.
                         .zIndex(if (suo) 1f else 0f)
-                        .size(width = larga, height = ARRANGE_HIGH)
+                        .size(width = larga, height = alta)
                         .clip(RoundedCornerShape(PAD_CORNER))
                         .background(tinta.copy(alpha = if (suo) ARRANGE_HELD else ARRANGE_BED))
                         .pointerInput(chiave, order, columns, passoX, passoY) {
@@ -463,24 +480,30 @@ fun PadArrange(
                         },
                     contentAlignment = Alignment.Center
                 ) {
+                    val nome = stringResource(chiave.label())
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(PAD_LABEL_GAP, Alignment.CenterVertically)
                     ) {
                         Icon(
                             imageVector = chiave.glyph(),
-                            contentDescription = null,
+                            // ⚠️ Senza la parola il nome deve stare da qualche parte, e il posto
+                            // è questo: col testo sotto sarebbe invece una seconda lettura della
+                            // stessa cosa per chi ascolta.
+                            contentDescription = if (labels) null else nome,
                             tint = inchiostro,
                             modifier = Modifier.size(PAD_ICON)
                         )
-                        Text(
-                            text = stringResource(chiave.label()),
-                            style = padLabel(),
-                            color = inchiostro,
-                            textAlign = TextAlign.Center,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
+                        if (labels) {
+                            Text(
+                                text = nome,
+                                style = padLabel(),
+                                color = inchiostro,
+                                textAlign = TextAlign.Center,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                     }
                 }
             }
@@ -780,10 +803,10 @@ internal fun Modifier.aboveFoot(): Modifier {
 /**
  * I tasti che possono comparire in un riquadro, con il gettone con cui si salvano.
  *
- * ⚠️⚠️ **UN SOLO ELENCO PER QUATTRO RIQUADRI, e non quattro elenchi**: le sei azioni sui file,
- * le quattro della selezione, e le due file dell'editor vivono qui insieme perché il gettone
- * deve essere unico nell'archivio. Quale riquadro porta quali tasti lo dice il **suo ordine di
- * fabbrica** in `Settings`, non questo elenco.
+ * ⚠️⚠️ **UN SOLO ELENCO PER CINQUE RIQUADRI, e non cinque elenchi**: le sei azioni sui file,
+ * le quattro della selezione, le due file dell'editor e i sette moduli di quello completo vivono
+ * qui insieme perché il gettone deve essere unico nell'archivio. Quale riquadro porta quali tasti
+ * lo dice il **suo ordine di fabbrica** in `Settings`, non questo elenco.
  *
  * ⚠️ **[RENAME] è una sola voce e nel cestino diventa 'Ripristina'**: cambia icona, etichetta e
  * azione, ma è lo stesso posto nel riquadro, e un secondo gettone lo spezzerebbe in due righe
@@ -816,7 +839,26 @@ enum class PadKey(override val token: String) : Choice {
     ORIGINAL("original"),
     UNDO("undo"),
     REDO("redo"),
-    APPLY("apply")
+    APPLY("apply"),
+
+    /*
+     * ⚠️⚠️ **I SETTE MODULI DELL'EDITOR COMPLETO, DALLA `2.34`, E SONO TASTI COME GLI ALTRI**
+     * (sua richiesta, 2026-09-13: *voglio poter ordinare anche i pulsanti dei moduli*). La loro
+     * fila è un riquadro a tutti gli effetti, quindi entra nel riordino che c'era invece di
+     * avere il proprio: un secondo meccanismo per lo stesso gesto sarebbe una seconda occasione
+     * di divergere, e il criterio è quello scritto in testa a [PadArrange].
+     * ⚠️⚠️ **NOME E GLIFO NON SONO QUI, e per questi sette è l'unica eccezione**: vivono nella
+     * tabella dei moduli (`MODULES`, in `AdvancedEditorScreen.kt`), che è la loro fonte unica e
+     * che gli altri diciannove non hanno. Copiarli in [label] e in [glyph] vorrebbe dire due
+     * disegni per lo stesso modulo, e il primo a cambiare sarebbe quello che nessuno guarda.
+     */
+    MOD_CROP("mod-crop"),
+    MOD_GEOMETRY("mod-geometry"),
+    MOD_LIGHT("mod-light"),
+    MOD_COLOUR("mod-colour"),
+    MOD_MIX("mod-mix"),
+    MOD_TONE("mod-tone"),
+    MOD_DETAIL("mod-detail")
 }
 
 /**
@@ -864,6 +906,11 @@ fun PadKey.label(): Int = when (this) {
     PadKey.UNDO -> R.string.editor_undo
     PadKey.REDO -> R.string.editor_redo
     PadKey.APPLY -> R.string.editor_apply
+    // ⚠️ I sette dell'editor completo leggono dalla tabella dei moduli, che è la loro fonte
+    // unica: qui ci sono i nomi dei tasti, là quelli dei moduli, e ricopiarli vorrebbe dire
+    // due posti in cui un modulo si chiama.
+    PadKey.MOD_CROP, PadKey.MOD_GEOMETRY, PadKey.MOD_LIGHT, PadKey.MOD_COLOUR,
+    PadKey.MOD_MIX, PadKey.MOD_TONE, PadKey.MOD_DETAIL -> modName(this)
 }
 
 /**
@@ -897,6 +944,9 @@ fun PadKey.glyph(): ImageVector = when (this) {
     PadKey.UNDO -> Glyphs.EditUndo
     PadKey.REDO -> Glyphs.EditRedo
     PadKey.APPLY -> Glyphs.EditApply
+    // ⚠️ Come il nome: il segno di un modulo vive nella sua tabella, e qui si chiede a lei.
+    PadKey.MOD_CROP, PadKey.MOD_GEOMETRY, PadKey.MOD_LIGHT, PadKey.MOD_COLOUR,
+    PadKey.MOD_MIX, PadKey.MOD_TONE, PadKey.MOD_DETAIL -> modGlyph(this)
 }
 
 /**
@@ -1319,6 +1369,14 @@ class PadLook(
     val turn: List<PadKey> = TURN_KEYS,
     /** La seconda fila dell'editor: la cronologia e la conferma. */
     val step: List<PadKey> = STEP_KEYS,
+    /**
+     * La fila dei sette moduli dell'editor completo, dalla `2.34`.
+     *
+     * ⚠️ **Viaggia di qui come gli altri quattro ordini**, e non è una scelta di comodo: quella
+     * fila vive in una scheda che le impostazioni non attraversa, ed è lo stesso motivo per cui
+     * le due file dell'editor di casa sono qui.
+     */
+    val mods: List<PadKey> = MOD_KEYS,
     /**
      * Da che parte dello schermo sta il FAB.
      *

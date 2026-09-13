@@ -540,6 +540,7 @@
     <string name="settings_buttons_menu">Menu de um arquivo</string>
     <string name="settings_buttons_turn">Editor: girar e centralizar</string>
     <string name="settings_buttons_steps">Editor: desfazer e aplicar</string>
+    <string name="settings_buttons_mods">Editor completo: módulos</string>
     <string name="settings_labels">Rótulos sob os ícones</string>
     <string name="settings_labels_desc">Se desativados, os painéis de ícones ficam mais compactos. Os menus em lista não mudam.</string>
     <string name="settings_last_mark">Marca do último item visto</string>

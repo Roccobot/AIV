@@ -523,6 +523,7 @@
     <string name="settings_buttons_menu">Menü zu einer Datei</string>
     <string name="settings_buttons_turn">Editor: Drehen und Zentrieren</string>
     <string name="settings_buttons_steps">Editor: Rückgängig und Anwenden</string>
+    <string name="settings_buttons_mods">Vollständiger Editor: Module</string>
     <string name="settings_labels">Beschriftungen unter den Symbolen</string>
     <string name="settings_labels_desc">Wenn ausgeschaltet, werden die Symbolfelder kompakter. Listenmenüs bleiben unverändert.</string>
     <string name="settings_last_mark">Markierung des zuletzt angesehenen Elements</string>

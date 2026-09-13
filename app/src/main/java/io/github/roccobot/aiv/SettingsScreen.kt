@@ -1583,11 +1583,15 @@ private fun ControlsPage(
         label = stringResource(R.string.settings_buttons),
         summary = null,
         onOpen = { onOpen(Page.BUTTONS) },
-        // ⚠️ Ricordati come i nomi dei campi delle info, e per la stessa ragione: le quattro
-        // liste fanno ventiquattro elementi e diciotto distinti, e si rifacevano tutte a ogni
-        // tocco su una voce del pannello.
+        // ⚠️ Ricordati come i nomi dei campi delle info, e per la stessa ragione: le cinque
+        // liste fanno molti elementi ripetuti, e si rifacevano tutte a ogni tocco su una voce
+        // del pannello.
+        // ⚠️ **I sette moduli ci sono anche dove l'editor completo non c'è**, al contrario del
+        // loro riquadro: un nome in più fra i testi che la ricerca confronta porta alla pagina
+        // giusta, mentre toglierlo darebbe una ricerca che risponde in modo diverso a seconda
+        // della versione di Android.
         extra = remember(res) {
-            (MENU_KEYS + PICK_KEYS + TURN_KEYS + STEP_KEYS).distinct()
+            (MENU_KEYS + PICK_KEYS + TURN_KEYS + STEP_KEYS + MOD_KEYS).distinct()
                 .map { res.getString(it.label()) }
         }
     )
@@ -2636,6 +2640,28 @@ private fun ButtonOrders(settings: Settings, onChange: (Settings) -> Unit) {
         columns = SHEET_KEYS,
         onOrder = { onChange(settings.copy(stepOrder = it)) }
     )
+    /*
+     * ⚠️⚠️ **IL QUINTO RIQUADRO C'È SOLO DOVE C'È L'EDITOR COMPLETO** (sotto Android 13 non
+     * esiste: vedi `advancedEditorAvailable`), ed è l'unico dei cinque a dipendere dal telefono.
+     * Mostrarlo comunque vorrebbe dire far riordinare una fila che non si può aprire.
+     * ⚠️ **La preferenza invece si salva lo stesso**, e non è una contraddizione: il campo vive
+     * in `Settings` come gli altri quattro, e un archivio non deve cambiare forma con la
+     * versione di Android.
+     * ⚠️⚠️ **E LA REPLICA È DI SOLE ICONE, PERCHÉ LO È LA FILA VERA**: i sette nomi non entrano
+     * in nessuna larghezza (è la ragione per cui la `2.31` li ha tolti), quindi scriverli qui
+     * darebbe sette parole troncate e una replica che somiglia meno al modello. Il nome resta
+     * quello che un lettore di schermo annuncia.
+     */
+    if (advancedEditorAvailable()) {
+        PadOrder(
+            title = stringResource(R.string.settings_buttons_mods),
+            order = settings.modOrder,
+            difetto = MOD_KEYS,
+            columns = MOD_KEYS.size,
+            labels = false,
+            onOrder = { onChange(settings.copy(modOrder = it)) }
+        )
+    }
 }
 
 /*
@@ -2668,7 +2694,9 @@ private fun PadOrder(
      */
     difetto: List<PadKey>,
     columns: Int,
-    onOrder: (List<PadKey>) -> Unit
+    onOrder: (List<PadKey>) -> Unit,
+    /** Se le celle portano la parola sotto il glifo: vedi [PadArrange]. */
+    labels: Boolean = true
 ) {
     /*
      * ⚠️⚠️ **UN 'RIPRISTINA' PER OGNI RIQUADRO, dalla `1.59`** (richiesta dell'utente, giro
@@ -2716,7 +2744,8 @@ private fun PadOrder(
         order = order,
         columns = columns,
         onOrder = onOrder,
-        modifier = Modifier.padding(bottom = ARRANGE_GAP)
+        modifier = Modifier.padding(bottom = ARRANGE_GAP),
+        labels = labels
     )
     /*
      * ⚠️ **Fuori dal ramo della ricerca**, che invece nasconde la riga del titolo: là dentro,

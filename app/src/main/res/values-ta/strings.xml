@@ -523,6 +523,7 @@
     <string name="settings_buttons_menu">கோப்பின் பட்டி</string>
     <string name="settings_buttons_turn">திருத்தி: சுழற்றலும் நடுவில் வைத்தலும்</string>
     <string name="settings_buttons_steps">திருத்தி: செயல்தவிர்த்தலும் பயன்படுத்தலும்</string>
+    <string name="settings_buttons_mods">முழு திருத்தி: தொகுதிகள்</string>
     <string name="settings_labels">சின்னங்களுக்குக் கீழே பெயர்கள்</string>
     <string name="settings_labels_desc">அணைத்தால் சின்னப் பலகங்கள் இன்னும் நெருக்கமாகும். பட்டியல் பட்டிகள் மாறாது.</string>
     <string name="settings_last_mark">கடைசியாகப் பார்த்த உருப்படியின் குறி</string>
