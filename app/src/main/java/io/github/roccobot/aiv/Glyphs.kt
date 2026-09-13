@@ -485,7 +485,14 @@ object Glyphs {
     val ModLight: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_mod_light)
 
-    /** Il contagocce: il modulo 'HSL', che lavora su un colore per volta. */
+    /**
+     * I tre cursori: il modulo 'HSL', che lavora su un colore per volta.
+     *
+     * ⚠️ **Era il contagocce fino alla `2.35`**, ed è sua istruzione che sia cambiato
+     * (2026-09-13: *l'icona di HLS dev'essere più simile a una serie di slider stilizzati, non
+     * dev'essere un contagocce*). Il perché, e lo scarto contro il glifo di Material, vivono in
+     * testa al file.
+     */
     val ModMix: ImageVector
         @Composable get() = ImageVector.vectorResource(R.drawable.ic_mod_mix)
 

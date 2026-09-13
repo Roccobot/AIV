@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Il modulo 'HSL'.
 
-     AMMORBIDISCE `Icons.Filled.Colorize` di Material, dalla 2.32, e non cambia nient'altro:
+     AMMORBIDISCE `Icons.Filled.Tune` di Material, dalla 2.36, e non cambia nient'altro:
      gli spigoli esterni diventano raccordi da 0,4 unità su 24. È il trattamento che l'utente
      dà alle icone che disegna lui (2026-09-13: *arrotondare di ~0,4px i bordi esterni*), e
      la divergenza voluta è la ragione per cui questo file esiste invece di chiamare `Icons`:
      il criterio vive in `CLAUDE.md`, § 'Come entra un disegno'.
 
-     LO SCARTO CONTRO IL GLIFO DI MATERIAL è 232 pixel su 57.600 (0,40% della tela),
+     IL DISEGNO DI PARTENZA ERA UN ALTRO FINO ALLA 2.35: `Icons.Filled.Colorize`, cioè il
+     contagocce, ed è sua istruzione che sia cambiato (2026-09-13: *l'icona di HLS dev'essere
+     più simile a una serie di slider stilizzati, non dev'essere un contagocce*). Un contagocce
+     dice 'prendi un colore', che è il gesto del colore mirato; questo modulo invece porta tre
+     cursori per ognuna delle otto fasce, e `Tune` è la fila di cursori che li dice.
+
+     LO SCARTO CONTRO IL GLIFO DI MATERIAL è 210 pixel su 57.600 (0,36% della tela),
      misurato rendendo i due a 240px. Il disegno cade nello stesso riquadro.
 
      IL TRACCIATO È RICOSTRUITO DAL BYTECODE di `material-icons`, cioè dalle chiamate a
@@ -22,5 +28,5 @@
     <path
         android:fillColor="#FF000000"
         android:fillType="nonZero"
-        android:pathData="M20.71,5.63L18.37,3.29C17.98,2.9,17.35,2.9,16.96,3.29L13.84,6.41L12.193,4.78A0.4,0.4,0,0,0,11.629,4.781L10.783,5.627A0.4,0.4,0,0,0,10.783,6.193L11.92,7.33L3.117,16.133A0.4,0.4,0,0,0,3,16.416L3,20.6A0.4,0.4,0,0,0,3.4,21L7.584,21A0.4,0.4,0,0,0,7.867,20.883L16.67,12.08L17.807,13.217A0.4,0.4,0,0,0,18.373,13.217L19.217,12.373A0.4,0.4,0,0,0,19.217,11.807L17.58,10.17L20.7,7.05C21.1,6.65,21.1,6.02,20.71,5.63ZM6.637,18.717L5.283,17.363A0.4,0.4,0,0,1,5.283,16.797L12.777,9.303A0.4,0.4,0,0,1,13.343,9.303L14.697,10.657A0.4,0.4,0,0,1,14.697,11.223L7.203,18.717A0.4,0.4,0,0,1,6.637,18.717Z" />
+        android:pathData="M3,17.4L3,18.6A0.4,0.4,0,0,0,3.4,19L8.6,19A0.4,0.4,0,0,0,9,18.6L9,17.4A0.4,0.4,0,0,0,8.6,17L3.4,17A0.4,0.4,0,0,0,3,17.4ZM3,5.4L3,6.6A0.4,0.4,0,0,0,3.4,7L12.6,7A0.4,0.4,0,0,0,13,6.6L13,5.4A0.4,0.4,0,0,0,12.6,5L3.4,5A0.4,0.4,0,0,0,3,5.4ZM13,20.6L13,19L20.6,19A0.4,0.4,0,0,0,21,18.6L21,17.4A0.4,0.4,0,0,0,20.6,17L13,17L13,15.4A0.4,0.4,0,0,0,12.6,15L11.4,15A0.4,0.4,0,0,0,11,15.4L11,20.6A0.4,0.4,0,0,0,11.4,21L12.6,21A0.4,0.4,0,0,0,13,20.6ZM7,9.4L7,11L3.4,11A0.4,0.4,0,0,0,3,11.4L3,12.6A0.4,0.4,0,0,0,3.4,13L7,13L7,14.6A0.4,0.4,0,0,0,7.4,15L8.6,15A0.4,0.4,0,0,0,9,14.6L9,9.4A0.4,0.4,0,0,0,8.6,9L7.4,9A0.4,0.4,0,0,0,7,9.4ZM21,12.6L21,11.4A0.4,0.4,0,0,0,20.6,11L11.4,11A0.4,0.4,0,0,0,11,11.4L11,12.6A0.4,0.4,0,0,0,11.4,13L20.6,13A0.4,0.4,0,0,0,21,12.6ZM15.4,9L16.6,9A0.4,0.4,0,0,0,17,8.6L17,7L20.6,7A0.4,0.4,0,0,0,21,6.6L21,5.4A0.4,0.4,0,0,0,20.6,5L17,5L17,3.4A0.4,0.4,0,0,0,16.6,3L15.4,3A0.4,0.4,0,0,0,15,3.4L15,8.6A0.4,0.4,0,0,0,15.4,9Z" />
 </vector>

@@ -7,9 +7,12 @@ import android.graphics.RectF
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.geometry.Offset
@@ -21,6 +24,7 @@ import androidx.compose.ui.test.down
 import androidx.compose.ui.test.moveTo
 import androidx.compose.ui.test.up
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.click
@@ -29,6 +33,7 @@ import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
@@ -54,6 +59,9 @@ import kotlin.math.abs
  * della Luce e la tinta del Colore. È il numero che il difetto della `2.19` metteva in comune.
  */
 private const val RIGA = 1
+
+/** L'etichetta con cui la prova ritrova la stanza di [SteadyBody] in una scena minima. */
+private const val STEADY = "stanza"
 
 /**
  * I nomi dei sette moduli, nell'ordine in cui la fila li disegna.
@@ -1686,29 +1694,60 @@ class SviluppoTest {
     }
 
     /**
-     * **Il 'Filtro' c'è sempre, ed è acceso SOLO col bianco e nero.**
+     * **Il 'Filtro' compare col bianco e nero, e la scheda non si allunga per lui.**
      *
      * ⚠️⚠️ **QUELLO CHE PUÒ ROMPERSI IN SILENZIO È IL VERSO DELLA CONDIZIONE**: scritta al
-     * contrario, il cursore sarebbe acceso a colori (dove non governa niente) e spento in bianco e
-     * nero (dove è l'unico che conta), e il codice compilerebbe uguale.
-     * ⚠️ **E la riga c'è anche a colori**: comparendo all'accensione cambierebbe l'altezza del
-     * corpo, cioè la scheda tornerebbe a ballare, che è quello che la `2.33` esiste per evitare.
+     * contrario, il cursore comparirebbe a colori (dove non governa niente) e sparirebbe in bianco
+     * e nero (dove è l'unico che conta), e il codice compilerebbe uguale.
+     * ⚠️⚠️ **E LA SCHEDA NON SI ALLUNGA, MA QUESTA PROVA NON PUÒ MISURARLO, E VA DETTO**: sul banco
+     * il modulo più alto è quello delle Curve (238 punti contro i 220 del Colore col 'Filtro' in
+     * scena), quindi il palco resta identico **anche** togliendo la misura col corpo pieno, cioè
+     * una riga qui non si vedrebbe fallire. A misurare quel meccanismo è il caso su [SteadyBody]:
+     * qui resta il fatto come lui lo vede, e vale come tale.
      */
     @Test
-    fun `il filtro si accende col bianco e nero e la riga c'è sempre`() {
+    fun `il filtro compare col bianco e nero senza allungare la scheda`() {
         banco.setContent { Scena() }
         pronta()
         modulo(R.string.look_color)
 
-        assertEquals("il Colore porta cinque cursori", 5, quantiCursori())
-        cursore(4).assertIsNotEnabled()
+        assertEquals("a colori il Colore porta quattro cursori", 4, quantiCursori())
+        val prima = altezzaPalco()
+        assertTrue(prima > 0)
 
         banco.onNodeWithText(testo(R.string.look_bw)).performClick()
         banco.waitForIdle()
 
-        assertEquals("e restano cinque anche in bianco e nero", 5, quantiCursori())
+        assertEquals("e col bianco e nero ne porta cinque", 5, quantiCursori())
         cursore(4).assertIsEnabled()
         cursore(2).assertIsNotEnabled()
+        assertEquals("e il palco non deve accorciarsi", prima, altezzaPalco())
+    }
+
+    /**
+     * **L'altezza comune è la maggiore delle due di un corpo che cambia.**
+     *
+     * ⚠️⚠️ **MISURA IL MECCANISMO E NON LA SCHERMATA, PER LA RAGIONE SCRITTA NEL CASO QUI SOPRA**:
+     * nella schermata vera il Colore non è il modulo più alto, quindi là la misura col corpo pieno
+     * non cambia un pixel e una prova non la vedrebbe. Qui la scena è minima: due corpi, il primo
+     * dei quali è alto il doppio quando gli si chiede quello **pieno**.
+     * ⚠️ **Controprovata** passando `false` al posto di `pieno` dentro [SteadyBody]: la colonna
+     * resta alta quanto il corpo corto, e il contenuto della scheda esce dalla sua stanza.
+     */
+    @Test
+    fun `l'altezza comune conta anche le righe che un valore nasconde`() {
+        val corto = 20.dp
+        val pienoAlto = 60.dp
+        banco.setContent {
+            SteadyBody(slots = 2, chosen = 0, modifier = Modifier.testTag(STEADY)) { quale, pieno ->
+                Box(Modifier.fillMaxWidth().height(if (quale == 0 && pieno) pienoAlto else corto))
+            }
+        }
+        banco.waitForIdle()
+
+        val alta = banco.onNodeWithTag(STEADY).fetchSemanticsNode().size.height
+        val quanto = with(banco.density) { pienoAlto.roundToPx() }
+        assertEquals("la stanza deve valere il corpo pieno", quanto, alta)
     }
 
     /**
