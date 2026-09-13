@@ -1841,8 +1841,10 @@ mestieri dovrebbe
 ricomprimere anche quando gira una fotografia, cioè perdere qualità per un gesto che oggi non ne
 fa perdere. Chi tocca 'Modifica' sceglie fra i due la prima volta, e la scelta si ricorda.
 - ⚠️ **Arriva in più versioni e il modulo **Luce** è la prima**: dopo di lei sono usciti il Colore,
-  l'HSL, il Dettaglio, le **Curve**, l'anteprima a risoluzione piena e la **Geometria**, e quello
-  che resta (i preset) vive nel piano d'azione, che è il posto delle versioni in sequenza.
+  l'HSL, il Dettaglio, le **Curve**, l'anteprima a risoluzione piena, la **Geometria** e il
+  **Ritaglio**, e quello che resta (i preset) vive nel piano d'azione, che è il posto delle versioni
+  in sequenza. ⚠️ **L'ordine di uscita non è l'ordine della fila**, che dalla `2.31` comincia dagli
+  ultimi due arrivati: § '✂️ Il modulo Ritaglio, e la fila che è diventata di icone'.
 
 ⚠️⚠️ **MA I DUE EDITOR SI CHIAMANO ALLO STESSO MODO IN TESTATA, DALLA `2.20`, ED È SUA
 ISTRUZIONE** (2026-09-12: *in testa/titolo, mentre modifico le immagini, deve apparire 'Modifica
@@ -2042,12 +2044,14 @@ e un interruttore porta l'immagine in **bianco e nero**.
   dell'HSL, e là vivono (§ '🎨 Il modulo HSL, otto fasce e una macchina sola'), che è la sua
   risposta **`hsl`** a `d-bn-pesi`. Qui il grigio viene dai pesi percettivi di Rec. 709, cioè da
   come l'occhio lo vede.
-  - ⚠️⚠️ **E L'ORDINE DEI SETTE È CAMBIATO CON LA `2.21`, SU SUA ISTRUZIONE** (campo libero del
+  - ⚠️⚠️ **E L'ORDINE DI USCITA È CAMBIATO CON LA `2.21`, SU SUA ISTRUZIONE** (campo libero del
     giro della `2.20`: *mi sembra più logico implementare HSL dopo il colore, va' avanti con
-    quello*): adesso è Luce, Colore, HSL, Dettaglio, Curve, Geometria, preset. ⚠️ **Prevale sulla
-    sua risposta `subito` a `d-dettaglio`** (giro della `2.16`), che metteva il Dettaglio al terzo
-    posto: è un'istruzione più recente dello stesso utente, e le note che dànno il Dettaglio per
-    il giro dopo il Colore sono superate.
+    quello*): l'HSL è uscito prima del Dettaglio. ⚠️ **Prevale sulla sua risposta `subito` a
+    `d-dettaglio`** (giro della `2.16`), che metteva il Dettaglio al terzo posto: è un'istruzione
+    più recente dello stesso utente, e le note che dànno il Dettaglio per il giro dopo il Colore
+    sono superate. ⚠️⚠️ **E QUELL'ORDINE NON È PIÙ QUELLO DELLA FILA, DALLA `2.31`**, che è
+    Ritaglio, Geometria, Luce, Colore, HSL, Dettaglio, Curve: chi legge qui l'ordine dei gettoni
+    guardi § '✂️ Il modulo Ritaglio, e la fila che è diventata di icone'.
   - ⚠️⚠️ **E DALLA `2.23` NE ESISTE UNO IN PIÙ CHE NON È UN MODULO**: l'**anteprima a risoluzione
     piena quando si ingrandisce**, che è la sua risposta `pieno` a `d-dett-vedere` (giro della
     `2.22`). Non porta cursori: ridecodifica dal file la sola finestra inquadrata, perché oggi
@@ -2139,7 +2143,8 @@ che l'utente ricorda di aver fatto.
 ed è la clausola dell'utente (*quelle che non prevedono la riscrittura del file pixel per pixel
 devono essere lossless*): finché c'è solo la posa il file si gira cambiando un tag EXIF, come
 l'editor di casa fa dalla `1.03`; appena entra un valore di Luce i pixel vanno riscritti e non
-c'è modo di evitarlo. ⚠️⚠️ **E LA GEOMETRIA È ENTRATA CON LA `2.29`, con la risposta che era già
+c'è modo di evitarlo. ⚠️ **E dalla `2.31` la posa è un modulo di questo editor**, quindi quella
+distinzione vive qui come là: un ritaglio riscrive, una rotazione no. ⚠️⚠️ **E LA GEOMETRIA È ENTRATA CON LA `2.29`, con la risposta che era già
 scritta qui**: quel modulo **ricampiona** per definizione, quindi un suo cursore mosso toglie il
 senza perdita come uno di Luce. Chi legge la nota vecchia, che lo dava come un caso futuro, sappia
 che il caso è arrivato e la risposta non è cambiata.
@@ -2679,12 +2684,14 @@ quale modulo si sta guardando. Adesso vivono in un oggetto solo (`Gaze`) che la 
 tutti e due. ⚠️ **Non entrano nella storia dei passi**, che era la ragione per cui stavano fuori dal
 modello, e non è cambiata.
 
-⚠️⚠️ **LA FILA DEI MODULI SCORRE, DALLA `2.23`, E SENZA QUELLA RIGA IL PALCO SPARIVA**: col quinto
+⚠️⚠️ **LA FILA DEI MODULI SCORREVA DALLA `2.23`, E SENZA QUELLA RIGA IL PALCO SPARIVA**: col quinto
 gettone i nomi non entravano più nella larghezza, quindi ognuno andava a capo dentro la propria
 pastiglia e la fila cresceva in altezza; la scheda è alta quanto il suo contenuto, e il palco si
 prende quello che resta. ⚠️ **Il banco l'ha misurato come un'immagine alta zero pixel**, cioè
 l'editor senza più niente da guardare, e non è arrivato a lui: è il caso per cui le prove sui pixel
-esistono.
+esistono. ⚠️⚠️ **DALLA `2.31` LO SCORRIMENTO NON C'È PIÙ**, perché i gettoni sono icone e ci stanno
+tutti: il perché, e perché lo scorrimento era un rimedio e non una scelta, vivono in § '✂️ Il modulo
+Ritaglio, e la fila che è diventata di icone'.
 
 ⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`, più `ContoTest` per il programma):
 che la curva a riposo sia l'identità **esatta**, che la spline non oltrepassi e che un tratto piatto
@@ -2811,10 +2818,91 @@ cursori e azzeri solo i propri; dalla `2.30` anche che un keystone tenga il **ce
 lati alla pari, che l'immagine deformata non esca dal proprio riquadro (e questa guarda i pixel), e
 il conto su cui la lente si regge. **Non** vede i pixel deformati: che un orizzonte venga dritto e
 che una facciata si raddrizzi si guardano sul telefono, e la voce di collaudo lo chiede.
-- ⚠️⚠️ **IL SESTO GETTONE VA RAGGIUNTO SCORRENDO, E SENZA QUELLA RIGA LA PROVA MENTE**: la fila dei
-  moduli scorre in orizzontale dalla `2.23`, quindi col sesto nome la pastiglia cade fuori dalla
-  larghezza del banco; il tocco non dà nessun errore e non cambia modulo, e si contavano i sei
-  cursori della Luce credendo di guardare la Geometria.
+- ⚠️⚠️ **IL SESTO GETTONE ANDAVA RAGGIUNTO SCORRENDO, E SENZA QUELLA RIGA LA PROVA MENTIVA**: fino
+  alla `2.30` la fila scorreva in orizzontale, quindi col sesto nome la pastiglia cadeva fuori dalla
+  larghezza del banco; il tocco non dava nessun errore e non cambiava modulo, e si contavano i sei
+  cursori della Luce credendo di guardare la Geometria. ⚠️ **Dalla `2.31` la fila è di icone e non
+  scorre**, quindi il gettone si cerca per **descrizione** e lo scorrimento è uscito dalle prove.
+
+## ✂️ Il modulo Ritaglio, e la fila che è diventata di icone
+
+⚠️⚠️ **È IL PRIMO MODULO DELL'EDITOR COMPLETO, DALLA `2.31`, ED È IL SUO ORDINE ALLA LETTERA**
+(campo libero del giro della `2.29`: *`Geometria` dev'essere il secondo modulo; il primo dev'essere
+`Ritaglio` (più o meno ciò che fa già l'editor semplice). Il terzo (ma attivo di default) 'Luce', e
+gli altri di seguito nell'ordine attuale*). I due moduli che non parlano di colore vengono per
+primi perché sono le domande che si fanno per prime davanti a una fotografia: che cosa ci sta
+dentro, e se sta dritta.
+- ⚠️⚠️ **MA APERTO DI FABBRICA RESTA IL TERZO, E SONO DUE COSE DIVERSE**: la fila è l'ordine in cui
+  si lavora, l'apertura è dove si lavora quasi sempre. L'indice vive in `LOOK_FIRST` e si **ricava**
+  dall'elenco: chi sposta un modulo si ritrova l'apertura giusta senza toccare altro.
+- ⚠️ **Il posto nella fila e il posto nella catena non coincidono più**: il conto del Ritaglio si fa
+  per ultimo (si taglia quello che il resto ha prodotto) e quello della Geometria dopo lo shader,
+  mentre nella fila vengono per primi.
+
+⚠️⚠️ **QUELLO CHE FA È QUELLO CHE FA L'EDITOR DI CASA, E IL CODICE È LO STESSO**: le quattro
+squadrette, il velo intorno, i terzi, la presa del dito e il lato minimo vivono in
+`EditorScreen.kt` (`cropOverlay`, `grabbed`, `dragged`, `cropBox`, `cropFractions`), e questo palco
+li **chiama**. Due disegni dello stesso comando divergerebbero al primo ritocco, e chi lo vedrebbe
+per primo è lui, che i due editor li apre dalla stessa immagine.
+- ⚠️ **Non ci sono i gettoni dei formati**, cioè il rettangolo è libero: là sono una fila di
+  pastiglie in più in una scheda che ne porta già due, e il giro di collaudo chiede se servono
+  prima di portarli.
+- ⚠️⚠️ **È IL PRIMO MODULO CHE PRENDE IL DITO SULL'IMMAGINE**: gli altri sei mettono i comandi nella
+  scheda, questo li mette **sul palco**, quindi finché è in scena il palco fa solo quello (pinza,
+  panoramica, doppio tocco e confronto restano fermi), che è la stessa modalità dichiarata del
+  colore mirato. ⚠️ **E l'immagine torna intera**: le squadrette si tirano ai bordi di quello che si
+  vede, e con l'immagine ingrandita metà di quei bordi starebbe fuori dallo schermo.
+- ⚠️ **Un dito che scende lontano da una presa non fa niente**, e non è una dimenticanza:
+  l'alternativa sarebbe spostare il rettangolo dal punto toccato, cioè farlo saltare sotto il dito.
+
+⚠️⚠️ **I TRE COMANDI DI POSA VIVONO QUI, E SONO QUELLI DELL'EDITOR DI CASA**: 'Ruota a sinistra',
+'Ruota a destra' e 'Rifletti', col tocco lungo che riflette in verticale, disegnati dallo stesso
+`ActionPad` con gli stessi glifi e le stesse etichette. ⚠️ **Tre e non cinque**: le due centrature
+lavorano sul rettangolo dentro una **forma scelta**, e senza i formati non avrebbero niente da
+centrare. ⚠️ **L'ordine salvato dal riordino non si legge**: quello è l'ordine di una fila da
+cinque, e infilarci tre tasti darebbe una fila che si riordina in un modo che nessuno ha chiesto.
+
+⚠️⚠️ **UNA POSA PORTA CON SÉ IL RETTANGOLO, E SENZA QUELLA RIGA IL RITAGLIO SI SPOSTEREBBE IN
+SILENZIO**: il rettangolo è in frazioni dell'immagine **già posata**, quindi un quarto di giro che
+non lo riscrivesse lo lascerebbe dov'è sullo schermo, cioè su un'altra porzione di fotografia. Lo
+riscrive `spunRect`, la stessa funzione dell'editor di casa, dentro `spunLook`.
+- ⚠️ **Qui la rotazione NON rifà il rettangolo**, al contrario dell'editor di casa, e la differenza
+  è che là esiste una forma scelta da rifare sull'aspetto nuovo. Con un rettangolo libero, girarlo
+  lo lascia esattamente sulla stessa porzione di immagine.
+
+⚠️⚠️ **LA POSA RESTA SENZA PERDITA E IL RITAGLIO NO, E LE DUE DOMANDE NON SONO LA STESSA**: una
+posa si scrive in un tag EXIF, quindi l'immagine è cambiata ma il file non si riscrive; un ritaglio
+toglie dei pixel, quindi va riscritto. Confonderle vorrebbe dire ricomprimere una fotografia per
+averla girata, che è proprio quello che l'editor di casa non fa dalla `1.03`.
+- **Quindi il salvataggio delega**: quando non c'è niente da sviluppare e la geometria è ferma, il
+  file passa da `ImageEdit.save`, cioè dalla strada di sempre, posa e ritaglio compresi. La catena
+  completa (posa, shader, geometria, taglio) entra in funzione solo quando serve davvero.
+
+⚠️⚠️ **E LA FILA DEI MODULI NON SCORRE PIÙ: SONO SETTE ICONE CHE SI DIVIDONO LA LARGHEZZA, ED È SUA
+RICHIESTA** (stesso campo libero: *forse al posto dei nomi dei moduli (che resterebbero per gli
+screen reader) dovremmo usare delle icone, che sono molto più brevi e sarebbero tutte visibili senza
+scorrere in orizzontale*). ⚠️⚠️ **LO SCORRIMENTO DELLA `2.23` NON ERA UNA SCELTA MA UN RIMEDIO**:
+coi nomi scritti la fila cresceva in altezza e il palco si riduceva a zero pixel, e scorrere teneva
+metà dei moduli fuori dallo schermo per chi non sa che si scorre.
+- ⚠️ **Il nome non si perde**: è il `contentDescription` del gettone, cioè quello che un lettore di
+  schermo legge, ed è anche quello che il banco cerca. ⚠️ **Quindi la nota sul sesto gettone da
+  raggiungere scorrendo è superata**, e con lei le righe delle prove che lo facevano.
+- ⚠️ **I quattro canali delle Curve restano scritti**, e non è un'incoerenza: là i gettoni sono
+  quattro e i loro nomi sono una lettera o poco più, quindi un'icona direbbe meno della parola. Il
+  pezzo è lo stesso e sceglie da sé, perché il glifo è facoltativo.
+
+⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`): che il rettangolo segua la posa nei
+due gesti e dopo quattro giri torni dov'era, che una posa resti senza perdita e un ritaglio no, che
+i sette gettoni si annuncino col nome senza scriverlo, che il Ritaglio porti i tre comandi e nessun
+cursore, e che tirando una squadretta il palco cambi disegno. **Non** vede il file salvato, cioè che
+i pixel tagliati siano quelli giusti: quello si guarda sul telefono, e la voce di collaudo lo chiede.
+- ⚠️⚠️ **E LA PROVA HA PAGATO ALLA PRIMA CORSA, TROVANDO UN DIFETTO CHE NESSUN COMPILATORE POTEVA
+  VEDERE**: il gesto consumava l'evento **prima** di leggerne il delta, e `positionChange()` risponde
+  **zero** su un evento già consumato. Il codice era valido, il gesto partiva, la presa scattava, e
+  il rettangolo non si muoveva di un pixel.
+- ⚠️⚠️ **IL BANCO HA IMPOSTO ANCHE COME SI INIETTA QUEL GESTO**: i tre momenti del dito (giù,
+  movimento, su) vanno in **tre** chiamate separate, perché scritti in un blocco solo il movimento e
+  il distacco arrivano insieme e a `drag` resta un evento con delta zero.
 
 ## 🗑️ Lo svuotamento automatico del cestino, e le tre decisioni che lo governano
 

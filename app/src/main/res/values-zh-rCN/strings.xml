@@ -421,6 +421,7 @@
     <string name="look_tone_board">色调曲线</string>
     <string name="look_target">定向</string>
     <string name="look_geometry">几何校正</string>
+    <string name="look_crop">裁剪</string>
     <string name="look_straighten">拉直</string>
     <string name="look_aspect">长宽比</string>
     <string name="look_horizontal">水平</string>

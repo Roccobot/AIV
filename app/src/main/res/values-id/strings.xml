@@ -421,6 +421,7 @@
     <string name="look_tone_board">Kurva nada</string>
     <string name="look_target">Tertarget</string>
     <string name="look_geometry">Geometri</string>
+    <string name="look_crop">Pangkas</string>
     <string name="look_straighten">Luruskan</string>
     <string name="look_aspect">Rasio</string>
     <string name="look_horizontal">Horizontal</string>

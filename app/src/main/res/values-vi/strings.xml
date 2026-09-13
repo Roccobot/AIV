@@ -421,6 +421,7 @@
     <string name="look_tone_board">Đường cong tông màu</string>
     <string name="look_target">Nhắm mục tiêu</string>
     <string name="look_geometry">Hình học</string>
+    <string name="look_crop">Cắt</string>
     <string name="look_straighten">Làm thẳng</string>
     <string name="look_aspect">Tỉ lệ</string>
     <string name="look_horizontal">Ngang</string>

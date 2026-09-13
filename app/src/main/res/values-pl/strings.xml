@@ -469,6 +469,7 @@
     <string name="look_tone_board">Krzywa tonalna</string>
     <string name="look_target">Celowany</string>
     <string name="look_geometry">Geometria</string>
+    <string name="look_crop">Kadrowanie</string>
     <string name="look_straighten">Prostowanie</string>
     <string name="look_aspect">Proporcje</string>
     <string name="look_horizontal">Poziomo</string>

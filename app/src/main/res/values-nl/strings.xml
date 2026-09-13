@@ -437,6 +437,7 @@
     <string name="look_tone_board">Tooncurve</string>
     <string name="look_target">Doelgericht</string>
     <string name="look_geometry">Geometrie</string>
+    <string name="look_crop">Bijsnijden</string>
     <string name="look_straighten">Rechtzetten</string>
     <string name="look_aspect">Verhouding</string>
     <string name="look_horizontal">Horizontaal</string>

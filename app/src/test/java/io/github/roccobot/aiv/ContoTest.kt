@@ -65,7 +65,7 @@ class ContoTest {
     @Test
     fun `lookShader consegna il programma coi cinque valori`() {
         val pieno = Look(
-            Light(
+            light = Light(
                 exposure = 1f, contrast = -0.4f, highlights = -0.5f, shadows = 0.5f,
                 whites = 0.3f, blacks = -0.2f
             )
