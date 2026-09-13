@@ -501,6 +501,7 @@
     <string name="look_tone_board">منحنى النغمات</string>
     <string name="look_target">مُستهدف</string>
     <string name="look_geometry">الهندسة</string>
+    <string name="look_crop">قص</string>
     <string name="look_straighten">التقويم</string>
     <string name="look_aspect">النسبة</string>
     <string name="look_horizontal">أفقي</string>

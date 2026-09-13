@@ -127,6 +127,7 @@
     <string name="look_tone_board">Tone curve</string>
     <string name="look_target">Targeted</string>
     <string name="look_geometry">Geometry</string>
+    <string name="look_crop">Crop</string>
     <string name="look_straighten">Straighten</string>
     <string name="look_aspect">Aspect</string>
     <string name="look_horizontal">Horizontal</string>

@@ -437,6 +437,7 @@
     <string name="look_tone_board">Ton eğrisi</string>
     <string name="look_target">Hedefli</string>
     <string name="look_geometry">Geometri</string>
+    <string name="look_crop">Kırp</string>
     <string name="look_straighten">Düzleştirme</string>
     <string name="look_aspect">En boy</string>
     <string name="look_horizontal">Yatay</string>

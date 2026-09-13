@@ -470,48 +470,6 @@ fun EditorScreen(
  */
 private class Step(val done: Done, val preview: Bitmap)
 
-/**
- * Uno specchio facoltativo e una rotazione: le otto pose in cui si può mettere un'immagine.
- *
- * ⚠️⚠️ **SONO OTTO E NON INFINITE, ED È QUELLO CHE PERMETTE DI NON RIFARE I GESTI UNO PER
- * UNO**: riflessioni e quarti di giro si compongono sempre in *uno* specchio più *una*
- * rotazione, quindi dieci tocchi sui tasti diventano una trasformazione sola da applicare al
- * file. Sono anche le otto dell'orientamento EXIF, e non è una coincidenza: quel campo esiste
- * per dire in che posa sta una fotografia.
- * ⚠️ **L'ordine dichiarato è 'specchia, poi gira'**, lo stesso di `ImageEdit.save`: senza
- * fissarne uno, `Spin(1, true)` sarebbe due trasformazioni diverse a seconda di chi lo legge.
- */
-internal data class Spin(val turns: Int, val mirror: Boolean) {
-
-    /**
-     * Questa posa, e **poi** [next]: cioè `next` applicata a quello che si vede adesso.
-     *
-     * ⚠️⚠️ **UNO SPECCHIO DAVANTI A UNA ROTAZIONE LA ROVESCIA, e questa riga è tutto il
-     * conto**: `M ∘ R(k) = R(-k) ∘ M`, quindi con `next.mirror` i quarti di giro accumulati
-     * cambiano segno e lo specchio si alterna. Chi scrivesse una somma anche in quel ramo
-     * otterrebbe un'immagine girata dalla parte sbagliata **solo** quando c'è già una
-     * rotazione, cioè un difetto che passa tutte le prove fatte a immagine dritta.
-     */
-    fun then(next: Spin): Spin =
-        if (next.mirror) Spin((next.turns - turns).mod(4), !mirror)
-        else Spin((next.turns + turns).mod(4), mirror)
-
-    companion object {
-        val STILL = Spin(0, false)
-
-        /** Il gesto 'rifletti in orizzontale': lo specchio nudo. */
-        val ACROSS = Spin(0, true)
-
-        /**
-         * Il gesto 'rifletti in verticale'.
-         *
-         * ⚠️ **È lo specchio orizzontale più mezzo giro**, e non un secondo meccanismo: un
-         * ribaltamento sull'asse orizzontale è esattamente questo, e tenerne uno solo vuol dire
-         * che tutto il resto (la matrice, l'EXIF, il rettangolo) ha un caso in meno da coprire.
-         */
-        val DOWN = Spin(2, true)
-    }
-}
 
 /** Una posa e un rettangolo: quello che si sa applicare al file vero. */
 private data class Done(val spin: Spin, val crop: ImageEdit.Crop) {
@@ -1206,7 +1164,7 @@ private fun CropStage(
                 var going = Rect.Zero
                 detectDragGestures(
                     onDragStart = { at ->
-                        going = box(now, frame)
+                        going = cropBox(now, frame)
                         held = grabbed(at, going, grip)
                     },
                     onDragEnd = { held = Grab.NONE },
@@ -1215,7 +1173,7 @@ private fun CropStage(
                     change.consume()
                     if (held == Grab.NONE) return@detectDragGestures
                     going = dragged(going, held, delta, frame, keep, least)
-                    report(fractions(going, frame))
+                    report(cropFractions(going, frame))
                 }
             }
     ) {
@@ -1225,43 +1183,8 @@ private fun CropStage(
                 dstOffset = IntOffset(frame.left.roundToInt(), frame.top.roundToInt()),
                 dstSize = IntSize(frame.width.roundToInt(), frame.height.roundToInt())
             )
-            val r = box(crop, frame)
-            // Il velo, in quattro pezzi intorno al rettangolo tenuto.
-            drawRect(dim, topLeft = frame.topLeft, size = Size(frame.width, r.top - frame.top))
-            drawRect(dim, topLeft = Offset(frame.left, r.bottom),
-                size = Size(frame.width, frame.bottom - r.bottom))
-            drawRect(dim, topLeft = Offset(frame.left, r.top), size = Size(r.left - frame.left, r.height))
-            drawRect(dim, topLeft = Offset(r.right, r.top), size = Size(frame.right - r.right, r.height))
-
-            drawRect(
-                color = line.copy(alpha = 0.9f),
-                topLeft = r.topLeft,
-                size = r.size,
-                style = Stroke(width = EDGE_PX)
-            )
-            // ⚠️ I terzi si disegnano sempre e non solo mentre si trascina: sono la ragione
-            // per cui un ritaglio viene dritto, e comparendo solo al tocco arriverebbero dopo
-            // che la decisione è presa.
-            for (k in 1..2) {
-                val x = r.left + r.width * k / 3f
-                val y = r.top + r.height * k / 3f
-                drawLine(line.copy(alpha = 0.35f), Offset(x, r.top), Offset(x, r.bottom), THIRD_PX)
-                drawLine(line.copy(alpha = 0.35f), Offset(r.left, y), Offset(r.right, y), THIRD_PX)
-            }
-            /*
-             * ⚠️⚠️ **QUATTRO SQUADRETTE E NON QUATTRO QUADRATINI** (richiesta dell'utente,
-             * 2026-08-31: *manopole angolari più grandi e visibili*). Un quadratino centrato
-             * sull'angolo dice 'qui c'è un punto'; una squadretta appoggiata ai due lati dice
-             * **quali due lati** quel punto muove, che è l'informazione che serve mentre si
-             * tira. È anche la forma che ogni ritaglio moderno usa, quindi non va imparata.
-             * ⚠️ **Il braccio si accorcia sui ritagli piccoli**: a lato pieno resterebbe più
-             * lungo di metà rettangolo, e le due squadrette opposte si toccherebbero.
-             */
-            val reach = min(arm, min(r.width, r.height) / 2.5f)
-            bracket(Offset(r.left, r.top), 1, 1, reach, thick, CROP_GRIP, halo, line)
-            bracket(Offset(r.right, r.top), -1, 1, reach, thick, CROP_GRIP, halo, line)
-            bracket(Offset(r.left, r.bottom), 1, -1, reach, thick, CROP_GRIP, halo, line)
-            bracket(Offset(r.right, r.bottom), -1, -1, reach, thick, CROP_GRIP, halo, line)
+            val r = cropBox(crop, frame)
+            cropOverlay(frame, r, arm, thick, halo)
 
             // ── La lente ──
             eyeOf(held, r)?.let { eye ->
@@ -1269,6 +1192,55 @@ private fun CropStage(
             }
         }
     }
+}
+
+/**
+ * Il velo intorno al rettangolo tenuto, i terzi e le quattro squadrette: quello che si vede
+ * addosso a un'immagine mentre la si ritaglia.
+ *
+ * ⚠️⚠️ **VIVE QUI E LA LEGGONO IN DUE, DALLA `2.31`**: il palco di questo editor e quello
+ * dell'editor completo, che dal modulo Ritaglio disegna lo stesso corredo sopra la sua anteprima
+ * sviluppata. Scritta due volte, la seconda copia sarebbe quella che diverge al primo ritocco, e
+ * il ritaglio si vedrebbe in due modi a un tocco di distanza.
+ * ⚠️ **Disegna e basta**: il gesto che muove le maniglie resta di chi la chiama, perché i due
+ * palchi lo ricevono in due modi (là un rilevatore suo, qui dentro il gesto unico del palco).
+ *
+ * ⚠️⚠️ **QUATTRO SQUADRETTE E NON QUATTRO QUADRATINI** (richiesta dell'utente, 2026-08-31:
+ * *manopole angolari più grandi e visibili*). Un quadratino centrato sull'angolo dice 'qui c'è un
+ * punto'; una squadretta appoggiata ai due lati dice **quali due lati** quel punto muove, che è
+ * l'informazione che serve mentre si tira.
+ * ⚠️ **Il braccio si accorcia sui ritagli piccoli**: a lato pieno resterebbe più lungo di metà
+ * rettangolo, e le due squadrette opposte si toccherebbero.
+ * ⚠️ **I terzi si disegnano sempre e non solo mentre si trascina**: sono la ragione per cui un
+ * ritaglio viene dritto, e comparendo solo al tocco arriverebbero dopo che la decisione è presa.
+ */
+internal fun DrawScope.cropOverlay(frame: Rect, r: Rect, arm: Float, thick: Float, halo: Float) {
+    val dim = Color.Black.copy(alpha = VEIL)
+    val line = Color.White
+    // Il velo, in quattro pezzi intorno al rettangolo tenuto.
+    drawRect(dim, topLeft = frame.topLeft, size = Size(frame.width, r.top - frame.top))
+    drawRect(dim, topLeft = Offset(frame.left, r.bottom),
+        size = Size(frame.width, frame.bottom - r.bottom))
+    drawRect(dim, topLeft = Offset(frame.left, r.top), size = Size(r.left - frame.left, r.height))
+    drawRect(dim, topLeft = Offset(r.right, r.top), size = Size(frame.right - r.right, r.height))
+
+    drawRect(
+        color = line.copy(alpha = 0.9f),
+        topLeft = r.topLeft,
+        size = r.size,
+        style = Stroke(width = EDGE_PX)
+    )
+    for (k in 1..2) {
+        val x = r.left + r.width * k / 3f
+        val y = r.top + r.height * k / 3f
+        drawLine(line.copy(alpha = 0.35f), Offset(x, r.top), Offset(x, r.bottom), THIRD_PX)
+        drawLine(line.copy(alpha = 0.35f), Offset(r.left, y), Offset(r.right, y), THIRD_PX)
+    }
+    val reach = min(arm, min(r.width, r.height) / 2.5f)
+    bracket(Offset(r.left, r.top), 1, 1, reach, thick, CROP_GRIP, halo, line)
+    bracket(Offset(r.right, r.top), -1, 1, reach, thick, CROP_GRIP, halo, line)
+    bracket(Offset(r.left, r.bottom), 1, -1, reach, thick, CROP_GRIP, halo, line)
+    bracket(Offset(r.right, r.bottom), -1, -1, reach, thick, CROP_GRIP, halo, line)
 }
 
 /**
@@ -1398,7 +1370,7 @@ private fun DrawScope.lens(
 }
 
 /** Quale presa ha preso il dito. */
-private enum class Grab { NONE, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, INSIDE }
+internal enum class Grab { NONE, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, INSIDE }
 
 /**
  * Una squadretta d'angolo: due bracci arrotondati appoggiati FUORI dal rettangolo.
@@ -1422,7 +1394,7 @@ private enum class Grab { NONE, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, 
  *
  * [dx] e [dy] valgono `1` se da quell'angolo si va verso destra o verso il basso, `-1` se no.
  */
-private fun DrawScope.bracket(
+internal fun DrawScope.bracket(
     at: Offset,
     dx: Int,
     dy: Int,
@@ -1473,7 +1445,7 @@ private fun DrawScope.bracket(
     traccia(thick, ink)
 }
 
-private fun grabbed(at: Offset, r: Rect, grip: Float): Grab {
+internal fun grabbed(at: Offset, r: Rect, grip: Float): Grab {
     val near = listOf(
         Grab.TOP_LEFT to Offset(r.left, r.top),
         Grab.TOP_RIGHT to Offset(r.right, r.top),
@@ -1497,7 +1469,7 @@ private fun grabbed(at: Offset, r: Rect, grip: Float): Grab {
  * sta fermo: è l'unico modo in cui un ritaglio 16:9 resta 16:9 mentre lo si tira. Lasciando
  * liberi tutti e due i lati la proporzione si perderebbe al primo movimento obliquo.
  */
-private fun dragged(
+internal fun dragged(
     r: Rect,
     held: Grab,
     delta: Offset,
@@ -1566,14 +1538,14 @@ private fun fitted(picture: ImageBitmap, room: Size): Rect {
     return Rect(x, y, x + w, y + h)
 }
 
-private fun box(crop: ImageEdit.Crop, frame: Rect) = Rect(
+internal fun cropBox(crop: ImageEdit.Crop, frame: Rect) = Rect(
     frame.left + crop.left * frame.width,
     frame.top + crop.top * frame.height,
     frame.left + crop.right * frame.width,
     frame.top + crop.bottom * frame.height
 )
 
-private fun fractions(r: Rect, frame: Rect) = ImageEdit.Crop(
+internal fun cropFractions(r: Rect, frame: Rect) = ImageEdit.Crop(
     ((r.left - frame.left) / frame.width).coerceIn(0f, 1f),
     ((r.top - frame.top) / frame.height).coerceIn(0f, 1f),
     ((r.right - frame.left) / frame.width).coerceIn(0f, 1f),
@@ -1600,13 +1572,13 @@ internal fun preview(context: Context, uri: Uri): Bitmap? =
 private const val PREVIEW = 1600
 
 /** Quanto scurisce quello che il ritaglio butta via. */
-private const val VEIL = 0.55f
+internal const val VEIL = 0.55f
 
 /** Il bordo del rettangolo, in pixel: sottile, perché copre la fotografia. */
-private const val EDGE_PX = 2f
+internal const val EDGE_PX = 2f
 
 /** Le righe dei terzi, più leggere del bordo. */
-private const val THIRD_PX = 1f
+internal const val THIRD_PX = 1f
 
 /**
  * L'ingrandimento della lente, il suo diametro e quanto sta lontana dai bordi del riquadro.
@@ -1624,8 +1596,8 @@ private val LOUPE_SIDE = 112.dp
 private val LOUPE_EDGE = 8.dp
 
 /** Il braccio della squadretta d'angolo, e il suo spessore. */
-private val HANDLE_ARM = 24.dp
-private val HANDLE_THICK = 4.dp
+internal val HANDLE_ARM = 24.dp
+internal val HANDLE_THICK = 4.dp
 
 /**
  * Il filo che contorna una maniglia.
@@ -1634,7 +1606,7 @@ private val HANDLE_THICK = 4.dp
  * braccio da 4 punti un filo da 2 per lato ne farebbe una maniglia da 8 che è quasi tutta
  * contorno. Il perché il filo esista, con le misure, sta su [bracket].
  */
-private val GRIP_HALO = 1.dp
+internal val GRIP_HALO = 1.dp
 
 /**
  * Il bordo del ritaglio **dentro la lente**, che è la mira su cui si tira.
@@ -1651,7 +1623,7 @@ private val LENS_EDGE = 2.dp
  * tocca, quindi una presa grande esattamente quanto il disegno si prende solo guardando. 40dp
  * è la misura che Material dà a un bersaglio comodo.
  */
-private val GRIP = 40.dp
+internal val GRIP = 40.dp
 
 /**
  * Il lato più corto che un ritaglio può avere.
@@ -1661,7 +1633,7 @@ private val GRIP = 40.dp
  * ritagliare in piccolo per guadagnare comodità. Sono due cose diverse e adesso lo sono anche
  * nel codice.
  */
-private val LEAST_SIDE = 32.dp
+internal val LEAST_SIDE = 32.dp
 
 /**
  * Il respiro intorno alla fotografia nell'editor, e quanto sta lontana dai bordi laterali.

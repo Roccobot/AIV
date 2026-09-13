@@ -437,6 +437,7 @@
     <string name="look_tone_board">टोन कर्व्ह</string>
     <string name="look_target">लक्ष्यित</string>
     <string name="look_geometry">भूमिती</string>
+    <string name="look_crop">क्रॉप</string>
     <string name="look_straighten">सरळ करा</string>
     <string name="look_aspect">प्रमाण</string>
     <string name="look_horizontal">आडवे</string>

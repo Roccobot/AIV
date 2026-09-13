@@ -14,6 +14,53 @@ import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
+ * Uno specchio facoltativo e una rotazione: le otto pose in cui si può mettere un'immagine.
+ *
+ * ⚠️⚠️ **SONO OTTO E NON INFINITE, ED È QUELLO CHE PERMETTE DI NON RIFARE I GESTI UNO PER
+ * UNO**: riflessioni e quarti di giro si compongono sempre in *uno* specchio più *una*
+ * rotazione, quindi dieci tocchi sui tasti diventano una trasformazione sola da applicare al
+ * file. Sono anche le otto dell'orientamento EXIF, e non è una coincidenza: quel campo esiste
+ * per dire in che posa sta una fotografia.
+ * ⚠️ **L'ordine dichiarato è 'specchia, poi gira'**, lo stesso di `ImageEdit.save`: senza
+ * fissarne uno, `Spin(1, true)` sarebbe due trasformazioni diverse a seconda di chi lo legge.
+ * ⚠️⚠️ **VIVE QUI E NON PIÙ IN `EditorScreen.kt`, DALLA `2.31`**: da quando il modulo Ritaglio
+ * esiste, le pose le leggono tutti e due gli editor e il modello dell'editor completo (`Look`),
+ * che è pubblico. Accanto a [ImageEdit.Crop] è anche il posto giusto: sono i due valori che
+ * dicono **come sta** un'immagine senza dire di che colore è.
+ */
+data class Spin(val turns: Int, val mirror: Boolean) {
+
+    /**
+     * Questa posa, e **poi** [next]: cioè `next` applicata a quello che si vede adesso.
+     *
+     * ⚠️⚠️ **UNO SPECCHIO DAVANTI A UNA ROTAZIONE LA ROVESCIA, e questa riga è tutto il
+     * conto**: `M ∘ R(k) = R(-k) ∘ M`, quindi con `next.mirror` i quarti di giro accumulati
+     * cambiano segno e lo specchio si alterna. Chi scrivesse una somma anche in quel ramo
+     * otterrebbe un'immagine girata dalla parte sbagliata **solo** quando c'è già una
+     * rotazione, cioè un difetto che passa tutte le prove fatte a immagine dritta.
+     */
+    fun then(next: Spin): Spin =
+        if (next.mirror) Spin((next.turns - turns).mod(4), !mirror)
+        else Spin((next.turns + turns).mod(4), mirror)
+
+    companion object {
+        val STILL = Spin(0, false)
+
+        /** Il gesto 'rifletti in orizzontale': lo specchio nudo. */
+        val ACROSS = Spin(0, true)
+
+        /**
+         * Il gesto 'rifletti in verticale'.
+         *
+         * ⚠️ **È lo specchio orizzontale più mezzo giro**, e non un secondo meccanismo: un
+         * ribaltamento sull'asse orizzontale è esattamente questo, e tenerne uno solo vuol dire
+         * che tutto il resto (la matrice, l'EXIF, il rettangolo) ha un caso in meno da coprire.
+         */
+        val DOWN = Spin(2, true)
+    }
+}
+
+/**
  * Che cosa succede quando l'editor di casa salva: girare, ritagliare, scrivere.
  *
  * ⚠️⚠️ **LA ROTAZIONE SENZA RITAGLIO NON TOCCA UN PIXEL, e su un JPEG è la differenza fra
@@ -205,6 +252,22 @@ object ImageEdit {
             ?: return@withContext Result.Failed(R.string.edit_no_file)
         val dir = source.parentFile ?: return@withContext Result.Failed(R.string.edit_no_file)
         if (look.idle) return@withContext Result.Failed(R.string.edit_nothing)
+        /*
+         * ⚠️⚠️ **COL SOLO MODULO RITAGLIO SI PASSA DA [save], DALLA `2.31`**: posa e taglio sono
+         * quello che quella strada sa fare da sempre, compreso il **senza perdita** di un JPEG
+         * girato con un tag EXIF, che è la clausola dell'utente. Riscrivere qui quel ramo vorrebbe
+         * dire due strade per lo stesso lavoro, e la seconda a divergere sarebbe quella che nessuno
+         * guarda.
+         * ⚠️ **La via si sceglie sul nome e non sulla qualità**: quando il formato non si può
+         * riscrivere il file esce accanto, che è quello che questa funzione fa da sé con
+         * [lookTarget].
+         */
+        if (look.plain && look.geo.idle) {
+            val way = if (canOverwrite(source.name)) Way.OVERWRITE else Way.COPY
+            return@withContext save(
+                context, uri, look.spin.turns, look.spin.mirror, look.crop, way, backup
+            )
+        }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             return@withContext Result.Failed(R.string.look_failed)
         }
@@ -220,11 +283,22 @@ object ImageEdit {
 
         val temp = File(target.parentFile, target.name + ".part")
         var full: Bitmap? = null
+        var posed: Bitmap? = null
         var shaded: Bitmap? = null
+        var warped: Bitmap? = null
         var done: Bitmap? = null
         try {
             full = ImageSource.pixels(context, uri, 0)
                 ?: return@withContext Result.Failed(R.string.edit_too_big)
+            /*
+             * ⚠️⚠️ **LA POSA VIENE PER PRIMA E IL TAGLIO PER ULTIMO, DALLA `2.31`, E I DUE POSTI
+             * SONO LA SPECIFICA**: mettere in posa è una permutazione di pixel, quindi il Dettaglio
+             * continua a leggere i pixel del file, e i due keystone lavorano sugli assi che si
+             * vedono invece che su quelli dell'originale. Tagliare per ultimo è l'inquadratura, cioè
+             * la cosa che si decide guardando il risultato.
+             */
+            posed = if (look.spin == Spin.STILL) full
+            else full.spunBy(look.spin.turns, look.spin.mirror)
             /*
              * ⚠️⚠️ **DUE PASSATE E NON UNA, DALLA `2.29`, E L'ORDINE È LA SPECIFICA**: prima il
              * colore, che gira sulla scheda grafica a tessere, e poi la geometria, che è una maglia
@@ -235,10 +309,11 @@ object ImageEdit {
              * chi raddrizza soltanto non paga una passata di shader su venti megapixel, e chi
              * sviluppa soltanto non paga il ricampionamento.
              */
-            shaded = if (look.plain) full else AdjustRender.apply(full, look)
+            shaded = if (look.plain) posed else AdjustRender.apply(posed, look)
                 ?: return@withContext Result.Failed(R.string.look_failed)
-            done = if (look.geo.idle) shaded else Warp.render(shaded, look.geo)
+            warped = if (look.geo.idle) shaded else Warp.render(shaded, look.geo)
                 ?: return@withContext Result.Failed(R.string.look_failed)
+            done = if (look.crop.whole) warped else warped.cutTo(look.crop)
             // ⚠️ La trasparenza va su fondo bianco come nell'altra strada, e con la stessa
             // funzione: il JPEG butta via il canale alfa, e i pixel trasparenti resterebbero
             // col loro colore, che quasi sempre è il nero.
@@ -255,11 +330,13 @@ object ImageEdit {
             temp.delete()
             return@withContext Result.Failed(R.string.edit_too_big)
         } finally {
-            // ⚠️ Le tre mappe possono essere la stessa: una passata saltata consegna quella che ha
+            // ⚠️ Le mappe possono essere la stessa: una passata saltata consegna quella che ha
             // ricevuto, e riciclare due volte lo stesso bitmap è un errore che non si vede finché
             // qualcuno non lo legge dopo.
-            if (done !== shaded) done?.recycle()
-            if (shaded !== full) shaded?.recycle()
+            if (done !== warped) done?.recycle()
+            if (warped !== shaded) warped?.recycle()
+            if (shaded !== posed) shaded?.recycle()
+            if (posed !== full) posed?.recycle()
             full?.recycle()
         }
 

@@ -469,6 +469,7 @@
     <string name="look_tone_board">Тоновая кривая</string>
     <string name="look_target">Точечно</string>
     <string name="look_geometry">Геометрия</string>
+    <string name="look_crop">Кадрирование</string>
     <string name="look_straighten">Выравнивание</string>
     <string name="look_aspect">Пропорции</string>
     <string name="look_horizontal">По горизонтали</string>

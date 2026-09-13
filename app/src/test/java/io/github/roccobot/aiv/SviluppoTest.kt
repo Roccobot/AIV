@@ -28,7 +28,6 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ApplicationProvider
@@ -48,6 +47,25 @@ import kotlin.math.abs
  * della Luce e la tinta del Colore. È il numero che il difetto della `2.19` metteva in comune.
  */
 private const val RIGA = 1
+
+/**
+ * I nomi dei sette moduli, nell'ordine in cui la fila li disegna.
+ *
+ * ⚠️ **Sono ricopiati e non presi dalla schermata**, che li tiene in un valore privato: qui serve
+ * proprio il confronto fra quello che la fila mostra e quello che ci si aspetta di trovare.
+ */
+private val MODULI = listOf(
+    R.string.look_crop,
+    R.string.look_geometry,
+    R.string.look_light,
+    R.string.look_color,
+    R.string.look_mix,
+    R.string.look_detail,
+    R.string.look_tone
+)
+
+/** I tre comandi di posa del modulo Ritaglio, che sono quelli dell'editor di casa. */
+private val POSA = listOf(R.string.editor_left, R.string.editor_right, R.string.editor_flip)
 
 /** I nomi delle otto fasce, per contare le pastiglie in scena senza ricopiarne l'elenco. */
 private val BANDE = listOf(
@@ -149,7 +167,7 @@ class SviluppoTest {
         banco.onNodeWithText(testo(R.string.look_exposure)).assertExists()
         assertEquals(0, quanti(testo(R.string.look_saturation)))
 
-        banco.onNodeWithText(testo(R.string.look_color)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_color)).performClick()
         banco.waitForIdle()
 
         banco.onNodeWithText(testo(R.string.look_saturation)).assertExists()
@@ -172,16 +190,16 @@ class SviluppoTest {
         muovi(1, 0.5f)
         assertTrue(valore(1) > 0.2f)
 
-        banco.onNodeWithText(testo(R.string.look_color)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_color)).performClick()
         banco.waitForIdle()
         muovi(0, 0.5f)
         assertTrue(valore(0) > 0.2f)
 
-        banco.onNodeWithText(testo(R.string.look_color)).performTouchInput { longClick() }
+        banco.onNodeWithContentDescription(testo(R.string.look_color)).performTouchInput { longClick() }
         banco.waitForIdle()
         assertEquals("il colore doveva azzerarsi", 0f, valore(0), 1e-3f)
 
-        banco.onNodeWithText(testo(R.string.look_light)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_light)).performClick()
         banco.waitForIdle()
         assertTrue("la luce non doveva essere toccata", valore(1) > 0.2f)
     }
@@ -196,7 +214,7 @@ class SviluppoTest {
     fun `il bianco e nero spegne saturazione e vividezza`() {
         banco.setContent { Scena() }
         pronta()
-        banco.onNodeWithText(testo(R.string.look_color)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_color)).performClick()
         banco.waitForIdle()
 
         cursore(2).assertIsEnabled()
@@ -237,12 +255,12 @@ class SviluppoTest {
         banco.setContent { Scena() }
         pronta()
 
-        banco.onNodeWithText(testo(R.string.look_color)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_color)).performClick()
         banco.waitForIdle()
         tocca(RIGA, 0.25f)
         assertTrue("Il tocco non ha mosso la tinta", abs(valore(RIGA)) > 0.1f)
 
-        banco.onNodeWithText(testo(R.string.look_light)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_light)).performClick()
         banco.waitForIdle()
         assertEquals(
             "Il tocco sulla tinta ha mosso il contrasto, che è nell'altro modulo",
@@ -310,7 +328,7 @@ class SviluppoTest {
     fun `la fascia scelta cambia i cursori`() {
         banco.setContent { Scena() }
         pronta()
-        banco.onNodeWithText(testo(R.string.look_mix)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_mix)).performClick()
         banco.waitForIdle()
 
         muovi(0, 0.5f)
@@ -336,7 +354,7 @@ class SviluppoTest {
     fun `il tocco lungo su una fascia azzera solo quella`() {
         banco.setContent { Scena() }
         pronta()
-        banco.onNodeWithText(testo(R.string.look_mix)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_mix)).performClick()
         banco.waitForIdle()
 
         muovi(2, 0.5f)
@@ -365,12 +383,12 @@ class SviluppoTest {
     fun `il bianco e nero lascia la sola luminanza dell'hsl`() {
         banco.setContent { Scena() }
         pronta()
-        banco.onNodeWithText(testo(R.string.look_color)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_color)).performClick()
         banco.waitForIdle()
         banco.onNodeWithText(testo(R.string.look_bw)).performClick()
         banco.waitForIdle()
 
-        banco.onNodeWithText(testo(R.string.look_mix)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_mix)).performClick()
         banco.waitForIdle()
 
         cursore(0).assertIsNotEnabled()
@@ -391,11 +409,11 @@ class SviluppoTest {
         pronta()
         assertEquals(0, quanteFasce())
 
-        banco.onNodeWithText(testo(R.string.look_mix)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_mix)).performClick()
         banco.waitForIdle()
         assertEquals(Mix.COUNT, quanteFasce())
 
-        banco.onNodeWithText(testo(R.string.look_color)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_color)).performClick()
         banco.waitForIdle()
         assertEquals(0, quanteFasce())
     }
@@ -432,7 +450,7 @@ class SviluppoTest {
     fun `il raggio e la mascheratura seguono la nitidezza`() {
         banco.setContent { Scena() }
         pronta()
-        banco.onNodeWithText(testo(R.string.look_detail)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_detail)).performClick()
         banco.waitForIdle()
 
         cursore(1).assertIsNotEnabled()
@@ -457,16 +475,16 @@ class SviluppoTest {
         muovi(1, 0.5f)
         assertTrue(valore(1) > 0.2f)
 
-        banco.onNodeWithText(testo(R.string.look_detail)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_detail)).performClick()
         banco.waitForIdle()
         muovi(0, 0.6f)
         assertTrue(valore(0) > 0.2f)
 
-        banco.onNodeWithText(testo(R.string.look_detail)).performTouchInput { longClick() }
+        banco.onNodeWithContentDescription(testo(R.string.look_detail)).performTouchInput { longClick() }
         banco.waitForIdle()
         assertEquals("il dettaglio doveva azzerarsi", 0f, valore(0), 1e-3f)
 
-        banco.onNodeWithText(testo(R.string.look_light)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_light)).performClick()
         banco.waitForIdle()
         assertTrue("la luce non doveva essere toccata", valore(1) > 0.2f)
     }
@@ -643,7 +661,7 @@ class SviluppoTest {
     fun `il modulo curve porta i canali e nessun cursore`() {
         banco.setContent { Scena() }
         pronta()
-        banco.onNodeWithText(testo(R.string.look_tone)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_tone)).performClick()
         banco.waitForIdle()
 
         assertEquals(4, TONE_NAMES_TEST.count { quanti(testo(it)) > 0 })
@@ -669,15 +687,15 @@ class SviluppoTest {
         pronta()
         assertEquals("nella Luce non c'è niente da mirare", 0, quanti(testo(R.string.look_target)))
 
-        banco.onNodeWithText(testo(R.string.look_tone)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_tone)).performClick()
         banco.waitForIdle()
         assertEquals(1, quanti(testo(R.string.look_target)))
 
-        banco.onNodeWithText(testo(R.string.look_mix)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_mix)).performClick()
         banco.waitForIdle()
         assertEquals(1, quanti(testo(R.string.look_target)))
 
-        banco.onNodeWithText(testo(R.string.look_detail)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_detail)).performClick()
         banco.waitForIdle()
         assertEquals(0, quanti(testo(R.string.look_target)))
     }
@@ -724,7 +742,7 @@ class SviluppoTest {
     fun `la lente del mirato c'e col dito giu e sparisce al rilascio`() {
         banco.setContent { Scena() }
         pronta()
-        banco.onNodeWithText(testo(R.string.look_tone)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_tone)).performClick()
         banco.waitForIdle()
         banco.onNodeWithText(testo(R.string.look_target)).performClick()
         banco.waitForIdle()
@@ -781,7 +799,7 @@ class SviluppoTest {
     fun `la lente segue il dito che si sposta`() {
         banco.setContent { Scena() }
         pronta()
-        banco.onNodeWithText(testo(R.string.look_tone)).performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_tone)).performClick()
         banco.waitForIdle()
         banco.onNodeWithText(testo(R.string.look_target)).performClick()
         banco.waitForIdle()
@@ -1077,7 +1095,7 @@ class SviluppoTest {
          * quindi cambiando modulo il palco si allunga e l'immagine adattata cresce. Scattando prima
          * si confrontavano due scene diverse, e la prova falliva **col codice giusto**.
          */
-        banco.onNodeWithText(testo(R.string.look_geometry)).performScrollTo().performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_geometry)).performClick()
         banco.waitForIdle()
 
         val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
@@ -1146,27 +1164,185 @@ class SviluppoTest {
         assertTrue(valore(1) > 0.2f)
 
         /*
-         * ⚠️⚠️ **IL SESTO GETTONE VA RAGGIUNTO SCORRENDO, E SENZA QUESTA RIGA LA PROVA MENTE**: la
-         * fila dei moduli scorre in orizzontale dalla `2.23`, quindi col sesto nome la pastiglia
-         * cade fuori dalla larghezza del banco. Il tocco non dà nessun errore e non cambia modulo:
-         * si contavano i sei cursori della Luce credendo di guardare la Geometria.
+         * ⚠️⚠️ **IL GETTONE SI CERCA PER DESCRIZIONE, DALLA `2.31`**: la fila è di icone, quindi il
+         * nome del modulo non è più un testo in scena ma quello che il gettone **annuncia**. ⚠️ E
+         * non serve più scorrere: fino alla `2.30` la fila scorreva in orizzontale e il sesto nome
+         * cadeva fuori dalla larghezza del banco, cioè il tocco non cambiava modulo senza dare
+         * nessun errore, e si contavano i sei cursori della Luce credendo di guardare la Geometria.
          */
-        banco.onNodeWithText(testo(R.string.look_geometry)).performScrollTo().performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_geometry)).performClick()
         banco.waitForIdle()
         assertEquals(5, quantiCursori())
         assertEquals(0, quanteFasce())
 
         muovi(0, 0.6f)
         assertTrue(valore(0) > 0.2f)
-        banco.onNodeWithText(testo(R.string.look_geometry)).performTouchInput { longClick() }
+        banco.onNodeWithContentDescription(testo(R.string.look_geometry)).performTouchInput { longClick() }
         banco.waitForIdle()
         assertEquals("la geometria doveva azzerarsi", 0f, valore(0), 1e-3f)
 
-        // ⚠️ Anche il ritorno vuole lo scorrimento, ed è lo stesso difetto al rovescio: la fila è
-        // rimasta scorsa in fondo, quindi adesso è la Luce a stare fuori dalla larghezza.
-        banco.onNodeWithText(testo(R.string.look_light)).performScrollTo().performClick()
+        banco.onNodeWithContentDescription(testo(R.string.look_light)).performClick()
         banco.waitForIdle()
         assertTrue("la luce non doveva essere toccata", valore(1) > 0.2f)
+    }
+
+    /**
+     * **Caso 32: una posa porta con sé il rettangolo di ritaglio.**
+     *
+     * ⚠️⚠️ **È LA COSA CHE SI ROMPE IN SILENZIO**, e per questo la prova nasce con la funzione: il
+     * rettangolo è in frazioni dell'immagine **già posata**, quindi un quarto di giro che non lo
+     * riscrivesse lo lascerebbe dov'è sullo schermo, cioè su un'altra porzione di fotografia.
+     * Niente errore, niente segno: si vede solo con un ritaglio già fatto.
+     * ⚠️ **La controprova vive dentro la prova**: la metà sinistra deve diventare la metà **di
+     * sopra**, che è quello che un rettangolo fermo non farebbe.
+     */
+    @Test
+    fun `una posa porta con sé il rettangolo di ritaglio`() {
+        val sinistra = ImageEdit.Crop(0f, 0f, 0.5f, 1f)
+        val fermo = Look(crop = sinistra)
+
+        val giro = spunLook(fermo, Spin(1, false))
+        assertEquals(Spin(1, false), giro.spin)
+        assertEquals("girando in orario la metà sinistra va in alto", 0f, giro.crop.top, 1e-4f)
+        assertEquals(0.5f, giro.crop.bottom, 1e-4f)
+        assertEquals(0f, giro.crop.left, 1e-4f)
+        assertEquals(1f, giro.crop.right, 1e-4f)
+
+        val specchio = spunLook(fermo, Spin.ACROSS)
+        assertEquals("riflettendo la metà sinistra va a destra", 0.5f, specchio.crop.left, 1e-4f)
+        assertEquals(1f, specchio.crop.right, 1e-4f)
+
+        // Quattro quarti di giro riportano tutto al punto di partenza, posa e rettangolo.
+        var tondo = fermo
+        repeat(4) { tondo = spunLook(tondo, Spin(1, false)) }
+        assertEquals(Spin.STILL, tondo.spin)
+        assertEquals(sinistra.left, tondo.crop.left, 1e-4f)
+        assertEquals(sinistra.right, tondo.crop.right, 1e-4f)
+    }
+
+    /**
+     * **Caso 33: che cosa toglie il riposo e che cosa toglie il senza perdita.**
+     *
+     * ⚠️⚠️ **LE DUE DOMANDE NON SONO LA STESSA, ED È LA CLAUSOLA DELL'UTENTE** (*quelle che non
+     * prevedono la riscrittura del file pixel per pixel devono essere lossless*): una **posa** si
+     * scrive in un tag EXIF, quindi l'immagine è cambiata ma il file non si riscrive; un
+     * **ritaglio** toglie dei pixel, quindi va riscritto. Confonderle vorrebbe dire ricomprimere
+     * una fotografia per averla girata, che è proprio quello che l'editor di casa non fa dalla
+     * `1.03`.
+     */
+    @Test
+    fun `la posa resta senza perdita e il ritaglio no`() {
+        assertTrue(Look.NONE.idle)
+        assertTrue(Look.NONE.lossless)
+
+        val girato = Look(spin = Spin(1, false))
+        assertFalse("una posa è una modifica", girato.idle)
+        assertTrue("una posa non riscrive i pixel", girato.lossless)
+
+        val tagliato = Look(crop = ImageEdit.Crop(0.1f, 0.1f, 0.9f, 0.9f))
+        assertFalse(tagliato.idle)
+        assertFalse("un ritaglio riscrive i pixel", tagliato.lossless)
+
+        assertFalse(Look(spin = Spin.ACROSS, light = Light(contrast = 0.2f)).lossless)
+    }
+
+    /**
+     * **Caso 34: la fila dei moduli parla per icone, comincia dal Ritaglio e si apre sulla Luce.**
+     *
+     * ⚠️⚠️ **L'ORDINE E L'APERTURA SONO SUOI, E SONO DUE COSE DIVERSE** (campo libero del giro
+     * della `2.29`: *`Geometria` dev'essere il secondo modulo; il primo dev'essere `Ritaglio` ... Il
+     * terzo (ma attivo di default) 'Luce'*): la fila è l'ordine in cui si lavora, l'apertura è dove
+     * si lavora quasi sempre. Scritte in un posto solo, la seconda seguirebbe la prima.
+     * ⚠️ **Che i gettoni siano muti si misura**, perché è la ragione per cui la fila non scorre più:
+     * con le parole i sette non entrano nella larghezza, e la `2.23` teneva metà dei moduli fuori
+     * dallo schermo per chi non sa che si scorre.
+     */
+    @Test
+    fun `i moduli sono icone che si annunciano, e si apre la luce`() {
+        banco.setContent { Scena() }
+        pronta()
+
+        for (nome in MODULI) {
+            assertEquals("il gettone di ${testo(nome)} deve annunciarsi", 1, quantiDetti(nome))
+            assertEquals("il gettone di ${testo(nome)} non deve scrivere", 0, quanti(testo(nome)))
+        }
+        assertEquals("di fabbrica si guarda la Luce, coi suoi sei cursori", 6, quantiCursori())
+    }
+
+    /**
+     * **Caso 35: il modulo Ritaglio porta i tre comandi di posa e nessun cursore.**
+     *
+     * ⚠️ **I tre tasti sono quelli dell'editor di casa**, stesse etichette comprese: due segni per
+     * lo stesso gesto a un tocco di distanza sarebbero due cose da imparare, visto che dalla stessa
+     * immagine si entra nell'uno o nell'altro editor.
+     * ⚠️ **La controprova è nella Luce**, dove quei tasti non ci sono: senza di lei la misura
+     * direbbe soltanto che tre parole esistono da qualche parte nella scheda.
+     */
+    @Test
+    fun `il modulo ritaglio porta la posa e nessun cursore`() {
+        banco.setContent { Scena() }
+        pronta()
+
+        for (id in POSA) assertEquals("nella Luce la posa non c'è", 0, quantiDetti(id))
+
+        banco.onNodeWithContentDescription(testo(R.string.look_crop)).performClick()
+        banco.waitForIdle()
+
+        assertEquals("il Ritaglio non ha cursori", 0, quantiCursori())
+        assertEquals(0, quanteFasce())
+        for (id in POSA) {
+            assertTrue(
+                "manca il comando ${testo(id)}",
+                quantiDetti(id) + quanti(testo(id)) > 0
+            )
+        }
+    }
+
+    /**
+     * **Caso 36: col Ritaglio in scena il dito tira le squadrette, e il palco lo mostra.**
+     *
+     * ⚠️⚠️ **È IL PRIMO MODULO CHE PRENDE IL DITO SULL'IMMAGINE, E QUELLO CHE PUÒ ROMPERSI È IL
+     * COLLEGAMENTO**: il rettangolo, il gesto e il disegno vivono in tre posti (il modello, il
+     * palco, `cropOverlay`), e se il parametro non arrivasse il codice compilerebbe lo stesso e il
+     * palco non risponderebbe. È lo stesso genere di difetto del velo mancante.
+     * ⚠️ **Si guardano i pixel e non lo stato**, perché quello che deve cambiare è il disegno: il
+     * velo copre la parte esclusa, quindi dopo il gesto una fetta di immagine si scurisce.
+     * ⚠️ **L'angolo si TROVA nei pixel**: dove cominci l'immagine dipende da quanto spazio la scheda
+     * lascia al palco, e un conto scritto qui direbbe il vero fino al primo cursore in più.
+     */
+    @Test
+    fun `il ritaglio si tira col dito sul palco`() {
+        banco.setContent { Scena() }
+        pronta()
+        banco.onNodeWithContentDescription(testo(R.string.look_crop)).performClick()
+        banco.waitForIdle()
+
+        val palco = banco.onNodeWithContentDescription(testo(R.string.look_compare))
+        val riposo = palco.captureToImage().toPixelMap()
+        val riga = riposo.height / 2
+        val fondo = riposo[0, riga]
+        val bordo = (0 until riposo.width).firstOrNull { riposo[it, riga] != fondo } ?: 0
+        assertTrue("serve una banda di fondo accanto all'immagine", bordo > 4)
+
+        /*
+         * ⚠️⚠️ **I TRE MOMENTI DEL DITO VANNO IN TRE CHIAMATE, ED È IL BANCO CHE LO HA IMPOSTO**:
+         * scritti in un blocco solo, il movimento e il distacco arrivano insieme e a `drag` resta
+         * un evento con delta **zero**, cioè il rettangolo non si muove di un pixel. Misurato con
+         * una spia dentro il gesto, e la prima stesura era rossa col codice giusto.
+         */
+        palco.performTouchInput { down(Offset(bordo + 2f, 2f)) }
+        banco.waitForIdle()
+        palco.performTouchInput { moveTo(Offset(width / 2f, height / 2f)) }
+        banco.waitForIdle()
+
+        val tirato = palco.captureToImage().toPixelMap()
+        palco.performTouchInput { up() }
+        banco.waitForIdle()
+
+        assertTrue(
+            "tirando la squadretta il palco doveva cambiare disegno",
+            diversi(riposo, tirato) > 0
+        )
     }
 
     /**

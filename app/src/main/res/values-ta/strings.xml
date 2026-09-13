@@ -437,6 +437,7 @@
     <string name="look_tone_board">தொனி வளைவு</string>
     <string name="look_target">இலக்கு</string>
     <string name="look_geometry">வடிவியல்</string>
+    <string name="look_crop">வெட்டு</string>
     <string name="look_straighten">நேராக்கு</string>
     <string name="look_aspect">விகிதம்</string>
     <string name="look_horizontal">கிடைமட்டம்</string>

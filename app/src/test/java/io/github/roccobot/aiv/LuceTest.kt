@@ -118,7 +118,7 @@ class LuceTest {
     fun `un valore di luce toglie il senza perdita`() {
         assertTrue(Look.NONE.lossless)
         assertTrue(Look.NONE.idle)
-        val mosso = Look(Light(contrast = 0.2f))
+        val mosso = Look(light = Light(contrast = 0.2f))
         assertFalse(mosso.lossless)
         assertFalse(mosso.idle)
     }
@@ -535,6 +535,14 @@ class LuceTest {
      * passi uguali, e restava **verde a vuoto**: con un palco alto sessanta pixel e una soglia di
      * sedici, la somma la superava solo all'ultimo passo, e a `hauled` arrivava il solo dito che si
      * alzava. Con un dito vero gli eventi sono decine e il caso non esiste.
+     * ⚠️⚠️ **E QUEL PRIMO COLPO SI MISURA IN PIXEL E NON IN FRAZIONE DEL PALCO, DALLA `2.31`**: la
+     * soglia di Compose è un numero di pixel, mentre il palco si accorcia ogni volta che la scheda
+     * cresce, quindi una frazione prima o poi ci scende sotto. È successo: la fila dei moduli a
+     * icone ha tolto qualche pixel al palco e questa prova è diventata rossa **col gesto
+     * intatto**, che è esattamente il modo in cui una misura mente.
+     * ⚠️ **Quello che il gesto legge resta [QUANTO]**, perché `hauled` guarda la posizione rispetto
+     * al punto in cui il dito è sceso e non i passi: il primo colpo paga il pedaggio, il secondo
+     * dice dove si è arrivati.
      * ⚠️ **Che cosa NON vede**: quanto sale per ogni centimetro di dito, che è una resa e si
      * guarda sul telefono; il conto lo misura il caso 16.
      */
@@ -577,7 +585,7 @@ class LuceTest {
         down(punto)
         up()
         down(punto)
-        moveTo(punto + Offset(0f, fine * SOGLIA_PAGATA))
+        moveTo(punto + Offset(0f, if (quanto < 0f) -SOGLIA_PAGATA else SOGLIA_PAGATA))
         moveTo(punto + Offset(0f, fine))
         up()
     }
@@ -729,8 +737,14 @@ private const val SOGLIA = 0.0001f
  */
 private const val QUANTO = 0.45f
 
-/** Quanta parte di quel trascinamento paga la soglia del gesto: vedi la nota del caso 17. */
-private const val SOGLIA_PAGATA = 0.9f
+/**
+ * Quanti pixel percorre il primo colpo, quello che paga la soglia del gesto.
+ *
+ * ⚠️ **In pixel e non in frazione del palco**, e il perché vive nella nota del caso 17: la soglia di
+ * Compose è un numero di pixel, e una frazione ci finisce sotto il giorno che la scheda si allunga.
+ * Il valore è largo abbastanza da coprire la soglia di qualunque densità del banco.
+ */
+private const val SOGLIA_PAGATA = 48f
 
 /** Quanto si tiene il dito fermo perché valga come tocco lungo: il doppio del suo tempo, e basta. */
 private const val ATTESA_TOCCO = 1000L

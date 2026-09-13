@@ -453,6 +453,7 @@
     <string name="look_tone_board">Curva de tons</string>
     <string name="look_target">Direcionado</string>
     <string name="look_geometry">Geometria</string>
+    <string name="look_crop">Cortar</string>
     <string name="look_straighten">Endireitar</string>
     <string name="look_aspect">Proporção</string>
     <string name="look_horizontal">Horizontal</string>

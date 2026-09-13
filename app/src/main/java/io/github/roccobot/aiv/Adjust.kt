@@ -722,6 +722,17 @@ data class Tone(
  * intonsa.
  */
 data class Look(
+    /**
+     * La posa e il rettangolo tenuto, cioè il modulo **Ritaglio**, dalla `2.31`.
+     *
+     * ⚠️⚠️ **SONO I DUE CHE NON RISCRIVONO I PIXEL, E PER QUESTO VENGONO PRIMA DI TUTTO**: girare
+     * un'immagine di un quarto di giro o rifletterla è una permutazione, e tagliare è una
+     * sottrazione. Messi in testa, il Dettaglio legge ancora i pixel del file (una permutazione
+     * non interpola) e i due keystone lavorano sugli assi **che si vedono** invece che su quelli
+     * dell'originale, che dopo un quarto di giro sono scambiati.
+     */
+    val spin: Spin = Spin.STILL,
+    val crop: ImageEdit.Crop = ImageEdit.Crop.WHOLE,
     val light: Light = Light.NONE,
     val chroma: Chroma = Chroma.NONE,
     val mix: Mix = Mix.NONE,
@@ -740,9 +751,13 @@ data class Look(
     val plain: Boolean
         get() = light.idle && chroma.idle && mix.idle && detail.idle && tone.idle
 
+    /** Se il modulo Ritaglio non tocca niente: nessuna posa e nessun taglio. */
+    val square: Boolean
+        get() = spin == Spin.STILL && crop.whole
+
     /** Se non c'è niente da applicare: l'immagine esce identica a com'è entrata. */
     val idle: Boolean
-        get() = plain && geo.idle
+        get() = plain && geo.idle && square
 
     /**
      * Se quello che c'è da fare **non** riscrive i pixel.
@@ -754,10 +769,16 @@ data class Look(
      * `1.03`. Appena entra un valore di Luce, i pixel vanno riscritti e non c'è modo di
      * evitarlo.
      * ⚠️ **E con la geometria, dalla `2.29`, la risposta è la stessa**: raddrizzare ricampiona,
-     * cioè decide per ogni pixel di arrivo un colore che prima non stava là. La posa dell'editor di
-     * casa resta l'unica cosa che gira un'immagine senza riscriverla, e vive nell'altro editor.
+     * cioè decide per ogni pixel di arrivo un colore che prima non stava là.
+     * ⚠️⚠️ **MA DALLA `2.31` LA POSA VIVE ANCHE QUI, E CON LEI TORNA IL SENZA PERDITA**: girare un
+     * JPEG è un tag EXIF, e la nota di prima diceva che quella strada vive 'nell'altro editor'
+     * perché fino alla `2.30` questo non sapeva mettere in posa. Adesso lo sa, e col solo modulo
+     * Ritaglio mosso il salvataggio **passa da quella strada**, cioè da `ImageEdit.save`: una
+     * seconda copia di quel conto sarebbe un modo per divergere.
+     * ⚠️ **Un taglio invece riscrive**, e non è una scelta: un ritaglio a blocchi lascerebbe il
+     * bordo al multiplo di otto più vicino, cioè non taglierebbe dove l'utente ha chiesto.
      */
-    val lossless: Boolean get() = idle
+    val lossless: Boolean get() = plain && geo.idle && crop.whole
 
     companion object {
         val NONE = Look()
