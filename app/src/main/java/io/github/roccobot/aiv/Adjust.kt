@@ -145,16 +145,82 @@ data class Chroma(
     val tint: Float = 0f,
     val saturation: Float = 0f,
     val vibrance: Float = 0f,
-    val mono: Boolean = false
+    val mono: Boolean = false,
+    /**
+     * Il **filtro** davanti all'obiettivo, dalla `2.35`: come i colori diventano grigi.
+     *
+     * ⚠️⚠️ **È SUA RICHIESTA** (2026-09-13: *in 'Colore', se attivo 'bianco e nero', voglio che
+     * appaia uno slider 'Filtro' che definisca la resa del bianco e nero in base a come sono
+     * mappati i colori nell'output*). In fotografia un filtro colorato davanti all'obiettivo
+     * schiarisce i soggetti del proprio colore e scurisce i complementari: il giallo, l'arancione
+     * e il rosso scuriscono il cielo, il blu lo schiarisce.
+     * ⚠️⚠️ **ZERO È IL BIANCO E NERO DI SEMPRE**: a riposo i pesi sono quelli di Rec. 709, quindi
+     * chi aggiorna non si ritrova le sue immagini diverse. Il conto vive in [greyMix].
+     * ⚠️ **Conta solo col [mono] acceso**, e per questo non entra in [idle]: senza bianco e nero
+     * non c'è nessun grigio da comporre, e l'interfaccia lo spegne (vedi la riga in `COLOUR_ROWS`).
+     */
+    val filter: Float = 0f
 ) {
 
-    /** Se questo modulo non cambia un pixel: vedi la nota sulla tolleranza in [Light.idle]. */
+    /**
+     * Se questo modulo non cambia un pixel: vedi la nota sulla tolleranza in [Light.idle].
+     *
+     * ⚠️ **Il filtro non ci entra**, ed è la conseguenza di che cosa fa: senza [mono] non tocca
+     * niente, e con [mono] questa risposta è già `false`. Contarlo vorrebbe dire dichiarare da
+     * riscrivere un'immagine a colori su cui è stato mosso un cursore che là non governa niente.
+     */
     val idle: Boolean
         get() = !mono && abs(temp) < DEAD && abs(tint) < DEAD &&
             abs(saturation) < DEAD && abs(vibrance) < DEAD
 
+    /**
+     * I tre pesi con cui questo filtro fa il grigio, nell'ordine rosso, verde, blu.
+     *
+     * ⚠️⚠️ **SOMMANO SEMPRE UNO, E QUELLA È LA PROPRIETÀ CHE TIENE FERMA L'ESPOSIZIONE**: le tre
+     * terne fra cui si interpola sommano a uno ciascuna, quindi ci somma anche qualunque loro
+     * miscela, e un grigio esce **con lo stesso valore** qualunque filtro si scelga. Senza, il
+     * cursore sarebbe anche un'esposizione, e a fondo corsa l'immagine si scurirebbe.
+     * ⚠️⚠️ **I DUE ESTREMI SONO I DUE FILTRI CLASSICI, E LA CORSA CI PASSA IN MEZZO**: verso il
+     * caldo si attraversano il giallo e l'arancione prima di arrivare al rosso, verso il freddo il
+     * ciano prima del blu, perché un'interpolazione fra Rec. 709 e una terna sbilanciata su un
+     * capo produce esattamente quella famiglia. Sono i quattro filtri che si mettevano davanti a
+     * un obiettivo, e stanno tutti su un asse solo.
+     * ⚠️ **È un asse e non una ruota**, ed è una scelta dichiarata: su una ruota lo zero (nessun
+     * filtro) non avrebbe un posto, perché ogni angolo è un colore; su un asse lo zero è il centro
+     * e i due versi sono le due cose che si vogliono davvero fare, cioè scurire o schiarire il
+     * cielo.
+     * ⚠️ **Il verde resta dov'è ai due estremi**: un filtro verde serve al fogliame ed è il terzo
+     * della famiglia, ma su un asse solo non ci sta; chi lo vuole muove la luminanza della fascia
+     * verde dell'HSL, che dalla `2.21` è la miscela per fascia del bianco e nero.
+     */
+    val grey: FloatArray get() = greyMix(filter)
+
     companion object {
         val NONE = Chroma()
+
+        /**
+         * I pesi del grigio a filtro fermo: quelli con cui l'occhio vede la luminanza.
+         *
+         * ⚠️ **Sono gli stessi che lo shader usa in `luma`**, e là restano scritti: quella
+         * funzione serve alle maschere della Luce e alla saturazione, che col filtro non
+         * c'entrano. Qui l'elenco esiste perché il conto del filtro parte da lui.
+         */
+        val REC709 = floatArrayOf(0.2126f, 0.7152f, 0.0722f)
+
+        /** Il filtro rosso: il cielo viene cupo e l'incarnato chiaro. */
+        private val WARM = floatArrayOf(0.60f, 0.38f, 0.02f)
+
+        /** Il filtro blu: il cielo viene lattiginoso e le labbra scure. */
+        private val COOL = floatArrayOf(0.00f, 0.30f, 0.70f)
+
+        /** I pesi del grigio per il filtro [f], da -1 (blu) a +1 (rosso): vedi [Chroma.grey]. */
+        fun greyMix(f: Float): FloatArray {
+            val k = f.coerceIn(-1f, 1f)
+            if (abs(k) < DEAD) return REC709
+            val verso = if (k > 0f) WARM else COOL
+            val quanto = abs(k)
+            return FloatArray(3) { REC709[it] + (verso[it] - REC709[it]) * quanto }
+        }
 
         private const val DEAD = 0.0005f
     }
@@ -894,6 +960,11 @@ uniform half green;
 uniform half saturation;
 uniform half vibrance;
 uniform half mono;
+// I tre pesi con cui i colori diventano grigi, cioè il cursore 'Filtro' (dalla `2.35`): il conto
+// vive in Kotlin (`Chroma.greyMix`) perché è una miscela fra tre terne dichiarate, e qui arriva
+// il suo risultato. Non è la seconda copia che questo file vieta: il conto è scritto una volta
+// sola, e questo è il suo unico lettore.
+uniform half3 greyMix;
 uniform half mixOn;
 uniform half centre[8];
 uniform half spanLo[8];
@@ -1332,6 +1403,14 @@ half4 main(float2 p) {
     // saturazione è quanto un colore si distingue dal grigio **per l'occhio**, e in luce lineare
     // lo stesso conto spegnerebbe i colori scuri molto più di quelli chiari.
     half grey = luma(rgb);
+    // ⚠️⚠️ **IL GRIGIO DEL BIANCO E NERO È UN ALTRO, DALLA `2.35`, E SI PRENDE QUI**: i pesi sono
+    // quelli del cursore 'Filtro', e il punto in cui si legge `rgb` è lo stesso di `grey`, cioè
+    // **prima** della saturazione. Senza quella cura il filtro dipenderebbe da un cursore che con
+    // lui non c'entra, che è esattamente la ragione per cui il bianco e nero non è la saturazione
+    // a -100.
+    // ⚠️ **Si calcola sempre, anche a bianco e nero spento**: sono tre moltiplicazioni, e un ramo
+    // costerebbe di più di quanto risparmia.
+    half bw = dot(rgb, greyMix);
     // La vividezza pesa il suo effetto sull'inverso di quanto un colore è GIÀ saturo, ed è
     // questo che la distingue dalla saturazione: dove il colore è acceso il peso va a zero,
     // quindi un cielo già pieno non si impasta mentre un incarnato spento si alza.
@@ -1343,7 +1422,7 @@ half4 main(float2 p) {
 
     // Il bianco e nero viene dopo, e non è la saturazione a -100: quello lascerebbe il conto
     // esposto a un cursore che qualcuno può aver alzato, mentre qui il grigio è il grigio.
-    rgb = mix(rgb, half3(grey), mono);
+    rgb = mix(rgb, half3(bw), mono);
 
     rgb = clamp(rgb, half3(0.0), half3(1.0));
     return half4(rgb * a, a);
@@ -1459,6 +1538,8 @@ private fun lightOver(image: Shader, look: Look, span: Float): Shader {
         setFloatUniform("saturation", chroma.saturation)
         setFloatUniform("vibrance", chroma.vibrance)
         setFloatUniform("mono", if (chroma.mono) 1f else 0f)
+        val miscela = chroma.grey
+        setFloatUniform("greyMix", miscela[0], miscela[1], miscela[2])
         setFloatUniform("mixOn", if (look.mix.idle) 0f else 1f)
         setFloatUniform("centre", Mix.CENTRES)
         setFloatUniform("spanLo", Mix.SPAN_LO)

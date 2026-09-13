@@ -446,6 +446,7 @@
     <string name="look_tint">Odcień</string>
     <string name="look_saturation">Nasycenie</string>
     <string name="look_vibrance">Jaskrawość</string>
+    <string name="look_filter">Filtr</string>
     <string name="look_bw">Czarno-biały</string>
     <string name="look_mix">HSL</string>
     <string name="look_hue">Barwa</string>

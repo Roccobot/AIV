@@ -414,6 +414,7 @@
     <string name="look_tint">रंगछटा</string>
     <string name="look_saturation">संपृक्तता</string>
     <string name="look_vibrance">सजीवता</string>
+    <string name="look_filter">फिल्टर</string>
     <string name="look_bw">कृष्णधवल</string>
     <string name="look_mix">HSL</string>
     <string name="look_hue">छटा</string>

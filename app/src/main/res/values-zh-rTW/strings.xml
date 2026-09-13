@@ -398,6 +398,7 @@
     <string name="look_tint">色調</string>
     <string name="look_saturation">飽和度</string>
     <string name="look_vibrance">自然飽和度</string>
+    <string name="look_filter">濾鏡</string>
     <string name="look_bw">黑白</string>
     <string name="look_mix">HSL</string>
     <string name="look_hue">色相</string>

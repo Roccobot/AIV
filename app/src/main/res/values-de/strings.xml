@@ -414,6 +414,7 @@
     <string name="look_tint">Farbton</string>
     <string name="look_saturation">Sättigung</string>
     <string name="look_vibrance">Dynamik</string>
+    <string name="look_filter">Filter</string>
     <string name="look_bw">Schwarzweiß</string>
     <string name="look_mix">HSL</string>
     <string name="look_hue">Farbton</string>

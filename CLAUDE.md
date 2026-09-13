@@ -2063,11 +2063,34 @@ e un interruttore porta l'immagine in **bianco e nero**.
   quantità, e scritto come fondo corsa di un cursore resterebbe esposto a chiunque muova quel
   cursore. Nel conto viene **dopo**, e nella scheda spegne saturazione e vividezza, che là non
   avrebbero più niente da fare.
-- ⚠️⚠️ **I PESI PER FASCIA DEL BIANCO E NERO NON SONO QUI, E DALLA `2.21` SI SA DOVE SONO**: il
+- ⚠️⚠️ **E DALLA `2.35` IL BIANCO E NERO PORTA IL SUO 'FILTRO', ED È SUA RICHIESTA** (2026-09-13:
+  *in 'Colore', se attivo 'bianco e nero', voglio che appaia uno slider 'Filtro' che definisca la
+  resa del bianco e nero in base a come sono mappati i colori nell'output*). È il filtro colorato
+  che si metteva davanti all'obiettivo: schiarisce i soggetti del proprio colore e scurisce i
+  complementari, quindi verso il caldo il cielo viene cupo e l'incarnato chiaro, verso il freddo il
+  contrario.
+- ⚠️⚠️ **È UN ASSE E NON UNA RUOTA, E LA RAGIONE È LO ZERO**: su una ruota ogni angolo è un colore
+  e 'nessun filtro' non avrebbe un posto; su un asse lo zero è il centro, sono i pesi di Rec. 709,
+  e un'immagine di chi aggiorna resta identica a ieri. La corsa attraversa i quattro filtri
+  classici (blu, ciano, giallo-arancione, rosso), che stanno tutti su quell'asse.
+- ⚠️⚠️ **I PESI SOMMANO SEMPRE UNO, E SENZA QUELLA PROPRIETÀ IL CURSORE SAREBBE UN'ESPOSIZIONE**:
+  con una somma diversa un grigio cambierebbe valore, cioè a fondo corsa l'immagine si scurirebbe
+  senza che nessuno abbia toccato la Luce. Il conto vive in Kotlin (`Chroma.greyMix`) e lo shader
+  ne riceve il risultato: non è la seconda copia che `Adjust.kt` vieta, perché il conto è scritto
+  una volta sola e ha un lettore solo, ed è per questo che il banco lo può misurare.
+- ⚠️⚠️ **LA RIGA C'È SEMPRE E SI SPEGNE, INVECE DI COMPARIRE**: è il meccanismo con cui saturazione
+  e vividezza si spengono col bianco e nero acceso, qui al rovescio. Comparendo cambierebbe
+  l'altezza del corpo, cioè la scheda tornerebbe a ballare (la `2.33` esiste per non farlo), e una
+  funzione che non si vede non si scopre.
+- ⚠️ **Il verde resta dov'è ai due estremi**: il filtro verde del fogliame è il terzo della
+  famiglia e su un asse solo non ci sta; chi lo vuole muove la luminanza della fascia verde
+  dell'HSL, che dalla `2.21` è la miscela per fascia del bianco e nero.
+
+⚠️⚠️ **I PESI PER FASCIA DEL BIANCO E NERO NON SONO QUI, E DALLA `2.21` SI SA DOVE SONO**: il
   piano d'azione li metteva in questo modulo, ma sono la **stessa macchina** delle otto fasce
   dell'HSL, e là vivono (§ '🎨 Il modulo HSL, otto fasce e una macchina sola'), che è la sua
   risposta **`hsl`** a `d-bn-pesi`. Qui il grigio viene dai pesi percettivi di Rec. 709, cioè da
-  come l'occhio lo vede.
+  come l'occhio lo vede, e dalla `2.35` il cursore 'Filtro' li sposta.
   - ⚠️⚠️ **E L'ORDINE DI USCITA È CAMBIATO CON LA `2.21`, SU SUA ISTRUZIONE** (campo libero del
     giro della `2.20`: *mi sembra più logico implementare HSL dopo il colore, va' avanti con
     quello*): l'HSL è uscito prima del Dettaglio. ⚠️ **Prevale sulla sua risposta `subito` a
@@ -2676,10 +2699,23 @@ l'anteprima (col Dettaglio acceso sono diciotto campioni per pixel) sessanta vol
   'rosso': mandare il dito su una fascia che con quel pixel non c'entra farebbe parlare i tre
   cursori di un colore che là non esiste.
 
-⚠️⚠️ **E DALLA `2.24` IL DITO PORTA UNA LENTE, PERCHÉ IL PIXEL CHE SI PRENDE È COPERTO DAL DITO**
+⚠️⚠️ **LA LENTE NON C'È PIÙ, DALLA `2.35`, ED È LA SUA RISPOSTA `via` A `d-mirino-resta`** (giro
+della `2.34`, con la sua ragione scritta nella scelta: *Il colore mirato resta, ma senza il tondo
+ingrandito: il dito sceglie e basta*, e nel giro prima *continuo a non essere sicuro che funzioni
+come mi aspetto*). Quindi tutto il blocco qui sotto è **storia**: racconta una funzione che è
+vissuta dalla `2.24` alla `2.34`.
+- ⚠️ **Il colore mirato non perde niente**: sceglie la fascia del pixel sotto il dito come prima, e
+  continua a leggerlo dal pezzo a risoluzione piena quando c'è. Quello che se n'è andato è il
+  **disegno**, cioè il tondo, il suo mirino e la seconda tela che esisteva per ridisegnarlo senza
+  rifare il conto dello sviluppo.
+- ⚠️ **Con lui esce anche `tintOfPixel`**, che non aveva più nessun chiamante, e con lei le cinque
+  prove del banco che misuravano la lente. Chi la volesse rimettere la ritrova nella storia git,
+  misure comprese.
+
+⚠️⚠️ **E DALLA `2.24` IL DITO PORTAVA UNA LENTE, PERCHÉ IL PIXEL CHE SI PRENDE È COPERTO DAL DITO**
 (sua risposta a `d-mirato-hsl`, giro della `2.23`: **`niente`**, cioè nessun cursore si muove col
 trascinamento, *ma serve un selettore con zoom e anteprima dei pixel campionati. Anche per le
-curve, forse*). Un tondo ingrandito compare sopra il dito, col mirino sul pixel campionato.
+curve, forse*). Un tondo ingrandito compariva sopra il dito, col mirino sul pixel campionato.
 - ⚠️⚠️ **IL 'FORSE' LO SCIOLGO IO, E LA SCELTA È DICHIARATA: LA LENTE C'È NEI DUE MODULI.** Il
   gesto è lo stesso e il meccanismo è uno, quindi farla in un modulo solo vorrebbe dire due
   comportamenti per lo stesso tasto, a un tocco di distanza. La voce di collaudo gli chiede se
@@ -2819,6 +2855,26 @@ dell'immagine su cui si lavora.
   allungata, e adesso i quattro limiti passano da `within`, che un intervallo vuoto non lo può
   avere.
 
+⚠️⚠️ **E DALLA `2.35` QUELL'ALTEZZA SI PAGA MENO, PERCHÉ I MODULI ALTI SI SONO STRETTI E I CORTI
+RESPIRANO** (sua richiesta, 2026-09-13: *cerca di mantenere tutto più compatto: riduci dimensioni
+del testo, padding, ecc. per i moduli che occupano più spazio verticale, e fa' respirare di più
+quelli ristretti inutilmente*). Sono le due metà di una cosa sola: l'altezza comune la detta il
+modulo più alto, quindi stringere lui allunga il palco **in tutti e sette**, e quello che avanza
+nei corti va distribuito invece di restare in fondo.
+- ⚠️⚠️ **IL NUMERO CHE PAGA È L'ALTEZZA DI UNA RIGA DI CURSORE** (`DIAL_ROW`, da 40 a 36 punti):
+  vale **sei volte** nella Luce, che è il modulo che detta la misura, e il conto è che sei righe
+  passano da 240 a 216 su una scheda che ne vale circa 360. ⚠️ **Sotto non si scende**: il
+  bersaglio resta largo tutta la riga, ma l'altezza è già sotto i 48 punti di Material.
+- ⚠️ **Il corpo del nome scende di un gradino e compra LARGHEZZA**, non altezza: la stessa parola
+  entra in una colonna più stretta, e i punti che avanzano vanno alla barra, cioè alla sola parte
+  della riga con cui si lavora. In più allontana il caso in cui un nome lungo va a capo e fa
+  crescere la sua riga.
+- ⚠️⚠️ **IL RESPIRO HA UN TETTO, E SENZA DI LUI SAREBBE PEGGIO DEL VUOTO**: nel Ritaglio avanzano
+  un centinaio di punti su tre blocchi, e divisi in parti uguali darebbero mezzo centimetro fra una
+  fila di tasti e l'altra, cioè tre isole invece di un pannello. Col tetto ognuno prende il suo
+  respiro e quello che resta **centra** il blocco. Il pezzo è `Breathe`, un `Arrangement` in
+  `AdvancedEditorScreen.kt`, e siccome è Kotlin puro il banco lo misura chiamandolo.
+
 ⚠️ **Che cosa il banco misura e che cosa no** (`SviluppoTest`, più `ContoTest` per il programma):
 che la curva a riposo sia l'identità **esatta**, che la spline non oltrepassi e che un tratto piatto
 resti piatto, che la tabella componga il canale sotto il composito, che gli estremi non si muovano
@@ -2952,15 +3008,29 @@ che una facciata si raddrizzi si guardano sul telefono, e la voce di collaudo lo
 
 ## ✂️ Il modulo Ritaglio, e la fila che è diventata di icone
 
-⚠️⚠️ **È IL PRIMO MODULO DELL'EDITOR COMPLETO, DALLA `2.31`, ED È IL SUO ORDINE ALLA LETTERA**
-(campo libero del giro della `2.29`: *`Geometria` dev'essere il secondo modulo; il primo dev'essere
-`Ritaglio` (più o meno ciò che fa già l'editor semplice). Il terzo (ma attivo di default) 'Luce', e
-gli altri di seguito nell'ordine attuale*). I due moduli che non parlano di colore vengono per
-primi perché sono le domande che si fanno per prime davanti a una fotografia: che cosa ci sta
-dentro, e se sta dritta.
-- ⚠️⚠️ **MA APERTO DI FABBRICA RESTA IL TERZO, E SONO DUE COSE DIVERSE**: la fila è l'ordine in cui
-  si lavora, l'apertura è dove si lavora quasi sempre. L'indice vive in `LOOK_FIRST` e si **ricava**
-  dall'elenco: chi sposta un modulo si ritrova l'apertura giusta senza toccare altro.
+⚠️⚠️ **DALLA `2.35` L'ORDINE DELLA FILA È UN ALTRO, E IL RITAGLIO È IL MODULO APERTO DI FABBRICA**
+(sua istruzione, 2026-09-13: *voglio cambiare anche l'ordine dei moduli: per impostazione
+predefinita, da sinistra a destra, dev'essere: dettagli, curve, geometria, ritaglio (nuovo default
+attivo all'avvio), luce, contrasto, HSL*). Fino alla `2.34` la fila cominciava dal Ritaglio e si
+apriva sulla Luce.
+- ⚠️⚠️ **'CONTRASTO' È IL MODULO COLORE, E LA LETTURA È PER ESCLUSIONE**: i moduli sono sette e lui
+  ne nomina sette, sei col loro nome; quello che resta è il Colore, e nessun altro può stare in
+  quel posto. La voce di collaudo glielo chiede in chiare lettere.
+- ⚠️ **Chi ha già riordinato la fila tiene il suo ordine**, e non è un difetto: `MOD_KEYS` è il
+  valore di fabbrica, e `padOrderOf` lo usa solo per quello che l'archivio non dice.
+- ⚠️ **I due elenchi si riordinano insieme** (la tabella dei moduli e `MOD_KEYS`): non cambia
+  niente per chi usa l'app, ma le note che dicono 'nell'ordine in cui la fila li disegna'
+  resterebbero false.
+
+⚠️⚠️ **ERA IL PRIMO MODULO DALLA `2.31`, ED ERA IL SUO ORDINE DI ALLORA** (campo libero del giro
+della `2.29`: *`Geometria` dev'essere il secondo modulo; il primo dev'essere `Ritaglio` (più o meno
+ciò che fa già l'editor semplice). Il terzo (ma attivo di default) 'Luce', e gli altri di seguito
+nell'ordine attuale*). I due moduli che non parlano di colore venivano per primi perché sono le
+domande che si fanno per prime davanti a una fotografia: che cosa ci sta dentro, e se sta dritta.
+- ⚠️⚠️ **E FINO ALLA `2.34` APERTO DI FABBRICA ERA IL TERZO, CIOÈ DUE COSE DIVERSE**: la fila è
+  l'ordine in cui si lavora, l'apertura è dove si lavora quasi sempre. Dalla `2.35` le due cose
+  coincidono nel Ritaglio, ma restano due letture: l'indice vive in `LOOK_FIRST` e si **ricava**
+  dall'elenco, quindi chi sposta un modulo si ritrova l'apertura giusta senza toccare altro.
 - ⚠️ **Il posto nella fila e il posto nella catena non coincidono più**: il conto del Ritaglio si fa
   per ultimo (si taglia quello che il resto ha prodotto) e quello della Geometria dopo lo shader,
   mentre nella fila vengono per primi.
@@ -2981,12 +3051,29 @@ per primo è lui, che i due editor li apre dalla stessa immagine.
     rapporto di ogni forma è una **funzione** del riquadro invece di una costante. Nel verso
     naturale dell'immagine non taglia niente per costruzione, che è la proprietà da cui dipende
     il senza perdita.
+  - ⚠️⚠️ **E DALLA `2.35` VANNO A CAPO, TRE PER RIGA, ED È IL SUO RISCONTRO** (giro della `2.34`,
+    voce `crop-fila` non approvata: *In realtà, come ho scritto in chat, non serve. Anzi, devono
+    occupare più spazio*, e in chat *i chip delle proporzioni possono stare anche su 3 righe*).
+    ⚠️⚠️ **LA RAGIONE DELLA FILA UNICA ERA GIÀ CADUTA CON LA `2.33`, E NESSUNO DEI DUE SE N'ERA
+    ACCORTO**: *preferisco lo spazio per l'immagine* vale dove la scheda si dimensiona sul proprio
+    contenuto, e da quando è alta quanto il modulo più alto una riga in più nel Ritaglio **non
+    toglie un pixel al palco**, perché là lo spazio avanza comunque. Con lei cade la domanda
+    `d-crop-corpo`, e la sua risposta lo dice: *Non serve*.
+    - ⚠️ **Solo nell'editor completo**: di là la scheda è alta quanto il suo contenuto, quindi la
+      fila resta una e col corpo ridotto. Lo dichiara il parametro `wrap` di `ShapeRow`, che non ha
+      un valore di serie 'a capo'.
+    - ⚠️ **Tre celle per riga e non 'quelle che ci stanno'**: con un flusso libero le celle si
+      dimensionano sul testo, quindi la riga finirebbe con un vuoto diverso in ogni lingua; con tre
+      colonne uguali le due righe si leggono come una griglia e la parola più lunga delle ventotto
+      lingue sta comoda per costruzione. Con lei torna il **corpo pieno**, perché il gradino più
+      piccolo serviva a non troncare in una riga da sei.
   - ⚠️⚠️ **LE FILE ERANO DIVENTATE DUE CON LA `2.32`, E DALLA `2.34` TORNANO UNA: È LA SUA
     RISPOSTA `una` A `d-crop-righe`** (giro della `2.32`: *rimettile su una fila sola*, con la
     ragione scritta nella scelta: *anche a costo di troncare le due parole: preferisco lo spazio
     per l'immagine*). La `2.32` le aveva divise perché con 'Originale' le parole vere erano
     diventate due e su 360dp si troncavano; la domanda gli chiedeva se quella riga da 32dp valesse
-    lo spazio che toglieva al palco, e la risposta è no.
+    lo spazio che toglieva al palco, e la risposta è no. ⚠️ **Quella risposta è durata una
+    versione**, e il perché è nel blocco qui sopra.
     - ⚠️⚠️ **E NON SI TRONCANO LO STESSO, PERCHÉ IL CORPO SCENDE DI UN GRADINO**: è l'altra metà
       del suo riscontro, dal campo libero (*puoi rimpicciolire i testi dei pulsanti proporzione*).
       Il conto, con la parola più lunga delle ventotto lingue (il polacco *Oryginalne*): su 360dp

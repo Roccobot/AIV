@@ -398,6 +398,7 @@
     <string name="look_tint">Sắc thái</string>
     <string name="look_saturation">Độ bão hòa</string>
     <string name="look_vibrance">Độ rực</string>
+    <string name="look_filter">Kính lọc</string>
     <string name="look_bw">Đen trắng</string>
     <string name="look_mix">HSL</string>
     <string name="look_hue">Tông màu</string>

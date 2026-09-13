@@ -919,12 +919,17 @@ val STEP_KEYS = listOf(
  * che cosa ogni modulo fa, come si chiama e che segno porta. A legarli è la chiave che ogni
  * modulo dichiara, e il banco misura che i due elenchi si coprano: un modulo nuovo che si
  * dimenticasse di qui sparirebbe dalla fila senza dare nessun errore.
- * ⚠️ **L'ordine di fabbrica è il suo** (campo libero del giro della `2.29` per i primi due, e il
- * riscontro della `2.31` per il Dettaglio in fondo), quindi è lo stesso della tabella.
+ * ⚠️⚠️ **L'ORDINE DI FABBRICA È IL SUO E DALLA `2.35` LO HA DETTATO PER ESTESO** (2026-09-13:
+ * *dettagli, curve, geometria, ritaglio (nuovo default attivo all'avvio), luce, contrasto, HSL*),
+ * quindi è lo stesso della tabella. Fino alla `2.34` era quello del giro della `2.29`, col Ritaglio
+ * davanti e il Dettaglio in fondo.
+ * ⚠️⚠️ **CHI HA GIÀ RIORDINATO LA FILA TIENE IL SUO ORDINE, e non è un difetto**: questo elenco è
+ * il valore di fabbrica, e `padOrderOf` lo usa solo per quello che l'archivio non dice. Una
+ * preferenza esplicita non si rovescia con un aggiornamento.
  */
 val MOD_KEYS = listOf(
-    PadKey.MOD_CROP, PadKey.MOD_GEOMETRY, PadKey.MOD_LIGHT, PadKey.MOD_COLOUR,
-    PadKey.MOD_MIX, PadKey.MOD_TONE, PadKey.MOD_DETAIL
+    PadKey.MOD_DETAIL, PadKey.MOD_TONE, PadKey.MOD_GEOMETRY, PadKey.MOD_CROP,
+    PadKey.MOD_LIGHT, PadKey.MOD_COLOUR, PadKey.MOD_MIX
 )
 
 /**
